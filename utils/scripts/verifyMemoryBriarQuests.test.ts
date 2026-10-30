@@ -19,6 +19,7 @@ import {
 } from '../memoryDungeon/briarRareEvents'
 import {
   MEMORY_BRIAR_ACHIEVEMENTS,
+  MEMORY_DARK_BRIAR_ACHIEVEMENTS,
   memoryAchievementGallery,
   reconcileMemoryAchievements,
   restoreMemoryAchievements,
@@ -903,7 +904,9 @@ assert.equal(
   8,
 )
 assert.deepEqual(
-  memoryAchievementGallery(lifetime).map((medal) => medal.echo),
+  memoryAchievementGallery(lifetime)
+    .slice(0, MEMORY_BRIAR_ACHIEVEMENTS.length)
+    .map((medal) => medal.echo),
   MEMORY_BRIAR_ACHIEVEMENTS.map((medal) => medal.echo),
   'all eight story echoes remain unlocked after serialized restoration',
 )
@@ -914,6 +917,153 @@ assert.deepEqual(
   restoreMemoryAchievements([lifetime[1], lifetime[0], lifetime[1], 'fake']),
   lifetime.slice(0, 2),
   'restoration deduplicates and returns medals in canonical order',
+)
+
+// World Two remembers eight earned cross-reality accords. Each requires
+// a validated scene choice on BOTH maps; the four legitimate combinations
+// per thread award one cosmetic medal, not four farmable rewards.
+const darkMedalPairs = [
+  {
+    id: 'e02-bell-witness',
+    key: '2,4',
+    original: ['lend', 'copy'],
+    dark: ['listen', 'name'],
+  },
+  {
+    id: 'e02-borrowed-voice',
+    key: '3,5',
+    original: ['light', 'listen'],
+    dark: ['apologize', 'ask'],
+  },
+  {
+    id: 'e02-two-royal-orders',
+    key: '4,4',
+    original: ['escort', 'question'],
+    dark: ['scylla', 'char'],
+  },
+  {
+    id: 'e02-crossing-without-oath',
+    key: '5,4',
+    original: ['truth', 'errand'],
+    dark: ['draw', 'release'],
+  },
+  {
+    id: 'e02-vesper-rookery',
+    key: '3,2',
+    original: ['ask', 'offer'],
+    dark: ['verify', 'honor'],
+  },
+  {
+    id: 'e02-mosswick-ledger',
+    key: '4,2',
+    original: ['ledger', 'promise'],
+    dark: ['barter', 'safeguard'],
+  },
+  {
+    id: 'e02-oren-manifest',
+    key: '4,3',
+    original: ['plan', 'load'],
+    dark: ['counts', 'rescue'],
+  },
+  {
+    id: 'e02-witness-bells',
+    key: '6,3',
+    original: ['remember', 'protect'],
+    dark: ['consent', 'records'],
+  },
+] as const
+assert.equal(MEMORY_DARK_BRIAR_ACHIEVEMENTS.length, 8)
+assert.equal(memoryAchievementGallery([]).length, 16)
+assert.equal(
+  new Set(memoryAchievementGallery([]).map((medal) => medal.id)).size,
+  16,
+)
+assert.equal(
+  new Set(MEMORY_DARK_BRIAR_ACHIEVEMENTS.map((medal) => medal.echo)).size,
+  8,
+)
+for (const pair of darkMedalPairs) {
+  const medal = MEMORY_DARK_BRIAR_ACHIEVEMENTS.find(
+    (entry) => entry.id === pair.id,
+  )!
+  assert.equal(medal.questId, `e02-${pair.key}`)
+  assert.equal(
+    medal.artPath,
+    `/images/memory-dungeon/dark-briar/scenes/${pair.key.replace(',', '-')}.webp`,
+  )
+  assert.ok(medal.echo.length >= 120, `${pair.id} has a distinct story echo`)
+  assert.ok(medal.description.length >= 45)
+  for (const source of pair.original) {
+    for (const response of pair.dark) {
+      const original = { sceneChoices: { [pair.key]: source } }
+      const mirrored = { sceneChoices: { [pair.key]: response } }
+      const earned = reconcileMemoryAchievements([], [], original, mirrored)
+      assert.deepEqual(earned, [pair.id], `${pair.id}: ${source}/${response}`)
+      assert.deepEqual(
+        reconcileMemoryAchievements(earned, [], original, mirrored),
+        earned,
+        'repeated visits never mint duplicate medals',
+      )
+      assert.deepEqual(
+        reconcileMemoryAchievements(
+          restoreMemoryAchievements(JSON.parse(JSON.stringify(earned))),
+          [],
+        ),
+        earned,
+        'a restored permanent ledger keeps earned mirrored medals',
+      )
+      const unlocked = memoryAchievementGallery(earned).find(
+        (entry) => entry.id === pair.id,
+      )!
+      assert.equal(unlocked.echo, medal.echo)
+      assert.ok(unlocked.earned)
+    }
+  }
+  assert.deepEqual(
+    reconcileMemoryAchievements(
+      [],
+      [],
+      { sceneChoices: { [pair.key]: pair.original[0] } },
+      { sceneChoices: {} },
+    ),
+    [],
+    'original-only evidence cannot mint a mirrored medal',
+  )
+  assert.deepEqual(
+    reconcileMemoryAchievements(
+      [],
+      [],
+      { sceneChoices: {} },
+      { sceneChoices: { [pair.key]: pair.dark[0] } },
+    ),
+    [],
+    'mirrored-only evidence cannot mint a medal',
+  )
+  assert.deepEqual(
+    reconcileMemoryAchievements(
+      [],
+      [],
+      { sceneChoices: { [pair.key]: 'forged' } },
+      { sceneChoices: { [pair.key]: pair.dark[0] } },
+    ),
+    [],
+    'forged choices cannot mint a medal',
+  )
+}
+assert.deepEqual(
+  restoreMemoryAchievements([
+    'e02-bell-witness',
+    'e02-bell-witness',
+    'invented',
+    'e02-witness-bells',
+  ]),
+  ['e02-bell-witness', 'e02-witness-bells'],
+)
+assert.ok(
+  memoryAchievementGallery([]).every(
+    (medal) => !medal.earned && medal.echo === null,
+  ),
+  'all sixteen story echoes remain hidden until earned',
 )
 
 // The Forge counts the eight threads as quests.

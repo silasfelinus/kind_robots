@@ -1,3 +1,16 @@
+import type { BriarSave } from '../memoryDungeonWorld'
+import type { DarkBriarProgress } from './darkBriar'
+import { darkBriarIllustrationPath } from './darkBriarArt'
+import {
+  earnedBorrowedVoiceAccord,
+  earnedCourierBellAccord,
+  earnedKnightCrossingAccord,
+  earnedMosswickPromiseAccord,
+  earnedOrenManifestAccord,
+  earnedRoyalEscortAccord,
+  earnedVesperRookeryAccord,
+  earnedWitnessBellAccord,
+} from './firstTwoConsequences'
 import { BRIAR_QUESTS } from './briarQuests'
 import { BRIAR_RARE_EVENTS, type EarnedBriarRareEvent } from './briarRareEvents'
 
@@ -82,7 +95,98 @@ export const MEMORY_BRIAR_ACHIEVEMENTS = BRIAR_RARE_EVENTS.map((event) => {
   }
 })
 
-const validIds = new Set(MEMORY_BRIAR_ACHIEVEMENTS.map((medal) => medal.id))
+/** Eight mirrored-Briar medals require a genuine choice in BOTH realities.
+ * Their echoes record consequences, never extra combat strength or resources. */
+const DARK_MEDALS = [
+  {
+    id: 'e02-bell-witness',
+    key: '2,4',
+    title: 'The Bell Has Two Owners',
+    description:
+      'Answer the mirrored courier after choosing what to do with their first message.',
+    echo: 'The courier hangs the cracked bell where anyone may ring it, but nobody can be summoned by force. The original address remains sealed. On certain evenings, the courier sits beneath the bell and explains how one letter became two obligations.',
+    accord: earnedCourierBellAccord,
+  },
+  {
+    id: 'e02-borrowed-voice',
+    key: '3,5',
+    title: 'A Voice Returned Freely',
+    description:
+      'Face the borrowed moth-voice with the memory of your first decision.',
+    echo: 'Pip leaves the moth a window that opens outward. The people who followed its directions draw their own corrected map. Nobody is required to keep the creature as evidence, and the travelers remember the difference between hearing a warning and owning its speaker.',
+    accord: earnedBorrowedVoiceAccord,
+  },
+  {
+    id: 'e02-two-royal-orders',
+    key: '4,4',
+    title: 'Two Sisters, Two Signatures',
+    description:
+      'Revisit the royal escort and let one sister answer for the earlier road.',
+    echo: 'Scylla keeps the official proclamation; Char keeps the charcoal sketch on its reverse. They disagree about the route but both insist that the stranded family be heard. The court must now record two separate witnesses instead of one convenient royal voice.',
+    accord: earnedRoyalEscortAccord,
+  },
+  {
+    id: 'e02-crossing-without-oath',
+    key: '5,4',
+    title: 'The Crossing Is Real',
+    description:
+      'Confront the false bridge with the consequences of the first knightly oath.',
+    echo: 'The Brass Knight has stopped guarding empty air. Whether he builds a crossing or escorts people elsewhere, he must now answer to the families who waited. He carries the old order folded inside his shield as evidence, not permission to command them.',
+    accord: earnedKnightCrossingAccord,
+  },
+  {
+    id: 'e02-vesper-rookery',
+    key: '3,2',
+    title: 'A Map With an Honest Blank',
+    description:
+      'Revisit Vesper’s rookery and decide what an unanswered letter proves.',
+    echo: 'Vesper copies the safe routes onto a new map, leaving one deliberate blank where a traveler requested privacy. The rook still flies, but its destination is no longer public property. For Vesper, withholding a name becomes an act of cartography rather than shame.',
+    accord: earnedVesperRookeryAccord,
+  },
+  {
+    id: 'e02-mosswick-ledger',
+    key: '4,2',
+    title: 'The Promise May Be Challenged',
+    description:
+      'Revisit Mosswick’s ledger and make a future-dated debt answerable.',
+    echo: 'Mosswick places a small question mark beside every debt dated tomorrow. Customers may challenge a charge without surrendering their names. The old payments are not magically refunded, but the clerk has learned that an honest blank can be more useful than a perfect account.',
+    accord: earnedMosswickPromiseAccord,
+  },
+  {
+    id: 'e02-oren-manifest',
+    key: '4,3',
+    title: 'No Passenger Is a Number',
+    description:
+      'Help Oren reconcile the two passenger manifests across the changed road.',
+    echo: 'Oren leaves two seats marked disputed instead of assigning them invented travelers. His axe rests across the bridge only while the crossing is unsafe. The next rescue begins with a count of provisions, and ends with every traveler free to correct the ledger.',
+    accord: earnedOrenManifestAccord,
+  },
+  {
+    id: 'e02-witness-bells',
+    key: '6,3',
+    title: 'Silence Is Not Consent',
+    description:
+      'Return to the listening House and honor the witnesses’ earlier choice.',
+    echo: 'The House rings no bells without invitation. Three witnesses choose to speak; the others remain unnamed until they decide. The council must live with a slower verdict, but its record finally distinguishes a person who declined from a person nobody bothered to ask.',
+    accord: earnedWitnessBellAccord,
+  },
+] as const
+
+export const MEMORY_DARK_BRIAR_ACHIEVEMENTS = DARK_MEDALS.map((medal) => ({
+  id: medal.id,
+  questId: `e02-${medal.key}`,
+  title: medal.title,
+  description: medal.description,
+  echo: medal.echo,
+  artPath: darkBriarIllustrationPath(medal.key),
+}))
+
+const ALL_MEDALS = [
+  ...MEMORY_BRIAR_ACHIEVEMENTS,
+  ...MEMORY_DARK_BRIAR_ACHIEVEMENTS,
+]
+
+const validIds = new Set(ALL_MEDALS.map((medal) => medal.id))
 
 /** Older and malformed local storage must never introduce unknown medals. */
 export function restoreMemoryAchievements(value: unknown): string[] {
@@ -92,7 +196,7 @@ export function restoreMemoryAchievements(value: unknown): string[] {
       (id): id is string => typeof id === 'string' && validIds.has(id),
     ),
   )
-  return MEMORY_BRIAR_ACHIEVEMENTS.filter((medal) => ids.has(medal.id)).map(
+  return ALL_MEDALS.filter((medal) => ids.has(medal.id)).map(
     (medal) => medal.id,
   )
 }
@@ -105,11 +209,16 @@ export function restoreMemoryAchievements(value: unknown): string[] {
 export function reconcileMemoryAchievements(
   previous: readonly string[],
   earnedEvents: readonly EarnedBriarRareEvent[],
+  original?: Pick<BriarSave, 'sceneChoices'>,
+  mirrored?: Pick<DarkBriarProgress, 'sceneChoices'>,
 ): string[] {
   const ids = new Set(restoreMemoryAchievements(previous))
   for (const event of earnedEvents)
     if (validIds.has(event.id)) ids.add(event.id)
-  return MEMORY_BRIAR_ACHIEVEMENTS.filter((medal) => ids.has(medal.id)).map(
+  if (original && mirrored)
+    for (const medal of DARK_MEDALS)
+      if (medal.accord(original, mirrored) !== 'unset') ids.add(medal.id)
+  return ALL_MEDALS.filter((medal) => ids.has(medal.id)).map(
     (medal) => medal.id,
   )
 }
@@ -118,7 +227,7 @@ export function memoryAchievementGallery(
   savedIds: readonly string[],
 ): MemoryAchievement[] {
   const earned = new Set(restoreMemoryAchievements(savedIds))
-  return MEMORY_BRIAR_ACHIEVEMENTS.map((medal) => ({
+  return ALL_MEDALS.map((medal) => ({
     ...medal,
     echo: earned.has(medal.id) ? medal.echo : null,
     earned: earned.has(medal.id),

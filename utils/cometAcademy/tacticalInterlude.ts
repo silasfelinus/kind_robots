@@ -157,12 +157,55 @@ export function newTacticalInterlude(
       statuses: [],
     })
   }
-  state.units = [...squad, rival, captain, minion]
+  if (priorParley?.lieutenantParley === 'ally' && !originMission) {
+    // The defector does more than change the epilogue: they return as a
+    // selectable 4-HP squadmate with a once-per-mission signature power.
+    const occupied = new Set(
+      squad.map((unit) => unit.x + ',' + unit.y),
+    )
+    const arrival = Array.from({ length: 12 }, (_, index) => ({
+      x: 1 + Math.floor(index / 6),
+      y: index % 6,
+    })).find(
+      (point) =>
+        !occupied.has(point.x + ',' + point.y) &&
+        !tileAt(state.map, point).wall,
+    )
+    if (arrival)
+      squad.push({
+        ...captain,
+        id: 'allied-lieutenant',
+        team: 'squad',
+        identity: opponent.signature,
+        lieutenantName: lieutenant.name,
+        henchmanName: undefined,
+        x: arrival.x,
+        y: arrival.y,
+        hp: lieutenant.hp,
+        maxHp: lieutenant.hp,
+        ap: 2,
+        moved: false,
+        fired: false,
+        overwatch: false,
+        statuses: [],
+        signatureSupportUsed: false,
+      })
+  }
+  // A truce demobilizes the lieutenant's captain and their escort. One
+  // independent rival minion may still defend the lair alongside its owner.
+  state.units = [
+    ...squad,
+    rival,
+    ...(priorParley?.lieutenantParley === 'truce' ? [] : [captain]),
+    minion,
+  ]
   state.log =
     tacticalOpening(run) +
-    (priorParley
-      ? ` ${lieutenant.name} has already ${priorParley.lieutenantParley === 'ally' ? 'defected to your cause' : 'agreed to a ceasefire'} and will not return as a boss. The remaining loyalists are holding this position.`
-      : '')
+    (priorParley?.lieutenantParley === 'ally'
+      ? ` ${lieutenant.name} returns as your allied commander. Select their card to deploy one signature strike this mission. The rival's loyal troops still defend the lair.`
+      : priorParley?.lieutenantParley === 'truce'
+        ? ` ${lieutenant.name} honors the ceasefire: their command squad stands down. Only the rival and an independent holdout remain.`
+        : '')
   state.events = [state.log]
   state.selected = lead.id
   return {

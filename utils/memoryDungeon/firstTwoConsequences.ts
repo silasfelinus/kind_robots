@@ -522,6 +522,66 @@ export function earnedVesperRookeryOutcome(
   return accord === 'unset' ? null : VESPER_ROOKERY_OUTCOMES[accord].scene
 }
 
+export type MosswickPromiseAccord =
+  | 'unset'
+  | 'warning-question'
+  | 'warning-safeguard'
+  | 'pledge-question'
+  | 'pledge-safeguard'
+
+const MOSSWICK_PROMISE_OUTCOMES: Record<
+  Exclude<MosswickPromiseAccord, 'unset'>,
+  { scene: string; epilogue: string }
+> = {
+  'warning-question': {
+    scene:
+      'Mosswick remembers showing you the debt dated tomorrow. When you barter an honest question for a lantern, you ask who is allowed to sell a warning about a debt that has not yet been incurred. He turns the ledger toward the customers and lets them challenge the date. The Warden loses a quiet source of revenue, but the people already charged receive no automatic refund.',
+    epilogue:
+      'Mosswick displays the tomorrow-dated account so customers can dispute its warning before paying. The Warden cannot collect quietly, but the earlier debts still require separate restitution.',
+  },
+  'warning-safeguard': {
+    scene:
+      'Because you read the blank-name entry, you recognize the same tomorrow-dated charge among Mosswick’s sealed promises. You help him create private claim numbers so each owner can recover a promise without publishing a name. The ledger becomes useful evidence for the customers, but the Warden can still demand payment while the disputed dates are investigated.',
+    epilogue:
+      'Mosswick keeps the future-dated promises in a sealed claim register. Their owners can challenge the charges without being named publicly, although collection has not yet stopped.',
+  },
+  'pledge-question': {
+    scene:
+      'Mosswick finds the wildflower he gave you as earnest money when you promised to return with a true account. You bring him the story of the House’s borrowed names and ask whether a warning is worth its price if nobody can refuse it. He gives you the lantern without buying the story. You keep your promise, but the customers still need witnesses before their debts can be corrected.',
+    epilogue:
+      'Mosswick returns the wildflower held against your promised account and refuses to sell the story of the borrowed names. His customers still need willing witnesses to overturn their debts.',
+  },
+  'pledge-safeguard': {
+    scene:
+      'You return to Mosswick with the account you promised, then help him hide the owners’ names behind claim tokens they alone can open. He uses your wildflower as the first seal, not as payment for anyone else’s memory. Several customers recover forgotten promises in private, but the Warden’s public register remains unchallenged because the testimony cannot be exposed without permission.',
+    epilogue:
+      'Mosswick uses the wildflower from your original promise to seal a private restitution register. Customers recover their own words, while the Warden’s public claims await consenting witnesses.',
+  },
+}
+
+/** Mosswick remembers either a studied warning or a pledged account.
+ * The mirrored bargain cannot manufacture a past visit or a future verdict. */
+export function earnedMosswickPromiseAccord(
+  original: Pick<BriarSave, 'sceneChoices'>,
+  mirrored: Pick<DarkBriarProgress, 'sceneChoices'>,
+): MosswickPromiseAccord {
+  const source = original.sceneChoices['4,2']
+  const response = mirrored.sceneChoices['4,2']
+  if (source !== 'ledger' && source !== 'promise') return 'unset'
+  if (response !== 'barter' && response !== 'safeguard') return 'unset'
+  if (source === 'ledger')
+    return response === 'barter' ? 'warning-question' : 'warning-safeguard'
+  return response === 'barter' ? 'pledge-question' : 'pledge-safeguard'
+}
+
+export function earnedMosswickPromiseOutcome(
+  original: Pick<BriarSave, 'sceneChoices'>,
+  mirrored: Pick<DarkBriarProgress, 'sceneChoices'>,
+): string | null {
+  const accord = earnedMosswickPromiseAccord(original, mirrored)
+  return accord === 'unset' ? null : MOSSWICK_PROMISE_OUTCOMES[accord].scene
+}
+
 export type OrenManifestAccord =
   | 'unset'
   | 'route-counted'
@@ -597,6 +657,7 @@ export interface CrossRealmConsequenceLedger {
   orenManifestAccord: OrenManifestAccord
   knightCrossingAccord: KnightCrossingAccord
   vesperRookeryAccord: VesperRookeryAccord
+  mosswickPromiseAccord: MosswickPromiseAccord
 }
 
 export function crossRealmConsequenceLedger(
@@ -646,6 +707,9 @@ export function crossRealmConsequenceLedger(
       : 'unset',
     vesperRookeryAccord: mirrored
       ? earnedVesperRookeryAccord(briar, mirrored)
+      : 'unset',
+    mosswickPromiseAccord: mirrored
+      ? earnedMosswickPromiseAccord(briar, mirrored)
       : 'unset',
   }
 }
@@ -743,6 +807,10 @@ export function crossRealmHouseEpilogue(
     ledger.vesperRookeryAccord === 'unset'
       ? ''
       : VESPER_ROOKERY_OUTCOMES[ledger.vesperRookeryAccord].epilogue
+  const mosswick =
+    ledger.mosswickPromiseAccord === 'unset'
+      ? ''
+      : MOSSWICK_PROMISE_OUTCOMES[ledger.mosswickPromiseAccord].epilogue
   return [
     witness,
     provision,
@@ -753,6 +821,7 @@ export function crossRealmHouseEpilogue(
     traveler,
     royals,
     vesper,
+    mosswick,
   ]
     .filter(Boolean)
     .join(' ')

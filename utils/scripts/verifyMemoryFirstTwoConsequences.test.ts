@@ -59,6 +59,8 @@ import {
   earnedKnightCrossingOutcome,
   earnedVesperRookeryAccord,
   earnedVesperRookeryOutcome,
+  earnedMosswickPromiseAccord,
+  earnedMosswickPromiseOutcome,
   crossRealmConsequenceLedger,
   crossRealmHouseEpilogue,
   earnedDarkHousePuzzleClue,
@@ -760,12 +762,15 @@ assert.ok(BRIAR_REVEAL_WAVES[0]?.includes('3,2'))
 assert.ok(DARK_BRIAR_WAVES[1]?.includes('3,2'))
 const vesperOriginalRevealed = [...BRIAR_REVEAL_WAVES[0]!]
 const vesperMirrorRevealed = DARK_BRIAR_WAVES.slice(0, 2).flat()
-const routeToVesper = (revealed: readonly string[]): string[] => {
+const routeToVesper = (
+  revealed: readonly string[],
+  target = '3,2',
+): string[] => {
   const paths: string[][] = [[BRIAR_START]]
   for (let i = 0; i < paths.length; i++) {
     const route = paths[i]!
     const last = route[route.length - 1]!
-    if (last === '3,2') return route
+    if (last === target) return route
     for (const next of BRIAR_LINKS[last] ?? [])
       if (revealed.includes(next) && !route.includes(next))
         paths.push([...route, next])
@@ -884,6 +889,131 @@ assert.match(
   store,
   /earnedVesperRookeryOutcome\(state\.value, dark\.value\)/,
   'Returning to the rookery must restore the earned outcome',
+)
+
+// Mosswick's first-wave tomorrow ledger or wildflower pledge changes the
+// second-wave mirrored bargain. Both decisions must be reached legitimately.
+assert.ok(BRIAR_REVEAL_WAVES[0]?.includes('4,2'))
+assert.ok(DARK_BRIAR_WAVES[1]?.includes('4,2'))
+const mosswickOriginalRoute = routeToVesper(BRIAR_REVEAL_WAVES[0]!, '4,2')
+const mosswickMirrorRoute = routeToVesper(
+  DARK_BRIAR_WAVES.slice(0, 2).flat(),
+  '4,2',
+)
+const mosswickMirrorBase = {
+  ...newDarkBriarProgress(),
+  waveIndex: 1,
+  phase: 'exploring' as const,
+  mapCards: DARK_BRIAR_WAVES[1]!.map((tile, id) => ({
+    id,
+    tile,
+    pairId: Math.floor(id / 2),
+    image: `/test/mosswick-pair-${Math.floor(id / 2)}.webp`,
+    flipped: true,
+    matched: true,
+  })),
+  revealed: DARK_BRIAR_WAVES.slice(0, 2).flat(),
+  visited: mosswickMirrorRoute,
+  player: '4,2',
+}
+const mosswickScenes = new Set<string>()
+const mosswickEpilogues = new Set<string>()
+for (const source of ['ledger', 'promise'] as const) {
+  assert.ok(BRIAR_SCENES['4,2']?.choices.some((choice) => choice.id === source))
+  const original = restoreBriarSave({
+    ...newBriarSave(),
+    waveIndex: 0,
+    wavePhase: 'exploring',
+    revealed: [...BRIAR_REVEAL_WAVES[0]!],
+    visited: mosswickOriginalRoute,
+    player: '4,2',
+    sceneChoices: { '4,2': source },
+  })
+  assert.equal(original.sceneChoices['4,2'], source)
+  for (const response of ['barter', 'safeguard'] as const) {
+    assert.ok(
+      DARK_BRIAR_SCENES['4,2']?.choices.some(
+        (choice) => choice.id === response,
+      ),
+    )
+    const chosen = darkBriarChoose(mosswickMirrorBase, '4,2', response)
+    assert.notEqual(chosen, mosswickMirrorBase)
+    assert.equal(
+      darkBriarChoose(chosen, '4,2', response),
+      chosen,
+      'Mosswick cannot repeat the same trade for another reward',
+    )
+    const restored = restoreDarkBriarProgress(
+      JSON.parse(JSON.stringify(chosen)),
+    )
+    assert.equal(restored.sceneChoices['4,2'], response)
+    const accord = `${source === 'ledger' ? 'warning' : 'pledge'}-${
+      response === 'barter' ? 'question' : 'safeguard'
+    }`
+    assert.equal(earnedMosswickPromiseAccord(original, restored), accord)
+    assert.equal(
+      crossRealmConsequenceLedger(original, mirror, restored)
+        .mosswickPromiseAccord,
+      accord,
+    )
+    const scene = earnedMosswickPromiseOutcome(original, restored)
+    assert.ok(scene && scene.length > 200)
+    assert.match(scene, /Mosswick/)
+    assert.match(scene, /but|still|without|await/)
+    mosswickScenes.add(scene)
+    const epilogue = crossRealmHouseEpilogue(
+      original,
+      { ...mirror, ending: 'return' },
+      restored,
+    )
+    assert.match(epilogue, /Mosswick/)
+    mosswickEpilogues.add(epilogue)
+    assert.equal(
+      crossRealmHouseEpilogue(original, mirror, restored),
+      '',
+      'Mosswick cannot reveal the House verdict before it is earned',
+    )
+  }
+}
+assert.equal(mosswickScenes.size, 4)
+assert.equal(mosswickEpilogues.size, 4)
+assert.equal(
+  earnedMosswickPromiseAccord(base, { sceneChoices: { '4,2': 'barter' } }),
+  'unset',
+)
+assert.equal(
+  earnedMosswickPromiseOutcome(
+    { ...base, sceneChoices: { '4,2': 'forged' } },
+    { sceneChoices: { '4,2': 'safeguard' } },
+  ),
+  null,
+)
+assert.equal(
+  earnedMosswickPromiseOutcome(
+    { ...base, sceneChoices: { '4,2': 'promise' } },
+    { sceneChoices: { '4,2': 'forged' } },
+  ),
+  null,
+)
+assert.equal(
+  crossRealmConsequenceLedger(base, mirror).mosswickPromiseAccord,
+  'unset',
+  'Older saves without Mosswick decisions remain compatible',
+)
+assert.match(
+  store,
+  /earnedMosswickPromiseOutcome\(state\.value, next\)/,
+  'The mirrored shop must show the earned resolution on choice',
+)
+assert.match(
+  store,
+  /earnedMosswickPromiseOutcome\(state\.value, dark\.value\)/,
+  'Revisiting Mosswick must restore the earned resolution',
+)
+assert.match(
+  store,
+  /earnedOrenManifestOutcome\(state\.value, dark\.value\)/,
+  'Revisiting Oren must restore his already-authored manifest resolution',
 )
 
 // The original courier's lantern/address decision and mirrored glass bell's

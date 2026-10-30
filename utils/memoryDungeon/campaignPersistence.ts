@@ -1,6 +1,12 @@
 import {
   MEMORY_REALITY_EXPERIENCES,
   MEMORY_REALITY_PAIRS,
+  MEMORY_PAIR_ENDINGS,
+  MEMORY_SCYLLA_DEPARTURE_CHOICES,
+  chooseMemoryPairEnding,
+  chooseMemoryScyllaDeparture,
+  type MemoryPairEndingWorld,
+  type MemoryScyllaDepartureChoice,
   MEMORY_WISH_ANCHORS,
   availableMemoryExperiences,
   commitToMemoryFinale,
@@ -51,6 +57,17 @@ export function restoreMemoryCampaignProgress(
   const canonicalRequested = MEMORY_REALITY_PAIRS.flat().filter((id) =>
     requested.includes(id),
   )
+  const validEndingDecision = (id: MemoryPairEndingWorld): string | null => {
+    const candidate = saved.pairDecisions?.[id]
+    if (candidate === 'legacy-unresolved') return candidate
+    if (
+      typeof candidate === 'string' &&
+      MEMORY_PAIR_ENDINGS[id].some((choice) => choice.id === candidate)
+    )
+      return candidate
+    if (requested.includes(id) && id !== 'e02') return 'legacy-unresolved'
+    return null
+  }
   let progress = fresh
   for (const id of canonicalRequested) {
     if (
@@ -64,10 +81,74 @@ export function restoreMemoryCampaignProgress(
         progress = rememberMemoryWish(progress, anchor)
       }
     }
+    if (id === 'e05') {
+      const oldChoice = saved.scyllaDeparture
+      if (
+        oldChoice &&
+        MEMORY_SCYLLA_DEPARTURE_CHOICES.some(
+          (choice) => choice.id === oldChoice,
+        )
+      ) {
+        progress = chooseMemoryScyllaDeparture(
+          progress,
+          oldChoice as MemoryScyllaDepartureChoice,
+        )
+      } else if (requested.includes('e05')) {
+        progress = { ...progress, scyllaDeparture: 'legacy-unspoken' }
+      }
+    }
+    if (
+      id !== 'e02' &&
+      Object.prototype.hasOwnProperty.call(MEMORY_PAIR_ENDINGS, id)
+    ) {
+      const world = id as MemoryPairEndingWorld
+      const ending = validEndingDecision(world)
+      if (ending && ending !== 'legacy-unresolved') {
+        progress = chooseMemoryPairEnding(progress, world, ending)
+      } else if (ending) {
+        progress = {
+          ...progress,
+          pairDecisions: {
+            ...progress.pairDecisions,
+            [world]: ending,
+          },
+        }
+      }
+    }
     if (id === 'e13' && saved.finaleCommitted) {
       progress = commitToMemoryFinale(progress)
     }
     progress = completeMemoryExperience(progress, id)
+  }
+
+  // An in-progress choice belongs in a save even before completion. Keep it
+  // only when the correct reality is the next available experience.
+  const next = availableMemoryExperiences(progress)
+  if (next.includes('e05') && saved.scyllaDeparture) {
+    const choice = saved.scyllaDeparture
+    if (
+      MEMORY_SCYLLA_DEPARTURE_CHOICES.some(
+        (option) => option.id === choice,
+      )
+    )
+      progress = chooseMemoryScyllaDeparture(
+        progress,
+        choice as MemoryScyllaDepartureChoice,
+      )
+  }
+  const pendingWorld = next[0] as MemoryPairEndingWorld | undefined
+  if (
+    pendingWorld &&
+    Object.prototype.hasOwnProperty.call(MEMORY_PAIR_ENDINGS, pendingWorld)
+  ) {
+    const candidate = saved.pairDecisions?.[pendingWorld]
+    if (
+      typeof candidate === 'string' &&
+      MEMORY_PAIR_ENDINGS[pendingWorld].some(
+        (choice) => choice.id === candidate,
+      )
+    )
+      progress = chooseMemoryPairEnding(progress, pendingWorld, candidate)
   }
 
   // A wish can be remembered while its source experience is still in

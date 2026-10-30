@@ -223,11 +223,7 @@ let finale = commitToMemoryFinale(linear)
 for (const id of MEMORY_FINALE_ORDER) {
   assert.deepEqual(availableMemoryExperiences(finale), [id])
   if (id === 'e14' || id === 'e16')
-    finale = chooseMemoryPairEnding(
-      finale,
-      id,
-      MEMORY_PAIR_ENDINGS[id][0]!.id,
-    )
+    finale = chooseMemoryPairEnding(finale, id, MEMORY_PAIR_ENDINGS[id][0]!.id)
   finale = completeMemoryExperience(finale, id)
 }
 assert.deepEqual(availableMemoryExperiences(finale), [])

@@ -97,10 +97,7 @@ export function restoreMemoryCampaignProgress(
         progress = { ...progress, scyllaDeparture: 'legacy-unspoken' }
       }
     }
-    if (
-      id !== 'e02' &&
-      Object.prototype.hasOwnProperty.call(MEMORY_PAIR_ENDINGS, id)
-    ) {
+    if (Object.prototype.hasOwnProperty.call(MEMORY_PAIR_ENDINGS, id)) {
       const world = id as MemoryPairEndingWorld
       const ending = validEndingDecision(world)
       if (ending && ending !== 'legacy-unresolved') {

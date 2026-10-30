@@ -171,7 +171,7 @@ export const BRIAR_RARE_EVENTS: readonly RareEventDefinition[] = [
     questId: 'feed-the-orchard-workers',
     title: 'Supper for Tomorrow',
     premise:
-      'The orchard has released its fruit, the cook has her spoon, and the House has admitted the absent guest to supper. The workers carry the final apple to the kitchen and ask whether one meal or a future harvest should inherit their names.',
+      'The orchard has released its fruit, the cook has her spoon, and the House has admitted the absent guest to supper. The workers carry the final apple to the kitchen and ask whether tonight’s hunger or a future harvest should inherit their names.',
     requires: [
       { scope: 'briar', key: '3,1', choice: 'harvest' },
       { scope: 'briar', key: '1,3', choice: 'return' },
@@ -182,9 +182,9 @@ export const BRIAR_RARE_EVENTS: readonly RareEventDefinition[] = [
       key: '1,8',
       outcomes: {
         plant:
-          'You plant the last apple where the workers can tend its seeds. The field cook uses the House bread to feed the pickers tonight, but the fruit itself becomes a sapling rather than a meal. The keeper writes the workers into the new orchard charter as owners, not harvest debts. Nobody can promise when it will bear; the hungry must share what remains until then.',
+          'You plant the last apple where the workers can tend its seeds. The field cook stretches the House’s divided ration into broth, but nobody mistakes a shared bowl for a full supper. The keeper writes the workers into the new orchard charter as owners, not harvest debts. A sapling rises, but nobody can promise when it will bear or who will feed the pickers until then.',
         share:
-          'You divide the last apple among the workers and the guest whose place the House pantry finally acknowledged. Each portion carries a name once rubbed out of the harvest tally. The cook records the names only with permission, and the workers eat together tonight. There is no seedling from this apple, so they must bargain for next year’s planting instead of pretending the orchard is restored.',
+          'You divide the last apple among the workers and the guest whose place the House pantry finally acknowledged. Each portion recalls a name rubbed out of the harvest tally; the cook records only those the workers choose to share. They eat together tonight, though nobody gets full. You have not planted a replacement orchard, and the next harvest will need a plan beyond remembering this one.',
       },
     },
   },
@@ -193,7 +193,7 @@ export const BRIAR_RARE_EVENTS: readonly RareEventDefinition[] = [
     questId: 'names-on-the-lintel',
     title: 'The Name Left Blank',
     premise:
-      'Eleven painted guests, eleven erased names and the elder’s bargain finally agree. In the next room a living daughter has written that she left freely. The House asks whether a complete count entitles the village to claim a twelfth person.',
+      'Eleven painted guests, eleven erased names and the elder’s bargain finally agree. Farther inside, a living daughter has written that she left freely. The House asks whether a complete count entitles the village to claim a twelfth person.',
     requires: [
       { scope: 'briar', key: '6,3', choice: 'remember' },
       { scope: 'house', key: 'HD-07', choice: 'count' },
@@ -204,7 +204,7 @@ export const BRIAR_RARE_EVENTS: readonly RareEventDefinition[] = [
       key: 'HD-20',
       outcomes: {
         testify:
-          'You testify that the daughter left by choice, using the letters she authorized the House to preserve. The village corrects its list: eleven stolen records are evidence of coercion, but her absence is not a twelfth theft. Her family hears the truth without receiving her address. The public hearing may still draw unwanted attention to the witnesses who helped her leave.',
+          'You tell the daughter’s family she left by choice, without reading her private letters aloud or revealing her address. The village corrects its list: eleven stolen records are evidence of coercion, but her absence is not a twelfth theft. The family hears the truth without gaining a claim on her whereabouts. A public hearing may still draw unwanted attention to the people who helped her leave.',
         protect:
           'You return the daughter’s letters without her address and ask the House to keep her line blank until she chooses to speak. The eleven erased guests are still counted separately; their claim does not swallow hers. The family cannot use the registry to find her, but some villagers continue accusing the House of hiding a captive because no public testimony settles the dispute.',
       },

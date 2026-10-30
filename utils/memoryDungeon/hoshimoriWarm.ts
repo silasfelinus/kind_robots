@@ -2077,8 +2077,8 @@ export function hoshimoriSouthernAccount(
       : 'Displaced families took portable histories that the village could not withhold.'
   const oath =
     assembly === 'consent'
-      ? 'Pip kept his own memories and decided whose names, if any, belong in the ledger.'
-      : 'The village published a promise of food and safe departure without claiming Pip’s private past.'
+      ? 'Vesper released a redacted public atlas for community review while Pip kept authority over his private ledger.'
+      : 'The village published a rescue charter without exposing refuge addresses or claiming Pip’s private history.'
   return [record, shelter, oath].join(' ')
 }
 

@@ -126,6 +126,10 @@
           }}</span>
           <h2>{{ sign?.name }}</h2>
           <strong>{{ sign?.epithet }}</strong>
+          <p class="scope-hr-verdict">
+            <strong>OFFICIAL PERSONNEL FINDING:</strong>
+            {{ sign ? STAR_HR_VERDICTS[sign.id] : '' }}
+          </p>
           <p>{{ sign?.myth }}</p>
           <p class="scope-omen">
             ✧ OFFICIAL PERFORMANCE FORECAST: {{ sign?.omen }}
@@ -183,6 +187,7 @@ import { computed, ref } from 'vue'
 import { warpArt } from '~/utils/gameOfCaptains/artManifest'
 import {
   STAR_QUESTIONS,
+  STAR_HR_VERDICTS,
   createStarAssessment,
   starSignFor,
   type StarAssessment,

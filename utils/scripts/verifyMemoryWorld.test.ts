@@ -2954,7 +2954,11 @@ const victoryBriar = restoreBriarSave({
     },
   },
 })
-assert.equal(victoryBriar.room, 'memory', 'legacy victory remains a playable checkpoint')
+assert.equal(
+  victoryBriar.room,
+  'memory',
+  'legacy victory remains a playable checkpoint',
+)
 assert.equal(
   recoverBriarCombatDefeat(victoryBriar),
   victoryBriar,

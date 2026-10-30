@@ -842,7 +842,10 @@ for (let variation = 0; variation < 8; variation++) {
         '6,8': (variation >> 1) & 1,
         '8,8': (variation >> 2) & 1,
       }
-      const choice = Object.prototype.hasOwnProperty.call(southernDecisions, key)
+      const choice = Object.prototype.hasOwnProperty.call(
+        southernDecisions,
+        key,
+      )
         ? site.choices[southernDecisions[key]!]!
         : (site.choices.find((option) => (option.rations ?? 0) >= 0) ??
           site.choices[0])
@@ -853,14 +856,22 @@ for (let variation = 0; variation < 8; variation++) {
       run = choose(run, choice.id)
     }
   }
-  assert.equal(run.visited.length, 64, 'Every authored village square is reachable')
+  assert.equal(
+    run.visited.length,
+    64,
+    'Every authored village square is reachable',
+  )
   assert.equal(Object.keys(run.choices).length, 64, 'No empty choice squares')
   assert.equal(run.events.length, 127, '63 moves and 64 decisions')
   const account = hoshimoriSouthernAccount(run)
   assert.ok(account, 'The southern assembly must pay off earned testimony')
   southernVerdicts.add(account)
   const restored = restoreHoshimoriWarm(JSON.parse(JSON.stringify(run)))
-  assert.deepEqual(restored, run, 'Full map and all choices survive a replayed save')
+  assert.deepEqual(
+    restored,
+    run,
+    'Full map and all choices survive a replayed save',
+  )
   assert.equal(
     hoshimoriSouthernAccount(restored!),
     account,
@@ -872,7 +883,8 @@ for (let variation = 0; variation < 8; variation++) {
     'Revisiting the final assembly cannot mint a new outcome',
   )
   const forged = JSON.parse(JSON.stringify(run)) as HoshimoriWarmProgress
-  forged.choices['8,8'] = forged.choices['8,8'] === 'consent' ? 'open' : 'consent'
+  forged.choices['8,8'] =
+    forged.choices['8,8'] === 'consent' ? 'open' : 'consent'
   assert.equal(
     restoreHoshimoriWarm(forged),
     null,

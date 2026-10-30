@@ -25,17 +25,17 @@ import {
 import { MEMORY_REALITY_EXPERIENCES } from '../memoryDungeon/reimaginerCampaign'
 
 assert.deepEqual(validateHoshimoriWarm(), [])
-assert.equal(HOSHIMORI_WARM_SITES.length, 16)
-assert.equal(new Set(HOSHIMORI_WARM_SITES.map((site) => site.key)).size, 16)
+assert.equal(HOSHIMORI_WARM_SITES.length, 20)
+assert.equal(new Set(HOSHIMORI_WARM_SITES.map((site) => site.key)).size, 20)
 assert.equal(HOSHIMORI_OVEN_ROOMS.length, 3)
-assert.equal(new Set(HOSHIMORI_WARM_SITES.map((site) => site.opening)).size, 16)
+assert.equal(new Set(HOSHIMORI_WARM_SITES.map((site) => site.opening)).size, 20)
 assert.equal(
   new Set(
     HOSHIMORI_WARM_SITES.flatMap((site) =>
       site.choices.map((choice) => choice.outcome),
     ),
   ).size,
-  32,
+  40,
   'Every authored decision must have a distinct outcome',
 )
 
@@ -68,7 +68,7 @@ assert.deepEqual(
   ['1,4', '6,7'],
 )
 assert.ok(HOSHIMORI_WARM_SITES.some((site) => site.key === '2,3'))
-assert.ok(!HOSHIMORI_WARM_SITES.some((site) => site.key === '7,5'))
+assert.ok(HOSHIMORI_WARM_SITES.some((site) => site.key === '7,5'))
 assert.equal(HOSHIMORI_LANTERN_CLUE_SITES.length, 3)
 
 const snake = [
@@ -127,12 +127,23 @@ for (let seed = 0; seed < 96; seed++) {
     )!
     progress = choose(progress, affordable.id)
   }
+  assert.equal(progress.visited.length, 16)
+  for (const key of ['2,4', '3,4', '4,4', '5,4', '6,4', '7,4', '7,5']) {
+    progress = move(progress, key)
+    if (['5,4', '6,4', '7,4', '7,5'].includes(key)) {
+      const site = HOSHIMORI_WARM_SITES.find((item) => item.key === key)!
+      const affordable = site.choices.find(
+        (choice) => progress.rations + (choice.rations ?? 0) >= 0,
+      )!
+      progress = choose(progress, affordable.id)
+    }
+  }
   assert.equal(
     progress.visited.length,
-    16,
-    'All sixteen sites are geographically reachable',
+    20,
+    'All twenty sites, including the second Earth photograph, are reachable',
   )
-  assert.equal(Object.keys(progress.choices).length, 16)
+  assert.equal(Object.keys(progress.choices).length, 20)
   assert.equal(hoshimoriLanternClues(progress).length, 3)
   const wrong = [...hoshimoriLanternOrder(seed)].reverse()
   if (wrong.join(':') !== hoshimoriLanternOrder(seed).join(':')) {
@@ -155,7 +166,8 @@ for (let seed = 0; seed < 96; seed++) {
     progress,
     'Lantern reward is once-only',
   )
-  for (const key of ['2,4', '3,4', '4,4', '4,3']) progress = move(progress, key)
+  for (const key of ['7,4', '6,4', '5,4', '4,4', '4,3'])
+    progress = move(progress, key)
   progress = advanceHoshimoriWarm(progress, { type: 'enter' })
   assert.equal(progress.ovenRoom, 'OV-01')
   assert.strictEqual(
@@ -381,11 +393,72 @@ for (const decision of ['question', 'hold'] as const) {
     'Restarting the village must not revoke earned evidence',
   )
 }
+for (const decision of ['inquire', 'respect'] as const) {
+  let run = newHoshimoriWarmProgress(43)
+  for (const key of [
+    '2,1',
+    '3,1',
+    '4,1',
+    '4,2',
+    '4,3',
+    '4,4',
+    '5,4',
+    '6,4',
+    '7,4',
+    '7,5',
+  ])
+    run = move(run, key)
+  assert.deepEqual(
+    reconcileHoshimoriEarthChronicle(newEarthChronicle(), run.choices).found,
+    [],
+    'Finding the second photo without an authored decision cannot earn it',
+  )
+  run = choose(run, decision)
+  const restoredRun = restoreHoshimoriWarm(JSON.parse(JSON.stringify(run)))
+  assert.ok(restoredRun, 'Second photo requires replay-validated travel')
+  const journal = reconcileHoshimoriEarthChronicle(
+    newEarthChronicle(),
+    restoredRun.choices,
+  )
+  assert.deepEqual(journal.found, ['earth-14'])
+  assert.strictEqual(
+    reconcileHoshimoriEarthChronicle(journal, restoredRun.choices),
+    journal,
+    'Second photograph is once-only',
+  )
+  const reacted = respondToEarthPhoto(
+    journal,
+    'earth-14',
+    decision === 'inquire' ? 'challenge' : 'hold',
+  )
+  assert.deepEqual(
+    restoreEarthChronicle(JSON.parse(JSON.stringify(reacted))),
+    reacted,
+    'The second photo and immutable response persist across expeditions',
+  )
+  const forgedRun = JSON.parse(JSON.stringify(run)) as HoshimoriWarmProgress
+  forgedRun.choices['7,5'] = decision === 'inquire' ? 'respect' : 'inquire'
+  assert.equal(
+    restoreHoshimoriWarm(forgedRun),
+    null,
+    'A changed photo decision without the matching event must fail replay',
+  )
+}
 assert.deepEqual(
-  reconcileHoshimoriEarthChronicle(newEarthChronicle(), { '2,3': 'forged' })
-    .found,
+  reconcileHoshimoriEarthChronicle(newEarthChronicle(), {
+    '2,3': 'forged',
+    '7,5': 'invented',
+  }).found,
   [],
-  'A forged scene decision cannot mint the photograph',
+  'Forged scene decisions cannot mint either photograph',
+)
+assert.deepEqual(
+  reconcileHoshimoriEarthChronicle(newEarthChronicle(), {
+    '7,5': 'respect',
+    '2,3': 'hold',
+  }).found,
+  ['earth-13', 'earth-14'],
+  'Both earned photos sort by Earth chronology, not scene order',
 )
 assert.deepEqual(
   restoreEarthChronicle({
@@ -393,8 +466,8 @@ assert.deepEqual(
     found: ['earth-13', 'earth-14', 'earth-15', 'earth-31'],
     responses: { 'earth-14': 'challenge' },
   }).found,
-  ['earth-13'],
-  'The unbuilt second Hoshimori scene and later realities remain spoiler-locked',
+  ['earth-13', 'earth-14'],
+  'Both authored Hoshimori photos survive; later realities remain spoiler-locked',
 )
 const outOfOrder = reconcileHoshimoriEarthChronicle(
   { version: 1, found: ['earth-02', 'earth-01'], responses: {} },
@@ -438,5 +511,5 @@ assert.match(overworldSource, /campaign\.completed\.includes\('e06'\)/)
 assert.match(overworldSource, /data-testid="memory-enter-hoshimori"/)
 
 console.log(
-  'Hoshimori warm proof: 16 sites, 96 seeds, 24 hearings, earned first Earth photograph, save and spoiler guards passed',
+  'Hoshimori warm proof: 20 sites, 96 seeds, 24 hearings, two earned Earth photographs, save and spoiler guards passed',
 )

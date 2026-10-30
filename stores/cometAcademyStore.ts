@@ -306,7 +306,8 @@ export const useCometAcademyStore = defineStore('cometAcademy', () => {
     const fight = run.value?.tacticalBattle?.state
     if (!fight || fight.phase !== 'active') return
     fight.phase = 'defeat'
-    fight.log = 'You order a retreat. Your team survives, but the rival wins the ground.'
+    fight.log =
+      'You order a retreat. Your team survives, but the rival wins the ground.'
     persist()
   }
 

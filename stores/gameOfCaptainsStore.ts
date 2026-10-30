@@ -33,6 +33,10 @@ import {
   normalizeRedshirtKnowledge,
   type RedshirtKnowledge,
 } from '~/utils/gameOfCaptains/redshirtKnowledge'
+import {
+  chooseCaptainInstinct,
+  type CaptainInstinctChoice,
+} from '~/utils/gameOfCaptains/captainInstincts'
 import { playbookRunKey } from '~/utils/playbook/runReview'
 import type { StarAssessment } from '~/utils/gameOfCaptains/starSigns'
 import type { CaptainOriginId } from '~/utils/gameOfCaptains/captainOrigins'
@@ -229,6 +233,11 @@ export const useGameOfCaptainsStore = defineStore('gameOfCaptains', () => {
     run.value = visitCasinoVenue(run.value, venue, choice)
     persist()
   }
+  function captainAction(choice: CaptainInstinctChoice) {
+    if (!run.value) return
+    run.value = chooseCaptainInstinct(run.value, choice)
+    persist()
+  }
   function chooseRoom(room: PocketRoom | null) {
     if (!run.value) return
     run.value = configurePocketRoom(run.value, room)
@@ -317,6 +326,7 @@ export const useGameOfCaptainsStore = defineStore('gameOfCaptains', () => {
     begin,
     assign,
     chooseRoom,
+    captainAction,
     chartMission,
     travel,
     arrive,

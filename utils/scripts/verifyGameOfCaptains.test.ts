@@ -553,7 +553,7 @@ for (const member of CREW_PROFILES) {
   }
   assert.equal(new Set(worldStops).size, 3)
   assert.equal(run.phase, 'finale')
-  assert.ok(finishVoyage(run, 'protect').scene.includes('Quill deposits'))
+  assert.ok(finishVoyage(run, 'protect').scene.includes('Quill signs'))
   assert.ok(finishVoyage(run, 'protect').scene.includes(member.name))
 }
 // A full crew arc unlocks enemy-specific council action only for a matching nemesis.

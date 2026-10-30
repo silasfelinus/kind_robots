@@ -415,7 +415,6 @@ export function restoreBriarSave(input: unknown): BriarSave {
         )
         .map((card) => ({ ...card, flipped: card.matched }))
     : []
-  const combat = restoreBriarCombat(saved.combat)
   const house = restoreHouseProgress(saved.house)
   if (house?.ending && !house.endingLens)
     house.endingLens = houseEpilogueLens(house, sceneChoices)
@@ -443,6 +442,9 @@ export function restoreBriarSave(input: unknown): BriarSave {
     saved.roomId === 'vault-1' || isCombatRoom(saved.roomId)
       ? saved.roomId
       : null
+  const combat = isCombatRoom(roomId)
+    ? restoreBriarCombat(saved.combat, roomId)
+    : null
   // A combat room restores only with its fight; a Classic room only with its cards.
   const combatRoom = isCombatRoom(roomId) && combat !== null
   const inRoom = combatRoom || (!isCombatRoom(roomId) && cards.length > 0)

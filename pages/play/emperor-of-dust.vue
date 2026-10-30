@@ -460,6 +460,12 @@ onMounted(() => {
   }
 })
 
+useSeoMeta(
+  gameLinkPreviewMeta(
+    'emperor-of-dust',
+    useRuntimeConfig().public.appBaseUrl,
+  ) ?? {},
+)
 useHead({ title: 'Emperor of Dust' })
 </script>
 

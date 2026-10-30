@@ -1,6 +1,6 @@
 <template>
   <main
-    class="kr-surface cca-shell h-full min-h-0 overflow-hidden"
+    class="kr-surface cca-shell relative h-full min-h-0 overflow-hidden"
     data-layout="console-fixed"
     aria-label="Prom of Doom game"
   >
@@ -98,7 +98,29 @@
           <span class="cca-serial">C.C.A. // 07</span>
         </div>
         <div class="cca-pane kr-scroll">
-          <template v-if="!store.loaded">
+          <AcademyTacticalFight
+            v-if="store.tactical && run"
+            :battle="store.tactical"
+            :rival-name="
+              run.day < 15
+                ? 'UNKNOWN CHALLENGER'
+                : (opponent?.hero.alias ?? 'THE RIVAL')
+            "
+            :mission="
+              store.incidents.find(
+                (incident) => incident.id === store.tactical?.caseId,
+              )?.title ?? 'NIGHT PATROL'
+            "
+            :opening="tacticalOpening(run)"
+            :role="tacticalRoleFor(run)"
+            @cell="store.battleClick"
+            @mode="store.battleMode"
+            @turn="store.battleTurn"
+            @counter="store.battleCounter"
+            @retreat="store.battleRetreat"
+            @finish="store.battleResolve"
+          />
+          <template v-else-if="!store.loaded">
             <p class="cca-muted">Loading your academy record…</p>
           </template>
           <template v-else-if="run.phase === 'map'">
@@ -121,6 +143,40 @@
                 }})
               </span>
             </p>
+            <div
+              v-if="run.flowVersion === 3 && run.signature && run.day === 1"
+              class="cca-report-mini"
+              data-testid="academy-recommended-rival"
+            >
+              <strong
+                >RECOMMENDED RIVAL ·
+                {{ recommendedRivalFor(run.signature).hero.alias }}</strong
+              >
+              <span>{{
+                recommendedRivalFor(run.signature).student.conflict
+              }}</span>
+              <span
+                >The current campaign still allows a different seeded
+                antagonist. Your rival has their own agency and can become the
+                hero if you turn villain.</span
+              >
+              <button
+                type="button"
+                class="cca-choice"
+                :disabled="
+                  run.opponentSignature ===
+                  recommendedRivalFor(run.signature).signature
+                "
+                @click="store.recommendRival()"
+              >
+                {{
+                  run.opponentSignature ===
+                  recommendedRivalFor(run.signature).signature
+                    ? 'RECOMMENDED RIVAL SELECTED'
+                    : 'CHOOSE THIS RIVALRY FOR YOUR STORY'
+                }}
+              </button>
+            </div>
             <div
               v-if="run.playerEvolution"
               class="cca-report-mini"
@@ -556,6 +612,55 @@
                 <span>↗</span>
               </button>
               <div
+                v-if="
+                  run.playerCaseId === incident.id &&
+                  expandedMissionFor(incident.id)
+                "
+                class="cca-mission-tactics"
+                data-testid="academy-mission-tactics"
+              >
+                <strong>YOUR DECISION · HOW DO YOU INTERVENE?</strong>
+                <p>
+                  Saving lives first offers better odds. Investigating the cause
+                  is riskier but can uncover evidence for a later case in this
+                  neighborhood.
+                </p>
+                <div class="cca-mission-tactics-grid">
+                  <button
+                    type="button"
+                    class="cca-choice"
+                    :aria-pressed="
+                      (run.missionApproach ?? 'rescue') === 'rescue'
+                    "
+                    :class="{
+                      active: (run.missionApproach ?? 'rescue') === 'rescue',
+                    }"
+                    data-testid="academy-mission-rescue"
+                    @click="store.missionTactic(incident.id, 'rescue')"
+                  >
+                    <strong>RESCUE FIRST</strong>
+                    {{ expandedMissionFor(incident.id)?.tactics.rescue }}
+                  </button>
+                  <button
+                    type="button"
+                    class="cca-choice"
+                    :aria-pressed="run.missionApproach === 'investigate'"
+                    :class="{ active: run.missionApproach === 'investigate' }"
+                    data-testid="academy-mission-investigate"
+                    @click="store.missionTactic(incident.id, 'investigate')"
+                  >
+                    <strong>CHASE THE EVIDENCE</strong>
+                    {{ expandedMissionFor(incident.id)?.tactics.investigate }}
+                  </button>
+                </div>
+                <small
+                  >Casebook evidence recovered:
+                  {{ run.missionClues?.length ?? 0 }}. Matching powers and
+                  earlier district clues may reveal a hidden resolution after
+                  your mission succeeds.</small
+                >
+              </div>
+              <div
                 class="cca-roster"
                 data-testid="academy-quest-poster-row"
                 role="group"
@@ -660,6 +765,33 @@
                 <small
                   >Gain a willing volunteer for tonight. Costs goodwill and
                   raises danger.</small
+                >
+              </span>
+              <span>↗</span>
+            </button>
+            <button
+              v-if="
+                run.flowVersion === 3 &&
+                run.day >= 4 &&
+                run.signature &&
+                run.opponentSignature &&
+                run.playerCaseId &&
+                !run.tacticalHistory?.some((entry) => entry.day === run?.day)
+              "
+              class="cca-choice"
+              type="button"
+              data-testid="academy-launch-tactical"
+              @click="store.startBattle()"
+            >
+              <span>
+                ✦ PLAY THE TACTICAL FIGHT ·
+                {{
+                  run.day < 15 ? 'YOUR ORIGIN MISSION' : opponent?.hero.alias
+                }}
+                <small
+                  >Move your squad on a cover-and-line-of-sight battlefield. The
+                  actual victory or defeat replaces the automatic result for
+                  your personally led call.</small
                 >
               </span>
               <span>↗</span>
@@ -933,6 +1065,13 @@
         </footer>
       </section>
     </div>
+    <ComicCharacterReveal
+      v-if="storyComicIntro"
+      :open="showVillainComic"
+      :intro="storyComicIntro"
+      :art-src="storyComicArt"
+      @dismiss="showVillainComic = false"
+    />
   </main>
 </template>
 
@@ -942,13 +1081,21 @@ import {
   SOCIAL_DAYS,
   socialChoices,
 } from '~/utils/cometAcademy/relationships'
-import { computed, onMounted, ref } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
+import { comicIntroFor } from '~/utils/cometAcademy/comicIntroductions'
 import AcademyOpening from '~/components/play/cometAcademy/AcademyOpening.vue'
+import AcademyTacticalFight from '~/components/play/cometAcademy/AcademyTacticalFight.vue'
+import {
+  recommendedRivalFor,
+  tacticalOpening,
+  tacticalRoleFor,
+} from '~/utils/cometAcademy/tacticalInterlude'
 import { fieldFor, identityFor } from '~/utils/cometAcademy/identityArcs'
 import type { PlayerForm } from '~/utils/cometAcademy/protagonistEvolution'
 import { campaignVillain } from '~/utils/cometAcademy/campaign'
 import { useCometAcademyStore } from '~/stores/cometAcademyStore'
 import { realNightCase } from '~/utils/cometAcademy/nightCases'
+import { expandedMissionFor } from '~/utils/cometAcademy/expandedNightCases'
 import {
   PATROL_ZONES,
   patrolSceneFor,
@@ -1071,6 +1218,27 @@ const opponent = computed(() =>
     ? identityFor(run.value.opponentSignature)
     : null,
 )
+const showVillainComic = ref(false)
+const seenVillainComics = new Set<string>()
+const storyComicIntro = computed(() =>
+  run.value?.opponentSignature
+    ? comicIntroFor(run.value.opponentSignature, 'villain')
+    : null,
+)
+const storyComicArt = computed(() =>
+  storyComicIntro.value?.artKey ? promArt(storyComicIntro.value.artKey) : null,
+)
+watch(
+  () => [run.value?.day, run.value?.opponentSignature, run.value?.flowVersion],
+  () => {
+    if (!run.value || run.value.flowVersion !== 3 || run.value.day < 15) return
+    const intro = storyComicIntro.value
+    if (intro && !seenVillainComics.has(intro.key)) {
+      seenVillainComics.add(intro.key)
+      showVillainComic.value = true
+    }
+  },
+)
 const injuredStudents = computed(() =>
   run.value?.flowVersion === 3
     ? STUDENTS.filter(
@@ -1155,6 +1323,12 @@ function startFromOpening(selection: {
 }
 
 onMounted(() => store.load())
+useSeoMeta(
+  gameLinkPreviewMeta(
+    'comet-city-academy',
+    useRuntimeConfig().public.appBaseUrl,
+  ) ?? {},
+)
 useHead({ title: 'Prom of Doom | Capes & Tassels | Kind Robots' })
 
 function teamFor(caseId: string): StudentId[] {
@@ -1729,6 +1903,42 @@ function toggleStudent(caseId: string, id: StudentId): void {
   font-size: 0.67rem;
   color: #a4b6c9;
   line-height: 1.5;
+}
+.cca-mission-tactics {
+  padding: 0.65rem;
+  margin: 0.45rem 0;
+  border: 1px solid #d9b96c88;
+  border-radius: 0.7rem;
+  background: #162a3acb;
+  display: grid;
+  gap: 0.45rem;
+}
+.cca-mission-tactics > p,
+.cca-mission-tactics > small {
+  font-size: 0.78rem;
+  line-height: 1.4;
+  color: #dae3e9;
+}
+.cca-mission-tactics-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.4rem;
+}
+.cca-mission-tactics-grid .cca-choice {
+  display: grid;
+  align-content: start;
+  gap: 0.3rem;
+  font-size: 0.78rem;
+  text-align: left;
+}
+.cca-mission-tactics-grid .cca-choice.active {
+  border-color: #d9b96c;
+  background: #34445e;
+}
+@media (max-width: 650px) {
+  .cca-mission-tactics-grid {
+    grid-template-columns: 1fr;
+  }
 }
 .cca-patrol-board {
   border: 1px solid #8bc8d466;

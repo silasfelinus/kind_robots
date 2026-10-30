@@ -185,11 +185,39 @@ export function startCombatRoom(
 }
 
 /** A saved combat room, validated; null if any part is unusable. */
-export function restoreBriarCombat(input: unknown): BriarCombat | null {
+export function restoreBriarCombat(
+  input: unknown,
+  roomId?: CombatRoomId,
+): BriarCombat | null {
   if (!input || typeof input !== 'object') return null
   const saved = input as Partial<BriarCombat>
   const state = restoreCombat(saved.state)
   if (!state || !Array.isArray(saved.images)) return null
+  if (roomId) {
+    const room = COMBAT_ROOMS[roomId]
+    if (
+      !room ||
+      state.rows !== COMBAT_ROWS ||
+      state.cols !== COMBAT_COLS ||
+      state.enemy.name !== room.enemy.name ||
+      state.enemy.maxHp !== room.enemy.hp ||
+      state.enemy.attack !== room.enemy.attack ||
+      state.enemy.every !== room.enemy.every ||
+      state.enemy.beatsLeft < 1 ||
+      state.enemy.beatsLeft > room.enemy.every ||
+      state.playerHp > room.playerHp ||
+      state.focus > room.focus ||
+      (state.history !== undefined &&
+        (state.history.initialPlayerHp !== room.playerHp ||
+          state.history.initialFocus !== room.focus ||
+          state.history.actions.some(
+            (action) =>
+              action.type === 'strike' &&
+              !room.loadout.includes(action.weaponId),
+          )))
+    )
+      return null
+  }
   const images = saved.images.filter(
     (v): v is string => typeof v === 'string' && v.length > 0,
   )

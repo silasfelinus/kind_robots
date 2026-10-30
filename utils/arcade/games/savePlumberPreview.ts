@@ -460,6 +460,8 @@ export class PlumberRun implements ArcadeGameInstance {
   /** Space is momentum-led; the directional input aims the nozzle but cannot propel alone. */
   airAim = { x: 1, y: 0 }
   airPlume = 0
+  /** Feedback on jet-operated valve sequences; no impact on campaign controls. */
+  airlockFlash = 0
   airCooldown = 0
   /** Compressed propellant is a pacing resource, never an oxygen/death timer. */
   airPressure = AIR_PRESSURE_CAPACITY
@@ -964,6 +966,7 @@ export class PlumberRun implements ArcadeGameInstance {
     this.solarBurst = 0
     this.airAim = { x: 1, y: 0 }
     this.airPlume = 0
+    this.airlockFlash = 0
     this.airCooldown = 0
     this.airPressure = AIR_PRESSURE_CAPACITY
     this.airCanisters = []
@@ -1318,6 +1321,50 @@ export class PlumberRun implements ArcadeGameInstance {
     }
   }
 
+  /**
+   * The jet's EXHAUST, not the direction of travel, operates pneumatic valves.
+   * Every valve in a space course must be opened before its common gate unlocks.
+   * Raycast solid terrain so a switch cannot be activated through an asteroid wall.
+   */
+  private blowAirlockValves() {
+    if (!this.stage.space || !this.valves.length) return
+    const hero = this.hero
+    const midY = hero.y + TALL / 2
+    const aim = this.airAim
+    let activated = false
+    for (const valve of this.valves) {
+      if (valve.open) continue
+      const dx = valve.x - hero.x
+      const dy = valve.y - 8 - midY
+      const behind = -(dx * aim.x + dy * aim.y)
+      const side = Math.abs(dx * aim.y - dy * aim.x)
+      if (behind < 13 || behind > 96 || side > 13) continue
+      let occluded = false
+      for (let distance = 12; distance < behind - 8; distance += 8) {
+        const col = Math.floor((hero.x - aim.x * distance) / TILE)
+        const row = Math.floor((midY - aim.y * distance) / TILE)
+        if (isWall(this.solidAt(col, row))) {
+          occluded = true
+          break
+        }
+      }
+      if (occluded) continue
+      valve.open = true
+      activated = true
+      this.score += 200
+      this.sound.play('extra')
+    }
+    if (!activated) return
+    this.airlockFlash = 70
+    if (this.valves.every((valve) => valve.open)) {
+      for (let index = 0; index < this.solid.length; index++) {
+        if (this.solid[index] === SOLID_GATE) this.solid[index] = 0
+      }
+      this.airlockFlash = 120
+      this.sound.play('level')
+    }
+  }
+
   /** Aim toward the desired travel direction; air is expelled behind the heroine. */
   private updateAirPropulsion(keys: InputFrame) {
     const hero = this.hero
@@ -1330,6 +1377,7 @@ export class PlumberRun implements ArcadeGameInstance {
     }
     if (this.airCooldown > 0) this.airCooldown--
     if (this.airPlume > 0) this.airPlume--
+    if (this.airlockFlash > 0) this.airlockFlash--
     hero.vx *= AIR_JET_DRAG
     hero.vy *= AIR_JET_DRAG
     if (keys.held.a) {
@@ -1351,6 +1399,7 @@ export class PlumberRun implements ArcadeGameInstance {
       }
       this.airCooldown = AIR_JET_COOLDOWN
       this.airPlume = 7
+      this.blowAirlockValves()
       this.sound.play('shoot')
     } else {
       // A tiny reserve compressor prevents soft locks when a builder omits canisters.
@@ -4512,6 +4561,30 @@ export class PlumberRun implements ArcadeGameInstance {
       g.font = 'bold 11px system-ui'
       g.textAlign = 'left'
       g.fillText('◁ △ ▷ ▽ AIM · C AIR · A BRAKE · ◉ REFILL', 15, H - 15)
+      if (this.valves.length) {
+        const opened = this.valves.filter((valve) => valve.open).length
+        const allOpen = opened === this.valves.length
+        g.fillStyle = 'rgba(7, 14, 33, 0.88)'
+        g.fillRect(282, H - 29, 188, 21)
+        g.fillStyle = allOpen
+          ? '#a9ffd0'
+          : this.airlockFlash > 0
+            ? '#ffeba1'
+            : '#c7edff'
+        g.font = 'bold 11px system-ui'
+        g.textAlign = 'left'
+        g.fillText(
+          allOpen
+            ? 'AIRLOCK RELEASED'
+            : 'AIRLOCK  ' +
+                opened +
+                '/' +
+                this.valves.length +
+                '  ·  EXHAUST → VALVES',
+          290,
+          H - 15,
+        )
+      }
       g.fillStyle = 'rgba(7, 14, 33, 0.88)'
       g.fillRect(W - 139, 10, 129, 43)
       g.fillStyle = '#e4f8ff'
@@ -4947,6 +5020,17 @@ export class PlumberRun implements ArcadeGameInstance {
         g.beginPath()
         g.arc(0, -16, 7, 0, Math.PI * 2)
         g.stroke()
+      }
+      if (this.stage.space) {
+        g.strokeStyle = valve.open ? '#99ffc0' : '#8ee6ff'
+        g.lineWidth = valve.open ? 2 : 2.5
+        g.beginPath()
+        g.arc(0, -8, 17 + Math.sin(this.tick / 12) * 1.5, 0, Math.PI * 2)
+        g.stroke()
+        g.fillStyle = valve.open ? '#b0ffd3' : '#cde9ff'
+        g.font = 'bold 9px system-ui'
+        g.textAlign = 'center'
+        g.fillText(valve.open ? 'ON' : 'AIR', 0, -30)
       }
       g.restore()
     }

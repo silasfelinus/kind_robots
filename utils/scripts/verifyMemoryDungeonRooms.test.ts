@@ -8,6 +8,7 @@ import { readFileSync } from 'node:fs'
 import {
   WEAPONS,
   cellName,
+  createCombat,
   describeEvents,
   includesCell,
   legalMasks,
@@ -177,6 +178,138 @@ assert.equal(
   null,
   'Guard past its cap is a tampered save',
 )
+assert.equal(
+  restoreCombat({ ...json, turn: 100000 }),
+  null,
+  'a forged 100,000-turn checkpoint is rejected before expensive seeded-board replay',
+)
+const cooling = strike(fresh.state, 'hammer', { row: 0, col: 0 })
+assert.equal(cooling.cooldowns.hammer, 1)
+assert.ok(
+  restoreCombat(JSON.parse(JSON.stringify(cooling))),
+  'an earned weapon cooldown survives save restoration',
+)
+for (const badCooldowns of [
+  { hammer: -1 },
+  { hammer: 2 },
+  { twinblade: 1 },
+  { 'unknown-weapon': 1 },
+  { hammer: null },
+  ['hammer'],
+]) {
+  assert.equal(
+    restoreCombat({ ...json, cooldowns: badCooldowns }),
+    null,
+    'malformed or impossible cooldown entries cannot be silently dropped on reload',
+  )
+}
+assert.equal(
+  restoreCombat({ ...json, cooldowns: null }),
+  null,
+  'a corrupt cooldown ledger cannot be interpreted as an empty one',
+)
+assert.ok(
+  restoreCombat({ ...json, cooldowns: undefined }),
+  'older checkpoints without a cooldown ledger remain compatible',
+)
+assert.equal(played.history?.actions.length, played.turn)
+for (const [label, forged] of [
+  ['free Focus', { focus: json.focus + 1 }],
+  ['free health', { playerHp: json.playerHp + 1 }],
+  ['forged damage', { enemy: { ...json.enemy, hp: json.enemy.hp - 1 } }],
+  ['forged tempo', { enemy: { ...json.enemy, beatsLeft: 1 } }],
+  ['missing action', { history: { ...json.history, actions: [] } }],
+  [
+    'duplicate action',
+    {
+      history: {
+        ...json.history,
+        actions: [...json.history.actions, json.history.actions[0]],
+      },
+    },
+  ],
+  [
+    'impossible action',
+    {
+      history: {
+        ...json.history,
+        actions: [
+          { type: 'scout', a: { row: -1, col: 0 }, b: { row: 0, col: 1 } },
+          ...json.history.actions.slice(1),
+        ],
+      },
+    },
+  ],
+  [
+    'unavailable weapon',
+    {
+      history: {
+        ...json.history,
+        actions: [
+          {
+            type: 'strike',
+            weaponId: 'unknown',
+            anchor: { row: 0, col: 0 },
+            rotation: 0,
+          },
+          ...json.history.actions.slice(1),
+        ],
+      },
+    },
+  ],
+] as const) {
+  assert.equal(
+    restoreCombat({ ...json, ...forged }),
+    null,
+    `journal rejects ${label}`,
+  )
+}
+assert.ok(
+  restoreCombat({ ...json, history: undefined }),
+  'old checkpoints without action histories remain loadable',
+)
+
+// Actual terminal outcomes, unlike edited snapshots, replay from earned actions.
+const victoryStart = createCombat({
+  seed: 43,
+  rows: 4,
+  cols: 4,
+  enemy: { name: 'Glass Imp', hp: 2, attack: 0, every: 3 },
+})
+const victoryPair = victoryStart.cards.flatMap((card, i) =>
+  card.pair === 0 ? [{ row: Math.floor(i / 4), col: i % 4 }] : [],
+)
+const earnedVictory = scout(victoryStart, victoryPair[0]!, victoryPair[1]!)
+assert.equal(earnedVictory.outcome, 'victory')
+assert.deepEqual(
+  restoreCombat(JSON.parse(JSON.stringify(earnedVictory))),
+  { ...earnedVictory, log: [] },
+  'an earned victory survives journal replay',
+)
+const defeatStart = createCombat({
+  seed: 44,
+  rows: 4,
+  cols: 4,
+  enemy: { name: 'Glass Imp', hp: 99, attack: 4, every: 1 },
+  playerHp: 4,
+})
+const mismatch = defeatStart.cards
+  .map((card, i) => ({ card, i }))
+  .filter((entry) => entry.card.pair !== null)
+const first = mismatch[0]!
+const other = mismatch.find((entry) => entry.card.pair !== first.card.pair)!
+const earnedDefeat = scout(
+  defeatStart,
+  { row: Math.floor(first.i / 4), col: first.i % 4 },
+  { row: Math.floor(other.i / 4), col: other.i % 4 },
+)
+assert.equal(earnedDefeat.outcome, 'defeat')
+assert.deepEqual(
+  restoreCombat(JSON.parse(JSON.stringify(earnedDefeat))),
+  { ...earnedDefeat, log: [] },
+  'an earned defeat survives journal replay',
+)
+
 const tampered = json.cards.map((c: { pair: number }, i: number) =>
   i ? c : { ...c, pair: (c.pair + 1) % 8 },
 )
@@ -185,6 +318,178 @@ assert.equal(
   null,
   'a board whose pairs no longer come in twos is rejected',
 )
+assert.equal(
+  restoreCombat({
+    ...json,
+    cards: json.cards.map((card: { pair: number }) => ({
+      ...card,
+      pair: card.pair + 8,
+    })),
+  }),
+  null,
+  'renumbering every pair outside the seeded board range cannot mint a new board',
+)
+assert.equal(
+  restoreCombat({
+    ...json,
+    cards: json.cards.map(() => ({ pair: null, matched: false })),
+  }),
+  null,
+  'an all-obstacle board cannot skip a combat encounter',
+)
+assert.equal(
+  restoreCombat({
+    ...json,
+    cards: json.cards.map((card: { pair: number; matched: boolean }) => ({
+      ...card,
+      pair: card.pair === 0 ? 1 : card.pair === 1 ? 0 : card.pair,
+    })),
+  }),
+  null,
+  'relabeling complete pairs cannot move the hidden cards away from their seeded positions',
+)
+assert.equal(
+  restoreCombat({ ...json, seed: json.seed + 1 }),
+  null,
+  'changing the seed without dealing a new board cannot manipulate pair locations',
+)
+assert.equal(
+  restoreCombat({
+    ...fresh.state,
+    turn: 1,
+    cards: fresh.state.cards.map((card) => ({
+      ...card,
+      matched: card.pair !== null,
+    })),
+    enemy: { ...fresh.state.enemy, hp: 0 },
+    outcome: 'victory',
+  }),
+  null,
+  'one action cannot resolve all eight pairs, even with a forged victory',
+)
+const redealStart = createCombat({
+  seed: 91,
+  rows: 2,
+  cols: 2,
+  enemy: { name: 'Patient Guardian', hp: 50, attack: 0, every: 20 },
+})
+const pairsToScout = [0, 1].map((pair) =>
+  redealStart.cards.flatMap((card, i) =>
+    card.pair === pair
+      ? [{ row: Math.floor(i / redealStart.cols), col: i % redealStart.cols }]
+      : [],
+  ),
+)
+let redealt = redealStart
+for (const [first, second] of pairsToScout)
+  redealt = scout(redealt, first!, second!)
+assert.ok(redealt.log.some((event) => event.type === 'redeal'))
+assert.deepEqual(
+  restoreCombat(JSON.parse(JSON.stringify(redealt))),
+  { ...redealt, log: [] },
+  'a genuine seed-derived redeal restores even when its layout differs from the opening board',
+)
+for (let seed = 1; seed <= 32; seed++) {
+  const initial = createCombat({
+    seed,
+    rows: 4,
+    cols: 4,
+    enemy: { name: 'Patient Guardian', hp: 100, attack: 0, every: 20 },
+  })
+  let current = initial
+  for (let pair = 0; pair < 8; pair++) {
+    const positions = initial.cards.flatMap((card, i) =>
+      card.pair === pair
+        ? [{ row: Math.floor(i / initial.cols), col: i % initial.cols }]
+        : [],
+    )
+    current = scout(current, positions[0]!, positions[1]!)
+    assert.deepEqual(
+      restoreCombat(JSON.parse(JSON.stringify(current))),
+      { ...current, log: [] },
+      `seed ${seed}, turn ${pair + 1}: a real played board remains restorable`,
+    )
+  }
+  assert.ok(
+    current.log.some((event) => event.type === 'redeal'),
+    `seed ${seed}: clearing the board genuinely redeals it`,
+  )
+}
+assert.equal(
+  restoreCombat({
+    ...json,
+    cards: json.cards.map((card: { matched: boolean }, i: number) =>
+      i === 0 ? { ...card, matched: !card.matched } : card,
+    ),
+  }),
+  null,
+  'one face of a pair cannot be marked matched on its own',
+)
+assert.equal(
+  restoreCombat({ ...json, outcome: 'victory' }),
+  null,
+  'victory requires the enemy to have no health',
+)
+assert.equal(
+  restoreCombat({ ...json, outcome: 'defeat' }),
+  null,
+  'defeat requires the player to have no health',
+)
+assert.equal(
+  restoreCombat({ ...json, enemy: { ...json.enemy, hp: 0 } }),
+  null,
+  'an enemy at zero health cannot remain in a fighting checkpoint',
+)
+assert.equal(
+  restoreCombat({
+    ...json,
+    outcome: 'victory',
+    enemy: { ...json.enemy, hp: 0 },
+  }),
+  null,
+  'a journaled checkpoint cannot claim victory without earned damage',
+)
+assert.equal(
+  restoreCombat({ ...json, outcome: 'defeat', playerHp: 0 }),
+  null,
+  'a journaled checkpoint cannot invent an enemy attack',
+)
+assert.ok(
+  restoreCombat({
+    ...json,
+    history: undefined,
+    outcome: 'victory',
+    enemy: { ...json.enemy, hp: 0 },
+  }),
+  'older unjournaled saves retain structural victory compatibility',
+)
+assert.ok(
+  restoreCombat({
+    ...json,
+    history: undefined,
+    outcome: 'defeat',
+    playerHp: 0,
+  }),
+  'older unjournaled saves retain structural defeat compatibility',
+)
+const oddBoard = createCombat({
+  seed: 17,
+  rows: 5,
+  cols: 5,
+  enemy: { name: 'Puzzle Sentinel', hp: 8, attack: 1, every: 3 },
+})
+assert.ok(restoreCombat(oddBoard), 'odd boards retain their one legal obstacle')
+assert.equal(
+  restoreCombat({
+    ...oddBoard,
+    cards: oddBoard.cards.map((card) =>
+      card.pair === null ? { ...card, matched: true } : card,
+    ),
+  }),
+  null,
+  'the odd-board obstacle can never count as a matched pair',
+)
+
 assert.equal(
   restoreBriarCombat({ state: json, images: images.slice(0, 3) }),
   null,
@@ -210,6 +515,85 @@ assert.equal(
 )
 assert.equal(noFight.combat, null)
 assert.equal(newBriarSave().combat, null)
+// Every authored room restores its own enemy and original 4x4 board, never
+// another room's enemy or inflated stats from a modified checkpoint.
+for (const roomId of Object.keys(
+  COMBAT_ROOMS,
+) as (keyof typeof COMBAT_ROOMS)[]) {
+  const original = startCombatRoom(roomId, 42, images)
+  const enemy = original.state.enemy
+  assert.deepEqual(
+    restoreBriarCombat(original, roomId),
+    original,
+    `${roomId}: its own untouched fight restores`,
+  )
+  for (const [label, forged] of [
+    ['name', { name: 'Invented Guardian' }],
+    ['health pool', { maxHp: enemy.maxHp + 1 }],
+    ['damage', { attack: enemy.attack + 1 }],
+    ['attack interval', { every: enemy.every + 1 }],
+    ['telegraph delay', { beatsLeft: enemy.every + 1 }],
+    ['zero telegraph', { beatsLeft: 0 }],
+  ] as const) {
+    assert.equal(
+      restoreBriarCombat(
+        {
+          ...original,
+          state: { ...original.state, enemy: { ...enemy, ...forged } },
+        },
+        roomId,
+      ),
+      null,
+      `${roomId}: forged ${label} is rejected`,
+    )
+  }
+  for (const [label, forged] of [
+    ['hearts', { playerHp: COMBAT_ROOMS[roomId].playerHp + 1 }],
+    ['focus', { focus: COMBAT_ROOMS[roomId].focus + 1 }],
+    ['rows', { rows: 2, cols: 8 }],
+    [
+      'initial health',
+      { history: { ...original.state.history, initialPlayerHp: 99 } },
+    ],
+    [
+      'initial Focus',
+      { history: { ...original.state.history, initialFocus: 99 } },
+    ],
+  ] as const) {
+    assert.equal(
+      restoreBriarCombat(
+        { ...original, state: { ...original.state, ...forged } },
+        roomId,
+      ),
+      null,
+      `${roomId}: forged ${label} is rejected`,
+    )
+  }
+  const forbiddenWeapon = (Object.keys(WEAPONS) as WeaponId[]).find(
+    (id) => !COMBAT_ROOMS[roomId].loadout.includes(id),
+  )
+  if (forbiddenWeapon) {
+    const forged = strike(original.state, forbiddenWeapon, { row: 0, col: 0 })
+    assert.equal(forged.turn, 1, 'the forbidden weapon can fire in isolation')
+    assert.ok(
+      restoreCombat(forged),
+      'the forged action is internally replayable',
+    )
+    assert.equal(
+      restoreBriarCombat({ ...original, state: forged }, roomId),
+      null,
+      `${roomId}: a valid replay cannot use an unearned weapon`,
+    )
+  }
+}
+assert.equal(
+  restoreBriarSave({
+    ...save,
+    roomId: 'collector',
+  }).room,
+  'map',
+  'a valid Warden board cannot impersonate the House Collector',
+)
 // A House guardian duel saved mid-fight restores to the same guardian, and a
 // duel saved before the guardians had boards of their own still restores.
 for (const roomId of ['collector', 'sprite'] as const) {
@@ -218,6 +602,7 @@ for (const roomId of ['collector', 'sprite'] as const) {
       JSON.stringify({
         ...save,
         roomId,
+        combat: startCombatRoom(roomId, 42, images),
         house: { ...newBriarSave().house, current: 'HD-22' },
       }),
     ),

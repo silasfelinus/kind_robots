@@ -47,10 +47,22 @@ import {
   firstTwoPhysicalConsequence,
   darkBriarExtraBridge,
   earnedCourierCompensation,
+  earnedCourierBellAccord,
+  earnedCourierBellOutcome,
   earnedBorrowedVoiceAccord,
   earnedBorrowedVoiceOutcome,
   earnedRoyalEscortAccord,
   earnedRoyalEscortOutcome,
+  earnedOrenManifestAccord,
+  earnedOrenManifestOutcome,
+  earnedKnightCrossingAccord,
+  earnedKnightCrossingOutcome,
+  earnedVesperRookeryAccord,
+  earnedVesperRookeryOutcome,
+  earnedMosswickPromiseAccord,
+  earnedMosswickPromiseOutcome,
+  earnedWitnessBellAccord,
+  earnedWitnessBellOutcome,
   crossRealmConsequenceLedger,
   crossRealmHouseEpilogue,
   earnedDarkHousePuzzleClue,
@@ -514,6 +526,734 @@ assert.ok(
   'The old callback must remember the actual lantern question',
 )
 
+// Oren's original itinerary/supply decision must meaningfully change the
+// mirrored passenger-count/evacuation outcome. The scene, ledger and House
+// ending all derive from the same earned pair of decisions.
+assert.ok(BRIAR_REVEAL_WAVES[0]?.includes('4,3'))
+assert.ok(DARK_BRIAR_WAVES[0]?.includes('4,3'))
+const orenOutcomes = new Set<string>()
+const orenEndings = new Set<string>()
+const orenRoute = [BRIAR_START, '3,4', '4,4', '4,3']
+const orenMirroredBase = {
+  ...newDarkBriarProgress(),
+  phase: 'exploring' as const,
+  mapCards: DARK_BRIAR_WAVES[0]!.map((tile, id) => ({
+    id,
+    tile,
+    pairId: Math.floor(id / 2),
+    image: `/test/manifest-pair-${Math.floor(id / 2)}.webp`,
+    flipped: true,
+    matched: true,
+  })),
+  revealed: [...DARK_BRIAR_WAVES[0]!],
+  visited: orenRoute,
+  player: '4,3',
+}
+for (const [source, prefix] of [
+  ['plan', 'route'],
+  ['load', 'supplies'],
+] as const) {
+  assert.ok(BRIAR_SCENES['4,3']?.choices.some((choice) => choice.id === source))
+  const original = restoreBriarSave({
+    ...newBriarSave(),
+    revealed: [...BRIAR_REVEAL_WAVES[0]!],
+    visited: orenRoute,
+    player: '4,3',
+    wavePhase: 'exploring',
+    sceneChoices: { '4,3': source },
+  })
+  assert.equal(original.sceneChoices['4,3'], source)
+  for (const [response, suffix] of [
+    ['counts', 'counted'],
+    ['rescue', 'rescued'],
+  ] as const) {
+    assert.ok(
+      DARK_BRIAR_SCENES['4,3']?.choices.some(
+        (choice) => choice.id === response,
+      ),
+    )
+    const chosen = darkBriarChoose(orenMirroredBase, '4,3', response)
+    assert.notEqual(chosen, orenMirroredBase)
+    assert.equal(
+      darkBriarChoose(chosen, '4,3', response),
+      chosen,
+      'Oren cannot issue the same evacuation twice',
+    )
+    const reflected = restoreDarkBriarProgress(
+      JSON.parse(JSON.stringify(chosen)),
+    )
+    assert.equal(reflected.sceneChoices['4,3'], response)
+    const accord = `${prefix}-${suffix}`
+    assert.equal(earnedOrenManifestAccord(original, reflected), accord)
+    assert.equal(
+      crossRealmConsequenceLedger(original, mirror, reflected)
+        .orenManifestAccord,
+      accord,
+    )
+    const outcome = earnedOrenManifestOutcome(original, reflected)
+    assert.ok(outcome && outcome.length > 180)
+    assert.match(outcome, /Oren/)
+    orenOutcomes.add(outcome)
+    const ending = crossRealmHouseEpilogue(
+      original,
+      { ...mirror, ending: 'commons' },
+      reflected,
+    )
+    assert.ok(ending.includes('Oren'))
+    orenEndings.add(ending)
+    assert.equal(
+      crossRealmHouseEpilogue(original, mirror, reflected),
+      '',
+      'Oren must not reveal a House ending before it is earned',
+    )
+  }
+}
+assert.equal(orenOutcomes.size, 4)
+assert.equal(orenEndings.size, 4)
+assert.equal(
+  earnedOrenManifestAccord(base, { sceneChoices: { '4,3': 'counts' } }),
+  'unset',
+)
+assert.equal(
+  earnedOrenManifestOutcome(
+    { ...base, sceneChoices: { '4,3': 'forged' } },
+    { sceneChoices: { '4,3': 'rescue' } },
+  ),
+  null,
+)
+assert.equal(
+  earnedOrenManifestOutcome(
+    { ...base, sceneChoices: { '4,3': 'plan' } },
+    { sceneChoices: { '4,3': 'forged' } },
+  ),
+  null,
+)
+assert.equal(
+  crossRealmConsequenceLedger(base, mirror).orenManifestAccord,
+  'unset',
+  'Legacy saves without a mirrored manifest decision remain compatible',
+)
+assert.match(
+  store,
+  /earnedOrenManifestOutcome\(state\.value, next\)/,
+  'The live mirrored scene must display the earned Oren continuation',
+)
+
+// The Knight's original false-oath/apology choice and the mirrored
+// build/release choice must produce four distinct earned outcomes, not a
+// generic pardon or an unearned bridge. Each survives a real save roundtrip.
+assert.ok(BRIAR_REVEAL_WAVES[1]?.includes('5,4'))
+assert.ok(DARK_BRIAR_WAVES[0]?.includes('5,4'))
+const knightScenes = new Set<string>()
+const knightEndings = new Set<string>()
+const knightRoute = [BRIAR_START, '3,4', '4,4', '5,4']
+const knightMirroredBase = {
+  ...newDarkBriarProgress(),
+  phase: 'exploring' as const,
+  mapCards: DARK_BRIAR_WAVES[0]!.map((tile, id) => ({
+    id,
+    tile,
+    pairId: Math.floor(id / 2),
+    image: `/test/knight-pair-${Math.floor(id / 2)}.webp`,
+    flipped: true,
+    matched: true,
+  })),
+  revealed: [...DARK_BRIAR_WAVES[0]!],
+  visited: knightRoute,
+  player: '5,4',
+}
+for (const source of ['truth', 'errand'] as const) {
+  assert.ok(BRIAR_SCENES['5,4']?.choices.some((choice) => choice.id === source))
+  const original = restoreBriarSave({
+    ...newBriarSave(),
+    waveIndex: 1,
+    revealed: BRIAR_REVEAL_WAVES.slice(0, 2).flat(),
+    visited: knightRoute,
+    player: '5,4',
+    wavePhase: 'exploring',
+    sceneChoices: { '5,4': source },
+  })
+  assert.equal(original.sceneChoices['5,4'], source)
+  for (const response of ['draw', 'release'] as const) {
+    assert.ok(
+      DARK_BRIAR_SCENES['5,4']?.choices.some(
+        (choice) => choice.id === response,
+      ),
+    )
+    const chosen = darkBriarChoose(knightMirroredBase, '5,4', response)
+    assert.notEqual(chosen, knightMirroredBase)
+    assert.equal(
+      darkBriarChoose(chosen, '5,4', response),
+      chosen,
+      'The Knight cannot replay a choice for a second outcome',
+    )
+    const reflected = restoreDarkBriarProgress(
+      JSON.parse(JSON.stringify(chosen)),
+    )
+    assert.equal(reflected.sceneChoices['5,4'], response)
+    const accord = `${source}-${response === 'draw' ? 'built' : 'released'}`
+    assert.equal(earnedKnightCrossingAccord(original, reflected), accord)
+    assert.equal(
+      crossRealmConsequenceLedger(original, mirror, reflected)
+        .knightCrossingAccord,
+      accord,
+    )
+    const scene = earnedKnightCrossingOutcome(original, reflected)
+    assert.ok(scene && scene.length > 200)
+    assert.match(scene, /Knight/)
+    assert.match(scene, /but|however|remains|must/i)
+    knightScenes.add(scene)
+    const epilogue = crossRealmHouseEpilogue(
+      original,
+      { ...mirror, ending: 'commons' },
+      reflected,
+    )
+    assert.match(epilogue, /Knight/)
+    assert.ok(
+      response === 'draw'
+        ? epilogue.includes('crossing') || epilogue.includes('bridge')
+        : epilogue.includes('road'),
+    )
+    knightEndings.add(epilogue)
+    assert.equal(
+      crossRealmHouseEpilogue(original, mirror, reflected),
+      '',
+      'An unfinished House must not reveal the Knight epilogue',
+    )
+  }
+}
+assert.equal(knightScenes.size, 4)
+assert.equal(knightEndings.size, 4)
+assert.equal(
+  earnedKnightCrossingAccord(base, { sceneChoices: { '5,4': 'draw' } }),
+  'unset',
+)
+assert.equal(
+  earnedKnightCrossingOutcome(
+    { ...base, sceneChoices: { '5,4': 'forged' } },
+    { sceneChoices: { '5,4': 'draw' } },
+  ),
+  null,
+)
+assert.equal(
+  earnedKnightCrossingOutcome(
+    { ...base, sceneChoices: { '5,4': 'truth' } },
+    { sceneChoices: { '5,4': 'forged' } },
+  ),
+  null,
+)
+assert.equal(
+  crossRealmConsequenceLedger(base, mirror).knightCrossingAccord,
+  'unset',
+  'Old saves without a mirrored Knight decision remain compatible',
+)
+assert.match(
+  store,
+  /earnedKnightCrossingOutcome\(state\.value, next\)/,
+  'The mirrored Knight scene must render the earned outcome',
+)
+assert.match(
+  store,
+  /earnedKnightCrossingOutcome\(state\.value, dark\.value\)/,
+  'Returning to the mirrored Knight must restore earned dialogue',
+)
+
+// Vesper's original missing-person map and the mirrored rookery letters
+// resolve in four distinct ways, with privacy and evidence as real costs.
+assert.ok(BRIAR_REVEAL_WAVES[0]?.includes('3,2'))
+assert.ok(DARK_BRIAR_WAVES[1]?.includes('3,2'))
+const vesperOriginalRevealed = [...BRIAR_REVEAL_WAVES[0]!]
+const vesperMirrorRevealed = DARK_BRIAR_WAVES.slice(0, 2).flat()
+const routeToVesper = (
+  revealed: readonly string[],
+  target = '3,2',
+): string[] => {
+  const paths: string[][] = [[BRIAR_START]]
+  for (let i = 0; i < paths.length; i++) {
+    const route = paths[i]!
+    const last = route[route.length - 1]!
+    if (last === target) return route
+    for (const next of BRIAR_LINKS[last] ?? [])
+      if (revealed.includes(next) && !route.includes(next))
+        paths.push([...route, next])
+  }
+  throw new Error('Vesper must be reachable through authored map links')
+}
+const vesperOriginalRoute = routeToVesper(vesperOriginalRevealed)
+const vesperMirrorRoute = routeToVesper(vesperMirrorRevealed)
+const vesperMirroredBase = {
+  ...newDarkBriarProgress(),
+  waveIndex: 1,
+  phase: 'exploring' as const,
+  mapCards: DARK_BRIAR_WAVES[1]!.map((tile, id) => ({
+    id,
+    tile,
+    pairId: Math.floor(id / 2),
+    image: `/test/vesper-pair-${Math.floor(id / 2)}.webp`,
+    flipped: true,
+    matched: true,
+  })),
+  revealed: vesperMirrorRevealed,
+  visited: vesperMirrorRoute,
+  player: '3,2',
+}
+const vesperScenes = new Set<string>()
+const vesperEpilogues = new Set<string>()
+for (const source of ['ask', 'offer'] as const) {
+  assert.ok(BRIAR_SCENES['3,2']?.choices.some((choice) => choice.id === source))
+  const original = restoreBriarSave({
+    ...newBriarSave(),
+    waveIndex: 0,
+    wavePhase: 'exploring',
+    revealed: vesperOriginalRevealed,
+    visited: vesperOriginalRoute,
+    player: '3,2',
+    wildflowers: 1,
+    sceneChoices: { '3,2': source },
+  })
+  assert.equal(original.sceneChoices['3,2'], source)
+  for (const response of ['verify', 'honor'] as const) {
+    assert.ok(
+      DARK_BRIAR_SCENES['3,2']?.choices.some(
+        (choice) => choice.id === response,
+      ),
+    )
+    const chosen = darkBriarChoose(vesperMirroredBase, '3,2', response)
+    assert.notEqual(chosen, vesperMirroredBase)
+    assert.equal(
+      darkBriarChoose(chosen, '3,2', response),
+      chosen,
+      'Vesper cannot award a second rookery resolution',
+    )
+    const restored = restoreDarkBriarProgress(
+      JSON.parse(JSON.stringify(chosen)),
+    )
+    assert.equal(restored.sceneChoices['3,2'], response)
+    const accord = `${source === 'ask' ? 'asked' : 'flower'}-${
+      response === 'verify' ? 'verified' : 'delivered'
+    }`
+    assert.equal(earnedVesperRookeryAccord(original, restored), accord)
+    assert.equal(
+      crossRealmConsequenceLedger(original, mirror, restored)
+        .vesperRookeryAccord,
+      accord,
+    )
+    const scene = earnedVesperRookeryOutcome(original, restored)
+    assert.ok(scene && scene.length > 220)
+    assert.match(scene, /Vesper/)
+    assert.match(scene, /but|remain|cannot|loses|stays|without/)
+    vesperScenes.add(scene)
+    const epilogue = crossRealmHouseEpilogue(
+      original,
+      { ...mirror, ending: 'commons' },
+      restored,
+    )
+    assert.match(epilogue, /Vesper/)
+    vesperEpilogues.add(epilogue)
+    assert.equal(
+      crossRealmHouseEpilogue(original, mirror, restored),
+      '',
+      'The rookery cannot reveal an unearned House verdict',
+    )
+  }
+}
+assert.equal(vesperScenes.size, 4)
+assert.equal(vesperEpilogues.size, 4)
+assert.equal(
+  earnedVesperRookeryAccord(base, { sceneChoices: { '3,2': 'honor' } }),
+  'unset',
+)
+assert.equal(
+  earnedVesperRookeryOutcome(
+    { ...base, sceneChoices: { '3,2': 'invented' } },
+    { sceneChoices: { '3,2': 'verify' } },
+  ),
+  null,
+)
+assert.equal(
+  earnedVesperRookeryOutcome(
+    { ...base, sceneChoices: { '3,2': 'ask' } },
+    { sceneChoices: { '3,2': 'invented' } },
+  ),
+  null,
+)
+assert.equal(
+  crossRealmConsequenceLedger(base, mirror).vesperRookeryAccord,
+  'unset',
+  'Old saves without the rookery resolution remain compatible',
+)
+assert.match(
+  store,
+  /earnedVesperRookeryOutcome\(state\.value, next\)/,
+  'The mirrored rookery must display earned dialogue when chosen',
+)
+assert.match(
+  store,
+  /earnedVesperRookeryOutcome\(state\.value, dark\.value\)/,
+  'Returning to the rookery must restore the earned outcome',
+)
+
+// Mosswick's first-wave tomorrow ledger or wildflower pledge changes the
+// second-wave mirrored bargain. Both decisions must be reached legitimately.
+assert.ok(BRIAR_REVEAL_WAVES[0]?.includes('4,2'))
+assert.ok(DARK_BRIAR_WAVES[1]?.includes('4,2'))
+const mosswickOriginalRoute = routeToVesper(BRIAR_REVEAL_WAVES[0]!, '4,2')
+const mosswickMirrorRoute = routeToVesper(
+  DARK_BRIAR_WAVES.slice(0, 2).flat(),
+  '4,2',
+)
+const mosswickMirrorBase = {
+  ...newDarkBriarProgress(),
+  waveIndex: 1,
+  phase: 'exploring' as const,
+  mapCards: DARK_BRIAR_WAVES[1]!.map((tile, id) => ({
+    id,
+    tile,
+    pairId: Math.floor(id / 2),
+    image: `/test/mosswick-pair-${Math.floor(id / 2)}.webp`,
+    flipped: true,
+    matched: true,
+  })),
+  revealed: DARK_BRIAR_WAVES.slice(0, 2).flat(),
+  visited: mosswickMirrorRoute,
+  player: '4,2',
+}
+const mosswickScenes = new Set<string>()
+const mosswickEpilogues = new Set<string>()
+for (const source of ['ledger', 'promise'] as const) {
+  assert.ok(BRIAR_SCENES['4,2']?.choices.some((choice) => choice.id === source))
+  const original = restoreBriarSave({
+    ...newBriarSave(),
+    waveIndex: 0,
+    wavePhase: 'exploring',
+    revealed: [...BRIAR_REVEAL_WAVES[0]!],
+    visited: mosswickOriginalRoute,
+    player: '4,2',
+    sceneChoices: { '4,2': source },
+  })
+  assert.equal(original.sceneChoices['4,2'], source)
+  for (const response of ['barter', 'safeguard'] as const) {
+    assert.ok(
+      DARK_BRIAR_SCENES['4,2']?.choices.some(
+        (choice) => choice.id === response,
+      ),
+    )
+    const chosen = darkBriarChoose(mosswickMirrorBase, '4,2', response)
+    assert.notEqual(chosen, mosswickMirrorBase)
+    assert.equal(
+      darkBriarChoose(chosen, '4,2', response),
+      chosen,
+      'Mosswick cannot repeat the same trade for another reward',
+    )
+    const restored = restoreDarkBriarProgress(
+      JSON.parse(JSON.stringify(chosen)),
+    )
+    assert.equal(restored.sceneChoices['4,2'], response)
+    const accord = `${source === 'ledger' ? 'warning' : 'pledge'}-${
+      response === 'barter' ? 'question' : 'safeguard'
+    }`
+    assert.equal(earnedMosswickPromiseAccord(original, restored), accord)
+    assert.equal(
+      crossRealmConsequenceLedger(original, mirror, restored)
+        .mosswickPromiseAccord,
+      accord,
+    )
+    const scene = earnedMosswickPromiseOutcome(original, restored)
+    assert.ok(scene && scene.length > 200)
+    assert.match(scene, /Mosswick/)
+    assert.match(scene, /but|still|without|await/)
+    mosswickScenes.add(scene)
+    const epilogue = crossRealmHouseEpilogue(
+      original,
+      { ...mirror, ending: 'return' },
+      restored,
+    )
+    assert.match(epilogue, /Mosswick/)
+    mosswickEpilogues.add(epilogue)
+    assert.equal(
+      crossRealmHouseEpilogue(original, mirror, restored),
+      '',
+      'Mosswick cannot reveal the House verdict before it is earned',
+    )
+  }
+}
+assert.equal(mosswickScenes.size, 4)
+assert.equal(mosswickEpilogues.size, 4)
+assert.equal(
+  earnedMosswickPromiseAccord(base, { sceneChoices: { '4,2': 'barter' } }),
+  'unset',
+)
+assert.equal(
+  earnedMosswickPromiseOutcome(
+    { ...base, sceneChoices: { '4,2': 'forged' } },
+    { sceneChoices: { '4,2': 'safeguard' } },
+  ),
+  null,
+)
+assert.equal(
+  earnedMosswickPromiseOutcome(
+    { ...base, sceneChoices: { '4,2': 'promise' } },
+    { sceneChoices: { '4,2': 'forged' } },
+  ),
+  null,
+)
+assert.equal(
+  crossRealmConsequenceLedger(base, mirror).mosswickPromiseAccord,
+  'unset',
+  'Older saves without Mosswick decisions remain compatible',
+)
+assert.match(
+  store,
+  /earnedMosswickPromiseOutcome\(state\.value, next\)/,
+  'The mirrored shop must show the earned resolution on choice',
+)
+assert.match(
+  store,
+  /earnedMosswickPromiseOutcome\(state\.value, dark\.value\)/,
+  'Revisiting Mosswick must restore the earned resolution',
+)
+assert.match(
+  store,
+  /earnedOrenManifestOutcome\(state\.value, dark\.value\)/,
+  'Revisiting Oren must restore his already-authored manifest resolution',
+)
+
+// The original courier's lantern/address decision and mirrored glass bell's
+// memory/name testimony produce four distinct, earned and costly continuations.
+const courierBellCards = DARK_BRIAR_WAVES[0]!.map((tile, id) => ({
+  id,
+  tile,
+  pairId: Math.floor(id / 2),
+  image: `/test/courier-bell-${Math.floor(id / 2)}.webp`,
+  flipped: true,
+  matched: true,
+}))
+const courierBellBase = {
+  ...newDarkBriarProgress(),
+  phase: 'exploring' as const,
+  mapCards: courierBellCards,
+  revealed: [...DARK_BRIAR_WAVES[0]!],
+  visited: [BRIAR_START],
+  player: BRIAR_START,
+}
+const courierBellScenes = new Set<string>()
+const courierBellEpilogues = new Set<string>()
+for (const source of ['lend', 'copy'] as const) {
+  assert.ok(
+    BRIAR_SCENES[BRIAR_START]?.choices.some((choice) => choice.id === source),
+  )
+  const original = restoreBriarSave({
+    ...newBriarSave(),
+    revealed: BRIAR_REVEAL_WAVES[0],
+    visited: [BRIAR_START],
+    player: BRIAR_START,
+    wavePhase: 'exploring',
+    sceneChoices: { [BRIAR_START]: source },
+  })
+  assert.equal(original.sceneChoices[BRIAR_START], source)
+  for (const response of ['listen', 'name'] as const) {
+    assert.ok(
+      DARK_BRIAR_SCENES[BRIAR_START]?.choices.some(
+        (choice) => choice.id === response,
+      ),
+    )
+    const chosen = darkBriarChoose(courierBellBase, BRIAR_START, response)
+    assert.notEqual(chosen, courierBellBase)
+    assert.equal(
+      darkBriarChoose(chosen, BRIAR_START, response),
+      chosen,
+      'The courier cannot resolve the bell twice',
+    )
+    const restored = restoreDarkBriarProgress(
+      JSON.parse(JSON.stringify(chosen)),
+    )
+    assert.equal(restored.sceneChoices[BRIAR_START], response)
+    const accord = `${source === 'lend' ? 'lantern' : 'address'}-${
+      response === 'listen' ? 'audited' : 'named'
+    }`
+    assert.equal(earnedCourierBellAccord(original, restored), accord)
+    assert.equal(
+      crossRealmConsequenceLedger(original, mirror, restored).courierBellAccord,
+      accord,
+    )
+    const scene = earnedCourierBellOutcome(original, restored)
+    assert.ok(scene && scene.length > 230)
+    assert.match(scene, /courier/i)
+    assert.match(scene, /but|wait|refuse|delayed|without|unpaid/)
+    courierBellScenes.add(scene)
+    const epilogue = crossRealmHouseEpilogue(
+      original,
+      { ...mirror, ending: 'return' },
+      restored,
+    )
+    assert.match(epilogue, /courier/i)
+    courierBellEpilogues.add(epilogue)
+    assert.equal(
+      crossRealmHouseEpilogue(original, mirror, restored),
+      '',
+      'The courier cannot disclose a House ending before it is earned',
+    )
+  }
+}
+assert.equal(courierBellScenes.size, 4)
+assert.equal(courierBellEpilogues.size, 4)
+assert.equal(
+  earnedCourierBellAccord(base, { sceneChoices: { [BRIAR_START]: 'listen' } }),
+  'unset',
+)
+assert.equal(
+  earnedCourierBellOutcome(
+    { ...base, sceneChoices: { [BRIAR_START]: 'forged' } },
+    { sceneChoices: { [BRIAR_START]: 'name' } },
+  ),
+  null,
+)
+assert.equal(
+  earnedCourierBellOutcome(
+    { ...base, sceneChoices: { [BRIAR_START]: 'copy' } },
+    { sceneChoices: { [BRIAR_START]: 'forged' } },
+  ),
+  null,
+)
+assert.equal(
+  crossRealmConsequenceLedger(base, mirror).courierBellAccord,
+  'unset',
+  'Older saves without the mirrored camp choice remain compatible',
+)
+assert.match(
+  store,
+  /earnedCourierBellOutcome\(state\.value, next\)/,
+  'Choosing at the bell must display the earned resolution',
+)
+assert.match(
+  store,
+  /earnedCourierBellOutcome\(state\.value, dark\.value\)/,
+  'Revisiting the bell must restore the earned resolution',
+)
+
+// The Vault's copied or hidden names meet the mirrored House's witness bells.
+// Real second-wave travel and once-only choices earn four different outcomes.
+assert.ok(BRIAR_REVEAL_WAVES[1]?.includes('6,3'))
+assert.ok(DARK_BRIAR_WAVES[0]?.includes('6,3'))
+const witnessOriginalRevealed = BRIAR_REVEAL_WAVES.slice(0, 2).flat()
+const witnessOriginalRoute = routeToVesper(witnessOriginalRevealed, '6,3')
+const witnessMirrorRoute = routeToVesper(DARK_BRIAR_WAVES[0]!, '6,3')
+const witnessMirrorBase = {
+  ...newDarkBriarProgress(),
+  phase: 'exploring' as const,
+  mapCards: DARK_BRIAR_WAVES[0]!.map((tile, id) => ({
+    id,
+    tile,
+    pairId: Math.floor(id / 2),
+    image: `/test/witness-bell-${Math.floor(id / 2)}.webp`,
+    flipped: true,
+    matched: true,
+  })),
+  revealed: [...DARK_BRIAR_WAVES[0]!],
+  visited: witnessMirrorRoute,
+  player: '6,3',
+}
+const witnessBellScenes = new Set<string>()
+const witnessBellEpilogues = new Set<string>()
+for (const source of ['remember', 'protect'] as const) {
+  assert.ok(BRIAR_SCENES['6,3']?.choices.some((choice) => choice.id === source))
+  const original = restoreBriarSave({
+    ...newBriarSave(),
+    waveIndex: 1,
+    wavePhase: 'exploring',
+    revealed: witnessOriginalRevealed,
+    visited: witnessOriginalRoute,
+    player: '6,3',
+    sceneChoices: { '6,3': source },
+  })
+  assert.equal(original.sceneChoices['6,3'], source)
+  for (const response of ['consent', 'records'] as const) {
+    assert.ok(
+      DARK_BRIAR_SCENES['6,3']?.choices.some(
+        (choice) => choice.id === response,
+      ),
+    )
+    const chosen = darkBriarChoose(witnessMirrorBase, '6,3', response)
+    assert.notEqual(chosen, witnessMirrorBase)
+    assert.equal(
+      darkBriarChoose(chosen, '6,3', response),
+      chosen,
+      'The House cannot ring the same witness bell twice',
+    )
+    const restored = restoreDarkBriarProgress(
+      JSON.parse(JSON.stringify(chosen)),
+    )
+    assert.equal(restored.sceneChoices['6,3'], response)
+    const accord = `${source === 'remember' ? 'copied' : 'shielded'}-${
+      response === 'consent' ? 'consented' : 'recorded'
+    }`
+    assert.equal(earnedWitnessBellAccord(original, restored), accord)
+    assert.equal(
+      crossRealmConsequenceLedger(original, mirror, restored).witnessBellAccord,
+      accord,
+    )
+    const scene = earnedWitnessBellOutcome(original, restored)
+    assert.ok(scene && scene.length > 240)
+    assert.match(scene, /House|Index|Oren|Scylla|Vesper/)
+    assert.match(scene, /but|cannot|without|delay|not yet/)
+    witnessBellScenes.add(scene)
+    for (const ending of ['return', 'commons'] as const) {
+      const epilogue = crossRealmHouseEpilogue(
+        original,
+        { ...mirror, ending },
+        restored,
+      )
+      assert.match(epilogue, /witness|bells|corridor|names/i)
+      assert.ok(
+        !epilogue.includes('The names you copied in Briar') &&
+          !epilogue.includes('Because you shielded the names in Briar'),
+        'The earned bell outcome must replace, not duplicate, the old witness summary',
+      )
+      witnessBellEpilogues.add(epilogue)
+    }
+    assert.equal(
+      crossRealmHouseEpilogue(original, mirror, restored),
+      '',
+      'Unfinished House endings cannot disclose the bell verdict',
+    )
+  }
+}
+assert.equal(witnessBellScenes.size, 4)
+assert.equal(witnessBellEpilogues.size, 4)
+assert.equal(
+  earnedWitnessBellAccord(base, { sceneChoices: { '6,3': 'consent' } }),
+  'unset',
+)
+assert.equal(
+  earnedWitnessBellOutcome(
+    { ...base, sceneChoices: { '6,3': 'forged' } },
+    { sceneChoices: { '6,3': 'records' } },
+  ),
+  null,
+)
+assert.equal(
+  earnedWitnessBellOutcome(
+    { ...base, sceneChoices: { '6,3': 'protect' } },
+    { sceneChoices: { '6,3': 'forged' } },
+  ),
+  null,
+)
+assert.equal(
+  crossRealmConsequenceLedger(base, mirror).witnessBellAccord,
+  'unset',
+  'Old saves without a mirrored bell decision retain their existing witness summary',
+)
+assert.match(
+  store,
+  /earnedWitnessBellOutcome\(state\.value, next\)/,
+  'Choosing at the bells must show the earned outcome',
+)
+assert.match(
+  store,
+  /earnedWitnessBellOutcome\(state\.value, dark\.value\)/,
+  'Revisiting the bells must restore the earned outcome',
+)
+
 const earnedHouseEpilogues = new Set<string>()
 for (const witnessChoice of ['remember', 'protect'] as const) {
   for (const ending of ['return', 'commons'] as const) {
@@ -716,6 +1456,7 @@ for (const [witnessChoice, room, source] of [
     active: true,
     current: room,
     visited: visitedMirrorRoute(room),
+    decisions: { 'HD-32': 'attend' } as Record<string, string>,
   }
   assert.equal(darkHouseEchoes(atPuzzle), 0)
   assert.equal(darkHousePuzzleHint(atPuzzle), atPuzzle)

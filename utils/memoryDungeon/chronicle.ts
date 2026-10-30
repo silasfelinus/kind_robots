@@ -632,28 +632,106 @@ const PHOTO_REAPPRAISALS: ReadonlyArray<{
   },
 ]
 
+type FourPhotoResponses =
+  `${PhotoResponse}:${PhotoResponse}:${PhotoResponse}:${PhotoResponse}`
+const FOUR_FRAME_IDS = ['earth-01', 'earth-02', 'earth-03', 'earth-04'] as const
+const FOUR_FRAME_REFLECTIONS: Record<FourPhotoResponses, string> = {
+  'challenge:challenge:challenge:challenge':
+    'You questioned both first impressions, then sought the person at the doorway and the fate of the apology. The investigation now needs living witnesses; pressing them may reopen wounds they never agreed to share.',
+  'challenge:challenge:challenge:hold':
+    'You challenged the first two pictures and pursued the offered hand, but left the empty chair unanswered. You can seek the helper without demanding the injured friend recount a private hurt.',
+  'challenge:challenge:hold:challenge':
+    'You questioned the dismissal and the gathering, kept both doorway prints, and asked if the apology was delivered. The letter may have reached no one; finding out risks turning another person’s pain into evidence for your case.',
+  'challenge:challenge:hold:hold':
+    'You refused both early verdicts and preserved both later contradictions. The record is honest but incomplete; choosing not to interrogate either witness means living with unanswered questions.',
+  'challenge:hold:challenge:challenge':
+    'You doubted the office verdict while naming the harm at the gathering. You now seek both the helping hand and the apology’s recipient; neither witness owes you forgiveness on Morrow’s behalf.',
+  'challenge:hold:challenge:hold':
+    'You questioned the job loss, acknowledged the friend’s injury, and followed the hand at the doorway. You leave the apology unresolved, accepting that the friend’s privacy may matter more than a clean explanation.',
+  'challenge:hold:hold:challenge':
+    'You held both office prints without dismissing the gathering’s hurt, then asked whether an apology was delivered. Pursuing that answer may bring accountability, but it cannot make the friend accept it.',
+  'challenge:hold:hold:hold':
+    'You doubted the office verdict but did not dilute the friend’s pain. Both later images remain beside the first two; you preserve the contradictions at the cost of leaving their witnesses unheard.',
+  'hold:challenge:challenge:challenge':
+    'You kept your anger about the lost work while searching the gathering’s edges. The offered hand and unsent apology now invite two inquiries, neither of which can return your stolen life or compel a friend to speak.',
+  'hold:challenge:challenge:hold':
+    'You grieved the career and looked beyond the gathering, then sought the person offering help. You do not chase the apology’s recipient; the cost is uncertainty about whether repair was ever attempted.',
+  'hold:challenge:hold:challenge':
+    'You held the career loss, questioned the gathering, and preserved both office prints. You ask whether the apology was sent, knowing that the answer may expose a friend who wanted to be left alone.',
+  'hold:challenge:hold:hold':
+    'You kept the office hurt and searched for the gathering’s missing context, but declined to turn either later image into a verdict. The unanswered questions remain yours to carry, not the witnesses’ obligation to solve.',
+  'hold:hold:challenge:challenge':
+    'You acknowledged both injuries and still sought the helping hand and the apology’s fate. The new evidence can complicate blame without excusing the exchange; your search risks asking injured people to relive it.',
+  'hold:hold:challenge:hold':
+    'You kept both first wounds visible and asked who offered Morrow help. The unsent apology stays beside the empty chair; you protect the friend’s silence even though it denies you a simpler judgment.',
+  'hold:hold:hold:challenge':
+    'You held on to the career loss and the friend’s humiliation, preserved both doorway prints, and asked whether the apology was delivered. An answer might establish an effort, never the friend’s consent to forgive.',
+  'hold:hold:hold:hold':
+    'You kept the two original harms and both contradictory images without replacing one story with another. The price of this restraint is an unfinished account; nobody’s silence becomes proof of innocence or guilt.',
+}
+
+function fourFrameSynthesis(
+  chronicle: EarthChronicle,
+): EarthPhotoReappraisal | null {
+  if (
+    !FOUR_FRAME_IDS.every(
+      (id) =>
+        chronicle.found.includes(id) &&
+        (chronicle.responses[id] === 'challenge' ||
+          chronicle.responses[id] === 'hold'),
+    )
+  )
+    return null
+  const key = FOUR_FRAME_IDS.map((id) => chronicle.responses[id]).join(
+    ':',
+  ) as FourPhotoResponses
+  return {
+    title: 'Four frames, no borrowed verdict',
+    evidence:
+      'The office doorway and injured friend each have a second photograph. An offered hand cannot prove a job was saved; an unsent apology cannot establish forgiveness. All four prints belong in the same record.',
+    reflection: FOUR_FRAME_REFLECTIONS[key],
+  }
+}
+
+export function earthPhotoReappraisals(
+  chronicle: EarthChronicle,
+  photoId: string,
+): EarthPhotoReappraisal[] {
+  const earned = [...PHOTO_REAPPRAISALS]
+    .reverse()
+    .filter(
+      ({ photos }) =>
+        photos.includes(photoId) &&
+        photos.every(
+          (id) =>
+            chronicle.found.includes(id) &&
+            (chronicle.responses[id] === 'challenge' ||
+              chronicle.responses[id] === 'hold'),
+        ),
+    )
+    .map((pair) => {
+      const first = chronicle.responses[pair.photos[0]]!
+      const second = chronicle.responses[pair.photos[1]]!
+      return {
+        title: pair.title,
+        evidence: pair.evidence,
+        reflection: pair.reflections[`${first}:${second}`],
+      }
+    })
+  if (FOUR_FRAME_IDS.includes(photoId as (typeof FOUR_FRAME_IDS)[number])) {
+    const synthesis = fourFrameSynthesis(chronicle)
+    if (synthesis) earned.push(synthesis)
+  }
+  return earned
+}
+
+/** Preserve the most recent comparison for existing single-result consumers. */
 export function earthPhotoReappraisal(
   chronicle: EarthChronicle,
   photoId: string,
 ): EarthPhotoReappraisal | null {
-  const pair = PHOTO_REAPPRAISALS.find(
-    ({ photos }) =>
-      photos.includes(photoId) &&
-      photos.every(
-        (id) =>
-          chronicle.found.includes(id) &&
-          (chronicle.responses[id] === 'challenge' ||
-            chronicle.responses[id] === 'hold'),
-      ),
-  )
-  if (!pair) return null
-  const first = chronicle.responses[pair.photos[0]]!
-  const second = chronicle.responses[pair.photos[1]]!
-  return {
-    title: pair.title,
-    evidence: pair.evidence,
-    reflection: pair.reflections[`${first}:${second}`],
-  }
+  const available = earthPhotoReappraisals(chronicle, photoId)
+  return available[available.length - 1] ?? null
 }
 
 export function validateEarthPhotoManifest(): string[] {

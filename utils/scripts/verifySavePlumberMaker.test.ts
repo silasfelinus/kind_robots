@@ -26,6 +26,7 @@ import {
   GIANT_FOES,
   SOLID_ICE,
   SOLID_FRAGILE_ICE,
+  SOLID_GATE,
   SOLID_SNOWBANK,
   SOLID_WATER,
   STAGE_GLYPHS,
@@ -193,6 +194,7 @@ for (const name of [
   'skybridge',
   'spacewalk',
   'orbital-salvage',
+  'pressure-lock',
 ] as const) {
   const course = makerTemplate(name)
   assert.deepEqual(decodeMakerLevel(encodeMakerLevel(course)), course)
@@ -638,6 +640,141 @@ assert.equal(
   'Bottom hull has no falling softlock',
 )
 assert.equal(boundedSpace.hero.vy, 0)
+
+// Air-jet exhaust puzzles: pressure cannot pass through walls or trigger
+// switches that lie in front of the nozzle, and every valve must be opened.
+const lockLevel = makerTemplate('pressure-lock')
+const lockParsed = parseStage(toMakerStage(lockLevel))
+assert.equal(lockParsed.space, true)
+assert.equal(lockParsed.spawns.filter((s) => s.kind === 'valve').length, 2)
+assert.equal(
+  [...lockParsed.solid].filter((solid) => solid === SOLID_GATE).length,
+  24,
+)
+assert.deepEqual(decodeMakerLevel(encodeMakerLevel(lockLevel)), lockLevel)
+assert.ok(
+  MAKER_GROUPS.find((g) => g.name === 'Cosmos')?.tiles.some(
+    (t) => t.key === 'v',
+  ),
+)
+assert.ok(
+  MAKER_GROUPS.find((g) => g.name === 'Cosmos')?.tiles.some(
+    (t) => t.key === 'g',
+  ),
+)
+
+const puzzleTiles = spaceCorridor.rows.map((row) => row.split(''))
+puzzleTiles[8]![8] = 'v'
+puzzleTiles[8]![13] = 'v'
+for (let y = 0; y < 24; y++) puzzleTiles[y]![16] = 'g'
+const puzzleLevel = validateMakerLevel({
+  ...spaceCorridor,
+  title: 'Exhaust Alignment Contract',
+  rows: puzzleTiles.map((row) => row.join('')),
+})
+const puzzleStage = toMakerStage(puzzleLevel)
+const freshPuzzle = () =>
+  createSavePlumberPreview(
+    {
+      rng: () => 0.5,
+      sound: { play: () => undefined },
+      demo: false,
+      hiScore: 0,
+    },
+    { customLevel: puzzleStage },
+  )
+const rightJet = emptyInput()
+rightJet.held.right = true
+rightJet.held.x = true
+const positionForExhaust = (
+  run: ReturnType<typeof freshPuzzle>,
+  col: number,
+) => {
+  run.hero.x = col * 16 + 8
+  run.hero.y = 8 * 16 + 8 - 10
+  run.hero.vx = 0
+  run.hero.vy = 0
+}
+const wrongWay = freshPuzzle()
+positionForExhaust(wrongWay, 6)
+wrongWay.update(rightJet)
+assert.equal(
+  wrongWay.valves.filter((v) => v.open).length,
+  0,
+  'Jet thrust must face away from a valve',
+)
+assert.equal(wrongWay.solidAt(16, 8), SOLID_GATE)
+const noFuel = freshPuzzle()
+positionForExhaust(noFuel, 11)
+noFuel.airPressure = 0
+noFuel.update(rightJet)
+assert.equal(
+  noFuel.valves.filter((v) => v.open).length,
+  0,
+  'Empty jet cannot operate pressure gates',
+)
+const blockedTiles = puzzleLevel.rows.map((row) => row.split(''))
+blockedTiles[8]![10] = 'B'
+const blockedPuzzle = createSavePlumberPreview(
+  { rng: () => 0.5, sound: { play: () => undefined }, demo: false, hiScore: 0 },
+  {
+    customLevel: toMakerStage(
+      validateMakerLevel({
+        ...puzzleLevel,
+        rows: blockedTiles.map((row) => row.join('')),
+      }),
+    ),
+  },
+)
+positionForExhaust(blockedPuzzle, 11)
+blockedPuzzle.update(rightJet)
+assert.equal(
+  blockedPuzzle.valves.filter((v) => v.open).length,
+  0,
+  'Asteroid walls intercept air exhaust',
+)
+const sequential = freshPuzzle()
+positionForExhaust(sequential, 11)
+sequential.update(rightJet)
+assert.equal(
+  sequential.valves.filter((v) => v.open).length,
+  1,
+  'Exhaust activates the rear valve',
+)
+assert.equal(
+  sequential.solidAt(16, 8),
+  SOLID_GATE,
+  'One of two valves cannot unlock the gate',
+)
+for (let i = 0; i < 8; i++) sequential.update(emptyInput())
+positionForExhaust(sequential, 15)
+sequential.update(rightJet)
+assert.equal(
+  sequential.valves.filter((v) => v.open).length,
+  2,
+  'Second exhaust shot activates final valve',
+)
+assert.equal(sequential.solidAt(16, 8), 0, 'All valves open the airlock gate')
+assert.ok(sequential.airlockFlash > 0)
+assert.equal(
+  sequential.save,
+  undefined,
+  'The airlock puzzle cannot mutate campaign saves',
+)
+const baselinePuzzle = validateMakerLevel({ ...puzzleLevel, space: undefined })
+assert.equal(parseStage(toMakerStage(baselinePuzzle)).space, false)
+const baselineRun = createSavePlumberPreview(
+  { rng: () => 0.5, sound: { play: () => undefined }, demo: false, hiScore: 0 },
+  { customLevel: toMakerStage(baselinePuzzle) },
+)
+positionForExhaust(baselineRun, 11)
+baselineRun.update(rightJet)
+assert.equal(
+  baselineRun.valves.filter((v) => v.open).length,
+  0,
+  'Normal stages do not shoot pneumatic exhaust',
+)
+assert.equal(baselineRun.solidAt(16, 8), SOLID_GATE)
 
 const worldStage = parseStage(toMakerStage(initial))
 assert.equal(

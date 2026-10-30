@@ -432,6 +432,26 @@
                   </button>
                 </div>
                 <div class="cap-personnel-dossier" aria-live="polite">
+                  <figure
+                    class="cap-personnel-hero"
+                    data-testid="space-couch-captain-hero"
+                  >
+                    <img
+                      v-if="portrait('captain-' + selectedCaptain)"
+                      :src="portrait('captain-' + selectedCaptain)!"
+                      :alt="
+                        activeCaptain.name + ' full-size character portrait'
+                      "
+                      class="cap-personnel-hero-image"
+                    />
+                    <div v-else class="cap-personnel-hero-fallback">
+                      <strong>{{ activeCaptain.name.slice(0, 1) }}</strong>
+                    </div>
+                    <figcaption>
+                      <span>YOUR CAPTAIN</span>
+                      <strong>{{ activeCaptain.name }}</strong>
+                    </figcaption>
+                  </figure>
                   <div class="cap-dossier-header">
                     <img
                       v-if="portrait('captain-' + selectedCaptain)"
@@ -466,6 +486,16 @@
                       }}
                     </button>
                   </div>
+                  <div
+                    class="cap-stats cap-personnel-essential-stats"
+                    data-testid="space-couch-captain-stats"
+                    aria-label="Captain statistics"
+                  >
+                    <div v-for="skill in SKILLS" :key="skill">
+                      <small>{{ skill.toUpperCase() }}</small>
+                      <strong>{{ captainStats[skill] }}</strong>
+                    </div>
+                  </div>
                   <template v-if="captainDossierTab === 'stats'">
                     <div class="cap-insight">
                       <strong>{{ activeCaptain.doctrine }}</strong
@@ -474,15 +504,6 @@
                         {{ activeCaptain.cost }}</small
                       >
                     </div>
-                    <div
-                      class="cap-stats cap-captain-stats"
-                      aria-label="Captain statistics"
-                    >
-                      <div v-for="skill in SKILLS" :key="skill">
-                        <small>{{ skill.toUpperCase() }}</small
-                        ><strong>{{ captainStats[skill] }}</strong>
-                      </div>
-                    </div>
                   </template>
                   <div
                     v-else-if="captainDossierTab === 'history'"
@@ -490,6 +511,20 @@
                   >
                     <strong>Personal history</strong>
                     <p>{{ CAPTAIN_DOSSIERS[selectedCaptain].history }}</p>
+                    <section
+                      class="cap-character-promise"
+                      data-testid="couch-captain-promise"
+                    >
+                      <h3>{{ CAPTAIN_DOSSIERS[selectedCaptain].hook }}</h3>
+                      <p>{{ CAPTAIN_DOSSIERS[selectedCaptain].oddity }}</p>
+                      <strong>YOUR KIND OF TROUBLE</strong>
+                      <p>
+                        {{ CAPTAIN_DOSSIERS[selectedCaptain].storyPromise }}
+                      </p>
+                      <small>{{
+                        CAPTAIN_DOSSIERS[selectedCaptain].crewSpark
+                      }}</small>
+                    </section>
                   </div>
                   <div v-else class="cap-insight cap-dossier-story">
                     <strong>First order and unresolved liability</strong>
@@ -610,6 +645,29 @@
                   </div>
                 </div>
                 <div class="cap-personnel-dossier" aria-live="polite">
+                  <figure
+                    class="cap-personnel-hero"
+                    data-testid="space-couch-crew-hero"
+                  >
+                    <img
+                      v-if="portrait(crewProfile(focusedCrew).portraitKey)"
+                      :src="portrait(crewProfile(focusedCrew).portraitKey)!"
+                      :alt="
+                        crewProfile(focusedCrew).name +
+                        ' full-size character portrait'
+                      "
+                      class="cap-personnel-hero-image"
+                    />
+                    <div v-else class="cap-personnel-hero-fallback">
+                      <strong>{{
+                        crewProfile(focusedCrew).name.slice(0, 1)
+                      }}</strong>
+                    </div>
+                    <figcaption>
+                      <span>OFFICER DOSSIER</span>
+                      <strong>{{ crewProfile(focusedCrew).name }}</strong>
+                    </figcaption>
+                  </figure>
                   <div class="cap-dossier-header">
                     <img
                       v-if="portrait(crewProfile(focusedCrew).portraitKey)"
@@ -645,6 +703,18 @@
                     </button>
                   </div>
                   <div
+                    class="cap-stats cap-personnel-essential-stats"
+                    data-testid="space-couch-crew-stats"
+                    aria-label="Focused crew skills"
+                  >
+                    <div v-for="skill in SKILLS" :key="skill">
+                      <small>{{ skill.toUpperCase() }}</small>
+                      <strong>{{
+                        crewProfile(focusedCrew).stats[skill]
+                      }}</strong>
+                    </div>
+                  </div>
+                  <div
                     v-if="crewDossierTab === 'history'"
                     class="cap-insight cap-dossier-story"
                   >
@@ -653,6 +723,16 @@
                       {{ crewProfile(focusedCrew).culture }}</strong
                     >
                     <p>{{ CREW_DOSSIERS[focusedCrew].history }}</p>
+                    <section
+                      class="cap-character-promise"
+                      data-testid="couch-crew-promise"
+                    >
+                      <h3>{{ CREW_DOSSIERS[focusedCrew].hook }}</h3>
+                      <p>{{ CREW_DOSSIERS[focusedCrew].oddity }}</p>
+                      <strong>THE STORY THIS CREWMATE BRINGS</strong>
+                      <p>{{ CREW_DOSSIERS[focusedCrew].storyPromise }}</p>
+                      <small>{{ CREW_DOSSIERS[focusedCrew].crewSpark }}</small>
+                    </section>
                   </div>
                   <div
                     v-else-if="crewDossierTab === 'route'"
@@ -670,17 +750,10 @@
                       {{ CREW_DOSSIERS[focusedCrew].nemesisLink }}</small
                     >
                   </div>
-                  <div
-                    v-else
-                    class="cap-stats"
-                    aria-label="Focused crew skills"
-                  >
-                    <div v-for="skill in SKILLS" :key="skill">
-                      <small>{{ skill.toUpperCase() }}</small>
-                      <strong>{{
-                        crewProfile(focusedCrew).stats[skill]
-                      }}</strong>
-                    </div>
+                  <div v-else class="cap-insight cap-dossier-story">
+                    <strong>Onboard specialty</strong>
+                    <p>{{ crewProfile(focusedCrew).role }}</p>
+                    <small>{{ CREW_DOSSIERS[focusedCrew].crewSpark }}</small>
                   </div>
                 </div>
                 <button
@@ -804,6 +877,40 @@
               </div>
             </div>
             <p class="cap-narrative">{{ mission.briefing }}</p>
+            <section class="cap-instinct" data-testid="couch-captain-instinct">
+              <strong>CAPTAIN'S PERSONAL BAD IDEA</strong>
+              <h3>{{ captainInstinct.title }}</h3>
+              <p>{{ captainInstinct.situation }}</p>
+              <p class="cap-instinct-response">{{ captainReply }}</p>
+              <template v-if="captainCanAct">
+                <button
+                  type="button"
+                  class="cap-option"
+                  data-testid="couch-captain-impulse"
+                  :disabled="captainImpulseBlocked"
+                  @click="store.captainAction('impulse')"
+                >
+                  <span
+                    ><b>{{ captainInstinct.impulse }}</b
+                    ><small>+10% mission odds; a personal cost</small></span
+                  >
+                </button>
+                <button
+                  type="button"
+                  class="cap-option"
+                  data-testid="couch-captain-restraint"
+                  @click="store.captainAction('restraint')"
+                >
+                  <span
+                    ><b>{{ captainInstinct.restraint }}</b
+                    ><small>Safer. No tactical bonus.</small></span
+                  >
+                </button>
+              </template>
+              <p v-else class="cap-instinct-response">
+                This chapter's captain decision is recorded.
+              </p>
+            </section>
             <div
               v-if="briefingCallbacks.length || briefingAboard.length"
               class="cap-callbacks"
@@ -1566,6 +1673,11 @@ import {
   CASINO_ORIGIN,
 } from '~/utils/gameOfCaptains/solarCircuit'
 
+import {
+  CAPTAIN_INSTINCTS,
+  captainInstinctAvailable,
+  captainInstinctReply,
+} from '~/utils/gameOfCaptains/captainInstincts'
 import { warpArt } from '~/utils/gameOfCaptains/artManifest'
 import { portraitArt } from '~/utils/gameOfCaptains/artSlots'
 import {
@@ -1658,6 +1770,22 @@ const stageAlt = computed(() =>
 )
 const activeCaptain = computed(() =>
   CAPTAINS.find((c) => c.id === selectedCaptain.value)!,
+)
+const captainInstinct = computed(
+  () => CAPTAIN_INSTINCTS[run.value?.captain ?? selectedCaptain.value],
+)
+const captainCanAct = computed(
+  () => !!run.value && captainInstinctAvailable(run.value),
+)
+const captainReply = computed(() =>
+  run.value ? captainInstinctReply(run.value) : '',
+)
+const captainImpulseBlocked = computed(
+  () =>
+    !!run.value &&
+    ((['vale', 'solace'].includes(run.value.captain) &&
+      run.value.supplies < 1) ||
+      (run.value.captain === 'quill' && (run.value.shieldCharge ?? 2) < 1)),
 )
 const mission = computed(() =>
   run.value ? missionFor(run.value) : MISSIONS[0]!,
@@ -1828,6 +1956,12 @@ function startNewVoyage() {
   restartVoyage()
 }
 onMounted(() => store.load())
+useSeoMeta(
+  gameLinkPreviewMeta(
+    'game-of-captains',
+    useRuntimeConfig().public.appBaseUrl,
+  ) ?? {},
+)
 useHead({ title: 'Space Couch | Kind Robots' })
 
 function selectCrewForDossier(id: CrewId) {
@@ -2990,6 +3124,40 @@ function toggleAway(id: CrewId) {
   font-size: 0.7rem;
   line-height: 1.4;
 }
+.cap-character-promise,
+.cap-instinct {
+  display: grid;
+  gap: 0.45rem;
+  padding: 0.85rem;
+  border: 1px solid #8ec3cd7a;
+  border-radius: 0.7rem;
+  background: linear-gradient(135deg, #253a49, #14243d);
+}
+.cap-character-promise h3,
+.cap-instinct h3 {
+  margin: 0;
+  color: #ffe3c4;
+  font:
+    800 1rem/1.4 Georgia,
+    serif;
+}
+.cap-character-promise p,
+.cap-instinct p {
+  margin: 0;
+  font-size: 0.78rem;
+  line-height: 1.55;
+}
+.cap-character-promise strong,
+.cap-instinct strong {
+  color: #f9c998;
+  font-size: 0.7rem;
+  letter-spacing: 0.08em;
+}
+.cap-character-promise small,
+.cap-instinct-response {
+  color: #c1d8dd;
+  line-height: 1.5;
+}
 .cap-starmap {
   position: absolute;
   left: 5%;
@@ -3591,6 +3759,150 @@ function toggleAway(id: CrewId) {
 @media (prefers-reduced-motion: reduce) {
   .cap-painting {
     transition: none;
+  }
+}
+
+.cap-personnel-frame[data-screen='captain'],
+.cap-personnel-frame[data-screen='crew'] {
+  grid-template-columns: minmax(0, 0.78fr) minmax(0, 1.22fr);
+}
+.cap-personnel-frame .cap-personnel-dossier {
+  display: grid;
+  grid-template-rows: minmax(0, 1fr) auto auto minmax(0, 0.38fr);
+  gap: clamp(0.2rem, 0.65cqh, 0.5rem);
+  padding: clamp(0.3rem, 0.8cqi, 0.75rem);
+}
+.cap-personnel-hero {
+  position: relative;
+  min-height: 0;
+  min-width: 0;
+  overflow: hidden;
+  margin: 0;
+  border: 1px solid #d6b88995;
+  border-radius: 0.7rem;
+  background: #0e2135;
+}
+.cap-personnel-hero-image,
+.cap-personnel-hero-fallback {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center 23%;
+}
+.cap-personnel-hero-fallback {
+  display: grid;
+  place-items: center;
+  background:
+    linear-gradient(180deg, #1420332e, #081426d8),
+    url('/game-of-captains/space-couch-stage.svg') center / cover;
+}
+.cap-personnel-hero-fallback strong {
+  font:
+    900 clamp(4rem, 12cqi, 11rem) Georgia,
+    serif;
+  color: #ffdfa9d9;
+  text-shadow: 0 5px 30px #000a;
+}
+.cap-personnel-hero figcaption {
+  position: absolute;
+  inset: auto 0 0;
+  display: grid;
+  gap: 0.1rem;
+  padding: clamp(0.5rem, 1.3cqi, 1rem);
+  background: linear-gradient(0deg, #07101ff5, transparent);
+  text-shadow: 0 2px 8px #000c;
+}
+.cap-personnel-hero figcaption span {
+  color: #f6c792;
+  font-size: clamp(0.55rem, 0.88cqi, 0.75rem);
+  font-weight: 900;
+  letter-spacing: 0.17em;
+}
+.cap-personnel-hero figcaption strong {
+  color: #fff0dd;
+  font:
+    900 clamp(1rem, 2.65cqi, 2.3rem) Georgia,
+    serif;
+  line-height: 1;
+}
+.cap-personnel-frame .cap-dossier-header {
+  min-height: 2rem;
+}
+.cap-personnel-frame .cap-dossier-header > img,
+.cap-personnel-frame .cap-dossier-header > .cap-dossier-monogram {
+  display: none;
+}
+.cap-personnel-frame .cap-personnel-essential-stats {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0.2rem;
+  margin: 0;
+}
+.cap-personnel-frame .cap-personnel-essential-stats > div {
+  padding: clamp(0.15rem, 0.5cqi, 0.45rem);
+  border: 1px solid #7bb5bc62;
+  border-radius: 0.4rem;
+  text-align: center;
+  background: #0b1a2abf;
+}
+.cap-personnel-frame .cap-personnel-essential-stats small {
+  display: block;
+  font-size: clamp(0.5rem, 0.8cqi, 0.75rem);
+}
+.cap-personnel-frame .cap-personnel-essential-stats strong {
+  display: block;
+  font-size: clamp(0.95rem, 1.8cqi, 1.5rem);
+}
+.cap-personnel-frame .cap-personnel-dossier .cap-insight {
+  min-height: 0;
+  overflow-y: auto;
+  scrollbar-width: thin;
+}
+.cap-personnel-frame .cap-crew-button {
+  flex-direction: row;
+  justify-content: flex-start;
+  text-align: left;
+}
+.cap-personnel-frame .cap-crew-button > b {
+  top: auto;
+  bottom: 0.3rem;
+}
+@media (max-width: 650px) {
+  .cap-personnel-frame[data-screen='captain'],
+  .cap-personnel-frame[data-screen='crew'] {
+    grid-template-columns: minmax(0, 0.45fr) minmax(0, 0.55fr);
+    grid-template-rows: auto minmax(0, 1fr) auto;
+  }
+  .cap-personnel-frame .cap-personnel-dossier {
+    grid-row: 2;
+    grid-column: 2;
+    grid-template-rows: minmax(0, 1fr) auto auto minmax(0, 0.3fr);
+  }
+  .cap-personnel-frame .cap-captains,
+  .cap-personnel-frame .cap-crew-picker {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: repeat(6, minmax(0, 1fr));
+  }
+  .cap-personnel-frame .cap-crew-button,
+  .cap-personnel-frame .cap-captain {
+    flex-direction: row;
+    padding: 0.2rem;
+    gap: 0.2rem;
+  }
+  .cap-personnel-frame .cap-crew-button strong,
+  .cap-personnel-frame .cap-captain strong {
+    font-size: 0.65rem;
+  }
+  .cap-personnel-frame .cap-crew-button small,
+  .cap-personnel-frame .cap-captain small {
+    display: none;
+  }
+  .cap-personnel-frame .cap-personnel-essential-stats {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .cap-personnel-frame .cap-crew-pages {
+    flex-wrap: wrap;
   }
 }
 </style>

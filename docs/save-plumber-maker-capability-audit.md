@@ -31,6 +31,13 @@ The feature is an early Maker, not an equivalent to the two commercial editors. 
 - Space movement is bounded to the stage rectangle, so drifting into the top, bottom or sides stops the heroine rather than sending her indefinitely off-screen. Both templates use ordinary validated Maker v1 share links; existing campaign and player progress remain intact.
 - This complements, rather than replaces, the compressed-air pressure and canister mechanics already shipped in the previous space release.
 
+## Pneumatic airlock puzzle (jet exhaust matters)
+
+- In space courses, the existing `v` valve has a second interaction: **a real air-jet pulse strikes it only when the valve is behind the heroine**, 13–96 engine pixels along the opposite side of the selected thrust direction. A raycast checks for intervening solid blocks; aiming without firing or firing an empty canister does not operate the switch.
+- Every `v` must be opened before the `g` airlock barrier removes its solid collision tiles. The same valve and gate glyphs still use the legacy wrench/valve behavior in non-space campaign gameplay, so existing saves and maps remain unchanged.
+- The **Pressure Lock** starter demonstrates two separate switches and a full-height impassable barrier, combined with recharge docks, compressed air, gravity wells, collectibles and moving hazards. The Cosmos palette duplicates `v` and `g` with discoverable jet/airlock labels. Valve rings and an in-game `AIRLOCK opened/total` indicator make puzzle feedback visible.
+- Focused tests prove shot direction, empty-pressure restraint, occlusion by solid asteroid blocks, sequential unlocking, validated share-code roundtrip and campaign isolation.
+
 ## Orbital gauntlet hazards
 
 - The Cosmos Maker catalog now includes **`&` orbiting asteroid fragments** and **`$` solar gust emitters**. The debris circles its static tile anchor on a deterministic two-tile-radius orbit with a visible guide ring; the actual moving fragment damages the heroine on contact. Solar emitters show a growing warning ring before a time-based outward pressure pulse, which can disrupt or assist movement without consuming the heroine's own propellant.

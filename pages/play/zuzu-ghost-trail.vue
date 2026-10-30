@@ -23,4 +23,10 @@
 
 <script setup lang="ts">
 useHead({ title: 'Zuzu · Ghost Trail' })
+useSeoMeta(
+  gameLinkPreviewMeta(
+    'zuzu-ghost-trail',
+    useRuntimeConfig().public.appBaseUrl,
+  ) ?? {},
+)
 </script>

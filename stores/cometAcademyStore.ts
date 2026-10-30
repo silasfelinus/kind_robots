@@ -4,18 +4,36 @@ import { computed, ref } from 'vue'
 import type { PlayerForm } from '~/utils/cometAcademy/protagonistEvolution'
 import type { SiteId } from '~/utils/cometAcademy/cityMap'
 import type { PatrolZoneId } from '~/utils/cometAcademy/nightPatrols'
+import type { MissionApproach } from '~/utils/cometAcademy/expandedNightCases'
 import {
   signatureById,
   type SignaturePowerId,
   type PowerVowId,
 } from '~/utils/cometAcademy/specialPowers'
 import { defineStore } from 'pinia'
+import {
+  actorAt,
+  counterSignatureLieutenant,
+  endTurn,
+  fireSelected,
+  moveSelected,
+} from '~/utils/everyVillainTactics/training'
+import {
+  newTacticalInterlude,
+  secureRivalObjective,
+  discoverRivalSecret,
+  reconcileTacticalVictory,
+  advanceRivalArena,
+  tacticalResultFor,
+} from '~/utils/cometAcademy/tacticalInterlude'
 import type { SocialActionId } from '~/utils/cometAcademy/relationships'
 import {
   assignTeam,
   assignPlayerCase,
+  selectMissionApproach,
   planThirdNight,
   chooseNightPatrol,
+  chooseRecommendedRival,
   chooseEncounter,
   finishAcademy,
   incidentsFor,
@@ -73,6 +91,7 @@ export const useCometAcademyStore = defineStore('cometAcademy', () => {
   }
 
   const incidents = computed(() => (run.value ? incidentsFor(run.value) : []))
+  const tactical = computed(() => run.value?.tacticalBattle ?? null)
 
   function persist() {
     try {
@@ -223,6 +242,12 @@ export const useCometAcademyStore = defineStore('cometAcademy', () => {
     persist()
   }
 
+  function missionTactic(caseId: string, approach: MissionApproach) {
+    if (!run.value) return
+    run.value = selectMissionApproach(run.value, caseId, approach)
+    persist()
+  }
+
   function planCrisis(caseId: string, approach: 'split' | 'concentrate') {
     if (!run.value) return
     run.value = planThirdNight(run.value, caseId, approach)
@@ -232,6 +257,100 @@ export const useCometAcademyStore = defineStore('cometAcademy', () => {
   function patrol(zone: PatrolZoneId, choiceId: string) {
     if (!run.value) return
     run.value = chooseNightPatrol(run.value, zone, choiceId)
+    persist()
+  }
+
+  function recommendRival() {
+    if (!run.value) return
+    run.value = chooseRecommendedRival(run.value)
+    persist()
+  }
+
+  function startBattle() {
+    if (!run.value) return false
+    const battle = newTacticalInterlude(run.value)
+    if (!battle) return false
+    run.value = { ...run.value, tacticalBattle: battle }
+    persist()
+    return true
+  }
+
+  function battleMode(mode: 'move' | 'fire') {
+    const fight = run.value?.tacticalBattle?.state
+    if (!fight || fight.phase !== 'active') return
+    fight.mode = mode
+    fight.hover = null
+    persist()
+  }
+
+  function battleClick(x: number, y: number) {
+    const battle = run.value?.tacticalBattle
+    const fight = battle?.state
+    if (!battle || !fight || fight.phase !== 'active') return
+    const point = { x, y }
+    const arena = battle.arena
+    if (
+      arena &&
+      !arena.secured &&
+      arena.objectivePoint.x === x &&
+      arena.objectivePoint.y === y &&
+      actorAt(fight, point)?.team !== 'rival' &&
+      secureRivalObjective(battle)
+    ) {
+      persist()
+      return
+    }
+    const unit = actorAt(fight, point)
+    if (unit?.team === 'squad' && unit.hp > 0) {
+      fight.selected = unit.id
+      fight.mode = 'move'
+      fight.hover = point
+      discoverRivalSecret(battle)
+    } else if (unit?.team === 'rival' && fight.mode === 'fire') {
+      if (fireSelected(fight, unit)) reconcileTacticalVictory(battle)
+    } else if (!unit && fight.mode === 'move') {
+      if (moveSelected(fight, point)) discoverRivalSecret(battle)
+    }
+    persist()
+  }
+
+  function battleCounter() {
+    const fight = run.value?.tacticalBattle?.state
+    if (!fight || !counterSignatureLieutenant(fight)) return false
+    persist()
+    return true
+  }
+
+  function battleTurn() {
+    const battle = run.value?.tacticalBattle
+    const fight = battle?.state
+    if (!battle || !fight || fight.phase !== 'active') return
+    endTurn(fight)
+    reconcileTacticalVictory(battle)
+    advanceRivalArena(battle)
+    persist()
+  }
+
+  function battleRetreat() {
+    const fight = run.value?.tacticalBattle?.state
+    if (!fight || fight.phase !== 'active') return
+    fight.phase = 'defeat'
+    fight.log =
+      'You order a retreat. Your team survives, but the rival wins the ground.'
+    persist()
+  }
+
+  function battleResolve() {
+    if (!run.value) return
+    const result = tacticalResultFor(run.value)
+    if (!result) return
+    const completed = {
+      ...run.value,
+      tacticalBattle: null,
+      tacticalResult: result,
+      tacticalHistory: [...(run.value.tacticalHistory ?? []), result],
+    }
+    run.value = resolveDispatch(completed)
     persist()
   }
 
@@ -268,6 +387,7 @@ export const useCometAcademyStore = defineStore('cometAcademy', () => {
     loaded,
     run,
     incidents,
+    tactical,
     storageWarning,
     yearbook,
     load,
@@ -281,9 +401,18 @@ export const useCometAcademyStore = defineStore('cometAcademy', () => {
     visit,
     assign,
     lead,
+    missionTactic,
     planCrisis,
     patrol,
     dispatch,
+    recommendRival,
+    startBattle,
+    battleMode,
+    battleClick,
+    battleCounter,
+    battleTurn,
+    battleRetreat,
+    battleResolve,
     choose,
     next,
     end,

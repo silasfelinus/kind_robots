@@ -18,6 +18,12 @@ import {
   validateBriarRareEvents,
 } from '../memoryDungeon/briarRareEvents'
 import {
+  MEMORY_BRIAR_ACHIEVEMENTS,
+  memoryAchievementGallery,
+  reconcileMemoryAchievements,
+  restoreMemoryAchievements,
+} from '../memoryDungeon/achievements'
+import {
   houseEpilogueScores,
   HOUSE_EPILOGUE_LENSES,
   HOUSE_EPILOGUE_SIGNALS,
@@ -642,13 +648,17 @@ const save = restoreBriarSave(
 assert.deepEqual(save.sceneChoices, all.briar)
 assert.ok(!('quests' in save), 'threads add no save field')
 
-// Six cross-thread rare interludes are genuinely earned: four decisions
+// Eight cross-thread rare interludes are genuinely earned: four decisions
 // from different scenes/rooms, two mutually exclusive authored consequences.
 // No invented reward, hidden save field, or unvisited witness can trigger one.
 assert.deepEqual(validateBriarRareEvents(), [])
-assert.equal(BRIAR_RARE_EVENTS.length, 6)
-assert.equal(new Set(BRIAR_RARE_EVENTS.map((event) => event.id)).size, 6)
-assert.equal(new Set(BRIAR_RARE_EVENTS.map((event) => event.questId)).size, 6)
+assert.equal(BRIAR_RARE_EVENTS.length, BRIAR_QUESTS.length)
+assert.equal(new Set(BRIAR_RARE_EVENTS.map((event) => event.id)).size, 8)
+assert.deepEqual(
+  new Set(BRIAR_RARE_EVENTS.map((event) => event.questId)),
+  new Set(BRIAR_QUESTS.map((quest) => quest.id)),
+  'each of the eight authored quests has a distinct rare convergence',
+)
 const rareCases = [
   {
     id: 'the-fourth-column',
@@ -697,6 +707,22 @@ const rareCases = [
     branchScope: 'house',
     branchKey: 'HD-30',
     choices: ['rest', 'talk'],
+  },
+  {
+    id: 'supper-for-tomorrow',
+    briar: { '3,1': 'harvest', '1,3': 'return' },
+    house: { 'HD-04': 'share' },
+    branchScope: 'briar',
+    branchKey: '1,8',
+    choices: ['plant', 'share'],
+  },
+  {
+    id: 'the-name-left-blank',
+    briar: { '6,3': 'remember' },
+    house: { 'HD-07': 'count', 'HD-17': 'read' },
+    branchScope: 'house',
+    branchKey: 'HD-20',
+    choices: ['testify', 'protect'],
   },
 ] as const
 // The rare-event save fixtures must include the actual passages to each
@@ -800,6 +826,96 @@ for (const event of rareCases) {
   assert.equal(endings.size, 2, `${event.id} has two distinct outcomes`)
 }
 
+// World One's first eight cosmetic achievements are earned by the existing
+// four-decision rare convergences, not by unverified counters or repeated loot.
+assert.equal(MEMORY_BRIAR_ACHIEVEMENTS.length, 8)
+assert.equal(new Set(MEMORY_BRIAR_ACHIEVEMENTS.map((m) => m.id)).size, 8)
+assert.deepEqual(
+  new Set(MEMORY_BRIAR_ACHIEVEMENTS.map((m) => m.id)),
+  new Set(BRIAR_RARE_EVENTS.map((event) => event.id)),
+)
+assert.deepEqual(restoreMemoryAchievements(null), [])
+assert.deepEqual(restoreMemoryAchievements(['unknown', 12, 'unknown']), [])
+assert.deepEqual(
+  memoryAchievementGallery([]).filter((m) => m.earned),
+  [],
+)
+for (const medal of MEMORY_BRIAR_ACHIEVEMENTS) {
+  const quest = BRIAR_QUESTS.find((q) => q.id === medal.questId)
+  assert.equal(medal.artPath, quest?.artPath, 'reuse authored quest art')
+  assert.ok(medal.title.length >= 12 && medal.description.length >= 45)
+  assert.ok(
+    medal.echo.length >= 120,
+    `${medal.id} has a substantial authored echo`,
+  )
+}
+assert.equal(
+  new Set(MEMORY_BRIAR_ACHIEVEMENTS.map((medal) => medal.echo)).size,
+  8,
+  'every rare convergence unlocks a different story fragment',
+)
+assert.ok(
+  memoryAchievementGallery([]).every(
+    (medal) => !medal.earned && medal.echo === null,
+  ),
+  'unearned fragments must not leak into the gallery',
+)
+let lifetime: string[] = []
+for (const event of rareCases) {
+  const briar: Record<string, string> = { ...event.briar }
+  const house: Record<string, string> = { ...event.house }
+  ;(event.branchScope === 'briar' ? briar : house)[event.branchKey] =
+    event.choices[0]
+  const earned = earnedBriarRareEvents(briar, house)
+  const previousCount = lifetime.length
+  lifetime = reconcileMemoryAchievements(lifetime, earned)
+  assert.equal(lifetime.length, previousCount + 1)
+  assert.ok(lifetime.includes(event.id))
+  assert.deepEqual(
+    reconcileMemoryAchievements(lifetime, earned),
+    lifetime,
+    'replaying a rare ending never duplicates its medal',
+  )
+  assert.deepEqual(
+    reconcileMemoryAchievements(
+      restoreMemoryAchievements(JSON.parse(JSON.stringify(lifetime))),
+      [],
+    ),
+    lifetime,
+    'earned medals survive a new run with no current scene choices',
+  )
+  assert.deepEqual(
+    reconcileMemoryAchievements(lifetime, [
+      {
+        id: 'invented',
+        questId: 'invented',
+        title: '',
+        premise: '',
+        outcome: '',
+      },
+    ]),
+    lifetime,
+    'unknown reward IDs never enter the permanent ledger',
+  )
+}
+assert.equal(
+  memoryAchievementGallery(lifetime).filter((m) => m.earned).length,
+  8,
+)
+assert.deepEqual(
+  memoryAchievementGallery(lifetime).map((medal) => medal.echo),
+  MEMORY_BRIAR_ACHIEVEMENTS.map((medal) => medal.echo),
+  'all eight story echoes remain unlocked after serialized restoration',
+)
+const oneUnlocked = memoryAchievementGallery([lifetime[0]!])
+assert.equal(oneUnlocked.filter((medal) => medal.echo !== null).length, 1)
+assert.equal(oneUnlocked.filter((medal) => medal.earned).length, 1)
+assert.deepEqual(
+  restoreMemoryAchievements([lifetime[1], lifetime[0], lifetime[1], 'fake']),
+  lifetime.slice(0, 2),
+  'restoration deduplicates and returns medals in canonical order',
+)
+
 // The Forge counts the eight threads as quests.
 const book = buildMemoryDungeonPlaybook()
 const beats = Object.values(book.nodes).filter((n) =>
@@ -824,11 +940,21 @@ const log = readFileSync('components/memory-dungeon/quest-log.vue', 'utf8')
 assert.match(log, /data-testid="memory-quest-log"/)
 assert.match(log, /world\.briarQuests/)
 assert.match(log, /data-testid="memory-rare-interlude"/)
+assert.match(log, /data-testid="memory-medals-toggle"/)
+assert.match(log, /data-testid="memory-medals-gallery"/)
+assert.match(log, /data-testid="memory-medal"/)
+assert.match(log, /data-testid="memory-unlocked-echo"/)
+assert.match(log, /v-if="medal\.earned && medal\.echo"/)
+assert.match(log, /kr-scroll min-h-0 flex-1 overflow-y-auto/)
 assert.doesNotMatch(log, /\$fetch|localStorage/)
 const store = readFileSync('stores/memoryWorldStore.ts', 'utf8')
 assert.match(store, /briarQuestLog\(state\.value\.sceneChoices/)
 assert.match(store, /earnedBriarRareEvents\(/)
+assert.match(store, /memoryDungeonAchievementsV1/)
+assert.match(store, /restoreMemoryAchievements\(/)
+assert.match(store, /syncAchievements\(\)/)
+assert.match(store, /briarAchievements,/)
 
 console.log(
-  'Memory Briar quests: 8 side quests, 6 earned rare interludes with 12 authored outcomes, epilogue weight and save restoration verified',
+  'Memory Briar quests: 8 side quests, 8 rare interludes with 16 outcomes, 8 persistent cosmetic medals, epilogue weight and save restoration verified',
 )

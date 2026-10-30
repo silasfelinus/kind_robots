@@ -1,6 +1,6 @@
 <template>
   <main
-    class="kr-surface h-full min-h-0 overflow-hidden gap-0"
+    class="kr-surface relative h-full min-h-0 overflow-hidden gap-0"
     data-layout="console-fixed"
     data-testid="every-villain-tactics"
     aria-label="Every Villain Tactics training console"
@@ -18,7 +18,26 @@
             >
           </div>
           <div class="evt-hud-side">
-            <span class="evt-mission-pill">01 / 06</span>
+            <span class="evt-mission-pill">{{
+              store.isPlaytest ? 'STUDIO TEST' : '01 / 06'
+            }}</span>
+            <button
+              v-if="store.isPlaytest"
+              class="evt-outline"
+              type="button"
+              data-testid="tactics-exit-playtest"
+              @click="store.exitPlaytest()"
+            >
+              EXIT TEST
+            </button>
+            <button
+              class="evt-outline"
+              type="button"
+              data-testid="tactics-open-studio"
+              @click="store.studioOpen = true"
+            >
+              LEVEL STUDIO
+            </button>
             <button
               class="evt-outline"
               type="button"
@@ -38,9 +57,11 @@
             <div class="evt-map-glow" aria-hidden="true"></div>
 
             <div class="evt-stage-label">
-              <span class="evt-overline"
-                >COMET CITY ACADEMY / AUDITORIUM APPROACH</span
-              >
+              <span class="evt-overline">{{
+                store.isPlaytest
+                  ? store.draft.venue.toUpperCase()
+                  : 'COMET CITY ACADEMY / AUDITORIUM APPROACH'
+              }}</span>
               <span class="evt-objective"
                 >OBJECTIVE: {{ store.scene.headline }}</span
               >
@@ -53,7 +74,7 @@
                 aria-label="Nine by six tactical grid"
               >
                 <button
-                  v-for="cell in boardCells"
+                  v-for="cell in store.boardCells"
                   :key="cell.x + '-' + cell.y"
                   type="button"
                   class="evt-tile"
@@ -68,40 +89,90 @@
                   @click="store.click(cell)"
                 >
                   <span
-                    v-if="terrainAt(cell) === 'cover'"
+                    v-if="store.isSeismicWarning(cell)"
+                    class="evt-seismic-ring"
+                    data-testid="tactics-seismic-warning"
+                    aria-hidden="true"
+                    >⚠</span
+                  >
+                  <span
+                    v-if="store.isBurrowWarning(cell)"
+                    class="evt-burrow-ring"
+                    data-testid="tactics-burrow-warning"
+                    aria-hidden="true"
+                    >◉</span
+                  >
+                  <span
+                    v-if="store.tileInfoAt(cell) === 'cover'"
                     class="evt-cover"
                     aria-hidden="true"
                   ></span>
                   <span
-                    v-if="terrainAt(cell) === 'wall'"
+                    v-if="store.tileInfoAt(cell) === 'wall'"
                     class="evt-wall"
                     aria-hidden="true"
                   ></span>
                   <span
-                    v-if="actorAt(store.state, cell)"
+                    v-if="store.heightAt(cell) > 0"
+                    class="evt-height"
+                    aria-hidden="true"
+                    >▲{{ store.heightAt(cell) }}</span
+                  >
+                  <span
+                    v-if="displayUnitAt(store.state, cell)"
+                    :key="
+                      displayUnitAt(store.state, cell)!.id +
+                      '-' +
+                      (store.state.impact?.target ===
+                        displayUnitAt(store.state, cell)!.id ||
+                      store.state.impact?.attacker ===
+                        displayUnitAt(store.state, cell)!.id
+                        ? store.state.impact?.serial
+                        : 0)
+                    "
                     class="evt-standee"
                     :class="{
                       'evt-friendly':
-                        actorAt(store.state, cell)?.team === 'squad',
-                      'evt-rival': actorAt(store.state, cell)?.team === 'rival',
-                      'evt-fallen': actorAt(store.state, cell)?.hp === 0,
+                        displayUnitAt(store.state, cell)?.team === 'squad',
+                      'evt-rival':
+                        displayUnitAt(store.state, cell)?.team === 'rival',
+                      'evt-fallen': displayUnitAt(store.state, cell)?.hp === 0,
+                      'evt-impact-hit':
+                        store.state.impact?.target ===
+                          displayUnitAt(store.state, cell)?.id &&
+                        store.state.impact?.hit === true,
+                      'evt-impact-miss':
+                        store.state.impact?.target ===
+                          displayUnitAt(store.state, cell)?.id &&
+                        store.state.impact?.hit === false,
+                      'evt-impact-strike':
+                        store.state.impact?.attacker ===
+                        displayUnitAt(store.state, cell)?.id,
                     }"
                   >
                     <span class="evt-card-art">
-                      <span class="evt-crest" aria-hidden="true">✦</span>
+                      <span class="evt-crest" aria-hidden="true">{{
+                        displayUnitAt(store.state, cell)?.lieutenantName
+                          ? '◆'
+                          : displayUnitAt(store.state, cell)?.henchmanType ===
+                              'burrow'
+                            ? '♢'
+                            : '✦'
+                      }}</span>
                       <span class="evt-initials">{{
-                        initials(actorAt(store.state, cell)!)
+                        initials(displayUnitAt(store.state, cell)!)
                       }}</span>
                     </span>
                     <span class="evt-card-label">{{
-                      unitName(actorAt(store.state, cell)!)
+                      unitName(displayUnitAt(store.state, cell)!)
                     }}</span>
                     <span class="evt-health" aria-hidden="true">
                       <i
-                        v-for="n in actorAt(store.state, cell)?.maxHp ?? 0"
+                        v-for="n in displayUnitAt(store.state, cell)?.maxHp ??
+                        0"
                         :key="n"
                         :class="{
-                          lost: n > (actorAt(store.state, cell)?.hp ?? 0),
+                          lost: n > (displayUnitAt(store.state, cell)?.hp ?? 0),
                         }"
                       ></i>
                     </span>
@@ -119,7 +190,12 @@
                 </button>
               </div>
               <div class="evt-map-edge" aria-hidden="true">
-                GRID 09 × 06 • ROOFTOP SIMULATION
+                GRID 09 × 06 •
+                {{
+                  store.isPlaytest
+                    ? store.draft.title.toUpperCase()
+                    : 'ROOFTOP SIMULATION'
+                }}
               </div>
             </div>
 
@@ -176,7 +252,7 @@
                     >{{ personFor(unit).realName }} · {{ unit.hp }}/{{
                       unit.maxHp
                     }}
-                    HP</small
+                    HP · {{ unit.ap }} AP</small
                   >
                   <span class="evt-pips"
                     ><i :class="{ spent: unit.moved }"></i
@@ -211,6 +287,35 @@
               </button>
             </div>
 
+            <div class="evt-defenses" aria-label="Reaction and defense actions">
+              <button
+                type="button"
+                class="evt-defense"
+                :disabled="
+                  store.state.phase !== 'active' ||
+                  !store.active ||
+                  store.active.ap < 1 ||
+                  store.active.fired
+                "
+                @click="store.overwatch()"
+              >
+                ⌖ OVERWATCH <small>O</small>
+              </button>
+              <button
+                type="button"
+                class="evt-defense"
+                :disabled="
+                  store.state.phase !== 'active' ||
+                  !store.active ||
+                  store.active.ap < 1 ||
+                  store.active.statuses.includes('guarded')
+                "
+                @click="store.hunker()"
+              >
+                ▣ HUNKER <small>H</small>
+              </button>
+            </div>
+
             <div class="evt-odds" aria-live="polite" data-testid="tactics-odds">
               <span class="evt-overline"
                 >TACTICAL INTEL /
@@ -227,17 +332,38 @@
                   <b>HIT PROBABILITY</b>
                   <span
                     >BASE {{ store.aimedTarget.aim }}% · RANGE
-                    {{ store.aimedTarget.range }} · COVER −{{
-                      store.aimedTarget.cover
-                    }}%</span
-                  >
+                    {{ store.aimedTarget.range }} (−{{
+                      store.aimedTarget.rangePenalty
+                    }}) · COVER −{{ store.aimedTarget.cover }} · HEIGHT
+                    {{ store.aimedTarget.elevation >= 0 ? '+' : ''
+                    }}{{ store.aimedTarget.elevation }} · FLANK +{{
+                      store.aimedTarget.flank
+                    }}
+                    · STATUS −{{
+                      store.aimedTarget.suppressed + store.aimedTarget.guarded
+                    }}
+                  </span>
                 </div>
               </div>
               <div v-else class="evt-no-shot">◌ <span>NO CLEAR SHOT</span></div>
               <p>{{ store.previewLabel }}</p>
+              <div
+                v-if="store.projectedTargets.length"
+                class="evt-target-list"
+                aria-label="Visible targets with chance from the previewed position"
+                data-testid="tactics-visible-targets"
+              >
+                <span
+                  v-for="target in store.projectedTargets"
+                  :key="target.target"
+                  class="evt-target-chip"
+                >
+                  {{ targetName(target.target) }} {{ target.hit }}%
+                </span>
+              </div>
               <small class="evt-preview-note"
-                >Training odds; full cover and elevation simulation follows in
-                the combat engine.</small
+                >Exact seeded odds. A dash spends both AP; overwatch reacts once
+                to enemy movement.</small
               >
             </div>
 
@@ -256,11 +382,12 @@
                 class="evt-end-turn"
                 @click="store.reset()"
               >
-                REPLAY FIRST BELL <span>↺</span>
+                {{ store.isPlaytest ? 'REPLAY TEST' : 'REPLAY FIRST BELL' }}
+                <span>↺</span>
               </button>
               <div class="evt-secondary">
                 <button type="button" @click="store.reset()">RESTART</button>
-                <span>SELECT • MOVE • FIRE • END TURN</span>
+                <span>SELECT • MOVE • FIRE • OVERWATCH</span>
               </div>
             </div>
           </aside>
@@ -280,7 +407,7 @@
               {{ entry.label }}
             </button>
           </div>
-          <div class="evt-missions">
+          <div v-if="!store.isPlaytest" class="evt-missions">
             <span>CAMPAIGN</span>
             <strong
               v-for="(mission, index) in missions"
@@ -292,6 +419,260 @@
             </strong>
           </div>
         </footer>
+
+        <section
+          v-if="store.studioOpen"
+          class="evt-studio"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="evt-studio-title"
+          data-testid="tactics-stage-studio"
+        >
+          <header class="evt-studio-header">
+            <div>
+              <span class="evt-overline">COMET CITY / MISSION WORKSHOP</span>
+              <h2 id="evt-studio-title">THE STAGE STUDIO</h2>
+              <p>
+                Paint terrain, place teams and test real tactical sightlines.
+              </p>
+            </div>
+            <button
+              type="button"
+              class="evt-outline"
+              @click="store.studioOpen = false"
+            >
+              CLOSE ✕
+            </button>
+          </header>
+          <div class="evt-studio-body">
+            <div class="evt-studio-tools">
+              <label class="evt-studio-label" for="evt-preset"
+                >STAGE STARTER</label
+              >
+              <select
+                id="evt-preset"
+                :value="store.draft.id"
+                @change="
+                  store.loadPreset(($event.target as HTMLSelectElement).value)
+                "
+              >
+                <option
+                  v-for="preset in store.STAGE_PRESETS"
+                  :key="preset.id"
+                  :value="preset.id"
+                >
+                  {{ preset.title }}
+                </option>
+              </select>
+              <span class="evt-studio-label">TERRAIN BRUSH</span>
+              <div class="evt-brushes">
+                <button
+                  v-for="brush in studioBrushes"
+                  :key="brush.value"
+                  type="button"
+                  :aria-pressed="store.studioBrush === brush.value"
+                  :class="{ chosen: store.studioBrush === brush.value }"
+                  @click="store.studioBrush = brush.value"
+                >
+                  {{ brush.label }}
+                </button>
+              </div>
+              <small
+                >Team brushes reposition the lead squadmate or lead rival.
+                Quarry lieutenant stage: the boss uses an active, previewable
+                seismic strike; other secret and hazard markers are still
+                editor-only pending their own effects.</small
+              >
+            </div>
+            <div class="evt-studio-canvas">
+              <div
+                class="evt-studio-board"
+                role="group"
+                aria-label="Editable nine by six stage map"
+              >
+                <button
+                  v-for="cell in studioCells"
+                  :key="cell.x + '-' + cell.y"
+                  type="button"
+                  class="evt-studio-cell"
+                  :class="{
+                    wall: !!store.draft.map.tiles[cell.x + ',' + cell.y]?.wall,
+                    cover:
+                      !!store.draft.map.tiles[cell.x + ',' + cell.y]?.cover,
+                    raised:
+                      !!store.draft.map.tiles[cell.x + ',' + cell.y]?.elevation,
+                  }"
+                  :aria-label="studioCellLabel(cell)"
+                  :data-testid="'studio-cell-' + cell.x + '-' + cell.y"
+                  @click="store.paintCell(cell)"
+                >
+                  <span v-if="studioSpawnAt(cell)" class="evt-studio-unit">{{
+                    studioSpawnAt(cell)
+                  }}</span>
+                  <span
+                    v-else-if="
+                      store.draft.map.tiles[cell.x + ',' + cell.y]?.wall
+                    "
+                    >▩</span
+                  >
+                  <span
+                    v-else-if="
+                      store.draft.map.tiles[cell.x + ',' + cell.y]?.cover
+                    "
+                    >▤</span
+                  >
+                  <span
+                    v-else-if="
+                      store.draft.secrets.some(
+                        (p) => p.x === cell.x && p.y === cell.y,
+                      )
+                    "
+                    >✦</span
+                  >
+                  <span
+                    v-else-if="
+                      store.draft.hazards.some(
+                        (p) => p.x === cell.x && p.y === cell.y,
+                      )
+                    "
+                    >⚡</span
+                  >
+                  <span
+                    v-else-if="
+                      store.draft.map.tiles[cell.x + ',' + cell.y]?.elevation
+                    "
+                    >▲</span
+                  >
+                  <span v-else>·</span>
+                </button>
+              </div>
+              <div class="evt-studio-legend">
+                ▩ wall · ▤ directional cover · ▲ elevation · ✦ secret · ⚡
+                hazard · S/R spawns
+              </div>
+            </div>
+            <div class="evt-studio-details">
+              <label class="evt-studio-label" for="evt-title"
+                >MISSION TITLE</label
+              >
+              <input
+                id="evt-title"
+                v-model="store.draft.title"
+                maxlength="80"
+              />
+              <label class="evt-studio-label" for="evt-objective"
+                >VICTORY BRIEF</label
+              >
+              <textarea
+                id="evt-objective"
+                v-model="store.draft.objective"
+                rows="3"
+                maxlength="280"
+              ></textarea>
+              <label class="evt-studio-label" for="evt-timer">TURN LIMIT</label>
+              <select id="evt-timer" v-model="store.draft.turnLimit">
+                <option :value="null">No limit</option>
+                <option
+                  v-for="count in [5, 7, 9, 12, 15, 20]"
+                  :key="count"
+                  :value="count"
+                >
+                  {{ count }} rounds
+                </option>
+              </select>
+              <ul
+                v-if="store.studioProblems.length"
+                class="evt-studio-errors"
+                data-testid="studio-validation"
+              >
+                <li v-for="error in store.studioProblems" :key="error">
+                  {{ error }}
+                </li>
+              </ul>
+              <div
+                v-else
+                class="evt-studio-ready"
+                data-testid="studio-validation"
+              >
+                ✓ Passable stage · Six legal spawns · Test ready
+              </div>
+              <button
+                type="button"
+                class="evt-studio-launch"
+                :disabled="store.studioProblems.length > 0"
+                data-testid="studio-playtest"
+                @click="store.startPlaytest()"
+              >
+                ▶ PLAYTEST THIS MAP
+              </button>
+              <small
+                v-if="store.draft.encounter === 'warren-wreckers'"
+                data-testid="studio-encounter"
+              >
+                ONE-HIT ENCOUNTER · Foreman Thumpkin and Cornerstone's Warren
+                Wreckers. Marked dust rings erupt on the following enemy turn,
+                unless occupied.
+              </small>
+              <small
+                >Uses existing seeded combat AI, pathfinding, cover, hit
+                percentages and movement costs. Private in-browser draft; no
+                public publishing.</small
+              >
+            </div>
+          </div>
+        </section>
+
+        <section
+          v-if="store.moment"
+          class="evt-cinematic"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="evt-scene-heading"
+          data-testid="tactics-cinematic"
+        >
+          <div class="evt-cinematic-scenery" aria-hidden="true"></div>
+          <div class="evt-cinematic-content">
+            <div class="evt-cinematic-rail">
+              <span class="evt-overline">{{ store.moment.kicker }}</span>
+              <span>SCENE {{ store.story.seen.length + 1 }} / COMET CITY</span>
+            </div>
+            <h2 id="evt-scene-heading">{{ store.moment.title }}</h2>
+            <div class="evt-dialogue" aria-live="polite">
+              <div
+                v-for="(line, index) in store.moment.lines"
+                :key="index"
+                class="evt-dialogue-line"
+              >
+                <strong>{{ line.speaker }}</strong>
+                <p>{{ line.text }}</p>
+              </div>
+            </div>
+            <div class="evt-cinematic-actions" aria-label="Story decisions">
+              <button
+                v-for="(choice, index) in store.moment.choices"
+                :key="choice.effect"
+                type="button"
+                class="evt-story-choice"
+                :data-testid="'tactics-story-' + choice.effect"
+                @click="store.chooseStory(choice.effect)"
+              >
+                <span class="evt-choice-number">{{ index + 1 }}</span>
+                <span class="evt-choice-body">
+                  <strong>{{ choice.label }}</strong>
+                  <small>{{ choice.detail }}</small>
+                </span>
+                <span aria-hidden="true">›</span>
+              </button>
+            </div>
+            <div class="evt-scene-progress" data-testid="tactics-story-flags">
+              <span>{{ store.story.civilians }} rescued</span>
+              <span>{{ store.story.evidence }} evidence</span>
+              <span>{{
+                store.story.mercy ? 'Mercy offered' : 'Ceasefire unresolved'
+              }}</span>
+            </div>
+          </div>
+        </section>
 
         <div
           v-if="store.rosterOpen"
@@ -324,32 +705,125 @@
               placeholder="Search codenames or names…"
             />
           </label>
-          <div class="evt-roster-grid kr-scroll">
-            <button
-              v-for="person in visibleRoster"
-              :key="person.signature"
-              type="button"
-              class="evt-roster-card"
-              @click="store.chooseLead(person.signature)"
+          <div class="evt-roster-layout">
+            <div
+              class="evt-roster-grid kr-scroll"
+              aria-label="Browse all 48 powers"
             >
-              <span class="evt-roster-art" aria-hidden="true">
-                <span>{{ person.hero.alias.slice(0, 2).toUpperCase() }}</span>
-              </span>
-              <strong>{{ person.hero.alias }}</strong>
-              <small>{{ person.realName }}</small>
-              <span class="evt-roster-type">{{
-                person.signature.replace('-', ' / ').toUpperCase()
-              }}</span>
-            </button>
+              <button
+                v-for="person in visibleRoster"
+                :key="person.signature"
+                type="button"
+                class="evt-roster-card"
+                :class="{ inspected: inspectedSignature === person.signature }"
+                :aria-pressed="inspectedSignature === person.signature"
+                @click="inspectedSignature = person.signature"
+              >
+                <span class="evt-roster-art" aria-hidden="true">
+                  <span>{{ person.hero.alias.slice(0, 2).toUpperCase() }}</span>
+                </span>
+                <strong>{{ person.hero.alias }}</strong>
+                <small>{{ person.realName }}</small>
+                <span class="evt-roster-type">{{
+                  person.signature.replace('-', ' / ').toUpperCase()
+                }}</span>
+              </button>
+            </div>
+            <aside
+              class="evt-campaign-dossier"
+              data-testid="tactics-campaign-dossier"
+              aria-live="polite"
+            >
+              <span class="evt-overline"
+                >CAMPAIGN FILE / AUTHORING PREVIEW</span
+              >
+              <h3>{{ inspectedPerson.hero.alias }}</h3>
+              <p class="evt-dossier-realname">{{ inspectedPerson.realName }}</p>
+              <div class="evt-dossier-entry">
+                <span>01 · POWER ORIGIN</span>
+                <h4>{{ inspectedCampaign.opening.title }}</h4>
+                <small>{{ inspectedCampaign.opening.venue }}</small>
+                <p>{{ inspectedCampaign.opening.inciting }}</p>
+                <p class="evt-dossier-hook">
+                  {{ inspectedCampaign.opening.powerUse }}
+                </p>
+              </div>
+              <div class="evt-dossier-entry">
+                <span>VILLAIN PATH · PRIVATE LAIR</span>
+                <h4>{{ inspectedCampaign.lair.title }}</h4>
+                <small>{{ inspectedCampaign.lair.venue }}</small>
+                <p>{{ inspectedCampaign.lair.arena }}</p>
+                <p class="evt-dossier-hook">
+                  {{ inspectedCampaign.lair.objective }}
+                </p>
+              </div>
+              <div class="evt-dossier-entry">
+                <span>SECOND-IN-COMMAND · 4 HP DESIGN</span>
+                <h4>{{ inspectedCampaign.lieutenant.name }}</h4>
+                <p>{{ inspectedCampaign.lieutenant.look }}</p>
+                <p class="evt-dossier-hook">
+                  {{ inspectedCampaign.lieutenant.power }}
+                </p>
+                <small
+                  >COUNTER: {{ inspectedCampaign.lieutenant.counter }}</small
+                >
+              </div>
+              <p class="evt-dossier-status">
+                Concept plans only: Henchmen: {{ inspectedHenchmen.name }} · The
+                Quarry lieutenant is one playable studio demonstration, not 48
+                shipped bosses or 96 playable stages. Most concepts await art
+                and AI.
+              </p>
+              <button
+                type="button"
+                class="evt-dossier-select"
+                data-testid="tactics-dossier-select"
+                @click="store.chooseLead(inspectedSignature)"
+              >
+                ASSIGN AS SQUAD LEAD →
+              </button>
+              <div
+                class="evt-comic-buttons"
+                aria-label="Preview illustrated character introductions"
+              >
+                <button
+                  v-for="role in comicPreviewRoles"
+                  :key="role"
+                  type="button"
+                  data-testid="tactics-comic-intro-preview"
+                  @click="previewComicIntro(role)"
+                >
+                  {{ role.toUpperCase() }} REVEAL
+                </button>
+              </div>
+            </aside>
           </div>
         </div>
       </div>
     </PlaybookKitShell>
+    <ComicCharacterReveal
+      v-if="activeComicIntro"
+      :open="true"
+      :intro="activeComicIntro"
+      :art-src="activeComicArt"
+      :allow-skip-all="true"
+      @dismiss="dismissComicIntro"
+      @skip-all="skipComicIntros"
+    />
   </main>
 </template>
 
 <script setup lang="ts">
-import { computed, onBeforeUnmount, onMounted } from 'vue'
+import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
+import { IDENTITY_CAMPAIGN_STAGES } from '~/utils/cometAcademy/identityCampaignStages'
+import { VILLAIN_HENCHMEN } from '~/utils/cometAcademy/villainHenchmen'
+import {
+  comicIntroFor,
+  type ComicIntro,
+  type ComicIntroRole,
+} from '~/utils/cometAcademy/comicIntroductions'
+import { promArt } from '~/utils/cometAcademy/artManifest'
+import type { SignaturePowerId } from '~/utils/cometAcademy/specialPowers'
 import { EVERY_VILLAIN_TACTICS } from '~/utils/playbookKit/games/everyVillainTactics'
 import {
   useEveryVillainTacticsStore,
@@ -357,14 +831,115 @@ import {
 } from '~/stores/everyVillainTacticsStore'
 import {
   actorAt,
-  boardCells,
+  displayUnitAt,
+  aliasFor,
   personFor,
-  terrainAt,
   type Cell,
   type Unit,
 } from '~/utils/everyVillainTactics/training'
 
 const store = useEveryVillainTacticsStore()
+const comicPreviewRoles: ComicIntroRole[] = [
+  'hero',
+  'villain',
+  'henchman',
+  'lieutenant',
+]
+const activeComicIntro = ref<ComicIntro | null>(null)
+const comicQueue: ComicIntro[] = []
+const seenComics = new Set<string>()
+const activeComicArt = computed(() =>
+  activeComicIntro.value?.artKey
+    ? promArt(activeComicIntro.value.artKey)
+    : null,
+)
+function queueComicIntro(intro: ComicIntro, replay = false) {
+  if (!replay && seenComics.has(intro.key)) return
+  seenComics.add(intro.key)
+  comicQueue.push(intro)
+  if (!activeComicIntro.value)
+    activeComicIntro.value = comicQueue.shift() ?? null
+}
+function dismissComicIntro() {
+  activeComicIntro.value = comicQueue.shift() ?? null
+}
+function skipComicIntros() {
+  comicQueue.length = 0
+  activeComicIntro.value = null
+}
+function previewComicIntro(role: ComicIntroRole) {
+  queueComicIntro(
+    comicIntroFor(inspectedSignature.value as SignaturePowerId, role),
+    true,
+  )
+}
+watch(
+  () =>
+    store.state.units
+      .filter((unit) => unit.hp > 0)
+      .map((unit) =>
+        [
+          unit.identity,
+          unit.team,
+          unit.henchmanType ?? '',
+          unit.lieutenantName ?? '',
+        ].join(':'),
+      )
+      .join('|'),
+  () => {
+    const lead = store.players[0]
+    if (lead)
+      queueComicIntro(comicIntroFor(lead.identity as SignaturePowerId, 'hero'))
+    for (const unit of store.enemies) {
+      const role: ComicIntroRole = unit.lieutenantName
+        ? 'lieutenant'
+        : unit.henchmanType
+          ? 'henchman'
+          : 'villain'
+      queueComicIntro(comicIntroFor(unit.identity as SignaturePowerId, role))
+    }
+  },
+  { immediate: true },
+)
+const studioBrushes = [
+  { value: 'erase', label: 'Clear' },
+  { value: 'wall', label: 'Wall' },
+  { value: 'half-cover', label: 'Half cover' },
+  { value: 'full-cover', label: 'Full cover' },
+  { value: 'rise', label: 'Raise' },
+  { value: 'squad-spawn', label: 'Squad spawn' },
+  { value: 'rival-spawn', label: 'Rival spawn' },
+  { value: 'secret', label: 'Secret' },
+  { value: 'hazard', label: 'Hazard' },
+] as const
+const studioCells = Array.from({ length: 54 }, (_, i) => ({
+  x: i % 9,
+  y: Math.floor(i / 9),
+}))
+function studioSpawnAt(cell: Cell): string {
+  const spawn = store.draft.spawns.find(
+    (unit) => unit.x === cell.x && unit.y === cell.y,
+  )
+  return spawn
+    ? ['backdraft', 'priya', 'hattie'].includes(spawn.id)
+      ? 'S'
+      : 'R'
+    : ''
+}
+function studioCellLabel(cell: Cell): string {
+  const details = store.draft.map.tiles[cell.x + ',' + cell.y]
+  return (
+    'Column ' +
+    (cell.x + 1) +
+    ', row ' +
+    (cell.y + 1) +
+    ', ' +
+    (studioSpawnAt(cell) ||
+      (details?.wall ? 'wall' : details?.cover ? 'cover' : 'open')) +
+    '. Paint ' +
+    store.studioBrush.replace('-', ' ')
+  )
+}
 const perspectives = Object.entries(PERSPECTIVES).map(([value, entry]) => ({
   value: value as keyof typeof PERSPECTIVES,
   label: entry.label,
@@ -383,6 +958,25 @@ const meterValues = computed(() => ({
   rivals: store.enemies.reduce((total, unit) => total + unit.hp, 0),
   round: store.state.turn,
 }))
+const inspectedSignature = ref(store.leadSignature)
+const inspectedPerson = computed(
+  () =>
+    store.roster.find(
+      (person) => person.signature === inspectedSignature.value,
+    ) ?? store.roster[0]!,
+)
+const inspectedCampaign = computed(
+  () =>
+    IDENTITY_CAMPAIGN_STAGES.find(
+      (entry) => entry.signature === inspectedSignature.value,
+    ) ?? IDENTITY_CAMPAIGN_STAGES[0]!,
+)
+const inspectedHenchmen = computed(
+  () =>
+    VILLAIN_HENCHMEN.find(
+      (entry) => entry.signature === inspectedSignature.value,
+    ) ?? VILLAIN_HENCHMEN[0]!,
+)
 const visibleRoster = computed(() => {
   const q = store.rosterSearch.toLowerCase().trim()
   return store.roster.filter(
@@ -394,36 +988,96 @@ const visibleRoster = computed(() => {
   )
 })
 function unitName(unit: Unit): string {
-  return personFor(unit).hero.alias
+  return aliasFor(unit)
+}
+function targetName(id: string): string {
+  const target = store.enemies.find((unit) => unit.id === id)
+  return target ? unitName(target) : id
 }
 function initials(unit: Unit): string {
   return unitName(unit).slice(0, 2).toUpperCase()
 }
 function cellDescription(cell: Cell) {
   const unit = actorAt(store.state, cell)
+  if (store.isSeismicWarning(cell))
+    return (
+      'SEISMIC WARNING, column ' +
+      (cell.x + 1) +
+      ', row ' +
+      (cell.y + 1) +
+      '. Mags Hardpan will strike this zone next turn unless hit. Move away or shoot the drum.' +
+      (unit
+        ? ' Occupied by ' + unitName(unit) + ', ' + unit.hp + ' health.'
+        : '')
+    )
+  if (store.isBurrowWarning(cell))
+    return (
+      'BURROW WARNING, dust ring at column ' +
+      (cell.x + 1) +
+      ', row ' +
+      (cell.y + 1) +
+      '. Occupy to block emergence.'
+    )
   if (unit)
     return unitName(unit) + ', ' + unit.team + ', ' + unit.hp + ' health'
-  if (terrainAt(cell) === 'wall')
+  if (store.tileInfoAt(cell) === 'wall')
     return 'Wall at column ' + (cell.x + 1) + ', row ' + (cell.y + 1)
   return (
     'Tile ' +
     (cell.x + 1) +
     ', ' +
     (cell.y + 1) +
-    (terrainAt(cell) === 'cover' ? ', cover' : '') +
+    (store.tileInfoAt(cell) === 'cover' ? ', cover' : '') +
+    (store.heightAt(cell) ? ', elevation ' + store.heightAt(cell) : '') +
     (store.cellStyle(cell).reachable ? ', reachable' : '')
   )
 }
 function onKey(event: KeyboardEvent) {
-  if (event.altKey || event.ctrlKey || event.metaKey || store.rosterOpen) return
+  if (activeComicIntro.value) return
+  if (
+    event.altKey ||
+    event.ctrlKey ||
+    event.metaKey ||
+    store.rosterOpen ||
+    store.studioOpen
+  )
+    return
+  if (store.moment) {
+    if (event.code === 'Digit1' || event.code === 'Digit2') {
+      const index = event.code === 'Digit1' ? 0 : 1
+      const chosen = store.moment.choices[index]
+      if (chosen) {
+        event.preventDefault()
+        store.chooseStory(chosen.effect)
+      }
+    }
+    return
+  }
   const tag = (event.target as HTMLElement | null)?.tagName
   if (tag === 'INPUT' || tag === 'TEXTAREA') return
   if (event.code === 'KeyM') store.setMode('move')
   else if (event.code === 'KeyF') store.setMode('fire')
+  else if (event.code === 'KeyO') store.overwatch()
+  else if (event.code === 'KeyH') store.hunker()
   else if (event.code === 'KeyR') store.reset()
   else return
 }
-onMounted(() => window.addEventListener('keydown', onKey))
+watch(
+  () => store.moment?.id,
+  async (scene) => {
+    if (!scene) return
+    await nextTick()
+    document.querySelector<HTMLButtonElement>('.evt-story-choice')?.focus()
+  },
+)
+onMounted(() => {
+  window.addEventListener('keydown', onKey)
+  if (store.moment) {
+    nextTick(() =>
+      document.querySelector<HTMLButtonElement>('.evt-story-choice')?.focus(),
+    )
+  }
+})
 onBeforeUnmount(() => window.removeEventListener('keydown', onKey))
 </script>
 
@@ -635,6 +1289,43 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKey))
   border: 2px solid #d5cbd1;
   box-shadow: 4px -3px 0 #242137;
   clip-path: polygon(0 14%, 90% 0, 100% 80%, 8% 100%);
+}
+.evt-tile.burrow-warning {
+  box-shadow:
+    inset 0 0 0 3px #ffc467,
+    0 0 12px #ef6b2a;
+  z-index: 3;
+}
+.evt-tile.seismic-warning {
+  box-shadow:
+    inset 0 0 0 3px #f5ac5a,
+    0 0 14px #d24d53;
+  z-index: 3;
+}
+.evt-seismic-ring {
+  position: absolute;
+  inset: 8%;
+  display: grid;
+  place-items: center;
+  color: #ffe0af;
+  border: 2px solid #f5ac5a;
+  background: #b32b466e;
+  font-weight: 900;
+  font-size: clamp(0.7rem, 1.7cqw, 1.45rem);
+  pointer-events: none;
+}
+.evt-burrow-ring {
+  position: absolute;
+  inset: 5%;
+  display: grid;
+  place-items: center;
+  color: #ffd092;
+  border: 2px dashed #ffd092;
+  border-radius: 50%;
+  background: #9f422c7d;
+  font-weight: 900;
+  font-size: clamp(0.7rem, 1.5cqw, 1.4rem);
+  pointer-events: none;
 }
 .evt-crosshair {
   position: absolute;
@@ -1081,6 +1772,118 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKey))
   min-height: 0;
   gap: 10px;
 }
+.evt-comic-buttons {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 6px;
+  margin-top: 8px;
+}
+.evt-comic-buttons button {
+  padding: 7px 3px;
+  font-size: 0.65rem;
+  font-weight: 900;
+  border: 1px solid #e8d29e;
+  border-radius: 5px;
+  color: #ffe8bc;
+  background: #513e59;
+}
+.evt-comic-buttons button:focus-visible {
+  outline: 3px solid #ffd48a;
+  outline-offset: 2px;
+}
+.evt-roster-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1.5fr) minmax(240px, 1fr);
+  flex: 1;
+  gap: 12px;
+  min-height: 0;
+}
+.evt-roster-layout .evt-roster-grid {
+  min-height: 0;
+  overflow-y: auto;
+}
+.evt-roster-card.inspected {
+  border-color: #ffdf96;
+  box-shadow: inset 0 0 0 2px #ffdf9680;
+}
+.evt-campaign-dossier {
+  min-height: 0;
+  overflow-y: auto;
+  border: 1px solid #b4bcdd77;
+  border-radius: 10px;
+  background: radial-gradient(ellipse at top, #463351, #17203c 73%);
+  padding: clamp(10px, 1.6cqw, 18px);
+  color: #fff5dc;
+}
+.evt-campaign-dossier h3 {
+  font:
+    900 clamp(1.15rem, 2.1cqw, 2rem) Impact,
+    sans-serif;
+  margin-top: 6px;
+  color: #ffd99b;
+}
+.evt-dossier-realname {
+  color: #c5d7ed;
+  font-size: 0.78rem;
+  margin-bottom: 10px;
+}
+.evt-dossier-entry {
+  border-top: 1px solid #b2bcd35c;
+  padding: 10px 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.evt-dossier-entry > span {
+  font-size: 0.65rem;
+  color: #9fddf4;
+  font-weight: 900;
+  letter-spacing: 0.1em;
+}
+.evt-dossier-entry h4 {
+  font-weight: 900;
+  color: #ffe1a5;
+  font-size: 0.9rem;
+}
+.evt-dossier-entry p,
+.evt-dossier-entry small {
+  font-size: 0.74rem;
+  line-height: 1.45;
+  color: #d8def1;
+}
+.evt-dossier-entry .evt-dossier-hook {
+  color: #f9cbab;
+}
+.evt-dossier-status {
+  padding: 8px 0;
+  font-size: 0.68rem;
+  line-height: 1.4;
+  color: #bbcbda;
+}
+.evt-dossier-select {
+  width: 100%;
+  border-radius: 8px;
+  background: #f5d28f;
+  color: #161d33;
+  border: 1px solid #fff0cb;
+  font-size: 0.75rem;
+  font-weight: 900;
+  padding: 11px;
+}
+@container (max-width: 650px) {
+  .evt-roster-layout {
+    display: flex;
+    flex-direction: column;
+  }
+  .evt-roster-layout .evt-roster-grid {
+    flex: 0 0 min(37%, 220px);
+    grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+  }
+  .evt-campaign-dossier {
+    flex: 1;
+  }
+}
+
 .evt-roster-head {
   display: flex;
   align-items: center;
@@ -1235,11 +2038,33 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKey))
     align-self: end;
   }
   .evt-odds {
+    display: block;
+    grid-column: 1 / -1;
+    grid-row: 5;
+    min-height: 0;
+    padding: 4px;
+  }
+  .evt-odds .evt-overline,
+  .evt-odds .evt-preview-note {
     display: none;
+  }
+  .evt-odds .evt-chance strong {
+    font-size: 1.15rem;
+  }
+  .evt-odds p {
+    font-size: 0.58rem;
+  }
+  .evt-defenses {
+    grid-column: 2;
+    grid-row: 3;
+  }
+  .evt-defense {
+    font-size: 0.5rem;
+    padding: 3px 2px;
   }
   .evt-command-foot {
     grid-column: 2;
-    grid-row: 3;
+    grid-row: 4;
     margin-top: 0;
   }
   .evt-secondary {
@@ -1307,7 +2132,284 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKey))
     max-width: 70vw;
   }
 }
+.evt-target-list {
+  display: flex;
+  flex-wrap: nowrap;
+  gap: 4px;
+  overflow-x: auto;
+  max-width: 100%;
+  padding: 4px 0;
+}
+.evt-target-chip {
+  border: 1px solid #85b9d6;
+  border-radius: 4px;
+  padding: 2px 5px;
+  color: #d4e9ff;
+  background: #152543;
+  white-space: nowrap;
+  font-size: 0.59rem;
+  font-weight: 800;
+}
+.evt-height {
+  position: absolute;
+  right: 4px;
+  top: 2px;
+  color: #fbd68a;
+  font-size: 0.68rem;
+  text-shadow: 0 1px 3px #101426;
+}
+.evt-tile.elevated {
+  box-shadow:
+    inset 0 0 0 2px #f8c87d99,
+    0 0 8px #d7ae8c3a;
+}
+.evt-defenses {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 5px;
+}
+.evt-defense {
+  padding: 6px 3px;
+  border: 1px solid #bda6a16b;
+  color: #ffe7c5;
+  background: #34334d;
+  border-radius: 6px;
+  font-size: 0.65rem;
+  font-weight: 850;
+}
+.evt-defense:hover:not(:disabled),
+.evt-defense:focus-visible {
+  border-color: #ffdeae;
+  background: #525071;
+}
+.evt-defense:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+.evt-defense small {
+  font-size: 0.6rem;
+  opacity: 0.6;
+}
+.evt-standee.evt-impact-strike {
+  animation: evt-strike 0.44s ease-out both;
+}
+.evt-standee.evt-impact-hit {
+  animation: evt-hit 0.54s ease-out both;
+}
+.evt-standee.evt-impact-miss {
+  animation: evt-dodge 0.46s ease-out both;
+}
+.evt-standee.evt-fallen .evt-card-art {
+  transform: perspective(350px) rotateY(85deg) rotateZ(8deg) scale(0.79);
+  filter: grayscale(1);
+  opacity: 0.42;
+}
+.evt-standee.evt-fallen .evt-card-label {
+  color: #c7bfc8;
+  text-decoration: line-through;
+}
+.evt-standee.evt-fallen {
+  opacity: 0.6;
+}
+@keyframes evt-strike {
+  0% {
+    transform: translateX(-50%) rotateY(0deg);
+  }
+  37% {
+    transform: translateX(-50%) translateY(-17%) rotateY(-16deg) scale(1.11);
+  }
+  65% {
+    transform: translateX(-38%) translateY(-5%) rotateY(12deg) scale(1.07);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+@keyframes evt-hit {
+  0% {
+    transform: translateX(-50%) rotateY(0);
+    filter: brightness(1.8);
+  }
+  36% {
+    transform: translateX(-50%) translateY(9%) rotateY(42deg);
+    filter: brightness(2.1);
+  }
+  100% {
+    transform: translateX(-50%);
+    filter: brightness(1);
+  }
+}
+@keyframes evt-dodge {
+  0%,
+  100% {
+    transform: translateX(-50%);
+  }
+  45% {
+    transform: translateX(-70%) rotateY(-15deg);
+  }
+}
+
+.evt-cinematic {
+  position: absolute;
+  inset: 0;
+  z-index: 25;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: clamp(10px, 3cqw, 44px);
+  background: #04091ad9;
+  overflow: auto;
+}
+.evt-cinematic-scenery {
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(90deg, #080d20ed 2%, #121633c4 50%, #0a0f20f2 100%),
+    url('/comet-city-academy/front/splash.webp') center 40% / cover;
+  filter: saturate(0.8);
+  pointer-events: none;
+}
+.evt-cinematic-content {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: clamp(8px, 1.3cqw, 18px);
+  width: min(100%, 950px);
+  max-height: 100%;
+  min-height: 0;
+  padding: clamp(14px, 2cqw, 28px);
+  background: linear-gradient(140deg, #161b33ef, #292744f2);
+  border: 1px solid #eac69e90;
+  border-left: 5px solid #ffb669;
+  border-radius: 14px;
+  box-shadow: 0 12px 80px #000b;
+  overflow-y: auto;
+}
+.evt-cinematic-rail {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  font-size: 0.62rem;
+  letter-spacing: 0.14em;
+  color: #c4b7ca;
+}
+.evt-cinematic-content h2 {
+  font:
+    900 clamp(1.5rem, 3.5cqw, 3.3rem)/1.03 Impact,
+    'Arial Narrow',
+    sans-serif;
+  letter-spacing: 0.025em;
+  color: #ffeacc;
+  text-transform: uppercase;
+}
+.evt-dialogue {
+  display: grid;
+  gap: 8px;
+}
+.evt-dialogue-line {
+  display: grid;
+  grid-template-columns: minmax(70px, 124px) minmax(0, 1fr);
+  gap: 12px;
+  padding: 9px 12px;
+  border-left: 2px solid #a6abdf;
+  background: #030b2088;
+}
+.evt-dialogue-line strong {
+  color: #ffd191;
+  font-size: clamp(0.65rem, 0.9cqw, 0.82rem);
+  letter-spacing: 0.1em;
+}
+.evt-dialogue-line p {
+  font-size: clamp(0.83rem, 1.2cqw, 1.1rem);
+  line-height: 1.42;
+}
+.evt-cinematic-actions {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 250px), 1fr));
+  gap: 9px;
+}
+.evt-story-choice {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  min-height: 72px;
+  padding: 12px;
+  text-align: left;
+  border: 1px solid #9a91b0;
+  border-radius: 9px;
+  color: #fef0d8;
+  background: #30334f;
+}
+.evt-story-choice:hover,
+.evt-story-choice:focus-visible {
+  border-color: #ffe0a6;
+  background: #444469;
+  outline: 2px solid #ffe0a6;
+  outline-offset: 1px;
+}
+.evt-choice-number {
+  display: grid;
+  place-items: center;
+  flex: 0 0 24px;
+  height: 24px;
+  border: 1px solid #fdd29b;
+  border-radius: 5px;
+  color: #ffdca4;
+}
+.evt-choice-body {
+  display: grid;
+  gap: 3px;
+  flex: 1;
+}
+.evt-choice-body strong {
+  font-size: clamp(0.83rem, 1cqw, 1rem);
+}
+.evt-choice-body small {
+  color: #cfcee0;
+  font-size: clamp(0.7rem, 0.82cqw, 0.82rem);
+}
+.evt-scene-progress {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  color: #bfc5dc;
+  font-size: 0.7rem;
+}
+.evt-scene-progress span {
+  padding: 2px 7px;
+  border: 1px solid #616d88;
+  border-radius: 99px;
+}
+@container (max-width: 640px) {
+  .evt-cinematic-content {
+    padding: 11px;
+  }
+  .evt-dialogue-line {
+    display: block;
+    padding: 7px;
+  }
+  .evt-dialogue-line strong {
+    display: block;
+    margin-bottom: 2px;
+  }
+  .evt-cinematic-actions {
+    grid-template-columns: 1fr;
+  }
+  .evt-story-choice {
+    min-height: 53px;
+    padding: 8px;
+  }
+  .evt-cinematic-content h2 {
+    font-size: 1.55rem;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
+  .evt-standee.evt-impact-strike,
+  .evt-standee.evt-impact-hit,
+  .evt-standee.evt-impact-miss {
+    animation: none;
+  }
   .evt-standee,
   .evt-roster-card {
     transition: none;
@@ -1315,6 +2417,196 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKey))
   .evt-tile:hover .evt-standee,
   .evt-tile.selected .evt-standee {
     transform: translateX(-50%);
+  }
+}
+
+.evt-studio {
+  position: absolute;
+  inset: 0;
+  z-index: 28;
+  padding: clamp(12px, 2cqw, 28px);
+  color: #fff1d8;
+  background: radial-gradient(ellipse at 40% 25%, #3d375f, #10162b 75%);
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  overflow: hidden;
+}
+.evt-studio-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: start;
+  gap: 12px;
+}
+.evt-studio-header h2 {
+  font:
+    900 clamp(1.4rem, 3cqw, 3rem)/1.1 Impact,
+    system-ui,
+    sans-serif;
+  letter-spacing: 0.08em;
+  color: #ffdf9b;
+}
+.evt-studio-header p,
+.evt-studio-details small,
+.evt-studio-tools small {
+  font-size: 0.74rem;
+  line-height: 1.4;
+  color: #d0cfe6;
+}
+.evt-studio-body {
+  min-height: 0;
+  flex: 1;
+  display: grid;
+  grid-template-columns: minmax(145px, 0.8fr) minmax(280px, 2.7fr) minmax(
+      190px,
+      1fr
+    );
+  gap: 14px;
+}
+.evt-studio-tools,
+.evt-studio-details {
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+  min-height: 0;
+  overflow: auto;
+  background: #161e37e8;
+  border: 1px solid #829fc35a;
+  border-radius: 12px;
+  padding: 12px;
+}
+.evt-studio-label {
+  font-size: 0.65rem;
+  font-weight: 900;
+  color: #fedda2;
+  letter-spacing: 0.1em;
+}
+.evt-studio-tools select,
+.evt-studio-details select,
+.evt-studio-details input,
+.evt-studio-details textarea {
+  width: 100%;
+  padding: 8px;
+  border-radius: 5px;
+  border: 1px solid #7487a5;
+  background: #252e4b;
+  color: #fff8e8;
+  font: 600 0.78rem system-ui;
+}
+.evt-brushes {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 5px;
+}
+.evt-brushes button {
+  color: #e1e6f6;
+  background: #263552;
+  border: 1px solid #8193b3;
+  border-radius: 6px;
+  padding: 9px 4px;
+  font-weight: 700;
+  font-size: 0.72rem;
+}
+.evt-brushes button.chosen {
+  color: #111b35;
+  background: #a8e9fb;
+  border-color: #ffdf9b;
+}
+.evt-studio-canvas {
+  min-width: 0;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 9px;
+  padding: clamp(5px, 1cqw, 12px);
+  border-radius: 12px;
+  background: radial-gradient(ellipse, #34486b, #1b2945 73%);
+  border: 1px solid #8ca9ca89;
+}
+.evt-studio-board {
+  width: 100%;
+  display: grid;
+  grid-template-columns: repeat(9, minmax(0, 1fr));
+  gap: 3px;
+}
+.evt-studio-cell {
+  aspect-ratio: 1;
+  min-width: 0;
+  display: grid;
+  place-items: center;
+  background: #526a8e;
+  border: 1px solid #b6ccdc80;
+  border-radius: 4px;
+  color: #daeaff;
+  font-size: clamp(0.6rem, 1.7cqw, 1.4rem);
+  font-weight: 900;
+  cursor: crosshair;
+}
+.evt-studio-cell.wall {
+  background: #1a223c;
+  color: #ecaa90;
+}
+.evt-studio-cell.cover {
+  background: #5e6172;
+  color: #fbe4aa;
+}
+.evt-studio-cell.raised {
+  box-shadow: inset 0 0 0 2px #a8e6ef;
+}
+.evt-studio-cell:focus-visible {
+  outline: 3px solid #fbd47f;
+  outline-offset: 1px;
+}
+.evt-studio-unit {
+  border-radius: 50%;
+  background: #aaefc5;
+  color: #0c2844;
+  padding: 3px 8px;
+}
+.evt-studio-legend {
+  color: #d2cce5;
+  font-size: 0.65rem;
+  text-align: center;
+}
+.evt-studio-ready,
+.evt-studio-errors {
+  font-size: 0.72rem;
+  line-height: 1.35;
+  padding: 8px;
+  border: 1px solid #88bdaa;
+  border-radius: 6px;
+}
+.evt-studio-errors {
+  color: #ffc6b0;
+  border-color: #e59f94;
+  padding-left: 24px;
+}
+.evt-studio-launch {
+  color: #1d243b;
+  background: #fbd47f;
+  border: 1px solid #fff1c5;
+  padding: 12px 8px;
+  border-radius: 7px;
+  font-size: 0.83rem;
+  font-weight: 900;
+}
+.evt-studio-launch:disabled {
+  opacity: 0.4;
+}
+@media (max-width: 770px) {
+  .evt-studio {
+    overflow: auto;
+  }
+  .evt-studio-body {
+    grid-template-columns: 1fr;
+    overflow: auto;
+  }
+  .evt-studio-canvas {
+    order: -1;
+  }
+  .evt-brushes {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 }
 </style>

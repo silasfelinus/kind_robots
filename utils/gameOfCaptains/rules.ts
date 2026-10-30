@@ -119,50 +119,50 @@ export const CAPTAINS: {
   {
     id: 'fluke',
     name: 'Captain Fluke',
-    epithet: 'The improbability veteran',
-    doctrine: 'A lucky bluff is still a strategy.',
+    epithet: 'The Bored Chrononaut',
+    doctrine: 'Yesterday was dull. Tomorrow has already been canceled.',
     ability: 'luck',
-    cost: 'Crises arrive early.',
+    cost: 'Tomorrow keeps demanding back borrowed seconds.',
   },
   {
     id: 'vale',
     name: 'Captain Vale',
-    epithet: 'The reluctant diplomat',
-    doctrine: 'Treaties are promises to people, not paperwork.',
+    epithet: 'The Genius Punkette',
+    doctrine: 'The universe came with rules. Nobody gave me the receipt.',
     ability: 'diplomacy',
-    cost: 'Crew expects consistency.',
+    cost: 'Half the galaxy still wants its prototypes returned.',
   },
   {
     id: 'solace',
     name: 'Captain Solace',
-    epithet: 'The rescue specialist',
-    doctrine: 'An unanswered distress call is an answer.',
+    epithet: 'The Final Girl, Acting Captain',
+    doctrine: 'Nobody investigates the noise. Especially not alone.',
     ability: 'rescue',
-    cost: 'Every rescue spends something.',
+    cost: 'Four weeks of field promotions, zero weeks of sleep.',
   },
   {
     id: 'rex',
     name: 'Captain Rex',
-    epithet: 'The disgraced tactician',
-    doctrine: 'Sometimes the least-worst answer still stings.',
+    epithet: 'The Self-Appointed Galactic Hero',
+    doctrine: 'The rescue should be visible from the cheap seats.',
     ability: 'tactics',
-    cost: 'Nobody forgets old scandals.',
+    cost: 'He will have to be brave when nobody is watching.',
   },
   {
     id: 'quill',
     name: 'Captain Quill',
-    epithet: 'The archival obsessive',
-    doctrine: 'First understand the thing you are saving.',
+    epithet: 'The Gothic Closed-Loop Survivalist',
+    doctrine: 'Nothing leaves the body unnecessarily.',
     ability: 'science',
-    cost: 'Analysis takes time.',
+    cost: 'His suit may be more sentient than its wearer admits.',
   },
   {
     id: 'ro',
     name: 'Captain Ro',
-    epithet: 'The charming improviser',
-    doctrine: 'We can negotiate with almost everything.',
+    epithet: 'The Velvet Macabre',
+    doctrine: 'Every disaster deserves atmosphere and excellent manners.',
     ability: 'culture',
-    cost: 'Almost is a large word.',
+    cost: 'Two planets consider a horror-host coronation legally binding.',
   },
 ]
 export const CREW: {
@@ -377,6 +377,8 @@ export type VoyageRun = {
   shieldCharge?: number
   chapter: number
   missionId?: string
+  captainInstincts?: { chapter: number; approach: 'impulse' | 'restraint' }[]
+  captainBonus?: number
   missionHistory?: {
     chapter: number
     missionId: string
@@ -672,6 +674,8 @@ export function startVoyage(
     chapter: 1,
     missionId: 'refugees',
     missionHistory: [],
+    captainInstincts: [],
+    captainBonus: 0,
     worldFlags: origin ? ['origin:' + origin] : [],
     redshirtRoster: starterRedshirts(cleanSeed),
     redshirtFallen: [],
@@ -764,11 +768,20 @@ export function previewMission(run: VoyageRun): MissionPreview {
     (sum, callback) => sum + callback.odds,
     0,
   )
+  const signatureBonus = run.captainBonus ?? 0
   return {
     ...base,
     chance: Math.max(
       5,
-      Math.min(94, base.chance + bonus - penalty + civicBonus - enemyPenalty),
+      Math.min(
+        94,
+        base.chance +
+          bonus -
+          penalty +
+          civicBonus -
+          enemyPenalty +
+          signatureBonus,
+      ),
     ),
     commentary: [
       base.commentary,
@@ -776,6 +789,9 @@ export function previewMission(run: VoyageRun): MissionPreview {
       penalty ? 'Backup force bubble: -10% until recharged.' : '',
       civicBonus
         ? `Earlier civic decisions: ${civicBonus > 0 ? '+' : ''}${civicBonus}%.`
+        : '',
+      signatureBonus
+        ? `Captain's signature preparation: +${signatureBonus}%.`
         : '',
       enemyPenalty
         ? `${antagonistFor(run).name} controls this route: -${enemyPenalty}% operational odds.`
@@ -1133,6 +1149,7 @@ export function nextDestination(run: VoyageRun): VoyageRun {
     phase: 'briefing',
     chapter: run.chapter + 1,
     missionId: VOYAGE_BOARDS[run.chapter]![0],
+    captainBonus: 0,
     postedDay: run.day ?? run.chapter,
     active: null,
     away: [],
@@ -1194,14 +1211,14 @@ export function finishVoyage(
   const captain = CAPTAIN_DOSSIERS[run.captain]
   const remembrance = {
     fluke:
-      'Fluke signs the amended captain’s log in ink, leaving the earlier fictional victory visible underneath.',
-    vale: 'Vale refuses to backdate the final treaty. For the first time the signatories may say no.',
+      'Fluke lets the final log stand without an unauthorized peek at tomorrow. The present is interesting enough to stay for.',
+    vale: 'Vale releases the schematics that saved the worlds, including the embarrassing parts that required a second soldering iron.',
     solace:
-      'Solace reads aloud the names of those still awaiting rescue and authorizes a civilian triage council.',
-    rex: 'Rex permits the inquiry to publish his errors next to the names of the people who survived.',
+      'Solace finally sits with the living crew, sets down the janitor’s master key, and lets someone else watch the exits.',
+    rex: 'Rex leaves the cameras dark while the civilians tell their own rescue story. His cape still catches the perfect breeze.',
     quill:
-      'Quill deposits the evidence with its owners instead of locking it in her private archive.',
-    ro: 'Ro abandons diplomatic immunity and states their real title on the record: passenger.',
+      'Quill signs the survivors’ charter with a gloved hand and opens the suit’s medical controls to independent scrutiny.',
+    ro: 'Ro lowers the fog machine and invites the mourners to speak, giving the galaxy a rare untheatrical moment.',
   }[run.captain]
   const journeys = run.crew.flatMap((id) => {
     const stops = (run.journeyHistory ?? []).filter(
@@ -1255,7 +1272,14 @@ export function finishVoyage(
     run.supplies,
   )
   const nemesisEnding = NEMESIS_ENDINGS[nemesisId][variant]
-  const scene = `${verdict} ${nemesisEnding.title}: ${nemesisEnding.text} ${remembrance} ${journeys.join(' ')} ${civic} ${expeditionSecrets} ${redshirts}`
+  const captainChoices = (run.captainInstincts ?? [])
+    .map((item) =>
+      item.approach === 'impulse'
+        ? `In chapter ${item.chapter}, the captain's signature gamble paid a personal price.`
+        : `In chapter ${item.chapter}, the captain heard the crew before acting.`,
+    )
+    .join(' ')
+  const scene = `${verdict} ${nemesisEnding.title}: ${nemesisEnding.text} ${remembrance} ${journeys.join(' ')} ${civic} ${expeditionSecrets} ${redshirts} ${captainChoices}`
   return {
     ...run,
     phase: 'ending',
@@ -1308,6 +1332,19 @@ export function restoreVoyage(raw: unknown): VoyageRun | null {
     (data.worldFlags !== undefined &&
       (!Array.isArray(data.worldFlags) ||
         data.worldFlags.some((flag) => typeof flag !== 'string'))) ||
+    (data.captainInstincts !== undefined &&
+      (!Array.isArray(data.captainInstincts) ||
+        data.captainInstincts.some(
+          (item) =>
+            !item ||
+            !Number.isInteger(item.chapter) ||
+            item.chapter < 1 ||
+            item.chapter > data.chapter! ||
+            !['impulse', 'restraint'].includes(item.approach),
+        ) ||
+        new Set(data.captainInstincts.map((item) => item.chapter)).size !==
+          data.captainInstincts.length)) ||
+    (data.captainBonus !== undefined && ![0, 10].includes(data.captainBonus)) ||
     ![
       'briefing',
       'travel',

@@ -1482,9 +1482,12 @@ function roundEnd(state: TrainingState) {
 }
 export function waveUnit(rules: StageRules, id: string): Unit | null {
   const match = /^wave(\d+)-(\d+)$/.exec(id)
-  const seed = match
-    ? waveUnitSeed(rules, Number(match[1]) - 1, Number(match[2]) - 1)
-    : null
+  if (!match) return null
+  const seed = waveUnitSeed(
+    rules,
+    Number(match[1] ?? 0) - 1,
+    Number(match[2] ?? 0) - 1,
+  )
   if (!seed) return null
   return {
     id: seed.id,

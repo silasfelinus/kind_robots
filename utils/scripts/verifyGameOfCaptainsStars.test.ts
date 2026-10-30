@@ -397,7 +397,7 @@ for (const marker of [
 assert.ok(quiz.includes("emit('confirm', assessment)"))
 assert.ok(quiz.includes("warpArt('couchscope/question-' + index)"))
 assert.ok(quiz.includes('scope-question-art'))
-assert.ok(quiz.includes('space-couch-star-return-captain'))
+assert.ok(quiz.includes('space-couch-star-return-background'))
 assert.ok(quiz.includes('max-height: 560px'))
 for (const [index, subject] of [
   ['01', 'protesting crescent moon'],

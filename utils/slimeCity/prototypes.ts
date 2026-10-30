@@ -210,6 +210,11 @@ export interface MatchState {
   log: string[]
   commands: Command[]
   stats: MatchStats
+  /** BLACKOUT draw pile, playable hand, spent pile and seeded reshuffle count. */
+  piles: Record<Side, string[]>
+  hands: Record<Side, string[]>
+  discards: Record<Side, string[]>
+  shuffles: Record<Side, number>
   /** Round/tick from which each side may play each card again. */
   cooldowns: Record<Side, Record<string, number>>
   /** Mana each side owes; it comes out of that side's next refill. */
@@ -281,11 +286,11 @@ export const MODES: {
   {
     id: 'blackout',
     title: 'BLACKOUT',
-    subtitle: 'Hidden army · Stratego test',
-    size: '8 × 8',
+    subtitle: 'Open-arena tactical cards · primary mode',
+    size: '10 × 6',
     cadence: 'TURN-BASED',
     detail:
-      'Five fighters deployed face-down on each side. Reveal by moving, uncover the enemy, and steal the flag.',
+      'Deploy visible monsters from a four-card hand, cross no-man’s-land and capture the flag. Only stealth specialists hide.',
   },
   {
     id: 'gridiron',
@@ -352,6 +357,7 @@ export const KEYWORDS: Record<Keyword, { label: string; text: string }> = {
 
 /** Every crew deck: exactly this many cards and this many creatures. */
 export const DECK_SIZE = 10
+export const BLACKOUT_HAND_SIZE = 4
 export const DECK_CREATURES = 4
 /** Unpaid debt never stacks past this; it comes out of the next refill. */
 export const DEBT_CAP = 2
@@ -1647,6 +1653,10 @@ function copy(state: MatchState): MatchState {
       },
       knockouts: { ...state.stats.knockouts },
     },
+    piles: { player: [...state.piles.player], enemy: [...state.piles.enemy] },
+    hands: { player: [...state.hands.player], enemy: [...state.hands.enemy] },
+    discards: { player: [...state.discards.player], enemy: [...state.discards.enemy] },
+    shuffles: { ...state.shuffles },
     cooldowns: {
       player: { ...state.cooldowns.player },
       enemy: { ...state.cooldowns.enemy },
@@ -1758,6 +1768,36 @@ function shuffledCells(
     .map((item) => item.cell)
 }
 
+/** The seeded card order is stable for replays and different for both crews. */
+function shuffledDeck(state: MatchState, side: Side): string[] {
+  const salt = side === 'player' ? 811 : 977
+  return deckOf(teamOf(state, side))
+    .map((card, index) => ({
+      id: card.id,
+      order: seededHash(state.seed, salt, state.shuffles[side], index),
+    }))
+    .sort((a, b) => a.order - b.order || a.id.localeCompare(b.id))
+    .map(({ id }) => id)
+}
+
+/** Clear unplayed cards and deal from the remaining pile without duplication. */
+function drawHand(state: MatchState, side: Side): void {
+  state.discards[side].push(...state.hands[side])
+  state.hands[side] = []
+  while (state.hands[side].length < BLACKOUT_HAND_SIZE) {
+    if (!state.piles[side].length) {
+      if (!state.discards[side].length) break
+      state.shuffles[side]++
+      const discarded = new Set(state.discards[side])
+      state.piles[side] = shuffledDeck(state, side).filter((id) => discarded.has(id))
+      state.discards[side] = []
+    }
+    const next = state.piles[side].shift()
+    if (!next) break
+    state.hands[side].push(next)
+  }
+}
+
 export function createMatch(
   mode: ModeId,
   teamId: TeamId,
@@ -1804,22 +1844,19 @@ export function createMatch(
     log: ['Arena loaded · seed ' + s + '. Choose a fighter or special.'],
     commands: [],
     stats: emptyStats(),
+    piles: { player: [], enemy: [] },
+    hands: { player: [], enemy: [] },
+    discards: { player: [], enemy: [] },
+    shuffles: { player: 0, enemy: 0 },
     cooldowns: { player: {}, enemy: {} },
     debt: { player: 0, enemy: 0 },
   }
   if (mode === 'blackout') {
     for (const side of ['player', 'enemy'] as Side[]) {
-      const team = teamById(teamOf(state, side))
-      const lineup = team.army
-      const zone: { x: number; y: number }[] = []
-      for (let x = 0; x < width; x++)
-        for (let y = 0; y < height; y++)
-          if (inDeployZone(state, side, x)) zone.push({ x, y })
-      const cells = shuffledCells(zone, s, side === 'player' ? 3 : 4)
-      lineup.forEach((cardId, i) =>
-        addFighter(state, cardId, side, cells[i]!.x, cells[i]!.y, true),
-      )
+      state.piles[side] = shuffledDeck(state, side)
+      drawHand(state, side)
     }
+    message(state, 'Deploy a visible monster. Four cards in hand, the rest in your deck.')
   }
   if (state.rules.monster) {
     // BLACKOUT: the central square diagonal from the flag. Lanes: a
@@ -1982,6 +2019,8 @@ function applyDeploy(
   if (!card || state.victor || card.team !== teamOf(state, side)) return false
   if (card.cost > manaOf(state, side)) return false
   if (!cardReady(state, side, cardId)) return false
+  if (state.mode === 'blackout' && !state.hands[side].includes(cardId))
+    return false
   if (x < 0 || y < 0 || x >= state.width || y >= state.height) return false
   const target = unitAt(state, x, y)
   const hidden = side === 'enemy' && state.mode === 'blackout'
@@ -1992,7 +2031,7 @@ function applyDeploy(
       state.units.filter((u) => u.side === side).length >= FIELD_CAP[state.mode]
     )
       return false
-    addFighter(state, cardId, side, x, y, state.mode === 'blackout')
+    addFighter(state, cardId, side, x, y, false)
     line = hidden
       ? 'The enemy deploys a concealed fighter.'
       : (side === 'enemy' ? 'Enemy deploys ' : 'You deploy ') + card.name + '.'
@@ -2134,6 +2173,10 @@ function applyDeploy(
       '.'
   }
   spend(state, side, card.cost)
+  if (state.mode === 'blackout') {
+    state.hands[side] = state.hands[side].filter((id) => id !== cardId)
+    state.discards[side].push(cardId)
+  }
   state.cooldowns[side][cardId] =
     state.round + (state.mode === 'bloodrush' ? RUSH_COOLDOWN : 1)
   state.stats.plays[side][card.kind]++
@@ -2293,9 +2336,10 @@ export function observe(state: MatchState, side: Side): MatchView {
         }
       }),
     traps: state.traps.filter((t) => t.side === side).map((t) => ({ ...t })),
-    hand: deckOf(teamOf(state, side)).filter((card) =>
-      cardReady(state, side, card.id),
-    ),
+    hand: (state.mode === 'blackout'
+      ? state.hands[side].map(cardById)
+      : deckOf(teamOf(state, side))
+    ).filter((card) => cardReady(state, side, card.id)),
     victor: state.victor,
   }
 }
@@ -2731,6 +2775,11 @@ export function advance(state: MatchState): MatchState {
           '.',
       )
       next.debt = { player: 0, enemy: 0 }
+    }
+    if (next.mode === 'blackout') {
+      drawHand(next, 'player')
+      drawHand(next, 'enemy')
+      message(next, 'Four fresh cards dealt from your faction deck.')
     }
     // Carriers lumber: one square per round, unless a card boosts them.
     // Rooted fighters get no AP this round.

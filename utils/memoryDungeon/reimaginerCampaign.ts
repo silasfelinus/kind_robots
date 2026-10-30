@@ -403,14 +403,7 @@ export const MEMORY_WISH_ANCHORS = {
 } as const satisfies Record<string, { source: ExperienceId; meaning: string }>
 
 export type MemoryPairEndingWorld =
-  | 'e02'
-  | 'e04'
-  | 'e06'
-  | 'e08'
-  | 'e10'
-  | 'e12'
-  | 'e14'
-  | 'e16'
+  'e02' | 'e04' | 'e06' | 'e08' | 'e10' | 'e12' | 'e14' | 'e16'
 
 export interface MemoryPairEndingChoice {
   id: string
@@ -436,7 +429,8 @@ export const MEMORY_PAIR_ENDINGS: Record<
     {
       id: 'protect-village',
       label: 'Keep the village gates closed until the danger is understood',
-      publicResult: 'The camp survives, but the witnesses wait beyond the wall.',
+      publicResult:
+        'The camp survives, but the witnesses wait beyond the wall.',
       worldFlag: 'briar-village-sealed',
       futureConsequence: 'Former outsiders cannot offer an early archive clue.',
     },
@@ -444,7 +438,8 @@ export const MEMORY_PAIR_ENDINGS: Record<
   e04: [
     {
       id: 'open-the-tide-gate',
-      label: 'Open the tide gate to save the commuters; the sea anchor may collapse',
+      label:
+        'Open the tide gate to save the commuters; the sea anchor may collapse',
       publicResult:
         'The trains escape. Scylla sees Char hold the sea anchor, then die when the crossing collapses.',
       worldFlag: 'earth-crowd-evacuated',
@@ -476,28 +471,33 @@ export const MEMORY_PAIR_ENDINGS: Record<
       label: 'Let the sisters’ testimony stand beside the court records',
       publicResult: 'The royal record now admits two incompatible accounts.',
       worldFlag: 'twin-testimony-public',
-      futureConsequence: 'Archive witnesses can challenge the official sea record.',
+      futureConsequence:
+        'Archive witnesses can challenge the official sea record.',
     },
     {
       id: 'protect-private-memory',
       label: 'Keep the sisters’ private departure records sealed',
-      publicResult: 'The court cannot compel either sister to retell her memories.',
+      publicResult:
+        'The court cannot compel either sister to retell her memories.',
       worldFlag: 'twin-testimony-private',
-      futureConsequence: 'The party must find independent evidence at the Archive.',
+      futureConsequence:
+        'The party must find independent evidence at the Archive.',
     },
   ],
   e08: [
     {
       id: 'unbar-all-doors',
       label: 'Let everyone leave the village, even those the spirits fear for',
-      publicResult: 'The night roads open, and households must organize their own help.',
+      publicResult:
+        'The night roads open, and households must organize their own help.',
       worldFlag: 'hoshimori-exits-open',
       futureConsequence: 'Pip can call on voluntary yōkai witnesses later.',
     },
     {
       id: 'keep-shelter-charter',
       label: 'Keep voluntary refuge rules but remove compulsory guardianship',
-      publicResult: 'Guests may stay or go, although the village has fewer beds.',
+      publicResult:
+        'Guests may stay or go, although the village has fewer beds.',
       worldFlag: 'hoshimori-refuge-charter',
       futureConsequence: 'The village supplies a small emergency refuge later.',
     },
@@ -506,16 +506,19 @@ export const MEMORY_PAIR_ENDINGS: Record<
     {
       id: 'destroy-price-ledger',
       label: 'Erase the market’s valuations of other people’s futures',
-      publicResult: 'The futures are free, but the party loses the prediction map.',
+      publicResult:
+        'The futures are free, but the party loses the prediction map.',
       worldFlag: 'market-predictions-erased',
-      futureConsequence: 'The party must navigate later routes without a forecast.',
+      futureConsequence:
+        'The party must navigate later routes without a forecast.',
     },
     {
       id: 'publish-price-ledger',
       label: 'Release the predictions with informed opt-out rights',
       publicResult: 'The forecasts become contestable, and some vendors leave.',
       worldFlag: 'market-predictions-accountable',
-      futureConsequence: 'The party gains a disputed prediction as later evidence.',
+      futureConsequence:
+        'The party gains a disputed prediction as later evidence.',
     },
   ],
   e12: [
@@ -524,12 +527,14 @@ export const MEMORY_PAIR_ENDINGS: Record<
       label: 'Open the transfer crossing with strict passenger consent',
       publicResult: 'Travel resumes; waiting passengers receive priority.',
       worldFlag: 'crossing-passenger-consent',
-      futureConsequence: 'The final crossing can rely on freely given transport.',
+      futureConsequence:
+        'The final crossing can rely on freely given transport.',
     },
     {
       id: 'disable-transit',
       label: 'Shut down the system until identities can be verified',
-      publicResult: 'No more identities are taken, but refugees remain separated.',
+      publicResult:
+        'No more identities are taken, but refugees remain separated.',
       worldFlag: 'crossing-system-disabled',
       futureConsequence: 'The final crossing must use a slower rescue route.',
     },
@@ -538,32 +543,38 @@ export const MEMORY_PAIR_ENDINGS: Record<
     {
       id: 'publish-contradictions',
       label: 'Preserve all contradictory accounts for the final hearing',
-      publicResult: 'No one can rewrite the past without facing another witness.',
+      publicResult:
+        'No one can rewrite the past without facing another witness.',
       worldFlag: 'archive-testimonies-protected',
-      futureConsequence: 'The final tribunal has a stronger, noisier evidence record.',
+      futureConsequence:
+        'The final tribunal has a stronger, noisier evidence record.',
     },
     {
       id: 'seal-dangerous-records',
       label: 'Withhold dangerous records until their subjects can consent',
       publicResult: 'Some testimony stays private, even when it might help.',
       worldFlag: 'archive-testimonies-sealed',
-      futureConsequence: 'The final tribunal must earn access through negotiation.',
+      futureConsequence:
+        'The final tribunal must earn access through negotiation.',
     },
   ],
   e16: [
     {
       id: 'share-repair',
       label: 'Commit to a shared repair that nobody can own alone',
-      publicResult: 'The new world is difficult, provisional and freely inhabited.',
+      publicResult:
+        'The new world is difficult, provisional and freely inhabited.',
       worldFlag: 'finale-shared-repair',
-      futureConsequence: 'The ending honors independent consent and accountability.',
+      futureConsequence:
+        'The ending honors independent consent and accountability.',
     },
     {
       id: 'retain-separate-worlds',
       label: 'Let the worlds remain separate with negotiated crossings',
       publicResult: 'The borders survive; people can choose whether to cross.',
       worldFlag: 'finale-separate-worlds',
-      futureConsequence: 'The ending preserves distance and a costly right to leave.',
+      futureConsequence:
+        'The ending preserves distance and a costly right to leave.',
     },
   ],
 }
@@ -622,13 +633,12 @@ export function chooseMemoryScyllaDeparture(
 
 export type MemoryCharFate = 'lost' | 'alive' | 'unresolved'
 
-export function memoryCharFate(progress: MemoryCampaignProgress): MemoryCharFate {
+export function memoryCharFate(
+  progress: MemoryCampaignProgress,
+): MemoryCharFate {
   const decision = progress.pairDecisions?.e04
   if (decision === 'open-the-tide-gate') return 'lost'
-  if (
-    decision === 'seal-the-tide-gate' ||
-    decision === 'divert-the-current'
-  )
+  if (decision === 'seal-the-tide-gate' || decision === 'divert-the-current')
     return 'alive'
   return 'unresolved'
 }
@@ -667,11 +677,15 @@ export function scyllaOpeningForMemory(
   return 'The distorted timeline recreates the escape. Scylla remembers what happened at the crossing and what it cost, even with Char still alive in the present she left behind.'
 }
 
-export function memoryPairWorldFlags(progress: MemoryCampaignProgress): string[] {
-  const flags = (Object.entries(progress.pairDecisions ?? {}) as [
-    MemoryPairEndingWorld,
-    string,
-  ][]).flatMap(([world, id]) => {
+export function memoryPairWorldFlags(
+  progress: MemoryCampaignProgress,
+): string[] {
+  const flags = (
+    Object.entries(progress.pairDecisions ?? {}) as [
+      MemoryPairEndingWorld,
+      string,
+    ][]
+  ).flatMap(([world, id]) => {
     const choice = MEMORY_PAIR_ENDINGS[world]?.find((item) => item.id === id)
     return choice ? [choice.worldFlag] : []
   })
@@ -900,7 +914,8 @@ export function validateMemoryReimaginerCampaign(): string[] {
     new Set(MEMORY_SCYLLA_DEPARTURE_CHOICES.map((option) => option.id)).size !==
       MEMORY_SCYLLA_DEPARTURE_CHOICES.length ||
     MEMORY_SCYLLA_DEPARTURE_CHOICES.some(
-      (option) => !option.label || !option.publicResult || !option.futureConsequence,
+      (option) =>
+        !option.label || !option.publicResult || !option.futureConsequence,
     )
   )
     errors.push('Scylla needs three consequential departure choices')

@@ -1,5 +1,6 @@
 import {
   MEMORY_REALITY_EXPERIENCES,
+  MEMORY_REALITY_PAIRS,
   MEMORY_WISH_ANCHORS,
   availableMemoryExperiences,
   commitToMemoryFinale,
@@ -43,11 +44,15 @@ export function restoreMemoryCampaignProgress(
       : [],
   )
 
-  // A saved list is a claim about history, not proof of a legal campaign.
-  // Rebuild its reachable sequence so forged future worlds and missing wish
-  // prerequisites cannot unlock the finale on reload.
+  // Reconstruct in canonical pair order, not in possibly older forked-save
+  // order. This preserves earned paired content when a legacy save recorded
+  // middle worlds in a different order, without granting any missing worlds.
+  // A claim about history is not proof that its prerequisites were earned.
+  const canonicalRequested = MEMORY_REALITY_PAIRS.flat().filter((id) =>
+    requested.includes(id),
+  )
   let progress = fresh
-  for (const id of requested) {
+  for (const id of canonicalRequested) {
     if (
       progress.completed.includes(id) ||
       !availableMemoryExperiences(progress).includes(id)
@@ -78,8 +83,8 @@ export function restoreMemoryCampaignProgress(
     }
   }
 
-  // The player may commit after ANY two middle pairs, not only e11/e12.
-  // Preserve that commitment even if the final sequence has not started.
+  // The player commits after all three middle pairs, not an arbitrary
+  // two-pair shortcut. Preserve that commitment before e13 begins.
   if (
     saved.finaleCommitted &&
     !progress.finaleCommitted &&

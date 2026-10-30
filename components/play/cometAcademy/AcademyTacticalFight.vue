@@ -40,6 +40,27 @@
       </p>
       <p v-else class="atf-boss-counter">{{ threat.counter }}</p>
     </aside>
+    <aside
+      v-if="boss && state.phase !== 'active'"
+      class="atf-reckoning"
+      data-testid="academy-lieutenant-reckoning"
+    >
+      <span class="atf-boss-kicker">FINAL PANEL · {{ role.toUpperCase() }} CUT</span>
+      <strong>
+        {{ state.phase === 'victory'
+          ? role === 'villain'
+            ? 'THE CITY GETS A WARNING'
+            : 'THE CITY GETS A WITNESS'
+          : 'THE LIEUTENANT GETS THE LAST WORD' }}
+      </strong>
+      <p>{{ battle.arena?.lieutenantAgenda }}</p>
+      <p v-if="battle.arena?.discovered" class="atf-boss-counter">
+        EVIDENCE RECOVERED · {{ battle.arena.secret }}
+      </p>
+      <p v-else class="atf-boss-counter">
+        THE SECRET REMAINS ON THE FIELD
+      </p>
+    </aside>
     <div
       class="atf-grid"
       :style="{
@@ -237,7 +258,7 @@ defineEmits<{
 const state = computed(() => props.battle.state)
 const selected = computed(() => selectedUnit(state.value))
 const boss = computed(() =>
-  state.value.units.find((unit) => unit.hp > 0 && unit.signatureBoss),
+  state.value.units.find((unit) => unit.signatureBoss),
 )
 const threat = computed(() =>
   boss.value?.signatureBoss
@@ -245,7 +266,7 @@ const threat = computed(() =>
     : null,
 )
 const dangerousCells = computed(() =>
-  boss.value?.signatureBoss && boss.value.signatureTarget
+  boss.value?.signatureBoss && boss.value.hp > 0 && boss.value.signatureTarget
     ? signatureThreatCells(
         state.value.map,
         boss.value.signatureBoss,
@@ -259,7 +280,7 @@ const canCounter = computed(
   () =>
     !!selected.value &&
     selected.value.ap > 0 &&
-    !!boss.value?.signatureTarget &&
+    !!boss.value && boss.value.hp > 0 && !!boss.value.signatureTarget &&
     !!boss.value?.signatureCounter &&
     gridDistance(selected.value, boss.value.signatureCounter) <= 1,
 )
@@ -301,6 +322,20 @@ function cellLabel(cell: Cell) {
 </script>
 
 <style scoped>
+.atf-reckoning {
+  display: grid;
+  gap: 0.3rem;
+  padding: 0.75rem 0.9rem;
+  background: linear-gradient(125deg, #392342, #161321);
+  border: 2px solid #f9c96e;
+  box-shadow: 4px 4px 0 #0b0811;
+}
+.atf-reckoning strong {
+  font-size: clamp(1.1rem, 2.8cqi, 2rem);
+  font-weight: 950;
+  line-height: 1;
+}
+.atf-reckoning p { font-size: 0.8rem; }
 .atf-boss-panel {
   position: relative;
   padding: 0.75rem 0.9rem;

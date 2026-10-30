@@ -36,7 +36,11 @@
             :aria-pressed="medalsOpen"
             @click="medalsOpen = !medalsOpen"
           >
-            {{ medalsOpen ? 'View threads' : `Medals ${medalsEarned}/${world.briarAchievements.length}` }}
+            {{
+              medalsOpen
+                ? 'View threads'
+                : `Medals ${medalsEarned}/${world.briarAchievements.length}`
+            }}
           </button>
           <button
             type="button"
@@ -193,11 +197,10 @@
           data-testid="memory-medals-gallery"
         >
           <p class="mb-4 text-sm leading-relaxed text-[#e0d2ad]">
-            These marks remember difficult choices, not stronger weapons.
-            Earned medals survive a new expedition. Undiscovered stories stay
-            unnamed.
+            These marks remember difficult choices, not stronger weapons. Earned
+            medals survive a new expedition. Undiscovered stories stay unnamed.
           </p>
-          <div class="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+          <div class="grid grid-cols-[repeat(auto-fit,minmax(min(100%,15rem),1fr))] gap-3">
             <article
               v-for="medal in world.briarAchievements"
               :key="medal.id"
@@ -221,10 +224,13 @@
                   class="flex h-full items-center justify-center font-serif text-5xl"
                   :class="medal.earned ? 'text-[#e9d29a]' : 'text-[#71806a]'"
                   aria-hidden="true"
-                >✦</span>
+                  >✦</span
+                >
               </div>
               <div class="p-3">
-                <p class="text-[10px] font-bold uppercase tracking-widest text-[#d4bc89]">
+                <p
+                  class="text-[10px] font-bold uppercase tracking-widest text-[#d4bc89]"
+                >
                   {{ medal.earned ? 'Remembered' : 'Not yet remembered' }}
                 </p>
                 <h3 class="mt-1 font-serif text-lg font-bold">

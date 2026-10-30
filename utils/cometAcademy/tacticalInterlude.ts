@@ -37,8 +37,8 @@ export function tacticalOpening(run: AcademyRun): string {
   const foe = identityFor(run.opponentSignature)
   const lair = campaignStagesFor(foe.signature)
   return tacticalRoleFor(run) === 'villain'
-    ? \`\${foe.hero.alias} is defending \${lair.lair.venue} from your raid. \${foe.heroDecision} \${player.villainDecision} Your squad must choose what it is prepared to destroy.\`
-    : \`\${foe.villain.alias} has turned \${lair.lair.venue} into a trap. \${foe.quests.antagonist} \${lair.lair.secret} Your team must choose what it is prepared to save.\`
+    ? `${foe.hero.alias} is defending ${lair.lair.venue} from your raid. ${foe.heroDecision} ${player.villainDecision} Your squad must choose what it is prepared to destroy.`
+    : `${foe.villain.alias} has turned ${lair.lair.venue} into a trap. ${foe.quests.antagonist} ${lair.lair.secret} Your team must choose what it is prepared to save.`
 }
 
 function battleSeed(run: AcademyRun, caseId: string): number {

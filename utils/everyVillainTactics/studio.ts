@@ -17,6 +17,7 @@ import {
   type StageWave,
   type WaveCrew,
 } from './stageRules'
+import { scriptProblems, type SceneScript } from './sceneGraph'
 
 export type StudioBrush =
   | 'erase'
@@ -61,6 +62,8 @@ export type StageDraft = {
   waves?: StageWave[]
   /** How the battle is won; defeat every rival when absent. */
   victory?: StageVictory
+  /** Authored opening/triggered/closing conversation tree. */
+  script?: SceneScript
 }
 export type StageCivilian = { id: string; name: string; x: number; y: number }
 /** Bystanders the civilian brush places, in order. */
@@ -318,6 +321,159 @@ export const STAGE_PRESETS: StageDraft[] = [
       },
     ],
     victory: { kind: 'survive', rounds: 6 },
+    script: {
+      version: 1,
+      scenes: [
+        {
+          id: 'boiler-opening',
+          title: 'Pressure Rising',
+          trigger: { kind: 'opening' },
+          start: 'l1',
+          nodes: [
+            {
+              id: 'l1',
+              speaker: 'narrator',
+              emotion: 'neutral',
+              camera: 'wide',
+              text: 'Steam rolls along the ceiling pipes. One gauge is already in the red, and somebody has wedged the service door shut from this side.',
+              next: 'l2',
+            },
+            {
+              id: 'l2',
+              speaker: 'pip',
+              emotion: 'sly',
+              camera: 'low-angle',
+              text: 'You came down here to play hero? Then hold this room for six rounds. We will see whose story it is when the pipes give.',
+              next: 'l3',
+            },
+            {
+              id: 'l3',
+              speaker: 'backdraft',
+              emotion: 'determined',
+              camera: 'close',
+              text: 'Stay off the cracked tiles and keep a crate between you and their sightlines. Nobody goes swimming in that puddle on an even round.',
+              next: null,
+            },
+          ],
+        },
+        {
+          id: 'boiler-hatches',
+          title: 'Something Under the Floor',
+          trigger: { kind: 'turn', round: 2 },
+          start: 'h1',
+          nodes: [
+            {
+              id: 'h1',
+              speaker: 'hattie',
+              emotion: 'afraid',
+              camera: 'over-shoulder',
+              text: 'I can feel digging under the far wall. Two hatches are going to pop next round.',
+              next: 'h2',
+            },
+            {
+              id: 'h2',
+              speaker: 'backdraft',
+              emotion: 'determined',
+              camera: 'close',
+              text: 'Then we choose: sit on those hatches, or let them come and keep our medic patched.',
+              next: null,
+              choices: [
+                {
+                  label: 'Plug the hatches',
+                  next: 'h3',
+                  effects: [{ kind: 'flag', flag: 'plug-hatches' }],
+                },
+                {
+                  label: 'Patch up and dig in',
+                  next: null,
+                  effects: [{ kind: 'heal' }],
+                },
+              ],
+            },
+            {
+              id: 'h3',
+              speaker: 'priya',
+              emotion: 'joyful',
+              camera: 'wide',
+              text: 'On it. Nobody climbs out of a hole I am standing on.',
+              next: null,
+            },
+          ],
+        },
+        {
+          id: 'boiler-plugged',
+          title: 'Hatch Duty',
+          trigger: { kind: 'flag', flag: 'plug-hatches' },
+          start: 'p1',
+          nodes: [
+            {
+              id: 'p1',
+              speaker: 'remy',
+              emotion: 'angry',
+              camera: 'low-angle',
+              text: 'They are sitting on the tunnels! Somebody tell the bunnies to find another door.',
+              next: null,
+            },
+          ],
+        },
+        {
+          id: 'boiler-first-down',
+          title: 'First Down',
+          trigger: { kind: 'kill', team: 'rival', count: 1 },
+          start: 'k1',
+          nodes: [
+            {
+              id: 'k1',
+              speaker: 'vee',
+              emotion: 'afraid',
+              camera: 'close',
+              text: 'That was not supposed to happen. Nobody said the floor would fight back too.',
+              next: null,
+            },
+          ],
+        },
+        {
+          id: 'boiler-win',
+          title: 'Pressure Released',
+          trigger: { kind: 'closing', outcome: 'victory' },
+          start: 'w1',
+          nodes: [
+            {
+              id: 'w1',
+              speaker: 'narrator',
+              emotion: 'neutral',
+              camera: 'wide',
+              text: 'The relief valve finally sings. The rivals retreat up the ladder, and the boiler room goes quiet except for the dripping.',
+              next: 'w2',
+            },
+            {
+              id: 'w2',
+              speaker: 'backdraft',
+              emotion: 'joyful',
+              camera: 'close',
+              text: 'Six rounds. Remind me to ask the janitor for a raise on their behalf.',
+              next: null,
+            },
+          ],
+        },
+        {
+          id: 'boiler-loss',
+          title: 'Steam and Silence',
+          trigger: { kind: 'closing', outcome: 'defeat' },
+          start: 'd1',
+          nodes: [
+            {
+              id: 'd1',
+              speaker: 'pip',
+              emotion: 'sly',
+              camera: 'low-angle',
+              text: 'Told you. Down here, the building picks the winner.',
+              next: null,
+            },
+          ],
+        },
+      ],
+    },
   },
   {
     version: 1,
@@ -479,6 +635,11 @@ export function stageProblems(stage: StageDraft): string[] {
   if (stage.scenes !== undefined && stage.scenes !== 'picnic-panic')
     issues.push('Unknown scene set.')
   issues.push(...ruleProblems(stage))
+  if (stage.script) {
+    if (stage.scenes)
+      issues.push('A stage uses either Picnic Panic scenes or its own script.')
+    issues.push(...scriptProblems(stage.script, stage))
+  }
   for (const marker of [...stage.secrets, ...stage.hazards]) {
     if (!inside(map, marker) || tileAt(map, marker).wall)
       issues.push('Secrets and hazards must occupy walkable cells.')

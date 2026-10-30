@@ -403,6 +403,7 @@
 
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
+import CapesCastAtlas from '~/components/admin/capes-cast-atlas.vue'
 import { useUserStore } from '~/stores/userStore'
 import { useCapesStyleCheckStore } from '~/stores/capesStyleCheckStore'
 import {

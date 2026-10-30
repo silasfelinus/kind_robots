@@ -582,6 +582,64 @@ export function earnedMosswickPromiseOutcome(
   return accord === 'unset' ? null : MOSSWICK_PROMISE_OUTCOMES[accord].scene
 }
 
+export type WitnessBellAccord =
+  | 'unset'
+  | 'copied-consented'
+  | 'copied-recorded'
+  | 'shielded-consented'
+  | 'shielded-recorded'
+
+const WITNESS_BELL_OUTCOMES: Record<
+  Exclude<WitnessBellAccord, 'unset'>,
+  { scene: string; epilogue: string }
+> = {
+  'copied-consented': {
+    scene:
+      'The names you copied from the first Vault let Oren send invitations rather than ring the House bells at random. Three witnesses answer willingly and correct the Index’s claim that everyone behind the doors consented. You seal the other names until their owners respond. The council can hear three real accounts tonight, but it must delay its wider verdict rather than count silence as agreement.',
+    epilogue:
+      'Oren delivers three willing witnesses from the names you copied. Their testimony corrects the public claim of unanimous consent; the remaining names stay sealed, delaying a broader hearing.',
+  },
+  'copied-recorded': {
+    scene:
+      'Your first list of crossed-out names matches the mirrored brass bells exactly. The Index offers to publish the whole directory as proof that its victims existed. You instead copy the bell positions into a sealed evidence map, leaving the names with their owners. The fraud can be investigated, but without their permission no official can use your map to summon a witness tonight.',
+    epilogue:
+      'The copied names and bell positions expose a pattern of fabricated consent. The evidence map stays sealed, so the inquiry must seek witnesses rather than compel them.',
+  },
+  'shielded-consented': {
+    scene:
+      'Because you hid the names from the first Index, the bells cannot be matched to a public list. Scylla asks each door whether its occupant wants to speak; three answer and Char escorts them out without recording their rooms. The testimony belongs to those people, not to a restored registry. The council hears them safely, but cannot yet identify the other missing villagers.',
+    epilogue:
+      'Scylla and Char escort three volunteers to testify without restoring the names you protected. The remaining missing villagers are still unaccounted for, not presumed consenting.',
+  },
+  'shielded-recorded': {
+    scene:
+      'You protected the first inscription, and now copy only the arrangement of bells. Vesper marks which doors were moved between realities without guessing who lives behind them. The House loses its claim that the corridor never changed, but no witness is exposed or summoned. Without names or voluntary testimony, the village can challenge the architecture, not yet the fate of its missing people.',
+    epilogue:
+      'Vesper preserves an anonymous map of the shifted bell corridor. It disproves the House’s account of its rooms, while the missing witnesses remain protected and their stories unresolved.',
+  },
+}
+
+export function earnedWitnessBellAccord(
+  original: Pick<BriarSave, 'sceneChoices'>,
+  mirrored: Pick<DarkBriarProgress, 'sceneChoices'>,
+): WitnessBellAccord {
+  const source = original.sceneChoices['6,3']
+  const response = mirrored.sceneChoices['6,3']
+  if (source !== 'remember' && source !== 'protect') return 'unset'
+  if (response !== 'consent' && response !== 'records') return 'unset'
+  if (source === 'remember')
+    return response === 'consent' ? 'copied-consented' : 'copied-recorded'
+  return response === 'consent' ? 'shielded-consented' : 'shielded-recorded'
+}
+
+export function earnedWitnessBellOutcome(
+  original: Pick<BriarSave, 'sceneChoices'>,
+  mirrored: Pick<DarkBriarProgress, 'sceneChoices'>,
+): string | null {
+  const accord = earnedWitnessBellAccord(original, mirrored)
+  return accord === 'unset' ? null : WITNESS_BELL_OUTCOMES[accord].scene
+}
+
 export type OrenManifestAccord =
   | 'unset'
   | 'route-counted'
@@ -658,6 +716,7 @@ export interface CrossRealmConsequenceLedger {
   knightCrossingAccord: KnightCrossingAccord
   vesperRookeryAccord: VesperRookeryAccord
   mosswickPromiseAccord: MosswickPromiseAccord
+  witnessBellAccord: WitnessBellAccord
 }
 
 export function crossRealmConsequenceLedger(
@@ -710,6 +769,9 @@ export function crossRealmConsequenceLedger(
       : 'unset',
     mosswickPromiseAccord: mirrored
       ? earnedMosswickPromiseAccord(briar, mirrored)
+      : 'unset',
+    witnessBellAccord: mirrored
+      ? earnedWitnessBellAccord(briar, mirrored)
       : 'unset',
   }
 }
@@ -772,7 +834,7 @@ export function crossRealmHouseEpilogue(
   if (!mirroredHouse.ending) return ''
   const ledger = crossRealmConsequenceLedger(briar, mirroredHouse, mirrored)
   const witness =
-    ledger.witnessRecord === 'unset'
+    ledger.witnessBellAccord !== 'unset' || ledger.witnessRecord === 'unset'
       ? ''
       : WITNESS_EPILOGUES[ledger.witnessRecord][mirroredHouse.ending]
   const provision =
@@ -811,6 +873,10 @@ export function crossRealmHouseEpilogue(
     ledger.mosswickPromiseAccord === 'unset'
       ? ''
       : MOSSWICK_PROMISE_OUTCOMES[ledger.mosswickPromiseAccord].epilogue
+  const witnessBells =
+    ledger.witnessBellAccord === 'unset'
+      ? ''
+      : WITNESS_BELL_OUTCOMES[ledger.witnessBellAccord].epilogue
   return [
     witness,
     provision,
@@ -822,6 +888,7 @@ export function crossRealmHouseEpilogue(
     royals,
     vesper,
     mosswick,
+    witnessBells,
   ]
     .filter(Boolean)
     .join(' ')

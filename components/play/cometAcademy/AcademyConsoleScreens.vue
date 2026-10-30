@@ -417,6 +417,12 @@
         <h2>Settings &amp; saves</h2>
         <p>{{ summary.mode }} · day {{ summary.day }} of {{ summary.days }}</p>
       </header>
+      <article class="acs-panel" data-testid="academy-current-play-mode">
+        <h3>Current campaign mode</h3>
+        <p class="acs-dim">Tactical missions: {{ run.campaignOptions?.tacticalMissions === false ? 'Narrated outcomes' : 'Playable battles' }}</p>
+        <p class="acs-dim">Night patrols: {{ run.campaignOptions?.nightPatrols === false ? 'Story decisions' : 'Manual patrols and dispatch' }}</p>
+        <p class="acs-dim">These choices are saved with this term. A new term can use a different combination without changing this game's relationships, clues or endings.</p>
+      </article>
       <article class="acs-panel">
         <h3>Text speed</h3>
         <div class="acs-segment" role="radiogroup" aria-label="Text speed">

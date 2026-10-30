@@ -439,7 +439,9 @@
                     <img
                       v-if="portrait('captain-' + selectedCaptain)"
                       :src="portrait('captain-' + selectedCaptain)!"
-                      :alt="activeCaptain.name + ' full-size character portrait'"
+                      :alt="
+                        activeCaptain.name + ' full-size character portrait'
+                      "
                       class="cap-personnel-hero-image"
                     />
                     <div v-else class="cap-personnel-hero-fallback">
@@ -650,11 +652,16 @@
                     <img
                       v-if="portrait(crewProfile(focusedCrew).portraitKey)"
                       :src="portrait(crewProfile(focusedCrew).portraitKey)!"
-                      :alt="crewProfile(focusedCrew).name + ' full-size character portrait'"
+                      :alt="
+                        crewProfile(focusedCrew).name +
+                        ' full-size character portrait'
+                      "
                       class="cap-personnel-hero-image"
                     />
                     <div v-else class="cap-personnel-hero-fallback">
-                      <strong>{{ crewProfile(focusedCrew).name.slice(0, 1) }}</strong>
+                      <strong>{{
+                        crewProfile(focusedCrew).name.slice(0, 1)
+                      }}</strong>
                     </div>
                     <figcaption>
                       <span>OFFICER DOSSIER</span>
@@ -702,7 +709,9 @@
                   >
                     <div v-for="skill in SKILLS" :key="skill">
                       <small>{{ skill.toUpperCase() }}</small>
-                      <strong>{{ crewProfile(focusedCrew).stats[skill] }}</strong>
+                      <strong>{{
+                        crewProfile(focusedCrew).stats[skill]
+                      }}</strong>
                     </div>
                   </div>
                   <div
@@ -3789,7 +3798,9 @@ function toggleAway(id: CrewId) {
     url('/game-of-captains/space-couch-stage.svg') center / cover;
 }
 .cap-personnel-hero-fallback strong {
-  font: 900 clamp(4rem, 12cqi, 11rem) Georgia, serif;
+  font:
+    900 clamp(4rem, 12cqi, 11rem) Georgia,
+    serif;
   color: #ffdfa9d9;
   text-shadow: 0 5px 30px #000a;
 }
@@ -3810,7 +3821,9 @@ function toggleAway(id: CrewId) {
 }
 .cap-personnel-hero figcaption strong {
   color: #fff0dd;
-  font: 900 clamp(1rem, 2.65cqi, 2.3rem) Georgia, serif;
+  font:
+    900 clamp(1rem, 2.65cqi, 2.3rem) Georgia,
+    serif;
   line-height: 1;
 }
 .cap-personnel-frame .cap-dossier-header {

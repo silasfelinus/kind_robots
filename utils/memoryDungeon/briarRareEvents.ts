@@ -166,6 +166,50 @@ export const BRIAR_RARE_EVENTS: readonly RareEventDefinition[] = [
       },
     },
   },
+  {
+    id: 'supper-for-tomorrow',
+    questId: 'feed-the-orchard-workers',
+    title: 'Supper for Tomorrow',
+    premise:
+      'The orchard has released its fruit, the cook has her spoon, and the House has admitted the absent guest to supper. The workers carry the final apple to the kitchen and ask whether one meal or a future harvest should inherit their names.',
+    requires: [
+      { scope: 'briar', key: '3,1', choice: 'harvest' },
+      { scope: 'briar', key: '1,3', choice: 'return' },
+      { scope: 'house', key: 'HD-04', choice: 'share' },
+    ],
+    branch: {
+      scope: 'briar',
+      key: '1,8',
+      outcomes: {
+        plant:
+          'You plant the last apple where the workers can tend its seeds. The field cook uses the House bread to feed the pickers tonight, but the fruit itself becomes a sapling rather than a meal. The keeper writes the workers into the new orchard charter as owners, not harvest debts. Nobody can promise when it will bear; the hungry must share what remains until then.',
+        share:
+          'You divide the last apple among the workers and the guest whose place the House pantry finally acknowledged. Each portion carries a name once rubbed out of the harvest tally. The cook records the names only with permission, and the workers eat together tonight. There is no seedling from this apple, so they must bargain for next year’s planting instead of pretending the orchard is restored.',
+      },
+    },
+  },
+  {
+    id: 'the-name-left-blank',
+    questId: 'names-on-the-lintel',
+    title: 'The Name Left Blank',
+    premise:
+      'Eleven painted guests, eleven erased names and the elder’s bargain finally agree. In the next room a living daughter has written that she left freely. The House asks whether a complete count entitles the village to claim a twelfth person.',
+    requires: [
+      { scope: 'briar', key: '6,3', choice: 'remember' },
+      { scope: 'house', key: 'HD-07', choice: 'count' },
+      { scope: 'house', key: 'HD-17', choice: 'read' },
+    ],
+    branch: {
+      scope: 'house',
+      key: 'HD-20',
+      outcomes: {
+        testify:
+          'You testify that the daughter left by choice, using the letters she authorized the House to preserve. The village corrects its list: eleven stolen records are evidence of coercion, but her absence is not a twelfth theft. Her family hears the truth without receiving her address. The public hearing may still draw unwanted attention to the witnesses who helped her leave.',
+        protect:
+          'You return the daughter’s letters without her address and ask the House to keep her line blank until she chooses to speak. The eleven erased guests are still counted separately; their claim does not swallow hers. The family cannot use the registry to find her, but some villagers continue accusing the House of hiding a captive because no public testimony settles the dispute.',
+      },
+    },
+  },
 ]
 
 function recordedChoice(

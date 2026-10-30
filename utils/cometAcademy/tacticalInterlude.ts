@@ -384,11 +384,13 @@ export function validTacticalInterlude(
                 (point !== undefined &&
                   Number.isInteger(point.x) &&
                   Number.isInteger(point.y) &&
-                  point.x >= 0 && point.x < state.map.width &&
-                  point.y >= 0 && point.y < state.map.height &&
+                  point.x >= 0 &&
+                  point.x < state.map.width &&
+                  point.y >= 0 &&
+                  point.y < state.map.height &&
                   !tileAt(state.map, point).wall),
             ) &&
-            (!!unit.signatureTarget === !!unit.signatureCounter))),
+            !!unit.signatureTarget === !!unit.signatureCounter)),
     ) &&
     !!state.map &&
     state.map.width === 9 &&

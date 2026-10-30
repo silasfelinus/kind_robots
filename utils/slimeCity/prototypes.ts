@@ -1470,6 +1470,10 @@ export const MODE_GUIDES: Record<ModeId, ModeGuide> = {
   },
 }
 
+export function cardAttackRange(card: Card): number {
+  return card.range ?? (['mau', 'razor', 'welder', 'firebrand', 'eel', 'broker'].includes(card.id) ? 2 : 1)
+}
+
 export function cardById(id: string): Card {
   const found = CARDS.find((card) => card.id === id)
   if (!found) throw new Error('Unknown Slime City card: ' + id)
@@ -1763,7 +1767,7 @@ function addFighter(
     maxAp: card.ap || 1,
     hidden,
     carryingFlag: false,
-    range: card.range ?? (['mau','razor','welder','firebrand','eel','broker'].includes(cardId) ? 2 : 1),
+    range: cardAttackRange(card),
     attackStyle: card.attackStyle ?? ({
       catgirls:'claw', bloodfairies:'arrow', ironjaw:'hammer',
       riot:'blast', undertow:'spell', exchange:'sword',

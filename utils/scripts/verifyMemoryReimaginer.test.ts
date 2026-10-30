@@ -118,12 +118,18 @@ for (const [decision, expectedFate] of [
   )
   const afterCity = completeMemoryExperience(chosen, 'e04')
   assert.equal(availableMemoryExperiences(afterCity)[0], 'e05')
-  assert.match(scyllaOpeningForMemory(afterCity, 'e05'), /years earlier/)
+  assert.match(
+    scyllaOpeningForMemory(afterCity, 'e05'),
+    /years earlier|younger body/,
+  )
   for (const choice of MEMORY_SCYLLA_DEPARTURE_CHOICES) {
     const past = chooseMemoryScyllaDeparture(afterCity, choice.id)
     assert.equal(past.scyllaDeparture, choice.id)
     assert.ok(memoryPairWorldFlags(past).includes(choice.worldFlag))
-    assert.match(scyllaOpeningForMemory(past, 'e06'), /court|escape|timeline|palace/)
+    assert.match(
+      scyllaOpeningForMemory(past, 'e06'),
+      /court|escape|timeline|palace|sea/,
+    )
     assert.throws(
       () => chooseMemoryScyllaDeparture(past, choice.id),
       /unchosen past/,

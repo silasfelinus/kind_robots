@@ -220,7 +220,14 @@ export const useCometAcademyStore = defineStore('cometAcademy', () => {
       throw new Error(
         'Earn the mantle during a previous campaign before replaying it',
       )
-    run.value = startFullAcademy(power, Date.now(), signature, vow, form, options)
+    run.value = startFullAcademy(
+      power,
+      Date.now(),
+      signature,
+      vow,
+      form,
+      options,
+    )
     recordIdentity(true)
     usePlaybookRunReviewStore().begin(
       'comet-city-academy',
@@ -329,7 +336,8 @@ export const useCometAcademyStore = defineStore('cometAcademy', () => {
   }
 
   function startBattle() {
-    if (!run.value || run.value.campaignOptions?.tacticalMissions === false) return false
+    if (!run.value || run.value.campaignOptions?.tacticalMissions === false)
+      return false
     const battle = newTacticalInterlude(run.value)
     if (!battle) return false
     run.value = { ...run.value, tacticalBattle: battle }

@@ -561,7 +561,9 @@ export function validateMemoryReimaginerCampaign(): string[] {
     const before = MEMORY_REALITY_EXPERIENCES.find(
       (entry) => entry.id === original,
     )
-    const after = MEMORY_REALITY_EXPERIENCES.find((entry) => entry.id === twisted)
+    const after = MEMORY_REALITY_EXPERIENCES.find(
+      (entry) => entry.id === twisted,
+    )
     if (!before || !after || before.concept !== after.concept)
       errors.push(`Reality pair ${original}/${twisted} changes geography`)
   }

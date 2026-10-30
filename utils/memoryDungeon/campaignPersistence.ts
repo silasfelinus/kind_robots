@@ -121,6 +121,19 @@ export function restoreMemoryCampaignProgress(
     progress = completeMemoryExperience(progress, id)
   }
 
+  // A wish can be remembered while its source experience is still in
+  // progress, before that experience is added to the completed list.
+  for (const anchor of requestedAnchors) {
+    const source = MEMORY_WISH_ANCHORS[anchor].source
+    if (
+      !progress.rememberedAnchors.includes(anchor) &&
+      (progress.completed.includes(source) ||
+        availableMemoryExperiences(progress).includes(source))
+    ) {
+      progress = rememberMemoryWish(progress, anchor)
+    }
+  }
+
   // An in-progress choice belongs in a save even before completion. Keep it
   // only when the correct reality is the next available experience.
   const next = availableMemoryExperiences(progress)
@@ -149,19 +162,6 @@ export function restoreMemoryCampaignProgress(
       )
     )
       progress = chooseMemoryPairEnding(progress, pendingWorld, candidate)
-  }
-
-  // A wish can be remembered while its source experience is still in
-  // progress, before that experience is added to the completed list.
-  for (const anchor of requestedAnchors) {
-    const source = MEMORY_WISH_ANCHORS[anchor].source
-    if (
-      !progress.rememberedAnchors.includes(anchor) &&
-      (progress.completed.includes(source) ||
-        availableMemoryExperiences(progress).includes(source))
-    ) {
-      progress = rememberMemoryWish(progress, anchor)
-    }
   }
 
   // The player commits after all three middle pairs, not an arbitrary

@@ -22,18 +22,26 @@ import {
 } from '../cometAcademy/tacticalInterlude'
 import { aliasFor, moveSelected } from '../everyVillainTactics/training'
 import { stageProblems } from '../everyVillainTactics/studio'
-import { rivalArenaFor } from '../cometAcademy/rivalArenas'
+import { rivalArenaFor, originArenaFor } from '../cometAcademy/rivalArenas'
 import { campaignStagesFor } from '../cometAcademy/identityCampaignStages'
 import { pathDistance, tileAt } from '../everyVillainTactics/combat'
 
 assert.equal(IDENTITY_ARCS.length, 48)
 const rivals = new Set<string>()
 const arenaMaps = new Set<string>()
+const originMaps = new Set<string>()
 const arenaTitles = new Set<string>()
 for (const identity of IDENTITY_ARCS) {
   const foil = recommendedRivalFor(identity.signature)
   assert.notEqual(foil.signature, identity.signature)
   rivals.add(foil.signature)
+  const originArena = originArenaFor(identity.signature)
+  originMaps.add(JSON.stringify(originArena.stage.map.tiles))
+  assert.equal(originArena.stage.id, 'hero-origin-' + identity.signature)
+  assert.equal(originArena.stage.title, campaignStagesFor(identity.signature).opening.title)
+  assert.equal(originArena.stage.objective, campaignStagesFor(identity.signature).opening.inciting)
+  assert.deepEqual(stageProblems(originArena.stage), [], identity.signature + ' origin map is unplayable')
+  assert.ok(Number.isFinite(pathDistance(originArena.stage.map, [], { x: 0, y: 4 }, originArena.objectivePoint)))
   const arena = rivalArenaFor(identity.signature)
   arenaTitles.add(arena.stage.title)
   arenaMaps.add(JSON.stringify(arena.stage.map.tiles))
@@ -57,6 +65,7 @@ assert.equal(
 )
 assert.equal(arenaTitles.size, 48, 'all 48 rivals need distinct authored lair names')
 assert.equal(arenaMaps.size, 48, 'all 48 rivals need distinct physical cover and wall layouts')
+assert.equal(originMaps.size, 48, 'all 48 origin fights need distinct physical layouts')
 
 const lead = IDENTITY_ARCS.find(
   (person) => person.signature === 'accident-fire',
@@ -78,6 +87,22 @@ assert.equal(
   recommended.opponentSignature,
 )
 
+const originRun = { ...recommended, day: 4, phase: 'dispatch' as const }
+const originCase = incidentsFor(originRun)[0]!
+const firstBattle = newTacticalInterlude(assignPlayerCase(originRun, originCase.id))!
+assert.equal(firstBattle.state.stageId, 'hero-origin-' + lead.signature)
+assert.equal(firstBattle.arena?.kind, 'origin')
+assert.equal(firstBattle.arena?.signature, lead.signature)
+assert.equal(firstBattle.arena?.title, campaignStagesFor(lead.signature).opening.title)
+assert.equal(
+  aliasFor(firstBattle.state.units.find((unit) => unit.id === 'pip')!),
+  'Masked Rival',
+)
+assert.ok(restoreAcademy(JSON.parse(JSON.stringify({
+  ...originRun,
+  playerCaseId: originCase.id,
+  tacticalBattle: firstBattle,
+}))), 'early origin battle persists without revealing an antagonist')
 const day = 15
 const dispatchState = {
   ...recommended,

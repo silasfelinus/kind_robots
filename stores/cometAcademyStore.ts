@@ -17,6 +17,7 @@ import {
   endTurn,
   fireSelected,
   moveSelected,
+  useAlliedSignature,
 } from '~/utils/everyVillainTactics/training'
 import {
   newTacticalInterlude,
@@ -329,6 +330,14 @@ export const useCometAcademyStore = defineStore('cometAcademy', () => {
     return true
   }
 
+  function battleSupport() {
+    const battle = run.value?.tacticalBattle
+    if (!battle || !useAlliedSignature(battle.state)) return false
+    reconcileTacticalVictory(battle)
+    persist()
+    return true
+  }
+
   function battleTurn() {
     const battle = run.value?.tacticalBattle
     const fight = battle?.state
@@ -419,6 +428,7 @@ export const useCometAcademyStore = defineStore('cometAcademy', () => {
     battleClick,
     battleCounter,
     battleParley,
+    battleSupport,
     battleTurn,
     battleRetreat,
     battleResolve,

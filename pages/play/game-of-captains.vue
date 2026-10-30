@@ -1910,9 +1910,9 @@ const panelLabel = computed(() =>
         ending: 'CHRONICLE // A VOYAGE RECORDED',
       }[run.value.phase]
     : selectionScreen.value === 'background'
-      ? '01 // BEFORE THE CAPTAINCY'
+      ? '02 // BEFORE THE CAPTAINCY'
       : selectionScreen.value === 'captain'
-        ? '02 // CAPTAIN SELECTION'
+        ? '01 // CAPTAIN SELECTION'
         : selectionScreen.value === 'stars'
           ? '03 // THE COUCHSCOPE'
           : '04 // CREW SELECTION',

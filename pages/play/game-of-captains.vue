@@ -419,7 +419,7 @@
                     :key="captain.id"
                     type="button"
                     class="cap-captain"
-                    :class="{ chosen: captain.id === selectedCaptain }"
+                     :class="{ chosen: captain.id === selectedCaptain, 'cap-captain-ready': captainArtReady[captain.id] || !portrait('captain-' + captain.id) }"
                     :aria-pressed="captain.id === selectedCaptain"
                     @click="selectedCaptain = captain.id"
                   >
@@ -432,11 +432,13 @@
                         :src="portrait('captain-' + captain.id)!"
                         alt=""
                         class="cap-portrait-img"
+                        @load="captainArtReady[captain.id] = true"
+                        @error="captainArtReady[captain.id] = true"
                       /><template v-else>{{
                         captain.name.split(' ').at(-1)?.slice(0, 1)
                       }}</template></span
                     >
-                    <span
+                    <span class="cap-captain-copy"
                       ><strong>{{ captain.name }}</strong
                       ><small>{{ captain.epithet }}</small></span
                     >
@@ -1723,6 +1725,7 @@ const selectionScreen = ref<'background' | 'captain' | 'stars' | 'crew'>(
 )
 const selectedOrigin = ref<CaptainOriginId | null>(null)
 const originReady = ref<Record<string, boolean>>({})
+const captainArtReady = ref<Record<string, boolean>>({})
 function markOriginReady(id: string) {
   originReady.value[id] = true
 }

@@ -212,6 +212,69 @@ assert.strictEqual(
   'A decision cannot be repeated in the next room',
 )
 
+const hearingOutcomes = new Set<string>()
+for (const pipDecision of ['trace', 'protect', null] as const) {
+  for (const pantry of ['audit', 'feed'] as const) {
+    for (const ember of ['consent', 'pause'] as const) {
+      for (const hearing of ['pact', 'relief'] as const) {
+        let run = newHoshimoriWarmProgress(22)
+        run = move(run, '2,1')
+        if (pipDecision) {
+          run = move(run, '2,2')
+          run = choose(run, pipDecision)
+          run = move(run, '3,2')
+          run = move(run, '4,2')
+        } else {
+          run = move(run, '3,1')
+          run = move(run, '4,1')
+          run = move(run, '4,2')
+        }
+        run = choose(run, 'pledge')
+        run = move(run, '4,3')
+        run = advanceHoshimoriWarm(run, { type: 'enter' })
+        assert.equal(run.ovenRoom, 'OV-01')
+        for (const id of [pantry, ember, hearing]) {
+          const next = advanceHoshimoriWarm(run, {
+            type: 'oven-choice',
+            id,
+          })
+          assert.notStrictEqual(next, run)
+          run = next
+        }
+        assert.equal(run.ovenComplete, true)
+        const resolution = hoshimoriOvenResolution(run)
+        assert.ok(resolution)
+        assert.match(resolution, /first hearing/i)
+        if (pipDecision === 'trace') assert.match(resolution, /testify/)
+        else if (pipDecision === 'protect')
+          assert.match(resolution, /anonymous/)
+        else assert.match(resolution, /will not guess/)
+        hearingOutcomes.add(resolution)
+        assert.deepEqual(
+          restoreHoshimoriWarm(JSON.parse(JSON.stringify(run))),
+          run,
+          'Every earned hearing must survive replay-validated restoration',
+        )
+        const forgedHearing = JSON.parse(
+          JSON.stringify(run),
+        ) as HoshimoriWarmProgress
+        forgedHearing.ovenChoices['OV-03'] =
+          hearing === 'pact' ? 'relief' : 'pact'
+        assert.equal(
+          restoreHoshimoriWarm(forgedHearing),
+          null,
+          'A saved hearing cannot change its verdict without the earned action',
+        )
+      }
+    }
+  }
+}
+assert.equal(
+  hearingOutcomes.size,
+  24,
+  'Eight oven resolutions and three Pip witness states must stay distinct',
+)
+
 let pip = newHoshimoriWarmProgress(3)
 pip = move(pip, '2,1')
 pip = move(pip, '2,2')

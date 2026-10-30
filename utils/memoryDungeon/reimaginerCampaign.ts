@@ -1016,8 +1016,6 @@ export function completeMemoryExperience(
     if (missing.length)
       throw new Error('Recover both misplaced world fragments before leaving')
   }
-  if (id === 'e12' && !progress.lastChoice)
-    throw new Error('The final world requires a consequential last choice')
   if (id === 'e05' && !progress.scyllaDeparture)
     throw new Error('Scylla must decide whether to repeat the escape')
   if (
@@ -1027,6 +1025,8 @@ export function completeMemoryExperience(
   ) {
     throw new Error('World-pair ending requires an earned decision')
   }
+  if (id === 'e12' && !progress.lastChoice)
+    throw new Error('The final world requires a consequential last choice')
   return { ...progress, completed: [...progress.completed, id] }
 }
 

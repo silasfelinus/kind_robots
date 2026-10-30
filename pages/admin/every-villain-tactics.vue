@@ -769,9 +769,10 @@
                 >
               </div>
               <p class="evt-dossier-status">
-                Henchmen: {{ inspectedHenchmen.name }} · Concept plans only for most entries. The Quarry lieutenant
-                is one playable studio demonstration, not 48 shipped bosses or
-                96 playable stages. Most concepts await art and AI.
+                Henchmen: {{ inspectedHenchmen.name }} · Concept plans only for
+                most entries. The Quarry lieutenant is one playable studio
+                demonstration, not 48 shipped bosses or 96 playable stages. Most
+                concepts await art and AI.
               </p>
               <button
                 type="button"
@@ -877,7 +878,12 @@ watch(
     store.state.units
       .filter((unit) => unit.hp > 0)
       .map((unit) =>
-        [unit.identity, unit.team, unit.henchmanType ?? '', unit.lieutenantName ?? ''].join(':'),
+        [
+          unit.identity,
+          unit.team,
+          unit.henchmanType ?? '',
+          unit.lieutenantName ?? '',
+        ].join(':'),
       )
       .join('|'),
   () => {

@@ -10,6 +10,7 @@ import {
   hoshimoriLanternOrder,
   hoshimoriOvenResolution,
   hoshimoriRidgeAccount,
+  hoshimoriLowlandAccount,
   hoshimoriOvenTestimony,
   newHoshimoriWarmProgress,
   restoreHoshimoriWarm,
@@ -27,17 +28,17 @@ import {
 import { MEMORY_REALITY_EXPERIENCES } from '../memoryDungeon/reimaginerCampaign'
 
 assert.deepEqual(validateHoshimoriWarm(), [])
-assert.equal(HOSHIMORI_WARM_SITES.length, 28)
-assert.equal(new Set(HOSHIMORI_WARM_SITES.map((site) => site.key)).size, 28)
+assert.equal(HOSHIMORI_WARM_SITES.length, 36)
+assert.equal(new Set(HOSHIMORI_WARM_SITES.map((site) => site.key)).size, 36)
 assert.equal(HOSHIMORI_OVEN_ROOMS.length, 3)
-assert.equal(new Set(HOSHIMORI_WARM_SITES.map((site) => site.opening)).size, 28)
+assert.equal(new Set(HOSHIMORI_WARM_SITES.map((site) => site.opening)).size, 36)
 assert.equal(
   new Set(
     HOSHIMORI_WARM_SITES.flatMap((site) =>
       site.choices.map((choice) => choice.outcome),
     ),
   ).size,
-  56,
+  72,
   'Every authored decision must have a distinct outcome',
 )
 
@@ -168,6 +169,16 @@ for (let seed = 0; seed < 96; seed++) {
   }
   assert.equal(progress.visited.length, 28, 'All ridge sites are reachable')
   assert.equal(Object.keys(progress.choices).length, 28)
+  for (const key of ['4,6', '3,6', '2,6', '1,6', '1,5', '2,5', '3,5', '4,5']) {
+    progress = move(progress, key)
+    const site = HOSHIMORI_WARM_SITES.find((item) => item.key === key)!
+    const affordable = site.choices.find(
+      (choice) => progress.rations + (choice.rations ?? 0) >= 0,
+    )!
+    progress = choose(progress, affordable.id)
+  }
+  assert.equal(progress.visited.length, 36, 'All lowland sites are reachable')
+  assert.equal(Object.keys(progress.choices).length, 36)
   assert.equal(hoshimoriLanternClues(progress).length, 3)
   const wrong = [...hoshimoriLanternOrder(seed)].reverse()
   if (wrong.join(':') !== hoshimoriLanternOrder(seed).join(':')) {
@@ -364,6 +375,57 @@ for (const hearth of ['host', 'measure'] as const) {
   }
 }
 assert.equal(ridgeOutcomes.size, 8, 'The ridge has eight earned accounts')
+
+const lowlandOutcomes = new Set<string>()
+for (const flood of ['evacuate', 'record'] as const) {
+  for (const rain of ['audit', 'pledge'] as const) {
+    for (const council of ['open', 'restrict'] as const) {
+      let progress = newHoshimoriWarmProgress(41)
+      for (const key of ['1,2', '1,3', '1,4', '1,5'])
+        progress = move(progress, key)
+      progress = choose(progress, flood)
+      for (const key of ['2,5', '3,5', '3,6']) progress = move(progress, key)
+      progress = choose(progress, rain)
+      progress = move(progress, '4,6')
+      assert.equal(
+        hoshimoriLowlandAccount(progress),
+        null,
+        'A lowland verdict cannot precede the council decision',
+      )
+      progress = choose(progress, council)
+      const account = hoshimoriLowlandAccount(progress)
+      assert.ok(account)
+      lowlandOutcomes.add(account)
+      assert.deepEqual(
+        restoreHoshimoriWarm(JSON.parse(JSON.stringify(progress))),
+        progress,
+        'Every flood outcome must survive deterministic replay',
+      )
+      const forged = JSON.parse(
+        JSON.stringify(progress),
+      ) as HoshimoriWarmProgress
+      forged.choices['3,6'] = rain === 'audit' ? 'pledge' : 'audit'
+      assert.equal(
+        restoreHoshimoriWarm(forged),
+        null,
+        'A flood ledger decision cannot be forged in a saved run',
+      )
+      assert.strictEqual(
+        advanceHoshimoriWarm(progress, {
+          type: 'choose',
+          id: council === 'open' ? 'restrict' : 'open',
+        }),
+        progress,
+        'The council decision cannot be replaced to farm trust',
+      )
+    }
+  }
+}
+assert.equal(
+  lowlandOutcomes.size,
+  8,
+  'Eight distinct lowland verdicts are earned',
+)
 
 let pip = newHoshimoriWarmProgress(3)
 pip = move(pip, '2,1')
@@ -614,12 +676,14 @@ assert.match(consoleSource, /hoshimori\.canEnterOven/)
 assert.match(consoleSource, /hoshimori\.act\(\{ type: 'oven-choice'/)
 assert.match(consoleSource, /data-testid="memory-hoshimori-chronicle-open"/)
 assert.match(consoleSource, /memory-dungeon-earth-chronicle/)
+assert.match(consoleSource, /data-testid="memory-hoshimori-lowland-account"/)
 assert.doesNotMatch(consoleSource, /localStorage|\$fetch/)
 assert.match(storeSource, /restoreHoshimoriWarm\(JSON\.parse\(saved\)\)/)
 assert.match(storeSource, /advanceHoshimoriWarm\(progress\.value, event\)/)
 assert.match(storeSource, /memory-dungeon-hoshimori-e07-v1/)
 assert.match(storeSource, /syncHoshimoriPhoto\(restored\.choices\)/)
 assert.match(storeSource, /syncHoshimoriPhoto\(next\.choices\)/)
+assert.match(storeSource, /hoshimoriLowlandAccount\(progress\.value\)/)
 const worldStoreSource = readFileSync('stores/memoryWorldStore.ts', 'utf8')
 assert.match(worldStoreSource, /campaign\.value\.completed\.includes\('e06'\)/)
 assert.match(worldStoreSource, /reconcileHoshimoriEarthChronicle/)
@@ -628,5 +692,5 @@ assert.match(overworldSource, /campaign\.completed\.includes\('e06'\)/)
 assert.match(overworldSource, /data-testid="memory-enter-hoshimori"/)
 
 console.log(
-  'Hoshimori warm proof: 28 sites, 96 seeds, 24 hearings, two earned Earth photographs, long-run save and spoiler guards passed',
+  'Hoshimori warm proof: 36 sites, 96 seeds, 24 hearings, 8 lowland verdicts, two Earth photos, long-run save and spoiler guards passed',
 )

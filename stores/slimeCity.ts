@@ -39,7 +39,7 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
   )
   const district = computed(
     () =>
-      DISTRICTS.find((item) => item.id === districtId.value) || DISTRICTS[0],
+      DISTRICTS.find((item) => item.id === districtId.value) || DISTRICTS[0]!,
   )
   const board = computed(() =>
     Array.from({ length: match.value.width * match.value.height }, (_, i) => ({

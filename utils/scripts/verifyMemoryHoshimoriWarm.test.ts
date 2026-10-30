@@ -13,6 +13,7 @@ import {
   hoshimoriRidgeAccount,
   hoshimoriLowlandAccount,
   hoshimoriWindwardAccount,
+  hoshimoriSouthernAccount,
   hoshimoriOvenTestimony,
   newHoshimoriWarmProgress,
   restoreHoshimoriWarm,
@@ -30,17 +31,17 @@ import {
 import { MEMORY_REALITY_EXPERIENCES } from '../memoryDungeon/reimaginerCampaign'
 
 assert.deepEqual(validateHoshimoriWarm(), [])
-assert.equal(HOSHIMORI_WARM_SITES.length, 44)
-assert.equal(new Set(HOSHIMORI_WARM_SITES.map((site) => site.key)).size, 44)
+assert.equal(HOSHIMORI_WARM_SITES.length, 64)
+assert.equal(new Set(HOSHIMORI_WARM_SITES.map((site) => site.key)).size, 64)
 assert.equal(HOSHIMORI_OVEN_ROOMS.length, 9)
-assert.equal(new Set(HOSHIMORI_WARM_SITES.map((site) => site.opening)).size, 44)
+assert.equal(new Set(HOSHIMORI_WARM_SITES.map((site) => site.opening)).size, 64)
 assert.equal(
   new Set(
     HOSHIMORI_WARM_SITES.flatMap((site) =>
       site.choices.map((choice) => choice.outcome),
     ),
   ).size,
-  88,
+  128,
   'Every authored decision must have a distinct outcome',
 )
 
@@ -204,7 +205,11 @@ for (let seed = 0; seed < 96; seed++) {
       progress = choose(progress, affordable.id)
     }
   }
-  assert.equal(progress.visited.length, 44, 'All windward sites are reachable')
+  assert.equal(
+    progress.visited.length,
+    44,
+    'All first forty-four village sites are reachable',
+  )
   assert.equal(Object.keys(progress.choices).length, 44)
   assert.ok(hoshimoriWindwardAccount(progress))
   assert.equal(hoshimoriLanternClues(progress).length, 3)
@@ -823,6 +828,83 @@ assert.equal(
   'Unbounded or hostile journals must still be rejected',
 )
 
+const southernVerdicts = new Set<string>()
+for (let variation = 0; variation < 8; variation++) {
+  let run = newHoshimoriWarmProgress(variation + 101)
+  for (let y = 1; y <= 8; y++) {
+    const row = Array.from({ length: 8 }, (_, index) =>
+      y % 2 === 1 ? index + 1 : 8 - index,
+    )
+    for (const x of row) {
+      const key = `${x},${y}`
+      if (key !== '1,1') run = move(run, key)
+      const site = HOSHIMORI_WARM_SITES.find((entry) => entry.key === key)!
+      assert.ok(site, 'Every square must be a real authored location: ' + key)
+      const southernDecisions: Readonly<Record<string, number>> = {
+        '4,7': variation & 1,
+        '6,8': (variation >> 1) & 1,
+        '8,8': (variation >> 2) & 1,
+      }
+      const choice = Object.prototype.hasOwnProperty.call(
+        southernDecisions,
+        key,
+      )
+        ? site.choices[southernDecisions[key]!]!
+        : (site.choices.find((option) => (option.rations ?? 0) >= 0) ??
+          site.choices[0])
+      assert.ok(
+        run.rations + (choice.rations ?? 0) >= 0,
+        'Each visit must have a legal non-starving resolution: ' + key,
+      )
+      run = choose(run, choice.id)
+    }
+  }
+  assert.equal(
+    run.visited.length,
+    64,
+    'Every authored village square is reachable',
+  )
+  assert.equal(Object.keys(run.choices).length, 64, 'No empty choice squares')
+  assert.equal(run.events.length, 127, '63 moves and 64 decisions')
+  const account = hoshimoriSouthernAccount(run)
+  assert.ok(account, 'The southern assembly must pay off earned testimony')
+  southernVerdicts.add(account)
+  const restored = restoreHoshimoriWarm(JSON.parse(JSON.stringify(run)))
+  assert.deepEqual(
+    restored,
+    run,
+    'Full map and all choices survive a replayed save',
+  )
+  assert.equal(
+    hoshimoriSouthernAccount(restored!),
+    account,
+    'The same testimony produces the same earned consequence after reload',
+  )
+  assert.strictEqual(
+    advanceHoshimoriWarm(run, { type: 'choose', id: 'consent' }),
+    run,
+    'Revisiting the final assembly cannot mint a new outcome',
+  )
+  const forged = JSON.parse(JSON.stringify(run)) as HoshimoriWarmProgress
+  forged.choices['8,8'] =
+    forged.choices['8,8'] === 'consent' ? 'open' : 'consent'
+  assert.equal(
+    restoreHoshimoriWarm(forged),
+    null,
+    'A forged assembly verdict must not survive replay',
+  )
+}
+assert.equal(
+  southernVerdicts.size,
+  8,
+  'The three southern decisions must produce eight distinguishable earned accounts',
+)
+assert.equal(
+  hoshimoriSouthernAccount(newHoshimoriWarmProgress(7)),
+  null,
+  'Do not invent testimony for unvisited locations',
+)
+
 const consoleSource = readFileSync(
   'components/pages/memory-dungeon-hoshimori.vue',
   'utf8',
@@ -843,6 +925,7 @@ assert.match(consoleSource, /data-testid="memory-hoshimori-chronicle-open"/)
 assert.match(consoleSource, /memory-dungeon-earth-chronicle/)
 assert.match(consoleSource, /data-testid="memory-hoshimori-lowland-account"/)
 assert.match(consoleSource, /data-testid="memory-hoshimori-windward-account"/)
+assert.match(consoleSource, /data-testid="memory-hoshimori-southern-account"/)
 assert.match(consoleSource, /data-testid="memory-hoshimori-enter-ash-wing"/)
 assert.match(consoleSource, /data-testid="memory-hoshimori-ash-wing-account"/)
 assert.doesNotMatch(consoleSource, /localStorage|\$fetch/)
@@ -853,6 +936,7 @@ assert.match(storeSource, /syncHoshimoriPhoto\(restored\.choices\)/)
 assert.match(storeSource, /syncHoshimoriPhoto\(next\.choices\)/)
 assert.match(storeSource, /hoshimoriLowlandAccount\(progress\.value\)/)
 assert.match(storeSource, /hoshimoriWindwardAccount\(progress\.value\)/)
+assert.match(storeSource, /hoshimoriSouthernAccount\(progress\.value\)/)
 assert.match(storeSource, /hoshimoriOvenSecondAccount\(progress\.value\)/)
 const worldStoreSource = readFileSync('stores/memoryWorldStore.ts', 'utf8')
 assert.match(worldStoreSource, /campaign\.value\.completed\.includes\('e06'\)/)
@@ -862,5 +946,5 @@ assert.match(overworldSource, /campaign\.completed\.includes\('e06'\)/)
 assert.match(overworldSource, /data-testid="memory-enter-hoshimori"/)
 
 console.log(
-  'Hoshimori warm proof: 44 sites, 9 Oven rooms, 64 earned ash-wing accounts, 96 seeds, 24 hearings, 8 lowland and 8 windward verdicts, two Earth photos, long-run save and spoiler guards passed',
+  'Hoshimori warm proof: 64 sites, 9 Oven rooms, 64 earned ash-wing accounts, 96 seeds, 24 hearings, 8 lowland, 8 windward, and 8 southern verdicts, two Earth photos, long-run save and spoiler guards passed',
 )

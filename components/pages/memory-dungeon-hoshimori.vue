@@ -229,6 +229,15 @@
           >
             {{ hoshimori.windwardAccount }}
           </p>
+          <p
+            v-if="
+              hoshimori.progress.current === '8,8' && hoshimori.southernAccount
+            "
+            class="rounded-xl border border-success/30 bg-success/15 p-3 text-base leading-relaxed"
+            data-testid="memory-hoshimori-southern-account"
+          >
+            {{ hoshimori.southernAccount }}
+          </p>
           <div
             v-if="hoshimori.clues.length"
             class="rounded-xl border border-warning/30 bg-warning/10 p-3"

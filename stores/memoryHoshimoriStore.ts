@@ -11,6 +11,7 @@ import {
   hoshimoriRidgeAccount,
   hoshimoriLowlandAccount,
   hoshimoriWindwardAccount,
+  hoshimoriSouthernAccount,
   newHoshimoriWarmProgress,
   restoreHoshimoriWarm,
   type HoshimoriEvent,
@@ -37,6 +38,9 @@ export const useMemoryHoshimoriStore = defineStore('memoryHoshimori', () => {
   const lowlandAccount = computed(() => hoshimoriLowlandAccount(progress.value))
   const windwardAccount = computed(() =>
     hoshimoriWindwardAccount(progress.value),
+  )
+  const southernAccount = computed(() =>
+    hoshimoriSouthernAccount(progress.value),
   )
   const lastOvenOutcome = computed(() => {
     const last = progress.value.events.at(-1)
@@ -137,6 +141,7 @@ export const useMemoryHoshimoriStore = defineStore('memoryHoshimori', () => {
     ridgeAccount,
     lowlandAccount,
     windwardAccount,
+    southernAccount,
     lastOvenOutcome,
     canEnterOven,
     canEnterOvenWing,

@@ -17,6 +17,7 @@ import {
   hoshimoriLowlandAccount,
   hoshimoriWindwardAccount,
   hoshimoriSouthernAccount,
+  hoshimoriVesperReckoning,
   hoshimoriOvenTestimony,
   newHoshimoriWarmProgress,
   restoreHoshimoriWarm,
@@ -1034,7 +1035,8 @@ assert.equal(
 )
 
 const southernVerdicts = new Set<string>()
-for (let variation = 0; variation < 8; variation++) {
+const vesperVerdicts = new Set<string>()
+for (let variation = 0; variation < 16; variation++) {
   let run = newHoshimoriWarmProgress(variation + 101)
   for (let y = 1; y <= 8; y++) {
     const row = Array.from({ length: 8 }, (_, index) =>
@@ -1046,9 +1048,13 @@ for (let variation = 0; variation < 8; variation++) {
       const site = HOSHIMORI_WARM_SITES.find((entry) => entry.key === key)!
       assert.ok(site, 'Every square must be a real authored location: ' + key)
       const southernDecisions: Readonly<Record<string, number>> = {
+        '1,1': variation & 1,
+        '4,1': variation & 1,
+        '4,4': (variation >> 1) & 1,
+        '3,8': (variation >> 2) & 1,
         '4,7': variation & 1,
         '6,8': (variation >> 1) & 1,
-        '8,8': (variation >> 2) & 1,
+        '8,8': (variation >> 3) & 1,
       }
       const choice = Object.prototype.hasOwnProperty.call(
         southernDecisions,
@@ -1074,6 +1080,9 @@ for (let variation = 0; variation < 8; variation++) {
   const account = hoshimoriSouthernAccount(run)
   assert.ok(account, 'The southern assembly must pay off earned testimony')
   southernVerdicts.add(account)
+  const vesper = hoshimoriVesperReckoning(run)
+  assert.ok(vesper, 'Vesper needs earned childhood, harm and restitution scenes')
+  vesperVerdicts.add(vesper)
   const restored = restoreHoshimoriWarm(JSON.parse(JSON.stringify(run)))
   assert.deepEqual(
     restored,
@@ -1084,6 +1093,11 @@ for (let variation = 0; variation < 8; variation++) {
     hoshimoriSouthernAccount(restored!),
     account,
     'The same testimony produces the same earned consequence after reload',
+  )
+  assert.equal(
+    hoshimoriVesperReckoning(restored!),
+    vesper,
+    'The cartographer’s outcome survives unchanged event-replay saves',
   )
   assert.strictEqual(
     advanceHoshimoriWarm(run, { type: 'choose', id: 'consent' }),
@@ -1100,6 +1114,11 @@ for (let variation = 0; variation < 8; variation++) {
   )
 }
 assert.equal(
+  vesperVerdicts.size,
+  16,
+  'Four decisions must produce sixteen distinguishable Vesper resolutions',
+)
+assert.equal(
   southernVerdicts.size,
   8,
   'The three southern decisions must produce eight distinguishable earned accounts',
@@ -1108,6 +1127,20 @@ assert.equal(
   hoshimoriSouthernAccount(newHoshimoriWarmProgress(7)),
   null,
   'Do not invent testimony for unvisited locations',
+)
+assert.equal(hoshimoriVesperReckoning(newHoshimoriWarmProgress(7)), null)
+assert.match(HOSHIMORI_WARM_SITES[0]!.opening, /Vesper/)
+assert.match(
+  HOSHIMORI_WARM_SITES.find((site) => site.key === '4,4')!.opening,
+  /sold/,
+)
+assert.match(
+  HOSHIMORI_WARM_SITES.find((site) => site.key === '3,8')!.opening,
+  /childhood/,
+)
+assert.match(
+  HOSHIMORI_WARM_SITES.find((site) => site.key === '8,8')!.opening,
+  /Vesper/,
 )
 
 const consoleSource = readFileSync(
@@ -1131,6 +1164,8 @@ assert.match(consoleSource, /memory-dungeon-earth-chronicle/)
 assert.match(consoleSource, /data-testid="memory-hoshimori-lowland-account"/)
 assert.match(consoleSource, /data-testid="memory-hoshimori-windward-account"/)
 assert.match(consoleSource, /data-testid="memory-hoshimori-southern-account"/)
+assert.match(consoleSource, /data-testid="memory-hoshimori-vesper-reckoning"/)
+assert.match(consoleSource, /data-testid="memory-hoshimori-vesper-briar-history"/)
 assert.match(consoleSource, /data-testid="memory-hoshimori-enter-ash-wing"/)
 assert.match(consoleSource, /data-testid="memory-hoshimori-ash-wing-account"/)
 assert.match(consoleSource, /data-testid="memory-hoshimori-enter-ember-wing"/)
@@ -1153,6 +1188,8 @@ assert.match(storeSource, /syncHoshimoriPhoto\(next\.choices\)/)
 assert.match(storeSource, /hoshimoriLowlandAccount\(progress\.value\)/)
 assert.match(storeSource, /hoshimoriWindwardAccount\(progress\.value\)/)
 assert.match(storeSource, /hoshimoriSouthernAccount\(progress\.value\)/)
+assert.match(storeSource, /hoshimoriVesperReckoning\(progress\.value\)/)
+assert.match(storeSource, /earnedVesperRookeryOutcome\(world\.state, world\.dark\)/)
 assert.match(storeSource, /hoshimoriOvenSecondAccount\(progress\.value\)/)
 assert.match(storeSource, /hoshimoriOvenThirdAccount\(progress\.value\)/)
 assert.match(storeSource, /hoshimoriOvenGuardianResolution\(progress\.value\)/)

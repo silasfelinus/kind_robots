@@ -19,6 +19,10 @@ import {
 } from '~/utils/everyVillainTactics/training'
 import {
   newTacticalInterlude,
+  secureRivalObjective,
+  discoverRivalSecret,
+  reconcileTacticalVictory,
+  advanceRivalArena,
   tacticalResultFor,
 } from '~/utils/cometAcademy/tacticalInterlude'
 import type { SocialActionId } from '~/utils/cometAcademy/relationships'
@@ -279,26 +283,40 @@ export const useCometAcademyStore = defineStore('cometAcademy', () => {
   }
 
   function battleClick(x: number, y: number) {
-    const fight = run.value?.tacticalBattle?.state
-    if (!fight || fight.phase !== 'active') return
+    const battle = run.value?.tacticalBattle
+    const fight = battle?.state
+    if (!battle || !fight || fight.phase !== 'active') return
     const point = { x, y }
+    const arena = battle.arena
+    if (
+      arena && !arena.secured &&
+      arena.objectivePoint.x === x && arena.objectivePoint.y === y &&
+      secureRivalObjective(battle)
+    ) {
+      persist()
+      return
+    }
     const unit = actorAt(fight, point)
     if (unit?.team === 'squad' && unit.hp > 0) {
       fight.selected = unit.id
       fight.mode = 'move'
       fight.hover = point
+      discoverRivalSecret(battle)
     } else if (unit?.team === 'rival' && fight.mode === 'fire') {
-      fireSelected(fight, unit)
+      if (fireSelected(fight, unit)) reconcileTacticalVictory(battle)
     } else if (!unit && fight.mode === 'move') {
-      moveSelected(fight, point)
+      if (moveSelected(fight, point)) discoverRivalSecret(battle)
     }
     persist()
   }
 
   function battleTurn() {
-    const fight = run.value?.tacticalBattle?.state
-    if (!fight || fight.phase !== 'active') return
+    const battle = run.value?.tacticalBattle
+    const fight = battle?.state
+    if (!battle || !fight || fight.phase !== 'active') return
     endTurn(fight)
+    reconcileTacticalVictory(battle)
+    advanceRivalArena(battle)
     persist()
   }
 

@@ -84,32 +84,117 @@
             <div class="sc-skyline sc-skyline-front"></div>
             <div class="sc-road"></div>
             <div class="sc-city-overline">THE CITY IS THE ARENA</div>
+            <svg
+              class="sc-streets"
+              viewBox="0 0 100 100"
+              preserveAspectRatio="none"
+              aria-hidden="true"
+            >
+              <line
+                v-for="street in streetLines"
+                :key="street.name"
+                :x1="street.x1"
+                :y1="street.y1"
+                :x2="street.x2"
+                :y2="street.y2"
+                :class="{ open: street.open }"
+              />
+            </svg>
             <button
               v-for="place in lab.districts"
               :key="place.id"
               type="button"
               class="sc-district"
-              :class="{ picked: lab.districtId === place.id }"
+              :class="[
+                'is-' + lab.districtStatus(place.id),
+                { picked: lab.districtId === place.id },
+              ]"
               :style="{ left: place.x + '%', top: place.y + '%' }"
               :aria-pressed="lab.districtId === place.id"
+              :aria-label="
+                place.name + ', ' + statusLabel(lab.districtStatus(place.id))
+              "
+              :data-testid="'slime-district-' + place.id"
               @click="lab.visit(place.id)"
             >
-              <span class="sc-district-pin">◆</span>
+              <span class="sc-district-pin">{{
+                pinSymbol(lab.districtStatus(place.id))
+              }}</span>
               <span class="sc-district-label">{{ place.name }}</span>
             </button>
-            <div class="sc-city-selection">
-              <p class="sc-overline">
-                DISTRICT DOSSIER / {{ lab.district.name }}
-              </p>
-              <p>{{ lab.district.summary }}</p>
-              <button type="button" @click="lab.startDistrictMatch()">
-                ENTER THE PIT →
+          </div>
+          <div class="sc-city-selection kr-scroll" data-testid="slime-dossier">
+            <p class="sc-overline">
+              {{ lab.district.name }} /
+              {{ statusLabel(lab.districtStatus(lab.districtId)) }}
+            </p>
+            <p class="sc-scene">{{ lab.plan.scene }}</p>
+            <p class="sc-rival">
+              <strong>{{ lab.plan.rival.name }}</strong>
+              · {{ lab.plan.rival.title }} ·
+              {{ teamName(lab.plan.rival.team) }} ·
+              {{ modeTitle(lab.plan.rival.mode) }}
+              <em>“{{ lab.plan.rival.taunt }}”</em>
+            </p>
+            <template v-if="lab.here">
+              <div v-if="chosenChoice" class="sc-decided">
+                <span class="sc-overline">YOUR CALL</span>
+                {{ chosenChoice.label }}: {{ chosenChoice.outcome }}
+              </div>
+              <div v-else-if="!lab.gate" class="sc-choices">
+                <button
+                  v-for="choice in lab.plan.choices"
+                  :key="choice.id"
+                  type="button"
+                  :data-testid="'slime-choice-' + choice.id"
+                  @click="lab.choose(choice.id)"
+                >
+                  <strong>{{ choice.label }}</strong>
+                  <small>{{ choice.outcome }}</small>
+                </button>
+              </div>
+              <p v-if="lab.blocked" class="sc-gate">{{ lab.blocked }}</p>
+              <span class="sc-city-actions">
+                <button
+                  type="button"
+                  data-testid="slime-fight-rival"
+                  :disabled="!!lab.blocked"
+                  @click="lab.fightRival()"
+                >
+                  FIGHT {{ lab.plan.rival.name.toUpperCase() }} →
+                </button>
+                <button
+                  type="button"
+                  class="sc-quiet"
+                  @click="lab.startDistrictMatch()"
+                >
+                  QUICK MATCH
+                </button>
+              </span>
+            </template>
+            <span v-else class="sc-city-actions">
+              <button
+                v-if="lab.route"
+                type="button"
+                data-testid="slime-walk"
+                @click="lab.walk()"
+              >
+                WALK {{ lab.route.street.toUpperCase() }} →
               </button>
-            </div>
+              <span v-else class="sc-gate"
+                >No street from {{ hereName }} reaches here. Walk the lit
+                streets.</span
+              >
+            </span>
           </div>
           <div class="sc-stage-foot">
-            <span>7 DISTRICTS • 6 TEAMS • 4 CARD TYPES</span
-            ><span>Choose a district to set your crew.</span>
+            <span
+              >NIGHT {{ lab.city.nights }} · HEAT {{ lab.city.heat }}/{{
+                lab.heatLimit
+              }}
+              · STANDING {{ lab.standing }} · CHAMPIONS
+              {{ lab.city.cleared.length }}/7</span
+            ><span>{{ lab.city.log[0] }}</span>
           </div>
         </section>
 
@@ -123,6 +208,13 @@
               <span class="sc-overline"
                 >PROTOTYPE {{ currentModeIndex }} / 03 · SEED
                 {{ lab.match.seed }}</span
+              >
+              <span
+                v-if="lab.boutPlan"
+                class="sc-overline sc-bout-line"
+                data-testid="slime-bout-line"
+                >RIVAL BOUT · {{ lab.boutPlan.rival.name }} ·
+                {{ lab.boutPlan.street }}</span
               >
               <h2>
                 {{ currentMode.title }}
@@ -227,6 +319,12 @@
               }}</strong
               ><span>{{ winLine }}</span
               ><span class="sc-result-actions"
+                ><button
+                  v-if="lab.lastBout"
+                  type="button"
+                  @click="lab.showCity()"
+                >
+                  BACK TO THE CITY</button
                 ><button type="button" @click="lab.reset(true)">
                   SAME SEED</button
                 ><button type="button" @click="lab.reset()">
@@ -440,6 +538,7 @@
 <script setup lang="ts">
 import { computed, onUnmounted } from 'vue'
 import { cardById, type ViewFighter } from '~/utils/slimeCity/prototypes'
+import { STREETS } from '~/utils/slimeCity/city'
 import { useSlimeCityStore } from '~/stores/slimeCity'
 
 const lab = useSlimeCityStore()
@@ -453,6 +552,50 @@ const currentModeIndex = computed(() =>
   ),
 )
 
+const hereName = computed(
+  () => lab.districts.find((d) => d.id === lab.city.location)?.name ?? 'here',
+)
+const chosenChoice = computed(() =>
+  lab.plan.choices.find((c) => c.id === lab.city.choices[lab.districtId]),
+)
+const streetLines = computed(() =>
+  STREETS.map(([a, b, name]) => {
+    const from = lab.districts.find((d) => d.id === a)!
+    const to = lab.districts.find((d) => d.id === b)!
+    return {
+      name,
+      x1: from.x,
+      y1: from.y,
+      x2: to.x,
+      y2: to.y,
+      open: a === lab.city.location || b === lab.city.location,
+    }
+  }),
+)
+function statusLabel(status: string): string {
+  return (
+    {
+      here: 'you are here',
+      cleared: 'champion beaten',
+      locked: 'gate closed',
+      reachable: 'one street away',
+      far: 'no direct street',
+    }[status] ?? status
+  )
+}
+function pinSymbol(status: string): string {
+  return (
+    { here: '●', cleared: '✓', locked: '✕', reachable: '◆', far: '◇' }[
+      status
+    ] ?? '◆'
+  )
+}
+function teamName(id: string): string {
+  return lab.teams.find((t) => t.id === id)?.name ?? id
+}
+function modeTitle(id: string): string {
+  return lab.modes.find((m) => m.id === id)?.title ?? id
+}
 const flagStatus = computed(() => {
   const carrier = lab.sight.units.find((unit) => unit.carryingFlag)
   if (!carrier) return 'LOOSE'
@@ -912,6 +1055,108 @@ onUnmounted(() => lab.dispose())
 .sc-city-selection p {
   margin: 0;
   font-size: 0.8rem;
+}
+.sc-city-selection {
+  position: relative;
+  inset: auto;
+  flex: none;
+  flex-direction: column;
+  align-items: stretch;
+  max-height: 46%;
+  overflow: auto;
+  margin: 0.5rem;
+}
+.sc-streets {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+.sc-streets line {
+  stroke: #9fb4c055;
+  stroke-width: 0.5;
+  stroke-dasharray: 1.4 1;
+  vector-effect: non-scaling-stroke;
+}
+.sc-streets line.open {
+  stroke: #d5ff62;
+  stroke-width: 2.5;
+  stroke-dasharray: none;
+}
+.sc-district.is-here .sc-district-pin {
+  background: #ffd34d;
+  color: #2a1c05;
+}
+.sc-district.is-cleared .sc-district-pin {
+  border-color: #7dffb0;
+  color: #7dffb0;
+}
+.sc-district.is-locked .sc-district-pin {
+  opacity: 0.55;
+  border-style: dashed;
+}
+.sc-scene {
+  color: #dbe3ee;
+  line-height: 1.4;
+}
+.sc-rival {
+  font-size: 0.72rem !important;
+  color: #b8c4d0;
+}
+.sc-rival strong {
+  color: #ffd34d;
+}
+.sc-rival em {
+  display: block;
+  color: #e7f9bc;
+}
+.sc-choices {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(12rem, 1fr));
+  gap: 0.4rem;
+}
+.sc-city-selection .sc-choices button {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  text-align: left;
+  background: #1c2a36;
+  color: #f2f6fa;
+  border: 1px solid #d5ff6288;
+  letter-spacing: 0.02em;
+}
+.sc-choices small {
+  font-weight: 500;
+  color: #b8c4d0;
+  font-size: 0.66rem;
+  line-height: 1.3;
+}
+.sc-decided {
+  font-size: 0.72rem;
+  color: #e7f9bc;
+}
+.sc-gate {
+  color: #ffb27a;
+  font-size: 0.7rem;
+}
+.sc-bout-line {
+  color: #ffd34d;
+}
+.sc-city-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  align-items: center;
+}
+.sc-city-selection button:disabled {
+  opacity: 0.45;
+}
+.sc-city-selection button.sc-quiet {
+  background: transparent;
+  color: #e7f9bc;
+  border: 1px solid #d5ff6288;
 }
 .sc-city-selection button,
 .sc-battle-bottom button,
@@ -1510,9 +1755,7 @@ onUnmounted(() => lab.dispose())
     display: none;
   }
   .sc-city-selection {
-    bottom: 0.4rem;
-    left: 0.4rem;
-    right: 0.4rem;
+    margin: 0.3rem;
     padding: 0.4rem;
     gap: 0.25rem;
   }

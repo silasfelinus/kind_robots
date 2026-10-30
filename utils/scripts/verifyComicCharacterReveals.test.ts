@@ -78,7 +78,9 @@ assert.match(promGame, /<ComicCharacterReveal/)
 assert.match(tactics, /data-testid="tactics-comic-intro-preview"/)
 assert.match(tactics, /seenComics/)
 assert.match(tactics, /<ComicCharacterReveal/)
-assert.match(tactics, /'henchman' : 'villain'/)
+assert.match(tactics, /unit.lieutenantName/)
+assert.match(tactics, /'henchman'/)
+assert.match(tactics, /'villain'/)
 console.log(
   '192 shared comic intros, accessible overlay, image fallback, both game entrypoints: OK',
 )

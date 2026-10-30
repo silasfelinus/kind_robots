@@ -459,6 +459,55 @@ const alternateReload = restoreMemoryCampaignProgress(
   JSON.parse(JSON.stringify(alternate)),
 )
 assert.deepEqual(alternateReload, alternate)
+const oldForkedSave = restoreMemoryCampaignProgress({
+  ...alternate,
+  completed: [
+    'e01',
+    'e02',
+    'e03',
+    'e04',
+    'e05',
+    'e06',
+    'e09',
+    'e10',
+    'e11',
+    'e12',
+    'e07',
+    'e08',
+    'e13',
+    'e14',
+  ],
+})
+assert.deepEqual(
+  oldForkedSave,
+  alternate,
+  'Legacy out-of-order middle pairs migrate without losing earned milestones',
+)
+const skippedHoshimori = restoreMemoryCampaignProgress({
+  completed: [
+    'e01',
+    'e02',
+    'e03',
+    'e04',
+    'e05',
+    'e06',
+    'e09',
+    'e10',
+    'e13',
+  ],
+  rememberedAnchors: [
+    'morrow-magic-attempt',
+    'scylla-home-wish',
+    'char-possible-future',
+  ],
+  finaleCommitted: true,
+})
+assert.deepEqual(
+  skippedHoshimori.completed,
+  ['e01', 'e02', 'e03', 'e04', 'e05', 'e06'],
+  'A forged or previously optional shortcut cannot silently skip Hoshimori',
+)
+assert.equal(skippedHoshimori.finaleCommitted, false)
 assert.equal(alternateReload.completed.includes('e12'), true)
 assert.deepEqual(availableMemoryExperiences(alternateReload), ['e15'])
 

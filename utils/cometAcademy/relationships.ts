@@ -15,7 +15,7 @@ export type Connection = {
   courtingDay?: number
   romance: boolean
 }
-export type TriadArcId = 'listening-accord'
+export type TriadArcId = 'listening-accord' | 'night-shift'
 export type TriadStatus =
   'negotiating' | 'paused' | 'committed' | 'declined' | 'ended'
 /** One negotiated three-person relationship. `opener` is the partner the
@@ -246,6 +246,181 @@ export const SOCIAL_CAST: SocialProfile[] = [
     romanceable: false,
     sidekickEligible: false,
     compatibility: [],
+  },
+  {
+    id: 'mara',
+    kind: 'city',
+    pronouns: 'she/her',
+    voice:
+      'Short sentences in a union-hall cadence; says "we" when she means the crew and "I" only when she is apologizing.',
+    dilemma:
+      'Mara’s crew has been ordered to run the prom shuttle loop on brakes they flagged as unsafe three weeks ago.',
+    help: 'You ride the loop with Mara’s inspector and log every brake fault on camera. The depot pulls the cars before prom instead of after it.',
+    duty: 'Mara will patrol with you if every route you plan has a stop where anyone can get off.',
+    privateMoment:
+      'Mara walks you along the empty tracks after the last train and admits she has never once taken a day off for herself.',
+    boundary:
+      'Mara will not date anyone sworn to seize command of the city before the people who live in it are asked.',
+    bedside:
+      'Mara grumbles that the infirmary bed is softer than her bunk at the depot, then makes you promise to tell the night crew she is fine, word for word.',
+    romanceable: true,
+    sidekickEligible: false,
+    compatibility: [
+      {
+        effect: 'closed',
+        vow: 'claim',
+        reason:
+          'Mara will not date anyone sworn to seize command of the city before the people who live in it are asked.',
+      },
+      {
+        effect: 'wary',
+        form: 'hero',
+        reason:
+          'Mara trusts shift workers more than academy legends; a famous hero has to show her the logbook first.',
+      },
+      {
+        effect: 'kindred',
+        power: 'kinetic',
+        reason:
+          'Mara has a soft spot for anyone who can physically stop a runaway car and then help push it back to the depot.',
+      },
+    ],
+  },
+  {
+    id: 'drift',
+    kind: 'city',
+    pronouns: 'they/them',
+    voice:
+      'Precise and literal; asks what a word means before using it, then uses it perfectly.',
+    dilemma:
+      'DRIFT-9 has found a lab that still lists three fellow escapees as "property under recovery".',
+    help: 'You help DRIFT-9 file the escapees’ names with the civic registry as people, with addresses and witnesses. The recovery order is void by morning.',
+    duty: 'DRIFT-9 will take the field with you if nobody, ever, calls a person a specimen over the radio.',
+    privateMoment:
+      'DRIFT-9 shows you the first thing they ever chose for themselves: a cheap paper kite, still unflown.',
+    boundary:
+      'DRIFT-9 needs every step of a relationship said out loud in plain words; hints do not count as asking.',
+    bedside:
+      'DRIFT-9 studies the chart of their own vitals and asks which numbers mean "worry" and which mean "normal". Then they correct the nurse’s spelling of their name.',
+    romanceable: true,
+    sidekickEligible: true,
+    compatibility: [
+      {
+        effect: 'kindred',
+        power: 'biotech',
+        reason:
+          'DRIFT-9 feels safer with someone whose own body has changed in ways nobody asked permission for.',
+      },
+      {
+        effect: 'wary',
+        form: 'villain',
+        reason:
+          'DRIFT-9 remembers who ran the lab. A villain’s mantle makes them check the exits twice before a date.',
+      },
+    ],
+  },
+  {
+    id: 'tessel',
+    kind: 'city',
+    pronouns: 'he/him',
+    voice:
+      'Formal, slightly old-fashioned speech; translates weather idioms from a world you will never see.',
+    dilemma:
+      'Tessel has a chance to go home through a portal that opens once on night twenty-nine, and has told nobody.',
+    help: 'You help Tessel chart the portal’s schedule with the observatory so the choice to stay or go is his, made with real information.',
+    duty: 'Tessel will join a patrol if he can always listen to the weather on the other side first.',
+    privateMoment:
+      'On the skyport roof Tessel describes the rain of his home world, which falls upward at dusk.',
+    boundary:
+      'Tessel will not begin a romance with someone who expects him to stay; he must remain free to go home.',
+    bedside:
+      'Tessel asks for the curtains open so he can watch the clouds. He names their shapes in his own language and translates only the kind ones.',
+    romanceable: true,
+    sidekickEligible: false,
+    compatibility: [
+      {
+        effect: 'kindred',
+        power: 'elemental',
+        reason: 'Tessel hears the same storms you do, from the other side.',
+      },
+      {
+        effect: 'wary',
+        dangerAbove: 8,
+        reason:
+          'When the city’s danger climbs, Tessel’s homesickness gets louder and he wants a slower conversation.',
+      },
+    ],
+  },
+  {
+    id: 'jo',
+    kind: 'city',
+    pronouns: 'they/them',
+    voice:
+      'Fast, warm radio patter that drops to a whisper for the true parts.',
+    dilemma:
+      'Jo has proof the academy staged a "spontaneous" rescue for the cameras, and the student it would humiliate never knew.',
+    help: 'You help Jo cut the broadcast so it names the officials who staged the rescue and protects the student who was used.',
+    duty: 'Jo will go on patrol with you if they can broadcast what happened, with every face blurred unless that person agrees.',
+    privateMoment:
+      'At three in the morning Jo lets you sit in the booth while they play the one song they have never put on air.',
+    boundary:
+      'Jo will not date someone who asks them to bury a story about who holds power.',
+    bedside:
+      'Jo records a whispered segment from the infirmary bed called "Live From Bed Four" and books you as the only guest.',
+    romanceable: true,
+    sidekickEligible: true,
+    compatibility: [
+      {
+        effect: 'kindred',
+        vow: 'unmask',
+        reason: 'Jo lights up for anyone who drags a cover-up into daylight.',
+      },
+      {
+        effect: 'wary',
+        vow: 'shelter',
+        reason:
+          'Jo worries that someone sworn to Shelter will one day ask them to sit on a story to protect somebody.',
+      },
+    ],
+  },
+  {
+    id: 'lark',
+    kind: 'city',
+    pronouns: 'he/him',
+    voice:
+      'Unhurried bedside calm, gallows humor, and a habit of asking whether you have eaten.',
+    dilemma:
+      'Lark’s hospital has been told to turn away anyone wearing villain colors, even the ones who are bleeding.',
+    help: 'You help Lark set up a no-questions triage tent behind the hospital and staff it with him until dawn.',
+    duty: 'Lark will work a night patrol with you if every injured person, villain or not, gets carried out.',
+    privateMoment:
+      'Lark falls asleep for ten minutes on your shoulder in the ambulance bay, then pretends he did not.',
+    boundary:
+      'Lark will not start a relationship during a citywide crisis above danger eighteen; his shifts swallow everything.',
+    bedside:
+      'A patient for once, Lark reads his own chart upside down and gives the attending notes. He asks whether you have eaten, then shares his pudding.',
+    romanceable: true,
+    sidekickEligible: false,
+    compatibility: [
+      {
+        effect: 'closed',
+        dangerAbove: 18,
+        reason:
+          'Lark will not start a relationship during a citywide crisis above danger eighteen; his shifts swallow everything.',
+      },
+      {
+        effect: 'wary',
+        form: 'hero',
+        reason:
+          'Lark has patched up too many people that famous heroes stepped over; he wants to see how you treat the ones nobody films.',
+      },
+      {
+        effect: 'kindred',
+        form: 'villain',
+        reason:
+          'Lark does not flinch at villain colors. He has treated worse, and liked some of them.',
+      },
+    ],
   },
 ]
 
@@ -671,6 +846,158 @@ export const TRIAD_ARCS: TriadArc[] = [
       pairs: 'Each pair keeps its own evenings after graduation.',
       public: 'The night bazaar still sends dumplings.',
       private: 'What you are to each other stays yours to tell.',
+    },
+  },
+  {
+    id: 'night-shift',
+    title: 'The Night Shift',
+    pair: ['lark', 'jo'],
+    premise:
+      'You are dating {A}. {A} and {B} have been friends for years: one patches up the people the other’s broadcasts send in.',
+    beats: [
+      {
+        id: 'says-it-first',
+        title: '{A} says it first',
+        scene:
+          'At the end of a long night, {A} asks you to sit down. "Before anything happens, before I even tell {B}: I have feelings for {B} too. I am telling you because you are who I am with. What do you want?"',
+        needsTrust: 1,
+        options: [
+          {
+            id: 'ns-open',
+            label:
+              'Say you are open to the three of you talking, with no promises',
+            text: '{A} lets out a breath they did not know they were holding. Nothing has been decided, and nobody is being asked to hide anything.',
+          },
+          {
+            id: 'ns-think',
+            label: 'Ask for a few days to think',
+            outcome: 'paused',
+            text: '"Take them," {A} says, and means it. You go back to an ordinary week with nothing hanging over it.',
+          },
+          {
+            id: 'ns-two',
+            label: 'Say you would rather stay two, and ask what {A} needs',
+            outcome: 'declined',
+            text: '{A} nods. "Then {B} stays my friend, out loud, with nothing hidden." Nobody is punished for the answer.',
+          },
+        ],
+      },
+      {
+        id: 'booth',
+        title: 'The four a.m. booth',
+        scene:
+          'Jo’s pirate radio booth sits on the civic hospital roof, two floors above Lark’s ward. With the ON AIR light dark, {A} tells {B} the truth while you sit beside them. {B} goes quiet, then laughs. "I have been hoping one of you would say it, and terrified both of you would."',
+        needsTrust: 1,
+        options: [
+          {
+            id: 'ns-ask',
+            label: 'Ask {B} what they want, and wait for the whole answer',
+            trust: 1,
+            text: '{B} wants this, says so, and also says they need to be allowed to be scared about it. You and {A} both say that is allowed.',
+          },
+          {
+            id: 'ns-sleep',
+            label: 'Suggest you all sleep on it',
+            outcome: 'paused',
+            text: 'Lark makes everyone tea that tastes of hospital vending machine. Jo signs off with no broadcast at all. Nobody is in a hurry.',
+          },
+          {
+            id: 'ns-friends',
+            label: 'Decide, all together, that friendship is the right shape',
+            outcome: 'declined',
+            text: 'It is said kindly and agreed by everyone. Jo plays one song for the three of you and nobody else.',
+          },
+        ],
+      },
+      {
+        id: 'schedule',
+        title: 'Three night schedules',
+        scene:
+          'Lark works nights, Jo broadcasts at night, and you patrol at night. The three of you lay out a week on the back of a hospital intake form, and {B} says out loud: "Yes. I am in, if we can make the hours work."',
+        needsTrust: 2,
+        options: [
+          {
+            id: 'ns-dawn',
+            label: 'Keep one dawn breakfast a week for all three of you',
+            term: 'dawn',
+            text: 'Thursday, six a.m., the diner by the ambulance bay. Lark orders for everyone; Jo narrates the menu like a news bulletin.',
+          },
+          {
+            id: 'ns-signal',
+            label: 'Agree a radio signal any of you can send for "I need you"',
+            term: 'signal',
+            text: 'Three clicks on Jo’s frequency. Anyone can send it, anyone can answer, and nobody has to explain.',
+          },
+          {
+            id: 'ns-wrong-time',
+            label: 'Admit the schedule makes this the wrong month',
+            outcome: 'paused',
+            text: 'It is a fair thing to say. The intake form goes into Lark’s locker, folded, for later.',
+          },
+        ],
+      },
+      {
+        id: 'broadcast',
+        title: 'The broadcast that hurts',
+        scene:
+          'Jo’s broadcast describes a patient Lark treated. The name is blurred, but the ward is recognizable. Lark is furious, Jo is defensive, and both of them look at you.',
+        needsTrust: 2,
+        options: [
+          {
+            id: 'ns-mediate',
+            label: 'Sit with both of them and let each finish speaking',
+            trust: 1,
+            text: 'It takes until sunrise. Jo pulls the segment and apologizes to the patient in person; Lark admits the hospital’s silence protected the wrong people too.',
+          },
+          {
+            id: 'ns-space',
+            label: 'Give them a day apart, then check in with each alone',
+            term: 'space',
+            text: 'You see Lark at shift change and Jo at sign-off. By evening they are talking to each other again without you in the room, which is the point.',
+          },
+          {
+            id: 'ns-side',
+            label: 'Tell one of them they are simply wrong',
+            outcome: 'paused',
+            trust: -1,
+            text: 'The words land badly. Both of them ask for a pause, and they are right to. You can come back to it after an apology.',
+          },
+        ],
+      },
+      {
+        id: 'shift-change',
+        title: 'Three yeses at shift change',
+        scene:
+          'Dawn on the hospital roof, the ON AIR light off, the night crews heading home below. Each of you says what you want, to both of the others.',
+        needsTrust: 2,
+        options: [
+          {
+            id: 'ns-commit',
+            label: 'All three of you say yes, plainly, to each other',
+            text: '{A} says yes. {B} says yes. You say yes. Lark asks whether everyone has eaten; Jo says that was the best thing ever not broadcast.',
+          },
+          {
+            id: 'ns-close-friends',
+            label: 'Agree together that you are better as close friends',
+            outcome: 'declined',
+            text: 'Nobody leaves the roof hurt. The three-click signal stays, as friends.',
+          },
+        ],
+      },
+    ],
+    resume: {
+      id: 'ns-resume',
+      label: 'Apologize where it is owed, and ask whether everyone is ready',
+      text: '{A} and {B} each answer for themselves, and only then together. When all three of you are ready, the night shift picks up where it stopped.',
+    },
+    epilogue:
+      '{A}, {B} and you walk out of the ballroom at shift change, three people who chose each other in plain words.',
+    terms: {
+      dawn: 'Thursday dawn breakfasts survive the end of the world, give or take one chandelier.',
+      signal:
+        'Three clicks on Jo’s frequency still mean "I need you", and they are never ignored.',
+      space:
+        'When the three of you fight, you still take a day apart and come back.',
     },
   },
 ]

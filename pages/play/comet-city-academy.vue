@@ -299,7 +299,7 @@
               <strong>RELATIONSHIPS / ONE DAYTIME ACTION</strong>
               <span
                 >Making a promise here replaces exploring a city location today.
-                Every classmate can decline, change terms or leave.</span
+                Everyone can decline, change terms or leave.</span
               >
               <div
                 v-for="offer in triadOfferList"

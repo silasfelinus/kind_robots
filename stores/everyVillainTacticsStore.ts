@@ -218,6 +218,14 @@ export const useEveryVillainTacticsStore = defineStore(
           Math.abs(unit.seismicTarget.y - point.y) <= 1,
       )
     }
+    function isPhaseWarning(point: Cell) {
+      return state.value.units.some(
+        (unit) =>
+          unit.hp > 0 &&
+          unit.phaseTarget?.x === point.x &&
+          unit.phaseTarget?.y === point.y,
+      )
+    }
     function isBurrowWarning(point: Cell) {
       return state.value.units.some(
         (unit) =>
@@ -242,9 +250,13 @@ export const useEveryVillainTacticsStore = defineStore(
             opening:
               (draft.value.encounter === 'quarry-lieutenant'
                 ? 'Mags Hardpan is an independent four-HP lieutenant, not Foreman Thumpkin. Her drum warns of a 3×3 seismic blast. Move away or land a hit to interrupt it; the one-hit Warren Wreckers still burrow. '
-                : draft.value.encounter === 'warren-wreckers'
-                  ? 'Foreman Thumpkin has brought the Warren Wreckers to a disputed city picnic. Dust rings announce their next burrow attack. Block those squares or shoot the one-hit crew. '
-                  : '') +
+                : draft.value.encounter === 'wombat-ronin'
+                  ? 'Lieutenant Teakettle’s Clockwork Wombat Ronin are one-hit teleporters. Each marks a clock-face exit beside a hero, on the side their cover misses, then phases through it next turn. Stand on the exit to jam it. '
+                  : draft.value.encounter === 'licensed-legends'
+                    ? 'Sir Cap-Permission’s Licensed Legends are one-hit wind-up mascots that swarm and block. One that starts its turn beside a hero stamps a seal that locks their signature power for a turn. '
+                    : draft.value.encounter === 'warren-wreckers'
+                      ? 'Foreman Thumpkin has brought the Warren Wreckers to a disputed city picnic. Dust rings announce their next burrow attack. Block those squares or shoot the one-hit crew. '
+                      : '') +
               draft.value.title +
               ' / ' +
               draft.value.venue +
@@ -438,6 +450,7 @@ export const useEveryVillainTacticsStore = defineStore(
         'has-cover': tileInfoAt(point) === 'cover',
         'has-wall': tileInfoAt(point) === 'wall',
         'burrow-warning': isBurrowWarning(point),
+        'phase-warning': isPhaseWarning(point),
         'seismic-warning': isSeismicWarning(point),
         elevated: heightAt(point) > 0,
       }
@@ -457,6 +470,7 @@ export const useEveryVillainTacticsStore = defineStore(
       tileInfoAt,
       heightAt,
       isBurrowWarning,
+      isPhaseWarning,
       isSeismicWarning,
       boardCells,
       perspective,

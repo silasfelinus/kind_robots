@@ -96,6 +96,13 @@
                     >⚠</span
                   >
                   <span
+                    v-if="store.isPhaseWarning(cell)"
+                    class="evt-phase-ring"
+                    data-testid="tactics-phase-warning"
+                    aria-hidden="true"
+                    >◷</span
+                  >
+                  <span
                     v-if="store.isBurrowWarning(cell)"
                     class="evt-burrow-ring"
                     data-testid="tactics-burrow-warning"
@@ -726,8 +733,40 @@
               >
                 ▶ PLAYTEST THIS MAP
               </button>
+              <label class="evt-studio-label" for="evt-encounter"
+                >RIVAL LINE-UP</label
+              >
+              <select
+                id="evt-encounter"
+                v-model="store.draft.encounter"
+                data-testid="studio-encounter-select"
+              >
+                <option
+                  v-for="entry in STAGE_ENCOUNTERS"
+                  :key="entry.id ?? 'heroes'"
+                  :value="entry.id ?? undefined"
+                >
+                  {{ entry.label }}
+                </option>
+              </select>
               <small
-                v-if="store.draft.encounter === 'warren-wreckers'"
+                v-if="store.draft.encounter === 'wombat-ronin'"
+                data-testid="studio-encounter"
+              >
+                ONE-HIT TELEPORTERS · Lieutenant Teakettle's Clockwork Wombat
+                Ronin mark a clock-face exit on a hero's uncovered side, then
+                phase through it next turn. Occupy the exit to jam it.
+              </small>
+              <small
+                v-else-if="store.draft.encounter === 'licensed-legends'"
+                data-testid="studio-encounter"
+              >
+                ONE-HIT WIND-UP TOYS · Sir Cap-Permission's mascots swarm and
+                block lanes. Starting a turn beside a hero, they stamp a seal
+                that locks that hero's signature power for a turn.
+              </small>
+              <small
+                v-else-if="store.draft.encounter === 'warren-wreckers'"
                 data-testid="studio-encounter"
               >
                 ONE-HIT ENCOUNTER · Foreman Thumpkin and Cornerstone's Warren
@@ -976,6 +1015,7 @@ import {
   type Cell,
   type Unit,
 } from '~/utils/everyVillainTactics/training'
+import { STAGE_ENCOUNTERS } from '~/utils/everyVillainTactics/studio'
 import {
   ROLE_LABELS,
   WEAPON_LABELS,
@@ -1201,6 +1241,15 @@ function cellDescription(cell: Cell) {
         ? ' Occupied by ' + unitName(unit) + ', ' + unit.hp + ' health.'
         : '')
     )
+  if (store.isPhaseWarning(cell))
+    return (
+      'PORTAL EXIT, column ' +
+      (cell.x + 1) +
+      ', row ' +
+      (cell.y + 1) +
+      '. A wombat ronin phases here next turn. Stand on it to jam the portal.' +
+      (unit ? ' Occupied by ' + unitName(unit) + '.' : '')
+    )
   if (store.isBurrowWarning(cell))
     return (
       'BURROW WARNING, dust ring at column ' +
@@ -1275,6 +1324,16 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKey))
 </script>
 
 <style scoped>
+.evt-tile.phase-warning {
+  box-shadow: inset 0 0 0 3px rgb(167 139 250 / 0.9);
+}
+.evt-phase-ring {
+  position: absolute;
+  inset: auto 0.2rem 0.1rem auto;
+  color: rgb(196 181 253);
+  font-size: 0.9rem;
+  pointer-events: none;
+}
 .evt-saves {
   display: grid;
   gap: 0.3rem;

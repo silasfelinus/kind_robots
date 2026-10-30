@@ -84,7 +84,7 @@ const EFFECTS: readonly ChoiceEffect[] = [
   'press',
   'finish',
 ]
-const STATUSES = ['guarded', 'suppressed', 'marked']
+const STATUSES = ['guarded', 'suppressed', 'marked', 'sealed']
 
 /** Stable JSON: object keys sorted, undefined dropped. */
 export function canonicalJson(value: unknown): string {
@@ -256,6 +256,9 @@ const MUTABLE = new Set<string>([
   'overwatch',
   'statuses',
   'burrowTarget',
+  'phaseTarget',
+  'phaseVictim',
+  'windupRewinding',
   'seismicTarget',
   'seismicChargeHp',
   'signatureTarget',
@@ -357,7 +360,15 @@ function validateSave(save: EvtSave, migrated: boolean): LoadResult {
       if (occupied.has(at)) return reject('Two units share a tile.')
       occupied.add(at)
     }
+    if (
+      unit.phaseVictim != null &&
+      !state.units.some((u) => u.id === unit.phaseVictim && u.team === 'squad')
+    )
+      return reject(unit.id + ' portal victim is invalid.')
+    if (unit.windupRewinding !== undefined && !isBool(unit.windupRewinding))
+      return reject(unit.id + ' wind-up state is invalid.')
     for (const point of [
+      unit.phaseTarget,
       unit.burrowTarget,
       unit.seismicTarget,
       unit.signatureTarget,

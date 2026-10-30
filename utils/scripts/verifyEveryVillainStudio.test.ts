@@ -17,7 +17,7 @@ import {
 } from '../everyVillainTactics/training'
 import { lineOfSight, tileAt } from '../everyVillainTactics/combat'
 
-assert.equal(STAGE_PRESETS.length, 5)
+assert.equal(STAGE_PRESETS.length, 7)
 for (const preset of STAGE_PRESETS) {
   assert.deepEqual(
     stageProblems(preset),

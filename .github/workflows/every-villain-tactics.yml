@@ -14,6 +14,7 @@ on:
       - 'utils/scripts/verifyEveryVillainStudio.test.ts'
       - 'utils/scripts/verifyEveryVillainPowers.test.ts'
       - 'utils/scripts/verifyEveryVillainSaves.test.ts'
+      - 'utils/scripts/verifyEveryVillainLackeys.test.ts'
       - '.github/workflows/every-villain-tactics.yml'
   push:
     branches: [main]
@@ -48,6 +49,8 @@ jobs:
         run: npx tsx utils/scripts/verifyEveryVillainPowers.test.ts
       - name: Versioned save slots, migration and forgery rejection
         run: npx tsx utils/scripts/verifyEveryVillainSaves.test.ts
+      - name: Teleporting and wind-up one-hit lackey crews
+        run: npx tsx utils/scripts/verifyEveryVillainLackeys.test.ts
       - name: Shared engine keeps Prom of Doom interludes intact
         run: |
           npx tsx utils/scripts/verifyCometTacticalBridge.test.ts

@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict'
+import { restoreMemoryCampaignProgress } from '../memoryDungeon/campaignPersistence'
 import {
   MEMORY_EARLY_ORDER,
   MEMORY_FINALE_ORDER,
@@ -133,6 +134,18 @@ for (const [decision, expectedFate] of [
     assert.throws(
       () => chooseMemoryScyllaDeparture(past, choice.id),
       /unchosen past/,
+    )
+    const pastWish = rememberMemoryWish(past, 'scylla-home-wish')
+    let next = completeMemoryExperience(pastWish, 'e05')
+    assert.deepEqual(availableMemoryExperiences(next), ['e06'])
+    next = chooseMemoryPairEnding(next, 'e06', 'publish-twin-testimony')
+    next = completeMemoryExperience(next, 'e06')
+    assert.deepEqual(availableMemoryExperiences(next), ['e07'])
+    assert.equal(memoryCharFate(next), expectedFate)
+    assert.deepEqual(
+      restoreMemoryCampaignProgress(JSON.parse(JSON.stringify(next))),
+      next,
+      'All nine World Four/World Five routes survive save and replay',
     )
   }
 }

@@ -37,7 +37,8 @@ assert.equal(MEMORY_WORLD_CONCEPTS.length, 4)
 assert.equal(MEMORY_REALITY_EXPERIENCES.length, 12)
 assert.equal(
   MEMORY_REALITY_EXPERIENCES.reduce(
-    (count, entry) => count + entry.gallery.local + entry.gallery.collaborations,
+    (count, entry) =>
+      count + entry.gallery.local + entry.gallery.collaborations,
     0,
   ),
   384,
@@ -53,14 +54,7 @@ assert.deepEqual(MEMORY_REALITY_PAIRS, [
   ['e05', 'e06'],
   ['e07', 'e08'],
 ])
-assert.deepEqual(MEMORY_EARLY_ORDER, [
-  'e01',
-  'e02',
-  'e03',
-  'e04',
-  'e05',
-  'e06',
-])
+assert.deepEqual(MEMORY_EARLY_ORDER, ['e01', 'e02', 'e03', 'e04', 'e05', 'e06'])
 assert.deepEqual(MEMORY_COLLISION_ORDER, ['e09', 'e10', 'e11', 'e12'])
 assert.deepEqual(MEMORY_FINALE_ORDER, MEMORY_COLLISION_ORDER)
 assert.deepEqual(
@@ -78,7 +72,8 @@ for (const concept of MEMORY_WORLD_CONCEPTS) {
 }
 assert.deepEqual(
   MEMORY_COLLISION_ORDER.map(
-    (id) => MEMORY_REALITY_EXPERIENCES.find((entry) => entry.id === id)!.viewpoint,
+    (id) =>
+      MEMORY_REALITY_EXPERIENCES.find((entry) => entry.id === id)!.viewpoint,
   ),
   ['earth-protagonist', 'morrow', 'char', 'vesper'],
 )
@@ -92,7 +87,9 @@ assert.equal(
 )
 assert.ok(
   MEMORY_COLLISION_ORDER.every(
-    (id) => MEMORY_COLLISION_FRAGMENTS.filter((part) => part.world === id).length === 2,
+    (id) =>
+      MEMORY_COLLISION_FRAGMENTS.filter((part) => part.world === id).length ===
+      2,
   ),
 )
 assert.equal(Object.keys(MEMORY_PAIR_ENDINGS).length, 6)
@@ -153,7 +150,10 @@ for (const [decision, fate] of [
 assert.match(MEMORY_PAIR_ENDINGS.e04[0]!.publicResult, /Scylla sees Char.*die/)
 campaign = chooseMemoryPairEnding(campaign, 'e04', 'open-the-tide-gate')
 campaign = completeMemoryExperience(campaign, 'e04')
-assert.throws(() => completeMemoryExperience(campaign, 'e05'), /repeat the escape/)
+assert.throws(
+  () => completeMemoryExperience(campaign, 'e05'),
+  /repeat the escape/,
+)
 campaign = chooseMemoryScyllaDeparture(campaign, 'tell-char')
 campaign = completeMemoryExperience(campaign, 'e05')
 assert.deepEqual(availableMemoryExperiences(campaign), [])
@@ -167,7 +167,10 @@ campaign = completeMemoryExperience(campaign, 'e08')
 assert.deepEqual(availableMemoryExperiences(campaign), [])
 campaign = rememberMemoryWish(campaign, 'char-possible-future')
 assert.deepEqual(availableMemoryExperiences(campaign), ['e09'])
-assert.throws(() => completeMemoryExperience(campaign, 'e09'), /explicit commitment/)
+assert.throws(
+  () => completeMemoryExperience(campaign, 'e09'),
+  /explicit commitment/,
+)
 assert.throws(() => commitToMemoryFinale(beforeWorldFour), /not been earned/)
 
 let finale = commitToMemoryFinale(campaign)
@@ -177,7 +180,9 @@ for (const id of MEMORY_COLLISION_ORDER) {
     () => completeMemoryExperience(finale, id),
     /Recover both misplaced world fragments/,
   )
-  const fragments = MEMORY_COLLISION_FRAGMENTS.filter((part) => part.world === id)
+  const fragments = MEMORY_COLLISION_FRAGMENTS.filter(
+    (part) => part.world === id,
+  )
   for (const part of fragments) {
     finale = recoverMemoryCollisionFragment(finale, part.id)
     assert.strictEqual(
@@ -215,7 +220,10 @@ assert.deepEqual(availableMemoryExperiences(finale), [])
 assert.equal(finale.completed.length, 12)
 assert.ok(memoryEndingConsequences(finale).includes('briar-office-key'))
 assert.ok(memoryCoreEndingId(finale) !== null)
-assert.throws(() => completeMemoryExperience(finale, 'e13'), /not currently reachable/)
+assert.throws(
+  () => completeMemoryExperience(finale, 'e13'),
+  /not currently reachable/,
+)
 
 const families = new Set<number>()
 for (let mask = 0; mask < 32; mask++) {
@@ -232,13 +240,20 @@ for (let mask = 0; mask < 32; mask++) {
   }
   families.add(memoryCoreEndingId(finished)!)
 }
-assert.deepEqual([...families].sort((a, b) => a - b), Array.from({ length: 32 }, (_, i) => i))
+assert.deepEqual(
+  [...families].sort((a, b) => a - b),
+  Array.from({ length: 32 }, (_, i) => i),
+)
 assert.equal(MEMORY_FINALE_PHASES.length, 6)
 for (let i = 1; i < MEMORY_FINALE_PHASES.length; i++) {
   const a = MEMORY_FINALE_PHASES[i - 1]!
   const b = MEMORY_FINALE_PHASES[i]!
   assert.ok(
-    [a.ontology !== b.ontology, a.perspective !== b.perspective, a.terrain !== b.terrain].filter(Boolean).length >= 2,
+    [
+      a.ontology !== b.ontology,
+      a.perspective !== b.perspective,
+      a.terrain !== b.terrain,
+    ].filter(Boolean).length >= 2,
   )
 }
 console.log(

@@ -877,7 +877,7 @@ watch(
     store.state.units
       .filter((unit) => unit.hp > 0)
       .map((unit) =>
-        [unit.identity, unit.team, unit.henchmanType ?? ''].join(':'),
+        [unit.identity, unit.team, unit.henchmanType ?? '', unit.lieutenantName ?? ''].join(':'),
       )
       .join('|'),
   () => {
@@ -885,7 +885,11 @@ watch(
     if (lead)
       queueComicIntro(comicIntroFor(lead.identity as SignaturePowerId, 'hero'))
     for (const unit of store.enemies) {
-      const role: ComicIntroRole = unit.henchmanType ? 'henchman' : 'villain'
+      const role: ComicIntroRole = unit.lieutenantName
+        ? 'lieutenant'
+        : unit.henchmanType
+          ? 'henchman'
+          : 'villain'
       queueComicIntro(comicIntroFor(unit.identity as SignaturePowerId, role))
     }
   },

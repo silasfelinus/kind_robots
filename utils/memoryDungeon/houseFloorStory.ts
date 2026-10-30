@@ -60,13 +60,13 @@ export function houseFloorBeat(
     if (house.decisions['HD-03'] === 'route')
       return {
         title: 'Three Roads, No Owners',
-        text: 'The boot-rack yields three routes: a mill path, a ford and a track that ends at a locked nursery. Oren sketches them without writing the walkers\' names. The Index offers a tidy list of suspects, but the mud only proves where somebody traveled, never why.',
+        text: "The boot-rack yields three routes: a mill path, a ford and a track that ends at a locked nursery. Oren sketches them without writing the walkers' names. The Index offers a tidy list of suspects, but the mud only proves where somebody traveled, never why.",
         cost: 'You gained a useful route and refused an accusation, but the travelers still have no voice in the record.',
       }
     if (house.decisions['HD-03'] === 'ask')
       return {
         title: 'The Boots Who Were Allowed to Leave',
-        text: 'A left boot remembers carrying a frightened cook to the river. Its partner remembers coming back alone. Pip listens until the pair agree that leaving was the cook\'s decision, not evidence of kidnapping. The Index closes its prewritten missing-person form.',
+        text: "A left boot remembers carrying a frightened cook to the river. Its partner remembers coming back alone. Pip listens until the pair agree that leaving was the cook's decision, not evidence of kidnapping. The Index closes its prewritten missing-person form.",
         cost: 'The absent cook keeps their agency, but the route they used remains uncharted for anyone who needs it next.',
       }
     return {
@@ -139,7 +139,7 @@ export function houseFloorBeat(
       }
     return {
       title: 'Three Apologies, One Missing Voice',
-      text: 'The Knight wrote the first apology, the Index edited the second and the third has a blank space where the harmed person might speak. The stairs will open when you choose whether repair or the witness\'s own judgment matters most.',
+      text: "The Knight wrote the first apology, the Index edited the second and the third has a blank space where the harmed person might speak. The stairs will open when you choose whether repair or the witness's own judgment matters most.",
       cost: 'Until you act, polished language conceals the unanswered question of what the House actually owes.',
     }
   }

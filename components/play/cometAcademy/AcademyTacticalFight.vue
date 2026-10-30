@@ -105,7 +105,7 @@
       aria-label="Mission objectives"
     >
       <span :class="{ secured: battle.arena.secured }">
-        {{ battle.arena.secured ? '✓' : '◎' }} SECURE LAIR OBJECTIVE
+        {{ battle.arena.secured ? '✓' : '◎' }} {{ battle.arena.kind === 'origin' ? 'RESOLVE ORIGIN CRISIS' : 'SECURE RIVAL LAIR' }}
       </span>
       <span :class="{ secured: battle.arena.discovered }">
         {{ battle.arena.discovered ? '✓' : '?' }} OPTIONAL SECRET

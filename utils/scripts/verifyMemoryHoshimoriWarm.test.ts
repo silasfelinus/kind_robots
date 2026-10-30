@@ -1042,7 +1042,10 @@ assert.match(consoleSource, /data-testid="memory-hoshimori-southern-account"/)
 assert.match(consoleSource, /data-testid="memory-hoshimori-enter-ash-wing"/)
 assert.match(consoleSource, /data-testid="memory-hoshimori-ash-wing-account"/)
 assert.match(consoleSource, /data-testid="memory-hoshimori-enter-ember-wing"/)
-assert.match(consoleSource, /data-testid="memory-hoshimori-guardian-resolution"/)
+assert.match(
+  consoleSource,
+  /data-testid="memory-hoshimori-guardian-resolution"/,
+)
 assert.match(consoleSource, /data-testid="memory-hoshimori-ember-wing-account"/)
 assert.doesNotMatch(consoleSource, /localStorage|\$fetch/)
 assert.match(storeSource, /restoreHoshimoriWarm\(JSON\.parse\(saved\)\)/)

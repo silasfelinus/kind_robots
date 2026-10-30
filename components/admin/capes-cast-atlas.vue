@@ -162,8 +162,14 @@
                 :src="supportArt('henchmen')!"
                 :alt="selectedCrew.name + ' henchman species splash'"
               />
-              <div v-else class="atlas-support-empty" aria-label="Henchman poster not attached">
-                <strong>{{ selectedCrew.name.slice(0, 2).toUpperCase() }}</strong>
+              <div
+                v-else
+                class="atlas-support-empty"
+                aria-label="Henchman poster not attached"
+              >
+                <strong>{{
+                  selectedCrew.name.slice(0, 2).toUpperCase()
+                }}</strong>
                 <span>HENCHMAN POSTER · ART PLANNED</span>
               </div>
             </div>
@@ -189,14 +195,23 @@
             </div>
           </article>
           <article class="atlas-rank atlas-lieutenant">
-            <div class="atlas-support-art" data-testid="capes-lieutenant-poster">
+            <div
+              class="atlas-support-art"
+              data-testid="capes-lieutenant-poster"
+            >
               <img
                 v-if="supportArt('lieutenants')"
                 :src="supportArt('lieutenants')!"
                 :alt="selectedCampaign.lieutenant.name + ' lieutenant splash'"
               />
-              <div v-else class="atlas-support-empty" aria-label="Lieutenant poster not attached">
-                <strong>{{ selectedCampaign.lieutenant.name.slice(0, 2).toUpperCase() }}</strong>
+              <div
+                v-else
+                class="atlas-support-empty"
+                aria-label="Lieutenant poster not attached"
+              >
+                <strong>{{
+                  selectedCampaign.lieutenant.name.slice(0, 2).toUpperCase()
+                }}</strong>
                 <span>LIEUTENANT POSTER · ART PLANNED</span>
               </div>
             </div>
@@ -674,7 +689,11 @@ const deliveredPosters = computed(() =>
   border-radius: 5px;
   background: #14263c;
 }
-.atlas-support-art img { width: 100%; height: 100%; object-fit: contain; }
+.atlas-support-art img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
 .atlas-support-empty {
   position: absolute;
   inset: 0;
@@ -684,8 +703,18 @@ const deliveredPosters = computed(() =>
   text-align: center;
   background: radial-gradient(circle at 50% 25%, #47617b, #17263d 68%);
 }
-.atlas-support-empty strong { font: 900 clamp(2rem, 5vw, 4rem)/1 Impact, sans-serif; opacity: .45; }
-.atlas-support-empty span { font-size: 10px; font-weight: 900; letter-spacing: .08em; color: #f6d6a2; }
+.atlas-support-empty strong {
+  font:
+    900 clamp(2rem, 5vw, 4rem)/1 Impact,
+    sans-serif;
+  opacity: 0.45;
+}
+.atlas-support-empty span {
+  font-size: 10px;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  color: #f6d6a2;
+}
 .atlas-minions {
   border-top: 4px solid #c4d77f;
 }

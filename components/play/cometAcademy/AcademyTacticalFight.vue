@@ -94,11 +94,16 @@
       <span class="atf-boss-kicker">THE LIEUTENANT RETURNS · YOUR SIDE</span>
       <div class="atf-boss-layout">
         <strong>{{ allied.lieutenantName }}</strong>
-        <span>{{ allied.hp }} HP · {{ allied.signatureSupportUsed ? 'POWER SPENT' : 'SIGNATURE READY' }}</span>
+        <span
+          >{{ allied.hp }} HP ·
+          {{
+            allied.signatureSupportUsed ? 'POWER SPENT' : 'SIGNATURE READY'
+          }}</span
+        >
       </div>
       <p>
-        Select their ✦ card and spend 2 AP for a once-per-battle
-        signature attack on the nearest visible rival. Allies are safe.
+        Select their ✦ card and spend 2 AP for a once-per-battle signature
+        attack on the nearest visible rival. Allies are safe.
       </p>
       <p v-if="alliedPreview" class="atf-ally-ready">
         TARGET {{ aliasFor(alliedPreview.target) }} ·
@@ -433,8 +438,14 @@ function cellLabel(cell: Cell) {
   background: linear-gradient(105deg, #154331, #242a4b);
   color: #f0fff0;
 }
-.atf-ally-panel p { font-size: 0.83rem; line-height: 1.35; }
-.atf-ally-panel .atf-ally-ready { color: #d5ff91; font-weight: 850; }
+.atf-ally-panel p {
+  font-size: 0.83rem;
+  line-height: 1.35;
+}
+.atf-ally-panel .atf-ally-ready {
+  color: #d5ff91;
+  font-weight: 850;
+}
 .atf-ally-target {
   box-shadow: inset 0 0 0 2px #bbf7d0;
   border-color: #bbf7d0;
@@ -445,7 +456,9 @@ function cellLabel(cell: Cell) {
   color: #fff;
   font-weight: 900;
 }
-.atf-ally-action:disabled { opacity: 0.5; }
+.atf-ally-action:disabled {
+  opacity: 0.5;
+}
 .atf-parley {
   display: grid;
   gap: 0.45rem;

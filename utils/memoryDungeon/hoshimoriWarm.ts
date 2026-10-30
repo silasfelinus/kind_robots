@@ -1706,7 +1706,8 @@ export const HOSHIMORI_OVEN_ROOMS: readonly HoshimoriOvenRoom[] = [
     choices: [
       {
         id: 'rewrite-guardian',
-        label: 'Rewrite the guardian’s charge with witnesses and a right to withdraw',
+        label:
+          'Rewrite the guardian’s charge with witnesses and a right to withdraw',
         outcome:
           'The guardian accepts that no oath can be inherited without consent. Its future depends on Kogane’s choice and the village’s willingness to audit itself.',
         trust: 1,
@@ -1947,10 +1948,19 @@ export function hoshimoriOvenGuardianResolution(
       ? 'Independent kitchens can feed people if the magic fails.'
       : 'The refuge flue keeps some people warm while a smaller bake is negotiated.'
   if (decision === 'quench-guardian')
-    return 'The compulsory guardian is extinguished. No memories may be collected by the Oven; the village must build its relief without magical coercion. ' + support
+    return (
+      'The compulsory guardian is extinguished. No memories may be collected by the Oven; the village must build its relief without magical coercion. ' +
+      support
+    )
   if (progress.ovenChoices['OV-12'] === 'release-ember')
-    return 'Kogane is free of the inherited oath. The guardian becomes a witness rather than a master; any future baking requires a fresh invitation from Kogane and the workers. ' + support
-  return 'Kogane chooses a revocable, time-limited guardianship with independent audits and a cooling bell. The guardian can be dismissed without punishing the village’s hungry families. ' + support
+    return (
+      'Kogane is free of the inherited oath. The guardian becomes a witness rather than a master; any future baking requires a fresh invitation from Kogane and the workers. ' +
+      support
+    )
+  return (
+    'Kogane chooses a revocable, time-limited guardianship with independent audits and a cooling bell. The guardian can be dismissed without punishing the village’s hungry families. ' +
+    support
+  )
 }
 
 export function hoshimoriOvenThirdAccount(

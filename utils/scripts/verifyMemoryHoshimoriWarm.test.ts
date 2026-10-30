@@ -9,6 +9,7 @@ import {
   hoshimoriLanternClues,
   hoshimoriLanternOrder,
   hoshimoriOvenResolution,
+  hoshimoriOvenSecondAccount,
   hoshimoriRidgeAccount,
   hoshimoriLowlandAccount,
   hoshimoriOvenTestimony,
@@ -30,7 +31,7 @@ import { MEMORY_REALITY_EXPERIENCES } from '../memoryDungeon/reimaginerCampaign'
 assert.deepEqual(validateHoshimoriWarm(), [])
 assert.equal(HOSHIMORI_WARM_SITES.length, 36)
 assert.equal(new Set(HOSHIMORI_WARM_SITES.map((site) => site.key)).size, 36)
-assert.equal(HOSHIMORI_OVEN_ROOMS.length, 3)
+assert.equal(HOSHIMORI_OVEN_ROOMS.length, 9)
 assert.equal(new Set(HOSHIMORI_WARM_SITES.map((site) => site.opening)).size, 36)
 assert.equal(
   new Set(
@@ -326,6 +327,94 @@ assert.equal(
   hearingOutcomes.size,
   24,
   'Eight oven resolutions and three Pip witness states must stay distinct',
+)
+
+const ashWingChoices = [
+  ['seal-jars', 'return-names'],
+  ['ask-workers', 'pay-workers'],
+  ['tend-tools', 'free-tools'],
+  ['share-heat', 'bank-heat'],
+  ['witness-claims', 'redact-claims'],
+  ['open-kiln', 'hold-kiln'],
+] as const
+const ashWingAccounts = new Set<string>()
+for (let mask = 0; mask < 64; mask++) {
+  let run = newHoshimoriWarmProgress(mask)
+  assert.strictEqual(
+    advanceHoshimoriWarm(run, { type: 'enter-wing' }),
+    run,
+    'The second wing cannot be entered without an earned first hearing',
+  )
+  for (const key of ['2,1', '3,1', '4,1', '4,2']) run = move(run, key)
+  run = choose(run, 'pledge')
+  run = move(run, '4,3')
+  run = advanceHoshimoriWarm(run, { type: 'enter' })
+  for (const id of ['audit', 'consent', 'pact'])
+    run = advanceHoshimoriWarm(run, { type: 'oven-choice', id })
+  assert.equal(run.ovenComplete, true)
+  assert.equal(run.ovenRoom, null)
+  assert.match(hoshimoriOvenResolution(run)!, /first hearing/i)
+  assert.equal(hoshimoriOvenSecondAccount(run), null)
+  assert.deepEqual(
+    restoreHoshimoriWarm(JSON.parse(JSON.stringify(run))),
+    run,
+    'An existing first-hearing-only v1 save remains valid',
+  )
+  run = advanceHoshimoriWarm(run, { type: 'enter-wing' })
+  assert.equal(run.ovenRoom, 'OV-04')
+  for (let index = 0; index < ashWingChoices.length; index++) {
+    const room = HOSHIMORI_OVEN_ROOMS[index + 3]!
+    assert.equal(run.ovenRoom, room.id)
+    const id = ashWingChoices[index]![(mask >> index) & 1]!
+    run = advanceHoshimoriWarm(run, { type: 'oven-choice', id })
+    if (index === 2 && mask === 0) {
+      const beforeLeave = run
+      run = advanceHoshimoriWarm(run, { type: 'leave' })
+      assert.equal(run.ovenRoom, null)
+      run = advanceHoshimoriWarm(run, { type: 'enter-wing' })
+      assert.equal(
+        run.ovenRoom,
+        'OV-07',
+        'Retreat and reentry must resume the first unfinished wing room',
+      )
+      assert.equal(run.rations, beforeLeave.rations)
+      assert.equal(run.trust, beforeLeave.trust)
+      assert.equal(
+        Object.keys(run.ovenChoices).length,
+        Object.keys(beforeLeave.ovenChoices).length,
+        'Retreat cannot repeat rewards or decisions',
+      )
+    }
+  }
+  assert.equal(run.ovenRoom, null)
+  assert.equal(run.ovenComplete, true)
+  const account = hoshimoriOvenSecondAccount(run)
+  assert.ok(account)
+  ashWingAccounts.add(account)
+  assert.match(hoshimoriOvenResolution(run)!, /first hearing/i)
+  assert.strictEqual(
+    advanceHoshimoriWarm(run, { type: 'enter-wing' }),
+    run,
+    'The finished wing cannot be farmed',
+  )
+  assert.deepEqual(
+    restoreHoshimoriWarm(JSON.parse(JSON.stringify(run))),
+    run,
+    'Every six-room ash-wing branch must replay and restore',
+  )
+  const forged = JSON.parse(JSON.stringify(run)) as HoshimoriWarmProgress
+  forged.ovenChoices['OV-07'] =
+    run.ovenChoices['OV-07'] === 'share-heat' ? 'bank-heat' : 'share-heat'
+  assert.equal(
+    restoreHoshimoriWarm(forged),
+    null,
+    'An ash-wing verdict cannot be forged without matching events',
+  )
+}
+assert.equal(
+  ashWingAccounts.size,
+  64,
+  'Six distinct decisions should produce 64 earned accounts',
 )
 
 const ridgeOutcomes = new Set<string>()
@@ -677,6 +766,8 @@ assert.match(consoleSource, /hoshimori\.act\(\{ type: 'oven-choice'/)
 assert.match(consoleSource, /data-testid="memory-hoshimori-chronicle-open"/)
 assert.match(consoleSource, /memory-dungeon-earth-chronicle/)
 assert.match(consoleSource, /data-testid="memory-hoshimori-lowland-account"/)
+assert.match(consoleSource, /data-testid="memory-hoshimori-enter-ash-wing"/)
+assert.match(consoleSource, /data-testid="memory-hoshimori-ash-wing-account"/)
 assert.doesNotMatch(consoleSource, /localStorage|\$fetch/)
 assert.match(storeSource, /restoreHoshimoriWarm\(JSON\.parse\(saved\)\)/)
 assert.match(storeSource, /advanceHoshimoriWarm\(progress\.value, event\)/)
@@ -684,6 +775,7 @@ assert.match(storeSource, /memory-dungeon-hoshimori-e07-v1/)
 assert.match(storeSource, /syncHoshimoriPhoto\(restored\.choices\)/)
 assert.match(storeSource, /syncHoshimoriPhoto\(next\.choices\)/)
 assert.match(storeSource, /hoshimoriLowlandAccount\(progress\.value\)/)
+assert.match(storeSource, /hoshimoriOvenSecondAccount\(progress\.value\)/)
 const worldStoreSource = readFileSync('stores/memoryWorldStore.ts', 'utf8')
 assert.match(worldStoreSource, /campaign\.value\.completed\.includes\('e06'\)/)
 assert.match(worldStoreSource, /reconcileHoshimoriEarthChronicle/)
@@ -692,5 +784,5 @@ assert.match(overworldSource, /campaign\.completed\.includes\('e06'\)/)
 assert.match(overworldSource, /data-testid="memory-enter-hoshimori"/)
 
 console.log(
-  'Hoshimori warm proof: 36 sites, 96 seeds, 24 hearings, 8 lowland verdicts, two Earth photos, long-run save and spoiler guards passed',
+  'Hoshimori warm proof: 36 sites, 9 Oven rooms, 64 earned ash-wing accounts, 96 seeds, 24 hearings, 8 lowland verdicts, two Earth photos, long-run save and spoiler guards passed',
 )

@@ -736,19 +736,13 @@ export function restoreCombat(input: unknown): CombatState | null {
     const validCell = (value: unknown): value is Cell => {
       if (!value || typeof value !== 'object') return false
       const cell = value as Cell
-      return (
-        int(cell.row, 0, rows - 1) && int(cell.col, 0, cols - 1)
-      )
+      return int(cell.row, 0, rows - 1) && int(cell.col, 0, cols - 1)
     }
     const actions: CombatAction[] = []
     for (const rawAction of raw.actions) {
       if (!rawAction || typeof rawAction !== 'object') return null
       const action = rawAction as Record<string, unknown>
-      if (
-        action.type === 'scout' &&
-        validCell(action.a) &&
-        validCell(action.b)
-      )
+      if (action.type === 'scout' && validCell(action.a) && validCell(action.b))
         actions.push({ type: 'scout', a: action.a, b: action.b })
       else if (
         action.type === 'strike' &&

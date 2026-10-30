@@ -245,6 +245,20 @@
                       : 'A rare convergence awaits a different set of choices.'
                   }}
                 </p>
+                <div
+                  v-if="medal.earned && medal.echo"
+                  class="mt-3 border-t border-[#74684e] pt-3"
+                  data-testid="memory-unlocked-echo"
+                >
+                  <p
+                    class="text-[10px] font-bold uppercase tracking-widest text-[#e5c98d]"
+                  >
+                    Recovered echo
+                  </p>
+                  <p class="mt-1 text-sm leading-relaxed text-[#e7dec5]">
+                    {{ medal.echo }}
+                  </p>
+                </div>
               </div>
             </article>
           </div>

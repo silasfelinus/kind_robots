@@ -309,6 +309,15 @@
           >
             Return to the Red Oven · Ember Wing
           </button>
+          <button
+            v-if="hoshimori.canEnterOvenCinderWing"
+            type="button"
+            class="btn btn-warning min-h-12 text-base"
+            data-testid="memory-hoshimori-enter-cinder-wing"
+            @click="hoshimori.act({ type: 'enter-cinder-wing' })"
+          >
+            Return to the Red Oven · Cinder Wing
+          </button>
           <p
             v-if="hoshimori.resolution"
             class="rounded-xl border border-success/30 bg-success/15 p-3 text-base leading-relaxed"
@@ -335,6 +344,13 @@
             data-testid="memory-hoshimori-ember-wing-account"
           >
             {{ hoshimori.thirdAccount }}
+          </p>
+          <p
+            v-if="hoshimori.fourthAccount"
+            class="rounded-xl border border-warning/40 bg-warning/10 p-3 text-base leading-relaxed"
+            data-testid="memory-hoshimori-cinder-wing-account"
+          >
+            {{ hoshimori.fourthAccount }}
           </p>
         </template>
       </div>

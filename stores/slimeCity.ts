@@ -99,7 +99,9 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
   )
   const hand = computed(() => sight.value.hand)
   const inspectedCard = computed(() =>
-    selectedCard.value ? cards.value.find((c) => c.id === selectedCard.value) : null,
+    selectedCard.value
+      ? cards.value.find((c) => c.id === selectedCard.value)
+      : null,
   )
   /** The variants that change the current format. */
   const variants = computed(() =>
@@ -115,14 +117,23 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
   )
   const attackTargets = computed(() => {
     if (mode.value !== 'blackout' || !selected.value) return []
-    return sight.value.units.filter((unit) => unit.side === 'enemy' &&
-      unit.known && match.value.units.some((actual) =>
-        actual.id === unit.id && mayAttack(match.value, selected.value!, actual),
-      )).map((unit) => unit.id)
+    return sight.value.units
+      .filter(
+        (unit) =>
+          unit.side === 'enemy' &&
+          unit.known &&
+          match.value.units.some(
+            (actual) =>
+              actual.id === unit.id &&
+              mayAttack(match.value, selected.value!, actual),
+          ),
+      )
+      .map((unit) => unit.id)
   })
   const selectedTarget = computed(() =>
-    targetUnit.value === -1 ? match.value.monster :
-    match.value.units.find((u) => u.id === targetUnit.value),
+    targetUnit.value === -1
+      ? match.value.monster
+      : match.value.units.find((u) => u.id === targetUnit.value),
   )
   const attackPreview = computed(() =>
     selected.value && selectedTarget.value
@@ -131,16 +142,23 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
   )
   function canMoveTo(x: number, y: number): boolean {
     const fighter = selected.value
-    return !!fighter && mode.value === 'blackout' && fighter.ap > 0 &&
+    return (
+      !!fighter &&
+      mode.value === 'blackout' &&
+      fighter.ap > 0 &&
       legalNeighbor(fighter, { x, y }) &&
       !match.value.units.some((u) => u.x === x && u.y === y) &&
       !(match.value.monster?.x === x && match.value.monster?.y === y)
+    )
   }
 
   function chooseAttackTarget(id: number): void {
     if (id === -1) {
-      if (selected.value && match.value.monster &&
-        mayAttack(match.value, selected.value, match.value.monster))
+      if (
+        selected.value &&
+        match.value.monster &&
+        mayAttack(match.value, selected.value, match.value.monster)
+      )
         targetUnit.value = -1
       return
     }
@@ -349,8 +367,10 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
   }
 
   function ready(id: string): boolean {
-    return cardReady(match.value, 'player', id) &&
+    return (
+      cardReady(match.value, 'player', id) &&
       (mode.value !== 'blackout' || match.value.hands.player.includes(id))
+    )
   }
 
   function touchSquare(x: number, y: number): void {
@@ -375,7 +395,11 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
       chooseAttackTarget(unit.id)
       return
     }
-    if (selected.value && match.value.monster?.x === x && match.value.monster?.y === y) {
+    if (
+      selected.value &&
+      match.value.monster?.x === x &&
+      match.value.monster?.y === y
+    ) {
       chooseAttackTarget(-1)
       return
     }

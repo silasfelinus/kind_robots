@@ -10,7 +10,7 @@
       <div class="min-w-0 flex-1">
         <h2 class="truncate text-lg font-black">Hoshimori · Lantern Village</h2>
         <p class="text-xs opacity-75">
-          A village remembers who was invited to supper.
+          Vesper returns to the mountain roads of their childhood.
         </p>
       </div>
       <span class="rounded-lg bg-base-300 px-2 py-1 text-xs font-bold">
@@ -175,7 +175,7 @@
 
         <template v-else>
           <p class="text-xs font-bold uppercase tracking-widest text-success">
-            Village encounter
+            Vesper’s Hoshimori · Village encounter
           </p>
           <h3 class="text-xl font-black">{{ hoshimori.currentSite?.title }}</h3>
           <p class="text-base leading-relaxed">
@@ -237,6 +237,20 @@
           >
             {{ hoshimori.southernAccount }}
           </p>
+          <section
+            v-if="
+              hoshimori.progress.current === '8,8' &&
+              hoshimori.vesperReckoning
+            "
+            class="rounded-xl border border-warning/30 bg-warning/10 p-3"
+            data-testid="memory-hoshimori-vesper-reckoning"
+            aria-label="Vesper’s childhood reckoning"
+          >
+            <h4 class="mb-2 font-bold">The map Vesper will carry</h4>
+            <p class="text-base leading-relaxed">
+              {{ hoshimori.vesperReckoning }}
+            </p>
+          </section>
           <div
             v-if="hoshimori.clues.length"
             class="rounded-xl border border-warning/30 bg-warning/10 p-3"

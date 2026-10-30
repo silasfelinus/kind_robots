@@ -71,6 +71,92 @@ export const STREETS: [DistrictId, DistrictId, string][] = [
   ['undertow', 'crown', 'Ledger Sewer'],
 ]
 
+export interface StreetStory {
+  title: string
+  scene: string
+  choices: [StreetChoice, StreetChoice]
+}
+
+/** Every road has a one-time authored encounter on its first crossing. */
+export const STREET_STORIES: Record<string, StreetStory> = {
+  'Splice Avenue': {
+    title: 'THE RUNAWAY AMBULANCE',
+    scene: 'A stolen ambulance full of experimental serum slides toward a cordon of corporate gene-hunters. A pair of catgirls wave you into the crossfire.',
+    choices: [
+      { id: 'splice-smuggle', label: 'Drive the serum to safety', outcome: 'The escapees will remember. Your next neighborhood fight gains +1 HP, but the hunters put out your face (+1 heat).', standing: 1, heat: 1, terms: { playerHp: 1 } },
+      { id: 'splice-decoy', label: 'Release the decoy drones', outcome: 'The guards scatter, thinning their field defenses, but the fugitives mistrust the tactic (−1 standing).', standing: -1, heat: 0, terms: { enemyArmor: -1 } },
+    ],
+  },
+  'Slag Causeway': {
+    title: 'THE PICKET LINE',
+    scene: 'Chrome ogre workers link arms across the furnace bridge. Their bosses send a payroll drone with an offer of easy credits and no witnesses.',
+    choices: [
+      { id: 'slag-union', label: 'Protect the strikers', outcome: 'One worker loans you an extra opening mana. The factory identifies you as a troublemaker (+1 heat).', standing: 1, heat: 1, terms: { playerMana: 1 } },
+      { id: 'slag-payroll', label: 'Deliver the owners’ message', outcome: 'A private mechanic patches your starters (+1 HP). You lose the workers’ trust (−2 standing).', standing: -2, heat: -1, terms: { playerHp: 1 } },
+    ],
+  },
+  'The Long Drain': {
+    title: 'THE WHISPER TAX',
+    scene: 'Under the road, a frog courier opens a grate and offers a genuine spy map. From the dark behind him, something asks who sent you.',
+    choices: [
+      { id: 'drain-protect', label: 'Hide the courier', outcome: 'The spies owe you a favor: +1 opening mana. Somebody reports the exchange (+1 heat).', standing: 1, heat: 1, terms: { playerMana: 1 } },
+      { id: 'drain-trace', label: 'Follow the second voice', outcome: 'You spot where the ambush lies, but the city’s informants mark you as reckless.', standing: -1, heat: 0, terms: { enemyArmor: -1 } },
+    ],
+  },
+  'Fuse Street': {
+    title: 'THE LAST FIVE SECONDS',
+    scene: 'A countdown has been painted on the street. The Riot Saints call it performance art. The tram full of passengers approaching calls it something else.',
+    choices: [
+      { id: 'fuse-evacuate', label: 'Clear the tram', outcome: 'The passengers survive, and one grateful medic reinforces your team (+1 HP).', standing: 1, heat: 0, terms: { playerHp: 1 } },
+      { id: 'fuse-rewire', label: 'Turn the blast into a spectacle', outcome: 'Everyone runs to watch; enemy equipment gets wrecked (−1 armor), and the authorities give chase (+2 heat).', standing: 1, heat: 2, terms: { enemyArmor: -1 } },
+    ],
+  },
+  'Hiss Row': {
+    title: 'THE CLONE IN THE WINDOW',
+    scene: 'A glass-front shop displays an identical copy of a missing catgirl. A Riot Saint offers to break the locks while the alarm is sleeping.',
+    choices: [
+      { id: 'hiss-rescue', label: 'Free the copy', outcome: 'A grateful clone shares illegal tactical upgrades (+1 opening mana). The lab sends patrols (+1 heat).', standing: 1, heat: 1, terms: { playerMana: 1 } },
+      { id: 'hiss-bargain', label: 'Blackmail the lab instead', outcome: 'Their guards sabotage their own plating (−1 rival armor), but the local crew hates the bargain.', standing: -2, heat: 0, terms: { enemyArmor: -1 } },
+    ],
+  },
+  'Spike Stair': {
+    title: 'THE ROOFTOP FEEDBACK',
+    scene: 'Bloodfairies have wired the entire staircase into a giant electric instrument. The first chord is about to short out a crowded apartment block.',
+    choices: [
+      { id: 'spike-protect', label: 'Ground the live wire', outcome: 'The fairies call you a hero (+2 standing), then turn up their volume in the next bout (+1 rival mana).', standing: 2, heat: 1, terms: { enemyMana: 1 } },
+      { id: 'spike-steal', label: 'Pocket their amplifier', outcome: 'You can fight with an extra mana, but the punk crowd boos your entrance (−1 standing).', standing: -1, heat: 0, terms: { playerMana: 1 } },
+    ],
+  },
+  'Gilt Gate': {
+    title: 'THE DEBT PARADE',
+    scene: 'A procession of debtors carries enormous gold receipts past the market gates. The collector has a pen that writes signatures by itself.',
+    choices: [
+      { id: 'gilt-unmask', label: 'Expose the forged signatures', outcome: 'The street cheers (+2 standing), and the Exchange sends more guards after you (+2 heat).', standing: 2, heat: 2, terms: { enemyMana: 1 } },
+      { id: 'gilt-bribe', label: 'Buy the collector’s silence', outcome: 'You get a stronger opening hand (+2 mana) while the neighborhood learns who paid (−1 standing).', standing: -1, heat: 0, terms: { playerMana: 2 } },
+    ],
+  },
+  'Coolant Culvert': {
+    title: 'THE FLOODGATE MUTINY',
+    scene: 'Toxic coolant rises around a stranded ogre mechanic. The emergency valve can save her, or wash the rival patrol off its feet.',
+    choices: [
+      { id: 'coolant-save', label: 'Lift the mechanic to safety', outcome: 'She reinforces your starters (+1 HP) and the workers spread your name (+1 standing).', standing: 1, heat: 1, terms: { playerHp: 1 } },
+      { id: 'coolant-flush', label: 'Flood the patrol corridor', outcome: 'Enemy armor corrodes (−1 armor), but the Foundry crews call it a betrayal (−1 standing).', standing: -1, heat: 0, terms: { enemyArmor: -1 } },
+    ],
+  },
+  'Ledger Sewer': {
+    title: 'THE UNDERGROUND AUDIT',
+    scene: 'A sewer bookmaker offers proof that the city’s poorest residents owe debts to people who died years ago. A gold-helmeted auditor is already on the stairs.',
+    choices: [
+      { id: 'ledger-publish', label: 'Broadcast the ledger', outcome: 'Families rally behind you (+2 standing), and the Exchange puts a price on your head (+2 heat).', standing: 2, heat: 2, terms: { playerMana: 1 } },
+      { id: 'ledger-trade', label: 'Trade it for safe passage', outcome: 'Your next opening squad gets protective gear (+1 HP), but no citizen sees the evidence (−1 standing).', standing: -1, heat: 0, terms: { playerHp: 1 } },
+    ],
+  },
+}
+
+export function streetStory(city: CityState): StreetStory | null {
+  return city.pendingStreet ? (STREET_STORIES[city.pendingStreet] ?? null) : null
+}
+
 export const CITY_PLAN: Record<DistrictId, DistrictPlan> = {
   pitworks: {
     id: 'pitworks',
@@ -312,6 +398,9 @@ export interface CityState {
   standing: Record<DistrictId, number>
   heat: number
   choices: Partial<Record<DistrictId, string>>
+  streetChoices: Record<string, string>
+  streetTerms: Partial<Record<DistrictId, BoutTerms>>
+  pendingStreet: string | null
   cleared: DistrictId[]
   losses: number
   log: string[]
@@ -331,6 +420,9 @@ export function createCity(): CityState {
     >,
     heat: 0,
     choices: {},
+    streetChoices: {},
+    streetTerms: {},
+    pendingStreet: null,
     cleared: [],
     losses: 0,
     log: ['You arrive in the Pitworks with a deck and no reputation.'],
@@ -342,6 +434,8 @@ function copyCity(city: CityState): CityState {
     ...city,
     standing: { ...city.standing },
     choices: { ...city.choices },
+    streetChoices: { ...city.streetChoices },
+    streetTerms: Object.fromEntries(Object.entries(city.streetTerms).map(([id, terms]) => [id, { ...terms }])),
     cleared: [...city.cleared],
     log: [...city.log],
   }
@@ -378,17 +472,20 @@ export function gateReason(city: CityState, id: DistrictId): string | null {
 
 /** Why this district's rival will not fight you now, or null. */
 export function boutBlocked(city: CityState, id: DistrictId): string | null {
+  if (city.pendingStreet) return 'Settle the street encounter first.'
   if (city.cleared.includes(id)) return 'Already beaten.'
   return gateReason(city, id)
 }
 
 /** Walk one street to a neighbouring district. */
 export function travel(city: CityState, to: DistrictId): CityState {
+  if (city.pendingStreet) return city
   const route = streetsFrom(city.location).find((s) => s.to === to)
   if (!route) return city
   const next = copyCity(city)
   next.location = to
   next.nights++
+  if (!next.streetChoices[route.street]) next.pendingStreet = route.street
   note(
     next,
     'You take ' +
@@ -404,13 +501,38 @@ export function travel(city: CityState, to: DistrictId): CityState {
 export function decide(city: CityState, choiceId: string): CityState {
   const plan = CITY_PLAN[city.location]
   const choice = plan.choices.find((c) => c.id === choiceId)
-  if (!choice || city.choices[city.location]) return city
+  if (!choice || city.choices[city.location] || city.pendingStreet) return city
   if (gateReason(city, city.location)) return city
   const next = copyCity(city)
   next.choices[city.location] = choice.id
   next.standing[city.location] += choice.standing
   next.heat = Math.max(0, next.heat + choice.heat)
   note(next, choice.label + ': ' + choice.outcome)
+  return next
+}
+
+function mergeTerms(a: BoutTerms, b: BoutTerms): BoutTerms {
+  const result = { ...a }
+  for (const key of ['playerMana', 'enemyMana', 'enemyArmor', 'playerHp', 'fewerRivals', 'rounds'] as const) {
+    if (b[key] !== undefined) result[key] = (a[key] ?? 0) + b[key]
+  }
+  if (a.rivalTrap || b.rivalTrap) result.rivalTrap = true
+  return result
+}
+
+/** Resolve the first-crossing story before walking or fighting again. */
+export function decideStreet(city: CityState, choiceId: string): CityState {
+  const street = city.pendingStreet
+  if (!street || city.streetChoices[street]) return city
+  const choice = STREET_STORIES[street]?.choices.find((c) => c.id === choiceId)
+  if (!choice) return city
+  const next = copyCity(city)
+  next.pendingStreet = null
+  next.streetChoices[street] = choiceId
+  next.standing[next.location] += choice.standing
+  next.heat = Math.max(0, next.heat + choice.heat)
+  next.streetTerms[next.location] = mergeTerms(next.streetTerms[next.location] ?? {}, choice.terms)
+  note(next, STREET_STORIES[street]!.title + ': ' + choice.outcome)
   return next
 }
 
@@ -423,7 +545,7 @@ export function chosen(
 
 /** Terms for this district's rival bout, including citywide heat. */
 export function boutTerms(city: CityState, id: DistrictId): BoutTerms {
-  const terms: BoutTerms = { ...(chosen(city, id)?.terms ?? {}) }
+  const terms = mergeTerms(chosen(city, id)?.terms ?? {}, city.streetTerms[id] ?? {})
   // Too much heat: Meat Exchange enforcers bankroll every rival.
   if (city.heat >= HEAT_LIMIT) terms.enemyMana = (terms.enemyMana ?? 0) + 1
   return terms

@@ -13,6 +13,7 @@ import {
 import { defineStore } from 'pinia'
 import {
   actorAt,
+  counterSignatureLieutenant,
   endTurn,
   fireSelected,
   moveSelected,
@@ -313,6 +314,13 @@ export const useCometAcademyStore = defineStore('cometAcademy', () => {
     persist()
   }
 
+  function battleCounter() {
+    const fight = run.value?.tacticalBattle?.state
+    if (!fight || !counterSignatureLieutenant(fight)) return false
+    persist()
+    return true
+  }
+
   function battleTurn() {
     const battle = run.value?.tacticalBattle
     const fight = battle?.state
@@ -401,6 +409,7 @@ export const useCometAcademyStore = defineStore('cometAcademy', () => {
     startBattle,
     battleMode,
     battleClick,
+    battleCounter,
     battleTurn,
     battleRetreat,
     battleResolve,

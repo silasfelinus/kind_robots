@@ -453,6 +453,9 @@ jobs:
       - name: ArtImage offload contract
         run: npm run test:art-image-offload
 
+      - name: Slime City square-grid prototype mechanics and replay contract
+        run: npm run test:slime-city-lab
+
   contract_2:
     name: Contract shard 2/4
     runs-on: ubuntu-latest

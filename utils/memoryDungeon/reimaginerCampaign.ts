@@ -602,6 +602,141 @@ export function chooseMemoryPairEnding(
   }
 }
 
+export const MEMORY_COLLISION_FRAGMENTS = [
+  {
+    id: 'briar-office-key',
+    world: 'e09',
+    source: 'city',
+    location: 'Briar House / Office turnstile',
+    encounter: 'A wolf has learned to punch a timecard. Rescue the office guards before the old Briar House names them trespassers.',
+  },
+  {
+    id: 'briar-tide-roots',
+    world: 'e09',
+    source: 'crown',
+    location: 'Wolf road / Flooded stair',
+    encounter: 'The rooted path follows underwater palace currents. Restore two contradictory maps without condemning the hidden households.',
+  },
+  {
+    id: 'city-lantern-charter',
+    world: 'e10',
+    source: 'hearth',
+    location: 'Morrow research lab / Yōkai refuge',
+    encounter: 'A zashiki-warashi has taken the night shift. Negotiate shelter rights while the fluorescent lights make ghosts out of office workers.',
+  },
+  {
+    id: 'city-forest-hours',
+    world: 'e10',
+    source: 'briar',
+    location: 'Subway platform / Briar canopy',
+    encounter: 'The forest grows across the train timetable. Reconcile an office shift with a seasonal ward before the last commuter disappears.',
+  },
+  {
+    id: 'sea-unwritten-map',
+    world: 'e11',
+    source: 'hearth',
+    location: 'Mermaid palace / Vesper atlas',
+    encounter: 'Char follows Vesper’s refuge map along coral corridors that were never safe to publish.',
+  },
+  {
+    id: 'sea-sister-bell',
+    world: 'e11',
+    source: 'city',
+    location: 'Royal audience chamber / Train announcement',
+    encounter: 'A station bell calls two versions of Char by name. Char must decide what testimony belongs to her and what is only Scylla’s memory.',
+  },
+  {
+    id: 'village-wolf-door',
+    world: 'e12',
+    source: 'briar',
+    location: 'Hoshimori footbridge / Briar wolf gate',
+    encounter: 'A wolf carrying an office badge guards Vesper’s childhood stepping stones. Negotiate a route without revealing the refugees’ homes.',
+  },
+  {
+    id: 'village-tidal-oven',
+    world: 'e12',
+    source: 'crown',
+    location: 'Red Oven / Palace tide gate',
+    encounter: 'The baker’s oven empties into the mermaid palace. Recover the right to refuse a memory payment before any final world can be repaired.',
+  },
+] as const
+
+export type MemoryCollisionFragmentId =
+  (typeof MEMORY_COLLISION_FRAGMENTS)[number]['id']
+
+export function recoverMemoryCollisionFragment(
+  progress: MemoryCampaignProgress,
+  id: MemoryCollisionFragmentId,
+): MemoryCampaignProgress {
+  const fragment = MEMORY_COLLISION_FRAGMENTS.find((part) => part.id === id)
+  if (!fragment) throw new Error('Unknown memory fragment')
+  if (!availableMemoryExperiences(progress).includes(fragment.world))
+    throw new Error('Fragment belongs to another world')
+  if (progress.recoveredFragments?.includes(id)) return progress
+  return {
+    ...progress,
+    recoveredFragments: [...(progress.recoveredFragments ?? []), id],
+  }
+}
+
+export const MEMORY_LAST_CHOICE = [
+  {
+    id: 'repair-with-consent',
+    label: 'Rebuild the crossings with explicit consent from each world',
+    consequence:
+      'The worlds remain distinct and sometimes difficult, but people can negotiate passage, keep their own histories and refuse a rescue.',
+  },
+  {
+    id: 'let-worlds-separate',
+    label: 'Allow the worlds to pull apart, with protected routes for those stranded',
+    consequence:
+      'Borders settle. Rescue is slower, but no single cartographer, crown or machine can claim everyone as property.',
+  },
+] as const
+
+export type MemoryLastChoice = (typeof MEMORY_LAST_CHOICE)[number]['id']
+
+export function chooseMemoryLastChoice(
+  progress: MemoryCampaignProgress,
+  choice: MemoryLastChoice,
+): MemoryCampaignProgress {
+  if (
+    !availableMemoryExperiences(progress).includes('e12') ||
+    progress.lastChoice
+  )
+    throw new Error('The final decision has not been earned or is resolved')
+  if (!MEMORY_LAST_CHOICE.some((option) => option.id === choice))
+    throw new Error('Unknown final choice')
+  return { ...progress, lastChoice: choice }
+}
+
+/**
+ * Thirty-two core ending families come from four major paired-act outcomes
+ * and one final decision. e10/e12 crossroads and Scylla's three-way choice
+ * keep changing routes, relationships and epilogue facts, not the core ID.
+ */
+export function memoryCoreEndingId(progress: MemoryCampaignProgress): number | null {
+  if (!progress.completed.includes('e12') || !progress.lastChoice) return null
+  const flags = [
+    progress.pairDecisions?.e02 === 'trust-witnesses',
+    progress.pairDecisions?.e04 === 'open-the-tide-gate',
+    progress.pairDecisions?.e06 === 'publish-twin-testimony',
+    progress.pairDecisions?.e08 === 'unbar-all-doors',
+    progress.lastChoice === 'repair-with-consent',
+  ]
+  return flags.reduce((id, enabled, index) => id + (enabled ? 1 << index : 0), 0)
+}
+
+/** Vary the epilogue with choices that do not multiply the 32 core endings. */
+export function memoryEndingConsequences(progress: MemoryCampaignProgress): string[] {
+  if (!progress.completed.includes('e12')) return []
+  const branches = [
+    ...memoryPairWorldFlags(progress),
+    ...(progress.recoveredFragments ?? []),
+  ]
+  return [...new Set(branches)]
+}
+
 export type MemoryWishAnchorId = keyof typeof MEMORY_WISH_ANCHORS
 
 export interface MemoryCampaignProgress {
@@ -610,6 +745,11 @@ export interface MemoryCampaignProgress {
   finaleCommitted: boolean
   pairDecisions?: Partial<Record<MemoryPairEndingWorld, string>>
   scyllaDeparture?: MemoryScyllaDepartureChoice | 'legacy-unspoken'
+  recoveredFragments?: readonly MemoryCollisionFragmentId[]
+  lastChoice?: MemoryLastChoice
+  /** Historical e09–e16 entries, never automatic completion of new finale. */
+  legacyCompleted?: readonly ExperienceId[]
+  campaignVersion?: 2
 }
 
 export function newMemoryCampaignProgress(): MemoryCampaignProgress {
@@ -618,6 +758,8 @@ export function newMemoryCampaignProgress(): MemoryCampaignProgress {
     rememberedAnchors: [],
     finaleCommitted: false,
     pairDecisions: {},
+    recoveredFragments: [],
+    campaignVersion: 2,
   }
 }
 
@@ -627,17 +769,20 @@ export function availableMemoryExperiences(
 ): ExperienceId[] {
   const completed = new Set(progress.completed)
   const anchors = new Set(progress.rememberedAnchors)
-  const next = MEMORY_REALITY_PAIRS.flat().find((id) => !completed.has(id))
+  const next = [
+    ...MEMORY_REALITY_PAIRS.flat(),
+    ...MEMORY_COLLISION_ORDER,
+  ].find((id) => !completed.has(id))
   if (!next) return []
 
   if (next === 'e04' && !anchors.has('morrow-magic-attempt')) return []
   if (next === 'e06' && !anchors.has('scylla-home-wish')) return []
-  if (next === 'e13' && !anchors.has('char-possible-future')) return []
+  if (next === 'e09' && !anchors.has('char-possible-future')) return []
   if (
     MEMORY_FINALE_ORDER.includes(
       next as (typeof MEMORY_FINALE_ORDER)[number],
     ) &&
-    next !== 'e13' &&
+    next !== 'e09' &&
     !progress.finaleCommitted
   )
     return []
@@ -667,7 +812,7 @@ export function rememberMemoryWish(
 export function commitToMemoryFinale(
   progress: MemoryCampaignProgress,
 ): MemoryCampaignProgress {
-  if (!availableMemoryExperiences(progress).includes('e13')) {
+  if (!availableMemoryExperiences(progress).includes('e09')) {
     throw new Error('The final crossing has not been earned')
   }
   return { ...progress, finaleCommitted: true }
@@ -680,9 +825,17 @@ export function completeMemoryExperience(
   if (!availableMemoryExperiences(progress).includes(id)) {
     throw new Error(`Experience ${id} is not currently reachable`)
   }
-  if (id === 'e13' && !progress.finaleCommitted) {
+  if (id === 'e09' && !progress.finaleCommitted) {
     throw new Error('Finale requires an explicit commitment')
   }
+  if (MEMORY_COLLISION_ORDER.some((world) => world === id)) {
+    const missing = MEMORY_COLLISION_FRAGMENTS.filter(
+      (part) => part.world === id && !progress.recoveredFragments?.includes(part.id),
+    )
+    if (missing.length) throw new Error('Recover both misplaced world fragments before leaving')
+  }
+  if (id === 'e12' && !progress.lastChoice)
+    throw new Error('The final world requires a consequential last choice')
   if (id === 'e05' && !progress.scyllaDeparture)
     throw new Error('Scylla must decide whether to repeat the escape')
   if (
@@ -762,16 +915,16 @@ export function validateMemoryReimaginerCampaign(): string[] {
   const ids = new Set(
     MEMORY_REALITY_EXPERIENCES.map((experience) => experience.id),
   )
-  if (concepts.size !== 8 || MEMORY_WORLD_CONCEPTS.length !== 8)
-    errors.push('Expected eight unique world concepts')
-  if (ids.size !== 16 || MEMORY_REALITY_EXPERIENCES.length !== 16)
-    errors.push('Expected sixteen unique experiences')
+  if (concepts.size !== 4 || MEMORY_WORLD_CONCEPTS.length !== 4)
+    errors.push('Expected four original act geographies')
+  if (ids.size !== 12 || MEMORY_REALITY_EXPERIENCES.length !== 12)
+    errors.push('Expected twelve unique experiences')
   if (
-    MEMORY_REALITY_PAIRS.flat().join(',') !==
+    [...MEMORY_REALITY_PAIRS.flat(), ...MEMORY_COLLISION_ORDER].join(',') !==
     MEMORY_REALITY_EXPERIENCES.map((entry) => entry.id).join(',')
   )
     errors.push(
-      'Every overworld must be followed immediately by its twisted reality',
+      'Four original/twisted pairs must be followed by four memory-collision maps',
     )
   for (const [original, twisted] of MEMORY_REALITY_PAIRS) {
     const before = MEMORY_REALITY_EXPERIENCES.find(
@@ -783,7 +936,7 @@ export function validateMemoryReimaginerCampaign(): string[] {
     if (!before || !after || before.concept !== after.concept)
       errors.push(`Reality pair ${original}/${twisted} changes geography`)
   }
-  const pairEndings = MEMORY_REALITY_PAIRS.map(([, second]) => second)
+  const pairEndings = [...MEMORY_REALITY_PAIRS.map(([, second]) => second), 'e10', 'e12']
   if (
     pairEndings.some(
       (id) =>
@@ -823,8 +976,8 @@ export function validateMemoryReimaginerCampaign(): string[] {
     const variants = MEMORY_REALITY_EXPERIENCES.filter(
       (experience) => experience.concept === concept.id,
     )
-    if (variants.length !== 2)
-      errors.push(`Concept ${concept.id} must have two authored incarnations`)
+    if (variants.length !== 3)
+      errors.push(`Act ${concept.id} needs original, twisted, and crossover incarnations`)
     if (
       new Set(variants.map((variant) => variant.state)).size !== variants.length
     ) {
@@ -856,8 +1009,25 @@ export function validateMemoryReimaginerCampaign(): string[] {
       )
     }
   }
-  if (MEMORY_FINALE_ORDER.join(',') !== 'e13,e14,e15,e16')
-    errors.push('Final two concepts must be contiguous')
+  if (MEMORY_FINALE_ORDER.join(',') !== 'e09,e10,e11,e12')
+    errors.push('Four connected finale maps must revisit the four original worlds')
+  if (MEMORY_COLLISION_FRAGMENTS.length !== 8)
+    errors.push('The four finale maps need eight misplaced memory fragments')
+  if (
+    new Set(MEMORY_COLLISION_FRAGMENTS.map((part) => part.id)).size !== 8 ||
+    MEMORY_COLLISION_ORDER.some(
+      (world) => MEMORY_COLLISION_FRAGMENTS.filter((part) => part.world === world).length !== 2,
+    )
+  )
+    errors.push('Each finale map needs two unique displaced memory fragments')
+  if (
+    MEMORY_COLLISION_ORDER.some(
+      (world) => MEMORY_REALITY_EXPERIENCES.find((entry) => entry.id === world)?.ontology !== 'hybrid',
+    )
+  )
+    errors.push('Every finale map must physically mix rules and locations')
+  if (MEMORY_LAST_CHOICE.length !== 2)
+    errors.push('The last decision must have two consequences')
   if (MEMORY_FINALE_PHASES.length < 6)
     errors.push(
       'Finale needs multiple playable realities and at least five transitions',

@@ -251,7 +251,9 @@
             class="prom-comic-preview"
             data-testid="academy-comic-intro-preview"
             @click="showComicIntro = true"
-          >✦ VIEW COMIC-BOOK REVEAL</button>
+          >
+            ✦ VIEW COMIC-BOOK REVEAL
+          </button>
           <p class="prom-card-note">
             {{
               selectedForm === 'student'
@@ -490,10 +492,15 @@ const forms: PlayerForm[] = ['student', 'hero', 'villain']
 const showComicIntro = ref(false)
 const seenComicIntro = new Set<string>()
 const currentComicIntro = computed(() =>
-  comicIntroFor(currentSignature.value.id, selectedForm.value === 'villain' ? 'villain' : 'hero'),
+  comicIntroFor(
+    currentSignature.value.id,
+    selectedForm.value === 'villain' ? 'villain' : 'hero',
+  ),
 )
 const comicArt = computed(() =>
-  currentComicIntro.value.artKey ? promArt(currentComicIntro.value.artKey) : null,
+  currentComicIntro.value.artKey
+    ? promArt(currentComicIntro.value.artKey)
+    : null,
 )
 watch(
   () => [screen.value, selectedForm.value, currentSignature.value.id],

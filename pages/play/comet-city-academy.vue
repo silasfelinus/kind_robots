@@ -601,11 +601,26 @@
                 >
                   <strong>{{ zone.title }}</strong>
                   <small>{{ zone.hook }}</small>
+                  <small
+                    v-if="activePatrolStory(run, zone.id)"
+                    class="cca-story-flag"
+                    data-testid="academy-patrol-story-flag"
+                    >✦ A story is waiting here</small
+                  >
                 </button>
               </div>
-              <div v-if="patrolScene" class="cca-patrol-story">
+              <div
+                v-if="patrolScene"
+                class="cca-patrol-story"
+                :data-testid="
+                  patrolScene.story ? 'academy-patrol-story' : undefined
+                "
+              >
                 <strong>{{ patrolScene.title }}</strong>
                 <p>{{ patrolScene.scene }}</p>
+                <small v-if="patrolScene.hint" class="cca-story-hint"
+                  >CLUE · {{ patrolScene.hint }}</small
+                >
                 <div class="cca-patrol-decisions">
                   <button
                     v-for="option in patrolChoices"
@@ -1205,7 +1220,6 @@ import { realNightCase } from '~/utils/cometAcademy/nightCases'
 import { expandedMissionFor } from '~/utils/cometAcademy/expandedNightCases'
 import {
   PATROL_ZONES,
-  patrolSceneFor,
   type PatrolZoneId,
 } from '~/utils/cometAcademy/nightPatrols'
 import {
@@ -1242,6 +1256,8 @@ import {
   knownContacts,
   nightPatrolBeat,
   patrolOptionsFor,
+  patrolEncounterFor,
+  activePatrolStory,
   recruitableContact,
   emergencyContact,
   type StudentId,
@@ -1457,7 +1473,7 @@ const panelLabel = computed(() =>
 )
 const patrolScene = computed(() =>
   run.value?.patrolOpening === 1 && run.value.day >= 4
-    ? patrolSceneFor(run.value.seed, run.value.day, patrolZone.value)
+    ? patrolEncounterFor(run.value, patrolZone.value)
     : null,
 )
 const patrolChoices = computed(() =>
@@ -2273,6 +2289,15 @@ function toggleStudent(caseId: string, id: StudentId): void {
   margin-top: 0.55rem;
   display: grid;
   gap: 0.35rem;
+}
+.cca-story-flag {
+  color: #f6c89e;
+  font-weight: 800;
+}
+.cca-story-hint {
+  color: #d9b8ff;
+  font-size: 0.72rem;
+  line-height: 1.4;
 }
 .cca-patrol-story p {
   font-size: 0.84rem;

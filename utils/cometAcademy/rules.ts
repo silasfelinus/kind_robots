@@ -1,4 +1,13 @@
 import {
+  PATROL_STORIES,
+  fillStoryText,
+  patrolStoryById,
+  storyGrade,
+  type PatrolStory,
+  type StoryChoice,
+  type StoryGrade,
+} from './patrolStories'
+import {
   ACCUSATION_WINDOW,
   INTERFERENCE_DAYS,
   villainSignsFor,
@@ -893,6 +902,16 @@ export function patrolOptionsFor(
   run: AcademyRun,
   zone: PatrolZoneId,
 ): PatrolChoice[] {
+  const story = activePatrolStory(run, zone)
+  if (story)
+    return storyChoicesFor(run, story).map((option) => ({
+      id: option.id,
+      label: fillStoryText(option.label, storyNames(run)),
+      result: '',
+      influence: 0,
+      danger: 0,
+      standing: 0,
+    }))
   const scene = patrolSceneFor(run.seed, run.day, zone)
   const options: PatrolChoice[] = [...scene.choices]
   const secret = PATROL_SECRETS[zone]
@@ -920,15 +939,188 @@ export function chooseNightPatrol(
     !PATROL_ZONES.some((item) => item.id === zone)
   )
     return run
-  const scene = patrolSceneFor(run.seed, run.day, zone)
   if (!patrolOptionsFor(run, zone).some((option) => option.id === choiceId))
     return run
   return {
     ...run,
     playerCaseId: null,
     missionApproach: null,
-    nightPatrol: { zone, encounterId: scene.id, choiceId },
+    nightPatrol: {
+      zone,
+      encounterId: patrolEncounterFor(run, zone).id,
+      choiceId,
+    },
   }
+}
+
+/** A commissioned story waiting on this district tonight: once per term,
+ * inside its own window, only for runs that opened with solo patrols. */
+export function activePatrolStory(
+  run: AcademyRun,
+  zone: PatrolZoneId,
+): PatrolStory | null {
+  if (run.flowVersion !== 3 || run.patrolOpening !== 1) return null
+  return (
+    PATROL_STORIES.find(
+      (story) =>
+        story.zone === zone &&
+        run.day >= story.window.from &&
+        run.day <= story.window.to &&
+        !run.patrolHistory?.some(
+          (memory) => memory.encounterId === story.id && memory.day !== run.day,
+        ),
+    ) ?? null
+  )
+}
+
+/** What tonight's patrol in a district holds: a story, else a rotating scene. */
+export function patrolEncounterFor(run: AcademyRun, zone: PatrolZoneId) {
+  const story = activePatrolStory(run, zone)
+  if (story)
+    return {
+      id: story.id,
+      title: story.title,
+      scene: story.scene,
+      story,
+      hint: storySecretUnlocked(run, story) ? null : story.secretHint,
+    }
+  const scene = patrolSceneFor(run.seed, run.day, zone)
+  return {
+    id: scene.id,
+    title: scene.title,
+    scene: scene.scene,
+    story: null,
+    hint: null,
+  }
+}
+
+function storyNames(run: AcademyRun) {
+  const person = run.betrayal
+    ? STUDENTS.find((member) => member.id === run.betrayal!.person)
+    : undefined
+  return { betrayer: person?.name }
+}
+
+/** The available teammate you trust most, sent to the other roof. */
+export function storyTeammate(run: AcademyRun): StudentId | null {
+  const trust = (id: StudentId) =>
+    run.relationships?.connections[id]?.trust ?? 0
+  return (
+    knownContacts(run)
+      .filter(
+        (id) =>
+          studentAvailable(run, id) &&
+          !run.assignments.some((entry) => entry.students.includes(id)),
+      )
+      .sort((a, b) => trust(b) - trust(a))[0] ?? null
+  )
+}
+
+/** Secrets are earned earlier in the term, never bought on the night. */
+export function storySecretUnlocked(run: AcademyRun, story: PatrolStory) {
+  const before = (day: number | undefined) => day !== undefined && day < run.day
+  if (story.id === 'story-clocktower')
+    return (
+      before(run.visitedDays?.['engineering-workshop']) ||
+      before(run.visitedDays?.['botanical-conservatory']) ||
+      Boolean(run.missionClues?.includes('frog-serum'))
+    )
+  if (story.id === 'story-last-stop') {
+    const roster = knownContacts(run)
+    return (
+      (roster.includes('mara') &&
+        (roster.includes('imani') || roster.includes('lark'))) ||
+      Boolean(
+        run.patrolHistory?.some(
+          (memory) => memory.zone === 'transit' && memory.day < run.day,
+        ),
+      )
+    )
+  }
+  if (story.id === 'story-two-shadows')
+    return run.betrayal?.status === 'reconciled'
+  return false
+}
+
+function storyChoicesFor(run: AcademyRun, story: PatrolStory): StoryChoice[] {
+  return story.choices.filter((option) =>
+    option.kind === 'secret'
+      ? storySecretUnlocked(run, story)
+      : option.requires === 'teammate'
+        ? storyTeammate(run) !== null
+        : option.requires === 'rival'
+          ? Boolean(run.opponentSignature)
+          : true,
+  )
+}
+
+/** A former teammate who betrayed you and never came back works the trap. */
+function storyHostile(run: AcademyRun, story: PatrolStory) {
+  return (
+    story.id === 'story-two-shadows' &&
+    Boolean(run.betrayal && run.betrayal.status !== 'reconciled')
+  )
+}
+
+export function resolvePatrolStory(
+  run: AcademyRun,
+  story: PatrolStory,
+  choiceId: string,
+) {
+  const choice = story.choices.find((option) => option.id === choiceId)
+  if (!choice) return null
+  const zone = PATROL_ZONES.find((entry) => entry.id === story.zone)!
+  const standing =
+    zone.siteId === 'academy-roof'
+      ? (run.academyStanding ?? 0)
+      : (run.cityStanding ?? 0)
+  const hostile = storyHostile(run, story)
+  const bonus =
+    (choice.need && choice.need === run.power ? 2 : 0) +
+    (standing >= 2 ? 1 : standing <= -2 ? -1 : 0) -
+    (hostile ? 2 : 0)
+  const grade = storyGrade(run.seed, run.day, choice, bonus)
+  const outcome = choice.outcomes[grade]!
+  const names = storyNames(run)
+  const teammate =
+    outcome.injuresTeammate && choice.requires === 'teammate'
+      ? storyTeammate(run)
+      : null
+  return {
+    grade,
+    outcome,
+    teammate,
+    text:
+      fillStoryText(outcome.text, names) +
+      (hostile && choice.kind !== 'refuse'
+        ? ` On the far roof, ${names.betrayer ?? 'your old teammate'} is working for the other side tonight.`
+        : ''),
+    morning: fillStoryText(outcome.morning, names),
+  }
+}
+
+/** Later nights remember the story: a matching call gains or loses a step. */
+export function storyLaterModifier(run: AcademyRun, incident: Incident) {
+  return (run.patrolHistory ?? []).reduce((total, memory) => {
+    if (!memory.outcome || memory.day >= run.day) return total
+    const story = patrolStoryById(memory.encounterId)
+    const later = story?.choices.find((c) => c.id === memory.choiceId)
+      ?.outcomes[memory.outcome]?.later
+    if (!later) return total
+    const matches =
+      (later.need !== undefined && later.need === incident.need) ||
+      (later.allegiance !== undefined &&
+        later.allegiance === incident.allegiance)
+    return total + (matches ? later.modifier : 0)
+  }, 0)
+}
+
+const STORY_REPORT_GRADE: Record<StoryGrade, Grade> = {
+  secret: 'honors',
+  success: 'pass',
+  mixed: 'partial',
+  refusal: 'partial',
+  failure: 'failed',
 }
 
 /** Night three is an authored allocation dilemma, not two automatic dice rolls. */
@@ -1358,7 +1550,8 @@ export function dispatchModifier(
         ? -1
         : 1
       : 0) +
-    (missionSecretFor(run, incident.id) ? 2 : 0) -
+    (missionSecretFor(run, incident.id) ? 2 : 0) +
+    (run.flowVersion === 3 ? storyLaterModifier(run, incident) : 0) -
     villainInterference(run, incident)
   )
 }
@@ -1674,7 +1867,29 @@ export function resolveDispatch(run: AcademyRun): AcademyRun {
   const zone = patrol
     ? PATROL_ZONES.find((candidate) => candidate.id === patrol.zone)
     : null
-  if (patrolChoice && patrolScene && zone) {
+  const story = patrol ? activePatrolStory(run, patrol.zone) : null
+  const storyResult =
+    story && patrol && patrolChoice
+      ? resolvePatrolStory(run, story, patrol.choiceId)
+      : null
+  if (storyResult && story && zone) {
+    influence += storyResult.outcome.influence
+    danger += storyResult.outcome.danger
+    if (storyResult.teammate)
+      injuries[storyResult.teammate] = Math.max(
+        injuries[storyResult.teammate] ?? 0,
+        run.day + 2,
+      )
+    reports.push({
+      caseId: `patrol-${run.day}-${zone.id}`,
+      title: `${zone.title}: ${story.title}`,
+      grade: STORY_REPORT_GRADE[storyResult.grade],
+      text: storyResult.text,
+      names: storyResult.teammate
+        ? `YOU · ${STUDENTS.find((member) => member.id === storyResult.teammate)?.name ?? ''} (injured)`
+        : 'YOU · night neighborhood patrol',
+    })
+  } else if (patrolChoice && patrolScene && zone) {
     influence += patrolChoice.influence
     danger += patrolChoice.danger
     reports.push({
@@ -1694,10 +1909,14 @@ export function resolveDispatch(run: AcademyRun): AcademyRun {
       ? {
           day: run.day,
           zone: patrol.zone,
-          encounterId: patrolScene.id,
+          encounterId: story?.id ?? patrolScene.id,
           choiceId: patrolChoice.id,
+          ...(storyResult ? { outcome: storyResult.grade } : {}),
         }
       : null
+  const patrolStanding = storyResult
+    ? storyResult.outcome.standing
+    : (patrolChoice?.standing ?? 0)
   return {
     ...run,
     phase: [2, 3].includes(run.flowVersion ?? 0) ? 'debrief' : 'campus',
@@ -1717,20 +1936,22 @@ export function resolveDispatch(run: AcademyRun): AcademyRun {
           patrolHistory: [...(run.patrolHistory ?? []), patrolMemory],
           academyStanding:
             (run.academyStanding ?? 0) +
-            (zone?.siteId === 'academy-roof' ? patrolChoice!.standing : 0),
+            (zone?.siteId === 'academy-roof' ? patrolStanding : 0),
           cityStanding:
             (run.cityStanding ?? 0) +
-            (zone?.siteId !== 'academy-roof' ? patrolChoice!.standing : 0),
+            (zone?.siteId !== 'academy-roof' ? patrolStanding : 0),
         }
       : {}),
     influence,
     danger: Math.max(0, danger),
     reports,
-    scene: patrolChoice
-      ? `Night ${run.day} ends. ${patrolChoice.result} The school will hear about this tomorrow.`
-      : [2, 3].includes(run.flowVersion ?? 0)
-        ? `Night ${run.day} ends. Comet City's lights return, but every call leaves a mark on the people who answered it.`
-        : 'The training siren fades. Your campus pass vibrates: someone is asking to see you before nightfall.',
+    scene: storyResult
+      ? `Night ${run.day} ends. ${storyResult.text}`
+      : patrolChoice
+        ? `Night ${run.day} ends. ${patrolChoice.result} The school will hear about this tomorrow.`
+        : [2, 3].includes(run.flowVersion ?? 0)
+          ? `Night ${run.day} ends. Comet City's lights return, but every call leaves a mark on the people who answered it.`
+          : 'The training siren fades. Your campus pass vibrates: someone is asking to see you before nightfall.',
     log: [
       ...run.log,
       ...reports.map(
@@ -1947,6 +2168,19 @@ export function nextSchoolDay(run: AcademyRun): AcademyRun {
   const morningMemory = morningReport
     ? expandedMissionFor(morningReport.caseId)?.morning
     : null
+  const lastPatrol = run.patrolHistory?.at(-1)
+  const storyNight =
+    lastPatrol?.day === run.day && lastPatrol.outcome
+      ? patrolStoryById(lastPatrol.encounterId)
+      : undefined
+  const storyMorning =
+    storyNight && lastPatrol?.outcome
+      ? fillStoryText(
+          storyNight.choices.find((c) => c.id === lastPatrol.choiceId)
+            ?.outcomes[lastPatrol.outcome]?.morning ?? '',
+          storyNames(run),
+        )
+      : ''
   return {
     ...run,
     phase: [2, 3].includes(run.flowVersion ?? 0) ? 'map' : 'dispatch',
@@ -1956,14 +2190,16 @@ export function nextSchoolDay(run: AcademyRun): AcademyRun {
     missionApproach: null,
     assignments: [],
     reports: [],
-    scene: morningMemory
-      ? `The next bell rings. ${morningMemory} Last night, the outcome was recorded as ${morningReport!.grade}.`
-      : run.patrolHistory?.at(-1)?.day === run.day
-        ? `The next bell rings. Your overnight decision has become a morning argument: ${run.reports.find((report) => report.caseId.startsWith('patrol-'))?.text ?? 'The neighborhood remembers who came.'}`
-        : run.missionClues?.length &&
-            run.reports.some((report) => report.text.includes('casebook'))
-          ? 'The next bell rings. The evidence you saved on night patrol has reached the morning bulletin board; somebody else has seen the same clue.'
-          : 'The next bell rings. Yesterday has already changed who will answer your calls.',
+    scene: storyMorning
+      ? `The next bell rings. ${storyMorning}`
+      : morningMemory
+        ? `The next bell rings. ${morningMemory} Last night, the outcome was recorded as ${morningReport!.grade}.`
+        : run.patrolHistory?.at(-1)?.day === run.day
+          ? `The next bell rings. Your overnight decision has become a morning argument: ${run.reports.find((report) => report.caseId.startsWith('patrol-'))?.text ?? 'The neighborhood remembers who came.'}`
+          : run.missionClues?.length &&
+              run.reports.some((report) => report.text.includes('casebook'))
+            ? 'The next bell rings. The evidence you saved on night patrol has reached the morning bulletin board; somebody else has seen the same clue.'
+            : 'The next bell rings. Yesterday has already changed who will answer your calls.',
   }
 }
 
@@ -2160,6 +2396,24 @@ function migrateSignature(data: Partial<AcademyRun>): Partial<AcademyRun> {
   return { ...data, signature, power: fieldFor(signature) }
 }
 
+function validStoryMemory(
+  entry: PatrolMemory,
+  history: readonly PatrolMemory[],
+): boolean {
+  const story = patrolStoryById(entry.encounterId)
+  const choice = story?.choices.find((option) => option.id === entry.choiceId)
+  return Boolean(
+    story &&
+    choice &&
+    story.zone === entry.zone &&
+    entry.day >= story.window.from &&
+    entry.day <= story.window.to &&
+    entry.outcome &&
+    choice.outcomes[entry.outcome] &&
+    history.filter((memory) => memory.encounterId === story.id).length === 1,
+  )
+}
+
 export function restoreAcademy(raw: unknown): AcademyRun | null {
   if (!raw || typeof raw !== 'object') return null
   const data = migrateSignature(raw as Partial<AcademyRun>)
@@ -2340,8 +2594,8 @@ export function restoreAcademy(raw: unknown): AcademyRun | null {
         data.phase !== 'dispatch' ||
         data.day! < 4 ||
         !PATROL_ZONES.some((zone) => zone.id === data.nightPatrol?.zone) ||
-        patrolSceneFor(data.seed ?? 0, data.day ?? 1, data.nightPatrol.zone)
-          .id !== data.nightPatrol.encounterId ||
+        patrolEncounterFor(data as AcademyRun, data.nightPatrol.zone).id !==
+          data.nightPatrol.encounterId ||
         !patrolOptionsFor(data as AcademyRun, data.nightPatrol.zone).some(
           (option) => option.id === data.nightPatrol?.choiceId,
         ) ||
@@ -2359,16 +2613,19 @@ export function restoreAcademy(raw: unknown): AcademyRun | null {
             entry.day > data.day! ||
             (i > 0 && entry.day <= data.patrolHistory![i - 1]!.day) ||
             !PATROL_ZONES.some((zone) => zone.id === entry.zone) ||
-            patrolSceneFor(data.seed ?? 0, entry.day, entry.zone).id !==
-              entry.encounterId ||
-            ![
-              ...patrolSceneFor(
-                data.seed ?? 0,
-                entry.day,
-                entry.zone,
-              ).choices.map((option) => option.id),
-              PATROL_SECRETS[entry.zone].choice.id,
-            ].includes(entry.choiceId),
+            (patrolStoryById(entry.encounterId)
+              ? !validStoryMemory(entry, data.patrolHistory!)
+              : entry.outcome !== undefined ||
+                patrolSceneFor(data.seed ?? 0, entry.day, entry.zone).id !==
+                  entry.encounterId ||
+                ![
+                  ...patrolSceneFor(
+                    data.seed ?? 0,
+                    entry.day,
+                    entry.zone,
+                  ).choices.map((option) => option.id),
+                  PATROL_SECRETS[entry.zone].choice.id,
+                ].includes(entry.choiceId)),
         )))
   )
     return null

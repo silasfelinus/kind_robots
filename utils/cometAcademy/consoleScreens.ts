@@ -1,6 +1,7 @@
 import { CAMPAIGN_VILLAINS, campaignVillain } from './campaign'
 import { identityFor } from './identityArcs'
 import { PATROL_SECRETS, PATROL_ZONES, patrolSceneFor } from './nightPatrols'
+import { patrolStoryById } from './patrolStories'
 import { TRIAD_ARCS, compatibilityFor, socialProfile } from './relationships'
 import {
   COMPLETE_NIGHT_DECK,
@@ -448,6 +449,25 @@ export function scrapbookMoments(run: AcademyRun): ScrapbookMoment[] {
   }
   for (const memory of run.patrolHistory ?? []) {
     const zone = PATROL_ZONES.find((entry) => entry.id === memory.zone)
+    const story = patrolStoryById(memory.encounterId)
+    const storyOutcome =
+      story && memory.outcome
+        ? story.choices.find((entry) => entry.id === memory.choiceId)?.outcomes[
+            memory.outcome
+          ]
+        : undefined
+    if (story) {
+      moments.push({
+        day: memory.day,
+        kind: 'patrol',
+        title: `${zone?.title ?? 'Patrol'} · ${story.title}`,
+        text:
+          storyOutcome?.text.split('{betrayer}').join('your old teammate') ??
+          story.scene,
+        artKeys: zone ? [districtArtKey(zone.siteId)] : [],
+      })
+      continue
+    }
     const scene = patrolSceneFor(run.seed, memory.day, memory.zone)
     const option =
       scene.choices.find((entry) => entry.id === memory.choiceId) ??

@@ -180,7 +180,16 @@ for (let seed = 1; seed < 96 && !interrupted; seed++) {
     })
   endTurn(counter)
   const lieutenant = counter.units.find((unit) => unit.lieutenantName)!
-  const marksman = counter.units.find((unit) => unit.id === 'hattie')!
+  // Hattie is a short-range tank now, so the squad's best-placed shooter
+  // takes the drumhead shot (roles change range, never the counter rule).
+  const marksman = counter.units
+    .filter((unit) => unit.team === 'squad' && unit.hp > 0)
+    .sort(
+      (a, b) =>
+        previewShot(b, lieutenant, counter.map).hit -
+          previewShot(a, lieutenant, counter.map).hit ||
+        a.id.localeCompare(b.id),
+    )[0]!
   assert.ok(previewShot(marksman, lieutenant, counter.map).hit > 0)
   counter.selected = marksman.id
   const fired = fireSelected(counter, lieutenant)

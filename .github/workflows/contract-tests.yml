@@ -1556,6 +1556,9 @@ jobs:
       - name: Hybridizer canonical fusion cache contract
         run: npm run test:hybridizer-cache
 
+      - name: Hybridizer starter Facet catalog contract
+        run: npm run test:hybridizer-catalog
+
       - name: Memory Dungeon gallery feed contract
         run: npm run test:memory-art-feed
 

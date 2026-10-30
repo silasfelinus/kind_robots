@@ -14,7 +14,10 @@
         </p>
       </div>
       <span class="rounded-lg bg-base-300 px-2 py-1 text-xs font-bold">
-        {{ hoshimori.progress.visited.length }}/16 paths
+        {{ hoshimori.progress.visited.length }}/{{
+          HOSHIMORI_WARM_SITES.length
+        }}
+        paths
       </span>
       <span class="rounded-lg bg-base-300 px-2 py-1 text-xs font-bold">
         Food {{ hoshimori.progress.rations }} · Trust
@@ -103,8 +106,8 @@
           </template>
         </div>
         <div class="shrink-0 px-1 pt-2 text-xs opacity-75">
-          The other paths are not yet charted. The Red Oven stands at the far
-          end of this first village.
+          Other mountain paths remain uncharted. The Red Oven is only the first
+          threshold.
         </div>
       </div>
 

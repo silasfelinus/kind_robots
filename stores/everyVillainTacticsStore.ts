@@ -11,12 +11,17 @@ import {
   hunkerSelected,
   elevationAt,
   previewShot,
+  previewSelectedPower,
+  powerFor,
+  selectedPowerTargets,
   selectedUnit,
   trainingState,
   terrainAt,
+  useSelectedPower,
   type Cell,
   type Mode,
 } from '~/utils/everyVillainTactics/training'
+import { powerBlocker } from '~/utils/everyVillainTactics/powers'
 
 import {
   STAGE_PRESETS,
@@ -168,6 +173,21 @@ export const useEveryVillainTacticsStore = defineStore(
     )
     const hovered = computed(() => state.value.hover)
     const mode = computed<Mode>(() => state.value.mode)
+    /** The selected hero's signature active and why it cannot fire now. */
+    const activePower = computed(() =>
+      active.value ? (powerFor(active.value) ?? null) : null,
+    )
+    const powerStatus = computed(() =>
+      active.value ? powerBlocker(active.value) : 'Select a squadmate',
+    )
+    const powerTargetCells = computed(() =>
+      mode.value === 'power' ? selectedPowerTargets(state.value) : [],
+    )
+    const powerPreview = computed(() =>
+      mode.value === 'power' && hovered.value
+        ? previewSelectedPower(state.value, hovered.value)
+        : null,
+    )
     const movePossible = computed(
       () => hovered.value && availableMove(state.value, hovered.value),
     )
@@ -186,7 +206,7 @@ export const useEveryVillainTacticsStore = defineStore(
         .sort((a, b) => b.hit - a.hit || a.target.localeCompare(b.target))
     })
     const aimedTarget = computed(() => {
-      if (!hovered.value) return null
+      if (!hovered.value || mode.value === 'power') return null
       if (mode.value === 'fire') {
         const hoveredEnemy = actorAt(state.value, hovered.value)
         return hoveredEnemy?.team === 'rival'
@@ -199,6 +219,13 @@ export const useEveryVillainTacticsStore = defineStore(
     })
     const previewLabel = computed(() => {
       if (!active.value) return 'Select a squadmate'
+      if (mode.value === 'power') {
+        if (powerStatus.value) return powerStatus.value
+        if (!hovered.value) return 'Hover a gold tile to preview the power'
+        return powerPreview.value
+          ? 'Click to commit · the outlined tiles are exactly what it touches'
+          : 'Not a legal target for this power'
+      }
       if (!hovered.value)
         return 'Hover a highlighted tile to see sightlines and attack odds'
       if (mode.value === 'fire') {
@@ -220,8 +247,8 @@ export const useEveryVillainTacticsStore = defineStore(
       state.value = trainingState(
         0x53a1b7,
         isPlaytest.value ? draft.value : undefined,
+        { lead: leadSignature.value },
       )
-      state.value.units[0]!.identity = leadSignature.value
       story.value = createStory()
       if (isPlaytest.value) story.value.current = null
     }
@@ -258,6 +285,13 @@ export const useEveryVillainTacticsStore = defineStore(
     }
     function click(point: Cell) {
       if (story.value.current && !isPlaytest.value) return
+      if (state.value.mode === 'power' && state.value.phase === 'active') {
+        // Allies can be power targets, so try the power before reselecting.
+        if (useSelectedPower(state.value, point)) {
+          if (!isPlaytest.value) enqueueBeat(story.value, state.value)
+          return
+        }
+      }
       const unit = actorAt(state.value, point)
       if (unit?.team === 'squad') return select(unit.id)
       if (state.value.phase !== 'active') return
@@ -292,7 +326,10 @@ export const useEveryVillainTacticsStore = defineStore(
       return applyChoice(story.value, state.value, perspective.value, effect)
     }
     function cellStyle(point: Cell) {
+      const same = (p: Cell) => p.x === point.x && p.y === point.y
       return {
+        'power-target': powerTargetCells.value.some(same),
+        'power-threat': !!powerPreview.value?.cells.some(same),
         selected:
           !!active.value &&
           active.value.x === point.x &&
@@ -347,6 +384,10 @@ export const useEveryVillainTacticsStore = defineStore(
       projectedTargets,
       previewLabel,
       movePossible,
+      activePower,
+      powerStatus,
+      powerTargetCells,
+      powerPreview,
       reset,
       choosePerspective,
       chooseLead,

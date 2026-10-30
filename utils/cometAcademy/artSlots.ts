@@ -108,6 +108,15 @@ const ENDING_PLATES: Record<string, string> = {
 export const endingArtKey = (ending: string) =>
   ENDING_PLATES[ending] ?? `endings/${slugify(ending)}`
 
+/**
+ * A finale plate that fits an ending still waiting on its own painting: shown
+ * only while the ending's dedicated slot has no render.
+ */
+export const ENDING_STAND_INS: Record<string, string> = {
+  'THE TRANSMITTER GOES DARK':
+    'prom-of-doom/ct-d30-prom-of-doom-destroy-antenna-success',
+}
+
 /** The encounter slot for a campus visit: a district scene, else the site's encounter card. */
 export function siteEncounterArtKey(siteId: SiteId): string | null {
   if (districtEncounterFor(siteId)) return districtArtKey(siteId)
@@ -121,7 +130,10 @@ export function siteEncounterArtKey(siteId: SiteId): string | null {
 export function academyStageArt(run: AcademyRun | null): string | null {
   if (!run) return promArt(SPLASH_ART_KEY)
   if (run.phase === 'ending' && run.ending)
-    return promArt(endingArtKey(run.ending))
+    return (
+      promArt(endingArtKey(run.ending)) ??
+      promArt(ENDING_STAND_INS[run.ending] ?? '')
+    )
   if (run.phase === 'finale')
     return run.flowVersion === 3 ? promArt(FINALE_ART_KEY) : null
   if (run.flowVersion === 3 && run.day === 29)

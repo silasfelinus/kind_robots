@@ -4,8 +4,10 @@ import { VOYAGE_CHAPTERS } from './voyageMap'
 import { TRIO_ADVENTURES_A } from './trioAdventuresA'
 import { TRIO_ADVENTURES_B } from './trioAdventuresB'
 import { TRIO_ADVENTURES_C } from './trioAdventuresC'
+import { TRIO_ADVENTURES_D } from './trioAdventuresD'
 import { TRIO_ADVENTURES_E } from './trioAdventuresE'
 import { TRIO_ADVENTURES_F } from './trioAdventuresF'
+import { TRIO_ADVENTURES_G } from './trioAdventuresG'
 import { TRIO_ADVENTURES_H } from './trioAdventuresH'
 
 /**
@@ -80,8 +82,10 @@ export const TRIO_ADVENTURES: readonly TrioAdventure[] = [
   ...TRIO_ADVENTURES_A,
   ...TRIO_ADVENTURES_B,
   ...TRIO_ADVENTURES_C,
+  ...TRIO_ADVENTURES_D,
   ...TRIO_ADVENTURES_E,
   ...TRIO_ADVENTURES_F,
+  ...TRIO_ADVENTURES_G,
   ...TRIO_ADVENTURES_H,
 ]
 export const TRIO_BY_KEY: Readonly<Record<string, TrioAdventure>> =

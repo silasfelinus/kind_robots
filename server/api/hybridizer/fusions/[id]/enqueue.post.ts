@@ -3,11 +3,6 @@ import prisma from '~/server/utils/prisma'
 import { errorHandler } from '~/server/utils/error'
 import { requireScopedApiUser } from '~/server/utils/authGuard'
 import { authAndGate } from '~/server/utils/comfyGate'
-import { buildKrea2WorkflowFromRequest } from '~/server/api/comfy/krea2/utils/workflow'
-import { normalizeQueuedArtJobPayload } from '~/server/utils/artJobNormalization'
-import { repairQueuedArtSampler } from '~/server/utils/artJobSamplerRepair'
-import { assertQueuedArtPromptContract } from '~/server/utils/artJobQueueSettings'
-import { enrichArtJobPayload } from '~/server/utils/artJobProvenance'
 import {
   parseArtJobPayload,
   serializeArtJobPayload,
@@ -17,14 +12,16 @@ import {
   fusionIdForIdentity,
 } from '~/server/utils/hybridizerFusion'
 import {
-  hybridizerArtPrompt,
-  hybridizerArtSeed,
   HYBRIDIZER_ACTIVE_USER_LIMIT,
   HYBRIDIZER_ART_PRIORITY,
   HYBRIDIZER_ART_SIZE,
   HYBRIDIZER_ART_STEPS,
   HYBRIDIZER_RETRY_LIMIT,
 } from '~/server/utils/hybridizerArt'
+import {
+  buildHybridizerArtJob,
+  reserveHybridizerArtJob,
+} from '~/server/utils/hybridizerQueue'
 
 const activeStatuses = ['PENDING', 'RUNNING'] as const
 
@@ -167,40 +164,7 @@ export default defineEventHandler(async (event) => {
       titleFor(fusion.leftKey),
       titleFor(fusion.rightKey),
     ])
-    const promptString = hybridizerArtPrompt(left, right)
-    const { workflow } = buildKrea2WorkflowFromRequest({
-      prompt: promptString,
-      seed: hybridizerArtSeed(id),
-      steps: HYBRIDIZER_ART_STEPS,
-      width: HYBRIDIZER_ART_SIZE,
-      height: HYBRIDIZER_ART_SIZE,
-    })
-    const initialPayload = {
-      workflow,
-      promptString,
-      save: {
-        isPublic: fusion.isPublic,
-        isMature: false,
-        designer: 'Hybridizer',
-      },
-      hybridizer: {
-        fusionId: id,
-        leftKey: fusion.leftKey,
-        rightKey: fusion.rightKey,
-        recipeVersion: fusion.recipeVersion,
-        retryCount: 0,
-      },
-    }
-    const normalized = repairQueuedArtSampler(
-      'COMFY',
-      normalizeQueuedArtJobPayload(initialPayload).payload,
-    ).payload
-    assertQueuedArtPromptContract('COMFY', normalized)
-    const { payload, provenance } = enrichArtJobPayload('COMFY', normalized, {
-      projectSlug: 'hybridizer',
-      idempotencyKey: 'fusion:' + id,
-      requireCompletionProof: true,
-    })
+    const built = buildHybridizerArtJob(fusion, left, right)
 
     const gate = await authAndGate(event, {
       engine: 'comfy',
@@ -208,42 +172,12 @@ export default defineEventHandler(async (event) => {
       width: HYBRIDIZER_ART_SIZE,
       height: HYBRIDIZER_ART_SIZE,
     })
-    let created
-    try {
-      created = await prisma.$transaction(async (tx) => {
-        const current = await tx.hybridizerFusion.findUnique({ where: { id } })
-        if (!current)
-          throw createError({ statusCode: 404, message: 'Fusion not found.' })
-        if (current.artJobId)
-          return { artJobId: current.artJobId, created: false }
-
-        const job = await tx.artJob.create({
-          data: {
-            engine: 'COMFY',
-            payload: serializeArtJobPayload(payload),
-            attemptFingerprint: provenance.attemptFingerprint,
-            priority: HYBRIDIZER_ART_PRIORITY,
-            projectSlug: 'hybridizer',
-            userId: auth.user.id,
-          },
-        })
-        const reserved = await tx.hybridizerFusion.updateMany({
-          where: { id, artJobId: null },
-          data: { artJobId: job.id, status: 'QUEUED' },
-        })
-        if (reserved.count !== 1)
-          throw createError({
-            statusCode: 409,
-            message: 'Fusion is being queued elsewhere.',
-          })
-        return { artJobId: job.id, created: true }
-      })
-    } catch (error) {
-      if ((error as { statusCode?: number })?.statusCode !== 409) throw error
-      const raced = await prisma.hybridizerFusion.findUnique({ where: { id } })
-      if (!raced?.artJobId) throw error
-      created = { artJobId: raced.artJobId, created: false }
-    }
+    const created = await reserveHybridizerArtJob(
+      id,
+      built,
+      auth.user.id,
+      HYBRIDIZER_ART_PRIORITY,
+    )
     if (created.created)
       await gate.commit('hybridizer-artjob:' + created.artJobId)
     event.node.res.statusCode = created.created ? 201 : 200

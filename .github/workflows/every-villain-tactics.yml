@@ -12,6 +12,7 @@ on:
       - 'utils/scripts/verifyEveryVillainCombat.test.ts'
       - 'utils/scripts/verifyEveryVillainStory.test.ts'
       - 'utils/scripts/verifyEveryVillainStudio.test.ts'
+      - 'utils/scripts/verifyEveryVillainPowers.test.ts'
       - '.github/workflows/every-villain-tactics.yml'
   push:
     branches: [main]
@@ -42,3 +43,10 @@ jobs:
           npm run test:every-villain-combat
           npm run test:every-villain-story
           npx tsx utils/scripts/verifyEveryVillainStudio.test.ts
+      - name: Signature powers, tactical roles and AI parity
+        run: npx tsx utils/scripts/verifyEveryVillainPowers.test.ts
+      - name: Shared engine keeps Prom of Doom interludes intact
+        run: |
+          npx tsx utils/scripts/verifyCometTacticalBridge.test.ts
+          npx tsx utils/scripts/verifyCometLieutenants.test.ts
+          npx tsx utils/scripts/verifyCometFieldLoyalty.test.ts

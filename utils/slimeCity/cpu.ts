@@ -534,13 +534,16 @@ function bestMove(view: MatchView, tried: Set<string>): CpuAction | null {
 function bestAttack(view: MatchView, tried: Set<string>): CpuAction | null {
   if (view.mode !== 'blackout') return null
   const mine = view.units.filter((u) => u.side === view.side && u.hp !== null)
-  const enemies = view.units.filter((u) => u.side !== view.side && u.hp !== null)
+  const enemies = view.units.filter(
+    (u) => u.side !== view.side && u.hp !== null,
+  )
   for (const u of mine) {
     if (u.attackedRound === view.round) continue
-    if (u.summonedRound === view.round && !u.keywords?.includes('ambush')) continue
-    const target = [...enemies].sort((a, b) =>
-      (a.hp ?? 99) - (b.hp ?? 99) || a.id - b.id,
-    ).find((e) => dist(u, e) <= (u.range ?? 1))
+    if (u.summonedRound === view.round && !u.keywords?.includes('ambush'))
+      continue
+    const target = [...enemies]
+      .sort((a, b) => (a.hp ?? 99) - (b.hp ?? 99) || a.id - b.id)
+      .find((e) => dist(u, e) <= (u.range ?? 1))
     if (target) {
       const action: CpuAction = { t: 'attack', id: u.id, target: target.id }
       if (!tried.has(key(action))) return action

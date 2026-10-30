@@ -68,6 +68,13 @@ assert.match(component, /data-testid="comic-intro-continue"/)
 assert.match(academy, /data-testid="academy-comic-intro-preview"/)
 assert.match(academy, /seenComicIntro/)
 assert.match(academy, /<ComicCharacterReveal/)
+const promGame = readFileSync(
+  new URL('../../pages/play/comet-city-academy.vue', import.meta.url),
+  'utf8',
+)
+assert.match(promGame, /seenVillainComics/)
+assert.match(promGame, /showVillainComic/)
+assert.match(promGame, /<ComicCharacterReveal/)
 assert.match(tactics, /data-testid="tactics-comic-intro-preview"/)
 assert.match(tactics, /seenComics/)
 assert.match(tactics, /<ComicCharacterReveal/)

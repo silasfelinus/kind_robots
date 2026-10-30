@@ -209,6 +209,6 @@ export function validTacticalInterlude(
     ) &&
     !!state.map &&
     state.map.width === 9 &&
-    state.map.height === 7
+    state.map.height === 6
   )
 }

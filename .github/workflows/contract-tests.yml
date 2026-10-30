@@ -57,6 +57,9 @@ jobs:
       - name: Memory Dungeon Hoshimori warm sixteen-site and oven proof
         run: npx tsx utils/scripts/verifyMemoryHoshimoriWarm.test.ts
 
+      - name: Memory Dungeon Hoshimori night-procession first sixteen-site proof
+        run: npx tsx utils/scripts/verifyMemoryHoshimoriNight.test.ts
+
       - name: Memory Dungeon Dark Briar playable slice and save contract
         run: npx tsx utils/scripts/verifyMemoryDarkBriar.test.ts
 

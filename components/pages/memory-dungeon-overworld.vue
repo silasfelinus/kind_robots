@@ -54,6 +54,15 @@
       >
         Lantern Village
       </button>
+      <button
+        v-if="world.campaign.completed.includes('e07')"
+        type="button"
+        class="btn btn-sm btn-error"
+        data-testid="memory-enter-hoshimori-night"
+        @click="emit('hoshimori-night')"
+      >
+        The Shut Doors
+      </button>
       <span
         v-if="world.activeReality === 'e01'"
         class="shrink-0 text-xs"
@@ -974,7 +983,7 @@ import MemoryDungeonQuestLog from '~/components/memory-dungeon/quest-log.vue'
 import MemoryDungeonDarkBriarStage from '~/components/memory-dungeon/dark-briar-stage.vue'
 import MemoryDungeonActionBeacon from '~/components/memory-dungeon/action-beacon.vue'
 
-const emit = defineEmits<{ leave: []; hoshimori: [] }>()
+const emit = defineEmits<{ leave: []; hoshimori: []; 'hoshimori-night': [] }>()
 const world = useMemoryWorldStore()
 const chronicleOpen = ref(false)
 const questsOpen = ref(false)

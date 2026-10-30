@@ -1,5 +1,6 @@
 import { computed, ref } from 'vue'
 import { defineStore } from 'pinia'
+import { useMemoryWorldStore } from '~/stores/memoryWorldStore'
 import {
   HOSHIMORI_OVEN_ROOMS,
   HOSHIMORI_WARM_SITES,
@@ -51,8 +52,10 @@ export const useMemoryHoshimoriStore = defineStore('memoryHoshimori', () => {
       const saved = window.localStorage.getItem(SAVE_KEY)
       if (!saved) return
       const restored = restoreHoshimoriWarm(JSON.parse(saved))
-      if (restored) progress.value = restored
-      else
+      if (restored) {
+        progress.value = restored
+        useMemoryWorldStore().syncHoshimoriPhoto(restored.choices)
+      } else
         notice.value =
           'The village could not verify that journey. A fresh route is ready.'
     } catch {
@@ -89,6 +92,8 @@ export const useMemoryHoshimoriStore = defineStore('memoryHoshimori', () => {
     }
     progress.value = next
     notice.value = ''
+    if (event.type === 'choose')
+      useMemoryWorldStore().syncHoshimoriPhoto(next.choices)
     persist()
     return true
   }

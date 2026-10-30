@@ -614,6 +614,8 @@ export const HOSHIMORI_WARM_SITES: readonly HoshimoriSite[] = [
   ),
 ]
 
+export const HOSHIMORI_MAX_EVENTS = 2048
+
 export const HOSHIMORI_LANTERN_CLUE_SITES = ['1,2', '2,1', '3,2'] as const
 const LANTERN_ORDERS = [
   ['bell', 'leaf', 'flame'],
@@ -877,7 +879,8 @@ export function advanceHoshimoriWarm(
   progress: HoshimoriWarmProgress,
   event: HoshimoriEvent,
 ): HoshimoriWarmProgress {
-  if (progress.events.length >= 256 || !eventShape(event)) return progress
+  if (progress.events.length >= HOSHIMORI_MAX_EVENTS || !eventShape(event))
+    return progress
   let changed: Partial<HoshimoriWarmProgress> | null = null
   switch (event.type) {
     case 'move':
@@ -979,7 +982,7 @@ export function restoreHoshimoriWarm(
     saved.seed! < 0 ||
     saved.seed! > 2147483647 ||
     !Array.isArray(saved.events) ||
-    saved.events.length > 256
+    saved.events.length > HOSHIMORI_MAX_EVENTS
   )
     return null
   let replay = newHoshimoriWarmProgress(saved.seed!)

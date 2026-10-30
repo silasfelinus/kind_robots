@@ -2,6 +2,7 @@ import assert from 'node:assert/strict'
 import { readFileSync } from 'node:fs'
 import {
   HOSHIMORI_LANTERN_CLUE_SITES,
+  HOSHIMORI_MAX_EVENTS,
   HOSHIMORI_OVEN_ROOMS,
   HOSHIMORI_WARM_SITES,
   advanceHoshimoriWarm,
@@ -549,6 +550,52 @@ assert.deepEqual(
   'Chronicle uses Earth chronology, not discovery order',
 )
 
+// A completionist can revisit sites hundreds of times before recovering evidence.
+// The journal must remain replayable rather than silently freezing at 256 actions.
+let longJourney = choose(newHoshimoriWarmProgress(19), 'listen')
+for (let step = 0; step < 600; step++)
+  longJourney = move(longJourney, step % 2 === 0 ? '2,1' : '1,1')
+assert.equal(longJourney.rations, 2, 'Travel cannot farm rations')
+assert.equal(longJourney.choices['1,1'], 'listen')
+assert.ok(longJourney.events.length > 256)
+assert.ok(longJourney.events.length < HOSHIMORI_MAX_EVENTS)
+for (const key of ['2,1', '2,2', '2,3']) longJourney = move(longJourney, key)
+longJourney = choose(longJourney, 'hold')
+for (const key of ['3,3', '4,3', '4,4', '5,4', '6,4', '7,4', '7,5'])
+  longJourney = move(longJourney, key)
+longJourney = choose(longJourney, 'respect')
+assert.deepEqual(
+  restoreHoshimoriWarm(JSON.parse(JSON.stringify(longJourney))),
+  longJourney,
+  'Long-running expeditions must survive action-replay save restoration',
+)
+assert.deepEqual(
+  reconcileHoshimoriEarthChronicle(newEarthChronicle(), longJourney.choices)
+    .found,
+  ['earth-13', 'earth-14'],
+  'Both fixed Earth photos remain earnable after the old action cap',
+)
+const tamperedLongJourney = JSON.parse(
+  JSON.stringify(longJourney),
+) as HoshimoriWarmProgress
+tamperedLongJourney.rations += 1
+assert.equal(restoreHoshimoriWarm(tamperedLongJourney), null)
+const oversizedJournal = JSON.parse(
+  JSON.stringify(longJourney),
+) as HoshimoriWarmProgress
+oversizedJournal.events = Array.from(
+  { length: HOSHIMORI_MAX_EVENTS + 1 },
+  () => ({
+    type: 'move',
+    to: '2,1',
+  }),
+)
+assert.equal(
+  restoreHoshimoriWarm(oversizedJournal),
+  null,
+  'Unbounded or hostile journals must still be rejected',
+)
+
 const consoleSource = readFileSync(
   'components/pages/memory-dungeon-hoshimori.vue',
   'utf8',
@@ -581,5 +628,5 @@ assert.match(overworldSource, /campaign\.completed\.includes\('e06'\)/)
 assert.match(overworldSource, /data-testid="memory-enter-hoshimori"/)
 
 console.log(
-  'Hoshimori warm proof: 20 sites, 96 seeds, 24 hearings, two earned Earth photographs, save and spoiler guards passed',
+  'Hoshimori warm proof: 28 sites, 96 seeds, 24 hearings, two earned Earth photographs, long-run save and spoiler guards passed',
 )

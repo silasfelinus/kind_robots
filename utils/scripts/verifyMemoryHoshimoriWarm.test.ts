@@ -169,16 +169,7 @@ for (let seed = 0; seed < 96; seed++) {
   }
   assert.equal(progress.visited.length, 28, 'All ridge sites are reachable')
   assert.equal(Object.keys(progress.choices).length, 28)
-  for (const key of [
-    '4,6',
-    '3,6',
-    '2,6',
-    '1,6',
-    '1,5',
-    '2,5',
-    '3,5',
-    '4,5',
-  ]) {
+  for (const key of ['4,6', '3,6', '2,6', '1,6', '1,5', '2,5', '3,5', '4,5']) {
     progress = move(progress, key)
     const site = HOSHIMORI_WARM_SITES.find((item) => item.key === key)!
     const affordable = site.choices.find(
@@ -393,8 +384,7 @@ for (const flood of ['evacuate', 'record'] as const) {
       for (const key of ['1,2', '1,3', '1,4', '1,5'])
         progress = move(progress, key)
       progress = choose(progress, flood)
-      for (const key of ['2,5', '3,5', '3,6'])
-        progress = move(progress, key)
+      for (const key of ['2,5', '3,5', '3,6']) progress = move(progress, key)
       progress = choose(progress, rain)
       progress = move(progress, '4,6')
       assert.equal(
@@ -431,7 +421,11 @@ for (const flood of ['evacuate', 'record'] as const) {
     }
   }
 }
-assert.equal(lowlandOutcomes.size, 8, 'Eight distinct lowland verdicts are earned')
+assert.equal(
+  lowlandOutcomes.size,
+  8,
+  'Eight distinct lowland verdicts are earned',
+)
 
 let pip = newHoshimoriWarmProgress(3)
 pip = move(pip, '2,1')

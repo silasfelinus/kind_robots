@@ -181,7 +181,8 @@ export function reconcileTacticalVictory(battle: TacticalInterlude) {
   )
   if (enemiesDown && battle.arena && !battle.arena.secured) {
     battle.state.phase = 'active'
-    battle.state.log = 'The rival is down. Secure the mission objective before extraction.'
+    battle.state.log =
+      'The rival is down. Secure the mission objective before extraction.'
   } else if (enemiesDown && battle.arena?.secured) {
     battle.state.phase = 'victory'
     battle.state.log = `Objective secured: ${battle.arena.objective}`
@@ -191,8 +192,14 @@ export function reconcileTacticalVictory(battle: TacticalInterlude) {
 export function secureRivalObjective(battle: TacticalInterlude): boolean {
   const objective = battle.arena
   const leader = selectedUnit(battle.state)
-  if (!objective || objective.secured || !leader || battle.state.phase !== 'active' ||
-      leader.ap < 1 || gridDistance(leader, objective.objectivePoint) > 1)
+  if (
+    !objective ||
+    objective.secured ||
+    !leader ||
+    battle.state.phase !== 'active' ||
+    leader.ap < 1 ||
+    gridDistance(leader, objective.objectivePoint) > 1
+  )
     return false
   leader.ap--
   objective.secured = true
@@ -206,8 +213,12 @@ export function secureRivalObjective(battle: TacticalInterlude): boolean {
 export function discoverRivalSecret(battle: TacticalInterlude): boolean {
   const objective = battle.arena
   const leader = selectedUnit(battle.state)
-  if (!objective || objective.discovered || !leader ||
-      gridDistance(leader, objective.secretPoint) > 0)
+  if (
+    !objective ||
+    objective.discovered ||
+    !leader ||
+    gridDistance(leader, objective.secretPoint) > 0
+  )
     return false
   objective.discovered = true
   battle.state.log = `SECRET FOUND: ${objective.secret}`
@@ -220,13 +231,20 @@ export function discoverRivalSecret(battle: TacticalInterlude): boolean {
  * with battle state, and never replays twice after a reload. */
 export function advanceRivalArena(battle: TacticalInterlude): boolean {
   const objective = battle.arena
-  if (!objective || objective.shifted || battle.state.turn < 3 ||
-      battle.state.phase !== 'active') return false
-  const arena = objective.kind === 'origin'
-    ? originArenaFor(objective.signature)
-    : rivalArenaFor(objective.signature)
+  if (
+    !objective ||
+    objective.shifted ||
+    battle.state.turn < 3 ||
+    battle.state.phase !== 'active'
+  )
+    return false
+  const arena =
+    objective.kind === 'origin'
+      ? originArenaFor(objective.signature)
+      : rivalArenaFor(objective.signature)
   const shifted = shiftRivalArena(arena, {
-    ...arena.stage, map: battle.state.map,
+    ...arena.stage,
+    map: battle.state.map,
   })
   battle.state.map = shifted.map
   objective.shifted = true
@@ -238,8 +256,11 @@ export function advanceRivalArena(battle: TacticalInterlude): boolean {
 
 export function tacticalResultFor(run: AcademyRun): TacticalOutcome | null {
   const battle = run.tacticalBattle
-  if (!battle || !['victory', 'defeat'].includes(battle.state.phase) ||
-      (battle.state.phase === 'victory' && battle.arena && !battle.arena.secured))
+  if (
+    !battle ||
+    !['victory', 'defeat'].includes(battle.state.phase) ||
+    (battle.state.phase === 'victory' && battle.arena && !battle.arena.secured)
+  )
     return null
   const fallen = battle.state.units.filter(
     (unit) => unit.team === 'squad' && unit.hp <= 0,
@@ -289,9 +310,10 @@ export function validTacticalOutcome(
     result.fallen! >= 0 &&
     result.fallen! <= 4 &&
     (result.stageId === undefined ||
-      result.stageId === (result.day! < 15
-        ? 'hero-origin-' + run.signature
-        : 'rival-lair-' + result.opponent)) &&
+      result.stageId ===
+        (result.day! < 15
+          ? 'hero-origin-' + run.signature
+          : 'rival-lair-' + result.opponent)) &&
     (result.secured === undefined || typeof result.secured === 'boolean') &&
     (result.discovered === undefined || typeof result.discovered === 'boolean')
   )
@@ -348,8 +370,10 @@ export function validTacticalInterlude(
     state.map.height === 6 &&
     (battle.arena === undefined ||
       (['origin', 'lair'].includes(battle.arena.kind) &&
-        battle.arena.signature === (battle.arena.kind === 'origin'
-          ? run.signature : run.opponentSignature) &&
+        battle.arena.signature ===
+          (battle.arena.kind === 'origin'
+            ? run.signature
+            : run.opponentSignature) &&
         typeof battle.arena.title === 'string' &&
         typeof battle.arena.venue === 'string' &&
         typeof battle.arena.objective === 'string' &&
@@ -359,14 +383,22 @@ export function validTacticalInterlude(
         typeof battle.arena.secured === 'boolean' &&
         typeof battle.arena.discovered === 'boolean' &&
         typeof battle.arena.shifted === 'boolean' &&
-        state.stageId === (battle.arena.kind === 'origin'
-          ? 'hero-origin-' + run.signature
-          : 'rival-lair-' + battle.opponent) &&
-        [battle.arena.objectivePoint, battle.arena.secretPoint, battle.arena.shiftPoint].every(
-          (point) => Number.isInteger(point?.x) &&
+        state.stageId ===
+          (battle.arena.kind === 'origin'
+            ? 'hero-origin-' + run.signature
+            : 'rival-lair-' + battle.opponent) &&
+        [
+          battle.arena.objectivePoint,
+          battle.arena.secretPoint,
+          battle.arena.shiftPoint,
+        ].every(
+          (point) =>
+            Number.isInteger(point?.x) &&
             Number.isInteger(point?.y) &&
-            point.x >= 0 && point.x < state.map.width &&
-            point.y >= 0 && point.y < state.map.height &&
+            point.x >= 0 &&
+            point.x < state.map.width &&
+            point.y >= 0 &&
+            point.y < state.map.height &&
             !tileAt(state.map, point).wall,
         ) &&
         (state.phase !== 'victory' || battle.arena.secured)))

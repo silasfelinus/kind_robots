@@ -813,7 +813,7 @@ export function hoshimoriRidgeAccount(
   const passage =
     relay === 'signal'
       ? 'A witnessed patrol agreed to escort travelers without demanding names.'
-      : 'The travelers reached the ridge quietly, leaving the patrol\'s exclusion policy unresolved.'
+      : "The travelers reached the ridge quietly, leaving the patrol's exclusion policy unresolved."
   const decision =
     assembly === 'open'
       ? 'The assembly opened a revocable shelter route, with an exit for hosts and guests.'

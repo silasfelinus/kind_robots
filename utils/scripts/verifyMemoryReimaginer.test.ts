@@ -87,7 +87,7 @@ assert.deepEqual(
     (id) =>
       MEMORY_REALITY_EXPERIENCES.find((entry) => entry.id === id)!.viewpoint,
   ),
-  ['earth-protagonist', 'morrow', 'char', 'vesper'],
+  ['pip', 'morrow', 'char', 'vesper'],
 )
 assert.equal(MEMORY_REALITY_EXPERIENCES[4]!.ontology, 'underwater')
 assert.equal(MEMORY_REALITY_EXPERIENCES[5]!.state, 'dark-reflection')

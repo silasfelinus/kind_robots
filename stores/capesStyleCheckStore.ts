@@ -3,12 +3,12 @@ import { computed, ref } from 'vue'
 import { performFetch } from '~/stores/utils'
 import { useArtJobStore } from '~/stores/artJobStore'
 import {
-  CAPES_STYLE_CRITERIA,
   CAPES_STYLE_LANES,
   CAPES_STYLE_SUBJECTS,
   capesStyleCellKey,
 } from '~/utils/capesStyleCheck'
 import type {
+  CAPES_STYLE_CRITERIA,
   CapesStyleJob,
   CapesStyleSubjectKey,
 } from '~/utils/capesStyleCheck'

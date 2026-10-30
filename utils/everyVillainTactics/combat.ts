@@ -3,7 +3,32 @@
 export type Point = { x: number; y: number }
 export type Side = 'north' | 'south' | 'east' | 'west'
 export type Cover = 'half' | 'full'
-export type Status = 'guarded' | 'suppressed'
+export type Status = 'guarded' | 'suppressed' | 'marked'
+/** Short weapons hit hard up close and fade fast; long weapons prefer distance
+ * and lose accuracy point-blank. 'mid' is the original First Bell rifle curve. */
+export type WeaponBand = 'short' | 'mid' | 'long'
+export const WEAPON_BANDS: Readonly<
+  Record<
+    WeaponBand,
+    { optimal: number; falloff: number; max: number; pointBlank: number }
+  >
+> = {
+  short: { optimal: 1, falloff: 10, max: 4, pointBlank: 0 },
+  mid: { optimal: 2, falloff: 7, max: 6, pointBlank: 0 },
+  long: { optimal: 4, falloff: 4, max: 8, pointBlank: 15 },
+}
+/** Optional per-unit tactical profile. Every field defaults to the original
+ * shared values, so older saves and Prom of Doom interludes keep their math. */
+export type TacticalProfile = {
+  aim?: number
+  weapon?: WeaponBand
+  /** Extra tiles of maximum range (gadget scopes); never changes falloff. */
+  reach?: number
+  /** Tiles per 1-AP move; a 2-AP dash covers twice this. Default 3. */
+  mobility?: number
+  /** Flat accuracy penalty applied to anyone shooting this unit. */
+  defense?: number
+}
 export type Tile = {
   elevation: number
   wall?: boolean
@@ -14,16 +39,17 @@ export type TacticalMap = {
   height: number
   tiles: Readonly<Record<string, Tile>>
 }
-export type Fighter = Point & {
-  id: string
-  team: string
-  hp: number
-  ap: number
-  moved: boolean
-  fired: boolean
-  overwatch: boolean
-  statuses: Status[]
-}
+export type Fighter = Point &
+  TacticalProfile & {
+    id: string
+    team: string
+    hp: number
+    ap: number
+    moved: boolean
+    fired: boolean
+    overwatch: boolean
+    statuses: Status[]
+  }
 export type Chance = {
   hit: number
   clear: boolean
@@ -35,6 +61,10 @@ export type Chance = {
   elevation: number
   suppressed: number
   guarded: number
+  /** Defender's evasive/armored profile; 0 for the original roster math. */
+  defense: number
+  /** Bonus against a target marked by an analysis power this turn. */
+  marked: number
 }
 export type HitResult = {
   chance: Chance
@@ -129,11 +159,14 @@ export function pathDistance(
   return Infinity
 }
 
-// A dash of 4-6 tiles costs both AP and cannot be followed by a shot.
-export function moveAP(steps: number): number {
-  if (steps < 1 || !Number.isFinite(steps) || steps > 6) return Infinity
-  return steps <= 3 ? 1 : 2
+// A walk of up to `mobility` tiles costs 1 AP; a dash of up to twice that
+// costs both AP. The default mobility of 3 is the original 1-3 / 4-6 rule.
+export function moveAP(steps: number, mobility = 3): number {
+  if (steps < 1 || !Number.isFinite(steps) || steps > mobility * 2)
+    return Infinity
+  return steps <= mobility ? 1 : 2
 }
+export const dashRange = (unit: TacticalProfile) => (unit.mobility ?? 3) * 2
 export function reachableCells(
   map: TacticalMap,
   fighters: readonly Fighter[],
@@ -144,7 +177,7 @@ export function reachableCells(
   for (let y = 0; y < map.height; y++) {
     for (let x = 0; x < map.width; x++) {
       const steps = pathDistance(map, fighters, unit, { x, y })
-      const cost = moveAP(steps)
+      const cost = moveAP(steps, unit.mobility)
       if (cost <= unit.ap) result.push({ x, y, steps, cost })
     }
   }
@@ -215,16 +248,32 @@ function coverPenalty(map: TacticalMap, from: Point, to: Point) {
   return { cover: penalty, flank: penalty === 0 ? 10 : 0 }
 }
 
-// Uses only the supplied positions/status and map; never consumes RNG.
+export type ChanceOptions = {
+  /** Signature strikes add accuracy without hiding it from the breakdown. */
+  aimBonus?: number
+  /** A power's own reach replaces the weapon's maximum range. */
+  maxRange?: number
+  /** Dimensional powers may strike without a sightline. */
+  ignoreLos?: boolean
+}
+// Uses only the supplied positions/status/profile and map; never consumes RNG.
 export function chanceFrom(
   map: TacticalMap,
-  attacker: Point & { statuses?: readonly Status[] },
-  defender: Point & { statuses?: readonly Status[] },
+  attacker: Point & TacticalProfile & { statuses?: readonly Status[] },
+  defender: Point & TacticalProfile & { statuses?: readonly Status[] },
+  options: ChanceOptions = {},
 ): Chance {
   const range = gridDistance(attacker, defender)
-  const aim = 85
-  const clear = range > 0 && range <= 6 && lineOfSight(map, attacker, defender)
-  const rangePenalty = Math.max(0, range - 2) * 7
+  const band = WEAPON_BANDS[attacker.weapon ?? 'mid']
+  const aim = (attacker.aim ?? 85) + (options.aimBonus ?? 0)
+  const maxRange = options.maxRange ?? band.max + (attacker.reach ?? 0)
+  const clear =
+    range > 0 &&
+    range <= maxRange &&
+    (!!options.ignoreLos || lineOfSight(map, attacker, defender))
+  const rangePenalty =
+    Math.max(0, range - band.optimal) * band.falloff +
+    (range <= 1 ? band.pointBlank : 0)
   const { cover, flank } = coverPenalty(map, attacker, defender)
   const elevation = Math.max(
     -20,
@@ -235,12 +284,22 @@ export function chanceFrom(
   )
   const suppressed = attacker.statuses?.includes('suppressed') ? 15 : 0
   const guarded = defender.statuses?.includes('guarded') ? 15 : 0
+  const defense = defender.defense ?? 0
+  const marked = defender.statuses?.includes('marked') ? 20 : 0
   const hit = clear
     ? Math.max(
         5,
         Math.min(
           95,
-          aim - rangePenalty - cover + flank + elevation - suppressed - guarded,
+          aim -
+            rangePenalty -
+            cover +
+            flank +
+            elevation -
+            suppressed -
+            guarded -
+            defense +
+            marked,
         ),
       )
     : 0
@@ -255,6 +314,8 @@ export function chanceFrom(
     elevation,
     suppressed,
     guarded,
+    defense,
+    marked,
   }
 }
 

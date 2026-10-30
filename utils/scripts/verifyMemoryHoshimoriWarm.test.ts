@@ -490,6 +490,23 @@ for (let mask = 0; mask < 64; mask++) {
   )
   assert.equal(hoshimoriOvenThirdAccount(run), null)
   assert.equal(hoshimoriOvenGuardianResolution(run), null)
+  const unearned = {
+    ...run,
+    ovenChoices: {
+      ...run.ovenChoices,
+      'OV-15': 'rewrite-guardian',
+    },
+  }
+  assert.equal(
+    hoshimoriOvenThirdAccount(unearned),
+    null,
+    'Missing middle-room testimony cannot produce an account',
+  )
+  assert.equal(
+    hoshimoriOvenGuardianResolution(unearned),
+    null,
+    'A forged final choice alone cannot produce a guardian verdict',
+  )
   run = advanceHoshimoriWarm(run, { type: 'enter-ember-wing' })
   assert.equal(run.ovenRoom, 'OV-10')
   for (let index = 0; index < emberWingChoices.length; index++) {

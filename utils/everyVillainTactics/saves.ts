@@ -17,6 +17,7 @@ import type {
   Perspective,
   StoryRun,
 } from './firstBellStory'
+import { PICNIC_KNOWN_TRIGGERS } from './picnicPanic'
 import { tacticFor } from './powers'
 import { stageProblems, type StageDraft } from './studio'
 import {
@@ -84,7 +85,7 @@ const EFFECTS: readonly ChoiceEffect[] = [
   'press',
   'finish',
 ]
-const STATUSES = ['guarded', 'suppressed', 'marked']
+const STATUSES = ['guarded', 'suppressed', 'marked', 'sealed']
 
 /** Stable JSON: object keys sorted, undefined dropped. */
 export function canonicalJson(value: unknown): string {
@@ -256,6 +257,9 @@ const MUTABLE = new Set<string>([
   'overwatch',
   'statuses',
   'burrowTarget',
+  'phaseTarget',
+  'phaseVictim',
+  'windupRewinding',
   'seismicTarget',
   'seismicChargeHp',
   'signatureTarget',
@@ -316,10 +320,43 @@ function validateSave(save: EvtSave, migrated: boolean): LoadResult {
   if (
     !Array.isArray(state.fired) ||
     new Set(state.fired).size !== state.fired.length ||
-    !state.fired.every((id) => KNOWN_TRIGGERS.includes(id))
+    !state.fired.every(
+      (id) => KNOWN_TRIGGERS.includes(id) || PICNIC_KNOWN_TRIGGERS.includes(id),
+    )
   )
     return reject('Trigger history is malformed.')
 
+  // Civilians keep their authored names and tiles; only status may change.
+  const authored = save.stage?.civilians ?? []
+  if (
+    authored.length
+      ? !Array.isArray(state.civilians)
+      : state.civilians !== undefined
+  )
+    return reject('Civilian list does not match the mission.')
+  if (state.civilians) {
+    if (state.civilians.length !== authored.length)
+      return reject('Civilian list does not match the mission.')
+    for (const [index, civilian] of state.civilians.entries()) {
+      const base = authored[index]!
+      if (
+        Object.keys(civilian).sort().join() !== 'id,name,status,x,y' ||
+        civilian.id !== base.id ||
+        civilian.name !== base.name ||
+        civilian.x !== base.x ||
+        civilian.y !== base.y ||
+        !['waiting', 'rescued', 'lost'].includes(civilian.status)
+      )
+        return reject('Civilian ' + String(civilian.id) + ' was forged.')
+    }
+  }
+  if (
+    state.fired.some(
+      (id) => id.startsWith('picnic:') || id.startsWith('seen:picnic:'),
+    ) &&
+    save.stage?.scenes !== 'picnic-panic'
+  )
+    return reject('Picnic scenes fired outside Picnic Panic.')
   // Rebuild the starting roster and compare every immutable unit field.
   // A migrated pre-role battle keeps the legacy roster for its whole life.
   const legacy = state.units.every((unit) => unit.role === undefined)
@@ -357,7 +394,15 @@ function validateSave(save: EvtSave, migrated: boolean): LoadResult {
       if (occupied.has(at)) return reject('Two units share a tile.')
       occupied.add(at)
     }
+    if (
+      unit.phaseVictim != null &&
+      !state.units.some((u) => u.id === unit.phaseVictim && u.team === 'squad')
+    )
+      return reject(unit.id + ' portal victim is invalid.')
+    if (unit.windupRewinding !== undefined && !isBool(unit.windupRewinding))
+      return reject(unit.id + ' wind-up state is invalid.')
     for (const point of [
+      unit.phaseTarget,
       unit.burrowTarget,
       unit.seismicTarget,
       unit.signatureTarget,

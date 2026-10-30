@@ -50,8 +50,13 @@ export type Unit = Fighter & {
   team: Team
   maxHp: number
   henchmanName?: string
-  henchmanType?: 'burrow'
+  henchmanType?: 'burrow' | 'phase' | 'windup'
   burrowTarget?: Cell | null
+  /** Clock-face exit a teleporting ronin will phase into next turn. */
+  phaseTarget?: Cell | null
+  phaseVictim?: string | null
+  /** A wind-up toy that just stamped must rewind its key for a turn. */
+  windupRewinding?: boolean
   lieutenantName?: string
   /** The warning ring is visible for a whole player turn before seismic impact. */
   seismicTarget?: Cell | null
@@ -70,6 +75,13 @@ export type Unit = Fighter & {
   powerCooldown?: number
   powerSpent?: boolean
 }
+export type Civilian = {
+  id: string
+  name: string
+  x: number
+  y: number
+  status: 'waiting' | 'rescued' | 'lost'
+}
 export type TrainingState = {
   map: TacticalMap
   stageId: string | null
@@ -86,6 +98,8 @@ export type TrainingState = {
   /** One-shot triggers that already fired, so a reload never replays them.
    * Optional because Prom of Doom battles saved before it lack the field. */
   fired?: string[]
+  /** One-shot bystanders; absent for battles without an evacuation goal. */
+  civilians?: Civilian[]
   impact: {
     attacker: string
     target: string
@@ -180,6 +194,13 @@ export function trainingState(
   options: TrainingOptions = {},
 ): TrainingState {
   const state = baseTrainingState(seed, stage)
+  fieldLackeyCrew(state, stage)
+  if (stage?.civilians?.length)
+    state.civilians = stage.civilians.map((c) => ({
+      ...c,
+      status: 'waiting' as const,
+    }))
+  if (stage?.scenes === 'picnic-panic') recordTrigger(state, 'picnic:opening')
   const lead = state.units[0]!
   if (
     options.lead &&
@@ -190,6 +211,58 @@ export function trainingState(
     for (const unit of state.units)
       if (!unit.henchmanName && !unit.lieutenantName) applyTacticalProfile(unit)
   return state
+}
+/** Canonical one-hit crews fielded as the whole rival line-up. */
+const LACKEY_CREWS: Partial<
+  Record<
+    NonNullable<StageDraft['encounter']>,
+    { signature: SignaturePowerId; type: 'phase' | 'windup'; ranks: string[] }
+  >
+> = {
+  'wombat-ronin': {
+    signature: 'alien-discipline',
+    type: 'phase',
+    ranks: ['Ronin Apprentice', 'Ronin Initiate'],
+  },
+  'licensed-legends': {
+    signature: 'accident-birthright',
+    type: 'windup',
+    ranks: ['Knockoff Mascot', 'Bootleg Mascot'],
+  },
+}
+function fieldLackeyCrew(state: TrainingState, stage?: StageDraft) {
+  const crew = stage?.encounter ? LACKEY_CREWS[stage.encounter] : undefined
+  if (!crew) return
+  const species = henchmanForVillain(crew.signature)
+  const rivals = state.units.filter((unit) => unit.team === 'rival')
+  rivals.forEach((unit, index) => {
+    unit.identity = crew.signature
+    unit.hp = species.hp
+    unit.maxHp = species.hp
+    unit.henchmanName =
+      index === 0 ? species.captain : (crew.ranks[index - 1] ?? species.name)
+    unit.henchmanType = crew.type
+    if (crew.type === 'phase') {
+      unit.phaseTarget = null
+      unit.phaseVictim = null
+    } else unit.windupRewinding = false
+  })
+  state.log =
+    crew.type === 'phase'
+      ? species.captain +
+        '’s ' +
+        species.name +
+        ' tick in the shadows. Each marks a clock-face exit behind a hero, then phases through it next turn. Stand on the exit to jam the portal.'
+      : species.captain +
+        '’s ' +
+        species.name +
+        ' wind up and swarm. A mascot that starts its turn beside a hero stamps a trademark seal that locks their signature power for a turn.'
+  state.events = [
+    crew.type === 'phase'
+      ? species.captain + ': Your cover faces the wrong way. It always does.'
+      : species.captain +
+        ': Every power on this floor is now licensed property!',
+  ]
 }
 function baseTrainingState(seed: number, stage?: StageDraft): TrainingState {
   const placements: Array<[string, string, Team, number, number, number]> = [
@@ -305,8 +378,14 @@ function note(state: TrainingState, message: string) {
   state.events.unshift(message)
   state.events = state.events.slice(0, 6)
 }
+const waitingCivilians = (state: TrainingState) =>
+  (state.civilians ?? []).filter((c) => c.status === 'waiting')
 function updateOutcome(state: TrainingState) {
-  if (state.units.every((u) => u.team !== 'rival' || u.hp <= 0)) {
+  const civilians = state.civilians ?? []
+  if (civilians.length && civilians.every((c) => c.status === 'lost')) {
+    state.phase = 'defeat'
+    note(state, 'Every family was pulled under. The picnic is lost.')
+  } else if (state.units.every((u) => u.team !== 'rival' || u.hp <= 0)) {
     state.phase = 'victory'
     note(
       state,
@@ -537,6 +616,28 @@ export function powerFor(unit: Unit) {
   return unit.power ? tacticFor(unit.power) : undefined
 }
 
+/** Waiting civilians the selected squadmate can reach this action. */
+export function rescueTargets(state: TrainingState): Civilian[] {
+  const unit = selectedUnit(state)
+  if (!unit || unit.ap < 1 || state.phase !== 'active') return []
+  return waitingCivilians(state)
+    .filter((c) => gridDistance(unit, c) <= 1)
+    .sort((a, b) => a.id.localeCompare(b.id))
+}
+/** Spend 1 AP beside (or on) a civilian to walk them out of danger. */
+export function rescueSelected(state: TrainingState): boolean {
+  const unit = selectedUnit(state)
+  const civilian = rescueTargets(state)[0]
+  if (!unit || !civilian) return false
+  unit.ap--
+  civilian.status = 'rescued'
+  note(state, aliasFor(unit) + ' evacuates ' + civilian.name + ' (1 AP).')
+  if (!waitingCivilians(state).length && state.civilians?.length)
+    recordTrigger(state, 'picnic:all-rescued')
+  updateOutcome(state)
+  return true
+}
+
 export function overwatchSelected(state: TrainingState): boolean {
   const unit = selectedUnit(state)
   if (!unit || state.phase !== 'active' || !prepareOverwatch(unit)) return false
@@ -588,6 +689,16 @@ function burrowPlan(state: TrainingState, enemy: Unit): boolean {
     enemy.y = to.y
     enemy.ap--
     note(state, aliasFor(enemy) + ' bursts from the announced dust ring!')
+    recordTrigger(state, 'picnic:first-emergence')
+    // Any family beside the ring is pulled into the tunnel with it.
+    for (const civilian of waitingCivilians(state))
+      if (gridDistance(civilian, enemy) <= 1) {
+        civilian.status = 'lost'
+        recordTrigger(state, 'picnic:civilian-lost')
+        note(state, civilian.name + ' is dragged into the tunnel!')
+      }
+    updateOutcome(state)
+    if (state.phase !== 'active') return true
     triggerReactions(state, enemy)
     if (enemy.hp <= 0 || state.phase !== 'active') return true
     const shot = bestShot(state, enemy)
@@ -630,7 +741,11 @@ function burrowPlan(state: TrainingState, enemy: Unit): boolean {
         tileAt(state.map, point).wall
       )
         continue
-      if (heroes.some((u) => gridDistance(u, point) === 1)) targets.push(point)
+      if (
+        heroes.some((u) => gridDistance(u, point) === 1) ||
+        waitingCivilians(state).some((c) => gridDistance(c, point) === 1)
+      )
+        targets.push(point)
     }
   targets.sort((a, b) => a.y - b.y || a.x - b.x)
   const target = targets[0]
@@ -646,6 +761,165 @@ function burrowPlan(state: TrainingState, enemy: Unit): boolean {
       (target.y + 1) +
       '. The dust ring warns one turn in advance.',
   )
+  return true
+}
+/** Teleporting ronin: one turn marks an exit beside a hero on the side their
+ * cover does not protect; the next turn phases there and strikes. A unit
+ * standing on the exit jams it. Exits never move after they are shown. */
+function phasePlan(state: TrainingState, enemy: Unit): boolean {
+  if (enemy.henchmanType !== 'phase') return false
+  const exit = enemy.phaseTarget
+  if (exit) {
+    const victim = state.units.find((u) => u.id === enemy.phaseVictim)
+    enemy.phaseTarget = null
+    enemy.phaseVictim = null
+    if (actorAt(state, exit) || tileAt(state.map, exit).wall) {
+      enemy.ap = 0
+      note(
+        state,
+        aliasFor(enemy) +
+          '’s portal watch jams: someone is standing on the exit.',
+      )
+      return true
+    }
+    enemy.x = exit.x
+    enemy.y = exit.y
+    enemy.ap--
+    note(state, aliasFor(enemy) + ' phases out of the clock-face exit!')
+    triggerReactions(state, enemy)
+    if (enemy.hp <= 0 || state.phase !== 'active') return true
+    if (victim && victim.hp > 0 && enemy.ap > 0) {
+      const result = resolveAttack(state, state.map, enemy, victim, 1)
+      if (result) {
+        recordImpact(state, enemy, victim, result.hit)
+        note(
+          state,
+          aliasFor(enemy) +
+            (result.hit ? ' strikes ' : ' misses ') +
+            aliasFor(victim) +
+            ' from the flank (' +
+            result.chance.hit +
+            '%).',
+        )
+      }
+    }
+    updateOutcome(state)
+    return true
+  }
+  const reserved = new Set(
+    state.units
+      .filter((u) => u.hp > 0)
+      .flatMap((u) => [u.phaseTarget, u.burrowTarget])
+      .filter((p): p is Cell => !!p)
+      .map((p) => p.x + ',' + p.y),
+  )
+  const victim = state.units
+    .filter((u) => u.team === 'squad' && u.hp > 0)
+    .sort(
+      (a, b) =>
+        gridDistance(enemy, a) - gridDistance(enemy, b) ||
+        a.id.localeCompare(b.id),
+    )[0]
+  if (!victim) return false
+  const exits = [
+    { x: victim.x + 1, y: victim.y },
+    { x: victim.x - 1, y: victim.y },
+    { x: victim.x, y: victim.y + 1 },
+    { x: victim.x, y: victim.y - 1 },
+  ]
+    .filter(
+      (p) =>
+        inside(state.map, p) &&
+        !tileAt(state.map, p).wall &&
+        !actorAt(state, p) &&
+        !reserved.has(p.x + ',' + p.y),
+    )
+    .map((p) => ({ p, cover: chanceFrom(state.map, p, victim).cover }))
+    .sort(
+      (a, b) =>
+        a.cover - b.cover ||
+        gridDistance(enemy, b.p) - gridDistance(enemy, a.p) ||
+        a.p.y - b.p.y ||
+        a.p.x - b.p.x,
+    )
+  const chosen = exits[0]?.p
+  if (!chosen) return false
+  enemy.phaseTarget = chosen
+  enemy.phaseVictim = victim.id
+  enemy.ap = 0
+  note(
+    state,
+    aliasFor(enemy) +
+      ' sets a clock-face exit beside ' +
+      aliasFor(victim) +
+      ' at column ' +
+      (chosen.x + 1) +
+      ', row ' +
+      (chosen.y + 1) +
+      '. Stand on it to jam the portal.',
+  )
+  return true
+}
+/** Wind-up mascots never shoot. They swarm into the way; one that starts its
+ * turn beside a powered hero stamps a seal locking that hero's signature
+ * power through their next turn, then spends a turn rewinding its key. */
+function windupPlan(state: TrainingState, enemy: Unit): boolean {
+  if (enemy.henchmanType !== 'windup') return false
+  if (enemy.windupRewinding) {
+    enemy.windupRewinding = false
+    enemy.ap = 0
+    note(state, aliasFor(enemy) + ' rewinds its key. Its next stamp is coming.')
+    return true
+  }
+  const mark = state.units
+    .filter(
+      (u) =>
+        u.team === 'squad' &&
+        u.hp > 0 &&
+        u.power &&
+        !u.statuses.includes('sealed') &&
+        gridDistance(u, enemy) === 1,
+    )
+    .sort((a, b) => a.id.localeCompare(b.id))[0]
+  if (mark) {
+    mark.statuses.push('sealed')
+    enemy.windupRewinding = true
+    enemy.ap = 0
+    recordImpact(state, enemy, mark, true)
+    note(
+      state,
+      aliasFor(enemy) +
+        ' stamps a TRADEMARK seal on ' +
+        aliasFor(mark) +
+        ': their signature power is locked next turn. Basic actions still work.',
+    )
+    return true
+  }
+  const heroes = state.units.filter((u) => u.team === 'squad' && u.hp > 0)
+  const move = reachableCells(state.map, state.units, enemy)
+    .map((p) => ({
+      p,
+      distance: Math.min(...heroes.map((h) => gridDistance(p, h))),
+    }))
+    .sort(
+      (a, b) =>
+        a.distance - b.distance ||
+        a.p.cost - b.p.cost ||
+        a.p.y - b.p.y ||
+        a.p.x - b.p.x,
+    )[0]
+  if (
+    move &&
+    move.distance < Math.min(...heroes.map((h) => gridDistance(enemy, h)))
+  ) {
+    enemy.x = move.p.x
+    enemy.y = move.p.y
+    enemy.ap -= move.p.cost
+    enemy.moved = true
+    note(state, aliasFor(enemy) + ' clatters into the way.')
+    triggerReactions(state, enemy)
+  }
+  enemy.ap = 0
   return true
 }
 /** A fully telegraphed signature attack. The next rival turn must use the
@@ -859,7 +1133,9 @@ function enemyPlan(state: TrainingState, enemy: Unit) {
   if (
     signatureLieutenantPlan(state, enemy) ||
     lieutenantPlan(state, enemy) ||
-    burrowPlan(state, enemy)
+    burrowPlan(state, enemy) ||
+    phasePlan(state, enemy) ||
+    windupPlan(state, enemy)
   )
     return
   let shot = bestShot(state, enemy)

@@ -15,7 +15,11 @@ tutorial:
   title: Slime City • choose your favorite combat system
   body: >-
     Choose a crew on the left, then a district, an arena format or the card
-    gallery. Each format opens with a HOW TO PLAY panel (reopen it from the
+    gallery. The CITY map is a small overworld: walk lit streets one night at
+    a time, make each district's street decision, and fight its named rival
+    on that rival's format; your decisions change the bout, wins raise
+    standing and open gated districts, losses raise heat, and three
+    champions open the Grand Pit (session only, nothing is saved). Each format opens with a HOW TO PLAY panel (reopen it from the
     arena header). BLACKOUT is an eight-by-eight hidden-army turn game: tap a
     face-down fighter, then an adjacent square, one square per AP; moving
     reveals it. Grab the central flag and carry it to your back (leftmost) column,

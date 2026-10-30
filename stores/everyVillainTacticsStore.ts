@@ -13,6 +13,8 @@ import {
   previewShot,
   previewSelectedPower,
   powerFor,
+  rescueSelected,
+  rescueTargets,
   selectedPowerTargets,
   selectedUnit,
   trainingState,
@@ -22,6 +24,11 @@ import {
   type Mode,
 } from '~/utils/everyVillainTactics/training'
 import { powerBlocker } from '~/utils/everyVillainTactics/powers'
+import {
+  dismissPicnicScene,
+  pendingPicnicScene,
+  picnicCounts,
+} from '~/utils/everyVillainTactics/picnicPanic'
 import {
   EVT_SAVE_SLOTS,
   createSave,
@@ -218,6 +225,35 @@ export const useEveryVillainTacticsStore = defineStore(
           Math.abs(unit.seismicTarget.y - point.y) <= 1,
       )
     }
+    /** Picnic Panic's opening, triggered and final scenes. */
+    const oneShotScene = computed(() => pendingPicnicScene(state.value))
+    const civilianCounts = computed(() =>
+      state.value.civilians ? picnicCounts(state.value) : null,
+    )
+    const canRescue = computed(() => rescueTargets(state.value).length > 0)
+    function dismissScene() {
+      const scene = oneShotScene.value
+      if (scene) dismissPicnicScene(state.value, scene.id)
+    }
+    function rescue() {
+      if (oneShotScene.value) return
+      rescueSelected(state.value)
+    }
+    function civilianAt(point: Cell) {
+      return (
+        state.value.civilians?.find(
+          (c) => c.x === point.x && c.y === point.y && c.status !== 'rescued',
+        ) ?? null
+      )
+    }
+    function isPhaseWarning(point: Cell) {
+      return state.value.units.some(
+        (unit) =>
+          unit.hp > 0 &&
+          unit.phaseTarget?.x === point.x &&
+          unit.phaseTarget?.y === point.y,
+      )
+    }
     function isBurrowWarning(point: Cell) {
       return state.value.units.some(
         (unit) =>
@@ -242,9 +278,13 @@ export const useEveryVillainTacticsStore = defineStore(
             opening:
               (draft.value.encounter === 'quarry-lieutenant'
                 ? 'Mags Hardpan is an independent four-HP lieutenant, not Foreman Thumpkin. Her drum warns of a 3×3 seismic blast. Move away or land a hit to interrupt it; the one-hit Warren Wreckers still burrow. '
-                : draft.value.encounter === 'warren-wreckers'
-                  ? 'Foreman Thumpkin has brought the Warren Wreckers to a disputed city picnic. Dust rings announce their next burrow attack. Block those squares or shoot the one-hit crew. '
-                  : '') +
+                : draft.value.encounter === 'wombat-ronin'
+                  ? 'Lieutenant Teakettle’s Clockwork Wombat Ronin are one-hit teleporters. Each marks a clock-face exit beside a hero, on the side their cover misses, then phases through it next turn. Stand on the exit to jam it. '
+                  : draft.value.encounter === 'licensed-legends'
+                    ? 'Sir Cap-Permission’s Licensed Legends are one-hit wind-up mascots that swarm and block. One that starts its turn beside a hero stamps a seal that locks their signature power for a turn. '
+                    : draft.value.encounter === 'warren-wreckers'
+                      ? 'Foreman Thumpkin has brought the Warren Wreckers to a disputed city picnic. Dust rings announce their next burrow attack. Block those squares or shoot the one-hit crew. '
+                      : '') +
               draft.value.title +
               ' / ' +
               draft.value.venue +
@@ -376,6 +416,7 @@ export const useEveryVillainTacticsStore = defineStore(
     }
     function click(point: Cell) {
       if (story.value.current && !isPlaytest.value) return
+      if (oneShotScene.value) return
       if (state.value.mode === 'power' && state.value.phase === 'active') {
         // Allies can be power targets, so try the power before reselecting.
         if (useSelectedPower(state.value, point)) {
@@ -399,7 +440,7 @@ export const useEveryVillainTacticsStore = defineStore(
       }
     }
     function nextTurn() {
-      if (story.value.current) return
+      if (story.value.current || oneShotScene.value) return
       endTurn(state.value)
       if (!isPlaytest.value) enqueueBeat(story.value, state.value)
       // Each completed round autosaves, so Continue survives a closed tab.
@@ -438,6 +479,18 @@ export const useEveryVillainTacticsStore = defineStore(
         'has-cover': tileInfoAt(point) === 'cover',
         'has-wall': tileInfoAt(point) === 'wall',
         'burrow-warning': isBurrowWarning(point),
+        'phase-warning': isPhaseWarning(point),
+        'civilian-waiting': civilianAt(point)?.status === 'waiting',
+        'civilian-risk':
+          civilianAt(point)?.status === 'waiting' &&
+          state.value.units.some(
+            (u) =>
+              u.hp > 0 &&
+              u.burrowTarget &&
+              Math.abs(u.burrowTarget.x - point.x) +
+                Math.abs(u.burrowTarget.y - point.y) <=
+                1,
+          ),
         'seismic-warning': isSeismicWarning(point),
         elevated: heightAt(point) > 0,
       }
@@ -457,6 +510,13 @@ export const useEveryVillainTacticsStore = defineStore(
       tileInfoAt,
       heightAt,
       isBurrowWarning,
+      isPhaseWarning,
+      oneShotScene,
+      civilianCounts,
+      canRescue,
+      dismissScene,
+      rescue,
+      civilianAt,
       isSeismicWarning,
       boardCells,
       perspective,

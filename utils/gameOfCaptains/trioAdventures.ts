@@ -10,6 +10,7 @@ import { TRIO_ADVENTURES_F } from './trioAdventuresF'
 import { TRIO_ADVENTURES_G } from './trioAdventuresG'
 import { TRIO_ADVENTURES_H } from './trioAdventuresH'
 import { TRIO_ADVENTURES_I } from './trioAdventuresI'
+import { TRIO_ADVENTURES_J } from './trioAdventuresJ'
 
 /**
  * Party adventures (Silas, 2026-10-27, kind_robots#4182): the twelve crew
@@ -89,6 +90,7 @@ export const TRIO_ADVENTURES: readonly TrioAdventure[] = [
   ...TRIO_ADVENTURES_G,
   ...TRIO_ADVENTURES_H,
   ...TRIO_ADVENTURES_I,
+  ...TRIO_ADVENTURES_J,
 ]
 export const TRIO_BY_KEY: Readonly<Record<string, TrioAdventure>> =
   Object.fromEntries(

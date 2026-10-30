@@ -84,6 +84,22 @@ assert.equal(
   battle.state.units.find((unit) => unit.id === 'pip')?.identity,
   recommended.opponentSignature,
 )
+const threeFriends = newTacticalInterlude({
+  ...withLead,
+  assignments: [
+    { caseId: firstMission.id, students: ['mina', 'imani', 'nix'] },
+  ],
+})!
+assert.equal(
+  threeFriends.state.units.filter((unit) => unit.team === 'squad').length,
+  4,
+  'protagonist and all three recruited followers enter the battlefield',
+)
+assert.equal(
+  threeFriends.state.units.find((unit) => unit.id === 'third-follower')
+    ?.henchmanName,
+  'nix',
+)
 assert.ok(battle.state.units.some((unit) => unit.henchmanName))
 assert.ok(battle.state.units.find((unit) => unit.henchmanName)?.maxHp === 1)
 assert.match(tacticalOpening(withLead), /trap|choose what it is prepared/)

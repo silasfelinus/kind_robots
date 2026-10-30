@@ -27,6 +27,13 @@ export const useMemoryHoshimoriStore = defineStore('memoryHoshimori', () => {
   )
   const clues = computed(() => hoshimoriLanternClues(progress.value))
   const resolution = computed(() => hoshimoriOvenResolution(progress.value))
+  const lastOvenOutcome = computed(() => {
+    const last = progress.value.events.at(-1)
+    if (last?.type !== 'oven-choice') return null
+    return HOSHIMORI_OVEN_ROOMS.flatMap((room) => room.choices).find(
+      (choice) => choice.id === last.id,
+    )?.outcome ?? null
+  })
   const canEnterOven = computed(
     () =>
       progress.value.current === '4,3' &&
@@ -72,7 +79,11 @@ export const useMemoryHoshimoriStore = defineStore('memoryHoshimori', () => {
 
   function act(event: HoshimoriEvent): boolean {
     const next = advanceHoshimoriWarm(progress.value, event)
-    if (next === progress.value) return false
+    if (next === progress.value) {
+      if (event.type === 'light')
+        notice.value = 'The lanterns stay dark. Check the numbered clues.'
+      return false
+    }
     progress.value = next
     notice.value = ''
     persist()
@@ -94,6 +105,7 @@ export const useMemoryHoshimoriStore = defineStore('memoryHoshimori', () => {
     currentOvenRoom,
     clues,
     resolution,
+    lastOvenOutcome,
     canEnterOven,
     canMove,
     hydrate,

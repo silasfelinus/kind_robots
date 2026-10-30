@@ -13,6 +13,8 @@ import type {
 import {
   CAMERAS,
   EMOTIONS,
+  ROLES,
+  type SceneCondition,
   type Scene,
   type SceneEffect,
   type SceneNode,
@@ -156,6 +158,7 @@ function cleanTrigger(value: unknown): SceneTrigger {
       'rescue',
       'secret',
       'objective',
+      'faction',
       'after',
       'flag',
     ] as const,
@@ -187,6 +190,8 @@ function cleanTrigger(value: unknown): SceneTrigger {
       return { kind, count: int(t.count, 1, 6, 'Rescue count') }
     case 'objective':
       return { kind, progress: int(t.progress, 1, 40, 'Objective progress') }
+    case 'faction':
+      return { kind, team: team(), lead: int(t.lead, 1, 5, 'Faction lead') }
     case 'after':
       return { kind, scene: slug(t.scene, 'Chained scene') }
     case 'flag':
@@ -194,6 +199,27 @@ function cleanTrigger(value: unknown): SceneTrigger {
     default:
       return { kind }
   }
+}
+function cleanCondition(value: unknown): SceneCondition {
+  const c = record(value, 'Branch condition')
+  const kind = oneOf(
+    c.kind,
+    ['flag', 'perspective', 'alive', 'outnumber'] as const,
+    'branch condition',
+  )
+  if (kind === 'flag') return { kind, flag: slug(c.flag, 'Flag') }
+  if (kind === 'perspective')
+    return {
+      kind,
+      perspective: oneOf(
+        c.perspective,
+        ['hero', 'villain', 'henchman', 'sidekick'] as const,
+        'viewpoint',
+      ),
+    }
+  if (kind === 'alive')
+    return { kind, unit: oneOf(c.unit, SPAWN_IDS, 'branch unit') }
+  return { kind, team: oneOf(c.team, ['squad', 'rival'] as const, 'team') }
 }
 function cleanEffect(value: unknown): SceneEffect {
   const e = record(value, 'Choice effect')
@@ -223,6 +249,15 @@ function cleanScript(value: unknown): SceneScript {
             camera: oneOf(n.camera, CAMERAS, 'camera'),
             text: text(n.text, 400, 'Line'),
             next: nodeRef(n.next, 'Next line'),
+          }
+          if (n.role !== undefined) node.role = oneOf(n.role, ROLES, 'role')
+          if (n.branch !== undefined) {
+            const b = record(n.branch, 'Branch')
+            node.branch = {
+              when: cleanCondition(b.when),
+              then: nodeRef(b.then, 'Branch target'),
+              else: nodeRef(b.else, 'Branch target'),
+            }
           }
           if (n.choices !== undefined)
             node.choices = list(n.choices, 'Choices', 3).map((c) => {

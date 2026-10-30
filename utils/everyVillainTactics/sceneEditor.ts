@@ -2,6 +2,7 @@
 // returns a new script; the studio validates the result with scriptProblems.
 import type {
   Scene,
+  SceneBranch,
   SceneChoice,
   SceneEffect,
   SceneNode,
@@ -42,6 +43,8 @@ export function defaultTrigger(
       return { kind, count: 1 }
     case 'objective':
       return { kind, progress: 1 }
+    case 'faction':
+      return { kind, team: 'squad', lead: 1 }
     case 'after':
       return {
         kind,
@@ -141,23 +144,73 @@ export const updateLine = (
   script: SceneScript,
   id: string,
   nodeId: string,
-  patch: Partial<Pick<SceneNode, 'speaker' | 'emotion' | 'camera' | 'text'>>,
+  patch: Partial<
+    Pick<SceneNode, 'speaker' | 'emotion' | 'camera' | 'text' | 'role'>
+  >,
 ) =>
   withScene(script, id, (scene) => {
     const node = scene.nodes.find((n) => n.id === nodeId)
-    if (node) Object.assign(node, patch)
+    if (!node) return
+    Object.assign(node, patch)
+    if (patch.role === undefined && 'role' in patch) delete node.role
+  })
+/** Points a plain line at another line, or ends the scene with null. */
+export const setNext = (
+  script: SceneScript,
+  id: string,
+  nodeId: string,
+  next: string | null,
+) =>
+  withScene(script, id, (scene) => {
+    const node = scene.nodes.find((n) => n.id === nodeId)
+    if (node && !node.choices?.length && !node.branch) node.next = next
+  })
+export const setChoiceTarget = (
+  script: SceneScript,
+  id: string,
+  nodeId: string,
+  index: number,
+  next: string | null,
+) =>
+  withScene(script, id, (scene) => {
+    const choice = scene.nodes.find((n) => n.id === nodeId)?.choices?.[index]
+    if (choice) choice.next = next
+  })
+/** Makes a line branch on battle state, or (null) back into a plain line. */
+export const setBranch = (
+  script: SceneScript,
+  id: string,
+  nodeId: string,
+  branch: SceneBranch | null,
+) =>
+  withScene(script, id, (scene) => {
+    const node = scene.nodes.find((n) => n.id === nodeId)
+    if (!node) return
+    if (branch) {
+      node.branch = copy(branch)
+      delete node.choices
+    } else {
+      node.next = node.branch?.then ?? node.next
+      delete node.branch
+    }
   })
 /** Removes a line and reconnects whatever pointed at it to its successor. */
 export const removeLine = (script: SceneScript, id: string, nodeId: string) =>
   withScene(script, id, (scene) => {
     const gone = scene.nodes.find((n) => n.id === nodeId)
     if (!gone || scene.nodes.length === 1) return
-    const successor = gone.choices?.length ? null : gone.next
+    const successor = gone.choices?.length
+      ? null
+      : gone.branch
+        ? gone.branch.then
+        : gone.next
     scene.nodes = scene.nodes.filter((n) => n.id !== nodeId)
     for (const node of scene.nodes) {
       if (node.next === nodeId) node.next = successor
       for (const choice of node.choices ?? [])
         if (choice.next === nodeId) choice.next = successor
+      if (node.branch?.then === nodeId) node.branch.then = successor
+      if (node.branch?.else === nodeId) node.branch.else = successor
     }
     if (scene.start === nodeId) scene.start = successor ?? scene.nodes[0]!.id
   })
@@ -175,6 +228,7 @@ export const setChoices = (
     if (choices?.length) {
       node.choices = copy(choices)
       node.next = null
+      delete node.branch
     } else delete node.choices
   })
 export const choiceEffect = (

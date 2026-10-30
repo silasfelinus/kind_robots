@@ -175,12 +175,42 @@
                 {{ camera }}
               </option>
             </select>
+            <select
+              :value="node.role ?? ''"
+              :aria-label="'Story role for ' + node.id"
+              @change="
+                store.updateSceneLine(current.id, node.id, {
+                  role:
+                    (($event.target as HTMLSelectElement).value as SceneRole) ||
+                    undefined,
+                })
+              "
+            >
+              <option value="">No role tag</option>
+              <option v-for="role in ROLES" :key="role" :value="role">
+                the {{ role }}
+              </option>
+            </select>
             <button
               type="button"
               :aria-pressed="!!node.choices?.length"
               @click="store.toggleSceneChoices(current.id, node.id)"
             >
               CHOICES
+            </button>
+            <button
+              type="button"
+              :aria-pressed="!!node.branch"
+              data-testid="studio-line-branch"
+              @click="
+                store.setSceneBranch(
+                  current.id,
+                  node.id,
+                  node.branch ? null : defaultBranch(node.next),
+                )
+              "
+            >
+              IF…
             </button>
             <button
               type="button"
@@ -201,6 +231,128 @@
               })
             "
           ></textarea>
+          <label v-if="!node.choices?.length && !node.branch" class="evs-inline"
+            >THEN
+            <select
+              :value="node.next ?? ''"
+              data-testid="studio-line-next"
+              @change="
+                store.setSceneNext(
+                  current.id,
+                  node.id,
+                  ($event.target as HTMLSelectElement).value || null,
+                )
+              "
+            >
+              <option value="">End the scene</option>
+              <option
+                v-for="other in targetsFor(node.id)"
+                :key="other.id"
+                :value="other.id"
+              >
+                {{ other.label }}
+              </option>
+            </select></label
+          >
+          <div v-if="node.branch" class="evs-row evs-choice">
+            <select
+              :value="node.branch.when.kind"
+              aria-label="Branch condition"
+              @change="
+                store.setSceneBranch(current.id, node.id, {
+                  ...node.branch,
+                  when: defaultCondition(
+                    ($event.target as HTMLSelectElement)
+                      .value as SceneCondition['kind'],
+                  ),
+                })
+              "
+            >
+              <option value="flag">If story flag is set</option>
+              <option value="perspective">If the viewpoint is</option>
+              <option value="alive">If unit is still standing</option>
+              <option value="outnumber">If team outnumbers the other</option>
+            </select>
+            <input
+              v-if="node.branch.when.kind === 'flag'"
+              :value="node.branch.when.flag"
+              maxlength="32"
+              aria-label="Branch flag"
+              @change="
+                store.setSceneBranch(current.id, node.id, {
+                  ...node.branch,
+                  when: {
+                    kind: 'flag',
+                    flag: ($event.target as HTMLInputElement).value,
+                  },
+                })
+              "
+            />
+            <select
+              v-else
+              :value="conditionValue(node.branch.when)"
+              aria-label="Branch condition value"
+              @change="
+                store.setSceneBranch(current.id, node.id, {
+                  ...node.branch,
+                  when: withValue(
+                    node.branch.when,
+                    ($event.target as HTMLSelectElement).value,
+                  ),
+                })
+              "
+            >
+              <option
+                v-for="option in conditionOptions(node.branch.when)"
+                :key="option.value"
+                :value="option.value"
+              >
+                {{ option.label }}
+              </option>
+            </select>
+            <label class="evs-inline"
+              >YES →
+              <select
+                :value="node.branch.then ?? ''"
+                @change="
+                  store.setSceneBranch(current.id, node.id, {
+                    ...node.branch,
+                    then: ($event.target as HTMLSelectElement).value || null,
+                  })
+                "
+              >
+                <option value="">End</option>
+                <option
+                  v-for="other in targetsFor(node.id)"
+                  :key="other.id"
+                  :value="other.id"
+                >
+                  {{ other.label }}
+                </option>
+              </select></label
+            >
+            <label class="evs-inline"
+              >NO →
+              <select
+                :value="node.branch.else ?? ''"
+                @change="
+                  store.setSceneBranch(current.id, node.id, {
+                    ...node.branch,
+                    else: ($event.target as HTMLSelectElement).value || null,
+                  })
+                "
+              >
+                <option value="">End</option>
+                <option
+                  v-for="other in targetsFor(node.id)"
+                  :key="other.id"
+                  :value="other.id"
+                >
+                  {{ other.label }}
+                </option>
+              </select></label
+            >
+          </div>
           <div
             v-for="(choice, index) in node.choices ?? []"
             :key="index"
@@ -242,6 +394,27 @@
                 })
               "
             />
+            <select
+              :value="choice.next ?? ''"
+              :aria-label="'Choice ' + (index + 1) + ' leads to'"
+              @change="
+                store.setSceneChoiceTarget(
+                  current.id,
+                  node.id,
+                  index,
+                  ($event.target as HTMLSelectElement).value || null,
+                )
+              "
+            >
+              <option value="">Ends the scene</option>
+              <option
+                v-for="other in targetsFor(node.id)"
+                :key="other.id"
+                :value="other.id"
+              >
+                {{ other.label }}
+              </option>
+            </select>
           </div>
         </li>
       </ol>
@@ -265,9 +438,13 @@ import { computed } from 'vue'
 import {
   CAMERAS,
   EMOTIONS,
+  ROLES,
   TRIGGER_LABELS,
   type Camera,
   type Emotion,
+  type SceneBranch,
+  type SceneCondition,
+  type SceneRole,
   type TriggerKind,
 } from '~/utils/everyVillainTactics/sceneGraph'
 import { useEveryVillainTacticsStore } from '~/stores/everyVillainTacticsStore'
@@ -348,6 +525,11 @@ const triggerFields = computed<Field[]>(() => {
       return [field('count', 'RESCUED', { numeric: true })]
     case 'objective':
       return [field('progress', 'PROGRESS', { numeric: true })]
+    case 'faction':
+      return [
+        field('team', 'TEAM', { options: TEAMS }),
+        field('lead', 'AHEAD BY', { numeric: true }),
+      ]
     case 'after':
       return [
         field('scene', 'AFTER SCENE', {
@@ -362,6 +544,65 @@ const triggerFields = computed<Field[]>(() => {
       return []
   }
 })
+/** Lines a link can point to, labelled by speaker and opening words. */
+function targetsFor(nodeId: string) {
+  return (current.value?.nodes ?? [])
+    .filter((n) => n.id !== nodeId)
+    .map((n) => ({
+      id: n.id,
+      label:
+        n.id +
+        ' · ' +
+        (SPEAKERS.find((s) => s.value === n.speaker)?.label ?? n.speaker) +
+        ': ' +
+        n.text.slice(0, 24),
+    }))
+}
+const settable = computed(() =>
+  (store.draft.script?.scenes ?? []).flatMap((s) =>
+    s.nodes.flatMap((n) =>
+      (n.choices ?? []).flatMap((c) =>
+        c.effects.flatMap((e) => (e.kind === 'flag' ? [e.flag] : [])),
+      ),
+    ),
+  ),
+)
+function defaultCondition(kind: SceneCondition['kind']): SceneCondition {
+  if (kind === 'flag') return { kind, flag: settable.value[0] ?? 'flag-1' }
+  if (kind === 'perspective') return { kind, perspective: 'hero' }
+  if (kind === 'alive') return { kind, unit: 'pip' }
+  return { kind, team: 'squad' }
+}
+function defaultBranch(next: string | null): SceneBranch {
+  return {
+    when: defaultCondition(settable.value.length ? 'flag' : 'perspective'),
+    then: next,
+    else: next,
+  }
+}
+function conditionValue(when: SceneCondition): string {
+  return when.kind === 'perspective'
+    ? when.perspective
+    : when.kind === 'alive'
+      ? when.unit
+      : when.kind === 'outnumber'
+        ? when.team
+        : when.flag
+}
+function conditionOptions(when: SceneCondition) {
+  if (when.kind === 'perspective')
+    return ROLES.map((role) => ({ value: role, label: 'the ' + role }))
+  if (when.kind === 'alive') return UNITS
+  return TEAMS
+}
+function withValue(when: SceneCondition, value: string): SceneCondition {
+  if (when.kind === 'perspective')
+    return { kind: 'perspective', perspective: value as SceneRole }
+  if (when.kind === 'alive') return { kind: 'alive', unit: value }
+  if (when.kind === 'outnumber')
+    return { kind: 'outnumber', team: value as 'squad' | 'rival' }
+  return { kind: 'flag', flag: value }
+}
 function patch(key: string, raw: string, numeric = false) {
   if (!current.value) return
   store.patchSceneTrigger(current.value.id, {
@@ -486,6 +727,11 @@ function patch(key: string, raw: string, numeric = false) {
 .evs-choice {
   padding-left: 12px;
   border-left: 2px solid #fedda2;
+}
+.evs-inline {
+  display: flex;
+  align-items: center;
+  gap: 6px;
 }
 .evs-empty {
   grid-column: 2;

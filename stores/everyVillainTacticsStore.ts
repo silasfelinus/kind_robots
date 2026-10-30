@@ -83,6 +83,7 @@ import {
   speakerArt,
   speakerName,
   walkScene,
+  type SceneBranch,
   type SceneChoice,
   type SceneEffect,
   type SceneNode,
@@ -99,7 +100,10 @@ import {
   removeLine,
   removeScene,
   renameScene,
+  setBranch,
+  setChoiceTarget,
   setChoices,
+  setNext,
   setTrigger,
   updateLine,
 } from '~/utils/everyVillainTactics/sceneEditor'
@@ -491,8 +495,14 @@ export const useEveryVillainTacticsStore = defineStore(
         : pendingScriptScene(state.value, activeScript.value)
     })
     const sceneWalk = computed(() =>
-      scriptScene.value ? walkScene(scriptScene.value, scenePath.value) : null,
+      scriptScene.value
+        ? walkScene(scriptScene.value, scenePath.value, sceneContext.value)
+        : null,
     )
+    const sceneContext = computed(() => ({
+      state: state.value,
+      perspective: perspective.value,
+    }))
     const sceneLines = computed(() =>
       (sceneWalk.value?.nodes ?? []).map((node: SceneNode) => ({
         ...node,
@@ -512,14 +522,14 @@ export const useEveryVillainTacticsStore = defineStore(
       const scene = scriptScene.value
       if (!scene || sceneWalk.value?.done) return
       const next = [...scenePath.value, index]
-      if (walkScene(scene, next)) scenePath.value = next
+      if (walkScene(scene, next, sceneContext.value)) scenePath.value = next
     }
     function continueScene() {
       const scene = scriptScene.value
       if (!scene || !sceneWalk.value?.done) return
       if (previewSceneId.value) previewSceneId.value = null
       else {
-        finishScene(state.value, scene, scenePath.value)
+        finishScene(state.value, scene, scenePath.value, perspective.value)
         latch()
       }
       scenePath.value = []
@@ -574,10 +584,29 @@ export const useEveryVillainTacticsStore = defineStore(
       id: string,
       nodeId: string,
       patch: Partial<
-        Pick<SceneNode, 'speaker' | 'emotion' | 'camera' | 'text'>
+        Pick<SceneNode, 'speaker' | 'emotion' | 'camera' | 'text' | 'role'>
       >,
     ) {
       editScript((script) => updateLine(script, id, nodeId, patch))
+    }
+    function setSceneNext(id: string, nodeId: string, next: string | null) {
+      editScript((script) => setNext(script, id, nodeId, next))
+    }
+    function setSceneChoiceTarget(
+      id: string,
+      nodeId: string,
+      index: number,
+      next: string | null,
+    ) {
+      editScript((script) => setChoiceTarget(script, id, nodeId, index, next))
+    }
+    /** Toggles a flag/viewpoint/unit/odds branch on a line. */
+    function setSceneBranch(
+      id: string,
+      nodeId: string,
+      branch: SceneBranch | null,
+    ) {
+      editScript((script) => setBranch(script, id, nodeId, branch))
     }
     function removeSceneLine(id: string, nodeId: string) {
       editScript((script) => removeLine(script, id, nodeId))
@@ -1070,6 +1099,9 @@ export const useEveryVillainTacticsStore = defineStore(
       addSceneLine,
       updateSceneLine,
       removeSceneLine,
+      setSceneNext,
+      setSceneChoiceTarget,
+      setSceneBranch,
       toggleSceneChoices,
       updateSceneChoice,
       fieldAt,

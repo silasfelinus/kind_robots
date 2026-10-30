@@ -867,14 +867,23 @@ function skipComicIntros() {
   activeComicIntro.value = null
 }
 function previewComicIntro(role: ComicIntroRole) {
-  queueComicIntro(comicIntroFor(inspectedSignature.value as SignaturePowerId, role), true)
+  queueComicIntro(
+    comicIntroFor(inspectedSignature.value as SignaturePowerId, role),
+    true,
+  )
 }
 watch(
-  () => store.state.units.filter(unit => unit.hp > 0)
-    .map(unit => [unit.identity, unit.team, unit.henchmanType ?? ''].join(':')).join('|'),
+  () =>
+    store.state.units
+      .filter((unit) => unit.hp > 0)
+      .map((unit) =>
+        [unit.identity, unit.team, unit.henchmanType ?? ''].join(':'),
+      )
+      .join('|'),
   () => {
     const lead = store.players[0]
-    if (lead) queueComicIntro(comicIntroFor(lead.identity as SignaturePowerId, 'hero'))
+    if (lead)
+      queueComicIntro(comicIntroFor(lead.identity as SignaturePowerId, 'hero'))
     for (const unit of store.enemies) {
       const role: ComicIntroRole = unit.henchmanType ? 'henchman' : 'villain'
       queueComicIntro(comicIntroFor(unit.identity as SignaturePowerId, role))

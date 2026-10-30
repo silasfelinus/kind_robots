@@ -81,7 +81,8 @@ for (const person of IDENTITY_ARCS) {
     signature + ': boss must announce its counter',
   )
   assert.match(fight.events[0]!, /Round 2/)
-  const announced = { ...boss.signatureTarget! }
+  const announced = boss.signatureTarget as { x: number; y: number } | null
+  assert.ok(announced)
   const threatened = signatureThreatCells(fight.map, signature, announced)
   assert.ok(threatened.some((p) => p.x === lead.x && p.y === lead.y))
   const hp = lead.hp

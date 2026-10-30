@@ -94,6 +94,21 @@ export type StarSignId =
   | 'last-lantern'
   | 'moonlit-upholsterer'
   | 'cosmic-turnip'
+export const STAR_HR_VERDICTS: Record<StarSignId, string> = {
+  'northern-sloth': 'You demonstrate exceptional strategic patience. Payroll has classified this as lateness.',
+  'princess-mantic-shrimp': 'High impact in a compact package. The workplace damage waiver is mandatory.',
+  'velvet-comet': 'Your presentation skills are outstanding. Your expense reports enter the room first.',
+  'clockwork-minnow': 'Precision-oriented and temporally flexible. Your timesheets are under investigation.',
+  'royal-dust-bunny': 'You excel at overlooked tasks. Management plans to continue overlooking you.',
+  'laughing-leviathan': 'An effective morale contributor. Laughter remains a non-reimbursable expense.',
+  'nebular-teapot': 'Excellent host and conflict de-escalator. Hospitality is now an unpaid core duty.',
+  'three-headed-librarian': 'You possess three competing conclusions. The committee recognizes all of them as final.',
+  'feral-umbrella': 'Your protective instincts exceed policy allowances. Please return the company weather.',
+  'last-lantern': 'A natural guide during emergencies. Your night-shift differential has been denied.',
+  'moonlit-upholsterer': 'You repair systemic damage beautifully. HR has renamed this a personal initiative.',
+  'cosmic-turnip': 'Remarkable capacity to establish roots. Remote work has consequently been revoked.',
+}
+
 export type StarAssessment = {
   answers: StarAnswers
   sign: StarSignId

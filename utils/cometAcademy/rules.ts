@@ -52,6 +52,13 @@ import {
 } from './opponents'
 import { GUEST_IDENTITIES } from './guestIdentities'
 import {
+  recommendedRivalFor,
+  validTacticalInterlude,
+  validTacticalOutcome,
+  type TacticalInterlude,
+  type TacticalOutcome,
+} from './tacticalInterlude'
+import {
   applySocialChoice,
   newSocialState,
   socialChoices,
@@ -563,6 +570,9 @@ export type AcademyRun = {
   guestPlan?: 'open' | 'private' | 'duplicate'
   mastermind?: string
   opponentSignature?: SignaturePowerId
+  tacticalBattle?: TacticalInterlude | null
+  tacticalResult?: TacticalOutcome | null
+  tacticalHistory?: TacticalOutcome[]
   playerEvolution?: PlayerEvolution
   relationships?: SocialState
   betrayer?: StudentId
@@ -798,6 +808,24 @@ export function startFullAcademy(
     betrayer: campaignBetrayer(base.seed),
     plotEvidence: [],
     scene: `Final month, day one of thirty. ${campaignAnchor(1)} ${campaignVillain(base.seed).clue}`,
+  }
+}
+
+export function chooseRecommendedRival(run: AcademyRun): AcademyRun {
+  if (
+    run.flowVersion !== 3 ||
+    run.phase !== 'map' ||
+    run.day !== 1 ||
+    !run.signature ||
+    run.tacticalBattle ||
+    run.tacticalHistory?.length
+  )
+    return run
+  const rival = recommendedRivalFor(run.signature)
+  return {
+    ...run,
+    opponentSignature: rival.signature,
+    scene: `Your academy dossier names ${rival.hero.alias} as the one hero most likely to challenge your choices. Their future is still theirs to decide.`,
   }
 }
 
@@ -1292,6 +1320,7 @@ export function resolveDispatch(run: AcademyRun): AcademyRun {
     (run.patrolOpening === 1 && !run.playerCaseId && !run.nightPatrol)
   )
     return run
+  if (run.tacticalBattle) return run
   let influence = run.influence
   let danger = run.danger
   const injuries = { ...(run.injuries ?? {}) }
@@ -1342,17 +1371,24 @@ export function resolveDispatch(run: AcademyRun): AcademyRun {
       run.assignments.some((entry) =>
         entry.students.includes(openingNightFriend(run.seed).id),
       )
-    const grade: Grade = focusTogether
-      ? 'honors'
-      : splitting && score < incident.risk
-        ? 'partial'
-        : score >= incident.risk + 4
-          ? 'honors'
-          : score >= incident.risk + 2
-            ? 'pass'
-            : score >= incident.risk
-              ? 'partial'
-              : 'failed'
+    const playedBattle =
+      run.tacticalResult?.day === run.day &&
+      run.tacticalResult.caseId === incident.id
+        ? run.tacticalResult
+        : null
+    const grade: Grade = playedBattle
+      ? playedBattle.grade
+      : focusTogether
+        ? 'honors'
+        : splitting && score < incident.risk
+          ? 'partial'
+          : score >= incident.risk + 4
+            ? 'honors'
+            : score >= incident.risk + 2
+              ? 'pass'
+              : score >= incident.risk
+                ? 'partial'
+                : 'failed'
     influence +=
       grade === 'honors'
         ? 2
@@ -1429,6 +1465,11 @@ export function resolveDispatch(run: AcademyRun): AcademyRun {
         : ''
     const resolvedText = [
       dramaticText,
+      ...(playedBattle
+        ? [
+            `TACTICAL ${playedBattle.role.toUpperCase()}: ${playedBattle.grade.toUpperCase()} after ${playedBattle.turns} turns, ${playedBattle.fallen} allies down. Your decisions in the fight determined this mission's result, not the dispatch probability roll.`,
+          ]
+        : []),
       tacticalText,
       secret ? `POWER SECRET: ${secret}` : '',
       special ? `SPECIAL ROUTE: ${special.label}. ${special.result}` : '',
@@ -1506,6 +1547,8 @@ export function resolveDispatch(run: AcademyRun): AcademyRun {
           nightPatrol: null,
           missionApproach: null,
           missionClues,
+          tacticalBattle: null,
+          tacticalResult: null,
         }
       : {}),
     ...(patrolMemory
@@ -2078,6 +2121,27 @@ export function restoreAcademy(raw: unknown): AcademyRun | null {
     (data.cityStanding !== undefined &&
       (!Number.isFinite(data.cityStanding) ||
         !Number.isInteger(data.cityStanding)))
+  )
+    return null
+  if (
+    (data.tacticalBattle != null &&
+      !validTacticalInterlude(data.tacticalBattle, data as AcademyRun)) ||
+    (data.tacticalResult != null &&
+      (!validTacticalOutcome(data.tacticalResult, data as AcademyRun) ||
+        data.tacticalResult.day !== data.day ||
+        data.tacticalResult.caseId !== data.playerCaseId)) ||
+    (data.tacticalHistory !== undefined &&
+      (!Array.isArray(data.tacticalHistory) ||
+        data.tacticalHistory.length > 30 ||
+        new Set(data.tacticalHistory.map((entry) => entry.day)).size !==
+          data.tacticalHistory.length ||
+        data.tacticalHistory.some(
+          (entry) =>
+            !validTacticalOutcome(entry, data as AcademyRun) ||
+            entry.day > (data.day ?? 0) ||
+            (entry.day === data.day && data.phase === 'dispatch'),
+        ))) ||
+    (data.tacticalBattle != null && data.tacticalResult != null)
   )
     return null
   // Validate optional patrol state only after primitive, roster and date checks.

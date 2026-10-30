@@ -24,6 +24,12 @@ on:
       - 'components/comic-character-reveal.vue'
       - 'components/play/cometAcademy/AcademyOpening.vue'
       - 'pages/admin/every-villain-tactics.vue'
+      - 'utils/scripts/verifyCapesStyleCheck.test.ts'
+      - 'utils/capesStyleCheck.ts'
+      - 'stores/capesStyleCheckStore.ts'
+      - 'server/api/capes/style-check.get.ts'
+      - 'pages/admin/capes.vue'
+      - 'content/channels/admin/capes.md'
       - 'utils/scripts/verifyGameOfCaptains.test.ts'
       - 'utils/scripts/verifyGameOfCaptainsExpedition.test.ts'
       - 'utils/scripts/verifyGameOfCaptainsCharacters.test.ts'
@@ -64,6 +70,8 @@ jobs:
         run: npx tsx utils/scripts/verifyPromCampaignStages.test.ts
       - name: Shared comic character reveals across both games
         run: npx tsx utils/scripts/verifyComicCharacterReveals.test.ts
+      - name: Shared Capes style gate and live-job projection contract
+        run: npx tsx utils/scripts/verifyCapesStyleCheck.test.ts
       - name: Villain-specific one-hit bestiary parity
         run: npx tsx utils/scripts/verifyPromVillainHenchmen.test.ts
       - name: Captains seeded missions and ethical ending verification

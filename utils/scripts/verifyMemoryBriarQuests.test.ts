@@ -642,13 +642,17 @@ const save = restoreBriarSave(
 assert.deepEqual(save.sceneChoices, all.briar)
 assert.ok(!('quests' in save), 'threads add no save field')
 
-// Six cross-thread rare interludes are genuinely earned: four decisions
+// Eight cross-thread rare interludes are genuinely earned: four decisions
 // from different scenes/rooms, two mutually exclusive authored consequences.
 // No invented reward, hidden save field, or unvisited witness can trigger one.
 assert.deepEqual(validateBriarRareEvents(), [])
-assert.equal(BRIAR_RARE_EVENTS.length, 6)
-assert.equal(new Set(BRIAR_RARE_EVENTS.map((event) => event.id)).size, 6)
-assert.equal(new Set(BRIAR_RARE_EVENTS.map((event) => event.questId)).size, 6)
+assert.equal(BRIAR_RARE_EVENTS.length, BRIAR_QUESTS.length)
+assert.equal(new Set(BRIAR_RARE_EVENTS.map((event) => event.id)).size, 8)
+assert.deepEqual(
+  new Set(BRIAR_RARE_EVENTS.map((event) => event.questId)),
+  new Set(BRIAR_QUESTS.map((quest) => quest.id)),
+  'each of the eight authored quests has a distinct rare convergence',
+)
 const rareCases = [
   {
     id: 'the-fourth-column',
@@ -697,6 +701,22 @@ const rareCases = [
     branchScope: 'house',
     branchKey: 'HD-30',
     choices: ['rest', 'talk'],
+  },
+  {
+    id: 'supper-for-tomorrow',
+    briar: { '3,1': 'harvest', '1,3': 'return' },
+    house: { 'HD-04': 'share' },
+    branchScope: 'briar',
+    branchKey: '1,8',
+    choices: ['plant', 'share'],
+  },
+  {
+    id: 'the-name-left-blank',
+    briar: { '6,3': 'remember' },
+    house: { 'HD-07': 'count', 'HD-17': 'read' },
+    branchScope: 'house',
+    branchKey: 'HD-20',
+    choices: ['testify', 'protect'],
   },
 ] as const
 // The rare-event save fixtures must include the actual passages to each
@@ -830,5 +850,5 @@ assert.match(store, /briarQuestLog\(state\.value\.sceneChoices/)
 assert.match(store, /earnedBriarRareEvents\(/)
 
 console.log(
-  'Memory Briar quests: 8 side quests, 6 earned rare interludes with 12 authored outcomes, epilogue weight and save restoration verified',
+  'Memory Briar quests: 8 side quests, 8 earned rare interludes with 16 authored outcomes, epilogue weight and save restoration verified',
 )

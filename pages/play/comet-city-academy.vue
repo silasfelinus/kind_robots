@@ -98,7 +98,24 @@
           <span class="cca-serial">C.C.A. // 07</span>
         </div>
         <div class="cca-pane kr-scroll">
-          <template v-if="!store.loaded">
+          <AcademyTacticalFight
+            v-if="store.tactical && run"
+            :battle="store.tactical"
+            :rival-name="opponent?.hero.alias ?? 'THE RIVAL'"
+            :mission="
+              store.incidents.find(
+                (incident) => incident.id === store.tactical?.caseId,
+              )?.title ?? 'NIGHT PATROL'
+            "
+            :opening="tacticalOpening(run)"
+            :role="tacticalRoleFor(run)"
+            @cell="store.battleClick"
+            @mode="store.battleMode"
+            @turn="store.battleTurn"
+            @retreat="store.battleRetreat"
+            @finish="store.battleResolve"
+          />
+          <template v-else-if="!store.loaded">
             <p class="cca-muted">Loading your academy record…</p>
           </template>
           <template v-else-if="run.phase === 'map'">
@@ -121,6 +138,40 @@
                 }})
               </span>
             </p>
+            <div
+              v-if="run.flowVersion === 3 && run.signature && run.day === 1"
+              class="cca-report-mini"
+              data-testid="academy-recommended-rival"
+            >
+              <strong
+                >RECOMMENDED RIVAL ·
+                {{ recommendedRivalFor(run.signature).hero.alias }}</strong
+              >
+              <span>{{
+                recommendedRivalFor(run.signature).student.conflict
+              }}</span>
+              <span
+                >The current campaign still allows a different seeded
+                antagonist. Your rival has their own agency and can become the
+                hero if you turn villain.</span
+              >
+              <button
+                type="button"
+                class="cca-choice"
+                :disabled="
+                  run.opponentSignature ===
+                  recommendedRivalFor(run.signature).signature
+                "
+                @click="store.recommendRival()"
+              >
+                {{
+                  run.opponentSignature ===
+                  recommendedRivalFor(run.signature).signature
+                    ? 'RECOMMENDED RIVAL SELECTED'
+                    : 'CHOOSE THIS RIVALRY FOR YOUR STORY'
+                }}
+              </button>
+            </div>
             <div
               v-if="run.playerEvolution"
               class="cca-report-mini"
@@ -714,6 +765,30 @@
               <span>↗</span>
             </button>
             <button
+              v-if="
+                run.flowVersion === 3 &&
+                run.day >= 15 &&
+                run.signature &&
+                run.opponentSignature &&
+                run.playerCaseId &&
+                !run.tacticalHistory?.some((entry) => entry.day === run?.day)
+              "
+              class="cca-choice"
+              type="button"
+              data-testid="academy-launch-tactical"
+              @click="store.startBattle()"
+            >
+              <span>
+                ✦ PLAY THE TACTICAL FIGHT · {{ opponent?.hero.alias }}
+                <small
+                  >Move your squad on a cover-and-line-of-sight battlefield. The
+                  actual victory or defeat replaces the automatic result for
+                  your personally led call.</small
+                >
+              </span>
+              <span>↗</span>
+            </button>
+            <button
               class="cca-primary"
               type="button"
               data-testid="academy-dispatch"
@@ -1001,6 +1076,12 @@ import {
 import { computed, onMounted, ref, watch } from 'vue'
 import { comicIntroFor } from '~/utils/cometAcademy/comicIntroductions'
 import AcademyOpening from '~/components/play/cometAcademy/AcademyOpening.vue'
+import AcademyTacticalFight from '~/components/play/cometAcademy/AcademyTacticalFight.vue'
+import {
+  recommendedRivalFor,
+  tacticalOpening,
+  tacticalRoleFor,
+} from '~/utils/cometAcademy/tacticalInterlude'
 import { fieldFor, identityFor } from '~/utils/cometAcademy/identityArcs'
 import type { PlayerForm } from '~/utils/cometAcademy/protagonistEvolution'
 import { campaignVillain } from '~/utils/cometAcademy/campaign'

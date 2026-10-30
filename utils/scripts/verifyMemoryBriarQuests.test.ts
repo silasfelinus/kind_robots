@@ -844,7 +844,10 @@ for (const medal of MEMORY_BRIAR_ACHIEVEMENTS) {
   const quest = BRIAR_QUESTS.find((q) => q.id === medal.questId)
   assert.equal(medal.artPath, quest?.artPath, 'reuse authored quest art')
   assert.ok(medal.title.length >= 12 && medal.description.length >= 45)
-  assert.ok(medal.echo.length >= 120, `${medal.id} has a substantial authored echo`)
+  assert.ok(
+    medal.echo.length >= 120,
+    `${medal.id} has a substantial authored echo`,
+  )
 }
 assert.equal(
   new Set(MEMORY_BRIAR_ACHIEVEMENTS.map((medal) => medal.echo)).size,
@@ -852,7 +855,9 @@ assert.equal(
   'every rare convergence unlocks a different story fragment',
 )
 assert.ok(
-  memoryAchievementGallery([]).every((medal) => !medal.earned && medal.echo === null),
+  memoryAchievementGallery([]).every(
+    (medal) => !medal.earned && medal.echo === null,
+  ),
   'unearned fragments must not leak into the gallery',
 )
 let lifetime: string[] = []

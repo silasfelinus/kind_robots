@@ -2,6 +2,7 @@
 // The Conductor art ledger owns the complete generation prompts and ArtJob IDs.
 export const CAPES_STYLE_ROUND = 'capes-western-style-check-v1'
 export const CAPES_STYLE_DESIGNER = 'Capes Style Check 2026-10-29'
+export const CAPES_STYLE_DESIGNERS = [CAPES_STYLE_DESIGNER, 'Capes Style Check 2026-10-29 Map Portrait Extension'] as const
 export const CAPES_STYLE_PROJECT = 'comet-city-academy'
 
 export const CAPES_STYLE_SUBJECTS = [
@@ -53,6 +54,22 @@ export const CAPES_STYLE_SUBJECTS = [
     aspect: '2 / 1',
     purpose: 'Full-body outline and small-screen combat readability',
   },
+  {
+    key: 'academy-city-quad-map',
+    title: 'Comet City Quad',
+    subtitle: 'Geographic illustrated map',
+    seed: 629107,
+    aspect: '16 / 9',
+    purpose: 'Fountain center, walkable campus topology and linked downtown',
+  },
+  {
+    key: 'firewall-alert-portrait',
+    title: 'Firewall',
+    subtitle: 'Expressive character portrait',
+    seed: 629108,
+    aspect: '7 / 9',
+    purpose: 'Clear human facial acting, recognizable design and portrait crop',
+  },
 ] as const
 
 export const CAPES_STYLE_LANES = [
@@ -62,6 +79,7 @@ export const CAPES_STYLE_LANES = [
     family: 'Qwen / concrete prose',
     model: 'Krea-2-Turbo',
     tone: 'Clean scene composition',
+    recipe: 'Concrete spatial prose · native Krea profile',
   },
   {
     key: 'arthemy',
@@ -69,6 +87,7 @@ export const CAPES_STYLE_LANES = [
     family: 'Illustrious / caption tags',
     model: 'arthemyWesternArt_v30',
     tone: 'Existing Western Art benchmark',
+    recipe: 'Illustrious tags · Euler a · 30 steps · CFG 5',
   },
   {
     key: 'nova-comic',
@@ -76,6 +95,7 @@ export const CAPES_STYLE_LANES = [
     family: 'Illustrious / caption tags',
     model: 'novaComicXL_v20',
     tone: 'Inked superhero language',
+    recipe: 'Illustrious tags · Euler a · 28 steps · CFG 5',
   },
   {
     key: 'illustrij',
@@ -83,6 +103,7 @@ export const CAPES_STYLE_LANES = [
     family: 'Illustrious / caption tags',
     model: 'illustrij_v21',
     tone: 'Expressive line-art challenger',
+    recipe: 'Illustrious tags · Euler a · 28 steps · CFG 5',
   },
   {
     key: 'dreamshaper',
@@ -90,6 +111,7 @@ export const CAPES_STYLE_LANES = [
     family: 'SDXL Turbo / concise prose',
     model: 'dreamshaperXL_v21TurboDPMSDE',
     tone: 'Broad shape consistency',
+    recipe: 'Turbo prose · DPM++ 2M SDE · 6 steps · CFG 2',
   },
   {
     key: 'unstable',
@@ -97,6 +119,7 @@ export const CAPES_STYLE_LANES = [
     family: 'SDXL / scene prose',
     model: 'sdxlUnstableDiffusers_nihilmania',
     tone: 'Painterly wildcard',
+    recipe: 'SDXL prose · DPM++ 2M · 28 steps · CFG 7',
   },
 ] as const
 

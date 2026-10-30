@@ -1,6 +1,8 @@
 import { CAMPAIGN_VILLAINS, campaignVillain } from './campaign'
 import { identityFor } from './identityArcs'
 import { PATROL_SECRETS, PATROL_ZONES, patrolSceneFor } from './nightPatrols'
+import { patrolStoryById } from './patrolStories'
+import { OCTOBER_CAST } from './octoberCast'
 import { TRIAD_ARCS, compatibilityFor, socialProfile } from './relationships'
 import {
   COMPLETE_NIGHT_DECK,
@@ -448,6 +450,25 @@ export function scrapbookMoments(run: AcademyRun): ScrapbookMoment[] {
   }
   for (const memory of run.patrolHistory ?? []) {
     const zone = PATROL_ZONES.find((entry) => entry.id === memory.zone)
+    const story = patrolStoryById(memory.encounterId)
+    const storyOutcome =
+      story && memory.outcome
+        ? story.choices.find((entry) => entry.id === memory.choiceId)?.outcomes[
+            memory.outcome
+          ]
+        : undefined
+    if (story) {
+      moments.push({
+        day: memory.day,
+        kind: 'patrol',
+        title: `${zone?.title ?? 'Patrol'} · ${story.title}`,
+        text:
+          storyOutcome?.text.split('{betrayer}').join('your old teammate') ??
+          story.scene,
+        artKeys: zone ? [districtArtKey(zone.siteId)] : [],
+      })
+      continue
+    }
     const scene = patrolSceneFor(run.seed, memory.day, memory.zone)
     const option =
       scene.choices.find((entry) => entry.id === memory.choiceId) ??
@@ -551,6 +572,37 @@ export function scrapbookMoments(run: AcademyRun): ScrapbookMoment[] {
       artKeys: run.signature ? [identityArtKey(run.signature, 'student')] : [],
     })
   return moments.sort((a, b) => a.day - b.day)
+}
+
+/** The Oct 29 cast the player has met on patrol, with the stance they took. */
+export function notableCards(run: AcademyRun) {
+  return OCTOBER_CAST.map((member) => {
+    const memory = run.patrolHistory?.find(
+      (entry) => entry.encounterId === member.storyId,
+    )
+    const choice = memory
+      ? patrolStoryById(member.storyId)?.choices.find(
+          (option) => option.id === memory.choiceId,
+        )
+      : undefined
+    return {
+      key: member.key,
+      met: Boolean(memory),
+      day: memory?.day ?? null,
+      name: memory ? member.name : 'Unmet notable',
+      role: memory ? member.role : null,
+      line: memory ? member.lines[0] : null,
+      species: memory ? member.species : null,
+      stance: memory
+        ? choice?.kind === 'secret'
+          ? 'secret'
+          : choice?.kind === 'refuse'
+            ? 'walked away'
+            : (choice?.stance ?? null)
+        : null,
+      artKeys: [member.artKeys.portrait, member.artKeys.splash],
+    }
+  })
 }
 
 /** The twelve endings as yearbook plates: discovered ones show their art. */

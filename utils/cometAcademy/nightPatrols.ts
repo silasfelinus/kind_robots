@@ -1,4 +1,5 @@
 import type { SiteId } from './cityMap'
+import type { StoryGrade } from './patrolStories'
 
 export type PatrolZoneId = 'academy' | 'transit' | 'harbor' | 'civic'
 export type PatrolChoice = {
@@ -20,6 +21,8 @@ export type PatrolMemory = {
   zone: PatrolZoneId
   encounterId: string
   choiceId: string
+  /** Only commissioned patrol stories (patrolStories.ts) record a grade. */
+  outcome?: StoryGrade
 }
 export const PATROL_ZONES: readonly {
   id: PatrolZoneId

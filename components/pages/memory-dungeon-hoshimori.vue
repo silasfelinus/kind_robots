@@ -213,8 +213,7 @@
           </p>
           <p
             v-if="
-              hoshimori.progress.current === '4,6' &&
-              hoshimori.lowlandAccount
+              hoshimori.progress.current === '4,6' && hoshimori.lowlandAccount
             "
             class="rounded-xl border border-success/30 bg-success/15 p-3 text-base leading-relaxed"
             data-testid="memory-hoshimori-lowland-account"

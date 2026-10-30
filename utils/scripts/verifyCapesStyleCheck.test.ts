@@ -32,8 +32,16 @@ assert.equal(
 )
 assert.ok(CAPES_STYLE_DESIGNER.includes('Capes Style Check'))
 assert.equal(CAPES_STYLE_DESIGNERS.length, 2)
-assert.ok(CAPES_STYLE_SUBJECTS.some(subject => subject.key === 'academy-city-quad-map'))
-assert.ok(CAPES_STYLE_SUBJECTS.some(subject => subject.key === 'firewall-alert-portrait'))
+assert.ok(
+  CAPES_STYLE_SUBJECTS.some(
+    (subject) => subject.key === 'academy-city-quad-map',
+  ),
+)
+assert.ok(
+  CAPES_STYLE_SUBJECTS.some(
+    (subject) => subject.key === 'firewall-alert-portrait',
+  ),
+)
 assert.deepEqual(
   new Set(CAPES_STYLE_LANES.map((lane) => lane.key)),
   new Set([
@@ -60,7 +68,8 @@ assert.equal(capesStyleLaneFromModel('furrytoonmix_xlV3.safetensors'), null)
 assert.equal(capesStyleLaneFromModel('ponyFaetality_v11.safetensors'), null)
 
 const atlas = readFileSync(
-  new URL('../../components/admin/capes-cast-atlas.vue', import.meta.url), 'utf8',
+  new URL('../../components/admin/capes-cast-atlas.vue', import.meta.url),
+  'utf8',
 )
 assert.match(atlas, /data-testid="capes-cast-atlas"/)
 assert.match(atlas, /data-testid="capes-cast-search"/)

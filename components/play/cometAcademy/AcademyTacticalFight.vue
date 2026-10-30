@@ -85,6 +85,31 @@
         }}
       </p>
     </aside>
+    <aside
+      v-if="allied"
+      class="atf-ally-panel"
+      data-testid="academy-allied-lieutenant"
+      :aria-label="'Allied lieutenant ' + allied.lieutenantName"
+    >
+      <span class="atf-boss-kicker">THE LIEUTENANT RETURNS · YOUR SIDE</span>
+      <div class="atf-boss-layout">
+        <strong>{{ allied.lieutenantName }}</strong>
+        <span
+          >{{ allied.hp }} HP ·
+          {{
+            allied.signatureSupportUsed ? 'POWER SPENT' : 'SIGNATURE READY'
+          }}</span
+        >
+      </div>
+      <p>
+        Select their ✦ card and spend 2 AP for a once-per-battle signature
+        attack on the nearest visible rival. Allies are safe.
+      </p>
+      <p v-if="alliedPreview" class="atf-ally-ready">
+        TARGET {{ aliasFor(alliedPreview.target) }} ·
+        {{ alliedPreview.cells.length }} highlighted tiles
+      </p>
+    </aside>
     <div
       class="atf-grid"
       :style="{
@@ -111,6 +136,7 @@
             !battle.arena?.discovered,
           'atf-shift': atPoint(cell, battle.arena?.shiftPoint),
           'atf-threat': isThreat(cell),
+          'atf-ally-target': isAllyThreat(cell),
           'atf-boss-counter': atPoint(cell, boss?.signatureCounter),
         }"
         :disabled="
@@ -152,6 +178,7 @@
           <span class="atf-hp">{{ unitAt(cell)?.hp }} HP</span>
         </template>
         <span v-else-if="isThreat(cell)" aria-hidden="true">⚠</span>
+        <span v-else-if="isAllyThreat(cell)" aria-hidden="true">✧</span>
         <span
           v-else-if="terrainAt(cell, state.map) === 'wall'"
           aria-hidden="true"
@@ -250,6 +277,16 @@
       >
         DISRUPT · 1 AP
       </button>
+      <button
+        v-if="selected?.id === 'allied-lieutenant'"
+        type="button"
+        class="atf-ally-action"
+        :disabled="!alliedPreview"
+        data-testid="academy-allied-signature"
+        @click="$emit('support')"
+      >
+        {{ alliedPreview?.attack ?? 'SIGNATURE UNAVAILABLE' }} · 2 AP
+      </button>
       <button type="button" @click="$emit('turn')">END TURN</button>
       <button class="atf-retreat" type="button" @click="$emit('retreat')">
         RETREAT
@@ -288,6 +325,7 @@ import {
   actorAt,
   aliasFor,
   availableMove,
+  previewAlliedSignature,
   previewShot,
   selectedUnit,
   terrainAt,
@@ -311,11 +349,19 @@ defineEmits<{
   turn: []
   counter: []
   parley: [decision: 'ally' | 'truce']
+  support: []
   retreat: []
   finish: []
 }>()
 const state = computed(() => props.battle.state)
 const selected = computed(() => selectedUnit(state.value))
+const allied = computed(() =>
+  state.value.units.find((unit) => unit.id === 'allied-lieutenant'),
+)
+const alliedPreview = computed(() => previewAlliedSignature(state.value))
+const isAllyThreat = (p: Cell) =>
+  !!alliedPreview.value &&
+  alliedPreview.value.cells.some((cell) => cell.x === p.x && cell.y === p.y)
 const canParley = computed(() => canParleyWithLieutenant(props.battle))
 const boss = computed(() =>
   state.value.units.find((unit) => unit.signatureBoss),
@@ -368,6 +414,7 @@ function cellLabel(cell: Cell) {
         (objective?.discovered ? 'discovered clue' : 'undiscovered secret')
       : ''
   const warning = isThreat(cell) ? ', in announced danger zone' : ''
+  const allyMark = isAllyThreat(cell) ? ', in allied signature strike' : ''
   const signal = atPoint(cell, boss.value?.signatureCounter)
     ? ', disrupt station: approach and spend one AP'
     : ''
@@ -377,13 +424,41 @@ function cellLabel(cell: Cell) {
       unit.team === 'rival' && selected.value
         ? previewShot(selected.value, unit, state.value.map).hit
         : null
-    return `${aliasFor(unit)}, ${unit.hp} HP${chance === null ? '' : ', ' + chance + '% hit chance'}${landmark}${warning}${signal}`
+    return `${aliasFor(unit)}, ${unit.hp} HP${chance === null ? '' : ', ' + chance + '% hit chance'}${landmark}${warning}${allyMark}${signal}`
   }
-  return `Column ${cell.x + 1}, row ${cell.y + 1}: ${terrainAt(cell, state.value.map)}${landmark}${warning}${signal}${availableMove(state.value, cell) ? ', reachable' : ''}`
+  return `Column ${cell.x + 1}, row ${cell.y + 1}: ${terrainAt(cell, state.value.map)}${landmark}${warning}${allyMark}${signal}${availableMove(state.value, cell) ? ', reachable' : ''}`
 }
 </script>
 
 <style scoped>
+.atf-ally-panel {
+  padding: 0.85rem;
+  border: 2px solid #b9edc0;
+  border-radius: 0.6rem;
+  background: linear-gradient(105deg, #154331, #242a4b);
+  color: #f0fff0;
+}
+.atf-ally-panel p {
+  font-size: 0.83rem;
+  line-height: 1.35;
+}
+.atf-ally-panel .atf-ally-ready {
+  color: #d5ff91;
+  font-weight: 850;
+}
+.atf-ally-target {
+  box-shadow: inset 0 0 0 2px #bbf7d0;
+  border-color: #bbf7d0;
+}
+.atf-ally-action {
+  background: #24634e;
+  border: 1px solid #b9edc0;
+  color: #fff;
+  font-weight: 900;
+}
+.atf-ally-action:disabled {
+  opacity: 0.5;
+}
 .atf-parley {
   display: grid;
   gap: 0.45rem;

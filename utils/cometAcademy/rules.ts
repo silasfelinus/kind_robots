@@ -1494,8 +1494,7 @@ export function chooseNovelNight(
       if (friend) assignments.push({ caseId: incident.id, students: [friend] })
     }
     const leadSupport = available[others.length]
-    if (leadSupport)
-      assignments.push({ caseId, students: [leadSupport] })
+    if (leadSupport) assignments.push({ caseId, students: [leadSupport] })
   }
   const incident = cases.find((entry) => entry.id === caseId)!
   return {

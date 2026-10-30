@@ -1722,6 +1722,144 @@ export const HOSHIMORI_OVEN_ROOMS: readonly HoshimoriOvenRoom[] = [
       },
     ],
   },
+  {
+    id: 'OV-16',
+    title: 'The Soot Court',
+    opening:
+      'People whose memories paid for yesterday’s bread wait beneath the cooling flue. The baker offers apologies in bulk; the families ask for a place where each can dispute the record without becoming a public spectacle.',
+    choices: [
+      {
+        id: 'invite-appeals',
+        label: 'Open an independent appeal desk with private testimony',
+        outcome:
+          'The first petition is heard behind a screen. The baker must answer for missing consent, but no claimant has to perform their grief for the crowd.',
+        trust: 1,
+        flag: 'cinder-appeals-opened',
+      },
+      {
+        id: 'hold-private-hearings',
+        label: 'Let affected households choose separate mediators',
+        outcome:
+          'Families appoint their own listeners and set dates they can refuse. The cases move slowly, and the baker cannot call the delay forgiveness.',
+        flag: 'cinder-mediators-chosen',
+      },
+    ],
+  },
+  {
+    id: 'OV-17',
+    title: 'The Forgotten Spoon',
+    opening:
+      'A long-handled spoon has stirred every batch since Pip was small. Its bowl is cracked; its owner insists it has never complained. The spoon taps twice for no and once for yes.',
+    choices: [
+      {
+        id: 'offer-shelf',
+        label: 'Give the spoon a place to rest without a debt attached',
+        outcome:
+          'It chooses a high shelf overlooking the kitchen. The soup must be stirred by volunteers, and the spoon may return when it wishes.',
+        trust: 1,
+        flag: 'cinder-spoon-rested',
+      },
+      {
+        id: 'restore-handle',
+        label: 'Repair its handle and ask which meals it wants to make',
+        outcome:
+          'The spoon volunteers for festival broth, not the night shift. A chalkboard records its hours where even the baker can read them.',
+        flag: 'cinder-spoon-consented',
+      },
+    ],
+  },
+  {
+    id: 'OV-18',
+    title: 'The Ferry Kitchen',
+    opening:
+      'Flood survivors from the lowlands have reached the bakery with wet blankets and no bowls. The ferry captain can move food or people before the next rise, but not both at once.',
+    choices: [
+      {
+        id: 'float-supper',
+        label: 'Send hot meals downstream and arrange a later rescue',
+        outcome:
+          'Soup reaches the stranded houses while the ferry returns for passengers at dawn. The captain records who still waits, without promising a tide she cannot command.',
+        trust: 1,
+        flag: 'cinder-meals-ferried',
+      },
+      {
+        id: 'build-dry-pantry',
+        label: 'Bring the families ashore and build a dry communal pantry',
+        outcome:
+          'The last ferry takes people first. Neighbors share uncooked grain in the refuge; the missing hot supper is an honest cost of getting everyone out.',
+        flag: 'cinder-refuge-built',
+      },
+    ],
+  },
+  {
+    id: 'OV-19',
+    title: 'Pip’s Unwritten Page',
+    opening:
+      'Pip finds an empty line where his childhood benefactor should be. The elders offer three guesses and a seal. Pip folds the ledger shut: being grateful does not give them the right to invent a name.',
+    choices: [
+      {
+        id: 'return-ledger',
+        label: 'Give Pip the original ledger and the choice to share it',
+        outcome:
+          'Pip keeps the page. He may ask the giver one day, but tonight he will not turn a kindness into a claim on someone else’s past.',
+        trust: 1,
+        flag: 'cinder-pip-owns-ledger',
+      },
+      {
+        id: 'keep-blank',
+        label: 'Preserve the blank line and record only what witnesses know',
+        outcome:
+          'The village keeps a verifiable gap instead of a convenient story. Pip asks that the next child be fed without creating a debt at all.',
+        flag: 'cinder-pip-gap-honored',
+      },
+    ],
+  },
+  {
+    id: 'OV-20',
+    title: 'The Cooling Bell',
+    opening:
+      'Kogane and the guardian stand beside the emergency bell. If the new rules are real, either should be able to stop the flame when work becomes unsafe, even during a hungry morning.',
+    choices: [
+      {
+        id: 'ring-bell',
+        label: 'Let Kogane demonstrate a full stop without punishment',
+        outcome:
+          'The flame goes out. The kitchens keep feeding people from their stores, proving that refusing the Oven need not mean abandoning the hungry.',
+        trust: 1,
+        flag: 'cinder-stop-demonstrated',
+      },
+      {
+        id: 'call-witnesses',
+        label: 'Ask workers and neighbors to witness a reversible pause',
+        outcome:
+          'The guardian pauses when the bell sounds, and the witnesses sign only for this trial. They reserve the right to demand a longer shutdown.',
+        flag: 'cinder-pause-witnessed',
+      },
+    ],
+  },
+  {
+    id: 'OV-21',
+    title: 'The First Restitution Table',
+    opening:
+      'The village gathers around a table built from salvaged oven bricks. Nobody can give back every forgotten birthday. The households ask for a remedy they can revisit, not a speech that declares the debt paid.',
+    choices: [
+      {
+        id: 'open-appeals',
+        label: 'Fund continuing appeals and let claimants revise remedies',
+        outcome:
+          'The first claims receive food, time and a right to return. The council must publish what it can repair and what remains beyond its reach.',
+        trust: 1,
+        flag: 'cinder-restitution-appeals',
+      },
+      {
+        id: 'keep-rotating-council',
+        label: 'Give affected households rotating control of relief funds',
+        outcome:
+          'The households choose their own representatives and recall rules. The baker loses control of the fund; unresolved claims remain visible at the next meeting.',
+        flag: 'cinder-restitution-council',
+      },
+    ],
+  },
 ]
 
 export type HoshimoriEvent =
@@ -1731,6 +1869,7 @@ export type HoshimoriEvent =
   | { type: 'enter' }
   | { type: 'enter-wing' }
   | { type: 'enter-ember-wing' }
+  | { type: 'enter-cinder-wing' }
   | { type: 'oven-choice'; id: string }
   | { type: 'leave' }
 
@@ -1991,6 +2130,37 @@ export function hoshimoriOvenThirdAccount(
   return accounts.join(' ')
 }
 
+/** Restitution is provisional: every Cinder Wing witness must actually be earned. */
+export function hoshimoriOvenFourthAccount(
+  progress: HoshimoriWarmProgress,
+): string | null {
+  const required = ['OV-16', 'OV-17', 'OV-18', 'OV-19', 'OV-20', 'OV-21']
+  if (required.some((id) => !progress.ovenChoices[id])) return null
+  const guardian = hoshimoriOvenGuardianResolution(progress)
+  if (!guardian) return null
+  const accounts = [
+    progress.ovenChoices['OV-16'] === 'invite-appeals'
+      ? 'An independent desk hears private restitution claims.'
+      : 'Households chose their own mediators and timelines.',
+    progress.ovenChoices['OV-17'] === 'offer-shelf'
+      ? 'The living spoon retired without forfeiting its home.'
+      : 'The spoon chose a limited, repaired working shift.',
+    progress.ovenChoices['OV-18'] === 'float-supper'
+      ? 'Meals traveled downstream while the rescue ferry returned at dawn.'
+      : 'The ferry brought people ashore before food, leaving an honest supper shortage.',
+    progress.ovenChoices['OV-19'] === 'return-ledger'
+      ? 'Pip took custody of his own childhood ledger.'
+      : 'Pip protected the blank page against invented gratitude.',
+    progress.ovenChoices['OV-20'] === 'ring-bell'
+      ? 'Kogane proved that a full stop would not end relief.'
+      : 'Workers witnessed a reversible cooling-bell trial.',
+    progress.ovenChoices['OV-21'] === 'open-appeals'
+      ? 'Claimants can reopen their cases and revise remedies.'
+      : 'Affected households govern a recallable relief council.',
+  ]
+  return guardian + ' ' + accounts.join(' ')
+}
+
 export function hoshimoriOvenResolution(
   progress: HoshimoriWarmProgress,
 ): string | null {
@@ -2043,6 +2213,7 @@ function eventShape(event: HoshimoriEvent): boolean {
     (event.type === 'enter' ||
       event.type === 'enter-wing' ||
       event.type === 'enter-ember-wing' ||
+      event.type === 'enter-cinder-wing' ||
       event.type === 'leave') &&
     keys === 'type'
   )
@@ -2126,7 +2297,21 @@ export function advanceHoshimoriWarm(
         !progress.ovenChoices['OV-15'] &&
         progress.current === '4,3'
       ) {
-        const next = HOSHIMORI_OVEN_ROOMS.slice(9).find(
+        const next = HOSHIMORI_OVEN_ROOMS.slice(9, 15).find(
+          (room) => !progress.ovenChoices[room.id],
+        )
+        if (next) changed = { ovenRoom: next.id }
+      }
+      break
+    }
+    case 'enter-cinder-wing': {
+      if (
+        !progress.ovenRoom &&
+        progress.ovenChoices['OV-15'] &&
+        !progress.ovenChoices['OV-21'] &&
+        progress.current === '4,3'
+      ) {
+        const next = HOSHIMORI_OVEN_ROOMS.slice(15, 21).find(
           (room) => !progress.ovenChoices[room.id],
         )
         if (next) changed = { ovenRoom: next.id }
@@ -2156,7 +2341,10 @@ export function advanceHoshimoriWarm(
         (item) => item.id === room!.id,
       )
       const next =
-        room!.id === 'OV-03' || room!.id === 'OV-09'
+        room!.id === 'OV-03' ||
+        room!.id === 'OV-09' ||
+        room!.id === 'OV-15' ||
+        room!.id === 'OV-21'
           ? null
           : (HOSHIMORI_OVEN_ROOMS[index + 1]?.id ?? null)
       changed = {
@@ -2223,7 +2411,7 @@ export function restoreHoshimoriWarm(
 export function validateHoshimoriWarm(): string[] {
   const errors: string[] = []
   if (SITES.size !== 64) errors.push('Expected sixty-four unique warm sites')
-  if (OVEN.size !== 15) errors.push('Expected fifteen authored Oven rooms')
+  if (OVEN.size !== 21) errors.push('Expected twenty-one authored Oven rooms')
   const ovenChoiceIds = HOSHIMORI_OVEN_ROOMS.flatMap((room) =>
     room.choices.map((choice) => choice.id),
   )

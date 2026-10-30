@@ -31,22 +31,25 @@ function site(
 export const HOSHIMORI_WARM_SITES: readonly HoshimoriSite[] = [
   site(
     '1,1',
-    'The Cedar Footbridge',
-    'The river carries empty sandals toward a lantern supper. Pip insists the shoes count as guests, though nobody knows who took them off.',
+    'Vesper’s Childhood Footbridge',
+    'Vesper folds their dusty-grey moth wings beside the cedar footbridge they knew as a child. They once traced secret paths beneath these boards so lost travelers could reach the lantern supper. Today the river carries empty sandals, and the cartographer fears a familiar route has been sold again.',
     {
       id: 'seat',
-      label: 'Spend a ration to set a place for the missing guest',
+      label:
+        'Help Vesper set a place without recording the missing guest’s name',
       outcome:
-        'A seat remains empty but nobody is turned away. Pip writes a question mark where a name should be.',
+        'Vesper remembers a parent leaving spare rice by the bridge for people whose names could not safely be spoken. The table stays open, but the mystery of the lost sandals remains.',
+
       rations: -1,
       trust: 1,
       flag: 'guest-seated',
     },
     {
       id: 'listen',
-      label: 'Follow the sandals to learn who is absent',
+      label: 'Follow Vesper’s old stepping-stone route to the missing guest',
       outcome:
-        'The current leads toward a locked household. You learn where to ask, but the hungry guests still need supper.',
+        'Vesper remembers every hidden foothold, but the path leads to a house now chained shut. The cartographer knows how to find it and fears someone else does too.',
+
       flag: 'guest-traced',
     },
   ),
@@ -96,21 +99,22 @@ export const HOSHIMORI_WARM_SITES: readonly HoshimoriSite[] = [
   ),
   site(
     '4,1',
-    'Orchard of Floating Lanterns',
-    'An old lantern floats upside down beneath a branch. The orchard keeper says it belonged to someone who stopped coming home.',
+    'The Orchard of Unfinished Maps',
+    'Vesper recognizes the old lantern they used to navigate the orchard as a child. Each persimmon tree once marked a refuge. Their first map included a house whose occupants begged never to be named.',
     {
       id: 'repair',
-      label: 'Repair the wick before asking for the story',
+      label:
+        'Repair Vesper’s childhood lantern before asking whose refuge was lost',
       outcome:
-        'The keeper tells you which road the absent neighbor used, because you helped without bargaining for it.',
+        'The keeper recalls how Vesper learned to draw paths for people who were hiding, not for the officials pursuing them. One refuge remains safe because its address stays unspoken.',
       trust: 1,
       flag: 'orchard-repaired',
     },
     {
       id: 'mark',
-      label: 'Mark the unlit route on Pip’s map',
+      label: 'Copy the unlit orchard route, leaving the refuge unnamed',
       outcome:
-        'You preserve a possible path without claiming that its traveler survived.',
+        'Vesper adds an unsigned path to the atlas. It can guide a rescuer, but the cartographer knows exactly how easily a second copy becomes a weapon.',
       flag: 'orchard-marked',
     },
   ),
@@ -347,21 +351,22 @@ export const HOSHIMORI_WARM_SITES: readonly HoshimoriSite[] = [
   ),
   site(
     '4,4',
-    'The Ember Path',
-    'Beyond the bakery a safe road leads out of the village. A child has placed a lantern beside the gate, pointing in both directions.',
+    'The Road Vesper Sold',
+    'Past the bakery, Vesper reaches the old road they once drew as a child to deliver food to hidden households. A later copy was sold to save a beloved traveler; the same ink exposed strangers. The road has never decided whether it is a rescue or a betrayal.',
     {
       id: 'witness',
-      label: 'Promise to return with an honest account',
+      label:
+        'Ask Vesper to testify publicly about both uses of the stolen road',
       outcome:
-        'Pip offers to carry your account to the next village, provided you do not claim it is the only truth.',
+        'Vesper agrees to name the sale and seek restitution, but will not expose the rescued traveler’s new name. The displaced households deserve an account, not another map of where to find them.',
       trust: 1,
       flag: 'path-witnessed',
     },
     {
       id: 'depart',
-      label: 'Leave without promising what you cannot deliver',
+      label: 'Help Vesper deliver compensation without naming the refugee',
       outcome:
-        'The gate stays open. You have not repaired the village, but neither have you trapped yourself in a false vow.',
+        'Vesper offers food and safe passage without requiring public forgiveness. Some families refuse the offer. Their refusal does not make the harm imaginary or the route worth selling again.',
       flag: 'path-departed',
     },
   ),
@@ -1232,20 +1237,20 @@ export const HOSHIMORI_WARM_SITES: readonly HoshimoriSite[] = [
   site(
     '3,8',
     'The Paper Shadow Theatre',
-    'Performers cast a village history on a screen of rice paper. In the oldest scene, a small goblin receives a meal from someone whose silhouette has been cut away.',
+    'The players stage Vesper’s childhood: a young cartographer draws a route across a paper mountain and a stranger steps safely through. In the second act, another hand copies that same map and the safe house is surrounded. Pip recognizes his apprentice years in a later scene, but tonight this is Vesper’s story.',
     {
       id: 'ask',
-      label: 'Ask the actors why the figure was removed',
+      label: 'Ask the actors to show both the rescue and the betrayal',
       outcome:
-        'They explain that the donor requested privacy. Pip sees how a kindness can remain true even when its giver is not public.',
+        'The troupe performs the whole sequence, refusing to erase the rescued traveler or the people harmed by the duplicate map. Vesper watches without asking the audience for forgiveness.',
       trust: 1,
       flag: 'shadow-theatre-asked',
     },
     {
       id: 'perform',
-      label: 'Help perform the story with the missing figure left open',
+      label: 'Leave the threatened household as an unnamed shadow',
       outcome:
-        'Children take turns holding the empty place on the screen. Each tells a different possible kindness without claiming it as fact.',
+        'The children hold up a blank paper house. Vesper tells them why some maps must show a doorway without revealing whose door it is. The audience still sees the cost of selling the road.',
       flag: 'shadow-theatre-open',
     },
   ),
@@ -1313,40 +1318,43 @@ export const HOSHIMORI_WARM_SITES: readonly HoshimoriSite[] = [
   site(
     '7,8',
     'The Oathboat Landing',
-    'A boat with no oars waits to carry one promise across the river. Its pilot warns that promises cannot be traded as payment for someone else’s freedom.',
+    'A boat with no oars carries promises across the river. Vesper once launched a toy boat here containing the first route they refused to sell. The pilot remembers both the refusal and the later betrayal; the river does not confuse a confession with restitution.',
     {
       id: 'witness',
-      label: 'Carry a promise to testify, with the witness’s permission',
+      label:
+        'Ask Vesper to carry an honest account without the refugee’s address',
       outcome:
-        'The boat moves at once. The witness keeps the right to change their testimony, even when the audience prefers certainty.',
+        'The boat accepts Vesper’s words but will not carry a second identifying map. The wronged families retain the right to answer in their own time.',
       trust: 1,
       flag: 'oathboat-witness',
     },
     {
       id: 'decline',
-      label: 'Refuse to promise for anyone absent',
+      label:
+        'Carry practical supplies rather than an unearned promise of pardon',
       outcome:
-        'The pilot ferries your empty hands across anyway. For once, the village cannot turn a silence into a debt.',
+        'The pilot takes blankets across the river. Vesper accepts that making repairs may take years, and no confession obliges the harmed to forgive.',
       flag: 'oathboat-declined',
     },
   ),
   site(
     '8,8',
     'The South Watch Assembly',
-    'From the last lantern tower, village delegates can see the floodplain, the ridge, and the road out. Pip is asked whether the person who once fed him should be named in the final ledger.',
+    'From the last lantern tower Vesper can see every childhood refuge and every shortcut someone else might steal. Delegates demand a public atlas to prevent another betrayal. Families who once hid here fear that publishing it would betray them again. Pip asks that his own apprenticeship ledger remain his to decide.',
     {
       id: 'consent',
-      label: 'Let Pip decide what to remember and whom to name',
+      label:
+        'Let Vesper deliver a redacted refuge atlas under community oversight',
       outcome:
-        'The assembly records a kindness without claiming its giver. Pip keeps the page, not because he owes the village, but because it is his.',
+        'Vesper publishes safe public roads but leaves hidden refuge doors off the page. Witnesses inspect the omissions, and Pip keeps control of his own ledger. Vesper loses the right to sell copies alone.',
       trust: 2,
       flag: 'south-assembly-consent',
     },
     {
       id: 'open',
-      label: 'Publish only the village’s obligations to future guests',
+      label: 'Fund a rescue charter without publishing any protected routes',
       outcome:
-        'A public charter promises food and a safe exit to travelers. Pip leaves his private memory out of the charter and signs as a witness.',
+        'Families receive food and an emergency escort charter without surrendered addresses. Vesper keeps the private map under shared custody, not as another marketable secret. Pip signs only for his own testimony.',
       trust: 1,
       flag: 'south-assembly-charter',
     },
@@ -2026,6 +2034,38 @@ export function hoshimoriWindwardAccount(
   return [delivery, invitation, route].join(' ')
 }
 
+/**
+ * Vesper's childhood is the foreground of Hoshimori, not a new unearned
+ * verdict on the first two worlds. Distinct earned route/theatre/assembly
+ * decisions determine whether the cartographer surrenders atlas control.
+ */
+export function hoshimoriVesperReckoning(
+  progress: HoshimoriWarmProgress,
+): string | null {
+  const bridge = progress.choices['1,1']
+  const road = progress.choices['4,4']
+  const theatre = progress.choices['3,8']
+  const assembly = progress.choices['8,8']
+  if (!bridge || !road || !theatre || !assembly) return null
+  const childhood =
+    bridge === 'listen'
+      ? 'Vesper retraced the childhood stepping stones and saw how the same refuge path could be found by a pursuer.'
+      : 'Vesper remembered how the hidden households first trusted their family to feed strangers without naming them.'
+  const restitution =
+    road === 'witness'
+      ? 'The cartographer admitted selling the route and invited witnesses to demand restitution.'
+      : 'The cartographer supplied private compensation without demanding forgiveness or exposing the rescued traveler.'
+  const testimony =
+    theatre === 'ask'
+      ? 'The theatre performed both the rescue and the people harmed by the duplicate map.'
+      : 'The theatre protected the hidden household’s identity while refusing to hide the betrayal.'
+  const future =
+    assembly === 'consent'
+      ? 'The community now oversees a redacted public atlas, and Vesper may no longer sell copies alone.'
+      : 'A communal escort charter replaces the private map trade, leaving the refuge routes under shared custody.'
+  return [childhood, restitution, testimony, future].join(' ')
+}
+
 export function hoshimoriSouthernAccount(
   progress: HoshimoriWarmProgress,
 ): string | null {
@@ -2043,8 +2083,8 @@ export function hoshimoriSouthernAccount(
       : 'Displaced families took portable histories that the village could not withhold.'
   const oath =
     assembly === 'consent'
-      ? 'Pip kept his own memories and decided whose names, if any, belong in the ledger.'
-      : 'The village published a promise of food and safe departure without claiming Pip’s private past.'
+      ? 'Vesper released a redacted public atlas for community review while Pip kept authority over his private ledger.'
+      : 'The village published a rescue charter without exposing refuge addresses or claiming Pip’s private history.'
   return [record, shelter, oath].join(' ')
 }
 

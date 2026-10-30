@@ -189,8 +189,7 @@ for (let seed = 0; seed < 96; seed++) {
     progress,
     'Lantern reward is once-only',
   )
-  for (const key of ['5,5', '5,4', '4,4', '4,3'])
-    progress = move(progress, key)
+  for (const key of ['5,5', '5,4', '4,4', '4,3']) progress = move(progress, key)
   progress = advanceHoshimoriWarm(progress, { type: 'enter' })
   assert.equal(progress.ovenRoom, 'OV-01')
   assert.strictEqual(
@@ -334,8 +333,7 @@ for (const hearth of ['host', 'measure'] as const) {
       ])
         progress = move(progress, key)
       progress = choose(progress, hearth)
-      for (const key of ['6,5', '6,6', '7,6'])
-        progress = move(progress, key)
+      for (const key of ['6,5', '6,6', '7,6']) progress = move(progress, key)
       progress = choose(progress, relay)
       progress = move(progress, '8,6')
       assert.equal(
@@ -352,7 +350,9 @@ for (const hearth of ['host', 'measure'] as const) {
         progress,
         'Ridge testimony survives action-replay restoration',
       )
-      const forged = JSON.parse(JSON.stringify(progress)) as HoshimoriWarmProgress
+      const forged = JSON.parse(
+        JSON.stringify(progress),
+      ) as HoshimoriWarmProgress
       forged.choices['7,6'] = relay === 'signal' ? 'wait' : 'signal'
       assert.equal(
         restoreHoshimoriWarm(forged),

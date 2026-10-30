@@ -11,6 +11,7 @@ import {
   STAR_SIGNS,
   STAR_QUEST_CHAPTERS,
   STAR_QUESTIONS,
+  STAR_HR_VERDICTS,
   calculateStarSign,
   createStarAssessment,
   availableStarQuest,
@@ -32,6 +33,8 @@ assert.equal(
   'four questions after the captain dossier',
 )
 assert.equal(STAR_SIGNS.length, 12, 'an original dozen constellations')
+assert.equal(Object.keys(STAR_HR_VERDICTS).length, 12)
+assert.ok(STAR_SIGNS.every((sign) => STAR_HR_VERDICTS[sign.id].length > 35))
 assert.deepEqual(STAR_QUEST_CHAPTERS, [1, 4, 7])
 assert.equal(new Set(STAR_SIGNS.map((s) => s.id)).size, 12)
 assert.equal(new Set(STAR_SIGNS.map((s) => s.name)).size, 12)

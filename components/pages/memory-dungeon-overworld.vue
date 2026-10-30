@@ -45,6 +45,15 @@
       >
         The reflection
       </button>
+      <button
+        v-if="world.campaign.completed.includes('e06')"
+        type="button"
+        class="btn btn-sm btn-warning"
+        data-testid="memory-enter-hoshimori"
+        @click="emit('hoshimori')"
+      >
+        Lantern Village
+      </button>
       <span
         v-if="world.activeReality === 'e01'"
         class="shrink-0 text-xs"
@@ -965,7 +974,7 @@ import MemoryDungeonQuestLog from '~/components/memory-dungeon/quest-log.vue'
 import MemoryDungeonDarkBriarStage from '~/components/memory-dungeon/dark-briar-stage.vue'
 import MemoryDungeonActionBeacon from '~/components/memory-dungeon/action-beacon.vue'
 
-const emit = defineEmits<{ leave: [] }>()
+const emit = defineEmits<{ leave: []; hoshimori: [] }>()
 const world = useMemoryWorldStore()
 const chronicleOpen = ref(false)
 const questsOpen = ref(false)

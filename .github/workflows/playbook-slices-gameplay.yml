@@ -19,6 +19,7 @@ on:
       - 'utils/scripts/verifyCometPatrolStories.test.ts'
       - 'utils/scripts/verifyCometOctoberCast.test.ts'
       - 'utils/scripts/verifyCometConsoleScreens.test.ts'
+      - 'utils/scripts/verifyCometPlaytestReadiness.test.ts'
       - 'components/play/cometAcademy/**'
       - 'utils/scripts/verifyPromVillainHenchmen.test.ts'
       - 'utils/cometAcademy/identityCampaignStages.json'

@@ -36,7 +36,11 @@
       :yearbook="store.yearbook"
       @start="startFromOpening"
     />
-    <div v-else-if="run" class="cca-layout min-h-0 flex-1">
+    <div
+      v-else-if="run"
+      class="cca-layout min-h-0 flex-1"
+      :class="{ 'cca-layout-reading': consoleScreen !== 'play' }"
+    >
       <section class="cca-stage" aria-label="Illustrated academy scene">
         <img
           :src="stageScenery"
@@ -118,7 +122,7 @@
             <b>{{ tab.label }}</b>
           </button>
         </nav>
-        <div class="cca-pane kr-scroll">
+        <div ref="pane" class="cca-pane kr-scroll">
           <AcademyConsoleScreens
             v-if="consoleScreen !== 'play' && run"
             :screen="consoleScreen"
@@ -1017,9 +1021,13 @@
                 </button>
               </div>
             </div>
-            <div v-if="run.flowVersion !== 2" class="cca-report-mini">
+            <div
+              v-if="run.flowVersion !== 2 && run.reports.length"
+              class="cca-report-mini"
+              data-testid="academy-after-action"
+            >
               <strong>AFTER-ACTION REPORT</strong>
-              ><span v-for="report in run.reports" :key="report.caseId"
+              <span v-for="report in run.reports" :key="report.caseId"
                 >{{ report.title }} · {{ report.grade.toUpperCase() }}</span
               >
             </div>
@@ -1373,7 +1381,10 @@ const villainPortrait = computed(() =>
 // Console sub-screens. `play` is the day/night game; the rest read the save.
 const consoleScreen = ref<ConsoleScreen>('play')
 const armReset = ref(false)
+const pane = ref<HTMLElement | null>(null)
 function openScreen(screen: ConsoleScreen, resetArmed = false) {
+  // Each console screen opens at its top, not at the last screen's offset.
+  if (consoleScreen.value !== screen) pane.value?.scrollTo?.({ top: 0 })
   consoleScreen.value = screen
   armReset.value = resetArmed
 }
@@ -1599,6 +1610,13 @@ function isAssignedElsewhere(caseId: string, id: StudentId): boolean {
   )
 }
 
+// The relationship panel belongs to one map phase; a new day opens on the map.
+watch(
+  () => [run.value?.day, run.value?.phase],
+  () => {
+    if (run.value?.phase !== 'map') showRelationships.value = false
+  },
+)
 function toggleRelationships() {
   if (!showRelationships.value)
     selectedSocialId.value =
@@ -1824,6 +1842,26 @@ function toggleStudent(caseId: string, id: StudentId): void {
   height: 0.4rem;
   border: 1px solid #aab8c580;
   border-radius: 100%;
+}
+@media (max-width: 640px) {
+  .cca-serial {
+    display: none;
+  }
+  .cca-console-top {
+    padding: 0.4rem 0.75rem;
+  }
+  .cca-caption {
+    min-width: 0;
+  }
+  .cca-day-lights {
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    flex: 0 1 9.6rem;
+    gap: 0.2rem;
+  }
+  .cca-day-lights span {
+    width: 0.4rem;
+  }
 }
 .cca-day-lights .filled {
   background: #f6bf87;
@@ -2837,6 +2875,15 @@ function toggleStudent(caseId: string, id: StudentId): void {
     grid-template-columns: minmax(0, 1fr);
     grid-template-rows: minmax(0, 42%) minmax(0, 58%);
   }
+  /* Reading a console screen on a phone or tablet: the scene shrinks to a
+     banner so Hero, Crew, Case File, Scrapbook and Settings get the room. */
+  .cca-layout-reading {
+    grid-template-rows: minmax(0, 14%) minmax(0, 86%);
+  }
+  .cca-layout-reading .cca-stage-content,
+  .cca-layout-reading .cca-villain-inset {
+    display: none;
+  }
   .cca-console {
     border-left: 0;
     border-top: 1px solid #b6a1ad65;
@@ -2884,13 +2931,6 @@ function toggleStudent(caseId: string, id: StudentId): void {
   .cca-scene-copy {
     font-size: 0.74rem;
     line-height: 1.35;
-  }
-  .cca-roster {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-  }
-  .cca-roster-button {
-    flex-direction: row;
-    justify-content: center;
   }
   .cca-power {
     min-height: 3.3rem;

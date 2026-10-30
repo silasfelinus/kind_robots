@@ -1,5 +1,5 @@
 /**
- * Hoshimori's connected thirty-six-site warm village and optional second Oven wing.
+ * Hoshimori's connected forty-four-site warm village and optional second Oven wing.
  * Its e07 campaign entry remains gated behind the preceding experiences.
  */
 export interface HoshimoriChoice {
@@ -776,6 +776,170 @@ export const HOSHIMORI_WARM_SITES: readonly HoshimoriSite[] = [
       flag: 'lowland-road-restricted',
     },
   ),
+  site(
+    '5,1',
+    'The Windward Post',
+    'A postmistress keeps letters for villagers who chose not to return. The mountain sends envelopes back without stamps, as if the wind were voting.',
+    {
+      id: 'deliver',
+      label: 'Deliver only letters to people who agreed to be contacted',
+      outcome:
+        'The postmistress sorts permission from longing. Fewer letters travel, but no address becomes a leash for someone who left.',
+      trust: 1,
+      flag: 'wind-post-consented',
+    },
+    {
+      id: 'archive',
+      label: 'Keep undeliverable letters in a name-free archive',
+      outcome:
+        'The shelf preserves what the village wishes it could say without demanding an answer. Some families resent the silence.',
+      flag: 'wind-post-archived',
+    },
+  ),
+  site(
+    '6,1',
+    'The Kite-Mender’s Loft',
+    'A flock of century-old paper kites waits for repairs. Their bamboo ribs creak objections when the mender calls them equipment.',
+    {
+      id: 'mend',
+      label: 'Repair the kites and let them choose which messages to carry',
+      outcome:
+        'The oldest kite volunteers for the storm route and the youngest refuses it. The mender writes both decisions into the flight log.',
+      trust: 1,
+      flag: 'wind-kites-consented',
+    },
+    {
+      id: 'retire',
+      label: 'Help the worn kites become a shelter canopy',
+      outcome:
+        'The kites settle over the waiting benches. Mail travels more slowly, but the retired fliers finally have a place to rest.',
+      flag: 'wind-kites-sheltered',
+    },
+  ),
+  site(
+    '7,1',
+    'The Tengu’s Weather Desk',
+    'A tengu courier has been blamed for every lost letter, even those dispatched into a closed pass. He offers you his storm chart, not his apology.',
+    {
+      id: 'pay',
+      label: 'Share a meal so the courier can wait for safer winds',
+      outcome:
+        'He postpones the crossing and posts the forecast in plain language. The village loses a delivery day but not another messenger.',
+      rations: -1,
+      trust: 2,
+      flag: 'wind-courier-rested',
+    },
+    {
+      id: 'signal',
+      label: 'Build a visible signal route that needs no dangerous flight',
+      outcome:
+        'Lantern mirrors carry urgent warnings across the pass. Ordinary letters still wait, and the courier insists that distinction be written down.',
+      trust: 1,
+      flag: 'wind-courier-signaled',
+    },
+  ),
+  site(
+    '8,1',
+    'The Observatory of Unsent Names',
+    'An astronomer has drawn constellations for people who moved away. She worries that naming a star after someone might claim their return.',
+    {
+      id: 'ask',
+      label: 'Ask families which stories they want kept, without naming stars',
+      outcome:
+        'The charts gain memories offered freely. The astronomer leaves blank space for stories nobody has permission to tell.',
+      trust: 1,
+      flag: 'wind-stars-witnessed',
+    },
+    {
+      id: 'erase',
+      label: 'Keep the routes and remove the absent people’s names',
+      outcome:
+        'Travelers can still navigate by the stars. The village must learn to remember a departure without treating it as a debt.',
+      flag: 'wind-stars-redacted',
+    },
+  ),
+  site(
+    '5,2',
+    'The Bamboo Speaking Tubes',
+    'Hollow bamboo carries whispers between houses. A child demonstrates that a private message can be heard by anyone leaning against the wall.',
+    {
+      id: 'screen',
+      label: 'Fit listening screens and teach everyone how to use them',
+      outcome:
+        'The children test the new screens until the eavesdropping stops. Emergencies require a separate public call, and the neighbors agree to maintain it.',
+      trust: 1,
+      flag: 'wind-tubes-screened',
+    },
+    {
+      id: 'public',
+      label: 'Reserve the tubes for public warnings only',
+      outcome:
+        'Nobody can secretly broadcast a neighbor’s confession. Private letters take longer, and the elders must stop treating convenience as consent.',
+      flag: 'wind-tubes-public',
+    },
+  ),
+  site(
+    '6,2',
+    'The Tea House of Two Tickets',
+    'A tea seller lays out two tickets for every traveler: one for coming home and one for leaving again. Nobody has ever been required to use both.',
+    {
+      id: 'reserve',
+      label: 'Buy a return ticket for a stranger who might need it',
+      outcome:
+        'The seller sets aside the fare without writing a name. The traveler can claim the ticket or walk on, and you will not know which.',
+      rations: -1,
+      trust: 1,
+      flag: 'wind-ticket-offered',
+    },
+    {
+      id: 'release',
+      label: 'Ask the seller to honor one-way journeys equally',
+      outcome:
+        'She changes the sign. A few families complain, but travelers stop having to explain why their destination is not this village.',
+      trust: 1,
+      flag: 'wind-ticket-free',
+    },
+  ),
+  site(
+    '7,2',
+    'The Threaded Gate',
+    'Red cords mark invitations sent to those who left Hoshimori. Pip recognizes a knot from his apprenticeship and refuses to say whose hand tied it.',
+    {
+      id: 'invite',
+      label: 'Send one invitation with a clear right to refuse',
+      outcome:
+        'The gatekeeper adds an empty return envelope. The village may ask once, but cannot treat silence as an unfinished promise.',
+      trust: 1,
+      flag: 'wind-gate-invited',
+    },
+    {
+      id: 'release',
+      label: 'Untie the cords whose recipients asked for no contact',
+      outcome:
+        'The gate looks bare, and several households grieve. Pip keeps one knot as a record of a boundary honored, not a person forgotten.',
+      flag: 'wind-gate-released',
+    },
+  ),
+  site(
+    '8,2',
+    'The Windward Council',
+    'Couriers, families and absent villagers’ advocates debate whether the mountain post should become a public road. Your earlier choices determine whose consent is on the record.',
+    {
+      id: 'open',
+      label: 'Open a voluntary mail route with published withdrawal rules',
+      outcome:
+        'The route opens to people who opt in. It costs the village extra couriers and leaves some letters undelivered, but the exit remains real.',
+      trust: 1,
+      flag: 'wind-council-open',
+    },
+    {
+      id: 'sealed',
+      label: 'Keep a protected dispatch for urgent messages only',
+      outcome:
+        'The council funds a smaller service and appoints rotating witnesses. Families must wait to reconnect, and nobody can buy a secret address.',
+      flag: 'wind-council-sealed',
+    },
+  ),
 ]
 
 export const HOSHIMORI_MAX_EVENTS = 2048
@@ -1150,6 +1314,28 @@ export function hoshimoriLowlandAccount(
   return [evacuation, accounting, route].join(' ')
 }
 
+export function hoshimoriWindwardAccount(
+  progress: HoshimoriWarmProgress,
+): string | null {
+  const post = progress.choices['5,1']
+  const gate = progress.choices['7,2']
+  const council = progress.choices['8,2']
+  if (!post || !gate || !council) return null
+  const delivery =
+    post === 'deliver'
+      ? 'The postmistress sent only letters to people who agreed to receive them.'
+      : 'The postmistress archived unanswerable letters without exposing addresses.'
+  const invitation =
+    gate === 'invite'
+      ? 'The threaded gate carried one invitation with a right to refuse.'
+      : 'The gate released those who asked not to be contacted, despite the village’s grief.'
+  const route =
+    council === 'open'
+      ? 'The council opened a voluntary route with published withdrawal rules and higher costs.'
+      : 'The council kept a smaller protected dispatch, leaving ordinary letters waiting.'
+  return [delivery, invitation, route].join(' ')
+}
+
 export function hoshimoriOvenSecondAccount(
   progress: HoshimoriWarmProgress,
 ): string | null {
@@ -1393,7 +1579,7 @@ export function restoreHoshimoriWarm(
 
 export function validateHoshimoriWarm(): string[] {
   const errors: string[] = []
-  if (SITES.size !== 36) errors.push('Expected thirty-six unique warm sites')
+  if (SITES.size !== 44) errors.push('Expected forty-four unique warm sites')
   if (OVEN.size !== 9) errors.push('Expected nine authored Oven rooms')
   const ovenChoiceIds = HOSHIMORI_OVEN_ROOMS.flatMap((room) =>
     room.choices.map((choice) => choice.id),
@@ -1441,7 +1627,7 @@ export function validateHoshimoriWarm(): string[] {
       }
     }
   }
-  if (reached.size !== 36) errors.push('Warm map is disconnected')
+  if (reached.size !== 44) errors.push('Warm map is disconnected')
   if (!SITES.has('2,3') || !SITES.has('7,5'))
     errors.push('Earth-photo reservation drift')
   if (HOSHIMORI_LANTERN_CLUE_SITES.some((key) => !SITES.has(key)))

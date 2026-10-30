@@ -344,9 +344,9 @@
               <template v-if="selectionScreen === 'background'">
                 <button type="button" class="cap-step-back" @click="selectionScreen = 'captain'">← CHANGE CAPTAIN</button>
                 <div class="cap-heading">
-                  <span>01</span>
+                  <span>02</span>
                   <div>
-                    <h2>Choose a background</h2>
+                    <h2>Choose your background</h2>
                     <p>
                       Your history belongs to you. It changes your opening
                       resources and follows you into the captain's log.

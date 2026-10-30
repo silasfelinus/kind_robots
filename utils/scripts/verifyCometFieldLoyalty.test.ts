@@ -23,7 +23,8 @@ import { campaignStagesFor } from '../cometAcademy/identityCampaignStages'
 assert.equal(IDENTITY_ARCS.length, 48)
 for (const person of IDENTITY_ARCS) {
   const signature = person.signature
-  const protagonist = signature === 'accident-fire' ? 'magic-water' : 'accident-fire'
+  const protagonist =
+    signature === 'accident-fire' ? 'magic-water' : 'accident-fire'
   const base = startFullAcademy(fieldFor(protagonist), 55421, protagonist)
   const mission23 = {
     ...base,
@@ -62,25 +63,37 @@ for (const person of IDENTITY_ARCS) {
   assert.equal(ally.hp, 4)
   assert.equal(ally.maxHp, 4)
   assert.equal(ally.identity, signature)
-  assert.equal(ally.lieutenantName, campaignStagesFor(signature).lieutenant.name)
+  assert.equal(
+    ally.lieutenantName,
+    campaignStagesFor(signature).lieutenant.name,
+  )
   assert.equal(aliasFor(ally), ally.lieutenantName)
   assert.equal(ally.signatureSupportUsed, false)
-  assert.equal(units.some((unit) => unit.signatureBoss), false)
+  assert.equal(
+    units.some((unit) => unit.signatureBoss),
+    false,
+  )
   assert.ok(units.length >= 5 && units.length <= 8)
   assert.equal(
-    new Set(units.filter((unit) => unit.hp > 0).map((unit) => unit.x + ',' + unit.y)).size,
+    new Set(
+      units.filter((unit) => unit.hp > 0).map((unit) => unit.x + ',' + unit.y),
+    ).size,
     units.filter((unit) => unit.hp > 0).length,
     signature + ': the returned lieutenant cannot overlap a spawn',
   )
   assert.ok(!tileAt(alliedBattle.state.map, ally).wall)
   assert.ok(
-    restoreAcademy(JSON.parse(JSON.stringify({ ...night24, tacticalBattle: alliedBattle }))),
+    restoreAcademy(
+      JSON.parse(JSON.stringify({ ...night24, tacticalBattle: alliedBattle })),
+    ),
     signature + ': must restore allied arrival before any action',
   )
   alliedBattle.state.selected = ally.id
   assert.equal(selectedUnit(alliedBattle.state)?.id, ally.id)
   const primary = units.find((unit) => unit.team === 'rival')!
-  const occupied = new Set(units.filter((u) => u !== ally && u.hp > 0).map((u) => u.x + ',' + u.y))
+  const occupied = new Set(
+    units.filter((u) => u !== ally && u.hp > 0).map((u) => u.x + ',' + u.y),
+  )
   const landing = Array.from(
     { length: alliedBattle.state.map.width * alliedBattle.state.map.height },
     (_, i) => ({
@@ -100,19 +113,34 @@ for (const person of IDENTITY_ARCS) {
   const preview = previewAlliedSignature(alliedBattle.state)!
   assert.ok(preview)
   assert.equal(preview.ally.id, 'allied-lieutenant')
-  assert.ok(preview.cells.some((p) => p.x === preview.target.x && p.y === preview.target.y))
-  const beforeEnemies = units.filter((unit) => unit.team === 'rival').map((unit) => ({ id: unit.id, hp: unit.hp, x: unit.x, y: unit.y }))
-  const beforeFriends = units.filter((unit) => unit.team === 'squad').map((unit) => ({ id: unit.id, hp: unit.hp }))
+  assert.ok(
+    preview.cells.some(
+      (p) => p.x === preview.target.x && p.y === preview.target.y,
+    ),
+  )
+  const beforeEnemies = units
+    .filter((unit) => unit.team === 'rival')
+    .map((unit) => ({ id: unit.id, hp: unit.hp, x: unit.x, y: unit.y }))
+  const beforeFriends = units
+    .filter((unit) => unit.team === 'squad')
+    .map((unit) => ({ id: unit.id, hp: unit.hp }))
   assert.equal(useAlliedSignature(alliedBattle.state), true)
   assert.equal(ally.ap, 0)
   assert.equal(ally.signatureSupportUsed, true)
-  assert.equal(useAlliedSignature(alliedBattle.state), false, 'once per battle, no second strike')
+  assert.equal(
+    useAlliedSignature(alliedBattle.state),
+    false,
+    'once per battle, no second strike',
+  )
   const strikeSquares = new Set(preview.cells.map((p) => p.x + ',' + p.y))
   for (const enemy of beforeEnemies) {
     const after = units.find((unit) => unit.id === enemy.id)!
     assert.equal(
       after.hp,
-      Math.max(0, enemy.hp - Number(strikeSquares.has(enemy.x + ',' + enemy.y))),
+      Math.max(
+        0,
+        enemy.hp - Number(strikeSquares.has(enemy.x + ',' + enemy.y)),
+      ),
       signature + ': ally preview and exact enemy damage differ',
     )
   }
@@ -123,17 +151,37 @@ for (const person of IDENTITY_ARCS) {
       signature + ': friendly fire is forbidden',
     )
   ally.ap = 2
-  assert.equal(previewAlliedSignature(alliedBattle.state), null, 'no second charge after AP refresh')
+  assert.equal(
+    previewAlliedSignature(alliedBattle.state),
+    null,
+    'no second charge after AP refresh',
+  )
   assert.ok(
-    restoreAcademy(JSON.parse(JSON.stringify({ ...night24, tacticalBattle: alliedBattle }))),
+    restoreAcademy(
+      JSON.parse(JSON.stringify({ ...night24, tacticalBattle: alliedBattle })),
+    ),
     signature + ': used charge must persist',
   )
-  const tampered = JSON.parse(JSON.stringify({ ...night24, tacticalBattle: alliedBattle }))
+  const tampered = JSON.parse(
+    JSON.stringify({ ...night24, tacticalBattle: alliedBattle }),
+  )
   tampered.tacticalHistory = []
-  assert.equal(restoreAcademy(tampered), null, 'cannot forge a defector without prior alliance')
-  const forged = JSON.parse(JSON.stringify({ ...night24, tacticalBattle: alliedBattle }))
-  forged.tacticalBattle.state.units.find((u: { id: string }) => u.id === 'allied-lieutenant').lieutenantName = 'Fake Ally'
-  assert.equal(restoreAcademy(forged), null, 'cannot rename an earned lieutenant')
+  assert.equal(
+    restoreAcademy(tampered),
+    null,
+    'cannot forge a defector without prior alliance',
+  )
+  const forged = JSON.parse(
+    JSON.stringify({ ...night24, tacticalBattle: alliedBattle }),
+  )
+  forged.tacticalBattle.state.units.find(
+    (u: { id: string }) => u.id === 'allied-lieutenant',
+  ).lieutenantName = 'Fake Ally'
+  assert.equal(
+    restoreAcademy(forged),
+    null,
+    'cannot rename an earned lieutenant',
+  )
 
   const truceRecord = { ...earned, lieutenantParley: 'truce' as const }
   const truceBattle = newTacticalInterlude({
@@ -146,17 +194,28 @@ for (const person of IDENTITY_ARCS) {
     false,
     'a ceasefire is not recruitment',
   )
-  assert.equal(truceBattle.state.units.some((unit) => unit.id === 'vee'), false)
-  assert.equal(truceBattle.state.units.filter((unit) => unit.team === 'rival').length, 2)
-  assert.equal(truceBattle.state.units.some((unit) => unit.signatureBoss), false)
+  assert.equal(
+    truceBattle.state.units.some((unit) => unit.id === 'vee'),
+    false,
+  )
+  assert.equal(
+    truceBattle.state.units.filter((unit) => unit.team === 'rival').length,
+    2,
+  )
+  assert.equal(
+    truceBattle.state.units.some((unit) => unit.signatureBoss),
+    false,
+  )
   assert.match(truceBattle.state.log, /command squad stands down/)
   assert.ok(
     restoreAcademy(
-      JSON.parse(JSON.stringify({
-        ...night24,
-        tacticalHistory: [truceRecord],
-        tacticalBattle: truceBattle,
-      })),
+      JSON.parse(
+        JSON.stringify({
+          ...night24,
+          tacticalHistory: [truceRecord],
+          tacticalBattle: truceBattle,
+        }),
+      ),
     ),
     signature + ': ceasefire saves and returns',
   )

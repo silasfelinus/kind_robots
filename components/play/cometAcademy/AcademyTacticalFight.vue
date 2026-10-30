@@ -292,7 +292,7 @@ const cells = computed(() =>
   ),
 )
 const unitAt = (cell: Cell) => actorAt(state.value, cell)
-const atPoint = (cell: Cell, point?: Cell) =>
+const atPoint = (cell: Cell, point?: Cell | null) =>
   !!point && cell.x === point.x && cell.y === point.y
 function cellLabel(cell: Cell) {
   const objective = props.battle.arena

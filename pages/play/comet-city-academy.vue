@@ -617,6 +617,24 @@
                 "
               >
                 <strong>{{ patrolScene.title }}</strong>
+                <div
+                  v-if="patrolCast"
+                  class="cca-cast-tag"
+                  data-testid="academy-patrol-cast"
+                >
+                  <img
+                    v-if="promArt(patrolCast.artKeys.portrait)"
+                    :src="promArt(patrolCast.artKeys.portrait)!"
+                    :alt="patrolCast.name"
+                  />
+                  <span
+                    ><b>{{ patrolCast.name }}</b> · {{ patrolCast.role
+                    }}<template v-if="patrolCast.species">
+                      · SPECIES: {{ patrolCast.species.title }}</template
+                    ></span
+                  >
+                  <em>“{{ patrolCast.lines[1] }}”</em>
+                </div>
                 <p>{{ patrolScene.scene }}</p>
                 <small v-if="patrolScene.hint" class="cca-story-hint"
                   >CLUE · {{ patrolScene.hint }}</small
@@ -1228,6 +1246,7 @@ import {
   routeStanding,
 } from '~/utils/cometAcademy/openingRoutes'
 import { promArt } from '~/utils/cometAcademy/artManifest'
+import { castMember } from '~/utils/cometAcademy/octoberCast'
 import {
   personalCounterpart,
   PERSONAL_CHAPTER_DAYS,
@@ -1474,6 +1493,11 @@ const panelLabel = computed(() =>
 const patrolScene = computed(() =>
   run.value?.patrolOpening === 1 && run.value.day >= 4
     ? patrolEncounterFor(run.value, patrolZone.value)
+    : null,
+)
+const patrolCast = computed(() =>
+  patrolScene.value?.story?.cast
+    ? (castMember(patrolScene.value.story.cast) ?? null)
     : null,
 )
 const patrolChoices = computed(() =>
@@ -2289,6 +2313,29 @@ function toggleStudent(caseId: string, id: StudentId): void {
   margin-top: 0.55rem;
   display: grid;
   gap: 0.35rem;
+}
+.cca-cast-tag {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 0.15rem 0.6rem;
+  align-items: center;
+  font-size: 0.72rem;
+  color: #f6c89e;
+}
+.cca-cast-tag img {
+  grid-row: span 2;
+  width: 3rem;
+  height: 3rem;
+  object-fit: cover;
+  border-radius: 0.4rem;
+}
+.cca-cast-tag em {
+  grid-column: 1 / -1;
+  color: #d9b8ff;
+  font-size: 0.74rem;
+}
+.cca-cast-tag img ~ em {
+  grid-column: 2;
 }
 .cca-story-flag {
   color: #f6c89e;

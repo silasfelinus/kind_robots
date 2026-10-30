@@ -329,6 +329,38 @@
       <p v-else class="acs-dim">
         Nothing yet. Visit a district, walk a patrol or make a friend.
       </p>
+      <h3 class="acs-section">City notables</h3>
+      <div class="acs-cards small">
+        <article
+          v-for="notable in notables"
+          :key="notable.key"
+          class="acs-card"
+          :class="{ faceDown: !notable.met }"
+          data-testid="academy-notable-card"
+        >
+          <div class="acs-card-art">
+            <img
+              v-if="notable.met && art(notable.artKeys)"
+              :src="art(notable.artKeys)!"
+              :alt="notable.name"
+            />
+            <div v-else class="acs-back" :class="backClass">
+              <span>{{ notable.met ? notable.name : '?' }}</span>
+            </div>
+          </div>
+          <h3>{{ notable.name }}</h3>
+          <template v-if="notable.met">
+            <p class="acs-dim">{{ notable.role }}</p>
+            <p v-if="notable.species" class="acs-kicker">
+              SPECIES · {{ notable.species.title }}
+            </p>
+            <p v-if="notable.stance" class="acs-kicker">
+              DAY {{ notable.day }} · {{ notable.stance.toUpperCase() }}
+            </p>
+            <p class="acs-quote">“{{ notable.line }}”</p>
+          </template>
+        </article>
+      </div>
       <h3 class="acs-section">Mastermind dossiers</h3>
       <div class="acs-cards small">
         <article
@@ -542,6 +574,7 @@ import {
   endingPlates,
   followerRoster,
   heroDossier,
+  notableCards,
   saveSummary,
   scrapbookMoments,
   villainCaseFile,
@@ -593,6 +626,7 @@ const plates = computed(() =>
   endingPlates(Object.values(store.yearbook).flatMap((entry) => entry.endings)),
 )
 const dossierCards = computed(() => villainDossiers(store.dossiers))
+const notables = computed(() => notableCards(props.run))
 const summary = computed(() => saveSummary(props.run))
 const cardBack = computed(
   () =>

@@ -1939,8 +1939,9 @@ export function hoshimoriOvenSecondAccount(
 export function hoshimoriOvenGuardianResolution(
   progress: HoshimoriWarmProgress,
 ): string | null {
+  const required = ['OV-10', 'OV-11', 'OV-12', 'OV-13', 'OV-14', 'OV-15']
+  if (required.some((id) => !progress.ovenChoices[id])) return null
   const decision = progress.ovenChoices['OV-15']
-  if (!decision) return null
   const support =
     progress.ovenChoices['OV-14'] === 'build-commons'
       ? 'Independent kitchens can feed people if the magic fails.'
@@ -1955,7 +1956,8 @@ export function hoshimoriOvenGuardianResolution(
 export function hoshimoriOvenThirdAccount(
   progress: HoshimoriWarmProgress,
 ): string | null {
-  if (!progress.ovenChoices['OV-15']) return null
+  const required = ['OV-10', 'OV-11', 'OV-12', 'OV-13', 'OV-14', 'OV-15']
+  if (required.some((id) => !progress.ovenChoices[id])) return null
   const accounts = [
     progress.ovenChoices['OV-10'] === 'weigh-flour'
       ? 'The mill published the missing meal totals without naming families.'
@@ -2144,7 +2146,7 @@ export function advanceHoshimoriWarm(
         (item) => item.id === room!.id,
       )
       const next =
-        (room!.id === 'OV-03' || room!.id === 'OV-09')
+        room!.id === 'OV-03' || room!.id === 'OV-09'
           ? null
           : (HOSHIMORI_OVEN_ROOMS[index + 1]?.id ?? null)
       changed = {

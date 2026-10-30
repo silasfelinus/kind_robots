@@ -116,6 +116,7 @@
             @cell="store.battleClick"
             @mode="store.battleMode"
             @turn="store.battleTurn"
+            @counter="store.battleCounter"
             @retreat="store.battleRetreat"
             @finish="store.battleResolve"
           />

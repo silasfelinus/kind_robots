@@ -99,6 +99,7 @@ import {
 } from '../gameOfCaptains/rules'
 
 import { WARP_ART_PROMPTS, warpArtPrompt } from '../gameOfCaptains/artPrompts'
+import { warpArt } from '../gameOfCaptains/artManifest'
 import {
   TRIO_ADVENTURES,
   trioArtKey,
@@ -1434,6 +1435,29 @@ assert.equal(
 assert.equal(
   portraitArt('captain-fluke', () => null),
   null,
+)
+// The shipped manifest: every captain and crew face resolves to its redesigned
+// render, and the three Act One missions, first three nemeses and base endings ship.
+for (const captain of CAPTAINS)
+  assert.equal(
+    portraitArt('captain-' + captain.id),
+    `/game-of-captains/portraits/v2/captain-${captain.id}.webp`,
+  )
+for (const member of CREW_PROFILES)
+  assert.equal(
+    portraitArt(member.portraitKey),
+    `/game-of-captains/portraits/v2/${member.portraitKey}.webp`,
+  )
+for (const key of [
+  ...['refugees', 'archive', 'bar'].map(missionArtKey),
+  ...['auditor', 'moth', 'curdle'].map(antagonistArtKey),
+  ...BASE_ENDINGS.map(endingArtKey),
+])
+  assert.ok(warpArt(key), key)
+assert.ok(
+  fromRoot(
+    'components/game-of-captains/space-couch-trio-interlude.vue',
+  ).includes('url: portraitArt(profile.portraitKey)'),
 )
 
 // Every picture slot carries an authored Krea 2 prompt; mission and ending scenes show the couch.

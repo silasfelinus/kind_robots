@@ -423,8 +423,9 @@ assert.deepEqual(restoreMemoryCampaignProgress(completed).completed, [
   'e01',
   'e02',
 ])
-// The finale is earned after any two middle pairs. Requiring e12 on restore
-// silently erased a valid commitment through the Hearth + Market route.
+// All original/twisted pairs must precede the finale. Old machine/save
+// identifiers stay intact; neither a skipped location nor a forged memory
+// can jump directly into the final Archive.
 let alternate = completed
 alternate = rememberMemoryWish(alternate, 'morrow-magic-attempt')
 alternate = completeMemoryExperience(alternate, 'e03')
@@ -436,12 +437,21 @@ alternate = completeMemoryExperience(alternate, 'e06')
 for (const id of ['e07', 'e08', 'e09', 'e10'] as const) {
   alternate = completeMemoryExperience(alternate, id)
 }
-assert.ok(availableMemoryExperiences(alternate).includes('e13'))
+assert.deepEqual(availableMemoryExperiences(alternate), ['e11'])
+assert.throws(
+  () => commitToMemoryFinale(alternate),
+  /not been earned/,
+  'A player cannot jump the Crossing pair to reach the finale',
+)
+for (const id of ['e11', 'e12'] as const) {
+  alternate = completeMemoryExperience(alternate, id)
+}
+assert.deepEqual(availableMemoryExperiences(alternate), ['e13'])
 alternate = commitToMemoryFinale(alternate)
 assert.deepEqual(
   restoreMemoryCampaignProgress(JSON.parse(JSON.stringify(alternate))),
   alternate,
-  'Save during the committed finale must not require the unchosen Crossing pair',
+  'Save after all eight early and middle incarnations retains explicit finale commitment',
 )
 alternate = completeMemoryExperience(alternate, 'e13')
 alternate = completeMemoryExperience(alternate, 'e14')
@@ -449,7 +459,46 @@ const alternateReload = restoreMemoryCampaignProgress(
   JSON.parse(JSON.stringify(alternate)),
 )
 assert.deepEqual(alternateReload, alternate)
-assert.equal(alternateReload.completed.includes('e12'), false)
+const oldForkedSave = restoreMemoryCampaignProgress({
+  ...alternate,
+  completed: [
+    'e01',
+    'e02',
+    'e03',
+    'e04',
+    'e05',
+    'e06',
+    'e09',
+    'e10',
+    'e11',
+    'e12',
+    'e07',
+    'e08',
+    'e13',
+    'e14',
+  ],
+})
+assert.deepEqual(
+  oldForkedSave,
+  alternate,
+  'Legacy out-of-order middle pairs migrate without losing earned milestones',
+)
+const skippedHoshimori = restoreMemoryCampaignProgress({
+  completed: ['e01', 'e02', 'e03', 'e04', 'e05', 'e06', 'e09', 'e10', 'e13'],
+  rememberedAnchors: [
+    'morrow-magic-attempt',
+    'scylla-home-wish',
+    'char-possible-future',
+  ],
+  finaleCommitted: true,
+})
+assert.deepEqual(
+  skippedHoshimori.completed,
+  ['e01', 'e02', 'e03', 'e04', 'e05', 'e06'],
+  'A forged or previously optional shortcut cannot silently skip Hoshimori',
+)
+assert.equal(skippedHoshimori.finaleCommitted, false)
+assert.equal(alternateReload.completed.includes('e12'), true)
 assert.deepEqual(availableMemoryExperiences(alternateReload), ['e15'])
 
 const forgedFuture = restoreMemoryCampaignProgress({

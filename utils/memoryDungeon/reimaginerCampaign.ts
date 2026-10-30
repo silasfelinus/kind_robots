@@ -212,12 +212,12 @@ export const MEMORY_REALITY_EXPERIENCES: readonly RealityExperience[] = [
     'crown',
     'Scylla’s Shore',
     'scylla',
-    'storybook',
+    'underwater',
     'original',
     ['meaning', 'mechanics', 'cast', 'visual-language'],
-    'Why is a princess so eager to leave?',
-    'Farcical surface court investigations with twin dialogue and Oren logistics',
-    'Royal expedition, mundane court mishaps and an apparently humanoid princess',
+    'What did Scylla and Char believe leaving the sea would cost?',
+    'Mermaid childhood memories, a landward escape plan, twin testimony and Oren logistics',
+    'The sisters as young mermaid princesses, an underwater palace, their departure chart and the shore they dreamed about',
   ),
   experience(
     'e06',
@@ -225,11 +225,11 @@ export const MEMORY_REALITY_EXPERIENCES: readonly RealityExperience[] = [
     'Undertide Crown',
     'scylla',
     'underwater',
-    'remembrance',
+    'dark-reflection',
     ['meaning', 'mechanics', 'traversal', 'cast', 'visual-language'],
-    'Can Scylla protect Char without taking away her freedom?',
-    'Tide routes, succession law and competing remembered futures',
-    'Mermaid sisters, submerged court, remembered departure and a possible loss',
+    'What does Scylla owe Char when a distorted past offers to undo a choice?',
+    'Twisted tide routes, conflicting witness memories and departures nobody can erase',
+    'The same submerged court and escape route bent into a nightmare of rewritten testimony',
   ),
   experience(
     'e07',
@@ -368,6 +368,22 @@ export const MEMORY_MIDDLE_PAIRS = [
 ] as const
 export const MEMORY_FINALE_ORDER = ['e13', 'e14', 'e15', 'e16'] as const
 
+/**
+ * Eight distinct authored geographies, each immediately followed by its
+ * distorted reimagining. Pair order is canonical even if scenes are not built.
+ * Keep machine IDs and the historic wish-anchor keys stable for old saves.
+ */
+export const MEMORY_REALITY_PAIRS = [
+  ['e01', 'e02'],
+  ['e03', 'e04'],
+  ['e05', 'e06'],
+  ['e07', 'e08'],
+  ['e09', 'e10'],
+  ['e11', 'e12'],
+  ['e13', 'e14'],
+  ['e15', 'e16'],
+] as const satisfies readonly (readonly [ExperienceId, ExperienceId])[]
+
 export const MEMORY_WISH_ANCHORS = {
   'morrow-magic-attempt': {
     source: 'e03',
@@ -382,7 +398,7 @@ export const MEMORY_WISH_ANCHORS = {
   'char-possible-future': {
     source: 'e06',
     meaning:
-      'Scylla witnessed a possible future for Char, not an unavoidable death',
+      'Scylla remembers evidence about the sisters’ landward departure; her private knowledge is not yet the player’s full account',
   },
 } as const satisfies Record<string, { source: ExperienceId; meaning: string }>
 
@@ -404,31 +420,22 @@ export function availableMemoryExperiences(
 ): ExperienceId[] {
   const completed = new Set(progress.completed)
   const anchors = new Set(progress.rememberedAnchors)
+  const next = MEMORY_REALITY_PAIRS.flat().find((id) => !completed.has(id))
+  if (!next) return []
 
-  if (progress.finaleCommitted) {
-    const next = MEMORY_FINALE_ORDER.find((id) => !completed.has(id))
-    return next ? [next] : []
-  }
-
-  const nextOpening = MEMORY_EARLY_ORDER.find((id) => !completed.has(id))
-  if (nextOpening) {
-    if (nextOpening === 'e04' && !anchors.has('morrow-magic-attempt')) return []
-    if (nextOpening === 'e06' && !anchors.has('scylla-home-wish')) return []
-    return [nextOpening]
-  }
-
-  const available: ExperienceId[] = []
-  for (const [original, reimagined] of MEMORY_MIDDLE_PAIRS) {
-    if (!completed.has(original)) available.push(original)
-    else if (!completed.has(reimagined)) available.push(reimagined)
-  }
-  const completedPairs = MEMORY_MIDDLE_PAIRS.filter(([, second]) =>
-    completed.has(second),
+  if (next === 'e04' && !anchors.has('morrow-magic-attempt')) return []
+  if (next === 'e06' && !anchors.has('scylla-home-wish')) return []
+  if (next === 'e13' && !anchors.has('char-possible-future')) return []
+  if (
+    MEMORY_FINALE_ORDER.includes(
+      next as (typeof MEMORY_FINALE_ORDER)[number],
+    ) &&
+    next !== 'e13' &&
+    !progress.finaleCommitted
   )
-  if (completedPairs.length >= 2 && anchors.has('char-possible-future')) {
-    available.push('e13')
-  }
-  return available
+    return []
+
+  return [next]
 }
 
 /** A wish records an authored event, rather than mutating all previous choices. */
@@ -512,7 +519,7 @@ export const MEMORY_FINALE_PHASES: readonly FinaleRealityPhase[] = [
     perspective: 'scylla',
     terrain: 'Drowned royal court',
     playableCrisis:
-      'Give Char a real say about risk, duty and the remembered possible loss',
+      'Confront the sisters’ landward-departure record without erasing Char’s choices',
   },
   {
     id: 'optimized-future',
@@ -543,6 +550,23 @@ export function validateMemoryReimaginerCampaign(): string[] {
     errors.push('Expected eight unique world concepts')
   if (ids.size !== 16 || MEMORY_REALITY_EXPERIENCES.length !== 16)
     errors.push('Expected sixteen unique experiences')
+  if (
+    MEMORY_REALITY_PAIRS.flat().join(',') !==
+    MEMORY_REALITY_EXPERIENCES.map((entry) => entry.id).join(',')
+  )
+    errors.push(
+      'Every overworld must be followed immediately by its twisted reality',
+    )
+  for (const [original, twisted] of MEMORY_REALITY_PAIRS) {
+    const before = MEMORY_REALITY_EXPERIENCES.find(
+      (entry) => entry.id === original,
+    )
+    const after = MEMORY_REALITY_EXPERIENCES.find(
+      (entry) => entry.id === twisted,
+    )
+    if (!before || !after || before.concept !== after.concept)
+      errors.push(`Reality pair ${original}/${twisted} changes geography`)
+  }
   for (const concept of MEMORY_WORLD_CONCEPTS) {
     const variants = MEMORY_REALITY_EXPERIENCES.filter(
       (experience) => experience.concept === concept.id,

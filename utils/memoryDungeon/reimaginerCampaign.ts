@@ -215,9 +215,9 @@ export const MEMORY_REALITY_EXPERIENCES: readonly RealityExperience[] = [
     'underwater',
     'original',
     ['meaning', 'mechanics', 'cast', 'visual-language'],
-    'What did Scylla and Char believe leaving the sea would cost?',
-    'Mermaid childhood memories, a landward escape plan, twin testimony and Oren logistics',
-    'The sisters as young mermaid princesses, an underwater palace, their departure chart and the shore they dreamed about',
+    'Having witnessed the crossing, will Scylla choose to run away with Char again?',
+    'Play the days before their first escape as an adult Scylla with future knowledge; decide whether to repeat, delay or disclose the plan',
+    'The younger Char and the same royal palace as before the original escape; Scylla has been sent back into her younger life',
   ),
   experience(
     'e06',
@@ -227,7 +227,7 @@ export const MEMORY_REALITY_EXPERIENCES: readonly RealityExperience[] = [
     'underwater',
     'dark-reflection',
     ['meaning', 'mechanics', 'traversal', 'cast', 'visual-language'],
-    'What does Scylla owe Char when the last crossing changes their futures?',
+    'Can Scylla face a warped second timeline without taking the choice away from Char?',
     'Twisted tide routes, conflicting witness memories and departures nobody can erase',
     'The same submerged court and escape route bent into a nightmare of rewritten testimony',
   ),
@@ -444,12 +444,12 @@ export const MEMORY_PAIR_ENDINGS: Record<
   e04: [
     {
       id: 'open-the-tide-gate',
-      label: 'Open the tidal gate and evacuate the trapped commuters',
+      label: 'Open the tide gate to save the commuters; the sea anchor may collapse',
       publicResult:
-        'The trains escape. A defender holds the sea-side anchor while the signal breaks.',
+        'The trains escape. Scylla sees Char hold the sea anchor, then die when the crossing collapses.',
       worldFlag: 'earth-crowd-evacuated',
       futureConsequence:
-        'Char chooses to hold the collapsing anchor and dies. Scylla investigates what happened. The player is not told this in the opening caption.',
+        'Scylla witnesses Char die in the present at the end of World Four. A mysterious wish or echo sends Scylla back to her final days at home with a younger Char.',
     },
     {
       id: 'seal-the-tide-gate',
@@ -568,6 +568,58 @@ export const MEMORY_PAIR_ENDINGS: Record<
   ],
 }
 
+export const MEMORY_SCYLLA_DEPARTURE_CHOICES = [
+  {
+    id: 'run-again',
+    label: 'Run away to the human world together, just as before',
+    publicResult:
+      'Scylla agrees to the original route. She refuses to assume history will repeat without a fight.',
+    worldFlag: 'scylla-repeats-escape',
+    futureConsequence:
+      'The later crossing remembers both the original risk and Scylla’s decision to try again.',
+  },
+  {
+    id: 'stay',
+    label: 'Stay beneath the sea, even if it means giving up their dream',
+    publicResult:
+      'The sisters remain at court for now. Char demands to know why Scylla suddenly fears the surface.',
+    worldFlag: 'scylla-stays-below',
+    futureConsequence:
+      'The altered present gains a new naval-political danger instead of a guaranteed rescue.',
+  },
+  {
+    id: 'tell-char',
+    label: 'Tell Char what Scylla remembers and let her decide',
+    publicResult:
+      'Scylla explains the impossible return without demanding a promise. Char listens, then insists her future belongs to her.',
+    worldFlag: 'scylla-shares-foreknowledge',
+    futureConsequence:
+      'Char becomes an informed participant in the altered escape, even when her decision risks repeating tragedy.',
+  },
+] as const
+
+export type MemoryScyllaDepartureChoice =
+  (typeof MEMORY_SCYLLA_DEPARTURE_CHOICES)[number]['id']
+
+/**
+ * This is World Five's playable, irreversible decision, separate from
+ * the ending choice of the e05/e06 geography. A second chance is not
+ * automatic resurrection and cannot silently erase World Four history.
+ */
+export function chooseMemoryScyllaDeparture(
+  progress: MemoryCampaignProgress,
+  choice: MemoryScyllaDepartureChoice,
+): MemoryCampaignProgress {
+  if (
+    !availableMemoryExperiences(progress).includes('e05') ||
+    progress.scyllaDeparture
+  )
+    throw new Error('Scylla must be in her unchosen past')
+  if (!MEMORY_SCYLLA_DEPARTURE_CHOICES.some((option) => option.id === choice))
+    throw new Error('Unknown Scylla departure choice')
+  return { ...progress, scyllaDeparture: choice }
+}
+
 export type MemoryCharFate = 'lost' | 'alive' | 'unresolved'
 
 export function memoryCharFate(progress: MemoryCampaignProgress): MemoryCharFate {
@@ -582,9 +634,9 @@ export function memoryCharFate(progress: MemoryCampaignProgress): MemoryCharFate
 }
 
 /**
- * Scylla's chapters share the same maps for every World Four outcome.
- * Death is withheld from the initial player-visible account; an earned
- * later reveal may distinguish a missing sister from a fatal last stand.
+ * World Four occurs in the present. The time displacement starts World Five
+ * for ALL three endings; Char's original fate remains a stable historical
+ * consequence while any new future is yet to be earned.
  */
 export function scyllaOpeningForMemory(
   progress: MemoryCampaignProgress,
@@ -593,20 +645,26 @@ export function scyllaOpeningForMemory(
   const fate = memoryCharFate(progress)
   if (reality === 'e05') {
     if (fate === 'lost')
-      return 'Scylla returns to the palace where she and Char once drew their first map of the land. The last signal from the crossing is still unanswered.'
+      return 'Scylla watched Char die at the sea gate. She wakes years earlier in her childhood palace. Char stands alive before her, excited for the escape they have planned. Only Scylla remembers the death.'
     if (progress.pairDecisions?.e04 === 'seal-the-tide-gate')
-      return 'Scylla remembers the shore she once dreamed of reaching with Char. She knows Char survived the sealed crossing, but the stranded travelers have not returned.'
+      return 'Char survived the sealed crossing, but commuters remain trapped. Scylla wakes years earlier, with a young Char still planning their escape to land. The same past now offers an unsettling second choice.'
     if (progress.pairDecisions?.e04 === 'divert-the-current')
-      return 'Scylla revisits her childhood with Char beside her, troubled by the maintenance district destroyed to keep them safe.'
-    return 'Scylla begins with the palace and the two sisters’ plan to reach land. The current record cannot tell the party what followed.'
+      return 'Char survived, but the maintenance district paid for it. Scylla wakes in her younger body days before their escape. Char has no idea why her sister is suddenly afraid of a road they have not taken.'
+    return 'Scylla stands in her childhood palace just before the sisters planned to escape to land. The past has returned, but not its answers.'
   }
-  if (fate === 'lost')
-    return 'The drowned court repeats Char’s last signal. Scylla must separate memory, guilt and the true costs of the crossing.'
-  if (progress.pairDecisions?.e04 === 'seal-the-tide-gate')
-    return 'The drowned court promises a perfect evacuation, but Scylla and Char must confront those the closed gate left behind.'
-  if (progress.pairDecisions?.e04 === 'divert-the-current')
-    return 'The drowned court calls the diverted surge a clean rescue. Scylla and Char know the ruined district was not empty by decree.'
-  return 'The drowned court rewrites the voyage. Scylla must recover independent testimony before naming the cost.'
+  const departure = progress.scyllaDeparture
+  if (fate === 'lost') {
+    if (departure === 'run-again')
+      return 'The distorted palace replays the same escape while Scylla hears Char’s final cry across the years. Repeating the journey is not a guarantee of changing the outcome.'
+    if (departure === 'stay')
+      return 'The drowned court offers safety beneath the sea, but Char resents being imprisoned by a future only Scylla can remember.'
+    return 'The court tries to erase Char’s testimony after Scylla told her the future. The sisters must decide what they believe together.'
+  }
+  if (departure === 'stay')
+    return 'The distorted sea makes staying seem perfectly safe. Char asks what the two of them have sacrificed for that safety.'
+  if (departure === 'tell-char')
+    return 'The court demands a single official story, but Char remembers what Scylla told her and refuses to surrender her choice.'
+  return 'The distorted timeline recreates the escape. Scylla remembers what happened at the crossing and what it cost, even with Char still alive in the present she left behind.'
 }
 
 export function memoryPairWorldFlags(progress: MemoryCampaignProgress): string[] {
@@ -645,6 +703,7 @@ export interface MemoryCampaignProgress {
   rememberedAnchors: readonly MemoryWishAnchorId[]
   finaleCommitted: boolean
   pairDecisions?: Partial<Record<MemoryPairEndingWorld, string>>
+  scyllaDeparture?: MemoryScyllaDepartureChoice
 }
 
 export function newMemoryCampaignProgress(): MemoryCampaignProgress {
@@ -707,6 +766,8 @@ export function completeMemoryExperience(
   progress: MemoryCampaignProgress,
   id: ExperienceId,
 ): MemoryCampaignProgress {
+  if (id === 'e05' && !progress.scyllaDeparture)
+    throw new Error('Scylla must decide whether to repeat the escape')
   if (
     id !== 'e02' &&
     Object.prototype.hasOwnProperty.call(MEMORY_PAIR_ENDINGS, id) &&
@@ -825,6 +886,14 @@ export function validateMemoryReimaginerCampaign(): string[] {
   )
   if (new Set(flags).size !== flags.length)
     errors.push('World-pair choices must have distinct cross-world flags')
+  if (
+    new Set(MEMORY_SCYLLA_DEPARTURE_CHOICES.map((option) => option.id)).size !==
+      MEMORY_SCYLLA_DEPARTURE_CHOICES.length ||
+    MEMORY_SCYLLA_DEPARTURE_CHOICES.some(
+      (option) => !option.label || !option.publicResult || !option.futureConsequence,
+    )
+  )
+    errors.push('Scylla needs three consequential departure choices')
   for (const choices of Object.values(MEMORY_PAIR_ENDINGS)) {
     if (
       new Set(choices.map((choice) => choice.id)).size !== choices.length ||

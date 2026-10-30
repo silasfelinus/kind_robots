@@ -319,8 +319,18 @@ export const ONE_SHOT_MENU: ReadonlyArray<{
     tag: 'Wind-up Licensed Legends',
   },
   {
-    id: 'quarry-lieutenant',
+    id: 'boiler-room',
     art: 'districts/industrial-foundry',
+    tag: 'Survive · fire, live water, weak floors',
+  },
+  {
+    id: 'fountain-hold',
+    art: 'districts/botanical-conservatory',
+    tag: 'Hold the zone · reinforcement wave',
+  },
+  {
+    id: 'quarry-lieutenant',
+    art: 'districts/labor-museum',
     tag: 'Four-HP lieutenant boss',
   },
 ]

@@ -17,6 +17,7 @@ on:
       - 'utils/scripts/verifyEveryVillainLackeys.test.ts'
       - 'utils/scripts/verifyEveryVillainPicnic.test.ts'
       - 'utils/scripts/verifyEveryVillainFrontMenu.test.ts'
+      - 'utils/scripts/verifyEveryVillainStageRules.test.ts'
       - 'components/every-villain-tactics/**'
       - '.github/workflows/every-villain-tactics.yml'
   push:
@@ -59,6 +60,8 @@ jobs:
         run: npx tsx utils/scripts/verifyEveryVillainPicnic.test.ts
       - name: Front menu, settings, scrapbook and threat preview
         run: npx tsx utils/scripts/verifyEveryVillainFrontMenu.test.ts
+      - name: Props, hazards, waves, victory rules and stage share codes
+        run: npx tsx utils/scripts/verifyEveryVillainStageRules.test.ts
       - name: Shared engine keeps Prom of Doom interludes intact
         run: |
           npx tsx utils/scripts/verifyCometTacticalBridge.test.ts

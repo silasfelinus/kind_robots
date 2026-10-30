@@ -31,6 +31,19 @@ import {
 } from './combat'
 import type { StageDraft } from './studio'
 import {
+  chooseFireSpread,
+  fieldMap,
+  incomingSpawns,
+  initialField,
+  inZone,
+  isWaterLive,
+  rulesFor,
+  shoveTarget,
+  waveUnitSeed,
+  type FieldState,
+  type StageRules,
+} from './stageRules'
+import {
   applyTacticalProfile,
   bestPowerPlay,
   previewPower,
@@ -100,6 +113,10 @@ export type TrainingState = {
   fired?: string[]
   /** One-shot bystanders; absent for battles without an evacuation goal. */
   civilians?: Civilian[]
+  /** Live studio rules (props, hazards, waves, victory) copied from the
+   * stage, and their runtime state. Absent for battles without them. */
+  rules?: StageRules
+  field?: FieldState
   impact: {
     attacker: string
     target: string
@@ -119,6 +136,11 @@ export const KNOWN_TRIGGERS: readonly string[] = [
 ]
 export function recordTrigger(state: TrainingState, id: string) {
   if (state.fired && !state.fired.includes(id)) state.fired.push(id)
+}
+/** Picnic Panic's scene triggers fire only in Picnic Panic; the same
+ * burrowers and civilians appear in other stages without its scenes. */
+function picnicTrigger(state: TrainingState, id: string) {
+  if (state.fired?.includes('picnic:opening')) recordTrigger(state, id)
 }
 export const WIDTH = FIRST_BELL_MAP.width
 export const HEIGHT = FIRST_BELL_MAP.height
@@ -225,6 +247,13 @@ export function trainingState(
       status: 'waiting' as const,
     }))
   if (stage?.scenes === 'picnic-panic') recordTrigger(state, 'picnic:opening')
+  const rules = rulesFor(stage)
+  if (stage && rules) {
+    state.rules = rules
+    state.field = initialField(rules)
+    state.map = fieldMap(stage.map, rules, state.field)
+    state.field.fireNext = chooseFireSpread(state.map, state.field)
+  }
   const lead = state.units[0]!
   if (
     options.lead &&
@@ -404,12 +433,51 @@ function note(state: TrainingState, message: string) {
 }
 const waitingCivilians = (state: TrainingState) =>
   (state.civilians ?? []).filter((c) => c.status === 'waiting')
+/** Victory under the stage's live rules, or null. Survive and hold-zone are
+ * decided at the end of each round in roundEnd. */
+function ruleVictory(state: TrainingState, rules: StageRules): string | null {
+  const v = rules.victory
+  const rivalsDown = state.units.every((u) => u.team !== 'rival' || u.hp <= 0)
+  const pending = rules.waves.some((wave) => wave.round > state.turn)
+  if (v.kind === 'defeat-boss') {
+    const boss = state.units.find((u) => u.id === v.unit)
+    if (boss && boss.hp <= 0)
+      return aliasFor(boss) + ' is down. The rest of their crew scatters.'
+  }
+  if (v.kind === 'rescue') {
+    const rescued = (state.civilians ?? []).filter(
+      (c) => c.status === 'rescued',
+    ).length
+    return rescued >= v.count
+      ? 'Evacuation complete: ' + rescued + ' civilian(s) are safe.'
+      : null
+  }
+  if (v.kind === 'hold-zone') return null
+  return rivalsDown && !pending
+    ? 'The rival squad stands down. What you call victory depends on whom you ask.'
+    : null
+}
 function updateOutcome(state: TrainingState) {
   const civilians = state.civilians ?? []
+  const rules = state.rules
+  const rescue = rules?.victory.kind === 'rescue' ? rules.victory : null
+  const won = rules ? ruleVictory(state, rules) : null
   if (civilians.length && civilians.every((c) => c.status === 'lost')) {
     state.phase = 'defeat'
     note(state, 'Every family was pulled under. The picnic is lost.')
-  } else if (state.units.every((u) => u.team !== 'rival' || u.hp <= 0)) {
+  } else if (
+    rescue &&
+    civilians.filter((c) => c.status !== 'lost').length < rescue.count
+  ) {
+    state.phase = 'defeat'
+    note(state, 'Too many civilians were lost to finish the evacuation.')
+  } else if (rules && won) {
+    state.phase = 'victory'
+    note(state, won)
+  } else if (
+    !rules &&
+    state.units.every((u) => u.team !== 'rival' || u.hp <= 0)
+  ) {
     state.phase = 'victory'
     note(
       state,
@@ -423,6 +491,60 @@ function updateOutcome(state: TrainingState) {
     )
   }
 }
+/** A shot at a unit sheltering behind a destructible prop chips the prop,
+ * hit or miss. At 0 HP the prop breaks and its cover is gone for good. */
+function strikeProp(state: TrainingState, defender: Point, cover: number) {
+  if (!cover) return
+  const prop = state.rules?.props.find(
+    (p) => p.x === defender.x && p.y === defender.y,
+  )
+  if (prop) damageProp(state, prop.id, 'takes the shot')
+}
+function damageProp(state: TrainingState, id: string, cause: string) {
+  const rules = state.rules
+  const live = state.field?.props.find((p) => p.id === id)
+  const prop = rules?.props.find((p) => p.id === id)
+  if (!rules || !live || !prop || live.hp <= 0) return
+  live.hp--
+  if (live.hp > 0) {
+    note(
+      state,
+      'The cover at column ' +
+        (prop.x + 1) +
+        ', row ' +
+        (prop.y + 1) +
+        ' ' +
+        cause +
+        ' (' +
+        live.hp +
+        ' left).',
+    )
+    return
+  }
+  const { cover: _broken, ...bare } = tileAt(state.map, prop)
+  state.map = {
+    ...state.map,
+    tiles: { ...state.map.tiles, [prop.x + ',' + prop.y]: bare },
+  }
+  note(
+    state,
+    'The cover at column ' +
+      (prop.x + 1) +
+      ', row ' +
+      (prop.y + 1) +
+      ' shatters. That tile is open ground now.',
+  )
+}
+function attack(
+  state: TrainingState,
+  attacker: Unit,
+  defender: Unit,
+  damage: number,
+) {
+  const result = resolveAttack(state, state.map, attacker, defender, damage)
+  if (result) strikeProp(state, defender, result.chance.cover)
+  return result
+}
 function triggerReactions(state: TrainingState, moved: Unit) {
   // Reactions happen before the mover gets their next action.
   for (const enemy of state.units.filter(
@@ -430,6 +552,7 @@ function triggerReactions(state: TrainingState, moved: Unit) {
   )) {
     const result = resolveOverwatch(state, state.map, enemy, moved)
     if (!result) continue
+    strikeProp(state, moved, result.chance.cover)
     recordImpact(state, enemy, moved, result.hit)
     note(
       state,
@@ -474,7 +597,7 @@ export function moveSelected(state: TrainingState, to: Cell): boolean {
 export function fireSelected(state: TrainingState, target: Unit): boolean {
   const shooter = selectedUnit(state)
   if (!shooter || state.phase !== 'active') return false
-  const result = resolveAttack(state, state.map, shooter, target, 2)
+  const result = attack(state, shooter, target, 2)
   if (!result) return false
   recordImpact(state, shooter, target, result.hit)
   note(
@@ -657,7 +780,7 @@ export function rescueSelected(state: TrainingState): boolean {
   civilian.status = 'rescued'
   note(state, aliasFor(unit) + ' evacuates ' + civilian.name + ' (1 AP).')
   if (!waitingCivilians(state).length && state.civilians?.length)
-    recordTrigger(state, 'picnic:all-rescued')
+    picnicTrigger(state, 'picnic:all-rescued')
   updateOutcome(state)
   return true
 }
@@ -713,12 +836,12 @@ function burrowPlan(state: TrainingState, enemy: Unit): boolean {
     enemy.y = to.y
     enemy.ap--
     note(state, aliasFor(enemy) + ' bursts from the announced dust ring!')
-    recordTrigger(state, 'picnic:first-emergence')
+    picnicTrigger(state, 'picnic:first-emergence')
     // Any family beside the ring is pulled into the tunnel with it.
     for (const civilian of waitingCivilians(state))
       if (gridDistance(civilian, enemy) <= 1) {
         civilian.status = 'lost'
-        recordTrigger(state, 'picnic:civilian-lost')
+        picnicTrigger(state, 'picnic:civilian-lost')
         note(state, civilian.name + ' is dragged into the tunnel!')
       }
     updateOutcome(state)
@@ -727,7 +850,7 @@ function burrowPlan(state: TrainingState, enemy: Unit): boolean {
     if (enemy.hp <= 0 || state.phase !== 'active') return true
     const shot = bestShot(state, enemy)
     if (shot && enemy.ap > 0) {
-      const result = resolveAttack(state, state.map, enemy, shot.target, 1)
+      const result = attack(state, enemy, shot.target, 1)
       if (result) {
         recordImpact(state, enemy, shot.target, result.hit)
         note(
@@ -813,7 +936,7 @@ function phasePlan(state: TrainingState, enemy: Unit): boolean {
     triggerReactions(state, enemy)
     if (enemy.hp <= 0 || state.phase !== 'active') return true
     if (victim && victim.hp > 0 && enemy.ap > 0) {
-      const result = resolveAttack(state, state.map, enemy, victim, 1)
+      const result = attack(state, enemy, victim, 1)
       if (result) {
         recordImpact(state, enemy, victim, result.hit)
         note(
@@ -1101,6 +1224,9 @@ function lieutenantPlan(state: TrainingState, enemy: Unit): boolean {
       unit.overwatch = false
       recordImpact(state, enemy, unit, true)
     }
+    for (const prop of state.rules?.props ?? [])
+      if (Math.abs(prop.x - marked.x) <= 1 && Math.abs(prop.y - marked.y) <= 1)
+        damageProp(state, prop.id, 'cracks in the quake')
     note(
       state,
       aliasFor(enemy) +
@@ -1221,7 +1347,7 @@ function enemyPlan(state: TrainingState, enemy: Unit) {
     shot = bestShot(state, enemy)
   }
   if (enemy.ap > 0 && shot) {
-    const result = resolveAttack(state, state.map, enemy, shot.target, 1)
+    const result = attack(state, enemy, shot.target, 1)
     if (result) {
       recordImpact(state, enemy, shot.target, result.hit)
       note(
@@ -1241,11 +1367,194 @@ function enemyPlan(state: TrainingState, enemy: Unit) {
   }
   updateOutcome(state)
 }
+const cellKey = (p: Cell) => p.x + ',' + p.y
+/** End-of-round ticks for live stage rules: hazards burn and shock whoever
+ * stands in them, weak floors give way on their announced round, fire spreads
+ * to the tile it marked a round earlier, and survive/hold objectives count. */
+function roundEnd(state: TrainingState) {
+  const rules = state.rules
+  const field = state.field
+  if (!rules || !field || state.phase !== 'active') return
+  const round = state.turn
+  const burning = new Set(field.fire.map(cellKey))
+  const live = isWaterLive(round)
+    ? new Set(rules.hazards.filter((h) => h.kind === 'water').map(cellKey))
+    : new Set<string>()
+  for (const unit of state.units.filter((u) => u.hp > 0)) {
+    const fire = burning.has(cellKey(unit))
+    if (!fire && !live.has(cellKey(unit))) continue
+    unit.hp = Math.max(0, unit.hp - 1)
+    unit.overwatch = false
+    note(
+      state,
+      aliasFor(unit) +
+        (fire
+          ? ' is caught in the fire (1 damage).'
+          : ' is shocked by the live water (1 damage).'),
+    )
+  }
+  for (const prop of rules.props)
+    if (burning.has(cellKey(prop))) damageProp(state, prop.id, 'burns')
+  for (const hazard of rules.hazards) {
+    if (
+      hazard.kind !== 'collapse' ||
+      hazard.round !== round ||
+      field.collapsed.includes(hazard.id)
+    )
+      continue
+    field.collapsed.push(hazard.id)
+    state.map = {
+      ...state.map,
+      tiles: {
+        ...state.map.tiles,
+        [cellKey(hazard)]: { elevation: 0, wall: true },
+      },
+    }
+    note(
+      state,
+      'The weak floor at column ' +
+        (hazard.x + 1) +
+        ', row ' +
+        (hazard.y + 1) +
+        ' gives way into rubble.',
+    )
+    const victim = actorAt(state, hazard)
+    if (victim) {
+      const blocked = new Set(state.units.filter((u) => u.hp > 0).map(cellKey))
+      const landing = shoveTarget(state.map, hazard, blocked)
+      if (landing) {
+        victim.x = landing.x
+        victim.y = landing.y
+        victim.hp = Math.max(0, victim.hp - 1)
+        note(state, aliasFor(victim) + ' scrambles clear (1 damage).')
+      } else {
+        victim.hp = 0
+        note(state, aliasFor(victim) + ' falls with the floor.')
+      }
+    }
+  }
+  if (field.fireNext) {
+    const next = field.fireNext
+    const blocker = actorAt(state, next)
+    if (blocker)
+      note(state, aliasFor(blocker) + ' stamps out the spreading fire.')
+    else if (!tileAt(state.map, next).wall) {
+      field.fire.push({ x: next.x, y: next.y })
+      note(
+        state,
+        'The fire spreads to column ' +
+          (next.x + 1) +
+          ', row ' +
+          (next.y + 1) +
+          '.',
+      )
+    }
+  }
+  field.fireNext = chooseFireSpread(state.map, field)
+  updateOutcome(state)
+  if (state.phase !== 'active') return
+  const v = rules.victory
+  if (v.kind === 'hold-zone') {
+    const living = state.units.filter((u) => u.hp > 0 && inZone(rules, u))
+    if (
+      living.some((u) => u.team === 'squad') &&
+      !living.some((u) => u.team === 'rival')
+    ) {
+      field.held++
+      note(
+        state,
+        'The squad holds the zone (' + field.held + ' / ' + v.rounds + ').',
+      )
+    }
+    if (field.held >= v.rounds) {
+      state.phase = 'victory'
+      note(state, 'The zone is secured. Nobody is moving the squad now.')
+    }
+  } else if (v.kind === 'survive' && round >= v.rounds) {
+    state.phase = 'victory'
+    note(
+      state,
+      'The squad outlasted the assault: ' + v.rounds + ' rounds survived.',
+    )
+  }
+}
+export function waveUnit(rules: StageRules, id: string): Unit | null {
+  const match = /^wave(\d+)-(\d+)$/.exec(id)
+  if (!match) return null
+  const seed = waveUnitSeed(
+    rules,
+    Number(match[1] ?? 0) - 1,
+    Number(match[2] ?? 0) - 1,
+  )
+  if (!seed) return null
+  return {
+    id: seed.id,
+    identity: seed.identity,
+    team: 'rival',
+    x: seed.x,
+    y: seed.y,
+    hp: seed.hp,
+    maxHp: seed.hp,
+    henchmanName: seed.henchmanName,
+    henchmanType: seed.henchmanType,
+    ...(seed.henchmanType === 'burrow'
+      ? { burrowTarget: null }
+      : seed.henchmanType === 'phase'
+        ? { phaseTarget: null, phaseVictim: null }
+        : { windupRewinding: false }),
+    moved: false,
+    fired: false,
+    ap: 2,
+    overwatch: false,
+    statuses: [],
+  }
+}
+/** Reinforcements arrive at the start of their round on the hatches shown a
+ * round earlier. A unit standing on a hatch seals it for good. */
+function arriveWaves(state: TrainingState) {
+  const rules = state.rules
+  const field = state.field
+  if (!rules || !field || state.phase !== 'active') return
+  rules.waves.forEach((wave, w) => {
+    if (wave.round !== state.turn) return
+    wave.spawns.forEach((spawn, s) => {
+      const unit = waveUnit(rules, 'wave' + (w + 1) + '-' + (s + 1))!
+      if (actorAt(state, spawn)) {
+        field.sealed.push(unit.id)
+        note(
+          state,
+          'A squadmate stands on the hatch at column ' +
+            (spawn.x + 1) +
+            ', row ' +
+            (spawn.y + 1) +
+            ': that reinforcement never arrives.',
+        )
+        return
+      }
+      state.units.push(unit)
+      field.reinforced.push(unit.id)
+      note(state, unit.henchmanName + ' arrives through the hatch!')
+    })
+  })
+}
+function waveWarning(state: TrainingState) {
+  if (!state.rules || state.phase !== 'active') return
+  const hatches = incomingSpawns(state.rules, state.turn).length
+  if (hatches)
+    note(
+      state,
+      'Reinforcements arrive next round at ' +
+        hatches +
+        ' marked hatch(es). Stand on a hatch to seal it.',
+    )
+}
 export function endTurn(state: TrainingState) {
   if (state.phase !== 'active') return
   if (state.units.every((unit) => unit.team !== 'rival' || unit.hp <= 0)) {
     // Do not strand the player with 0 AP when the enemies have fallen but
     // a separate physical extraction objective remains incomplete.
+    roundEnd(state)
+    if (state.phase !== 'active') return
     state.turn++
     if (state.turnLimit !== null && state.turn > state.turnLimit) {
       state.phase = 'defeat'
@@ -1254,10 +1563,12 @@ export function endTurn(state: TrainingState) {
     }
     refreshTurn(state.units, 'squad')
     tickPowerCooldowns(state.units, 'squad')
+    arriveWaves(state)
     note(
       state,
       'The opposition is down. Finish securing the mission objective.',
     )
+    waveWarning(state)
     return
   }
   clearSuppression(state.units, 'squad')
@@ -1271,12 +1582,15 @@ export function endTurn(state: TrainingState) {
   }
   if (state.phase !== 'active') return
   clearSuppression(state.units, 'rival')
+  roundEnd(state)
+  if (state.phase !== 'active') return
   state.turn++
   if (state.turnLimit !== null && state.turn > state.turnLimit) {
     state.phase = 'defeat'
     note(state, 'The mission timer expired before the squad could finish.')
     return
   }
+  arriveWaves(state)
   refreshTurn(state.units, 'squad')
   tickPowerCooldowns(state.units, 'squad')
   if (!selectedUnit(state))
@@ -1312,6 +1626,7 @@ export function endTurn(state: TrainingState) {
             state.turn +
             ': the rival patrol has acted. Your squad has the initiative.',
   )
+  waveWarning(state)
   if (state.turn === 3) {
     state.events.unshift(
       'A fire alarm cuts through the gym. A second rescue call is coming.',

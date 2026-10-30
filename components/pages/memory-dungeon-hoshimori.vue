@@ -106,8 +106,7 @@
           </template>
         </div>
         <div class="shrink-0 px-1 pt-2 text-xs opacity-75">
-          Other mountain paths remain uncharted. The Red Oven is only the first
-          threshold.
+          All village paths are charted. The Red Oven still has deeper rooms.
         </div>
       </div>
 
@@ -301,6 +300,15 @@
           >
             Return to the Red Oven · Ash Wing
           </button>
+          <button
+            v-if="hoshimori.canEnterOvenEmberWing"
+            type="button"
+            class="btn btn-warning min-h-12 text-base"
+            data-testid="memory-hoshimori-enter-ember-wing"
+            @click="hoshimori.act({ type: 'enter-ember-wing' })"
+          >
+            Return to the Red Oven · Ember Wing
+          </button>
           <p
             v-if="hoshimori.resolution"
             class="rounded-xl border border-success/30 bg-success/15 p-3 text-base leading-relaxed"
@@ -313,6 +321,20 @@
             data-testid="memory-hoshimori-ash-wing-account"
           >
             {{ hoshimori.secondAccount }}
+          </p>
+          <p
+            v-if="hoshimori.guardianResolution"
+            class="rounded-xl border border-success/40 bg-success/10 p-3 text-base leading-relaxed"
+            data-testid="memory-hoshimori-guardian-resolution"
+          >
+            {{ hoshimori.guardianResolution }}
+          </p>
+          <p
+            v-if="hoshimori.thirdAccount"
+            class="rounded-xl border border-warning/40 bg-warning/10 p-3 text-base leading-relaxed"
+            data-testid="memory-hoshimori-ember-wing-account"
+          >
+            {{ hoshimori.thirdAccount }}
           </p>
         </template>
       </div>

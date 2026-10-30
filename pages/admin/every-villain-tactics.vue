@@ -769,9 +769,10 @@
                 >
               </div>
               <p class="evt-dossier-status">
-                Henchmen: {{ inspectedHenchmen.name }} · The Quarry lieutenant
-                is one playable studio demonstration, not 48 shipped bosses or
-                96 playable stages. Most concepts await art and AI.
+                Concept plans only: Henchmen: {{ inspectedHenchmen.name }} · The
+                Quarry lieutenant is one playable studio demonstration, not 48
+                shipped bosses or 96 playable stages. Most concepts await art
+                and AI.
               </p>
               <button
                 type="button"

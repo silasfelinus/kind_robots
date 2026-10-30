@@ -27,6 +27,12 @@ export const portraitArt = (
 export const missionArtKey = (id: string) => `missions/${id}`
 export const antagonistArtKey = (id: string) => `antagonists/${id}`
 export const endingArtKey = (ending: string) => `endings/${slugify(ending)}`
+/**
+ * The family title under a finished voyage's ending. The star-chart and
+ * clone codas append their own titles (`CAPTAIN OF THE OPEN HORIZON · The
+ * Royal Dust Bunny`), and the family's picture must still be found.
+ */
+export const endingFamilyTitle = (ending: string) => ending.split(' · ')[0]!
 /** A nemesis's own ending, by id such as `auditor-undone` (nemesisEndings.ts). */
 export const nemesisEndingArtKey = (id: string) => `endings/${id}`
 export const SPLASH_ART_KEY = 'front/splash'
@@ -51,7 +57,7 @@ export function voyageStageArt(run: VoyageRun | null): string | null {
   if (run.phase === 'ending' && run.ending)
     return (
       (run.nemesisEnding && warpArt(nemesisEndingArtKey(run.nemesisEnding))) ||
-      warpArt(endingArtKey(run.ending))
+      warpArt(endingArtKey(endingFamilyTitle(run.ending)))
     )
   if (run.phase === 'finale')
     return warpArt(antagonistArtKey(antagonistFor(run).id))

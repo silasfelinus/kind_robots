@@ -1081,7 +1081,10 @@ for (let variation = 0; variation < 16; variation++) {
   assert.ok(account, 'The southern assembly must pay off earned testimony')
   southernVerdicts.add(account)
   const vesper = hoshimoriVesperReckoning(run)
-  assert.ok(vesper, 'Vesper needs earned childhood, harm and restitution scenes')
+  assert.ok(
+    vesper,
+    'Vesper needs earned childhood, harm and restitution scenes',
+  )
   vesperVerdicts.add(vesper)
   const restored = restoreHoshimoriWarm(JSON.parse(JSON.stringify(run)))
   assert.deepEqual(
@@ -1165,7 +1168,10 @@ assert.match(consoleSource, /data-testid="memory-hoshimori-lowland-account"/)
 assert.match(consoleSource, /data-testid="memory-hoshimori-windward-account"/)
 assert.match(consoleSource, /data-testid="memory-hoshimori-southern-account"/)
 assert.match(consoleSource, /data-testid="memory-hoshimori-vesper-reckoning"/)
-assert.match(consoleSource, /data-testid="memory-hoshimori-vesper-briar-history"/)
+assert.match(
+  consoleSource,
+  /data-testid="memory-hoshimori-vesper-briar-history"/,
+)
 assert.match(consoleSource, /data-testid="memory-hoshimori-enter-ash-wing"/)
 assert.match(consoleSource, /data-testid="memory-hoshimori-ash-wing-account"/)
 assert.match(consoleSource, /data-testid="memory-hoshimori-enter-ember-wing"/)
@@ -1189,7 +1195,10 @@ assert.match(storeSource, /hoshimoriLowlandAccount\(progress\.value\)/)
 assert.match(storeSource, /hoshimoriWindwardAccount\(progress\.value\)/)
 assert.match(storeSource, /hoshimoriSouthernAccount\(progress\.value\)/)
 assert.match(storeSource, /hoshimoriVesperReckoning\(progress\.value\)/)
-assert.match(storeSource, /earnedVesperRookeryOutcome\(world\.state, world\.dark\)/)
+assert.match(
+  storeSource,
+  /earnedVesperRookeryOutcome\(world\.state, world\.dark\)/,
+)
 assert.match(storeSource, /hoshimoriOvenSecondAccount\(progress\.value\)/)
 assert.match(storeSource, /hoshimoriOvenThirdAccount\(progress\.value\)/)
 assert.match(storeSource, /hoshimoriOvenGuardianResolution\(progress\.value\)/)

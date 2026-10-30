@@ -85,7 +85,8 @@
           }}</span>
           <h2>{{ STAR_QUESTIONS[answers.length]!.prompt }}</h2>
           <p>
-            This is a scientifically unlicensed assessment. All responses are logged for promotion eligibility.
+            This is a scientifically unlicensed assessment. All responses are logged
+            for promotion eligibility.
           </p>
           <div class="scope-choices">
             <button
@@ -99,7 +100,9 @@
               <img
                 class="scope-answer-art"
                 :src="answerArtwork(index)"
-                :alt="'Illustration for option ' + String.fromCharCode(65 + index)"
+                :alt="
+                  'Illustration for option ' + String.fromCharCode(65 + index)
+                "
                 @load="artReady[index] = true"
                 @error="artReady[index] = true"
               />
@@ -117,16 +120,21 @@
       </template>
       <template v-else>
         <div class="scope-reveal" data-testid="space-couch-star-reveal">
-          <span class="scope-episode">PROVISIONAL WORKPLACE PERSONALITY CLASSIFICATION</span>
+          <span class="scope-episode"
+            >PROVISIONAL WORKPLACE PERSONALITY CLASSIFICATION</span
+          >
           <span class="scope-sign-glyph" aria-hidden="true">{{
             sign?.glyph
           }}</span>
           <h2>{{ sign?.name }}</h2>
           <strong>{{ sign?.epithet }}</strong>
           <p>{{ sign?.myth }}</p>
-          <p class="scope-omen">✧ OFFICIAL PERFORMANCE FORECAST: {{ sign?.omen }}</p>
+          <p class="scope-omen">
+            ✧ OFFICIAL PERFORMANCE FORECAST: {{ sign?.omen }}
+          </p>
           <p class="scope-exclusive">
-            CORPORATE BENEFIT: THREE EXCLUSIVE ASSIGNMENTS, NONE COVERED BY INSURANCE.
+            CORPORATE BENEFIT: THREE EXCLUSIVE ASSIGNMENTS, NONE COVERED BY
+            INSURANCE.
           </p>
           <div class="scope-final-actions">
             <button
@@ -201,7 +209,10 @@ const questionArtwork = computed(() => {
 function answerArtwork(optionIndex: number): string {
   const question = String(Math.min(answers.value.length + 1, 4)).padStart(2, '0')
   const answer = String.fromCharCode(97 + optionIndex)
-  return warpArt('couchscope/question-' + question + '-answer-' + answer) || questionArtwork.value
+  return (
+    warpArt('couchscope/question-' + question + '-answer-' + answer) ||
+    questionArtwork.value
+  )
 }
 const assessment = computed(() => createStarAssessment(answers.value))
 const sign = computed(() =>

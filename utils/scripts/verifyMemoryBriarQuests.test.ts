@@ -18,6 +18,12 @@ import {
   validateBriarRareEvents,
 } from '../memoryDungeon/briarRareEvents'
 import {
+  MEMORY_BRIAR_ACHIEVEMENTS,
+  memoryAchievementGallery,
+  reconcileMemoryAchievements,
+  restoreMemoryAchievements,
+} from '../memoryDungeon/achievements'
+import {
   houseEpilogueScores,
   HOUSE_EPILOGUE_LENSES,
   HOUSE_EPILOGUE_SIGNALS,
@@ -820,6 +826,61 @@ for (const event of rareCases) {
   assert.equal(endings.size, 2, `${event.id} has two distinct outcomes`)
 }
 
+// World One's first eight cosmetic achievements are earned by the existing
+// four-decision rare convergences, not by unverified counters or repeated loot.
+assert.equal(MEMORY_BRIAR_ACHIEVEMENTS.length, 8)
+assert.equal(new Set(MEMORY_BRIAR_ACHIEVEMENTS.map((m) => m.id)).size, 8)
+assert.deepEqual(
+  new Set(MEMORY_BRIAR_ACHIEVEMENTS.map((m) => m.id)),
+  new Set(BRIAR_RARE_EVENTS.map((event) => event.id)),
+)
+assert.deepEqual(restoreMemoryAchievements(null), [])
+assert.deepEqual(restoreMemoryAchievements(['unknown', 12, 'unknown']), [])
+assert.deepEqual(memoryAchievementGallery([]).filter((m) => m.earned), [])
+for (const medal of MEMORY_BRIAR_ACHIEVEMENTS) {
+  const quest = BRIAR_QUESTS.find((q) => q.id === medal.questId)
+  assert.equal(medal.artPath, quest?.artPath, 'reuse authored quest art')
+  assert.ok(medal.title.length >= 12 && medal.description.length >= 45)
+}
+let lifetime: string[] = []
+for (const event of rareCases) {
+  const briar: Record<string, string> = { ...event.briar }
+  const house: Record<string, string> = { ...event.house }
+  ;(event.branchScope === 'briar' ? briar : house)[event.branchKey] =
+    event.choices[0]
+  const earned = earnedBriarRareEvents(briar, house)
+  const previousCount = lifetime.length
+  lifetime = reconcileMemoryAchievements(lifetime, earned)
+  assert.equal(lifetime.length, previousCount + 1)
+  assert.ok(lifetime.includes(event.id))
+  assert.deepEqual(
+    reconcileMemoryAchievements(lifetime, earned),
+    lifetime,
+    'replaying a rare ending never duplicates its medal',
+  )
+  assert.deepEqual(
+    reconcileMemoryAchievements(
+      restoreMemoryAchievements(JSON.parse(JSON.stringify(lifetime))),
+      [],
+    ),
+    lifetime,
+    'earned medals survive a new run with no current scene choices',
+  )
+  assert.deepEqual(
+    reconcileMemoryAchievements(lifetime, [
+      { id: 'invented', questId: 'invented', title: '', premise: '', outcome: '' },
+    ]),
+    lifetime,
+    'unknown reward IDs never enter the permanent ledger',
+  )
+}
+assert.equal(memoryAchievementGallery(lifetime).filter((m) => m.earned).length, 8)
+assert.deepEqual(
+  restoreMemoryAchievements([lifetime[1], lifetime[0], lifetime[1], 'fake']),
+  lifetime.slice(0, 2),
+  'restoration deduplicates and returns medals in canonical order',
+)
+
 // The Forge counts the eight threads as quests.
 const book = buildMemoryDungeonPlaybook()
 const beats = Object.values(book.nodes).filter((n) =>
@@ -844,11 +905,19 @@ const log = readFileSync('components/memory-dungeon/quest-log.vue', 'utf8')
 assert.match(log, /data-testid="memory-quest-log"/)
 assert.match(log, /world\.briarQuests/)
 assert.match(log, /data-testid="memory-rare-interlude"/)
+assert.match(log, /data-testid="memory-medals-toggle"/)
+assert.match(log, /data-testid="memory-medals-gallery"/)
+assert.match(log, /data-testid="memory-medal"/)
+assert.match(log, /kr-scroll min-h-0 flex-1 overflow-y-auto/)
 assert.doesNotMatch(log, /\$fetch|localStorage/)
 const store = readFileSync('stores/memoryWorldStore.ts', 'utf8')
 assert.match(store, /briarQuestLog\(state\.value\.sceneChoices/)
 assert.match(store, /earnedBriarRareEvents\(/)
+assert.match(store, /memoryDungeonAchievementsV1/)
+assert.match(store, /restoreMemoryAchievements\(/)
+assert.match(store, /syncAchievements\(\)/)
+assert.match(store, /briarAchievements,/)
 
 console.log(
-  'Memory Briar quests: 8 side quests, 8 earned rare interludes with 16 authored outcomes, epilogue weight and save restoration verified',
+  'Memory Briar quests: 8 side quests, 8 rare interludes with 16 outcomes, 8 persistent cosmetic medals, epilogue weight and save restoration verified',
 )

@@ -844,7 +844,22 @@ for (const medal of MEMORY_BRIAR_ACHIEVEMENTS) {
   const quest = BRIAR_QUESTS.find((q) => q.id === medal.questId)
   assert.equal(medal.artPath, quest?.artPath, 'reuse authored quest art')
   assert.ok(medal.title.length >= 12 && medal.description.length >= 45)
+  assert.ok(
+    medal.echo.length >= 120,
+    `${medal.id} has a substantial authored echo`,
+  )
 }
+assert.equal(
+  new Set(MEMORY_BRIAR_ACHIEVEMENTS.map((medal) => medal.echo)).size,
+  8,
+  'every rare convergence unlocks a different story fragment',
+)
+assert.ok(
+  memoryAchievementGallery([]).every(
+    (medal) => !medal.earned && medal.echo === null,
+  ),
+  'unearned fragments must not leak into the gallery',
+)
 let lifetime: string[] = []
 for (const event of rareCases) {
   const briar: Record<string, string> = { ...event.briar }
@@ -888,6 +903,14 @@ assert.equal(
   8,
 )
 assert.deepEqual(
+  memoryAchievementGallery(lifetime).map((medal) => medal.echo),
+  MEMORY_BRIAR_ACHIEVEMENTS.map((medal) => medal.echo),
+  'all eight story echoes remain unlocked after serialized restoration',
+)
+const oneUnlocked = memoryAchievementGallery([lifetime[0]!])
+assert.equal(oneUnlocked.filter((medal) => medal.echo !== null).length, 1)
+assert.equal(oneUnlocked.filter((medal) => medal.earned).length, 1)
+assert.deepEqual(
   restoreMemoryAchievements([lifetime[1], lifetime[0], lifetime[1], 'fake']),
   lifetime.slice(0, 2),
   'restoration deduplicates and returns medals in canonical order',
@@ -920,6 +943,8 @@ assert.match(log, /data-testid="memory-rare-interlude"/)
 assert.match(log, /data-testid="memory-medals-toggle"/)
 assert.match(log, /data-testid="memory-medals-gallery"/)
 assert.match(log, /data-testid="memory-medal"/)
+assert.match(log, /data-testid="memory-unlocked-echo"/)
+assert.match(log, /v-if="medal\.earned && medal\.echo"/)
 assert.match(log, /kr-scroll min-h-0 flex-1 overflow-y-auto/)
 assert.doesNotMatch(log, /\$fetch|localStorage/)
 const store = readFileSync('stores/memoryWorldStore.ts', 'utf8')

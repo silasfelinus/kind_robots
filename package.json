@@ -23,7 +23,6 @@
     "test:hybridizer-cache": "tsx utils/scripts/verifyHybridizerFusion.test.ts",
     "test:slime-city-lab": "tsx utils/scripts/verifySlimeCityLab.test.ts && tsx utils/scripts/verifySlimeCityStore.test.ts",
     "test:hybridizer-catalog": "tsx utils/scripts/verifyHybridizerStarterCatalog.test.ts",
-    "test:slime-city-lab": "tsx utils/scripts/verifySlimeCityLab.test.ts",
     "test:every-villain-tactics": "tsx utils/scripts/verifyEveryVillainTactics.test.ts",
     "test:every-villain-combat": "tsx utils/scripts/verifyEveryVillainCombat.test.ts",
     "test:every-villain-story": "tsx utils/scripts/verifyEveryVillainStory.test.ts",

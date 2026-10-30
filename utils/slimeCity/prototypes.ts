@@ -2037,7 +2037,7 @@ function applyDeploy(
     return false
   if (x < 0 || y < 0 || x >= state.width || y >= state.height) return false
   const target = unitAt(state, x, y)
-  const hidden = side === 'enemy' && state.mode === 'blackout'
+  const hidden = side === 'enemy' && state.mode === 'blackout' && !!state.rules.classicFog
   let line: string
   if (card.kind === 'creature') {
     if (target || !inDeployZone(state, side, x)) return false

@@ -34,11 +34,14 @@
               :alt="lab.left?.title || ''"
               class="specimen-image"
             />
-            <div v-else class="specimen-fallback" aria-hidden="true">
-              <span class="specimen-glow"></span>
-              <span class="specimen-glyph">{{
+            <div v-else class="specimen-fallback">
+              <span class="specimen-glow" aria-hidden="true"></span>
+              <span class="specimen-glyph" aria-hidden="true">{{
                 glyphFor(lab.left?.title, lab.left?.taxonomy)
               }}</span>
+              <span v-if="lab.artPending(lab.left)" class="art-pending"
+                >Portrait queued</span
+              >
             </div>
           </div>
           <span class="chamber-bottom"
@@ -73,11 +76,14 @@
               :alt="lab.right?.title || ''"
               class="specimen-image"
             />
-            <div v-else class="specimen-fallback" aria-hidden="true">
-              <span class="specimen-glow"></span>
-              <span class="specimen-glyph">{{
+            <div v-else class="specimen-fallback">
+              <span class="specimen-glow" aria-hidden="true"></span>
+              <span class="specimen-glyph" aria-hidden="true">{{
                 glyphFor(lab.right?.title, lab.right?.taxonomy)
               }}</span>
+              <span v-if="lab.artPending(lab.right)" class="art-pending"
+                >Portrait queued</span
+              >
             </div>
           </div>
           <span class="chamber-bottom"
@@ -283,6 +289,7 @@
               glyphFor(entry.title, entry.taxonomy)
             }}</span>
             <strong>{{ entry.title }}</strong>
+            <em v-if="lab.artPending(entry)" class="art-pending">Art queued</em>
             <small>{{
               entry.taxonomy === 'OTHER' && entry.facetGroup === 'fruit'
                 ? 'FRUIT'
@@ -521,6 +528,8 @@ onUnmounted(() => lab.stopArtworkWatch())
   width: 100%;
   height: 100%;
   display: flex;
+  flex-direction: column;
+  gap: 6px;
   align-items: center;
   justify-content: center;
   position: relative;
@@ -882,6 +891,17 @@ onUnmounted(() => lab.stopArtworkWatch())
   height: 85px;
   width: 100%;
   object-fit: contain;
+}
+
+.art-pending {
+  position: relative;
+  font-size: 0.62rem;
+  font-style: normal;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #e0ffae;
+  opacity: 0.8;
 }
 
 .option-glyph {

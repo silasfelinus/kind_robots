@@ -102,7 +102,11 @@
             v-if="store.tactical && run"
             :battle="store.tactical"
             :rival-name="opponent?.hero.alias ?? 'THE RIVAL'"
-            :mission="store.incidents.find((incident) => incident.id === store.tactical?.caseId)?.title ?? 'NIGHT PATROL'"
+            :mission="
+              store.incidents.find(
+                (incident) => incident.id === store.tactical?.caseId,
+              )?.title ?? 'NIGHT PATROL'
+            "
             :opening="tacticalOpening(run)"
             :role="tacticalRoleFor(run)"
             @cell="store.battleClick"
@@ -139,18 +143,33 @@
               class="cca-report-mini"
               data-testid="academy-recommended-rival"
             >
-              <strong>RECOMMENDED RIVAL · {{ recommendedRivalFor(run.signature).hero.alias }}</strong>
-              <span>{{ recommendedRivalFor(run.signature).student.conflict }}</span>
-              <span>The current campaign still allows a different seeded antagonist. Your rival has their own agency and can become the hero if you turn villain.</span>
+              <strong
+                >RECOMMENDED RIVAL ·
+                {{ recommendedRivalFor(run.signature).hero.alias }}</strong
+              >
+              <span>{{
+                recommendedRivalFor(run.signature).student.conflict
+              }}</span>
+              <span
+                >The current campaign still allows a different seeded
+                antagonist. Your rival has their own agency and can become the
+                hero if you turn villain.</span
+              >
               <button
                 type="button"
                 class="cca-choice"
-                :disabled="run.opponentSignature === recommendedRivalFor(run.signature).signature"
+                :disabled="
+                  run.opponentSignature ===
+                  recommendedRivalFor(run.signature).signature
+                "
                 @click="store.recommendRival()"
               >
-                {{ run.opponentSignature === recommendedRivalFor(run.signature).signature
-                  ? 'RECOMMENDED RIVAL SELECTED'
-                  : 'CHOOSE THIS RIVALRY FOR YOUR STORY' }}
+                {{
+                  run.opponentSignature ===
+                  recommendedRivalFor(run.signature).signature
+                    ? 'RECOMMENDED RIVAL SELECTED'
+                    : 'CHOOSE THIS RIVALRY FOR YOUR STORY'
+                }}
               </button>
             </div>
             <div
@@ -761,7 +780,11 @@
             >
               <span>
                 ✦ PLAY THE TACTICAL FIGHT · {{ opponent?.hero.alias }}
-                <small>Move your squad on a cover-and-line-of-sight battlefield. The actual victory or defeat replaces the automatic result for your personally led call.</small>
+                <small
+                  >Move your squad on a cover-and-line-of-sight battlefield. The
+                  actual victory or defeat replaces the automatic result for
+                  your personally led call.</small
+                >
               </span>
               <span>↗</span>
             </button>

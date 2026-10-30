@@ -54,6 +54,9 @@ jobs:
       - name: Memory Dungeon Reimaginer reality and finale route contract
         run: npx tsx utils/scripts/verifyMemoryReimaginer.test.ts
 
+      - name: Memory Dungeon Hoshimori warm sixteen-site and oven proof
+        run: npx tsx utils/scripts/verifyMemoryHoshimoriWarm.test.ts
+
       - name: Memory Dungeon Dark Briar playable slice and save contract
         run: npx tsx utils/scripts/verifyMemoryDarkBriar.test.ts
 

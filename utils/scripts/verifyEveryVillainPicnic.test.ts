@@ -14,7 +14,11 @@ import {
   serializeSave,
   type EvtSave,
 } from '../everyVillainTactics/saves'
-import { clonePreset, stageProblems } from '../everyVillainTactics/studio'
+import {
+  clonePreset,
+  paintStage,
+  stageProblems,
+} from '../everyVillainTactics/studio'
 import {
   endTurn,
   rescueSelected,
@@ -31,6 +35,40 @@ broken.civilians![0] = { ...broken.civilians![0]!, x: 0, y: 4 }
 assert.ok(
   stageProblems(broken).includes('A civilian cannot share a spawn tile.'),
 )
+
+// The studio civilian brush toggles bystanders that become rescue targets.
+let draft = clonePreset('college-quad')
+draft = paintStage(draft, { x: 2, y: 1 }, 'civilian')
+draft = paintStage(draft, { x: 3, y: 4 }, 'civilian')
+assert.deepEqual(
+  draft.civilians?.map((c) => c.id),
+  ['bystander-1', 'bystander-2'],
+)
+assert.equal(
+  paintStage(draft, { x: 4, y: 2 }, 'civilian'),
+  draft,
+  'not on walls',
+)
+assert.equal(
+  paintStage(draft, { x: 0, y: 4 }, 'civilian'),
+  draft,
+  'not on spawns',
+)
+draft = paintStage(draft, { x: 2, y: 1 }, 'civilian')
+assert.deepEqual(
+  draft.civilians?.map((c) => c.id),
+  ['bystander-2'],
+)
+assert.deepEqual(stageProblems(draft), [])
+const custom = trainingState(5, draft)
+assert.equal(custom.civilians?.[0]?.status, 'waiting')
+assert.equal(
+  pendingPicnicScene(custom),
+  null,
+  'custom stages have no picnic scenes',
+)
+draft = paintStage(draft, { x: 3, y: 4 }, 'wall')
+assert.equal(draft.civilians, undefined, 'walls clear civilians')
 
 // Opening scene plays once, before anything else, from trigger history.
 const run = trainingState(99, picnic)
@@ -170,6 +208,7 @@ const page = readFileSync(
 assert.match(page, /data-testid="tactics-oneshot-scene"/)
 assert.match(page, /data-testid="tactics-rescue"/)
 assert.match(page, /data-testid="tactics-civilian"/)
+assert.match(page, /data-testid="studio-civilian"/)
 console.log(
   'Picnic Panic: authored opening/triggered/final scenes from trigger history, 1-AP evacuation, telegraphed tunnel abductions, loss state, saves and forgery checks verified.',
 )

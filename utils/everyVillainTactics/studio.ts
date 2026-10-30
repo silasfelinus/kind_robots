@@ -19,6 +19,7 @@ export type StudioBrush =
   | 'rival-spawn'
   | 'secret'
   | 'hazard'
+  | 'civilian'
 
 export type StageSpawn = { id: string; x: number; y: number }
 export type StageDraft = {
@@ -39,6 +40,15 @@ export type StageDraft = {
   scenes?: 'picnic-panic'
 }
 export type StageCivilian = { id: string; name: string; x: number; y: number }
+/** Bystanders the civilian brush places, in order. */
+export const BYSTANDER_NAMES = [
+  'A lost tour group',
+  'The ice-cream vendor',
+  'A sleepy crossing guard',
+  'Two chess players mid-game',
+  'A dog walker with six dogs',
+  'The marching-band drummer',
+] as const
 /** Rival line-ups the studio can field. Crews are canonical one-hit SPECIES
  * from villainHenchmen.json, each with its own telegraphed mechanic. */
 export type StageEncounter =
@@ -338,6 +348,26 @@ export function paintStage(
     }
     return next
   }
+  if (brush === 'civilian') {
+    if (occupied || tileAt(next.map, p).wall) return stage
+    const civilians = next.civilians ?? []
+    const exists = civilians.findIndex((c) => c.x === p.x && c.y === p.y)
+    if (exists >= 0) civilians.splice(exists, 1)
+    else {
+      if (civilians.length >= 6) return stage
+      let n = 1
+      while (civilians.some((c) => c.id === 'bystander-' + n)) n++
+      civilians.push({
+        id: 'bystander-' + n,
+        name: BYSTANDER_NAMES[(n - 1) % BYSTANDER_NAMES.length]!,
+        x: p.x,
+        y: p.y,
+      })
+    }
+    if (civilians.length) next.civilians = civilians
+    else delete next.civilians
+    return next
+  }
   if (brush === 'secret' || brush === 'hazard') {
     if (occupied || tileAt(next.map, p).wall) return stage
     const points = brush === 'secret' ? next.secrets : next.hazards
@@ -368,5 +398,9 @@ export function paintStage(
   next.map = { ...next.map, tiles }
   next.secrets = next.secrets.filter((q) => !tileAt(next.map, q).wall)
   next.hazards = next.hazards.filter((q) => !tileAt(next.map, q).wall)
+  if (next.civilians) {
+    next.civilians = next.civilians.filter((c) => !tileAt(next.map, c).wall)
+    if (!next.civilians.length) delete next.civilians
+  }
   return next
 }

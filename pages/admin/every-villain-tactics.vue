@@ -693,6 +693,15 @@
                   >
                   <span
                     v-else-if="
+                      store.draft.civilians?.some(
+                        (p) => p.x === cell.x && p.y === cell.y,
+                      )
+                    "
+                    data-testid="studio-civilian"
+                    >☺</span
+                  >
+                  <span
+                    v-else-if="
                       store.draft.map.tiles[cell.x + ',' + cell.y]?.elevation
                     "
                     >▲</span
@@ -1164,6 +1173,7 @@ const studioBrushes = [
   { value: 'rival-spawn', label: 'Rival spawn' },
   { value: 'secret', label: 'Secret' },
   { value: 'hazard', label: 'Hazard' },
+  { value: 'civilian', label: 'Civilian' },
 ] as const
 const studioCells = Array.from({ length: 54 }, (_, i) => ({
   x: i % 9,

@@ -366,7 +366,7 @@
                 <h3>{{ lab.inspectedCard.name }}</h3>
                 <p v-if="lab.inspectedCard.kind === 'creature'" class="sc-card-stats">
                   ATK {{ lab.inspectedCard.attack }} · HP {{ lab.inspectedCard.hp }} ·
-                  ARMOR {{ lab.inspectedCard.armor }} · MOVE {{ lab.inspectedCard.ap }}
+                  ARMOR {{ lab.inspectedCard.armor }} · MOVE {{ lab.inspectedCard.ap }} · RANGE {{ cardAttackRange(lab.inspectedCard) }}
                 </p>
                 <p>{{ lab.inspectedCard.text }}</p>
                 <p v-if="lab.inspectedCard.keywords?.length" class="sc-card-stats">
@@ -700,7 +700,7 @@
 
 <script setup lang="ts">
 import { computed, onUnmounted } from 'vue'
-import { cardById, type ViewFighter } from '~/utils/slimeCity/prototypes'
+import { cardAttackRange, cardById, type ViewFighter } from '~/utils/slimeCity/prototypes'
 import { STREETS } from '~/utils/slimeCity/city'
 import { useSlimeCityStore } from '~/stores/slimeCity'
 

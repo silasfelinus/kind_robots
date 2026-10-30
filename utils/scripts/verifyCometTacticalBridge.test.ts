@@ -160,11 +160,15 @@ assert.ok(
   ),
   'early origin battle persists without revealing an antagonist',
 )
-const completedOrigin = JSON.parse(JSON.stringify(firstBattle)) as typeof firstBattle
+const completedOrigin = JSON.parse(
+  JSON.stringify(firstBattle),
+) as typeof firstBattle
 completedOrigin.arena!.secured = true
 completedOrigin.arena!.discovered = true
 completedOrigin.state.phase = 'victory'
-for (const enemy of completedOrigin.state.units.filter((unit) => unit.team === 'rival'))
+for (const enemy of completedOrigin.state.units.filter(
+  (unit) => unit.team === 'rival',
+))
   enemy.hp = 0
 const originResult = tacticalResultFor({
   ...originRun,
@@ -178,11 +182,16 @@ const originDebrief = resolveDispatch({
   tacticalResult: originResult,
   tacticalHistory: [originResult],
 })
-const originReport = originDebrief.reports.find((entry) => entry.caseId === originCase.id)!
+const originReport = originDebrief.reports.find(
+  (entry) => entry.caseId === originCase.id,
+)!
 assert.match(originReport.text, /ORIGIN MISSION:/)
 assert.match(originReport.text, /ORIGIN DISCOVERY:/)
 assert.doesNotMatch(originReport.text, /RIVAL LAIR:/)
-assert.ok(restoreAcademy(JSON.parse(JSON.stringify(originDebrief))), 'day-four origin result must persist')
+assert.ok(
+  restoreAcademy(JSON.parse(JSON.stringify(originDebrief))),
+  'day-four origin result must persist',
+)
 const day = 15
 const dispatchState = {
   ...recommended,

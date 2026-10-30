@@ -86,6 +86,7 @@ export function newTacticalInterlude(
   if (
     run.flowVersion !== 3 ||
     run.phase !== 'dispatch' ||
+    run.campaignOptions?.tacticalMissions === false ||
     run.day < 4 ||
     !run.signature ||
     !run.opponentSignature ||

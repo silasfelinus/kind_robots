@@ -36,7 +36,24 @@
           <span aria-hidden="true">▣</span> YEARBOOK
           <small v-if="historyCount">{{ historyCount }} EXPLORED</small>
         </button>
-        <button type="button" @click="screen = 'settings'">
+        <button
+          type="button"
+          data-testid="academy-opening-scrapbook"
+          @click="screen = 'scrapbook'"
+        >
+          SCRAPBOOK
+        </button>
+        <NuxtLink
+          to="/admin/every-villain-tactics"
+          class="prom-tactical-link"
+          data-testid="academy-opening-tactical"
+          >⚔ TACTICAL MODE <small>SKIRMISH PREVIEW</small></NuxtLink
+        >
+        <button
+          type="button"
+          data-testid="academy-opening-settings"
+          @click="screen = 'settings'"
+        >
           <span aria-hidden="true">⚙</span> SETTINGS
         </button>
         <button type="button" @click="openHelp">
@@ -64,9 +81,15 @@
               >ORIGIN STORY // {{ screen === 'origin' ? '01' : '02' }}</span
             >
             <div class="prom-emblem">
-              {{
-                screen === 'origin' ? activeOrigin.glyph : activeAffinity.glyph
-              }}
+              <img
+                :src="
+                  promArt(
+                    (screen === 'origin' ? 'origins/' : 'affinities/') +
+                      (screen === 'origin' ? selectedOrigin : selectedAffinity),
+                  ) ?? ''
+                "
+                alt=""
+              />
             </div>
             <h2>
               {{
@@ -96,17 +119,10 @@
           <h2>
             {{
               screen === 'origin'
-                ? 'Every hero has an origin.'
-                : 'Power needs a direction.'
+                ? 'Choose your origin'
+                : 'Choose your affinity'
             }}
           </h2>
-          <p class="prom-explainer">
-            {{
-              screen === 'origin'
-                ? 'The accident, inheritance or impossible event that changed your life.'
-                : 'Your affinity changes who you become, not just the color of the blast.'
-            }}
-          </p>
           <div
             class="prom-options"
             :class="{ 'prom-eight': screen === 'affinity' }"
@@ -135,8 +151,21 @@
               "
               @click="selectOption(option.id)"
             >
-              <span>{{ option.glyph }}</span
-              ><strong>{{ option.name }}</strong>
+              <img
+                class="prom-option-icon"
+                :src="
+                  promArt(
+                    (screen === 'origin' ? 'origins/' : 'affinities/') +
+                      option.id,
+                  ) ?? ''
+                "
+                alt=""
+                loading="lazy"
+              />
+              <strong>{{ option.name }}</strong>
+              <small>{{
+                'source' in option ? option.source : option.theme
+              }}</small>
             </button>
           </div>
           <button
@@ -352,6 +381,50 @@
             </p>
           </article>
         </div>
+        <div
+          v-if="launchOnTutorial"
+          class="prom-mode-choices"
+          data-testid="academy-new-game-mode"
+        >
+          <strong>HOW DO YOU WANT TO PLAY?</strong>
+          <p>
+            The same thirty-day story, relationships and consequences in every
+            mode.
+          </p>
+          <label class="prom-setting">
+            <span
+              ><b>Tactical missions</b
+              ><small
+                >Command cover-based battles, or let choices decide the outcome
+                through narrated scenes.</small
+              ></span
+            >
+            <input
+              v-model="tacticalMissions"
+              type="checkbox"
+              :disabled="firstWeek"
+              data-testid="academy-new-game-tactical-toggle"
+            />
+          </label>
+          <label class="prom-setting">
+            <span
+              ><b>Night patrol management</b
+              ><small
+                >Assign crews and explore districts, or play story-first
+                nighttime decisions instead.</small
+              ></span
+            >
+            <input
+              v-model="nightPatrols"
+              type="checkbox"
+              :disabled="firstWeek"
+              data-testid="academy-new-game-patrol-toggle"
+            />
+          </label>
+          <small v-if="firstWeek"
+            >The legacy seven-day simulation keeps its original rules.</small
+          >
+        </div>
         <p class="prom-card-note">
           Thirty days. A different mastermind each run. Your decisions are saved
           automatically.
@@ -411,6 +484,48 @@
         </div>
       </div>
 
+      <div
+        v-else-if="screen === 'scrapbook'"
+        class="prom-info-room prom-yearbook"
+        data-testid="academy-opening-scrapbook-screen"
+      >
+        <p class="prom-eyebrow">SCRAPBOOK / RECOVERED STORIES</p>
+        <h2>What the yearbook remembers.</h2>
+        <p v-if="!historyCount">
+          Your scrapbook is empty. Start a term to collect identities and
+          endings.
+        </p>
+        <div v-else class="prom-yearbook-list">
+          <article
+            v-for="entry in explored"
+            :key="entry.id"
+            class="prom-yearbook-entry"
+          >
+            <img
+              v-if="promArt('identities/' + entry.id + '/student')"
+              class="prom-scrapbook-art"
+              :src="promArt('identities/' + entry.id + '/student')!"
+              alt=""
+            />
+            <strong>{{ entry.name }}</strong>
+            <small
+              >{{ entry.plays }} TERMS ·
+              {{ entry.forms.join(', ') || 'STUDENT' }}</small
+            >
+            <p>
+              {{
+                entry.endings.length
+                  ? entry.endings.join(' · ')
+                  : 'The ending is still unwritten.'
+              }}
+            </p>
+          </article>
+        </div>
+        <p class="prom-card-note">
+          During a term, the full Scrapbook tracks discoveries, relationships,
+          secrets and places you've visited.
+        </p>
+      </div>
       <div v-else-if="screen === 'settings'" class="prom-info-room">
         <p class="prom-eyebrow">OPTIONS / BEFORE THE FIRST BELL</p>
         <h2>Make it yours.</h2>
@@ -499,6 +614,8 @@ const emit = defineEmits<{
       vow: PowerVowId
       form: PlayerForm
       firstWeek: boolean
+      tacticalMissions: boolean
+      nightPatrols: boolean
     },
   ]
 }>()
@@ -510,6 +627,7 @@ type Screen =
   | 'vow'
   | 'tutorial'
   | 'yearbook'
+  | 'scrapbook'
   | 'yearbook-detail'
   | 'settings'
 const screen = ref<Screen>('title')
@@ -521,6 +639,8 @@ const selectedVow = ref<PowerVowId>('shelter')
 const launchOnTutorial = ref(false)
 const reducedMotion = ref(false)
 const firstWeek = ref(false)
+const tacticalMissions = ref(true)
+const nightPatrols = ref(true)
 const forms: PlayerForm[] = ['student', 'hero', 'villain']
 // A save code exported before NEW TERM (or on another device) can resume from
 // the title; the page swaps to the console as soon as the run exists.
@@ -626,6 +746,7 @@ const chapter = computed(
       vow: '04 / THE CHOICE',
       tutorial: '05 / TUTORIAL',
       yearbook: 'YEARBOOK',
+      scrapbook: 'SCRAPBOOK',
       'yearbook-detail': 'YEARBOOK / CHARACTER CARD',
       settings: 'SETTINGS',
       title: 'WELCOME',
@@ -700,6 +821,7 @@ function back() {
     vow: fromYearbook.value ? 'yearbook-detail' : 'dossier',
     tutorial: launchOnTutorial.value ? 'vow' : 'title',
     yearbook: 'title',
+    scrapbook: 'title',
     'yearbook-detail': 'yearbook',
     settings: 'title',
   }
@@ -711,6 +833,8 @@ function launch() {
     vow: selectedVow.value,
     form: selectedForm.value,
     firstWeek: firstWeek.value,
+    tacticalMissions: firstWeek.value || tacticalMissions.value,
+    nightPatrols: firstWeek.value || nightPatrols.value,
   })
 }
 </script>
@@ -834,7 +958,7 @@ function launch() {
   position: relative;
   z-index: 1;
   display: grid;
-  grid-template-columns: 2fr repeat(3, 1fr);
+  grid-template-columns: 2fr repeat(5, 1fr);
   gap: 0.5rem;
   padding: 0.7rem clamp(1rem, 3vw, 2.5rem) 1rem;
   background: #111527e6;
@@ -865,6 +989,59 @@ function launch() {
   display: block;
   font-size: 0.57rem;
   margin-top: 0.25rem;
+}
+.prom-cover-actions .prom-tactical-link {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  padding: 0.75rem 0.3rem;
+  background: #39395c;
+  color: #fff2e4;
+  border: 1px solid #bd8b9e77;
+  border-radius: 0.55rem;
+  text-align: center;
+  text-decoration: none;
+  font-weight: 900;
+  font-size: 0.8rem;
+}
+.prom-cover-actions .prom-tactical-link small {
+  font-size: 0.55rem;
+}
+.prom-mode-choices {
+  display: grid;
+  gap: 0.55rem;
+  margin: 0.8rem 0;
+  padding: 0.9rem;
+  background: #251f3c;
+  border: 1px solid #d6a58b;
+  border-radius: 0.7rem;
+}
+.prom-mode-choices .prom-setting {
+  margin: 0;
+}
+.prom-mode-choices small {
+  display: block;
+  opacity: 0.85;
+}
+.prom-option-icon {
+  width: 3.1rem;
+  height: 3.1rem;
+  object-fit: cover;
+  border: 1px solid #dcb7a2;
+  border-radius: 0.45rem;
+}
+.prom-scrapbook-art {
+  width: 5rem;
+  height: 5rem;
+  border-radius: 0.5rem;
+  object-fit: cover;
+}
+.prom-emblem img {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  object-fit: cover;
 }
 .prom-toolbar {
   display: flex;
@@ -1009,6 +1186,12 @@ function launch() {
 }
 .prom-options button span {
   font-size: 1.65rem;
+}
+.prom-options button small {
+  color: #d1dce8;
+  font-size: 0.66rem;
+  line-height: 1.2;
+  max-width: 26ch;
 }
 .prom-options button.active,
 .prom-form-choices button.active,
@@ -1447,7 +1630,7 @@ function launch() {
     font-size: clamp(3rem, 14vw, 4.8rem);
   }
   .prom-cover-actions {
-    grid-template-columns: repeat(4, 1fr);
+    grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: 0.25rem;
     padding: 0.5rem 0.3rem;
   }
@@ -1475,7 +1658,22 @@ function launch() {
   }
   .prom-options button {
     font-size: 0.64rem;
-    min-height: 3.2rem;
+    min-height: 6.3rem;
+    padding: 0.4rem 0.2rem;
+  }
+  .prom-option-icon {
+    width: 2.2rem;
+    height: 2.2rem;
+  }
+  .prom-options button small {
+    font-size: 0.54rem;
+    line-height: 1.15;
+  }
+  .prom-cover-actions .prom-tactical-link {
+    font-size: 0.57rem;
+  }
+  .prom-cover-actions .prom-tactical-link small {
+    display: none;
   }
   .prom-showcase-copy {
     bottom: 5%;

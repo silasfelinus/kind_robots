@@ -2505,6 +2505,13 @@ function toggleAway(id: CrewId) {
   width: clamp(2rem, 4.5cqi, 3.7rem);
   height: clamp(2rem, 4.5cqi, 3.7rem);
 }
+.cap-personnel-frame .cap-captain-copy small {
+  opacity: 0;
+  transition: opacity 220ms ease;
+}
+.cap-personnel-frame .cap-captain-ready .cap-captain-copy small {
+  opacity: 1;
+}
 .cap-personnel-frame .cap-captain strong,
 .cap-personnel-frame .cap-crew-button strong {
   font-size: clamp(0.7rem, 1.15cqi, 0.98rem);

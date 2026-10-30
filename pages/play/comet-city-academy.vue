@@ -21,7 +21,8 @@
         v-if="run"
         type="button"
         class="cca-small"
-        @click="store.restart()"
+        data-testid="academy-new-term"
+        @click="openScreen('settings', true)"
       >
         NEW TERM
       </button>
@@ -70,7 +71,13 @@
               }}
             </p>
             <h2 class="cca-scene-title">{{ sceneTitle }}</h2>
-            <p class="cca-scene-copy">{{ stageCopy }}</p>
+            <p
+              class="cca-scene-copy"
+              data-testid="academy-stage-copy"
+              @click="finishReveal"
+            >
+              {{ shownStageCopy }}
+            </p>
           </template>
         </div>
         <div class="cca-stage-foot">
@@ -97,9 +104,30 @@
           </div>
           <span class="cca-serial">C.C.A. // 07</span>
         </div>
+        <nav class="cca-screen-tabs" aria-label="Console screens">
+          <button
+            v-for="tab in CONSOLE_SCREENS"
+            :key="tab.id"
+            type="button"
+            :class="{ active: consoleScreen === tab.id }"
+            :aria-current="consoleScreen === tab.id ? 'page' : undefined"
+            :data-testid="'academy-tab-' + tab.id"
+            @click="openScreen(tab.id)"
+          >
+            <span aria-hidden="true">{{ tab.glyph }}</span>
+            <b>{{ tab.label }}</b>
+          </button>
+        </nav>
         <div class="cca-pane kr-scroll">
+          <AcademyConsoleScreens
+            v-if="consoleScreen !== 'play' && run"
+            :screen="consoleScreen"
+            :run="run"
+            :arm-reset="armReset"
+            @navigate="openScreen"
+          />
           <AcademyTacticalFight
-            v-if="store.tactical && run"
+            v-else-if="store.tactical && run"
             :battle="store.tactical"
             :rival-name="
               run.day < 15
@@ -126,6 +154,17 @@
             <p class="cca-muted">Loading your academy record…</p>
           </template>
           <template v-else-if="run.phase === 'map'">
+            <button
+              v-if="villainOmen"
+              type="button"
+              class="cca-omen"
+              data-testid="academy-villain-omen"
+              @click="openScreen('casefile')"
+            >
+              <strong>CITY OMEN · DAY {{ run.day }}</strong>
+              <span>{{ villainOmen }}</span>
+              <small>{{ caseFileNote ?? 'Add it to your case file →' }}</small>
+            </button>
             <div class="cca-heading">
               <span>02</span>
               <div>
@@ -497,6 +536,17 @@
           </template>
 
           <template v-else-if="run.phase === 'dispatch'">
+            <p
+              v-if="interferenceTonight"
+              class="cca-omen alert"
+              data-testid="academy-villain-interference-night"
+            >
+              <strong
+                >INTERFERENCE · {{ interferenceTonight.jams }} CALLS RUN ONE
+                STEP HARDER</strong
+              >
+              <span>{{ interferenceTonight.text }}</span>
+            </p>
             <div class="cca-heading">
               <span>02</span>
               <div>
@@ -1145,10 +1195,18 @@ import {
   compatibilityFor,
   socialChoices,
 } from '~/utils/cometAcademy/relationships'
-import { computed, onMounted, ref, watch } from 'vue'
+import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { comicIntroFor } from '~/utils/cometAcademy/comicIntroductions'
 import AcademyOpening from '~/components/play/cometAcademy/AcademyOpening.vue'
 import AcademyTacticalFight from '~/components/play/cometAcademy/AcademyTacticalFight.vue'
+import AcademyConsoleScreens from '~/components/play/cometAcademy/AcademyConsoleScreens.vue'
+import {
+  CONSOLE_SCREENS,
+  textRevealDelay,
+  villainCaseFile,
+  type ConsoleScreen,
+} from '~/utils/cometAcademy/consoleScreens'
+import { villainOmenFor } from '~/utils/cometAcademy/villainSigns'
 import {
   recommendedRivalFor,
   tacticalOpening,
@@ -1285,9 +1343,45 @@ const triadOfferList = computed(() =>
 )
 
 const stageScenery = computed(
-  () => academyStageArt(run.value) ?? '/comet-city-academy/academy-stage.svg',
+  () =>
+    (store.settings.art ? academyStageArt(run.value) : null) ??
+    '/comet-city-academy/academy-stage.svg',
 )
-const villainPortrait = computed(() => academyVillainArt(run.value))
+const villainPortrait = computed(() =>
+  store.settings.art ? academyVillainArt(run.value) : null,
+)
+
+// Console sub-screens. `play` is the day/night game; the rest read the save.
+const consoleScreen = ref<ConsoleScreen>('play')
+const armReset = ref(false)
+function openScreen(screen: ConsoleScreen, resetArmed = false) {
+  consoleScreen.value = screen
+  armReset.value = resetArmed
+}
+watch(
+  () => run.value?.seed,
+  () => openScreen('play'),
+)
+const villainOmen = computed(() =>
+  run.value?.flowVersion === 3
+    ? villainOmenFor(
+        campaignVillain(run.value.seed, run.value.mastermind),
+        run.value.day,
+      )
+    : null,
+)
+const caseFileNote = computed(() => {
+  const file = run.value ? villainCaseFile(run.value) : null
+  if (!file) return null
+  if (file.suspect)
+    return `You named ${file.suspect.name}. Open the case file →`
+  return file.canAccuse ? 'The case board is open: name the mastermind →' : null
+})
+const interferenceTonight = computed(() => {
+  const file = run.value ? villainCaseFile(run.value) : null
+  return file?.interference?.active ? file.interference : null
+})
+
 /** A student's portrait once its render ships; initials stand in until then. */
 /** A student's own portrait, else their neutral mission-reaction face. */
 const studentPortrait = (id: string) =>
@@ -1412,6 +1506,35 @@ const stageCopy = computed(() =>
       ? nightBeat.value.text
       : (run.value?.scene ?? ''),
 )
+// Scene typewriter. Instant by default; a tap on the copy finishes it.
+const revealed = ref(Number.POSITIVE_INFINITY)
+let revealTimer: ReturnType<typeof setInterval> | null = null
+function stopReveal() {
+  if (revealTimer) clearInterval(revealTimer)
+  revealTimer = null
+}
+function finishReveal() {
+  stopReveal()
+  revealed.value = Number.POSITIVE_INFINITY
+}
+watch(
+  () => [stageCopy.value, store.settings.textSpeed] as const,
+  ([copy, speed]) => {
+    stopReveal()
+    const delay = textRevealDelay(speed)
+    if (!delay || !copy) {
+      revealed.value = Number.POSITIVE_INFINITY
+      return
+    }
+    revealed.value = 0
+    revealTimer = setInterval(() => {
+      revealed.value += 2
+      if (revealed.value >= copy.length) finishReveal()
+    }, delay * 2)
+  },
+)
+onBeforeUnmount(stopReveal)
+const shownStageCopy = computed(() => stageCopy.value.slice(0, revealed.value))
 function startFromOpening(selection: {
   signature: SignaturePowerId
   vow: PowerVowId
@@ -1681,6 +1804,80 @@ function toggleStudent(caseId: string, id: StudentId): void {
 .cca-day-lights .filled {
   background: #f6bf87;
   box-shadow: 0 0 7px #f6bf877d;
+}
+.cca-screen-tabs {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 0.25rem;
+  padding: 0.35rem 0.5rem;
+  border-bottom: 1px solid #ffffff1c;
+  flex-shrink: 0;
+}
+.cca-screen-tabs button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.3rem;
+  min-height: 2rem;
+  border: 1px solid transparent;
+  border-radius: 0.45rem;
+  color: #b8cad8;
+  font-size: 0.6rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+.cca-screen-tabs button.active {
+  border-color: #f6c89e88;
+  background: #ffffff10;
+  color: #ffe0bf;
+}
+.cca-screen-tabs button:focus-visible,
+.cca-screen-tabs button:hover {
+  color: #fff6eb;
+}
+.cca-omen {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  width: 100%;
+  text-align: left;
+  border: 1px solid #b495d466;
+  border-radius: 0.65rem;
+  background: linear-gradient(110deg, #2b1d47cc, #141a33);
+  padding: 0.55rem 0.7rem;
+  margin-bottom: 0.7rem;
+  font-size: 0.74rem;
+  line-height: 1.45;
+  color: #e8e0f4;
+}
+.cca-omen strong {
+  font-size: 0.6rem;
+  letter-spacing: 0.14em;
+  color: #d9b8ff;
+}
+.cca-omen small {
+  color: #f6c89e;
+  font-size: 0.64rem;
+}
+.cca-omen.alert {
+  border-color: #f08aa3aa;
+  background: linear-gradient(110deg, #47192bcc, #141a33);
+}
+.cca-omen.alert strong {
+  color: #ffb3c1;
+}
+@media (max-width: 560px) {
+  .cca-screen-tabs {
+    padding: 0.25rem;
+    gap: 0.15rem;
+  }
+  .cca-screen-tabs button {
+    flex-direction: column;
+    gap: 0;
+    font-size: 0.5rem;
+    letter-spacing: 0.02em;
+  }
 }
 .cca-pane {
   flex: 1;

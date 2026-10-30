@@ -8,6 +8,11 @@ import {
   type StoryGrade,
 } from './patrolStories'
 import {
+  ACCUSATION_WINDOW,
+  INTERFERENCE_DAYS,
+  villainSignsFor,
+} from './villainSigns'
+import {
   personalQuestEvent,
   personalStanding,
   personalFinale,
@@ -597,6 +602,8 @@ export type AcademyRun = {
     status: 'active' | 'reconciled' | 'isolated'
   }
   plotEvidence?: string[]
+  /** The mastermind the player named from first-week evidence (days 5-14). */
+  suspect?: { id: string; day: number }
   academyStanding?: number
   cityStanding?: number
   phase: AcademyPhase
@@ -1544,8 +1551,61 @@ export function dispatchModifier(
         : 1
       : 0) +
     (missionSecretFor(run, incident.id) ? 2 : 0) +
-    (run.flowVersion === 3 ? storyLaterModifier(run, incident) : 0)
+    (run.flowVersion === 3 ? storyLaterModifier(run, incident) : 0) -
+    villainInterference(run, incident)
   )
+}
+
+/** Days 5-7 of a thirty-day run: the seeded mastermind jams one power field
+ * until the player names them. Older campaigns without the patrol opening are
+ * left exactly as they were saved. */
+export function villainInterference(run: AcademyRun, incident: Incident) {
+  if (
+    run.flowVersion !== 3 ||
+    run.patrolOpening !== 1 ||
+    !INTERFERENCE_DAYS.some((day) => day === run.day)
+  )
+    return 0
+  const villain = campaignVillain(run.seed, run.mastermind)
+  if (run.suspect?.id === villain.id) return 0
+  return villainSignsFor(villain.id)?.interference.jams === incident.need
+    ? 1
+    : 0
+}
+
+/** Name the mastermind from the first-week omens. One accusation per term:
+ * the right name breaks the interference and steadies the city; a wrong
+ * name sends investigators after the wrong person while the real plot grows. */
+export function accuseMastermind(
+  run: AcademyRun,
+  villainId: string,
+): AcademyRun {
+  if (
+    run.flowVersion !== 3 ||
+    run.phase !== 'map' ||
+    run.suspect ||
+    run.day < ACCUSATION_WINDOW.first ||
+    run.day > ACCUSATION_WINDOW.last ||
+    !CAMPAIGN_VILLAINS.some((villain) => villain.id === villainId)
+  )
+    return run
+  const villain = campaignVillain(run.seed, run.mastermind)
+  const named = CAMPAIGN_VILLAINS.find((entry) => entry.id === villainId)!
+  const correct = villain.id === villainId
+  const scene = correct
+    ? `You pin ${named.name} to the case board and walk the dean through every omen. The pattern holds. ${villainSignsFor(villain.id)?.interference.broken ?? ''}`
+    : `You pin ${named.name} to the case board. Investigators chase the wrong conspiracy for a week while the real one keeps building. ${villain.clue}`
+  return {
+    ...run,
+    suspect: { id: villainId, day: run.day },
+    influence: run.influence + (correct ? 2 : 0),
+    danger: Math.max(0, run.danger + (correct ? -1 : 1)),
+    scene,
+    log: [
+      ...run.log,
+      `Day ${run.day}: you named ${named.name} as the mastermind${correct ? ' and the evidence held' : ', but the evidence did not hold'}.`,
+    ],
+  }
 }
 
 export function dispatchChance(
@@ -2453,6 +2513,13 @@ export function restoreAcademy(raw: unknown): AcademyRun | null {
             ))) ||
         (data.betrayer !== undefined &&
           data.betrayer !== campaignBetrayer(data.seed ?? 0)) ||
+        (data.suspect !== undefined &&
+          (!data.suspect ||
+            typeof data.suspect !== 'object' ||
+            !CAMPAIGN_VILLAINS.some((v) => v.id === data.suspect?.id) ||
+            !Number.isInteger(data.suspect.day) ||
+            data.suspect.day < ACCUSATION_WINDOW.first ||
+            data.suspect.day > Math.min(ACCUSATION_WINDOW.last, data.day!))) ||
         (data.plotEvidence !== undefined &&
           (!Array.isArray(data.plotEvidence) ||
             data.plotEvidence.some(

@@ -12,6 +12,15 @@ import {
 } from '~/utils/cometAcademy/specialPowers'
 import { defineStore } from 'pinia'
 import {
+  DEFAULT_SETTINGS,
+  SETTINGS_KEY,
+  decodeSaveCode,
+  encodeSaveCode,
+  mastermindMet,
+  normalizeSettings,
+  type PromSettings,
+} from '~/utils/cometAcademy/consoleScreens'
+import {
   actorAt,
   counterSignatureLieutenant,
   endTurn,
@@ -33,6 +42,7 @@ import type {
   TriadArcId,
 } from '~/utils/cometAcademy/relationships'
 import {
+  accuseMastermind,
   assignTeam,
   assignPlayerCase,
   selectMissionApproach,
@@ -61,6 +71,8 @@ import {
 
 const SAVE_KEY = 'comet-city-academy-slice-v1'
 const YEARBOOK_KEY = 'comet-city-academy-yearbook-v1'
+/** Mastermind ids the player has unmasked in any term, for Scrapbook dossiers. */
+const DOSSIER_KEY = 'comet-city-academy-dossiers-v1'
 
 export type AcademyYearbookEntry = {
   plays: number
@@ -74,6 +86,19 @@ export const useCometAcademyStore = defineStore('cometAcademy', () => {
   const loaded = ref(false)
   const storageWarning = ref('')
   const yearbook = ref<AcademyYearbook>({})
+  const settings = ref<PromSettings>({ ...DEFAULT_SETTINGS })
+  const dossiers = ref<string[]>([])
+
+  function recordDossier() {
+    const current = run.value
+    if (
+      !current?.mastermind ||
+      !mastermindMet(current) ||
+      dossiers.value.includes(current.mastermind)
+    )
+      return
+    dossiers.value = [...dossiers.value, current.mastermind]
+  }
 
   function recordIdentity(started = false) {
     const current = run.value
@@ -102,9 +127,11 @@ export const useCometAcademyStore = defineStore('cometAcademy', () => {
   function persist() {
     try {
       recordIdentity()
+      recordDossier()
       if (run.value) localStorage.setItem(SAVE_KEY, JSON.stringify(run.value))
       else localStorage.removeItem(SAVE_KEY)
       localStorage.setItem(YEARBOOK_KEY, JSON.stringify(yearbook.value))
+      localStorage.setItem(DOSSIER_KEY, JSON.stringify(dossiers.value))
       storageWarning.value = ''
     } catch {
       storageWarning.value =
@@ -152,6 +179,17 @@ export const useCometAcademyStore = defineStore('cometAcademy', () => {
     } catch {
       storageWarning.value =
         'Your Yearbook could not be read. Your current term is still available.'
+    }
+    try {
+      settings.value = normalizeSettings(
+        JSON.parse(localStorage.getItem(SETTINGS_KEY) ?? 'null'),
+      )
+      const met: unknown = JSON.parse(localStorage.getItem(DOSSIER_KEY) ?? '[]')
+      dossiers.value = Array.isArray(met)
+        ? met.filter((id): id is string => typeof id === 'string')
+        : []
+    } catch {
+      settings.value = { ...DEFAULT_SETTINGS }
     }
     try {
       const raw = localStorage.getItem(SAVE_KEY)
@@ -410,6 +448,38 @@ export const useCometAcademyStore = defineStore('cometAcademy', () => {
     persist()
   }
 
+  function accuse(villainId: string) {
+    if (!run.value) return
+    run.value = accuseMastermind(run.value, villainId)
+    persist()
+  }
+
+  function updateSettings(next: Partial<PromSettings>) {
+    settings.value = normalizeSettings({ ...settings.value, ...next })
+    try {
+      localStorage.setItem(SETTINGS_KEY, JSON.stringify(settings.value))
+    } catch {
+      storageWarning.value =
+        'This browser cannot save settings. They will reset when you leave.'
+    }
+  }
+
+  function exportSave(): string {
+    return run.value ? encodeSaveCode(run.value) : ''
+  }
+
+  /** Replaces the current term with a validated save code. */
+  function importSave(code: string): boolean {
+    const restored = decodeSaveCode(code)
+    if (!restored) return false
+    run.value = restored
+    recordIdentity(
+      Boolean(restored.signature && !yearbook.value[restored.signature]),
+    )
+    persist()
+    return true
+  }
+
   return {
     loaded,
     run,
@@ -417,6 +487,8 @@ export const useCometAcademyStore = defineStore('cometAcademy', () => {
     tactical,
     storageWarning,
     yearbook,
+    settings,
+    dossiers,
     load,
     begin,
     beginFirstWeek,
@@ -447,5 +519,9 @@ export const useCometAcademyStore = defineStore('cometAcademy', () => {
     next,
     end,
     restart,
+    accuse,
+    updateSettings,
+    exportSave,
+    importSave,
   }
 })

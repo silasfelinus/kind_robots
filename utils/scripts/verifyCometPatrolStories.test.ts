@@ -3,6 +3,7 @@
 import assert from 'node:assert/strict'
 import { readFileSync } from 'node:fs'
 import { CITY_SITES } from '../cometAcademy/cityMap'
+import { scrapbookMoments } from '../cometAcademy/consoleScreens'
 import {
   EXPANDED_MISSIONS,
   expandedMissionFor,
@@ -320,6 +321,12 @@ function playTo(run: AcademyRun, day: number, plan: Plan = {}) {
   const saved = roundTrip(run)
   const memory = saved.patrolHistory!.at(-1)!
   assert.equal(memory.encounterId, 'story-clocktower')
+  assert.ok(
+    scrapbookMoments(saved).some((moment) =>
+      moment.title.endsWith('The Frog Under the Clocktower'),
+    ),
+    'the story is kept in the Scrapbook',
+  )
   const tamper = (entry: object) =>
     restoreAcademy({
       ...saved,

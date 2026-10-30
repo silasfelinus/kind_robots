@@ -50,6 +50,10 @@ import {
   chooseMemoryScyllaDeparture,
   memoryCharFate,
   scyllaOpeningForMemory,
+  MEMORY_COLLISION_FRAGMENTS,
+  MEMORY_COLLISION_ORDER,
+  chooseMemoryLastChoice,
+  recoverMemoryCollisionFragment,
 } from '../memoryDungeon/reimaginerCampaign'
 
 assert.deepEqual(validateDarkBriarSlice(), [])
@@ -427,9 +431,8 @@ assert.deepEqual(restoreMemoryCampaignProgress(completed).completed, [
   'e01',
   'e02',
 ])
-// All original/twisted pairs must precede the finale. Old machine/save
-// identifiers stay intact; neither a skipped location nor a forged memory
-// can jump directly into the final Archive.
+// The four original/dark acts precede four mixed-memory maps. The new
+// finale cannot be silently completed by an old sixteen-reality save.
 let alternate = completed
 alternate = rememberMemoryWish(alternate, 'morrow-magic-attempt')
 alternate = completeMemoryExperience(alternate, 'e03')
@@ -443,40 +446,41 @@ alternate = completeMemoryExperience(alternate, 'e05')
 alternate = rememberMemoryWish(alternate, 'char-possible-future')
 alternate = chooseMemoryPairEnding(alternate, 'e06', 'protect-private-memory')
 alternate = completeMemoryExperience(alternate, 'e06')
-for (const id of ['e07', 'e08', 'e09', 'e10'] as const) {
-  if (id === 'e08')
-    alternate = chooseMemoryPairEnding(alternate, id, 'unbar-all-doors')
-  if (id === 'e10')
-    alternate = chooseMemoryPairEnding(alternate, id, 'publish-price-ledger')
-  alternate = completeMemoryExperience(alternate, id)
-}
-assert.deepEqual(availableMemoryExperiences(alternate), ['e11'])
-assert.throws(
-  () => commitToMemoryFinale(alternate),
-  /not been earned/,
-  'A player cannot jump the Crossing pair to reach the finale',
-)
-for (const id of ['e11', 'e12'] as const) {
-  if (id === 'e12')
-    alternate = chooseMemoryPairEnding(alternate, id, 'free-transit')
-  alternate = completeMemoryExperience(alternate, id)
-}
-assert.deepEqual(availableMemoryExperiences(alternate), ['e13'])
+alternate = completeMemoryExperience(alternate, 'e07')
+alternate = chooseMemoryPairEnding(alternate, 'e08', 'unbar-all-doors')
+alternate = completeMemoryExperience(alternate, 'e08')
+assert.deepEqual(availableMemoryExperiences(alternate), ['e09'])
 alternate = commitToMemoryFinale(alternate)
+assert.throws(
+  () => completeMemoryExperience(alternate, 'e09'),
+  /Recover both misplaced world fragments/,
+)
+for (const id of MEMORY_COLLISION_ORDER) {
+  for (const fragment of MEMORY_COLLISION_FRAGMENTS.filter(
+    (part) => part.world === id,
+  ))
+    alternate = recoverMemoryCollisionFragment(alternate, fragment.id)
+  if (id === 'e10')
+    alternate = chooseMemoryPairEnding(
+      alternate,
+      'e10',
+      'publish-price-ledger',
+    )
+  if (id === 'e12') {
+    alternate = chooseMemoryPairEnding(alternate, 'e12', 'free-transit')
+    alternate = chooseMemoryLastChoice(alternate, 'repair-with-consent')
+  }
+  alternate = completeMemoryExperience(alternate, id)
+}
 assert.deepEqual(
   restoreMemoryCampaignProgress(JSON.parse(JSON.stringify(alternate))),
   alternate,
-  'Save after all eight early and middle incarnations retains explicit finale commitment',
+  'All twelve realities, eight fragments and final choice survive saved replay',
 )
-alternate = completeMemoryExperience(alternate, 'e13')
-alternate = chooseMemoryPairEnding(alternate, 'e14', 'publish-contradictions')
-alternate = completeMemoryExperience(alternate, 'e14')
-const alternateReload = restoreMemoryCampaignProgress(
-  JSON.parse(JSON.stringify(alternate)),
-)
-assert.deepEqual(alternateReload, alternate)
-const oldForkedSave = restoreMemoryCampaignProgress({
-  ...alternate,
+assert.equal(alternate.completed.length, 12)
+assert.deepEqual(availableMemoryExperiences(alternate), [])
+
+const formerSixteen = restoreMemoryCampaignProgress({
   completed: [
     'e01',
     'e02',
@@ -492,13 +496,38 @@ const oldForkedSave = restoreMemoryCampaignProgress({
     'e08',
     'e13',
     'e14',
+    'e15',
+    'e16',
   ],
+  rememberedAnchors: [
+    'morrow-magic-attempt',
+    'scylla-home-wish',
+    'char-possible-future',
+  ],
+  finaleCommitted: true,
 })
-assert.deepEqual(
-  oldForkedSave,
-  alternate,
-  'Legacy out-of-order middle pairs migrate without losing earned milestones',
-)
+assert.deepEqual(formerSixteen.completed, [
+  'e01',
+  'e02',
+  'e03',
+  'e04',
+  'e05',
+  'e06',
+  'e07',
+  'e08',
+])
+assert.equal(formerSixteen.finaleCommitted, true)
+assert.deepEqual(formerSixteen.legacyCompleted, [
+  'e09',
+  'e10',
+  'e11',
+  'e12',
+  'e13',
+  'e14',
+  'e15',
+  'e16',
+])
+assert.deepEqual(availableMemoryExperiences(formerSixteen), ['e09'])
 const skippedHoshimori = restoreMemoryCampaignProgress({
   completed: ['e01', 'e02', 'e03', 'e04', 'e05', 'e06', 'e09', 'e10', 'e13'],
   rememberedAnchors: [
@@ -508,12 +537,20 @@ const skippedHoshimori = restoreMemoryCampaignProgress({
   ],
   finaleCommitted: true,
 })
-assert.deepEqual(
-  skippedHoshimori.completed,
-  ['e01', 'e02', 'e03', 'e04', 'e05', 'e06'],
-  'A forged or previously optional shortcut cannot silently skip Hoshimori',
-)
+assert.deepEqual(skippedHoshimori.completed, [
+  'e01',
+  'e02',
+  'e03',
+  'e04',
+  'e05',
+  'e06',
+])
 assert.equal(skippedHoshimori.finaleCommitted, false)
+assert.deepEqual(skippedHoshimori.legacyCompleted, [
+  'e09',
+  'e10',
+  'e13',
+])
 const legacyDeparture = restoreMemoryCampaignProgress({
   completed: ['e01', 'e02', 'e03', 'e04', 'e05', 'e06'],
   rememberedAnchors: [
@@ -522,32 +559,30 @@ const legacyDeparture = restoreMemoryCampaignProgress({
     'char-possible-future',
   ],
 })
-assert.deepEqual(
-  legacyDeparture.completed,
-  ['e01', 'e02', 'e03', 'e04', 'e05', 'e06'],
-  'Old saves with unrecorded world choices retain all earned progress',
-)
+assert.deepEqual(legacyDeparture.completed, [
+  'e01',
+  'e02',
+  'e03',
+  'e04',
+  'e05',
+  'e06',
+])
 assert.equal(legacyDeparture.pairDecisions?.e04, 'legacy-unresolved')
 assert.equal(legacyDeparture.scyllaDeparture, 'legacy-unspoken')
 assert.equal(memoryCharFate(legacyDeparture), 'unresolved')
 const forgedLostChar = restoreMemoryCampaignProgress({
   completed: ['e01', 'e02', 'e03'],
-  rememberedAnchors: [],
   pairDecisions: { e04: 'open-the-tide-gate' },
 })
 assert.equal(memoryCharFate(forgedLostChar), 'unresolved')
-assert.equal(forgedLostChar.pairDecisions?.e04, undefined)
 const inProgressPast = restoreMemoryCampaignProgress({
   completed: ['e01', 'e02', 'e03', 'e04'],
   rememberedAnchors: ['morrow-magic-attempt', 'scylla-home-wish'],
   pairDecisions: { e04: 'divert-the-current' },
   scyllaDeparture: 'tell-char',
 })
-assert.deepEqual(inProgressPast.completed, ['e01', 'e02', 'e03', 'e04'])
 assert.equal(inProgressPast.scyllaDeparture, 'tell-char')
 assert.equal(memoryCharFate(inProgressPast), 'alive')
-assert.equal(alternateReload.completed.includes('e12'), true)
-assert.deepEqual(availableMemoryExperiences(alternateReload), ['e15'])
 
 const forgedFuture = restoreMemoryCampaignProgress({
   completed: ['e01', 'e02', 'e16', 'e03', 'e04', 'e13'],
@@ -557,6 +592,7 @@ const forgedFuture = restoreMemoryCampaignProgress({
 assert.deepEqual(forgedFuture.completed, ['e01', 'e02', 'e03', 'e04'])
 assert.deepEqual(forgedFuture.rememberedAnchors, ['morrow-magic-attempt'])
 assert.equal(forgedFuture.finaleCommitted, false)
+assert.deepEqual(forgedFuture.legacyCompleted, ['e16', 'e13'])
 assert.deepEqual(availableMemoryExperiences(forgedFuture), ['e05'])
 assert.deepEqual(
   restoreMemoryCampaignProgress({

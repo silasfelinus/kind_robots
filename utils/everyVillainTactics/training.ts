@@ -333,7 +333,9 @@ export function fireSelected(state: TrainingState, target: Unit): boolean {
     target.signatureCooldown = true
     note(
       state,
-      aliasFor(shooter) + ' interrupts ' + aliasFor(target) +
+      aliasFor(shooter) +
+        ' interrupts ' +
+        aliasFor(target) +
         ' before the signature attack lands.',
     )
   }
@@ -462,7 +464,10 @@ function signatureLieutenantPlan(state: TrainingState, enemy: Unit): boolean {
     enemy.signatureTarget = null
     enemy.signatureCounter = null
     enemy.ap = 0
-    note(state, threat.name + ' staggers. The disrupted device needs a round to recover.')
+    note(
+      state,
+      threat.name + ' staggers. The disrupted device needs a round to recover.',
+    )
     return true
   }
   if (enemy.signatureTarget) {
@@ -474,11 +479,19 @@ function signatureLieutenantPlan(state: TrainingState, enemy: Unit): boolean {
     enemy.ap = 0
     if (hit) {
       enemy.signatureCooldown = true
-      note(state, threat.name + ' loses control of ' + threat.attack + '. The warning clears.')
+      note(
+        state,
+        threat.name +
+          ' loses control of ' +
+          threat.attack +
+          '. The warning clears.',
+      )
       return true
     }
     const threatened = new Set(
-      signatureThreatCells(state.map, signature, target).map((p) => p.x + ',' + p.y),
+      signatureThreatCells(state.map, signature, target).map(
+        (p) => p.x + ',' + p.y,
+      ),
     )
     const struck = state.units.filter(
       (unit) =>
@@ -493,8 +506,13 @@ function signatureLieutenantPlan(state: TrainingState, enemy: Unit): boolean {
     }
     note(
       state,
-      threat.name + ' unleashes ' + threat.attack + ': ' +
-        struck.length + ' allies struck. ' + threat.power,
+      threat.name +
+        ' unleashes ' +
+        threat.attack +
+        ': ' +
+        struck.length +
+        ' allies struck. ' +
+        threat.power,
     )
     updateOutcome(state)
     return true
@@ -513,9 +531,16 @@ function signatureLieutenantPlan(state: TrainingState, enemy: Unit): boolean {
   enemy.ap = 0
   note(
     state,
-    threat.name + ' charges ' + threat.attack + ' at (' +
-      (nearest.x + 1) + ', ' + (nearest.y + 1) +
-      '). ' + threat.counterVerb + ' at the marked station or shoot the lieutenant. ' +
+    threat.name +
+      ' charges ' +
+      threat.attack +
+      ' at (' +
+      (nearest.x + 1) +
+      ', ' +
+      (nearest.y + 1) +
+      '). ' +
+      threat.counterVerb +
+      ' at the marked station or shoot the lieutenant. ' +
       threat.counter,
   )
   return true
@@ -530,16 +555,24 @@ export function counterSignatureLieutenant(state: TrainingState): boolean {
   const boss = state.units.find(
     (unit) => unit.signatureBoss && unit.hp > 0 && unit.signatureTarget,
   )
-  if (!ally || ally.ap < 1 || !boss?.signatureCounter ||
-      gridDistance(ally, boss.signatureCounter) > 1) return false
+  if (
+    !ally ||
+    ally.ap < 1 ||
+    !boss?.signatureCounter ||
+    gridDistance(ally, boss.signatureCounter) > 1
+  )
+    return false
   ally.ap--
   boss.signatureTarget = null
   boss.signatureCounter = null
   boss.signatureCooldown = true
   note(
     state,
-    aliasFor(ally) + ' disrupts ' + aliasFor(boss) +
-      ': ' + signatureThreatFor(boss.signatureBoss!).counter,
+    aliasFor(ally) +
+      ' disrupts ' +
+      aliasFor(boss) +
+      ': ' +
+      signatureThreatFor(boss.signatureBoss!).counter,
   )
   return true
 }
@@ -612,8 +645,12 @@ function lieutenantPlan(state: TrainingState, enemy: Unit): boolean {
   return true
 }
 function enemyPlan(state: TrainingState, enemy: Unit) {
-  if (signatureLieutenantPlan(state, enemy) ||
-      lieutenantPlan(state, enemy) || burrowPlan(state, enemy)) return
+  if (
+    signatureLieutenantPlan(state, enemy) ||
+    lieutenantPlan(state, enemy) ||
+    burrowPlan(state, enemy)
+  )
+    return
   let shot = bestShot(state, enemy)
   const positions = reachableCells(state.map, state.units, enemy)
   const improvement = positions
@@ -697,7 +734,10 @@ export function endTurn(state: TrainingState) {
       return
     }
     refreshTurn(state.units, 'squad')
-    note(state, 'The opposition is down. Finish securing the mission objective.')
+    note(
+      state,
+      'The opposition is down. Finish securing the mission objective.',
+    )
     return
   }
   clearSuppression(state.units, 'squad')
@@ -729,7 +769,9 @@ export function endTurn(state: TrainingState) {
   note(
     state,
     signature
-      ? 'Round ' + state.turn + ': ' +
+      ? 'Round ' +
+          state.turn +
+          ': ' +
           signatureThreatFor(signature.signatureBoss!).name +
           ' has marked ' +
           signatureThreatFor(signature.signatureBoss!).attack +
@@ -738,15 +780,15 @@ export function endTurn(state: TrainingState) {
         ? 'Round ' +
           state.turn +
           ': Mags Hardpan’s marked 3×3 seismic zone is live. Dodge or land a hit to cancel her downbeat.'
-      : warnings
-        ? 'Round ' +
-          state.turn +
-          ': ' +
-          warnings +
-          ' dust rings mark coming Warren Wrecker eruptions. Occupy a ring to seal its tunnel.'
-        : 'Round ' +
-          state.turn +
-          ': the rival patrol has acted. Your squad has the initiative.',
+        : warnings
+          ? 'Round ' +
+            state.turn +
+            ': ' +
+            warnings +
+            ' dust rings mark coming Warren Wrecker eruptions. Occupy a ring to seal its tunnel.'
+          : 'Round ' +
+            state.turn +
+            ': the rival patrol has acted. Your squad has the initiative.',
   )
   if (state.turn === 3)
     state.events.unshift(

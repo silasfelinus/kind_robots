@@ -16,6 +16,7 @@ on:
       - 'pages/play/game-of-captains.vue'
       - 'components/home/home-visitor-directory.vue'
       - 'utils/scripts/verifyCometCityAcademy.test.ts'
+      - 'utils/scripts/verifyCometPatrolStories.test.ts'
       - 'utils/scripts/verifyPromVillainHenchmen.test.ts'
       - 'utils/cometAcademy/identityCampaignStages.json'
       - 'utils/cometAcademy/identityCampaignStages.ts'

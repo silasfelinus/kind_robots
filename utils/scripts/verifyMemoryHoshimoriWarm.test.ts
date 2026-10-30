@@ -348,9 +348,7 @@ for (const decision of ['question', 'hold'] as const) {
     'Visiting the photograph without deciding must not collect it',
   )
   run = choose(run, decision)
-  const restoredRun = restoreHoshimoriWarm(
-    JSON.parse(JSON.stringify(run)),
-  )
+  const restoredRun = restoreHoshimoriWarm(JSON.parse(JSON.stringify(run)))
   assert.ok(restoredRun, 'Photograph must follow replay-validated progress')
   const journal = reconcileHoshimoriEarthChronicle(
     newEarthChronicle(),
@@ -362,9 +360,17 @@ for (const decision of ['question', 'hold'] as const) {
     journal,
     'A revisited photograph cannot award a second copy',
   )
-  const reacted = respondToEarthPhoto(journal, 'earth-13', decision === 'question' ? 'challenge' : 'hold')
+  const reacted = respondToEarthPhoto(
+    journal,
+    'earth-13',
+    decision === 'question' ? 'challenge' : 'hold',
+  )
   const persisted = restoreEarthChronicle(JSON.parse(JSON.stringify(reacted)))
-  assert.deepEqual(persisted, reacted, 'Photo and immutable response persist across runs')
+  assert.deepEqual(
+    persisted,
+    reacted,
+    'Photo and immutable response persist across runs',
+  )
   assert.deepEqual(
     recoveredEarthPhotos(persisted).map((photo) => photo.id),
     ['earth-13'],
@@ -376,7 +382,8 @@ for (const decision of ['question', 'hold'] as const) {
   )
 }
 assert.deepEqual(
-  reconcileHoshimoriEarthChronicle(newEarthChronicle(), { '2,3': 'forged' }).found,
+  reconcileHoshimoriEarthChronicle(newEarthChronicle(), { '2,3': 'forged' })
+    .found,
   [],
   'A forged scene decision cannot mint the photograph',
 )

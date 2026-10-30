@@ -201,5 +201,5 @@ assert.match(ui, /AcademyTacticalFight/)
 assert.match(store, /battleResolve\(\)/)
 assert.match(store, /battleClick\(x: number, y: number\)/)
 console.log(
-  'Prom of Doom tactical bridge: 48 rivals, playable mission handoff, hero\/villain outcomes, legacy saves verified.',
+  'Prom of Doom tactical bridge: 48 rivals, playable mission handoff, hero/villain outcomes, legacy saves verified.',
 )

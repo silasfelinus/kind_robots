@@ -102,6 +102,17 @@ export function newTacticalInterlude(
   minion.henchmanName = species.name
 
   const squad = [lead, ...allies.slice(0, assigned.length)]
+  if (assigned[2]) {
+    // A personal patrol can deploy all three recruited friends, not just two.
+    squad.push({
+      ...first,
+      id: 'third-follower',
+      x: 1,
+      y: 3,
+      henchmanName: assigned[2],
+      statuses: [],
+    })
+  }
   state.units = [...squad, rival, captain, minion]
   state.log = tacticalOpening(run)
   state.events = [state.log]

@@ -50,7 +50,9 @@ const ATTACK_NAMES = [
 /** A lieutenant's named canonical motive remains individual. Their affinity
  * controls eight mechanically different footprints, while origin controls six
  * different counter locations and actions. No new alias or identity is minted. */
-export function signatureThreatFor(signature: SignaturePowerId): SignatureThreat {
+export function signatureThreatFor(
+  signature: SignaturePowerId,
+): SignatureThreat {
   const stages = campaignStagesFor(signature)
   const [origin, affinity] = signature.split('-')
   const index = AFFINITIES.indexOf(affinity as (typeof AFFINITIES)[number])
@@ -119,5 +121,7 @@ export function signatureCounterPoint(
     { x: target.x - preferred.y, y: target.y + preferred.x },
     target,
   ]
-  return candidates.find((p) => inside(map, p) && !tileAt(map, p).wall) ?? target
+  return (
+    candidates.find((p) => inside(map, p) && !tileAt(map, p).wall) ?? target
+  )
 }

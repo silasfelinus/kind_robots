@@ -49,7 +49,9 @@ import {
 import {
   SOCIAL_CAST,
   SOCIAL_DAYS,
+  TRIAD_ARCS,
   compatibilityFor,
+  socialProfile,
   newSocialState,
   socialChoices,
   applySocialChoice,
@@ -928,13 +930,18 @@ assert.equal(
   }),
   null,
 )
-// Distinct adult classmates have their own conflicts, boundaries and consent.
+// Six adult classmates and five adult city recruits have their own conflicts,
+// boundaries and consent. Eight are romanceable; faculty never are.
 // A social scene uses one daytime action; it is never a free map overlay.
-assert.equal(SOCIAL_CAST.length, 6)
-assert.equal(new Set(SOCIAL_CAST.map((person) => person.id)).size, 6)
-assert.equal(new Set(SOCIAL_CAST.map((person) => person.dilemma)).size, 6)
-assert.equal(new Set(SOCIAL_CAST.map((person) => person.help)).size, 6)
-assert.equal(SOCIAL_CAST.filter((person) => person.romanceable).length, 3)
+assert.equal(SOCIAL_CAST.length, 11)
+assert.equal(new Set(SOCIAL_CAST.map((person) => person.id)).size, 11)
+assert.equal(new Set(SOCIAL_CAST.map((person) => person.dilemma)).size, 11)
+assert.equal(new Set(SOCIAL_CAST.map((person) => person.help)).size, 11)
+assert.equal(SOCIAL_CAST.filter((person) => person.romanceable).length, 8)
+assert.equal(
+  SOCIAL_CAST.filter((person) => person.kind === 'classmate').length,
+  6,
+)
 assert.equal(SOCIAL_DAYS.length, 18)
 assert.ok(!SOCIAL_DAYS.includes(20 as never))
 assert.ok(!SOCIAL_DAYS.includes(24 as never))
@@ -3014,6 +3021,244 @@ assert.equal(Object.keys(RETURN_VISITS).length, CITY_SITES.length)
       2,
     ),
   )
+}
+
+// t-002: eight romanceable adults across body and gender diversity, each with
+// a playable consent-first route, and two distinct negotiated throuple arcs.
+{
+  const roundTrip = (run: AcademyRun) => {
+    const saved = JSON.parse(JSON.stringify(run))
+    assert.deepEqual(restoreAcademy(saved), saved)
+  }
+  const toMap = (run: AcademyRun, day: number): AcademyRun => ({
+    ...run,
+    day,
+    phase: 'map',
+  })
+  const romanceable = SOCIAL_CAST.filter((person) => person.romanceable)
+  assert.deepEqual(romanceable.map((person) => person.id).sort(), [
+    'drift',
+    'imani',
+    'jo',
+    'lark',
+    'mara',
+    'mina',
+    'nix',
+    'tessel',
+  ])
+  const pronouns = new Set(romanceable.map((person) => person.pronouns))
+  assert.deepEqual([...pronouns].sort(), ['he/him', 'she/her', 'they/them'])
+  for (const set of pronouns)
+    assert.ok(romanceable.filter((p) => p.pronouns === set).length >= 2, set)
+  const looks = romanceable.map((person) => TEAM_LOOKS[person.id])
+  assert.equal(new Set(looks).size, 8)
+  assert.ok(looks.some((look) => look.includes('plus-size')))
+  assert.ok(looks.some((look) => look.includes('sturdy')))
+  assert.ok(looks.some((look) => look.includes('lab-grown')))
+  assert.ok(looks.some((look) => look.includes('alien')))
+  for (const person of romanceable) {
+    const student = STUDENTS.find((entry) => entry.id === person.id)!
+    assert.notEqual(student.origin, 'faculty')
+    assert.ok(person.compatibility.length >= 2, person.id)
+    assert.ok(
+      person.compatibility.some((rule) => rule.effect === 'kindred'),
+      person.id,
+    )
+    assert.ok(
+      person.compatibility.some((rule) => rule.effect === 'wary'),
+      person.id,
+    )
+  }
+  assert.equal(compatibilityFor('mara', { vow: 'claim' }).chemistry, 'closed')
+  assert.equal(compatibilityFor('mara', { form: 'hero' }).chemistry, 'wary')
+  assert.equal(compatibilityFor('lark', { danger: 19 }).chemistry, 'closed')
+  assert.equal(
+    compatibilityFor('lark', { form: 'villain' }).chemistry,
+    'kindred',
+  )
+  assert.equal(compatibilityFor('tessel', { danger: 9 }).chemistry, 'wary')
+  assert.equal(compatibilityFor('jo', { vow: 'unmask' }).chemistry, 'kindred')
+  assert.equal(
+    compatibilityFor('drift', { power: 'biotech' }).chemistry,
+    'kindred',
+  )
+
+  // City adults can be befriended and dated from day two; field roles need
+  // them on the night roster first.
+  const city = SOCIAL_CAST.filter((person) => person.kind === 'city')
+  assert.equal(city.length, 5)
+  const bonded = {
+    connections: { jo: { trust: 3, helped: true, romance: false } },
+    days: [],
+  }
+  assert.ok(
+    !socialChoices(bonded, 'jo', 4).some((choice) => choice.id === 'partner'),
+  )
+  assert.deepEqual(
+    socialChoices(bonded, 'jo', 4, { onRoster: true })
+      .map((choice) => choice.id)
+      .filter((id) => id === 'partner' || id === 'sidekick'),
+    ['partner', 'sidekick'],
+  )
+  const names = Object.fromEntries(
+    STUDENTS.map((s) => [s.id, s.name]),
+  ) as Record<StudentId, string>
+  for (const person of city) {
+    let run = startFullAcademy('kinetic', 300 + person.id.length)
+    for (const [day, action] of [
+      [2, 'listen'],
+      [3, 'help'],
+      [4, 'invite'],
+      [5, 'date'],
+    ] as const) {
+      run = socialize(toMap(run, day), person.id, action)
+      assert.equal(run.phase, 'dispatch', `${person.id} ${action}`)
+    }
+    assert.equal(run.relationships?.romance, person.id)
+    roundTrip(run)
+    assert.ok(
+      finishAcademy(
+        { ...run, day: 30, phase: 'finale' },
+        'protect',
+      ).scene.includes(`${names[person.id]} meets you after the alarms`),
+    )
+    const hurt = { ...toMap(run, 6), injuries: { [person.id]: 8 } }
+    const visit = socialize(hurt, person.id, 'visit')
+    assert.ok(visit.scene.includes(person.bedside))
+  }
+
+  // The two throuple arcs are separate stories with separate beats.
+  assert.equal(TRIAD_ARCS.length, 2)
+  const [accord, shift] = TRIAD_ARCS as [
+    (typeof TRIAD_ARCS)[number],
+    (typeof TRIAD_ARCS)[number],
+  ]
+  assert.equal(
+    new Set([...accord.pair, ...shift.pair]).size,
+    4,
+    'no person is in both arcs',
+  )
+  const optionIds = TRIAD_ARCS.flatMap((arc) => [
+    arc.resume.id,
+    ...arc.beats.flatMap((beat) => beat.options.map((option) => option.id)),
+  ])
+  assert.equal(new Set(optionIds).size, optionIds.length)
+  for (const arc of TRIAD_ARCS) {
+    assert.ok(arc.beats.length >= 5)
+    assert.ok(arc.pair.every((id) => socialProfile(id)?.romanceable))
+    for (const beat of arc.beats) {
+      assert.ok(
+        beat.options.some((option) => option.outcome),
+        beat.id,
+      )
+      assert.ok(
+        beat.options.some((option) => !option.outcome),
+        beat.id,
+      )
+    }
+    assert.ok(arc.beats[0]!.options.some((o) => o.outcome === 'declined'))
+    assert.ok(Object.keys(arc.terms).length >= 3)
+  }
+  assert.equal(
+    new Set([...accord.beats, ...shift.beats].map((beat) => beat.title)).size,
+    accord.beats.length + shift.beats.length,
+  )
+
+  // The Night Shift: Jo raises it first, Lark answers for himself, and a
+  // badly handled fight pauses the route until there is an apology.
+  let night = startFullAcademy('technopathy', 909, undefined, 'unmask')
+  for (const [day, id, action] of [
+    [2, 'jo', 'listen'],
+    [3, 'jo', 'help'],
+    [4, 'jo', 'invite'],
+    [5, 'jo', 'date'],
+    [6, 'lark', 'listen'],
+  ] as const)
+    night = socialize(toMap(night, day), id, action)
+  assert.equal(night.relationships?.romance, 'jo')
+  const opening = academyTriadOffers(toMap(night, 7))
+  assert.deepEqual(
+    opening.map((offer) => offer.arc.id),
+    ['night-shift'],
+  )
+  assert.ok(
+    opening[0]!.beat.scene.includes('I have feelings for Lark Sato too'),
+  )
+  night = negotiateTriad(toMap(night, 7), 'night-shift', 'ns-open')
+  night = negotiateTriad(toMap(night, 9), 'night-shift', 'ns-ask')
+  assert.equal(night.relationships?.connections.lark?.trust, 2)
+  night = negotiateTriad(toMap(night, 10), 'night-shift', 'ns-signal')
+  const fight = negotiateTriad(toMap(night, 12), 'night-shift', 'ns-side')
+  assert.equal(fight.relationships?.triads?.['night-shift']?.status, 'paused')
+  assert.equal(fight.relationships?.connections.lark?.trust, 1)
+  roundTrip(fight)
+  assert.ok(
+    academyTriadOffers(toMap(fight, 13))[0]!.waiting?.includes('trust 2'),
+  )
+  let repaired = socialize(toMap(fight, 13), 'lark', 'listen')
+  repaired = negotiateTriad(toMap(repaired, 14), 'night-shift', 'ns-resume')
+  assert.equal(repaired.relationships?.triads?.['night-shift']?.step, 3)
+  repaired = negotiateTriad(toMap(repaired, 18), 'night-shift', 'ns-mediate')
+  repaired = negotiateTriad(toMap(repaired, 19), 'night-shift', 'ns-commit')
+  const together = repaired.relationships!
+  assert.equal(together.triads?.['night-shift']?.status, 'committed')
+  assert.equal(together.connections.lark?.romance, true)
+  assert.equal(together.connections.jo?.romance, true)
+  roundTrip(repaired)
+  assert.equal(socialMissionBonus(together, ['jo', 'lark']), 1)
+  const finale = socialFinaleText(together, names)
+  assert.ok(finale.includes('Jo Mercer, Lark Sato and you walk out'))
+  assert.ok(finale.includes('Three clicks'))
+  assert.ok(!finale.includes('meets you after the alarms'))
+
+  // A committed Night Shift cannot be smuggled into the other arc's pair.
+  assert.equal(
+    restoreAcademy({
+      ...repaired,
+      relationships: {
+        ...together,
+        connections: {
+          ...together.connections,
+          nix: { trust: 3, helped: true, romance: true },
+        },
+      },
+    }),
+    null,
+  )
+  // A Night Shift save that names the Accord's choices is rejected.
+  assert.equal(
+    restoreAcademy({
+      ...repaired,
+      relationships: {
+        ...together,
+        triads: {
+          'night-shift': {
+            ...together.triads!['night-shift']!,
+            choices: [
+              'la-tell',
+              'la-trust',
+              'la-checkin',
+              'la-public',
+              'la-commit',
+            ],
+          },
+        },
+      },
+    }),
+    null,
+  )
+  // A single-route save from before city romances still loads unchanged.
+  const legacy = {
+    ...toMap(startFullAcademy('kinetic', 101), 6),
+    relationships: {
+      connections: {
+        nix: { trust: 3, helped: true, courtingDay: 4, romance: true },
+      },
+      romance: 'nix' as const,
+      days: [2, 3, 4, 5],
+    },
+  }
+  roundTrip(legacy)
 }
 
 assert.ok(page.includes('data-testid="academy-triad-panel"'))

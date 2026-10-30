@@ -1,5 +1,5 @@
 /**
- * Hoshimori's connected thirty-six-site warm village preview.
+ * Hoshimori's connected thirty-six-site warm village and optional second Oven wing.
  * Its e07 campaign entry remains gated behind the preceding experiences.
  */
 export interface HoshimoriChoice {
@@ -868,6 +868,146 @@ export const HOSHIMORI_OVEN_ROOMS: readonly HoshimoriOvenRoom[] = [
       },
     ],
   },
+  {
+    id: 'OV-04',
+    title: 'The Ash Archive',
+    opening:
+      'A soot-stained archivist has arranged jars by the names of people who never agreed to be remembered. She asks whether evidence should be sealed or returned.',
+    choices: [
+      {
+        id: 'seal-jars',
+        label: 'Seal disputed jars until their owners can decide',
+        outcome:
+          'The archivist locks the shelves and posts a public count without names. Families must wait for their own memories, but the baker cannot spend them.',
+        trust: 1,
+        flag: 'ash-jars-sealed',
+      },
+      {
+        id: 'return-names',
+        label: 'Invite each owner to reclaim their jar privately',
+        outcome:
+          'A line forms behind a screen, not a spectacle. Some jars go home; others remain unclaimed because nobody can safely identify the owner.',
+        flag: 'ash-jars-returned',
+      },
+    ],
+  },
+  {
+    id: 'OV-05',
+    title: 'The Night Shift',
+    opening:
+      'Two exhausted oven workers have been paid in borrowed dreams. One wants wages; the other wants the right to stop working without losing a bed.',
+    choices: [
+      {
+        id: 'ask-workers',
+        label: 'Let the workers set terms and a stopping time',
+        outcome:
+          'They write a short shift agreement with a door that opens from inside. The bakery loses a night of labor and gains two people willing to return.',
+        trust: 1,
+        flag: 'night-shift-consented',
+      },
+      {
+        id: 'pay-workers',
+        label: 'Share a ration as immediate pay while wages are audited',
+        outcome:
+          'The workers eat and keep the right to refuse tomorrow. Your supper does not settle their missing wages.',
+        rations: -1,
+        trust: 1,
+        flag: 'night-shift-fed',
+      },
+    ],
+  },
+  {
+    id: 'OV-06',
+    title: 'The Living Kneading Table',
+    opening:
+      'A century-old table folds dough by itself. Its joints ache, but the baker calls the creaking a charming tradition.',
+    choices: [
+      {
+        id: 'tend-tools',
+        label: 'Repair the table and ask which work it wants',
+        outcome:
+          'The table chooses to knead for the supper crowd and refuses the overnight shift. The baker must find a willing helper.',
+        trust: 1,
+        flag: 'table-repaired',
+      },
+      {
+        id: 'free-tools',
+        label: 'Unfasten the table so it can leave the bakery',
+        outcome:
+          'It walks into the courtyard with flour on its legs. The kitchen loses its fastest worker, and the baker must ask rather than command.',
+        flag: 'table-released',
+      },
+    ],
+  },
+  {
+    id: 'OV-07',
+    title: 'The Shared Chimney',
+    opening:
+      'The Oven heats a neighboring refuge through a hidden flue. Closing it would conserve bread fuel but leave flood survivors cold.',
+    choices: [
+      {
+        id: 'share-heat',
+        label: 'Keep the refuge warm and accept a smaller bake',
+        outcome:
+          'The refuge sleeps safely while the morning trays come out half full. Pip writes the shortage where everyone can see it.',
+        trust: 1,
+        flag: 'chimney-shared',
+      },
+      {
+        id: 'bank-heat',
+        label: 'Bank the flue and organize blankets for the refuge',
+        outcome:
+          'More loaves survive, but the neighbors must carry blankets through the rain. The refuge may disagree with your arithmetic.',
+        flag: 'chimney-banked',
+      },
+    ],
+  },
+  {
+    id: 'OV-08',
+    title: 'The Witness Window',
+    opening:
+      'A window looks into the village square. The baker wants to publish every donor’s name; the refugees want evidence without a new list of people to punish.',
+    choices: [
+      {
+        id: 'witness-claims',
+        label: 'Publish verifiable totals with consenting witnesses',
+        outcome:
+          'The ledger can be audited without displaying every face in the queue. Some villagers demand more detail, but nobody is drafted as proof.',
+        trust: 1,
+        flag: 'window-witnessed',
+      },
+      {
+        id: 'redact-claims',
+        label: 'Keep names private and appoint rotating auditors',
+        outcome:
+          'The village trusts a smaller circle with the records. That circle can be challenged and replaced, rather than treated as infallible.',
+        flag: 'window-redacted',
+      },
+    ],
+  },
+  {
+    id: 'OV-09',
+    title: 'The Dawn Kiln',
+    opening:
+      'The first hearing has ended, but the furnace still needs a morning plan. The workers, spirits and flood survivors ask for a decision they can revise.',
+    choices: [
+      {
+        id: 'open-kiln',
+        label: 'Open a limited public bake with revocable agreements',
+        outcome:
+          'A smaller bakery opens at dawn under a witnessed consent rule. It cannot feed everyone yet, and the council must review its promises.',
+        trust: 1,
+        flag: 'dawn-kiln-opened',
+      },
+      {
+        id: 'hold-kiln',
+        label: 'Keep the kiln closed until relief supplies arrive',
+        outcome:
+          'The jars stay untouched. The village organizes meals elsewhere, knowing that a closed furnace does not erase hunger.',
+        flag: 'dawn-kiln-held',
+      },
+    ],
+  },
 ]
 
 export type HoshimoriEvent =
@@ -875,6 +1015,7 @@ export type HoshimoriEvent =
   | { type: 'choose'; id: string }
   | { type: 'light'; symbols: string[] }
   | { type: 'enter' }
+  | { type: 'enter-wing' }
   | { type: 'oven-choice'; id: string }
   | { type: 'leave' }
 
@@ -1009,6 +1150,33 @@ export function hoshimoriLowlandAccount(
   return [evacuation, accounting, route].join(' ')
 }
 
+export function hoshimoriOvenSecondAccount(
+  progress: HoshimoriWarmProgress,
+): string | null {
+  if (!progress.ovenChoices['OV-09']) return null
+  const outcomes = [
+    progress.ovenChoices['OV-04'] === 'seal-jars'
+      ? 'Disputed memory jars remain sealed for their owners.'
+      : 'Owners were invited to reclaim their jars privately.',
+    progress.ovenChoices['OV-05'] === 'ask-workers'
+      ? 'The night workers negotiated a stopping time.'
+      : 'The workers received emergency food, not a false wage settlement.',
+    progress.ovenChoices['OV-06'] === 'tend-tools'
+      ? 'The living table chose a shorter shift.'
+      : 'The living table left the bakery of its own accord.',
+    progress.ovenChoices['OV-07'] === 'share-heat'
+      ? 'The refuge stayed warm at the cost of fewer loaves.'
+      : 'The bakery kept more fuel while neighbors carried blankets.',
+    progress.ovenChoices['OV-08'] === 'witness-claims'
+      ? 'Consenting witnesses published auditable totals.'
+      : 'Rotating auditors protected the private names.',
+    progress.ovenChoices['OV-09'] === 'open-kiln'
+      ? 'A limited voluntary dawn bake began, with review promised.'
+      : 'The kiln remained closed while alternative relief was organized.',
+  ]
+  return outcomes.join(' ')
+}
+
 export function hoshimoriOvenResolution(
   progress: HoshimoriWarmProgress,
 ): string | null {
@@ -1057,7 +1225,12 @@ function eventShape(event: HoshimoriEvent): boolean {
       event.symbols.length === 3 &&
       event.symbols.every((symbol) => typeof symbol === 'string')
     )
-  return (event.type === 'enter' || event.type === 'leave') && keys === 'type'
+  return (
+    (event.type === 'enter' ||
+      event.type === 'enter-wing' ||
+      event.type === 'leave') &&
+    keys === 'type'
+  )
 }
 
 /** A successful action is journaled exactly once; invalid moves do not mutate the run. */
@@ -1117,6 +1290,20 @@ export function advanceHoshimoriWarm(
       )
         changed = { ovenRoom: 'OV-01' }
       break
+    case 'enter-wing': {
+      if (
+        !progress.ovenRoom &&
+        progress.ovenComplete &&
+        progress.current === '4,3' &&
+        !progress.ovenChoices['OV-09']
+      ) {
+        const next = HOSHIMORI_OVEN_ROOMS.slice(3).find(
+          (room) => !progress.ovenChoices[room.id],
+        )
+        if (next) changed = { ovenRoom: next.id }
+      }
+      break
+    }
     case 'oven-choice': {
       if (!progress.ovenRoom) break
       const room = OVEN.get(progress.ovenRoom)
@@ -1136,15 +1323,20 @@ export function advanceHoshimoriWarm(
             flags: progress.flags,
           }
       if (!effects) break
+      const index = HOSHIMORI_OVEN_ROOMS.findIndex(
+        (item) => item.id === room!.id,
+      )
       const next =
-        room!.id === 'OV-01' ? 'OV-02' : room!.id === 'OV-02' ? 'OV-03' : null
+        room!.id === 'OV-03'
+          ? null
+          : (HOSHIMORI_OVEN_ROOMS[index + 1]?.id ?? null)
       changed = {
         ...effects,
         ovenChoices: first
           ? { ...progress.ovenChoices, [room!.id]: event.id }
           : progress.ovenChoices,
         ovenRoom: next,
-        ovenComplete: next === null,
+        ovenComplete: progress.ovenComplete || next === null,
       }
       break
     }
@@ -1202,7 +1394,24 @@ export function restoreHoshimoriWarm(
 export function validateHoshimoriWarm(): string[] {
   const errors: string[] = []
   if (SITES.size !== 36) errors.push('Expected thirty-six unique warm sites')
-  if (OVEN.size !== 3) errors.push('Expected three first-oven rooms')
+  if (OVEN.size !== 9) errors.push('Expected nine authored Oven rooms')
+  const ovenChoiceIds = HOSHIMORI_OVEN_ROOMS.flatMap((room) =>
+    room.choices.map((choice) => choice.id),
+  )
+  if (new Set(ovenChoiceIds).size !== ovenChoiceIds.length)
+    errors.push('Duplicate Oven choice id')
+  for (const room of HOSHIMORI_OVEN_ROOMS) {
+    if (
+      !room.title ||
+      !room.opening ||
+      room.choices.length !== 2 ||
+      room.choices[0].id === room.choices[1].id ||
+      room.choices.some(
+        (choice) => !choice.label || !choice.outcome || !choice.flag,
+      )
+    )
+      errors.push('Incomplete Oven room: ' + room.id)
+  }
   for (const entry of HOSHIMORI_WARM_SITES) {
     const coords = entry.key.split(',').map(Number)
     if (

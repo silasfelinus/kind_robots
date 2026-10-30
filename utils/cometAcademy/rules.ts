@@ -1475,12 +1475,16 @@ export function resolveDispatch(run: AcademyRun): AcademyRun {
             `TACTICAL ${playedBattle.role.toUpperCase()}: ${playedBattle.grade.toUpperCase()} after ${playedBattle.turns} turns, ${playedBattle.fallen} allies down. Your decisions in the fight determined this mission's result, not the dispatch probability roll.`,
             ...(playedBattle.stageId
               ? [
-                  `LAIR: ${campaignStagesFor(playedBattle.opponent).lair.title}. ${playedBattle.secured ? 'The mission objective is secure.' : 'The objective was lost.'}`,
+                  (playedBattle.stageId.startsWith('hero-origin-') && run.signature
+                    ? `ORIGIN MISSION: ${campaignStagesFor(run.signature).opening.title}. ${playedBattle.secured ? 'The immediate emergency is resolved.' : 'The emergency remains unresolved.'}`
+                    : `RIVAL LAIR: ${campaignStagesFor(playedBattle.opponent).lair.title}. ${playedBattle.secured ? 'The mission objective is secure.' : 'The objective was lost.'}`),
                 ]
               : []),
             ...(playedBattle.discovered
               ? [
-                  `HIDDEN REVELATION: ${campaignStagesFor(playedBattle.opponent).lair.secret} You return with evidence, restoring one civic influence and reducing danger by one.`,
+                  (playedBattle.stageId?.startsWith('hero-origin-') && run.signature
+                    ? `ORIGIN DISCOVERY: ${campaignStagesFor(run.signature).opening.choice} Your recorded choice restores one civic influence and reduces danger by one.`
+                    : `HIDDEN REVELATION: ${campaignStagesFor(playedBattle.opponent).lair.secret} You return with evidence, restoring one civic influence and reducing danger by one.`),
                 ]
               : []),
           ]

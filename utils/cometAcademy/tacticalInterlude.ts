@@ -237,7 +237,7 @@ export function tacticalResultFor(run: AcademyRun): TacticalOutcome | null {
     grade:
       battle.state.phase === 'defeat'
         ? 'failed'
-        : fallen === 0 && battle.state.turn <= 6
+        : fallen === 0 && (battle.state.turn <= 6 || battle.arena?.discovered)
           ? 'honors'
           : 'pass',
     turns: battle.state.turn,

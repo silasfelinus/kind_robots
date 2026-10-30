@@ -246,7 +246,12 @@ for (const [label, forged] of [
       history: {
         ...json.history,
         actions: [
-          { type: 'strike', weaponId: 'unknown', anchor: { row: 0, col: 0 }, rotation: 0 },
+          {
+            type: 'strike',
+            weaponId: 'unknown',
+            anchor: { row: 0, col: 0 },
+            rotation: 0,
+          },
           ...json.history.actions.slice(1),
         ],
       },
@@ -272,9 +277,7 @@ const victoryStart = createCombat({
   enemy: { name: 'Glass Imp', hp: 2, attack: 0, every: 3 },
 })
 const victoryPair = victoryStart.cards.flatMap((card, i) =>
-  card.pair === 0
-    ? [{ row: Math.floor(i / 4), col: i % 4 }]
-    : [],
+  card.pair === 0 ? [{ row: Math.floor(i / 4), col: i % 4 }] : [],
 )
 const earnedVictory = scout(victoryStart, victoryPair[0]!, victoryPair[1]!)
 assert.equal(earnedVictory.outcome, 'victory')
@@ -548,8 +551,14 @@ for (const roomId of Object.keys(
     ['hearts', { playerHp: COMBAT_ROOMS[roomId].playerHp + 1 }],
     ['focus', { focus: COMBAT_ROOMS[roomId].focus + 1 }],
     ['rows', { rows: 2, cols: 8 }],
-    ['initial health', { history: { ...original.state.history, initialPlayerHp: 99 } }],
-    ['initial Focus', { history: { ...original.state.history, initialFocus: 99 } }],
+    [
+      'initial health',
+      { history: { ...original.state.history, initialPlayerHp: 99 } },
+    ],
+    [
+      'initial Focus',
+      { history: { ...original.state.history, initialFocus: 99 } },
+    ],
   ] as const) {
     assert.equal(
       restoreBriarCombat(
@@ -566,7 +575,10 @@ for (const roomId of Object.keys(
   if (forbiddenWeapon) {
     const forged = strike(original.state, forbiddenWeapon, { row: 0, col: 0 })
     assert.equal(forged.turn, 1, 'the forbidden weapon can fire in isolation')
-    assert.ok(restoreCombat(forged), 'the forged action is internally replayable')
+    assert.ok(
+      restoreCombat(forged),
+      'the forged action is internally replayable',
+    )
     assert.equal(
       restoreBriarCombat({ ...original, state: forged }, roomId),
       null,

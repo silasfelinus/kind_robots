@@ -434,24 +434,6 @@
                 <div class="cap-personnel-dossier" aria-live="polite">
                   <figure
                     class="cap-personnel-hero"
-                    data-testid="space-couch-crew-hero"
-                  >
-                    <img
-                      v-if="portrait(crewProfile(focusedCrew).portraitKey)"
-                      :src="portrait(crewProfile(focusedCrew).portraitKey)!"
-                      :alt="crewProfile(focusedCrew).name + ' full-size character portrait'"
-                      class="cap-personnel-hero-image"
-                    />
-                    <div v-else class="cap-personnel-hero-fallback">
-                      <strong>{{ crewProfile(focusedCrew).name.slice(0, 1) }}</strong>
-                    </div>
-                    <figcaption>
-                      <span>OFFICER DOSSIER</span>
-                      <strong>{{ crewProfile(focusedCrew).name }}</strong>
-                    </figcaption>
-                  </figure>
-                  <figure
-                    class="cap-personnel-hero"
                     data-testid="space-couch-captain-hero"
                   >
                     <img
@@ -670,6 +652,24 @@
                   </div>
                 </div>
                 <div class="cap-personnel-dossier" aria-live="polite">
+                  <figure
+                    class="cap-personnel-hero"
+                    data-testid="space-couch-crew-hero"
+                  >
+                    <img
+                      v-if="portrait(crewProfile(focusedCrew).portraitKey)"
+                      :src="portrait(crewProfile(focusedCrew).portraitKey)!"
+                      :alt="crewProfile(focusedCrew).name + ' full-size character portrait'"
+                      class="cap-personnel-hero-image"
+                    />
+                    <div v-else class="cap-personnel-hero-fallback">
+                      <strong>{{ crewProfile(focusedCrew).name.slice(0, 1) }}</strong>
+                    </div>
+                    <figcaption>
+                      <span>OFFICER DOSSIER</span>
+                      <strong>{{ crewProfile(focusedCrew).name }}</strong>
+                    </figcaption>
+                  </figure>
                   <div class="cap-dossier-header">
                     <img
                       v-if="portrait(crewProfile(focusedCrew).portraitKey)"
@@ -3880,7 +3880,7 @@ function toggleAway(id: CrewId) {
   .cap-personnel-frame .cap-personnel-dossier {
     grid-row: 2;
     grid-column: 2;
-    grid-template-rows: minmax(0, 1fr) auto auto minmax(0, 0.12fr);
+    grid-template-rows: minmax(0, 1fr) auto auto minmax(0, 0.3fr);
   }
   .cap-personnel-frame .cap-captains,
   .cap-personnel-frame .cap-crew-picker {
@@ -3898,8 +3898,7 @@ function toggleAway(id: CrewId) {
     font-size: 0.65rem;
   }
   .cap-personnel-frame .cap-crew-button small,
-  .cap-personnel-frame .cap-captain small,
-  .cap-personnel-frame .cap-personnel-dossier .cap-dossier-story {
+  .cap-personnel-frame .cap-captain small {
     display: none;
   }
   .cap-personnel-frame .cap-personnel-essential-stats {

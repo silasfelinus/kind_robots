@@ -43,10 +43,7 @@ export function replayEarthJournal(
       progress = revealOverworldEvent(progress, action.key)
       position = action.key
     } else if (action.type === 'choose') {
-      if (
-        action.key !== position ||
-        typeof action.choiceId !== 'string'
-      )
+      if (action.key !== position || typeof action.choiceId !== 'string')
         return null
       const next = chooseOverworldEvent(progress, position, action.choiceId)
       if (next === progress) return null

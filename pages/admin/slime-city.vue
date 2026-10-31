@@ -34,9 +34,20 @@
           >
             CARDS
           </button>
+          <button
+            type="button"
+            :class="{ active: lab.view === 'rewards' }"
+            data-testid="slime-rewards-tab"
+            @click="lab.showRewards()"
+          >
+            REWARDS
+          </button>
         </nav>
         <div class="sc-hud">
-          <span class="sc-led"></span> PRIVATE PLAYTEST <strong>0 MEAT</strong>
+          <span class="sc-led"></span> ACCOUNT
+          <strong>{{
+            lab.progressLoaded ? lab.progress.meat + ' MEAT' : 'SIGN IN'
+          }}</strong>
         </div>
       </header>
 
@@ -527,12 +538,15 @@
         </section>
 
         <section
-          v-else
+          v-else-if="lab.view === 'cards'"
           class="sc-stage sc-collection"
           aria-label="Special cards and creature collection"
         >
           <div class="sc-collection-title">
-            <span class="sc-overline">THE ARMORY / PROTOTYPE CARDS</span>
+            <span class="sc-overline"
+              >THE ARMORY / LOANER DECK · {{ lab.progress.cards.length }}/60
+              COLLECTED</span
+            >
             <h2>{{ lab.team.name }}</h2>
             <p>{{ lab.team.hook }}</p>
             <p data-testid="slime-crew-pattern">
@@ -552,9 +566,12 @@
               <div class="sc-collect-art">{{ card.symbol }}</div>
               <div>
                 <span
-                  >{{ card.kind.toUpperCase() }} · {{ card.cost }} MANA<template
-                    v-if="card.signature"
-                  >
+                  >{{ lab.cardRarity(card).toUpperCase() }} ·
+                  {{
+                    lab.progress.cards.includes(card.id) ? 'OWNED' : 'LOANER'
+                  }}
+                  · {{ card.kind.toUpperCase() }} ·
+                  {{ card.cost }} MANA<template v-if="card.signature">
                     · SIGNATURE</template
                   ></span
                 ><strong>{{ card.name }}</strong>
@@ -578,6 +595,165 @@
                 {{ card.armor }} / AP {{ card.ap }}</small
               >
             </article>
+          </div>
+        </section>
+
+        <section
+          v-else
+          class="sc-stage sc-progression"
+          aria-label="Slime City progression and card packs"
+          data-testid="slime-progression"
+        >
+          <div class="sc-progression-top">
+            <div>
+              <span class="sc-overline"
+                >THE GUTTER EXCHANGE / VIRTUAL-ONLY ECONOMY</span
+              >
+              <h2>FIGHT. EARN. COLLECT.</h2>
+              <p>
+                All six ten-card starter decks stay available. Your XP, Meat,
+                owned cards, and challenges are saved to your Kind Robots
+                account.
+              </p>
+            </div>
+            <div class="sc-progress-hud">
+              <strong>LVL {{ lab.level }}</strong>
+              <span>{{ lab.progress.xp }} / {{ lab.nextLevel }} XP</span>
+              <b>{{ lab.progress.meat }} MEAT</b>
+            </div>
+          </div>
+          <div class="sc-progression-scroll kr-scroll">
+            <p v-if="lab.progressBusy" class="sc-progress-alert" role="status">
+              Syncing with your Kind Robots account…
+            </p>
+            <p
+              v-if="lab.progressError"
+              class="sc-progress-alert sc-progress-error"
+              role="alert"
+            >
+              {{ lab.progressError }}
+            </p>
+            <div class="sc-reward-columns">
+              <div class="sc-reward-panel">
+                <span class="sc-overline">THE PIT PAYS</span>
+                <strong>VS CPU BOUNTIES</strong>
+                <p>
+                  Victory: 80 XP + 45 Meat. Draw: 35 XP + 15 Meat. Loss: 25 XP +
+                  10 Meat. Base payouts for the first 10 completed bouts per
+                  Pacific day.
+                </p>
+                <p>
+                  {{ lab.progress.wins }} W / {{ lab.progress.losses }} L /
+                  {{ lab.progress.draws }} D ·
+                  {{ lab.progress.daily.paidBattles }}/10 PAID BOUTS TODAY
+                </p>
+                <button
+                  type="button"
+                  data-testid="slime-fight-for-meat"
+                  @click="lab.startCpuBattle()"
+                  :disabled="lab.progressBusy || !lab.progressLoaded"
+                >
+                  START REWARDED CPU BATTLE →
+                </button>
+                <small aria-live="polite">{{
+                  lab.progressError || lab.progress.lastReward
+                }}</small>
+              </div>
+              <div class="sc-reward-panel sc-shop-panel">
+                <span class="sc-overline">THE PACK SHOP</span>
+                <strong>STREET PACK</strong>
+                <div class="sc-pack-art" aria-hidden="true">
+                  <span>★</span><b>SLIME CITY</b
+                  ><small>1 GUARANTEED RARE</small>
+                </div>
+                <p>
+                  Three NEW cards. Exactly one rare, plus two common/uncommon.
+                  No duplicates. Random from the 60-card unowned pool, until
+                  sold out.
+                </p>
+                <p>
+                  COLLECTION {{ lab.progress.cards.length }}/60 ·
+                  {{ lab.progress.opened }} PACKS OPENED
+                </p>
+                <button
+                  type="button"
+                  data-testid="slime-buy-pack"
+                  :disabled="!lab.packAffordable || lab.progressBusy"
+                  @click="lab.purchasePack()"
+                >
+                  BUY PACK · {{ lab.packPrice }} MEAT
+                </button>
+                <small v-if="!lab.packAffordable"
+                  >Earn more Meat, or the guaranteed-rare pool is
+                  exhausted.</small
+                >
+              </div>
+            </div>
+            <div
+              v-if="lab.progress.lastPack.length"
+              class="sc-reward-panel"
+              data-testid="slime-pack-reveal"
+            >
+              <strong>YOUR LATEST PACK</strong>
+              <div class="sc-pack-cards">
+                <article
+                  v-for="id in lab.progress.lastPack"
+                  :key="id"
+                  :class="'rarity-' + lab.cardRarity(cardById(id))"
+                >
+                  <span class="sc-pack-face">{{ cardById(id).symbol }}</span>
+                  <strong>{{ cardById(id).name }}</strong>
+                  <small
+                    >{{ lab.cardRarity(cardById(id)).toUpperCase() }} ·
+                    {{ teamName(cardById(id).team) }}</small
+                  >
+                </article>
+              </div>
+            </div>
+            <div class="sc-reward-panel">
+              <span class="sc-overline"
+                >RESET AT MIDNIGHT PACIFIC / MONDAY FOR WEEKLIES</span
+              >
+              <strong>DAILY & WEEKLY BOUNTIES</strong>
+              <div class="sc-challenge-grid">
+                <article
+                  v-for="quest in lab.challengeList"
+                  :key="quest.id"
+                  class="sc-challenge"
+                >
+                  <span
+                    >{{ quest.period.toUpperCase() }} · {{ quest.value }}/{{
+                      quest.target
+                    }}</span
+                  >
+                  <strong>{{ quest.title }}</strong>
+                  <p>{{ quest.description }}</p>
+                  <small>+{{ quest.meat }} MEAT · +{{ quest.xp }} XP</small>
+                  <button
+                    type="button"
+                    :disabled="
+                      !quest.ready || lab.progressBusy || !lab.progressLoaded
+                    "
+                    :data-testid="'slime-claim-' + quest.id"
+                    @click="lab.claimReward(quest.id)"
+                  >
+                    {{
+                      quest.claimed
+                        ? 'CLAIMED ✓'
+                        : quest.ready
+                          ? 'CLAIM REWARD'
+                          : 'IN PROGRESS'
+                    }}
+                  </button>
+                </article>
+              </div>
+            </div>
+            <small class="sc-progression-note"
+              >All XP, Meat, collection and challenge claims are account-bound
+              in Kind Robots’ database. Only server-issued CPU matches award
+              rewards. No cash, paid card packs, or trading. Public launch
+              remains gated.</small
+            >
           </div>
         </section>
 
@@ -768,8 +944,9 @@
             <p>{{ currentMode.detail }}</p>
             <p>{{ lab.guide.goal }}</p>
             <p>
-              Pick a crew, test a board, and swap teams. These are reversible
-              local simulations; no Meat, inventory or online match is saved.
+              Start a reward-eligible CPU battle from REWARDS to earn XP and
+              Meat for your account. Free laboratory matches do not award
+              currency.
             </p>
           </div>
         </aside>
@@ -787,7 +964,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onUnmounted } from 'vue'
+import { computed, onMounted, onUnmounted } from 'vue'
 import {
   cardAttackRange,
   cardById,
@@ -926,6 +1103,7 @@ function cellAria(x: number, y: number): string {
     : ''
   return 'Square ' + (x + 1) + ', ' + (y + 1) + ': ' + (monster || name + flag)
 }
+onMounted(() => lab.hydrateProgression())
 onUnmounted(() => lab.dispose())
 </script>
 
@@ -2438,5 +2616,213 @@ onUnmounted(() => lab.dispose())
 }
 .sc-attack-symbol {
   font-size: 1.6rem;
+}
+.sc-progression {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  min-height: 0;
+  background: radial-gradient(ellipse at top, #29233e, #101322 73%);
+}
+.sc-progression-top {
+  padding: clamp(0.7rem, 2cqw, 1.4rem);
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  align-items: flex-start;
+}
+.sc-progression-top h2 {
+  margin: 0.2rem 0;
+  font-size: clamp(1.4rem, 3.4cqw, 2.8rem);
+  letter-spacing: -0.025em;
+}
+.sc-progression-top p {
+  margin: 0;
+  max-width: 45rem;
+  font-size: 0.8rem;
+  color: #cfcae5;
+}
+.sc-progress-hud {
+  display: grid;
+  text-align: right;
+  flex-shrink: 0;
+  gap: 0.2rem;
+}
+.sc-progress-hud strong {
+  color: #c8ff78;
+  font-size: 1.3rem;
+}
+.sc-progress-hud span {
+  font-size: 0.66rem;
+}
+.sc-progress-hud b {
+  color: #ffd66e;
+}
+.sc-progression-scroll {
+  padding: 0 1rem 1rem;
+  min-height: 0;
+  overflow: auto;
+  display: grid;
+  align-content: start;
+  gap: 0.7rem;
+}
+.sc-reward-columns {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 0.7rem;
+}
+.sc-reward-panel {
+  display: grid;
+  align-content: start;
+  gap: 0.5rem;
+  min-width: 0;
+  padding: 1rem;
+  border: 1px solid #8070a3;
+  border-radius: 0.7rem;
+  background: #191c30e8;
+}
+.sc-reward-panel > strong {
+  font-size: 1.2rem;
+}
+.sc-reward-panel p {
+  margin: 0;
+  font-size: 0.76rem;
+  line-height: 1.4;
+  color: #e2dfea;
+}
+.sc-reward-panel > small {
+  font-size: 0.67rem;
+  color: #cfcde3;
+}
+.sc-reward-panel > button,
+.sc-challenge button {
+  border-radius: 0.4rem;
+  border: 1px solid #c8ff78;
+  background: #c8ff78;
+  color: #19221a;
+  font-size: 0.78rem;
+  font-weight: 900;
+  padding: 0.6rem;
+}
+.sc-reward-panel button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  background: #454a5b;
+  color: #d2d3de;
+}
+.sc-pack-art {
+  min-height: 8rem;
+  display: grid;
+  place-content: center;
+  text-align: center;
+  background: radial-gradient(circle at center, #954cbd, #36224a 72%);
+  border: 3px double #e9b6ff;
+  border-radius: 0.55rem;
+  transform: rotate(-1deg);
+}
+.sc-pack-art span {
+  font-size: 3rem;
+  line-height: 1;
+  color: #f4d27d;
+  text-shadow: 0 0 16px #ffe38d;
+}
+.sc-pack-art b {
+  font-size: 1.3rem;
+  letter-spacing: 0.12em;
+}
+.sc-pack-art small {
+  color: #ffd88b;
+  font-size: 0.65rem;
+}
+.sc-pack-cards {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.6rem;
+}
+.sc-pack-cards article {
+  padding: 0.7rem;
+  border: 2px solid #8682a7;
+  border-radius: 0.6rem;
+  display: grid;
+  justify-items: center;
+  gap: 0.3rem;
+  min-width: 0;
+  background: #29243c;
+}
+.sc-pack-cards .rarity-rare {
+  border-color: #f7cb68;
+  background: radial-gradient(circle, #6b4267, #2a2441);
+}
+.sc-pack-face {
+  display: grid;
+  place-content: center;
+  width: 100%;
+  min-height: 5rem;
+  font-size: 3rem;
+  border-radius: 0.35rem;
+  background: #ffffff0b;
+}
+.sc-pack-cards strong {
+  font-size: 0.8rem;
+  text-align: center;
+}
+.sc-pack-cards small {
+  font-size: 0.6rem;
+  text-align: center;
+}
+.sc-challenge-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.5rem;
+}
+.sc-challenge {
+  background: #29273c;
+  border: 1px solid #65607c;
+  border-radius: 0.5rem;
+  padding: 0.6rem;
+  display: grid;
+  align-content: start;
+  gap: 0.3rem;
+}
+.sc-challenge > span,
+.sc-challenge > small {
+  color: #f5d9a5;
+  font-size: 0.65rem;
+}
+.sc-challenge strong {
+  font-size: 0.9rem;
+}
+.sc-challenge p {
+  font-size: 0.7rem;
+}
+.sc-progression-note {
+  color: #a5a1b9;
+  font-size: 0.64rem;
+}
+@container (max-width: 700px) {
+  .sc-reward-columns {
+    grid-template-columns: 1fr;
+  }
+  .sc-progression-top {
+    padding: 0.65rem;
+  }
+  .sc-challenge-grid {
+    grid-template-columns: 1fr;
+  }
+  .sc-progression-scroll {
+    padding: 0 0.6rem 0.7rem;
+  }
+}
+.sc-progress-alert {
+  margin: 0;
+  padding: 0.5rem 0.75rem;
+  background: #35405a;
+  border: 1px solid #9ab7d8;
+  font-size: 0.75rem;
+  border-radius: 0.4rem;
+}
+.sc-progress-error {
+  background: #4b233a;
+  border-color: #ff8db3;
 }
 </style>

@@ -1,5 +1,17 @@
 import { defineStore } from 'pinia'
-import { computed, ref } from 'vue'
+import { useUserStore } from './userStore'
+import { performFetch } from './utils'
+import {
+  canBuyPack,
+  currentChallenges,
+  levelFor,
+  newProgression,
+  nextLevelXp,
+  PACK_COST,
+  rarityOf,
+  type Progression,
+} from '../utils/slimeCity/progression'
+import { computed, ref, watch } from 'vue'
 import {
   advance,
   attack,
@@ -59,13 +71,140 @@ function rollSeed(): number {
 }
 
 export const useSlimeCityStore = defineStore('slimeCityLab', () => {
-  const view = ref<'city' | 'arena' | 'cards'>('city')
+  const userStore = useUserStore()
+  const view = ref<'city' | 'arena' | 'cards' | 'rewards'>('city')
   const activeTeam = ref<TeamId>('catgirls')
   const enemyTeam = ref<TeamId>('bloodfairies')
   const mode = ref<ModeId>('blackout')
   const districtId = ref<DistrictId>('pitworks')
   /** Session-only city progress: nothing is saved or awarded. */
   const city = ref(createCity())
+  /** Only server-issued CPU battles can earn account rewards. */
+  const rewardMatchId = ref<string | null>(null)
+  const progress = ref<Progression>(newProgression())
+  const progressLoaded = ref(false)
+  const progressAccount = ref<number | null>(null)
+  const progressBusy = ref(false)
+  const progressError = ref('')
+  const challengeList = computed(() => currentChallenges(progress.value))
+  const level = computed(() => levelFor(progress.value.xp))
+  const nextLevel = computed(() => nextLevelXp(progress.value.xp))
+  const packAffordable = computed(
+    () => progressLoaded.value && canBuyPack(progress.value),
+  )
+  const packPrice = PACK_COST
+  const cardRarity = rarityOf
+
+  function correctAccount(): boolean {
+    return (
+      !!userStore.authenticatedUserId &&
+      !userStore.isGuest &&
+      progressAccount.value === userStore.authenticatedUserId
+    )
+  }
+  async function hydrateProgression(): Promise<void> {
+    if (!userStore.authenticatedUserId || userStore.isGuest) {
+      progressLoaded.value = false
+      progressAccount.value = null
+      progress.value = newProgression()
+      progressError.value = 'Sign in to sync your Slime City account.'
+      return
+    }
+    progressBusy.value = true
+    progressLoaded.value = false
+    progress.value = newProgression()
+    progressError.value = ''
+    const requestUserId = userStore.authenticatedUserId
+    try {
+      const result = await performFetch<Progression>('/api/slime-city/progress')
+      if (!result.success || !result.data)
+        throw new Error(
+          result.message || 'Could not load your Slime City account.',
+        )
+      if (requestUserId !== userStore.authenticatedUserId) return
+      progress.value = result.data
+      progressAccount.value = requestUserId
+      progressLoaded.value = true
+    } catch (error) {
+      progressError.value =
+        error instanceof Error ? error.message : 'Could not load account.'
+    } finally {
+      progressBusy.value = false
+    }
+  }
+  async function claimReward(id: string): Promise<void> {
+    if (!correctAccount() || !progressLoaded.value || progressBusy.value) return
+    progressBusy.value = true
+    progressError.value = ''
+    try {
+      const result = await performFetch<Progression>('/api/slime-city/claim', {
+        method: 'POST',
+        body: JSON.stringify({ id }),
+      })
+      if (!result.success || !result.data)
+        throw new Error(result.message || 'Claim rejected.')
+      progress.value = result.data
+    } catch (error) {
+      progressError.value =
+        error instanceof Error ? error.message : 'Could not claim reward.'
+    } finally {
+      progressBusy.value = false
+    }
+  }
+  async function purchasePack(): Promise<void> {
+    if (!correctAccount() || !packAffordable.value || progressBusy.value) return
+    progressBusy.value = true
+    progressError.value = ''
+    try {
+      const result = await performFetch<Progression>('/api/slime-city/pack', {
+        method: 'POST',
+      })
+      if (!result.success || !result.data)
+        throw new Error(result.message || 'Purchase rejected.')
+      progress.value = result.data
+    } catch (error) {
+      progressError.value =
+        error instanceof Error ? error.message : 'Could not buy pack.'
+    } finally {
+      progressBusy.value = false
+    }
+  }
+  async function startCpuBattle(): Promise<void> {
+    if (!correctAccount() || !progressLoaded.value) {
+      await hydrateProgression()
+      if (!correctAccount() || !progressLoaded.value) return
+    }
+    if (progressBusy.value) return
+    progressBusy.value = true
+    progressError.value = ''
+    try {
+      const result = await performFetch<{
+        id: string
+        teamId: TeamId
+        foeId: TeamId
+        seed: number
+      }>('/api/slime-city/match', {
+        method: 'POST',
+        body: JSON.stringify({ teamId: activeTeam.value }),
+      })
+      if (!result.success || !result.data)
+        throw new Error(result.message || 'Could not issue CPU battle.')
+      stop()
+      mode.value = 'blackout'
+      rules.value = { ...DEFAULT_RULES }
+      enemyTeam.value = result.data.foeId
+      seed.value = result.data.seed
+      reset(true)
+      rewardMatchId.value = result.data.id
+      view.value = 'arena'
+      if (!guideSeen.has('blackout')) openGuide()
+    } catch (error) {
+      progressError.value =
+        error instanceof Error ? error.message : 'Could not begin CPU battle.'
+    } finally {
+      progressBusy.value = false
+    }
+  }
   /** The district whose rival the current match is against, if any. */
   const bout = ref<DistrictId | null>(null)
   /** The rival bout that just ended, for the BACK TO THE CITY button. */
@@ -218,6 +357,7 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
   /** Restart the test: a new seed unless the same one is asked for. */
   function reset(sameSeed = false): void {
     stop()
+    rewardMatchId.value = null
     bout.value = null
     lastBout.value = null
     if (!sameSeed) seed.value = rollSeed()
@@ -265,6 +405,11 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
   function showCards(): void {
     stop()
     view.value = 'cards'
+  }
+  function showRewards(): void {
+    stop()
+    view.value = 'rewards'
+    void hydrateProgression()
   }
 
   function chooseMode(id: ModeId): void {
@@ -334,9 +479,38 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
     if (!guideSeen.has(rival.mode)) openGuide()
   }
 
+  async function finishCpuBattle(id: string, commands: unknown): Promise<void> {
+    progressBusy.value = true
+    progressError.value = ''
+    try {
+      const response = await performFetch<Progression>(
+        '/api/slime-city/finish',
+        {
+          method: 'POST',
+          body: JSON.stringify({ matchId: id, commands }),
+        },
+      )
+      if (!response.success || !response.data)
+        throw new Error(response.message || 'Battle verification failed.')
+      if (correctAccount()) progress.value = response.data
+    } catch (error) {
+      progressError.value =
+        error instanceof Error ? error.message : 'Reward verification failed.'
+    } finally {
+      progressBusy.value = false
+    }
+  }
+
   /** Once a rival bout ends, its result changes the city. */
   function settleBout(): void {
-    if (!bout.value || !match.value.victor) return
+    if (!match.value.victor) return
+    if (rewardMatchId.value) {
+      const id = rewardMatchId.value
+      const commands = [...match.value.commands]
+      rewardMatchId.value = null
+      void finishCpuBattle(id, commands)
+    }
+    if (!bout.value) return
     city.value = recordBout(city.value, bout.value, match.value.victor)
     lastBout.value = bout.value
     bout.value = null
@@ -453,6 +627,17 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
     return cardById(id).name
   }
 
+  watch(
+    () => userStore.authenticatedUserId,
+    () => {
+      progressAccount.value = null
+      progressLoaded.value = false
+      progress.value = newProgression()
+      rewardMatchId.value = null
+      void hydrateProgression()
+    },
+  )
+
   function dispose(): void {
     stop()
   }
@@ -464,6 +649,21 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
     mode,
     districtId,
     city,
+    progress,
+    progressLoaded,
+    progressBusy,
+    progressError,
+    rewardMatchId,
+    startCpuBattle,
+    challengeList,
+    level,
+    nextLevel,
+    packAffordable,
+    packPrice,
+    cardRarity,
+    hydrateProgression,
+    claimReward,
+    purchasePack,
     bout,
     lastBout,
     boutPlan,
@@ -525,6 +725,7 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
     startDistrictMatch,
     showCity,
     showCards,
+    showRewards,
     chooseCard,
     closePreview,
     ready,

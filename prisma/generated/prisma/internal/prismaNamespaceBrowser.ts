@@ -182,6 +182,8 @@ export const ModelName = {
   MediaEntry: 'MediaEntry',
   ResourcePreview: 'ResourcePreview',
   HybridizerFusion: 'HybridizerFusion',
+  SlimeCityAccount: 'SlimeCityAccount',
+  SlimeCityMatch: 'SlimeCityMatch',
   SiteStatDaily: 'SiteStatDaily',
   TzaddikCandidate: 'TzaddikCandidate',
   TzaddikCandidateTag: 'TzaddikCandidateTag',
@@ -2736,6 +2738,33 @@ export const HybridizerFusionScalarFieldEnum = {
 export type HybridizerFusionScalarFieldEnum = (typeof HybridizerFusionScalarFieldEnum)[keyof typeof HybridizerFusionScalarFieldEnum]
 
 
+export const SlimeCityAccountScalarFieldEnum = {
+  userId: 'userId',
+  data: 'data',
+  version: 'version',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type SlimeCityAccountScalarFieldEnum = (typeof SlimeCityAccountScalarFieldEnum)[keyof typeof SlimeCityAccountScalarFieldEnum]
+
+
+export const SlimeCityMatchScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  mode: 'mode',
+  teamId: 'teamId',
+  foeId: 'foeId',
+  seed: 'seed',
+  startedAt: 'startedAt',
+  settledAt: 'settledAt',
+  result: 'result',
+  commands: 'commands'
+} as const
+
+export type SlimeCityMatchScalarFieldEnum = (typeof SlimeCityMatchScalarFieldEnum)[keyof typeof SlimeCityMatchScalarFieldEnum]
+
+
 export const SiteStatDailyScalarFieldEnum = {
   id: 'id',
   day: 'day',
@@ -2829,6 +2858,14 @@ export const JsonNullValueInput = {
 } as const
 
 export type JsonNullValueInput = (typeof JsonNullValueInput)[keyof typeof JsonNullValueInput]
+
+
+export const NullableJsonNullValueInput = {
+  DbNull: DbNull,
+  JsonNull: JsonNull
+} as const
+
+export type NullableJsonNullValueInput = (typeof NullableJsonNullValueInput)[keyof typeof NullableJsonNullValueInput]
 
 
 export const NullsOrder = {
@@ -4233,6 +4270,17 @@ export const HybridizerFusionOrderByRelevanceFieldEnum = {
 } as const
 
 export type HybridizerFusionOrderByRelevanceFieldEnum = (typeof HybridizerFusionOrderByRelevanceFieldEnum)[keyof typeof HybridizerFusionOrderByRelevanceFieldEnum]
+
+
+export const SlimeCityMatchOrderByRelevanceFieldEnum = {
+  id: 'id',
+  mode: 'mode',
+  teamId: 'teamId',
+  foeId: 'foeId',
+  result: 'result'
+} as const
+
+export type SlimeCityMatchOrderByRelevanceFieldEnum = (typeof SlimeCityMatchOrderByRelevanceFieldEnum)[keyof typeof SlimeCityMatchOrderByRelevanceFieldEnum]
 
 
 export const SiteStatDailyOrderByRelevanceFieldEnum = {

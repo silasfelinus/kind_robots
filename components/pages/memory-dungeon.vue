@@ -3,9 +3,10 @@
 <template>
   <div class="kr-surface relative min-h-0 select-none gap-0 bg-(--kr-surface)">
     <memory-dungeon-launcher v-if="!worldMode && !gameStarted" :error="launchError" @explore="startOverworld" @classic="startClassicFromLauncher" />
+    <memory-dungeon-earth v-else-if="earthMode" @leave="earthMode = false" />
     <memory-dungeon-hoshimori-night v-else-if="hoshimoriNightMode" @leave="hoshimoriNightMode = false" />
     <memory-dungeon-hoshimori v-else-if="hoshimoriMode" @leave="hoshimoriMode = false" />
-    <memory-dungeon-overworld v-else-if="worldMode" @leave="worldMode = false" @hoshimori="hoshimoriMode = true" @hoshimori-night="hoshimoriNightMode = true" />
+    <memory-dungeon-overworld v-else-if="worldMode" @leave="worldMode = false" @earth="earthMode = true" @hoshimori="hoshimoriMode = true" @hoshimori-night="hoshimoriNightMode = true" />
     <div v-else class="flex min-h-0 flex-1 flex-col">
     <header
       v-if="gameStarted"
@@ -428,6 +429,7 @@
 <script setup lang="ts">
 import { useMemoryStore } from '@/stores/memoryStore'
 import MemoryDungeonOverworld from '@/components/pages/memory-dungeon-overworld.vue'
+import MemoryDungeonEarth from '@/components/pages/memory-dungeon-earth.vue'
 import MemoryDungeonLauncher from '@/components/pages/memory-dungeon-launcher.vue'
 import MemoryDungeonDeckSelector from '~/components/memory-dungeon/deck-selector.vue'
 import { useMemoryWorldStore } from '~/stores/memoryWorldStore'
@@ -449,6 +451,7 @@ import { useArtStore } from '@/stores/artStore'
 
 const world = useMemoryWorldStore()
 const worldMode = ref(false)
+const earthMode = ref(false)
 const hoshimoriMode = ref(false)
 const hoshimoriNightMode = ref(false)
 const launchError = ref('')

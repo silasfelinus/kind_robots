@@ -486,6 +486,8 @@ const COLLECTIBLE_PHOTO_IDS = new Set(
     (photo) =>
       photo.experience === 'e01' ||
       photo.experience === 'e02' ||
+      photo.experience === 'e03' ||
+      photo.experience === 'e04' ||
       HOSHIMORI_PHOTO_IDS.has(photo.id) ||
       HOSHIMORI_NIGHT_PHOTO_IDS.has(photo.id),
   ).map((photo) => photo.id),
@@ -541,6 +543,33 @@ export function restoreEarthChronicle(value: unknown): EarthChronicle {
     }
   }
   return { version: 1, found, responses }
+}
+
+/**
+ * Earth-side photographs are earned only from the fixed Morrow scenes.
+ * Callers provide choices restored through the 8x8 encounter replayer and
+ * enforce the e02/e03 campaign gate; previews cannot grant photographs.
+ */
+export function reconcileMorrowEarthChronicle(
+  original: EarthChronicle,
+  reality: 'e03' | 'e04',
+  choices: Readonly<Record<string, string>>,
+): EarthChronicle {
+  const found = new Set(original.found)
+  for (const photo of EARTH_PHOTOS) {
+    if (
+      photo.experience === reality &&
+      ['challenge', 'hold'].includes(choices[photo.site] ?? '')
+    )
+      found.add(photo.id)
+  }
+  if (found.size === original.found.length) return original
+  return {
+    ...original,
+    found: [...found].sort(
+      (a, b) => KNOWN_PHOTOS.get(a)!.order - KNOWN_PHOTOS.get(b)!.order,
+    ),
+  }
 }
 
 /**

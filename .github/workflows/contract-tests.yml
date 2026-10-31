@@ -60,6 +60,9 @@ jobs:
       - name: Memory Dungeon encounter inspector navigation and saved choice contract
         run: npx tsx utils/scripts/verifyMemoryEncounterInspector.test.ts
 
+      - name: Memory Dungeon Morrow Earth act route, progression and saved choice contract
+        run: npx tsx utils/scripts/verifyMemoryEarthAct.test.ts
+
       - name: Memory Dungeon Hoshimori warm sixteen-site and oven proof
         run: npx tsx utils/scripts/verifyMemoryHoshimoriWarm.test.ts
 

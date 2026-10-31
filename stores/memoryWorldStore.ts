@@ -44,6 +44,9 @@ import {
 import {
   newMemoryCampaignProgress,
   completeMemoryExperience,
+  rememberMemoryWish,
+  chooseMemoryPairEnding,
+  MEMORY_PAIR_ENDINGS,
   type MemoryCampaignProgress,
 } from '~/utils/memoryDungeon/reimaginerCampaign'
 import {
@@ -82,6 +85,7 @@ import {
   restoreEarthChronicle,
   reconcileEarthChronicle,
   reconcileHoshimoriEarthChronicle,
+  reconcileMorrowEarthChronicle,
   reconcileHoshimoriNightEarthChronicle,
   respondToEarthPhoto,
   recoveredEarthPhotos,
@@ -569,6 +573,51 @@ export const useMemoryWorldStore = defineStore('memoryWorld', () => {
     if (next === earthChronicle.value) return
     earthChronicle.value = next
     persistEarthChronicle()
+  }
+
+  function syncMorrowEarthPhoto(
+    reality: 'e03' | 'e04',
+    choices: Readonly<Record<string, string>>,
+  ): void {
+    if (!campaign.value.completed.includes(reality === 'e03' ? 'e02' : 'e03'))
+      return
+    const next = reconcileMorrowEarthChronicle(
+      earthChronicle.value,
+      reality,
+      choices,
+    )
+    if (next === earthChronicle.value) return
+    earthChronicle.value = next
+    persistEarthChronicle()
+  }
+
+  function finishMorrowEarthReality(
+    reality: 'e03' | 'e04',
+    pivotalChoice?: string,
+  ): boolean {
+    if (campaign.value.completed.includes(reality)) return false
+    if (reality === 'e03') {
+      if (!campaign.value.completed.includes('e02')) return false
+      const remembered = rememberMemoryWish(
+        campaign.value,
+        'morrow-magic-attempt',
+      )
+      campaign.value = completeMemoryExperience(remembered, 'e03')
+    } else {
+      if (!campaign.value.completed.includes('e03')) return false
+      const valid = MEMORY_PAIR_ENDINGS.e04.some(
+        (option) => option.id === pivotalChoice,
+      )
+      if (!valid || !pivotalChoice) return false
+      const decided = chooseMemoryPairEnding(
+        campaign.value,
+        'e04',
+        pivotalChoice,
+      )
+      campaign.value = completeMemoryExperience(decided, 'e04')
+    }
+    persistReality()
+    return true
   }
 
   function syncHoshimoriAchievements(progress: HoshimoriWarmProgress): void {
@@ -2317,6 +2366,8 @@ export const useMemoryWorldStore = defineStore('memoryWorld', () => {
     answerEarthPhoto,
     syncHoshimoriAchievements,
     syncHoshimoriPhoto,
+    syncMorrowEarthPhoto,
+    finishMorrowEarthReality,
     syncHoshimoriNightPhoto,
     activeReality,
     dark,

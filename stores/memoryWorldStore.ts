@@ -44,6 +44,11 @@ import {
 import {
   newMemoryCampaignProgress,
   completeMemoryExperience,
+  rememberMemoryWish,
+  chooseMemoryPairEnding,
+  chooseMemoryScyllaDeparture,
+  MEMORY_SCYLLA_DEPARTURE_CHOICES,
+  MEMORY_PAIR_ENDINGS,
   type MemoryCampaignProgress,
 } from '~/utils/memoryDungeon/reimaginerCampaign'
 import {
@@ -82,6 +87,9 @@ import {
   restoreEarthChronicle,
   reconcileEarthChronicle,
   reconcileHoshimoriEarthChronicle,
+  reconcileMorrowEarthChronicle,
+  reconcileScyllaEarthChronicle,
+  reconcileHoshimoriNightEarthChronicle,
   respondToEarthPhoto,
   recoveredEarthPhotos,
   type EarthChronicle,
@@ -170,8 +178,13 @@ import { earnedBriarRareEvents } from '~/utils/memoryDungeon/briarRareEvents'
 import {
   memoryAchievementGallery,
   reconcileMemoryAchievements,
+  reconcileMemoryEarthAchievements,
   restoreMemoryAchievements,
 } from '~/utils/memoryDungeon/achievements'
+import type { EarthReality } from '~/utils/memoryDungeon/earthAct'
+import type { EarthJournalAction } from '~/utils/memoryDungeon/earthJournal'
+import type { HoshimoriWarmProgress } from '~/utils/memoryDungeon/hoshimoriWarm'
+import type { NightProgress } from '~/utils/memoryDungeon/hoshimoriNight'
 import { briarLossContinuation } from '~/utils/memoryDungeon/lossContinuations'
 import {
   BRIAR_REVEAL_WAVES,
@@ -374,13 +387,25 @@ export const useMemoryWorldStore = defineStore('memoryWorld', () => {
       state.value.house?.decisions ?? {},
     ),
   )
-  function syncAchievements(): void {
-    const next = reconcileMemoryAchievements(
+  function syncAchievements(
+    hoshimori?: HoshimoriWarmProgress,
+    hoshimoriNight?: NightProgress,
+    earth?: { reality: EarthReality; journal: readonly EarthJournalAction[] },
+  ): void {
+    let next = reconcileMemoryAchievements(
       earnedAchievementIds.value,
       briarRareEvents.value,
       state.value,
       dark.value,
+      hoshimori,
+      hoshimoriNight,
     )
+    if (earth && campaign.value.completed.includes(earth.reality))
+      next = reconcileMemoryEarthAchievements(
+        next,
+        earth.reality,
+        earth.journal,
+      )
     if (next.length === earnedAchievementIds.value.length) return
     earnedAchievementIds.value = next
     if (!import.meta.client) return
@@ -568,9 +593,142 @@ export const useMemoryWorldStore = defineStore('memoryWorld', () => {
     persistEarthChronicle()
   }
 
+  function syncMorrowEarthAchievements(
+    reality: EarthReality,
+    journal: readonly EarthJournalAction[],
+  ): void {
+    if (!campaign.value.completed.includes(reality)) return
+    syncAchievements(undefined, undefined, { reality, journal })
+  }
+
+  function syncMorrowEarthPhoto(
+    reality: 'e03' | 'e04',
+    choices: Readonly<Record<string, string>>,
+  ): void {
+    if (!campaign.value.completed.includes(reality === 'e03' ? 'e02' : 'e03'))
+      return
+    const next = reconcileMorrowEarthChronicle(
+      earthChronicle.value,
+      reality,
+      choices,
+    )
+    if (next === earthChronicle.value) return
+    earthChronicle.value = next
+    persistEarthChronicle()
+  }
+
+  function finishMorrowEarthReality(
+    reality: 'e03' | 'e04',
+    pivotalChoice?: string,
+  ): boolean {
+    if (campaign.value.completed.includes(reality)) return false
+    if (reality === 'e03') {
+      if (!campaign.value.completed.includes('e02')) return false
+      const remembered = rememberMemoryWish(
+        campaign.value,
+        'morrow-magic-attempt',
+      )
+      campaign.value = completeMemoryExperience(remembered, 'e03')
+    } else {
+      if (!campaign.value.completed.includes('e03')) return false
+      const valid = MEMORY_PAIR_ENDINGS.e04.some(
+        (option) => option.id === pivotalChoice,
+      )
+      if (!valid || !pivotalChoice) return false
+      const decided = chooseMemoryPairEnding(
+        campaign.value,
+        'e04',
+        pivotalChoice,
+      )
+      campaign.value = completeMemoryExperience(decided, 'e04')
+    }
+    persistReality()
+    return true
+  }
+
+  function syncScyllaEarthPhoto(
+    reality: 'e05' | 'e06',
+    choices: Readonly<Record<string, string>>,
+  ): void {
+    const unlocked =
+      reality === 'e05'
+        ? campaign.value.completed.includes('e04')
+        : campaign.value.completed.includes('e05')
+    if (!unlocked) return
+    const next = reconcileScyllaEarthChronicle(
+      earthChronicle.value,
+      reality,
+      choices,
+    )
+    if (next === earthChronicle.value) return
+    earthChronicle.value = next
+    persistEarthChronicle()
+  }
+
+  function finishScyllaReality(
+    reality: 'e05' | 'e06',
+    pivotalChoice?: string,
+  ): boolean {
+    if (campaign.value.completed.includes(reality) || !pivotalChoice)
+      return false
+    if (reality === 'e05') {
+      if (!campaign.value.completed.includes('e04')) return false
+      if (
+        !MEMORY_SCYLLA_DEPARTURE_CHOICES.some(
+          (choice) => choice.id === pivotalChoice,
+        )
+      )
+        return false
+      const decided = chooseMemoryScyllaDeparture(
+        campaign.value,
+        pivotalChoice as (typeof MEMORY_SCYLLA_DEPARTURE_CHOICES)[number]['id'],
+      )
+      const remembered = rememberMemoryWish(decided, 'scylla-home-wish')
+      campaign.value = completeMemoryExperience(remembered, 'e05')
+    } else {
+      if (!campaign.value.completed.includes('e05')) return false
+      if (
+        !MEMORY_PAIR_ENDINGS.e06.some((choice) => choice.id === pivotalChoice)
+      )
+        return false
+      const decided = chooseMemoryPairEnding(
+        campaign.value,
+        'e06',
+        pivotalChoice,
+      )
+      const remembered = rememberMemoryWish(decided, 'char-possible-future')
+      campaign.value = completeMemoryExperience(remembered, 'e06')
+    }
+    persistReality()
+    return true
+  }
+
+  function syncHoshimoriAchievements(progress: HoshimoriWarmProgress): void {
+    if (!campaign.value.completed.includes('e06')) return
+    syncAchievements(progress)
+  }
+
   function syncHoshimoriPhoto(choices: Readonly<Record<string, string>>): void {
     if (!campaign.value.completed.includes('e06')) return
     const next = reconcileHoshimoriEarthChronicle(earthChronicle.value, choices)
+    if (next === earthChronicle.value) return
+    earthChronicle.value = next
+    persistEarthChronicle()
+  }
+
+  function syncHoshimoriNightAchievements(progress: NightProgress): void {
+    if (!campaign.value.completed.includes('e07')) return
+    syncAchievements(undefined, progress)
+  }
+
+  function syncHoshimoriNightPhoto(
+    choices: Readonly<Record<string, string>>,
+  ): void {
+    if (!campaign.value.completed.includes('e07')) return
+    const next = reconcileHoshimoriNightEarthChronicle(
+      earthChronicle.value,
+      choices,
+    )
     if (next === earthChronicle.value) return
     earthChronicle.value = next
     persistEarthChronicle()
@@ -1886,7 +2044,9 @@ export const useMemoryWorldStore = defineStore('memoryWorld', () => {
         ? "The Warden yields to remembered pairs, not to ownership of anyone else's past."
         : origin === 'HD-19'
           ? 'The Echo Chamber accepts your matched memories and opens the mirrored passage.'
-          : 'You resolved a fair House duel by remembering pairs. Your progress and its outcome are recorded.'
+          : origin === 'HD-16'
+            ? 'The Housekeeper lowers her broom and keeps every key. You earned safe passage, not ownership of anyone in her care.'
+            : 'You resolved a fair House duel by remembering pairs. Your progress and its outcome are recorded.'
     persist()
   }
 
@@ -2294,7 +2454,15 @@ export const useMemoryWorldStore = defineStore('memoryWorld', () => {
     earthChronicle,
     earthPhotos,
     answerEarthPhoto,
+    syncHoshimoriAchievements,
     syncHoshimoriPhoto,
+    syncMorrowEarthPhoto,
+    syncMorrowEarthAchievements,
+    finishMorrowEarthReality,
+    syncScyllaEarthPhoto,
+    finishScyllaReality,
+    syncHoshimoriNightAchievements,
+    syncHoshimoriNightPhoto,
     activeReality,
     dark,
     darkHouse,

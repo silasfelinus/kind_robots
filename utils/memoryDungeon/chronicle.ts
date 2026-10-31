@@ -2,7 +2,7 @@
  * Earth photographs form an independent append-only evidence journal.
  *
  * Production authors 32 fixed beats (two per experience). Briar's four
- * photographs and Hoshimori's two authored scenes are collectible. Future entries are
+ * photographs, Hoshimori's two warm scenes and the first night scene are collectible. Future entries are
  * never exposed by a progress counter, locked card, or UI teaser.
  * The protagonist's response is an enduring interpretation, not a retcon
  * of what the camera actually recorded.
@@ -468,12 +468,30 @@ const HOSHIMORI_PHOTOS = EARTH_PHOTOS.filter(
     photo.experience === 'e07' && Boolean(HOSHIMORI_EARNED_CHOICES[photo.site]),
 )
 const HOSHIMORI_PHOTO_IDS = new Set(HOSHIMORI_PHOTOS.map((photo) => photo.id))
+const HOSHIMORI_NIGHT_EARNED_CHOICES: Readonly<
+  Record<string, readonly string[]>
+> = {
+  '1,4': ['ask-the-colleague', 'honor-the-help'],
+}
+const HOSHIMORI_NIGHT_PHOTOS = EARTH_PHOTOS.filter(
+  (photo) =>
+    photo.experience === 'e08' &&
+    Boolean(HOSHIMORI_NIGHT_EARNED_CHOICES[photo.site]),
+)
+const HOSHIMORI_NIGHT_PHOTO_IDS = new Set(
+  HOSHIMORI_NIGHT_PHOTOS.map((photo) => photo.id),
+)
 const COLLECTIBLE_PHOTO_IDS = new Set(
   EARTH_PHOTOS.filter(
     (photo) =>
       photo.experience === 'e01' ||
       photo.experience === 'e02' ||
-      HOSHIMORI_PHOTO_IDS.has(photo.id),
+      photo.experience === 'e03' ||
+      photo.experience === 'e04' ||
+      photo.experience === 'e05' ||
+      photo.experience === 'e06' ||
+      HOSHIMORI_PHOTO_IDS.has(photo.id) ||
+      HOSHIMORI_NIGHT_PHOTO_IDS.has(photo.id),
   ).map((photo) => photo.id),
 )
 const PLAYABLE_SCENE_CHOICES: Record<
@@ -530,6 +548,59 @@ export function restoreEarthChronicle(value: unknown): EarthChronicle {
 }
 
 /**
+ * Earth-side photographs are earned only from the fixed Morrow scenes.
+ * Callers provide choices restored through the 8x8 encounter replayer and
+ * enforce the e02/e03 campaign gate; previews cannot grant photographs.
+ */
+export function reconcileMorrowEarthChronicle(
+  original: EarthChronicle,
+  reality: 'e03' | 'e04',
+  choices: Readonly<Record<string, string>>,
+): EarthChronicle {
+  const found = new Set(original.found)
+  for (const photo of EARTH_PHOTOS) {
+    if (
+      photo.experience === reality &&
+      ['challenge', 'hold'].includes(choices[photo.site] ?? '')
+    )
+      found.add(photo.id)
+  }
+  if (found.size === original.found.length) return original
+  return {
+    ...original,
+    found: [...found].sort(
+      (a, b) => KNOWN_PHOTOS.get(a)!.order - KNOWN_PHOTOS.get(b)!.order,
+    ),
+  }
+}
+
+/**
+ * Scylla's two sea realities uncover ordinary Earth photographs at fixed
+ * coordinates. Only choices validated by the live sea journey may call this.
+ */
+export function reconcileScyllaEarthChronicle(
+  original: EarthChronicle,
+  reality: 'e05' | 'e06',
+  choices: Readonly<Record<string, string>>,
+): EarthChronicle {
+  const found = new Set(original.found)
+  for (const photo of EARTH_PHOTOS) {
+    if (
+      photo.experience === reality &&
+      (choices[photo.site] === 'challenge' || choices[photo.site] === 'hold')
+    )
+      found.add(photo.id)
+  }
+  if (found.size === original.found.length) return original
+  return {
+    ...original,
+    found: [...found].sort(
+      (a, b) => KNOWN_PHOTOS.get(a)!.order - KNOWN_PHOTOS.get(b)!.order,
+    ),
+  }
+}
+
+/**
  * Both Hoshimori photographs require an authored choice at their fixed sites.
  * The caller supplies choices from a replay-validated e07 expedition and
  * enforces the campaign's e06 entry gate. Unbuilt realities remain locked.
@@ -542,6 +613,33 @@ export function reconcileHoshimoriEarthChronicle(
   for (const photo of HOSHIMORI_PHOTOS) {
     if (
       HOSHIMORI_EARNED_CHOICES[photo.site]?.includes(choices[photo.site] ?? '')
+    )
+      found.add(photo.id)
+  }
+  if (found.size === original.found.length) return original
+  return {
+    ...original,
+    found: [...found].sort(
+      (a, b) => KNOWN_PHOTOS.get(a)!.order - KNOWN_PHOTOS.get(b)!.order,
+    ),
+  }
+}
+
+/**
+ * Only the first e08 photograph is reachable in the authored night district.
+ * The caller must supply replay-validated night choices after the e07 gate.
+ * e08's second photograph remains locked until its 6,7 scene exists.
+ */
+export function reconcileHoshimoriNightEarthChronicle(
+  original: EarthChronicle,
+  choices: Readonly<Record<string, string>>,
+): EarthChronicle {
+  const found = new Set(original.found)
+  for (const photo of HOSHIMORI_NIGHT_PHOTOS) {
+    if (
+      HOSHIMORI_NIGHT_EARNED_CHOICES[photo.site]?.includes(
+        choices[photo.site] ?? '',
+      )
     )
       found.add(photo.id)
   }

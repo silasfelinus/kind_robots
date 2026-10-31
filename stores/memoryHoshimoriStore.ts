@@ -113,7 +113,9 @@ export const useMemoryHoshimoriStore = defineStore('memoryHoshimori', () => {
       const restored = restoreHoshimoriWarm(JSON.parse(saved))
       if (restored) {
         progress.value = restored
-        useMemoryWorldStore().syncHoshimoriPhoto(restored.choices)
+        const world = useMemoryWorldStore()
+        world.syncHoshimoriPhoto(restored.choices)
+        world.syncHoshimoriAchievements(restored)
       } else
         notice.value =
           'The village could not verify that journey. A fresh route is ready.'
@@ -151,8 +153,11 @@ export const useMemoryHoshimoriStore = defineStore('memoryHoshimori', () => {
     }
     progress.value = next
     notice.value = ''
-    if (event.type === 'choose')
-      useMemoryWorldStore().syncHoshimoriPhoto(next.choices)
+    if (event.type === 'choose') {
+      const world = useMemoryWorldStore()
+      world.syncHoshimoriPhoto(next.choices)
+      world.syncHoshimoriAchievements(next)
+    }
     persist()
     return true
   }

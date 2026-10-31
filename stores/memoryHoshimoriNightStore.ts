@@ -1,5 +1,6 @@
 import { computed, ref } from 'vue'
 import { defineStore } from 'pinia'
+import { useMemoryWorldStore } from '~/stores/memoryWorldStore'
 import {
   HOSHIMORI_NIGHT_SITES,
   advanceHoshimoriNight,
@@ -44,8 +45,12 @@ export const useMemoryHoshimoriNightStore = defineStore(
         const saved = window.localStorage.getItem(SAVE_KEY)
         if (!saved) return
         const restored = restoreHoshimoriNight(JSON.parse(saved))
-        if (restored) progress.value = restored
-        else
+        if (restored) {
+          progress.value = restored
+          const world = useMemoryWorldStore()
+          world.syncHoshimoriNightPhoto(restored.choices)
+          world.syncHoshimoriNightAchievements(restored)
+        } else
           notice.value =
             'The procession rejected an altered account. A fresh route is ready.'
       } catch {
@@ -77,6 +82,11 @@ export const useMemoryHoshimoriNightStore = defineStore(
       }
       progress.value = next
       notice.value = ''
+      if (event.type === 'choose' || event.type === 'move') {
+        const world = useMemoryWorldStore()
+        if (event.type === 'choose') world.syncHoshimoriNightPhoto(next.choices)
+        world.syncHoshimoriNightAchievements(next)
+      }
       persist()
       return true
     }

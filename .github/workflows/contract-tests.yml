@@ -54,6 +54,18 @@ jobs:
       - name: Memory Dungeon Reimaginer reality and finale route contract
         run: npx tsx utils/scripts/verifyMemoryReimaginer.test.ts
 
+      - name: Memory Dungeon all-overworld reveal and choice ledger contract
+        run: npx tsx utils/scripts/verifyMemoryOverworldEvents.test.ts
+
+      - name: Memory Dungeon encounter inspector navigation and saved choice contract
+        run: npx tsx utils/scripts/verifyMemoryEncounterInspector.test.ts
+
+      - name: Memory Dungeon Morrow Earth act route, progression and saved choice contract
+        run: npx tsx utils/scripts/verifyMemoryEarthAct.test.ts
+
+      - name: Memory Dungeon sea act contract
+        run: npx tsx utils/scripts/verifyMemorySeaAct.test.ts
+
       - name: Memory Dungeon Hoshimori warm sixteen-site and oven proof
         run: npx tsx utils/scripts/verifyMemoryHoshimoriWarm.test.ts
 
@@ -1555,6 +1567,9 @@ jobs:
 
       - name: Hybridizer art lifecycle and delivery contract
         run: npm run test:hybridizer-art
+
+      - name: Rebel Button escalating stage contract
+        run: npm run test:rebel-button-stage
 
       - name: Hybridizer canonical fusion cache contract
         run: npm run test:hybridizer-cache

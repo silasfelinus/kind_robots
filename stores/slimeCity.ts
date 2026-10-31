@@ -11,6 +11,14 @@ import {
   rarityOf,
   type Progression,
 } from '../utils/slimeCity/progression'
+import {
+  campaignChapter,
+  campaignEnding,
+  createCampaignSave,
+  FACTION_CAMPAIGNS,
+  resolveCampaignBattle,
+  type CampaignApproach,
+} from '../utils/slimeCity/campaign'
 import { computed, ref, watch } from 'vue'
 import {
   advance,
@@ -46,13 +54,20 @@ import {
   boutBlocked,
   boutTerms,
   CITY_PLAN,
+  CITY_CONTRACTS,
+  CAMPAIGN_DISTRICTS,
+  cityRoute,
+  contractBlocked,
+  contractTerms,
   createCity,
   decide,
   decideStreet,
   streetStory,
+  storyMissionTerms,
   gateReason,
   HEAT_LIMIT,
   recordBout,
+  recordContract,
   streetsFrom,
   totalStanding,
   travel,
@@ -72,7 +87,7 @@ function rollSeed(): number {
 
 export const useSlimeCityStore = defineStore('slimeCityLab', () => {
   const userStore = useUserStore()
-  const view = ref<'city' | 'arena' | 'cards' | 'rewards'>('city')
+  const view = ref<'city' | 'arena' | 'cards' | 'campaign' | 'rewards'>('city')
   const activeTeam = ref<TeamId>('catgirls')
   const enemyTeam = ref<TeamId>('bloodfairies')
   const mode = ref<ModeId>('blackout')
@@ -209,6 +224,16 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
   const bout = ref<DistrictId | null>(null)
   /** The rival bout that just ended, for the BACK TO THE CITY button. */
   const lastBout = ref<DistrictId | null>(null)
+  const contractBout = ref<DistrictId | null>(null)
+  const lastContract = ref<DistrictId | null>(null)
+  const campaignSave = ref(createCampaignSave())
+  const campaignBout = ref<{
+    team: TeamId
+    index: number
+    foe: TeamId
+    choice: CampaignApproach
+  } | null>(null)
+  const lastCampaign = ref<TeamId | null>(null)
   const seed = ref(rollSeed())
   /** t-003 objective variants for the next match; all off by default. */
   const rules = ref<RuleVariants>({ ...DEFAULT_RULES })
@@ -231,6 +256,23 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
   const guideSeen = new Set<ModeId>()
   let interval: ReturnType<typeof setInterval> | undefined
 
+  const campaignStory = computed(() => FACTION_CAMPAIGNS[activeTeam.value])
+  const campaignState = computed(() => campaignSave.value[activeTeam.value])
+  const activeChapter = computed(() =>
+    campaignChapter(campaignSave.value, activeTeam.value),
+  )
+  const campaignFinale = computed(() =>
+    campaignEnding(campaignSave.value, activeTeam.value),
+  )
+  const campaignDistrict = computed(() =>
+    activeChapter.value ? CAMPAIGN_DISTRICTS[activeChapter.value.foe] : null,
+  )
+  const campaignAtDestination = computed(
+    () =>
+      campaignDistrict.value !== null &&
+      city.value.location === campaignDistrict.value &&
+      !city.value.pendingStreet,
+  )
   const team = computed(() => teamById(activeTeam.value))
   const enemy = computed(() => teamById(enemyTeam.value))
   const cards = computed(() =>
@@ -323,10 +365,18 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
     () => Object.keys(city.value.streetChoices).length,
   )
   const boutPlan = computed(() => (bout.value ? CITY_PLAN[bout.value] : null))
-  const here = computed(() => city.value.location === districtId.value)
-  const route = computed(() =>
-    streetsFrom(city.value.location).find((s) => s.to === districtId.value),
+  const contractPlan = computed(() => CITY_CONTRACTS[districtId.value])
+  const activeContract = computed(() =>
+    contractBout.value ? CITY_CONTRACTS[contractBout.value] : null,
   )
+  const contractGate = computed(() =>
+    contractBlocked(city.value, districtId.value),
+  )
+  const here = computed(() => city.value.location === districtId.value)
+  const routeSteps = computed(() =>
+    cityRoute(city.value.location, districtId.value),
+  )
+  const route = computed(() => routeSteps.value[0] ?? null)
   const gate = computed(() => gateReason(city.value, districtId.value))
   const blocked = computed(() => boutBlocked(city.value, districtId.value))
   const standing = computed(() => totalStanding(city.value))
@@ -360,6 +410,10 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
     rewardMatchId.value = null
     bout.value = null
     lastBout.value = null
+    contractBout.value = null
+    lastContract.value = null
+    campaignBout.value = null
+    lastCampaign.value = null
     if (!sameSeed) seed.value = rollSeed()
     match.value = createMatch(
       mode.value,
@@ -402,6 +456,12 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
     view.value = 'city'
   }
 
+  function showCampaign(): void {
+    stop()
+    campaignBout.value = null
+    view.value = 'campaign'
+  }
+
   function showCards(): void {
     stop()
     view.value = 'cards'
@@ -410,6 +470,14 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
     stop()
     view.value = 'rewards'
     void hydrateProgression()
+  }
+
+  /** Find the next campaign rival without skipping real city street encounters. */
+  function findCampaignBattle(): void {
+    if (!campaignDistrict.value) return
+    stop()
+    districtId.value = campaignDistrict.value
+    view.value = 'city'
   }
 
   function chooseMode(id: ModeId): void {
@@ -442,7 +510,8 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
   }
 
   function walk(): void {
-    const next = travel(city.value, districtId.value)
+    if (!route.value) return
+    const next = travel(city.value, route.value.to)
     if (next !== city.value) city.value = next
   }
 
@@ -452,7 +521,6 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
 
   function chooseStreet(choiceId: string): void {
     city.value = decideStreet(city.value, choiceId)
-    districtId.value = city.value.location
   }
 
   /** Fight this district's rival on its format, with your decision's terms. */
@@ -475,8 +543,79 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
     selectedUnit.value = null
     bout.value = id
     lastBout.value = null
+    contractBout.value = null
+    lastContract.value = null
     view.value = 'arena'
     if (!guideSeen.has(rival.mode)) openGuide()
+  }
+
+  function fightContract(): void {
+    const id = districtId.value
+    if (contractBlocked(city.value, id)) return
+    stop()
+    mode.value = 'blackout'
+    seed.value = rollSeed()
+    const contract = CITY_CONTRACTS[id]
+    match.value = applyTerms(
+      createMatch(
+        'blackout',
+        activeTeam.value,
+        contract.team,
+        seed.value,
+        rules.value,
+      ),
+      contractTerms(city.value, id),
+    )
+    selectedCard.value = null
+    previewOpen.value = false
+    selectedUnit.value = null
+    targetUnit.value = null
+    bout.value = null
+    lastBout.value = null
+    contractBout.value = id
+    lastContract.value = null
+    view.value = 'arena'
+    if (!guideSeen.has('blackout')) openGuide()
+  }
+  function startCampaignBattle(choiceId: CampaignApproach): void {
+    if (campaignBout.value) return
+    const fromCity =
+      view.value === 'city' &&
+      campaignAtDestination.value &&
+      districtId.value === campaignDistrict.value
+    if (view.value !== 'campaign' && !fromCity) return
+    const teamId = activeTeam.value
+    const chapter = campaignChapter(campaignSave.value, teamId)
+    const choice = chapter?.choices.find((option) => option.id === choiceId)
+    if (!chapter || !choice) return
+    stop()
+    mode.value = 'blackout'
+    rules.value = { ...DEFAULT_RULES }
+    enemyTeam.value = chapter.foe
+    seed.value = rollSeed()
+    match.value = applyTerms(
+      createMatch('blackout', teamId, chapter.foe, seed.value, rules.value),
+      fromCity
+        ? storyMissionTerms(city.value, districtId.value, choice.terms)
+        : choice.terms,
+    )
+    selectedCard.value = null
+    selectedUnit.value = null
+    targetUnit.value = null
+    previewOpen.value = false
+    bout.value = null
+    lastBout.value = null
+    contractBout.value = null
+    lastContract.value = null
+    campaignBout.value = {
+      team: teamId,
+      foe: chapter.foe,
+      index: campaignSave.value[teamId].wins,
+      choice: choice.id,
+    }
+    lastCampaign.value = null
+    view.value = 'arena'
+    if (!guideSeen.has('blackout')) openGuide()
   }
 
   async function finishCpuBattle(id: string, commands: unknown): Promise<void> {
@@ -501,7 +640,7 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
     }
   }
 
-  /** Once a rival bout ends, its result changes the city. */
+  /** Once a rival, contract or campaign bout ends, update only its ledger. */
   function settleBout(): void {
     if (!match.value.victor) return
     if (rewardMatchId.value) {
@@ -509,6 +648,28 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
       const commands = [...match.value.commands]
       rewardMatchId.value = null
       void finishCpuBattle(id, commands)
+      return
+    }
+    if (campaignBout.value) {
+      const { team, index, foe, choice } = campaignBout.value
+      campaignSave.value = resolveCampaignBattle(
+        campaignSave.value,
+        team,
+        index,
+        foe,
+        choice,
+        match.value.victor,
+      )
+      lastCampaign.value = team
+      campaignBout.value = null
+      return
+    }
+    if (contractBout.value) {
+      const id = contractBout.value
+      city.value = recordContract(city.value, id, match.value.victor)
+      lastContract.value = id
+      contractBout.value = null
+      return
     }
     if (!bout.value) return
     city.value = recordBout(city.value, bout.value, match.value.victor)
@@ -667,11 +828,26 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
     bout,
     lastBout,
     boutPlan,
+    contractBout,
+    lastContract,
+    contractPlan,
+    activeContract,
+    contractGate,
+    campaignSave,
+    campaignBout,
+    lastCampaign,
+    campaignStory,
+    campaignState,
+    activeChapter,
+    campaignFinale,
+    campaignDistrict,
+    campaignAtDestination,
     plan,
     streetEvent,
     streetProgress,
     here,
     route,
+    routeSteps,
     gate,
     blocked,
     standing,
@@ -721,6 +897,10 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
     choose,
     chooseStreet,
     fightRival,
+    fightContract,
+    showCampaign,
+    findCampaignBattle,
+    startCampaignBattle,
     resetCity,
     startDistrictMatch,
     showCity,

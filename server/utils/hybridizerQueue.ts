@@ -29,7 +29,8 @@ export function buildHybridizerArtJob(
   fusion: FusionForArt,
   leftTitle: string,
   rightTitle: string,
-  origin: 'interactive' | 'launch-batch' = 'interactive',
+  origin: 'interactive' | 'launch-batch' | 'revision' = 'interactive',
+  revision = 0,
 ) {
   const kind = hybridizerSubjectKind(
     starterForIdentity(fusion.leftKey)?.taxonomy,
@@ -38,7 +39,7 @@ export function buildHybridizerArtJob(
   const promptString = hybridizerArtPrompt(leftTitle, rightTitle, kind)
   const { workflow } = buildKrea2WorkflowFromRequest({
     prompt: promptString,
-    seed: hybridizerArtSeed(fusion.id),
+    seed: (hybridizerArtSeed(fusion.id) + revision * 7919) >>> 0,
     steps: HYBRIDIZER_ART_STEPS,
     width: HYBRIDIZER_ART_SIZE,
     height: HYBRIDIZER_ART_SIZE,
@@ -58,6 +59,7 @@ export function buildHybridizerArtJob(
       recipeVersion: fusion.recipeVersion,
       retryCount: 0,
       origin,
+      revision,
     },
   }
   const normalized = repairQueuedArtSampler(
@@ -66,8 +68,8 @@ export function buildHybridizerArtJob(
   ).payload
   assertQueuedArtPromptContract('COMFY', normalized)
   return enrichArtJobPayload('COMFY', normalized, {
-    projectSlug: 'hybridizer',
-    idempotencyKey: 'fusion:' + fusion.id,
+    projectSlug: revision ? 'hybridizer:' + fusion.id : 'hybridizer',
+    idempotencyKey: 'fusion:' + fusion.id + (revision ? ':v' + revision : ''),
     requireCompletionProof: true,
   })
 }

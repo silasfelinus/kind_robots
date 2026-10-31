@@ -272,7 +272,11 @@ if (lab.match.victor === 'enemy') assert.equal(lab.city.heat, 3)
 lab.showCity()
 lab.resetCity()
 assert.equal(lab.city.nights, 0)
-lab.city = recordBout({ ...createCity(), location: 'chimera' }, 'chimera', 'player')
+lab.city = recordBout(
+  { ...createCity(), location: 'chimera' },
+  'chimera',
+  'player',
+)
 lab.visit('chimera')
 lab.fightContract()
 assert.equal(lab.view, 'arena')
@@ -284,7 +288,8 @@ for (let i = 0; i < 40 && !lab.match.victor; i++) lab.nextRound()
 assert.ok(lab.match.victor)
 assert.equal(lab.contractBout, null)
 assert.equal(lab.lastContract, 'chimera')
-if (lab.match.victor === 'player') assert.deepEqual(lab.city.contracts, ['chimera'])
+if (lab.match.victor === 'player')
+  assert.deepEqual(lab.city.contracts, ['chimera'])
 if (lab.match.victor === 'enemy') assert.equal(lab.city.contracts.length, 0)
 lab.showCity()
 lab.resetCity()

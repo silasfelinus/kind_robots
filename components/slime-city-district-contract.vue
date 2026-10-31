@@ -67,7 +67,12 @@ const lab = useSlimeCityStore()
   flex-direction: column;
   justify-content: space-between;
   gap: 0.4rem;
-  background: radial-gradient(circle at 72% 20%, #78d2bf 0, #284b74 45%, #10172d 96%);
+  background: radial-gradient(
+    circle at 72% 20%,
+    #78d2bf 0,
+    #284b74 45%,
+    #10172d 96%
+  );
   border-right: 2px solid #b8ff7870;
   color: #f6ffeb;
   text-shadow: 0 2px 10px #000;

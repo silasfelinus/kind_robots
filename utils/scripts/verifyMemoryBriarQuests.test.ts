@@ -20,6 +20,7 @@ import {
 import {
   MEMORY_BRIAR_ACHIEVEMENTS,
   MEMORY_DARK_BRIAR_ACHIEVEMENTS,
+  MEMORY_HOUSE_ACHIEVEMENTS,
   memoryAchievementGallery,
   reconcileMemoryAchievements,
   restoreMemoryAchievements,
@@ -973,10 +974,11 @@ const darkMedalPairs = [
   },
 ] as const
 assert.equal(MEMORY_DARK_BRIAR_ACHIEVEMENTS.length, 8)
-assert.equal(memoryAchievementGallery([]).length, 16)
+assert.equal(MEMORY_HOUSE_ACHIEVEMENTS.length, 12)
+assert.equal(memoryAchievementGallery([]).length, 28)
 assert.equal(
   new Set(memoryAchievementGallery([]).map((medal) => medal.id)).size,
-  16,
+  28,
 )
 assert.equal(
   new Set(MEMORY_DARK_BRIAR_ACHIEVEMENTS.map((medal) => medal.echo)).size,
@@ -1063,7 +1065,7 @@ assert.ok(
   memoryAchievementGallery([]).every(
     (medal) => !medal.earned && medal.echo === null,
   ),
-  'all sixteen story echoes remain hidden until earned',
+  'all twenty-eight story echoes remain hidden until earned',
 )
 
 // The Forge counts the eight threads as quests.

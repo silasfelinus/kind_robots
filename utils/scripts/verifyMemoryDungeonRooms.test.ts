@@ -28,6 +28,11 @@ import {
   startCombatRoom,
 } from '../memoryDungeon/rooms'
 import {
+  HOUSE_ROOMS,
+  newHouseProgress,
+  restoreHouseProgress,
+} from '../memoryDungeon/house'
+import {
   newBriarSave,
   recoverBriarCombatDefeat,
   restoreBriarSave,
@@ -66,13 +71,14 @@ assert.equal(
   'a cross aimed at the corner overhangs and is refused, not clipped',
 )
 
-// 2. Rooms: the forest duels, the Warden, the House's three guardian duels
+// 2. Rooms: the forest duels, the Warden, the House's four optional duels
 // and the Dark Briar's three bouts,
 // Classic Echo Chamber untouched, tools that fit.
 assert.deepEqual(Object.keys(COMBAT_ROOMS).sort(), [
   'collector',
   'empty-armor',
   'hearth-guard',
+  'housekeeper',
   'moss-judge',
   'patrol',
   'sprite',
@@ -98,9 +104,10 @@ assert.equal(
 )
 for (const room of Object.values(COMBAT_ROOMS))
   assert.ok(room.intro.length > 40 && room.artPrompt.length >= 120)
-// HD-09, HD-22 and HD-28 each launch their own guardian, never a forest board.
+// Each House duel launches its own guardian, never a forest board.
 assert.deepEqual(HOUSE_DUEL_ROOMS, {
   'HD-09': 'hearth-guard',
+  'HD-16': 'housekeeper',
   'HD-22': 'collector',
   'HD-28': 'twinned-guard',
 })
@@ -111,6 +118,46 @@ for (const [origin, room] of Object.entries(HOUSE_DUEL_ROOMS)) {
 }
 assert.equal(isHouseDuelOrigin('HD-32'), false, 'the Warden keeps its vault')
 assert.equal(COMBAT_PAIRS, 8)
+const housekeeperChoices = HOUSE_ROOMS['HD-16']!.choices
+assert.deepEqual(
+  housekeeperChoices.map((choice) => choice.id),
+  ['return-name', 'inspect', 'duel'],
+  'the housekeeper keeps both nonviolent choices alongside the optional duel',
+)
+assert.match(housekeeperChoices[2]!.outcome, /passage is not ownership/)
+const housekeeperFight = startCombatRoom('housekeeper', 1609, [
+  '/img/0.webp', '/img/1.webp', '/img/2.webp', '/img/3.webp',
+  '/img/4.webp', '/img/5.webp', '/img/6.webp', '/img/7.webp',
+])
+assert.equal(housekeeperFight.state.enemy.name, 'Thornbound Housekeeper')
+assert.ok(restoreBriarCombat(housekeeperFight, 'housekeeper'))
+assert.equal(
+  restoreBriarCombat(housekeeperFight, 'collector'),
+  null,
+  'a Housekeeper checkpoint cannot impersonate a different guardian',
+)
+const housekeeperRoute = Array.from({ length: 16 }, (_, i) =>
+  `HD-${String(i + 1).padStart(2, '0')}`,
+)
+const housekeeperSave = restoreHouseProgress({
+  ...newHouseProgress(),
+  current: 'HD-16',
+  visited: housekeeperRoute,
+  combatOrigin: 'HD-16',
+})
+assert.equal(
+  housekeeperSave?.combatOrigin,
+  'HD-16',
+  'the new duel survives a legitimate House checkpoint',
+)
+assert.equal(
+  restoreHouseProgress({
+    ...newHouseProgress(),
+    combatOrigin: 'HD-16',
+  })?.combatOrigin,
+  null,
+  'unvisited Housekeeper fights cannot be forged',
+)
 for (const [id, room] of Object.entries(COMBAT_ROOMS)) {
   for (const weapon of room.loadout)
     assert.ok(

@@ -289,7 +289,10 @@ assert.ok(page.includes('data-testid="space-couch-main-log"'))
 assert.ok(page.includes('data-testid="space-couch-backgrounds"'))
 assert.ok(page.includes('data-testid="space-couch-background-next"'))
 
-assert.ok(page.includes("  'captain',"), 'new voyage starts at captain selection')
+assert.ok(
+  page.includes("  'captain',"),
+  'new voyage starts at captain selection',
+)
 assert.ok(
   page.includes("selectionScreen.value = 'captain'"),
   'restart returns to captain',

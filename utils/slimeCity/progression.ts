@@ -1,5 +1,5 @@
-// Slime City progression prototype (admin only, browser-local; NOT an authoritative
-// economy). Pure seeded rewards/pack draws keep test runs reproducible.
+// Slime City account progression rules. Pure seeded rewards/pack draws used by
+// the authenticated server, which exclusively owns wallet and inventory writes.
 // The real-money/cash-out path is deliberately absent.
 import {
   CARDS,
@@ -421,8 +421,11 @@ export function restoreProgression(
         typeof p.opened === 'number' && Number.isSafeInteger(p.opened)
           ? p.opened
           : 0,
-      lastPack: [],
-      lastReward: 'Account progression loaded from Kind Robots.',
+      lastPack: Array.isArray(p.lastPack)
+        ? p.lastPack.filter((id): id is string => typeof id === 'string' && cards.includes(id))
+        : [],
+      lastReward: typeof p.lastReward === 'string' && p.lastReward.length < 512
+        ? p.lastReward : '',
       daily: cleanWin(p.daily, 'daily'),
       weekly: cleanWin(p.weekly, 'weekly'),
     },

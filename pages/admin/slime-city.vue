@@ -196,6 +196,7 @@
                     QUICK MATCH
                   </button>
                 </span>
+                <SlimeCityDistrictContract />
               </template>
               <span v-else class="sc-city-actions">
                 <button

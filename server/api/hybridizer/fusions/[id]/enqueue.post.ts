@@ -52,7 +52,7 @@ export default defineEventHandler(async (event) => {
         const activeRetries = await prisma.artJob.count({
           where: {
             userId: auth.user.id,
-            projectSlug: 'hybridizer',
+            projectSlug: { startsWith: 'hybridizer' },
             status: { in: [...activeStatuses] },
           },
         })
@@ -130,7 +130,7 @@ export default defineEventHandler(async (event) => {
     const activeCount = await prisma.artJob.count({
       where: {
         userId: auth.user.id,
-        projectSlug: 'hybridizer',
+        projectSlug: { startsWith: 'hybridizer' },
         status: { in: [...activeStatuses] },
       },
     })

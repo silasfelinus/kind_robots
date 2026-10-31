@@ -40,7 +40,8 @@ export const useMemoryEncounterInspectorStore = defineStore(
       })),
     )
     const progress = computed(
-      () => saves.value[active.value] ?? newOverworldEventProgress(active.value),
+      () =>
+        saves.value[active.value] ?? newOverworldEventProgress(active.value),
     )
     const position = computed(() => positions.value[active.value] ?? '1,1')
     const current = computed(() => worldEvent(active.value, position.value))

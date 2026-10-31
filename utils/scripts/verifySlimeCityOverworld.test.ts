@@ -27,6 +27,7 @@ import {
   decide,
   decideStreet,
   streetStory,
+  storyMissionTerms,
   STREET_STORIES,
   gateReason,
   HEAT_LIMIT,
@@ -41,6 +42,9 @@ import {
 import {
   CARDS,
   createMatch,
+  deploy,
+  deployAs,
+  observe,
   DISTRICTS,
   MODES,
   TEAMS,
@@ -451,6 +455,72 @@ console.log(
   'Slime City faction campaigns: 6 crews, 30 rival chapters, gating and endings PASS',
 )
 
+// Story missions combine district consequences with one specific story
+// approach; this cannot modify the city, chapter definitions, or browser
+// account rewards. The direct STORY button keeps the original terms.
+const openingCity = createCity()
+const atUndertow = decideStreet(
+  travel(openingCity, 'undertow'),
+  'drain-protect',
+)
+const chapterApproach =
+  FACTION_CAMPAIGNS.catgirls.chapters[0]!.choices[1]!.terms
+const combined = storyMissionTerms(atUndertow, 'undertow', chapterApproach)
+assert.equal(combined.playerMana, 3)
+assert.equal(combined.rivalTrap, true)
+assert.equal(chapterApproach.playerMana, 2)
+assert.equal(openingCity.location, 'pitworks')
+assert.equal(openingCity.pendingStreet, null)
+const heatedCity = { ...atUndertow, heat: HEAT_LIMIT }
+assert.equal(
+  storyMissionTerms(heatedCity, 'undertow', chapterApproach).enemyMana,
+  (chapterApproach.enemyMana ?? 0) + 1,
+  'Too much city heat finances the enemy even in the faction campaign',
+)
+const cleanCity = createCity()
+assert.equal(
+  storyMissionTerms(cleanCity, 'undertow', chapterApproach).playerMana,
+  chapterApproach.playerMana,
+)
+assert.equal(
+  applyTerms(createMatch('blackout', 'catgirls', 'undertow', 2001), combined)
+    .mana,
+  4,
+)
+const scenarioBase = createMatch('blackout', 'catgirls', 'bloodfairies', 2001)
+const scenario = applyTerms(
+  {
+    ...scenarioBase,
+    hands: {
+      player: ['lynx', ...scenarioBase.hands.player.slice(0, 3)],
+      enemy: ['sprite', ...scenarioBase.hands.enemy.slice(0, 3)],
+    },
+  },
+  { playerHp: 2, enemyArmor: 1, fewerRivals: 1 },
+)
+assert.equal(scenario.units.length, 0)
+assert.equal(
+  observe(scenario, 'enemy').fieldCap,
+  observe(scenarioBase, 'enemy').fieldCap - 1,
+)
+const summoned = deploy(scenario, 'lynx', 0, 0)
+const lynx = summoned.units.find((unit) => unit.side === 'player')
+assert.ok(lynx, 'A chapter buff must survive an initially empty battlefield')
+assert.equal(lynx.maxHp, 4, 'Your HP bonus applies when a card is summoned')
+assert.equal(lynx.hp, 4)
+const withEnemy = deployAs(summoned, 'enemy', 'sprite', 9, 0)
+const sprite = withEnemy.units.find((unit) => unit.side === 'enemy')
+assert.ok(sprite)
+assert.equal(sprite.armor, 1, 'Rival armor applies to future enemy summons')
+assert.equal(
+  withEnemy.scenarioBonus?.fewerRivals,
+  1,
+  'The enemy field cap reduction persists through recorded deployments',
+)
+assert.equal(scenario.units.length, 0, 'Applying terms and summoning are pure')
+
+console.log('Slime City campaign street consequence contract PASS')
+
 // Store flow: walk a street, decide, fight the rival under those terms,
 // and the finished bout changes the city.
 const { createPinia, setActivePinia } = await import('pinia')
@@ -609,7 +679,11 @@ assert.equal(lab.view, 'arena')
 assert.equal(lab.match.foeId, 'undertow')
 assert.ok(lab.campaignBout, 'City mission uses campaign settlement')
 assert.equal(lab.match.teamId, 'catgirls')
-assert.equal(lab.match.mana, 3, 'Mission approach changes opening mana')
+assert.equal(
+  lab.match.mana,
+  4,
+  'City-based chapter includes +2 cunning mana AND +1 street decision mana',
+)
 assert.equal(
   lab.city.cleared.length,
   0,

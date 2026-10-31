@@ -209,6 +209,18 @@
                 class="sc-story-mission"
                 data-testid="slime-city-story-mission"
               >
+                <div class="sc-mission-poster">
+                  <SlimeCityArtwork
+                    :image-id="slimeArtId('crews', lab.activeChapter.foe)"
+                    :alt="teamName(lab.activeChapter.foe) + ' rival portrait'"
+                    fallback="✷"
+                    compact
+                  />
+                  <span class="sc-mission-poster-label">
+                    <small>CREW CLASH / {{ lab.district.name }}</small>
+                    <strong>{{ teamName(lab.activeChapter.foe) }}</strong>
+                  </span>
+                </div>
                 <span class="sc-overline"
                   >CREW STORY · CHAPTER {{ lab.campaignState.wins + 1 }}/5 ·
                   {{ teamName(lab.activeChapter.foe) }}</span
@@ -217,19 +229,39 @@
                 <p class="sc-scene">{{ lab.activeChapter.scene }}</p>
                 <span v-if="!lab.campaignAtDestination" class="sc-mission-hint">
                   Follow the marked streets and resolve each street story to
-                  stage this battle.
+                  stage this battle. Your choices change its opening conditions.
                 </span>
-                <div v-else class="sc-choices">
-                  <button
-                    v-for="choice in lab.activeChapter.choices"
-                    :key="choice.id"
-                    type="button"
-                    :data-testid="'slime-city-mission-' + choice.id"
-                    @click="lab.startCampaignBattle(choice.id)"
+                <div v-else class="sc-mission-ready">
+                  <p
+                    class="sc-mission-terms"
+                    data-testid="slime-city-local-terms"
                   >
-                    <strong>{{ choice.label }}</strong>
-                    <small>{{ describeTerms(choice.terms) }}</small>
-                  </button>
+                    CITY CONSEQUENCES ·
+                    {{ describeTerms(boutTerms(lab.city, lab.districtId)) }}
+                  </p>
+                  <div class="sc-choices">
+                    <button
+                      v-for="choice in lab.activeChapter.choices"
+                      :key="choice.id"
+                      type="button"
+                      :data-testid="'slime-city-mission-' + choice.id"
+                      @click="lab.startCampaignBattle(choice.id)"
+                    >
+                      <strong>{{ choice.label }}</strong>
+                      <small
+                        >WITH STREET CHOICES ·
+                        {{
+                          describeTerms(
+                            storyMissionTerms(
+                              lab.city,
+                              lab.districtId,
+                              choice.terms,
+                            ),
+                          )
+                        }}</small
+                      >
+                    </button>
+                  </div>
                 </div>
               </article>
               <p class="sc-overline">
@@ -940,7 +972,7 @@ import {
   cardById,
   type ViewFighter,
 } from '~/utils/slimeCity/prototypes'
-import { STREETS } from '~/utils/slimeCity/city'
+import { STREETS, boutTerms, storyMissionTerms } from '~/utils/slimeCity/city'
 import { describeTerms } from '~/utils/slimeCity/campaign'
 import { useSlimeCityStore } from '~/stores/slimeCity'
 import { slimeArtId, SLIME_CITY_ART_COUNT } from '~/utils/slimeCity/artManifest'
@@ -1628,6 +1660,44 @@ onUnmounted(() => {
   padding: 0.65rem 0.75rem;
   border-left: 3px solid #e6a7ff;
   background: linear-gradient(110deg, #542c624d, #172332b8);
+}
+.sc-mission-poster {
+  position: relative;
+  width: 100%;
+  height: clamp(7rem, 16cqw, 12rem);
+  overflow: hidden;
+  border: 1px solid #dba9ff80;
+  border-radius: 0.4rem;
+}
+.sc-mission-poster :deep(.slime-art img) {
+  object-position: center 30%;
+}
+.sc-mission-poster-label {
+  position: absolute;
+  inset: auto 0 0;
+  display: grid;
+  gap: 0.15rem;
+  padding: 0.5rem 0.75rem;
+  background: linear-gradient(transparent, #0e1223ef 28%);
+  color: #fce5ff;
+  text-shadow: 0 1px 6px #080b15;
+}
+.sc-mission-poster-label small {
+  font-size: 0.56rem;
+  font-weight: 900;
+  letter-spacing: 0.12em;
+}
+.sc-mission-poster-label strong {
+  font-size: clamp(0.8rem, 1.7cqw, 1.2rem);
+}
+.sc-mission-ready {
+  display: grid;
+  gap: 0.35rem;
+}
+.sc-mission-terms {
+  color: #d9fbb3;
+  font-size: 0.67rem;
+  font-weight: 750;
 }
 .sc-story-mission > strong {
   font-size: 1rem;

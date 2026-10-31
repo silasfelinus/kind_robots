@@ -85,8 +85,8 @@
           }}</span>
           <h2>{{ STAR_QUESTIONS[answers.length]!.prompt }}</h2>
           <p>
-            This is a scientifically unlicensed assessment. All responses are logged
-            for promotion eligibility.
+            This is a scientifically unlicensed assessment. All responses are
+            logged for promotion eligibility.
           </p>
           <div class="scope-choices">
             <button
@@ -210,7 +210,10 @@ const questionArtwork = computed(() => {
   )
 })
 function answerArtwork(optionIndex: number): string {
-  const question = String(Math.min(answers.value.length + 1, 4)).padStart(2, '0')
+  const question = String(Math.min(answers.value.length + 1, 4)).padStart(
+    2,
+    '0',
+  )
   const answer = String.fromCharCode(97 + optionIndex)
   return (
     warpArt('couchscope/question-' + question + '-answer-' + answer) ||

@@ -1,5 +1,5 @@
 /**
- * Hoshimori's connected forty-four-site warm village and optional second Oven wing.
+ * Hoshimori's connected sixty-four-site warm village and optional second Oven wing.
  * Its e07 campaign entry remains gated behind the preceding experiences.
  */
 export interface HoshimoriChoice {
@@ -31,22 +31,25 @@ function site(
 export const HOSHIMORI_WARM_SITES: readonly HoshimoriSite[] = [
   site(
     '1,1',
-    'The Cedar Footbridge',
-    'The river carries empty sandals toward a lantern supper. Pip insists the shoes count as guests, though nobody knows who took them off.',
+    'Vesper’s Childhood Footbridge',
+    'Vesper folds their dusty-grey moth wings beside the cedar footbridge they knew as a child. They once traced secret paths beneath these boards so lost travelers could reach the lantern supper. Today the river carries empty sandals, and the cartographer fears a familiar route has been sold again.',
     {
       id: 'seat',
-      label: 'Spend a ration to set a place for the missing guest',
+      label:
+        'Help Vesper set a place without recording the missing guest’s name',
       outcome:
-        'A seat remains empty but nobody is turned away. Pip writes a question mark where a name should be.',
+        'Vesper remembers a parent leaving spare rice by the bridge for people whose names could not safely be spoken. The table stays open, but the mystery of the lost sandals remains.',
+
       rations: -1,
       trust: 1,
       flag: 'guest-seated',
     },
     {
       id: 'listen',
-      label: 'Follow the sandals to learn who is absent',
+      label: 'Follow Vesper’s old stepping-stone route to the missing guest',
       outcome:
-        'The current leads toward a locked household. You learn where to ask, but the hungry guests still need supper.',
+        'Vesper remembers every hidden foothold, but the path leads to a house now chained shut. The cartographer knows how to find it and fears someone else does too.',
+
       flag: 'guest-traced',
     },
   ),
@@ -96,21 +99,22 @@ export const HOSHIMORI_WARM_SITES: readonly HoshimoriSite[] = [
   ),
   site(
     '4,1',
-    'Orchard of Floating Lanterns',
-    'An old lantern floats upside down beneath a branch. The orchard keeper says it belonged to someone who stopped coming home.',
+    'The Orchard of Unfinished Maps',
+    'Vesper recognizes the old lantern they used to navigate the orchard as a child. Each persimmon tree once marked a refuge. Their first map included a house whose occupants begged never to be named.',
     {
       id: 'repair',
-      label: 'Repair the wick before asking for the story',
+      label:
+        'Repair Vesper’s childhood lantern before asking whose refuge was lost',
       outcome:
-        'The keeper tells you which road the absent neighbor used, because you helped without bargaining for it.',
+        'The keeper recalls how Vesper learned to draw paths for people who were hiding, not for the officials pursuing them. One refuge remains safe because its address stays unspoken.',
       trust: 1,
       flag: 'orchard-repaired',
     },
     {
       id: 'mark',
-      label: 'Mark the unlit route on Pip’s map',
+      label: 'Copy the unlit orchard route, leaving the refuge unnamed',
       outcome:
-        'You preserve a possible path without claiming that its traveler survived.',
+        'Vesper adds an unsigned path to the atlas. It can guide a rescuer, but the cartographer knows exactly how easily a second copy becomes a weapon.',
       flag: 'orchard-marked',
     },
   ),
@@ -347,21 +351,22 @@ export const HOSHIMORI_WARM_SITES: readonly HoshimoriSite[] = [
   ),
   site(
     '4,4',
-    'The Ember Path',
-    'Beyond the bakery a safe road leads out of the village. A child has placed a lantern beside the gate, pointing in both directions.',
+    'The Road Vesper Sold',
+    'Past the bakery, Vesper reaches the old road they once drew as a child to deliver food to hidden households. A later copy was sold to save a beloved traveler; the same ink exposed strangers. The road has never decided whether it is a rescue or a betrayal.',
     {
       id: 'witness',
-      label: 'Promise to return with an honest account',
+      label:
+        'Ask Vesper to testify publicly about both uses of the stolen road',
       outcome:
-        'Pip offers to carry your account to the next village, provided you do not claim it is the only truth.',
+        'Vesper agrees to name the sale and seek restitution, but will not expose the rescued traveler’s new name. The displaced households deserve an account, not another map of where to find them.',
       trust: 1,
       flag: 'path-witnessed',
     },
     {
       id: 'depart',
-      label: 'Leave without promising what you cannot deliver',
+      label: 'Help Vesper deliver compensation without naming the refugee',
       outcome:
-        'The gate stays open. You have not repaired the village, but neither have you trapped yourself in a false vow.',
+        'Vesper offers food and safe passage without requiring public forgiveness. Some families refuse the offer. Their refusal does not make the harm imaginary or the route worth selling again.',
       flag: 'path-departed',
     },
   ),
@@ -940,6 +945,420 @@ export const HOSHIMORI_WARM_SITES: readonly HoshimoriSite[] = [
       flag: 'wind-council-sealed',
     },
   ),
+
+  site(
+    '5,3',
+    'The Mooncake Queue',
+    'A bakehouse queue winds around an empty stall. A badger-like spirit holds three clay bowls and refuses to sell a fourth meal while the village still owes one to a stranger.',
+    {
+      id: 'portion',
+      label: 'Divide one ration into three honest portions',
+      outcome:
+        'The queue moves again. The portions are modest, but the spirit records what was actually served rather than calling every visitor satisfied.',
+      rations: -1,
+      trust: 1,
+      flag: 'moonqueue-portioned',
+    },
+    {
+      id: 'count',
+      label: 'Audit the missing fourth bowl before serving',
+      outcome:
+        'The fourth bowl belonged to an absent night worker. The spirit reserves it, and the queue agrees that empty chairs can represent real people.',
+      flag: 'moonqueue-audited',
+    },
+  ),
+  site(
+    '6,3',
+    'The Foxfire Registry',
+    'A kitsune courier carries foxfire in a blue bottle. The register demands a birth name before granting shelter, but the courier only knows the names people have chosen.',
+    {
+      id: 'aliases',
+      label: 'Accept chosen names and record only delivery consent',
+      outcome:
+        'The courier brings news without exposing a family in hiding. The clerk complains that accurate records have become harder, which may be true.',
+      trust: 1,
+      flag: 'foxfire-aliases',
+    },
+    {
+      id: 'witness',
+      label: 'Ask a neutral witness to hold sealed identities',
+      outcome:
+        'A sealed registry protects the travelers and permits a later fraud hearing. Nobody gets the key merely because they hold an official title.',
+      flag: 'foxfire-witnessed',
+    },
+  ),
+  site(
+    '7,3',
+    'The Umbrella Funeral',
+    'An old paper umbrella has arranged a funeral for its broken ribs. The maker insists it can still be patched; the umbrella insists it is tired of sheltering strangers.',
+    {
+      id: 'mend',
+      label: 'Offer repairs only if the umbrella chooses them',
+      outcome:
+        'The umbrella agrees to a new handle and refuses the rain patrol. The maker learns that restoration is not ownership.',
+      trust: 1,
+      flag: 'umbrella-consenting-repair',
+    },
+    {
+      id: 'farewell',
+      label: 'Carry the umbrella to its chosen resting place',
+      outcome:
+        'At the cedar grove the umbrella unfurls one last dry circle for its mourners. The village will need to train another shelter volunteer.',
+      flag: 'umbrella-farewell',
+    },
+  ),
+  site(
+    '8,3',
+    'The Boundary Bell',
+    'The last bell before the high ridge rings for arrivals and departures alike. A watchkeeper wants to toll only for those who promise to return.',
+    {
+      id: 'both',
+      label: 'Ring the bell for every traveler, including those leaving',
+      outcome:
+        'The ridge echoes with arrivals and farewells in equal measure. A departing family stops hiding its packs under blankets.',
+      trust: 1,
+      flag: 'bell-all-travelers',
+    },
+    {
+      id: 'quiet',
+      label: 'Keep departures private and let families choose a signal',
+      outcome:
+        'Some leave without ceremony. The watchkeeper loses an easy count but gains a way to warn search parties without naming people.',
+      flag: 'bell-private-exits',
+    },
+  ),
+  site(
+    '1,7',
+    'The Reedboat Crossing',
+    'A kappa ferryman has balanced his boat with stones etched with the names of past passengers. A flood has washed away the bank where those passengers used to board.',
+    {
+      id: 'ferry',
+      label: 'Spend a ration to ferry stranded neighbors first',
+      outcome:
+        'The ferryman gives his own seat to the last traveler. Your supper is delayed, but no passenger must promise to stay as payment.',
+      rations: -1,
+      trust: 2,
+      flag: 'reedboat-rescue',
+    },
+    {
+      id: 'dock',
+      label: 'Build a temporary landing from fallen reeds',
+      outcome:
+        'The boat can return for everyone at dawn. The people who needed help tonight are grateful for the plan but still cold.',
+      flag: 'reedboat-landing',
+    },
+  ),
+  site(
+    '2,7',
+    'Scarecrow Parliament',
+    'Six straw guardians have elected a seventh to speak for the field. The new speaker insists the farmers owe the scarecrows a holiday, not another harvest season.',
+    {
+      id: 'rest',
+      label: 'Support a rotating rest day for the guardians',
+      outcome:
+        'Crows take some grain, but the fields no longer depend on exhausted sentries. A farmer volunteers to patrol the gaps.',
+      trust: 1,
+      flag: 'straw-rest-rotation',
+    },
+    {
+      id: 'bargain',
+      label: 'Negotiate an emergency harvest before the holiday',
+      outcome:
+        'The guardians accept one last watch for a written end date. The harvest is saved but the farmers now owe a public accounting.',
+      rations: 1,
+      flag: 'straw-harvest-pact',
+    },
+  ),
+  site(
+    '3,7',
+    'The Mirror Pond',
+    'At noon the pond shows each visitor wearing a neighbor’s face. Pip sees his younger self holding a bowl that he has never been able to place.',
+    {
+      id: 'question',
+      label: 'Ask Pip what he remembers without supplying an answer',
+      outcome:
+        'He recalls the weight of the bowl and the smell of cedar smoke. He cannot name its giver, and thanks you for not inventing one.',
+      trust: 1,
+      flag: 'pond-pip-question',
+    },
+    {
+      id: 'protect',
+      label: 'Cover the reflection until Pip chooses to look again',
+      outcome:
+        'Pip sits beside the covered pond and speaks about his apprenticeship in his own time. The image remains evidence, not a verdict.',
+      flag: 'pond-pip-sheltered',
+    },
+  ),
+  site(
+    '4,7',
+    'The River Archive',
+    'Rain has blurred the village’s first visitor book. A tiny zashiki-warashi protects the pages because the name of the person who sheltered Pip may still be written there.',
+    {
+      id: 'copy',
+      label: 'Copy the legible names, leaving the missing entry blank',
+      outcome:
+        'Pip recognizes his old handwriting beside an empty space. The child spirit promises to keep the book safe until its owner can speak.',
+      trust: 1,
+      flag: 'river-archive-copied',
+    },
+    {
+      id: 'seal',
+      label: 'Seal the book until the named villagers consent to disclosure',
+      outcome:
+        'Some neighbors accuse you of hiding history. The child spirit insists a person can be remembered without being exposed.',
+      flag: 'river-archive-sealed',
+    },
+  ),
+  site(
+    '5,7',
+    'The First-Grain Treasury',
+    'A tanuki treasurer guards the emergency rice in a kettle too small to hold it. Every ledger says the stock doubled overnight; the sacks on the floor have not.',
+    {
+      id: 'audit',
+      label: 'Count the sacks with the farmers before approving a feast',
+      outcome:
+        'The festival budget shrinks to fit the real harvest. The treasurer keeps his dignity only by admitting the kettle never created food.',
+      trust: 1,
+      flag: 'grain-treasury-audited',
+    },
+    {
+      id: 'feed',
+      label: 'Give one ration to the waiting children immediately',
+      outcome:
+        'The children eat while the accountants argue. Your own bag is lighter, and someone must still repair the false harvest record.',
+      rations: -1,
+      trust: 1,
+      flag: 'grain-treasury-fed',
+    },
+  ),
+  site(
+    '6,7',
+    'Stone Steps of the Oni',
+    'An enormous oni stonemason sits beside the collapsed stair. Villagers call him a monster, but he has spent the night rebuilding their path without being offered water.',
+    {
+      id: 'water',
+      label: 'Share a ration and ask what labor he agreed to',
+      outcome:
+        'He asks for a rest bell and a fair wage. The repaired stair opens, and the village has one less excuse to fear its rescuer.',
+      rations: -1,
+      trust: 2,
+      flag: 'oni-stonemason-respected',
+    },
+    {
+      id: 'plan',
+      label: 'Offer to organize a work crew rather than demand a miracle',
+      outcome:
+        'Oren’s borrowed measuring cord finds a safer angle. The oni accepts the help, although the stair will take another day.',
+      trust: 1,
+      flag: 'oni-stair-crew',
+    },
+  ),
+  site(
+    '7,7',
+    'The Kindness Tax',
+    'A magistrate taxes every household that has received an unrecorded gift. The poorest homes owe the most, while the richest keep flawless ledgers.',
+    {
+      id: 'challenge',
+      label: 'Challenge the tax with witnessed examples of mutual care',
+      outcome:
+        'The magistrate suspends collections and schedules a hearing. No one is instantly forgiven, but the bailiff leaves the kitchens alone.',
+      trust: 1,
+      flag: 'kindness-tax-challenged',
+    },
+    {
+      id: 'relief',
+      label: 'Pay a household’s immediate fee and record the unfairness',
+      outcome:
+        'One family keeps its stove. Pip writes the payment as emergency relief, refusing to describe the tax itself as lawful.',
+      rations: -1,
+      flag: 'kindness-tax-relief',
+    },
+  ),
+  site(
+    '8,7',
+    'The Last Warm Lantern',
+    'A lantern on the south path lights only for travelers who have no known home. Its keeper says the flame is fading because fewer strangers dare ask for shelter.',
+    {
+      id: 'invite',
+      label: 'Keep the flame open to anyone who asks for one night',
+      outcome:
+        'The lantern burns brighter. The keeper posts a clear morning check-in, and nobody is asked to surrender a name at the door.',
+      trust: 1,
+      flag: 'last-lantern-open',
+    },
+    {
+      id: 'guide',
+      label: 'Teach travelers to light their own portable lamps',
+      outcome:
+        'The path becomes less dependent on a single keeper. Some newcomers remain in the dark until the first lesson reaches them.',
+      flag: 'last-lantern-taught',
+    },
+  ),
+  site(
+    '1,8',
+    'The Moon-Rice Gate',
+    'Silver grains fall upward from an old field gate. A kodama asks whether the harvest belongs to the earth, the tenant, or the mouths waiting beyond the bridge.',
+    {
+      id: 'commons',
+      label: 'Reserve a shared portion after the growers are paid',
+      outcome:
+        'The farmers accept a smaller private yield. The forest spirit agrees to guide the storehouse carts, not own their destination.',
+      trust: 1,
+      flag: 'moonrice-commons',
+    },
+    {
+      id: 'seed',
+      label: 'Save the first grain as seed for next season',
+      outcome:
+        'The village endures another lean supper but avoids eating its future harvest. The kodama plants the seed beside the road.',
+      flag: 'moonrice-seed',
+    },
+  ),
+  site(
+    '2,8',
+    'The Kettle That Refused',
+    'A battered tea kettle, now walking on tiny feet, declines to boil for a festival official who has never washed a cup. Its owner fears losing the supper contract.',
+    {
+      id: 'negotiate',
+      label: 'Ask the kettle for fair hours and shared cleaning',
+      outcome:
+        'The kettle agrees to one short service. The official washes the first cup with an expression of immense personal tragedy.',
+      trust: 1,
+      flag: 'kettle-negotiated',
+    },
+    {
+      id: 'rest',
+      label: 'Serve cool barley tea and let the kettle rest',
+      outcome:
+        'The tea is plain and the queue remains long, but the workshop’s living tools hear that refusal does not mean abandonment.',
+      flag: 'kettle-rested',
+    },
+  ),
+  site(
+    '3,8',
+    'The Paper Shadow Theatre',
+    'The players stage Vesper’s childhood: a young cartographer draws a route across a paper mountain and a stranger steps safely through. In the second act, another hand copies that same map and the safe house is surrounded. Pip recognizes his apprentice years in a later scene, but tonight this is Vesper’s story.',
+    {
+      id: 'ask',
+      label: 'Ask the actors to show both the rescue and the betrayal',
+      outcome:
+        'The troupe performs the whole sequence, refusing to erase the rescued traveler or the people harmed by the duplicate map. Vesper watches without asking the audience for forgiveness.',
+      trust: 1,
+      flag: 'shadow-theatre-asked',
+    },
+    {
+      id: 'perform',
+      label: 'Leave the threatened household as an unnamed shadow',
+      outcome:
+        'The children hold up a blank paper house. Vesper tells them why some maps must show a doorway without revealing whose door it is. The audience still sees the cost of selling the road.',
+      flag: 'shadow-theatre-open',
+    },
+  ),
+  site(
+    '4,8',
+    'The Storm-Writing Shrine',
+    'A tengu archivist records storms as poems tied to a wooden rail. One forecast would save the village if it were shared, but names an endangered family’s hidden refuge.',
+    {
+      id: 'redact',
+      label: 'Send the warning with the refuge location removed',
+      outcome:
+        'The warning reaches every district a little later. The family stays hidden, and local guides escort residents without knowing their names.',
+      trust: 1,
+      flag: 'storm-warning-redacted',
+    },
+    {
+      id: 'escort',
+      label: 'Organize a confidential evacuation with the archivist',
+      outcome:
+        'The endangered family leaves before the wind turns. The warning cannot be made public yet, and other households face more uncertainty.',
+      flag: 'storm-warning-escorted',
+    },
+  ),
+  site(
+    '5,8',
+    'The Lanterns for the Unnamed',
+    'A memorial grove carries lanterns without inscriptions. Pip used to come here after the ledger keeper told him that remembering a meal is different from owning its giver.',
+    {
+      id: 'offer',
+      label: 'Hang a lantern for the kindness, not an invented name',
+      outcome:
+        'Pip places the lantern beneath a cedar. He admits that gratitude is not a debt someone can demand back from him.',
+      trust: 2,
+      flag: 'unnamed-lantern-offered',
+    },
+    {
+      id: 'wait',
+      label: 'Stay with Pip until he decides whether to hang one',
+      outcome:
+        'He keeps the lantern for now. The keeper agrees that a private memory can still be honored without a public ceremony.',
+      trust: 1,
+      flag: 'unnamed-lantern-waited',
+    },
+  ),
+  site(
+    '6,8',
+    'The Guestbook at the Edge',
+    'Families displaced by the flood want a place in the visitor book without being declared permanent residents. The book’s spirit dislikes blank departure dates.',
+    {
+      id: 'temporary',
+      label: 'Record a voluntary stay with a blank departure date',
+      outcome:
+        'The spirit learns to leave room for change. The families accept shelter without agreeing to be counted forever.',
+      trust: 1,
+      flag: 'guestbook-temporary',
+    },
+    {
+      id: 'portable',
+      label: 'Give families a portable copy of their own entries',
+      outcome:
+        'The households can take the record when they move. The village keeps less data, but no one needs permission to carry their history.',
+      flag: 'guestbook-portable',
+    },
+  ),
+  site(
+    '7,8',
+    'The Oathboat Landing',
+    'A boat with no oars carries promises across the river. Vesper once launched a toy boat here containing the first route they refused to sell. The pilot remembers both the refusal and the later betrayal; the river does not confuse a confession with restitution.',
+    {
+      id: 'witness',
+      label:
+        'Ask Vesper to carry an honest account without the refugee’s address',
+      outcome:
+        'The boat accepts Vesper’s words but will not carry a second identifying map. The wronged families retain the right to answer in their own time.',
+      trust: 1,
+      flag: 'oathboat-witness',
+    },
+    {
+      id: 'decline',
+      label:
+        'Carry practical supplies rather than an unearned promise of pardon',
+      outcome:
+        'The pilot takes blankets across the river. Vesper accepts that making repairs may take years, and no confession obliges the harmed to forgive.',
+      flag: 'oathboat-declined',
+    },
+  ),
+  site(
+    '8,8',
+    'The South Watch Assembly',
+    'From the last lantern tower Vesper can see every childhood refuge and every shortcut someone else might steal. Delegates demand a public atlas to prevent another betrayal. Families who once hid here fear that publishing it would betray them again. Pip asks that his own apprenticeship ledger remain his to decide.',
+    {
+      id: 'consent',
+      label:
+        'Let Vesper deliver a redacted refuge atlas under community oversight',
+      outcome:
+        'Vesper publishes safe public roads but leaves hidden refuge doors off the page. Witnesses inspect the omissions, and Pip keeps control of his own ledger. Vesper loses the right to sell copies alone.',
+      trust: 2,
+      flag: 'south-assembly-consent',
+    },
+    {
+      id: 'open',
+      label: 'Fund a rescue charter without publishing any protected routes',
+      outcome:
+        'Families receive food and an emergency escort charter without surrendered addresses. Vesper keeps the private map under shared custody, not as another marketable secret. Pip signs only for his own testimony.',
+      trust: 1,
+      flag: 'south-assembly-charter',
+    },
+  ),
 ]
 
 export const HOSHIMORI_MAX_EVENTS = 2048
@@ -1172,6 +1591,283 @@ export const HOSHIMORI_OVEN_ROOMS: readonly HoshimoriOvenRoom[] = [
       },
     ],
   },
+  {
+    id: 'OV-10',
+    title: 'The Flour Weighhouse',
+    opening:
+      'The miller can name every sack, but not the people whose forgotten birthdays sweetened the flour. A fox spirit insists that accurate weights are not the same as fair prices.',
+    choices: [
+      {
+        id: 'weigh-flour',
+        label: 'Measure the flour and publish the missing meals',
+        outcome:
+          'The village can see the shortage without learning which family lost a birthday. The miller agrees to an independent count.',
+        trust: 1,
+        flag: 'flour-weighed',
+      },
+      {
+        id: 'trace-sacks',
+        label: 'Trace the sacks to their households in private',
+        outcome:
+          'Several families recognize the mill marks. They may reclaim their flour or decline the investigation; no names go on the public board.',
+        flag: 'flour-traced',
+      },
+    ],
+  },
+  {
+    id: 'OV-11',
+    title: 'The Door of Small Shoes',
+    opening:
+      'A house spirit has barred the nursery door against winter. The children inside are warm, but they cannot leave even to visit the grandmother who asked for them.',
+    choices: [
+      {
+        id: 'unlatch-door',
+        label: 'Unlatch the door and let the children choose their escort',
+        outcome:
+          'The spirit is frightened by the cold air. The children take its hand anyway and promise to return if they wish.',
+        trust: 1,
+        flag: 'nursery-unlatched',
+      },
+      {
+        id: 'ask-children',
+        label: 'Ask the children what safety would mean to them',
+        outcome:
+          'They request a bell and an unlocked latch. The spirit learns that protection can be offered without becoming a prison.',
+        flag: 'nursery-consulted',
+      },
+    ],
+  },
+  {
+    id: 'OV-12',
+    title: 'The Ember Witness',
+    opening:
+      'Kogane, the old ember spirit, has baked for the village longer than anyone remembers. It wants a name of its own, and the right to refuse a dangerous fire.',
+    choices: [
+      {
+        id: 'release-ember',
+        label: 'Release Kogane from the inherited baking oath',
+        outcome:
+          'Kogane steps out of the coals. The bakery loses a guaranteed flame but gains a witness who can finally say no.',
+        trust: 1,
+        flag: 'ember-released',
+      },
+      {
+        id: 'offer-ember',
+        label: 'Offer a revocable contract written by Kogane',
+        outcome:
+          'Kogane chooses a shorter season and a cooling bell. It may leave without forfeiting its name, even if the bakery must close.',
+        flag: 'ember-contracted',
+      },
+    ],
+  },
+  {
+    id: 'OV-13',
+    title: 'The Unbaked Accounts',
+    opening:
+      'Pip finds two ledgers: one records the meals the Oven gave, the other records the memories it took. The totals do not agree, and the baker cannot explain why.',
+    choices: [
+      {
+        id: 'publish-totals',
+        label: 'Publish the discrepancy without exposing donors',
+        outcome:
+          'The council sees that someone was charged twice. Pip keeps the names private until the people involved decide whether to testify.',
+        trust: 1,
+        flag: 'oven-totals-published',
+      },
+      {
+        id: 'invite-auditors',
+        label: 'Invite the workers and recipients to audit privately',
+        outcome:
+          'The people who carried the cost compare the ledgers. They demand an independent appeal before any new bargain can bind them.',
+        flag: 'oven-audit-invited',
+      },
+    ],
+  },
+  {
+    id: 'OV-14',
+    title: 'The Hearth Commons',
+    opening:
+      'Outside the furnace, the refugees, miller and night workers argue over tomorrow’s bread. A plan must survive even if Kogane chooses not to burn.',
+    choices: [
+      {
+        id: 'build-commons',
+        label: 'Organize independent kitchens and a shared ration rota',
+        outcome:
+          'Three small kitchens agree to share grain, with each household free to leave. The plan costs labor but does not need borrowed memories.',
+        trust: 1,
+        flag: 'commons-built',
+      },
+      {
+        id: 'share-flue',
+        label: 'Repair the refuge flue and ration the Oven’s heat',
+        outcome:
+          'The refuge keeps its warmth while the bakery reduces its bake. The workers insist that no one be compelled to stoke the fire.',
+        flag: 'commons-flue-shared',
+      },
+    ],
+  },
+  {
+    id: 'OV-15',
+    title: 'The Hearthkeeper’s Judgment',
+    opening:
+      'The guardian of the Red Oven rises from a crown of cooling bricks. It offers one last bargain: the village may keep its bread, but it must decide who can refuse the cost.',
+    choices: [
+      {
+        id: 'rewrite-guardian',
+        label:
+          'Rewrite the guardian’s charge with witnesses and a right to withdraw',
+        outcome:
+          'The guardian accepts that no oath can be inherited without consent. Its future depends on Kogane’s choice and the village’s willingness to audit itself.',
+        trust: 1,
+        flag: 'guardian-rewritten',
+      },
+      {
+        id: 'quench-guardian',
+        label: 'Quench the compulsory flame and fund relief outside the Oven',
+        outcome:
+          'The guardian goes quiet. The village must feed its people without the old bargain; the new kitchens and refuge face their first difficult morning.',
+        flag: 'guardian-quenched',
+      },
+    ],
+  },
+  {
+    id: 'OV-16',
+    title: 'The Soot Court',
+    opening:
+      'People whose memories paid for yesterday’s bread wait beneath the cooling flue. The baker offers apologies in bulk; the families ask for a place where each can dispute the record without becoming a public spectacle.',
+    choices: [
+      {
+        id: 'invite-appeals',
+        label: 'Open an independent appeal desk with private testimony',
+        outcome:
+          'The first petition is heard behind a screen. The baker must answer for missing consent, but no claimant has to perform their grief for the crowd.',
+        trust: 1,
+        flag: 'cinder-appeals-opened',
+      },
+      {
+        id: 'hold-private-hearings',
+        label: 'Let affected households choose separate mediators',
+        outcome:
+          'Families appoint their own listeners and set dates they can refuse. The cases move slowly, and the baker cannot call the delay forgiveness.',
+        flag: 'cinder-mediators-chosen',
+      },
+    ],
+  },
+  {
+    id: 'OV-17',
+    title: 'The Forgotten Spoon',
+    opening:
+      'A long-handled spoon has stirred every batch since Pip was small. Its bowl is cracked; its owner insists it has never complained. The spoon taps twice for no and once for yes.',
+    choices: [
+      {
+        id: 'offer-shelf',
+        label: 'Give the spoon a place to rest without a debt attached',
+        outcome:
+          'It chooses a high shelf overlooking the kitchen. The soup must be stirred by volunteers, and the spoon may return when it wishes.',
+        trust: 1,
+        flag: 'cinder-spoon-rested',
+      },
+      {
+        id: 'restore-handle',
+        label: 'Repair its handle and ask which meals it wants to make',
+        outcome:
+          'The spoon volunteers for festival broth, not the night shift. A chalkboard records its hours where even the baker can read them.',
+        flag: 'cinder-spoon-consented',
+      },
+    ],
+  },
+  {
+    id: 'OV-18',
+    title: 'The Ferry Kitchen',
+    opening:
+      'Flood survivors from the lowlands have reached the bakery with wet blankets and no bowls. The ferry captain can move food or people before the next rise, but not both at once.',
+    choices: [
+      {
+        id: 'float-supper',
+        label: 'Send hot meals downstream and arrange a later rescue',
+        outcome:
+          'Soup reaches the stranded houses while the ferry returns for passengers at dawn. The captain records who still waits, without promising a tide she cannot command.',
+        trust: 1,
+        flag: 'cinder-meals-ferried',
+      },
+      {
+        id: 'build-dry-pantry',
+        label: 'Bring the families ashore and build a dry communal pantry',
+        outcome:
+          'The last ferry takes people first. Neighbors share uncooked grain in the refuge; the missing hot supper is an honest cost of getting everyone out.',
+        flag: 'cinder-refuge-built',
+      },
+    ],
+  },
+  {
+    id: 'OV-19',
+    title: 'Pip’s Unwritten Page',
+    opening:
+      'Pip finds an empty line where his childhood benefactor should be. The elders offer three guesses and a seal. Pip folds the ledger shut: being grateful does not give them the right to invent a name.',
+    choices: [
+      {
+        id: 'return-ledger',
+        label: 'Give Pip the original ledger and the choice to share it',
+        outcome:
+          'Pip keeps the page. He may ask the giver one day, but tonight he will not turn a kindness into a claim on someone else’s past.',
+        trust: 1,
+        flag: 'cinder-pip-owns-ledger',
+      },
+      {
+        id: 'keep-blank',
+        label: 'Preserve the blank line and record only what witnesses know',
+        outcome:
+          'The village keeps a verifiable gap instead of a convenient story. Pip asks that the next child be fed without creating a debt at all.',
+        flag: 'cinder-pip-gap-honored',
+      },
+    ],
+  },
+  {
+    id: 'OV-20',
+    title: 'The Cooling Bell',
+    opening:
+      'Kogane and the guardian stand beside the emergency bell. If the new rules are real, either should be able to stop the flame when work becomes unsafe, even during a hungry morning.',
+    choices: [
+      {
+        id: 'ring-bell',
+        label: 'Let Kogane demonstrate a full stop without punishment',
+        outcome:
+          'The flame goes out. The kitchens keep feeding people from their stores, proving that refusing the Oven need not mean abandoning the hungry.',
+        trust: 1,
+        flag: 'cinder-stop-demonstrated',
+      },
+      {
+        id: 'call-witnesses',
+        label: 'Ask workers and neighbors to witness a reversible pause',
+        outcome:
+          'The guardian pauses when the bell sounds, and the witnesses sign only for this trial. They reserve the right to demand a longer shutdown.',
+        flag: 'cinder-pause-witnessed',
+      },
+    ],
+  },
+  {
+    id: 'OV-21',
+    title: 'The First Restitution Table',
+    opening:
+      'The village gathers around a table built from salvaged oven bricks. Nobody can give back every forgotten birthday. The households ask for a remedy they can revisit, not a speech that declares the debt paid.',
+    choices: [
+      {
+        id: 'open-appeals',
+        label: 'Fund continuing appeals and let claimants revise remedies',
+        outcome:
+          'The first claims receive food, time and a right to return. The council must publish what it can repair and what remains beyond its reach.',
+        trust: 1,
+        flag: 'cinder-restitution-appeals',
+      },
+      {
+        id: 'keep-rotating-council',
+        label: 'Give affected households rotating control of relief funds',
+        outcome:
+          'The households choose their own representatives and recall rules. The baker loses control of the fund; unresolved claims remain visible at the next meeting.',
+        flag: 'cinder-restitution-council',
+      },
+    ],
+  },
 ]
 
 export type HoshimoriEvent =
@@ -1180,6 +1876,8 @@ export type HoshimoriEvent =
   | { type: 'light'; symbols: string[] }
   | { type: 'enter' }
   | { type: 'enter-wing' }
+  | { type: 'enter-ember-wing' }
+  | { type: 'enter-cinder-wing' }
   | { type: 'oven-choice'; id: string }
   | { type: 'leave' }
 
@@ -1336,6 +2034,60 @@ export function hoshimoriWindwardAccount(
   return [delivery, invitation, route].join(' ')
 }
 
+/**
+ * Vesper's childhood is the foreground of Hoshimori, not a new unearned
+ * verdict on the first two worlds. Distinct earned route/theatre/assembly
+ * decisions determine whether the cartographer surrenders atlas control.
+ */
+export function hoshimoriVesperReckoning(
+  progress: HoshimoriWarmProgress,
+): string | null {
+  const bridge = progress.choices['1,1']
+  const road = progress.choices['4,4']
+  const theatre = progress.choices['3,8']
+  const assembly = progress.choices['8,8']
+  if (!bridge || !road || !theatre || !assembly) return null
+  const childhood =
+    bridge === 'listen'
+      ? 'Vesper retraced the childhood stepping stones and saw how the same refuge path could be found by a pursuer.'
+      : 'Vesper remembered how the hidden households first trusted their family to feed strangers without naming them.'
+  const restitution =
+    road === 'witness'
+      ? 'The cartographer admitted selling the route and invited witnesses to demand restitution.'
+      : 'The cartographer supplied private compensation without demanding forgiveness or exposing the rescued traveler.'
+  const testimony =
+    theatre === 'ask'
+      ? 'The theatre performed both the rescue and the people harmed by the duplicate map.'
+      : 'The theatre protected the hidden household’s identity while refusing to hide the betrayal.'
+  const future =
+    assembly === 'consent'
+      ? 'The community now oversees a redacted public atlas, and Vesper may no longer sell copies alone.'
+      : 'A communal escort charter replaces the private map trade, leaving the refuge routes under shared custody.'
+  return [childhood, restitution, testimony, future].join(' ')
+}
+
+export function hoshimoriSouthernAccount(
+  progress: HoshimoriWarmProgress,
+): string | null {
+  const archive = progress.choices['4,7']
+  const guestbook = progress.choices['6,8']
+  const assembly = progress.choices['8,8']
+  if (!archive || !guestbook || !assembly) return null
+  const record =
+    archive === 'copy'
+      ? 'The river archive preserved the legible witnesses without inventing Pip’s missing benefactor.'
+      : 'The river archive protected private names until their owners can choose to speak.'
+  const shelter =
+    guestbook === 'temporary'
+      ? 'Displaced families gained voluntary lodging with no forced departure date.'
+      : 'Displaced families took portable histories that the village could not withhold.'
+  const oath =
+    assembly === 'consent'
+      ? 'Vesper released a redacted public atlas for community review while Pip kept authority over his private ledger.'
+      : 'The village published a rescue charter without exposing refuge addresses or claiming Pip’s private history.'
+  return [record, shelter, oath].join(' ')
+}
+
 export function hoshimoriOvenSecondAccount(
   progress: HoshimoriWarmProgress,
 ): string | null {
@@ -1361,6 +2113,92 @@ export function hoshimoriOvenSecondAccount(
       : 'The kiln remained closed while alternative relief was organized.',
   ]
   return outcomes.join(' ')
+}
+
+/** The Ember Wing has three earned guardian dispositions, never a default victory. */
+export function hoshimoriOvenGuardianResolution(
+  progress: HoshimoriWarmProgress,
+): string | null {
+  const required = ['OV-10', 'OV-11', 'OV-12', 'OV-13', 'OV-14', 'OV-15']
+  if (required.some((id) => !progress.ovenChoices[id])) return null
+  const decision = progress.ovenChoices['OV-15']
+  const support =
+    progress.ovenChoices['OV-14'] === 'build-commons'
+      ? 'Independent kitchens can feed people if the magic fails.'
+      : 'The refuge flue keeps some people warm while a smaller bake is negotiated.'
+  if (decision === 'quench-guardian')
+    return (
+      'The compulsory guardian is extinguished. No memories may be collected by the Oven; the village must build its relief without magical coercion. ' +
+      support
+    )
+  if (progress.ovenChoices['OV-12'] === 'release-ember')
+    return (
+      'Kogane is free of the inherited oath. The guardian becomes a witness rather than a master; any future baking requires a fresh invitation from Kogane and the workers. ' +
+      support
+    )
+  return (
+    'Kogane chooses a revocable, time-limited guardianship with independent audits and a cooling bell. The guardian can be dismissed without punishing the village’s hungry families. ' +
+    support
+  )
+}
+
+export function hoshimoriOvenThirdAccount(
+  progress: HoshimoriWarmProgress,
+): string | null {
+  const required = ['OV-10', 'OV-11', 'OV-12', 'OV-13', 'OV-14', 'OV-15']
+  if (required.some((id) => !progress.ovenChoices[id])) return null
+  const accounts = [
+    progress.ovenChoices['OV-10'] === 'weigh-flour'
+      ? 'The mill published the missing meal totals without naming families.'
+      : 'The mill traced its sacks privately to households.',
+    progress.ovenChoices['OV-11'] === 'unlatch-door'
+      ? 'The nursery door opened with escorts chosen by the children.'
+      : 'The children negotiated a bell and a latch that opens from inside.',
+    progress.ovenChoices['OV-12'] === 'release-ember'
+      ? 'Kogane left its inherited oath.'
+      : 'Kogane wrote a revocable working agreement.',
+    progress.ovenChoices['OV-13'] === 'publish-totals'
+      ? 'Pip published the double charge without naming donors.'
+      : 'Workers and recipients conducted a private audit.',
+    progress.ovenChoices['OV-14'] === 'build-commons'
+      ? 'Independent kitchens prepared a ration rota.'
+      : 'The refuge flue was repaired under a reduced bake.',
+    progress.ovenChoices['OV-15'] === 'rewrite-guardian'
+      ? 'The guardian accepted an enforceable right to withdraw.'
+      : 'The compulsory guardian was quenched.',
+  ]
+  return accounts.join(' ')
+}
+
+/** Restitution is provisional: every Cinder Wing witness must actually be earned. */
+export function hoshimoriOvenFourthAccount(
+  progress: HoshimoriWarmProgress,
+): string | null {
+  const required = ['OV-16', 'OV-17', 'OV-18', 'OV-19', 'OV-20', 'OV-21']
+  if (required.some((id) => !progress.ovenChoices[id])) return null
+  const guardian = hoshimoriOvenGuardianResolution(progress)
+  if (!guardian) return null
+  const accounts = [
+    progress.ovenChoices['OV-16'] === 'invite-appeals'
+      ? 'An independent desk hears private restitution claims.'
+      : 'Households chose their own mediators and timelines.',
+    progress.ovenChoices['OV-17'] === 'offer-shelf'
+      ? 'The living spoon retired without forfeiting its home.'
+      : 'The spoon chose a limited, repaired working shift.',
+    progress.ovenChoices['OV-18'] === 'float-supper'
+      ? 'Meals traveled downstream while the rescue ferry returned at dawn.'
+      : 'The ferry brought people ashore before food, leaving an honest supper shortage.',
+    progress.ovenChoices['OV-19'] === 'return-ledger'
+      ? 'Pip took custody of his own childhood ledger.'
+      : 'Pip protected the blank page against invented gratitude.',
+    progress.ovenChoices['OV-20'] === 'ring-bell'
+      ? 'Kogane proved that a full stop would not end relief.'
+      : 'Workers witnessed a reversible cooling-bell trial.',
+    progress.ovenChoices['OV-21'] === 'open-appeals'
+      ? 'Claimants can reopen their cases and revise remedies.'
+      : 'Affected households govern a recallable relief council.',
+  ]
+  return guardian + ' ' + accounts.join(' ')
 }
 
 export function hoshimoriOvenResolution(
@@ -1414,6 +2252,8 @@ function eventShape(event: HoshimoriEvent): boolean {
   return (
     (event.type === 'enter' ||
       event.type === 'enter-wing' ||
+      event.type === 'enter-ember-wing' ||
+      event.type === 'enter-cinder-wing' ||
       event.type === 'leave') &&
     keys === 'type'
   )
@@ -1483,7 +2323,35 @@ export function advanceHoshimoriWarm(
         progress.current === '4,3' &&
         !progress.ovenChoices['OV-09']
       ) {
-        const next = HOSHIMORI_OVEN_ROOMS.slice(3).find(
+        const next = HOSHIMORI_OVEN_ROOMS.slice(3, 9).find(
+          (room) => !progress.ovenChoices[room.id],
+        )
+        if (next) changed = { ovenRoom: next.id }
+      }
+      break
+    }
+    case 'enter-ember-wing': {
+      if (
+        !progress.ovenRoom &&
+        progress.ovenChoices['OV-09'] &&
+        !progress.ovenChoices['OV-15'] &&
+        progress.current === '4,3'
+      ) {
+        const next = HOSHIMORI_OVEN_ROOMS.slice(9, 15).find(
+          (room) => !progress.ovenChoices[room.id],
+        )
+        if (next) changed = { ovenRoom: next.id }
+      }
+      break
+    }
+    case 'enter-cinder-wing': {
+      if (
+        !progress.ovenRoom &&
+        progress.ovenChoices['OV-15'] &&
+        !progress.ovenChoices['OV-21'] &&
+        progress.current === '4,3'
+      ) {
+        const next = HOSHIMORI_OVEN_ROOMS.slice(15, 21).find(
           (room) => !progress.ovenChoices[room.id],
         )
         if (next) changed = { ovenRoom: next.id }
@@ -1513,7 +2381,10 @@ export function advanceHoshimoriWarm(
         (item) => item.id === room!.id,
       )
       const next =
-        room!.id === 'OV-03'
+        room!.id === 'OV-03' ||
+        room!.id === 'OV-09' ||
+        room!.id === 'OV-15' ||
+        room!.id === 'OV-21'
           ? null
           : (HOSHIMORI_OVEN_ROOMS[index + 1]?.id ?? null)
       changed = {
@@ -1579,8 +2450,8 @@ export function restoreHoshimoriWarm(
 
 export function validateHoshimoriWarm(): string[] {
   const errors: string[] = []
-  if (SITES.size !== 44) errors.push('Expected forty-four unique warm sites')
-  if (OVEN.size !== 9) errors.push('Expected nine authored Oven rooms')
+  if (SITES.size !== 64) errors.push('Expected sixty-four unique warm sites')
+  if (OVEN.size !== 21) errors.push('Expected twenty-one authored Oven rooms')
   const ovenChoiceIds = HOSHIMORI_OVEN_ROOMS.flatMap((room) =>
     room.choices.map((choice) => choice.id),
   )
@@ -1627,7 +2498,7 @@ export function validateHoshimoriWarm(): string[] {
       }
     }
   }
-  if (reached.size !== 44) errors.push('Warm map is disconnected')
+  if (reached.size !== 64) errors.push('Warm map is disconnected')
   if (!SITES.has('2,3') || !SITES.has('7,5'))
     errors.push('Earth-photo reservation drift')
   if (HOSHIMORI_LANTERN_CLUE_SITES.some((key) => !SITES.has(key)))

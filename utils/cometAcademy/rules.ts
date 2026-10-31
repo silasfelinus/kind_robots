@@ -554,6 +554,16 @@ export type DispatchReport = {
   text: string
   names: string
 }
+export type CampaignPlayOptions = {
+  tacticalMissions: boolean
+  nightPatrols: boolean
+}
+
+export const DEFAULT_CAMPAIGN_OPTIONS: CampaignPlayOptions = {
+  tacticalMissions: true,
+  nightPatrols: true,
+}
+
 export type AcademyRun = {
   version: 1
   seed: number
@@ -568,6 +578,8 @@ export type AcademyRun = {
   /** 2: the thirty-day run's twelve-case night deck. Older saves keep the first six. */
   incidentDeckVersion?: 2 | 3 | 4
   flowVersion?: 2 | 3
+  /** Saved once when the new term starts; absent on previous campaigns. */
+  campaignOptions?: CampaignPlayOptions
   selectedSite?: SiteId
   visitedSites?: SiteId[]
   visitedDays?: Partial<Record<SiteId, number>>
@@ -807,6 +819,7 @@ export function startFullAcademy(
   signature?: SignaturePowerId,
   vow?: PowerVowId,
   initialForm: PlayerForm = 'student',
+  campaignOptions: CampaignPlayOptions = DEFAULT_CAMPAIGN_OPTIONS,
 ): AcademyRun {
   if (initialForm !== 'student' && !signature)
     throw new Error('An earned identity requires a signature')
@@ -814,6 +827,7 @@ export function startFullAcademy(
   return {
     ...base,
     flowVersion: 3,
+    campaignOptions: { ...campaignOptions },
     incidentDeckVersion: 4,
     missionClues: [],
     initialForm,
@@ -1434,6 +1448,65 @@ export function assignPlayerCase(run: AcademyRun, caseId: string): AcademyRun {
     playerCaseId: run.playerCaseId === caseId ? null : caseId,
     missionApproach: 'rescue',
     nightPatrol: null,
+  }
+}
+
+/** Narrative-first nights retain exactly the same incident deck, seeded
+ * resolution, contacts, injuries, evidence and thirty-day finale. Only the
+ * manual roster/patrol board is replaced by one consequential story choice. */
+export function chooseNovelNight(
+  run: AcademyRun,
+  caseId: string,
+  choice: 'rescue' | 'investigate' | 'split' | 'concentrate',
+): AcademyRun {
+  if (
+    run.flowVersion !== 3 ||
+    run.campaignOptions?.nightPatrols !== false ||
+    run.phase !== 'dispatch' ||
+    run.tacticalBattle ||
+    !incidentsFor(run).some((incident) => incident.id === caseId)
+  )
+    return run
+  if (run.day === 3) {
+    if (choice !== 'split' && choice !== 'concentrate') return run
+    const planned = planThirdNight(run, caseId, choice)
+    return planned === run
+      ? run
+      : {
+          ...planned,
+          scene:
+            choice === 'split'
+              ? 'You take one emergency while your new friend takes the other. Neither of you will have enough backup, but both streets will see help.'
+              : 'You and your new friend face this crisis together. The other neighborhood will bear the cost of your full attention.',
+        }
+  }
+  if (choice !== 'rescue' && choice !== 'investigate') return run
+  if (choice === 'investigate' && !expandedMissionFor(caseId)) return run
+  const cases = incidentsFor(run)
+  const available = knownContacts(run).filter((id) => studentAvailable(run, id))
+  const assignments: Assignment[] = []
+  if (run.day > 3) {
+    // Contacts volunteer for the remaining emergencies rather than vanishing
+    // just because the player chose the visual-novel interface.
+    const others = cases.filter((incident) => incident.id !== caseId)
+    for (const [index, incident] of others.entries()) {
+      const friend = available[index]
+      if (friend) assignments.push({ caseId: incident.id, students: [friend] })
+    }
+    const leadSupport = available[others.length]
+    if (leadSupport) assignments.push({ caseId, students: [leadSupport] })
+  }
+  const incident = cases.find((entry) => entry.id === caseId)!
+  return {
+    ...run,
+    playerCaseId: caseId,
+    nightPatrol: null,
+    assignments,
+    missionApproach: choice,
+    scene:
+      choice === 'investigate'
+        ? `You follow the evidence behind ${incident.title}. The immediate rescue is more dangerous, but a secret may survive.`
+        : `You put people first at ${incident.title}. There may be clues you will not recover tonight.`,
   }
 }
 
@@ -2445,6 +2518,12 @@ export function restoreAcademy(raw: unknown): AcademyRun | null {
   const data = migrateSignature(raw as Partial<AcademyRun>)
   if (
     data.version !== 1 ||
+    (data.campaignOptions !== undefined &&
+      (data.flowVersion !== 3 ||
+        !data.campaignOptions ||
+        typeof data.campaignOptions !== 'object' ||
+        typeof data.campaignOptions.tacticalMissions !== 'boolean' ||
+        typeof data.campaignOptions.nightPatrols !== 'boolean')) ||
     (data.patrolOpening !== undefined &&
       (data.flowVersion !== 3 || data.patrolOpening !== 1)) ||
     (data.missionApproach !== undefined &&

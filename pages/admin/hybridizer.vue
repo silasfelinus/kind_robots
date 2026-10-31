@@ -102,9 +102,9 @@
               aria-label="Hybrid creature artwork or source composition preview"
             >
               <img
-                v-if="lab.imageFor(lab.result)"
+                v-if="previewArt"
                 class="fusion-generated"
-                :src="lab.imageFor(lab.result) || undefined"
+                :src="previewArt || undefined"
                 :alt="lab.result.title + ' illustration'"
               />
               <template v-else>
@@ -157,6 +157,158 @@
               >
                 Use as next ingredient ↗
               </button>
+            </div>
+            <div
+              v-if="lab.result.key.startsWith('fusion:')"
+              class="hybrid-actions"
+              aria-label="Discovery actions"
+            >
+              <button
+                v-if="lab.canEditResult"
+                type="button"
+                :disabled="
+                  lab.versionBusy ||
+                  !['READY', 'FAILED', 'CANCELLED'].includes(
+                    lab.result.status || '',
+                  )
+                "
+                data-testid="hybridizer-resubmit"
+                @click="lab.resubmit()"
+              >
+                ✦ Try new art
+              </button>
+              <button
+                v-if="reactionImageId"
+                type="button"
+                data-testid="hybridizer-upvote"
+                :disabled="upvoteBusy"
+                @click="upvote()"
+              >
+                ♥ Upvote <span v-if="upvoteCount">({{ upvoteCount }})</span>
+              </button>
+              <button
+                v-if="reactionImageId"
+                type="button"
+                data-testid="hybridizer-reactions"
+                @click="reactionOpen = true"
+              >
+                ✎ Comment / rate
+              </button>
+              <button type="button" @click="shareOpen = !shareOpen">
+                ↗ Share
+              </button>
+            </div>
+            <div
+              v-if="shareOpen"
+              class="hybrid-share"
+              aria-label="Share discovery"
+            >
+              <button type="button" @click="shareFusion('copy')">
+                Copy link
+              </button>
+              <button type="button" @click="shareFusion('x')">X</button>
+              <button type="button" @click="shareFusion('facebook')">
+                Facebook
+              </button>
+              <button type="button" @click="shareFusion('reddit')">
+                Reddit
+              </button>
+              <small>Signed-in visitors can view this discovery in Play.</small>
+            </div>
+            <div
+              v-if="lab.versionsFor === lab.result.key && lab.versions.length"
+              class="hybrid-versions"
+              aria-label="Illustration versions"
+            >
+              <div class="version-title">
+                <span>ARTWORK HISTORY · {{ lab.versions.length }}</span>
+                <button
+                  v-if="previewJobId"
+                  type="button"
+                  @click="previewJobId = null"
+                >
+                  View primary
+                </button>
+              </div>
+              <div class="version-reel">
+                <div
+                  v-for="version in lab.versions"
+                  :key="version.jobId"
+                  class="version-item"
+                  :class="{
+                    active:
+                      previewJobId === version.jobId ||
+                      (!previewJobId && version.isPrimary),
+                  }"
+                >
+                  <button
+                    type="button"
+                    class="version-preview"
+                    :aria-label="
+                      'Preview artwork version ' + (version.revision + 1)
+                    "
+                    @click="previewJobId = version.jobId"
+                  >
+                    <img
+                      v-if="version.imagePath"
+                      :src="version.imagePath"
+                      :alt="'Version ' + (version.revision + 1)"
+                    />
+                    <span v-else>✧</span>
+                    <small
+                      >V{{ version.revision + 1 }} · {{ version.status }}</small
+                    >
+                  </button>
+                  <span v-if="version.isPrimary" class="primary-flag"
+                    >PRIMARY</span
+                  >
+                  <button
+                    v-else-if="lab.canEditResult && version.imagePath"
+                    class="promote-version"
+                    type="button"
+                    :disabled="lab.versionBusy"
+                    @click="lab.makePrimary(version.jobId)"
+                  >
+                    Make primary
+                  </button>
+                </div>
+              </div>
+            </div>
+            <div v-if="reactionOpen && reactionImageId" class="reaction-layer">
+              <div class="reaction-layer-head">
+                <strong>Vote &amp; comment on this illustration</strong>
+                <button
+                  type="button"
+                  aria-label="Close reactions"
+                  @click="reactionOpen = false"
+                >
+                  ✕
+                </button>
+              </div>
+              <ReactionCard
+                :key="reactionImageId"
+                :target-id="reactionImageId"
+                target-type="artImage"
+                reaction-category="ART_IMAGE"
+                :target-title="lab.result.title"
+                compact
+                @submitted="onReactionSubmitted"
+              />
+              <section class="hybrid-comments" aria-label="Artwork comments">
+                <h3>
+                  THE COMMUNITY'S FIELD NOTES · {{ reactionComments.length }}
+                </h3>
+                <p v-if="!reactionComments.length">
+                  No field notes yet. Be the first to comment on this version.
+                </p>
+                <article v-for="comment in reactionComments" :key="comment.id">
+                  <small
+                    >Member #{{ comment.userId }} ·
+                    {{ comment.reactionType }}</small
+                  >
+                  <p>{{ comment.comment }}</p>
+                </article>
+              </section>
             </div>
           </template>
           <template v-else>
@@ -221,6 +373,17 @@
           DISCOVERY SHELF · {{ lab.discoveries.length }}
         </button>
       </footer>
+      <div class="hybrid-badges" aria-label="Hybridizer achievements">
+        <span
+          v-for="badge in badges"
+          :key="badge.code"
+          :title="badge.tooltip"
+          :class="{ earned: achievementStore.hasEarnedCode(badge.code) }"
+        >
+          {{ achievementStore.hasEarnedCode(badge.code) ? '✦' : '◇' }}
+          {{ badge.label }}
+        </span>
+      </div>
 
       <aside
         v-if="drawer"
@@ -314,10 +477,154 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, onUnmounted, ref } from 'vue'
+import { computed, onMounted, onUnmounted, ref, watch } from 'vue'
+import ReactionCard from '@/components/wonderlab/reaction-card.vue'
+import { achievementsForGame } from '@/utils/achievements/gameAchievements'
+import { useAchievementStore } from '@/stores/achievementStore'
+import {
+  useReactionStore,
+  getReactionTargetPayload,
+} from '@/stores/reactionStore'
+import { useUserStore } from '@/stores/userStore'
 import { useHybridizerStore } from '@/stores/hybridizerStore'
 
 const lab = useHybridizerStore()
+const achievementStore = useAchievementStore()
+const reactionStore = useReactionStore()
+const userStore = useUserStore()
+const route = useRoute()
+const previewJobId = ref<number | null>(null)
+const reactionOpen = ref(false)
+const shareOpen = ref(false)
+const previewVersion = computed(() =>
+  lab.versionsFor === lab.result?.key
+    ? lab.versions.find((version) => version.jobId === previewJobId.value)
+    : undefined,
+)
+const previewArt = computed(() =>
+  previewVersion.value
+    ? previewVersion.value.imagePath
+    : lab.imageFor(lab.result),
+)
+const reactionImageId = computed(() =>
+  previewVersion.value
+    ? previewVersion.value.artImageId
+    : lab.result?.artImageId,
+)
+const badges = achievementsForGame('hybridizer')
+const imageReactions = computed(() =>
+  reactionImageId.value
+    ? reactionStore.getReactionsByArtImageId(reactionImageId.value)
+    : [],
+)
+const upvoteCount = computed(
+  () =>
+    new Set(
+      imageReactions.value
+        .filter(
+          (reaction) =>
+            reaction.reactionType === 'LOVED' ||
+            reaction.reactionType === 'CLAPPED',
+        )
+        .map((reaction) => reaction.userId),
+    ).size,
+)
+const reactionComments = computed(() =>
+  imageReactions.value
+    .filter((reaction) => reaction.comment?.trim())
+    .sort(
+      (a, b) =>
+        new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
+    )
+    .slice(0, 25),
+)
+watch(
+  reactionImageId,
+  (id) => {
+    if (id) void reactionStore.fetchReactionsByArtImageId(id)
+  },
+  { immediate: true },
+)
+async function onReactionSubmitted() {
+  reactionOpen.value = false
+  if (reactionImageId.value)
+    await reactionStore.fetchReactionsByArtImageId(reactionImageId.value, true)
+}
+const upvoteBusy = ref(false)
+async function upvote() {
+  if (!reactionImageId.value || upvoteBusy.value) return
+  upvoteBusy.value = true
+  try {
+    const id = reactionImageId.value
+    await reactionStore.fetchReactionsByArtImageId(id)
+    const existing = userStore.userId
+      ? reactionStore.getUserReactionForArtImage(id, userStore.userId)
+      : undefined
+    const saved = existing
+      ? await reactionStore.updateReaction(existing.id, {
+          reactionType: 'LOVED',
+          rating: 5,
+        })
+      : await reactionStore.addReaction({
+          ...getReactionTargetPayload('artImage', id),
+          rating: 5,
+          reactionType: 'LOVED',
+          reactionCategory: 'ART_IMAGE',
+        })
+    if (saved) void reactionStore.fetchReactionsByArtImageId(id, true)
+    lab.status = saved
+      ? 'Your upvote is attached to this artwork version.'
+      : reactionStore.lastError ||
+        'Could not submit upvote. Sign in and try again.'
+  } catch (error) {
+    lab.status =
+      error instanceof Error
+        ? error.message
+        : 'Could not submit upvote. Sign in and try again.'
+  } finally {
+    upvoteBusy.value = false
+  }
+}
+watch(
+  () => lab.result?.key,
+  () => {
+    previewJobId.value = null
+    reactionOpen.value = false
+    shareOpen.value = false
+  },
+)
+async function shareFusion(platform: 'copy' | 'x' | 'facebook' | 'reddit') {
+  const id = lab.result?.key.startsWith('fusion:')
+    ? lab.result.key.slice(7)
+    : null
+  if (!id || !import.meta.client) return
+  const url = new URL('/play/hybridizer', window.location.origin)
+  url.searchParams.set('fusion', id)
+  const link = url.toString()
+  const title = lab.result?.title || 'Hybridizer discovery'
+  if (platform === 'copy') {
+    try {
+      await navigator.clipboard.writeText(link)
+      lab.status =
+        'Discovery link copied. Signed-in visitors can view it in Play.'
+    } catch {
+      lab.status =
+        'Clipboard unavailable. Use your browser address bar to copy the discovery URL.'
+    }
+  } else {
+    const destination =
+      platform === 'x'
+        ? 'https://twitter.com/intent/tweet?' +
+          new URLSearchParams({ text: title, url: link })
+        : platform === 'facebook'
+          ? 'https://www.facebook.com/sharer/sharer.php?' +
+            new URLSearchParams({ u: link })
+          : 'https://www.reddit.com/submit?' +
+            new URLSearchParams({ url: link, title })
+    window.open(destination, '_blank', 'noopener,noreferrer')
+  }
+}
+
 const drawer = ref<'left' | 'right' | 'atlas' | null>(null)
 const search = ref('')
 const filter = ref('ALL')
@@ -377,7 +684,10 @@ function glyphFor(title?: string, taxonomy?: string): string {
 onMounted(() => {
   lab.hydrate()
   void lab.loadArtwork()
-  void lab.loadSharedStudies()
+  void lab.loadSharedStudies().then(() => {
+    const id = route.query.fusion
+    if (typeof id === 'string') void lab.openSharedFusion(id)
+  })
   lab.startArtworkWatch()
 })
 onUnmounted(() => lab.stopArtworkWatch())
@@ -401,7 +711,7 @@ onUnmounted(() => lab.stopArtworkWatch())
 .hybridizer-console {
   position: relative;
   display: grid;
-  grid-template-rows: auto minmax(0, 1fr) auto;
+  grid-template-rows: auto minmax(0, 1fr) auto auto;
   gap: clamp(9px, 1.4vw, 18px);
   height: 100%;
   min-height: 0;
@@ -631,6 +941,7 @@ onUnmounted(() => lab.stopArtworkWatch())
 }
 
 .hybridizer-result {
+  position: relative;
   padding: clamp(10px, 1.5vw, 20px);
   display: flex;
   flex-direction: column;
@@ -1100,5 +1411,150 @@ onUnmounted(() => lab.stopArtworkWatch())
 .hybrid-ready-notice button {
   color: inherit;
   font-weight: 800;
+}
+
+/* Keep revisions subordinate to the painted reveal. History scrolls in one
+   bounded horizontal reel instead of pushing the main art offscreen. */
+.hybrid-actions,
+.hybrid-share {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+}
+.hybrid-actions button,
+.hybrid-share button,
+.version-title button,
+.promote-version {
+  padding: 5px 8px;
+  border: 1px solid #d4e6a48a;
+  border-radius: 9px;
+  color: #efffc8;
+  font-size: 0.7rem;
+  font-weight: 800;
+}
+.hybrid-actions button:disabled,
+.promote-version:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+.hybrid-share small {
+  width: 100%;
+  font-size: 0.6rem;
+  color: #eed4ff;
+}
+.hybrid-versions {
+  min-width: 0;
+}
+.version-title {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  font-weight: 900;
+  font-size: 0.65rem;
+  letter-spacing: 0.05em;
+  color: #e9f5ad;
+}
+.version-reel {
+  display: flex;
+  gap: 7px;
+  min-width: 0;
+  overflow-x: auto;
+  padding: 6px 2px;
+}
+.version-item {
+  flex: 0 0 78px;
+  border: 1px solid #a78da8;
+  border-radius: 10px;
+  overflow: hidden;
+  text-align: center;
+}
+.version-item.active {
+  border-color: #e1fba9;
+  box-shadow: 0 0 0 1px #e1fba9;
+}
+.version-preview {
+  width: 100%;
+  display: block;
+}
+.version-preview img,
+.version-preview > span {
+  display: block;
+  width: 100%;
+  height: 54px;
+  object-fit: contain;
+  background: #21132e;
+}
+.version-preview > span {
+  font-size: 2rem;
+}
+.version-preview small {
+  font-size: 0.53rem;
+  display: block;
+}
+.primary-flag {
+  display: block;
+  color: #def1a7;
+  font-size: 0.55rem;
+}
+.promote-version {
+  width: 100%;
+  font-size: 0.55rem;
+  padding: 4px 1px;
+}
+.reaction-layer {
+  position: absolute;
+  z-index: 20;
+  inset: 6px;
+  overflow-y: auto;
+  padding: 12px;
+  border: 1px solid #d8e7a4;
+  border-radius: 16px;
+  background: #251733;
+}
+.reaction-layer-head {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+}
+.reaction-layer-head button {
+  font-size: 1.1rem;
+}
+.hybrid-badges {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  color: #d2c1da;
+}
+.hybrid-badges span {
+  flex: 0 0 auto;
+  font-size: 0.63rem;
+  font-weight: 800;
+}
+.hybrid-badges .earned {
+  color: #e6fba4;
+}
+.hybrid-comments {
+  margin-top: 10px;
+  display: grid;
+  gap: 8px;
+}
+.hybrid-comments h3 {
+  font-size: 0.75rem;
+  color: #e9f5ad;
+  font-weight: 900;
+}
+.hybrid-comments article {
+  border: 1px solid #c7adcc55;
+  border-radius: 10px;
+  padding: 8px;
+  background: #381d48;
+}
+.hybrid-comments article small {
+  color: #e5cbe9;
+  font-size: 0.64rem;
+}
+.hybrid-comments article p {
+  overflow-wrap: anywhere;
+  font-size: 0.8rem;
 }
 </style>

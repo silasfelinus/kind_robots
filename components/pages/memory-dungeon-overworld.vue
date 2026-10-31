@@ -46,6 +46,24 @@
         The reflection
       </button>
       <button
+        v-if="world.campaign.completed.includes('e02')"
+        type="button"
+        class="btn btn-sm border-[#d7ba85] bg-[#4a5968] text-[#fff0d7]"
+        data-testid="memory-enter-morrow-earth"
+        @click="emit('earth')"
+      >
+        Morrow's Earth
+      </button>
+      <button
+        v-if="world.campaign.completed.includes('e04')"
+        type="button"
+        class="btn btn-sm border-[#c8a2d7] bg-[#503d6b] text-[#f7ecff]"
+        data-testid="memory-enter-scylla-sea"
+        @click="emit('sea')"
+      >
+        Scylla’s past
+      </button>
+      <button
         v-if="world.campaign.completed.includes('e06')"
         type="button"
         class="btn btn-sm btn-warning"
@@ -53,6 +71,15 @@
         @click="emit('hoshimori')"
       >
         Lantern Village
+      </button>
+      <button
+        v-if="world.campaign.completed.includes('e07')"
+        type="button"
+        class="btn btn-sm btn-error"
+        data-testid="memory-enter-hoshimori-night"
+        @click="emit('hoshimori-night')"
+      >
+        The Shut Doors
       </button>
       <span
         v-if="world.activeReality === 'e01'"
@@ -974,7 +1001,13 @@ import MemoryDungeonQuestLog from '~/components/memory-dungeon/quest-log.vue'
 import MemoryDungeonDarkBriarStage from '~/components/memory-dungeon/dark-briar-stage.vue'
 import MemoryDungeonActionBeacon from '~/components/memory-dungeon/action-beacon.vue'
 
-const emit = defineEmits<{ leave: []; hoshimori: [] }>()
+const emit = defineEmits<{
+  leave: []
+  earth: []
+  sea: []
+  hoshimori: []
+  'hoshimori-night': []
+}>()
 const world = useMemoryWorldStore()
 const chronicleOpen = ref(false)
 const questsOpen = ref(false)

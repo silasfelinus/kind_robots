@@ -6,6 +6,7 @@
 import type {
   Card,
   CpuAction,
+  Keyword,
   MatchView,
   Side,
   ViewFighter,
@@ -57,6 +58,14 @@ function occupant(view: MatchView, x: number, y: number) {
   return view.units.find((u) => u.x === x && u.y === y)
 }
 
+/** A fighter or the neutral monster stands here. */
+function blocked(view: MatchView, x: number, y: number): boolean {
+  return (
+    !!occupant(view, x, y) ||
+    (!!view.monster && view.monster.x === x && view.monster.y === y)
+  )
+}
+
 function deployZone(view: MatchView, side: Side, x: number): boolean {
   if (view.mode === 'blackout')
     return side === 'player' ? x <= 1 : x >= view.width - 2
@@ -76,17 +85,44 @@ function hpOf(u: ViewFighter): number {
   return u.hp ?? GUESS.hp
 }
 
+/** What each keyword is worth to the CPU, in stat points. */
+const KEYWORD_WORTH: Record<Keyword, number> = {
+  ambush: 1.5,
+  regen: 1.5,
+  swarm: 1,
+  leech: 1,
+  bulldoze: 1,
+  volatile: 0.5,
+  pierce: 1,
+  snare: 1,
+  collect: 1,
+}
+
+function keywordWorth(keywords: Keyword[] | null | undefined): number {
+  return (keywords ?? []).reduce((sum, k) => sum + KEYWORD_WORTH[k], 0)
+}
+
 function worthCard(card: Card): number {
   return (
     (card.hp || 0) +
     2 * (card.attack || 0) +
     2 * (card.armor || 0) +
-    0.5 * (card.ap || 0)
+    0.5 * (card.ap || 0) +
+    keywordWorth(card.keywords)
   )
 }
 
 function worthUnit(u: ViewFighter): number {
-  return hpOf(u) + 2 * (u.attack ?? GUESS.attack) + 2 * (u.armor ?? GUESS.armor)
+  return (
+    hpOf(u) +
+    2 * (u.attack ?? GUESS.attack) +
+    2 * (u.armor ?? GUESS.armor) +
+    keywordWorth(u.keywords)
+  )
+}
+
+function power(card: Card): number {
+  return card.power ?? 2
 }
 
 function isEngaged(view: MatchView, u: ViewFighter): boolean {
@@ -101,7 +137,9 @@ function laneBlocked(view: MatchView, u: ViewFighter): boolean {
 function key(action: CpuAction): string {
   return action.t === 'deploy'
     ? 'd:' + action.card + ':' + action.x + ':' + action.y
-    : 'm:' + action.id + ':' + action.x + ':' + action.y
+    : action.t === 'attack'
+      ? 'a:' + action.id + ':' + action.target
+      : 'm:' + action.id + ':' + action.x + ':' + action.y
 }
 
 /** Breadth-first first step toward any goal square over empty squares. */
@@ -115,7 +153,7 @@ function firstStep(
   const seen = new Set([from.x + ':' + from.y])
   let frontier: { cell: Cell; first: Cell }[] = []
   for (const n of cellsAround(view, from)) {
-    if (occupant(view, n.x, n.y)) continue
+    if (blocked(view, n.x, n.y)) continue
     seen.add(n.x + ':' + n.y)
     frontier.push({ cell: n, first: n })
   }
@@ -126,7 +164,7 @@ function firstStep(
     for (const f of frontier)
       for (const n of cellsAround(view, f.cell)) {
         const k = n.x + ':' + n.y
-        if (seen.has(k) || occupant(view, n.x, n.y)) continue
+        if (seen.has(k) || blocked(view, n.x, n.y)) continue
         seen.add(k)
         next.push({ cell: n, first: f.first })
       }
@@ -136,7 +174,7 @@ function firstStep(
   const nearest = (c: Cell) => Math.min(...goals.map((g) => dist(c, g)))
   const here = nearest(from)
   const step = cellsAround(view, from)
-    .filter((n) => !occupant(view, n.x, n.y) && nearest(n) < here)
+    .filter((n) => !blocked(view, n.x, n.y) && nearest(n) < here)
     .sort((a, b) => nearest(a) - nearest(b))[0]
   return step ? { step, length: here } : null
 }
@@ -180,7 +218,8 @@ function creatureCell(view: MatchView, foes: ViewFighter[]): Cell | null {
         foes.filter((f) => f.y === c.y).length * 2 +
         foes.filter((f) => Math.abs(f.y - c.y) === 1).length +
         view.units.filter((u) => u.side === view.side && u.y === c.y).length *
-          0.7 +
+          0.7 -
+        (view.monster && view.monster.y === c.y ? 1.5 : 0) +
         tie(c)
   }
   return [...open].sort((a, b) => score(a) - score(b))[0] || null
@@ -207,21 +246,105 @@ function cardCandidates(view: MatchView): Candidate[] {
           (foes.some((f) => threat(view, f) >= 3) ? 3 : 0) +
           (mine.length < foes.length ? 1.5 : 0)
       deploy(card, cell, 2 + worthCard(card) * 0.6 + need)
-    } else if (card.effect === 'zap' || card.effect === 'chaos') {
+    } else if (
+      card.effect === 'zap' ||
+      card.effect === 'chaos' ||
+      card.effect === 'blast' ||
+      card.effect === 'root' ||
+      card.effect === 'debt'
+    ) {
       for (const foe of foes) {
-        const kills = card.effect === 'zap' ? hpOf(foe) <= 2 : hpOf(foe) <= 1
+        const dmg = card.effect === 'chaos' ? 1 : power(card)
+        const kills = dmg > 0 && hpOf(foe) <= dmg
+        let value =
+          (dmg > 0 ? 2 : 0) +
+          threat(view, foe) * 0.6 +
+          (kills ? 3 + worthUnit(foe) * 0.4 : 0) +
+          (foe.carryingFlag && dmg > 0 ? 4 : 0)
+        if (card.effect === 'blast') {
+          // Splash: every other fighter beside the target takes 1.
+          for (const o of view.units) {
+            if (o.id === foe.id || dist(o, foe) !== 1) continue
+            const friend = o.side === view.side
+            if (friend && card.splash !== 'all') continue
+            const pop = hpOf(o) <= 1 ? 2 + worthUnit(o) * 0.3 : 1
+            value += friend ? -pop * 1.2 : pop
+          }
+        } else if (card.effect === 'root') {
+          // Stopping a runner or a carrier is worth more than chip damage.
+          if (foe.rooted) value -= 3
+          else
+            value +=
+              view.mode === 'blackout'
+                ? foe.carryingFlag
+                  ? 6
+                  : dist(foe, view.flag) <= 2
+                    ? 2
+                    : 0
+                : threat(view, foe) >= 4
+                  ? 2 + threat(view, foe) * 0.3
+                  : 0
+        } else if (card.effect === 'debt') {
+          value += (card.debt ?? 1) * 0.8 - view.debt[1] * 0.6
+        }
+        deploy(card, foe, value)
+      }
+      const monster = view.monster
+      if (
+        monster &&
+        (card.effect === 'zap' ||
+          card.effect === 'chaos' ||
+          card.effect === 'blast')
+      ) {
+        const dmg = Math.max(
+          0,
+          (card.effect === 'chaos' ? 1 : power(card)) - monster.armor,
+        )
+        if (dmg > 0) {
+          const kills = monster.hp <= dmg
+          deploy(
+            card,
+            monster,
+            kills ? 20 : 1 + (monster.hp <= monster.maxHp / 2 ? 1.5 : 0),
+          )
+        }
+      }
+    } else if (card.effect === 'scan') {
+      // Sonar pays off when hidden enemies stand near one of ours.
+      for (const u of mine) {
+        const seen = foes.filter((f) => f.hidden && dist(f, u) <= 2).length
+        const lanesRigged = view.mode !== 'blackout' && progress(view, u) >= 3
+        const value = seen * 1.3 + (lanesRigged ? 1.6 : 0)
+        if (value) deploy(card, u, value)
+      }
+    } else if (card.kind === 'equipment' && card.effect === 'sharpen') {
+      for (const u of mine)
         deploy(
           card,
-          foe,
-          2 +
-            threat(view, foe) * 0.6 +
-            (kills ? 3 + worthUnit(foe) * 0.4 : 0) +
-            (foe.carryingFlag ? 4 : 0),
+          u,
+          1.5 +
+            (isEngaged(view, u) ? 2 : 0) +
+            (u.carryingFlag ? 1 : 0) +
+            worthUnit(u) * 0.1,
+        )
+    } else if (card.kind === 'equipment' && card.effect === 'grant') {
+      for (const u of mine) {
+        const fresh = (card.grants ?? []).filter(
+          (k) => !(u.keywords ?? []).includes(k),
+        )
+        if (!fresh.length) continue
+        deploy(
+          card,
+          u,
+          1 +
+            keywordWorth(fresh) +
+            (isEngaged(view, u) ? 1 : 0) +
+            worthUnit(u) * 0.1,
         )
       }
     } else if (card.effect === 'heal') {
       for (const u of mine) {
-        const missing = Math.min(2, (u.maxHp ?? 0) - (u.hp ?? 0))
+        const missing = Math.min(power(card), (u.maxHp ?? 0) - (u.hp ?? 0))
         if (missing < 1) continue
         deploy(
           card,
@@ -241,6 +364,13 @@ function cardCandidates(view: MatchView): Candidate[] {
             value = dist(u, view.flag) <= ap + 2 ? 5 : 0
         } else if (!laneBlocked(view, u) && (u.ap ?? 0) < 3)
           value = 1.5 + progress(view, u) * 0.4
+        // A rearming boost pays most on a spent ambusher about to fight.
+        if (
+          card.rearm &&
+          (u.keywords ?? []).includes('ambush') &&
+          u.ambushReady === false
+        )
+          value += isEngaged(view, u) ? 3.5 : 1.5
         if (value) deploy(card, u, value)
       }
     } else if (card.kind === 'equipment' && card.effect === 'armor') {
@@ -271,7 +401,7 @@ function cardCandidates(view: MatchView): Candidate[] {
         c.x < view.width &&
         c.y < view.height &&
         trapZone(view, c.x) &&
-        !occupant(view, c.x, c.y) &&
+        !blocked(view, c.x, c.y) &&
         !own.has(c.x + ':' + c.y)
       if (view.mode === 'blackout') {
         const carrier = foes.find((f) => f.carryingFlag)
@@ -352,6 +482,17 @@ function bestMove(view: MatchView, tried: Set<string>): CpuAction | null {
       .sort((a, b) => a.d - b.d || a.u.id - b.u.id)
     runners.push(...ranked.slice(0, 2).map((r) => r.u.id))
   }
+  const monster = view.monster
+  const hunters: number[] = []
+  if (monster && !foeCarrier) {
+    const ranked = mine
+      .filter((u) => !u.carryingFlag && !runners.includes(u.id))
+      .map((u) => ({ u, d: dist(u, monster) }))
+      .sort((a, b) => a.d - b.d || a.u.id - b.u.id)
+    // Two hunters once it is wounded, so the killing blow is ours.
+    const count = monster.hp <= monster.maxHp / 2 ? 2 : 1
+    hunters.push(...ranked.slice(0, count).map((r) => r.u.id))
+  }
   const ordered = [
     ...mine.filter((u) => u.carryingFlag),
     ...mine.filter((u) => runners.includes(u.id)),
@@ -370,6 +511,9 @@ function bestMove(view: MatchView, tried: Set<string>): CpuAction | null {
       goals = cellsAround(view, foeCarrier)
     } else if (runners.includes(u.id)) {
       goals = [view.flag]
+    } else if (monster && hunters.includes(u.id)) {
+      if (dist(u, monster) === 1) continue
+      goals = cellsAround(view, monster)
     } else {
       if (isEngaged(view, u) || !foes.length) continue
       goals = foes.flatMap((f) => cellsAround(view, f))
@@ -387,12 +531,39 @@ function bestMove(view: MatchView, tried: Set<string>): CpuAction | null {
   return null
 }
 
+function bestAttack(view: MatchView, tried: Set<string>): CpuAction | null {
+  if (view.mode !== 'blackout') return null
+  const mine = view.units.filter((u) => u.side === view.side && u.hp !== null)
+  const enemies = view.units.filter(
+    (u) => u.side !== view.side && u.hp !== null,
+  )
+  for (const u of mine) {
+    if (u.attackedRound === view.round) continue
+    if (u.summonedRound === view.round && !u.keywords?.includes('ambush'))
+      continue
+    const target = [...enemies]
+      .sort((a, b) => (a.hp ?? 99) - (b.hp ?? 99) || a.id - b.id)
+      .find((e) => dist(u, e) <= (u.range ?? 1))
+    if (target) {
+      const action: CpuAction = { t: 'attack', id: u.id, target: target.id }
+      if (!tried.has(key(action))) return action
+    }
+    if (view.monster && dist(u, view.monster) <= (u.range ?? 1)) {
+      const action: CpuAction = { t: 'attack', id: u.id, target: -1 }
+      if (!tried.has(key(action))) return action
+    }
+  }
+  return null
+}
+
 /** The CPU's next action for the side in view, or null to pass. */
 export function chooseCpuAction(
   view: MatchView,
   tried: Set<string> = new Set(),
 ): CpuAction | null {
   if (view.victor) return null
+  const attack = bestAttack(view, tried)
+  if (attack) return attack
   const card = bestCard(view, tried)
   if (card) return card
   if (view.mode === 'blackout') return bestMove(view, tried)

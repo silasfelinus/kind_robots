@@ -19,6 +19,7 @@ on:
       - 'utils/scripts/verifyCometPatrolStories.test.ts'
       - 'utils/scripts/verifyCometOctoberCast.test.ts'
       - 'utils/scripts/verifyCometConsoleScreens.test.ts'
+      - 'utils/scripts/verifyCometPlaytestReadiness.test.ts'
       - 'components/play/cometAcademy/**'
       - 'utils/scripts/verifyPromVillainHenchmen.test.ts'
       - 'utils/cometAcademy/identityCampaignStages.json'
@@ -37,6 +38,9 @@ on:
       - 'utils/scripts/verifyGameOfCaptains.test.ts'
       - 'utils/scripts/verifyGameOfCaptainsExpedition.test.ts'
       - 'utils/scripts/verifyGameOfCaptainsCharacters.test.ts'
+      - 'utils/scripts/verifyGameOfCaptainsTraces.test.ts'
+      - 'utils/scripts/spaceCouchTraceHarness.ts'
+      - 'utils/scripts/fixtures/spaceCouchSaves-2026-10-29.json'
       - '.github/workflows/playbook-slices-gameplay.yml'
   push:
     branches: [main]

@@ -48,6 +48,7 @@ import {
   selectMissionApproach,
   planThirdNight,
   chooseNightPatrol,
+  chooseNovelNight,
   chooseRecommendedRival,
   chooseEncounter,
   finishAcademy,
@@ -65,6 +66,7 @@ import {
   tendInfirmary,
   visitCitySite,
   type AcademyRun,
+  type CampaignPlayOptions,
   type PowerId,
   type StudentId,
 } from '~/utils/cometAcademy/rules'
@@ -209,6 +211,7 @@ export const useCometAcademyStore = defineStore('cometAcademy', () => {
     signature?: SignaturePowerId,
     vow?: PowerVowId,
     form: PlayerForm = 'student',
+    options?: CampaignPlayOptions,
   ) {
     if (
       form !== 'student' &&
@@ -217,7 +220,14 @@ export const useCometAcademyStore = defineStore('cometAcademy', () => {
       throw new Error(
         'Earn the mantle during a previous campaign before replaying it',
       )
-    run.value = startFullAcademy(power, Date.now(), signature, vow, form)
+    run.value = startFullAcademy(
+      power,
+      Date.now(),
+      signature,
+      vow,
+      form,
+      options,
+    )
     recordIdentity(true)
     usePlaybookRunReviewStore().begin(
       'comet-city-academy',
@@ -310,6 +320,15 @@ export const useCometAcademyStore = defineStore('cometAcademy', () => {
     persist()
   }
 
+  function novelNight(
+    caseId: string,
+    choice: 'rescue' | 'investigate' | 'split' | 'concentrate',
+  ) {
+    if (!run.value) return
+    run.value = chooseNovelNight(run.value, caseId, choice)
+    persist()
+  }
+
   function recommendRival() {
     if (!run.value) return
     run.value = chooseRecommendedRival(run.value)
@@ -317,7 +336,8 @@ export const useCometAcademyStore = defineStore('cometAcademy', () => {
   }
 
   function startBattle() {
-    if (!run.value) return false
+    if (!run.value || run.value.campaignOptions?.tacticalMissions === false)
+      return false
     const battle = newTacticalInterlude(run.value)
     if (!battle) return false
     run.value = { ...run.value, tacticalBattle: battle }
@@ -504,6 +524,7 @@ export const useCometAcademyStore = defineStore('cometAcademy', () => {
     missionTactic,
     planCrisis,
     patrol,
+    novelNight,
     dispatch,
     recommendRival,
     startBattle,

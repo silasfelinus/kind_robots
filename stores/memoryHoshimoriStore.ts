@@ -1,6 +1,7 @@
 import { computed, ref } from 'vue'
 import { defineStore } from 'pinia'
 import { useMemoryWorldStore } from '~/stores/memoryWorldStore'
+import { earnedVesperRookeryOutcome } from '~/utils/memoryDungeon/firstTwoConsequences'
 import {
   HOSHIMORI_OVEN_ROOMS,
   HOSHIMORI_WARM_SITES,
@@ -8,9 +9,14 @@ import {
   hoshimoriLanternClues,
   hoshimoriOvenResolution,
   hoshimoriOvenSecondAccount,
+  hoshimoriOvenThirdAccount,
+  hoshimoriOvenFourthAccount,
+  hoshimoriOvenGuardianResolution,
   hoshimoriRidgeAccount,
   hoshimoriLowlandAccount,
   hoshimoriWindwardAccount,
+  hoshimoriSouthernAccount,
+  hoshimoriVesperReckoning,
   newHoshimoriWarmProgress,
   restoreHoshimoriWarm,
   type HoshimoriEvent,
@@ -33,11 +39,28 @@ export const useMemoryHoshimoriStore = defineStore('memoryHoshimori', () => {
   const secondAccount = computed(() =>
     hoshimoriOvenSecondAccount(progress.value),
   )
+  const thirdAccount = computed(() => hoshimoriOvenThirdAccount(progress.value))
+  const fourthAccount = computed(() =>
+    hoshimoriOvenFourthAccount(progress.value),
+  )
+  const guardianResolution = computed(() =>
+    hoshimoriOvenGuardianResolution(progress.value),
+  )
   const ridgeAccount = computed(() => hoshimoriRidgeAccount(progress.value))
   const lowlandAccount = computed(() => hoshimoriLowlandAccount(progress.value))
   const windwardAccount = computed(() =>
     hoshimoriWindwardAccount(progress.value),
   )
+  const southernAccount = computed(() =>
+    hoshimoriSouthernAccount(progress.value),
+  )
+  const vesperReckoning = computed(() =>
+    hoshimoriVesperReckoning(progress.value),
+  )
+  const vesperBriarHistory = computed(() => {
+    const world = useMemoryWorldStore()
+    return earnedVesperRookeryOutcome(world.state, world.dark)
+  })
   const lastOvenOutcome = computed(() => {
     const last = progress.value.events.at(-1)
     if (last?.type !== 'oven-choice') return null
@@ -65,6 +88,22 @@ export const useMemoryHoshimoriStore = defineStore('memoryHoshimori', () => {
       !progress.value.ovenChoices['OV-09'],
   )
 
+  const canEnterOvenEmberWing = computed(
+    () =>
+      progress.value.current === '4,3' &&
+      !progress.value.ovenRoom &&
+      Boolean(progress.value.ovenChoices['OV-09']) &&
+      !progress.value.ovenChoices['OV-15'],
+  )
+
+  const canEnterOvenCinderWing = computed(
+    () =>
+      progress.value.current === '4,3' &&
+      !progress.value.ovenRoom &&
+      Boolean(progress.value.ovenChoices['OV-15']) &&
+      !progress.value.ovenChoices['OV-21'],
+  )
+
   function hydrate(): void {
     if (hydrated.value || !import.meta.client) return
     hydrated.value = true
@@ -74,7 +113,9 @@ export const useMemoryHoshimoriStore = defineStore('memoryHoshimori', () => {
       const restored = restoreHoshimoriWarm(JSON.parse(saved))
       if (restored) {
         progress.value = restored
-        useMemoryWorldStore().syncHoshimoriPhoto(restored.choices)
+        const world = useMemoryWorldStore()
+        world.syncHoshimoriPhoto(restored.choices)
+        world.syncHoshimoriAchievements(restored)
       } else
         notice.value =
           'The village could not verify that journey. A fresh route is ready.'
@@ -112,8 +153,11 @@ export const useMemoryHoshimoriStore = defineStore('memoryHoshimori', () => {
     }
     progress.value = next
     notice.value = ''
-    if (event.type === 'choose')
-      useMemoryWorldStore().syncHoshimoriPhoto(next.choices)
+    if (event.type === 'choose') {
+      const world = useMemoryWorldStore()
+      world.syncHoshimoriPhoto(next.choices)
+      world.syncHoshimoriAchievements(next)
+    }
     persist()
     return true
   }
@@ -134,12 +178,20 @@ export const useMemoryHoshimoriStore = defineStore('memoryHoshimori', () => {
     clues,
     resolution,
     secondAccount,
+    thirdAccount,
+    fourthAccount,
+    guardianResolution,
     ridgeAccount,
     lowlandAccount,
     windwardAccount,
+    southernAccount,
+    vesperReckoning,
+    vesperBriarHistory,
     lastOvenOutcome,
     canEnterOven,
     canEnterOvenWing,
+    canEnterOvenEmberWing,
+    canEnterOvenCinderWing,
     canMove,
     hydrate,
     act,

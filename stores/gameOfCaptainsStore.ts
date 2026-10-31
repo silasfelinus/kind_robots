@@ -1,3 +1,4 @@
+import { performFetch } from '~/stores/utils'
 import { usePlaybookRunReviewStore } from '~/stores/playbookRunReviewStore'
 import {
   visitCasinoVenue,
@@ -85,6 +86,23 @@ export const useGameOfCaptainsStore = defineStore('gameOfCaptains', () => {
   const loaded = ref(false)
   const redshirtKnowledge = ref<RedshirtKnowledge>({})
   const storageWarning = ref('')
+  const onboardingArt = ref<Record<string, string>>({})
+  const onboardingArtLoaded = ref(false)
+  async function loadOnboardingArt() {
+    if (onboardingArtLoaded.value) return
+    try {
+      const response = await performFetch<Record<string, string>>(
+        '/api/game-of-captains/onboarding-art',
+      )
+      if (response.success && response.data) {
+        onboardingArt.value = response.data
+      }
+    } catch {
+      onboardingArt.value = {}
+    } finally {
+      onboardingArtLoaded.value = true
+    }
+  }
   const preferences = ref<CouchPreferences>({
     largeText: false,
     reducedMotion: false,
@@ -320,6 +338,9 @@ export const useGameOfCaptainsStore = defineStore('gameOfCaptains', () => {
     redshirtKnowledge,
     saved,
     storageWarning,
+    onboardingArt,
+    onboardingArtLoaded,
+    loadOnboardingArt,
     preferences,
     setPreference,
     load,

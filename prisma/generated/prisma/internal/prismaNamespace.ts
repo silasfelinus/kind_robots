@@ -528,6 +528,8 @@ export const ModelName = {
   MediaEntry: 'MediaEntry',
   ResourcePreview: 'ResourcePreview',
   HybridizerFusion: 'HybridizerFusion',
+  SlimeCityAccount: 'SlimeCityAccount',
+  SlimeCityMatch: 'SlimeCityMatch',
   SiteStatDaily: 'SiteStatDaily',
   TzaddikCandidate: 'TzaddikCandidate',
   TzaddikCandidateTag: 'TzaddikCandidateTag',
@@ -547,7 +549,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "agentProfile" | "agentProfileCredential" | "agentCheckIn" | "agentNote" | "arcadeScore" | "arcadeReview" | "arcadeGuestRating" | "archiveEntry" | "archiveActionPreset" | "brainstormSession" | "brainstormCandidate" | "comicSeries" | "comicEntity" | "comicSlot" | "comicAttempt" | "comicIssue" | "comicCritique" | "facetAlias" | "facetProfile" | "characterFacet" | "botFacet" | "rewardFacet" | "mandarinAudioAsset" | "mandarinCatalogOverride" | "mandarinCatalogChange" | "mandarinLessonProgress" | "mandarinPointEvent" | "mandarinLearnerProfile" | "mandarinRequestedCard" | "mandarinCustomSet" | "mandarinArtJobLink" | "mandarinCardProgress" | "mandarinReviewEvent" | "modelBuildRun" | "modelBuildItem" | "modelBuildArtifact" | "modelBuildRevision" | "musicVideo" | "playbookEdit" | "playbookNote" | "playbookRunReview" | "projectPageContent" | "artImage" | "artCollection" | "bot" | "character" | "chat" | "dream" | "dreamRelation" | "project" | "facet" | "dreamFacet" | "scenarioFacet" | "projectFacet" | "projectArtImage" | "projectArtCollection" | "entityArtImage" | "facetArtImage" | "facetArtCollection" | "facetRelation" | "expressionMedia" | "expressionTransition" | "log" | "achievement" | "manaTransaction" | "revenueSplit" | "socialPostDraft" | "missionRemittance" | "product" | "order" | "orderItem" | "entitlement" | "printJob" | "grant" | "pack" | "achievementRecord" | "narratorTopic" | "narratorThread" | "pitchSheet" | "prompt" | "plumberLevel" | "reaction" | "resource" | "reward" | "scenario" | "server" | "serverHealthCheck" | "sceneAnimatorPrompt" | "smartIcon" | "theme" | "user" | "stylistClient" | "stylistAppointment" | "artJob" | "queueControl" | "downloadRequest" | "karmaTransaction" | "referral" | "userRelation" | "userRole" | "todo" | "challenge" | "challengeSubmission" | "contender" | "endingDeck" | "lifeRun" | "lifeChoice" | "lifeStat" | "lifeEnding" | "lifeAchievement" | "lifeAchievementUnlock" | "lifeRunArt" | "aquarium" | "aquariumStock" | "aquariumSet" | "aquariumDecor" | "aquariumEgg" | "aquariumCodexEntry" | "monster" | "aquariumEvent" | "authToken" | "agentCredential" | "conversation" | "conversationParticipant" | "directMessage" | "notification" | "githubInstallation" | "appRepo" | "mediaEntry" | "resourcePreview" | "hybridizerFusion" | "siteStatDaily" | "tzaddikCandidate" | "tzaddikCandidateTag" | "tzaddikRecheckRequest"
+    modelProps: "agentProfile" | "agentProfileCredential" | "agentCheckIn" | "agentNote" | "arcadeScore" | "arcadeReview" | "arcadeGuestRating" | "archiveEntry" | "archiveActionPreset" | "brainstormSession" | "brainstormCandidate" | "comicSeries" | "comicEntity" | "comicSlot" | "comicAttempt" | "comicIssue" | "comicCritique" | "facetAlias" | "facetProfile" | "characterFacet" | "botFacet" | "rewardFacet" | "mandarinAudioAsset" | "mandarinCatalogOverride" | "mandarinCatalogChange" | "mandarinLessonProgress" | "mandarinPointEvent" | "mandarinLearnerProfile" | "mandarinRequestedCard" | "mandarinCustomSet" | "mandarinArtJobLink" | "mandarinCardProgress" | "mandarinReviewEvent" | "modelBuildRun" | "modelBuildItem" | "modelBuildArtifact" | "modelBuildRevision" | "musicVideo" | "playbookEdit" | "playbookNote" | "playbookRunReview" | "projectPageContent" | "artImage" | "artCollection" | "bot" | "character" | "chat" | "dream" | "dreamRelation" | "project" | "facet" | "dreamFacet" | "scenarioFacet" | "projectFacet" | "projectArtImage" | "projectArtCollection" | "entityArtImage" | "facetArtImage" | "facetArtCollection" | "facetRelation" | "expressionMedia" | "expressionTransition" | "log" | "achievement" | "manaTransaction" | "revenueSplit" | "socialPostDraft" | "missionRemittance" | "product" | "order" | "orderItem" | "entitlement" | "printJob" | "grant" | "pack" | "achievementRecord" | "narratorTopic" | "narratorThread" | "pitchSheet" | "prompt" | "plumberLevel" | "reaction" | "resource" | "reward" | "scenario" | "server" | "serverHealthCheck" | "sceneAnimatorPrompt" | "smartIcon" | "theme" | "user" | "stylistClient" | "stylistAppointment" | "artJob" | "queueControl" | "downloadRequest" | "karmaTransaction" | "referral" | "userRelation" | "userRole" | "todo" | "challenge" | "challengeSubmission" | "contender" | "endingDeck" | "lifeRun" | "lifeChoice" | "lifeStat" | "lifeEnding" | "lifeAchievement" | "lifeAchievementUnlock" | "lifeRunArt" | "aquarium" | "aquariumStock" | "aquariumSet" | "aquariumDecor" | "aquariumEgg" | "aquariumCodexEntry" | "monster" | "aquariumEvent" | "authToken" | "agentCredential" | "conversation" | "conversationParticipant" | "directMessage" | "notification" | "githubInstallation" | "appRepo" | "mediaEntry" | "resourcePreview" | "hybridizerFusion" | "slimeCityAccount" | "slimeCityMatch" | "siteStatDaily" | "tzaddikCandidate" | "tzaddikCandidateTag" | "tzaddikRecheckRequest"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -9197,6 +9199,138 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    SlimeCityAccount: {
+      payload: Prisma.$SlimeCityAccountPayload<ExtArgs>
+      fields: Prisma.SlimeCityAccountFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.SlimeCityAccountFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SlimeCityAccountPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.SlimeCityAccountFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SlimeCityAccountPayload>
+        }
+        findFirst: {
+          args: Prisma.SlimeCityAccountFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SlimeCityAccountPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.SlimeCityAccountFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SlimeCityAccountPayload>
+        }
+        findMany: {
+          args: Prisma.SlimeCityAccountFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SlimeCityAccountPayload>[]
+        }
+        create: {
+          args: Prisma.SlimeCityAccountCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SlimeCityAccountPayload>
+        }
+        createMany: {
+          args: Prisma.SlimeCityAccountCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        delete: {
+          args: Prisma.SlimeCityAccountDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SlimeCityAccountPayload>
+        }
+        update: {
+          args: Prisma.SlimeCityAccountUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SlimeCityAccountPayload>
+        }
+        deleteMany: {
+          args: Prisma.SlimeCityAccountDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.SlimeCityAccountUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        upsert: {
+          args: Prisma.SlimeCityAccountUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SlimeCityAccountPayload>
+        }
+        aggregate: {
+          args: Prisma.SlimeCityAccountAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateSlimeCityAccount>
+        }
+        groupBy: {
+          args: Prisma.SlimeCityAccountGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.SlimeCityAccountGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.SlimeCityAccountCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.SlimeCityAccountCountAggregateOutputType> | number
+        }
+      }
+    }
+    SlimeCityMatch: {
+      payload: Prisma.$SlimeCityMatchPayload<ExtArgs>
+      fields: Prisma.SlimeCityMatchFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.SlimeCityMatchFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SlimeCityMatchPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.SlimeCityMatchFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SlimeCityMatchPayload>
+        }
+        findFirst: {
+          args: Prisma.SlimeCityMatchFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SlimeCityMatchPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.SlimeCityMatchFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SlimeCityMatchPayload>
+        }
+        findMany: {
+          args: Prisma.SlimeCityMatchFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SlimeCityMatchPayload>[]
+        }
+        create: {
+          args: Prisma.SlimeCityMatchCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SlimeCityMatchPayload>
+        }
+        createMany: {
+          args: Prisma.SlimeCityMatchCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        delete: {
+          args: Prisma.SlimeCityMatchDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SlimeCityMatchPayload>
+        }
+        update: {
+          args: Prisma.SlimeCityMatchUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SlimeCityMatchPayload>
+        }
+        deleteMany: {
+          args: Prisma.SlimeCityMatchDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.SlimeCityMatchUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        upsert: {
+          args: Prisma.SlimeCityMatchUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SlimeCityMatchPayload>
+        }
+        aggregate: {
+          args: Prisma.SlimeCityMatchAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateSlimeCityMatch>
+        }
+        groupBy: {
+          args: Prisma.SlimeCityMatchGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.SlimeCityMatchGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.SlimeCityMatchCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.SlimeCityMatchCountAggregateOutputType> | number
+        }
+      }
+    }
     SiteStatDaily: {
       payload: Prisma.$SiteStatDailyPayload<ExtArgs>
       fields: Prisma.SiteStatDailyFieldRefs
@@ -12032,6 +12166,33 @@ export const HybridizerFusionScalarFieldEnum = {
 export type HybridizerFusionScalarFieldEnum = (typeof HybridizerFusionScalarFieldEnum)[keyof typeof HybridizerFusionScalarFieldEnum]
 
 
+export const SlimeCityAccountScalarFieldEnum = {
+  userId: 'userId',
+  data: 'data',
+  version: 'version',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type SlimeCityAccountScalarFieldEnum = (typeof SlimeCityAccountScalarFieldEnum)[keyof typeof SlimeCityAccountScalarFieldEnum]
+
+
+export const SlimeCityMatchScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  mode: 'mode',
+  teamId: 'teamId',
+  foeId: 'foeId',
+  seed: 'seed',
+  startedAt: 'startedAt',
+  settledAt: 'settledAt',
+  result: 'result',
+  commands: 'commands'
+} as const
+
+export type SlimeCityMatchScalarFieldEnum = (typeof SlimeCityMatchScalarFieldEnum)[keyof typeof SlimeCityMatchScalarFieldEnum]
+
+
 export const SiteStatDailyScalarFieldEnum = {
   id: 'id',
   day: 'day',
@@ -12125,6 +12286,14 @@ export const JsonNullValueInput = {
 } as const
 
 export type JsonNullValueInput = (typeof JsonNullValueInput)[keyof typeof JsonNullValueInput]
+
+
+export const NullableJsonNullValueInput = {
+  DbNull: DbNull,
+  JsonNull: JsonNull
+} as const
+
+export type NullableJsonNullValueInput = (typeof NullableJsonNullValueInput)[keyof typeof NullableJsonNullValueInput]
 
 
 export const NullsOrder = {
@@ -13531,6 +13700,17 @@ export const HybridizerFusionOrderByRelevanceFieldEnum = {
 export type HybridizerFusionOrderByRelevanceFieldEnum = (typeof HybridizerFusionOrderByRelevanceFieldEnum)[keyof typeof HybridizerFusionOrderByRelevanceFieldEnum]
 
 
+export const SlimeCityMatchOrderByRelevanceFieldEnum = {
+  id: 'id',
+  mode: 'mode',
+  teamId: 'teamId',
+  foeId: 'foeId',
+  result: 'result'
+} as const
+
+export type SlimeCityMatchOrderByRelevanceFieldEnum = (typeof SlimeCityMatchOrderByRelevanceFieldEnum)[keyof typeof SlimeCityMatchOrderByRelevanceFieldEnum]
+
+
 export const SiteStatDailyOrderByRelevanceFieldEnum = {
   kind: 'kind',
   key: 'key'
@@ -14447,6 +14627,8 @@ export type GlobalOmitConfig = {
   mediaEntry?: Prisma.MediaEntryOmit
   resourcePreview?: Prisma.ResourcePreviewOmit
   hybridizerFusion?: Prisma.HybridizerFusionOmit
+  slimeCityAccount?: Prisma.SlimeCityAccountOmit
+  slimeCityMatch?: Prisma.SlimeCityMatchOmit
   siteStatDaily?: Prisma.SiteStatDailyOmit
   tzaddikCandidate?: Prisma.TzaddikCandidateOmit
   tzaddikCandidateTag?: Prisma.TzaddikCandidateTagOmit

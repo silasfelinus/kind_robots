@@ -577,8 +577,121 @@ assert.equal(
   'An invalid Earth mirror decision cannot fabricate a finished reflection',
 )
 
+for (const [room, ids] of [
+  ['HD-03', ['route', 'ask']],
+  ['HD-04', ['share', 'record']],
+  ['HD-05', ['open', 'test']],
+  ['HD-08', ['harm', 'listen']],
+] as const)
+  for (const id of ids)
+    assert.ok(
+      HOUSE_ROOMS[room]?.choices.some((choice) => choice.id === id),
+      `Early House callback references an authored choice: ${room}:${id}`,
+    )
+
+const earlyHouseCases: Array<{
+  room: HouseRoomId
+  decisions: Record<string, string>
+  title: string
+}> = [
+  { room: 'HD-03', decisions: {}, title: 'Mud Is Not a Confession' },
+  {
+    room: 'HD-03',
+    decisions: { 'HD-03': 'route' },
+    title: 'Three Roads, No Owners',
+  },
+  {
+    room: 'HD-03',
+    decisions: { 'HD-03': 'ask' },
+    title: 'The Boots Who Were Allowed to Leave',
+  },
+  { room: 'HD-04', decisions: {}, title: 'Dinner for All but One' },
+  {
+    room: 'HD-04',
+    decisions: { 'HD-04': 'share' },
+    title: 'A Loaf Divided Without a Ledger',
+  },
+  {
+    room: 'HD-04',
+    decisions: { 'HD-04': 'record' },
+    title: 'The Place Setting with a Name',
+  },
+  { room: 'HD-08', decisions: {}, title: 'Three Apologies, One Missing Voice' },
+  {
+    room: 'HD-08',
+    decisions: { 'HD-08': 'harm' },
+    title: 'The Apology Measured by Repair',
+  },
+  {
+    room: 'HD-08',
+    decisions: { 'HD-04': 'share', 'HD-08': 'harm' },
+    title: 'Bread Before Forgiveness',
+  },
+  {
+    room: 'HD-08',
+    decisions: { 'HD-04': 'record', 'HD-05': 'test', 'HD-08': 'harm' },
+    title: 'An Apology with Receipts',
+  },
+  {
+    room: 'HD-08',
+    decisions: { 'HD-08': 'listen' },
+    title: 'A Staircase That Accepts No',
+  },
+  {
+    room: 'HD-08',
+    decisions: { 'HD-03': 'ask', 'HD-08': 'listen' },
+    title: 'The Witness Who Refused an Apology',
+  },
+]
+const earlyHouseBeats = earlyHouseCases.map(({ room, decisions, title }) => {
+  const visited = [...Object.keys(decisions), room] as HouseRoomId[]
+  const save = connected(progress(room, visited, decisions))
+  const beat = houseFloorBeat(room, save, {})
+  assert.equal(beat?.title, title)
+  assert.ok(beat && beat.text.length >= 125 && beat.cost.length >= 50)
+  const restored = restoreHouseProgress(JSON.parse(JSON.stringify(save)))
+  assert.ok(restored, `Early House branch ${title} should restore`)
+  assert.deepEqual(
+    houseFloorBeat(room, restored, {}),
+    beat,
+    `Early House decisions survive replay-safe restoration: ${title}`,
+  )
+  return beat
+})
+assert.equal(
+  new Set(earlyHouseBeats.map((beat) => beat?.title)).size,
+  12,
+  'The early House choices and earned apology combinations need distinct accounts',
+)
+assert.equal(
+  houseFloorBeat(
+    'HD-08',
+    progress('HD-08', ['HD-03', 'HD-04', 'HD-05', 'HD-08'], {
+      'HD-04': 'imaginary',
+      'HD-05': 'test',
+      'HD-08': 'harm',
+    }),
+    {},
+  )?.title,
+  'The Apology Measured by Repair',
+  'A forged pantry choice cannot earn the combined evidence outcome',
+)
+assert.equal(
+  houseFloorBeat(
+    'HD-08',
+    progress('HD-08', ['HD-03', 'HD-08'], {
+      'HD-03': 'imaginary',
+      'HD-08': 'listen',
+    }),
+    {},
+  )?.title,
+  'A Staircase That Accepts No',
+  'An invented boot-rack witness cannot unlock the refusal branch',
+)
+
 for (const beat of [
   ...entryBranches,
+  ...earlyHouseBeats,
   ...middleBranches,
   ...finalBranches,
   ...wardenBeats,
@@ -619,5 +732,5 @@ assert.match(
 assert.match(stage, /kr-scroll min-h-0 overflow-y-auto/)
 
 console.log(
-  'Memory House floor story: 64 authored threshold, testimony, return-route, companion and verdict branches, source choices, consent costs and save roundtrips verified',
+  'Memory House floor story: 76 authored threshold, testimony, return-route, companion and verdict branches, source choices, consent costs and save roundtrips verified',
 )

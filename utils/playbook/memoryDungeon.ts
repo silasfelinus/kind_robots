@@ -155,7 +155,7 @@ export function buildMemoryDungeonPlaybook(): Playbook {
   const house: string[] = []
   for (const room of Object.values(HOUSE_ROOMS)) {
     // The Thornbound Housekeeper is a guardian met in her own room. The
-    // House's three duelling guardians are counted once, as their combat
+    // House's four optional duelling guardians are counted once, as their combat
     // rooms under Monsters.
     const kind: NodeKind =
       room.id === 'HD-32' || room.id === 'HD-16'

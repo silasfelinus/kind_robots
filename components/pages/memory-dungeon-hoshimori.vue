@@ -10,7 +10,7 @@
       <div class="min-w-0 flex-1">
         <h2 class="truncate text-lg font-black">Hoshimori · Lantern Village</h2>
         <p class="text-xs opacity-75">
-          A village remembers who was invited to supper.
+          Vesper returns to the mountain roads of their childhood.
         </p>
       </div>
       <span class="rounded-lg bg-base-300 px-2 py-1 text-xs font-bold">
@@ -106,8 +106,7 @@
           </template>
         </div>
         <div class="shrink-0 px-1 pt-2 text-xs opacity-75">
-          Other mountain paths remain uncharted. The Red Oven is only the first
-          threshold.
+          All village paths are charted. The Red Oven still has deeper rooms.
         </div>
       </div>
 
@@ -176,11 +175,21 @@
 
         <template v-else>
           <p class="text-xs font-bold uppercase tracking-widest text-success">
-            Village encounter
+            Vesper’s Hoshimori · Village encounter
           </p>
           <h3 class="text-xl font-black">{{ hoshimori.currentSite?.title }}</h3>
           <p class="text-base leading-relaxed">
             {{ hoshimori.currentSite?.opening }}
+          </p>
+          <p
+            v-if="
+              hoshimori.progress.current === '1,1' &&
+              hoshimori.vesperBriarHistory
+            "
+            class="rounded-xl border border-warning/30 bg-warning/10 p-3 text-base leading-relaxed"
+            data-testid="memory-hoshimori-vesper-briar-history"
+          >
+            {{ hoshimori.vesperBriarHistory }}
           </p>
           <template v-if="selectedChoice">
             <p
@@ -229,6 +238,28 @@
           >
             {{ hoshimori.windwardAccount }}
           </p>
+          <p
+            v-if="
+              hoshimori.progress.current === '8,8' && hoshimori.southernAccount
+            "
+            class="rounded-xl border border-success/30 bg-success/15 p-3 text-base leading-relaxed"
+            data-testid="memory-hoshimori-southern-account"
+          >
+            {{ hoshimori.southernAccount }}
+          </p>
+          <section
+            v-if="
+              hoshimori.progress.current === '8,8' && hoshimori.vesperReckoning
+            "
+            class="rounded-xl border border-warning/30 bg-warning/10 p-3"
+            data-testid="memory-hoshimori-vesper-reckoning"
+            aria-label="Vesper’s childhood reckoning"
+          >
+            <h4 class="mb-2 font-bold">The map Vesper will carry</h4>
+            <p class="text-base leading-relaxed">
+              {{ hoshimori.vesperReckoning }}
+            </p>
+          </section>
           <div
             v-if="hoshimori.clues.length"
             class="rounded-xl border border-warning/30 bg-warning/10 p-3"
@@ -292,6 +323,24 @@
           >
             Return to the Red Oven · Ash Wing
           </button>
+          <button
+            v-if="hoshimori.canEnterOvenEmberWing"
+            type="button"
+            class="btn btn-warning min-h-12 text-base"
+            data-testid="memory-hoshimori-enter-ember-wing"
+            @click="hoshimori.act({ type: 'enter-ember-wing' })"
+          >
+            Return to the Red Oven · Ember Wing
+          </button>
+          <button
+            v-if="hoshimori.canEnterOvenCinderWing"
+            type="button"
+            class="btn btn-warning min-h-12 text-base"
+            data-testid="memory-hoshimori-enter-cinder-wing"
+            @click="hoshimori.act({ type: 'enter-cinder-wing' })"
+          >
+            Return to the Red Oven · Cinder Wing
+          </button>
           <p
             v-if="hoshimori.resolution"
             class="rounded-xl border border-success/30 bg-success/15 p-3 text-base leading-relaxed"
@@ -304,6 +353,27 @@
             data-testid="memory-hoshimori-ash-wing-account"
           >
             {{ hoshimori.secondAccount }}
+          </p>
+          <p
+            v-if="hoshimori.guardianResolution"
+            class="rounded-xl border border-success/40 bg-success/10 p-3 text-base leading-relaxed"
+            data-testid="memory-hoshimori-guardian-resolution"
+          >
+            {{ hoshimori.guardianResolution }}
+          </p>
+          <p
+            v-if="hoshimori.thirdAccount"
+            class="rounded-xl border border-warning/40 bg-warning/10 p-3 text-base leading-relaxed"
+            data-testid="memory-hoshimori-ember-wing-account"
+          >
+            {{ hoshimori.thirdAccount }}
+          </p>
+          <p
+            v-if="hoshimori.fourthAccount"
+            class="rounded-xl border border-warning/40 bg-warning/10 p-3 text-base leading-relaxed"
+            data-testid="memory-hoshimori-cinder-wing-account"
+          >
+            {{ hoshimori.fourthAccount }}
           </p>
         </template>
       </div>

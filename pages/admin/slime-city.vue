@@ -29,14 +29,33 @@
           </button>
           <button
             type="button"
+            :class="{ active: lab.view === 'campaign' }"
+            data-testid="slime-campaign-tab"
+            @click="lab.showCampaign()"
+          >
+            STORY
+          </button>
+          <button
+            type="button"
             :class="{ active: lab.view === 'cards' }"
             @click="lab.showCards()"
           >
             CARDS
           </button>
+          <button
+            type="button"
+            :class="{ active: lab.view === 'rewards' }"
+            data-testid="slime-rewards-tab"
+            @click="lab.showRewards()"
+          >
+            REWARDS
+          </button>
         </nav>
         <div class="sc-hud">
-          <span class="sc-led"></span> PRIVATE PLAYTEST <strong>0 MEAT</strong>
+          <span class="sc-led"></span> ACCOUNT
+          <strong>{{
+            lab.progressLoaded ? lab.progress.meat + ' MEAT' : 'SIGN IN'
+          }}</strong>
         </div>
       </header>
 
@@ -56,7 +75,14 @@
               :aria-pressed="lab.activeTeam === team.id"
               @click="lab.chooseTeam(team.id)"
             >
-              <span class="sc-emblem">{{ team.insignia }}</span>
+              <span class="sc-emblem">
+                <SlimeCityArtwork
+                  :image-id="slimeArtId('crews', team.id)"
+                  :alt="team.name + ' rendered crew artwork'"
+                  :fallback="team.insignia"
+                  compact
+                />
+              </span>
               <span class="sc-team-text"
                 ><strong>{{ team.name }}</strong
                 ><small>{{ team.motto }}</small></span
@@ -65,7 +91,12 @@
           </div>
           <div class="sc-profile">
             <div class="sc-big-emblem" :class="'tone-' + lab.team.color">
-              {{ lab.team.insignia }}
+              <SlimeCityArtwork
+                :image-id="slimeArtId('crews', lab.activeTeam)"
+                :alt="lab.team.name + ' faction illustration'"
+                :fallback="lab.team.insignia"
+                compact
+              />
             </div>
             <p class="sc-overline">THE {{ lab.team.district }}</p>
             <strong>{{ lab.team.name }}</strong>
@@ -79,6 +110,12 @@
           aria-label="Slime City district map"
         >
           <div class="sc-city">
+            <SlimeCityArtwork
+              class="sc-district-paint"
+              :image-id="slimeArtId('districts', lab.districtId)"
+              :alt="lab.district.name + ' panoramic district artwork'"
+              fallback="▧"
+            />
             <div class="sc-moon"></div>
             <div class="sc-skyline sc-skyline-back"></div>
             <div class="sc-skyline sc-skyline-front"></div>
@@ -97,7 +134,11 @@
                 :y1="street.y1"
                 :x2="street.x2"
                 :y2="street.y2"
-                :class="{ open: street.open }"
+                :class="{
+                  open: street.open,
+                  witnessed: street.witnessed,
+                  planned: street.planned,
+                }"
               />
             </svg>
             <button
@@ -107,12 +148,20 @@
               class="sc-district"
               :class="[
                 'is-' + lab.districtStatus(place.id),
-                { picked: lab.districtId === place.id },
+                {
+                  picked: lab.districtId === place.id,
+                  mission: lab.campaignDistrict === place.id,
+                },
               ]"
               :style="{ left: place.x + '%', top: place.y + '%' }"
               :aria-pressed="lab.districtId === place.id"
               :aria-label="
-                place.name + ', ' + statusLabel(lab.districtStatus(place.id))
+                place.name +
+                ', ' +
+                statusLabel(lab.districtStatus(place.id)) +
+                (lab.campaignDistrict === place.id
+                  ? ', next faction story mission'
+                  : '')
               "
               :data-testid="'slime-district-' + place.id"
               @click="lab.visit(place.id)"
@@ -124,68 +173,188 @@
             </button>
           </div>
           <div class="sc-city-selection kr-scroll" data-testid="slime-dossier">
-            <p class="sc-overline">
-              {{ lab.district.name }} /
-              {{ statusLabel(lab.districtStatus(lab.districtId)) }}
-            </p>
-            <p class="sc-scene">{{ lab.plan.scene }}</p>
-            <p class="sc-rival">
-              <strong>{{ lab.plan.rival.name }}</strong>
-              · {{ lab.plan.rival.title }} ·
-              {{ teamName(lab.plan.rival.team) }} ·
-              {{ modeTitle(lab.plan.rival.mode) }}
-              <em>“{{ lab.plan.rival.taunt }}”</em>
-            </p>
-            <template v-if="lab.here">
-              <div v-if="chosenChoice" class="sc-decided">
-                <span class="sc-overline">YOUR CALL</span>
-                {{ chosenChoice.label }}: {{ chosenChoice.outcome }}
-              </div>
-              <div v-else-if="!lab.gate" class="sc-choices">
+            <article
+              v-if="lab.streetEvent"
+              class="sc-street-encounter"
+              data-testid="slime-street-encounter"
+              aria-live="polite"
+            >
+              <span class="sc-overline"
+                >STREET STORY · {{ lab.city.pendingStreet }}</span
+              >
+              <h2>{{ lab.streetEvent.title }}</h2>
+              <p class="sc-scene">{{ lab.streetEvent.scene }}</p>
+              <div class="sc-choices">
                 <button
-                  v-for="choice in lab.plan.choices"
+                  v-for="choice in lab.streetEvent.choices"
                   :key="choice.id"
                   type="button"
-                  :data-testid="'slime-choice-' + choice.id"
-                  @click="lab.choose(choice.id)"
+                  :data-testid="'slime-street-choice-' + choice.id"
+                  @click="lab.chooseStreet(choice.id)"
                 >
                   <strong>{{ choice.label }}</strong>
                   <small>{{ choice.outcome }}</small>
                 </button>
               </div>
-              <p v-if="lab.blocked" class="sc-gate">{{ lab.blocked }}</p>
-              <span class="sc-city-actions">
-                <button
-                  type="button"
-                  data-testid="slime-fight-rival"
-                  :disabled="!!lab.blocked"
-                  @click="lab.fightRival()"
+            </article>
+            <template v-else>
+              <div
+                v-if="!lab.here && lab.routeSteps.length"
+                class="sc-route"
+                data-testid="slime-city-route"
+                aria-live="polite"
+              >
+                <span class="sc-overline"
+                  >WAYFINDER · {{ lab.routeSteps.length }}
+                  {{ lab.routeSteps.length === 1 ? 'STREET' : 'STREETS' }}</span
                 >
-                  FIGHT {{ lab.plan.rival.name.toUpperCase() }} →
-                </button>
-                <button
-                  type="button"
-                  class="sc-quiet"
-                  @click="lab.startDistrictMatch()"
+                <strong>{{ routeLabel }}</strong>
+                <small
+                  >Next: {{ lab.route?.street }} · {{ nextStopName }}</small
                 >
-                  QUICK MATCH
+              </div>
+              <article
+                v-if="
+                  lab.activeChapter && lab.campaignDistrict === lab.districtId
+                "
+                class="sc-story-mission"
+                data-testid="slime-city-story-mission"
+              >
+                <div class="sc-mission-poster">
+                  <SlimeCityArtwork
+                    :image-id="slimeArtId('crews', lab.activeChapter.foe)"
+                    :alt="teamName(lab.activeChapter.foe) + ' rival portrait'"
+                    fallback="✷"
+                    compact
+                  />
+                  <span class="sc-mission-poster-label">
+                    <small>CREW CLASH / {{ lab.district.name }}</small>
+                    <strong>{{ teamName(lab.activeChapter.foe) }}</strong>
+                  </span>
+                </div>
+                <span class="sc-overline"
+                  >CREW STORY · CHAPTER {{ lab.campaignState.wins + 1 }}/5 ·
+                  {{ teamName(lab.activeChapter.foe) }}</span
+                >
+                <strong>{{ lab.activeChapter.title }}</strong>
+                <p class="sc-scene">{{ lab.activeChapter.scene }}</p>
+                <span v-if="!lab.campaignAtDestination" class="sc-mission-hint">
+                  Follow the marked streets and resolve each street story to
+                  stage this battle. Your choices change its opening conditions.
+                </span>
+                <div v-else class="sc-mission-ready">
+                  <p
+                    class="sc-mission-terms"
+                    data-testid="slime-city-local-terms"
+                  >
+                    CITY CONSEQUENCES ·
+                    {{ describeTerms(boutTerms(lab.city, lab.districtId)) }}
+                  </p>
+                  <div class="sc-choices">
+                    <button
+                      v-for="choice in lab.activeChapter.choices"
+                      :key="choice.id"
+                      type="button"
+                      :data-testid="'slime-city-mission-' + choice.id"
+                      @click="lab.startCampaignBattle(choice.id)"
+                    >
+                      <strong>{{ choice.label }}</strong>
+                      <small
+                        >WITH STREET CHOICES ·
+                        {{
+                          describeTerms(
+                            storyMissionTerms(
+                              lab.city,
+                              lab.districtId,
+                              choice.terms,
+                            ),
+                          )
+                        }}</small
+                      >
+                    </button>
+                  </div>
+                </div>
+              </article>
+              <p class="sc-overline">
+                {{ lab.district.name }} /
+                {{ statusLabel(lab.districtStatus(lab.districtId)) }}
+              </p>
+              <p class="sc-scene">{{ lab.plan.scene }}</p>
+              <p class="sc-rival">
+                <strong>{{ lab.plan.rival.name }}</strong>
+                · {{ lab.plan.rival.title }} ·
+                {{ teamName(lab.plan.rival.team) }} ·
+                {{ modeTitle(lab.plan.rival.mode) }}
+                <em>“{{ lab.plan.rival.taunt }}”</em>
+              </p>
+              <template v-if="lab.here">
+                <div v-if="chosenChoice" class="sc-decided">
+                  <span class="sc-overline">YOUR CALL</span>
+                  {{ chosenChoice.label }}: {{ chosenChoice.outcome }}
+                </div>
+                <div v-else-if="!lab.gate" class="sc-choices">
+                  <button
+                    v-for="choice in lab.plan.choices"
+                    :key="choice.id"
+                    type="button"
+                    :data-testid="'slime-choice-' + choice.id"
+                    @click="lab.choose(choice.id)"
+                  >
+                    <strong>{{ choice.label }}</strong>
+                    <small>{{ choice.outcome }}</small>
+                  </button>
+                </div>
+                <p v-if="lab.blocked" class="sc-gate">{{ lab.blocked }}</p>
+                <span class="sc-city-actions">
+                  <button
+                    type="button"
+                    data-testid="slime-fight-rival"
+                    :disabled="!!lab.blocked"
+                    @click="lab.fightRival()"
+                  >
+                    FIGHT {{ lab.plan.rival.name.toUpperCase() }} →
+                  </button>
+                  <button
+                    type="button"
+                    class="sc-quiet"
+                    @click="lab.startDistrictMatch()"
+                  >
+                    QUICK MATCH
+                  </button>
+                </span>
+                <SlimeCityDistrictContract />
+              </template>
+              <span v-else class="sc-city-actions">
+                <button
+                  v-if="lab.route"
+                  type="button"
+                  data-testid="slime-walk"
+                  @click="lab.walk()"
+                >
+                  WALK {{ lab.route.street.toUpperCase() }} ·
+                  {{ nextStopName.toUpperCase() }} →
                 </button>
+                <span v-else class="sc-gate"
+                  >No route available. Choose a connected district.</span
+                >
               </span>
             </template>
-            <span v-else class="sc-city-actions">
+            <div class="sc-city-nav" aria-label="Crew destinations">
               <button
-                v-if="lab.route"
                 type="button"
-                data-testid="slime-walk"
-                @click="lab.walk()"
+                data-testid="slime-city-story-shortcut"
+                @click="lab.showCampaign()"
               >
-                WALK {{ lab.route.street.toUpperCase() }} →
+                CREW STORY · {{ lab.campaignState.wins }}/5
               </button>
-              <span v-else class="sc-gate"
-                >No street from {{ hereName }} reaches here. Walk the lit
-                streets.</span
+              <button
+                type="button"
+                data-testid="slime-city-cards-shortcut"
+                @click="lab.showCards()"
               >
-            </span>
+                INSPECT DECK · {{ lab.cards.length }} CARDS
+              </button>
+            </div>
           </div>
           <div class="sc-stage-foot">
             <span
@@ -193,11 +362,14 @@
                 lab.heatLimit
               }}
               · STANDING {{ lab.standing }} · CHAMPIONS
-              {{ lab.city.cleared.length }}/7</span
+              {{ lab.city.cleared.length }}/7 · STREET STORIES
+              {{ lab.streetProgress }}/9 · CONTRACTS
+              {{ lab.city.contracts.length }}/7</span
             ><span>{{ lab.city.log[0] }}</span>
           </div>
         </section>
 
+        <SlimeCityCampaign v-else-if="lab.view === 'campaign'" />
         <section
           v-else-if="lab.view === 'arena'"
           class="sc-stage sc-arena-stage"
@@ -208,6 +380,13 @@
               <span class="sc-overline"
                 >PROTOTYPE {{ currentModeIndex }} / 03 · SEED
                 {{ lab.match.seed }}</span
+              >
+              <span
+                v-if="lab.campaignBout && lab.activeChapter"
+                class="sc-overline sc-bout-line"
+                data-testid="slime-campaign-bout-line"
+                >STORY CHAPTER {{ lab.campaignBout.index + 1 }}/5 ·
+                {{ lab.activeChapter.title }}</span
               >
               <span
                 v-if="lab.boutPlan"
@@ -246,6 +425,13 @@
             </div>
           </div>
           <div class="sc-arena-backdrop">
+            <SlimeCityArtwork
+              class="sc-board-paint"
+              :image-id="slimeArtId('boards', lab.mode)"
+              :alt="currentMode.title + ' painted arena background'"
+              fallback="▦"
+              compact
+            />
             <div
               class="sc-board"
               :class="'sc-board-' + lab.mode"
@@ -272,6 +458,18 @@
                     cell.y === lab.sight.flag.y,
                   target:
                     lab.selectedUnit !== null || lab.selectedCard !== null,
+                  lair: monsterHere(cell.x, cell.y),
+                  neutral:
+                    lab.mode === 'blackout' &&
+                    cell.x >= 2 &&
+                    cell.x < lab.match.width - 2,
+                  legalMove: lab.canMoveTo(cell.x, cell.y),
+                  inRange:
+                    !!fighterAt(cell.x, cell.y) &&
+                    lab.attackTargets.includes(fighterAt(cell.x, cell.y)!.id),
+                  marked:
+                    !!fighterAt(cell.x, cell.y) &&
+                    lab.targetUnit === fighterAt(cell.x, cell.y)!.id,
                 }"
                 :data-testid="'slime-tile-' + cell.x + '-' + cell.y"
                 :aria-label="cellAria(cell.x, cell.y)"
@@ -290,6 +488,13 @@
                   >◇</span
                 >
                 <span
+                  v-if="monsterHere(cell.x, cell.y)"
+                  class="sc-monster"
+                  data-testid="slime-monster"
+                  ><span>❂</span
+                  ><small>{{ lab.sight.monster?.hp }}</small></span
+                >
+                <span
                   v-if="fighterAt(cell.x, cell.y)"
                   class="sc-fighter"
                   :class="[
@@ -301,6 +506,7 @@
                         lab.selectedUnit === fighterAt(cell.x, cell.y)?.id,
                       sealed: fighterAt(cell.x, cell.y)?.hidden,
                       carrier: fighterAt(cell.x, cell.y)?.carryingFlag,
+                      rooted: fighterAt(cell.x, cell.y)?.rooted,
                     },
                   ]"
                 >
@@ -308,6 +514,86 @@
                   <small>{{ fighterHp(cell.x, cell.y) }}</small>
                 </span>
               </button>
+            </div>
+            <div
+              v-if="lab.previewOpen && lab.inspectedCard"
+              class="sc-card-overlay"
+              role="dialog"
+              aria-modal="false"
+              :aria-label="lab.inspectedCard.name + ' card details'"
+              data-testid="slime-card-preview"
+            >
+              <div class="sc-card-poster" :class="'tone-' + lab.team.color">
+                <SlimeCityArtwork
+                  class="sc-inspected-paint"
+                  :image-id="slimeArtId('cards', lab.inspectedCard.id)"
+                  :alt="
+                    lab.inspectedCard.name + ' illustrated collectible card'
+                  "
+                  :fallback="lab.inspectedCard.symbol"
+                />
+              </div>
+              <div class="sc-card-information">
+                <span class="sc-overline"
+                  >{{ lab.inspectedCard.kind.toUpperCase() }} ·
+                  {{ lab.inspectedCard.cost }} MANA</span
+                >
+                <h3>{{ lab.inspectedCard.name }}</h3>
+                <p
+                  v-if="lab.inspectedCard.kind === 'creature'"
+                  class="sc-card-stats"
+                >
+                  ATK {{ lab.inspectedCard.attack }} · HP
+                  {{ lab.inspectedCard.hp }} · ARMOR
+                  {{ lab.inspectedCard.armor }} · MOVE
+                  {{ lab.inspectedCard.ap }} · RANGE
+                  {{ cardAttackRange(lab.inspectedCard) }}
+                </p>
+                <p>{{ lab.inspectedCard.text }}</p>
+                <p
+                  v-if="lab.inspectedCard.keywords?.length"
+                  class="sc-card-stats"
+                >
+                  {{
+                    lab.inspectedCard.keywords
+                      .map((k) => lab.keywords[k].label)
+                      .join(' · ')
+                  }}
+                </p>
+                <p
+                  v-if="lab.inspectedCard.kind === 'creature'"
+                  class="sc-overline"
+                >
+                  Newly summoned monsters cannot attack immediately.
+                </p>
+                <p
+                  v-if="lab.inspectedCard.cost > lab.match.mana"
+                  class="sc-no-mana"
+                >
+                  NEEDS {{ lab.inspectedCard.cost }} MANA · YOU HAVE
+                  {{ lab.match.mana }}
+                </p>
+                <div class="sc-card-cta">
+                  <button
+                    type="button"
+                    data-testid="slime-card-choose-target"
+                    @click="lab.closePreview()"
+                  >
+                    {{
+                      lab.inspectedCard.cost <= lab.match.mana
+                        ? 'CHOOSE TARGET →'
+                        : 'BACK TO ARENA'
+                    }}
+                  </button>
+                  <button
+                    type="button"
+                    class="sc-quiet"
+                    @click="lab.chooseCard(lab.inspectedCard.id)"
+                  >
+                    CANCEL
+                  </button>
+                </div>
+              </div>
             </div>
             <div v-if="lab.match.victor" class="sc-result" role="status">
               <strong>{{
@@ -320,11 +606,15 @@
               ><span>{{ winLine }}</span
               ><span class="sc-result-actions"
                 ><button
-                  v-if="lab.lastBout"
+                  v-if="lab.lastBout || lab.lastContract || lab.lastCampaign"
                   type="button"
-                  @click="lab.showCity()"
+                  @click="
+                    lab.lastCampaign ? lab.showCampaign() : lab.showCity()
+                  "
                 >
-                  BACK TO THE CITY</button
+                  {{
+                    lab.lastCampaign ? 'BACK TO STORY' : 'BACK TO THE CITY'
+                  }}</button
                 ><button type="button" @click="lab.reset(true)">
                   SAME SEED</button
                 ><button type="button" @click="lab.reset()">
@@ -370,7 +660,14 @@
             <span
               >{{ lab.mode === 'bloodrush' ? 'TICK' : 'ROUND' }}
               {{ lab.match.round }}/{{ lab.match.maxRounds }} ·
-              {{ lab.match.mana }} MANA</span
+              {{ lab.match.mana }} MANA<template v-if="lab.sight.debt[0]">
+                · OWES {{ lab.sight.debt[0] }}</template
+              ><template v-if="lab.match.overtime"> · SUDDEN DEATH</template
+              ><template v-if="lab.sight.monster">
+                · MONSTER {{ lab.sight.monster.hp }}/{{
+                  lab.sight.monster.maxHp
+                }}</template
+              ></span
             >
             <span aria-live="polite">{{ lab.match.log[0] }}</span>
             <button
@@ -395,14 +692,29 @@
         </section>
 
         <section
-          v-else
+          v-else-if="lab.view === 'cards'"
           class="sc-stage sc-collection"
           aria-label="Special cards and creature collection"
         >
           <div class="sc-collection-title">
-            <span class="sc-overline">THE ARMORY / PROTOTYPE CARDS</span>
+            <span class="sc-overline"
+              >THE ARMORY / LOANER DECK · {{ lab.progress.cards.length }}/60
+              COLLECTED</span
+            >
             <h2>{{ lab.team.name }}</h2>
             <p>{{ lab.team.hook }}</p>
+            <p data-testid="slime-crew-pattern">
+              <b>PLAY PATTERN</b> {{ lab.team.pattern }}
+            </p>
+            <p data-testid="slime-crew-counters">
+              <b>HOW TO BEAT THEM</b> {{ lab.team.counters }}
+            </p>
+            <p class="sc-art-summary" data-testid="slime-art-provenance">
+              ROUND ONE: {{ SLIME_CITY_ART_COUNT }} RENDERED IDS ·
+              {{ art.loadedCount }} VERIFIED IN BROWSER ·
+              {{ art.failedCount }} UNAVAILABLE · 24 STARTER CARDS STILL NEED
+              ART
+            </p>
           </div>
           <div class="sc-collection-grid kr-scroll">
             <article
@@ -411,17 +723,203 @@
               class="sc-collect-card"
               :class="'tone-' + lab.team.color"
             >
-              <div class="sc-collect-art">{{ card.symbol }}</div>
+              <div class="sc-collect-art">
+                <SlimeCityArtwork
+                  :image-id="slimeArtId('cards', card.id)"
+                  :alt="card.name + ' collectible card artwork'"
+                  :fallback="card.symbol"
+                />
+              </div>
               <div>
-                <span>{{ card.kind.toUpperCase() }} · {{ card.cost }} MANA</span
+                <span
+                  >{{ lab.cardRarity(card).toUpperCase() }} ·
+                  {{
+                    lab.progress.cards.includes(card.id) ? 'OWNED' : 'LOANER'
+                  }}
+                  · {{ card.kind.toUpperCase() }} ·
+                  {{ card.cost }} MANA<template v-if="card.signature">
+                    · SIGNATURE</template
+                  ></span
                 ><strong>{{ card.name }}</strong>
                 <p>{{ card.text }}</p>
+                <ul
+                  v-if="(card.keywords ?? card.grants ?? []).length"
+                  class="sc-keywords"
+                >
+                  <li
+                    v-for="k in card.keywords ?? card.grants ?? []"
+                    :key="k"
+                    :title="lab.keywords[k].text"
+                  >
+                    <b>{{ lab.keywords[k].label }}</b>
+                    {{ lab.keywords[k].text }}
+                  </li>
+                </ul>
               </div>
               <small v-if="card.kind === 'creature'"
                 >ATK {{ card.attack }} / HP {{ card.hp }} / ARMOR
                 {{ card.armor }} / AP {{ card.ap }}</small
               >
             </article>
+          </div>
+        </section>
+
+        <section
+          v-else
+          class="sc-stage sc-progression"
+          aria-label="Slime City progression and card packs"
+          data-testid="slime-progression"
+        >
+          <div class="sc-progression-top">
+            <div>
+              <span class="sc-overline"
+                >THE GUTTER EXCHANGE / VIRTUAL-ONLY ECONOMY</span
+              >
+              <h2>FIGHT. EARN. COLLECT.</h2>
+              <p>
+                All six ten-card starter decks stay available. Your XP, Meat,
+                owned cards, and challenges are saved to your Kind Robots
+                account.
+              </p>
+            </div>
+            <div class="sc-progress-hud">
+              <strong>LVL {{ lab.level }}</strong>
+              <span>{{ lab.progress.xp }} / {{ lab.nextLevel }} XP</span>
+              <b>{{ lab.progress.meat }} MEAT</b>
+            </div>
+          </div>
+          <div class="sc-progression-scroll kr-scroll">
+            <p v-if="lab.progressBusy" class="sc-progress-alert" role="status">
+              Syncing with your Kind Robots account…
+            </p>
+            <p
+              v-if="lab.progressError"
+              class="sc-progress-alert sc-progress-error"
+              role="alert"
+            >
+              {{ lab.progressError }}
+            </p>
+            <div class="sc-reward-columns">
+              <div class="sc-reward-panel">
+                <span class="sc-overline">THE PIT PAYS</span>
+                <strong>VS CPU BOUNTIES</strong>
+                <p>
+                  Victory: 80 XP + 45 Meat. Draw: 35 XP + 15 Meat. Loss: 25 XP +
+                  10 Meat. Base payouts for the first 10 completed bouts per
+                  Pacific day.
+                </p>
+                <p>
+                  {{ lab.progress.wins }} W / {{ lab.progress.losses }} L /
+                  {{ lab.progress.draws }} D ·
+                  {{ lab.progress.daily.paidBattles }}/10 PAID BOUTS TODAY
+                </p>
+                <button
+                  type="button"
+                  data-testid="slime-fight-for-meat"
+                  :disabled="lab.progressBusy || !lab.progressLoaded"
+                  @click="lab.startCpuBattle()"
+                >
+                  START REWARDED CPU BATTLE →
+                </button>
+                <small aria-live="polite">{{
+                  lab.progressError || lab.progress.lastReward
+                }}</small>
+              </div>
+              <div class="sc-reward-panel sc-shop-panel">
+                <span class="sc-overline">THE PACK SHOP</span>
+                <strong>STREET PACK</strong>
+                <div class="sc-pack-art" aria-hidden="true">
+                  <span>★</span><b>SLIME CITY</b
+                  ><small>1 GUARANTEED RARE</small>
+                </div>
+                <p>
+                  Three NEW cards. Exactly one rare, plus two common/uncommon.
+                  No duplicates. Random from the 60-card unowned pool, until
+                  sold out.
+                </p>
+                <p>
+                  COLLECTION {{ lab.progress.cards.length }}/60 ·
+                  {{ lab.progress.opened }} PACKS OPENED
+                </p>
+                <button
+                  type="button"
+                  data-testid="slime-buy-pack"
+                  :disabled="!lab.packAffordable || lab.progressBusy"
+                  @click="lab.purchasePack()"
+                >
+                  BUY PACK · {{ lab.packPrice }} MEAT
+                </button>
+                <small v-if="!lab.packAffordable"
+                  >Earn more Meat, or the guaranteed-rare pool is
+                  exhausted.</small
+                >
+              </div>
+            </div>
+            <div
+              v-if="lab.progress.lastPack.length"
+              class="sc-reward-panel"
+              data-testid="slime-pack-reveal"
+            >
+              <strong>YOUR LATEST PACK</strong>
+              <div class="sc-pack-cards">
+                <article
+                  v-for="id in lab.progress.lastPack"
+                  :key="id"
+                  :class="'rarity-' + lab.cardRarity(cardById(id))"
+                >
+                  <span class="sc-pack-face">{{ cardById(id).symbol }}</span>
+                  <strong>{{ cardById(id).name }}</strong>
+                  <small
+                    >{{ lab.cardRarity(cardById(id)).toUpperCase() }} ·
+                    {{ teamName(cardById(id).team) }}</small
+                  >
+                </article>
+              </div>
+            </div>
+            <div class="sc-reward-panel">
+              <span class="sc-overline"
+                >RESET AT MIDNIGHT PACIFIC / MONDAY FOR WEEKLIES</span
+              >
+              <strong>DAILY & WEEKLY BOUNTIES</strong>
+              <div class="sc-challenge-grid">
+                <article
+                  v-for="quest in lab.challengeList"
+                  :key="quest.id"
+                  class="sc-challenge"
+                >
+                  <span
+                    >{{ quest.period.toUpperCase() }} · {{ quest.value }}/{{
+                      quest.target
+                    }}</span
+                  >
+                  <strong>{{ quest.title }}</strong>
+                  <p>{{ quest.description }}</p>
+                  <small>+{{ quest.meat }} MEAT · +{{ quest.xp }} XP</small>
+                  <button
+                    type="button"
+                    :disabled="
+                      !quest.ready || lab.progressBusy || !lab.progressLoaded
+                    "
+                    :data-testid="'slime-claim-' + quest.id"
+                    @click="lab.claimReward(quest.id)"
+                  >
+                    {{
+                      quest.claimed
+                        ? 'CLAIMED ✓'
+                        : quest.ready
+                          ? 'CLAIM REWARD'
+                          : 'IN PROGRESS'
+                    }}
+                  </button>
+                </article>
+              </div>
+            </div>
+            <small class="sc-progression-note"
+              >All XP, Meat, collection and challenge claims are account-bound
+              in Kind Robots’ database. Only server-issued CPU matches award
+              rewards. No cash, paid card packs, or trading. Public launch
+              remains gated.</small
+            >
           </div>
         </section>
 
@@ -442,20 +940,63 @@
               :data-testid="'slime-mode-' + preset.id"
               @click="lab.chooseMode(preset.id)"
             >
+              <SlimeCityArtwork
+                class="sc-mode-paint"
+                :image-id="slimeArtId('boards', preset.id)"
+                :alt="preset.title + ' game mode artwork'"
+                compact
+              />
               <strong>{{ preset.title }}</strong
               ><span>{{ preset.size }} / {{ preset.cadence }}</span
-              ><small>{{ preset.subtitle }}</small>
+              ><small
+                >{{
+                  preset.id === 'blackout'
+                    ? 'MAIN GAME · '
+                    : preset.id === 'bloodrush'
+                      ? 'ARCADE · '
+                      : 'EXPERIMENT · '
+                }}{{ preset.subtitle }}</small
+              >
             </button>
+          </div>
+          <div
+            v-if="lab.view === 'arena'"
+            class="sc-rules"
+            data-testid="slime-rules"
+          >
+            <span class="sc-overline">RULE VARIANTS · RESTART SAME SEED</span>
+            <div class="sc-rule-list">
+              <button
+                v-for="variant in lab.variants"
+                :key="variant.id"
+                type="button"
+                class="sc-rule"
+                :class="{ on: lab.rules[variant.id] }"
+                :aria-pressed="lab.rules[variant.id]"
+                :title="variant.text"
+                :data-testid="'slime-rule-' + variant.id"
+                @click="lab.toggleRule(variant.id)"
+              >
+                {{ variant.label }}
+              </button>
+            </div>
+            <small v-if="activeRules.length" class="sc-rule-note">{{
+              activeRules.map((v) => v.text).join(' ')
+            }}</small>
           </div>
           <template v-if="lab.view === 'arena'">
             <div class="sc-actions">
               <div class="sc-control-heading">
-                <span class="sc-overline">HAND / REPEATABLE TEST CARDS</span
+                <span class="sc-overline">{{
+                  lab.mode === 'blackout'
+                    ? 'YOUR FOUR-CARD HAND'
+                    : 'ARCADE CARD RACK'
+                }}</span
                 ><span>AVAILABLE {{ lab.match.mana }} MANA</span>
               </div>
               <div class="sc-hand">
                 <button
-                  v-for="card in lab.cards"
+                  v-for="card in lab.mode === 'blackout' ? lab.hand : lab.cards"
                   :key="card.id"
                   type="button"
                   class="sc-hand-card"
@@ -471,7 +1012,14 @@
                   :aria-pressed="lab.selectedCard === card.id"
                   @click="lab.chooseCard(card.id)"
                 >
-                  <span class="sc-card-symbol">{{ card.symbol }}</span>
+                  <span class="sc-card-symbol">
+                    <SlimeCityArtwork
+                      :image-id="slimeArtId('cards', card.id)"
+                      :alt="card.name + ' thumbnail'"
+                      :fallback="card.symbol"
+                      compact
+                    />
+                  </span>
                   <span
                     ><strong>{{ card.name }}</strong
                     ><small>{{ card.kind }}</small></span
@@ -480,12 +1028,70 @@
                   <i v-if="!lab.ready(card.id)" class="sc-resting">USED</i>
                 </button>
               </div>
+              <p
+                v-if="lab.mode === 'blackout'"
+                class="sc-hand-count"
+                data-testid="slime-deck-count"
+              >
+                DRAW {{ lab.match.piles.player.length }} · DISCARD
+                {{ lab.match.discards.player.length }} · NEXT DEAL ON END ROUND
+              </p>
               <p v-if="lab.selected" class="sc-selected-line">
                 {{ lab.unitLabel(lab.selected.cardId) }} · HP
                 {{ lab.selected.hp }}/{{ lab.selected.maxHp }} · ATK
                 {{ lab.selected.attack }} · ARMOR {{ lab.selected.armor }} · AP
-                {{ lab.selected.ap }}/{{ lab.selected.maxAp }}
+                {{ lab.selected.ap }}/{{ lab.selected.maxAp
+                }}<template v-if="lab.selected.keywords?.length">
+                  ·
+                  {{
+                    lab.selected.keywords
+                      .map((k) => lab.keywords[k].label)
+                      .join(' ')
+                  }}</template
+                >
               </p>
+              <div
+                v-if="lab.mode === 'blackout' && lab.selected"
+                class="sc-action-deck"
+                data-testid="slime-attack-actions"
+              >
+                <span class="sc-overline"
+                  >SELECT AN ENEMY HIGHLIGHTED IN RED TO ATTACK</span
+                >
+                <button
+                  type="button"
+                  class="sc-attack-button"
+                  data-testid="slime-attack"
+                  :disabled="lab.targetUnit === null"
+                  @click="lab.attackSelected()"
+                >
+                  <span class="sc-attack-symbol">{{ attackSymbol }}</span>
+                  {{ (lab.selected.attackStyle ?? 'sword').toUpperCase() }}
+                  ATTACK
+                  <span>{{
+                    lab.targetUnit !== null
+                      ? lab.attackPreview + ' DAMAGE'
+                      : 'CHOOSE TARGET'
+                  }}</span>
+                </button>
+                <small
+                  v-if="
+                    lab.selected.summonedRound === lab.match.round &&
+                    !lab.selected.keywords?.includes('ambush')
+                  "
+                >
+                  JUST SUMMONED · CAN MOVE, CANNOT ATTACK UNTIL NEXT ROUND
+                </small>
+                <small
+                  v-else-if="lab.selected.attackedRound === lab.match.round"
+                >
+                  ALREADY ATTACKED THIS ROUND
+                </small>
+                <small v-else
+                  >RANGE {{ lab.selected.range ?? 1 }} · MOVE AP
+                  {{ lab.selected.ap }}</small
+                >
+              </div>
               <ol class="sc-log" aria-label="Recent events">
                 <li v-for="(line, i) in lab.match.log.slice(0, 6)" :key="i">
                   {{ line }}
@@ -517,8 +1123,9 @@
             <p>{{ currentMode.detail }}</p>
             <p>{{ lab.guide.goal }}</p>
             <p>
-              Pick a crew, test a board, and swap teams. These are reversible
-              local simulations; no Meat, inventory or online match is saved.
+              Start a reward-eligible CPU battle from REWARDS to earn XP and
+              Meat for your account. Free laboratory matches do not award
+              currency.
             </p>
           </div>
         </aside>
@@ -536,12 +1143,20 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onUnmounted } from 'vue'
-import { cardById, type ViewFighter } from '~/utils/slimeCity/prototypes'
-import { STREETS } from '~/utils/slimeCity/city'
+import { computed, onMounted, onUnmounted } from 'vue'
+import {
+  cardAttackRange,
+  cardById,
+  type ViewFighter,
+} from '~/utils/slimeCity/prototypes'
+import { STREETS, boutTerms, storyMissionTerms } from '~/utils/slimeCity/city'
+import { describeTerms } from '~/utils/slimeCity/campaign'
 import { useSlimeCityStore } from '~/stores/slimeCity'
+import { slimeArtId, SLIME_CITY_ART_COUNT } from '~/utils/slimeCity/artManifest'
+import { useSlimeCityArtStore } from '~/stores/slimeCityArt'
 
 const lab = useSlimeCityStore()
+const art = useSlimeCityArtStore()
 const currentMode = computed(
   () => lab.modes.find((mode) => mode.id === lab.mode) || lab.modes[0]!,
 )
@@ -569,6 +1184,8 @@ const streetLines = computed(() =>
       x2: to.x,
       y2: to.y,
       open: a === lab.city.location || b === lab.city.location,
+      witnessed: !!lab.city.streetChoices[name],
+      planned: lab.routeSteps.some((step) => step.street === name),
     }
   }),
 )
@@ -596,17 +1213,45 @@ function teamName(id: string): string {
 function modeTitle(id: string): string {
   return lab.modes.find((m) => m.id === id)?.title ?? id
 }
+const nextStopName = computed(
+  () => lab.districts.find((d) => d.id === lab.route?.to)?.name ?? '',
+)
+const routeLabel = computed(() =>
+  [
+    hereName.value,
+    ...lab.routeSteps.map(
+      ({ to }) => lab.districts.find((d) => d.id === to)?.name ?? to,
+    ),
+  ].join(' › '),
+)
+const attackSymbol = computed(
+  () =>
+    ({
+      sword: '⚔',
+      arrow: '➶',
+      spell: '✦',
+      claw: '✥',
+      hammer: '✣',
+      blast: '✷',
+    })[lab.selected?.attackStyle ?? 'sword'],
+)
 const flagStatus = computed(() => {
   const carrier = lab.sight.units.find((unit) => unit.carryingFlag)
   if (!carrier) return 'LOOSE'
   return carrier.side === 'player' ? 'YOURS' : 'TAKEN'
 })
+const activeRules = computed(() => lab.variants.filter((v) => lab.rules[v.id]))
+function monsterHere(x: number, y: number): boolean {
+  const m = lab.sight.monster
+  return !!m && m.x === x && m.y === y
+}
 const winLine = computed(() => {
   const how = {
     flag: 'Flag carried home.',
-    score: 'Three breakthroughs.',
-    rout: 'One side was wiped out.',
+    score: 'Breakthroughs decided it.',
+    rout: 'One side was routed.',
     time: 'Round limit reached.',
+    monster: 'The giant monster fell.',
   }
   return lab.match.winPath ? how[lab.match.winPath] : ''
 })
@@ -648,9 +1293,16 @@ function cellAria(x: number, y: number): string {
     y === lab.sight.flag.y
       ? ', flag'
       : ''
-  return 'Square ' + (x + 1) + ', ' + (y + 1) + ': ' + name + flag
+  const monster = monsterHere(x, y)
+    ? 'giant monster, ' + lab.sight.monster!.hp + ' hit points'
+    : ''
+  return 'Square ' + (x + 1) + ', ' + (y + 1) + ': ' + (monster || name + flag)
 }
-onUnmounted(() => lab.dispose())
+onMounted(() => lab.hydrateProgression())
+onUnmounted(() => {
+  lab.dispose()
+  art.clear()
+})
 </script>
 
 <style scoped>
@@ -810,6 +1462,7 @@ onUnmounted(() => lab.dispose())
   background: color-mix(in srgb, var(--tone) 20%, #141c29);
 }
 .sc-emblem {
+  overflow: hidden;
   flex: none;
   display: grid;
   place-items: center;
@@ -846,6 +1499,7 @@ onUnmounted(() => lab.dispose())
   background: #111724;
 }
 .sc-profile .sc-big-emblem {
+  overflow: hidden;
   float: right;
   display: grid;
   place-items: center;
@@ -892,6 +1546,18 @@ onUnmounted(() => lab.dispose())
   position: relative;
   overflow: hidden;
   background: #151f2d;
+}
+.sc-city .sc-district-paint {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  opacity: 0.82;
+}
+.sc-city .sc-district-paint :deep(img) {
+  object-position: center center;
+}
+.sc-city .sc-skyline {
+  opacity: 0.32;
 }
 .sc-city {
   flex: 1;
@@ -1085,6 +1751,10 @@ onUnmounted(() => lab.dispose())
   stroke-width: 2.5;
   stroke-dasharray: none;
 }
+.sc-district.mission .sc-district-pin {
+  outline: 3px solid #f9bcff;
+  outline-offset: 6px;
+}
 .sc-district.is-here .sc-district-pin {
   background: #ffd34d;
   color: #2a1c05;
@@ -1096,6 +1766,35 @@ onUnmounted(() => lab.dispose())
 .sc-district.is-locked .sc-district-pin {
   opacity: 0.55;
   border-style: dashed;
+}
+.sc-street-encounter {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  border-left: 3px solid #f0b4ff;
+  padding: 0.3rem 0.35rem 0.3rem 0.8rem;
+  background: linear-gradient(90deg, #592b7442, transparent 80%);
+}
+.sc-street-encounter h2 {
+  margin: 0;
+  color: #f1c6ff;
+  letter-spacing: 0.055em;
+  font-size: clamp(1rem, 2cqw, 1.4rem);
+  font-weight: 900;
+}
+.sc-street-encounter .sc-choices button {
+  border-color: #d9a2ee;
+  min-width: 0;
+}
+.sc-streets line.witnessed {
+  stroke: #e6a7ff;
+  stroke-width: 2.5;
+  stroke-dasharray: none;
+}
+.sc-streets line.planned {
+  stroke: #ffdc83;
+  stroke-width: 3.5;
+  stroke-dasharray: none;
 }
 .sc-scene {
   color: #dbe3ee;
@@ -1132,6 +1831,88 @@ onUnmounted(() => lab.dispose())
   color: #b8c4d0;
   font-size: 0.66rem;
   line-height: 1.3;
+}
+.sc-story-mission {
+  display: grid;
+  gap: 0.35rem;
+  padding: 0.65rem 0.75rem;
+  border-left: 3px solid #e6a7ff;
+  background: linear-gradient(110deg, #542c624d, #172332b8);
+}
+.sc-mission-poster {
+  position: relative;
+  width: 100%;
+  height: clamp(7rem, 16cqw, 12rem);
+  overflow: hidden;
+  border: 1px solid #dba9ff80;
+  border-radius: 0.4rem;
+}
+.sc-mission-poster :deep(.slime-art img) {
+  object-position: center 30%;
+}
+.sc-mission-poster-label {
+  position: absolute;
+  inset: auto 0 0;
+  display: grid;
+  gap: 0.15rem;
+  padding: 0.5rem 0.75rem;
+  background: linear-gradient(transparent, #0e1223ef 28%);
+  color: #fce5ff;
+  text-shadow: 0 1px 6px #080b15;
+}
+.sc-mission-poster-label small {
+  font-size: 0.56rem;
+  font-weight: 900;
+  letter-spacing: 0.12em;
+}
+.sc-mission-poster-label strong {
+  font-size: clamp(0.8rem, 1.7cqw, 1.2rem);
+}
+.sc-mission-ready {
+  display: grid;
+  gap: 0.35rem;
+}
+.sc-mission-terms {
+  color: #d9fbb3;
+  font-size: 0.67rem;
+  font-weight: 750;
+}
+.sc-story-mission > strong {
+  font-size: 1rem;
+  color: #f9d5ff;
+}
+.sc-mission-hint {
+  color: #fee5aa;
+  font-size: 0.72rem;
+}
+.sc-route {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  padding: 0.55rem 0.7rem;
+  border-left: 3px solid #ffdc83;
+  background: #ffdc8315;
+}
+.sc-route strong {
+  font-size: 0.8rem;
+  line-height: 1.35;
+  color: #fff1c6;
+}
+.sc-route small {
+  color: #cdd9e2;
+  font-size: 0.7rem;
+}
+.sc-city-nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  border-top: 1px solid #6b778466;
+  padding-top: 0.55rem;
+}
+.sc-city-selection .sc-city-nav button {
+  background: #283348;
+  color: #e7f9bc;
+  border: 1px solid #b5ca8c99;
 }
 .sc-decided {
   font-size: 0.72rem;
@@ -1204,6 +1985,9 @@ onUnmounted(() => lab.dispose())
   gap: 0.4rem;
 }
 .sc-mode {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
   display: flex;
   flex-direction: column;
   align-items: flex-start;
@@ -1214,6 +1998,15 @@ onUnmounted(() => lab.dispose())
   border-radius: 0.4rem;
   text-align: left;
   min-height: 3.7rem;
+}
+.sc-mode .sc-mode-paint {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  opacity: 0.4;
+}
+.sc-mode .sc-mode-paint :deep(img) {
+  object-position: center 35%;
 }
 .sc-mode.active {
   border-color: #d7fc7a;
@@ -1294,8 +2087,13 @@ onUnmounted(() => lab.dispose())
   opacity: 0.55;
 }
 .sc-hand-card .sc-card-symbol {
-  font-size: 1.3rem;
-  color: var(--tone);
+  flex: none;
+  display: block;
+  width: 2.4rem;
+  height: 2.8rem;
+  overflow: hidden;
+  border-radius: 0.2rem;
+  border: 1px solid var(--tone);
 }
 .sc-hand-card span:nth-child(2) {
   display: flex;
@@ -1370,6 +2168,12 @@ onUnmounted(() => lab.dispose())
   font-size: 1.1rem;
   color: #d7ff7e;
 }
+.sc-arena-backdrop .sc-board-paint {
+  position: absolute;
+  inset: 0;
+  opacity: 0.53;
+  pointer-events: none;
+}
 .sc-arena-backdrop {
   position: relative;
   flex: 1;
@@ -1384,6 +2188,8 @@ onUnmounted(() => lab.dispose())
     radial-gradient(ellipse, #26474c 0%, #0c1e2b 70%);
 }
 .sc-board {
+  position: relative;
+  z-index: 1;
   display: grid;
   width: min(100%, 68cqh);
   max-height: 100%;
@@ -1434,6 +2240,69 @@ onUnmounted(() => lab.dispose())
   color: #ffe8a1;
   font-size: clamp(0.6rem, 2vw, 1.5rem);
   opacity: 0.7;
+}
+.sc-tile.lair {
+  background: radial-gradient(circle, #ff3fbf66, #3a1037 75%);
+}
+.sc-monster {
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  color: #ff9be8;
+  font-size: clamp(1.1rem, 3.2vw, 2.4rem);
+  line-height: 1;
+  text-shadow: 0 0 14px #ff3fbf;
+}
+.sc-monster small {
+  font-size: 0.55rem;
+  color: #ffd6f4;
+}
+.sc-fighter.rooted {
+  outline: 2px dashed #8fd3ff;
+  outline-offset: -3px;
+}
+.sc-rules {
+  display: grid;
+  gap: 0.3rem;
+}
+.sc-rule-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+}
+.sc-rule {
+  padding: 0.25rem 0.45rem;
+  border: 1px solid #60708167;
+  border-radius: 999px;
+  background: #26304477;
+  color: #c9d2de;
+  font-size: 0.56rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+}
+.sc-rule.on {
+  border-color: #ff7de0;
+  background: #4a1f45;
+  color: #fff;
+}
+.sc-rule-note {
+  color: #e9b9e0;
+  font-size: 0.58rem;
+  line-height: 1.35;
+}
+.sc-keywords {
+  margin: 0.2rem 0 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 0.15rem;
+  font-size: 0.58rem;
+  color: #d9e5ec;
+}
+.sc-keywords b {
+  color: var(--tone);
+  letter-spacing: 0.06em;
 }
 .sc-trap {
   position: absolute;
@@ -1564,6 +2433,8 @@ onUnmounted(() => lab.dispose())
   box-shadow: 0 5px 16px #0007;
 }
 .sc-collect-art {
+  overflow: hidden;
+  height: clamp(8rem, 19cqw, 14rem);
   display: grid;
   place-items: center;
   min-height: 6rem;
@@ -1577,6 +2448,11 @@ onUnmounted(() => lab.dispose())
       color-mix(in srgb, var(--tone) 35%, #171b2b),
       #141b28
     );
+}
+.sc-art-summary {
+  color: #c8f2a1 !important;
+  font-size: 0.65rem !important;
+  letter-spacing: 0.04em;
 }
 .sc-collect-card > div:nth-child(2) {
   padding: 0.6rem;
@@ -1933,5 +2809,356 @@ onUnmounted(() => lab.dispose())
   .sc-fighter {
     box-shadow: none;
   }
+}
+.sc-card-overlay {
+  position: absolute;
+  z-index: 8;
+  top: 3%;
+  right: 3%;
+  bottom: 3%;
+  width: min(31rem, 85%);
+  display: grid;
+  grid-template-rows: minmax(7rem, 46%) minmax(0, 1fr);
+  background: #111a27f5;
+  border: 2px solid #c8ff78;
+  border-radius: 0.75rem;
+  box-shadow:
+    0 15px 70px #000e,
+    0 0 35px #a3ff4755;
+  overflow: auto;
+}
+.sc-card-poster {
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  min-height: 8rem;
+  background: radial-gradient(
+    circle,
+    color-mix(in srgb, var(--tone) 45%, #20263e),
+    #101a27 85%
+  );
+}
+.sc-card-poster .sc-inspected-paint {
+  position: absolute;
+  inset: 0;
+}
+.sc-card-information {
+  padding: 1rem;
+  overflow: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+.sc-card-information h3 {
+  margin: 0;
+  font-size: clamp(1.4rem, 3cqw, 2rem);
+}
+.sc-card-information p {
+  margin: 0;
+  font-size: 0.85rem;
+  line-height: 1.4;
+}
+.sc-card-information .sc-card-stats {
+  color: #d9ff95;
+  font-weight: 800;
+}
+.sc-card-information .sc-no-mana {
+  color: #ffb498;
+}
+.sc-card-cta {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: auto;
+}
+.sc-card-cta button {
+  background: #c8ff78;
+  color: #152112;
+  border-radius: 0.4rem;
+  padding: 0.55rem 0.65rem;
+  font-size: 0.72rem;
+  font-weight: 900;
+}
+.sc-card-cta .sc-quiet {
+  background: transparent;
+  color: #e6ffd3;
+  border: 1px solid #99be75;
+}
+.sc-hand-count {
+  color: #bbd1a0;
+  font-size: 0.65rem;
+}
+@container (max-width: 600px) {
+  .sc-card-overlay {
+    width: 93%;
+    left: 3.5%;
+    right: 3.5%;
+    top: 2%;
+    bottom: 2%;
+    grid-template-rows: minmax(4rem, 36%) minmax(0, 1fr);
+  }
+  .sc-card-information {
+    padding: 0.65rem;
+    gap: 0.25rem;
+  }
+}
+.sc-tile.neutral {
+  box-shadow: inset 0 0 0 1px #cbd3a51d;
+}
+.sc-tile.legalMove {
+  outline: 2px dashed #79faac;
+  outline-offset: -3px;
+}
+.sc-tile.inRange {
+  outline: 3px solid #ff9174;
+  outline-offset: -3px;
+}
+.sc-tile.marked {
+  background: #ab414b;
+  box-shadow: inset 0 0 0 4px #ffe5aa;
+}
+.sc-action-deck {
+  display: grid;
+  gap: 0.3rem;
+  background: #1f2838;
+  border: 1px solid #dc9579;
+  padding: 0.5rem;
+  border-radius: 0.5rem;
+}
+.sc-action-deck small {
+  font-size: 0.64rem;
+  color: #e7c79b;
+}
+.sc-attack-button {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  background: linear-gradient(100deg, #f77d54, #a83a55);
+  color: #fff;
+  padding: 0.5rem;
+  border-radius: 0.4rem;
+  font-size: 0.7rem;
+  font-weight: 950;
+}
+.sc-attack-button span:last-child {
+  margin-left: auto;
+  font-size: 0.56rem;
+}
+.sc-attack-button:disabled {
+  opacity: 0.48;
+}
+.sc-attack-symbol {
+  font-size: 1.6rem;
+}
+.sc-progression {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  min-height: 0;
+  background: radial-gradient(ellipse at top, #29233e, #101322 73%);
+}
+.sc-progression-top {
+  padding: clamp(0.7rem, 2cqw, 1.4rem);
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  align-items: flex-start;
+}
+.sc-progression-top h2 {
+  margin: 0.2rem 0;
+  font-size: clamp(1.4rem, 3.4cqw, 2.8rem);
+  letter-spacing: -0.025em;
+}
+.sc-progression-top p {
+  margin: 0;
+  max-width: 45rem;
+  font-size: 0.8rem;
+  color: #cfcae5;
+}
+.sc-progress-hud {
+  display: grid;
+  text-align: right;
+  flex-shrink: 0;
+  gap: 0.2rem;
+}
+.sc-progress-hud strong {
+  color: #c8ff78;
+  font-size: 1.3rem;
+}
+.sc-progress-hud span {
+  font-size: 0.66rem;
+}
+.sc-progress-hud b {
+  color: #ffd66e;
+}
+.sc-progression-scroll {
+  padding: 0 1rem 1rem;
+  min-height: 0;
+  overflow: auto;
+  display: grid;
+  align-content: start;
+  gap: 0.7rem;
+}
+.sc-reward-columns {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 0.7rem;
+}
+.sc-reward-panel {
+  display: grid;
+  align-content: start;
+  gap: 0.5rem;
+  min-width: 0;
+  padding: 1rem;
+  border: 1px solid #8070a3;
+  border-radius: 0.7rem;
+  background: #191c30e8;
+}
+.sc-reward-panel > strong {
+  font-size: 1.2rem;
+}
+.sc-reward-panel p {
+  margin: 0;
+  font-size: 0.76rem;
+  line-height: 1.4;
+  color: #e2dfea;
+}
+.sc-reward-panel > small {
+  font-size: 0.67rem;
+  color: #cfcde3;
+}
+.sc-reward-panel > button,
+.sc-challenge button {
+  border-radius: 0.4rem;
+  border: 1px solid #c8ff78;
+  background: #c8ff78;
+  color: #19221a;
+  font-size: 0.78rem;
+  font-weight: 900;
+  padding: 0.6rem;
+}
+.sc-reward-panel button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  background: #454a5b;
+  color: #d2d3de;
+}
+.sc-pack-art {
+  min-height: 8rem;
+  display: grid;
+  place-content: center;
+  text-align: center;
+  background: radial-gradient(circle at center, #954cbd, #36224a 72%);
+  border: 3px double #e9b6ff;
+  border-radius: 0.55rem;
+  transform: rotate(-1deg);
+}
+.sc-pack-art span {
+  font-size: 3rem;
+  line-height: 1;
+  color: #f4d27d;
+  text-shadow: 0 0 16px #ffe38d;
+}
+.sc-pack-art b {
+  font-size: 1.3rem;
+  letter-spacing: 0.12em;
+}
+.sc-pack-art small {
+  color: #ffd88b;
+  font-size: 0.65rem;
+}
+.sc-pack-cards {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.6rem;
+}
+.sc-pack-cards article {
+  padding: 0.7rem;
+  border: 2px solid #8682a7;
+  border-radius: 0.6rem;
+  display: grid;
+  justify-items: center;
+  gap: 0.3rem;
+  min-width: 0;
+  background: #29243c;
+}
+.sc-pack-cards .rarity-rare {
+  border-color: #f7cb68;
+  background: radial-gradient(circle, #6b4267, #2a2441);
+}
+.sc-pack-face {
+  display: grid;
+  place-content: center;
+  width: 100%;
+  min-height: 5rem;
+  font-size: 3rem;
+  border-radius: 0.35rem;
+  background: #ffffff0b;
+}
+.sc-pack-cards strong {
+  font-size: 0.8rem;
+  text-align: center;
+}
+.sc-pack-cards small {
+  font-size: 0.6rem;
+  text-align: center;
+}
+.sc-challenge-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.5rem;
+}
+.sc-challenge {
+  background: #29273c;
+  border: 1px solid #65607c;
+  border-radius: 0.5rem;
+  padding: 0.6rem;
+  display: grid;
+  align-content: start;
+  gap: 0.3rem;
+}
+.sc-challenge > span,
+.sc-challenge > small {
+  color: #f5d9a5;
+  font-size: 0.65rem;
+}
+.sc-challenge strong {
+  font-size: 0.9rem;
+}
+.sc-challenge p {
+  font-size: 0.7rem;
+}
+.sc-progression-note {
+  color: #a5a1b9;
+  font-size: 0.64rem;
+}
+@container (max-width: 700px) {
+  .sc-reward-columns {
+    grid-template-columns: 1fr;
+  }
+  .sc-progression-top {
+    padding: 0.65rem;
+  }
+  .sc-challenge-grid {
+    grid-template-columns: 1fr;
+  }
+  .sc-progression-scroll {
+    padding: 0 0.6rem 0.7rem;
+  }
+}
+.sc-progress-alert {
+  margin: 0;
+  padding: 0.5rem 0.75rem;
+  background: #35405a;
+  border: 1px solid #9ab7d8;
+  font-size: 0.75rem;
+  border-radius: 0.4rem;
+}
+.sc-progress-error {
+  background: #4b233a;
+  border-color: #ff8db3;
 }
 </style>

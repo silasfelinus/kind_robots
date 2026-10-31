@@ -1170,6 +1170,18 @@ export type ResourcePreview = Prisma.ResourcePreviewModel
  */
 export type HybridizerFusion = Prisma.HybridizerFusionModel
 /**
+ * Model SlimeCityAccount
+ * Slime City is an account-owned virtual game economy, separate from paid
+ * Kind Robots mana/tokens. Authoritative state is NEVER browser-local.
+ */
+export type SlimeCityAccount = Prisma.SlimeCityAccountModel
+/**
+ * Model SlimeCityMatch
+ * A match is issued by the server; replay and settlement are keyed to its
+ * unique id and can only pay once. Stored inputs are audit evidence.
+ */
+export type SlimeCityMatch = Prisma.SlimeCityMatchModel
+/**
  * Model SiteStatDaily
  * 
  */

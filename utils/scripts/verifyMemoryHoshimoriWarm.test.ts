@@ -10,9 +10,14 @@ import {
   hoshimoriLanternOrder,
   hoshimoriOvenResolution,
   hoshimoriOvenSecondAccount,
+  hoshimoriOvenThirdAccount,
+  hoshimoriOvenFourthAccount,
+  hoshimoriOvenGuardianResolution,
   hoshimoriRidgeAccount,
   hoshimoriLowlandAccount,
   hoshimoriWindwardAccount,
+  hoshimoriSouthernAccount,
+  hoshimoriVesperReckoning,
   hoshimoriOvenTestimony,
   newHoshimoriWarmProgress,
   restoreHoshimoriWarm,
@@ -28,19 +33,26 @@ import {
   restoreEarthChronicle,
 } from '../memoryDungeon/chronicle'
 import { MEMORY_REALITY_EXPERIENCES } from '../memoryDungeon/reimaginerCampaign'
+import {
+  MEMORY_HOSHIMORI_CINDER_ACHIEVEMENTS,
+  MEMORY_HOSHIMORI_ACHIEVEMENTS,
+  memoryAchievementGallery,
+  reconcileMemoryAchievements,
+  restoreMemoryAchievements,
+} from '../memoryDungeon/achievements'
 
 assert.deepEqual(validateHoshimoriWarm(), [])
-assert.equal(HOSHIMORI_WARM_SITES.length, 44)
-assert.equal(new Set(HOSHIMORI_WARM_SITES.map((site) => site.key)).size, 44)
-assert.equal(HOSHIMORI_OVEN_ROOMS.length, 9)
-assert.equal(new Set(HOSHIMORI_WARM_SITES.map((site) => site.opening)).size, 44)
+assert.equal(HOSHIMORI_WARM_SITES.length, 64)
+assert.equal(new Set(HOSHIMORI_WARM_SITES.map((site) => site.key)).size, 64)
+assert.equal(HOSHIMORI_OVEN_ROOMS.length, 21)
+assert.equal(new Set(HOSHIMORI_WARM_SITES.map((site) => site.opening)).size, 64)
 assert.equal(
   new Set(
     HOSHIMORI_WARM_SITES.flatMap((site) =>
       site.choices.map((choice) => choice.outcome),
     ),
   ).size,
-  88,
+  128,
   'Every authored decision must have a distinct outcome',
 )
 
@@ -204,7 +216,11 @@ for (let seed = 0; seed < 96; seed++) {
       progress = choose(progress, affordable.id)
     }
   }
-  assert.equal(progress.visited.length, 44, 'All windward sites are reachable')
+  assert.equal(
+    progress.visited.length,
+    44,
+    'All first forty-four village sites are reachable',
+  )
   assert.equal(Object.keys(progress.choices).length, 44)
   assert.ok(hoshimoriWindwardAccount(progress))
   assert.equal(hoshimoriLanternClues(progress).length, 3)
@@ -443,6 +459,256 @@ assert.equal(
   64,
   'Six distinct decisions should produce 64 earned accounts',
 )
+
+const emberWingChoices = [
+  ['weigh-flour', 'trace-sacks'],
+  ['unlatch-door', 'ask-children'],
+  ['release-ember', 'offer-ember'],
+  ['publish-totals', 'invite-auditors'],
+  ['build-commons', 'share-flue'],
+  ['rewrite-guardian', 'quench-guardian'],
+] as const
+const emberWingAccounts = new Set<string>()
+const guardianDispositions = new Set<string>()
+for (let mask = 0; mask < 64; mask++) {
+  let run = newHoshimoriWarmProgress(mask)
+  assert.strictEqual(
+    advanceHoshimoriWarm(run, { type: 'enter-ember-wing' }),
+    run,
+    'The Ember Wing requires both earlier hearings',
+  )
+  for (const key of ['2,1', '3,1', '4,1', '4,2']) run = move(run, key)
+  run = choose(run, 'pledge')
+  run = move(run, '4,3')
+  run = advanceHoshimoriWarm(run, { type: 'enter' })
+  for (const id of ['audit', 'consent', 'pact'])
+    run = advanceHoshimoriWarm(run, { type: 'oven-choice', id })
+  assert.strictEqual(
+    advanceHoshimoriWarm(run, { type: 'enter-ember-wing' }),
+    run,
+    'The first hearing cannot skip the Ash Wing',
+  )
+  run = advanceHoshimoriWarm(run, { type: 'enter-wing' })
+  for (const pair of ashWingChoices)
+    run = advanceHoshimoriWarm(run, { type: 'oven-choice', id: pair[0] })
+  assert.equal(run.ovenRoom, null, 'OV-09 remains a terminal v1 room')
+  assert.deepEqual(
+    restoreHoshimoriWarm(JSON.parse(JSON.stringify(run))),
+    run,
+    'An existing completed Ash Wing save must still restore unchanged',
+  )
+  assert.equal(hoshimoriOvenThirdAccount(run), null)
+  assert.equal(hoshimoriOvenGuardianResolution(run), null)
+  const unearned = {
+    ...run,
+    ovenChoices: {
+      ...run.ovenChoices,
+      'OV-15': 'rewrite-guardian',
+    },
+  }
+  assert.equal(
+    hoshimoriOvenThirdAccount(unearned),
+    null,
+    'Missing middle-room testimony cannot produce an account',
+  )
+  assert.equal(
+    hoshimoriOvenGuardianResolution(unearned),
+    null,
+    'A forged final choice alone cannot produce a guardian verdict',
+  )
+  run = advanceHoshimoriWarm(run, { type: 'enter-ember-wing' })
+  assert.equal(run.ovenRoom, 'OV-10')
+  for (let index = 0; index < emberWingChoices.length; index++) {
+    const room = HOSHIMORI_OVEN_ROOMS[index + 9]!
+    assert.equal(run.ovenRoom, room.id)
+    const choice = emberWingChoices[index]![(mask >> index) & 1]!
+    run = advanceHoshimoriWarm(run, { type: 'oven-choice', id: choice })
+    if (index === 2 && mask === 0) {
+      const beforeLeave = run
+      run = advanceHoshimoriWarm(run, { type: 'leave' })
+      assert.equal(run.ovenRoom, null)
+      run = advanceHoshimoriWarm(run, { type: 'enter-ember-wing' })
+      assert.equal(run.ovenRoom, 'OV-13')
+      assert.equal(run.rations, beforeLeave.rations)
+      assert.equal(run.trust, beforeLeave.trust)
+      assert.deepEqual(run.ovenChoices, beforeLeave.ovenChoices)
+    }
+  }
+  assert.equal(run.ovenRoom, null)
+  assert.equal(run.ovenComplete, true)
+  assert.ok(run.rations >= 0)
+  const account = hoshimoriOvenThirdAccount(run)
+  const guardian = hoshimoriOvenGuardianResolution(run)
+  assert.ok(account)
+  assert.ok(guardian)
+  emberWingAccounts.add(account)
+  guardianDispositions.add(guardian.split('.')[0]!)
+  assert.strictEqual(
+    advanceHoshimoriWarm(run, { type: 'enter-ember-wing' }),
+    run,
+    'The completed Ember Wing cannot be farmed',
+  )
+  assert.deepEqual(
+    restoreHoshimoriWarm(JSON.parse(JSON.stringify(run))),
+    run,
+    'Every Ember Wing path must restore from its action journal',
+  )
+  const forged = JSON.parse(JSON.stringify(run)) as HoshimoriWarmProgress
+  forged.ovenChoices['OV-12'] =
+    run.ovenChoices['OV-12'] === 'release-ember'
+      ? 'offer-ember'
+      : 'release-ember'
+  assert.equal(
+    restoreHoshimoriWarm(forged),
+    null,
+    'Guardian consent cannot be forged by editing the saved ledger',
+  )
+}
+assert.equal(emberWingAccounts.size, 64)
+assert.equal(
+  guardianDispositions.size,
+  3,
+  'Release, bounded guardianship and non-magical relief need distinct endings',
+)
+
+const cinderChoices = [
+  ['invite-appeals', 'hold-private-hearings'],
+  ['offer-shelf', 'restore-handle'],
+  ['float-supper', 'build-dry-pantry'],
+  ['return-ledger', 'keep-blank'],
+  ['ring-bell', 'call-witnesses'],
+  ['open-appeals', 'keep-rotating-council'],
+] as const
+assert.equal(MEMORY_HOSHIMORI_CINDER_ACHIEVEMENTS.length, 8)
+assert.equal(
+  new Set(MEMORY_HOSHIMORI_CINDER_ACHIEVEMENTS.map((m) => m.echo)).size,
+  8,
+)
+assert.ok(
+  memoryAchievementGallery([])
+    .filter((m) => m.id.startsWith('e07-cinder-'))
+    .every((m) => !m.earned && m.echo === null),
+)
+const cinderMedalIds = new Set<string>()
+const cinderAccounts = new Set<string>()
+for (let mask = 0; mask < 64; mask++) {
+  let run = newHoshimoriWarmProgress(mask + 200)
+  assert.strictEqual(
+    advanceHoshimoriWarm(run, { type: 'enter-cinder-wing' }),
+    run,
+    'Restitution cannot be reached before the guardian hearing',
+  )
+  for (const key of ['2,1', '3,1', '4,1', '4,2']) run = move(run, key)
+  run = choose(run, 'pledge')
+  run = move(run, '4,3')
+  run = advanceHoshimoriWarm(run, { type: 'enter' })
+  for (const id of ['audit', 'consent', 'pact'])
+    run = advanceHoshimoriWarm(run, { type: 'oven-choice', id })
+  assert.strictEqual(
+    advanceHoshimoriWarm(run, { type: 'enter-cinder-wing' }),
+    run,
+    'The first hearing cannot skip earlier wings',
+  )
+  run = advanceHoshimoriWarm(run, { type: 'enter-wing' })
+  for (const pair of ashWingChoices)
+    run = advanceHoshimoriWarm(run, { type: 'oven-choice', id: pair[0] })
+  run = advanceHoshimoriWarm(run, { type: 'enter-ember-wing' })
+  for (const pair of emberWingChoices)
+    run = advanceHoshimoriWarm(run, { type: 'oven-choice', id: pair[0] })
+  assert.equal(run.ovenRoom, null, 'OV-15 remains terminal for old saves')
+  assert.equal(hoshimoriOvenFourthAccount(run), null)
+  assert.deepEqual(
+    reconcileMemoryAchievements([], [], undefined, undefined, run),
+    [],
+    'The Ember Wing cannot mint a restitution medal before the Cinder hearing',
+  )
+  assert.deepEqual(restoreHoshimoriWarm(JSON.parse(JSON.stringify(run))), run)
+  const unearned = {
+    ...run,
+    ovenChoices: { ...run.ovenChoices, 'OV-21': 'open-appeals' },
+  }
+  assert.equal(
+    hoshimoriOvenFourthAccount(unearned),
+    null,
+    'Final-room forgery cannot supply missing testimony',
+  )
+  run = advanceHoshimoriWarm(run, { type: 'enter-cinder-wing' })
+  assert.equal(run.ovenRoom, 'OV-16')
+  for (let index = 0; index < cinderChoices.length; index++) {
+    const room = HOSHIMORI_OVEN_ROOMS[index + 15]!
+    assert.equal(run.ovenRoom, room.id)
+    run = advanceHoshimoriWarm(run, {
+      type: 'oven-choice',
+      id: cinderChoices[index]![(mask >> index) & 1]!,
+    })
+    if (index === 2 && mask === 0) {
+      const prior = run
+      run = advanceHoshimoriWarm(run, { type: 'leave' })
+      assert.equal(run.ovenRoom, null)
+      run = advanceHoshimoriWarm(run, { type: 'enter-cinder-wing' })
+      assert.equal(run.ovenRoom, 'OV-19')
+      assert.equal(run.rations, prior.rations)
+      assert.equal(run.trust, prior.trust)
+      assert.deepEqual(run.ovenChoices, prior.ovenChoices)
+    }
+  }
+  assert.equal(run.ovenRoom, null)
+  assert.equal(run.ovenComplete, true)
+  assert.ok(run.rations >= 0)
+  const account = hoshimoriOvenFourthAccount(run)
+  assert.ok(account)
+  cinderAccounts.add(account)
+  const earned = reconcileMemoryAchievements([], [], undefined, undefined, run)
+  assert.equal(earned.length, 1, 'A completed Cinder route earns one medal')
+  const medal = MEMORY_HOSHIMORI_CINDER_ACHIEVEMENTS.find(
+    (entry) => entry.id === earned[0],
+  )!
+  assert.ok(medal.echo.length >= 120)
+  assert.ok(medal.artPath.startsWith('/images/memory-dungeon/hoshimori/'))
+  cinderMedalIds.add(medal.id)
+  assert.equal(
+    memoryAchievementGallery(earned).find((entry) => entry.id === medal.id)
+      ?.echo,
+    medal.echo,
+  )
+  assert.deepEqual(
+    reconcileMemoryAchievements(earned, [], undefined, undefined, run),
+    earned,
+    'Revisiting restitution cannot duplicate a medal',
+  )
+  assert.deepEqual(restoreMemoryAchievements([...earned, ...earned]), earned)
+  assert.strictEqual(
+    advanceHoshimoriWarm(run, { type: 'enter-cinder-wing' }),
+    run,
+    'Completed restitution cannot be farmed',
+  )
+  assert.deepEqual(
+    restoreHoshimoriWarm(JSON.parse(JSON.stringify(run))),
+    run,
+    'Every Cinder branch must replay after save/load',
+  )
+  const forged = JSON.parse(JSON.stringify(run)) as HoshimoriWarmProgress
+  forged.ovenChoices['OV-19'] =
+    run.ovenChoices['OV-19'] === 'return-ledger'
+      ? 'keep-blank'
+      : 'return-ledger'
+  assert.equal(restoreHoshimoriWarm(forged), null)
+  assert.deepEqual(
+    reconcileMemoryAchievements([], [], undefined, undefined, forged),
+    [],
+    'Changing Pip’s restitution choice without its event cannot mint a medal',
+  )
+  const unfinished = JSON.parse(JSON.stringify(run)) as HoshimoriWarmProgress
+  delete unfinished.ovenChoices['OV-20']
+  assert.deepEqual(
+    reconcileMemoryAchievements([], [], undefined, undefined, unfinished),
+    [],
+    'A missing Cinder witness cannot mint a medal',
+  )
+}
+assert.equal(cinderMedalIds.size, 8)
+assert.equal(cinderAccounts.size, 64)
+assert.equal(hoshimoriOvenFourthAccount(newHoshimoriWarmProgress(11)), null)
 
 const windwardAccounts = new Set<string>()
 for (const post of ['deliver', 'archive'] as const) {
@@ -764,8 +1030,8 @@ assert.deepEqual(
     found: ['earth-13', 'earth-14', 'earth-15', 'earth-31'],
     responses: { 'earth-14': 'challenge' },
   }).found,
-  ['earth-13', 'earth-14'],
-  'Both authored Hoshimori photos survive; later realities remain spoiler-locked',
+  ['earth-13', 'earth-14', 'earth-15'],
+  'Both warm photos and the first night photo survive; unbuilt night scenes remain locked',
 )
 const outOfOrder = reconcileHoshimoriEarthChronicle(
   { version: 1, found: ['earth-02', 'earth-01'], responses: {} },
@@ -823,6 +1089,186 @@ assert.equal(
   'Unbounded or hostile journals must still be rejected',
 )
 
+const southernVerdicts = new Set<string>()
+const vesperVerdicts = new Set<string>()
+for (let variation = 0; variation < 16; variation++) {
+  let run = newHoshimoriWarmProgress(variation + 101)
+  for (let y = 1; y <= 8; y++) {
+    const row = Array.from({ length: 8 }, (_, index) =>
+      y % 2 === 1 ? index + 1 : 8 - index,
+    )
+    for (const x of row) {
+      const key = `${x},${y}`
+      if (key !== '1,1') run = move(run, key)
+      const site = HOSHIMORI_WARM_SITES.find((entry) => entry.key === key)!
+      assert.ok(site, 'Every square must be a real authored location: ' + key)
+      const southernDecisions: Readonly<Record<string, number>> = {
+        '1,1': variation & 1,
+        '4,1': variation & 1,
+        '4,4': (variation >> 1) & 1,
+        '3,8': (variation >> 2) & 1,
+        '4,7': variation & 1,
+        '6,8': (variation >> 1) & 1,
+        '8,8': (variation >> 3) & 1,
+      }
+      const choice = Object.prototype.hasOwnProperty.call(
+        southernDecisions,
+        key,
+      )
+        ? site.choices[southernDecisions[key]!]!
+        : (site.choices.find((option) => (option.rations ?? 0) >= 0) ??
+          site.choices[0])
+      assert.ok(
+        run.rations + (choice.rations ?? 0) >= 0,
+        'Each visit must have a legal non-starving resolution: ' + key,
+      )
+      run = choose(run, choice.id)
+    }
+  }
+  assert.equal(
+    run.visited.length,
+    64,
+    'Every authored village square is reachable',
+  )
+  assert.equal(Object.keys(run.choices).length, 64, 'No empty choice squares')
+  assert.equal(run.events.length, 127, '63 moves and 64 decisions')
+  const account = hoshimoriSouthernAccount(run)
+  assert.ok(account, 'The southern assembly must pay off earned testimony')
+  southernVerdicts.add(account)
+  const vesper = hoshimoriVesperReckoning(run)
+  assert.ok(
+    vesper,
+    'Vesper needs earned childhood, harm and restitution scenes',
+  )
+  vesperVerdicts.add(vesper)
+  const restored = restoreHoshimoriWarm(JSON.parse(JSON.stringify(run)))
+  assert.deepEqual(
+    restored,
+    run,
+    'Full map and all choices survive a replayed save',
+  )
+  assert.equal(
+    hoshimoriSouthernAccount(restored!),
+    account,
+    'The same testimony produces the same earned consequence after reload',
+  )
+  assert.equal(
+    hoshimoriVesperReckoning(restored!),
+    vesper,
+    'The cartographer’s outcome survives unchanged event-replay saves',
+  )
+  assert.strictEqual(
+    advanceHoshimoriWarm(run, { type: 'choose', id: 'consent' }),
+    run,
+    'Revisiting the final assembly cannot mint a new outcome',
+  )
+  const forged = JSON.parse(JSON.stringify(run)) as HoshimoriWarmProgress
+  forged.choices['8,8'] =
+    forged.choices['8,8'] === 'consent' ? 'open' : 'consent'
+  assert.equal(
+    restoreHoshimoriWarm(forged),
+    null,
+    'A forged assembly verdict must not survive replay',
+  )
+}
+assert.equal(
+  vesperVerdicts.size,
+  16,
+  'Four decisions must produce sixteen distinguishable Vesper resolutions',
+)
+assert.equal(
+  southernVerdicts.size,
+  8,
+  'The three southern decisions must produce eight distinguishable earned accounts',
+)
+assert.equal(
+  hoshimoriSouthernAccount(newHoshimoriWarmProgress(7)),
+  null,
+  'Do not invent testimony for unvisited locations',
+)
+assert.equal(hoshimoriVesperReckoning(newHoshimoriWarmProgress(7)), null)
+assert.match(HOSHIMORI_WARM_SITES[0]!.opening, /Vesper/)
+assert.match(
+  HOSHIMORI_WARM_SITES.find((site) => site.key === '4,4')!.opening,
+  /sold/,
+)
+assert.match(
+  HOSHIMORI_WARM_SITES.find((site) => site.key === '3,8')!.opening,
+  /childhood/,
+)
+assert.match(
+  HOSHIMORI_WARM_SITES.find((site) => site.key === '8,8')!.opening,
+  /Vesper/,
+)
+
+// Eight independently earned Vesper outcomes must survive replay and reject forgery.
+assert.equal(MEMORY_HOSHIMORI_ACHIEVEMENTS.length, 8)
+assert.equal(new Set(MEMORY_HOSHIMORI_ACHIEVEMENTS.map((m) => m.echo)).size, 8)
+assert.ok(
+  memoryAchievementGallery([])
+    .filter((m) => m.id.startsWith('e07-vesper-'))
+    .every((m) => !m.earned && m.echo === null),
+)
+const vesperMedalIds = new Set<string>()
+const vesperMedalRoute = [
+  '2,1',
+  '3,1',
+  '4,1',
+  '4,2',
+  '4,3',
+  '4,4',
+  '4,5',
+  '4,6',
+  '4,7',
+  '3,7',
+  '3,8',
+  '4,8',
+  '5,8',
+  '6,8',
+  '7,8',
+  '8,8',
+]
+for (let mask = 0; mask < 8; mask++) {
+  let run = choose(newHoshimoriWarmProgress(mask), 'listen')
+  for (const key of vesperMedalRoute) {
+    run = move(run, key)
+    if (key === '4,4') run = choose(run, mask & 1 ? 'depart' : 'witness')
+    if (key === '3,8') run = choose(run, mask & 2 ? 'perform' : 'ask')
+    if (key === '8,8') run = choose(run, mask & 4 ? 'open' : 'consent')
+  }
+  assert.ok(hoshimoriVesperReckoning(run))
+  assert.deepEqual(restoreHoshimoriWarm(JSON.parse(JSON.stringify(run))), run)
+  const earned = reconcileMemoryAchievements([], [], undefined, undefined, run)
+  assert.equal(earned.length, 1)
+  const medal = MEMORY_HOSHIMORI_ACHIEVEMENTS.find((m) => m.id === earned[0])!
+  assert.ok(medal.echo.length >= 120)
+  assert.ok(medal.artPath.startsWith('/images/memory-dungeon/hoshimori/'))
+  vesperMedalIds.add(medal.id)
+  assert.equal(
+    memoryAchievementGallery(earned).find((m) => m.id === medal.id)?.echo,
+    medal.echo,
+  )
+  assert.deepEqual(
+    reconcileMemoryAchievements(earned, [], undefined, undefined, run),
+    earned,
+  )
+  assert.deepEqual(restoreMemoryAchievements([...earned, ...earned]), earned)
+  const forged = JSON.parse(JSON.stringify(run)) as HoshimoriWarmProgress
+  forged.choices['8,8'] = mask & 4 ? 'consent' : 'open'
+  assert.equal(restoreHoshimoriWarm(forged), null)
+  assert.deepEqual(
+    reconcileMemoryAchievements([], [], undefined, undefined, forged),
+    [],
+  )
+  const missingBridge = JSON.parse(JSON.stringify(run)) as HoshimoriWarmProgress
+  delete missingBridge.choices['1,1']
+  assert.deepEqual(
+    reconcileMemoryAchievements([], [], undefined, undefined, missingBridge),
+    [],
+  )
+}
+assert.equal(vesperMedalIds.size, 8)
+
 const consoleSource = readFileSync(
   'components/pages/memory-dungeon-hoshimori.vue',
   'utf8',
@@ -843,8 +1289,25 @@ assert.match(consoleSource, /data-testid="memory-hoshimori-chronicle-open"/)
 assert.match(consoleSource, /memory-dungeon-earth-chronicle/)
 assert.match(consoleSource, /data-testid="memory-hoshimori-lowland-account"/)
 assert.match(consoleSource, /data-testid="memory-hoshimori-windward-account"/)
+assert.match(consoleSource, /data-testid="memory-hoshimori-southern-account"/)
+assert.match(consoleSource, /data-testid="memory-hoshimori-vesper-reckoning"/)
+assert.match(
+  consoleSource,
+  /data-testid="memory-hoshimori-vesper-briar-history"/,
+)
 assert.match(consoleSource, /data-testid="memory-hoshimori-enter-ash-wing"/)
 assert.match(consoleSource, /data-testid="memory-hoshimori-ash-wing-account"/)
+assert.match(consoleSource, /data-testid="memory-hoshimori-enter-ember-wing"/)
+assert.match(
+  consoleSource,
+  /data-testid="memory-hoshimori-guardian-resolution"/,
+)
+assert.match(consoleSource, /data-testid="memory-hoshimori-ember-wing-account"/)
+assert.match(consoleSource, /data-testid="memory-hoshimori-enter-cinder-wing"/)
+assert.match(
+  consoleSource,
+  /data-testid="memory-hoshimori-cinder-wing-account"/,
+)
 assert.doesNotMatch(consoleSource, /localStorage|\$fetch/)
 assert.match(storeSource, /restoreHoshimoriWarm\(JSON\.parse\(saved\)\)/)
 assert.match(storeSource, /advanceHoshimoriWarm\(progress\.value, event\)/)
@@ -853,14 +1316,24 @@ assert.match(storeSource, /syncHoshimoriPhoto\(restored\.choices\)/)
 assert.match(storeSource, /syncHoshimoriPhoto\(next\.choices\)/)
 assert.match(storeSource, /hoshimoriLowlandAccount\(progress\.value\)/)
 assert.match(storeSource, /hoshimoriWindwardAccount\(progress\.value\)/)
+assert.match(storeSource, /hoshimoriSouthernAccount\(progress\.value\)/)
+assert.match(storeSource, /hoshimoriVesperReckoning\(progress\.value\)/)
+assert.match(
+  storeSource,
+  /earnedVesperRookeryOutcome\(world\.state, world\.dark\)/,
+)
 assert.match(storeSource, /hoshimoriOvenSecondAccount\(progress\.value\)/)
+assert.match(storeSource, /hoshimoriOvenThirdAccount\(progress\.value\)/)
+assert.match(storeSource, /hoshimoriOvenGuardianResolution\(progress\.value\)/)
+assert.match(storeSource, /syncHoshimoriAchievements/)
 const worldStoreSource = readFileSync('stores/memoryWorldStore.ts', 'utf8')
 assert.match(worldStoreSource, /campaign\.value\.completed\.includes\('e06'\)/)
 assert.match(worldStoreSource, /reconcileHoshimoriEarthChronicle/)
+assert.match(worldStoreSource, /syncHoshimoriAchievements/)
 assert.match(pageSource, /memory-dungeon-hoshimori/)
 assert.match(overworldSource, /campaign\.completed\.includes\('e06'\)/)
 assert.match(overworldSource, /data-testid="memory-enter-hoshimori"/)
 
 console.log(
-  'Hoshimori warm proof: 44 sites, 9 Oven rooms, 64 earned ash-wing accounts, 96 seeds, 24 hearings, 8 lowland and 8 windward verdicts, two Earth photos, long-run save and spoiler guards passed',
+  'Hoshimori warm proof: 64 sites, 21 Oven rooms, 64 ash-wing, 64 ember-wing and 64 cinder-wing accounts, 3 guardian dispositions, 96 seeds, 24 hearings, two Earth photos, long-run save and spoiler guards passed',
 )

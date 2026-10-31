@@ -57,9 +57,7 @@
             @click="startNewVoyage"
           >
             START NEW GAME <span>✦</span
-            ><small
-              >Choose your background, captain, constellation and crew</small
-            >
+            ><small>Choose your captain, background, Couchscope and crew</small>
           </button>
           <button
             type="button"
@@ -333,8 +331,10 @@
               v-if="selectionScreen === 'stars'"
               :large-text="store.preferences.largeText"
               :reduced-motion="store.preferences.reducedMotion"
+              :artwork="store.onboardingArt"
+              :artwork-ready="store.onboardingArtLoaded"
               @confirm="confirmStarAssessment"
-              @back="selectionScreen = 'captain'"
+              @back="selectionScreen = 'background'"
             />
             <div
               v-else
@@ -342,8 +342,15 @@
               :data-screen="selectionScreen"
             >
               <template v-if="selectionScreen === 'background'">
+                <button
+                  type="button"
+                  class="cap-step-back"
+                  @click="selectionScreen = 'captain'"
+                >
+                  ← CHANGE CAPTAIN
+                </button>
                 <div class="cap-heading">
-                  <span>01</span>
+                  <span>02</span>
                   <div>
                     <h2>Choose your background</h2>
                     <p>
@@ -358,14 +365,33 @@
                     :key="origin.id"
                     type="button"
                     class="cap-origin"
-                    :class="{ chosen: selectedOrigin === origin.id }"
+                    :class="{
+                      chosen: selectedOrigin === origin.id,
+                      'cap-origin-ready': originReady[origin.id],
+                    }"
                     :aria-pressed="selectedOrigin === origin.id"
                     @click="selectedOrigin = origin.id"
                   >
-                    <span class="cap-origin-glyph" aria-hidden="true">{{
-                      origin.glyph
-                    }}</span>
-                    <span
+                    <img
+                      v-if="store.onboardingArtLoaded"
+                      class="cap-origin-art"
+                      :src="
+                        store.onboardingArt['origins/' + origin.id] ||
+                        warpArt('origins/' + origin.id) ||
+                        '/game-of-captains/space-couch-stage.svg'
+                      "
+                      :alt="'Art for ' + origin.name"
+                      @load="markOriginReady(origin.id)"
+                      @error="onOriginArtError($event, origin.id)"
+                    />
+                    <div
+                      v-else
+                      class="cap-origin-art cap-origin-art--waiting"
+                      role="status"
+                    >
+                      REQUISITIONING ART…
+                    </div>
+                    <span class="cap-origin-copy"
                       ><strong>{{ origin.name }}</strong
                       ><small>{{ origin.summary }}</small
                       ><small class="cap-origin-perk">{{
@@ -379,26 +405,20 @@
                   type="button"
                   :disabled="!selectedOrigin"
                   data-testid="space-couch-background-next"
-                  @click="selectionScreen = 'captain'"
+                  @click="selectionScreen = 'stars'"
                 >
-                  CHOOSE YOUR CAPTAIN <span>➜</span>
+                  REPORT TO HUMAN RESOURCES <span>➜</span>
                 </button>
               </template>
               <template v-else-if="selectionScreen === 'captain'">
-                <button
-                  type="button"
-                  class="cap-step-back"
-                  @click="selectionScreen = 'background'"
-                >
-                  ← CHANGE BACKGROUND
-                </button>
                 <div class="cap-heading">
-                  <span>02</span>
+                  <span>01</span>
                   <div>
                     <h2>Claim your cushion</h2>
                     <p>
-                      Select the commander who inherits your background. The
-                      couch runs on personalities as much as fuel.
+                      Select the captain who is about to acquire a questionable
+                      background. The couch runs on personalities as much as
+                      fuel.
                     </p>
                   </div>
                 </div>
@@ -408,7 +428,12 @@
                     :key="captain.id"
                     type="button"
                     class="cap-captain"
-                    :class="{ chosen: captain.id === selectedCaptain }"
+                    :class="{
+                      chosen: captain.id === selectedCaptain,
+                      'cap-captain-ready':
+                        captainArtReady[captain.id] ||
+                        !portrait('captain-' + captain.id),
+                    }"
                     :aria-pressed="captain.id === selectedCaptain"
                     @click="selectedCaptain = captain.id"
                   >
@@ -421,11 +446,13 @@
                         :src="portrait('captain-' + captain.id)!"
                         alt=""
                         class="cap-portrait-img"
+                        @load="captainArtReady[captain.id] = true"
+                        @error="captainArtReady[captain.id] = true"
                       /><template v-else>{{
                         captain.name.split(' ').at(-1)?.slice(0, 1)
                       }}</template></span
                     >
-                    <span
+                    <span class="cap-captain-copy"
                       ><strong>{{ captain.name }}</strong
                       ><small>{{ captain.epithet }}</small></span
                     >
@@ -542,9 +569,9 @@
                   class="cap-primary"
                   type="button"
                   data-testid="captains-choose-crew"
-                  @click="selectionScreen = 'stars'"
+                  @click="selectionScreen = 'background'"
                 >
-                  CONSULT THE COUCHSCOPE <span>➜</span>
+                  CHOOSE YOUR BACKGROUND <span>➜</span>
                 </button>
               </template>
               <template v-else>
@@ -1708,9 +1735,23 @@ const store = useGameOfCaptainsStore()
 const selectedCaptain = ref<CaptainId>('fluke')
 const chosenCrew = ref<CrewId[]>([])
 const selectionScreen = ref<'background' | 'captain' | 'stars' | 'crew'>(
-  'background',
+  'captain',
 )
 const selectedOrigin = ref<CaptainOriginId | null>(null)
+const originReady = ref<Record<string, boolean>>({})
+const captainArtReady = ref<Record<string, boolean>>({})
+function markOriginReady(id: string) {
+  originReady.value[id] = true
+}
+function onOriginArtError(event: Event, id: string) {
+  const image = event.target as HTMLImageElement
+  const fallback = '/game-of-captains/space-couch-stage.svg'
+  if (image.getAttribute('src') === fallback) {
+    markOriginReady(id)
+  } else {
+    image.src = fallback
+  }
+}
 const atTitle = ref(true)
 const titlePanel = ref<'home' | 'settings' | 'log'>('home')
 const confirmNewVoyage = ref(false)
@@ -1749,6 +1790,9 @@ const romanceRecord = computed(
 /** A captain or crew portrait once its render ships; the monogram stands in until then. */
 const portrait = (key: string) => portraitArt(key)
 const stagePainting = computed(() => {
+  // The drawn couch, never the pre-rename starship-bridge paintings still
+  // under public/game-of-captains/{missions,antagonists,endings}: Silas
+  // replaced all conventional bridge imagery on 2026-10-26.
   if (run.value) return '/game-of-captains/space-couch-stage.svg'
   const key =
     selectionScreen.value === 'stars' || selectionScreen.value === 'background'
@@ -1890,11 +1934,15 @@ const headline = computed(() =>
       }[run.value.phase]
     : '',
 )
-const stageCopy = computed(() =>
-  run.value?.phase === 'briefing'
-    ? mission.value.briefing
-    : (run.value?.scene ?? ''),
-)
+const stageCopy = computed(() => {
+  if (run.value?.phase === 'briefing') return mission.value.briefing
+  const scene = run.value?.scene ?? ''
+  if (run.value?.phase !== 'ending') return scene
+  // The whole epilogue reads in the log panel; over the painting the stage
+  // keeps the verdict's first two sentences so it never runs off the art.
+  const sentences = scene.match(/[^.!?]+[.!?]+/g) ?? [scene]
+  return sentences.slice(0, 2).join('').trim()
+})
 const panelLabel = computed(() =>
   run.value
     ? {
@@ -1909,9 +1957,9 @@ const panelLabel = computed(() =>
         ending: 'CHRONICLE // A VOYAGE RECORDED',
       }[run.value.phase]
     : selectionScreen.value === 'background'
-      ? '01 // BEFORE THE CAPTAINCY'
+      ? '02 // BEFORE THE CAPTAINCY'
       : selectionScreen.value === 'captain'
-        ? '02 // CAPTAIN SELECTION'
+        ? '01 // CAPTAIN SELECTION'
         : selectionScreen.value === 'stars'
           ? '03 // THE COUCHSCOPE'
           : '04 // CREW SELECTION',
@@ -1938,7 +1986,7 @@ function beginWithStarSign() {
 function restartVoyage() {
   store.restart()
   starAssessment.value = null
-  selectionScreen.value = 'background'
+  selectionScreen.value = 'captain'
   chosenCrew.value = []
   crewPage.value = 0
   captainDossierTab.value = 'stats'
@@ -1955,7 +2003,10 @@ function startNewVoyage() {
   titlePanel.value = 'home'
   restartVoyage()
 }
-onMounted(() => store.load())
+onMounted(() => {
+  store.load()
+  void store.loadOnboardingArt()
+})
 useSeoMeta(
   gameLinkPreviewMeta(
     'game-of-captains',
@@ -2377,7 +2428,7 @@ function toggleAway(id: CrewId) {
   padding-right: 11.5rem;
 }
 .cap-personnel-frame[data-screen='background'] .cap-heading {
-  padding-right: 0;
+  padding-right: clamp(6rem, 23cqi, 11.5rem);
 }
 .cap-personnel-frame .cap-heading h2 {
   font-size: clamp(1.15rem, 2.4cqi, 2rem);
@@ -2412,9 +2463,45 @@ function toggleAway(id: CrewId) {
 }
 .cap-personnel-frame .cap-origin {
   min-height: 0;
-  align-items: center;
+  display: grid;
+  grid-template-rows: minmax(0, 1.15fr) minmax(0, 0.85fr);
+  overflow: hidden;
+  align-items: stretch;
   padding: clamp(0.35rem, 1.5cqi, 1rem);
   gap: clamp(0.3rem, 1cqi, 0.8rem);
+}
+.cap-personnel-frame .cap-origin-art {
+  display: block;
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  object-fit: cover;
+  object-position: center;
+  border-radius: 0.35rem;
+}
+.cap-personnel-frame .cap-origin-art--waiting {
+  display: grid;
+  place-items: center;
+  background: #0a1c30;
+  color: #bad0de;
+  font-size: 0.57rem;
+  letter-spacing: 0.12em;
+  text-align: center;
+}
+.cap-personnel-frame .cap-origin-copy {
+  display: grid;
+  gap: 0.15rem;
+  min-height: 0;
+  overflow-y: auto;
+  scrollbar-width: thin;
+}
+.cap-personnel-frame .cap-origin-copy small {
+  display: block;
+  opacity: 0;
+  transition: opacity 220ms ease;
+}
+.cap-personnel-frame .cap-origin-ready .cap-origin-copy small {
+  opacity: 1;
 }
 .cap-personnel-frame .cap-origin-glyph {
   font-size: clamp(1.45rem, 3cqi, 2.6rem);
@@ -2452,6 +2539,13 @@ function toggleAway(id: CrewId) {
   flex: 0 0 clamp(2rem, 4.5cqi, 3.7rem);
   width: clamp(2rem, 4.5cqi, 3.7rem);
   height: clamp(2rem, 4.5cqi, 3.7rem);
+}
+.cap-personnel-frame .cap-captain-copy small {
+  opacity: 0;
+  transition: opacity 220ms ease;
+}
+.cap-personnel-frame .cap-captain-ready .cap-captain-copy small {
+  opacity: 1;
 }
 .cap-personnel-frame .cap-captain strong,
 .cap-personnel-frame .cap-crew-button strong {
@@ -2598,6 +2692,7 @@ function toggleAway(id: CrewId) {
   font-weight: 900;
 }
 .cap-crew-pages button {
+  min-height: 2rem;
   padding: 0.4rem 0.55rem;
   border: 1px solid #88b2bd;
   border-radius: 0.3rem;
@@ -3768,7 +3863,7 @@ function toggleAway(id: CrewId) {
 }
 .cap-personnel-frame .cap-personnel-dossier {
   display: grid;
-  grid-template-rows: minmax(0, 1fr) auto auto minmax(0, 0.38fr);
+  grid-template-rows: minmax(0, 1.45fr) auto auto minmax(3.4rem, 0.32fr);
   gap: clamp(0.2rem, 0.65cqh, 0.5rem);
   padding: clamp(0.3rem, 0.8cqi, 0.75rem);
 }
@@ -3877,7 +3972,7 @@ function toggleAway(id: CrewId) {
   .cap-personnel-frame .cap-personnel-dossier {
     grid-row: 2;
     grid-column: 2;
-    grid-template-rows: minmax(0, 1fr) auto auto minmax(0, 0.3fr);
+    grid-template-rows: minmax(0, 1.35fr) auto auto minmax(3.6rem, 0.3fr);
   }
   .cap-personnel-frame .cap-captains,
   .cap-personnel-frame .cap-crew-picker {
@@ -3899,7 +3994,16 @@ function toggleAway(id: CrewId) {
     display: none;
   }
   .cap-personnel-frame .cap-personnel-essential-stats {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+  .cap-personnel-frame .cap-personnel-essential-stats small {
+    font-size: clamp(0.43rem, 1.5cqi, 0.65rem);
+    letter-spacing: 0;
+    overflow-wrap: anywhere;
+  }
+  .cap-personnel-frame .cap-personnel-essential-stats strong {
+    font-size: 1rem;
+    margin-top: 0;
   }
   .cap-personnel-frame .cap-crew-pages {
     flex-wrap: wrap;

@@ -1,5 +1,9 @@
 import assert from 'node:assert/strict'
 import { CAPTAIN_ORIGINS } from '../gameOfCaptains/captainOrigins'
+import {
+  COUCH_ONBOARDING_ART_COUNT,
+  COUCH_ONBOARDING_ART_IDS,
+} from '../gameOfCaptains/onboardingArt'
 import { readFileSync } from 'node:fs'
 import { startVoyage, restoreVoyage, CREW } from '../gameOfCaptains/rules'
 import {
@@ -11,6 +15,7 @@ import {
   STAR_SIGNS,
   STAR_QUEST_CHAPTERS,
   STAR_QUESTIONS,
+  STAR_HR_VERDICTS,
   calculateStarSign,
   createStarAssessment,
   availableStarQuest,
@@ -32,6 +37,36 @@ assert.equal(
   'four questions after the captain dossier',
 )
 assert.equal(STAR_SIGNS.length, 12, 'an original dozen constellations')
+assert.equal(
+  COUCH_ONBOARDING_ART_COUNT,
+  22,
+  'all painted onboarding images are linked',
+)
+assert.equal(
+  new Set(Object.values(COUCH_ONBOARDING_ART_IDS)).size,
+  COUCH_ONBOARDING_ART_COUNT,
+  'each art slot points to its own completed ArtImage',
+)
+assert.equal(
+  Object.keys(COUCH_ONBOARDING_ART_IDS).filter((key) =>
+    key.startsWith('origins/'),
+  ).length,
+  6,
+)
+assert.equal(
+  Object.keys(COUCH_ONBOARDING_ART_IDS).filter((key) =>
+    /couchscope\/question-0[1-4]$/.test(key),
+  ).length,
+  4,
+)
+assert.equal(
+  Object.keys(COUCH_ONBOARDING_ART_IDS).filter((key) =>
+    key.includes('-answer-'),
+  ).length,
+  12,
+)
+assert.equal(Object.keys(STAR_HR_VERDICTS).length, 12)
+assert.ok(STAR_SIGNS.every((sign) => STAR_HR_VERDICTS[sign.id].length > 35))
 assert.deepEqual(STAR_QUEST_CHAPTERS, [1, 4, 7])
 assert.equal(new Set(STAR_SIGNS.map((s) => s.id)).size, 12)
 assert.equal(new Set(STAR_SIGNS.map((s) => s.name)).size, 12)
@@ -285,6 +320,54 @@ assert.ok(page.includes('data-testid="space-couch-main-settings"'))
 assert.ok(page.includes('data-testid="space-couch-main-log"'))
 assert.ok(page.includes('data-testid="space-couch-backgrounds"'))
 assert.ok(page.includes('data-testid="space-couch-background-next"'))
+
+assert.ok(
+  page.includes("  'captain',"),
+  'new voyage starts at captain selection',
+)
+assert.ok(
+  page.includes("selectionScreen.value = 'captain'"),
+  'restart returns to captain',
+)
+assert.ok(
+  page.includes('@click="selectionScreen = \'background\'"'),
+  'captain advances to background',
+)
+assert.ok(
+  page.includes('@click="selectionScreen = \'stars\'"'),
+  'background advances to Couchscope',
+)
+assert.ok(
+  page.includes('@back="selectionScreen = \'background\'"'),
+  'Couchscope back returns to background',
+)
+assert.ok(
+  page.includes("warpArt('origins/' + origin.id)"),
+  'every origin reserves an art slot',
+)
+assert.ok(page.includes('cap-origin-art'), 'background is image-led')
+assert.ok(
+  page.includes('cap-origin-ready'),
+  'detail text waits for image readiness',
+)
+assert.ok(
+  page.includes('grid-template-columns: repeat(3, minmax(0, 1fr))'),
+  'compact 3-column mobile statistics',
+)
+assert.ok(
+  quiz.includes('scope-answer-art'),
+  'Couchscope options reserve a painted art slot',
+)
+assert.ok(
+  quiz.includes('couchscope/question-'),
+  'Couchscope art slots are sign-specific',
+)
+assert.ok(
+  quiz.includes('scope-option-ready'),
+  'Couchscope detail text reveals after image',
+)
+assert.ok(STAR_QUESTIONS.every((q) => q.cue.startsWith('FORM HR-')))
+
 assert.ok(page.includes("selectionScreen = 'captain'"))
 assert.ok(page.includes("selectionScreen = 'stars'"))
 assert.ok(page.includes("selectionScreen.value = 'crew'"))
@@ -352,7 +435,7 @@ for (const marker of [
 assert.ok(quiz.includes("emit('confirm', assessment)"))
 assert.ok(quiz.includes("warpArt('couchscope/question-' + index)"))
 assert.ok(quiz.includes('scope-question-art'))
-assert.ok(quiz.includes('space-couch-star-return-captain'))
+assert.ok(quiz.includes('space-couch-star-return-background'))
 assert.ok(quiz.includes('max-height: 560px'))
 for (const [index, subject] of [
   ['01', 'protesting crescent moon'],
@@ -370,6 +453,34 @@ for (const [index, subject] of [
   assert.ok(drawing.includes('<svg'))
   assert.ok(drawing.includes(subject), 'distinct authored drawing ' + index)
 }
+const artEndpoint = readFileSync(
+  new URL(
+    '../../server/api/game-of-captains/onboarding-art.get.ts',
+    import.meta.url,
+  ),
+  'utf8',
+)
+assert.ok(
+  artEndpoint.includes('buildArtImageWhere(access)'),
+  'private art must obey viewer access',
+)
+assert.ok(
+  artEndpoint.includes('select: { id: true, imagePath: true, path: true }'),
+)
+assert.ok(
+  page.includes('store.loadOnboardingArt()'),
+  'the art manifest loads when the game mounts',
+)
+assert.ok(page.includes("store.onboardingArt['origins/' + origin.id]"))
+assert.ok(
+  quiz.includes(
+    "artwork['couchscope/question-' + question + '-answer-' + answer]",
+  ),
+)
+assert.ok(
+  quiz.includes('onAnswerArtError'),
+  'image failures must not hide text forever',
+)
 const origins = readFileSync(
   new URL('../../utils/gameOfCaptains/captainOrigins.ts', import.meta.url),
   'utf8',

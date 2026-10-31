@@ -12,7 +12,11 @@ import {
   earnedWitnessBellAccord,
 } from './firstTwoConsequences'
 import { BRIAR_QUESTS } from './briarQuests'
-import { HOUSE_EPILOGUES, houseEpilogue } from './houseEpilogues'
+import {
+  HOUSE_EPILOGUES,
+  houseEpilogue,
+  houseEpilogueLens,
+} from './houseEpilogues'
 import { BRIAR_RARE_EVENTS, type EarnedBriarRareEvent } from './briarRareEvents'
 
 export interface MemoryAchievement {
@@ -264,7 +268,9 @@ export function reconcileMemoryAchievements(
   if (
     house?.ending &&
     house.visited.includes('HD-35') &&
-    (!house.decisions['HD-35'] || house.decisions['HD-35'] === house.ending)
+    (!house.decisions['HD-35'] || house.decisions['HD-35'] === house.ending) &&
+    (!house.endingLens ||
+      house.endingLens === houseEpilogueLens(house, original.sceneChoices))
   ) {
     const epilogue = houseEpilogue(house, original.sceneChoices)
     if (epilogue) ids.add(`e01-house-${epilogue.id}`)

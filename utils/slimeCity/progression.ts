@@ -274,7 +274,7 @@ export function awardBattle(
     wins: state.wins + Number(victory),
     losses: state.losses + Number(match.victor === 'enemy'),
     draws: state.draws + Number(draw),
-    receipts: [...state.receipts, receipt],
+    receipts: [...state.receipts.slice(-255), receipt],
     daily: updateWindow(state.daily),
     weekly: updateWindow(state.weekly),
     lastReward: paid

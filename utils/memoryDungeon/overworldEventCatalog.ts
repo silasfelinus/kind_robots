@@ -4,6 +4,7 @@ import { HOSHIMORI_WARM_SITES } from './hoshimoriWarm'
 import { HOSHIMORI_NIGHT_SITES } from './hoshimoriNight'
 import { EARTH_PHOTOS } from './chronicle'
 import recipes from './overworldEventRecipes.json'
+import { BRIAR_SITES } from '../memoryDungeonWorld'
 
 export type OverworldKind =
   | 'memory' | 'challenge' | 'treasure' | 'monster'
@@ -210,6 +211,21 @@ function generated(
   }
 }
 
+function legacyKind(world: string, key: string): OverworldKind {
+  if (photos.get(world)?.some((photo) => photo.site === key)) return 'memory'
+  if (world === 'e02' && Object.hasOwn(DARK_BRIAR_SEALS, key)) return 'puzzle'
+  if (world === 'e01') {
+    const kind = BRIAR_SITES[key]?.kind
+    if (kind === 'merchant') return 'merchant'
+    if (kind === 'dungeon') return 'dungeon'
+    if (kind === 'chest') return 'treasure'
+    if (kind === 'enemy') return 'monster'
+    if (kind === 'puzzle' || kind === 'rune' || kind === 'sealed') return 'puzzle'
+    if (kind === 'camp') return 'companion'
+  }
+  return 'challenge'
+}
+
 function legacyChoices(
   world: string,
   key: string,
@@ -232,7 +248,7 @@ function legacy(): OverworldEvent[] {
   ) {
     records.push({
       id: world + ':' + key, experience: world, key, title, opening,
-      kind: 'challenge', speaker: 'local witness',
+      kind: legacyKind(world, key), speaker: 'local witness',
       portrait: art(world, key, title, 'speaking-portrait', 'painted storybook'),
       sceneArt: art(world, key, title, 'establishing-scene', 'painted storybook'),
       choices: legacyChoices(world, key, title, options),

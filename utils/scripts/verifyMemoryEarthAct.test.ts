@@ -22,6 +22,15 @@ import {
   type EarthJournalAction,
 } from '../memoryDungeon/earthJournal'
 import {
+  MEMORY_EARTH_ACHIEVEMENTS,
+  earnedEarthAchievementIds,
+} from '../memoryDungeon/earthAchievements'
+import {
+  memoryAchievementGallery,
+  reconcileMemoryEarthAchievements,
+  restoreMemoryAchievements,
+} from '../memoryDungeon/achievements'
+import {
   chooseMemoryPairEnding,
   completeMemoryExperience,
   memoryCharFate,
@@ -230,6 +239,109 @@ for (const reality of EARTH_REALITIES) {
     'legacy migration cannot invent an invalid destination',
   )
 }
+
+assert.equal(MEMORY_EARTH_ACHIEVEMENTS.length, 12)
+assert.equal(memoryAchievementGallery([]).length, 64)
+assert.equal(
+  new Set(MEMORY_EARTH_ACHIEVEMENTS.map((medal) => medal.id)).size,
+  12,
+)
+assert.equal(
+  new Set(MEMORY_EARTH_ACHIEVEMENTS.map((medal) => medal.echo)).size,
+  12,
+)
+for (const medal of MEMORY_EARTH_ACHIEVEMENTS) {
+  assert.ok(medal.description.length >= 45, medal.id)
+  assert.ok(medal.echo.length >= 120, medal.id)
+  assert.ok(medal.artPath.endsWith('.webp'), medal.id)
+}
+
+function medalRoute(
+  reality: (typeof EARTH_REALITIES)[number],
+  firstPhoto: 'challenge' | 'hold',
+  secondPhoto: 'challenge' | 'hold',
+  gate: string,
+): EarthJournalAction[] {
+  const journal: EarthJournalAction[] = []
+  const [firstSite, secondSite] = earthRealityPhotos(reality)
+  let position = '1,1'
+  for (let y = 1; y <= 8; y++) {
+    for (const x of Array.from({ length: 8 }, (_, index) =>
+      y % 2 ? index + 1 : 8 - index,
+    )) {
+      const key = `${x},${y}`
+      if (key !== position) journal.push({ type: 'travel', key })
+      const event = worldEvent(reality, key)!
+      const choiceId =
+        key === firstSite
+          ? firstPhoto
+          : key === secondSite
+            ? secondPhoto
+            : reality === 'e04' && key === '8,8'
+              ? gate
+              : event.choices[0]!.id
+      journal.push({ type: 'choose', key, choiceId })
+      position = key
+    }
+  }
+  return journal
+}
+
+const reachableMedals = new Set<string>()
+for (const reality of EARTH_REALITIES) {
+  const gates =
+    reality === 'e04'
+      ? ['open-the-tide-gate', 'seal-the-tide-gate', 'divert-the-current']
+      : ['care']
+  for (const first of ['challenge', 'hold'] as const)
+    for (const second of ['challenge', 'hold'] as const)
+      for (const gate of gates) {
+        const journal = medalRoute(reality, first, second, gate)
+        const awarded = earnedEarthAchievementIds(reality, journal)
+        assert.equal(awarded.length, 3, `${reality}: ${first}/${second}/${gate}`)
+        for (const id of awarded) reachableMedals.add(id)
+        const lifetime = reconcileMemoryEarthAchievements([], reality, journal)
+        assert.deepEqual(lifetime, restoreMemoryAchievements(lifetime))
+        assert.deepEqual(
+          reconcileMemoryEarthAchievements(lifetime, reality, journal),
+          lifetime,
+          'restoring or replaying a completed Earth route cannot duplicate medals',
+        )
+        assert.equal(
+          memoryAchievementGallery(lifetime).filter((medal) => medal.earned)
+            .length,
+          3,
+        )
+        assert.ok(
+          memoryAchievementGallery(lifetime)
+            .filter((medal) => !medal.earned)
+            .every((medal) => medal.echo === null),
+          'unearned story echoes remain hidden',
+        )
+        assert.deepEqual(
+          earnedEarthAchievementIds(reality, journal.slice(0, -1)),
+          [],
+          'a missing final choice cannot mint a completed-route medal',
+        )
+        assert.deepEqual(
+          earnedEarthAchievementIds(reality, [
+            ...journal,
+            { type: 'travel', key: '8,8' },
+          ]),
+          [],
+          'forged travel cannot mint medals',
+        )
+        assert.deepEqual(
+          earnedEarthAchievementIds(reality, [
+            ...journal,
+            { type: 'choose', key: '8,8', choiceId: 'forged' },
+          ]),
+          [],
+          'a second forged outcome cannot mint medals',
+        )
+      }
+}
+assert.equal(reachableMedals.size, 12, 'every Earth medal has a legal route')
 
 const stage = readFileSync('components/pages/memory-dungeon-earth.vue', 'utf8')
 const root = readFileSync('components/pages/memory-dungeon.vue', 'utf8')

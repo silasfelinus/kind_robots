@@ -390,15 +390,17 @@ const NIGHT_MEDALS = [
   },
 ] as const
 
-export const MEMORY_HOSHIMORI_NIGHT_ACHIEVEMENTS = NIGHT_MEDALS.map((medal) => ({
-  id: medal.id,
-  questId: 'e08-4,4',
-  title: medal.title,
-  description:
-    'Finish the sixteen-site night procession and earn a three-witness council charter.',
-  echo: medal.echo,
-  artPath: `/images/memory-dungeon/hoshimori-night/${medal.id}.webp`,
-}))
+export const MEMORY_HOSHIMORI_NIGHT_ACHIEVEMENTS = NIGHT_MEDALS.map(
+  (medal) => ({
+    id: medal.id,
+    questId: 'e08-4,4',
+    title: medal.title,
+    description:
+      'Finish the sixteen-site night procession and earn a three-witness council charter.',
+    echo: medal.echo,
+    artPath: `/images/memory-dungeon/hoshimori-night/${medal.id}.webp`,
+  }),
+)
 
 const ALL_MEDALS = [
   ...MEMORY_BRIAR_ACHIEVEMENTS,

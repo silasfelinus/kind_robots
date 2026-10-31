@@ -46,4 +46,6 @@ jobs:
             exit 0
           fi
           git commit -m "chore(slime-city): regenerate checked-in Prisma client"
+          git fetch origin worker/slime-city-t004-progression-20261030-7c19
+          git merge --no-edit origin/worker/slime-city-t004-progression-20261030-7c19
           git push origin "HEAD:refs/heads/worker/slime-city-t004-progression-20261030-7c19"

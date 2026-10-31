@@ -579,11 +579,7 @@ export const useMemoryWorldStore = defineStore('memoryWorld', () => {
     reality: 'e03' | 'e04',
     choices: Readonly<Record<string, string>>,
   ): void {
-    if (
-      !campaign.value.completed.includes(
-        reality === 'e03' ? 'e02' : 'e03',
-      )
-    )
+    if (!campaign.value.completed.includes(reality === 'e03' ? 'e02' : 'e03'))
       return
     const next = reconcileMorrowEarthChronicle(
       earthChronicle.value,

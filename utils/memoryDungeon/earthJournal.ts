@@ -161,7 +161,11 @@ export function compactEarthJournal(
   for (const action of value as EarthJournalAction[]) {
     if (action.type !== 'choose') continue
     if (!travelTo(action.key)) return null
-    compacted.push({ type: 'choose', key: action.key, choiceId: action.choiceId })
+    compacted.push({
+      type: 'choose',
+      key: action.key,
+      choiceId: action.choiceId,
+    })
   }
 
   function visitRemaining(key: string): void {

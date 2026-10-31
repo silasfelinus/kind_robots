@@ -90,7 +90,7 @@ export const COMBAT_ROOMS: Record<CombatRoomId, CombatRoom> = {
     intro:
       'The Thornbound Housekeeper offers a nonlethal test. Her broom sweeps every fifth beat, giving you time to remember each pair; winning earns her trust, never her keys.',
     artPrompt:
-      'A sturdy middle-aged housekeeper in interlocking rootwood armor hung with dozens of brass keys stands in a candlelit manor corridor. She holds a long thorn broom across her body, testing an adult traveler in a fair memory duel. Four small luminous paired tiles float between them, her expression watchful rather than cruel. Medium-wide original hand-painted gouache and ink fantasy illustration, warm lanternlight and deep green shadows.',
+      'A sturdy middle-aged housekeeper in interlocking rootwood armor hung with dozens of brass keys stands in a candlelit manor corridor. She holds a long thorn broom across her body, testing an adult traveler in a fair memory duel. Four small luminous paired tiles float between them, her expression watchful rather than cruel. Medium-wide original fantasy scene with warm lanternlight on her brass keys. Hand-painted gouache and ink illustration, warm candlelight and deep green shadows.',
   },
   collector: {
     enemy: { name: 'Index Collector', hp: 12, attack: 1, every: 2 },

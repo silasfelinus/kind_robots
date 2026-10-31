@@ -975,10 +975,10 @@ const darkMedalPairs = [
 ] as const
 assert.equal(MEMORY_DARK_BRIAR_ACHIEVEMENTS.length, 8)
 assert.equal(MEMORY_HOUSE_ACHIEVEMENTS.length, 12)
-assert.equal(memoryAchievementGallery([]).length, 36)
+assert.equal(memoryAchievementGallery([]).length, 44)
 assert.equal(
   new Set(memoryAchievementGallery([]).map((medal) => medal.id)).size,
-  36,
+  44,
 )
 assert.equal(
   new Set(MEMORY_DARK_BRIAR_ACHIEVEMENTS.map((medal) => medal.echo)).size,

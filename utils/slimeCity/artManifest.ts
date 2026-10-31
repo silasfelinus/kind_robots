@@ -68,7 +68,10 @@ export const SLIME_CITY_ART = {
 export type SlimeCityArtGroup = keyof typeof SLIME_CITY_ART
 
 /** Unillustrated cards intentionally return null, never a borrowed image. */
-export function slimeArtId(group: SlimeCityArtGroup, slug: string): number | null {
+export function slimeArtId(
+  group: SlimeCityArtGroup,
+  slug: string,
+): number | null {
   const ids: Readonly<Record<string, number>> = SLIME_CITY_ART[group]
   return ids[slug] ?? null
 }

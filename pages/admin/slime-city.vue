@@ -220,7 +220,7 @@
               }}
               · STANDING {{ lab.standing }} · CHAMPIONS
               {{ lab.city.cleared.length }}/7 · STREET STORIES
-              {{ lab.streetProgress }}/9</span
+              {{ lab.streetProgress }}/9 · CONTRACTS {{ lab.city.contracts.length }}/7</span
             ><span>{{ lab.city.log[0] }}</span>
           </div>
         </section>
@@ -445,7 +445,7 @@
               ><span>{{ winLine }}</span
               ><span class="sc-result-actions"
                 ><button
-                  v-if="lab.lastBout"
+                  v-if="lab.lastBout || lab.lastContract"
                   type="button"
                   @click="lab.showCity()"
                 >

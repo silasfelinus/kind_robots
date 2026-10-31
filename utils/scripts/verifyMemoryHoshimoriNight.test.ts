@@ -22,6 +22,13 @@ import {
   restoreEarthChronicle,
 } from '../memoryDungeon/chronicle'
 import { MEMORY_REALITY_EXPERIENCES } from '../memoryDungeon/reimaginerCampaign'
+import {
+  MEMORY_HOSHIMORI_NIGHT_ACHIEVEMENTS,
+  memoryAchievementGallery,
+  reconcileMemoryAchievements,
+  restoreMemoryAchievements,
+} from '../memoryDungeon/achievements'
+import { readFileSync } from 'node:fs'
 
 assert.deepEqual(validateHoshimoriNight(), [])
 assert.equal(HOSHIMORI_NIGHT_SITES.length, 16)
@@ -151,6 +158,18 @@ for (let seed = 0; seed < 96; seed++) {
   forged.events.push({ type: 'move', to: '8,8' })
   assert.equal(restoreHoshimoriNight(forged), null)
 }
+assert.equal(MEMORY_HOSHIMORI_NIGHT_ACHIEVEMENTS.length, 8)
+assert.equal(
+  new Set(MEMORY_HOSHIMORI_NIGHT_ACHIEVEMENTS.map((medal) => medal.echo)).size,
+  8,
+)
+assert.equal(memoryAchievementGallery([]).length, 44)
+assert.ok(
+  memoryAchievementGallery([])
+    .filter((medal) => medal.id.startsWith('e08-night-'))
+    .every((medal) => !medal.earned && medal.echo === null),
+)
+const nightMedalIds = new Set<string>()
 const councilAccounts = new Set<string>()
 for (let bits = 0; bits < 8; bits++) {
   let progress = newHoshimoriNightProgress(bits)
@@ -164,6 +183,71 @@ for (let bits = 0; bits < 8; bits++) {
     progress = choose(progress, site.choices[index]!.id)
   }
   councilAccounts.add(hoshimoriNightCouncil(progress)!)
+  const earned = reconcileMemoryAchievements(
+    [],
+    [],
+    undefined,
+    undefined,
+    undefined,
+    progress,
+  )
+  assert.equal(earned.length, 1, 'A complete council route earns one medal')
+  const medal = MEMORY_HOSHIMORI_NIGHT_ACHIEVEMENTS.find(
+    (entry) => entry.id === earned[0],
+  )!
+  assert.ok(medal.echo.length >= 120)
+  assert.ok(medal.artPath.startsWith('/images/memory-dungeon/hoshimori-night/'))
+  nightMedalIds.add(medal.id)
+  assert.equal(
+    memoryAchievementGallery(earned).find((entry) => entry.id === medal.id)
+      ?.echo,
+    medal.echo,
+  )
+  assert.deepEqual(
+    reconcileMemoryAchievements(
+      earned,
+      [],
+      undefined,
+      undefined,
+      undefined,
+      progress,
+    ),
+    earned,
+    'Revisiting the council cannot duplicate a medal',
+  )
+  assert.deepEqual(restoreMemoryAchievements([...earned, ...earned]), earned)
+  const tampered = JSON.parse(JSON.stringify(progress)) as NightProgress
+  tampered.choices['4,4'] =
+    tampered.choices['4,4'] === 'allow-departure'
+      ? 'require-consent'
+      : 'allow-departure'
+  assert.equal(restoreHoshimoriNight(tampered), null)
+  assert.deepEqual(
+    reconcileMemoryAchievements(
+      [],
+      [],
+      undefined,
+      undefined,
+      undefined,
+      tampered,
+    ),
+    [],
+    'A forged council choice must never mint a medal',
+  )
+  const unfinished = JSON.parse(JSON.stringify(progress)) as NightProgress
+  unfinished.visited.pop()
+  assert.deepEqual(
+    reconcileMemoryAchievements(
+      [],
+      [],
+      undefined,
+      undefined,
+      undefined,
+      unfinished,
+    ),
+    [],
+    'Incomplete exploration cannot mint a medal',
+  )
   assert.equal(
     progress.visited.length,
     16,
@@ -176,6 +260,16 @@ assert.equal(
   8,
   'Three earned testimonies produce eight distinct accounts',
 )
+assert.equal(nightMedalIds.size, 8)
+const worldStoreSource = readFileSync('stores/memoryWorldStore.ts', 'utf8')
+const nightStoreSource = readFileSync(
+  'stores/memoryHoshimoriNightStore.ts',
+  'utf8',
+)
+assert.ok(worldStoreSource.includes('syncHoshimoriNightAchievements'))
+assert.ok(worldStoreSource.includes("campaign.value.completed.includes('e07')"))
+assert.ok(nightStoreSource.includes('syncHoshimoriNightAchievements(restored)'))
+assert.ok(nightStoreSource.includes('syncHoshimoriNightAchievements(next)'))
 const partial = newHoshimoriNightProgress(1)
 assert.equal(hoshimoriNightCouncil(partial), null)
 assert.strictEqual(

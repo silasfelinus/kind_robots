@@ -178,6 +178,7 @@ import {
   restoreMemoryAchievements,
 } from '~/utils/memoryDungeon/achievements'
 import type { HoshimoriWarmProgress } from '~/utils/memoryDungeon/hoshimoriWarm'
+import type { NightProgress } from '~/utils/memoryDungeon/hoshimoriNight'
 import { briarLossContinuation } from '~/utils/memoryDungeon/lossContinuations'
 import {
   BRIAR_REVEAL_WAVES,
@@ -380,13 +381,17 @@ export const useMemoryWorldStore = defineStore('memoryWorld', () => {
       state.value.house?.decisions ?? {},
     ),
   )
-  function syncAchievements(hoshimori?: HoshimoriWarmProgress): void {
+  function syncAchievements(
+    hoshimori?: HoshimoriWarmProgress,
+    hoshimoriNight?: NightProgress,
+  ): void {
     const next = reconcileMemoryAchievements(
       earnedAchievementIds.value,
       briarRareEvents.value,
       state.value,
       dark.value,
       hoshimori,
+      hoshimoriNight,
     )
     if (next.length === earnedAchievementIds.value.length) return
     earnedAchievementIds.value = next
@@ -631,6 +636,11 @@ export const useMemoryWorldStore = defineStore('memoryWorld', () => {
     if (next === earthChronicle.value) return
     earthChronicle.value = next
     persistEarthChronicle()
+  }
+
+  function syncHoshimoriNightAchievements(progress: NightProgress): void {
+    if (!campaign.value.completed.includes('e07')) return
+    syncAchievements(undefined, progress)
   }
 
   function syncHoshimoriNightPhoto(
@@ -2368,6 +2378,7 @@ export const useMemoryWorldStore = defineStore('memoryWorld', () => {
     syncHoshimoriPhoto,
     syncMorrowEarthPhoto,
     finishMorrowEarthReality,
+    syncHoshimoriNightAchievements,
     syncHoshimoriNightPhoto,
     activeReality,
     dark,

@@ -6,6 +6,7 @@ import {
   getArtImageAccessContext,
 } from '~/server/utils/artImageAccess'
 import { renderableArtPath } from '~/utils/artImageSrc'
+import { galleryThumbnailUrl } from '~/server/utils/artGalleryArchiveMedia'
 import { COUCH_ONBOARDING_ART_IDS } from '~/utils/gameOfCaptains/onboardingArt'
 
 export default defineEventHandler(async (event) => {
@@ -26,9 +27,12 @@ export default defineEventHandler(async (event) => {
 
     for (const [key, id] of Object.entries(COUCH_ONBOARDING_ART_IDS)) {
       const image = byId.get(id)
-      const src = renderableArtPath(image?.imagePath) ||
-        renderableArtPath(image?.path)
-      if (src) sources[key] = src
+      if (!image) continue
+      const src =
+        renderableArtPath(image.imagePath) ||
+        renderableArtPath(image.path) ||
+        galleryThumbnailUrl(id)
+      sources[key] = src
     }
 
     return { success: true, data: sources }

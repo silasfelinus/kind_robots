@@ -266,6 +266,7 @@ export function reconcileMemoryAchievements(
       if (medal.accord(original, mirrored) !== 'unset') ids.add(medal.id)
   const house = original?.house
   if (
+    original &&
     house?.ending &&
     house.visited.includes('HD-35') &&
     (!house.decisions['HD-35'] || house.decisions['HD-35'] === house.ending) &&

@@ -18,6 +18,7 @@ import {
   boutTerms,
   CITY_PLAN,
   CITY_CONTRACTS,
+  cityRoute,
   cityWon,
   contractBlocked,
   recordContract,
@@ -67,6 +68,35 @@ for (const [a, b] of STREETS) {
   assert.ok(streetsFrom(a).some((s) => s.to === b))
   assert.ok(streetsFrom(b).some((s) => s.to === a))
 }
+
+// Wayfinding picks a shortest, repeatable route through streets without skipping
+// first-crossing story decisions or inventing a direct connection.
+assert.deepEqual(
+  cityRoute('pitworks', 'crown').map((step) => step.street),
+  ['The Long Drain', 'Ledger Sewer'],
+)
+assert.deepEqual(cityRoute('crown', 'crown'), [])
+for (const from of ids)
+  for (const to of ids) {
+    const route = cityRoute(from, to)
+    assert.equal(route.length === 0, from === to)
+    let at = from
+    for (const leg of route) {
+      assert.equal(leg.from, at)
+      assert.ok(
+        streetsFrom(at).some(
+          (street) => street.to === leg.to && street.street === leg.street,
+        ),
+      )
+      at = leg.to
+    }
+    assert.equal(at, to)
+    assert.equal(
+      route.length,
+      cityRoute(to, from).length,
+      'Shortest path lengths must be symmetrical',
+    )
+  }
 
 // Rivals: distinct names, every crew appears, all three formats appear
 const rivals = ids.map((id) => CITY_PLAN[id].rival)
@@ -371,6 +401,33 @@ setActivePinia(createPinia())
 const lab = useSlimeCityStore()
 lab.chooseTeam('catgirls')
 assert.equal(lab.city.location, 'pitworks')
+lab.visit('crown')
+assert.equal(lab.routeSteps.length, 2, 'Distant district plans two street legs')
+assert.equal(lab.route?.to, 'undertow')
+lab.walk()
+assert.equal(lab.city.location, 'undertow')
+assert.equal(lab.city.pendingStreet, 'The Long Drain')
+assert.equal(lab.districtId, 'crown', 'Destination remains selected en route')
+lab.walk()
+assert.equal(lab.city.location, 'undertow', 'Street event prevents skipping ahead')
+lab.chooseStreet(STREET_STORIES['The Long Drain']!.choices[0].id)
+assert.equal(lab.streetEvent, null)
+assert.equal(lab.districtId, 'crown', 'Choice preserves onward destination')
+assert.equal(lab.route?.to, 'crown')
+lab.walk()
+assert.equal(lab.city.location, 'crown')
+assert.equal(lab.city.pendingStreet, 'Ledger Sewer')
+lab.chooseStreet(STREET_STORIES['Ledger Sewer']!.choices[1].id)
+assert.equal(lab.city.location, 'crown')
+assert.equal(lab.routeSteps.length, 0)
+lab.showCards()
+assert.equal(lab.view, 'cards')
+lab.showCity()
+lab.showCampaign()
+assert.equal(lab.view, 'campaign')
+lab.showCity()
+lab.resetCity()
+
 lab.visit('crown')
 lab.walk()
 assert.equal(lab.city.location, 'pitworks', 'No street, no walk')

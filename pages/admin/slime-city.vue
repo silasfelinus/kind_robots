@@ -105,7 +105,11 @@
                 :y1="street.y1"
                 :x2="street.x2"
                 :y2="street.y2"
-                :class="{ open: street.open, witnessed: street.witnessed }"
+                :class="{
+                open: street.open,
+                witnessed: street.witnessed,
+                planned: street.planned,
+              }"
               />
             </svg>
             <button
@@ -157,6 +161,21 @@
               </div>
             </article>
             <template v-else>
+              <div
+                v-if="!lab.here && lab.routeSteps.length"
+                class="sc-route"
+                data-testid="slime-city-route"
+                aria-live="polite"
+              >
+                <span class="sc-overline"
+                  >WAYFINDER · {{ lab.routeSteps.length }}
+                  {{ lab.routeSteps.length === 1 ? 'STREET' : 'STREETS' }}</span
+                >
+                <strong>{{ routeLabel }}</strong>
+                <small
+                  >Next: {{ lab.route?.street }} · {{ nextStopName }}</small
+                >
+              </div>
               <p class="sc-overline">
                 {{ lab.district.name }} /
                 {{ statusLabel(lab.districtStatus(lab.districtId)) }}
@@ -213,14 +232,30 @@
                   data-testid="slime-walk"
                   @click="lab.walk()"
                 >
-                  WALK {{ lab.route.street.toUpperCase() }} →
+                  WALK {{ lab.route.street.toUpperCase() }} ·
+                  {{ nextStopName.toUpperCase() }} →
                 </button>
                 <span v-else class="sc-gate"
-                  >No street from {{ hereName }} reaches here. Walk the lit
-                  streets.</span
+                  >No route available. Choose a connected district.</span
                 >
               </span>
             </template>
+            <div class="sc-city-nav" aria-label="Crew destinations">
+              <button
+                type="button"
+                data-testid="slime-city-story-shortcut"
+                @click="lab.showCampaign()"
+              >
+                CREW STORY · {{ lab.campaignState.wins }}/5
+              </button>
+              <button
+                type="button"
+                data-testid="slime-city-cards-shortcut"
+                @click="lab.showCards()"
+              >
+                INSPECT DECK · {{ lab.cards.length }} CARDS
+              </button>
+            </div>
           </div>
           <div class="sc-stage-foot">
             <span
@@ -847,6 +882,7 @@ const streetLines = computed(() =>
       y2: to.y,
       open: a === lab.city.location || b === lab.city.location,
       witnessed: !!lab.city.streetChoices[name],
+      planned: lab.routeSteps.some((step) => step.street === name),
     }
   }),
 )
@@ -874,6 +910,17 @@ function teamName(id: string): string {
 function modeTitle(id: string): string {
   return lab.modes.find((m) => m.id === id)?.title ?? id
 }
+const nextStopName = computed(
+  () => lab.districts.find((d) => d.id === lab.route?.to)?.name ?? '',
+)
+const routeLabel = computed(() =>
+  [
+    hereName.value,
+    ...lab.routeSteps.map(
+      ({ to }) => lab.districts.find((d) => d.id === to)?.name ?? to,
+    ),
+  ].join(' › '),
+)
 const attackSymbol = computed(
   () =>
     ({
@@ -1419,6 +1466,11 @@ onUnmounted(() => lab.dispose())
   stroke-width: 2.5;
   stroke-dasharray: none;
 }
+.sc-streets line.planned {
+  stroke: #ffdc83;
+  stroke-width: 3.5;
+  stroke-dasharray: none;
+}
 .sc-scene {
   color: #dbe3ee;
   line-height: 1.4;
@@ -1454,6 +1506,35 @@ onUnmounted(() => lab.dispose())
   color: #b8c4d0;
   font-size: 0.66rem;
   line-height: 1.3;
+}
+.sc-route {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  padding: 0.55rem 0.7rem;
+  border-left: 3px solid #ffdc83;
+  background: #ffdc8315;
+}
+.sc-route strong {
+  font-size: 0.8rem;
+  line-height: 1.35;
+  color: #fff1c6;
+}
+.sc-route small {
+  color: #cdd9e2;
+  font-size: 0.7rem;
+}
+.sc-city-nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  border-top: 1px solid #6b778466;
+  padding-top: 0.55rem;
+}
+.sc-city-selection .sc-city-nav button {
+  background: #283348;
+  color: #e7f9bc;
+  border: 1px solid #b5ca8c99;
 }
 .sc-decided {
   font-size: 0.72rem;

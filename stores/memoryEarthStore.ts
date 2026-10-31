@@ -1,4 +1,4 @@
-import { computed, ref } from 'vue'
+import { computed, ref, watch } from 'vue'
 import { defineStore } from 'pinia'
 import { useMemoryWorldStore } from './memoryWorldStore'
 import {
@@ -132,6 +132,19 @@ export const useMemoryEarthStore = defineStore('memoryEarth', () => {
     if (e04Unlocked.value)
       world.syncMorrowEarthPhoto('e04', save.value.records.e04.choices)
   }
+
+  watch(
+    () => world.campaign.completed,
+    () => {
+      if (!hydrated.value) return
+      if (!e04Unlocked.value && save.value.active === 'e04')
+        save.value.active = 'e03'
+      if (unlocked.value)
+        world.syncMorrowEarthPhoto('e03', save.value.records.e03.choices)
+      if (e04Unlocked.value)
+        world.syncMorrowEarthPhoto('e04', save.value.records.e04.choices)
+    },
+  )
 
   function select(reality: EarthReality): void {
     if (!unlocked.value) return

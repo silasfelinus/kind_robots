@@ -235,6 +235,9 @@ function legacy(): OverworldEvent[] {
       portrait: art(world, key, title, 'speaking-portrait', 'painted storybook'),
       sceneArt: art(world, key, title, 'establishing-scene', 'painted storybook'),
       choices: legacyChoices(world, key, title, options),
+      ...(photos.get(world)?.find((photo) => photo.site === key)
+        ? { photographId: photos.get(world)!.find((photo) => photo.site === key)!.id }
+        : {}),
       source: 'existing-playable',
     })
   }

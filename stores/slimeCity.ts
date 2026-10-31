@@ -1,6 +1,4 @@
 import { defineStore } from 'pinia'
-import { useUserStore } from './userStore'
-import { performFetch } from './utils'
 import {
   canBuyPack,
   currentChallenges,
@@ -19,7 +17,7 @@ import {
   resolveCampaignBattle,
   type CampaignApproach,
 } from '../utils/slimeCity/campaign'
-import { computed, ref, watch } from 'vue'
+import { computed, ref, shallowRef, watch } from 'vue'
 import {
   advance,
   attack,
@@ -86,7 +84,25 @@ function rollSeed(): number {
 }
 
 export const useSlimeCityStore = defineStore('slimeCityLab', () => {
-  const userStore = useUserStore()
+  // Account + network services load lazily so the pure game store stays
+  // importable (and testable) outside the Nuxt runtime.
+  const net = shallowRef<{
+    fetcher: typeof import('./utils').performFetch
+    user: ReturnType<typeof import('./userStore').useUserStore>
+  } | null>(null)
+  const netReady = Promise.all([import('./utils'), import('./userStore')])
+    .then(([utils, users]) => {
+      net.value = { fetcher: utils.performFetch, user: users.useUserStore() }
+    })
+    .catch(() => undefined)
+  const authId = (): number | null =>
+    net.value?.user.authenticatedUserId ?? null
+  const isGuest = (): boolean => net.value?.user.isGuest ?? true
+  async function performFetch<T>(url: string, options: RequestInit = {}) {
+    await netReady
+    if (!net.value) throw new Error('Account services are unavailable.')
+    return net.value.fetcher<T>(url, options)
+  }
   const view = ref<'city' | 'arena' | 'cards' | 'campaign' | 'rewards'>('city')
   const activeTeam = ref<TeamId>('catgirls')
   const enemyTeam = ref<TeamId>('bloodfairies')
@@ -111,14 +127,11 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
   const cardRarity = rarityOf
 
   function correctAccount(): boolean {
-    return (
-      !!userStore.authenticatedUserId &&
-      !userStore.isGuest &&
-      progressAccount.value === userStore.authenticatedUserId
-    )
+    return !!authId() && !isGuest() && progressAccount.value === authId()
   }
   async function hydrateProgression(): Promise<void> {
-    if (!userStore.authenticatedUserId || userStore.isGuest) {
+    await netReady
+    if (!authId() || isGuest()) {
       progressLoaded.value = false
       progressAccount.value = null
       progress.value = newProgression()
@@ -129,14 +142,14 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
     progressLoaded.value = false
     progress.value = newProgression()
     progressError.value = ''
-    const requestUserId = userStore.authenticatedUserId
+    const requestUserId = authId()
     try {
       const result = await performFetch<Progression>('/api/slime-city/progress')
       if (!result.success || !result.data)
         throw new Error(
           result.message || 'Could not load your Slime City account.',
         )
-      if (requestUserId !== userStore.authenticatedUserId) return
+      if (requestUserId !== authId()) return
       progress.value = result.data
       progressAccount.value = requestUserId
       progressLoaded.value = true
@@ -789,7 +802,7 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
   }
 
   watch(
-    () => userStore.authenticatedUserId,
+    () => authId(),
     () => {
       progressAccount.value = null
       progressLoaded.value = false

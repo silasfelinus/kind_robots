@@ -33,8 +33,8 @@ export async function requireSlimeCityPreviewUser(event: H3Event) {
   return auth
 }
 
-const toJson = (data: unknown) =>
-  JSON.parse(JSON.stringify(data)) as Prisma.InputJsonValue
+const toJson = (data: unknown): Prisma.InputJsonValue =>
+  JSON.parse(JSON.stringify(data))
 
 /** All virtual Meat, XP, inventory and claims belong to a real User row. */
 export async function getSlimeCityAccount(

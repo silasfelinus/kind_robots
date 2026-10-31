@@ -12,9 +12,16 @@
     </div>
     <figcaption v-if="!compact" class="slime-art-source">
       <template v-if="imageId">
-        <span v-if="record?.status === 'loaded'">ART {{ imageId }} · LOADED</span>
-        <span v-else-if="record?.status === 'failed'">ART {{ imageId }} · UNAVAILABLE</span>
-        <span v-else>ART {{ imageId }} · {{ record?.status === 'loading' ? 'LOADING' : 'AWAITING AUTH' }}</span>
+        <span v-if="record?.status === 'loaded'"
+          >ART {{ imageId }} · LOADED</span
+        >
+        <span v-else-if="record?.status === 'failed'"
+          >ART {{ imageId }} · UNAVAILABLE</span
+        >
+        <span v-else
+          >ART {{ imageId }} ·
+          {{ record?.status === 'loading' ? 'LOADING' : 'AWAITING AUTH' }}</span
+        >
       </template>
       <span v-else>ART NOT YET ILLUSTRATED</span>
     </figcaption>
@@ -38,7 +45,9 @@ const props = withDefaults(
 
 const art = useSlimeCityArtStore()
 const user = useUserStore()
-const record = computed(() => (props.imageId ? art.images[props.imageId] : null))
+const record = computed(() =>
+  props.imageId ? art.images[props.imageId] : null,
+)
 
 watch(
   [() => props.imageId, () => user.token],
@@ -73,7 +82,11 @@ watch(
   place-items: center;
   width: 100%;
   height: 100%;
-  background: repeating-linear-gradient(115deg, #fff1 0 2px, transparent 2px 20px);
+  background: repeating-linear-gradient(
+    115deg,
+    #fff1 0 2px,
+    transparent 2px 20px
+  );
   color: #dbffa0;
   font-size: clamp(1.2rem, 3vw, 3.5rem);
   font-weight: 900;

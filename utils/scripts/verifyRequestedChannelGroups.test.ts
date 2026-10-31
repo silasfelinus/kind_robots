@@ -78,6 +78,25 @@ for (const key of ['hybridizer', 'slime-city'] as const) {
 }
 assert.match(nav('arcade/index'), /Hybridizer, Slime City/)
 
+const featuredHome = read('components/home/home-visitor-directory.vue')
+for (const [title, slug] of [
+  ['Slime City', 'slime-city'],
+  ['Hybridizer', 'hybridizer'],
+] as const) {
+  const start = featuredHome.indexOf(`    title: '${title}',`)
+  assert.ok(start >= 0, `${title} must appear in featured dashboard`)
+  const entry = featuredHome.slice(start, featuredHome.indexOf('\n  },', start))
+  assert.ok(entry.includes("category: 'play'"), `${title} must be in Play`)
+  assert.ok(
+    entry.includes(`route: '/play/${slug}'`),
+    `${title} must link to its active Play route`,
+  )
+  assert.ok(entry.includes("tag: 'Sign-in playtest"), 'Login gate is disclosed')
+  assert.ok(entry.includes("image: ''"), 'No invented or unrelated poster')
+}
+assert.match(featuredHome, /v-if="feature\.image"/)
+assert.match(featuredHome, /v-else\s+class="flex h-full w-full/)
+
 assert.match(nav('admin/retired'), /\nsort: 9999\n/)
 assert.match(nav('admin/zuzu-lair'), /\nroute: \/admin\/zuzu-lair\n/)
 assert.equal(existsSync('pages/play/zuzu-lair.vue'), false)

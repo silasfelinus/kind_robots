@@ -18,6 +18,11 @@ import {
   houseEpilogueLens,
 } from './houseEpilogues'
 import { BRIAR_RARE_EVENTS, type EarnedBriarRareEvent } from './briarRareEvents'
+import {
+  hoshimoriVesperReckoning,
+  restoreHoshimoriWarm,
+  type HoshimoriWarmProgress,
+} from './hoshimoriWarm'
 
 export interface MemoryAchievement {
   id: string
@@ -225,10 +230,94 @@ export const MEMORY_HOUSE_ACHIEVEMENTS = Object.values(HOUSE_EPILOGUES).map(
   }),
 )
 
+/**
+ * Eight earned outcomes of Vesper's Hoshimori accountability arc.
+ * Three independent choices determine the record; the childhood bridge
+ * and all three hearings must be completed before any medal is awarded.
+ * Image paths are production destinations, not proof of delivered art.
+ */
+const VESPER_MEDALS = [
+  {
+    id: 'e07-vesper-public-witness',
+    road: 'witness',
+    theatre: 'ask',
+    assembly: 'consent',
+    title: 'The Map That Can Be Questioned',
+    echo: 'The families mark the atlas with questions in the margins. Vesper attends every hearing but no longer holds the only pen. The rescue remains a rescue, the betrayal remains a betrayal, and neither can be used to silence the other.',
+  },
+  {
+    id: 'e07-vesper-open-hearing',
+    road: 'witness',
+    theatre: 'ask',
+    assembly: 'open',
+    title: 'A Charter With No Price',
+    echo: 'The travelling actors bring the testimony to each household, but the escorts keep their routes off the stage. Vesper funds the first journeys and cannot purchase the addresses in return. Some families still refuse to speak.',
+  },
+  {
+    id: 'e07-vesper-redacted-witness',
+    road: 'witness',
+    theatre: 'perform',
+    assembly: 'consent',
+    title: 'The Blank House on the Page',
+    echo: 'A paper house stands empty at the public hearing. Vesper describes the sale without pointing to the people who fled. The council records the harm and publishes only routes that their travelers agreed to share.',
+  },
+  {
+    id: 'e07-vesper-shadow-escort',
+    road: 'witness',
+    theatre: 'perform',
+    assembly: 'open',
+    title: 'The Witness and the Shadow',
+    echo: 'Vesper gives a public account while the shadow players protect the hidden doors. The new escorts answer to the households they serve. Their charter contains a blank line for every person who chooses not to return.',
+  },
+  {
+    id: 'e07-vesper-private-atlas',
+    road: 'depart',
+    theatre: 'ask',
+    assembly: 'consent',
+    title: 'Restitution Without a Receipt',
+    echo: 'The troupe performs the betrayed households without naming the traveler Vesper saved. A public atlas shows safe roads, while compensation reaches people through private witnesses. Nobody is asked to sign forgiveness.',
+  },
+  {
+    id: 'e07-vesper-private-escort',
+    road: 'depart',
+    theatre: 'ask',
+    assembly: 'open',
+    title: 'The Road That Refuses a Sale',
+    echo: 'The actors tell the whole story and the village funds an escort service instead of another map market. Vesper carries provisions but no passenger list. The families decide when the work has repaid anything.',
+  },
+  {
+    id: 'e07-vesper-quiet-atlas',
+    road: 'depart',
+    theatre: 'perform',
+    assembly: 'consent',
+    title: 'A Door Deliberately Missing',
+    echo: 'The atlas marks a safe public crossing and leaves the refuge doors unnamed. Vesper sends restitution through trusted neighbors. The paper theatre keeps its blank house, an honest sign of what the map must not reveal.',
+  },
+  {
+    id: 'e07-vesper-quiet-charter',
+    road: 'depart',
+    theatre: 'perform',
+    assembly: 'open',
+    title: 'The Escort Who Does Not Ask',
+    echo: 'The council funds escorts who never demand an address to prove a need. Vesper walks the first route without selling a copy, while the shadow players keep the lost households unseen. The charter can be revoked by those it serves.',
+  },
+] as const
+
+export const MEMORY_HOSHIMORI_ACHIEVEMENTS = VESPER_MEDALS.map((medal) => ({
+  id: medal.id,
+  questId: 'e07-8,8',
+  title: medal.title,
+  description:
+    'Complete Vesper’s childhood reckoning and establish a community-held refuge route.',
+  echo: medal.echo,
+  artPath: `/images/memory-dungeon/hoshimori/${medal.id}.webp`,
+}))
+
 const ALL_MEDALS = [
   ...MEMORY_BRIAR_ACHIEVEMENTS,
   ...MEMORY_DARK_BRIAR_ACHIEVEMENTS,
   ...MEMORY_HOUSE_ACHIEVEMENTS,
+  ...MEMORY_HOSHIMORI_ACHIEVEMENTS,
 ]
 
 const validIds = new Set(ALL_MEDALS.map((medal) => medal.id))
@@ -257,6 +346,7 @@ export function reconcileMemoryAchievements(
   original?: Pick<BriarSave, 'sceneChoices'> &
     Partial<Pick<BriarSave, 'house'>>,
   mirrored?: Pick<DarkBriarProgress, 'sceneChoices'>,
+  hoshimori?: HoshimoriWarmProgress,
 ): string[] {
   const ids = new Set(restoreMemoryAchievements(previous))
   for (const event of earnedEvents)
@@ -275,6 +365,18 @@ export function reconcileMemoryAchievements(
   ) {
     const epilogue = houseEpilogue(house, original.sceneChoices)
     if (epilogue) ids.add(`e01-house-${epilogue.id}`)
+  }
+  if (hoshimori) {
+    const verified = restoreHoshimoriWarm(hoshimori)
+    if (verified && hoshimoriVesperReckoning(verified)) {
+      const medal = VESPER_MEDALS.find(
+        (entry) =>
+          entry.road === verified.choices['4,4'] &&
+          entry.theatre === verified.choices['3,8'] &&
+          entry.assembly === verified.choices['8,8'],
+      )
+      if (medal) ids.add(medal.id)
+    }
   }
   return ALL_MEDALS.filter((medal) => ids.has(medal.id)).map(
     (medal) => medal.id,

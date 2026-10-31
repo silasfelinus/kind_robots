@@ -257,12 +257,7 @@ const historicalSave = restoreMemoryCampaignProgress({
   completed: ['e09', 'e12', 'e13', 'e16', 'e13'],
   finaleCommitted: true,
 })
-assert.deepEqual(historicalSave.legacyCompleted, [
-  'e09',
-  'e12',
-  'e13',
-  'e16',
-])
+assert.deepEqual(historicalSave.legacyCompleted, ['e09', 'e12', 'e13', 'e16'])
 assert.deepEqual(historicalSave.completed, [])
 assert.deepEqual(availableMemoryExperiences(historicalSave), ['e01'])
 const mixedVersionSave = restoreMemoryCampaignProgress({

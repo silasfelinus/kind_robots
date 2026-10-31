@@ -927,9 +927,8 @@
             <p>{{ currentMode.detail }}</p>
             <p>{{ lab.guide.goal }}</p>
             <p>
-              Pick a crew, fight the CPU, and earn local prototype XP and Meat.
-              REWARDS has daily/weekly challenges and card packs. Online results
-              are not saved.
+              Start a reward-eligible CPU battle from REWARDS to earn XP and Meat
+              for your account. Free laboratory matches do not award currency.
             </p>
           </div>
         </aside>

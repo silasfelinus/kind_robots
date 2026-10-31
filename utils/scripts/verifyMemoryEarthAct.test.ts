@@ -17,6 +17,8 @@ import {
   earthRealityReady,
 } from '../memoryDungeon/earthAct'
 import {
+  compactEarthJournal,
+  EARTH_JOURNAL_COMPACT_AT,
   migrateLegacyEarthJournal,
   replayEarthJournal,
   type EarthJournalAction,
@@ -188,6 +190,43 @@ for (const reality of EARTH_REALITIES) {
   assert.equal(migrated.position, current)
   assert.equal(migrated.progress.revealed.length, 64)
 
+  const shortened = compactEarthJournal(reality, journal)!
+  const shorterReplay = replayEarthJournal(reality, shortened)!
+  assert.ok(shortened.length <= EARTH_JOURNAL_COMPACT_AT)
+  assert.deepEqual(shorterReplay.progress.choices, replayed.progress.choices)
+  assert.deepEqual(shorterReplay.progress.flags, replayed.progress.flags)
+  assert.equal(shorterReplay.progress.danger, replayed.progress.danger)
+  assert.equal(shorterReplay.position, replayed.position)
+
+  let wandering: EarthJournalAction[] = [...journal]
+  let wanderingPosition = current
+  for (let index = 0; index < 3000; index++) {
+    if (wandering.length >= EARTH_JOURNAL_COMPACT_AT) {
+      const compacted = compactEarthJournal(reality, wandering)
+      assert.ok(compacted, 'a legitimate route can always be compacted')
+      assert.ok(compacted.length < EARTH_JOURNAL_COMPACT_AT)
+      wandering = compacted
+    }
+    wanderingPosition = wanderingPosition === current ? '2,8' : current
+    wandering.push({ type: 'travel', key: wanderingPosition })
+  }
+  const afterWandering = replayEarthJournal(reality, wandering)!
+  assert.ok(afterWandering, 'three thousand extra moves must survive reload')
+  assert.equal(afterWandering.position, current)
+  assert.deepEqual(afterWandering.progress.choices, replayed.progress.choices)
+  assert.deepEqual(afterWandering.progress.flags, replayed.progress.flags)
+  for (const resource of ['supplies', 'trust', 'evidence', 'danger'] as const)
+    assert.equal(afterWandering.progress[resource], replayed.progress[resource])
+  assert.deepEqual(
+    new Set(afterWandering.progress.revealed),
+    new Set(replayed.progress.revealed),
+  )
+  assert.equal(
+    compactEarthJournal(reality, [{ type: 'travel', key: '8,8' }]),
+    null,
+    'compaction must never legitimize a forged teleport',
+  )
+
   assert.equal(
     replayEarthJournal(reality, [{ type: 'travel', key: '8,8' }]),
     null,
@@ -218,7 +257,7 @@ for (const reality of EARTH_REALITIES) {
   assert.equal(
     replayEarthJournal(
       reality,
-      Array.from({ length: 513 }, () => ({
+      Array.from({ length: 2049 }, () => ({
         type: 'travel',
         key: '2,1',
       })),

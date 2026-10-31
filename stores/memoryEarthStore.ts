@@ -17,6 +17,8 @@ import {
   type EarthReality,
 } from '~/utils/memoryDungeon/earthAct'
 import {
+  compactEarthJournal,
+  EARTH_JOURNAL_COMPACT_AT,
   migrateLegacyEarthJournal,
   replayEarthJournal,
   type EarthJournalAction,
@@ -195,6 +197,19 @@ export const useMemoryEarthStore = defineStore('memoryEarth', () => {
     persist()
   }
 
+  function ensureJournalRoom(): boolean {
+    const journal = save.value.journals[active.value]
+    if (journal.length < EARTH_JOURNAL_COMPACT_AT) return true
+    const compacted = compactEarthJournal(active.value, journal)
+    if (!compacted || compacted.length >= EARTH_JOURNAL_COMPACT_AT) {
+      notice.value =
+        'Your Earth route is safe, but its travel history could not be shortened. No new move was recorded.'
+      return false
+    }
+    save.value.journals[active.value] = compacted
+    return true
+  }
+
   function travel(key: string): void {
     if (!unlocked.value || (active.value === 'e04' && !e04Unlocked.value))
       return
@@ -206,6 +221,7 @@ export const useMemoryEarthStore = defineStore('memoryEarth', () => {
       return
     }
     if (!worldEvent(active.value, key) || key === position.value) return
+    if (!ensureJournalRoom()) return
     save.value.records[active.value] = revealOverworldEvent(progress.value, key)
     save.value.journals[active.value].push({ type: 'travel', key })
     save.value.positions[active.value] = key
@@ -218,6 +234,7 @@ export const useMemoryEarthStore = defineStore('memoryEarth', () => {
       return
     const next = chooseOverworldEvent(progress.value, position.value, choiceId)
     if (next === progress.value) return
+    if (!ensureJournalRoom()) return
     save.value.records[active.value] = next
     save.value.journals[active.value].push({
       type: 'choose',

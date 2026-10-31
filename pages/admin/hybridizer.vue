@@ -192,7 +192,7 @@
               <button type="button" @click="shareFusion('x')">X</button>
               <button type="button" @click="shareFusion('facebook')">Facebook</button>
               <button type="button" @click="shareFusion('reddit')">Reddit</button>
-              <small>Preview links require access to the Admin laboratory.</small>
+              <small>Share this illustrated discovery with friends.</small>
             </div>
             <div
               v-if="lab.versionsFor === lab.result.key && lab.versions.length"
@@ -471,14 +471,14 @@ async function shareFusion(platform: 'copy' | 'x' | 'facebook' | 'reddit') {
     ? lab.result.key.slice(7)
     : null
   if (!id || !import.meta.client) return
-  const url = new URL('/admin/hybridizer', window.location.origin)
+  const url = new URL('/play/hybridizer', window.location.origin)
   url.searchParams.set('fusion', id)
   const link = url.toString()
   const title = lab.result?.title || 'Hybridizer discovery'
   if (platform === 'copy') {
     try {
       await navigator.clipboard.writeText(link)
-      lab.status = 'Discovery link copied. Admin access is required while Hybridizer is in preview.'
+      lab.status = 'Discovery link copied. Your friends can view it in Play.'
     } catch {
       lab.status = 'Clipboard unavailable. Use your browser address bar to copy the discovery URL.'
     }

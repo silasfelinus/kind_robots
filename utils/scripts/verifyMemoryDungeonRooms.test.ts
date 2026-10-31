@@ -137,8 +137,9 @@ assert.equal(
   null,
   'a Housekeeper checkpoint cannot impersonate a different guardian',
 )
-const housekeeperRoute = Array.from({ length: 16 }, (_, i) =>
-  `HD-${String(i + 1).padStart(2, '0')}`,
+const housekeeperRoute = Array.from(
+  { length: 16 },
+  (_, i) => `HD-${String(i + 1).padStart(2, '0')}`,
 )
 const housekeeperSave = restoreHouseProgress({
   ...newHouseProgress(),

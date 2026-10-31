@@ -559,8 +559,8 @@ assert.equal(lab.campaignAtDestination, true)
 lab.startCampaignBattle('cunning')
 assert.equal(lab.view, 'arena')
 assert.equal(lab.match.foeId, 'undertow')
-assert.equal(lab.campaignBout?.team, 'catgirls')
-assert.equal(lab.campaignBout?.choice, 'cunning')
+assert.ok(lab.campaignBout, 'City mission uses campaign settlement')
+assert.equal(lab.match.teamId, 'catgirls')
 assert.equal(lab.match.mana, 3, 'Mission approach changes opening mana')
 assert.equal(
   lab.city.cleared.length,

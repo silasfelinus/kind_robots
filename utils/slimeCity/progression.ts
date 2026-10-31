@@ -5,7 +5,6 @@ import {
   CARDS,
   TEAMS,
   seededHash,
-  deckOf,
   type Card,
   type Command,
   type MatchState,

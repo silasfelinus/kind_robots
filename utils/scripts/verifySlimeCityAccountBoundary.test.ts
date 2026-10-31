@@ -27,12 +27,12 @@ assert.match(
   store,
   /performFetch<Progression>\('\/api\/slime-city\/progress'\)/,
 )
-assert.match(store, /performFetch<Progression>\('\/api\/slime-city\/pack'/)
-assert.match(store, /performFetch<Progression>\('\/api\/slime-city\/claim'/)
-assert.match(store, /performFetch<Progression>\('\/api\/slime-city\/finish'/)
+assert.match(store, /performFetch<Progression>\(\s*'\/api\/slime-city\/pack'/)
+assert.match(store, /performFetch<Progression>\(\s*'\/api\/slime-city\/claim'/)
+assert.match(store, /performFetch<Progression>\(\s*'\/api\/slime-city\/finish'/)
 assert.match(
   store,
-  /performFetch<\{ id: string; teamId: TeamId; foeId: TeamId; seed: number \}>/,
+  /performFetch<\{\s*id: string\s*teamId: TeamId\s*foeId: TeamId\s*seed: number\s*\}>/,
 )
 assert.match(service, /requireHumanApiUser\(event\)/)
 assert.match(service, /!auth\.isAdmin \|\| auth\.user\.isGuest/)
@@ -48,10 +48,7 @@ assert.match(
 )
 assert.match(schema, /model SlimeCityAccount \{[\s\S]*?userId\s+Int\s+@id/)
 assert.match(schema, /model SlimeCityMatch \{[\s\S]*?userId\s+Int/)
-assert.match(
-  migration,
-  /FOREIGN KEY \(\`userId\`\) REFERENCES \`User\`\(\`id\`\)/,
-)
+assert.match(migration, /FOREIGN KEY \(`userId`\) REFERENCES `User`\(`id`\)/)
 for (const route of [
   'progress.get.ts',
   'match.post.ts',

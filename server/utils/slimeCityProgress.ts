@@ -6,7 +6,6 @@ import type { Prisma } from '~/prisma/generated/prisma/client'
 import {
   CARDS,
   TEAMS,
-  createMatch,
   replayMatch,
   type Command,
   type MatchState,

@@ -650,8 +650,8 @@
                 <button
                   type="button"
                   data-testid="slime-fight-for-meat"
-                  @click="lab.startCpuBattle()"
                   :disabled="lab.progressBusy || !lab.progressLoaded"
+                  @click="lab.startCpuBattle()"
                 >
                   START REWARDED CPU BATTLE →
                 </button>

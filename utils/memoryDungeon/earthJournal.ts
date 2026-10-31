@@ -17,7 +17,8 @@ export interface EarthJournalState {
   position: string
 }
 
-const MAX_EARTH_ACTIONS = 512
+const MAX_EARTH_ACTIONS = 2048
+export const EARTH_JOURNAL_COMPACT_AT = 1536
 
 /**
  * New Earth saves replay actual adjacent travel and one-time decisions.
@@ -116,4 +117,82 @@ export function migrateLegacyEarthJournal(
   )
     return null
   return journal
+}
+
+/**
+ * Replace long wandering histories with a shorter, fully replayable route.
+ * Keep decisions in their original order: danger has a zero floor, so
+ * reordering a rescue and a hazard would silently change the outcome.
+ * Only visit sites already revealed by the validated original journal.
+ */
+export function compactEarthJournal(
+  reality: EarthReality,
+  value: unknown,
+): EarthJournalAction[] | null {
+  const original = replayEarthJournal(reality, value)
+  if (!original || !Array.isArray(value)) return null
+  const allowed = new Set(original.progress.revealed)
+  const compacted: EarthJournalAction[] = []
+  const seen = new Set(['1,1'])
+  let position = '1,1'
+
+  function travelTo(destination: string): boolean {
+    if (destination === position) return true
+    const paths = new Map<string, string[]>([[position, []]])
+    const queue = [position]
+    for (let index = 0; index < queue.length; index++) {
+      const current = queue[index]!
+      for (const neighbor of eventNeighbors(current)) {
+        if (!allowed.has(neighbor) || paths.has(neighbor)) continue
+        paths.set(neighbor, [...paths.get(current)!, neighbor])
+        queue.push(neighbor)
+      }
+    }
+    const path = paths.get(destination)
+    if (!path) return false
+    for (const key of path) {
+      compacted.push({ type: 'travel', key })
+      seen.add(key)
+      position = key
+    }
+    return true
+  }
+
+  for (const action of value as EarthJournalAction[]) {
+    if (action.type !== 'choose') continue
+    if (!travelTo(action.key)) return null
+    compacted.push({ type: 'choose', key: action.key, choiceId: action.choiceId })
+  }
+
+  function visitRemaining(key: string): void {
+    for (const neighbor of eventNeighbors(key)) {
+      if (!allowed.has(neighbor) || seen.has(neighbor)) continue
+      seen.add(neighbor)
+      compacted.push({ type: 'travel', key: neighbor })
+      position = neighbor
+      visitRemaining(neighbor)
+      compacted.push({ type: 'travel', key })
+      position = key
+    }
+  }
+  visitRemaining(position)
+  if (!travelTo(original.position)) return null
+
+  const verified = replayEarthJournal(reality, compacted)
+  const a = original.progress
+  const b = verified?.progress
+  if (
+    !b ||
+    verified?.position !== original.position ||
+    a.revealed.length !== b.revealed.length ||
+    a.revealed.some((key) => !b.revealed.includes(key)) ||
+    JSON.stringify(a.choices) !== JSON.stringify(b.choices) ||
+    JSON.stringify(a.flags) !== JSON.stringify(b.flags) ||
+    a.supplies !== b.supplies ||
+    a.trust !== b.trust ||
+    a.evidence !== b.evidence ||
+    a.danger !== b.danger
+  )
+    return null
+  return compacted
 }

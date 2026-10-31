@@ -87,7 +87,7 @@ for (const room of Object.values(HOUSE_ROOMS)) {
     'Forged choices cannot select House consequence art',
   )
 }
-assert.equal(illustratedHouseOutcomes, 76)
+assert.equal(illustratedHouseOutcomes, 77)
 assert.equal(houseIllustrationPath('HD-99'), null)
 // A reloaded Hearth painting requires the actual authored route to HD-35.
 const houseArtRoutes = new Map<HouseRoomId, HouseRoomId[]>([
@@ -258,5 +258,5 @@ for (const node of Object.values(buildMemoryDungeonPlaybook().nodes)) {
 }
 
 console.log(
-  'Memory Dungeon: 64 scene + 128 consequence image selectors, 36 House rooms + 76 consequence selectors, 32-card realm gallery, literal Krea 2 briefs, delivery gates and card-back persistence verified',
+  'Memory Dungeon: 64 scene + 128 consequence image selectors, 36 House rooms + 77 consequence selectors, 32-card realm gallery, literal Krea 2 briefs, delivery gates and card-back persistence verified',
 )

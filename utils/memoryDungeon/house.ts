@@ -1,7 +1,7 @@
 /**
  * The House That Remembers: stable, save-safe 36-room authored dungeon.
  * 6x6 is the atlas budget, not a demand for row-major movement.
- * Exactly two meaningful choices per room, except the three Memory Hearth endings.
+ * At least two meaningful choices per room, with optional fair duels and three Hearth endings.
  */
 export type HouseRoomId = `HD-${string}`
 export type HouseKind =
@@ -21,7 +21,8 @@ export type HouseKind =
   | 'exit'
 export type HouseEnding = 'release' | 'renew' | 'break'
 export type HouseEndingLens = 'community' | 'bonds' | 'obligation' | 'honesty'
-export type HouseCombatOrigin = 'HD-09' | 'HD-19' | 'HD-22' | 'HD-28' | 'HD-32'
+export type HouseCombatOrigin =
+  'HD-09' | 'HD-16' | 'HD-19' | 'HD-22' | 'HD-28' | 'HD-32'
 export interface HouseChoice {
   id: string
   label: string
@@ -457,6 +458,13 @@ export const HOUSE_ROOMS: Record<string, HouseRoom> = {
         label: 'Ask who ordered the house locked',
         outcome:
           'She shows you the order, signed by a council that no longer exists.',
+      },
+      {
+        id: 'duel',
+        label:
+          'Offer a nonlethal memory duel to prove you can protect the residents',
+        outcome:
+          'The housekeeper accepts a fair contest with her thorn broom. She keeps every key, even if you win; passage is not ownership.',
       },
     ],
   },
@@ -1115,7 +1123,14 @@ export function restoreHouseProgress(input: unknown): HouseProgress | null {
   // bedchamber without traversing every intervening passage. The combat
   // origin remains in visited even after its active flag is cleared.
   if (visited.includes('HD-18') || savedCurrent === 'HD-18')
-    for (const origin of ['HD-09', 'HD-19', 'HD-22', 'HD-28', 'HD-32'] as const)
+    for (const origin of [
+      'HD-09',
+      'HD-16',
+      'HD-19',
+      'HD-22',
+      'HD-28',
+      'HD-32',
+    ] as const)
       if (visited.includes(origin))
         shortcuts[origin] = [...(shortcuts[origin] ?? []), 'HD-18']
   // A valid room list cannot skip the Hearth's actual ending choice.
@@ -1149,6 +1164,7 @@ export function restoreHouseProgress(input: unknown): HouseProgress | null {
       : null
   const combatOrigin =
     (v.combatOrigin === 'HD-09' ||
+      v.combatOrigin === 'HD-16' ||
       v.combatOrigin === 'HD-19' ||
       v.combatOrigin === 'HD-22' ||
       v.combatOrigin === 'HD-28' ||

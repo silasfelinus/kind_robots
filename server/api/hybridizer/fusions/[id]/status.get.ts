@@ -52,7 +52,7 @@ export default defineEventHandler(async (event) => {
     // An awaiting revision is the new primary job, but its predecessor stays
     // on display until delivery. The old image must pass the same ACL checks.
     const previous =
-      job?.status !== 'DONE' && fusion.artImageId
+      !imagePath && fusion.artImageId
         ? await visibleVersionArt(fusion.artImageId, fusion, auth?.user.id)
         : null
     const status = hybridizerQueueState(job?.status ?? null, imagePath)

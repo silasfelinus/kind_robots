@@ -1,6 +1,7 @@
 import { computed, ref } from 'vue'
 import { defineStore } from 'pinia'
 import { useFacetCatalogStore } from '@/stores/facetCatalogStore'
+import { useAchievementStore } from '@/stores/achievementStore'
 import { performFetch } from '@/stores/utils'
 import catalog from '@/utils/hybridizer/starterCatalog.json'
 
@@ -30,6 +31,16 @@ export type HybridizerDiscovery = HybridizerIngredient & {
   imagePath?: string | null
 }
 
+export type HybridizerVersion = {
+  jobId: number
+  revision: number
+  createdAt: string
+  status: string
+  imagePath: string | null
+  artImageId: number | null
+  isPrimary: boolean
+}
+
 const STARTERS = catalog.entries as HybridizerIngredient[]
 const STORAGE_KEY = 'kind-robots-hybridizer-lab-studies-v1'
 const MAX_STUDY_DEPTH = 4
@@ -48,6 +59,7 @@ function displayName(a: HybridizerIngredient, b: HybridizerIngredient): string {
 
 export const useHybridizerStore = defineStore('hybridizer', () => {
   const catalogStore = useFacetCatalogStore()
+  const achievementStore = useAchievementStore()
   const leftKey = ref('cat')
   const rightKey = ref('banana')
   const discoveries = ref<HybridizerDiscovery[]>([])
@@ -57,6 +69,10 @@ export const useHybridizerStore = defineStore('hybridizer', () => {
   const availableArt = ref<Record<string, string>>({})
   const pendingKeys = ref<string[]>([])
   const readyNotice = ref<HybridizerDiscovery | null>(null)
+  const versions = ref<HybridizerVersion[]>([])
+  const versionsFor = ref<string | null>(null)
+  const canEditResult = ref(false)
+  const versionBusy = ref(false)
   const enqueuing = new Set<string>()
   let pollTimer: ReturnType<typeof setInterval> | null = null
 
@@ -191,6 +207,111 @@ export const useHybridizerStore = defineStore('hybridizer', () => {
     save()
   }
 
+  async function loadVersions(key: string): Promise<void> {
+    if (!key.startsWith('fusion:')) {
+      versions.value = []
+      versionsFor.value = null
+      canEditResult.value = false
+      return
+    }
+    const response = await performFetch<{
+      versions: HybridizerVersion[]
+      canEdit: boolean
+    }>('/api/hybridizer/fusions/' + key.slice(7) + '/versions')
+    if (resultKey.value !== key) return
+    if (response.success && response.data) {
+      versions.value = response.data.versions
+      versionsFor.value = key
+      canEditResult.value = response.data.canEdit
+    }
+  }
+
+  async function openSharedFusion(id: string): Promise<void> {
+    if (!/^[a-f0-9]{64}$/.test(id)) return
+    const response = await performFetch<HybridizerDiscovery>(
+      '/api/hybridizer/fusions/' + id,
+    )
+    if (!response.success || !response.data) {
+      status.value = 'That discovery is unavailable or private.'
+      return
+    }
+    const discovery = response.data
+    discoveries.value = [
+      ...discoveries.value.filter((entry) => entry.key !== discovery.key),
+      discovery,
+    ].slice(-200)
+    resultKey.value = discovery.key
+    save()
+    await Promise.all([
+      refreshArtwork(discovery.key),
+      loadVersions(discovery.key),
+    ])
+  }
+
+  async function resubmit(): Promise<void> {
+    const key = resultKey.value
+    if (!key?.startsWith('fusion:') || !canEditResult.value || versionBusy.value)
+      return
+    versionBusy.value = true
+    try {
+      const response = await performFetch<{ jobId: number; status: string }>(
+        '/api/hybridizer/fusions/' + key.slice(7) + '/resubmit',
+        { method: 'POST' },
+      )
+      if (!response.success || !response.data) {
+        status.value = response.message || 'Could not queue a new version.'
+        return
+      }
+      updateDiscovery(key, {
+        artJobId: response.data.jobId,
+        status: 'QUEUED',
+      })
+      if (!pendingKeys.value.includes(key))
+        pendingKeys.value = [...pendingKeys.value, key]
+      status.value = 'New version queued. Previous artwork is saved in the revision gallery.'
+      await loadVersions(key)
+      void achievementStore.rewardAchievementByCode('hybridizer-art-critic')
+    } finally {
+      versionBusy.value = false
+    }
+  }
+
+  async function makePrimary(jobId: number): Promise<void> {
+    const key = resultKey.value
+    if (!key?.startsWith('fusion:') || !canEditResult.value || versionBusy.value)
+      return
+    versionBusy.value = true
+    try {
+      const response = await performFetch<{
+        jobId: number
+        artImageId: number
+        imagePath: string
+      }>(
+        '/api/hybridizer/fusions/' + key.slice(7) + '/versions/' + jobId + '/promote',
+        { method: 'POST' },
+      )
+      if (!response.success || !response.data) {
+        status.value = response.message || 'This version cannot become primary.'
+        return
+      }
+      availableArt.value = {
+        ...availableArt.value,
+        [key]: response.data.imagePath,
+      }
+      updateDiscovery(key, {
+        artJobId: jobId,
+        artImageId: response.data.artImageId,
+        imagePath: response.data.imagePath,
+        status: 'READY',
+      })
+      pendingKeys.value = pendingKeys.value.filter((entry) => entry !== key)
+      status.value = 'Primary illustration updated. Every earlier version remains available.'
+      await loadVersions(key)
+    } finally {
+      versionBusy.value = false
+    }
+  }
+
   async function refreshArtwork(key: string): Promise<void> {
     if (!key.startsWith('fusion:')) return
     const response = await performFetch<{
@@ -228,6 +349,7 @@ export const useHybridizerStore = defineStore('hybridizer', () => {
     } else {
       pendingKeys.value = pendingKeys.value.filter((entry) => entry !== key)
     }
+    if (resultKey.value === key) void loadVersions(key)
   }
 
   async function enqueueArtwork(key: string): Promise<void> {
@@ -291,6 +413,8 @@ export const useHybridizerStore = defineStore('hybridizer', () => {
     if (side === 'left') leftKey.value = key
     else rightKey.value = key
     resultKey.value = null
+    versions.value = []
+    canEditResult.value = false
     status.value = 'Ready to combine two specimens.'
     if (key.startsWith('fusion:')) void refreshArtwork(key)
   }
@@ -311,6 +435,8 @@ export const useHybridizerStore = defineStore('hybridizer', () => {
 
     working.value = true
     resultKey.value = null
+    versions.value = []
+    canEditResult.value = false
     status.value = 'Checking the shared discovery archive…'
     try {
       const animation = import.meta.client
@@ -364,6 +490,10 @@ export const useHybridizerStore = defineStore('hybridizer', () => {
           ? 'Shared illustrated discovery retrieved.'
           : 'Shared discovery saved. Artwork will render in the background.'
       save()
+      void loadVersions(discovery.key)
+      void achievementStore.rewardAchievementByCode('hybridizer-first-fusion')
+      if (a.depth || b.depth)
+        void achievementStore.rewardAchievementByCode('hybridizer-recursive-discovery')
       if (discovery.status === 'READY') void refreshArtwork(discovery.key)
       else if (discovery.artJobId) void refreshArtwork(discovery.key)
       else void enqueueArtwork(discovery.key)
@@ -391,6 +521,14 @@ export const useHybridizerStore = defineStore('hybridizer', () => {
     starterCount,
     pendingKeys,
     readyNotice,
+    versions,
+    versionsFor,
+    canEditResult,
+    versionBusy,
+    loadVersions,
+    openSharedFusion,
+    resubmit,
+    makePrimary,
     imageFor,
     artPending,
     hydrate,

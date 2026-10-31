@@ -163,7 +163,7 @@ assert.equal(
   new Set(MEMORY_HOSHIMORI_NIGHT_ACHIEVEMENTS.map((medal) => medal.echo)).size,
   8,
 )
-assert.equal(memoryAchievementGallery([]).length, 44)
+assert.equal(memoryAchievementGallery([]).length, 52)
 assert.ok(
   memoryAchievementGallery([])
     .filter((medal) => medal.id.startsWith('e08-night-'))

@@ -14,6 +14,16 @@ export type DistrictId =
   | 'crown'
   | 'redline'
 
+/** Where each rival faction can be confronted in the seven-district city. */
+export const CAMPAIGN_DISTRICTS: Record<TeamId, DistrictId> = {
+  catgirls: 'chimera',
+  bloodfairies: 'needles',
+  ironjaw: 'foundry',
+  riot: 'redline',
+  undertow: 'undertow',
+  exchange: 'crown',
+}
+
 /** Adjustments one decision makes to a rival bout. All optional. */
 export interface BoutTerms {
   playerMana?: number

@@ -8,11 +8,14 @@
       class="flex shrink-0 flex-wrap items-center justify-between gap-2 border-b border-[#bd9064]/40 bg-[#1c2632] px-3 py-2"
     >
       <div class="min-w-0">
-        <p class="text-[10px] font-bold uppercase tracking-[.22em] text-[#e3aa77]">
+        <p
+          class="text-[10px] font-bold uppercase tracking-[.22em] text-[#e3aa77]"
+        >
           Memory Dungeon / Internal encounter atlas
         </p>
         <h1 class="truncate text-lg font-black sm:text-2xl">
-          {{ heading }} <span class="font-light text-[#cbbd9d]">/ The revealed square</span>
+          {{ heading }}
+          <span class="font-light text-[#cbbd9d]">/ The revealed square</span>
         </h1>
       </div>
       <div class="flex flex-wrap items-center gap-2">
@@ -50,7 +53,9 @@
         class="flex min-h-0 min-w-0 flex-col overflow-hidden rounded-xl border border-[#a78a65]/40 bg-[#182635]"
         aria-label="Overworld exploration"
       >
-        <div class="flex shrink-0 items-center justify-between gap-2 p-2 text-xs">
+        <div
+          class="flex shrink-0 items-center justify-between gap-2 p-2 text-xs"
+        >
           <span class="font-bold tracking-wide text-[#e9bf80]">
             Overworld / {{ inspector.position }}
           </span>
@@ -72,7 +77,8 @@
             :disabled="!tile.reachable"
             :aria-label="
               tile.revealed
-                ? tile.title + (tile.resolved ? ', decision recorded' : ', unresolved')
+                ? tile.title +
+                  (tile.resolved ? ', decision recorded' : ', unresolved')
                 : tile.reachable
                   ? 'Explore neighboring ' + tile.key
                   : 'Unrevealed ' + tile.key
@@ -136,13 +142,17 @@
             <div
               class="relative max-w-[44rem] rounded-lg bg-[#10151b]/80 p-2 backdrop-blur-sm"
             >
-              <p class="mb-1 text-[10px] font-bold uppercase tracking-[.2em] text-[#f3c783]">
+              <p
+                class="mb-1 text-[10px] font-bold uppercase tracking-[.2em] text-[#f3c783]"
+              >
                 {{ inspector.current.kind }} · {{ inspector.current.speaker }}
               </p>
               <h2 class="text-xl font-black leading-tight sm:text-2xl">
                 {{ inspector.current.title }}
               </h2>
-              <p class="mt-1 max-h-24 overflow-auto text-xs leading-relaxed sm:text-sm">
+              <p
+                class="mt-1 max-h-24 overflow-auto text-xs leading-relaxed sm:text-sm"
+              >
                 {{ inspector.current.opening }}
               </p>
             </div>
@@ -167,7 +177,9 @@
               class="rounded-xl border border-[#cfb97e]/50 bg-[#334039] p-3"
               data-testid="memory-encounter-result"
             >
-              <p class="text-[10px] font-bold uppercase tracking-widest text-[#f2d99d]">
+              <p
+                class="text-[10px] font-bold uppercase tracking-widest text-[#f2d99d]"
+              >
                 Recorded in the Chronicle
               </p>
               <p class="mt-1 text-sm leading-relaxed">
@@ -199,7 +211,9 @@
                     Choice {{ index + 1 }} · art pending
                   </span>
                 </div>
-                <span class="block px-3 py-2 text-xs font-bold leading-snug sm:text-sm">
+                <span
+                  class="block px-3 py-2 text-xs font-bold leading-snug sm:text-sm"
+                >
                   {{ choice.label }}
                 </span>
               </button>
@@ -212,8 +226,14 @@
     <footer
       class="flex shrink-0 flex-wrap items-center justify-between gap-x-3 gap-y-1 border-t border-[#a98b5b]/30 px-3 py-1 text-[10px] text-[#d4c09b]"
     >
-      <span>Admin preview only · Main campaign and Classic Match remain unchanged</span>
-      <span>Every coordinate keeps its choices; art is not marked delivered until verified</span>
+      <span
+        >Admin preview only · Main campaign and Classic Match remain
+        unchanged</span
+      >
+      <span
+        >Every coordinate keeps its choices; art is not marked delivered until
+        verified</span
+      >
     </footer>
   </main>
 </template>
@@ -259,10 +279,8 @@ function tileClass(tile: {
 }): string {
   if (tile.current)
     return 'border-[#f3ce88] bg-[#916f44] text-white shadow-[0_0_18px_#ebb76d66]'
-  if (tile.resolved)
-    return 'border-[#9fbc9f] bg-[#395c52] text-[#f0ffe9]'
-  if (tile.revealed)
-    return 'border-[#99896d] bg-[#46535b] text-[#f7e8c7]'
+  if (tile.resolved) return 'border-[#9fbc9f] bg-[#395c52] text-[#f0ffe9]'
+  if (tile.revealed) return 'border-[#99896d] bg-[#46535b] text-[#f7e8c7]'
   if (tile.reachable)
     return 'border-[#d3ae71] bg-[#6c5142] text-[#ffedcf] hover:bg-[#986844]'
   return 'border-[#404d50] bg-[#1c2831] text-[#4a5961]'

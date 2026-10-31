@@ -232,20 +232,35 @@
                   stage this battle. Your choices change its opening conditions.
                 </span>
                 <div v-else class="sc-mission-ready">
-                  <p class="sc-mission-terms" data-testid="slime-city-local-terms">
-                    CITY CONSEQUENCES · {{ describeTerms(boutTerms(lab.city, lab.districtId)) }}
+                  <p
+                    class="sc-mission-terms"
+                    data-testid="slime-city-local-terms"
+                  >
+                    CITY CONSEQUENCES ·
+                    {{ describeTerms(boutTerms(lab.city, lab.districtId)) }}
                   </p>
                   <div class="sc-choices">
                     <button
-                    v-for="choice in lab.activeChapter.choices"
-                    :key="choice.id"
-                    type="button"
-                    :data-testid="'slime-city-mission-' + choice.id"
-                    @click="lab.startCampaignBattle(choice.id)"
-                  >
-                    <strong>{{ choice.label }}</strong>
-                    <small>WITH STREET CHOICES · {{ describeTerms(storyMissionTerms(lab.city, lab.districtId, choice.terms)) }}</small>
-                  </button>
+                      v-for="choice in lab.activeChapter.choices"
+                      :key="choice.id"
+                      type="button"
+                      :data-testid="'slime-city-mission-' + choice.id"
+                      @click="lab.startCampaignBattle(choice.id)"
+                    >
+                      <strong>{{ choice.label }}</strong>
+                      <small
+                        >WITH STREET CHOICES ·
+                        {{
+                          describeTerms(
+                            storyMissionTerms(
+                              lab.city,
+                              lab.districtId,
+                              choice.terms,
+                            ),
+                          )
+                        }}</small
+                      >
+                    </button>
                   </div>
                 </div>
               </article>

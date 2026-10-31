@@ -199,11 +199,19 @@ for (let bits = 0; bits < 8; bits++) {
   assert.ok(medal.artPath.startsWith('/images/memory-dungeon/hoshimori-night/'))
   nightMedalIds.add(medal.id)
   assert.equal(
-    memoryAchievementGallery(earned).find((entry) => entry.id === medal.id)?.echo,
+    memoryAchievementGallery(earned).find((entry) => entry.id === medal.id)
+      ?.echo,
     medal.echo,
   )
   assert.deepEqual(
-    reconcileMemoryAchievements(earned, [], undefined, undefined, undefined, progress),
+    reconcileMemoryAchievements(
+      earned,
+      [],
+      undefined,
+      undefined,
+      undefined,
+      progress,
+    ),
     earned,
     'Revisiting the council cannot duplicate a medal',
   )
@@ -215,14 +223,28 @@ for (let bits = 0; bits < 8; bits++) {
       : 'allow-departure'
   assert.equal(restoreHoshimoriNight(tampered), null)
   assert.deepEqual(
-    reconcileMemoryAchievements([], [], undefined, undefined, undefined, tampered),
+    reconcileMemoryAchievements(
+      [],
+      [],
+      undefined,
+      undefined,
+      undefined,
+      tampered,
+    ),
     [],
     'A forged council choice must never mint a medal',
   )
   const unfinished = JSON.parse(JSON.stringify(progress)) as NightProgress
   unfinished.visited.pop()
   assert.deepEqual(
-    reconcileMemoryAchievements([], [], undefined, undefined, undefined, unfinished),
+    reconcileMemoryAchievements(
+      [],
+      [],
+      undefined,
+      undefined,
+      undefined,
+      unfinished,
+    ),
     [],
     'Incomplete exploration cannot mint a medal',
   )
@@ -240,7 +262,10 @@ assert.equal(
 )
 assert.equal(nightMedalIds.size, 8)
 const worldStoreSource = readFileSync('stores/memoryWorldStore.ts', 'utf8')
-const nightStoreSource = readFileSync('stores/memoryHoshimoriNightStore.ts', 'utf8')
+const nightStoreSource = readFileSync(
+  'stores/memoryHoshimoriNightStore.ts',
+  'utf8',
+)
 assert.ok(worldStoreSource.includes('syncHoshimoriNightAchievements'))
 assert.ok(worldStoreSource.includes("campaign.value.completed.includes('e07')"))
 assert.ok(nightStoreSource.includes('syncHoshimoriNightAchievements(restored)'))

@@ -37,22 +37,32 @@ assert.equal(
   'four questions after the captain dossier',
 )
 assert.equal(STAR_SIGNS.length, 12, 'an original dozen constellations')
-assert.equal(COUCH_ONBOARDING_ART_COUNT, 22, 'all painted onboarding images are linked')
+assert.equal(
+  COUCH_ONBOARDING_ART_COUNT,
+  22,
+  'all painted onboarding images are linked',
+)
 assert.equal(
   new Set(Object.values(COUCH_ONBOARDING_ART_IDS)).size,
   COUCH_ONBOARDING_ART_COUNT,
   'each art slot points to its own completed ArtImage',
 )
 assert.equal(
-  Object.keys(COUCH_ONBOARDING_ART_IDS).filter((key) => key.startsWith('origins/')).length,
+  Object.keys(COUCH_ONBOARDING_ART_IDS).filter((key) =>
+    key.startsWith('origins/'),
+  ).length,
   6,
 )
 assert.equal(
-  Object.keys(COUCH_ONBOARDING_ART_IDS).filter((key) => /couchscope\/question-0[1-4]$/.test(key)).length,
+  Object.keys(COUCH_ONBOARDING_ART_IDS).filter((key) =>
+    /couchscope\/question-0[1-4]$/.test(key),
+  ).length,
   4,
 )
 assert.equal(
-  Object.keys(COUCH_ONBOARDING_ART_IDS).filter((key) => key.includes('-answer-')).length,
+  Object.keys(COUCH_ONBOARDING_ART_IDS).filter((key) =>
+    key.includes('-answer-'),
+  ).length,
   12,
 )
 assert.equal(Object.keys(STAR_HR_VERDICTS).length, 12)
@@ -444,15 +454,33 @@ for (const [index, subject] of [
   assert.ok(drawing.includes(subject), 'distinct authored drawing ' + index)
 }
 const artEndpoint = readFileSync(
-  new URL('../../server/api/game-of-captains/onboarding-art.get.ts', import.meta.url),
+  new URL(
+    '../../server/api/game-of-captains/onboarding-art.get.ts',
+    import.meta.url,
+  ),
   'utf8',
 )
-assert.ok(artEndpoint.includes('buildArtImageWhere(access)'), 'private art must obey viewer access')
-assert.ok(artEndpoint.includes('select: { id: true, imagePath: true, path: true }'))
-assert.ok(page.includes('store.loadOnboardingArt()'), 'the art manifest loads when the game mounts')
+assert.ok(
+  artEndpoint.includes('buildArtImageWhere(access)'),
+  'private art must obey viewer access',
+)
+assert.ok(
+  artEndpoint.includes('select: { id: true, imagePath: true, path: true }'),
+)
+assert.ok(
+  page.includes('store.loadOnboardingArt()'),
+  'the art manifest loads when the game mounts',
+)
 assert.ok(page.includes("store.onboardingArt['origins/' + origin.id]"))
-assert.ok(quiz.includes("artwork['couchscope/question-' + question + '-answer-' + answer]"))
-assert.ok(quiz.includes('onAnswerArtError'), 'image failures must not hide text forever')
+assert.ok(
+  quiz.includes(
+    "artwork['couchscope/question-' + question + '-answer-' + answer]",
+  ),
+)
+assert.ok(
+  quiz.includes('onAnswerArtError'),
+  'image failures must not hide text forever',
+)
 const origins = readFileSync(
   new URL('../../utils/gameOfCaptains/captainOrigins.ts', import.meta.url),
   'utf8',

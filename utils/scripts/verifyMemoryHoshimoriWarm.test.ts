@@ -1162,8 +1162,22 @@ assert.ok(
 )
 const vesperMedalIds = new Set<string>()
 const vesperMedalRoute = [
-  '2,1', '3,1', '4,1', '4,2', '4,3', '4,4', '4,5', '4,6',
-  '4,7', '3,7', '3,8', '4,8', '5,8', '6,8', '7,8', '8,8',
+  '2,1',
+  '3,1',
+  '4,1',
+  '4,2',
+  '4,3',
+  '4,4',
+  '4,5',
+  '4,6',
+  '4,7',
+  '3,7',
+  '3,8',
+  '4,8',
+  '5,8',
+  '6,8',
+  '7,8',
+  '8,8',
 ]
 for (let mask = 0; mask < 8; mask++) {
   let run = choose(newHoshimoriWarmProgress(mask), 'listen')
@@ -1185,12 +1199,18 @@ for (let mask = 0; mask < 8; mask++) {
     memoryAchievementGallery(earned).find((m) => m.id === medal.id)?.echo,
     medal.echo,
   )
-  assert.deepEqual(reconcileMemoryAchievements(earned, [], undefined, undefined, run), earned)
+  assert.deepEqual(
+    reconcileMemoryAchievements(earned, [], undefined, undefined, run),
+    earned,
+  )
   assert.deepEqual(restoreMemoryAchievements([...earned, ...earned]), earned)
   const forged = JSON.parse(JSON.stringify(run)) as HoshimoriWarmProgress
   forged.choices['8,8'] = mask & 4 ? 'consent' : 'open'
   assert.equal(restoreHoshimoriWarm(forged), null)
-  assert.deepEqual(reconcileMemoryAchievements([], [], undefined, undefined, forged), [])
+  assert.deepEqual(
+    reconcileMemoryAchievements([], [], undefined, undefined, forged),
+    [],
+  )
   const missingBridge = JSON.parse(JSON.stringify(run)) as HoshimoriWarmProgress
   delete missingBridge.choices['1,1']
   assert.deepEqual(

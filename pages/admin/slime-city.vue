@@ -221,7 +221,8 @@
               }}
               · STANDING {{ lab.standing }} · CHAMPIONS
               {{ lab.city.cleared.length }}/7 · STREET STORIES
-              {{ lab.streetProgress }}/9 · CONTRACTS {{ lab.city.contracts.length }}/7</span
+              {{ lab.streetProgress }}/9 · CONTRACTS
+              {{ lab.city.contracts.length }}/7</span
             ><span>{{ lab.city.log[0] }}</span>
           </div>
         </section>

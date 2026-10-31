@@ -23,6 +23,11 @@ import {
   restoreHoshimoriWarm,
   type HoshimoriWarmProgress,
 } from './hoshimoriWarm'
+import {
+  hoshimoriNightCouncil,
+  restoreHoshimoriNight,
+  type NightProgress,
+} from './hoshimoriNight'
 
 export interface MemoryAchievement {
   id: string
@@ -313,11 +318,94 @@ export const MEMORY_HOSHIMORI_ACHIEVEMENTS = VESPER_MEDALS.map((medal) => ({
   artPath: `/images/memory-dungeon/hoshimori/${medal.id}.webp`,
 }))
 
+/**
+ * Eight earned night-procession accounts, one for each combination of Pip's
+ * census, Vesper's refugee map, and the council's protection charter.
+ * These are cosmetic Chronicle memories. Paths are art destinations only.
+ */
+const NIGHT_MEDALS = [
+  {
+    id: 'e08-night-sealed-exit',
+    ledger: 'seal-the-children',
+    registry: 'protect-the-map',
+    council: 'allow-departure',
+    title: 'The Address Nobody Sold',
+    echo: 'Pip seals the children’s addresses while Vesper protects the escape map from the registry. Scylla writes a right to leave into the council charter. The doors open, but nobody is required to announce where they went. The procession must learn to help without keeping a list of its guests.',
+  },
+  {
+    id: 'e08-night-sealed-renewal',
+    ledger: 'seal-the-children',
+    registry: 'protect-the-map',
+    council: 'require-consent',
+    title: 'A Shelter With a Sunset',
+    echo: 'The children’s addresses remain sealed and Vesper’s map stays out of the clerk’s hands. Scylla insists every shelter agreement expire unless its residents renew it. The council spends its first winter asking instead of counting, and discovers that some families want a different kind of home.',
+  },
+  {
+    id: 'e08-night-shared-exit',
+    ledger: 'seal-the-children',
+    registry: 'share-custody',
+    council: 'allow-departure',
+    title: 'The Map That Can Leave',
+    echo: 'Pip protects the youngest witnesses while the refugees take recallable custody of Vesper’s map. The council guarantees departure without punishment. An old route vanishes from the atlas at its travelers’ request; the empty page becomes proof that community ownership includes the right to withdraw.',
+  },
+  {
+    id: 'e08-night-shared-renewal',
+    ledger: 'seal-the-children',
+    registry: 'share-custody',
+    council: 'require-consent',
+    title: 'Keys With No Permanent Keeper',
+    echo: 'The children are not entered into the public census. The families hold their own routes and the council must renew each safeguard with its residents. Vesper delivers a key and walks away without making a copy. For once the locked door is controlled by the person sleeping behind it.',
+  },
+  {
+    id: 'e08-night-audited-exit',
+    ledger: 'audit-the-ledger',
+    registry: 'protect-the-map',
+    council: 'allow-departure',
+    title: 'The Count That Let Go',
+    echo: 'Independent witnesses correct Pip’s inflated rescue count, while Vesper withholds routes that could endanger the missing. Scylla secures the right to leave. The procession loses half its claimed guests and gains its first honest record: those who chose to depart owe nobody a forwarding address.',
+  },
+  {
+    id: 'e08-night-audited-renewal',
+    ledger: 'audit-the-ledger',
+    registry: 'protect-the-map',
+    council: 'require-consent',
+    title: 'A Census of Questions',
+    echo: 'The ledger is audited without publishing the paths to hidden homes. Each protection must now be renewed by the people affected. Pip keeps the corrected figures beside the unanswered questions. Scylla refuses to call an empty signature box a failure; sometimes it is a boundary.',
+  },
+  {
+    id: 'e08-night-commons-exit',
+    ledger: 'audit-the-ledger',
+    registry: 'share-custody',
+    council: 'allow-departure',
+    title: 'No Road Is a Receipt',
+    echo: 'Pip’s false rescues are struck from the census and the refugees receive recallable custody of their map. The council protects the right to leave. Vesper guides one last family through the impossible street, then returns the route to them instead of claiming another debt for the journey.',
+  },
+  {
+    id: 'e08-night-commons-renewal',
+    ledger: 'audit-the-ledger',
+    registry: 'share-custody',
+    council: 'require-consent',
+    title: 'The Procession Can Be Refused',
+    echo: 'The audited census names what the procession got wrong. The refugees govern the map, and every protection must be renewed rather than imposed. When the lanterns come again, one household declines the escort. The procession bows, turns around and leaves them safely alone.',
+  },
+] as const
+
+export const MEMORY_HOSHIMORI_NIGHT_ACHIEVEMENTS = NIGHT_MEDALS.map((medal) => ({
+  id: medal.id,
+  questId: 'e08-4,4',
+  title: medal.title,
+  description:
+    'Finish the sixteen-site night procession and earn a three-witness council charter.',
+  echo: medal.echo,
+  artPath: `/images/memory-dungeon/hoshimori-night/${medal.id}.webp`,
+}))
+
 const ALL_MEDALS = [
   ...MEMORY_BRIAR_ACHIEVEMENTS,
   ...MEMORY_DARK_BRIAR_ACHIEVEMENTS,
   ...MEMORY_HOUSE_ACHIEVEMENTS,
   ...MEMORY_HOSHIMORI_ACHIEVEMENTS,
+  ...MEMORY_HOSHIMORI_NIGHT_ACHIEVEMENTS,
 ]
 
 const validIds = new Set(ALL_MEDALS.map((medal) => medal.id))
@@ -347,6 +435,7 @@ export function reconcileMemoryAchievements(
     Partial<Pick<BriarSave, 'house'>>,
   mirrored?: Pick<DarkBriarProgress, 'sceneChoices'>,
   hoshimori?: HoshimoriWarmProgress,
+  hoshimoriNight?: NightProgress,
 ): string[] {
   const ids = new Set(restoreMemoryAchievements(previous))
   for (const event of earnedEvents)
@@ -374,6 +463,23 @@ export function reconcileMemoryAchievements(
           entry.road === verified.choices['4,4'] &&
           entry.theatre === verified.choices['3,8'] &&
           entry.assembly === verified.choices['8,8'],
+      )
+      if (medal) ids.add(medal.id)
+    }
+  }
+  if (hoshimoriNight) {
+    const verified = restoreHoshimoriNight(hoshimoriNight)
+    if (
+      verified &&
+      verified.visited.length === 16 &&
+      verified.choices['1,1'] &&
+      hoshimoriNightCouncil(verified)
+    ) {
+      const medal = NIGHT_MEDALS.find(
+        (entry) =>
+          entry.ledger === verified.choices['2,2'] &&
+          entry.registry === verified.choices['3,3'] &&
+          entry.council === verified.choices['4,4'],
       )
       if (medal) ids.add(medal.id)
     }

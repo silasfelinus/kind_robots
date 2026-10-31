@@ -106,7 +106,11 @@
                 @load="artReady[index] = true"
                 @error="onAnswerArtError($event, index)"
               />
-              <div v-else class="scope-answer-art scope-answer-art--waiting" aria-hidden="true" />
+              <div
+                v-else
+                class="scope-answer-art scope-answer-art--waiting"
+                aria-hidden="true"
+              />
               <span class="scope-choice-number">{{
                 String.fromCharCode(65 + index)
               }}</span>

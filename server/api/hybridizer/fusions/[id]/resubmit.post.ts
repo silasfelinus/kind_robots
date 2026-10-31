@@ -29,6 +29,8 @@ export default defineEventHandler(async (event) => {
     const fusion = await prisma.hybridizerFusion.findUnique({ where: { id } })
     requireVisibleFusion(fusion, auth.user.id)
     requireFusionEditor(fusion, auth.user.id, auth.isAdmin)
+    if (['QUEUED', 'RENDERING', 'DELIVERING'].includes(fusion.status))
+      throw createError({ statusCode: 409, message: 'Finish the active artwork request before resubmitting.' })
 
     // Revisions are deliberately serialized per discovery. Never let a second
     // click start another billable render while this one is in flight.
@@ -81,8 +83,8 @@ export default defineEventHandler(async (event) => {
       // updatedAt is the optimistic reservation token: two simultaneous
       // resubmissions cannot both claim the same revision number.
       const reserved = await tx.hybridizerFusion.updateMany({
-        where: { id, updatedAt: fusion.updatedAt },
-        data: { updatedAt: new Date() },
+        where: { id, updatedAt: fusion.updatedAt, status: fusion.status },
+        data: { updatedAt: new Date(), status: 'QUEUED' },
       })
       if (reserved.count !== 1)
         throw createError({ statusCode: 409, message: 'Fusion changed. Refresh before resubmitting.' })

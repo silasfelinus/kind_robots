@@ -5,6 +5,12 @@
     data-testid="slime-faction-campaign"
   >
     <div class="campaign-hero" :class="'crew-' + lab.activeTeam">
+      <SlimeCityArtwork
+        class="campaign-hero-art"
+        :image-id="slimeArtId('crews', lab.activeTeam)"
+        :alt="lab.team.name + ' illustrated campaign poster'"
+        :fallback="lab.team.insignia"
+      />
       <div class="campaign-hero-ink" aria-hidden="true">
         <span class="ink-sun"></span>
         <span class="ink-tower ink-tower-a"></span>
@@ -143,6 +149,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { describeTerms } from '~/utils/slimeCity/campaign'
+import { slimeArtId } from '~/utils/slimeCity/artManifest'
 import { useSlimeCityStore } from '~/stores/slimeCity'
 import type { TeamId } from '~/utils/slimeCity/prototypes'
 
@@ -167,6 +174,23 @@ function teamName(id: TeamId): string {
   container-type: inline-size;
   background: #11151f;
   color: #f4f4ec;
+}
+.campaign-hero .campaign-hero-art {
+  position: absolute;
+  inset: 0;
+  z-index: -2;
+  opacity: 0.86;
+}
+.campaign-hero .campaign-hero-art :deep(img) {
+  object-position: center 42%;
+}
+.campaign-hero::after {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  content: '';
+  pointer-events: none;
+  background: linear-gradient(90deg, #0d1622ec 0%, #0e1727b8 48%, #0d14206b 100%);
 }
 .campaign-hero {
   position: relative;
@@ -224,6 +248,7 @@ function teamName(id: TeamId): string {
   );
 }
 .campaign-hero-ink {
+  display: none;
   position: absolute;
   inset: 0;
   z-index: -1;

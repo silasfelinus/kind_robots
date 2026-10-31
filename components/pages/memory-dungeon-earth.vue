@@ -39,6 +39,15 @@
           Changed city
         </button>
         <button
+          v-if="earth.active === 'e04' && earth.completed"
+          type="button"
+          class="btn btn-sm border-[#d5b4d8] bg-[#5d3f74] text-[#fff1ee]"
+          data-testid="memory-enter-scylla"
+          @click="emit('sea')"
+        >
+          Scylla’s second chance
+        </button>
+        <button
           class="btn btn-sm border-[#9e866f] bg-[#3c3734] text-[#fff1d7]"
           type="button"
           @click="emit('leave')"
@@ -286,7 +295,7 @@ import { onMounted } from 'vue'
 import { useMemoryEarthStore } from '~/stores/memoryEarthStore'
 import type { OverworldKind } from '~/utils/memoryDungeon/overworldEventCatalog'
 
-const emit = defineEmits<{ leave: [] }>()
+const emit = defineEmits<{ leave: []; sea: [] }>()
 const earth = useMemoryEarthStore()
 
 function symbolFor(kind: OverworldKind): string {

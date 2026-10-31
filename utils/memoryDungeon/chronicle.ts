@@ -488,6 +488,8 @@ const COLLECTIBLE_PHOTO_IDS = new Set(
       photo.experience === 'e02' ||
       photo.experience === 'e03' ||
       photo.experience === 'e04' ||
+      photo.experience === 'e05' ||
+      photo.experience === 'e06' ||
       HOSHIMORI_PHOTO_IDS.has(photo.id) ||
       HOSHIMORI_NIGHT_PHOTO_IDS.has(photo.id),
   ).map((photo) => photo.id),
@@ -560,6 +562,32 @@ export function reconcileMorrowEarthChronicle(
     if (
       photo.experience === reality &&
       ['challenge', 'hold'].includes(choices[photo.site] ?? '')
+    )
+      found.add(photo.id)
+  }
+  if (found.size === original.found.length) return original
+  return {
+    ...original,
+    found: [...found].sort(
+      (a, b) => KNOWN_PHOTOS.get(a)!.order - KNOWN_PHOTOS.get(b)!.order,
+    ),
+  }
+}
+
+/**
+ * Scylla's two sea realities uncover ordinary Earth photographs at fixed
+ * coordinates. Only choices validated by the live sea journey may call this.
+ */
+export function reconcileScyllaEarthChronicle(
+  original: EarthChronicle,
+  reality: 'e05' | 'e06',
+  choices: Readonly<Record<string, string>>,
+): EarthChronicle {
+  const found = new Set(original.found)
+  for (const photo of EARTH_PHOTOS) {
+    if (
+      photo.experience === reality &&
+      (choices[photo.site] === 'challenge' || choices[photo.site] === 'hold')
     )
       found.add(photo.id)
   }

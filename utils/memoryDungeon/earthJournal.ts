@@ -7,6 +7,9 @@ import {
   type OverworldEventProgress,
 } from './overworldEventCatalog'
 import type { EarthReality } from './earthAct'
+import type { SeaReality } from './seaAct'
+
+type JourneyReality = EarthReality | SeaReality
 
 export type EarthJournalAction =
   | { type: 'travel'; key: string }
@@ -21,11 +24,11 @@ const MAX_EARTH_ACTIONS = 2048
 export const EARTH_JOURNAL_COMPACT_AT = 1536
 
 /**
- * New Earth saves replay actual adjacent travel and one-time decisions.
+ * Player journey saves replay actual adjacent travel and one-time decisions.
  * Serialized totals, revealed cells, and choices cannot grant rewards.
  */
 export function replayEarthJournal(
-  reality: EarthReality,
+  reality: JourneyReality,
   value: unknown,
 ): EarthJournalState | null {
   if (!Array.isArray(value) || value.length > MAX_EARTH_ACTIONS) return null
@@ -62,7 +65,7 @@ export function replayEarthJournal(
  * All subsequent v2 actions are replay-validated.
  */
 export function migrateLegacyEarthJournal(
-  reality: EarthReality,
+  reality: JourneyReality,
   progress: OverworldEventProgress,
   destination: string,
 ): EarthJournalAction[] | null {
@@ -126,7 +129,7 @@ export function migrateLegacyEarthJournal(
  * Only visit sites already revealed by the validated original journal.
  */
 export function compactEarthJournal(
-  reality: EarthReality,
+  reality: JourneyReality,
   value: unknown,
 ): EarthJournalAction[] | null {
   const original = replayEarthJournal(reality, value)

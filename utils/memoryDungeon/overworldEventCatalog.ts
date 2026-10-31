@@ -257,6 +257,35 @@ function generated(
       ),
     }))
   }
+  if (world.id === 'e06' && key === '8,8') {
+    choices = [
+      {
+        id: 'publish-twin-testimony',
+        label: 'Put both sisters’ witness accounts into the public record',
+        outcome:
+          'Char testifies in her own voice. The royal court must preserve both incompatible timelines rather than name one the convenient truth.',
+        flag: 'e06:twin-testimony-public',
+        effects: { evidence: 2, danger: 1 },
+      },
+      {
+        id: 'protect-private-memory',
+        label: 'Seal the sisters’ memories from compelled court testimony',
+        outcome:
+          'The sisters keep their own history. Oren guards the sealed accounts while independent witnesses must build the public case.',
+        flag: 'e06:twin-testimony-private',
+        effects: { trust: 2, evidence: 1 },
+      },
+    ].map((option, index) => ({
+      ...option,
+      art: art(
+        world.id,
+        key,
+        'The twin sisters confront the court with Oren standing watch',
+        'twin-testimony-' + (index + 1) + ': ' + option.label,
+        world.visual,
+      ),
+    }))
+  }
   if (world.id === 'e05' && key === '8,8') {
     choices = [
       {

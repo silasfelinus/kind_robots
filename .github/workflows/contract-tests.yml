@@ -63,6 +63,9 @@ jobs:
       - name: Memory Dungeon Morrow Earth act route, progression and saved choice contract
         run: npx tsx utils/scripts/verifyMemoryEarthAct.test.ts
 
+      - name: Memory Dungeon sea act contract
+        run: npx tsx utils/scripts/verifyMemorySeaAct.test.ts
+
       - name: Memory Dungeon Hoshimori warm sixteen-site and oven proof
         run: npx tsx utils/scripts/verifyMemoryHoshimoriWarm.test.ts
 

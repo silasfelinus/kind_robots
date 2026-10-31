@@ -1,4 +1,9 @@
 import type { BriarSave } from '../memoryDungeonWorld'
+import type { EarthReality } from './earthAct'
+import {
+  MEMORY_EARTH_ACHIEVEMENTS,
+  earnedEarthAchievementIds,
+} from './earthAchievements'
 import type { DarkBriarProgress } from './darkBriar'
 import { darkBriarIllustrationPath } from './darkBriarArt'
 import {
@@ -492,6 +497,7 @@ const ALL_MEDALS = [
   ...MEMORY_HOSHIMORI_ACHIEVEMENTS,
   ...MEMORY_HOSHIMORI_NIGHT_ACHIEVEMENTS,
   ...MEMORY_HOSHIMORI_CINDER_ACHIEVEMENTS,
+  ...MEMORY_EARTH_ACHIEVEMENTS,
 ]
 
 const validIds = new Set(ALL_MEDALS.map((medal) => medal.id))
@@ -579,6 +585,22 @@ export function reconcileMemoryAchievements(
       if (medal) ids.add(medal.id)
     }
   }
+  return ALL_MEDALS.filter((medal) => ids.has(medal.id)).map(
+    (medal) => medal.id,
+  )
+}
+
+/**
+ * Earth achievements can be added only from a completed campaign reality.
+ * The action journal is independently replayed before any medal is minted.
+ */
+export function reconcileMemoryEarthAchievements(
+  previous: readonly string[],
+  reality: EarthReality,
+  journal: unknown,
+): string[] {
+  const ids = new Set(restoreMemoryAchievements(previous))
+  for (const id of earnedEarthAchievementIds(reality, journal)) ids.add(id)
   return ALL_MEDALS.filter((medal) => ids.has(medal.id)).map(
     (medal) => medal.id,
   )

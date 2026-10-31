@@ -682,6 +682,11 @@ const overworld = readFileSync(
 )
 const board = readFileSync('components/memory-dungeon/combat-board.vue', 'utf8')
 const store = readFileSync('stores/memoryWorldStore.ts', 'utf8')
+assert.match(
+  store,
+  /The Housekeeper lowers her broom and keeps every key/,
+  'the optional duel has an earned nonlethal aftermath',
+)
 assert.match(overworld, /<memory-dungeon-combat-board/)
 assert.match(
   overworld,

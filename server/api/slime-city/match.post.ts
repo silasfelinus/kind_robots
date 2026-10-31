@@ -1,5 +1,8 @@
 import { defineEventHandler, readBody } from 'h3'
-import { startSlimeCityCpuMatch, requireSlimeCityPreviewUser } from '~/server/utils/slimeCityProgress'
+import {
+  startSlimeCityCpuMatch,
+  requireSlimeCityPreviewUser,
+} from '~/server/utils/slimeCityProgress'
 
 export default defineEventHandler(async (event) => {
   const auth = await requireSlimeCityPreviewUser(event)

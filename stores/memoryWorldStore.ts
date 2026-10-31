@@ -1984,7 +1984,9 @@ export const useMemoryWorldStore = defineStore('memoryWorld', () => {
         ? "The Warden yields to remembered pairs, not to ownership of anyone else's past."
         : origin === 'HD-19'
           ? 'The Echo Chamber accepts your matched memories and opens the mirrored passage.'
-          : 'You resolved a fair House duel by remembering pairs. Your progress and its outcome are recorded.'
+          : origin === 'HD-16'
+            ? 'The Housekeeper lowers her broom and keeps every key. You earned safe passage, not ownership of anyone in her care.'
+            : 'You resolved a fair House duel by remembering pairs. Your progress and its outcome are recorded.'
     persist()
   }
 

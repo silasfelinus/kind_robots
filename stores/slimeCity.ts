@@ -43,6 +43,7 @@ import {
   boutTerms,
   CITY_PLAN,
   CITY_CONTRACTS,
+  cityRoute,
   contractBlocked,
   contractTerms,
   createCity,
@@ -222,9 +223,10 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
     contractBlocked(city.value, districtId.value),
   )
   const here = computed(() => city.value.location === districtId.value)
-  const route = computed(() =>
-    streetsFrom(city.value.location).find((s) => s.to === districtId.value),
+  const routeSteps = computed(() =>
+    cityRoute(city.value.location, districtId.value),
   )
+  const route = computed(() => routeSteps.value[0] ?? null)
   const gate = computed(() => gateReason(city.value, districtId.value))
   const blocked = computed(() => boutBlocked(city.value, districtId.value))
   const standing = computed(() => totalStanding(city.value))
@@ -344,7 +346,8 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
   }
 
   function walk(): void {
-    const next = travel(city.value, districtId.value)
+    if (!route.value) return
+    const next = travel(city.value, route.value.to)
     if (next !== city.value) city.value = next
   }
 
@@ -354,7 +357,6 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
 
   function chooseStreet(choiceId: string): void {
     city.value = decideStreet(city.value, choiceId)
-    districtId.value = city.value.location
   }
 
   /** Fight this district's rival on its format, with your decision's terms. */
@@ -617,6 +619,7 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
     streetProgress,
     here,
     route,
+    routeSteps,
     gate,
     blocked,
     standing,

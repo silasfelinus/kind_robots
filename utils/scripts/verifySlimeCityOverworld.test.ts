@@ -428,9 +428,13 @@ assert.equal(lab.view, 'campaign')
 lab.showCity()
 lab.resetCity()
 
-lab.visit('crown')
+lab.visit('pitworks')
 lab.walk()
-assert.equal(lab.city.location, 'pitworks', 'No street, no walk')
+assert.equal(
+  lab.city.location,
+  'pitworks',
+  'Walking to the current district is a no-op',
+)
 lab.visit('chimera')
 assert.equal(lab.route?.street, 'Splice Avenue')
 lab.walk()

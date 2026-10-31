@@ -711,9 +711,7 @@
                   @click="lab.attackSelected()"
                 >
                   <span class="sc-attack-symbol">{{ attackSymbol }}</span>
-                  {{
-                    (lab.selected.attackStyle ?? 'sword').toUpperCase()
-                  }}
+                  {{ (lab.selected.attackStyle ?? 'sword').toUpperCase() }}
                   ATTACK
                   <span>{{
                     lab.targetUnit !== null

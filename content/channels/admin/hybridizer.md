@@ -2,11 +2,12 @@
 contentType: tab
 channelKey: admin
 tabKey: hybridizer
-label: Hybridizer
+navigation: false
+label: Hybridizer (legacy Admin link)
 title: Hybridizer
 subtitle: The impossible creature laboratory
 summary: Fuse animals, fruit, and monsters.
-description: 'An internal art-first fusion-lab prototype with 200 curated starting concepts, local recursive composition studies and a reusable discovery shelf. Shared image generation and upload remain in development.'
+description: 'Legacy Admin deep link to Hybridizer; its primary home is now Play, where signed-in visitors can use the same fusion console.'
 icon: kind-icon:dna
 route: /admin/hybridizer
 sort: 145
@@ -21,6 +22,4 @@ tutorial:
     shared caching and public image submissions are planned work.
 ---
 
-A private concept laboratory for Hybridizer. All 200 starting concepts are
-listed, with illustrations linked to accessible canonical Facet artwork
-where available. Public launch remains separately gated.
+Legacy Admin entrypoint retained for existing bookmarks. Hybridizer is now reachable under Play for signed-in users.

@@ -2,11 +2,12 @@
 contentType: tab
 channelKey: admin
 tabKey: slime-city
-label: Slime City Lab
+navigation: false
+label: Slime City Lab (legacy Admin link)
 title: Slime City • Combat Lab
 subtitle: Three battle formats, one radioactive megacity
 summary: Compare three collectible-card battles.
-description: 'Private prototype laboratory for Slime City, a colorful tactical CCG. Three local match rules, six crews, a district map and experimental creature/spell/trap/equipment cards. Inventory, campaign persistence, multiplayer and finished art are not yet delivered.'
+description: 'Legacy Admin deep link to the same Slime City game now presented under Play. BLACKOUT is the main format; persistent progression and some card art remain in development.'
 icon: kind-icon:cat
 route: /admin/slime-city
 sort: 147
@@ -36,5 +37,4 @@ tutorial:
     saved, the art is a stylized stand-in, and the rules remain experimental.
 ---
 
-The laboratory compares three genuinely playable square-grid game shapes
-before a final turn cadence, roster size or victory rule is chosen.
+Legacy Admin entrypoint retained for existing bookmarks. Slime City is now in Play for signed-in users; BLACKOUT is the main game and other formats remain experimental.

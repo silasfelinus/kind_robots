@@ -59,6 +59,25 @@ for (const key of [
   assert.equal(existsSync(`content/channels/admin/${key}.md`), false)
 }
 
+for (const key of ['hybridizer', 'slime-city'] as const) {
+  const playTab = nav(`arcade/${key}`)
+  const adminTab = nav(`admin/${key}`)
+  const playPage = read(`pages/play/${key}.vue`)
+  assert.match(playTab, /\nchannelKey: arcade\n/)
+  assert.match(playTab, /\nrequiredPermission: authenticated\n/)
+  assert.ok(playTab.includes(`route: /play/${key}`))
+  assert.doesNotMatch(playTab, /\nrequiredRole: ADMIN\n/)
+  assert.match(adminTab, /\nnavigation: false\n/)
+  assert.match(adminTab, /\nrequiredRole: ADMIN\n/)
+  assert.ok(adminTab.includes(`route: /admin/${key}`))
+  assert.ok(
+    playPage.includes(`~/pages/admin/${key}.vue`),
+    'Play route reuses the existing game surface and Pinia state',
+  )
+  assert.ok(existsSync(`pages/admin/${key}.vue`))
+}
+assert.match(nav('arcade/index'), /Hybridizer, Slime City/)
+
 assert.match(nav('admin/retired'), /\nsort: 9999\n/)
 assert.match(nav('admin/zuzu-lair'), /\nroute: \/admin\/zuzu-lair\n/)
 assert.equal(existsSync('pages/play/zuzu-lair.vue'), false)

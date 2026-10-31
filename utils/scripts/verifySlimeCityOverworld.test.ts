@@ -415,7 +415,7 @@ assert.equal(
   'Street event prevents skipping ahead',
 )
 lab.chooseStreet(STREET_STORIES['The Long Drain']!.choices[0].id)
-assert.equal(lab.streetEvent, null)
+assert.equal(streetStory(lab.city), null)
 assert.equal(lab.districtId, 'crown', 'Choice preserves onward destination')
 assert.equal(lab.route?.to, 'crown')
 lab.walk()

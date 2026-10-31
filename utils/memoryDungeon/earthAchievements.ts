@@ -147,9 +147,14 @@ const EARTH_MEDALS: readonly EarthMedal[] = [
   },
 ]
 
-export const MEMORY_EARTH_ACHIEVEMENTS = EARTH_MEDALS.map(
-  ({ reality: _reality, site: _site, choiceId: _choiceId, ...medal }) => medal,
-)
+export const MEMORY_EARTH_ACHIEVEMENTS = EARTH_MEDALS.map((medal) => ({
+  id: medal.id,
+  questId: medal.questId,
+  title: medal.title,
+  description: medal.description,
+  echo: medal.echo,
+  artPath: medal.artPath,
+}))
 
 /**
  * An Earth medal requires a fully playable, replay-validated route.

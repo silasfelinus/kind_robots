@@ -63,15 +63,28 @@
         <!-- Center Section -->
         <div class="flex flex-col items-center w-full md:w-1/3 space-y-4">
           <div
-            ref="buttonRef"
-            :class="`button w-full h-60 rounded-lg flex items-center justify-center transition text-2xl border font-bold shadow-lg p-2 ${
-              state.pressed
-                ? 'bg-accent text-default'
-                : 'bg-primary text-default'
-            }`"
-            @click="pressedButton"
+            class="relative w-full h-60 overflow-hidden rounded-lg"
+            data-testid="rebel-stage"
           >
-            {{ state.buttonText }}
+            <div
+              ref="buttonRef"
+              :class="`button absolute w-full h-60 rounded-lg flex items-center justify-center transition-all duration-500 text-2xl border font-bold shadow-lg p-2 cursor-pointer ${
+                state.pressed
+                  ? 'bg-accent text-default'
+                  : 'bg-primary text-default'
+              }`"
+              :style="buttonStyle"
+              @click="pressedButton"
+            >
+              {{ state.buttonText }}
+            </div>
+            <div
+              v-for="n in rebelStore.stage.walls"
+              :key="n"
+              class="absolute inset-y-0 w-3 bg-base-content/70 rounded pointer-events-none"
+              :style="{ left: `${n * 18}%` }"
+              aria-hidden="true"
+            ></div>
           </div>
           <div v-if="state.pressed" class="text-center">
             <button
@@ -151,22 +164,31 @@
 </template>
 
 <script setup lang="ts">
-import { reactive, onMounted, ref } from 'vue'
+import { reactive, onMounted, ref, computed } from 'vue'
 import confetti from 'canvas-confetti'
 import responses from '../../assets/buttonResponses'
 import achievements from '../../assets/buttonAchievements'
 import { useUserStore } from '../../stores/userStore'
 import { useAchievementStore } from '@/stores/achievementStore'
+import { useRebelButtonStore } from '@/stores/rebelButtonStore'
 import { ART_REVIEW_UNLOCK_CLICKS } from '@/utils/artReview'
 
 const userStore = useUserStore()
 
 const achievementStore = useAchievementStore()
 
+const rebelStore = useRebelButtonStore()
+
 const state = reactive({
   pressed: false,
-  pressCount: 0,
-  topScore: 0,
+  pressCount: computed({
+    get: () => rebelStore.pressCount,
+    set: (v: number) => (rebelStore.pressCount = v),
+  }),
+  topScore: computed({
+    get: () => rebelStore.topScore,
+    set: (v: number) => (rebelStore.topScore = v),
+  }),
   buttonText: 'Do Not Press this Button',
   showLeaderboard: true,
   showResetPopup: false,
@@ -176,6 +198,19 @@ const state = reactive({
 })
 const buttonRef = ref<HTMLElement | null>(null)
 const reviewerMode = ref(false)
+
+// From press 11 the button wanders its stage and shrinks (rebelButtonStage.ts).
+const buttonStyle = computed(() => {
+  const st = rebelStore.stage
+  if (!st.rebelling) return {}
+  return {
+    left: `${st.x}%`,
+    top: `${st.y}%`,
+    width: `${Math.round(st.scale * 100)}%`,
+    height: `${Math.round(st.scale * 100)}%`,
+    transform: 'translate(-50%, -50%)',
+  }
+})
 
 const unlockReviewer = () => {
   if (!userStore.isLoggedIn) return
@@ -188,15 +223,7 @@ onMounted(() => {
   if (userStore.isLoggedIn) {
     // Fetch the user's click record from the store
     const userClickRecord = userStore.clickRecord ?? 0
-    const localHighScore =
-      parseInt(localStorage.getItem('topScore') ?? '0') || 0
-
-    // Set both to the higher number
-    const highestScore = Math.max(userClickRecord, localHighScore)
-    state.topScore = highestScore
-    localStorage.setItem('topScore', highestScore.toString()) // ensure consistent key naming
-
-    state.topScore = parseInt(localStorage.getItem('topScore') ?? '0') || 0
+    rebelStore.loadTopScore(userClickRecord)
     unlockReviewer()
   }
 })
@@ -209,14 +236,9 @@ watch(
 )
 const pressedButton = () => {
   state.pressed = true
-  state.pressCount++
+  rebelStore.press()
 
   const tempMessage = state.buttonText // Store the current message temporarily
-
-  // Update the top score immediately on every click
-  if (state.pressCount > state.topScore) {
-    state.topScore = state.pressCount
-  }
 
   if (state.pressCount == 100) {
     achievementStore.rewardAchievementByCode('rebel-button')
@@ -225,7 +247,7 @@ const pressedButton = () => {
 
   // Save to localStorage every 10 clicks to optimize performance
   if (state.pressCount % 10 === 0) {
-    localStorage.setItem('topScore', state.topScore.toString())
+    rebelStore.saveTopScore()
 
     submitTopScore()
   }
@@ -279,9 +301,7 @@ const openResetPopup = () => {
 const reset = () => {
   state.pressed = false
   state.buttonText = 'Do Not Press this Button'
-  state.pressCount = 0
-  state.topScore = 0
-  localStorage.removeItem('topScore')
+  rebelStore.reset()
   state.showResetPopup = false
 }
 </script>

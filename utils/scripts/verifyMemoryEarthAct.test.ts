@@ -207,10 +207,13 @@ for (const reality of EARTH_REALITIES) {
     null,
   )
   assert.equal(
-    replayEarthJournal(reality, Array.from({ length: 513 }, () => ({
-      type: 'travel',
-      key: '2,1',
-    }))),
+    replayEarthJournal(
+      reality,
+      Array.from({ length: 513 }, () => ({
+        type: 'travel',
+        key: '2,1',
+      })),
+    ),
     null,
     'oversized action histories must be bounded',
   )

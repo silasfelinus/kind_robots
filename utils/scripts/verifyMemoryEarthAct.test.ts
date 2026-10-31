@@ -192,7 +192,7 @@ for (const reality of EARTH_REALITIES) {
 
   const shortened = compactEarthJournal(reality, journal)!
   const shorterReplay = replayEarthJournal(reality, shortened)!
-  assert.ok(shortened.length < journal.length)
+  assert.ok(shortened.length <= EARTH_JOURNAL_COMPACT_AT)
   assert.deepEqual(shorterReplay.progress.choices, replayed.progress.choices)
   assert.deepEqual(shorterReplay.progress.flags, replayed.progress.flags)
   assert.equal(shorterReplay.progress.danger, replayed.progress.danger)

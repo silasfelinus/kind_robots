@@ -18,9 +18,14 @@ export const PROJECT_PLACEMENTS: Record<string, ProjectPlacement> = {
     route: '/admin/every-villain-tactics',
   },
   hybridizer: {
-    channelKey: 'admin',
+    channelKey: 'arcade',
     tabKey: 'hybridizer',
-    route: '/admin/hybridizer',
+    route: '/play/hybridizer',
+  },
+  'slime-city': {
+    channelKey: 'arcade',
+    tabKey: 'slime-city',
+    route: '/play/slime-city',
   },
   'kind-sliding-tile-gallery': {
     channelKey: 'arcade',

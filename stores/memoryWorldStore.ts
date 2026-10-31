@@ -46,6 +46,8 @@ import {
   completeMemoryExperience,
   rememberMemoryWish,
   chooseMemoryPairEnding,
+  chooseMemoryScyllaDeparture,
+  MEMORY_SCYLLA_DEPARTURE_CHOICES,
   MEMORY_PAIR_ENDINGS,
   type MemoryCampaignProgress,
 } from '~/utils/memoryDungeon/reimaginerCampaign'
@@ -86,6 +88,7 @@ import {
   reconcileEarthChronicle,
   reconcileHoshimoriEarthChronicle,
   reconcileMorrowEarthChronicle,
+  reconcileScyllaEarthChronicle,
   reconcileHoshimoriNightEarthChronicle,
   respondToEarthPhoto,
   recoveredEarthPhotos,
@@ -638,6 +641,68 @@ export const useMemoryWorldStore = defineStore('memoryWorld', () => {
         pivotalChoice,
       )
       campaign.value = completeMemoryExperience(decided, 'e04')
+    }
+    persistReality()
+    return true
+  }
+
+  function syncScyllaEarthPhoto(
+    reality: 'e05' | 'e06',
+    choices: Readonly<Record<string, string>>,
+  ): void {
+    const unlocked =
+      reality === 'e05'
+        ? campaign.value.completed.includes('e04')
+        : campaign.value.completed.includes('e05')
+    if (!unlocked) return
+    const next = reconcileScyllaEarthChronicle(
+      earthChronicle.value,
+      reality,
+      choices,
+    )
+    if (next === earthChronicle.value) return
+    earthChronicle.value = next
+    persistEarthChronicle()
+  }
+
+  function finishScyllaReality(
+    reality: 'e05' | 'e06',
+    pivotalChoice?: string,
+  ): boolean {
+    if (campaign.value.completed.includes(reality) || !pivotalChoice)
+      return false
+    if (reality === 'e05') {
+      if (!campaign.value.completed.includes('e04')) return false
+      if (
+        !MEMORY_SCYLLA_DEPARTURE_CHOICES.some(
+          (choice) => choice.id === pivotalChoice,
+        )
+      )
+        return false
+      const decided = chooseMemoryScyllaDeparture(
+        campaign.value,
+        pivotalChoice as (typeof MEMORY_SCYLLA_DEPARTURE_CHOICES)[number]['id'],
+      )
+      const remembered = rememberMemoryWish(decided, 'scylla-home-wish')
+      campaign.value = completeMemoryExperience(remembered, 'e05')
+    } else {
+      if (!campaign.value.completed.includes('e05')) return false
+      if (
+        !MEMORY_PAIR_ENDINGS.e06.some(
+          (choice) => choice.id === pivotalChoice,
+        )
+      )
+        return false
+      const decided = chooseMemoryPairEnding(
+        campaign.value,
+        'e06',
+        pivotalChoice,
+      )
+      const remembered = rememberMemoryWish(
+        decided,
+        'char-possible-future',
+      )
+      campaign.value = completeMemoryExperience(remembered, 'e06')
     }
     persistReality()
     return true
@@ -2399,6 +2464,8 @@ export const useMemoryWorldStore = defineStore('memoryWorld', () => {
     syncMorrowEarthPhoto,
     syncMorrowEarthAchievements,
     finishMorrowEarthReality,
+    syncScyllaEarthPhoto,
+    finishScyllaReality,
     syncHoshimoriNightAchievements,
     syncHoshimoriNightPhoto,
     activeReality,

@@ -7,7 +7,8 @@ export const STAR_QUEST_CHAPTERS = [1, 4, 7] as const
 
 export const STAR_QUESTIONS = [
   {
-    prompt: 'The moon has filed a formal grievance against sunrise. How do you close the ticket?',
+    prompt:
+      'The moon has filed a formal grievance against sunrise. How do you close the ticket?',
     cue: 'FORM HR-01 · CONFLICT MANAGEMENT',
     options: [
       {
@@ -25,7 +26,8 @@ export const STAR_QUESTIONS = [
     ],
   },
   {
-    prompt: 'Next-week-you arrives on the couch requesting retroactive leave. HR demands a response.',
+    prompt:
+      'Next-week-you arrives on the couch requesting retroactive leave. HR demands a response.',
     cue: 'FORM HR-02 · IDENTITY VERIFICATION',
     options: [
       {
@@ -43,7 +45,8 @@ export const STAR_QUESTIONS = [
     ],
   },
   {
-    prompt: 'Your interns discover a planet-sized lost-property depot. Headquarters wants measurable results.',
+    prompt:
+      'Your interns discover a planet-sized lost-property depot. Headquarters wants measurable results.',
     cue: 'FORM HR-03 · ASSET STEWARDSHIP',
     options: [
       {
@@ -61,7 +64,8 @@ export const STAR_QUESTIONS = [
     ],
   },
   {
-    prompt: 'You are authorized to approve one miracle. Finance has forwarded you the invoice.',
+    prompt:
+      'You are authorized to approve one miracle. Finance has forwarded you the invoice.',
     cue: 'FORM HR-04 · EXECUTIVE RESOURCE ALLOCATION',
     options: [
       {
@@ -95,18 +99,30 @@ export type StarSignId =
   | 'moonlit-upholsterer'
   | 'cosmic-turnip'
 export const STAR_HR_VERDICTS: Record<StarSignId, string> = {
-  'northern-sloth': 'You demonstrate exceptional strategic patience. Payroll has classified this as lateness.',
-  'princess-mantic-shrimp': 'High impact in a compact package. The workplace damage waiver is mandatory.',
-  'velvet-comet': 'Your presentation skills are outstanding. Your expense reports enter the room first.',
-  'clockwork-minnow': 'Precision-oriented and temporally flexible. Your timesheets are under investigation.',
-  'royal-dust-bunny': 'You excel at overlooked tasks. Management plans to continue overlooking you.',
-  'laughing-leviathan': 'An effective morale contributor. Laughter remains a non-reimbursable expense.',
-  'nebular-teapot': 'Excellent host and conflict de-escalator. Hospitality is now an unpaid core duty.',
-  'three-headed-librarian': 'You possess three competing conclusions. The committee recognizes all of them as final.',
-  'feral-umbrella': 'Your protective instincts exceed policy allowances. Please return the company weather.',
-  'last-lantern': 'A natural guide during emergencies. Your night-shift differential has been denied.',
-  'moonlit-upholsterer': 'You repair systemic damage beautifully. HR has renamed this a personal initiative.',
-  'cosmic-turnip': 'Remarkable capacity to establish roots. Remote work has consequently been revoked.',
+  'northern-sloth':
+    'You demonstrate exceptional strategic patience. Payroll has classified this as lateness.',
+  'princess-mantic-shrimp':
+    'High impact in a compact package. The workplace damage waiver is mandatory.',
+  'velvet-comet':
+    'Your presentation skills are outstanding. Your expense reports enter the room first.',
+  'clockwork-minnow':
+    'Precision-oriented and temporally flexible. Your timesheets are under investigation.',
+  'royal-dust-bunny':
+    'You excel at overlooked tasks. Management plans to continue overlooking you.',
+  'laughing-leviathan':
+    'An effective morale contributor. Laughter remains a non-reimbursable expense.',
+  'nebular-teapot':
+    'Excellent host and conflict de-escalator. Hospitality is now an unpaid core duty.',
+  'three-headed-librarian':
+    'You possess three competing conclusions. The committee recognizes all of them as final.',
+  'feral-umbrella':
+    'Your protective instincts exceed policy allowances. Please return the company weather.',
+  'last-lantern':
+    'A natural guide during emergencies. Your night-shift differential has been denied.',
+  'moonlit-upholsterer':
+    'You repair systemic damage beautifully. HR has renamed this a personal initiative.',
+  'cosmic-turnip':
+    'Remarkable capacity to establish roots. Remote work has consequently been revoked.',
 }
 
 export type StarAssessment = {

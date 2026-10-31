@@ -913,6 +913,13 @@ export function applyTerms(match: MatchState, terms: BoutTerms): MatchState {
   next.mana = Math.max(0, next.mana + (terms.playerMana ?? 0))
   next.enemyMana = Math.max(0, next.enemyMana + (terms.enemyMana ?? 0))
   next.maxRounds = Math.max(8, next.maxRounds + (terms.rounds ?? 0))
+  next.scenarioBonus = {
+    playerHp: (next.scenarioBonus?.playerHp ?? 0) + (terms.playerHp ?? 0),
+    enemyArmor:
+      (next.scenarioBonus?.enemyArmor ?? 0) + (terms.enemyArmor ?? 0),
+    fewerRivals:
+      (next.scenarioBonus?.fewerRivals ?? 0) + (terms.fewerRivals ?? 0),
+  }
   for (const u of next.units) {
     if (u.side === 'enemy' && terms.enemyArmor)
       u.armor = Math.max(0, u.armor + terms.enemyArmor)

@@ -56,8 +56,7 @@
         Scylla has not yet reached this shoreline.
       </h3>
       <p class="max-w-lg text-sm leading-relaxed text-[#d6c5a9]">
-        Complete the Other Marches before Morrow's ordinary Earth becomes a
-        place you can visit.
+        Complete Morrow’s tide-gate crossing before Scylla can wake in the final days of her childhood.
       </p>
       <button type="button" class="btn btn-warning" @click="emit('leave')">
         Return to the city
@@ -90,7 +89,7 @@
           class="grid min-h-0 flex-1 grid-cols-8 grid-rows-8 gap-1 p-2"
           :class="sea.active === 'e05' ? 'md-palace-pearl' : 'md-palace-night'"
           role="group"
-          aria-label="Explore the city one neighboring square at a time"
+          aria-label="Explore the underwater palace one neighboring chamber at a time"
         >
           <button
             v-for="tile in sea.tiles"
@@ -234,8 +233,7 @@
               class="mt-2 rounded-xl border border-[#eac68a]/60 bg-[#504033] p-2"
             >
               <p class="mb-2 text-xs text-[#ffe9bf]">
-                You have witnessed the city, both photographs and the crossing.
-                The rest of the map remains explorable.
+                You have found both photographs and the sisters’ decision at the far gate. The remaining palace chambers stay explorable.
               </p>
               <button
                 type="button"

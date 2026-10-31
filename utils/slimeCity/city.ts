@@ -585,7 +585,8 @@ export const CITY_CONTRACTS: Record<DistrictId, CityContract> = {
     terms: { enemyMana: 1, rounds: -2 },
     victory:
       'The clone chooses a name of her own. Chimera Heights becomes a little harder to own.',
-    failure: 'Gene hunters collect another sample and put your crew on their list.',
+    failure:
+      'Gene hunters collect another sample and put your crew on their list.',
     standing: 2,
     heat: 0,
   },

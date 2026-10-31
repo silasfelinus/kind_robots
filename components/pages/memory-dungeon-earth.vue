@@ -4,13 +4,21 @@
     data-layout="console-fixed"
     data-testid="memory-earth-act"
   >
-    <header class="flex shrink-0 flex-wrap items-center gap-2 border-b border-[#c19c70]/35 bg-[#222b35] px-3 py-2">
+    <header
+      class="flex shrink-0 flex-wrap items-center gap-2 border-b border-[#c19c70]/35 bg-[#222b35] px-3 py-2"
+    >
       <div class="min-w-0 flex-1">
-        <p class="text-[10px] font-black uppercase tracking-[.2em] text-[#ebbd84]">
+        <p
+          class="text-[10px] font-black uppercase tracking-[.2em] text-[#ebbd84]"
+        >
           The Reimaginer · The Borrowed Earth
         </p>
         <h2 class="truncate text-lg font-black sm:text-xl">
-          {{ earth.active === 'e03' ? 'Morrow, Out of His Element' : 'The City Beneath the Tide' }}
+          {{
+            earth.active === 'e03'
+              ? 'Morrow, Out of His Element'
+              : 'The City Beneath the Tide'
+          }}
         </h2>
       </div>
       <div class="flex shrink-0 items-center gap-2">
@@ -44,9 +52,12 @@
       class="flex min-h-0 flex-1 flex-col items-center justify-center gap-3 p-4 text-center"
       data-testid="memory-earth-locked"
     >
-      <h3 class="text-xl font-black">The forest has not released its witnesses.</h3>
+      <h3 class="text-xl font-black">
+        The forest has not released its witnesses.
+      </h3>
       <p class="max-w-lg text-sm leading-relaxed text-[#d6c5a9]">
-        Complete the Other Marches before Morrow's ordinary Earth becomes a place you can visit.
+        Complete the Other Marches before Morrow's ordinary Earth becomes a
+        place you can visit.
       </p>
       <button type="button" class="btn btn-warning" @click="emit('leave')">
         Return to the Marches
@@ -60,9 +71,15 @@
         class="flex min-h-0 flex-col overflow-hidden rounded-xl border border-[#9f8867]/40 bg-[#1f303d]"
         aria-label="Morrow's eight by eight city map"
       >
-        <div class="flex shrink-0 flex-wrap items-center justify-between gap-2 p-2 text-xs">
+        <div
+          class="flex shrink-0 flex-wrap items-center justify-between gap-2 p-2 text-xs"
+        >
           <span class="font-bold text-[#f3cc93]">
-            {{ earth.active === 'e03' ? 'The ordinary city' : 'The enchanted city' }}
+            {{
+              earth.active === 'e03'
+                ? 'The ordinary city'
+                : 'The enchanted city'
+            }}
           </span>
           <span class="tabular-nums text-[#d3bf9c]">
             {{ earth.progress.revealed.length }}/64 found ·
@@ -85,7 +102,8 @@
             :aria-current="tile.current ? 'location' : undefined"
             :aria-label="
               tile.revealed
-                ? tile.title + (tile.resolved ? ', decided' : ', needs a decision')
+                ? tile.title +
+                  (tile.resolved ? ', decided' : ', needs a decision')
                 : tile.reachable
                   ? 'Enter ' + tile.key
                   : 'Undiscovered ' + tile.key
@@ -107,7 +125,9 @@
             </span>
           </button>
         </div>
-        <div class="flex shrink-0 justify-between gap-3 border-t border-[#a68a6b]/30 p-2 text-xs text-[#e4ceb0]">
+        <div
+          class="flex shrink-0 justify-between gap-3 border-t border-[#a68a6b]/30 p-2 text-xs text-[#e4ceb0]"
+        >
           <span>Photos {{ earth.photographs }}/2</span>
           <span>Trust {{ earth.progress.trust }}</span>
           <span>Evidence {{ earth.progress.evidence }}</span>
@@ -130,14 +150,21 @@
               :alt="earth.current.title"
               class="absolute inset-0 h-full w-full object-cover"
             />
-            <div class="relative max-w-[42rem] rounded-lg bg-[#111a26]/85 p-3 backdrop-blur-sm">
-              <p class="mb-1 text-[10px] font-black uppercase tracking-[.17em] text-[#eac08c]">
-                {{ earth.current.kind }} · {{ earth.current.speaker }} · {{ earth.position }}
+            <div
+              class="relative max-w-[42rem] rounded-lg bg-[#111a26]/85 p-3 backdrop-blur-sm"
+            >
+              <p
+                class="mb-1 text-[10px] font-black uppercase tracking-[.17em] text-[#eac08c]"
+              >
+                {{ earth.current.kind }} · {{ earth.current.speaker }} ·
+                {{ earth.position }}
               </p>
               <h3 class="text-lg font-black leading-snug sm:text-2xl">
                 {{ earth.current.title }}
               </h3>
-              <p class="mt-2 max-h-28 overflow-auto text-xs leading-relaxed sm:text-sm">
+              <p
+                class="mt-2 max-h-28 overflow-auto text-xs leading-relaxed sm:text-sm"
+              >
                 {{ earth.current.opening }}
               </p>
             </div>
@@ -161,7 +188,9 @@
               class="rounded-xl border border-[#8ab49e] bg-[#2b443f] p-3"
               data-testid="memory-earth-consequence"
             >
-              <p class="text-[10px] font-black uppercase tracking-wider text-[#bce9c8]">
+              <p
+                class="text-[10px] font-black uppercase tracking-wider text-[#bce9c8]"
+              >
                 Remembered consequence
               </p>
               <p class="mt-1 text-sm leading-relaxed">
@@ -177,7 +206,9 @@
                 :data-testid="'memory-earth-choice-' + choice.id"
                 @click="earth.choose(choice.id)"
               >
-                <div class="relative flex h-16 items-end bg-[linear-gradient(120deg,#5a6271,#756455,#3b7273)] p-2 sm:h-20">
+                <div
+                  class="relative flex h-16 items-end bg-[linear-gradient(120deg,#5a6271,#756455,#3b7273)] p-2 sm:h-20"
+                >
                   <img
                     v-if="choice.art.status === 'delivered'"
                     :src="choice.art.path"
@@ -191,7 +222,9 @@
                     Outcome {{ index + 1 }} · art pending
                   </span>
                 </div>
-                <span class="block p-2 text-xs font-bold leading-relaxed sm:text-sm">
+                <span
+                  class="block p-2 text-xs font-bold leading-relaxed sm:text-sm"
+                >
                   {{ choice.label }}
                 </span>
               </button>
@@ -201,7 +234,8 @@
               class="mt-2 rounded-xl border border-[#eac68a]/60 bg-[#504033] p-2"
             >
               <p class="mb-2 text-xs text-[#ffe9bf]">
-                You have witnessed the city, both photographs and the crossing. The rest of the map remains explorable.
+                You have witnessed the city, both photographs and the crossing.
+                The rest of the map remains explorable.
               </p>
               <button
                 type="button"
@@ -229,10 +263,19 @@
       class="flex shrink-0 items-center justify-between gap-2 border-t border-[#a78c6f]/30 px-3 py-1 text-[10px] text-[#d4c2a7]"
     >
       <span>
-        Neighboring squares only · {{ earth.progress.choices['8,8'] ? 'Gate witnessed' : 'Find the far-side crossing' }}
+        Neighboring squares only ·
+        {{
+          earth.progress.choices['8,8']
+            ? 'Gate witnessed'
+            : 'Find the far-side crossing'
+        }}
       </span>
       <span>
-        {{ earth.readyToLeave ? 'The next memory is ready' : 'Resolve twelve scenes, two photographs and the far-side crossing' }}
+        {{
+          earth.readyToLeave
+            ? 'The next memory is ready'
+            : 'Resolve twelve scenes, two photographs and the far-side crossing'
+        }}
       </span>
     </footer>
   </section>
@@ -277,15 +320,23 @@ onMounted(() => earth.hydrate())
 
 <style scoped>
 .md-city-day {
-  background: repeating-linear-gradient(0deg, #a1865a44 0 2px, transparent 2px 12.5%), repeating-linear-gradient(90deg, #90b0c344 0 2px, #253743 2px 12.5%);
+  background:
+    repeating-linear-gradient(0deg, #a1865a44 0 2px, transparent 2px 12.5%),
+    repeating-linear-gradient(90deg, #90b0c344 0 2px, #253743 2px 12.5%);
 }
 .md-city-tide {
-  background: radial-gradient(ellipse at 40% 70%, #1e9ba244, transparent 60%), repeating-linear-gradient(90deg, #6683a433 0 5px, #1b293d 5px 14px);
+  background:
+    radial-gradient(ellipse at 40% 70%, #1e9ba244, transparent 60%),
+    repeating-linear-gradient(90deg, #6683a433 0 5px, #1b293d 5px 14px);
 }
 .md-stage-day {
-  background: radial-gradient(ellipse at 68% 20%, #dbaf8166, transparent 45%), linear-gradient(130deg, #253b4b, #6b5b55, #43485b);
+  background:
+    radial-gradient(ellipse at 68% 20%, #dbaf8166, transparent 45%),
+    linear-gradient(130deg, #253b4b, #6b5b55, #43485b);
 }
 .md-stage-night {
-  background: radial-gradient(ellipse at 70% 10%, #7bd5d866, transparent 43%), linear-gradient(120deg, #25364f, #4a3761, #173f4b);
+  background:
+    radial-gradient(ellipse at 70% 10%, #7bd5d866, transparent 43%),
+    linear-gradient(120deg, #25364f, #4a3761, #173f4b);
 }
 </style>

@@ -47,7 +47,9 @@ export const useMemoryHoshimoriNightStore = defineStore(
         const restored = restoreHoshimoriNight(JSON.parse(saved))
         if (restored) {
           progress.value = restored
-          useMemoryWorldStore().syncHoshimoriNightPhoto(restored.choices)
+          const world = useMemoryWorldStore()
+          world.syncHoshimoriNightPhoto(restored.choices)
+          world.syncHoshimoriNightAchievements(restored)
         } else
           notice.value =
             'The procession rejected an altered account. A fresh route is ready.'
@@ -80,8 +82,11 @@ export const useMemoryHoshimoriNightStore = defineStore(
       }
       progress.value = next
       notice.value = ''
-      if (event.type === 'choose')
-        useMemoryWorldStore().syncHoshimoriNightPhoto(next.choices)
+      if (event.type === 'choose' || event.type === 'move') {
+        const world = useMemoryWorldStore()
+        if (event.type === 'choose') world.syncHoshimoriNightPhoto(next.choices)
+        world.syncHoshimoriNightAchievements(next)
+      }
       persist()
       return true
     }

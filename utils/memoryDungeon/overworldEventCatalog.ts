@@ -220,7 +220,7 @@ function legacyChoices(
     label: choice.label,
     outcome: choice.outcome,
     flag: world + ':' + key + ':' + choice.id,
-    effects: effects('challenge', index === 0),
+    effects: {},
     art: art(world, key, title, 'choice-' + (index + 1) + ': ' + choice.label, 'painted storybook'),
   }))
 }

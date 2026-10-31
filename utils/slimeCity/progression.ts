@@ -343,7 +343,7 @@ export function buyPack(original: Progression, entropy: number): Progression {
       'Street Pack opened · one guaranteed rare + two other NEW cards.',
   }
 }
-/** Reject damaged/foreign local snapshots rather than granting privileges. */
+/** Validate database JSON snapshots; the API owns all writes. */
 export function restoreProgression(
   raw: unknown,
   now = new Date(),
@@ -422,7 +422,7 @@ export function restoreProgression(
           ? p.opened
           : 0,
       lastPack: [],
-      lastReward: 'Local progress loaded · not synchronized across devices.',
+      lastReward: 'Account progression loaded from Kind Robots.',
       daily: cleanWin(p.daily, 'daily'),
       weekly: cleanWin(p.weekly, 'weekly'),
     },

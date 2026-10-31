@@ -4,12 +4,22 @@ import { randomInt } from 'node:crypto'
 import prisma from './prisma'
 import type { Prisma } from '~/prisma/generated/prisma/client'
 import {
-  CARDS, TEAMS, createMatch, replayMatch, type Command,
-  type MatchState, type TeamId,
+  CARDS,
+  TEAMS,
+  createMatch,
+  replayMatch,
+  type Command,
+  type MatchState,
+  type TeamId,
 } from '~/utils/slimeCity/prototypes'
 import {
-  awardBattle, buyPack, canBuyPack, claimChallenge,
-  newProgression, refreshPeriods, restoreProgression,
+  awardBattle,
+  buyPack,
+  canBuyPack,
+  claimChallenge,
+  newProgression,
+  refreshPeriods,
+  restoreProgression,
   type Progression,
 } from '~/utils/slimeCity/progression'
 
@@ -17,28 +27,38 @@ import {
 export async function requireSlimeCityPreviewUser(event: H3Event) {
   const auth = await requireHumanApiUser(event)
   if (!auth.isAdmin || auth.user.isGuest)
-    throw createError({ statusCode: 403, message: 'Slime City progression is admin-preview only.' })
+    throw createError({
+      statusCode: 403,
+      message: 'Slime City progression is admin-preview only.',
+    })
   return auth
 }
 
-const toJson = (data: unknown) => JSON.parse(JSON.stringify(data)) as Prisma.InputJsonValue
+const toJson = (data: unknown) =>
+  JSON.parse(JSON.stringify(data)) as Prisma.InputJsonValue
 
 /** All virtual Meat, XP, inventory and claims belong to a real User row. */
-export async function getSlimeCityAccount(userId: number): Promise<Progression> {
+export async function getSlimeCityAccount(
+  userId: number,
+): Promise<Progression> {
   const row = await prisma.slimeCityAccount.findUnique({ where: { userId } })
   return row ? restoreProgression(row.data) : newProgression()
 }
 
 /** Optimistic compare-and-swap plus DB transaction protects competing tabs. */
 async function changeAccount(
-  userId: number, mutate: (state: Progression) => Progression,
+  userId: number,
+  mutate: (state: Progression) => Progression,
 ): Promise<Progression> {
   return prisma.$transaction(async (tx) => {
     await tx.slimeCityAccount.upsert({
-      where: { userId }, update: {},
+      where: { userId },
+      update: {},
       create: { userId, data: toJson(newProgression()) },
     })
-    const row = await tx.slimeCityAccount.findUniqueOrThrow({ where: { userId } })
+    const row = await tx.slimeCityAccount.findUniqueOrThrow({
+      where: { userId },
+    })
     const before = restoreProgression(row.data)
     const after = mutate(before)
     if (after === before) return before
@@ -47,7 +67,10 @@ async function changeAccount(
       data: { data: toJson(after), version: { increment: 1 } },
     })
     if (updated.count !== 1)
-      throw createError({ statusCode: 409, message: 'Wallet was updated by another request. Retry.' })
+      throw createError({
+        statusCode: 409,
+        message: 'Wallet was updated by another request. Retry.',
+      })
     return after
   })
 }
@@ -55,18 +78,32 @@ async function changeAccount(
 export async function buySlimeCityPack(userId: number): Promise<Progression> {
   return changeAccount(userId, (state) => {
     if (!canBuyPack(state))
-      throw createError({ statusCode: 409, message: 'Not enough virtual Meat, or no complete rare-guaranteed packs remain.' })
+      throw createError({
+        statusCode: 409,
+        message:
+          'Not enough virtual Meat, or no complete rare-guaranteed packs remain.',
+      })
     return buyPack(state, randomInt(1, 0x7fffffff))
   })
 }
-export async function claimSlimeCityChallenge(userId: number, id: string): Promise<Progression> {
+export async function claimSlimeCityChallenge(
+  userId: number,
+  id: string,
+): Promise<Progression> {
   const before = await getSlimeCityAccount(userId)
   const valid = claimChallenge(before, id)
-  if (valid === before) throw createError({ statusCode: 409, message: 'Challenge is unavailable or already claimed.' })
+  if (valid === before)
+    throw createError({
+      statusCode: 409,
+      message: 'Challenge is unavailable or already claimed.',
+    })
   return changeAccount(userId, (state) => {
     const after = claimChallenge(state, id)
     if (after === state)
-      throw createError({ statusCode: 409, message: 'Challenge is unavailable or already claimed.' })
+      throw createError({
+        statusCode: 409,
+        message: 'Challenge is unavailable or already claimed.',
+      })
     return after
   })
 }
@@ -87,29 +124,56 @@ export async function startSlimeCityCpuMatch(userId: number, teamId: string) {
 
 /** A server replay is required; a client-submitted winner/XP/Meat is ignored. */
 export function validateSlimeCityBattle(
-  setup: { mode: string; teamId: string; foeId: string; seed: number; startedAt: Date },
+  setup: {
+    mode: string
+    teamId: string
+    foeId: string
+    seed: number
+    startedAt: Date
+  },
   commands: unknown,
   now = new Date(),
 ): MatchState {
   if (!Array.isArray(commands) || commands.length < 3 || commands.length > 600)
-    throw createError({ statusCode: 400, message: 'Incomplete or oversized battle transcript.' })
+    throw createError({
+      statusCode: 400,
+      message: 'Incomplete or oversized battle transcript.',
+    })
   const ageMs = now.getTime() - setup.startedAt.getTime()
   if (ageMs < 5000 || ageMs > 86400000)
-    throw createError({ statusCode: 409, message: 'CPU battle is too short or expired.' })
-  if (setup.mode !== 'blackout' || !TEAMS.some((x) => x.id === setup.teamId) ||
-    !TEAMS.some((x) => x.id === setup.foeId))
-    throw createError({ statusCode: 400, message: 'Invalid server match setup.' })
+    throw createError({
+      statusCode: 409,
+      message: 'CPU battle is too short or expired.',
+    })
+  if (
+    setup.mode !== 'blackout' ||
+    !TEAMS.some((x) => x.id === setup.teamId) ||
+    !TEAMS.some((x) => x.id === setup.foeId)
+  )
+    throw createError({
+      statusCode: 400,
+      message: 'Invalid server match setup.',
+    })
   let ends = 0
   let plays = 0
   for (const action of commands) {
     if (!action || typeof action !== 'object' || typeof action.t !== 'string')
       throw createError({ statusCode: 400, message: 'Bad battle command.' })
-    if (action.t === 'end') { ends++; continue }
+    if (action.t === 'end') {
+      ends++
+      continue
+    }
     if (action.side !== 'player')
-      throw createError({ statusCode: 403, message: 'Cannot submit CPU-owned commands.' })
+      throw createError({
+        statusCode: 403,
+        message: 'Cannot submit CPU-owned commands.',
+      })
     if (action.t === 'deploy') {
-      if (!CARDS.some((c) => c.id === action.card) ||
-        !Number.isSafeInteger(action.x) || !Number.isSafeInteger(action.y))
+      if (
+        !CARDS.some((c) => c.id === action.card) ||
+        !Number.isSafeInteger(action.x) ||
+        !Number.isSafeInteger(action.y)
+      )
         throw createError({ statusCode: 400, message: 'Malformed deployment.' })
       plays++
     } else if (action.t === 'move') {
@@ -121,32 +185,53 @@ export function validateSlimeCityBattle(
     } else if (action.t === 'reveal') {
       if (!Number.isSafeInteger(action.id))
         throw createError({ statusCode: 400, message: 'Malformed reveal.' })
-    } else throw createError({ statusCode: 400, message: 'Unknown battle command.' })
+    } else
+      throw createError({ statusCode: 400, message: 'Unknown battle command.' })
   }
   if (ends < 2 || plays < 1)
-    throw createError({ statusCode: 400, message: 'Battle needs played units and real turns.' })
-  const verified = replayMatch({
-    mode: 'blackout', teamId: setup.teamId as TeamId,
-    foeId: setup.foeId as TeamId, seed: setup.seed,
-  }, commands as Command[])
-  if (!verified.victor || JSON.stringify(verified.commands) !== JSON.stringify(commands))
-    throw createError({ statusCode: 409, message: 'Match is incomplete or actions failed replay validation.' })
+    throw createError({
+      statusCode: 400,
+      message: 'Battle needs played units and real turns.',
+    })
+  const verified = replayMatch(
+    {
+      mode: 'blackout',
+      teamId: setup.teamId as TeamId,
+      foeId: setup.foeId as TeamId,
+      seed: setup.seed,
+    },
+    commands as Command[],
+  )
+  if (
+    !verified.victor ||
+    JSON.stringify(verified.commands) !== JSON.stringify(commands)
+  )
+    throw createError({
+      statusCode: 409,
+      message: 'Match is incomplete or actions failed replay validation.',
+    })
   return verified
 }
 
 export async function finishSlimeCityCpuMatch(
-  userId: number, id: string, commands: unknown,
+  userId: number,
+  id: string,
+  commands: unknown,
 ): Promise<Progression> {
   if (typeof id !== 'string' || !/^[0-9a-f-]{36}$/.test(id))
     throw createError({ statusCode: 400, message: 'Invalid match id.' })
   return prisma.$transaction(async (tx) => {
     const match = await tx.slimeCityMatch.findFirst({ where: { id, userId } })
     if (!match || match.settledAt)
-      throw createError({ statusCode: 409, message: 'CPU match not found or already rewarded.' })
+      throw createError({
+        statusCode: 409,
+        message: 'CPU match not found or already rewarded.',
+      })
     const now = new Date()
     const verified = validateSlimeCityBattle(match, commands, now)
     const row = await tx.slimeCityAccount.upsert({
-      where: { userId }, update: {},
+      where: { userId },
+      update: {},
       create: { userId, data: toJson(newProgression(now)) },
     })
     const before = refreshPeriods(restoreProgression(row.data, now), now)
@@ -156,10 +241,17 @@ export async function finishSlimeCityCpuMatch(
       data: { data: toJson(after), version: { increment: 1 } },
     })
     if (updated.count !== 1)
-      throw createError({ statusCode: 409, message: 'Wallet changed; please retry settlement.' })
+      throw createError({
+        statusCode: 409,
+        message: 'Wallet changed; please retry settlement.',
+      })
     const settled = await tx.slimeCityMatch.updateMany({
       where: { id, userId, settledAt: null },
-      data: { settledAt: now, result: verified.victor!, commands: toJson(commands) },
+      data: {
+        settledAt: now,
+        result: verified.victor!,
+        commands: toJson(commands),
+      },
     })
     if (settled.count !== 1)
       throw createError({ statusCode: 409, message: 'Battle already settled.' })

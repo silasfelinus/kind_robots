@@ -173,9 +173,16 @@
               <button
                 v-if="reactionImageId"
                 type="button"
+                data-testid="hybridizer-upvote"
+                :disabled="upvoteBusy"
+                @click="upvote()"
+              >♥ Upvote</button>
+              <button
+                v-if="reactionImageId"
+                type="button"
                 data-testid="hybridizer-reactions"
                 @click="reactionOpen = true"
-              >♥ Vote / comment</button>
+              >✎ Comment / rate</button>
               <button type="button" @click="shareOpen = !shareOpen">
                 ↗ Share
               </button>
@@ -412,10 +419,12 @@ import { computed, onMounted, onUnmounted, ref, watch } from 'vue'
 import ReactionCard from '@/components/wonderlab/reaction-card.vue'
 import { achievementsForGame } from '@/utils/achievements/gameAchievements'
 import { useAchievementStore } from '@/stores/achievementStore'
+import { useReactionStore, getReactionTargetPayload } from '@/stores/reactionStore'
 import { useHybridizerStore } from '@/stores/hybridizerStore'
 
 const lab = useHybridizerStore()
 const achievementStore = useAchievementStore()
+const reactionStore = useReactionStore()
 const route = useRoute()
 const previewJobId = ref<number | null>(null)
 const reactionOpen = ref(false)
@@ -432,6 +441,24 @@ const reactionImageId = computed(() => previewVersion.value
   ? previewVersion.value.artImageId
   : lab.result?.artImageId)
 const badges = achievementsForGame('hybridizer')
+const upvoteBusy = ref(false)
+async function upvote() {
+  if (!reactionImageId.value || upvoteBusy.value) return
+  upvoteBusy.value = true
+  try {
+    await reactionStore.addReaction({
+      ...getReactionTargetPayload('artImage', reactionImageId.value),
+      rating: 5,
+      reactionType: 'LOVED',
+      reactionCategory: 'ART_IMAGE',
+    })
+    lab.status = 'Your upvote is attached to this artwork version.'
+  } catch (error) {
+    lab.status = error instanceof Error ? error.message : 'Could not submit upvote. Sign in and try again.'
+  } finally {
+    upvoteBusy.value = false
+  }
+}
 watch(() => lab.result?.key, () => {
   previewJobId.value = null
   reactionOpen.value = false
@@ -549,7 +576,7 @@ onUnmounted(() => lab.stopArtworkWatch())
 .hybridizer-console {
   position: relative;
   display: grid;
-  grid-template-rows: auto minmax(0, 1fr) auto;
+  grid-template-rows: auto minmax(0, 1fr) auto auto;
   gap: clamp(9px, 1.4vw, 18px);
   height: 100%;
   min-height: 0;
@@ -779,6 +806,7 @@ onUnmounted(() => lab.stopArtworkWatch())
 }
 
 .hybridizer-result {
+  position: relative;
   padding: clamp(10px, 1.5vw, 20px);
   display: flex;
   flex-direction: column;

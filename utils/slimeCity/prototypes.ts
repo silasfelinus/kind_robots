@@ -1773,10 +1773,22 @@ function addFighter(
     side,
     x,
     y,
-    hp: Math.max(1, (card.hp || 2) + (side === 'player' ? (state.scenarioBonus?.playerHp ?? 0) : 0)),
-    maxHp: Math.max(1, (card.hp || 2) + (side === 'player' ? (state.scenarioBonus?.playerHp ?? 0) : 0)),
+    hp: Math.max(
+      1,
+      (card.hp || 2) +
+        (side === 'player' ? (state.scenarioBonus?.playerHp ?? 0) : 0),
+    ),
+    maxHp: Math.max(
+      1,
+      (card.hp || 2) +
+        (side === 'player' ? (state.scenarioBonus?.playerHp ?? 0) : 0),
+    ),
     attack: card.attack || 1,
-    armor: Math.max(0, (card.armor || 0) + (side === 'enemy' ? (state.scenarioBonus?.enemyArmor ?? 0) : 0)),
+    armor: Math.max(
+      0,
+      (card.armor || 0) +
+        (side === 'enemy' ? (state.scenarioBonus?.enemyArmor ?? 0) : 0),
+    ),
     ap: card.ap || 1,
     maxAp: card.ap || 1,
     hidden,

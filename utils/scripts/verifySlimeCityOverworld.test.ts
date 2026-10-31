@@ -463,12 +463,9 @@ const atUndertow = decideStreet(
   travel(openingCity, 'undertow'),
   'drain-protect',
 )
-const chapterApproach = FACTION_CAMPAIGNS.catgirls.chapters[0]!.choices[1]!.terms
-const combined = storyMissionTerms(
-  atUndertow,
-  'undertow',
-  chapterApproach,
-)
+const chapterApproach =
+  FACTION_CAMPAIGNS.catgirls.chapters[0]!.choices[1]!.terms
+const combined = storyMissionTerms(atUndertow, 'undertow', chapterApproach)
 assert.equal(combined.playerMana, 3)
 assert.equal(combined.rivalTrap, true)
 assert.equal(chapterApproach.playerMana, 2)
@@ -486,10 +483,8 @@ assert.equal(
   chapterApproach.playerMana,
 )
 assert.equal(
-  applyTerms(
-    createMatch('blackout', 'catgirls', 'undertow', 2001),
-    combined,
-  ).mana,
+  applyTerms(createMatch('blackout', 'catgirls', 'undertow', 2001), combined)
+    .mana,
   4,
 )
 const scenario = applyTerms(
@@ -501,9 +496,12 @@ const scenario = applyTerms(
 assert.equal(scenario.units.length, 0)
 assert.equal(
   observe(scenario, 'enemy').fieldCap,
-  observe(createMatch('blackout', 'catgirls', 'bloodfairies', 2001, {
-    classicFog: true,
-  }), 'enemy').fieldCap - 1,
+  observe(
+    createMatch('blackout', 'catgirls', 'bloodfairies', 2001, {
+      classicFog: true,
+    }),
+    'enemy',
+  ).fieldCap - 1,
 )
 const summoned = deploy(scenario, 'lynx', 0, 0)
 const lynx = summoned.units.find((unit) => unit.side === 'player')

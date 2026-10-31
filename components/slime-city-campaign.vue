@@ -12,11 +12,18 @@
         <span class="ink-figure"></span>
       </div>
       <div class="campaign-headline">
-        <span class="campaign-overline">SLIME CITY ORIGINAL / FACTION STORY MODE</span>
-        <span class="campaign-serial">CAMPAIGN {{ String(lab.campaignState.wins + 1).padStart(2, '0') }} / 06</span>
+        <span class="campaign-overline"
+          >SLIME CITY ORIGINAL / FACTION STORY MODE</span
+        >
+        <span class="campaign-serial"
+          >CAMPAIGN {{ String(lab.campaignState.wins + 1).padStart(2, '0') }} /
+          06</span
+        >
         <h2>{{ lab.campaignStory.title }}</h2>
         <p>{{ lab.campaignStory.prologue }}</p>
-        <strong class="campaign-principle">{{ lab.campaignStory.principle }}</strong>
+        <strong class="campaign-principle">{{
+          lab.campaignStory.principle
+        }}</strong>
       </div>
       <div class="campaign-stamp">
         <span>FIVE RIVALS</span>
@@ -40,31 +47,61 @@
         >
           <span>{{ String(index + 1).padStart(2, '0') }}</span>
           <strong>{{ teamName(chapter.foe) }}</strong>
-          <small>{{ index < lab.campaignState.wins ? 'DEFEATED' : index === lab.campaignState.wins ? 'NEXT BATTLE' : 'LOCKED' }}</small>
+          <small>{{
+            index < lab.campaignState.wins
+              ? 'DEFEATED'
+              : index === lab.campaignState.wins
+                ? 'NEXT BATTLE'
+                : 'LOCKED'
+          }}</small>
         </div>
       </div>
 
-      <div v-if="lab.campaignFinale" class="campaign-finale" data-testid="slime-campaign-finale" aria-live="polite">
-        <span class="campaign-overline">STORY COMPLETE / 5 OF 5 RIVALS DEFEATED</span>
+      <div
+        v-if="lab.campaignFinale"
+        class="campaign-finale"
+        data-testid="slime-campaign-finale"
+        aria-live="polite"
+      >
+        <span class="campaign-overline"
+          >STORY COMPLETE / 5 OF 5 RIVALS DEFEATED</span
+        >
         <h3>{{ lab.campaignStory.title }}: THE END</h3>
         <p>{{ lab.campaignFinale }}</p>
-        <small>All six campaigns have independent playtest progress. Story wins grant no account Meat, XP or pack cards.</small>
+        <small
+          >All six campaigns have independent playtest progress. Story wins
+          grant no account Meat, XP or pack cards.</small
+        >
       </div>
 
       <div v-else-if="lab.activeChapter" class="campaign-mission">
         <div class="campaign-briefing">
           <span class="campaign-overline">
-            CHAPTER {{ lab.campaignState.wins + 1 }} / 5 · VERSUS {{ teamName(lab.activeChapter.foe).toUpperCase() }}
+            CHAPTER {{ lab.campaignState.wins + 1 }} / 5 · VERSUS
+            {{ teamName(lab.activeChapter.foe).toUpperCase() }}
           </span>
           <h3>{{ lab.activeChapter.title }}</h3>
           <p>{{ lab.activeChapter.scene }}</p>
-          <div v-if="lab.campaignState.lastScene" class="campaign-recap" aria-live="polite" data-testid="slime-campaign-recap">
-            <strong>{{ lab.campaignState.lastResult === 'player' ? 'LAST VICTORY' : lab.campaignState.lastResult === 'enemy' ? 'LAST DEFEAT' : 'LAST DRAW' }}</strong>
+          <div
+            v-if="lab.campaignState.lastScene"
+            class="campaign-recap"
+            aria-live="polite"
+            data-testid="slime-campaign-recap"
+          >
+            <strong>{{
+              lab.campaignState.lastResult === 'player'
+                ? 'LAST VICTORY'
+                : lab.campaignState.lastResult === 'enemy'
+                  ? 'LAST DEFEAT'
+                  : 'LAST DRAW'
+            }}</strong>
             <span>{{ lab.campaignState.lastScene }}</span>
           </div>
         </div>
         <div class="campaign-decision">
-          <span class="campaign-overline">CHOOSE YOUR APPROACH · BLACKOUT RULES</span>
+          <span class="campaign-overline"
+            >CHOOSE YOUR APPROACH · BLACKOUT RULES</span
+          >
           <button
             v-for="choice in lab.activeChapter.choices"
             :key="choice.id"
@@ -72,7 +109,9 @@
             :data-testid="'slime-campaign-choice-' + choice.id"
             @click="lab.startCampaignBattle(choice.id)"
           >
-            <span class="decision-mark">{{ choice.id === 'conviction' ? '01' : '02' }}</span>
+            <span class="decision-mark">{{
+              choice.id === 'conviction' ? '01' : '02'
+            }}</span>
             <span class="decision-copy">
               <strong>{{ choice.label }}</strong>
               <small>{{ describeTerms(choice.terms) }}</small>
@@ -82,7 +121,10 @@
         </div>
       </div>
       <div class="campaign-disclaimer">
-        <span>{{ lab.campaignState.losses }} CAMPAIGN LOSSES · DEFEAT RETRIES ARE UNLIMITED</span>
+        <span
+          >{{ lab.campaignState.losses }} CAMPAIGN LOSSES · DEFEAT RETRIES ARE
+          UNLIMITED</span
+        >
         <span>SESSION-ONLY STORY PROGRESS · NO REAL-MONEY REWARDS</span>
       </div>
     </div>
@@ -119,13 +161,53 @@ function teamName(id: TeamId): string {
   overflow: hidden;
   isolation: isolate;
   padding: clamp(1rem, 2cqw, 2rem);
-  background: radial-gradient(circle at 78% 36%, #93decb, #26536b 42%, #101b2e 80%);
+  background: radial-gradient(
+    circle at 78% 36%,
+    #93decb,
+    #26536b 42%,
+    #101b2e 80%
+  );
 }
-.crew-bloodfairies { background: radial-gradient(circle at 75% 35%, #f869aa, #87295b 43%, #1e1135 85%); }
-.crew-ironjaw { background: radial-gradient(circle at 75% 35%, #e8b660, #84603e 43%, #152c2d 85%); }
-.crew-riot { background: radial-gradient(circle at 75% 35%, #fe8759, #982c39 43%, #2a1429 85%); }
-.crew-undertow { background: radial-gradient(circle at 75% 35%, #6ce5b8, #136e74 43%, #101b2b 85%); }
-.crew-exchange { background: radial-gradient(circle at 75% 35%, #f2cf80, #8a633c 43%, #241c32 85%); }
+.crew-bloodfairies {
+  background: radial-gradient(
+    circle at 75% 35%,
+    #f869aa,
+    #87295b 43%,
+    #1e1135 85%
+  );
+}
+.crew-ironjaw {
+  background: radial-gradient(
+    circle at 75% 35%,
+    #e8b660,
+    #84603e 43%,
+    #152c2d 85%
+  );
+}
+.crew-riot {
+  background: radial-gradient(
+    circle at 75% 35%,
+    #fe8759,
+    #982c39 43%,
+    #2a1429 85%
+  );
+}
+.crew-undertow {
+  background: radial-gradient(
+    circle at 75% 35%,
+    #6ce5b8,
+    #136e74 43%,
+    #101b2b 85%
+  );
+}
+.crew-exchange {
+  background: radial-gradient(
+    circle at 75% 35%,
+    #f2cf80,
+    #8a633c 43%,
+    #241c32 85%
+  );
+}
 .campaign-hero-ink {
   position: absolute;
   inset: 0;
@@ -141,7 +223,9 @@ function teamName(id: TeamId): string {
   aspect-ratio: 1;
   border: 1rem solid #ffffff1d;
   border-radius: 50%;
-  box-shadow: 0 0 0 1.4rem #ffffff0a, 0 0 8rem #ffffff1e;
+  box-shadow:
+    0 0 0 1.4rem #ffffff0a,
+    0 0 8rem #ffffff1e;
 }
 .ink-tower {
   position: absolute;
@@ -153,7 +237,12 @@ function teamName(id: TeamId): string {
   background: linear-gradient(140deg, #ffffff45, #080d20 60%);
   clip-path: polygon(24% 0, 79% 9%, 100% 100%, 0 100%);
 }
-.ink-tower-b { right: 0; width: 17%; height: 62%; transform: skew(9deg); }
+.ink-tower-b {
+  right: 0;
+  width: 17%;
+  height: 62%;
+  transform: skew(9deg);
+}
 .ink-figure {
   position: absolute;
   width: 28%;
@@ -161,7 +250,21 @@ function teamName(id: TeamId): string {
   right: 16%;
   bottom: -15%;
   background: linear-gradient(125deg, #ffffff83, #0c1a33 48%, #090b1a);
-  clip-path: polygon(45% 0, 61% 1%, 71% 18%, 63% 29%, 76% 45%, 99% 72%, 81% 81%, 100% 100%, 1% 100%, 20% 69%, 25% 43%, 39% 29%, 32% 14%);
+  clip-path: polygon(
+    45% 0,
+    61% 1%,
+    71% 18%,
+    63% 29%,
+    76% 45%,
+    99% 72%,
+    81% 81%,
+    100% 100%,
+    1% 100%,
+    20% 69%,
+    25% 43%,
+    39% 29%,
+    32% 14%
+  );
   filter: drop-shadow(0 0 1rem #000);
 }
 .campaign-headline {
@@ -171,8 +274,15 @@ function teamName(id: TeamId): string {
   width: min(75%, 38rem);
   text-shadow: 0 2px 15px #080d1c;
 }
-.campaign-overline, .campaign-serial { font-size: 0.63rem; font-weight: 900; letter-spacing: 0.14em; }
-.campaign-serial { color: #fff5ad; }
+.campaign-overline,
+.campaign-serial {
+  font-size: 0.63rem;
+  font-weight: 900;
+  letter-spacing: 0.14em;
+}
+.campaign-serial {
+  color: #fff5ad;
+}
 .campaign-headline h2 {
   margin: 0;
   font-weight: 1000;
@@ -181,8 +291,18 @@ function teamName(id: TeamId): string {
   letter-spacing: -0.045em;
   text-transform: uppercase;
 }
-.campaign-headline p { max-width: 35rem; margin: 0; font-size: clamp(0.72rem, 1.12cqw, 0.95rem); line-height: 1.36; }
-.campaign-principle { display: block; color: #fff1ad; font-size: 0.78rem; font-style: italic; }
+.campaign-headline p {
+  max-width: 35rem;
+  margin: 0;
+  font-size: clamp(0.72rem, 1.12cqw, 0.95rem);
+  line-height: 1.36;
+}
+.campaign-principle {
+  display: block;
+  color: #fff1ad;
+  font-size: 0.78rem;
+  font-style: italic;
+}
 .campaign-stamp {
   position: absolute;
   top: 0.75rem;
@@ -196,8 +316,14 @@ function teamName(id: TeamId): string {
   background: #0a142e80;
   transform: rotate(9deg);
 }
-.campaign-stamp span, .campaign-stamp small { font-size: 0.5rem; letter-spacing: 0.07em; }
-.campaign-stamp b { font-size: 1.35rem; }
+.campaign-stamp span,
+.campaign-stamp small {
+  font-size: 0.5rem;
+  letter-spacing: 0.07em;
+}
+.campaign-stamp b {
+  font-size: 1.35rem;
+}
 .campaign-body {
   display: grid;
   align-content: start;
@@ -207,7 +333,11 @@ function teamName(id: TeamId): string {
   padding: 0.9rem clamp(0.75rem, 2cqw, 1.4rem);
   overflow-y: auto;
 }
-.campaign-track { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 0.35rem; }
+.campaign-track {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 0.35rem;
+}
 .campaign-step {
   display: grid;
   gap: 0.15rem;
@@ -218,15 +348,50 @@ function teamName(id: TeamId): string {
   border-bottom: 3px solid #535d71;
   opacity: 0.7;
 }
-.campaign-step.current { background: #383c28; border-color: #e8f39b; opacity: 1; }
-.campaign-step.cleared { background: #18382e; border-color: #70ce9d; opacity: 1; }
-.campaign-step span { font-size: 0.6rem; color: #cbd8e1; }
-.campaign-step strong { font-size: clamp(0.59rem, 1.1cqw, 0.8rem); line-height: 1.2; }
-.campaign-step small { font-size: 0.55rem; letter-spacing: 0.06em; }
-.campaign-mission { display: grid; grid-template-columns: minmax(0, 1fr) minmax(12rem, 0.95fr); gap: 1rem; }
-.campaign-briefing h3, .campaign-finale h3 { margin: 0.2rem 0 0.55rem; font-size: clamp(1.3rem, 2.3cqw, 2rem); line-height: 1; }
-.campaign-briefing p, .campaign-finale p { font-size: 0.85rem; line-height: 1.5; margin: 0.35rem 0; }
-.campaign-decision { display: grid; gap: 0.45rem; align-content: start; }
+.campaign-step.current {
+  background: #383c28;
+  border-color: #e8f39b;
+  opacity: 1;
+}
+.campaign-step.cleared {
+  background: #18382e;
+  border-color: #70ce9d;
+  opacity: 1;
+}
+.campaign-step span {
+  font-size: 0.6rem;
+  color: #cbd8e1;
+}
+.campaign-step strong {
+  font-size: clamp(0.59rem, 1.1cqw, 0.8rem);
+  line-height: 1.2;
+}
+.campaign-step small {
+  font-size: 0.55rem;
+  letter-spacing: 0.06em;
+}
+.campaign-mission {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(12rem, 0.95fr);
+  gap: 1rem;
+}
+.campaign-briefing h3,
+.campaign-finale h3 {
+  margin: 0.2rem 0 0.55rem;
+  font-size: clamp(1.3rem, 2.3cqw, 2rem);
+  line-height: 1;
+}
+.campaign-briefing p,
+.campaign-finale p {
+  font-size: 0.85rem;
+  line-height: 1.5;
+  margin: 0.35rem 0;
+}
+.campaign-decision {
+  display: grid;
+  gap: 0.45rem;
+  align-content: start;
+}
 .campaign-decision button {
   display: flex;
   align-items: center;
@@ -240,29 +405,109 @@ function teamName(id: TeamId): string {
   border-radius: 0.55rem;
   cursor: pointer;
 }
-.campaign-decision button:hover, .campaign-decision button:focus-visible { border-color: #effc9f; background: #3a4444; }
-.decision-mark { font-size: 1.4rem; font-weight: 1000; color: #c9d78e; }
-.decision-copy { display: grid; flex: 1; min-width: 0; gap: 0.15rem; }
-.decision-copy strong { font-size: 0.8rem; }
-.decision-copy small { color: #c7d1d8; font-size: 0.68rem; }
-.decision-arrow { font-size: 1.4rem; color: #d2ed9f; }
-.campaign-recap { margin-top: 0.6rem; padding: 0.7rem; display: grid; gap: 0.3rem; background: #202e38; border-left: 3px solid #c1df93; }
-.campaign-recap strong { color: #cfedab; font-size: 0.66rem; letter-spacing: 0.08em; }
-.campaign-recap span { font-size: 0.75rem; }
-.campaign-finale { display: grid; gap: 0.5rem; padding: 1rem; background: #293c30; border: 2px solid #c0e69e; border-radius: 0.6rem; }
-.campaign-finale small { color: #c3d5c2; font-size: 0.7rem; }
-.campaign-disclaimer { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 0.5rem; font-size: 0.61rem; letter-spacing: 0.05em; color: #adb9c8; }
+.campaign-decision button:hover,
+.campaign-decision button:focus-visible {
+  border-color: #effc9f;
+  background: #3a4444;
+}
+.decision-mark {
+  font-size: 1.4rem;
+  font-weight: 1000;
+  color: #c9d78e;
+}
+.decision-copy {
+  display: grid;
+  flex: 1;
+  min-width: 0;
+  gap: 0.15rem;
+}
+.decision-copy strong {
+  font-size: 0.8rem;
+}
+.decision-copy small {
+  color: #c7d1d8;
+  font-size: 0.68rem;
+}
+.decision-arrow {
+  font-size: 1.4rem;
+  color: #d2ed9f;
+}
+.campaign-recap {
+  margin-top: 0.6rem;
+  padding: 0.7rem;
+  display: grid;
+  gap: 0.3rem;
+  background: #202e38;
+  border-left: 3px solid #c1df93;
+}
+.campaign-recap strong {
+  color: #cfedab;
+  font-size: 0.66rem;
+  letter-spacing: 0.08em;
+}
+.campaign-recap span {
+  font-size: 0.75rem;
+}
+.campaign-finale {
+  display: grid;
+  gap: 0.5rem;
+  padding: 1rem;
+  background: #293c30;
+  border: 2px solid #c0e69e;
+  border-radius: 0.6rem;
+}
+.campaign-finale small {
+  color: #c3d5c2;
+  font-size: 0.7rem;
+}
+.campaign-disclaimer {
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  font-size: 0.61rem;
+  letter-spacing: 0.05em;
+  color: #adb9c8;
+}
 @container (max-width: 570px) {
-  .campaign-hero { min-height: 13rem; padding: 0.75rem; }
-  .campaign-headline { width: 87%; gap: 0.3rem; }
-  .campaign-headline h2 { font-size: clamp(1.35rem, 7cqw, 2.3rem); }
-  .campaign-headline p { font-size: 0.7rem; }
-  .campaign-principle { font-size: 0.64rem; }
-  .campaign-stamp { top: 0.35rem; right: 0.35rem; transform: scale(0.7) rotate(9deg); transform-origin: top right; }
-  .campaign-step { padding: 0.35rem 0.2rem; }
-  .campaign-step strong { font-size: 0.55rem; overflow-wrap: anywhere; }
-  .campaign-step small { font-size: 0.46rem; }
-  .campaign-mission { grid-template-columns: minmax(0, 1fr); }
-  .campaign-hero-ink { opacity: 0.35; }
+  .campaign-hero {
+    min-height: 13rem;
+    padding: 0.75rem;
+  }
+  .campaign-headline {
+    width: 87%;
+    gap: 0.3rem;
+  }
+  .campaign-headline h2 {
+    font-size: clamp(1.35rem, 7cqw, 2.3rem);
+  }
+  .campaign-headline p {
+    font-size: 0.7rem;
+  }
+  .campaign-principle {
+    font-size: 0.64rem;
+  }
+  .campaign-stamp {
+    top: 0.35rem;
+    right: 0.35rem;
+    transform: scale(0.7) rotate(9deg);
+    transform-origin: top right;
+  }
+  .campaign-step {
+    padding: 0.35rem 0.2rem;
+  }
+  .campaign-step strong {
+    font-size: 0.55rem;
+    overflow-wrap: anywhere;
+  }
+  .campaign-step small {
+    font-size: 0.46rem;
+  }
+  .campaign-mission {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .campaign-hero-ink {
+    opacity: 0.35;
+  }
 }
 </style>

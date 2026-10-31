@@ -465,9 +465,13 @@
                 ><button
                   v-if="lab.lastBout || lab.lastContract || lab.lastCampaign"
                   type="button"
-                  @click="lab.lastCampaign ? lab.showCampaign() : lab.showCity()"
+                  @click="
+                    lab.lastCampaign ? lab.showCampaign() : lab.showCity()
+                  "
                 >
-                  {{ lab.lastCampaign ? 'BACK TO STORY' : 'BACK TO THE CITY' }}</button
+                  {{
+                    lab.lastCampaign ? 'BACK TO STORY' : 'BACK TO THE CITY'
+                  }}</button
                 ><button type="button" @click="lab.reset(true)">
                   SAME SEED</button
                 ><button type="button" @click="lab.reset()">

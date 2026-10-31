@@ -233,7 +233,6 @@ console.log(
   'Slime City overworld: 7 districts, 9 streets, rivals, decisions, gates and heat PASS',
 )
 
-
 // Every story tells five unique conflicts, and each crew faces all five rivals.
 assert.deepEqual(
   Object.keys(FACTION_CAMPAIGNS).sort(),
@@ -255,35 +254,67 @@ for (const team of TEAMS) {
   for (const [index, chapter] of campaign.chapters.entries()) {
     distinctTitles.push(chapter.title)
     assert.ok(chapter.scene && chapter.victory && chapter.defeat)
-    assert.deepEqual(chapter.choices.map((choice) => choice.id), [
-      'conviction',
-      'cunning',
-    ])
+    assert.deepEqual(
+      chapter.choices.map((choice) => choice.id),
+      ['conviction', 'cunning'],
+    )
     for (const option of chapter.choices) assert.ok(describeTerms(option.terms))
     assert.equal(campaignChapter(story, team.id), chapter)
-    const wrongRival = storyIds.find((id) => id !== team.id && id !== chapter.foe)!
+    const wrongRival = storyIds.find(
+      (id) => id !== team.id && id !== chapter.foe,
+    )!
     assert.equal(
-      resolveCampaignBattle(story, team.id, index, wrongRival, 'conviction', 'player'),
+      resolveCampaignBattle(
+        story,
+        team.id,
+        index,
+        wrongRival,
+        'conviction',
+        'player',
+      ),
       story,
     )
     assert.equal(
-      resolveCampaignBattle(story, team.id, index + 1, chapter.foe, 'conviction', 'player'),
+      resolveCampaignBattle(
+        story,
+        team.id,
+        index + 1,
+        chapter.foe,
+        'conviction',
+        'player',
+      ),
       story,
     )
     const lost = resolveCampaignBattle(
-      story, team.id, index, chapter.foe, 'conviction', 'enemy',
+      story,
+      team.id,
+      index,
+      chapter.foe,
+      'conviction',
+      'enemy',
     )
     assert.equal(lost[team.id].wins, index, 'Loss cannot unlock next mission')
     assert.equal(lost[team.id].losses, 1)
     const won = resolveCampaignBattle(
-      story, team.id, index, chapter.foe,
-      index % 2 ? 'cunning' : 'conviction', 'player',
+      story,
+      team.id,
+      index,
+      chapter.foe,
+      index % 2 ? 'cunning' : 'conviction',
+      'player',
     )
     assert.equal(won[team.id].wins, index + 1)
     assert.equal(won[team.id].decisions.length, index + 1)
     assert.equal(won[team.id].lastScene, chapter.victory)
     assert.equal(
-      resolveCampaignBattle(won, team.id, index, chapter.foe, 'conviction', 'player'),
+      resolveCampaignBattle(
+        won,
+        team.id,
+        index,
+        chapter.foe,
+        'conviction',
+        'player',
+      ),
       won,
       'Resolved battles cannot be farmed for progression',
     )
@@ -292,11 +323,22 @@ for (const team of TEAMS) {
   assert.equal(campaignChapter(story, team.id), null)
   assert.ok(campaignEnding(story, team.id))
   assert.equal(
-    resolveCampaignBattle(story, team.id, 4, campaign.chapters[4]!.foe, 'conviction', 'player'),
+    resolveCampaignBattle(
+      story,
+      team.id,
+      4,
+      campaign.chapters[4]!.foe,
+      'conviction',
+      'player',
+    ),
     story,
   )
   for (const other of storyIds.filter((id) => id !== team.id)) {
-    assert.equal(story[other].wins, 0, 'Other faction campaigns remain independent')
+    assert.equal(
+      story[other].wins,
+      0,
+      'Other faction campaigns remain independent',
+    )
   }
   assert.equal(campaignEnding(createCampaignSave(), team.id), null)
 }
@@ -304,10 +346,22 @@ assert.equal(new Set(distinctTitles).size, 30)
 const alternate = createCampaignSave()
 let divergent = alternate
 for (const [index, chapter] of FACTION_CAMPAIGNS.riot.chapters.entries()) {
-  divergent = resolveCampaignBattle(divergent, 'riot', index, chapter.foe, 'cunning', 'player')
+  divergent = resolveCampaignBattle(
+    divergent,
+    'riot',
+    index,
+    chapter.foe,
+    'cunning',
+    'player',
+  )
 }
-assert.equal(campaignEnding(divergent, 'riot'), FACTION_CAMPAIGNS.riot.compromise)
-console.log('Slime City faction campaigns: 6 crews, 30 rival chapters, gating and endings PASS')
+assert.equal(
+  campaignEnding(divergent, 'riot'),
+  FACTION_CAMPAIGNS.riot.compromise,
+)
+console.log(
+  'Slime City faction campaigns: 6 crews, 30 rival chapters, gating and endings PASS',
+)
 
 // Store flow: walk a street, decide, fight the rival under those terms,
 // and the finished bout changes the city.
@@ -382,7 +436,6 @@ assert.equal(lab.city.contracts.length, 0)
 
 console.log('Slime City overworld store flow PASS')
 
-
 lab.showCampaign()
 lab.chooseTeam('ironjaw')
 assert.equal(lab.view, 'campaign')
@@ -398,10 +451,17 @@ for (let i = 0; i < 40 && !lab.match.victor; i++) lab.nextRound()
 assert.ok(lab.match.victor)
 assert.equal(lab.campaignBout, null)
 assert.equal(lab.lastCampaign, 'ironjaw')
-assert.equal(lab.campaignSave.ironjaw.wins, lab.match.victor === 'player' ? 1 : 0)
+assert.equal(
+  lab.campaignSave.ironjaw.wins,
+  lab.match.victor === 'player' ? 1 : 0,
+)
 lab.showCampaign()
 assert.equal(lab.view, 'campaign')
 assert.equal(lab.campaignSave.catgirls.wins, 0)
 lab.chooseTeam('catgirls')
-assert.equal(lab.activeChapter?.foe, 'undertow', 'Switching crews begins their own story')
+assert.equal(
+  lab.activeChapter?.foe,
+  'undertow',
+  'Switching crews begins their own story',
+)
 console.log('Slime City faction campaign store battle PASS')

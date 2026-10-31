@@ -83,7 +83,7 @@ export const COMBAT_ROOMS: Record<CombatRoomId, CombatRoom> = {
       'A man-sized defender shaped from glowing coal stands in front of a stone manor hearth in a wide fighting stance, fists raised. Three orange markings on its chest glow in a row, the third brightest. Sparks drift up around it. Firelight from below, deep green shadows in the room. Low-angle medium shot. Hand-painted gouache and ink illustration, warm candlelight and deep green shadows.',
   },
   housekeeper: {
-    enemy: { name: 'Thornbound Housekeeper', hp: 11, attack: 1, every: 5 },
+    enemy: { name: 'Thornbound Housekeeper', hp: 11, attack: 2, every: 5 },
     playerHp: 9,
     focus: 2,
     loadout: ['twinblade', 'rapier', 'lantern'],

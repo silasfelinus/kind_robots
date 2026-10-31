@@ -190,7 +190,12 @@ export function resolveCampaignBattle(
       losses: old.losses + (result === 'enemy' ? 1 : 0),
       decisions: won ? [...old.decisions, choice] : [...old.decisions],
       lastResult: result,
-      lastScene: result === 'player' ? chapter.victory : chapter.defeat,
+      lastScene:
+        result === 'player'
+          ? chapter.victory
+          : result === 'enemy'
+            ? chapter.defeat
+            : 'Neither side won the fight. The dispute remains unresolved.',
     },
   }
 }

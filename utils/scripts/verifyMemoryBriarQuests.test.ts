@@ -978,7 +978,7 @@ assert.equal(MEMORY_HOUSE_ACHIEVEMENTS.length, 12)
 assert.equal(memoryAchievementGallery([]).length, 52)
 assert.equal(
   new Set(memoryAchievementGallery([]).map((medal) => medal.id)).size,
-  44,
+  52,
 )
 assert.equal(
   new Set(MEMORY_DARK_BRIAR_ACHIEVEMENTS.map((medal) => medal.echo)).size,

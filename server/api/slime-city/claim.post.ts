@@ -1,5 +1,8 @@
 import { defineEventHandler, readBody, createError } from 'h3'
-import { claimSlimeCityChallenge, requireSlimeCityPreviewUser } from '~/server/utils/slimeCityProgress'
+import {
+  claimSlimeCityChallenge,
+  requireSlimeCityPreviewUser,
+} from '~/server/utils/slimeCityProgress'
 
 export default defineEventHandler(async (event) => {
   const auth = await requireSlimeCityPreviewUser(event)

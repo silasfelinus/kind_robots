@@ -13,10 +13,10 @@
         >
           Memory Dungeon / Internal encounter atlas
         </p>
-        <h1 class="truncate text-lg font-black sm:text-2xl">
+        <h2 class="truncate text-lg font-black sm:text-2xl">
           {{ heading }}
           <span class="font-light text-[#cbbd9d]">/ The revealed square</span>
-        </h1>
+        </h2>
       </div>
       <div class="flex flex-wrap items-center gap-2">
         <label for="memory-encounter-world" class="sr-only">

@@ -46,9 +46,7 @@ export const useMemoryEarthStore = defineStore('memoryEarth', () => {
 
   const unlocked = computed(() => world.campaign.completed.includes('e02'))
   const active = computed(() => save.value.active)
-  const e04Unlocked = computed(() =>
-    world.campaign.completed.includes('e03'),
-  )
+  const e04Unlocked = computed(() => world.campaign.completed.includes('e03'))
   const progress = computed(() => save.value.records[active.value])
   const position = computed(() => save.value.positions[active.value])
   const current = computed(() => worldEvent(active.value, position.value))
@@ -76,11 +74,11 @@ export const useMemoryEarthStore = defineStore('memoryEarth', () => {
         eventNeighbors(position.value).includes(event.key),
     })),
   )
-  const photographs = computed(() =>
-    worldEvents(active.value).filter(
-      (event) =>
-        event.photographId && progress.value.choices[event.key],
-    ).length,
+  const photographs = computed(
+    () =>
+      worldEvents(active.value).filter(
+        (event) => event.photographId && progress.value.choices[event.key],
+      ).length,
   )
 
   function persist(): void {
@@ -165,10 +163,7 @@ export const useMemoryEarthStore = defineStore('memoryEarth', () => {
       return
     }
     if (!worldEvent(active.value, key)) return
-    save.value.records[active.value] = revealOverworldEvent(
-      progress.value,
-      key,
-    )
+    save.value.records[active.value] = revealOverworldEvent(progress.value, key)
     save.value.positions[active.value] = key
     notice.value = ''
     persist()
@@ -177,11 +172,7 @@ export const useMemoryEarthStore = defineStore('memoryEarth', () => {
   function choose(choiceId: string): void {
     if (!unlocked.value || (active.value === 'e04' && !e04Unlocked.value))
       return
-    const next = chooseOverworldEvent(
-      progress.value,
-      position.value,
-      choiceId,
-    )
+    const next = chooseOverworldEvent(progress.value, position.value, choiceId)
     if (next === progress.value) return
     save.value.records[active.value] = next
     world.syncMorrowEarthPhoto(active.value, next.choices)

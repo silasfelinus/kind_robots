@@ -82,6 +82,15 @@
           </span>
           <h3>{{ lab.activeChapter.title }}</h3>
           <p>{{ lab.activeChapter.scene }}</p>
+          <button
+            v-if="lab.campaignDistrict"
+            type="button"
+            class="campaign-find"
+            data-testid="slime-find-campaign-district"
+            @click="lab.findCampaignBattle()"
+          >
+            FOLLOW THE STORY ON THE CITY MAP · {{ nextDistrictName }} →
+          </button>
           <div
             v-if="lab.campaignState.lastScene"
             class="campaign-recap"
@@ -132,11 +141,17 @@
 </template>
 
 <script setup lang="ts">
+import { computed } from 'vue'
 import { describeTerms } from '~/utils/slimeCity/campaign'
 import { useSlimeCityStore } from '~/stores/slimeCity'
 import type { TeamId } from '~/utils/slimeCity/prototypes'
 
 const lab = useSlimeCityStore()
+const nextDistrictName = computed(
+  () =>
+    lab.districts.find((district) => district.id === lab.campaignDistrict)
+      ?.name ?? 'Unknown district',
+)
 function teamName(id: TeamId): string {
   return lab.teams.find((team) => team.id === id)?.name ?? id
 }
@@ -386,6 +401,23 @@ function teamName(id: TeamId): string {
   font-size: 0.85rem;
   line-height: 1.5;
   margin: 0.35rem 0;
+}
+.campaign-find {
+  margin-top: 0.5rem;
+  padding: 0.55rem 0.8rem;
+  max-width: 100%;
+  text-align: left;
+  border: 1px solid #dceba1;
+  border-radius: 0.4rem;
+  background: #243a39;
+  color: #eefaaf;
+  font-size: 0.7rem;
+  font-weight: 900;
+  letter-spacing: 0.04em;
+}
+.campaign-find:focus-visible {
+  outline: 3px solid #f7e1ac;
+  outline-offset: 2px;
 }
 .campaign-decision {
   display: grid;

@@ -12,6 +12,7 @@ import {
   earnedWitnessBellAccord,
 } from './firstTwoConsequences'
 import { BRIAR_QUESTS } from './briarQuests'
+import { HOUSE_EPILOGUES, houseEpilogue } from './houseEpilogues'
 import { BRIAR_RARE_EVENTS, type EarnedBriarRareEvent } from './briarRareEvents'
 
 export interface MemoryAchievement {
@@ -181,9 +182,50 @@ export const MEMORY_DARK_BRIAR_ACHIEVEMENTS = DARK_MEDALS.map((medal) => ({
   artPath: darkBriarIllustrationPath(medal.key),
 }))
 
+
+/** The twelve earned House endings are permanent memories, never stat bonuses. */
+const HOUSE_MEDAL_ECHOES: Record<keyof typeof HOUSE_EPILOGUES, string> = {
+  'release-community':
+    'The neighbors carry their memories home in mismatched baskets. Oren keeps the shared route open for anyone who cannot carry theirs alone, and the village council must ask before borrowing a single story.',
+  'release-bonds':
+    'Char returns a borrowed ribbon to its owner, who remembers a sister rather than a debt. Scylla keeps the reunion private; some bonds grow stronger when the House stops announcing them.',
+  'release-obligation':
+    'The emptied vault still has creditors at its door. Pip writes down which protections failed when the jars went home, and refuses to call the remaining work a price for freedom.',
+  'release-honesty':
+    'Vesper pins the old catalog beside the empty shelves, with every error left visible. A former prisoner corrects one name and declines to explain the rest; the archive accepts both acts.',
+  'renew-community':
+    'The new memory commons opens only when its witnesses arrive. Nobody is counted absent as a yes. The Warden learns to wait through an entire meeting without interpreting silence as agreement.',
+  'renew-bonds':
+    'A grandmother deposits the story of a quarrel, then takes it back before supper. Her grandson remembers the apology without inheriting its conditions; the new agreement has an exit door.',
+  'renew-obligation':
+    'Mosswick is assigned the unenviable task of recording every revoked consent. The ledger grows heavier as the House grows fairer, and he finally learns why that is not a contradiction.',
+  'renew-honesty':
+    'The first audit finds three mislabeled jars and a fourth nobody will identify. The witnesses publish the mistakes and seal the unknown one until its owner asks to be heard.',
+  'break-community':
+    'The shattered mechanism leaves the village with no central bell to summon help. Neighbors build a quieter warning system from shared paths, voluntary watch shifts and the names people offer.',
+  'break-bonds':
+    'Scylla and Char find each other in a hall that no longer remembers their argument. They choose to retell it anyway, carefully, because a relationship is not repaired by erasing its evidence.',
+  'break-obligation':
+    'Oren inventories every broken lock before the rubble cools. A freed memory can still leave a dangerous hole, so he organizes repairs without asking anyone to rebuild the old prison.',
+  'break-honesty':
+    'The last glass shard reflects the Warden admitting it mistook preservation for care. Vesper refuses to turn the confession into a tidy ending; the villagers keep the fragment as evidence.',
+}
+
+export const MEMORY_HOUSE_ACHIEVEMENTS = Object.values(HOUSE_EPILOGUES).map(
+  (epilogue) => ({
+    id: `e01-house-${epilogue.id}`,
+    questId: `house-epilogue:${epilogue.id}`,
+    title: epilogue.title,
+    description: `Resolve the Memory Hearth through ${epilogue.lens} and choose to ${epilogue.resolution} its custody.`,
+    echo: HOUSE_MEDAL_ECHOES[epilogue.id],
+    artPath: epilogue.artPath,
+  }),
+)
+
 const ALL_MEDALS = [
   ...MEMORY_BRIAR_ACHIEVEMENTS,
   ...MEMORY_DARK_BRIAR_ACHIEVEMENTS,
+  ...MEMORY_HOUSE_ACHIEVEMENTS,
 ]
 
 const validIds = new Set(ALL_MEDALS.map((medal) => medal.id))
@@ -209,7 +251,7 @@ export function restoreMemoryAchievements(value: unknown): string[] {
 export function reconcileMemoryAchievements(
   previous: readonly string[],
   earnedEvents: readonly EarnedBriarRareEvent[],
-  original?: Pick<BriarSave, 'sceneChoices'>,
+  original?: Pick<BriarSave, 'sceneChoices'> & Partial<Pick<BriarSave, 'house'>>,
   mirrored?: Pick<DarkBriarProgress, 'sceneChoices'>,
 ): string[] {
   const ids = new Set(restoreMemoryAchievements(previous))
@@ -218,6 +260,15 @@ export function reconcileMemoryAchievements(
   if (original && mirrored)
     for (const medal of DARK_MEDALS)
       if (medal.accord(original, mirrored) !== 'unset') ids.add(medal.id)
+  const house = original?.house
+  if (
+    house?.ending &&
+    house.visited.includes('HD-35') &&
+    (!house.decisions['HD-35'] || house.decisions['HD-35'] === house.ending)
+  ) {
+    const epilogue = houseEpilogue(house, original.sceneChoices)
+    if (epilogue) ids.add(`e01-house-${epilogue.id}`)
+  }
   return ALL_MEDALS.filter((medal) => ids.has(medal.id)).map(
     (medal) => medal.id,
   )

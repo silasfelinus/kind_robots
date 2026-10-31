@@ -1,4 +1,12 @@
 import { defineStore } from 'pinia'
+import {
+  campaignChapter,
+  campaignEnding,
+  createCampaignSave,
+  FACTION_CAMPAIGNS,
+  resolveCampaignBattle,
+  type CampaignApproach,
+} from '../utils/slimeCity/campaign'
 import { computed, ref } from 'vue'
 import {
   advance,
@@ -63,7 +71,7 @@ function rollSeed(): number {
 }
 
 export const useSlimeCityStore = defineStore('slimeCityLab', () => {
-  const view = ref<'city' | 'arena' | 'cards'>('city')
+  const view = ref<'city' | 'arena' | 'cards' | 'campaign'>('city')
   const activeTeam = ref<TeamId>('catgirls')
   const enemyTeam = ref<TeamId>('bloodfairies')
   const mode = ref<ModeId>('blackout')
@@ -76,6 +84,14 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
   const lastBout = ref<DistrictId | null>(null)
   const contractBout = ref<DistrictId | null>(null)
   const lastContract = ref<DistrictId | null>(null)
+  const campaignSave = ref(createCampaignSave())
+  const campaignBout = ref<{
+    team: TeamId
+    index: number
+    foe: TeamId
+    choice: CampaignApproach
+  } | null>(null)
+  const lastCampaign = ref<TeamId | null>(null)
   const seed = ref(rollSeed())
   /** t-003 objective variants for the next match; all off by default. */
   const rules = ref<RuleVariants>({ ...DEFAULT_RULES })
@@ -98,6 +114,14 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
   const guideSeen = new Set<ModeId>()
   let interval: ReturnType<typeof setInterval> | undefined
 
+  const campaignStory = computed(() => FACTION_CAMPAIGNS[activeTeam.value])
+  const campaignState = computed(() => campaignSave.value[activeTeam.value])
+  const activeChapter = computed(() =>
+    campaignChapter(campaignSave.value, activeTeam.value),
+  )
+  const campaignFinale = computed(() =>
+    campaignEnding(campaignSave.value, activeTeam.value),
+  )
   const team = computed(() => teamById(activeTeam.value))
   const enemy = computed(() => teamById(enemyTeam.value))
   const cards = computed(() =>
@@ -235,6 +259,8 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
     lastBout.value = null
     contractBout.value = null
     lastContract.value = null
+    campaignBout.value = null
+    lastCampaign.value = null
     if (!sameSeed) seed.value = rollSeed()
     match.value = createMatch(
       mode.value,
@@ -275,6 +301,12 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
   function showCity(): void {
     stop()
     view.value = 'city'
+  }
+
+  function showCampaign(): void {
+    stop()
+    campaignBout.value = null
+    view.value = 'campaign'
   }
 
   function showCards(): void {
@@ -379,9 +411,57 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
     view.value = 'arena'
     if (!guideSeen.has('blackout')) openGuide()
   }
-  /** Once a rival bout ends, its result changes the city. */
+  function startCampaignBattle(choiceId: CampaignApproach): void {
+    if (view.value !== 'campaign' || campaignBout.value) return
+    const teamId = activeTeam.value
+    const chapter = campaignChapter(campaignSave.value, teamId)
+    const choice = chapter?.choices.find((option) => option.id === choiceId)
+    if (!chapter || !choice) return
+    stop()
+    mode.value = 'blackout'
+    rules.value = { ...DEFAULT_RULES }
+    enemyTeam.value = chapter.foe
+    seed.value = rollSeed()
+    match.value = applyTerms(
+      createMatch('blackout', teamId, chapter.foe, seed.value, rules.value),
+      choice.terms,
+    )
+    selectedCard.value = null
+    selectedUnit.value = null
+    targetUnit.value = null
+    previewOpen.value = false
+    bout.value = null
+    lastBout.value = null
+    contractBout.value = null
+    lastContract.value = null
+    campaignBout.value = {
+      team: teamId,
+      foe: chapter.foe,
+      index: campaignSave.value[teamId].wins,
+      choice: choice.id,
+    }
+    lastCampaign.value = null
+    view.value = 'arena'
+    if (!guideSeen.has('blackout')) openGuide()
+  }
+
+  /** Once a rival, contract or campaign bout ends, update only its ledger. */
   function settleBout(): void {
     if (!match.value.victor) return
+    if (campaignBout.value) {
+      const { team, index, foe, choice } = campaignBout.value
+      campaignSave.value = resolveCampaignBattle(
+        campaignSave.value,
+        team,
+        index,
+        foe,
+        choice,
+        match.value.victor,
+      )
+      lastCampaign.value = team
+      campaignBout.value = null
+      return
+    }
     if (contractBout.value) {
       const id = contractBout.value
       city.value = recordContract(city.value, id, match.value.victor)
@@ -525,6 +605,13 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
     contractPlan,
     activeContract,
     contractGate,
+    campaignSave,
+    campaignBout,
+    lastCampaign,
+    campaignStory,
+    campaignState,
+    activeChapter,
+    campaignFinale,
     plan,
     streetEvent,
     streetProgress,
@@ -580,6 +667,8 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
     chooseStreet,
     fightRival,
     fightContract,
+    showCampaign,
+    startCampaignBattle,
     resetCity,
     startDistrictMatch,
     showCity,

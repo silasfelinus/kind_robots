@@ -82,9 +82,8 @@ const OTHER_GAMES: AchievementGame[] = [
     key: 'hybridizer',
     title: 'Hybridizer',
     section: 'arcade',
-    route: '/admin/hybridizer',
+    route: '/play/hybridizer',
     arcade: false,
-    adminOnly: true,
   },
   {
     key: 'zuzu-showdown',

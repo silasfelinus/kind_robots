@@ -992,7 +992,12 @@ import MemoryDungeonQuestLog from '~/components/memory-dungeon/quest-log.vue'
 import MemoryDungeonDarkBriarStage from '~/components/memory-dungeon/dark-briar-stage.vue'
 import MemoryDungeonActionBeacon from '~/components/memory-dungeon/action-beacon.vue'
 
-const emit = defineEmits<{ leave: []; earth: []; hoshimori: []; 'hoshimori-night': [] }>()
+const emit = defineEmits<{
+  leave: []
+  earth: []
+  hoshimori: []
+  'hoshimori-night': []
+}>()
 const world = useMemoryWorldStore()
 const chronicleOpen = ref(false)
 const questsOpen = ref(false)

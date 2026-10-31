@@ -1,5 +1,5 @@
 import { BRIAR_SCENES } from './scenes'
-import { DARK_BRIAR_SCENES } from './darkBriar'
+import { DARK_BRIAR_SCENES, DARK_BRIAR_SEALS } from './darkBriar'
 import { HOSHIMORI_WARM_SITES } from './hoshimoriWarm'
 import { EARTH_PHOTOS } from './chronicle'
 import recipes from './overworldEventRecipes.json'
@@ -242,6 +242,13 @@ function legacy(): OverworldEvent[] {
     add('e01', key, scene.title, scene.opening, scene.choices)
   for (const scene of Object.values(DARK_BRIAR_SCENES))
     add('e02', scene.key, scene.title, scene.opening, scene.choices)
+  for (const seal of Object.values(DARK_BRIAR_SEALS))
+    add('e02', seal.key, seal.title, seal.opening, [
+      { id: 'witness', label: 'Witness the seal without breaking its inscription',
+        outcome: 'The inscription survives intact. Its hint remains available to compare with the other three seals: ' + seal.hint },
+      { id: 'trace', label: 'Trace the seal as evidence for the crossing',
+        outcome: 'You sketch the exact marks and carry their testimony to the next crossing. The original stone remains where it belongs.' },
+    ])
   for (const site of HOSHIMORI_WARM_SITES)
     add('e07', site.key, site.title, site.opening, site.choices)
   return records

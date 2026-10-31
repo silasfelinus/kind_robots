@@ -298,7 +298,11 @@ for (const reality of EARTH_REALITIES) {
       for (const gate of gates) {
         const journal = medalRoute(reality, first, second, gate)
         const awarded = earnedEarthAchievementIds(reality, journal)
-        assert.equal(awarded.length, 3, `${reality}: ${first}/${second}/${gate}`)
+        assert.equal(
+          awarded.length,
+          3,
+          `${reality}: ${first}/${second}/${gate}`,
+        )
         for (const id of awarded) reachableMedals.add(id)
         const lifetime = reconcileMemoryEarthAchievements([], reality, journal)
         assert.deepEqual(lifetime, restoreMemoryAchievements(lifetime))

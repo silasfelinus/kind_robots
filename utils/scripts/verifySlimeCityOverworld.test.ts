@@ -8,7 +8,10 @@ import {
   boutBlocked,
   boutTerms,
   CITY_PLAN,
+  CITY_CONTRACTS,
   cityWon,
+  contractBlocked,
+  recordContract,
   createCity,
   decide,
   decideStreet,
@@ -198,6 +201,17 @@ assert.equal(gateReason(run, 'crown'), null, 'Wins open the Gilt Gate')
 assert.equal(cityWon(run), false)
 assert.equal(cityWon(recordBout(run, 'pitworks', 'player')), true)
 
+for (const id of ids) {
+  const here = { ...createCity(), location: id }
+  assert.ok(contractBlocked(here, id))
+  const unlocked = recordBout(here, id, 'player')
+  assert.equal(contractBlocked(unlocked, id), null)
+  const won = recordContract(unlocked, id, 'player')
+  assert.deepEqual(won.contracts, [id])
+  assert.equal(recordContract(won, id, 'player'), won)
+  assert.equal(recordContract(unlocked, id, 'enemy').contracts.length, 0)
+  assert.equal(CITY_CONTRACTS[id].team.length > 0, true)
+}
 // Losses raise heat; too much heat bankrolls every rival
 let hot = createCity()
 for (let i = 0; i < HEAT_LIMIT; i++) hot = recordBout(hot, 'foundry', 'enemy')
@@ -258,4 +272,27 @@ if (lab.match.victor === 'enemy') assert.equal(lab.city.heat, 3)
 lab.showCity()
 lab.resetCity()
 assert.equal(lab.city.nights, 0)
+lab.city = recordBout(
+  { ...createCity(), location: 'chimera' },
+  'chimera',
+  'player',
+)
+lab.visit('chimera')
+lab.fightContract()
+assert.equal(lab.view, 'arena')
+assert.equal(lab.mode, 'blackout', 'Contracts use the main Blackout ruleset')
+assert.equal(lab.contractBout, 'chimera')
+assert.equal(lab.match.foeId, 'catgirls')
+lab.closeGuide()
+for (let i = 0; i < 40 && !lab.match.victor; i++) lab.nextRound()
+assert.ok(lab.match.victor)
+assert.equal(lab.contractBout, null)
+assert.equal(lab.lastContract, 'chimera')
+if (lab.match.victor === 'player')
+  assert.deepEqual(lab.city.contracts, ['chimera'])
+if (lab.match.victor === 'enemy') assert.equal(lab.city.contracts.length, 0)
+lab.showCity()
+lab.resetCity()
+assert.equal(lab.city.contracts.length, 0)
+
 console.log('Slime City overworld store flow PASS')

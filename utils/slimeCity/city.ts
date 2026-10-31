@@ -547,6 +547,116 @@ export const CITY_PLAN: Record<DistrictId, DistrictPlan> = {
   },
 }
 
+/** Post-champion Blackout battles. These are session-local city stories, not
+ * server-issued reward matches: they can never mint XP, Meat or cards. */
+export interface CityContract {
+  title: string
+  briefing: string
+  opponent: string
+  team: TeamId
+  terms: BoutTerms
+  victory: string
+  failure: string
+  standing: number
+  heat: number
+}
+
+export const CITY_CONTRACTS: Record<DistrictId, CityContract> = {
+  pitworks: {
+    title: 'THE LAST BELL',
+    briefing:
+      'The Grandmaster was only the doorman. A second Exchange squad owns the arena lights and demands one final bout in the dark.',
+    opponent: 'The Night Shift',
+    team: 'exchange',
+    terms: { enemyMana: 2, playerMana: 1 },
+    victory:
+      'You cut the arena power contract. The city cheers and the debt collectors retreat.',
+    failure:
+      'The house keeps its lights on, and sends your name to collections.',
+    standing: 3,
+    heat: -2,
+  },
+  chimera: {
+    title: 'THE DUPLICATE CLAUSE',
+    briefing:
+      'The lab has manufactured a replacement for Calico Nine. The clone is ordered to hunt down the originals before sunrise.',
+    opponent: 'Copycat Zero',
+    team: 'catgirls',
+    terms: { enemyMana: 1, rounds: -2 },
+    victory:
+      'The clone chooses a name of her own. Chimera Heights becomes a little harder to own.',
+    failure:
+      'Gene hunters collect another sample and put your crew on their list.',
+    standing: 2,
+    heat: 0,
+  },
+  needles: {
+    title: 'STITCH THE SKY',
+    briefing:
+      'A punk bloodfairy pirate choir is stealing the roof of the neighborhood, tile by tile. The chorus wants a fight.',
+    opponent: 'Razorwing Choir',
+    team: 'bloodfairies',
+    terms: { enemyMana: 2, playerHp: 1 },
+    victory:
+      'The roofs stay put. The fairies dedicate their loudest song to you.',
+    failure: 'The stolen rooftops become a new floating police checkpoint.',
+    standing: 2,
+    heat: -1,
+  },
+  foundry: {
+    title: 'OVERTIME SHIFT',
+    briefing:
+      'Management has fitted the night crew with experimental riot plating. Forewoman Rivet asks you to help shut the line down.',
+    opponent: 'The Steel Payroll',
+    team: 'ironjaw',
+    terms: { enemyArmor: 1, playerMana: 1 },
+    victory:
+      'The furnace workers reclaim the night shift and retire the armored payroll drones.',
+    failure: 'Another shift clocks in beneath a corporate lockout.',
+    standing: 2,
+    heat: 0,
+  },
+  undertow: {
+    title: 'FALSE FLAG FREQUENCY',
+    briefing:
+      'Someone is broadcasting orders in your voice through the drains. The Oracle offers one chance to silence the forgery.',
+    opponent: 'The Echo Office',
+    team: 'undertow',
+    terms: { rivalTrap: true, playerMana: 1 },
+    victory:
+      'The surveillance feed goes silent. The neighborhood finally hears itself.',
+    failure: 'The Echo Office records your tactics for tomorrow.',
+    standing: 2,
+    heat: -1,
+  },
+  crown: {
+    title: 'THE LAST RECEIPT',
+    briefing:
+      'A contract written on human skin declares the whole market overdue. The Exchange sends its final auditors to collect.',
+    opponent: 'The Liquidators',
+    team: 'exchange',
+    terms: { enemyMana: 2, playerHp: 1 },
+    victory:
+      'Every forged debt is torn up. The market starts remembering who actually owns it.',
+    failure: 'A new interest charge appears next to your name.',
+    standing: 2,
+    heat: -2,
+  },
+  redline: {
+    title: 'FIVE SECOND FUSE',
+    briefing:
+      'A Riot Saints splinter group has wired an entire block into a dare. The clock starts when you deploy.',
+    opponent: 'The Unlicensed Finale',
+    team: 'riot',
+    terms: { rounds: -4, enemyMana: 1 },
+    victory:
+      'The crowd survives the show and chants your name through a siren chorus.',
+    failure: 'The Saints sell footage of the catastrophe to every rival.',
+    standing: 2,
+    heat: 1,
+  },
+}
+
 export interface CityState {
   location: DistrictId
   nights: number
@@ -557,6 +667,7 @@ export interface CityState {
   streetTerms: Partial<Record<DistrictId, BoutTerms>>
   pendingStreet: string | null
   cleared: DistrictId[]
+  contracts: DistrictId[]
   losses: number
   log: string[]
 }
@@ -579,6 +690,7 @@ export function createCity(): CityState {
     streetTerms: {},
     pendingStreet: null,
     cleared: [],
+    contracts: [],
     losses: 0,
     log: ['You arrive in the Pitworks with a deck and no reputation.'],
   }
@@ -594,6 +706,7 @@ function copyCity(city: CityState): CityState {
       Object.entries(city.streetTerms).map(([id, terms]) => [id, { ...terms }]),
     ),
     cleared: [...city.cleared],
+    contracts: [...city.contracts],
     log: [...city.log],
   }
 }
@@ -632,6 +745,24 @@ export function boutBlocked(city: CityState, id: DistrictId): string | null {
   if (city.pendingStreet) return 'Settle the street encounter first.'
   if (city.cleared.includes(id)) return 'Already beaten.'
   return gateReason(city, id)
+}
+
+/** A cleared district unlocks a single optional encore. Unresolved streets block it. */
+export function contractBlocked(
+  city: CityState,
+  id: DistrictId,
+): string | null {
+  if (city.pendingStreet) return 'Settle the street encounter first.'
+  if (city.location !== id)
+    return 'Walk to the district to accept its contract.'
+  if (!city.cleared.includes(id)) return 'Beat the district champion first.'
+  if (city.contracts.includes(id)) return 'Contract completed.'
+  return null
+}
+
+/** District choices, street effects and contract difficulty all apply. */
+export function contractTerms(city: CityState, id: DistrictId): BoutTerms {
+  return mergeTerms(boutTerms(city, id), CITY_CONTRACTS[id].terms)
 }
 
 /** Walk one street to a neighbouring district. */
@@ -777,6 +908,28 @@ export function recordBout(
     next.heat++
     note(next, rival + ' beats you. Word spreads (+1 heat).')
   } else note(next, 'You and ' + rival + ' fight to a standstill.')
+  return next
+}
+
+/** Record optional contract outcomes once; failed attempts can be replayed. */
+export function recordContract(
+  city: CityState,
+  id: DistrictId,
+  result: 'player' | 'enemy' | 'draw',
+): CityState {
+  if (contractBlocked(city, id)) return city
+  const contract = CITY_CONTRACTS[id]
+  const next = copyCity(city)
+  if (result === 'player') {
+    next.contracts.push(id)
+    next.standing[id] += contract.standing
+    next.heat = Math.max(0, next.heat + contract.heat)
+    note(next, contract.title + ': ' + contract.victory)
+  } else if (result === 'enemy') {
+    next.losses++
+    next.heat++
+    note(next, contract.title + ': ' + contract.failure + ' (+1 heat)')
+  } else note(next, contract.title + ': A draw. The contract stays open.')
   return next
 }
 

@@ -1,6 +1,7 @@
 import { createError, defineEventHandler, getRouterParam } from 'h3'
 import prisma from '~/server/utils/prisma'
 import { errorHandler } from '~/server/utils/error'
+import { visibleVersionArt } from '~/server/utils/hybridizerVersions'
 import { getOptionalApiUser } from '~/server/utils/authGuard'
 import {
   hybridizerDeliverableUrl,
@@ -48,6 +49,12 @@ export default defineEventHandler(async (event) => {
     const imagePath = accessible
       ? hybridizerDeliverableUrl(image?.imagePath)
       : null
+    // An awaiting revision is the new primary job, but its predecessor stays
+    // on display until delivery. The old image must pass the same ACL checks.
+    const previous =
+      !imagePath && fusion.artImageId
+        ? await visibleVersionArt(fusion.artImageId, fusion, auth?.user.id)
+        : null
     const status = hybridizerQueueState(job?.status ?? null, imagePath)
     if (
       fusion.status !== status ||
@@ -68,8 +75,8 @@ export default defineEventHandler(async (event) => {
         title: fusion.title,
         artJobId: fusion.artJobId,
         status,
-        imagePath,
-        artImageId: status === 'READY' ? image?.id : null,
+        imagePath: imagePath ?? previous?.imagePath ?? null,
+        artImageId: status === 'READY' ? image?.id : (previous?.id ?? null),
         canRetry:
           job?.status === 'FAILED' &&
           (job.userId === auth?.user.id || auth?.isAdmin === true),

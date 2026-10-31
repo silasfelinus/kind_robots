@@ -2,6 +2,7 @@ import assert from 'node:assert/strict'
 import {
   hybridizerArtPrompt,
   hybridizerArtSeed,
+  hybridizerRevisionSeed,
   hybridizerDeliverableUrl,
   hybridizerQueueState,
   hybridizerSubjectKind,
@@ -21,6 +22,19 @@ assert.equal(
   hybridizerArtSeed(canonicalFusionPair('cat', 'banana').id),
   'unordered pair must retain the same illustration seed',
 )
+assert.equal(hybridizerRevisionSeed(pair.id, 0), hybridizerArtSeed(pair.id))
+assert.equal(
+  hybridizerRevisionSeed(pair.id, 1),
+  hybridizerRevisionSeed(canonicalFusionPair('cat', 'banana').id, 1),
+)
+assert.notEqual(hybridizerRevisionSeed(pair.id, 1), hybridizerArtSeed(pair.id))
+assert.notEqual(
+  hybridizerRevisionSeed(pair.id, 1),
+  hybridizerRevisionSeed(pair.id, 2),
+)
+for (const invalid of [-1, 12, 1.5, NaN, Infinity]) {
+  assert.throws(() => hybridizerRevisionSeed(pair.id, invalid))
+}
 assert.equal(HYBRIDIZER_ACTIVE_USER_LIMIT, 3)
 assert.equal(HYBRIDIZER_RETRY_LIMIT, 2)
 const prompt = hybridizerArtPrompt('Cat', 'Banana')

@@ -311,13 +311,16 @@ async function submitReaction() {
   reactionStatus.value = ''
 
   try {
-    await reactionStore.addReaction({
+    const saved = await reactionStore.addReaction({
       ...getReactionTargetPayload(props.targetType, props.targetId),
       rating: rating.value,
       reactionType: selectedReactionType.value,
       comment: comment.value.trim(),
       reactionCategory: props.reactionCategory,
     } as Parameters<typeof reactionStore.addReaction>[0])
+    if (!saved) {
+      throw new Error(reactionStore.lastError || 'Failed to submit reaction.')
+    }
 
     reactionStatus.value = 'success'
     reactionMessage.value = 'Reaction submitted.'

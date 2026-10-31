@@ -6,6 +6,48 @@
 import type { GameAchievementDef } from '../gameAchievements'
 
 export const OTHER_GAME_ACHIEVEMENT_DEFS: GameAchievementDef[] = [
+  // Hybridizer: discoveries, recursive creatures and thoughtful art revisions.
+  {
+    game: 'hybridizer',
+    key: 'first-fusion',
+    tier: 1,
+    label: 'Mad Scientist',
+    message: 'Your first impossible creature entered the shared atlas.',
+    tooltip: 'Successfully save a shared Hybridizer fusion.',
+    subtleHint: 'Two specimens, one ridiculous breakthrough.',
+    icon: 'kind-icon:sparkles',
+    rule: { kind: 'event' },
+    artPrompt:
+      'A whimsical copper fusion chamber sparks with emerald lightning as a single impossible painted hybrid creature emerges, bold purple and brass specimen laboratory, richly detailed collectible achievement badge, no text.',
+  },
+  {
+    game: 'hybridizer',
+    key: 'recursive-discovery',
+    tier: 2,
+    label: 'Creature of Creatures',
+    message: 'You fed a hybrid back into the chamber. Science resigned.',
+    tooltip:
+      'Successfully combine a previous Hybridizer discovery with another ingredient.',
+    subtleHint: 'The result is also an ingredient.',
+    icon: 'kind-icon:dna',
+    rule: { kind: 'event' },
+    artPrompt:
+      'A spiral of three intertwined fantastical hybrid creatures in a glowing antique brass laboratory, expressive painterly illustration, amethyst and chartreuse, playful impossible anatomy with delightful animal details, dramatic stage lighting and elaborate golden decorative filigree, collectible achievement badge, no lettering.',
+  },
+  {
+    game: 'hybridizer',
+    key: 'art-critic',
+    tier: 3,
+    label: 'More Tentacles, Please',
+    message: 'You demanded a second take and saved the first for posterity.',
+    tooltip: 'Queue a new art version of an existing Hybridizer discovery.',
+    subtleHint: 'Every masterpiece deserves an alternate universe.',
+    icon: 'kind-icon:image',
+    rule: { kind: 'event' },
+    artPrompt:
+      'Two ornate Victorian natural history frames displaying alternate beautiful variations of one hybrid animal, one elevated to a glowing gold easel, acid-green sparks and rich embroidered velvet curtains around a vibrant specimen studio, collectible illustrated achievement badge, no text.',
+  },
+
   // Zuzu Showdown (public: /play/zuzu-showdown)
   {
     game: 'zuzu-showdown',

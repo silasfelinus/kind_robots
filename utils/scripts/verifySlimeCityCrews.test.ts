@@ -36,6 +36,13 @@ import {
 import { chooseCpuAction } from '../slimeCity/cpu'
 import { playHeadless } from '../slimeCity/playtest'
 
+const classicBlackout = (
+  team: Parameters<typeof createMatch>[1],
+  foe: Parameters<typeof createMatch>[2],
+  seed: number,
+  rules: Parameters<typeof createMatch>[4] = {},
+) => createMatch('blackout', team, foe, seed, { ...rules, classicFog: true })
+
 function fighter(
   over: Partial<Fighter> & Pick<Fighter, 'id' | 'side' | 'x' | 'y'>,
 ): Fighter {
@@ -63,7 +70,13 @@ function arena(
   units: Fighter[],
   rules: Parameters<typeof createMatch>[4] = {},
 ): MatchState {
-  const s = createMatch(mode, 'riot', 'bloodfairies', 4817, rules)
+  const s = createMatch(
+    mode,
+    'riot',
+    'bloodfairies',
+    4817,
+    mode === 'blackout' ? { ...rules, classicFog: true } : rules,
+  )
   s.units = units
   s.mana = 0
   s.enemyMana = 0
@@ -395,7 +408,7 @@ const pit = deploy(fairy, 'mosh', 5, 2)
 assert.equal(at(pit, 3)!.hp, 5, 'the moshpit spares friends')
 assert.ok(at(pit, 2)!.hp < 5)
 // Laser Pointer: roots without damage; a rooted BLACKOUT fighter cannot move
-const laserGame = createMatch('blackout', 'catgirls', 'riot', 4817)
+const laserGame = classicBlackout('catgirls', 'riot', 4817)
 laserGame.mana = 10
 const prey = laserGame.units.find((u) => u.side === 'enemy')!
 const lasered = deploy(laserGame, 'laser', prey.x, prey.y)
@@ -421,7 +434,7 @@ assert.equal(at(clawed, cat.id)!.attack, cat.attack + 1)
 const collared = deploy(shredKit, 'ninthlife', cat.x, cat.y)
 assert.ok(at(collared, cat.id)!.keywords!.includes('regen'))
 // Trap riders: roots and debt
-const stepped = createMatch('blackout', 'catgirls', 'ironjaw', 99)
+const stepped = classicBlackout('catgirls', 'ironjaw', 99)
 stepped.traps = [{ x: 5, y: 3, side: 'enemy', damage: 1, roots: true, debt: 2 }]
 stepped.units = [
   fighter({ id: 1, side: 'player', x: 6, y: 3, ap: 2, maxAp: 2 }),
@@ -433,7 +446,7 @@ assert.equal(at(caught, 1)!.ap, 0, 'pinned in place')
 assert.equal(caught.debt.player, 2)
 assert.equal(move(caught, 1, 4, 3), caught)
 // Sonar reveals and disarms within two squares
-const sonarGame = createMatch('blackout', 'undertow', 'riot', 4817)
+const sonarGame = classicBlackout('undertow', 'riot', 4817)
 sonarGame.mana = 10
 sonarGame.units = [
   fighter({ id: 1, side: 'player', x: 3, y: 3 }),
@@ -447,7 +460,7 @@ assert.equal(at(pinged, 3)!.hidden, true)
 assert.equal(pinged.traps.length, 0)
 
 // --- Hidden keywords never leak
-const fog = createMatch('blackout', 'catgirls', 'undertow', 7)
+const fog = classicBlackout('catgirls', 'undertow', 7)
 for (const u of observe(fog, 'enemy').units.filter(
   (x) => x.side === 'player',
 )) {

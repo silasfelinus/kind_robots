@@ -42,6 +42,12 @@ import {
 import { chooseCpuAction } from '../slimeCity/cpu'
 import { playHeadless } from '../slimeCity/playtest'
 
+const classicBlackout = (
+  team: Parameters<typeof createMatch>[1],
+  foe: Parameters<typeof createMatch>[2],
+  seed: number,
+) => createMatch('blackout', team, foe, seed, { classicFog: true })
+
 function fighter(
   over: Partial<Fighter> & Pick<Fighter, 'id' | 'side' | 'x' | 'y'>,
 ): Fighter {
@@ -97,7 +103,7 @@ assert.equal(DISTRICTS.length, 7)
 assert.equal(MODES.length, 3)
 assert.deepEqual(
   MODES.map((mode) => mode.size),
-  ['8 × 8', '12 × 6', '14 × 6'],
+  ['10 × 6', '12 × 6', '14 × 6'],
 )
 for (const team of TEAMS) {
   assert.equal(team.creatures.length, 4)
@@ -143,20 +149,21 @@ for (const file of [
 assert.equal(normalizeSeed(undefined), 4817)
 assert.equal(normalizeSeed(-12.7), 12)
 assert.equal(normalizeSeed(Number.NaN), 4817)
-const seedA = createMatch('blackout', 'catgirls', 'bloodfairies', 11)
-const seedB = createMatch('blackout', 'catgirls', 'bloodfairies', 12)
+const seedA = classicBlackout('catgirls', 'bloodfairies', 11)
+const seedB = classicBlackout('catgirls', 'bloodfairies', 12)
 assert.equal(seedA.seed, 11)
 assert.deepEqual(
-  createMatch('blackout', 'catgirls', 'bloodfairies', 11),
+  classicBlackout('catgirls', 'bloodfairies', 11),
   seedA,
   'Same seed, same setup',
 )
 const layouts = new Set(
   [1, 2, 3, 4, 5, 6, 7, 8].map((seed) =>
     JSON.stringify(
-      createMatch('blackout', 'catgirls', 'bloodfairies', seed).units.map(
-        (u) => [u.x, u.y],
-      ),
+      classicBlackout('catgirls', 'bloodfairies', seed).units.map((u) => [
+        u.x,
+        u.y,
+      ]),
     ),
   ),
 )
@@ -164,7 +171,7 @@ assert.ok(layouts.size > 4, 'Hidden armies are placed by seed')
 assert.notDeepEqual(seedA.units, seedB.units)
 
 // --- BLACKOUT setup: two concealed armies, flag in the centre four squares
-const fog = createMatch('blackout', 'catgirls', 'bloodfairies', 4817)
+const fog = classicBlackout('catgirls', 'bloodfairies', 4817)
 assert.equal(fog.width, 8)
 assert.equal(fog.height, 8)
 assert.equal(fog.units.length, 10)
@@ -224,7 +231,7 @@ for (const c of neighbors(spent, tired.x, tired.y))
     spent,
     'No move without AP left',
   )
-const apFix = createMatch('blackout', 'catgirls', 'exchange', 4817)
+const apFix = classicBlackout('catgirls', 'exchange', 4817)
 apFix.units = [
   fighter({ id: 1, side: 'player', x: 0, y: 0, ap: 0, maxAp: 2, hp: 9 }),
   fighter({ id: 2, side: 'enemy', x: 7, y: 7, ap: 0, maxAp: 0, hp: 9 }),
@@ -261,7 +268,7 @@ assert.equal(
   'BLACKOUT reinforcements arrive face-down',
 )
 assert.equal(advance(fog).mana, 2)
-const twice = createMatch('blackout', 'catgirls', 'bloodfairies', 4817)
+const twice = classicBlackout('catgirls', 'bloodfairies', 4817)
 twice.mana = 5
 const once = deploy(twice, 'lynx', 0, openHome)
 assert.equal(cardReady(once, 'player', 'lynx'), false)
@@ -315,7 +322,7 @@ assert.equal(
 )
 
 // Equipment is permanent, a boost spell lasts one round
-const kit = createMatch('blackout', 'bloodfairies', 'riot', 4817)
+const kit = classicBlackout('bloodfairies', 'riot', 4817)
 kit.mana = 10
 const kitUnit = kit.units.find((u) => u.side === 'player')!
 const spurred = deploy(kit, 'spurs', kitUnit.x, kitUnit.y)
@@ -326,14 +333,14 @@ assert.equal(
     kitUnit.maxAp + 1,
   kitUnit.maxAp + 1,
 )
-const cats = createMatch('blackout', 'catgirls', 'riot', 4817)
+const cats = classicBlackout('catgirls', 'riot', 4817)
 cats.mana = 10
 const cat = cats.units.find((u) => u.side === 'player')!
 const boosted = deploy(cats, 'pounce', cat.x, cat.y)
 assert.equal(boosted.units.find((u) => u.id === cat.id)!.ap, cat.ap + 2)
 
 // Traps: empty legal squares, one armed per side, triggered on entry
-const trapState = createMatch('blackout', 'catgirls', 'bloodfairies', 4817)
+const trapState = classicBlackout('catgirls', 'bloodfairies', 4817)
 trapState.mana = 3
 const trap = deploy(trapState, 'scentmine', 3, 2)
 assert.equal(trap.traps.length, 1)
@@ -348,7 +355,7 @@ assert.equal(
 )
 
 // --- Simultaneous combat: attack minus armor, double knockouts legal
-const duel = createMatch('blackout', 'riot', 'bloodfairies', 4817)
+const duel = classicBlackout('riot', 'bloodfairies', 4817)
 duel.round = 5
 duel.units = [
   fighter({ id: 90, side: 'player', x: 3, y: 2, hp: 1, attack: 2 }),
@@ -360,7 +367,7 @@ const resolved = advance(duel)
 assert.equal(resolved.units.length, 0, 'Mutual knockout')
 assert.equal(resolved.victor, 'draw')
 assert.equal(resolved.winPath, 'rout')
-const armored = createMatch('blackout', 'riot', 'ironjaw', 4817)
+const armored = classicBlackout('riot', 'ironjaw', 4817)
 armored.units = [
   fighter({ id: 1, side: 'player', x: 0, y: 0, hp: 5, maxHp: 5, attack: 3 }),
   fighter({
@@ -383,7 +390,7 @@ const clash = advance(armored)
 assert.equal(clash.units.find((u) => u.id === 2)!.hp, 8, '3 attack - 2 armor')
 assert.equal(clash.units.find((u) => u.id === 1)!.hp, 4, '1 attack - 0 armor')
 // Hidden fighters fight back, and fighting reveals both sides
-const ambush = createMatch('blackout', 'riot', 'ironjaw', 4817)
+const ambush = classicBlackout('riot', 'ironjaw', 4817)
 ambush.units = [
   fighter({ id: 1, side: 'player', x: 3, y: 3, hidden: true, hp: 4 }),
   fighter({ id: 2, side: 'enemy', x: 4, y: 3, hidden: true, hp: 4, ap: 0 }),
@@ -394,7 +401,7 @@ assert.ok(sprung.units.every((u) => !u.hidden))
 assert.ok(sprung.units.every((u) => u.hp === 3))
 
 // --- Flag: pickup at end of round, carriers lumber, death drops it in place
-const flagGame = createMatch('blackout', 'catgirls', 'riot', 4817)
+const flagGame = classicBlackout('catgirls', 'riot', 4817)
 flagGame.flag = { x: 3, y: 3 }
 flagGame.units = [
   fighter({ id: 1, side: 'player', x: 2, y: 3, ap: 2, maxAp: 2, hp: 3 }),
@@ -414,7 +421,7 @@ assert.equal(unitOf(grabbed, 1).ap, 1, 'Carriers walk one square per round')
 const walked = move(grabbed, 1, 2, 3)
 assert.deepEqual(walked.flag, { x: 2, y: 3 }, 'The flag follows its carrier')
 assert.equal(move(walked, 1, 1, 3), walked, 'Carrier AP is spent')
-const dropGame = createMatch('blackout', 'catgirls', 'riot', 4817)
+const dropGame = classicBlackout('catgirls', 'riot', 4817)
 dropGame.flag = { x: 5, y: 2 }
 dropGame.units = [
   fighter({ id: 1, side: 'player', x: 5, y: 2, hp: 1, carryingFlag: true }),
@@ -436,7 +443,7 @@ assert.ok(
 )
 assert.notDeepEqual(dropped.flag, { x: 4, y: 4 })
 // Stepping on a dropped flag picks it up for whoever arrives
-const loose = createMatch('blackout', 'catgirls', 'riot', 4817)
+const loose = classicBlackout('catgirls', 'riot', 4817)
 loose.flag = { x: 5, y: 2 }
 loose.units = [
   fighter({ id: 1, side: 'player', x: 5, y: 3, ap: 1 }),
@@ -446,7 +453,7 @@ freezeEnemy(loose)
 const regrab = advance(move(loose, 1, 5, 2))
 assert.equal(unitOf(regrab, 1).carryingFlag, true)
 // Carrying the flag to your back column wins at once, not one square short
-const home = createMatch('blackout', 'catgirls', 'riot', 4817)
+const home = classicBlackout('catgirls', 'riot', 4817)
 home.flag = { x: 2, y: 2 }
 home.units = [
   fighter({ id: 1, side: 'player', x: 2, y: 2, carryingFlag: true, ap: 2 }),
@@ -459,7 +466,7 @@ assert.equal(won.victor, 'player')
 assert.equal(won.winPath, 'flag')
 
 // --- Round limit: BLACKOUT can no longer stall forever
-const stall = createMatch('blackout', 'riot', 'ironjaw', 4817)
+const stall = classicBlackout('riot', 'ironjaw', 4817)
 stall.units = [
   fighter({ id: 1, side: 'player', x: 0, y: 0, hp: 5, maxHp: 5 }),
   fighter({ id: 2, side: 'enemy', x: 7, y: 7, hp: 3, maxHp: 3 }),
@@ -661,7 +668,7 @@ assert.ok(paths['bloodrush:scored']! > 0, 'CPU scores in BLOODRUSH')
 // The CPU's BLACKOUT moves never exceed AP (Undertow and Meat Exchange have
 // no AP cards), whichever side it plays; advance() runs the same chooser.
 for (const seed of [5, 6, 7, 8]) {
-  let s = createMatch('blackout', 'undertow', 'exchange', seed)
+  let s = classicBlackout('undertow', 'exchange', seed)
   for (let r = 0; r < 8 && !s.victor; r++) {
     for (const side of ['enemy', 'player'] as Side[]) {
       const before = new Map(
@@ -688,7 +695,7 @@ assert.ok(auto.commands.some((c) => c.t === 'deploy' && c.side === 'player'))
 assert.ok(auto.mana >= 0)
 
 // --- Hidden information never reaches the CPU or the human's board
-const secret = createMatch('blackout', 'catgirls', 'bloodfairies', 99)
+const secret = classicBlackout('catgirls', 'bloodfairies', 99)
 secret.mana = 3
 const withTrap = deploy(secret, 'scentmine', 4, 6)
 const enemyView = observe(withTrap, 'enemy')
@@ -722,7 +729,7 @@ assert.deepEqual(
   chooseCpuAction(enemyView),
 )
 // Enemy secrets are not narrated in the shared log
-const enemySecret = createMatch('blackout', 'catgirls', 'ironjaw', 99)
+const enemySecret = classicBlackout('catgirls', 'ironjaw', 99)
 enemySecret.enemyMana = 9
 const eOpen = [0, 1, 2, 3, 4, 5, 6, 7].find(
   (y) => !enemySecret.units.some((u) => u.x === 7 && u.y === y),
@@ -741,7 +748,7 @@ assert.notEqual(
   'Your trap may share a square with an unseen enemy trap',
 )
 // Enemy moves in BLACKOUT trigger the player's hidden trap
-const tripped = createMatch('blackout', 'catgirls', 'ironjaw', 99)
+const tripped = classicBlackout('catgirls', 'ironjaw', 99)
 tripped.traps = [{ x: 5, y: 3, side: 'player', damage: 2 }]
 tripped.units = [
   fighter({ id: 1, side: 'player', x: 0, y: 0, hp: 5 }),

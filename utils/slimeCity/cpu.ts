@@ -137,7 +137,9 @@ function laneBlocked(view: MatchView, u: ViewFighter): boolean {
 function key(action: CpuAction): string {
   return action.t === 'deploy'
     ? 'd:' + action.card + ':' + action.x + ':' + action.y
-    : 'm:' + action.id + ':' + action.x + ':' + action.y
+    : action.t === 'attack'
+      ? 'a:' + action.id + ':' + action.target
+      : 'm:' + action.id + ':' + action.x + ':' + action.y
 }
 
 /** Breadth-first first step toward any goal square over empty squares. */
@@ -529,12 +531,39 @@ function bestMove(view: MatchView, tried: Set<string>): CpuAction | null {
   return null
 }
 
+function bestAttack(view: MatchView, tried: Set<string>): CpuAction | null {
+  if (view.mode !== 'blackout') return null
+  const mine = view.units.filter((u) => u.side === view.side && u.hp !== null)
+  const enemies = view.units.filter(
+    (u) => u.side !== view.side && u.hp !== null,
+  )
+  for (const u of mine) {
+    if (u.attackedRound === view.round) continue
+    if (u.summonedRound === view.round && !u.keywords?.includes('ambush'))
+      continue
+    const target = [...enemies]
+      .sort((a, b) => (a.hp ?? 99) - (b.hp ?? 99) || a.id - b.id)
+      .find((e) => dist(u, e) <= (u.range ?? 1))
+    if (target) {
+      const action: CpuAction = { t: 'attack', id: u.id, target: target.id }
+      if (!tried.has(key(action))) return action
+    }
+    if (view.monster && dist(u, view.monster) <= (u.range ?? 1)) {
+      const action: CpuAction = { t: 'attack', id: u.id, target: -1 }
+      if (!tried.has(key(action))) return action
+    }
+  }
+  return null
+}
+
 /** The CPU's next action for the side in view, or null to pass. */
 export function chooseCpuAction(
   view: MatchView,
   tried: Set<string> = new Set(),
 ): CpuAction | null {
   if (view.victor) return null
+  const attack = bestAttack(view, tried)
+  if (attack) return attack
   const card = bestCard(view, tried)
   if (card) return card
   if (view.mode === 'blackout') return bestMove(view, tried)

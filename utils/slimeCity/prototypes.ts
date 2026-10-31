@@ -11,6 +11,8 @@ export type TeamId =
 export type ModeId = 'blackout' | 'gridiron' | 'bloodrush'
 export type CardKind = 'creature' | 'spell' | 'trap' | 'equipment'
 export type Side = 'player' | 'enemy'
+export type AttackStyle =
+  'claw' | 'arrow' | 'spell' | 'sword' | 'hammer' | 'blast'
 export type WinPath = 'flag' | 'score' | 'rout' | 'time' | 'monster'
 
 /**
@@ -32,6 +34,8 @@ export interface RuleVariants {
   rout: boolean
   /** BLOODRUSH: which side acts last before the board steps alternates by beat. */
   rushAlternate: boolean
+  /** Legacy hidden-army fixture only; the normal Blackout game is open. */
+  classicFog?: boolean
 }
 export type Keyword =
   | 'ambush'
@@ -109,6 +113,8 @@ export interface Card {
   signature?: boolean
   text: string
   symbol: string
+  range?: number
+  attackStyle?: AttackStyle
 }
 
 export interface Fighter {
@@ -125,6 +131,10 @@ export interface Fighter {
   maxAp: number
   hidden: boolean
   carryingFlag: boolean
+  range?: number
+  attackStyle?: AttackStyle
+  summonedRound?: number
+  attackedRound?: number
   /** Absent on hand-built fixtures: no keywords. */
   keywords?: Keyword[]
   burst?: number
@@ -158,6 +168,7 @@ export type Command =
   | { t: 'deploy'; side: Side; card: string; x: number; y: number }
   | { t: 'move'; side: Side; id: number; x: number; y: number }
   | { t: 'reveal'; side: Side; id: number }
+  | { t: 'attack'; side: Side; id: number; target: number }
   | { t: 'end' }
 
 export interface MatchStats {
@@ -210,6 +221,11 @@ export interface MatchState {
   log: string[]
   commands: Command[]
   stats: MatchStats
+  /** BLACKOUT draw pile, playable hand, spent pile and seeded reshuffle count. */
+  piles: Record<Side, string[]>
+  hands: Record<Side, string[]>
+  discards: Record<Side, string[]>
+  shuffles: Record<Side, number>
   /** Round/tick from which each side may play each card again. */
   cooldowns: Record<Side, Record<string, number>>
   /** Mana each side owes; it comes out of that side's next refill. */
@@ -236,6 +252,10 @@ export interface ViewFighter {
   /** Its AMBUSH has not struck yet. */
   ambushReady: boolean | null
   carryingFlag: boolean
+  range: number | null
+  attackStyle: AttackStyle | null
+  summonedRound: number | null
+  attackedRound: number | null
   /** Public: a rooted fighter visibly cannot move this round. */
   rooted: boolean
 }
@@ -269,6 +289,7 @@ export interface MatchView {
 export type CpuAction =
   | { t: 'deploy'; card: string; x: number; y: number }
   | { t: 'move'; id: number; x: number; y: number }
+  | { t: 'attack'; id: number; target: number }
 
 export const MODES: {
   id: ModeId
@@ -281,11 +302,11 @@ export const MODES: {
   {
     id: 'blackout',
     title: 'BLACKOUT',
-    subtitle: 'Hidden army · Stratego test',
-    size: '8 × 8',
+    subtitle: 'Open-arena tactical cards · primary mode',
+    size: '10 × 6',
     cadence: 'TURN-BASED',
     detail:
-      'Five fighters deployed face-down on each side. Reveal by moving, uncover the enemy, and steal the flag.',
+      'Deploy visible monsters from a four-card hand, cross no-man’s-land and capture the flag. Only stealth specialists hide.',
   },
   {
     id: 'gridiron',
@@ -352,6 +373,7 @@ export const KEYWORDS: Record<Keyword, { label: string; text: string }> = {
 
 /** Every crew deck: exactly this many cards and this many creatures. */
 export const DECK_SIZE = 10
+export const BLACKOUT_HAND_SIZE = 4
 export const DECK_CREATURES = 4
 /** Unpaid debt never stacks past this; it comes out of the next refill. */
 export const DEBT_CAP = 2
@@ -1403,18 +1425,18 @@ export interface ModeGuide {
 /** First-time tester instructions shown beside each board. */
 export const MODE_GUIDES: Record<ModeId, ModeGuide> = {
   blackout: {
-    goal: 'Grab the ⚑ flag and carry it to your back column, the far left edge. Or wipe out every enemy fighter. After 20 rounds, the side with more total HP left wins.',
+    goal: 'Deploy visible monsters from a shuffled hand and cross the no-man’s-land. Grab the ⚑ flag and carry it to your back column, the far left edge. Or wipe out every enemy fighter. After 20 rounds, the side with more total HP left wins.',
     steps: [
-      'Your five fighters start face-down. Tap one, then an adjacent square to move it: one square per AP, AP refills each round.',
-      'Moving reveals that fighter. Enemy fighters show as ? until they move, fight or are hit.',
-      'Tap a card, then a square: creatures deploy face-down in your home columns, a trap goes on an empty square, spells and equipment go on a fighter. Each card once per round.',
+      'Begin with four cards drawn from your faction’s ten-card deck. Tap a card to inspect its art, cost and abilities, then choose a valid square.',
+      'No fighters start concealed. Spies and specialist stealth cards can hide; other crews play visible monsters.',
+      'Summon creatures into the left two columns. Traps belong on empty squares; spells and equipment target fighters.',
       'Press END ROUND. The CPU moves and plays cards, then every fighter beside an enemy strikes at once for attack minus armor.',
       'A fighter still standing on the flag at the end of the round picks it up. Carriers walk one square per round; if one falls, the flag drops on its square.',
     ],
     limits: [
       'Local prototype: the CPU sees where fighters stand but not hidden identities or your trap.',
       'Initiative alternates (you, CPU, CPU, you …): on even rounds the CPU has already moved when your turn starts.',
-      'Fixed ten-card crew deck, no hand draw. Mana refills each round: 1, 2, 3 … up to 10, minus any debt. One armed trap per side (Undertow: two).',
+      'Ten unique cards per crew, four drawn each round. Played cards leave your hand. Discards recycle only after the deck empties. Mana: 1, 2, 3 … up to 10, minus debt.',
       'Nothing is saved: no Meat, cards or online results.',
     ],
   },
@@ -1447,6 +1469,15 @@ export const MODE_GUIDES: Record<ModeId, ModeGuide> = {
       'Nothing is saved: no Meat, cards or online results.',
     ],
   },
+}
+
+export function cardAttackRange(card: Card): number {
+  return (
+    card.range ??
+    (['mau', 'razor', 'welder', 'firebrand', 'eel', 'broker'].includes(card.id)
+      ? 2
+      : 1)
+  )
 }
 
 export function cardById(id: string): Card {
@@ -1647,6 +1678,13 @@ function copy(state: MatchState): MatchState {
       },
       knockouts: { ...state.stats.knockouts },
     },
+    piles: { player: [...state.piles.player], enemy: [...state.piles.enemy] },
+    hands: { player: [...state.hands.player], enemy: [...state.hands.enemy] },
+    discards: {
+      player: [...state.discards.player],
+      enemy: [...state.discards.enemy],
+    },
+    shuffles: { ...state.shuffles },
     cooldowns: {
       player: { ...state.cooldowns.player },
       enemy: { ...state.cooldowns.enemy },
@@ -1738,6 +1776,21 @@ function addFighter(
     maxAp: card.ap || 1,
     hidden,
     carryingFlag: false,
+    range: cardAttackRange(card),
+    attackStyle:
+      card.attackStyle ??
+      (
+        {
+          catgirls: 'claw',
+          bloodfairies: 'arrow',
+          ironjaw: 'hammer',
+          riot: 'blast',
+          undertow: 'spell',
+          exchange: 'sword',
+        } as Record<TeamId, AttackStyle>
+      )[card.team],
+    summonedRound: state.round,
+    attackedRound: 0,
     keywords: [...(card.keywords ?? [])],
     burst: card.burst ?? 1,
     struck: false,
@@ -1758,6 +1811,38 @@ function shuffledCells(
     .map((item) => item.cell)
 }
 
+/** The seeded card order is stable for replays and different for both crews. */
+function shuffledDeck(state: MatchState, side: Side): string[] {
+  const salt = side === 'player' ? 811 : 977
+  return deckOf(teamOf(state, side))
+    .map((card, index) => ({
+      id: card.id,
+      order: seededHash(state.seed, salt, state.shuffles[side], index),
+    }))
+    .sort((a, b) => a.order - b.order || a.id.localeCompare(b.id))
+    .map(({ id }) => id)
+}
+
+/** Clear unplayed cards and deal from the remaining pile without duplication. */
+function drawHand(state: MatchState, side: Side): void {
+  state.discards[side].push(...state.hands[side])
+  state.hands[side] = []
+  while (state.hands[side].length < BLACKOUT_HAND_SIZE) {
+    if (!state.piles[side].length) {
+      if (!state.discards[side].length) break
+      state.shuffles[side]++
+      const discarded = new Set(state.discards[side])
+      state.piles[side] = shuffledDeck(state, side).filter((id) =>
+        discarded.has(id),
+      )
+      state.discards[side] = []
+    }
+    const next = state.piles[side].shift()
+    if (!next) break
+    state.hands[side].push(next)
+  }
+}
+
 export function createMatch(
   mode: ModeId,
   teamId: TeamId,
@@ -1768,8 +1853,10 @@ export function createMatch(
   const m = MODES.find((item) => item.id === mode)
   if (!m) throw new Error('Unknown Slime City match mode')
   const dimensions = m.size.split(' × ')
-  const width = Number(dimensions[0]!)
-  const height = Number(dimensions[1]!)
+  const width =
+    mode === 'blackout' && rules.classicFog ? 8 : Number(dimensions[0]!)
+  const height =
+    mode === 'blackout' && rules.classicFog ? 8 : Number(dimensions[1]!)
   const s = normalizeSeed(seed)
   const rush = mode === 'bloodrush'
   const state: MatchState = {
@@ -1804,13 +1891,16 @@ export function createMatch(
     log: ['Arena loaded · seed ' + s + '. Choose a fighter or special.'],
     commands: [],
     stats: emptyStats(),
+    piles: { player: [], enemy: [] },
+    hands: { player: [], enemy: [] },
+    discards: { player: [], enemy: [] },
+    shuffles: { player: 0, enemy: 0 },
     cooldowns: { player: {}, enemy: {} },
     debt: { player: 0, enemy: 0 },
   }
-  if (mode === 'blackout') {
+  if (mode === 'blackout' && rules.classicFog) {
     for (const side of ['player', 'enemy'] as Side[]) {
-      const team = teamById(teamOf(state, side))
-      const lineup = team.army
+      const lineup = teamById(teamOf(state, side)).army
       const zone: { x: number; y: number }[] = []
       for (let x = 0; x < width; x++)
         for (let y = 0; y < height; y++)
@@ -1820,6 +1910,15 @@ export function createMatch(
         addFighter(state, cardId, side, cells[i]!.x, cells[i]!.y, true),
       )
     }
+  } else if (mode === 'blackout') {
+    for (const side of ['player', 'enemy'] as Side[]) {
+      state.piles[side] = shuffledDeck(state, side)
+      drawHand(state, side)
+    }
+    message(
+      state,
+      'Deploy a visible monster. Four cards in hand, the rest in your deck.',
+    )
   }
   if (state.rules.monster) {
     // BLACKOUT: the central square diagonal from the flag. Lanes: a
@@ -1982,9 +2081,16 @@ function applyDeploy(
   if (!card || state.victor || card.team !== teamOf(state, side)) return false
   if (card.cost > manaOf(state, side)) return false
   if (!cardReady(state, side, cardId)) return false
+  if (
+    state.mode === 'blackout' &&
+    !state.rules.classicFog &&
+    !state.hands[side].includes(cardId)
+  )
+    return false
   if (x < 0 || y < 0 || x >= state.width || y >= state.height) return false
   const target = unitAt(state, x, y)
-  const hidden = side === 'enemy' && state.mode === 'blackout'
+  const hidden =
+    side === 'enemy' && state.mode === 'blackout' && !!state.rules.classicFog
   let line: string
   if (card.kind === 'creature') {
     if (target || !inDeployZone(state, side, x)) return false
@@ -1992,7 +2098,14 @@ function applyDeploy(
       state.units.filter((u) => u.side === side).length >= FIELD_CAP[state.mode]
     )
       return false
-    addFighter(state, cardId, side, x, y, state.mode === 'blackout')
+    addFighter(
+      state,
+      cardId,
+      side,
+      x,
+      y,
+      state.mode === 'blackout' && !!state.rules.classicFog,
+    )
     line = hidden
       ? 'The enemy deploys a concealed fighter.'
       : (side === 'enemy' ? 'Enemy deploys ' : 'You deploy ') + card.name + '.'
@@ -2134,6 +2247,10 @@ function applyDeploy(
       '.'
   }
   spend(state, side, card.cost)
+  if (state.mode === 'blackout' && !state.rules.classicFog) {
+    state.hands[side] = state.hands[side].filter((id) => id !== cardId)
+    state.discards[side].push(cardId)
+  }
   state.cooldowns[side][cardId] =
     state.round + (state.mode === 'bloodrush' ? RUSH_COOLDOWN : 1)
   state.stats.plays[side][card.kind]++
@@ -2177,6 +2294,90 @@ function applyReveal(state: MatchState, side: Side, id: number): boolean {
   unit.hidden = false
   message(state, name(unit) + ' unmasked.')
   return true
+}
+
+/** New Blackout uses deliberate attacks instead of automatic round damage. */
+export function mayAttack(
+  state: MatchState,
+  attacker: Fighter,
+  target: Fighter | Monster,
+): boolean {
+  if (state.mode !== 'blackout' || state.rules.classicFog || state.victor)
+    return false
+  if (attacker.hp <= 0 || attacker.attackedRound === state.round) return false
+  if (attacker.summonedRound === state.round && !hasKeyword(attacker, 'ambush'))
+    return false
+  return (
+    Math.abs(attacker.x - target.x) + Math.abs(attacker.y - target.y) <=
+    (attacker.range ?? 1)
+  )
+}
+
+function applyAttack(
+  state: MatchState,
+  side: Side,
+  id: number,
+  targetId: number,
+): boolean {
+  const attacker = state.units.find((u) => u.id === id && u.side === side)
+  const victim = state.units.find((u) => u.id === targetId && u.side !== side)
+  const monster = targetId === -1 ? state.monster : null
+  if (!attacker || (!victim && !monster)) return false
+  const target = victim ?? monster!
+  if (!mayAttack(state, attacker, target)) return false
+  const dealt = blowDamage(state, attacker, target)
+  target.hp -= dealt
+  attacker.attackedRound = state.round
+  attacker.hidden = false
+  if (victim) {
+    victim.hidden = false
+    if (dealt > 0 && hasKeyword(attacker, 'leech'))
+      attacker.hp = Math.min(attacker.maxHp, attacker.hp + 1)
+    if (dealt > 0 && hasKeyword(attacker, 'snare') && victim.hp > 0)
+      root(state, victim, true)
+    if (dealt > 0 && hasKeyword(attacker, 'collect'))
+      addDebt(state, victim.side, 1)
+  } else {
+    state.monsterDamage[side] += dealt
+    if (monster!.hp <= 0) slayMonster(state, side)
+  }
+  if (hasKeyword(attacker, 'ambush')) attacker.struck = true
+  message(
+    state,
+    (side === 'enemy' ? 'Enemy ' : '') +
+      name(attacker) +
+      ' attacks ' +
+      (victim ? publicName(victim) : 'the monster') +
+      ' (' +
+      (attacker.attackStyle ?? 'strike') +
+      '): ' +
+      dealt +
+      ' damage' +
+      (target.hp <= 0 ? ' · KO!' : '.'),
+  )
+  removeDead(state)
+  settleFlag(state)
+  checkEnd(state)
+  return true
+}
+
+export function attackAs(
+  state: MatchState,
+  side: Side,
+  id: number,
+  target: number,
+): MatchState {
+  return recorded(state, { t: 'attack', side, id, target }, (draft) =>
+    applyAttack(draft, side, id, target),
+  )
+}
+
+export function attack(
+  state: MatchState,
+  id: number,
+  target: number,
+): MatchState {
+  return attackAs(state, 'player', id, target)
 }
 
 function recorded(
@@ -2289,13 +2490,18 @@ export function observe(state: MatchState, side: Side): MatchView {
           keywords: known ? [...(u.keywords ?? [])] : null,
           ambushReady: known ? hasKeyword(u, 'ambush') && !u.struck : null,
           carryingFlag: u.carryingFlag,
+          range: known ? (u.range ?? 1) : null,
+          attackStyle: known ? (u.attackStyle ?? 'sword') : null,
+          summonedRound: known ? (u.summonedRound ?? 0) : null,
+          attackedRound: known ? (u.attackedRound ?? 0) : null,
           rooted: isRooted(state, u),
         }
       }),
     traps: state.traps.filter((t) => t.side === side).map((t) => ({ ...t })),
-    hand: deckOf(teamOf(state, side)).filter((card) =>
-      cardReady(state, side, card.id),
-    ),
+    hand: (state.mode === 'blackout' && !state.rules.classicFog
+      ? state.hands[side].map(cardById)
+      : deckOf(teamOf(state, side))
+    ).filter((card) => cardReady(state, side, card.id)),
     victor: state.victor,
   }
 }
@@ -2317,7 +2523,9 @@ function runCpu(
 export function cpuActionKey(action: CpuAction): string {
   return action.t === 'deploy'
     ? 'd:' + action.card + ':' + action.x + ':' + action.y
-    : 'm:' + action.id + ':' + action.x + ':' + action.y
+    : action.t === 'attack'
+      ? 'a:' + action.id + ':' + action.target
+      : 'm:' + action.id + ':' + action.x + ':' + action.y
 }
 
 /**
@@ -2333,7 +2541,9 @@ export function cpuTurn(state: MatchState, side: Side = 'player'): MatchState {
     const next =
       action.t === 'deploy'
         ? deployAs(current, side, action.card, action.x, action.y)
-        : moveAs(current, side, action.id, action.x, action.y)
+        : action.t === 'attack'
+          ? attackAs(current, side, action.id, action.target)
+          : moveAs(current, side, action.id, action.x, action.y)
     if (next === current) tried.add(cpuActionKey(action))
     current = next
   }
@@ -2619,7 +2829,7 @@ function checkEnd(state: MatchState): void {
   if (state.mode === 'blackout') {
     const p = state.units.some((u) => u.side === 'player')
     const e = state.units.some((u) => u.side === 'enemy')
-    if (!p || !e) {
+    if ((!p || !e) && (state.round >= 4 || state.rules.classicFog)) {
       finish(state, p === e ? 'draw' : p ? 'player' : 'enemy', 'rout')
       return
     }
@@ -2692,7 +2902,9 @@ export function advance(state: MatchState): MatchState {
     runCpu(next, 'enemy', (a) =>
       a.t === 'deploy'
         ? applyDeploy(next, 'enemy', a.card, a.x, a.y)
-        : applyMove(next, 'enemy', a.id, a.x, a.y),
+        : a.t === 'attack'
+          ? applyAttack(next, 'enemy', a.id, a.target)
+          : applyMove(next, 'enemy', a.id, a.x, a.y),
     )
   // Initiative alternates in the turn formats (player, CPU, CPU, player...):
   // on odd rounds the CPU answers now; on even rounds it already moved first.
@@ -2704,7 +2916,7 @@ export function advance(state: MatchState): MatchState {
     )
       laneMovement(next)
     if (next.mode !== 'bloodrush' || next.round % RUSH_MOVE_EVERY === 0)
-      combat(next)
+      if (next.mode !== 'blackout' || next.rules.classicFog) combat(next)
     settleFlag(next, true)
     checkEnd(next)
   }
@@ -2731,6 +2943,11 @@ export function advance(state: MatchState): MatchState {
           '.',
       )
       next.debt = { player: 0, enemy: 0 }
+    }
+    if (next.mode === 'blackout' && !next.rules.classicFog) {
+      drawHand(next, 'player')
+      drawHand(next, 'enemy')
+      message(next, 'Four fresh cards dealt from your faction deck.')
     }
     // Carriers lumber: one square per round, unless a card boosts them.
     // Rooted fighters get no AP this round.
@@ -2786,6 +3003,7 @@ export function replayMatch(
     if (c.t === 'end') state = advance(state)
     else if (c.t === 'deploy') state = deployAs(state, c.side, c.card, c.x, c.y)
     else if (c.t === 'move') state = moveAs(state, c.side, c.id, c.x, c.y)
+    else if (c.t === 'attack') state = attackAs(state, c.side, c.id, c.target)
     else state = revealAs(state, c.side, c.id)
   }
   return state

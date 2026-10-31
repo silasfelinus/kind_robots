@@ -852,6 +852,8 @@ export type UserWhereInput = {
   GrantsGiven?: Prisma.GrantListRelationFilter
   GrantsReceived?: Prisma.GrantListRelationFilter
   PacksOwned?: Prisma.PackListRelationFilter
+  SlimeCityAccount?: Prisma.XOR<Prisma.SlimeCityAccountNullableScalarRelationFilter, Prisma.SlimeCityAccountWhereInput> | null
+  SlimeCityMatches?: Prisma.SlimeCityMatchListRelationFilter
 }
 
 export type UserOrderByWithRelationInput = {
@@ -979,6 +981,8 @@ export type UserOrderByWithRelationInput = {
   GrantsGiven?: Prisma.GrantOrderByRelationAggregateInput
   GrantsReceived?: Prisma.GrantOrderByRelationAggregateInput
   PacksOwned?: Prisma.PackOrderByRelationAggregateInput
+  SlimeCityAccount?: Prisma.SlimeCityAccountOrderByWithRelationInput
+  SlimeCityMatches?: Prisma.SlimeCityMatchOrderByRelationAggregateInput
   _relevance?: Prisma.UserOrderByRelevanceInput
 }
 
@@ -1110,6 +1114,8 @@ export type UserWhereUniqueInput = Prisma.AtLeast<{
   GrantsGiven?: Prisma.GrantListRelationFilter
   GrantsReceived?: Prisma.GrantListRelationFilter
   PacksOwned?: Prisma.PackListRelationFilter
+  SlimeCityAccount?: Prisma.XOR<Prisma.SlimeCityAccountNullableScalarRelationFilter, Prisma.SlimeCityAccountWhereInput> | null
+  SlimeCityMatches?: Prisma.SlimeCityMatchListRelationFilter
 }, "id" | "username" | "email" | "referralCode">
 
 export type UserOrderByWithAggregationInput = {
@@ -1393,6 +1399,8 @@ export type UserCreateInput = {
   GrantsGiven?: Prisma.GrantCreateNestedManyWithoutGranterInput
   GrantsReceived?: Prisma.GrantCreateNestedManyWithoutGranteeInput
   PacksOwned?: Prisma.PackCreateNestedManyWithoutOwnerInput
+  SlimeCityAccount?: Prisma.SlimeCityAccountCreateNestedOneWithoutUserInput
+  SlimeCityMatches?: Prisma.SlimeCityMatchCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateInput = {
@@ -1519,6 +1527,8 @@ export type UserUncheckedCreateInput = {
   GrantsGiven?: Prisma.GrantUncheckedCreateNestedManyWithoutGranterInput
   GrantsReceived?: Prisma.GrantUncheckedCreateNestedManyWithoutGranteeInput
   PacksOwned?: Prisma.PackUncheckedCreateNestedManyWithoutOwnerInput
+  SlimeCityAccount?: Prisma.SlimeCityAccountUncheckedCreateNestedOneWithoutUserInput
+  SlimeCityMatches?: Prisma.SlimeCityMatchUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserUpdateInput = {
@@ -1644,6 +1654,8 @@ export type UserUpdateInput = {
   GrantsGiven?: Prisma.GrantUpdateManyWithoutGranterNestedInput
   GrantsReceived?: Prisma.GrantUpdateManyWithoutGranteeNestedInput
   PacksOwned?: Prisma.PackUpdateManyWithoutOwnerNestedInput
+  SlimeCityAccount?: Prisma.SlimeCityAccountUpdateOneWithoutUserNestedInput
+  SlimeCityMatches?: Prisma.SlimeCityMatchUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateInput = {
@@ -1770,6 +1782,8 @@ export type UserUncheckedUpdateInput = {
   GrantsGiven?: Prisma.GrantUncheckedUpdateManyWithoutGranterNestedInput
   GrantsReceived?: Prisma.GrantUncheckedUpdateManyWithoutGranteeNestedInput
   PacksOwned?: Prisma.PackUncheckedUpdateManyWithoutOwnerNestedInput
+  SlimeCityAccount?: Prisma.SlimeCityAccountUncheckedUpdateOneWithoutUserNestedInput
+  SlimeCityMatches?: Prisma.SlimeCityMatchUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateManyInput = {
@@ -3092,6 +3106,34 @@ export type UserUpdateOneRequiredWithoutAppReposNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutAppReposInput, Prisma.UserUpdateWithoutAppReposInput>, Prisma.UserUncheckedUpdateWithoutAppReposInput>
 }
 
+export type UserCreateNestedOneWithoutSlimeCityAccountInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutSlimeCityAccountInput, Prisma.UserUncheckedCreateWithoutSlimeCityAccountInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutSlimeCityAccountInput
+  connect?: Prisma.UserWhereUniqueInput
+}
+
+export type UserUpdateOneRequiredWithoutSlimeCityAccountNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutSlimeCityAccountInput, Prisma.UserUncheckedCreateWithoutSlimeCityAccountInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutSlimeCityAccountInput
+  upsert?: Prisma.UserUpsertWithoutSlimeCityAccountInput
+  connect?: Prisma.UserWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutSlimeCityAccountInput, Prisma.UserUpdateWithoutSlimeCityAccountInput>, Prisma.UserUncheckedUpdateWithoutSlimeCityAccountInput>
+}
+
+export type UserCreateNestedOneWithoutSlimeCityMatchesInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutSlimeCityMatchesInput, Prisma.UserUncheckedCreateWithoutSlimeCityMatchesInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutSlimeCityMatchesInput
+  connect?: Prisma.UserWhereUniqueInput
+}
+
+export type UserUpdateOneRequiredWithoutSlimeCityMatchesNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutSlimeCityMatchesInput, Prisma.UserUncheckedCreateWithoutSlimeCityMatchesInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutSlimeCityMatchesInput
+  upsert?: Prisma.UserUpsertWithoutSlimeCityMatchesInput
+  connect?: Prisma.UserWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutSlimeCityMatchesInput, Prisma.UserUpdateWithoutSlimeCityMatchesInput>, Prisma.UserUncheckedUpdateWithoutSlimeCityMatchesInput>
+}
+
 export type UserCreateWithoutArtImagesInput = {
   createdAt?: Date | string
   updatedAt?: Date | string | null
@@ -3214,6 +3256,8 @@ export type UserCreateWithoutArtImagesInput = {
   GrantsGiven?: Prisma.GrantCreateNestedManyWithoutGranterInput
   GrantsReceived?: Prisma.GrantCreateNestedManyWithoutGranteeInput
   PacksOwned?: Prisma.PackCreateNestedManyWithoutOwnerInput
+  SlimeCityAccount?: Prisma.SlimeCityAccountCreateNestedOneWithoutUserInput
+  SlimeCityMatches?: Prisma.SlimeCityMatchCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutArtImagesInput = {
@@ -3339,6 +3383,8 @@ export type UserUncheckedCreateWithoutArtImagesInput = {
   GrantsGiven?: Prisma.GrantUncheckedCreateNestedManyWithoutGranterInput
   GrantsReceived?: Prisma.GrantUncheckedCreateNestedManyWithoutGranteeInput
   PacksOwned?: Prisma.PackUncheckedCreateNestedManyWithoutOwnerInput
+  SlimeCityAccount?: Prisma.SlimeCityAccountUncheckedCreateNestedOneWithoutUserInput
+  SlimeCityMatches?: Prisma.SlimeCityMatchUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutArtImagesInput = {
@@ -3468,6 +3514,8 @@ export type UserCreateWithoutArtImageInput = {
   GrantsGiven?: Prisma.GrantCreateNestedManyWithoutGranterInput
   GrantsReceived?: Prisma.GrantCreateNestedManyWithoutGranteeInput
   PacksOwned?: Prisma.PackCreateNestedManyWithoutOwnerInput
+  SlimeCityAccount?: Prisma.SlimeCityAccountCreateNestedOneWithoutUserInput
+  SlimeCityMatches?: Prisma.SlimeCityMatchCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutArtImageInput = {
@@ -3593,6 +3641,8 @@ export type UserUncheckedCreateWithoutArtImageInput = {
   GrantsGiven?: Prisma.GrantUncheckedCreateNestedManyWithoutGranterInput
   GrantsReceived?: Prisma.GrantUncheckedCreateNestedManyWithoutGranteeInput
   PacksOwned?: Prisma.PackUncheckedCreateNestedManyWithoutOwnerInput
+  SlimeCityAccount?: Prisma.SlimeCityAccountUncheckedCreateNestedOneWithoutUserInput
+  SlimeCityMatches?: Prisma.SlimeCityMatchUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutArtImageInput = {
@@ -3738,6 +3788,8 @@ export type UserUpdateWithoutArtImagesInput = {
   GrantsGiven?: Prisma.GrantUpdateManyWithoutGranterNestedInput
   GrantsReceived?: Prisma.GrantUpdateManyWithoutGranteeNestedInput
   PacksOwned?: Prisma.PackUpdateManyWithoutOwnerNestedInput
+  SlimeCityAccount?: Prisma.SlimeCityAccountUpdateOneWithoutUserNestedInput
+  SlimeCityMatches?: Prisma.SlimeCityMatchUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutArtImagesInput = {
@@ -3863,6 +3915,8 @@ export type UserUncheckedUpdateWithoutArtImagesInput = {
   GrantsGiven?: Prisma.GrantUncheckedUpdateManyWithoutGranterNestedInput
   GrantsReceived?: Prisma.GrantUncheckedUpdateManyWithoutGranteeNestedInput
   PacksOwned?: Prisma.PackUncheckedUpdateManyWithoutOwnerNestedInput
+  SlimeCityAccount?: Prisma.SlimeCityAccountUncheckedUpdateOneWithoutUserNestedInput
+  SlimeCityMatches?: Prisma.SlimeCityMatchUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserUpsertWithWhereUniqueWithoutArtImageInput = {
@@ -4081,6 +4135,8 @@ export type UserCreateWithoutArtCollectionsInput = {
   GrantsGiven?: Prisma.GrantCreateNestedManyWithoutGranterInput
   GrantsReceived?: Prisma.GrantCreateNestedManyWithoutGranteeInput
   PacksOwned?: Prisma.PackCreateNestedManyWithoutOwnerInput
+  SlimeCityAccount?: Prisma.SlimeCityAccountCreateNestedOneWithoutUserInput
+  SlimeCityMatches?: Prisma.SlimeCityMatchCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutArtCollectionsInput = {
@@ -4206,6 +4262,8 @@ export type UserUncheckedCreateWithoutArtCollectionsInput = {
   GrantsGiven?: Prisma.GrantUncheckedCreateNestedManyWithoutGranterInput
   GrantsReceived?: Prisma.GrantUncheckedCreateNestedManyWithoutGranteeInput
   PacksOwned?: Prisma.PackUncheckedCreateNestedManyWithoutOwnerInput
+  SlimeCityAccount?: Prisma.SlimeCityAccountUncheckedCreateNestedOneWithoutUserInput
+  SlimeCityMatches?: Prisma.SlimeCityMatchUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutArtCollectionsInput = {
@@ -4346,6 +4404,8 @@ export type UserUpdateWithoutArtCollectionsInput = {
   GrantsGiven?: Prisma.GrantUpdateManyWithoutGranterNestedInput
   GrantsReceived?: Prisma.GrantUpdateManyWithoutGranteeNestedInput
   PacksOwned?: Prisma.PackUpdateManyWithoutOwnerNestedInput
+  SlimeCityAccount?: Prisma.SlimeCityAccountUpdateOneWithoutUserNestedInput
+  SlimeCityMatches?: Prisma.SlimeCityMatchUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutArtCollectionsInput = {
@@ -4471,6 +4531,8 @@ export type UserUncheckedUpdateWithoutArtCollectionsInput = {
   GrantsGiven?: Prisma.GrantUncheckedUpdateManyWithoutGranterNestedInput
   GrantsReceived?: Prisma.GrantUncheckedUpdateManyWithoutGranteeNestedInput
   PacksOwned?: Prisma.PackUncheckedUpdateManyWithoutOwnerNestedInput
+  SlimeCityAccount?: Prisma.SlimeCityAccountUncheckedUpdateOneWithoutUserNestedInput
+  SlimeCityMatches?: Prisma.SlimeCityMatchUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutBotsInput = {
@@ -4595,6 +4657,8 @@ export type UserCreateWithoutBotsInput = {
   GrantsGiven?: Prisma.GrantCreateNestedManyWithoutGranterInput
   GrantsReceived?: Prisma.GrantCreateNestedManyWithoutGranteeInput
   PacksOwned?: Prisma.PackCreateNestedManyWithoutOwnerInput
+  SlimeCityAccount?: Prisma.SlimeCityAccountCreateNestedOneWithoutUserInput
+  SlimeCityMatches?: Prisma.SlimeCityMatchCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutBotsInput = {
@@ -4720,6 +4784,8 @@ export type UserUncheckedCreateWithoutBotsInput = {
   GrantsGiven?: Prisma.GrantUncheckedCreateNestedManyWithoutGranterInput
   GrantsReceived?: Prisma.GrantUncheckedCreateNestedManyWithoutGranteeInput
   PacksOwned?: Prisma.PackUncheckedCreateNestedManyWithoutOwnerInput
+  SlimeCityAccount?: Prisma.SlimeCityAccountUncheckedCreateNestedOneWithoutUserInput
+  SlimeCityMatches?: Prisma.SlimeCityMatchUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutBotsInput = {
@@ -4860,6 +4926,8 @@ export type UserUpdateWithoutBotsInput = {
   GrantsGiven?: Prisma.GrantUpdateManyWithoutGranterNestedInput
   GrantsReceived?: Prisma.GrantUpdateManyWithoutGranteeNestedInput
   PacksOwned?: Prisma.PackUpdateManyWithoutOwnerNestedInput
+  SlimeCityAccount?: Prisma.SlimeCityAccountUpdateOneWithoutUserNestedInput
+  SlimeCityMatches?: Prisma.SlimeCityMatchUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutBotsInput = {
@@ -4985,6 +5053,8 @@ export type UserUncheckedUpdateWithoutBotsInput = {
   GrantsGiven?: Prisma.GrantUncheckedUpdateManyWithoutGranterNestedInput
   GrantsReceived?: Prisma.GrantUncheckedUpdateManyWithoutGranteeNestedInput
   PacksOwned?: Prisma.PackUncheckedUpdateManyWithoutOwnerNestedInput
+  SlimeCityAccount?: Prisma.SlimeCityAccountUncheckedUpdateOneWithoutUserNestedInput
+  SlimeCityMatches?: Prisma.SlimeCityMatchUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutCharactersInput = {
@@ -5109,6 +5179,8 @@ export type UserCreateWithoutCharactersInput = {
   GrantsGiven?: Prisma.GrantCreateNestedManyWithoutGranterInput
   GrantsReceived?: Prisma.GrantCreateNestedManyWithoutGranteeInput
   PacksOwned?: Prisma.PackCreateNestedManyWithoutOwnerInput
+  SlimeCityAccount?: Prisma.SlimeCityAccountCreateNestedOneWithoutUserInput
+  SlimeCityMatches?: Prisma.SlimeCityMatchCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutCharactersInput = {
@@ -5234,6 +5306,8 @@ export type UserUncheckedCreateWithoutCharactersInput = {
   GrantsGiven?: Prisma.GrantUncheckedCreateNestedManyWithoutGranterInput
   GrantsReceived?: Prisma.GrantUncheckedCreateNestedManyWithoutGranteeInput
   PacksOwned?: Prisma.PackUncheckedCreateNestedManyWithoutOwnerInput
+  SlimeCityAccount?: Prisma.SlimeCityAccountUncheckedCreateNestedOneWithoutUserInput
+  SlimeCityMatches?: Prisma.SlimeCityMatchUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutCharactersInput = {
@@ -5374,6 +5448,8 @@ export type UserUpdateWithoutCharactersInput = {
   GrantsGiven?: Prisma.GrantUpdateManyWithoutGranterNestedInput
   GrantsReceived?: Prisma.GrantUpdateManyWithoutGranteeNestedInput
   PacksOwned?: Prisma.PackUpdateManyWithoutOwnerNestedInput
+  SlimeCityAccount?: Prisma.SlimeCityAccountUpdateOneWithoutUserNestedInput
+  SlimeCityMatches?: Prisma.SlimeCityMatchUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutCharactersInput = {
@@ -5499,6 +5575,8 @@ export type UserUncheckedUpdateWithoutCharactersInput = {
   GrantsGiven?: Prisma.GrantUncheckedUpdateManyWithoutGranterNestedInput
   GrantsReceived?: Prisma.GrantUncheckedUpdateManyWithoutGranteeNestedInput
   PacksOwned?: Prisma.PackUncheckedUpdateManyWithoutOwnerNestedInput
+  SlimeCityAccount?: Prisma.SlimeCityAccountUncheckedUpdateOneWithoutUserNestedInput
+  SlimeCityMatches?: Prisma.SlimeCityMatchUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutChatsInput = {
@@ -5623,6 +5701,8 @@ export type UserCreateWithoutChatsInput = {
   GrantsGiven?: Prisma.GrantCreateNestedManyWithoutGranterInput
   GrantsReceived?: Prisma.GrantCreateNestedManyWithoutGranteeInput
   PacksOwned?: Prisma.PackCreateNestedManyWithoutOwnerInput
+  SlimeCityAccount?: Prisma.SlimeCityAccountCreateNestedOneWithoutUserInput
+  SlimeCityMatches?: Prisma.SlimeCityMatchCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutChatsInput = {
@@ -5748,6 +5828,8 @@ export type UserUncheckedCreateWithoutChatsInput = {
   GrantsGiven?: Prisma.GrantUncheckedCreateNestedManyWithoutGranterInput
   GrantsReceived?: Prisma.GrantUncheckedCreateNestedManyWithoutGranteeInput
   PacksOwned?: Prisma.PackUncheckedCreateNestedManyWithoutOwnerInput
+  SlimeCityAccount?: Prisma.SlimeCityAccountUncheckedCreateNestedOneWithoutUserInput
+  SlimeCityMatches?: Prisma.SlimeCityMatchUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutChatsInput = {
@@ -5888,6 +5970,8 @@ export type UserUpdateWithoutChatsInput = {
   GrantsGiven?: Prisma.GrantUpdateManyWithoutGranterNestedInput
   GrantsReceived?: Prisma.GrantUpdateManyWithoutGranteeNestedInput
   PacksOwned?: Prisma.PackUpdateManyWithoutOwnerNestedInput
+  SlimeCityAccount?: Prisma.SlimeCityAccountUpdateOneWithoutUserNestedInput
+  SlimeCityMatches?: Prisma.SlimeCityMatchUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutChatsInput = {
@@ -6013,6 +6097,8 @@ export type UserUncheckedUpdateWithoutChatsInput = {
   GrantsGiven?: Prisma.GrantUncheckedUpdateManyWithoutGranterNestedInput
   GrantsReceived?: Prisma.GrantUncheckedUpdateManyWithoutGranteeNestedInput
   PacksOwned?: Prisma.PackUncheckedUpdateManyWithoutOwnerNestedInput
+  SlimeCityAccount?: Prisma.SlimeCityAccountUncheckedUpdateOneWithoutUserNestedInput
+  SlimeCityMatches?: Prisma.SlimeCityMatchUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutDreamsInput = {
@@ -6137,6 +6223,8 @@ export type UserCreateWithoutDreamsInput = {
   GrantsGiven?: Prisma.GrantCreateNestedManyWithoutGranterInput
   GrantsReceived?: Prisma.GrantCreateNestedManyWithoutGranteeInput
   PacksOwned?: Prisma.PackCreateNestedManyWithoutOwnerInput
+  SlimeCityAccount?: Prisma.SlimeCityAccountCreateNestedOneWithoutUserInput
+  SlimeCityMatches?: Prisma.SlimeCityMatchCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutDreamsInput = {
@@ -6262,6 +6350,8 @@ export type UserUncheckedCreateWithoutDreamsInput = {
   GrantsGiven?: Prisma.GrantUncheckedCreateNestedManyWithoutGranterInput
   GrantsReceived?: Prisma.GrantUncheckedCreateNestedManyWithoutGranteeInput
   PacksOwned?: Prisma.PackUncheckedCreateNestedManyWithoutOwnerInput
+  SlimeCityAccount?: Prisma.SlimeCityAccountUncheckedCreateNestedOneWithoutUserInput
+  SlimeCityMatches?: Prisma.SlimeCityMatchUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutDreamsInput = {
@@ -6402,6 +6492,8 @@ export type UserUpdateWithoutDreamsInput = {
   GrantsGiven?: Prisma.GrantUpdateManyWithoutGranterNestedInput
   GrantsReceived?: Prisma.GrantUpdateManyWithoutGranteeNestedInput
   PacksOwned?: Prisma.PackUpdateManyWithoutOwnerNestedInput
+  SlimeCityAccount?: Prisma.SlimeCityAccountUpdateOneWithoutUserNestedInput
+  SlimeCityMatches?: Prisma.SlimeCityMatchUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutDreamsInput = {
@@ -6527,6 +6619,8 @@ export type UserUncheckedUpdateWithoutDreamsInput = {
   GrantsGiven?: Prisma.GrantUncheckedUpdateManyWithoutGranterNestedInput
   GrantsReceived?: Prisma.GrantUncheckedUpdateManyWithoutGranteeNestedInput
   PacksOwned?: Prisma.PackUncheckedUpdateManyWithoutOwnerNestedInput
+  SlimeCityAccount?: Prisma.SlimeCityAccountUncheckedUpdateOneWithoutUserNestedInput
+  SlimeCityMatches?: Prisma.SlimeCityMatchUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutProjectsInput = {
@@ -6651,6 +6745,8 @@ export type UserCreateWithoutProjectsInput = {
   GrantsGiven?: Prisma.GrantCreateNestedManyWithoutGranterInput
   GrantsReceived?: Prisma.GrantCreateNestedManyWithoutGranteeInput
   PacksOwned?: Prisma.PackCreateNestedManyWithoutOwnerInput
+  SlimeCityAccount?: Prisma.SlimeCityAccountCreateNestedOneWithoutUserInput
+  SlimeCityMatches?: Prisma.SlimeCityMatchCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutProjectsInput = {
@@ -6776,6 +6872,8 @@ export type UserUncheckedCreateWithoutProjectsInput = {
   GrantsGiven?: Prisma.GrantUncheckedCreateNestedManyWithoutGranterInput
   GrantsReceived?: Prisma.GrantUncheckedCreateNestedManyWithoutGranteeInput
   PacksOwned?: Prisma.PackUncheckedCreateNestedManyWithoutOwnerInput
+  SlimeCityAccount?: Prisma.SlimeCityAccountUncheckedCreateNestedOneWithoutUserInput
+  SlimeCityMatches?: Prisma.SlimeCityMatchUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutProjectsInput = {
@@ -6916,6 +7014,8 @@ export type UserUpdateWithoutProjectsInput = {
   GrantsGiven?: Prisma.GrantUpdateManyWithoutGranterNestedInput
   GrantsReceived?: Prisma.GrantUpdateManyWithoutGranteeNestedInput
   PacksOwned?: Prisma.PackUpdateManyWithoutOwnerNestedInput
+  SlimeCityAccount?: Prisma.SlimeCityAccountUpdateOneWithoutUserNestedInput
+  SlimeCityMatches?: Prisma.SlimeCityMatchUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutProjectsInput = {
@@ -7041,6 +7141,8 @@ export type UserUncheckedUpdateWithoutProjectsInput = {
   GrantsGiven?: Prisma.GrantUncheckedUpdateManyWithoutGranterNestedInput
   GrantsReceived?: Prisma.GrantUncheckedUpdateManyWithoutGranteeNestedInput
   PacksOwned?: Prisma.PackUncheckedUpdateManyWithoutOwnerNestedInput
+  SlimeCityAccount?: Prisma.SlimeCityAccountUncheckedUpdateOneWithoutUserNestedInput
+  SlimeCityMatches?: Prisma.SlimeCityMatchUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutFacetsInput = {
@@ -7165,6 +7267,8 @@ export type UserCreateWithoutFacetsInput = {
   GrantsGiven?: Prisma.GrantCreateNestedManyWithoutGranterInput
   GrantsReceived?: Prisma.GrantCreateNestedManyWithoutGranteeInput
   PacksOwned?: Prisma.PackCreateNestedManyWithoutOwnerInput
+  SlimeCityAccount?: Prisma.SlimeCityAccountCreateNestedOneWithoutUserInput
+  SlimeCityMatches?: Prisma.SlimeCityMatchCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutFacetsInput = {
@@ -7290,6 +7394,8 @@ export type UserUncheckedCreateWithoutFacetsInput = {
   GrantsGiven?: Prisma.GrantUncheckedCreateNestedManyWithoutGranterInput
   GrantsReceived?: Prisma.GrantUncheckedCreateNestedManyWithoutGranteeInput
   PacksOwned?: Prisma.PackUncheckedCreateNestedManyWithoutOwnerInput
+  SlimeCityAccount?: Prisma.SlimeCityAccountUncheckedCreateNestedOneWithoutUserInput
+  SlimeCityMatches?: Prisma.SlimeCityMatchUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutFacetsInput = {
@@ -7430,6 +7536,8 @@ export type UserUpdateWithoutFacetsInput = {
   GrantsGiven?: Prisma.GrantUpdateManyWithoutGranterNestedInput
   GrantsReceived?: Prisma.GrantUpdateManyWithoutGranteeNestedInput
   PacksOwned?: Prisma.PackUpdateManyWithoutOwnerNestedInput
+  SlimeCityAccount?: Prisma.SlimeCityAccountUpdateOneWithoutUserNestedInput
+  SlimeCityMatches?: Prisma.SlimeCityMatchUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutFacetsInput = {
@@ -7555,6 +7663,8 @@ export type UserUncheckedUpdateWithoutFacetsInput = {
   GrantsGiven?: Prisma.GrantUncheckedUpdateManyWithoutGranterNestedInput
   GrantsReceived?: Prisma.GrantUncheckedUpdateManyWithoutGranteeNestedInput
   PacksOwned?: Prisma.PackUncheckedUpdateManyWithoutOwnerNestedInput
+  SlimeCityAccount?: Prisma.SlimeCityAccountUncheckedUpdateOneWithoutUserNestedInput
+  SlimeCityMatches?: Prisma.SlimeCityMatchUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutLogsInput = {
@@ -7679,6 +7789,8 @@ export type UserCreateWithoutLogsInput = {
   GrantsGiven?: Prisma.GrantCreateNestedManyWithoutGranterInput
   GrantsReceived?: Prisma.GrantCreateNestedManyWithoutGranteeInput
   PacksOwned?: Prisma.PackCreateNestedManyWithoutOwnerInput
+  SlimeCityAccount?: Prisma.SlimeCityAccountCreateNestedOneWithoutUserInput
+  SlimeCityMatches?: Prisma.SlimeCityMatchCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutLogsInput = {
@@ -7804,6 +7916,8 @@ export type UserUncheckedCreateWithoutLogsInput = {
   GrantsGiven?: Prisma.GrantUncheckedCreateNestedManyWithoutGranterInput
   GrantsReceived?: Prisma.GrantUncheckedCreateNestedManyWithoutGranteeInput
   PacksOwned?: Prisma.PackUncheckedCreateNestedManyWithoutOwnerInput
+  SlimeCityAccount?: Prisma.SlimeCityAccountUncheckedCreateNestedOneWithoutUserInput
+  SlimeCityMatches?: Prisma.SlimeCityMatchUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutLogsInput = {
@@ -7944,6 +8058,8 @@ export type UserUpdateWithoutLogsInput = {
   GrantsGiven?: Prisma.GrantUpdateManyWithoutGranterNestedInput
   GrantsReceived?: Prisma.GrantUpdateManyWithoutGranteeNestedInput
   PacksOwned?: Prisma.PackUpdateManyWithoutOwnerNestedInput
+  SlimeCityAccount?: Prisma.SlimeCityAccountUpdateOneWithoutUserNestedInput
+  SlimeCityMatches?: Prisma.SlimeCityMatchUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutLogsInput = {
@@ -8069,6 +8185,8 @@ export type UserUncheckedUpdateWithoutLogsInput = {
   GrantsGiven?: Prisma.GrantUncheckedUpdateManyWithoutGranterNestedInput
   GrantsReceived?: Prisma.GrantUncheckedUpdateManyWithoutGranteeNestedInput
   PacksOwned?: Prisma.PackUncheckedUpdateManyWithoutOwnerNestedInput
+  SlimeCityAccount?: Prisma.SlimeCityAccountUncheckedUpdateOneWithoutUserNestedInput
+  SlimeCityMatches?: Prisma.SlimeCityMatchUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutManaTransactionsInput = {
@@ -8193,6 +8311,8 @@ export type UserCreateWithoutManaTransactionsInput = {
   GrantsGiven?: Prisma.GrantCreateNestedManyWithoutGranterInput
   GrantsReceived?: Prisma.GrantCreateNestedManyWithoutGranteeInput
   PacksOwned?: Prisma.PackCreateNestedManyWithoutOwnerInput
+  SlimeCityAccount?: Prisma.SlimeCityAccountCreateNestedOneWithoutUserInput
+  SlimeCityMatches?: Prisma.SlimeCityMatchCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutManaTransactionsInput = {
@@ -8318,6 +8438,8 @@ export type UserUncheckedCreateWithoutManaTransactionsInput = {
   GrantsGiven?: Prisma.GrantUncheckedCreateNestedManyWithoutGranterInput
   GrantsReceived?: Prisma.GrantUncheckedCreateNestedManyWithoutGranteeInput
   PacksOwned?: Prisma.PackUncheckedCreateNestedManyWithoutOwnerInput
+  SlimeCityAccount?: Prisma.SlimeCityAccountUncheckedCreateNestedOneWithoutUserInput
+  SlimeCityMatches?: Prisma.SlimeCityMatchUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutManaTransactionsInput = {
@@ -8458,6 +8580,8 @@ export type UserUpdateWithoutManaTransactionsInput = {
   GrantsGiven?: Prisma.GrantUpdateManyWithoutGranterNestedInput
   GrantsReceived?: Prisma.GrantUpdateManyWithoutGranteeNestedInput
   PacksOwned?: Prisma.PackUpdateManyWithoutOwnerNestedInput
+  SlimeCityAccount?: Prisma.SlimeCityAccountUpdateOneWithoutUserNestedInput
+  SlimeCityMatches?: Prisma.SlimeCityMatchUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutManaTransactionsInput = {
@@ -8583,6 +8707,8 @@ export type UserUncheckedUpdateWithoutManaTransactionsInput = {
   GrantsGiven?: Prisma.GrantUncheckedUpdateManyWithoutGranterNestedInput
   GrantsReceived?: Prisma.GrantUncheckedUpdateManyWithoutGranteeNestedInput
   PacksOwned?: Prisma.PackUncheckedUpdateManyWithoutOwnerNestedInput
+  SlimeCityAccount?: Prisma.SlimeCityAccountUncheckedUpdateOneWithoutUserNestedInput
+  SlimeCityMatches?: Prisma.SlimeCityMatchUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutMissionRemittancesInput = {
@@ -8707,6 +8833,8 @@ export type UserCreateWithoutMissionRemittancesInput = {
   GrantsGiven?: Prisma.GrantCreateNestedManyWithoutGranterInput
   GrantsReceived?: Prisma.GrantCreateNestedManyWithoutGranteeInput
   PacksOwned?: Prisma.PackCreateNestedManyWithoutOwnerInput
+  SlimeCityAccount?: Prisma.SlimeCityAccountCreateNestedOneWithoutUserInput
+  SlimeCityMatches?: Prisma.SlimeCityMatchCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutMissionRemittancesInput = {
@@ -8832,6 +8960,8 @@ export type UserUncheckedCreateWithoutMissionRemittancesInput = {
   GrantsGiven?: Prisma.GrantUncheckedCreateNestedManyWithoutGranterInput
   GrantsReceived?: Prisma.GrantUncheckedCreateNestedManyWithoutGranteeInput
   PacksOwned?: Prisma.PackUncheckedCreateNestedManyWithoutOwnerInput
+  SlimeCityAccount?: Prisma.SlimeCityAccountUncheckedCreateNestedOneWithoutUserInput
+  SlimeCityMatches?: Prisma.SlimeCityMatchUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutMissionRemittancesInput = {
@@ -8972,6 +9102,8 @@ export type UserUpdateWithoutMissionRemittancesInput = {
   GrantsGiven?: Prisma.GrantUpdateManyWithoutGranterNestedInput
   GrantsReceived?: Prisma.GrantUpdateManyWithoutGranteeNestedInput
   PacksOwned?: Prisma.PackUpdateManyWithoutOwnerNestedInput
+  SlimeCityAccount?: Prisma.SlimeCityAccountUpdateOneWithoutUserNestedInput
+  SlimeCityMatches?: Prisma.SlimeCityMatchUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutMissionRemittancesInput = {
@@ -9097,6 +9229,8 @@ export type UserUncheckedUpdateWithoutMissionRemittancesInput = {
   GrantsGiven?: Prisma.GrantUncheckedUpdateManyWithoutGranterNestedInput
   GrantsReceived?: Prisma.GrantUncheckedUpdateManyWithoutGranteeNestedInput
   PacksOwned?: Prisma.PackUncheckedUpdateManyWithoutOwnerNestedInput
+  SlimeCityAccount?: Prisma.SlimeCityAccountUncheckedUpdateOneWithoutUserNestedInput
+  SlimeCityMatches?: Prisma.SlimeCityMatchUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutOrdersInput = {
@@ -9221,6 +9355,8 @@ export type UserCreateWithoutOrdersInput = {
   GrantsGiven?: Prisma.GrantCreateNestedManyWithoutGranterInput
   GrantsReceived?: Prisma.GrantCreateNestedManyWithoutGranteeInput
   PacksOwned?: Prisma.PackCreateNestedManyWithoutOwnerInput
+  SlimeCityAccount?: Prisma.SlimeCityAccountCreateNestedOneWithoutUserInput
+  SlimeCityMatches?: Prisma.SlimeCityMatchCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutOrdersInput = {
@@ -9346,6 +9482,8 @@ export type UserUncheckedCreateWithoutOrdersInput = {
   GrantsGiven?: Prisma.GrantUncheckedCreateNestedManyWithoutGranterInput
   GrantsReceived?: Prisma.GrantUncheckedCreateNestedManyWithoutGranteeInput
   PacksOwned?: Prisma.PackUncheckedCreateNestedManyWithoutOwnerInput
+  SlimeCityAccount?: Prisma.SlimeCityAccountUncheckedCreateNestedOneWithoutUserInput
+  SlimeCityMatches?: Prisma.SlimeCityMatchUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutOrdersInput = {
@@ -9486,6 +9624,8 @@ export type UserUpdateWithoutOrdersInput = {
   GrantsGiven?: Prisma.GrantUpdateManyWithoutGranterNestedInput
   GrantsReceived?: Prisma.GrantUpdateManyWithoutGranteeNestedInput
   PacksOwned?: Prisma.PackUpdateManyWithoutOwnerNestedInput
+  SlimeCityAccount?: Prisma.SlimeCityAccountUpdateOneWithoutUserNestedInput
+  SlimeCityMatches?: Prisma.SlimeCityMatchUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutOrdersInput = {
@@ -9611,6 +9751,8 @@ export type UserUncheckedUpdateWithoutOrdersInput = {
   GrantsGiven?: Prisma.GrantUncheckedUpdateManyWithoutGranterNestedInput
   GrantsReceived?: Prisma.GrantUncheckedUpdateManyWithoutGranteeNestedInput
   PacksOwned?: Prisma.PackUncheckedUpdateManyWithoutOwnerNestedInput
+  SlimeCityAccount?: Prisma.SlimeCityAccountUncheckedUpdateOneWithoutUserNestedInput
+  SlimeCityMatches?: Prisma.SlimeCityMatchUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutEntitlementsInput = {
@@ -9735,6 +9877,8 @@ export type UserCreateWithoutEntitlementsInput = {
   GrantsGiven?: Prisma.GrantCreateNestedManyWithoutGranterInput
   GrantsReceived?: Prisma.GrantCreateNestedManyWithoutGranteeInput
   PacksOwned?: Prisma.PackCreateNestedManyWithoutOwnerInput
+  SlimeCityAccount?: Prisma.SlimeCityAccountCreateNestedOneWithoutUserInput
+  SlimeCityMatches?: Prisma.SlimeCityMatchCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutEntitlementsInput = {
@@ -9860,6 +10004,8 @@ export type UserUncheckedCreateWithoutEntitlementsInput = {
   GrantsGiven?: Prisma.GrantUncheckedCreateNestedManyWithoutGranterInput
   GrantsReceived?: Prisma.GrantUncheckedCreateNestedManyWithoutGranteeInput
   PacksOwned?: Prisma.PackUncheckedCreateNestedManyWithoutOwnerInput
+  SlimeCityAccount?: Prisma.SlimeCityAccountUncheckedCreateNestedOneWithoutUserInput
+  SlimeCityMatches?: Prisma.SlimeCityMatchUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutEntitlementsInput = {
@@ -10000,6 +10146,8 @@ export type UserUpdateWithoutEntitlementsInput = {
   GrantsGiven?: Prisma.GrantUpdateManyWithoutGranterNestedInput
   GrantsReceived?: Prisma.GrantUpdateManyWithoutGranteeNestedInput
   PacksOwned?: Prisma.PackUpdateManyWithoutOwnerNestedInput
+  SlimeCityAccount?: Prisma.SlimeCityAccountUpdateOneWithoutUserNestedInput
+  SlimeCityMatches?: Prisma.SlimeCityMatchUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutEntitlementsInput = {
@@ -10125,6 +10273,8 @@ export type UserUncheckedUpdateWithoutEntitlementsInput = {
   GrantsGiven?: Prisma.GrantUncheckedUpdateManyWithoutGranterNestedInput
   GrantsReceived?: Prisma.GrantUncheckedUpdateManyWithoutGranteeNestedInput
   PacksOwned?: Prisma.PackUncheckedUpdateManyWithoutOwnerNestedInput
+  SlimeCityAccount?: Prisma.SlimeCityAccountUncheckedUpdateOneWithoutUserNestedInput
+  SlimeCityMatches?: Prisma.SlimeCityMatchUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutGrantsGivenInput = {
@@ -10249,6 +10399,8 @@ export type UserCreateWithoutGrantsGivenInput = {
   UserRoles?: Prisma.UserRoleCreateNestedManyWithoutUserInput
   GrantsReceived?: Prisma.GrantCreateNestedManyWithoutGranteeInput
   PacksOwned?: Prisma.PackCreateNestedManyWithoutOwnerInput
+  SlimeCityAccount?: Prisma.SlimeCityAccountCreateNestedOneWithoutUserInput
+  SlimeCityMatches?: Prisma.SlimeCityMatchCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutGrantsGivenInput = {
@@ -10374,6 +10526,8 @@ export type UserUncheckedCreateWithoutGrantsGivenInput = {
   UserRoles?: Prisma.UserRoleUncheckedCreateNestedManyWithoutUserInput
   GrantsReceived?: Prisma.GrantUncheckedCreateNestedManyWithoutGranteeInput
   PacksOwned?: Prisma.PackUncheckedCreateNestedManyWithoutOwnerInput
+  SlimeCityAccount?: Prisma.SlimeCityAccountUncheckedCreateNestedOneWithoutUserInput
+  SlimeCityMatches?: Prisma.SlimeCityMatchUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutGrantsGivenInput = {
@@ -10503,6 +10657,8 @@ export type UserCreateWithoutGrantsReceivedInput = {
   UserRoles?: Prisma.UserRoleCreateNestedManyWithoutUserInput
   GrantsGiven?: Prisma.GrantCreateNestedManyWithoutGranterInput
   PacksOwned?: Prisma.PackCreateNestedManyWithoutOwnerInput
+  SlimeCityAccount?: Prisma.SlimeCityAccountCreateNestedOneWithoutUserInput
+  SlimeCityMatches?: Prisma.SlimeCityMatchCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutGrantsReceivedInput = {
@@ -10628,6 +10784,8 @@ export type UserUncheckedCreateWithoutGrantsReceivedInput = {
   UserRoles?: Prisma.UserRoleUncheckedCreateNestedManyWithoutUserInput
   GrantsGiven?: Prisma.GrantUncheckedCreateNestedManyWithoutGranterInput
   PacksOwned?: Prisma.PackUncheckedCreateNestedManyWithoutOwnerInput
+  SlimeCityAccount?: Prisma.SlimeCityAccountUncheckedCreateNestedOneWithoutUserInput
+  SlimeCityMatches?: Prisma.SlimeCityMatchUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutGrantsReceivedInput = {
@@ -10768,6 +10926,8 @@ export type UserUpdateWithoutGrantsGivenInput = {
   UserRoles?: Prisma.UserRoleUpdateManyWithoutUserNestedInput
   GrantsReceived?: Prisma.GrantUpdateManyWithoutGranteeNestedInput
   PacksOwned?: Prisma.PackUpdateManyWithoutOwnerNestedInput
+  SlimeCityAccount?: Prisma.SlimeCityAccountUpdateOneWithoutUserNestedInput
+  SlimeCityMatches?: Prisma.SlimeCityMatchUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutGrantsGivenInput = {
@@ -10893,6 +11053,8 @@ export type UserUncheckedUpdateWithoutGrantsGivenInput = {
   UserRoles?: Prisma.UserRoleUncheckedUpdateManyWithoutUserNestedInput
   GrantsReceived?: Prisma.GrantUncheckedUpdateManyWithoutGranteeNestedInput
   PacksOwned?: Prisma.PackUncheckedUpdateManyWithoutOwnerNestedInput
+  SlimeCityAccount?: Prisma.SlimeCityAccountUncheckedUpdateOneWithoutUserNestedInput
+  SlimeCityMatches?: Prisma.SlimeCityMatchUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserUpsertWithoutGrantsReceivedInput = {
@@ -11028,6 +11190,8 @@ export type UserUpdateWithoutGrantsReceivedInput = {
   UserRoles?: Prisma.UserRoleUpdateManyWithoutUserNestedInput
   GrantsGiven?: Prisma.GrantUpdateManyWithoutGranterNestedInput
   PacksOwned?: Prisma.PackUpdateManyWithoutOwnerNestedInput
+  SlimeCityAccount?: Prisma.SlimeCityAccountUpdateOneWithoutUserNestedInput
+  SlimeCityMatches?: Prisma.SlimeCityMatchUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutGrantsReceivedInput = {
@@ -11153,6 +11317,8 @@ export type UserUncheckedUpdateWithoutGrantsReceivedInput = {
   UserRoles?: Prisma.UserRoleUncheckedUpdateManyWithoutUserNestedInput
   GrantsGiven?: Prisma.GrantUncheckedUpdateManyWithoutGranterNestedInput
   PacksOwned?: Prisma.PackUncheckedUpdateManyWithoutOwnerNestedInput
+  SlimeCityAccount?: Prisma.SlimeCityAccountUncheckedUpdateOneWithoutUserNestedInput
+  SlimeCityMatches?: Prisma.SlimeCityMatchUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutPacksOwnedInput = {
@@ -11277,6 +11443,8 @@ export type UserCreateWithoutPacksOwnedInput = {
   UserRoles?: Prisma.UserRoleCreateNestedManyWithoutUserInput
   GrantsGiven?: Prisma.GrantCreateNestedManyWithoutGranterInput
   GrantsReceived?: Prisma.GrantCreateNestedManyWithoutGranteeInput
+  SlimeCityAccount?: Prisma.SlimeCityAccountCreateNestedOneWithoutUserInput
+  SlimeCityMatches?: Prisma.SlimeCityMatchCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutPacksOwnedInput = {
@@ -11402,6 +11570,8 @@ export type UserUncheckedCreateWithoutPacksOwnedInput = {
   UserRoles?: Prisma.UserRoleUncheckedCreateNestedManyWithoutUserInput
   GrantsGiven?: Prisma.GrantUncheckedCreateNestedManyWithoutGranterInput
   GrantsReceived?: Prisma.GrantUncheckedCreateNestedManyWithoutGranteeInput
+  SlimeCityAccount?: Prisma.SlimeCityAccountUncheckedCreateNestedOneWithoutUserInput
+  SlimeCityMatches?: Prisma.SlimeCityMatchUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutPacksOwnedInput = {
@@ -11542,6 +11712,8 @@ export type UserUpdateWithoutPacksOwnedInput = {
   UserRoles?: Prisma.UserRoleUpdateManyWithoutUserNestedInput
   GrantsGiven?: Prisma.GrantUpdateManyWithoutGranterNestedInput
   GrantsReceived?: Prisma.GrantUpdateManyWithoutGranteeNestedInput
+  SlimeCityAccount?: Prisma.SlimeCityAccountUpdateOneWithoutUserNestedInput
+  SlimeCityMatches?: Prisma.SlimeCityMatchUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutPacksOwnedInput = {
@@ -11667,6 +11839,8 @@ export type UserUncheckedUpdateWithoutPacksOwnedInput = {
   UserRoles?: Prisma.UserRoleUncheckedUpdateManyWithoutUserNestedInput
   GrantsGiven?: Prisma.GrantUncheckedUpdateManyWithoutGranterNestedInput
   GrantsReceived?: Prisma.GrantUncheckedUpdateManyWithoutGranteeNestedInput
+  SlimeCityAccount?: Prisma.SlimeCityAccountUncheckedUpdateOneWithoutUserNestedInput
+  SlimeCityMatches?: Prisma.SlimeCityMatchUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutAchievementsInput = {
@@ -11791,6 +11965,8 @@ export type UserCreateWithoutAchievementsInput = {
   GrantsGiven?: Prisma.GrantCreateNestedManyWithoutGranterInput
   GrantsReceived?: Prisma.GrantCreateNestedManyWithoutGranteeInput
   PacksOwned?: Prisma.PackCreateNestedManyWithoutOwnerInput
+  SlimeCityAccount?: Prisma.SlimeCityAccountCreateNestedOneWithoutUserInput
+  SlimeCityMatches?: Prisma.SlimeCityMatchCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutAchievementsInput = {
@@ -11916,6 +12092,8 @@ export type UserUncheckedCreateWithoutAchievementsInput = {
   GrantsGiven?: Prisma.GrantUncheckedCreateNestedManyWithoutGranterInput
   GrantsReceived?: Prisma.GrantUncheckedCreateNestedManyWithoutGranteeInput
   PacksOwned?: Prisma.PackUncheckedCreateNestedManyWithoutOwnerInput
+  SlimeCityAccount?: Prisma.SlimeCityAccountUncheckedCreateNestedOneWithoutUserInput
+  SlimeCityMatches?: Prisma.SlimeCityMatchUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutAchievementsInput = {
@@ -12056,6 +12234,8 @@ export type UserUpdateWithoutAchievementsInput = {
   GrantsGiven?: Prisma.GrantUpdateManyWithoutGranterNestedInput
   GrantsReceived?: Prisma.GrantUpdateManyWithoutGranteeNestedInput
   PacksOwned?: Prisma.PackUpdateManyWithoutOwnerNestedInput
+  SlimeCityAccount?: Prisma.SlimeCityAccountUpdateOneWithoutUserNestedInput
+  SlimeCityMatches?: Prisma.SlimeCityMatchUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutAchievementsInput = {
@@ -12181,6 +12361,8 @@ export type UserUncheckedUpdateWithoutAchievementsInput = {
   GrantsGiven?: Prisma.GrantUncheckedUpdateManyWithoutGranterNestedInput
   GrantsReceived?: Prisma.GrantUncheckedUpdateManyWithoutGranteeNestedInput
   PacksOwned?: Prisma.PackUncheckedUpdateManyWithoutOwnerNestedInput
+  SlimeCityAccount?: Prisma.SlimeCityAccountUncheckedUpdateOneWithoutUserNestedInput
+  SlimeCityMatches?: Prisma.SlimeCityMatchUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutPitchSheetsInput = {
@@ -12305,6 +12487,8 @@ export type UserCreateWithoutPitchSheetsInput = {
   GrantsGiven?: Prisma.GrantCreateNestedManyWithoutGranterInput
   GrantsReceived?: Prisma.GrantCreateNestedManyWithoutGranteeInput
   PacksOwned?: Prisma.PackCreateNestedManyWithoutOwnerInput
+  SlimeCityAccount?: Prisma.SlimeCityAccountCreateNestedOneWithoutUserInput
+  SlimeCityMatches?: Prisma.SlimeCityMatchCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutPitchSheetsInput = {
@@ -12430,6 +12614,8 @@ export type UserUncheckedCreateWithoutPitchSheetsInput = {
   GrantsGiven?: Prisma.GrantUncheckedCreateNestedManyWithoutGranterInput
   GrantsReceived?: Prisma.GrantUncheckedCreateNestedManyWithoutGranteeInput
   PacksOwned?: Prisma.PackUncheckedCreateNestedManyWithoutOwnerInput
+  SlimeCityAccount?: Prisma.SlimeCityAccountUncheckedCreateNestedOneWithoutUserInput
+  SlimeCityMatches?: Prisma.SlimeCityMatchUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutPitchSheetsInput = {
@@ -12570,6 +12756,8 @@ export type UserUpdateWithoutPitchSheetsInput = {
   GrantsGiven?: Prisma.GrantUpdateManyWithoutGranterNestedInput
   GrantsReceived?: Prisma.GrantUpdateManyWithoutGranteeNestedInput
   PacksOwned?: Prisma.PackUpdateManyWithoutOwnerNestedInput
+  SlimeCityAccount?: Prisma.SlimeCityAccountUpdateOneWithoutUserNestedInput
+  SlimeCityMatches?: Prisma.SlimeCityMatchUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutPitchSheetsInput = {
@@ -12695,6 +12883,8 @@ export type UserUncheckedUpdateWithoutPitchSheetsInput = {
   GrantsGiven?: Prisma.GrantUncheckedUpdateManyWithoutGranterNestedInput
   GrantsReceived?: Prisma.GrantUncheckedUpdateManyWithoutGranteeNestedInput
   PacksOwned?: Prisma.PackUncheckedUpdateManyWithoutOwnerNestedInput
+  SlimeCityAccount?: Prisma.SlimeCityAccountUncheckedUpdateOneWithoutUserNestedInput
+  SlimeCityMatches?: Prisma.SlimeCityMatchUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutClaimedPromptsInput = {
@@ -12819,6 +13009,8 @@ export type UserCreateWithoutClaimedPromptsInput = {
   GrantsGiven?: Prisma.GrantCreateNestedManyWithoutGranterInput
   GrantsReceived?: Prisma.GrantCreateNestedManyWithoutGranteeInput
   PacksOwned?: Prisma.PackCreateNestedManyWithoutOwnerInput
+  SlimeCityAccount?: Prisma.SlimeCityAccountCreateNestedOneWithoutUserInput
+  SlimeCityMatches?: Prisma.SlimeCityMatchCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutClaimedPromptsInput = {
@@ -12944,6 +13136,8 @@ export type UserUncheckedCreateWithoutClaimedPromptsInput = {
   GrantsGiven?: Prisma.GrantUncheckedCreateNestedManyWithoutGranterInput
   GrantsReceived?: Prisma.GrantUncheckedCreateNestedManyWithoutGranteeInput
   PacksOwned?: Prisma.PackUncheckedCreateNestedManyWithoutOwnerInput
+  SlimeCityAccount?: Prisma.SlimeCityAccountUncheckedCreateNestedOneWithoutUserInput
+  SlimeCityMatches?: Prisma.SlimeCityMatchUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutClaimedPromptsInput = {
@@ -13073,6 +13267,8 @@ export type UserCreateWithoutPromptsInput = {
   GrantsGiven?: Prisma.GrantCreateNestedManyWithoutGranterInput
   GrantsReceived?: Prisma.GrantCreateNestedManyWithoutGranteeInput
   PacksOwned?: Prisma.PackCreateNestedManyWithoutOwnerInput
+  SlimeCityAccount?: Prisma.SlimeCityAccountCreateNestedOneWithoutUserInput
+  SlimeCityMatches?: Prisma.SlimeCityMatchCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutPromptsInput = {
@@ -13198,6 +13394,8 @@ export type UserUncheckedCreateWithoutPromptsInput = {
   GrantsGiven?: Prisma.GrantUncheckedCreateNestedManyWithoutGranterInput
   GrantsReceived?: Prisma.GrantUncheckedCreateNestedManyWithoutGranteeInput
   PacksOwned?: Prisma.PackUncheckedCreateNestedManyWithoutOwnerInput
+  SlimeCityAccount?: Prisma.SlimeCityAccountUncheckedCreateNestedOneWithoutUserInput
+  SlimeCityMatches?: Prisma.SlimeCityMatchUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutPromptsInput = {
@@ -13338,6 +13536,8 @@ export type UserUpdateWithoutClaimedPromptsInput = {
   GrantsGiven?: Prisma.GrantUpdateManyWithoutGranterNestedInput
   GrantsReceived?: Prisma.GrantUpdateManyWithoutGranteeNestedInput
   PacksOwned?: Prisma.PackUpdateManyWithoutOwnerNestedInput
+  SlimeCityAccount?: Prisma.SlimeCityAccountUpdateOneWithoutUserNestedInput
+  SlimeCityMatches?: Prisma.SlimeCityMatchUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutClaimedPromptsInput = {
@@ -13463,6 +13663,8 @@ export type UserUncheckedUpdateWithoutClaimedPromptsInput = {
   GrantsGiven?: Prisma.GrantUncheckedUpdateManyWithoutGranterNestedInput
   GrantsReceived?: Prisma.GrantUncheckedUpdateManyWithoutGranteeNestedInput
   PacksOwned?: Prisma.PackUncheckedUpdateManyWithoutOwnerNestedInput
+  SlimeCityAccount?: Prisma.SlimeCityAccountUncheckedUpdateOneWithoutUserNestedInput
+  SlimeCityMatches?: Prisma.SlimeCityMatchUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserUpsertWithoutPromptsInput = {
@@ -13598,6 +13800,8 @@ export type UserUpdateWithoutPromptsInput = {
   GrantsGiven?: Prisma.GrantUpdateManyWithoutGranterNestedInput
   GrantsReceived?: Prisma.GrantUpdateManyWithoutGranteeNestedInput
   PacksOwned?: Prisma.PackUpdateManyWithoutOwnerNestedInput
+  SlimeCityAccount?: Prisma.SlimeCityAccountUpdateOneWithoutUserNestedInput
+  SlimeCityMatches?: Prisma.SlimeCityMatchUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutPromptsInput = {
@@ -13723,6 +13927,8 @@ export type UserUncheckedUpdateWithoutPromptsInput = {
   GrantsGiven?: Prisma.GrantUncheckedUpdateManyWithoutGranterNestedInput
   GrantsReceived?: Prisma.GrantUncheckedUpdateManyWithoutGranteeNestedInput
   PacksOwned?: Prisma.PackUncheckedUpdateManyWithoutOwnerNestedInput
+  SlimeCityAccount?: Prisma.SlimeCityAccountUncheckedUpdateOneWithoutUserNestedInput
+  SlimeCityMatches?: Prisma.SlimeCityMatchUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutPlumberLevelsInput = {
@@ -13847,6 +14053,8 @@ export type UserCreateWithoutPlumberLevelsInput = {
   GrantsGiven?: Prisma.GrantCreateNestedManyWithoutGranterInput
   GrantsReceived?: Prisma.GrantCreateNestedManyWithoutGranteeInput
   PacksOwned?: Prisma.PackCreateNestedManyWithoutOwnerInput
+  SlimeCityAccount?: Prisma.SlimeCityAccountCreateNestedOneWithoutUserInput
+  SlimeCityMatches?: Prisma.SlimeCityMatchCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutPlumberLevelsInput = {
@@ -13972,6 +14180,8 @@ export type UserUncheckedCreateWithoutPlumberLevelsInput = {
   GrantsGiven?: Prisma.GrantUncheckedCreateNestedManyWithoutGranterInput
   GrantsReceived?: Prisma.GrantUncheckedCreateNestedManyWithoutGranteeInput
   PacksOwned?: Prisma.PackUncheckedCreateNestedManyWithoutOwnerInput
+  SlimeCityAccount?: Prisma.SlimeCityAccountUncheckedCreateNestedOneWithoutUserInput
+  SlimeCityMatches?: Prisma.SlimeCityMatchUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutPlumberLevelsInput = {
@@ -14112,6 +14322,8 @@ export type UserUpdateWithoutPlumberLevelsInput = {
   GrantsGiven?: Prisma.GrantUpdateManyWithoutGranterNestedInput
   GrantsReceived?: Prisma.GrantUpdateManyWithoutGranteeNestedInput
   PacksOwned?: Prisma.PackUpdateManyWithoutOwnerNestedInput
+  SlimeCityAccount?: Prisma.SlimeCityAccountUpdateOneWithoutUserNestedInput
+  SlimeCityMatches?: Prisma.SlimeCityMatchUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutPlumberLevelsInput = {
@@ -14237,6 +14449,8 @@ export type UserUncheckedUpdateWithoutPlumberLevelsInput = {
   GrantsGiven?: Prisma.GrantUncheckedUpdateManyWithoutGranterNestedInput
   GrantsReceived?: Prisma.GrantUncheckedUpdateManyWithoutGranteeNestedInput
   PacksOwned?: Prisma.PackUncheckedUpdateManyWithoutOwnerNestedInput
+  SlimeCityAccount?: Prisma.SlimeCityAccountUncheckedUpdateOneWithoutUserNestedInput
+  SlimeCityMatches?: Prisma.SlimeCityMatchUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutReactionsInput = {
@@ -14361,6 +14575,8 @@ export type UserCreateWithoutReactionsInput = {
   GrantsGiven?: Prisma.GrantCreateNestedManyWithoutGranterInput
   GrantsReceived?: Prisma.GrantCreateNestedManyWithoutGranteeInput
   PacksOwned?: Prisma.PackCreateNestedManyWithoutOwnerInput
+  SlimeCityAccount?: Prisma.SlimeCityAccountCreateNestedOneWithoutUserInput
+  SlimeCityMatches?: Prisma.SlimeCityMatchCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutReactionsInput = {
@@ -14486,6 +14702,8 @@ export type UserUncheckedCreateWithoutReactionsInput = {
   GrantsGiven?: Prisma.GrantUncheckedCreateNestedManyWithoutGranterInput
   GrantsReceived?: Prisma.GrantUncheckedCreateNestedManyWithoutGranteeInput
   PacksOwned?: Prisma.PackUncheckedCreateNestedManyWithoutOwnerInput
+  SlimeCityAccount?: Prisma.SlimeCityAccountUncheckedCreateNestedOneWithoutUserInput
+  SlimeCityMatches?: Prisma.SlimeCityMatchUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutReactionsInput = {
@@ -14626,6 +14844,8 @@ export type UserUpdateWithoutReactionsInput = {
   GrantsGiven?: Prisma.GrantUpdateManyWithoutGranterNestedInput
   GrantsReceived?: Prisma.GrantUpdateManyWithoutGranteeNestedInput
   PacksOwned?: Prisma.PackUpdateManyWithoutOwnerNestedInput
+  SlimeCityAccount?: Prisma.SlimeCityAccountUpdateOneWithoutUserNestedInput
+  SlimeCityMatches?: Prisma.SlimeCityMatchUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutReactionsInput = {
@@ -14751,6 +14971,8 @@ export type UserUncheckedUpdateWithoutReactionsInput = {
   GrantsGiven?: Prisma.GrantUncheckedUpdateManyWithoutGranterNestedInput
   GrantsReceived?: Prisma.GrantUncheckedUpdateManyWithoutGranteeNestedInput
   PacksOwned?: Prisma.PackUncheckedUpdateManyWithoutOwnerNestedInput
+  SlimeCityAccount?: Prisma.SlimeCityAccountUncheckedUpdateOneWithoutUserNestedInput
+  SlimeCityMatches?: Prisma.SlimeCityMatchUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutResourcesInput = {
@@ -14875,6 +15097,8 @@ export type UserCreateWithoutResourcesInput = {
   GrantsGiven?: Prisma.GrantCreateNestedManyWithoutGranterInput
   GrantsReceived?: Prisma.GrantCreateNestedManyWithoutGranteeInput
   PacksOwned?: Prisma.PackCreateNestedManyWithoutOwnerInput
+  SlimeCityAccount?: Prisma.SlimeCityAccountCreateNestedOneWithoutUserInput
+  SlimeCityMatches?: Prisma.SlimeCityMatchCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutResourcesInput = {
@@ -15000,6 +15224,8 @@ export type UserUncheckedCreateWithoutResourcesInput = {
   GrantsGiven?: Prisma.GrantUncheckedCreateNestedManyWithoutGranterInput
   GrantsReceived?: Prisma.GrantUncheckedCreateNestedManyWithoutGranteeInput
   PacksOwned?: Prisma.PackUncheckedCreateNestedManyWithoutOwnerInput
+  SlimeCityAccount?: Prisma.SlimeCityAccountUncheckedCreateNestedOneWithoutUserInput
+  SlimeCityMatches?: Prisma.SlimeCityMatchUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutResourcesInput = {
@@ -15140,6 +15366,8 @@ export type UserUpdateWithoutResourcesInput = {
   GrantsGiven?: Prisma.GrantUpdateManyWithoutGranterNestedInput
   GrantsReceived?: Prisma.GrantUpdateManyWithoutGranteeNestedInput
   PacksOwned?: Prisma.PackUpdateManyWithoutOwnerNestedInput
+  SlimeCityAccount?: Prisma.SlimeCityAccountUpdateOneWithoutUserNestedInput
+  SlimeCityMatches?: Prisma.SlimeCityMatchUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutResourcesInput = {
@@ -15265,6 +15493,8 @@ export type UserUncheckedUpdateWithoutResourcesInput = {
   GrantsGiven?: Prisma.GrantUncheckedUpdateManyWithoutGranterNestedInput
   GrantsReceived?: Prisma.GrantUncheckedUpdateManyWithoutGranteeNestedInput
   PacksOwned?: Prisma.PackUncheckedUpdateManyWithoutOwnerNestedInput
+  SlimeCityAccount?: Prisma.SlimeCityAccountUncheckedUpdateOneWithoutUserNestedInput
+  SlimeCityMatches?: Prisma.SlimeCityMatchUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutRewardsInput = {
@@ -15389,6 +15619,8 @@ export type UserCreateWithoutRewardsInput = {
   GrantsGiven?: Prisma.GrantCreateNestedManyWithoutGranterInput
   GrantsReceived?: Prisma.GrantCreateNestedManyWithoutGranteeInput
   PacksOwned?: Prisma.PackCreateNestedManyWithoutOwnerInput
+  SlimeCityAccount?: Prisma.SlimeCityAccountCreateNestedOneWithoutUserInput
+  SlimeCityMatches?: Prisma.SlimeCityMatchCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutRewardsInput = {
@@ -15514,6 +15746,8 @@ export type UserUncheckedCreateWithoutRewardsInput = {
   GrantsGiven?: Prisma.GrantUncheckedCreateNestedManyWithoutGranterInput
   GrantsReceived?: Prisma.GrantUncheckedCreateNestedManyWithoutGranteeInput
   PacksOwned?: Prisma.PackUncheckedCreateNestedManyWithoutOwnerInput
+  SlimeCityAccount?: Prisma.SlimeCityAccountUncheckedCreateNestedOneWithoutUserInput
+  SlimeCityMatches?: Prisma.SlimeCityMatchUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutRewardsInput = {
@@ -15654,6 +15888,8 @@ export type UserUpdateWithoutRewardsInput = {
   GrantsGiven?: Prisma.GrantUpdateManyWithoutGranterNestedInput
   GrantsReceived?: Prisma.GrantUpdateManyWithoutGranteeNestedInput
   PacksOwned?: Prisma.PackUpdateManyWithoutOwnerNestedInput
+  SlimeCityAccount?: Prisma.SlimeCityAccountUpdateOneWithoutUserNestedInput
+  SlimeCityMatches?: Prisma.SlimeCityMatchUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutRewardsInput = {
@@ -15779,6 +16015,8 @@ export type UserUncheckedUpdateWithoutRewardsInput = {
   GrantsGiven?: Prisma.GrantUncheckedUpdateManyWithoutGranterNestedInput
   GrantsReceived?: Prisma.GrantUncheckedUpdateManyWithoutGranteeNestedInput
   PacksOwned?: Prisma.PackUncheckedUpdateManyWithoutOwnerNestedInput
+  SlimeCityAccount?: Prisma.SlimeCityAccountUncheckedUpdateOneWithoutUserNestedInput
+  SlimeCityMatches?: Prisma.SlimeCityMatchUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutScenariosInput = {
@@ -15903,6 +16141,8 @@ export type UserCreateWithoutScenariosInput = {
   GrantsGiven?: Prisma.GrantCreateNestedManyWithoutGranterInput
   GrantsReceived?: Prisma.GrantCreateNestedManyWithoutGranteeInput
   PacksOwned?: Prisma.PackCreateNestedManyWithoutOwnerInput
+  SlimeCityAccount?: Prisma.SlimeCityAccountCreateNestedOneWithoutUserInput
+  SlimeCityMatches?: Prisma.SlimeCityMatchCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutScenariosInput = {
@@ -16028,6 +16268,8 @@ export type UserUncheckedCreateWithoutScenariosInput = {
   GrantsGiven?: Prisma.GrantUncheckedCreateNestedManyWithoutGranterInput
   GrantsReceived?: Prisma.GrantUncheckedCreateNestedManyWithoutGranteeInput
   PacksOwned?: Prisma.PackUncheckedCreateNestedManyWithoutOwnerInput
+  SlimeCityAccount?: Prisma.SlimeCityAccountUncheckedCreateNestedOneWithoutUserInput
+  SlimeCityMatches?: Prisma.SlimeCityMatchUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutScenariosInput = {
@@ -16168,6 +16410,8 @@ export type UserUpdateWithoutScenariosInput = {
   GrantsGiven?: Prisma.GrantUpdateManyWithoutGranterNestedInput
   GrantsReceived?: Prisma.GrantUpdateManyWithoutGranteeNestedInput
   PacksOwned?: Prisma.PackUpdateManyWithoutOwnerNestedInput
+  SlimeCityAccount?: Prisma.SlimeCityAccountUpdateOneWithoutUserNestedInput
+  SlimeCityMatches?: Prisma.SlimeCityMatchUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutScenariosInput = {
@@ -16293,6 +16537,8 @@ export type UserUncheckedUpdateWithoutScenariosInput = {
   GrantsGiven?: Prisma.GrantUncheckedUpdateManyWithoutGranterNestedInput
   GrantsReceived?: Prisma.GrantUncheckedUpdateManyWithoutGranteeNestedInput
   PacksOwned?: Prisma.PackUncheckedUpdateManyWithoutOwnerNestedInput
+  SlimeCityAccount?: Prisma.SlimeCityAccountUncheckedUpdateOneWithoutUserNestedInput
+  SlimeCityMatches?: Prisma.SlimeCityMatchUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutServersInput = {
@@ -16417,6 +16663,8 @@ export type UserCreateWithoutServersInput = {
   GrantsGiven?: Prisma.GrantCreateNestedManyWithoutGranterInput
   GrantsReceived?: Prisma.GrantCreateNestedManyWithoutGranteeInput
   PacksOwned?: Prisma.PackCreateNestedManyWithoutOwnerInput
+  SlimeCityAccount?: Prisma.SlimeCityAccountCreateNestedOneWithoutUserInput
+  SlimeCityMatches?: Prisma.SlimeCityMatchCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutServersInput = {
@@ -16542,6 +16790,8 @@ export type UserUncheckedCreateWithoutServersInput = {
   GrantsGiven?: Prisma.GrantUncheckedCreateNestedManyWithoutGranterInput
   GrantsReceived?: Prisma.GrantUncheckedCreateNestedManyWithoutGranteeInput
   PacksOwned?: Prisma.PackUncheckedCreateNestedManyWithoutOwnerInput
+  SlimeCityAccount?: Prisma.SlimeCityAccountUncheckedCreateNestedOneWithoutUserInput
+  SlimeCityMatches?: Prisma.SlimeCityMatchUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutServersInput = {
@@ -16682,6 +16932,8 @@ export type UserUpdateWithoutServersInput = {
   GrantsGiven?: Prisma.GrantUpdateManyWithoutGranterNestedInput
   GrantsReceived?: Prisma.GrantUpdateManyWithoutGranteeNestedInput
   PacksOwned?: Prisma.PackUpdateManyWithoutOwnerNestedInput
+  SlimeCityAccount?: Prisma.SlimeCityAccountUpdateOneWithoutUserNestedInput
+  SlimeCityMatches?: Prisma.SlimeCityMatchUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutServersInput = {
@@ -16807,6 +17059,8 @@ export type UserUncheckedUpdateWithoutServersInput = {
   GrantsGiven?: Prisma.GrantUncheckedUpdateManyWithoutGranterNestedInput
   GrantsReceived?: Prisma.GrantUncheckedUpdateManyWithoutGranteeNestedInput
   PacksOwned?: Prisma.PackUncheckedUpdateManyWithoutOwnerNestedInput
+  SlimeCityAccount?: Prisma.SlimeCityAccountUncheckedUpdateOneWithoutUserNestedInput
+  SlimeCityMatches?: Prisma.SlimeCityMatchUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutSmartIconsInput = {
@@ -16931,6 +17185,8 @@ export type UserCreateWithoutSmartIconsInput = {
   GrantsGiven?: Prisma.GrantCreateNestedManyWithoutGranterInput
   GrantsReceived?: Prisma.GrantCreateNestedManyWithoutGranteeInput
   PacksOwned?: Prisma.PackCreateNestedManyWithoutOwnerInput
+  SlimeCityAccount?: Prisma.SlimeCityAccountCreateNestedOneWithoutUserInput
+  SlimeCityMatches?: Prisma.SlimeCityMatchCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutSmartIconsInput = {
@@ -17056,6 +17312,8 @@ export type UserUncheckedCreateWithoutSmartIconsInput = {
   GrantsGiven?: Prisma.GrantUncheckedCreateNestedManyWithoutGranterInput
   GrantsReceived?: Prisma.GrantUncheckedCreateNestedManyWithoutGranteeInput
   PacksOwned?: Prisma.PackUncheckedCreateNestedManyWithoutOwnerInput
+  SlimeCityAccount?: Prisma.SlimeCityAccountUncheckedCreateNestedOneWithoutUserInput
+  SlimeCityMatches?: Prisma.SlimeCityMatchUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutSmartIconsInput = {
@@ -17196,6 +17454,8 @@ export type UserUpdateWithoutSmartIconsInput = {
   GrantsGiven?: Prisma.GrantUpdateManyWithoutGranterNestedInput
   GrantsReceived?: Prisma.GrantUpdateManyWithoutGranteeNestedInput
   PacksOwned?: Prisma.PackUpdateManyWithoutOwnerNestedInput
+  SlimeCityAccount?: Prisma.SlimeCityAccountUpdateOneWithoutUserNestedInput
+  SlimeCityMatches?: Prisma.SlimeCityMatchUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutSmartIconsInput = {
@@ -17321,6 +17581,8 @@ export type UserUncheckedUpdateWithoutSmartIconsInput = {
   GrantsGiven?: Prisma.GrantUncheckedUpdateManyWithoutGranterNestedInput
   GrantsReceived?: Prisma.GrantUncheckedUpdateManyWithoutGranteeNestedInput
   PacksOwned?: Prisma.PackUncheckedUpdateManyWithoutOwnerNestedInput
+  SlimeCityAccount?: Prisma.SlimeCityAccountUncheckedUpdateOneWithoutUserNestedInput
+  SlimeCityMatches?: Prisma.SlimeCityMatchUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutThemesInput = {
@@ -17445,6 +17707,8 @@ export type UserCreateWithoutThemesInput = {
   GrantsGiven?: Prisma.GrantCreateNestedManyWithoutGranterInput
   GrantsReceived?: Prisma.GrantCreateNestedManyWithoutGranteeInput
   PacksOwned?: Prisma.PackCreateNestedManyWithoutOwnerInput
+  SlimeCityAccount?: Prisma.SlimeCityAccountCreateNestedOneWithoutUserInput
+  SlimeCityMatches?: Prisma.SlimeCityMatchCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutThemesInput = {
@@ -17570,6 +17834,8 @@ export type UserUncheckedCreateWithoutThemesInput = {
   GrantsGiven?: Prisma.GrantUncheckedCreateNestedManyWithoutGranterInput
   GrantsReceived?: Prisma.GrantUncheckedCreateNestedManyWithoutGranteeInput
   PacksOwned?: Prisma.PackUncheckedCreateNestedManyWithoutOwnerInput
+  SlimeCityAccount?: Prisma.SlimeCityAccountUncheckedCreateNestedOneWithoutUserInput
+  SlimeCityMatches?: Prisma.SlimeCityMatchUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutThemesInput = {
@@ -17710,6 +17976,8 @@ export type UserUpdateWithoutThemesInput = {
   GrantsGiven?: Prisma.GrantUpdateManyWithoutGranterNestedInput
   GrantsReceived?: Prisma.GrantUpdateManyWithoutGranteeNestedInput
   PacksOwned?: Prisma.PackUpdateManyWithoutOwnerNestedInput
+  SlimeCityAccount?: Prisma.SlimeCityAccountUpdateOneWithoutUserNestedInput
+  SlimeCityMatches?: Prisma.SlimeCityMatchUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutThemesInput = {
@@ -17835,6 +18103,8 @@ export type UserUncheckedUpdateWithoutThemesInput = {
   GrantsGiven?: Prisma.GrantUncheckedUpdateManyWithoutGranterNestedInput
   GrantsReceived?: Prisma.GrantUncheckedUpdateManyWithoutGranteeNestedInput
   PacksOwned?: Prisma.PackUncheckedUpdateManyWithoutOwnerNestedInput
+  SlimeCityAccount?: Prisma.SlimeCityAccountUncheckedUpdateOneWithoutUserNestedInput
+  SlimeCityMatches?: Prisma.SlimeCityMatchUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutStylistClientsInput = {
@@ -17959,6 +18229,8 @@ export type UserCreateWithoutStylistClientsInput = {
   GrantsGiven?: Prisma.GrantCreateNestedManyWithoutGranterInput
   GrantsReceived?: Prisma.GrantCreateNestedManyWithoutGranteeInput
   PacksOwned?: Prisma.PackCreateNestedManyWithoutOwnerInput
+  SlimeCityAccount?: Prisma.SlimeCityAccountCreateNestedOneWithoutUserInput
+  SlimeCityMatches?: Prisma.SlimeCityMatchCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutStylistClientsInput = {
@@ -18084,6 +18356,8 @@ export type UserUncheckedCreateWithoutStylistClientsInput = {
   GrantsGiven?: Prisma.GrantUncheckedCreateNestedManyWithoutGranterInput
   GrantsReceived?: Prisma.GrantUncheckedCreateNestedManyWithoutGranteeInput
   PacksOwned?: Prisma.PackUncheckedCreateNestedManyWithoutOwnerInput
+  SlimeCityAccount?: Prisma.SlimeCityAccountUncheckedCreateNestedOneWithoutUserInput
+  SlimeCityMatches?: Prisma.SlimeCityMatchUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutStylistClientsInput = {
@@ -18224,6 +18498,8 @@ export type UserUpdateWithoutStylistClientsInput = {
   GrantsGiven?: Prisma.GrantUpdateManyWithoutGranterNestedInput
   GrantsReceived?: Prisma.GrantUpdateManyWithoutGranteeNestedInput
   PacksOwned?: Prisma.PackUpdateManyWithoutOwnerNestedInput
+  SlimeCityAccount?: Prisma.SlimeCityAccountUpdateOneWithoutUserNestedInput
+  SlimeCityMatches?: Prisma.SlimeCityMatchUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutStylistClientsInput = {
@@ -18349,6 +18625,8 @@ export type UserUncheckedUpdateWithoutStylistClientsInput = {
   GrantsGiven?: Prisma.GrantUncheckedUpdateManyWithoutGranterNestedInput
   GrantsReceived?: Prisma.GrantUncheckedUpdateManyWithoutGranteeNestedInput
   PacksOwned?: Prisma.PackUncheckedUpdateManyWithoutOwnerNestedInput
+  SlimeCityAccount?: Prisma.SlimeCityAccountUncheckedUpdateOneWithoutUserNestedInput
+  SlimeCityMatches?: Prisma.SlimeCityMatchUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutStylistAppointmentsInput = {
@@ -18473,6 +18751,8 @@ export type UserCreateWithoutStylistAppointmentsInput = {
   GrantsGiven?: Prisma.GrantCreateNestedManyWithoutGranterInput
   GrantsReceived?: Prisma.GrantCreateNestedManyWithoutGranteeInput
   PacksOwned?: Prisma.PackCreateNestedManyWithoutOwnerInput
+  SlimeCityAccount?: Prisma.SlimeCityAccountCreateNestedOneWithoutUserInput
+  SlimeCityMatches?: Prisma.SlimeCityMatchCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutStylistAppointmentsInput = {
@@ -18598,6 +18878,8 @@ export type UserUncheckedCreateWithoutStylistAppointmentsInput = {
   GrantsGiven?: Prisma.GrantUncheckedCreateNestedManyWithoutGranterInput
   GrantsReceived?: Prisma.GrantUncheckedCreateNestedManyWithoutGranteeInput
   PacksOwned?: Prisma.PackUncheckedCreateNestedManyWithoutOwnerInput
+  SlimeCityAccount?: Prisma.SlimeCityAccountUncheckedCreateNestedOneWithoutUserInput
+  SlimeCityMatches?: Prisma.SlimeCityMatchUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutStylistAppointmentsInput = {
@@ -18738,6 +19020,8 @@ export type UserUpdateWithoutStylistAppointmentsInput = {
   GrantsGiven?: Prisma.GrantUpdateManyWithoutGranterNestedInput
   GrantsReceived?: Prisma.GrantUpdateManyWithoutGranteeNestedInput
   PacksOwned?: Prisma.PackUpdateManyWithoutOwnerNestedInput
+  SlimeCityAccount?: Prisma.SlimeCityAccountUpdateOneWithoutUserNestedInput
+  SlimeCityMatches?: Prisma.SlimeCityMatchUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutStylistAppointmentsInput = {
@@ -18863,6 +19147,8 @@ export type UserUncheckedUpdateWithoutStylistAppointmentsInput = {
   GrantsGiven?: Prisma.GrantUncheckedUpdateManyWithoutGranterNestedInput
   GrantsReceived?: Prisma.GrantUncheckedUpdateManyWithoutGranteeNestedInput
   PacksOwned?: Prisma.PackUncheckedUpdateManyWithoutOwnerNestedInput
+  SlimeCityAccount?: Prisma.SlimeCityAccountUncheckedUpdateOneWithoutUserNestedInput
+  SlimeCityMatches?: Prisma.SlimeCityMatchUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutArtJobsInput = {
@@ -18987,6 +19273,8 @@ export type UserCreateWithoutArtJobsInput = {
   GrantsGiven?: Prisma.GrantCreateNestedManyWithoutGranterInput
   GrantsReceived?: Prisma.GrantCreateNestedManyWithoutGranteeInput
   PacksOwned?: Prisma.PackCreateNestedManyWithoutOwnerInput
+  SlimeCityAccount?: Prisma.SlimeCityAccountCreateNestedOneWithoutUserInput
+  SlimeCityMatches?: Prisma.SlimeCityMatchCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutArtJobsInput = {
@@ -19112,6 +19400,8 @@ export type UserUncheckedCreateWithoutArtJobsInput = {
   GrantsGiven?: Prisma.GrantUncheckedCreateNestedManyWithoutGranterInput
   GrantsReceived?: Prisma.GrantUncheckedCreateNestedManyWithoutGranteeInput
   PacksOwned?: Prisma.PackUncheckedCreateNestedManyWithoutOwnerInput
+  SlimeCityAccount?: Prisma.SlimeCityAccountUncheckedCreateNestedOneWithoutUserInput
+  SlimeCityMatches?: Prisma.SlimeCityMatchUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutArtJobsInput = {
@@ -19252,6 +19542,8 @@ export type UserUpdateWithoutArtJobsInput = {
   GrantsGiven?: Prisma.GrantUpdateManyWithoutGranterNestedInput
   GrantsReceived?: Prisma.GrantUpdateManyWithoutGranteeNestedInput
   PacksOwned?: Prisma.PackUpdateManyWithoutOwnerNestedInput
+  SlimeCityAccount?: Prisma.SlimeCityAccountUpdateOneWithoutUserNestedInput
+  SlimeCityMatches?: Prisma.SlimeCityMatchUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutArtJobsInput = {
@@ -19377,6 +19669,8 @@ export type UserUncheckedUpdateWithoutArtJobsInput = {
   GrantsGiven?: Prisma.GrantUncheckedUpdateManyWithoutGranterNestedInput
   GrantsReceived?: Prisma.GrantUncheckedUpdateManyWithoutGranteeNestedInput
   PacksOwned?: Prisma.PackUncheckedUpdateManyWithoutOwnerNestedInput
+  SlimeCityAccount?: Prisma.SlimeCityAccountUncheckedUpdateOneWithoutUserNestedInput
+  SlimeCityMatches?: Prisma.SlimeCityMatchUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutKarmaTransactionsInput = {
@@ -19501,6 +19795,8 @@ export type UserCreateWithoutKarmaTransactionsInput = {
   GrantsGiven?: Prisma.GrantCreateNestedManyWithoutGranterInput
   GrantsReceived?: Prisma.GrantCreateNestedManyWithoutGranteeInput
   PacksOwned?: Prisma.PackCreateNestedManyWithoutOwnerInput
+  SlimeCityAccount?: Prisma.SlimeCityAccountCreateNestedOneWithoutUserInput
+  SlimeCityMatches?: Prisma.SlimeCityMatchCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutKarmaTransactionsInput = {
@@ -19626,6 +19922,8 @@ export type UserUncheckedCreateWithoutKarmaTransactionsInput = {
   GrantsGiven?: Prisma.GrantUncheckedCreateNestedManyWithoutGranterInput
   GrantsReceived?: Prisma.GrantUncheckedCreateNestedManyWithoutGranteeInput
   PacksOwned?: Prisma.PackUncheckedCreateNestedManyWithoutOwnerInput
+  SlimeCityAccount?: Prisma.SlimeCityAccountUncheckedCreateNestedOneWithoutUserInput
+  SlimeCityMatches?: Prisma.SlimeCityMatchUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutKarmaTransactionsInput = {
@@ -19766,6 +20064,8 @@ export type UserUpdateWithoutKarmaTransactionsInput = {
   GrantsGiven?: Prisma.GrantUpdateManyWithoutGranterNestedInput
   GrantsReceived?: Prisma.GrantUpdateManyWithoutGranteeNestedInput
   PacksOwned?: Prisma.PackUpdateManyWithoutOwnerNestedInput
+  SlimeCityAccount?: Prisma.SlimeCityAccountUpdateOneWithoutUserNestedInput
+  SlimeCityMatches?: Prisma.SlimeCityMatchUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutKarmaTransactionsInput = {
@@ -19891,6 +20191,8 @@ export type UserUncheckedUpdateWithoutKarmaTransactionsInput = {
   GrantsGiven?: Prisma.GrantUncheckedUpdateManyWithoutGranterNestedInput
   GrantsReceived?: Prisma.GrantUncheckedUpdateManyWithoutGranteeNestedInput
   PacksOwned?: Prisma.PackUncheckedUpdateManyWithoutOwnerNestedInput
+  SlimeCityAccount?: Prisma.SlimeCityAccountUncheckedUpdateOneWithoutUserNestedInput
+  SlimeCityMatches?: Prisma.SlimeCityMatchUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutReferredByInput = {
@@ -20015,6 +20317,8 @@ export type UserCreateWithoutReferredByInput = {
   GrantsGiven?: Prisma.GrantCreateNestedManyWithoutGranterInput
   GrantsReceived?: Prisma.GrantCreateNestedManyWithoutGranteeInput
   PacksOwned?: Prisma.PackCreateNestedManyWithoutOwnerInput
+  SlimeCityAccount?: Prisma.SlimeCityAccountCreateNestedOneWithoutUserInput
+  SlimeCityMatches?: Prisma.SlimeCityMatchCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutReferredByInput = {
@@ -20140,6 +20444,8 @@ export type UserUncheckedCreateWithoutReferredByInput = {
   GrantsGiven?: Prisma.GrantUncheckedCreateNestedManyWithoutGranterInput
   GrantsReceived?: Prisma.GrantUncheckedCreateNestedManyWithoutGranteeInput
   PacksOwned?: Prisma.PackUncheckedCreateNestedManyWithoutOwnerInput
+  SlimeCityAccount?: Prisma.SlimeCityAccountUncheckedCreateNestedOneWithoutUserInput
+  SlimeCityMatches?: Prisma.SlimeCityMatchUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutReferredByInput = {
@@ -20269,6 +20575,8 @@ export type UserCreateWithoutReferralsMadeInput = {
   GrantsGiven?: Prisma.GrantCreateNestedManyWithoutGranterInput
   GrantsReceived?: Prisma.GrantCreateNestedManyWithoutGranteeInput
   PacksOwned?: Prisma.PackCreateNestedManyWithoutOwnerInput
+  SlimeCityAccount?: Prisma.SlimeCityAccountCreateNestedOneWithoutUserInput
+  SlimeCityMatches?: Prisma.SlimeCityMatchCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutReferralsMadeInput = {
@@ -20394,6 +20702,8 @@ export type UserUncheckedCreateWithoutReferralsMadeInput = {
   GrantsGiven?: Prisma.GrantUncheckedCreateNestedManyWithoutGranterInput
   GrantsReceived?: Prisma.GrantUncheckedCreateNestedManyWithoutGranteeInput
   PacksOwned?: Prisma.PackUncheckedCreateNestedManyWithoutOwnerInput
+  SlimeCityAccount?: Prisma.SlimeCityAccountUncheckedCreateNestedOneWithoutUserInput
+  SlimeCityMatches?: Prisma.SlimeCityMatchUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutReferralsMadeInput = {
@@ -20534,6 +20844,8 @@ export type UserUpdateWithoutReferredByInput = {
   GrantsGiven?: Prisma.GrantUpdateManyWithoutGranterNestedInput
   GrantsReceived?: Prisma.GrantUpdateManyWithoutGranteeNestedInput
   PacksOwned?: Prisma.PackUpdateManyWithoutOwnerNestedInput
+  SlimeCityAccount?: Prisma.SlimeCityAccountUpdateOneWithoutUserNestedInput
+  SlimeCityMatches?: Prisma.SlimeCityMatchUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutReferredByInput = {
@@ -20659,6 +20971,8 @@ export type UserUncheckedUpdateWithoutReferredByInput = {
   GrantsGiven?: Prisma.GrantUncheckedUpdateManyWithoutGranterNestedInput
   GrantsReceived?: Prisma.GrantUncheckedUpdateManyWithoutGranteeNestedInput
   PacksOwned?: Prisma.PackUncheckedUpdateManyWithoutOwnerNestedInput
+  SlimeCityAccount?: Prisma.SlimeCityAccountUncheckedUpdateOneWithoutUserNestedInput
+  SlimeCityMatches?: Prisma.SlimeCityMatchUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserUpsertWithoutReferralsMadeInput = {
@@ -20794,6 +21108,8 @@ export type UserUpdateWithoutReferralsMadeInput = {
   GrantsGiven?: Prisma.GrantUpdateManyWithoutGranterNestedInput
   GrantsReceived?: Prisma.GrantUpdateManyWithoutGranteeNestedInput
   PacksOwned?: Prisma.PackUpdateManyWithoutOwnerNestedInput
+  SlimeCityAccount?: Prisma.SlimeCityAccountUpdateOneWithoutUserNestedInput
+  SlimeCityMatches?: Prisma.SlimeCityMatchUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutReferralsMadeInput = {
@@ -20919,6 +21235,8 @@ export type UserUncheckedUpdateWithoutReferralsMadeInput = {
   GrantsGiven?: Prisma.GrantUncheckedUpdateManyWithoutGranterNestedInput
   GrantsReceived?: Prisma.GrantUncheckedUpdateManyWithoutGranteeNestedInput
   PacksOwned?: Prisma.PackUncheckedUpdateManyWithoutOwnerNestedInput
+  SlimeCityAccount?: Prisma.SlimeCityAccountUncheckedUpdateOneWithoutUserNestedInput
+  SlimeCityMatches?: Prisma.SlimeCityMatchUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutRelationsReceivedInput = {
@@ -21043,6 +21361,8 @@ export type UserCreateWithoutRelationsReceivedInput = {
   GrantsGiven?: Prisma.GrantCreateNestedManyWithoutGranterInput
   GrantsReceived?: Prisma.GrantCreateNestedManyWithoutGranteeInput
   PacksOwned?: Prisma.PackCreateNestedManyWithoutOwnerInput
+  SlimeCityAccount?: Prisma.SlimeCityAccountCreateNestedOneWithoutUserInput
+  SlimeCityMatches?: Prisma.SlimeCityMatchCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutRelationsReceivedInput = {
@@ -21168,6 +21488,8 @@ export type UserUncheckedCreateWithoutRelationsReceivedInput = {
   GrantsGiven?: Prisma.GrantUncheckedCreateNestedManyWithoutGranterInput
   GrantsReceived?: Prisma.GrantUncheckedCreateNestedManyWithoutGranteeInput
   PacksOwned?: Prisma.PackUncheckedCreateNestedManyWithoutOwnerInput
+  SlimeCityAccount?: Prisma.SlimeCityAccountUncheckedCreateNestedOneWithoutUserInput
+  SlimeCityMatches?: Prisma.SlimeCityMatchUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutRelationsReceivedInput = {
@@ -21297,6 +21619,8 @@ export type UserCreateWithoutRelationsOwnedInput = {
   GrantsGiven?: Prisma.GrantCreateNestedManyWithoutGranterInput
   GrantsReceived?: Prisma.GrantCreateNestedManyWithoutGranteeInput
   PacksOwned?: Prisma.PackCreateNestedManyWithoutOwnerInput
+  SlimeCityAccount?: Prisma.SlimeCityAccountCreateNestedOneWithoutUserInput
+  SlimeCityMatches?: Prisma.SlimeCityMatchCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutRelationsOwnedInput = {
@@ -21422,6 +21746,8 @@ export type UserUncheckedCreateWithoutRelationsOwnedInput = {
   GrantsGiven?: Prisma.GrantUncheckedCreateNestedManyWithoutGranterInput
   GrantsReceived?: Prisma.GrantUncheckedCreateNestedManyWithoutGranteeInput
   PacksOwned?: Prisma.PackUncheckedCreateNestedManyWithoutOwnerInput
+  SlimeCityAccount?: Prisma.SlimeCityAccountUncheckedCreateNestedOneWithoutUserInput
+  SlimeCityMatches?: Prisma.SlimeCityMatchUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutRelationsOwnedInput = {
@@ -21562,6 +21888,8 @@ export type UserUpdateWithoutRelationsReceivedInput = {
   GrantsGiven?: Prisma.GrantUpdateManyWithoutGranterNestedInput
   GrantsReceived?: Prisma.GrantUpdateManyWithoutGranteeNestedInput
   PacksOwned?: Prisma.PackUpdateManyWithoutOwnerNestedInput
+  SlimeCityAccount?: Prisma.SlimeCityAccountUpdateOneWithoutUserNestedInput
+  SlimeCityMatches?: Prisma.SlimeCityMatchUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutRelationsReceivedInput = {
@@ -21687,6 +22015,8 @@ export type UserUncheckedUpdateWithoutRelationsReceivedInput = {
   GrantsGiven?: Prisma.GrantUncheckedUpdateManyWithoutGranterNestedInput
   GrantsReceived?: Prisma.GrantUncheckedUpdateManyWithoutGranteeNestedInput
   PacksOwned?: Prisma.PackUncheckedUpdateManyWithoutOwnerNestedInput
+  SlimeCityAccount?: Prisma.SlimeCityAccountUncheckedUpdateOneWithoutUserNestedInput
+  SlimeCityMatches?: Prisma.SlimeCityMatchUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserUpsertWithoutRelationsOwnedInput = {
@@ -21822,6 +22152,8 @@ export type UserUpdateWithoutRelationsOwnedInput = {
   GrantsGiven?: Prisma.GrantUpdateManyWithoutGranterNestedInput
   GrantsReceived?: Prisma.GrantUpdateManyWithoutGranteeNestedInput
   PacksOwned?: Prisma.PackUpdateManyWithoutOwnerNestedInput
+  SlimeCityAccount?: Prisma.SlimeCityAccountUpdateOneWithoutUserNestedInput
+  SlimeCityMatches?: Prisma.SlimeCityMatchUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutRelationsOwnedInput = {
@@ -21947,6 +22279,8 @@ export type UserUncheckedUpdateWithoutRelationsOwnedInput = {
   GrantsGiven?: Prisma.GrantUncheckedUpdateManyWithoutGranterNestedInput
   GrantsReceived?: Prisma.GrantUncheckedUpdateManyWithoutGranteeNestedInput
   PacksOwned?: Prisma.PackUncheckedUpdateManyWithoutOwnerNestedInput
+  SlimeCityAccount?: Prisma.SlimeCityAccountUncheckedUpdateOneWithoutUserNestedInput
+  SlimeCityMatches?: Prisma.SlimeCityMatchUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutUserRolesInput = {
@@ -22071,6 +22405,8 @@ export type UserCreateWithoutUserRolesInput = {
   GrantsGiven?: Prisma.GrantCreateNestedManyWithoutGranterInput
   GrantsReceived?: Prisma.GrantCreateNestedManyWithoutGranteeInput
   PacksOwned?: Prisma.PackCreateNestedManyWithoutOwnerInput
+  SlimeCityAccount?: Prisma.SlimeCityAccountCreateNestedOneWithoutUserInput
+  SlimeCityMatches?: Prisma.SlimeCityMatchCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutUserRolesInput = {
@@ -22196,6 +22532,8 @@ export type UserUncheckedCreateWithoutUserRolesInput = {
   GrantsGiven?: Prisma.GrantUncheckedCreateNestedManyWithoutGranterInput
   GrantsReceived?: Prisma.GrantUncheckedCreateNestedManyWithoutGranteeInput
   PacksOwned?: Prisma.PackUncheckedCreateNestedManyWithoutOwnerInput
+  SlimeCityAccount?: Prisma.SlimeCityAccountUncheckedCreateNestedOneWithoutUserInput
+  SlimeCityMatches?: Prisma.SlimeCityMatchUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutUserRolesInput = {
@@ -22336,6 +22674,8 @@ export type UserUpdateWithoutUserRolesInput = {
   GrantsGiven?: Prisma.GrantUpdateManyWithoutGranterNestedInput
   GrantsReceived?: Prisma.GrantUpdateManyWithoutGranteeNestedInput
   PacksOwned?: Prisma.PackUpdateManyWithoutOwnerNestedInput
+  SlimeCityAccount?: Prisma.SlimeCityAccountUpdateOneWithoutUserNestedInput
+  SlimeCityMatches?: Prisma.SlimeCityMatchUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutUserRolesInput = {
@@ -22461,6 +22801,8 @@ export type UserUncheckedUpdateWithoutUserRolesInput = {
   GrantsGiven?: Prisma.GrantUncheckedUpdateManyWithoutGranterNestedInput
   GrantsReceived?: Prisma.GrantUncheckedUpdateManyWithoutGranteeNestedInput
   PacksOwned?: Prisma.PackUncheckedUpdateManyWithoutOwnerNestedInput
+  SlimeCityAccount?: Prisma.SlimeCityAccountUncheckedUpdateOneWithoutUserNestedInput
+  SlimeCityMatches?: Prisma.SlimeCityMatchUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutChallengesInput = {
@@ -22585,6 +22927,8 @@ export type UserCreateWithoutChallengesInput = {
   GrantsGiven?: Prisma.GrantCreateNestedManyWithoutGranterInput
   GrantsReceived?: Prisma.GrantCreateNestedManyWithoutGranteeInput
   PacksOwned?: Prisma.PackCreateNestedManyWithoutOwnerInput
+  SlimeCityAccount?: Prisma.SlimeCityAccountCreateNestedOneWithoutUserInput
+  SlimeCityMatches?: Prisma.SlimeCityMatchCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutChallengesInput = {
@@ -22710,6 +23054,8 @@ export type UserUncheckedCreateWithoutChallengesInput = {
   GrantsGiven?: Prisma.GrantUncheckedCreateNestedManyWithoutGranterInput
   GrantsReceived?: Prisma.GrantUncheckedCreateNestedManyWithoutGranteeInput
   PacksOwned?: Prisma.PackUncheckedCreateNestedManyWithoutOwnerInput
+  SlimeCityAccount?: Prisma.SlimeCityAccountUncheckedCreateNestedOneWithoutUserInput
+  SlimeCityMatches?: Prisma.SlimeCityMatchUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutChallengesInput = {
@@ -22850,6 +23196,8 @@ export type UserUpdateWithoutChallengesInput = {
   GrantsGiven?: Prisma.GrantUpdateManyWithoutGranterNestedInput
   GrantsReceived?: Prisma.GrantUpdateManyWithoutGranteeNestedInput
   PacksOwned?: Prisma.PackUpdateManyWithoutOwnerNestedInput
+  SlimeCityAccount?: Prisma.SlimeCityAccountUpdateOneWithoutUserNestedInput
+  SlimeCityMatches?: Prisma.SlimeCityMatchUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutChallengesInput = {
@@ -22975,6 +23323,8 @@ export type UserUncheckedUpdateWithoutChallengesInput = {
   GrantsGiven?: Prisma.GrantUncheckedUpdateManyWithoutGranterNestedInput
   GrantsReceived?: Prisma.GrantUncheckedUpdateManyWithoutGranteeNestedInput
   PacksOwned?: Prisma.PackUncheckedUpdateManyWithoutOwnerNestedInput
+  SlimeCityAccount?: Prisma.SlimeCityAccountUncheckedUpdateOneWithoutUserNestedInput
+  SlimeCityMatches?: Prisma.SlimeCityMatchUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutLifeRunsInput = {
@@ -23099,6 +23449,8 @@ export type UserCreateWithoutLifeRunsInput = {
   GrantsGiven?: Prisma.GrantCreateNestedManyWithoutGranterInput
   GrantsReceived?: Prisma.GrantCreateNestedManyWithoutGranteeInput
   PacksOwned?: Prisma.PackCreateNestedManyWithoutOwnerInput
+  SlimeCityAccount?: Prisma.SlimeCityAccountCreateNestedOneWithoutUserInput
+  SlimeCityMatches?: Prisma.SlimeCityMatchCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutLifeRunsInput = {
@@ -23224,6 +23576,8 @@ export type UserUncheckedCreateWithoutLifeRunsInput = {
   GrantsGiven?: Prisma.GrantUncheckedCreateNestedManyWithoutGranterInput
   GrantsReceived?: Prisma.GrantUncheckedCreateNestedManyWithoutGranteeInput
   PacksOwned?: Prisma.PackUncheckedCreateNestedManyWithoutOwnerInput
+  SlimeCityAccount?: Prisma.SlimeCityAccountUncheckedCreateNestedOneWithoutUserInput
+  SlimeCityMatches?: Prisma.SlimeCityMatchUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutLifeRunsInput = {
@@ -23364,6 +23718,8 @@ export type UserUpdateWithoutLifeRunsInput = {
   GrantsGiven?: Prisma.GrantUpdateManyWithoutGranterNestedInput
   GrantsReceived?: Prisma.GrantUpdateManyWithoutGranteeNestedInput
   PacksOwned?: Prisma.PackUpdateManyWithoutOwnerNestedInput
+  SlimeCityAccount?: Prisma.SlimeCityAccountUpdateOneWithoutUserNestedInput
+  SlimeCityMatches?: Prisma.SlimeCityMatchUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutLifeRunsInput = {
@@ -23489,6 +23845,8 @@ export type UserUncheckedUpdateWithoutLifeRunsInput = {
   GrantsGiven?: Prisma.GrantUncheckedUpdateManyWithoutGranterNestedInput
   GrantsReceived?: Prisma.GrantUncheckedUpdateManyWithoutGranteeNestedInput
   PacksOwned?: Prisma.PackUncheckedUpdateManyWithoutOwnerNestedInput
+  SlimeCityAccount?: Prisma.SlimeCityAccountUncheckedUpdateOneWithoutUserNestedInput
+  SlimeCityMatches?: Prisma.SlimeCityMatchUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutLifeAchievementUnlocksInput = {
@@ -23613,6 +23971,8 @@ export type UserCreateWithoutLifeAchievementUnlocksInput = {
   GrantsGiven?: Prisma.GrantCreateNestedManyWithoutGranterInput
   GrantsReceived?: Prisma.GrantCreateNestedManyWithoutGranteeInput
   PacksOwned?: Prisma.PackCreateNestedManyWithoutOwnerInput
+  SlimeCityAccount?: Prisma.SlimeCityAccountCreateNestedOneWithoutUserInput
+  SlimeCityMatches?: Prisma.SlimeCityMatchCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutLifeAchievementUnlocksInput = {
@@ -23738,6 +24098,8 @@ export type UserUncheckedCreateWithoutLifeAchievementUnlocksInput = {
   GrantsGiven?: Prisma.GrantUncheckedCreateNestedManyWithoutGranterInput
   GrantsReceived?: Prisma.GrantUncheckedCreateNestedManyWithoutGranteeInput
   PacksOwned?: Prisma.PackUncheckedCreateNestedManyWithoutOwnerInput
+  SlimeCityAccount?: Prisma.SlimeCityAccountUncheckedCreateNestedOneWithoutUserInput
+  SlimeCityMatches?: Prisma.SlimeCityMatchUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutLifeAchievementUnlocksInput = {
@@ -23878,6 +24240,8 @@ export type UserUpdateWithoutLifeAchievementUnlocksInput = {
   GrantsGiven?: Prisma.GrantUpdateManyWithoutGranterNestedInput
   GrantsReceived?: Prisma.GrantUpdateManyWithoutGranteeNestedInput
   PacksOwned?: Prisma.PackUpdateManyWithoutOwnerNestedInput
+  SlimeCityAccount?: Prisma.SlimeCityAccountUpdateOneWithoutUserNestedInput
+  SlimeCityMatches?: Prisma.SlimeCityMatchUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutLifeAchievementUnlocksInput = {
@@ -24003,6 +24367,8 @@ export type UserUncheckedUpdateWithoutLifeAchievementUnlocksInput = {
   GrantsGiven?: Prisma.GrantUncheckedUpdateManyWithoutGranterNestedInput
   GrantsReceived?: Prisma.GrantUncheckedUpdateManyWithoutGranteeNestedInput
   PacksOwned?: Prisma.PackUncheckedUpdateManyWithoutOwnerNestedInput
+  SlimeCityAccount?: Prisma.SlimeCityAccountUncheckedUpdateOneWithoutUserNestedInput
+  SlimeCityMatches?: Prisma.SlimeCityMatchUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutAquariumsInput = {
@@ -24127,6 +24493,8 @@ export type UserCreateWithoutAquariumsInput = {
   GrantsGiven?: Prisma.GrantCreateNestedManyWithoutGranterInput
   GrantsReceived?: Prisma.GrantCreateNestedManyWithoutGranteeInput
   PacksOwned?: Prisma.PackCreateNestedManyWithoutOwnerInput
+  SlimeCityAccount?: Prisma.SlimeCityAccountCreateNestedOneWithoutUserInput
+  SlimeCityMatches?: Prisma.SlimeCityMatchCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutAquariumsInput = {
@@ -24252,6 +24620,8 @@ export type UserUncheckedCreateWithoutAquariumsInput = {
   GrantsGiven?: Prisma.GrantUncheckedCreateNestedManyWithoutGranterInput
   GrantsReceived?: Prisma.GrantUncheckedCreateNestedManyWithoutGranteeInput
   PacksOwned?: Prisma.PackUncheckedCreateNestedManyWithoutOwnerInput
+  SlimeCityAccount?: Prisma.SlimeCityAccountUncheckedCreateNestedOneWithoutUserInput
+  SlimeCityMatches?: Prisma.SlimeCityMatchUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutAquariumsInput = {
@@ -24392,6 +24762,8 @@ export type UserUpdateWithoutAquariumsInput = {
   GrantsGiven?: Prisma.GrantUpdateManyWithoutGranterNestedInput
   GrantsReceived?: Prisma.GrantUpdateManyWithoutGranteeNestedInput
   PacksOwned?: Prisma.PackUpdateManyWithoutOwnerNestedInput
+  SlimeCityAccount?: Prisma.SlimeCityAccountUpdateOneWithoutUserNestedInput
+  SlimeCityMatches?: Prisma.SlimeCityMatchUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutAquariumsInput = {
@@ -24517,6 +24889,8 @@ export type UserUncheckedUpdateWithoutAquariumsInput = {
   GrantsGiven?: Prisma.GrantUncheckedUpdateManyWithoutGranterNestedInput
   GrantsReceived?: Prisma.GrantUncheckedUpdateManyWithoutGranteeNestedInput
   PacksOwned?: Prisma.PackUncheckedUpdateManyWithoutOwnerNestedInput
+  SlimeCityAccount?: Prisma.SlimeCityAccountUncheckedUpdateOneWithoutUserNestedInput
+  SlimeCityMatches?: Prisma.SlimeCityMatchUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutAquariumCodexEntriesInput = {
@@ -24641,6 +25015,8 @@ export type UserCreateWithoutAquariumCodexEntriesInput = {
   GrantsGiven?: Prisma.GrantCreateNestedManyWithoutGranterInput
   GrantsReceived?: Prisma.GrantCreateNestedManyWithoutGranteeInput
   PacksOwned?: Prisma.PackCreateNestedManyWithoutOwnerInput
+  SlimeCityAccount?: Prisma.SlimeCityAccountCreateNestedOneWithoutUserInput
+  SlimeCityMatches?: Prisma.SlimeCityMatchCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutAquariumCodexEntriesInput = {
@@ -24766,6 +25142,8 @@ export type UserUncheckedCreateWithoutAquariumCodexEntriesInput = {
   GrantsGiven?: Prisma.GrantUncheckedCreateNestedManyWithoutGranterInput
   GrantsReceived?: Prisma.GrantUncheckedCreateNestedManyWithoutGranteeInput
   PacksOwned?: Prisma.PackUncheckedCreateNestedManyWithoutOwnerInput
+  SlimeCityAccount?: Prisma.SlimeCityAccountUncheckedCreateNestedOneWithoutUserInput
+  SlimeCityMatches?: Prisma.SlimeCityMatchUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutAquariumCodexEntriesInput = {
@@ -24906,6 +25284,8 @@ export type UserUpdateWithoutAquariumCodexEntriesInput = {
   GrantsGiven?: Prisma.GrantUpdateManyWithoutGranterNestedInput
   GrantsReceived?: Prisma.GrantUpdateManyWithoutGranteeNestedInput
   PacksOwned?: Prisma.PackUpdateManyWithoutOwnerNestedInput
+  SlimeCityAccount?: Prisma.SlimeCityAccountUpdateOneWithoutUserNestedInput
+  SlimeCityMatches?: Prisma.SlimeCityMatchUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutAquariumCodexEntriesInput = {
@@ -25031,6 +25411,8 @@ export type UserUncheckedUpdateWithoutAquariumCodexEntriesInput = {
   GrantsGiven?: Prisma.GrantUncheckedUpdateManyWithoutGranterNestedInput
   GrantsReceived?: Prisma.GrantUncheckedUpdateManyWithoutGranteeNestedInput
   PacksOwned?: Prisma.PackUncheckedUpdateManyWithoutOwnerNestedInput
+  SlimeCityAccount?: Prisma.SlimeCityAccountUncheckedUpdateOneWithoutUserNestedInput
+  SlimeCityMatches?: Prisma.SlimeCityMatchUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutMonstersInput = {
@@ -25155,6 +25537,8 @@ export type UserCreateWithoutMonstersInput = {
   GrantsGiven?: Prisma.GrantCreateNestedManyWithoutGranterInput
   GrantsReceived?: Prisma.GrantCreateNestedManyWithoutGranteeInput
   PacksOwned?: Prisma.PackCreateNestedManyWithoutOwnerInput
+  SlimeCityAccount?: Prisma.SlimeCityAccountCreateNestedOneWithoutUserInput
+  SlimeCityMatches?: Prisma.SlimeCityMatchCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutMonstersInput = {
@@ -25280,6 +25664,8 @@ export type UserUncheckedCreateWithoutMonstersInput = {
   GrantsGiven?: Prisma.GrantUncheckedCreateNestedManyWithoutGranterInput
   GrantsReceived?: Prisma.GrantUncheckedCreateNestedManyWithoutGranteeInput
   PacksOwned?: Prisma.PackUncheckedCreateNestedManyWithoutOwnerInput
+  SlimeCityAccount?: Prisma.SlimeCityAccountUncheckedCreateNestedOneWithoutUserInput
+  SlimeCityMatches?: Prisma.SlimeCityMatchUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutMonstersInput = {
@@ -25420,6 +25806,8 @@ export type UserUpdateWithoutMonstersInput = {
   GrantsGiven?: Prisma.GrantUpdateManyWithoutGranterNestedInput
   GrantsReceived?: Prisma.GrantUpdateManyWithoutGranteeNestedInput
   PacksOwned?: Prisma.PackUpdateManyWithoutOwnerNestedInput
+  SlimeCityAccount?: Prisma.SlimeCityAccountUpdateOneWithoutUserNestedInput
+  SlimeCityMatches?: Prisma.SlimeCityMatchUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutMonstersInput = {
@@ -25545,6 +25933,8 @@ export type UserUncheckedUpdateWithoutMonstersInput = {
   GrantsGiven?: Prisma.GrantUncheckedUpdateManyWithoutGranterNestedInput
   GrantsReceived?: Prisma.GrantUncheckedUpdateManyWithoutGranteeNestedInput
   PacksOwned?: Prisma.PackUncheckedUpdateManyWithoutOwnerNestedInput
+  SlimeCityAccount?: Prisma.SlimeCityAccountUncheckedUpdateOneWithoutUserNestedInput
+  SlimeCityMatches?: Prisma.SlimeCityMatchUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutAuthTokensInput = {
@@ -25669,6 +26059,8 @@ export type UserCreateWithoutAuthTokensInput = {
   GrantsGiven?: Prisma.GrantCreateNestedManyWithoutGranterInput
   GrantsReceived?: Prisma.GrantCreateNestedManyWithoutGranteeInput
   PacksOwned?: Prisma.PackCreateNestedManyWithoutOwnerInput
+  SlimeCityAccount?: Prisma.SlimeCityAccountCreateNestedOneWithoutUserInput
+  SlimeCityMatches?: Prisma.SlimeCityMatchCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutAuthTokensInput = {
@@ -25794,6 +26186,8 @@ export type UserUncheckedCreateWithoutAuthTokensInput = {
   GrantsGiven?: Prisma.GrantUncheckedCreateNestedManyWithoutGranterInput
   GrantsReceived?: Prisma.GrantUncheckedCreateNestedManyWithoutGranteeInput
   PacksOwned?: Prisma.PackUncheckedCreateNestedManyWithoutOwnerInput
+  SlimeCityAccount?: Prisma.SlimeCityAccountUncheckedCreateNestedOneWithoutUserInput
+  SlimeCityMatches?: Prisma.SlimeCityMatchUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutAuthTokensInput = {
@@ -25934,6 +26328,8 @@ export type UserUpdateWithoutAuthTokensInput = {
   GrantsGiven?: Prisma.GrantUpdateManyWithoutGranterNestedInput
   GrantsReceived?: Prisma.GrantUpdateManyWithoutGranteeNestedInput
   PacksOwned?: Prisma.PackUpdateManyWithoutOwnerNestedInput
+  SlimeCityAccount?: Prisma.SlimeCityAccountUpdateOneWithoutUserNestedInput
+  SlimeCityMatches?: Prisma.SlimeCityMatchUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutAuthTokensInput = {
@@ -26059,6 +26455,8 @@ export type UserUncheckedUpdateWithoutAuthTokensInput = {
   GrantsGiven?: Prisma.GrantUncheckedUpdateManyWithoutGranterNestedInput
   GrantsReceived?: Prisma.GrantUncheckedUpdateManyWithoutGranteeNestedInput
   PacksOwned?: Prisma.PackUncheckedUpdateManyWithoutOwnerNestedInput
+  SlimeCityAccount?: Prisma.SlimeCityAccountUncheckedUpdateOneWithoutUserNestedInput
+  SlimeCityMatches?: Prisma.SlimeCityMatchUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutAgentCredentialsInput = {
@@ -26183,6 +26581,8 @@ export type UserCreateWithoutAgentCredentialsInput = {
   GrantsGiven?: Prisma.GrantCreateNestedManyWithoutGranterInput
   GrantsReceived?: Prisma.GrantCreateNestedManyWithoutGranteeInput
   PacksOwned?: Prisma.PackCreateNestedManyWithoutOwnerInput
+  SlimeCityAccount?: Prisma.SlimeCityAccountCreateNestedOneWithoutUserInput
+  SlimeCityMatches?: Prisma.SlimeCityMatchCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutAgentCredentialsInput = {
@@ -26308,6 +26708,8 @@ export type UserUncheckedCreateWithoutAgentCredentialsInput = {
   GrantsGiven?: Prisma.GrantUncheckedCreateNestedManyWithoutGranterInput
   GrantsReceived?: Prisma.GrantUncheckedCreateNestedManyWithoutGranteeInput
   PacksOwned?: Prisma.PackUncheckedCreateNestedManyWithoutOwnerInput
+  SlimeCityAccount?: Prisma.SlimeCityAccountUncheckedCreateNestedOneWithoutUserInput
+  SlimeCityMatches?: Prisma.SlimeCityMatchUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutAgentCredentialsInput = {
@@ -26448,6 +26850,8 @@ export type UserUpdateWithoutAgentCredentialsInput = {
   GrantsGiven?: Prisma.GrantUpdateManyWithoutGranterNestedInput
   GrantsReceived?: Prisma.GrantUpdateManyWithoutGranteeNestedInput
   PacksOwned?: Prisma.PackUpdateManyWithoutOwnerNestedInput
+  SlimeCityAccount?: Prisma.SlimeCityAccountUpdateOneWithoutUserNestedInput
+  SlimeCityMatches?: Prisma.SlimeCityMatchUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutAgentCredentialsInput = {
@@ -26573,6 +26977,8 @@ export type UserUncheckedUpdateWithoutAgentCredentialsInput = {
   GrantsGiven?: Prisma.GrantUncheckedUpdateManyWithoutGranterNestedInput
   GrantsReceived?: Prisma.GrantUncheckedUpdateManyWithoutGranteeNestedInput
   PacksOwned?: Prisma.PackUncheckedUpdateManyWithoutOwnerNestedInput
+  SlimeCityAccount?: Prisma.SlimeCityAccountUncheckedUpdateOneWithoutUserNestedInput
+  SlimeCityMatches?: Prisma.SlimeCityMatchUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutConversationsInInput = {
@@ -26697,6 +27103,8 @@ export type UserCreateWithoutConversationsInInput = {
   GrantsGiven?: Prisma.GrantCreateNestedManyWithoutGranterInput
   GrantsReceived?: Prisma.GrantCreateNestedManyWithoutGranteeInput
   PacksOwned?: Prisma.PackCreateNestedManyWithoutOwnerInput
+  SlimeCityAccount?: Prisma.SlimeCityAccountCreateNestedOneWithoutUserInput
+  SlimeCityMatches?: Prisma.SlimeCityMatchCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutConversationsInInput = {
@@ -26822,6 +27230,8 @@ export type UserUncheckedCreateWithoutConversationsInInput = {
   GrantsGiven?: Prisma.GrantUncheckedCreateNestedManyWithoutGranterInput
   GrantsReceived?: Prisma.GrantUncheckedCreateNestedManyWithoutGranteeInput
   PacksOwned?: Prisma.PackUncheckedCreateNestedManyWithoutOwnerInput
+  SlimeCityAccount?: Prisma.SlimeCityAccountUncheckedCreateNestedOneWithoutUserInput
+  SlimeCityMatches?: Prisma.SlimeCityMatchUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutConversationsInInput = {
@@ -26962,6 +27372,8 @@ export type UserUpdateWithoutConversationsInInput = {
   GrantsGiven?: Prisma.GrantUpdateManyWithoutGranterNestedInput
   GrantsReceived?: Prisma.GrantUpdateManyWithoutGranteeNestedInput
   PacksOwned?: Prisma.PackUpdateManyWithoutOwnerNestedInput
+  SlimeCityAccount?: Prisma.SlimeCityAccountUpdateOneWithoutUserNestedInput
+  SlimeCityMatches?: Prisma.SlimeCityMatchUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutConversationsInInput = {
@@ -27087,6 +27499,8 @@ export type UserUncheckedUpdateWithoutConversationsInInput = {
   GrantsGiven?: Prisma.GrantUncheckedUpdateManyWithoutGranterNestedInput
   GrantsReceived?: Prisma.GrantUncheckedUpdateManyWithoutGranteeNestedInput
   PacksOwned?: Prisma.PackUncheckedUpdateManyWithoutOwnerNestedInput
+  SlimeCityAccount?: Prisma.SlimeCityAccountUncheckedUpdateOneWithoutUserNestedInput
+  SlimeCityMatches?: Prisma.SlimeCityMatchUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutSentMessagesInput = {
@@ -27211,6 +27625,8 @@ export type UserCreateWithoutSentMessagesInput = {
   GrantsGiven?: Prisma.GrantCreateNestedManyWithoutGranterInput
   GrantsReceived?: Prisma.GrantCreateNestedManyWithoutGranteeInput
   PacksOwned?: Prisma.PackCreateNestedManyWithoutOwnerInput
+  SlimeCityAccount?: Prisma.SlimeCityAccountCreateNestedOneWithoutUserInput
+  SlimeCityMatches?: Prisma.SlimeCityMatchCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutSentMessagesInput = {
@@ -27336,6 +27752,8 @@ export type UserUncheckedCreateWithoutSentMessagesInput = {
   GrantsGiven?: Prisma.GrantUncheckedCreateNestedManyWithoutGranterInput
   GrantsReceived?: Prisma.GrantUncheckedCreateNestedManyWithoutGranteeInput
   PacksOwned?: Prisma.PackUncheckedCreateNestedManyWithoutOwnerInput
+  SlimeCityAccount?: Prisma.SlimeCityAccountUncheckedCreateNestedOneWithoutUserInput
+  SlimeCityMatches?: Prisma.SlimeCityMatchUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutSentMessagesInput = {
@@ -27476,6 +27894,8 @@ export type UserUpdateWithoutSentMessagesInput = {
   GrantsGiven?: Prisma.GrantUpdateManyWithoutGranterNestedInput
   GrantsReceived?: Prisma.GrantUpdateManyWithoutGranteeNestedInput
   PacksOwned?: Prisma.PackUpdateManyWithoutOwnerNestedInput
+  SlimeCityAccount?: Prisma.SlimeCityAccountUpdateOneWithoutUserNestedInput
+  SlimeCityMatches?: Prisma.SlimeCityMatchUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutSentMessagesInput = {
@@ -27601,6 +28021,8 @@ export type UserUncheckedUpdateWithoutSentMessagesInput = {
   GrantsGiven?: Prisma.GrantUncheckedUpdateManyWithoutGranterNestedInput
   GrantsReceived?: Prisma.GrantUncheckedUpdateManyWithoutGranteeNestedInput
   PacksOwned?: Prisma.PackUncheckedUpdateManyWithoutOwnerNestedInput
+  SlimeCityAccount?: Prisma.SlimeCityAccountUncheckedUpdateOneWithoutUserNestedInput
+  SlimeCityMatches?: Prisma.SlimeCityMatchUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutActedNotificationsInput = {
@@ -27725,6 +28147,8 @@ export type UserCreateWithoutActedNotificationsInput = {
   GrantsGiven?: Prisma.GrantCreateNestedManyWithoutGranterInput
   GrantsReceived?: Prisma.GrantCreateNestedManyWithoutGranteeInput
   PacksOwned?: Prisma.PackCreateNestedManyWithoutOwnerInput
+  SlimeCityAccount?: Prisma.SlimeCityAccountCreateNestedOneWithoutUserInput
+  SlimeCityMatches?: Prisma.SlimeCityMatchCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutActedNotificationsInput = {
@@ -27850,6 +28274,8 @@ export type UserUncheckedCreateWithoutActedNotificationsInput = {
   GrantsGiven?: Prisma.GrantUncheckedCreateNestedManyWithoutGranterInput
   GrantsReceived?: Prisma.GrantUncheckedCreateNestedManyWithoutGranteeInput
   PacksOwned?: Prisma.PackUncheckedCreateNestedManyWithoutOwnerInput
+  SlimeCityAccount?: Prisma.SlimeCityAccountUncheckedCreateNestedOneWithoutUserInput
+  SlimeCityMatches?: Prisma.SlimeCityMatchUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutActedNotificationsInput = {
@@ -27979,6 +28405,8 @@ export type UserCreateWithoutNotificationsInput = {
   GrantsGiven?: Prisma.GrantCreateNestedManyWithoutGranterInput
   GrantsReceived?: Prisma.GrantCreateNestedManyWithoutGranteeInput
   PacksOwned?: Prisma.PackCreateNestedManyWithoutOwnerInput
+  SlimeCityAccount?: Prisma.SlimeCityAccountCreateNestedOneWithoutUserInput
+  SlimeCityMatches?: Prisma.SlimeCityMatchCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutNotificationsInput = {
@@ -28104,6 +28532,8 @@ export type UserUncheckedCreateWithoutNotificationsInput = {
   GrantsGiven?: Prisma.GrantUncheckedCreateNestedManyWithoutGranterInput
   GrantsReceived?: Prisma.GrantUncheckedCreateNestedManyWithoutGranteeInput
   PacksOwned?: Prisma.PackUncheckedCreateNestedManyWithoutOwnerInput
+  SlimeCityAccount?: Prisma.SlimeCityAccountUncheckedCreateNestedOneWithoutUserInput
+  SlimeCityMatches?: Prisma.SlimeCityMatchUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutNotificationsInput = {
@@ -28244,6 +28674,8 @@ export type UserUpdateWithoutActedNotificationsInput = {
   GrantsGiven?: Prisma.GrantUpdateManyWithoutGranterNestedInput
   GrantsReceived?: Prisma.GrantUpdateManyWithoutGranteeNestedInput
   PacksOwned?: Prisma.PackUpdateManyWithoutOwnerNestedInput
+  SlimeCityAccount?: Prisma.SlimeCityAccountUpdateOneWithoutUserNestedInput
+  SlimeCityMatches?: Prisma.SlimeCityMatchUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutActedNotificationsInput = {
@@ -28369,6 +28801,8 @@ export type UserUncheckedUpdateWithoutActedNotificationsInput = {
   GrantsGiven?: Prisma.GrantUncheckedUpdateManyWithoutGranterNestedInput
   GrantsReceived?: Prisma.GrantUncheckedUpdateManyWithoutGranteeNestedInput
   PacksOwned?: Prisma.PackUncheckedUpdateManyWithoutOwnerNestedInput
+  SlimeCityAccount?: Prisma.SlimeCityAccountUncheckedUpdateOneWithoutUserNestedInput
+  SlimeCityMatches?: Prisma.SlimeCityMatchUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserUpsertWithoutNotificationsInput = {
@@ -28504,6 +28938,8 @@ export type UserUpdateWithoutNotificationsInput = {
   GrantsGiven?: Prisma.GrantUpdateManyWithoutGranterNestedInput
   GrantsReceived?: Prisma.GrantUpdateManyWithoutGranteeNestedInput
   PacksOwned?: Prisma.PackUpdateManyWithoutOwnerNestedInput
+  SlimeCityAccount?: Prisma.SlimeCityAccountUpdateOneWithoutUserNestedInput
+  SlimeCityMatches?: Prisma.SlimeCityMatchUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutNotificationsInput = {
@@ -28629,6 +29065,8 @@ export type UserUncheckedUpdateWithoutNotificationsInput = {
   GrantsGiven?: Prisma.GrantUncheckedUpdateManyWithoutGranterNestedInput
   GrantsReceived?: Prisma.GrantUncheckedUpdateManyWithoutGranteeNestedInput
   PacksOwned?: Prisma.PackUncheckedUpdateManyWithoutOwnerNestedInput
+  SlimeCityAccount?: Prisma.SlimeCityAccountUncheckedUpdateOneWithoutUserNestedInput
+  SlimeCityMatches?: Prisma.SlimeCityMatchUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutGithubInstallationsInput = {
@@ -28753,6 +29191,8 @@ export type UserCreateWithoutGithubInstallationsInput = {
   GrantsGiven?: Prisma.GrantCreateNestedManyWithoutGranterInput
   GrantsReceived?: Prisma.GrantCreateNestedManyWithoutGranteeInput
   PacksOwned?: Prisma.PackCreateNestedManyWithoutOwnerInput
+  SlimeCityAccount?: Prisma.SlimeCityAccountCreateNestedOneWithoutUserInput
+  SlimeCityMatches?: Prisma.SlimeCityMatchCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutGithubInstallationsInput = {
@@ -28878,6 +29318,8 @@ export type UserUncheckedCreateWithoutGithubInstallationsInput = {
   GrantsGiven?: Prisma.GrantUncheckedCreateNestedManyWithoutGranterInput
   GrantsReceived?: Prisma.GrantUncheckedCreateNestedManyWithoutGranteeInput
   PacksOwned?: Prisma.PackUncheckedCreateNestedManyWithoutOwnerInput
+  SlimeCityAccount?: Prisma.SlimeCityAccountUncheckedCreateNestedOneWithoutUserInput
+  SlimeCityMatches?: Prisma.SlimeCityMatchUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutGithubInstallationsInput = {
@@ -29018,6 +29460,8 @@ export type UserUpdateWithoutGithubInstallationsInput = {
   GrantsGiven?: Prisma.GrantUpdateManyWithoutGranterNestedInput
   GrantsReceived?: Prisma.GrantUpdateManyWithoutGranteeNestedInput
   PacksOwned?: Prisma.PackUpdateManyWithoutOwnerNestedInput
+  SlimeCityAccount?: Prisma.SlimeCityAccountUpdateOneWithoutUserNestedInput
+  SlimeCityMatches?: Prisma.SlimeCityMatchUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutGithubInstallationsInput = {
@@ -29143,6 +29587,8 @@ export type UserUncheckedUpdateWithoutGithubInstallationsInput = {
   GrantsGiven?: Prisma.GrantUncheckedUpdateManyWithoutGranterNestedInput
   GrantsReceived?: Prisma.GrantUncheckedUpdateManyWithoutGranteeNestedInput
   PacksOwned?: Prisma.PackUncheckedUpdateManyWithoutOwnerNestedInput
+  SlimeCityAccount?: Prisma.SlimeCityAccountUncheckedUpdateOneWithoutUserNestedInput
+  SlimeCityMatches?: Prisma.SlimeCityMatchUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutAppReposInput = {
@@ -29267,6 +29713,8 @@ export type UserCreateWithoutAppReposInput = {
   GrantsGiven?: Prisma.GrantCreateNestedManyWithoutGranterInput
   GrantsReceived?: Prisma.GrantCreateNestedManyWithoutGranteeInput
   PacksOwned?: Prisma.PackCreateNestedManyWithoutOwnerInput
+  SlimeCityAccount?: Prisma.SlimeCityAccountCreateNestedOneWithoutUserInput
+  SlimeCityMatches?: Prisma.SlimeCityMatchCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutAppReposInput = {
@@ -29392,6 +29840,8 @@ export type UserUncheckedCreateWithoutAppReposInput = {
   GrantsGiven?: Prisma.GrantUncheckedCreateNestedManyWithoutGranterInput
   GrantsReceived?: Prisma.GrantUncheckedCreateNestedManyWithoutGranteeInput
   PacksOwned?: Prisma.PackUncheckedCreateNestedManyWithoutOwnerInput
+  SlimeCityAccount?: Prisma.SlimeCityAccountUncheckedCreateNestedOneWithoutUserInput
+  SlimeCityMatches?: Prisma.SlimeCityMatchUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutAppReposInput = {
@@ -29532,6 +29982,8 @@ export type UserUpdateWithoutAppReposInput = {
   GrantsGiven?: Prisma.GrantUpdateManyWithoutGranterNestedInput
   GrantsReceived?: Prisma.GrantUpdateManyWithoutGranteeNestedInput
   PacksOwned?: Prisma.PackUpdateManyWithoutOwnerNestedInput
+  SlimeCityAccount?: Prisma.SlimeCityAccountUpdateOneWithoutUserNestedInput
+  SlimeCityMatches?: Prisma.SlimeCityMatchUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutAppReposInput = {
@@ -29657,6 +30109,1052 @@ export type UserUncheckedUpdateWithoutAppReposInput = {
   GrantsGiven?: Prisma.GrantUncheckedUpdateManyWithoutGranterNestedInput
   GrantsReceived?: Prisma.GrantUncheckedUpdateManyWithoutGranteeNestedInput
   PacksOwned?: Prisma.PackUncheckedUpdateManyWithoutOwnerNestedInput
+  SlimeCityAccount?: Prisma.SlimeCityAccountUncheckedUpdateOneWithoutUserNestedInput
+  SlimeCityMatches?: Prisma.SlimeCityMatchUncheckedUpdateManyWithoutUserNestedInput
+}
+
+export type UserCreateWithoutSlimeCityAccountInput = {
+  createdAt?: Date | string
+  updatedAt?: Date | string | null
+  username: string
+  email?: string | null
+  questPoints?: number
+  emailVerified?: Date | string | null
+  name?: string | null
+  address1?: string | null
+  address2?: string | null
+  avatarImage?: string | null
+  bio?: string | null
+  birthday?: Date | string | null
+  city?: string | null
+  country?: string | null
+  discordUrl?: string | null
+  facebookUrl?: string | null
+  instagramUrl?: string | null
+  kindrobotsUrl?: string | null
+  languages?: string | null
+  phone?: string | null
+  state?: string | null
+  timezone?: string | null
+  twitterUrl?: string | null
+  apiKey?: string | null
+  password?: string | null
+  karma?: number
+  mana?: number
+  tokens?: number
+  earnedTokens?: number
+  clickRecord?: number | null
+  matchRecord?: number | null
+  showMature?: boolean
+  Role?: $Enums.Role
+  token?: string | null
+  designerName?: string | null
+  googleEmail?: string | null
+  googleId?: string | null
+  blockList?: string | null
+  isPublic?: boolean
+  smartBar?: string | null
+  customIcons?: boolean
+  isMember?: boolean
+  preferredArtServerId?: number | null
+  preferredTextServerId?: number | null
+  memberUntil?: Date | string | null
+  stripeCustomerId?: string | null
+  stripeSubscriptionId?: string | null
+  artModels?: string | null
+  lastReward?: string | null
+  textModels?: string | null
+  vibes?: string | null
+  hiddenServerIds?: string | null
+  isActive?: boolean
+  artPrompt?: string | null
+  isGuest?: boolean
+  lastManaRefill?: Date | string | null
+  manaCap?: number
+  signupBonusGiven?: boolean
+  referralCode?: string | null
+  allowFriendRequests?: boolean
+  brevoContactId?: string | null
+  isRestricted?: boolean
+  listInDirectory?: boolean
+  messagePolicy?: $Enums.MessagePolicy
+  newsletterConfirmedAt?: Date | string | null
+  newsletterFrequency?: $Enums.NewsletterFrequency
+  restrictedAt?: Date | string | null
+  restrictedById?: number | null
+  restrictedReason?: string | null
+  introDismissedAt?: Date | string | null
+  Achievements?: Prisma.AchievementRecordCreateNestedManyWithoutUserInput
+  AgentCredentials?: Prisma.AgentCredentialCreateNestedManyWithoutUserInput
+  AppRepos?: Prisma.AppRepoCreateNestedManyWithoutUserInput
+  Aquariums?: Prisma.AquariumCreateNestedManyWithoutUserInput
+  AquariumCodexEntries?: Prisma.AquariumCodexEntryCreateNestedManyWithoutUserInput
+  ArtCollections?: Prisma.ArtCollectionCreateNestedManyWithoutUserInput
+  ArtImages?: Prisma.ArtImageCreateNestedManyWithoutUserInput
+  ArtJobs?: Prisma.ArtJobCreateNestedManyWithoutUserInput
+  AuthTokens?: Prisma.AuthTokenCreateNestedManyWithoutUserInput
+  Bots?: Prisma.BotCreateNestedManyWithoutUserInput
+  Challenges?: Prisma.ChallengeCreateNestedManyWithoutUserInput
+  characters?: Prisma.CharacterCreateNestedManyWithoutUserInput
+  Chats?: Prisma.ChatCreateNestedManyWithoutUserInput
+  Monsters?: Prisma.MonsterCreateNestedManyWithoutUserInput
+  ConversationsIn?: Prisma.ConversationParticipantCreateNestedManyWithoutUserInput
+  SentMessages?: Prisma.DirectMessageCreateNestedManyWithoutSenderInput
+  Dreams?: Prisma.DreamCreateNestedManyWithoutUserInput
+  Entitlements?: Prisma.EntitlementCreateNestedManyWithoutUserInput
+  Facets?: Prisma.FacetCreateNestedManyWithoutUserInput
+  GithubInstallations?: Prisma.GithubInstallationCreateNestedManyWithoutUserInput
+  KarmaTransactions?: Prisma.KarmaTransactionCreateNestedManyWithoutUserInput
+  Orders?: Prisma.OrderCreateNestedManyWithoutUserInput
+  LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockCreateNestedManyWithoutUserInput
+  LifeRuns?: Prisma.LifeRunCreateNestedManyWithoutUserInput
+  Logs?: Prisma.LogCreateNestedManyWithoutUserInput
+  ManaTransactions?: Prisma.ManaTransactionCreateNestedManyWithoutUserInput
+  MissionRemittances?: Prisma.MissionRemittanceCreateNestedManyWithoutRemittedByInput
+  ActedNotifications?: Prisma.NotificationCreateNestedManyWithoutActorInput
+  Notifications?: Prisma.NotificationCreateNestedManyWithoutUserInput
+  PitchSheets?: Prisma.PitchSheetCreateNestedManyWithoutUserInput
+  Projects?: Prisma.ProjectCreateNestedManyWithoutUserInput
+  ClaimedPrompts?: Prisma.PromptCreateNestedManyWithoutClaimerInput
+  Prompts?: Prisma.PromptCreateNestedManyWithoutUserInput
+  Reactions?: Prisma.ReactionCreateNestedManyWithoutUserInput
+  PlumberLevels?: Prisma.PlumberLevelCreateNestedManyWithoutUserInput
+  ReferredBy?: Prisma.ReferralCreateNestedOneWithoutReferredInput
+  ReferralsMade?: Prisma.ReferralCreateNestedManyWithoutReferrerInput
+  Resources?: Prisma.ResourceCreateNestedManyWithoutUserInput
+  Rewards?: Prisma.RewardCreateNestedManyWithoutUserInput
+  Scenarios?: Prisma.ScenarioCreateNestedManyWithoutUserInput
+  Servers?: Prisma.ServerCreateNestedManyWithoutUserInput
+  SmartIcons?: Prisma.SmartIconCreateNestedManyWithoutUserInput
+  StylistAppointments?: Prisma.StylistAppointmentCreateNestedManyWithoutUserInput
+  StylistClients?: Prisma.StylistClientCreateNestedManyWithoutUserInput
+  Themes?: Prisma.ThemeCreateNestedManyWithoutUserInput
+  ArtImage?: Prisma.ArtImageCreateNestedOneWithoutUserProfilesInput
+  RelationsReceived?: Prisma.UserRelationCreateNestedManyWithoutRelatedUserInput
+  RelationsOwned?: Prisma.UserRelationCreateNestedManyWithoutUserInput
+  UserRoles?: Prisma.UserRoleCreateNestedManyWithoutUserInput
+  GrantsGiven?: Prisma.GrantCreateNestedManyWithoutGranterInput
+  GrantsReceived?: Prisma.GrantCreateNestedManyWithoutGranteeInput
+  PacksOwned?: Prisma.PackCreateNestedManyWithoutOwnerInput
+  SlimeCityMatches?: Prisma.SlimeCityMatchCreateNestedManyWithoutUserInput
+}
+
+export type UserUncheckedCreateWithoutSlimeCityAccountInput = {
+  id?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string | null
+  username: string
+  email?: string | null
+  questPoints?: number
+  emailVerified?: Date | string | null
+  name?: string | null
+  address1?: string | null
+  address2?: string | null
+  avatarImage?: string | null
+  bio?: string | null
+  birthday?: Date | string | null
+  city?: string | null
+  country?: string | null
+  discordUrl?: string | null
+  facebookUrl?: string | null
+  instagramUrl?: string | null
+  kindrobotsUrl?: string | null
+  languages?: string | null
+  phone?: string | null
+  state?: string | null
+  timezone?: string | null
+  twitterUrl?: string | null
+  apiKey?: string | null
+  password?: string | null
+  karma?: number
+  mana?: number
+  tokens?: number
+  earnedTokens?: number
+  clickRecord?: number | null
+  matchRecord?: number | null
+  showMature?: boolean
+  Role?: $Enums.Role
+  artImageId?: number | null
+  token?: string | null
+  designerName?: string | null
+  googleEmail?: string | null
+  googleId?: string | null
+  blockList?: string | null
+  isPublic?: boolean
+  smartBar?: string | null
+  customIcons?: boolean
+  isMember?: boolean
+  preferredArtServerId?: number | null
+  preferredTextServerId?: number | null
+  memberUntil?: Date | string | null
+  stripeCustomerId?: string | null
+  stripeSubscriptionId?: string | null
+  artModels?: string | null
+  lastReward?: string | null
+  textModels?: string | null
+  vibes?: string | null
+  hiddenServerIds?: string | null
+  isActive?: boolean
+  artPrompt?: string | null
+  isGuest?: boolean
+  lastManaRefill?: Date | string | null
+  manaCap?: number
+  signupBonusGiven?: boolean
+  referralCode?: string | null
+  allowFriendRequests?: boolean
+  brevoContactId?: string | null
+  isRestricted?: boolean
+  listInDirectory?: boolean
+  messagePolicy?: $Enums.MessagePolicy
+  newsletterConfirmedAt?: Date | string | null
+  newsletterFrequency?: $Enums.NewsletterFrequency
+  restrictedAt?: Date | string | null
+  restrictedById?: number | null
+  restrictedReason?: string | null
+  introDismissedAt?: Date | string | null
+  Achievements?: Prisma.AchievementRecordUncheckedCreateNestedManyWithoutUserInput
+  AgentCredentials?: Prisma.AgentCredentialUncheckedCreateNestedManyWithoutUserInput
+  AppRepos?: Prisma.AppRepoUncheckedCreateNestedManyWithoutUserInput
+  Aquariums?: Prisma.AquariumUncheckedCreateNestedManyWithoutUserInput
+  AquariumCodexEntries?: Prisma.AquariumCodexEntryUncheckedCreateNestedManyWithoutUserInput
+  ArtCollections?: Prisma.ArtCollectionUncheckedCreateNestedManyWithoutUserInput
+  ArtImages?: Prisma.ArtImageUncheckedCreateNestedManyWithoutUserInput
+  ArtJobs?: Prisma.ArtJobUncheckedCreateNestedManyWithoutUserInput
+  AuthTokens?: Prisma.AuthTokenUncheckedCreateNestedManyWithoutUserInput
+  Bots?: Prisma.BotUncheckedCreateNestedManyWithoutUserInput
+  Challenges?: Prisma.ChallengeUncheckedCreateNestedManyWithoutUserInput
+  characters?: Prisma.CharacterUncheckedCreateNestedManyWithoutUserInput
+  Chats?: Prisma.ChatUncheckedCreateNestedManyWithoutUserInput
+  Monsters?: Prisma.MonsterUncheckedCreateNestedManyWithoutUserInput
+  ConversationsIn?: Prisma.ConversationParticipantUncheckedCreateNestedManyWithoutUserInput
+  SentMessages?: Prisma.DirectMessageUncheckedCreateNestedManyWithoutSenderInput
+  Dreams?: Prisma.DreamUncheckedCreateNestedManyWithoutUserInput
+  Entitlements?: Prisma.EntitlementUncheckedCreateNestedManyWithoutUserInput
+  Facets?: Prisma.FacetUncheckedCreateNestedManyWithoutUserInput
+  GithubInstallations?: Prisma.GithubInstallationUncheckedCreateNestedManyWithoutUserInput
+  KarmaTransactions?: Prisma.KarmaTransactionUncheckedCreateNestedManyWithoutUserInput
+  Orders?: Prisma.OrderUncheckedCreateNestedManyWithoutUserInput
+  LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUncheckedCreateNestedManyWithoutUserInput
+  LifeRuns?: Prisma.LifeRunUncheckedCreateNestedManyWithoutUserInput
+  Logs?: Prisma.LogUncheckedCreateNestedManyWithoutUserInput
+  ManaTransactions?: Prisma.ManaTransactionUncheckedCreateNestedManyWithoutUserInput
+  MissionRemittances?: Prisma.MissionRemittanceUncheckedCreateNestedManyWithoutRemittedByInput
+  ActedNotifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutActorInput
+  Notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutUserInput
+  PitchSheets?: Prisma.PitchSheetUncheckedCreateNestedManyWithoutUserInput
+  Projects?: Prisma.ProjectUncheckedCreateNestedManyWithoutUserInput
+  ClaimedPrompts?: Prisma.PromptUncheckedCreateNestedManyWithoutClaimerInput
+  Prompts?: Prisma.PromptUncheckedCreateNestedManyWithoutUserInput
+  Reactions?: Prisma.ReactionUncheckedCreateNestedManyWithoutUserInput
+  PlumberLevels?: Prisma.PlumberLevelUncheckedCreateNestedManyWithoutUserInput
+  ReferredBy?: Prisma.ReferralUncheckedCreateNestedOneWithoutReferredInput
+  ReferralsMade?: Prisma.ReferralUncheckedCreateNestedManyWithoutReferrerInput
+  Resources?: Prisma.ResourceUncheckedCreateNestedManyWithoutUserInput
+  Rewards?: Prisma.RewardUncheckedCreateNestedManyWithoutUserInput
+  Scenarios?: Prisma.ScenarioUncheckedCreateNestedManyWithoutUserInput
+  Servers?: Prisma.ServerUncheckedCreateNestedManyWithoutUserInput
+  SmartIcons?: Prisma.SmartIconUncheckedCreateNestedManyWithoutUserInput
+  StylistAppointments?: Prisma.StylistAppointmentUncheckedCreateNestedManyWithoutUserInput
+  StylistClients?: Prisma.StylistClientUncheckedCreateNestedManyWithoutUserInput
+  Themes?: Prisma.ThemeUncheckedCreateNestedManyWithoutUserInput
+  RelationsReceived?: Prisma.UserRelationUncheckedCreateNestedManyWithoutRelatedUserInput
+  RelationsOwned?: Prisma.UserRelationUncheckedCreateNestedManyWithoutUserInput
+  UserRoles?: Prisma.UserRoleUncheckedCreateNestedManyWithoutUserInput
+  GrantsGiven?: Prisma.GrantUncheckedCreateNestedManyWithoutGranterInput
+  GrantsReceived?: Prisma.GrantUncheckedCreateNestedManyWithoutGranteeInput
+  PacksOwned?: Prisma.PackUncheckedCreateNestedManyWithoutOwnerInput
+  SlimeCityMatches?: Prisma.SlimeCityMatchUncheckedCreateNestedManyWithoutUserInput
+}
+
+export type UserCreateOrConnectWithoutSlimeCityAccountInput = {
+  where: Prisma.UserWhereUniqueInput
+  create: Prisma.XOR<Prisma.UserCreateWithoutSlimeCityAccountInput, Prisma.UserUncheckedCreateWithoutSlimeCityAccountInput>
+}
+
+export type UserUpsertWithoutSlimeCityAccountInput = {
+  update: Prisma.XOR<Prisma.UserUpdateWithoutSlimeCityAccountInput, Prisma.UserUncheckedUpdateWithoutSlimeCityAccountInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutSlimeCityAccountInput, Prisma.UserUncheckedCreateWithoutSlimeCityAccountInput>
+  where?: Prisma.UserWhereInput
+}
+
+export type UserUpdateToOneWithWhereWithoutSlimeCityAccountInput = {
+  where?: Prisma.UserWhereInput
+  data: Prisma.XOR<Prisma.UserUpdateWithoutSlimeCityAccountInput, Prisma.UserUncheckedUpdateWithoutSlimeCityAccountInput>
+}
+
+export type UserUpdateWithoutSlimeCityAccountInput = {
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  username?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  questPoints?: Prisma.IntFieldUpdateOperationsInput | number
+  emailVerified?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  address1?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  address2?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  avatarImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  birthday?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  city?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  country?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  discordUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  facebookUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  instagramUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  kindrobotsUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  languages?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  state?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  timezone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  twitterUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  apiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  karma?: Prisma.IntFieldUpdateOperationsInput | number
+  mana?: Prisma.IntFieldUpdateOperationsInput | number
+  tokens?: Prisma.IntFieldUpdateOperationsInput | number
+  earnedTokens?: Prisma.IntFieldUpdateOperationsInput | number
+  clickRecord?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  matchRecord?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  showMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  Role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
+  token?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  designerName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  googleEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  googleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  blockList?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  smartBar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  customIcons?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isMember?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  preferredArtServerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  preferredTextServerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  memberUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stripeSubscriptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  artModels?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastReward?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  textModels?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  vibes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  hiddenServerIds?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isGuest?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  lastManaRefill?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  manaCap?: Prisma.IntFieldUpdateOperationsInput | number
+  signupBonusGiven?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  referralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  allowFriendRequests?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  brevoContactId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isRestricted?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  listInDirectory?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  messagePolicy?: Prisma.EnumMessagePolicyFieldUpdateOperationsInput | $Enums.MessagePolicy
+  newsletterConfirmedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  newsletterFrequency?: Prisma.EnumNewsletterFrequencyFieldUpdateOperationsInput | $Enums.NewsletterFrequency
+  restrictedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  restrictedById?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  restrictedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  introDismissedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  Achievements?: Prisma.AchievementRecordUpdateManyWithoutUserNestedInput
+  AgentCredentials?: Prisma.AgentCredentialUpdateManyWithoutUserNestedInput
+  AppRepos?: Prisma.AppRepoUpdateManyWithoutUserNestedInput
+  Aquariums?: Prisma.AquariumUpdateManyWithoutUserNestedInput
+  AquariumCodexEntries?: Prisma.AquariumCodexEntryUpdateManyWithoutUserNestedInput
+  ArtCollections?: Prisma.ArtCollectionUpdateManyWithoutUserNestedInput
+  ArtImages?: Prisma.ArtImageUpdateManyWithoutUserNestedInput
+  ArtJobs?: Prisma.ArtJobUpdateManyWithoutUserNestedInput
+  AuthTokens?: Prisma.AuthTokenUpdateManyWithoutUserNestedInput
+  Bots?: Prisma.BotUpdateManyWithoutUserNestedInput
+  Challenges?: Prisma.ChallengeUpdateManyWithoutUserNestedInput
+  characters?: Prisma.CharacterUpdateManyWithoutUserNestedInput
+  Chats?: Prisma.ChatUpdateManyWithoutUserNestedInput
+  Monsters?: Prisma.MonsterUpdateManyWithoutUserNestedInput
+  ConversationsIn?: Prisma.ConversationParticipantUpdateManyWithoutUserNestedInput
+  SentMessages?: Prisma.DirectMessageUpdateManyWithoutSenderNestedInput
+  Dreams?: Prisma.DreamUpdateManyWithoutUserNestedInput
+  Entitlements?: Prisma.EntitlementUpdateManyWithoutUserNestedInput
+  Facets?: Prisma.FacetUpdateManyWithoutUserNestedInput
+  GithubInstallations?: Prisma.GithubInstallationUpdateManyWithoutUserNestedInput
+  KarmaTransactions?: Prisma.KarmaTransactionUpdateManyWithoutUserNestedInput
+  Orders?: Prisma.OrderUpdateManyWithoutUserNestedInput
+  LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUpdateManyWithoutUserNestedInput
+  LifeRuns?: Prisma.LifeRunUpdateManyWithoutUserNestedInput
+  Logs?: Prisma.LogUpdateManyWithoutUserNestedInput
+  ManaTransactions?: Prisma.ManaTransactionUpdateManyWithoutUserNestedInput
+  MissionRemittances?: Prisma.MissionRemittanceUpdateManyWithoutRemittedByNestedInput
+  ActedNotifications?: Prisma.NotificationUpdateManyWithoutActorNestedInput
+  Notifications?: Prisma.NotificationUpdateManyWithoutUserNestedInput
+  PitchSheets?: Prisma.PitchSheetUpdateManyWithoutUserNestedInput
+  Projects?: Prisma.ProjectUpdateManyWithoutUserNestedInput
+  ClaimedPrompts?: Prisma.PromptUpdateManyWithoutClaimerNestedInput
+  Prompts?: Prisma.PromptUpdateManyWithoutUserNestedInput
+  Reactions?: Prisma.ReactionUpdateManyWithoutUserNestedInput
+  PlumberLevels?: Prisma.PlumberLevelUpdateManyWithoutUserNestedInput
+  ReferredBy?: Prisma.ReferralUpdateOneWithoutReferredNestedInput
+  ReferralsMade?: Prisma.ReferralUpdateManyWithoutReferrerNestedInput
+  Resources?: Prisma.ResourceUpdateManyWithoutUserNestedInput
+  Rewards?: Prisma.RewardUpdateManyWithoutUserNestedInput
+  Scenarios?: Prisma.ScenarioUpdateManyWithoutUserNestedInput
+  Servers?: Prisma.ServerUpdateManyWithoutUserNestedInput
+  SmartIcons?: Prisma.SmartIconUpdateManyWithoutUserNestedInput
+  StylistAppointments?: Prisma.StylistAppointmentUpdateManyWithoutUserNestedInput
+  StylistClients?: Prisma.StylistClientUpdateManyWithoutUserNestedInput
+  Themes?: Prisma.ThemeUpdateManyWithoutUserNestedInput
+  ArtImage?: Prisma.ArtImageUpdateOneWithoutUserProfilesNestedInput
+  RelationsReceived?: Prisma.UserRelationUpdateManyWithoutRelatedUserNestedInput
+  RelationsOwned?: Prisma.UserRelationUpdateManyWithoutUserNestedInput
+  UserRoles?: Prisma.UserRoleUpdateManyWithoutUserNestedInput
+  GrantsGiven?: Prisma.GrantUpdateManyWithoutGranterNestedInput
+  GrantsReceived?: Prisma.GrantUpdateManyWithoutGranteeNestedInput
+  PacksOwned?: Prisma.PackUpdateManyWithoutOwnerNestedInput
+  SlimeCityMatches?: Prisma.SlimeCityMatchUpdateManyWithoutUserNestedInput
+}
+
+export type UserUncheckedUpdateWithoutSlimeCityAccountInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  username?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  questPoints?: Prisma.IntFieldUpdateOperationsInput | number
+  emailVerified?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  address1?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  address2?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  avatarImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  birthday?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  city?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  country?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  discordUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  facebookUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  instagramUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  kindrobotsUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  languages?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  state?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  timezone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  twitterUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  apiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  karma?: Prisma.IntFieldUpdateOperationsInput | number
+  mana?: Prisma.IntFieldUpdateOperationsInput | number
+  tokens?: Prisma.IntFieldUpdateOperationsInput | number
+  earnedTokens?: Prisma.IntFieldUpdateOperationsInput | number
+  clickRecord?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  matchRecord?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  showMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  Role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
+  artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  token?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  designerName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  googleEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  googleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  blockList?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  smartBar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  customIcons?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isMember?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  preferredArtServerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  preferredTextServerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  memberUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stripeSubscriptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  artModels?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastReward?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  textModels?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  vibes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  hiddenServerIds?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isGuest?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  lastManaRefill?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  manaCap?: Prisma.IntFieldUpdateOperationsInput | number
+  signupBonusGiven?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  referralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  allowFriendRequests?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  brevoContactId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isRestricted?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  listInDirectory?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  messagePolicy?: Prisma.EnumMessagePolicyFieldUpdateOperationsInput | $Enums.MessagePolicy
+  newsletterConfirmedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  newsletterFrequency?: Prisma.EnumNewsletterFrequencyFieldUpdateOperationsInput | $Enums.NewsletterFrequency
+  restrictedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  restrictedById?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  restrictedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  introDismissedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  Achievements?: Prisma.AchievementRecordUncheckedUpdateManyWithoutUserNestedInput
+  AgentCredentials?: Prisma.AgentCredentialUncheckedUpdateManyWithoutUserNestedInput
+  AppRepos?: Prisma.AppRepoUncheckedUpdateManyWithoutUserNestedInput
+  Aquariums?: Prisma.AquariumUncheckedUpdateManyWithoutUserNestedInput
+  AquariumCodexEntries?: Prisma.AquariumCodexEntryUncheckedUpdateManyWithoutUserNestedInput
+  ArtCollections?: Prisma.ArtCollectionUncheckedUpdateManyWithoutUserNestedInput
+  ArtImages?: Prisma.ArtImageUncheckedUpdateManyWithoutUserNestedInput
+  ArtJobs?: Prisma.ArtJobUncheckedUpdateManyWithoutUserNestedInput
+  AuthTokens?: Prisma.AuthTokenUncheckedUpdateManyWithoutUserNestedInput
+  Bots?: Prisma.BotUncheckedUpdateManyWithoutUserNestedInput
+  Challenges?: Prisma.ChallengeUncheckedUpdateManyWithoutUserNestedInput
+  characters?: Prisma.CharacterUncheckedUpdateManyWithoutUserNestedInput
+  Chats?: Prisma.ChatUncheckedUpdateManyWithoutUserNestedInput
+  Monsters?: Prisma.MonsterUncheckedUpdateManyWithoutUserNestedInput
+  ConversationsIn?: Prisma.ConversationParticipantUncheckedUpdateManyWithoutUserNestedInput
+  SentMessages?: Prisma.DirectMessageUncheckedUpdateManyWithoutSenderNestedInput
+  Dreams?: Prisma.DreamUncheckedUpdateManyWithoutUserNestedInput
+  Entitlements?: Prisma.EntitlementUncheckedUpdateManyWithoutUserNestedInput
+  Facets?: Prisma.FacetUncheckedUpdateManyWithoutUserNestedInput
+  GithubInstallations?: Prisma.GithubInstallationUncheckedUpdateManyWithoutUserNestedInput
+  KarmaTransactions?: Prisma.KarmaTransactionUncheckedUpdateManyWithoutUserNestedInput
+  Orders?: Prisma.OrderUncheckedUpdateManyWithoutUserNestedInput
+  LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUncheckedUpdateManyWithoutUserNestedInput
+  LifeRuns?: Prisma.LifeRunUncheckedUpdateManyWithoutUserNestedInput
+  Logs?: Prisma.LogUncheckedUpdateManyWithoutUserNestedInput
+  ManaTransactions?: Prisma.ManaTransactionUncheckedUpdateManyWithoutUserNestedInput
+  MissionRemittances?: Prisma.MissionRemittanceUncheckedUpdateManyWithoutRemittedByNestedInput
+  ActedNotifications?: Prisma.NotificationUncheckedUpdateManyWithoutActorNestedInput
+  Notifications?: Prisma.NotificationUncheckedUpdateManyWithoutUserNestedInput
+  PitchSheets?: Prisma.PitchSheetUncheckedUpdateManyWithoutUserNestedInput
+  Projects?: Prisma.ProjectUncheckedUpdateManyWithoutUserNestedInput
+  ClaimedPrompts?: Prisma.PromptUncheckedUpdateManyWithoutClaimerNestedInput
+  Prompts?: Prisma.PromptUncheckedUpdateManyWithoutUserNestedInput
+  Reactions?: Prisma.ReactionUncheckedUpdateManyWithoutUserNestedInput
+  PlumberLevels?: Prisma.PlumberLevelUncheckedUpdateManyWithoutUserNestedInput
+  ReferredBy?: Prisma.ReferralUncheckedUpdateOneWithoutReferredNestedInput
+  ReferralsMade?: Prisma.ReferralUncheckedUpdateManyWithoutReferrerNestedInput
+  Resources?: Prisma.ResourceUncheckedUpdateManyWithoutUserNestedInput
+  Rewards?: Prisma.RewardUncheckedUpdateManyWithoutUserNestedInput
+  Scenarios?: Prisma.ScenarioUncheckedUpdateManyWithoutUserNestedInput
+  Servers?: Prisma.ServerUncheckedUpdateManyWithoutUserNestedInput
+  SmartIcons?: Prisma.SmartIconUncheckedUpdateManyWithoutUserNestedInput
+  StylistAppointments?: Prisma.StylistAppointmentUncheckedUpdateManyWithoutUserNestedInput
+  StylistClients?: Prisma.StylistClientUncheckedUpdateManyWithoutUserNestedInput
+  Themes?: Prisma.ThemeUncheckedUpdateManyWithoutUserNestedInput
+  RelationsReceived?: Prisma.UserRelationUncheckedUpdateManyWithoutRelatedUserNestedInput
+  RelationsOwned?: Prisma.UserRelationUncheckedUpdateManyWithoutUserNestedInput
+  UserRoles?: Prisma.UserRoleUncheckedUpdateManyWithoutUserNestedInput
+  GrantsGiven?: Prisma.GrantUncheckedUpdateManyWithoutGranterNestedInput
+  GrantsReceived?: Prisma.GrantUncheckedUpdateManyWithoutGranteeNestedInput
+  PacksOwned?: Prisma.PackUncheckedUpdateManyWithoutOwnerNestedInput
+  SlimeCityMatches?: Prisma.SlimeCityMatchUncheckedUpdateManyWithoutUserNestedInput
+}
+
+export type UserCreateWithoutSlimeCityMatchesInput = {
+  createdAt?: Date | string
+  updatedAt?: Date | string | null
+  username: string
+  email?: string | null
+  questPoints?: number
+  emailVerified?: Date | string | null
+  name?: string | null
+  address1?: string | null
+  address2?: string | null
+  avatarImage?: string | null
+  bio?: string | null
+  birthday?: Date | string | null
+  city?: string | null
+  country?: string | null
+  discordUrl?: string | null
+  facebookUrl?: string | null
+  instagramUrl?: string | null
+  kindrobotsUrl?: string | null
+  languages?: string | null
+  phone?: string | null
+  state?: string | null
+  timezone?: string | null
+  twitterUrl?: string | null
+  apiKey?: string | null
+  password?: string | null
+  karma?: number
+  mana?: number
+  tokens?: number
+  earnedTokens?: number
+  clickRecord?: number | null
+  matchRecord?: number | null
+  showMature?: boolean
+  Role?: $Enums.Role
+  token?: string | null
+  designerName?: string | null
+  googleEmail?: string | null
+  googleId?: string | null
+  blockList?: string | null
+  isPublic?: boolean
+  smartBar?: string | null
+  customIcons?: boolean
+  isMember?: boolean
+  preferredArtServerId?: number | null
+  preferredTextServerId?: number | null
+  memberUntil?: Date | string | null
+  stripeCustomerId?: string | null
+  stripeSubscriptionId?: string | null
+  artModels?: string | null
+  lastReward?: string | null
+  textModels?: string | null
+  vibes?: string | null
+  hiddenServerIds?: string | null
+  isActive?: boolean
+  artPrompt?: string | null
+  isGuest?: boolean
+  lastManaRefill?: Date | string | null
+  manaCap?: number
+  signupBonusGiven?: boolean
+  referralCode?: string | null
+  allowFriendRequests?: boolean
+  brevoContactId?: string | null
+  isRestricted?: boolean
+  listInDirectory?: boolean
+  messagePolicy?: $Enums.MessagePolicy
+  newsletterConfirmedAt?: Date | string | null
+  newsletterFrequency?: $Enums.NewsletterFrequency
+  restrictedAt?: Date | string | null
+  restrictedById?: number | null
+  restrictedReason?: string | null
+  introDismissedAt?: Date | string | null
+  Achievements?: Prisma.AchievementRecordCreateNestedManyWithoutUserInput
+  AgentCredentials?: Prisma.AgentCredentialCreateNestedManyWithoutUserInput
+  AppRepos?: Prisma.AppRepoCreateNestedManyWithoutUserInput
+  Aquariums?: Prisma.AquariumCreateNestedManyWithoutUserInput
+  AquariumCodexEntries?: Prisma.AquariumCodexEntryCreateNestedManyWithoutUserInput
+  ArtCollections?: Prisma.ArtCollectionCreateNestedManyWithoutUserInput
+  ArtImages?: Prisma.ArtImageCreateNestedManyWithoutUserInput
+  ArtJobs?: Prisma.ArtJobCreateNestedManyWithoutUserInput
+  AuthTokens?: Prisma.AuthTokenCreateNestedManyWithoutUserInput
+  Bots?: Prisma.BotCreateNestedManyWithoutUserInput
+  Challenges?: Prisma.ChallengeCreateNestedManyWithoutUserInput
+  characters?: Prisma.CharacterCreateNestedManyWithoutUserInput
+  Chats?: Prisma.ChatCreateNestedManyWithoutUserInput
+  Monsters?: Prisma.MonsterCreateNestedManyWithoutUserInput
+  ConversationsIn?: Prisma.ConversationParticipantCreateNestedManyWithoutUserInput
+  SentMessages?: Prisma.DirectMessageCreateNestedManyWithoutSenderInput
+  Dreams?: Prisma.DreamCreateNestedManyWithoutUserInput
+  Entitlements?: Prisma.EntitlementCreateNestedManyWithoutUserInput
+  Facets?: Prisma.FacetCreateNestedManyWithoutUserInput
+  GithubInstallations?: Prisma.GithubInstallationCreateNestedManyWithoutUserInput
+  KarmaTransactions?: Prisma.KarmaTransactionCreateNestedManyWithoutUserInput
+  Orders?: Prisma.OrderCreateNestedManyWithoutUserInput
+  LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockCreateNestedManyWithoutUserInput
+  LifeRuns?: Prisma.LifeRunCreateNestedManyWithoutUserInput
+  Logs?: Prisma.LogCreateNestedManyWithoutUserInput
+  ManaTransactions?: Prisma.ManaTransactionCreateNestedManyWithoutUserInput
+  MissionRemittances?: Prisma.MissionRemittanceCreateNestedManyWithoutRemittedByInput
+  ActedNotifications?: Prisma.NotificationCreateNestedManyWithoutActorInput
+  Notifications?: Prisma.NotificationCreateNestedManyWithoutUserInput
+  PitchSheets?: Prisma.PitchSheetCreateNestedManyWithoutUserInput
+  Projects?: Prisma.ProjectCreateNestedManyWithoutUserInput
+  ClaimedPrompts?: Prisma.PromptCreateNestedManyWithoutClaimerInput
+  Prompts?: Prisma.PromptCreateNestedManyWithoutUserInput
+  Reactions?: Prisma.ReactionCreateNestedManyWithoutUserInput
+  PlumberLevels?: Prisma.PlumberLevelCreateNestedManyWithoutUserInput
+  ReferredBy?: Prisma.ReferralCreateNestedOneWithoutReferredInput
+  ReferralsMade?: Prisma.ReferralCreateNestedManyWithoutReferrerInput
+  Resources?: Prisma.ResourceCreateNestedManyWithoutUserInput
+  Rewards?: Prisma.RewardCreateNestedManyWithoutUserInput
+  Scenarios?: Prisma.ScenarioCreateNestedManyWithoutUserInput
+  Servers?: Prisma.ServerCreateNestedManyWithoutUserInput
+  SmartIcons?: Prisma.SmartIconCreateNestedManyWithoutUserInput
+  StylistAppointments?: Prisma.StylistAppointmentCreateNestedManyWithoutUserInput
+  StylistClients?: Prisma.StylistClientCreateNestedManyWithoutUserInput
+  Themes?: Prisma.ThemeCreateNestedManyWithoutUserInput
+  ArtImage?: Prisma.ArtImageCreateNestedOneWithoutUserProfilesInput
+  RelationsReceived?: Prisma.UserRelationCreateNestedManyWithoutRelatedUserInput
+  RelationsOwned?: Prisma.UserRelationCreateNestedManyWithoutUserInput
+  UserRoles?: Prisma.UserRoleCreateNestedManyWithoutUserInput
+  GrantsGiven?: Prisma.GrantCreateNestedManyWithoutGranterInput
+  GrantsReceived?: Prisma.GrantCreateNestedManyWithoutGranteeInput
+  PacksOwned?: Prisma.PackCreateNestedManyWithoutOwnerInput
+  SlimeCityAccount?: Prisma.SlimeCityAccountCreateNestedOneWithoutUserInput
+}
+
+export type UserUncheckedCreateWithoutSlimeCityMatchesInput = {
+  id?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string | null
+  username: string
+  email?: string | null
+  questPoints?: number
+  emailVerified?: Date | string | null
+  name?: string | null
+  address1?: string | null
+  address2?: string | null
+  avatarImage?: string | null
+  bio?: string | null
+  birthday?: Date | string | null
+  city?: string | null
+  country?: string | null
+  discordUrl?: string | null
+  facebookUrl?: string | null
+  instagramUrl?: string | null
+  kindrobotsUrl?: string | null
+  languages?: string | null
+  phone?: string | null
+  state?: string | null
+  timezone?: string | null
+  twitterUrl?: string | null
+  apiKey?: string | null
+  password?: string | null
+  karma?: number
+  mana?: number
+  tokens?: number
+  earnedTokens?: number
+  clickRecord?: number | null
+  matchRecord?: number | null
+  showMature?: boolean
+  Role?: $Enums.Role
+  artImageId?: number | null
+  token?: string | null
+  designerName?: string | null
+  googleEmail?: string | null
+  googleId?: string | null
+  blockList?: string | null
+  isPublic?: boolean
+  smartBar?: string | null
+  customIcons?: boolean
+  isMember?: boolean
+  preferredArtServerId?: number | null
+  preferredTextServerId?: number | null
+  memberUntil?: Date | string | null
+  stripeCustomerId?: string | null
+  stripeSubscriptionId?: string | null
+  artModels?: string | null
+  lastReward?: string | null
+  textModels?: string | null
+  vibes?: string | null
+  hiddenServerIds?: string | null
+  isActive?: boolean
+  artPrompt?: string | null
+  isGuest?: boolean
+  lastManaRefill?: Date | string | null
+  manaCap?: number
+  signupBonusGiven?: boolean
+  referralCode?: string | null
+  allowFriendRequests?: boolean
+  brevoContactId?: string | null
+  isRestricted?: boolean
+  listInDirectory?: boolean
+  messagePolicy?: $Enums.MessagePolicy
+  newsletterConfirmedAt?: Date | string | null
+  newsletterFrequency?: $Enums.NewsletterFrequency
+  restrictedAt?: Date | string | null
+  restrictedById?: number | null
+  restrictedReason?: string | null
+  introDismissedAt?: Date | string | null
+  Achievements?: Prisma.AchievementRecordUncheckedCreateNestedManyWithoutUserInput
+  AgentCredentials?: Prisma.AgentCredentialUncheckedCreateNestedManyWithoutUserInput
+  AppRepos?: Prisma.AppRepoUncheckedCreateNestedManyWithoutUserInput
+  Aquariums?: Prisma.AquariumUncheckedCreateNestedManyWithoutUserInput
+  AquariumCodexEntries?: Prisma.AquariumCodexEntryUncheckedCreateNestedManyWithoutUserInput
+  ArtCollections?: Prisma.ArtCollectionUncheckedCreateNestedManyWithoutUserInput
+  ArtImages?: Prisma.ArtImageUncheckedCreateNestedManyWithoutUserInput
+  ArtJobs?: Prisma.ArtJobUncheckedCreateNestedManyWithoutUserInput
+  AuthTokens?: Prisma.AuthTokenUncheckedCreateNestedManyWithoutUserInput
+  Bots?: Prisma.BotUncheckedCreateNestedManyWithoutUserInput
+  Challenges?: Prisma.ChallengeUncheckedCreateNestedManyWithoutUserInput
+  characters?: Prisma.CharacterUncheckedCreateNestedManyWithoutUserInput
+  Chats?: Prisma.ChatUncheckedCreateNestedManyWithoutUserInput
+  Monsters?: Prisma.MonsterUncheckedCreateNestedManyWithoutUserInput
+  ConversationsIn?: Prisma.ConversationParticipantUncheckedCreateNestedManyWithoutUserInput
+  SentMessages?: Prisma.DirectMessageUncheckedCreateNestedManyWithoutSenderInput
+  Dreams?: Prisma.DreamUncheckedCreateNestedManyWithoutUserInput
+  Entitlements?: Prisma.EntitlementUncheckedCreateNestedManyWithoutUserInput
+  Facets?: Prisma.FacetUncheckedCreateNestedManyWithoutUserInput
+  GithubInstallations?: Prisma.GithubInstallationUncheckedCreateNestedManyWithoutUserInput
+  KarmaTransactions?: Prisma.KarmaTransactionUncheckedCreateNestedManyWithoutUserInput
+  Orders?: Prisma.OrderUncheckedCreateNestedManyWithoutUserInput
+  LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUncheckedCreateNestedManyWithoutUserInput
+  LifeRuns?: Prisma.LifeRunUncheckedCreateNestedManyWithoutUserInput
+  Logs?: Prisma.LogUncheckedCreateNestedManyWithoutUserInput
+  ManaTransactions?: Prisma.ManaTransactionUncheckedCreateNestedManyWithoutUserInput
+  MissionRemittances?: Prisma.MissionRemittanceUncheckedCreateNestedManyWithoutRemittedByInput
+  ActedNotifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutActorInput
+  Notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutUserInput
+  PitchSheets?: Prisma.PitchSheetUncheckedCreateNestedManyWithoutUserInput
+  Projects?: Prisma.ProjectUncheckedCreateNestedManyWithoutUserInput
+  ClaimedPrompts?: Prisma.PromptUncheckedCreateNestedManyWithoutClaimerInput
+  Prompts?: Prisma.PromptUncheckedCreateNestedManyWithoutUserInput
+  Reactions?: Prisma.ReactionUncheckedCreateNestedManyWithoutUserInput
+  PlumberLevels?: Prisma.PlumberLevelUncheckedCreateNestedManyWithoutUserInput
+  ReferredBy?: Prisma.ReferralUncheckedCreateNestedOneWithoutReferredInput
+  ReferralsMade?: Prisma.ReferralUncheckedCreateNestedManyWithoutReferrerInput
+  Resources?: Prisma.ResourceUncheckedCreateNestedManyWithoutUserInput
+  Rewards?: Prisma.RewardUncheckedCreateNestedManyWithoutUserInput
+  Scenarios?: Prisma.ScenarioUncheckedCreateNestedManyWithoutUserInput
+  Servers?: Prisma.ServerUncheckedCreateNestedManyWithoutUserInput
+  SmartIcons?: Prisma.SmartIconUncheckedCreateNestedManyWithoutUserInput
+  StylistAppointments?: Prisma.StylistAppointmentUncheckedCreateNestedManyWithoutUserInput
+  StylistClients?: Prisma.StylistClientUncheckedCreateNestedManyWithoutUserInput
+  Themes?: Prisma.ThemeUncheckedCreateNestedManyWithoutUserInput
+  RelationsReceived?: Prisma.UserRelationUncheckedCreateNestedManyWithoutRelatedUserInput
+  RelationsOwned?: Prisma.UserRelationUncheckedCreateNestedManyWithoutUserInput
+  UserRoles?: Prisma.UserRoleUncheckedCreateNestedManyWithoutUserInput
+  GrantsGiven?: Prisma.GrantUncheckedCreateNestedManyWithoutGranterInput
+  GrantsReceived?: Prisma.GrantUncheckedCreateNestedManyWithoutGranteeInput
+  PacksOwned?: Prisma.PackUncheckedCreateNestedManyWithoutOwnerInput
+  SlimeCityAccount?: Prisma.SlimeCityAccountUncheckedCreateNestedOneWithoutUserInput
+}
+
+export type UserCreateOrConnectWithoutSlimeCityMatchesInput = {
+  where: Prisma.UserWhereUniqueInput
+  create: Prisma.XOR<Prisma.UserCreateWithoutSlimeCityMatchesInput, Prisma.UserUncheckedCreateWithoutSlimeCityMatchesInput>
+}
+
+export type UserUpsertWithoutSlimeCityMatchesInput = {
+  update: Prisma.XOR<Prisma.UserUpdateWithoutSlimeCityMatchesInput, Prisma.UserUncheckedUpdateWithoutSlimeCityMatchesInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutSlimeCityMatchesInput, Prisma.UserUncheckedCreateWithoutSlimeCityMatchesInput>
+  where?: Prisma.UserWhereInput
+}
+
+export type UserUpdateToOneWithWhereWithoutSlimeCityMatchesInput = {
+  where?: Prisma.UserWhereInput
+  data: Prisma.XOR<Prisma.UserUpdateWithoutSlimeCityMatchesInput, Prisma.UserUncheckedUpdateWithoutSlimeCityMatchesInput>
+}
+
+export type UserUpdateWithoutSlimeCityMatchesInput = {
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  username?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  questPoints?: Prisma.IntFieldUpdateOperationsInput | number
+  emailVerified?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  address1?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  address2?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  avatarImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  birthday?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  city?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  country?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  discordUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  facebookUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  instagramUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  kindrobotsUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  languages?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  state?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  timezone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  twitterUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  apiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  karma?: Prisma.IntFieldUpdateOperationsInput | number
+  mana?: Prisma.IntFieldUpdateOperationsInput | number
+  tokens?: Prisma.IntFieldUpdateOperationsInput | number
+  earnedTokens?: Prisma.IntFieldUpdateOperationsInput | number
+  clickRecord?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  matchRecord?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  showMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  Role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
+  token?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  designerName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  googleEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  googleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  blockList?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  smartBar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  customIcons?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isMember?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  preferredArtServerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  preferredTextServerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  memberUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stripeSubscriptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  artModels?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastReward?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  textModels?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  vibes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  hiddenServerIds?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isGuest?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  lastManaRefill?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  manaCap?: Prisma.IntFieldUpdateOperationsInput | number
+  signupBonusGiven?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  referralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  allowFriendRequests?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  brevoContactId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isRestricted?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  listInDirectory?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  messagePolicy?: Prisma.EnumMessagePolicyFieldUpdateOperationsInput | $Enums.MessagePolicy
+  newsletterConfirmedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  newsletterFrequency?: Prisma.EnumNewsletterFrequencyFieldUpdateOperationsInput | $Enums.NewsletterFrequency
+  restrictedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  restrictedById?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  restrictedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  introDismissedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  Achievements?: Prisma.AchievementRecordUpdateManyWithoutUserNestedInput
+  AgentCredentials?: Prisma.AgentCredentialUpdateManyWithoutUserNestedInput
+  AppRepos?: Prisma.AppRepoUpdateManyWithoutUserNestedInput
+  Aquariums?: Prisma.AquariumUpdateManyWithoutUserNestedInput
+  AquariumCodexEntries?: Prisma.AquariumCodexEntryUpdateManyWithoutUserNestedInput
+  ArtCollections?: Prisma.ArtCollectionUpdateManyWithoutUserNestedInput
+  ArtImages?: Prisma.ArtImageUpdateManyWithoutUserNestedInput
+  ArtJobs?: Prisma.ArtJobUpdateManyWithoutUserNestedInput
+  AuthTokens?: Prisma.AuthTokenUpdateManyWithoutUserNestedInput
+  Bots?: Prisma.BotUpdateManyWithoutUserNestedInput
+  Challenges?: Prisma.ChallengeUpdateManyWithoutUserNestedInput
+  characters?: Prisma.CharacterUpdateManyWithoutUserNestedInput
+  Chats?: Prisma.ChatUpdateManyWithoutUserNestedInput
+  Monsters?: Prisma.MonsterUpdateManyWithoutUserNestedInput
+  ConversationsIn?: Prisma.ConversationParticipantUpdateManyWithoutUserNestedInput
+  SentMessages?: Prisma.DirectMessageUpdateManyWithoutSenderNestedInput
+  Dreams?: Prisma.DreamUpdateManyWithoutUserNestedInput
+  Entitlements?: Prisma.EntitlementUpdateManyWithoutUserNestedInput
+  Facets?: Prisma.FacetUpdateManyWithoutUserNestedInput
+  GithubInstallations?: Prisma.GithubInstallationUpdateManyWithoutUserNestedInput
+  KarmaTransactions?: Prisma.KarmaTransactionUpdateManyWithoutUserNestedInput
+  Orders?: Prisma.OrderUpdateManyWithoutUserNestedInput
+  LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUpdateManyWithoutUserNestedInput
+  LifeRuns?: Prisma.LifeRunUpdateManyWithoutUserNestedInput
+  Logs?: Prisma.LogUpdateManyWithoutUserNestedInput
+  ManaTransactions?: Prisma.ManaTransactionUpdateManyWithoutUserNestedInput
+  MissionRemittances?: Prisma.MissionRemittanceUpdateManyWithoutRemittedByNestedInput
+  ActedNotifications?: Prisma.NotificationUpdateManyWithoutActorNestedInput
+  Notifications?: Prisma.NotificationUpdateManyWithoutUserNestedInput
+  PitchSheets?: Prisma.PitchSheetUpdateManyWithoutUserNestedInput
+  Projects?: Prisma.ProjectUpdateManyWithoutUserNestedInput
+  ClaimedPrompts?: Prisma.PromptUpdateManyWithoutClaimerNestedInput
+  Prompts?: Prisma.PromptUpdateManyWithoutUserNestedInput
+  Reactions?: Prisma.ReactionUpdateManyWithoutUserNestedInput
+  PlumberLevels?: Prisma.PlumberLevelUpdateManyWithoutUserNestedInput
+  ReferredBy?: Prisma.ReferralUpdateOneWithoutReferredNestedInput
+  ReferralsMade?: Prisma.ReferralUpdateManyWithoutReferrerNestedInput
+  Resources?: Prisma.ResourceUpdateManyWithoutUserNestedInput
+  Rewards?: Prisma.RewardUpdateManyWithoutUserNestedInput
+  Scenarios?: Prisma.ScenarioUpdateManyWithoutUserNestedInput
+  Servers?: Prisma.ServerUpdateManyWithoutUserNestedInput
+  SmartIcons?: Prisma.SmartIconUpdateManyWithoutUserNestedInput
+  StylistAppointments?: Prisma.StylistAppointmentUpdateManyWithoutUserNestedInput
+  StylistClients?: Prisma.StylistClientUpdateManyWithoutUserNestedInput
+  Themes?: Prisma.ThemeUpdateManyWithoutUserNestedInput
+  ArtImage?: Prisma.ArtImageUpdateOneWithoutUserProfilesNestedInput
+  RelationsReceived?: Prisma.UserRelationUpdateManyWithoutRelatedUserNestedInput
+  RelationsOwned?: Prisma.UserRelationUpdateManyWithoutUserNestedInput
+  UserRoles?: Prisma.UserRoleUpdateManyWithoutUserNestedInput
+  GrantsGiven?: Prisma.GrantUpdateManyWithoutGranterNestedInput
+  GrantsReceived?: Prisma.GrantUpdateManyWithoutGranteeNestedInput
+  PacksOwned?: Prisma.PackUpdateManyWithoutOwnerNestedInput
+  SlimeCityAccount?: Prisma.SlimeCityAccountUpdateOneWithoutUserNestedInput
+}
+
+export type UserUncheckedUpdateWithoutSlimeCityMatchesInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  username?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  questPoints?: Prisma.IntFieldUpdateOperationsInput | number
+  emailVerified?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  address1?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  address2?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  avatarImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  birthday?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  city?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  country?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  discordUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  facebookUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  instagramUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  kindrobotsUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  languages?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  state?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  timezone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  twitterUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  apiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  karma?: Prisma.IntFieldUpdateOperationsInput | number
+  mana?: Prisma.IntFieldUpdateOperationsInput | number
+  tokens?: Prisma.IntFieldUpdateOperationsInput | number
+  earnedTokens?: Prisma.IntFieldUpdateOperationsInput | number
+  clickRecord?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  matchRecord?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  showMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  Role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
+  artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  token?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  designerName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  googleEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  googleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  blockList?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  smartBar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  customIcons?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isMember?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  preferredArtServerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  preferredTextServerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  memberUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stripeSubscriptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  artModels?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastReward?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  textModels?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  vibes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  hiddenServerIds?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isGuest?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  lastManaRefill?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  manaCap?: Prisma.IntFieldUpdateOperationsInput | number
+  signupBonusGiven?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  referralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  allowFriendRequests?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  brevoContactId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isRestricted?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  listInDirectory?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  messagePolicy?: Prisma.EnumMessagePolicyFieldUpdateOperationsInput | $Enums.MessagePolicy
+  newsletterConfirmedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  newsletterFrequency?: Prisma.EnumNewsletterFrequencyFieldUpdateOperationsInput | $Enums.NewsletterFrequency
+  restrictedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  restrictedById?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  restrictedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  introDismissedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  Achievements?: Prisma.AchievementRecordUncheckedUpdateManyWithoutUserNestedInput
+  AgentCredentials?: Prisma.AgentCredentialUncheckedUpdateManyWithoutUserNestedInput
+  AppRepos?: Prisma.AppRepoUncheckedUpdateManyWithoutUserNestedInput
+  Aquariums?: Prisma.AquariumUncheckedUpdateManyWithoutUserNestedInput
+  AquariumCodexEntries?: Prisma.AquariumCodexEntryUncheckedUpdateManyWithoutUserNestedInput
+  ArtCollections?: Prisma.ArtCollectionUncheckedUpdateManyWithoutUserNestedInput
+  ArtImages?: Prisma.ArtImageUncheckedUpdateManyWithoutUserNestedInput
+  ArtJobs?: Prisma.ArtJobUncheckedUpdateManyWithoutUserNestedInput
+  AuthTokens?: Prisma.AuthTokenUncheckedUpdateManyWithoutUserNestedInput
+  Bots?: Prisma.BotUncheckedUpdateManyWithoutUserNestedInput
+  Challenges?: Prisma.ChallengeUncheckedUpdateManyWithoutUserNestedInput
+  characters?: Prisma.CharacterUncheckedUpdateManyWithoutUserNestedInput
+  Chats?: Prisma.ChatUncheckedUpdateManyWithoutUserNestedInput
+  Monsters?: Prisma.MonsterUncheckedUpdateManyWithoutUserNestedInput
+  ConversationsIn?: Prisma.ConversationParticipantUncheckedUpdateManyWithoutUserNestedInput
+  SentMessages?: Prisma.DirectMessageUncheckedUpdateManyWithoutSenderNestedInput
+  Dreams?: Prisma.DreamUncheckedUpdateManyWithoutUserNestedInput
+  Entitlements?: Prisma.EntitlementUncheckedUpdateManyWithoutUserNestedInput
+  Facets?: Prisma.FacetUncheckedUpdateManyWithoutUserNestedInput
+  GithubInstallations?: Prisma.GithubInstallationUncheckedUpdateManyWithoutUserNestedInput
+  KarmaTransactions?: Prisma.KarmaTransactionUncheckedUpdateManyWithoutUserNestedInput
+  Orders?: Prisma.OrderUncheckedUpdateManyWithoutUserNestedInput
+  LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUncheckedUpdateManyWithoutUserNestedInput
+  LifeRuns?: Prisma.LifeRunUncheckedUpdateManyWithoutUserNestedInput
+  Logs?: Prisma.LogUncheckedUpdateManyWithoutUserNestedInput
+  ManaTransactions?: Prisma.ManaTransactionUncheckedUpdateManyWithoutUserNestedInput
+  MissionRemittances?: Prisma.MissionRemittanceUncheckedUpdateManyWithoutRemittedByNestedInput
+  ActedNotifications?: Prisma.NotificationUncheckedUpdateManyWithoutActorNestedInput
+  Notifications?: Prisma.NotificationUncheckedUpdateManyWithoutUserNestedInput
+  PitchSheets?: Prisma.PitchSheetUncheckedUpdateManyWithoutUserNestedInput
+  Projects?: Prisma.ProjectUncheckedUpdateManyWithoutUserNestedInput
+  ClaimedPrompts?: Prisma.PromptUncheckedUpdateManyWithoutClaimerNestedInput
+  Prompts?: Prisma.PromptUncheckedUpdateManyWithoutUserNestedInput
+  Reactions?: Prisma.ReactionUncheckedUpdateManyWithoutUserNestedInput
+  PlumberLevels?: Prisma.PlumberLevelUncheckedUpdateManyWithoutUserNestedInput
+  ReferredBy?: Prisma.ReferralUncheckedUpdateOneWithoutReferredNestedInput
+  ReferralsMade?: Prisma.ReferralUncheckedUpdateManyWithoutReferrerNestedInput
+  Resources?: Prisma.ResourceUncheckedUpdateManyWithoutUserNestedInput
+  Rewards?: Prisma.RewardUncheckedUpdateManyWithoutUserNestedInput
+  Scenarios?: Prisma.ScenarioUncheckedUpdateManyWithoutUserNestedInput
+  Servers?: Prisma.ServerUncheckedUpdateManyWithoutUserNestedInput
+  SmartIcons?: Prisma.SmartIconUncheckedUpdateManyWithoutUserNestedInput
+  StylistAppointments?: Prisma.StylistAppointmentUncheckedUpdateManyWithoutUserNestedInput
+  StylistClients?: Prisma.StylistClientUncheckedUpdateManyWithoutUserNestedInput
+  Themes?: Prisma.ThemeUncheckedUpdateManyWithoutUserNestedInput
+  RelationsReceived?: Prisma.UserRelationUncheckedUpdateManyWithoutRelatedUserNestedInput
+  RelationsOwned?: Prisma.UserRelationUncheckedUpdateManyWithoutUserNestedInput
+  UserRoles?: Prisma.UserRoleUncheckedUpdateManyWithoutUserNestedInput
+  GrantsGiven?: Prisma.GrantUncheckedUpdateManyWithoutGranterNestedInput
+  GrantsReceived?: Prisma.GrantUncheckedUpdateManyWithoutGranteeNestedInput
+  PacksOwned?: Prisma.PackUncheckedUpdateManyWithoutOwnerNestedInput
+  SlimeCityAccount?: Prisma.SlimeCityAccountUncheckedUpdateOneWithoutUserNestedInput
 }
 
 export type UserCreateManyArtImageInput = {
@@ -29855,6 +31353,8 @@ export type UserUpdateWithoutArtImageInput = {
   GrantsGiven?: Prisma.GrantUpdateManyWithoutGranterNestedInput
   GrantsReceived?: Prisma.GrantUpdateManyWithoutGranteeNestedInput
   PacksOwned?: Prisma.PackUpdateManyWithoutOwnerNestedInput
+  SlimeCityAccount?: Prisma.SlimeCityAccountUpdateOneWithoutUserNestedInput
+  SlimeCityMatches?: Prisma.SlimeCityMatchUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutArtImageInput = {
@@ -29980,6 +31480,8 @@ export type UserUncheckedUpdateWithoutArtImageInput = {
   GrantsGiven?: Prisma.GrantUncheckedUpdateManyWithoutGranterNestedInput
   GrantsReceived?: Prisma.GrantUncheckedUpdateManyWithoutGranteeNestedInput
   PacksOwned?: Prisma.PackUncheckedUpdateManyWithoutOwnerNestedInput
+  SlimeCityAccount?: Prisma.SlimeCityAccountUncheckedUpdateOneWithoutUserNestedInput
+  SlimeCityMatches?: Prisma.SlimeCityMatchUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateManyWithoutArtImageInput = {
@@ -30112,6 +31614,7 @@ export type UserCountOutputType = {
   GrantsGiven: number
   GrantsReceived: number
   PacksOwned: number
+  SlimeCityMatches: number
 }
 
 export type UserCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -30165,6 +31668,7 @@ export type UserCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.I
   GrantsGiven?: boolean | UserCountOutputTypeCountGrantsGivenArgs
   GrantsReceived?: boolean | UserCountOutputTypeCountGrantsReceivedArgs
   PacksOwned?: boolean | UserCountOutputTypeCountPacksOwnedArgs
+  SlimeCityMatches?: boolean | UserCountOutputTypeCountSlimeCityMatchesArgs
 }
 
 /**
@@ -30527,6 +32031,13 @@ export type UserCountOutputTypeCountPacksOwnedArgs<ExtArgs extends runtime.Types
   where?: Prisma.PackWhereInput
 }
 
+/**
+ * UserCountOutputType without action
+ */
+export type UserCountOutputTypeCountSlimeCityMatchesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.SlimeCityMatchWhereInput
+}
+
 
 export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -30653,6 +32164,8 @@ export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   GrantsGiven?: boolean | Prisma.User$GrantsGivenArgs<ExtArgs>
   GrantsReceived?: boolean | Prisma.User$GrantsReceivedArgs<ExtArgs>
   PacksOwned?: boolean | Prisma.User$PacksOwnedArgs<ExtArgs>
+  SlimeCityAccount?: boolean | Prisma.User$SlimeCityAccountArgs<ExtArgs>
+  SlimeCityMatches?: boolean | Prisma.User$SlimeCityMatchesArgs<ExtArgs>
   _count?: boolean | Prisma.UserCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["user"]>
 
@@ -30787,6 +32300,8 @@ export type UserInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
   GrantsGiven?: boolean | Prisma.User$GrantsGivenArgs<ExtArgs>
   GrantsReceived?: boolean | Prisma.User$GrantsReceivedArgs<ExtArgs>
   PacksOwned?: boolean | Prisma.User$PacksOwnedArgs<ExtArgs>
+  SlimeCityAccount?: boolean | Prisma.User$SlimeCityAccountArgs<ExtArgs>
+  SlimeCityMatches?: boolean | Prisma.User$SlimeCityMatchesArgs<ExtArgs>
   _count?: boolean | Prisma.UserCountOutputTypeDefaultArgs<ExtArgs>
 }
 
@@ -30845,6 +32360,8 @@ export type $UserPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
     GrantsGiven: Prisma.$GrantPayload<ExtArgs>[]
     GrantsReceived: Prisma.$GrantPayload<ExtArgs>[]
     PacksOwned: Prisma.$PackPayload<ExtArgs>[]
+    SlimeCityAccount: Prisma.$SlimeCityAccountPayload<ExtArgs> | null
+    SlimeCityMatches: Prisma.$SlimeCityMatchPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: number
@@ -31311,6 +32828,8 @@ export interface Prisma__UserClient<T, Null = never, ExtArgs extends runtime.Typ
   GrantsGiven<T extends Prisma.User$GrantsGivenArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$GrantsGivenArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$GrantPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   GrantsReceived<T extends Prisma.User$GrantsReceivedArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$GrantsReceivedArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$GrantPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   PacksOwned<T extends Prisma.User$PacksOwnedArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$PacksOwnedArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$PackPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  SlimeCityAccount<T extends Prisma.User$SlimeCityAccountArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$SlimeCityAccountArgs<ExtArgs>>): Prisma.Prisma__SlimeCityAccountClient<runtime.Types.Result.GetResult<Prisma.$SlimeCityAccountPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+  SlimeCityMatches<T extends Prisma.User$SlimeCityMatchesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$SlimeCityMatchesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$SlimeCityMatchPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -32995,6 +34514,49 @@ export type User$PacksOwnedArgs<ExtArgs extends runtime.Types.Extensions.Interna
   take?: number
   skip?: number
   distinct?: Prisma.PackScalarFieldEnum | Prisma.PackScalarFieldEnum[]
+}
+
+/**
+ * User.SlimeCityAccount
+ */
+export type User$SlimeCityAccountArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the SlimeCityAccount
+   */
+  select?: Prisma.SlimeCityAccountSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the SlimeCityAccount
+   */
+  omit?: Prisma.SlimeCityAccountOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.SlimeCityAccountInclude<ExtArgs> | null
+  where?: Prisma.SlimeCityAccountWhereInput
+}
+
+/**
+ * User.SlimeCityMatches
+ */
+export type User$SlimeCityMatchesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the SlimeCityMatch
+   */
+  select?: Prisma.SlimeCityMatchSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the SlimeCityMatch
+   */
+  omit?: Prisma.SlimeCityMatchOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.SlimeCityMatchInclude<ExtArgs> | null
+  where?: Prisma.SlimeCityMatchWhereInput
+  orderBy?: Prisma.SlimeCityMatchOrderByWithRelationInput | Prisma.SlimeCityMatchOrderByWithRelationInput[]
+  cursor?: Prisma.SlimeCityMatchWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.SlimeCityMatchScalarFieldEnum | Prisma.SlimeCityMatchScalarFieldEnum[]
 }
 
 /**

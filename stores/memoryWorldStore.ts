@@ -571,9 +571,7 @@ export const useMemoryWorldStore = defineStore('memoryWorld', () => {
     persistEarthChronicle()
   }
 
-  function syncHoshimoriAchievements(
-    progress: HoshimoriWarmProgress,
-  ): void {
+  function syncHoshimoriAchievements(progress: HoshimoriWarmProgress): void {
     if (!campaign.value.completed.includes('e06')) return
     syncAchievements(progress)
   }

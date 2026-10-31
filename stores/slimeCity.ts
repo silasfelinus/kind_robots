@@ -1,4 +1,9 @@
 import { defineStore } from 'pinia'
+import {
+  awardBattle, buyPack, canBuyPack, claimChallenge, currentChallenges,
+  levelFor, newProgression, nextLevelXp, PACK_COST, rarityOf,
+  refreshPeriods, restoreProgression,
+} from '../utils/slimeCity/progression'
 import { computed, ref } from 'vue'
 import {
   advance,
@@ -59,13 +64,43 @@ function rollSeed(): number {
 }
 
 export const useSlimeCityStore = defineStore('slimeCityLab', () => {
-  const view = ref<'city' | 'arena' | 'cards'>('city')
+  const view = ref<'city' | 'arena' | 'cards' | 'rewards'>('city')
   const activeTeam = ref<TeamId>('catgirls')
   const enemyTeam = ref<TeamId>('bloodfairies')
   const mode = ref<ModeId>('blackout')
   const districtId = ref<DistrictId>('pitworks')
   /** Session-only city progress: nothing is saved or awarded. */
   const city = ref(createCity())
+  const progress = ref(newProgression())
+  const challengeList = computed(() => currentChallenges(progress.value))
+  const level = computed(() => levelFor(progress.value.xp))
+  const nextLevel = computed(() => nextLevelXp(progress.value.xp))
+  const packAffordable = computed(() => canBuyPack(progress.value))
+  const packPrice = PACK_COST
+  const cardRarity = rarityOf
+  function saveProgress(): void {
+    if (typeof window === 'undefined') return
+    try { window.localStorage.setItem('slime-city-progression-v1', JSON.stringify(progress.value)) }
+    catch { /* Private browsing may disable local storage. */ }
+  }
+  function hydrateProgression(): void {
+    if (typeof window === 'undefined') return
+    try {
+      const saved = window.localStorage.getItem('slime-city-progression-v1')
+      if (saved) progress.value = restoreProgression(JSON.parse(saved))
+      else progress.value = refreshPeriods(progress.value)
+    } catch { progress.value = newProgression() }
+  }
+  function claimReward(id: string): void {
+    const next = claimChallenge(progress.value, id)
+    if (next !== progress.value) { progress.value = next; saveProgress() }
+  }
+  function purchasePack(): void {
+    if (!canBuyPack(progress.value)) return
+    const entropy = rollSeed()
+    progress.value = buyPack(progress.value, entropy)
+    saveProgress()
+  }
   /** The district whose rival the current match is against, if any. */
   const bout = ref<DistrictId | null>(null)
   /** The rival bout that just ended, for the BACK TO THE CITY button. */
@@ -266,6 +301,11 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
     stop()
     view.value = 'cards'
   }
+  function showRewards(): void {
+    stop()
+    progress.value = refreshPeriods(progress.value)
+    view.value = 'rewards'
+  }
 
   function chooseMode(id: ModeId): void {
     mode.value = id
@@ -336,7 +376,13 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
 
   /** Once a rival bout ends, its result changes the city. */
   function settleBout(): void {
-    if (!bout.value || !match.value.victor) return
+    if (!match.value.victor) return
+    const earned = awardBattle(progress.value, match.value)
+    if (earned !== progress.value) {
+      progress.value = earned
+      saveProgress()
+    }
+    if (!bout.value) return
     city.value = recordBout(city.value, bout.value, match.value.victor)
     lastBout.value = bout.value
     bout.value = null
@@ -464,6 +510,16 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
     mode,
     districtId,
     city,
+    progress,
+    challengeList,
+    level,
+    nextLevel,
+    packAffordable,
+    packPrice,
+    cardRarity,
+    hydrateProgression,
+    claimReward,
+    purchasePack,
     bout,
     lastBout,
     boutPlan,
@@ -525,6 +581,7 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
     startDistrictMatch,
     showCity,
     showCards,
+    showRewards,
     chooseCard,
     closePreview,
     ready,

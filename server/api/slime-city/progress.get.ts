@@ -1,5 +1,8 @@
 import { defineEventHandler } from 'h3'
-import { getSlimeCityAccount, requireSlimeCityPreviewUser } from '~/server/utils/slimeCityProgress'
+import {
+  getSlimeCityAccount,
+  requireSlimeCityPreviewUser,
+} from '~/server/utils/slimeCityProgress'
 
 export default defineEventHandler(async (event) => {
   const auth = await requireSlimeCityPreviewUser(event)

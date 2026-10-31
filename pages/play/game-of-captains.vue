@@ -1825,7 +1825,9 @@ const stageAlt = computed(() =>
       ? 'Painted artwork for the voyage conclusion'
       : run.value.phase === 'finale'
         ? 'Painted encounter with the galactic antagonist'
-        : 'Painted view of ' + mission.value.system + ' during the current voyage'
+        : 'Painted view of ' +
+          mission.value.system +
+          ' during the current voyage'
     : selectionScreen.value === 'stars' ||
         selectionScreen.value === 'background'
       ? 'The starry sky above the long red couch'

@@ -186,7 +186,6 @@ export const MEMORY_DARK_BRIAR_ACHIEVEMENTS = DARK_MEDALS.map((medal) => ({
   artPath: darkBriarIllustrationPath(medal.key),
 }))
 
-
 /** The twelve earned House endings are permanent memories, never stat bonuses. */
 const HOUSE_MEDAL_ECHOES: Record<keyof typeof HOUSE_EPILOGUES, string> = {
   'release-community':
@@ -255,7 +254,8 @@ export function restoreMemoryAchievements(value: unknown): string[] {
 export function reconcileMemoryAchievements(
   previous: readonly string[],
   earnedEvents: readonly EarnedBriarRareEvent[],
-  original?: Pick<BriarSave, 'sceneChoices'> & Partial<Pick<BriarSave, 'house'>>,
+  original?: Pick<BriarSave, 'sceneChoices'> &
+    Partial<Pick<BriarSave, 'house'>>,
   mirrored?: Pick<DarkBriarProgress, 'sceneChoices'>,
 ): string[] {
   const ids = new Set(restoreMemoryAchievements(previous))

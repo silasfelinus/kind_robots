@@ -34,6 +34,9 @@ import {
   boutBlocked,
   boutTerms,
   CITY_PLAN,
+  CITY_CONTRACTS,
+  contractBlocked,
+  contractTerms,
   createCity,
   decide,
   decideStreet,
@@ -41,6 +44,7 @@ import {
   gateReason,
   HEAT_LIMIT,
   recordBout,
+  recordContract,
   streetsFrom,
   totalStanding,
   travel,
@@ -70,6 +74,8 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
   const bout = ref<DistrictId | null>(null)
   /** The rival bout that just ended, for the BACK TO THE CITY button. */
   const lastBout = ref<DistrictId | null>(null)
+  const contractBout = ref<DistrictId | null>(null)
+  const lastContract = ref<DistrictId | null>(null)
   const seed = ref(rollSeed())
   /** t-003 objective variants for the next match; all off by default. */
   const rules = ref<RuleVariants>({ ...DEFAULT_RULES })
@@ -184,6 +190,9 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
     () => Object.keys(city.value.streetChoices).length,
   )
   const boutPlan = computed(() => (bout.value ? CITY_PLAN[bout.value] : null))
+  const contractPlan = computed(() => CITY_CONTRACTS[districtId.value])
+  const activeContract = computed(() => contractBout.value ? CITY_CONTRACTS[contractBout.value] : null)
+  const contractGate = computed(() => contractBlocked(city.value, districtId.value))
   const here = computed(() => city.value.location === districtId.value)
   const route = computed(() =>
     streetsFrom(city.value.location).find((s) => s.to === districtId.value),

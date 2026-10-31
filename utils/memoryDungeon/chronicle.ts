@@ -468,7 +468,9 @@ const HOSHIMORI_PHOTOS = EARTH_PHOTOS.filter(
     photo.experience === 'e07' && Boolean(HOSHIMORI_EARNED_CHOICES[photo.site]),
 )
 const HOSHIMORI_PHOTO_IDS = new Set(HOSHIMORI_PHOTOS.map((photo) => photo.id))
-const HOSHIMORI_NIGHT_EARNED_CHOICES: Readonly<Record<string, readonly string[]>> = {
+const HOSHIMORI_NIGHT_EARNED_CHOICES: Readonly<
+  Record<string, readonly string[]>
+> = {
   '1,4': ['ask-the-colleague', 'honor-the-help'],
 }
 const HOSHIMORI_NIGHT_PHOTOS = EARTH_PHOTOS.filter(

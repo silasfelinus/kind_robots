@@ -493,6 +493,10 @@ assert.ok(
   artEndpoint.includes('buildArtImageWhere(access)'),
   'private art must obey viewer access',
 )
+assert.ok(artEndpoint.includes('Object.values(PAINTED_ART_IDS)'))
+assert.ok(artEndpoint.includes('...COUCH_VOYAGE_ART_IDS'))
+assert.ok(page.includes('voyageStageArt(run.value, paintedVoyageImage)'))
+assert.ok(page.includes('onPaintedImageError'))
 assert.ok(
   artEndpoint.includes('select: { id: true, imagePath: true, path: true }'),
 )
@@ -521,8 +525,4 @@ assert.ok(deck.includes('YOUR STAR SIGN QUEST'))
 assert.ok(store.includes('assessment?: StarAssessment'))
 console.log(
   'Space Couch 12 constellations, 4-question test, 36 sign quests, save and finale contract verified',
-)assert.ok(artEndpoint.includes('Object.values(PAINTED_ART_IDS)'))
-assert.ok(artEndpoint.includes('...COUCH_VOYAGE_ART_IDS'))
-assert.ok(page.includes('voyageStageArt(run.value, paintedVoyageImage)'))
-assert.ok(page.includes('onPaintedImageError'))
-
+)

@@ -230,7 +230,7 @@
                   View primary
                 </button>
               </div>
-              <div class="version-reel kr-scroll">
+              <div class="version-reel">
                 <div
                   v-for="version in lab.versions"
                   :key="version.jobId"

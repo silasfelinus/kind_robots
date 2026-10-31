@@ -42,7 +42,7 @@ export const OTHER_GAME_ACHIEVEMENT_DEFS: GameAchievementDef[] = [
     message: 'You demanded a second take and saved the first for posterity.',
     tooltip: 'Queue a new art version of an existing Hybridizer discovery.',
     subtleHint: 'Every masterpiece deserves an alternate universe.',
-    icon: 'kind-icon:images',
+    icon: 'kind-icon:image',
     rule: { kind: 'event' },
     artPrompt:
       'Two ornate Victorian natural history frames displaying alternate beautiful variations of one hybrid animal, one elevated to a glowing gold easel, acid-green sparks, collectible illustrated achievement badge, no text.',

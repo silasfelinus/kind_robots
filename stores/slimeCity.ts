@@ -1,8 +1,17 @@
 import { defineStore } from 'pinia'
 import {
-  awardBattle, buyPack, canBuyPack, claimChallenge, currentChallenges,
-  levelFor, newProgression, nextLevelXp, PACK_COST, rarityOf,
-  refreshPeriods, restoreProgression,
+  awardBattle,
+  buyPack,
+  canBuyPack,
+  claimChallenge,
+  currentChallenges,
+  levelFor,
+  newProgression,
+  nextLevelXp,
+  PACK_COST,
+  rarityOf,
+  refreshPeriods,
+  restoreProgression,
 } from '../utils/slimeCity/progression'
 import { computed, ref } from 'vue'
 import {
@@ -80,8 +89,14 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
   const cardRarity = rarityOf
   function saveProgress(): void {
     if (typeof window === 'undefined') return
-    try { window.localStorage.setItem('slime-city-progression-v1', JSON.stringify(progress.value)) }
-    catch { /* Private browsing may disable local storage. */ }
+    try {
+      window.localStorage.setItem(
+        'slime-city-progression-v1',
+        JSON.stringify(progress.value),
+      )
+    } catch {
+      /* Private browsing may disable local storage. */
+    }
   }
   function hydrateProgression(): void {
     if (typeof window === 'undefined') return
@@ -89,11 +104,16 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
       const saved = window.localStorage.getItem('slime-city-progression-v1')
       if (saved) progress.value = restoreProgression(JSON.parse(saved))
       else progress.value = refreshPeriods(progress.value)
-    } catch { progress.value = newProgression() }
+    } catch {
+      progress.value = newProgression()
+    }
   }
   function claimReward(id: string): void {
     const next = claimChallenge(progress.value, id)
-    if (next !== progress.value) { progress.value = next; saveProgress() }
+    if (next !== progress.value) {
+      progress.value = next
+      saveProgress()
+    }
   }
   function purchasePack(): void {
     if (!canBuyPack(progress.value)) return

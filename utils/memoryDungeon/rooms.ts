@@ -70,7 +70,7 @@ export const COMBAT_ROOMS: Record<CombatRoomId, CombatRoom> = {
     artPrompt:
       'The Rootbound Warden, a towering guardian of knotted oak roots with rows of brass keys set into its bark and a smooth carved wooden mask for a face, guards a small golden bell set on a root pedestal in a chamber lit by glowing glass memory jars. Low-angle wide shot. Hand-painted gouache and ink illustration, warm candlelight and deep green shadows.',
   },
-  // The House's own duels (HD-09, HD-22, HD-28) used to borrow the forest
+  // The House's own duels (HD-09, HD-16, HD-22, HD-28) have their own
   // boards; each guardian now fights with its own tempo and tools.
   'hearth-guard': {
     enemy: { name: 'Hearth-Guard', hp: 10, attack: 1, every: 3 },

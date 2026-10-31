@@ -16,25 +16,32 @@ import {
   EARTH_REALITIES,
   type EarthReality,
 } from '~/utils/memoryDungeon/earthAct'
+import {
+  migrateLegacyEarthJournal,
+  replayEarthJournal,
+  type EarthJournalAction,
+} from '~/utils/memoryDungeon/earthJournal'
 
 const STORAGE_KEY = 'memory-dungeon-morrow-earth-v1'
 
 interface EarthSave {
-  version: 1
+  version: 2
   active: EarthReality
   positions: Record<EarthReality, string>
   records: Record<EarthReality, OverworldEventProgress>
+  journals: Record<EarthReality, EarthJournalAction[]>
 }
 
 function fresh(): EarthSave {
   return {
-    version: 1,
+    version: 2,
     active: 'e03',
     positions: { e03: '1,1', e04: '1,1' },
     records: {
       e03: newOverworldEventProgress('e03'),
       e04: newOverworldEventProgress('e04'),
     },
+    journals: { e03: [], e04: [] },
   }
 }
 
@@ -98,21 +105,44 @@ export const useMemoryEarthStore = defineStore('memoryEarth', () => {
       const raw = window.localStorage.getItem(STORAGE_KEY)
       if (raw) {
         const candidate = JSON.parse(raw) as Partial<EarthSave>
-        if (candidate.version === 1) {
+        if (candidate.version === 1 || candidate.version === 2) {
           const restored = fresh()
           for (const reality of EARTH_REALITIES) {
+            if (candidate.version === 2) {
+              const replayed = replayEarthJournal(
+                reality,
+                candidate.journals?.[reality],
+              )
+              if (!replayed) {
+                notice.value = 'An invalid Earth route was reset.'
+                continue
+              }
+              restored.records[reality] = replayed.progress
+              restored.positions[reality] = replayed.position
+              restored.journals[reality] = candidate.journals![reality]!
+              continue
+            }
             const progress = restoreOverworldEventProgress(
               candidate.records?.[reality],
             )
-            if (progress?.experience === reality) {
-              restored.records[reality] = progress
-              const position = candidate.positions?.[reality]
-              if (
-                typeof position === 'string' &&
-                progress.revealed.includes(position)
-              )
-                restored.positions[reality] = position
-            }
+            if (progress?.experience !== reality) continue
+            const requestedPosition = candidate.positions?.[reality]
+            const position =
+              typeof requestedPosition === 'string' &&
+              progress.revealed.includes(requestedPosition)
+                ? requestedPosition
+                : '1,1'
+            const journal = migrateLegacyEarthJournal(
+              reality,
+              progress,
+              position,
+            )
+            if (!journal) continue
+            const replayed = replayEarthJournal(reality, journal)
+            if (!replayed) continue
+            restored.records[reality] = replayed.progress
+            restored.positions[reality] = replayed.position
+            restored.journals[reality] = journal
           }
           if (
             candidate.active === 'e04' &&
@@ -162,8 +192,9 @@ export const useMemoryEarthStore = defineStore('memoryEarth', () => {
       notice.value = 'The next stop must share a border with your position.'
       return
     }
-    if (!worldEvent(active.value, key)) return
+    if (!worldEvent(active.value, key) || key === position.value) return
     save.value.records[active.value] = revealOverworldEvent(progress.value, key)
+    save.value.journals[active.value].push({ type: 'travel', key })
     save.value.positions[active.value] = key
     notice.value = ''
     persist()
@@ -175,6 +206,11 @@ export const useMemoryEarthStore = defineStore('memoryEarth', () => {
     const next = chooseOverworldEvent(progress.value, position.value, choiceId)
     if (next === progress.value) return
     save.value.records[active.value] = next
+    save.value.journals[active.value].push({
+      type: 'choose',
+      key: position.value,
+      choiceId,
+    })
     world.syncMorrowEarthPhoto(active.value, next.choices)
     notice.value =
       current.value?.choices.find((option) => option.id === choiceId)

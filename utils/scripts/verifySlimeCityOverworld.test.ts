@@ -487,28 +487,28 @@ assert.equal(
     .mana,
   4,
 )
+const scenarioBase = createMatch('blackout', 'catgirls', 'bloodfairies', 2001)
 const scenario = applyTerms(
-  createMatch('blackout', 'catgirls', 'bloodfairies', 2001, {
-    classicFog: true,
-  }),
+  {
+    ...scenarioBase,
+    hands: {
+      player: ['lynx', ...scenarioBase.hands.player.slice(0, 3)],
+      enemy: ['sprite', ...scenarioBase.hands.enemy.slice(0, 3)],
+    },
+  },
   { playerHp: 2, enemyArmor: 1, fewerRivals: 1 },
 )
 assert.equal(scenario.units.length, 0)
 assert.equal(
   observe(scenario, 'enemy').fieldCap,
-  observe(
-    createMatch('blackout', 'catgirls', 'bloodfairies', 2001, {
-      classicFog: true,
-    }),
-    'enemy',
-  ).fieldCap - 1,
+  observe(scenarioBase, 'enemy').fieldCap - 1,
 )
 const summoned = deploy(scenario, 'lynx', 0, 0)
 const lynx = summoned.units.find((unit) => unit.side === 'player')
 assert.ok(lynx, 'A chapter buff must survive an initially empty battlefield')
 assert.equal(lynx.maxHp, 4, 'Your HP bonus applies when a card is summoned')
 assert.equal(lynx.hp, 4)
-const withEnemy = deployAs(summoned, 'enemy', 'sprite', 7, 0)
+const withEnemy = deployAs(summoned, 'enemy', 'sprite', 9, 0)
 const sprite = withEnemy.units.find((unit) => unit.side === 'enemy')
 assert.ok(sprite)
 assert.equal(sprite.armor, 1, 'Rival armor applies to future enemy summons')

@@ -101,10 +101,7 @@ for (const from of ids)
 
 // Every crew campaign's rival lives at a unique real district with legal paths.
 assert.equal(Object.keys(CAMPAIGN_DISTRICTS).length, TEAMS.length)
-assert.equal(
-  new Set(Object.values(CAMPAIGN_DISTRICTS)).size,
-  TEAMS.length,
-)
+assert.equal(new Set(Object.values(CAMPAIGN_DISTRICTS)).size, TEAMS.length)
 for (const team of TEAMS) {
   const id = CAMPAIGN_DISTRICTS[team.id]
   assert.ok(DISTRICTS.some((district) => district.id === id))
@@ -565,5 +562,9 @@ assert.equal(lab.match.foeId, 'undertow')
 assert.equal(lab.campaignBout?.team, 'catgirls')
 assert.equal(lab.campaignBout?.choice, 'cunning')
 assert.equal(lab.match.mana, 3, 'Mission approach changes opening mana')
-assert.equal(lab.city.cleared.length, 0, 'Faction mission is separate from district champion ledger')
+assert.equal(
+  lab.city.cleared.length,
+  0,
+  'Faction mission is separate from district champion ledger',
+)
 console.log('Slime City faction campaign store battle PASS')

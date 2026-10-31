@@ -35,7 +35,16 @@ for (let n = 1; n <= 12; n++) {
   }
   if (!['e01', 'e02', 'e07'].includes(id)) {
     const kinds = new Set(events.map((event) => event.kind))
-    for (const kind of ['memory', 'challenge', 'treasure', 'monster', 'dungeon', 'merchant', 'puzzle', 'companion'])
+    for (const kind of [
+      'memory',
+      'challenge',
+      'treasure',
+      'monster',
+      'dungeon',
+      'merchant',
+      'puzzle',
+      'companion',
+    ])
       assert.ok(kinds.has(kind), id + ' missing ' + kind)
     for (const photo of EARTH_PHOTOS.filter((item) => item.experience === id))
       assert.equal(worldEvent(id, photo.site)?.photographId, photo.id)
@@ -50,12 +59,19 @@ for (let n = 1; n <= 12; n++) {
     for (let x = 1; x <= 8; x++) {
       const key = x + ',' + y
       progress = revealOverworldEvent(progress, key)
-      assert.ok(progress.revealed.includes(key), id + ':' + key + ' unreachable')
+      assert.ok(
+        progress.revealed.includes(key),
+        id + ':' + key + ' unreachable',
+      )
       const first = worldEvent(id, key)!.choices[0]!
       const chosen = chooseOverworldEvent(progress, key, first.id)
       assert.notEqual(chosen, progress)
       assert.equal(chosen.choices[key], first.id)
-      assert.equal(chooseOverworldEvent(chosen, key, first.id), chosen, 'no duplicate payout')
+      assert.equal(
+        chooseOverworldEvent(chosen, key, first.id),
+        chosen,
+        'no duplicate payout',
+      )
       progress = chosen
     }
   }
@@ -83,20 +99,28 @@ assert.deepEqual(eventNeighbors('not-a-cell'), [])
 
 const gate = worldEvent('e04', '8,8')!
 assert.equal(gate.choices.length, 3)
-assert.deepEqual(gate.choices.map((choice) => choice.id), [
-  'open-the-tide-gate', 'seal-the-tide-gate', 'divert-the-current',
-])
-assert.deepEqual(gate.choices.map((choice) => choice.flag), [
-  'e04:char-lost-in-present',
-  'e04:char-alive-commuters-stranded',
-  'e04:char-alive-district-at-risk',
-])
+assert.deepEqual(
+  gate.choices.map((choice) => choice.id),
+  ['open-the-tide-gate', 'seal-the-tide-gate', 'divert-the-current'],
+)
+assert.deepEqual(
+  gate.choices.map((choice) => choice.flag),
+  [
+    'e04:char-lost-in-present',
+    'e04:char-alive-commuters-stranded',
+    'e04:char-alive-district-at-risk',
+  ],
+)
 const departure = worldEvent('e05', '8,8')!
-assert.deepEqual(departure.choices.map((choice) => choice.id), [
-  'run-again', 'stay', 'tell-char',
-])
+assert.deepEqual(
+  departure.choices.map((choice) => choice.id),
+  ['run-again', 'stay', 'tell-char'],
+)
 for (const id of ['e09', 'e10', 'e11', 'e12']) {
-  assert.equal(worldEvents(id).filter((event) => event.memoryFragment).length, 2)
+  assert.equal(
+    worldEvents(id).filter((event) => event.memoryFragment).length,
+    2,
+  )
 }
 for (const pilot of HOSHIMORI_NIGHT_SITES) {
   const adopted = worldEvent('e08', pilot.key)!
@@ -108,4 +132,6 @@ for (const site of worldEvents('e08')) {
   assert.ok(site.originalSite, site.key + ' lost original village landmark')
 }
 
-console.log('Memory overworld reveal catalog: 768 cells, 12 graphs, fixed photos and no duplicate rewards passed')
+console.log(
+  'Memory overworld reveal catalog: 768 cells, 12 graphs, fixed photos and no duplicate rewards passed',
+)

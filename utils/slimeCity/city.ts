@@ -889,6 +889,19 @@ export function boutTerms(city: CityState, id: DistrictId): BoutTerms {
   return terms
 }
 
+/**
+ * A faction story battle launched FROM its district inherits the actual city
+ * consequences. Launching from STORY remains a quick-start with only the
+ * chosen chapter approach. This is a reversible playtest rule, not XP/Meat.
+ */
+export function storyMissionTerms(
+  city: CityState,
+  id: DistrictId,
+  approach: BoutTerms,
+): BoutTerms {
+  return mergeTerms(approach, boutTerms(city, id))
+}
+
 /** Apply bout terms to a freshly created match (pure: returns a copy). */
 export function applyTerms(match: MatchState, terms: BoutTerms): MatchState {
   const next: MatchState = {

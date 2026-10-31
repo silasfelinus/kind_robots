@@ -38,14 +38,18 @@ import {
   type CityState,
   type DistrictId,
 } from '../slimeCity/city'
-import { CARDS, createMatch, DISTRICTS, MODES, TEAMS } from '../slimeCity/prototypes'
+import {
+  CARDS,
+  createMatch,
+  DISTRICTS,
+  MODES,
+  TEAMS,
+} from '../slimeCity/prototypes'
 import {
   slimeArtId,
   SLIME_CITY_ART,
   SLIME_CITY_ART_COUNT,
 } from '../slimeCity/artManifest'
-
-
 
 const artIds = [
   ...Object.values(SLIME_CITY_ART.crews),
@@ -53,12 +57,21 @@ const artIds = [
   ...Object.values(SLIME_CITY_ART.cards),
   ...Object.values(SLIME_CITY_ART.boards),
 ]
-assert.equal(SLIME_CITY_ART_COUNT, 52, 'First art round has 52 rendered ArtImage IDs')
+assert.equal(
+  SLIME_CITY_ART_COUNT,
+  52,
+  'First art round has 52 rendered ArtImage IDs',
+)
 assert.equal(artIds.length, 52)
-assert.equal(new Set(artIds).size, artIds.length, 'Each render has distinct provenance')
+assert.equal(
+  new Set(artIds).size,
+  artIds.length,
+  'Each render has distinct provenance',
+)
 assert.ok(artIds.every((id) => Number.isInteger(id) && id > 0))
 for (const team of TEAMS) assert.ok(slimeArtId('crews', team.id))
-for (const district of DISTRICTS) assert.ok(slimeArtId('districts', district.id))
+for (const district of DISTRICTS)
+  assert.ok(slimeArtId('districts', district.id))
 for (const mode of MODES) assert.ok(slimeArtId('boards', mode.id))
 assert.equal(Object.keys(SLIME_CITY_ART.cards).length, 36)
 assert.equal(CARDS.length, 60, 'The game has 60 authored starter cards')

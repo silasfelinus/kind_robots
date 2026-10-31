@@ -344,11 +344,10 @@ for (let seed = 1; seed <= 1500; seed++) {
   assert.equal(epilogue.resolution, progress.ending)
   reached.add(epilogue.id)
   const medalId = `e01-house-${epilogue.id}`
-  const earnedMedals = reconcileMemoryAchievements(
-    [],
-    [],
-    { sceneChoices: briar, house: progress },
-  )
+  const earnedMedals = reconcileMemoryAchievements([], [], {
+    sceneChoices: briar,
+    house: progress,
+  })
   assert.ok(
     earnedMedals.includes(medalId),
     `seed ${seed} earns its House medal`,

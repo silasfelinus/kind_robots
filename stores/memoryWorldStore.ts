@@ -175,8 +175,11 @@ import { earnedBriarRareEvents } from '~/utils/memoryDungeon/briarRareEvents'
 import {
   memoryAchievementGallery,
   reconcileMemoryAchievements,
+  reconcileMemoryEarthAchievements,
   restoreMemoryAchievements,
 } from '~/utils/memoryDungeon/achievements'
+import type { EarthReality } from '~/utils/memoryDungeon/earthAct'
+import type { EarthJournalAction } from '~/utils/memoryDungeon/earthJournal'
 import type { HoshimoriWarmProgress } from '~/utils/memoryDungeon/hoshimoriWarm'
 import type { NightProgress } from '~/utils/memoryDungeon/hoshimoriNight'
 import { briarLossContinuation } from '~/utils/memoryDungeon/lossContinuations'
@@ -384,8 +387,9 @@ export const useMemoryWorldStore = defineStore('memoryWorld', () => {
   function syncAchievements(
     hoshimori?: HoshimoriWarmProgress,
     hoshimoriNight?: NightProgress,
+    earth?: { reality: EarthReality; journal: readonly EarthJournalAction[] },
   ): void {
-    const next = reconcileMemoryAchievements(
+    let next = reconcileMemoryAchievements(
       earnedAchievementIds.value,
       briarRareEvents.value,
       state.value,
@@ -393,6 +397,12 @@ export const useMemoryWorldStore = defineStore('memoryWorld', () => {
       hoshimori,
       hoshimoriNight,
     )
+    if (earth && campaign.value.completed.includes(earth.reality))
+      next = reconcileMemoryEarthAchievements(
+        next,
+        earth.reality,
+        earth.journal,
+      )
     if (next.length === earnedAchievementIds.value.length) return
     earnedAchievementIds.value = next
     if (!import.meta.client) return
@@ -578,6 +588,14 @@ export const useMemoryWorldStore = defineStore('memoryWorld', () => {
     if (next === earthChronicle.value) return
     earthChronicle.value = next
     persistEarthChronicle()
+  }
+
+  function syncMorrowEarthAchievements(
+    reality: EarthReality,
+    journal: readonly EarthJournalAction[],
+  ): void {
+    if (!campaign.value.completed.includes(reality)) return
+    syncAchievements(undefined, undefined, { reality, journal })
   }
 
   function syncMorrowEarthPhoto(
@@ -2377,6 +2395,7 @@ export const useMemoryWorldStore = defineStore('memoryWorld', () => {
     syncHoshimoriAchievements,
     syncHoshimoriPhoto,
     syncMorrowEarthPhoto,
+    syncMorrowEarthAchievements,
     finishMorrowEarthReality,
     syncHoshimoriNightAchievements,
     syncHoshimoriNightPhoto,

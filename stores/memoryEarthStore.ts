@@ -163,6 +163,9 @@ export const useMemoryEarthStore = defineStore('memoryEarth', () => {
       world.syncMorrowEarthPhoto('e03', save.value.records.e03.choices)
     if (e04Unlocked.value)
       world.syncMorrowEarthPhoto('e04', save.value.records.e04.choices)
+    for (const reality of EARTH_REALITIES)
+      if (world.campaign.completed.includes(reality))
+        world.syncMorrowEarthAchievements(reality, save.value.journals[reality])
   }
 
   watch(
@@ -175,6 +178,12 @@ export const useMemoryEarthStore = defineStore('memoryEarth', () => {
         world.syncMorrowEarthPhoto('e03', save.value.records.e03.choices)
       if (e04Unlocked.value)
         world.syncMorrowEarthPhoto('e04', save.value.records.e04.choices)
+      for (const reality of EARTH_REALITIES)
+        if (world.campaign.completed.includes(reality))
+          world.syncMorrowEarthAchievements(
+            reality,
+            save.value.journals[reality],
+          )
     },
   )
 
@@ -233,6 +242,10 @@ export const useMemoryEarthStore = defineStore('memoryEarth', () => {
       active.value === 'e04' ? progress.value.choices['8,8'] : undefined,
     )
     if (!success) return
+    world.syncMorrowEarthAchievements(
+      active.value,
+      save.value.journals[active.value],
+    )
     notice.value =
       active.value === 'e03'
         ? 'Morrow follows the impossible tide toward a city with two histories.'

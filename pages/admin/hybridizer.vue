@@ -176,7 +176,7 @@
                 data-testid="hybridizer-upvote"
                 :disabled="upvoteBusy"
                 @click="upvote()"
-              >♥ Upvote</button>
+              >♥ Upvote <span v-if="upvoteCount">({{ upvoteCount }})</span></button>
               <button
                 v-if="reactionImageId"
                 type="button"
@@ -245,8 +245,16 @@
                 reaction-category="ART_IMAGE"
                 :target-title="lab.result.title"
                 compact
-                @submitted="reactionOpen = false"
+                @submitted="onReactionSubmitted"
               />
+              <section class="hybrid-comments" aria-label="Artwork comments">
+                <h3>THE COMMUNITY'S FIELD NOTES · {{ reactionComments.length }}</h3>
+                <p v-if="!reactionComments.length">No field notes yet. Be the first to comment on this version.</p>
+                <article v-for="comment in reactionComments" :key="comment.id">
+                  <small>Member #{{ comment.userId }} · {{ comment.reactionType }}</small>
+                  <p>{{ comment.comment }}</p>
+                </article>
+              </section>
             </div>
           </template>
           <template v-else>
@@ -441,6 +449,26 @@ const reactionImageId = computed(() => previewVersion.value
   ? previewVersion.value.artImageId
   : lab.result?.artImageId)
 const badges = achievementsForGame('hybridizer')
+const imageReactions = computed(() => reactionImageId.value
+  ? reactionStore.getReactionsByArtImageId(reactionImageId.value)
+  : [])
+const upvoteCount = computed(() => imageReactions.value.filter((reaction) =>
+  reaction.reactionType === 'LOVED' || reaction.reactionType === 'CLAPPED',
+).length)
+const reactionComments = computed(() =>
+  imageReactions.value
+    .filter((reaction) => reaction.comment?.trim())
+    .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+    .slice(0, 25),
+)
+watch(reactionImageId, (id) => {
+  if (id) void reactionStore.fetchReactionsByArtImageId(id)
+}, { immediate: true })
+async function onReactionSubmitted() {
+  reactionOpen.value = false
+  if (reactionImageId.value)
+    await reactionStore.fetchReactionsByArtImageId(reactionImageId.value, true)
+}
 const upvoteBusy = ref(false)
 async function upvote() {
   if (!reactionImageId.value || upvoteBusy.value) return
@@ -452,6 +480,8 @@ async function upvote() {
       reactionType: 'LOVED',
       reactionCategory: 'ART_IMAGE',
     })
+    if (added && reactionImageId.value)
+      void reactionStore.fetchReactionsByArtImageId(reactionImageId.value, true)
     lab.status = added
       ? 'Your upvote is attached to this artwork version.'
       : reactionStore.lastError || 'Could not submit upvote. Sign in and try again.'
@@ -1355,4 +1385,9 @@ onUnmounted(() => lab.stopArtworkWatch())
 .hybrid-badges { display: flex; gap: 8px; overflow-x: auto; color: #d2c1da; }
 .hybrid-badges span { flex: 0 0 auto; font-size: 0.63rem; font-weight: 800; }
 .hybrid-badges .earned { color: #e6fba4; }
+.hybrid-comments { margin-top: 10px; display: grid; gap: 8px; }
+.hybrid-comments h3 { font-size: 0.75rem; color: #e9f5ad; font-weight: 900; }
+.hybrid-comments article { border: 1px solid #c7adcc55; border-radius: 10px; padding: 8px; background: #381d48; }
+.hybrid-comments article small { color: #e5cbe9; font-size: 0.64rem; }
+.hybrid-comments article p { overflow-wrap: anywhere; font-size: 0.8rem; }
 </style>

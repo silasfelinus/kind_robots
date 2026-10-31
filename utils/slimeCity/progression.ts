@@ -187,8 +187,9 @@ export function restoreProgression(raw: unknown, now = new Date()): Progression 
   const blank = newProgression(now)
   if (!raw || typeof raw !== 'object') return blank
   const p = raw as Partial<Progression>
-  if (p.version !== 1 || !Number.isSafeInteger(p.meat) || !Number.isSafeInteger(p.xp) ||
-    p.meat! < 0 || p.xp! < 0 || !Array.isArray(p.cards) || !Array.isArray(p.receipts) ||
+  if (p.version !== 1 || typeof p.meat !== 'number' ||
+    typeof p.xp !== 'number' || !Number.isSafeInteger(p.meat) ||
+    !Number.isSafeInteger(p.xp) || p.meat < 0 || p.xp < 0 || !Array.isArray(p.cards) || !Array.isArray(p.receipts) ||
     !p.daily || !p.weekly) return blank
   const ids = new Set(CARDS.map((c) => c.id))
   const cards = [...new Set(p.cards.filter((id): id is string => typeof id === 'string' && ids.has(id)))]
@@ -201,11 +202,11 @@ export function restoreProgression(raw: unknown, now = new Date()): Progression 
       claimed: w.claimed.filter((id) => CHALLENGES.some((c) => c.id === id && c.period === period)) }
   }
   return refreshPeriods({ ...blank, meat: p.meat!, xp: p.xp!, cards,
-    wins: Number.isSafeInteger(p.wins) ? p.wins! : 0,
-    losses: Number.isSafeInteger(p.losses) ? p.losses! : 0,
-    draws: Number.isSafeInteger(p.draws) ? p.draws! : 0,
+    wins: typeof p.wins === 'number' && Number.isSafeInteger(p.wins) ? p.wins : 0,
+    losses: typeof p.losses === 'number' && Number.isSafeInteger(p.losses) ? p.losses : 0,
+    draws: typeof p.draws === 'number' && Number.isSafeInteger(p.draws) ? p.draws : 0,
     receipts: p.receipts.filter((id): id is string => typeof id === 'string'),
-    opened: Number.isSafeInteger(p.opened) ? p.opened! : 0, lastPack: [],
+    opened: typeof p.opened === 'number' && Number.isSafeInteger(p.opened) ? p.opened : 0, lastPack: [],
     lastReward: 'Local progress loaded · not synchronized across devices.',
     daily: cleanWin(p.daily, 'daily'), weekly: cleanWin(p.weekly, 'weekly') }, now)
 }

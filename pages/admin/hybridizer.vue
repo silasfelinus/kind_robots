@@ -428,11 +428,13 @@ import ReactionCard from '@/components/wonderlab/reaction-card.vue'
 import { achievementsForGame } from '@/utils/achievements/gameAchievements'
 import { useAchievementStore } from '@/stores/achievementStore'
 import { useReactionStore, getReactionTargetPayload } from '@/stores/reactionStore'
+import { useUserStore } from '@/stores/userStore'
 import { useHybridizerStore } from '@/stores/hybridizerStore'
 
 const lab = useHybridizerStore()
 const achievementStore = useAchievementStore()
 const reactionStore = useReactionStore()
+const userStore = useUserStore()
 const route = useRoute()
 const previewJobId = ref<number | null>(null)
 const reactionOpen = ref(false)
@@ -452,9 +454,11 @@ const badges = achievementsForGame('hybridizer')
 const imageReactions = computed(() => reactionImageId.value
   ? reactionStore.getReactionsByArtImageId(reactionImageId.value)
   : [])
-const upvoteCount = computed(() => imageReactions.value.filter((reaction) =>
-  reaction.reactionType === 'LOVED' || reaction.reactionType === 'CLAPPED',
-).length)
+const upvoteCount = computed(() => new Set(imageReactions.value
+  .filter((reaction) =>
+    reaction.reactionType === 'LOVED' || reaction.reactionType === 'CLAPPED',
+  )
+  .map((reaction) => reaction.userId)).size)
 const reactionComments = computed(() =>
   imageReactions.value
     .filter((reaction) => reaction.comment?.trim())
@@ -474,15 +478,24 @@ async function upvote() {
   if (!reactionImageId.value || upvoteBusy.value) return
   upvoteBusy.value = true
   try {
-    const added = await reactionStore.addReaction({
-      ...getReactionTargetPayload('artImage', reactionImageId.value),
-      rating: 5,
-      reactionType: 'LOVED',
-      reactionCategory: 'ART_IMAGE',
-    })
-    if (added && reactionImageId.value)
-      void reactionStore.fetchReactionsByArtImageId(reactionImageId.value, true)
-    lab.status = added
+    const id = reactionImageId.value
+    await reactionStore.fetchReactionsByArtImageId(id)
+    const existing = userStore.userId
+      ? reactionStore.getUserReactionForArtImage(id, userStore.userId)
+      : undefined
+    const saved = existing
+      ? await reactionStore.updateReaction(existing.id, {
+          reactionType: 'LOVED',
+          rating: 5,
+        })
+      : await reactionStore.addReaction({
+          ...getReactionTargetPayload('artImage', id),
+          rating: 5,
+          reactionType: 'LOVED',
+          reactionCategory: 'ART_IMAGE',
+        })
+    if (saved) void reactionStore.fetchReactionsByArtImageId(id, true)
+    lab.status = saved
       ? 'Your upvote is attached to this artwork version.'
       : reactionStore.lastError || 'Could not submit upvote. Sign in and try again.'
   } catch (error) {

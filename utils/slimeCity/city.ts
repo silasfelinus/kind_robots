@@ -623,7 +623,8 @@ export const CITY_CONTRACTS: Record<DistrictId, CityContract> = {
     opponent: 'The Echo Office',
     team: 'undertow',
     terms: { rivalTrap: true, playerMana: 1 },
-    victory: 'The surveillance feed goes silent. The neighborhood finally hears itself.',
+    victory:
+      'The surveillance feed goes silent. The neighborhood finally hears itself.',
     failure: 'The Echo Office records your tactics for tomorrow.',
     standing: 2,
     heat: -1,
@@ -648,7 +649,8 @@ export const CITY_CONTRACTS: Record<DistrictId, CityContract> = {
     opponent: 'The Unlicensed Finale',
     team: 'riot',
     terms: { rounds: -4, enemyMana: 1 },
-    victory: 'The crowd survives the show and chants your name through a siren chorus.',
+    victory:
+      'The crowd survives the show and chants your name through a siren chorus.',
     failure: 'The Saints sell footage of the catastrophe to every rival.',
     standing: 2,
     heat: 1,

@@ -19,6 +19,7 @@ import {
 } from './houseEpilogues'
 import { BRIAR_RARE_EVENTS, type EarnedBriarRareEvent } from './briarRareEvents'
 import {
+  hoshimoriOvenFourthAccount,
   hoshimoriVesperReckoning,
   restoreHoshimoriWarm,
   type HoshimoriWarmProgress,
@@ -402,12 +403,95 @@ export const MEMORY_HOSHIMORI_NIGHT_ACHIEVEMENTS = NIGHT_MEDALS.map(
   }),
 )
 
+/** Eight restitution outcomes from the completed Cinder Wing of the Red Oven.
+ * A replay-validated guardian hearing and all six Cinder rooms are required.
+ * These records cannot settle debts on behalf of the people who were harmed. */
+const CINDER_MEDALS = [
+  {
+    id: 'e07-cinder-open-childhood',
+    hearing: 'invite-appeals',
+    ledger: 'return-ledger',
+    remedy: 'open-appeals',
+    title: 'The Hearing That Can Reopen',
+    echo: 'Pip brings his childhood ledger to the independent appeals desk. The first claim is corrected, not closed: the family can return when another missing memory surfaces. Vesper draws the route to the desk without marking the claimant’s house, and the Oven is forbidden to charge for the journey.',
+  },
+  {
+    id: 'e07-cinder-council-childhood',
+    hearing: 'invite-appeals',
+    ledger: 'return-ledger',
+    remedy: 'keep-rotating-council',
+    title: 'A Childhood Without a Receipt',
+    echo: 'The appeals clerk returns Pip’s book while a rotating council takes responsibility for the remedies it can actually provide. Pip declines the ceremonial certificate declaring his childhood restored. He keeps the blank spaces and asks the next council to read them before promising anyone a perfect repair.',
+  },
+  {
+    id: 'e07-cinder-open-blank',
+    hearing: 'invite-appeals',
+    ledger: 'keep-blank',
+    remedy: 'open-appeals',
+    title: 'An Honest Missing Page',
+    echo: 'The independent desk accepts a claim without demanding the name of the child whose story was taken. Pip guards the empty page against helpful guesses. When the claimant returns months later with one true detail, the case opens again; nobody calls the earlier silence a lie.',
+  },
+  {
+    id: 'e07-cinder-council-blank',
+    hearing: 'invite-appeals',
+    ledger: 'keep-blank',
+    remedy: 'keep-rotating-council',
+    title: 'The Empty Chair Has a Vote',
+    echo: 'Pip leaves the missing page untouched. The rotating council reserves a chair for a witness who may never attend, and refuses to treat the empty seat as consent. The next group inherits unfinished work instead of a flattering story about how the village solved everything.',
+  },
+  {
+    id: 'e07-cinder-private-childhood',
+    hearing: 'hold-private-hearings',
+    ledger: 'return-ledger',
+    remedy: 'open-appeals',
+    title: 'A Ledger Returned at Dawn',
+    echo: 'The households choose mediators they trust, and Pip carries his childhood ledger home after a private hearing. The remedy can be challenged without making the testimony public. At dawn he writes his first new entry: what the Oven owes is not the same as what he remembers.',
+  },
+  {
+    id: 'e07-cinder-private-council',
+    hearing: 'hold-private-hearings',
+    ledger: 'return-ledger',
+    remedy: 'keep-rotating-council',
+    title: 'Restitution by Invitation',
+    echo: 'The mediators ask each family what help would be useful before the rotating council assigns supplies. Pip keeps custody of his book; the council keeps responsibility for the shortages. A household may decline an escort without losing its place in the relief queue.',
+  },
+  {
+    id: 'e07-cinder-private-blank',
+    hearing: 'hold-private-hearings',
+    ledger: 'keep-blank',
+    remedy: 'open-appeals',
+    title: 'The Appeal Without a Name',
+    echo: 'A private mediator carries an unsigned account to the appeals desk. Pip refuses to fill the missing page with a convenient witness. The claim stays open and the family keeps its refuge address, proving that a remedy can be real without turning its recipient into a public exhibit.',
+  },
+  {
+    id: 'e07-cinder-private-commons',
+    hearing: 'hold-private-hearings',
+    ledger: 'keep-blank',
+    remedy: 'keep-rotating-council',
+    title: 'A Council That Can Be Dismissed',
+    echo: 'The village chooses private mediators, preserves Pip’s unanswered page, and gives a rotating council only temporary authority. When the first council mistakes a quiet family for a satisfied one, the household recalls its representative. The Oven stays cold until someone actually asks it to work.',
+  },
+] as const
+
+export const MEMORY_HOSHIMORI_CINDER_ACHIEVEMENTS = CINDER_MEDALS.map(
+  (medal) => ({
+    id: medal.id,
+    questId: 'e07-oven-OV-21',
+    title: medal.title,
+    description:
+      'Complete all four Red Oven hearings and establish a revocable restitution remedy.',
+    echo: medal.echo,
+    artPath: `/images/memory-dungeon/hoshimori/${medal.id}.webp`,
+  }),
+)
+
 const ALL_MEDALS = [
   ...MEMORY_BRIAR_ACHIEVEMENTS,
   ...MEMORY_DARK_BRIAR_ACHIEVEMENTS,
   ...MEMORY_HOUSE_ACHIEVEMENTS,
   ...MEMORY_HOSHIMORI_ACHIEVEMENTS,
   ...MEMORY_HOSHIMORI_NIGHT_ACHIEVEMENTS,
+  ...MEMORY_HOSHIMORI_CINDER_ACHIEVEMENTS,
 ]
 
 const validIds = new Set(ALL_MEDALS.map((medal) => medal.id))
@@ -465,6 +549,15 @@ export function reconcileMemoryAchievements(
           entry.road === verified.choices['4,4'] &&
           entry.theatre === verified.choices['3,8'] &&
           entry.assembly === verified.choices['8,8'],
+      )
+      if (medal) ids.add(medal.id)
+    }
+    if (verified && hoshimoriOvenFourthAccount(verified)) {
+      const medal = CINDER_MEDALS.find(
+        (entry) =>
+          entry.hearing === verified.ovenChoices['OV-16'] &&
+          entry.ledger === verified.ovenChoices['OV-19'] &&
+          entry.remedy === verified.ovenChoices['OV-21'],
       )
       if (medal) ids.add(medal.id)
     }

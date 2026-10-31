@@ -1,4 +1,4 @@
-import { defineEventHandler, readBody, createError } from 'h3'
+import { defineEventHandler, readBody } from 'h3'
 import { startSlimeCityCpuMatch, requireSlimeCityPreviewUser } from '~/server/utils/slimeCityProgress'
 
 export default defineEventHandler(async (event) => {

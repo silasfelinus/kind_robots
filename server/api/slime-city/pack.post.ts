@@ -1,4 +1,4 @@
-import { defineEventHandler, createError } from 'h3'
+import { defineEventHandler } from 'h3'
 import { buySlimeCityPack, requireSlimeCityPreviewUser } from '~/server/utils/slimeCityProgress'
 
 export default defineEventHandler(async (event) => {

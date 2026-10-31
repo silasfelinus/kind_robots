@@ -64,7 +64,14 @@
               :aria-pressed="lab.activeTeam === team.id"
               @click="lab.chooseTeam(team.id)"
             >
-              <span class="sc-emblem">{{ team.insignia }}</span>
+              <span class="sc-emblem">
+                <SlimeCityArtwork
+                  :image-id="slimeArtId('crews', team.id)"
+                  :alt="team.name + ' rendered crew artwork'"
+                  :fallback="team.insignia"
+                  compact
+                />
+              </span>
               <span class="sc-team-text"
                 ><strong>{{ team.name }}</strong
                 ><small>{{ team.motto }}</small></span
@@ -73,7 +80,12 @@
           </div>
           <div class="sc-profile">
             <div class="sc-big-emblem" :class="'tone-' + lab.team.color">
-              {{ lab.team.insignia }}
+              <SlimeCityArtwork
+                :image-id="slimeArtId('crews', lab.activeTeam)"
+                :alt="lab.team.name + ' faction illustration'"
+                :fallback="lab.team.insignia"
+                compact
+              />
             </div>
             <p class="sc-overline">THE {{ lab.team.district }}</p>
             <strong>{{ lab.team.name }}</strong>
@@ -87,6 +99,12 @@
           aria-label="Slime City district map"
         >
           <div class="sc-city">
+            <SlimeCityArtwork
+              class="sc-district-paint"
+              :image-id="slimeArtId('districts', lab.districtId)"
+              :alt="lab.district.name + ' panoramic district artwork'"
+              fallback="▧"
+            />
             <div class="sc-moon"></div>
             <div class="sc-skyline sc-skyline-back"></div>
             <div class="sc-skyline sc-skyline-front"></div>
@@ -364,6 +382,13 @@
             </div>
           </div>
           <div class="sc-arena-backdrop">
+            <SlimeCityArtwork
+              class="sc-board-paint"
+              :image-id="slimeArtId('boards', lab.mode)"
+              :alt="currentMode.title + ' painted arena background'"
+              fallback="▦"
+              compact
+            />
             <div
               class="sc-board"
               :class="'sc-board-' + lab.mode"
@@ -456,12 +481,12 @@
               data-testid="slime-card-preview"
             >
               <div class="sc-card-poster" :class="'tone-' + lab.team.color">
-                <span class="sc-card-poster-art">{{
-                  lab.inspectedCard.symbol
-                }}</span>
-                <span class="sc-overline"
-                  >ILLUSTRATION PENDING · {{ lab.team.name }}</span
-                >
+                <SlimeCityArtwork
+                  class="sc-inspected-paint"
+                  :image-id="slimeArtId('cards', lab.inspectedCard.id)"
+                  :alt="lab.inspectedCard.name + ' illustrated collectible card'"
+                  :fallback="lab.inspectedCard.symbol"
+                />
               </div>
               <div class="sc-card-information">
                 <span class="sc-overline"
@@ -636,6 +661,11 @@
             <p data-testid="slime-crew-counters">
               <b>HOW TO BEAT THEM</b> {{ lab.team.counters }}
             </p>
+            <p class="sc-art-summary" data-testid="slime-art-provenance">
+              ROUND ONE: {{ SLIME_CITY_ART_COUNT }} RENDERED IDS ·
+              {{ art.loadedCount }} VERIFIED IN BROWSER ·
+              {{ art.failedCount }} UNAVAILABLE · 24 STARTER CARDS STILL NEED ART
+            </p>
           </div>
           <div class="sc-collection-grid kr-scroll">
             <article
@@ -644,7 +674,13 @@
               class="sc-collect-card"
               :class="'tone-' + lab.team.color"
             >
-              <div class="sc-collect-art">{{ card.symbol }}</div>
+              <div class="sc-collect-art">
+                <SlimeCityArtwork
+                  :image-id="slimeArtId('cards', card.id)"
+                  :alt="card.name + ' collectible card artwork'"
+                  :fallback="card.symbol"
+                />
+              </div>
               <div>
                 <span
                   >{{ card.kind.toUpperCase() }} · {{ card.cost }} MANA<template
@@ -693,6 +729,12 @@
               :data-testid="'slime-mode-' + preset.id"
               @click="lab.chooseMode(preset.id)"
             >
+              <SlimeCityArtwork
+                class="sc-mode-paint"
+                :image-id="slimeArtId('boards', preset.id)"
+                :alt="preset.title + ' game mode artwork'"
+                compact
+              />
               <strong>{{ preset.title }}</strong
               ><span>{{ preset.size }} / {{ preset.cadence }}</span
               ><small
@@ -759,7 +801,14 @@
                   :aria-pressed="lab.selectedCard === card.id"
                   @click="lab.chooseCard(card.id)"
                 >
-                  <span class="sc-card-symbol">{{ card.symbol }}</span>
+                  <span class="sc-card-symbol">
+                    <SlimeCityArtwork
+                      :image-id="slimeArtId('cards', card.id)"
+                      :alt="card.name + ' thumbnail'"
+                      :fallback="card.symbol"
+                      compact
+                    />
+                  </span>
                   <span
                     ><strong>{{ card.name }}</strong
                     ><small>{{ card.kind }}</small></span
@@ -891,8 +940,14 @@ import {
 import { STREETS } from '~/utils/slimeCity/city'
 import { describeTerms } from '~/utils/slimeCity/campaign'
 import { useSlimeCityStore } from '~/stores/slimeCity'
+import {
+  slimeArtId,
+  SLIME_CITY_ART_COUNT,
+} from '~/utils/slimeCity/artManifest'
+import { useSlimeCityArtStore } from '~/stores/slimeCityArt'
 
 const lab = useSlimeCityStore()
+const art = useSlimeCityArtStore()
 const currentMode = computed(
   () => lab.modes.find((mode) => mode.id === lab.mode) || lab.modes[0]!,
 )
@@ -1034,7 +1089,10 @@ function cellAria(x: number, y: number): string {
     : ''
   return 'Square ' + (x + 1) + ', ' + (y + 1) + ': ' + (monster || name + flag)
 }
-onUnmounted(() => lab.dispose())
+onUnmounted(() => {
+  lab.dispose()
+  art.clear()
+})
 </script>
 
 <style scoped>
@@ -1194,6 +1252,7 @@ onUnmounted(() => lab.dispose())
   background: color-mix(in srgb, var(--tone) 20%, #141c29);
 }
 .sc-emblem {
+  overflow: hidden;
   flex: none;
   display: grid;
   place-items: center;
@@ -1230,6 +1289,7 @@ onUnmounted(() => lab.dispose())
   background: #111724;
 }
 .sc-profile .sc-big-emblem {
+  overflow: hidden;
   float: right;
   display: grid;
   place-items: center;
@@ -1276,6 +1336,18 @@ onUnmounted(() => lab.dispose())
   position: relative;
   overflow: hidden;
   background: #151f2d;
+}
+.sc-city .sc-district-paint {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  opacity: 0.82;
+}
+.sc-city .sc-district-paint :deep(img) {
+  object-position: center center;
+}
+.sc-city .sc-skyline {
+  opacity: 0.32;
 }
 .sc-city {
   flex: 1;
@@ -1665,6 +1737,9 @@ onUnmounted(() => lab.dispose())
   gap: 0.4rem;
 }
 .sc-mode {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
   display: flex;
   flex-direction: column;
   align-items: flex-start;
@@ -1675,6 +1750,15 @@ onUnmounted(() => lab.dispose())
   border-radius: 0.4rem;
   text-align: left;
   min-height: 3.7rem;
+}
+.sc-mode .sc-mode-paint {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  opacity: 0.4;
+}
+.sc-mode .sc-mode-paint :deep(img) {
+  object-position: center 35%;
 }
 .sc-mode.active {
   border-color: #d7fc7a;
@@ -1755,8 +1839,13 @@ onUnmounted(() => lab.dispose())
   opacity: 0.55;
 }
 .sc-hand-card .sc-card-symbol {
-  font-size: 1.3rem;
-  color: var(--tone);
+  flex: none;
+  display: block;
+  width: 2.4rem;
+  height: 2.8rem;
+  overflow: hidden;
+  border-radius: 0.2rem;
+  border: 1px solid var(--tone);
 }
 .sc-hand-card span:nth-child(2) {
   display: flex;
@@ -1831,6 +1920,12 @@ onUnmounted(() => lab.dispose())
   font-size: 1.1rem;
   color: #d7ff7e;
 }
+.sc-arena-backdrop .sc-board-paint {
+  position: absolute;
+  inset: 0;
+  opacity: 0.53;
+  pointer-events: none;
+}
 .sc-arena-backdrop {
   position: relative;
   flex: 1;
@@ -1845,6 +1940,8 @@ onUnmounted(() => lab.dispose())
     radial-gradient(ellipse, #26474c 0%, #0c1e2b 70%);
 }
 .sc-board {
+  position: relative;
+  z-index: 1;
   display: grid;
   width: min(100%, 68cqh);
   max-height: 100%;
@@ -2088,6 +2185,8 @@ onUnmounted(() => lab.dispose())
   box-shadow: 0 5px 16px #0007;
 }
 .sc-collect-art {
+  overflow: hidden;
+  height: clamp(8rem, 19cqw, 14rem);
   display: grid;
   place-items: center;
   min-height: 6rem;
@@ -2101,6 +2200,11 @@ onUnmounted(() => lab.dispose())
       color-mix(in srgb, var(--tone) 35%, #171b2b),
       #141b28
     );
+}
+.sc-art-summary {
+  color: #c8f2a1 !important;
+  font-size: 0.65rem !important;
+  letter-spacing: 0.04em;
 }
 .sc-collect-card > div:nth-child(2) {
   padding: 0.6rem;
@@ -2476,6 +2580,8 @@ onUnmounted(() => lab.dispose())
   overflow: auto;
 }
 .sc-card-poster {
+  position: relative;
+  overflow: hidden;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -2488,10 +2594,9 @@ onUnmounted(() => lab.dispose())
     #101a27 85%
   );
 }
-.sc-card-poster-art {
-  font-size: clamp(4rem, 9cqw, 8rem);
-  color: var(--tone);
-  text-shadow: 0 0 30px var(--tone);
+.sc-card-poster .sc-inspected-paint {
+  position: absolute;
+  inset: 0;
 }
 .sc-card-information {
   padding: 1rem;

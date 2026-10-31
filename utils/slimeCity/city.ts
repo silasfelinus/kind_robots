@@ -571,7 +571,8 @@ export const CITY_CONTRACTS: Record<DistrictId, CityContract> = {
     terms: { enemyMana: 2, playerMana: 1 },
     victory:
       'You cut the arena power contract. The city cheers and the debt collectors retreat.',
-    failure: 'The house keeps its lights on, and sends your name to collections.',
+    failure:
+      'The house keeps its lights on, and sends your name to collections.',
     standing: 3,
     heat: -2,
   },

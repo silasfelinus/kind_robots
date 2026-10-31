@@ -167,7 +167,11 @@
                       {{ feature.title }}
                     </span>
                     <span class="text-[0.65rem] font-semibold opacity-75">
-                      {{ feature.route === '/play/slime-city' ? 'BLACKOUT CCG' : 'FUSION LAB' }}
+                      {{
+                        feature.route === '/play/slime-city'
+                          ? 'BLACKOUT CCG'
+                          : 'FUSION LAB'
+                      }}
                     </span>
                   </div>
                   <span

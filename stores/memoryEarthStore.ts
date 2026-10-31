@@ -104,7 +104,9 @@ export const useMemoryEarthStore = defineStore('memoryEarth', () => {
     try {
       const raw = window.localStorage.getItem(STORAGE_KEY)
       if (raw) {
-        const candidate = JSON.parse(raw) as Partial<EarthSave>
+        const candidate = JSON.parse(raw) as Partial<Omit<EarthSave, 'version'>> & {
+          version?: number
+        }
         if (candidate.version === 1 || candidate.version === 2) {
           const restored = fresh()
           for (const reality of EARTH_REALITIES) {

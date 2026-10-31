@@ -375,11 +375,9 @@ export function validateOverworldEventCatalog(): string[] {
           queue.push(key)
         }
     if (visited.size !== 64) problems.push(id + ': disconnected')
-    if (n > 2 && id !== 'e07') {
-      for (const photo of photos.get(id) ?? [])
-        if (worldEvent(id, photo.site)?.photographId !== photo.id)
-          problems.push(id + ': missing fixed photo at ' + photo.site)
-    }
+    for (const photo of photos.get(id) ?? [])
+      if (worldEvent(id, photo.site)?.photographId !== photo.id)
+        problems.push(id + ': missing fixed photo at ' + photo.site)
   }
   for (const id of ['e04', 'e05'])
     if (worldEvent(id, '8,8')?.choices.length !== 3)

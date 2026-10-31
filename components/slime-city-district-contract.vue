@@ -44,9 +44,7 @@
 </template>
 
 <script setup lang="ts">
-import {
-  useSlimeCityStore;
-} from '~/stores/slimeCity'
+import { useSlimeCityStore } from '~/stores/slimeCity'
 
 const lab = useSlimeCityStore()
 </script>

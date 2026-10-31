@@ -13,7 +13,14 @@ import {
   type NightProgress,
 } from '../memoryDungeon/hoshimoriNight'
 import { HOSHIMORI_WARM_SITES } from '../memoryDungeon/hoshimoriWarm'
-import { EARTH_PHOTOS } from '../memoryDungeon/chronicle'
+import {
+  EARTH_PHOTOS,
+  newEarthChronicle,
+  reconcileHoshimoriNightEarthChronicle,
+  recoveredEarthPhotos,
+  respondToEarthPhoto,
+  restoreEarthChronicle,
+} from '../memoryDungeon/chronicle'
 import { MEMORY_REALITY_EXPERIENCES } from '../memoryDungeon/reimaginerCampaign'
 
 assert.deepEqual(validateHoshimoriNight(), [])
@@ -188,6 +195,81 @@ assert.equal(
     }),
   }),
   null,
+)
+for (const decision of ['ask-the-colleague', 'honor-the-help'] as const) {
+  let run = newHoshimoriNightProgress(17)
+  for (const key of ['1,2', '1,3', '1,4']) run = visit(run, key)
+  assert.deepEqual(
+    reconcileHoshimoriNightEarthChronicle(newEarthChronicle(), run.choices)
+      .found,
+    [],
+    'Seeing the photograph without making a decision cannot earn it',
+  )
+  run = choose(run, decision)
+  const restored = restoreHoshimoriNight(JSON.parse(JSON.stringify(run)))
+  assert.ok(restored, 'Only replay-validated night choices can earn the photo')
+  const journal = reconcileHoshimoriNightEarthChronicle(
+    newEarthChronicle(),
+    restored.choices,
+  )
+  assert.deepEqual(journal.found, ['earth-15'])
+  assert.deepEqual(
+    recoveredEarthPhotos(journal).map((photo) => photo.id),
+    ['earth-15'],
+  )
+  assert.strictEqual(
+    reconcileHoshimoriNightEarthChronicle(journal, restored.choices),
+    journal,
+    'Revisiting a photo never grants it twice',
+  )
+  const answered = respondToEarthPhoto(
+    journal,
+    'earth-15',
+    decision === 'ask-the-colleague' ? 'challenge' : 'hold',
+  )
+  assert.deepEqual(
+    restoreEarthChronicle(JSON.parse(JSON.stringify(answered))),
+    answered,
+    'The recovered photo and immutable response survive a save roundtrip',
+  )
+  assert.strictEqual(
+    respondToEarthPhoto(answered, 'earth-15', 'challenge'),
+    answered,
+    'An earlier interpretation cannot be overwritten',
+  )
+  const forged = JSON.parse(JSON.stringify(run)) as NightProgress
+  forged.choices['1,4'] =
+    decision === 'ask-the-colleague' ? 'honor-the-help' : 'ask-the-colleague'
+  assert.equal(
+    restoreHoshimoriNight(forged),
+    null,
+    'A forged night decision without its matching event is rejected',
+  )
+}
+assert.deepEqual(
+  reconcileHoshimoriNightEarthChronicle(newEarthChronicle(), {
+    '1,4': 'invented',
+    '6,7': 'fabricated',
+  }).found,
+  [],
+  'Unknown testimony and an unbuilt night photo cannot mint evidence',
+)
+assert.deepEqual(
+  reconcileHoshimoriNightEarthChronicle(
+    { version: 1, found: ['earth-14', 'earth-13'], responses: {} },
+    { '1,4': 'honor-the-help' },
+  ).found,
+  ['earth-13', 'earth-14', 'earth-15'],
+  'Out-of-order discoveries follow Earth chronology, not travel order',
+)
+assert.deepEqual(
+  restoreEarthChronicle({
+    version: 1,
+    found: ['earth-15', 'earth-16', 'earth-31'],
+    responses: { 'earth-15': 'hold', 'earth-16': 'challenge' },
+  }),
+  { version: 1, found: ['earth-15'], responses: { 'earth-15': 'hold' } },
+  'The first night photo persists while the unbuilt second remains spoiler-locked',
 )
 console.log(
   'Hoshimori e08: sixteen mirrored sites, 96 seeded runs, eight council accounts, two fair crossings, save forgery protection OK',

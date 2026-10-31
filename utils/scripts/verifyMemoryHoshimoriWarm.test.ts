@@ -975,8 +975,8 @@ assert.deepEqual(
     found: ['earth-13', 'earth-14', 'earth-15', 'earth-31'],
     responses: { 'earth-14': 'challenge' },
   }).found,
-  ['earth-13', 'earth-14'],
-  'Both authored Hoshimori photos survive; later realities remain spoiler-locked',
+  ['earth-13', 'earth-14', 'earth-15'],
+  'Both warm photos and the first night photo survive; unbuilt night scenes remain locked',
 )
 const outOfOrder = reconcileHoshimoriEarthChronicle(
   { version: 1, found: ['earth-02', 'earth-01'], responses: {} },

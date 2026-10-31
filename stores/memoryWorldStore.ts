@@ -82,6 +82,7 @@ import {
   restoreEarthChronicle,
   reconcileEarthChronicle,
   reconcileHoshimoriEarthChronicle,
+  reconcileHoshimoriNightEarthChronicle,
   respondToEarthPhoto,
   recoveredEarthPhotos,
   type EarthChronicle,
@@ -571,6 +572,19 @@ export const useMemoryWorldStore = defineStore('memoryWorld', () => {
   function syncHoshimoriPhoto(choices: Readonly<Record<string, string>>): void {
     if (!campaign.value.completed.includes('e06')) return
     const next = reconcileHoshimoriEarthChronicle(earthChronicle.value, choices)
+    if (next === earthChronicle.value) return
+    earthChronicle.value = next
+    persistEarthChronicle()
+  }
+
+  function syncHoshimoriNightPhoto(
+    choices: Readonly<Record<string, string>>,
+  ): void {
+    if (!campaign.value.completed.includes('e07')) return
+    const next = reconcileHoshimoriNightEarthChronicle(
+      earthChronicle.value,
+      choices,
+    )
     if (next === earthChronicle.value) return
     earthChronicle.value = next
     persistEarthChronicle()
@@ -2295,6 +2309,7 @@ export const useMemoryWorldStore = defineStore('memoryWorld', () => {
     earthPhotos,
     answerEarthPhoto,
     syncHoshimoriPhoto,
+    syncHoshimoriNightPhoto,
     activeReality,
     dark,
     darkHouse,

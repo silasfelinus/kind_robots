@@ -229,6 +229,8 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
     stop()
     bout.value = null
     lastBout.value = null
+    contractBout.value = null
+    lastContract.value = null
     if (!sameSeed) seed.value = rollSeed()
     match.value = createMatch(
       mode.value,
@@ -339,13 +341,23 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
     selectedUnit.value = null
     bout.value = id
     lastBout.value = null
+    contractBout.value = null
+    lastContract.value = null
     view.value = 'arena'
     if (!guideSeen.has(rival.mode)) openGuide()
   }
 
   /** Once a rival bout ends, its result changes the city. */
   function settleBout(): void {
-    if (!bout.value || !match.value.victor) return
+    if (!match.value.victor) return
+    if (contractBout.value) {
+      const id = contractBout.value
+      city.value = recordContract(city.value, id, match.value.victor)
+      lastContract.value = id
+      contractBout.value = null
+      return
+    }
+    if (!bout.value) return
     city.value = recordBout(city.value, bout.value, match.value.victor)
     lastBout.value = bout.value
     bout.value = null
@@ -476,6 +488,11 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
     bout,
     lastBout,
     boutPlan,
+    contractBout,
+    lastContract,
+    contractPlan,
+    activeContract,
+    contractGate,
     plan,
     streetEvent,
     streetProgress,
@@ -530,6 +547,7 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
     choose,
     chooseStreet,
     fightRival,
+    fightContract,
     resetCity,
     startDistrictMatch,
     showCity,

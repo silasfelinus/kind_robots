@@ -25,18 +25,35 @@ export default defineEventHandler(async (event) => {
     const jobs = await versionJobs(fusion)
     const chosen = jobs.find((job) => job.id === jobId)
     if (!chosen || chosen.status !== 'DONE')
-      throw createError({ statusCode: 409, message: 'Only delivered versions can become primary.' })
-    const image = await visibleVersionArt(chosen.artImageId, fusion, auth.user.id)
+      throw createError({
+        statusCode: 409,
+        message: 'Only delivered versions can become primary.',
+      })
+    const image = await visibleVersionArt(
+      chosen.artImageId,
+      fusion,
+      auth.user.id,
+    )
     if (!image)
-      throw createError({ statusCode: 409, message: 'This version has no accessible delivered illustration.' })
+      throw createError({
+        statusCode: 409,
+        message: 'This version has no accessible delivered illustration.',
+      })
     await prisma.hybridizerFusion.update({
       where: { id },
       data: { artJobId: jobId, artImageId: image.id, status: 'READY' },
     })
-    return { success: true, data: { jobId, artImageId: image.id, imagePath: image.imagePath } }
+    return {
+      success: true,
+      data: { jobId, artImageId: image.id, imagePath: image.imagePath },
+    }
   } catch (error) {
     const handled = errorHandler(error)
     event.node.res.statusCode = handled.statusCode ?? 500
-    return { success: false, message: handled.message, statusCode: event.node.res.statusCode }
+    return {
+      success: false,
+      message: handled.message,
+      statusCode: event.node.res.statusCode,
+    }
   }
 })

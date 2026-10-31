@@ -28,7 +28,10 @@ assert.equal(
   hybridizerRevisionSeed(canonicalFusionPair('cat', 'banana').id, 1),
 )
 assert.notEqual(hybridizerRevisionSeed(pair.id, 1), hybridizerArtSeed(pair.id))
-assert.notEqual(hybridizerRevisionSeed(pair.id, 1), hybridizerRevisionSeed(pair.id, 2))
+assert.notEqual(
+  hybridizerRevisionSeed(pair.id, 1),
+  hybridizerRevisionSeed(pair.id, 2),
+)
 for (const invalid of [-1, 12, 1.5, NaN, Infinity]) {
   assert.throws(() => hybridizerRevisionSeed(pair.id, invalid))
 }

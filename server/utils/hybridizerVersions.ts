@@ -1,7 +1,10 @@
 import { createError } from 'h3'
 import prisma from '~/server/utils/prisma'
 import { parseArtJobPayload } from '~/server/utils/artJobPayload'
-import { hybridizerDeliverableUrl, hybridizerQueueState } from '~/server/utils/hybridizerArt'
+import {
+  hybridizerDeliverableUrl,
+  hybridizerQueueState,
+} from '~/server/utils/hybridizerArt'
 
 export const HYBRIDIZER_MAX_VERSIONS = 12
 
@@ -36,7 +39,10 @@ export function requireFusionEditor(
 // LIKE scan across the entire render queue and leaving pair identity untouched.
 export function versionProjectSlug(id: string) {
   if (!/^[a-f0-9]{64}$/.test(id))
-    throw createError({ statusCode: 400, message: 'Invalid fusion identifier.' })
+    throw createError({
+      statusCode: 400,
+      message: 'Invalid fusion identifier.',
+    })
   return 'hybridizer:' + id
 }
 
@@ -93,7 +99,10 @@ export async function visibleVersionArt(
   return path ? { id: image.id, imagePath: path } : null
 }
 
-export async function versionSummaries(fusion: Fusion, viewerId?: number | null) {
+export async function versionSummaries(
+  fusion: Fusion,
+  viewerId?: number | null,
+) {
   const jobs = await versionJobs(fusion)
   const entries = await Promise.all(
     jobs.map(async (job, index) => {

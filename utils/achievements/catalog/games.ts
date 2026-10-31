@@ -17,7 +17,8 @@ export const OTHER_GAME_ACHIEVEMENT_DEFS: GameAchievementDef[] = [
     subtleHint: 'Two specimens, one ridiculous breakthrough.',
     icon: 'kind-icon:sparkles',
     rule: { kind: 'event' },
-    artPrompt: 'A whimsical copper fusion chamber sparks with emerald lightning as a single impossible painted hybrid creature emerges, bold purple and brass specimen laboratory, richly detailed collectible achievement badge, no text.',
+    artPrompt:
+      'A whimsical copper fusion chamber sparks with emerald lightning as a single impossible painted hybrid creature emerges, bold purple and brass specimen laboratory, richly detailed collectible achievement badge, no text.',
   },
   {
     game: 'hybridizer',
@@ -25,11 +26,13 @@ export const OTHER_GAME_ACHIEVEMENT_DEFS: GameAchievementDef[] = [
     tier: 2,
     label: 'Creature of Creatures',
     message: 'You fed a hybrid back into the chamber. Science resigned.',
-    tooltip: 'Successfully combine a previous Hybridizer discovery with another ingredient.',
+    tooltip:
+      'Successfully combine a previous Hybridizer discovery with another ingredient.',
     subtleHint: 'The result is also an ingredient.',
     icon: 'kind-icon:dna',
     rule: { kind: 'event' },
-    artPrompt: 'A spiral of three intertwined fantastical hybrid creatures in a glowing antique brass laboratory, expressive painterly illustration, amethyst and chartreuse, collectible achievement badge, no lettering.',
+    artPrompt:
+      'A spiral of three intertwined fantastical hybrid creatures in a glowing antique brass laboratory, expressive painterly illustration, amethyst and chartreuse, collectible achievement badge, no lettering.',
   },
   {
     game: 'hybridizer',
@@ -41,7 +44,8 @@ export const OTHER_GAME_ACHIEVEMENT_DEFS: GameAchievementDef[] = [
     subtleHint: 'Every masterpiece deserves an alternate universe.',
     icon: 'kind-icon:images',
     rule: { kind: 'event' },
-    artPrompt: 'Two ornate Victorian natural history frames displaying alternate beautiful variations of one hybrid animal, one elevated to a glowing gold easel, acid-green sparks, collectible illustrated achievement badge, no text.',
+    artPrompt:
+      'Two ornate Victorian natural history frames displaying alternate beautiful variations of one hybrid animal, one elevated to a glowing gold easel, acid-green sparks, collectible illustrated achievement badge, no text.',
   },
 
   // Zuzu Showdown (public: /play/zuzu-showdown)

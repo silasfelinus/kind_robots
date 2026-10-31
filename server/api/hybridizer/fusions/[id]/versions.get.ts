@@ -19,12 +19,18 @@ export default defineEventHandler(async (event) => {
       success: true,
       data: {
         versions: await versionSummaries(fusion, auth?.user.id),
-        canEdit: Boolean(auth && (auth.isAdmin || fusion.creatorUserId === auth.user.id)),
+        canEdit: Boolean(
+          auth && (auth.isAdmin || fusion.creatorUserId === auth.user.id),
+        ),
       },
     }
   } catch (error) {
     const handled = errorHandler(error)
     event.node.res.statusCode = handled.statusCode ?? 500
-    return { success: false, message: handled.message, statusCode: event.node.res.statusCode }
+    return {
+      success: false,
+      message: handled.message,
+      statusCode: event.node.res.statusCode,
+    }
   }
 })

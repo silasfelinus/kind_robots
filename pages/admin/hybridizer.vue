@@ -166,32 +166,53 @@
               <button
                 v-if="lab.canEditResult"
                 type="button"
-                :disabled="lab.versionBusy || !['READY', 'FAILED', 'CANCELLED'].includes(lab.result.status || '')"
+                :disabled="
+                  lab.versionBusy ||
+                  !['READY', 'FAILED', 'CANCELLED'].includes(
+                    lab.result.status || '',
+                  )
+                "
                 data-testid="hybridizer-resubmit"
                 @click="lab.resubmit()"
-              >✦ Try new art</button>
+              >
+                ✦ Try new art
+              </button>
               <button
                 v-if="reactionImageId"
                 type="button"
                 data-testid="hybridizer-upvote"
                 :disabled="upvoteBusy"
                 @click="upvote()"
-              >♥ Upvote <span v-if="upvoteCount">({{ upvoteCount }})</span></button>
+              >
+                ♥ Upvote <span v-if="upvoteCount">({{ upvoteCount }})</span>
+              </button>
               <button
                 v-if="reactionImageId"
                 type="button"
                 data-testid="hybridizer-reactions"
                 @click="reactionOpen = true"
-              >✎ Comment / rate</button>
+              >
+                ✎ Comment / rate
+              </button>
               <button type="button" @click="shareOpen = !shareOpen">
                 ↗ Share
               </button>
             </div>
-            <div v-if="shareOpen" class="hybrid-share" aria-label="Share discovery">
-              <button type="button" @click="shareFusion('copy')">Copy link</button>
+            <div
+              v-if="shareOpen"
+              class="hybrid-share"
+              aria-label="Share discovery"
+            >
+              <button type="button" @click="shareFusion('copy')">
+                Copy link
+              </button>
               <button type="button" @click="shareFusion('x')">X</button>
-              <button type="button" @click="shareFusion('facebook')">Facebook</button>
-              <button type="button" @click="shareFusion('reddit')">Reddit</button>
+              <button type="button" @click="shareFusion('facebook')">
+                Facebook
+              </button>
+              <button type="button" @click="shareFusion('reddit')">
+                Reddit
+              </button>
               <small>Signed-in visitors can view this discovery in Play.</small>
             </div>
             <div
@@ -201,7 +222,11 @@
             >
               <div class="version-title">
                 <span>ARTWORK HISTORY · {{ lab.versions.length }}</span>
-                <button v-if="previewJobId" type="button" @click="previewJobId = null">
+                <button
+                  v-if="previewJobId"
+                  type="button"
+                  @click="previewJobId = null"
+                >
                   View primary
                 </button>
               </div>
@@ -210,33 +235,55 @@
                   v-for="version in lab.versions"
                   :key="version.jobId"
                   class="version-item"
-                  :class="{ active: previewJobId === version.jobId || (!previewJobId && version.isPrimary) }"
+                  :class="{
+                    active:
+                      previewJobId === version.jobId ||
+                      (!previewJobId && version.isPrimary),
+                  }"
                 >
                   <button
                     type="button"
                     class="version-preview"
-                    :aria-label="'Preview artwork version ' + (version.revision + 1)"
+                    :aria-label="
+                      'Preview artwork version ' + (version.revision + 1)
+                    "
                     @click="previewJobId = version.jobId"
                   >
-                    <img v-if="version.imagePath" :src="version.imagePath" :alt="'Version ' + (version.revision + 1)" />
+                    <img
+                      v-if="version.imagePath"
+                      :src="version.imagePath"
+                      :alt="'Version ' + (version.revision + 1)"
+                    />
                     <span v-else>✧</span>
-                    <small>V{{ version.revision + 1 }} · {{ version.status }}</small>
+                    <small
+                      >V{{ version.revision + 1 }} · {{ version.status }}</small
+                    >
                   </button>
-                  <span v-if="version.isPrimary" class="primary-flag">PRIMARY</span>
+                  <span v-if="version.isPrimary" class="primary-flag"
+                    >PRIMARY</span
+                  >
                   <button
                     v-else-if="lab.canEditResult && version.imagePath"
                     class="promote-version"
                     type="button"
                     :disabled="lab.versionBusy"
                     @click="lab.makePrimary(version.jobId)"
-                  >Make primary</button>
+                  >
+                    Make primary
+                  </button>
                 </div>
               </div>
             </div>
             <div v-if="reactionOpen && reactionImageId" class="reaction-layer">
               <div class="reaction-layer-head">
                 <strong>Vote &amp; comment on this illustration</strong>
-                <button type="button" aria-label="Close reactions" @click="reactionOpen = false">✕</button>
+                <button
+                  type="button"
+                  aria-label="Close reactions"
+                  @click="reactionOpen = false"
+                >
+                  ✕
+                </button>
               </div>
               <ReactionCard
                 :key="reactionImageId"
@@ -248,10 +295,17 @@
                 @submitted="onReactionSubmitted"
               />
               <section class="hybrid-comments" aria-label="Artwork comments">
-                <h3>THE COMMUNITY'S FIELD NOTES · {{ reactionComments.length }}</h3>
-                <p v-if="!reactionComments.length">No field notes yet. Be the first to comment on this version.</p>
+                <h3>
+                  THE COMMUNITY'S FIELD NOTES · {{ reactionComments.length }}
+                </h3>
+                <p v-if="!reactionComments.length">
+                  No field notes yet. Be the first to comment on this version.
+                </p>
                 <article v-for="comment in reactionComments" :key="comment.id">
-                  <small>Member #{{ comment.userId }} · {{ comment.reactionType }}</small>
+                  <small
+                    >Member #{{ comment.userId }} ·
+                    {{ comment.reactionType }}</small
+                  >
                   <p>{{ comment.comment }}</p>
                 </article>
               </section>
@@ -427,7 +481,10 @@ import { computed, onMounted, onUnmounted, ref, watch } from 'vue'
 import ReactionCard from '@/components/wonderlab/reaction-card.vue'
 import { achievementsForGame } from '@/utils/achievements/gameAchievements'
 import { useAchievementStore } from '@/stores/achievementStore'
-import { useReactionStore, getReactionTargetPayload } from '@/stores/reactionStore'
+import {
+  useReactionStore,
+  getReactionTargetPayload,
+} from '@/stores/reactionStore'
 import { useUserStore } from '@/stores/userStore'
 import { useHybridizerStore } from '@/stores/hybridizerStore'
 
@@ -444,30 +501,50 @@ const previewVersion = computed(() =>
     ? lab.versions.find((version) => version.jobId === previewJobId.value)
     : undefined,
 )
-const previewArt = computed(() => previewVersion.value
-  ? previewVersion.value.imagePath
-  : lab.imageFor(lab.result))
-const reactionImageId = computed(() => previewVersion.value
-  ? previewVersion.value.artImageId
-  : lab.result?.artImageId)
+const previewArt = computed(() =>
+  previewVersion.value
+    ? previewVersion.value.imagePath
+    : lab.imageFor(lab.result),
+)
+const reactionImageId = computed(() =>
+  previewVersion.value
+    ? previewVersion.value.artImageId
+    : lab.result?.artImageId,
+)
 const badges = achievementsForGame('hybridizer')
-const imageReactions = computed(() => reactionImageId.value
-  ? reactionStore.getReactionsByArtImageId(reactionImageId.value)
-  : [])
-const upvoteCount = computed(() => new Set(imageReactions.value
-  .filter((reaction) =>
-    reaction.reactionType === 'LOVED' || reaction.reactionType === 'CLAPPED',
-  )
-  .map((reaction) => reaction.userId)).size)
+const imageReactions = computed(() =>
+  reactionImageId.value
+    ? reactionStore.getReactionsByArtImageId(reactionImageId.value)
+    : [],
+)
+const upvoteCount = computed(
+  () =>
+    new Set(
+      imageReactions.value
+        .filter(
+          (reaction) =>
+            reaction.reactionType === 'LOVED' ||
+            reaction.reactionType === 'CLAPPED',
+        )
+        .map((reaction) => reaction.userId),
+    ).size,
+)
 const reactionComments = computed(() =>
   imageReactions.value
     .filter((reaction) => reaction.comment?.trim())
-    .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+    .sort(
+      (a, b) =>
+        new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
+    )
     .slice(0, 25),
 )
-watch(reactionImageId, (id) => {
-  if (id) void reactionStore.fetchReactionsByArtImageId(id)
-}, { immediate: true })
+watch(
+  reactionImageId,
+  (id) => {
+    if (id) void reactionStore.fetchReactionsByArtImageId(id)
+  },
+  { immediate: true },
+)
 async function onReactionSubmitted() {
   reactionOpen.value = false
   if (reactionImageId.value)
@@ -497,18 +574,25 @@ async function upvote() {
     if (saved) void reactionStore.fetchReactionsByArtImageId(id, true)
     lab.status = saved
       ? 'Your upvote is attached to this artwork version.'
-      : reactionStore.lastError || 'Could not submit upvote. Sign in and try again.'
+      : reactionStore.lastError ||
+        'Could not submit upvote. Sign in and try again.'
   } catch (error) {
-    lab.status = error instanceof Error ? error.message : 'Could not submit upvote. Sign in and try again.'
+    lab.status =
+      error instanceof Error
+        ? error.message
+        : 'Could not submit upvote. Sign in and try again.'
   } finally {
     upvoteBusy.value = false
   }
 }
-watch(() => lab.result?.key, () => {
-  previewJobId.value = null
-  reactionOpen.value = false
-  shareOpen.value = false
-})
+watch(
+  () => lab.result?.key,
+  () => {
+    previewJobId.value = null
+    reactionOpen.value = false
+    shareOpen.value = false
+  },
+)
 async function shareFusion(platform: 'copy' | 'x' | 'facebook' | 'reddit') {
   const id = lab.result?.key.startsWith('fusion:')
     ? lab.result.key.slice(7)
@@ -521,16 +605,22 @@ async function shareFusion(platform: 'copy' | 'x' | 'facebook' | 'reddit') {
   if (platform === 'copy') {
     try {
       await navigator.clipboard.writeText(link)
-      lab.status = 'Discovery link copied. Signed-in visitors can view it in Play.'
+      lab.status =
+        'Discovery link copied. Signed-in visitors can view it in Play.'
     } catch {
-      lab.status = 'Clipboard unavailable. Use your browser address bar to copy the discovery URL.'
+      lab.status =
+        'Clipboard unavailable. Use your browser address bar to copy the discovery URL.'
     }
   } else {
-    const destination = platform === 'x'
-      ? 'https://twitter.com/intent/tweet?' + new URLSearchParams({ text: title, url: link })
-      : platform === 'facebook'
-        ? 'https://www.facebook.com/sharer/sharer.php?' + new URLSearchParams({ u: link })
-        : 'https://www.reddit.com/submit?' + new URLSearchParams({ url: link, title })
+    const destination =
+      platform === 'x'
+        ? 'https://twitter.com/intent/tweet?' +
+          new URLSearchParams({ text: title, url: link })
+        : platform === 'facebook'
+          ? 'https://www.facebook.com/sharer/sharer.php?' +
+            new URLSearchParams({ u: link })
+          : 'https://www.reddit.com/submit?' +
+            new URLSearchParams({ url: link, title })
     window.open(destination, '_blank', 'noopener,noreferrer')
   }
 }
@@ -1343,9 +1433,18 @@ onUnmounted(() => lab.stopArtworkWatch())
   font-weight: 800;
 }
 .hybrid-actions button:disabled,
-.promote-version:disabled { opacity: 0.45; cursor: not-allowed; }
-.hybrid-share small { width: 100%; font-size: 0.6rem; color: #eed4ff; }
-.hybrid-versions { min-width: 0; }
+.promote-version:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+.hybrid-share small {
+  width: 100%;
+  font-size: 0.6rem;
+  color: #eed4ff;
+}
+.hybrid-versions {
+  min-width: 0;
+}
 .version-title {
   display: flex;
   justify-content: space-between;
@@ -1369,8 +1468,14 @@ onUnmounted(() => lab.stopArtworkWatch())
   overflow: hidden;
   text-align: center;
 }
-.version-item.active { border-color: #e1fba9; box-shadow: 0 0 0 1px #e1fba9; }
-.version-preview { width: 100%; display: block; }
+.version-item.active {
+  border-color: #e1fba9;
+  box-shadow: 0 0 0 1px #e1fba9;
+}
+.version-preview {
+  width: 100%;
+  display: block;
+}
 .version-preview img,
 .version-preview > span {
   display: block;
@@ -1379,10 +1484,23 @@ onUnmounted(() => lab.stopArtworkWatch())
   object-fit: contain;
   background: #21132e;
 }
-.version-preview > span { font-size: 2rem; }
-.version-preview small { font-size: 0.53rem; display: block; }
-.primary-flag { display: block; color: #def1a7; font-size: 0.55rem; }
-.promote-version { width: 100%; font-size: 0.55rem; padding: 4px 1px; }
+.version-preview > span {
+  font-size: 2rem;
+}
+.version-preview small {
+  font-size: 0.53rem;
+  display: block;
+}
+.primary-flag {
+  display: block;
+  color: #def1a7;
+  font-size: 0.55rem;
+}
+.promote-version {
+  width: 100%;
+  font-size: 0.55rem;
+  padding: 4px 1px;
+}
 .reaction-layer {
   position: absolute;
   z-index: 20;
@@ -1393,14 +1511,50 @@ onUnmounted(() => lab.stopArtworkWatch())
   border-radius: 16px;
   background: #251733;
 }
-.reaction-layer-head { display: flex; justify-content: space-between; gap: 12px; }
-.reaction-layer-head button { font-size: 1.1rem; }
-.hybrid-badges { display: flex; gap: 8px; overflow-x: auto; color: #d2c1da; }
-.hybrid-badges span { flex: 0 0 auto; font-size: 0.63rem; font-weight: 800; }
-.hybrid-badges .earned { color: #e6fba4; }
-.hybrid-comments { margin-top: 10px; display: grid; gap: 8px; }
-.hybrid-comments h3 { font-size: 0.75rem; color: #e9f5ad; font-weight: 900; }
-.hybrid-comments article { border: 1px solid #c7adcc55; border-radius: 10px; padding: 8px; background: #381d48; }
-.hybrid-comments article small { color: #e5cbe9; font-size: 0.64rem; }
-.hybrid-comments article p { overflow-wrap: anywhere; font-size: 0.8rem; }
+.reaction-layer-head {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+}
+.reaction-layer-head button {
+  font-size: 1.1rem;
+}
+.hybrid-badges {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  color: #d2c1da;
+}
+.hybrid-badges span {
+  flex: 0 0 auto;
+  font-size: 0.63rem;
+  font-weight: 800;
+}
+.hybrid-badges .earned {
+  color: #e6fba4;
+}
+.hybrid-comments {
+  margin-top: 10px;
+  display: grid;
+  gap: 8px;
+}
+.hybrid-comments h3 {
+  font-size: 0.75rem;
+  color: #e9f5ad;
+  font-weight: 900;
+}
+.hybrid-comments article {
+  border: 1px solid #c7adcc55;
+  border-radius: 10px;
+  padding: 8px;
+  background: #381d48;
+}
+.hybrid-comments article small {
+  color: #e5cbe9;
+  font-size: 0.64rem;
+}
+.hybrid-comments article p {
+  overflow-wrap: anywhere;
+  font-size: 0.8rem;
+}
 </style>

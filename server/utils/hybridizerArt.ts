@@ -57,7 +57,10 @@ export function hybridizerArtSeed(fusionId: string): number {
 }
 
 // A new rendering changes only the art seed, never the canonical pair key.
-export function hybridizerRevisionSeed(fusionId: string, revision: number): number {
+export function hybridizerRevisionSeed(
+  fusionId: string,
+  revision: number,
+): number {
   if (!Number.isSafeInteger(revision) || revision < 0 || revision >= 12)
     throw new Error('Invalid hybrid illustration revision.')
   return (hybridizerArtSeed(fusionId) + revision * 7919) >>> 0

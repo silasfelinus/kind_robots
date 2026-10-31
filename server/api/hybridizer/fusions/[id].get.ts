@@ -3,7 +3,10 @@ import prisma from '~/server/utils/prisma'
 import { errorHandler } from '~/server/utils/error'
 import { getOptionalApiUser } from '~/server/utils/authGuard'
 import { clientIngredientKey } from '~/server/utils/hybridizerFusion'
-import { requireVisibleFusion, versionProjectSlug } from '~/server/utils/hybridizerVersions'
+import {
+  requireVisibleFusion,
+  versionProjectSlug,
+} from '~/server/utils/hybridizerVersions'
 
 export default defineEventHandler(async (event) => {
   try {
@@ -18,7 +21,10 @@ export default defineEventHandler(async (event) => {
         key: 'fusion:' + fusion.id,
         title: fusion.title,
         taxonomy: 'HYBRID',
-        sources: [clientIngredientKey(fusion.leftKey), clientIngredientKey(fusion.rightKey)],
+        sources: [
+          clientIngredientKey(fusion.leftKey),
+          clientIngredientKey(fusion.rightKey),
+        ],
         depth: fusion.depth,
         status: fusion.status,
         createdAt: fusion.createdAt,
@@ -29,6 +35,10 @@ export default defineEventHandler(async (event) => {
   } catch (error) {
     const handled = errorHandler(error)
     event.node.res.statusCode = handled.statusCode ?? 500
-    return { success: false, message: handled.message, statusCode: event.node.res.statusCode }
+    return {
+      success: false,
+      message: handled.message,
+      statusCode: event.node.res.statusCode,
+    }
   }
 })

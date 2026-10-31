@@ -250,7 +250,11 @@ export const useHybridizerStore = defineStore('hybridizer', () => {
 
   async function resubmit(): Promise<void> {
     const key = resultKey.value
-    if (!key?.startsWith('fusion:') || !canEditResult.value || versionBusy.value)
+    if (
+      !key?.startsWith('fusion:') ||
+      !canEditResult.value ||
+      versionBusy.value
+    )
       return
     versionBusy.value = true
     try {
@@ -268,7 +272,8 @@ export const useHybridizerStore = defineStore('hybridizer', () => {
       })
       if (!pendingKeys.value.includes(key))
         pendingKeys.value = [...pendingKeys.value, key]
-      status.value = 'New version queued. Previous artwork is saved in the revision gallery.'
+      status.value =
+        'New version queued. Previous artwork is saved in the revision gallery.'
       await loadVersions(key)
       void achievementStore.rewardAchievementByCode('hybridizer-art-critic')
     } finally {
@@ -278,7 +283,11 @@ export const useHybridizerStore = defineStore('hybridizer', () => {
 
   async function makePrimary(jobId: number): Promise<void> {
     const key = resultKey.value
-    if (!key?.startsWith('fusion:') || !canEditResult.value || versionBusy.value)
+    if (
+      !key?.startsWith('fusion:') ||
+      !canEditResult.value ||
+      versionBusy.value
+    )
       return
     versionBusy.value = true
     try {
@@ -287,7 +296,11 @@ export const useHybridizerStore = defineStore('hybridizer', () => {
         artImageId: number
         imagePath: string
       }>(
-        '/api/hybridizer/fusions/' + key.slice(7) + '/versions/' + jobId + '/promote',
+        '/api/hybridizer/fusions/' +
+          key.slice(7) +
+          '/versions/' +
+          jobId +
+          '/promote',
         { method: 'POST' },
       )
       if (!response.success || !response.data) {
@@ -305,7 +318,8 @@ export const useHybridizerStore = defineStore('hybridizer', () => {
         status: 'READY',
       })
       pendingKeys.value = pendingKeys.value.filter((entry) => entry !== key)
-      status.value = 'Primary illustration updated. Every earlier version remains available.'
+      status.value =
+        'Primary illustration updated. Every earlier version remains available.'
       await loadVersions(key)
     } finally {
       versionBusy.value = false
@@ -493,7 +507,9 @@ export const useHybridizerStore = defineStore('hybridizer', () => {
       void loadVersions(discovery.key)
       void achievementStore.rewardAchievementByCode('hybridizer-first-fusion')
       if (a.depth || b.depth)
-        void achievementStore.rewardAchievementByCode('hybridizer-recursive-discovery')
+        void achievementStore.rewardAchievementByCode(
+          'hybridizer-recursive-discovery',
+        )
       if (discovery.status === 'READY') void refreshArtwork(discovery.key)
       else if (discovery.artJobId) void refreshArtwork(discovery.key)
       else void enqueueArtwork(discovery.key)

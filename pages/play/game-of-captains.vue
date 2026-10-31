@@ -331,6 +331,8 @@
               v-if="selectionScreen === 'stars'"
               :large-text="store.preferences.largeText"
               :reduced-motion="store.preferences.reducedMotion"
+              :artwork="store.onboardingArt"
+              :artwork-ready="store.onboardingArtLoaded"
               @confirm="confirmStarAssessment"
               @back="selectionScreen = 'background'"
             />
@@ -371,15 +373,20 @@
                     @click="selectedOrigin = origin.id"
                   >
                     <img
+                      v-if="store.onboardingArtLoaded"
                       class="cap-origin-art"
                       :src="
+                        store.onboardingArt['origins/' + origin.id] ||
                         warpArt('origins/' + origin.id) ||
                         '/game-of-captains/space-couch-stage.svg'
                       "
                       :alt="'Art for ' + origin.name"
                       @load="markOriginReady(origin.id)"
-                      @error="markOriginReady(origin.id)"
+                      @error="onOriginArtError($event, origin.id)"
                     />
+                    <div v-else class="cap-origin-art cap-origin-art--waiting" role="status">
+                      REQUISITIONING ART…
+                    </div>
                     <span class="cap-origin-copy"
                       ><strong>{{ origin.name }}</strong
                       ><small>{{ origin.summary }}</small
@@ -1732,6 +1739,15 @@ const captainArtReady = ref<Record<string, boolean>>({})
 function markOriginReady(id: string) {
   originReady.value[id] = true
 }
+function onOriginArtError(event: Event, id: string) {
+  const image = event.target as HTMLImageElement
+  const fallback = '/game-of-captains/space-couch-stage.svg'
+  if (image.getAttribute('src') === fallback) {
+    markOriginReady(id)
+  } else {
+    image.src = fallback
+  }
+}
 const atTitle = ref(true)
 const titlePanel = ref<'home' | 'settings' | 'log'>('home')
 const confirmNewVoyage = ref(false)
@@ -1983,7 +1999,10 @@ function startNewVoyage() {
   titlePanel.value = 'home'
   restartVoyage()
 }
-onMounted(() => store.load())
+onMounted(() => {
+  store.load()
+  void store.loadOnboardingArt()
+})
 useSeoMeta(
   gameLinkPreviewMeta(
     'game-of-captains',
@@ -2455,6 +2474,15 @@ function toggleAway(id: CrewId) {
   object-fit: cover;
   object-position: center;
   border-radius: 0.35rem;
+}
+.cap-personnel-frame .cap-origin-art--waiting {
+  display: grid;
+  place-items: center;
+  background: #0a1c30;
+  color: #bad0de;
+  font-size: 0.57rem;
+  letter-spacing: 0.12em;
+  text-align: center;
 }
 .cap-personnel-frame .cap-origin-copy {
   display: grid;

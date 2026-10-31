@@ -56,7 +56,8 @@
         Scylla has not yet reached this shoreline.
       </h3>
       <p class="max-w-lg text-sm leading-relaxed text-[#d6c5a9]">
-        Complete Morrow’s tide-gate crossing before Scylla can wake in the final days of her childhood.
+        Complete Morrow’s tide-gate crossing before Scylla can wake in the final
+        days of her childhood.
       </p>
       <button type="button" class="btn btn-warning" @click="emit('leave')">
         Return to the city
@@ -141,7 +142,9 @@
         <template v-if="sea.current">
           <div
             class="relative flex min-h-[8rem] flex-[1_1_42%] flex-col justify-end overflow-hidden border-b border-[#a68a6b]/40 p-3"
-            :class="sea.active === 'e06' ? 'md-sea-stage-night' : 'md-sea-stage-pearl'"
+            :class="
+              sea.active === 'e06' ? 'md-sea-stage-night' : 'md-sea-stage-pearl'
+            "
           >
             <img
               v-if="sea.current.sceneArt.status === 'delivered'"
@@ -233,7 +236,8 @@
               class="mt-2 rounded-xl border border-[#eac68a]/60 bg-[#504033] p-2"
             >
               <p class="mb-2 text-xs text-[#ffe9bf]">
-                You have found both photographs and the sisters’ decision at the far gate. The remaining palace chambers stay explorable.
+                You have found both photographs and the sisters’ decision at the
+                far gate. The remaining palace chambers stay explorable.
               </p>
               <button
                 type="button"

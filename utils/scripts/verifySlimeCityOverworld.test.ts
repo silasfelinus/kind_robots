@@ -42,6 +42,9 @@ import {
 import {
   CARDS,
   createMatch,
+  deploy,
+  deployAs,
+  observe,
   DISTRICTS,
   MODES,
   TEAMS,
@@ -489,6 +492,35 @@ assert.equal(
   ).mana,
   4,
 )
+const scenario = applyTerms(
+  createMatch('blackout', 'catgirls', 'bloodfairies', 2001, {
+    classicFog: true,
+  }),
+  { playerHp: 2, enemyArmor: 1, fewerRivals: 1 },
+)
+assert.equal(scenario.units.length, 0)
+assert.equal(
+  observe(scenario, 'enemy').fieldCap,
+  observe(createMatch('blackout', 'catgirls', 'bloodfairies', 2001, {
+    classicFog: true,
+  }), 'enemy').fieldCap - 1,
+)
+const summoned = deploy(scenario, 'lynx', 0, 0)
+const lynx = summoned.units.find((unit) => unit.side === 'player')
+assert.ok(lynx, 'A chapter buff must survive an initially empty battlefield')
+assert.equal(lynx.maxHp, 4, 'Your HP bonus applies when a card is summoned')
+assert.equal(lynx.hp, 4)
+const withEnemy = deployAs(summoned, 'enemy', 'sprite', 7, 0)
+const sprite = withEnemy.units.find((unit) => unit.side === 'enemy')
+assert.ok(sprite)
+assert.equal(sprite.armor, 1, 'Rival armor applies to future enemy summons')
+assert.equal(
+  withEnemy.scenarioBonus?.fewerRivals,
+  1,
+  'The enemy field cap reduction persists through recorded deployments',
+)
+assert.equal(scenario.units.length, 0, 'Applying terms and summoning are pure')
+
 console.log('Slime City campaign street consequence contract PASS')
 
 // Store flow: walk a street, decide, fight the rival under those terms,

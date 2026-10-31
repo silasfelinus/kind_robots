@@ -173,6 +173,7 @@ import {
   reconcileMemoryAchievements,
   restoreMemoryAchievements,
 } from '~/utils/memoryDungeon/achievements'
+import type { HoshimoriWarmProgress } from '~/utils/memoryDungeon/hoshimoriWarm'
 import { briarLossContinuation } from '~/utils/memoryDungeon/lossContinuations'
 import {
   BRIAR_REVEAL_WAVES,
@@ -375,12 +376,13 @@ export const useMemoryWorldStore = defineStore('memoryWorld', () => {
       state.value.house?.decisions ?? {},
     ),
   )
-  function syncAchievements(): void {
+  function syncAchievements(hoshimori?: HoshimoriWarmProgress): void {
     const next = reconcileMemoryAchievements(
       earnedAchievementIds.value,
       briarRareEvents.value,
       state.value,
       dark.value,
+      hoshimori,
     )
     if (next.length === earnedAchievementIds.value.length) return
     earnedAchievementIds.value = next
@@ -567,6 +569,11 @@ export const useMemoryWorldStore = defineStore('memoryWorld', () => {
     if (next === earthChronicle.value) return
     earthChronicle.value = next
     persistEarthChronicle()
+  }
+
+  function syncHoshimoriAchievements(progress: HoshimoriWarmProgress): void {
+    if (!campaign.value.completed.includes('e06')) return
+    syncAchievements(progress)
   }
 
   function syncHoshimoriPhoto(choices: Readonly<Record<string, string>>): void {
@@ -2308,6 +2315,7 @@ export const useMemoryWorldStore = defineStore('memoryWorld', () => {
     earthChronicle,
     earthPhotos,
     answerEarthPhoto,
+    syncHoshimoriAchievements,
     syncHoshimoriPhoto,
     syncHoshimoriNightPhoto,
     activeReality,

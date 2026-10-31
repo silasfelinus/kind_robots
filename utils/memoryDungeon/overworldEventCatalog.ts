@@ -101,7 +101,7 @@ function generated(
   const mirror = world.id === 'e08' ? mirrorTitles.get(key) : undefined
   const photo = photos.get(world.id)?.find((item) => item.site === key)
   const fragment = ['e09', 'e10', 'e11', 'e12'].includes(world.id) &&
-    ((x === 2 && y === 2) || (x === 7 && y === 6))
+    ((x === 2 && y === (world.id === 'e11' ? 3 : 2)) || (x === 7 && y === 6))
   const kind = photo ? 'memory' : category(x, y)
   const opening = [
     mirror ? 'This was once ' + mirror + '.' : '',

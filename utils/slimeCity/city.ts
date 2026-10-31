@@ -729,6 +729,33 @@ export function streetsFrom(id: DistrictId): {
   )
 }
 
+/** Shortest navigable route on the nine two-way streets, with stable tie-breaking. */
+export function cityRoute(
+  from: DistrictId,
+  to: DistrictId,
+): { from: DistrictId; to: DistrictId; street: string }[] {
+  if (from === to) return []
+  const seen = new Set<DistrictId>([from])
+  const queue: {
+    at: DistrictId
+    path: { from: DistrictId; to: DistrictId; street: string }[]
+  }[] = [{ at: from, path: [] }]
+  for (let i = 0; i < queue.length; i++) {
+    const current = queue[i]!
+    for (const step of streetsFrom(current.at)) {
+      if (seen.has(step.to)) continue
+      const path = [
+        ...current.path,
+        { from: current.at, to: step.to, street: step.street },
+      ]
+      if (step.to === to) return path
+      seen.add(step.to)
+      queue.push({ at: step.to, path })
+    }
+  }
+  return []
+}
+
 /** Why a district is closed right now, or null when it is open. */
 export function gateReason(city: CityState, id: DistrictId): string | null {
   const gate = CITY_PLAN[id].gate

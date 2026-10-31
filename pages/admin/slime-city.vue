@@ -44,7 +44,10 @@
           </button>
         </nav>
         <div class="sc-hud">
-          <span class="sc-led"></span> ACCOUNT <strong>{{ lab.progressLoaded ? lab.progress.meat + ' MEAT' : 'SIGN IN' }}</strong>
+          <span class="sc-led"></span> ACCOUNT
+          <strong>{{
+            lab.progressLoaded ? lab.progress.meat + ' MEAT' : 'SIGN IN'
+          }}</strong>
         </div>
       </header>
 
@@ -609,7 +612,8 @@
               <h2>FIGHT. EARN. COLLECT.</h2>
               <p>
                 All six ten-card starter decks stay available. Your XP, Meat,
-                owned cards, and challenges are saved to your Kind Robots account.
+                owned cards, and challenges are saved to your Kind Robots
+                account.
               </p>
             </div>
             <div class="sc-progress-hud">
@@ -619,8 +623,16 @@
             </div>
           </div>
           <div class="sc-progression-scroll kr-scroll">
-            <p v-if="lab.progressBusy" class="sc-progress-alert" role="status">Syncing with your Kind Robots account…</p>
-            <p v-if="lab.progressError" class="sc-progress-alert sc-progress-error" role="alert">{{ lab.progressError }}</p>
+            <p v-if="lab.progressBusy" class="sc-progress-alert" role="status">
+              Syncing with your Kind Robots account…
+            </p>
+            <p
+              v-if="lab.progressError"
+              class="sc-progress-alert sc-progress-error"
+              role="alert"
+            >
+              {{ lab.progressError }}
+            </p>
             <div class="sc-reward-columns">
               <div class="sc-reward-panel">
                 <span class="sc-overline">THE PIT PAYS</span>
@@ -643,7 +655,9 @@
                 >
                   START REWARDED CPU BATTLE →
                 </button>
-                <small aria-live="polite">{{ lab.progressError || lab.progress.lastReward }}</small>
+                <small aria-live="polite">{{
+                  lab.progressError || lab.progress.lastReward
+                }}</small>
               </div>
               <div class="sc-reward-panel sc-shop-panel">
                 <span class="sc-overline">THE PACK SHOP</span>
@@ -717,7 +731,9 @@
                   <small>+{{ quest.meat }} MEAT · +{{ quest.xp }} XP</small>
                   <button
                     type="button"
-                    :disabled="!quest.ready || lab.progressBusy || !lab.progressLoaded"
+                    :disabled="
+                      !quest.ready || lab.progressBusy || !lab.progressLoaded
+                    "
                     :data-testid="'slime-claim-' + quest.id"
                     @click="lab.claimReward(quest.id)"
                   >
@@ -733,9 +749,10 @@
               </div>
             </div>
             <small class="sc-progression-note"
-              >All XP, Meat, collection and challenge claims are account-bound in Kind Robots’ database.
-              Only server-issued CPU matches award rewards. No cash, paid card packs,
-              or trading. Public launch remains gated.</small
+              >All XP, Meat, collection and challenge claims are account-bound
+              in Kind Robots’ database. Only server-issued CPU matches award
+              rewards. No cash, paid card packs, or trading. Public launch
+              remains gated.</small
             >
           </div>
         </section>
@@ -927,8 +944,9 @@
             <p>{{ currentMode.detail }}</p>
             <p>{{ lab.guide.goal }}</p>
             <p>
-              Start a reward-eligible CPU battle from REWARDS to earn XP and Meat
-              for your account. Free laboratory matches do not award currency.
+              Start a reward-eligible CPU battle from REWARDS to earn XP and
+              Meat for your account. Free laboratory matches do not award
+              currency.
             </p>
           </div>
         </aside>
@@ -2795,6 +2813,16 @@ onUnmounted(() => lab.dispose())
     padding: 0 0.6rem 0.7rem;
   }
 }
-.sc-progress-alert { margin: 0; padding: 0.5rem 0.75rem; background: #35405a; border: 1px solid #9ab7d8; font-size: 0.75rem; border-radius: 0.4rem; }
-.sc-progress-error { background: #4b233a; border-color: #ff8db3; }
+.sc-progress-alert {
+  margin: 0;
+  padding: 0.5rem 0.75rem;
+  background: #35405a;
+  border: 1px solid #9ab7d8;
+  font-size: 0.75rem;
+  border-radius: 0.4rem;
+}
+.sc-progress-error {
+  background: #4b233a;
+  border-color: #ff8db3;
+}
 </style>

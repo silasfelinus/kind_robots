@@ -1,4 +1,5 @@
-import { createError } from 'h3'
+import { createError, type H3Event } from 'h3'
+import { requireHumanApiUser } from './authGuard'
 import { randomInt } from 'node:crypto'
 import prisma from './prisma'
 import type { Prisma } from '~/prisma/generated/prisma/client'
@@ -11,6 +12,14 @@ import {
   newProgression, refreshPeriods, restoreProgression,
   type Progression,
 } from '~/utils/slimeCity/progression'
+
+/** /admin/slime-city is an internal preview. Keep rewards off the public API surface. */
+export async function requireSlimeCityPreviewUser(event: H3Event) {
+  const auth = await requireHumanApiUser(event)
+  if (!auth.isAdmin || auth.user.isGuest)
+    throw createError({ statusCode: 403, message: 'Slime City progression is admin-preview only.' })
+  return auth
+}
 
 const toJson = (data: unknown) => JSON.parse(JSON.stringify(data)) as Prisma.InputJsonValue
 

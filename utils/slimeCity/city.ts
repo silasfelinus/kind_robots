@@ -597,7 +597,8 @@ export const CITY_CONTRACTS: Record<DistrictId, CityContract> = {
     opponent: 'Razorwing Choir',
     team: 'bloodfairies',
     terms: { enemyMana: 2, playerHp: 1 },
-    victory: 'The roofs stay put. The fairies dedicate their loudest song to you.',
+    victory:
+      'The roofs stay put. The fairies dedicate their loudest song to you.',
     failure: 'The stolen rooftops become a new floating police checkpoint.',
     standing: 2,
     heat: -1,

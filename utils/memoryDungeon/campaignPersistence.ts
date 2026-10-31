@@ -60,20 +60,27 @@ export function restoreMemoryCampaignProgress(
   // middle worlds in a different order, without granting any missing worlds.
   // A claim about history is not proof that its prerequisites were earned.
   const isCurrentSave = saved.campaignVersion === 2
-  const oldFinale = (
+  // Older saves used e09–e16 for different geographies. Current saves
+  // reserve e09–e12 for the collision finale, but e13–e16 must still be
+  // archived if an intermediate save left them in the completed list.
+  const historicalFromCompleted = (
     Array.isArray(saved.completed) ? saved.completed : []
+  ).filter(
+    (id): id is ExperienceId =>
+      typeof id === 'string' &&
+      (isCurrentSave
+        ? /^e(?:13|14|15|16)$/.test(id)
+        : /^e(?:09|10|11|12|13|14|15|16)$/.test(id)),
+  )
+  const historicalFromArchive = (
+    Array.isArray(saved.legacyCompleted) ? saved.legacyCompleted : []
   ).filter(
     (id): id is ExperienceId =>
       typeof id === 'string' && /^e(?:09|10|11|12|13|14|15|16)$/.test(id),
   )
-  const legacyCompleted = isCurrentSave
-    ? Array.isArray(saved.legacyCompleted)
-      ? saved.legacyCompleted.filter(
-          (id): id is ExperienceId =>
-            typeof id === 'string' && /^e(?:09|10|11|12|13|14|15|16)$/.test(id),
-        )
-      : []
-    : oldFinale
+  const legacyCompleted = [
+    ...new Set([...historicalFromArchive, ...historicalFromCompleted]),
+  ]
   const canonicalRequested: ExperienceId[] = [
     ...MEMORY_REALITY_PAIRS.flat(),
     ...(isCurrentSave ? MEMORY_COLLISION_ORDER : []),

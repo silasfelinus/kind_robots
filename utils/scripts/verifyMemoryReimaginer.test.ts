@@ -231,6 +231,43 @@ for (const id of MEMORY_COLLISION_ORDER) {
 }
 assert.deepEqual(availableMemoryExperiences(finale), [])
 assert.equal(finale.completed.length, 12)
+
+// The twelve-world rewrite must never discard old e13–e16 save history.
+// Nor may a retired world silently count as one of the four new finale maps.
+const retiredWorlds = ['e13', 'e14', 'e15', 'e16'] as const
+for (let mask = 0; mask < 16; mask++) {
+  const retired = retiredWorlds.filter((_, index) => mask & (1 << index))
+  const restored = restoreMemoryCampaignProgress({
+    ...newMemoryCampaignProgress(),
+    completed: [...retired, ...retired],
+    legacyCompleted: ['e09', 'e16', 'e09'],
+  })
+  assert.deepEqual(restored.legacyCompleted, [
+    ...new Set(['e09', 'e16', ...retired]),
+  ])
+  assert.deepEqual(restored.completed, [])
+  assert.deepEqual(availableMemoryExperiences(restored), ['e01'])
+  assert.deepEqual(
+    restoreMemoryCampaignProgress(JSON.parse(JSON.stringify(restored))),
+    restored,
+    'Retired progress must survive another save/restore without duplication',
+  )
+}
+const historicalSave = restoreMemoryCampaignProgress({
+  completed: ['e09', 'e12', 'e13', 'e16', 'e13'],
+  finaleCommitted: true,
+})
+assert.deepEqual(historicalSave.legacyCompleted, ['e09', 'e12', 'e13', 'e16'])
+assert.deepEqual(historicalSave.completed, [])
+assert.deepEqual(availableMemoryExperiences(historicalSave), ['e01'])
+const mixedVersionSave = restoreMemoryCampaignProgress({
+  ...newMemoryCampaignProgress(),
+  completed: ['e09', 'e13', 'e14'],
+  legacyCompleted: ['e16'],
+})
+assert.deepEqual(mixedVersionSave.legacyCompleted, ['e16', 'e13', 'e14'])
+assert.deepEqual(mixedVersionSave.completed, [])
+assert.deepEqual(availableMemoryExperiences(mixedVersionSave), ['e01'])
 assert.ok(memoryEndingConsequences(finale).includes('briar-office-key'))
 assert.ok(memoryCoreEndingId(finale) !== null)
 assert.throws(

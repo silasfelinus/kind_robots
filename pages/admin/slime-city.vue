@@ -106,10 +106,10 @@
                 :x2="street.x2"
                 :y2="street.y2"
                 :class="{
-                open: street.open,
-                witnessed: street.witnessed,
-                planned: street.planned,
-              }"
+                  open: street.open,
+                  witnessed: street.witnessed,
+                  planned: street.planned,
+                }"
               />
             </svg>
             <button

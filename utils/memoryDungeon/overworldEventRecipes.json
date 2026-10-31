@@ -1,0 +1,969 @@
+{
+  "version": 1,
+  "notes": "Authoring recipes, not delivered art or shipped playable stages. e01/e02/e07 have independent richer sources. Each district and device intersection is a stable named site; choice results are stored per coordinate.",
+  "worlds": [
+    {
+      "id": "e03",
+      "title": "Morrow's Shift",
+      "voice": "Morrow",
+      "visual": "candid contemporary city in rain, warm ordinary gestures, anxious fey observer",
+      "thread": "Morrow learns that work and friendship require repair rather than a spell",
+      "districts": [
+        {
+          "name": "Station Concourse",
+          "scene": "Trains obey printed timetables but the first ticket machine speaks in fees instead of riddles.",
+          "character": "a patient commuter",
+          "stake": "whether to accept help without owing a magical favor"
+        },
+        {
+          "name": "Research Annex",
+          "scene": "Morrow has been hired to check the numbers rather than charm the instruments.",
+          "character": "a skeptical laboratory colleague",
+          "stake": "who owns an error when the person wearing the face is new"
+        },
+        {
+          "name": "Public Library",
+          "scene": "The computer gives Morrow the answer but not the question that makes it useful.",
+          "character": "a meticulous librarian",
+          "stake": "the right to learn without pretending expertise"
+        },
+        {
+          "name": "Night-School Corridor",
+          "scene": "The class studies probability as if the future can be reasoned with.",
+          "character": "an overworked teacher",
+          "stake": "whether to admit not understanding"
+        },
+        {
+          "name": "Community Kitchen",
+          "scene": "Soup is served by people who volunteer after an exhausting shift.",
+          "character": "a shift cook",
+          "stake": "a meal freely given versus a favor demanded"
+        },
+        {
+          "name": "Riverside Flats",
+          "scene": "A neighbor carries groceries upstairs and waves to a person Morrow has never met.",
+          "character": "a neighbor with spare keys",
+          "stake": "being known by a name earned by somebody else"
+        },
+        {
+          "name": "Clinic Waiting Room",
+          "scene": "The queue has no royal privileges and every patient has an appointment number.",
+          "character": "a nurse sorting urgent cases",
+          "stake": "whose need is allowed to interrupt the rules"
+        },
+        {
+          "name": "Floodlit Night Park",
+          "scene": "The city is quiet enough for Morrow to try an impossible working.",
+          "character": "a late-shift cleaner",
+          "stake": "whether magic has failed or Morrow has misunderstood courage"
+        }
+      ],
+      "devices": [
+        {
+          "name": "Lost Transit Pass",
+          "intrusion": "A commuter drops a pass that will carry one more person home.",
+          "offer": "return the pass to its owner",
+          "warning": "use it to reach someone who needs help"
+        },
+        {
+          "name": "Mismatched Forms",
+          "intrusion": "Two forms demand incompatible answers about a life Morrow did not live.",
+          "offer": "disclose the contradiction",
+          "warning": "improvise an answer that may create a future debt"
+        },
+        {
+          "name": "Unopened Letter",
+          "intrusion": "A friend's envelope bears the protagonist's familiar handwriting.",
+          "offer": "ask the sender before opening",
+          "warning": "preserve the letter intact for the rightful recipient"
+        },
+        {
+          "name": "Broken Stopwatch",
+          "intrusion": "An experiment is running late and the technician blames their own hands.",
+          "offer": "check the recorded steps together",
+          "warning": "repair the device without taking the credit"
+        },
+        {
+          "name": "Secondhand Coat",
+          "intrusion": "Someone has repaired a coat and left it for an unknown next owner.",
+          "offer": "trace the donor's intention",
+          "warning": "take the coat to a person caught in rain"
+        },
+        {
+          "name": "Shift Roster",
+          "intrusion": "A name appears on a shift nobody agreed to cover.",
+          "offer": "find a willing replacement",
+          "warning": "cover the shift and risk losing another promise"
+        },
+        {
+          "name": "Paper Cup",
+          "intrusion": "One steaming cup of tea sits across from an empty chair.",
+          "offer": "wait for the person invited",
+          "warning": "carry the tea to a worker who cannot leave their station"
+        },
+        {
+          "name": "Handwritten Map",
+          "intrusion": "A child's map describes the city with monsters where grown-ups see traffic.",
+          "offer": "follow the child's actual safe crossing",
+          "warning": "ask which frightening landmark the child needs renamed"
+        }
+      ]
+    },
+    {
+      "id": "e04",
+      "title": "The Unbelieving City",
+      "voice": "Morrow",
+      "visual": "recognizable rainy city under impossible golden weather, stalled trains and emergency lights",
+      "thread": "The same streets turn dangerous; rescuing people matters more than proving the spell",
+      "districts": [
+        {
+          "name": "Station Concourse",
+          "scene": "The timetables now predict arrivals by the passenger's deepest regret.",
+          "character": "a stranded station steward",
+          "stake": "whether a crossing should remain open at mortal cost"
+        },
+        {
+          "name": "Research Annex",
+          "scene": "A glass corridor holds a storm that has learned to count names.",
+          "character": "a research volunteer",
+          "stake": "emergency shelter before explanation"
+        },
+        {
+          "name": "Public Library",
+          "scene": "Unreturned books crawl home by themselves and lock the doors behind patrons.",
+          "character": "a librarian protecting visitors",
+          "stake": "public access rather than perfect containment"
+        },
+        {
+          "name": "Night-School Corridor",
+          "scene": "A lesson in probability has become an exam where wrong answers erase doors.",
+          "character": "a student leading others",
+          "stake": "truth without impossible certainty"
+        },
+        {
+          "name": "Community Kitchen",
+          "scene": "The cauldrons serve memories instead of soup and hungry people forget whom they came with.",
+          "character": "the exhausted kitchen crew",
+          "stake": "feeding a body without taking a history"
+        },
+        {
+          "name": "Riverside Flats",
+          "scene": "The apartment stairwell has grown a new landing every time someone says goodbye.",
+          "character": "a neighbor carrying supplies",
+          "stake": "getting home without sacrificing strangers"
+        },
+        {
+          "name": "Clinic Waiting Room",
+          "scene": "The queue floats into the ceiling while medicine still needs refrigeration.",
+          "character": "a nurse with a clipboard",
+          "stake": "preserving practical care amid magic"
+        },
+        {
+          "name": "Floodlit Night Park",
+          "scene": "The harmless place Morrow tried his spell now shelters a tide gate with a failing anchor.",
+          "character": "Scylla, Char and a rescue team",
+          "stake": "the disclosed danger to Char, commuters and maintenance workers"
+        }
+      ],
+      "devices": [
+        {
+          "name": "Silent Siren",
+          "intrusion": "An ambulance arrives with its warning trapped in a glass bubble.",
+          "offer": "release the sound so others can flee",
+          "warning": "escort the injured before the noise draws predators"
+        },
+        {
+          "name": "Rain That Remembers",
+          "intrusion": "Golden rain repeats the last promise each person broke.",
+          "offer": "shelter the witnesses and record consent",
+          "warning": "use the exposed promises to locate missing people"
+        },
+        {
+          "name": "Unmanned Train",
+          "intrusion": "A train returns with all its seats full of coats and no passengers.",
+          "offer": "trace the emergency exits",
+          "warning": "board to recover a missing transit worker"
+        },
+        {
+          "name": "Stalled Lift",
+          "intrusion": "Two trapped people can hear a stairwell that no longer exists.",
+          "offer": "stabilize the lift before opening it",
+          "warning": "find a longer safe route through the service hall"
+        },
+        {
+          "name": "Refuge Ledger",
+          "intrusion": "A relief board lists more refugees than the room can hold.",
+          "offer": "share capacity transparently",
+          "warning": "search the adjacent building for more space"
+        },
+        {
+          "name": "Fractured Antenna",
+          "intrusion": "Phone calls reach yesterday's caller rather than today's.",
+          "offer": "pass a warning via a human courier",
+          "warning": "ask yesterday's witness what the device missed"
+        },
+        {
+          "name": "Wading Shadow",
+          "intrusion": "A shadow shaped like a tidal animal follows the river uphill.",
+          "offer": "redirect the creature away from civilians",
+          "warning": "track its connection to the failing sea anchor"
+        },
+        {
+          "name": "Sealed Envelope",
+          "intrusion": "A letter promises that everyone here will be safe if one district disappears.",
+          "offer": "challenge who made the bargain",
+          "warning": "examine the hidden evacuation map before agreeing"
+        }
+      ]
+    },
+    {
+      "id": "e05",
+      "title": "Scylla's Shore",
+      "voice": "Scylla",
+      "visual": "luminous underwater royal childhood, pearl halls, playful siblings and ominous tidal clocks",
+      "thread": "Scylla remembers the future while younger Char does not; the escape is genuinely hers to choose",
+      "districts": [
+        {
+          "name": "Pearl Stair",
+          "scene": "The sisters used to race the incoming tide up these stairs.",
+          "character": "younger Char",
+          "stake": "whether to share knowledge of a danger Char cannot remember"
+        },
+        {
+          "name": "Council Gallery",
+          "scene": "Portraits of queens can hear every word spoken beneath them.",
+          "character": "a reform-minded councilor",
+          "stake": "law versus family freedom"
+        },
+        {
+          "name": "Coral Nursery",
+          "scene": "Small creatures live in borrowed shells nobody remembers lending.",
+          "character": "a nursery keeper",
+          "stake": "ownership of shelter"
+        },
+        {
+          "name": "Oren's Supply Vault",
+          "scene": "Every departure pack has been counted twice and weighed once.",
+          "character": "the hooded headsman Oren",
+          "stake": "honest logistical risk rather than romantic bravado"
+        },
+        {
+          "name": "Festival Court",
+          "scene": "Musicians rehearse a farewell song the royals have forbidden.",
+          "character": "an irreverent court musician",
+          "stake": "spectacle against private grief"
+        },
+        {
+          "name": "Tide Observatory",
+          "scene": "Tomorrow's currents move on glass dials while Scylla recalls a future outside them.",
+          "character": "a tidal scholar",
+          "stake": "evidence that cannot be safely proven"
+        },
+        {
+          "name": "Servants' Jetty",
+          "scene": "The palace's workers know more about escape routes than their rulers.",
+          "character": "a dockhand with a family",
+          "stake": "choosing who bears the work of a secret voyage"
+        },
+        {
+          "name": "Hidden Landward Gate",
+          "scene": "Char has hidden boots for both sisters behind an ancient anchor.",
+          "character": "Char and a worried Oren",
+          "stake": "whether to run again, remain or tell the truth"
+        }
+      ],
+      "devices": [
+        {
+          "name": "Tangled Coronets",
+          "intrusion": "Two old crowns are knotted together by a fisherman's line.",
+          "offer": "separate them without declaring a favorite",
+          "warning": "learn who tied them for protection"
+        },
+        {
+          "name": "Unsent Invitation",
+          "intrusion": "A sealed ball invitation names a guest who was never allowed to attend.",
+          "offer": "deliver it by the servant route",
+          "warning": "ask the council why the name was crossed out"
+        },
+        {
+          "name": "Pearl-Lock Chest",
+          "intrusion": "A treasure chest opens only when its two owners disagree aloud.",
+          "offer": "ask both owners for consent",
+          "warning": "search for its written terms"
+        },
+        {
+          "name": "Glimmer Eel",
+          "intrusion": "A bright eel carries palace gossip through the water vents.",
+          "offer": "follow it to the person endangered",
+          "warning": "persuade it to carry a correction"
+        },
+        {
+          "name": "Reef Stair Riddle",
+          "intrusion": "Three shell bells ring in the wrong order at each tide.",
+          "offer": "solve with the observatory record",
+          "warning": "ask Oren for a grounded alternate route"
+        },
+        {
+          "name": "Borrowed Fins",
+          "intrusion": "A courtier offers magical travel that will make someone else slow.",
+          "offer": "reject the hidden transfer cost",
+          "warning": "negotiate an equal-risk passage"
+        },
+        {
+          "name": "Moonlit Ribbon",
+          "intrusion": "Char has woven a ribbon from the sisters' discarded escape plans.",
+          "offer": "ask what Char wants today",
+          "warning": "preserve it as evidence of their shared dream"
+        },
+        {
+          "name": "Tide-Worn Mirror",
+          "intrusion": "The mirror shows a shore that Scylla has visited but Char has not.",
+          "offer": "tell Char what the reflection means",
+          "warning": "cover the mirror until Scylla can explain the risk"
+        }
+      ]
+    },
+    {
+      "id": "e06",
+      "title": "Undertide Crown",
+      "voice": "Scylla",
+      "visual": "same mermaid palace distorted by impossible tides, confiscated choices and duplicate royal portraits",
+      "thread": "A changed past imposes new rules; Char's agency cannot be replaced with Scylla's memories",
+      "districts": [
+        {
+          "name": "Pearl Stair",
+          "scene": "Every step leads to the day before the sisters decided anything.",
+          "character": "Char, furious with the loop",
+          "stake": "whether rescue can exist without controlling a sibling"
+        },
+        {
+          "name": "Council Gallery",
+          "scene": "Royal portraits display three mutually exclusive versions of the last decree.",
+          "character": "a councilor collecting testimony",
+          "stake": "who gets to declare history official"
+        },
+        {
+          "name": "Coral Nursery",
+          "scene": "Borrowed shells have been nailed to the residents who live in them.",
+          "character": "a keeper who wants the nails removed",
+          "stake": "safety versus bodily autonomy"
+        },
+        {
+          "name": "Oren's Supply Vault",
+          "scene": "Departure supplies multiply but the labels on them have vanished.",
+          "character": "Oren with a precise inventory",
+          "stake": "the burden of proof for a safer route"
+        },
+        {
+          "name": "Festival Court",
+          "scene": "The band plays an escape song that orders all listeners to stay.",
+          "character": "a musician resisting the melody",
+          "stake": "protection as captivity"
+        },
+        {
+          "name": "Tide Observatory",
+          "scene": "A tide chart displays the nine consequences of Scylla's earlier decisions.",
+          "character": "a scholar afraid to read the marks",
+          "stake": "what the current timeline owes the abandoned one"
+        },
+        {
+          "name": "Servants' Jetty",
+          "scene": "Workers are asked to certify decisions the princesses never made.",
+          "character": "a dockhand refusing to sign",
+          "stake": "evidence versus bureaucratic consent"
+        },
+        {
+          "name": "Hidden Landward Gate",
+          "scene": "Boots and anchors are chained together and Char has the only knife.",
+          "character": "Char asserting her choice",
+          "stake": "whether to let her cut the bond herself"
+        }
+      ],
+      "devices": [
+        {
+          "name": "Rehearsed Goodbye",
+          "intrusion": "A farewell repeats until somebody else supplies the missing words.",
+          "offer": "listen to the unspoken refusal",
+          "warning": "answer with a truthful alternative"
+        },
+        {
+          "name": "Tide Writ",
+          "intrusion": "A proclamation replaces Char's signature with Scylla's.",
+          "offer": "contest the false signature",
+          "warning": "take the writ to its purported witnesses"
+        },
+        {
+          "name": "Threaded Shell",
+          "intrusion": "A shell binds its occupant to a safe but suffocating route.",
+          "offer": "release the living owner",
+          "warning": "find a jointly agreed protective charm"
+        },
+        {
+          "name": "Silent Drum",
+          "intrusion": "A royal drummer has been ordered never to signal retreat.",
+          "offer": "restore the warning beat",
+          "warning": "change the signal so all can choose"
+        },
+        {
+          "name": "Flooded Ledger",
+          "intrusion": "A registry records only the people who survived the last version.",
+          "offer": "preserve evidence of the missing",
+          "warning": "ask who benefited from erasure"
+        },
+        {
+          "name": "Conscripted Guide",
+          "intrusion": "A sea creature knows the only escape and has been ordered to mislead.",
+          "offer": "earn its voluntary help",
+          "warning": "map the longer route without forcing it"
+        },
+        {
+          "name": "Refusal Bell",
+          "intrusion": "The bell sounds only when a promise was never freely made.",
+          "offer": "let Char ring it herself",
+          "warning": "examine the original bargain before judgment"
+        },
+        {
+          "name": "Second Departure",
+          "intrusion": "A second boat is moored beside the original but carries different names.",
+          "offer": "check each passenger's consent",
+          "warning": "delay departure to rescue those left out"
+        }
+      ]
+    },
+    {
+      "id": "e08",
+      "title": "Hoshimori: Procession of Shut Doors",
+      "voice": "Scylla",
+      "visual": "red lacquer, black ink, immense yokai silhouettes and a hostile village whose daylight paths are remembered",
+      "thread": "Vesper's stolen maps and the village's safety bargain expose how care became confinement",
+      "districts": [
+        {
+          "name": "Cedar River",
+          "scene": "The warm footbridge now has a listening wall made of doors.",
+          "character": "Vesper the ashamed cartographer",
+          "stake": "the right not to have one's path sold"
+        },
+        {
+          "name": "Rice Terraces",
+          "scene": "Singers have been ordered to hold one breath until dawn.",
+          "character": "a worker forced into the choir",
+          "stake": "protection that refuses to allow rest"
+        },
+        {
+          "name": "Persimmon Steps",
+          "scene": "A patched coat walks without the child it was sewn for.",
+          "character": "a parent who will not give up searching",
+          "stake": "witnesses whose names have been suppressed"
+        },
+        {
+          "name": "Bell Square",
+          "scene": "The village bell records arrivals and erases departures.",
+          "character": "Pip with a hidden ledger",
+          "stake": "the difference between being welcomed and being owned"
+        },
+        {
+          "name": "Red Oven",
+          "scene": "The great hearth keeps everyone fed by charging them memories of leaving.",
+          "character": "an oven keeper with soot-stained hands",
+          "stake": "who consented to the communal bargain"
+        },
+        {
+          "name": "Ridge Shrines",
+          "scene": "The mountain guardians have grown enormous because they cannot refuse petitions.",
+          "character": "a weary shrine guardian",
+          "stake": "whether to lift the impossible obligation"
+        },
+        {
+          "name": "Market of Masks",
+          "scene": "Every mask offers its wearer an approved identity and a locked home.",
+          "character": "a mask merchant who fears their stock",
+          "stake": "the cost of living without privacy"
+        },
+        {
+          "name": "Village Gate",
+          "scene": "The final gate has been preserved so perfectly that no hinge can move.",
+          "character": "Vesper and Scylla together",
+          "stake": "restitution without another act of coercion"
+        }
+      ],
+      "devices": [
+        {
+          "name": "Borrowed Sandals",
+          "intrusion": "A procession of empty sandals walks toward a locked household.",
+          "offer": "follow their original owners' invitations",
+          "warning": "cut the compulsory path without naming anyone"
+        },
+        {
+          "name": "Paper Lantern",
+          "intrusion": "A lantern glows whenever an unwritten name is spoken aloud.",
+          "offer": "ask the person before recording them",
+          "warning": "shield the lantern so an unseen traveler can pass"
+        },
+        {
+          "name": "Breathing Wall",
+          "intrusion": "A living wall contains a voice that asked to leave.",
+          "offer": "hear the voice's own terms",
+          "warning": "seek an opening that does not expose the speaker"
+        },
+        {
+          "name": "Soot Map",
+          "intrusion": "Vesper's childhood map is burned except for one hidden bridge.",
+          "offer": "restore the safe footpath",
+          "warning": "confront the buyer who priced the secret"
+        },
+        {
+          "name": "Oni's Contract",
+          "intrusion": "An oni offers an exit in exchange for everyone else's freedom.",
+          "offer": "refuse the collective cost",
+          "warning": "negotiate a single freely given service"
+        },
+        {
+          "name": "Nurikabe Ledger",
+          "intrusion": "An invisible wall displays rules made after the person arrived.",
+          "offer": "contest the retroactive rule",
+          "warning": "trace the authority behind its ink"
+        },
+        {
+          "name": "Red Oven Token",
+          "intrusion": "A warm meal is locked to a promise of permanent residence.",
+          "offer": "feed someone without requiring their future",
+          "warning": "ask the cook what would end the debt"
+        },
+        {
+          "name": "Unopened Gate",
+          "intrusion": "A door has no handle on the inside but a thousand locks outside.",
+          "offer": "build a handle residents can choose",
+          "warning": "gather testimony before dismantling the ward"
+        }
+      ]
+    },
+    {
+      "id": "e09",
+      "title": "The Briar That Ate the Station",
+      "voice": "Earth protagonist",
+      "visual": "Briar forest infiltrated by office ceilings, subway doors, mermaid reefs and Japanese lanterns",
+      "thread": "First reconstruction map: old locations hide displaced memories that belong to real people",
+      "districts": [
+        {
+          "name": "Wolf Road Platform",
+          "scene": "The old wolf road now has rail signs and a train that stops for lost names.",
+          "character": "Pip and a station steward",
+          "stake": "whose memories make the route possible"
+        },
+        {
+          "name": "Briar Camp Laboratory",
+          "scene": "Tents contain research benches and glass vials holding forest rain.",
+          "character": "a colleague who recognizes Morrow's handwriting",
+          "stake": "evidence without confiscation"
+        },
+        {
+          "name": "Royal Carriage Reef",
+          "scene": "The princesses' stuck carriage has grown coral and a timetable.",
+          "character": "Scylla arguing with the conductor",
+          "stake": "who has a right to return home"
+        },
+        {
+          "name": "Oren's Depot",
+          "scene": "The headsman's meticulous supply crates have become a parcel office.",
+          "character": "Oren Pike",
+          "stake": "keeping two incompatible inventories honestly"
+        },
+        {
+          "name": "Wolf Witness Court",
+          "scene": "The wolf is subpoenaed by a legal office grown from the brambles.",
+          "character": "the wolf and a human clerk",
+          "stake": "testimony that looks monstrous but is true"
+        },
+        {
+          "name": "House That Remembers Stop",
+          "scene": "The mansion's rooms open into the same carriage in different decades.",
+          "character": "a former House resident",
+          "stake": "releasing memories without stealing them"
+        },
+        {
+          "name": "Moonroot Underpass",
+          "scene": "A train tunnel passes beneath a tree rooted in an underwater palace.",
+          "character": "Char's disputed shadow",
+          "stake": "whether this person's past is being rewritten"
+        },
+        {
+          "name": "Reconstruction Gate",
+          "scene": "Eight missing map fragments hang from the old Briar gate like wet tickets.",
+          "character": "the protagonist and Vesper",
+          "stake": "whom restored geography will displace"
+        }
+      ],
+      "devices": [
+        {
+          "name": "Clockwork Wolf",
+          "intrusion": "A mechanical wolf recognizes the smell of a forgotten apology.",
+          "offer": "follow its testimony without attacking",
+          "warning": "defend an innocent traveler from its patrol"
+        },
+        {
+          "name": "Tide Ticket",
+          "intrusion": "A damp train ticket lists an underwater stop nobody has reached.",
+          "offer": "ask its passenger for the route",
+          "warning": "return it to the time it was issued"
+        },
+        {
+          "name": "Research Lantern",
+          "intrusion": "An office lamp illuminates a road that only the moth-winged can see.",
+          "offer": "follow Vesper's voluntary guidance",
+          "warning": "trace who paid for the hidden map"
+        },
+        {
+          "name": "Royal Stapler",
+          "intrusion": "A brass office stapler seals proclamations with mermaid wax.",
+          "offer": "compare the original agreements",
+          "warning": "free a name caught between the papers"
+        },
+        {
+          "name": "Lost Lunchbox",
+          "intrusion": "A child's lunchbox contains a House resident's adult memories.",
+          "offer": "protect the child's own story",
+          "warning": "find the owner without exposing them"
+        },
+        {
+          "name": "Platform Merchant",
+          "intrusion": "A trader sells directions priced in minutes of a stranger's childhood.",
+          "offer": "refuse the stolen time",
+          "warning": "barter a genuine service and keep a record"
+        },
+        {
+          "name": "Puzzle of Three Tracks",
+          "intrusion": "Three rail lines change places whenever a memory is denied.",
+          "offer": "solve from witness testimony",
+          "warning": "travel the honest but longer track"
+        },
+        {
+          "name": "Rootbound Door",
+          "intrusion": "An old dungeon stair opens beneath an office photocopier.",
+          "offer": "descend to retrieve an owned fragment",
+          "warning": "mark the exit before any rescue begins"
+        }
+      ]
+    },
+    {
+      "id": "e10",
+      "title": "Morrow's Impossible Commute",
+      "voice": "Morrow",
+      "visual": "modern research city invaded by Briar monsters, Hoshimori doors and abyssal water",
+      "thread": "Morrow sees the people who made a life around them while impossible maps demand a single owner",
+      "districts": [
+        {
+          "name": "Station of Wolves",
+          "scene": "The train platform is shared by school commuters and a family of speaking wolves.",
+          "character": "Morrow and a guardian wolf",
+          "stake": "an ordinary commute should not require heroism"
+        },
+        {
+          "name": "Research Forest",
+          "scene": "Pine trees grow from lab cabinets and file their leaves by hypothesis.",
+          "character": "the laboratory colleague",
+          "stake": "whether data proves a person's right to exist"
+        },
+        {
+          "name": "Hoshimori Underpass",
+          "scene": "Rice terraces have replaced the underground ticket hall.",
+          "character": "Vesper carrying an unsold map",
+          "stake": "opening paths without selling the people on them"
+        },
+        {
+          "name": "Hospital Tidepool",
+          "scene": "A patient lift now descends below sea level into the mermaid court.",
+          "character": "the clinic's nurse and Char",
+          "stake": "careful triage instead of grand rescue promises"
+        },
+        {
+          "name": "Apartment Ward",
+          "scene": "The stairwell keeps making a new door for every household Morrow has joined.",
+          "character": "a neighbor who holds a spare key",
+          "stake": "who counts as family before any final verdict"
+        },
+        {
+          "name": "Office of Borrowed Faces",
+          "scene": "Badge readers admit the wrong person under the correct name.",
+          "character": "an exhausted security guard",
+          "stake": "identity without invalidating relationships"
+        },
+        {
+          "name": "Canal of Second Chances",
+          "scene": "A city drain opens to the sea where Scylla has already made a second choice.",
+          "character": "Oren and a maintenance worker",
+          "stake": "responsibility for the people left at the original crossing"
+        },
+        {
+          "name": "Broken Clock Tower",
+          "scene": "Midnight arrives three times and the research office never closes.",
+          "character": "Morrow and a colleague who stayed late",
+          "stake": "whether to keep the miracle at the cost of ordinary time"
+        }
+      ],
+      "devices": [
+        {
+          "name": "Wolf on Escalator",
+          "intrusion": "A wolf refuses to step off an escalator that carries commuters backward.",
+          "offer": "guide it past the fearful crowd",
+          "warning": "ask why it is protecting the doors"
+        },
+        {
+          "name": "Sea-Salt Coffee",
+          "intrusion": "A break-room cup tastes of the royal ocean and recalls a promise.",
+          "offer": "trace who poured the coffee",
+          "warning": "leave the memory for its rightful keeper"
+        },
+        {
+          "name": "Moth-Wing Memo",
+          "intrusion": "A memo bears Vesper's unmistakable scale-dust signature.",
+          "offer": "ask why the map was sold",
+          "warning": "use the memo to repair the crossing safely"
+        },
+        {
+          "name": "Missing Badge",
+          "intrusion": "A name badge opens a door only for the person who is least expected.",
+          "offer": "identify the real visitor",
+          "warning": "decline a convenient false identity"
+        },
+        {
+          "name": "Unpaid Overtime",
+          "intrusion": "A shift roster shows all future versions of one worker's exhaustion.",
+          "offer": "distribute the work with consent",
+          "warning": "stop the clock until everyone can leave"
+        },
+        {
+          "name": "Library Yokai",
+          "intrusion": "A paper spirit alphabetizes human friendships as contractual debts.",
+          "offer": "correct its assumption with testimony",
+          "warning": "return the pages to the people described"
+        },
+        {
+          "name": "Tide Elevator",
+          "intrusion": "The lift carries a passenger to a palace they have never visited.",
+          "offer": "secure a return route",
+          "warning": "ask Char which destination she wants"
+        },
+        {
+          "name": "Research Receipt",
+          "intrusion": "A receipt proves the machine was repaired with a borrowed memory.",
+          "offer": "return the memory to its source",
+          "warning": "disclose the cost to the people it helped"
+        }
+      ]
+    },
+    {
+      "id": "e11",
+      "title": "Char's Sea of Strangers",
+      "voice": "Char",
+      "visual": "underwater palace fused with subway, forest roots, research terminals and demonic lanterns",
+      "thread": "Char controls her own body and testimony despite competing memories of loss, survival and youth",
+      "districts": [
+        {
+          "name": "Pearl Station",
+          "scene": "Royal stairs open onto a commuter platform with an impossible arrival board.",
+          "character": "Char and a stranded child",
+          "stake": "autonomy for those who were never given a choice"
+        },
+        {
+          "name": "Court of Two Sisters",
+          "scene": "The throne room contains several records of the same two sisters.",
+          "character": "Scylla struggling with conflicting evidence",
+          "stake": "listening without determining Char's identity for her"
+        },
+        {
+          "name": "Oren's Flooded Archive",
+          "scene": "Supply crates carry witness statements written before their authors were born.",
+          "character": "Oren with his original inventory",
+          "stake": "reconciling records without erasing their dates"
+        },
+        {
+          "name": "Coral Briar",
+          "scene": "The wolf road has grown as a reef whose thorns catch passing boats.",
+          "character": "a protective wolf and a frightened sailor",
+          "stake": "what counts as rescue in another medium"
+        },
+        {
+          "name": "Lantern Tide Market",
+          "scene": "Red Hoshimori lanterns float above merchants trading bottled departures.",
+          "character": "Vesper and a market vendor",
+          "stake": "refusing to commodify another route"
+        },
+        {
+          "name": "The Drowned Office",
+          "scene": "Computers under glass display Earth research with aquatic symbols.",
+          "character": "Morrow's colleague",
+          "stake": "science and spellcraft can disagree truthfully"
+        },
+        {
+          "name": "Sisters' Escape Gate",
+          "scene": "Two boats wait, one from the remembered past and one from a possible present.",
+          "character": "Char making her own decision",
+          "stake": "treating the World Four loss as a real event, not a mistake to erase"
+        },
+        {
+          "name": "Memory-Reef Crown",
+          "scene": "A giant crown bears fragments displaced from all four earlier maps.",
+          "character": "Char, Scylla and Oren",
+          "stake": "which recovered fragment can be given back without a new theft"
+        }
+      ],
+      "devices": [
+        {
+          "name": "Two-Faced Mirror",
+          "intrusion": "A mirror shows Char alive and lost in different real histories.",
+          "offer": "hear Char's account in her own words",
+          "warning": "archive both witnesses without declaring one a lie"
+        },
+        {
+          "name": "Coral Turnstile",
+          "intrusion": "A transit barrier counts tails as unpaid baggage.",
+          "offer": "free the passengers fairly",
+          "warning": "repair the rule rather than force the gate"
+        },
+        {
+          "name": "Wolf-Shell Courier",
+          "intrusion": "A wolf inside a shell carries a sealed letter from Briar.",
+          "offer": "ask its intended addressee",
+          "warning": "deliver it without taking the courier's identity"
+        },
+        {
+          "name": "Ledger Eel",
+          "intrusion": "An eel has eaten the missing names from Oren's manifest.",
+          "offer": "recover names with permission",
+          "warning": "replace the official registry with testimony"
+        },
+        {
+          "name": "Lantern Diver",
+          "intrusion": "A Hoshimori lantern follows a diver who never consented to the ward.",
+          "offer": "remove the tracking light",
+          "warning": "ask the diver if they want a safer signal"
+        },
+        {
+          "name": "Tide Oracle",
+          "intrusion": "A shell predicts that every future Char is someone else's possession.",
+          "offer": "challenge the oracle's premise",
+          "warning": "refuse to choose based on fear alone"
+        },
+        {
+          "name": "Sister's Coat",
+          "intrusion": "A velvet coat and a formal crown drift together through the tide.",
+          "offer": "let Char decide which to keep",
+          "warning": "preserve both as a shared memory"
+        },
+        {
+          "name": "Anchor Key",
+          "intrusion": "A key opens the World Four crossing but changes who pays the cost.",
+          "offer": "disclose the cost before turning it",
+          "warning": "search for the people omitted from the bargain"
+        }
+      ]
+    },
+    {
+      "id": "e12",
+      "title": "Vesper's Unwritten Hoshimori",
+      "voice": "Vesper",
+      "visual": "Hoshimori rebuilt from overlapping forest, city, sea and village maps, unfinished watercolor edges",
+      "thread": "Vesper repairs a map-selling betrayal without inventing a safe future for other people",
+      "districts": [
+        {
+          "name": "Cedar Bridge of Maps",
+          "scene": "The bridge connects the village to the Briar wolf road and an Earth station.",
+          "character": "Vesper and the childhood bridge keeper",
+          "stake": "restitution for paths once sold"
+        },
+        {
+          "name": "Rice Terrace Timetable",
+          "scene": "Rice grows along railway tracks while the harvest song sets departure times.",
+          "character": "Pip and the exhausted singers",
+          "stake": "whether any person may decline the schedule"
+        },
+        {
+          "name": "Bell Square Archive",
+          "scene": "The village bell rings with voices from three incompatible testimonies.",
+          "character": "Scylla collecting voluntary witnesses",
+          "stake": "whose story is missing from official history"
+        },
+        {
+          "name": "Red Oven Engine",
+          "scene": "The Oven shares its hearth with an underground research reactor.",
+          "character": "Morrow and the cook",
+          "stake": "feeding people without burning their memories"
+        },
+        {
+          "name": "Mask Market Court",
+          "scene": "Merchants sell legal names, royal portraits and tickets to a remembered childhood.",
+          "character": "Char and a mask vendor",
+          "stake": "names and faces that cannot be bought"
+        },
+        {
+          "name": "Shrine of Returning Doors",
+          "scene": "A temple's doors open onto the court, the city and the House.",
+          "character": "Oren organizing evacuations",
+          "stake": "a safe exit must also permit return"
+        },
+        {
+          "name": "Vesper's Rookery",
+          "scene": "The old moth-wing nest overlooks all four maps stitched at the edges.",
+          "character": "Vesper's estranged family",
+          "stake": "reparations cannot undo the original harm"
+        },
+        {
+          "name": "The Last Unowned Square",
+          "scene": "One unmapped square resists all attempts to assign its future.",
+          "character": "Vesper and the gathered protagonists",
+          "stake": "whether to leave a choice genuinely open for its people"
+        }
+      ],
+      "devices": [
+        {
+          "name": "Unsold Route",
+          "intrusion": "A childhood route appears in a ledger with the sale price struck out.",
+          "offer": "return the map to its owners",
+          "warning": "offer a safe public copy only with consent"
+        },
+        {
+          "name": "Wolf Rice Cart",
+          "intrusion": "A wolf draws a cart of rice onto the station platform.",
+          "offer": "share the food freely",
+          "warning": "ask what the wolf was asked to guard"
+        },
+        {
+          "name": "Rewritten Lantern",
+          "intrusion": "A lantern shows each passenger the home they did not choose.",
+          "offer": "let passengers select their destination",
+          "warning": "shelter the lantern until consent is possible"
+        },
+        {
+          "name": "Research Ash",
+          "intrusion": "The Oven has printed failed experiments on fragile sheets of ash.",
+          "offer": "preserve evidence without punishment",
+          "warning": "restart the test with informed volunteers"
+        },
+        {
+          "name": "Name Market",
+          "intrusion": "A merchant offers a perfect name that will erase somebody else's.",
+          "offer": "reject the stolen identity",
+          "warning": "find the claimant and hear their account"
+        },
+        {
+          "name": "Sea-Bell Puzzle",
+          "intrusion": "A coral bell must be rung in the order of remembered promises.",
+          "offer": "solve the visible evidence sequence",
+          "warning": "invite competing witnesses to test the rule"
+        },
+        {
+          "name": "Moth-Wing Knife",
+          "intrusion": "Vesper's old map-cutting knife can slice a shortcut through a neighbor's home.",
+          "offer": "refuse the forced shortcut",
+          "warning": "ask for a public route built together"
+        },
+        {
+          "name": "Unwritten Door",
+          "intrusion": "A white door holds a sketch of children no one has the right to erase.",
+          "offer": "leave an honest future open",
+          "warning": "negotiate obligations before entering"
+        }
+      ]
+    }
+  ]
+}

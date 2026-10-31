@@ -98,7 +98,8 @@ export const useMemorySeaStore = defineStore('memorySea', () => {
     try {
       window.localStorage.setItem(STORAGE_KEY, JSON.stringify(save.value))
     } catch {
-      notice.value = 'The story remains playable, but this browser cannot save it.'
+      notice.value =
+        'The story remains playable, but this browser cannot save it.'
     }
   }
 
@@ -152,8 +153,7 @@ export const useMemorySeaStore = defineStore('memorySea', () => {
   )
 
   function select(reality: SeaReality): void {
-    if (!unlocked.value || (reality === 'e06' && !e06Unlocked.value))
-      return
+    if (!unlocked.value || (reality === 'e06' && !e06Unlocked.value)) return
     save.value.active = reality
     notice.value = ''
     persist()
@@ -164,7 +164,8 @@ export const useMemorySeaStore = defineStore('memorySea', () => {
     if (journal.length < EARTH_JOURNAL_COMPACT_AT) return true
     const compacted = compactEarthJournal(active.value, journal)
     if (!compacted || compacted.length >= EARTH_JOURNAL_COMPACT_AT) {
-      notice.value = 'The journey cannot be shortened safely. Your choices were not changed.'
+      notice.value =
+        'The journey cannot be shortened safely. Your choices were not changed.'
       return false
     }
     save.value.journals[active.value] = compacted

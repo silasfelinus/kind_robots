@@ -191,8 +191,12 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
   )
   const boutPlan = computed(() => (bout.value ? CITY_PLAN[bout.value] : null))
   const contractPlan = computed(() => CITY_CONTRACTS[districtId.value])
-  const activeContract = computed(() => contractBout.value ? CITY_CONTRACTS[contractBout.value] : null)
-  const contractGate = computed(() => contractBlocked(city.value, districtId.value))
+  const activeContract = computed(() =>
+    contractBout.value ? CITY_CONTRACTS[contractBout.value] : null,
+  )
+  const contractGate = computed(() =>
+    contractBlocked(city.value, districtId.value),
+  )
   const here = computed(() => city.value.location === districtId.value)
   const route = computed(() =>
     streetsFrom(city.value.location).find((s) => s.to === districtId.value),
@@ -355,7 +359,13 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
     seed.value = rollSeed()
     const contract = CITY_CONTRACTS[id]
     match.value = applyTerms(
-      createMatch('blackout', activeTeam.value, contract.team, seed.value, rules.value),
+      createMatch(
+        'blackout',
+        activeTeam.value,
+        contract.team,
+        seed.value,
+        rules.value,
+      ),
       contractTerms(city.value, id),
     )
     selectedCard.value = null

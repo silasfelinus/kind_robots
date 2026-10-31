@@ -475,8 +475,7 @@ export const MORROW_EARTH_PHOTO_SITES = ['1,3', '6,4'] as const
 export const MORROW_EARTH_MAX_EVENTS = 1024
 
 export type MorrowEarthEvent =
-  | { type: 'move'; to: string }
-  | { type: 'choose'; id: string }
+  { type: 'move'; to: string } | { type: 'choose'; id: string }
 
 export interface MorrowEarthProgress {
   version: 1

@@ -44,8 +44,7 @@
           </button>
         </nav>
         <div class="sc-hud">
-          <span class="sc-led"></span> LOCAL PLAYTEST
-          <strong>{{ lab.progress.meat }} MEAT</strong>
+          <span class="sc-led"></span> ACCOUNT <strong>{{ lab.progressLoaded ? lab.progress.meat + ' MEAT' : 'SIGN IN' }}</strong>
         </div>
       </header>
 
@@ -609,8 +608,8 @@
               >
               <h2>FIGHT. EARN. COLLECT.</h2>
               <p>
-                All six ten-card starter decks stay available for testing. Claim
-                earned cards for your future constructed collection.
+                All six ten-card starter decks stay available. Your XP, Meat,
+                owned cards, and challenges are saved to your Kind Robots account.
               </p>
             </div>
             <div class="sc-progress-hud">
@@ -620,6 +619,8 @@
             </div>
           </div>
           <div class="sc-progression-scroll kr-scroll">
+            <p v-if="lab.progressBusy" class="sc-progress-alert" role="status">Syncing with your Kind Robots account…</p>
+            <p v-if="lab.progressError" class="sc-progress-alert sc-progress-error" role="alert">{{ lab.progressError }}</p>
             <div class="sc-reward-columns">
               <div class="sc-reward-panel">
                 <span class="sc-overline">THE PIT PAYS</span>
@@ -637,9 +638,10 @@
                 <button
                   type="button"
                   data-testid="slime-fight-for-meat"
-                  @click="lab.chooseMode('blackout')"
+                  @click="lab.startCpuBattle()"
+                  :disabled="lab.progressBusy || !lab.progressLoaded"
                 >
-                  FIGHT A CPU CREW →
+                  START REWARDED CPU BATTLE →
                 </button>
                 <small aria-live="polite">{{ lab.progress.lastReward }}</small>
               </div>
@@ -662,7 +664,7 @@
                 <button
                   type="button"
                   data-testid="slime-buy-pack"
-                  :disabled="!lab.packAffordable"
+                  :disabled="!lab.packAffordable || lab.progressBusy"
                   @click="lab.purchasePack()"
                 >
                   BUY PACK · {{ lab.packPrice }} MEAT
@@ -715,7 +717,7 @@
                   <small>+{{ quest.meat }} MEAT · +{{ quest.xp }} XP</small>
                   <button
                     type="button"
-                    :disabled="!quest.ready"
+                    :disabled="!quest.ready || lab.progressBusy || !lab.progressLoaded"
                     :data-testid="'slime-claim-' + quest.id"
                     @click="lab.claimReward(quest.id)"
                   >
@@ -731,10 +733,9 @@
               </div>
             </div>
             <small class="sc-progression-note"
-              >Internal prototype: XP, Meat, challenges, and collection are
-              stored in this browser only. No cash, real-money purchases, trade,
-              or cross-device sync. Server-verified rewards are required before
-              public play.</small
+              >All XP, Meat, collection and challenge claims are account-bound in Kind Robots’ database.
+              Only server-issued CPU matches award rewards. No cash, paid card packs,
+              or trading. Public launch remains gated.</small
             >
           </div>
         </section>
@@ -2795,4 +2796,6 @@ onUnmounted(() => lab.dispose())
     padding: 0 0.6rem 0.7rem;
   }
 }
+.sc-progress-alert { margin: 0; padding: 0.5rem 0.75rem; background: #35405a; border: 1px solid #9ab7d8; font-size: 0.75rem; border-radius: 0.4rem; }
+.sc-progress-error { background: #4b233a; border-color: #ff8db3; }
 </style>

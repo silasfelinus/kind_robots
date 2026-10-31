@@ -23,7 +23,10 @@ export type RebelStage = {
 /** Small deterministic hash -> [0,1). */
 export function rebelRandom(seed: number, press: number, lane: number): number {
   let h =
-    (seed ^ Math.imul(press + 1, 0x9e3779b1) ^ Math.imul(lane + 1, 0x85ebca6b)) >>> 0
+    (seed ^
+      Math.imul(press + 1, 0x9e3779b1) ^
+      Math.imul(lane + 1, 0x85ebca6b)) >>>
+    0
   h = Math.imul(h ^ (h >>> 16), 0x45d9f3b) >>> 0
   h = Math.imul(h ^ (h >>> 16), 0x45d9f3b) >>> 0
   return ((h ^ (h >>> 16)) >>> 0) / 4294967296

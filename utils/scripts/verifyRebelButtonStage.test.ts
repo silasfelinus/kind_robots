@@ -22,9 +22,18 @@ let lastScale = 1
 let lastWalls = 0
 for (let p = 1; p <= 150; p++) {
   const s = rebelStageFor(p, 7)
-  assert.ok(s.x >= 0 && s.x <= 100 && s.y >= 0 && s.y <= 100, `press ${p} in bounds`)
-  assert.ok(s.scale >= REBEL_MIN_SCALE && s.scale <= lastScale, 'scale only shrinks')
-  assert.ok(s.walls >= lastWalls && s.walls <= REBEL_MAX_WALLS, 'walls only rise, capped')
+  assert.ok(
+    s.x >= 0 && s.x <= 100 && s.y >= 0 && s.y <= 100,
+    `press ${p} in bounds`,
+  )
+  assert.ok(
+    s.scale >= REBEL_MIN_SCALE && s.scale <= lastScale,
+    'scale only shrinks',
+  )
+  assert.ok(
+    s.walls >= lastWalls && s.walls <= REBEL_MAX_WALLS,
+    'walls only rise, capped',
+  )
   lastScale = s.scale
   lastWalls = s.walls
 }

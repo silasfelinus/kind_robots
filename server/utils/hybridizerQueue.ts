@@ -9,7 +9,7 @@ import { serializeArtJobPayload } from '~/server/utils/artJobPayload'
 import { starterForIdentity } from '~/server/utils/hybridizerFusion'
 import {
   hybridizerArtPrompt,
-  hybridizerArtSeed,
+  hybridizerRevisionSeed,
   hybridizerSubjectKind,
   HYBRIDIZER_ART_SIZE,
   HYBRIDIZER_ART_STEPS,
@@ -39,7 +39,7 @@ export function buildHybridizerArtJob(
   const promptString = hybridizerArtPrompt(leftTitle, rightTitle, kind)
   const { workflow } = buildKrea2WorkflowFromRequest({
     prompt: promptString,
-    seed: (hybridizerArtSeed(fusion.id) + revision * 7919) >>> 0,
+    seed: hybridizerRevisionSeed(fusion.id, revision),
     steps: HYBRIDIZER_ART_STEPS,
     width: HYBRIDIZER_ART_SIZE,
     height: HYBRIDIZER_ART_SIZE,

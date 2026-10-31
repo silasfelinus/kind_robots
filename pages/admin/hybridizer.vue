@@ -192,7 +192,7 @@
               <button type="button" @click="shareFusion('x')">X</button>
               <button type="button" @click="shareFusion('facebook')">Facebook</button>
               <button type="button" @click="shareFusion('reddit')">Reddit</button>
-              <small>Share this illustrated discovery with friends.</small>
+              <small>Signed-in visitors can view this discovery in Play.</small>
             </div>
             <div
               v-if="lab.versionsFor === lab.result.key && lab.versions.length"
@@ -478,7 +478,7 @@ async function shareFusion(platform: 'copy' | 'x' | 'facebook' | 'reddit') {
   if (platform === 'copy') {
     try {
       await navigator.clipboard.writeText(link)
-      lab.status = 'Discovery link copied. Your friends can view it in Play.'
+      lab.status = 'Discovery link copied. Signed-in visitors can view it in Play.'
     } catch {
       lab.status = 'Clipboard unavailable. Use your browser address bar to copy the discovery URL.'
     }

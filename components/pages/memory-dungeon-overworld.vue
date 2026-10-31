@@ -55,6 +55,15 @@
         Morrow's Earth
       </button>
       <button
+        v-if="world.campaign.completed.includes('e04')"
+        type="button"
+        class="btn btn-sm border-[#c8a2d7] bg-[#503d6b] text-[#f7ecff]"
+        data-testid="memory-enter-scylla-sea"
+        @click="emit('sea')"
+      >
+        Scylla’s past
+      </button>
+      <button
         v-if="world.campaign.completed.includes('e06')"
         type="button"
         class="btn btn-sm btn-warning"
@@ -995,6 +1004,7 @@ import MemoryDungeonActionBeacon from '~/components/memory-dungeon/action-beacon
 const emit = defineEmits<{
   leave: []
   earth: []
+  sea: []
   hoshimori: []
   'hoshimori-night': []
 }>()

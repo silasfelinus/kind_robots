@@ -1,4 +1,4 @@
-import { defineEventHandler } from 'h3'
+import { defineEventHandler, createError } from 'h3'
 import { requireHumanApiUser } from '~/server/utils/authGuard'
 import { getSlimeCityAccount } from '~/server/utils/slimeCityProgress'
 

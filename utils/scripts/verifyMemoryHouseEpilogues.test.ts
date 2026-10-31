@@ -350,6 +350,23 @@ for (let seed = 1; seed <= 1500; seed++) {
     { sceneChoices: briar, house: progress },
   )
   assert.ok(earnedMedals.includes(medalId), `seed ${seed} earns its House medal`)
+  const forgedLens = HOUSE_EPILOGUE_LENSES.find((lens) => lens !== epilogue.lens)!
+  assert.deepEqual(
+    reconcileMemoryAchievements([], [], {
+      sceneChoices: briar,
+      house: { ...progress, endingLens: forgedLens },
+    }),
+    [],
+    'a tampered House ending lens cannot mint an unearned medal',
+  )
+  assert.deepEqual(
+    reconcileMemoryAchievements([], [], {
+      sceneChoices: briar,
+      house: { ...progress, decisions: { ...progress.decisions, 'HD-35': 'forged' } },
+    }),
+    [],
+    'a contradictory Hearth decision cannot mint a medal',
+  )
   assert.equal(
     memoryAchievementGallery(earnedMedals).find((medal) => medal.id === medalId)?.earned,
     true,

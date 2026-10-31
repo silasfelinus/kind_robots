@@ -2,8 +2,13 @@ import { defineStore } from 'pinia'
 import { useUserStore } from './userStore'
 import { performFetch } from './utils'
 import {
-  canBuyPack, currentChallenges, levelFor, newProgression,
-  nextLevelXp, PACK_COST, rarityOf,
+  canBuyPack,
+  currentChallenges,
+  levelFor,
+  newProgression,
+  nextLevelXp,
+  PACK_COST,
+  rarityOf,
   type Progression,
 } from '../utils/slimeCity/progression'
 import { computed, ref, watch } from 'vue'
@@ -84,14 +89,18 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
   const challengeList = computed(() => currentChallenges(progress.value))
   const level = computed(() => levelFor(progress.value.xp))
   const nextLevel = computed(() => nextLevelXp(progress.value.xp))
-  const packAffordable = computed(() => progressLoaded.value && canBuyPack(progress.value))
+  const packAffordable = computed(
+    () => progressLoaded.value && canBuyPack(progress.value),
+  )
   const packPrice = PACK_COST
   const cardRarity = rarityOf
 
   function correctAccount(): boolean {
-    return !!userStore.authenticatedUserId &&
+    return (
+      !!userStore.authenticatedUserId &&
       !userStore.isGuest &&
       progressAccount.value === userStore.authenticatedUserId
+    )
   }
   async function hydrateProgression(): Promise<void> {
     if (!userStore.authenticatedUserId || userStore.isGuest) {
@@ -109,13 +118,16 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
     try {
       const result = await performFetch<Progression>('/api/slime-city/progress')
       if (!result.success || !result.data)
-        throw new Error(result.message || 'Could not load your Slime City account.')
+        throw new Error(
+          result.message || 'Could not load your Slime City account.',
+        )
       if (requestUserId !== userStore.authenticatedUserId) return
       progress.value = result.data
       progressAccount.value = requestUserId
       progressLoaded.value = true
     } catch (error) {
-      progressError.value = error instanceof Error ? error.message : 'Could not load account.'
+      progressError.value =
+        error instanceof Error ? error.message : 'Could not load account.'
     } finally {
       progressBusy.value = false
     }
@@ -126,13 +138,18 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
     progressError.value = ''
     try {
       const result = await performFetch<Progression>('/api/slime-city/claim', {
-        method: 'POST', body: JSON.stringify({ id }),
+        method: 'POST',
+        body: JSON.stringify({ id }),
       })
-      if (!result.success || !result.data) throw new Error(result.message || 'Claim rejected.')
+      if (!result.success || !result.data)
+        throw new Error(result.message || 'Claim rejected.')
       progress.value = result.data
     } catch (error) {
-      progressError.value = error instanceof Error ? error.message : 'Could not claim reward.'
-    } finally { progressBusy.value = false }
+      progressError.value =
+        error instanceof Error ? error.message : 'Could not claim reward.'
+    } finally {
+      progressBusy.value = false
+    }
   }
   async function purchasePack(): Promise<void> {
     if (!correctAccount() || !packAffordable.value || progressBusy.value) return
@@ -142,11 +159,15 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
       const result = await performFetch<Progression>('/api/slime-city/pack', {
         method: 'POST',
       })
-      if (!result.success || !result.data) throw new Error(result.message || 'Purchase rejected.')
+      if (!result.success || !result.data)
+        throw new Error(result.message || 'Purchase rejected.')
       progress.value = result.data
     } catch (error) {
-      progressError.value = error instanceof Error ? error.message : 'Could not buy pack.'
-    } finally { progressBusy.value = false }
+      progressError.value =
+        error instanceof Error ? error.message : 'Could not buy pack.'
+    } finally {
+      progressBusy.value = false
+    }
   }
   async function startCpuBattle(): Promise<void> {
     if (!correctAccount() || !progressLoaded.value) {
@@ -157,12 +178,17 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
     progressBusy.value = true
     progressError.value = ''
     try {
-      const result = await performFetch<{ id: string; teamId: TeamId; foeId: TeamId; seed: number }>(
-        '/api/slime-city/match', {
-          method: 'POST', body: JSON.stringify({ teamId: activeTeam.value }),
-        },
-      )
-      if (!result.success || !result.data) throw new Error(result.message || 'Could not issue CPU battle.')
+      const result = await performFetch<{
+        id: string
+        teamId: TeamId
+        foeId: TeamId
+        seed: number
+      }>('/api/slime-city/match', {
+        method: 'POST',
+        body: JSON.stringify({ teamId: activeTeam.value }),
+      })
+      if (!result.success || !result.data)
+        throw new Error(result.message || 'Could not issue CPU battle.')
       stop()
       mode.value = 'blackout'
       rules.value = { ...DEFAULT_RULES }
@@ -173,8 +199,11 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
       view.value = 'arena'
       if (!guideSeen.has('blackout')) openGuide()
     } catch (error) {
-      progressError.value = error instanceof Error ? error.message : 'Could not begin CPU battle.'
-    } finally { progressBusy.value = false }
+      progressError.value =
+        error instanceof Error ? error.message : 'Could not begin CPU battle.'
+    } finally {
+      progressBusy.value = false
+    }
   }
   /** The district whose rival the current match is against, if any. */
   const bout = ref<DistrictId | null>(null)
@@ -454,15 +483,22 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
     progressBusy.value = true
     progressError.value = ''
     try {
-      const response = await performFetch<Progression>('/api/slime-city/finish', {
-        method: 'POST', body: JSON.stringify({ matchId: id, commands }),
-      })
+      const response = await performFetch<Progression>(
+        '/api/slime-city/finish',
+        {
+          method: 'POST',
+          body: JSON.stringify({ matchId: id, commands }),
+        },
+      )
       if (!response.success || !response.data)
         throw new Error(response.message || 'Battle verification failed.')
       if (correctAccount()) progress.value = response.data
     } catch (error) {
-      progressError.value = error instanceof Error ? error.message : 'Reward verification failed.'
-    } finally { progressBusy.value = false }
+      progressError.value =
+        error instanceof Error ? error.message : 'Reward verification failed.'
+    } finally {
+      progressBusy.value = false
+    }
   }
 
   /** Once a rival bout ends, its result changes the city. */
@@ -591,13 +627,16 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
     return cardById(id).name
   }
 
-  watch(() => userStore.authenticatedUserId, () => {
-    progressAccount.value = null
-    progressLoaded.value = false
-    progress.value = newProgression()
-    rewardMatchId.value = null
-    void hydrateProgression()
-  })
+  watch(
+    () => userStore.authenticatedUserId,
+    () => {
+      progressAccount.value = null
+      progressLoaded.value = false
+      progress.value = newProgression()
+      rewardMatchId.value = null
+      void hydrateProgression()
+    },
+  )
 
   function dispose(): void {
     stop()

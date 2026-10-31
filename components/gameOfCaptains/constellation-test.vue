@@ -10,10 +10,11 @@
   >
     <div class="couchscope-sky" aria-hidden="true">
       <img
-        v-if="!assessment"
+        v-if="!assessment && artworkReady"
         class="scope-question-art"
         :src="questionArtwork"
         alt=""
+        @error="onQuestionArtError"
       />
       <svg v-else viewBox="0 0 480 430" preserveAspectRatio="xMidYMid meet">
         <defs>
@@ -98,12 +99,14 @@
               @click="choose(index)"
             >
               <img
+                v-if="artworkReady"
                 class="scope-answer-art"
                 :src="answerArtwork(index)"
                 alt=""
                 @load="artReady[index] = true"
-                @error="artReady[index] = true"
+                @error="onAnswerArtError($event, index)"
               />
+              <div v-else class="scope-answer-art scope-answer-art--waiting" aria-hidden="true" />
               <span class="scope-choice-number">{{
                 String.fromCharCode(65 + index)
               }}</span>
@@ -193,9 +196,16 @@ import {
   type StarAssessment,
 } from '~/utils/gameOfCaptains/starSigns'
 
-const { largeText = false, reducedMotion = false } = defineProps<{
+const {
+  largeText = false,
+  reducedMotion = false,
+  artwork = {},
+  artworkReady = true,
+} = defineProps<{
   largeText?: boolean
   reducedMotion?: boolean
+  artwork?: Record<string, string>
+  artworkReady?: boolean
 }>()
 const emit = defineEmits<{ confirm: [assessment: StarAssessment]; back: [] }>()
 const answers = ref<number[]>([])
@@ -205,6 +215,7 @@ const questionArtwork = computed(() => {
     Math.min(answers.value.length + 1, STAR_QUESTIONS.length),
   ).padStart(2, '0')
   return (
+    artwork['couchscope/question-' + index] ||
     warpArt('couchscope/question-' + index) ||
     '/game-of-captains/couchscope/question-' + index + '.svg'
   )
@@ -216,9 +227,27 @@ function answerArtwork(optionIndex: number): string {
   )
   const answer = String.fromCharCode(97 + optionIndex)
   return (
+    artwork['couchscope/question-' + question + '-answer-' + answer] ||
     warpArt('couchscope/question-' + question + '-answer-' + answer) ||
     questionArtwork.value
   )
+}
+function onQuestionArtError(event: Event) {
+  const image = event.target as HTMLImageElement
+  const fallback =
+    '/game-of-captains/couchscope/question-' +
+    String(Math.min(answers.value.length + 1, 4)).padStart(2, '0') +
+    '.svg'
+  if (image.getAttribute('src') !== fallback) image.src = fallback
+}
+function onAnswerArtError(event: Event, index: number) {
+  const image = event.target as HTMLImageElement
+  const fallback = questionArtwork.value
+  if (image.getAttribute('src') === fallback) {
+    artReady.value[index] = true
+  } else {
+    image.src = fallback
+  }
 }
 const assessment = computed(() => createStarAssessment(answers.value))
 const sign = computed(() =>
@@ -445,6 +474,10 @@ function choose(index: number) {
   object-fit: cover;
   border-radius: 0.25rem;
   border: 1px solid #b3a188;
+}
+.scope-answer-art--waiting {
+  background: #17283b;
+  border-color: #58738f;
 }
 .scope-choice-copy {
   opacity: 0;

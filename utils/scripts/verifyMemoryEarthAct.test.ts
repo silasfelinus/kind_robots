@@ -323,9 +323,14 @@ for (const reality of EARTH_REALITIES) {
           'unearned story echoes remain hidden',
         )
         assert.deepEqual(
-          earnedEarthAchievementIds(reality, journal.slice(0, -1)),
+          earnedEarthAchievementIds(
+            reality,
+            journal.filter(
+              (action) => !(action.type === 'choose' && action.key === '8,8'),
+            ),
+          ),
           [],
-          'a missing final choice cannot mint a completed-route medal',
+          'a missing pivotal choice cannot mint a completed-route medal',
         )
         assert.deepEqual(
           earnedEarthAchievementIds(reality, [

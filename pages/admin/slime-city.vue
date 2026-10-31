@@ -484,7 +484,9 @@
                 <SlimeCityArtwork
                   class="sc-inspected-paint"
                   :image-id="slimeArtId('cards', lab.inspectedCard.id)"
-                  :alt="lab.inspectedCard.name + ' illustrated collectible card'"
+                  :alt="
+                    lab.inspectedCard.name + ' illustrated collectible card'
+                  "
                   :fallback="lab.inspectedCard.symbol"
                 />
               </div>
@@ -664,7 +666,8 @@
             <p class="sc-art-summary" data-testid="slime-art-provenance">
               ROUND ONE: {{ SLIME_CITY_ART_COUNT }} RENDERED IDS ·
               {{ art.loadedCount }} VERIFIED IN BROWSER ·
-              {{ art.failedCount }} UNAVAILABLE · 24 STARTER CARDS STILL NEED ART
+              {{ art.failedCount }} UNAVAILABLE · 24 STARTER CARDS STILL NEED
+              ART
             </p>
           </div>
           <div class="sc-collection-grid kr-scroll">
@@ -940,10 +943,7 @@ import {
 import { STREETS } from '~/utils/slimeCity/city'
 import { describeTerms } from '~/utils/slimeCity/campaign'
 import { useSlimeCityStore } from '~/stores/slimeCity'
-import {
-  slimeArtId,
-  SLIME_CITY_ART_COUNT,
-} from '~/utils/slimeCity/artManifest'
+import { slimeArtId, SLIME_CITY_ART_COUNT } from '~/utils/slimeCity/artManifest'
 import { useSlimeCityArtStore } from '~/stores/slimeCityArt'
 
 const lab = useSlimeCityStore()

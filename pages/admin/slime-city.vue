@@ -186,8 +186,7 @@
               </div>
               <article
                 v-if="
-                  lab.activeChapter &&
-                  lab.campaignDistrict === lab.districtId
+                  lab.activeChapter && lab.campaignDistrict === lab.districtId
                 "
                 class="sc-story-mission"
                 data-testid="slime-city-story-mission"

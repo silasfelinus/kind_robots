@@ -22,6 +22,7 @@ import {
   memoryCharFate,
   newMemoryCampaignProgress,
   rememberMemoryWish,
+  type MemoryCampaignProgress,
 } from '../memoryDungeon/reimaginerCampaign'
 import {
   EARTH_PHOTOS,
@@ -40,9 +41,9 @@ for (const reality of EARTH_REALITIES) {
 }
 assert.deepEqual(eventNeighbors('1,1').sort(), ['1,2', '2,1'])
 
-let campaign = {
+let campaign: MemoryCampaignProgress = {
   ...newMemoryCampaignProgress(),
-  completed: ['e01', 'e02'] as const,
+  completed: ['e01', 'e02'],
 }
 let chronicle = newEarthChronicle()
 

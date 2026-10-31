@@ -688,9 +688,7 @@ export const useMemoryWorldStore = defineStore('memoryWorld', () => {
     } else {
       if (!campaign.value.completed.includes('e05')) return false
       if (
-        !MEMORY_PAIR_ENDINGS.e06.some(
-          (choice) => choice.id === pivotalChoice,
-        )
+        !MEMORY_PAIR_ENDINGS.e06.some((choice) => choice.id === pivotalChoice)
       )
         return false
       const decided = chooseMemoryPairEnding(
@@ -698,10 +696,7 @@ export const useMemoryWorldStore = defineStore('memoryWorld', () => {
         'e06',
         pivotalChoice,
       )
-      const remembered = rememberMemoryWish(
-        decided,
-        'char-possible-future',
-      )
+      const remembered = rememberMemoryWish(decided, 'char-possible-future')
       campaign.value = completeMemoryExperience(remembered, 'e06')
     }
     persistReality()

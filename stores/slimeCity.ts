@@ -6,7 +6,7 @@ import {
   nextLevelXp, PACK_COST, rarityOf,
   type Progression,
 } from '../utils/slimeCity/progression'
-import { computed, ref } from 'vue'
+import { computed, ref, watch } from 'vue'
 import {
   advance,
   attack,
@@ -101,17 +101,18 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
       progressError.value = 'Sign in to sync your Slime City account.'
       return
     }
-    if (correctAccount() && progressLoaded.value) return
     progressBusy.value = true
     progressLoaded.value = false
     progress.value = newProgression()
     progressError.value = ''
+    const requestUserId = userStore.authenticatedUserId
     try {
       const result = await performFetch<Progression>('/api/slime-city/progress')
       if (!result.success || !result.data)
         throw new Error(result.message || 'Could not load your Slime City account.')
+      if (requestUserId !== userStore.authenticatedUserId) return
       progress.value = result.data
-      progressAccount.value = userStore.authenticatedUserId
+      progressAccount.value = requestUserId
       progressLoaded.value = true
     } catch (error) {
       progressError.value = error instanceof Error ? error.message : 'Could not load account.'
@@ -164,6 +165,7 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
       if (!result.success || !result.data) throw new Error(result.message || 'Could not issue CPU battle.')
       stop()
       mode.value = 'blackout'
+      rules.value = { ...DEFAULT_RULES }
       enemyTeam.value = result.data.foeId
       seed.value = result.data.seed
       reset(true)
@@ -588,6 +590,14 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
   function unitLabel(id: string): string {
     return cardById(id).name
   }
+
+  watch(() => userStore.authenticatedUserId, () => {
+    progressAccount.value = null
+    progressLoaded.value = false
+    progress.value = newProgression()
+    rewardMatchId.value = null
+    void hydrateProgression()
+  })
 
   function dispose(): void {
     stop()

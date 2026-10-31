@@ -44,7 +44,7 @@ for (let n = 1; n <= 12; n++) {
       'merchant',
       'puzzle',
       'companion',
-    ])
+    ] as const)
       assert.ok(kinds.has(kind), id + ' missing ' + kind)
     for (const photo of EARTH_PHOTOS.filter((item) => item.experience === id))
       assert.equal(worldEvent(id, photo.site)?.photographId, photo.id)

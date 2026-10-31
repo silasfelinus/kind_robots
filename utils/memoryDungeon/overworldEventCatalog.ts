@@ -19,7 +19,7 @@ export type OverworldKind =
 export interface OverworldArt {
   path: string
   prompt: string
-  status: 'placeholder'
+  status: 'placeholder' | 'queued' | 'delivered'
 }
 export interface OverworldChoice {
   id: string

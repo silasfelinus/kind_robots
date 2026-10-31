@@ -398,7 +398,11 @@ export const useMemoryWorldStore = defineStore('memoryWorld', () => {
       hoshimoriNight,
     )
     if (earth && campaign.value.completed.includes(earth.reality))
-      next = reconcileMemoryEarthAchievements(next, earth.reality, earth.journal)
+      next = reconcileMemoryEarthAchievements(
+        next,
+        earth.reality,
+        earth.journal,
+      )
     if (next.length === earnedAchievementIds.value.length) return
     earnedAchievementIds.value = next
     if (!import.meta.client) return

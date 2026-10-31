@@ -384,7 +384,11 @@
                       @load="markOriginReady(origin.id)"
                       @error="onOriginArtError($event, origin.id)"
                     />
-                    <div v-else class="cap-origin-art cap-origin-art--waiting" role="status">
+                    <div
+                      v-else
+                      class="cap-origin-art cap-origin-art--waiting"
+                      role="status"
+                    >
                       REQUISITIONING ART…
                     </div>
                     <span class="cap-origin-copy"

@@ -1670,7 +1670,9 @@ function copy(state: MatchState): MatchState {
     flag: { ...state.flag },
     units: state.units.map((u) => ({ ...u })),
     traps: state.traps.map((t) => ({ ...t })),
-    scenarioBonus: state.scenarioBonus ? { ...state.scenarioBonus } : undefined,
+    ...(state.scenarioBonus
+      ? { scenarioBonus: { ...state.scenarioBonus } }
+      : {}),
     log: [...state.log],
     commands: state.commands.map((c) => ({ ...c })),
     stats: {

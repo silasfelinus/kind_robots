@@ -536,7 +536,7 @@
           aria-label="Special cards and creature collection"
         >
           <div class="sc-collection-title">
-            <span class="sc-overline">THE ARMORY / PROTOTYPE CARDS</span>
+            <span class="sc-overline">THE ARMORY / LOANER DECK · {{ lab.progress.cards.length }}/60 COLLECTED</span>
             <h2>{{ lab.team.name }}</h2>
             <p>{{ lab.team.hook }}</p>
             <p data-testid="slime-crew-pattern">
@@ -556,7 +556,7 @@
               <div class="sc-collect-art">{{ card.symbol }}</div>
               <div>
                 <span
-                  >{{ card.kind.toUpperCase() }} · {{ card.cost }} MANA<template
+                  >{{ lab.cardRarity(card).toUpperCase() }} · {{ lab.progress.cards.includes(card.id) ? 'OWNED' : 'LOANER' }} · {{ card.kind.toUpperCase() }} · {{ card.cost }} MANA<template
                     v-if="card.signature"
                   >
                     · SIGNATURE</template

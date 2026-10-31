@@ -8,6 +8,9 @@ import {
 import { renderableArtPath } from '~/utils/artImageSrc'
 import { galleryThumbnailUrl } from '~/server/utils/artGalleryArchiveMedia'
 import { COUCH_ONBOARDING_ART_IDS } from '~/utils/gameOfCaptains/onboardingArt'
+import { COUCH_VOYAGE_ART_IDS } from '~/utils/gameOfCaptains/voyagePaintings'
+
+const PAINTED_ART_IDS = { ...COUCH_ONBOARDING_ART_IDS, ...COUCH_VOYAGE_ART_IDS }
 
 export default defineEventHandler(async (event) => {
   try {
@@ -15,7 +18,7 @@ export default defineEventHandler(async (event) => {
     const images = await prisma.artImage.findMany({
       where: {
         AND: [
-          { id: { in: Object.values(COUCH_ONBOARDING_ART_IDS) } },
+          { id: { in: Object.values(PAINTED_ART_IDS) } },
           buildArtImageWhere(access),
         ],
       },
@@ -25,7 +28,7 @@ export default defineEventHandler(async (event) => {
     const byId = new Map(images.map((image) => [image.id, image]))
     const sources: Record<string, string> = {}
 
-    for (const [key, id] of Object.entries(COUCH_ONBOARDING_ART_IDS)) {
+    for (const [key, id] of Object.entries(PAINTED_ART_IDS)) {
       const image = byId.get(id)
       if (!image) continue
       const src =

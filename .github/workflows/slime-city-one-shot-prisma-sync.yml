@@ -1,0 +1,49 @@
+name: Slime City one-shot Prisma client sync
+
+on:
+  push:
+    branches:
+      - worker/slime-city-t004-progression-20261030-7c19
+
+permissions:
+  contents: write
+
+concurrency:
+  group: slime-city-prisma-sync
+  cancel-in-progress: false
+
+jobs:
+  generate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    env:
+      CYPRESS_INSTALL_BINARY: '0'
+      DATABASE_URL: 'mysql://user:pass@127.0.0.1:3306/kindrobots'
+    steps:
+      - name: Checkout exact branch
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+
+      - name: Generate canonical checked-in Prisma client
+        run: |
+          npm ci
+          npx prisma generate
+
+      - name: Commit generated files only
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add prisma/generated/prisma
+          if git diff --cached --quiet; then
+            echo "Prisma client already synchronized"
+            exit 0
+          fi
+          git commit -m "chore(slime-city): regenerate checked-in Prisma client"
+          git push origin "HEAD:refs/heads/worker/slime-city-t004-progression-20261030-7c19"

@@ -21,6 +21,12 @@ import {
   validateHouseEpilogues,
 } from '../memoryDungeon/houseEpilogues'
 import { BRIAR_SCENES } from '../memoryDungeon/scenes'
+import {
+  MEMORY_HOUSE_ACHIEVEMENTS,
+  memoryAchievementGallery,
+  reconcileMemoryAchievements,
+  restoreMemoryAchievements,
+} from '../memoryDungeon/achievements'
 import { newBriarSave, restoreBriarSave } from '../memoryDungeonWorld'
 import { buildMemoryDungeonPlaybook } from '../playbook/memoryDungeon'
 
@@ -132,6 +138,15 @@ assert.equal(testimonyBypass.current, 'HD-34')
 assert.ok(!testimonyBypass.visited.includes('HD-33'))
 assert.equal(testimonyBypass.wardenPassed, false)
 
+assert.deepEqual(
+  reconcileMemoryAchievements([], [], {
+    sceneChoices: {},
+    house: disconnectedHouse,
+  }),
+  [],
+  'disconnected or forged Hearth saves cannot mint medals',
+)
+
 const forgedHouseExit = restoreHouseProgress({
   current: 'HD-36',
   visited: connectedRooms('HD-36'),
@@ -199,6 +214,14 @@ for (const epilogue of epilogues) {
     ),
     `${epilogue.id} art prompt is literal`,
   )
+}
+
+assert.equal(MEMORY_HOUSE_ACHIEVEMENTS.length, 12)
+assert.equal(new Set(MEMORY_HOUSE_ACHIEVEMENTS.map((m) => m.echo)).size, 12)
+for (const medal of MEMORY_HOUSE_ACHIEVEMENTS) {
+  assert.ok(medal.echo.length >= 120)
+  assert.ok(medal.description.length >= 45)
+  assert.ok(medal.artPath.startsWith('/images/memory-dungeon/house/'))
 }
 
 const resolutions: HouseEnding[] = ['release', 'renew', 'break']
@@ -320,6 +343,25 @@ for (let seed = 1; seed <= 1500; seed++) {
   assert.ok(epilogue, `seed ${seed} earns an epilogue`)
   assert.equal(epilogue.resolution, progress.ending)
   reached.add(epilogue.id)
+  const medalId = `e01-house-${epilogue.id}`
+  const earnedMedals = reconcileMemoryAchievements(
+    [],
+    [],
+    { sceneChoices: briar, house: progress },
+  )
+  assert.ok(earnedMedals.includes(medalId), `seed ${seed} earns its House medal`)
+  assert.equal(
+    memoryAchievementGallery(earnedMedals).find((medal) => medal.id === medalId)?.earned,
+    true,
+  )
+  assert.deepEqual(
+    reconcileMemoryAchievements(
+      restoreMemoryAchievements(JSON.parse(JSON.stringify(earnedMedals))),
+      [],
+    ),
+    earnedMedals,
+    'House medals survive new runs without duplicating',
+  )
 
   // Saves keep only what they kept before; the epilogue survives a reload.
   const saved = JSON.parse(JSON.stringify(progress))

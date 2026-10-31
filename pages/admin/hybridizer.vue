@@ -166,7 +166,7 @@
               <button
                 v-if="lab.canEditResult"
                 type="button"
-                :disabled="lab.versionBusy || lab.result.status !== 'READY'"
+                :disabled="lab.versionBusy || !['READY', 'FAILED', 'CANCELLED'].includes(lab.result.status || '')"
                 data-testid="hybridizer-resubmit"
                 @click="lab.resubmit()"
               >✦ Try new art</button>

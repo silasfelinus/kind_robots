@@ -732,7 +732,7 @@ assert.ok(
   'voyage stage selects delivered painted mission and ending artwork',
 )
 assert.ok(
-  page.includes("store.onboardingArt[key] || null"),
+  page.includes('store.onboardingArt[key] || null'),
   'static legacy mission and antagonist images cannot enter the new stage',
 )
 assert.ok(page.includes('COUCH_FALLBACK'), 'drawn couch remains the fallback')
@@ -741,7 +741,9 @@ assert.ok(
   'opening shows its completed painterly art',
 )
 assert.ok(
-  page.includes("paintedVoyageImage('venues/' + localSystem.value.franchise.id)"),
+  page.includes(
+    "paintedVoyageImage('venues/' + localSystem.value.franchise.id)",
+  ),
   'encounter board shows its painted Serendipity venue',
 )
 assert.ok(page.includes('sentences.slice(0, 2)'), 'short ending stage copy')

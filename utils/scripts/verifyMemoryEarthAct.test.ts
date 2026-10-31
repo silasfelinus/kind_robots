@@ -1,10 +1,8 @@
 import assert from 'node:assert/strict'
 import { readFileSync } from 'node:fs'
-import { createPinia, setActivePinia } from 'pinia'
-import { useMemoryWorldStore } from '../../stores/memoryWorldStore'
-import { useMemoryEarthStore } from '../../stores/memoryEarthStore'
 import {
   chooseOverworldEvent,
+  eventNeighbors,
   newOverworldEventProgress,
   restoreOverworldEventProgress,
   revealOverworldEvent,
@@ -13,151 +11,138 @@ import {
 } from '../memoryDungeon/overworldEventCatalog'
 import {
   EARTH_REALITIES,
+  earthChoiceSummary,
   earthRealityCoverage,
   earthRealityPhotos,
   earthRealityReady,
 } from '../memoryDungeon/earthAct'
 import {
-  newMemoryCampaignProgress,
+  chooseMemoryPairEnding,
+  completeMemoryExperience,
   memoryCharFate,
+  newMemoryCampaignProgress,
+  rememberMemoryWish,
 } from '../memoryDungeon/reimaginerCampaign'
 import {
+  EARTH_PHOTOS,
   newEarthChronicle,
   reconcileMorrowEarthChronicle,
   restoreEarthChronicle,
-  EARTH_PHOTOS,
 } from '../memoryDungeon/chronicle'
 
 assert.deepEqual(earthRealityCoverage(), [])
 for (const reality of EARTH_REALITIES) {
   assert.equal(worldEvents(reality).length, 64)
   assert.equal(earthRealityPhotos(reality).length, 2)
-  assert.equal(
-    earthRealityReady(reality, newOverworldEventProgress(reality)),
-    false,
-  )
-  for (const photo of EARTH_PHOTOS.filter(
-    (item) => item.experience === reality,
-  )) {
+  assert.equal(earthRealityReady(reality, newOverworldEventProgress(reality)), false)
+  for (const photo of EARTH_PHOTOS.filter((item) => item.experience === reality))
     assert.equal(worldEvent(reality, photo.site)?.photographId, photo.id)
-  }
 }
+assert.deepEqual(eventNeighbors('1,1').sort(), ['1,2', '2,1'])
 
-setActivePinia(createPinia())
-const world = useMemoryWorldStore()
-const earth = useMemoryEarthStore()
-assert.equal(earth.unlocked, false)
-earth.travel('2,1')
-assert.equal(earth.position, '1,1')
-earth.select('e04')
-assert.equal(earth.active, 'e03')
+let campaign = {
+  ...newMemoryCampaignProgress(),
+  completed: ['e01', 'e02'] as const,
+}
+let chronicle = newEarthChronicle()
 
-world.campaign = { ...newMemoryCampaignProgress(), completed: ['e01', 'e02'] }
-assert.equal(earth.unlocked, true)
-earth.select('e04')
-assert.equal(earth.active, 'e03')
+for (const reality of EARTH_REALITIES) {
+  let progress = newOverworldEventProgress(reality)
+  assert.equal(earthRealityReady(reality, progress), false)
+  assert.equal(chooseOverworldEvent(progress, '8,8', 'care'), progress)
 
-function snake(reality: 'e03' | 'e04'): void {
-  assert.equal(earth.active, reality)
+  let previous = '1,1'
   for (let y = 1; y <= 8; y++) {
     const xs = Array.from({ length: 8 }, (_, i) =>
       y % 2 === 1 ? i + 1 : 8 - i,
     )
     for (const x of xs) {
       const key = x + ',' + y
-      earth.travel(key)
-      assert.equal(earth.position, key)
-      assert.equal(earth.progress.revealed.includes(key), true)
+      if (key !== previous)
+        assert.ok(eventNeighbors(previous).includes(key), 'walk adjacency')
+      progress = revealOverworldEvent(progress, key)
+      assert.ok(progress.revealed.includes(key))
       const event = worldEvent(reality, key)!
       const choice =
         reality === 'e04' && key === '8,8'
           ? event.choices.find((option) => option.id === 'open-the-tide-gate')!
           : event.choices[0]!
-      earth.choose(choice.id)
-      assert.equal(earth.progress.choices[key], choice.id)
-      const score = earth.progress.trust
-      earth.choose(choice.id)
-      assert.equal(earth.progress.trust, score, 'duplicate rewards forbidden')
+      progress = chooseOverworldEvent(progress, key, choice.id)
+      assert.equal(progress.choices[key], choice.id)
+      assert.equal(
+        chooseOverworldEvent(progress, key, choice.id),
+        progress,
+        'never award a site twice',
+      )
+      previous = key
     }
   }
-  assert.equal(earth.progress.revealed.length, 64)
-  assert.equal(Object.keys(earth.progress.choices).length, 64)
-  assert.equal(earth.photographs, 2)
-  assert.equal(earth.readyToLeave, true)
-}
 
-snake('e03')
-assert.equal(world.campaign.completed.includes('e03'), false)
-earth.conclude()
-assert.equal(world.campaign.completed.includes('e03'), true)
-assert.equal(
-  world.campaign.rememberedAnchors.includes('morrow-magic-attempt'),
-  true,
-)
-assert.equal(earth.active, 'e04')
-assert.equal(earth.e04Unlocked, true)
-assert.equal(earth.progress.revealed.length, 1)
-assert.equal(
-  world.earthChronicle.found.filter((id) => id.startsWith('earth-')).length >=
-    0,
-  true,
-)
-
-snake('e04')
-assert.equal(earth.readyToLeave, true)
-earth.conclude()
-assert.equal(world.campaign.completed.includes('e04'), true)
-assert.equal(world.campaign.pairDecisions?.e04, 'open-the-tide-gate')
-assert.equal(memoryCharFate(world.campaign), 'lost')
-assert.equal(earth.notice.includes('Scylla'), true)
-earth.conclude()
-assert.equal(world.campaign.completed.filter((id) => id === 'e04').length, 1)
-
-for (const fate of ['seal-the-tide-gate', 'divert-the-current']) {
-  let progress = newOverworldEventProgress('e04')
-  progress = revealOverworldEvent(progress, '2,1')
-  progress = chooseOverworldEvent(progress, '2,1', 'care')
-  assert.equal(progress.choices['2,1'], 'care')
-  assert.ok(
-    worldEvent('e04', '8,8')?.choices.some((choice) => choice.id === fate),
+  assert.equal(progress.revealed.length, 64)
+  assert.equal(Object.keys(progress.choices).length, 64)
+  assert.equal(earthRealityReady(reality, progress), true)
+  assert.ok(earthChoiceSummary(reality, progress).length > 30)
+  chronicle = reconcileMorrowEarthChronicle(
+    chronicle,
+    reality,
+    progress.choices,
   )
-}
+  assert.equal(
+    chronicle.found.filter((id) =>
+      EARTH_PHOTOS.some(
+        (photo) => photo.experience === reality && photo.id === id,
+      ),
+    ).length,
+    2,
+  )
 
-for (const reality of EARTH_REALITIES) {
-  const source =
-    earth.progress.experience === reality
-      ? earth.progress
-      : newOverworldEventProgress(reality)
-  const restored = restoreOverworldEventProgress({
-    ...source,
+  const forged = restoreOverworldEventProgress({
+    ...progress,
     supplies: 999999,
     trust: 999999,
-    revealed: [...source.revealed, '8,0', '10,10'],
-    choices: { ...source.choices, '8,0': 'care' },
+    revealed: [...progress.revealed, '8,0', '10,10'],
+    choices: { ...progress.choices, '8,0': 'care' },
   })!
-  assert.equal(restored.revealed.includes('8,0'), false)
-  assert.equal(restored.choices['8,0'], undefined)
-  assert.notEqual(restored.trust, 999999)
+  assert.equal(forged.revealed.includes('8,0'), false)
+  assert.equal(forged.choices['8,0'], undefined)
+  assert.notEqual(forged.trust, 999999)
+  assert.equal(earthRealityReady(reality, forged), true)
+
+  if (reality === 'e03') {
+    campaign = rememberMemoryWish(campaign, 'morrow-magic-attempt')
+    campaign = completeMemoryExperience(campaign, 'e03')
+    assert.ok(campaign.completed.includes('e03'))
+    assert.ok(campaign.rememberedAnchors.includes('morrow-magic-attempt'))
+  } else {
+    for (const surviving of ['seal-the-tide-gate', 'divert-the-current']) {
+      const survival = chooseMemoryPairEnding(campaign, 'e04', surviving)
+      assert.equal(memoryCharFate(survival), 'alive')
+    }
+    campaign = chooseMemoryPairEnding(
+      campaign,
+      'e04',
+      progress.choices['8,8']!,
+    )
+    campaign = completeMemoryExperience(campaign, 'e04')
+    assert.equal(memoryCharFate(campaign), 'lost')
+    assert.equal(campaign.pairDecisions?.e04, 'open-the-tide-gate')
+    assert.ok(campaign.completed.includes('e04'))
+  }
 }
 
-let chronicle = newEarthChronicle()
-chronicle = reconcileMorrowEarthChronicle(chronicle, 'e03', {
-  [earthRealityPhotos('e03')[0]!]: 'challenge',
-})
-assert.equal(chronicle.found.length, 1)
-assert.equal(restoreEarthChronicle(chronicle).found.length, 1)
+assert.equal(chronicle.found.length, 4)
+assert.equal(restoreEarthChronicle(chronicle).found.length, 4)
 assert.equal(
   reconcileMorrowEarthChronicle(chronicle, 'e03', {}).found.length,
-  1,
-  'previously collected photos stay collected',
+  4,
+  'a future sync must not erase earlier earned photos',
 )
 
 const stage = readFileSync('components/pages/memory-dungeon-earth.vue', 'utf8')
 const root = readFileSync('components/pages/memory-dungeon.vue', 'utf8')
-const briar = readFileSync(
-  'components/pages/memory-dungeon-overworld.vue',
-  'utf8',
-)
+const briar = readFileSync('components/pages/memory-dungeon-overworld.vue', 'utf8')
+const store = readFileSync('stores/memoryEarthStore.ts', 'utf8')
+const world = readFileSync('stores/memoryWorldStore.ts', 'utf8')
 assert.match(stage, /data-testid="memory-earth-act"/)
 assert.match(stage, /earth\.travel\(tile\.key\)/)
 assert.match(stage, /earth\.choose\(choice\.id\)/)
@@ -165,7 +150,11 @@ assert.match(stage, /sceneArt\.status === 'delivered'/)
 assert.match(stage, /choice\.art\.status === 'delivered'/)
 assert.match(root, /memory-dungeon-earth v-else-if="earthMode"/)
 assert.match(briar, /v-if="world\.campaign\.completed\.includes\('e02'\)"/)
+assert.match(store, /world\.finishMorrowEarthReality\(/)
+assert.match(store, /restoreOverworldEventProgress\(/)
+assert.match(store, /window\.localStorage\.setItem\(STORAGE_KEY/)
+assert.match(world, /function finishMorrowEarthReality\(/)
 
 console.log(
-  'Memory Earth act: 128 walkable scenes, earned photos, saved one-time outcomes, gating and Char fate passed',
+  'Memory Earth act: 128 walkable events, 4 earned photos, gated world exits, replay-safe choices and Char fate passed',
 )

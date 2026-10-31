@@ -190,7 +190,12 @@ function teamName(id: TeamId): string {
   z-index: -1;
   content: '';
   pointer-events: none;
-  background: linear-gradient(90deg, #0d1622ec 0%, #0e1727b8 48%, #0d14206b 100%);
+  background: linear-gradient(
+    90deg,
+    #0d1622ec 0%,
+    #0e1727b8 48%,
+    #0d14206b 100%
+  );
 }
 .campaign-hero {
   position: relative;

@@ -206,6 +206,8 @@ export interface MatchState {
   foeId: TeamId
   units: Fighter[]
   traps: Trap[]
+  /** Optional authored scenario bonuses, applied to fighters deployed later. */
+  scenarioBonus?: { playerHp: number; enemyArmor: number; fewerRivals: number }
   flag: { x: number; y: number }
   rules: RuleVariants
   /** Present only with the monster variant, until it falls. */
@@ -1668,6 +1670,7 @@ function copy(state: MatchState): MatchState {
     flag: { ...state.flag },
     units: state.units.map((u) => ({ ...u })),
     traps: state.traps.map((t) => ({ ...t })),
+    scenarioBonus: state.scenarioBonus ? { ...state.scenarioBonus } : undefined,
     log: [...state.log],
     commands: state.commands.map((c) => ({ ...c })),
     stats: {
@@ -1768,10 +1771,10 @@ function addFighter(
     side,
     x,
     y,
-    hp: card.hp || 2,
-    maxHp: card.hp || 2,
+    hp: Math.max(1, (card.hp || 2) + (side === 'player' ? (state.scenarioBonus?.playerHp ?? 0) : 0)),
+    maxHp: Math.max(1, (card.hp || 2) + (side === 'player' ? (state.scenarioBonus?.playerHp ?? 0) : 0)),
     attack: card.attack || 1,
-    armor: card.armor || 0,
+    armor: Math.max(0, (card.armor || 0) + (side === 'enemy' ? (state.scenarioBonus?.enemyArmor ?? 0) : 0)),
     ap: card.ap || 1,
     maxAp: card.ap || 1,
     hidden,
@@ -2095,7 +2098,12 @@ function applyDeploy(
   if (card.kind === 'creature') {
     if (target || !inDeployZone(state, side, x)) return false
     if (
-      state.units.filter((u) => u.side === side).length >= FIELD_CAP[state.mode]
+      state.units.filter((u) => u.side === side).length >=
+      Math.max(
+        1,
+        FIELD_CAP[state.mode] -
+          (side === 'enemy' ? (state.scenarioBonus?.fewerRivals ?? 0) : 0),
+      )
     )
       return false
     addFighter(
@@ -2457,7 +2465,11 @@ export function observe(state: MatchState, side: Side): MatchView {
     height: state.height,
     round: state.round,
     maxRounds: state.maxRounds,
-    fieldCap: FIELD_CAP[state.mode],
+    fieldCap: Math.max(
+      1,
+      FIELD_CAP[state.mode] -
+        (side === 'enemy' ? (state.scenarioBonus?.fewerRivals ?? 0) : 0),
+    ),
     trapCap: trapCapOf(state, side),
     mana: manaOf(state, side),
     opponentMana: manaOf(state, other(side)),

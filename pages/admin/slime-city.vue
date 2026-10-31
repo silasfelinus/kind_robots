@@ -643,7 +643,7 @@
                 >
                   START REWARDED CPU BATTLE →
                 </button>
-                <small aria-live="polite">{{ lab.progress.lastReward }}</small>
+                <small aria-live="polite">{{ lab.progressError || lab.progress.lastReward }}</small>
               </div>
               <div class="sc-reward-panel sc-shop-panel">
                 <span class="sc-overline">THE PACK SHOP</span>

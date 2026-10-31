@@ -422,10 +422,14 @@ export function restoreProgression(
           ? p.opened
           : 0,
       lastPack: Array.isArray(p.lastPack)
-        ? p.lastPack.filter((id): id is string => typeof id === 'string' && cards.includes(id))
+        ? p.lastPack.filter(
+            (id): id is string => typeof id === 'string' && cards.includes(id),
+          )
         : [],
-      lastReward: typeof p.lastReward === 'string' && p.lastReward.length < 512
-        ? p.lastReward : '',
+      lastReward:
+        typeof p.lastReward === 'string' && p.lastReward.length < 512
+          ? p.lastReward
+          : '',
       daily: cleanWin(p.daily, 'daily'),
       weekly: cleanWin(p.weekly, 'weekly'),
     },

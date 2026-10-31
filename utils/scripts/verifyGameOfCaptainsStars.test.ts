@@ -4,6 +4,7 @@ import {
   COUCH_ONBOARDING_ART_COUNT,
   COUCH_ONBOARDING_ART_IDS,
 } from '../gameOfCaptains/onboardingArt'
+import { COUCH_VOYAGE_ART_IDS } from '../gameOfCaptains/voyagePaintings'
 import { readFileSync } from 'node:fs'
 import { startVoyage, restoreVoyage, CREW } from '../gameOfCaptains/rules'
 import {
@@ -37,6 +38,34 @@ assert.equal(
   'four questions after the captain dossier',
 )
 assert.equal(STAR_SIGNS.length, 12, 'an original dozen constellations')
+assert.equal(
+  Object.keys(COUCH_VOYAGE_ART_IDS).length,
+  106,
+  'finished runtime, venue and opening art is registered',
+)
+assert.equal(
+  Object.keys(COUCH_VOYAGE_ART_IDS).filter((key) => key.startsWith('missions/'))
+    .length,
+  27,
+)
+assert.equal(
+  Object.keys(COUCH_VOYAGE_ART_IDS).filter((key) => key.startsWith('venues/'))
+    .length,
+  20,
+)
+assert.equal(
+  Object.keys(COUCH_VOYAGE_ART_IDS).filter((key) => key.startsWith('opening/'))
+    .length,
+  18,
+)
+assert.equal(
+  new Set([
+    ...Object.values(COUCH_ONBOARDING_ART_IDS),
+    ...Object.values(COUCH_VOYAGE_ART_IDS),
+  ]).size,
+  128,
+  'no two paintings overwrite the same ArtImage slot',
+)
 assert.equal(
   COUCH_ONBOARDING_ART_COUNT,
   22,
@@ -492,4 +521,8 @@ assert.ok(deck.includes('YOUR STAR SIGN QUEST'))
 assert.ok(store.includes('assessment?: StarAssessment'))
 console.log(
   'Space Couch 12 constellations, 4-question test, 36 sign quests, save and finale contract verified',
-)
+)assert.ok(artEndpoint.includes('Object.values(PAINTED_ART_IDS)'))
+assert.ok(artEndpoint.includes('...COUCH_VOYAGE_ART_IDS'))
+assert.ok(page.includes('voyageStageArt(run.value, paintedVoyageImage)'))
+assert.ok(page.includes('onPaintedImageError'))
+

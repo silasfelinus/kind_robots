@@ -18,6 +18,7 @@ import {
   boutTerms,
   CITY_PLAN,
   CITY_CONTRACTS,
+  CAMPAIGN_DISTRICTS,
   cityRoute,
   cityWon,
   contractBlocked,
@@ -97,6 +98,15 @@ for (const from of ids)
       'Shortest path lengths must be symmetrical',
     )
   }
+
+// Every crew campaign's rival lives at a unique real district with legal paths.
+assert.equal(Object.keys(CAMPAIGN_DISTRICTS).length, TEAMS.length)
+assert.equal(new Set(Object.values(CAMPAIGN_DISTRICTS)).size, TEAMS.length)
+for (const team of TEAMS) {
+  const id = CAMPAIGN_DISTRICTS[team.id]
+  assert.ok(DISTRICTS.some((district) => district.id === id))
+  assert.ok(cityRoute('pitworks', id).length > 0)
+}
 
 // Rivals: distinct names, every crew appears, all three formats appear
 const rivals = ids.map((id) => CITY_PLAN[id].rival)
@@ -528,5 +538,33 @@ assert.equal(
   lab.activeChapter?.foe,
   'undertow',
   'Switching crews begins their own story',
+)
+// The STORY map shortcut launches the same chapter via a physical destination,
+// but never bypasses a first-crossing story or grants account rewards.
+lab.showCampaign()
+lab.resetCity()
+lab.findCampaignBattle()
+assert.equal(lab.view, 'city')
+assert.equal(lab.districtId, 'undertow')
+assert.equal(lab.routeSteps.length, 1)
+lab.startCampaignBattle('conviction')
+assert.equal(lab.view, 'city', 'Cannot launch mission while across town')
+lab.walk()
+assert.equal(lab.city.location, 'undertow')
+assert.equal(lab.city.pendingStreet, 'The Long Drain')
+lab.startCampaignBattle('conviction')
+assert.equal(lab.view, 'city', 'Unresolved street encounter blocks mission')
+lab.chooseStreet(STREET_STORIES['The Long Drain']!.choices[0].id)
+assert.equal(lab.campaignAtDestination, true)
+lab.startCampaignBattle('cunning')
+assert.equal(lab.view, 'arena')
+assert.equal(lab.match.foeId, 'undertow')
+assert.ok(lab.campaignBout, 'City mission uses campaign settlement')
+assert.equal(lab.match.teamId, 'catgirls')
+assert.equal(lab.match.mana, 3, 'Mission approach changes opening mana')
+assert.equal(
+  lab.city.cleared.length,
+  0,
+  'Faction mission is separate from district champion ledger',
 )
 console.log('Slime City faction campaign store battle PASS')

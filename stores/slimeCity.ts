@@ -43,6 +43,7 @@ import {
   boutTerms,
   CITY_PLAN,
   CITY_CONTRACTS,
+  CAMPAIGN_DISTRICTS,
   cityRoute,
   contractBlocked,
   contractTerms,
@@ -122,6 +123,15 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
   )
   const campaignFinale = computed(() =>
     campaignEnding(campaignSave.value, activeTeam.value),
+  )
+  const campaignDistrict = computed(() =>
+    activeChapter.value ? CAMPAIGN_DISTRICTS[activeChapter.value.foe] : null,
+  )
+  const campaignAtDestination = computed(
+    () =>
+      campaignDistrict.value !== null &&
+      city.value.location === campaignDistrict.value &&
+      !city.value.pendingStreet,
   )
   const team = computed(() => teamById(activeTeam.value))
   const enemy = computed(() => teamById(enemyTeam.value))
@@ -316,6 +326,14 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
     view.value = 'cards'
   }
 
+  /** Find the next campaign rival without skipping real city street encounters. */
+  function findCampaignBattle(): void {
+    if (!campaignDistrict.value) return
+    stop()
+    districtId.value = campaignDistrict.value
+    view.value = 'city'
+  }
+
   function chooseMode(id: ModeId): void {
     mode.value = id
     view.value = 'arena'
@@ -414,7 +432,12 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
     if (!guideSeen.has('blackout')) openGuide()
   }
   function startCampaignBattle(choiceId: CampaignApproach): void {
-    if (view.value !== 'campaign' || campaignBout.value) return
+    if (campaignBout.value) return
+    const fromCity =
+      view.value === 'city' &&
+      campaignAtDestination.value &&
+      districtId.value === campaignDistrict.value
+    if (view.value !== 'campaign' && !fromCity) return
     const teamId = activeTeam.value
     const chapter = campaignChapter(campaignSave.value, teamId)
     const choice = chapter?.choices.find((option) => option.id === choiceId)
@@ -614,6 +637,8 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
     campaignState,
     activeChapter,
     campaignFinale,
+    campaignDistrict,
+    campaignAtDestination,
     plan,
     streetEvent,
     streetProgress,
@@ -671,6 +696,7 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
     fightRival,
     fightContract,
     showCampaign,
+    findCampaignBattle,
     startCampaignBattle,
     resetCity,
     startDistrictMatch,

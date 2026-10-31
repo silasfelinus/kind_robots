@@ -17,6 +17,11 @@ import {
   earthRealityReady,
 } from '../memoryDungeon/earthAct'
 import {
+  migrateLegacyEarthJournal,
+  replayEarthJournal,
+  type EarthJournalAction,
+} from '../memoryDungeon/earthJournal'
+import {
   chooseMemoryPairEnding,
   completeMemoryExperience,
   memoryCharFate,
@@ -140,6 +145,92 @@ assert.equal(
   'a future sync must not erase earlier earned photos',
 )
 
+for (const reality of EARTH_REALITIES) {
+  const journal: EarthJournalAction[] = []
+  let current = '1,1'
+  for (let y = 1; y <= 8; y++) {
+    for (const x of Array.from({ length: 8 }, (_, i) =>
+      y % 2 === 1 ? i + 1 : 8 - i,
+    )) {
+      const key = x + ',' + y
+      if (key !== current) journal.push({ type: 'travel', key })
+      const event = worldEvent(reality, key)!
+      const choiceId =
+        reality === 'e04' && key === '8,8'
+          ? 'open-the-tide-gate'
+          : event.choices[0]!.id
+      journal.push({ type: 'choose', key, choiceId })
+      current = key
+    }
+  }
+  const replayed = replayEarthJournal(reality, journal)!
+  assert.equal(replayed.position, current)
+  assert.equal(replayed.progress.revealed.length, 64)
+  assert.equal(Object.keys(replayed.progress.choices).length, 64)
+  assert.equal(earthRealityReady(reality, replayed.progress), true)
+
+  const legacy = migrateLegacyEarthJournal(
+    reality,
+    replayed.progress,
+    replayed.position,
+  )!
+  const migrated = replayEarthJournal(reality, legacy)!
+  assert.deepEqual(migrated.progress.choices, replayed.progress.choices)
+  assert.equal(migrated.position, current)
+  assert.equal(migrated.progress.revealed.length, 64)
+
+  assert.equal(
+    replayEarthJournal(reality, [{ type: 'travel', key: '8,8' }]),
+    null,
+    'teleporting to a distant photograph or finale is not a valid save',
+  )
+  assert.equal(
+    replayEarthJournal(reality, [
+      { type: 'choose', key: '8,8', choiceId: 'care' },
+    ]),
+    null,
+    'a choice cannot be made without physically reaching the site',
+  )
+  assert.equal(
+    replayEarthJournal(reality, [
+      { type: 'choose', key: '1,1', choiceId: 'care' },
+      { type: 'choose', key: '1,1', choiceId: 'risk' },
+    ]),
+    null,
+    'the same encounter cannot mint a second reward',
+  )
+  assert.equal(
+    replayEarthJournal(reality, [
+      { type: 'travel', key: '2,1' },
+      { type: 'choose', key: '2,1', choiceId: 'forged' },
+    ]),
+    null,
+  )
+  assert.equal(
+    replayEarthJournal(
+      reality,
+      Array.from({ length: 513 }, () => ({
+        type: 'travel',
+        key: '2,1',
+      })),
+    ),
+    null,
+    'oversized action histories must be bounded',
+  )
+  assert.equal(
+    replayEarthJournal(reality, journal.slice(0, -1))?.progress.choices[
+      current
+    ],
+    undefined,
+    'an incomplete route cannot claim its unplayed last outcome',
+  )
+  assert.equal(
+    migrateLegacyEarthJournal(reality, replayed.progress, '8,0'),
+    null,
+    'legacy migration cannot invent an invalid destination',
+  )
+}
+
 const stage = readFileSync('components/pages/memory-dungeon-earth.vue', 'utf8')
 const root = readFileSync('components/pages/memory-dungeon.vue', 'utf8')
 const briar = readFileSync(
@@ -157,6 +248,9 @@ assert.match(root, /memory-dungeon-earth v-else-if="earthMode"/)
 assert.match(briar, /v-if="world\.campaign\.completed\.includes\('e02'\)"/)
 assert.match(store, /world\.finishMorrowEarthReality\(/)
 assert.match(store, /restoreOverworldEventProgress\(/)
+assert.match(store, /replayEarthJournal\(/)
+assert.match(store, /migrateLegacyEarthJournal\(/)
+assert.match(store, /journals\[active\.value\]\.push\(/)
 assert.match(store, /window\.localStorage\.setItem\(STORAGE_KEY/)
 assert.match(world, /function finishMorrowEarthReality\(/)
 

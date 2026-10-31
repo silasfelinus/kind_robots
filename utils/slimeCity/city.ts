@@ -915,8 +915,7 @@ export function applyTerms(match: MatchState, terms: BoutTerms): MatchState {
   next.maxRounds = Math.max(8, next.maxRounds + (terms.rounds ?? 0))
   next.scenarioBonus = {
     playerHp: (next.scenarioBonus?.playerHp ?? 0) + (terms.playerHp ?? 0),
-    enemyArmor:
-      (next.scenarioBonus?.enemyArmor ?? 0) + (terms.enemyArmor ?? 0),
+    enemyArmor: (next.scenarioBonus?.enemyArmor ?? 0) + (terms.enemyArmor ?? 0),
     fewerRivals:
       (next.scenarioBonus?.fewerRivals ?? 0) + (terms.fewerRivals ?? 0),
   }

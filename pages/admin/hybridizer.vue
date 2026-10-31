@@ -446,13 +446,15 @@ async function upvote() {
   if (!reactionImageId.value || upvoteBusy.value) return
   upvoteBusy.value = true
   try {
-    await reactionStore.addReaction({
+    const added = await reactionStore.addReaction({
       ...getReactionTargetPayload('artImage', reactionImageId.value),
       rating: 5,
       reactionType: 'LOVED',
       reactionCategory: 'ART_IMAGE',
     })
-    lab.status = 'Your upvote is attached to this artwork version.'
+    lab.status = added
+      ? 'Your upvote is attached to this artwork version.'
+      : reactionStore.lastError || 'Could not submit upvote. Sign in and try again.'
   } catch (error) {
     lab.status = error instanceof Error ? error.message : 'Could not submit upvote. Sign in and try again.'
   } finally {

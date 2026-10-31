@@ -79,6 +79,9 @@ assert.deepEqual(eventNeighbors('not-a-cell'), [])
 
 const gate = worldEvent('e04', '8,8')!
 assert.equal(gate.choices.length, 3)
+assert.deepEqual(gate.choices.map((choice) => choice.id), [
+  'open-the-tide-gate', 'seal-the-tide-gate', 'divert-the-current',
+])
 assert.deepEqual(gate.choices.map((choice) => choice.flag), [
   'e04:char-lost-in-present',
   'e04:char-alive-commuters-stranded',

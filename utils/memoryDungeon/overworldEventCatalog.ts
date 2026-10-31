@@ -1,6 +1,7 @@
 import { BRIAR_SCENES } from './scenes'
 import { DARK_BRIAR_SCENES, DARK_BRIAR_SEALS } from './darkBriar'
 import { HOSHIMORI_WARM_SITES } from './hoshimoriWarm'
+import { HOSHIMORI_NIGHT_SITES } from './hoshimoriNight'
 import { EARTH_PHOTOS } from './chronicle'
 import recipes from './overworldEventRecipes.json'
 
@@ -235,6 +236,9 @@ function legacy(): OverworldEvent[] {
       portrait: art(world, key, title, 'speaking-portrait', 'painted storybook'),
       sceneArt: art(world, key, title, 'establishing-scene', 'painted storybook'),
       choices: legacyChoices(world, key, title, options),
+      ...(world === 'e08' && mirrorTitles.has(key)
+        ? { originalSite: mirrorTitles.get(key)! }
+        : {}),
       ...(photos.get(world)?.find((photo) => photo.site === key)
         ? { photographId: photos.get(world)!.find((photo) => photo.site === key)!.id }
         : {}),
@@ -254,6 +258,8 @@ function legacy(): OverworldEvent[] {
     ])
   for (const site of HOSHIMORI_WARM_SITES)
     add('e07', site.key, site.title, site.opening, site.choices)
+  for (const site of HOSHIMORI_NIGHT_SITES)
+    add('e08', site.key, site.title, site.opening, site.choices)
   return records
 }
 
@@ -263,6 +269,8 @@ export const OVERWORLD_EVENT_CATALOG: readonly OverworldEvent[] = [
   ...recipes.worlds.flatMap((world) =>
     Array.from({ length: 64 }, (_, index) =>
       generated(world, (index % 8) + 1, Math.floor(index / 8) + 1),
+    ).filter((event) =>
+      world.id !== 'e08' || !HOSHIMORI_NIGHT_SITES.some((site) => site.key === event.key),
     ),
   ),
 ]

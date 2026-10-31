@@ -25,4 +25,6 @@ export const COUCH_ONBOARDING_ART_IDS = {
 
 export type CouchOnboardingArtKey = keyof typeof COUCH_ONBOARDING_ART_IDS
 
-export const COUCH_ONBOARDING_ART_COUNT = Object.keys(COUCH_ONBOARDING_ART_IDS).length
+export const COUCH_ONBOARDING_ART_COUNT = Object.keys(
+  COUCH_ONBOARDING_ART_IDS,
+).length

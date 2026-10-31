@@ -20,10 +20,14 @@ export const useSlimeCityArtStore = defineStore('slimeCityArt', () => {
   let generation = 0
 
   const loadedCount = computed(
-    () => Object.values(images.value).filter((entry) => entry.status === 'loaded').length,
+    () =>
+      Object.values(images.value).filter((entry) => entry.status === 'loaded')
+        .length,
   )
   const failedCount = computed(
-    () => Object.values(images.value).filter((entry) => entry.status === 'failed').length,
+    () =>
+      Object.values(images.value).filter((entry) => entry.status === 'failed')
+        .length,
   )
 
   function clear(): void {

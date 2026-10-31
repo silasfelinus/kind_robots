@@ -57,9 +57,7 @@
             @click="startNewVoyage"
           >
             START NEW GAME <span>✦</span
-            ><small
-              >Choose your captain, background, Couchscope and crew</small
-            >
+            ><small>Choose your captain, background, Couchscope and crew</small>
           </button>
           <button
             type="button"
@@ -407,9 +405,9 @@
                   <div>
                     <h2>Claim your cushion</h2>
                     <p>
-                      Select the captain who is about to acquire a
-                      questionable background. The couch runs on personalities
-                      as much as fuel.
+                      Select the captain who is about to acquire a questionable
+                      background. The couch runs on personalities as much as
+                      fuel.
                     </p>
                   </div>
                 </div>

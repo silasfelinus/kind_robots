@@ -8,7 +8,10 @@ import {
   boutBlocked,
   boutTerms,
   CITY_PLAN,
+  CITY_CONTRACTS,
   cityWon,
+  contractBlocked,
+  recordContract,
   createCity,
   decide,
   decideStreet,
@@ -198,6 +201,17 @@ assert.equal(gateReason(run, 'crown'), null, 'Wins open the Gilt Gate')
 assert.equal(cityWon(run), false)
 assert.equal(cityWon(recordBout(run, 'pitworks', 'player')), true)
 
+for (const id of ids) {
+  const here = { ...createCity(), location: id }
+  assert.ok(contractBlocked(here, id))
+  const unlocked = recordBout(here, id, 'player')
+  assert.equal(contractBlocked(unlocked, id), null)
+  const won = recordContract(unlocked, id, 'player')
+  assert.deepEqual(won.contracts, [id])
+  assert.equal(recordContract(won, id, 'player'), won)
+  assert.equal(recordContract(unlocked, id, 'enemy').contracts.length, 0)
+  assert.equal(CITY_CONTRACTS[id].team.length > 0, true)
+}
 // Losses raise heat; too much heat bankrolls every rival
 let hot = createCity()
 for (let i = 0; i < HEAT_LIMIT; i++) hot = recordBout(hot, 'foundry', 'enemy')

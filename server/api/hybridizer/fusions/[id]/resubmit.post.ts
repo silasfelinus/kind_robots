@@ -18,6 +18,7 @@ import {
   requireFusionEditor,
   versionJobs,
   versionProjectSlug,
+  visibleVersionArt,
 } from '~/server/utils/hybridizerVersions'
 
 export default defineEventHandler(async (event) => {
@@ -32,8 +33,9 @@ export default defineEventHandler(async (event) => {
     // Revisions are deliberately serialized per discovery. Never let a second
     // click start another billable render while this one is in flight.
     const jobs = await versionJobs(fusion)
-    if (!jobs.length || !fusion.artImageId)
-      throw createError({ statusCode: 409, message: 'Illustrate this fusion before requesting a revision.' })
+    const priorArt = await visibleVersionArt(fusion.artImageId, fusion, auth.user.id)
+    if (!jobs.length || !priorArt)
+      throw createError({ statusCode: 409, message: 'A delivered and accessible primary illustration is required before requesting a revision.' })
     if (jobs.some((job) => job.projectSlug === slug && ['PENDING', 'RUNNING'].includes(job.status)))
       throw createError({ statusCode: 409, message: 'A revision is already rendering for this fusion.' })
     const revision = jobs.filter((job) => job.projectSlug === slug).length + 1

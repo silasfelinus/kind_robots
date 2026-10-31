@@ -125,10 +125,11 @@ assert.deepEqual(
   'the housekeeper keeps both nonviolent choices alongside the optional duel',
 )
 assert.match(housekeeperChoices[2]!.outcome, /passage is not ownership/)
-const housekeeperFight = startCombatRoom('housekeeper', 1609, [
-  '/img/0.webp', '/img/1.webp', '/img/2.webp', '/img/3.webp',
-  '/img/4.webp', '/img/5.webp', '/img/6.webp', '/img/7.webp',
-])
+const housekeeperFight = startCombatRoom(
+  'housekeeper',
+  1609,
+  Array.from({ length: COMBAT_PAIRS }, (_, i) => `/img/${i}.webp`),
+)
 assert.equal(housekeeperFight.state.enemy.name, 'Thornbound Housekeeper')
 assert.ok(restoreBriarCombat(housekeeperFight, 'housekeeper'))
 assert.equal(

@@ -7,6 +7,7 @@ import {
   seededHash,
   deckOf,
   type Card,
+  type Command,
   type MatchState,
 } from './prototypes'
 
@@ -249,7 +250,8 @@ export function awardBattle(
   const earnedXp = !paid ? 0 : victory ? 80 : draw ? 35 : 25
   const earnedMeat = !paid ? 0 : victory ? 45 : draw ? 15 : 10
   const events = match.commands.filter(
-    (c) => c.t === 'deploy' && c.side === 'player',
+    (c): c is Extract<Command, { t: 'deploy' }> =>
+      c.t === 'deploy' && c.side === 'player',
   )
   const creatures = events.filter((c) =>
     CARDS.some((card) => card.id === c.card && card.kind === 'creature'),

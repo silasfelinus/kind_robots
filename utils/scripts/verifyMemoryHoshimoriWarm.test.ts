@@ -34,6 +34,7 @@ import {
 } from '../memoryDungeon/chronicle'
 import { MEMORY_REALITY_EXPERIENCES } from '../memoryDungeon/reimaginerCampaign'
 import {
+  MEMORY_HOSHIMORI_CINDER_ACHIEVEMENTS,
   MEMORY_HOSHIMORI_ACHIEVEMENTS,
   memoryAchievementGallery,
   reconcileMemoryAchievements,
@@ -578,6 +579,17 @@ const cinderChoices = [
   ['ring-bell', 'call-witnesses'],
   ['open-appeals', 'keep-rotating-council'],
 ] as const
+assert.equal(MEMORY_HOSHIMORI_CINDER_ACHIEVEMENTS.length, 8)
+assert.equal(
+  new Set(MEMORY_HOSHIMORI_CINDER_ACHIEVEMENTS.map((m) => m.echo)).size,
+  8,
+)
+assert.ok(
+  memoryAchievementGallery([])
+    .filter((m) => m.id.startsWith('e07-cinder-'))
+    .every((m) => !m.earned && m.echo === null),
+)
+const cinderMedalIds = new Set<string>()
 const cinderAccounts = new Set<string>()
 for (let mask = 0; mask < 64; mask++) {
   let run = newHoshimoriWarmProgress(mask + 200)
@@ -605,6 +617,11 @@ for (let mask = 0; mask < 64; mask++) {
     run = advanceHoshimoriWarm(run, { type: 'oven-choice', id: pair[0] })
   assert.equal(run.ovenRoom, null, 'OV-15 remains terminal for old saves')
   assert.equal(hoshimoriOvenFourthAccount(run), null)
+  assert.deepEqual(
+    reconcileMemoryAchievements([], [], undefined, undefined, run),
+    [],
+    'The Ember Wing cannot mint a restitution medal before the Cinder hearing',
+  )
   assert.deepEqual(restoreHoshimoriWarm(JSON.parse(JSON.stringify(run))), run)
   const unearned = {
     ...run,
@@ -641,6 +658,25 @@ for (let mask = 0; mask < 64; mask++) {
   const account = hoshimoriOvenFourthAccount(run)
   assert.ok(account)
   cinderAccounts.add(account)
+  const earned = reconcileMemoryAchievements([], [], undefined, undefined, run)
+  assert.equal(earned.length, 1, 'A completed Cinder route earns one medal')
+  const medal = MEMORY_HOSHIMORI_CINDER_ACHIEVEMENTS.find(
+    (entry) => entry.id === earned[0],
+  )!
+  assert.ok(medal.echo.length >= 120)
+  assert.ok(medal.artPath.startsWith('/images/memory-dungeon/hoshimori/'))
+  cinderMedalIds.add(medal.id)
+  assert.equal(
+    memoryAchievementGallery(earned).find((entry) => entry.id === medal.id)
+      ?.echo,
+    medal.echo,
+  )
+  assert.deepEqual(
+    reconcileMemoryAchievements(earned, [], undefined, undefined, run),
+    earned,
+    'Revisiting restitution cannot duplicate a medal',
+  )
+  assert.deepEqual(restoreMemoryAchievements([...earned, ...earned]), earned)
   assert.strictEqual(
     advanceHoshimoriWarm(run, { type: 'enter-cinder-wing' }),
     run,
@@ -657,7 +693,20 @@ for (let mask = 0; mask < 64; mask++) {
       ? 'keep-blank'
       : 'return-ledger'
   assert.equal(restoreHoshimoriWarm(forged), null)
+  assert.deepEqual(
+    reconcileMemoryAchievements([], [], undefined, undefined, forged),
+    [],
+    'Changing Pip’s restitution choice without its event cannot mint a medal',
+  )
+  const unfinished = JSON.parse(JSON.stringify(run)) as HoshimoriWarmProgress
+  delete unfinished.ovenChoices['OV-20']
+  assert.deepEqual(
+    reconcileMemoryAchievements([], [], undefined, undefined, unfinished),
+    [],
+    'A missing Cinder witness cannot mint a medal',
+  )
 }
+assert.equal(cinderMedalIds.size, 8)
 assert.equal(cinderAccounts.size, 64)
 assert.equal(hoshimoriOvenFourthAccount(newHoshimoriWarmProgress(11)), null)
 

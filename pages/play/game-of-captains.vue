@@ -16,7 +16,8 @@
     >
       <img
         class="cap-menu-image"
-        src="/game-of-captains/space-couch-stage.svg"
+        :src="menuPainting"
+        @error="onPaintedImageError"
         alt="A red upholstered couch sails across a starfield under its invisible force bubble"
       />
       <div class="cap-menu-shade" aria-hidden="true" />
@@ -250,7 +251,13 @@
         class="cap-stage"
         aria-label="Long red couch spacecraft protected by an invisible force bubble"
       >
-        <img class="cap-painting" :src="stagePainting" :alt="stageAlt" />
+        <img
+          :key="stagePainting"
+          class="cap-painting"
+          :src="stagePainting"
+          :alt="stageAlt"
+          @error="onPaintedImageError"
+        />
         <div class="cap-vignette" aria-hidden="true" />
         <div class="cap-overlay">
           <div class="cap-kicker">
@@ -1706,7 +1713,7 @@ import {
   captainInstinctReply,
 } from '~/utils/gameOfCaptains/captainInstincts'
 import { warpArt } from '~/utils/gameOfCaptains/artManifest'
-import { portraitArt } from '~/utils/gameOfCaptains/artSlots'
+import { portraitArt, voyageStageArt } from '~/utils/gameOfCaptains/artSlots'
 import {
   CAPTAIN_ORIGINS,
   type CaptainOriginId,
@@ -1789,22 +1796,36 @@ const romanceRecord = computed(
 )
 /** A captain or crew portrait once its render ships; the monogram stands in until then. */
 const portrait = (key: string) => portraitArt(key)
+const COUCH_FALLBACK = '/game-of-captains/space-couch-stage.svg'
+const paintedVoyageImage = (key: string): string | null =>
+  store.onboardingArt[key] || null
+const menuPainting = computed(
+  () => paintedVoyageImage('opening/01-cold-open') || COUCH_FALLBACK,
+)
+function onPaintedImageError(event: Event) {
+  const image = event.target as HTMLImageElement
+  if (image.getAttribute('src') !== COUCH_FALLBACK) image.src = COUCH_FALLBACK
+}
 const stagePainting = computed(() => {
-  // The drawn couch, never the pre-rename starship-bridge paintings still
-  // under public/game-of-captains/{missions,antagonists,endings}: Silas
-  // replaced all conventional bridge imagery on 2026-10-26.
-  if (run.value) return '/game-of-captains/space-couch-stage.svg'
+  // Only use newly delivered, access-filtered scene art. The older static
+  // mission and antagonist pictures predate the literal red-couch redesign.
+  if (run.value)
+    return voyageStageArt(run.value, paintedVoyageImage) || COUCH_FALLBACK
   const key =
     selectionScreen.value === 'stars' || selectionScreen.value === 'background'
       ? ''
       : selectionScreen.value === 'captain'
         ? 'captain-' + selectedCaptain.value
         : 'crew-' + focusedCrew.value
-  return portrait(key) || '/game-of-captains/space-couch-stage.svg'
+  return portrait(key) || COUCH_FALLBACK
 })
 const stageAlt = computed(() =>
   run.value
-    ? 'Four travelers aboard a red couch in space, surrounded by an invisible protective force bubble'
+    ? run.value.phase === 'ending'
+      ? 'Painted artwork for the voyage conclusion'
+      : run.value.phase === 'finale'
+        ? 'Painted encounter with the galactic antagonist'
+        : 'Painted view of ' + mission.value.system + ' during the current voyage'
     : selectionScreen.value === 'stars' ||
         selectionScreen.value === 'background'
       ? 'The starry sky above the long red couch'
@@ -1839,8 +1860,10 @@ const circuit = computed(() => solarCircuit(run.value?.seed ?? 1))
 const localSystem = computed(() =>
   chapterSystem(run.value?.seed ?? 1, run.value?.chapter ?? 1),
 )
-const franchiseImage = computed(() =>
-  warpArt('venues/' + localSystem.value.franchise.id),
+const franchiseImage = computed(
+  () =>
+    paintedVoyageImage('venues/' + localSystem.value.franchise.id) ||
+    warpArt('venues/' + localSystem.value.franchise.id),
 )
 
 const expeditionComplete = computed(() =>

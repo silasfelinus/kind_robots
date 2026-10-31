@@ -724,18 +724,26 @@ assert.ok(page.includes('data-testid="captains-back-to-captains"'))
 assert.ok(page.includes('CREW_DOSSIERS[focusedCrew]'))
 assert.ok(page.includes("selectionScreen === 'captain'"))
 assert.ok(page.includes('stagePainting'))
-// Playtest readiness (Playwright at 390/768/1440): the voyage stage stays the
-// drawn couch (the legacy mission, nemesis and ending paintings show a
-// conventional starship bridge, which the Space Couch rename retired), the
-// ending keeps its long epilogue in the log panel, and small controls stay
-// tappable.
+// The stage uses delivered, access-filtered ArtImages, not the retired
+// conventional bridge artwork. Missing/private renders retain the drawn couch.
+// The ending keeps its epilogue in the log and small controls stay tappable.
 assert.ok(
-  page.includes(
-    "if (run.value) return '/game-of-captains/space-couch-stage.svg'",
-  ),
-  'no starship-bridge paintings on the voyage stage',
+  page.includes('voyageStageArt(run.value, paintedVoyageImage)'),
+  'voyage stage selects delivered painted mission and ending artwork',
 )
-assert.ok(!page.includes('voyageStageArt'))
+assert.ok(
+  page.includes("store.onboardingArt[key] || null"),
+  'static legacy mission and antagonist images cannot enter the new stage',
+)
+assert.ok(page.includes('COUCH_FALLBACK'), 'drawn couch remains the fallback')
+assert.ok(
+  page.includes("paintedVoyageImage('opening/01-cold-open')"),
+  'opening shows its completed painterly art',
+)
+assert.ok(
+  page.includes("paintedVoyageImage('venues/' + localSystem.value.franchise.id)"),
+  'encounter board shows its painted Serendipity venue',
+)
 assert.ok(page.includes('sentences.slice(0, 2)'), 'short ending stage copy')
 for (const [file, selector] of [
   ['pages/play/game-of-captains.vue', '.cap-crew-pages button {'],

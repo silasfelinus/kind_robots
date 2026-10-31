@@ -51,6 +51,7 @@ import {
   decide,
   decideStreet,
   streetStory,
+  storyMissionTerms,
   gateReason,
   HEAT_LIMIT,
   recordBout,
@@ -449,7 +450,9 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
     seed.value = rollSeed()
     match.value = applyTerms(
       createMatch('blackout', teamId, chapter.foe, seed.value, rules.value),
-      choice.terms,
+      fromCity
+        ? storyMissionTerms(city.value, districtId.value, choice.terms)
+        : choice.terms,
     )
     selectedCard.value = null
     selectedUnit.value = null

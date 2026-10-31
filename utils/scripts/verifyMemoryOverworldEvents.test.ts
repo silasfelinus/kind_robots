@@ -11,6 +11,7 @@ import {
   worldEvents,
 } from '../memoryDungeon/overworldEventCatalog'
 import { EARTH_PHOTOS } from '../memoryDungeon/chronicle'
+import { HOSHIMORI_NIGHT_SITES } from '../memoryDungeon/hoshimoriNight'
 
 assert.deepEqual(validateOverworldEventCatalog(), [])
 assert.equal(OVERWORLD_EVENT_CATALOG.length, 12 * 64)
@@ -38,7 +39,10 @@ for (let n = 1; n <= 12; n++) {
       assert.ok(kinds.has(kind), id + ' missing ' + kind)
     for (const photo of EARTH_PHOTOS.filter((item) => item.experience === id))
       assert.equal(worldEvent(id, photo.site)?.photographId, photo.id)
-    assert.equal(events.filter((event) => event.source === 'new-authoring').length, 64)
+    assert.equal(
+      events.filter((event) => event.source === 'new-authoring').length,
+      id === 'e08' ? 48 : 64,
+    )
   }
 
   let progress = newOverworldEventProgress(id)
@@ -93,6 +97,12 @@ assert.deepEqual(departure.choices.map((choice) => choice.id), [
 ])
 for (const id of ['e09', 'e10', 'e11', 'e12']) {
   assert.equal(worldEvents(id).filter((event) => event.memoryFragment).length, 2)
+}
+for (const pilot of HOSHIMORI_NIGHT_SITES) {
+  const adopted = worldEvent('e08', pilot.key)!
+  assert.equal(adopted.title, pilot.title)
+  assert.equal(adopted.opening, pilot.opening)
+  assert.equal(adopted.source, 'existing-playable')
 }
 for (const site of worldEvents('e08')) {
   assert.ok(site.originalSite, site.key + ' lost original village landmark')

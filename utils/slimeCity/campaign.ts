@@ -1,5 +1,5 @@
 import type { BoutTerms } from './city'
-import { TEAMS, type TeamId } from './prototypes'
+import type { TeamId } from './prototypes'
 
 export type CampaignApproach = 'conviction' | 'cunning'
 export type CampaignResult = 'player' | 'enemy' | 'draw'
@@ -581,12 +581,21 @@ export interface CampaignProgress {
 export type CampaignSave = Record<TeamId, CampaignProgress>
 
 export function createCampaignSave(): CampaignSave {
-  return Object.fromEntries(
-    TEAMS.map((team) => [
-      team.id,
-      { wins: 0, losses: 0, decisions: [], lastResult: null, lastScene: null },
-    ]),
-  ) as CampaignSave
+  const empty = (): CampaignProgress => ({
+    wins: 0,
+    losses: 0,
+    decisions: [],
+    lastResult: null,
+    lastScene: null,
+  })
+  return {
+    catgirls: empty(),
+    bloodfairies: empty(),
+    ironjaw: empty(),
+    riot: empty(),
+    undertow: empty(),
+    exchange: empty(),
+  }
 }
 
 export function campaignChapter(

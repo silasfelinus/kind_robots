@@ -74,7 +74,8 @@ export function seaNarrative(
   campaign: MemoryCampaignProgress,
 ): string {
   const original = SEA_KEY_SCENES[reality][site] ?? ''
-  if (site === '1,1') return [scyllaOpeningForMemory(campaign, reality), original].join(' ')
+  if (site === '1,1')
+    return [scyllaOpeningForMemory(campaign, reality), original].join(' ')
   if (reality === 'e05' && site === '8,8') {
     const fate = memoryCharFate(campaign)
     const past =

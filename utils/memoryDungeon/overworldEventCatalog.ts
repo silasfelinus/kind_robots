@@ -138,21 +138,21 @@ function generated(
   if (world.id === 'e04' && key === '8,8') {
     choices = [
       {
-        id: 'open-gate',
+        id: 'open-the-tide-gate',
         label: 'Evacuate the commuters; Char may die holding the failing sea anchor',
         outcome: 'The commuters escape. Scylla witnesses Char die holding the crossing in the present. The rescue and the death are real.',
         flag: 'e04:char-lost-in-present',
         effects: { trust: 1, danger: 1 },
       },
       {
-        id: 'seal-gate',
+        id: 'seal-the-tide-gate',
         label: 'Seal the crossing, keeping Char alive but trapping the commuters',
         outcome: 'Char lives. The party owes the stranded commuters a credible rescue, not a convenient line in a journal.',
         flag: 'e04:char-alive-commuters-stranded',
         effects: { danger: -1, evidence: 1 },
       },
       {
-        id: 'divert-surge',
+        id: 'divert-the-current',
         label: 'Divert the surge to the supposedly empty maintenance district',
         outcome: 'Char lives but the district floods. Someone may have lived beyond the abandoned route on the map.',
         flag: 'e04:char-alive-district-at-risk',

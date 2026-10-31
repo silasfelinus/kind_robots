@@ -16,7 +16,11 @@ assert.deepEqual(validateMorrowEarth(), [])
 assert.equal(MORROW_EARTH_SITES.length, 16)
 assert.equal(new Set(MORROW_EARTH_SITES.map((site) => site.key)).size, 16)
 assert.equal(
-  new Set(MORROW_EARTH_SITES.flatMap((site) => site.choices.map((choice) => choice.outcome))).size,
+  new Set(
+    MORROW_EARTH_SITES.flatMap((site) =>
+      site.choices.map((choice) => choice.outcome),
+    ),
+  ).size,
   32,
 )
 assert.deepEqual(MORROW_EARTH_PHOTO_SITES, ['1,3', '6,4'])
@@ -27,7 +31,10 @@ function move(progress: MorrowEarthProgress, to: string): MorrowEarthProgress {
   return next
 }
 
-function choose(progress: MorrowEarthProgress, id: string): MorrowEarthProgress {
+function choose(
+  progress: MorrowEarthProgress,
+  id: string,
+): MorrowEarthProgress {
   const next = advanceMorrowEarth(progress, { type: 'choose', id })
   assert.notStrictEqual(next, progress, 'Invalid Earth choice: ' + id)
   return next
@@ -43,16 +50,23 @@ for (let seed = 0; seed < 96; seed++) {
     progress = move(progress, to)
     if (to === '1,3')
       progress = choose(progress, seed & 1 ? 'study-alone' : 'accept-help')
-    if (to === '5,3')
-      progress = choose(progress, seed & 2 ? 'imitate' : 'ask')
+    if (to === '5,3') progress = choose(progress, seed & 2 ? 'imitate' : 'ask')
     if (to === '6,4')
       progress = choose(progress, seed & 4 ? 'witness' : 'attempt')
   }
   assert.deepEqual(morrowEarthPhotoSites(progress), ['1,3', '6,4'])
   const account = morrowEarthClosingAccount(progress)
-  assert.ok(account?.includes('spell') || account?.includes('gesture') || account?.includes('magic') || account?.includes('Nothing'))
+  assert.ok(
+    account?.includes('spell') ||
+      account?.includes('gesture') ||
+      account?.includes('magic') ||
+      account?.includes('Nothing'),
+  )
   accounts.add(account!)
-  assert.deepEqual(restoreMorrowEarth(JSON.parse(JSON.stringify(progress))), progress)
+  assert.deepEqual(
+    restoreMorrowEarth(JSON.parse(JSON.stringify(progress))),
+    progress,
+  )
   assert.strictEqual(
     advanceMorrowEarth(progress, { type: 'choose', id: 'witness' }),
     progress,
@@ -60,7 +74,10 @@ for (let seed = 0; seed < 96; seed++) {
   )
   assert.equal(restoreMorrowEarth({ ...progress, confidence: 999 }), null)
   assert.equal(
-    restoreMorrowEarth({ ...progress, choices: { ...progress.choices, '1,1': 'pay' } }),
+    restoreMorrowEarth({
+      ...progress,
+      choices: { ...progress.choices, '1,1': 'pay' },
+    }),
     null,
   )
   assert.equal(restoreMorrowEarth({ ...progress, empathy: -999 }), null)
@@ -69,7 +86,11 @@ for (let seed = 0; seed < 96; seed++) {
     null,
   )
 }
-assert.equal(accounts.size, 8, 'Three witnessed decisions must yield eight earned accounts')
+assert.equal(
+  accounts.size,
+  8,
+  'Three witnessed decisions must yield eight earned accounts',
+)
 
 function pathBetween(from: string, to: string): string[] {
   const queue: string[][] = [[from]]
@@ -111,10 +132,15 @@ assert.strictEqual(
 assert.equal(
   restoreMorrowEarth({
     ...completionist,
-    events: Array(MORROW_EARTH_MAX_EVENTS + 1).fill({ type: 'move', to: '2,1' }),
+    events: Array(MORROW_EARTH_MAX_EVENTS + 1).fill({
+      type: 'move',
+      to: '2,1',
+    }),
   }),
   null,
 )
 assert.throws(() => newMorrowEarthProgress(-1))
 assert.throws(() => newMorrowEarthProgress(Number.MAX_SAFE_INTEGER))
-console.log('Morrow Earth e03: 16 sites, 32 choices, 8 accounts, 96 seeds and replay checks passed')
+console.log(
+  'Morrow Earth e03: 16 sites, 32 choices, 8 accounts, 96 seeds and replay checks passed',
+)

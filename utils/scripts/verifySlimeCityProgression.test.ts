@@ -182,11 +182,10 @@ assert.deepEqual(
 )
 assert.deepEqual(restoreProgression(JSON.parse(JSON.stringify(claimed)), now), {
   ...claimed,
-  lastPack: [],
-  lastReward: 'Local progress loaded · not synchronized across devices.',
 })
 assert.equal(restoreProgression({ version: 1, meat: -1 }, now).meat, 0)
 assert.equal(restoreProgression('not a wallet', now).xp, 0)
+assert.deepEqual(restoreProgression(JSON.parse(JSON.stringify(wallet)), now).lastPack, wallet.lastPack, 'Account pack reveal survives refresh')
 
 console.log(
   'Slime City rewards: Pacific day/week resets, capped CPU XP and Meat, claims, 20 rare-guaranteed packs, no duplicates PASS',

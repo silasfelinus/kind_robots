@@ -3,6 +3,7 @@
 Required painted onboarding art: six backgrounds, four question scenes and twelve Couchscope answers (**22 separate paintings**). The current question SVGs are fallbacks, **not delivered art**.
 
 ## Backgrounds
+
 - `origins/courier`: tollbooth courier crossing space with the red couch
 - `origins/refugee`: diplomat escorting stranded travelers aboard the couch
 - `origins/archivist`: forbidden archive, star map across scarlet cushions
@@ -11,10 +12,13 @@ Required painted onboarding art: six backgrounds, four question scenes and twelv
 - `origins/entertainer`: casino escapee amid zero-gravity chips
 
 ## Couchscope question hero plates
+
 Paint four original full-size illustrations under `couchscope/question-01` through `couchscope/question-04` (moon mediation, time-displaced twin, planet-sized lost-property depot, and miracle with cosmic invoice). See `COUCHSCOPE-ART.md` for composition requirements.
 
 ## Couchscope choices
+
 Keys `couchscope/question-XX-answer-{a,b,c}` for XX=01..04, all unique:
+
 1. Lunar mediation; audit the sun; move sunrise to Thursday.
 2. Future-self tea; future-self fingerprint comparison; zero-gravity staff dance-off.
 3. Return lost property; catalog unknown artifacts; wear the forbidden crown.

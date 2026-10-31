@@ -43,8 +43,13 @@ assert.deepEqual(seaActCoverage(), [])
 for (const reality of SEA_REALITIES) {
   assert.equal(worldEvents(reality).length, 64)
   assert.equal(seaRealityPhotos(reality).length, 2)
-  assert.equal(seaRealityReady(reality, newOverworldEventProgress(reality)), false)
-  for (const photo of EARTH_PHOTOS.filter((item) => item.experience === reality))
+  assert.equal(
+    seaRealityReady(reality, newOverworldEventProgress(reality)),
+    false,
+  )
+  for (const photo of EARTH_PHOTOS.filter(
+    (item) => item.experience === reality,
+  ))
     assert.equal(worldEvent(reality, photo.site)?.photographId, photo.id)
 }
 
@@ -62,7 +67,10 @@ function priorEarth(fate: string) {
 for (const fate of MEMORY_PAIR_ENDINGS.e04.map((choice) => choice.id)) {
   const before = priorEarth(fate)
   assert.deepEqual(availableMemoryExperiences(before), ['e05'])
-  assert.equal(memoryCharFate(before), fate === 'open-the-tide-gate' ? 'lost' : 'alive')
+  assert.equal(
+    memoryCharFate(before),
+    fate === 'open-the-tide-gate' ? 'lost' : 'alive',
+  )
   assert.match(scyllaOpeningForMemory(before, 'e05'), /Char/)
   assert.match(seaNarrative('e05', '1,1', before), /Char/)
   for (const departure of MEMORY_SCYLLA_DEPARTURE_CHOICES) {
@@ -72,7 +80,10 @@ for (const fate of MEMORY_PAIR_ENDINGS.e04.map((choice) => choice.id)) {
     atSea = completeMemoryExperience(atSea, 'e05')
     assert.equal(atSea.scyllaDeparture, departure.id)
     assert.deepEqual(availableMemoryExperiences(atSea), ['e06'])
-    assert.match(scyllaOpeningForMemory(atSea, 'e06'), /Char|court|palace|timeline/)
+    assert.match(
+      scyllaOpeningForMemory(atSea, 'e06'),
+      /Char|court|palace|timeline/,
+    )
     assert.match(seaNarrative('e06', '8,8', atSea), /Char|sisters/)
     for (const verdict of MEMORY_PAIR_ENDINGS.e06) {
       let returned = chooseMemoryPairEnding(atSea, 'e06', verdict.id)
@@ -136,10 +147,7 @@ for (const reality of SEA_REALITIES) {
   )
   assert.equal(replayEarthJournal(reality, [...journal, journal[0]]), null)
   assert.equal(
-    replayEarthJournal(reality, [
-      { type: 'travel', key: '8,8' },
-      ...journal,
-    ]),
+    replayEarthJournal(reality, [{ type: 'travel', key: '8,8' }, ...journal]),
     null,
   )
   assert.equal(
@@ -167,7 +175,10 @@ assert.equal(
 const root = readFileSync('components/pages/memory-dungeon.vue', 'utf8')
 const earth = readFileSync('components/pages/memory-dungeon-earth.vue', 'utf8')
 const sea = readFileSync('components/pages/memory-dungeon-sea.vue', 'utf8')
-const overworld = readFileSync('components/pages/memory-dungeon-overworld.vue', 'utf8')
+const overworld = readFileSync(
+  'components/pages/memory-dungeon-overworld.vue',
+  'utf8',
+)
 const seaStore = readFileSync('stores/memorySeaStore.ts', 'utf8')
 const world = readFileSync('stores/memoryWorldStore.ts', 'utf8')
 assert.match(root, /memory-dungeon-sea v-else-if="seaMode"/)

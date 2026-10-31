@@ -103,7 +103,6 @@ let chronicle = newEarthChronicle()
 for (const reality of SEA_REALITIES) {
   const journal: EarthJournalAction[] = []
   let position = '1,1'
-  let progress = newOverworldEventProgress(reality)
   for (let y = 1; y <= 8; y++) {
     const xs = Array.from({ length: 8 }, (_, i) =>
       y % 2 === 1 ? i + 1 : 8 - i,
@@ -118,7 +117,7 @@ for (const reality of SEA_REALITIES) {
       const event = worldEvent(reality, key)!
       const choice = event.choices[0]!
       journal.push({ type: 'choose', key, choiceId: choice.id })
-      progress = chooseOverworldEvent(
+      const progress = chooseOverworldEvent(
         replayEarthJournal(reality, journal.slice(0, -1))!.progress,
         key,
         choice.id,

@@ -35,8 +35,13 @@ assert.deepEqual(earthRealityCoverage(), [])
 for (const reality of EARTH_REALITIES) {
   assert.equal(worldEvents(reality).length, 64)
   assert.equal(earthRealityPhotos(reality).length, 2)
-  assert.equal(earthRealityReady(reality, newOverworldEventProgress(reality)), false)
-  for (const photo of EARTH_PHOTOS.filter((item) => item.experience === reality))
+  assert.equal(
+    earthRealityReady(reality, newOverworldEventProgress(reality)),
+    false,
+  )
+  for (const photo of EARTH_PHOTOS.filter(
+    (item) => item.experience === reality,
+  ))
     assert.equal(worldEvent(reality, photo.site)?.photographId, photo.id)
 }
 assert.deepEqual(eventNeighbors('1,1').sort(), ['1,2', '2,1'])
@@ -119,11 +124,7 @@ for (const reality of EARTH_REALITIES) {
       const survival = chooseMemoryPairEnding(campaign, 'e04', surviving)
       assert.equal(memoryCharFate(survival), 'alive')
     }
-    campaign = chooseMemoryPairEnding(
-      campaign,
-      'e04',
-      progress.choices['8,8']!,
-    )
+    campaign = chooseMemoryPairEnding(campaign, 'e04', progress.choices['8,8']!)
     campaign = completeMemoryExperience(campaign, 'e04')
     assert.equal(memoryCharFate(campaign), 'lost')
     assert.equal(campaign.pairDecisions?.e04, 'open-the-tide-gate')
@@ -141,7 +142,10 @@ assert.equal(
 
 const stage = readFileSync('components/pages/memory-dungeon-earth.vue', 'utf8')
 const root = readFileSync('components/pages/memory-dungeon.vue', 'utf8')
-const briar = readFileSync('components/pages/memory-dungeon-overworld.vue', 'utf8')
+const briar = readFileSync(
+  'components/pages/memory-dungeon-overworld.vue',
+  'utf8',
+)
 const store = readFileSync('stores/memoryEarthStore.ts', 'utf8')
 const world = readFileSync('stores/memoryWorldStore.ts', 'utf8')
 assert.match(stage, /data-testid="memory-earth-act"/)

@@ -44,7 +44,10 @@ assert.equal(inspector.position, '1,1')
 assert.equal(inspector.progress.flags.length, 0)
 assert.equal(inspector.progress.revealed.length, 1)
 
-const component = readFileSync('pages/admin/memory-dungeon-encounters.vue', 'utf8')
+const component = readFileSync(
+  'pages/admin/memory-dungeon-encounters.vue',
+  'utf8',
+)
 const navigation = readFileSync(
   'content/channels/admin/memory-dungeon-encounters.md',
   'utf8',
@@ -57,4 +60,6 @@ assert.match(component, /choice\.art\.status === 'delivered'/)
 assert.match(navigation, /requiredRole: ADMIN/)
 assert.match(navigation, /route: \/admin\/memory-dungeon-encounters/)
 
-console.log('Memory encounter inspector: adjacency, one-off choices, isolated previews and admin art slots passed')
+console.log(
+  'Memory encounter inspector: adjacency, one-off choices, isolated previews and admin art slots passed',
+)

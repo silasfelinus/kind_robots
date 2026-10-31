@@ -347,6 +347,28 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
     if (!guideSeen.has(rival.mode)) openGuide()
   }
 
+  function fightContract(): void {
+    const id = districtId.value
+    if (contractBlocked(city.value, id)) return
+    stop()
+    mode.value = 'blackout'
+    seed.value = rollSeed()
+    const contract = CITY_CONTRACTS[id]
+    match.value = applyTerms(
+      createMatch('blackout', activeTeam.value, contract.team, seed.value, rules.value),
+      contractTerms(city.value, id),
+    )
+    selectedCard.value = null
+    previewOpen.value = false
+    selectedUnit.value = null
+    targetUnit.value = null
+    bout.value = null
+    lastBout.value = null
+    contractBout.value = id
+    lastContract.value = null
+    view.value = 'arena'
+    if (!guideSeen.has('blackout')) openGuide()
+  }
   /** Once a rival bout ends, its result changes the city. */
   function settleBout(): void {
     if (!match.value.victor) return

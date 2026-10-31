@@ -119,12 +119,20 @@
               class="sc-district"
               :class="[
                 'is-' + lab.districtStatus(place.id),
-                { picked: lab.districtId === place.id },
+                {
+                  picked: lab.districtId === place.id,
+                  mission: lab.campaignDistrict === place.id,
+                },
               ]"
               :style="{ left: place.x + '%', top: place.y + '%' }"
               :aria-pressed="lab.districtId === place.id"
               :aria-label="
-                place.name + ', ' + statusLabel(lab.districtStatus(place.id))
+                place.name +
+                ', ' +
+                statusLabel(lab.districtStatus(place.id)) +
+                (lab.campaignDistrict === place.id
+                  ? ', next faction story mission'
+                  : '')
               "
               :data-testid="'slime-district-' + place.id"
               @click="lab.visit(place.id)"
@@ -176,6 +184,37 @@
                   >Next: {{ lab.route?.street }} · {{ nextStopName }}</small
                 >
               </div>
+              <article
+                v-if="
+                  lab.activeChapter &&
+                  lab.campaignDistrict === lab.districtId
+                "
+                class="sc-story-mission"
+                data-testid="slime-city-story-mission"
+              >
+                <span class="sc-overline"
+                  >CREW STORY · CHAPTER {{ lab.campaignState.wins + 1 }}/5 ·
+                  {{ teamName(lab.activeChapter.foe) }}</span
+                >
+                <strong>{{ lab.activeChapter.title }}</strong>
+                <p class="sc-scene">{{ lab.activeChapter.scene }}</p>
+                <span v-if="!lab.campaignAtDestination" class="sc-mission-hint">
+                  Follow the marked streets and resolve each street story to
+                  stage this battle.
+                </span>
+                <div v-else class="sc-choices">
+                  <button
+                    v-for="choice in lab.activeChapter.choices"
+                    :key="choice.id"
+                    type="button"
+                    :data-testid="'slime-city-mission-' + choice.id"
+                    @click="lab.startCampaignBattle(choice.id)"
+                  >
+                    <strong>{{ choice.label }}</strong>
+                    <small>{{ describeTerms(choice.terms) }}</small>
+                  </button>
+                </div>
+              </article>
               <p class="sc-overline">
                 {{ lab.district.name }} /
                 {{ statusLabel(lab.districtStatus(lab.districtId)) }}
@@ -851,6 +890,7 @@ import {
   type ViewFighter,
 } from '~/utils/slimeCity/prototypes'
 import { STREETS } from '~/utils/slimeCity/city'
+import { describeTerms } from '~/utils/slimeCity/campaign'
 import { useSlimeCityStore } from '~/stores/slimeCity'
 
 const lab = useSlimeCityStore()
@@ -1430,6 +1470,10 @@ onUnmounted(() => lab.dispose())
   stroke-width: 2.5;
   stroke-dasharray: none;
 }
+.sc-district.mission .sc-district-pin {
+  outline: 3px solid #f9bcff;
+  outline-offset: 6px;
+}
 .sc-district.is-here .sc-district-pin {
   background: #ffd34d;
   color: #2a1c05;
@@ -1506,6 +1550,21 @@ onUnmounted(() => lab.dispose())
   color: #b8c4d0;
   font-size: 0.66rem;
   line-height: 1.3;
+}
+.sc-story-mission {
+  display: grid;
+  gap: 0.35rem;
+  padding: 0.65rem 0.75rem;
+  border-left: 3px solid #e6a7ff;
+  background: linear-gradient(110deg, #542c624d, #172332b8);
+}
+.sc-story-mission > strong {
+  font-size: 1rem;
+  color: #f9d5ff;
+}
+.sc-mission-hint {
+  color: #fee5aa;
+  font-size: 0.72rem;
 }
 .sc-route {
   display: flex;

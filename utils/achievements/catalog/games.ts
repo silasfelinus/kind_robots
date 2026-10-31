@@ -32,7 +32,7 @@ export const OTHER_GAME_ACHIEVEMENT_DEFS: GameAchievementDef[] = [
     icon: 'kind-icon:dna',
     rule: { kind: 'event' },
     artPrompt:
-      'A spiral of three intertwined fantastical hybrid creatures in a glowing antique brass laboratory, expressive painterly illustration, amethyst and chartreuse, collectible achievement badge, no lettering.',
+      'A spiral of three intertwined fantastical hybrid creatures in a glowing antique brass laboratory, expressive painterly illustration, amethyst and chartreuse, playful impossible anatomy with delightful animal details, dramatic stage lighting and elaborate golden decorative filigree, collectible achievement badge, no lettering.',
   },
   {
     game: 'hybridizer',
@@ -45,7 +45,7 @@ export const OTHER_GAME_ACHIEVEMENT_DEFS: GameAchievementDef[] = [
     icon: 'kind-icon:image',
     rule: { kind: 'event' },
     artPrompt:
-      'Two ornate Victorian natural history frames displaying alternate beautiful variations of one hybrid animal, one elevated to a glowing gold easel, acid-green sparks, collectible illustrated achievement badge, no text.',
+      'Two ornate Victorian natural history frames displaying alternate beautiful variations of one hybrid animal, one elevated to a glowing gold easel, acid-green sparks and rich embroidered velvet curtains around a vibrant specimen studio, collectible illustrated achievement badge, no text.',
   },
 
   // Zuzu Showdown (public: /play/zuzu-showdown)

@@ -16,6 +16,7 @@ export type CombatRoomId =
   | 'sprite'
   | 'patrol'
   | 'hearth-guard'
+  | 'housekeeper'
   | 'collector'
   | 'twinned-guard'
   | 'moss-judge'
@@ -81,6 +82,16 @@ export const COMBAT_ROOMS: Record<CombatRoomId, CombatRoom> = {
     artPrompt:
       'A man-sized defender shaped from glowing coal stands in front of a stone manor hearth in a wide fighting stance, fists raised. Three orange markings on its chest glow in a row, the third brightest. Sparks drift up around it. Firelight from below, deep green shadows in the room. Low-angle medium shot. Hand-painted gouache and ink illustration, warm candlelight and deep green shadows.',
   },
+  housekeeper: {
+    enemy: { name: 'Thornbound Housekeeper', hp: 11, attack: 1, every: 5 },
+    playerHp: 9,
+    focus: 2,
+    loadout: ['twinblade', 'rapier', 'lantern'],
+    intro:
+      'The Thornbound Housekeeper offers a nonlethal test. Her broom sweeps every fifth beat, giving you time to remember each pair; winning earns her trust, never her keys.',
+    artPrompt:
+      'A sturdy middle-aged housekeeper in interlocking rootwood armor hung with dozens of brass keys stands in a candlelit manor corridor. She holds a long thorn broom across her body, testing an adult traveler in a fair memory duel. Four small luminous paired tiles float between them, her expression watchful rather than cruel. Medium-wide original hand-painted gouache and ink fantasy illustration, warm lanternlight and deep green shadows.',
+  },
   collector: {
     enemy: { name: 'Index Collector', hp: 12, attack: 1, every: 2 },
     playerHp: 9,
@@ -135,9 +146,10 @@ export const COMBAT_ROOMS: Record<CombatRoomId, CombatRoom> = {
   },
 }
 
-/** The House duel each guardian room launches (HD-09, HD-22, HD-28). */
+/** Optional House duels each launch their own authored enemy. */
 export const HOUSE_DUEL_ROOMS = {
   'HD-09': 'hearth-guard',
+  'HD-16': 'housekeeper',
   'HD-22': 'collector',
   'HD-28': 'twinned-guard',
 } as const satisfies Record<string, CombatRoomId>
@@ -147,7 +159,7 @@ export type HouseDuelOrigin = keyof typeof HOUSE_DUEL_ROOMS
 export function isHouseDuelOrigin(
   id: string | null | undefined,
 ): id is HouseDuelOrigin {
-  return id === 'HD-09' || id === 'HD-22' || id === 'HD-28'
+  return id === 'HD-09' || id === 'HD-16' || id === 'HD-22' || id === 'HD-28'
 }
 
 export function isCombatRoom(

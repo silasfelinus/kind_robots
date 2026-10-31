@@ -638,7 +638,7 @@ export function campaignEnding(
     save[team].decisions.filter((id) => id === 'conviction').length >= 3
   return ideal
     ? FACTION_CAMPAIGNS[team].triumph
-    : FACTION_CAMPAIGNS[team].comp
+    : FACTION_CAMPAIGNS[team].compromise
 }
 
 export function describeTerms(terms: BoutTerms): string {

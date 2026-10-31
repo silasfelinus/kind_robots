@@ -29,6 +29,14 @@
           </button>
           <button
             type="button"
+            :class="{ active: lab.view === 'campaign' }"
+            data-testid="slime-campaign-tab"
+            @click="lab.showCampaign()"
+          >
+            STORY
+          </button>
+          <button
+            type="button"
             :class="{ active: lab.view === 'cards' }"
             @click="lab.showCards()"
           >
@@ -227,6 +235,7 @@
           </div>
         </section>
 
+        <SlimeCityCampaign v-else-if="lab.view === 'campaign'" />
         <section
           v-else-if="lab.view === 'arena'"
           class="sc-stage sc-arena-stage"
@@ -237,6 +246,13 @@
               <span class="sc-overline"
                 >PROTOTYPE {{ currentModeIndex }} / 03 · SEED
                 {{ lab.match.seed }}</span
+              >
+              <span
+                v-if="lab.campaignBout && lab.activeChapter"
+                class="sc-overline sc-bout-line"
+                data-testid="slime-campaign-bout-line"
+                >STORY CHAPTER {{ lab.campaignBout.index + 1 }}/5 ·
+                {{ lab.activeChapter.title }}</span
               >
               <span
                 v-if="lab.boutPlan"
@@ -447,11 +463,11 @@
               ><span>{{ winLine }}</span
               ><span class="sc-result-actions"
                 ><button
-                  v-if="lab.lastBout || lab.lastContract"
+                  v-if="lab.lastBout || lab.lastContract || lab.lastCampaign"
                   type="button"
-                  @click="lab.showCity()"
+                  @click="lab.lastCampaign ? lab.showCampaign() : lab.showCity()"
                 >
-                  BACK TO THE CITY</button
+                  {{ lab.lastCampaign ? 'BACK TO STORY' : 'BACK TO THE CITY' }}</button
                 ><button type="button" @click="lab.reset(true)">
                   SAME SEED</button
                 ><button type="button" @click="lab.reset()">

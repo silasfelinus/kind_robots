@@ -38,7 +38,42 @@ import {
   type CityState,
   type DistrictId,
 } from '../slimeCity/city'
-import { createMatch, DISTRICTS, TEAMS } from '../slimeCity/prototypes'
+import { CARDS, createMatch, DISTRICTS, MODES, TEAMS } from '../slimeCity/prototypes'
+import {
+  slimeArtId,
+  SLIME_CITY_ART,
+  SLIME_CITY_ART_COUNT,
+} from '../slimeCity/artManifest'
+
+
+
+const artIds = [
+  ...Object.values(SLIME_CITY_ART.crews),
+  ...Object.values(SLIME_CITY_ART.districts),
+  ...Object.values(SLIME_CITY_ART.cards),
+  ...Object.values(SLIME_CITY_ART.boards),
+]
+assert.equal(SLIME_CITY_ART_COUNT, 52, 'First art round has 52 rendered ArtImage IDs')
+assert.equal(artIds.length, 52)
+assert.equal(new Set(artIds).size, artIds.length, 'Each render has distinct provenance')
+assert.ok(artIds.every((id) => Number.isInteger(id) && id > 0))
+for (const team of TEAMS) assert.ok(slimeArtId('crews', team.id))
+for (const district of DISTRICTS) assert.ok(slimeArtId('districts', district.id))
+for (const mode of MODES) assert.ok(slimeArtId('boards', mode.id))
+assert.equal(Object.keys(SLIME_CITY_ART.cards).length, 36)
+assert.equal(CARDS.length, 60, 'The game has 60 authored starter cards')
+assert.equal(
+  CARDS.filter((card) => slimeArtId('cards', card.id)).length,
+  36,
+  '36 illustrations correspond to actual playable card IDs',
+)
+assert.equal(
+  CARDS.filter((card) => !slimeArtId('cards', card.id)).length,
+  24,
+  'Missing 24 illustrations must remain honest fallbacks',
+)
+assert.equal(slimeArtId('cards', 'calico'), null)
+assert.equal(slimeArtId('cards', 'plating'), 258390)
 
 const classicBlackout = (
   team: Parameters<typeof createMatch>[1],

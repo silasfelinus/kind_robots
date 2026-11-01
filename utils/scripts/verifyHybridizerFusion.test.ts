@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict'
+import { localHybridizerStudies } from '../hybridizer/studyPersistence'
 import {
   canonicalFusionPair,
   clientIngredientKey,
@@ -31,4 +32,34 @@ assert.throws(
   () => normalizedIngredientKey('hybrid:some-local-study'),
   /Unknown/,
 )
+const offlineStudy = {
+  key: 'hybrid:["banana","cat"]',
+  title: 'Bananacat',
+  sources: ['banana', 'cat'],
+  depth: 1,
+  status: 'LOCAL',
+}
+const leakedPrivateStudy = {
+  key: 'fusion:' + cat.id,
+  title: 'Private owner study',
+  sources: ['banana', 'cat'],
+  depth: 1,
+  status: 'READY',
+}
+assert.deepEqual(
+  localHybridizerStudies([offlineStudy, leakedPrivateStudy]),
+  [offlineStudy],
+  'Only local drafts may be saved; remote private fusions remain server-authoritative',
+)
+assert.deepEqual(
+  localHybridizerStudies([
+    { ...offlineStudy, depth: 5 },
+    { ...offlineStudy, sources: [null, 'cat'] },
+    { ...offlineStudy, status: 'READY' },
+  ]),
+  [],
+  'Malformed, server-backed and over-depth records must not be hydrated',
+)
+assert.deepEqual(localHybridizerStudies(null), [])
+
 console.log('Hybridizer canonical pair identity contracts passed.')

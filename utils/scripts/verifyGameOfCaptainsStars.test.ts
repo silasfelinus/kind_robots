@@ -88,7 +88,9 @@ assert.equal(
   'no two registered art keys collide across the four delivered batches',
 )
 for (const [missionId, episode] of Object.entries(CONSEQUENCE_STORIES)) {
-  const board = VOYAGE_BOARDS.findIndex((missions) => missions.includes(missionId))
+  const board = VOYAGE_BOARDS.findIndex((missions) =>
+    missions.includes(missionId),
+  )
   assert.ok(board >= 0, 'a painted case must match a real route: ' + missionId)
   assert.equal(episode.choices.length, 3)
   for (const choice of episode.choices) {
@@ -107,7 +109,11 @@ for (const [missionId, episode] of Object.entries(CONSEQUENCE_STORIES)) {
     assert.equal(resolveConsequence(decision, 'not-a-choice'), decision)
     const outcome = resolveConsequence(decision, choice.id)
     assert.equal(outcome.phase, 'debrief')
-    assert.deepEqual(outcome, resolveConsequence(decision, choice.id), 'seeded outcomes replay identically')
+    assert.deepEqual(
+      outcome,
+      resolveConsequence(decision, choice.id),
+      'seeded outcomes replay identically',
+    )
     assert.equal(outcome.consequenceHistory?.length, 1)
     assert.equal(outcome.missionHistory?.at(-1)?.missionId, missionId)
     const recorded = outcome.consequenceHistory![0]!
@@ -115,13 +121,20 @@ for (const [missionId, episode] of Object.entries(CONSEQUENCE_STORIES)) {
     assert.ok(recorded.artKey in COUCH_CONSEQUENCE_ART_IDS)
     assert.equal(consequenceAftermath(outcome)?.artKey, recorded.artKey)
     assert.ok(outcome.worldFlags?.includes(recorded.flags[0]!))
-    assert.equal(consequenceForRun({ ...outcome, phase: 'decision' }), null, 'once-only story')
-    assert.equal(restoreVoyage(outcome)?.consequenceHistory?.[0]?.choiceId, choice.id)
+    assert.equal(
+      consequenceForRun({ ...outcome, phase: 'decision' }),
+      null,
+      'once-only story',
+    )
+    assert.equal(
+      restoreVoyage(outcome)?.consequenceHistory?.[0]?.choiceId,
+      choice.id,
+    )
   }
 }
 assert.equal(CONSEQUENCE_ENDINGS.length, 3)
 for (const ending of CONSEQUENCE_ENDINGS) {
-  assert.ok(('consequences/' + ending.id) in COUCH_CONSEQUENCE_ART_IDS)
+  assert.ok('consequences/' + ending.id in COUCH_CONSEQUENCE_ART_IDS)
   const run = {
     ...startVoyage('vale', ['rue', 'vela', 'mox'], 20261101),
     phase: 'ending' as const,

@@ -369,11 +369,15 @@ import {
   type ProjectWithRelations,
 } from '@/stores/projectStore'
 import { usePageStore } from '@/stores/pageStore'
+import { useUserStore } from '@/stores/userStore'
 import { useGalleryPreferenceStore } from '@/stores/galleryPreferenceStore'
 import type { BuilderCard } from '@/stores/helpers/builderCards'
 import { IS_GALLERY_MODE, type GalleryMode } from '@/utils/galleryVocabulary'
 import { slugify } from '@/utils/slugify'
-import { projectDestination } from '@/utils/projectDestination'
+import {
+  projectDestination,
+  projectSheetPath,
+} from '@/utils/projectDestination'
 
 const IMG_BASE =
   'https://raw.githubusercontent.com/silasfelinus/conductor/main/projects/images'
@@ -438,6 +442,7 @@ const IS_FILTER = (value: string): value is Filter =>
 const projects = useProjectStore()
 const conductor = useConductorStore()
 const page = usePageStore()
+const userStore = useUserStore()
 const galleryPrefs = useGalleryPreferenceStore()
 const galleryMode = computed({
   get: () =>
@@ -842,7 +847,19 @@ function openProposed() {
   page.setWorkspaceCardKey('proposed')
 }
 
+/*
+ * Admins open the screen that manages the project; everyone else (this
+ * gallery also mounts in user dashboards) opens the project itself
+ * (Silas, 2026-11-01 PT).
+ */
 async function open(item: Item) {
+  if (!userStore.isAdmin) {
+    const record = projects.projects.find((entry) => entry.id === item.id)
+    const target =
+      projectDestination(record?.liveUrl) || projectSheetPath(item.slug)
+    await navigateTo(target, { external: target.startsWith('https://') })
+    return
+  }
   await projects.fetchProject(item.id)
   page.setWorkspaceCardKey(item.slug)
 }

@@ -124,6 +124,7 @@ export const useConductorStore = defineStore('conductor', () => {
   const updatingTaskKeys = ref<string[]>([])
   const optimisticPitchStatuses = ref<Record<string, PitchStatus>>({})
   const progressBySlug = ref<Record<string, number>>({})
+  const memberParents = ref<Record<string, string>>({})
   let progressLoadedAt = 0
 
   const liveProjects = computed<ConductorProject[]>(
@@ -239,9 +240,11 @@ export const useConductorStore = defineStore('conductor', () => {
     if (!force && Date.now() - progressLoadedAt < FRESH_DATA_MS) return
     const response = await performFetch<{
       progress?: Record<string, number>
+      members?: Record<string, string>
     }>('/api/conductor/progress')
     if (!response.success || !response.data) return
     progressBySlug.value = response.data.progress ?? {}
+    memberParents.value = response.data.members ?? {}
     progressLoadedAt = Date.now()
   }
 
@@ -250,6 +253,18 @@ export const useConductorStore = defineStore('conductor', () => {
     if (typeof match?.progress === 'number') return match.progress
     const value = progressBySlug.value[slug]
     return typeof value === 'number' ? value : null
+  }
+
+  /*
+   * A member app (Conductor `parent:`, e.g. a Daily Dream Workshop micro app)
+   * is a subset of its parent project, never a first-tier entry in project
+   * lists (Silas, 2026-11-01 PT).
+   */
+  function isMemberProject(slug: string | null | undefined): boolean {
+    if (!slug) return false
+    const fromProjection = projects.value.find((entry) => entry.slug === slug)
+    if (fromProjection?.parentSlug) return true
+    return Boolean(memberParents.value[slug])
   }
 
   async function setPitchPlayReady(
@@ -497,6 +512,8 @@ export const useConductorStore = defineStore('conductor', () => {
     fetchProgress,
     progressBySlug,
     progressForSlug,
+    memberParents,
+    isMemberProject,
     pitchStatus,
     updatePitchStatus,
     setPitchPlayReady,

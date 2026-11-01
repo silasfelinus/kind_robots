@@ -21,6 +21,8 @@ import type { Prisma } from '~/prisma/generated/prisma/client'
 import prisma from '@/server/utils/prisma'
 import { errorHandler } from '@/server/utils/error'
 import { PROJECT_PLACEMENTS, placementLiveUrl } from '@/utils/projectPlacements'
+import { readConductorProjection } from '@/server/utils/conductorProjectionDb'
+import { parseConductorProjectOverrides } from '@/server/utils/conductorProjectRegistry'
 import type {
   HomeShowcase,
   ShowcaseArt,
@@ -920,8 +922,29 @@ async function loadFacetRail(): Promise<ShowcaseCard[]> {
  * The work Silas actually wants surfaced: HIGH priority first, then the rest of
  * what is live, so the strip is never empty on a day when nothing is flagged.
  */
+/**
+ * Conductor member apps (`parent:` in project-overrides.yaml -- the Daily Dream
+ * Workshop micro apps, Silas 2026-11-01 PT) are a subset of their parent
+ * project and never take a slot in the front-door strip. An unreadable
+ * projection hides nothing rather than failing the whole showcase.
+ */
+async function conductorMemberSlugs(): Promise<Set<string>> {
+  try {
+    const stored = await readConductorProjection()
+    if (!stored) return new Set()
+    return new Set(
+      parseConductorProjectOverrides(stored.snapshot.registryYaml)
+        .filter((entry) => entry.parent)
+        .map((entry) => entry.slug),
+    )
+  } catch {
+    return new Set()
+  }
+}
+
 async function loadProjects(): Promise<ShowcaseCard[]> {
-  const projects = await prisma.project.findMany({
+  const members = await conductorMemberSlugs()
+  const rows = await prisma.project.findMany({
     where: {
       ...PUBLIC,
       status: { in: ['ACTIVE', 'CONTINUOUS'] },
@@ -943,6 +966,10 @@ async function loadProjects(): Promise<ShowcaseCard[]> {
       ArtImage: { select: artImageRelationSelect },
     },
   })
+
+  const projects = rows.filter(
+    (project) => !project.conductorSlug || !members.has(project.conductorSlug),
+  )
 
   return projects.map((project) =>
     card('project', {

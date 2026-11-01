@@ -38,6 +38,7 @@ export interface ConductorProjectOverride {
   channelKey?: string
   tabKey?: string
   repoUrl?: string
+  parent?: string
 }
 
 export type ConductorProjectOverridePatch = {
@@ -153,6 +154,7 @@ export function parseConductorProjectOverrides(
       ...(current.channelKey ? { channelKey: current.channelKey } : {}),
       ...(current.tabKey ? { tabKey: current.tabKey } : {}),
       ...(current.repoUrl ? { repoUrl: current.repoUrl } : {}),
+      ...(current.parent ? { parent: current.parent } : {}),
     })
   }
 
@@ -182,6 +184,7 @@ export function parseConductorProjectOverrides(
     else if (key === 'channelKey') current.channelKey = value
     else if (key === 'tabKey') current.tabKey = value
     else if (key === 'repoUrl') current.repoUrl = value
+    else if (key === 'parent') current.parent = value
   }
 
   flush()

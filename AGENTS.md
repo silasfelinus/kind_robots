@@ -165,6 +165,12 @@ project has one Kind Robots `Project` row, joined only by `Project.conductorSlug
   row — except that a project Conductor marks retired (`ARCHIVED`) is set `isActive: false` and its
   `liveUrl`/`channelKey`/`tabKey` are cleared (`server/api/conductor/sync.post.ts`). Don't add new
   presentation values to Conductor's `project-overrides.yaml`.
+- **Member apps** (Conductor `parent:`, e.g. the Daily Dream Workshop micro apps under `dream-cycle`)
+  keep their own endpoint but never appear as first-tier projects: the home strip drops them and the
+  public Projects page shelves them (`conductorStore.isMemberProject`). Keep them out of main nav.
+- **Admin vs visitor:** opening a project sends an admin to its manage screen
+  (`/conductor?project=<slug>`, `projectOpenHref`) and everyone else to the project itself.
+  `/api/conductor/projects` redacts task notes, gates, owners and Silas's notes for non-admins.
 - Surfaces that need only progress use `GET /api/conductor/progress` (via
   `conductorStore.fetchProgress()`), not the full `/api/conductor/projects` projection.
 

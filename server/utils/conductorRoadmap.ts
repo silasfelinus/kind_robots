@@ -63,9 +63,10 @@ export function computeProgress(
   // status, so a fully-delivered project (davinci, newsfeed, challenge-center:
   // all 100% by task count) would otherwise render as 0%. Fall back to the
   // task-completion ratio, exactly as build_status.py does.
-  if (tasks.length) {
-    const doneTasks = tasks.filter((task) => task.status === 'done').length
-    return Math.round((doneTasks / tasks.length) * 100)
+  const counted = tasks.filter((task) => task.status !== 'cancelled')
+  if (counted.length) {
+    const doneTasks = counted.filter((task) => task.status === 'done').length
+    return Math.round((doneTasks / counted.length) * 100)
   }
   return 0
 }

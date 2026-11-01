@@ -68,6 +68,8 @@ export interface ConductorProject {
   channelKey?: string
   tabKey?: string
   repoUrl?: string
+  /** Conductor `parent:` -- a member app (e.g. a Daily Dream Workshop micro app), never first-tier. */
+  parentSlug?: string
 }
 
 export interface ConductorPitch {
@@ -261,6 +263,43 @@ function defined(value: string | null | undefined): string | undefined {
   return trimmed || undefined
 }
 
+/**
+ * The coordination view a non-admin may read (Silas, 2026-11-01 PT: admins get
+ * the screen to modify projects; everyone else gets the project itself). Task
+ * notes, gate flags, owners, stakes, Silas's notes and pitch rationale are
+ * internal coordination text and stay admin-only; titles, statuses, progress,
+ * milestones and art stay so public surfaces keep working.
+ */
+export function redactConductorDataForPublic(
+  data: ConductorData,
+): ConductorData {
+  return {
+    ...data,
+    projects: data.projects.map((project) => {
+      const { notesFromSilas: _notes, ...rest } = project
+      return {
+        ...rest,
+        tasks: project.tasks.map((task) => ({
+          id: task.id,
+          milestone: task.milestone,
+          title: task.title,
+          status: task.status,
+          owner: null,
+          passes: 0,
+          gateHuman: false,
+          softGate: false,
+          ...(task.updated ? { updated: task.updated } : {}),
+        })),
+      }
+    }),
+    pitches: data.pitches.map((pitch) => ({
+      ...pitch,
+      whyDoIt: '',
+      effort: '',
+    })),
+  }
+}
+
 export function buildConductorData(
   snapshot: ConductorProjectionSnapshot,
   displays: ReadonlyMap<string, ConductorProjectDisplay> = new Map(),
@@ -295,6 +334,7 @@ export function buildConductorData(
         ? { notesFromSilas: parsed.notesFromSilas }
         : {}),
       ...(parsed.goal ? { goal: parsed.goal } : {}),
+      ...(override.parent ? { parentSlug: override.parent } : {}),
       ...(liveUrl ? { liveUrl } : {}),
       ...(channelKey ? { channelKey } : {}),
       ...(tabKey ? { tabKey } : {}),

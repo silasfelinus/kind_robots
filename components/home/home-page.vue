@@ -320,7 +320,7 @@
                 <NuxtLink
                   v-for="project in showcaseStore.projects"
                   :key="project.id"
-                  :to="showcaseHref(project)"
+                  :to="projectOpenHref(project, userStore.isAdmin)"
                   class="group flex items-center gap-2 rounded-xl border border-base-300 bg-base-100 p-1.5 transition-shadow hover:shadow-md focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary motion-safe:transition-transform motion-safe:hover:-translate-y-0.5"
                 >
                   <div class="kr-icon-10 shrink-0 overflow-hidden rounded-lg">
@@ -470,7 +470,7 @@ import { useConductorStore } from '@/stores/conductorStore'
 import { useHomeShowcaseStore } from '@/stores/homeShowcaseStore'
 import { useUserStore } from '@/stores/userStore'
 import {
-  showcaseHref,
+  projectOpenHref,
   type RailItem,
   type ShowcaseCard,
   type ShowcaseRailKey,

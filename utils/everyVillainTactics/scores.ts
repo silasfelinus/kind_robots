@@ -76,7 +76,11 @@ export function scoreFromSave(save: EvtSave): BattleResult | null {
       points: 100,
     })
   if (neverDamaged)
-    lines.push({ id: 'flawless', label: 'Untouched from first move to victory', points: 250 })
+    lines.push({
+      id: 'flawless',
+      label: 'Untouched from first move to victory',
+      points: 250,
+    })
   if (won && allRescued)
     lines.push({ id: 'evacuated', label: 'Every civilian safe', points: 200 })
   if (quick)

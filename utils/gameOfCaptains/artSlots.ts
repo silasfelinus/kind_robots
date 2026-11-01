@@ -52,14 +52,17 @@ export const WARP_ENDINGS: readonly string[] = [
 ]
 
 /** The stage picture for a voyage moment, or null to keep the drawn bridge. */
-export function voyageStageArt(run: VoyageRun | null): string | null {
-  if (!run) return warpArt(SPLASH_ART_KEY)
+export function voyageStageArt(
+  run: VoyageRun | null,
+  lookup: (asset: string) => string | null = warpArt,
+): string | null {
+  if (!run) return lookup(SPLASH_ART_KEY)
   if (run.phase === 'ending' && run.ending)
     return (
-      (run.nemesisEnding && warpArt(nemesisEndingArtKey(run.nemesisEnding))) ||
-      warpArt(endingArtKey(endingFamilyTitle(run.ending)))
+      (run.nemesisEnding && lookup(nemesisEndingArtKey(run.nemesisEnding))) ||
+      lookup(endingArtKey(endingFamilyTitle(run.ending)))
     )
   if (run.phase === 'finale')
-    return warpArt(antagonistArtKey(antagonistFor(run).id))
-  return warpArt(missionArtKey(missionFor(run).id))
+    return lookup(antagonistArtKey(antagonistFor(run).id))
+  return lookup(missionArtKey(missionFor(run).id))
 }

@@ -471,15 +471,28 @@
                     data-testid="space-couch-captain-hero"
                   >
                     <img
-                      v-if="portrait('captain-' + selectedCaptain)"
-                      :src="portrait('captain-' + selectedCaptain)!"
+                      v-if="captainDossierPortrait"
+                      :src="captainDossierPortrait"
                       :alt="
                         activeCaptain.name + ' full-size character portrait'
                       "
                       class="cap-personnel-hero-image"
+                      @error="onPortraitError($event, 'captain-' + selectedCaptain)"
                     />
                     <div v-else class="cap-personnel-hero-fallback">
                       <strong>{{ activeCaptain.name.slice(0, 1) }}</strong>
+                    </div>
+                    <div class="cap-expression-tabs" role="group" aria-label="Captain portrait expressions">
+                      <button
+                        v-for="expression in PORTRAIT_MOODS"
+                        :key="expression"
+                        type="button"
+                        :aria-pressed="captainMood === expression"
+                        :class="{ selected: captainMood === expression }"
+                        @click="captainMood = expression"
+                      >
+                        {{ expression === 'neutral' ? 'NORMAL' : expression.toUpperCase() }}
+                      </button>
                     </div>
                     <figcaption>
                       <span>YOUR CAPTAIN</span>
@@ -684,18 +697,31 @@
                     data-testid="space-couch-crew-hero"
                   >
                     <img
-                      v-if="portrait(crewProfile(focusedCrew).portraitKey)"
-                      :src="portrait(crewProfile(focusedCrew).portraitKey)!"
+                      v-if="crewDossierPortrait"
+                      :src="crewDossierPortrait"
                       :alt="
                         crewProfile(focusedCrew).name +
                         ' full-size character portrait'
                       "
                       class="cap-personnel-hero-image"
+                      @error="onPortraitError($event, crewProfile(focusedCrew).portraitKey)"
                     />
                     <div v-else class="cap-personnel-hero-fallback">
                       <strong>{{
                         crewProfile(focusedCrew).name.slice(0, 1)
                       }}</strong>
+                    </div>
+                    <div class="cap-expression-tabs" role="group" aria-label="Crew portrait expressions">
+                      <button
+                        v-for="expression in PORTRAIT_MOODS"
+                        :key="expression"
+                        type="button"
+                        :aria-pressed="crewMood === expression"
+                        :class="{ selected: crewMood === expression }"
+                        @click="crewMood = expression"
+                      >
+                        {{ expression === 'neutral' ? 'NORMAL' : expression.toUpperCase() }}
+                      </button>
                     </div>
                     <figcaption>
                       <span>OFFICER DOSSIER</span>
@@ -3975,6 +4001,31 @@ function toggleAway(id: CrewId) {
     serif;
   color: #ffdfa9d9;
   text-shadow: 0 5px 30px #000a;
+}
+.cap-expression-tabs {
+  position: absolute;
+  top: 0.45rem;
+  right: 0.45rem;
+  z-index: 2;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 0.25rem;
+  max-width: 90%;
+}
+.cap-expression-tabs button {
+  min-height: 2rem;
+  padding: 0.35rem 0.45rem;
+  border: 1px solid #f2c59099;
+  border-radius: 0.3rem;
+  background: #0a1828ee;
+  color: #f4d7b7;
+  font-size: clamp(0.55rem, 0.85cqi, 0.72rem);
+  font-weight: 800;
+}
+.cap-expression-tabs button.selected {
+  background: #e7ac83;
+  color: #112039;
 }
 .cap-personnel-hero figcaption {
   position: absolute;

@@ -1,5 +1,9 @@
 import assert from 'node:assert/strict'
-import { emptyScrapbook, mergeScrapbook, sanitizeScrapbook } from '../everyVillainTactics/frontMenu'
+import {
+  emptyScrapbook,
+  mergeScrapbook,
+  sanitizeScrapbook,
+} from '../everyVillainTactics/frontMenu'
 import { createStory } from '../everyVillainTactics/firstBellStory'
 import { createSave, loadSave } from '../everyVillainTactics/saves'
 import {
@@ -45,8 +49,14 @@ assert.ok(score.medals.includes('every-civilian'))
 assert.ok(score.medals.includes('no-knockouts'))
 assert.ok(score.medals.includes('healthy-extraction'))
 assert.ok(score.medals.includes('quick-clear'))
-assert.equal(score.total, score.lines.reduce((sum, line) => sum + line.points, 0))
-assert.equal(score.lines.find((line) => line.id === 'evacuation')!.points, civilians.length * 75)
+assert.equal(
+  score.total,
+  score.lines.reduce((sum, line) => sum + line.points, 0),
+)
+assert.equal(
+  score.lines.find((line) => line.id === 'evacuation')!.points,
+  civilians.length * 75,
+)
 
 const sameOutcome = createSave({
   slot: 'slot-1',
@@ -57,8 +67,15 @@ const sameOutcome = createSave({
   story,
   savedAt: '2026-11-01T02:00:00.000Z',
 })
-assert.equal(scoreFromSave(sameOutcome)!.id, score.id, 'changing slot or save time is not a new run')
-assert.equal(mergeBattleResults([score], [scoreFromSave(sameOutcome)!]).length, 1)
+assert.equal(
+  scoreFromSave(sameOutcome)!.id,
+  score.id,
+  'changing slot or save time is not a new run',
+)
+assert.equal(
+  mergeBattleResults([score], [scoreFromSave(sameOutcome)!]).length,
+  1,
+)
 
 const lost = structuredClone(state)
 lost.phase = 'defeat'
@@ -103,7 +120,11 @@ const claimedStory = createSave({
   story: createStory(),
 })
 claimedStory.state.phase = 'victory'
-assert.equal(scoreFromSave(claimedStory), null, 'unfinished story epilogues cannot award points')
+assert.equal(
+  scoreFromSave(claimedStory),
+  null,
+  'unfinished story epilogues cannot award points',
+)
 
 const freshBook = emptyScrapbook()
 freshBook.results = mergeBattleResults([], [score, defeat])
@@ -118,13 +139,18 @@ assert.deepEqual(
 )
 assert.deepEqual(mergeBattleResults([], [{ ...score, total: 999999 }]), [])
 assert.equal(
-  mergeBattleResults([], Array.from({ length: MAX_SCORE_HISTORY + 12 }, (_, i) => ({
-    ...score,
-    id: i.toString(16).padStart(8, '0'),
-    at: new Date(Date.UTC(2026, 9, 31, 0, i)).toISOString(),
-  }))).length,
+  mergeBattleResults(
+    [],
+    Array.from({ length: MAX_SCORE_HISTORY + 12 }, (_, i) => ({
+      ...score,
+      id: i.toString(16).padStart(8, '0'),
+      at: new Date(Date.UTC(2026, 9, 31, 0, i)).toISOString(),
+    })),
+  ).length,
   MAX_SCORE_HISTORY,
   'history is bounded',
 )
 
-console.log('Every Villain Tactics scored debriefs, outcome medals, replay-safe points and scrapbook retention verified.')
+console.log(
+  'Every Villain Tactics scored debriefs, outcome medals, replay-safe points and scrapbook retention verified.',
+)

@@ -162,7 +162,9 @@ assert.equal(
 )
 for (const [key, scene] of routeSites) {
   assert.ok(
-    !EARTH_PHOTOS.some((photo) => photo.experience === 'e09' && photo.site === key),
+    !EARTH_PHOTOS.some(
+      (photo) => photo.experience === 'e09' && photo.site === key,
+    ),
     key + ' must not overwrite a chronological Earth photograph',
   )
   const event = worldEvent('e09', key)!

@@ -206,6 +206,12 @@ for (const count of [5, 12, 25, 50, 75, 100]) {
     milestoneSeen: ALIEN_MILESTONES.filter((event) => event.at < count).map(
       (event) => event.at,
     ),
+    milestoneDecisions: Object.fromEntries(
+      ALIEN_MILESTONES.filter((event) => event.at < count).map((event) => [
+        String(event.at),
+        'a',
+      ]),
+    ),
   }
   const incident = nextCollectorIncident(guide)!
   assert.equal(incident.at, count)

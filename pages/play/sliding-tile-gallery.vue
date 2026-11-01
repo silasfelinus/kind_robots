@@ -1,58 +1,36 @@
 <template>
   <main class="kr-surface min-h-full">
     <div class="kr-scroll mx-auto max-w-7xl space-y-5 px-3 py-5 pb-24 sm:px-6">
-      <header
-        class="relative overflow-hidden rounded-3xl border border-base-content/15 bg-base-200 p-5 shadow-xl sm:p-8"
-      >
-        <div class="absolute -right-10 -top-16 text-[11rem] opacity-10">🧩</div>
-        <div class="relative flex flex-wrap items-start justify-between gap-4">
-          <div>
-            <p class="kr-text-eyebrow text-primary">
-              Work in progress · First playable slice
-            </p>
-            <h2 class="mt-2 text-3xl font-black sm:text-5xl">
-              Sliding Tile Gallery
-            </h2>
-            <p class="mt-3 max-w-2xl text-sm text-base-content/75">
-              Slide the eight painted panes into place. Finish the picture to
-              reveal a postcard and save it to your keepsake wall. This build is
-              a working puzzle prototype; commissioned gallery art is still on
-              the production list.
-            </p>
-          </div>
-          <button
-            type="button"
-            class="btn btn-outline btn-sm gap-2"
-            @click="nav.openWorkspaceSheet()"
-          >
-            <Icon name="kind-icon:question" class="kr-icon-4" />
-            Tutorial
-          </button>
-        </div>
-        <div class="relative mt-5 flex flex-wrap items-center gap-2">
+      <header-page-bar>
+        <div
+          class="tile-bar flex min-w-0 flex-1 items-center justify-end gap-1.5"
+          title="Work in progress · first playable slice. Slide the eight painted panes into place; finish the picture to reveal a postcard for your keepsake wall. Commissioned gallery art is still on the production list."
+        >
           <button
             type="button"
             class="btn btn-primary btn-sm"
             @click="gallery.openDaily()"
           >
-            Daily puzzle · UTC
+            Daily <span class="tile-bar-long">puzzle · UTC</span>
           </button>
           <button
             type="button"
             class="btn btn-outline btn-sm"
+            aria-label="New practice board"
             @click="gallery.newPractice()"
           >
-            New practice board
+            <span class="tile-bar-long">New practice board</span>
+            <span class="tile-bar-short">Practice</span>
           </button>
           <button
             type="button"
             class="btn btn-ghost btn-sm"
             @click="gallery.restart()"
           >
-            Restart board
+            Restart <span class="tile-bar-long">board</span>
           </button>
         </div>
-      </header>
+      </header-page-bar>
 
       <div
         class="grid items-start gap-5 lg:grid-cols-[minmax(0,1.1fr)_minmax(300px,0.9fr)]"
@@ -232,10 +210,8 @@
 
 <script setup lang="ts">
 import { onMounted } from 'vue'
-import { useNavStore } from '~/stores/navStore'
 import { useSlidingTileGalleryStore } from '~/stores/slidingTileGalleryStore'
 
-const nav = useNavStore()
 const gallery = useSlidingTileGalleryStore()
 
 const tileColors = [
@@ -254,3 +230,18 @@ function tileArtwork(tile: number) {
 
 onMounted(() => gallery.initialize())
 </script>
+
+<style scoped>
+.tile-bar-short {
+  display: none;
+}
+
+@container (max-width: 520px) {
+  .tile-bar-long {
+    display: none;
+  }
+  .tile-bar-short {
+    display: inline;
+  }
+}
+</style>

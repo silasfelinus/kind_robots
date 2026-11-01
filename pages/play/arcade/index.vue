@@ -10,26 +10,33 @@
       </div>
 
       <template v-else-if="meta">
-        <nav
-          class="flex shrink-0 items-center gap-2 text-sm"
-          aria-label="Arcade cabinet navigation"
-        >
-          <NuxtLink to="/play/arcade" class="btn btn-sm btn-ghost">
-            ← Arcade hall
-          </NuxtLink>
-          <span class="min-w-0 flex-1 truncate opacity-70">
-            {{ meta.title }}
-          </span>
-          <button
-            type="button"
-            class="arcade-details-toggle btn btn-outline btn-sm"
-            :aria-expanded="showDetails"
-            aria-controls="arcade-cabinet-details"
-            @click="showDetails = !showDetails"
+        <header-page-bar>
+          <nav
+            class="flex min-w-0 flex-1 items-center gap-2 text-sm"
+            aria-label="Arcade cabinet navigation"
           >
-            {{ showDetails ? 'Back to game' : 'Scores & more' }}
-          </button>
-        </nav>
+            <NuxtLink
+              to="/play/arcade"
+              class="btn btn-sm btn-ghost shrink-0"
+              title="Back to the Arcade hall"
+              aria-label="Back to the Arcade hall"
+            >
+              ← <span class="arcade-hall-label">Arcade hall</span>
+            </NuxtLink>
+            <span class="min-w-0 flex-1 truncate font-semibold opacity-80">
+              {{ meta.title }}
+            </span>
+            <button
+              type="button"
+              class="arcade-details-toggle btn btn-outline btn-sm shrink-0"
+              :aria-expanded="showDetails"
+              aria-controls="arcade-cabinet-details"
+              @click="showDetails = !showDetails"
+            >
+              {{ showDetails ? 'Back to game' : 'Scores & more' }}
+            </button>
+          </nav>
+        </header-page-bar>
 
         <div class="kr-panes arcade-layout min-h-0 grid-cols-1 gap-2">
           <div
@@ -286,6 +293,12 @@ if (!route.query.game) {
   min-width: 0;
   padding-inline: 0.25rem;
   font-size: 0.68rem;
+}
+
+@container (max-width: 420px) {
+  .arcade-hall-label {
+    display: none;
+  }
 }
 
 @media (max-width: 1023px) {

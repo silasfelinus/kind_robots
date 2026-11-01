@@ -1,19 +1,19 @@
 <template>
   <main class="kr-surface hybridizer-root" data-testid="hybridizer-lab">
     <div class="hybridizer-console" :class="{ 'is-working': lab.working }">
-      <header class="hybridizer-header">
-        <div>
-          <p class="eyebrow">KIND ROBOTS / EXPERIMENT 014</p>
-          <div class="lab-title">HYBRIDIZER</div>
-          <p class="subtitle">Every creature has an impossible cousin.</p>
+      <header-page-bar>
+        <div
+          class="hybridizer-bar"
+          title="Kind Robots / Experiment 014 — every creature has an impossible cousin."
+        >
+          <span class="hybridizer-bar-chip">
+            <strong>{{ lab.starterCount }}</strong> starters
+          </span>
+          <span class="hybridizer-bar-chip">
+            <strong>{{ lab.discoveries.length }}</strong> discoveries
+          </span>
         </div>
-        <div class="header-count">
-          <strong>{{ lab.starterCount }}</strong>
-          <span>STARTERS</span>
-          <strong>{{ lab.discoveries.length }}</strong>
-          <span>DISCOVERIES</span>
-        </div>
-      </header>
+      </header-page-bar>
 
       <section class="hybridizer-stage" aria-label="Creature fusion laboratory">
         <button
@@ -724,23 +724,13 @@ onUnmounted(() => lab.stopArtworkWatch())
 .hybridizer-console {
   position: relative;
   display: grid;
-  grid-template-rows: auto minmax(0, 1fr) auto auto;
+  grid-template-rows: minmax(0, 1fr) auto auto;
   gap: clamp(9px, 1.4vw, 18px);
   height: 100%;
   min-height: 0;
   padding: clamp(12px, 2vw, 25px);
   background-image: radial-gradient(#b8a9d32b 1px, transparent 1px);
   background-size: 27px 27px;
-}
-
-.hybridizer-header {
-  display: flex;
-  justify-content: space-between;
-  gap: 12px;
-  align-items: center;
-  min-height: 0;
-  padding-bottom: 8px;
-  border-bottom: 1px solid #957b9e50;
 }
 
 .eyebrow {
@@ -750,34 +740,41 @@ onUnmounted(() => lab.stopArtworkWatch())
   color: #d3b9db;
 }
 
-.hybridizer-header .lab-title {
-  font-size: clamp(1.55rem, 3.8vw, 3.1rem);
-  letter-spacing: 0.18em;
-  font-weight: 950;
-  line-height: 1.12;
-  color: #fff2d8;
-}
-
-.subtitle {
-  font-size: clamp(0.66rem, 1vw, 0.87rem);
-  letter-spacing: 0.075em;
-  color: #d4f0b3;
-  font-weight: 700;
-}
-
-.header-count {
-  display: grid;
-  grid-template-columns: repeat(2, max-content);
-  column-gap: 15px;
+.hybridizer-bar {
+  display: flex;
+  flex: 1;
+  min-width: 0;
   align-items: center;
-  font-size: 0.65rem;
-  letter-spacing: 0.1em;
-  color: #d8c7de;
+  justify-content: flex-end;
+  gap: 6px;
+  font-size: 0.7rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: color-mix(in oklab, var(--color-base-content) 72%, transparent);
 }
 
-.header-count strong {
-  font-size: 1.3rem;
-  color: #def19d;
+.hybridizer-bar-chip {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 5px;
+  white-space: nowrap;
+  padding: 3px 10px;
+  border: 1px solid
+    color-mix(in oklab, var(--color-base-content) 18%, transparent);
+  border-radius: 999px;
+}
+
+.hybridizer-bar-chip strong {
+  font-size: 0.9rem;
+  color: var(--color-primary);
+}
+
+@container (max-width: 380px) {
+  .hybridizer-bar-chip {
+    padding: 2px 7px;
+    letter-spacing: 0;
+  }
 }
 
 .hybridizer-stage {
@@ -1305,21 +1302,6 @@ onUnmounted(() => lab.stopArtworkWatch())
 }
 
 @container (max-width: 440px) {
-  .hybridizer-header .lab-title {
-    font-size: 1.46rem;
-    letter-spacing: 0.085em;
-  }
-  .subtitle {
-    font-size: 0.59rem;
-  }
-  .header-count {
-    column-gap: 6px;
-    letter-spacing: 0;
-    font-size: 0.54rem;
-  }
-  .header-count strong {
-    font-size: 0.9rem;
-  }
   .hybridizer-console {
     padding: 8px;
     gap: 7px;

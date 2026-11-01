@@ -106,7 +106,7 @@
            "I can't actually select the channel option anymore." The children
            round their own outer corners instead. -->
       <div
-        class="flex h-10 min-h-10 min-w-0 flex-1 items-stretch xl:flex-initial rounded-xl border border-base-300 bg-base-100 shadow-sm sm:h-11 sm:min-h-11 xl:h-14 xl:min-h-14"
+        class="flex h-10 min-h-10 min-w-0 flex-1 items-stretch xl:flex-none rounded-xl border border-base-300 bg-base-100 shadow-sm sm:h-11 sm:min-h-11 xl:h-14 xl:min-h-14"
       >
         <!--
           CAPPED, not just shrinkable. `shrink` alone only says channel-select
@@ -145,7 +145,7 @@
 
         <channel-select
           seamless
-          class="hidden min-w-0 shrink max-w-[45%] sm:block"
+          class="hidden min-w-0 shrink max-w-[45%] sm:block xl:max-w-none"
         />
 
         <div

@@ -8,6 +8,7 @@ export type AlienContact = {
   speciesId: string
   mood: AlienMood
   outcome: AlienOutcome
+  choice?: AlienChoice
 }
 export type AlienGuide = {
   version: 1
@@ -17,6 +18,7 @@ export type AlienGuide = {
   milestoneSeen: number[]
   contacts?: Record<string, AlienOutcome>
   lastContact?: AlienContact
+  fieldReports?: AlienContact[]
 }
 export type AlienSighting = {
   species: AlienSpecies
@@ -122,14 +124,25 @@ export function normalizeAlienGuide(value: unknown): AlienGuide {
       if (ALIEN_BY_ID.has(id) && isAlienOutcome(outcome)) contacts[id] = outcome
     }
   }
-  const last = source.lastContact as Partial<AlienContact> | undefined
-  const lastContact =
-    last &&
-    ALIEN_BY_ID.has(last.speciesId ?? '') &&
-    isAlienMood(last.mood) &&
-    isAlienOutcome(last.outcome)
-      ? { speciesId: last.speciesId!, mood: last.mood, outcome: last.outcome }
-      : undefined
+  const validatedContact = (value: unknown): AlienContact | null => {
+    if (!value || typeof value !== 'object') return null
+    const candidate = value as Partial<AlienContact>
+    if (
+      !ALIEN_BY_ID.has(candidate.speciesId ?? '') ||
+      !isAlienMood(candidate.mood) ||
+      !isAlienOutcome(candidate.outcome)
+    ) return null
+    return {
+      speciesId: candidate.speciesId!,
+      mood: candidate.mood,
+      outcome: candidate.outcome,
+      ...(isAlienChoice(candidate.choice) ? { choice: candidate.choice } : {}),
+    }
+  }
+  const lastContact = validatedContact(source.lastContact) ?? undefined
+  const fieldReports = Array.isArray(source.fieldReports)
+    ? source.fieldReports.map(validatedContact).filter((report): report is AlienContact => !!report).slice(-40)
+    : []
   const milestoneSeen = Array.isArray(source.milestoneSeen)
     ? [
         ...new Set(
@@ -148,6 +161,7 @@ export function normalizeAlienGuide(value: unknown): AlienGuide {
     milestoneSeen,
     ...(Object.keys(contacts).length ? { contacts } : {}),
     ...(lastContact ? { lastContact } : {}),
+    ...(fieldReports.length ? { fieldReports } : {}),
   }
 }
 const hash = (value: string): number => {
@@ -159,6 +173,8 @@ const hash = (value: string): number => {
 const ALIEN_MOODS: readonly AlienMood[] = ['wary', 'playful', 'protective']
 const isAlienMood = (value: unknown): value is AlienMood =>
   ALIEN_MOODS.includes(value as AlienMood)
+const isAlienChoice = (value: unknown): value is AlienChoice =>
+  value === 'approach' || value === 'observe' || value === 'improvise'
 const isAlienOutcome = (value: unknown): value is AlienOutcome =>
   value === 'retreat' || value === 'chaos' || value === 'bond'
 
@@ -267,6 +283,20 @@ const SCENE_CLUES: Record<
     },
   },
 }
+export const alienObservation = (contact: AlienContact): string => {
+  const species = ALIEN_BY_ID.get(contact.speciesId)
+  if (!species) return ''
+  const action = ALIEN_CHOICES.find((choice) => choice.id === contact.choice)
+  const evidence = SCENE_CLUES[species.category][contact.mood].evidence
+  const result =
+    contact.outcome === 'bond'
+      ? 'It chose to stay.'
+      : contact.outcome === 'chaos'
+        ? 'Everyone witnessed the consequences.'
+        : 'It vanished before we could make a proper record.'
+  return `${species.name}: "${evidence}" We tried ${action?.label.toLowerCase() ?? 'something unrecorded'}. ${result}`
+}
+
 const visitKey = (run: Pick<VoyageRun, 'seed' | 'chapter'>) =>
   run.seed + ':' + run.chapter
 
@@ -420,7 +450,12 @@ export function resolveAlienSighting(
       speciesId: sighting.species.id,
       mood: sighting.mood,
       outcome,
+      choice,
     },
+    fieldReports: [
+      ...(guide.fieldReports ?? []),
+      { speciesId: sighting.species.id, mood: sighting.mood, outcome, choice },
+    ].slice(-40),
   }
   const species = sighting.species
   const reaction =

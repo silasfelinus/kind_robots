@@ -587,7 +587,6 @@ assert.equal(
   'teleporting after a valid journey must invalidate the entire journal',
 )
 
-
 const earthScenes = earthCollision
 assert.equal(earthScenes.length, 2)
 assert.deepEqual(
@@ -719,12 +718,14 @@ for (const tideGate of [
       )
       const shortBriar = briarJournal.filter(
         (action) =>
-          action.type !== 'choose' ||
-          ['2,2', '7,6'].includes(action.key),
+          action.type !== 'choose' || ['2,2', '7,6'].includes(action.key),
       )
       assert.equal(earthCollisionHistory(campaign, warm, shortBriar), null)
       const forgedWarm = { ...warm, flags: ['invented-charter'] }
-      assert.equal(earthCollisionHistory(campaign, forgedWarm, briarJournal), null)
+      assert.equal(
+        earthCollisionHistory(campaign, forgedWarm, briarJournal),
+        null,
+      )
       const forgedBriar = [
         ...briarJournal,
         { type: 'choose', key: '7,6', choiceId: 'invented' },
@@ -749,7 +750,10 @@ assert.equal(
 )
 assert.equal(
   earthCollisionHistory(
-    { ...concludedBriar, completed: concludedBriar.completed.filter((id) => id !== 'e09') },
+    {
+      ...concludedBriar,
+      completed: concludedBriar.completed.filter((id) => id !== 'e09'),
+    }
     warmCharter('consent'),
     completeBriarJournal,
   ),

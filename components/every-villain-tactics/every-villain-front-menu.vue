@@ -398,7 +398,10 @@
                 {{ result.outcome.toUpperCase() }}
               </small>
               <strong>{{ result.stage }} · {{ result.total }} points</strong>
-              <span>{{ result.turns }} rounds · {{ result.medals.length }} earned medals</span>
+              <span
+                >{{ result.turns }} rounds · {{ result.medals.length }} earned
+                medals</span
+              >
               <small>
                 {{
                   result.lines

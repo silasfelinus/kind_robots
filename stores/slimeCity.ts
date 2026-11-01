@@ -267,18 +267,15 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
   async function hydrateStory(): Promise<void> {
     await netReady
     const userId = authId()
-    if (!userId || isGuest()) {
-      storyLoaded.value = false
-      storyAccount.value = null
-      storyRevision.value = 0
-      city.value = createCity()
-      campaignSave.value = createCampaignSave()
-      return
-    }
     storyLoaded.value = false
     storyAccount.value = null
+    storyRevision.value = 0
     storyDirty = false
     storyError.value = ''
+    city.value = createCity()
+    campaignSave.value = createCampaignSave()
+    districtId.value = 'pitworks'
+    if (!userId || isGuest()) return
     try {
       const response = await performFetch<SlimeCityStory>(
         '/api/slime-city/story',

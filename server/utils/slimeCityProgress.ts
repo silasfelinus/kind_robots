@@ -69,7 +69,10 @@ async function changeAccount(
     if (after === before) return before
     const updated = await tx.slimeCityAccount.updateMany({
       where: { userId, version: row.version },
-      data: { data: toJson(accountWithStory(row.data, after)), version: { increment: 1 } },
+      data: {
+        data: toJson(accountWithStory(row.data, after)),
+        version: { increment: 1 },
+      },
     })
     if (updated.count !== 1)
       throw createError({
@@ -243,7 +246,10 @@ export async function finishSlimeCityCpuMatch(
     const after = awardBattle(before, verified, now)
     const updated = await tx.slimeCityAccount.updateMany({
       where: { userId, version: row.version },
-      data: { data: toJson(accountWithStory(row.data, after)), version: { increment: 1 } },
+      data: {
+        data: toJson(accountWithStory(row.data, after)),
+        version: { increment: 1 },
+      },
     })
     if (updated.count !== 1)
       throw createError({
@@ -265,7 +271,9 @@ export async function finishSlimeCityCpuMatch(
 }
 
 /** Story and city progress are private and never award XP, cards or virtual Meat. */
-export async function getSlimeCityStory(userId: number): Promise<SlimeCityStory> {
+export async function getSlimeCityStory(
+  userId: number,
+): Promise<SlimeCityStory> {
   const row = await prisma.slimeCityAccount.findUnique({ where: { userId } })
   return storyFromAccount(row?.data)
 }
@@ -276,7 +284,10 @@ export async function saveSlimeCityStory(
   body: unknown,
 ): Promise<SlimeCityStory> {
   if (!validSlimeCityStory(body) || JSON.stringify(body).length > 32768)
-    throw createError({ statusCode: 400, message: 'Invalid or oversized story save.' })
+    throw createError({
+      statusCode: 400,
+      message: 'Invalid or oversized story save.',
+    })
   const proposed = body as SlimeCityStory
   return prisma.$transaction(async (tx) => {
     const row = await tx.slimeCityAccount.upsert({
@@ -286,22 +297,32 @@ export async function saveSlimeCityStory(
     })
     const current = storyFromAccount(row.data)
     if (proposed.revision !== current.revision)
-      throw createError({ statusCode: 409, message: 'Story changed in another tab. Reload before saving.' })
+      throw createError({
+        statusCode: 409,
+        message: 'Story changed in another tab. Reload before saving.',
+      })
     const next: SlimeCityStory = {
       version: 1,
       revision: current.revision + 1,
       city: proposed.city,
       campaigns: proposed.campaigns,
     }
-    const raw = row.data && typeof row.data === 'object' && !Array.isArray(row.data)
-      ? row.data as Record<string, unknown>
-      : newProgression()
+    const raw =
+      row.data && typeof row.data === 'object' && !Array.isArray(row.data)
+        ? (row.data as Record<string, unknown>)
+        : newProgression()
     const updated = await tx.slimeCityAccount.updateMany({
       where: { userId, version: row.version },
-      data: { data: toJson({ ...raw, story: next }), version: { increment: 1 } },
+      data: {
+        data: toJson({ ...raw, story: next }),
+        version: { increment: 1 },
+      },
     })
     if (updated.count !== 1)
-      throw createError({ statusCode: 409, message: 'Account changed during save. Retry.' })
+      throw createError({
+        statusCode: 409,
+        message: 'Account changed during save. Retry.',
+      })
     return next
   })
 }

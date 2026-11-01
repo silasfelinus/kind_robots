@@ -102,9 +102,13 @@ export function validSlimeCityStory(raw: unknown): raw is SlimeCityStory {
   if (raw.decks !== undefined) {
     if (!record(raw.decks)) return false
     for (const [team, deck] of Object.entries(raw.decks)) {
-      if (!teams.includes(team as TeamId) || !Array.isArray(deck) ||
-          !deck.every((id) => typeof id === 'string') ||
-          loadoutProblems(team as TeamId, deck).length) return false
+      if (
+        !teams.includes(team as TeamId) ||
+        !Array.isArray(deck) ||
+        !deck.every((id) => typeof id === 'string') ||
+        loadoutProblems(team as TeamId, deck).length
+      )
+        return false
     }
   }
   const city = raw.city

@@ -999,6 +999,18 @@ export const ANIMATION_EFFECTS = [
     generationSafe: true,
     preferredSurface: 'fullscreen',
   },
+  {
+    id: 'lighthouse-fog-sweep',
+    label: 'Lighthouse Fog Sweep',
+    reveal: 'A slow beam finds ships hiding in the fog',
+    icon: 'kind-icon:sparkle',
+    tooltip:
+      'A lighthouse beam sweeps across drifting fog banks and makes distant ship lights flare as it passes 🗼 hover to brighten nearby ships, click to speed up the sweep for a moment',
+    color: '#ffe9b8',
+    releasedAt: '2026-11-01T14:00:00Z',
+    generationSafe: true,
+    preferredSurface: 'fullscreen',
+  },
 ] as const satisfies readonly AnimationEffectDefinition[]
 
 export type AnimationEffectId = (typeof ANIMATION_EFFECTS)[number]['id']

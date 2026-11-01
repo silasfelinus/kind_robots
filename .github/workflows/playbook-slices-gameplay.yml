@@ -17,6 +17,7 @@ on:
       - 'components/home/home-visitor-directory.vue'
       - 'utils/scripts/verifyCometCityAcademy.test.ts'
       - 'utils/scripts/verifyCometMorningCallbacks.test.ts'
+      - 'utils/scripts/verifyCometCaseMemory.test.ts'
       - 'utils/scripts/verifyCometPatrolStories.test.ts'
       - 'utils/scripts/verifyCometOctoberCast.test.ts'
       - 'utils/scripts/verifyCometConsoleScreens.test.ts'
@@ -78,6 +79,8 @@ jobs:
         run: npm run test:comet-city-academy
       - name: Early patrol morning callbacks, choices and original full campaign
         run: npx tsx utils/scripts/verifyCometMorningCallbacks.test.ts
+      - name: Five-night district reputation and campaign save provenance
+        run: npx tsx utils/scripts/verifyCometCaseMemory.test.ts
       - name: Signature origin missions, villain lairs and lieutenant parity
         run: npx tsx utils/scripts/verifyPromCampaignStages.test.ts
       - name: Shared comic character reveals across both games

@@ -110,6 +110,12 @@ import { returnVisitFor } from './returnVisits'
 import { realNightCase } from './nightCases'
 import { nightCaseMorning } from './earlyNightMornings'
 import {
+  caseTrustModifier,
+  recordCaseNight,
+  validCaseHistory,
+  type CaseMemory,
+} from './caseMemory'
+import {
   CAMPAIGN_ANCHORS,
   campaignAnchor,
   campaignVillain,
@@ -590,6 +596,8 @@ export type AcademyRun = {
   playerCaseId?: string | null
   missionApproach?: MissionApproach | null
   missionClues?: string[]
+  /** Verified district outcomes; a player's older run may not have this ledger. */
+  caseHistory?: CaseMemory[]
   /** Marks the new solo-rookie prologue; old saved campaigns retain their boards. */
   patrolOpening?: 1
   /** Optional, saved night-neighborhood activity. Disabled for older campaign saves. */
@@ -831,6 +839,7 @@ export function startFullAcademy(
     campaignOptions: { ...campaignOptions },
     incidentDeckVersion: 4,
     missionClues: [],
+    caseHistory: [],
     initialForm,
     playerEvolution: beginPlayerEvolution(initialForm),
     relationships: newSocialState(),
@@ -1651,7 +1660,12 @@ export function dispatchModifier(
         : 1
       : 0) +
     (missionSecretFor(run, incident.id) ? 2 : 0) +
-    (run.flowVersion === 3 ? storyLaterModifier(run, incident) : 0) -
+    (run.flowVersion === 3 ? storyLaterModifier(run, incident) : 0) +
+    (run.flowVersion === 3 &&
+    run.playerCaseId === incident.id &&
+    run.missionApproach === 'investigate'
+      ? caseTrustModifier(run.caseHistory, run.day, incident.id)
+      : 0) -
     villainInterference(run, incident)
   )
 }
@@ -2027,6 +2041,7 @@ export function resolveDispatch(run: AcademyRun): AcademyRun {
           nightPatrol: null,
           missionApproach: null,
           missionClues,
+          caseHistory: recordCaseNight(run.caseHistory ?? [], run.day, reports),
           tacticalBattle: null,
           tacticalResult: null,
         }
@@ -2540,6 +2555,13 @@ export function restoreAcademy(raw: unknown): AcademyRun | null {
         !['rescue', 'investigate'].includes(data.missionApproach) ||
         (data.missionApproach === 'investigate' &&
           (!data.playerCaseId || !expandedMissionFor(data.playerCaseId))))) ||
+    (data.caseHistory !== undefined &&
+      (data.flowVersion !== 3 ||
+        !validCaseHistory(
+          data.caseHistory,
+          data.day ?? 0,
+          data.phase ?? '',
+        ))) ||
     (data.missionClues !== undefined &&
       (!Array.isArray(data.missionClues) ||
         data.flowVersion !== 3 ||

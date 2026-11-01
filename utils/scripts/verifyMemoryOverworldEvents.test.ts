@@ -275,13 +275,8 @@ for (let y = 1; y <= 8; y++) {
   )
   for (const x of row) {
     const key = x + ',' + y
-    if (key !== '1,1')
-      completeBriarJournal.push({ type: 'travel', key })
-    if (
-      resolvedBriarSites < 12 ||
-      key === '2,2' ||
-      key === '7,6'
-    ) {
+    if (key !== '1,1') completeBriarJournal.push({ type: 'travel', key })
+    if (resolvedBriarSites < 12 || key === '2,2' || key === '7,6') {
       completeBriarJournal.push({
         type: 'choose',
         key,
@@ -320,10 +315,7 @@ assert.equal(
   11,
 )
 assert.equal(
-  concludeBriarCollisionFromJournal(
-    committedCampaign,
-    tooShortBriarJournal,
-  ),
+  concludeBriarCollisionFromJournal(committedCampaign, tooShortBriarJournal),
   null,
   'two fragments without twelve meaningful decisions cannot end the map',
 )
@@ -334,21 +326,14 @@ assert.equal(
 )
 const forgedReceiptCampaign = {
   ...committedCampaign,
-  recoveredFragments: [
-    'briar-office-key',
-    'briar-tide-roots',
-  ] as const,
+  recoveredFragments: ['briar-office-key', 'briar-tide-roots'] as const,
 }
 const noFragmentChoices = completeBriarJournal.filter(
   (action) =>
-    action.type !== 'choose' ||
-    (action.key !== '2,2' && action.key !== '7,6'),
+    action.type !== 'choose' || (action.key !== '2,2' && action.key !== '7,6'),
 )
 assert.equal(
-  concludeBriarCollisionFromJournal(
-    forgedReceiptCampaign,
-    noFragmentChoices,
-  ),
+  concludeBriarCollisionFromJournal(forgedReceiptCampaign, noFragmentChoices),
   null,
   'serialized fragment receipts cannot replace both actual scene decisions',
 )

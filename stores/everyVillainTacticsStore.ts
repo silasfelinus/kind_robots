@@ -45,7 +45,11 @@ import {
   type EvtSettings,
   type Scrapbook,
 } from '~/utils/everyVillainTactics/frontMenu'
-import { mergeBattleResults, scoreFromSave, type BattleResult } from '~/utils/everyVillainTactics/scores'
+import {
+  mergeBattleResults,
+  scoreFromSave,
+  type BattleResult,
+} from '~/utils/everyVillainTactics/scores'
 import {
   EVT_SAVE_SLOTS,
   clearSlot,

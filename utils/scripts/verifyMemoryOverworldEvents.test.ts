@@ -239,10 +239,16 @@ for (const key of newCrossroads) {
   assert.ok(scene.opening.length > 180, key + ' needs a developed opening')
   assert.ok(scene.artSubject.length > 70, key + ' needs a visual brief')
   for (const choice of event.choices) {
-    assert.ok(choice.outcome.length > 130, key + ' needs a consequential ending')
+    assert.ok(
+      choice.outcome.length > 130,
+      key + ' needs a consequential ending',
+    )
     assert.ok(Object.values(choice.effects).some((effect) => effect !== 0))
     assert.ok(!newCrossroadFlags.has(choice.flag), 'flags must be unique')
-    assert.ok(!newCrossroadOutcomes.has(choice.outcome), 'outcomes must be unique')
+    assert.ok(
+      !newCrossroadOutcomes.has(choice.outcome),
+      'outcomes must be unique',
+    )
     newCrossroadFlags.add(choice.flag)
     newCrossroadOutcomes.add(choice.outcome)
     const [x, y] = key.split(',').map(Number) as [number, number]

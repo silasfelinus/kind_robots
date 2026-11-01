@@ -1830,6 +1830,7 @@
       v-if="store.alienSighting || store.alienReport"
       :sighting="store.alienSighting"
       :report="store.alienReport"
+      :guide="store.alienGuide"
       :artwork="store.alienArtwork"
       @choose="store.chooseAlienAction"
       @close="store.dismissAlienEncounter"

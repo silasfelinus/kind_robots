@@ -17,7 +17,7 @@ import {
   resolveCampaignBattle,
   type CampaignApproach,
 } from '../utils/slimeCity/campaign'
-import { type SlimeCityStory } from '../utils/slimeCity/storySave'
+import type { SlimeCityStory } from '../utils/slimeCity/storySave'
 import { computed, ref, shallowRef, watch } from 'vue'
 import {
   advance,

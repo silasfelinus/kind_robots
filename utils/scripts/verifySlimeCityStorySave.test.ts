@@ -6,7 +6,7 @@ import {
   storyFromAccount,
   validSlimeCityStory,
 } from '../slimeCity/storySave'
-import { decide, createCity, travel } from '../slimeCity/city'
+import { createCity, travel } from '../slimeCity/city'
 import {
   createCampaignSave,
   resolveCampaignBattle,

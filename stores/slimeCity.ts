@@ -28,6 +28,7 @@ import {
   cardById,
   cardReady,
   CARDS,
+  loadoutProblems,
   createMatch,
   DEFAULT_RULES,
   deploy,
@@ -248,6 +249,9 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
   const contractBout = ref<DistrictId | null>(null)
   const lastContract = ref<DistrictId | null>(null)
   const campaignSave = ref(createCampaignSave())
+  const savedDecks = ref<Partial<Record<TeamId, string[]>>>({})
+  const replacingCard = ref<string | null>(null)
+  const deckMessage = ref('')
   const storyLoaded = ref(false)
   const storySaving = ref(false)
   const storyRevision = ref(0)
@@ -274,6 +278,8 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
     storyError.value = ''
     city.value = createCity()
     campaignSave.value = createCampaignSave()
+    savedDecks.value = {}
+    replacingCard.value = null
     districtId.value = 'pitworks'
     if (!userId || isGuest()) return
     try {
@@ -286,6 +292,7 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
       city.value = response.data.city
       districtId.value = response.data.city.location
       campaignSave.value = response.data.campaigns
+      savedDecks.value = response.data.decks ?? {}
       storyRevision.value = response.data.revision
       storyAccount.value = userId
       storyLoaded.value = true
@@ -307,6 +314,7 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
           revision: storyRevision.value,
           city: city.value,
           campaigns: campaignSave.value,
+          decks: savedDecks.value,
         }
         try {
           const result = await performFetch<SlimeCityStory>(
@@ -399,6 +407,99 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
   const cards = computed(() =>
     CARDS.filter((item) => item.team === activeTeam.value),
   )
+  const starterCards = (id: TeamId): string[] => {
+    const starter = teamById(id)
+    return [...starter.creatures, ...starter.special]
+  }
+  const currentDeck = computed(() =>
+    savedDecks.value[activeTeam.value] ?? starterCards(activeTeam.value),
+  )
+  const currentDeckProblems = computed(() =>
+    loadoutProblems(activeTeam.value, currentDeck.value),
+  )
+  function isFounderCard(id: string): boolean {
+    const card = CARDS.find((entry) => entry.id === id)
+    return !!card && starterCards(card.team).includes(id)
+  }
+  function isCardUnlocked(id: string): boolean {
+    return isFounderCard(id) || progress.value.cards.includes(id)
+  }
+  function selectDeckCard(id: string): void {
+    if (!storyLoaded.value || !progressLoaded.value || storySaving.value) {
+      deckMessage.value = 'Sign in and load your account to edit a deck.'
+      return
+    }
+    const candidate = cards.value.find((card) => card.id === id)
+    if (!candidate) return
+    const inDeck = currentDeck.value.includes(id)
+    if (inDeck) {
+      replacingCard.value = replacingCard.value === id ? null : id
+      deckMessage.value = candidate.signature
+        ? 'Your crew signature stays in every legal deck.'
+        : 'Now select an owned reserve of the same card type.'
+      return
+    }
+    const source = cards.value.find((card) => card.id === replacingCard.value)
+    if (!source || source.signature || source.kind !== candidate.kind) {
+      deckMessage.value = 'Choose an existing non-signature deck card of this type first.'
+      return
+    }
+    if (!isCardUnlocked(id)) {
+      deckMessage.value = 'Unlock this reserve in a Meat pack before using it.'
+      return
+    }
+    const updated = currentDeck.value.map((cardId) =>
+      cardId === source.id ? id : cardId,
+    )
+    const problems = loadoutProblems(activeTeam.value, updated)
+    if (problems.length) {
+      deckMessage.value = problems.join(' · ')
+      return
+    }
+    savedDecks.value = { ...savedDecks.value, [activeTeam.value]: updated }
+    replacingCard.value = null
+    deckMessage.value = candidate.name + ' replaces ' + source.name + '. Saving…'
+    persistStory()
+  }
+  function restoreFounderDeck(): void {
+    if (!storyLoaded.value) return
+    savedDecks.value = {
+      ...savedDecks.value,
+      [activeTeam.value]: starterCards(activeTeam.value),
+    }
+    replacingCard.value = null
+    deckMessage.value = 'Founder deck restored. Saving…'
+    persistStory()
+  }
+  function testCustomDeck(): void {
+    if (currentDeckProblems.value.length) {
+      deckMessage.value = currentDeckProblems.value.join(' · ')
+      return
+    }
+    stop()
+    rewardMatchId.value = null
+    mode.value = 'blackout'
+    rules.value = { ...DEFAULT_RULES }
+    seed.value = rollSeed()
+    match.value = createMatch(
+      'blackout',
+      activeTeam.value,
+      enemyTeam.value,
+      seed.value,
+      rules.value,
+      currentDeck.value,
+    )
+    selectedCard.value = null
+    previewOpen.value = false
+    selectedUnit.value = null
+    targetUnit.value = null
+    bout.value = null
+    contractBout.value = null
+    campaignBout.value = null
+    view.value = 'arena'
+    deckMessage.value = 'Practice match: no XP or Meat rewards.'
+    if (!guideSeen.has('blackout')) openGuide()
+  }
   const hand = computed(() => sight.value.hand)
   const inspectedCard = computed(() =>
     selectedCard.value
@@ -567,6 +668,7 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
 
   function chooseTeam(id: TeamId): void {
     activeTeam.value = id
+    replacingCard.value = null
     if (enemyTeam.value === id)
       enemyTeam.value = TEAMS.find((item) => item.id !== id)?.id || 'riot'
     reset()
@@ -1023,6 +1125,15 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
     activeContract,
     contractGate,
     campaignSave,
+    currentDeck,
+    currentDeckProblems,
+    replacingCard,
+    deckMessage,
+    isFounderCard,
+    isCardUnlocked,
+    selectDeckCard,
+    restoreFounderDeck,
+    testCustomDeck,
     storyLoaded,
     storySaving,
     storyError,

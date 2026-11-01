@@ -584,7 +584,7 @@ export function resolveConsequence(
     ),
     intervention:
       run.intervention +
-      (choice.policy === 'aid' ? 1 : choice.policy ===
+      (choice.policy === 'aid' ? 1 : choice.policy === 'intervene' ? 2 : -1),
     consequenceMeters: meters,
     consequenceHistory: [...(run.consequenceHistory ?? []), record],
     missionHistory: [

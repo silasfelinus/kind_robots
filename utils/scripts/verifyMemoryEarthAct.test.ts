@@ -279,6 +279,60 @@ for (const reality of EARTH_REALITIES) {
   )
 }
 
+for (const reality of ['e03', 'e04', 'e05', 'e06'] as const) {
+  const branchJournal: EarthJournalAction[] = [
+    { type: 'travel', key: '2,1' },
+    { type: 'travel', key: '2,2' },
+    { type: 'travel', key: '1,2' },
+    { type: 'travel', key: '1,1' },
+    {
+      type: 'choose',
+      key: '1,1',
+      choiceId: worldEvent(reality, '1,1')!.choices[0]!.id,
+    },
+    { type: 'travel', key: '2,1' },
+    { type: 'travel', key: '3,1' },
+    {
+      type: 'choose',
+      key: '3,1',
+      choiceId: worldEvent(reality, '3,1')!.choices[0]!.id,
+    },
+  ]
+  const original = replayEarthJournal(reality, branchJournal)!
+  assert.equal(original.progress.revealed.length, 5)
+  assert.ok(
+    compactEarthJournal(reality, branchJournal),
+    `${reality}: a revealed side passage must survive compaction`,
+  )
+
+  let wandering = [...branchJournal]
+  let position = '3,1'
+  for (let index = 0; index < 3000; index++) {
+    if (wandering.length >= EARTH_JOURNAL_COMPACT_AT) {
+      const shortened = compactEarthJournal(reality, wandering)
+      assert.ok(
+        shortened,
+        `${reality}: legitimate wandering must not get stuck`,
+      )
+      assert.ok(shortened.length < EARTH_JOURNAL_COMPACT_AT)
+      wandering = shortened
+    }
+    position = position === '3,1' ? '2,1' : '3,1'
+    wandering.push({ type: 'travel', key: position })
+  }
+  const restored = replayEarthJournal(reality, wandering)!
+  assert.ok(restored, `${reality}: the compacted save must replay`)
+  assert.equal(restored.position, '3,1')
+  assert.deepEqual(
+    new Set(restored.progress.revealed),
+    new Set(original.progress.revealed),
+  )
+  assert.deepEqual(restored.progress.choices, original.progress.choices)
+  assert.deepEqual(restored.progress.flags, original.progress.flags)
+  for (const resource of ['supplies', 'trust', 'evidence', 'danger'] as const)
+    assert.equal(restored.progress[resource], original.progress[resource])
+}
+
 assert.equal(MEMORY_EARTH_ACHIEVEMENTS.length, 12)
 assert.equal(memoryAchievementGallery([]).length, 64)
 assert.equal(

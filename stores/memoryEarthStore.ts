@@ -21,6 +21,7 @@ import {
   EARTH_JOURNAL_COMPACT_AT,
   migrateLegacyEarthJournal,
   replayEarthJournal,
+  validateLegacyEarthSnapshot,
   type EarthJournalAction,
 } from '~/utils/memoryDungeon/earthJournal'
 
@@ -131,7 +132,18 @@ export const useMemoryEarthStore = defineStore('memoryEarth', () => {
             const progress = restoreOverworldEventProgress(
               candidate.records?.[reality],
             )
-            if (progress?.experience !== reality) continue
+            if (
+              progress?.experience !== reality ||
+              !validateLegacyEarthSnapshot(
+                candidate.records?.[reality],
+                progress,
+              )
+            ) {
+              if (candidate.records?.[reality] !== undefined)
+                notice.value =
+                  'A legacy Earth chapter had inconsistent choices and was reset.'
+              continue
+            }
             const requestedPosition = candidate.positions?.[reality]
             const position =
               typeof requestedPosition === 'string' &&
@@ -143,9 +155,17 @@ export const useMemoryEarthStore = defineStore('memoryEarth', () => {
               progress,
               position,
             )
-            if (!journal) continue
+            if (!journal) {
+              notice.value =
+                'A legacy Earth chapter could not be replayed and was reset.'
+              continue
+            }
             const replayed = replayEarthJournal(reality, journal)
-            if (!replayed) continue
+            if (!replayed) {
+              notice.value =
+                'A legacy Earth chapter failed replay and was reset.'
+              continue
+            }
             restored.records[reality] = replayed.progress
             restored.positions[reality] = replayed.position
             restored.journals[reality] = journal

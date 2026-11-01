@@ -341,6 +341,64 @@ check(
     !progressRoute.includes('.tasks'),
 )
 
+console.log('Member apps and viewer-aware project access (2026-11-01)')
+const homeShowcaseRoute = readFileSync(
+  resolve('server/api/showcase/home.get.ts'),
+  'utf8',
+)
+const projectsRoute = readFileSync(
+  resolve('server/api/conductor/projects.get.ts'),
+  'utf8',
+)
+const conductorManager = readFileSync(
+  resolve('components/pages/conductor-manager.vue'),
+  'utf8',
+)
+const galleryPage = readFileSync(
+  resolve('components/pages/conductor-project-gallery-page.vue'),
+  'utf8',
+)
+const publicProjectsPage = readFileSync(
+  resolve('components/pages/conductor-public-projects.vue'),
+  'utf8',
+)
+const memberRegistry = parseConductorProjectOverrides(
+  'overrides:\n  - slug: hub\n    status: continuous\n  - slug: app\n    status: continuous # member\n    parent: hub\n',
+)
+check(
+  'registry parses a member parent slug',
+  memberRegistry.find((entry) => entry.slug === 'app')?.parent === 'hub' &&
+    !memberRegistry.find((entry) => entry.slug === 'hub')?.parent,
+)
+check(
+  'front-door strip drops Conductor member apps',
+  homeShowcaseRoute.includes('conductorMemberSlugs()') &&
+    homeShowcaseRoute.includes('members.has(project.conductorSlug)'),
+)
+check(
+  'public projects page shelves member apps instead of listing them first-tier',
+  publicProjectsPage.includes(
+    'conductor.isMemberProject(project.conductorSlug)',
+  ),
+)
+check(
+  'conductor projects API redacts coordination text for non-admins',
+  projectsRoute.includes('getOptionalApiUser(event)') &&
+    projectsRoute.includes(
+      'viewer?.isAdmin ? full : redactConductorDataForPublic(full)',
+    ),
+)
+check(
+  'admins deep-link to the manage screen via ?project=',
+  conductorManager.includes('route.query.project') &&
+    conductorManager.includes('pageStore.setWorkspaceCardKey(slug)'),
+)
+check(
+  'home strip and gallery route admins to manage, visitors to the project',
+  homePage.includes('projectOpenHref(project, userStore.isAdmin)') &&
+    galleryPage.includes('if (!userStore.isAdmin)'),
+)
+
 console.log('Projects public navigation')
 const publicTab = readFileSync(
   resolve('content/channels/projects/projects.md'),

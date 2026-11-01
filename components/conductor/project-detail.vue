@@ -32,7 +32,9 @@
         >
           <Icon name="kind-icon:arrow-right" class="kr-icon-3" /> Open
         </a>
-        <span v-else class="badge badge-warning badge-sm" role="status">No project endpoint</span>
+        <span v-else class="badge badge-warning badge-sm" role="status"
+          >No project endpoint</span
+        >
         <span class="mx-0.5 h-3.5 w-px shrink-0 bg-base-content/10" />
         <button
           type="button"
@@ -114,10 +116,7 @@
       </div>
       <div v-else class="flex-1" />
 
-      <span
-        v-if="projectSaving"
-        class="kr-loading-primary-xs"
-      />
+      <span v-if="projectSaving" class="kr-loading-primary-xs" />
       <span
         v-else-if="projectSaveMessage"
         class="max-w-72 truncate text-[0.7rem] font-semibold"
@@ -569,7 +568,10 @@ import { useTodoStore } from '@/stores/todoStore'
 import type { TodoCategory } from '@/stores/todoStore'
 import { useConductorStore } from '@/stores/conductorStore'
 import { useCollectionStore } from '@/stores/collectionStore'
-import { projectDestination, projectSheetPath } from '@/utils/projectDestination'
+import {
+  projectDestination,
+  projectSheetPath,
+} from '@/utils/projectDestination'
 import type { ConductorProjectPriority } from '@/server/utils/conductorProjectRegistry'
 
 const props = defineProps<{ slug: string }>()
@@ -611,11 +613,18 @@ const LIFECYCLE_STATUSES: ProjectLifecycleStatus[] = [
   'DONE',
   'ARCHIVED',
 ]
-const CONDUCTOR_PRIORITIES: ConductorProjectPriority[] = ['urgent', 'high', 'normal', 'low']
+const CONDUCTOR_PRIORITIES: ConductorProjectPriority[] = [
+  'urgent',
+  'high',
+  'normal',
+  'low',
+]
 const projectPriorityOverride = ref<ConductorProjectPriority | null>(null)
 
 const linkedProject = computed(() => projectStore.projectForSlug(props.slug))
-const liveEndpoint = computed(() => projectDestination(linkedProject.value?.liveUrl))
+const liveEndpoint = computed(() =>
+  projectDestination(linkedProject.value?.liveUrl),
+)
 
 function projectRecordToConductor(
   project: ProjectWithRelations,
@@ -680,7 +689,9 @@ const projectCollectionSlides = computed(() => {
 
 const activeTasks = computed(
   () =>
-    selectedProject.value?.tasks.filter((task) => task.status !== 'done') ?? [],
+    selectedProject.value?.tasks.filter(
+      (task) => task.status !== 'done' && task.status !== 'cancelled',
+    ) ?? [],
 )
 
 const doneTasksByMilestone = computed(() => {

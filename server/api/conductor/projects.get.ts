@@ -5,9 +5,11 @@
 // then overlays Kind Robots-owned presentation fields from Project records.
 import { createError, defineEventHandler, setHeader } from 'h3'
 import prisma from '@/server/utils/prisma'
+import { getOptionalApiUser } from '@/server/utils/authGuard'
 import {
   buildConductorData,
   missingConductorData,
+  redactConductorDataForPublic,
   type ConductorData,
   type ConductorPitch,
   type ConductorProject,
@@ -69,7 +71,10 @@ export default defineEventHandler(async (event): Promise<ConductorData> => {
       'Cache-Control',
       'private, max-age=30, stale-while-revalidate=120',
     )
-    return buildConductorData(stored.snapshot, displays, stored.syncedAt)
+    setHeader(event, 'Vary', 'Authorization, Cookie')
+    const full = buildConductorData(stored.snapshot, displays, stored.syncedAt)
+    const viewer = await getOptionalApiUser(event)
+    return viewer?.isAdmin ? full : redactConductorDataForPublic(full)
   } catch (error) {
     throw createError({
       statusCode: 502,

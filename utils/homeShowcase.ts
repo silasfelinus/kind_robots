@@ -172,6 +172,26 @@ export function showcaseHref(card: {
 }
 
 /**
+ * Where a project card opens for this viewer (Silas, 2026-11-01 PT): an admin
+ * lands on the Conductor screen that manages the project; everyone else lands
+ * on the project itself (placement route / liveUrl via showcaseHref).
+ */
+export function projectOpenHref(
+  card: {
+    kind: ShowcaseKind
+    id: number
+    slug?: string | null
+    href?: string | null
+    conductorSlug?: string | null
+  },
+  isAdmin: boolean,
+): string {
+  const slug = (card.conductorSlug || '').trim()
+  if (isAdmin && slug) return `/conductor?project=${encodeURIComponent(slug)}`
+  return showcaseHref(card)
+}
+
+/**
  * A short visitor-facing name for each kind, used when a card's own title is
  * a generation prompt with nothing name-like left after cleaning.
  */

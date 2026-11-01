@@ -17,7 +17,8 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, watch } from 'vue'
+import { useRoute } from 'vue-router'
 import AppmakerPage from '@/components/pages/appmaker-page.vue'
 import ProjectDetail from '@/components/conductor/project-detail.vue'
 import ConductorProjectGalleryPage from '@/components/pages/conductor-project-gallery-page.vue'
@@ -31,7 +32,14 @@ import ConductorPublicProjects from '@/components/pages/conductor-public-project
 
 const pageStore = usePageStore()
 const userStore = useUserStore()
-const utilityKeys = new Set(['overview', 'tasks', 'proposed', 'appmaker', 'portos'])
+const route = useRoute()
+const utilityKeys = new Set([
+  'overview',
+  'tasks',
+  'proposed',
+  'appmaker',
+  'portos',
+])
 
 const showConductorGallery = computed(() => {
   return (
@@ -43,4 +51,22 @@ const projectSlug = computed(() => {
   const key = pageStore.workspaceCardKey
   return key && !utilityKeys.has(key) ? key : ''
 })
+
+const requestedProject = computed(() => {
+  const value = route.query.project
+  const slug = Array.isArray(value) ? value[0] : value
+  return typeof slug === 'string' &&
+    /^(?=.*[a-z])[a-z0-9][a-z0-9-]*$/.test(slug)
+    ? slug
+    : ''
+})
+
+watch(
+  [requestedProject, () => pageStore.page, () => userStore.isAdmin],
+  ([slug, , isAdmin]) => {
+    if (!isAdmin || !slug || utilityKeys.has(slug)) return
+    if (pageStore.workspaceCardKey !== slug) pageStore.setWorkspaceCardKey(slug)
+  },
+  { immediate: true },
+)
 </script>

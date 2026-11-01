@@ -15,7 +15,8 @@ export const EARTH_COLLISION_ROUTE_SITES = {
     choices: [
       {
         id: 'witness-the-guard',
-        label: 'Ask the child and commuters to witness Grey opening the crossing',
+        label:
+          'Ask the child and commuters to witness Grey opening the crossing',
         outcome:
           'The child points to the still-moving service stair; Grey steps aside and lets families pass first. Morrow records the crossing as a voluntary escort, not a wolf checkpoint. A few commuters apologize, but Grey must remain to guide the late train and cannot join the party. The crowd keeps its own account of what happened, which will matter when the station claims nobody was stranded.',
         flag: 'escalator-public-escort',
@@ -46,7 +47,8 @@ export const EARTH_COLLISION_ROUTE_SITES = {
     choices: [
       {
         id: 'publish-the-forgery',
-        label: 'Expose the forged seal while keeping the refuge address covered',
+        label:
+          'Expose the forged seal while keeping the refuge address covered',
         outcome:
           'Vesper compares the two dated seals in public, then folds the address under a witness strip before anyone can photograph it. The paper moth agrees to carry a correction, not a list of residents. The station clerk gains evidence of deliberate manipulation, but Vesper must face questions about the original map they sold. No survivor is drafted into testimony without consent.',
         flag: 'memo-forgery-exposed',
@@ -56,7 +58,8 @@ export const EARTH_COLLISION_ROUTE_SITES = {
       },
       {
         id: 'escort-the-moth',
-        label: 'Escort the moth to a private hearing instead of publishing its cargo',
+        label:
+          'Escort the moth to a private hearing instead of publishing its cargo',
         outcome:
           'Morrow buys the paper moth time to testify before Mara and two elected refuge stewards. The stewards destroy the address-bearing original and keep only a signed description of the forged seal. The public loses immediate proof, but the people whose door was exposed retain control of its location. Vesper agrees to help rebuild the route from voluntary meeting points.',
         flag: 'memo-private-hearing',
@@ -87,7 +90,8 @@ export const EARTH_COLLISION_ROUTE_SITES = {
       },
       {
         id: 'fund-the-walkout',
-        label: 'Use the party supplies to support an immediate collective walkout',
+        label:
+          'Use the party supplies to support an immediate collective walkout',
         outcome:
           'The workers leave together with paid meal vouchers and a written list of people needing safe rides. The inspector loses its leverage when nobody remains alone to be singled out. The employer still holds the disputed wage records, so Mara schedules a hearing rather than declaring victory. Morrow stays behind to keep the platform open until the final worker reaches home.',
         flag: 'shift-collective-exit',
@@ -118,7 +122,8 @@ export const EARTH_COLLISION_ROUTE_SITES = {
       },
       {
         id: 'trace-the-original-gift',
-        label: 'Trace the teacher through the receipt without transferring another memory',
+        label:
+          'Trace the teacher through the receipt without transferring another memory',
         outcome:
           'Morrow finds an old workshop roster naming the teacher and arranges a meeting the technician can accept or refuse. The clock remains unreliable until a mechanic arrives, and commuters must use the paper timetable for now. Nobody is made to surrender an afternoon. The receipt becomes proof that the original lesson was a gift, not collateral for the machine.',
         flag: 'receipt-teacher-traced',
@@ -149,7 +154,8 @@ export const EARTH_COLLISION_ROUTE_SITES = {
       },
       {
         id: 'stabilize-public-exit',
-        label: 'Hold the public exit open and call patients to a staffed clinic',
+        label:
+          'Hold the public exit open and call patients to a staffed clinic',
         outcome:
           'Morrow braces the folding corridor with a station barrier while the courier establishes a temporary clinic at the public stair. Patients who can travel receive care immediately; the team arranges escorts for those who cannot. The underpass remains dangerous and the private routes are not solved, but no address is surrendered to the hungry walls.',
         flag: 'underpass-public-clinic',
@@ -201,7 +207,7 @@ export const EARTH_COLLISION_ROUTE_SITES = {
     choices: [
       {
         id: 'witness-chosen-households',
-        label: 'Record neighbors\' voluntary testimony about their shared lives',
+        label: "Record neighbors' voluntary testimony about their shared lives",
         outcome:
           'Sal invites neighbors to describe only the relationships they choose to make public. The paper spirit discovers that care can be real without a legal owner and returns the duplicate keys to their holders. Morrow gains evidence that his Earth life has changed in ways he cannot simply reverse, while the people involved keep their own privacy and the right to disagree.',
         flag: 'registry-households-witnessed',
@@ -211,7 +217,8 @@ export const EARTH_COLLISION_ROUTE_SITES = {
       },
       {
         id: 'lease-the-common-stair',
-        label: 'Negotiate a temporary common-stair lease without selling friendships',
+        label:
+          'Negotiate a temporary common-stair lease without selling friendships',
         outcome:
           'Morrow pays the yōkai in unused stationery and secures an open stair until the evacuation ends. Sal keeps the real keys, and the neighbors retain their relationships without signing the spirit\'s ownership ledger. The temporary lease solves the immediate access problem but leaves the building\'s legal confusion for a later tenant meeting. The paper spirit agrees to attend and listen.',
         flag: 'registry-common-stair',
@@ -234,7 +241,7 @@ export const EARTH_COLLISION_ROUTE_SITES = {
         id: 'keep-uncertain-names',
         label: 'Preserve an honest missing-person ledger with disputed entries',
         outcome:
-          'Oren separates confirmed survivors from unverified names and records the source of each claim. Scylla refuses to treat Char\'s tag as proof of either death or safety; she asks for a real witness. The evacuation board now shows unresolved people instead of a reassuring lie. The search becomes harder to ignore, and the party enters the tower with evidence that the forecast cannot erase.',
+          "Oren separates confirmed survivors from unverified names and records the source of each claim. Scylla refuses to treat Char's tag as proof of either death or safety; she asks for a real witness. The evacuation board now shows unresolved people instead of a reassuring lie. The search becomes harder to ignore, and the party enters the tower with evidence that the forecast cannot erase.",
         flag: 'canal-honest-manifest',
         effects: { evidence: 2, trust: 1, danger: 1 },
         artSubject:
@@ -242,7 +249,8 @@ export const EARTH_COLLISION_ROUTE_SITES = {
       },
       {
         id: 'rescue-before-records',
-        label: 'Deploy a search crew now and preserve the uncertain ledger for later',
+        label:
+          'Deploy a search crew now and preserve the uncertain ledger for later',
         outcome:
           'Scylla and the maintenance worker rig a safe rope line along the canal while Oren organizes volunteers to search the flooded culvert. They recover two stranded commuters, but the remaining name tags stay unresolved and the clock tower gains another hour to prepare its cruel forecast. The party spends equipment and carries a written obligation to continue searching after the final decision.',
         flag: 'canal-search-launched',

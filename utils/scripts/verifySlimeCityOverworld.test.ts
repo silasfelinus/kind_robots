@@ -298,7 +298,10 @@ for (const id of ['chimera', 'foundry', 'undertow'] as DistrictId[])
   run = recordBout(run, id, 'player')
 assert.equal(run.cleared.length, 3)
 assert.equal(gateReason(run, 'pitworks'), null, 'Grand Pit opens')
-assert.equal(boutBlocked(run, 'chimera'), 'Resolve the champion aftermath first.')
+assert.equal(
+  boutBlocked(run, 'chimera'),
+  'Resolve the champion aftermath first.',
+)
 run = decideAftermath(run, 'undertow-burn')
 assert.equal(boutBlocked(run, 'chimera'), 'Already beaten.')
 assert.equal(recordBout(run, 'chimera', 'player'), run, 'No double wins')
@@ -313,8 +316,15 @@ for (const id of ids) {
   const unlocked = recordBout(here, id, 'player')
   assert.equal(unlocked.pendingAftermath, id)
   assert.equal(championAftermath(unlocked), CHAMPION_AFTERMATH[id])
-  assert.equal(contractBlocked(unlocked, id), 'Resolve the champion aftermath first.')
-  assert.equal(travel(unlocked, streetsFrom(id)[0]!.to), unlocked, 'No escaping the aftermath')
+  assert.equal(
+    contractBlocked(unlocked, id),
+    'Resolve the champion aftermath first.',
+  )
+  assert.equal(
+    travel(unlocked, streetsFrom(id)[0]!.to),
+    unlocked,
+    'No escaping the aftermath',
+  )
   assert.equal(decideAftermath(unlocked, 'not-a-choice'), unlocked)
   const story = CHAMPION_AFTERMATH[id]
   assert.equal(story.choices.length, 2)
@@ -322,10 +332,16 @@ for (const id of ids) {
     const chosenAftermath = decideAftermath(unlocked, choice.id)
     assert.equal(chosenAftermath.pendingAftermath, null)
     assert.equal(chosenAftermath.aftermathChoices[id], choice.id)
-    assert.equal(chosenAftermath.standing[id], unlocked.standing[id] + choice.standing)
+    assert.equal(
+      chosenAftermath.standing[id],
+      unlocked.standing[id] + choice.standing,
+    )
     assert.equal(chosenAftermath.heat, Math.max(0, unlocked.heat + choice.heat))
     assert.deepEqual(chosenAftermath.streetTerms[id], choice.terms)
-    assert.equal(decideAftermath(chosenAftermath, story.choices[0].id), chosenAftermath)
+    assert.equal(
+      decideAftermath(chosenAftermath, story.choices[0].id),
+      chosenAftermath,
+    )
     assert.equal(contractBlocked(chosenAftermath, id), null)
   }
   assert.equal(championAftermath(unlocked)?.title, story.title)

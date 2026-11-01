@@ -65,6 +65,17 @@ function assertEpilogue(save: EndingSave): void {
 }
 
 describe('Shifting Desks endings from naturally reached saves', () => {
+  // Validate the deployed front desk once instead of running 35 misleading
+  // ending assertions against an unavailable or stale page for 25 minutes.
+  before(() => {
+    cy.viewport(390, 844)
+    cy.visit(PAGE, { onBeforeLoad: (win) => seedBrowser(win, saves[0]!) })
+    cy.url().should('include', PAGE)
+    cy.contains('button', 'Return to your desk', { timeout: 15000 }).should(
+      'be.visible',
+    )
+  })
+
   it('reaches every ending, secret and default elimination included', () => {
     expect(saves.map((s) => s.ending)).to.have.members(ENDINGS.map((e) => e.id))
     const eliminated = saves.filter((s) => s.run.status === 'eliminated')

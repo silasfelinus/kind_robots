@@ -1,19 +1,30 @@
 import { ALIEN_BY_ID, ALIEN_SPECIES, type AlienSpecies } from './alienSpecies'
 import type { VoyageRun } from './rules'
 
-export type AlienChoice = 'chaos' | 'flee' | 'befriend'
+export type AlienChoice = 'approach' | 'observe' | 'improvise'
+export type AlienMood = 'wary' | 'playful' | 'protective'
+export type AlienOutcome = 'retreat' | 'chaos' | 'bond'
+export type AlienContact = {
+  speciesId: string
+  mood: AlienMood
+  outcome: AlienOutcome
+}
 export type AlienGuide = {
   version: 1
   discovered: string[]
   friends: string[]
   attempted: string[]
   milestoneSeen: number[]
+  contacts?: Record<string, AlienOutcome>
+  lastContact?: AlienContact
 }
 export type AlienSighting = {
   species: AlienSpecies
   chapter: number
   seed: number
   milestone: (typeof ALIEN_MILESTONES)[number] | null
+  mood: AlienMood
+  scene: string
 }
 export const ALIEN_CHOICES: readonly {
   id: AlienChoice
@@ -21,19 +32,19 @@ export const ALIEN_CHOICES: readonly {
   hint: string
 }[] = [
   {
-    id: 'chaos',
-    label: 'DO SOMETHING TERRIBLE',
-    hint: 'Probably goes spectacularly wrong. Still counts.',
+    id: 'approach',
+    label: 'OFFER A PEACEFUL HELLO',
+    hint: 'Open the bubble just enough to offer a small gift.',
   },
   {
-    id: 'flee',
-    label: 'ACT CASUAL',
-    hint: 'It may run away. No permanent penalty.',
+    id: 'observe',
+    label: 'WATCH AND LISTEN',
+    hint: 'Read its signals before making yourself known.',
   },
   {
-    id: 'befriend',
-    label: 'MAKE A NEW BEST FRIEND',
-    hint: 'One more passenger who will not fit on the couch.',
+    id: 'improvise',
+    label: 'TRY SOMETHING RIDICULOUS',
+    hint: 'Attempt an unlikely solution with whatever is on the couch.',
   },
 ]
 export const ALIEN_MILESTONES = [
@@ -100,6 +111,21 @@ export function normalizeAlienGuide(value: unknown): AlienGuide {
   const attempted = strings('attempted')
     .filter((key) => /^\d+:\d+$/.test(key))
     .slice(-400)
+  const rawContacts = source.contacts
+  const contacts: Record<string, AlienOutcome> = {}
+  if (rawContacts && typeof rawContacts === 'object' && !Array.isArray(rawContacts)) {
+    for (const [id, outcome] of Object.entries(rawContacts)) {
+      if (ALIEN_BY_ID.has(id) && isAlienOutcome(outcome)) contacts[id] = outcome
+    }
+  }
+  const last = source.lastContact as Partial<AlienContact> | undefined
+  const lastContact =
+    last &&
+    ALIEN_BY_ID.has(last.speciesId ?? '') &&
+    isAlienMood(last.mood) &&
+    isAlienOutcome(last.outcome)
+      ? { speciesId: last.speciesId!, mood: last.mood, outcome: last.outcome }
+      : undefined
   const milestoneSeen = Array.isArray(source.milestoneSeen)
     ? [
         ...new Set(
@@ -110,7 +136,15 @@ export function normalizeAlienGuide(value: unknown): AlienGuide {
         ),
       ]
     : []
-  return { version: 1, discovered, friends, attempted, milestoneSeen }
+  return {
+    version: 1,
+    discovered,
+    friends,
+    attempted,
+    milestoneSeen,
+    ...(Object.keys(contacts).length ? { contacts } : {}),
+    ...(lastContact ? { lastContact } : {}),
+  }
 }
 const hash = (value: string): number => {
   let n = 2166136261
@@ -118,6 +152,37 @@ const hash = (value: string): number => {
     n = Math.imul(n ^ char.charCodeAt(0), 16777619) >>> 0
   return n
 }
+const ALIEN_MOODS: readonly AlienMood[] = ['wary', 'playful', 'protective']
+const isAlienMood = (value: unknown): value is AlienMood =>
+  ALIEN_MOODS.includes(value as AlienMood)
+const isAlienOutcome = (value: unknown): value is AlienOutcome =>
+  value === 'retreat' || value === 'chaos' || value === 'bond'
+
+// A Latin square: every approach can bond, cause chaos or drive the visitor
+// away, depending on its legible emotional situation. Never label the outcome
+// on the button. Two of three choices still unlock a scrapbook entry.
+const ALIEN_OUTCOME_MATRIX: Record<AlienMood, Record<AlienChoice, AlienOutcome>> = {
+  wary: { approach: 'retreat', observe: 'bond', improvise: 'chaos' },
+  playful: { approach: 'bond', observe: 'chaos', improvise: 'retreat' },
+  protective: { approach: 'chaos', observe: 'retreat', improvise: 'bond' },
+}
+export const alienOutcome = (mood: AlienMood, choice: AlienChoice): AlienOutcome =>
+  ALIEN_OUTCOME_MATRIX[mood][choice]
+
+const SITUATION = {
+  wary: {
+    setup: 'It freezes beside a broken rescue beacon, keeping one eye on the couch bubble.',
+    clue: 'Every loud gesture makes it edge backward. A quiet pause seems to calm it.',
+  },
+  playful: {
+    setup: 'It has stolen a dangling emergency ribbon and keeps looping around the couch to show off.',
+    clue: 'It is plainly inviting attention, but gets restless when nobody joins the game.',
+  },
+  protective: {
+    setup: 'It stands guard over something fragile in its habitat, refusing to abandon it.',
+    clue: 'A direct approach would cross its boundary. Its eyes track the crew\'s loose equipment.',
+  },
+} as const
 const visitKey = (run: Pick<VoyageRun, 'seed' | 'chapter'>) =>
   run.seed + ':' + run.chapter
 
@@ -165,9 +230,19 @@ export function nextAlienSighting(
     ALIEN_MILESTONES.find(
       (item) => count >= item.at && !guide.milestoneSeen.includes(item.at),
     ) ?? null
-  return species
-    ? { species, seed: run.seed, chapter: run.chapter, milestone }
-    : null
+  if (!species) return null
+  const mood = ALIEN_MOODS[hash(visitKey(run) + ':mood:' + species.id) % 3]!
+  const setting = SITUATION[mood]
+  const history = guide.lastContact
+  const callback = history
+    ? history.outcome === 'chaos'
+      ? 'Word of an earlier couch-related incident has already reached this place.'
+      : history.outcome === 'bond'
+        ? 'A previous new friend has apparently told the locals you are safe to approach.'
+        : 'The creature watches the couch cautiously; apparently a previous visitor warned it about awkward tourists.'
+    : ''
+  const scene = `${species.name} is ${species.appearance} near ${species.habitat}. ${setting.setup} ${setting.clue} ${callback}`.trim()
+  return { species, seed: run.seed, chapter: run.chapter, milestone, mood, scene }
 }
 export const alienHint = (species: AlienSpecies): string =>
   `Rumored near ${species.habitat}. ${species.rarity === 'legendary' ? 'Extremely rare, never permanently missed.' : 'Try another voyage.'}`
@@ -229,14 +304,15 @@ export function resolveAlienSighting(
       recorded: false,
       text: 'The field guide refuses to file the same sighting twice.',
     }
-  const recorded = choice !== 'flee'
+  const outcome = alienOutcome(sighting.mood, choice)
+  const recorded = outcome !== 'retreat'
   const alreadyKnown = guide.discovered.includes(sighting.species.id)
   const discovered =
     recorded && !alreadyKnown
       ? [...guide.discovered, sighting.species.id]
       : [...guide.discovered]
   const friends =
-    choice === 'befriend' && !guide.friends.includes(sighting.species.id)
+    outcome === 'bond' && !guide.friends.includes(sighting.species.id)
       ? [...guide.friends, sighting.species.id]
       : [...guide.friends]
   const next: AlienGuide = {
@@ -247,14 +323,32 @@ export function resolveAlienSighting(
     milestoneSeen: sighting.milestone
       ? [...guide.milestoneSeen, sighting.milestone.at]
       : [...guide.milestoneSeen],
+    contacts: { ...(guide.contacts ?? {}), [sighting.species.id]: outcome },
+    lastContact: {
+      speciesId: sighting.species.id,
+      mood: sighting.mood,
+      outcome,
+    },
   }
   const species = sighting.species
-  const reaction = ALIEN_REACTIONS[species.category][choice]
-  const text =
-    choice === 'chaos'
-      ? `The captain presses DO NOT PRESS. ${reaction} ${species.name} poses for a bewildered field photograph. Discovery recorded.`
-      : choice === 'flee'
-        ? `${species.name} notices the crew attempting to look normal. ${reaction} No penalty: it can return another day.`
-        : `The crew offers a cushion and a snack. ${reaction} ${species.name} accepts the friendship and signs with a muddy footprint.`
+  const reaction = ALIEN_REACTIONS[species.category][outcome === 'bond' ? 'befriend' : outcome === 'retreat' ? 'flee' : 'chaos']
+  const moodReactions: Record<AlienMood, Record<AlienOutcome, string>> = {
+    wary: {
+      retreat: 'The sudden closeness is too much. It tucks itself away before anyone can sketch a fin.',
+      chaos: 'An improvisation startles it into a wildly photogenic emergency display. The bubble saves the crew.',
+      bond: 'Your patience gives it space to decide. It approaches on its own terms and leaves a friendly mark.',
+    },
+    playful: {
+      retreat: 'Your stunt is a little much for the game. It darts away, taking the stolen ribbon with it.',
+      chaos: 'A careful attempt at documentation turns into a public performance. The audience is delighted, the captain less so.',
+      bond: 'It responds to the greeting with a delighted invitation to an absurdly elaborate game.',
+    },
+    protective: {
+      retreat: 'Being watched near what it guards feels threatening. It withdraws with its treasured cargo intact.',
+      chaos: 'Your offer crosses its boundary. It makes its displeasure spectacularly clear, and the incident is documented.',
+      bond: 'The ridiculous distraction becomes an unexpected rescue. It relaxes, and chooses to trust the crew.',
+    },
+  }
+  const text = `${moodReactions[sighting.mood][outcome]} ${reaction} ${species.name}: ${outcome === 'retreat' ? 'It may be encountered again on another voyage.' : outcome === 'bond' ? 'A new friend has been recorded in the scrapbook.' : 'An extraordinarily messy field record is saved.'}`
   return { guide: next, recorded: recorded && !alreadyKnown, text }
 }

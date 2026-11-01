@@ -263,7 +263,8 @@ export const BRIAR_COLLISION_ROUTE_SITES = {
     choices: [
       {
         id: 'issue-anonymous-transfers',
-        label: 'Use numbered transfers and escort six passengers to the next stop',
+        label:
+          'Use numbered transfers and escort six passengers to the next stop',
         outcome:
           'Iona accepts the transfer numbers as temporary proof of passage. Six workers leave without surrendering their addresses, but Pip must walk beside the bus to keep the wolf-road tollkeeper from changing the fare.',
         flag: 'bus-anonymous-transfers',
@@ -325,7 +326,8 @@ export const BRIAR_COLLISION_ROUTE_SITES = {
     choices: [
       {
         id: 'release-the-stop-key',
-        label: 'Lift the oath token and free the changeling without copying anyone',
+        label:
+          'Lift the oath token and free the changeling without copying anyone',
         outcome:
           'Pip frees the STOP key and the machine spits out its stolen name slips. The paper changeling keeps its shelter, agrees never to make another person into a document, and helps return the slips privately.',
         flag: 'copier-changeling-freed',
@@ -335,7 +337,8 @@ export const BRIAR_COLLISION_ROUTE_SITES = {
       },
       {
         id: 'isolate-the-paper-feed',
-        label: 'Block the paper feed and preserve the stolen slips for witnesses',
+        label:
+          'Block the paper feed and preserve the stolen slips for witnesses',
         outcome:
           'The copier cannot take another name, but its frightened resident remains trapped until a safe housing plan exists. Mara seals the stolen slips with a witness list instead of publishing identities to prove a victory.',
         flag: 'copier-feed-isolated',
@@ -362,17 +365,18 @@ export const BRIAR_COLLISION_ROUTE_SITES = {
         flag: 'pawnshop-honest-rations',
         effects: { supplies: -2, trust: 2 },
         artSubject:
-          'Vesper exchanging a small supply bundle for food at Fen\'s vending-machine shop while untouched matchbox futures glow behind glass',
+          "Vesper exchanging a small supply bundle for food at Fen's vending-machine shop while untouched matchbox futures glow behind glass",
       },
       {
         id: 'audit-the-pawn-ledger',
-        label: 'Inspect the futures already taken and record the owners\' claims',
+        label:
+          "Inspect the futures already taken and record the owners' claims",
         outcome:
-          'Fen allows Vesper to copy the contract numbers, not the intimate wishes inside the boxes. The evidence gives displaced families a path to challenge the bargains, but the party leaves hungry and attracts the shop\'s collectors.',
+          "Fen allows Vesper to copy the contract numbers, not the intimate wishes inside the boxes. The evidence gives displaced families a path to challenge the bargains, but the party leaves hungry and attracts the shop's collectors.",
         flag: 'pawnshop-contract-audit',
         effects: { evidence: 2, danger: 1 },
         artSubject:
-          'Vesper copying contract numbers from Fen\'s pawn ledger while shadowy collectors gather outside a glowing forest vending machine',
+          "Vesper copying contract numbers from Fen's pawn ledger while shadowy collectors gather outside a glowing forest vending machine",
       },
     ],
   },
@@ -397,9 +401,10 @@ export const BRIAR_COLLISION_ROUTE_SITES = {
       },
       {
         id: 'build-a-temporary-hearth',
-        label: 'Keep the nursery open with a temporary hearth and a clear exit plan',
+        label:
+          'Keep the nursery open with a temporary hearth and a clear exit plan',
         outcome:
-          'Pip helps Sable establish a night watch and a visible route marker. The children can rest without being trapped by the caretaker\'s promise, though the party must spend supplies and return before the next wall-shift.',
+          "Pip helps Sable establish a night watch and a visible route marker. The children can rest without being trapped by the caretaker's promise, though the party must spend supplies and return before the next wall-shift.",
         flag: 'nursery-temporary-hearth',
         effects: { supplies: -2, trust: 1, evidence: 1 },
         artSubject:
@@ -418,7 +423,8 @@ export const BRIAR_COLLISION_ROUTE_SITES = {
     choices: [
       {
         id: 'cross-on-third-tide',
-        label: 'Wait for the third tide mark and escort everyone across together',
+        label:
+          'Wait for the third tide mark and escort everyone across together',
         outcome:
           'The third signal aligns the stream and the painted stripes. Oren leads the crossing in small groups while Mara counts arrivals, leaving a repeatable public timing clue for the next travelers.',
         flag: 'crosswalk-third-tide',
@@ -428,7 +434,8 @@ export const BRIAR_COLLISION_ROUTE_SITES = {
       },
       {
         id: 'secure-both-banks',
-        label: 'Anchor ropes to both banks and establish a slower assisted route',
+        label:
+          'Anchor ropes to both banks and establish a slower assisted route',
         outcome:
           'The crossing no longer depends on a single moment of perfect timing. The ropes cost equipment and a watch shift, but people who cannot run at the signal gain a reliable route of their own.',
         flag: 'crosswalk-assisted-route',
@@ -443,23 +450,25 @@ export const BRIAR_COLLISION_ROUTE_SITES = {
     speaker: 'Scylla and the mirror clerk',
     kind: 'treasure',
     opening:
-      'A filing cabinet opens into a mirror gallery of portraits taken from people who crossed between worlds. A clerk offers to return each face to the person listed on the drawer, but the labels were written by the same office that stole the portraits. Scylla recognizes one of Char\'s expressions and refuses to assume the cabinet owns the right to assign it.',
+      "A filing cabinet opens into a mirror gallery of portraits taken from people who crossed between worlds. A clerk offers to return each face to the person listed on the drawer, but the labels were written by the same office that stole the portraits. Scylla recognizes one of Char's expressions and refuses to assume the cabinet owns the right to assign it.",
     artSubject:
-      'Scylla facing a mirror-lined filing cabinet full of stolen portraits, a nervous clerk holding drawer labels and a glimpse of Char\'s familiar expression',
+      "Scylla facing a mirror-lined filing cabinet full of stolen portraits, a nervous clerk holding drawer labels and a glimpse of Char's familiar expression",
     choices: [
       {
         id: 'return-faces-by-consent',
-        label: 'Ask each claimant to identify their own portrait before returning it',
+        label:
+          'Ask each claimant to identify their own portrait before returning it',
         outcome:
-          'The clerk accepts personal testimony instead of the unreliable labels. Several people recover their portraits, and Scylla keeps Char\'s unclaimed image sealed until her sister can decide what it means.',
+          "The clerk accepts personal testimony instead of the unreliable labels. Several people recover their portraits, and Scylla keeps Char's unclaimed image sealed until her sister can decide what it means.",
         flag: 'faces-consent-return',
         effects: { trust: 2, evidence: 1 },
         artSubject:
-          'Scylla helping a traveler reclaim a portrait by consent while Char\'s unclaimed image remains sealed in a mirrored drawer',
+          "Scylla helping a traveler reclaim a portrait by consent while Char's unclaimed image remains sealed in a mirrored drawer",
       },
       {
         id: 'preserve-the-drawer-errors',
-        label: 'Document the false labels and protect the cabinet from further claims',
+        label:
+          'Document the false labels and protect the cabinet from further claims',
         outcome:
           'Scylla copies the mismatched drawer numbers while the clerk locks the gallery. The evidence may expose a wider theft, but people waiting for their portraits must return later with independent witnesses.',
         flag: 'faces-drawer-evidence',
@@ -474,7 +483,7 @@ export const BRIAR_COLLISION_ROUTE_SITES = {
     speaker: 'Mara, Pip and the hearth spirit',
     kind: 'companion',
     opening:
-      'A hearth spirit has taken over the office break room and refuses to let anyone return to work, even the workers who want to help evacuate their friends. Mara finds the spirit\'s original invitation pinned beside the coffee machine: KEEP US WARM, not KEEP US HERE. Pip must persuade both sides to agree on an end to the shelter watch.',
+      "A hearth spirit has taken over the office break room and refuses to let anyone return to work, even the workers who want to help evacuate their friends. Mara finds the spirit's original invitation pinned beside the coffee machine: KEEP US WARM, not KEEP US HERE. Pip must persuade both sides to agree on an end to the shelter watch.",
     artSubject:
       'Mara and Pip in a mossy office break room with a warm hearth spirit, a coffee machine and a pinned invitation reading KEEP US WARM',
     choices: [
@@ -490,7 +499,8 @@ export const BRIAR_COLLISION_ROUTE_SITES = {
       },
       {
         id: 'staff-the-rest-rotation',
-        label: 'Set up a staffed rest rotation while the spirit learns to release guests',
+        label:
+          'Set up a staffed rest rotation while the spirit learns to release guests',
         outcome:
           'Pip arranges a rotation with a named relief worker for every guest. The spirit practices opening the door without demanding gratitude, and the party spends supplies to keep the first shift comfortable.',
         flag: 'hearth-rest-rotation',

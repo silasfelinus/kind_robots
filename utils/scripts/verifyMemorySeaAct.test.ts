@@ -89,7 +89,7 @@ for (const fate of MEMORY_PAIR_ENDINGS.e04.map((choice) => choice.id)) {
     )
     assert.match(seaNarrative('e06', '8,8', atSea), /Char|sisters/)
     for (const agency of MEMORY_CHAR_AGENCY_CHOICES) {
-      let earned = chooseMemoryCharAgency(atSea, agency.id)
+      const earned = chooseMemoryCharAgency(atSea, agency.id)
       assert.equal(earned.charAgency, agency.id)
       assert.throws(() => chooseMemoryCharAgency(earned, agency.id))
       assert.ok(

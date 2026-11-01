@@ -180,7 +180,10 @@ for (const [key, scene] of routeSites) {
   )
   for (const choice of event.choices) {
     assert.ok(choice.outcome.length > 90, key + ' needs an authored outcome')
-    assert.ok(choice.art.prompt.includes(scene.title) || choice.art.prompt.includes(choice.label))
+    assert.ok(
+      choice.art.prompt.includes(scene.title) ||
+        choice.art.prompt.includes(choice.label),
+    )
     const [x, y] = key.split(',').map(Number) as [number, number]
     const steps: EarthJournalAction[] = []
     for (let step = 2; step <= x; step++)

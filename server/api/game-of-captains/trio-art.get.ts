@@ -17,8 +17,7 @@ export default defineEventHandler(async (event) => {
     const access = await getArtImageAccessContext(event)
     const raw = getQuery(event).trio
     const trio = typeof raw === 'string' ? raw : ''
-    if (!/^[a-z]+-[a-z]+-[a-z]+$/.test(trio))
-      return { success: true, data: {} }
+    if (!/^[a-z]+-[a-z]+-[a-z]+$/.test(trio)) return { success: true, data: {} }
 
     const entries = Object.entries(COUCH_TRIO_ART_IDS).filter(([key]) =>
       key.startsWith(`trios/${trio}-`),

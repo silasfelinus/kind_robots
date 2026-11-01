@@ -108,6 +108,7 @@ import {
 } from './expandedNightCases'
 import { returnVisitFor } from './returnVisits'
 import { realNightCase } from './nightCases'
+import { nightCaseMorning } from './earlyNightMornings'
 import {
   CAMPAIGN_ANCHORS,
   campaignAnchor,
@@ -2257,16 +2258,17 @@ export function nextSchoolDay(run: AcademyRun): AcademyRun {
       scene:
         'At the end of week one, the faculty projects a prom-night disaster simulation. Real graduation is still weeks away.',
     }
+  const morningFor = (report: DispatchReport) =>
+    nightCaseMorning(
+      report.caseId,
+      report.grade,
+      report.names === 'No team dispatched',
+    )
   const morningReport =
     run.reports.find(
-      (report) =>
-        report.names.includes('YOU') &&
-        expandedMissionFor(report.caseId)?.morning,
-    ) ??
-    run.reports.find((report) => expandedMissionFor(report.caseId)?.morning)
-  const morningMemory = morningReport
-    ? expandedMissionFor(morningReport.caseId)?.morning
-    : null
+      (report) => report.names.includes('YOU') && morningFor(report),
+    ) ?? run.reports.find((report) => morningFor(report))
+  const morningMemory = morningReport ? morningFor(morningReport) : null
   const lastPatrol = run.patrolHistory?.at(-1)
   const storyNight =
     lastPatrol?.day === run.day && lastPatrol.outcome

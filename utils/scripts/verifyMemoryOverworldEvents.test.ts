@@ -16,6 +16,16 @@ import { BRIAR_COLLISION_SCENES } from '../memoryDungeon/briarCollision'
 import { briarCollisionWitnessCallback } from '../memoryDungeon/briarCollisionWitness'
 import { restoreMemoryCampaignProgress } from '../memoryDungeon/campaignPersistence'
 import { BRIAR_COLLISION_ROUTE_SITES } from '../memoryDungeon/briarCollisionRoute'
+import earthCollision from '../memoryDungeon/earthCollision.json'
+import {
+  earthCollisionHistory,
+  recoverEarthCollisionFromJournal,
+} from '../memoryDungeon/earthCollisionProgress'
+import {
+  advanceHoshimoriWarm,
+  newHoshimoriWarmProgress,
+  restoreHoshimoriWarm,
+} from '../memoryDungeon/hoshimoriWarm'
 import {
   recoverBriarCollisionFromJournal,
   concludeBriarCollisionFromJournal,
@@ -575,6 +585,180 @@ assert.equal(
   ]),
   null,
   'teleporting after a valid journey must invalidate the entire journal',
+)
+
+const earthScenes = earthCollision
+assert.equal(earthScenes.length, 2)
+assert.deepEqual(
+  earthScenes.map((scene) => scene.key),
+  ['2,2', '7,6'],
+)
+assert.deepEqual(
+  earthScenes.map((scene) => worldEvent('e10', scene.key)!.memoryFragment),
+  ['city-lantern-charter', 'city-forest-hours'],
+)
+assert.deepEqual(
+  EARTH_PHOTOS.filter((photo) => photo.experience === 'e10').map(
+    (photo) => photo.site,
+  ),
+  ['1,5', '5,7'],
+)
+for (const scene of earthScenes) {
+  const event = worldEvent('e10', scene.key)!
+  assert.equal(event.title, scene.title)
+  assert.equal(event.opening, scene.opening)
+  assert.equal(event.choices.length, 3)
+  assert.equal(event.sceneArt.status, 'placeholder')
+  assert.ok(scene.puzzle.length > 200, 'The evidence puzzle needs fair clues')
+  assert.equal(new Set(scene.choices.map((choice) => choice.flag)).size, 3)
+  for (const choice of scene.choices) {
+    const resolved = event.choices.find((item) => item.id === choice.id)!
+    assert.ok(resolved)
+    assert.ok(resolved.outcome.length > 250)
+    assert.ok(resolved.outcome.includes('If the first plan fails:'))
+    assert.ok(resolved.art.prompt.includes(choice.artSubject))
+    assert.deepEqual(resolved.effects, choice.effects)
+  }
+}
+const e10OfficeWalk: EarthJournalAction[] = [
+  { type: 'travel', key: '2,1' },
+  { type: 'travel', key: '2,2' },
+]
+const e10StationWalk: EarthJournalAction[] = [
+  ...['3,2', '4,2', '5,2', '6,2', '7,2', '7,3', '7,4', '7,5', '7,6'].map(
+    (key): EarthJournalAction => ({ type: 'travel', key }),
+  ),
+]
+function warmCharter(choice: 'consent' | 'open') {
+  let warm = newHoshimoriWarmProgress(17)
+  for (let x = 2; x <= 8; x++)
+    warm = advanceHoshimoriWarm(warm, { type: 'move', to: x + ',1' })
+  for (let y = 2; y <= 8; y++)
+    warm = advanceHoshimoriWarm(warm, { type: 'move', to: '8,' + y })
+  warm = advanceHoshimoriWarm(warm, { type: 'choose', id: choice })
+  assert.equal(warm.choices['8,8'], choice)
+  assert.deepEqual(restoreHoshimoriWarm(JSON.parse(JSON.stringify(warm))), warm)
+  return warm
+}
+let e10BranchCases = 0
+for (const tideGate of [
+  'open-the-tide-gate',
+  'seal-the-tide-gate',
+  'divert-the-current',
+] as const) {
+  for (const charter of ['consent', 'open'] as const) {
+    const warm = warmCharter(charter)
+    for (const officeChoice of office.choices) {
+      const briarJournal = completeBriarJournal.map((action) =>
+        action.type === 'choose' && action.key === '2,2'
+          ? { ...action, choiceId: officeChoice.id }
+          : action,
+      )
+      const campaign = {
+        ...concludedBriar,
+        pairDecisions: { ...concludedBriar.pairDecisions, e04: tideGate },
+      }
+      assert.deepEqual(earthCollisionHistory(campaign, warm, briarJournal), {
+        tideGate,
+        charter,
+        office: officeChoice.id,
+      })
+      for (const first of earthScenes[0]!.choices) {
+        for (const second of earthScenes[1]!.choices) {
+          const journal: EarthJournalAction[] = [
+            ...e10OfficeWalk,
+            { type: 'choose', key: '2,2', choiceId: first.id },
+            ...e10StationWalk,
+            { type: 'choose', key: '7,6', choiceId: second.id },
+          ]
+          const replay = replayEarthJournal('e10', journal)
+          assert.ok(replay)
+          assert.equal(replay.position, '7,6')
+          assert.equal(replay.progress.flags.length, 2)
+          assert.equal(
+            replayEarthJournal('e10', [
+              ...journal,
+              { type: 'choose', key: '7,6', choiceId: second.id },
+            ]),
+            null,
+          )
+          const recovered = recoverEarthCollisionFromJournal(
+            campaign,
+            journal,
+            warm,
+            briarJournal,
+          )
+          assert.ok(recovered)
+          assert.deepEqual(recovered.recoveredFragments?.slice(-2), [
+            'city-lantern-charter',
+            'city-forest-hours',
+          ])
+          assert.deepEqual(
+            recoverEarthCollisionFromJournal(
+              recovered,
+              journal,
+              warm,
+              briarJournal,
+            ),
+            recovered,
+            'Replayed fragments cannot be awarded twice',
+          )
+          e10BranchCases++
+        }
+      }
+      assert.deepEqual(
+        recoverEarthCollisionFromJournal(
+          campaign,
+          [...e10OfficeWalk, ...e10StationWalk],
+          warm,
+          briarJournal,
+        )?.recoveredFragments,
+        campaign.recoveredFragments,
+        'Visiting fragment sites without choosing earns nothing',
+      )
+      const shortBriar = briarJournal.filter(
+        (action) =>
+          action.type !== 'choose' || ['2,2', '7,6'].includes(action.key),
+      )
+      assert.equal(earthCollisionHistory(campaign, warm, shortBriar), null)
+      const forgedWarm = { ...warm, flags: ['invented-charter'] }
+      assert.equal(
+        earthCollisionHistory(campaign, forgedWarm, briarJournal),
+        null,
+      )
+      const forgedBriar = [
+        ...briarJournal,
+        { type: 'choose', key: '7,6', choiceId: 'invented' },
+      ]
+      assert.equal(earthCollisionHistory(campaign, warm, forgedBriar), null)
+    }
+  }
+}
+assert.equal(e10BranchCases, 162)
+assert.equal(
+  recoverEarthCollisionFromJournal(
+    concludedBriar,
+    [
+      { type: 'travel', key: '7,6' },
+      { type: 'choose', key: '7,6', choiceId: earthScenes[1]!.choices[0]!.id },
+    ],
+    warmCharter('consent'),
+    completeBriarJournal,
+  ),
+  null,
+  'Teleporting cannot mint Morrow fragments',
+)
+assert.equal(
+  earthCollisionHistory(
+    {
+      ...concludedBriar,
+      completed: concludedBriar.completed.filter((id) => id !== 'e09'),
+    },
+    warmCharter('consent'),
+    completeBriarJournal,
+  ),
+  null,
+  'The earned Pip finale gate cannot be skipped',
 )
 
 for (const pilot of HOSHIMORI_NIGHT_SITES) {

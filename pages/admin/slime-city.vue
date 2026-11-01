@@ -13,6 +13,35 @@
           >
             <div class="sc-wordmark">SLIME <span>CITY</span></div>
           </div>
+          <div
+            class="sc-crew-picker"
+            role="group"
+            aria-label="Choose your crew"
+            data-testid="slime-crew-picker"
+          >
+            <button
+              v-for="team in lab.teams"
+              :key="team.id"
+              type="button"
+              class="sc-crew"
+              :class="[
+                'tone-' + team.color,
+                { chosen: lab.activeTeam === team.id },
+              ]"
+              :title="team.name"
+              :aria-label="team.name"
+              :aria-pressed="lab.activeTeam === team.id"
+              :data-testid="'slime-crew-' + team.id"
+              @click="lab.chooseTeam(team.id)"
+            >
+              <SlimeCityArtwork
+                :image-id="slimeArtId('crews', team.id)"
+                :alt="team.name + ' crew emblem'"
+                :fallback="team.insignia"
+                compact
+              />
+            </button>
+          </div>
           <nav class="sc-tabs" aria-label="Laboratory views">
             <button
               type="button"
@@ -82,51 +111,7 @@
         </div>
       </header-page-bar>
 
-      <div class="sc-main">
-        <aside class="sc-roster" aria-label="Teams">
-          <p class="sc-overline">THE SIX CREWS</p>
-          <div class="sc-team-list">
-            <button
-              v-for="team in lab.teams"
-              :key="team.id"
-              type="button"
-              class="sc-team"
-              :class="[
-                'tone-' + team.color,
-                { chosen: lab.activeTeam === team.id },
-              ]"
-              :aria-pressed="lab.activeTeam === team.id"
-              @click="lab.chooseTeam(team.id)"
-            >
-              <span class="sc-emblem">
-                <SlimeCityArtwork
-                  :image-id="slimeArtId('crews', team.id)"
-                  :alt="team.name + ' rendered crew artwork'"
-                  :fallback="team.insignia"
-                  compact
-                />
-              </span>
-              <span class="sc-team-text"
-                ><strong>{{ team.name }}</strong
-                ><small>{{ team.motto }}</small></span
-              >
-            </button>
-          </div>
-          <div class="sc-profile">
-            <div class="sc-big-emblem" :class="'tone-' + lab.team.color">
-              <SlimeCityArtwork
-                :image-id="slimeArtId('crews', lab.activeTeam)"
-                :alt="lab.team.name + ' faction illustration'"
-                :fallback="lab.team.insignia"
-                compact
-              />
-            </div>
-            <p class="sc-overline">THE {{ lab.team.district }}</p>
-            <strong>{{ lab.team.name }}</strong>
-            <p>{{ lab.team.hook }}</p>
-          </div>
-        </aside>
-
+      <div class="sc-main" :class="{ 'has-controls': lab.view === 'arena' }">
         <section
           v-if="lab.view === 'city'"
           class="sc-stage"
@@ -513,26 +498,6 @@
               </button>
             </div>
           </div>
-          <div class="sc-stage-foot">
-            <span
-              >NIGHT {{ lab.city.nights }} · HEAT {{ lab.city.heat }}/{{
-                lab.heatLimit
-              }}
-              · STANDING {{ lab.standing }} · CHAMPIONS
-              {{ lab.city.cleared.length }}/7 · STREET STORIES
-              {{ lab.streetProgress }}/9 · CONTRACTS
-              {{ lab.city.contracts.length }}/7 · CRISES
-              {{ Object.keys(lab.city.crisisChoices).length }}/3
-              <template v-if="lab.city.finaleChoice">
-                ·
-                {{
-                  lab.city.finaleChoice === 'pit-charter'
-                    ? 'CITY CHARTERED'
-                    : 'NEW PIT BOSS'
-                }}</template
-              ></span
-            ><span>{{ lab.city.log[0] }}</span>
-          </div>
         </section>
 
         <SlimeCityCampaign v-else-if="lab.view === 'campaign'" />
@@ -543,10 +508,7 @@
         >
           <div class="sc-arena-head">
             <div>
-              <span class="sc-overline"
-                >PROTOTYPE {{ currentModeIndex }} / 03 · SEED
-                {{ lab.match.seed }}</span
-              >
+              <span class="sc-overline">SEED {{ lab.match.seed }}</span>
               <span
                 v-if="lab.campaignBout && lab.activeChapter"
                 class="sc-overline sc-bout-line"
@@ -561,12 +523,30 @@
                 >RIVAL BOUT · {{ lab.boutPlan.rival.name }} ·
                 {{ lab.boutPlan.street }}</span
               >
-              <h2>
-                {{ currentMode.title }}
-                <small
-                  >{{ currentMode.size }} · {{ currentMode.cadence }}</small
+              <nav
+                class="sc-mode-tabs"
+                aria-label="Game mode"
+                data-testid="slime-mode-tabs"
+              >
+                <button
+                  v-for="preset in lab.modes"
+                  :key="preset.id"
+                  type="button"
+                  :class="{ active: lab.mode === preset.id }"
+                  :aria-pressed="lab.mode === preset.id"
+                  :data-testid="'slime-mode-' + preset.id"
+                  @click="lab.mode === preset.id || lab.chooseMode(preset.id)"
                 >
-              </h2>
+                  <SlimeCityArtwork
+                    class="sc-mode-paint"
+                    :image-id="slimeArtId('boards', preset.id)"
+                    :alt="preset.title + ' board artwork'"
+                    compact
+                  />
+                  <strong>{{ preset.title }}</strong
+                  ><small>{{ preset.size }} · {{ preset.cadence }}</small>
+                </button>
+              </nav>
             </div>
             <div class="sc-arena-scores">
               <span v-if="lab.mode === 'blackout'"
@@ -1153,47 +1133,12 @@
           </div>
         </section>
 
-        <aside class="sc-controls" aria-label="Playtest controls">
-          <div class="sc-control-heading">
-            <span class="sc-overline">CHOOSE THE RULES</span
-            ><strong>THREE WAYS TO DIE</strong>
-          </div>
-          <div class="sc-mode-list">
-            <button
-              v-for="preset in lab.modes"
-              :key="preset.id"
-              type="button"
-              class="sc-mode"
-              :class="{
-                active: lab.mode === preset.id && lab.view === 'arena',
-              }"
-              :data-testid="'slime-mode-' + preset.id"
-              @click="lab.chooseMode(preset.id)"
-            >
-              <SlimeCityArtwork
-                class="sc-mode-paint"
-                :image-id="slimeArtId('boards', preset.id)"
-                :alt="preset.title + ' game mode artwork'"
-                compact
-              />
-              <strong>{{ preset.title }}</strong
-              ><span>{{ preset.size }} / {{ preset.cadence }}</span
-              ><small
-                >{{
-                  preset.id === 'blackout'
-                    ? 'MAIN GAME · '
-                    : preset.id === 'bloodrush'
-                      ? 'ARCADE · '
-                      : 'EXPERIMENT · '
-                }}{{ preset.subtitle }}</small
-              >
-            </button>
-          </div>
-          <div
-            v-if="lab.view === 'arena'"
-            class="sc-rules"
-            data-testid="slime-rules"
-          >
+        <aside
+          v-if="lab.view === 'arena'"
+          class="sc-controls"
+          aria-label="Match controls"
+        >
+          <div class="sc-rules" data-testid="slime-rules">
             <span class="sc-overline">RULE VARIANTS · RESTART SAME SEED</span>
             <div class="sc-rule-list">
               <button
@@ -1348,26 +1293,8 @@
               >
             </div>
           </template>
-          <div v-else class="sc-brief">
-            <span class="sc-overline">RULES FIELD NOTES</span>
-            <p>{{ currentMode.detail }}</p>
-            <p>{{ lab.guide.goal }}</p>
-            <p>
-              Start a reward-eligible CPU battle from REWARDS to earn XP and
-              Meat for your account. Free laboratory matches do not award
-              currency.
-            </p>
-          </div>
         </aside>
       </div>
-      <footer class="sc-footer">
-        <span>SLIME CITY / EXPERIMENTAL INTERNAL BUILD</span
-        ><span>{{
-          lab.view === 'arena'
-            ? 'Tap a card, then a tile. Select a fighter and an adjacent square to move in Blackout. HOW TO PLAY explains each format.'
-            : 'Six team identities. One city. Three test rulesets.'
-        }}</span>
-      </footer>
     </div>
   </main>
 </template>
@@ -1389,12 +1316,6 @@ const lab = useSlimeCityStore()
 const art = useSlimeCityArtStore()
 const currentMode = computed(
   () => lab.modes.find((mode) => mode.id === lab.mode) || lab.modes[0]!,
-)
-const currentModeIndex = computed(() =>
-  String(lab.modes.findIndex((mode) => mode.id === lab.mode) + 1).padStart(
-    2,
-    '0',
-  ),
 )
 
 const hereName = computed(
@@ -1660,115 +1581,51 @@ onUnmounted(() => {
 }
 .sc-main {
   display: grid;
-  grid-template-columns: minmax(11rem, 16rem) minmax(0, 1fr) minmax(
-      13rem,
-      18rem
-    );
+  grid-template-columns: minmax(0, 1fr);
   flex: 1;
   min-height: 0;
 }
-.sc-roster {
-  min-height: 0;
-  overflow: hidden;
+.sc-main.has-controls {
+  grid-template-columns: minmax(0, 1fr) minmax(13rem, 18rem);
+}
+.sc-crew-picker {
+  flex: none;
   display: flex;
-  flex-direction: column;
-  gap: 0.7rem;
-  padding: 1rem 0.7rem 1rem 1rem;
-  background: linear-gradient(130deg, #171d2b, #0d121c);
-  border-right: 1px solid #66738855;
+  gap: 0.25rem;
+  padding: 0.2rem;
+  border: 1px solid #4d5567;
+  border-radius: 0.6rem;
+  background: #0e1420;
 }
-.sc-team-list {
-  display: flex;
-  flex-direction: column;
-  gap: 0.37rem;
-  overflow: auto;
-  min-height: 0;
-  padding-right: 0.2rem;
-}
-.sc-team {
-  display: flex;
-  align-items: center;
-  gap: 0.6rem;
-  text-align: left;
-  padding: 0.55rem;
-  border-radius: 0.5rem;
-  border: 1px solid #ffffff22;
-  background: #22273788;
-  color: #fff;
-  min-height: 3.7rem;
-  transition:
-    transform 0.12s,
-    border 0.12s;
-}
-.sc-team:hover {
-  transform: translateX(2px);
-  border-color: #fff7;
-}
-.sc-team.chosen {
-  border-color: var(--tone);
-  background: color-mix(in srgb, var(--tone) 20%, #141c29);
-}
-.sc-emblem {
+.sc-crew {
   overflow: hidden;
   flex: none;
   display: grid;
   place-items: center;
-  width: 2.3rem;
-  height: 2.5rem;
-  font-size: 1.65rem;
-  border-radius: 0.35rem;
+  width: 2.25rem;
+  height: 2.25rem;
+  padding: 0;
+  font-size: 1.3rem;
+  border-radius: 0.42rem;
+  border: 2px solid transparent;
   background: radial-gradient(#ffffff44, transparent 70%), var(--tone);
   color: #0b1222;
-  text-shadow: 0 0 10px #fff;
+  opacity: 0.62;
+  filter: saturate(0.7);
+  transition:
+    opacity 0.12s,
+    transform 0.12s,
+    border-color 0.12s;
 }
-.sc-team-text {
-  display: flex;
-  flex-direction: column;
-  min-width: 0;
-  gap: 0.15rem;
+.sc-crew:hover {
+  opacity: 0.9;
+  transform: translateY(-1px);
 }
-.sc-team-text strong {
-  font-size: 0.72rem;
-  letter-spacing: 0.04em;
-  line-height: 1.1;
-}
-.sc-team-text small {
-  font-size: 0.64rem;
-  color: #b6c0d2;
-  line-height: 1.2;
-}
-.sc-profile {
-  margin-top: auto;
-  flex: none;
-  padding: 0.7rem;
-  border: 1px solid #5c6b7d55;
-  border-radius: 0.55rem;
-  background: #111724;
-}
-.sc-profile .sc-big-emblem {
-  overflow: hidden;
-  float: right;
-  display: grid;
-  place-items: center;
-  width: 3.5rem;
-  height: 3.5rem;
-  font-size: 2.2rem;
-  color: var(--tone);
-  background: #ffffff0a;
-  border: 1px solid currentColor;
-  border-radius: 50%;
-}
-.sc-profile strong {
-  display: block;
-  font-size: 0.78rem;
-  margin-top: 0.35rem;
-}
-.sc-profile p:last-child {
-  font-size: 0.68rem;
-  line-height: 1.45;
-  color: #b7c0d0;
-  max-height: 5rem;
-  overflow: auto;
+.sc-crew.chosen {
+  opacity: 1;
+  filter: none;
+  border-color: var(--tone);
+  box-shadow: 0 0 14px color-mix(in srgb, var(--tone) 70%, transparent);
 }
 .tone-red {
   --tone: #fe6657;
@@ -1975,7 +1832,7 @@ onUnmounted(() => {
   flex: none;
   flex-direction: column;
   align-items: stretch;
-  max-height: 46%;
+  max-height: 34%;
   overflow: auto;
   margin: 0.5rem;
 }
@@ -2222,16 +2079,6 @@ onUnmounted(() => {
   padding: 0.65rem 0.8rem;
   letter-spacing: 0.07em;
 }
-.sc-stage-foot {
-  display: flex;
-  justify-content: space-between;
-  gap: 1rem;
-  padding: 0.4rem 0.8rem;
-  background: #101823;
-  color: #9ba4b1;
-  font-size: 0.58rem;
-  letter-spacing: 0.06em;
-}
 .sc-controls {
   display: flex;
   flex-direction: column;
@@ -2250,65 +2097,6 @@ onUnmounted(() => {
 .sc-control-heading strong {
   font-size: 1.03rem;
   letter-spacing: 0.07em;
-}
-.sc-mode-list {
-  display: grid;
-  gap: 0.4rem;
-}
-.sc-mode {
-  position: relative;
-  isolation: isolate;
-  overflow: hidden;
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: 0.16rem;
-  padding: 0.6rem 0.7rem;
-  border: 1px solid #60708167;
-  background: #26304477;
-  border-radius: 0.4rem;
-  text-align: left;
-  min-height: 3.7rem;
-}
-.sc-mode .sc-mode-paint {
-  position: absolute;
-  inset: 0;
-  z-index: -1;
-  opacity: 0.4;
-}
-.sc-mode .sc-mode-paint :deep(img) {
-  object-position: center 35%;
-}
-.sc-mode.active {
-  border-color: #d7fc7a;
-  background: linear-gradient(100deg, #435b30, #1c2c30);
-  box-shadow: inset 3px 0 #d7fc7a;
-}
-.sc-mode strong {
-  color: #fff;
-  font-size: 0.82rem;
-  letter-spacing: 0.08em;
-}
-.sc-mode span {
-  color: #d3ff81;
-  font-size: 0.6rem;
-  font-weight: 800;
-  letter-spacing: 0.05em;
-}
-.sc-mode small {
-  color: #b4bdcc;
-  font-size: 0.66rem;
-}
-.sc-brief {
-  margin-top: auto;
-  color: #c3cbd8;
-  font-size: 0.73rem;
-  line-height: 1.5;
-  border-top: 1px solid #5360726b;
-  padding-top: 0.8rem;
-}
-.sc-brief p {
-  margin: 0.45rem 0;
 }
 .sc-actions {
   display: flex;
@@ -2411,17 +2199,57 @@ onUnmounted(() => {
   background: #151d2b;
   border-bottom: 1px solid #73849a77;
 }
-.sc-arena-head h2 {
-  margin: 0.12rem 0 0;
-  font-size: clamp(1.1rem, 2vw, 1.65rem);
-  font-weight: 1000;
-  letter-spacing: -0.025em;
+.sc-mode-tabs {
+  display: flex;
+  gap: 0.3rem;
+  margin-top: 0.3rem;
 }
-.sc-arena-head h2 small {
-  font-size: 0.58rem;
-  color: #b5bdcd;
-  font-weight: 600;
-  letter-spacing: 0.04em;
+.sc-mode-tabs button {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.1rem;
+  min-width: 7.5rem;
+  padding: 0.4rem 0.7rem;
+  border: 1px solid #60708167;
+  border-radius: 0.42rem;
+  background: #26304477;
+  text-align: left;
+  color: #fff;
+}
+.sc-mode-tabs .sc-mode-paint {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  opacity: 0.35;
+}
+.sc-mode-tabs .sc-mode-paint :deep(img) {
+  object-position: center 35%;
+}
+.sc-mode-tabs button.active {
+  border-color: #d7fc7a;
+  box-shadow:
+    inset 0 -3px #d7fc7a,
+    0 0 18px #c5ff5933;
+}
+.sc-mode-tabs button.active .sc-mode-paint {
+  opacity: 0.6;
+}
+.sc-mode-tabs strong {
+  font-size: 0.85rem;
+  font-weight: 1000;
+  letter-spacing: 0.08em;
+  text-shadow: 0 1px 3px #000;
+}
+.sc-mode-tabs small {
+  color: #d3ff81;
+  font-size: 0.56rem;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  text-shadow: 0 1px 3px #000;
 }
 .sc-arena-scores {
   display: flex;
@@ -2751,52 +2579,19 @@ onUnmounted(() => {
   padding: 0.55rem;
   background: #0f1824;
 }
-.sc-footer {
-  display: flex;
-  justify-content: space-between;
-  flex: none;
-  padding: 0.35rem 1rem;
-  gap: 1rem;
-  border-top: 1px solid #5d6a7855;
-  background: #080d15;
-  color: #9bacbf;
-  font-size: 0.57rem;
-  letter-spacing: 0.09em;
-}
 @container (max-width: 900px) {
-  .sc-main {
-    grid-template-columns: 9rem minmax(0, 1fr) 11rem;
+  .sc-main.has-controls {
+    grid-template-columns: minmax(0, 1fr) 11rem;
   }
-  .sc-profile {
-    display: none;
-  }
-  .sc-team {
-    min-height: 3rem;
-  }
-  .sc-team-text small {
-    display: none;
-  }
-  .sc-team-text strong {
-    font-size: 0.61rem;
-  }
-  .sc-emblem {
-    height: 2rem;
-    width: 1.7rem;
-    font-size: 1.1rem;
-  }
-  .sc-roster,
   .sc-controls {
     padding: 0.6rem;
   }
   .sc-hand {
     grid-template-columns: 1fr;
   }
-  .sc-mode {
-    min-height: 2.8rem;
-    padding: 0.4rem;
-  }
-  .sc-mode small {
-    display: none;
+  .sc-crew {
+    width: 1.9rem;
+    height: 1.9rem;
   }
 }
 @container (max-width: 600px) {
@@ -2812,39 +2607,22 @@ onUnmounted(() => {
     min-width: 3rem;
     font-size: 0.57rem;
   }
-  .sc-main {
+  .sc-header {
+    flex-wrap: wrap;
+    row-gap: 0.3rem;
+  }
+  .sc-crew-picker {
+    order: 2;
+    width: 100%;
+    justify-content: center;
+  }
+  .sc-crew {
+    width: 2rem;
+    height: 2rem;
+  }
+  .sc-main.has-controls {
     grid-template-columns: minmax(0, 1fr);
-    grid-template-rows: auto minmax(0, 1fr) auto;
-  }
-  .sc-roster {
-    padding: 0.24rem 0.4rem;
-    border-right: 0;
-    border-bottom: 1px solid #607080;
-    gap: 0;
-  }
-  .sc-roster > .sc-overline {
-    display: none;
-  }
-  .sc-team-list {
-    display: flex;
-    flex-direction: row;
-    gap: 0.28rem;
-    max-width: 100%;
-    overflow-x: auto;
-    padding: 0;
-  }
-  .sc-team {
-    flex: 0 0 auto;
-    min-height: 2.25rem;
-    padding: 0.2rem 0.4rem;
-  }
-  .sc-team-text strong {
-    font-size: 0.56rem;
-    max-width: 6rem;
-  }
-  .sc-emblem {
-    width: 1.5rem;
-    height: 1.5rem;
+    grid-template-rows: minmax(0, 1fr) auto;
   }
   .sc-controls {
     border-left: 0;
@@ -2853,24 +2631,6 @@ onUnmounted(() => {
     padding: 0.35rem;
   }
   .sc-controls > .sc-control-heading {
-    display: none;
-  }
-  .sc-mode-list {
-    display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 0.25rem;
-  }
-  .sc-mode {
-    min-height: 2rem;
-    padding: 0.25rem 0.4rem;
-  }
-  .sc-mode span {
-    font-size: 0.5rem;
-  }
-  .sc-mode strong {
-    font-size: 0.58rem;
-  }
-  .sc-brief {
     display: none;
   }
   .sc-actions {
@@ -2923,8 +2683,15 @@ onUnmounted(() => {
   .sc-arena-head {
     padding: 0.35rem;
   }
-  .sc-arena-head h2 {
-    font-size: 1rem;
+  .sc-mode-tabs button {
+    min-width: 0;
+    padding: 0.3rem 0.5rem;
+  }
+  .sc-mode-tabs strong {
+    font-size: 0.66rem;
+  }
+  .sc-mode-tabs small {
+    font-size: 0.48rem;
   }
   .sc-arena-scores {
     font-size: 0.52rem;
@@ -2936,7 +2703,6 @@ onUnmounted(() => {
   .sc-board {
     width: min(100%, 75cqh);
   }
-  .sc-board-gridiron,
   .sc-board-bloodrush {
     width: 100%;
   }
@@ -2948,12 +2714,6 @@ onUnmounted(() => {
   .sc-battle-bottom button {
     padding: 0.35rem;
     font-size: 0.55rem;
-  }
-  .sc-stage-foot {
-    display: none;
-  }
-  .sc-footer {
-    display: none;
   }
 }
 @container (max-width: 680px) {
@@ -3082,7 +2842,7 @@ onUnmounted(() => {
   }
 }
 @media (prefers-reduced-motion: reduce) {
-  .sc-team {
+  .sc-crew {
     transition: none;
   }
   .sc-district-pin,

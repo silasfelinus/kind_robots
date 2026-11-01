@@ -731,7 +731,7 @@ export const CITY_PLAN: Record<DistrictId, DistrictPlan> = {
       name: 'Forewoman Rivet',
       title: 'Strike boss of the Ironjaw line',
       team: 'ironjaw',
-      mode: 'gridiron',
+      mode: 'blackout',
       taunt: 'Nobody crosses this picket. Nobody.',
     },
     choices: [
@@ -797,7 +797,7 @@ export const CITY_PLAN: Record<DistrictId, DistrictPlan> = {
       name: 'Auditor Prime Gilt',
       title: 'Collections chief of the Meat Exchange',
       team: 'exchange',
-      mode: 'gridiron',
+      mode: 'blackout',
       taunt: 'Your losses have already been invoiced.',
     },
     choices: [

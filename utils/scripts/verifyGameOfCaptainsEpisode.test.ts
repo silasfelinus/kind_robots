@@ -72,7 +72,10 @@ for (const mission of lateMissions) {
     },
   }
   assert.deepEqual(currentExpedition(visiting), cards)
-  assert.deepEqual(currentExpedition(JSON.parse(JSON.stringify(visiting))), cards)
+  assert.deepEqual(
+    currentExpedition(JSON.parse(JSON.stringify(visiting))),
+    cards,
+  )
 }
 assert.equal(lateMajorTitles.size, 21)
 assert.equal(lateMinorTitles.size, 21)

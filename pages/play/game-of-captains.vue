@@ -1840,6 +1840,7 @@
     <SpaceCouchAlienMilestone
       v-if="store.collectorIncident || store.collectorReport"
       :incident="store.collectorIncident"
+      :artwork="store.alienArtwork"
       :report="store.collectorReport"
       :at="store.collectorIncident?.at ?? store.collectorReport?.at ?? 0"
       @choose="store.chooseCollectorAction"

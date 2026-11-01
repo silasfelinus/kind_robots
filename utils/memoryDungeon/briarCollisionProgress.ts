@@ -52,6 +52,14 @@ export function concludeBriarCollisionFromJournal(
   const replayed = replayEarthJournal('e09', journal)
   if (!replayed || Object.keys(replayed.progress.choices).length < 12)
     return null
+  for (const [key, scene] of Object.entries(BRIAR_COLLISION_SCENES)) {
+    if (
+      !scene.choices.some(
+        (choice) => choice.id === replayed.progress.choices[key],
+      )
+    )
+      return null
+  }
   const earned = recoverBriarCollisionFromJournal(campaign, journal)
   if (!earned) return null
   try {

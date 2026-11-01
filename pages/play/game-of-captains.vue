@@ -1314,16 +1314,28 @@
             <div class="cap-heading">
               <span>05</span>
               <div>
-                <h2>{{ featuredConsequence?.title || 'Prime contact dilemma' }}</h2>
-                <p>{{ featuredConsequence?.system || mission.system }} · COMMAND AUTHORITY</p>
+                <h2>
+                  {{ featuredConsequence?.title || 'Prime contact dilemma' }}
+                </h2>
+                <p>
+                  {{ featuredConsequence?.system || mission.system }} · COMMAND
+                  AUTHORITY
+                </p>
               </div>
             </div>
             <template v-if="featuredConsequence">
               <p class="cap-narrative">{{ featuredConsequence.opening }}</p>
               <p class="cap-alert">{{ featuredConsequence.conflict }}</p>
-              <section class="cap-consequence-choices" data-testid="space-couch-authored-consequence">
+              <section
+                class="cap-consequence-choices"
+                data-testid="space-couch-authored-consequence"
+              >
                 <strong>THREE ORDERS · THREE DIFFERENT COSTS</strong>
-                <p>Your captain and assigned crew attempt the strongest listed skill. A seeded six-sided roll decides the outcome; setbacks continue the story.</p>
+                <p>
+                  Your captain and assigned crew attempt the strongest listed
+                  skill. A seeded six-sided roll decides the outcome; setbacks
+                  continue the story.
+                </p>
                 <button
                   v-for="choice in featuredConsequence.choices"
                   :key="choice.id"
@@ -1335,28 +1347,64 @@
                   <span>
                     <b>{{ choice.label }}</b>
                     <small>{{ choice.approach }}</small>
-                    <small>CHECK {{ choice.check.ability_any.join(' / ').toUpperCase() }} · DIFFICULTY {{ choice.check.difficulty }}</small>
-                    <small>TRADEOFF: {{ choice.cost }}</small>
-                  </span>↗
+                    <small
+                      >CHECK
+                      {{ choice.check.ability_any.join(' / ').toUpperCase() }} ·
+                      DIFFICULTY {{ choice.check.difficulty }}</small
+                    >
+                    <small>TRADEOFF: {{ choice.cost }}</small> </span
+                  >↗
                 </button>
               </section>
             </template>
             <template v-else>
               <p class="cap-narrative">{{ mission.dilemma }}</p>
               <div v-if="run.report" class="cap-mission-report">
-                <strong>{{ run.report.result.toUpperCase() }} / MISSION STATUS</strong>
+                <strong
+                  >{{ run.report.result.toUpperCase() }} / MISSION
+                  STATUS</strong
+                >
                 <span>{{ run.report.names }}</span>
                 <p>{{ run.report.text }}</p>
               </div>
               <p class="cap-alert">{{ nemesisLine }}</p>
-              <button class="cap-option" type="button" @click="store.decide('aid')">
-                <span><b>{{ ethicalOrders.aid }}</b><small>Spend supplies; earn trust without claiming authority.</small></span>↗
+              <button
+                class="cap-option"
+                type="button"
+                @click="store.decide('aid')"
+              >
+                <span
+                  ><b>{{ ethicalOrders.aid }}</b
+                  ><small
+                    >Spend supplies; earn trust without claiming
+                    authority.</small
+                  ></span
+                >↗
               </button>
-              <button class="cap-option" type="button" @click="store.decide('observe')">
-                <span><b>{{ ethicalOrders.observe }}</b><small>Preserve legal standing. Others live with the result.</small></span>↗
+              <button
+                class="cap-option"
+                type="button"
+                @click="store.decide('observe')"
+              >
+                <span
+                  ><b>{{ ethicalOrders.observe }}</b
+                  ><small
+                    >Preserve legal standing. Others live with the
+                    result.</small
+                  ></span
+                >↗
               </button>
-              <button class="cap-option" type="button" @click="store.decide('intervene')">
-                <span><b>{{ ethicalOrders.intervene }}</b><small>Act now. Accept the outrage that follows.</small></span>↗
+              <button
+                class="cap-option"
+                type="button"
+                @click="store.decide('intervene')"
+              >
+                <span
+                  ><b>{{ ethicalOrders.intervene }}</b
+                  ><small
+                    >Act now. Accept the outrage that follows.</small
+                  ></span
+                >↗
               </button>
             </template>
           </template>
@@ -1375,9 +1423,16 @@
               class="cap-consequence-receipt"
               data-testid="space-couch-consequence-receipt"
             >
-              <strong>{{ latestConsequence.succeeded ? 'THE ORDER HELD' : 'THE ORDER FAILED' }}</strong>
+              <strong>{{
+                latestConsequence.succeeded
+                  ? 'THE ORDER HELD'
+                  : 'THE ORDER FAILED'
+              }}</strong>
               <p>{{ latestConsequence.callback }}</p>
-              <small>The consequence is recorded in your captain's log and will affect later worlds.</small>
+              <small
+                >The consequence is recorded in your captain's log and will
+                affect later worlds.</small
+              >
             </section>
             <div class="cap-stats">
               <div>
@@ -1932,11 +1987,17 @@ function onPaintedImageError(event: Event) {
 }
 const stagePainting = computed(() => {
   if (run.value?.phase === 'ending' && run.value.consequenceEnding)
-    return paintedVoyageImage(run.value.consequenceEnding) ||
-      voyageStageArt(run.value, paintedVoyageImage) || COUCH_FALLBACK
+    return (
+      paintedVoyageImage(run.value.consequenceEnding) ||
+      voyageStageArt(run.value, paintedVoyageImage) ||
+      COUCH_FALLBACK
+    )
   if (latestConsequence.value)
-    return paintedVoyageImage(latestConsequence.value.artKey) ||
-      voyageStageArt(run.value, paintedVoyageImage) || COUCH_FALLBACK
+    return (
+      paintedVoyageImage(latestConsequence.value.artKey) ||
+      voyageStageArt(run.value, paintedVoyageImage) ||
+      COUCH_FALLBACK
+    )
   // Only use newly delivered, access-filtered scene art. The older static
   // mission and antagonist pictures predate the literal red-couch redesign.
   if (run.value) {
@@ -1964,24 +2025,26 @@ const stagePainting = computed(() => {
 })
 const stageAlt = computed(() =>
   latestConsequence.value
-    ? 'Painted ' + (latestConsequence.value.succeeded ? 'success' : 'setback') +
-      ' for the captain’s ' + latestConsequence.value.choiceId.replaceAll('-', ' ')
+    ? 'Painted ' +
+      (latestConsequence.value.succeeded ? 'success' : 'setback') +
+      ' for the captain’s ' +
+      latestConsequence.value.choiceId.replaceAll('-', ' ')
     : run.value?.phase === 'ending' && run.value.consequenceEnding
       ? 'Painted earned mission-consequence epilogue'
       : run.value
-    ? run.value.phase === 'ending'
-      ? 'Painted artwork for the voyage conclusion'
-      : run.value.phase === 'finale'
-        ? 'Painted encounter with the galactic antagonist'
-        : 'Painted view of ' +
-          mission.value.system +
-          ' during the current voyage'
-    : selectionScreen.value === 'stars' ||
-        selectionScreen.value === 'background'
-      ? 'The starry sky above the long red couch'
-      : selectionScreen.value === 'captain'
-        ? activeCaptain.value.name + ' selection portrait'
-        : crewProfile(focusedCrew.value).name + ' selection portrait',
+        ? run.value.phase === 'ending'
+          ? 'Painted artwork for the voyage conclusion'
+          : run.value.phase === 'finale'
+            ? 'Painted encounter with the galactic antagonist'
+            : 'Painted view of ' +
+              mission.value.system +
+              ' during the current voyage'
+        : selectionScreen.value === 'stars' ||
+            selectionScreen.value === 'background'
+          ? 'The starry sky above the long red couch'
+          : selectionScreen.value === 'captain'
+            ? activeCaptain.value.name + ' selection portrait'
+            : crewProfile(focusedCrew.value).name + ' selection portrait',
 )
 const activeCaptain = computed(() =>
   CAPTAINS.find((c) => c.id === selectedCaptain.value)!,

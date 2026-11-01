@@ -3,6 +3,7 @@
 // has a distinct rival and one street decision whose consequences reach the
 // rival bout and the city's gates, and bout results open the Grand Pit.
 import assert from 'node:assert/strict'
+import { CAMPAIGN_CHOICE_CONSEQUENCES } from '../slimeCity/campaignConsequences'
 import {
   campaignChapter,
   campaignEnding,
@@ -390,6 +391,7 @@ assert.deepEqual(
 )
 const storyIds = TEAMS.map((team) => team.id)
 const distinctTitles: string[] = []
+const uniqueAftermaths = new Set<string>()
 for (const team of TEAMS) {
   const campaign = FACTION_CAMPAIGNS[team.id]
   assert.equal(campaign.team, team.id)
@@ -408,7 +410,47 @@ for (const team of TEAMS) {
       chapter.choices.map((choice) => choice.id),
       ['conviction', 'cunning'],
     )
-    for (const option of chapter.choices) assert.ok(describeTerms(option.terms))
+    for (const option of chapter.choices) {
+      assert.ok(describeTerms(option.terms))
+      const ending = CAMPAIGN_CHOICE_CONSEQUENCES[team.id][index]?.[option.id]
+      assert.ok(ending?.victory && ending.defeat)
+      uniqueAftermaths.add(ending.victory)
+      uniqueAftermaths.add(ending.defeat)
+    }
+    const braveWin = resolveCampaignBattle(
+      story,
+      team.id,
+      index,
+      chapter.foe,
+      'conviction',
+      'player',
+    )
+    const slyWin = resolveCampaignBattle(
+      story,
+      team.id,
+      index,
+      chapter.foe,
+      'cunning',
+      'player',
+    )
+    assert.notEqual(
+      braveWin[team.id].lastScene,
+      slyWin[team.id].lastScene,
+      'Choices must create different authored victory text',
+    )
+    const slyLoss = resolveCampaignBattle(
+      story,
+      team.id,
+      index,
+      chapter.foe,
+      'cunning',
+      'enemy',
+    )
+    assert.notEqual(
+      slyLoss[team.id].lastScene,
+      braveWin[team.id].lastScene,
+      'Losing cannot reuse a victory',
+    )
     assert.equal(campaignChapter(story, team.id), chapter)
     const wrongRival = storyIds.find(
       (id) => id !== team.id && id !== chapter.foe,
@@ -455,7 +497,14 @@ for (const team of TEAMS) {
     )
     assert.equal(won[team.id].wins, index + 1)
     assert.equal(won[team.id].decisions.length, index + 1)
-    assert.equal(won[team.id].lastScene, chapter.victory)
+    assert.ok(won[team.id].lastScene?.startsWith(chapter.victory))
+    assert.ok(
+      won[team.id].lastScene?.includes(
+        CAMPAIGN_CHOICE_CONSEQUENCES[team.id][index]![
+          index % 2 ? 'cunning' : 'conviction'
+        ].victory,
+      ),
+    )
     assert.equal(
       resolveCampaignBattle(
         won,
@@ -493,6 +542,11 @@ for (const team of TEAMS) {
   assert.equal(campaignEnding(createCampaignSave(), team.id), null)
 }
 assert.equal(new Set(distinctTitles).size, 30)
+assert.equal(
+  uniqueAftermaths.size,
+  120,
+  'Every result has distinct authored text',
+)
 const alternate = createCampaignSave()
 let divergent = alternate
 for (const [index, chapter] of FACTION_CAMPAIGNS.riot.chapters.entries()) {

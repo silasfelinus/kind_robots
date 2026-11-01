@@ -381,7 +381,9 @@ for (const key of paintedKeys) {
   const match = key.match(
     /^trios\/([a-z]+-[a-z]+-[a-z]+)-(step-[123]|ending-[ab])$/,
   )
-  assert.ok(match && TRIO_BY_KEY[match[1]!], `unknown party art key: ${key}`)
+  assert.ok(match, `invalid party art key: ${key}`)
+  if (!match) continue
+  assert.ok(TRIO_BY_KEY[match[1]!], `unknown party art key: ${key}`)
 }
 assert.equal(
   new Set(

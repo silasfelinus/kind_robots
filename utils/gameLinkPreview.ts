@@ -58,6 +58,12 @@ export const GAME_LINK_PREVIEWS: Record<string, GameLinkPreview> = {
       'A classroom puzzle where the furniture will not sit still. Free to play in your browser.',
     image: FALLBACK_PREVIEW_IMAGE,
   },
+  'slime-city': {
+    title: 'Slime City | Kind Robots',
+    description:
+      'Brawl, scheme and campaign through a city of slimes. Quick CPU matches and story campaigns, free in your browser, no account needed.',
+    image: FALLBACK_PREVIEW_IMAGE,
+  },
   'zuzu-gamebook': {
     title: 'Zuzu: Koala Assassin | The Bell That Never Rang',
     description:

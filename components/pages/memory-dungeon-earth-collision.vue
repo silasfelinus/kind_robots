@@ -120,7 +120,38 @@
         aria-label="Current city encounter and consequences"
       >
         <div
-          v-if="collision.current"
+          v-if="collision.readyForCrossroad || collision.completed"
+          class="relative flex min-h-[8rem] flex-[1_1_42%] flex-col justify-end overflow-hidden border-b border-[#b8a47e]/30 bg-[linear-gradient(130deg,#36545d,#6c584c,#263a47)] p-3"
+          data-testid="memory-earth-crossroad-stage"
+        >
+          <img
+            v-if="collision.crossroadScene.art.status === 'delivered'"
+            :src="collision.crossroadScene.art.path"
+            :alt="collision.crossroadScene.title"
+            class="absolute inset-0 h-full w-full object-cover"
+          />
+          <div class="relative max-w-2xl rounded-lg bg-[#121e26]/85 p-3">
+            <p
+              class="text-[10px] font-black uppercase tracking-widest text-[#e9c48c]"
+            >
+              {{ collision.crossroadScene.speaker }} · Clock tower
+            </p>
+            <h3 class="mt-1 text-lg font-black sm:text-2xl">
+              {{ collision.crossroadScene.title }}
+            </h3>
+            <p class="mt-2 line-clamp-3 text-xs leading-relaxed sm:text-sm">
+              {{ collision.crossroadStory.opening }}
+            </p>
+          </div>
+          <span
+            v-if="collision.crossroadScene.art.status !== 'delivered'"
+            class="absolute right-2 top-2 rounded bg-[#141d25]/85 px-2 py-1 text-[10px]"
+          >
+            Finale illustration pending
+          </span>
+        </div>
+        <div
+          v-else-if="collision.current"
           class="relative flex min-h-[8rem] flex-[1_1_42%] flex-col justify-end overflow-hidden border-b border-[#b8a47e]/30 bg-[linear-gradient(130deg,#36545d,#6c584c,#263a47)] p-3"
         >
           <img
@@ -172,7 +203,61 @@
             {{ collision.notice }}
           </p>
           <div
-            v-if="collision.chosen"
+            v-if="collision.completed"
+            class="rounded-xl border border-[#87c6ae]/60 bg-[#34524c] p-3"
+            data-testid="memory-earth-crossroad-outcome"
+          >
+            <p class="text-xs font-black uppercase tracking-wider">
+              Morrow's final city verdict
+            </p>
+            <p class="mt-2 text-sm leading-relaxed">
+              {{ collision.crossroadStory.outcome }}
+            </p>
+            <p class="mt-2 text-xs text-[#bde3cb]">
+              The city remembers. Char's crossing is next.
+            </p>
+          </div>
+          <div
+            v-else-if="collision.readyForCrossroad"
+            class="space-y-3"
+            data-testid="memory-earth-crossroad-choices"
+          >
+            <p class="text-sm leading-relaxed">
+              {{ collision.crossroadStory.opening }}
+            </p>
+            <div class="grid gap-2 sm:grid-cols-2">
+              <button
+                v-for="choice in collision.crossroadChoices"
+                :key="choice.id"
+                type="button"
+                class="overflow-hidden rounded-xl border border-[#e9c48c] bg-[#514336] text-left hover:border-[#fff0c5] focus-visible:outline-2 focus-visible:outline-[#ffe3a7]"
+                :data-testid="'memory-earth-crossroad-choice-' + choice.id"
+                @click="collision.conclude(choice.id)"
+              >
+                <div
+                  class="relative flex h-20 items-end bg-[linear-gradient(125deg,#455d61,#745d4a,#2b4c51)] p-2"
+                >
+                  <img
+                    v-if="choice.art.status === 'delivered'"
+                    :src="choice.art.path"
+                    :alt="choice.label"
+                    class="absolute inset-0 h-full w-full object-cover"
+                  />
+                  <span
+                    v-else
+                    class="relative rounded bg-[#17252b]/85 px-2 py-1 text-[10px]"
+                  >
+                    Choice illustration pending
+                  </span>
+                </div>
+                <span class="block p-2 text-sm font-bold leading-relaxed">
+                  {{ choice.label }}
+                </span>
+              </button>
+            </div>
+          </div>
+          <div
+            v-else-if="collision.chosen"
             class="rounded-xl border border-[#87c6ae]/60 bg-[#34524c] p-3"
             data-testid="memory-earth-collision-outcome"
           >
@@ -219,14 +304,18 @@
             </button>
           </div>
           <div
-            v-if="collision.readyForCrossroad"
+            v-if="
+              collision.crossroadEarned &&
+              !collision.readyForCrossroad &&
+              !collision.completed
+            "
             class="mt-3 rounded-xl border border-[#e9c48c]/60 bg-[#514336] p-3"
             data-testid="memory-earth-collision-crossroad-pending"
           >
             <p class="text-sm leading-relaxed">
-              Both displaced memories are safe. Morrow has enough testimony to
-              face the city's final crossroads, but its verdict has not yet been
-              written. Continue exploring without losing this route.
+              Both displaced memories and twelve witnessed decisions are
+              recorded. Walk to the clock tower at 8,8 to confront the
+              evacuation forecast. The verdict cannot be chosen from afar.
             </p>
           </div>
         </div>

@@ -23,6 +23,12 @@ import {
   recoverEarthCollisionFromJournal,
 } from '../memoryDungeon/earthCollisionProgress'
 import {
+  EARTH_CROSSROAD_CHOICES,
+  EARTH_CROSSROAD_SCENE,
+  earthCollisionCrossroadStory,
+  concludeEarthCollisionFromJournal,
+} from '../memoryDungeon/earthCollisionCrossroad'
+import {
   advanceHoshimoriWarm,
   newHoshimoriWarmProgress,
   restoreHoshimoriWarm,
@@ -762,6 +768,192 @@ assert.equal(
   'The earned Pip finale gate cannot be skipped',
 )
 
+const completeEarthJournal: EarthJournalAction[] = []
+let authoredEarthChoices = 0
+for (let y = 1; y <= 8; y++) {
+  const row = Array.from({ length: 8 }, (_, index) =>
+    y % 2 === 1 ? index + 1 : 8 - index,
+  )
+  for (const x of row) {
+    const key = x + ',' + y
+    if (key !== '1,1') completeEarthJournal.push({ type: 'travel', key })
+    if (authoredEarthChoices < 12 || key === '2,2' || key === '7,6') {
+      completeEarthJournal.push({
+        type: 'choose',
+        key,
+        choiceId: worldEvent('e10', key)!.choices[0]!.id,
+      })
+      authoredEarthChoices++
+    }
+  }
+}
+for (let x = 2; x <= 8; x++)
+  completeEarthJournal.push({ type: 'travel', key: x + ',8' })
+const completeEarthReplay = replayEarthJournal('e10', completeEarthJournal)
+assert.ok(completeEarthReplay)
+assert.equal(completeEarthReplay.position, '8,8')
+assert.ok(Object.keys(completeEarthReplay.progress.choices).length >= 12)
+assert.equal(EARTH_CROSSROAD_CHOICES.length, 2)
+assert.ok(EARTH_CROSSROAD_SCENE.art.prompt.length > 100)
+assert.ok(
+  EARTH_CROSSROAD_CHOICES.every((choice) => choice.art.prompt.length > 100),
+)
+let e10VerdictCases = 0
+const e10Openings = new Set<string>()
+for (const tideGate of [
+  'open-the-tide-gate',
+  'seal-the-tide-gate',
+  'divert-the-current',
+] as const) {
+  for (const charter of ['consent', 'open'] as const) {
+    const warm = warmCharter(charter)
+    for (const officeChoice of office.choices) {
+      const briarJournal = completeBriarJournal.map((action) =>
+        action.type === 'choose' && action.key === '2,2'
+          ? { ...action, choiceId: officeChoice.id }
+          : action,
+      )
+      const campaign = {
+        ...concludedBriar,
+        pairDecisions: { ...concludedBriar.pairDecisions, e04: tideGate },
+      }
+      const history = earthCollisionHistory(campaign, warm, briarJournal)
+      assert.ok(history)
+      const story = earthCollisionCrossroadStory(history)
+      assert.ok(story.opening.length > 500)
+      assert.equal(story.outcome, '')
+      assert.ok(!e10Openings.has(story.opening))
+      e10Openings.add(story.opening)
+      for (const verdict of EARTH_CROSSROAD_CHOICES) {
+        const result = concludeEarthCollisionFromJournal(
+          campaign,
+          completeEarthJournal,
+          warm,
+          briarJournal,
+          verdict.id,
+        )
+        assert.ok(result)
+        assert.equal(result.pairDecisions?.e10, verdict.id)
+        assert.ok(result.completed.includes('e10'))
+        assert.deepEqual(availableMemoryExperiences(result), ['e11'])
+        assert.deepEqual(result.recoveredFragments?.slice(-2), [
+          'city-lantern-charter',
+          'city-forest-hours',
+        ])
+        const consequence = earthCollisionCrossroadStory(history, verdict.id)
+        assert.ok(consequence.outcome.length > 450)
+        assert.equal(
+          concludeEarthCollisionFromJournal(
+            result,
+            completeEarthJournal,
+            warm,
+            briarJournal,
+            verdict.id,
+          ),
+          null,
+          'a completed verdict cannot be awarded twice',
+        )
+        assert.deepEqual(
+          earthCollisionHistory(result, warm, briarJournal),
+          history,
+          'completed city must retain the real witness history for its epilogue',
+        )
+        e10VerdictCases++
+      }
+    }
+  }
+}
+assert.equal(e10VerdictCases, 36)
+assert.equal(e10Openings.size, 18)
+const validEarthHistory = warmCharter('consent')
+assert.deepEqual(earthCollisionCrossroadStory(null), {
+  opening: '',
+  outcome: '',
+})
+assert.equal(
+  concludeEarthCollisionFromJournal(
+    concludedBriar,
+    completeEarthJournal,
+    validEarthHistory,
+    completeBriarJournal,
+    'invented-verdict',
+  ),
+  null,
+)
+assert.equal(
+  concludeEarthCollisionFromJournal(
+    concludedBriar,
+    completeEarthJournal.slice(0, -1),
+    validEarthHistory,
+    completeBriarJournal,
+    EARTH_CROSSROAD_CHOICES[0]!.id,
+  ),
+  null,
+  'the crossroad must be reached on foot',
+)
+let optionalEarthChoices = 0
+const tooShortEarthJournal = completeEarthJournal.filter(
+  (action) =>
+    action.type !== 'choose' ||
+    ['2,2', '7,6'].includes(action.key) ||
+    optionalEarthChoices++ < 9,
+)
+assert.ok(
+  Object.keys(replayEarthJournal('e10', tooShortEarthJournal)!.progress.choices)
+    .length < 12,
+)
+assert.equal(
+  concludeEarthCollisionFromJournal(
+    concludedBriar,
+    tooShortEarthJournal,
+    validEarthHistory,
+    completeBriarJournal,
+    EARTH_CROSSROAD_CHOICES[0]!.id,
+  ),
+  null,
+  'both fragments cannot substitute for twelve decisions',
+)
+assert.equal(
+  concludeEarthCollisionFromJournal(
+    concludedBriar,
+    completeEarthJournal.filter(
+      (action) =>
+        action.type !== 'choose' ||
+        (action.key !== '2,2' && action.key !== '7,6'),
+    ),
+    validEarthHistory,
+    completeBriarJournal,
+    EARTH_CROSSROAD_CHOICES[0]!.id,
+  ),
+  null,
+  'serialized fragment receipts cannot replace witnessed choices',
+)
+assert.equal(
+  concludeEarthCollisionFromJournal(
+    concludedBriar,
+    [
+      { type: 'travel', key: '8,8' },
+      { type: 'choose', key: '8,8', choiceId: 'forged' },
+    ],
+    validEarthHistory,
+    completeBriarJournal,
+    EARTH_CROSSROAD_CHOICES[0]!.id,
+  ),
+  null,
+  'teleporting cannot reach the final crisis',
+)
+assert.equal(
+  concludeEarthCollisionFromJournal(
+    concludedBriar,
+    completeEarthJournal,
+    { ...validEarthHistory, flags: ['forged'] },
+    completeBriarJournal,
+    EARTH_CROSSROAD_CHOICES[0]!.id,
+  ),
+  null,
+  'invented Hoshimori testimony cannot unlock the final crisis',
+)
+
 const e10Console = readFileSync(
   new URL(
     '../../components/pages/memory-dungeon-earth-collision.vue',
@@ -804,10 +996,11 @@ assert.ok(campaignStore.includes('recoverEarthCollisionFromJournal('))
 assert.ok(memoryPage.includes('v-else-if="earthCollisionMode"'))
 assert.ok(overworldPage.includes('data-testid="memory-enter-earth-collision"'))
 assert.ok(overworldPage.includes("world.campaign.completed.includes('e09')"))
-assert.ok(
-  !e10Store.includes('completeMemoryExperience('),
-  'e10 cannot be completed until the separate crossroads is implemented',
-)
+assert.ok(e10Store.includes('world.finishEarthCollision('))
+assert.ok(e10Store.includes("position.value === '8,8'"))
+assert.ok(e10Console.includes('data-testid="memory-earth-crossroad-choices"'))
+assert.ok(e10Console.includes('collision.conclude(choice.id)'))
+assert.ok(campaignStore.includes('concludeEarthCollisionFromJournal('))
 
 for (const pilot of HOSHIMORI_NIGHT_SITES) {
   const adopted = worldEvent('e08', pilot.key)!

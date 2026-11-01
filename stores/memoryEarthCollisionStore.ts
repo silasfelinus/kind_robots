@@ -17,6 +17,11 @@ import {
   type EarthJournalAction,
 } from '~/utils/memoryDungeon/earthJournal'
 import { earthCollisionHistory } from '~/utils/memoryDungeon/earthCollisionProgress'
+import {
+  EARTH_CROSSROAD_CHOICES,
+  EARTH_CROSSROAD_SCENE,
+  earthCollisionCrossroadStory,
+} from '~/utils/memoryDungeon/earthCollisionCrossroad'
 import earthCollision from '~/utils/memoryDungeon/earthCollision.json'
 
 const STORAGE_KEY = 'memory-dungeon-earth-collision-e10-v1'
@@ -59,10 +64,20 @@ export const useMemoryEarthCollisionStore = defineStore(
           ),
         ).length,
     )
-    const readyForCrossroad = computed(
+    const crossroadEarned = computed(
       () =>
         fragments.value === 2 &&
         Object.keys(progress.value.choices).length >= 12,
+    )
+    const readyForCrossroad = computed(
+      () =>
+        crossroadEarned.value && position.value === '8,8' && !completed.value,
+    )
+    const crossroadStory = computed(() =>
+      earthCollisionCrossroadStory(
+        history.value,
+        world.campaign.pairDecisions?.e10,
+      ),
     )
     const tiles = computed(() =>
       worldEvents('e10').map((event) => ({
@@ -117,7 +132,7 @@ export const useMemoryEarthCollisionStore = defineStore(
       } catch {
         notice.value = 'The city route could not be read.'
       }
-      if (unlocked.value && journal.value.length)
+      if (unlocked.value && !completed.value && journal.value.length)
         world.syncEarthCollisionJournal(
           journal.value,
           hoshimori.progress,
@@ -152,7 +167,7 @@ export const useMemoryEarthCollisionStore = defineStore(
     }
 
     function choose(choiceId: string): void {
-      if (!unlocked.value || completed.value) return
+      if (!unlocked.value || completed.value || readyForCrossroad.value) return
       const next = chooseOverworldEvent(
         progress.value,
         position.value,
@@ -180,6 +195,26 @@ export const useMemoryEarthCollisionStore = defineStore(
       persist()
     }
 
+    function conclude(verdict: string): void {
+      if (!unlocked.value || !readyForCrossroad.value) return
+      if (
+        !world.finishEarthCollision(
+          journal.value,
+          hoshimori.progress,
+          briar.journal,
+          verdict,
+        )
+      ) {
+        notice.value = 'The city needs a witnessed route and a valid verdict.'
+        return
+      }
+      notice.value = earthCollisionCrossroadStory(
+        history.value,
+        verdict,
+      ).outcome
+      persist()
+    }
+
     return {
       journal,
       hydrated,
@@ -192,11 +227,16 @@ export const useMemoryEarthCollisionStore = defineStore(
       completed,
       unlocked,
       fragments,
+      crossroadEarned,
       readyForCrossroad,
+      crossroadStory,
+      crossroadChoices: EARTH_CROSSROAD_CHOICES,
+      crossroadScene: EARTH_CROSSROAD_SCENE,
       tiles,
       hydrate,
       travel,
       choose,
+      conclude,
     }
   },
 )

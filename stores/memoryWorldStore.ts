@@ -69,6 +69,7 @@ import {
   concludeBriarCollisionFromJournal,
 } from '~/utils/memoryDungeon/briarCollisionProgress'
 import { recoverEarthCollisionFromJournal } from '~/utils/memoryDungeon/earthCollisionProgress'
+import { concludeEarthCollisionFromJournal } from '~/utils/memoryDungeon/earthCollisionCrossroad'
 import {
   DARK_BRIAR_WAVES,
   DARK_BRIAR_SCENES,
@@ -704,6 +705,25 @@ export const useMemoryWorldStore = defineStore('memoryWorld', () => {
       campaign.value = next
       persistReality()
     }
+    return true
+  }
+
+  function finishEarthCollision(
+    journal: readonly EarthJournalAction[],
+    hoshimoriSave: unknown,
+    briarJournal: readonly EarthJournalAction[],
+    verdict: string,
+  ): boolean {
+    const next = concludeEarthCollisionFromJournal(
+      campaign.value,
+      journal,
+      hoshimoriSave,
+      briarJournal,
+      verdict,
+    )
+    if (!next) return false
+    campaign.value = next
+    persistReality()
     return true
   }
 
@@ -2530,6 +2550,7 @@ export const useMemoryWorldStore = defineStore('memoryWorld', () => {
     syncBriarCollisionJournal,
     finishBriarCollision,
     syncEarthCollisionJournal,
+    finishEarthCollision,
     syncScyllaEarthPhoto,
     finishScyllaReality,
     syncHoshimoriNightAchievements,

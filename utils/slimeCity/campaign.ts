@@ -1,5 +1,6 @@
 import type { BoutTerms } from './city'
 import type { TeamId } from './prototypes'
+import { CAMPAIGN_CHOICE_CONSEQUENCES } from './campaignConsequences'
 
 export type CampaignApproach = 'conviction' | 'cunning'
 export type CampaignResult = 'player' | 'enemy' | 'draw'
@@ -620,6 +621,7 @@ export function resolveCampaignBattle(
   if (!chapter.choices.some((option) => option.id === choice)) return save
   const old = save[team]
   const won = result === 'player'
+  const consequence = CAMPAIGN_CHOICE_CONSEQUENCES[team][chapterIndex]?.[choice]
   return {
     ...save,
     [team]: {
@@ -630,9 +632,9 @@ export function resolveCampaignBattle(
       lastResult: result,
       lastScene:
         result === 'player'
-          ? chapter.victory
+          ? [chapter.victory, consequence?.victory].filter(Boolean).join(' ')
           : result === 'enemy'
-            ? chapter.defeat
+            ? [chapter.defeat, consequence?.defeat].filter(Boolean).join(' ')
             : 'Neither side won the fight. The dispute remains unresolved.',
     },
   }

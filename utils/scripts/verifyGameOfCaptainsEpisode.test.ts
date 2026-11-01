@@ -61,6 +61,7 @@ for (const mission of lateMissions) {
   lateMinorTitles.add(minor.title)
   const visiting = {
     ...landing,
+    seed: 442,
     chapter: mission.chapter,
     missionId: mission.id,
     expeditionVisit: {

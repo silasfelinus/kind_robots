@@ -5,7 +5,12 @@ import {
   sanitizeScrapbook,
 } from '../everyVillainTactics/frontMenu'
 import { createStory } from '../everyVillainTactics/firstBellStory'
-import { createSave } from '../everyVillainTactics/saves'
+import {
+  createSave,
+  loadSave,
+  saveChecksum,
+} from '../everyVillainTactics/saves'
+import { recordSquadDamage } from '../everyVillainTactics/combat'
 import {
   MAX_SCORE_HISTORY,
   mergeBattleResults,
@@ -48,6 +53,8 @@ assert.equal(score.stage, 'Picnic Panic')
 assert.ok(score.medals.includes('every-civilian'))
 assert.ok(score.medals.includes('no-knockouts'))
 assert.ok(score.medals.includes('healthy-extraction'))
+assert.ok(score.medals.includes('untouched'))
+assert.equal(score.lines.find((line) => line.id === 'flawless')?.points, 250)
 assert.ok(score.medals.includes('quick-clear'))
 assert.equal(
   score.total,
@@ -110,6 +117,66 @@ const extraction = scoreFromSave(
 )!
 assert.ok(extraction.medals.includes('no-knockouts'))
 assert.ok(!extraction.medals.includes('healthy-extraction'))
+const woundThenHeal = structuredClone(state)
+const squadmate = woundThenHeal.units.find((unit) => unit.team === 'squad')!
+const pristineHp = squadmate.hp
+squadmate.hp -= 1
+recordSquadDamage(woundThenHeal, squadmate, pristineHp)
+squadmate.hp = pristineHp
+const healed = createSave({
+  slot: 'slot-1',
+  perspective: 'hero',
+  leadSignature: 'accident-fire',
+  stage,
+  state: woundThenHeal,
+  story,
+})
+const healedScore = scoreFromSave(healed)!
+assert.ok(healedScore.medals.includes('healthy-extraction'))
+assert.ok(!healedScore.medals.includes('untouched'))
+assert.ok(!healedScore.lines.some((line) => line.id === 'flawless'))
+assert.notEqual(
+  healedScore.id,
+  score.id,
+  'historical wounds distinguish an identical final board',
+)
+assert.equal(
+  loadSave(JSON.stringify(healed)).ok,
+  true,
+  'damage history round-trips',
+)
+
+const legacyBoard = structuredClone(state)
+delete legacyBoard.damageTaken
+const oldSave = createSave({
+  slot: 'slot-3',
+  perspective: 'hero',
+  leadSignature: 'accident-fire',
+  stage,
+  state: legacyBoard,
+  story,
+})
+assert.ok(
+  loadSave(JSON.stringify(oldSave)).ok,
+  'older saves need no telemetry migration',
+)
+assert.ok(
+  !scoreFromSave(oldSave)!.medals.includes('untouched'),
+  'unknown history never earns flawless',
+)
+const poisoned = structuredClone(healed)
+poisoned.state.damageTaken = -3
+const { checksum: _badChecksum, ...poisonedPayload } = poisoned
+assert.equal(
+  loadSave(
+    JSON.stringify({
+      ...poisonedPayload,
+      checksum: saveChecksum(poisonedPayload),
+    }),
+  ).ok,
+  false,
+  'impossible telemetry is refused even if the client recomputes a checksum',
+)
 
 const claimedStory = createSave({
   slot: 'slot-2',

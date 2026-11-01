@@ -41,6 +41,7 @@ export function scoreFromSave(save: EvtSave): BattleResult | null {
   const survivors = squad.filter((u) => u.hp > 0).length
   const allAlive = squad.length > 0 && survivors === squad.length
   const allHealthy = allAlive && squad.every((u) => u.hp === u.maxHp)
+  const neverDamaged = won && allHealthy && state.damageTaken === 0
   const allRescued = civilians.length > 0 && rescued === civilians.length
   const quick = won && state.turn <= 4
   const evidence = save.mode === 'story' ? save.story.evidence : 0
@@ -74,6 +75,12 @@ export function scoreFromSave(save: EvtSave): BattleResult | null {
       label: 'Full health at extraction',
       points: 100,
     })
+  if (neverDamaged)
+    lines.push({
+      id: 'flawless',
+      label: 'Untouched from first move to victory',
+      points: 250,
+    })
   if (won && allRescued)
     lines.push({ id: 'evacuated', label: 'Every civilian safe', points: 200 })
   if (quick)
@@ -86,6 +93,7 @@ export function scoreFromSave(save: EvtSave): BattleResult | null {
   const medals = [
     ...(won && allAlive ? ['no-knockouts'] : []),
     ...(won && allHealthy ? ['healthy-extraction'] : []),
+    ...(neverDamaged ? ['untouched'] : []),
     ...(won && allRescued ? ['every-civilian'] : []),
     ...(quick ? ['quick-clear'] : []),
     ...(won && evidence > 0 ? ['evidence-recovered'] : []),
@@ -101,6 +109,7 @@ export function scoreFromSave(save: EvtSave): BattleResult | null {
     phase: state.phase,
     turn: state.turn,
     seed: state.seed,
+    damageTaken: state.damageTaken,
     units: state.units.map((u) => [u.id, u.hp, u.x, u.y]),
     civilians: state.civilians?.map((c) => [c.id, c.status]),
     fired: state.fired,
@@ -145,7 +154,7 @@ function validResult(value: unknown): value is BattleResult {
     r.turns <= 301 &&
     Array.isArray(r.lines) &&
     r.lines.length >= 4 &&
-    r.lines.length <= 8 &&
+    r.lines.length <= 10 &&
     r.lines.every(
       (l) =>
         typeof l.id === 'string' &&
@@ -163,6 +172,7 @@ function validResult(value: unknown): value is BattleResult {
         [
           'no-knockouts',
           'healthy-extraction',
+          'untouched',
           'every-civilian',
           'quick-clear',
           'evidence-recovered',

@@ -21,6 +21,7 @@ import {
   refreshTurn,
   resolveAttack,
   resolveOverwatch,
+  recordSquadDamage,
   takeCover,
   tileAt,
   type Chance,
@@ -119,6 +120,9 @@ export type TrainingState = {
   field?: FieldState
   /** Story flags set by authored scene choices (see sceneGraph). */
   flags?: string[]
+  /** Historical squad HP actually lost, including wounds later healed. Older
+   * saves leave this unset and cannot retroactively claim a flawless run. */
+  damageTaken?: number
   impact: {
     attacker: string
     target: string
@@ -244,6 +248,7 @@ export function trainingState(
   options: TrainingOptions = {},
 ): TrainingState {
   const state = baseTrainingState(seed, stage)
+  state.damageTaken = 0
   fieldLackeyCrew(state, stage)
   if (stage?.civilians?.length)
     state.civilians = stage.civilians.map((c) => ({
@@ -556,6 +561,11 @@ function damageProp(state: TrainingState, id: string, cause: string) {
       ' shatters. That tile is open ground now.',
   )
 }
+function hurtUnit(state: TrainingState, unit: Unit, amount: number) {
+  const before = unit.hp
+  unit.hp = Math.max(0, unit.hp - amount)
+  recordSquadDamage(state, unit, before)
+}
 function attack(
   state: TrainingState,
   attacker: Unit,
@@ -702,7 +712,7 @@ export function useAlliedSignature(state: TrainingState): boolean {
       threatened.has(unit.x + ',' + unit.y),
   )
   for (const unit of struck) {
-    unit.hp = Math.max(0, unit.hp - 1)
+    hurtUnit(state, unit, 1)
     unit.overwatch = false
     recordImpact(state, ally, unit, true)
   }
@@ -1137,7 +1147,7 @@ function signatureLieutenantPlan(state: TrainingState, enemy: Unit): boolean {
         threatened.has(unit.x + ',' + unit.y),
     )
     for (const unit of struck) {
-      unit.hp = Math.max(0, unit.hp - 1)
+      hurtUnit(state, unit, 1)
       unit.overwatch = false
       recordImpact(state, enemy, unit, true)
     }
@@ -1241,7 +1251,7 @@ function lieutenantPlan(state: TrainingState, enemy: Unit): boolean {
         Math.abs(unit.y - marked.y) <= 1,
     )
     for (const unit of struck) {
-      unit.hp = Math.max(0, unit.hp - 1)
+      hurtUnit(state, unit, 1)
       unit.overwatch = false
       recordImpact(state, enemy, unit, true)
     }
@@ -1404,7 +1414,7 @@ function roundEnd(state: TrainingState) {
   for (const unit of state.units.filter((u) => u.hp > 0)) {
     const fire = burning.has(cellKey(unit))
     if (!fire && !live.has(cellKey(unit))) continue
-    unit.hp = Math.max(0, unit.hp - 1)
+    hurtUnit(state, unit, 1)
     unit.overwatch = false
     note(
       state,
@@ -1446,10 +1456,10 @@ function roundEnd(state: TrainingState) {
       if (landing) {
         victim.x = landing.x
         victim.y = landing.y
-        victim.hp = Math.max(0, victim.hp - 1)
+        hurtUnit(state, victim, 1)
         note(state, aliasFor(victim) + ' scrambles clear (1 damage).')
       } else {
-        victim.hp = 0
+        hurtUnit(state, victim, victim.hp)
         note(state, aliasFor(victim) + ' falls with the floor.')
       }
     }

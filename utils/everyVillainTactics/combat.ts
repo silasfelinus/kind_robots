@@ -329,8 +329,18 @@ export function nextRoll(state: { seed: number }): number {
 }
 
 // 10000 equally indexed thresholds, so a shown 64% means exactly <6400.
+/** Record actual damage before a heal can conceal it. Legacy saves and the
+ * standalone Prom of Doom battle bridge lack this optional ledger. */
+export function recordSquadDamage(
+  state: { damageTaken?: number },
+  target: { team: string; hp: number },
+  priorHp: number,
+) {
+  if (target.team === 'squad' && state.damageTaken !== undefined)
+    state.damageTaken += Math.max(0, priorHp - target.hp)
+}
 export function resolveAttack(
-  state: { seed: number },
+  state: { seed: number; damageTaken?: number },
   map: TacticalMap,
   attacker: Fighter,
   defender: Fighter,
@@ -351,7 +361,9 @@ export function resolveAttack(
   const roll = nextRoll(state)
   const hit = roll < chance.hit * 100
   if (hit) {
+    const before = defender.hp
     defender.hp = Math.max(0, defender.hp - damage)
+    recordSquadDamage(state, defender, before)
     if (defender.hp > 0 && !defender.statuses.includes('suppressed')) {
       defender.statuses.push('suppressed')
     }
@@ -377,7 +389,7 @@ export function prepareOverwatch(unit: Fighter): boolean {
 // Overwatch reserves its AP when armed. Reactions get one attempt as movement
 // occurs, share the exact displayed hit formula and consume RNG only for a shot.
 export function resolveOverwatch(
-  state: { seed: number },
+  state: { seed: number; damageTaken?: number },
   map: TacticalMap,
   watcher: Fighter,
   mover: Fighter,
@@ -395,7 +407,9 @@ export function resolveOverwatch(
   const roll = nextRoll(state)
   const hit = roll < chance.hit * 100
   if (hit) {
+    const before = mover.hp
     mover.hp = Math.max(0, mover.hp - 1)
+    recordSquadDamage(state, mover, before)
     if (mover.hp > 0 && !mover.statuses.includes('suppressed'))
       mover.statuses.push('suppressed')
   }

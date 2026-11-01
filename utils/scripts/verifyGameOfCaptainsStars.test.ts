@@ -5,6 +5,16 @@ import {
   COUCH_ONBOARDING_ART_IDS,
 } from '../gameOfCaptains/onboardingArt'
 import { COUCH_VOYAGE_ART_IDS } from '../gameOfCaptains/voyagePaintings'
+import { COUCH_CONSEQUENCE_ART_IDS } from '../gameOfCaptains/consequencePaintings'
+import {
+  CONSEQUENCE_STORIES,
+  CONSEQUENCE_ENDINGS,
+  consequenceForRun,
+  resolveConsequence,
+  consequenceAftermath,
+  applyConsequenceEpilogue,
+} from '../gameOfCaptains/consequenceStories'
+import { VOYAGE_BOARDS } from '../gameOfCaptains/voyageMap'
 import { SPACE_COUCH_OPENING } from '../gameOfCaptains/openingReel'
 import { COUCH_EXPRESSION_ART_IDS } from '../gameOfCaptains/expressionPaintings'
 import { readFileSync } from 'node:fs'
@@ -62,6 +72,67 @@ assert.ok(
 )
 assert.equal(SPACE_COUCH_OPENING[0]?.key, 'opening/01-cold-open')
 assert.equal(SPACE_COUCH_OPENING.at(-1)?.key, 'opening/18-final-wide')
+assert.equal(
+  Object.keys(COUCH_CONSEQUENCE_ART_IDS).length,
+  21,
+  '18 authored successes or failures and 3 earned finale paintings are registered',
+)
+assert.equal(
+  new Set([
+    ...Object.values(COUCH_ONBOARDING_ART_IDS),
+    ...Object.values(COUCH_VOYAGE_ART_IDS),
+    ...Object.values(COUCH_EXPRESSION_ART_IDS),
+    ...Object.values(COUCH_CONSEQUENCE_ART_IDS),
+  ]).size,
+  193,
+  'no two registered art keys collide across the four delivered batches',
+)
+for (const [missionId, episode] of Object.entries(CONSEQUENCE_STORIES)) {
+  const board = VOYAGE_BOARDS.findIndex((missions) => missions.includes(missionId))
+  assert.ok(board >= 0, 'a painted case must match a real route: ' + missionId)
+  assert.equal(episode.choices.length, 3)
+  for (const choice of episode.choices) {
+    for (const outcome of ['success', 'failure']) {
+      const key = 'consequences/' + episode.id + '-' + choice.id + '-' + outcome
+      assert.ok(key in COUCH_CONSEQUENCE_ART_IDS, 'painted outcome: ' + key)
+    }
+    const captain = startVoyage('vale', ['rue', 'vela', 'mox'], 20261101)
+    const decision = {
+      ...captain,
+      phase: 'decision' as const,
+      chapter: board + 1,
+      missionId,
+    }
+    assert.equal(consequenceForRun(decision)?.id, episode.id)
+    assert.equal(resolveConsequence(decision, 'not-a-choice'), decision)
+    const outcome = resolveConsequence(decision, choice.id)
+    assert.equal(outcome.phase, 'debrief')
+    assert.deepEqual(outcome, resolveConsequence(decision, choice.id), 'seeded outcomes replay identically')
+    assert.equal(outcome.consequenceHistory?.length, 1)
+    assert.equal(outcome.missionHistory?.at(-1)?.missionId, missionId)
+    const recorded = outcome.consequenceHistory![0]!
+    assert.equal(recorded.choiceId, choice.id)
+    assert.ok(recorded.artKey in COUCH_CONSEQUENCE_ART_IDS)
+    assert.equal(consequenceAftermath(outcome)?.artKey, recorded.artKey)
+    assert.ok(outcome.worldFlags?.includes(recorded.flags[0]!))
+    assert.equal(consequenceForRun({ ...outcome, phase: 'decision' }), null, 'once-only story')
+    assert.equal(restoreVoyage(outcome)?.consequenceHistory?.[0]?.choiceId, choice.id)
+  }
+}
+assert.equal(CONSEQUENCE_ENDINGS.length, 3)
+for (const ending of CONSEQUENCE_ENDINGS) {
+  assert.ok(('consequences/' + ending.id) in COUCH_CONSEQUENCE_ART_IDS)
+  const run = {
+    ...startVoyage('vale', ['rue', 'vela', 'mox'], 20261101),
+    phase: 'ending' as const,
+    scene: 'The couch survives.',
+    worldFlags: [...ending.requires_all],
+  }
+  const enhanced = applyConsequenceEpilogue(run)
+  assert.equal(enhanced.consequenceEnding, 'consequences/' + ending.id)
+  assert.ok(enhanced.scene.includes(ending.title))
+  assert.equal(enhanced.ending, run.ending, 'main voyage ending is preserved')
+}
 assert.equal(
   Object.keys(COUCH_EXPRESSION_ART_IDS).length,
   44,
@@ -567,6 +638,12 @@ assert.ok(
 assert.ok(artEndpoint.includes('Object.values(PAINTED_ART_IDS)'))
 assert.ok(artEndpoint.includes('...COUCH_VOYAGE_ART_IDS'))
 assert.ok(artEndpoint.includes('...COUCH_EXPRESSION_ART_IDS'))
+assert.ok(artEndpoint.includes('...COUCH_CONSEQUENCE_ART_IDS'))
+assert.ok(page.includes('store.decideConsequence(choice.id)'))
+assert.ok(page.includes('space-couch-authored-consequence'))
+assert.ok(page.includes('space-couch-consequence-receipt'))
+assert.ok(page.includes('paintedVoyageImage(latestConsequence.value.artKey)'))
+assert.ok(store.includes('applyConsequenceEpilogue('))
 assert.ok(page.includes('captainDossierPortrait'))
 assert.ok(page.includes('crewDossierPortrait'))
 assert.ok(page.includes('crewVoyagePortrait(member.id)'))

@@ -691,7 +691,9 @@ export const useMemoryWorldStore = defineStore('memoryWorld', () => {
     } else {
       if (!campaign.value.completed.includes('e05')) return false
       if (
-        !MEMORY_PAIR_ENDINGS.e06.some((choice) => choice.id === pivotalChoice) ||
+        !MEMORY_PAIR_ENDINGS.e06.some(
+          (choice) => choice.id === pivotalChoice,
+        ) ||
         !MEMORY_CHAR_AGENCY_CHOICES.some(
           (choice) => choice.id === charAgencyChoice,
         )

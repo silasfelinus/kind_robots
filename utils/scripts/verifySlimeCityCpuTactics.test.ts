@@ -1,5 +1,6 @@
 import assert from 'node:assert/strict'
 import { chooseCpuAction } from '../slimeCity/cpu'
+import { playHeadless } from '../slimeCity/playtest'
 import {
   cardById,
   createMatch,
@@ -110,4 +111,13 @@ assert.deepEqual(chooseCpuAction(attack), {
   id: 1,
   target: 2,
 })
-console.log('Slime City Blackout CPU: carrier interception, flag traps, hidden information, deterministic tactics PASS')
+// Exercise the real controller and settlement loop for all six authored crews.
+// Comparisons are reproducible, not win-rate claims from an inadequate sample.
+for (const [index, team] of ['catgirls', 'bloodfairies', 'ironjaw', 'riot', 'undertow', 'exchange'].entries()) {
+  const foe = team === 'riot' ? 'undertow' : 'riot'
+  const first = playHeadless('blackout', team as Parameters<typeof playHeadless>[1], foe, 5180 + index)
+  const again = playHeadless('blackout', team as Parameters<typeof playHeadless>[1], foe, 5180 + index)
+  assert.ok(first.state.victor, team + ' match must resolve')
+  assert.deepEqual(first.state, again.state, team + ' match replays from the same seed')
+}
+console.log('Slime City Blackout CPU: carrier interception, flag traps, concealed information, six deterministic full bouts PASS')

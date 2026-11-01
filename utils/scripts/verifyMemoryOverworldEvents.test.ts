@@ -13,6 +13,7 @@ import {
 import { EARTH_PHOTOS } from '../memoryDungeon/chronicle'
 import { HOSHIMORI_NIGHT_SITES } from '../memoryDungeon/hoshimoriNight'
 import { BRIAR_COLLISION_SCENES } from '../memoryDungeon/briarCollision'
+import { BRIAR_COLLISION_ROUTE_SITES } from '../memoryDungeon/briarCollisionRoute'
 import {
   recoverBriarCollisionFromJournal,
   concludeBriarCollisionFromJournal,
@@ -152,6 +153,60 @@ assert.deepEqual(
   roots.choices.map((choice) => choice.id),
   BRIAR_COLLISION_SCENES['7,6'].choices.map((choice) => choice.id),
 )
+const routeSites = Object.entries(BRIAR_COLLISION_ROUTE_SITES)
+assert.equal(routeSites.length, 8)
+assert.equal(
+  worldEvents('e09').filter((event) => event.memoryFragment).length,
+  2,
+  'authored connective sites must not mint extra finale fragments',
+)
+for (const [key, scene] of routeSites) {
+  const event = worldEvent('e09', key)!
+  assert.equal(event.title, scene.title)
+  assert.equal(event.opening, scene.opening)
+  assert.equal(event.speaker, scene.speaker)
+  assert.equal(event.kind, scene.kind)
+  assert.equal(event.sceneArt.status, 'placeholder')
+  assert.equal(event.choices.length, 2)
+  assert.equal(event.memoryFragment, undefined)
+  assert.deepEqual(
+    event.choices.map((choice) => choice.id),
+    scene.choices.map((choice) => choice.id),
+  )
+  assert.equal(
+    new Set(event.choices.map((choice) => choice.flag)).size,
+    2,
+    key + ' must preserve two distinct consequences',
+  )
+  for (const choice of event.choices) {
+    assert.ok(choice.outcome.length > 90, key + ' needs an authored outcome')
+    assert.ok(choice.art.prompt.includes(scene.title) || choice.art.prompt.includes(choice.label))
+    const [x, y] = key.split(',').map(Number) as [number, number]
+    const steps: EarthJournalAction[] = []
+    for (let step = 2; step <= x; step++)
+      steps.push({ type: 'travel', key: step + ',1' })
+    for (let step = 2; step <= y; step++)
+      steps.push({ type: 'travel', key: x + ',' + step })
+    const journal: EarthJournalAction[] = [
+      ...steps,
+      { type: 'choose', key, choiceId: choice.id },
+    ]
+    const replayed = replayEarthJournal('e09', journal)
+    assert.ok(replayed, key + ' must be reachable by legal travel')
+    assert.equal(replayed.position, key)
+    assert.equal(replayed.progress.choices[key], choice.id)
+    assert.ok(replayed.progress.flags.includes(choice.flag))
+    assert.equal(
+      replayEarthJournal('e09', [
+        ...journal,
+        { type: 'choose', key, choiceId: choice.id },
+      ]),
+      null,
+      'a replayed site must not pay out twice',
+    )
+  }
+}
+
 const earnedCampaign: MemoryCampaignProgress = {
   ...newMemoryCampaignProgress(),
   completed: ['e01', 'e02', 'e03', 'e04', 'e05', 'e06', 'e07', 'e08'],

@@ -849,7 +849,7 @@ assert.equal(lab.crisisEvent, null)
 assert.equal(lab.campaignAtDestination, true)
 lab.startCampaignBattle('conviction')
 assert.equal(lab.view, 'arena', 'Crisis resolution unlocks city story fights')
-assert.equal(lab.campaignBout?.team, 'catgirls')
+assert.equal(lab.match.teamId, 'catgirls')
 assert.equal(
   lab.match.mana,
   2,

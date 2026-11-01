@@ -7,7 +7,10 @@ import {
   validSlimeCityStory,
 } from '../slimeCity/storySave'
 import { decide, createCity, travel } from '../slimeCity/city'
-import { createCampaignSave, resolveCampaignBattle } from '../slimeCity/campaign'
+import {
+  createCampaignSave,
+  resolveCampaignBattle,
+} from '../slimeCity/campaign'
 
 const base = newSlimeCityStory()
 assert.equal(validSlimeCityStory(base), true)
@@ -19,18 +22,35 @@ assert.notEqual(arrived, city)
 assert.equal(validSlimeCityStory({ ...base, city: arrived }), true)
 
 const save = createCampaignSave()
-const branch = resolveCampaignBattle(save, 'catgirls', 0, 'undertow', 'cunning', 'player')
+const branch = resolveCampaignBattle(
+  save,
+  'catgirls',
+  0,
+  'undertow',
+  'cunning',
+  'player',
+)
 assert.equal(branch.catgirls.wins, 1)
-assert.equal(validSlimeCityStory({ ...base, city: arrived, campaigns: branch }), true)
+assert.equal(
+  validSlimeCityStory({ ...base, city: arrived, campaigns: branch }),
+  true,
+)
 const wallet = { version: 1, xp: 900, meat: 150, cards: ['lynx'] }
-const savedAccount = { ...wallet, story: { ...base, revision: 1, city: arrived, campaigns: branch } }
+const savedAccount = {
+  ...wallet,
+  story: { ...base, revision: 1, city: arrived, campaigns: branch },
+}
 assert.deepEqual(storyFromAccount(savedAccount).campaigns, branch)
 assert.deepEqual(accountWithStory(savedAccount, { ...wallet, meat: 250 }), {
   ...wallet,
   meat: 250,
   story: savedAccount.story,
 })
-assert.deepEqual(accountWithStory(wallet, wallet), wallet, 'No story does not invent a save')
+assert.deepEqual(
+  accountWithStory(wallet, wallet),
+  wallet,
+  'No story does not invent a save',
+)
 
 for (const mutation of [
   { ...base, revision: -1 },
@@ -39,11 +59,24 @@ for (const mutation of [
   { ...base, city: { ...city, log: Array(31).fill('x') } },
   { ...base, city: { ...city, cleared: ['pitworks', 'pitworks'] } },
   { ...base, city: { ...city, finaleChoice: 'skip-to-win' } },
-  { ...base, city: { ...city, streetTerms: { pitworks: { playerHp: 99999 } } } },
+  {
+    ...base,
+    city: { ...city, streetTerms: { pitworks: { playerHp: 99999 } } },
+  },
   { ...base, campaigns: { ...save, catgirls: { ...save.catgirls, wins: 6 } } },
-  { ...base, campaigns: { ...save, catgirls: { ...save.catgirls, decisions: ['cunning'] } } },
+  {
+    ...base,
+    campaigns: {
+      ...save,
+      catgirls: { ...save.catgirls, decisions: ['cunning'] },
+    },
+  },
 ]) {
-  assert.equal(validSlimeCityStory(mutation), false, 'Malformed or impossible save rejected')
+  assert.equal(
+    validSlimeCityStory(mutation),
+    false,
+    'Malformed or impossible save rejected',
+  )
 }
 
 const service = readFileSync('server/utils/slimeCityProgress.ts', 'utf8')
@@ -59,4 +92,6 @@ assert.match(service, /where: \{ userId, version: row\.version \}/)
 assert.match(store, /void hydrateStory\(\)/)
 assert.match(store, /persistStory\(\)/)
 assert.doesNotMatch(store, /localStorage|sessionStorage/)
-console.log('Slime City story saves: account isolation, validation, version CAS and wallet preservation PASS')
+console.log(
+  'Slime City story saves: account isolation, validation, version CAS and wallet preservation PASS',
+)

@@ -501,6 +501,121 @@ export function championAftermath(city: CityState): StreetStory | null {
     : null
 }
 
+export interface CivicCrisis extends StreetStory {
+  id: string
+  afterChampions: number
+}
+
+/** The city's response escalates after two, four and six championship wins. */
+export const CIVIC_CRISES: [CivicCrisis, CivicCrisis, CivicCrisis] = [
+  {
+    id: 'broadcast',
+    afterChampions: 2,
+    title: 'THE CITY IS WATCHING',
+    scene:
+      'Every stolen billboard lights up with a masked announcer: the Meat Exchange has declared your victories a public safety threat. The slums are listening. So are the debt collectors.',
+    choices: [
+      {
+        id: 'broadcast-truth',
+        label: 'Hijack the signal and expose the rigged fights',
+        outcome:
+          'The neighborhoods trust you (+2 standing). The Exchange sends hunters (+1 heat). Your city battles start with +1 mana.',
+        standing: 2,
+        heat: 1,
+        terms: { playerMana: 1 },
+      },
+      {
+        id: 'broadcast-deal',
+        label: 'Accept the broadcaster’s protection contract',
+        outcome:
+          'The cameras leave you alone (−1 heat), but the people call you bought (−1 standing). Your city fighters gain +1 HP.',
+        standing: -1,
+        heat: -1,
+        terms: { playerHp: 1 },
+      },
+    ],
+  },
+  {
+    id: 'strike',
+    afterChampions: 4,
+    title: 'THE CITYWIDE WALKOUT',
+    scene:
+      'Four fallen champions are enough. Chrome ogres shut the furnaces, catgirl medics walk off the lab floors, and bloodfairy couriers refuse the corporate routes. Who gets your support?',
+    choices: [
+      {
+        id: 'strike-solidarity',
+        label: 'Protect the workers’ relief caravans',
+        outcome:
+          'The alliance grows (+2 standing). Bosses put your name on every gate (+1 heat). Your city fighters gain +1 HP.',
+        standing: 2,
+        heat: 1,
+        terms: { playerHp: 1 },
+      },
+      {
+        id: 'strike-corridors',
+        label: 'Trade convoy access for tactical maps',
+        outcome:
+          'Your next rivals are exposed (−1 enemy armor in city battles), but the districts lose confidence (−1 standing).',
+        standing: -1,
+        heat: 0,
+        terms: { enemyArmor: -1 },
+      },
+    ],
+  },
+  {
+    id: 'grid',
+    afterChampions: 6,
+    title: 'THE LAST LIGHT IN SLIME CITY',
+    scene:
+      'With six champions beaten, the Exchange cuts power to every district except the Grand Pit. Neon towers go dark. The crown is waiting, but the city still needs electricity.',
+    choices: [
+      {
+        id: 'grid-neighborhoods',
+        label: 'Return the stolen current to the streets',
+        outcome:
+          'The city answers your call (+2 standing, +2 heat). You gain +1 opening mana in city battles as crews share generators.',
+        standing: 2,
+        heat: 2,
+        terms: { playerMana: 1 },
+      },
+      {
+        id: 'grid-arena',
+        label: 'Feed the power into the Grand Pit',
+        outcome:
+          'The Exchange lowers the heat (−2), but the districts remember the blackout (−2 standing). Your city fighters gain +2 HP.',
+        standing: -2,
+        heat: -2,
+        terms: { playerHp: 2 },
+      },
+    ],
+  },
+]
+
+/** Only one civic crisis is active; street and championship scenes go first. */
+export function cityCrisis(city: CityState): CivicCrisis | null {
+  if (city.pendingStreet || city.pendingAftermath) return null
+  return (
+    CIVIC_CRISES.find(
+      (crisis) =>
+        city.cleared.length >= crisis.afterChampions &&
+        !city.crisisChoices[crisis.id],
+    ) ?? null
+  )
+}
+
+export function decideCrisis(city: CityState, choiceId: string): CityState {
+  const crisis = cityCrisis(city)
+  const choice = crisis?.choices.find((entry) => entry.id === choiceId)
+  if (!crisis || !choice) return city
+  const next = copyCity(city)
+  next.crisisChoices[crisis.id] = choice.id
+  next.standing[next.location] += choice.standing
+  next.heat = Math.max(0, next.heat + choice.heat)
+  next.crisisTerms = mergeTerms(next.crisisTerms, choice.terms)
+  note(next, crisis.title + ': ' + choice.outcome)
+  return next
+}
+
 export function streetStory(city: CityState): StreetStory | null {
   return city.pendingStreet
     ? (STREET_STORIES[city.pendingStreet] ?? null)
@@ -863,6 +978,8 @@ export interface CityState {
   pendingStreet: string | null
   pendingAftermath: DistrictId | null
   aftermathChoices: Partial<Record<DistrictId, string>>
+  crisisChoices: Record<string, string>
+  crisisTerms: BoutTerms
   cleared: DistrictId[]
   contracts: DistrictId[]
   losses: number
@@ -888,6 +1005,8 @@ export function createCity(): CityState {
     pendingStreet: null,
     pendingAftermath: null,
     aftermathChoices: {},
+    crisisChoices: {},
+    crisisTerms: {},
     cleared: [],
     contracts: [],
     losses: 0,
@@ -902,6 +1021,8 @@ function copyCity(city: CityState): CityState {
     choices: { ...city.choices },
     streetChoices: { ...city.streetChoices },
     aftermathChoices: { ...city.aftermathChoices },
+    crisisChoices: { ...city.crisisChoices },
+    crisisTerms: { ...city.crisisTerms },
     streetTerms: Object.fromEntries(
       Object.entries(city.streetTerms).map(([id, terms]) => [id, { ...terms }]),
     ),
@@ -971,6 +1092,7 @@ export function gateReason(city: CityState, id: DistrictId): string | null {
 export function boutBlocked(city: CityState, id: DistrictId): string | null {
   if (city.pendingStreet) return 'Settle the street encounter first.'
   if (city.pendingAftermath) return 'Resolve the champion aftermath first.'
+  if (cityCrisis(city)) return 'Resolve the citywide crisis first.'
   if (city.cleared.includes(id)) return 'Already beaten.'
   return gateReason(city, id)
 }
@@ -982,6 +1104,7 @@ export function contractBlocked(
 ): string | null {
   if (city.pendingStreet) return 'Settle the street encounter first.'
   if (city.pendingAftermath) return 'Resolve the champion aftermath first.'
+  if (cityCrisis(city)) return 'Resolve the citywide crisis first.'
   if (city.location !== id)
     return 'Walk to the district to accept its contract.'
   if (!city.cleared.includes(id)) return 'Beat the district champion first.'
@@ -996,7 +1119,8 @@ export function contractTerms(city: CityState, id: DistrictId): BoutTerms {
 
 /** Walk one street to a neighbouring district. */
 export function travel(city: CityState, to: DistrictId): CityState {
-  if (city.pendingStreet || city.pendingAftermath) return city
+  if (city.pendingStreet || city.pendingAftermath || cityCrisis(city))
+    return city
   const route = streetsFrom(city.location).find((s) => s.to === to)
   if (!route) return city
   const next = copyCity(city)
@@ -1025,7 +1149,7 @@ export function decide(city: CityState, choiceId: string): CityState {
     city.pendingAftermath
   )
     return city
-  if (gateReason(city, city.location)) return city
+  if (gateReason(city, city.location) || cityCrisis(city)) return city
   const next = copyCity(city)
   next.choices[city.location] = choice.id
   next.standing[city.location] += choice.standing
@@ -1096,8 +1220,8 @@ export function chosen(
 /** Terms for this district's rival bout, including citywide heat. */
 export function boutTerms(city: CityState, id: DistrictId): BoutTerms {
   const terms = mergeTerms(
-    chosen(city, id)?.terms ?? {},
-    city.streetTerms[id] ?? {},
+    city.crisisTerms,
+    mergeTerms(chosen(city, id)?.terms ?? {}, city.streetTerms[id] ?? {}),
   )
   // Too much heat: Meat Exchange enforcers bankroll every rival.
   if (city.heat >= HEAT_LIMIT) terms.enemyMana = (terms.enemyMana ?? 0) + 1

@@ -198,6 +198,31 @@
               </div>
             </article>
             <article
+              v-else-if="lab.crisisEvent"
+              class="sc-street-encounter"
+              data-testid="slime-city-crisis"
+              aria-live="polite"
+            >
+              <span class="sc-overline">
+                CITYWIDE CRISIS · ACT
+                {{ Object.keys(lab.city.crisisChoices).length + 1 }}/3
+              </span>
+              <h2>{{ lab.crisisEvent.title }}</h2>
+              <p class="sc-scene">{{ lab.crisisEvent.scene }}</p>
+              <div class="sc-choices">
+                <button
+                  v-for="choice in lab.crisisEvent.choices"
+                  :key="choice.id"
+                  type="button"
+                  :data-testid="'slime-crisis-' + choice.id"
+                  @click="lab.chooseCrisis(choice.id)"
+                >
+                  <strong>{{ choice.label }}</strong>
+                  <small>{{ choice.outcome }}</small>
+                </button>
+              </div>
+            </article>
+            <article
               v-else-if="lab.streetEvent"
               class="sc-street-encounter"
               data-testid="slime-street-encounter"
@@ -388,7 +413,8 @@
               · STANDING {{ lab.standing }} · CHAMPIONS
               {{ lab.city.cleared.length }}/7 · STREET STORIES
               {{ lab.streetProgress }}/9 · CONTRACTS
-              {{ lab.city.contracts.length }}/7</span
+              {{ lab.city.contracts.length }}/7 · CRISES
+              {{ Object.keys(lab.city.crisisChoices).length }}/3</span
             ><span>{{ lab.city.log[0] }}</span>
           </div>
         </section>

@@ -180,6 +180,19 @@ assert.deepEqual(
     milestoneSeen: [5],
   },
 )
+const legacyNarrationOnly = {
+  ...emptyAlienGuide(),
+  discovered: ALIEN_SPECIES.slice(0, 5).map((alien) => alien.id),
+  milestoneSeen: [5],
+}
+assert.equal(
+  nextCollectorIncident(legacyNarrationOnly)?.at,
+  5,
+  'old milestone narration cannot consume a newly playable incident',
+)
+const legacyReplayed = resolveCollectorIncident(legacyNarrationOnly, 5, 'a')!
+assert.deepEqual(legacyReplayed.guide.milestoneSeen, [5])
+assert.equal(legacyReplayed.guide.milestoneDecisions?.['5'], 'a')
 assert.equal(COLLECTOR_INCIDENTS.length, 6)
 assert.equal(
   new Set(COLLECTOR_INCIDENTS.map((event) => event.illustrationKey)).size,

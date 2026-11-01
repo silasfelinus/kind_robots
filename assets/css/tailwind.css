@@ -321,6 +321,52 @@
 }
 
 /*
+ * ── COMET CITY — Prom of Doom / Capes & Tassels console ───────────────
+ *
+ * Applied to the whole shell via `<header-page-bar console-theme="comet-city">`
+ * on /play/comet-city-academy and /admin/capes. Night-navy panels, comet
+ * amber, prom-peach and patrol cyan lifted from the academy page palette.
+ */
+@plugin "daisyui/theme" {
+  name: 'comet-city';
+  default: false;
+  prefersdark: false;
+  color-scheme: dark;
+
+  --color-base-100: oklch(20.6% 0.039 271);
+  --color-base-200: oklch(18.2% 0.041 275);
+  --color-base-300: oklch(32% 0.056 273);
+  --color-base-content: oklch(97.7% 0.017 73);
+
+  --color-primary: oklch(85.5% 0.1 62);
+  --color-primary-content: oklch(24.5% 0.045 263);
+  --color-secondary: oklch(81.7% 0.091 49);
+  --color-secondary-content: oklch(20.6% 0.039 271);
+  --color-accent: oklch(89.3% 0.037 209);
+  --color-accent-content: oklch(20.6% 0.039 271);
+  --color-neutral: oklch(28.5% 0.053 260);
+  --color-neutral-content: oklch(97.7% 0.017 73);
+
+  --color-info: oklch(80% 0.11 225);
+  --color-info-content: oklch(18.2% 0.041 275);
+  --color-success: oklch(82% 0.15 160);
+  --color-success-content: oklch(18.2% 0.041 275);
+  --color-warning: oklch(86% 0.15 85);
+  --color-warning-content: oklch(18.2% 0.041 275);
+  --color-error: oklch(68% 0.19 22);
+  --color-error-content: oklch(98% 0.01 25);
+
+  --radius-selector: 0.375rem;
+  --radius-field: 0.5rem;
+  --radius-box: 0.75rem;
+  --size-selector: 0.25rem;
+  --size-field: 0.25rem;
+  --border: 1px;
+  --depth: 1;
+  --noise: 0;
+}
+
+/*
  * ── FORGE — the Playbook Forge console ────────────────────────────────
  *
  * Scoped by `data-theme="forge"` on /admin/playbook-forge (and playbook kit

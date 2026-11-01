@@ -1253,6 +1253,7 @@
               :run="run"
               :backdrop="stagePainting"
               :franchise-image="franchiseImage"
+              :artwork="store.onboardingArt"
               :knowledge="store.redshirtKnowledge"
               @hire="store.hire()"
               @dispatch="store.deployBatch"

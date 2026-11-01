@@ -5,6 +5,7 @@ import {
   COUCH_ONBOARDING_ART_IDS,
 } from '../gameOfCaptains/onboardingArt'
 import { COUCH_VOYAGE_ART_IDS } from '../gameOfCaptains/voyagePaintings'
+import { COUCH_EXPRESSION_ART_IDS } from '../gameOfCaptains/expressionPaintings'
 import { readFileSync } from 'node:fs'
 import { startVoyage, restoreVoyage, CREW } from '../gameOfCaptains/rules'
 import {
@@ -38,6 +39,32 @@ assert.equal(
   'four questions after the captain dossier',
 )
 assert.equal(STAR_SIGNS.length, 12, 'an original dozen constellations')
+assert.equal(
+  Object.keys(COUCH_EXPRESSION_ART_IDS).length,
+  44,
+  '22 characters each have a unique defiant and vulnerable illustration',
+)
+assert.equal(
+  Object.keys(COUCH_EXPRESSION_ART_IDS).filter((key) =>
+    key.endsWith('-defiant'),
+  ).length,
+  22,
+)
+assert.equal(
+  Object.keys(COUCH_EXPRESSION_ART_IDS).filter((key) =>
+    key.endsWith('-vulnerable'),
+  ).length,
+  22,
+)
+assert.equal(
+  new Set([
+    ...Object.values(COUCH_ONBOARDING_ART_IDS),
+    ...Object.values(COUCH_VOYAGE_ART_IDS),
+    ...Object.values(COUCH_EXPRESSION_ART_IDS),
+  ]).size,
+  172,
+  'previously mapped painting IDs stay distinct from character expressions',
+)
 assert.equal(
   Object.keys(COUCH_VOYAGE_ART_IDS).length,
   106,
@@ -495,6 +522,14 @@ assert.ok(
 )
 assert.ok(artEndpoint.includes('Object.values(PAINTED_ART_IDS)'))
 assert.ok(artEndpoint.includes('...COUCH_VOYAGE_ART_IDS'))
+assert.ok(artEndpoint.includes('...COUCH_EXPRESSION_ART_IDS'))
+assert.ok(page.includes('captainDossierPortrait'))
+assert.ok(page.includes('crewDossierPortrait'))
+assert.ok(page.includes('crewVoyagePortrait(member.id)'))
+assert.ok(page.includes("store.onboardingArt['portraits/v2/' + key + '-' + mood]"))
+assert.ok(page.includes("pocketRoomPainting(run.value.pocketRoom)"))
+assert.ok(page.includes('cap-pocket-room-art'))
+assert.ok(page.includes('cap-expression-tabs'))
 assert.ok(page.includes('voyageStageArt(run.value, paintedVoyageImage)'))
 assert.ok(page.includes('onPaintedImageError'))
 assert.ok(

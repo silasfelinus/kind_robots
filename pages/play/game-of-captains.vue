@@ -225,6 +225,8 @@
         <SpaceCouchAlienScrapbook
           :guide="store.alienGuide"
           :artwork="store.alienArtwork"
+          :pending-incident="!!store.pendingCollectorIncident"
+          @incident="store.openCollectorIncident()"
           @close="titlePanel = 'home'"
         />
       </div>
@@ -257,6 +259,15 @@
       <span v-if="run" class="cap-hud" aria-label="Couch force shield charge"
         >BUBBLE <b>{{ run.shieldCharge ?? 2 }}/3</b></span
       >
+      <button
+        v-if="store.pendingCollectorIncident"
+        type="button"
+        class="cap-reset"
+        data-testid="space-couch-collector-signal"
+        @click="store.openCollectorIncident()"
+      >
+        ✳ STRANGE COUCH MAIL
+      </button>
       <button
         v-if="store.alienEncounterAvailable"
         type="button"
@@ -1826,6 +1837,14 @@
         </footer>
       </section>
     </div>
+    <SpaceCouchAlienMilestone
+      v-if="store.collectorIncident || store.collectorReport"
+      :incident="store.collectorIncident"
+      :report="store.collectorReport"
+      :at="store.collectorIncident?.at ?? store.collectorReport?.at ?? 0"
+      @choose="store.chooseCollectorAction"
+      @close="store.dismissCollectorIncident"
+    />
     <SpaceCouchAlienEncounter
       v-if="store.alienSighting || store.alienReport"
       :sighting="store.alienSighting"
@@ -1902,6 +1921,7 @@ import {
 import SpaceCouchOpeningReel from '~/components/gameOfCaptains/opening-reel.vue'
 import SpaceCouchAlienEncounter from '~/components/gameOfCaptains/alien-encounter.vue'
 import SpaceCouchAlienScrapbook from '~/components/gameOfCaptains/alien-scrapbook.vue'
+import SpaceCouchAlienMilestone from '~/components/gameOfCaptains/alien-milestone.vue'
 import SpaceCouchDailyConsole from '~/components/gameOfCaptains/daily-console.vue'
 import SpaceCouchConstellationTest from '~/components/gameOfCaptains/constellation-test.vue'
 import {

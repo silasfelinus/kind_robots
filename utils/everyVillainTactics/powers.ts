@@ -13,6 +13,7 @@ import {
   type SignaturePowerId,
 } from '../cometAcademy/specialPowers'
 import {
+  recordSquadDamage,
   chanceFrom,
   gridDistance,
   inside,
@@ -547,7 +548,7 @@ export function tickPowerCooldowns(units: readonly Unit[], team: string) {
       unit.powerCooldown = unit.powerCooldown! - 1
 }
 
-export type PowerState = { map: TacticalMap; units: Unit[]; seed: number }
+export type PowerState = { map: TacticalMap; units: Unit[]; seed: number; damageTaken?: number }
 export type PowerEffect = {
   id: string
   side: 'self' | 'ally' | 'enemy'
@@ -844,7 +845,9 @@ export function usePower(
       other.y = effect.moveTo.y
     }
     if (effect.damage) {
+      const before = other.hp
       other.hp = Math.max(0, other.hp - effect.damage)
+      recordSquadDamage(state, other, before)
       other.overwatch = false
     }
     other.hp = Math.min(other.maxHp, other.hp + effect.heal)

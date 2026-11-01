@@ -3,6 +3,10 @@ import {
   BRIAR_COLLISION_SCENES,
   type BriarCollisionSite,
 } from './briarCollision'
+import {
+  BRIAR_COLLISION_ROUTE_SITES,
+  type BriarCollisionRouteSite,
+} from './briarCollisionRoute'
 import { MEMORY_CHAR_AGENCY_CHOICES } from './reimaginerCampaign'
 import { DARK_BRIAR_SCENES, DARK_BRIAR_SEALS } from './darkBriar'
 import { HOSHIMORI_WARM_SITES } from './hoshimoriWarm'
@@ -344,10 +348,15 @@ function generated(
       ),
     }))
   }
-  const authored =
+  const fragmentScene =
     world.id === 'e09'
       ? BRIAR_COLLISION_SCENES[key as BriarCollisionSite]
       : undefined
+  const authored =
+    fragmentScene ??
+    (world.id === 'e09'
+      ? BRIAR_COLLISION_ROUTE_SITES[key as BriarCollisionRouteSite]
+      : undefined)
   if (authored) {
     choices = authored.choices.map((choice, index) => ({
       id: choice.id,
@@ -389,7 +398,7 @@ function generated(
     choices,
     ...(photo ? { photographId: photo.id } : {}),
     ...(fragment
-      ? { memoryFragment: authored?.fragment ?? world.id + ':' + key }
+      ? { memoryFragment: fragmentScene?.fragment ?? world.id + ':' + key }
       : {}),
     ...(mirror ? { originalSite: mirror } : {}),
     source: 'new-authoring',

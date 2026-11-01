@@ -542,7 +542,11 @@ for (const team of TEAMS) {
   assert.equal(campaignEnding(createCampaignSave(), team.id), null)
 }
 assert.equal(new Set(distinctTitles).size, 30)
-assert.equal(uniqueAftermaths.size, 120, 'Every result has distinct authored text')
+assert.equal(
+  uniqueAftermaths.size,
+  120,
+  'Every result has distinct authored text',
+)
 const alternate = createCampaignSave()
 let divergent = alternate
 for (const [index, chapter] of FACTION_CAMPAIGNS.riot.chapters.entries()) {

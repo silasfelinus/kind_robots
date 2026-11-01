@@ -246,6 +246,78 @@
                 </button>
               </div>
             </article>
+            <article
+              v-else-if="lab.finaleEvent"
+              class="sc-street-encounter sc-city-finale"
+              data-testid="slime-city-finale"
+              aria-live="polite"
+            >
+              <div class="sc-finale-portrait">
+                <SlimeCityArtwork
+                  :image-id="slimeArtId('crews', lab.activeTeam)"
+                  :alt="lab.team.name + ' champion painting'"
+                  fallback="✷"
+                  compact
+                />
+                <span class="sc-overline">GRAND PIT · CITY FINALE</span>
+              </div>
+              <h2>{{ lab.finaleEvent.title }}</h2>
+              <p class="sc-scene">{{ lab.finaleEvent.scene }}</p>
+              <div class="sc-choices">
+                <button
+                  v-for="choice in lab.finaleEvent.choices"
+                  :key="choice.id"
+                  type="button"
+                  :data-testid="'slime-finale-' + choice.id"
+                  @click="lab.chooseFinale(choice.id)"
+                >
+                  <strong>{{ choice.label }}</strong>
+                  <small>{{ choice.outcome }}</small>
+                </button>
+              </div>
+            </article>
+            <article
+              v-else-if="lab.finaleResult && !lab.finaleDismissed"
+              class="sc-street-encounter sc-city-finale"
+              data-testid="slime-city-epilogue"
+              aria-live="polite"
+            >
+              <div class="sc-finale-portrait">
+                <SlimeCityArtwork
+                  :image-id="slimeArtId('crews', lab.activeTeam)"
+                  :alt="lab.team.name + ' victory portrait'"
+                  fallback="✷"
+                  compact
+                />
+                <span class="sc-overline">THE END · {{ lab.team.name }}</span>
+              </div>
+              <h2>{{ lab.finaleResult.title }}</h2>
+              <p class="sc-scene">{{ lab.finaleResult.scene }}</p>
+              <p class="sc-scene">{{ lab.finaleResult.legacy }}</p>
+              <p class="sc-overline">
+                {{ lab.city.cleared.length }} CHAMPIONS ·
+                {{ lab.city.contracts.length }} CONTRACTS ·
+                {{ Object.keys(lab.city.crisisChoices).length }} CRISES
+              </p>
+              <div class="sc-choices">
+                <button
+                  type="button"
+                  data-testid="slime-finale-explore"
+                  @click="lab.dismissFinale()"
+                >
+                  <strong>CONTINUE EXPLORING</strong>
+                  <small>Optional contracts and unchallenged rivals remain playable.</small>
+                </button>
+                <button
+                  type="button"
+                  data-testid="slime-finale-restart"
+                  @click="lab.resetCity()"
+                >
+                  <strong>NEW CITY RUN</strong>
+                  <small>Start a fresh session-only overworld with this crew.</small>
+                </button>
+              </div>
+            </article>
             <template v-else>
               <div
                 v-if="!lab.here && lab.routeSteps.length"
@@ -403,6 +475,14 @@
               >
                 INSPECT DECK · {{ lab.cards.length }} CARDS
               </button>
+              <button
+                v-if="lab.finaleResult && lab.finaleDismissed"
+                type="button"
+                data-testid="slime-city-revisit-ending"
+                @click="lab.revisitFinale()"
+              >
+                REVISIT THE ENDING
+              </button>
             </div>
           </div>
           <div class="sc-stage-foot">
@@ -414,7 +494,8 @@
               {{ lab.city.cleared.length }}/7 · STREET STORIES
               {{ lab.streetProgress }}/9 · CONTRACTS
               {{ lab.city.contracts.length }}/7 · CRISES
-              {{ Object.keys(lab.city.crisisChoices).length }}/3</span
+              {{ Object.keys(lab.city.crisisChoices).length }}/3
+              <template v-if="lab.city.finaleChoice"> · CITY LIBERATED</template></span>
             ><span>{{ lab.city.log[0] }}</span>
           </div>
         </section>
@@ -1824,6 +1905,30 @@ onUnmounted(() => {
   border-left: 3px solid #f0b4ff;
   padding: 0.3rem 0.35rem 0.3rem 0.8rem;
   background: linear-gradient(90deg, #592b7442, transparent 80%);
+}
+.sc-city-finale {
+  border-left-color: #ffd45c;
+  background: linear-gradient(90deg, #6b4d1547, transparent 85%);
+}
+.sc-city-finale h2 {
+  color: #ffe29b;
+}
+.sc-finale-portrait {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  min-height: 4rem;
+}
+.sc-finale-portrait > :first-child {
+  width: clamp(4rem, 16%, 6rem);
+  height: 4rem;
+  flex: 0 0 auto;
+  overflow: hidden;
+  border: 1px solid #ffdf81;
+  border-radius: 0.4rem;
+}
+.sc-finale-portrait .sc-overline {
+  color: #ffe29b;
 }
 .sc-street-encounter h2 {
   margin: 0;

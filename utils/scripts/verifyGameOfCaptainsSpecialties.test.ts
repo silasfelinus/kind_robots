@@ -48,7 +48,7 @@ for (let seed = 1; seed < 250; seed++) {
 }
 assert.equal(
   seenPlanetCards.size,
-  10,
+  12,
   'all authored planetary plot cards appear',
 )
 assert.ok(seenPlanetSkills.size >= 5)
@@ -86,7 +86,7 @@ for (const enemy of ANTAGONISTS) {
   assert.ok(SKILLS.includes(episodePlotSkill(run, 'nemesis')))
 }
 
-// The ten authored planet stories name a possible connection among the twelve
+// All twelve authored planet stories correspond to one of the twelve
 // available officers. Taking that particular officer improves forecast odds,
 // while an unrelated officer does not get someone else's story bonus.
 for (let seed = 1; seed < 100; seed++) {

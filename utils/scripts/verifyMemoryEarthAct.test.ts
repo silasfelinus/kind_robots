@@ -310,7 +310,10 @@ for (const reality of ['e03', 'e04', 'e05', 'e06'] as const) {
   for (let index = 0; index < 3000; index++) {
     if (wandering.length >= EARTH_JOURNAL_COMPACT_AT) {
       const shortened = compactEarthJournal(reality, wandering)
-      assert.ok(shortened, `${reality}: legitimate wandering must not get stuck`)
+      assert.ok(
+        shortened,
+        `${reality}: legitimate wandering must not get stuck`,
+      )
       assert.ok(shortened.length < EARTH_JOURNAL_COMPACT_AT)
       wandering = shortened
     }

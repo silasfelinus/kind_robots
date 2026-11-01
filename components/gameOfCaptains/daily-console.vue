@@ -470,7 +470,14 @@
           </div>
         </article>
         <div v-else-if="lastDraw" class="daily-recap" aria-live="polite">
-          <img v-if="resultPainting" class="daily-recap-art" :src="resultPainting" :alt="'Painted outcome: ' + lastDraw.cardId" data-testid="space-couch-episode-result-art" @error="onEpisodeArtworkError" />
+          <img
+            v-if="resultPainting"
+            class="daily-recap-art"
+            :src="resultPainting"
+            :alt="'Painted outcome: ' + lastDraw.cardId"
+            data-testid="space-couch-episode-result-art"
+            @error="onEpisodeArtworkError"
+          />
           <strong>PREVIOUSLY, ON SPACE COUCH...</strong>
           <p>{{ lastDraw.result }}</p>
           <p v-if="lastDraw.cast?.length">
@@ -536,7 +543,10 @@ import {
   REDSHIRT_QUARTERS,
 } from '~/utils/gameOfCaptains/expedition'
 import { portraitArt } from '~/utils/gameOfCaptains/artSlots'
-import { episodeRevealArtKey, episodeResultArtKey } from '~/utils/gameOfCaptains/episodeArtwork'
+import {
+  episodeRevealArtKey,
+  episodeResultArtKey,
+} from '~/utils/gameOfCaptains/episodeArtwork'
 import {
   planEpisodeAssignment,
   removeEpisodeAssignment,
@@ -1410,7 +1420,13 @@ function decide(deck: EpisodeDeck, choice: EpisodeChoice) {
 .daily-decisions button small {
   font-size: 0.63rem;
 }
-.daily-recap-art { width: 100%; max-height: 16rem; object-fit: cover; border-radius: 0.5rem; margin-bottom: 0.75rem; }
+.daily-recap-art {
+  width: 100%;
+  max-height: 16rem;
+  object-fit: cover;
+  border-radius: 0.5rem;
+  margin-bottom: 0.75rem;
+}
 .daily-recap {
   flex: 1;
   min-height: 0;

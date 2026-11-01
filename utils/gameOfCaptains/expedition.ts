@@ -2,6 +2,7 @@ import type { VoyageRun, CrewId } from './rules'
 import { CAPTAIN_STATS, CREW_PROFILES } from './crewAssignments'
 import { WORLD_ENCOUNTERS, type ExpeditionEncounter } from './expeditionLocal'
 import { GALACTIC_MAJOR, GALACTIC_MINOR } from './expeditionGalactic'
+import { laterLocalEncounter } from './expeditionLaterLocal'
 import { REDSHIRT_BY_ID, nextRedshirt, starterRedshirts } from './redshirts'
 import type { ActOneRouteId } from './actOne'
 import { VOYAGE_BOARDS } from './voyageMap'
@@ -71,9 +72,17 @@ export function expeditionBoard(
   // Acts II and III may not have local redshirt encounter packs yet.
   // Never silently skip their expeditions: draw the full galactic board instead.
   if (!pack) {
+    const major = order(GALACTIC_MAJOR, 'later-act-major').slice(0, mainCount)
+    const minor = order(GALACTIC_MINOR, 'later-act-minor').slice(0, minorCount)
+    // Keep original encounter IDs, staffing, chances and roll salts: only
+    // the first major and minor story is adapted to this specific world.
     return [
-      ...order(GALACTIC_MAJOR, 'later-act-major').slice(0, mainCount),
-      ...order(GALACTIC_MINOR, 'later-act-minor').slice(0, minorCount),
+      ...major.map((card, index) =>
+        index === 0 ? laterLocalEncounter(missionId, card) : card,
+      ),
+      ...minor.map((card, index) =>
+        index === 0 ? laterLocalEncounter(missionId, card) : card,
+      ),
     ]
   }
   // Act I guarantees a local crisis; galactic calls intrude at each stop.
@@ -97,11 +106,14 @@ export function expeditionBoard(
 }
 export function currentExpedition(run: VoyageRun): ExpeditionEncounter[] {
   const v = run.expeditionVisit
-  return v
-    ? v.encounterIds
-        .map((id) => expeditionEncounter(id))
-        .filter((item): item is ExpeditionEncounter => !!item)
-    : []
+  if (!v) return []
+  // The visit still stores only IDs (v1 save-safe); recompute its original,
+  // seeded chapter board to recover the locally authored card text.
+  const board = expeditionBoard(run.seed, v.chapter, v.missionId)
+  const byId = new Map(board.map((enc) => [enc.id, enc]))
+  return v.encounterIds
+    .map((id) => byId.get(id) ?? expeditionEncounter(id))
+    .filter((item): item is ExpeditionEncounter => !!item)
 }
 export function expeditionBusy(run: VoyageRun): string[] {
   return (run.expeditionVisit?.results ?? []).map((record) => record.lead)

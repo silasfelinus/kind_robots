@@ -109,7 +109,9 @@ assert.equal(
 )
 
 const before = startFullAcademy('kinetic', 4402)
-const target = COMPLETE_NIGHT_DECK.find((incident) => incident.id === 'lightning-election')!
+const target = COMPLETE_NIGHT_DECK.find(
+  (incident) => incident.id === 'lightning-election',
+)!
 const investigating = {
   ...before,
   day: 7,

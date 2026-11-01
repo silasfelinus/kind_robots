@@ -13,7 +13,10 @@ import {
 import { EARTH_PHOTOS } from '../memoryDungeon/chronicle'
 import { HOSHIMORI_NIGHT_SITES } from '../memoryDungeon/hoshimoriNight'
 import { BRIAR_COLLISION_SCENES } from '../memoryDungeon/briarCollision'
-import { recoverBriarCollisionFromJournal } from '../memoryDungeon/briarCollisionProgress'
+import {
+  recoverBriarCollisionFromJournal,
+  concludeBriarCollisionFromJournal,
+} from '../memoryDungeon/briarCollisionProgress'
 import {
   replayEarthJournal,
   type EarthJournalAction,
@@ -301,7 +304,39 @@ assert.deepEqual(recoveredBriar.recoveredFragments, [
   'briar-office-key',
   'briar-tide-roots',
 ])
-const concludedBriar = completeMemoryExperience(recoveredBriar, 'e09')
+let shortChoiceCount = 0
+const tooShortBriarJournal = completeBriarJournal.filter(
+  (action) =>
+    action.type !== 'choose' ||
+    action.key === '2,2' ||
+    action.key === '7,6' ||
+    shortChoiceCount++ < 9,
+)
+assert.equal(
+  replayEarthJournal('e09', tooShortBriarJournal)?.progress &&
+    Object.keys(
+      replayEarthJournal('e09', tooShortBriarJournal)!.progress.choices,
+    ).length,
+  11,
+)
+assert.equal(
+  concludeBriarCollisionFromJournal(
+    committedCampaign,
+    tooShortBriarJournal,
+  ),
+  null,
+  'two fragments without twelve meaningful decisions cannot end the map',
+)
+assert.equal(
+  concludeBriarCollisionFromJournal(preCommitCampaign, completeBriarJournal),
+  null,
+  'the explicit finale commitment cannot be bypassed',
+)
+const concludedBriar = concludeBriarCollisionFromJournal(
+  committedCampaign,
+  completeBriarJournal,
+)!
+assert.ok(concludedBriar)
 assert.ok(concludedBriar.completed.includes('e09'))
 assert.deepEqual(availableMemoryExperiences(concludedBriar), ['e10'])
 assert.deepEqual(

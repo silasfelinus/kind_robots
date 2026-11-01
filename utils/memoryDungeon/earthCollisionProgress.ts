@@ -9,6 +9,12 @@ import {
   type MemoryCampaignProgress,
 } from './reimaginerCampaign'
 
+export interface EarthCollisionHistory {
+  tideGate: string
+  charter: 'consent' | 'open'
+  office: string
+}
+
 /**
  * World Ten must inherit actual Hoshimori and Briar decisions. A completed
  * campaign flag alone cannot fabricate Vesper's charter or Pip's witnesses.
@@ -17,12 +23,13 @@ export function earthCollisionHistory(
   campaign: MemoryCampaignProgress,
   hoshimoriSave: unknown,
   briarJournal: unknown,
-): { tideGate: string; charter: 'consent' | 'open'; office: string } | null {
+): EarthCollisionHistory | null {
   if (
     !campaign.finaleCommitted ||
     !campaign.completed.includes('e07') ||
     !campaign.completed.includes('e09') ||
-    !availableMemoryExperiences(campaign).includes('e10') ||
+    (!availableMemoryExperiences(campaign).includes('e10') &&
+      !campaign.completed.includes('e10')) ||
     !campaign.recoveredFragments?.includes('briar-office-key') ||
     !campaign.recoveredFragments?.includes('briar-tide-roots')
   )

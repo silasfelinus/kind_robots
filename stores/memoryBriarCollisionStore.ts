@@ -48,10 +48,13 @@ export const useMemoryBriarCollisionStore = defineStore(
         availableMemoryExperiences(world.campaign).includes('e09'),
     )
     const committed = computed(() => world.campaign.finaleCommitted)
-    const fragments = computed(() =>
-      Object.values(BRIAR_COLLISION_SCENES).filter((scene) =>
-        world.campaign.recoveredFragments?.includes(scene.fragment),
-      ).length,
+    const fragments = computed(
+      () =>
+        Object.entries(BRIAR_COLLISION_SCENES).filter(([key, scene]) =>
+          scene.choices.some(
+            (choice) => choice.id === progress.value.choices[key],
+          ),
+        ).length,
     )
     const readyToLeave = computed(
       () =>

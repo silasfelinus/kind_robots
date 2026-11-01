@@ -1780,6 +1780,10 @@ const logEntries = computed(() => {
 })
 const starAssessment = ref<StarAssessment | null>(null)
 const focusedCrew = ref<CrewId>('pell')
+const PORTRAIT_MOODS = ['neutral', 'defiant', 'vulnerable'] as const
+type PortraitMood = (typeof PORTRAIT_MOODS)[number]
+const captainMood = ref<PortraitMood>('neutral')
+const crewMood = ref<PortraitMood>('neutral')
 const captainDossierTab = ref<'stats' | 'history' | 'orders'>('stats')
 const crewDossierTab = ref<'history' | 'route' | 'stats'>('history')
 const crewPage = ref(0)
@@ -1796,6 +1800,41 @@ const romanceRecord = computed(
 )
 /** A captain or crew portrait once its render ships; the monogram stands in until then. */
 const portrait = (key: string) => portraitArt(key)
+function portraitForMood(key: string, mood: PortraitMood): string | null {
+  return (
+    (mood !== 'neutral'
+      ? store.onboardingArt['portraits/v2/' + key + '-' + mood]
+      : null) ||
+    portrait(key)
+  )
+}
+const captainDossierPortrait = computed(() =>
+  portraitForMood('captain-' + selectedCaptain.value, captainMood.value),
+)
+const crewDossierPortrait = computed(() =>
+  portraitForMood(crewProfile(focusedCrew.value).portraitKey, crewMood.value),
+)
+function crewVoyagePortrait(id: CrewId): string | null {
+  const mood: PortraitMood = unavailable(id)
+    ? 'vulnerable'
+    : run.value?.away.includes(id)
+      ? 'defiant'
+      : 'neutral'
+  return portraitForMood(crewProfile(id).portraitKey, mood)
+}
+function onPortraitError(event: Event, key: string) {
+  const image = event.target as HTMLImageElement
+  const fallback = portrait(key) || COUCH_FALLBACK
+  if (image.getAttribute('src') !== fallback) image.src = fallback
+}
+const POCKET_ROOM_PAINTINGS = {
+  holodeck: 'opening/09-holodeck',
+  'war-room': 'opening/10-war-room',
+  infirmary: 'opening/11-infirmary',
+} as const
+function pocketRoomPainting(id: keyof typeof POCKET_ROOM_PAINTINGS) {
+  return store.onboardingArt[POCKET_ROOM_PAINTINGS[id]] || null
+}
 const COUCH_FALLBACK = '/game-of-captains/space-couch-stage.svg'
 const paintedVoyageImage = (key: string): string | null =>
   store.onboardingArt[key] || null
@@ -1809,15 +1848,28 @@ function onPaintedImageError(event: Event) {
 const stagePainting = computed(() => {
   // Only use newly delivered, access-filtered scene art. The older static
   // mission and antagonist pictures predate the literal red-couch redesign.
-  if (run.value)
+  if (run.value) {
+    if (run.value.phase === 'briefing' && run.value.pocketRoom)
+      return (
+        pocketRoomPainting(run.value.pocketRoom) ||
+        voyageStageArt(run.value, paintedVoyageImage) ||
+        COUCH_FALLBACK
+      )
     return voyageStageArt(run.value, paintedVoyageImage) || COUCH_FALLBACK
+  }
   const key =
     selectionScreen.value === 'stars' || selectionScreen.value === 'background'
       ? ''
       : selectionScreen.value === 'captain'
         ? 'captain-' + selectedCaptain.value
         : 'crew-' + focusedCrew.value
-  return portrait(key) || COUCH_FALLBACK
+  return (
+    (selectionScreen.value === 'captain'
+      ? captainDossierPortrait.value
+      : selectionScreen.value === 'crew'
+        ? crewDossierPortrait.value
+        : portrait(key)) || COUCH_FALLBACK
+  )
 })
 const stageAlt = computed(() =>
   run.value

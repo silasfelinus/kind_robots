@@ -142,7 +142,8 @@ export function seaActCoverage(): string[] {
     !charEncounter ||
     charEncounter.choices.length !== MEMORY_CHAR_AGENCY_CHOICES.length ||
     MEMORY_CHAR_AGENCY_CHOICES.some(
-      (choice) => !charEncounter.choices.some((option) => option.id === choice.id),
+      (choice) =>
+        !charEncounter.choices.some((option) => option.id === choice.id),
     )
   )
     issues.push('e06 must offer Char three independent rescue choices')

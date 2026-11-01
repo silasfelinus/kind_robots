@@ -1499,7 +1499,10 @@ export function teamById(id: TeamId): Team {
 }
 
 /** A deck can swap cards within the same crew, but must preserve its identity. */
-export function loadoutProblems(teamId: TeamId, ids: readonly string[]): string[] {
+export function loadoutProblems(
+  teamId: TeamId,
+  ids: readonly string[],
+): string[] {
   const team = teamById(teamId)
   const out: string[] = []
   if (ids.length !== DECK_SIZE) out.push('Requires exactly ten cards')
@@ -1509,12 +1512,18 @@ export function loadoutProblems(teamId: TeamId, ids: readonly string[]): string[
   const known = cards as Card[]
   if (known.some((card) => card.team !== teamId))
     out.push('Cards must belong to your crew')
-  if (known.filter((card) => card.kind === 'creature').length !== DECK_CREATURES)
+  if (
+    known.filter((card) => card.kind === 'creature').length !== DECK_CREATURES
+  )
     out.push('Requires exactly four creatures')
   for (const kind of ['spell', 'trap', 'equipment'] as CardKind[])
-    if (!known.some((card) => card.kind === kind)) out.push('Requires a ' + kind)
-  if (known.filter((card) => card.signature).length !== 1 ||
-      !ids.includes(team.signature)) out.push('Requires your crew signature')
+    if (!known.some((card) => card.kind === kind))
+      out.push('Requires a ' + kind)
+  if (
+    known.filter((card) => card.signature).length !== 1 ||
+    !ids.includes(team.signature)
+  )
+    out.push('Requires your crew signature')
   return out
 }
 
@@ -1856,9 +1865,11 @@ function shuffledCells(
 /** The seeded card order is stable for replays and different for both crews. */
 function shuffledDeck(state: MatchState, side: Side): string[] {
   const salt = side === 'player' ? 811 : 977
-  return (side === 'player' && state.playerDeck
-    ? state.playerDeck.map(cardById)
-    : deckOf(teamOf(state, side)))
+  return (
+    side === 'player' && state.playerDeck
+      ? state.playerDeck.map(cardById)
+      : deckOf(teamOf(state, side))
+  )
     .map((card, index) => ({
       id: card.id,
       order: seededHash(state.seed, salt, state.shuffles[side], index),

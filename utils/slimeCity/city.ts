@@ -980,6 +980,7 @@ export interface CityState {
   aftermathChoices: Partial<Record<DistrictId, string>>
   crisisChoices: Record<string, string>
   crisisTerms: BoutTerms
+  finaleChoice: string | null
   cleared: DistrictId[]
   contracts: DistrictId[]
   losses: number
@@ -1007,6 +1008,7 @@ export function createCity(): CityState {
     aftermathChoices: {},
     crisisChoices: {},
     crisisTerms: {},
+    finaleChoice: null,
     cleared: [],
     contracts: [],
     losses: 0,
@@ -1093,6 +1095,7 @@ export function boutBlocked(city: CityState, id: DistrictId): string | null {
   if (city.pendingStreet) return 'Settle the street encounter first.'
   if (city.pendingAftermath) return 'Resolve the champion aftermath first.'
   if (cityCrisis(city)) return 'Resolve the citywide crisis first.'
+  if (cityFinale(city)) return 'Choose the fate of the Grand Pit first.'
   if (city.cleared.includes(id)) return 'Already beaten.'
   return gateReason(city, id)
 }
@@ -1105,6 +1108,7 @@ export function contractBlocked(
   if (city.pendingStreet) return 'Settle the street encounter first.'
   if (city.pendingAftermath) return 'Resolve the champion aftermath first.'
   if (cityCrisis(city)) return 'Resolve the citywide crisis first.'
+  if (cityFinale(city)) return 'Choose the fate of the Grand Pit first.'
   if (city.location !== id)
     return 'Walk to the district to accept its contract.'
   if (!city.cleared.includes(id)) return 'Beat the district champion first.'
@@ -1119,7 +1123,12 @@ export function contractTerms(city: CityState, id: DistrictId): BoutTerms {
 
 /** Walk one street to a neighbouring district. */
 export function travel(city: CityState, to: DistrictId): CityState {
-  if (city.pendingStreet || city.pendingAftermath || cityCrisis(city))
+  if (
+    city.pendingStreet ||
+    city.pendingAftermath ||
+    cityCrisis(city) ||
+    cityFinale(city)
+  )
     return city
   const route = streetsFrom(city.location).find((s) => s.to === to)
   if (!route) return city
@@ -1327,6 +1336,98 @@ export function recordContract(
     note(next, contract.title + ': ' + contract.failure + ' (+1 heat)')
   } else note(next, contract.title + ': A draw. The contract stays open.')
   return next
+}
+
+export interface CityFinale {
+  title: string
+  scene: string
+  choices: [StreetChoice, StreetChoice]
+}
+
+export interface CityEpilogue {
+  title: string
+  scene: string
+  legacy: string
+}
+
+/** The winning city run deserves a final decision, not just a boolean. */
+export const CITY_FINALE: CityFinale = {
+  title: 'WHO OWNS THE PIT?',
+  scene:
+    'The keeper falls. Behind the Grand Pit throne are the deeds to every street, lab and furnace in Slime City. The Meat Exchange demands a new boss. The people outside the arena demand something stranger: a choice.',
+  choices: [
+    {
+      id: 'pit-charter',
+      label: 'Hand the keys to the neighborhoods',
+      outcome:
+        'A council of districts takes the city (+2 standing, −1 heat). Every future city bout gains +1 fighter HP.',
+      standing: 2,
+      heat: -1,
+      terms: { playerHp: 1 },
+    },
+    {
+      id: 'pit-crown',
+      label: 'Take the throne and rewrite the rules yourself',
+      outcome:
+        'You become the new pit boss (+1 standing, +1 heat). Your remaining city fights start with +1 mana.',
+      standing: 1,
+      heat: 1,
+      terms: { playerMana: 1 },
+    },
+  ],
+}
+
+/** Victory first resolves its champion aftermath and any newly triggered crisis. */
+export function cityFinale(city: CityState): CityFinale | null {
+  if (
+    !cityWon(city) ||
+    city.finaleChoice ||
+    city.pendingStreet ||
+    city.pendingAftermath ||
+    cityCrisis(city)
+  )
+    return null
+  return CITY_FINALE
+}
+
+export function decideFinale(city: CityState, choiceId: string): CityState {
+  if (!cityFinale(city)) return city
+  const choice = CITY_FINALE.choices.find((entry) => entry.id === choiceId)
+  if (!choice) return city
+  const next = copyCity(city)
+  next.finaleChoice = choice.id
+  next.standing.pitworks += choice.standing
+  next.heat = Math.max(0, next.heat + choice.heat)
+  next.crisisTerms = mergeTerms(next.crisisTerms, choice.terms)
+  note(next, CITY_FINALE.title + ': ' + choice.outcome)
+  return next
+}
+
+/** The ending remembers which citywide alliances the player actually made. */
+export function cityEpilogue(city: CityState): CityEpilogue | null {
+  if (!city.finaleChoice) return null
+  const neighborhoodChoices = [
+    'broadcast-truth',
+    'strike-solidarity',
+    'grid-neighborhoods',
+  ].filter((choice) => Object.values(city.crisisChoices).includes(choice)).length
+  const neighborhoods =
+    neighborhoodChoices >= 2
+      ? 'The neighborhoods have already learned to trust one another. They refuse to surrender their new solidarity.'
+      : 'The neighborhoods are divided after the fighting. A fragile coalition must learn to trust itself.'
+  return city.finaleChoice === 'pit-charter'
+    ? {
+        title: 'THE CITY THAT REFUSED A CROWN',
+        scene:
+          'You tear up the arena title deeds. Chimera clinics, bloodfairy couriers, ogre welders, spies and rioters all send delegates to a city council. The Meat Exchange can no longer sell streets by the kilogram.',
+        legacy: neighborhoods,
+      }
+    : {
+        title: 'LONG LIVE THE NEW PIT BOSS',
+        scene:
+          'You seize the control desk and turn the coliseum lights on every corrupt syndicate in town. The throne is yours, but a city ruled by one fighter has to live with that fighter’s next decision.',
+        legacy: neighborhoods,
+      }
 }
 
 /** The city campaign is won by beating the Grand Pit's keeper. */

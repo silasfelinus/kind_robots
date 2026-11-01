@@ -537,6 +537,11 @@ const openingComponent = readFileSync(
   'utf8',
 )
 assert.ok(page.includes('data-testid="space-couch-watch-opening"'))
+assert.ok(
+  page.includes(
+    "import SpaceCouchOpeningReel from '~/components/gameOfCaptains/opening-reel.vue'",
+  ),
+)
 assert.ok(page.includes('<SpaceCouchOpeningReel'))
 assert.ok(page.includes("titlePanel === 'opening'"))
 assert.ok(page.includes('@start="startFromOpening"'))

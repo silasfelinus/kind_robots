@@ -404,21 +404,34 @@ function cardCandidates(view: MatchView): Candidate[] {
         !blocked(view, c.x, c.y) &&
         !own.has(c.x + ':' + c.y)
       if (view.mode === 'blackout') {
+        // Lay a trap in the *visible* approach to the flag or the carrier's
+        // retreat, not at an arbitrary seed cell. All inputs are from observe:
+        // hidden identities, enemy trap locations and match seed stay private.
         const carrier = foes.find((f) => f.carryingFlag)
         if (carrier) {
           const home = view.side === 'player' ? 1 : -1
-          for (const c of cellsAround(view, carrier))
-            if (legal(c) && Math.sign(c.x - carrier.x) === home)
-              deploy(card, c, 4)
+          for (const step of [1, 2]) {
+            const cell = { x: carrier.x + home * step, y: carrier.y }
+            if (legal(cell)) deploy(card, cell, 11 - step * 0.5)
+          }
+          for (const cell of cellsAround(view, carrier))
+            if (legal(cell) && Math.sign(cell.x - carrier.x) === home)
+              deploy(card, cell, 10)
         } else if (flagFree) {
-          const near = [...foes].sort(
-            (a, b) => dist(a, view.flag) - dist(b, view.flag),
+          const nearest = [...foes].sort(
+            (a, b) =>
+              dist(a, view.flag) - dist(b, view.flag) || a.id - b.id,
           )[0]
+          const nearby = nearest && dist(nearest, view.flag) <= 4
           const cells = cellsAround(view, view.flag).filter(legal)
-          const best = near
-            ? cells.sort((a, b) => dist(a, near) - dist(b, near))[0]
-            : cells[0]
-          if (best) deploy(card, best, 2.5)
+          const best = nearest
+            ? cells.sort(
+                (a, b) =>
+                  dist(a, nearest) - dist(b, nearest) ||
+                  a.x - b.x || a.y - b.y,
+              )[0]
+            : cells.sort((a, b) => a.x - b.x || a.y - b.y)[0]
+          if (best) deploy(card, best, nearby ? 9 - dist(nearest, view.flag) * 0.4 : 3.5)
         }
       } else {
         const ownEnd = view.side === 'player' ? 0 : view.width - 1
@@ -541,9 +554,18 @@ function bestAttack(view: MatchView, tried: Set<string>): CpuAction | null {
     if (u.attackedRound === view.round) continue
     if (u.summonedRound === view.round && !u.keywords?.includes('ambush'))
       continue
-    const target = [...enemies]
-      .sort((a, b) => (a.hp ?? 99) - (b.hp ?? 99) || a.id - b.id)
-      .find((e) => dist(u, e) <= (u.range ?? 1))
+    // A carrier nearing home is a tactical emergency. Prefer stopping it
+    // over a convenient one-HP target, but take lethal hits when safe.
+    const target = enemies
+      .filter((e) => dist(u, e) <= (u.range ?? 1))
+      .sort((a, b) => {
+        const rank = (e: ViewFighter) =>
+          (e.carryingFlag ? 12 : 0) +
+          ((e.hp ?? 99) <= (u.attack ?? 0) ? 4 : 0) +
+          Math.max(0, 3 - dist(e, view.flag)) +
+          1 / Math.max(1, e.hp ?? 99)
+        return rank(b) - rank(a) || a.id - b.id
+      })[0]
     if (target) {
       const action: CpuAction = { t: 'attack', id: u.id, target: target.id }
       if (!tried.has(key(action))) return action

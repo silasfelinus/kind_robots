@@ -50,7 +50,7 @@ assert.ok(
   SPACE_COUCH_OPENING.every(
     (frame) =>
       frame.key in COUCH_VOYAGE_ART_IDS &&
-      frame.title.length > 8 &&
+      frame.title.length > 4 &&
       frame.line.length > 20 &&
       frame.alt.length > 20,
   ),

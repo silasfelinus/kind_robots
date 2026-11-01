@@ -1314,57 +1314,99 @@
             <div class="cap-heading">
               <span>05</span>
               <div>
-                <h2>Prime contact dilemma</h2>
-                <p>{{ mission.system }} · COMMAND AUTHORITY</p>
+                <h2>
+                  {{ featuredConsequence?.title || 'Prime contact dilemma' }}
+                </h2>
+                <p>
+                  {{ featuredConsequence?.system || mission.system }} · COMMAND
+                  AUTHORITY
+                </p>
               </div>
             </div>
-            <p class="cap-narrative">{{ mission.dilemma }}</p>
-            <div v-if="run.report" class="cap-mission-report">
-              <strong
-                >{{ run.report.result.toUpperCase() }} / MISSION STATUS</strong
-              ><span>{{ run.report.names }}</span>
-              <p>{{ run.report.text }}</p>
-            </div>
-            <p class="cap-alert">
-              {{ nemesisLine }}
-            </p>
-            <button
-              class="cap-option"
-              type="button"
-              @click="store.decide('aid')"
-            >
-              <span
-                ><b>{{ ethicalOrders.aid }}</b
-                ><small
-                  >Spend supplies; earn trust without claiming authority.</small
-                ></span
+            <template v-if="featuredConsequence">
+              <p class="cap-narrative">{{ featuredConsequence.opening }}</p>
+              <p class="cap-alert">{{ featuredConsequence.conflict }}</p>
+              <section
+                class="cap-consequence-choices"
+                data-testid="space-couch-authored-consequence"
               >
-              ↗
-            </button>
-            <button
-              class="cap-option"
-              type="button"
-              @click="store.decide('observe')"
-            >
-              <span
-                ><b>{{ ethicalOrders.observe }}</b
-                ><small
-                  >Preserve legal standing. Others live with the result.</small
-                ></span
+                <strong>THREE ORDERS · THREE DIFFERENT COSTS</strong>
+                <p>
+                  Your captain and assigned crew attempt the strongest listed
+                  skill. A seeded six-sided roll decides the outcome; setbacks
+                  continue the story.
+                </p>
+                <button
+                  v-for="choice in featuredConsequence.choices"
+                  :key="choice.id"
+                  type="button"
+                  class="cap-option cap-consequence-choice"
+                  :data-consequence-choice="choice.id"
+                  @click="store.decideConsequence(choice.id)"
+                >
+                  <span>
+                    <b>{{ choice.label }}</b>
+                    <small>{{ choice.approach }}</small>
+                    <small
+                      >CHECK
+                      {{ choice.check.ability_any.join(' / ').toUpperCase() }} ·
+                      DIFFICULTY {{ choice.check.difficulty }}</small
+                    >
+                    <small>TRADEOFF: {{ choice.cost }}</small> </span
+                  >↗
+                </button>
+              </section>
+            </template>
+            <template v-else>
+              <p class="cap-narrative">{{ mission.dilemma }}</p>
+              <div v-if="run.report" class="cap-mission-report">
+                <strong
+                  >{{ run.report.result.toUpperCase() }} / MISSION
+                  STATUS</strong
+                >
+                <span>{{ run.report.names }}</span>
+                <p>{{ run.report.text }}</p>
+              </div>
+              <p class="cap-alert">{{ nemesisLine }}</p>
+              <button
+                class="cap-option"
+                type="button"
+                @click="store.decide('aid')"
               >
-              ↗
-            </button>
-            <button
-              class="cap-option"
-              type="button"
-              @click="store.decide('intervene')"
-            >
-              <span
-                ><b>{{ ethicalOrders.intervene }}</b
-                ><small>Act now. Accept the outrage that follows.</small></span
+                <span
+                  ><b>{{ ethicalOrders.aid }}</b
+                  ><small
+                    >Spend supplies; earn trust without claiming
+                    authority.</small
+                  ></span
+                >↗
+              </button>
+              <button
+                class="cap-option"
+                type="button"
+                @click="store.decide('observe')"
               >
-              ↗
-            </button>
+                <span
+                  ><b>{{ ethicalOrders.observe }}</b
+                  ><small
+                    >Preserve legal standing. Others live with the
+                    result.</small
+                  ></span
+                >↗
+              </button>
+              <button
+                class="cap-option"
+                type="button"
+                @click="store.decide('intervene')"
+              >
+                <span
+                  ><b>{{ ethicalOrders.intervene }}</b
+                  ><small
+                    >Act now. Accept the outrage that follows.</small
+                  ></span
+                >↗
+              </button>
+            </template>
           </template>
 
           <template v-else-if="run.phase === 'debrief'">
@@ -1376,6 +1418,22 @@
               </div>
             </div>
             <p class="cap-narrative">{{ run.scene }}</p>
+            <section
+              v-if="latestConsequence"
+              class="cap-consequence-receipt"
+              data-testid="space-couch-consequence-receipt"
+            >
+              <strong>{{
+                latestConsequence.succeeded
+                  ? 'THE ORDER HELD'
+                  : 'THE ORDER FAILED'
+              }}</strong>
+              <p>{{ latestConsequence.callback }}</p>
+              <small
+                >The consequence is recorded in your captain's log and will
+                affect later worlds.</small
+              >
+            </section>
             <div class="cap-stats">
               <div>
                 <small>SUPPLIES</small><strong>{{ run.supplies }}</strong>
@@ -1793,6 +1851,10 @@ import {
 import { warpArt } from '~/utils/gameOfCaptains/artManifest'
 import { portraitArt, voyageStageArt } from '~/utils/gameOfCaptains/artSlots'
 import {
+  consequenceForRun,
+  consequenceAftermath,
+} from '~/utils/gameOfCaptains/consequenceStories'
+import {
   CAPTAIN_ORIGINS,
   type CaptainOriginId,
 } from '~/utils/gameOfCaptains/captainOrigins'
@@ -1924,6 +1986,18 @@ function onPaintedImageError(event: Event) {
   if (image.getAttribute('src') !== COUCH_FALLBACK) image.src = COUCH_FALLBACK
 }
 const stagePainting = computed(() => {
+  if (run.value?.phase === 'ending' && run.value.consequenceEnding)
+    return (
+      paintedVoyageImage(run.value.consequenceEnding) ||
+      voyageStageArt(run.value, paintedVoyageImage) ||
+      COUCH_FALLBACK
+    )
+  if (latestConsequence.value)
+    return (
+      paintedVoyageImage(latestConsequence.value.artKey) ||
+      voyageStageArt(run.value, paintedVoyageImage) ||
+      COUCH_FALLBACK
+    )
   // Only use newly delivered, access-filtered scene art. The older static
   // mission and antagonist pictures predate the literal red-couch redesign.
   if (run.value) {
@@ -1950,20 +2024,27 @@ const stagePainting = computed(() => {
   )
 })
 const stageAlt = computed(() =>
-  run.value
-    ? run.value.phase === 'ending'
-      ? 'Painted artwork for the voyage conclusion'
-      : run.value.phase === 'finale'
-        ? 'Painted encounter with the galactic antagonist'
-        : 'Painted view of ' +
-          mission.value.system +
-          ' during the current voyage'
-    : selectionScreen.value === 'stars' ||
-        selectionScreen.value === 'background'
-      ? 'The starry sky above the long red couch'
-      : selectionScreen.value === 'captain'
-        ? activeCaptain.value.name + ' selection portrait'
-        : crewProfile(focusedCrew.value).name + ' selection portrait',
+  latestConsequence.value
+    ? 'Painted ' +
+      (latestConsequence.value.succeeded ? 'success' : 'setback') +
+      ' for the captain’s ' +
+      latestConsequence.value.choiceId.replaceAll('-', ' ')
+    : run.value?.phase === 'ending' && run.value.consequenceEnding
+      ? 'Painted earned mission-consequence epilogue'
+      : run.value
+        ? run.value.phase === 'ending'
+          ? 'Painted artwork for the voyage conclusion'
+          : run.value.phase === 'finale'
+            ? 'Painted encounter with the galactic antagonist'
+            : 'Painted view of ' +
+              mission.value.system +
+              ' during the current voyage'
+        : selectionScreen.value === 'stars' ||
+            selectionScreen.value === 'background'
+          ? 'The starry sky above the long red couch'
+          : selectionScreen.value === 'captain'
+            ? activeCaptain.value.name + ' selection portrait'
+            : crewProfile(focusedCrew.value).name + ' selection portrait',
 )
 const activeCaptain = computed(() =>
   CAPTAINS.find((c) => c.id === selectedCaptain.value)!,
@@ -1986,6 +2067,12 @@ const captainImpulseBlocked = computed(
 )
 const mission = computed(() =>
   run.value ? missionFor(run.value) : MISSIONS[0]!,
+)
+const featuredConsequence = computed(() =>
+  run.value ? consequenceForRun(run.value) : null,
+)
+const latestConsequence = computed(() =>
+  run.value ? consequenceAftermath(run.value) : null,
 )
 const routeBoard = computed(() => (run.value ? missionBoard(run.value) : []))
 const circuit = computed(() => solarCircuit(run.value?.seed ?? 1))
@@ -2874,6 +2961,33 @@ function toggleAway(id: CrewId) {
   border: 1px solid #d5b38a8f;
   border-radius: 0.3rem;
   object-fit: cover;
+}
+.cap-consequence-choices {
+  display: grid;
+  gap: 0.4rem;
+}
+.cap-consequence-choices > strong,
+.cap-consequence-receipt > strong {
+  color: #ffd39d;
+  letter-spacing: 0.09em;
+}
+.cap-consequence-choices > p,
+.cap-consequence-receipt > p {
+  color: #d7e5eb;
+  font-size: clamp(0.78rem, 1.15cqi, 0.95rem);
+}
+.cap-consequence-choice {
+  border-left: 0.3rem solid #efb981;
+}
+.cap-consequence-choice small {
+  display: block;
+  margin-top: 0.15rem;
+}
+.cap-consequence-receipt {
+  border: 1px solid #f1c287;
+  border-radius: 0.5rem;
+  padding: 0.75rem;
+  background: #102b3ee8;
 }
 .cap-crew-pages {
   display: flex;

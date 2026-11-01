@@ -1,0 +1,25 @@
+// Conductor CONSEQUENCES-ROUND-1: 18 branch outcomes + 3 earned endings.
+// These are confirmed ArtImage IDs, not permission grants or public URLs.
+export const COUCH_CONSEQUENCE_ART_IDS = {
+  'consequences/warp-a1-weight-of-a-name-protect-sanctuary-success': 253649,
+  'consequences/warp-a1-weight-of-a-name-protect-sanctuary-failure': 253650,
+  'consequences/warp-a1-weight-of-a-name-sealed-testimony-success': 253651,
+  'consequences/warp-a1-weight-of-a-name-sealed-testimony-failure': 253652,
+  'consequences/warp-a1-weight-of-a-name-trade-identity-success': 253653,
+  'consequences/warp-a1-weight-of-a-name-trade-identity-failure': 253654,
+  'consequences/warp-a2-last-copy-evacuate-readers-success': 253655,
+  'consequences/warp-a2-last-copy-evacuate-readers-failure': 253656,
+  'consequences/warp-a2-last-copy-copy-all-success': 253657,
+  'consequences/warp-a2-last-copy-copy-all-failure': 253658,
+  'consequences/warp-a2-last-copy-shared-vote-success': 253659,
+  'consequences/warp-a2-last-copy-shared-vote-failure': 253660,
+  'consequences/warp-a3-courtesy-war-dual-distribution-success': 253661,
+  'consequences/warp-a3-courtesy-war-dual-distribution-failure': 253662,
+  'consequences/warp-a3-courtesy-war-neutral-clinic-success': 253663,
+  'consequences/warp-a3-courtesy-war-neutral-clinic-failure': 253664,
+  'consequences/warp-a3-courtesy-war-exclusive-contract-success': 253665,
+  'consequences/warp-a3-courtesy-war-exclusive-contract-failure': 253666,
+  'consequences/warp-ending-house-rules': 253667,
+  'consequences/warp-ending-living-catalog': 253668,
+  'consequences/warp-ending-invoice-planet': 253669,
+} as const

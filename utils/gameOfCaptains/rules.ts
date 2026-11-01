@@ -52,6 +52,10 @@ import type { ExpeditionVisit } from './expedition'
 import { validStarAssessment, type StarAssessment } from './starSigns'
 import { CAPTAIN_ORIGINS, type CaptainOriginId } from './captainOrigins'
 import { validCloneProgram, type CloneProgram } from './cloneSaga'
+import {
+  validConsequenceHistory,
+  type ConsequenceRecord,
+} from './consequenceStories'
 
 export type CaptainId = 'fluke' | 'vale' | 'solace' | 'rex' | 'quill' | 'ro'
 export type CrewId =
@@ -392,6 +396,9 @@ export type VoyageRun = {
     result: Result
   }[]
   worldFlags?: string[]
+  consequenceHistory?: ConsequenceRecord[]
+  consequenceMeters?: Partial<Record<string, number>>
+  consequenceEnding?: string
   redshirtRoster?: string[]
   cloneProgram?: CloneProgram
   redshirtFallen?: {
@@ -626,6 +633,14 @@ export function chooseMission(run: VoyageRun, id: string): VoyageRun {
 }
 
 export function worldEcho(run: VoyageRun): string {
+  const lastConsequence = run.consequenceHistory?.at(-1)
+  const latestMission = run.missionHistory?.at(-1)
+  if (
+    lastConsequence &&
+    latestMission?.chapter === lastConsequence.chapter &&
+    latestMission.missionId === lastConsequence.missionId
+  )
+    return lastConsequence.callback
   const history = run.missionHistory ?? []
   const mostRecent = history[history.length - 1]
   if (!mostRecent) return 'No prior systems have reason to recognize the couch.'
@@ -1333,6 +1348,16 @@ export function restoreVoyage(raw: unknown): VoyageRun | null {
     (data.worldFlags !== undefined &&
       (!Array.isArray(data.worldFlags) ||
         data.worldFlags.some((flag) => typeof flag !== 'string'))) ||
+    (data.consequenceHistory !== undefined &&
+      !validConsequenceHistory(data.consequenceHistory)) ||
+    (data.consequenceMeters !== undefined &&
+      (!data.consequenceMeters ||
+        typeof data.consequenceMeters !== 'object' ||
+        Object.values(data.consequenceMeters).some(
+          (value) => typeof value !== 'number' || !Number.isFinite(value),
+        ))) ||
+    (data.consequenceEnding !== undefined &&
+      typeof data.consequenceEnding !== 'string') ||
     (data.captainInstincts !== undefined &&
       (!Array.isArray(data.captainInstincts) ||
         data.captainInstincts.some(

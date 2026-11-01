@@ -39,6 +39,10 @@ import {
   type CaptainInstinctChoice,
 } from '~/utils/gameOfCaptains/captainInstincts'
 import { playbookRunKey } from '~/utils/playbook/runReview'
+import {
+  resolveConsequence,
+  applyConsequenceEpilogue,
+} from '~/utils/gameOfCaptains/consequenceStories'
 import type { StarAssessment } from '~/utils/gameOfCaptains/starSigns'
 import type { CaptainOriginId } from '~/utils/gameOfCaptains/captainOrigins'
 import {
@@ -281,6 +285,11 @@ export const useGameOfCaptainsStore = defineStore('gameOfCaptains', () => {
     run.value = decidePolicy(run.value, policy)
     persist()
   }
+  function decideConsequence(choiceId: string) {
+    if (!run.value) return
+    run.value = resolveConsequence(run.value, choiceId)
+    persist()
+  }
   function next() {
     if (!run.value) return
     run.value = nextDestination(run.value)
@@ -313,9 +322,11 @@ export const useGameOfCaptainsStore = defineStore('gameOfCaptains', () => {
   }
   function finish(strategy: FinaleStrategy) {
     if (!run.value) return
-    run.value = cloneEndingCoda(
-      episodeEndingCoda(
-        trioEpilogue(relationshipEpilogue(finishVoyage(run.value, strategy))),
+    run.value = applyConsequenceEpilogue(
+      cloneEndingCoda(
+        episodeEndingCoda(
+          trioEpilogue(relationshipEpilogue(finishVoyage(run.value, strategy))),
+        ),
       ),
     )
     persist()
@@ -363,6 +374,7 @@ export const useGameOfCaptainsStore = defineStore('gameOfCaptains', () => {
     launch,
     advanceDay,
     decide,
+    decideConsequence,
     next,
     chooseRomance,
     chooseTrio,

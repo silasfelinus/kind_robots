@@ -11,7 +11,10 @@ export function episodeResultArtKey(
   return `episode/${draw.cardId}-${draw.choice}-${draw.successful ? 'success' : 'failure'}`
 }
 
-export function episodeChoiceArtKeys(cardId: string, choices: readonly EpisodeChoice[] = ['ask', 'document', 'override']): string[] {
+export function episodeChoiceArtKeys(
+  cardId: string,
+  choices: readonly EpisodeChoice[] = ['ask', 'document', 'override'],
+): string[] {
   return [
     episodeRevealArtKey(cardId),
     ...choices.flatMap((choice) => [

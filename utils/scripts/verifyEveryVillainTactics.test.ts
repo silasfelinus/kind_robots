@@ -127,6 +127,19 @@ assert.match(page, /PlaybookKitShell/)
 assert.match(page, /data-testid="tactics-odds"/)
 assert.match(page, /store\.hover\(cell\)/)
 assert.match(page, /store\.rosterOpen/)
+const pageBar = page.match(
+  /<header-page-bar console-theme="forge">[\s\S]*?<\/header-page-bar>/,
+)?.[0]
+assert.ok(pageBar, 'tactics header lives in the shared console system bar')
+for (const testId of [
+  'tactics-open-menu',
+  'tactics-exit-playtest',
+  'tactics-open-studio',
+]) {
+  assert.match(pageBar, new RegExp(`data-testid="${testId}"`))
+}
+assert.match(pageBar, /store\.rosterOpen = !store\.rosterOpen/)
+assert.doesNotMatch(page, /class="evt-hud"/)
 assert.match(page, /@media \(prefers-reduced-motion: reduce\)/)
 assert.match(tab, /^requiredRole: ADMIN$/m)
 assert.match(tab, /^route: \/admin\/every-villain-tactics$/m)

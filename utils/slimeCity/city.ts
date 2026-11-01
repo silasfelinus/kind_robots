@@ -1410,7 +1410,9 @@ export function cityEpilogue(city: CityState): CityEpilogue | null {
     'broadcast-truth',
     'strike-solidarity',
     'grid-neighborhoods',
-  ].filter((choice) => Object.values(city.crisisChoices).includes(choice)).length
+  ].filter((choice) =>
+    Object.values(city.crisisChoices).includes(choice),
+  ).length
   const neighborhoods =
     neighborhoodChoices >= 2
       ? 'The neighborhoods have already learned to trust one another. They refuse to surrender their new solidarity.'

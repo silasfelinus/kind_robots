@@ -1,4 +1,5 @@
 import { BRIAR_SCENES } from './scenes'
+import { MEMORY_CHAR_AGENCY_CHOICES } from './reimaginerCampaign'
 import { DARK_BRIAR_SCENES, DARK_BRIAR_SEALS } from './darkBriar'
 import { HOSHIMORI_WARM_SITES } from './hoshimoriWarm'
 import { HOSHIMORI_NIGHT_SITES } from './hoshimoriNight'
@@ -253,6 +254,22 @@ function generated(
         key,
         'Char and Scylla at the broken sea gate',
         'crisis-option-' + (index + 1) + ': ' + option.label,
+        world.visual,
+      ),
+    }))
+  }
+  if (world.id === 'e06' && key === '7,7') {
+    choices = MEMORY_CHAR_AGENCY_CHOICES.map((option, index) => ({
+      id: option.id,
+      label: option.label,
+      outcome: option.publicResult,
+      flag: 'e06:' + option.worldFlag,
+      effects: { ...option.effects },
+      art: art(
+        world.id,
+        key,
+        'Char decides her own course beside Scylla and hooded Oren',
+        'char-agency-' + (index + 1) + ': ' + option.label,
         world.visual,
       ),
     }))

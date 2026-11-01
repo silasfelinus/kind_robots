@@ -1,4 +1,7 @@
-import { BRIAR_COLLISION_SCENES, type BriarCollisionSite } from './briarCollision'
+import {
+  BRIAR_COLLISION_SCENES,
+  type BriarCollisionSite,
+} from './briarCollision'
 import type { MemoryCampaignProgress } from './reimaginerCampaign'
 
 type BriarWitnessEnding = 'trust-witnesses' | 'protect-village'

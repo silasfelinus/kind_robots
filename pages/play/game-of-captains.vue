@@ -477,12 +477,18 @@
                         activeCaptain.name + ' full-size character portrait'
                       "
                       class="cap-personnel-hero-image"
-                      @error="onPortraitError($event, 'captain-' + selectedCaptain)"
+                      @error="
+                        onPortraitError($event, 'captain-' + selectedCaptain)
+                      "
                     />
                     <div v-else class="cap-personnel-hero-fallback">
                       <strong>{{ activeCaptain.name.slice(0, 1) }}</strong>
                     </div>
-                    <div class="cap-expression-tabs" role="group" aria-label="Captain portrait expressions">
+                    <div
+                      class="cap-expression-tabs"
+                      role="group"
+                      aria-label="Captain portrait expressions"
+                    >
                       <button
                         v-for="expression in PORTRAIT_MOODS"
                         :key="expression"
@@ -491,7 +497,11 @@
                         :class="{ selected: captainMood === expression }"
                         @click="captainMood = expression"
                       >
-                        {{ expression === 'neutral' ? 'NORMAL' : expression.toUpperCase() }}
+                        {{
+                          expression === 'neutral'
+                            ? 'NORMAL'
+                            : expression.toUpperCase()
+                        }}
                       </button>
                     </div>
                     <figcaption>
@@ -704,14 +714,23 @@
                         ' full-size character portrait'
                       "
                       class="cap-personnel-hero-image"
-                      @error="onPortraitError($event, crewProfile(focusedCrew).portraitKey)"
+                      @error="
+                        onPortraitError(
+                          $event,
+                          crewProfile(focusedCrew).portraitKey,
+                        )
+                      "
                     />
                     <div v-else class="cap-personnel-hero-fallback">
                       <strong>{{
                         crewProfile(focusedCrew).name.slice(0, 1)
                       }}</strong>
                     </div>
-                    <div class="cap-expression-tabs" role="group" aria-label="Crew portrait expressions">
+                    <div
+                      class="cap-expression-tabs"
+                      role="group"
+                      aria-label="Crew portrait expressions"
+                    >
                       <button
                         v-for="expression in PORTRAIT_MOODS"
                         :key="expression"
@@ -720,7 +739,11 @@
                         :class="{ selected: crewMood === expression }"
                         @click="crewMood = expression"
                       >
-                        {{ expression === 'neutral' ? 'NORMAL' : expression.toUpperCase() }}
+                        {{
+                          expression === 'neutral'
+                            ? 'NORMAL'
+                            : expression.toUpperCase()
+                        }}
                       </button>
                     </div>
                     <figcaption>
@@ -1122,7 +1145,12 @@
                     :src="crewVoyagePortrait(member.id)!"
                     alt=""
                     class="cap-portrait-img"
-                    @error="onPortraitError($event, crewProfile(member.id).portraitKey)"
+                    @error="
+                      onPortraitError(
+                        $event,
+                        crewProfile(member.id).portraitKey,
+                      )
+                    "
                   /><template v-else>{{ member.monogram }}</template></span
                 >
                 <span
@@ -1837,8 +1865,7 @@ function portraitForMood(key: string, mood: PortraitMood): string | null {
   return (
     (mood !== 'neutral'
       ? store.onboardingArt['portraits/v2/' + key + '-' + mood]
-      : null) ||
-    portrait(key)
+      : null) || portrait(key)
   )
 }
 const captainDossierPortrait = computed(() =>

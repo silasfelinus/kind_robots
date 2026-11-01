@@ -17,6 +17,7 @@ import {
   resolveCampaignBattle,
   type CampaignApproach,
 } from '../utils/slimeCity/campaign'
+import { type SlimeCityStory } from '../utils/slimeCity/storySave'
 import { computed, ref, shallowRef, watch } from 'vue'
 import {
   advance,
@@ -115,7 +116,7 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
   const enemyTeam = ref<TeamId>('bloodfairies')
   const mode = ref<ModeId>('blackout')
   const districtId = ref<DistrictId>('pitworks')
-  /** Session-only city progress: nothing is saved or awarded. */
+  /** Account-scoped story progress. Narrative wins never mint Meat or cards. */
   const city = ref(createCity())
   /** Only server-issued CPU battles can earn account rewards. */
   const rewardMatchId = ref<string | null>(null)
@@ -247,6 +248,95 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
   const contractBout = ref<DistrictId | null>(null)
   const lastContract = ref<DistrictId | null>(null)
   const campaignSave = ref(createCampaignSave())
+  const storyLoaded = ref(false)
+  const storySaving = ref(false)
+  const storyRevision = ref(0)
+  const storyAccount = ref<number | null>(null)
+  const storyError = ref('')
+  let storyDirty = false
+  let storyWrite: Promise<void> | null = null
+
+  function storyEditable(): boolean {
+    return !authId() || isGuest() ||
+      (storyLoaded.value && storyAccount.value === authId())
+  }
+
+  async function hydrateStory(): Promise<void> {
+    await netReady
+    const userId = authId()
+    if (!userId || isGuest()) {
+      storyLoaded.value = false
+      storyAccount.value = null
+      storyRevision.value = 0
+      city.value = createCity()
+      campaignSave.value = createCampaignSave()
+      return
+    }
+    storyLoaded.value = false
+    storyAccount.value = null
+    storyDirty = false
+    storyError.value = ''
+    try {
+      const response = await performFetch<SlimeCityStory>('/api/slime-city/story')
+      if (!response.success || !response.data)
+        throw new Error(response.message || 'Could not load your city story.')
+      if (userId !== authId()) return
+      city.value = response.data.city
+      campaignSave.value = response.data.campaigns
+      storyRevision.value = response.data.revision
+      storyAccount.value = userId
+      storyLoaded.value = true
+    } catch (error) {
+      if (userId !== authId()) return
+      storyError.value = error instanceof Error ? error.message : 'Story load failed.'
+    }
+  }
+
+  async function flushStory(): Promise<void> {
+    storySaving.value = true
+    try {
+      while (storyDirty && storyEditable() && storyLoaded.value) {
+        storyDirty = false
+        const userId = authId()
+        const snapshot: SlimeCityStory = {
+          version: 1,
+          revision: storyRevision.value,
+          city: city.value,
+          campaigns: campaignSave.value,
+        }
+        try {
+          const result = await performFetch<SlimeCityStory>('/api/slime-city/story', {
+            method: 'POST',
+            body: JSON.stringify(snapshot),
+          })
+          if (userId !== authId()) return
+          if (!result.success || !result.data)
+            throw new Error(result.message || 'City story was not saved.')
+          storyRevision.value = result.data.revision
+          storyError.value = ''
+        } catch (error) {
+          if (userId !== authId()) return
+          storyError.value = error instanceof Error ? error.message : 'Story save failed.'
+          storyLoaded.value = false
+          storyDirty = false
+          return
+        }
+      }
+    } finally {
+      storySaving.value = false
+    }
+  }
+
+  function persistStory(): void {
+    if (!storyLoaded.value || storyAccount.value !== authId()) return
+    storyDirty = true
+    if (!storyWrite) {
+      storyWrite = flushStory().finally(() => {
+        storyWrite = null
+        if (storyDirty && storyLoaded.value) persistStory()
+      })
+    }
+  }
   const campaignBout = ref<{
     team: TeamId
     index: number
@@ -538,29 +628,40 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
   }
 
   function walk(): void {
+    if (!storyEditable()) return
     if (!route.value) return
     const next = travel(city.value, route.value.to)
-    if (next !== city.value) city.value = next
+    if (next !== city.value) { city.value = next; persistStory() }
   }
 
   function choose(choiceId: string): void {
-    city.value = decide(city.value, choiceId)
+    if (!storyEditable()) return
+    const next = decide(city.value, choiceId)
+    if (next !== city.value) { city.value = next; persistStory() }
   }
 
   function chooseStreet(choiceId: string): void {
-    city.value = decideStreet(city.value, choiceId)
+    if (!storyEditable()) return
+    const next = decideStreet(city.value, choiceId)
+    if (next !== city.value) { city.value = next; persistStory() }
   }
 
   function chooseAftermath(choiceId: string): void {
-    city.value = decideAftermath(city.value, choiceId)
+    if (!storyEditable()) return
+    const next = decideAftermath(city.value, choiceId)
+    if (next !== city.value) { city.value = next; persistStory() }
   }
 
   function chooseCrisis(choiceId: string): void {
-    city.value = decideCrisis(city.value, choiceId)
+    if (!storyEditable()) return
+    const next = decideCrisis(city.value, choiceId)
+    if (next !== city.value) { city.value = next; persistStory() }
   }
 
   function chooseFinale(choiceId: string): void {
-    city.value = decideFinale(city.value, choiceId)
+    if (!storyEditable()) return
+    const next = decideFinale(city.value, choiceId)
+    if (next !== city.value) { city.value = next; persistStory() }
     finaleDismissed.value = false
   }
 
@@ -711,24 +812,29 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
         match.value.victor,
       )
       lastCampaign.value = team
+      persistStory()
       campaignBout.value = null
       return
     }
     if (contractBout.value) {
       const id = contractBout.value
       city.value = recordContract(city.value, id, match.value.victor)
+      persistStory()
       lastContract.value = id
       contractBout.value = null
       return
     }
     if (!bout.value) return
     city.value = recordBout(city.value, bout.value, match.value.victor)
+    persistStory()
     lastBout.value = bout.value
     bout.value = null
   }
 
   function resetCity(): void {
+    if (!storyEditable()) return
     city.value = createCity()
+    persistStory()
     finaleDismissed.value = false
     districtId.value = 'pitworks'
   }
@@ -847,8 +953,11 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
       progress.value = newProgression()
       rewardMatchId.value = null
       void hydrateProgression()
+      void hydrateStory()
     },
   )
+
+  void hydrateStory()
 
   function dispose(): void {
     stop()
@@ -885,6 +994,10 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
     activeContract,
     contractGate,
     campaignSave,
+    storyLoaded,
+    storySaving,
+    storyError,
+    hydrateStory,
     campaignBout,
     lastCampaign,
     campaignStory,

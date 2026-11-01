@@ -19,8 +19,10 @@ import {
   CITY_PLAN,
   CITY_CONTRACTS,
   CHAMPION_AFTERMATH,
+  CIVIC_CRISES,
   CAMPAIGN_DISTRICTS,
   championAftermath,
+  cityCrisis,
   cityRoute,
   cityWon,
   contractBlocked,
@@ -28,6 +30,7 @@ import {
   createCity,
   decide,
   decideAftermath,
+  decideCrisis,
   decideStreet,
   streetStory,
   storyMissionTerms,
@@ -303,9 +306,12 @@ assert.equal(
   'Resolve the champion aftermath first.',
 )
 run = decideAftermath(run, 'undertow-burn')
+assert.equal(cityCrisis(run)?.id, 'broadcast')
+assert.equal(boutBlocked(run, 'chimera'), 'Resolve the citywide crisis first.')
+run = decideCrisis(run, 'broadcast-truth')
 assert.equal(boutBlocked(run, 'chimera'), 'Already beaten.')
 assert.equal(recordBout(run, 'chimera', 'player'), run, 'No double wins')
-assert.equal(totalStanding(run), 5, 'Freeing the spies adds two more standing')
+assert.equal(totalStanding(run), 7, 'Aftermath and first crisis both change standing')
 assert.equal(gateReason(run, 'crown'), null, 'Wins open the Gilt Gate')
 assert.equal(cityWon(run), false)
 assert.equal(cityWon(recordBout(run, 'pitworks', 'player')), true)
@@ -670,6 +676,92 @@ lab.showCity()
 lab.resetCity()
 assert.equal(lab.city.contracts.length, 0)
 
+
+// Citywide pressure is earned at two, four and six victories. Each choice is
+// a single-use seeded-independent story beat that affects later real fights.
+assert.deepEqual(
+  CIVIC_CRISES.map((crisis) => crisis.afterChampions),
+  [2, 4, 6],
+)
+assert.equal(cityCrisis(createCity()), null)
+let crisisSweep: CityState = createCity()
+let firstCrisisCity: CityState | null = null
+const opposition: DistrictId[] = [
+  'chimera',
+  'foundry',
+  'undertow',
+  'redline',
+  'needles',
+  'crown',
+]
+for (const [index, id] of opposition.entries()) {
+  const before = crisisSweep
+  crisisSweep = recordBout(crisisSweep, id, 'player')
+  assert.equal(cityCrisis(crisisSweep), null, 'Champion aftermath is always first')
+  assert.ok(championAftermath(crisisSweep))
+  assert.equal(decideCrisis(crisisSweep, 'broadcast-truth'), crisisSweep)
+  assert.equal(
+    decideAftermath(before, CHAMPION_AFTERMATH[id].choices[0].id),
+    before,
+    'Cannot choose an aftermath without its victory',
+  )
+  crisisSweep = decideAftermath(
+    crisisSweep,
+    CHAMPION_AFTERMATH[id].choices[0].id,
+  )
+  if (index % 2 === 0) {
+    assert.equal(cityCrisis(crisisSweep), null)
+    continue
+  }
+  const active = CIVIC_CRISES[(index - 1) / 2]!
+  assert.equal(cityCrisis(crisisSweep)?.id, active.id)
+  assert.equal(active.choices.length, 2)
+  assert.equal(
+    travel(crisisSweep, streetsFrom(crisisSweep.location)[0]!.to),
+    crisisSweep,
+    'Citywide disaster cannot be ignored by walking away',
+  )
+  assert.equal(
+    boutBlocked(crisisSweep, 'pitworks'),
+    'Resolve the citywide crisis first.',
+  )
+  assert.equal(decideCrisis(crisisSweep, 'not-a-crisis-choice'), crisisSweep)
+  if (index === 1) firstCrisisCity = crisisSweep
+  const choice = active.choices[index === 3 ? 1 : 0]
+  const beforeChoice = crisisSweep
+  crisisSweep = decideCrisis(crisisSweep, choice.id)
+  assert.equal(cityCrisis(crisisSweep), null)
+  assert.equal(crisisSweep.crisisChoices[active.id], choice.id)
+  assert.equal(
+    crisisSweep.standing[crisisSweep.location],
+    beforeChoice.standing[crisisSweep.location] + choice.standing,
+  )
+  assert.equal(
+    crisisSweep.heat,
+    Math.max(0, beforeChoice.heat + choice.heat),
+  )
+  assert.equal(
+    decideCrisis(crisisSweep, active.choices[0].id),
+    crisisSweep,
+    'No second rewards or rerolls from a resolved crisis',
+  )
+}
+assert.equal(Object.keys(crisisSweep.crisisChoices).length, 3)
+assert.equal(crisisSweep.crisisTerms.playerMana, 2)
+assert.equal(crisisSweep.crisisTerms.enemyArmor, -1)
+const boosted = applyTerms(
+  createMatch('blackout', 'riot', 'catgirls', 421),
+  boutTerms(crisisSweep, 'pitworks'),
+)
+assert.equal(boosted.mana, 3, 'Citywide alliance supplies two opening mana')
+assert.equal(
+  boosted.scenarioBonus?.enemyArmor,
+  -1,
+  'The exposed rival armor penalty reaches real future deployments',
+)
+assert.deepEqual(createCity().crisisChoices, {})
+console.log('Slime City citywide acts: 3 crises, choice locks and battle effects PASS')
+
 console.log('Slime City overworld store flow PASS')
 
 lab.showCampaign()
@@ -733,3 +825,28 @@ assert.equal(
   'Faction mission is separate from district champion ledger',
 )
 console.log('Slime City faction campaign store battle PASS')
+
+// City-launched chapters must settle citywide crises before a battle can begin.
+lab.showCity()
+lab.resetCity()
+assert.ok(firstCrisisCity)
+lab.city = { ...firstCrisisCity, location: 'undertow' }
+lab.chooseTeam('catgirls')
+lab.findCampaignBattle()
+assert.equal(lab.view, 'city')
+assert.equal(lab.crisisEvent?.id, 'broadcast')
+assert.equal(lab.campaignAtDestination, false)
+lab.startCampaignBattle('conviction')
+assert.equal(lab.view, 'city', 'City crisis blocks the mission button')
+lab.chooseCrisis('broadcast-truth')
+assert.equal(lab.crisisEvent, null)
+assert.equal(lab.campaignAtDestination, true)
+lab.startCampaignBattle('conviction')
+assert.equal(lab.view, 'arena', 'Crisis resolution unlocks city story fights')
+assert.equal(lab.campaignBout?.team, 'catgirls')
+assert.equal(
+  lab.match.mana,
+  2,
+  'City campaign inherits one bonus opening mana from the crisis',
+)
+console.log('Slime City civic crisis / campaign store integration PASS')

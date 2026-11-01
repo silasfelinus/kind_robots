@@ -274,6 +274,53 @@
 }
 
 /*
+ * ── SPACE COUCH — the couch bridge console ────────────────────────────
+ *
+ * Applied to the whole shell while /play/game-of-captains is past its title
+ * screen, via `<header-page-bar console-theme="space-couch">`. Tokens lifted
+ * from the page palette: deep-space navy, upholstery cream, brass amber,
+ * couch red, porthole teal.
+ */
+@plugin "daisyui/theme" {
+  name: 'space-couch';
+  default: false;
+  prefersdark: false;
+  color-scheme: dark;
+
+  --color-base-100: oklch(20% 0.035 258); /* bridge panel */
+  --color-base-200: oklch(15% 0.03 265); /* deep space */
+  --color-base-300: oklch(34% 0.045 240); /* slate dividers */
+  --color-base-content: oklch(94.5% 0.02 85); /* upholstery cream */
+
+  --color-primary: oklch(87% 0.08 70); /* brass amber */
+  --color-primary-content: oklch(18% 0.03 260);
+  --color-secondary: oklch(55% 0.18 28); /* the red couch */
+  --color-secondary-content: oklch(96% 0.015 85);
+  --color-accent: oklch(76% 0.05 215); /* porthole teal */
+  --color-accent-content: oklch(16% 0.03 240);
+  --color-neutral: oklch(24% 0.035 255);
+  --color-neutral-content: oklch(94.5% 0.02 85);
+
+  --color-info: oklch(76% 0.05 215);
+  --color-info-content: oklch(16% 0.03 240);
+  --color-success: oklch(80% 0.13 150);
+  --color-success-content: oklch(18% 0.03 150);
+  --color-warning: oklch(85% 0.14 80);
+  --color-warning-content: oklch(20% 0.04 80);
+  --color-error: oklch(52% 0.15 25);
+  --color-error-content: oklch(96% 0.015 85);
+
+  --radius-selector: 0.3rem;
+  --radius-field: 0.35rem;
+  --radius-box: 0.6rem;
+  --size-selector: 0.25rem;
+  --size-field: 0.25rem;
+  --border: 1px;
+  --depth: 1;
+  --noise: 0;
+}
+
+/*
  * ── FORGE — the Playbook Forge console ────────────────────────────────
  *
  * Scoped by `data-theme="forge"` on /admin/playbook-forge (and playbook kit

@@ -237,13 +237,16 @@ export const nextCollectorIncident = (
   COLLECTOR_INCIDENTS.find(
     (incident) =>
       guide.discovered.length >= incident.at &&
-      !guide.milestoneSeen.includes(incident.at),
+      !guide.milestoneDecisions?.[String(incident.at)],
   ) ?? null
 
 export const collectorEcho = (guide: AlienGuide): string | null => {
   const recent = [...guide.milestoneSeen]
     .reverse()
-    .find((at) => COLLECTOR_INCIDENTS.some((incident) => incident.at === at))
+    .find((at) =>
+      guide.milestoneDecisions?.[String(at)] &&
+      COLLECTOR_INCIDENTS.some((incident) => incident.at === at),
+    )
   if (!recent) return null
   const story = COLLECTOR_INCIDENTS.find((incident) => incident.at === recent)
   const choice = guide.milestoneDecisions?.[String(recent)]
@@ -262,7 +265,7 @@ export function resolveCollectorIncident(
   return {
     guide: {
       ...guide,
-      milestoneSeen: [...guide.milestoneSeen, at],
+      milestoneSeen: [...new Set([...guide.milestoneSeen, at])],
       milestoneDecisions: {
         ...(guide.milestoneDecisions ?? {}),
         [String(at)]: choice,

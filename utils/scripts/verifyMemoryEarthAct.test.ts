@@ -21,6 +21,7 @@ import {
   EARTH_JOURNAL_COMPACT_AT,
   migrateLegacyEarthJournal,
   replayEarthJournal,
+  validateLegacyEarthSnapshot,
   type EarthJournalAction,
 } from '../memoryDungeon/earthJournal'
 import {
@@ -296,6 +297,62 @@ for (const reality of ['e03', 'e04', 'e05', 'e06'] as const) {
     worldEvent(reality, '1,1')!.choices[0]!.id,
   )
   assert.deepEqual(Object.keys(legacy.choices), ['2,1', '1,1'])
+
+  const snapshot = JSON.parse(JSON.stringify(legacy))
+  const normalized = restoreOverworldEventProgress(snapshot)!
+  assert.equal(
+    validateLegacyEarthSnapshot(snapshot, normalized),
+    true,
+    `${reality}: complete v1 chapters must still migrate`,
+  )
+  assert.equal(
+    validateLegacyEarthSnapshot(
+      { ...snapshot, revealed: [...snapshot.revealed, '8,8'] },
+      normalized,
+    ),
+    false,
+    `${reality}: a dropped distant location must not go unnoticed`,
+  )
+  assert.equal(
+    validateLegacyEarthSnapshot(
+      { ...snapshot, revealed: [...snapshot.revealed, '2,1'] },
+      normalized,
+    ),
+    false,
+    `${reality}: duplicate legacy locations must not disappear silently`,
+  )
+  assert.equal(
+    validateLegacyEarthSnapshot(
+      { ...snapshot, choices: { ...snapshot.choices, '8,8': 'care' } },
+      normalized,
+    ),
+    false,
+    `${reality}: a discarded remote decision must not be accepted`,
+  )
+  assert.equal(
+    validateLegacyEarthSnapshot(
+      { ...snapshot, choices: { ...snapshot.choices, '2,1': 'forged' } },
+      normalized,
+    ),
+    false,
+    `${reality}: a rewritten choice must not be accepted`,
+  )
+  assert.equal(
+    validateLegacyEarthSnapshot(
+      { ...snapshot, flags: [...snapshot.flags, 'invented-reward'] },
+      normalized,
+    ),
+    false,
+    `${reality}: lost or forged story flags must be detected`,
+  )
+  assert.equal(
+    validateLegacyEarthSnapshot(
+      { ...snapshot, supplies: snapshot.supplies + 1 },
+      normalized,
+    ),
+    false,
+    `${reality}: altered resources must not be silently normalized`,
+  )
 
   const journal = migrateLegacyEarthJournal(reality, legacy, '1,2')
   assert.ok(journal, `${reality}: legitimate v1 choices must migrate`)

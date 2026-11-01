@@ -92,6 +92,31 @@ export const useGameOfCaptainsStore = defineStore('gameOfCaptains', () => {
   const storageWarning = ref('')
   const onboardingArt = ref<Record<string, string>>({})
   const onboardingArtLoaded = ref(false)
+  const trioArtwork = ref<Record<string, string>>({})
+  const loadedTrioArtwork = ref<Record<string, boolean>>({})
+  const pendingTrioArtwork = ref<Record<string, boolean>>({})
+  async function loadTrioArtwork(trio: string) {
+    if (
+      !/^[a-z]+-[a-z]+-[a-z]+$/.test(trio) ||
+      loadedTrioArtwork.value[trio] ||
+      pendingTrioArtwork.value[trio]
+    )
+      return
+    pendingTrioArtwork.value[trio] = true
+    try {
+      const response = await performFetch<Record<string, string>>(
+        '/api/game-of-captains/trio-art?trio=' + encodeURIComponent(trio),
+      )
+      if (response.success && response.data) {
+        trioArtwork.value = { ...trioArtwork.value, ...response.data }
+        loadedTrioArtwork.value[trio] = true
+      }
+    } catch {
+      // Portrait fallbacks remain available. A failed request may retry.
+    } finally {
+      pendingTrioArtwork.value[trio] = false
+    }
+  }
   async function loadOnboardingArt() {
     if (onboardingArtLoaded.value) return
     try {
@@ -352,6 +377,8 @@ export const useGameOfCaptainsStore = defineStore('gameOfCaptains', () => {
     onboardingArt,
     onboardingArtLoaded,
     loadOnboardingArt,
+    trioArtwork,
+    loadTrioArtwork,
     preferences,
     setPreference,
     load,

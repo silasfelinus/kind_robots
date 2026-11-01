@@ -75,6 +75,9 @@ for (const count of [5, 12, 25, 50, 75, 100]) {
   const guide = {
     ...emptyAlienGuide(),
     discovered: ALIEN_SPECIES.slice(0, count).map((alien) => alien.id),
+    milestoneSeen: ALIEN_MILESTONES.filter((event) => event.at < count).map(
+      (event) => event.at,
+    ),
   }
   const sighting = nextAlienSighting(run, guide)!
   assert.equal(sighting.milestone?.at, count)

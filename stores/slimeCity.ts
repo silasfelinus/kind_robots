@@ -257,8 +257,11 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
   let storyWrite: Promise<void> | null = null
 
   function storyEditable(): boolean {
-    return !authId() || isGuest() ||
+    return (
+      !authId() ||
+      isGuest() ||
       (storyLoaded.value && storyAccount.value === authId())
+    )
   }
 
   async function hydrateStory(): Promise<void> {
@@ -277,7 +280,9 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
     storyDirty = false
     storyError.value = ''
     try {
-      const response = await performFetch<SlimeCityStory>('/api/slime-city/story')
+      const response = await performFetch<SlimeCityStory>(
+        '/api/slime-city/story',
+      )
       if (!response.success || !response.data)
         throw new Error(response.message || 'Could not load your city story.')
       if (userId !== authId()) return
@@ -288,7 +293,8 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
       storyLoaded.value = true
     } catch (error) {
       if (userId !== authId()) return
-      storyError.value = error instanceof Error ? error.message : 'Story load failed.'
+      storyError.value =
+        error instanceof Error ? error.message : 'Story load failed.'
     }
   }
 
@@ -305,10 +311,13 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
           campaigns: campaignSave.value,
         }
         try {
-          const result = await performFetch<SlimeCityStory>('/api/slime-city/story', {
-            method: 'POST',
-            body: JSON.stringify(snapshot),
-          })
+          const result = await performFetch<SlimeCityStory>(
+            '/api/slime-city/story',
+            {
+              method: 'POST',
+              body: JSON.stringify(snapshot),
+            },
+          )
           if (userId !== authId()) return
           if (!result.success || !result.data)
             throw new Error(result.message || 'City story was not saved.')
@@ -316,7 +325,8 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
           storyError.value = ''
         } catch (error) {
           if (userId !== authId()) return
-          storyError.value = error instanceof Error ? error.message : 'Story save failed.'
+          storyError.value =
+            error instanceof Error ? error.message : 'Story save failed.'
           storyLoaded.value = false
           storyDirty = false
           return
@@ -631,37 +641,55 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
     if (!storyEditable()) return
     if (!route.value) return
     const next = travel(city.value, route.value.to)
-    if (next !== city.value) { city.value = next; persistStory() }
+    if (next !== city.value) {
+      city.value = next
+      persistStory()
+    }
   }
 
   function choose(choiceId: string): void {
     if (!storyEditable()) return
     const next = decide(city.value, choiceId)
-    if (next !== city.value) { city.value = next; persistStory() }
+    if (next !== city.value) {
+      city.value = next
+      persistStory()
+    }
   }
 
   function chooseStreet(choiceId: string): void {
     if (!storyEditable()) return
     const next = decideStreet(city.value, choiceId)
-    if (next !== city.value) { city.value = next; persistStory() }
+    if (next !== city.value) {
+      city.value = next
+      persistStory()
+    }
   }
 
   function chooseAftermath(choiceId: string): void {
     if (!storyEditable()) return
     const next = decideAftermath(city.value, choiceId)
-    if (next !== city.value) { city.value = next; persistStory() }
+    if (next !== city.value) {
+      city.value = next
+      persistStory()
+    }
   }
 
   function chooseCrisis(choiceId: string): void {
     if (!storyEditable()) return
     const next = decideCrisis(city.value, choiceId)
-    if (next !== city.value) { city.value = next; persistStory() }
+    if (next !== city.value) {
+      city.value = next
+      persistStory()
+    }
   }
 
   function chooseFinale(choiceId: string): void {
     if (!storyEditable()) return
     const next = decideFinale(city.value, choiceId)
-    if (next !== city.value) { city.value = next; persistStory() }
+    if (next !== city.value) {
+      city.value = next
+      persistStory()
+    }
     finaleDismissed.value = false
   }
 

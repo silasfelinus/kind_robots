@@ -367,6 +367,53 @@
 }
 
 /*
+ * ── MEMORY DUNGEON — Briar Camp and its acts ──────────────────────────
+ *
+ * Applied to the whole shell while a Memory Dungeon act is mounted, via
+ * `<header-page-bar console-theme="memory-dungeon">`. Tokens are lifted from
+ * the acts' own palette: night-teal ink, parchment text, briar gold, lavender
+ * reflection and sage moss.
+ */
+@plugin "daisyui/theme" {
+  name: 'memory-dungeon';
+  default: false;
+  prefersdark: false;
+  color-scheme: dark;
+
+  --color-base-100: oklch(24% 0.025 235);
+  --color-base-200: oklch(19% 0.022 225);
+  --color-base-300: oklch(30% 0.018 70);
+  --color-base-content: oklch(94% 0.04 88);
+
+  --color-primary: oklch(81% 0.1 72);
+  --color-primary-content: oklch(20% 0.03 60);
+  --color-secondary: oklch(78% 0.11 315);
+  --color-secondary-content: oklch(20% 0.04 315);
+  --color-accent: oklch(74% 0.06 170);
+  --color-accent-content: oklch(18% 0.03 200);
+  --color-neutral: oklch(33% 0.012 50);
+  --color-neutral-content: oklch(94% 0.04 88);
+
+  --color-info: oklch(76% 0.08 220);
+  --color-info-content: oklch(18% 0.03 230);
+  --color-success: oklch(74% 0.09 150);
+  --color-success-content: oklch(18% 0.03 150);
+  --color-warning: oklch(84% 0.13 85);
+  --color-warning-content: oklch(20% 0.04 85);
+  --color-error: oklch(64% 0.17 25);
+  --color-error-content: oklch(97% 0.01 25);
+
+  --radius-selector: 0.5rem;
+  --radius-field: 0.5rem;
+  --radius-box: 0.75rem;
+  --size-selector: 0.25rem;
+  --size-field: 0.25rem;
+  --border: 1px;
+  --depth: 1;
+  --noise: 0;
+}
+
+/*
  * ── FORGE — the Playbook Forge console ────────────────────────────────
  *
  * Scoped by `data-theme="forge"` on /admin/playbook-forge (and playbook kit

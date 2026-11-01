@@ -29,6 +29,7 @@ export default defineEventHandler(async (event) => {
         depth: record.depth,
         createdAt: record.createdAt,
         status: record.status,
+        isPublic: record.isPublic,
         artJobId: record.artJobId,
         artImageId: record.artImageId,
       })),

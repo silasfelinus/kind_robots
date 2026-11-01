@@ -56,6 +56,8 @@ import {
   CAMPAIGN_DISTRICTS,
   championAftermath,
   cityCrisis,
+  cityEpilogue,
+  cityFinale,
   cityRoute,
   contractBlocked,
   contractTerms,
@@ -63,6 +65,7 @@ import {
   decide,
   decideAftermath,
   decideCrisis,
+  decideFinale,
   decideStreet,
   streetStory,
   storyMissionTerms,
@@ -290,7 +293,8 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
       city.value.location === campaignDistrict.value &&
       !city.value.pendingStreet &&
       !city.value.pendingAftermath &&
-      !cityCrisis(city.value),
+      !cityCrisis(city.value) &&
+      !cityFinale(city.value),
   )
   const team = computed(() => teamById(activeTeam.value))
   const enemy = computed(() => teamById(enemyTeam.value))
@@ -382,6 +386,9 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
   const streetEvent = computed(() => streetStory(city.value))
   const aftermathEvent = computed(() => championAftermath(city.value))
   const crisisEvent = computed(() => cityCrisis(city.value))
+  const finaleEvent = computed(() => cityFinale(city.value))
+  const finaleResult = computed(() => cityEpilogue(city.value))
+  const finaleDismissed = ref(false)
   const streetProgress = computed(
     () => Object.keys(city.value.streetChoices).length,
   )
@@ -552,6 +559,20 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
     city.value = decideCrisis(city.value, choiceId)
   }
 
+  function chooseFinale(choiceId: string): void {
+    city.value = decideFinale(city.value, choiceId)
+    finaleDismissed.value = false
+  }
+
+  function dismissFinale(): void {
+    finaleDismissed.value = true
+  }
+
+  function revisitFinale(): void {
+    finaleDismissed.value = false
+    districtId.value = 'pitworks'
+  }
+
   /** Fight this district's rival on its format, with your decision's terms. */
   function fightRival(): void {
     const id = districtId.value
@@ -708,6 +729,7 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
 
   function resetCity(): void {
     city.value = createCity()
+    finaleDismissed.value = false
     districtId.value = 'pitworks'
   }
 
@@ -875,6 +897,9 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
     streetEvent,
     aftermathEvent,
     crisisEvent,
+    finaleEvent,
+    finaleResult,
+    finaleDismissed,
     streetProgress,
     here,
     route,
@@ -929,6 +954,9 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
     chooseStreet,
     chooseAftermath,
     chooseCrisis,
+    chooseFinale,
+    dismissFinale,
+    revisitFinale,
     fightRival,
     fightContract,
     showCampaign,

@@ -365,20 +365,35 @@ if (unauthored) {
 
 // Only actual DONE/ArtImage-backed plates count. Queued jobs cannot be shown.
 const paintedKeys = Object.keys(COUCH_TRIO_ART_IDS)
-assert.equal(paintedKeys.length, 798, 'only completed trio paintings are registered')
-assert.equal(new Set(Object.values(COUCH_TRIO_ART_IDS)).size, paintedKeys.length)
+assert.equal(
+  paintedKeys.length,
+  798,
+  'only completed trio paintings are registered',
+)
+assert.equal(
+  new Set(Object.values(COUCH_TRIO_ART_IDS)).size,
+  paintedKeys.length,
+)
 for (const key of paintedKeys) {
-  assert.ok(Number.isInteger(COUCH_TRIO_ART_IDS[key]) && COUCH_TRIO_ART_IDS[key]! > 0)
-  const match = key.match(/^trios\/([a-z]+-[a-z]+-[a-z]+)-(step-[123]|ending-[ab])$/)
+  assert.ok(
+    Number.isInteger(COUCH_TRIO_ART_IDS[key]) && COUCH_TRIO_ART_IDS[key]! > 0,
+  )
+  const match = key.match(
+    /^trios\/([a-z]+-[a-z]+-[a-z]+)-(step-[123]|ending-[ab])$/,
+  )
   assert.ok(match && TRIO_BY_KEY[match[1]!], `unknown party art key: ${key}`)
 }
 assert.equal(
-  new Set(paintedKeys.map((key) => key.replace(/-(step-[123]|ending-[ab])$/, ''))).size,
+  new Set(
+    paintedKeys.map((key) => key.replace(/-(step-[123]|ending-[ab])$/, '')),
+  ).size,
   161,
   'finished art now reaches 161 of 220 authored parties',
 )
 const trioRoute = fromRoot('server/api/game-of-captains/trio-art.get.ts')
-const trioComponent = fromRoot('components/game-of-captains/space-couch-trio-interlude.vue')
+const trioComponent = fromRoot(
+  'components/game-of-captains/space-couch-trio-interlude.vue',
+)
 const trioStore = fromRoot('stores/gameOfCaptainsStore.ts')
 assert.match(trioRoute, /getArtImageAccessContext\(event\)/)
 assert.match(trioRoute, /buildArtImageWhere\(access\)/)

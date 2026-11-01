@@ -161,6 +161,10 @@ assert.equal(
   'authored connective sites must not mint extra finale fragments',
 )
 for (const [key, scene] of routeSites) {
+  assert.ok(
+    !EARTH_PHOTOS.some((photo) => photo.experience === 'e09' && photo.site === key),
+    key + ' must not overwrite a chronological Earth photograph',
+  )
   const event = worldEvent('e09', key)!
   assert.equal(event.title, scene.title)
   assert.equal(event.opening, scene.opening)

@@ -243,9 +243,10 @@ export const nextCollectorIncident = (
 export const collectorEcho = (guide: AlienGuide): string | null => {
   const recent = [...guide.milestoneSeen]
     .reverse()
-    .find((at) =>
-      guide.milestoneDecisions?.[String(at)] &&
-      COLLECTOR_INCIDENTS.some((incident) => incident.at === at),
+    .find(
+      (at) =>
+        guide.milestoneDecisions?.[String(at)] &&
+        COLLECTOR_INCIDENTS.some((incident) => incident.at === at),
     )
   if (!recent) return null
   const story = COLLECTOR_INCIDENTS.find((incident) => incident.at === recent)

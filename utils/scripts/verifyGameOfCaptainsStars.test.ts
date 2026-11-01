@@ -40,7 +40,11 @@ assert.equal(
   'four questions after the captain dossier',
 )
 assert.equal(STAR_SIGNS.length, 12, 'an original dozen constellations')
-assert.equal(SPACE_COUCH_OPENING.length, 18, 'all 18 painted opening shots have scenes')
+assert.equal(
+  SPACE_COUCH_OPENING.length,
+  18,
+  'all 18 painted opening shots have scenes',
+)
 assert.equal(
   new Set(SPACE_COUCH_OPENING.map((frame) => frame.key)).size,
   18,

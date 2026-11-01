@@ -1,6 +1,6 @@
 <template>
-  <div class="fixed inset-0 z-[80] grid place-items-center bg-base-300/90 p-3" role="dialog" aria-modal="true" aria-label="Alien field encounter">
-    <section class="alien-encounter-shell grid w-full max-w-5xl min-h-0 max-h-full overflow-hidden rounded-2xl border border-primary/50 bg-base-200 shadow-2xl md:grid-cols-[1.15fr_1fr]">
+  <div class="@container fixed inset-0 z-[80] grid place-items-center bg-base-300/90 p-3" role="dialog" aria-modal="true" aria-label="Alien field encounter">
+    <section class="alien-encounter-shell grid w-full max-w-5xl min-h-0 max-h-full overflow-hidden rounded-2xl border border-primary/50 bg-base-200 shadow-2xl @md:grid-cols-[1.15fr_1fr]">
       <div class="alien-portrait relative flex min-h-48 items-center justify-center overflow-hidden bg-gradient-to-br from-secondary/30 via-base-300 to-primary/30">
         <img v-if="image && !imageBroken" :src="image" :alt="'Field guide illustration of ' + species.name" class="h-full w-full object-contain" @error="imageBroken = true" />
         <div v-else class="grid min-h-48 place-items-center px-6 py-10 text-center">

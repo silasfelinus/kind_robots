@@ -15,6 +15,7 @@ import {
   type EarthJournalAction,
 } from '~/utils/memoryDungeon/earthJournal'
 import { BRIAR_COLLISION_SCENES } from '~/utils/memoryDungeon/briarCollision'
+import { briarCollisionWitnessCallback } from '~/utils/memoryDungeon/briarCollisionWitness'
 import { availableMemoryExperiences } from '~/utils/memoryDungeon/reimaginerCampaign'
 
 const STORAGE_KEY = 'memory-dungeon-briar-collision-e09-v1'
@@ -39,6 +40,13 @@ export const useMemoryBriarCollisionStore = defineStore(
     const chosen = computed(() =>
       current.value?.choices.find(
         (choice) => choice.id === progress.value.choices[position.value],
+      ),
+    )
+    const witnessCallback = computed(() =>
+      briarCollisionWitnessCallback(
+        world.campaign,
+        position.value,
+        progress.value.choices[position.value],
       ),
     )
     const completed = computed(() => world.campaign.completed.includes('e09'))
@@ -208,6 +216,7 @@ export const useMemoryBriarCollisionStore = defineStore(
       position,
       current,
       chosen,
+      witnessCallback,
       completed,
       unlocked,
       committed,

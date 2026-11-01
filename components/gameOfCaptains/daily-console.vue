@@ -378,8 +378,9 @@
           >
             <img
               v-if="flipped !== 'casino' || !franchiseImage"
-              :src="backdrop"
+              :src="revealPainting || backdrop"
               alt="Space Couch episode backdrop"
+              @error="onEpisodeArtworkError"
             />
             <img
               v-else
@@ -469,6 +470,14 @@
           </div>
         </article>
         <div v-else-if="lastDraw" class="daily-recap" aria-live="polite">
+          <img
+            v-if="resultPainting"
+            class="daily-recap-art"
+            :src="resultPainting"
+            :alt="'Painted outcome: ' + lastDraw.cardId"
+            data-testid="space-couch-episode-result-art"
+            @error="onEpisodeArtworkError"
+          />
           <strong>PREVIOUSLY, ON SPACE COUCH...</strong>
           <p>{{ lastDraw.result }}</p>
           <p v-if="lastDraw.cast?.length">
@@ -535,6 +544,10 @@ import {
 } from '~/utils/gameOfCaptains/expedition'
 import { portraitArt } from '~/utils/gameOfCaptains/artSlots'
 import {
+  episodeRevealArtKey,
+  episodeResultArtKey,
+} from '~/utils/gameOfCaptains/episodeArtwork'
+import {
   planEpisodeAssignment,
   removeEpisodeAssignment,
 } from '~/utils/gameOfCaptains/episodePlanner'
@@ -564,6 +577,7 @@ const props = defineProps<{
   run: VoyageRun
   backdrop: string
   franchiseImage: string | null
+  artwork?: Record<string, string>
   knowledge: RedshirtKnowledge
 }>()
 const emit = defineEmits<{
@@ -617,6 +631,24 @@ const nextDeck = computed(() =>
   requiredDecks.value.find((deck) => !episodeDeckDone(props.run, deck)),
 )
 const lastDraw = computed(() => episodeDraws(props.run).at(-1))
+const brokenArtwork = ref<string[]>([])
+function onEpisodeArtworkError(event: Event) {
+  const url = (event.target as HTMLImageElement).getAttribute('src')
+  if (url && !brokenArtwork.value.includes(url))
+    brokenArtwork.value = [...brokenArtwork.value, url]
+}
+const revealPainting = computed(() => {
+  if (!flipped.value) return null
+  const key = episodeRevealArtKey(episodeCard(props.run, flipped.value).id)
+  const url = props.artwork?.[key]
+  return url && !brokenArtwork.value.includes(url) ? url : null
+})
+const resultPainting = computed(() => {
+  if (!lastDraw.value) return null
+  const key = episodeResultArtKey(lastDraw.value)
+  const url = key ? props.artwork?.[key] : null
+  return url && !brokenArtwork.value.includes(url) ? url : null
+})
 const actors = computed(() => [
   {
     id: 'captain',
@@ -1387,6 +1419,13 @@ function decide(deck: EpisodeDeck, choice: EpisodeChoice) {
 }
 .daily-decisions button small {
   font-size: 0.63rem;
+}
+.daily-recap-art {
+  width: 100%;
+  max-height: 16rem;
+  object-fit: cover;
+  border-radius: 0.5rem;
+  margin-bottom: 0.75rem;
 }
 .daily-recap {
   flex: 1;

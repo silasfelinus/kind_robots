@@ -177,11 +177,18 @@
             <h3 class="mt-1 text-lg font-black sm:text-2xl">
               {{ collision.current.title }}
             </h3>
-            <p
+            <div
               class="mt-2 max-h-28 overflow-y-auto text-xs leading-relaxed sm:text-sm"
             >
-              {{ collision.current.opening }}
-            </p>
+              <p>{{ collision.current.opening }}</p>
+              <p
+                v-if="collision.witnessCallback.opening"
+                class="mt-2 text-[#f2d4a5]"
+                data-testid="memory-briar-collision-witness-opening"
+              >
+                {{ collision.witnessCallback.opening }}
+              </p>
+            </div>
           </div>
           <span
             v-if="collision.current.sceneArt.status !== 'delivered'"
@@ -208,6 +215,13 @@
             </p>
             <p class="mt-2 text-sm leading-relaxed">
               {{ collision.chosen.outcome }}
+            </p>
+            <p
+              v-if="collision.witnessCallback.outcome"
+              class="mt-2 border-t border-[#87c6ae]/40 pt-2 text-sm leading-relaxed"
+              data-testid="memory-briar-collision-witness-outcome"
+            >
+              {{ collision.witnessCallback.outcome }}
             </p>
           </div>
           <div

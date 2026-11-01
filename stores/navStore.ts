@@ -168,9 +168,9 @@ export const useNavStore = defineStore('navStore', () => {
     return registerPageBar(consoleTheme, false)
   }
 
-  const pageHelps = shallowRef<{ id: number; label: string; open: () => void }[]>(
-    [],
-  )
+  const pageHelps = shallowRef<
+    { id: number; label: string; open: () => void }[]
+  >([])
   let nextPageHelpId = 0
   const pageHelpLabel = computed(() => pageHelps.value.at(-1)?.label ?? '')
 

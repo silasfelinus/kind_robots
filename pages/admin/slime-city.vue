@@ -306,7 +306,10 @@
                   @click="lab.dismissFinale()"
                 >
                   <strong>CONTINUE EXPLORING</strong>
-                  <small>Optional contracts and unchallenged rivals remain playable.</small>
+                  <small
+                    >Optional contracts and unchallenged rivals remain
+                    playable.</small
+                  >
                 </button>
                 <button
                   type="button"
@@ -314,7 +317,9 @@
                   @click="lab.resetCity()"
                 >
                   <strong>NEW CITY RUN</strong>
-                  <small>Start a fresh session-only overworld with this crew.</small>
+                  <small
+                    >Start a fresh session-only overworld with this crew.</small
+                  >
                 </button>
               </div>
             </article>
@@ -495,7 +500,9 @@
               {{ lab.streetProgress }}/9 · CONTRACTS
               {{ lab.city.contracts.length }}/7 · CRISES
               {{ Object.keys(lab.city.crisisChoices).length }}/3
-              <template v-if="lab.city.finaleChoice"> · CITY LIBERATED</template></span>
+              <template v-if="lab.city.finaleChoice">
+                · {{ lab.city.finaleChoice === 'pit-charter' ? 'CITY CHARTERED' : 'NEW PIT BOSS' }}</template
+              ></span
             ><span>{{ lab.city.log[0] }}</span>
           </div>
         </section>

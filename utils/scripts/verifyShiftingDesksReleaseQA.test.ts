@@ -34,7 +34,10 @@ assert.equal(
   RUNS_PER_ATTACK * ATTACKS.length,
   'all adversarial strategies run the requested number of seeds',
 )
-assert.ok(attempts >= 2000, 'release QA exercises at least 2000 seeded campaigns')
+assert.ok(
+  attempts >= 2000,
+  'release QA exercises at least 2000 seeded campaigns',
+)
 assert.deepEqual(
   report.findings,
   [],
@@ -103,11 +106,18 @@ for (let i = 0; i < rewardRuns; i++) {
     seed + ': duplicate award in one completion',
   )
   for (const id of awardIds) {
-    assert.ok(!previous.milestones[id], seed + ': previously earned award replayed')
+    assert.ok(
+      !previous.milestones[id],
+      seed + ': previously earned award replayed',
+    )
     assert.ok(updated.milestones[id], seed + ': award did not persist')
   }
   const duplicate = recordReward(updated, receipt, [...discovered])
-  assert.strictEqual(duplicate, updated, seed + ': duplicate save creates another receipt')
+  assert.strictEqual(
+    duplicate,
+    updated,
+    seed + ': duplicate save creates another receipt',
+  )
   assert.deepEqual(newMilestonesForRun(updated, duplicate, receipt.id), [])
   assert.ok(updated.runs.length <= REWARD_ARCHIVE_LIMIT)
   archive = restoreRewardArchive(JSON.parse(JSON.stringify(updated)))
@@ -128,12 +138,18 @@ assert.equal(archive.runs.length, REWARD_ARCHIVE_LIMIT)
 assert.ok(archive.milestones['first-ending'])
 assert.ok(archive.milestones['test-report'])
 assert.equal(
-  receiptFor(newRun('release-qa-unfinished', JOB_TITLES[0]!.id), '2026-11-01T22:00:00Z'),
+  receiptFor(
+    newRun('release-qa-unfinished', JOB_TITLES[0]!.id),
+    '2026-11-01T22:00:00Z',
+  ),
   null,
   'an unfinished game must never mint a receipt',
 )
 for (const id of Object.keys(archive.milestones))
-  assert.ok(MILESTONES.some((m) => m.id === id), 'unknown earned award: ' + id)
+  assert.ok(
+    MILESTONES.some((m) => m.id === id),
+    'unknown earned award: ' + id,
+  )
 
 const summary = {
   seededCampaigns: attempts,

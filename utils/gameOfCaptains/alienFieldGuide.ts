@@ -178,23 +178,95 @@ export const alienOutcome = (
   choice: AlienChoice,
 ): AlienOutcome => ALIEN_OUTCOME_MATRIX[mood][choice]
 
-const SITUATION = {
-  wary: {
-    setup:
-      'It freezes beside a broken rescue beacon, its whole body turned toward the couch bubble.',
-    clue: 'Every loud gesture makes it edge backward. A quiet pause seems to calm it.',
+const SCENE_CLUES: Record<
+  AlienSpecies['category'],
+  Record<AlienMood, { incident: string; evidence: string }>
+> = {
+  zodiac: {
+    wary: {
+      incident: "The stars printed across its body go dark whenever the couch's shield crackles.",
+      evidence: "A dropped star-chart fragment lies at its feet; none of its markings change while the captain is still.",
+    },
+    playful: {
+      incident: "It nudges a paper horoscope toward the bubble, snatches it back, and repeats the performance.",
+      evidence: "One sign keeps pointing toward the couch, even though the creature has no reason to need directions.",
+    },
+    protective: {
+      incident: "A small constellation is tucked beneath its fins while the solar wind pulls at its outermost lights.",
+      evidence: "The creature tracks a loose cushion strap more closely than the visitors standing beside it.",
+    },
   },
-  playful: {
-    setup:
-      'It has stolen a dangling emergency ribbon and keeps looping around the couch to show off.',
-    clue: 'It is plainly inviting attention, but gets restless when nobody joins the game.',
+  hybrid: {
+    wary: {
+      incident: "Both animal halves go perfectly still when the crew's footsteps fall out of rhythm.",
+      evidence: "Their breathing settles into a single beat when the couch stops moving.",
+    },
+    playful: {
+      incident: "It offers a stolen button with one appendage and waits for the other half to take it back.",
+      evidence: "After the third exchange, it leaves the button precisely at the edge of the bubble.",
+    },
+    protective: {
+      incident: "One set of limbs guards a nest while the other struggles with a snapped branch.",
+      evidence: "A stray bit of couch upholstery is exactly the width of the gap in the branch.",
+    },
   },
-  protective: {
-    setup:
-      'It stands guard over something fragile in its habitat, refusing to abandon it.',
-    clue: "A direct approach would cross its boundary. It follows the movements of the crew's loose equipment.",
+  cosmic: {
+    wary: {
+      incident: "The light around it collapses to a dim point whenever the shield gives off a pulse.",
+      evidence: "A drifting pebble crosses its path unharmed while the engines fall silent.",
+    },
+    playful: {
+      incident: "It sends an absurd three-note pulse toward the couch, then waits through a very deliberate silence.",
+      evidence: "The pulse begins again whenever someone inside the bubble taps a foot.",
+    },
+    protective: {
+      incident: "A pocket of dangerous radiation has opened behind a cluster of small drifting shapes.",
+      evidence: "The creature keeps itself between the light and the smaller bodies, while a harmless reflective emergency blanket hangs loose on the couch.",
+    },
   },
-} as const
+  social: {
+    wary: {
+      incident: "A ring of tiny spectators becomes quiet as the strangers step closer.",
+      evidence: "The visitor folds its ceremonial greeting card without offering it to anyone.",
+    },
+    playful: {
+      incident: "It arranges three seats facing the couch and places an unclaimed fourth seat nearest the bubble.",
+      evidence: "Whenever the captain shifts position, the creature rearranges the seats to match.",
+    },
+    protective: {
+      incident: "It holds a place in a crowded procession for someone who has not arrived.",
+      evidence: "The crowd is pushing against a delicate barricade; a ridiculous diversion would buy the missing member a little space.",
+    },
+  },
+  ecology: {
+    wary: {
+      incident: "A whole colony retreats into its host at the first metallic thump from the couch.",
+      evidence: "Only the smallest members reappear while the crew remains motionless.",
+    },
+    playful: {
+      incident: "A juvenile pushes a bright seed toward the crew, chases it, then sends it back again.",
+      evidence: "Its companions repeat the exchange, waiting for a participant on the other side.",
+    },
+    protective: {
+      incident: "Several young cling to their guardian at the edge of a collapsing shelter.",
+      evidence: "The creature watches a loose length of safety webbing far more carefully than it watches the captain.",
+    },
+  },
+  legendary: {
+    wary: {
+      incident: "Its countless small lights blink out one by one when the red couch approaches.",
+      evidence: "A single ancient light continues pulsing while the crew makes no movement at all.",
+    },
+    playful: {
+      incident: "It folds one impossible shape into an imitation of the couch, then makes the same shape again.",
+      evidence: "A spare cushion drifts upward and the creature mirrors its tiny wobble.",
+    },
+    protective: {
+      incident: "A piece of the sky behind it has torn open around something impossibly young.",
+      evidence: "The visitor will not abandon the opening; the couch still carries a rolled-up emergency membrane.",
+    },
+  },
+}
 const visitKey = (run: Pick<VoyageRun, 'seed' | 'chapter'>) =>
   run.seed + ':' + run.chapter
 
@@ -244,7 +316,7 @@ export function nextAlienSighting(
     ) ?? null
   if (!species) return null
   const mood = ALIEN_MOODS[hash(visitKey(run) + ':mood:' + species.id) % 3]!
-  const setting = SITUATION[mood]
+  const setting = SCENE_CLUES[species.category][mood]
   const history = guide.lastContact
   const callback = history
     ? history.outcome === 'chaos'
@@ -254,7 +326,7 @@ export function nextAlienSighting(
         : 'The creature watches the couch cautiously; apparently a previous visitor warned it about awkward tourists.'
     : ''
   const scene =
-    `${species.name} is ${species.appearance} near ${species.habitat}. Local rumor: ${species.fieldNote}. ${setting.setup} ${setting.clue} ${callback}`.trim()
+    `Near ${species.habitat}, the crew finds ${species.name}: ${species.appearance}. ${setting.incident} ${setting.evidence} The old field guide adds only: "${species.fieldNote}." ${callback}`.trim()
   return {
     species,
     seed: run.seed,

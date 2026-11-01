@@ -411,8 +411,8 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
     const starter = teamById(id)
     return [...starter.creatures, ...starter.special]
   }
-  const currentDeck = computed(() =>
-    savedDecks.value[activeTeam.value] ?? starterCards(activeTeam.value),
+  const currentDeck = computed(
+    () => savedDecks.value[activeTeam.value] ?? starterCards(activeTeam.value),
   )
   const currentDeckProblems = computed(() =>
     loadoutProblems(activeTeam.value, currentDeck.value),
@@ -441,7 +441,8 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
     }
     const source = cards.value.find((card) => card.id === replacingCard.value)
     if (!source || source.signature || source.kind !== candidate.kind) {
-      deckMessage.value = 'Choose an existing non-signature deck card of this type first.'
+      deckMessage.value =
+        'Choose an existing non-signature deck card of this type first.'
       return
     }
     if (!isCardUnlocked(id)) {
@@ -458,7 +459,8 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
     }
     savedDecks.value = { ...savedDecks.value, [activeTeam.value]: updated }
     replacingCard.value = null
-    deckMessage.value = candidate.name + ' replaces ' + source.name + '. Saving…'
+    deckMessage.value =
+      candidate.name + ' replaces ' + source.name + '. Saving…'
     persistStory()
   }
   function restoreFounderDeck(): void {

@@ -104,7 +104,9 @@ export const useHybridizerStore = defineStore('hybridizer', () => {
     try {
       localStorage.setItem(
         scopedStorageKey(),
-        JSON.stringify(localHybridizerStudies<HybridizerDiscovery>(discoveries.value)),
+        JSON.stringify(
+          localHybridizerStudies<HybridizerDiscovery>(discoveries.value),
+        ),
       )
     } catch {
       status.value = 'This browser cannot save studies between visits.'
@@ -226,7 +228,11 @@ export const useHybridizerStore = defineStore('hybridizer', () => {
       versions: HybridizerVersion[]
       canEdit: boolean
     }>('/api/hybridizer/fusions/' + key.slice(7) + '/versions')
-    if (resultKey.value !== key || viewerId !== userStore.authenticatedUserId) return
+    if (
+      resultKey.value !== key ||
+      viewerId !== userStore.authenticatedUserId
+    )
+      return
     if (response.success && response.data) {
       versions.value = response.data.versions
       versionsFor.value = key
@@ -259,6 +265,7 @@ export const useHybridizerStore = defineStore('hybridizer', () => {
   }
 
   async function resubmit(): Promise<void> {
+    const viewerId = userStore.authenticatedUserId
     const key = resultKey.value
     if (
       !key?.startsWith('fusion:') ||
@@ -272,6 +279,7 @@ export const useHybridizerStore = defineStore('hybridizer', () => {
         '/api/hybridizer/fusions/' + key.slice(7) + '/resubmit',
         { method: 'POST' },
       )
+      if (viewerId !== userStore.authenticatedUserId) return
       if (!response.success || !response.data) {
         status.value = response.message || 'Could not queue a new version.'
         return
@@ -292,6 +300,7 @@ export const useHybridizerStore = defineStore('hybridizer', () => {
   }
 
   async function makePrimary(jobId: number): Promise<void> {
+    const viewerId = userStore.authenticatedUserId
     const key = resultKey.value
     if (
       !key?.startsWith('fusion:') ||
@@ -313,6 +322,7 @@ export const useHybridizerStore = defineStore('hybridizer', () => {
           '/promote',
         { method: 'POST' },
       )
+      if (viewerId !== userStore.authenticatedUserId) return
       if (!response.success || !response.data) {
         status.value = response.message || 'This version cannot become primary.'
         return
@@ -380,6 +390,7 @@ export const useHybridizerStore = defineStore('hybridizer', () => {
 
   async function enqueueArtwork(key: string): Promise<void> {
     if (!key.startsWith('fusion:') || enqueuing.has(key)) return
+    const viewerId = userStore.authenticatedUserId
     const discovery = discoveries.value.find((entry) => entry.key === key)
     if (!discovery || discovery.status === 'READY') {
       if (discovery?.status === 'READY') void refreshArtwork(key)
@@ -394,6 +405,7 @@ export const useHybridizerStore = defineStore('hybridizer', () => {
       }>('/api/hybridizer/fusions/' + key.slice(7) + '/enqueue', {
         method: 'POST',
       })
+      if (viewerId !== userStore.authenticatedUserId) return
       if (response.success && response.data) {
         updateDiscovery(key, {
           artJobId: response.data.artJobId,

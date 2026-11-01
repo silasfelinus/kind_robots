@@ -201,7 +201,9 @@
               >
                 ↗ Share
               </button>
-              <span v-else class="study-label">Private study · sharing disabled</span>
+              <span v-else class="study-label"
+                >Private study · sharing disabled</span
+              >
             </div>
             <div
               v-if="shareOpen"

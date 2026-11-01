@@ -220,7 +220,7 @@ export const EARTH_COLLISION_ROUTE_SITES = {
         label:
           'Negotiate a temporary common-stair lease without selling friendships',
         outcome:
-          'Morrow pays the yōkai in unused stationery and secures an open stair until the evacuation ends. Sal keeps the real keys, and the neighbors retain their relationships without signing the spirit\'s ownership ledger. The temporary lease solves the immediate access problem but leaves the building\'s legal confusion for a later tenant meeting. The paper spirit agrees to attend and listen.',
+          "Morrow pays the yōkai in unused stationery and secures an open stair until the evacuation ends. Sal keeps the real keys, and the neighbors retain their relationships without signing the spirit's ownership ledger. The temporary lease solves the immediate access problem but leaves the building's legal confusion for a later tenant meeting. The paper spirit agrees to attend and listen.",
         flag: 'registry-common-stair',
         effects: { supplies: -2, trust: 1, danger: -1 },
         artSubject:

@@ -5,7 +5,7 @@ import {
   sanitizeScrapbook,
 } from '../everyVillainTactics/frontMenu'
 import { createStory } from '../everyVillainTactics/firstBellStory'
-import { createSave, loadSave } from '../everyVillainTactics/saves'
+import { createSave } from '../everyVillainTactics/saves'
 import {
   MAX_SCORE_HISTORY,
   mergeBattleResults,

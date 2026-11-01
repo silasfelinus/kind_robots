@@ -144,12 +144,15 @@ legendary|Grandmother Gravity|ancient six-finned manta carrying newborn stars|Ho
 legendary|Velvet Aurora Hatchling|jade feathered dragon with aurora membranes|Hatches to ask why everyone whispers
 legendary|Unfinished Constellation|colony of translucent star-shaped seahorses|Waits for its last member before choosing its shape`
 const RAW: ReadonlyArray<readonly [AlienCategory, string, string, string]> =
-  rawRows.split('\n').map(
-    (line) => line.split('|') as [AlienCategory, string, string, string],
-  )
+  rawRows
+    .split('\n')
+    .map((line) => line.split('|') as [AlienCategory, string, string, string])
 
 const slug = (name: string) =>
-  name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '')
+  name
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/(^-|-$)/g, '')
 export const ALIEN_SPECIES: readonly AlienSpecies[] = RAW.map(
   ([category, name, appearance, fieldNote], i) => ({
     id: slug(name),

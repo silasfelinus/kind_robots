@@ -4,6 +4,7 @@
 // progress the player did not earn. Scoring and achievements belong to t-019.
 import { IDENTITY_ARCS } from '../cometAcademy/identityArcs'
 import type { Perspective } from './firstBellStory'
+import { mergeBattleResults, type BattleResult } from './scores'
 import { PICNIC_TRIGGERS } from './picnicPanic'
 import type { EvtSave } from './saves'
 import { STAGE_PRESETS, type StageDraft } from './studio'
@@ -198,14 +199,22 @@ export type ScrapbookRecord = {
   perspective: Perspective
   stage: string
 }
-export type Scrapbook = { version: 1; records: ScrapbookRecord[] }
+export type Scrapbook = {
+  version: 1
+  records: ScrapbookRecord[]
+  results: BattleResult[]
+}
 const PERSPECTIVES: readonly Perspective[] = [
   'hero',
   'villain',
   'henchman',
   'sidekick',
 ]
-export const emptyScrapbook = (): Scrapbook => ({ version: 1, records: [] })
+export const emptyScrapbook = (): Scrapbook => ({
+  version: 1,
+  records: [],
+  results: [],
+})
 
 function validRecord(value: unknown): value is ScrapbookRecord {
   const r = value as ScrapbookRecord
@@ -234,7 +243,10 @@ export function sanitizeScrapbook(raw: unknown): Scrapbook {
   }
   const records = (data as Scrapbook | null)?.records
   if (!Array.isArray(records)) return emptyScrapbook()
-  return mergeScrapbook(emptyScrapbook(), records.filter(validRecord))
+  return {
+    ...mergeScrapbook(emptyScrapbook(), records.filter(validRecord)),
+    results: mergeBattleResults([], (data as Scrapbook).results ?? []),
+  }
 }
 
 /** Scrapbook pages a validated save has earned. */
@@ -263,6 +275,7 @@ export function mergeScrapbook(
   }
   return {
     version: 1,
+    results: book.results,
     records: SCRAPBOOK_MOMENTS.map((m) => byId.get(m.id)).filter(
       (r): r is ScrapbookRecord => !!r,
     ),

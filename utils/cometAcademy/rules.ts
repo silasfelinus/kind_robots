@@ -1661,7 +1661,9 @@ export function dispatchModifier(
       : 0) +
     (missionSecretFor(run, incident.id) ? 2 : 0) +
     (run.flowVersion === 3 ? storyLaterModifier(run, incident) : 0) +
-    (run.flowVersion === 3
+    (run.flowVersion === 3 &&
+    run.playerCaseId === incident.id &&
+    run.missionApproach === 'investigate'
       ? caseTrustModifier(run.caseHistory, run.day, incident.id)
       : 0) -
     villainInterference(run, incident)

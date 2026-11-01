@@ -122,6 +122,8 @@ const RARE_IDS = new Set(
     t.special[2]!,
     ...(t.id === 'catgirls' || t.id === 'undertow' ? [t.special[4]!] : []),
   ]),
+  // Four rare reserves preserve one rare + two normal cards for all 24 packs.
+  ...['splice-runner', 'pogo-punk', 'union-millwright', 'pipe-seer'],
 )
 export function rarityOf(card: Card): Rarity {
   if (RARE_IDS.has(card.id)) return 'rare'

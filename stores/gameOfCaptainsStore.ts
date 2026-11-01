@@ -128,6 +128,23 @@ export const useGameOfCaptainsStore = defineStore('gameOfCaptains', () => {
     alienReport.value = null
   }
 
+  const alienArtwork = ref<Record<string, string>>({})
+  const alienArtLoaded = ref(false)
+  async function loadAlienArtwork() {
+    if (alienArtLoaded.value) return
+    try {
+      const response = await performFetch<Record<string, string>>(
+        '/api/game-of-captains/alien-art',
+      )
+      if (response.success && response.data) {
+        alienArtwork.value = response.data
+      }
+    } catch {
+      alienArtwork.value = {}
+    } finally {
+      alienArtLoaded.value = true
+    }
+  }
   const onboardingArt = ref<Record<string, string>>({})
   const onboardingArtLoaded = ref(false)
   const trioArtwork = ref<Record<string, string>>({})
@@ -419,6 +436,8 @@ export const useGameOfCaptainsStore = defineStore('gameOfCaptains', () => {
     loaded,
     redshirtKnowledge,
     alienGuide,
+    alienArtwork,
+    loadAlienArtwork,
     alienSighting,
     alienReport,
     alienEncounterAvailable,

@@ -420,25 +420,37 @@ body,
 }
 
 /*
- * The system bar of a console page: one continuous glass strip that carries
- * the OS controls and the game's own bar, lit along its lower edge in the
- * game's primary so it hands off into the stage below instead of ending.
+ * THE SYSTEM BAR, site-wide. Silas, 2026-11-01, after the Slime City console
+ * header shipped: "Great, now incorporate that site wide." workspace-header is
+ * the OS layer of every page, so it always reads as one glass system strip in
+ * sans chrome, lit along its lower edge in the active theme's primary so it
+ * hands off into the stage below instead of ending. It resolves through the
+ * theme and surface tokens, so it stays translucent over page backdrops and
+ * takes a game's palette when a page sets `console-theme` (see
+ * header-page-bar.vue), which also flips the whole shell below.
  */
-.kr-shell[data-kr-console] .kr-system-bar {
+.kr-system-bar {
+  font-family:
+    ui-sans-serif,
+    system-ui,
+    -apple-system,
+    'Segoe UI',
+    Roboto,
+    sans-serif;
   background: linear-gradient(
     180deg,
-    color-mix(in oklch, var(--color-base-300) 55%, var(--color-base-100)) 0%,
-    var(--color-base-100) 100%
+    color-mix(in oklch, var(--color-base-300) 45%, var(--kr-surface-raised)) 0%,
+    var(--kr-surface-raised) 100%
   );
   border-color: color-mix(
     in oklch,
     var(--color-primary) 18%,
-    var(--color-base-300)
+    var(--kr-surface-border)
   );
   box-shadow:
     inset 0 1px 0 color-mix(in oklch, white 8%, transparent),
     0 1px 0 color-mix(in oklch, var(--color-primary) 30%, transparent),
-    0 14px 36px -22px color-mix(in oklch, var(--color-primary) 70%, transparent);
+    0 14px 36px -22px color-mix(in oklch, var(--color-primary) 60%, transparent);
 }
 
 .kr-shell.bg-black {

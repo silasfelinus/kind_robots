@@ -3,8 +3,15 @@
     <section class="grid w-full max-w-5xl min-h-0 max-h-full overflow-hidden rounded-2xl border border-secondary/50 bg-base-200 shadow-2xl @md:grid-cols-[1.1fr_1fr]">
       <div class="relative grid min-h-52 place-items-center overflow-hidden bg-gradient-to-br from-primary/30 via-base-300 to-secondary/25 p-6 text-center">
         <div class="space-y-3">
+          <img
+            v-if="painting && !imageBroken"
+            :src="painting"
+            :alt="'Illustrated collector event: ' + (incident?.title ?? 'Filed incident')"
+            class="max-h-56 w-full object-contain"
+            @error="imageBroken = true"
+          />
           <p class="text-xs font-bold uppercase tracking-widest opacity-75">Couch Natural History Society · Emergency Dispatch</p>
-          <span class="block text-7xl" aria-hidden="true">✳</span>
+          <span v-if="!painting || imageBroken" class="block text-7xl" aria-hidden="true">✳</span>
           <h2 class="text-2xl font-black">{{ incident?.title ?? 'Incident Report Filed' }}</h2>
           <p class="text-sm uppercase tracking-widest opacity-70">{{ at }} documented species</p>
         </div>
@@ -41,16 +48,24 @@
 </template>
 
 <script setup lang="ts">
+import { computed, ref, watch } from 'vue'
+import { COLLECTOR_INCIDENTS } from '~/utils/gameOfCaptains/alienMilestones'
 import type {
   CollectorIncident,
   CollectorChoice,
   CollectorEnding,
 } from '~/utils/gameOfCaptains/alienMilestones'
 
-defineProps<{
+const props = defineProps<{
   incident: CollectorIncident | null
   report: { at: number; ending: CollectorEnding; text: string } | null
   at: number
+  artwork?: Record<string, string>
 }>()
+const imageBroken = ref(false)
+const painting = computed(() =>
+  props.artwork?.[COLLECTOR_INCIDENTS.find((story) => story.at === props.at)?.illustrationKey ?? ''] ?? null,
+)
+watch(() => props.at, () => { imageBroken.value = false })
 defineEmits<{ choose: [choice: CollectorChoice]; close: [] }>()
 </script>

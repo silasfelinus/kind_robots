@@ -68,6 +68,8 @@ jobs:
 
       - name: Memory Dungeon Hoshimori warm sixteen-site and oven proof
         run: npx tsx utils/scripts/verifyMemoryHoshimoriWarm.test.ts
+      - name: Morrow Earth e03 authored district and replay
+        run: npx tsx utils/scripts/verifyMemoryMorrowEarth.test.ts
 
       - name: Memory Dungeon Hoshimori night-procession first sixteen-site proof
         run: npx tsx utils/scripts/verifyMemoryHoshimoriNight.test.ts

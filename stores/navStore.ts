@@ -149,6 +149,7 @@ export const useNavStore = defineStore('navStore', () => {
   const pageBars = ref<
     { id: number; consoleTheme: string; bar: boolean; compact: boolean }[]
   >([])
+  let nextPageBarId = 0
   const hasPageBar = computed(() => pageBars.value.some((entry) => entry.bar))
   const pageBarCompact = computed(() => {
     const bars = pageBars.value.filter((entry) => entry.bar)

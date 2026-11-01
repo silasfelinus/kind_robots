@@ -10,11 +10,13 @@ import { galleryThumbnailUrl } from '~/server/utils/artGalleryArchiveMedia'
 import { COUCH_ONBOARDING_ART_IDS } from '~/utils/gameOfCaptains/onboardingArt'
 import { COUCH_VOYAGE_ART_IDS } from '~/utils/gameOfCaptains/voyagePaintings'
 import { COUCH_EXPRESSION_ART_IDS } from '~/utils/gameOfCaptains/expressionPaintings'
+import { COUCH_CONSEQUENCE_ART_IDS } from '~/utils/gameOfCaptains/consequencePaintings'
 
 const PAINTED_ART_IDS = {
   ...COUCH_ONBOARDING_ART_IDS,
   ...COUCH_VOYAGE_ART_IDS,
   ...COUCH_EXPRESSION_ART_IDS,
+  ...COUCH_CONSEQUENCE_ART_IDS,
 }
 
 export default defineEventHandler(async (event) => {

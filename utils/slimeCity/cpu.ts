@@ -419,19 +419,22 @@ function cardCandidates(view: MatchView): Candidate[] {
               deploy(card, cell, 10)
         } else if (flagFree) {
           const nearest = [...foes].sort(
-            (a, b) =>
-              dist(a, view.flag) - dist(b, view.flag) || a.id - b.id,
+            (a, b) => dist(a, view.flag) - dist(b, view.flag) || a.id - b.id,
           )[0]
           const nearby = nearest && dist(nearest, view.flag) <= 4
           const cells = cellsAround(view, view.flag).filter(legal)
           const best = nearest
             ? cells.sort(
                 (a, b) =>
-                  dist(a, nearest) - dist(b, nearest) ||
-                  a.x - b.x || a.y - b.y,
+                  dist(a, nearest) - dist(b, nearest) || a.x - b.x || a.y - b.y,
               )[0]
             : cells.sort((a, b) => a.x - b.x || a.y - b.y)[0]
-          if (best) deploy(card, best, nearby ? 9 - dist(nearest, view.flag) * 0.4 : 3.5)
+          if (best)
+            deploy(
+              card,
+              best,
+              nearby ? 9 - dist(nearest, view.flag) * 0.4 : 3.5,
+            )
         }
       } else {
         const ownEnd = view.side === 'player' ? 0 : view.width - 1

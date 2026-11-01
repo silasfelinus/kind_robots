@@ -171,18 +171,19 @@ export function compactEarthJournal(
     })
   }
 
-  function visitRemaining(key: string): void {
+  function visitRemaining(key: string, traversed: Set<string>): void {
+    traversed.add(key)
     for (const neighbor of eventNeighbors(key)) {
-      if (!allowed.has(neighbor) || seen.has(neighbor)) continue
+      if (!allowed.has(neighbor) || traversed.has(neighbor)) continue
       seen.add(neighbor)
       compacted.push({ type: 'travel', key: neighbor })
       position = neighbor
-      visitRemaining(neighbor)
+      visitRemaining(neighbor, traversed)
       compacted.push({ type: 'travel', key })
       position = key
     }
   }
-  visitRemaining(position)
+  if (seen.size < allowed.size) visitRemaining(position, new Set())
   if (!travelTo(original.position)) return null
 
   const verified = replayEarthJournal(reality, compacted)

@@ -64,7 +64,10 @@ import {
   type CrossMapSealChronicle,
 } from '~/utils/memoryDungeon/crossMapSealChronicle'
 import { restoreMemoryRealitySave } from '~/utils/memoryDungeon/campaignPersistence'
-import { recoverBriarCollisionFromJournal } from '~/utils/memoryDungeon/briarCollisionProgress'
+import {
+  recoverBriarCollisionFromJournal,
+  concludeBriarCollisionFromJournal,
+} from '~/utils/memoryDungeon/briarCollisionProgress'
 import {
   DARK_BRIAR_WAVES,
   DARK_BRIAR_SCENES,
@@ -187,7 +190,7 @@ import {
   restoreMemoryAchievements,
 } from '~/utils/memoryDungeon/achievements'
 import type { EarthReality } from '~/utils/memoryDungeon/earthAct'
-import { replayEarthJournal, type EarthJournalAction } from '~/utils/memoryDungeon/earthJournal'
+import type { EarthJournalAction } from '~/utils/memoryDungeon/earthJournal'
 import type { HoshimoriWarmProgress } from '~/utils/memoryDungeon/hoshimoriWarm'
 import type { NightProgress } from '~/utils/memoryDungeon/hoshimoriNight'
 import { briarLossContinuation } from '~/utils/memoryDungeon/lossContinuations'
@@ -677,21 +680,9 @@ export const useMemoryWorldStore = defineStore('memoryWorld', () => {
   function finishBriarCollision(
     journal: readonly EarthJournalAction[],
   ): boolean {
-    const replayed = replayEarthJournal('e09', journal)
-    if (
-      !replayed ||
-      Object.keys(replayed.progress.choices).length < 12 ||
-      !campaign.value.finaleCommitted ||
-      !availableMemoryExperiences(campaign.value).includes('e09')
-    )
-      return false
-    const earned = recoverBriarCollisionFromJournal(campaign.value, journal)
-    if (!earned) return false
-    try {
-      campaign.value = completeMemoryExperience(earned, 'e09')
-    } catch {
-      return false
-    }
+    const next = concludeBriarCollisionFromJournal(campaign.value, journal)
+    if (!next) return false
+    campaign.value = next
     persistReality()
     return true
   }

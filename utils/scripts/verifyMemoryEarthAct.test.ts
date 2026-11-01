@@ -279,6 +279,50 @@ for (const reality of EARTH_REALITIES) {
   )
 }
 
+// V1 progress records choices in encounter order, not map/DFS order.
+// A migration must preserve the player's earned flags and resource history.
+for (const reality of ['e03', 'e04', 'e05', 'e06'] as const) {
+  let legacy = newOverworldEventProgress(reality)
+  legacy = revealOverworldEvent(legacy, '2,1')
+  legacy = revealOverworldEvent(legacy, '1,2')
+  legacy = chooseOverworldEvent(
+    legacy,
+    '2,1',
+    worldEvent(reality, '2,1')!.choices[0]!.id,
+  )
+  legacy = chooseOverworldEvent(
+    legacy,
+    '1,1',
+    worldEvent(reality, '1,1')!.choices[0]!.id,
+  )
+  assert.deepEqual(Object.keys(legacy.choices), ['2,1', '1,1'])
+
+  const journal = migrateLegacyEarthJournal(reality, legacy, '1,2')
+  assert.ok(journal, `${reality}: legitimate v1 choices must migrate`)
+  assert.deepEqual(
+    journal.filter((action) => action.type === 'choose').map((action) => action.key),
+    ['2,1', '1,1'],
+    `${reality}: import must not reorder earned decisions`,
+  )
+  const imported = replayEarthJournal(reality, journal)!
+  assert.equal(imported.position, '1,2')
+  assert.deepEqual(new Set(imported.progress.revealed), new Set(legacy.revealed))
+  assert.deepEqual(imported.progress.choices, legacy.choices)
+  assert.deepEqual(imported.progress.flags, legacy.flags)
+  for (const resource of ['supplies', 'trust', 'evidence', 'danger'] as const)
+    assert.equal(imported.progress[resource], legacy[resource])
+
+  assert.equal(
+    migrateLegacyEarthJournal(
+      reality,
+      { ...legacy, danger: legacy.danger + 1 },
+      '1,2',
+    ),
+    null,
+    `${reality}: migration must not silently rewrite legacy resource totals`,
+  )
+}
+
 for (const reality of ['e03', 'e04', 'e05', 'e06'] as const) {
   const branchJournal: EarthJournalAction[] = [
     { type: 'travel', key: '2,1' },

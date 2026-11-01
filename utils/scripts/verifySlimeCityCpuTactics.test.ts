@@ -41,27 +41,31 @@ const makeFighter = (
 })
 
 const base = (): MatchView => {
-  const view = observe(createMatch('blackout', 'undertow', 'riot', 199), 'player')
+  const view = observe(
+    createMatch('blackout', 'undertow', 'riot', 199),
+    'player',
+  )
   view.mana = 6
   view.hand = [cardById('tripwire')]
   view.trapCap = 2
   return view
 }
 const nearing = base()
-nearing.units = [
-  makeFighter(7, 'enemy', nearing.flag.x + 2, nearing.flag.y),
-]
+nearing.units = [makeFighter(7, 'enemy', nearing.flag.x + 2, nearing.flag.y)]
 const trap = chooseCpuAction(nearing)
 assert.ok(trap && trap.t === 'deploy' && trap.card === 'tripwire')
 if (trap?.t === 'deploy') {
   assert.equal(
-    Math.abs(trap.x - nearing.flag.x) +
-      Math.abs(trap.y - nearing.flag.y),
+    Math.abs(trap.x - nearing.flag.x) + Math.abs(trap.y - nearing.flag.y),
     1,
     'The trap protects an approach to the flag, not a random corner',
   )
 }
-assert.deepEqual(chooseCpuAction(nearing), trap, 'Identical visible state gives identical action')
+assert.deepEqual(
+  chooseCpuAction(nearing),
+  trap,
+  'Identical visible state gives identical action',
+)
 
 // Pursue an escaping flag carrier instead of dumping a trap behind it.
 const escape = base()
@@ -113,11 +117,34 @@ assert.deepEqual(chooseCpuAction(attack), {
 })
 // Exercise the real controller and settlement loop for all six authored crews.
 // Comparisons are reproducible, not win-rate claims from an inadequate sample.
-for (const [index, team] of ['catgirls', 'bloodfairies', 'ironjaw', 'riot', 'undertow', 'exchange'].entries()) {
+for (const [index, team] of [
+  'catgirls',
+  'bloodfairies',
+  'ironjaw',
+  'riot',
+  'undertow',
+  'exchange',
+].entries()) {
   const foe = team === 'riot' ? 'undertow' : 'riot'
-  const first = playHeadless('blackout', team as Parameters<typeof playHeadless>[1], foe, 5180 + index)
-  const again = playHeadless('blackout', team as Parameters<typeof playHeadless>[1], foe, 5180 + index)
+  const first = playHeadless(
+    'blackout',
+    team as Parameters<typeof playHeadless>[1],
+    foe,
+    5180 + index,
+  )
+  const again = playHeadless(
+    'blackout',
+    team as Parameters<typeof playHeadless>[1],
+    foe,
+    5180 + index,
+  )
   assert.ok(first.state.victor, team + ' match must resolve')
-  assert.deepEqual(first.state, again.state, team + ' match replays from the same seed')
+  assert.deepEqual(
+    first.state,
+    again.state,
+    team + ' match replays from the same seed',
+  )
 }
-console.log('Slime City Blackout CPU: carrier interception, flag traps, concealed information, six deterministic full bouts PASS')
+console.log(
+  'Slime City Blackout CPU: carrier interception, flag traps, concealed information, six deterministic full bouts PASS',
+)

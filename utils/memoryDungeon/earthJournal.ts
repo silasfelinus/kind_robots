@@ -60,6 +60,49 @@ export function replayEarthJournal(
 }
 
 /**
+ * Legacy snapshots predate action journals. Normalization must not silently
+ * discard a saved choice, location, flag or resource before migration checks it.
+ * A damaged chapter is safer to reset than to rewrite as a different story.
+ */
+export function validateLegacyEarthSnapshot(
+  value: unknown,
+  normalized: OverworldEventProgress,
+): boolean {
+  if (!value || typeof value !== 'object') return false
+  const source = value as Partial<OverworldEventProgress>
+  if (
+    source.version !== 1 ||
+    source.experience !== normalized.experience ||
+    !Array.isArray(source.revealed) ||
+    source.revealed.length !== normalized.revealed.length ||
+    source.revealed.some(
+      (key) => typeof key !== 'string' || !normalized.revealed.includes(key),
+    ) ||
+    !source.choices ||
+    typeof source.choices !== 'object' ||
+    Array.isArray(source.choices)
+  )
+    return false
+
+  const choices = Object.entries(source.choices)
+  if (
+    choices.length !== Object.keys(normalized.choices).length ||
+    choices.some(([key, choice]) => normalized.choices[key] !== choice) ||
+    !Array.isArray(source.flags) ||
+    source.flags.length !== normalized.flags.length ||
+    source.flags.some((flag, index) => flag !== normalized.flags[index])
+  )
+    return false
+
+  return (['supplies', 'trust', 'evidence', 'danger'] as const).every(
+    (resource) =>
+      typeof source[resource] === 'number' &&
+      Number.isFinite(source[resource]) &&
+      source[resource] === normalized[resource],
+  )
+}
+
+/**
  * Reconstruct a legal walking route from an already-normalized v1 save.
  * This is a one-time compatibility import, not proof of historical actions.
  * All subsequent v2 actions are replay-validated.

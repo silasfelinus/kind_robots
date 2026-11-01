@@ -320,7 +320,8 @@ export const STREET_STORIES: Record<string, StreetStory> = {
 export const CHAMPION_AFTERMATH: Record<DistrictId, StreetStory> = {
   pitworks: {
     title: 'THE CROWN IS MADE OF TEETH',
-    scene: 'Gutterball drops the city crown at your feet. The arena crowd chants for a ruler; the maintenance crews chant for a door they can finally open.',
+    scene:
+      'Gutterball drops the city crown at your feet. The arena crowd chants for a ruler; the maintenance crews chant for a door they can finally open.',
     choices: [
       {
         id: 'pit-open',
@@ -344,7 +345,8 @@ export const CHAMPION_AFTERMATH: Record<DistrictId, StreetStory> = {
   },
   chimera: {
     title: 'THE LAB DOORS ARE STILL LOCKED',
-    scene: 'The Gene Riot champion falls. Behind the cheering comes a quieter noise: engineered siblings calling from behind the clinic shutters.',
+    scene:
+      'The Gene Riot champion falls. Behind the cheering comes a quieter noise: engineered siblings calling from behind the clinic shutters.',
     choices: [
       {
         id: 'chimera-free',
@@ -368,7 +370,8 @@ export const CHAMPION_AFTERMATH: Record<DistrictId, StreetStory> = {
   },
   needles: {
     title: 'THE AFTERPARTY NEEDS A HOME',
-    scene: 'The Bloodfairies have won back their stage and lost their last safe roof. A demolition drone hovers over the dance floor.',
+    scene:
+      'The Bloodfairies have won back their stage and lost their last safe roof. A demolition drone hovers over the dance floor.',
     choices: [
       {
         id: 'needles-roof',
@@ -392,7 +395,8 @@ export const CHAMPION_AFTERMATH: Record<DistrictId, StreetStory> = {
   },
   foundry: {
     title: 'THE FURNACES KEEP BURNING',
-    scene: 'Ironjaw’s machines are yours to stop or restart. Workers in heatproof aprons wait to learn who now owns their shifts.',
+    scene:
+      'Ironjaw’s machines are yours to stop or restart. Workers in heatproof aprons wait to learn who now owns their shifts.',
     choices: [
       {
         id: 'foundry-coop',
@@ -416,7 +420,8 @@ export const CHAMPION_AFTERMATH: Record<DistrictId, StreetStory> = {
   },
   undertow: {
     title: 'THE SPIES LEFT THEIR NAMES BEHIND',
-    scene: 'The sewer intelligence vault unlocks. Its files name everyone who ever hid a fugitive in this city, including people who trusted you.',
+    scene:
+      'The sewer intelligence vault unlocks. Its files name everyone who ever hid a fugitive in this city, including people who trusted you.',
     choices: [
       {
         id: 'undertow-burn',
@@ -440,7 +445,8 @@ export const CHAMPION_AFTERMATH: Record<DistrictId, StreetStory> = {
   },
   crown: {
     title: 'EVERY RECEIPT IS A HOSTAGE',
-    scene: 'The Meat Exchange’s vault is full of contracts signed by people who never got to read them. The debt clock still ticks.',
+    scene:
+      'The Meat Exchange’s vault is full of contracts signed by people who never got to read them. The debt clock still ticks.',
     choices: [
       {
         id: 'crown-forgive',
@@ -464,7 +470,8 @@ export const CHAMPION_AFTERMATH: Record<DistrictId, StreetStory> = {
   },
   redline: {
     title: 'THE RIOT HAS NO EXIT',
-    scene: 'The Riot Saints leave you their detonator and a tram full of terrified witnesses. The cameras have already begun to roll.',
+    scene:
+      'The Riot Saints leave you their detonator and a tram full of terrified witnesses. The cameras have already begun to roll.',
     choices: [
       {
         id: 'redline-disarm',
@@ -489,7 +496,9 @@ export const CHAMPION_AFTERMATH: Record<DistrictId, StreetStory> = {
 }
 
 export function championAftermath(city: CityState): StreetStory | null {
-  return city.pendingAftermath ? CHAMPION_AFTERMATH[city.pendingAftermath] : null
+  return city.pendingAftermath
+    ? CHAMPION_AFTERMATH[city.pendingAftermath]
+    : null
 }
 
 export function streetStory(city: CityState): StreetStory | null {
@@ -1009,7 +1018,13 @@ export function travel(city: CityState, to: DistrictId): CityState {
 export function decide(city: CityState, choiceId: string): CityState {
   const plan = CITY_PLAN[city.location]
   const choice = plan.choices.find((c) => c.id === choiceId)
-  if (!choice || city.choices[city.location] || city.pendingStreet || city.pendingAftermath) return city
+  if (
+    !choice ||
+    city.choices[city.location] ||
+    city.pendingStreet ||
+    city.pendingAftermath
+  )
+    return city
   if (gateReason(city, city.location)) return city
   const next = copyCity(city)
   next.choices[city.location] = choice.id

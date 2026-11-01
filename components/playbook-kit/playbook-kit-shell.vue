@@ -25,11 +25,12 @@
           class="pf-console pk-bar @container flex min-w-0 flex-1 items-center gap-2"
           :class="settingClasses"
           data-testid="playbook-kit-bar"
+          @pointerdown="onPointer"
         >
           <button
             type="button"
             class="flex min-w-0 shrink-0 items-center gap-2 text-left"
-            :title="`${spec.title}: ${spec.tagline} Play the trailer`"
+            :title="`${spec.title} — ${spec.tagline} · Play the trailer`"
             :aria-label="`Play the ${spec.title} trailer`"
             @click="kit.playTrailer()"
           >

@@ -47,6 +47,8 @@ import {
   rememberMemoryWish,
   chooseMemoryPairEnding,
   chooseMemoryScyllaDeparture,
+  chooseMemoryCharAgency,
+  MEMORY_CHAR_AGENCY_CHOICES,
   MEMORY_SCYLLA_DEPARTURE_CHOICES,
   MEMORY_PAIR_ENDINGS,
   type MemoryCampaignProgress,
@@ -620,6 +622,7 @@ export const useMemoryWorldStore = defineStore('memoryWorld', () => {
   function finishMorrowEarthReality(
     reality: 'e03' | 'e04',
     pivotalChoice?: string,
+    charAgencyChoice?: string,
   ): boolean {
     if (campaign.value.completed.includes(reality)) return false
     if (reality === 'e03') {
@@ -688,11 +691,18 @@ export const useMemoryWorldStore = defineStore('memoryWorld', () => {
     } else {
       if (!campaign.value.completed.includes('e05')) return false
       if (
-        !MEMORY_PAIR_ENDINGS.e06.some((choice) => choice.id === pivotalChoice)
+        !MEMORY_PAIR_ENDINGS.e06.some((choice) => choice.id === pivotalChoice) ||
+        !MEMORY_CHAR_AGENCY_CHOICES.some(
+          (choice) => choice.id === charAgencyChoice,
+        )
       )
         return false
-      const decided = chooseMemoryPairEnding(
+      const agency = chooseMemoryCharAgency(
         campaign.value,
+        charAgencyChoice as (typeof MEMORY_CHAR_AGENCY_CHOICES)[number]['id'],
+      )
+      const decided = chooseMemoryPairEnding(
+        agency,
         'e06',
         pivotalChoice,
       )

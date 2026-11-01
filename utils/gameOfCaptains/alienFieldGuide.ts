@@ -500,6 +500,9 @@ export function resolveAlienSighting(
     friends,
     attempted: [...guide.attempted, key].slice(-400),
     milestoneSeen: [...guide.milestoneSeen],
+    ...(guide.milestoneDecisions
+      ? { milestoneDecisions: { ...guide.milestoneDecisions } }
+      : {}),
     contacts: { ...(guide.contacts ?? {}), [sighting.species.id]: outcome },
     lastContact: {
       speciesId: sighting.species.id,

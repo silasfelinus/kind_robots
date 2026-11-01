@@ -501,7 +501,12 @@
               {{ lab.city.contracts.length }}/7 · CRISES
               {{ Object.keys(lab.city.crisisChoices).length }}/3
               <template v-if="lab.city.finaleChoice">
-                · {{ lab.city.finaleChoice === 'pit-charter' ? 'CITY CHARTERED' : 'NEW PIT BOSS' }}</template
+                ·
+                {{
+                  lab.city.finaleChoice === 'pit-charter'
+                    ? 'CITY CHARTERED'
+                    : 'NEW PIT BOSS'
+                }}</template
               ></span
             ><span>{{ lab.city.log[0] }}</span>
           </div>

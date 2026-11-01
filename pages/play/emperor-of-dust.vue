@@ -11,6 +11,7 @@
     data-theme="emperor"
     data-layout="console-fixed"
   >
+    <shell-console-theme theme="emperor" />
     <div
       v-if="!court.loaded || !run"
       class="grid min-h-96 place-items-center"
@@ -85,12 +86,15 @@
             />
           </button>
 
-          <nav class="flex min-w-0 flex-1 gap-1" aria-label="Fortress rooms">
+          <nav
+            class="no-scrollbar flex min-w-0 flex-1 gap-1 overflow-x-auto pt-1.5 @3xl:overflow-visible @3xl:pt-0"
+            aria-label="Fortress rooms"
+          >
             <button
               v-for="room in rooms"
               :key="room.id"
               type="button"
-              class="eod-tab tooltip tooltip-bottom relative flex min-w-0 flex-1 items-center justify-center gap-1 whitespace-nowrap px-1 py-1.5 text-xs font-semibold uppercase tracking-wider @6xl:px-2"
+              class="eod-tab tooltip tooltip-bottom relative flex min-w-9 shrink-0 items-center @3xl:min-w-0 @3xl:flex-1 @3xl:shrink justify-center gap-1 whitespace-nowrap px-1 py-1.5 text-xs font-semibold uppercase tracking-wider @6xl:px-2"
               :data-tip="room.hint"
               :aria-label="
                 room.label + (room.badge ? `, ${room.badge} waiting` : '')

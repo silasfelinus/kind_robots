@@ -10,18 +10,12 @@
     />
     <memory-dungeon-sea
       v-else-if="seaMode"
-      @leave="
-        seaMode = false
-        earthMode = true
-      "
+      @leave="((seaMode = false), (earthMode = true))"
     />
     <memory-dungeon-earth
       v-else-if="earthMode"
       @leave="earthMode = false"
-      @sea="
-        seaMode = true
-        earthMode = false
-      "
+      @sea="((seaMode = true), (earthMode = false))"
     />
     <memory-dungeon-briar-collision
       v-else-if="collisionMode"

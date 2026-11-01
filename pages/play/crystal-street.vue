@@ -9,6 +9,7 @@
     data-theme="crystal-street"
     data-layout="console-fixed"
   >
+    <shell-console-theme theme="crystal-street" />
     <p
       v-if="store.storageWarning"
       class="kr-note kr-note-error p-2 text-sm"

@@ -544,6 +544,39 @@ body,
   overflow-x: hidden;
 }
 
+/*
+ * The surface tokens above resolve `--color-base-*` where they are declared
+ * (:root and [data-kr-backdrop]), so a theme set lower down on .kr-shell would
+ * inherit the outer theme's already-resolved colours -- a cream system bar on a
+ * night-ink console. Re-declaring them on the console shell makes them resolve
+ * against the game's theme, keeping the backdrop translucency when art is set.
+ */
+.kr-shell[data-kr-console] {
+  --kr-surface: var(--color-base-200);
+  --kr-surface-raised: var(--color-base-100);
+  --kr-surface-sunken: var(--color-base-300);
+  --kr-surface-border: var(--color-base-300);
+}
+
+.kr-shell[data-kr-console][data-kr-backdrop] {
+  --kr-surface: color-mix(in oklch, var(--color-base-200) 84%, transparent);
+  --kr-surface-raised: color-mix(
+    in oklch,
+    var(--color-base-100) 92%,
+    transparent
+  );
+  --kr-surface-sunken: color-mix(
+    in oklch,
+    var(--color-base-300) 80%,
+    transparent
+  );
+  --kr-surface-border: color-mix(
+    in oklch,
+    var(--color-base-300) 72%,
+    transparent
+  );
+}
+
 .kr-shell[data-kr-console] {
   font-family:
     ui-sans-serif,

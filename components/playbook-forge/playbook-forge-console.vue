@@ -6,6 +6,7 @@
     aria-label="Playbook Forge"
     @pointerdown="onPointer"
   >
+    <shell-console-theme theme="forge" />
     <div class="absolute inset-0 overflow-clip" aria-hidden="true">
       <div class="pf-backdrop">
         <transition-group name="pf-xfade">

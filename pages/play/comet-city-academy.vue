@@ -4,6 +4,7 @@
     data-layout="console-fixed"
     aria-label="Prom of Doom game"
   >
+    <shell-console-theme theme="comet-city" />
     <header-page-bar v-if="run" console-theme="comet-city">
       <div class="cca-topbar">
         <span class="cca-brand" title="Comet City Academy · Capes & Tassels">

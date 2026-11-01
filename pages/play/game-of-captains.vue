@@ -8,6 +8,7 @@
     data-layout="console-fixed"
     aria-label="Space Couch"
   >
+    <shell-console-theme theme="space-couch" />
     <section
       v-if="atTitle"
       class="cap-menu"

@@ -128,7 +128,7 @@ export const BRIAR_COLLISION_ROUTE_SITES = {
       },
     ],
   },
-  '3,2': {
+  '3,3': {
     title: 'The Union of Lost Hours',
     speaker: 'Mara and the night-shift stewards',
     kind: 'challenge',

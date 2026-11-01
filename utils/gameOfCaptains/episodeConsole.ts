@@ -173,54 +173,12 @@ const PLANET_CARDS = [
       'The couch redirects gravity; loose furniture occupies the council chamber.',
     crew: 'sora',
   },
-  {
-    title: 'The Hospital That Patented Its Patients',
-    skill: 'rescue',
-    setup:
-      'A hospital moon claims exclusive rights to the immune systems of everyone born in its wards. Patients may leave only after surrendering every future fever.',
-    ask: 'The patients establish their own care cooperative and negotiate a transfer of records.',
-    document:
-      'Vaccine ledgers show the hospital patented treatments developed by its own patients.',
-    override:
-      'The couch unfolds an emergency infirmary behind its backrest. The evacuees are safe, but the hospital still holds their records.',
-    crew: 'vela',
-  },
-  {
-    title: 'The Unopened Letter Tribunal',
-    skill: 'luck',
-    setup:
-      'A courier guild insists every sealed letter be read by a public panel, ostensibly to protect the missing. A sibling has asked that their final message remain private.',
-    ask: 'The recipients choose which letters to share. The guild must honor refusals.',
-    document:
-      'Pressure marks in the delivery log reveal who forged the inspection order without opening a single envelope.',
-    override:
-      'The red couch shelters the messengers inside its force bubble. The guild loses jurisdiction, but the missing sender still deserves privacy.',
-    crew: 'kivo',
-  },
 ] as const
 
-const planetCardId = (title: string) =>
-  'planet-' + title.toLowerCase().replace(/[^a-z0-9]+/g, '-')
-
 function selectedPlanetCard(run: VoyageRun) {
-  // Honor the actual card in a pre-existing save, including a chapter that was
-  // already drawn before the no-repeat schedule was introduced.
-  const recorded = (run as EpisodeRun).episodeDrawHistory?.find(
-    (entry) => entry.chapter === run.chapter && entry.deck === 'planet',
-  )
-  if (recorded) {
-    const original = PLANET_CARDS.find(
-      (card) => planetCardId(card.title) === recorded.cardId,
-    )
-    if (original) return original
-  }
-  // The nine-chapter voyage has more authored dilemmas than episodes. Choose
-  // a seed-specific start and coprime stride so each chapter sees a new card.
-  const count = PLANET_CARDS.length
-  const start = hash(`${run.seed}:planet:start`) % count
-  const strides = [1, 5, 7, 11] as const
-  const stride = strides[hash(`${run.seed}:planet:stride`) % strides.length]!
-  return PLANET_CARDS[(start + (run.chapter - 1) * stride) % count]!
+  return PLANET_CARDS[
+    hash(`${run.seed}:${run.chapter}:planet`) % PLANET_CARDS.length
+  ]!
 }
 /** Encounter requirements must match the actual authored situation. */
 const FRANCHISE_SKILLS: Record<string, Skill> = {
@@ -384,7 +342,7 @@ export function episodeCard(run: VoyageRun, deck: EpisodeDeck) {
   if (deck === 'planet') {
     const selected = selectedPlanetCard(run)
     return {
-      id: planetCardId(selected.title),
+      id: 'planet-' + selected.title.toLowerCase().replace(/[^a-z0-9]+/g, '-'),
       title: selected.title,
       setup: selected.setup,
       link: run.crew.includes(selected.crew as CrewId)

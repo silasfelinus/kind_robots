@@ -54,15 +54,25 @@ for (const mood of moods) {
 for (const choice of ALIEN_CHOICES) {
   const actual = moods.map((mood) => alienOutcome(mood, choice.id))
   assert.deepEqual([...actual].sort(), [...outcomes].sort())
-  assert.doesNotMatch(choice.label + ' ' + choice.hint, /run away|flee|retreat|friend|chaos|record|unlock|discover/i)
+  assert.doesNotMatch(
+    choice.label + ' ' + choice.hint,
+    /run away|flee|retreat|friend|chaos|record|unlock|discover/i,
+  )
 }
 assert.match(first.scene, /broken rescue beacon|stolen a dangling|stands guard/)
 assert.match(first.scene, /couch|bubble/i)
 assert.equal(first.mood, nextAlienSighting(run, empty)!.mood)
 
-const choiceFor = (mood: typeof first.mood, outcome: 'retreat' | 'chaos' | 'bond') =>
+const choiceFor = (
+  mood: typeof first.mood,
+  outcome: 'retreat' | 'chaos' | 'bond',
+) =>
   ALIEN_CHOICES.find((choice) => alienOutcome(mood, choice.id) === outcome)!.id
-const fleeing = resolveAlienSighting(empty, first, choiceFor(first.mood, 'retreat'))
+const fleeing = resolveAlienSighting(
+  empty,
+  first,
+  choiceFor(first.mood, 'retreat'),
+)
 assert.equal(fleeing.recorded, false)
 assert.equal(fleeing.guide.discovered.length, 0)
 assert.equal(maySeeAlien(run, fleeing.guide), false)
@@ -76,7 +86,8 @@ assert.equal(friend.recorded, true)
 assert.deepEqual(friend.guide.discovered, chaos.guide.discovered)
 assert.deepEqual(friend.guide.friends, [first.species.id])
 assert.deepEqual(
-  resolveAlienSighting(friend.guide, first, choiceFor(first.mood, 'chaos')).guide,
+  resolveAlienSighting(friend.guide, first, choiceFor(first.mood, 'chaos'))
+    .guide,
   friend.guide,
   'the same chapter cannot award twice',
 )
@@ -84,7 +95,8 @@ assert.equal(chaos.guide.lastContact?.outcome, 'chaos')
 assert.equal(friend.guide.lastContact?.outcome, 'bond')
 assert.equal(fleeing.guide.lastContact?.outcome, 'retreat')
 assert.equal(
-  normalizeAlienGuide(JSON.parse(JSON.stringify(friend.guide))).lastContact?.outcome,
+  normalizeAlienGuide(JSON.parse(JSON.stringify(friend.guide))).lastContact
+    ?.outcome,
   'bond',
 )
 const followup = nextAlienSighting({ ...run, chapter: 3 }, friend.guide)!

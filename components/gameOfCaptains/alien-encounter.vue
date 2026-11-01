@@ -139,9 +139,10 @@ const priorReport = computed(() => {
   if (!species) return null
   const previous = [...(props.guide.fieldReports ?? [])]
     .reverse()
-    .find((item) =>
-      item.speciesId !== species.id &&
-      ALIEN_BY_ID.get(item.speciesId)?.category === species.category,
+    .find(
+      (item) =>
+        item.speciesId !== species.id &&
+        ALIEN_BY_ID.get(item.speciesId)?.category === species.category,
     )
   return previous ? alienObservation(previous) : null
 })

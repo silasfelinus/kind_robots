@@ -66,16 +66,36 @@ assert.ok(first.scene.includes(observed.incident))
 assert.ok(first.scene.includes(observed.evidence))
 assert.ok(first.scene.includes(first.species.fieldNote))
 const allScenes = new Set<string>()
-for (const category of ['zodiac', 'hybrid', 'cosmic', 'social', 'ecology', 'legendary'] as const) {
+for (const category of [
+  'zodiac',
+  'hybrid',
+  'cosmic',
+  'social',
+  'ecology',
+  'legendary',
+] as const) {
   for (const mood of moods) {
     const clue = alienEvidence(category, mood)
-    assert.ok(clue.incident.length >= 65, category + ' incident needs a readable situation')
-    assert.ok(clue.evidence.length >= 65, category + ' evidence needs buried detail')
-    assert.doesNotMatch(clue.incident + ' ' + clue.evidence, /\\b(wary|playful|protective|bond|friendship|retreat|flee|guaranteed)\\b/i)
+    assert.ok(
+      clue.incident.length >= 65,
+      category + ' incident needs a readable situation',
+    )
+    assert.ok(
+      clue.evidence.length >= 65,
+      category + ' evidence needs buried detail',
+    )
+    assert.doesNotMatch(
+      clue.incident + ' ' + clue.evidence,
+      /\\b(wary|playful|protective|bond|friendship|retreat|flee|guaranteed)\\b/i,
+    )
     allScenes.add(clue.incident + clue.evidence)
   }
 }
-assert.equal(allScenes.size, 18, 'different ecology and emotions require different authored clues')
+assert.equal(
+  allScenes.size,
+  18,
+  'different ecology and emotions require different authored clues',
+)
 assert.match(first.scene, /couch|bubble/i)
 assert.equal(first.mood, nextAlienSighting(run, empty)!.mood)
 
@@ -113,14 +133,26 @@ assert.equal(friend.guide.lastContact?.choice, choiceFor(first.mood, 'bond'))
 assert.equal(friend.guide.fieldReports?.length, 1)
 assert.equal(friend.guide.fieldReports?.[0]?.speciesId, first.species.id)
 assert.match(alienObservation(friend.guide.fieldReports![0]!), /We tried/)
-assert.match(alienObservation(friend.guide.fieldReports![0]!), /It chose to stay/)
-assert.ok(alienObservation(friend.guide.fieldReports![0]!).includes(observed.evidence))
+assert.match(
+  alienObservation(friend.guide.fieldReports![0]!),
+  /It chose to stay/,
+)
+assert.ok(
+  alienObservation(friend.guide.fieldReports![0]!).includes(observed.evidence),
+)
 assert.equal(fleeing.guide.lastContact?.outcome, 'retreat')
-const restoredGuide = normalizeAlienGuide(JSON.parse(JSON.stringify(friend.guide)))
+const restoredGuide = normalizeAlienGuide(
+  JSON.parse(JSON.stringify(friend.guide)),
+)
 assert.equal(restoredGuide.lastContact?.outcome, 'bond')
 assert.deepEqual(restoredGuide.fieldReports, friend.guide.fieldReports)
 assert.deepEqual(
-  normalizeAlienGuide({ fieldReports: [{ speciesId: 'invented', mood: 'wary', outcome: 'bond' }, { speciesId: first.species.id, mood: 'fake', outcome: 'bond' }] }).fieldReports,
+  normalizeAlienGuide({
+    fieldReports: [
+      { speciesId: 'invented', mood: 'wary', outcome: 'bond' },
+      { speciesId: first.species.id, mood: 'fake', outcome: 'bond' },
+    ],
+  }).fieldReports,
   undefined,
 )
 const followup = nextAlienSighting({ ...run, chapter: 3 }, friend.guide)!

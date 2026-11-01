@@ -131,7 +131,8 @@ export function normalizeAlienGuide(value: unknown): AlienGuide {
       !ALIEN_BY_ID.has(candidate.speciesId ?? '') ||
       !isAlienMood(candidate.mood) ||
       !isAlienOutcome(candidate.outcome)
-    ) return null
+    )
+      return null
     return {
       speciesId: candidate.speciesId!,
       mood: candidate.mood,
@@ -203,86 +204,122 @@ const SCENE_CLUES: Record<
 > = {
   zodiac: {
     wary: {
-      incident: "The stars printed across its body go dark whenever the couch's shield crackles.",
-      evidence: "A dropped star-chart fragment lies at its feet; none of its markings change while the captain is still.",
+      incident:
+        "The stars printed across its body go dark whenever the couch's shield crackles.",
+      evidence:
+        'A dropped star-chart fragment lies at its feet; none of its markings change while the captain is still.',
     },
     playful: {
-      incident: "It nudges a paper horoscope toward the bubble, snatches it back, and repeats the performance.",
-      evidence: "One sign keeps pointing toward the couch, even though the creature has no reason to need directions.",
+      incident:
+        'It nudges a paper horoscope toward the bubble, snatches it back, and repeats the performance.',
+      evidence:
+        'One sign keeps pointing toward the couch, even though the creature has no reason to need directions.',
     },
     protective: {
-      incident: "A small constellation is tucked beneath its fins while the solar wind pulls at its outermost lights.",
-      evidence: "The creature tracks a loose cushion strap more closely than the visitors standing beside it.",
+      incident:
+        'A small constellation is tucked beneath its fins while the solar wind pulls at its outermost lights.',
+      evidence:
+        'The creature tracks a loose cushion strap more closely than the visitors standing beside it.',
     },
   },
   hybrid: {
     wary: {
-      incident: "Both animal halves go perfectly still when the crew's footsteps fall out of rhythm.",
-      evidence: "Their breathing settles into a single beat when the couch stops moving.",
+      incident:
+        "Both animal halves go perfectly still when the crew's footsteps fall out of rhythm.",
+      evidence:
+        'Their breathing settles into a single beat when the couch stops moving.',
     },
     playful: {
-      incident: "It offers a stolen button with one appendage and waits for the other half to take it back.",
-      evidence: "After the third exchange, it leaves the button precisely at the edge of the bubble.",
+      incident:
+        'It offers a stolen button with one appendage and waits for the other half to take it back.',
+      evidence:
+        'After the third exchange, it leaves the button precisely at the edge of the bubble.',
     },
     protective: {
-      incident: "One set of limbs guards a nest while the other struggles with a snapped branch.",
-      evidence: "A stray bit of couch upholstery is exactly the width of the gap in the branch.",
+      incident:
+        'One set of limbs guards a nest while the other struggles with a snapped branch.',
+      evidence:
+        'A stray bit of couch upholstery is exactly the width of the gap in the branch.',
     },
   },
   cosmic: {
     wary: {
-      incident: "The light around it collapses to a dim point whenever the shield gives off a pulse.",
-      evidence: "A drifting pebble crosses its path unharmed while the engines fall silent.",
+      incident:
+        'The light around it collapses to a dim point whenever the shield gives off a pulse.',
+      evidence:
+        'A drifting pebble crosses its path unharmed while the engines fall silent.',
     },
     playful: {
-      incident: "It sends an absurd three-note pulse toward the couch, then waits through a very deliberate silence.",
-      evidence: "The pulse begins again whenever someone inside the bubble taps a foot.",
+      incident:
+        'It sends an absurd three-note pulse toward the couch, then waits through a very deliberate silence.',
+      evidence:
+        'The pulse begins again whenever someone inside the bubble taps a foot.',
     },
     protective: {
-      incident: "A pocket of dangerous radiation has opened behind a cluster of small drifting shapes.",
-      evidence: "The creature keeps itself between the light and the smaller bodies, while a harmless reflective emergency blanket hangs loose on the couch.",
+      incident:
+        'A pocket of dangerous radiation has opened behind a cluster of small drifting shapes.',
+      evidence:
+        'The creature keeps itself between the light and the smaller bodies, while a harmless reflective emergency blanket hangs loose on the couch.',
     },
   },
   social: {
     wary: {
-      incident: "A ring of tiny spectators becomes quiet as the strangers step closer.",
-      evidence: "The visitor folds its ceremonial greeting card without offering it to anyone.",
+      incident:
+        'A ring of tiny spectators becomes quiet as the strangers step closer.',
+      evidence:
+        'The visitor folds its ceremonial greeting card without offering it to anyone.',
     },
     playful: {
-      incident: "It arranges three seats facing the couch and places an unclaimed fourth seat nearest the bubble.",
-      evidence: "Whenever the captain shifts position, the creature rearranges the seats to match.",
+      incident:
+        'It arranges three seats facing the couch and places an unclaimed fourth seat nearest the bubble.',
+      evidence:
+        'Whenever the captain shifts position, the creature rearranges the seats to match.',
     },
     protective: {
-      incident: "It holds a place in a crowded procession for someone who has not arrived.",
-      evidence: "The crowd is pushing against a delicate barricade; a ridiculous diversion would buy the missing member a little space.",
+      incident:
+        'It holds a place in a crowded procession for someone who has not arrived.',
+      evidence:
+        'The crowd is pushing against a delicate barricade; a ridiculous diversion would buy the missing member a little space.',
     },
   },
   ecology: {
     wary: {
-      incident: "A whole colony retreats into its host at the first metallic thump from the couch.",
-      evidence: "Only the smallest members reappear while the crew remains motionless.",
+      incident:
+        'A whole colony retreats into its host at the first metallic thump from the couch.',
+      evidence:
+        'Only the smallest members reappear while the crew remains motionless.',
     },
     playful: {
-      incident: "A juvenile pushes a bright seed toward the crew, chases it, then sends it back again.",
-      evidence: "Its companions repeat the exchange, waiting for a participant on the other side.",
+      incident:
+        'A juvenile pushes a bright seed toward the crew, chases it, then sends it back again.',
+      evidence:
+        'Its companions repeat the exchange, waiting for a participant on the other side.',
     },
     protective: {
-      incident: "Several young cling to their guardian at the edge of a collapsing shelter.",
-      evidence: "The creature watches a loose length of safety webbing far more carefully than it watches the captain.",
+      incident:
+        'Several young cling to their guardian at the edge of a collapsing shelter.',
+      evidence:
+        'The creature watches a loose length of safety webbing far more carefully than it watches the captain.',
     },
   },
   legendary: {
     wary: {
-      incident: "Its countless small lights blink out one by one when the red couch approaches.",
-      evidence: "A single ancient light continues pulsing while the crew makes no movement at all.",
+      incident:
+        'Its countless small lights blink out one by one when the red couch approaches.',
+      evidence:
+        'A single ancient light continues pulsing while the crew makes no movement at all.',
     },
     playful: {
-      incident: "It folds one impossible shape into an imitation of the couch, then makes the same shape again.",
-      evidence: "A spare cushion drifts upward and the creature mirrors its tiny wobble.",
+      incident:
+        'It folds one impossible shape into an imitation of the couch, then makes the same shape again.',
+      evidence:
+        'A spare cushion drifts upward and the creature mirrors its tiny wobble.',
     },
     protective: {
-      incident: "A piece of the sky behind it has torn open around something impossibly young.",
-      evidence: "The visitor will not abandon the opening; the couch still carries a rolled-up emergency membrane.",
+      incident:
+        'A piece of the sky behind it has torn open around something impossibly young.',
+      evidence:
+        'The visitor will not abandon the opening; the couch still carries a rolled-up emergency membrane.',
     },
   },
 }
@@ -364,7 +401,7 @@ export function nextAlienSighting(
         : 'The creature watches the couch cautiously; apparently a previous visitor warned it about awkward tourists.'
     : ''
   const scene =
-    `Near ${species.habitat}, the crew finds ${species.name}: ${species.appearance}. ${setting.incident} ${setting.evidence} The old field guide adds only: "${species.fieldNote}." ${callback}`.trim()
+    `From the red couch, the crew spots ${species.name} near ${species.habitat}: ${species.appearance}. ${setting.incident} ${setting.evidence} The old field guide adds only: "${species.fieldNote}." ${callback}`.trim()
   return {
     species,
     seed: run.seed,

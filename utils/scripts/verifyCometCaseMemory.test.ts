@@ -109,12 +109,17 @@ assert.equal(
 )
 
 const before = startFullAcademy('kinetic', 4402)
-const target = COMPLETE_NIGHT_DECK.find((incident) => incident.id === 'rally')!
-const base = dispatchModifier({ ...before, day: 7 }, target, ['mina'])
+const target = COMPLETE_NIGHT_DECK.find((incident) => incident.id === 'lightning-election')!
+const investigating = {
+  ...before,
+  day: 7,
+  playerCaseId: target.id,
+  missionApproach: 'investigate' as const,
+}
+const base = dispatchModifier(investigating, target, ['mina'])
 const helped = dispatchModifier(
   {
-    ...before,
-    day: 7,
+    ...investigating,
     caseHistory: prior,
   },
   target,
@@ -127,8 +132,7 @@ assert.equal(
 )
 const ignored = dispatchModifier(
   {
-    ...before,
-    day: 7,
+    ...investigating,
     flowVersion: 2,
     caseHistory: prior,
   },
@@ -137,7 +141,14 @@ const ignored = dispatchModifier(
 )
 assert.equal(
   ignored,
-  dispatchModifier({ ...before, day: 7, flowVersion: 2 }, target, ['mina']),
+  dispatchModifier({ ...investigating, flowVersion: 2 }, target, ['mina']),
+)
+
+const rescue = { ...investigating, missionApproach: 'rescue' as const }
+assert.equal(
+  dispatchModifier({ ...rescue, caseHistory: prior }, target, ['mina']),
+  dispatchModifier(rescue, target, ['mina']),
+  'baseline rescues preserve established story outcomes',
 )
 
 const night = { ...before, day: 8, phase: 'dispatch' as const }

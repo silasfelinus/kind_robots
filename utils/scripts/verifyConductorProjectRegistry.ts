@@ -323,6 +323,24 @@ check(
   agents.includes('commit-stamped materialized read projection'),
 )
 
+console.log('Front-door progress stays slim')
+const homePage = readFileSync(resolve('components/home/home-page.vue'), 'utf8')
+const progressRoute = readFileSync(
+  resolve('server/api/conductor/progress.get.ts'),
+  'utf8',
+)
+check(
+  'home page asks for progress only, not the full projection',
+  homePage.includes('conductorStore.fetchProgress()') &&
+    !homePage.includes('conductorStore.fetchProjects('),
+)
+check(
+  'progress route serves only active/continuous slugs and no task lists',
+  progressRoute.includes("new Set(['active', 'continuous'])") &&
+    !progressRoute.includes('tasks:') &&
+    !progressRoute.includes('.tasks'),
+)
+
 console.log('Projects public navigation')
 const publicTab = readFileSync(
   resolve('content/channels/projects/projects.md'),

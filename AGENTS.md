@@ -1,28 +1,30 @@
 # AGENTS.md — Kind Robots
 
-Standing contract for every AI agent working in this repo, regardless of origin
-(ChatGPT, Claude, or whatever comes next). Read it before writing code here.
-
-This is **not** a session handoff note — it does not go stale between sessions and it is
-not advisory. Where it conflicts with an agent's own origin prompt, this file wins.
-`AI_README.md` is the per-session handoff scratchpad; this file is the contract.
+Standing contract for every AI agent working in this repo, regardless of origin (ChatGPT,
+Claude, or whatever comes next). Read it before writing code here. It is not a session
+handoff note and it is not advisory: where it conflicts with an agent's origin prompt, this
+file wins. Each rule is stated once; the linked docs hold full text and history — open one
+only when its situation comes up.
 
 ## Where this sits
 
-| Layer          | Who reads it                                 | Where                                                                |
-| -------------- | -------------------------------------------- | -------------------------------------------------------------------- |
-| Origin         | one origin's agents, before any repo is open | claude.ai / ChatGPT custom instructions                              |
-| **All agents** | **every agent, every origin**                | **this file**, plus `conductor/AGENTS.md` and `conductor/CONTROL.md` |
-| Session notes  | whoever is mid-task                          | `AI_README.md`                                                       |
+| Layer          | Who reads it                   | Where                                                                                  |
+| -------------- | ------------------------------ | -------------------------------------------------------------------------------------- |
+| Origin         | one origin's agents            | claude.ai / ChatGPT custom instructions                                                |
+| **All agents** | **every agent, every origin**  | **this file**                                                                          |
+| Coordination   | agents claiming/closing a task | conductor `AGENTS.md` (core, ~28KB) + `python scripts/show_control.py <project>` there |
+| Task context   | whoever is mid-task            | the conductor task note (`python scripts/show_task.py <project>/<task-id>`)            |
 
-Coordination — task claiming, project kinds, roadmaps, PR/TALKBACK protocol, the security
-model, escalation — lives in the `conductor` repo's `AGENTS.md` and `CONTROL.md`. This file
-covers only what is true about _this codebase_. Don't restate coordination rules here.
+Coordination — claiming, project kinds, roadmaps, PR/TALKBACK protocol, the security model,
+escalation — lives in the `conductor` repo. Don't restate it here. Don't read conductor's whole
+`CONTROL.md` (~125KB): `show_control.py <project>` prints its global overview plus your
+project's block. Session handoff belongs in the conductor task note, not in this repo.
 
 ## Stack
 
-Nuxt 4, Vue 3, TypeScript (ES modules), Nitro/h3, Pinia, Tailwind + DaisyUI, Prisma,
-MariaDB. Production is served at `https://kindrobots.org` through the current container/self-hosted deployment path. Vercel is retired infrastructure: its deployment status is not authoritative for this repo and must not block review or merge decisions.
+Nuxt 4, Vue 3, TypeScript (ES modules), Nitro/h3, Pinia, Tailwind + DaisyUI, Prisma, MariaDB.
+Production is `https://kindrobots.org` on the self-hosted container path. Vercel is retired:
+its status is not authoritative and must not block review or merge.
 
 ## Code conventions
 
@@ -34,317 +36,151 @@ MariaDB. Production is served at `https://kindrobots.org` through the current co
   rather than hard-coded colors.
 - Keep props and emits few. Shared state belongs in a Pinia store, not threaded through
   component trees.
-- **Root-first client layout is intentional.** Kind Robots keeps `components/`, `pages/`,
-  `stores/`, `middleware/`, `assets/`, and `utils/` at repository root. Do not migrate
-  them into a wrapper `app/` directory merely because a newer Nuxt convention suggests it.
+- **Root-first client layout is intentional.** Keep `components/`, `pages/`, `stores/`,
+  `middleware/`, `assets/`, `utils/` at repository root; don't migrate into `app/`.
 - **Do not create a root `composables/` directory.** Domain state, API calls, persistence,
-  caching, and orchestration belong to the responsible Pinia store. Store-owned implementation
-  machinery belongs in `stores/helpers/`; genuinely cross-domain stateless code belongs in
-  `utils/`. Using `ref`, `computed`, or `watch` does not by itself justify a new
-  architectural category.
-- Root `middleware/` is client/router middleware (`defineNuxtRouteMiddleware`).
-  `server/middleware/` is Nitro request middleware. Keep both when needed; they are different
-  execution layers and must not be collapsed for folder-count aesthetics.
+  caching and orchestration belong to the responsible Pinia store; store machinery in
+  `stores/helpers/`; genuinely cross-domain stateless code in `utils/`.
+- Root `middleware/` is router middleware; `server/middleware/` is Nitro request middleware.
+  Different layers — don't collapse them.
 - **Components never call APIs or localStorage directly.** Stores own API calls,
   localStorage, and state. This is the rule most often broken by well-meaning edits — if a
   component is reaching for `$fetch` or `localStorage`, the logic belongs in a store.
 - Async store actions check `success` before storing anything.
 - Server routes live under `server/api/`, one directory per model: `server/api/{model}/index.ts`
-  for collection routes, `{name}.{verb}.ts` for the rest (e.g. `art/enqueue.post.ts`,
-  `art/storefront-featured.get.ts`).
-- `errorHandler()` (`server/utils/error.ts`) returns `{ success, message, statusCode }`.
-  Route handlers funnel failures through it rather than throwing raw errors — it already
-  classifies Prisma, auth, and transient-database errors, and keeps 4xx out of production
-  error clusters.
+  for collections, `{name}.{verb}.ts` for the rest (e.g. `art/enqueue.post.ts`).
+- `errorHandler()` (`server/utils/error.ts`) returns `{ success, message, statusCode }`; route
+  handlers funnel failures through it rather than throwing raw errors.
 - Match the idiom of the file you're editing. Keep diffs small and reviewable.
 - When returning code in chat, return complete copy-paste-ready files or sections — never
   placeholders or ellipses. In-repo, normal targeted edits are fine.
 
 ## Admin route and navigation contract (Silas, 2026-10-09)
 
-An **admin-only feature or development preview** must be available at an `/admin/...` route and have a discoverable `content/channels/admin/*.md` tab with `requiredRole: ADMIN`. Do not leave an admin-only prototype under `/play/...` or a Projects-only tab. Keep public release routes under `/play` for the point when they actually launch. Exceptions for internal non-navigation helpers require an explicit owner decision; avoid silent `navigation: false` for requested admin tools. When relocating an existing admin-only preview, update any associated project route and UI contract tests together. Audit other existing inconsistencies incrementally rather than destructively moving unrelated mature routes.
+An admin-only feature or development preview lives at an `/admin/...` route with a discoverable
+`content/channels/admin/*.md` tab (`requiredRole: ADMIN`) — not under `/play/...` and not a
+Projects-only tab. Public release routes go under `/play` when they actually launch. Exceptions
+for non-navigation helpers need an explicit owner decision; no silent `navigation: false` for
+requested admin tools. When relocating a preview, update its project route and UI contract tests
+together; fix other inconsistencies incrementally.
 
-## Viewport-first interface and complete gallery rule (Silas, 2026-10-13)
+## UI surfaces — viewport-first, art-first, console-first
 
-Design interactive pages for **one visible screen by default** at phone, tablet, and
-desktop widths. Use the shell's available content height, not a new `100vh`
-wrapper. Keep primary interaction, the active artwork/map/game stage, and a
-compact control/navigation row visible. Put secondary content in switchable
-panes or disclosed panels. When a pane contains more content than fits,
-**scroll inside that bounded content area** (prefer `.kr-scroll`) rather than
-turning the whole page into a tall document. An intentionally long article
-or tutorial is an explicit exception, not the default for games and tools.
+Full text: [`docs/ui-surface-standards.md`](docs/ui-surface-standards.md) — read it before
+building or reshaping a game, gallery or creative tool.
 
-**Gallery completion is a reachability contract:** every item must be reachable
-by scrolling the gallery's own bounded area or by clear, working pagination.
-Never silently clip the bottom rows with `overflow-hidden` or a fixed-height
-gallery without an overflow owner. Preserve the gallery's contents, loading
-states, item interactions, keyboard access and visible scroll affordance.
-
-Put how-to paragraphs, prototype caveats, policy explanations, and detailed
-reference text in the existing tutorial / help sidebar. Leave only short
-contextual labels, essential status, and narrative content that is itself
-part of play on the active screen. Do not solve the problem by shrinking
-art and controls into illegibility, piling more nested scrolling containers
-on a page, or creating a second persistent header. When changing an existing
-surface, check 390px / 768px / 1440px widths for no shell scrolling, reachable
-last gallery item, visible primary actions, and safe keyboard navigation.
-The Emperor of Dust court is the first concrete retrofit; apply this rule
-incrementally to existing games, galleries, and tools as they are touched.
-
-## Art-first interface standard
-
-Kind Robots is an **art-focused website**. Outside settings, administration, diagnostics,
-and similarly utilitarian screens, a feature is not finished merely because every field,
-button, or data object is technically reachable.
-
-- Prefer image-led cards, galleries, canvases, stages, decks, maps, timelines, and other
-  visual interaction surfaces over text-and-button control panels.
-- When a user chooses a Character, Dream, Scenario, Facet, Reward, artwork, or other entity
-  that has art, the art is a primary part of the choice. Do not reduce it to a tiny thumbnail
-  beside a form row unless dense utility UI genuinely requires that treatment.
-- Creative setup flows should feel open and compositional. Avoid wizard/tab proliferation
-  when the choices can coexist coherently on one visual surface.
-- Empty art is a product problem, not permission to design a permanently text-first card.
-  Use the shared art fallback while preserving an image-shaped slot, and wire real entity art
-  whenever the model provides it.
-- Settings-style UI is appropriate for settings. A creative product surface should look and
-  feel designed before it is sent to Silas for visual acceptance.
-
-## Console-first, space-filling creative surfaces (Silas, 2026-10-20 PT)
-
-The default visual metaphor for creative tools and games is a **console**, not a
-stacked web form. Artwork, maps, video, and playable stages get the strongest
-visual hierarchy and first use of available space. Controls should feel like
-a compact command deck around the stage; long settings and explanatory text
-belong in details panels or the tutorial sidebar.
-
-- On large displays, use the available **container** width and height instead of
-  trapping creative content in a narrow centered reading column. Responsive
-  columns in shared components use container queries or intrinsic grids rather
-  than viewport-only breakpoints.
-- Prioritize real, large image previews and image-led choices over text-heavy
-  cards, tiny thumbnails, and empty decorative gutters. When artwork is missing,
-  preserve an image-sized fallback instead of collapsing the visual stage.
-- On small displays, collapse supporting controls before shrinking the stage into
-  illegibility. Keep the primary action visible, with each gallery and option
-  browser owning its bounded scrolling so the last item stays reachable.
-- Apply this incrementally to existing surfaces. Do not globally widen
-  long-form reading content, invent nested scroll panes, or claim visual
-  acceptance without rendered phone, tablet, desktop and XL checks.
+- **One visible screen** at phone/tablet/desktop: use the shell's content height (no new `100vh`
+  wrapper); keep the primary interaction, the active stage and a compact control row visible;
+  secondary content goes in switchable panes that **scroll inside their own bounded area**
+  (`.kr-scroll`). Long articles are an explicit exception.
+- **Galleries are a reachability contract:** every item reachable by the gallery's own scroll or
+  working pagination; never clip rows with `overflow-hidden`/fixed heights.
+- How-to text, caveats and reference prose go in the tutorial/help sidebar, not on the stage.
+- **Art-first:** outside settings/admin/diagnostics, prefer image-led cards, canvases, maps and
+  decks over text-and-button panels; an entity's art is a primary part of choosing it; missing
+  art keeps an image-shaped fallback slot.
+- **Console-first:** the stage (art, map, video, game) gets the most space; controls form a
+  compact deck around it; use container width on large displays (container queries / intrinsic
+  grids); on small displays collapse controls before shrinking the stage.
+- Check 390px / 768px / 1440px (and XL) before claiming visual acceptance; apply incrementally.
 
 ## Database — standing rules from Silas (2026-07-02)
 
 The database holds real data.
 
-- **Never** run `prisma migrate reset`, or anything else that drops or recreates the
-  database. Resets happen only when Silas declares one explicitly in the session — never as
-  a convenience fix for drift or a failed migration.
-- **Never** rename or edit a migration that may have been applied anywhere (any dev machine
-  counts). Ship a new migration instead — e.g. `ALTER TABLE ... CHANGE COLUMN` — even for a
-  cosmetic rename.
-- To repair drift or a failed migration, prefer targeted, data-preserving steps:
-  `prisma db execute` for surgical SQL, fix `_prisma_migrations` bookkeeping, then
-  `prisma migrate resolve --applied <name>`. Explain what happened.
+- **Never** run `prisma migrate reset`, or anything else that drops or recreates the database,
+  unless Silas declares a reset explicitly in the session.
+- **Never** rename or edit a migration that may have been applied anywhere. Ship a new migration
+  (e.g. `ALTER TABLE ... CHANGE COLUMN`), even for a cosmetic rename.
+- Repair drift with targeted, data-preserving steps: `prisma db execute`, fix
+  `_prisma_migrations` bookkeeping, then `prisma migrate resolve --applied <name>`. Explain it.
 - Prefer API writes over raw SQL when a route already exists.
 
 ## Commands you hand a human start from a fresh window
 
-Every command block written for Silas to run is copied into a shell you know nothing
-about — a new PowerShell window, a fresh ssh session, a terminal that has been sitting
-open on some other directory since yesterday. It is NOT a continuation of the block you
-wrote three messages ago, and it is not a continuation of the one you wrote in the same
-message either, because the useful ones get copied one at a time.
-
-So every block is self-contained. Include the `cd`. Include the `git pull` if the block
-needs code that was just pushed. Never open with `.\scripts\thing.ps1` or
-`./scripts/thing.sh` and leave the working directory implied.
-
-    # wrong -- fails from anywhere but the one directory you were picturing
-    .\scripts\sync-comfy-models.ps1 -Tier core -Yes
-
-    # right
-    cd D:\code\kind_robots
-    git pull
-    .\scripts\sync-comfy-models.ps1 -Local D:\comfy\comfy-fast\models -Tier core -Yes
-
-Silas, 2026-09-08, after this cost him two rounds: _"if I ran your commands 'from
-ferngrotto' they would fail ... I'm missing a cd and git pull at minimum"_, and again:
-_"don't assume that I'm going to be running commands immediately after the last message
-from the same window."_
-
-The same rule covers paths: write them for the shell he is actually in. `/d/code/...` is
-Git Bash and means nothing to PowerShell, which resolves it against the current drive and
-looks for `D:\d\code\...`. When the shell is unknown, ask or give the PowerShell form,
-since Ferngrotto is Windows.
+Every command block for Silas is self-contained: include the `cd` and the `git pull` it needs,
+and write paths for the shell he's in (Ferngrotto is Windows; give PowerShell when unknown). It
+must also be incapable of printing a secret (conductor hard rule 15). Examples and history:
+[`docs/agent-standards-detail.md`](docs/agent-standards-detail.md).
 
 ## Self-hosted production — merge is not deploy
 
-Production is Alexandria/Unraid. A GitHub merge, a green workflow, and a published GHCR
-image are **not** proof that production is running that code or that its migrations ran.
-Keep these states distinct in every handoff: **merged → image published → deployed → schema
-verified**.
+Production is Alexandria/Unraid. Keep the states distinct in every handoff:
+**merged → image published → deployed → schema verified**.
 
-- Alexandria scheduling is owned by the **Unraid User Scripts** plugin so it survives host
-  restarts in the normal Unraid-supported way. The scheduled script should invoke
-  `scripts/unraid-user-script.sh`, which refreshes a clean `main` checkout and delegates to
-  `scripts/deploy-unraid.sh`.
-- `scripts/deploy-unraid.sh` pulls the new image, runs that image's pending migrations with
-  the isolated migration credential, and only then asks Unraid DockerMan to replace
-  `KindRobots` from its saved template.
-- **Do not tell Silas to use Force Update as the normal Kind Robots deploy step.** Force
-  Update knows how to recreate the container but knows nothing about Prisma migrations.
-- Any change to `prisma/schema.prisma` or `prisma/migrations/**` must be called out as
-  **schema-affecting** in the PR/session handoff. Do not describe it as live merely because
-  CI passed or the image was published.
-- Automatic migrations run before the old container is replaced. Therefore routine
-  unattended migrations must be backward-compatible with the currently running build during
-  that handoff window. Additive migrations are the default. Destructive drops/renames that
-  the old build still uses require an explicit staged rollout rather than ordinary auto-deploy.
-- If the automatic Alexandria User Script is installed and healthy, routine schema changes
-  do not require a separate human migration instruction. If automation is unavailable,
-  broken, or not yet installed, give Silas the exact `bash scripts/deploy-unraid.sh`
-  production command before calling the operational work complete.
-- Never place `MIGRATION_DATABASE_URL` in the long-running application environment to make
-  deployment easier. The elevated credential belongs only to the throwaway migration
-  process documented in `docs/runbooks/migration-credential-boundary.md`.
-- Read `docs/runbooks/unraid-auto-deploy.md` before changing the production container,
-  migration wrapper, deployment scripts, image publication, or Unraid update behavior.
+- The Unraid User Scripts schedule runs `scripts/unraid-user-script.sh` →
+  `scripts/deploy-unraid.sh` (pull image, run its migrations with the isolated credential, then
+  replace `KindRobots`). **Do not tell Silas to use Force Update as the normal Kind Robots deploy step.**
+- Call out any `prisma/schema.prisma` / `prisma/migrations/**` change as **schema-affecting**.
+  Unattended migrations must be backward-compatible with the running build (additive by default;
+  destructive changes need a staged rollout). If automation is unavailable, give the exact
+  `bash scripts/deploy-unraid.sh` command.
+- Never put `MIGRATION_DATABASE_URL` in the app environment
+  (`docs/runbooks/migration-credential-boundary.md`).
+- Read `docs/runbooks/unraid-auto-deploy.md` before changing the container, migration wrapper,
+  deploy scripts, image publication or Unraid update behavior.
 
 ## Routes and surfaces
 
-Before adding a route, tab, page, or manager, inspect the Ecosystem Map and the relevant
-section docs. Prefer, in order:
-
-1. An existing stitched surface.
-2. An existing dashboard channel.
-3. WonderLab, if nothing fits.
-4. A new top-level channel — **only with Silas's approval.**
-
-Avoid duplicate or decorative routes, tabs, pages, and managers. A surface isn't finished
-when it renders: it may also need dashboard/tutorial registration, artwork, and the matching
-Kind Robots `Project.liveUrl` / `channelKey` / `tabKey` presentation fields, plus direct-load,
-refresh, mobile, typecheck, and preview checks. These presentation fields belong here, not in
-Conductor's lifecycle registry.
+Before adding a route, tab, page or manager, check the Ecosystem Map (conductor
+`projects/ecosystem-map/`) and the relevant section docs. Prefer, in order: an existing stitched
+surface, an existing dashboard channel, WonderLab, and only with Silas's approval a new top-level
+channel. A surface isn't finished when it renders: it may also need dashboard/tutorial
+registration, artwork, the `Project.liveUrl` / `channelKey` / `tabKey` presentation fields, and
+direct-load, refresh, mobile, typecheck and preview checks.
 
 ## Art generation
 
-All generation runs through durable ArtJobs, normally `POST /api/art/enqueue`.
-
-    request → ArtJob → kr-relay → render → ArtImage → entity attach → delivery → final URL
-
-**Queued ≠ rendered ≠ delivered ≠ verified.** A request, a YAML entry, an HTTP 200, a queue
-row, and a `DONE` status are all upstream of a delivered asset. Check the final URL before
-calling it done.
-
-`kr-relay` owns durable rendering; browser polling is display-only. Preserve active and
-retryable jobs, reuse an ArtJob ID after a transient failure instead of enqueueing a
-duplicate, and pass exact repo/path/variant/dimensions/format/engine/entity metadata.
+All generation runs through durable ArtJobs, normally `POST /api/art/enqueue`:
+request → ArtJob → kr-relay → render → ArtImage → entity attach → delivery → final URL.
+**Queued ≠ rendered ≠ delivered ≠ verified** — check the final URL before calling it done.
+`kr-relay` owns rendering; browser polling is display-only. Reuse an ArtJob ID after a transient
+failure instead of enqueueing a duplicate, and pass exact repo/path/variant/dimensions/format/
+engine/entity metadata.
 
 ## Shared behavior — audit siblings before you change one
 
-Much of this codebase has near-duplicate implementations of the same idea. When changing
-shared behavior, find the siblings first and prefer one shared implementation over another
-near-copy. Highest-risk areas:
+Find near-duplicate implementations first and prefer one shared implementation. Highest-risk:
+maturity/resource filtering, LoRA and checkpoint handling, galleries, ArtJob routes and retries,
+entity art, navigation and tutorials, auth, project fields (`conductorSlug` is the Conductor join
+key), stores, API contracts.
 
-- maturity and resource filtering
-- LoRA and checkpoint handling
-- galleries
-- ArtJob routes and retry logic
-- entity art
-- navigation and tutorials
-- auth
-- project fields (`conductorSlug` is the join key to Conductor — see `CONTROL.md`)
-- stores
-- API contracts
-
-## Deleting a superseded component
-
-A plain "who imports this `.vue` file" grep misses real dependents. When t-026 deleted
-`conductor-art-gallery.vue` in favor of `entity-art-manager.vue` (kind_robots PR #1405), an
-import-site search missed two live dependents: a plugin that DOM-scraped the deleted
-component's specific rendered markup, and a CI workflow that named the file directly in its
-trigger path list. Neither shows up in a normal import/component-usage search. Before
-deleting a superseded component:
-
-1. Grep the deleted filename (not just import statements) across the whole repo — `.yml`
-   workflow files and DOM-scraping plugins are real dependents too, and they only show up
-   on a plain filename search.
-2. Check `.github/workflows/*.yml` `paths:` trigger blocks specifically for the filename.
-3. Check `plugins/*.client.ts` for selector strings that could key off the deleted
-   component's specific rendered markup (an attribute, class, or DOM structure), not just
-   its component name.
-4. If the component has published WonderLab museum reviews, read
-   `docs/wonderlab-component-retirement-policy.md` first — reviews survive retirement by
-   design and are never a reason to keep the file.
+**Deleting a component:** grep the filename itself (not just imports) across the repo, including
+`.github/workflows/*.yml` `paths:` blocks and selector strings in `plugins/*.client.ts`. Published
+WonderLab reviews survive retirement and are never a reason to keep the file.
 
 ## Project identity and source of truth
 
-Read `docs/conductor-projection.md` before changing cross-repository project data.
+Read `docs/conductor-projection.md` before changing cross-repository project data. Every Conductor
+project has one Kind Robots `Project` row, joined only by `Project.conductorSlug`.
 
-Every Conductor project has a matching Kind Robots `Project` record, joined only by
-`Project.conductorSlug`. Do not add a redundant cross-repository foreign key.
+- **Conductor owns coordination:** lifecycle, priority, tasks, milestones, dependencies, claims,
+  notes, gates, approvals, pitches.
+- **Kind Robots owns presentation and application state:** title, description, routes, channel,
+  tab, live/repo URLs, artwork, and all application data.
+- Kind Robots stores Conductor coordination as a commit-stamped materialized read projection —
+  a cache, never a second authority: UI actions emit a Conductor task
+  event or pitch update, and completion is canonical only after the next sync returns that commit.
+- Sync updates only status, priority, missing `conductorSlug` and `lastSyncedAt` on an existing
+  row — except that a project Conductor marks retired (`ARCHIVED`) is set `isActive: false` and its
+  `liveUrl`/`channelKey`/`tabKey` are cleared (`server/api/conductor/sync.post.ts`). Don't add new
+  presentation values to Conductor's `project-overrides.yaml`.
+- Surfaces that need only progress use `GET /api/conductor/progress` (via
+  `conductorStore.fetchProgress()`), not the full `/api/conductor/projects` projection.
 
-**Conductor owns coordination:**
+## Formatting and verifying
 
-- lifecycle and coordination priority;
-- roadmap tasks and milestones;
-- dependencies, claims, owners, notes, and passes;
-- human gates and approvals;
-- pitches and coordination provenance.
+Keep the repo-wide Prettier ratchet: **never weaken it or re-record its baseline to go green.**
+Run `npm run format:changed` before opening or updating a PR (connector-only edits: apply the
+`Changed-file Prettier` check's suggested patch). Typecheck and run the tests that cover what you
+touched. Don't weaken, skip or delete a legitimate test to manufacture a pass; if a check is red
+for reasons that predate your change, say so explicitly. Hook mechanics:
+[`docs/agent-standards-detail.md`](docs/agent-standards-detail.md).
 
-**Kind Robots owns presentation and application state:**
+## Searching this repo
 
-- Project title and user-facing description;
-- route, channel, tab, live URL, and displayed repository URL;
-- project artwork;
-- user state, conversations, runtime queues, ArtJobs, payments, grants, and all other
-  application data.
-
-Kind Robots stores Conductor coordination as a commit-stamped materialized read projection.
-The projection is a cache, not a second authority. Never write projected task or milestone
-state directly in this database. Human actions from the Kind Robots UI must emit a Conductor
-task event or pitch update; canonical completion occurs only after Conductor commits the
-change and the next projection sync returns that exact commit.
-
-The projection sync may update only coordination fields on an existing `Project`: status,
-priority, `conductorSlug` when missing, and `lastSyncedAt`. It must not overwrite title,
-description, routes, placement, URLs, or artwork. Legacy presentation values in Conductor
-`project-overrides.yaml` are bootstrap fallbacks for missing Project rows only. Do not add new
-`liveUrl`, `channelKey`, `tabKey`, or `repoUrl` values there.
-
-When the repositories disagree, Conductor wins for coordination fields and Kind Robots wins
-for presentation/application fields. Repair the event or projection path instead of editing
-both sides until they happen to match.
-
-## Formatting changed files before CI
-
-Keep the repo-wide Prettier ratchet: old formatting debt is grandfathered in,
-but new unformatted files may never enter the baseline. **Do not weaken the
-ratchet or re-record its baseline to make a PR green.**
-
-After `npm install` / `npm ci` in a local checkout, the repo installs a
-pre-commit hook that formats staged, Prettier-supported files and re-stages
-those files. It refuses to touch partially staged files with additional
-unstaged edits; stage or stash those edits first.
-
-Before opening or updating a PR, run `npm run format:changed` and commit
-the resulting formatting changes. Both the hook and fast check skip files already
-listed as unformatted in the existing ratchet baseline, avoiding unrelated
-whole-file formatting churn. `npm run format:check-changed` is the
-read-only equivalent. Both select only new/modified files on the current
-branch compared to `origin/main`, not the whole repository.
-
-**Connector-only GitHub edits bypass local hooks.** Their author must use
-the fast `Changed-file Prettier` PR check and apply its exact suggested
-patch when red. That job reports the specific formatting diff without
-waiting for the much slower full Contract Tests ratchet. The ratchet stays
-required as the backstop; checking green on an earlier commit does not
-prove a newer commit is green.
-
-## Verifying your work
-
-Typecheck, and run the tests that cover what you touched. Don't weaken, skip, or delete a
-legitimate test to manufacture a pass — fix the product, the test contract, the environment,
-or the workflow fault instead. If a check is red for reasons that predate your change, say
-so explicitly rather than quietly leaving it red.
+`prisma/generated/` (~17MB of generated client), `stats.html` (bundle report), `artifacts/` (audit
+output) and `package-lock.json` are listed in `.ignore`, so ripgrep-based search skips them. Search
+them explicitly (`rg -uu <pattern> <path>`) only when that's what you need. Game-content JSON
+(`utils/crystalStreet/`, `utils/shiftingLands/`, …) stays searchable — but read it by `grep -n`
+range, not whole.

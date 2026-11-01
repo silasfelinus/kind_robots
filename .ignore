@@ -1,0 +1,8 @@
+# Search-tool ignores (ripgrep, fd, ag). NOT a gitignore: these files stay tracked.
+# Generated or build output that repo-wide searches hit before real code
+# (prisma/generated alone is ~17MB across ~145 files). Search them explicitly
+# with `rg -uu <pattern> <path>` when that is what you need.
+prisma/generated/
+stats.html
+artifacts/
+package-lock.json

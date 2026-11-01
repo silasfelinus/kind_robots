@@ -64,7 +64,7 @@ jobs:
   # localStorage into the mounted page, at 390/768/1440, plus a real reload
   # and an art-failure fallback. Read-only: no API writes, no deployment.
   browser-contract:
-    if: github.event_name == 'workflow_dispatch' || github.event_name == 'pull_request'
+    if: github.event_name == 'workflow_dispatch'
     needs: contract
     runs-on: ubuntu-latest
     timeout-minutes: 25

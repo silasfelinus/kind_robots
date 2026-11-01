@@ -85,13 +85,13 @@ export function earthCollisionCrossroadStory(
       ? 'MORROW: "A forecast is not a warrant." He destroys the machine\'s sacrifice ledger, including the shortcut it predicted through the collapsing district. Mara and Oren escort the seventeen workers along a slower witnessed route; the station clerk keeps the missing-person register open until everyone is accounted for. The city loses its best prediction of the next rupture. Morrow writes down that cost instead of promising a painless victory. ' +
         (history.charter === 'consent'
           ? 'The hearth spirit offers beds without retaining names or restricting departure.'
-          : 'Vesper posts an open route but refuses to mark the refugees\' doors.') +
+          : "Vesper posts an open route but refuses to mark the refugees' doors.") +
         ' The tide-gate survivors and losses remain part of the record.'
       : verdict === 'publish-price-ledger'
         ? 'MORROW: "Publish the uncertainty, not the people." Mara convenes a worker review board with a binding right to opt out, while Oren strips private addresses from the forecast and marks each closed shortcut in red. Seventeen workers contest the evacuation ranking and leave by a longer staffed corridor. The disputed prediction survives as evidence, not an order. A clinic transfer is delayed and the station clerk records that debt publicly. ' +
           (history.charter === 'consent'
             ? 'Vesper requires fresh consent before the Hoshimori shelter appears on any map.'
-            : 'Vesper leaves the village\'s private household paths off the public chart.') +
+            : "Vesper leaves the village's private household paths off the public chart.") +
           ' Nobody is counted as rescued merely because a spreadsheet says so.'
         : ''
   return { opening, outcome }
@@ -108,7 +108,10 @@ export function concludeEarthCollisionFromJournal(
   if (campaign.completed.includes('e10') || campaign.pairDecisions?.e10)
     return null
   const history = earthCollisionHistory(campaign, hoshimoriSave, briarJournal)
-  if (!history || !EARTH_CROSSROAD_CHOICES.some((choice) => choice.id === verdict))
+  if (
+    !history ||
+    !EARTH_CROSSROAD_CHOICES.some((choice) => choice.id === verdict)
+  )
     return null
   const replayed = replayEarthJournal('e10', journal)
   if (

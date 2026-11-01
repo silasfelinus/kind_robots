@@ -30,121 +30,135 @@ const HABITATS: Record<AlienCategory, string> = {
   ecology: 'protected ecosystems, colonies and wild food webs',
   legendary: 'rare late-voyage anomalies beyond the chart',
 }
-const RAW: ReadonlyArray<readonly [AlienCategory, string, string, string]> = [
-  ['zodiac', "Ramray of the Rising House", "elder stingray with ram horns and woolly fins", "Requires applause at every sunrise"],
-  ['zodiac', "Taurus Tardigrade", "colossal mossy water bear crowned with bull horns", "Sleeps under whole villages"],
-  ['zodiac', "Gemini Glass Eels", "twinned transparent eels with one interwoven shadow", "Argue until rivers change direction"],
-  ['zodiac', "Cancer Lantern Crab", "tiny crab carrying a constellation inside its shell", "Adopts lost stars"],
-  ['zodiac', "Leo Mane-Moth", "orange moth with a lion's mane and six wings", "Roars only when everyone is asleep"],
-  ['zodiac', "Virgo Needle Shrew", "old silver shrew with floating needle quills", "Repairs holes in reality"],
-  ['zodiac', "Libra Balancing Ibis", "violet ibis with two floating eggshells for shoes", "Builds two nests so neither egg feels neglected"],
-  ['zodiac', "Scorpio Sugar Scorpion", "coral scorpion with a translucent candy stinger", "Flirts through intimidating dances"],
-  ['zodiac', "Sagittarius Stagfish", "flying fish with antlers and a comet fin", "Chases targets that do not exist yet"],
-  ['zodiac', "Capricorn Reef Goat", "seaweed goat with a nautilus tail", "Climbs waterfalls very reluctantly"],
-  ['zodiac', "Aquarius Rain Otter", "round sky blue otter with a portable raincloud", "Offers umbrellas before making it rain"],
-  ['zodiac', "Pisces Dream Koi", "two old gold koi sharing a ribbon of mist", "Dream oceans into existence"],
-  ['hybrid', "Mantis Possum", "emerald possum with folding praying-mantis claws", "Plays dead to a standing ovation"],
-  ['hybrid', "Jellyferret", "translucent jellyfish with a cheerful ferret face", "Steals loose buttons with anonymous tentacles"],
-  ['hybrid', "Peacock Antelope", "gazelle with fan of peacock tail eyes", "Courts the thunderstorms"],
-  ['hybrid', "Snail Fox", "rust fox living inside mother-of-pearl shell", "Outruns arguments by hiding in yesterday"],
-  ['hybrid', "Pufferwolf", "charcoal wolf with inflatable pufferfish spines", "Puffs up when its friends receive compliments"],
-  ['hybrid', "Cricket Otter", "sleek river otter with cricket legs", "Plays concerts by hopping on lily pads"],
-  ['hybrid', "Vulture Seal", "elder white seal with enormous scavenger wings", "Cleans beaches while muttering"],
-  ['hybrid', "Salamander Hare", "black hare with a glowing salamander tail", "Delivers letters through campfires"],
-  ['hybrid', "Moth Moose", "huge midnight moose with moth antennae", "Follows lamps through doorways far too small"],
-  ['hybrid', "Platypus Heron", "long-legged bird with a platypus bill", "Builds fishing tools then eats them"],
-  ['hybrid', "Gecko Pangolin", "copper pangolin with gecko feet", "Sleeps upside down on its burrow ceiling"],
-  ['hybrid', "Lobster Magpie", "bright blue lobster with a magpie wing mantle", "Collects reflections rather than objects"],
-  ['hybrid', "Bat Axolotl", "lavender axolotl with soft bat wings", "Dreams of underwater caves"],
-  ['hybrid', "Swan Weevil", "graceful swan with a long beetle snout", "Nibbles holes in wedding ribbons"],
-  ['hybrid', "Pika Orca", "black and white miniature orca with pika paws", "Makes whale songs at mouse volume"],
-  ['hybrid', "Cobra Seahorse", "upright seahorse with a cobra hood", "Hypnotizes predators into remembering birthdays"],
-  ['hybrid', "Firefly Tapir", "amber tapir freckled with fireflies", "Draws maps in the dark"],
-  ['hybrid', "Tarantula Puffin", "fluffy eight-legged puffin with bright beak", "Builds sea-foam webs for its young"],
-  ['hybrid', "Hedgehog Cuttlefish", "spiny peach cuttlefish curled like a hedgehog", "Changes colors when telling lies"],
-  ['hybrid', "Yak Hummingbird", "tiny shaggy yak with hummingbird wings", "Hovers angrily until its scarf is praised"],
-  ['hybrid', "Crocodile Butterfly", "green butterfly with a crocodile jaw", "Ambushes slow flowers"],
-  ['hybrid', "Manatee Beetle", "gentle opal beetle as large as a manatee", "Runs free ferry services for insects"],
-  ['hybrid', "Lynx Nudibranch", "sea slug with spotted fur tufts and lynx ears", "Hunts bad vibrations"],
-  ['hybrid', "Ostrich Seahorse", "enormous seahorse with ostrich legs", "Runs on the ocean floor"],
-  ['cosmic', "Nebula Coyote", "purple coyote with galaxies drifting through fur", "Howls when a planet misplaces its moon"],
-  ['cosmic', "Static Eel", "white eel composed of radio crackle", "Answers questions two seconds early"],
-  ['cosmic', "Vacuum Tortoise", "ancient black tortoise with transparent floating shell", "Carries a forest through space"],
-  ['cosmic', "Solar Moth", "enormous saffron moth with sunspot wings", "Its chrysalis briefly eclipses the sun"],
-  ['cosmic', "Comet Toad", "ice blue toad riding a frozen comet tail", "Lands once a century to say hello"],
-  ['cosmic', "Gravity Heron", "black heron bending gravity around its ankles", "Stands on ceilings to avoid arguments"],
-  ['cosmic', "Eclipse Weasel", "silver weasel haloed in shifting shadow", "Steals only dramatic lighting"],
-  ['cosmic', "Quasar Shrimp", "pink shrimp with blinding star pupils", "Broadcasts its opinions across light years"],
-  ['cosmic', "Pulsar Hedgehog", "turquoise hedgehog with blinking quills", "Synchronizes whole villages to its nap"],
-  ['cosmic', "Meteor Sloth", "ochre sloth wrapped in hot pebbles", "Falls so slowly birds build nests on it"],
-  ['cosmic', "Antimatter Minnow", "ghostly fish with impossible inverted fins", "Prefers being admired from far away"],
-  ['cosmic', "Redshift Lemur", "scarlet lemur with endlessly stretching tail", "Waves goodbye for several centuries"],
-  ['cosmic', "Orbiting Barn Owl", "barn owl with three feather satellites", "Knows where everyone left their keys"],
-  ['cosmic', "Wormhole Wombat", "indigo wombat with tiny universe inside pouch", "Frequently loses its own front door"],
-  ['cosmic', "Ion Giraffe", "iridescent giraffe with aurora mane", "Licks the rainbows from gas giants"],
-  ['cosmic', "Moonphase Mole", "blind blue mole with changing lunar markings", "Digs tunnels through next Tuesday"],
-  ['cosmic', "Photon Armadillo", "silver armadillo with luminous ribs", "Rolls into a wheel to light the darkness"],
-  ['cosmic', "Magnetosphere Newt", "cobalt newt with iron-filing freckles", "Attracts rings nobody owns"],
-  ['cosmic', "Supernova Sparrow", "bronze sparrow with exploding crest", "Celebrates birthdays very loudly"],
-  ['cosmic', "Blackhole Alpaca", "vast black alpaca with event-horizon fleece", "Eats socks and occasionally gravity"],
-  ['social', "Apology Beetle", "blush pink velvet beetle", "Apologizes for every sunset"],
-  ['social', "Grudge Goose", "elder crimson goose with massive eyebrows", "Remembers insults but misplaces its glasses"],
-  ['social', "Choir Mice", "twelve mint mice sharing one luminous voice", "Argue in perfect harmony"],
-  ['social', "Panic Finch", "lemon finch with trembling antennae", "Warns of imaginary doors"],
-  ['social', "Joyful Leech", "smiling turquoise leech with ribbon fins", "Asks permission before hugging"],
-  ['social', "Mourning Slug", "lavender slug wearing a rain mantle", "Holds funerals for fallen leaves"],
-  ['social', "Deadpan Peacock", "grey peacock with mirrored tail", "Refuses to react to anything"],
-  ['social', "Envious Tern", "lime green tern with mismatched wings", "Copies songs and adds a better note"],
-  ['social', "Embarrassment Mite", "scarlet mite with inflatable cheeks", "Turns blushing into local weather"],
-  ['social', "Brave Dust Bunny", "blue dust-ball creature with paper horns", "Defends giant friends from vacuums"],
-  ['social', "Gossip Urchin", "violet urchin with dozens of whisper mouths", "Tells everyone's secrets except its own"],
-  ['social', "Hopeful Mantis", "gold mantis with petal arms", "Writes poems on falling stars"],
-  ['social', "Lovestruck Lamprey", "saffron lamprey with heart-shaped jaw", "Falls in love with chairs"],
-  ['social', "Midnight Gigglefish", "violet fish with luminous cheeks", "Laughs until oceans ripple"],
-  ['social', "Skeptical Puffball", "round emerald fungus with eyebrow", "Demands evidence that rain exists"],
-  ['social', "Gentle Riot Kitten", "pink six-legged kitten with storm-cloud tail", "Demands longer naps peacefully"],
-  ['social', "Sleepy Audience Snail", "giant peach snail with balcony shell", "Applauds in its dreams"],
-  ['social', "Regretful Stag", "scarlet deer with glass face", "Remembers every missed dance"],
-  ['social', "Ambitious Tadpole", "lilac tadpole carrying tiny crown", "Intends to become an ocean"],
-  ['social', "Serene Screechling", "elder teal owl with alarm-bell throat", "Screams calming affirmations"],
-  ['ecology', "Mirror Tick Colony", "hundreds of silver ticks joining as a mirror", "Reflects predators back at themselves"],
-  ['ecology', "Veil Grazer", "pale giant herbivore with photosynthetic veils", "Shelters entire insect towns"],
-  ['ecology', "Lantern Nesters", "orange firefly hares nesting inside lamps", "Raise each other's young"],
-  ['ecology', "Dust Stalker", "midnight six-pawed predator", "Hunts only dying storms"],
-  ['ecology', "Root Mimic", "elder moss-green root animal", "Feeds the trees that sheltered it"],
-  ['ecology', "Ribbon Nest Mothers", "colossal coral ribbon-worm spirals", "Sing to thousands of eggs"],
-  ['ecology', "Glass Thorn Swarm", "translucent insects forming a glass hedgehog", "Share one fear and fifty ambitions"],
-  ['ecology', "Hollowback Grazer", "indigo six-leg grazer with greenhouse back", "Carries pollinators through winter"],
-  ['ecology', "Ink Coral Shepherd", "cobalt octopus herding coral calves", "Guides reef children away from currents"],
-  ['ecology', "Velvet Pollen Wolf", "golden wolf with huge moth eyes", "Pollinates flowers by chasing shadows"],
-  ['ecology', "Mimic Moon Clams", "striped clams with miniature moon faces", "Collect safe starlight"],
-  ['ecology', "Fossil Bees", "bronze ancient bees nesting in bones", "Keep extinct flowers alive in nectar"],
-  ['ecology', "Spiral Predators", "sleek crimson eels hunting in spiral packs", "Prey on creatures that overeat their habitat"],
-  ['ecology', "Nest of Many Grandmothers", "plush twelve-headed teal herbivore", "Raises orphaned predators with its own calves"],
-  ['ecology', "Crimson Oath Corals", "red moving corals shaped like tiny couches", "Join to protect the whole reef"],
-  ['legendary', "Last Upholsterer", "ancient immense six-armed spider with embroidered stars", "Knows who built the first chair"],
-  ['legendary', "Saint Vacuum", "transparent elder whale with bubble halo", "Guides frightened travelers through emptiness"],
-  ['legendary', "Nine-Mouthed Minnow", "crystal fish with nine mouths and no eyes", "Each mouth recalls a different ending"],
-  ['legendary', "Red Eclipse Calf", "newborn scarlet bovine with shadow horns", "Appears when galaxies forgive one another"],
-  ['legendary', "Matriarch of Lost Receipts", "vast iridescent hermit crab with paper crown", "Remembers promises nobody wrote down"],
-  ['legendary', "Witness Snail", "elder indigo snail carrying galaxy in shell", "Becomes more judgmental when chased"],
-  ['legendary', "Moon That Molts", "living moon shedding glitter skin", "Gives birth to oceans"],
-  ['legendary', "Grandmother Gravity", "ancient six-finned manta carrying newborn stars", "Holds planets until they learn to orbit"],
-  ['legendary', "Velvet Aurora Hatchling", "jade feathered dragon with aurora membranes", "Hatches to ask why everyone whispers"],
-  ['legendary', "Unfinished Constellation", "colony of translucent star-shaped seahorses", "Waits for its last member before choosing its shape"],
-]
+const rawRows = `zodiac|Ramray of the Rising House|elder stingray with ram horns and woolly fins|Requires applause at every sunrise
+zodiac|Taurus Tardigrade|colossal mossy water bear crowned with bull horns|Sleeps under whole villages
+zodiac|Gemini Glass Eels|twinned transparent eels with one interwoven shadow|Argue until rivers change direction
+zodiac|Cancer Lantern Crab|tiny crab carrying a constellation inside its shell|Adopts lost stars
+zodiac|Leo Mane-Moth|orange moth with a lion's mane and six wings|Roars only when everyone is asleep
+zodiac|Virgo Needle Shrew|old silver shrew with floating needle quills|Repairs holes in reality
+zodiac|Libra Balancing Ibis|violet ibis with two floating eggshells for shoes|Builds two nests so neither egg feels neglected
+zodiac|Scorpio Sugar Scorpion|coral scorpion with a translucent candy stinger|Flirts through intimidating dances
+zodiac|Sagittarius Stagfish|flying fish with antlers and a comet fin|Chases targets that do not exist yet
+zodiac|Capricorn Reef Goat|seaweed goat with a nautilus tail|Climbs waterfalls very reluctantly
+zodiac|Aquarius Rain Otter|round sky blue otter with a portable raincloud|Offers umbrellas before making it rain
+zodiac|Pisces Dream Koi|two old gold koi sharing a ribbon of mist|Dream oceans into existence
+hybrid|Mantis Possum|emerald possum with folding praying-mantis claws|Plays dead to a standing ovation
+hybrid|Jellyferret|translucent jellyfish with a cheerful ferret face|Steals loose buttons with anonymous tentacles
+hybrid|Peacock Antelope|gazelle with fan of peacock tail eyes|Courts the thunderstorms
+hybrid|Snail Fox|rust fox living inside mother-of-pearl shell|Outruns arguments by hiding in yesterday
+hybrid|Pufferwolf|charcoal wolf with inflatable pufferfish spines|Puffs up when its friends receive compliments
+hybrid|Cricket Otter|sleek river otter with cricket legs|Plays concerts by hopping on lily pads
+hybrid|Vulture Seal|elder white seal with enormous scavenger wings|Cleans beaches while muttering
+hybrid|Salamander Hare|black hare with a glowing salamander tail|Delivers letters through campfires
+hybrid|Moth Moose|huge midnight moose with moth antennae|Follows lamps through doorways far too small
+hybrid|Platypus Heron|long-legged bird with a platypus bill|Builds fishing tools then eats them
+hybrid|Gecko Pangolin|copper pangolin with gecko feet|Sleeps upside down on its burrow ceiling
+hybrid|Lobster Magpie|bright blue lobster with a magpie wing mantle|Collects reflections rather than objects
+hybrid|Bat Axolotl|lavender axolotl with soft bat wings|Dreams of underwater caves
+hybrid|Swan Weevil|graceful swan with a long beetle snout|Nibbles holes in wedding ribbons
+hybrid|Pika Orca|black and white miniature orca with pika paws|Makes whale songs at mouse volume
+hybrid|Cobra Seahorse|upright seahorse with a cobra hood|Hypnotizes predators into remembering birthdays
+hybrid|Firefly Tapir|amber tapir freckled with fireflies|Draws maps in the dark
+hybrid|Tarantula Puffin|fluffy eight-legged puffin with bright beak|Builds sea-foam webs for its young
+hybrid|Hedgehog Cuttlefish|spiny peach cuttlefish curled like a hedgehog|Changes colors when telling lies
+hybrid|Yak Hummingbird|tiny shaggy yak with hummingbird wings|Hovers angrily until its scarf is praised
+hybrid|Crocodile Butterfly|green butterfly with a crocodile jaw|Ambushes slow flowers
+hybrid|Manatee Beetle|gentle opal beetle as large as a manatee|Runs free ferry services for insects
+hybrid|Lynx Nudibranch|sea slug with spotted fur tufts and lynx ears|Hunts bad vibrations
+hybrid|Ostrich Seahorse|enormous seahorse with ostrich legs|Runs on the ocean floor
+cosmic|Nebula Coyote|purple coyote with galaxies drifting through fur|Howls when a planet misplaces its moon
+cosmic|Static Eel|white eel composed of radio crackle|Answers questions two seconds early
+cosmic|Vacuum Tortoise|ancient black tortoise with transparent floating shell|Carries a forest through space
+cosmic|Solar Moth|enormous saffron moth with sunspot wings|Its chrysalis briefly eclipses the sun
+cosmic|Comet Toad|ice blue toad riding a frozen comet tail|Lands once a century to say hello
+cosmic|Gravity Heron|black heron bending gravity around its ankles|Stands on ceilings to avoid arguments
+cosmic|Eclipse Weasel|silver weasel haloed in shifting shadow|Steals only dramatic lighting
+cosmic|Quasar Shrimp|pink shrimp with blinding star pupils|Broadcasts its opinions across light years
+cosmic|Pulsar Hedgehog|turquoise hedgehog with blinking quills|Synchronizes whole villages to its nap
+cosmic|Meteor Sloth|ochre sloth wrapped in hot pebbles|Falls so slowly birds build nests on it
+cosmic|Antimatter Minnow|ghostly fish with impossible inverted fins|Prefers being admired from far away
+cosmic|Redshift Lemur|scarlet lemur with endlessly stretching tail|Waves goodbye for several centuries
+cosmic|Orbiting Barn Owl|barn owl with three feather satellites|Knows where everyone left their keys
+cosmic|Wormhole Wombat|indigo wombat with tiny universe inside pouch|Frequently loses its own front door
+cosmic|Ion Giraffe|iridescent giraffe with aurora mane|Licks the rainbows from gas giants
+cosmic|Moonphase Mole|blind blue mole with changing lunar markings|Digs tunnels through next Tuesday
+cosmic|Photon Armadillo|silver armadillo with luminous ribs|Rolls into a wheel to light the darkness
+cosmic|Magnetosphere Newt|cobalt newt with iron-filing freckles|Attracts rings nobody owns
+cosmic|Supernova Sparrow|bronze sparrow with exploding crest|Celebrates birthdays very loudly
+cosmic|Blackhole Alpaca|vast black alpaca with event-horizon fleece|Eats socks and occasionally gravity
+social|Apology Beetle|blush pink velvet beetle|Apologizes for every sunset
+social|Grudge Goose|elder crimson goose with massive eyebrows|Remembers insults but misplaces its glasses
+social|Choir Mice|twelve mint mice sharing one luminous voice|Argue in perfect harmony
+social|Panic Finch|lemon finch with trembling antennae|Warns of imaginary doors
+social|Joyful Leech|smiling turquoise leech with ribbon fins|Asks permission before hugging
+social|Mourning Slug|lavender slug wearing a rain mantle|Holds funerals for fallen leaves
+social|Deadpan Peacock|grey peacock with mirrored tail|Refuses to react to anything
+social|Envious Tern|lime green tern with mismatched wings|Copies songs and adds a better note
+social|Embarrassment Mite|scarlet mite with inflatable cheeks|Turns blushing into local weather
+social|Brave Dust Bunny|blue dust-ball creature with paper horns|Defends giant friends from vacuums
+social|Gossip Urchin|violet urchin with dozens of whisper mouths|Tells everyone's secrets except its own
+social|Hopeful Mantis|gold mantis with petal arms|Writes poems on falling stars
+social|Lovestruck Lamprey|saffron lamprey with heart-shaped jaw|Falls in love with chairs
+social|Midnight Gigglefish|violet fish with luminous cheeks|Laughs until oceans ripple
+social|Skeptical Puffball|round emerald fungus with eyebrow|Demands evidence that rain exists
+social|Gentle Riot Kitten|pink six-legged kitten with storm-cloud tail|Demands longer naps peacefully
+social|Sleepy Audience Snail|giant peach snail with balcony shell|Applauds in its dreams
+social|Regretful Stag|scarlet deer with glass face|Remembers every missed dance
+social|Ambitious Tadpole|lilac tadpole carrying tiny crown|Intends to become an ocean
+social|Serene Screechling|elder teal owl with alarm-bell throat|Screams calming affirmations
+ecology|Mirror Tick Colony|hundreds of silver ticks joining as a mirror|Reflects predators back at themselves
+ecology|Veil Grazer|pale giant herbivore with photosynthetic veils|Shelters entire insect towns
+ecology|Lantern Nesters|orange firefly hares nesting inside lamps|Raise each other's young
+ecology|Dust Stalker|midnight six-pawed predator|Hunts only dying storms
+ecology|Root Mimic|elder moss-green root animal|Feeds the trees that sheltered it
+ecology|Ribbon Nest Mothers|colossal coral ribbon-worm spirals|Sing to thousands of eggs
+ecology|Glass Thorn Swarm|translucent insects forming a glass hedgehog|Share one fear and fifty ambitions
+ecology|Hollowback Grazer|indigo six-leg grazer with greenhouse back|Carries pollinators through winter
+ecology|Ink Coral Shepherd|cobalt octopus herding coral calves|Guides reef children away from currents
+ecology|Velvet Pollen Wolf|golden wolf with huge moth eyes|Pollinates flowers by chasing shadows
+ecology|Mimic Moon Clams|striped clams with miniature moon faces|Collect safe starlight
+ecology|Fossil Bees|bronze ancient bees nesting in bones|Keep extinct flowers alive in nectar
+ecology|Spiral Predators|sleek crimson eels hunting in spiral packs|Prey on creatures that overeat their habitat
+ecology|Nest of Many Grandmothers|plush twelve-headed teal herbivore|Raises orphaned predators with its own calves
+ecology|Crimson Oath Corals|red moving corals shaped like tiny couches|Join to protect the whole reef
+legendary|Last Upholsterer|ancient immense six-armed spider with embroidered stars|Knows who built the first chair
+legendary|Saint Vacuum|transparent elder whale with bubble halo|Guides frightened travelers through emptiness
+legendary|Nine-Mouthed Minnow|crystal fish with nine mouths and no eyes|Each mouth recalls a different ending
+legendary|Red Eclipse Calf|newborn scarlet bovine with shadow horns|Appears when galaxies forgive one another
+legendary|Matriarch of Lost Receipts|vast iridescent hermit crab with paper crown|Remembers promises nobody wrote down
+legendary|Witness Snail|elder indigo snail carrying galaxy in shell|Becomes more judgmental when chased
+legendary|Moon That Molts|living moon shedding glitter skin|Gives birth to oceans
+legendary|Grandmother Gravity|ancient six-finned manta carrying newborn stars|Holds planets until they learn to orbit
+legendary|Velvet Aurora Hatchling|jade feathered dragon with aurora membranes|Hatches to ask why everyone whispers
+legendary|Unfinished Constellation|colony of translucent star-shaped seahorses|Waits for its last member before choosing its shape`
+const RAW: ReadonlyArray<readonly [AlienCategory, string, string, string]> =
+  rawRows.split('\n').map(
+    (line) => line.split('|') as [AlienCategory, string, string, string],
+  )
+
 const slug = (name: string) =>
   name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '')
-export const ALIEN_SPECIES: readonly AlienSpecies[] = RAW.map(([category, name, appearance, fieldNote], i) => ({
-  id: slug(name),
-  name,
-  category,
-  appearance,
-  fieldNote,
-  habitat: HABITATS[category],
-  palette: PALETTES[(i * 5 + Math.floor(i / 9)) % PALETTES.length]!,
-  social: SOCIAL[(i * 3 + Math.floor(i / 11)) % SOCIAL.length]!,
-  rarity: category === 'legendary' ? 'legendary' : i % 9 === 0 ? 'rare' : i % 3 === 0 ? 'unusual' : 'common',
-  artKey: 'aliens/' + slug(name),
-}))
-export const ALIEN_BY_ID = new Map(ALIEN_SPECIES.map((species) => [species.id, species]))
+export const ALIEN_SPECIES: readonly AlienSpecies[] = RAW.map(
+  ([category, name, appearance, fieldNote], i) => ({
+    id: slug(name),
+    name,
+    category,
+    appearance,
+    fieldNote,
+    habitat: HABITATS[category],
+    palette: PALETTES[(i * 5 + Math.floor(i / 9)) % PALETTES.length]!,
+    social: SOCIAL[(i * 3 + Math.floor(i / 11)) % SOCIAL.length]!,
+    rarity:
+      category === 'legendary'
+        ? 'legendary'
+        : i % 9 === 0
+          ? 'rare'
+          : i % 3 === 0
+            ? 'unusual'
+            : 'common',
+    artKey: 'aliens/' + slug(name),
+  }),
+)
+export const ALIEN_BY_ID = new Map(
+  ALIEN_SPECIES.map((species) => [species.id, species]),
+)

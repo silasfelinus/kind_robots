@@ -20,9 +20,12 @@ import {
   CITY_CONTRACTS,
   CHAMPION_AFTERMATH,
   CIVIC_CRISES,
+  CITY_FINALE,
   CAMPAIGN_DISTRICTS,
   championAftermath,
   cityCrisis,
+  cityEpilogue,
+  cityFinale,
   cityRoute,
   cityWon,
   contractBlocked,
@@ -31,6 +34,7 @@ import {
   decide,
   decideAftermath,
   decideCrisis,
+  decideFinale,
   decideStreet,
   streetStory,
   storyMissionTerms,
@@ -856,3 +860,103 @@ assert.equal(
   'City campaign inherits one bonus opening mana from the crisis',
 )
 console.log('Slime City civic crisis / campaign store integration PASS')
+
+
+// Grand Pit victory is a ceremony, not merely a boolean. Champion aftermath
+// comes first; a four-victory crisis takes priority over the final charter.
+const openingCity = createCity()
+assert.equal(cityFinale(openingCity), null)
+assert.equal(decideFinale(openingCity, 'pit-charter'), openingCity)
+const pitVictory = recordBout(openingCity, 'pitworks', 'player')
+assert.equal(cityWon(pitVictory), true)
+assert.equal(cityFinale(pitVictory), null)
+assert.ok(championAftermath(pitVictory))
+const pitAftermath = decideAftermath(
+  pitVictory,
+  CHAMPION_AFTERMATH.pitworks.choices[0].id,
+)
+assert.equal(cityFinale(pitAftermath), CITY_FINALE)
+assert.equal(cityEpilogue(pitAftermath), null)
+assert.equal(
+  boutBlocked(pitAftermath, 'chimera'),
+  'Choose the fate of the Grand Pit first.',
+)
+assert.equal(
+  contractBlocked(pitAftermath, 'pitworks'),
+  'Choose the fate of the Grand Pit first.',
+)
+assert.equal(
+  travel(pitAftermath, 'chimera'),
+  pitAftermath,
+  'Cannot walk away before deciding who owns the city',
+)
+assert.equal(
+  decideFinale(pitAftermath, 'fake-finale'),
+  pitAftermath,
+  'Invalid ending choices do not mutate the city',
+)
+for (const choice of CITY_FINALE.choices) {
+  const completed = decideFinale(pitAftermath, choice.id)
+  assert.equal(completed.finaleChoice, choice.id)
+  assert.equal(cityFinale(completed), null)
+  assert.equal(
+    completed.standing.pitworks,
+    pitAftermath.standing.pitworks + choice.standing,
+  )
+  assert.equal(completed.heat, Math.max(0, pitAftermath.heat + choice.heat))
+  assert.ok(cityEpilogue(completed)?.title)
+  assert.equal(
+    decideFinale(completed, CITY_FINALE.choices[0].id),
+    completed,
+    'Cannot earn ending consequences a second time',
+  )
+  assert.notEqual(
+    travel(completed, 'chimera'),
+    completed,
+    'Optional districts remain playable after the finale',
+  )
+}
+const charter = decideFinale(pitAftermath, 'pit-charter')
+const crowned = decideFinale(pitAftermath, 'pit-crown')
+assert.equal(charter.crisisTerms.playerHp, 1)
+assert.equal(crowned.crisisTerms.playerMana, 1)
+assert.notEqual(cityEpilogue(charter)?.title, cityEpilogue(crowned)?.title)
+assert.equal(createCity().finaleChoice, null)
+let fourChampions = run
+fourChampions = recordBout(fourChampions, 'pitworks', 'player')
+fourChampions = decideAftermath(
+  fourChampions,
+  CHAMPION_AFTERMATH.pitworks.choices[0].id,
+)
+assert.equal(cityCrisis(fourChampions)?.id, 'strike')
+assert.equal(cityFinale(fourChampions), null)
+fourChampions = decideCrisis(fourChampions, 'strike-solidarity')
+assert.equal(cityFinale(fourChampions), CITY_FINALE)
+fourChampions = decideFinale(fourChampions, 'pit-charter')
+assert.ok(cityEpilogue(fourChampions)?.legacy.includes('trust'))
+assert.equal(cityFinale(fourChampions), null)
+console.log('Slime City Grand Pit finale, gates, alternatives and aftermath PASS')
+
+lab.showCity()
+lab.resetCity()
+lab.city = { ...pitAftermath, location: 'undertow' }
+lab.chooseTeam('catgirls')
+lab.findCampaignBattle()
+assert.equal(lab.finaleEvent?.title, CITY_FINALE.title)
+assert.equal(lab.campaignAtDestination, false, 'Finale blocks a city chapter')
+lab.startCampaignBattle('conviction')
+assert.equal(lab.view, 'city')
+lab.chooseFinale('pit-charter')
+assert.equal(lab.finaleEvent, null)
+assert.equal(lab.finaleResult?.title, cityEpilogue(charter)?.title)
+assert.equal(lab.campaignAtDestination, true)
+lab.dismissFinale()
+assert.equal(lab.finaleDismissed, true)
+lab.revisitFinale()
+assert.equal(lab.finaleDismissed, false)
+assert.equal(lab.districtId, 'pitworks')
+lab.resetCity()
+assert.equal(lab.city.finaleChoice, null)
+assert.equal(lab.finaleResult, null)
+assert.equal(lab.finaleDismissed, false)
+console.log('Slime City finale store / new run navigation PASS')

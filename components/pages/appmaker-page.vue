@@ -7,7 +7,7 @@
      non-admin visitor can ever reach. -->
 <template>
   <section class="kr-unbound kr-container space-y-6 p-4">
-    <header-page-bar>
+    <header-page-bar compact>
       <div
         class="flex min-w-0 flex-1 items-center justify-end gap-2 px-1"
         data-testid="appmaker-bar"

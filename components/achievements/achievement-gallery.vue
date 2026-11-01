@@ -61,7 +61,9 @@
             <Icon name="kind-icon:check" class="kr-icon-4" />
           </span>
           <h2 class="kr-text-black-sm text-base-content">Earned</h2>
-          <span class="kr-badge-success-sm">{{ earnedAchievements.length }}</span>
+          <span class="kr-badge-success-sm">{{
+            earnedAchievements.length
+          }}</span>
         </div>
 
         <div class="achievement-grid-shell">
@@ -100,7 +102,9 @@
             <Icon name="kind-icon:question" class="kr-icon-4" />
           </span>
           <h2 class="kr-text-black-sm text-base-content">Undiscovered</h2>
-          <span class="kr-badge-ghost-sm">{{ unearnedAchievements.length }}</span>
+          <span class="kr-badge-ghost-sm">{{
+            unearnedAchievements.length
+          }}</span>
         </div>
 
         <div class="achievement-grid-shell">
@@ -162,8 +166,7 @@ function isVisible(achievement: Achievement) {
 
 function inActiveSection(achievement: Achievement) {
   return (
-    isVisible(achievement) &&
-    activeSection.value === 'all' ||
+    (isVisible(achievement) && activeSection.value === 'all') ||
     achievementSectionOf(achievement.triggerCode) === activeSection.value
   )
 }
@@ -239,7 +242,10 @@ const sectionChips = computed(() => {
       isVisible(achievement) &&
       (key === 'all' || achievementSectionOf(achievement.triggerCode) === key)
     const earned = allEarnedAchievements.value.filter(match).length
-    return { earned, total: earned + allUnearnedAchievements.value.filter(match).length }
+    return {
+      earned,
+      total: earned + allUnearnedAchievements.value.filter(match).length,
+    }
   }
   return [
     { key: 'all' as SectionFilter, label: 'All', icon: 'kind-icon:trophy' },

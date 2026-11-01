@@ -146,20 +146,29 @@ export const useNavStore = defineStore('navStore', () => {
   const dashboardShell = ref<DashboardShellState>(defaultDashboardShellState())
   const workspaceSheetOpen = ref(false)
   const workspaceHandOpen = ref(false)
-  const pageBars = ref<{ id: number; consoleTheme: string; bar: boolean }[]>([])
-  let nextPageBarId = 0
+  const pageBars = ref<
+    { id: number; consoleTheme: string; bar: boolean; compact: boolean }[]
+  >([])
   const hasPageBar = computed(() => pageBars.value.some((entry) => entry.bar))
+  const pageBarCompact = computed(() => {
+    const bars = pageBars.value.filter((entry) => entry.bar)
+    return bars.length > 0 && bars.every((entry) => entry.compact)
+  })
   const consoleTheme = computed(
     () =>
       [...pageBars.value].reverse().find((bar) => bar.consoleTheme)
         ?.consoleTheme ?? '',
   )
 
-  function registerPageBar(consoleTheme = '', bar = true): number {
+  function registerPageBar(
+    consoleTheme = '',
+    bar = true,
+    compact = false,
+  ): number {
     nextPageBarId += 1
     pageBars.value = [
       ...pageBars.value,
-      { id: nextPageBarId, consoleTheme: consoleTheme.trim(), bar },
+      { id: nextPageBarId, consoleTheme: consoleTheme.trim(), bar, compact },
     ]
     return nextPageBarId
   }
@@ -556,6 +565,7 @@ export const useNavStore = defineStore('navStore', () => {
     workspaceSheetOpen,
     workspaceHandOpen,
     hasPageBar,
+    pageBarCompact,
     consoleTheme,
     registerPageBar,
     registerConsoleTheme,

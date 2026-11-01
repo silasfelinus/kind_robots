@@ -5,7 +5,7 @@
         <span class="kr-spinner-lg-primary" />
       </div>
       <template v-else>
-        <header-page-bar>
+        <header-page-bar compact>
           <div
             class="flex min-w-0 flex-1 items-center justify-end gap-2 px-1"
             title="Daily Dream · the build shelf"

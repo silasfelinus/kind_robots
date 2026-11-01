@@ -2,7 +2,7 @@
   <section
     class="kr-surface rounded-2xl border border-base-300 bg-(--kr-surface) p-3"
   >
-    <header-page-bar>
+    <header-page-bar compact>
       <div
         class="cg-bar"
         title="Browse projects, flag missing launch destinations, or start a new one."

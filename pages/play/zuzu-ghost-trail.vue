@@ -3,7 +3,7 @@
     <div
       class="mx-auto flex h-full min-h-0 w-full max-w-7xl flex-col gap-2 p-2 sm:p-3"
     >
-      <header-page-bar>
+      <header-page-bar compact>
         <nav
           class="flex min-w-0 flex-1 items-center justify-end gap-2"
           aria-label="Ghost Trail links"

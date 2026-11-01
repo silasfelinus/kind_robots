@@ -1,6 +1,6 @@
 <!-- /components/pages/storybook-library-page.vue -->
 <template>
-  <section class="kr-surface">
+  <section class="kr-surface bg-(--kr-surface)">
     <!--
       THE LEGACY BAND (storybook/t-010, 2026-09-13). Silas, on the new
       storymaker: this header was "a questionable use of space showing us story

@@ -1,6 +1,6 @@
 <template>
   <main class="playbook-studio kr-surface gap-0">
-    <header-page-bar>
+    <header-page-bar compact>
       <div
         class="flex min-w-0 flex-1 items-center gap-2"
         data-testid="art-review-page-bar"

@@ -1,7 +1,7 @@
 <template>
   <main class="kr-surface h-full min-h-0 overflow-hidden">
     <div class="kr-scroll kr-container-wide @container p-4 md:p-6">
-      <header-page-bar>
+      <header-page-bar compact>
         <div
           class="flex min-w-0 flex-1 items-center justify-end gap-2 px-1"
           data-testid="site-stats-bar"

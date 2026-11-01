@@ -4,7 +4,7 @@
       class="plumber-console kr-scroll"
       aria-label="Save the Plumber handheld game menu"
     >
-      <header-page-bar>
+      <header-page-bar compact>
         <div class="plumber-bar" title="Kind Robots ◆ Adventure System">
           <span class="plumber-progress" aria-live="polite">
             {{

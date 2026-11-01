@@ -49,9 +49,16 @@ console.log('Storybook Table — the flavour bits are cards')
 
 check(
   'every creative slot is on the board',
-  ['mode', 'genre', 'place', 'hero', 'company', 'narrator', 'thread', 'treasures'].every(
-    (slot) => new RegExp(`key: '${slot}'`).test(decks),
-  ),
+  [
+    'mode',
+    'genre',
+    'place',
+    'hero',
+    'company',
+    'narrator',
+    'thread',
+    'treasures',
+  ].every((slot) => new RegExp(`key: '${slot}'`).test(decks)),
 )
 check(
   'mode is dealt as cards, not a select',
@@ -190,11 +197,11 @@ check(
   /v-if="runStore\.isEndless"[\s\S]{0,200}no last page/.test(reading),
 )
 check(
-  'the end-of-story button reads as the reader\'s own move when endless',
+  "the end-of-story button reads as the reader's own move when endless",
   /runStore\.isEndless \? 'Bring this to an end'/.test(reading),
 )
 check(
-  'resolving is offered on the server\'s word, not a local guess',
+  "resolving is offered on the server's word, not a local guess",
   /v-if="runStore\.readyToResolve"/.test(reading),
 )
 

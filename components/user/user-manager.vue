@@ -77,17 +77,11 @@
     </section>
 
     <section v-else-if="activeTab === 'themes'" class="kr-stage h-full">
-      <theme-gallery
-        class="h-full min-h-0 flex-1 overflow-hidden"
-        :show-header="false"
-      />
+      <theme-gallery class="h-full min-h-0 flex-1 overflow-hidden" />
     </section>
 
     <section v-else-if="activeTab === 'chats'" class="kr-stage h-full">
-      <chat-gallery
-        class="h-full min-h-0 flex-1 overflow-hidden"
-        :show-header="false"
-      />
+      <chat-gallery class="h-full min-h-0 flex-1 overflow-hidden" />
     </section>
 
     <div

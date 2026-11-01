@@ -1,7 +1,7 @@
 <template>
   <main class="kr-surface hybridizer-root" data-testid="hybridizer-lab">
     <div class="hybridizer-console" :class="{ 'is-working': lab.working }">
-      <header-page-bar>
+      <header-page-bar compact>
         <div
           class="hybridizer-bar"
           title="Kind Robots / Experiment 014 — every creature has an impossible cousin."

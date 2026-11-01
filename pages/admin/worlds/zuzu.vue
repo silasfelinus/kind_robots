@@ -11,7 +11,7 @@
         Administrator access required for the Zuzu world studio.
       </div>
       <template v-else>
-        <header-page-bar>
+        <header-page-bar compact>
           <div
             class="flex min-w-0 flex-1 items-center justify-end gap-2 px-1"
             data-testid="zuzu-bar"

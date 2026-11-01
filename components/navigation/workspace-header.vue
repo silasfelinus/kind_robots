@@ -195,13 +195,7 @@
         class="order-last flex min-w-0 basis-full items-center gap-2 border-t border-base-300 pt-1.5 xl:order-none xl:basis-0 xl:flex-[2.2] xl:border-t-0 xl:pt-0"
       >
         <div
-          v-show="hasPageBar"
-          id="kr-header-page-bar"
-          class="@container flex min-w-0 flex-1 items-center"
-        />
-
-        <div
-          v-if="!hasPageBar"
+          v-if="!hasPageBar || pageBarCompact"
           class="pointer-events-none flex min-w-0 flex-1 items-center gap-4 px-1"
         >
           <div
@@ -249,6 +243,12 @@
             {{ greeting }}
           </p>
         </div>
+
+        <div
+          v-show="hasPageBar"
+          id="kr-header-page-bar"
+          class="@container flex min-w-0 flex-1 items-center"
+        />
 
         <!--
           THE ONE TUTORIAL BUTTON, at the end of the lower row. Silas,
@@ -485,6 +485,7 @@ const shellSummary = computed(
 const showBackButton = computed(() => navStore.canGoBack)
 
 const hasPageBar = computed(() => navStore.hasPageBar)
+const pageBarCompact = computed(() => navStore.pageBarCompact)
 
 const workspaceSheetOpen = computed(() => navStore.workspaceSheetOpen)
 

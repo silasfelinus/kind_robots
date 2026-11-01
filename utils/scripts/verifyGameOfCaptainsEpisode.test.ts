@@ -1,5 +1,8 @@
 import assert from 'node:assert/strict'
-import { episodeChoiceArtKeys, episodeResultArtKey } from '../gameOfCaptains/episodeArtwork'
+import {
+  episodeChoiceArtKeys,
+  episodeResultArtKey,
+} from '../gameOfCaptains/episodeArtwork'
 import { readFileSync } from 'node:fs'
 import { startVoyage, restoreVoyage } from '../gameOfCaptains/rules'
 import {
@@ -45,7 +48,11 @@ for (let seed = 1; seed <= 300; seed++) {
   const card = episodeCard({ ...landing, seed }, 'planet')
   planetCards.set(card.id, card.title)
 }
-assert.equal(planetCards.size, 10, 'every authored planetary dilemma has art slots')
+assert.equal(
+  planetCards.size,
+  10,
+  'every authored planetary dilemma has art slots',
+)
 const episodeArtKeys = [...planetCards.keys()].flatMap((key) =>
   episodeChoiceArtKeys(key),
 )

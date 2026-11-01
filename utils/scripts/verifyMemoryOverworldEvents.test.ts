@@ -14,8 +14,14 @@ import { EARTH_PHOTOS } from '../memoryDungeon/chronicle'
 import { HOSHIMORI_NIGHT_SITES } from '../memoryDungeon/hoshimoriNight'
 import { BRIAR_COLLISION_SCENES } from '../memoryDungeon/briarCollision'
 import { recoverBriarCollisionFromJournal } from '../memoryDungeon/briarCollisionProgress'
-import { replayEarthJournal, type EarthJournalAction } from '../memoryDungeon/earthJournal'
-import { newMemoryCampaignProgress, type MemoryCampaignProgress } from '../memoryDungeon/reimaginerCampaign'
+import {
+  replayEarthJournal,
+  type EarthJournalAction,
+} from '../memoryDungeon/earthJournal'
+import {
+  newMemoryCampaignProgress,
+  type MemoryCampaignProgress,
+} from '../memoryDungeon/reimaginerCampaign'
 
 assert.deepEqual(validateOverworldEventCatalog(), [])
 assert.equal(OVERWORLD_EVENT_CATALOG.length, 12 * 64)
@@ -223,17 +229,20 @@ assert.equal(
   'forged choices cannot mint a fragment',
 )
 assert.equal(
-  recoverBriarCollisionFromJournal(
-    { ...earnedCampaign, pairDecisions: {} },
-    [...walkToOffice, { type: 'choose', key: '2,2', choiceId: office.choices[0]!.id }],
-  ),
+  recoverBriarCollisionFromJournal({ ...earnedCampaign, pairDecisions: {} }, [
+    ...walkToOffice,
+    { type: 'choose', key: '2,2', choiceId: office.choices[0]!.id },
+  ]),
   null,
   'the e04 catastrophe cannot be silently invented',
 )
 assert.equal(
   recoverBriarCollisionFromJournal(
     { ...earnedCampaign, completed: earnedCampaign.completed.slice(0, -1) },
-    [...walkToOffice, { type: 'choose', key: '2,2', choiceId: office.choices[0]!.id }],
+    [
+      ...walkToOffice,
+      { type: 'choose', key: '2,2', choiceId: office.choices[0]!.id },
+    ],
   ),
   null,
   'the e08 passage cannot be skipped',

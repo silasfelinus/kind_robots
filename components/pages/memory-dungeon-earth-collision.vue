@@ -131,7 +131,9 @@
             class="absolute inset-0 h-full w-full object-cover"
           />
           <div class="relative max-w-2xl rounded-lg bg-[#121e26]/85 p-3">
-            <p class="text-[10px] font-black uppercase tracking-widest text-[#e9c48c]">
+            <p
+              class="text-[10px] font-black uppercase tracking-widest text-[#e9c48c]"
+            >
               {{ collision.crossroadScene.speaker }} · Clock tower
             </p>
             <h3 class="mt-1 text-lg font-black sm:text-2xl">
@@ -232,14 +234,19 @@
                 :data-testid="'memory-earth-crossroad-choice-' + choice.id"
                 @click="collision.conclude(choice.id)"
               >
-                <div class="relative flex h-20 items-end bg-[linear-gradient(125deg,#455d61,#745d4a,#2b4c51)] p-2">
+                <div
+                  class="relative flex h-20 items-end bg-[linear-gradient(125deg,#455d61,#745d4a,#2b4c51)] p-2"
+                >
                   <img
                     v-if="choice.art.status === 'delivered'"
                     :src="choice.art.path"
                     :alt="choice.label"
                     class="absolute inset-0 h-full w-full object-cover"
                   />
-                  <span v-else class="relative rounded bg-[#17252b]/85 px-2 py-1 text-[10px]">
+                  <span
+                    v-else
+                    class="relative rounded bg-[#17252b]/85 px-2 py-1 text-[10px]"
+                  >
                     Choice illustration pending
                   </span>
                 </div>
@@ -297,7 +304,11 @@
             </button>
           </div>
           <div
-            v-if="collision.crossroadEarned && !collision.readyForCrossroad && !collision.completed"
+            v-if="
+              collision.crossroadEarned &&
+              !collision.readyForCrossroad &&
+              !collision.completed
+            "
             class="mt-3 rounded-xl border border-[#e9c48c]/60 bg-[#514336] p-3"
             data-testid="memory-earth-collision-crossroad-pending"
           >

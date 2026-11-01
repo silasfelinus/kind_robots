@@ -334,6 +334,13 @@ export const MODES: {
 ]
 
 /**
+ * The formats a player can pick. BLACKOUT is the game; BLOODRUSH is the
+ * arcade alternative. MEATBALL (gridiron) is retired from play and stays only
+ * as an engine fixture for the deterministic contract tests.
+ */
+export const PLAYER_MODES = MODES.filter((mode) => mode.id !== 'gridiron')
+
+/**
  * Creature keywords. Each one belongs to a crew's play pattern and has a
  * named counter elsewhere in the city, so no crew is a pure upgrade.
  */

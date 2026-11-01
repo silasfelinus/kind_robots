@@ -58,6 +58,7 @@ import {
   observe,
   DISTRICTS,
   MODES,
+  PLAYER_MODES,
   TEAMS,
 } from '../slimeCity/prototypes'
 import {
@@ -88,6 +89,11 @@ for (const team of TEAMS) assert.ok(slimeArtId('crews', team.id))
 for (const district of DISTRICTS)
   assert.ok(slimeArtId('districts', district.id))
 for (const mode of MODES) assert.ok(slimeArtId('boards', mode.id))
+// MEATBALL is retired from play: BLACKOUT is the default tab, BLOODRUSH the other
+assert.deepEqual(
+  PLAYER_MODES.map((mode) => mode.id),
+  ['blackout', 'bloodrush'],
+)
 assert.equal(Object.keys(SLIME_CITY_ART.cards).length, 36)
 assert.equal(
   TEAMS.flatMap((team) => [...team.creatures, ...team.special]).length,
@@ -183,7 +189,7 @@ for (const team of TEAMS) {
   assert.ok(cityRoute('pitworks', id).length > 0)
 }
 
-// Rivals: distinct names, every crew appears, all three formats appear
+// Rivals: distinct names, every crew appears, both player formats appear (no MEATBALL)
 const rivals = ids.map((id) => CITY_PLAN[id].rival)
 assert.equal(new Set(rivals.map((r) => r.name)).size, 7)
 for (const team of TEAMS)
@@ -193,7 +199,7 @@ for (const team of TEAMS)
   )
 assert.deepEqual(
   new Set(rivals.map((r) => r.mode)),
-  new Set(['blackout', 'gridiron', 'bloodrush']),
+  new Set(['blackout', 'bloodrush']),
 )
 for (const id of ids) {
   const plan = CITY_PLAN[id]

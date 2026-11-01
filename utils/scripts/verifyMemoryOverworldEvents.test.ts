@@ -13,6 +13,8 @@ import {
 import { EARTH_PHOTOS } from '../memoryDungeon/chronicle'
 import { HOSHIMORI_NIGHT_SITES } from '../memoryDungeon/hoshimoriNight'
 import { BRIAR_COLLISION_SCENES } from '../memoryDungeon/briarCollision'
+import { briarCollisionWitnessCallback } from '../memoryDungeon/briarCollisionWitness'
+import { restoreMemoryCampaignProgress } from '../memoryDungeon/campaignPersistence'
 import { BRIAR_COLLISION_ROUTE_SITES } from '../memoryDungeon/briarCollisionRoute'
 import {
   recoverBriarCollisionFromJournal,
@@ -215,6 +217,77 @@ for (const [key, scene] of routeSites) {
     )
   }
 }
+
+const witnessCallbacks = new Set<string>()
+for (const verdict of ['trust-witnesses', 'protect-village'] as const) {
+  const restoredCampaign = restoreMemoryCampaignProgress(
+    JSON.parse(
+      JSON.stringify({
+        campaignVersion: 2,
+        completed: ['e01', 'e02'],
+        pairDecisions: { e02: verdict },
+      }),
+    ),
+  )
+  assert.equal(restoredCampaign.pairDecisions?.e02, verdict)
+  const originalCampaign = JSON.stringify(restoredCampaign)
+  for (const [key, scene] of Object.entries(BRIAR_COLLISION_SCENES)) {
+    const event = worldEvent('e09', key)!
+    const originalEvent = JSON.stringify(event)
+    const prelude = briarCollisionWitnessCallback(restoredCampaign, key)
+    assert.ok(prelude.opening.length > 110, verdict + ':' + key)
+    assert.equal(prelude.outcome, '')
+    for (const choice of scene.choices) {
+      const callback = briarCollisionWitnessCallback(
+        restoredCampaign,
+        key,
+        choice.id,
+      )
+      assert.equal(callback.opening, prelude.opening)
+      assert.ok(callback.outcome.length > 110, verdict + ':' + choice.id)
+      assert.ok(!witnessCallbacks.has(callback.outcome))
+      witnessCallbacks.add(callback.outcome)
+      assert.equal(
+        briarCollisionWitnessCallback(restoredCampaign, key, 'forged').outcome,
+        '',
+      )
+    }
+    assert.equal(JSON.stringify(event), originalEvent)
+  }
+  assert.equal(JSON.stringify(restoredCampaign), originalCampaign)
+}
+assert.equal(witnessCallbacks.size, 12)
+const unearnedWitness = {
+  ...newMemoryCampaignProgress(),
+  pairDecisions: { e02: 'trust-witnesses' },
+}
+assert.deepEqual(
+  briarCollisionWitnessCallback(unearnedWitness, '2,2'),
+  { opening: '', outcome: '' },
+  'an uncompleted Briar chapter cannot supply a witness',
+)
+const unresolvedWitness = restoreMemoryCampaignProgress({
+  campaignVersion: 2,
+  completed: ['e01', 'e02'],
+  pairDecisions: { e02: 'forged' },
+})
+assert.deepEqual(
+  briarCollisionWitnessCallback(unresolvedWitness, '7,6'),
+  { opening: '', outcome: '' },
+  'invalid or legacy unresolved decisions cannot invent public testimony',
+)
+assert.deepEqual(
+  briarCollisionWitnessCallback(
+    restoreMemoryCampaignProgress({
+      campaignVersion: 2,
+      completed: ['e01', 'e02'],
+      pairDecisions: { e02: 'protect-village' },
+    }),
+    '1,1',
+  ),
+  { opening: '', outcome: '' },
+  'the callback must not leak into unrelated map locations',
+)
 
 const earnedCampaign: MemoryCampaignProgress = {
   ...newMemoryCampaignProgress(),

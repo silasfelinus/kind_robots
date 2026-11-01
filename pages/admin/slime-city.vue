@@ -864,7 +864,7 @@
         >
           <div class="sc-collection-title">
             <span class="sc-overline"
-              >THE ARMORY / LOANER DECK · {{ lab.progress.cards.length }}/60
+              >THE ARMORY / DECK WORKBENCH · {{ lab.progress.cards.length }}/72
               COLLECTED</span
             >
             <h2>{{ lab.team.name }}</h2>
@@ -882,6 +882,24 @@
               ART
             </p>
           </div>
+          <div class="sc-deck-workbench" data-testid="slime-deck-workbench">
+            <div>
+              <span class="sc-overline">TEN-CARD LOADOUT / FOUR CREATURES / ONE SIGNATURE</span>
+              <strong>{{ lab.currentDeck.length }}/10 DECK SLOTS FILLED</strong>
+              <p aria-live="polite">
+                {{ lab.deckMessage || (lab.replacingCard
+                  ? 'Replace ' + lab.cards.find(card => card.id === lab.replacingCard)?.name + ' with an owned card of the same type.'
+                  : 'Select a deck card, then an owned reserve to swap. Starter cards stay playable for everyone.') }}
+              </p>
+              <small v-if="lab.currentDeckProblems.length" role="alert">{{ lab.currentDeckProblems.join(' · ') }}</small>
+            </div>
+            <div class="sc-deck-actions">
+              <button type="button" data-testid="slime-deck-restore" @click="lab.restoreFounderDeck()">RESTORE FOUNDER</button>
+              <button type="button" data-testid="slime-deck-practice" :disabled="lab.currentDeckProblems.length > 0" @click="lab.testCustomDeck()">
+                PRACTICE DECK
+              </button>
+            </div>
+          </div>
           <div class="sc-collection-grid kr-scroll">
             <article
               v-for="card in lab.cards"
@@ -897,10 +915,20 @@
                 />
               </div>
               <div>
+                <button
+                  type="button"
+                  class="sc-deck-card-choice"
+                  :class="{ selected: lab.replacingCard === card.id, equipped: lab.currentDeck.includes(card.id) }"
+                  :data-testid="'slime-deck-card-' + card.id"
+                  :aria-pressed="lab.currentDeck.includes(card.id)"
+                  @click="lab.selectDeckCard(card.id)"
+                >
+                  {{ lab.currentDeck.includes(card.id) ? (lab.replacingCard === card.id ? 'CHOOSE REPLACEMENT' : 'IN DECK · REPLACE') : (lab.isCardUnlocked(card.id) ? 'OWNED RESERVE · ADD' : 'LOCKED RESERVE') }}
+                </button>
                 <span
                   >{{ lab.cardRarity(card).toUpperCase() }} ·
                   {{
-                    lab.progress.cards.includes(card.id) ? 'OWNED' : 'LOANER'
+                    lab.progress.cards.includes(card.id) ? 'OWNED' : (lab.isFounderCard(card.id) ? 'STARTER' : 'LOCKED')
                   }}
                   · {{ card.kind.toUpperCase() }} ·
                   {{ card.cost }} MANA<template v-if="card.signature">
@@ -3376,5 +3404,55 @@ onUnmounted(() => {
 .sc-progress-error {
   background: #4b233a;
   border-color: #ff8db3;
+}
+.sc-deck-workbench {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin: 0.5rem 0;
+  padding: 0.7rem;
+  border: 1px solid #8db9aa77;
+  border-radius: 0.7rem;
+  background: linear-gradient(115deg, #1d3338, #202036);
+}
+.sc-deck-workbench p {
+  margin: 0.3rem 0 0;
+  max-width: 45rem;
+  color: #d9e6ec;
+  font-size: 0.8rem;
+}
+.sc-deck-workbench small {
+  color: #ffb9b9;
+}
+.sc-deck-actions {
+  display: flex;
+  gap: 0.4rem;
+  flex-wrap: wrap;
+}
+.sc-deck-actions button, .sc-deck-card-choice {
+  padding: 0.4rem 0.65rem;
+  border: 1px solid #b8d6bd88;
+  border-radius: 0.35rem;
+  background: #244039;
+  color: #f4fff7;
+  font-size: 0.71rem;
+  font-weight: 800;
+}
+.sc-deck-actions button:disabled {
+  opacity: 0.5;
+}
+.sc-deck-card-choice {
+  margin: 0.2rem 0 0.4rem;
+  display: block;
+  text-align: left;
+}
+.sc-deck-card-choice.selected {
+  border-color: #ffe38b;
+  background: #5a4627;
+}
+.sc-deck-card-choice.equipped {
+  color: #e6ffe7;
 }
 </style>

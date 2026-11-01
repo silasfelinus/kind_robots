@@ -50,7 +50,11 @@
           @select="onDial"
         />
       </div>
-      <div v-else-if="run" class="cs cs-console @container" :class="consoleModes">
+      <div
+        v-else-if="run"
+        class="cs cs-console @container"
+        :class="consoleModes"
+      >
         <button
           type="button"
           class="cs-brand"

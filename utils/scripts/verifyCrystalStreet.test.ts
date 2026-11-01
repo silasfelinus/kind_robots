@@ -734,6 +734,11 @@ assert.ok(tiers.bad! + tiers.bittersweet! > 0, 'weeks can go wrong')
 // store-owned storage, playbook.
 assert.ok(existsSync(file('../../pages/play/crystal-street.vue')))
 assert.match(
+  asset('../../pages/play/crystal-street.vue'),
+  /<header-page-bar[^>]*console-theme="crystal-street"[^>]*>[\s\S]*?data-testid="cs-menu-bar"[\s\S]*?label="Game screens"[\s\S]*?<\/header-page-bar>/,
+  'the menu and game headers ride the shared console system bar',
+)
+assert.match(
   asset('../../pages/admin/crystal-street.vue'),
   /navigateTo\('\/play\/crystal-street', \{ redirectCode: 301 \}\)/,
 )

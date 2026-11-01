@@ -282,6 +282,11 @@ for (const dir of ['components/playbook-kit', 'components/playbook-forge'])
       `${dir}/${file} declares a CSS layer`,
     )
 assert.match(shell, /class="pf-console pk-shell/)
+assert.match(
+  shell,
+  /<header-page-bar :console-theme="spec\.theme \?\? 'forge'">[\s\S]*?aria-label="Playbook panes"[\s\S]*?<\/header-page-bar>/,
+  'the kit header rides the shared console system bar in the kit theme',
+)
 
 // The reference Vignette carries a literal Krea 2 prompt for every picture,
 // faction emblems included (conductor playbook-kit t-029); the Playbook Forge

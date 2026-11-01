@@ -6,62 +6,58 @@
     aria-label="Every Villain Tactics training console"
   >
     <PlaybookKitShell :spec="EVERY_VILLAIN_TACTICS" :meter-values="meterValues">
+      <template #bar-actions>
+        <div class="evt-bar" data-testid="tactics-header">
+          <span
+            class="evt-bar-pill"
+            :title="
+              (store.isPlaytest ? 'Studio playtest' : 'Stage 1 of 6') +
+              ' — Capes & Tassels Tactical Operations · Comet City · First Bell · Internal Training'
+            "
+            >{{ store.isPlaytest ? 'STUDIO TEST' : '01 / 06' }}</span
+          >
+          <div class="evt-bar-actions">
+            <button
+              class="evt-bar-button"
+              type="button"
+              data-testid="tactics-open-menu"
+              @click="store.openScreen('title')"
+            >
+              ☰ MENU
+            </button>
+            <button
+              v-if="store.isPlaytest"
+              class="evt-bar-button"
+              type="button"
+              data-testid="tactics-exit-playtest"
+              @click="store.exitPlaytest()"
+            >
+              EXIT TEST
+            </button>
+            <button
+              class="evt-bar-button"
+              type="button"
+              data-testid="tactics-open-studio"
+              @click="store.studioOpen = true"
+            >
+              LEVEL STUDIO
+            </button>
+            <button
+              class="evt-bar-button"
+              :class="{ 'is-on': store.rosterOpen }"
+              type="button"
+              @click="store.rosterOpen = !store.rosterOpen"
+            >
+              {{ store.rosterOpen ? 'CLOSE DOSSIER' : '48 HERO DOSSIERS' }}
+            </button>
+          </div>
+        </div>
+      </template>
       <div
         class="evt-console"
         :data-anim="store.settings.animation"
         :style="{ '--evt-anim': String(store.animationFactor) }"
       >
-        <header-page-bar console-theme="forge">
-          <div class="evt-bar" data-testid="tactics-header">
-            <div
-              class="evt-bar-brand"
-              title="Capes &amp; Tassels / Tactical Operations — Comet City • First Bell • Internal Training"
-            >
-              EVERY <em>VILLAIN</em> TACTICS
-            </div>
-            <span
-              class="evt-bar-pill"
-              :title="store.isPlaytest ? 'Studio playtest' : 'Stage 1 of 6'"
-              >{{ store.isPlaytest ? 'STUDIO TEST' : '01 / 06' }}</span
-            >
-            <div class="evt-bar-actions">
-              <button
-                class="evt-bar-button"
-                type="button"
-                data-testid="tactics-open-menu"
-                @click="store.openScreen('title')"
-              >
-                ☰ MENU
-              </button>
-              <button
-                v-if="store.isPlaytest"
-                class="evt-bar-button"
-                type="button"
-                data-testid="tactics-exit-playtest"
-                @click="store.exitPlaytest()"
-              >
-                EXIT TEST
-              </button>
-              <button
-                class="evt-bar-button"
-                type="button"
-                data-testid="tactics-open-studio"
-                @click="store.studioOpen = true"
-              >
-                LEVEL STUDIO
-              </button>
-              <button
-                class="evt-bar-button"
-                :class="{ 'is-on': store.rosterOpen }"
-                type="button"
-                @click="store.rosterOpen = !store.rosterOpen"
-              >
-                {{ store.rosterOpen ? 'CLOSE DOSSIER' : '48 HERO DOSSIERS' }}
-              </button>
-            </div>
-          </div>
-        </header-page-bar>
-
         <div class="evt-deck">
           <section
             class="evt-arena"
@@ -2295,29 +2291,14 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKey))
   line-height: 1.3;
 }
 .evt-bar {
-  --rose: #ff7d8c;
   flex: 1 1 auto;
   min-width: 0;
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  padding: 0 0.25rem 0 0.5rem;
+  padding: 0 0.25rem;
   color: var(--color-base-content);
   font-family: system-ui, sans-serif;
-}
-.evt-bar-brand {
-  flex: none;
-  font-weight: 1000;
-  font-family: Impact, 'Arial Narrow', sans-serif;
-  font-stretch: condensed;
-  letter-spacing: 0.065em;
-  line-height: 1;
-  font-size: clamp(1rem, 2vw, 1.35rem);
-  white-space: nowrap;
-}
-.evt-bar-brand em {
-  font-style: normal;
-  color: var(--rose);
 }
 .evt-bar-pill {
   flex: none;
@@ -2361,14 +2342,6 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKey))
   border-color: var(--color-primary);
   background: var(--color-primary);
   color: var(--color-primary-content);
-}
-@container (max-width: 560px) {
-  .evt-bar-brand {
-    display: none;
-  }
-  .evt-bar {
-    padding-left: 0.25rem;
-  }
 }
 @container (max-width: 400px) {
   .evt-bar-button {

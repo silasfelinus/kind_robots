@@ -2,429 +2,466 @@
 <!-- root div -->
 <template>
   <div class="kr-surface relative min-h-0 select-none gap-0 bg-(--kr-surface)">
-    <memory-dungeon-launcher v-if="!worldMode && !gameStarted" :error="launchError" @explore="startOverworld" @classic="startClassicFromLauncher" />
-    <memory-dungeon-sea v-else-if="seaMode" @leave="seaMode = false; earthMode = true" />
-    <memory-dungeon-earth v-else-if="earthMode" @leave="earthMode = false" @sea="seaMode = true; earthMode = false" />
-    <memory-dungeon-briar-collision v-else-if="collisionMode" @leave="collisionMode = false" />
-    <memory-dungeon-earth-collision v-else-if="earthCollisionMode" @leave="earthCollisionMode = false" />
-    <memory-dungeon-hoshimori-night v-else-if="hoshimoriNightMode" @leave="hoshimoriNightMode = false" />
-    <memory-dungeon-hoshimori v-else-if="hoshimoriMode" @leave="hoshimoriMode = false" />
-    <memory-dungeon-overworld v-else-if="worldMode" @leave="worldMode = false" @earth="earthMode = true" @sea="seaMode = true" @hoshimori="hoshimoriMode = true" @hoshimori-night="hoshimoriNightMode = true" @collision="collisionMode = true" @earth-collision="earthCollisionMode = true" />
+    <memory-dungeon-launcher
+      v-if="!worldMode && !gameStarted"
+      :error="launchError"
+      @explore="startOverworld"
+      @classic="startClassicFromLauncher"
+    />
+    <memory-dungeon-sea
+      v-else-if="seaMode"
+      @leave="
+        seaMode = false
+        earthMode = true
+      "
+    />
+    <memory-dungeon-earth
+      v-else-if="earthMode"
+      @leave="earthMode = false"
+      @sea="
+        seaMode = true
+        earthMode = false
+      "
+    />
+    <memory-dungeon-briar-collision
+      v-else-if="collisionMode"
+      @leave="collisionMode = false"
+    />
+    <memory-dungeon-earth-collision
+      v-else-if="earthCollisionMode"
+      @leave="earthCollisionMode = false"
+    />
+    <memory-dungeon-hoshimori-night
+      v-else-if="hoshimoriNightMode"
+      @leave="hoshimoriNightMode = false"
+    />
+    <memory-dungeon-hoshimori
+      v-else-if="hoshimoriMode"
+      @leave="hoshimoriMode = false"
+    />
+    <memory-dungeon-overworld
+      v-else-if="worldMode"
+      @leave="worldMode = false"
+      @earth="earthMode = true"
+      @sea="seaMode = true"
+      @hoshimori="hoshimoriMode = true"
+      @hoshimori-night="hoshimoriNightMode = true"
+      @collision="collisionMode = true"
+      @earth-collision="earthCollisionMode = true"
+    />
     <div v-else class="flex min-h-0 flex-1 flex-col">
-    <header
-      v-if="gameStarted"
-      class="relative z-20 shrink-0 border-b border-base-content/10 bg-base-300 shadow-md"
-    >
-      <div class="flex min-w-0 items-center gap-2 px-2 py-1.5 sm:px-3">
-        <div class="min-w-0 flex-1 leading-tight">
-          <p class="kr-text-black-sm truncate tracking-tight sm:text-base">
-            🏰 Memory Dungeon
-          </p>
-          <p class="truncate text-[10px] text-base-content/50 sm:text-xs">
-            Level {{ level }} · {{ level * 10 }}ft below sanity
-          </p>
+      <header-page-bar v-if="gameStarted" console-theme="memory-dungeon">
+        <div class="md-bar" data-testid="memory-classic-header">
+          <h2 class="md-bar-title">🏰 Memory Dungeon</h2>
+          <span
+            class="md-bar-chip"
+            :title="`Level ${level} · ${level * 10}ft below sanity`"
+          >
+            Lv {{ level }}
+          </span>
+          <span
+            class="md-bar-chip"
+            title="Lives remaining"
+            :aria-label="`${lives} of ${maxLives} lives remaining`"
+          >
+            ❤️ {{ lives }}/{{ maxLives }}
+          </span>
+          <span
+            v-if="shieldActive"
+            class="md-bar-chip text-info"
+            title="Shield active"
+          >
+            🛡️ <span class="md-bar-label">Shield</span>
+          </span>
+          <div class="md-bar-actions">
+            <button
+              v-for="powerup in powerups"
+              :key="powerup.id"
+              class="btn btn-sm btn-soft btn-secondary"
+              type="button"
+              :title="powerup.description"
+              :aria-label="powerup.name"
+              @click="usePowerup(powerup)"
+            >
+              {{ powerup.icon }}
+              <span class="md-bar-label">{{ powerup.name }}</span>
+            </button>
+          </div>
+          <div class="md-bar-end">
+            <button
+              type="button"
+              class="btn btn-ghost btn-sm"
+              :class="configOpen ? 'btn-active' : ''"
+              title="Dungeon settings"
+              :aria-expanded="configOpen"
+              @click="configOpen = !configOpen"
+            >
+              ⚙️
+              <span
+                class="md-bar-label inline-block max-w-[10rem] truncate align-bottom"
+                >{{ deckSummary }}</span
+              >
+            </button>
+            <button
+              type="button"
+              class="btn btn-ghost btn-sm"
+              title="Back to the Memory Dungeon game menu"
+              @click="returnToMenu"
+            >
+              ⌂ <span class="md-bar-label">Menu</span>
+            </button>
+            <button
+              class="btn btn-primary btn-sm btn-square text-base"
+              type="button"
+              title="Restart dungeon"
+              aria-label="Restart dungeon"
+              @click="startGame"
+            >
+              ↺
+            </button>
+          </div>
+        </div>
+      </header-page-bar>
+
+      <div v-if="gameStarted" class="relative z-20 shrink-0">
+        <Transition name="fade-slide">
+          <div
+            v-if="configOpen"
+            class="absolute right-2 top-2 z-50 flex w-[calc(100vw-1rem)] max-w-lg flex-col gap-3 rounded-2xl border border-base-content/15 bg-base-100/95 p-3 text-base-content shadow-2xl backdrop-blur-md"
+          >
+            <div class="flex flex-wrap items-center justify-between gap-2">
+              <label class="flex items-center gap-2 text-sm font-semibold">
+                <span>Difficulty</span>
+                <select
+                  v-model="pendingDifficulty"
+                  class="kr-select-sm bg-base-200"
+                >
+                  <option
+                    v-for="difficulty in memoryStore.difficulties"
+                    :key="difficulty.label"
+                    :value="difficulty"
+                  >
+                    {{ difficulty.label }}
+                  </option>
+                </select>
+              </label>
+
+              <span v-if="gameStarted && !gameOver" class="kr-text-dim-xs">
+                Deck changes apply when you restart.
+              </span>
+            </div>
+
+            <memory-dungeon-deck-selector
+              :selected="world.deck"
+              :mature-available="world.matureAvailable"
+              :unlocked-realms="world.unlockedRealms"
+              :realm-art-ready="world.realmArtReady"
+              @change="world.selectDeck"
+            />
+
+            <button
+              type="button"
+              class="btn btn-primary btn-sm self-end rounded-xl"
+              @click="startGame"
+            >
+              ↺ Restart with these settings
+            </button>
+          </div>
+        </Transition>
+      </div>
+
+      <Transition name="slide-down">
+        <div
+          v-if="challenge.active"
+          class="z-10 flex shrink-0 items-center justify-between gap-2 bg-yellow-500 px-3 py-1 text-black"
+        >
+          <div class="flex min-w-0 items-center gap-2">
+            <img
+              v-if="challenge.targetImagePath"
+              :src="challenge.targetImagePath"
+              class="kr-icon-8 shrink-0 rounded border-2 border-black object-cover shadow"
+              alt="Challenge target"
+            />
+
+            <div class="min-w-0 truncate">
+              <span class="font-black">⚔️ CHALLENGE!</span>
+              <span class="ml-2 hidden text-sm sm:inline">
+                Match this card for <strong>3×</strong> points!
+              </span>
+            </div>
+          </div>
+
+          <div
+            class="shrink-0 font-mono text-base font-bold tabular-nums sm:text-lg"
+            :class="challenge.timeLeft <= 5 ? 'animate-pulse text-red-800' : ''"
+          >
+            {{ challenge.timeLeft }}s
+          </div>
+        </div>
+      </Transition>
+
+      <Transition name="award-pop">
+        <div
+          v-if="award.visible"
+          class="pointer-events-none fixed left-1/2 top-1/3 z-100 min-w-55 -translate-x-1/2 rounded-3xl bg-linear-to-br from-yellow-400 via-orange-400 to-red-400 px-8 py-5 text-center text-black shadow-2xl"
+        >
+          <div class="mb-1 text-5xl drop-shadow">{{ award.icon }}</div>
+          <div class="kr-text-black-2xl leading-tight tracking-tight">
+            {{ award.title }}
+          </div>
+          <div class="kr-text-faded-sm-80 mt-1 font-medium">
+            {{ award.subtitle }}
+          </div>
+        </div>
+      </Transition>
+
+      <!-- ─── PLAY LAYOUT (board + log, only in-game) ─────────── -->
+      <div class="relative flex min-h-0 flex-1 overflow-hidden">
+        <div ref="boardPanel" class="min-h-0 flex-1 overflow-hidden p-2 sm:p-3">
+          <div
+            v-if="memoryStore.isLoading"
+            class="flex h-full items-center justify-center"
+          >
+            <div class="loader"></div>
+          </div>
+
+          <div
+            v-else-if="gameOver"
+            class="flex h-full flex-col items-center justify-center gap-4 text-center"
+          >
+            <div class="animate-bounce text-7xl">💀</div>
+
+            <h2 class="text-3xl font-black">Dungeon: 1, You: 0</h2>
+
+            <p class="max-w-xs text-sm italic text-gray-400">
+              {{ deathFlavor }}
+            </p>
+
+            <div class="kr-text-bold-xl">
+              Final Score: {{ score.toLocaleString() }}
+            </div>
+
+            <button
+              class="rounded-lg bg-red-600 px-6 py-2 font-semibold text-white transition hover:bg-red-700 active:scale-95"
+              type="button"
+              @click="startGame"
+            >
+              🪦 Try Again, Brave Idiot
+            </button>
+          </div>
+
+          <div
+            v-else
+            class="grid h-full w-full place-content-center"
+            :class="{ 'board-reveal': revealActive }"
+            :style="boardGridStyle"
+          >
+            <div
+              v-for="card in memoryStore.galleryImages"
+              :key="card.id"
+              :class="[
+                'card-container relative aspect-square w-full cursor-pointer overflow-hidden rounded-xl transition-transform duration-200',
+                card.matched
+                  ? 'card-matched pointer-events-none opacity-40'
+                  : 'hover:scale-105 active:scale-95',
+                challenge.active &&
+                !card.matched &&
+                card.galleryName === challenge.targetName
+                  ? 'ring-4 ring-yellow-400 ring-offset-2 ring-offset-base-200'
+                  : '',
+                oracleHighlight &&
+                !card.matched &&
+                card.galleryName === oracleHighlight
+                  ? 'ring-4 ring-blue-400 ring-offset-2 ring-offset-base-200'
+                  : '',
+              ]"
+              @click="handleCardClick(card)"
+            >
+              <div
+                class="card-inner"
+                :class="{ flipped: card.flipped || card.matched }"
+              >
+                <div
+                  class="card-back flex h-full w-full items-center justify-center rounded-xl border border-yellow-500/30 bg-linear-to-br from-base-300 via-base-100 to-base-300 text-3xl shadow-inner"
+                >
+                  🏰
+                  <img
+                    :src="DEFAULT_BRIAR_CARD_BACK"
+                    class="absolute inset-0 h-full w-full object-cover"
+                    alt=""
+                    draggable="false"
+                    @error="hideMissingMemoryCardBack"
+                  />
+                </div>
+
+                <img
+                  class="card-front rounded-xl border border-base-content/10 bg-base-300 shadow-xl"
+                  :src="card.imagePath"
+                  :alt="card.galleryName"
+                  draggable="false"
+                />
+              </div>
+            </div>
+          </div>
         </div>
 
-        <div
-          class="flex shrink-0 flex-col items-center leading-none"
-          title="Lives remaining"
+        <aside
+          v-if="logOpen"
+          class="absolute inset-y-2 left-2 right-2 z-40 flex flex-col overflow-hidden rounded-2xl border border-base-content/20 bg-base-300/95 text-base-content shadow-2xl backdrop-blur-md sm:left-auto sm:w-72 xl:w-80"
         >
-          <div class="hidden gap-0.5 text-base sm:flex sm:text-lg">
-            <span
-              v-for="i in maxLives"
-              :key="i"
-              class="transition-all duration-300"
-              :class="i <= lives ? '' : 'grayscale opacity-25'"
+          <div
+            class="kr-text-eyebrow flex shrink-0 items-center justify-between gap-2 border-b border-base-content/20 bg-base-100/80 px-3 py-2 text-xs tracking-widest text-base-content"
+          >
+            <span>📜 Dungeon Log</span>
+            <button
+              type="button"
+              class="kr-btn-ghost-xs-lg"
+              aria-label="Close dungeon log"
+              @click="logOpen = false"
             >
-              ❤️
-            </span>
+              ✕
+            </button>
           </div>
-          <div class="kr-text-black-xs sm:hidden">❤️ {{ lives }}</div>
-          <div class="mt-0.5 text-[10px] text-base-content/50">
-            HP {{ lives }}/{{ maxLives }}
+
+          <div ref="logPanel" class="flex-1 overflow-y-auto p-2">
+            <TransitionGroup
+              name="log-entry"
+              tag="div"
+              class="flex flex-col gap-1.5"
+            >
+              <div
+                v-for="entry in dungeonLog"
+                :key="entry.id"
+                :class="[
+                  'rounded-xl border px-2.5 py-2 text-xs font-semibold leading-snug shadow-sm',
+                  entry.type === 'match'
+                    ? 'border-success/40 bg-success/15 text-success-content'
+                    : '',
+                  entry.type === 'mismatch'
+                    ? 'border-error/40 bg-error/15 text-error-content'
+                    : '',
+                  entry.type === 'challenge'
+                    ? 'border-warning/50 bg-warning/20 text-warning-content'
+                    : '',
+                  entry.type === 'award'
+                    ? 'border-secondary/40 bg-secondary/20 text-secondary-content'
+                    : '',
+                  entry.type === 'system'
+                    ? 'border-base-content/15 bg-base-100 text-base-content'
+                    : '',
+                ]"
+              >
+                {{ entry.text }}
+              </div>
+            </TransitionGroup>
           </div>
+        </aside>
+      </div>
+
+      <footer
+        v-if="gameStarted"
+        class="flex shrink-0 items-center gap-2 border-t border-base-content/10 bg-base-300 px-2 py-1.5 text-xs sm:px-3 sm:text-sm"
+      >
+        <div
+          class="flex min-w-0 flex-1 items-center gap-2 overflow-x-auto whitespace-nowrap sm:gap-3"
+        >
+          <span>
+            ⭐ <strong>{{ score.toLocaleString() }}</strong>
+          </span>
+
+          <span class="hidden text-base-content/50 sm:inline">
+            Best <strong>{{ highScore.toLocaleString() }}</strong>
+          </span>
+
+          <span>
+            🔥 <strong>{{ streak }}</strong>
+          </span>
+
+          <span>
+            🃏 <strong>{{ matchedPairs }}/{{ totalPairs }}</strong>
+          </span>
+
+          <span
+            v-if="levelPairModifier !== 0"
+            class="hidden text-info md:inline"
+          >
+            Next floor:
+            <strong>
+              {{ levelPairModifier > 0 ? '+' : ''
+              }}{{ levelPairModifier }} pairs
+            </strong>
+          </span>
         </div>
 
         <div class="flex shrink-0 items-center gap-1">
-          <div
-            v-if="shieldActive"
-            class="flex h-8 items-center rounded-lg bg-blue-700 px-2 text-xs font-medium text-white"
-            title="Shield active"
+          <button
+            class="kr-btn-ghost-xs-lg"
+            type="button"
+            @click="logOpen = !logOpen"
           >
-            🛡️ <span class="hidden sm:inline">Shield</span>
-          </div>
+            📜
+            <span class="hidden sm:inline">{{
+              logOpen ? 'Hide log' : 'Log'
+            }}</span>
+          </button>
 
           <button
-            v-for="powerup in powerups"
-            :key="powerup.id"
-            class="flex h-8 min-w-8 items-center justify-center rounded-lg bg-purple-700 px-1.5 text-xs font-medium text-white transition hover:bg-purple-600 active:scale-95 sm:px-2"
+            class="kr-btn-ghost-xs-lg"
             type="button"
-            :title="powerup.description"
-            @click="usePowerup(powerup)"
+            @click="isOpen = !isOpen"
           >
-            {{ powerup.icon }}
-            <span class="ml-1 hidden md:inline">{{ powerup.name }}</span>
+            🏆
+            <span class="hidden sm:inline">{{
+              isOpen ? 'Hide' : 'Leaders'
+            }}</span>
           </button>
         </div>
-
-        <button
-          type="button"
-          class="btn btn-ghost btn-sm h-8 min-h-8 shrink-0 rounded-xl px-2"
-          :class="configOpen ? 'btn-active' : ''"
-          title="Dungeon settings"
-          @click="configOpen = !configOpen"
-        >
-          ⚙️
-          <span class="hidden sm:inline">{{ deckSummary }}</span>
-        </button>
-        <button
-          type="button"
-          class="btn btn-ghost btn-sm h-8 min-h-8 shrink-0 rounded-xl px-2"
-          title="Back to the Memory Dungeon game menu"
-          @click="returnToMenu"
-        >
-          ⌂ <span class="hidden sm:inline">Menu</span>
-        </button>
-
-        <button
-          class="btn btn-primary btn-sm h-8 min-h-8 shrink-0 rounded-xl px-2 text-base"
-          type="button"
-          title="Restart dungeon"
-          @click="startGame"
-        >
-          ↺
-        </button>
-      </div>
+      </footer>
 
       <Transition name="fade-slide">
         <div
-          v-if="configOpen"
-          class="absolute right-2 top-[calc(100%+0.5rem)] z-50 flex w-[calc(100vw-1rem)] max-w-lg flex-col gap-3 rounded-2xl border border-base-content/15 bg-base-100/95 p-3 text-base-content shadow-2xl backdrop-blur-md"
+          v-if="isOpen && gameStarted"
+          class="absolute bottom-10 left-2 right-2 z-40 max-h-[min(45dvh,20rem)] overflow-y-auto rounded-2xl border border-base-content/15 bg-base-100/95 px-4 py-3 shadow-2xl backdrop-blur-md sm:left-auto sm:w-96"
         >
-          <div class="flex flex-wrap items-center justify-between gap-2">
-            <label class="flex items-center gap-2 text-sm font-semibold">
-              <span>Difficulty</span>
-              <select
-                v-model="pendingDifficulty"
-                class="kr-select-sm bg-base-200"
-              >
-                <option
-                  v-for="difficulty in memoryStore.difficulties"
-                  :key="difficulty.label"
-                  :value="difficulty"
-                >
-                  {{ difficulty.label }}
-                </option>
-              </select>
-            </label>
-
-            <span
-              v-if="gameStarted && !gameOver"
-              class="kr-text-dim-xs"
+          <div class="mb-2 flex items-center justify-between gap-2">
+            <h2 class="kr-text-bold-sm">🏆 Global Leaderboard</h2>
+            <button
+              type="button"
+              class="kr-btn-ghost-xs-lg"
+              aria-label="Close leaderboard"
+              @click="isOpen = false"
             >
-              Deck changes apply when you restart.
-            </span>
+              ✕
+            </button>
           </div>
 
-          <memory-dungeon-deck-selector
-            :selected="world.deck"
-            :mature-available="world.matureAvailable"
-            :unlocked-realms="world.unlockedRealms"
-            :realm-art-ready="world.realmArtReady"
-            @change="world.selectDeck"
-          />
+          <table class="w-full table-auto text-xs">
+            <thead>
+              <tr
+                class="border-b border-base-content/10 text-left text-gray-400"
+              >
+                <th class="py-1 pr-4">#</th>
+                <th class="py-1 pr-4">Player</th>
+                <th class="py-1 text-right">Record</th>
+              </tr>
+            </thead>
 
-          <button
-            type="button"
-            class="btn btn-primary btn-sm self-end rounded-xl"
-            @click="startGame"
-          >
-            ↺ Restart with these settings
-          </button>
+            <tbody>
+              <tr
+                v-for="(user, index) in leaderboard"
+                :key="user.id"
+                class="border-b border-base-content/5 transition hover:bg-base-200"
+              >
+                <td class="py-1 pr-4 text-gray-400">{{ index + 1 }}</td>
+                <td class="py-1 pr-4">{{ user.username }}</td>
+                <td class="py-1 text-right font-mono">
+                  {{ user.matchRecord ?? '—' }}
+                </td>
+              </tr>
+            </tbody>
+          </table>
         </div>
       </Transition>
-    </header>
-
-    <Transition name="slide-down">
-      <div
-        v-if="challenge.active"
-        class="z-10 flex shrink-0 items-center justify-between gap-2 bg-yellow-500 px-3 py-1 text-black"
-      >
-        <div class="flex min-w-0 items-center gap-2">
-          <img
-            v-if="challenge.targetImagePath"
-            :src="challenge.targetImagePath"
-            class="kr-icon-8 shrink-0 rounded border-2 border-black object-cover shadow"
-            alt="Challenge target"
-          />
-
-          <div class="min-w-0 truncate">
-            <span class="font-black">⚔️ CHALLENGE!</span>
-            <span class="ml-2 hidden text-sm sm:inline">
-              Match this card for <strong>3×</strong> points!
-            </span>
-          </div>
-        </div>
-
-        <div
-          class="shrink-0 font-mono text-base font-bold tabular-nums sm:text-lg"
-          :class="challenge.timeLeft <= 5 ? 'animate-pulse text-red-800' : ''"
-        >
-          {{ challenge.timeLeft }}s
-        </div>
-      </div>
-    </Transition>
-
-    <Transition name="award-pop">
-      <div
-        v-if="award.visible"
-        class="pointer-events-none fixed left-1/2 top-1/3 z-100 min-w-55 -translate-x-1/2 rounded-3xl bg-linear-to-br from-yellow-400 via-orange-400 to-red-400 px-8 py-5 text-center text-black shadow-2xl"
-      >
-        <div class="mb-1 text-5xl drop-shadow">{{ award.icon }}</div>
-        <div class="kr-text-black-2xl leading-tight tracking-tight">
-          {{ award.title }}
-        </div>
-        <div class="kr-text-faded-sm-80 mt-1 font-medium">
-          {{ award.subtitle }}
-        </div>
-      </div>
-    </Transition>
-
-    <!-- ─── PLAY LAYOUT (board + log, only in-game) ─────────── -->
-    <div class="relative flex min-h-0 flex-1 overflow-hidden">
-      <div ref="boardPanel" class="min-h-0 flex-1 overflow-hidden p-2 sm:p-3">
-        <div
-          v-if="memoryStore.isLoading"
-          class="flex h-full items-center justify-center"
-        >
-          <div class="loader"></div>
-        </div>
-
-        <div
-          v-else-if="gameOver"
-          class="flex h-full flex-col items-center justify-center gap-4 text-center"
-        >
-          <div class="animate-bounce text-7xl">💀</div>
-
-          <h2 class="text-3xl font-black">Dungeon: 1, You: 0</h2>
-
-          <p class="max-w-xs text-sm italic text-gray-400">
-            {{ deathFlavor }}
-          </p>
-
-          <div class="kr-text-bold-xl">
-            Final Score: {{ score.toLocaleString() }}
-          </div>
-
-          <button
-            class="rounded-lg bg-red-600 px-6 py-2 font-semibold text-white transition hover:bg-red-700 active:scale-95"
-            type="button"
-            @click="startGame"
-          >
-            🪦 Try Again, Brave Idiot
-          </button>
-        </div>
-
-        <div
-          v-else
-          class="grid h-full w-full place-content-center"
-          :class="{ 'board-reveal': revealActive }"
-          :style="boardGridStyle"
-        >
-          <div
-            v-for="card in memoryStore.galleryImages"
-            :key="card.id"
-            :class="[
-              'card-container relative aspect-square w-full cursor-pointer overflow-hidden rounded-xl transition-transform duration-200',
-              card.matched
-                ? 'card-matched pointer-events-none opacity-40'
-                : 'hover:scale-105 active:scale-95',
-              challenge.active &&
-              !card.matched &&
-              card.galleryName === challenge.targetName
-                ? 'ring-4 ring-yellow-400 ring-offset-2 ring-offset-base-200'
-                : '',
-              oracleHighlight &&
-              !card.matched &&
-              card.galleryName === oracleHighlight
-                ? 'ring-4 ring-blue-400 ring-offset-2 ring-offset-base-200'
-                : '',
-            ]"
-            @click="handleCardClick(card)"
-          >
-            <div
-              class="card-inner"
-              :class="{ flipped: card.flipped || card.matched }"
-            >
-              <div
-                class="card-back flex h-full w-full items-center justify-center rounded-xl border border-yellow-500/30 bg-linear-to-br from-base-300 via-base-100 to-base-300 text-3xl shadow-inner"
-              >
-                🏰
-                <img
-                  :src="DEFAULT_BRIAR_CARD_BACK"
-                  class="absolute inset-0 h-full w-full object-cover"
-                  alt=""
-                  draggable="false"
-                  @error="hideMissingMemoryCardBack"
-                />
-              </div>
-
-              <img
-                class="card-front rounded-xl border border-base-content/10 bg-base-300 shadow-xl"
-                :src="card.imagePath"
-                :alt="card.galleryName"
-                draggable="false"
-              />
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <aside
-        v-if="logOpen"
-        class="absolute inset-y-2 left-2 right-2 z-40 flex flex-col overflow-hidden rounded-2xl border border-base-content/20 bg-base-300/95 text-base-content shadow-2xl backdrop-blur-md sm:left-auto sm:w-72 xl:w-80"
-      >
-        <div
-          class="kr-text-eyebrow flex shrink-0 items-center justify-between gap-2 border-b border-base-content/20 bg-base-100/80 px-3 py-2 text-xs tracking-widest text-base-content"
-        >
-          <span>📜 Dungeon Log</span>
-          <button
-            type="button"
-            class="kr-btn-ghost-xs-lg"
-            aria-label="Close dungeon log"
-            @click="logOpen = false"
-          >
-            ✕
-          </button>
-        </div>
-
-        <div ref="logPanel" class="flex-1 overflow-y-auto p-2">
-          <TransitionGroup
-            name="log-entry"
-            tag="div"
-            class="flex flex-col gap-1.5"
-          >
-            <div
-              v-for="entry in dungeonLog"
-              :key="entry.id"
-              :class="[
-                'rounded-xl border px-2.5 py-2 text-xs font-semibold leading-snug shadow-sm',
-                entry.type === 'match'
-                  ? 'border-success/40 bg-success/15 text-success-content'
-                  : '',
-                entry.type === 'mismatch'
-                  ? 'border-error/40 bg-error/15 text-error-content'
-                  : '',
-                entry.type === 'challenge'
-                  ? 'border-warning/50 bg-warning/20 text-warning-content'
-                  : '',
-                entry.type === 'award'
-                  ? 'border-secondary/40 bg-secondary/20 text-secondary-content'
-                  : '',
-                entry.type === 'system'
-                  ? 'border-base-content/15 bg-base-100 text-base-content'
-                  : '',
-              ]"
-            >
-              {{ entry.text }}
-            </div>
-          </TransitionGroup>
-        </div>
-      </aside>
-    </div>
-
-    <footer
-      v-if="gameStarted"
-      class="flex shrink-0 items-center gap-2 border-t border-base-content/10 bg-base-300 px-2 py-1.5 text-xs sm:px-3 sm:text-sm"
-    >
-      <div
-        class="flex min-w-0 flex-1 items-center gap-2 overflow-x-auto whitespace-nowrap sm:gap-3"
-      >
-        <span>
-          ⭐ <strong>{{ score.toLocaleString() }}</strong>
-        </span>
-
-        <span class="hidden text-base-content/50 sm:inline">
-          Best <strong>{{ highScore.toLocaleString() }}</strong>
-        </span>
-
-        <span>
-          🔥 <strong>{{ streak }}</strong>
-        </span>
-
-        <span>
-          🃏 <strong>{{ matchedPairs }}/{{ totalPairs }}</strong>
-        </span>
-
-        <span v-if="levelPairModifier !== 0" class="hidden text-info md:inline">
-          Next floor:
-          <strong>
-            {{ levelPairModifier > 0 ? '+' : '' }}{{ levelPairModifier }} pairs
-          </strong>
-        </span>
-      </div>
-
-      <div class="flex shrink-0 items-center gap-1">
-        <button
-          class="kr-btn-ghost-xs-lg"
-          type="button"
-          @click="logOpen = !logOpen"
-        >
-          📜 <span class="hidden sm:inline">{{ logOpen ? 'Hide log' : 'Log' }}</span>
-        </button>
-
-        <button
-          class="kr-btn-ghost-xs-lg"
-          type="button"
-          @click="isOpen = !isOpen"
-        >
-          🏆 <span class="hidden sm:inline">{{ isOpen ? 'Hide' : 'Leaders' }}</span>
-        </button>
-      </div>
-    </footer>
-
-    <Transition name="fade-slide">
-      <div
-        v-if="isOpen && gameStarted"
-        class="absolute bottom-10 left-2 right-2 z-40 max-h-[min(45dvh,20rem)] overflow-y-auto rounded-2xl border border-base-content/15 bg-base-100/95 px-4 py-3 shadow-2xl backdrop-blur-md sm:left-auto sm:w-96"
-      >
-        <div class="mb-2 flex items-center justify-between gap-2">
-          <h2 class="kr-text-bold-sm">🏆 Global Leaderboard</h2>
-          <button
-            type="button"
-            class="kr-btn-ghost-xs-lg"
-            aria-label="Close leaderboard"
-            @click="isOpen = false"
-          >
-            ✕
-          </button>
-        </div>
-
-        <table class="w-full table-auto text-xs">
-          <thead>
-            <tr class="border-b border-base-content/10 text-left text-gray-400">
-              <th class="py-1 pr-4">#</th>
-              <th class="py-1 pr-4">Player</th>
-              <th class="py-1 text-right">Record</th>
-            </tr>
-          </thead>
-
-          <tbody>
-            <tr
-              v-for="(user, index) in leaderboard"
-              :key="user.id"
-              class="border-b border-base-content/5 transition hover:bg-base-200"
-            >
-              <td class="py-1 pr-4 text-gray-400">{{ index + 1 }}</td>
-              <td class="py-1 pr-4">{{ user.username }}</td>
-              <td class="py-1 text-right font-mono">
-                {{ user.matchRecord ?? '—' }}
-              </td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-    </Transition>
     </div>
   </div>
 </template>
@@ -439,7 +476,10 @@ import MemoryDungeonDeckSelector from '~/components/memory-dungeon/deck-selector
 import { useMemoryWorldStore } from '~/stores/memoryWorldStore'
 import { resolveMemoryDungeonDeck } from '~/stores/helpers/memoryDungeonDeckSource'
 import { normalizeDungeonDeck } from '~/utils/memoryDungeonDeck'
-import { DEFAULT_BRIAR_CARD_BACK, hideMissingMemoryCardBack } from '~/utils/memoryDungeonCardArt'
+import {
+  DEFAULT_BRIAR_CARD_BACK,
+  hideMissingMemoryCardBack,
+} from '~/utils/memoryDungeonCardArt'
 import { useAchievementStore } from '@/stores/achievementStore'
 import {
   computed,
@@ -478,7 +518,8 @@ watch(
     if (allowed || !classicDeckIncludesMature.value) return
     if (gameStarted.value) {
       returnToMenu()
-      launchError.value = 'Mature-image visibility has changed. Choose a new deck to continue.'
+      launchError.value =
+        'Mature-image visibility has changed. Choose a new deck to continue.'
     }
   },
 )
@@ -711,9 +752,14 @@ const deckSummary = computed(() => {
   if (selected.family === 'designed') return 'Enchanted Deck'
   if (selected.family === 'realm') return 'Briar Marches Gallery'
   if (selected.family === 'entities') {
-    return selected.entityKind.charAt(0).toUpperCase() + selected.entityKind.slice(1)
+    return (
+      selected.entityKind.charAt(0).toUpperCase() + selected.entityKind.slice(1)
+    )
   }
-  if (selected.gallery === 'all') return selected.includeMature ? 'Public mature only' : 'Public non-mature only'
+  if (selected.gallery === 'all')
+    return selected.includeMature
+      ? 'Public mature only'
+      : 'Public non-mature only'
   return `${selected.collectionIds.length} collection(s)`
 })
 
@@ -723,8 +769,12 @@ function applyPendingSettings(): void {
 
 function loadHighScore() {
   try {
-    const storedScore = Number(window.localStorage.getItem(HIGH_SCORE_STORAGE_KEY))
-    highScore.value = Number.isFinite(storedScore) ? Math.max(0, storedScore) : 0
+    const storedScore = Number(
+      window.localStorage.getItem(HIGH_SCORE_STORAGE_KEY),
+    )
+    highScore.value = Number.isFinite(storedScore)
+      ? Math.max(0, storedScore)
+      : 0
   } catch {
     highScore.value = 0
   }
@@ -1013,9 +1063,9 @@ async function startGame() {
   // Each new floor draws again from the chosen source, excluding those images.
   const runSeenImages = new Set<string>()
   memoryStore.setGameSuiteDeckResolver(async (needed) => {
-    const paths = await resolveMemoryDungeonDeck(
-      selection, needed, 0, [...runSeenImages],
-    )
+    const paths = await resolveMemoryDungeonDeck(selection, needed, 0, [
+      ...runSeenImages,
+    ])
     for (const path of paths) runSeenImages.add(path)
     return paths
   })

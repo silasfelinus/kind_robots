@@ -90,7 +90,9 @@
               :aria-pressed="kit.pane === entry.id"
               :aria-controls="kit.pane === entry.id ? 'pk-pane' : undefined"
               :aria-label="entry.label"
-              :title="entry.count ? `${entry.label} ${entry.count}` : entry.label"
+              :title="
+                entry.count ? `${entry.label} ${entry.count}` : entry.label
+              "
               @click="kit.togglePane(entry.id)"
             >
               <Icon :name="entry.icon" class="size-4" />

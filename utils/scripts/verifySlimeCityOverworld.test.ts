@@ -89,16 +89,28 @@ for (const district of DISTRICTS)
   assert.ok(slimeArtId('districts', district.id))
 for (const mode of MODES) assert.ok(slimeArtId('boards', mode.id))
 assert.equal(Object.keys(SLIME_CITY_ART.cards).length, 36)
-assert.equal(CARDS.length, 60, 'The game has 60 authored starter cards')
+assert.equal(
+  TEAMS.flatMap((team) => [...team.creatures, ...team.special]).length,
+  60,
+  'Six ten-card founder decks',
+)
+assert.equal(CARDS.length, 72, '12 new Gutter Crown reserves are playable')
 assert.equal(
   CARDS.filter((card) => slimeArtId('cards', card.id)).length,
   36,
   '36 illustrations correspond to actual playable card IDs',
 )
 assert.equal(
-  CARDS.filter((card) => !slimeArtId('cards', card.id)).length,
+  TEAMS.flatMap((team) => [...team.creatures, ...team.special]).filter(
+    (id) => !slimeArtId('cards', id),
+  ).length,
   24,
-  'Missing 24 illustrations must remain honest fallbacks',
+  '24 founder cards without art retain fallbacks',
+)
+assert.equal(
+  CARDS.filter((card) => !slimeArtId('cards', card.id)).length,
+  36,
+  '12 new reserves also need their own rendered art',
 )
 assert.equal(slimeArtId('cards', 'calico'), null)
 assert.equal(slimeArtId('cards', 'plating'), 258390)

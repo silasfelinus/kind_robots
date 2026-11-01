@@ -296,6 +296,17 @@ export async function saveSlimeCityStory(
       create: { userId, data: toJson(newProgression()) },
     })
     const current = storyFromAccount(row.data)
+    const founderCards = new Set(
+      TEAMS.flatMap((team) => [...team.creatures, ...team.special]),
+    )
+    const ownedCards = new Set(restoreProgression(row.data).cards)
+    for (const deck of Object.values(proposed.decks ?? {})) {
+      if (deck?.some((id) => !founderCards.has(id) && !ownedCards.has(id)))
+        throw createError({
+          statusCode: 403,
+          message: 'Unlock reserve cards before adding them to a deck.',
+        })
+    }
     if (proposed.revision !== current.revision)
       throw createError({
         statusCode: 409,
@@ -306,6 +317,9 @@ export async function saveSlimeCityStory(
       revision: current.revision + 1,
       city: proposed.city,
       campaigns: proposed.campaigns,
+      ...((proposed.decks ?? current.decks)
+        ? { decks: proposed.decks ?? current.decks }
+        : {}),
     }
     const raw =
       row.data && typeof row.data === 'object' && !Array.isArray(row.data)

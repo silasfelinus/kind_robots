@@ -159,9 +159,16 @@ export function normalizeAlienGuide(value: unknown): AlienGuide {
     : []
   const storedDecisions = source.milestoneDecisions
   const milestoneDecisions: Record<string, 'a' | 'b' | 'c'> = {}
-  if (storedDecisions && typeof storedDecisions === 'object' && !Array.isArray(storedDecisions)) {
+  if (
+    storedDecisions &&
+    typeof storedDecisions === 'object' &&
+    !Array.isArray(storedDecisions)
+  ) {
     for (const [at, choice] of Object.entries(storedDecisions)) {
-      if (milestoneSeen.includes(Number(at)) && (choice === 'a' || choice === 'b' || choice === 'c')) {
+      if (
+        milestoneSeen.includes(Number(at)) &&
+        (choice === 'a' || choice === 'b' || choice === 'c')
+      ) {
         milestoneDecisions[at] = choice
       }
     }

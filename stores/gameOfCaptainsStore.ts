@@ -132,13 +132,18 @@ export const useGameOfCaptainsStore = defineStore('gameOfCaptains', () => {
       collectorReport.value ||
       alienSighting.value ||
       alienReport.value
-    ) return
+    )
+      return
     collectorIncident.value = pendingCollectorIncident.value
   }
   function chooseCollectorAction(choice: CollectorChoice) {
     const incident = collectorIncident.value
     if (!incident) return
-    const result = resolveCollectorIncident(alienGuide.value, incident.at, choice)
+    const result = resolveCollectorIncident(
+      alienGuide.value,
+      incident.at,
+      choice,
+    )
     if (!result) return
     alienGuide.value = result.guide
     collectorReport.value = {
@@ -170,9 +175,13 @@ export const useGameOfCaptainsStore = defineStore('gameOfCaptains', () => {
     alienReport.value = null
     const sighting = nextAlienSighting(run.value, alienGuide.value)
     const echo = collectorEcho(alienGuide.value)
-    alienSighting.value = sighting && echo
-      ? { ...sighting, scene: sighting.scene + ' The local radio adds: ' + echo }
-      : sighting
+    alienSighting.value =
+      sighting && echo
+        ? {
+            ...sighting,
+            scene: sighting.scene + ' The local radio adds: ' + echo,
+          }
+        : sighting
   }
   function chooseAlienAction(choice: AlienChoice) {
     const sighting = alienSighting.value

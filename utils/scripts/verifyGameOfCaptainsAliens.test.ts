@@ -181,7 +181,10 @@ assert.deepEqual(
   },
 )
 assert.equal(COLLECTOR_INCIDENTS.length, 6)
-assert.equal(new Set(COLLECTOR_INCIDENTS.map((event) => event.illustrationKey)).size, 6)
+assert.equal(
+  new Set(COLLECTOR_INCIDENTS.map((event) => event.illustrationKey)).size,
+  6,
+)
 assert.equal(COLLECTOR_INCIDENTS.flatMap((event) => event.options).length, 18)
 for (const count of [5, 12, 25, 50, 75, 100]) {
   const guide = {
@@ -196,16 +199,31 @@ for (const count of [5, 12, 25, 50, 75, 100]) {
   assert.equal(incident.options.length, 3)
   assert.ok(incident.scene.length > 100)
   assert.ok(incident.complication.length > 70)
-  assert.deepEqual(incident.options.map((option) => option.id), ['a', 'b', 'c'])
+  assert.deepEqual(
+    incident.options.map((option) => option.id),
+    ['a', 'b', 'c'],
+  )
   assert.deepEqual(
     [...new Set(incident.options.map((option) => option.ending))].sort(),
     ['bond', 'chaos', 'retreat'],
   )
   const sighting = nextAlienSighting(run, guide)!
   assert.ok(sighting)
-  assert.equal('milestone' in sighting, false, 'normal sightings never consume a collector incident')
-  const plain = resolveAlienSighting(guide, sighting, choiceFor(sighting.mood, 'retreat'))
-  assert.equal(nextCollectorIncident(plain.guide)?.at, count, 'alien contact cannot silently use a milestone')
+  assert.equal(
+    'milestone' in sighting,
+    false,
+    'normal sightings never consume a collector incident',
+  )
+  const plain = resolveAlienSighting(
+    guide,
+    sighting,
+    choiceFor(sighting.mood, 'retreat'),
+  )
+  assert.equal(
+    nextCollectorIncident(plain.guide)?.at,
+    count,
+    'alien contact cannot silently use a milestone',
+  )
   assert.equal(resolveCollectorIncident(guide, count + 1, 'a'), null)
   for (const option of incident.options) {
     const result = resolveCollectorIncident(guide, count, option.id)!
@@ -216,7 +234,9 @@ for (const count of [5, 12, 25, 50, 75, 100]) {
     assert.equal(nextCollectorIncident(result.guide), null)
     assert.equal(collectorEcho(result.guide), option.echo)
     assert.equal(resolveCollectorIncident(result.guide, count, option.id), null)
-    const restored = normalizeAlienGuide(JSON.parse(JSON.stringify(result.guide)))
+    const restored = normalizeAlienGuide(
+      JSON.parse(JSON.stringify(result.guide)),
+    )
     assert.equal(restored.milestoneDecisions?.[String(count)], option.id)
     assert.equal(collectorEcho(restored), option.echo)
   }

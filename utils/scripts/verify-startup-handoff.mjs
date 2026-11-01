@@ -230,6 +230,12 @@ assert.ok(
 )
 
 assert.ok(
+  /aria-label="Skip the intro"\s*@click="startupStore\.requestExit\(\)"/.test(startupAnimation) &&
+    startupAnimation.includes('kind-icon:chevron-double-right'),
+  'The compact launch controls must offer a one-tap skip that dismisses the intro without waiting.',
+)
+
+assert.ok(
   startupLaunch.includes('export function markAppReady') &&
     kindLoader.includes('markAppReady()'),
   'The app must signal readiness so the boot cover can retire early.',

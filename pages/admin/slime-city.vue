@@ -179,7 +179,9 @@
               data-testid="slime-champion-aftermath"
               aria-live="polite"
             >
-              <span class="sc-overline">CHAMPIONSHIP AFTERMATH · {{ lab.district.name }}</span>
+              <span class="sc-overline"
+                >CHAMPIONSHIP AFTERMATH · {{ lab.district.name }}</span
+              >
               <h2>{{ lab.aftermathEvent.title }}</h2>
               <p class="sc-scene">{{ lab.aftermathEvent.scene }}</p>
               <div class="sc-choices">

@@ -17,8 +17,8 @@
       <img
         class="cap-menu-image"
         :src="menuPainting"
-        @error="onPaintedImageError"
         alt="A red upholstered couch sails across a starfield under its invisible force bubble"
+        @error="onPaintedImageError"
       />
       <div class="cap-menu-shade" aria-hidden="true" />
       <div class="cap-menu-body">

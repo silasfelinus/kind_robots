@@ -21,7 +21,7 @@
         @error="onPaintedImageError"
       />
       <div class="cap-menu-shade" aria-hidden="true" />
-      <div class="cap-menu-body">
+      <div v-if="titlePanel !== 'opening'" class="cap-menu-body">
         <span class="cap-menu-kicker"
           >AN UNLICENSED STARSHIP PRODUCTION · EPISODE ZERO</span
         >
@@ -192,10 +192,27 @@
             ← MAIN MENU
           </button>
         </section>
-        <p class="cap-menu-bottom">
+        <button
+          v-if="titlePanel === 'home'"
+          class="cap-opening-trigger"
+          type="button"
+          data-testid="space-couch-watch-opening"
+          @click="titlePanel = 'opening'"
+        >
+          ▶ WATCH THE ILLUSTRATED OPENING
+          <small>18 PAINTED SCENES · THE COUCH WILL HAVE TO DO</small>
+        </button>
+        <p v-else class="cap-menu-bottom">
           CAPTAIN'S CHAIR UNAVAILABLE · THE COUCH WILL HAVE TO DO
         </p>
       </div>
+      <SpaceCouchOpeningReel
+        v-if="titlePanel === 'opening'"
+        :artwork="store.onboardingArt"
+        :reduced-motion="store.preferences.reducedMotion"
+        @close="titlePanel = 'home'"
+        @start="startFromOpening"
+      />
     </section>
     <header v-if="!atTitle" class="cap-toolbar">
       <NuxtLink to="/" class="cap-home" aria-label="Return to Kind Robots home"
@@ -1779,6 +1796,7 @@ import {
   CAPTAIN_ORIGINS,
   type CaptainOriginId,
 } from '~/utils/gameOfCaptains/captainOrigins'
+import SpaceCouchOpeningReel from '~/components/gameOfCaptains/opening-reel.vue'
 import SpaceCouchDailyConsole from '~/components/gameOfCaptains/daily-console.vue'
 import SpaceCouchConstellationTest from '~/components/gameOfCaptains/constellation-test.vue'
 import {
@@ -1821,7 +1839,7 @@ function onOriginArtError(event: Event, id: string) {
   }
 }
 const atTitle = ref(true)
-const titlePanel = ref<'home' | 'settings' | 'log'>('home')
+const titlePanel = ref<'home' | 'settings' | 'log' | 'opening'>('home')
 const confirmNewVoyage = ref(false)
 function openCouchMenu() {
   atTitle.value = true
@@ -2131,6 +2149,10 @@ function restartVoyage() {
   selectedOrigin.value = null
   atTitle.value = false
 }
+function startFromOpening() {
+  titlePanel.value = 'home'
+  startNewVoyage()
+}
 function startNewVoyage() {
   if (run.value && !confirmNewVoyage.value) {
     confirmNewVoyage.value = true
@@ -2212,6 +2234,29 @@ function toggleAway(id: CrewId) {
   display: flex;
   flex-direction: column;
   gap: clamp(0.35rem, 1.2vh, 0.85rem);
+}
+.cap-opening-trigger {
+  align-self: flex-start;
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  min-height: 2.5rem;
+  padding: 0.35rem 0.6rem;
+  border: 1px solid #eebc8c;
+  border-radius: 0.3rem;
+  background: #102439da;
+  color: #fff0d9;
+  font-size: clamp(0.62rem, 1cqi, 0.85rem);
+  font-weight: 900;
+  text-align: left;
+}
+.cap-opening-trigger small {
+  color: #d4dfe5;
+  font-size: 0.65rem;
+}
+.cap-opening-trigger:focus-visible {
+  outline: 3px solid #ffe3aa;
+  outline-offset: 2px;
 }
 .cap-menu-kicker,
 .cap-menu-bottom {

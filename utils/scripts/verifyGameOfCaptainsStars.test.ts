@@ -5,6 +5,7 @@ import {
   COUCH_ONBOARDING_ART_IDS,
 } from '../gameOfCaptains/onboardingArt'
 import { COUCH_VOYAGE_ART_IDS } from '../gameOfCaptains/voyagePaintings'
+import { SPACE_COUCH_OPENING } from '../gameOfCaptains/openingReel'
 import { COUCH_EXPRESSION_ART_IDS } from '../gameOfCaptains/expressionPaintings'
 import { readFileSync } from 'node:fs'
 import { startVoyage, restoreVoyage, CREW } from '../gameOfCaptains/rules'
@@ -39,6 +40,28 @@ assert.equal(
   'four questions after the captain dossier',
 )
 assert.equal(STAR_SIGNS.length, 12, 'an original dozen constellations')
+assert.equal(
+  SPACE_COUCH_OPENING.length,
+  18,
+  'all 18 painted opening shots have scenes',
+)
+assert.equal(
+  new Set(SPACE_COUCH_OPENING.map((frame) => frame.key)).size,
+  18,
+  'each opening shot has its own art key',
+)
+assert.ok(
+  SPACE_COUCH_OPENING.every(
+    (frame) =>
+      frame.key in COUCH_VOYAGE_ART_IDS &&
+      frame.title.length > 4 &&
+      frame.line.length > 20 &&
+      frame.alt.length > 20,
+  ),
+  'every opening scene has recorded painted art, original story, and meaningful alt text',
+)
+assert.equal(SPACE_COUCH_OPENING[0]?.key, 'opening/01-cold-open')
+assert.equal(SPACE_COUCH_OPENING.at(-1)?.key, 'opening/18-final-wide')
 assert.equal(
   Object.keys(COUCH_EXPRESSION_ART_IDS).length,
   44,
@@ -509,6 +532,27 @@ for (const [index, subject] of [
   assert.ok(drawing.includes('<svg'))
   assert.ok(drawing.includes(subject), 'distinct authored drawing ' + index)
 }
+const openingComponent = readFileSync(
+  new URL('../../components/gameOfCaptains/opening-reel.vue', import.meta.url),
+  'utf8',
+)
+assert.ok(page.includes('data-testid="space-couch-watch-opening"'))
+assert.ok(
+  page.includes(
+    "import SpaceCouchOpeningReel from '~/components/gameOfCaptains/opening-reel.vue'",
+  ),
+)
+assert.ok(page.includes('<SpaceCouchOpeningReel'))
+assert.ok(page.includes("titlePanel === 'opening'"))
+assert.ok(page.includes('@start="startFromOpening"'))
+assert.ok(page.includes("titlePanel.value = 'home'"))
+assert.ok(openingComponent.includes('data-testid="space-couch-opening-reel"'))
+assert.ok(openingComponent.includes('@keydown.left.prevent="previous"'))
+assert.ok(openingComponent.includes('@keydown.right.prevent="next"'))
+assert.ok(openingComponent.includes('@keydown.esc="emit(\'close\')"'))
+assert.ok(openingComponent.includes('failed.value[frame.value.key] = true'))
+assert.ok(openingComponent.includes("if (atEnd.value) emit('start')"))
+assert.ok(openingComponent.includes('(prefers-reduced-motion: reduce)'))
 const artEndpoint = readFileSync(
   new URL(
     '../../server/api/game-of-captains/onboarding-art.get.ts',

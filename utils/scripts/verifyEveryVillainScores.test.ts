@@ -5,7 +5,11 @@ import {
   sanitizeScrapbook,
 } from '../everyVillainTactics/frontMenu'
 import { createStory } from '../everyVillainTactics/firstBellStory'
-import { createSave, loadSave, saveChecksum } from '../everyVillainTactics/saves'
+import {
+  createSave,
+  loadSave,
+  saveChecksum,
+} from '../everyVillainTactics/saves'
 import { recordSquadDamage } from '../everyVillainTactics/combat'
 import {
   MAX_SCORE_HISTORY,
@@ -131,8 +135,16 @@ const healedScore = scoreFromSave(healed)!
 assert.ok(healedScore.medals.includes('healthy-extraction'))
 assert.ok(!healedScore.medals.includes('untouched'))
 assert.ok(!healedScore.lines.some((line) => line.id === 'flawless'))
-assert.notEqual(healedScore.id, score.id, 'historical wounds distinguish an identical final board')
-assert.equal(loadSave(JSON.stringify(healed)).ok, true, 'damage history round-trips')
+assert.notEqual(
+  healedScore.id,
+  score.id,
+  'historical wounds distinguish an identical final board',
+)
+assert.equal(
+  loadSave(JSON.stringify(healed)).ok,
+  true,
+  'damage history round-trips',
+)
 
 const legacyBoard = structuredClone(state)
 delete legacyBoard.damageTaken
@@ -144,13 +156,24 @@ const oldSave = createSave({
   state: legacyBoard,
   story,
 })
-assert.ok(loadSave(JSON.stringify(oldSave)).ok, 'older saves need no telemetry migration')
-assert.ok(!scoreFromSave(oldSave)!.medals.includes('untouched'), 'unknown history never earns flawless')
+assert.ok(
+  loadSave(JSON.stringify(oldSave)).ok,
+  'older saves need no telemetry migration',
+)
+assert.ok(
+  !scoreFromSave(oldSave)!.medals.includes('untouched'),
+  'unknown history never earns flawless',
+)
 const poisoned = structuredClone(healed)
 poisoned.state.damageTaken = -3
 const { checksum: _badChecksum, ...poisonedPayload } = poisoned
 assert.equal(
-  loadSave(JSON.stringify({ ...poisonedPayload, checksum: saveChecksum(poisonedPayload) })).ok,
+  loadSave(
+    JSON.stringify({
+      ...poisonedPayload,
+      checksum: saveChecksum(poisonedPayload),
+    }),
+  ).ok,
   false,
   'impossible telemetry is refused even if the client recomputes a checksum',
 )

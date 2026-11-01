@@ -101,9 +101,16 @@ assert.equal(
   '36 illustrations correspond to actual playable card IDs',
 )
 assert.equal(
-  CARDS.filter((card) => !slimeArtId('cards', card.id)).length,
+  TEAMS.flatMap((team) => [...team.creatures, ...team.special]).filter(
+    (id) => !slimeArtId('cards', id),
+  ).length,
   24,
-  'Missing 24 illustrations must remain honest fallbacks',
+  '24 founder cards without art retain fallbacks',
+)
+assert.equal(
+  CARDS.filter((card) => !slimeArtId('cards', card.id)).length,
+  36,
+  '12 new reserves also need their own rendered art',
 )
 assert.equal(slimeArtId('cards', 'calico'), null)
 assert.equal(slimeArtId('cards', 'plating'), 258390)

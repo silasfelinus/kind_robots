@@ -4,47 +4,44 @@
     data-layout="console-fixed"
     data-testid="memory-encounter-inspector"
   >
-    <header
-      class="flex shrink-0 flex-wrap items-center justify-between gap-2 border-b border-[#bd9064]/40 bg-[#1c2632] px-3 py-2"
-    >
-      <div class="min-w-0">
-        <p
-          class="text-[10px] font-bold uppercase tracking-[.22em] text-[#e3aa77]"
+    <header-page-bar console-theme="memory-dungeon">
+      <div class="md-bar" data-testid="memory-encounter-header">
+        <h2
+          class="md-bar-title"
+          title="Memory Dungeon / Internal encounter atlas"
         >
-          Memory Dungeon / Internal encounter atlas
-        </p>
-        <h2 class="truncate text-lg font-black sm:text-2xl">
           {{ heading }}
-          <span class="font-light text-[#cbbd9d]">/ The revealed square</span>
+          <span>/ The revealed square</span>
         </h2>
-      </div>
-      <div class="flex flex-wrap items-center gap-2">
-        <label for="memory-encounter-world" class="sr-only">
-          Choose an overworld to inspect
-        </label>
-        <select
-          id="memory-encounter-world"
-          :value="inspector.active"
-          class="select select-sm max-w-[15rem] border-[#ab936e] bg-[#293747] text-[#fff4dc]"
-          @change="selectWorld"
-        >
-          <option
-            v-for="world in inspector.available"
-            :key="world.id"
-            :value="world.id"
+        <div class="md-bar-end">
+          <label for="memory-encounter-world" class="sr-only">
+            Choose an overworld to inspect
+          </label>
+          <select
+            id="memory-encounter-world"
+            :value="inspector.active"
+            class="select select-sm max-w-[15rem]"
+            @change="selectWorld"
           >
-            {{ world.id.toUpperCase() }} · {{ titleFor(world.id) }}
-          </option>
-        </select>
-        <button
-          class="btn btn-sm border-[#9c795c] bg-[#45342c] text-[#fff0d8]"
-          type="button"
-          @click="inspector.restart()"
-        >
-          Restart this map
-        </button>
+            <option
+              v-for="world in inspector.available"
+              :key="world.id"
+              :value="world.id"
+            >
+              {{ world.id.toUpperCase() }} · {{ titleFor(world.id) }}
+            </option>
+          </select>
+          <button
+            class="btn btn-sm btn-outline"
+            type="button"
+            aria-label="Restart this map"
+            @click="inspector.restart()"
+          >
+            Restart<span class="md-bar-label">&nbsp;this map</span>
+          </button>
+        </div>
       </div>
-    </header>
+    </header-page-bar>
 
     <div
       class="grid min-h-0 flex-1 grid-cols-1 grid-rows-[minmax(0,1fr)_minmax(0,1.2fr)] gap-2 overflow-hidden p-2 md:grid-cols-[minmax(0,1fr)_minmax(0,1.4fr)] md:grid-rows-1"

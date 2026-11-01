@@ -3,157 +3,153 @@
     class="kr-surface relative flex h-full min-h-0 w-full flex-col overflow-hidden rounded-xl bg-[#141f24] text-[#f8edce]"
     data-layout="console-fixed"
   >
-    <header
-      class="flex shrink-0 flex-wrap items-center gap-2 border-b border-[#a98b5b]/40 bg-[#302b25] px-2 py-2 sm:gap-3 sm:px-4"
-    >
-      <span class="hidden shrink-0 text-xl md:inline" aria-hidden="true"
-        >🌿</span
-      >
-      <div class="min-w-0 w-full md:w-auto md:flex-1">
-        <h2 class="truncate text-sm font-black tracking-tight sm:text-lg">
+    <header-page-bar console-theme="memory-dungeon">
+      <div class="md-bar" data-testid="memory-world-header">
+        <h2
+          class="md-bar-title"
+          :title="
+            world.activeReality === 'e02'
+              ? 'The same place tells a different story.'
+              : 'Remember matching pictures to reveal the world.'
+          "
+        >
           Memory Dungeon
-          <span class="font-normal text-[#d1c19c]">{{
+          <span>{{
             world.activeReality === 'e02'
               ? '/ The Other Marches'
               : '/ Briar Camp'
           }}</span>
         </h2>
-        <p class="hidden text-xs text-[#d1c19c] lg:block">
+        <span class="md-bar-chip" title="Attempts">
+          Tries
           {{
             world.activeReality === 'e02'
-              ? 'The same place tells a different story.'
-              : 'Remember matching pictures to reveal the world.'
+              ? world.dark.attempts
+              : world.state.attempts
           }}
-        </p>
+        </span>
+        <span
+          v-if="world.activeReality === 'e01'"
+          class="md-bar-chip"
+          :aria-label="`${world.state.hearts} hearts`"
+        >
+          ❤️ {{ world.state.hearts }}
+        </span>
+        <div class="md-bar-actions">
+          <button
+            v-if="world.canEnterDarkBriar && world.activeReality === 'e01'"
+            type="button"
+            class="btn btn-sm btn-soft btn-secondary"
+            @click="world.enterDarkBriar()"
+          >
+            The reflection
+          </button>
+          <button
+            v-if="world.campaign.completed.includes('e02')"
+            type="button"
+            class="btn btn-sm btn-soft btn-info"
+            data-testid="memory-enter-morrow-earth"
+            @click="emit('earth')"
+          >
+            Morrow's Earth
+          </button>
+          <button
+            v-if="world.campaign.completed.includes('e04')"
+            type="button"
+            class="btn btn-sm btn-soft btn-secondary"
+            data-testid="memory-enter-scylla-sea"
+            @click="emit('sea')"
+          >
+            Scylla’s past
+          </button>
+          <button
+            v-if="world.campaign.completed.includes('e06')"
+            type="button"
+            class="btn btn-sm btn-soft btn-warning"
+            data-testid="memory-enter-hoshimori"
+            @click="emit('hoshimori')"
+          >
+            Lantern Village
+          </button>
+          <button
+            v-if="world.campaign.completed.includes('e07')"
+            type="button"
+            class="btn btn-sm btn-soft btn-error"
+            data-testid="memory-enter-hoshimori-night"
+            @click="emit('hoshimori-night')"
+          >
+            The Shut Doors
+          </button>
+          <button
+            v-if="world.campaign.completed.includes('e08')"
+            type="button"
+            class="btn btn-sm btn-soft btn-success"
+            data-testid="memory-enter-briar-collision"
+            @click="emit('collision')"
+          >
+            Pip’s broken forest
+          </button>
+          <button
+            v-if="world.campaign.completed.includes('e09')"
+            type="button"
+            class="btn btn-sm btn-soft btn-accent"
+            data-testid="memory-enter-earth-collision"
+            @click="emit('earth-collision')"
+          >
+            Morrow's broken city
+          </button>
+          <button
+            ref="chronicleTrigger"
+            type="button"
+            class="btn btn-sm btn-ghost"
+            :aria-label="`Open Earth Chronicle, ${world.earthPhotos.length} recovered photographs`"
+            data-testid="memory-earth-chronicle-open"
+            aria-haspopup="dialog"
+            :aria-expanded="chronicleOpen"
+            @click="chronicleOpen = true"
+          >
+            <span aria-hidden="true">◫</span>
+            <span class="md-bar-label">Chronicle</span>
+            <span class="font-mono">{{ world.earthPhotos.length }}</span>
+          </button>
+          <button
+            v-if="world.activeReality === 'e01'"
+            ref="questsTrigger"
+            type="button"
+            class="btn btn-sm btn-ghost"
+            :aria-label="`Open Threads, ${questsTied} of ${world.briarQuests.length} side quests tied off`"
+            data-testid="memory-quest-log-open"
+            aria-haspopup="dialog"
+            :aria-expanded="questsOpen"
+            @click="questsOpen = true"
+          >
+            <span aria-hidden="true">❦</span>
+            <span class="md-bar-label">Threads</span>
+            <span class="font-mono">{{ questsTied }}</span>
+          </button>
+        </div>
+        <div class="md-bar-end">
+          <button
+            ref="settingsTrigger"
+            type="button"
+            class="btn btn-sm btn-square btn-ghost"
+            aria-label="Choose gallery and game settings"
+            aria-haspopup="dialog"
+            :aria-expanded="settingsOpen"
+            @click="settingsOpen = !settingsOpen"
+          >
+            ⚙️
+          </button>
+          <button
+            type="button"
+            class="btn btn-sm btn-outline"
+            @click="emit('leave')"
+          >
+            Menu
+          </button>
+        </div>
       </div>
-      <span
-        class="shrink-0 rounded-lg bg-[#1c201d] px-2 py-1 text-xs font-bold tabular-nums sm:px-3"
-      >
-        <span class="sm:hidden">Tries</span>
-        <span class="hidden sm:inline">Attempts</span>
-        {{
-          world.activeReality === 'e02'
-            ? world.dark.attempts
-            : world.state.attempts
-        }}
-      </span>
-      <button
-        v-if="world.canEnterDarkBriar && world.activeReality === 'e01'"
-        type="button"
-        class="shrink-0 rounded-lg border border-[#d7a5ee] bg-[#483759] px-2 py-1.5 text-xs font-bold text-[#fff1da] hover:bg-[#62496d]"
-        @click="world.enterDarkBriar()"
-      >
-        The reflection
-      </button>
-      <button
-        v-if="world.campaign.completed.includes('e02')"
-        type="button"
-        class="btn btn-sm border-[#d7ba85] bg-[#4a5968] text-[#fff0d7]"
-        data-testid="memory-enter-morrow-earth"
-        @click="emit('earth')"
-      >
-        Morrow's Earth
-      </button>
-      <button
-        v-if="world.campaign.completed.includes('e04')"
-        type="button"
-        class="btn btn-sm border-[#c8a2d7] bg-[#503d6b] text-[#f7ecff]"
-        data-testid="memory-enter-scylla-sea"
-        @click="emit('sea')"
-      >
-        Scylla’s past
-      </button>
-      <button
-        v-if="world.campaign.completed.includes('e06')"
-        type="button"
-        class="btn btn-sm btn-warning"
-        data-testid="memory-enter-hoshimori"
-        @click="emit('hoshimori')"
-      >
-        Lantern Village
-      </button>
-      <button
-        v-if="world.campaign.completed.includes('e07')"
-        type="button"
-        class="btn btn-sm btn-error"
-        data-testid="memory-enter-hoshimori-night"
-        @click="emit('hoshimori-night')"
-      >
-        The Shut Doors
-      </button>
-      <button
-        v-if="world.campaign.completed.includes('e08')"
-        type="button"
-        class="btn btn-sm border-[#e9c48c] bg-[#4c625c] text-[#fff1d7]"
-        data-testid="memory-enter-briar-collision"
-        @click="emit('collision')"
-      >
-        Pip’s broken forest
-      </button>
-      <button
-        v-if="world.campaign.completed.includes('e09')"
-        type="button"
-        class="btn btn-sm border-[#f1c99b] bg-[#42596b] text-[#fff1d7]"
-        data-testid="memory-enter-earth-collision"
-        @click="emit('earth-collision')"
-      >
-        Morrow's broken city
-      </button>
-      <span
-        v-if="world.activeReality === 'e01'"
-        class="shrink-0 text-xs"
-        :aria-label="`${world.state.hearts} hearts`"
-      >
-        ❤️ {{ world.state.hearts }}
-      </span>
-      <button
-        ref="chronicleTrigger"
-        type="button"
-        class="shrink-0 rounded-lg border border-[#c7ac7a] bg-[#4d3e32] px-2 py-1.5 text-xs font-bold text-[#f8eaca] hover:bg-[#635044] focus-visible:outline-2 focus-visible:outline-[#ffe7ad]"
-        :aria-label="`Open Earth Chronicle, ${world.earthPhotos.length} recovered photographs`"
-        data-testid="memory-earth-chronicle-open"
-        aria-haspopup="dialog"
-        :aria-expanded="chronicleOpen"
-        @click="chronicleOpen = true"
-      >
-        <span aria-hidden="true">◫</span>
-        <span class="hidden sm:inline">Chronicle</span>
-        <span class="font-mono">{{ world.earthPhotos.length }}</span>
-      </button>
-      <button
-        v-if="world.activeReality === 'e01'"
-        ref="questsTrigger"
-        type="button"
-        class="shrink-0 rounded-lg border border-[#a9b98c] bg-[#3a4733] px-2 py-1.5 text-xs font-bold text-[#f3f0d6] hover:bg-[#4d5c42] focus-visible:outline-2 focus-visible:outline-[#ecf7c8]"
-        :aria-label="`Open Threads, ${questsTied} of ${world.briarQuests.length} side quests tied off`"
-        data-testid="memory-quest-log-open"
-        aria-haspopup="dialog"
-        :aria-expanded="questsOpen"
-        @click="questsOpen = true"
-      >
-        <span aria-hidden="true">❦</span>
-        <span class="hidden sm:inline">Threads</span>
-        <span class="font-mono">{{ questsTied }}</span>
-      </button>
-      <button
-        ref="settingsTrigger"
-        type="button"
-        class="rounded-lg border border-[#9f875e] p-2 text-xs hover:bg-[#514b3d]"
-        aria-label="Choose gallery and game settings"
-        aria-haspopup="dialog"
-        :aria-expanded="settingsOpen"
-        @click="settingsOpen = !settingsOpen"
-      >
-        ⚙️
-      </button>
-      <button
-        type="button"
-        class="rounded-lg border border-[#9f875e] px-2 py-2 text-xs hover:bg-[#514b3d]"
-        @click="emit('leave')"
-      >
-        Menu
-      </button>
-    </header>
+    </header-page-bar>
 
     <memory-dungeon-earth-chronicle
       v-if="chronicleOpen"

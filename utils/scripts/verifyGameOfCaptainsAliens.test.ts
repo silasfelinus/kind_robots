@@ -16,19 +16,22 @@ assert.equal(ALIEN_SPECIES.length, 101)
 assert.equal(new Set(ALIEN_SPECIES.map((species) => species.id)).size, 101)
 assert.equal(new Set(ALIEN_SPECIES.map((species) => species.artKey)).size, 101)
 assert.deepEqual(
-  ['zodiac', 'hybrid', 'cosmic', 'social', 'ecology', 'legendary'].map((group) =>
-    ALIEN_SPECIES.filter((species) => species.category === group).length,
+  ['zodiac', 'hybrid', 'cosmic', 'social', 'ecology', 'legendary'].map(
+    (group) =>
+      ALIEN_SPECIES.filter((species) => species.category === group).length,
   ),
   [12, 24, 20, 20, 15, 10],
 )
 assert.ok(new Set(ALIEN_SPECIES.map((species) => species.palette)).size >= 6)
 assert.ok(new Set(ALIEN_SPECIES.map((species) => species.social)).size >= 6)
-assert.deepEqual(ALIEN_CHOICES.map((choice) => choice.id), [
-  'chaos', 'flee', 'befriend',
-])
-assert.deepEqual(ALIEN_MILESTONES.map((item) => item.at), [
-  5, 12, 25, 50, 75, 100,
-])
+assert.deepEqual(
+  ALIEN_CHOICES.map((choice) => choice.id),
+  ['chaos', 'flee', 'befriend'],
+)
+assert.deepEqual(
+  ALIEN_MILESTONES.map((item) => item.at),
+  [5, 12, 25, 50, 75, 100],
+)
 const base = startVoyage('vale', ['pell', 'mox', 'rue'], 414414)
 const run = { ...base, chapter: 2, phase: 'expedition' as const }
 const empty = emptyAlienGuide()
@@ -101,14 +104,28 @@ assert.equal(maySeeAlien(run, guide), false)
 assert.equal(nextAlienSighting(run, guide), null)
 
 const projectRoot = new URL('../../', import.meta.url)
-const page = readFileSync(new URL('pages/play/game-of-captains.vue', projectRoot), 'utf8')
-const store = readFileSync(new URL('stores/gameOfCaptainsStore.ts', projectRoot), 'utf8')
-const encounter = readFileSync(new URL('components/gameOfCaptains/alien-encounter.vue', projectRoot), 'utf8')
-const scrapbook = readFileSync(new URL('components/gameOfCaptains/alien-scrapbook.vue', projectRoot), 'utf8')
+const page = readFileSync(
+  new URL('pages/play/game-of-captains.vue', projectRoot),
+  'utf8',
+)
+const store = readFileSync(
+  new URL('stores/gameOfCaptainsStore.ts', projectRoot),
+  'utf8',
+)
+const encounter = readFileSync(
+  new URL('components/gameOfCaptains/alien-encounter.vue', projectRoot),
+  'utf8',
+)
+const scrapbook = readFileSync(
+  new URL('components/gameOfCaptains/alien-scrapbook.vue', projectRoot),
+  'utf8',
+)
 assert.match(page, /space-couch-alien-signal/)
 assert.match(page, /space-couch-open-alien-scrapbook/)
 assert.match(encounter, /v-for="choice in ALIEN_CHOICES"/)
 assert.match(scrapbook, /v-for="\(alien, index\) in ALIEN_SPECIES"/)
 assert.match(store, /game-of-captains-alien-scrapbook-v1/)
 assert.match(store, /normalizeAlienGuide/)
-console.log('Space Couch aliens: 101 species, 3 choices, six milestones, persistence and reachable collection OK')
+console.log(
+  'Space Couch aliens: 101 species, 3 choices, six milestones, persistence and reachable collection OK',
+)

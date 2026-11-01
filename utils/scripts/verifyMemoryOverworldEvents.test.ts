@@ -795,7 +795,9 @@ assert.equal(completeEarthReplay.position, '8,8')
 assert.ok(Object.keys(completeEarthReplay.progress.choices).length >= 12)
 assert.equal(EARTH_CROSSROAD_CHOICES.length, 2)
 assert.ok(EARTH_CROSSROAD_SCENE.art.prompt.length > 100)
-assert.ok(EARTH_CROSSROAD_CHOICES.every((choice) => choice.art.prompt.length > 100))
+assert.ok(
+  EARTH_CROSSROAD_CHOICES.every((choice) => choice.art.prompt.length > 100),
+)
 let e10VerdictCases = 0
 const e10Openings = new Set<string>()
 for (const tideGate of [
@@ -897,9 +899,8 @@ const tooShortEarthJournal = completeEarthJournal.filter(
     optionalEarthChoices++ < 9,
 )
 assert.ok(
-  Object.keys(
-    replayEarthJournal('e10', tooShortEarthJournal)!.progress.choices,
-  ).length < 12,
+  Object.keys(replayEarthJournal('e10', tooShortEarthJournal)!.progress.choices)
+    .length < 12,
 )
 assert.equal(
   concludeEarthCollisionFromJournal(

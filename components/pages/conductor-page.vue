@@ -1,6 +1,6 @@
 <!-- /components/pages/conductor-page.vue -->
 <template>
-  <section class="kr-surface p-1.5 sm:p-2.5">
+  <section class="kr-surface bg-(--kr-surface) p-1.5 sm:p-2.5">
     <SnapshotModeBanner />
 
     <header-page-bar>
@@ -8,188 +8,191 @@
         class="flex min-w-0 flex-1 items-center gap-2 overflow-x-auto px-1 [scrollbar-width:none]"
         data-testid="conductor-bar"
       >
-      <div class="flex min-w-0 items-center gap-1.5">
-        <button
-          v-if="isSubView"
-          type="button"
-          class="btn btn-ghost btn-xs gap-0.5 rounded-lg px-1.5"
-          @click="goToOverview"
-        >
-          <Icon name="kind-icon:chevron-left" class="kr-icon-3" />
-          Back
-        </button>
-        <span
-          v-else-if="userStore.isAdmin"
-          class="kr-badge-primary-xs"
-          title="Conductor admin view"
-          >ADMIN</span
-        >
-
-        <span v-if="viewMode === 'tasks'" class="kr-text-dim-xs-70 font-bold"
-          >· Tasks
-          <span
-            v-if="todoStore.openTodos.length"
-            class="kr-badge-primary-xs ml-1"
-            >{{ todoStore.openTodos.length }}</span
+        <div class="flex min-w-0 items-center gap-1.5">
+          <button
+            v-if="isSubView"
+            type="button"
+            class="btn btn-ghost btn-xs gap-0.5 rounded-lg px-1.5"
+            @click="goToOverview"
           >
-        </span>
-        <span
-          v-else-if="selectedProject"
-          class="flex min-w-0 items-center gap-1.5"
-        >
-          <span class="text-[0.65rem] text-base-content/30">·</span>
-          <img
-            :src="projectIconPath(selectedProject.slug)"
-            :alt="selectedProject.name"
-            class="kr-icon-4 shrink-0 rounded-sm object-cover"
-          />
-          <span class="kr-text-bold-xs min-w-0 truncate leading-tight">{{
-            selectedProject.name || selectedProject.slug
+            <Icon name="kind-icon:chevron-left" class="kr-icon-3" />
+            Back
+          </button>
+          <span
+            v-else-if="userStore.isAdmin"
+            class="kr-badge-primary-xs"
+            title="Conductor admin view"
+            >ADMIN</span
+          >
+
+          <span v-if="viewMode === 'tasks'" class="kr-text-dim-xs-70 font-bold"
+            >· Tasks
+            <span
+              v-if="todoStore.openTodos.length"
+              class="kr-badge-primary-xs ml-1"
+              >{{ todoStore.openTodos.length }}</span
+            >
+          </span>
+          <span
+            v-else-if="selectedProject"
+            class="flex min-w-0 items-center gap-1.5"
+          >
+            <span class="text-[0.65rem] text-base-content/30">·</span>
+            <img
+              :src="projectIconPath(selectedProject.slug)"
+              :alt="selectedProject.name"
+              class="kr-icon-4 shrink-0 rounded-sm object-cover"
+            />
+            <span class="kr-text-bold-xs min-w-0 truncate leading-tight">{{
+              selectedProject.name || selectedProject.slug
+            }}</span>
+          </span>
+
+          <template
+            v-if="userStore.isAdmin && selectedProject && linkedProject"
+          >
+            <span class="mx-0.5 h-3.5 w-px shrink-0 bg-base-content/10" />
+            <button
+              type="button"
+              class="kr-btn-ghost-circle-xs"
+              :class="
+                linkedProject.isPublic ? 'text-success' : 'text-base-content/35'
+              "
+              :title="
+                linkedProject.isPublic ? 'Public project' : 'Private project'
+              "
+              :aria-label="
+                linkedProject.isPublic
+                  ? 'Make project private'
+                  : 'Make project public'
+              "
+              :disabled="projectSaving"
+              @click="patchProject({ isPublic: !linkedProject.isPublic })"
+            >
+              <Icon
+                :name="
+                  linkedProject.isPublic ? 'kind-icon:eye' : 'kind-icon:eye-off'
+                "
+                class="kr-icon-3-5"
+              />
+            </button>
+            <button
+              type="button"
+              class="kr-btn-ghost-circle-xs"
+              :class="
+                linkedProject.isMature ? 'text-warning' : 'text-base-content/35'
+              "
+              :title="
+                linkedProject.isMature ? 'Mature content' : 'Safe content'
+              "
+              :aria-label="
+                linkedProject.isMature
+                  ? 'Mark project safe'
+                  : 'Mark project mature'
+              "
+              :disabled="projectSaving"
+              @click="patchProject({ isMature: !linkedProject.isMature })"
+            >
+              <Icon name="kind-icon:warning" class="kr-icon-3-5" />
+            </button>
+            <button
+              type="button"
+              class="kr-btn-ghost-circle-xs"
+              :class="
+                linkedProject.allowReviews
+                  ? 'text-success'
+                  : 'text-base-content/35'
+              "
+              :title="linkedProject.allowReviews ? 'Reviews on' : 'Reviews off'"
+              :aria-label="
+                linkedProject.allowReviews
+                  ? 'Turn reviews off'
+                  : 'Turn reviews on'
+              "
+              :disabled="projectSaving"
+              @click="
+                patchProject({ allowReviews: !linkedProject.allowReviews })
+              "
+            >
+              <Icon name="kind-icon:comment" class="kr-icon-3-5" />
+            </button>
+            <span v-if="projectSaving" class="kr-loading-primary-xs" />
+            <span
+              v-else-if="projectSaveMessage"
+              class="text-[0.62rem] font-semibold"
+              :class="projectSaveError ? 'text-error' : 'text-success'"
+              >{{ projectSaveError ? 'save failed' : 'saved' }}</span
+            >
+          </template>
+        </div>
+
+        <template v-if="!userStore.isAdmin && projectStore.loaded">
+          <span class="mx-0.5 h-3.5 w-px shrink-0 bg-base-content/10" />
+          <span class="flex items-baseline gap-0.5">
+            <span class="kr-text-black-sm leading-none text-primary">{{
+              projectStore.publicProjects.length
+            }}</span>
+            <span class="text-[0.62rem] font-semibold text-base-content/50"
+              >projects</span
+            >
+          </span>
+        </template>
+
+        <div class="flex-1" />
+
+        <span v-if="error" class="kr-text-error-xs flex items-center gap-1">
+          <Icon name="kind-icon:warning" class="kr-icon-3" />
+          <span class="hidden max-w-32 truncate sm:inline">{{
+            error.message
           }}</span>
         </span>
 
-        <template v-if="userStore.isAdmin && selectedProject && linkedProject">
-          <span class="mx-0.5 h-3.5 w-px shrink-0 bg-base-content/10" />
+        <span
+          v-if="pending && !conductorStore.hasLoaded"
+          class="kr-loading-primary-xs"
+        />
+        <span
+          v-if="todoStore.loading && viewMode === 'tasks'"
+          class="kr-loading-primary-xs"
+        />
+
+        <template v-if="userStore.isAdmin && missingProjectSlugs.length">
           <button
             type="button"
-            class="kr-btn-ghost-circle-xs"
-            :class="
-              linkedProject.isPublic ? 'text-success' : 'text-base-content/35'
-            "
-            :title="
-              linkedProject.isPublic ? 'Public project' : 'Private project'
-            "
-            :aria-label="
-              linkedProject.isPublic
-                ? 'Make project private'
-                : 'Make project public'
-            "
-            :disabled="projectSaving"
-            @click="patchProject({ isPublic: !linkedProject.isPublic })"
+            class="btn btn-warning btn-xs gap-1 rounded-lg"
+            :disabled="syncingMissing"
+            @click="syncMissingProjects"
           >
-            <Icon
-              :name="
-                linkedProject.isPublic ? 'kind-icon:eye' : 'kind-icon:eye-off'
-              "
-              class="kr-icon-3-5"
-            />
-          </button>
-          <button
-            type="button"
-            class="kr-btn-ghost-circle-xs"
-            :class="
-              linkedProject.isMature ? 'text-warning' : 'text-base-content/35'
-            "
-            :title="linkedProject.isMature ? 'Mature content' : 'Safe content'"
-            :aria-label="
-              linkedProject.isMature
-                ? 'Mark project safe'
-                : 'Mark project mature'
-            "
-            :disabled="projectSaving"
-            @click="patchProject({ isMature: !linkedProject.isMature })"
-          >
-            <Icon name="kind-icon:warning" class="kr-icon-3-5" />
-          </button>
-          <button
-            type="button"
-            class="kr-btn-ghost-circle-xs"
-            :class="
-              linkedProject.allowReviews
-                ? 'text-success'
-                : 'text-base-content/35'
-            "
-            :title="linkedProject.allowReviews ? 'Reviews on' : 'Reviews off'"
-            :aria-label="
-              linkedProject.allowReviews
-                ? 'Turn reviews off'
-                : 'Turn reviews on'
-            "
-            :disabled="projectSaving"
-            @click="patchProject({ allowReviews: !linkedProject.allowReviews })"
-          >
-            <Icon name="kind-icon:comment" class="kr-icon-3-5" />
+            <span v-if="syncingMissing" class="kr-spinner-xs" />
+            <Icon v-else name="kind-icon:warning" class="kr-icon-3" />
+            Sync {{ missingProjectSlugs.length }}
           </button>
           <span
-            v-if="projectSaving"
-            class="kr-loading-primary-xs"
-          />
-          <span
-            v-else-if="projectSaveMessage"
-            class="text-[0.62rem] font-semibold"
-            :class="projectSaveError ? 'text-error' : 'text-success'"
-            >{{ projectSaveError ? 'save failed' : 'saved' }}</span
+            v-if="syncMessage"
+            class="text-xs"
+            :class="syncError ? 'text-error' : 'text-success'"
+            >{{ syncMessage }}</span
           >
         </template>
-      </div>
 
-      <template v-if="!userStore.isAdmin && projectStore.loaded">
-        <span class="mx-0.5 h-3.5 w-px shrink-0 bg-base-content/10" />
-        <span class="flex items-baseline gap-0.5">
-          <span class="kr-text-black-sm leading-none text-primary">{{
-            projectStore.publicProjects.length
-          }}</span>
-          <span class="text-[0.62rem] font-semibold text-base-content/50"
-            >projects</span
+        <template v-if="userStore.isAdmin">
+          <span
+            v-if="conductorStore.fetchedAt"
+            class="hidden text-[0.58rem] text-base-content/25 2xl:inline"
+            >{{ fetchedLabel }}</span
           >
-        </span>
-      </template>
-
-      <div class="flex-1" />
-
-      <span v-if="error" class="kr-text-error-xs flex items-center gap-1">
-        <Icon name="kind-icon:warning" class="kr-icon-3" />
-        <span class="hidden max-w-32 truncate sm:inline">{{
-          error.message
-        }}</span>
-      </span>
-
-      <span
-        v-if="pending && !conductorStore.hasLoaded"
-        class="kr-loading-primary-xs"
-      />
-      <span
-        v-if="todoStore.loading && viewMode === 'tasks'"
-        class="kr-loading-primary-xs"
-      />
-
-      <template v-if="userStore.isAdmin && missingProjectSlugs.length">
-        <button
-          type="button"
-          class="btn btn-warning btn-xs gap-1 rounded-lg"
-          :disabled="syncingMissing"
-          @click="syncMissingProjects"
-        >
-          <span v-if="syncingMissing" class="kr-spinner-xs" />
-          <Icon v-else name="kind-icon:warning" class="kr-icon-3" />
-          Sync {{ missingProjectSlugs.length }}
-        </button>
-        <span
-          v-if="syncMessage"
-          class="text-xs"
-          :class="syncError ? 'text-error' : 'text-success'"
-          >{{ syncMessage }}</span
-        >
-      </template>
-
-      <template v-if="userStore.isAdmin">
-        <span
-          v-if="conductorStore.fetchedAt"
-          class="hidden text-[0.58rem] text-base-content/25 2xl:inline"
-          >{{ fetchedLabel }}</span
-        >
-        <button
-          type="button"
-          class="kr-btn-ghost-xs-lg"
-          title="Refresh workspace"
-          aria-label="Refresh workspace"
-          :disabled="pending"
-          @click="refreshWorkspace"
-        >
-          <span v-if="pending" class="kr-spinner-xs" />
-          <Icon v-else name="kind-icon:refresh" class="kr-icon-3-5" />
-        </button>
-      </template>
+          <button
+            type="button"
+            class="kr-btn-ghost-xs-lg"
+            title="Refresh workspace"
+            aria-label="Refresh workspace"
+            :disabled="pending"
+            @click="refreshWorkspace"
+          >
+            <span v-if="pending" class="kr-spinner-xs" />
+            <Icon v-else name="kind-icon:refresh" class="kr-icon-3-5" />
+          </button>
+        </template>
       </div>
     </header-page-bar>
 
@@ -744,8 +747,8 @@
                     rel="noopener noreferrer"
                     class="btn btn-xs btn-outline gap-1"
                   >
-                    <Icon name="kind-icon:external-link" class="kr-icon-3" /> Live
-                    Site
+                    <Icon name="kind-icon:external-link" class="kr-icon-3" />
+                    Live Site
                   </a>
                   <a
                     v-if="linkedProject.repoUrl"

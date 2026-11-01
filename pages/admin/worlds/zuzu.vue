@@ -53,7 +53,10 @@
           <div
             class="relative flex min-h-40 flex-wrap items-end justify-between gap-4 p-5 md:min-h-48 md:p-8"
           >
-            <div class="max-w-xl" title="Shared universe · Private worldbuilding">
+            <div
+              class="max-w-xl"
+              title="Shared universe · Private worldbuilding"
+            >
               <p class="max-w-lg text-sm text-base-content/75 md:text-base">
                 Every image has a story. Find it, compare it, and give it a new
                 role in another production.
@@ -1309,3 +1312,11 @@ async function submitRequest() {
   }
 }
 </script>
+
+<style scoped>
+@container (max-width: 420px) {
+  .zw-bar-label {
+    display: none;
+  }
+}
+</style>

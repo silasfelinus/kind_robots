@@ -686,11 +686,7 @@
               <p class="kr-text-dim-sm">
                 That Resource is no longer available.
               </p>
-              <button
-                type="button"
-                class="kr-btn-ghost mt-3"
-                @click="close"
-              >
+              <button type="button" class="kr-btn-ghost mt-3" @click="close">
                 Close
               </button>
             </div>
@@ -798,8 +794,9 @@ const resourceCardId = ref<number | null>(null)
 
 const resourceCardResource = computed(
   () =>
-    triageStore.loras.find((resource) => resource.id === resourceCardId.value) ??
-    null,
+    triageStore.loras.find(
+      (resource) => resource.id === resourceCardId.value,
+    ) ?? null,
 )
 
 const resourceCardOpen = computed({

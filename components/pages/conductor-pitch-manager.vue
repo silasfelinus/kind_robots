@@ -1,6 +1,6 @@
 <template>
   <section
-    class="kr-surface rounded-3xl border border-base-300/70 bg-gradient-to-br from-primary/5 via-base-200 to-secondary/10 shadow-xl"
+    class="kr-surface rounded-3xl border border-base-300/70 bg-(--kr-surface) bg-gradient-to-br from-primary/5 via-transparent to-secondary/10 shadow-xl"
   >
     <header-page-bar>
       <div class="pm-bar" data-testid="pitch-review-bar">
@@ -65,7 +65,9 @@
 
     <div class="flex min-h-0 flex-1 flex-col gap-3 p-3 sm:p-4">
       <div class="kr-toolbar">
-        <label class="kr-input-sm flex min-w-52 flex-1 items-center gap-2 rounded-2xl bg-base-100">
+        <label
+          class="kr-input-sm flex min-w-52 flex-1 items-center gap-2 rounded-2xl bg-base-100"
+        >
           <Icon name="kind-icon:search" class="size-4 text-base-content/35" />
           <input
             v-model="query"
@@ -80,7 +82,9 @@
           class="badge badge-warning h-8 gap-1 rounded-2xl px-3"
         >
           <Icon name="kind-icon:warning" class="kr-icon-3-5" />
-          {{ likelyOverlapCount }} overlap signal{{ likelyOverlapCount === 1 ? '' : 's' }}
+          {{ likelyOverlapCount }} overlap signal{{
+            likelyOverlapCount === 1 ? '' : 's'
+          }}
         </span>
       </div>
 
@@ -141,13 +145,21 @@
                     {{ statusLabel(pitch) }}
                   </span>
                 </div>
-                <div class="kr-text-dim-xs-45 mt-1 flex flex-wrap items-center gap-x-3 gap-y-1">
-                  <span v-if="pitch.projectTarget" class="flex items-center gap-1">
+                <div
+                  class="kr-text-dim-xs-45 mt-1 flex flex-wrap items-center gap-x-3 gap-y-1"
+                >
+                  <span
+                    v-if="pitch.projectTarget"
+                    class="flex items-center gap-1"
+                  >
                     <Icon name="kind-icon:folder" class="kr-icon-3" />
                     {{ pitch.projectTarget }}
                   </span>
                   <span v-if="pitch.date">{{ pitch.date }}</span>
-                  <span v-if="pitch.effort" class="kr-badge-ghost-xs rounded-xl">
+                  <span
+                    v-if="pitch.effort"
+                    class="kr-badge-ghost-xs rounded-xl"
+                  >
                     {{ pitch.effort }} effort
                   </span>
                 </div>
@@ -156,16 +168,22 @@
 
             <div class="space-y-4 p-4">
               <div>
-                <p class="kr-text-eyebrow text-xs tracking-widest text-base-content/35">
+                <p
+                  class="kr-text-eyebrow text-xs tracking-widest text-base-content/35"
+                >
                   The idea
                 </p>
                 <p class="mt-1 text-sm leading-relaxed text-base-content/75">
-                  {{ pitch.idea || 'No idea summary was parsed from this pitch.' }}
+                  {{
+                    pitch.idea || 'No idea summary was parsed from this pitch.'
+                  }}
                 </p>
               </div>
 
               <div v-if="pitch.whyDoIt">
-                <p class="kr-text-eyebrow text-xs tracking-widest text-base-content/35">
+                <p
+                  class="kr-text-eyebrow text-xs tracking-widest text-base-content/35"
+                >
                   Why bother
                 </p>
                 <p class="kr-text-dim-sm mt-1 leading-relaxed">
@@ -177,7 +195,9 @@
                 v-if="overlapSignals(pitch).length"
                 class="rounded-2xl border border-warning/30 bg-warning/8 p-3"
               >
-                <div class="kr-text-eyebrow flex items-center gap-2 text-xs tracking-wide text-warning">
+                <div
+                  class="kr-text-eyebrow flex items-center gap-2 text-xs tracking-wide text-warning"
+                >
                   <Icon name="kind-icon:warning" class="kr-icon-4" />
                   Existing-work check
                 </div>
@@ -192,7 +212,9 @@
                   </span>
                 </div>
                 <p class="kr-text-dim-xs mt-2 leading-relaxed">
-                  This is a warning, not an automatic verdict. The useful increment may belong inside an existing roadmap instead of becoming another project.
+                  This is a warning, not an automatic verdict. The useful
+                  increment may belong inside an existing roadmap instead of
+                  becoming another project.
                 </p>
               </div>
 
@@ -239,7 +261,10 @@
                 </button>
               </div>
 
-              <div v-else class="flex flex-wrap justify-end gap-2 border-t border-base-300/60 pt-3">
+              <div
+                v-else
+                class="flex flex-wrap justify-end gap-2 border-t border-base-300/60 pt-3"
+              >
                 <button
                   type="button"
                   class="kr-btn-ghost-2xl"
@@ -268,7 +293,9 @@
           v-else
           class="flex min-h-72 flex-col items-center justify-center kr-panel-flat border-dashed rounded-3xl bg-base-100/70 p-8 text-center"
         >
-          <span class="flex size-16 items-center justify-center rounded-3xl bg-success/10 text-success">
+          <span
+            class="flex size-16 items-center justify-center rounded-3xl bg-success/10 text-success"
+          >
             <Icon :name="emptyIcon" class="kr-icon-8" />
           </span>
           <h3 class="kr-text-black-xl mt-4">{{ emptyTitle }}</h3>
@@ -359,26 +386,40 @@ const featureSignals = [
   {
     key: 'coloring-book-feature',
     label: 'Coloring Book project + product pipeline',
-    detail: 'The coloring-book roadmap already covers generated line art, printable books, the app surface, storefront, and purchasable sets.',
+    detail:
+      'The coloring-book roadmap already covers generated line art, printable books, the app surface, storefront, and purchasable sets.',
     words: ['coloring', 'line-art', 'lineart', 'colouring', 'pdf-coloring'],
   },
   {
     key: 'conductor-health-feature',
     label: 'Conductor cockpit + status reporting',
-    detail: 'Conductor already exposes projects, task state, human gates, status snapshots, PR triage, and mobile-client work.',
-    words: ['conductor', 'agent-health', 'health-dashboard', 'task-dashboard', 'roadmap-dashboard'],
+    detail:
+      'Conductor already exposes projects, task state, human gates, status snapshots, PR triage, and mobile-client work.',
+    words: [
+      'conductor',
+      'agent-health',
+      'health-dashboard',
+      'task-dashboard',
+      'roadmap-dashboard',
+    ],
   },
   {
     key: 'subscription-feature',
     label: 'Subscriptions + Stripe + mana credits',
-    detail: 'Kind Robots already has subscription UI, Stripe subscribe APIs, membership state, monthly mana, and credit-purchase work.',
-    words: ['subscription', 'subscriptions', 'session-credits', 'stripe', 'patron', 'mana-credits'],
+    detail:
+      'Kind Robots already has subscription UI, Stripe subscribe APIs, membership state, monthly mana, and credit-purchase work.',
+    words: [
+      'subscription',
+      'subscriptions',
+      'session-credits',
+      'stripe',
+      'patron',
+      'mana-credits',
+    ],
   },
 ]
 
-const isLoading = computed(
-  () => conductorStore.pending || projectStore.loading,
-)
+const isLoading = computed(() => conductorStore.pending || projectStore.loading)
 
 const tabOptions = computed(() => [
   {
@@ -424,7 +465,11 @@ const projectCatalog = computed<ProjectSearchRecord[]>(() => {
         project.kind,
         project.notesFromSilas,
         ...project.milestones.map((milestone) => milestone.title),
-        ...project.tasks.flatMap((task) => [task.title, task.note, task.stakes]),
+        ...project.tasks.flatMap((task) => [
+          task.title,
+          task.note,
+          task.stakes,
+        ]),
       ]
         .filter(Boolean)
         .join(' '),
@@ -518,7 +563,12 @@ function tokenize(value: string): string[] {
 }
 
 function overlapSignals(pitch: ConductorPitch): OverlapSignal[] {
-  const pitchText = [pitch.title, pitch.projectTarget, pitch.idea, pitch.whyDoIt]
+  const pitchText = [
+    pitch.title,
+    pitch.projectTarget,
+    pitch.idea,
+    pitch.whyDoIt,
+  ]
     .filter(Boolean)
     .join(' ')
   const pitchTokens = new Set(tokenize(pitchText))
@@ -556,7 +606,9 @@ function overlapSignals(pitch: ConductorPitch): OverlapSignal[] {
   }
 
   for (const feature of featureSignals) {
-    const matches = feature.words.filter((word) => normalizedText.includes(word))
+    const matches = feature.words.filter((word) =>
+      normalizedText.includes(word),
+    )
     if (!matches.length) continue
     signals.push({
       key: feature.key,
@@ -570,7 +622,8 @@ function overlapSignals(pitch: ConductorPitch): OverlapSignal[] {
     .sort((a, b) => b.score - a.score)
     .filter(
       (signal, index, all) =>
-        all.findIndex((candidate) => candidate.label === signal.label) === index,
+        all.findIndex((candidate) => candidate.label === signal.label) ===
+        index,
     )
     .slice(0, 4)
 }
@@ -663,7 +716,9 @@ async function requestPitchRun(): Promise<void> {
   } catch (cause) {
     feedbackError.value = true
     feedback.value =
-      cause instanceof Error ? cause.message : 'The pitch run could not be queued.'
+      cause instanceof Error
+        ? cause.message
+        : 'The pitch run could not be queued.'
   } finally {
     requestingPitches.value = false
   }

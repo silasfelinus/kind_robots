@@ -170,7 +170,7 @@ export const useMemoryBriarCollisionStore = defineStore(
 
     function conclude(): void {
       if (!readyToLeave.value || completed.value) return
-      if (world.finishBriarCollision()) {
+      if (world.finishBriarCollision(journal.value)) {
         notice.value =
           'Pip has recovered both displaced memories. The next crossing remembers his choices.'
         persist()

@@ -622,7 +622,6 @@ export const useMemoryWorldStore = defineStore('memoryWorld', () => {
   function finishMorrowEarthReality(
     reality: 'e03' | 'e04',
     pivotalChoice?: string,
-    charAgencyChoice?: string,
   ): boolean {
     if (campaign.value.completed.includes(reality)) return false
     if (reality === 'e03') {
@@ -671,6 +670,7 @@ export const useMemoryWorldStore = defineStore('memoryWorld', () => {
   function finishScyllaReality(
     reality: 'e05' | 'e06',
     pivotalChoice?: string,
+    charAgencyChoice?: string,
   ): boolean {
     if (campaign.value.completed.includes(reality) || !pivotalChoice)
       return false
@@ -701,11 +701,7 @@ export const useMemoryWorldStore = defineStore('memoryWorld', () => {
         campaign.value,
         charAgencyChoice as (typeof MEMORY_CHAR_AGENCY_CHOICES)[number]['id'],
       )
-      const decided = chooseMemoryPairEnding(
-        agency,
-        'e06',
-        pivotalChoice,
-      )
+      const decided = chooseMemoryPairEnding(agency, 'e06', pivotalChoice)
       const remembered = rememberMemoryWish(decided, 'char-possible-future')
       campaign.value = completeMemoryExperience(remembered, 'e06')
     }

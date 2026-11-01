@@ -44,6 +44,8 @@ import {
 import {
   newMemoryCampaignProgress,
   completeMemoryExperience,
+  availableMemoryExperiences,
+  commitToMemoryFinale,
   rememberMemoryWish,
   chooseMemoryPairEnding,
   chooseMemoryScyllaDeparture,
@@ -62,6 +64,10 @@ import {
   type CrossMapSealChronicle,
 } from '~/utils/memoryDungeon/crossMapSealChronicle'
 import { restoreMemoryRealitySave } from '~/utils/memoryDungeon/campaignPersistence'
+import {
+  recoverBriarCollisionFromJournal,
+  concludeBriarCollisionFromJournal,
+} from '~/utils/memoryDungeon/briarCollisionProgress'
 import {
   DARK_BRIAR_WAVES,
   DARK_BRIAR_SCENES,
@@ -644,6 +650,39 @@ export const useMemoryWorldStore = defineStore('memoryWorld', () => {
       )
       campaign.value = completeMemoryExperience(decided, 'e04')
     }
+    persistReality()
+    return true
+  }
+
+  function commitBriarCollision(): boolean {
+    if (
+      campaign.value.finaleCommitted ||
+      !availableMemoryExperiences(campaign.value).includes('e09')
+    )
+      return false
+    campaign.value = commitToMemoryFinale(campaign.value)
+    persistReality()
+    return true
+  }
+
+  function syncBriarCollisionJournal(
+    journal: readonly EarthJournalAction[],
+  ): boolean {
+    const next = recoverBriarCollisionFromJournal(campaign.value, journal)
+    if (!next) return false
+    if (next !== campaign.value) {
+      campaign.value = next
+      persistReality()
+    }
+    return true
+  }
+
+  function finishBriarCollision(
+    journal: readonly EarthJournalAction[],
+  ): boolean {
+    const next = concludeBriarCollisionFromJournal(campaign.value, journal)
+    if (!next) return false
+    campaign.value = next
     persistReality()
     return true
   }
@@ -2467,6 +2506,9 @@ export const useMemoryWorldStore = defineStore('memoryWorld', () => {
     syncMorrowEarthPhoto,
     syncMorrowEarthAchievements,
     finishMorrowEarthReality,
+    commitBriarCollision,
+    syncBriarCollisionJournal,
+    finishBriarCollision,
     syncScyllaEarthPhoto,
     finishScyllaReality,
     syncHoshimoriNightAchievements,

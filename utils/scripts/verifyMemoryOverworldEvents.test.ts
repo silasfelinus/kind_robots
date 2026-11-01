@@ -13,13 +13,19 @@ import {
 import { EARTH_PHOTOS } from '../memoryDungeon/chronicle'
 import { HOSHIMORI_NIGHT_SITES } from '../memoryDungeon/hoshimoriNight'
 import { BRIAR_COLLISION_SCENES } from '../memoryDungeon/briarCollision'
-import { recoverBriarCollisionFromJournal } from '../memoryDungeon/briarCollisionProgress'
+import {
+  recoverBriarCollisionFromJournal,
+  concludeBriarCollisionFromJournal,
+} from '../memoryDungeon/briarCollisionProgress'
 import {
   replayEarthJournal,
   type EarthJournalAction,
 } from '../memoryDungeon/earthJournal'
 import {
   newMemoryCampaignProgress,
+  commitToMemoryFinale,
+  completeMemoryExperience,
+  availableMemoryExperiences,
   type MemoryCampaignProgress,
 } from '../memoryDungeon/reimaginerCampaign'
 
@@ -246,6 +252,110 @@ assert.equal(
   ),
   null,
   'the e08 passage cannot be skipped',
+)
+
+const preCommitCampaign = { ...earnedCampaign, finaleCommitted: false }
+assert.deepEqual(availableMemoryExperiences(preCommitCampaign), ['e09'])
+assert.equal(
+  recoverBriarCollisionFromJournal(preCommitCampaign, []),
+  null,
+  'uncommitted travel cannot earn finale fragments',
+)
+const committedCampaign = commitToMemoryFinale(preCommitCampaign)
+assert.equal(committedCampaign.finaleCommitted, true)
+assert.throws(
+  () => completeMemoryExperience(committedCampaign, 'e09'),
+  /Recover both misplaced/,
+)
+const completeBriarJournal: EarthJournalAction[] = []
+let resolvedBriarSites = 0
+for (let y = 1; y <= 8; y++) {
+  const row = Array.from({ length: 8 }, (_, index) =>
+    y % 2 === 1 ? index + 1 : 8 - index,
+  )
+  for (const x of row) {
+    const key = x + ',' + y
+    if (key !== '1,1') completeBriarJournal.push({ type: 'travel', key })
+    if (resolvedBriarSites < 12 || key === '2,2' || key === '7,6') {
+      completeBriarJournal.push({
+        type: 'choose',
+        key,
+        choiceId: worldEvent('e09', key)!.choices[0]!.id,
+      })
+      resolvedBriarSites++
+    }
+  }
+}
+const completeBriarReplay = replayEarthJournal('e09', completeBriarJournal)
+assert.ok(completeBriarReplay)
+assert.equal(completeBriarReplay.progress.revealed.length, 64)
+assert.ok(Object.keys(completeBriarReplay.progress.choices).length >= 12)
+const recoveredBriar = recoverBriarCollisionFromJournal(
+  committedCampaign,
+  completeBriarJournal,
+)
+assert.ok(recoveredBriar)
+assert.deepEqual(recoveredBriar.recoveredFragments, [
+  'briar-office-key',
+  'briar-tide-roots',
+])
+let shortChoiceCount = 0
+const tooShortBriarJournal = completeBriarJournal.filter(
+  (action) =>
+    action.type !== 'choose' ||
+    action.key === '2,2' ||
+    action.key === '7,6' ||
+    shortChoiceCount++ < 9,
+)
+assert.equal(
+  replayEarthJournal('e09', tooShortBriarJournal)?.progress &&
+    Object.keys(
+      replayEarthJournal('e09', tooShortBriarJournal)!.progress.choices,
+    ).length,
+  11,
+)
+assert.equal(
+  concludeBriarCollisionFromJournal(committedCampaign, tooShortBriarJournal),
+  null,
+  'two fragments without twelve meaningful decisions cannot end the map',
+)
+assert.equal(
+  concludeBriarCollisionFromJournal(preCommitCampaign, completeBriarJournal),
+  null,
+  'the explicit finale commitment cannot be bypassed',
+)
+const forgedReceiptCampaign = {
+  ...committedCampaign,
+  recoveredFragments: ['briar-office-key', 'briar-tide-roots'] as const,
+}
+const noFragmentChoices = completeBriarJournal.filter(
+  (action) =>
+    action.type !== 'choose' || (action.key !== '2,2' && action.key !== '7,6'),
+)
+assert.equal(
+  concludeBriarCollisionFromJournal(forgedReceiptCampaign, noFragmentChoices),
+  null,
+  'serialized fragment receipts cannot replace both actual scene decisions',
+)
+const concludedBriar = concludeBriarCollisionFromJournal(
+  committedCampaign,
+  completeBriarJournal,
+)!
+assert.ok(concludedBriar)
+assert.ok(concludedBriar.completed.includes('e09'))
+assert.deepEqual(availableMemoryExperiences(concludedBriar), ['e10'])
+assert.deepEqual(
+  replayEarthJournal('e09', JSON.parse(JSON.stringify(completeBriarJournal))),
+  completeBriarReplay,
+  'saved Pip decisions and position must survive reload',
+)
+assert.equal(
+  replayEarthJournal('e09', [
+    ...completeBriarJournal,
+    { type: 'travel', key: '1,1' },
+  ]),
+  null,
+  'teleporting after a valid journey must invalidate the entire journal',
 )
 
 for (const pilot of HOSHIMORI_NIGHT_SITES) {

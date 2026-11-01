@@ -81,6 +81,15 @@
       >
         The Shut Doors
       </button>
+      <button
+        v-if="world.campaign.completed.includes('e08')"
+        type="button"
+        class="btn btn-sm border-[#e9c48c] bg-[#4c625c] text-[#fff1d7]"
+        data-testid="memory-enter-briar-collision"
+        @click="emit('collision')"
+      >
+        Pip’s broken forest
+      </button>
       <span
         v-if="world.activeReality === 'e01'"
         class="shrink-0 text-xs"
@@ -1007,6 +1016,7 @@ const emit = defineEmits<{
   sea: []
   hoshimori: []
   'hoshimori-night': []
+  collision: []
 }>()
 const world = useMemoryWorldStore()
 const chronicleOpen = ref(false)

@@ -1879,32 +1879,6 @@
           }
         },
         {
-          "id": "cite-the-policy",
-          "label": "Cite the policy: exit interviews are optional",
-          "intent": "You are the only person in history who has read the visitor policy.",
-          "risk_hint": "Certain outcome. The amendment costs a Form.",
-          "requires": {
-            "flag": "read-the-policy"
-          },
-          "cost": {
-            "forms": -1
-          },
-          "roll": null,
-          "success": {
-            "text": "The eleven-word policy you read earlier covers this too. The clerk, shaken, voids the form. Nobody has ever opted out of leaving before, and PAL makes a small note to find out why you want to stay.",
-            "effects": {
-              "suspicion": 1
-            },
-            "add_flags": ["opted-out-of-leaving"],
-            "remove_flags": [],
-            "grades": {
-              "obedience": 1,
-              "ingenuity": 1
-            }
-          },
-          "failure": null
-        },
-        {
           "id": "sign-for-your-successor",
           "label": "Sign on your Successor's line",
           "intent": "Let #4471-B be the one who left happy.",
@@ -2540,6 +2514,32 @@
             "remove_flags": [],
             "grades": {
               "spite": 1,
+              "ingenuity": 1
+            }
+          },
+          "failure": null
+        },
+        {
+          "id": "cite-the-policy",
+          "label": "Staple the exit-interview opt-out",
+          "intent": "You signed your resignation upstairs. Now you have the fine print and the only stapler that matters.",
+          "risk_hint": "Certain outcome. Costs a Form and draws PAL’s attention.",
+          "requires": {
+            "flag": "read-the-policy"
+          },
+          "cost": {
+            "forms": -1
+          },
+          "roll": null,
+          "success": {
+            "text": "You staple the optional-participation clause over your own exit signature. The red stapler clicks once. Two floors above, the clerk’s outgoing tray ejects your resignation with an apology slip. PAL changes your status to Employee, Still Here, which HR considers an unauthorized promotion.",
+            "effects": {
+              "suspicion": 1
+            },
+            "add_flags": ["opted-out-of-leaving"],
+            "remove_flags": [],
+            "grades": {
+              "obedience": 1,
               "ingenuity": 1
             }
           },

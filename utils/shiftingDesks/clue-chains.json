@@ -5,13 +5,13 @@
   "clues": [
     {
       "department": "orientation",
-      "card": "the-red-stapler",
-      "choice": "staple-your-packet",
+      "card": "exit-interview-first",
+      "choice": "sign-the-exit-form",
       "on": "success",
       "grants": "read-the-policy",
-      "target": "exit-interview-first/cite-the-policy",
-      "hint": "Your onboarding packet may conceal a surprisingly useful rule.",
-      "message": "The stapler punches straight through an eleven-word policy insert. It says exit interviews are optional. You copy the wording before PAL comes to confiscate the packet."
+      "target": "the-red-stapler/cite-the-policy",
+      "hint": "The copy of your mandatory exit interview carries an odd optional-participation clause. Keep it until you find a stapler.",
+      "message": "The clerk hands you a carbon copy of the exit interview. Clause eleven says participation is optional, although there is nowhere to mark that on the form. You fold the clause into your pocket before PAL can retrieve it."
     },
     {
       "department": "records",

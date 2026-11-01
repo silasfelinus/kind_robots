@@ -1007,6 +1007,7 @@ function dealDepartment(
   dept: Pack,
   seedRng: number,
   memo: Restructuring | null = null,
+  flags: readonly string[] = [],
 ): [string[], number] {
   let rng = seedRng
   const deck: string[] = []
@@ -1014,8 +1015,20 @@ function dealDepartment(
     if (slot.change === 'closed') continue
     const pool = slot.pool.filter((id) => !deck.includes(id))
     if (!pool.length) continue
-    const [id, next] = weightedPick(pool, rng)
-    deck.push(id)
+    const [drawn, next] = weightedPick(pool, rng)
+    // A player's commitment to Dale earns a later scene, not another
+    // one-in-eight lottery. Closed/restructured locations still stay closed.
+    const callback =
+      dept.department.id === 'toy-division' &&
+      flags.includes('sent-dale-to-toys') &&
+      pool.includes('the-squeak-tester')
+        ? 'the-squeak-tester'
+        : dept.department.id === 'wellness' &&
+            flags.includes('dale-forgave-the-transfer') &&
+            pool.includes('the-two-quiet-rooms')
+          ? 'the-two-quiet-rooms'
+          : drawn
+    deck.push(callback)
     rng = next
   }
   const shift = dept.window_shift
@@ -1689,7 +1702,7 @@ export function descend(state: RunState): RunState {
   const next = nextDepartment(state.department)
   if (!next) return state
   const memo = restructuringFor(state, next)
-  const [deck, rng] = dealDepartment(next, state.rng, memo)
+  const [deck, rng] = dealDepartment(next, state.rng, memo, state.flags)
   // Running low on Successors, HR thaws one fresh one at each new level, so a
   // long run wears you down without making the bottom floors a foregone loss.
   const thawed = state.meters.successors <= THAW_BELOW ? THAW_PER_LEVEL : 0

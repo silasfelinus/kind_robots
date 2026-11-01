@@ -58,7 +58,11 @@
             type="button"
             class="sc-story-reload"
             :title="lab.storyError"
-            :aria-label="'Story save unavailable. ' + lab.storyError + ' Reload saved story.'"
+            :aria-label="
+              'Story save unavailable. ' +
+              lab.storyError +
+              ' Reload saved story.'
+            "
             @click="lab.hydrateStory()"
           >
             STORY SYNC ERROR · RELOAD

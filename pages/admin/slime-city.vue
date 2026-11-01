@@ -5,59 +5,68 @@
     data-testid="slime-city-lab"
   >
     <div class="sc-shell">
-      <header class="sc-header">
-        <div class="sc-brand">
-          <span class="sc-overline">KIND ROBOTS / COMBAT SYSTEMS LAB 001</span>
-          <div class="sc-wordmark">
-            SLIME <span>CITY</span><small> working title</small>
+      <header-page-bar>
+        <div class="sc-header" data-testid="slime-city-header">
+          <div
+            class="sc-brand"
+            title="Kind Robots / Combat Systems Lab 001 — working title"
+          >
+            <div class="sc-wordmark">SLIME <span>CITY</span></div>
+          </div>
+          <nav class="sc-tabs" aria-label="Laboratory views">
+            <button
+              type="button"
+              :class="{ active: lab.view === 'city' }"
+              @click="lab.showCity()"
+            >
+              CITY
+            </button>
+            <button
+              type="button"
+              :class="{ active: lab.view === 'arena' }"
+              @click="lab.view = 'arena'"
+            >
+              ARENA
+            </button>
+            <button
+              type="button"
+              :class="{ active: lab.view === 'campaign' }"
+              data-testid="slime-campaign-tab"
+              @click="lab.showCampaign()"
+            >
+              STORY
+            </button>
+            <button
+              type="button"
+              :class="{ active: lab.view === 'cards' }"
+              @click="lab.showCards()"
+            >
+              CARDS
+            </button>
+            <button
+              type="button"
+              :class="{ active: lab.view === 'rewards' }"
+              data-testid="slime-rewards-tab"
+              @click="lab.showRewards()"
+            >
+              REWARDS
+            </button>
+          </nav>
+          <div
+            class="sc-hud"
+            :title="
+              lab.progressLoaded
+                ? 'Meat earned in Slime City'
+                : 'Sign in to keep Slime City progress'
+            "
+          >
+            <span class="sc-led"></span>
+            <strong>{{
+              lab.progressLoaded ? lab.progress.meat + ' MEAT' : 'SIGN IN'
+            }}</strong>
           </div>
         </div>
-        <nav class="sc-tabs" aria-label="Laboratory views">
-          <button
-            type="button"
-            :class="{ active: lab.view === 'city' }"
-            @click="lab.showCity()"
-          >
-            CITY
-          </button>
-          <button
-            type="button"
-            :class="{ active: lab.view === 'arena' }"
-            @click="lab.view = 'arena'"
-          >
-            ARENA
-          </button>
-          <button
-            type="button"
-            :class="{ active: lab.view === 'campaign' }"
-            data-testid="slime-campaign-tab"
-            @click="lab.showCampaign()"
-          >
-            STORY
-          </button>
-          <button
-            type="button"
-            :class="{ active: lab.view === 'cards' }"
-            @click="lab.showCards()"
-          >
-            CARDS
-          </button>
-          <button
-            type="button"
-            :class="{ active: lab.view === 'rewards' }"
-            data-testid="slime-rewards-tab"
-            @click="lab.showRewards()"
-          >
-            REWARDS
-          </button>
-        </nav>
-        <div class="sc-hud">
-          <span class="sc-led"></span> ACCOUNT
-          <strong>{{
-            lab.progressLoaded ? lab.progress.meat + ' MEAT' : 'SIGN IN'
-          }}</strong>
-        </div>
-      </header>
+      </header-page-bar>
 
       <div class="sc-main">
         <aside class="sc-roster" aria-label="Teams">
@@ -1472,14 +1481,16 @@ onUnmounted(() => {
   );
 }
 .sc-header {
-  flex: none;
+  flex: 1 1 auto;
+  min-width: 0;
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  gap: 1.2rem;
-  padding: 0.7rem 1.2rem;
-  border-bottom: 1px solid #69708255;
-  background: #080c16ef;
+  gap: 0.75rem;
+  padding: 0.25rem 0.35rem 0.25rem 0.85rem;
+  border: 1px solid #69708277;
+  border-radius: 0.75rem;
+  background: radial-gradient(ellipse at 20% 0%, #29314c 0%, #0a0e16 85%);
+  color: #eef2f8;
 }
 .sc-overline {
   display: block;
@@ -1489,39 +1500,44 @@ onUnmounted(() => {
   font-weight: 850;
   text-transform: uppercase;
 }
+.sc-brand {
+  flex: none;
+}
 .sc-brand .sc-wordmark {
   margin: 0;
-  font-size: clamp(1.25rem, 2.7vw, 2.5rem);
+  font-size: clamp(1.1rem, 2vw, 1.6rem);
   font-weight: 1000;
   line-height: 1;
   letter-spacing: -0.065em;
   font-style: italic;
+  white-space: nowrap;
   text-shadow: 0 0 25px #f35c5944;
 }
 .sc-brand .sc-wordmark span {
   color: #c3ff55;
 }
-.sc-brand .sc-wordmark small {
-  display: inline-block;
-  color: #999eb4;
-  font-size: 0.53rem;
-  letter-spacing: 0.03em;
-  font-style: normal;
-  font-weight: 500;
-}
 .sc-tabs {
+  flex: 0 1 auto;
+  min-width: 0;
   display: flex;
-  gap: 0.35rem;
-  padding: 0.25rem;
+  gap: 0.3rem;
+  margin-inline: auto;
+  padding: 0.2rem;
+  overflow-x: auto;
+  scrollbar-width: none;
   border: 1px solid #4d5567;
-  border-radius: 0.7rem;
+  border-radius: 0.6rem;
   background: #0e1420;
 }
+.sc-tabs::-webkit-scrollbar {
+  display: none;
+}
 .sc-tabs button {
-  min-width: 4.2rem;
-  padding: 0.55rem 0.8rem;
-  border-radius: 0.46rem;
-  font-size: 0.7rem;
+  flex: none;
+  min-width: 4rem;
+  padding: 0.4rem 0.75rem;
+  border-radius: 0.42rem;
+  font-size: 0.68rem;
   font-weight: 900;
   letter-spacing: 0.12em;
   color: #afb8c5;
@@ -1532,6 +1548,7 @@ onUnmounted(() => {
   box-shadow: 0 0 18px #c5ff5944;
 }
 .sc-hud {
+  flex: none;
   display: flex;
   align-items: center;
   gap: 0.5rem;
@@ -2697,17 +2714,10 @@ onUnmounted(() => {
 }
 @container (max-width: 600px) {
   .sc-header {
-    padding: 0.3rem 0.6rem;
+    padding: 0.2rem 0.25rem 0.2rem 0.6rem;
     gap: 0.4rem;
   }
   .sc-hud {
-    display: none;
-  }
-  .sc-brand .sc-wordmark {
-    font-size: 1.15rem;
-  }
-  .sc-brand .sc-wordmark small,
-  .sc-brand .sc-overline {
     display: none;
   }
   .sc-tabs button {
@@ -2857,6 +2867,22 @@ onUnmounted(() => {
   }
   .sc-footer {
     display: none;
+  }
+}
+@container (max-width: 680px) {
+  .sc-brand {
+    display: none;
+  }
+}
+@container (max-width: 420px) {
+  .sc-header {
+    padding-left: 0.25rem;
+  }
+  .sc-tabs {
+    flex: 1 1 auto;
+  }
+  .sc-tabs button {
+    flex: 1 0 auto;
   }
 }
 .sc-help {

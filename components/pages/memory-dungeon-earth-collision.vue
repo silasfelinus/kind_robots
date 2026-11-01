@@ -4,30 +4,26 @@
     data-layout="console-fixed"
     data-testid="memory-earth-collision-console"
   >
-    <header
-      class="flex shrink-0 flex-wrap items-center gap-2 border-b border-[#b8a47e]/40 bg-[#27313b] px-3 py-2"
-    >
-      <div class="min-w-0 flex-1">
-        <p
-          class="text-[10px] font-black uppercase tracking-[.2em] text-[#f1c99b]"
+    <header-page-bar console-theme="memory-dungeon">
+      <div class="md-bar" data-testid="memory-earth-collision-header">
+        <h2
+          class="md-bar-title"
+          title="Morrow · The City That Forgot Its Hours"
         >
-          Morrow · The City That Forgot Its Hours
-        </p>
-        <h2 class="truncate text-lg font-black sm:text-xl">
           The Earth Collision
         </h2>
+        <span class="md-bar-chip">{{ collision.fragments }}/2 memories</span>
+        <div class="md-bar-end">
+          <button
+            type="button"
+            class="btn btn-sm btn-outline"
+            @click="emit('leave')"
+          >
+            Briar camp
+          </button>
+        </div>
       </div>
-      <span class="rounded-lg border border-[#b8a47e]/40 px-2 py-1 text-xs">
-        {{ collision.fragments }}/2 memories
-      </span>
-      <button
-        type="button"
-        class="btn btn-sm btn-outline"
-        @click="emit('leave')"
-      >
-        Briar camp
-      </button>
-    </header>
+    </header-page-bar>
 
     <div
       v-if="!collision.unlocked"

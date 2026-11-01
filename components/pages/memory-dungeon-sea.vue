@@ -4,49 +4,44 @@
     data-layout="console-fixed"
     data-testid="memory-sea-act"
   >
-    <header
-      class="flex shrink-0 flex-wrap items-center gap-2 border-b border-[#c19c70]/35 bg-[#222b35] px-3 py-2"
-    >
-      <div class="min-w-0 flex-1">
-        <p
-          class="text-[10px] font-black uppercase tracking-[.2em] text-[#ebbd84]"
-        >
-          The Reimaginer · The Sea Remembers
-        </p>
-        <h2 class="truncate text-lg font-black sm:text-xl">
+    <header-page-bar console-theme="memory-dungeon">
+      <div class="md-bar" data-testid="memory-sea-header">
+        <h2 class="md-bar-title" title="The Reimaginer · The Sea Remembers">
           {{
             sea.active === 'e05'
               ? 'The Last Days Before'
               : 'The Two Histories of Char'
           }}
         </h2>
+        <div class="md-bar-actions">
+          <button
+            v-if="sea.e06Unlocked && sea.active === 'e06'"
+            type="button"
+            class="btn btn-sm btn-ghost"
+            @click="sea.select('e05')"
+          >
+            Younger sea
+          </button>
+          <button
+            v-if="sea.e06Unlocked && sea.active === 'e05'"
+            type="button"
+            class="btn btn-sm btn-ghost"
+            @click="sea.select('e06')"
+          >
+            Distorted court
+          </button>
+        </div>
+        <div class="md-bar-end">
+          <button
+            class="btn btn-sm btn-outline"
+            type="button"
+            @click="emit('leave')"
+          >
+            Morrow’s Earth
+          </button>
+        </div>
       </div>
-      <div class="flex shrink-0 items-center gap-2">
-        <button
-          v-if="sea.e06Unlocked && sea.active === 'e06'"
-          type="button"
-          class="btn btn-sm border-[#a98d70] bg-[#364454] text-[#fff1d7]"
-          @click="sea.select('e05')"
-        >
-          Younger sea
-        </button>
-        <button
-          v-if="sea.e06Unlocked && sea.active === 'e05'"
-          type="button"
-          class="btn btn-sm border-[#a98d70] bg-[#364454] text-[#fff1d7]"
-          @click="sea.select('e06')"
-        >
-          Distorted court
-        </button>
-        <button
-          class="btn btn-sm border-[#9e866f] bg-[#3c3734] text-[#fff1d7]"
-          type="button"
-          @click="emit('leave')"
-        >
-          Morrow’s Earth
-        </button>
-      </div>
-    </header>
+    </header-page-bar>
     <div
       v-if="!sea.unlocked"
       class="flex min-h-0 flex-1 flex-col items-center justify-center gap-3 p-4 text-center"

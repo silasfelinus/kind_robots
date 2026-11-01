@@ -4,30 +4,23 @@
     data-layout="console-fixed"
     data-testid="memory-briar-collision-console"
   >
-    <header
-      class="flex shrink-0 flex-wrap items-center gap-2 border-b border-[#b19b7c]/40 bg-[#282d30] px-3 py-2"
-    >
-      <div class="min-w-0 flex-1">
-        <p
-          class="text-[10px] font-black uppercase tracking-[.2em] text-[#e2b989]"
-        >
-          Pip · The Forest Between Floors
-        </p>
-        <h2 class="truncate text-lg font-black sm:text-xl">
+    <header-page-bar console-theme="memory-dungeon">
+      <div class="md-bar" data-testid="memory-briar-collision-header">
+        <h2 class="md-bar-title" title="Pip · The Forest Between Floors">
           The Briar Collision
         </h2>
+        <span class="md-bar-chip">{{ collision.fragments }}/2 fragments</span>
+        <div class="md-bar-end">
+          <button
+            type="button"
+            class="btn btn-sm btn-outline"
+            @click="emit('leave')"
+          >
+            Briar camp
+          </button>
+        </div>
       </div>
-      <span class="rounded-lg border border-[#b19b7c]/40 px-2 py-1 text-xs">
-        {{ collision.fragments }}/2 fragments
-      </span>
-      <button
-        type="button"
-        class="btn btn-sm btn-outline"
-        @click="emit('leave')"
-      >
-        Briar camp
-      </button>
-    </header>
+    </header-page-bar>
 
     <div
       v-if="!collision.unlocked"

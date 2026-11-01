@@ -4,58 +4,53 @@
     data-layout="console-fixed"
     data-testid="memory-earth-act"
   >
-    <header
-      class="flex shrink-0 flex-wrap items-center gap-2 border-b border-[#c19c70]/35 bg-[#222b35] px-3 py-2"
-    >
-      <div class="min-w-0 flex-1">
-        <p
-          class="text-[10px] font-black uppercase tracking-[.2em] text-[#ebbd84]"
-        >
-          The Reimaginer · The Borrowed Earth
-        </p>
-        <h2 class="truncate text-lg font-black sm:text-xl">
+    <header-page-bar console-theme="memory-dungeon">
+      <div class="md-bar" data-testid="memory-earth-header">
+        <h2 class="md-bar-title" title="The Reimaginer · The Borrowed Earth">
           {{
             earth.active === 'e03'
               ? 'Morrow, Out of His Element'
               : 'The City Beneath the Tide'
           }}
         </h2>
+        <div class="md-bar-actions">
+          <button
+            v-if="earth.e04Unlocked && earth.active === 'e04'"
+            type="button"
+            class="btn btn-sm btn-ghost"
+            @click="earth.select('e03')"
+          >
+            Earlier city
+          </button>
+          <button
+            v-if="earth.e04Unlocked && earth.active === 'e03'"
+            type="button"
+            class="btn btn-sm btn-ghost"
+            @click="earth.select('e04')"
+          >
+            Changed city
+          </button>
+          <button
+            v-if="earth.active === 'e04' && earth.completed"
+            type="button"
+            class="btn btn-sm btn-soft btn-secondary"
+            data-testid="memory-enter-scylla"
+            @click="emit('sea')"
+          >
+            Scylla’s second chance
+          </button>
+        </div>
+        <div class="md-bar-end">
+          <button
+            class="btn btn-sm btn-outline"
+            type="button"
+            @click="emit('leave')"
+          >
+            Briar camp
+          </button>
+        </div>
       </div>
-      <div class="flex shrink-0 items-center gap-2">
-        <button
-          v-if="earth.e04Unlocked && earth.active === 'e04'"
-          type="button"
-          class="btn btn-sm border-[#a98d70] bg-[#364454] text-[#fff1d7]"
-          @click="earth.select('e03')"
-        >
-          Earlier city
-        </button>
-        <button
-          v-if="earth.e04Unlocked && earth.active === 'e03'"
-          type="button"
-          class="btn btn-sm border-[#a98d70] bg-[#364454] text-[#fff1d7]"
-          @click="earth.select('e04')"
-        >
-          Changed city
-        </button>
-        <button
-          v-if="earth.active === 'e04' && earth.completed"
-          type="button"
-          class="btn btn-sm border-[#d5b4d8] bg-[#5d3f74] text-[#fff1ee]"
-          data-testid="memory-enter-scylla"
-          @click="emit('sea')"
-        >
-          Scylla’s second chance
-        </button>
-        <button
-          class="btn btn-sm border-[#9e866f] bg-[#3c3734] text-[#fff1d7]"
-          type="button"
-          @click="emit('leave')"
-        >
-          Briar camp
-        </button>
-      </div>
-    </header>
+    </header-page-bar>
     <div
       v-if="!earth.unlocked"
       class="flex min-h-0 flex-1 flex-col items-center justify-center gap-3 p-4 text-center"

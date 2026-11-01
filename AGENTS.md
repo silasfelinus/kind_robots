@@ -83,6 +83,10 @@ building or reshaping a game, gallery or creative tool.
   compact deck around it; use container width on large displays (container queries / intrinsic
   grids); on small displays collapse controls before shrinking the stage.
 - Check 390px / 768px / 1440px (and XL) before claiming visual acceptance; apply incrementally.
+- **One header, the console system bar** (Silas, 2026-11-01): a page never renders its own persistent
+  header. Its title, view tabs and HUD chips go in `<header-page-bar>`, which docks them into
+  `workspace-header`; a game with a scoped daisyUI theme passes `console-theme` so the whole shell takes
+  its palette.
 
 ## Database — standing rules from Silas (2026-07-02)
 

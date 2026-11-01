@@ -4,60 +4,72 @@
     data-layout="console-fixed"
     data-testid="capes-style-check"
   >
-    <header
-      class="capes-hero shrink-0 border-b border-amber-200/20 px-4 py-4 sm:px-7"
-    >
-      <div class="flex items-start justify-between gap-4">
-        <div class="min-w-0">
-          <p
-            class="text-[10px] font-black uppercase tracking-[.3em] text-amber-300"
+    <header-page-bar console-theme="comet-city">
+      <div class="capes-bar">
+        <span
+          class="capes-wordmark"
+          title="Prom of Doom × Every Villain Tactics / Art bible. Eight scene types. Six checkpoint proposals. One shared cast and art bible for two superhero games, judged from actual renders."
+          >STYLE <span>CHECK</span></span
+        >
+        <nav
+          v-if="userStore.isAdmin"
+          class="capes-section-nav"
+          aria-label="Capes art bible sections"
+        >
+          <button
+            v-for="section in sections"
+            :key="section.key"
+            type="button"
+            :aria-pressed="view === section.key"
+            :class="{ active: view === section.key }"
+            :data-testid="'capes-section-' + section.key"
+            @click="view = section.key"
           >
-            Prom of Doom × Every Villain Tactics / Art bible
-          </p>
-          <h2
-            class="mt-1 text-3xl font-black uppercase tracking-tight sm:text-4xl"
+            <span>{{ section.number }}</span>
+            {{ section.label }}
+          </button>
+        </nav>
+        <div
+          class="capes-hud"
+          aria-live="polite"
+          :title="
+            store.lastRefresh
+              ? 'Private previews · verified jobs only'
+              : undefined
+          "
+        >
+          <span class="capes-chip"
+            ><strong class="text-primary">{{ store.submitted }}</strong
+            >/{{ totalCells }}
+            <span class="capes-chip-label">accepted</span></span
           >
-            STYLE <span class="text-amber-300">CHECK</span>
-          </h2>
-          <p class="mt-1 text-xs text-slate-200 sm:text-sm">
-            Eight scene types. Six checkpoint proposals. One shared cast and art
-            bible for two superhero games, judged from actual renders.
-          </p>
+          <span class="capes-chip"
+            ><strong class="text-success">{{ store.rendered }}</strong>
+            <span class="capes-chip-label">rendered</span></span
+          >
+          <span class="capes-chip"
+            ><strong class="text-info">{{ store.pending }}</strong>
+            <span class="capes-chip-label">queued or running</span></span
+          >
+          <span v-if="store.failed" class="capes-chip"
+            ><strong class="text-error">{{ store.failed }}</strong>
+            <span class="capes-chip-label">failed</span></span
+          >
         </div>
         <button
           type="button"
-          class="rounded-lg border border-amber-200/50 bg-amber-200 px-4 py-2 text-xs font-black uppercase text-slate-950 disabled:opacity-50"
+          class="capes-refresh"
+          :aria-label="store.loading ? 'Checking ArtJobs' : 'Refresh ArtJobs'"
           :disabled="store.loading"
           @click="store.refresh()"
         >
-          {{ store.loading ? 'Checking…' : 'Refresh ArtJobs ↻' }}
+          <span class="capes-refresh-label">{{
+            store.loading ? 'Checking…' : 'Refresh ArtJobs'
+          }}</span>
+          <span aria-hidden="true">↻</span>
         </button>
       </div>
-      <div
-        class="mt-3 flex flex-wrap items-center gap-x-5 gap-y-1 text-[11px] font-bold uppercase tracking-wide text-slate-200"
-        aria-live="polite"
-      >
-        <span
-          ><strong class="text-amber-300">{{ store.submitted }}</strong> /
-          {{ totalCells }} accepted</span
-        >
-        <span
-          ><strong class="text-emerald-300">{{ store.rendered }}</strong>
-          rendered</span
-        >
-        <span
-          ><strong class="text-sky-300">{{ store.pending }}</strong> queued or
-          running</span
-        >
-        <span v-if="store.failed"
-          ><strong class="text-rose-300">{{ store.failed }}</strong>
-          failed</span
-        >
-        <span v-if="store.lastRefresh" class="text-slate-400"
-          >Private previews · verified jobs only</span
-        >
-      </div>
-    </header>
+    </header-page-bar>
 
     <div
       v-if="!userStore.isAdmin"
@@ -66,23 +78,6 @@
       <p>Administrator access required for private style-check images.</p>
     </div>
     <template v-else>
-      <nav
-        class="capes-section-nav shrink-0"
-        aria-label="Capes art bible sections"
-      >
-        <button
-          v-for="section in sections"
-          :key="section.key"
-          type="button"
-          :aria-pressed="view === section.key"
-          :class="{ active: view === section.key }"
-          :data-testid="'capes-section-' + section.key"
-          @click="view = section.key"
-        >
-          <span>{{ section.number }}</span>
-          {{ section.label }}
-        </button>
-      </nav>
       <section
         v-if="view === 'checkpoints'"
         class="shrink-0 border-b border-slate-500/30 bg-slate-950/80 px-4 py-3 sm:px-7"
@@ -533,55 +528,124 @@ onMounted(() => {
 </script>
 
 <style scoped>
-.capes-section-nav {
-  display: flex;
-  gap: 3px;
-  padding: 8px clamp(12px, 2vw, 28px);
-  background: #0d1728;
-  border-bottom: 1px solid #d5bb8955;
-  overflow-x: auto;
-}
-.capes-section-nav button {
+.capes-bar {
+  flex: 1 1 auto;
+  min-width: 0;
   display: flex;
   align-items: center;
-  gap: 8px;
-  flex: 1;
-  min-width: 145px;
-  justify-content: center;
-  padding: 9px 12px;
-  background: #1a2a44;
-  color: #bfcce0;
-  border: 1px solid #65748d55;
+  gap: 0.6rem;
+  padding: 0 0.25rem 0 0.4rem;
+  color: var(--color-base-content);
+  white-space: nowrap;
+}
+.capes-wordmark {
+  flex: none;
+  font-size: 1.05rem;
+  font-weight: 900;
+  letter-spacing: -0.02em;
+  text-transform: uppercase;
+}
+.capes-wordmark span {
+  color: var(--color-primary);
+}
+.capes-section-nav {
+  flex: 0 1 auto;
+  min-width: 0;
+  display: flex;
+  gap: 3px;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.capes-section-nav::-webkit-scrollbar {
+  display: none;
+}
+.capes-section-nav button {
+  flex: none;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0.35rem 0.65rem;
+  background: color-mix(in oklch, var(--color-base-content) 6%, transparent);
+  color: color-mix(in oklch, var(--color-base-content) 75%, transparent);
+  border: 1px solid var(--color-base-300);
   border-radius: 5px;
-  font-size: 12px;
+  font-size: 0.7rem;
   font-weight: 900;
 }
 .capes-section-nav button span {
-  color: #e7bb7d;
-  font-size: 10px;
+  color: var(--color-primary);
+  font-size: 0.6rem;
 }
 .capes-section-nav button.active {
-  background: #ddba80;
-  color: #152036;
-  border-color: #ffdbab;
+  background: var(--color-primary);
+  color: var(--color-primary-content);
+  border-color: var(--color-primary);
 }
 .capes-section-nav button.active span {
-  color: #603927;
+  color: inherit;
+  opacity: 0.7;
 }
 .capes-section-nav button:focus-visible {
-  outline: 2px solid #ffe7ab;
+  outline: 2px solid var(--color-primary);
   outline-offset: 2px;
+}
+.capes-hud {
+  flex: none;
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  margin-left: auto;
+  font-size: 0.66rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+.capes-refresh {
+  flex: none;
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.35rem 0.65rem;
+  border: 1px solid var(--color-primary);
+  border-radius: 0.5rem;
+  background: var(--color-primary);
+  color: var(--color-primary-content);
+  font-size: 0.68rem;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+.capes-refresh:disabled {
+  opacity: 0.5;
+}
+@container (max-width: 760px) {
+  .capes-wordmark {
+    display: none;
+  }
+}
+@container (max-width: 640px) {
+  .capes-chip-label,
+  .capes-refresh-label {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+  }
+  .capes-hud {
+    gap: 0.45rem;
+  }
+}
+@container (max-width: 420px) {
+  .capes-bar {
+    gap: 0.4rem;
+    padding-left: 0.2rem;
+  }
+  .capes-section-nav button span {
+    display: none;
+  }
 }
 .capes-board {
   background: #101828;
-}
-.capes-hero {
-  background: radial-gradient(
-    ellipse at 75% 10%,
-    #5d423b,
-    #172338 61%,
-    #101828
-  );
 }
 .capes-deck {
   background: linear-gradient(135deg, #17233a, #0b1525);

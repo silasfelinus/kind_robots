@@ -5310,6 +5310,11 @@ for (const def of DAYS)
     'the fortress shell clips; it is not a scroll container a tab can slide',
   )
   assert.match(page, /ref="bar"/, 'the header is measured for its tooltips')
+  assert.match(
+    page,
+    /<header-page-bar console-theme="emperor">[\s\S]*?ref="bar"[\s\S]*?aria-label="Fortress rooms"[\s\S]*?<\/header-page-bar>/,
+    'the fortress header rides the shared console system bar',
+  )
   assert.match(page, /tipShift\(/, 'header tooltips are fitted with tipShift')
   assert.match(
     page,

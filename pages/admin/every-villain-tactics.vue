@@ -6,36 +6,28 @@
     aria-label="Every Villain Tactics training console"
   >
     <PlaybookKitShell :spec="EVERY_VILLAIN_TACTICS" :meter-values="meterValues">
-      <div
-        class="evt-console"
-        :data-anim="store.settings.animation"
-        :style="{ '--evt-anim': String(store.animationFactor) }"
-      >
-        <header class="evt-hud">
-          <div class="evt-brand">
-            <span class="evt-overline"
-              >CAPES &amp; TASSELS / TACTICAL OPERATIONS</span
-            >
-            <div class="evt-title">EVERY <em>VILLAIN</em> TACTICS</div>
-            <span class="evt-subtitle"
-              >COMET CITY • FIRST BELL • INTERNAL TRAINING</span
-            >
-          </div>
-          <div class="evt-hud-side">
+      <template #bar-actions>
+        <div class="evt-bar" data-testid="tactics-header">
+          <span
+            class="evt-bar-pill"
+            :title="
+              (store.isPlaytest ? 'Studio playtest' : 'Stage 1 of 6') +
+              ' — Capes & Tassels Tactical Operations · Comet City · First Bell · Internal Training'
+            "
+            >{{ store.isPlaytest ? 'STUDIO TEST' : '01 / 06' }}</span
+          >
+          <div class="evt-bar-actions">
             <button
-              class="evt-outline"
+              class="evt-bar-button"
               type="button"
               data-testid="tactics-open-menu"
               @click="store.openScreen('title')"
             >
               ☰ MENU
             </button>
-            <span class="evt-mission-pill">{{
-              store.isPlaytest ? 'STUDIO TEST' : '01 / 06'
-            }}</span>
             <button
               v-if="store.isPlaytest"
-              class="evt-outline"
+              class="evt-bar-button"
               type="button"
               data-testid="tactics-exit-playtest"
               @click="store.exitPlaytest()"
@@ -43,7 +35,7 @@
               EXIT TEST
             </button>
             <button
-              class="evt-outline"
+              class="evt-bar-button"
               type="button"
               data-testid="tactics-open-studio"
               @click="store.studioOpen = true"
@@ -51,15 +43,21 @@
               LEVEL STUDIO
             </button>
             <button
-              class="evt-outline"
+              class="evt-bar-button"
+              :class="{ 'is-on': store.rosterOpen }"
               type="button"
               @click="store.rosterOpen = !store.rosterOpen"
             >
               {{ store.rosterOpen ? 'CLOSE DOSSIER' : '48 HERO DOSSIERS' }}
             </button>
           </div>
-        </header>
-
+        </div>
+      </template>
+      <div
+        class="evt-console"
+        :data-anim="store.settings.animation"
+        :style="{ '--evt-anim': String(store.animationFactor) }"
+      >
         <div class="evt-deck">
           <section
             class="evt-arena"
@@ -2292,46 +2290,68 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKey))
   letter-spacing: 0.18em;
   line-height: 1.3;
 }
-.evt-hud {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 12px;
-  flex-shrink: 0;
-  border-bottom: 1px solid #e6dcff27;
-  padding-bottom: 8px;
-}
-.evt-brand .evt-title {
-  font-weight: 1000;
-  font-family: Impact, 'Arial Narrow', sans-serif;
-  font-stretch: condensed;
-  letter-spacing: 0.065em;
-  line-height: 1;
-  font-size: clamp(1.3rem, 3.1cqw, 2.6rem);
-  text-shadow: 0 2px 14px #000a;
-}
-.evt-brand em {
-  font-style: normal;
-  color: var(--rose);
-}
-.evt-subtitle {
-  color: #d3bbdf;
-  font-size: clamp(0.54rem, 0.75cqw, 0.7rem);
-  font-weight: 800;
-  letter-spacing: 0.1em;
-}
-.evt-hud-side {
+.evt-bar {
+  flex: 1 1 auto;
+  min-width: 0;
   display: flex;
   align-items: center;
-  gap: 9px;
+  gap: 0.5rem;
+  padding: 0 0.25rem;
+  color: var(--color-base-content);
+  font-family: system-ui, sans-serif;
 }
-.evt-mission-pill {
-  background: #f57564;
-  color: #21172b;
+.evt-bar-pill {
+  flex: none;
+  background: var(--color-accent);
+  color: var(--color-accent-content);
   border-radius: 4px;
-  padding: 7px 9px;
-  font: 900 13px/1 system-ui;
+  padding: 0.35rem 0.5rem;
+  font: 900 0.7rem/1 system-ui;
   white-space: nowrap;
+}
+.evt-bar-actions {
+  flex: 0 1 auto;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  margin-left: auto;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.evt-bar-actions::-webkit-scrollbar {
+  display: none;
+}
+.evt-bar-button {
+  flex: none;
+  padding: 0.4rem 0.6rem;
+  border: 1px solid var(--color-base-300);
+  border-radius: 0.4rem;
+  background: color-mix(in oklab, var(--color-base-100) 60%, transparent);
+  color: var(--color-base-content);
+  font-size: 0.66rem;
+  font-weight: 900;
+  letter-spacing: 0.06em;
+  white-space: nowrap;
+}
+.evt-bar-button:hover,
+.evt-bar-button:focus-visible {
+  border-color: var(--color-primary);
+}
+.evt-bar-button.is-on {
+  border-color: var(--color-primary);
+  background: var(--color-primary);
+  color: var(--color-primary-content);
+}
+@container (max-width: 400px) {
+  .evt-bar-button {
+    padding: 0.35rem 0.45rem;
+    font-size: 0.6rem;
+  }
+  .evt-bar-pill {
+    padding: 0.3rem 0.4rem;
+    font-size: 0.6rem;
+  }
 }
 .evt-outline {
   color: #f4e4fd;
@@ -3277,9 +3297,6 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKey))
   .evt-objective {
     display: none;
   }
-  .evt-subtitle {
-    display: none;
-  }
   .evt-bottom {
     justify-content: center;
   }
@@ -3297,16 +3314,9 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKey))
   .evt-map {
     width: min(100%, calc(38vh * 1.5));
   }
-  .evt-hud-side {
-    gap: 4px;
-  }
   .evt-outline {
     padding: 6px;
     font-size: 0.55rem;
-  }
-  .evt-mission-pill {
-    padding: 5px;
-    font-size: 0.65rem;
   }
   .evt-briefing-image {
     display: none;

@@ -706,6 +706,12 @@ const home = fromRoot('components/home/home-visitor-directory.vue')
 assert.ok(page.includes('data-layout="console-fixed"'))
 assert.ok(page.includes('space-couch-stage.svg'))
 assert.ok(page.includes('data-testid="couch-recharge-shield"'))
+assert.match(
+  page,
+  /<header-page-bar v-if="!atTitle"[^>]*>[\s\S]*data-testid="space-couch-header"[\s\S]*BUBBLE[\s\S]*data-testid="space-couch-return-menu"[\s\S]*<\/header-page-bar>/,
+  'Space Couch HUD and menu live in the single site header bar',
+)
+assert.ok(!page.includes('<header v-if="!atTitle"'))
 assert.ok(page.includes('POCKET_ROOMS'))
 assert.ok(tab.includes('Space Couch'))
 assert.ok(home.includes('Space Couch'))

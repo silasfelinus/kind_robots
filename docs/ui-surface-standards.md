@@ -72,3 +72,25 @@ belong in details panels or the tutorial sidebar.
 - Apply this incrementally to existing surfaces. Do not globally widen
   long-form reading content, invent nested scroll panes, or claim visual
   acceptance without rendered phone, tablet, desktop and XL checks.
+
+## One header: the console system bar (Silas, 2026-11-01 PT)
+
+> "It has two headers. We want one. The title, icons, as well as nav entries, can be merged … so icons
+> are top over the row that is shown for the slime city or other dominant tabs … we want a single
+> interface." Then: "We are designing after a AAA console experience, that shouldn't skip the os
+> substitute, but ideally, this all flows." And: "Great, now incorporate that site wide."
+
+`workspace-header` is the OS layer of every page: one glass system bar (`.kr-system-bar`, sans chrome,
+lit along its lower edge in the theme's primary) that carries home, navigation pickers and the utility
+icons. Pages do not add a second persistent header above their stage.
+
+- A page's own title/wordmark, view tabs and HUD chips go inside `<header-page-bar>`
+  (`components/navigation/header-page-bar.vue`). Below `xl` they form a second row inside the same
+  header card, under the icons; from `xl` they sit inline in the single header row. The slot is an
+  `@container`, so the page's scoped styles respond to the bar's width.
+- Keep it to one compact row. Overlines, "working title" labels and caveats go in a tooltip or the
+  tutorial sidebar; tabs scroll horizontally on narrow widths.
+- A game with a scoped daisyUI theme passes `console-theme="<theme>"`: the whole shell (header, pickers,
+  menus, gutters) takes the game's palette while the page is mounted and reverts on unmount. Nothing in
+  the OS layer is hidden; only its skin changes.
+- Panel headings, modal headers and in-stage overlays are content, not chrome, and stay in the page.

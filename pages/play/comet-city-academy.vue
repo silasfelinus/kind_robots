@@ -4,29 +4,31 @@
     data-layout="console-fixed"
     aria-label="Prom of Doom game"
   >
-    <header v-if="run" class="cca-topbar">
-      <NuxtLink to="/" class="cca-home" aria-label="Return to Kind Robots home"
-        >‹ <span class="hidden sm:inline">HOME</span></NuxtLink
-      >
-      <span class="cca-insignia">✦</span>
-      <span class="cca-top-title">PROM <b>OF DOOM</b></span>
-      <span class="cca-top-detail">{{
-        run ? 'YEAR 01 / DAY ' + run.day : 'ADMISSIONS OPEN'
-      }}</span>
-      <span v-if="run" class="cca-score"
-        >INFLUENCE {{ run.influence >= 0 ? '+' : '' }}{{ run.influence }}
-        <span class="cca-separator">/</span> THREAT {{ run.danger }}</span
-      >
-      <button
-        v-if="run"
-        type="button"
-        class="cca-small"
-        data-testid="academy-new-term"
-        @click="openScreen('settings', true)"
-      >
-        NEW TERM
-      </button>
-    </header>
+    <shell-console-theme theme="comet-city" />
+    <header-page-bar v-if="run" console-theme="comet-city">
+      <div class="cca-topbar">
+        <span class="cca-brand" title="Comet City Academy · Capes & Tassels">
+          <span class="cca-insignia" aria-hidden="true">✦</span>
+          <span class="cca-top-title">PROM <b>OF DOOM</b></span>
+        </span>
+        <span class="cca-top-detail">{{
+          run ? 'YEAR 01 / DAY ' + run.day : 'ADMISSIONS OPEN'
+        }}</span>
+        <span v-if="run" class="cca-score"
+          >INFLUENCE {{ run.influence >= 0 ? '+' : '' }}{{ run.influence }}
+          <span class="cca-separator">/</span> THREAT {{ run.danger }}</span
+        >
+        <button
+          v-if="run"
+          type="button"
+          class="cca-small"
+          data-testid="academy-new-term"
+          @click="openScreen('settings', true)"
+        >
+          NEW TERM
+        </button>
+      </div>
+    </header-page-bar>
 
     <div v-if="store.storageWarning" class="cca-warning" role="alert">
       {{ store.storageWarning }}
@@ -1772,43 +1774,50 @@ function toggleStudent(caseId: string, id: StudentId): void {
   gap: 0;
 }
 .cca-topbar {
+  flex: 1 1 auto;
+  min-width: 0;
   display: flex;
   align-items: center;
-  gap: 0.75rem;
-  min-height: 2.65rem;
-  padding: 0.3rem 0.75rem;
-  border-bottom: 1px solid #7d8da53f;
-  background: #111629;
-  flex-shrink: 0;
+  gap: 0.6rem;
+  padding: 0 0.25rem 0 0.4rem;
+  color: var(--color-base-content);
+  font-family: system-ui, sans-serif;
   font-size: 0.68rem;
   letter-spacing: 0.14em;
   font-weight: 800;
-}
-.cca-top-title {
   white-space: nowrap;
 }
-.cca-top-title b {
-  color: #ffc18a;
+.cca-brand {
+  flex: none;
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
 }
-.cca-home,
+.cca-top-title b {
+  color: var(--color-primary);
+}
 .cca-small {
-  border: 1px solid #ffffff36;
+  flex: none;
+  border: 1px solid var(--color-base-300);
   border-radius: 6px;
   padding: 0.3rem 0.5rem;
-  color: #fce6cf;
-  background: #ffffff0b;
+  color: var(--color-base-content);
+  background: color-mix(in oklch, var(--color-base-content) 5%, transparent);
 }
 .cca-insignia {
-  color: #f6b779;
-  font-size: 1.4rem;
+  color: var(--color-primary);
+  font-size: 1.15rem;
+  line-height: 1;
 }
 .cca-top-detail {
   margin-left: auto;
-  color: #aeafc6;
+  color: color-mix(in oklch, var(--color-base-content) 65%, transparent);
 }
 .cca-score {
-  color: #c1e3e9;
-  white-space: nowrap;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  color: var(--color-accent);
 }
 .cca-novel-night {
   display: grid;
@@ -1855,12 +1864,35 @@ function toggleStudent(caseId: string, id: StudentId): void {
   padding-left: 0.75rem;
 }
 .cca-separator {
-  color: #f4b28f;
+  color: var(--color-secondary);
   margin: 0 0.3rem;
 }
-.cca-small:hover,
-.cca-home:hover {
-  background: #ffffff28;
+.cca-small:hover {
+  background: color-mix(in oklch, var(--color-base-content) 16%, transparent);
+}
+@container (max-width: 560px) {
+  .cca-top-detail {
+    display: none;
+  }
+  .cca-score {
+    margin-left: auto;
+  }
+  .cca-top-title {
+    font-size: 0.62rem;
+  }
+}
+@container (max-width: 400px) {
+  .cca-topbar {
+    gap: 0.4rem;
+    padding-left: 0.2rem;
+  }
+  .cca-top-title {
+    display: none;
+  }
+  .cca-score {
+    font-size: 0.55rem;
+    letter-spacing: 0.08em;
+  }
 }
 .cca-warning {
   padding: 0.3rem 1rem;
@@ -3059,27 +3091,8 @@ function toggleStudent(caseId: string, id: StudentId): void {
   .cca-scene-title {
     font-size: clamp(1.8rem, 6.5vw, 3rem);
   }
-  .cca-top-detail {
-    display: none;
-  }
-  .cca-score {
-    margin-left: auto;
-  }
-  .cca-top-title {
-    font-size: 0.62rem;
-  }
 }
 @media (max-width: 440px) {
-  .cca-topbar {
-    gap: 0.4rem;
-    padding: 0.3rem 0.35rem;
-  }
-  .cca-top-title {
-    font-size: 0.55rem;
-  }
-  .cca-score {
-    font-size: 0.5rem;
-  }
   .cca-stage-content {
     bottom: 17%;
   }

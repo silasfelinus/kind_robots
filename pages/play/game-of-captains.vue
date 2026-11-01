@@ -8,6 +8,7 @@
     data-layout="console-fixed"
     aria-label="Space Couch"
   >
+    <shell-console-theme theme="space-couch" />
     <section
       v-if="atTitle"
       class="cap-menu"
@@ -236,53 +237,60 @@
         @start="startFromOpening"
       />
     </section>
-    <header v-if="!atTitle" class="cap-toolbar">
-      <NuxtLink to="/" class="cap-home" aria-label="Return to Kind Robots home"
-        >‹ <span class="hidden sm:inline">HOME</span></NuxtLink
-      >
-      <span class="cap-emblem">✧</span
-      ><span class="cap-wordmark">SPACE <i>COUCH</i></span>
-      <span class="cap-flight">{{
-        run
-          ? 'SHIP DAY ' +
-            (run.day ?? run.chapter) +
-            ' // CHAPTER ' +
-            run.chapter
-          : 'BRIDGE ACCESS REQUESTED'
-      }}</span>
-      <span v-if="run" class="cap-hud"
-        >SUPPLIES <b>{{ run.supplies }}</b> <span>/</span> TRUST
-        <b>{{ run.trust }}</b></span
-      >
-      <span v-if="run" class="cap-hud" aria-label="Couch force shield charge"
-        >BUBBLE <b>{{ run.shieldCharge ?? 2 }}/3</b></span
-      >
-      <button
-        v-if="store.alienEncounterAvailable"
-        type="button"
-        class="cap-reset"
-        data-testid="space-couch-alien-signal"
-        @click="store.lookForAlien()"
-      >
-        ✳ STRANGE SIGNAL
-      </button>
-      <button
-        type="button"
-        class="cap-reset"
-        data-testid="space-couch-return-menu"
-        @click="openCouchMenu"
-      >
-        MENU
-      </button>
-      <button
-        v-if="run"
-        type="button"
-        class="cap-reset"
-        @click="openNewVoyageConfirmation"
-      >
-        NEW VOYAGE
-      </button>
-    </header>
+    <header-page-bar v-if="!atTitle" console-theme="space-couch">
+      <div class="cap-toolbar" data-testid="space-couch-header">
+        <span
+          class="cap-wordmark"
+          :title="run ? 'Space Couch' : 'Space Couch · bridge access requested'"
+          ><span class="cap-emblem">✧</span> SPACE <i>COUCH</i></span
+        >
+        <span
+          v-if="run"
+          class="cap-flight"
+          :title="
+            'Ship day ' + (run.day ?? run.chapter) + ', chapter ' + run.chapter
+          "
+          >DAY <b>{{ run.day ?? run.chapter }}</b> <span>/</span> CH
+          <b>{{ run.chapter }}</b></span
+        >
+        <div v-if="run" class="cap-hud-row">
+          <span class="cap-hud"
+            >SUPPLIES <b>{{ run.supplies }}</b> <span>/</span> TRUST
+            <b>{{ run.trust }}</b></span
+          >
+          <span class="cap-hud" aria-label="Couch force shield charge"
+            >BUBBLE <b>{{ run.shieldCharge ?? 2 }}/3</b></span
+          >
+        </div>
+        <div class="cap-actions">
+          <button
+            v-if="store.alienEncounterAvailable"
+            type="button"
+            class="cap-reset cap-signal"
+            data-testid="space-couch-alien-signal"
+            @click="store.lookForAlien()"
+          >
+            ✳ <span class="cap-signal-label">STRANGE </span>SIGNAL
+          </button>
+          <button
+            type="button"
+            class="cap-reset"
+            data-testid="space-couch-return-menu"
+            @click="openCouchMenu"
+          >
+            MENU
+          </button>
+          <button
+            v-if="run"
+            type="button"
+            class="cap-reset cap-new-voyage"
+            @click="openNewVoyageConfirmation"
+          >
+            NEW VOYAGE
+          </button>
+        </div>
+      </div>
+    </header-page-bar>
     <p v-if="store.storageWarning" class="cap-warning" role="alert">
       {{ store.storageWarning }}
     </p>
@@ -2640,55 +2648,106 @@ function toggleAway(id: CrewId) {
   font-family: system-ui, sans-serif;
 }
 .cap-toolbar {
+  flex: 1 1 auto;
+  min-width: 0;
   display: flex;
   align-items: center;
-  gap: 0.7rem;
-  min-height: 2.75rem;
-  flex-shrink: 0;
-  padding: 0.3rem 0.75rem;
-  background: #101b2d;
-  border-bottom: 2px solid #bca07a64;
+  gap: 0.5rem;
+  padding: 0 0.25rem 0 0.5rem;
+  color: var(--color-base-content);
+  font-family: system-ui, sans-serif;
   font-size: 0.64rem;
   letter-spacing: 0.1em;
   font-weight: 900;
 }
-.cap-home,
-.cap-reset {
-  border: 1px solid #b8babb6e;
-  padding: 0.34rem 0.65rem;
-  border-radius: 5px;
-  color: #ffe2bc;
+.cap-wordmark {
+  flex: none;
   white-space: nowrap;
-}
-.cap-home:hover,
-.cap-reset:hover {
-  background: #416074;
+  font-size: 0.78rem;
 }
 .cap-emblem {
-  color: #eebf8b;
-  font-size: 1.3rem;
-}
-.cap-wordmark {
-  white-space: nowrap;
+  color: var(--color-primary);
+  font-size: 1.1rem;
 }
 .cap-wordmark i {
   font-size: 0.8em;
-  color: #efbb84;
+  color: var(--color-primary);
+}
+.cap-flight,
+.cap-hud {
+  flex: none;
+  padding: 0.3rem 0.55rem;
+  border: 1px solid var(--color-base-300);
+  border-radius: var(--radius-field, 0.4rem);
+  background: color-mix(in oklch, var(--color-base-200) 70%, transparent);
+  white-space: nowrap;
 }
 .cap-flight {
   margin-left: auto;
-  color: #91bac3;
 }
-.cap-hud {
-  white-space: nowrap;
-  color: #e7ecf0;
+.cap-hud-row {
+  flex: 0 1 auto;
+  min-width: 0;
+  display: flex;
+  gap: 0.35rem;
+  overflow-x: auto;
+  scrollbar-width: none;
 }
+.cap-hud-row::-webkit-scrollbar {
+  display: none;
+}
+.cap-flight b,
 .cap-hud b {
-  color: #ffce99;
+  color: var(--color-primary);
 }
+.cap-flight span,
 .cap-hud span {
-  margin: 0 0.3rem;
-  color: #60849d;
+  margin: 0 0.2rem;
+  opacity: 0.5;
+}
+.cap-actions {
+  flex: none;
+  display: flex;
+  gap: 0.35rem;
+}
+.cap-wordmark + .cap-actions {
+  margin-left: auto;
+}
+.cap-reset {
+  border: 1px solid var(--color-base-300);
+  padding: 0.3rem 0.6rem;
+  border-radius: var(--radius-field, 0.4rem);
+  color: var(--color-base-content);
+  white-space: nowrap;
+}
+.cap-reset:hover {
+  background: var(--color-base-300);
+}
+@container (max-width: 760px) {
+  .cap-flight {
+    display: none;
+  }
+  .cap-hud-row {
+    margin-left: auto;
+  }
+}
+@container (max-width: 560px) {
+  .cap-wordmark {
+    display: none;
+  }
+  .cap-signal-label {
+    display: none;
+  }
+}
+@container (max-width: 440px) {
+  .cap-toolbar {
+    gap: 0.3rem;
+    padding-left: 0.25rem;
+    font-size: 0.56rem;
+  }
+  .cap-new-voyage {
+    display: none;
+  }
 }
 .cap-warning {
   background: #802d2d;
@@ -4141,24 +4200,8 @@ function toggleAway(id: CrewId) {
   .cap-chapter {
     font-size: clamp(2rem, 6vw, 3rem);
   }
-  .cap-flight {
-    display: none;
-  }
-  .cap-hud {
-    margin-left: auto;
-  }
 }
 @media (max-width: 450px) {
-  .cap-toolbar {
-    gap: 0.35rem;
-    padding: 0.35rem 0.4rem;
-  }
-  .cap-wordmark {
-    font-size: 0.55rem;
-  }
-  .cap-hud {
-    font-size: 0.52rem;
-  }
   .cap-overlay {
     bottom: 18%;
   }

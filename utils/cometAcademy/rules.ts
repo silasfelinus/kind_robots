@@ -2555,7 +2555,11 @@ export function restoreAcademy(raw: unknown): AcademyRun | null {
           (!data.playerCaseId || !expandedMissionFor(data.playerCaseId))))) ||
     (data.caseHistory !== undefined &&
       (data.flowVersion !== 3 ||
-        !validCaseHistory(data.caseHistory, data.day ?? 0, data.phase ?? ''))) ||
+        !validCaseHistory(
+          data.caseHistory,
+          data.day ?? 0,
+          data.phase ?? '',
+        ))) ||
     (data.missionClues !== undefined &&
       (!Array.isArray(data.missionClues) ||
         data.flowVersion !== 3 ||

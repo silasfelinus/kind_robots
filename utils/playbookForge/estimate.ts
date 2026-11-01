@@ -46,6 +46,12 @@ export type OpeningCombos = {
   endingVersions: number
   /** Epilogue lines the party adds: every follower, every ending version. */
   epilogueLines: number
+  /** Endings written for one party combination each. */
+  partyEndings: number
+  /** Scenes in the adventures written for each party combination. */
+  partyScenes: number
+  /** Endings the villains bring of their own. */
+  villainEndings: number
 }
 
 /**
@@ -67,6 +73,9 @@ export function openingCombos(b: Blueprint): OpeningCombos {
     openings: heroes * parties,
     endingVersions,
     epilogueLines: b.followerEpilogues ? endingVersions * b.followers : 0,
+    partyEndings: b.partySize > 1 ? parties * b.partyEndings : 0,
+    partyScenes: b.partySize > 1 ? parties * b.partyAdventureSteps : 0,
+    villainEndings: b.villains * b.villainEndings,
   }
 }
 
@@ -161,6 +170,21 @@ export function imageLines(b: Blueprint): ForecastLine[] {
       detail: `${endingDetail(b, combos)} × ${b.finaleBeats} beats`,
     },
     {
+      label: 'Party adventures',
+      count: combos.partyScenes,
+      detail: `${combos.parties} parties × ${b.partyAdventureSteps} steps`,
+    },
+    {
+      label: 'Party endings',
+      count: combos.partyEndings,
+      detail: `${combos.parties} parties × ${b.partyEndings}`,
+    },
+    {
+      label: 'Villain endings',
+      count: combos.villainEndings,
+      detail: `${b.villains} villains × ${b.villainEndings}`,
+    },
+    {
       label: 'Scrapbook moments',
       count: b.moments,
       detail: 'trailer reuses these',
@@ -228,6 +252,16 @@ export function wordLines(b: Blueprint, a: Assumptions): ForecastLine[] {
           combos.epilogueLines * 40,
       ),
       detail: `${endingDetail(b, combos)} × ${w.endingText}${b.endingMode === 'families' ? ' × 1.6 variant clauses' : ''}${b.followerEpilogues ? ' + follower epilogues' : ''}`,
+    },
+    {
+      label: 'Party adventures',
+      count: combos.partyScenes * (w.encounterBody + w.questStep),
+      detail: `${combos.parties} parties × ${b.partyAdventureSteps} steps`,
+    },
+    {
+      label: 'Party and villain endings',
+      count: (combos.partyEndings + combos.villainEndings) * w.endingText,
+      detail: `${combos.partyEndings} party + ${combos.villainEndings} villain endings × ${w.endingText}`,
     },
     {
       label: 'Chapters and factions',

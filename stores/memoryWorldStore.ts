@@ -1,4 +1,5 @@
 import { defineStore } from 'pinia'
+import { grantMemoryRewardOnce } from '~/utils/memoryDungeon/encounterRewards'
 import {
   canEnterDarkHouse,
   darkHouseChoose as makeDarkHouseChoice,
@@ -28,10 +29,28 @@ import {
   firstTwoWorldFrames,
   firstTwoSceneCallbacks,
   firstTwoPhysicalConsequence,
+  crossRealmHouseEpilogue,
+  earnedDarkHousePuzzleClue,
+  earnedCourierCompensation,
+  earnedCourierBellOutcome,
+  earnedBorrowedVoiceOutcome,
+  earnedRoyalEscortOutcome,
+  earnedOrenManifestOutcome,
+  earnedKnightCrossingOutcome,
+  earnedVesperRookeryOutcome,
+  earnedMosswickPromiseOutcome,
+  earnedWitnessBellOutcome,
 } from '~/utils/memoryDungeon/firstTwoConsequences'
 import {
   newMemoryCampaignProgress,
   completeMemoryExperience,
+  rememberMemoryWish,
+  chooseMemoryPairEnding,
+  chooseMemoryScyllaDeparture,
+  chooseMemoryCharAgency,
+  MEMORY_CHAR_AGENCY_CHOICES,
+  MEMORY_SCYLLA_DEPARTURE_CHOICES,
+  MEMORY_PAIR_ENDINGS,
   type MemoryCampaignProgress,
 } from '~/utils/memoryDungeon/reimaginerCampaign'
 import {
@@ -54,13 +73,25 @@ import {
   darkBriarCanTravel,
   newDarkBriarProgress,
   restoreDarkBriarProgress,
+  recoverDarkBriarTurn,
   type DarkBriarProgress,
 } from '~/utils/memoryDungeon/darkBriar'
+import {
+  DARK_BRIAR_DUELS,
+  darkBriarCanDuel,
+  darkBriarDuelForRoom,
+  type DarkBriarDuel,
+} from '~/utils/memoryDungeon/darkBriarDuels'
+import { settleDarkBriarReturn } from '~/utils/memoryDungeon/darkBriarReturn'
 import { computed, ref, watch } from 'vue'
 import {
   newEarthChronicle,
   restoreEarthChronicle,
   reconcileEarthChronicle,
+  reconcileHoshimoriEarthChronicle,
+  reconcileMorrowEarthChronicle,
+  reconcileScyllaEarthChronicle,
+  reconcileHoshimoriNightEarthChronicle,
   respondToEarthPhoto,
   recoveredEarthPhotos,
   type EarthChronicle,
@@ -101,6 +132,9 @@ import {
   briarConnected,
   newBriarSave,
   restoreBriarSave,
+  recoverBriarCombatDefeat,
+  recoverBriarRoomMissPenalty,
+  recoverBriarRoomFirstFlip,
   type BriarMapCard,
   type BriarMemoryCard,
   type BriarSave,
@@ -122,8 +156,11 @@ import {
 import {
   COMBAT_PAIRS,
   COMBAT_ROOMS,
+  HOUSE_DUEL_ROOMS,
   isCombatRoom,
+  isHouseDuelOrigin,
   startCombatRoom,
+  type HouseDuelOrigin,
 } from '~/utils/memoryDungeon/rooms'
 import {
   HOUSE_EXIT_POINTS,
@@ -135,12 +172,38 @@ import {
   type HouseCombatOrigin,
 } from '~/utils/memoryDungeon/house'
 import {
+  houseEpilogue as earnedHouseEpilogue,
+  houseEpilogueLens,
+} from '~/utils/memoryDungeon/houseEpilogues'
+import { briarQuestLog } from '~/utils/memoryDungeon/briarQuests'
+import { earnedBriarRareEvents } from '~/utils/memoryDungeon/briarRareEvents'
+import {
+  memoryAchievementGallery,
+  reconcileMemoryAchievements,
+  reconcileMemoryEarthAchievements,
+  restoreMemoryAchievements,
+} from '~/utils/memoryDungeon/achievements'
+import type { EarthReality } from '~/utils/memoryDungeon/earthAct'
+import type { EarthJournalAction } from '~/utils/memoryDungeon/earthJournal'
+import type { HoshimoriWarmProgress } from '~/utils/memoryDungeon/hoshimoriWarm'
+import type { NightProgress } from '~/utils/memoryDungeon/hoshimoriNight'
+import { briarLossContinuation } from '~/utils/memoryDungeon/lossContinuations'
+import {
   BRIAR_REVEAL_WAVES,
   BRIAR_CROSS_MAP_PUZZLES,
   createBriarWaveCards,
+  recoverBriarWaveTurn,
+  settleBriarWavePair,
 } from '~/utils/memoryDungeonWaves'
+import {
+  restoreMemoryCheckpoint,
+  restoreMemorySaveSlots,
+  writeMemorySaveSlot,
+  type MemorySaveSlots,
+} from '~/utils/memoryDungeon/saveSlots'
 
 const STORAGE_KEY = 'memoryDungeonBriarCampV1'
+const SAVE_SLOTS_KEY = 'memoryDungeonManualCheckpointsV1'
 const DECK_KEY = 'memoryDungeonDeckChoiceV1'
 const CARD_BACK_KEY = 'memoryDungeonCardBackV1'
 const REALM_UNLOCKS_KEY = 'memoryDungeonRealmGalleryUnlocksV1'
@@ -149,6 +212,7 @@ const DARK_BRIAR_KEY = 'memoryDungeonDarkBriarV1'
 const DARK_HOUSE_KEY = 'memoryDungeonDarkHouseV1'
 const EARTH_CHRONICLE_KEY = 'memoryDungeonEarthChronicleV1'
 const CROSS_MAP_SEALS_KEY = 'memoryDungeonCrossMapSealsV1'
+const ACHIEVEMENTS_KEY = 'memoryDungeonAchievementsV1'
 
 function shuffle<T>(list: T[]): T[] {
   const shuffled = [...list]
@@ -166,6 +230,12 @@ export const useMemoryWorldStore = defineStore('memoryWorld', () => {
   const unlockedRealms = ref<number[]>([])
   const realmArtReady = ref(false)
   const state = ref<BriarSave>(newBriarSave())
+  const saveSlots = ref<MemorySaveSlots>(restoreMemorySaveSlots(null))
+  const saveSlotMessage = ref('')
+  const earnedAchievementIds = ref<string[]>([])
+  const briarAchievements = computed(() =>
+    memoryAchievementGallery(earnedAchievementIds.value),
+  )
   const minefieldActive = ref(false)
   const minefieldHint = ref<{ cell: MineCell; type: 'safe' | 'hazard' } | null>(
     null,
@@ -204,13 +274,29 @@ export const useMemoryWorldStore = defineStore('memoryWorld', () => {
   const darkHouseTrialComplete = computed(() =>
     darkHouseTrialSolved(darkHouse.value, darkHouse.value.current),
   )
+  const darkHouseEarnedClue = computed(() =>
+    earnedDarkHousePuzzleClue(state.value, darkHouse.value.current),
+  )
   const darkHouseEchoCount = computed(() => darkHouseEchoes(darkHouse.value))
   const darkHouseScarCount = computed(() => darkHouseStrain(darkHouse.value))
-  const darkHouseEndingCopy = computed(() => darkHouseVerdict(darkHouse.value))
+  const darkHouseEndingCopy = computed(() =>
+    [
+      darkHouseVerdict(darkHouse.value),
+      crossRealmHouseEpilogue(state.value, darkHouse.value, dark.value),
+    ]
+      .filter(Boolean)
+      .join(' '),
+  )
   const canEnterDarkBriar = computed(() =>
     campaign.value.completed.includes('e01'),
   )
   const darkMatching = computed(() => dark.value.phase === 'matching')
+  /** A Dark Briar bout is on the combat board (the stage yields to it). */
+  const darkDuelActive = computed(
+    () =>
+      state.value.room === 'memory' &&
+      darkBriarDuelForRoom(state.value.roomId) !== null,
+  )
   const darkPairsMatched = computed(
     () => dark.value.mapCards.filter((card) => card.matched).length / 2,
   )
@@ -245,7 +331,25 @@ export const useMemoryWorldStore = defineStore('memoryWorld', () => {
     const chosen = scene.choices.find(
       (choice) => choice.id === dark.value.sceneChoices[dark.value.player],
     )
-    return chosen?.outcome ?? darkBriarOpening(scene, state.value)
+    const earned =
+      dark.value.player === '2,4'
+        ? earnedCourierBellOutcome(state.value, dark.value)
+        : dark.value.player === '3,5'
+          ? earnedBorrowedVoiceOutcome(state.value, dark.value)
+          : dark.value.player === '4,4'
+            ? earnedRoyalEscortOutcome(state.value, dark.value)
+            : dark.value.player === '5,4'
+              ? earnedKnightCrossingOutcome(state.value, dark.value)
+              : dark.value.player === '3,2'
+                ? earnedVesperRookeryOutcome(state.value, dark.value)
+                : dark.value.player === '4,2'
+                  ? earnedMosswickPromiseOutcome(state.value, dark.value)
+                  : dark.value.player === '4,3'
+                    ? earnedOrenManifestOutcome(state.value, dark.value)
+                    : dark.value.player === '6,3'
+                      ? earnedWitnessBellOutcome(state.value, dark.value)
+                      : null
+    return earned ?? chosen?.outcome ?? darkBriarOpening(scene, state.value)
   })
   const ready = ref(false)
   const loading = ref(false)
@@ -275,6 +379,46 @@ export const useMemoryWorldStore = defineStore('memoryWorld', () => {
     state.value.house
       ? houseExits(state.value.house.current, state.value.house)
       : [],
+  )
+  const briarQuests = computed(() =>
+    briarQuestLog(state.value.sceneChoices, state.value.house?.decisions ?? {}),
+  )
+  const briarRareEvents = computed(() =>
+    earnedBriarRareEvents(
+      state.value.sceneChoices,
+      state.value.house?.decisions ?? {},
+    ),
+  )
+  function syncAchievements(
+    hoshimori?: HoshimoriWarmProgress,
+    hoshimoriNight?: NightProgress,
+    earth?: { reality: EarthReality; journal: readonly EarthJournalAction[] },
+  ): void {
+    let next = reconcileMemoryAchievements(
+      earnedAchievementIds.value,
+      briarRareEvents.value,
+      state.value,
+      dark.value,
+      hoshimori,
+      hoshimoriNight,
+    )
+    if (earth && campaign.value.completed.includes(earth.reality))
+      next = reconcileMemoryEarthAchievements(
+        next,
+        earth.reality,
+        earth.journal,
+      )
+    if (next.length === earnedAchievementIds.value.length) return
+    earnedAchievementIds.value = next
+    if (!import.meta.client) return
+    try {
+      window.localStorage.setItem(ACHIEVEMENTS_KEY, JSON.stringify(next))
+    } catch {
+      // Cosmetic medals remain visible until storage is available.
+    }
+  }
+  const houseEpilogue = computed(() =>
+    earnedHouseEpilogue(state.value.house, state.value.sceneChoices),
   )
   const houseMayExit = computed(() =>
     Boolean(
@@ -451,6 +595,153 @@ export const useMemoryWorldStore = defineStore('memoryWorld', () => {
     persistEarthChronicle()
   }
 
+  function syncMorrowEarthAchievements(
+    reality: EarthReality,
+    journal: readonly EarthJournalAction[],
+  ): void {
+    if (!campaign.value.completed.includes(reality)) return
+    syncAchievements(undefined, undefined, { reality, journal })
+  }
+
+  function syncMorrowEarthPhoto(
+    reality: 'e03' | 'e04',
+    choices: Readonly<Record<string, string>>,
+  ): void {
+    if (!campaign.value.completed.includes(reality === 'e03' ? 'e02' : 'e03'))
+      return
+    const next = reconcileMorrowEarthChronicle(
+      earthChronicle.value,
+      reality,
+      choices,
+    )
+    if (next === earthChronicle.value) return
+    earthChronicle.value = next
+    persistEarthChronicle()
+  }
+
+  function finishMorrowEarthReality(
+    reality: 'e03' | 'e04',
+    pivotalChoice?: string,
+  ): boolean {
+    if (campaign.value.completed.includes(reality)) return false
+    if (reality === 'e03') {
+      if (!campaign.value.completed.includes('e02')) return false
+      const remembered = rememberMemoryWish(
+        campaign.value,
+        'morrow-magic-attempt',
+      )
+      campaign.value = completeMemoryExperience(remembered, 'e03')
+    } else {
+      if (!campaign.value.completed.includes('e03')) return false
+      const valid = MEMORY_PAIR_ENDINGS.e04.some(
+        (option) => option.id === pivotalChoice,
+      )
+      if (!valid || !pivotalChoice) return false
+      const decided = chooseMemoryPairEnding(
+        campaign.value,
+        'e04',
+        pivotalChoice,
+      )
+      campaign.value = completeMemoryExperience(decided, 'e04')
+    }
+    persistReality()
+    return true
+  }
+
+  function syncScyllaEarthPhoto(
+    reality: 'e05' | 'e06',
+    choices: Readonly<Record<string, string>>,
+  ): void {
+    const unlocked =
+      reality === 'e05'
+        ? campaign.value.completed.includes('e04')
+        : campaign.value.completed.includes('e05')
+    if (!unlocked) return
+    const next = reconcileScyllaEarthChronicle(
+      earthChronicle.value,
+      reality,
+      choices,
+    )
+    if (next === earthChronicle.value) return
+    earthChronicle.value = next
+    persistEarthChronicle()
+  }
+
+  function finishScyllaReality(
+    reality: 'e05' | 'e06',
+    pivotalChoice?: string,
+    charAgencyChoice?: string,
+  ): boolean {
+    if (campaign.value.completed.includes(reality) || !pivotalChoice)
+      return false
+    if (reality === 'e05') {
+      if (!campaign.value.completed.includes('e04')) return false
+      if (
+        !MEMORY_SCYLLA_DEPARTURE_CHOICES.some(
+          (choice) => choice.id === pivotalChoice,
+        )
+      )
+        return false
+      const decided = chooseMemoryScyllaDeparture(
+        campaign.value,
+        pivotalChoice as (typeof MEMORY_SCYLLA_DEPARTURE_CHOICES)[number]['id'],
+      )
+      const remembered = rememberMemoryWish(decided, 'scylla-home-wish')
+      campaign.value = completeMemoryExperience(remembered, 'e05')
+    } else {
+      if (!campaign.value.completed.includes('e05')) return false
+      if (
+        !MEMORY_PAIR_ENDINGS.e06.some(
+          (choice) => choice.id === pivotalChoice,
+        ) ||
+        !MEMORY_CHAR_AGENCY_CHOICES.some(
+          (choice) => choice.id === charAgencyChoice,
+        )
+      )
+        return false
+      const agency = chooseMemoryCharAgency(
+        campaign.value,
+        charAgencyChoice as (typeof MEMORY_CHAR_AGENCY_CHOICES)[number]['id'],
+      )
+      const decided = chooseMemoryPairEnding(agency, 'e06', pivotalChoice)
+      const remembered = rememberMemoryWish(decided, 'char-possible-future')
+      campaign.value = completeMemoryExperience(remembered, 'e06')
+    }
+    persistReality()
+    return true
+  }
+
+  function syncHoshimoriAchievements(progress: HoshimoriWarmProgress): void {
+    if (!campaign.value.completed.includes('e06')) return
+    syncAchievements(progress)
+  }
+
+  function syncHoshimoriPhoto(choices: Readonly<Record<string, string>>): void {
+    if (!campaign.value.completed.includes('e06')) return
+    const next = reconcileHoshimoriEarthChronicle(earthChronicle.value, choices)
+    if (next === earthChronicle.value) return
+    earthChronicle.value = next
+    persistEarthChronicle()
+  }
+
+  function syncHoshimoriNightAchievements(progress: NightProgress): void {
+    if (!campaign.value.completed.includes('e07')) return
+    syncAchievements(undefined, progress)
+  }
+
+  function syncHoshimoriNightPhoto(
+    choices: Readonly<Record<string, string>>,
+  ): void {
+    if (!campaign.value.completed.includes('e07')) return
+    const next = reconcileHoshimoriNightEarthChronicle(
+      earthChronicle.value,
+      choices,
+    )
+    if (next === earthChronicle.value) return
+    earthChronicle.value = next
+    persistEarthChronicle()
+  }
+
   function answerEarthPhoto(id: string, response: PhotoResponse): void {
     const next = respondToEarthPhoto(earthChronicle.value, id, response)
     if (next === earthChronicle.value) return
@@ -459,6 +750,7 @@ export const useMemoryWorldStore = defineStore('memoryWorld', () => {
   }
 
   function persistReality(): void {
+    syncAchievements()
     if (!import.meta.client) return
     try {
       window.localStorage.setItem(
@@ -490,8 +782,125 @@ export const useMemoryWorldStore = defineStore('memoryWorld', () => {
     persistReality()
   }
 
+  function saveCheckpoint(index: number, overwrite = false): boolean {
+    if (!import.meta.client) return false
+    const snapshot = restoreMemoryCheckpoint(
+      JSON.parse(
+        JSON.stringify({
+          version: 1,
+          savedAt: new Date().toISOString(),
+          briar: state.value,
+          dark: dark.value,
+          house: darkHouse.value,
+          reality: {
+            version: 1,
+            active: activeReality.value,
+            progress: campaign.value,
+          },
+          seals: crossMapSeals.value,
+        }),
+      ),
+    )
+    if (!snapshot) return false
+    const next = writeMemorySaveSlot(
+      saveSlots.value,
+      index,
+      snapshot,
+      overwrite,
+    )
+    if (!next) {
+      saveSlotMessage.value =
+        'That checkpoint is occupied. Confirm before replacing it.'
+      return false
+    }
+    try {
+      window.localStorage.setItem(SAVE_SLOTS_KEY, JSON.stringify(next))
+      saveSlots.value = next
+      saveSlotMessage.value = `Checkpoint ${index + 1} saved.`
+      return true
+    } catch {
+      saveSlotMessage.value =
+        'The checkpoint could not be stored in this browser.'
+      return false
+    }
+  }
+
+  function loadCheckpoint(index: number): boolean {
+    if (!import.meta.client) return false
+    const checkpoint = restoreMemoryCheckpoint(saveSlots.value[index])
+    if (!checkpoint) {
+      saveSlotMessage.value = 'That checkpoint is empty or damaged.'
+      return false
+    }
+    const resumed = recoverBriarWaveTurn(
+      restoreBriarSave(checkpoint.briar),
+      checkpoint.briar,
+    )
+    const recoveredCombat = recoverBriarCombatDefeat(resumed.progress)
+    const recoveredRoom = recoverBriarRoomMissPenalty(recoveredCombat)
+    const resumedRoom = recoverBriarRoomFirstFlip(
+      recoveredRoom,
+      checkpoint.briar,
+    )
+    const reality = restoreMemoryRealitySave(checkpoint.reality)
+    const resumedDark = recoverDarkBriarTurn(
+      restoreDarkBriarProgress(checkpoint.dark),
+      checkpoint.dark,
+    )
+    const restoredHouse = restoreDarkHouseProgress(checkpoint.house)
+    const restoredSeals = restoreCrossMapSealChronicle(checkpoint.seals)
+
+    roomEpoch++
+    darkEpoch++
+    loading.value = false
+    darkLoading.value = false
+    turnLocked.value = false
+    darkTurnLocked.value = false
+    firstCard.value = resumedRoom.firstCard
+    darkFirstCard.value = resumedDark.firstTile
+    firstMapCard.value = resumed.firstTile
+    latestMapCardKey.value = resumed.firstTile
+    mapDeckError.value = ''
+    darkDeckError.value = ''
+    runeInput.value = []
+    inspectedSigil.value = null
+    combatShown.value = []
+    combatPick.value = null
+    combatNote.value = ''
+    minefieldActive.value = false
+    minefieldHint.value = null
+
+    state.value = resumedRoom.progress
+    dark.value = resumedDark.progress
+    darkHouse.value = restoredHouse
+    crossMapSeals.value = restoredSeals
+    for (const key of dark.value.sealInspections)
+      crossMapSeals.value = inspectCrossMapSeal(crossMapSeals.value, key, 'e02')
+    campaign.value = reality.progress
+    activeReality.value = reality.active
+    if (state.value.gateOpened) grantBriarCompletion()
+    if (
+      dark.value.completed &&
+      campaign.value.completed.includes('e01') &&
+      !campaign.value.completed.includes('e02')
+    )
+      campaign.value = completeMemoryExperience(campaign.value, 'e02')
+    if (activeReality.value === 'e02' && !canEnterDarkBriar.value)
+      activeReality.value = 'e01'
+
+    persist()
+    persistReality()
+    syncEarthChronicle()
+    saveSlotMessage.value = `Checkpoint ${index + 1} restored.`
+    if (activeReality.value === 'e02' && !dark.value.mapCards.length)
+      void prepareDarkDeck()
+    else void syncActiveMapDeck()
+    return true
+  }
+
   function persist(): void {
     if (!import.meta.client) return
+    syncAchievements()
     try {
       window.localStorage.setItem(STORAGE_KEY, JSON.stringify(state.value))
     } catch {
@@ -502,10 +911,45 @@ export const useMemoryWorldStore = defineStore('memoryWorld', () => {
 
   function hydrate(): void {
     if (ready.value) return
+    let recoveredDarkTurn = false
     if (import.meta.client) {
       try {
+        const saved = window.localStorage.getItem(ACHIEVEMENTS_KEY)
+        earnedAchievementIds.value = restoreMemoryAchievements(
+          saved ? JSON.parse(saved) : null,
+        )
+      } catch {
+        earnedAchievementIds.value = []
+      }
+    }
+    if (import.meta.client) {
+      try {
+        const rawSlots = window.localStorage.getItem(SAVE_SLOTS_KEY)
+        saveSlots.value = restoreMemorySaveSlots(
+          rawSlots ? JSON.parse(rawSlots) : null,
+        )
+      } catch {
+        saveSlots.value = restoreMemorySaveSlots(null)
+      }
+      try {
         const saved = window.localStorage.getItem(STORAGE_KEY)
-        if (saved) state.value = restoreBriarSave(JSON.parse(saved) as unknown)
+        if (saved) {
+          const raw = JSON.parse(saved) as unknown
+          const resumed = recoverBriarWaveTurn(restoreBriarSave(raw), raw)
+          const recoveredCombat = recoverBriarCombatDefeat(resumed.progress)
+          const recoveredRoom = recoverBriarRoomMissPenalty(recoveredCombat)
+          const resumedRoom = recoverBriarRoomFirstFlip(recoveredRoom, raw)
+          state.value = resumedRoom.progress
+          firstCard.value = resumedRoom.firstCard
+          firstMapCard.value = resumed.firstTile
+          latestMapCardKey.value = resumed.firstTile
+          if (
+            resumed.recovered ||
+            recoveredRoom !== resumed.progress ||
+            resumedRoom.recovered
+          )
+            persist()
+        }
         const savedUnlocks = window.localStorage.getItem(REALM_UNLOCKS_KEY)
         const parsedUnlocks: unknown = savedUnlocks
           ? JSON.parse(savedUnlocks)
@@ -560,9 +1004,14 @@ export const useMemoryWorldStore = defineStore('memoryWorld', () => {
       }
       try {
         const rawDark = window.localStorage.getItem(DARK_BRIAR_KEY)
-        dark.value = restoreDarkBriarProgress(
-          rawDark ? JSON.parse(rawDark) : null,
+        const savedDark = rawDark ? JSON.parse(rawDark) : null
+        const resumedDark = recoverDarkBriarTurn(
+          restoreDarkBriarProgress(savedDark),
+          savedDark,
         )
+        dark.value = resumedDark.progress
+        darkFirstCard.value = resumedDark.firstTile
+        recoveredDarkTurn = resumedDark.recovered
       } catch {
         dark.value = newDarkBriarProgress()
       }
@@ -603,6 +1052,7 @@ export const useMemoryWorldStore = defineStore('memoryWorld', () => {
       // Pre-Chronicle save compatibility: old scene choices already earned
       // the photograph, even when the journal did not exist yet.
       syncEarthChronicle()
+      syncAchievements()
       if (state.value.gateOpened) grantBriarCompletion()
       if (
         dark.value.completed &&
@@ -616,6 +1066,7 @@ export const useMemoryWorldStore = defineStore('memoryWorld', () => {
         activeReality.value = 'e01'
       }
     }
+    if (recoveredDarkTurn) persistReality()
     ready.value = true
     if (import.meta.client) {
       void checkRealmGalleryReady()
@@ -736,7 +1187,10 @@ export const useMemoryWorldStore = defineStore('memoryWorld', () => {
 
   function darkHouseUseHint(): void {
     if (activeReality.value !== 'e02') return
-    const updated = hintDarkHousePuzzle(darkHouse.value)
+    const updated = hintDarkHousePuzzle(
+      darkHouse.value,
+      darkHouseEarnedClue.value,
+    )
     if (updated === darkHouse.value) return
     darkHouse.value = updated
     persistReality()
@@ -812,13 +1266,11 @@ export const useMemoryWorldStore = defineStore('memoryWorld', () => {
 
   function returnToBriar(): void {
     darkEpoch++
+    dark.value = settleDarkBriarReturn(dark.value)
     darkHouse.value.active = false
     darkTurnLocked.value = false
     darkFirstCard.value = null
     darkLoading.value = false
-    dark.value.mapCards.forEach((card) => {
-      if (!card.matched) card.flipped = false
-    })
     activeReality.value = 'e01'
     persistReality()
   }
@@ -848,7 +1300,7 @@ export const useMemoryWorldStore = defineStore('memoryWorld', () => {
     dark.value.attempts++
     darkTurnLocked.value = true
     const ticket = darkEpoch
-    if (first.pairId === card.pairId) {
+    if (first.pairId === card.pairId && first.image === card.image) {
       dark.value.status = 'Two altered memories agree. The reflection sharpens.'
       window.setTimeout(() => {
         if (ticket !== darkEpoch) return
@@ -919,11 +1371,113 @@ export const useMemoryWorldStore = defineStore('memoryWorld', () => {
     const next = darkBriarChoose(dark.value, key, id)
     if (next === dark.value) return
     dark.value = next
+    if (
+      key === '2,4' ||
+      key === '3,5' ||
+      key === '4,4' ||
+      key === '4,3' ||
+      key === '4,2' ||
+      key === '5,4' ||
+      key === '3,2' ||
+      key === '6,3'
+    ) {
+      const earned =
+        key === '2,4'
+          ? earnedCourierBellOutcome(state.value, next)
+          : key === '3,5'
+            ? earnedBorrowedVoiceOutcome(state.value, next)
+            : key === '4,4'
+              ? earnedRoyalEscortOutcome(state.value, next)
+              : key === '4,3'
+                ? earnedOrenManifestOutcome(state.value, next)
+                : key === '5,4'
+                  ? earnedKnightCrossingOutcome(state.value, next)
+                  : key === '4,2'
+                    ? earnedMosswickPromiseOutcome(state.value, next)
+                    : key === '6,3'
+                      ? earnedWitnessBellOutcome(state.value, next)
+                      : earnedVesperRookeryOutcome(state.value, next)
+      if (earned) dark.value.status = earned
+    }
+    if (key === '3,4') {
+      const compensation = earnedCourierCompensation(state.value, id)
+      if (compensation === 'lantern') {
+        state.value.lanterns += 1
+        persist()
+      } else if (compensation === 'wildflower') {
+        state.value.wildflowers += 1
+        persist()
+      }
+    }
     syncEarthChronicle()
     if (next.completed && !campaign.value.completed.includes('e02')) {
       campaign.value = completeMemoryExperience(campaign.value, 'e02')
     }
     persistReality()
+  }
+
+  /** Begin the optional bout at the Dark Briar tile the traveller stands on. */
+  async function startDarkDuel(): Promise<void> {
+    if (activeReality.value !== 'e02' || darkMatching.value || loading.value)
+      return
+    const key = dark.value.player
+    const duel = DARK_BRIAR_DUELS[key]
+    if (!duel || !darkBriarCanDuel(dark.value, key)) return
+    if (
+      state.value.room === 'memory' ||
+      state.value.combat ||
+      minefieldActive.value
+    ) {
+      dark.value.status =
+        'Another challenge is still waiting in the Briar Marches. Finish or leave it first.'
+      persistReality()
+      return
+    }
+    dark.value.duelReturn = state.value.room === 'house' ? 'house' : 'map'
+    persistReality()
+    await beginRoom(duel.room)
+    if (!darkDuelActive.value) {
+      dark.value.duelReturn = null
+      dark.value.status = state.value.status
+      persistReality()
+    }
+  }
+
+  /** End a Dark Briar bout and put the Briar save back where it was. */
+  function closeDarkDuel(message: string): void {
+    roomEpoch++
+    state.value.room = dark.value.duelReturn ?? 'map'
+    state.value.roomId = null
+    state.value.cards = []
+    state.value.combat = null
+    state.value.roomMisses = 0
+    state.value.status = message
+    dark.value.duelReturn = null
+    dark.value.status = message
+    combatShown.value = []
+    combatPick.value = null
+    combatNote.value = ''
+    firstCard.value = null
+    turnLocked.value = false
+    loading.value = false
+    persist()
+    persistReality()
+  }
+
+  function finishDarkDuel(duel: DarkBriarDuel): void {
+    const awarded = grantMemoryRewardOnce(
+      dark.value.duels,
+      duel.key,
+      state.value,
+      {
+        lanterns: 1,
+      },
+    )
+    closeDarkDuel(
+      awarded
+        ? duel.victory
+        : 'The bout is already recorded. Its lantern cannot be claimed twice.',
+    )
   }
 
   function reset(): void {
@@ -1099,25 +1653,22 @@ export const useMemoryWorldStore = defineStore('memoryWorld', () => {
     state.value.attempts++
     turnLocked.value = true
     const epoch = roomEpoch
-    if (first.pairId === card.pairId) {
+    if (first.pairId === card.pairId && first.image === card.image) {
       // Allow the same 550ms Y-axis animation used in Classic to finish
       // before replacing the successful pair with visible map terrain.
       state.value.status = 'A match! The fog is lifting…'
       persist()
       window.setTimeout(() => {
         if (epoch !== roomEpoch) return
-        first.matched = true
-        card.matched = true
-        for (const tile of [first.tile, card.tile]) {
-          if (!state.value.revealed.includes(tile))
-            state.value.revealed.push(tile)
-          if (tile === BRIAR_START && !state.value.visited.includes(tile))
-            state.value.visited.push(tile)
+        const settled = settleBriarWavePair(state.value, first.tile, card.tile)
+        if (!settled) {
+          turnLocked.value = false
+          return
         }
+        state.value = settled
         state.value.status =
           'A remembered pair! Two pieces of Briar Camp have emerged.'
-        if (state.value.mapCards.every((tile) => tile.matched)) {
-          state.value.wavePhase = 'exploring'
+        if (state.value.wavePhase === 'exploring') {
           state.value.status =
             state.value.waveIndex === 3
               ? 'All four reveal rounds are complete. Explore the map; four paired sigils await future regions.'
@@ -1287,10 +1838,17 @@ export const useMemoryWorldStore = defineStore('memoryWorld', () => {
     const board = minefieldBoard.value
     if (board?.outcome === 'escaped') {
       const rewardKey = minefieldRewardKey(next.size)
-      if (!state.value.completedEncounters.includes(rewardKey)) {
-        state.value.completedEncounters.push(rewardKey)
-        state.value.lanterns += 1
-        state.value.wildflowers += next.size === 10 ? 2 : 1
+      if (
+        grantMemoryRewardOnce(
+          state.value.completedEncounters,
+          rewardKey,
+          state.value,
+          {
+            lanterns: 1,
+            wildflowers: next.size === 10 ? 2 : 1,
+          },
+        )
+      ) {
         state.value.status =
           'The archive door yields. You earn a lantern and flowers; the finding is remembered.'
       } else {
@@ -1416,7 +1974,7 @@ export const useMemoryWorldStore = defineStore('memoryWorld', () => {
     if (
       (house.current === 'HD-32' && id === 'fight') ||
       (house.current === 'HD-19' && id === 'match') ||
-      (['HD-09', 'HD-22', 'HD-28'].includes(house.current) && id === 'duel')
+      (isHouseDuelOrigin(house.current) && id === 'duel')
     ) {
       house.combatOrigin = house.current as HouseCombatOrigin
       persist()
@@ -1425,9 +1983,7 @@ export const useMemoryWorldStore = defineStore('memoryWorld', () => {
           ? 'vault-2'
           : house.current === 'HD-19'
             ? 'vault-1'
-            : house.current === 'HD-09'
-              ? 'sprite'
-              : 'patrol'
+            : HOUSE_DUEL_ROOMS[house.current as HouseDuelOrigin]
       await beginRoom(combatRoom)
       if (state.value.room !== 'memory') {
         house.combatOrigin = null
@@ -1447,8 +2003,10 @@ export const useMemoryWorldStore = defineStore('memoryWorld', () => {
     if (
       house.current === 'HD-35' &&
       (id === 'release' || id === 'renew' || id === 'break')
-    )
+    ) {
       house.ending = id
+      house.endingLens = houseEpilogueLens(house, state.value.sceneChoices)
+    }
     if (house.current === 'HD-36') {
       house.chimeClaimed = true
       if (!state.value.relics.includes('bramble-chime'))
@@ -1494,7 +2052,9 @@ export const useMemoryWorldStore = defineStore('memoryWorld', () => {
         ? "The Warden yields to remembered pairs, not to ownership of anyone else's past."
         : origin === 'HD-19'
           ? 'The Echo Chamber accepts your matched memories and opens the mirrored passage.'
-          : 'You resolved a fair House duel by remembering pairs. Your progress and its outcome are recorded.'
+          : origin === 'HD-16'
+            ? 'The Housekeeper lowers her broom and keeps every key. You earned safe passage, not ownership of anyone in her care.'
+            : 'You resolved a fair House duel by remembering pairs. Your progress and its outcome are recorded.'
     persist()
   }
 
@@ -1636,10 +2196,8 @@ export const useMemoryWorldStore = defineStore('memoryWorld', () => {
           state.value.roomMisses = 0
           state.value.hearts -= 1
           if (state.value.hearts <= 0) {
-            leaveRoom(
-              'The room overwhelms you. You retreat to Briar Camp, keeping your map and discoveries.',
-            )
-            state.value.player = '2,4'
+            leaveRoom(briarLossContinuation(state.value, 'chamber', true), true)
+            if (state.value.room === 'map') state.value.player = BRIAR_START
             state.value.hearts = 3
           } else {
             state.value.status =
@@ -1678,15 +2236,35 @@ export const useMemoryWorldStore = defineStore('memoryWorld', () => {
         turnLocked.value = false
         if (next.outcome === 'defeat') {
           state.value.hearts -= 1
-          if (state.value.hearts <= 0) {
-            leaveRoom(
-              'The fight overwhelms you. You retreat to Briar Camp, keeping your map and discoveries.',
+          if (darkBriarDuelForRoom(state.value.roomId)) {
+            const rested = state.value.hearts <= 0
+            if (rested) state.value.hearts = 3
+            closeDarkDuel(
+              rested
+                ? `${next.enemy.name} wins this bout. You rest by the road until your strength returns; the challenger waits for a rematch.`
+                : `${next.enemy.name} wins this bout. One heart lost; the challenger waits for a rematch.`,
             )
-            state.value.player = '2,4'
+          } else if (state.value.hearts <= 0) {
+            leaveRoom(
+              briarLossContinuation(
+                state.value,
+                'combat',
+                true,
+                next.enemy.name,
+              ),
+              true,
+            )
+            if (state.value.room === 'map') state.value.player = BRIAR_START
             state.value.hearts = 3
           } else {
             leaveRoom(
-              `${next.enemy.name} drives you back to the trail. One heart lost; the room waits for a rematch.`,
+              briarLossContinuation(
+                state.value,
+                'combat',
+                false,
+                next.enemy.name,
+              ),
+              true,
             )
           }
         }
@@ -1742,13 +2320,20 @@ export const useMemoryWorldStore = defineStore('memoryWorld', () => {
   async function finishRoom(): Promise<void> {
     if (!roomComplete.value || turnLocked.value) return
     const room = state.value.roomId
+    const darkDuel = darkBriarDuelForRoom(room)
+    if (darkDuel) {
+      finishDarkDuel(darkDuel)
+      return
+    }
     const houseOrigin = state.value.house?.combatOrigin
     if (
       houseOrigin &&
       ((houseOrigin === 'HD-19' && room === 'vault-1') ||
         (houseOrigin === 'HD-32' && room === 'vault-2') ||
-        (['HD-09', 'HD-22', 'HD-28'].includes(houseOrigin) &&
-          (room === 'sprite' || room === 'patrol')))
+        (isHouseDuelOrigin(houseOrigin) &&
+          (room === HOUSE_DUEL_ROOMS[houseOrigin] ||
+            room === 'sprite' ||
+            room === 'patrol')))
     ) {
       finishHouseCombat(houseOrigin)
       return
@@ -1773,18 +2358,34 @@ export const useMemoryWorldStore = defineStore('memoryWorld', () => {
       )
       return
     }
-    if (room) {
+    if (room === 'sprite' || room === 'patrol') {
       const key = room === 'sprite' ? '5,5' : '7,3'
-      if (!state.value.completedEncounters.includes(key))
-        state.value.completedEncounters.push(key)
-      state.value.wildflowers += 1
-      leaveRoom('The forest challenger bows and gives you a wildflower.')
+      const awarded = grantMemoryRewardOnce(
+        state.value.completedEncounters,
+        key,
+        state.value,
+        { wildflowers: 1 },
+      )
+      leaveRoom(
+        awarded
+          ? 'The forest challenger bows and gives you a wildflower.'
+          : 'The forest challenger bows again. The first victory already claimed its flower.',
+      )
+      return
     }
+    if (room) leaveRoom()
   }
 
   function leaveRoom(
     message = 'You step out of the challenge and return to the same place on the map.',
+    contextualRetreat = false,
   ): void {
+    if (darkBriarDuelForRoom(state.value.roomId)) {
+      closeDarkDuel(
+        'You step back from the bout. The challenger waits for a rematch.',
+      )
+      return
+    }
     roomEpoch++
     const houseOrigin = state.value.house?.combatOrigin
     if (houseOrigin && state.value.house) {
@@ -1793,7 +2394,8 @@ export const useMemoryWorldStore = defineStore('memoryWorld', () => {
       if (!state.value.house.visited.includes('HD-18'))
         state.value.house.visited.push('HD-18')
       state.value.room = 'house'
-      message = `${message} You recover in the House's quiet bedchamber without losing your discoveries.`
+      if (!contextualRetreat)
+        message = `${message} You recover in the House's quiet bedchamber without losing your discoveries.`
     } else {
       state.value.room = 'map'
     }
@@ -1852,10 +2454,23 @@ export const useMemoryWorldStore = defineStore('memoryWorld', () => {
 
   return {
     state,
+    saveSlots,
+    saveSlotMessage,
+    saveCheckpoint,
+    loadCheckpoint,
     campaign,
     earthChronicle,
     earthPhotos,
     answerEarthPhoto,
+    syncHoshimoriAchievements,
+    syncHoshimoriPhoto,
+    syncMorrowEarthPhoto,
+    syncMorrowEarthAchievements,
+    finishMorrowEarthReality,
+    syncScyllaEarthPhoto,
+    finishScyllaReality,
+    syncHoshimoriNightAchievements,
+    syncHoshimoriNightPhoto,
     activeReality,
     dark,
     darkHouse,
@@ -1869,6 +2484,7 @@ export const useMemoryWorldStore = defineStore('memoryWorld', () => {
     darkHouseReady,
     darkHouseTrialComplete,
     darkHouseEchoCount,
+    darkHouseEarnedClue,
     darkHouseScarCount,
     darkHouseEndingCopy,
     darkHouseFlipCard,
@@ -1903,6 +2519,8 @@ export const useMemoryWorldStore = defineStore('memoryWorld', () => {
     darkPickCard,
     darkWalk,
     darkChooseScene,
+    startDarkDuel,
+    darkDuelActive,
     deck,
     cardBack,
     selectCardBack,
@@ -1930,6 +2548,10 @@ export const useMemoryWorldStore = defineStore('memoryWorld', () => {
     activeHouseRoom,
     houseAvailableDoors,
     houseMayExit,
+    houseEpilogue,
+    briarQuests,
+    briarRareEvents,
+    briarAchievements,
     canChooseHouse,
     houseMove,
     chooseHouse,

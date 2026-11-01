@@ -25,6 +25,7 @@ assert.deepEqual(
     'zuzu-lair-ch1',
     'crystal-street-theme',
     'rainbow-princess-opening',
+    'space-couch-opening',
   ],
 )
 assert.equal(musicVideoSpecByKey('nope'), null)
@@ -255,5 +256,22 @@ console.log('✅ the skeleton song cuts on its transcribed lines')
 console.log(
   '✅ the Crystal Street and Rainbow intros reuse their art and songs',
 )
+
+{
+  // Ship canon (docs/space-couch/SHIP-BIBLE.md): the vessel is the red couch,
+  // so every shot names it, even the villain and pocket-room shots.
+  const couch = specToDoc(musicVideoSpecByKey('space-couch-opening')!)
+  assert.ok(
+    couch.scenes.every((scene) => /\bcouch\b/i.test(scene.prompt)),
+    'every Space Couch shot keeps the couch in it',
+  )
+  // The first surprise beat: the band stops dead after the verse, so the
+  // freeze shot carries no sung line.
+  const freeze = couch.scenes.find((scene) => /cowbell/.test(scene.prompt))
+  assert.deepEqual(freeze?.lyricRefs, [])
+  assert.equal(couch.settings.bpm, 176)
+  assert.ok(!('song' in couch), 'Produce makes the song')
+}
+console.log('✅ the Space Couch opening keeps the couch in every shot')
 
 console.log('✅ verifyMusicVideoSpecs: all assertions passed')

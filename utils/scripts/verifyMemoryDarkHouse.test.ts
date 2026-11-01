@@ -38,6 +38,57 @@ for (const [id, room] of Object.entries(DARK_HOUSE_ROOMS)) {
   assert.notEqual(room.choices[0]!.outcome, room.choices[1]!.outcome)
 }
 
+// Test fixtures must reach their saved chambers through authored passages.
+const mirrorPaths = new Map<string, string[]>([[HOUSE_ENTRY, [HOUSE_ENTRY]]])
+const mirrorQueue = [HOUSE_ENTRY]
+for (let i = 0; i < mirrorQueue.length; i++) {
+  const room = mirrorQueue[i]!
+  for (const next of DARK_HOUSE_ROOMS[room]!.exits) {
+    if (mirrorPaths.has(next)) continue
+    mirrorPaths.set(next, [...mirrorPaths.get(room)!, next])
+    mirrorQueue.push(next)
+  }
+}
+const connectedMirrorPath = (room: string): string[] => {
+  const path = mirrorPaths.get(room)
+  assert.ok(path, `Authored mirror route to ${room} exists`)
+  return path
+}
+
+// A recorded route through the Warden's hearing cannot substitute for
+// actually answering that hearing. Prune all downstream forged decisions.
+const forgedMirrorWarden = restoreDarkHouseProgress({
+  active: true,
+  current: 'HD-35',
+  visited: connectedMirrorPath('HD-35'),
+  decisions: { 'HD-35': 'attend' },
+})
+assert.equal(forgedMirrorWarden.current, HOUSE_ENTRY)
+assert.ok(!forgedMirrorWarden.visited.includes('HD-33'))
+assert.equal(forgedMirrorWarden.decisions['HD-35'], undefined)
+assert.equal(forgedMirrorWarden.ending, null)
+
+// The mirrored exit is a locked edge, not merely the next room number.
+// A forged visited array must not manufacture an unanswered final passage.
+const forgedMirrorExit = restoreDarkHouseProgress({
+  active: true,
+  current: 'HD-36',
+  visited: connectedMirrorPath('HD-36'),
+  decisions: { 'HD-36': 'attend' },
+})
+assert.equal(forgedMirrorExit.current, HOUSE_ENTRY)
+assert.ok(!forgedMirrorExit.visited.includes('HD-36'))
+assert.equal(forgedMirrorExit.decisions['HD-36'], undefined)
+assert.equal(forgedMirrorExit.ending, null)
+const earnedMirrorExit = restoreDarkHouseProgress({
+  active: true,
+  current: 'HD-36',
+  visited: connectedMirrorPath('HD-36'),
+  decisions: { 'HD-32': 'attend', 'HD-35': 'attend', 'HD-36': 'refuse' },
+})
+assert.equal(earnedMirrorExit.current, 'HD-36')
+assert.equal(earnedMirrorExit.ending, 'return')
+
 const briar = newDarkBriarProgress()
 assert.equal(canEnterDarkHouse(briar), false)
 const witnessChoices = Object.fromEntries(
@@ -62,6 +113,51 @@ assert.equal(canEnterDarkHouse(revealed), true)
 assert.equal(canEnterDarkHouse({ ...revealed, player: '3,1' }), false)
 assert.equal(canEnterDarkHouse({ ...revealed, sceneChoices: {} }), false)
 assert.equal(canEnterDarkHouse({ ...revealed, mapCards: [] }), false)
+
+// Inherited object keys are not authored chambers. A forged save must not
+// crash while restoring decisions or fabricate a verdict.
+for (const key of ['constructor', 'toString', '__proto__']) {
+  const forged = {
+    active: true,
+    current: key,
+    visited: [key],
+    decisions: Object.fromEntries([[key, 'attend']]),
+    trials: Object.fromEntries([[key, { matched: [] }]]),
+    puzzles: Object.fromEntries([[key, { solved: true }]]),
+  }
+  const safe = restoreDarkHouseProgress(forged)
+  assert.equal(safe.current, HOUSE_ENTRY)
+  assert.deepEqual(safe.visited, [HOUSE_ENTRY])
+  assert.deepEqual(safe.decisions, {})
+  assert.deepEqual(safe.trials, {})
+  assert.deepEqual(safe.puzzles, {})
+  assert.equal(safe.ending, null)
+  assert.deepEqual(darkHouseExits(safe), [])
+}
+
+// Mirrored save history must connect to the entry. An isolated HD-35
+// decision cannot mint the final verdict or an unearned chamber visit.
+const disconnectedMirror = restoreDarkHouseProgress({
+  active: true,
+  current: 'HD-35',
+  visited: ['HD-35', 'HD-36'],
+  decisions: { 'HD-35': 'attend', 'HD-36': 'attend' },
+  ending: 'return',
+})
+assert.equal(disconnectedMirror.current, HOUSE_ENTRY)
+assert.deepEqual(disconnectedMirror.visited, [HOUSE_ENTRY])
+assert.deepEqual(disconnectedMirror.decisions, {})
+assert.equal(disconnectedMirror.ending, null)
+
+const adjacentLegacyMirror = restoreDarkHouseProgress({
+  active: true,
+  current: 'HD-03',
+  visited: ['HD-02'],
+  decisions: { 'HD-03': 'attend' },
+})
+assert.equal(adjacentLegacyMirror.current, 'HD-03')
+assert.deepEqual(adjacentLegacyMirror.visited, ['HD-01', 'HD-02', 'HD-03'])
+assert.equal(adjacentLegacyMirror.decisions['HD-03'], 'attend')
 
 const fresh = newDarkHouseProgress()
 assert.equal(fresh.active, false)
@@ -106,18 +202,50 @@ assert.equal(
   'Unverified completion flag cannot mint a House ending',
 )
 assert.equal(
-  restoreDarkHouseProgress({ decisions: { 'HD-35': 'attend' } }).ending,
+  restoreDarkHouseProgress({
+    visited: connectedMirrorPath('HD-35'),
+    decisions: { 'HD-32': 'attend', 'HD-35': 'attend' },
+  }).ending,
   'return',
 )
 assert.equal(
-  restoreDarkHouseProgress({ decisions: { 'HD-35': 'refuse' } }).ending,
+  restoreDarkHouseProgress({
+    visited: connectedMirrorPath('HD-35'),
+    decisions: { 'HD-32': 'refuse', 'HD-35': 'refuse' },
+  }).ending,
   'commons',
+)
+
+// Valid choice IDs in chambers never visited must not mint a reflected
+// verdict, bypass the Warden, or rewrite the player's saved decisions.
+const tampered = restoreDarkHouseProgress({
+  active: true,
+  current: 'HD-02',
+  visited: ['HD-01', 'HD-02'],
+  decisions: {
+    'HD-01': 'attend',
+    'HD-02': 'refuse',
+    'HD-32': 'attend',
+    'HD-35': 'refuse',
+  },
+})
+assert.deepEqual(tampered.decisions, {
+  'HD-01': 'attend',
+  'HD-02': 'refuse',
+})
+assert.equal(tampered.ending, null)
+assert.equal(tampered.current, 'HD-02')
+assert.deepEqual(tampered.visited, ['HD-01', 'HD-02'])
+assert.deepEqual(
+  restoreDarkHouseProgress(JSON.parse(JSON.stringify(tampered))),
+  tampered,
+  'Validated visits and decisions survive repeated restoration',
 )
 
 const passage = restoreDarkHouseProgress({
   active: true,
   current: 'HD-32',
-  visited: ['HD-31', 'HD-32'],
+  visited: connectedMirrorPath('HD-32'),
 })
 assert.ok(
   !darkHouseExits(passage).includes('HD-33'),
@@ -138,7 +266,8 @@ assert.ok(darkHouseExits(guardian).includes('HD-33'))
 const hearth = restoreDarkHouseProgress({
   active: true,
   current: 'HD-35',
-  visited: ['HD-32', 'HD-33', 'HD-34', 'HD-35'],
+  visited: connectedMirrorPath('HD-35'),
+  decisions: { 'HD-32': 'attend' },
 })
 assert.ok(!darkHouseExits(hearth).includes('HD-36'))
 const healed = darkHouseChoose(hearth, 'refuse')
@@ -170,6 +299,26 @@ const parent = readFileSync(
 const store = readFileSync('stores/memoryWorldStore.ts', 'utf8')
 assert.ok(component.includes('data-testid="dark-house-console"'))
 assert.ok(component.includes('data-testid="dark-house-choices"'))
+assert.match(
+  component,
+  /v-else-if="world\.darkHouse\.decisions\[world\.darkHouse\.current\]"/,
+  'An unresolved trial cannot announce a recorded decision',
+)
+assert.ok(component.includes('data-testid="dark-house-decision-recorded"'))
+assert.ok(component.includes('data-testid="dark-house-passages"'))
+assert.ok(
+  component.indexOf('data-testid="dark-house-passages"') >
+    component.indexOf('</aside>'),
+  'Passages must remain outside the scrollable encounter panel',
+)
+assert.equal(
+  (component.match(/v-for="door in world\.darkHouseDoors"/g) ?? []).length,
+  1,
+  'One fixed passage strip, not a second list buried in the encounter',
+)
+assert.match(component, /overflow-x-auto overscroll-x-contain/)
+assert.match(component, /v-if="!world\.darkHouseDoors\.length"/)
+assert.match(component, /:aria-label="`Travel to \$\{door\},/)
 assert.ok(component.includes('world.walkDarkHouse(tileRoom.id)'))
 assert.ok(component.includes('world.chooseDarkHouse(choice.id)'))
 assert.ok(parent.includes('<memory-dungeon-dark-house-stage'))

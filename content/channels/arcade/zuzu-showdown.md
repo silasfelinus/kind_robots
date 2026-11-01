@@ -2,6 +2,7 @@
 contentType: tab
 channelKey: arcade
 tabKey: zuzu-showdown
+navigation: false
 label: Zuzu Showdown
 title: Zuzu Showdown
 subtitle: A 2D fighter of the Shifting Lands

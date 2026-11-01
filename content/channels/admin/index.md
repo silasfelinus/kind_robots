@@ -33,7 +33,8 @@ tutorial:
         or failed, check each art server's health, and retry or cancel jobs.
         Resources holds the checkpoints and LoRAs the servers draw with, LoRA Triage
         marks each LoRA SFW or NSFW, and Art Archive imports and rates the private
-        legacy art collection.
+        legacy art collection. Capes Bible is the shared Western-comic style gate
+        and searchable character art atlas for Prom of Doom and Every Villain Tactics.
       image: /images/dashboard-tabs/art/generate.webp
     - key: projects
       title: Projects and the agents

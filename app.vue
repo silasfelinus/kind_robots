@@ -56,7 +56,6 @@
       <fx-clear-all />
       <achievement-popup />
       <first-launch-intro />
-      <support-prompt />
     </ClientOnly>
 
     <section

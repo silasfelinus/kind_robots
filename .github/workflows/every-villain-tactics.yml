@@ -1,0 +1,75 @@
+name: Every Villain Tactics
+
+on:
+  pull_request:
+    paths:
+      - 'utils/everyVillainTactics/**'
+      - 'stores/everyVillainTacticsStore.ts'
+      - 'pages/admin/every-villain-tactics.vue'
+      - 'content/channels/admin/every-villain-tactics.md'
+      - 'utils/playbookKit/games/everyVillainTactics.ts'
+      - 'utils/scripts/verifyEveryVillainTactics.test.ts'
+      - 'utils/scripts/verifyEveryVillainCombat.test.ts'
+      - 'utils/scripts/verifyEveryVillainStory.test.ts'
+      - 'utils/scripts/verifyEveryVillainStudio.test.ts'
+      - 'utils/scripts/verifyEveryVillainPowers.test.ts'
+      - 'utils/scripts/verifyEveryVillainSaves.test.ts'
+      - 'utils/scripts/verifyEveryVillainLackeys.test.ts'
+      - 'utils/scripts/verifyEveryVillainPicnic.test.ts'
+      - 'utils/scripts/verifyEveryVillainFrontMenu.test.ts'
+      - 'utils/scripts/verifyEveryVillainScores.test.ts'
+      - 'utils/scripts/verifyEveryVillainStageRules.test.ts'
+      - 'utils/scripts/verifyEveryVillainScenes.test.ts'
+      - 'components/every-villain-tactics/**'
+      - '.github/workflows/every-villain-tactics.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'utils/everyVillainTactics/**'
+      - 'stores/everyVillainTacticsStore.ts'
+      - 'utils/playbookKit/games/everyVillainTactics.ts'
+      - 'components/every-villain-tactics/**'
+  workflow_dispatch:
+
+jobs:
+  training:
+    name: Canonical roster and seeded First Bell tactics
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+      - name: Install dependencies
+        run: npm ci
+        env:
+          CYPRESS_INSTALL_BINARY: '0'
+      - name: Verify deterministic training and Kit compliance
+        run: |
+          npm run test:every-villain-tactics
+          npm run test:every-villain-combat
+          npm run test:every-villain-story
+          npx tsx utils/scripts/verifyEveryVillainStudio.test.ts
+      - name: Signature powers, tactical roles and AI parity
+        run: npx tsx utils/scripts/verifyEveryVillainPowers.test.ts
+      - name: Versioned save slots, migration and forgery rejection
+        run: npx tsx utils/scripts/verifyEveryVillainSaves.test.ts
+      - name: Teleporting and wind-up one-hit lackey crews
+        run: npx tsx utils/scripts/verifyEveryVillainLackeys.test.ts
+      - name: Picnic Panic civilians and one-shot scenes
+        run: npx tsx utils/scripts/verifyEveryVillainPicnic.test.ts
+      - name: Front menu, settings, scrapbook and threat preview
+        run: npx tsx utils/scripts/verifyEveryVillainFrontMenu.test.ts
+      - name: Completed mission scoring and earned scrapbook medals
+        run: npx tsx utils/scripts/verifyEveryVillainScores.test.ts
+      - name: Props, hazards, waves, victory rules and stage share codes
+        run: npx tsx utils/scripts/verifyEveryVillainStageRules.test.ts
+      - name: Conversation trees, scene triggers and cinematic editor
+        run: npx tsx utils/scripts/verifyEveryVillainScenes.test.ts
+      - name: Shared engine keeps Prom of Doom interludes intact
+        run: |
+          npx tsx utils/scripts/verifyCometTacticalBridge.test.ts
+          npx tsx utils/scripts/verifyCometLieutenants.test.ts
+          npx tsx utils/scripts/verifyCometFieldLoyalty.test.ts

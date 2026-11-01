@@ -11,11 +11,13 @@ WORKDIR /app
 ARG COMMIT_SHA=unknown
 
 # The Nuxt build's heap: it peaked near 5.5 GB under a 6 GB cap and began running out on PRs that only
-# added game code (2026-10-17). The image builds only on GitHub's 16 GB ubuntu-latest runner; the Unraid
-# deployer pulls the published image and never builds it, so this does not touch the production host.
+# added game code (2026-10-17). It then reached the 8 GB cap during the Nitro server build: every push
+# to main from #4264 through #4277 (2026-10-27) died with "Reached heap limit", so production stayed on
+# #4263. The image builds only on GitHub's 16 GB ubuntu-latest runner; the Unraid deployer pulls the
+# published image and never builds it, so this does not touch the production host.
 ENV NUXT_TELEMETRY_DISABLED=1 \
     NUXT_PUBLIC_BUILD_ID=$COMMIT_SHA \
-    NODE_OPTIONS=--max-old-space-size=8192
+    NODE_OPTIONS=--max-old-space-size=12288
 
 COPY . .
 

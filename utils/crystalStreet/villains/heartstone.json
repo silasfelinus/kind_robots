@@ -40,7 +40,7 @@
           "title": "Plot Reserved",
           "place": "The far corner, Pinecrest Cemetery",
           "text": "Past the founders' obelisks, where the mowers stop, fourteen rosebushes have grown wild around a granite slab as tall as a door. It is perfectly blank. Fresh carnations lie at its foot, held down with a pale quarry stone, and the register post lists this plot under one word: RESERVED. The roses are blooming purple in late October.",
-          "art": "A blank granite slab the size of a door in an overgrown cemetery corner, fourteen wild rosebushes blooming purple around it, fresh carnations held down by a pale stone, a teenager reading a weathered register post",
+          "art": "A blank gray granite slab as tall as a door in an overgrown corner of a cemetery, fourteen wild rosebushes around it blooming purple in late October, fresh red carnations at its foot held down by a pale quarry stone, a teenager standing beside a weathered wooden register post, fallen leaves and long dusk shadows, golden low sun, wide shot",
           "choices": [
             {
               "id": "parish-ledger",
@@ -131,7 +131,7 @@
           "title": "The Lamp House",
           "place": "The back lot, Rusty's Junkyard",
           "text": "Behind the crusher, half swallowed by blackberry vines, sits a corrugated shed stenciled CRYSTAL SPRINGS QUARRY, LAMP HOUSE. Through the cracked window you can see a pegboard of brass tags. Most hooks are empty. Fourteen are not. Every quarryman took his tag when he went down and hung it back when he came up. The door is chained shut, and something inside is humming the same low note as the Heartstone.",
-          "art": "A rusted corrugated shed stenciled lamp house half buried in blackberry vines behind a junkyard crusher, a cracked window showing a pegboard with fourteen brass tags",
+          "art": "A rusted corrugated metal shed half buried in blackberry vines behind a junkyard car crusher, faded stenciled paint on its wall, a padlocked chain across the door, a cracked window showing a pegboard inside with fourteen brass tags hanging on hooks among many empty ones, a lean Diné teenager in an orange work shirt holding bolt cutters beside a teenager, flat gray afternoon light, medium wide shot",
           "choices": [
             {
               "id": "cut-the-chain",
@@ -202,7 +202,7 @@
           "title": "Do Not Air",
           "place": "The record vault, KGLM 103.3",
           "text": "The KGLM vault smells like dust and warm vinyl. On the bottom shelf, in a sleeve signed by the 1952 station manager, is a heavy acetate disc marked QUARRY VIGIL, NIGHTS 1 TO 3, and beneath that in blunt pencil: DO NOT AIR AGAIN, BY REQUEST OF MR. GAGE. Mix's overnight shift starts in an hour, and the studio turntable is empty.",
-          "art": "A dusty radio station record vault, a teenager pulling a heavy acetate disc from a paper sleeve with a red restricted stamp, an empty studio turntable glowing through a doorway",
+          "art": "A dusty radio station record vault, metal shelves of record sleeves, a teenager on one knee pulling a heavy black acetate disc out of a brown paper sleeve with a red stamp on it, and through the doorway an empty studio turntable under a glowing red on-air bulb, single bulb light and dust in the air, medium shot",
           "choices": [
             {
               "id": "play-it-on-air",
@@ -271,7 +271,7 @@
         "title": "The Hum",
         "place": "The roundabout, Crystal Street, midnight",
         "text": "At midnight the Heartstone starts to hum, low enough to feel in your teeth. Porch lights blink on up and down the cul-de-sac, and in every lit window a neighbor is crying for no reason they can name: Mr. Dobbs at his kitchen sink, the twins at number 6, your own reflection in a station wagon window. The geode pulses violet, drinking it all in, and grows by the width of a fingernail.",
-        "art": "A huge purple geode glowing on a suburban roundabout at midnight, every lit window on the cul-de-sac framing a crying neighbor, a teenager in the street with a hand on their own wet cheek",
+        "art": "A huge purple geode glowing violet on a suburban roundabout at midnight, every lit window around the cul-de-sac framing a neighbor crying alone, a man at his kitchen sink, two twins at an upstairs window, a teenager standing in the street with one hand on their own wet cheek, their face reflected in a station wagon window, porch lights blinking on, violet glow and warm windows, wide shot",
         "choices": [
           {
             "id": "hum-back",
@@ -336,7 +336,7 @@
         "title": "Under the Lawn",
         "place": "The Dobbses' front yard, Crystal Street, after midnight",
         "text": "With a sound like a dropped tray of dishes, the Dobbses' front lawn caves in. The hole goes down and down into black water, and far below, fourteen small amber lights are moving in a slow line, the way men walk at the end of a long shift. Something down there is calling your name in a voice like rock grinding on rock.",
-        "art": "A sinkhole torn open in a suburban front lawn at night, black water far below with fourteen small amber lamps moving in a line, a teenager on hands and knees at the edge peering down",
+        "art": "A sinkhole torn open in a suburban front lawn after midnight, broken sod and a tipped lawn flamingo at its edge, black water far below with fourteen small amber lamps moving in a slow line through the dark, a teenager on hands and knees at the rim peering down, a clothesline and glow bracelets beside them, porch light from above and amber glow from below, high angle shot",
         "choices": [
           {
             "id": "lower-a-light",
@@ -404,7 +404,7 @@
         "title": "Who Goes There?",
         "place": "Joey's garage at Rusty's Junkyard, 2 a.m.",
         "text": "The power dies at Joey's garage, and your crew huddles around a camp lantern between stripped-down cars. Then someone knocks: Nick Petrakis from number 8 Crystal Street, in his bathrobe and slippers, smiling, saying he is \"fine, just fine\" in a voice as flat as a dial tone. His eyes have a violet sheen. Crystal glitters across his knuckles like frost. And out in the dark, polite knocks begin on every wall of the garage at once.",
-        "art": "A junkyard garage at night lit by one camp lantern between stripped-down cars, teens huddled together, a smiling middle-aged man in a bathrobe and slippers in the doorway with violet-sheened eyes and glittering crystal frost on his knuckles",
+        "art": "A junkyard garage at two in the morning lit by a single camp lantern between stripped-down cars, four teenagers huddled together with flashlights, and in the open doorway a smiling middle-aged man in a bathrobe and slippers with a faint violet sheen in his eyes and glittering crystal frost across his knuckles, darkness outside, warm lantern light and violet glints, medium wide shot",
         "choices": [
           {
             "id": "sad-song-test",
@@ -496,7 +496,7 @@
         "title": "Nobody Believes Teenagers",
         "place": "The front desk of the Glimmer Falls police station, 12:30 a.m.",
         "text": "You burst into the police station to report that the rock on the Crystal Street roundabout is humming, cracking the asphalt and making people cry. Sergeant Dwight Haas does not look up from his crossword. \"Kid, that rock's been sitting there since 1958.\" Behind him the water cooler glugs one slow violet bubble, and the fluorescent lights hum the same low note you heard on the roundabout. Every drive-in monster movie you have ever seen says nobody is going to listen to the next line, and the next line is yours.",
-        "art": "A small-town police station front desk at night, a frantic teenager leaning over the counter, a bored mustached sergeant doing a crossword, a water cooler behind him glowing with a violet bubble, fluorescent lights humming overhead",
+        "art": "A small-town police station front desk at 12:30 at night, a frantic teenager leaning over the counter with instant photos fanned in one hand, a bored mustached sergeant in uniform doing a newspaper crossword with his eyes on the paper, a water cooler behind him with one violet bubble rising through the jug, buzzing fluorescent lights overhead, flat white light, medium shot",
         "choices": [
           {
             "id": "show-proof",
@@ -587,7 +587,7 @@
         "title": "Don't Look Back",
         "place": "The old quarry fence at the end of Quarry Road, 1 a.m., in fog",
         "text": "You are walking home along the chain-link fence of the old quarry when fog rises off the pit, cold and smelling of wet stone. Behind you, footsteps fall into step with yours: heavy work boots, a lot of them, and a lamp swinging with a creak. Someone back there is humming a hymn. In 1952 the quarry owner told the whole town over the radio that Glimmer Falls does not look back. Every story you know says you shouldn't either.",
-        "art": "A lone teenager walking along a chain-link quarry fence on a gravel road at night as thick fog rises from a dark pit, faint swinging lamp glows in the mist behind them",
+        "art": "A lone teenager walking along a chain-link fence beside a dark quarry pit on a gravel road at one in the morning, thick cold fog rising from the pit and rolling across the road, the teen staring straight ahead with stiff shoulders, and in the fog behind them the faint amber glows of many swinging miner's lamps, a single streetlight at the far corner, gray fog and amber glow, wide shot",
         "choices": [
           {
             "id": "turn-around",
@@ -678,7 +678,7 @@
         "title": "The Crystal Garden",
         "place": "Crystal Street, before dawn",
         "text": "Crystal Street has become a sculpture garden. Neighbors stand on their lawns cased in violet crystal, each frozen in one feeling: Mrs. Dobbs mid-sob, the mailman mid-laugh, the twins from number 6 holding hands and terrified. The crystal is creeping down the sidewalks toward your crew, and from the roundabout the Heartstone speaks at last, in fourteen voices at once: \"Feel it for us. Somebody has to.\"",
-        "art": "A suburban cul-de-sac before dawn with neighbors encased in glowing violet crystal on their lawns, each frozen mid-emotion, crystal spreading across the sidewalks toward a small group of teens",
+        "art": "A suburban cul-de-sac before dawn turned into a sculpture garden, neighbors standing on their lawns encased in glowing violet crystal, a woman frozen mid-sob, a mailman frozen mid-laugh, two young twins frozen holding hands, crystal creeping across the sidewalks toward four teenagers backing away in the street, and the purple geode on the roundabout glowing brightest, violet light and pale gray dawn, wide shot",
         "choices": [
           {
             "id": "feel-it",
@@ -767,7 +767,7 @@
         "title": "The Dog Knows",
         "place": "The roundabout, Crystal Street, one a.m.",
         "text": "Every dog on Crystal Street is howling, and one of them will not come home. Duchess, the Brandts' old golden retriever, sits on the roundabout lawn with her nose pressed to the Heartstone, whining at it the way she whines at the front door at five o'clock, waiting for a car. Violet frost has crept up her paws and is spreading through her fur, and the geode pulses with every whimper. Mr. Brandt stands on his porch in his robe, calling her name, and his voice cracks on it.",
-        "art": "An old golden retriever sitting on a frosty roundabout lawn at night with her nose pressed to a huge glowing purple geode, violet frost creeping through her fur, a man in a robe calling from a lit porch behind her",
+        "art": "An old golden retriever with a white muzzle sitting on a frosty roundabout lawn at one in the morning with her nose pressed to the base of a huge glowing purple geode, violet frost creeping up her paws and through her fur, a tricolor basset hound with a red bandana lying down beside her, a teenager kneeling with an arm around her, a man in a robe calling from a lit porch behind, violet glow, medium wide shot",
         "choices": [
           {
             "id": "sit-with-her",
@@ -855,7 +855,7 @@
         "title": "The Sad Part",
         "place": "The Starlight Twin Cinema, the 9:40 show",
         "text": "Half of Glimmer Falls is at the Starlight Twin for the weepy new drama everybody's mother has seen twice. Right when the music swells and the grandmother on screen says goodbye, a wet sigh comes out of the air vents, and violet goo begins pouring down the walls in slow, glittering sheets. It crawls along the carpet toward every person in the theater who is swallowing a sob. The usher screams first, then everyone, and two hundred people stampede for the doors exactly like the crowd in the old drive-in movie about the blob.",
-        "art": "A crowded 1980s movie theater at night, glittering violet goo pouring from the air vents and sliding down the walls in sheets, a tearful audience scrambling from their seats toward the exits, a sentimental film glowing on the screen",
+        "art": "A crowded 1980s movie theater during the 9:40 show, a tearful film of an old woman glowing on the screen, glittering violet goo pouring out of the air vents and sliding down the walls in slow sheets toward the seats, the audience scrambling into the aisles toward the exits, an usher screaming with a flashlight, a teenager standing up on a seat, silver screen light and violet goo, wide shot from the back",
         "choices": [
           {
             "id": "let-it-out",
@@ -947,7 +947,7 @@
         "title": "The Shift Whistle",
         "place": "Crystal Street, October 30, midnight",
         "text": "At midnight on the night before Halloween, a quarry shift whistle that was sold for scrap in 1958 shrieks from the roundabout, and every sleeper in Glimmer Falls sits up in bed. They come out in pajamas and robes, eyes glassy, carrying lunch pails and thermoses they do not own, and walk in a long silent line toward the Heartstone. The geode has split down the middle like a mine entrance, violet light pouring out, and the front of the line is already stepping inside. Somewhere in that line is your own family, and the whistle blows again, calling the shift down.",
-        "art": "A long line of sleepwalking townspeople in pajamas and robes carrying old lunch pails down a suburban street at midnight, filing into a giant purple geode split open like a glowing mine entrance, a steam whistle shrieking above",
+        "art": "A long silent line of sleepwalking townspeople in pajamas and robes carrying old metal lunch pails and thermoses down a suburban street at midnight, filing into a giant purple geode on the roundabout split open down the middle into a tall glowing doorway shaped as a mine entrance, a long violet crystal pipe on top of the roundabout lamppost blowing steam, a teenager standing beside the line, violet light spilling over the street, wide shot",
         "choices": [
           {
             "id": "ask-who",
@@ -1043,7 +1043,7 @@
       "title": "The Hollow Heart",
       "place": "Inside the Heartstone, Halloween night",
       "text": "On Halloween night the Heartstone splits open like a seed, and you walk inside. It is the quarry: violet walls rising to a starless sky, the drowned lower gallery, fourteen lamps hanging in a line in the dark. At the center beats the Hunger itself, a heart of amethyst as big as a house, swollen with thirty-four years of swallowed feelings. Your neighbors' sobs echo off its facets. It does not roar. It aches, and the ache pulls at your chest like gravity.",
-      "art": "A vast cavern of violet crystal inside a split geode, fourteen amber lamps hanging in a line, an enormous pulsing amethyst heart at the center, a teen crew in Halloween costumes standing small before it",
+      "art": "A vast cavern of violet crystal inside a split-open geode on Halloween night, crystal walls rising to a black sky, black water in a drowned lower gallery, fourteen amber miner's lamps hanging in a line in the dark, and at the center an enormous pulsing amethyst heart as big as a house with faint shapes of men in hard hats inside its facets, four teenagers in homemade Halloween costumes standing small before it, one holding a quarry pick, violet and amber light, wide shot",
       "choices": [
         {
           "id": "fight",
@@ -1213,22 +1213,22 @@
       "best": {
         "title": "Shall We Gather",
         "text": "On November 2, 1986, Glimmer Falls holds the funeral it skipped in 1952. Father Iggy says the requiem at St. Jude's, thirty-four years late. Enzo Ferraro carves the first name into the blank slab at Pinecrest himself, and a stonemason finishes the other thirteen. The Ibarra family builds an ofrenda on the roundabout with marigolds and a quarryman's lamp, and the whole street brings photographs, pan dulce, casseroles and stories. Pearl leads the hymn. The Heartstone is just a pretty purple rock now, warm to the touch. People sit beside it when they need to cry, and nobody tells them to stop.",
-        "art": "A candlelit memorial on a suburban roundabout at dusk, a marigold ofrenda with old photographs and a quarryman's lamp beside a softly glowing purple geode, neighbors of all ages holding candles and each other, a newly carved granite slab with fourteen names"
+        "art": "A candlelit memorial on a suburban roundabout at dusk, an ofrenda of orange marigolds, old black-and-white photographs and a brass quarryman's lamp beside a softly glowing purple geode, neighbors of every age holding candles and each other, an old man in a faded quarry jacket, a 71-year-old Black woman in a marigold headwrap singing, warm candlelight and blue dusk, wide shot"
       },
       "good": {
         "title": "Quiet on Crystal Street",
         "text": "The Heartstone goes dark and stays that way. The sinkholes close, the crystal melts into morning dew, and by Thanksgiving the neighbors have forgotten that they cried every night of Halloween week. You haven't. On your desk you keep a brass tally tag with a stranger's name stamped on it, and sometimes you say the name out loud, just so somebody does.",
-        "art": "A teenager at a bedroom desk at night holding a small brass tally tag stamped with a name, an ordinary dark purple rock visible through the window on a quiet roundabout"
+        "art": "A teenager sitting at a bedroom desk at night turning a small brass tally tag over in their fingers under a gooseneck lamp, and through the window behind them an ordinary dark purple rock on a quiet suburban roundabout under a streetlight, warm lamp light and blue night, medium shot"
       },
       "bittersweet": {
         "title": "Hairline Cracks",
         "text": "The Hunger sleeps, but not before it takes its share. Three neighbors never quite thaw: they smile and wave and cannot remember how to cry, or how to laugh very hard either. The geode has a new vein of violet you swear wasn't there before. Every March 3rd, at midnight, the street hums, and you go sit on the curb so it won't hum alone.",
-        "art": "A teenager sitting alone on a curb at midnight beside a faintly humming purple geode, a neighbor in a lit window waving with an empty, pleasant smile"
+        "art": "A teenager sitting alone on a curb at midnight beside a faintly glowing purple geode with one new bright violet vein across it, and in a lit window across the street a neighbor waving with a blank pleasant smile, white streetlight and violet glow, medium wide shot"
       },
       "bad": {
         "title": "Nature's Jewel",
         "text": "You wake on November first and cannot get up, because you are not lying down. You are standing on the roundabout lawn, cased in clear violet crystal, frozen mid-feeling with your mouth half open, as if you were about to say something that mattered. The developer's plaque has a new line on it now. Your crew visits every day and talks to you. You can hear every word, and you cannot cry.",
-        "art": "A teenager encased in clear violet crystal standing beside a giant geode on a suburban roundabout, mouth half open, friends in jackets sitting on the grass talking to the crystal figure"
+        "art": "A teenager encased in clear violet crystal standing on the lawn beside a giant purple geode on a suburban roundabout, mouth half open and one hand raised, three friends in jackets sitting cross-legged on the grass in front of the crystal figure talking to it, a brass plaque on a post nearby, soft afternoon light, wide shot"
       }
     }
   }

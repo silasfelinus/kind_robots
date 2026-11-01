@@ -11,7 +11,9 @@
         <p
           class="truncate font-mono text-[10px] font-black uppercase tracking-[.3em] text-stone-700 sm:text-xs"
         >
-          Consolidated Wellness &amp; Defense · Personnel File #4471
+          Consolidated Wellness &amp; Defense · Personnel File #{{
+            filedReceipt?.id ?? 'Pending'
+          }}
           <span v-if="daily" class="text-amber-800">
             · Daily Memo {{ dailyLabel(daily) }}</span
           >
@@ -31,11 +33,11 @@
       <span class="file-stamp" aria-hidden="true">{{ verdict.stamp }}</span>
       <div
         v-if="epilogue"
-        class="flex h-32 shrink-0 gap-3 overflow-hidden rounded-xl border-2 border-stone-900 bg-stone-900 text-amber-50 sm:h-44 print:h-44"
+        class="flex h-52 shrink-0 gap-3 overflow-hidden rounded-xl border-2 border-stone-900 bg-stone-900 text-amber-50 sm:h-56 print:h-56"
         aria-label="Your ending reward"
       >
         <shifting-desks-art
-          class="w-36 shrink-0 overflow-hidden sm:w-52"
+          class="w-[38%] shrink-0 overflow-hidden sm:w-[42%]"
           frame="h-full w-full"
           position="object-center"
           :src="stationArt('endings', epilogue.id)"
@@ -55,8 +57,51 @@
           <p class="font-mono text-sm font-black uppercase sm:text-lg">
             {{ epilogue.title }}
           </p>
-          <p class="line-clamp-2 text-xs italic sm:text-sm">
+          <p class="hidden text-xs italic sm:block">
             {{ epilogue.epilogue.title }}
+          </p>
+          <div
+            v-if="ceremonyAward"
+            class="flex items-center gap-2 rounded-md border border-amber-300/70 bg-amber-300/10 px-2 py-1"
+            :aria-label="`Personnel award: ${ceremonyAward.title}`"
+          >
+            <icon
+              :name="ceremonyAward.icon"
+              class="size-6 shrink-0 text-amber-300"
+            />
+            <div class="min-w-0">
+              <p
+                v-if="store.newlyEarnedMilestones.length"
+                class="font-mono text-[9px] font-black uppercase tracking-widest text-amber-300"
+                role="status"
+              >
+                {{ store.newlyEarnedMilestones.length }} new distinction{{
+                  store.newlyEarnedMilestones.length === 1 ? '' : 's'
+                }}
+                earned
+              </p>
+              <p v-else class="font-mono text-[9px] uppercase text-amber-200">
+                Previously filed distinction
+              </p>
+              <p class="truncate text-xs font-black">
+                {{ ceremonyAward.title }}
+              </p>
+            </div>
+          </div>
+          <p class="font-mono text-[10px] text-amber-50/85">
+            {{ Object.keys(run.departmentOutcomes).length }} departments ·
+            {{ filesHandled }} files · {{ run.generation + 1 }} employees ·
+            {{ run.meters.forms }} forms
+          </p>
+          <p
+            class="hidden truncate font-mono text-[10px] text-amber-50/80 sm:block"
+          >
+            {{ jobTitle }} · {{ society.title }} · {{ mutation.title }}
+          </p>
+          <p v-if="nextMilestone" class="truncate text-[10px] text-amber-200">
+            Next: {{ nextMilestone.title }} · {{ nextMilestoneProgress }}/{{
+              nextMilestone.target
+            }}
           </p>
           <button
             type="button"
@@ -65,8 +110,8 @@
           >
             <icon name="kind-icon:trophy" class="size-3.5" />
             {{
-              store.rewardArchive.runs.length === 1
-                ? 'New archive unlocked'
+              store.newlyEarnedMilestones.includes('first-ending')
+                ? 'Personnel Archive unlocked'
                 : 'View earned milestones'
             }}
           </button>
@@ -274,11 +319,12 @@
         {{ shared ? 'Copied' : "Share today's memo" }}
       </button>
       <button
+        v-if="filedReceipt"
         type="button"
-        class="btn btn-outline btn-sm max-sm:hidden sm:btn-md"
+        class="btn btn-outline btn-sm sm:btn-md"
         @click="printFile"
       >
-        <icon name="kind-icon:document" size="1rem" /> Print your file
+        <icon name="kind-icon:document" size="1rem" /> Print / Save PDF
       </button>
       <button
         v-if="store.archiveUnlocked"
@@ -300,7 +346,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed, nextTick, ref } from 'vue'
 import {
   DEPARTMENTS,
   DEPARTMENT_FLOORS,
@@ -319,6 +365,7 @@ import {
   START_GRADES,
 } from '~/utils/shiftingDesks/rules'
 import { useShiftingDesksStore } from '~/stores/shiftingDesksStore'
+import { MILESTONES } from '~/utils/shiftingDesks/rewards'
 import {
   dailyDateOf,
   dailyLabel,
@@ -344,9 +391,40 @@ const filesHandled = computed(
       (e) => e.cardId !== 'dossier' && e.cardId !== RESTRUCTURING_CARD,
     ).length ?? 0,
 )
+const ceremonyAward = computed(
+  () =>
+    MILESTONES.find((m) => store.newlyEarnedMilestones.includes(m.id)) ??
+    MILESTONES.find((m) => !!store.rewardArchive.milestones[m.id]) ??
+    null,
+)
+const nextMilestone = computed(
+  () =>
+    MILESTONES.filter((m) =>
+      [
+        'forms-25',
+        'three-endings',
+        'five-departments',
+        'exceptional-empathy',
+      ].includes(m.id),
+    ).find((m) => !store.rewardArchive.milestones[m.id]) ?? null,
+)
+const nextMilestoneProgress = computed(() =>
+  nextMilestone.value
+    ? Math.min(
+        nextMilestone.value.target,
+        nextMilestone.value.value(store.rewardArchive, store.endingsFound),
+      )
+    : 0,
+)
 const deeperLevel = computed(() => DEPARTMENTS.length)
 const BOTTOM_FLOOR = 5
 const epilogue = computed(() => (run.value ? endingFor(run.value) : null))
+const filedReceipt = computed(
+  () =>
+    store.rewardArchive.runs.find(
+      (receipt) => receipt.id === `${run.value?.seed}:${epilogue.value?.id}`,
+    ) ?? null,
+)
 const epilogueLines = computed(() =>
   run.value && epilogue.value ? endingLines(run.value, epilogue.value) : [],
 )
@@ -453,7 +531,10 @@ async function shareDaily(): Promise<void> {
   }
 }
 
-function printFile(): void {
+async function printFile(): Promise<void> {
+  if (!filedReceipt.value) return
+  store.selectPrintReceipt(filedReceipt.value)
+  await nextTick()
   window.print()
 }
 </script>

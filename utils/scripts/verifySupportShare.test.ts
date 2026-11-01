@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict'
+import { readFileSync } from 'node:fs'
 import {
   EMPTY_SUPPORT_PROGRESS,
   FUNDRAISER_URL,
@@ -114,5 +115,12 @@ for (const key of eventNames) {
     key + ' is a valid site-stats event',
   )
 }
+
+const appShell = readFileSync(new URL('../../app.vue', import.meta.url), 'utf8')
+assert.doesNotMatch(
+  appShell,
+  /<support-prompt\b/i,
+  'support solicitation must not be mounted globally',
+)
 
 console.log('Support share contract verified')

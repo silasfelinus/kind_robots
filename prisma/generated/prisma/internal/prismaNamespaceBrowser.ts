@@ -131,6 +131,7 @@ export const ModelName = {
   NarratorThread: 'NarratorThread',
   PitchSheet: 'PitchSheet',
   Prompt: 'Prompt',
+  PlumberLevel: 'PlumberLevel',
   Reaction: 'Reaction',
   Resource: 'Resource',
   Reward: 'Reward',
@@ -180,6 +181,9 @@ export const ModelName = {
   AppRepo: 'AppRepo',
   MediaEntry: 'MediaEntry',
   ResourcePreview: 'ResourcePreview',
+  HybridizerFusion: 'HybridizerFusion',
+  SlimeCityAccount: 'SlimeCityAccount',
+  SlimeCityMatch: 'SlimeCityMatch',
   SiteStatDaily: 'SiteStatDaily',
   TzaddikCandidate: 'TzaddikCandidate',
   TzaddikCandidateTag: 'TzaddikCandidateTag',
@@ -1676,6 +1680,19 @@ export const PromptScalarFieldEnum = {
 export type PromptScalarFieldEnum = (typeof PromptScalarFieldEnum)[keyof typeof PromptScalarFieldEnum]
 
 
+export const PlumberLevelScalarFieldEnum = {
+  id: 'id',
+  createdAt: 'createdAt',
+  fingerprint: 'fingerprint',
+  title: 'title',
+  payload: 'payload',
+  userId: 'userId',
+  isPublic: 'isPublic'
+} as const
+
+export type PlumberLevelScalarFieldEnum = (typeof PlumberLevelScalarFieldEnum)[keyof typeof PlumberLevelScalarFieldEnum]
+
+
 export const ReactionScalarFieldEnum = {
   id: 'id',
   createdAt: 'createdAt',
@@ -1700,6 +1717,7 @@ export const ReactionScalarFieldEnum = {
   projectId: 'projectId',
   facetId: 'facetId',
   tzaddikCandidateId: 'tzaddikCandidateId',
+  plumberLevelId: 'plumberLevelId',
   authorBotId: 'authorBotId',
   authorCharacterId: 'authorCharacterId'
 } as const
@@ -2701,6 +2719,52 @@ export const ResourcePreviewScalarFieldEnum = {
 export type ResourcePreviewScalarFieldEnum = (typeof ResourcePreviewScalarFieldEnum)[keyof typeof ResourcePreviewScalarFieldEnum]
 
 
+export const HybridizerFusionScalarFieldEnum = {
+  id: 'id',
+  leftKey: 'leftKey',
+  rightKey: 'rightKey',
+  recipeVersion: 'recipeVersion',
+  title: 'title',
+  depth: 'depth',
+  status: 'status',
+  artJobId: 'artJobId',
+  artImageId: 'artImageId',
+  creatorUserId: 'creatorUserId',
+  isPublic: 'isPublic',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type HybridizerFusionScalarFieldEnum = (typeof HybridizerFusionScalarFieldEnum)[keyof typeof HybridizerFusionScalarFieldEnum]
+
+
+export const SlimeCityAccountScalarFieldEnum = {
+  userId: 'userId',
+  data: 'data',
+  version: 'version',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type SlimeCityAccountScalarFieldEnum = (typeof SlimeCityAccountScalarFieldEnum)[keyof typeof SlimeCityAccountScalarFieldEnum]
+
+
+export const SlimeCityMatchScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  mode: 'mode',
+  teamId: 'teamId',
+  foeId: 'foeId',
+  seed: 'seed',
+  startedAt: 'startedAt',
+  settledAt: 'settledAt',
+  result: 'result',
+  commands: 'commands'
+} as const
+
+export type SlimeCityMatchScalarFieldEnum = (typeof SlimeCityMatchScalarFieldEnum)[keyof typeof SlimeCityMatchScalarFieldEnum]
+
+
 export const SiteStatDailyScalarFieldEnum = {
   id: 'id',
   day: 'day',
@@ -2794,6 +2858,14 @@ export const JsonNullValueInput = {
 } as const
 
 export type JsonNullValueInput = (typeof JsonNullValueInput)[keyof typeof JsonNullValueInput]
+
+
+export const NullableJsonNullValueInput = {
+  DbNull: DbNull,
+  JsonNull: JsonNull
+} as const
+
+export type NullableJsonNullValueInput = (typeof NullableJsonNullValueInput)[keyof typeof NullableJsonNullValueInput]
 
 
 export const NullsOrder = {
@@ -3636,6 +3708,15 @@ export const PromptOrderByRelevanceFieldEnum = {
 export type PromptOrderByRelevanceFieldEnum = (typeof PromptOrderByRelevanceFieldEnum)[keyof typeof PromptOrderByRelevanceFieldEnum]
 
 
+export const PlumberLevelOrderByRelevanceFieldEnum = {
+  fingerprint: 'fingerprint',
+  title: 'title',
+  payload: 'payload'
+} as const
+
+export type PlumberLevelOrderByRelevanceFieldEnum = (typeof PlumberLevelOrderByRelevanceFieldEnum)[keyof typeof PlumberLevelOrderByRelevanceFieldEnum]
+
+
 export const ReactionOrderByRelevanceFieldEnum = {
   comment: 'comment'
 } as const
@@ -4177,6 +4258,29 @@ export const ResourcePreviewOrderByRelevanceFieldEnum = {
 } as const
 
 export type ResourcePreviewOrderByRelevanceFieldEnum = (typeof ResourcePreviewOrderByRelevanceFieldEnum)[keyof typeof ResourcePreviewOrderByRelevanceFieldEnum]
+
+
+export const HybridizerFusionOrderByRelevanceFieldEnum = {
+  id: 'id',
+  leftKey: 'leftKey',
+  rightKey: 'rightKey',
+  recipeVersion: 'recipeVersion',
+  title: 'title',
+  status: 'status'
+} as const
+
+export type HybridizerFusionOrderByRelevanceFieldEnum = (typeof HybridizerFusionOrderByRelevanceFieldEnum)[keyof typeof HybridizerFusionOrderByRelevanceFieldEnum]
+
+
+export const SlimeCityMatchOrderByRelevanceFieldEnum = {
+  id: 'id',
+  mode: 'mode',
+  teamId: 'teamId',
+  foeId: 'foeId',
+  result: 'result'
+} as const
+
+export type SlimeCityMatchOrderByRelevanceFieldEnum = (typeof SlimeCityMatchOrderByRelevanceFieldEnum)[keyof typeof SlimeCityMatchOrderByRelevanceFieldEnum]
 
 
 export const SiteStatDailyOrderByRelevanceFieldEnum = {

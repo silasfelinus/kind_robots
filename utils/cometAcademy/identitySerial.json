@@ -1,0 +1,341 @@
+{
+  "version": 1,
+  "episodes": [
+    {
+      "signature": "accident-fire",
+      "secret": "The gas-main pressure chart shows exactly three erased inspections and a handwritten initials mark from Dez's former boss.",
+      "relationship": "A neighborhood cook offers testimony only if the displaced kitchen staff will still have jobs afterward.",
+      "betrayal": "His former boss proposes torching the inspection originals to spare the workers a public scandal.",
+      "fallout": "The city's restaurants must decide whether the person who saved their kitchens gets to control their safety forever."
+    },
+    {
+      "signature": "accident-air",
+      "secret": "A lightning-rod repair tag bears the airfield owner's signature, but the replacement was installed a week after Pip fell.",
+      "relationship": "A grounded air-traffic controller promises to stay on the runway while Pip attempts her first real landing.",
+      "betrayal": "The airfield insurer will erase Pip's pilot record if she accuses the owner publicly.",
+      "fallout": "Keeping airspace safe now means trusting somebody else to hold the emergency controls while she lands."
+    },
+    {
+      "signature": "accident-earth",
+      "secret": "The transcript proves rescuers were ordered to stop drilling on day six, when Tug was still tapping a rescue rhythm below.",
+      "relationship": "A retired tunnel worker asks Tug to march beside families whose loved ones were never found.",
+      "betrayal": "A contractor offers him the original digging maps if he agrees to collapse the evidence vault after reading them.",
+      "fallout": "The hospital district stands on the same hollow foundations; exposing one crime could open another sinkhole."
+    },
+    {
+      "signature": "accident-water",
+      "secret": "Marisol finds a filtration report recording poisonous discharge on the very day the power company declared the pond safe.",
+      "relationship": "A harbor diver asks for a shared rescue instead of another lone feat that makes the dock workers invisible.",
+      "betrayal": "The company offers free desalination for her family's neighborhood in exchange for one falsified water sample.",
+      "fallout": "The harbor needs clean water long after any television crew leaves, even if the responsible directors remain wealthy."
+    },
+    {
+      "signature": "accident-discipline",
+      "secret": "Kenji discovers the metal fragment's telemetry matches a classified training satellite built to predict human movement.",
+      "relationship": "An exhausted martial arts instructor asks Kenji to demonstrate restraint in front of the cadets who idolize him.",
+      "betrayal": "The defense contractor offers to return his teacher's lost certification if Kenji destroys the surviving telemetry.",
+      "fallout": "He must decide whether perfectly controlled movement can become a public skill rather than another private weapon."
+    },
+    {
+      "signature": "accident-genius",
+      "secret": "Otto finds the sludge formula in a discarded student refrigerator, annotated by a pharmaceutical intern who later disappeared.",
+      "relationship": "A fellow laboratory technician needs her to publish the failed trials without stealing credit for the intern's discovery.",
+      "betrayal": "The lab promises the intern a settlement if Otto signs a patent assignment that hides the risks.",
+      "fallout": "Her breakthrough could cure hundreds, but only if the people exposed to it are allowed to decide its use."
+    },
+    {
+      "signature": "accident-birthright",
+      "secret": "Gus discovers the cape's activation log contains a remote command issued from inside the Valcourt family dining room.",
+      "relationship": "A family driver tells Gus what the estate staff sacrificed to keep the old hero legend spotless.",
+      "betrayal": "A cousin offers an invitation to the family trust board in return for blaming the lightning on a dead servant.",
+      "fallout": "The Valcourt name will survive graduation; the question is who has a right to shelter beneath it."
+    },
+    {
+      "signature": "accident-social",
+      "secret": "Fen recovers a live mixing-board recording proving someone boosted the rooftop broadcast past every safety limit.",
+      "relationship": "A busker who lost their hearing at that show wants the audience to hear their story, not Fen's hit single.",
+      "betrayal": "A talent manager offers Fen a stadium tour if the original neighborhood performers waive their claims.",
+      "fallout": "The city can sing together again only when the overlooked chorus chooses to participate."
+    },
+    {
+      "signature": "mutant-fire",
+      "secret": "Ruby finds a registration transcript with a blank section labeled the memory the state extracted without permission.",
+      "relationship": "A former records clerk asks her to protect the other young mutants whose memories were filed as property.",
+      "betrayal": "The registrar offers Ruby her own missing memory if she helps burn the records of twenty others.",
+      "fallout": "A private identity cannot be reclaimed by selling every other person's right to remember."
+    },
+    {
+      "signature": "mutant-air",
+      "secret": "Corvin follows a feather sale to a couture warehouse where captive mutants are cataloged as rare livestock.",
+      "relationship": "A winged rescue volunteer refuses to be photographed and asks Corvin to make the victims the authors of their own escape.",
+      "betrayal": "The fashion house offers to sponsor protective housing if Corvin keeps its donor list confidential.",
+      "fallout": "The freedom to fly must belong to people who cannot afford a designer costume."
+    },
+    {
+      "signature": "mutant-earth",
+      "secret": "Hattie discovers a childhood seismic monitor stitched into the floorboards of her family's old apartment.",
+      "relationship": "A community geologist believes her footsteps predicted danger, not the disaster the city accused her of causing.",
+      "betrayal": "A developer offers to name a new park after her if she allows a hidden fault line to stay unmapped.",
+      "fallout": "Residents must choose whether to confront a real earthquake warning or preserve the value of their homes."
+    },
+    {
+      "signature": "mutant-water",
+      "secret": "Ilya tracks dead fish back to a factory outlet hidden under a seafood distributor's loading dock.",
+      "relationship": "A fishing crew invites Ilya aboard only if he stops assuming he alone can heal the whole bay.",
+      "betrayal": "The distributor offers to save his family's boat if he agrees that the poisoning was natural.",
+      "fallout": "The harbor's recovery belongs to the crews who endured the poisoned seasons, not to its newest mascot."
+    },
+    {
+      "signature": "mutant-discipline",
+      "secret": "Asha finds decades of visitor logs showing that academy recruiters watched her grandmother's dance classes in secret.",
+      "relationship": "A dancer asks Asha to teach the techniques without turning the dancers into a military talent pipeline.",
+      "betrayal": "A recruiter promises to protect her grandmother's school if Asha names the most gifted children.",
+      "fallout": "Her family's movements were never an admission ticket the academy owned."
+    },
+    {
+      "signature": "mutant-genius",
+      "secret": "Theo obtains the sale ledger for their brain scans and recognizes the signature of a physician they once trusted.",
+      "relationship": "A classmate offers to sit through Theo's headaches while the two decide what information is safe to publish.",
+      "betrayal": "A researcher offers to halt the growth if Theo agrees to model the city's citizens as predictable assets.",
+      "fallout": "Theo cannot forecast the value of love or loyalty by treating everyone as a data point."
+    },
+    {
+      "signature": "mutant-birthright",
+      "secret": "Seraphine finds an entire wing of family portraits painted over where past guardians refused their assigned role.",
+      "relationship": "An elderly guardian who walked away offers her shelter without demanding another oath.",
+      "betrayal": "The family matriarch offers to restore her mother's reputation if Seraphine erases the dissenting portraits.",
+      "fallout": "The next generation deserves a choice about whose wings keep watch over them."
+    },
+    {
+      "signature": "mutant-social",
+      "secret": "Lucky finds the fire-station note in the same handwriting as confidential donor files that map the city's charitable favors.",
+      "relationship": "A foster sibling asks him for friendship without another extraordinary favor they can never repay.",
+      "betrayal": "A benefactor promises to reveal his parents if Lucky agrees to bind the orphanage to their political campaign.",
+      "fallout": "Affection freely chosen carries more weight than any gift extracted through a superpower."
+    },
+    {
+      "signature": "tech-fire",
+      "secret": "Vee proves that an insurer's fire-risk algorithm targeted buildings immediately before its investors bought the land.",
+      "relationship": "A displaced tenant organizer asks Vee to teach ordinary residents how to maintain the safety system.",
+      "betrayal": "A landlord offers to protect her family's rent if she falsifies one crucial sensor reading.",
+      "fallout": "Every apartment saved is evidence that public safety cannot be sold back to the people paying for it."
+    },
+    {
+      "signature": "tech-air",
+      "secret": "Jun-ho uncovers wingsuit patents assigned to the buyer before the complaint that ended his airfield career.",
+      "relationship": "A volunteer flight medic asks him to redesign his glider for carrying patients instead of racing sponsors.",
+      "betrayal": "The buyer offers him his pilot license back for sabotaging a rival emergency air corridor.",
+      "fallout": "The skyline will remember whether he opened a rescue route or claimed its airspace."
+    },
+    {
+      "signature": "tech-earth",
+      "secret": "Delphine extracts a sample showing a municipal tower used decorative steel instead of the promised structural reinforcement.",
+      "relationship": "A construction forewoman wants to testify beside Delphine, not hide behind her armor during the hearing.",
+      "betrayal": "A planning official offers to save a low-income housing block if Delphine condemns the next block instead.",
+      "fallout": "It is easy to build a monument; harder to build a city people can afford to remain in."
+    },
+    {
+      "signature": "tech-water",
+      "secret": "Nalani discovers records showing rescue boats were transferred to a yacht club the day before the coastal storm.",
+      "relationship": "A coast guard mechanic asks for an open repair manual so fishers can fix their own emergency vessels.",
+      "betrayal": "The captain offers a restored boat to Nalani's family if she signs a false salvage report.",
+      "fallout": "Survival at sea cannot depend on whether a person can afford a member's berth."
+    },
+    {
+      "signature": "tech-discipline",
+      "secret": "Marcus finds the safety officer's original training-accident video, with a missing thirty-second interval.",
+      "relationship": "A trainee who suffered the same injury asks Marcus to support a safer program instead of winning a grudge match.",
+      "betrayal": "The academy offers to restore Marcus's medals if he testifies that his injured teammates disobeyed orders.",
+      "fallout": "The perfect drill is worthless if the people running it are treated as replaceable."
+    },
+    {
+      "signature": "tech-genius",
+      "secret": "Lionel's stolen F.R.O.G. leap-gear patent includes a lab addendum proving the enhancement serum causes progressive amphibian mutations. The dean approved the research only after striking out the human-consent clause.",
+      "relationship": "Ada Glass, the chemist who caught the error, invites Lionel to demonstrate his human-powered rescue rig at the hospital. She will not sign the experimental serum waiver, no matter what he promises.",
+      "betrayal": "The institute offers Lionel an exclusive hero license if he injects the serum and lets the company hide evidence of the test subjects. His brilliant human mind might survive; his human body will not.",
+      "fallout": "Dr. Frog must choose between being a human inventor responsible to patients and an amphibian genius who decides their evolution for them. The leap harness was enough to save lives all along."
+    },
+    {
+      "signature": "tech-birthright",
+      "secret": "Bart follows a crate of Sterling weapons from the family factory directly into a gang-owned warehouse.",
+      "relationship": "A whistleblower engineer asks him to protect their family rather than stage a flashy shareholder rebellion.",
+      "betrayal": "His father offers Bart control of the company if he lets the next shipment cross the river.",
+      "fallout": "Inheritance is a tool for restitution or control, but never an excuse to avert your eyes."
+    },
+    {
+      "signature": "tech-social",
+      "secret": "Dani discovers the protester identity leak originated from an account impersonating the volunteer moderation team.",
+      "relationship": "A former protest leader will cooperate only if Dani allows them to speak without an algorithm selecting their words.",
+      "betrayal": "A sponsor offers to restore Dani's public reputation by posting forged evidence against the leaker.",
+      "fallout": "Truth is more than a trend, especially when a frightened witness cannot safely go viral."
+    },
+    {
+      "signature": "magic-fire",
+      "secret": "Hollis learns the salamander has been held inside the candle through seven generations of family bargains.",
+      "relationship": "A firekeeper asks Hollis to negotiate with the creature as a person rather than use it as a spell component.",
+      "betrayal": "A coven offers to release the salamander if Hollis permanently binds another living flame in its place.",
+      "fallout": "The oldest bargain is not sacred merely because nobody has dared ask the flame for consent."
+    },
+    {
+      "signature": "magic-air",
+      "secret": "Ambrose finds a library stamp in the cursed wind book that predates the building by two hundred years.",
+      "relationship": "A librarian asks him to return the stolen pages before the storm erases the memories trapped in the margins.",
+      "betrayal": "A collector offers to restore Ambrose's lost songs if he blames the book's author for the approaching gale.",
+      "fallout": "Stories carried on the wind still belong to the people who lived them."
+    },
+    {
+      "signature": "magic-earth",
+      "secret": "An old tenant deed sewn inside Granny Mayhem's quilt names the harbor boarding house as a protected community shelter. A city land broker had the ownership records erased before the demolition order.",
+      "relationship": "Etta Brooks, the tenant-council chair, invites Mavis to dinner but insists Granny stop speaking for every resident. Love and loyalty cannot be substituted for a neighborhood vote.",
+      "betrayal": "A broker promises to protect Granny's grown children if she stitches all of Comet City into a locked, obedient quilt neighborhood. Her knitting needles are already binding doors before she chooses.",
+      "fallout": "Granny Mayhem can hand her rune needles to the tenants and become their wildest defender, or keep them and turn a city's entire population into her captive family."
+    },
+    {
+      "signature": "magic-water",
+      "secret": "Caspian sees a drowned stranger in the mirror-bowl and realizes the pawnbroker has sold the same vision before.",
+      "relationship": "A water-diviner asks him to hear survivors' accounts instead of treating every reflection as prophecy.",
+      "betrayal": "The pawnbroker promises Caspian the future he wants if he delivers the bowl to a new victim.",
+      "fallout": "A reflection is a possible future, not permission to choose a stranger's fate."
+    },
+    {
+      "signature": "magic-discipline",
+      "secret": "Ada discovers the monastery's refugee denial was paid for with a land deed signed in her own teacher's hand.",
+      "relationship": "A former novice asks her to open the gate to displaced families without demanding conversion or gratitude.",
+      "betrayal": "The order offers to restore her rank if she publicly denounces the people it locked outside.",
+      "fallout": "Discipline means protecting vulnerable people when tradition has failed its own vows."
+    },
+    {
+      "signature": "magic-genius",
+      "secret": "Lucan finds his professor's handwriting in the margins of an equation she publicly claimed to invent.",
+      "relationship": "A doctoral student who still admires the professor begs Lucan to expose the theft without erasing her from existence.",
+      "betrayal": "The professor offers the missing proof if Lucan agrees to make her rival disappear instead.",
+      "fallout": "An elegant proof is no excuse for treating a living person as a removable variable."
+    },
+    {
+      "signature": "magic-birthright",
+      "secret": "Isadora finds her mother's missing diary page folded inside a hearth charm under the family floor.",
+      "relationship": "A distant cousin asks to share their inherited spellbook instead of letting Isadora rule the entire coven.",
+      "betrayal": "The coven elders offer to reveal her mother's whereabouts if she binds the younger witches to her authority.",
+      "fallout": "Home is a place where someone can leave and still be loved, not a throne held together by secrets."
+    },
+    {
+      "signature": "magic-social",
+      "secret": "Remy hears an old crossroads melody reveal the names of understudies who disappeared after accepting applause.",
+      "relationship": "A stagehand asks Remy to give the forgotten performers their names back on opening night.",
+      "betrayal": "The spirit offers him standing ovations forever if he transfers the contract to another actor.",
+      "fallout": "The curtain can rise without anyone selling another soul to keep the audience watching."
+    },
+    {
+      "signature": "alien-fire",
+      "secret": "Ixi traces a faint distress flare to a colony escape pod held beneath a government energy laboratory.",
+      "relationship": "A displaced alien parent asks her to organize transport for the whole family, not rescue only the pod containing her own.",
+      "betrayal": "A scientist offers to return Ixi's records if she signs away the other pods as state property.",
+      "fallout": "A new sun cannot be built from captives whose only crime was surviving the old one."
+    },
+    {
+      "signature": "alien-air",
+      "secret": "Quillon finds a reopened rift that leads home for exactly thirteen seconds every lunar tide.",
+      "relationship": "A local friend asks Quillon to be honest about leaving instead of promising a future they cannot keep.",
+      "betrayal": "An ambassador offers permanent legal status if Quillon shuts the rift before the other refugees arrive.",
+      "fallout": "A home is not a privilege that must be purchased by closing the road to everyone else."
+    },
+    {
+      "signature": "alien-earth",
+      "secret": "Kesh recognizes a family voice vibrating through a meteorite sculpture at a donor's private gallery.",
+      "relationship": "A geologist asks Kesh to consult the surviving fragments before smashing what may be another sleeping person.",
+      "betrayal": "The curator offers to assemble Kesh's kin if Kesh agrees to join the collection voluntarily.",
+      "fallout": "An exhibition of living beings is still a prison even when the patrons call it preservation."
+    },
+    {
+      "signature": "alien-water",
+      "secret": "Thessaly learns the whirlpool is a lifeboat beacon whose origin world may already have vanished.",
+      "relationship": "A lighthouse keeper invites her to choose Comet City without pretending her lost ocean never existed.",
+      "betrayal": "An oceanic syndicate offers to reopen the beacon in exchange for ownership of the harbor tides.",
+      "fallout": "No one owns the sea just because they understand its current better than their neighbors."
+    },
+    {
+      "signature": "alien-discipline",
+      "secret": "Zuzu's cracked portal compass contains a murder warrant signed by the same guild broker who built Comet City's hidden extradimensional transit registry. The named victim is an innocent refugee child.",
+      "relationship": "Sable Fern offers Zuzu a place in her refugee household and asks him to explain his oath without the sword in his hand. He is invited as a person, not hired as protection.",
+      "betrayal": "His old assassin guild offers safe passage home and a restored name if Zuzu completes one final execution. A black clockwork suit and forbidden portal keys arrive with the order.",
+      "fallout": "Zuzu, Koala Assassin can cut the warrants and let refugees choose their own futures, or accept the portal keys and become a small, terrifying judge who can strike anyone between seconds."
+    },
+    {
+      "signature": "alien-genius",
+      "secret": "Oorin decodes an observation stream proving his civilization has been treating Earth as a social experiment.",
+      "relationship": "A local research assistant asks him to acknowledge the people whose lives his home world's findings have damaged.",
+      "betrayal": "His supervisor offers safe passage home if he conceals the ethics violations from Earth's citizens.",
+      "fallout": "True discovery requires letting the people being studied decide whether the experiment continues."
+    },
+    {
+      "signature": "alien-birthright",
+      "secret": "Ysolde finds a scratched mirror edge engraved with her foster mother's private lullaby from another universe.",
+      "relationship": "A palace servant asks Ysolde to keep the refugee children safe before seeking her stolen throne.",
+      "betrayal": "A regent offers the royal crown if she condemns her foster mother as an impostor.",
+      "fallout": "A crown from one universe cannot erase the debts of love in the world that raised her."
+    },
+    {
+      "signature": "alien-social",
+      "secret": "Pellanor discovers the crash beacon was deliberately severed from their collective just as a rescue fleet approached.",
+      "relationship": "A solitary radio operator offers friendship that cannot be voted into existence by a chorus of minds.",
+      "betrayal": "The collective offers instant reunion if Pellanor supplies its leaders with the city's private thoughts.",
+      "fallout": "Belonging matters only when a dissenting voice may still say no."
+    },
+    {
+      "signature": "psychic-fire",
+      "secret": "Cassidy discovers a second prescription label describing emotional ignition as a profitable treatment side effect.",
+      "relationship": "A clinic counselor asks Cassidy to sit with survivors without trying to burn away their fear.",
+      "betrayal": "The manufacturer offers a cure for Cassidy's pain if the trial patients are declared mentally unstable.",
+      "fallout": "An honest flame can illuminate medical abuse without consuming the people living through it."
+    },
+    {
+      "signature": "psychic-air",
+      "secret": "Avery finds an old family photograph showing their grandmother hovering inches above a dance floor.",
+      "relationship": "A relative asks Avery to tell their parents gently before the press turns family history into a conspiracy.",
+      "betrayal": "A collector offers proof of the grandmother's powers if Avery agrees to steal her hospital file.",
+      "fallout": "Flight is freedom, not the obligation to carry a family's secrets indefinitely."
+    },
+    {
+      "signature": "psychic-earth",
+      "secret": "Rafa senses a witness trapped in the stone foundation of city hall, still repeating the date of a buried crime.",
+      "relationship": "A community historian asks Rafa to protect living descendants rather than dramatize the old scandal.",
+      "betrayal": "A councillor offers public exoneration if Rafa seals the confession back into the cornerstone.",
+      "fallout": "A city built on stolen land must learn to hear the people under its monuments."
+    },
+    {
+      "signature": "psychic-water",
+      "secret": "Lior discovers his mother's medication was altered by a wellness clinic marketing borrowed happiness as treatment.",
+      "relationship": "A nurse asks Lior to support his mother's own choices instead of absorbing every sadness she feels.",
+      "betrayal": "The clinic promises relief from his emotional overload if he transfers his mother's grief into strangers.",
+      "fallout": "Care is not the same as control, and love cannot substitute for another person's medical agency."
+    },
+    {
+      "signature": "psychic-discipline",
+      "secret": "Mei Lin finds the names of secret school graduates crossed out after the library's trustees signed a censorship contract.",
+      "relationship": "A retired librarian asks her to restore the lost students' voices without turning their memories into a weapon.",
+      "betrayal": "The trustees offer to reopen her training hall if she erases the last witness to the school purge.",
+      "fallout": "Stillness can protect frightened people, but silence imposed by power is another kind of prison."
+    },
+    {
+      "signature": "psychic-genius",
+      "secret": "Ezra finds an entrance-exam recording proving the person who sold him answers worked for the scholarship committee.",
+      "relationship": "A classmate asks him to admit the cheating without inviting the academy to expel students who helped him study afterward.",
+      "betrayal": "The committee offers Ezra an honors diploma if he falsely accuses the student who warned him.",
+      "fallout": "Belonging begins when he can succeed in public without stealing anyone else's chance."
+    },
+    {
+      "signature": "psychic-birthright",
+      "secret": "Celestine discovers her own name in a prom disaster prophecy dated before the academy was built.",
+      "relationship": "A dancer asks her to experience one ordinary evening without trying to script everyone else's tomorrow.",
+      "betrayal": "A cult offers to prevent the vision if she engineers one smaller sacrifice before the last dance.",
+      "fallout": "Foreknowledge is an invitation to change a future, not a license to punish people for a fate they never chose."
+    },
+    {
+      "signature": "psychic-social",
+      "secret": "Juniper traces the devastating leak to a trusted news editor who sold one witness's private grief to a campaign.",
+      "relationship": "A friend agrees to share their secret only if Juniper promises not to turn it into a headline.",
+      "betrayal": "The editor offers her a famous investigative column if she publishes an innocent source's identity.",
+      "fallout": "Trust can survive a public confession, but not a secret transaction made with someone else's dignity."
+    }
+  ]
+}

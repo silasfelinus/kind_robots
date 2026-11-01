@@ -6,7 +6,7 @@ export const BRIAR_MARCHES_SECOND_BATCH: Record<string, BriarScene> = {
     opening:
       "A courier in a red hood grips a sealed letter so tightly the wax has cracked. The grandmother waiting at the cottage has sent the courier on this route fourteen times, but the same wolf quietly escorts her through the thorns on each trip. Tonight the wolf refuses to approach the door. 'She doesn't want me eaten,' the courier says. 'She wants me to sign for something.'",
     artPrompt:
-      'Western animation dark Brothers Grimm scene red-hooded adult courier by crooked cottage door watched by protective gray wolf from forest, twilight thorns, unsettling warmth, cinematic original game illustration',
+      'An adult courier in a red hooded cloak stands at the crooked door of a small thatched cottage, gripping an envelope with a cracked red wax seal. A grey wolf watches from the thorn bushes behind, ears forward, several steps back from the path. Twilight blue sky, warm lamplight in the cottage window. Medium-wide shot. Hand-painted gouache and ink illustration in muted moss green, ember orange and slate blue.',
     callbacks: [
       {
         at: '2,2',
@@ -36,7 +36,7 @@ export const BRIAR_MARCHES_SECOND_BATCH: Record<string, BriarScene> = {
     opening:
       'An exhausted field cook is boiling rainwater in a dented pot. They possess a spoon that tastes of whatever meal its holder most desperately misses. Nobody can live on its enchantment, though people have paid all their wages to remember a birthday dinner. The cook has forgotten whether they ever tasted the food they sell.',
     artPrompt:
-      'Dark fantasy painted folk tale roadside kitchen weary middle-aged cook holding bent silver spoon glowing with memories of real dinner, wide practical hands, no glamour, woodland firelight',
+      "A weary middle-aged field cook with rolled sleeves and broad calloused hands sits by a roadside campfire, holding up a bent silver spoon that gives off a soft golden glow. A dented iron pot of rainwater boils over the flames. Dark woodland behind, warm firelight on the cook's face from below. Medium close-up. Hand-painted gouache and ink illustration in muted moss green, ember orange and slate blue.",
     callbacks: [
       {
         at: '1,4',
@@ -67,7 +67,7 @@ export const BRIAR_MARCHES_SECOND_BATCH: Record<string, BriarScene> = {
     opening:
       'Every bird in the misty firs wears a tiny bell. The bells never ring together; their staggered toll counts something happening beyond sight. A gravekeeper claims forty-five rings warn of a hunting party, but a child insists the count is a roll call of people the forest is trying not to forget.',
     artPrompt:
-      'Dark painterly fairytale fir forest many birds with little brass bells flying in patterned lines, cloaked gravekeeper and attentive child listening, mist-covered tower in distance, visual puzzle art',
+      'A misty forest of tall firs where dozens of small brown birds fly in staggered lines, each wearing a tiny brass bell on a ribbon around its neck. On the path below, a cloaked old gravekeeper with a shovel and a small girl in a red scarf look up, the girl counting on her fingers. A grey stone tower rises through the mist in the distance. Soft grey morning light. Wide shot. Hand-painted gouache and ink illustration in muted moss green, ember orange and slate blue.',
     callbacks: [
       {
         at: '7,1',
@@ -97,7 +97,7 @@ export const BRIAR_MARCHES_SECOND_BATCH: Record<string, BriarScene> = {
     opening:
       'A wedding procession circles the abandoned mill even though the groom vanished three storms ago. The bride refuses to be called a widow because no one has found a body. The village priest insists the vows belong to the weather itself now, and the rain keeps arriving in a shape like a familiar face.',
     artPrompt:
-      'Western animated mature fairy-tale bride in storm-worn travel dress leading eerie candlelit procession around abandoned mill, stormcloud rain silhouette of missing partner, lush dramatic scene',
+      "A wedding procession carrying candles circles an abandoned stone mill in heavy rain. At its head, a bride in a storm-soaked travel dress and veil carries a bouquet of wet wildflowers. In the falling rain beside her, the streaks of water form the outline of a man's face and shoulders. A village priest in black follows with a book. Stormy grey light, small candle flames. Wide shot. Hand-painted gouache and ink illustration in muted moss green, ember orange and slate blue.",
     callbacks: [
       {
         at: '5,1',
@@ -128,7 +128,7 @@ export const BRIAR_MARCHES_SECOND_BATCH: Record<string, BriarScene> = {
     opening:
       "The mill turns against the river, grinding scraps of written testimony into pale flour. A miller says the flour makes bread that tastes like someone's childhood, but each loaf erases one line from the town's public records. The wheel has begun repeating the same three missing words with every turn.",
     artPrompt:
-      'Surreal dark fantasy water mill with enormous gears turning upstream and handwritten words drifting like flour in moonlight, overworked miller, visually clear three-symbol wheel puzzle',
+      'A tall wooden water mill on a dark river at night, its great wheel turning against the current. Pale flour drifts above the millstones and glows faintly white. An overworked miller in a flour-dusted apron stands in the doorway holding a round loaf. Three large carved marks on the wheel rim glow brighter than the rest. Moonlight from above. Wide shot from the riverbank. Hand-painted gouache and ink illustration in muted moss green, ember orange and slate blue.',
     callbacks: [
       {
         at: '2,3',
@@ -158,7 +158,7 @@ export const BRIAR_MARCHES_SECOND_BATCH: Record<string, BriarScene> = {
     opening:
       "Two newlyweds hide beneath a bridge wearing each other's wedding clothes, determined to confuse the law. A registrar has declared that one of them must transform into a beast before their marriage can be recognized. Neither knows which, and they intend to stay stubbornly human through the ceremony.",
     artPrompt:
-      'Fairy tale stone bridge dusk, two laughing sturdy adult newlyweds hiding in mismatched formal outfits and exchanging wedding garments, stern royal registrar with long parchment approaching, whimsical dark graphic novel style',
+      "Under an arched stone bridge at dusk, two laughing sturdy adult newlyweds crouch in the shallows wearing each other's wedding clothes, one in a lace gown with sleeves too short, the other in a tailcoat that drags in the water. On the bridge above, a stern royal registrar in a black robe unrolls a long parchment. Warm sunset light. Wide shot. Hand-painted gouache and ink illustration in muted moss green, ember orange and slate blue.",
     callbacks: [
       {
         at: '2,3',
@@ -187,7 +187,7 @@ export const BRIAR_MARCHES_SECOND_BATCH: Record<string, BriarScene> = {
     opening:
       "A gaunt traveler waits at the crossroads and asks only one question: 'Have you eaten?' Behind them hovers a famine spirit drawn to false answers, not empty stomachs. The traveler admits stealing a crust last week. The spirit will follow until someone decides whether survival counts as theft.",
     artPrompt:
-      'Dark animated Gothic fairytale crossroads cold hungry wanderer with simple pack, abstract famine spirit made of empty dinner plates, distant winter fields, humane unsettling adult adventure art',
+      'At a crossroads of frozen dirt roads, a gaunt traveller with a small pack and a thin coat holds out one hand in greeting. Behind them floats a tall pale figure built from stacked empty white dinner plates, with two dark round holes for eyes. Snowy winter fields stretch away under a grey sky. Medium-wide shot. Hand-painted gouache and ink illustration in muted moss green, ember orange and slate blue.',
     callbacks: [
       {
         at: '3,3',
@@ -216,7 +216,7 @@ export const BRIAR_MARCHES_SECOND_BATCH: Record<string, BriarScene> = {
     opening:
       'An iron harp grows out of the fence, strung with thorns that ring out notes instead of drawing blood. The keeper offers two keys, one opening a shortcut and the other closing a path used by wolves. The instrument remembers the count of bells and the rhythm of the protective patrol.',
     artPrompt:
-      'Intricate gothic fairytale thorn harp gate with glowing strings and a choice of two differently shaped iron keys, moody forest shortcut beyond, symbolic musical puzzle art with readable silhouettes',
+      'An iron harp grows out of a wooden fence at the edge of a forest path, its strings made of long thorny vines that glow faint gold. Two iron keys hang from a hook on the fence, one long and straight, one short with a round bow. A shadowed shortcut path leads away behind it. Grey-blue dusk light. Medium close-up. Hand-painted gouache and ink illustration in muted moss green, ember orange and slate blue.',
     callbacks: [
       {
         at: '2,2',
@@ -245,7 +245,7 @@ export const BRIAR_MARCHES_SECOND_BATCH: Record<string, BriarScene> = {
     opening:
       "A well returns everything dropped into it exactly seven days later. A desperate traveler has been feeding it coins every morning, borrowing next week's money to settle yesterday's debts. At the bottom, a voice keeps receipts for promises nobody meant to make.",
     artPrompt:
-      'Moody fairy tale wishing well with dated coins suspended in magical water and weary traveler counting borrowed money, faint ledger-like reflections and lanternlit stone rim, cinematic narrative puzzle art',
+      'A round stone well beneath an oak at dawn. A desperate traveller in a threadbare coat kneels at its rim counting copper coins into his palm. Seven small paper slips are weighted with pebbles along the rim, and coins glint deep in the water. Pale dawn light, a lantern on the rim. Medium shot from beside the well. Hand-painted gouache and ink illustration in muted moss green, ember orange and slate blue.',
     callbacks: [
       {
         at: '5,1',
@@ -276,7 +276,7 @@ export const BRIAR_MARCHES_SECOND_BATCH: Record<string, BriarScene> = {
     opening:
       "The royal tailor's measuring tape wraps itself around every visitor's promises instead of their waist. A courier is accused of wearing a borrowed identity; the tape measures them as two people. The tailor swears the instrument has never made an error, but its scale keeps moving when someone tells the truth.",
     artPrompt:
-      'Western animation gothic fantasy tailor shop clothesline of coats with embroidered promises, enchanted floating measuring tape around androgynous courier, thoughtful sturdy tailor, exquisite fabrics not glamour',
+      "Inside a cramped tailor's shop hung with coats on lines, a sturdy grey-haired tailor with pins between her lips watches a cloth measuring tape float in two loops around a slim androgynous courier. Bolts of wool and velvet fill the shelves. Warm window light from the left. Medium shot. Hand-painted gouache and ink illustration in muted moss green, ember orange and slate blue.",
     callbacks: [
       {
         at: '1,4',
@@ -306,7 +306,7 @@ export const BRIAR_MARCHES_SECOND_BATCH: Record<string, BriarScene> = {
     opening:
       'An abandoned barn remembers a childhood the village insists never occurred. Inside, chalk marks on the beams describe secret games played by a group whose names have vanished from school records. The roof creaks with laughter whenever someone says the children were imaginary.',
     artPrompt:
-      'Haunting painted fairy tale barn interior moonbeams through rafters old chalk games and ghostly handprints, quiet community mystery with no ghosts on display, mature western-animated storybook',
+      'Inside an abandoned wooden barn, moonbeams fall through gaps in the rafters onto old chalk hopscotch squares on the floor and small chalk handprints on the beams. Dust floats in the light above empty hay bales. Cold blue moonlight. Wide interior shot. Hand-painted gouache and ink illustration in muted moss green, ember orange and slate blue.',
     callbacks: [
       {
         at: '7,7',
@@ -337,7 +337,7 @@ export const BRIAR_MARCHES_SECOND_BATCH: Record<string, BriarScene> = {
     opening:
       "Only one apple hangs from the orchard's final living branch. The fruit remembers the hands that once worked here: a baker's hands, a thief's, a queen's, and a child's whose name has been scratched from the harvest ledger. The tree asks what being the last should mean.",
     artPrompt:
-      'Atmospheric Grimm fairy tale last glowing apple on ancient gnarled tree above empty orchard, indistinct remembered hands in leaves, warm and eerie painterly fantasy landscape',
+      'A single glowing red apple hangs from the last living branch of an ancient gnarled apple tree above an empty orchard of bare trees. Pale handprints mark the bark of the trunk. Warm late evening light. Low-angle medium shot. Hand-painted gouache and ink illustration in muted moss green, ember orange and slate blue.',
     callbacks: [
       {
         at: '1,7',
@@ -367,7 +367,7 @@ export const BRIAR_MARCHES_SECOND_BATCH: Record<string, BriarScene> = {
     opening:
       'A village tribunal has charged a witch with causing the winter she predicted in a public almanac. The witch has brought twenty years of weather records, but the magistrate insists proof of foresight is the same as proof of guilt. Snow has started falling through the courtroom roof.',
     artPrompt:
-      'Dark whimsical fairytale open-air court under falling snow, unflinching older witch displaying detailed weather calendar before pompous magistrate, villagers in winter coats, original cinematic adventure art',
+      'An open-air village court under a crooked oak in falling snow. An older witch in a dark shawl holds up a long hand-drawn weather calendar before a pompous magistrate in a fur-trimmed robe at a wooden bench. Villagers in winter coats sit on benches with snow on their hats. Cold grey light. Wide shot. Hand-painted gouache and ink illustration in muted moss green, ember orange and slate blue.',
     callbacks: [
       {
         at: '1,8',
@@ -397,7 +397,7 @@ export const BRIAR_MARCHES_SECOND_BATCH: Record<string, BriarScene> = {
     opening:
       'A metal blossom grows from a cracked roadside shrine. A wedding party passed this way years ago, swearing to remember one another even if the kingdom edited their names. One vow remains trapped in the flower, and the shrine asks whether it should belong to the lovers or to whoever finds it.',
     artPrompt:
-      'Painterly fairy tale shrine rusted tin blossom with thin glowing vow ribbons, abandoned wedding procession traces along foggy woodland path, tragic but tender cinematic videogame concept art',
+      'A cracked stone roadside shrine with a small rusted tin flower growing out of it, thin pale ribbons tied to its stem. Old wedding petals and a dropped white glove lie along a foggy woodland path. Soft grey morning light. Medium close-up. Hand-painted gouache and ink illustration in muted moss green, ember orange and slate blue.',
     callbacks: [
       {
         at: '2,3',
@@ -427,7 +427,7 @@ export const BRIAR_MARCHES_SECOND_BATCH: Record<string, BriarScene> = {
     opening:
       'A clever attorney has bought the rights to every loaf of bread baked with remembered words. They offer to defend the hungry in court, provided the clients surrender their future thanks. A stack of contracts stands as tall as the attorney, and the ink keeps forming new clauses.',
     artPrompt:
-      'Dark animated fairytale courtroom under crooked tree charismatic sharp-eyed short attorney in patched judicial robes with towering contracts and loaf of bread as exhibit, absurd and threatening graphic-novel scene',
+      'A village courtroom set up under a crooked tree. A short sharp-eyed attorney in patched judicial robes stands beside a stack of paper contracts as tall as they are, one hand resting on a loaf of bread on the evidence table. Hungry villagers sit on benches. Afternoon light. Medium-wide shot. Hand-painted gouache and ink illustration in muted moss green, ember orange and slate blue.',
     callbacks: [
       {
         at: '3,3',
@@ -458,7 +458,7 @@ export const BRIAR_MARCHES_SECOND_BATCH: Record<string, BriarScene> = {
     opening:
       'A miniature throne has appeared on a stump. Anyone who sits on it becomes monarch of the surrounding three footsteps, and every nearby neighbor receives a bill for the privilege. The village children hold an election to decide whether a kingdom this small should exist at all.',
     artPrompt:
-      'Whimsical mature Grimm fantasy tiny gilded throne on mossy stump surrounded by outraged villagers and children with paper ballots, theatrical dark storybook videogame scene',
+      'A tiny gilded throne sits on a mossy tree stump in a village square. Around it, outraged adult villagers wave paper bills, while a line of children drop folded paper slips into a wooden box beside the stump. Bright midday light. Wide shot. Hand-painted gouache and ink illustration in muted moss green, ember orange and slate blue.',
     callbacks: [
       {
         at: '7,1',

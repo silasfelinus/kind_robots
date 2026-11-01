@@ -1,9 +1,12 @@
 import { buildCrystalStreetPlaybook } from './crystalStreet'
+import { buildCthulhuquariumPlaybook } from './cthulhuquarium'
 import { buildEcotonePlaybook } from './ecotone'
 import { buildEmperorOfDustPlaybook } from './emperorOfDust'
 import { buildGamebookPlaybook } from './gamebook'
+import { buildMemoryDungeonPlaybook } from './memoryDungeon'
 import { KIT_STUDIO_PREFIX, buildKitPlaybook } from './kit'
 import { buildPromOfDoomPlaybook } from './promOfDoom'
+import { buildRulerHookedPlaybook } from './rulerHooked'
 import { buildShiftingDesksPlaybook } from './shiftingDesks'
 import { buildShiftingLandsPlaybook } from './shiftingLands'
 import { buildThisMeansWarpPlaybook } from './thisMeansWarp'
@@ -57,15 +60,33 @@ const AUTHORED_GAMES = [
   },
   {
     id: 'game-of-captains',
-    title: 'This Means Warp',
+    title: 'Space Couch',
     cover: '/game-of-captains/front/splash.webp',
     build: buildThisMeansWarpPlaybook,
   },
   {
     id: 'comet-city-academy',
-    title: 'Capes & Tassels: Prom of Doom',
+    title: 'Prom of Doom',
     cover: '/comet-city-academy/front/splash.webp',
     build: buildPromOfDoomPlaybook,
+  },
+  {
+    id: 'memory-dungeon',
+    title: 'Memory Dungeon',
+    cover: '/memory-dungeon/front/hero.webp',
+    build: buildMemoryDungeonPlaybook,
+  },
+  {
+    id: 'cthulhuquarium',
+    title: 'Cthulhuquarium',
+    cover: '/cthulhuquarium-front/hero.webp',
+    build: buildCthulhuquariumPlaybook,
+  },
+  {
+    id: 'ruler-hooked',
+    title: 'The Ruler Is Hooked',
+    cover: '/ruler-hooked/hero.webp',
+    build: buildRulerHookedPlaybook,
   },
 ] as const
 

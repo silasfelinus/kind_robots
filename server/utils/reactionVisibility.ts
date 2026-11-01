@@ -63,6 +63,7 @@ const OWNED_TARGETS = [
   'dream',
   'facet',
   'project',
+  'plumberLevel',
   'prompt',
   'resource',
   'reward',

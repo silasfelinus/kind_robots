@@ -19,7 +19,7 @@ export const SHARE_PREVIEWS: readonly SharePreview[] = [
   {
     route: '/play/comet-city-academy',
     image: '/comet-city-academy/front/dashboard-highlight.webp',
-    title: 'Capes & Tassels',
+    title: 'Prom of Doom',
     description: 'Pick a superpower, dispatch classmates, and survive prom.',
   },
   {
@@ -111,7 +111,7 @@ export const SHARE_PREVIEWS: readonly SharePreview[] = [
   },
   {
     route: '/storybook',
-    image: '/images/channels/play/channel.webp',
+    image: '/storybook-art/dashboard-highlight.webp',
     title: 'Storybook',
     description: 'Weave your own worlds, characters and branching tales.',
   },

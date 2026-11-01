@@ -477,6 +477,7 @@ export const ModelName = {
   NarratorThread: 'NarratorThread',
   PitchSheet: 'PitchSheet',
   Prompt: 'Prompt',
+  PlumberLevel: 'PlumberLevel',
   Reaction: 'Reaction',
   Resource: 'Resource',
   Reward: 'Reward',
@@ -526,6 +527,9 @@ export const ModelName = {
   AppRepo: 'AppRepo',
   MediaEntry: 'MediaEntry',
   ResourcePreview: 'ResourcePreview',
+  HybridizerFusion: 'HybridizerFusion',
+  SlimeCityAccount: 'SlimeCityAccount',
+  SlimeCityMatch: 'SlimeCityMatch',
   SiteStatDaily: 'SiteStatDaily',
   TzaddikCandidate: 'TzaddikCandidate',
   TzaddikCandidateTag: 'TzaddikCandidateTag',
@@ -545,7 +549,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "agentProfile" | "agentProfileCredential" | "agentCheckIn" | "agentNote" | "arcadeScore" | "arcadeReview" | "arcadeGuestRating" | "archiveEntry" | "archiveActionPreset" | "brainstormSession" | "brainstormCandidate" | "comicSeries" | "comicEntity" | "comicSlot" | "comicAttempt" | "comicIssue" | "comicCritique" | "facetAlias" | "facetProfile" | "characterFacet" | "botFacet" | "rewardFacet" | "mandarinAudioAsset" | "mandarinCatalogOverride" | "mandarinCatalogChange" | "mandarinLessonProgress" | "mandarinPointEvent" | "mandarinLearnerProfile" | "mandarinRequestedCard" | "mandarinCustomSet" | "mandarinArtJobLink" | "mandarinCardProgress" | "mandarinReviewEvent" | "modelBuildRun" | "modelBuildItem" | "modelBuildArtifact" | "modelBuildRevision" | "musicVideo" | "playbookEdit" | "playbookNote" | "playbookRunReview" | "projectPageContent" | "artImage" | "artCollection" | "bot" | "character" | "chat" | "dream" | "dreamRelation" | "project" | "facet" | "dreamFacet" | "scenarioFacet" | "projectFacet" | "projectArtImage" | "projectArtCollection" | "entityArtImage" | "facetArtImage" | "facetArtCollection" | "facetRelation" | "expressionMedia" | "expressionTransition" | "log" | "achievement" | "manaTransaction" | "revenueSplit" | "socialPostDraft" | "missionRemittance" | "product" | "order" | "orderItem" | "entitlement" | "printJob" | "grant" | "pack" | "achievementRecord" | "narratorTopic" | "narratorThread" | "pitchSheet" | "prompt" | "reaction" | "resource" | "reward" | "scenario" | "server" | "serverHealthCheck" | "sceneAnimatorPrompt" | "smartIcon" | "theme" | "user" | "stylistClient" | "stylistAppointment" | "artJob" | "queueControl" | "downloadRequest" | "karmaTransaction" | "referral" | "userRelation" | "userRole" | "todo" | "challenge" | "challengeSubmission" | "contender" | "endingDeck" | "lifeRun" | "lifeChoice" | "lifeStat" | "lifeEnding" | "lifeAchievement" | "lifeAchievementUnlock" | "lifeRunArt" | "aquarium" | "aquariumStock" | "aquariumSet" | "aquariumDecor" | "aquariumEgg" | "aquariumCodexEntry" | "monster" | "aquariumEvent" | "authToken" | "agentCredential" | "conversation" | "conversationParticipant" | "directMessage" | "notification" | "githubInstallation" | "appRepo" | "mediaEntry" | "resourcePreview" | "siteStatDaily" | "tzaddikCandidate" | "tzaddikCandidateTag" | "tzaddikRecheckRequest"
+    modelProps: "agentProfile" | "agentProfileCredential" | "agentCheckIn" | "agentNote" | "arcadeScore" | "arcadeReview" | "arcadeGuestRating" | "archiveEntry" | "archiveActionPreset" | "brainstormSession" | "brainstormCandidate" | "comicSeries" | "comicEntity" | "comicSlot" | "comicAttempt" | "comicIssue" | "comicCritique" | "facetAlias" | "facetProfile" | "characterFacet" | "botFacet" | "rewardFacet" | "mandarinAudioAsset" | "mandarinCatalogOverride" | "mandarinCatalogChange" | "mandarinLessonProgress" | "mandarinPointEvent" | "mandarinLearnerProfile" | "mandarinRequestedCard" | "mandarinCustomSet" | "mandarinArtJobLink" | "mandarinCardProgress" | "mandarinReviewEvent" | "modelBuildRun" | "modelBuildItem" | "modelBuildArtifact" | "modelBuildRevision" | "musicVideo" | "playbookEdit" | "playbookNote" | "playbookRunReview" | "projectPageContent" | "artImage" | "artCollection" | "bot" | "character" | "chat" | "dream" | "dreamRelation" | "project" | "facet" | "dreamFacet" | "scenarioFacet" | "projectFacet" | "projectArtImage" | "projectArtCollection" | "entityArtImage" | "facetArtImage" | "facetArtCollection" | "facetRelation" | "expressionMedia" | "expressionTransition" | "log" | "achievement" | "manaTransaction" | "revenueSplit" | "socialPostDraft" | "missionRemittance" | "product" | "order" | "orderItem" | "entitlement" | "printJob" | "grant" | "pack" | "achievementRecord" | "narratorTopic" | "narratorThread" | "pitchSheet" | "prompt" | "plumberLevel" | "reaction" | "resource" | "reward" | "scenario" | "server" | "serverHealthCheck" | "sceneAnimatorPrompt" | "smartIcon" | "theme" | "user" | "stylistClient" | "stylistAppointment" | "artJob" | "queueControl" | "downloadRequest" | "karmaTransaction" | "referral" | "userRelation" | "userRole" | "todo" | "challenge" | "challengeSubmission" | "contender" | "endingDeck" | "lifeRun" | "lifeChoice" | "lifeStat" | "lifeEnding" | "lifeAchievement" | "lifeAchievementUnlock" | "lifeRunArt" | "aquarium" | "aquariumStock" | "aquariumSet" | "aquariumDecor" | "aquariumEgg" | "aquariumCodexEntry" | "monster" | "aquariumEvent" | "authToken" | "agentCredential" | "conversation" | "conversationParticipant" | "directMessage" | "notification" | "githubInstallation" | "appRepo" | "mediaEntry" | "resourcePreview" | "hybridizerFusion" | "slimeCityAccount" | "slimeCityMatch" | "siteStatDaily" | "tzaddikCandidate" | "tzaddikCandidateTag" | "tzaddikRecheckRequest"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -5829,6 +5833,72 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    PlumberLevel: {
+      payload: Prisma.$PlumberLevelPayload<ExtArgs>
+      fields: Prisma.PlumberLevelFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.PlumberLevelFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PlumberLevelPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.PlumberLevelFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PlumberLevelPayload>
+        }
+        findFirst: {
+          args: Prisma.PlumberLevelFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PlumberLevelPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.PlumberLevelFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PlumberLevelPayload>
+        }
+        findMany: {
+          args: Prisma.PlumberLevelFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PlumberLevelPayload>[]
+        }
+        create: {
+          args: Prisma.PlumberLevelCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PlumberLevelPayload>
+        }
+        createMany: {
+          args: Prisma.PlumberLevelCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        delete: {
+          args: Prisma.PlumberLevelDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PlumberLevelPayload>
+        }
+        update: {
+          args: Prisma.PlumberLevelUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PlumberLevelPayload>
+        }
+        deleteMany: {
+          args: Prisma.PlumberLevelDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.PlumberLevelUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        upsert: {
+          args: Prisma.PlumberLevelUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PlumberLevelPayload>
+        }
+        aggregate: {
+          args: Prisma.PlumberLevelAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregatePlumberLevel>
+        }
+        groupBy: {
+          args: Prisma.PlumberLevelGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.PlumberLevelGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.PlumberLevelCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.PlumberLevelCountAggregateOutputType> | number
+        }
+      }
+    }
     Reaction: {
       payload: Prisma.$ReactionPayload<ExtArgs>
       fields: Prisma.ReactionFieldRefs
@@ -9063,6 +9133,204 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    HybridizerFusion: {
+      payload: Prisma.$HybridizerFusionPayload<ExtArgs>
+      fields: Prisma.HybridizerFusionFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.HybridizerFusionFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$HybridizerFusionPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.HybridizerFusionFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$HybridizerFusionPayload>
+        }
+        findFirst: {
+          args: Prisma.HybridizerFusionFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$HybridizerFusionPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.HybridizerFusionFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$HybridizerFusionPayload>
+        }
+        findMany: {
+          args: Prisma.HybridizerFusionFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$HybridizerFusionPayload>[]
+        }
+        create: {
+          args: Prisma.HybridizerFusionCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$HybridizerFusionPayload>
+        }
+        createMany: {
+          args: Prisma.HybridizerFusionCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        delete: {
+          args: Prisma.HybridizerFusionDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$HybridizerFusionPayload>
+        }
+        update: {
+          args: Prisma.HybridizerFusionUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$HybridizerFusionPayload>
+        }
+        deleteMany: {
+          args: Prisma.HybridizerFusionDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.HybridizerFusionUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        upsert: {
+          args: Prisma.HybridizerFusionUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$HybridizerFusionPayload>
+        }
+        aggregate: {
+          args: Prisma.HybridizerFusionAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateHybridizerFusion>
+        }
+        groupBy: {
+          args: Prisma.HybridizerFusionGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.HybridizerFusionGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.HybridizerFusionCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.HybridizerFusionCountAggregateOutputType> | number
+        }
+      }
+    }
+    SlimeCityAccount: {
+      payload: Prisma.$SlimeCityAccountPayload<ExtArgs>
+      fields: Prisma.SlimeCityAccountFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.SlimeCityAccountFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SlimeCityAccountPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.SlimeCityAccountFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SlimeCityAccountPayload>
+        }
+        findFirst: {
+          args: Prisma.SlimeCityAccountFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SlimeCityAccountPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.SlimeCityAccountFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SlimeCityAccountPayload>
+        }
+        findMany: {
+          args: Prisma.SlimeCityAccountFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SlimeCityAccountPayload>[]
+        }
+        create: {
+          args: Prisma.SlimeCityAccountCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SlimeCityAccountPayload>
+        }
+        createMany: {
+          args: Prisma.SlimeCityAccountCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        delete: {
+          args: Prisma.SlimeCityAccountDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SlimeCityAccountPayload>
+        }
+        update: {
+          args: Prisma.SlimeCityAccountUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SlimeCityAccountPayload>
+        }
+        deleteMany: {
+          args: Prisma.SlimeCityAccountDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.SlimeCityAccountUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        upsert: {
+          args: Prisma.SlimeCityAccountUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SlimeCityAccountPayload>
+        }
+        aggregate: {
+          args: Prisma.SlimeCityAccountAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateSlimeCityAccount>
+        }
+        groupBy: {
+          args: Prisma.SlimeCityAccountGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.SlimeCityAccountGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.SlimeCityAccountCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.SlimeCityAccountCountAggregateOutputType> | number
+        }
+      }
+    }
+    SlimeCityMatch: {
+      payload: Prisma.$SlimeCityMatchPayload<ExtArgs>
+      fields: Prisma.SlimeCityMatchFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.SlimeCityMatchFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SlimeCityMatchPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.SlimeCityMatchFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SlimeCityMatchPayload>
+        }
+        findFirst: {
+          args: Prisma.SlimeCityMatchFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SlimeCityMatchPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.SlimeCityMatchFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SlimeCityMatchPayload>
+        }
+        findMany: {
+          args: Prisma.SlimeCityMatchFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SlimeCityMatchPayload>[]
+        }
+        create: {
+          args: Prisma.SlimeCityMatchCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SlimeCityMatchPayload>
+        }
+        createMany: {
+          args: Prisma.SlimeCityMatchCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        delete: {
+          args: Prisma.SlimeCityMatchDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SlimeCityMatchPayload>
+        }
+        update: {
+          args: Prisma.SlimeCityMatchUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SlimeCityMatchPayload>
+        }
+        deleteMany: {
+          args: Prisma.SlimeCityMatchDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.SlimeCityMatchUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        upsert: {
+          args: Prisma.SlimeCityMatchUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SlimeCityMatchPayload>
+        }
+        aggregate: {
+          args: Prisma.SlimeCityMatchAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateSlimeCityMatch>
+        }
+        groupBy: {
+          args: Prisma.SlimeCityMatchGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.SlimeCityMatchGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.SlimeCityMatchCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.SlimeCityMatchCountAggregateOutputType> | number
+        }
+      }
+    }
     SiteStatDaily: {
       payload: Prisma.$SiteStatDailyPayload<ExtArgs>
       fields: Prisma.SiteStatDailyFieldRefs
@@ -10840,6 +11108,19 @@ export const PromptScalarFieldEnum = {
 export type PromptScalarFieldEnum = (typeof PromptScalarFieldEnum)[keyof typeof PromptScalarFieldEnum]
 
 
+export const PlumberLevelScalarFieldEnum = {
+  id: 'id',
+  createdAt: 'createdAt',
+  fingerprint: 'fingerprint',
+  title: 'title',
+  payload: 'payload',
+  userId: 'userId',
+  isPublic: 'isPublic'
+} as const
+
+export type PlumberLevelScalarFieldEnum = (typeof PlumberLevelScalarFieldEnum)[keyof typeof PlumberLevelScalarFieldEnum]
+
+
 export const ReactionScalarFieldEnum = {
   id: 'id',
   createdAt: 'createdAt',
@@ -10864,6 +11145,7 @@ export const ReactionScalarFieldEnum = {
   projectId: 'projectId',
   facetId: 'facetId',
   tzaddikCandidateId: 'tzaddikCandidateId',
+  plumberLevelId: 'plumberLevelId',
   authorBotId: 'authorBotId',
   authorCharacterId: 'authorCharacterId'
 } as const
@@ -11865,6 +12147,52 @@ export const ResourcePreviewScalarFieldEnum = {
 export type ResourcePreviewScalarFieldEnum = (typeof ResourcePreviewScalarFieldEnum)[keyof typeof ResourcePreviewScalarFieldEnum]
 
 
+export const HybridizerFusionScalarFieldEnum = {
+  id: 'id',
+  leftKey: 'leftKey',
+  rightKey: 'rightKey',
+  recipeVersion: 'recipeVersion',
+  title: 'title',
+  depth: 'depth',
+  status: 'status',
+  artJobId: 'artJobId',
+  artImageId: 'artImageId',
+  creatorUserId: 'creatorUserId',
+  isPublic: 'isPublic',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type HybridizerFusionScalarFieldEnum = (typeof HybridizerFusionScalarFieldEnum)[keyof typeof HybridizerFusionScalarFieldEnum]
+
+
+export const SlimeCityAccountScalarFieldEnum = {
+  userId: 'userId',
+  data: 'data',
+  version: 'version',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type SlimeCityAccountScalarFieldEnum = (typeof SlimeCityAccountScalarFieldEnum)[keyof typeof SlimeCityAccountScalarFieldEnum]
+
+
+export const SlimeCityMatchScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  mode: 'mode',
+  teamId: 'teamId',
+  foeId: 'foeId',
+  seed: 'seed',
+  startedAt: 'startedAt',
+  settledAt: 'settledAt',
+  result: 'result',
+  commands: 'commands'
+} as const
+
+export type SlimeCityMatchScalarFieldEnum = (typeof SlimeCityMatchScalarFieldEnum)[keyof typeof SlimeCityMatchScalarFieldEnum]
+
+
 export const SiteStatDailyScalarFieldEnum = {
   id: 'id',
   day: 'day',
@@ -11958,6 +12286,14 @@ export const JsonNullValueInput = {
 } as const
 
 export type JsonNullValueInput = (typeof JsonNullValueInput)[keyof typeof JsonNullValueInput]
+
+
+export const NullableJsonNullValueInput = {
+  DbNull: DbNull,
+  JsonNull: JsonNull
+} as const
+
+export type NullableJsonNullValueInput = (typeof NullableJsonNullValueInput)[keyof typeof NullableJsonNullValueInput]
 
 
 export const NullsOrder = {
@@ -12800,6 +13136,15 @@ export const PromptOrderByRelevanceFieldEnum = {
 export type PromptOrderByRelevanceFieldEnum = (typeof PromptOrderByRelevanceFieldEnum)[keyof typeof PromptOrderByRelevanceFieldEnum]
 
 
+export const PlumberLevelOrderByRelevanceFieldEnum = {
+  fingerprint: 'fingerprint',
+  title: 'title',
+  payload: 'payload'
+} as const
+
+export type PlumberLevelOrderByRelevanceFieldEnum = (typeof PlumberLevelOrderByRelevanceFieldEnum)[keyof typeof PlumberLevelOrderByRelevanceFieldEnum]
+
+
 export const ReactionOrderByRelevanceFieldEnum = {
   comment: 'comment'
 } as const
@@ -13341,6 +13686,29 @@ export const ResourcePreviewOrderByRelevanceFieldEnum = {
 } as const
 
 export type ResourcePreviewOrderByRelevanceFieldEnum = (typeof ResourcePreviewOrderByRelevanceFieldEnum)[keyof typeof ResourcePreviewOrderByRelevanceFieldEnum]
+
+
+export const HybridizerFusionOrderByRelevanceFieldEnum = {
+  id: 'id',
+  leftKey: 'leftKey',
+  rightKey: 'rightKey',
+  recipeVersion: 'recipeVersion',
+  title: 'title',
+  status: 'status'
+} as const
+
+export type HybridizerFusionOrderByRelevanceFieldEnum = (typeof HybridizerFusionOrderByRelevanceFieldEnum)[keyof typeof HybridizerFusionOrderByRelevanceFieldEnum]
+
+
+export const SlimeCityMatchOrderByRelevanceFieldEnum = {
+  id: 'id',
+  mode: 'mode',
+  teamId: 'teamId',
+  foeId: 'foeId',
+  result: 'result'
+} as const
+
+export type SlimeCityMatchOrderByRelevanceFieldEnum = (typeof SlimeCityMatchOrderByRelevanceFieldEnum)[keyof typeof SlimeCityMatchOrderByRelevanceFieldEnum]
 
 
 export const SiteStatDailyOrderByRelevanceFieldEnum = {
@@ -14208,6 +14576,7 @@ export type GlobalOmitConfig = {
   narratorThread?: Prisma.NarratorThreadOmit
   pitchSheet?: Prisma.PitchSheetOmit
   prompt?: Prisma.PromptOmit
+  plumberLevel?: Prisma.PlumberLevelOmit
   reaction?: Prisma.ReactionOmit
   resource?: Prisma.ResourceOmit
   reward?: Prisma.RewardOmit
@@ -14257,6 +14626,9 @@ export type GlobalOmitConfig = {
   appRepo?: Prisma.AppRepoOmit
   mediaEntry?: Prisma.MediaEntryOmit
   resourcePreview?: Prisma.ResourcePreviewOmit
+  hybridizerFusion?: Prisma.HybridizerFusionOmit
+  slimeCityAccount?: Prisma.SlimeCityAccountOmit
+  slimeCityMatch?: Prisma.SlimeCityMatchOmit
   siteStatDaily?: Prisma.SiteStatDailyOmit
   tzaddikCandidate?: Prisma.TzaddikCandidateOmit
   tzaddikCandidateTag?: Prisma.TzaddikCandidateTagOmit

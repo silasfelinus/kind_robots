@@ -25,6 +25,12 @@ export type KitTone =
  */
 export type KitArt = {
   brief: string
+  /**
+   * The picture in literal prose for the kit's render engine (Krea 2): who,
+   * where, doing what, under what light, from what camera. No metaphors,
+   * negations or format nouns; the Playbook Forge verifier holds it to that.
+   */
+  prompt?: string
   src?: string
   alt?: string
   /** CSS object-position for crops whose subject sits off-centre. */
@@ -147,4 +153,6 @@ export type PlaybookKitSpec = {
   moments: KitMoment[]
   trailer: KitTrailer
   allowances?: KitAllowance[]
+  /** Every unpainted picture carries a `prompt` (held by verifyPlaybookArtPrompts). */
+  artPromptsComplete?: boolean
 }

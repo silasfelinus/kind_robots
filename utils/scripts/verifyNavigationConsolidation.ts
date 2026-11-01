@@ -584,8 +584,9 @@ for (const route of [
 for (const image of [
   '/save-the-plumber/maps/world-1.webp',
   '/rainbow-princess-art/hero-pearl-palace.webp',
-  '/zuzu-pinball/last-bell-cover.svg',
+  '/zuzu-pinball/last-bell-cover.webp',
   '/crystal-street/cover.webp',
+  '/storybook-art/dashboard-highlight.webp',
 ]) {
   assert.ok(
     visitorDirectorySource.includes("image: '" + image + "'"),

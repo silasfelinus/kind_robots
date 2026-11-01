@@ -21,6 +21,7 @@ function withArt(node: PlaybookNode, art: KitArt) {
   node.art = art.brief
   node.artUrl = art.src ?? null
   node.needsArt = !art.src
+  if (art.prompt) node.artPrompt = art.prompt
   return node
 }
 
@@ -181,5 +182,6 @@ export function buildKitPlaybook(spec: PlaybookKitSpec): Playbook {
     editable: false,
     artProject: spec.conductorSlug,
     artLanes: ['krea2'],
+    artPromptsComplete: spec.artPromptsComplete,
   }
 }

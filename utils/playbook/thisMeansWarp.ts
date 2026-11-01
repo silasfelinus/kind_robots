@@ -1,15 +1,52 @@
 import { warpArt } from '../gameOfCaptains/artManifest'
+import { warpArtPrompt } from '../gameOfCaptains/artPrompts'
 import {
+  BASE_ENDINGS,
   WARP_ENDINGS,
   antagonistArtKey,
   captainArtKey,
   crewArtKey,
   endingArtKey,
   missionArtKey,
+  nemesisEndingArtKey,
   slugify,
 } from '../gameOfCaptains/artSlots'
+import {
+  NEMESIS_ALLY_FLAGS,
+  NEMESIS_ENDINGS,
+  NEMESIS_ENDING_VARIANTS,
+  nemesisEndingId,
+} from '../gameOfCaptains/nemesisEndings'
+import { GALACTIC_ENDINGS } from '../gameOfCaptains/galacticEndings'
+import { UNCLAIMED_ENDING_CAPTAINS } from '../gameOfCaptains/baseEndingCaptains'
+import {
+  RESULT_TEXT,
+  missionResultText,
+} from '../gameOfCaptains/missionResults'
 import { CREW_PROFILES, SYNERGIES } from '../gameOfCaptains/crewAssignments'
-import { ANTAGONISTS, CAPTAINS, CREW, MISSIONS } from '../gameOfCaptains/rules'
+import {
+  MISSION_CALLBACKS,
+  VOYAGE_BOARDS,
+  VOYAGE_CONSEQUENCES,
+  VOYAGE_ORDERS,
+  aboardLines,
+  actName,
+  type NemesisId,
+} from '../gameOfCaptains/voyageMap'
+import {
+  ANTAGONISTS,
+  CAPTAINS,
+  CREW,
+  MISSIONS,
+  type Result,
+} from '../gameOfCaptains/rules'
+import {
+  ALL_PARTIES,
+  TRIO_ADVENTURES,
+  TRIO_FIRST_CHAPTER,
+  trioArtKey,
+  trioKey,
+} from '../gameOfCaptains/trioAdventures'
 import {
   blankNode,
   storyOrder,
@@ -18,47 +55,39 @@ import {
   type PlaybookRoute,
 } from './types'
 
-// Playbook Studio adapter for This Means Warp (conductor playbook-kit t-013):
+// Playbook Studio adapter for Space Couch (conductor playbook-kit t-013):
 // the runtime voyage as beats. Captains open a run, crew are its followers,
-// three missions form the chapter spine with the bridge's three policies,
-// special pair routes are threads, antagonists wait at the finale and four
-// endings close it. Art slots are the keys the play page shows
-// (gameOfCaptains/artSlots.ts); text is authored in code, so beats are
-// read-only here.
-
-const RESULT_TEXT = {
-  flawless:
-    'The returning team solved the immediate crisis and brought back information the bridge had missed.',
-  success:
-    'The crew achieved the mission objective, but the people affected still get to decide what it means.',
-  costly:
-    'The team returns with a material debt and a person who may refuse further help.',
-  disaster:
-    'The planned route collapsed; the officers return through a costly emergency extraction.',
-} as const
+// the voyage chart (gameOfCaptains/voyageMap.ts) is the chapter spine, one
+// board of calls per chapter across Acts I to III, each call with its
+// three orders, earlier-choice callbacks and officer asides. Pair routes are
+// threads, antagonists wait at the finale and the galactic ending families
+// (base four plus gameOfCaptains/galacticEndings.ts) close it. Art
+// slots are the keys the play page shows (gameOfCaptains/artSlots.ts) and
+// their prompts live in gameOfCaptains/artPrompts.ts; text is authored in
+// code, so beats are read-only here.
 
 const POLICIES = [
   {
     id: 'aid',
     label: 'Aid: offer help with informed consent',
-    text: 'You offer help, ask for informed consent and accept the operational costs. A civilian remembers your name.',
+    text: 'You offer help and ask first. It costs supplies, and the people you helped get to decide what happens next.',
     effect: 'supplies −1 · intervention +1 · reputation +2 · trust +1',
   },
   {
     id: 'observe',
     label: 'Observe: keep your distance and record',
-    text: 'You remain at a distance and record what happened. Neutrality protects the treaty, but the survivors saw your ship.',
+    text: 'You keep your distance and keep a record. The treaty is intact, and so is the record of what you watched.',
     effect: 'intervention −1 · reputation −1 · trust −1',
   },
   {
     id: 'intervene',
     label: 'Intervene without diplomatic permission',
-    text: 'You take direct action without waiting for diplomatic permission. Lives change quickly; sovereignty will remember.',
+    text: 'You act without permission. It works quickly, and the paperwork will take years.',
     effect: 'supplies −2 · intervention +2 · reputation −2',
   },
 ] as const
 
-const ENDING_TEXT: Record<(typeof WARP_ENDINGS)[number], string> = {
+const ENDING_TEXT: Record<(typeof BASE_ENDINGS)[number], string> = {
   'CAPTAIN OF THE OPEN HORIZON':
     'Your crew rejects the antagonist’s claim and protects the worlds without owning them. Vox saves your place at the bar.',
   'THE LAST SHIP HOME':
@@ -76,6 +105,7 @@ function withArt(node: PlaybookNode, key: string): PlaybookNode {
   node.art = key
   node.artUrl = warpArt(key)
   node.needsArt = !node.artUrl
+  node.artPrompt = warpArtPrompt(key)
   node.provenance = `Art slot public/game-of-captains/${key}.webp (conductor projects/game-of-captains/art).`
   return node
 }
@@ -112,37 +142,62 @@ export function buildThisMeansWarpPlaybook(): Playbook {
     add(withArt(node, crewArtKey(member.portraitKey)))
   }
 
-  MISSIONS.forEach((mission, index) => {
+  const boardOf = (id: string) =>
+    VOYAGE_BOARDS.findIndex((board) => board.includes(id))
+  const chapterName = (chapter: number) =>
+    `${actName(chapter)}, chapter ${chapter}`
+  const crewIds = CREW.map((member) => member.id)
+  VOYAGE_BOARDS.flat().forEach((id, step) => {
+    const mission = MISSIONS.find((m) => m.id === id)!
+    const chapter = boardOf(id) + 1
     const node = blankNode(`mission:${mission.id}`, 'spine', mission.title)
     node.place = mission.system
-    node.chapter = index + 1
+    node.chapter = chapter
     node.body = [mission.briefing, mission.dilemma, mission.note]
     node.companions = SYNERGIES.filter((s) =>
       s.missions.includes(mission.id),
     ).flatMap((s) => [...s.pair])
     node.companions = [...new Set(node.companions)]
     node.lenses = [mission.kind]
-    node.variations = Object.entries(RESULT_TEXT).map(([key, text]) => ({
-      axis: 'result',
-      key,
-      label: `${titleCase(key)} return`,
-      text,
-    }))
-    const next = MISSIONS[index + 1]
+    node.variations = [
+      ...(Object.keys(RESULT_TEXT) as Result[]).map((key) => ({
+        axis: 'result',
+        key,
+        label: `${titleCase(key)} return`,
+        text: missionResultText(mission.id, key),
+      })),
+      ...(MISSION_CALLBACKS[mission.id] ?? []).map((callback) => ({
+        axis: 'earlier choice',
+        key: callback.flag,
+        label: `After ${callback.flag} (${callback.odds > 0 ? '+' : ''}${callback.odds}%)`,
+        text: callback.text,
+      })),
+      ...crewIds.flatMap((crewId) =>
+        aboardLines(mission.id, [crewId]).map((text) => ({
+          axis: 'aboard',
+          key: crewId,
+          label: `${CREW.find((c) => c.id === crewId)!.name} aboard`,
+          text,
+        })),
+      ),
+    ]
+    const next = VOYAGE_BOARDS[chapter]?.[0]
     node.choices = POLICIES.map((policy) => ({
       id: policy.id,
-      label: policy.label,
+      label: VOYAGE_ORDERS[mission.id]?.[policy.id] ?? policy.label,
       tags: [],
       effect: policy.effect,
-      success: { text: `${policy.text} ${mission.note}` },
-      leadsTo: next ? `mission:${next.id}` : 'finale',
+      success: {
+        text: `${policy.text} ${mission.note} ${VOYAGE_CONSEQUENCES[mission.id]?.[policy.id]?.text ?? ''}`.trim(),
+      },
+      leadsTo: next ? `mission:${next}` : 'finale',
     }))
     node.placements.push({
       route: 'voyage',
       routeName: 'The voyage',
-      day: index + 1,
-      dayName: `Chapter ${index + 1}`,
-      step: index,
+      day: chapter,
+      dayName: chapterName(chapter),
+      step,
     })
     add(withArt(node, missionArtKey(mission.id)))
   })
@@ -180,7 +235,33 @@ export function buildThisMeansWarpPlaybook(): Playbook {
     )
     node.place = antagonist.title
     node.body = [antagonist.motive, antagonist.interference]
+    const nemesis = antagonist.id as NemesisId
+    const groundwork = NEMESIS_ALLY_FLAGS[nemesis].join(', ')
+    const gates = {
+      undone: `Counter council, or protect the worlds with two of: ${groundwork}`,
+      bargained:
+        'Bargain for passage with two supplies, or with one piece of groundwork',
+      unfinished: 'Any other finale order',
+    }
+    node.choices = NEMESIS_ENDING_VARIANTS.map((variant) => ({
+      id: variant,
+      label: titleCase(NEMESIS_ENDINGS[nemesis][variant].title),
+      tags: [gates[variant]],
+      leadsTo: `ending:${nemesisEndingId(nemesis, variant)}`,
+    }))
     add(withArt(node, antagonistArtKey(antagonist.id)))
+    for (const variant of NEMESIS_ENDING_VARIANTS) {
+      const id = nemesisEndingId(nemesis, variant)
+      const ending = blankNode(
+        `ending:${id}`,
+        'ending',
+        titleCase(NEMESIS_ENDINGS[nemesis][variant].title),
+      )
+      ending.place = `${antagonist.name} · ${variant}`
+      ending.body = [NEMESIS_ENDINGS[nemesis][variant].text, gates[variant]]
+      ending.companions = []
+      add(withArt(ending, nemesisEndingArtKey(id)))
+    }
   }
 
   const finale = blankNode('finale', 'crossroads', 'The jump gate')
@@ -193,20 +274,26 @@ export function buildThisMeansWarpPlaybook(): Playbook {
       id: 'protect',
       label: 'Protect the worlds',
       tags: ['Strong with reputation ≥ 2 and trust ≥ 2'],
-      leadsTo: `ending:${slugify(WARP_ENDINGS[0])}`,
+      leadsTo: `ending:${slugify(BASE_ENDINGS[0])}`,
     },
     {
       id: 'compromise',
       label: 'Bargain for passage',
       tags: ['Strong with supplies ≥ 3'],
-      leadsTo: `ending:${slugify(WARP_ENDINGS[2])}`,
+      leadsTo: `ending:${slugify(BASE_ENDINGS[2])}`,
     },
+    ...GALACTIC_ENDINGS.map((ending) => ({
+      id: slugify(ending.title),
+      label: `${ending.orders.length > 1 ? 'Protect or bargain' : ending.orders[0] === 'protect' ? 'Protect the worlds' : 'Bargain for passage'}: ${titleCase(ending.title)}`,
+      tags: [ending.gate],
+      leadsTo: `ending:${slugify(ending.title)}`,
+    })),
   ]
   finale.provenance =
     'The stage shows the voyage’s antagonist here (antagonists/<id>).'
   add(finale)
 
-  for (const ending of WARP_ENDINGS) {
+  for (const ending of BASE_ENDINGS) {
     const node = blankNode(
       `ending:${slugify(ending)}`,
       'ending',
@@ -214,17 +301,79 @@ export function buildThisMeansWarpPlaybook(): Playbook {
     )
     node.place = 'Final captain’s log'
     node.body = [ENDING_TEXT[ending]]
+    node.variations = CAPTAINS.map((captain) => ({
+      axis: 'captain',
+      key: captain.id,
+      label: captain.name,
+      text: UNCLAIMED_ENDING_CAPTAINS[ending][captain.id],
+    }))
     add(withArt(node, endingArtKey(ending)))
+  }
+  for (const ending of GALACTIC_ENDINGS) {
+    const node = blankNode(
+      `ending:${slugify(ending.title)}`,
+      'ending',
+      titleCase(ending.title),
+    )
+    node.place = 'Final captain’s log'
+    node.body = [ending.text, ending.gate]
+    node.variations = CAPTAINS.map((captain) => ({
+      axis: 'captain',
+      key: captain.id,
+      label: captain.name,
+      text: ending.captains[captain.id],
+    }))
+    add(withArt(node, endingArtKey(ending.title)))
+  }
+
+  const crewName = (id: string) => CREW.find((c) => c.id === id)?.name ?? id
+  for (const adventure of TRIO_ADVENTURES) {
+    const key = trioKey(adventure.crew)
+    const party = adventure.crew.map(crewName).join(', ')
+    adventure.steps.forEach((step, i) => {
+      const node = blankNode(`trio:${key}:${i + 1}`, 'quest', step.title)
+      node.place = `${adventure.title} · ${party} · interlude ${i + 1}/3`
+      node.chapter = TRIO_FIRST_CHAPTER + i
+      node.body = i === 0 ? [adventure.premise, step.setup] : [step.setup]
+      node.companions = [...adventure.crew]
+      node.choices = step.options.map((option, choice) => ({
+        id: String(choice),
+        label: option.label,
+        tags: [],
+        effect: `Leans toward ${titleCase(adventure.endings[option.ending].title)}`,
+        success: { text: option.outcome },
+        leadsTo: i < 2 ? `trio:${key}:${i + 2}` : undefined,
+      }))
+      add(withArt(node, trioArtKey(key, (i + 1) as 1 | 2 | 3)))
+    })
+    adventure.endings.forEach((ending, i) => {
+      const part = i === 0 ? 'a' : 'b'
+      const node = blankNode(
+        `trio-ending:${key}:${part}`,
+        'ending',
+        titleCase(ending.title),
+      )
+      node.place = `${adventure.title} · ${party} · party ending`
+      node.body = [
+        ending.text,
+        'Earned when at least two of the party’s three interlude choices lean this way.',
+      ]
+      node.companions = [...adventure.crew]
+      add(withArt(node, trioArtKey(key, part)))
+    })
   }
 
   const routes: PlaybookRoute[] = [
     {
       id: 'voyage',
       name: 'The voyage',
-      kind: 'Three missions, then the jump gate',
-      steps: [...MISSIONS.map((m) => `mission:${m.id}`), 'finale'],
+      kind: `${VOYAGE_BOARDS.length} chapters of calls, then the jump gate`,
+      steps: [...VOYAGE_BOARDS.flat().map((id) => `mission:${id}`), 'finale'],
       headings: Object.fromEntries(
-        MISSIONS.map((m, i) => [i, `Chapter ${i + 1}: ${m.system}`]),
+        VOYAGE_BOARDS.map((board, i) => [
+          VOYAGE_BOARDS.slice(0, i).flat().length,
+          chapterName(i + 1),
+        ]),
       ),
     },
   ]
@@ -235,8 +384,8 @@ export function buildThisMeansWarpPlaybook(): Playbook {
 
   return {
     game: 'game-of-captains',
-    title: 'This Means Warp',
-    blurb: 'Six captains, twelve crew, three missions and four endings.',
+    title: 'Space Couch',
+    blurb: `Six captains, twelve crew, ${MISSIONS.length} missions across three acts, ${WARP_ENDINGS.length} galactic endings, ${ANTAGONISTS.length * NEMESIS_ENDING_VARIANTS.length} nemesis endings and ${TRIO_ADVENTURES.length} of ${ALL_PARTIES} parties with adventures of their own.`,
     routes,
     nodes,
     order: storyOrder(routes, [
@@ -244,6 +393,7 @@ export function buildThisMeansWarpPlaybook(): Playbook {
       ...keysOf('follower'),
       ...keysOf('thread'),
       ...keysOf('boss'),
+      ...keysOf('quest'),
       ...keysOf('ending'),
     ]),
     sections: [
@@ -270,7 +420,25 @@ export function buildThisMeansWarpPlaybook(): Playbook {
       {
         title: 'Endings',
         blurb: 'Final captain’s logs.',
-        keys: keysOf('ending'),
+        keys: keysOf('ending').filter((key) =>
+          WARP_ENDINGS.some((e) => key === `ending:${slugify(e)}`),
+        ),
+      },
+      {
+        title: 'Nemesis endings',
+        blurb: 'Three of its own for each seeded nemesis.',
+        keys: keysOf('ending').filter(
+          (key) =>
+            key.startsWith('ending:') &&
+            !WARP_ENDINGS.some((e) => key === `ending:${slugify(e)}`),
+        ),
+      },
+      {
+        title: 'Party adventures',
+        blurb: `A three-step interlude and two endings for each authored party: ${TRIO_ADVENTURES.length} of ${ALL_PARTIES}.`,
+        keys: [...keysOf('quest'), ...keysOf('ending')].filter((key) =>
+          key.startsWith('trio'),
+        ),
       },
     ],
     people: CREW.map((c) => ({ id: c.id, label: c.name })),
@@ -289,10 +457,12 @@ export function buildThisMeansWarpPlaybook(): Playbook {
       thread: 'Pair route',
       boss: 'Antagonist',
       crossroads: 'Finale',
+      quest: 'Party interlude',
       ending: 'Ending',
     },
     editable: false,
     artProject: 'game-of-captains',
     artLanes: ['krea2'],
+    artPromptsComplete: true,
   }
 }

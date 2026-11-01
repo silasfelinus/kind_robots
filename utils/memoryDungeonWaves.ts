@@ -1,7 +1,9 @@
 import {
   BRIAR_TILES,
   BRIAR_SITES,
+  BRIAR_START,
   type BriarMapCard,
+  type BriarSave,
 } from './memoryDungeonWorld'
 
 /**
@@ -157,4 +159,144 @@ export function createBriarWaveCards(
     flipped: false,
     matched: false,
   }))
+}
+
+/** Resume an interrupted map flip without charging another attempt.
+ * restoreBriarSave deliberately hides unmatched faces; consult the raw snapshot
+ * only to recover a valid in-flight turn, never to invent new map cards. */
+export function recoverBriarWaveTurn(
+  progress: BriarSave,
+  saved: unknown,
+): { progress: BriarSave; firstTile: string | null; recovered: boolean } {
+  const unchanged = { progress, firstTile: null, recovered: false }
+  const wave = BRIAR_REVEAL_WAVES[progress.waveIndex]
+  if (
+    progress.room !== 'map' ||
+    progress.wavePhase !== 'matching' ||
+    !wave ||
+    progress.mapCards.length !== wave.length ||
+    !saved ||
+    typeof saved !== 'object'
+  )
+    return unchanged
+  const rawCards = (saved as Partial<BriarSave>).mapCards
+  if (!Array.isArray(rawCards)) return unchanged
+  const pending = rawCards.filter(
+    (card): card is BriarMapCard =>
+      !!card &&
+      typeof card === 'object' &&
+      card.flipped === true &&
+      card.matched === false &&
+      typeof card.tile === 'string',
+  )
+  if (!pending.length) return unchanged
+  const discarded = { ...unchanged, recovered: true }
+  if (pending.length > 2) return discarded
+  const tiles = pending.map((card) => card.tile)
+  if (new Set(tiles).size !== pending.length) return discarded
+  if (
+    !pending.every((card) => {
+      const current = progress.mapCards.find(
+        (entry) => entry.tile === card.tile,
+      )
+      return (
+        current &&
+        !current.matched &&
+        wave.includes(card.tile) &&
+        current.id === card.id &&
+        current.pairId === card.pairId &&
+        current.image === card.image
+      )
+    })
+  )
+    return discarded
+  const restoredCards = progress.mapCards.map((card) =>
+    tiles.includes(card.tile) ? { ...card, flipped: true } : card,
+  )
+  if (pending.length === 1) {
+    return {
+      progress: {
+        ...progress,
+        mapCards: restoredCards,
+        status: 'Your first picture is still face up. Choose its match.',
+      },
+      firstTile: tiles[0]!,
+      recovered: true,
+    }
+  }
+  const settled = settleBriarWavePair(
+    { ...progress, mapCards: restoredCards },
+    tiles[0]!,
+    tiles[1]!,
+  )
+  return {
+    progress: settled
+      ? {
+          ...settled,
+          status:
+            settled.wavePhase === 'exploring'
+              ? 'Your interrupted match completed the round. Explore the forest.'
+              : 'Your remembered pair survived the interruption.',
+        }
+      : {
+          ...progress,
+          status: 'An interrupted mismatch turned face down. Try again.',
+        },
+    firstTile: null,
+    recovered: true,
+  }
+}
+
+/** Settle a genuinely matching two-card turn after its flip animation.
+ * Shared by the playable store and seeded fresh-expedition witnesses. */
+export function settleBriarWavePair(
+  progress: BriarSave,
+  firstTile: string,
+  secondTile: string,
+): BriarSave | null {
+  const wave = BRIAR_REVEAL_WAVES[progress.waveIndex]
+  if (
+    progress.room !== 'map' ||
+    progress.wavePhase !== 'matching' ||
+    !wave ||
+    progress.mapCards.length !== wave.length ||
+    firstTile === secondTile
+  )
+    return null
+  const first = progress.mapCards.find((card) => card.tile === firstTile)
+  const second = progress.mapCards.find((card) => card.tile === secondTile)
+  if (
+    !first ||
+    !second ||
+    !wave.includes(firstTile) ||
+    !wave.includes(secondTile) ||
+    !first.flipped ||
+    !second.flipped ||
+    first.matched ||
+    second.matched ||
+    first.pairId !== second.pairId ||
+    first.image !== second.image ||
+    progress.mapCards.filter((card) => card.pairId === first.pairId).length !==
+      2
+  )
+    return null
+  const mapCards = progress.mapCards.map((card) =>
+    card.tile === firstTile || card.tile === secondTile
+      ? { ...card, matched: true, flipped: true }
+      : card,
+  )
+  const revealed = [...new Set([...progress.revealed, firstTile, secondTile])]
+  const visited =
+    revealed.includes(BRIAR_START) && !progress.visited.includes(BRIAR_START)
+      ? [...progress.visited, BRIAR_START]
+      : progress.visited
+  return {
+    ...progress,
+    mapCards,
+    revealed,
+    visited,
+    wavePhase: mapCards.every((card) => card.matched)
+      ? 'exploring'
+      : 'matching',
+  }
 }

@@ -48,6 +48,7 @@ const items: ChannelContentItem[] = [
     contentType: 'tab',
     channelKey: 'arcade',
     tabKey: 'zuzu-showdown',
+    navigation: false,
     label: 'Zuzu Showdown',
     route: '/play/zuzu-showdown',
   },
@@ -59,8 +60,8 @@ assert.ok(arcade, 'the arcade channel resolves')
 
 assert.deepEqual(
   navigationTabs(arcade).map((tab) => tab.tabKey),
-  ['arcade', 'aquarium', 'experiments', 'shifting-desks', 'zuzu-showdown'],
-  'Play must expose the Arcade hall, Cthulhuquarium, Memory Dungeon and Shifting Desks tabs',
+  ['arcade', 'aquarium', 'experiments', 'shifting-desks'],
+  'Play must expose the featured experiences but leave Zuzu Showdown discoverable inside the Arcade hall',
 )
 assert.equal(
   navigationSubtabs(arcade, 'arcade').length,

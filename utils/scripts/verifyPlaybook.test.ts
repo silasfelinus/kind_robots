@@ -142,7 +142,13 @@ assert.equal(
 )
 
 // Every story game loads as a chain (conductor weird-humboldt t-036).
-const READ_ONLY_GAMES = new Set(['game-of-captains', 'comet-city-academy'])
+const READ_ONLY_GAMES = new Set([
+  'game-of-captains',
+  'comet-city-academy',
+  'memory-dungeon',
+  'cthulhuquarium',
+  'ruler-hooked',
+])
 for (const { id } of PLAYBOOK_GAMES) {
   const book = buildPlaybook(id)
   assert.equal(book.game, id)
@@ -441,6 +447,18 @@ for (const lane of PLAYBOOK_ART_LANES) {
     assert.ok(body.checkpoint)
     assert.match(String(body.negativePrompt), /anthro, furry/)
   }
+  // A game's palette rides only on its own art.
+  const other = playbookArtRequest(lane, 'a couch in orbit', 'scene', 4, {
+    projectSlug: 'game-of-captains',
+    designer: 'Space Couch',
+  })
+  assert.doesNotMatch(String(other.promptString), /redwood|coastal fog/)
+  const ecotone = playbookArtRequest(lane, 'a slug on the bay', 'scene', 5, {
+    projectSlug: 'weird-humboldt',
+    designer: 'Ecotone',
+    style: buildPlaybook('ecotone').artStyle,
+  })
+  assert.match(String(ecotone.promptString), /redwood greens/)
 }
 
 // The admin route, its tab and the schema.
@@ -470,7 +488,15 @@ assert.equal(ENCOUNTERS.length > 0, true)
 // overlay. Each editable beat resolves to the lookup its game plays through.
 type Overlay = { set(next: Record<string, unknown>): void }
 const LOOKUPS: Record<
-  Exclude<PlaybookGame, 'ecotone' | 'game-of-captains' | 'comet-city-academy'>,
+  Exclude<
+    PlaybookGame,
+    | 'ecotone'
+    | 'game-of-captains'
+    | 'comet-city-academy'
+    | 'memory-dungeon'
+    | 'cthulhuquarium'
+    | 'ruler-hooked'
+  >,
   { overlay: Overlay; read(key: string): unknown }
 > = {
   'shifting-lands': {

@@ -12,6 +12,24 @@ import type {
 
 export type ArtPrompt = { key: string; prompt: string }
 
+/**
+ * The house look in plain words for prose engines (Z-Image, Krea 2, Flux 2):
+ * ART_STYLE without its format nouns and mood words, which those engines
+ * paint literally. Appended to every authored scene and ending prompt the
+ * Playbook Forge offers, after the picture itself.
+ */
+export const BEAT_ART_MEDIUM =
+  'Airbrushed gouache painting in a 1986 horror-comedy style, hot magenta and cyan rim light, deep midnight purple shadows.'
+
+/**
+ * A beat's Forge art prompt: its authored `art` (the moment from the beat's
+ * own text: who, where, doing what, light and camera) plus the house medium.
+ * Never assembled from titles or scene text.
+ */
+export function beatArtPrompt(art: string): string {
+  return `${art.trim().replace(/[.,;\s]+$/, '')}. ${BEAT_ART_MEDIUM}`
+}
+
 function encounterPrompts(e: Encounter): ArtPrompt[] {
   return [
     { key: `scenes/${e.id}`, prompt: e.art },

@@ -936,6 +936,11 @@
         </form>
       </dialog>
     </template>
+    <shifting-desks-print-dossier
+      v-if="store.printReceipt"
+      :receipt="store.printReceipt"
+      :run="store.run"
+    />
   </main>
 </template>
 
@@ -1515,6 +1520,10 @@ onMounted(() => {
   store.load()
 })
 
+useSeoMeta(
+  gameLinkPreviewMeta('shifting-desks', useRuntimeConfig().public.appBaseUrl) ??
+    {},
+)
 useHead({ title: 'Shifting Desks' })
 </script>
 

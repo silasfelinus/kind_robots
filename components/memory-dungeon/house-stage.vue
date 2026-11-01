@@ -28,24 +28,25 @@
     </header>
     <div class="md-house-grid min-h-0 flex-1">
       <div
-        class="md-house-map grid min-h-0 min-w-0 grid-cols-6 grid-rows-6 gap-1 rounded-xl border-2 border-[#958369] bg-[#1c2930] p-2 shadow-inner"
+        class="md-house-map relative isolate grid min-h-0 min-w-0 grid-cols-6 grid-rows-6 gap-0 overflow-hidden rounded-xl border-2 border-[#958369] bg-[#1c2930] p-0 shadow-inner"
         aria-label="House room atlas, six by six"
       >
+        <memory-dungeon-house-map-art reality="original" />
         <button
           v-for="item in rooms"
           :key="item.id"
           type="button"
-          class="min-h-0 min-w-0 rounded-md border text-center focus-visible:outline-2 focus-visible:outline-white"
+          class="relative z-10 min-h-0 min-w-0 rounded-none border text-center focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-white"
           :class="{
-            'border-[#f8d681] bg-[#786537] text-white shadow-[inset_0_0_12px_#e7c777]':
+            'border-[#f8d681] bg-[#786537]/45 text-white shadow-[inset_0_0_12px_#e7c777]':
               progress?.current === item.id,
-            'border-[#9bcdb6] bg-[#405949] text-white':
+            'border-[#9bcdb6] bg-[#405949]/30 text-white':
               progress?.visited.includes(item.id) &&
               progress?.current !== item.id,
-            'border-[#c6ad77] bg-[#505340] text-white':
+            'border-[#c6ad77] bg-[#505340]/30 text-white':
               available.includes(item.id) &&
               !progress?.visited.includes(item.id),
-            'border-[#374754] bg-[#15212b] text-[#75818c]':
+            'border-[#374754] bg-[#15212b]/75 text-[#75818c]':
               !available.includes(item.id) &&
               !progress?.visited.includes(item.id),
           }"
@@ -60,6 +61,14 @@
           :aria-label="`${item.id}: ${progress?.visited.includes(item.id) || available.includes(item.id) ? item.title : 'unknown'}${progress?.current === item.id ? ', current location' : ''}`"
           @click="world.houseMove(item.id)"
         >
+          <memory-dungeon-action-beacon
+            v-if="
+              available.includes(item.id) &&
+              progress?.current !== item.id &&
+              (!progress?.visited.includes(item.id) ||
+                (item.choices.length > 0 && !progress?.decisions[item.id]))
+            "
+          />
           <span class="block text-[clamp(9px,1.15vw,13px)] font-black">{{
             item.id.slice(3)
           }}</span>
@@ -83,19 +92,19 @@
           class="md-house-portrait relative min-h-0 overflow-hidden bg-[radial-gradient(circle_at_55%_30%,#59726a,#25333e_75%)]"
         >
           <img
-            v-if="room && !artFailed"
-            :key="room.id"
-            :src="artPath"
+            v-if="room && displayArtPath && !fallbackArtFailed"
+            :key="displayArtPath"
+            :src="displayArtPath"
             :alt="`Illustration of ${room.title}`"
             class="h-full w-full object-cover"
             draggable="false"
-            @error="artFailed = true"
+            @error="handleArtError"
           />
           <div
             v-else
             class="flex h-full w-full items-center justify-center p-5 text-center text-lg font-serif font-bold text-[#d6c39b]"
             role="img"
-            :aria-label="`Illustration pending from the art queue for ${room?.title ?? 'the House'}`"
+            :aria-label="`Illustration unavailable for ${room?.title ?? 'the House'}`"
           >
             <span aria-hidden="true">❖</span>
           </div>
@@ -113,6 +122,17 @@
           <p class="mt-2 text-sm leading-relaxed sm:text-base">
             {{ room?.opening }}
           </p>
+          <div
+            v-if="floorBeat"
+            class="mt-3 rounded-lg border border-[#96744b] bg-[#f6e4bf] p-3"
+            data-testid="memory-house-floor-story"
+          >
+            <h4 class="font-serif text-base font-black">
+              {{ floorBeat.title }}
+            </h4>
+            <p class="mt-1 text-sm leading-relaxed">{{ floorBeat.text }}</p>
+            <p class="mt-2 text-sm font-semibold">{{ floorBeat.cost }}</p>
+          </div>
           <p
             v-if="selectedChoice"
             class="mt-3 rounded-md border border-[#9a804c] bg-[#f9e9c7] p-2 text-sm font-semibold"
@@ -124,7 +144,7 @@
             <button
               v-for="choice in room?.choices ?? []"
               :key="choice.id"
-              class="min-h-10 rounded-lg border border-[#807447] bg-[#43563a] px-3 py-2 text-left text-sm font-bold text-white hover:bg-[#617449] focus-visible:outline-2 focus-visible:outline-[#21391e] disabled:cursor-not-allowed disabled:opacity-50"
+              class="min-h-12 flex-1 rounded-lg border border-[#807447] bg-[#43563a] px-4 py-3 text-left text-base font-bold leading-snug sm:text-lg lg:text-xl text-white hover:bg-[#617449] focus-visible:outline-2 focus-visible:outline-[#21391e] disabled:cursor-not-allowed disabled:opacity-50"
               type="button"
               :disabled="!world.canChooseHouse(choice.id)"
               @click="world.chooseHouse(choice.id)"
@@ -148,28 +168,44 @@
             Three outcomes have different consequences. The House will keep
             whichever promise you make here.
           </p>
-          <p
-            v-if="room?.id === 'HD-36' && progress?.ending"
-            class="mt-2 text-sm font-bold"
+          <div
+            v-if="room?.id === 'HD-36' && epilogue"
+            class="mt-3 rounded-md border border-[#9a804c] bg-[#f9e9c7] p-2 text-sm"
+            data-testid="memory-house-epilogue"
           >
-            The {{ progress.ending }} resolution is recorded. The Bramble Chime
-            is within reach.
-          </p>
+            <p class="text-xs font-bold uppercase tracking-wide text-[#6b5530]">
+              {{ HOUSE_EPILOGUE_LENS_LABELS[epilogue.lens] }}
+            </p>
+            <h4 class="font-serif text-base font-black">
+              {{ epilogue.title }}
+            </h4>
+            <p class="mt-1 leading-relaxed">{{ epilogue.text }}</p>
+            <p class="mt-2 font-bold">The Bramble Chime is within reach.</p>
+          </div>
         </div>
       </div>
     </div>
     <footer
-      class="mt-2 flex shrink-0 flex-wrap items-center gap-2 rounded-lg border border-[#776749] bg-[#272d2b] p-2 text-xs"
+      class="mt-2 flex min-h-10 shrink-0 items-center gap-2 overflow-x-auto overscroll-x-contain rounded-lg border border-[#776749] bg-[#272d2b] p-2 text-xs"
+      role="group"
+      aria-label="Open House passages"
+      data-testid="memory-house-passages"
     >
-      <span class="font-bold text-[#e6d49d]">Open passages</span>
+      <span class="shrink-0 whitespace-nowrap font-bold text-[#e6d49d]"
+        >Open passages</span
+      >
       <button
         v-for="exit in available"
         :key="exit"
         type="button"
-        class="rounded-md border border-[#ac966f] bg-[#3c4f46] px-2 py-1 font-bold text-white focus-visible:outline-2 focus-visible:outline-white"
+        class="shrink-0 whitespace-nowrap rounded-md border border-[#ac966f] bg-[#3c4f46] px-2 py-1 font-bold text-white focus-visible:outline-2 focus-visible:outline-white"
+        :aria-label="`Travel to ${exit}, ${HOUSE_ROOMS[exit]?.title ?? 'unknown chamber'}`"
         @click="world.houseMove(exit)"
       >
-        {{ exit }} · {{ HOUSE_ROOMS[exit]?.title }}
+        <span class="sm:hidden">{{ exit }}</span>
+        <span class="hidden sm:inline"
+          >{{ exit }} · {{ HOUSE_ROOMS[exit]?.title }}</span
+        >
       </button>
       <span v-if="!available.length"
         >Complete the current challenge to open the next door.</span
@@ -181,32 +217,49 @@
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue'
 import { useMemoryWorldStore } from '~/stores/memoryWorldStore'
+import { houseIllustrationPath } from '~/utils/memoryDungeon/artManifest'
 import { HOUSE_ROOMS } from '~/utils/memoryDungeon/house'
+import { houseFloorBeat } from '~/utils/memoryDungeon/houseFloorStory'
+import { HOUSE_ATLAS_ROOM_IDS } from '~/utils/memoryDungeon/houseAtlas'
+import { HOUSE_EPILOGUE_LENS_LABELS } from '~/utils/memoryDungeon/houseEpilogues'
 
 const world = useMemoryWorldStore()
-const rooms = Object.values(HOUSE_ROOMS)
+const rooms = HOUSE_ATLAS_ROOM_IDS.map((id) => HOUSE_ROOMS[id]!)
 const progress = computed(() => world.state.house)
 const room = computed(() => world.activeHouseRoom)
+const floorBeat = computed(() =>
+  houseFloorBeat(room.value?.id, progress.value, world.state.sceneChoices),
+)
 const available = computed(() => world.houseAvailableDoors)
-const artFailed = ref(false)
-const artPath = computed(() => {
-  if (room.value?.id === 'HD-01')
-    return '/images/memory-dungeon/house/foyer.webp'
-  if (room.value?.id === 'HD-32')
-    return '/images/memory-dungeon/house/rootbound-warden.webp'
-  if (room.value?.id === 'HD-35' && progress.value?.ending)
-    return `/images/memory-dungeon/house/ending-${progress.value.ending}.webp`
-  return room.value?.imagePath ?? ''
-})
-watch(artPath, () => {
-  artFailed.value = false
-})
 const selectedChoice = computed(
   () =>
     room.value?.choices.find(
       (choice) => choice.id === progress.value?.decisions[room.value?.id ?? ''],
     ) ?? null,
 )
+const epilogue = computed(() => world.houseEpilogue)
+const artPath = computed(() =>
+  room.value?.id === 'HD-36' && epilogue.value
+    ? epilogue.value.artPath
+    : houseIllustrationPath(room.value?.id ?? '', selectedChoice.value?.id),
+)
+const establishingArtPath = computed(() =>
+  houseIllustrationPath(room.value?.id ?? ''),
+)
+const artFailed = ref(false)
+const fallbackArtFailed = ref(false)
+const displayArtPath = computed(() =>
+  artFailed.value ? establishingArtPath.value : artPath.value,
+)
+function handleArtError() {
+  if (!artFailed.value && artPath.value !== establishingArtPath.value)
+    artFailed.value = true
+  else fallbackArtFailed.value = true
+}
+watch(artPath, () => {
+  artFailed.value = false
+  fallbackArtFailed.value = false
+})
 </script>
 
 <style scoped>

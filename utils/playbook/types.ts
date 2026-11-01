@@ -75,6 +75,15 @@ export type PlaybookNode = {
    * gets a prompt-writing task, not a render (Silas, 2026-10-26).
    */
   artPrompt?: string
+  /** Authored identity transformations (student, hero, villain), with real render slots. */
+  artVariants?: {
+    id: string
+    label: string
+    imageUrl: string | null
+    stats?: Record<string, number>
+  }[]
+  /** Where the game reads this beat's picture from the image store (/images/…, not in git); the ledger API reports whether it exists. */
+  artPath?: string
   provenance: string
   editable: boolean
   /** Text-overlay games: which parts the overlay can replace (titles always). */
@@ -104,12 +113,16 @@ export type Playbook = {
   order: string[]
   /** Extra highlighted groups shown under the chains: endings, follower lines, quest lines. */
   sections: PlaybookSection[]
+  /** Required pictures used outside story beats (outcomes, emotional portraits, etc.). */
+  artRequirements?: { key: string; title: string; url: string }[]
   people: PlaybookOption[]
   peopleLabel: string
   variations: PlaybookOption[]
   variationLabel: string
   dayLabel: string
   kindLabels: Partial<Record<NodeKind, string>>
+  /** Ledger and gallery section names, for games whose beats are not story kinds (a Fishopedia, a Bestiary). */
+  sectionLabels?: Partial<Record<NodeKind, string>>
   /** Text edits can go live in play (the game reads /api/playbook/<game>/live). Ecotone takes full card edits; the others a text overlay. */
   editable: boolean
   /** Conductor project slug that art requests are tagged to. */
@@ -118,6 +131,12 @@ export type Playbook = {
   artLanes: string[]
   /** Extra negative prompt for this game's art (Ecotone: never anthro). */
   artNegative?: string
+  /** The game's own palette and setting words, appended to every art request after the prompt. */
+  artStyle?: string
+  /** Art for this game is queued by a Conductor pipeline (named here); the Forge never submits it. */
+  artPipeline?: string
+  /** Every beat still to paint has an authored, engine-literal art prompt (held by verifyPlaybookArtPrompts). */
+  artPromptsComplete?: boolean
 }
 
 export function blankNode(

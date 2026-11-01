@@ -201,7 +201,7 @@ export const FACTOR_ROWS: FactorRow[] = [
     kind: 'stepper',
     min: 0,
     max: 60,
-    help: 'Companions who travel with the player, or the pool a seeded roster deals roles from (Capes & Tassels: 48). Each needs a portrait, a voice and a moment of their own.',
+    help: 'Companions who travel with the player, or the pool a seeded roster deals roles from (Prom of Doom: 48). Each needs a portrait, a voice and a moment of their own.',
   },
   {
     key: 'partySize',
@@ -232,6 +232,16 @@ export const FACTOR_ROWS: FactorRow[] = [
     max: 6,
     visible: (b) => b.followers > 0,
     help: 'Each follower brings a personal quest that travels the map (Space Couch crew quests). The party chosen decides where the story goes.',
+  },
+  {
+    key: 'partyAdventureSteps',
+    tab: 'story',
+    label: 'Party adventure steps',
+    kind: 'stepper',
+    min: 0,
+    max: 6,
+    visible: (b) => b.partySize > 1,
+    help: 'Every combination of followers gets an adventure of its own between the main beats. Twelve crew in threes is 220 parties, so each step here is 220 scenes.',
   },
   {
     key: 'villains',
@@ -490,6 +500,25 @@ export const FACTOR_ROWS: FactorRow[] = [
     help: 'Different openings reach different endings. The hero multiplies them: per hero, every ending is written and painted once for each hero you can start as. The party only colours an ending through follower epilogues.',
   },
   {
+    key: 'partyEndings',
+    tab: 'endings',
+    label: 'Endings per party',
+    kind: 'stepper',
+    min: 0,
+    max: 4,
+    visible: (b) => b.partySize > 1,
+    help: 'Endings only one combination of followers can reach. Every ending here is written and painted for every party.',
+  },
+  {
+    key: 'villainEndings',
+    tab: 'endings',
+    label: 'Endings per villain',
+    kind: 'stepper',
+    min: 0,
+    max: 6,
+    help: 'Each villain closes the story its own way: beaten, won over, outlasted. Multiplies with the villain count.',
+  },
+  {
     key: 'followerEpilogues',
     tab: 'endings',
     label: 'Follower epilogues',
@@ -595,7 +624,10 @@ export function stepValue(
   if (row.kind === 'toggle') return !current
   if (row.kind === 'stepper') {
     const next = (current as number) + direction * (row.step ?? 1)
-    const clamped = Math.min(row.max, Math.max(row.min, next))
+    // A plan already past the stepper's range (Memory Dungeon's 1,600
+    // positions) steps from where it is instead of snapping to the cap.
+    const max = (current as number) > row.max ? Infinity : row.max
+    const clamped = Math.min(max, Math.max(row.min, next))
     return clamped === current ? null : clamped
   }
   const values = row.options.map((o) => o.value)

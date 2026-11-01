@@ -86,21 +86,25 @@
         <div class="mt-2 grid gap-2">
           <button
             type="button"
-            class="rounded-xl border border-[#d7bd84]/75 bg-[#344940] px-4 py-3 text-left text-sm font-bold text-[#fff2d6] hover:bg-[#46624e] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#f7dfaa]"
+            class="min-h-14 rounded-xl border border-[#d7bd84]/75 bg-[#344940] px-4 py-3 text-left text-base font-bold leading-snug sm:text-lg text-[#fff2d6] hover:bg-[#46624e] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#f7dfaa]"
             @click="finishPrologue('terms')"
           >
             Demand the terms of the bargain
-            <span class="mt-1 block text-xs font-normal text-[#e4cfab]">
+            <span
+              class="mt-1 block text-sm font-normal leading-relaxed text-[#e4cfab]"
+            >
               Keep a question burning. Begin with an extra Lantern.
             </span>
           </button>
           <button
             type="button"
-            class="rounded-xl border border-[#d7bd84]/75 bg-[#344940] px-4 py-3 text-left text-sm font-bold text-[#fff2d6] hover:bg-[#46624e] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#f7dfaa]"
+            class="min-h-14 rounded-xl border border-[#d7bd84]/75 bg-[#344940] px-4 py-3 text-left text-base font-bold leading-snug sm:text-lg text-[#fff2d6] hover:bg-[#46624e] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#f7dfaa]"
             @click="finishPrologue('anchor')"
           >
             Remember one unremarkable morning
-            <span class="mt-1 block text-xs font-normal text-[#e4cfab]">
+            <span
+              class="mt-1 block text-sm font-normal leading-relaxed text-[#e4cfab]"
+            >
               Preserve a fragment of home. Begin with a silver wildflower.
             </span>
           </button>

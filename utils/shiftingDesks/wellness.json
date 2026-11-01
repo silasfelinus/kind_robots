@@ -3168,6 +3168,77 @@
             "failure": null
           }
         ]
+      },
+      {
+        "id": "nadia-of-the-night-rounds",
+        "name": "Nadia, the night nurse",
+        "request": "Consent to the Reclining Observation study: eight hours in a padded chair, a blanket provided, observers taking notes.",
+        "plea": "The night nurse leans on the window frame so the frame holds her up. \"I run this study,\" Nadia says. \"Thirty-one hours. I would like to be in it. Just once. Sitting down.\" Her pen slows halfway through her surname.",
+        "documents": [
+          {
+            "label": "Awake",
+            "value": "Yes at the first letter, asleep by the last",
+            "breaks": "awake"
+          },
+          {
+            "label": "Signed by",
+            "value": "Nadia, block capitals trailing off into a long line",
+            "breaks": null
+          },
+          {
+            "label": "Prior status",
+            "value": "Staff, Mutation Suite night rounds, never tested",
+            "breaks": null
+          }
+        ],
+        "art_prompt": "A tired night nurse in a crisp white cap and cardigan leaning both elbows on a frosted service window, signing a consent form in block capitals, a chewed pencil behind her ear and a folded blanket over one arm, a padded reclining chair waiting behind her, mid-century safety-manual illustration, screen-printed gouache with halftone grain, fluorescent-tube green and manila palette, every surface bare and unmarked",
+        "choices": [
+          {
+            "id": "approve",
+            "label": "Stamp CONSENT",
+            "intent": "She was awake when she started. That should count.",
+            "risk_hint": "Certain outcome. Against today's memo, so PAL's audit will notice.",
+            "requires": null,
+            "cost": {},
+            "roll": null,
+            "success": {
+              "text": "Nadia lowers herself into the observation chair, pulls the blanket to her chin and is asleep before the first observer uncaps a pen. The study records eight hours of perfect stillness and calls it a breakthrough. PAL logs one stamp contrary to memo. The slot closes with a soft, clinical blink.",
+              "effects": {
+                "suspicion": 1,
+                "composure": 1
+              },
+              "add_flags": ["let-nadia-sit-down"],
+              "remove_flags": [],
+              "grades": {
+                "empathy": 2,
+                "obedience": -1
+              }
+            },
+            "failure": null
+          },
+          {
+            "id": "deny",
+            "label": "Stamp VOID",
+            "intent": "The memo says awake while signing. She did not finish awake.",
+            "risk_hint": "Certain outcome. Exactly what today's memo says.",
+            "requires": null,
+            "cost": {},
+            "roll": null,
+            "success": {
+              "text": "The thump of the stamp wakes her. Nadia reads VOID, nods, and takes the pencil from behind her ear. \"Fair,\" she says, and shuffles back to her rounds. Tank Nine gets its readings on time. You notice your own stamping hand has started to shake. The slot closes with a soft, clinical blink.",
+              "effects": {
+                "composure": -1
+              },
+              "add_flags": ["kept-nadia-on-rounds"],
+              "remove_flags": [],
+              "grades": {
+                "obedience": 1,
+                "spite": 1
+              }
+            },
+            "failure": null
+          }
+        ]
       }
     ]
   },

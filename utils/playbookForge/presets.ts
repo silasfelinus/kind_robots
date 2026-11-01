@@ -59,6 +59,9 @@ export const VIGNETTE_DEFAULTS: Blueprint = {
   finaleBeats: 2,
   endingVersions: 'one',
   followerEpilogues: false,
+  partyEndings: 0,
+  partyAdventureSteps: 0,
+  villainEndings: 0,
 
   autosave: true,
   saveStyle: 'snapshot',
@@ -71,6 +74,7 @@ export const VIGNETTE_DEFAULTS: Blueprint = {
   exportSaves: false,
 
   sparks: [],
+  designs: [],
 }
 
 export type Genre = {
@@ -121,7 +125,7 @@ export const GENRES: Genre[] = [
     cover: '/comet-city-academy/front/splash.webp',
     label: 'Hero academy',
     pitch: 'Build a student, learn a power, survive a term and a prom.',
-    lineage: 'Capes & Tassels: Prom of Doom',
+    lineage: 'Prom of Doom · Capes & Tassels series',
     tones: 'romantic, comic, coming-of-age',
     shape: {
       creator: 'builder',

@@ -40,7 +40,7 @@
           "title": "The Lost Kids Desk",
           "place": "Food court, Starlight Mall",
           "text": "Earl Lusk is seventy, wears his old security blazer with the patch picked off, and sits at the same food court table every day with a coffee and a view of the plywood wall that seals off Moonbeam Court. When a kid wanders past alone, his eyes follow them all the way to the exit. A brass key hangs on a shoelace around his neck. On the plywood behind him, someone has spray-painted a moth, and its wings are dusty, and real.",
-          "art": "An elderly Black security guard in a faded blazer at a mall food court table with coffee, a brass key on a shoelace around his neck, a plywood wall behind him with a painted moth whose wings shed real dust, neon signs glowing",
+          "art": "A 70-year-old Black man in a faded navy security blazer with a pale square where a patch was picked off, a brass key on a shoelace around his neck, sitting at a mall food court table with a paper cup of coffee, behind him a tall plywood wall with a big spray-painted moth whose wings shed real gray dust onto the floor, a teenager sitting down across from him, pink and gold neon from the food stands, medium shot",
           "choices": [
             {
               "id": "sit-with-earl",
@@ -106,7 +106,7 @@
           "title": "Mona in the Weeds",
           "place": "The back acre, Rusty's Junkyard",
           "text": "Mona the Moonbeam Moth lies on her side in the weeds behind the car crusher, twenty feet of cracked fiberglass with pale green wings and a smile painted for a 1974 mall opening. Under her belly is a brass slot with a sign: MAKE A MOONBEAM WISH! Somebody forgot to ever empty it. Her painted eyes are dull. Then, as a cloud crosses the sun, they very faintly glow.",
-          "art": "A giant cracked fiberglass luna moth mascot lying on its side in junkyard weeds behind a car crusher, a brass wish slot in its belly with a faded sign, its painted eyes faintly glowing red as a cloud crosses the sun",
+          "art": "A twenty-foot fiberglass luna moth mascot lying on its side in tall junkyard weeds behind a rusty car crusher, pale green wings cracked and peeling, a big painted 1970s smile, a brass coin slot in its belly, a teenager kneeling beside the slot with a tire iron, its painted eyes glowing faint red as a cloud shadow crosses the yard, afternoon sun and cloud shadow, wide shot",
           "choices": [
             {
               "id": "pry-open-the-belly",
@@ -172,7 +172,7 @@
           "title": "Collection Day",
           "place": "Kev Park's paper route, Crystal Street",
           "text": "It is collection day on the paper route, and Kev Park is doing math on his fingers on his bike. \"The Ferreiras haven't picked up a paper since Saturday. The Holcombs' porch has six. And there's a kid's bike in the Gaskins yard that hasn't moved in four days.\" He frowns at his notebook. \"Nobody called the cops. Nobody even called me to stop delivery.\"",
-          "art": "A twelve-year-old Korean American paperboy straddling a bike with a canvas bag full of newspapers on a cul-de-sac, pointing at a porch piled with unread papers, a child's bike abandoned on a lawn",
+          "art": "A skinny 12-year-old Korean American paperboy in a backwards red cap and a blue hooded sweatshirt straddling a red bicycle with a canvas sack of newspapers on a suburban cul-de-sac, counting on his fingers and pointing at a porch piled with six rolled newspapers, a child's small bike lying on an overgrown lawn, a teenager on a bike beside him, late afternoon sun, wide shot",
           "choices": [
             {
               "id": "ride-the-route",
@@ -239,7 +239,7 @@
         "title": "Closing Time",
         "place": "Starlight Mall, 9 p.m.",
         "text": "The security gates rattle down storefront by storefront. The PA chimes: \"Will the parent of Tyler, age eight, please come to the arcade.\" Nobody comes. In the arcade a small boy is playing the attract screen of a machine with no quarters, pretending. The lights go out one wing at a time. Above the skylight, something as big as a car settles onto the glass, and dust drifts down through the cracks like snow.",
-        "art": "A shopping mall at closing time with security gates half lowered and wings going dark, a small boy alone at an arcade cabinet pretending to play, a huge moth silhouette settling on the skylight above with dust falling like snow",
+        "art": "A shopping mall at nine at night, metal security gates rattling down over storefronts and one wing going dark, a small eight-year-old boy alone at an arcade cabinet pretending to play its glowing demo screen with empty pockets turned out, a teenager walking toward him, above them on the glass skylight the dark shape of a moth as big as a car settling down, gray dust falling through the cracks in the skylight, blue arcade glow, wide shot",
         "choices": [
           {
             "id": "walk-him-out",
@@ -301,7 +301,7 @@
         "title": "Porch Lights",
         "place": "The Alvarado house, Crystal Street, eleven p.m.",
         "text": "It comes to Crystal Street. Every porch light on the cul-de-sac flickers as the Mothman glides overhead, slow and huge, wings whispering. It lands on the Alvarados' roof. On the front steps below sits ten-year-old Ricky Alvarad in his pajamas, waiting for his parents to get home from the cannery's late shift, the way he does every night. He is looking up at it. He is not scared. That is the scary part.",
-        "art": "A huge moth creature perched on a split-level roof at night, wings spread over a suburban street of flickering porch lights, a small boy in pajamas sitting alone on the front steps gazing up at it calmly",
+        "art": "A huge moth creature with dusty gray-green wings and two glowing red eyes perched on the roof of a split-level house at eleven at night, wings spread over a suburban street where every porch light flickers, a ten-year-old boy in pajamas sitting alone on the front steps below, chin in his hands, looking up at it calmly, a teenager coming up the sidewalk, flickering yellow porch light and blue moonlight, wide shot from the street",
         "choices": [
           {
             "id": "sit-with-benji",
@@ -389,7 +389,7 @@
         "title": "Have You Seen Me?",
         "place": "The all-night Quik-Stop on Quarry Road, 1 a.m.",
         "text": "You stop at the all-night Quik-Stop for a Bolt Cola, and the dairy case is wrong. Every milk carton has a kid's face printed on the side under HAVE YOU SEEN ME?, and they are faces you know from the arcade, the food court, the bus stop. Their mouths move. They are whispering their own names, so softly you can barely hear. The clerk has his headphones on and has not looked up once. On the roof, something heavy shifts, and gray dust sifts past the front window like snow.",
-        "art": "A fluorescent-lit convenience store at 1 a.m., a teenager staring into a glowing dairy case of milk cartons printed with small kids' faces, a clerk in headphones at the counter, gray dust drifting past the front window",
+        "art": "A fluorescent-lit all-night convenience store at one in the morning, a teenager standing at an open glass dairy case full of milk cartons printed with small children's faces with their small mouths open, a young clerk in big headphones flipping through a magazine at the counter, gray dust drifting down past the front window from the roof, white fluorescent light and dark parking lot outside, medium wide shot",
         "choices": [
           {
             "id": "make-him-look",
@@ -482,7 +482,7 @@
         "title": "Ready or Not",
         "place": "The Glimmer Falls Elementary playground, 1 a.m.",
         "text": "The swings at Glimmer Falls Elementary are moving on a windless night. All across the playground, little kids in pajamas are hiding: behind the tube slide, under the merry-go-round, curled in the tire tunnel, giggling. A voice is counting through the dark, slow and buzzing, like a voice played through a box fan: \"Ninety-seven. Ninety-eight.\" On top of the jungle gym, the Mothman has its huge wings folded over its eyes. It is It. It is the only one who ever comes looking for them.",
-        "art": "A moonlit elementary school playground at 1 a.m., swings swaying on their own, small kids in pajamas hiding behind a tube slide and inside a tire tunnel, a giant moth creature atop the jungle gym covering its eyes with folded dusty wings",
+        "art": "A moonlit elementary school playground at one in the morning, empty swings swaying on a still night, small children in pajamas hiding behind a tube slide, under a merry-go-round and inside a tire tunnel with grinning faces, on top of the jungle gym a giant moth creature with dusty gray-green wings folded over its face, feathery antennae up, a teenager standing at the edge of the playground, blue moonlight, wide shot",
         "choices": [
           {
             "id": "find-them-first",
@@ -569,7 +569,7 @@
         "title": "Something in the Mirror",
         "place": "Your bathroom mirror, 1 a.m., home alone",
         "text": "Everyone at your house is working late tonight. The note on the fridge says pizza money is on the counter, and the house is so quiet you can hear the refrigerator think. Brushing your teeth, you notice fine gray fuzz on your shoulders and two feathery antennae curling out of your bangs. In the mirror your pupils catch the light and glow red. Downstairs, the porch light keeps clicking on by itself, and you want, very badly, to go and stand under it.",
-        "art": "A teenager brushing their teeth at a bathroom mirror late at night, fine gray fuzz on their shoulders, two feathery moth antennae curling from their bangs, pupils glowing red in the reflection, a porch light glowing through the window",
+        "art": "A teenager brushing their teeth at a small bathroom mirror at one in the morning in an empty house, fine gray fuzz on their shoulders, two feathery moth antennae curling out of their bangs, their pupils glowing red in the reflection, a porch light glowing yellow through the frosted bathroom window, a single vanity bulb, close medium shot into the mirror",
         "choices": [
           {
             "id": "call-someone",
@@ -663,7 +663,7 @@
         "title": "The Dead Wing",
         "place": "Moonbeam Court, Starlight Mall, after midnight",
         "text": "You slip behind the plywood into Moonbeam Court. The neon signs are dead, but they hum. From every one of them hang soft gray cocoons, dozens, swaying like paper lanterns, and through the silk you can see sleeping faces: Marcy Holcomb, Tyler Gaskins, kids you have seen at the arcade a hundred times and never once learned the names of. On the dead sign of the Woolmart department store, the Mothman watches you with its clock-face eyespots, wings slowly opening.",
-        "art": "A boarded-up mall wing at midnight with dead neon signs from which dozens of gray silk cocoons hang like lanterns, sleeping children's faces faintly visible inside, a giant moth perched on a dead department store sign with eyespots like clocks",
+        "art": "A boarded-up 1970s mall wing after midnight, rows of dead neon storefront tubes with dozens of soft gray silk cocoons hanging from them and swaying, sleeping children's faces faintly visible through the silk, a drained tiled fountain in the middle, and on top of the big dead department store neon a giant moth with dusty gray-green wings marked with round clock-face eyespots slowly opening, a teenager with a flashlight below, cold moonlight from the skylight, wide shot",
         "choices": [
           {
             "id": "cut-a-cocoon",
@@ -728,7 +728,7 @@
         "title": "Help Me",
         "place": "Your porch light, eleven p.m.",
         "text": "Your porch light is swarming with little gray moths, more than you have ever seen, and when you step out to shoo them, you hear it: a tiny, thin voice, like a kid talking through a paper-towel tube. \"Help me. Help me.\" It is coming from one moth, bigger than the rest, clinging to the screen door on pale green wings. Up and down Crystal Street, every porch light has the same swarm, and far off over the rooftops something much bigger is circling the town, slowly, as if it is counting.",
-        "art": "A suburban porch light swarming with small gray moths at night, one pale green luna moth clinging to a screen door, a curious teenager leaning close, a huge winged shadow circling far above the rooftops against the moon",
+        "art": "A suburban porch at eleven at night with the porch light swarmed by hundreds of small gray moths, one large pale green luna moth clinging to the screen door, a teenager in a sweatshirt leaning close to it with cupped hands, and far above the rooftops against the full moon a huge winged shadow circling, yellow porch light and blue night, medium shot",
         "choices": [
           {
             "id": "cup-and-listen",
@@ -816,7 +816,7 @@
         "title": "Paging You",
         "place": "Starlight Mall food court, 8:55 p.m.",
         "text": "The food court is closing, chairs going up on tables, when the PA chimes and says your name. Your full name. \"Will someone here for this child please come to the Moonbeam Fountain.\" The last few shoppers turn to look at you, then look away, and the chime plays again. Gray dust begins to sift down from the skylight onto your tray, and behind the plywood wall of the dead wing, something large shifts its wings, waiting to see who comes.",
-        "art": "A nearly empty mall food court at closing time, chairs stacked on tables, a lone teenager at a table as gray dust drifts down from a skylight, a plywood wall at the end of the court with huge wings shifting behind it",
+        "art": "A nearly empty mall food court at 8:55 at night, chairs turned upside down on the tables, a lone teenager sitting at one table with a food tray looking up at a ceiling speaker, gray dust drifting down from a skylight onto the tray, a tall plywood wall at the end of the court with the edges of huge dusty wings shifting behind it, a security guard pushing a mop far away, dimming yellow light, wide shot",
         "choices": [
           {
             "id": "page-the-crew",
@@ -907,7 +907,7 @@
         "title": "Parents' Night Out",
         "place": "Crystal Street, October 30, eleven p.m.",
         "text": "Every grown-up on Crystal Street is across town at the Elks Lodge Halloween Ball, and every kid on Crystal Street is home alone with a TV dinner. At eleven the moon goes out. It is not clouds: it is moths, millions of them, a gray storm pouring down out of the sky, and gliding at its center on wings as wide as a garage is the Mothman, eyespots glowing like clocks stuck at closing time. One by one, porch lights flick on as little kids open their front doors to see what is out there.",
-        "art": "A colossal storm of gray moths blotting out the moon over a suburban cul-de-sac at night, a giant moth creature with clock-like eyespots gliding at its center, small children in pajamas opening front doors under porch lights",
+        "art": "A colossal storm of millions of gray moths pouring down from the sky over a suburban cul-de-sac at eleven at night and covering the moon, a giant moth creature with dusty gray-green wings as wide as a garage and glowing clock-face eyespots gliding at the center, small children in pajamas opening their front doors under porch lights to look up, a teenager running across a lawn waving, dark gray sky and yellow porch lights, wide shot",
         "choices": [
           {
             "id": "sleepover",
@@ -1003,7 +1003,7 @@
       "title": "Last Call at Moonbeam Court",
       "place": "Moonbeam Court, Starlight Mall, Halloween night",
       "text": "On Halloween night every dead sign in Moonbeam Court blazes back to life, pink and green and gold, and the drained fountain fills with dust instead of water. The Mothman spreads its wings across the whole court, eyespots ticking like clocks that never reach morning. Dozens of cocoons sway beneath it. \"They wait,\" it hums through the old PA speakers, \"and nobody comes. So I come. Who is coming for you?\"",
-      "art": "A boarded-up 1970s mall wing blazing with revived pink and green neon on Halloween night, a giant moth with wings spread across the entire court, dozens of gray cocoons hanging below, a wishing fountain filled with glittering dust, teens in Halloween costumes facing it with flashlights",
+      "art": "A boarded-up 1970s mall court on Halloween night blazing with revived pink, green and gold neon storefronts, a giant moth with dusty gray-green wings spread across the entire court, round clock-face eyespots on the wings and two glowing red eyes, dozens of gray silk cocoons hanging beneath it, a drained fountain filled with glittering gray dust, four teenagers in homemade Halloween costumes facing it with flashlights raised, neon glow, low wide shot",
       "choices": [
         {
           "id": "fight",
@@ -1177,22 +1177,22 @@
       "best": {
         "title": "Someone Is Coming",
         "text": "The last cocoon opens when Earl Lusk walks in, blazer on, and lifts a kid nobody else came for onto his shoulders. With no child left unwatched in Moonbeam Court, the Mothman settles onto the empty fountain, folds its wings, and settles into a soft gray drift in the shape of Mona's wings. By spring the town has hauled the real Mona back from Rusty's Junkyard, twenty feet of fiberglass, smiling, and set her over a refilled fountain in a reopened Moonbeam Court, where the old Lost Kids desk now has a new sign, MOONBEAM CLUB, FREE TILL CLOSING, and Earl behind it with a sign-in sheet and a coffee. Parents on Crystal Street start a babysitting swap. Kev starts knocking on doors when the papers pile up. And kids still throw quarters in Mona's fountain, but now they mostly wish for pizza.",
-        "art": "A reopened 1970s mall court in daylight with a restored fiberglass luna moth over a sparkling fountain, an elderly guard at a desk labeled Moonbeam Club signing in laughing kids, parents and children everywhere"
+        "art": "A reopened 1970s mall court in daylight, a restored twenty-foot fiberglass luna moth with pale green wings and a painted smile standing over a sparkling refilled fountain, a 70-year-old Black man in a navy security blazer at a desk signing in laughing kids, parents and children everywhere, coins glinting in the fountain water, bright skylight sun, wide shot"
       },
       "good": {
         "title": "Pest Control",
         "text": "The cocoons are cut down and the kids go home, groggy and fine. The Mothman is gone, or at least nobody sees it again. The mall puts up a new plywood wall and calls it a gas leak. The next Saturday, the arcade is full of the same kids, parked there at ten, waiting for closing, and you notice them now. You are not sure anyone else does.",
-        "art": "A crowded mall arcade on a Saturday with kids alone at the machines, a new plywood wall in the background with a faint dusty moth outline, a teen watching thoughtfully"
+        "art": "A crowded mall arcade on a Saturday morning, kids alone at the glowing machines with their coats still on, a new plywood wall in the background with a faint dusty outline of moth wings on it, a teenager leaning against a cabinet watching the kids thoughtfully, arcade light, medium wide shot"
       },
       "bittersweet": {
         "title": "One Cocoon Left",
         "text": "You free almost all of them. But when the lights come up on November first, one gray cocoon still hangs from the dead Woolmart sign, too high to reach, and the Mothman is curled around it. The mall boards the wing up again that winter, tighter than before. Every Saturday you check the logbook names against the kids at the arcade, and every Saturday you hope you are wrong about who is missing.",
-        "art": "A single gray cocoon hanging from a dead neon sign in a dark mall wing with a giant moth curled protectively around it, workers nailing fresh plywood over the entrance"
+        "art": "A single gray silk cocoon hanging high from a dead neon department store tube in a dark mall wing, a giant moth with dusty gray-green wings curled around it, and at the entrance two workers nailing fresh plywood boards over the opening, a teenager watching through the last gap, thin gray winter light, wide shot"
       },
       "bad": {
         "title": "Nobody Noticed",
         "text": "You wake in the dark, wrapped in soft gray silk, warm and drowsy, hanging from a dead neon sign. It is not bad in here. It is quiet. The Mothman watches over you. It takes your family three days to notice you are gone, and that, more than the cocoon, is the part your crew never forgives this town for. They are still trying to cut you down.",
-        "art": "A teen asleep inside a translucent gray cocoon hanging from a dead neon sign in an abandoned mall, a giant moth keeping watch, friends with flashlights and box cutters climbing scaffolding toward them"
+        "art": "A teenager asleep inside a translucent gray silk cocoon hanging from a dead neon tube in an abandoned mall wing, a giant moth with dusty wings and glowing red eyes perched beside it keeping watch, three friends with flashlights and box cutters climbing a metal scaffold toward the cocoon, flashlight beams in the dark, wide shot"
       }
     }
   }

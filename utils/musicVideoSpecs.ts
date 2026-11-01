@@ -1551,6 +1551,247 @@ const rainbowPrincessOpening: MusicVideoSpec = {
   ],
 }
 
+/*
+ * G. The Space Couch opening titles (conductor game-of-captains
+ * OPENING-TITLES.md). Silas, 2026-10-27 PT: "write me a music video for the
+ * opening to space couch ... jazzy, surprise beats, high energy, engine
+ * humming and loud percussive horns." The ship IS a long red couch in open
+ * space inside a faint force bubble (kind_robots docs/space-couch); the crew
+ * looks match the game's portrait round. Scenes follow the 18-plate storyboard
+ * (OPENING-TITLES-ROUND-1.yaml); once those render, a scene can point at its
+ * plate with artImageId. 176 BPM swing, 74 s; the stop after the verse is the
+ * first surprise beat, the warp barrel roll the second.
+ */
+const COUCH =
+  'a very long tufted crimson upholstered couch with two rolled armrests floating in open outer space inside a thin transparent bubble of faint blue refracted light'
+const FLUKE =
+  'Captain Fluke, a middle-aged man with shaggy silver hair, an uneven burgundy jacket with two gold shoulder bars and a crooked pale-gold medal'
+const PELL =
+  'Bosun Pell, a short stocky red-skinned engineer with dark freckles, a shaved scalp, grey coveralls and one heavy steel prosthetic forearm'
+const TESS =
+  'Tess Helio, a lean East Asian woman with shoulder-length black hair, silver wire goggles on her forehead, a navy jumpsuit and a long tan woven scarf'
+const MOX =
+  'Mox-9, a small spherical silver robot with one large blue eye and three thin legs'
+const CREW = 'four crew members seated shoulder to shoulder on the cushions'
+
+const spaceCouchOpening: MusicVideoSpec = {
+  key: 'space-couch-opening',
+  title: 'Space Couch: Opening',
+  summary:
+    '74 s big-band swing opening, 176 BPM, 23 scenes on the red couch with two hard stops, 7 hero shots, Krea 2.',
+  pitch:
+    'The opening titles of Space Couch, a comic sci-fi captain game whose starship is one very long red couch floating in open space inside a faint force bubble. A Saturday-morning superhero-cartoon theme: a booming, over-serious narrator, big-band swing at full blast with percussive horn stabs on every hit, and a low engine hum under the whole song that keeps going even when the band stops dead. Captain Fluke, Bosun Pell, Tess Helio and the robot Mox-9 get name-card freeze-frames, pocket rooms unfold behind the backrest (holodeck, war room, infirmary), the villains loom in a half-time drop (the Galactic Auditor, the Queen of Borrowed Faces, Dr. Curdle and his elected food dispenser), the couch barrel-rolls through a warp, docks at the Serendipity Space Bar with Barkeep Vox, and ends on a key change and a shouted gang chorus: Sit down for justice!',
+  settings: {
+    durationSec: 74,
+    aspect: '16:9',
+    bpm: 176,
+    vocal: 'duet',
+    genre:
+      'big-band swing cartoon theme, blaring brass section, percussive horn stabs, walking bass, gang-vocal shout chorus',
+    mood: 'bombastic, goofy, heroic, high energy, sudden stops',
+    heroShots: 7,
+    styleBible:
+      'bold 1990s Saturday-morning action cartoon, thick black ink outlines, flat saturated cel colour with hard cel shadows, halftone dots in the sky, crimson red, electric blue, deep violet and brassy gold, starfields and nebulae, speed lines and comic impact bursts, heroic low camera angles',
+    bannedTerms: [
+      'the tick',
+      'arthur',
+      'spoon',
+      'red dwarf',
+      'hitchhiker',
+      'star trek',
+      'enterprise',
+    ],
+  },
+  sections: [
+    section('intro', 'intro', [
+      'In the cold and uncaring vacuum of space',
+      'One piece of furniture chose to recline',
+      'Space! Couch!',
+    ]),
+    section('v1', 'verse', [
+      "Who's got the stars in the palm of their hand?",
+      'Who reads the sky like a cheap paper map?',
+      "Who's got opinions and, sadly, they're right?",
+      "And the one in the middle who's sitting up straight!",
+    ]),
+    section('c1', 'chorus', [
+      'Space Couch! (Space Couch!)',
+      'Cushions to the stars!',
+      'No hull, no hatch, no bridge to guard',
+      'Just a bubble and a whole lot of heart!',
+      'Space Couch! (Sit down!)',
+      'Sit down for justice!',
+      "When the galaxy calls, you don't stand up",
+      'You scoot over!',
+    ]),
+    section('b1', 'bridge', [
+      'Pop goes the holodeck, flip goes the map',
+      'Doctor on call when the warp gets rough',
+      'Here comes the Auditor, here comes the bill',
+      'Borrowed faces shining in the shield',
+      'Doctor Curdle got himself elected mayor',
+      "Pull up at Serendipity, the round's on Vox",
+    ]),
+    section('c2', 'chorus', [
+      'Space Couch! (Space Couch!)',
+      'Cushions to the stars!',
+      'Keep your feet off the force field, friend',
+      'And your heart where the people are!',
+      'Space Couch! (Sit down!)',
+      'Sit down for justice!',
+      "When the universe asks who's gonna help",
+      "We're already sitting here!",
+    ]),
+    section('outro', 'outro', ['Space Couch!']),
+  ],
+  scenes: [
+    {
+      beats: 24,
+      prompt: `a vast violet nebula full of glittering stars with ${COUCH} drifting sideways through it, small at the center, ${CREW}, one bright glint on the bubble`,
+      lyrics: ['intro:0', 'intro:1'],
+      motionPrompt:
+        'The red couch drifts slowly sideways through the nebula as the camera pushes in, purple gas clouds swirl, and a single bright glint slides across the bubble.',
+    },
+    {
+      beats: 8,
+      prompt: `${COUCH} rocketing straight toward the viewer out of a starfield, huge and foreshortened, bright speed lines streaking past, ${CREW} leaning back with their hair blown flat, a burst of gold light rays across the violet sky above`,
+      lyrics: ['intro:2'],
+      motionPrompt:
+        'The couch rockets straight at the camera, speed lines whipping past and gold light rays bursting outward as the crew are pressed back into the cushions.',
+    },
+    {
+      beats: 8,
+      prompt: `${PELL} sitting on a red couch cushion belting out a song into a large wrench held like a microphone, eyes squeezed shut, an electric blue and gold halftone starburst behind him`,
+      lyrics: ['v1:0'],
+      kenBurns: 'zoom-in',
+    },
+    {
+      beats: 8,
+      prompt: `${TESS} kneeling on a red couch cushion and pointing dramatically at one bright star with a wobbly motion trail, holding a transparent navigation disk with six green dots, scarf streaming sideways, violet starfield`,
+      lyrics: ['v1:1'],
+      kenBurns: 'pan-left',
+    },
+    {
+      beats: 8,
+      prompt: `${MOX} sitting alone on a plump crimson couch cushion, its eye half-lidded in deadpan annoyance, one tiny projector arm raised like an eyebrow, an electric blue starburst behind it`,
+      lyrics: ['v1:2'],
+      kenBurns: 'zoom-in',
+    },
+    {
+      beats: 8,
+      prompt: `${FLUKE} standing heroically on the seat of a long crimson couch in space, chest out, saluting proudly toward the empty left side of the sky with an upside-down brass star chart flapping in his other hand, a giant ringed planet behind him`,
+      lyrics: ['v1:3'],
+      kenBurns: 'zoom-out',
+    },
+    {
+      beats: 8,
+      prompt: `side view of ${COUCH} in quiet starry space, ${CREW} frozen mid-pose like statues with arms raised in a dance move, a single square red cushion floating slowly up and away, the small silver robot turning its blue eye to follow it, a small brass cowbell drifting in the dark sky`,
+      kenBurns: 'zoom-in',
+    },
+    {
+      beats: 8,
+      prompt: `${COUCH} swooping across a violet nebula, ${CREW} singing at the top of their lungs with mouths wide open, gold halftone bursts and speed lines`,
+      lyrics: ['c1:0', 'c1:1'],
+      kenBurns: 'pan-right',
+    },
+    {
+      beats: 8,
+      prompt: `close view of ${CREW} of a long crimson couch hugging each other inside a glowing faint blue bubble, open deep space and stars on every side, warm pink light on their grinning faces`,
+      lyrics: ['c1:2', 'c1:3'],
+      kenBurns: 'zoom-out',
+    },
+    {
+      beats: 8,
+      prompt: `low heroic angle of ${CREW} of a long crimson couch thrusting their fists in the air, the faint blue bubble flaring gold at the edges, a ringed planet behind them`,
+      lyrics: ['c1:4', 'c1:5'],
+      kenBurns: 'zoom-in',
+    },
+    {
+      beats: 8,
+      prompt: `front view of ${COUCH}, ${FLUKE}, ${TESS}, ${PELL} and ${MOX} all sliding one seat to the right together with bright motion lines, a tiny round fuzzy teal alien with three eyes and a big grin waving from the freed left cushion`,
+      lyrics: ['c1:6', 'c1:7'],
+      motionPrompt:
+        'The four crew members slide one seat to the right in perfect unison, and the tiny teal alien pops up on the empty cushion and waves at the camera.',
+    },
+    {
+      beats: 6,
+      prompt: `${COUCH} with ${CREW}, a large room of glowing neon-cyan grid lines unfolding behind its backrest like a pop-up book, a friendly translucent green holographic dragon bowing politely inside it`,
+      lyrics: ['b1:0'],
+      kenBurns: 'zoom-out',
+    },
+    {
+      beats: 6,
+      prompt:
+        'over-the-shoulder view from behind a long crimson couch in open space, a tall folding chamber flipped open behind its backrest, an enormous holographic star map of planets, orbit rings and glowing route lines hanging in the air, four crew members leaning over the backrest toward it, red and gold light',
+      kenBurns: 'pan-left',
+    },
+    {
+      beats: 6,
+      prompt:
+        'a compact glowing white and mint-green infirmary room unfolding behind the backrest of a long crimson couch in space, Dr. Vela Sorn, a broad lilac-skinned alien woman with small pointed ears, large round amber eyes and a sea-green medical jacket, spinning around with an orange scanner raised and one eyebrow arched',
+      lyrics: ['b1:1'],
+      kenBurns: 'zoom-in',
+    },
+    {
+      beats: 8,
+      prompt: `a colossal stern figure in a long charcoal coat with brass ledger plates down its front looming over a planet, a smooth pale mask face with thin glowing gold eyes, holding a brass clipboard as big as a moon, far below it ${COUCH} glowing a worried orange, a huge glowing holographic sheet of empty ledger columns hanging over the couch`,
+      lyrics: ['b1:2'],
+      motionPrompt:
+        'The colossal figure leans down over the planet and slams its moon-sized clipboard forward as the tiny couch bubble flickers orange.',
+    },
+    {
+      beats: 8,
+      prompt:
+        'close view of the curved faint blue bubble around a long crimson couch acting like a mirror, four crew members staring at their reflections, every reflection showing the same serene tall woman in a sweeping pale gray cloak flaring like moth wings holding a silver mask on a slender rod, porcelain masks drifting in the starry dark, cold silver moonlight',
+      lyrics: ['b1:3'],
+      kenBurns: 'zoom-in',
+    },
+    {
+      beats: 8,
+      prompt: `a colossal chrome food dispenser machine the size of a city block in orbit over a green planet, nozzles, conveyor chutes and steaming copper vats, a brass mayoral sash across its front, a round cheerful bald scientist in a stained white lab coat and thick goggles riding on top waving a ladle, cubes of pale nutrient paste tumbling past ${COUCH} with ${CREW}`,
+      lyrics: ['b1:4'],
+      kenBurns: 'pan-right',
+    },
+    {
+      beats: 8,
+      prompt: `${COUCH} tilted sideways mid-barrel-roll through an exploding white and electric blue warp starburst, red square cushions scattering everywhere, the crew snatching cushions out of the air, the captain in a burgundy jacket grabbing at two cushions and missing both, speed lines and comic impact bursts`,
+      motionPrompt:
+        'The couch barrel-rolls through the exploding warp, cushions scatter in every direction, and the crew snatch them out of the air one after another while the captain misses both of his.',
+    },
+    {
+      beats: 8,
+      prompt: `a cozy circular space bar with copper wall pipes, round portholes, dark red booths and warm amber lamps, ${COUCH} docked right at the curved counter through a wide open porthole, Barkeep Vox, a short bipedal beige tardigrade in a brown vest, sliding four glowing drinks down a scratched wooden counter toward the crew`,
+      lyrics: ['b1:5'],
+      kenBurns: 'pan-left',
+    },
+    {
+      beats: 16,
+      prompt: `low heroic angle looking up at ${COUCH} soaring upward through a brilliant gold and violet sunrise over a ringed planet, ${FLUKE} at the center with ${TESS}, ${PELL} and ${MOX}, all seated and pointing forward together with fists raised, brassy gold light rays and halftone bursts`,
+      lyrics: ['c2:0', 'c2:1', 'c2:2', 'c2:3'],
+      motionPrompt:
+        'The couch soars upward into the sunrise as the bubble blazes gold at its edges and the crew punch their fists forward on the beat.',
+    },
+    {
+      beats: 8,
+      prompt: `${COUCH} blasting through a giant ring of gold light, ${CREW} shouting with fists raised, sparks and stars streaming past`,
+      lyrics: ['c2:4', 'c2:5'],
+      kenBurns: 'zoom-in',
+    },
+    {
+      beats: 8,
+      prompt: `${CREW} of a long crimson couch leaning back relaxed with big confident grins, arms folded behind their heads, a calm starfield and a spiral galaxy behind them`,
+      lyrics: ['c2:6', 'c2:7'],
+      kenBurns: 'zoom-out',
+    },
+    {
+      prompt: `an enormous calm starfield with a spiral galaxy and distant colourful planets, ${COUCH} floating peacefully at lower center, four tiny crew members lounging on the cushions sharing one big bowl of popcorn, a few kernels floating in the air, one bright glint on the bubble`,
+      lyrics: ['outro:0'],
+      motionPrompt:
+        'The camera pulls slowly back from the couch as popcorn kernels drift upward, then one bright glint slides across the bubble on the final horn hit.',
+    },
+  ],
+}
+
 export const MUSIC_VIDEO_SPECS: readonly MusicVideoSpec[] = [
   kindRobotsTheme,
   kindRobotsThemeClassic,
@@ -1559,6 +1800,7 @@ export const MUSIC_VIDEO_SPECS: readonly MusicVideoSpec[] = [
   zuzuLairCh1,
   crystalStreetTheme,
   rainbowPrincessOpening,
+  spaceCouchOpening,
 ]
 
 export function musicVideoSpecByKey(key: string): MusicVideoSpec | null {

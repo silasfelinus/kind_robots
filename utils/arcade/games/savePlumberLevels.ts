@@ -15,6 +15,7 @@
  *   P  piston (rises and falls)           L  brass lift (slides side to side)
  *   K  checkpoint     G  goal valve       D  pipe door       E  secret-room pipe
  *   @  start          X  boss gate        M  the world's boss
+ *   f  slippery ice   b  breakable snowbank   d  fragile ice   e  falling icicle   q  rolling snowball
  *   w  water          F  bobbing raft     m  clockwork minnow (leaps from water)
  *   k  cork crab      u  glass gull       l  moss lantern     h  spring hare
  *   <  belt carrying left                 >  belt carrying right
@@ -27,6 +28,11 @@
  *   +  water heart (restores a heart)
  *   *  the stage's Golden Gear (one per stage, harder to reach each world)
  *   !  a glider: flies at her at head height (duck under it, swing or stomp)
+ *   ?  gravity well (space course): draws the heroine toward its center
+ *   %  compressed-air canister: restores jet pressure in space
+ *   ;  recharge dock: continuously tops up pressure when nearby
+ *   &  orbiting space debris: circles its anchor and hurts on contact
+ *   $  solar gust: pulses outward after a visible warning
  */
 
 export const TILE = 16
@@ -37,6 +43,9 @@ export type StageDef = {
   rows: string[]
   /** Unlit: only the heroine and moss lanterns cast light. */
   dark?: boolean
+  snow?: boolean
+  /** Optional zero-gravity jetpack course, never applied to campaign stages. */
+  space?: boolean
 }
 
 export const WORLD_ONE: StageDef[] = [
@@ -1051,6 +1060,9 @@ export const SOLID_GATE = 4
 export const SOLID_PIPE = 5
 export const SOLID_CRATE = 6
 export const SOLID_WATER = 7
+export const SOLID_ICE = 11
+export const SOLID_SNOWBANK = 12
+export const SOLID_FRAGILE_ICE = 13
 export const SOLID_BELT_LEFT = 8
 export const SOLID_BELT_RIGHT = 9
 export const SOLID_BRIDGE = 10
@@ -1088,8 +1100,20 @@ export type SpawnKind =
   | 'heart'
   | 'gear'
   | 'glider'
+  | 'icicle'
+  | 'snowball'
+  | 'gravity-well'
+  | 'air-canister'
+  | 'air-dock'
+  | 'orbital-debris'
+  | 'solar-gust'
 
-export type Spawn = { kind: SpawnKind; col: number; row: number }
+export type Spawn = {
+  kind: SpawnKind
+  col: number
+  row: number
+  giant?: boolean
+}
 
 export type Door = { col: number; row: number; to: number }
 
@@ -1107,6 +1131,8 @@ export type Stage = {
   /** The boss gate column, if the stage ends in a boss arena. */
   gate: number | null
   dark: boolean
+  snow: boolean
+  space: boolean
 }
 
 const SPAWNS: Record<string, SpawnKind> = {
@@ -1142,7 +1168,32 @@ const SPAWNS: Record<string, SpawnKind> = {
   '+': 'heart',
   '*': 'gear',
   '!': 'glider',
+  e: 'icicle',
+  q: 'snowball',
+  '?': 'gravity-well',
+  '%': 'air-canister',
+  ';': 'air-dock',
+  '&': 'orbital-debris',
+  $: 'solar-gust',
 }
+
+/** Giant versions of the original foe roster. Each glyph plays with the base AI. */
+export const GIANT_FOES = {
+  a: 'pumpbug',
+  A: 'rivet-roller',
+  C: 'minnow',
+  H: 'cork-crab',
+  I: 'glass-gull',
+  J: 'moss-lantern',
+  N: 'spring-hare',
+  O: 'gasket-golem',
+  R: 'paper-kite',
+  S: 'umbrella-mite',
+  U: 'puddle-mimic',
+  V: 'siphon-sprite',
+  W: 'chimney-spirit',
+  Y: 'tea-kettle-knight',
+} as const satisfies Record<string, SpawnKind>
 
 const SOLIDS: Record<string, number> = {
   '#': SOLID_GROUND,
@@ -1153,10 +1204,23 @@ const SOLIDS: Record<string, number> = {
   E: SOLID_PIPE,
   c: SOLID_CRATE,
   w: SOLID_WATER,
+  f: SOLID_ICE,
+  b: SOLID_SNOWBANK,
+  d: SOLID_FRAGILE_ICE,
   '<': SOLID_BELT_LEFT,
   '>': SOLID_BELT_RIGHT,
   ':': SOLID_BRIDGE,
 }
+
+/** Parser-supported symbols: the Maker must expose every mechanic when the engine grows. */
+export const STAGE_GLYPHS = Object.freeze([
+  '.',
+  '@',
+  'X',
+  ...Object.keys(SPAWNS),
+  ...Object.keys(GIANT_FOES),
+  ...Object.keys(SOLIDS),
+])
 
 /** The top cell of each vertical run of `mark`, left to right. */
 function pipeTops(def: StageDef, mark: string) {
@@ -1182,11 +1246,18 @@ export function parseStage(def: StageDef): Stage {
     for (let col = 0; col < cols; col++) {
       const ch = line[col]!
       if (SOLIDS[ch]) solid[row * cols + col] = SOLIDS[ch]!
+      else if (GIANT_FOES[ch as keyof typeof GIANT_FOES])
+        spawns.push({
+          kind: GIANT_FOES[ch as keyof typeof GIANT_FOES],
+          col,
+          row,
+          giant: true,
+        })
       else if (SPAWNS[ch]) spawns.push({ kind: SPAWNS[ch]!, col, row })
       else if (ch === '@') start = { col, row }
       else if (ch === 'X') gate = col
       else if (ch !== '.') throw new Error(`stage ${def.code}: unknown "${ch}"`)
-      if (ch === 'm') solid[row * cols + col] = SOLID_WATER
+      if (ch === 'm' || ch === 'C') solid[row * cols + col] = SOLID_WATER
     }
   })
   if (!start) throw new Error(`stage ${def.code}: no start`)
@@ -1210,5 +1281,7 @@ export function parseStage(def: StageDef): Stage {
     doors,
     gate,
     dark: def.dark === true,
+    snow: def.snow === true,
+    space: def.space === true,
   }
 }

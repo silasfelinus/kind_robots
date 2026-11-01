@@ -94,6 +94,24 @@ const menu = computed(() => [
       ]
     : []),
   {
+    label: 'The 100 redshirts',
+    detail:
+      'Meet Space Couch’s expendable expedition corps, inspect portraits and quests, and direct redesigns.',
+    run: () => forge.openRedshirts(),
+  },
+  {
+    label: 'Catalogue',
+    detail:
+      'Facets, Characters, Locations, Scenarios, Rewards and every game’s art, for brainstorming.',
+    run: () => forge.openCatalog(),
+  },
+  {
+    label: 'Gestation',
+    detail:
+      'The daily playbook challenge’s concepts as they grow. Leave notes for the next development, or forge one.',
+    run: () => forge.openGestation(),
+  },
+  {
     label: 'Kit console',
     detail:
       'Rehearse the games built on the Playbook Kit, with their settings and budget.',

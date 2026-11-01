@@ -506,6 +506,7 @@ export type FacetRelationType = (typeof FacetRelationType)[keyof typeof FacetRel
 
 
 export const Reaction_reactionCategory = {
+  PLUMBER_LEVEL: 'PLUMBER_LEVEL',
   ART_IMAGE: 'ART_IMAGE',
   ART_COLLECTION: 'ART_COLLECTION',
   BOT: 'BOT',

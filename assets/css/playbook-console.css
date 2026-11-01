@@ -350,6 +350,107 @@
     transform: scale(1.06);
     filter: saturate(1.1) brightness(1);
   }
+  /* Art-first cards: design board and catalogue. */
+  .pf-art-card {
+    display: flex;
+    flex-direction: column;
+    text-align: left;
+    background: color-mix(in oklch, var(--color-base-200) 82%, transparent);
+    border: 1px solid
+      color-mix(in oklch, var(--color-base-content) 12%, transparent);
+    transition:
+      transform 140ms ease,
+      border-color 140ms ease,
+      box-shadow 140ms ease;
+  }
+  .pf-art-card:hover,
+  .pf-art-card:focus-visible {
+    transform: translateY(-2px);
+    border-color: var(--color-primary);
+    box-shadow: 0 10px 24px -14px var(--color-primary);
+  }
+  .pf-art-card-on {
+    border-color: var(--color-secondary);
+    box-shadow: 0 0 0 2px var(--color-secondary);
+  }
+  .pf-art-card-frame {
+    position: relative;
+    display: block;
+    aspect-ratio: 4 / 3;
+    overflow: hidden;
+    background: radial-gradient(
+      120% 90% at 30% 20%,
+      color-mix(in oklch, var(--color-secondary) 18%, transparent),
+      color-mix(in oklch, var(--color-base-300) 90%, black)
+    );
+  }
+  .pf-art-card-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 400ms ease;
+  }
+  .pf-art-card:hover .pf-art-card-img {
+    transform: scale(1.05);
+  }
+  .pf-art-card-prompt,
+  .pf-art-card-empty {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+    padding: 0.75rem;
+    font-size: 0.75rem;
+    line-height: 1.35;
+    font-style: italic;
+  }
+  .pf-art-card-empty {
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    font-style: normal;
+    border: 1px dashed
+      color-mix(in oklch, var(--color-base-content) 22%, transparent);
+    margin: 0.5rem;
+  }
+  .pf-art-card-badge {
+    position: absolute;
+    top: 0.4rem;
+    left: 0.4rem;
+    padding: 0.1rem 0.45rem;
+    font-size: 0.6rem;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    background: rgb(5 7 13 / 0.78);
+    color: white;
+  }
+  .pf-art-card-text {
+    display: flex;
+    flex-direction: column;
+    gap: 0.15rem;
+    padding: 0.5rem 0.6rem 0.6rem;
+  }
+  /* The gallery's shelf of sections and people, and its large focused picture. */
+  .pf-gallery-tile {
+    display: flex;
+    flex: 0 0 9.5rem;
+    flex-direction: column;
+    background: color-mix(in oklch, var(--color-base-200) 82%, transparent);
+    border: 1px solid
+      color-mix(in oklch, var(--color-base-content) 12%, transparent);
+    transition: border-color 140ms ease;
+  }
+  .pf-gallery-tile:hover,
+  .pf-gallery-tile:focus-visible {
+    border-color: var(--color-primary);
+  }
+  .pf-gallery-hero {
+    aspect-ratio: 4 / 3;
+    flex-shrink: 0;
+    background: black;
+  }
   .pf-tile-badge {
     position: absolute;
     top: 0.6rem;

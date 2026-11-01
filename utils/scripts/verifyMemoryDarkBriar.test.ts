@@ -1,9 +1,11 @@
 import assert from 'node:assert/strict'
+import { checkArtPromptContract } from '../../server/utils/artPromptContract'
 import { readFileSync } from 'node:fs'
 import {
   DARK_BRIAR_ART_REQUESTS,
   DARK_BRIAR_COLLECTIBLE_ART,
   validateDarkBriarArtRequests,
+  darkBriarIllustrationPath,
 } from '../memoryDungeon/darkBriarArt'
 import {
   newBriarSave,
@@ -12,6 +14,7 @@ import {
   BRIAR_GATE,
 } from '../memoryDungeonWorld'
 import { createBriarWaveCards } from '../memoryDungeonWaves'
+import { BRIAR_SCENES } from '../memoryDungeon/scenes'
 import {
   DARK_BRIAR_KEYS,
   DARK_BRIAR_WAVES,
@@ -43,12 +46,59 @@ import {
   commitToMemoryFinale,
   completeMemoryExperience,
   rememberMemoryWish,
+  chooseMemoryPairEnding,
+  chooseMemoryScyllaDeparture,
+  memoryCharFate,
+  scyllaOpeningForMemory,
+  MEMORY_COLLISION_FRAGMENTS,
+  MEMORY_COLLISION_ORDER,
+  chooseMemoryLastChoice,
+  recoverMemoryCollisionFragment,
 } from '../memoryDungeon/reimaginerCampaign'
 
 assert.deepEqual(validateDarkBriarSlice(), [])
 assert.deepEqual(validateDarkBriarArtRequests(), [])
 assert.equal(DARK_BRIAR_ART_REQUESTS.length, 187)
 assert.equal(DARK_BRIAR_COLLECTIBLE_ART.length, 32)
+const authoredArtPaths = new Set(
+  DARK_BRIAR_ART_REQUESTS.map((request) => request.targetPath),
+)
+for (const scene of Object.values(DARK_BRIAR_SCENES)) {
+  const original = darkBriarIllustrationPath(scene.key)
+  assert.ok(
+    authoredArtPaths.has(original),
+    `Missing scene art for ${scene.key}`,
+  )
+  for (const choice of scene.choices) {
+    const consequence = darkBriarIllustrationPath(scene.key, choice.id)
+    assert.ok(
+      authoredArtPaths.has(consequence),
+      `Missing earned consequence art for ${scene.key}/${choice.id}`,
+    )
+    assert.notEqual(consequence, original)
+  }
+  assert.equal(
+    darkBriarIllustrationPath(scene.key, 'forged'),
+    original,
+    'Invalid or unearned choices must not select consequence artwork',
+  )
+}
+for (const key of Object.keys(DARK_BRIAR_SEALS)) {
+  assert.ok(
+    authoredArtPaths.has(darkBriarIllustrationPath(key)),
+    `Missing seal art for ${key}`,
+  )
+}
+assert.ok(authoredArtPaths.has(darkBriarIllustrationPath('not-a-site')))
+const artStage = readFileSync(
+  'components/memory-dungeon/dark-briar-stage.vue',
+  'utf8',
+)
+assert.match(artStage, /:src="illustrationPath"/)
+assert.match(artStage, /world\.dark\.sceneChoices\[world\.dark\.player\]/)
+assert.match(artStage, /watch\(illustrationPath/)
+assert.match(artStage, /@error="artFailed = true"/)
+
 assert.ok(
   DARK_BRIAR_ART_REQUESTS.every(
     (request) => request.jobId === null && request.delivery === 'not-submitted',
@@ -187,6 +237,8 @@ const original = restoreBriarSave({
   ...newBriarSave(),
   prologueChoice: 'terms',
   gateOpened: true,
+  revealed: ['4,4', '2,5'],
+  visited: ['4,4', '2,5'],
   sceneChoices: { '4,4': 'escort', '2,5': 'archive' },
   relics: ['bramble-chime'],
 })
@@ -197,6 +249,59 @@ assert.ok(
 )
 assert.ok(
   darkBriarOpening(DARK_BRIAR_SCENES['2,5']!, original).includes('negative'),
+)
+
+// Mirrored story echoes are earned by an actual authored choice, not by
+// prologue flags, missing records, or unknown values in an old save.
+for (const mirrored of Object.values(DARK_BRIAR_SCENES)) {
+  const echo = mirrored.originalCallback
+  if (!echo) continue
+  const source = BRIAR_SCENES[echo.key]
+  assert.ok(source, `Missing original Briar scene for ${mirrored.key}`)
+  assert.deepEqual(
+    new Set([echo.choice, echo.alternateChoice]),
+    new Set(source.choices.map((choice) => choice.id)),
+    `Mirrored callback at ${mirrored.key} must cover both real Briar decisions`,
+  )
+  for (const [choice, line] of [
+    [echo.choice, echo.line],
+    [echo.alternateChoice, echo.alternate],
+  ] as const) {
+    const earned = restoreBriarSave({
+      ...newBriarSave(),
+      revealed: [echo.key],
+      visited: [echo.key],
+      sceneChoices: { [echo.key]: choice },
+    })
+    const expected = `${mirrored.opening} ${line}`
+    assert.equal(darkBriarOpening(mirrored, earned), expected)
+    assert.equal(
+      darkBriarOpening(
+        mirrored,
+        restoreBriarSave(JSON.parse(JSON.stringify(earned))),
+      ),
+      expected,
+      'The earned story branch must survive a save round trip',
+    )
+  }
+  assert.equal(
+    darkBriarOpening(mirrored, newBriarSave()),
+    mirrored.opening,
+    'Unvisited original scenes must not invent a remembered decision',
+  )
+  assert.equal(
+    darkBriarOpening(mirrored, {
+      ...newBriarSave(),
+      sceneChoices: { [echo.key]: 'forged-choice' },
+    }),
+    mirrored.opening,
+    'Unknown original decisions must not select the alternate branch',
+  )
+}
+assert.equal(
+  darkBriarOpening(DARK_BRIAR_SCENES['2,4']!, original),
+  DARK_BRIAR_SCENES['2,4']!.opening,
+  'The prologue terms flag is not the courier lantern decision',
 )
 for (let wave = 1; wave < 4; wave++) {
   const previousChoices = JSON.stringify(dark.sceneChoices)
@@ -326,34 +431,150 @@ assert.deepEqual(restoreMemoryCampaignProgress(completed).completed, [
   'e01',
   'e02',
 ])
-// The finale is earned after any two middle pairs. Requiring e12 on restore
-// silently erased a valid commitment through the Hearth + Market route.
+// The four original/dark acts precede four mixed-memory maps. The new
+// finale cannot be silently completed by an old sixteen-reality save.
 let alternate = completed
 alternate = rememberMemoryWish(alternate, 'morrow-magic-attempt')
 alternate = completeMemoryExperience(alternate, 'e03')
+alternate = chooseMemoryPairEnding(alternate, 'e04', 'seal-the-tide-gate')
 alternate = completeMemoryExperience(alternate, 'e04')
+assert.equal(memoryCharFate(alternate), 'alive')
+assert.match(scyllaOpeningForMemory(alternate, 'e05'), /Char survived/)
 alternate = rememberMemoryWish(alternate, 'scylla-home-wish')
+alternate = chooseMemoryScyllaDeparture(alternate, 'stay')
 alternate = completeMemoryExperience(alternate, 'e05')
 alternate = rememberMemoryWish(alternate, 'char-possible-future')
+alternate = chooseMemoryPairEnding(alternate, 'e06', 'protect-private-memory')
 alternate = completeMemoryExperience(alternate, 'e06')
-for (const id of ['e07', 'e08', 'e09', 'e10'] as const) {
+alternate = completeMemoryExperience(alternate, 'e07')
+alternate = chooseMemoryPairEnding(alternate, 'e08', 'unbar-all-doors')
+alternate = completeMemoryExperience(alternate, 'e08')
+assert.deepEqual(availableMemoryExperiences(alternate), ['e09'])
+alternate = commitToMemoryFinale(alternate)
+assert.throws(
+  () => completeMemoryExperience(alternate, 'e09'),
+  /Recover both misplaced world fragments/,
+)
+for (const id of MEMORY_COLLISION_ORDER) {
+  for (const fragment of MEMORY_COLLISION_FRAGMENTS.filter(
+    (part) => part.world === id,
+  ))
+    alternate = recoverMemoryCollisionFragment(alternate, fragment.id)
+  if (id === 'e10')
+    alternate = chooseMemoryPairEnding(alternate, 'e10', 'publish-price-ledger')
+  if (id === 'e12') {
+    alternate = chooseMemoryPairEnding(alternate, 'e12', 'free-transit')
+    alternate = chooseMemoryLastChoice(alternate, 'repair-with-consent')
+  }
   alternate = completeMemoryExperience(alternate, id)
 }
-assert.ok(availableMemoryExperiences(alternate).includes('e13'))
-alternate = commitToMemoryFinale(alternate)
 assert.deepEqual(
   restoreMemoryCampaignProgress(JSON.parse(JSON.stringify(alternate))),
   alternate,
-  'Save during the committed finale must not require the unchosen Crossing pair',
+  'All twelve realities, eight fragments and final choice survive saved replay',
 )
-alternate = completeMemoryExperience(alternate, 'e13')
-alternate = completeMemoryExperience(alternate, 'e14')
-const alternateReload = restoreMemoryCampaignProgress(
-  JSON.parse(JSON.stringify(alternate)),
-)
-assert.deepEqual(alternateReload, alternate)
-assert.equal(alternateReload.completed.includes('e12'), false)
-assert.deepEqual(availableMemoryExperiences(alternateReload), ['e15'])
+assert.equal(alternate.completed.length, 12)
+assert.deepEqual(availableMemoryExperiences(alternate), [])
+
+const formerSixteen = restoreMemoryCampaignProgress({
+  completed: [
+    'e01',
+    'e02',
+    'e03',
+    'e04',
+    'e05',
+    'e06',
+    'e09',
+    'e10',
+    'e11',
+    'e12',
+    'e07',
+    'e08',
+    'e13',
+    'e14',
+    'e15',
+    'e16',
+  ],
+  rememberedAnchors: [
+    'morrow-magic-attempt',
+    'scylla-home-wish',
+    'char-possible-future',
+  ],
+  finaleCommitted: true,
+})
+assert.deepEqual(formerSixteen.completed, [
+  'e01',
+  'e02',
+  'e03',
+  'e04',
+  'e05',
+  'e06',
+  'e07',
+  'e08',
+])
+assert.equal(formerSixteen.finaleCommitted, true)
+assert.deepEqual(formerSixteen.legacyCompleted, [
+  'e09',
+  'e10',
+  'e11',
+  'e12',
+  'e13',
+  'e14',
+  'e15',
+  'e16',
+])
+assert.deepEqual(availableMemoryExperiences(formerSixteen), ['e09'])
+const skippedHoshimori = restoreMemoryCampaignProgress({
+  completed: ['e01', 'e02', 'e03', 'e04', 'e05', 'e06', 'e09', 'e10', 'e13'],
+  rememberedAnchors: [
+    'morrow-magic-attempt',
+    'scylla-home-wish',
+    'char-possible-future',
+  ],
+  finaleCommitted: true,
+})
+assert.deepEqual(skippedHoshimori.completed, [
+  'e01',
+  'e02',
+  'e03',
+  'e04',
+  'e05',
+  'e06',
+])
+assert.equal(skippedHoshimori.finaleCommitted, false)
+assert.deepEqual(skippedHoshimori.legacyCompleted, ['e09', 'e10', 'e13'])
+const legacyDeparture = restoreMemoryCampaignProgress({
+  completed: ['e01', 'e02', 'e03', 'e04', 'e05', 'e06'],
+  rememberedAnchors: [
+    'morrow-magic-attempt',
+    'scylla-home-wish',
+    'char-possible-future',
+  ],
+})
+assert.deepEqual(legacyDeparture.completed, [
+  'e01',
+  'e02',
+  'e03',
+  'e04',
+  'e05',
+  'e06',
+])
+assert.equal(legacyDeparture.pairDecisions?.e04, 'legacy-unresolved')
+assert.equal(legacyDeparture.scyllaDeparture, 'legacy-unspoken')
+assert.equal(memoryCharFate(legacyDeparture), 'unresolved')
+const forgedLostChar = restoreMemoryCampaignProgress({
+  completed: ['e01', 'e02', 'e03'],
+  pairDecisions: { e04: 'open-the-tide-gate' },
+})
+assert.equal(memoryCharFate(forgedLostChar), 'unresolved')
+const inProgressPast = restoreMemoryCampaignProgress({
+  completed: ['e01', 'e02', 'e03', 'e04'],
+  rememberedAnchors: ['morrow-magic-attempt', 'scylla-home-wish'],
+  pairDecisions: { e04: 'divert-the-current' },
+  scyllaDeparture: 'tell-char',
+})
+assert.equal(inProgressPast.scyllaDeparture, 'tell-char')
+assert.equal(memoryCharFate(inProgressPast), 'alive')
 
 const forgedFuture = restoreMemoryCampaignProgress({
   completed: ['e01', 'e02', 'e16', 'e03', 'e04', 'e13'],
@@ -363,6 +584,7 @@ const forgedFuture = restoreMemoryCampaignProgress({
 assert.deepEqual(forgedFuture.completed, ['e01', 'e02', 'e03', 'e04'])
 assert.deepEqual(forgedFuture.rememberedAnchors, ['morrow-magic-attempt'])
 assert.equal(forgedFuture.finaleCommitted, false)
+assert.deepEqual(forgedFuture.legacyCompleted, ['e16', 'e13'])
 assert.deepEqual(availableMemoryExperiences(forgedFuture), ['e05'])
 assert.deepEqual(
   restoreMemoryCampaignProgress({
@@ -398,6 +620,27 @@ assert.ok(store.includes('const DARK_BRIAR_KEY ='))
 assert.ok(store.includes('grantBriarCompletion()'))
 assert.ok(store.includes('persistReality()'))
 assert.ok(store.includes('advanceDarkBriarWave(dark.value)'))
+// A literal brief names what is visible and closes on its realm's medium.
+const MEDIUM_LINE =
+  /(?:Hand-painted gouache and ink illustration[^.]*|Candid 35mm colour photograph, natural light, soft film grain)\.$/
+const NON_LITERAL =
+  /\b(?:no|not|without|never|nothing|none|lettering|text|watermark|montage|legible|readable|iconic|composition|collectible|thumbnail|game|story)\b|(?<!shaped )\blike\b/i
+for (const brief of [
+  ...DARK_BRIAR_ART_REQUESTS,
+  ...DARK_BRIAR_COLLECTIBLE_ART,
+]) {
+  const problems = checkArtPromptContract({
+    prompt: brief.prompt,
+    engine: 'krea2',
+  }).map((violation) => violation.rule)
+  const word = brief.prompt.match(NON_LITERAL)?.[0]
+  if (word) problems.push(`non-literal "${word}"`)
+  if (!MEDIUM_LINE.test(brief.prompt)) problems.push('missing its medium line')
+  if (brief.prompt.length < 120 || brief.prompt.length > 900)
+    problems.push(`length ${brief.prompt.length}`)
+  assert.deepEqual(problems, [], `${brief.id} is not a literal Krea 2 prompt`)
+}
+
 console.log(
-  '60 Dark Briar encounters and 4 future seals, four 8-pair reveal waves, eight-witness House, migration and art briefs pass',
+  '60 Dark Briar encounters and 4 future seals, four 8-pair reveal waves, eight-witness House, migration and literal Krea 2 art briefs pass',
 )

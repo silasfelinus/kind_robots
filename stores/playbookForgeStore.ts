@@ -1,17 +1,26 @@
 import { defineStore } from 'pinia'
 import { computed, ref } from 'vue'
 import { performFetch } from '~/stores/utils'
-import { usePlaybookStore } from '~/stores/playbookStore'
+import { usePlaybookStore, type PlaybookNoteKind } from '~/stores/playbookStore'
+import { useFacetCatalogStore } from '~/stores/facetCatalogStore'
 import {
-  useFacetCatalogStore,
-  type FacetTaxonomy,
-} from '~/stores/facetCatalogStore'
-import { buildPlaybook, isPlaybookGame } from '~/utils/playbook/games'
+  PLAYBOOK_GAMES,
+  buildPlaybook,
+  isPlaybookGame,
+} from '~/utils/playbook/games'
 import { KIT_PLAYBOOKS, kitPlaybook } from '~/utils/playbookKit/games'
 import {
   DEFAULT_ASSUMPTIONS,
   type Assumptions,
 } from '~/utils/playbookForge/calibration'
+import {
+  combinedSection,
+  filterEntries,
+  galleryTiles as buildGalleryTiles,
+  targetEntries,
+  type GalleryFilter,
+  type GalleryTarget,
+} from '~/utils/playbookForge/gallery'
 import {
   EMPTY_PLAN_EDIT,
   applyPlanEdit,
@@ -20,9 +29,27 @@ import {
   type AdditionKind,
   type PlanEdit,
 } from '~/utils/playbookForge/adjust'
+import {
+  characterItem,
+  facetItem,
+  gameBeats,
+  gamePlaces,
+  itemDesign,
+  itemSpark,
+  rewardItem,
+  scenarioItem,
+  scenarioLocations,
+  type CatalogItem,
+  type CatalogTab,
+} from '~/utils/playbookForge/catalog'
+import { cardsForTab, type Design } from '~/utils/playbookForge/designs'
 import { forecast } from '~/utils/playbookForge/estimate'
 import {
-  SPARK_TAXONOMIES,
+  blueprintFromPitch,
+  type GestationConcept,
+  type GestationNote,
+} from '~/utils/playbookForge/gestation'
+import {
   dealSparks,
   elementFromFacets,
   facetPool,
@@ -58,6 +85,8 @@ import {
   playbookArtRequest,
 } from '~/utils/playbook/artLanes'
 import type { Playbook, PlaybookNode } from '~/utils/playbook/types'
+import { withVerifiedArt } from '~/utils/playbookForge/verifiedArt'
+import { withBundledArt } from '~/utils/playbook/bundledArt'
 import {
   buildLedger,
   artPromptBrief,
@@ -83,8 +112,12 @@ export type ForgeScreen =
   | 'loadout'
   | 'analyze'
   | 'ledger'
+  | 'gallery'
+  | 'redshirts'
   | 'beats'
   | 'kit'
+  | 'gestation'
+  | 'catalog'
   | 'launch'
   | 'assumptions'
 
@@ -96,6 +129,11 @@ export type LedgerRelay = {
   project: string
   edits: number
   byNode: Record<string, LedgerJob[]>
+  /** Beats whose image-store picture exists (node key → URL). */
+  painted?: Record<string, string>
+  /** URLs independently checked against delivered raster files on the server. */
+  verified?: Record<string, string>
+  extras?: { total: number; delivered: number; missing: string[] }
   jobs: ProjectJobs
   truncated: boolean
 }
@@ -114,6 +152,7 @@ const DRAFTS_KEY = 'kr-playbook-forge-drafts-v1'
 const ASSUMPTIONS_KEY = 'kr-playbook-forge-assumptions-v1'
 const LIBRARY_SORT_KEY = 'kr-playbook-forge-library-sort-v1'
 const PLAN_EDITS_KEY = 'kr-playbook-forge-plan-edits-v1'
+const TRAY_KEY = 'kr-playbook-forge-tray-v1'
 
 /** One game's ledger at a glance, for the Load a game library. */
 export type LibraryStat = {
@@ -308,11 +347,12 @@ export const usePlaybookForgeStore = defineStore('playbookForge', () => {
       changes: planChanges(entry.plan, edit.overrides),
       additions: edit.additions
         .filter((a) => !a.postedUrl)
-        .map(({ kind, title, note, source }) => ({
+        .map(({ kind, title, note, source, prompt }) => ({
           kind,
           title,
           note,
           source,
+          prompt,
         })),
       combos: combosLine(plan),
     }
@@ -372,8 +412,8 @@ export const usePlaybookForgeStore = defineStore('playbookForge', () => {
     if (facetsState.value === 'loading' || facetsState.value === 'ready') return
     facetsState.value = 'loading'
     try {
+      // Every taxonomy: sparks deal from theirs, the catalogue browses all.
       const rows = await useFacetCatalogStore().fetchCatalogSlice({
-        taxonomies: SPARK_TAXONOMIES as FacetTaxonomy[],
         take: 1000,
       })
       facets.value = facetPool(rows)
@@ -416,6 +456,250 @@ export const usePlaybookForgeStore = defineStore('playbookForge', () => {
     return elementFromFacets(kind, facets.value)
   }
 
+  // Designs: every plan page leads with art, either the game's own beats or
+  // designs (an authored prompt, rendered here on request).
+  const designs = computed<Design[]>(() =>
+    existing.value
+      ? editFor(existing.value.slug).additions
+      : (draft.value?.designs ?? []),
+  )
+  const designCards = computed(() =>
+    cardsForTab(
+      tab.value,
+      existing.value && ledgerBook.value
+        ? withVerifiedArt(ledgerBook.value, ledgerRelay.value?.verified)
+        : null,
+      designs.value,
+    ),
+  )
+  const designJobs = ref<Record<string, string>>({})
+  const pendingDesigns = ref<Design[]>([])
+
+  /** Adds or updates a design on the open game (its ledger additions) or the draft. */
+  function saveDesign(design: Design) {
+    const entry = existing.value
+    if (entry) {
+      const edit = editFor(entry.slug)
+      const at = edit.additions.findIndex((a) => a.id === design.id)
+      const additions =
+        at >= 0
+          ? edit.additions.map((a, i) => (i === at ? { ...a, ...design } : a))
+          : [...edit.additions, design]
+      saveEdit(entry.slug, { ...edit, additions })
+      draft.value = planFor(entry)
+      return
+    }
+    if (!draft.value) return
+    const list = draft.value.designs ?? []
+    const at = list.findIndex((d) => d.id === design.id)
+    draft.value = {
+      ...draft.value,
+      designs:
+        at >= 0
+          ? list.map((d, i) => (i === at ? { ...d, ...design } : d))
+          : [...list, design],
+    }
+    persistDraft()
+  }
+
+  function removeDesign(id: string) {
+    if (existing.value) return removeElement(id)
+    if (!draft.value) return
+    draft.value = {
+      ...draft.value,
+      designs: (draft.value.designs ?? []).filter((d) => d.id !== id),
+    }
+    persistDraft()
+  }
+
+  /** Renders a design's authored prompt on Krea 2. Never renders without a prompt. */
+  async function renderDesign(id: string) {
+    const design = designs.value.find((d) => d.id === id)
+    const prompt = design?.prompt?.trim()
+    const lane = PLAYBOOK_ART_LANES.find((l) => l.key === 'krea2')
+    if (!design || !prompt || !lane) return
+    designJobs.value = { ...designJobs.value, [id]: 'Sending…' }
+    const shape =
+      design.kind === 'follower' || design.kind === 'villain'
+        ? 'portrait'
+        : 'scene'
+    const res = await performFetch<{ jobId?: number }>('/api/art/enqueue', {
+      method: 'POST',
+      body: JSON.stringify(
+        playbookArtRequest(
+          lane,
+          prompt,
+          shape,
+          Math.floor(Math.random() * 2_000_000_000),
+          {
+            projectSlug:
+              existing.value?.slug || draft.value?.slug || 'playbook-forge',
+            designer: `${existing.value?.title ?? draft.value?.title ?? 'Playbook Forge'} design`,
+          },
+        ),
+      ),
+    })
+    const jobId = Number(res.data?.jobId)
+    if (!res.success || !Number.isInteger(jobId)) {
+      designJobs.value = {
+        ...designJobs.value,
+        [id]: `Refused: ${res.message || 'no answer'}`,
+      }
+      return
+    }
+    saveDesign({ ...design, jobId, imageUrl: undefined })
+    designJobs.value = { ...designJobs.value, [id]: 'Queued' }
+  }
+
+  /** Picks up finished renders for designs that are waiting on a job. */
+  async function refreshDesignJobs() {
+    for (const design of designs.value) {
+      if (!design.jobId || design.imageUrl) continue
+      const res = await performFetch<{
+        job?: { status?: string; artImageId?: number | null }
+      }>(`/api/art/queue/${design.jobId}`)
+      const job = res.data?.job
+      if (!job) continue
+      if (job.status === 'DONE' && job.artImageId) {
+        saveDesign({
+          ...design,
+          imageUrl: `/api/art/images/${job.artImageId}/file`,
+        })
+        designJobs.value = { ...designJobs.value, [design.id]: '' }
+      } else
+        designJobs.value = {
+          ...designJobs.value,
+          [design.id]:
+            job.status === 'RUNNING'
+              ? 'Rendering'
+              : job.status === 'FAILED'
+                ? 'Failed'
+                : 'Queued',
+        }
+    }
+  }
+
+  // The catalogue: Kind Robots content browsed by its art, for brainstorming.
+  const catalogTab = ref<CatalogTab>('facets')
+  const catalog = ref<Partial<Record<CatalogTab, CatalogItem[]>>>({})
+  const catalogLoading = ref<CatalogTab | ''>('')
+  const catalogError = ref('')
+  const catalogSearch = ref('')
+  const catalogFocus = ref('')
+  const tray = ref<CatalogItem[]>([])
+
+  async function list(url: string) {
+    const res = await performFetch<Record<string, unknown>[]>(url, {}, 0, 30000)
+    if (!res.success) throw new Error(res.message || `${url} did not answer.`)
+    return Array.isArray(res.data) ? res.data : []
+  }
+
+  function playbookBooks() {
+    return PLAYBOOK_GAMES.map((game) => ({
+      game,
+      book: buildPlaybook(game.id),
+    }))
+  }
+
+  async function loadCatalog(tab: CatalogTab = catalogTab.value) {
+    if (catalog.value[tab] || catalogLoading.value === tab) return
+    catalogLoading.value = tab
+    catalogError.value = ''
+    try {
+      let items: CatalogItem[] = []
+      if (tab === 'facets' || tab === 'locations') await loadFacets()
+      if (tab === 'facets')
+        items = Object.values(facets.value).flat().map(facetItem)
+      else if (tab === 'characters')
+        items = (await list('/api/characters')).flatMap(
+          (row) => characterItem(row) ?? [],
+        )
+      else if (tab === 'scenarios')
+        items = (await list('/api/scenarios')).flatMap(
+          (row) => scenarioItem(row) ?? [],
+        )
+      else if (tab === 'rewards')
+        items = (await list('/api/rewards')).flatMap(
+          (row) => rewardItem(row) ?? [],
+        )
+      else if (tab === 'locations') {
+        const scenarios = await list('/api/scenarios').catch(() => [])
+        items = [
+          ...(facets.value.SETTING ?? []).map(facetItem),
+          ...playbookBooks().flatMap(({ game, book }) =>
+            gamePlaces(game.id, book),
+          ),
+          ...scenarios.flatMap(scenarioLocations),
+        ]
+      } else if (tab === 'beats')
+        items = playbookBooks().flatMap(({ game, book }) =>
+          gameBeats(game.id, book),
+        )
+      catalog.value = { ...catalog.value, [tab]: items }
+    } catch (error) {
+      catalogError.value =
+        error instanceof Error ? error.message : 'The catalogue could not load.'
+    } finally {
+      catalogLoading.value = ''
+    }
+  }
+
+  function openCatalog(tab?: CatalogTab) {
+    if (tab) catalogTab.value = tab
+    go('catalog')
+    void loadCatalog()
+  }
+
+  function setCatalogTab(tab: CatalogTab) {
+    catalogTab.value = tab
+    catalogFocus.value = ''
+    void loadCatalog(tab)
+  }
+
+  function inTray(key: string) {
+    return tray.value.some((item) => item.key === key)
+  }
+
+  function toggleTray(item: CatalogItem) {
+    tray.value = inTray(item.key)
+      ? tray.value.filter((i) => i.key !== item.key)
+      : [...tray.value, item]
+    writeJson(TRAY_KEY, tray.value)
+  }
+
+  function clearTray() {
+    tray.value = []
+    writeJson(TRAY_KEY, tray.value)
+  }
+
+  /** Starts a new playbook from the tray: Facets become sparks, everything else designs. */
+  function trayToIdea() {
+    const facetsIn = tray.value.flatMap((item) => {
+      const spark = itemSpark(item)
+      return spark ? [spark] : []
+    })
+    ideaGenre.value =
+      facetsIn.find((s) => s.slot === 'genre') ?? ideaGenre.value
+    const sparks = facetsIn.filter((s) => s.slot !== 'genre')
+    ideaSparks.value = [
+      ...ideaSparks.value.filter((s) => !sparks.some((n) => n.slot === s.slot)),
+      ...sparks.map((s) => ({ ...s, locked: true })),
+    ]
+    pendingDesigns.value = tray.value
+      .filter((item) => !item.facet || item.facet.taxonomy === 'SETTING')
+      .map(itemDesign)
+    startIdea()
+  }
+
+  /** Adds the tray to the open game as designs (shown on its plan pages and ledger). */
+  function trayToGame() {
+    const entry = existing.value
+    if (!entry || !tray.value.length) return
+    for (const item of tray.value) saveDesign(itemDesign(item))
+    status.value = `${tray.value.length} designs added to ${entry.title}. Post them from the ledger's Adjust panel.`
+    clearTray()
+  }
+
   const libraryStats = ref<Record<string, LibraryStat>>({})
   const libraryLoading = ref(false)
   const librarySort = ref<LibrarySort>('progress-asc')
@@ -432,15 +716,24 @@ export const usePlaybookForgeStore = defineStore('playbookForge', () => {
       for (const entry of EXISTING_PLAYBOOKS) {
         if (libraryStats.value[entry.slug]) continue
         if (!entry.studio || !isPlaybookGame(entry.studio)) continue
-        const book = buildPlaybook(entry.studio)
+        const book = await withBundledArt(buildPlaybook(entry.studio))
         const counts = await entry.count().catch(() => null)
+        const inventory = await performFetch<{
+          verified: Record<string, string>
+          extras: { total: number; delivered: number; missing: string[] }
+        }>(
+          `/api/admin/playbook-ledger/${encodeURIComponent(entry.studio)}?inventory=1`,
+        )
+        // A failed verification is unknown, never an optimistic 100%.
+        if (!inventory.success || !inventory.data) continue
         const ledger = buildLedger(
-          book,
+          withVerifiedArt(book, inventory.data.verified),
           {},
           {
             laneKey: book.artLanes[0] ?? 'krea2',
             assumptions: assumptions.value,
             gaps: counts ? planGaps(planFor(entry), counts) : [],
+            extraArt: inventory.data.extras,
           },
         )
         libraryStats.value = {
@@ -515,18 +808,81 @@ export const usePlaybookForgeStore = defineStore('playbookForge', () => {
     if (ledgerRelay.value?.truncated)
       notes.push('Only the newest 5000 relay jobs were read.')
     return buildLedger(
-      ledgerBook.value ?? { order: [], nodes: {} },
+      withVerifiedArt(
+        ledgerBook.value ?? { order: [], nodes: {} },
+        ledgerRelay.value?.verified,
+      ),
       ledgerRelay.value?.byNode ?? {},
       {
         laneKey: ledgerLane.value,
         assumptions: assumptions.value,
         gaps,
+        extraArt: ledgerRelay.value?.extras,
         notes,
       },
     )
   })
   const ledgerFocused = computed(
     () => ledger.value?.sections[ledgerSection.value] ?? null,
+  )
+
+  // The gallery: a game's sections and people as large art, each beat with
+  // its picture or prompt, its renders and its notes, and comments on whole
+  // sections and people (Silas, 2026-10-27: "more of a command center, with
+  // large image friendly interfaces, than a museum").
+  const galleryTarget = ref<GalleryTarget | null>(null)
+  const galleryFocus = ref<string | null>(null)
+  const galleryFilter = ref<GalleryFilter>('all')
+  const galleryGroup = ref('All')
+  const galleryBook = computed<Playbook | null>(() =>
+    ledgerBook.value
+      ? {
+          ...ledgerBook.value,
+          ...withVerifiedArt(ledgerBook.value, ledgerRelay.value?.verified),
+        }
+      : null,
+  )
+  const galleryTiles = computed(() =>
+    galleryBook.value
+      ? buildGalleryTiles(galleryBook.value, ledger.value)
+      : { sections: [], people: [] },
+  )
+  const galleryTile = computed(() => {
+    const target = galleryTarget.value
+    if (!target) return null
+    const tiles =
+      target.type === 'section'
+        ? galleryTiles.value.sections
+        : galleryTiles.value.people
+    return tiles.find((t) => t.target.id === target.id) ?? null
+  })
+  const galleryEntries = computed(() =>
+    galleryBook.value && galleryTarget.value
+      ? targetEntries(galleryBook.value, ledger.value, galleryTarget.value)
+      : [],
+  )
+  const galleryShown = computed(() =>
+    filterEntries(galleryEntries.value, galleryFilter.value),
+  )
+  const galleryFocused = computed(
+    () =>
+      galleryEntries.value.find((e) => e.key === galleryFocus.value) ?? null,
+  )
+  /** The gallery's section, or a person's beats as one, for the shared submit flow. */
+  const gallerySection = computed(() => {
+    const target = galleryTarget.value
+    const l = ledger.value
+    if (!target || !l) return null
+    if (target.type === 'section')
+      return l.sections.find((s) => s.id === target.id) ?? null
+    return combinedSection(
+      galleryTile.value?.label ?? target.id,
+      l.sections,
+      galleryEntries.value.map((e) => e.key),
+    )
+  })
+  const submitSection = computed(() =>
+    screen.value === 'gallery' ? gallerySection.value : ledgerFocused.value,
   )
 
   /** What one press of ◀ or ▶ on the focused row would do to the forecast. */
@@ -552,6 +908,7 @@ export const usePlaybookForgeStore = defineStore('playbookForge', () => {
     loaded.value = true
     drafts.value = readJson<Record<string, Blueprint>>(DRAFTS_KEY) ?? {}
     planEdits.value = readJson<Record<string, PlanEdit>>(PLAN_EDITS_KEY) ?? {}
+    tray.value = readJson<CatalogItem[]>(TRAY_KEY) ?? []
     const sort = readJson<LibrarySort>(LIBRARY_SORT_KEY)
     if (sort && LIBRARY_SORTS.some((option) => option.id === sort))
       librarySort.value = sort
@@ -576,7 +933,12 @@ export const usePlaybookForgeStore = defineStore('playbookForge', () => {
   const returnTo = ref<ForgeScreen>('title')
 
   function go(next: ForgeScreen) {
-    if (next === 'assumptions' || next === 'launch')
+    if (
+      next === 'assumptions' ||
+      next === 'launch' ||
+      next === 'catalog' ||
+      next === 'redshirts'
+    )
       returnTo.value = screen.value
     screen.value = next
     status.value = ''
@@ -584,9 +946,21 @@ export const usePlaybookForgeStore = defineStore('playbookForge', () => {
   }
 
   /** The B button: one step back toward the title screen. */
+  function openRedshirts() {
+    existing.value =
+      EXISTING_PLAYBOOKS.find((entry) => entry.slug === 'game-of-captains') ??
+      null
+    go('redshirts')
+  }
+
   function back() {
     const from = screen.value
-    if (from === 'launch' || from === 'assumptions')
+    if (
+      from === 'launch' ||
+      from === 'assumptions' ||
+      from === 'catalog' ||
+      from === 'redshirts'
+    )
       screen.value = returnTo.value
     else if (from === 'loadout')
       screen.value = existing.value ? 'library' : 'idea'
@@ -597,6 +971,13 @@ export const usePlaybookForgeStore = defineStore('playbookForge', () => {
       ledgerPanel.value = 'detail'
       return
     } else if (from === 'ledger') screen.value = 'library'
+    else if (from === 'gallery' && ledgerConfirm.value) {
+      ledgerConfirm.value = null
+      return
+    } else if (from === 'gallery' && galleryFocus.value) {
+      galleryFocus.value = null
+      return
+    } else if (from === 'gallery') screen.value = 'ledger'
     else if (from === 'beats')
       screen.value =
         ledgerBook.value || ledgerRelay.value ? 'ledger' : 'library'
@@ -604,9 +985,89 @@ export const usePlaybookForgeStore = defineStore('playbookForge', () => {
       screen.value = existing.value ? 'ledger' : 'library'
     else if (from === 'analyze')
       screen.value = ledgerBook.value || ledgerRelay.value ? 'ledger' : 'title'
-    else if (from === 'idea' || from === 'library') screen.value = 'title'
+    else if (from === 'idea' || from === 'library' || from === 'gestation')
+      screen.value = 'title'
     status.value = ''
     result.value = null
+  }
+
+  const gestation = ref<GestationConcept[] | null>(null)
+  const gestationLoading = ref(false)
+  const gestationError = ref('')
+  const gestationId = ref('')
+  const gestationStatus = ref('')
+  const gestationFocused = computed(
+    () =>
+      gestation.value?.find((c) => c.conceptId === gestationId.value) ??
+      gestation.value?.[0] ??
+      null,
+  )
+
+  /** The daily playbook challenge's concepts, read from Conductor. */
+  async function loadGestation() {
+    if (gestationLoading.value) return
+    gestationLoading.value = true
+    gestationError.value = ''
+    try {
+      const res = await performFetch<{ concepts: GestationConcept[] }>(
+        '/api/playbook-forge/gestation',
+        {},
+        0,
+        30000,
+      )
+      if (res.success && res.data) {
+        gestation.value = res.data.concepts
+        if (!gestationId.value)
+          gestationId.value = res.data.concepts[0]?.conceptId ?? ''
+      } else gestationError.value = res.message || 'Conductor did not answer.'
+    } finally {
+      gestationLoading.value = false
+    }
+  }
+
+  function openGestation() {
+    go('gestation')
+    if (!gestation.value) void loadGestation()
+  }
+
+  /** Saves a note for the concept's next development (Conductor SILAS-NOTES.yaml). */
+  async function postGestationNote(conceptId: string, note: string) {
+    const text = note.trim()
+    if (!text || busy.value) return false
+    busy.value = true
+    gestationStatus.value = 'Saving the note…'
+    try {
+      const res = await performFetch<GestationNote>(
+        '/api/playbook-forge/gestation-note',
+        { method: 'POST', body: JSON.stringify({ conceptId, note: text }) },
+        0,
+        20000,
+      )
+      if (!res.success || !res.data) {
+        gestationStatus.value = `Not saved: ${res.message || 'Conductor did not answer.'}`
+        return false
+      }
+      const concept = gestation.value?.find((c) => c.conceptId === conceptId)
+      if (concept) concept.notes = [...concept.notes, res.data]
+      gestationStatus.value =
+        'Saved. The next daily challenge answers it before anything else.'
+      return true
+    } finally {
+      busy.value = false
+    }
+  }
+
+  /** Turns a gestating pitch into a Forge draft: its genre's loadout plus the counts it names. */
+  function forgePitch(conceptId: string) {
+    const concept = gestation.value?.find((c) => c.conceptId === conceptId)
+    if (!concept) return
+    existing.value = null
+    built.value = null
+    draft.value = blueprintFromPitch(concept.latest)
+    tab.value = 'pitch'
+    focus.value = 0
+    persistDraft()
+    go('loadout')
   }
 
   function startIdea() {
@@ -627,7 +1088,9 @@ export const usePlaybookForgeStore = defineStore('playbookForge', () => {
         ...(ideaGenre.value ? [ideaGenre.value] : []),
         ...ideaSparks.value.map(({ locked: _locked, ...spark }) => spark),
       ],
+      designs: pendingDesigns.value,
     }
+    pendingDesigns.value = []
     tab.value = 'pitch'
     focus.value = 0
     persistDraft()
@@ -668,6 +1131,11 @@ export const usePlaybookForgeStore = defineStore('playbookForge', () => {
     loadingBuilt.value = true
     try {
       built.value = await entry.count()
+      // The plan pages lead with the game's own art.
+      if (!ledgerBook.value && entry.studio && isPlaybookGame(entry.studio)) {
+        ledgerBook.value = await withBundledArt(buildPlaybook(entry.studio))
+        void loadRelay(entry.studio)
+      }
     } catch (error) {
       status.value = `Could not count ${entry.title}: ${error instanceof Error ? error.message : String(error)}`
     } finally {
@@ -746,7 +1214,7 @@ export const usePlaybookForgeStore = defineStore('playbookForge', () => {
           const { buildPlaybook, isPlaybookGame } =
             await import('~/utils/playbook/games')
           return isPlaybookGame(entry.studio)
-            ? buildPlaybook(entry.studio)
+            ? withBundledArt(buildPlaybook(entry.studio))
             : null
         })(),
       ])
@@ -758,6 +1226,208 @@ export const usePlaybookForgeStore = defineStore('playbookForge', () => {
       status.value = `Could not read ${entry.title}: ${error instanceof Error ? error.message : String(error)}`
     } finally {
       ledgerLoading.value = false
+    }
+  }
+
+  /** Opens a game's gallery on a section or person (default: the ledger's focused section). */
+  async function openGallery(
+    slug: string,
+    target?: GalleryTarget,
+    key?: string,
+  ) {
+    if (existing.value?.slug !== slug || !ledgerBook.value)
+      await openLedger(slug)
+    const entry = existing.value
+    if (!entry?.studio || !ledgerBook.value) {
+      status.value = `${entry?.title ?? 'This game'} has no Playbook Studio adapter yet, so it has no gallery.`
+      return
+    }
+    const focused = ledgerFocused.value
+    galleryTarget.value =
+      target ??
+      (focused
+        ? { type: 'section', id: focused.id }
+        : (galleryTiles.value.sections[0]?.target ?? null))
+    galleryFilter.value = 'all'
+    galleryGroup.value = 'All'
+    galleryFocus.value = null
+    ledgerConfirm.value = null
+    go('gallery')
+    if (isPlaybookGame(entry.studio))
+      await usePlaybookStore().setGame(entry.studio)
+    if (key) focusEntry(key)
+  }
+
+  function showTarget(target: GalleryTarget) {
+    galleryGroup.value = 'All'
+    galleryTarget.value = target
+    galleryFocus.value = null
+    ledgerConfirm.value = null
+  }
+
+  /** Focuses one beat and fetches its renders' previews. */
+  function focusEntry(key: string | null) {
+    galleryFocus.value = key
+    ledgerConfirm.value = null
+    if (!key) return
+    const studio = usePlaybookStore()
+    void studio.refreshJobs(key)
+    for (const job of ledgerRelay.value?.byNode[key] ?? [])
+      if (job.artImageId) void studio.loadPreview(job.artImageId)
+  }
+
+  /** Every render requested for a beat, newest first, with its preview once loaded. */
+  function galleryRenders(key: string) {
+    const studio = usePlaybookStore()
+    const rows = new Map<
+      number,
+      { jobId: number; status: string; imageId: number | null }
+    >()
+    for (const job of ledgerRelay.value?.byNode[key] ?? [])
+      rows.set(job.id, {
+        jobId: job.id,
+        status: job.status,
+        imageId: job.artImageId ?? studio.jobs[job.id]?.artImageId ?? null,
+      })
+    for (const note of studio.notesFor(key)) {
+      const id = note.artJobId
+      if (!id || rows.has(id)) continue
+      const job = studio.jobs[id]
+      rows.set(id, {
+        jobId: id,
+        status: job?.status ?? 'PENDING',
+        imageId: job?.artImageId ?? null,
+      })
+    }
+    return [...rows.values()]
+      .sort((a, b) => b.jobId - a.jobId)
+      .map((row) => ({
+        ...row,
+        src: row.imageId ? (studio.previews[row.imageId] ?? null) : null,
+      }))
+  }
+
+  /** A comment, a re-render flag or a prompt proposal on a beat, section or person. */
+  async function galleryNote(
+    key: string,
+    kind: PlaybookNoteKind,
+    body: string,
+  ): Promise<boolean> {
+    const text = body.trim()
+    if (!text) return false
+    const studio = usePlaybookStore()
+    const ok = await studio.addNote(key, { kind, body: text })
+    status.value = ok
+      ? kind === 'flag'
+        ? 'Flagged for a new picture.'
+        : 'Saved for the next development.'
+      : studio.message
+    return ok
+  }
+
+  /** Send a creative brief to the game's master issue, not merely a private beat note. */
+  async function postGalleryDirection(direction: string) {
+    const entry = existing.value
+    const brief = direction.trim()
+    if (!entry || !brief || posting.value) return false
+    const scope = galleryFocus.value
+      ? (galleryFocused.value?.title ?? galleryFocus.value)
+      : (galleryTile.value?.label ?? 'whole playbook')
+    const origin =
+      galleryGroup.value === 'All' ? '' : ` / ${galleryGroup.value} group`
+    posting.value = true
+    adjustStatus.value = 'Sending direction to GitHub…'
+    try {
+      const res = await performFetch<{ issue: number; url: string }>(
+        '/api/playbook-forge/adjustment',
+        {
+          method: 'POST',
+          body: JSON.stringify({
+            slug: entry.slug,
+            title: entry.title,
+            note: `Creative direction for ${scope}${origin}:\n\n${brief}`,
+            changes: [],
+            additions: [],
+            combos: '',
+          }),
+        },
+        0,
+        20000,
+      )
+      if (!res.success || !res.data) {
+        adjustStatus.value = `Not posted: ${res.message || 'GitHub did not answer.'}`
+        return false
+      }
+      adjustStatus.value = `Direction posted to #${res.data.issue}.`
+      return true
+    } finally {
+      posting.value = false
+    }
+  }
+
+  /** Renders a beat from a reviewed prompt (or, for pipeline games, leaves it for the next round). */
+  async function renderEntry(key: string, prompt: string) {
+    const book = ledgerBook.value
+    const node = book?.nodes[key]
+    const text = prompt.trim()
+    if (!book || !node || !text || busy.value) return
+    if (book.artPipeline) {
+      await galleryNote(
+        key,
+        'comment',
+        `Prompt for the next ${book.artPipeline} round: ${text}`,
+      )
+      status.value = `${book.title} art is queued by ${book.artPipeline}; the prompt is saved for its next round.`
+      return
+    }
+    busy.value = true
+    try {
+      const studio = usePlaybookStore()
+      const lane = PLAYBOOK_ART_LANES.find((l) => l.key === ledgerLane.value)
+      const ok = await studio.requestArt(key, {
+        prompt: text,
+        laneKey: ledgerLane.value,
+        shape: nodeShape(node),
+      })
+      status.value = ok
+        ? `Sent to ${lane?.label ?? 'the relay'}. The render appears here when kr-relay finishes it.`
+        : studio.message
+      if (ok) await loadRelay(book.game)
+    } finally {
+      busy.value = false
+    }
+  }
+
+  /** Asks the agents to write one beat's art prompt (a beat is never prompted from its title). */
+  async function askPrompt(key: string) {
+    const book = ledgerBook.value
+    const node = book?.nodes[key]
+    if (!book || !node || busy.value) return
+    busy.value = true
+    try {
+      const res = await performFetch<{ id: number; title: string }>(
+        '/api/todos',
+        {
+          method: 'POST',
+          body: JSON.stringify({
+            title: `Write art prompt: ${book.title} · ${node.title}`,
+            description: artPromptBrief(
+              book.game,
+              book.title,
+              book.artProject,
+              galleryTile.value?.label ?? node.kind,
+              [node],
+            ),
+            priority: 'HIGH',
+            category: 'AGENT',
+          }),
+        },
+      )
+      status.value = res.success
+        ? 'Sent to the agents as a prompt-writing Todo.'
+        : res.message || 'The Todo was refused.'
+    } finally {
+      busy.value = false
     }
   }
 
@@ -777,8 +1447,13 @@ export const usePlaybookForgeStore = defineStore('playbookForge', () => {
 
   /** First press: the confirm card with the count and time. Second press: send it. */
   function askSubmit(kind: 'art' | 'text') {
-    const section = ledgerFocused.value
+    const section = submitSection.value
     if (!section) return
+    const pipeline = ledgerBook.value?.artPipeline
+    if (kind === 'art' && pipeline) {
+      status.value = `${ledgerBook.value?.title} art is written and queued by ${pipeline}, not from the Forge.`
+      return
+    }
     const count =
       kind === 'art'
         ? Math.min(unitsToPaint(section).length, SUBMIT_CAP)
@@ -825,13 +1500,17 @@ export const usePlaybookForgeStore = defineStore('playbookForge', () => {
   /** Sends a section's unpainted beats to the art relay as Playbook Studio art requests. */
   async function submitSectionArt() {
     const book = ledgerBook.value
-    const section = ledgerFocused.value
+    const section = submitSection.value
     const lane = PLAYBOOK_ART_LANES.find((l) => l.key === ledgerLane.value)
     if (!book || !section || !lane || busy.value) return
     const all = unitsToPaint(section)
     const unprompted = all
       .map((unit) => book.nodes[unit.key])
       .filter((node): node is PlaybookNode => !!node && !nodeArtPrompt(node))
+    if (book.artPipeline) {
+      status.value = `${book.title} art is written and queued by ${book.artPipeline}, not from the Forge. Missing pictures there are submitted by Auto Art Generate.`
+      return
+    }
     const units = all
       .filter((unit) => {
         const node = book.nodes[unit.key]
@@ -885,6 +1564,7 @@ export const usePlaybookForgeStore = defineStore('playbookForge', () => {
                 projectSlug: book.artProject,
                 designer: book.title,
                 negative: book.artNegative,
+                style: book.artStyle,
               },
             ),
           ),
@@ -923,7 +1603,7 @@ export const usePlaybookForgeStore = defineStore('playbookForge', () => {
   async function submitSectionText() {
     const entry = existing.value
     const book = ledgerBook.value
-    const section = ledgerFocused.value
+    const section = submitSection.value
     if (!entry || !book || !section || busy.value) return
     busy.value = true
     status.value = 'Sending…'
@@ -1123,6 +1803,39 @@ export const usePlaybookForgeStore = defineStore('playbookForge', () => {
     toggleSparkLock,
     dropSpark,
     drawElement,
+    gestation,
+    gestationLoading,
+    gestationError,
+    gestationId,
+    gestationStatus,
+    gestationFocused,
+    loadGestation,
+    openGestation,
+    postGestationNote,
+    forgePitch,
+    designs,
+    designCards,
+    designJobs,
+    pendingDesigns,
+    saveDesign,
+    removeDesign,
+    renderDesign,
+    refreshDesignJobs,
+    catalogTab,
+    catalog,
+    catalogLoading,
+    catalogError,
+    catalogSearch,
+    catalogFocus,
+    tray,
+    loadCatalog,
+    openCatalog,
+    setCatalogTab,
+    inTray,
+    toggleTray,
+    clearTray,
+    trayToIdea,
+    trayToGame,
     libraryStats,
     libraryLoading,
     librarySort,
@@ -1134,6 +1847,26 @@ export const usePlaybookForgeStore = defineStore('playbookForge', () => {
     ledgerLoading,
     ledgerSection,
     ledgerFocused,
+    galleryTarget,
+    galleryFocus,
+    galleryFilter,
+    galleryGroup,
+    galleryBook,
+    galleryTiles,
+    galleryTile,
+    galleryEntries,
+    galleryShown,
+    galleryFocused,
+    gallerySection,
+    openGallery,
+    openRedshirts,
+    showTarget,
+    focusEntry,
+    galleryRenders,
+    galleryNote,
+    postGalleryDirection,
+    renderEntry,
+    askPrompt,
     ledgerLane,
     ledgerConfirm,
     openLedger,

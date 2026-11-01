@@ -4,10 +4,12 @@
     data-layout="console-fixed"
   >
     <header
-      class="flex shrink-0 items-center gap-2 border-b border-[#a98b5b]/40 bg-[#302b25] px-2 py-2 sm:gap-3 sm:px-4"
+      class="flex shrink-0 flex-wrap items-center gap-2 border-b border-[#a98b5b]/40 bg-[#302b25] px-2 py-2 sm:gap-3 sm:px-4"
     >
-      <span class="shrink-0 text-xl" aria-hidden="true">🌿</span>
-      <div class="min-w-0 flex-1">
+      <span class="hidden shrink-0 text-xl md:inline" aria-hidden="true"
+        >🌿</span
+      >
+      <div class="min-w-0 w-full md:w-auto md:flex-1">
         <h2 class="truncate text-sm font-black tracking-tight sm:text-lg">
           Memory Dungeon
           <span class="font-normal text-[#d1c19c]">{{
@@ -16,7 +18,7 @@
               : '/ Briar Camp'
           }}</span>
         </h2>
-        <p class="hidden text-xs text-[#d1c19c] sm:block">
+        <p class="hidden text-xs text-[#d1c19c] lg:block">
           {{
             world.activeReality === 'e02'
               ? 'The same place tells a different story.'
@@ -27,7 +29,8 @@
       <span
         class="shrink-0 rounded-lg bg-[#1c201d] px-2 py-1 text-xs font-bold tabular-nums sm:px-3"
       >
-        Attempts
+        <span class="sm:hidden">Tries</span>
+        <span class="hidden sm:inline">Attempts</span>
         {{
           world.activeReality === 'e02'
             ? world.dark.attempts
@@ -42,6 +45,42 @@
       >
         The reflection
       </button>
+      <button
+        v-if="world.campaign.completed.includes('e02')"
+        type="button"
+        class="btn btn-sm border-[#d7ba85] bg-[#4a5968] text-[#fff0d7]"
+        data-testid="memory-enter-morrow-earth"
+        @click="emit('earth')"
+      >
+        Morrow's Earth
+      </button>
+      <button
+        v-if="world.campaign.completed.includes('e04')"
+        type="button"
+        class="btn btn-sm border-[#c8a2d7] bg-[#503d6b] text-[#f7ecff]"
+        data-testid="memory-enter-scylla-sea"
+        @click="emit('sea')"
+      >
+        Scylla’s past
+      </button>
+      <button
+        v-if="world.campaign.completed.includes('e06')"
+        type="button"
+        class="btn btn-sm btn-warning"
+        data-testid="memory-enter-hoshimori"
+        @click="emit('hoshimori')"
+      >
+        Lantern Village
+      </button>
+      <button
+        v-if="world.campaign.completed.includes('e07')"
+        type="button"
+        class="btn btn-sm btn-error"
+        data-testid="memory-enter-hoshimori-night"
+        @click="emit('hoshimori-night')"
+      >
+        The Shut Doors
+      </button>
       <span
         v-if="world.activeReality === 'e01'"
         class="shrink-0 text-xs"
@@ -50,10 +89,13 @@
         ❤️ {{ world.state.hearts }}
       </span>
       <button
+        ref="chronicleTrigger"
         type="button"
         class="shrink-0 rounded-lg border border-[#c7ac7a] bg-[#4d3e32] px-2 py-1.5 text-xs font-bold text-[#f8eaca] hover:bg-[#635044] focus-visible:outline-2 focus-visible:outline-[#ffe7ad]"
         :aria-label="`Open Earth Chronicle, ${world.earthPhotos.length} recovered photographs`"
         data-testid="memory-earth-chronicle-open"
+        aria-haspopup="dialog"
+        :aria-expanded="chronicleOpen"
         @click="chronicleOpen = true"
       >
         <span aria-hidden="true">◫</span>
@@ -61,9 +103,27 @@
         <span class="font-mono">{{ world.earthPhotos.length }}</span>
       </button>
       <button
+        v-if="world.activeReality === 'e01'"
+        ref="questsTrigger"
+        type="button"
+        class="shrink-0 rounded-lg border border-[#a9b98c] bg-[#3a4733] px-2 py-1.5 text-xs font-bold text-[#f3f0d6] hover:bg-[#4d5c42] focus-visible:outline-2 focus-visible:outline-[#ecf7c8]"
+        :aria-label="`Open Threads, ${questsTied} of ${world.briarQuests.length} side quests tied off`"
+        data-testid="memory-quest-log-open"
+        aria-haspopup="dialog"
+        :aria-expanded="questsOpen"
+        @click="questsOpen = true"
+      >
+        <span aria-hidden="true">❦</span>
+        <span class="hidden sm:inline">Threads</span>
+        <span class="font-mono">{{ questsTied }}</span>
+      </button>
+      <button
+        ref="settingsTrigger"
         type="button"
         class="rounded-lg border border-[#9f875e] p-2 text-xs hover:bg-[#514b3d]"
         aria-label="Choose gallery and game settings"
+        aria-haspopup="dialog"
+        :aria-expanded="settingsOpen"
         @click="settingsOpen = !settingsOpen"
       >
         ⚙️
@@ -81,16 +141,22 @@
       v-if="chronicleOpen"
       @close="chronicleOpen = false"
     />
+    <memory-dungeon-quest-log v-if="questsOpen" @close="questsOpen = false" />
 
     <div
       v-if="settingsOpen"
       class="fixed inset-0 z-50 flex items-center justify-center bg-[#0b1617]/85 p-3 backdrop-blur-sm"
       @click.self="settingsOpen = false"
+      @keydown.esc.prevent.stop="settingsOpen = false"
+      @keydown="trapMemoryDialogTab($event, settingsDialog)"
     >
       <div
+        ref="settingsDialog"
         role="dialog"
         aria-modal="true"
-        aria-label="Choose Memory Dungeon artwork"
+        aria-label="Memory Dungeon settings and checkpoints"
+        tabindex="-1"
+        data-testid="memory-settings-dialog"
         class="kr-scroll max-h-[min(88dvh,42rem)] w-[min(94vw,46rem)] overflow-y-auto overscroll-contain rounded-xl border-2 border-[#9f875e] bg-[#302b25] p-3 shadow-2xl sm:p-4"
       >
         <div class="flex flex-wrap items-center justify-between gap-2">
@@ -152,6 +218,59 @@
             delivered.
           </p>
         </fieldset>
+        <fieldset class="mt-3 border-t border-[#9f875e]/50 pt-3">
+          <legend class="px-2 text-sm font-bold">Expedition checkpoints</legend>
+          <p class="mb-2 text-xs text-[#e4d0a8]">
+            Three manual saves. Autosave and your collected Chronicle remain
+            separate. Loading replaces the current expedition.
+          </p>
+          <div class="grid gap-2 sm:grid-cols-3">
+            <div
+              v-for="(checkpoint, index) in world.saveSlots"
+              :key="index"
+              class="min-w-0 rounded-lg border border-[#7b806b] bg-[#182d32] p-2"
+            >
+              <strong class="block text-xs">Slot {{ index + 1 }}</strong>
+              <span class="block text-xs text-[#e4d0a8]">
+                {{ checkpoint ? checkpointLabel(checkpoint.savedAt) : 'Empty' }}
+              </span>
+              <template v-if="checkpoint">
+                <span class="mt-1 block text-xs font-semibold text-[#f6dfab]">
+                  {{ memoryCheckpointPreview(checkpoint).location }}
+                </span>
+                <span class="block text-xs text-[#e4d0a8]">
+                  {{ memoryCheckpointPreview(checkpoint).progress }}
+                </span>
+              </template>
+              <div class="mt-2 flex gap-1">
+                <button
+                  type="button"
+                  class="rounded border border-[#9f875e] px-2 py-1 text-xs hover:bg-[#514b3d]"
+                  :aria-label="`Save checkpoint ${index + 1}${checkpoint ? ', overwrite existing save' : ''}`"
+                  @click="saveSlot(index)"
+                >
+                  {{ checkpoint ? 'Overwrite' : 'Save' }}
+                </button>
+                <button
+                  type="button"
+                  class="rounded border border-[#9f875e] px-2 py-1 text-xs hover:bg-[#514b3d] disabled:opacity-40"
+                  :disabled="!checkpoint"
+                  :aria-label="`Load checkpoint ${index + 1}${checkpoint ? ', ' + memoryCheckpointPreview(checkpoint).location : ', empty'}`"
+                  @click="loadSlot(index)"
+                >
+                  Load
+                </button>
+              </div>
+            </div>
+          </div>
+          <p
+            v-if="world.saveSlotMessage"
+            role="status"
+            class="mt-2 text-xs text-[#ffe09b]"
+          >
+            {{ world.saveSlotMessage }}
+          </p>
+        </fieldset>
         <p class="mt-2 text-xs text-[#e7d29e]">
           Selecting art refreshes unmatched cards immediately. Revealed terrain,
           completed pairs and attempts stay intact.
@@ -192,7 +311,7 @@
     </div>
 
     <memory-dungeon-dark-briar-stage
-      v-if="world.activeReality === 'e02'"
+      v-if="world.activeReality === 'e02' && !world.darkDuelActive"
       class="min-h-0 flex-1"
     />
     <div v-else-if="world.minefieldActive" class="min-h-0 flex-1">
@@ -209,11 +328,19 @@
             class="md-overworld-map relative aspect-square overflow-hidden rounded-lg border-2 border-[#aa9266] bg-[#253c35] shadow-2xl"
             aria-label="Briar Camp eight by eight memory overworld"
           >
+            <img
+              v-if="!mapArtFailed"
+              src="/images/memory-dungeon/backdrops/briar-overworld.webp"
+              alt=""
+              class="absolute inset-0 h-full w-full object-cover"
+              @error="mapArtFailed = true"
+            />
             <div
+              v-else
               class="absolute inset-0 bg-cover bg-center"
               style="background-image: url('/memory-dungeon/briar-camp.svg')"
               role="img"
-              aria-label="Briar Camp: an illustrated woodland with stone paths, a bridge, ferns and a river. Individual locations are discovered through the overlay."
+              aria-label="Briar Camp: a woodland map with stone paths, a bridge, ferns and a river. Individual locations are discovered through the overlay."
             ></div>
             <div class="absolute inset-0 grid grid-cols-8 grid-rows-8">
               <div
@@ -287,6 +414,9 @@
                   :aria-label="`Travel to square ${tile.x}, ${tile.y}${sites[tile.key]?.name ? ', ' + sites[tile.key]?.name : ''}; ${progressLabel(tile.key)}`"
                   @click="world.walk(tile.key)"
                 >
+                  <memory-dungeon-action-beacon
+                    v-if="tileNeedsAttention(tile.key)"
+                  />
                   <span
                     v-if="sites[tile.key]"
                     class="absolute left-1/2 top-1/2 z-10 -translate-x-1/2 -translate-y-1/2 rounded-lg bg-[#162522]/75 px-0.5 text-[clamp(11px,1.7vw,24px)] leading-tight shadow-lg"
@@ -431,12 +561,25 @@
                 alt="Enlarged illustration of the inspected regional seal"
                 draggable="false"
               />
+              <img
+                v-else-if="
+                  !world.mapMatching &&
+                  currentIllustrationPath &&
+                  !sceneArtFailed
+                "
+                :key="currentIllustrationPath"
+                :src="currentIllustrationPath"
+                class="h-full w-full object-cover"
+                :alt="`Illustration of ${world.activeScene?.title ?? world.selectedSite?.name ?? 'Briar Marches'}`"
+                draggable="false"
+                @error="sceneArtFailed = true"
+              />
               <div
                 v-else-if="!world.mapMatching"
                 class="h-full w-full bg-cover"
                 :style="currentSceneStyle"
                 role="img"
-                :aria-label="`Detailed view of ${world.selectedSite?.name ?? 'the selected map square'}`"
+                :aria-label="`Illustration unavailable for ${world.selectedSite?.name ?? 'the selected map square'}; showing the Briar map detail`"
               ></div>
               <div v-else class="md-scene-mystery" aria-hidden="true">✥</div>
               <span class="md-scene-art-label">
@@ -517,7 +660,7 @@
                     v-for="choice in world.activeScene.choices"
                     :key="choice.id"
                     type="button"
-                    class="md-btn"
+                    class="md-btn md-story-choice"
                     :disabled="!canChooseBriarScene(choice, world.state)"
                     @click="world.chooseScene(choice.id)"
                   >
@@ -825,15 +968,19 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, ref } from 'vue'
+import { computed, nextTick, onMounted, ref, watch } from 'vue'
+import { trapMemoryDialogTab } from '~/utils/memoryDungeon/dialogFocus'
+import { memoryCheckpointPreview } from '~/utils/memoryDungeon/saveSlots'
 import { useMemoryWorldStore } from '~/stores/memoryWorldStore'
 import {
   BRIAR_SITES,
   BRIAR_TILES,
   type BriarSiteKind,
+  briarConnected,
   briarTileProgress,
 } from '~/utils/memoryDungeonWorld'
 import { canChooseBriarScene } from '~/utils/memoryDungeon/scenes'
+import { briarIllustrationPath } from '~/utils/memoryDungeon/artManifest'
 import {
   BRIAR_CROSS_MAP_KEYS,
   BRIAR_CROSS_MAP_PUZZLES,
@@ -850,11 +997,38 @@ import MemoryDungeonCombatBoard from '~/components/memory-dungeon/combat-board.v
 import MemoryDungeonHouseStage from '~/components/memory-dungeon/house-stage.vue'
 import MemoryDungeonMinefieldStage from '~/components/memory-dungeon/minefield-stage.vue'
 import MemoryDungeonEarthChronicle from '~/components/memory-dungeon/earth-chronicle.vue'
+import MemoryDungeonQuestLog from '~/components/memory-dungeon/quest-log.vue'
 import MemoryDungeonDarkBriarStage from '~/components/memory-dungeon/dark-briar-stage.vue'
+import MemoryDungeonActionBeacon from '~/components/memory-dungeon/action-beacon.vue'
 
-const emit = defineEmits<{ leave: [] }>()
+const emit = defineEmits<{
+  leave: []
+  earth: []
+  sea: []
+  hoshimori: []
+  'hoshimori-night': []
+}>()
 const world = useMemoryWorldStore()
 const chronicleOpen = ref(false)
+const questsOpen = ref(false)
+const chronicleTrigger = ref<HTMLButtonElement | null>(null)
+const questsTrigger = ref<HTMLButtonElement | null>(null)
+watch(chronicleOpen, async (open, wasOpen) => {
+  if (!open && wasOpen) {
+    await nextTick()
+    chronicleTrigger.value?.focus()
+  }
+})
+watch(questsOpen, async (open, wasOpen) => {
+  if (!open && wasOpen) {
+    await nextTick()
+    questsTrigger.value?.focus()
+  }
+})
+const questsTied = computed(
+  () =>
+    world.briarQuests.filter((thread) => thread.state === 'complete').length,
+)
 const tiles = BRIAR_TILES
 const crossMapKeys: readonly string[] = BRIAR_CROSS_MAP_KEYS
 const crossMapPuzzles: Record<string, { hint: string; title: string }> =
@@ -868,10 +1042,23 @@ function crossMapImage(key: string): string {
   )
   return DESIGNED_DUNGEON_ART[30 + index]?.imagePath ?? ''
 }
+const currentIllustrationPath = computed(() =>
+  briarIllustrationPath(
+    world.state.player,
+    world.state.sceneChoices[world.state.player],
+  ),
+)
+const sceneArtFailed = ref(false)
+const mapArtFailed = ref(false)
+watch(currentIllustrationPath, () => {
+  sceneArtFailed.value = false
+})
 const currentSceneStyle = computed(() => {
   const [x = 1, y = 1] = world.state.player.split(',').map(Number)
   return {
-    backgroundImage: "url('/memory-dungeon/briar-camp.svg')",
+    backgroundImage: mapArtFailed.value
+      ? "url('/memory-dungeon/briar-camp.svg')"
+      : "url('/images/memory-dungeon/backdrops/briar-overworld.webp')",
     backgroundSize: '800% 800%',
     backgroundPosition: `${((x - 1) / 7) * 100}% ${((y - 1) / 7) * 100}%`,
   }
@@ -882,6 +1069,14 @@ const completedCount = computed(
 )
 function progressFor(key: string) {
   return briarTileProgress(world.state, key)
+}
+function tileNeedsAttention(key: string): boolean {
+  const progress = progressFor(key)
+  return (
+    !world.mapMatching &&
+    (progress === 'unvisited' || progress === 'unfinished') &&
+    briarConnected(world.state.player, key, world.state.revealed)
+  )
 }
 function progressLabel(key: string): string {
   const progress = progressFor(key)
@@ -894,13 +1089,55 @@ function progressLabel(key: string): string {
         : 'hidden'
 }
 const settingsOpen = ref(false)
-const roomTitle = computed(() =>
-  world.state.roomId === 'vault-1'
-    ? 'Rootbound Vault · Echo Chamber'
-    : world.state.roomId === 'vault-2'
-      ? 'Rootbound Vault · The Warden'
-      : 'Forest Memory Duel',
-)
+const settingsTrigger = ref<HTMLButtonElement | null>(null)
+const settingsDialog = ref<HTMLElement | null>(null)
+watch(settingsOpen, async (open, wasOpen) => {
+  await nextTick()
+  if (open) settingsDialog.value?.focus()
+  else if (wasOpen) settingsTrigger.value?.focus()
+})
+const roomTitle = computed(() => {
+  const enemy = world.state.combat?.state.enemy.name
+  if (world.state.roomId === 'vault-1') return 'Rootbound Vault · Echo Chamber'
+  if (world.state.roomId === 'vault-2') return 'Rootbound Vault · The Warden'
+  if (world.darkDuelActive && enemy) return `The Other Marches · ${enemy}`
+  if (world.state.house?.combatOrigin && enemy) return `The House · ${enemy}`
+  return 'Forest Memory Duel'
+})
+
+function checkpointLabel(savedAt: string): string {
+  return new Intl.DateTimeFormat('en-US', {
+    timeZone: 'America/Los_Angeles',
+    month: 'short',
+    day: 'numeric',
+    hour: 'numeric',
+    minute: '2-digit',
+  }).format(new Date(savedAt))
+}
+
+function saveSlot(index: number): void {
+  const checkpoint = world.saveSlots[index]
+  if (
+    checkpoint &&
+    !window.confirm(
+      `Replace checkpoint ${index + 1} (${memoryCheckpointPreview(checkpoint).location})? Its previous expedition cannot be recovered.`,
+    )
+  )
+    return
+  world.saveCheckpoint(index, Boolean(checkpoint))
+}
+
+function loadSlot(index: number): void {
+  const checkpoint = world.saveSlots[index]
+  if (
+    !checkpoint ||
+    !window.confirm(
+      `Load checkpoint ${index + 1} (${memoryCheckpointPreview(checkpoint).location})? This replaces your current autosaved expedition.`,
+    )
+  )
+    return
+  if (world.loadCheckpoint(index)) settingsOpen.value = false
+}
 
 function restart(): void {
   if (
@@ -1047,8 +1284,15 @@ onMounted(() => {
   min-height: 2.5rem;
   padding: 0.65rem 0.9rem;
   color: #fff4da;
-  font-size: 0.875rem;
+  font-size: 1rem;
   font-weight: 700;
+}
+.md-story-choice {
+  flex: 1 1 12rem;
+  min-height: 3.25rem;
+  font-size: clamp(1rem, 1.85cqw, 1.5rem);
+  line-height: 1.2;
+  text-align: left;
 }
 .md-btn:hover:not(:disabled) {
   background: #617746;

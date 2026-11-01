@@ -17,14 +17,29 @@
         </p>
       </div>
       <p
+        v-if="!compact"
         class="hidden max-w-[12rem] text-right text-xs leading-snug opacity-70 @[26rem]:block"
       >
         {{ f.tier ? TIER_INFO[f.tier].length : 'Cut, or write allowances.' }}
       </p>
+      <button
+        v-else
+        type="button"
+        class="pf-kicker text-[0.6rem] text-secondary"
+        :aria-expanded="expanded"
+        @click="expanded = !expanded"
+      >
+        {{ expanded ? 'Hide breakdown' : 'Breakdown' }}
+      </button>
     </div>
 
     <ul
-      class="grid grid-cols-2 gap-x-4 gap-y-3 @sm:grid-cols-4 @[26rem]:grid-cols-2"
+      class="grid gap-x-4 gap-y-3"
+      :class="
+        compact
+          ? 'grid-cols-2 @sm:grid-cols-4'
+          : 'grid-cols-2 @sm:grid-cols-4 @[26rem]:grid-cols-2'
+      "
     >
       <li
         v-for="stat in stats"
@@ -32,9 +47,11 @@
         class="flex min-w-0 flex-col gap-1"
       >
         <span class="pf-kicker text-[0.6rem] opacity-70">{{ stat.label }}</span>
-        <span class="pf-display text-2xl tabular-nums @[26rem]:text-4xl">{{
-          stat.value
-        }}</span>
+        <span
+          class="pf-display tabular-nums"
+          :class="compact ? 'text-xl' : 'text-2xl @[26rem]:text-4xl'"
+          >{{ stat.value }}</span
+        >
         <span
           class="flex flex-wrap gap-1 text-[0.7rem] font-semibold tabular-nums"
         >
@@ -52,6 +69,7 @@
     </ul>
 
     <div
+      v-if="!compact || expanded"
       class="hidden min-h-0 flex-col gap-4 overflow-y-auto overscroll-contain @[26rem]:flex"
     >
       <div v-if="f.overBudget.length" class="flex flex-wrap gap-1.5">
@@ -138,13 +156,16 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
 import { usePlaybookForgeStore } from '~/stores/playbookForgeStore'
 import { DIMENSION_LABELS, TIER_INFO } from '~/utils/playbookKit/budget'
 import { checkpointClass } from '~/utils/playbookForge/calibration'
 import { formatCount, formatDuration } from '~/utils/playbookForge/estimate'
 import type { Forecast } from '~/utils/playbookForge/types'
 
+// Compact: the totals beside the design board, with the breakdown on request.
+withDefaults(defineProps<{ compact?: boolean }>(), { compact: false })
+const expanded = ref(false)
 const forge = usePlaybookForgeStore()
 const f = computed(() => forge.current)
 const lane = computed(() =>

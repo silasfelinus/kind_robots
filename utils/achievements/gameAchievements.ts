@@ -79,6 +79,13 @@ export const TIER_KARMA: Record<GameAchievementTier, number> = {
 
 const OTHER_GAMES: AchievementGame[] = [
   {
+    key: 'hybridizer',
+    title: 'Hybridizer',
+    section: 'arcade',
+    route: '/play/hybridizer',
+    arcade: false,
+  },
+  {
     key: 'zuzu-showdown',
     title: 'Zuzu Showdown',
     section: 'zuzu',

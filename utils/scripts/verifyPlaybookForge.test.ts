@@ -1,5 +1,6 @@
 import assert from 'node:assert/strict'
 import { existsSync, readFileSync } from 'node:fs'
+import { fileURLToPath } from 'node:url'
 import {
   CHECKPOINT_CLASSES,
   DEFAULT_ASSUMPTIONS,
@@ -31,6 +32,18 @@ import {
   blueprintFromIdea,
 } from '../playbookForge/presets'
 import type { Blueprint } from '../playbookForge/types'
+import { blueprintFromPitch, buildGestation } from '../playbookForge/gestation'
+import { withGestationNote } from '../playbookForge/gestationNotes'
+import { cardsForTab, designTab } from '../playbookForge/designs'
+import {
+  characterItem,
+  entityImage,
+  facetItem,
+  itemDesign,
+  itemSpark,
+  scenarioLocations,
+} from '../playbookForge/catalog'
+import { parse as parseYaml } from 'yaml'
 import {
   SPARK_SLOTS,
   composeIdea,
@@ -49,9 +62,11 @@ import {
 } from '../playbookForge/adjust'
 import {
   buildLedger,
+  completionPercent,
   laneClass,
   nodeArtPrompt,
   artPromptBrief,
+  withPainted,
   nodeShape,
   planGaps,
   projectJobs,
@@ -61,7 +76,73 @@ import {
   type LedgerJob,
 } from '../playbookForge/ledger'
 import { blankNode, type PlaybookNode } from '../playbook/types'
+import {
+  combinedSection,
+  entryStatus,
+  filterEntries,
+  galleryEntry,
+  galleryTiles,
+  targetEntries,
+  targetNoteKey,
+} from '../playbookForge/gallery'
 import { PLAYBOOK_GAMES, buildPlaybook } from '../playbook/games'
+import { withVerifiedArt } from '../playbookForge/verifiedArt'
+import { inspectPlaybookArt } from '../../server/utils/playbookArtInventory'
+import {
+  REDSHIRT_ROSTER,
+  baseRedshirtDraft,
+  redshirtBrief,
+  redshirtChanges,
+  redshirtQuestLinks,
+  redshirtPortraitPrompt,
+} from '../playbookForge/redshirtAtlas'
+import { EXPEDITION_ENCOUNTERS } from '../gameOfCaptains/expedition'
+
+// The Forge must expose all authored recruits, real playable encounter
+// intersections, and distinguish casting an existing Character from a Facet redesign.
+assert.equal(REDSHIRT_ROSTER.length, 100)
+assert.equal(new Set(REDSHIRT_ROSTER.map((person) => person.id)).size, 100)
+assert.equal(EXPEDITION_ENCOUNTERS.length, 53)
+for (const person of REDSHIRT_ROSTER) {
+  const assignments = redshirtQuestLinks(person)
+  assert.ok(assignments.length, person.id + ' has no expedition intersections')
+  assert.ok(assignments.every((entry) => entry.skill === person.talent))
+  assert.ok(
+    person.portraitPrompt.includes('red Space Couch expedition uniform'),
+  )
+}
+const recruit = REDSHIRT_ROSTER[0]!
+const edit = baseRedshirtDraft(recruit)
+edit.anatomy = 'spring-tailed alien with kangaroo-inspired silhouette'
+edit.referenceTab = 'facets'
+edit.referenceKey = 'facets:21'
+edit.referenceTitle = 'Kangaroo'
+edit.note = 'Preserve the original story and keep the red uniform.'
+assert.equal(redshirtChanges(recruit, edit).length, 1)
+const redesign = redshirtBrief(recruit, edit, 'design')
+assert.match(redesign, /redesign this redshirt using the linked entity/)
+assert.match(redesign, /facets:21/)
+assert.match(redesign, /Proposed fields/)
+assert.match(
+  redshirtPortraitPrompt(recruit, edit),
+  /kangaroo-inspired silhouette/,
+)
+assert.match(
+  redshirtPortraitPrompt(recruit, edit),
+  /Brilliant bright red Space Couch expedition shirt/,
+)
+assert.match(
+  redshirtPortraitPrompt(recruit, edit),
+  /Visual inspiration from facets: Kangaroo/,
+)
+edit.referenceTab = 'characters'
+edit.referenceKey = 'characters:144'
+edit.referenceTitle = 'Existing follower'
+edit.intent = 'appearance'
+assert.match(
+  redshirtBrief(recruit, edit, 'design'),
+  /adapt the linked existing Character as this redshirt/,
+)
 
 const fromRoot = (path: string) => new URL('../../' + path, import.meta.url)
 const base = (): Blueprint => ({
@@ -73,7 +154,14 @@ const at = (patch: Partial<Blueprint>) => forecast({ ...base(), ...patch })
 
 // Every factor a blueprint carries is a row the designer can reach, once.
 // Sparks are design material from Facets, carried like the idea, not a factor.
-const identity = new Set(['slug', 'title', 'idea', 'genre', 'sparks'])
+const identity = new Set([
+  'slug',
+  'title',
+  'idea',
+  'genre',
+  'sparks',
+  'designs',
+])
 const rowKeys = FACTOR_ROWS.map((row) => row.key)
 assert.equal(new Set(rowKeys).size, rowKeys.length, 'one row per factor')
 for (const key of Object.keys(VIGNETTE_DEFAULTS) as (keyof Blueprint)[])
@@ -390,6 +478,122 @@ assert.equal(
   assert.match(brief, /Never use the beat title, chapter title, subtitle/)
   assert.match(brief, /- p "Beat p"/)
 }
+{
+  // Image-store art counts only when the server finds the file.
+  const book = {
+    order: ['m'],
+    nodes: { m: { ...beat('m', 'encounter'), artPath: '/images/x/m.webp' } },
+  }
+  assert.equal(
+    buildLedger(
+      book,
+      {},
+      { laneKey: 'krea2', assumptions: DEFAULT_ASSUMPTIONS },
+    ).art.delivered,
+    0,
+  )
+  assert.equal(
+    buildLedger(
+      withPainted(book, { m: '/images/x/m.webp' }),
+      {},
+      {
+        laneKey: 'krea2',
+        assumptions: DEFAULT_ASSUMPTIONS,
+      },
+    ).art.delivered,
+    1,
+  )
+}
+{
+  const fixture = {
+    order: ['real', 'missing', 'svg'],
+    nodes: {
+      real: beat('real', 'opening', {
+        artUrl: '/crystal-street/cover.webp',
+      }),
+      missing: beat('missing', 'encounter', {
+        artUrl: '/crystal-street/scenes/not-a-real-scene.webp',
+      }),
+      svg: beat('svg', 'ending', {
+        artUrl: '/crystal-street/poster.svg',
+      }),
+    },
+    artRequirements: [
+      {
+        key: 'real-extra',
+        title: 'Delivered',
+        url: '/crystal-street/cover.webp',
+      },
+      {
+        key: 'missing-extra',
+        title: 'Missing',
+        url: '/crystal-street/outcomes/not-rendered.webp',
+      },
+      {
+        key: 'vector-extra',
+        title: 'Vector filler',
+        url: '/crystal-street/poster.svg',
+      },
+    ],
+  }
+  const inventory = inspectPlaybookArt(
+    fixture,
+    fileURLToPath(fromRoot('images-not-present')),
+    [fileURLToPath(fromRoot('public'))],
+  )
+  assert.deepEqual(Object.keys(inventory.verified), ['real'])
+  assert.equal(inventory.extras.total, 3)
+  assert.equal(inventory.extras.delivered, 1)
+  const inspected = buildLedger(
+    withVerifiedArt(fixture, inventory.verified),
+    {},
+    {
+      laneKey: 'krea2',
+      assumptions: DEFAULT_ASSUMPTIONS,
+      extraArt: inventory.extras,
+    },
+  )
+  assert.equal(inspected.art.delivered, 2, 'one real beat and one extra image')
+  assert.equal(inspected.art.missing, 4, 'missing, vector and two extra slots')
+  assert.ok(inspected.paintedShare < 0.5)
+  assert.ok(inspected.progress < 1, 'authored URLs cannot claim 100% delivery')
+  assert.equal(inspected.extraArt.total, 3)
+  assert.match(inspected.discrepancies.join(' '), /required game images/)
+  assert.notEqual(
+    inspected.shine,
+    'super',
+    'missing art prevents a full completion star',
+  )
+  const notAudited = withVerifiedArt(fixture, undefined)
+  assert.equal(notAudited.nodes.real?.artUrl, null)
+  assert.equal(notAudited.nodes.real?.needsArt, true)
+
+  const crystal = buildPlaybook('crystal-street')
+  assert.ok(
+    (crystal.artRequirements?.length ?? 0) > 300,
+    'Crystal Street enumerates choice outcomes, emotions, villain and item art',
+  )
+  const crystalAudit = inspectPlaybookArt(
+    crystal,
+    fileURLToPath(fromRoot('images-not-present')),
+    [fileURLToPath(fromRoot('public'))],
+  )
+  assert.ok(crystalAudit.extras.delivered < crystalAudit.extras.total)
+  const crystalLedger = buildLedger(
+    withVerifiedArt(crystal, crystalAudit.verified),
+    {},
+    {
+      laneKey: 'krea2',
+      assumptions: DEFAULT_ASSUMPTIONS,
+      extraArt: crystalAudit.extras,
+    },
+  )
+  assert.ok(crystalLedger.paintedShare < 1)
+  assert.ok(crystalLedger.progress < 1)
+  assert.equal(crystal.order.length, Object.keys(crystal.nodes).length)
+}
+assert.equal(completionPercent(0.999), 99)
+assert.equal(completionPercent(1), 100)
 assert.equal(nodeShape(beat('p', 'follower')), 'portrait')
 assert.equal(nodeShape(beat('p', 'boss')), 'scene')
 
@@ -419,6 +623,48 @@ assert.ok(
   gaps.every((gap) => FACTOR_ROWS.some((row) => row.label === gap.label)),
 )
 
+// Memory Dungeon is planned at the Sixteen-Realm bible's scale and counted by
+// authored position, so two built worlds read as two of sixteen.
+const memory = EXISTING_PLAYBOOKS.find((e) => e.slug === 'memory-dungeon')!
+assert.equal(memory.plan.encounters, 16 * (64 + 36))
+assert.equal(memory.plan.acts * memory.plan.chaptersPerAct, 16)
+const memoryBuilt = await memory.count()
+assert.equal(memoryBuilt.values.encounters, 2 * (64 + 36))
+assert.equal(memoryBuilt.values.reveals, 32)
+const memoryLedger = buildLedger(
+  buildPlaybook('memory-dungeon'),
+  {},
+  {
+    laneKey: 'krea2',
+    assumptions: DEFAULT_ASSUMPTIONS,
+    gaps: planGaps(memory.plan, memoryBuilt),
+  },
+)
+assert.equal(memoryLedger.scope, 200 / 1600)
+assert.equal(
+  memoryLedger.unbuiltUnits,
+  1400,
+  'other fourteen worlds have no authored encounter slots',
+)
+assert.equal(memoryLedger.plannedUnits, memoryLedger.units + 1400)
+assert.ok(
+  memoryLedger.remainingSeconds > 1400 * 60,
+  'missing worlds require real future renders',
+)
+assert.equal(
+  memoryLedger.progress,
+  (memoryLedger.writtenShare + memoryLedger.paintedShare) / 2,
+)
+assert.ok(memoryLedger.progress <= memoryLedger.scope)
+assert.match(
+  memoryLedger.discrepancies.join(' '),
+  /Encounters: 200 built of 1600 planned\. Progress counts the unbuilt/,
+)
+// A plan past a stepper's range steps from where it is, not to the cap.
+const encountersRow = FACTOR_ROWS.find((r) => r.key === 'encounters')!
+assert.equal(stepValue(encountersRow, memory.plan, -1), 1595)
+assert.equal(stepValue(encountersRow, memory.plan, 1), 1605)
+
 // Every Playbook Studio game opens as a ledger with each beat counted once.
 for (const game of PLAYBOOK_GAMES) {
   const studio = buildPlaybook(game.id)
@@ -440,6 +686,106 @@ for (const game of PLAYBOOK_GAMES) {
     `${game.id} has a forge entry to load its ledger from`,
   )
 }
+
+// The gallery: every section and person as art, with an honest status per
+// beat, and a person's beats submittable as one section.
+for (const game of PLAYBOOK_GAMES) {
+  const book = buildPlaybook(game.id)
+  const ledger = buildLedger(
+    book,
+    {},
+    { laneKey: 'krea2', assumptions: DEFAULT_ASSUMPTIONS },
+  )
+  const tiles = galleryTiles(book, ledger)
+  assert.equal(
+    tiles.sections.reduce((n, t) => n + t.count, 0),
+    ledger.units,
+    `${game.id}: the gallery shelves hold every beat once`,
+  )
+  for (const t of tiles.sections)
+    assert.equal(
+      targetEntries(book, ledger, t.target).length,
+      t.count,
+      `${game.id} ${t.label}`,
+    )
+  for (const t of tiles.people) {
+    const keys = targetEntries(book, ledger, t.target).map((e) => e.key)
+    const combined = combinedSection(t.label, ledger.sections, keys)!
+    assert.equal(combined.units.length, keys.length, `${game.id} ${t.label}`)
+    assert.equal(combined.label, t.label)
+  }
+}
+const promRoster = buildPlaybook('comet-city-academy')
+const identityNodes = Object.values(promRoster.nodes).filter(
+  (node) => node.kind === 'follower' && node.key.startsWith('identity:'),
+)
+assert.ok(
+  identityNodes.length >= 48,
+  'every authored signature identity appears in the Forge cast',
+)
+const firstIdentity = galleryEntry(identityNodes[0]!)
+assert.equal(
+  firstIdentity.artVariants.length,
+  3,
+  'student, hero and villain art slots',
+)
+assert.ok(
+  firstIdentity.body.some((line) => /Hero turn/.test(line)),
+  'hero consequence visible',
+)
+assert.ok(
+  firstIdentity.variations.some((v) => v.key === 'sidekick'),
+  'sidekick branch visible',
+)
+assert.ok(
+  firstIdentity.variations.some((v) => v.key === 'romance'),
+  'romance branch visible',
+)
+assert.ok(
+  firstIdentity.group !== 'Cast',
+  'origin family is available for visual browsing',
+)
+
+const captains = buildPlaybook('game-of-captains')
+const captainsLedger = buildLedger(
+  captains,
+  {},
+  { laneKey: 'krea2', assumptions: DEFAULT_ASSUMPTIONS },
+)
+const crew = galleryTiles(captains, captainsLedger).people
+assert.ok(crew.length >= 6, 'Space Couch crew each get a page')
+assert.ok(
+  crew.every((t) => t.count > 0),
+  'a person page holds their beats',
+)
+assert.equal(
+  entryStatus(
+    galleryEntry(
+      beat('p', 'encounter', { artPrompt: 'A lighthouse at dusk.' }),
+    ),
+  ),
+  'unpainted',
+)
+assert.equal(entryStatus(galleryEntry(beat('q', 'encounter'))), 'no-prompt')
+assert.equal(
+  entryStatus(galleryEntry(beat('r', 'encounter', { artUrl: '/r.webp' }))),
+  'painted',
+)
+assert.equal(
+  targetNoteKey({ type: 'section', id: 'follower' }),
+  'section:follower',
+)
+assert.equal(targetNoteKey({ type: 'person', id: 'pell' }), 'person:pell')
+assert.equal(
+  filterEntries(
+    [
+      galleryEntry(beat('a1', 'encounter', { artUrl: '/a.webp' })),
+      galleryEntry(beat('a2', 'encounter')),
+    ],
+    'missing',
+  ).length,
+  1,
+)
 
 assert.deepEqual(
   buildLedger(
@@ -472,10 +818,32 @@ assert.equal(
   const couch = EXISTING_PLAYBOOKS.find((e) => e.slug === 'game-of-captains')!
   const combos = openingCombos(couch.plan)
   assert.equal(combos.heroes, 6, 'six captains')
-  assert.equal(combos.parties, 560, '16 crew choose 3')
-  assert.equal(combos.openings, 3360)
+  assert.equal(combos.parties, 220, '12 crew choose 3')
+  assert.equal(combos.openings, 1320)
   assert.equal(combos.endingVersions, 96, '16 endings × 6 captains')
-  assert.equal(combos.epilogueLines, 96 * 16)
+  assert.equal(combos.epilogueLines, 96 * 12)
+  // Silas, 2026-10-27: every trio earns two endings and an adventure of its
+  // own; every galactic boss brings endings of its own.
+  assert.equal(combos.partyEndings, 440, 'two endings per trio')
+  assert.equal(combos.partyScenes, 660, 'a three-step adventure per trio')
+  assert.equal(combos.villainEndings, 24, 'three endings per boss')
+  assert.equal(couch.plan.romances, 12, 'a romance thread per crew member')
+  const measuredCouch = await couch.count()
+  assert.equal(
+    measuredCouch.values.romances,
+    12,
+    'measured romances must reflect all twelve authored crew courtships',
+  )
+
+  const noParty = forecast({
+    ...couch.plan,
+    partyEndings: 0,
+    partyAdventureSteps: 0,
+  })
+  assert.ok(
+    forecast(couch.plan).totalImages - noParty.totalImages >= 440 + 660,
+    'party endings and adventures are painted',
+  )
   const one = openingCombos({ ...couch.plan, endingVersions: 'one' })
   assert.equal(one.endingVersions, 16, 'one version each ignores the hero')
   const f1 = forecast({ ...couch.plan, endingVersions: 'one' })
@@ -485,7 +853,7 @@ assert.equal(
     'per-hero endings cost pictures and words',
   )
   assert.ok(
-    f6.notes.some((note) => note.includes('3360 openings')),
+    f6.notes.some((note) => note.includes('1320 openings')),
     'the forecast explains the fan-out',
   )
   assert.ok(
@@ -507,7 +875,7 @@ assert.equal(
   assert.equal(edited.followers, 21, 'override plus one added follower')
   assert.equal(edited.locations, couch.plan.locations + 1)
   assert.deepEqual(planChanges(couch.plan, { followers: 20 }), [
-    { label: 'Followers', from: '16', to: '20' },
+    { label: 'Followers', from: '12', to: '20' },
   ])
   assert.equal(
     typeof readAdjustment({ slug: 'game-of-captains', title: 'Space Couch' }),
@@ -523,14 +891,14 @@ assert.equal(
     slug: 'game-of-captains',
     title: 'Space Couch',
     note: 'Make the nemesis a tax auditor.',
-    changes: [{ label: 'Followers', from: '16', to: '20' }],
+    changes: [{ label: 'Followers', from: '12', to: '20' }],
     additions: [{ kind: 'follower', title: 'A depressed toaster', note: '' }],
     combos: 'line',
   })
   assert.ok(typeof post !== 'string')
   const comment = adjustmentComment(post, 'silas')
   assert.match(comment, /tax auditor/)
-  assert.match(comment, /\| Followers \| 16 \| 20 \|/)
+  assert.match(comment, /\| Followers \| 12 \| 20 \|/)
   assert.match(comment, /Follower: A depressed toaster/)
 }
 
@@ -624,6 +992,180 @@ assert.equal(
   assert.equal(elementFromFacets('villain', {}), null, 'no Facets, no draw')
 }
 
+// Gestation: dated dockets grow concepts; notes ride along; pitches forge drafts.
+{
+  const pitch = (mode: string, evolution: string) => ({
+    slug: 'moon-laundry',
+    concept_id: 'moon-laundry',
+    title: 'Moon Laundry',
+    mode,
+    evolution,
+    hook: 'Lost socks are portals.',
+    genre_pillar: 'Cozy science fiction',
+    cast: { playable: 3, followers: 10, npcs: 16 },
+    production: { maps: 6, encounter_scenes: 168, finale_scripts: 20 },
+  })
+  const concepts = buildGestation(
+    [
+      {
+        date: '2026-10-27',
+        data: { pitches: [pitch('expand', 'Second day')] },
+      },
+      {
+        date: '2026-10-26',
+        data: { pitches: [pitch('new', 'First day'), { bad: true }] },
+      },
+      { date: '2026-10-25', data: null },
+    ],
+    {
+      concepts: {
+        'moon-laundry': { status: 'promising', strengths: ['Socks'] },
+      },
+    },
+    {
+      notes: {
+        'moon-laundry': [
+          { at: '2026-10-27T00:00:00Z', note: 'More moths.', status: 'open' },
+          { note: '' },
+        ],
+      },
+    },
+  )
+  assert.equal(
+    concepts.length,
+    1,
+    'one concept across days; malformed rows skipped',
+  )
+  const [moon] = concepts
+  assert.equal(moon!.versions.length, 2)
+  assert.equal(moon!.latestDate, '2026-10-27')
+  assert.equal(moon!.latest.evolution, 'Second day')
+  assert.equal(moon!.status, 'promising')
+  assert.deepEqual(
+    moon!.notes.map((n) => n.note),
+    ['More moths.'],
+  )
+  const b = blueprintFromPitch(moon!.latest)
+  assert.equal(
+    b.genre,
+    'space-comedy',
+    'science fiction starts from the space loadout',
+  )
+  assert.equal(b.followers, 10)
+  assert.equal(b.rosterSize, 3)
+  assert.equal(b.locations, 6)
+  assert.equal(b.endings, 20)
+  assert.equal(b.idea, 'Lost socks are portals.')
+
+  const header = '# keep me\nnotes: {}\n'
+  const once = withGestationNote(header, 'moon-laundry', {
+    at: 't1',
+    note: 'A: b "c"',
+    status: 'open',
+  })
+  const twice = withGestationNote(once, 'moon-laundry', {
+    at: 't2',
+    note: 'Two',
+    status: 'open',
+  })
+  assert.match(twice, /^# keep me/, 'comments survive')
+  assert.deepEqual(
+    (parseYaml(twice) as { notes: Record<string, { note: string }[]> }).notes[
+      'moon-laundry'
+    ]!.map((n) => n.note),
+    ['A: b "c"', 'Two'],
+  )
+  assert.match(withGestationNote('', 'x', { note: 'first' }), /notes:\n {2}x:/)
+}
+
+// Designs: plan pages lead with art, the game's beats and authored designs.
+{
+  const book = {
+    order: ['a', 'b', 'c'],
+    nodes: {
+      a: { ...beat('a', 'follower'), artUrl: '/a.webp' },
+      b: { ...beat('b', 'encounter'), artPrompt: 'A pier at dawn.' },
+      c: beat('c', 'ending'),
+    },
+  }
+  const design = {
+    id: 'd1',
+    kind: 'villain' as const,
+    title: 'The Tax Auditor',
+    note: '',
+    prompt: 'A grey clerk.',
+  }
+  const cast = cardsForTab('cast', book, [design])
+  assert.deepEqual(
+    cast.map((c) => c.id),
+    ['design:d1', 'beat:a'],
+    'designs first, then the page’s beats',
+  )
+  assert.equal(cast[1]!.imageUrl, '/a.webp')
+  const story = cardsForTab('story', book, [design])
+  assert.deepEqual(
+    story.map((c) => c.prompt),
+    ['A pier at dawn.'],
+    'an unpainted beat shows its authored prompt',
+  )
+  assert.equal(designTab('place'), 'story')
+
+  // Catalogue: entities read as art cards; picks become designs and sparks.
+  assert.equal(entityImage({ artImageId: 7 }), '/api/art/images/7/file')
+  assert.equal(entityImage({ imagePath: 'images/x.webp' }), '/images/x.webp')
+  const hero = characterItem({
+    id: 3,
+    name: 'Mosswick',
+    species: 'Otter',
+    class: 'Bard',
+    artImageId: 9,
+  })!
+  assert.equal(hero.imageUrl, '/api/art/images/9/file')
+  assert.equal(
+    itemDesign(hero).kind,
+    'follower',
+    'a character becomes a follower design',
+  )
+  assert.equal(itemDesign(hero).imageUrl, '/api/art/images/9/file')
+  const setting = facetItem({
+    id: 4,
+    title: 'Tidal Library',
+    taxonomy: 'SETTING',
+    description: 'Shelves in the surf.',
+    flavorText: null,
+    artPrompt: null,
+    imagePath: null,
+    randomWeight: 1,
+    isRandomizable: true,
+  })
+  assert.equal(itemDesign(setting).kind, 'place')
+  assert.equal(
+    itemSpark(setting)?.slot,
+    'world',
+    'a SETTING Facet sparks the world',
+  )
+  const genre = facetItem({
+    id: 5,
+    title: 'Solarpunk',
+    taxonomy: 'GENRE',
+    description: null,
+    flavorText: null,
+    artPrompt: null,
+    imagePath: null,
+    randomWeight: 1,
+    isRandomizable: true,
+  })
+  assert.equal(itemSpark(genre)?.slot, 'genre')
+  assert.deepEqual(
+    scenarioLocations({
+      id: 2,
+      title: 'Fog',
+      locations: '- The Pier: where it starts\n- Old Mill',
+    }).map((l) => l.title),
+    ['The Pier', 'Old Mill'],
+  )
+}
+
 // The console, its tab, and the store-only rule for storage and API calls.
 const tab = readFileSync(
   fromRoot('content/channels/admin/playbook-forge.md'),
@@ -643,6 +1185,16 @@ for (const name of [
   'ledger',
   'ledger-detail',
   'adjust',
+  'gestation',
+  'gestation-concept',
+  'designs',
+  'art-card',
+  'catalog',
+  'catalog-tray',
+  'gallery',
+  'gallery-strip',
+  'gallery-card',
+  'gallery-inspector',
   'relay',
   'beats',
   'beat',

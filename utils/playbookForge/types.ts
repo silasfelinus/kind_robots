@@ -1,6 +1,7 @@
 import type { BudgetDimension } from '../playbookKit/budget'
 import type { PlaybookTier } from '../playbookKit/types'
 import type { CheckpointClassId } from './calibration'
+import type { Design } from './designs'
 import type { Spark } from './facets'
 
 // A playbook blueprint: every factor a designer can set before a story game is
@@ -107,6 +108,12 @@ export type Blueprint = {
   endingVersions: EndingVersions
   /** Each follower gets an epilogue line in every ending. */
   followerEpilogues: boolean
+  /** Endings each party combination earns of its own (Space Couch: two per trio of crew). */
+  partyEndings: number
+  /** Steps in an adventure written for each party combination (0: none). */
+  partyAdventureSteps: number
+  /** Endings each villain brings, beyond the shared ones (a galactic boss beaten, won over or fled). */
+  villainEndings: number
 
   autosave: boolean
   /** Snapshot stores the run; a ledger stores the seed and every action and replays it. */
@@ -124,6 +131,8 @@ export type Blueprint = {
 
   /** Facets dealt into the design: genre, tone, world, question, cast, look. */
   sparks: Spark[]
+  /** Named elements with their art prompts (and pictures once rendered). */
+  designs: Design[]
 }
 
 export type ForecastLine = { label: string; count: number; detail: string }

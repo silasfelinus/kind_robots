@@ -137,11 +137,43 @@
                   class="relative aspect-[16/10] overflow-hidden bg-base-300"
                 >
                   <img
+                    v-if="feature.image"
                     :src="feature.image"
                     :alt="feature.title"
                     loading="lazy"
                     class="h-full w-full object-cover transition duration-300 group-hover:scale-105"
                   />
+                  <div
+                    v-else
+                    class="flex h-full w-full flex-col items-center justify-center gap-2 bg-linear-to-br p-3 text-center text-white transition duration-300 group-hover:scale-105"
+                    :class="
+                      feature.route === '/play/slime-city'
+                        ? 'from-fuchsia-900 via-violet-950 to-slate-950'
+                        : 'from-emerald-900 via-teal-950 to-indigo-950'
+                    "
+                  >
+                    <Icon
+                      :name="
+                        feature.route === '/play/slime-city'
+                          ? 'kind-icon:cat'
+                          : 'kind-icon:dna'
+                      "
+                      class="h-12 w-12 drop-shadow-lg"
+                      aria-hidden="true"
+                    />
+                    <span
+                      class="text-lg font-black tracking-[0.12em] drop-shadow-lg"
+                    >
+                      {{ feature.title }}
+                    </span>
+                    <span class="text-[0.65rem] font-semibold opacity-75">
+                      {{
+                        feature.route === '/play/slime-city'
+                          ? 'BLACKOUT CCG'
+                          : 'FUSION LAB'
+                      }}
+                    </span>
+                  </div>
                   <span
                     class="absolute bottom-1 left-1 rounded-md bg-base-100/95 px-1.5 py-0.5 text-[0.6rem] font-black text-base-content"
                   >
@@ -361,8 +393,8 @@ const features = [
     description: 'Original cabinets, high scores and quick-fire challenges.',
   },
   {
-    title: 'Capes & Tassels',
-    tag: 'Playable superhero school',
+    title: 'Prom of Doom',
+    tag: 'Capes & Tassels · Playable superhero school',
     category: 'play',
     route: '/play/comet-city-academy',
     image: '/comet-city-academy/front/dashboard-highlight.webp',
@@ -376,6 +408,24 @@ const features = [
     image: '/game-of-captains/front/dashboard-highlight.webp',
     description:
       'Four spacers, one long red couch, an invisible force shield, and infinite trouble.',
+  },
+  {
+    title: 'Slime City',
+    tag: 'Sign-in playtest · BLACKOUT CCG',
+    category: 'play',
+    route: '/play/slime-city',
+    image: '',
+    description:
+      'Command six mutant crews, battle with collectible cards and explore seven rival districts.',
+  },
+  {
+    title: 'Hybridizer',
+    tag: 'Sign-in playtest · Fusion lab',
+    category: 'play',
+    route: '/play/hybridizer',
+    image: '',
+    description:
+      'Mix animals, fruit and monsters into new species, then fuse your discoveries again.',
   },
   {
     title: 'Terrors on Crystal Street',
@@ -417,7 +467,7 @@ const features = [
     tag: 'Haunted pinball',
     category: 'play',
     route: '/play/zuzu-pinball',
-    image: '/zuzu-pinball/last-bell-cover.svg',
+    image: '/zuzu-pinball/last-bell-cover.webp',
     description:
       'Ring the Last Bell and brave the River Croc on a 3D pinball table.',
   },
@@ -462,7 +512,7 @@ const features = [
     tag: 'Make stories',
     category: 'create',
     route: '/storybook',
-    image: '/images/channels/play/channel.webp',
+    image: '/storybook-art/dashboard-highlight.webp',
     description: 'Weave your own worlds, characters and branching tales.',
   },
   {

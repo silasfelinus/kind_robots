@@ -1,3 +1,4 @@
+import type { Design } from './designs'
 import { openingCombos } from './estimate'
 import { FACTOR_ROWS, displayValue } from './factors'
 import type { Blueprint } from './types'
@@ -23,13 +24,8 @@ export const ADDITION_KINDS = [
 
 export type AdditionKind = (typeof ADDITION_KINDS)[number]['id']
 
-export type PlanAddition = {
-  id: string
-  kind: AdditionKind
-  title: string
-  note: string
-  /** Where the idea came from, such as the Facets it was drawn from. */
-  source?: string
+/** A design added on a game's ledger; posted with the next adjustment. */
+export type PlanAddition = Design & {
   /** The issue comment it was posted in. */
   postedUrl?: string
 }
@@ -52,6 +48,7 @@ export const EMPTY_PLAN_EDIT: PlanEdit = {
 export const PLAYBOOK_ISSUES: Record<string, number> = {
   'comet-city-academy': 4181,
   'game-of-captains': 4182,
+  'memory-dungeon': 4136,
   'emperor-of-dust': 4142,
   'weird-humboldt': 4145,
   'zuzu-gamebook': 4139,
@@ -103,7 +100,15 @@ export function combosLine(b: Blueprint): string {
     b.endingVersions === 'per-hero'
       ? `${b.endings} endings × ${c.heroes} hero versions = ${c.endingVersions} written`
       : `${c.endingVersions} endings, the same for every hero`
-  return `${heroes} × ${parties} = ${c.openings} openings; ${endings}${c.epilogueLines ? `; ${c.epilogueLines} follower epilogue lines` : ''}.`
+  const extra = [
+    c.partyScenes
+      ? `${c.parties} party adventures (${c.partyScenes} scenes)`
+      : '',
+    c.partyEndings ? `${c.partyEndings} party endings` : '',
+    c.villainEndings ? `${c.villainEndings} villain endings` : '',
+    c.epilogueLines ? `${c.epilogueLines} follower epilogue lines` : '',
+  ].filter(Boolean)
+  return `${heroes} × ${parties} = ${c.openings} openings; ${endings}${extra.length ? `; ${extra.join('; ')}` : ''}.`
 }
 
 export type AdjustmentPost = {
@@ -111,7 +116,13 @@ export type AdjustmentPost = {
   title: string
   note: string
   changes: PlanChange[]
-  additions: { kind: string; title: string; note: string; source?: string }[]
+  additions: {
+    kind: string
+    title: string
+    note: string
+    source?: string
+    prompt?: string
+  }[]
   combos: string
 }
 
@@ -145,6 +156,7 @@ export function readAdjustment(raw: unknown): AdjustmentPost | string {
       title: text(a?.title, 120),
       note: text(a?.note, 1200),
       source: text(a?.source, 200) || undefined,
+      prompt: text(a?.prompt, 1200) || undefined,
     }))
     .filter((a) => a.title)
   const note = text(body.note, 8000)
@@ -183,6 +195,8 @@ export function adjustmentComment(post: AdjustmentPost, by: string): string {
       lines.push(
         `- **${kind}: ${a.title}**${a.note ? `: ${a.note.replace(/\n+/g, ' ')}` : ''}${a.source ? ` _(from ${a.source})_` : ''}`,
       )
+      if (a.prompt)
+        lines.push(`  - Art prompt: ${a.prompt.replace(/\n+/g, ' ')}`)
     }
     lines.push('')
   }

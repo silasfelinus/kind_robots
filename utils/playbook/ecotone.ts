@@ -1,3 +1,7 @@
+import {
+  ECOTONE_STORYLINE_ART_PROMPTS,
+  ecotoneArtPrompt,
+} from '../ecotone/artPrompts'
 import { cardArtKey } from '../ecotone/artSlots'
 import { DEFAULT_ECOTONE_ART_STYLE, ecotoneArtSrc } from '../ecotone/artStyles'
 import {
@@ -215,6 +219,7 @@ export function playbookCardNode(card: EncounterCard): PlaybookNode {
     art: ownUrl ? own : url ? (card.art ?? null) : null,
     artUrl: url,
     needsArt: !url,
+    artPrompt: ecotoneArtPrompt(own),
     provenance: card.provenance,
     editable: true,
   }
@@ -240,6 +245,7 @@ function endingNode(lead: EndingLine): PlaybookNode {
   node.place = 'The finale'
   node.body = FUTURES[lead].hope
   node.needsArt = true
+  node.artPrompt = ECOTONE_STORYLINE_ART_PROMPTS[lead]
   node.variations.push({
     axis: 'fate',
     key: 'dark',
@@ -481,6 +487,9 @@ export function buildEcotonePlaybook(): Playbook {
     artProject: 'weird-humboldt',
     artLanes: ['zimage', 'krea2', 'arthemy', 'novacomic'],
     artNegative: 'anthro, furry',
+    artStyle:
+      'north coast california, coastal fog, redwood greens, teal and amber light',
+    artPromptsComplete: true,
   }
 }
 

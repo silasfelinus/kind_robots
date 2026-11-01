@@ -40,7 +40,7 @@
           "title": "Do Not Print",
           "place": "Yearbook office, Glimmer Falls High",
           "text": "The yearbook office smells like fixer and old pizza. The 1966 Glimmer Light yearbook is open on the light table to a memorial page: Roz Vance in her crown, smiling beside a square-jawed boy, captioned Our Queen and Her King, Forever. Behind you, a gray filing drawer labeled DEAD FILES 1966 slides open by itself, just an inch, the way a door opens when someone wants you to follow.",
-          "art": "A cluttered high school yearbook office with a glowing light table showing a 1966 yearbook memorial page of a prom queen, a gray filing drawer labeled dead files sliding open by itself, a faint wet footprint on the linoleum",
+          "art": "A cluttered high school yearbook office, an old 1966 school annual lying open on a glowing light table to a page with a black-and-white photo of a smiling prom queen beside a square-jawed boy, a gray steel filing drawer behind it sliding open an inch by itself, a single wet footprint on the linoleum, a teenager turning toward the drawer, white light-table glow and a dim desk lamp, medium shot",
           "choices": [
             {
               "id": "search-the-negatives",
@@ -105,7 +105,7 @@
           "title": "Spot Me",
           "place": "Weight room, Pump Iron Gym and Aerobics",
           "text": "Rick Saunders owns Pump Iron, and at six a.m. he is always on the same bench, pushing more weight than a man of thirty-eight should. A dried gardenia hangs from the mirror in his office, brown as a paper bag. When the high school gym next door rattles in the wind, he flinches, every time, like someone dropped a barbell on his heart.",
-          "art": "A broad, graying man in a 1980s tank top bench-pressing in an empty gym at dawn, mirrors on every wall, a dried brown gardenia hanging from an office mirror in the background",
+          "art": "A broad graying man of thirty-eight in a 1980s tank top bench-pressing a heavy bar in an empty gym weight room at dawn, mirrors on every wall, a teenager standing behind the bench spotting the bar with both hands, a small glass office in the background with a dried brown gardenia hanging from its mirror, cold blue dawn light through high windows and one fluorescent tube, medium shot from the side",
           "choices": [
             {
               "id": "spot-him",
@@ -174,7 +174,7 @@
           "title": "Requests and Dedications",
           "place": "The record library, KGLM 103.3",
           "text": "The KGLM record library is a basement of shelves sagging with forty-fives, and a filing cabinet of request cards going back to 1958. Upstairs the overnight show is live. The ON AIR light flickers, and for one second every speaker in the building plays a girl's voice, laughing, saying \"Okay, Del, here goes,\" and then nothing but static.",
-          "art": "A radio station basement packed with shelves of vinyl singles and a wooden card catalog of handwritten request cards, a red on air light flickering, faint static shimmering in the air",
+          "art": "A radio station basement packed floor to ceiling with shelves of seven-inch vinyl singles, a wooden filing cabinet of pink and white request slips with one drawer pulled open, a teenager flipping through the slips, a red on-air bulb flickering at the top of the stairs, faint gray static shimmering in the air near the speakers, warm bulb light and red glow, medium shot",
           "choices": [
             {
               "id": "dig-the-cards",
@@ -243,7 +243,7 @@
         "title": "May I Have This Dance?",
         "place": "Glimmer Falls High gym, Spring Fling 1966, in a dream",
         "text": "You fall asleep and walk straight into 1966. Paper moons hang from the basketball hoops, a band in white jackets plays the same eight bars over and over, and every couple on the floor is dancing without faces. A girl in a mint gown and a gardenia crown cuts through them toward you, dripping wet. \"Have you seen her?\" Roz asks. \"She said she'd be here.\"",
-        "art": "A dreamlike 1966 high school gym prom with paper moons hung from basketball hoops, faceless couples slow-dancing, a rain-soaked prom queen in a mint gown and gardenia crown reaching toward a teenager in pajamas",
+        "art": "A 1966 high school gym prom at night, paper moons hanging from the basketball hoops, a band in white jackets on a low stage, couples slow-dancing with smooth blank faces, and cutting through them a rain-soaked teenage girl ghost with dark wet curls, freckles, streaked mascara, a mint satin prom gown and a crooked crown of browning gardenias, reaching out a dripping hand toward a teenager in pajamas, soft blue spotlight and silver paper moons, medium wide shot",
         "choices": [
           {
             "id": "dance-with-roz",
@@ -304,7 +304,7 @@
         "title": "Rain on the Roof",
         "place": "The roof of the Glimmer Falls High gym",
         "text": "You wake up soaked, on the flat tar roof of the high school gym, in a storm that did not exist when you went to bed. Your crew is up here too, blinking in their pajamas. The ladder is gone. At the edge of the roof stands Roz, crown streaming, staring down at the parking lot. \"This is where they left me,\" she says. \"Let's see who comes for you.\"",
-        "art": "Teenagers in soaked pajamas stranded on a flat high school gym roof in a lightning storm, a ghostly prom queen standing at the edge in a streaming gown, a drainpipe leading down into darkness",
+        "art": "Four teenagers in soaked pajamas huddled on the flat tar roof of a high school gym in a lightning storm, rain pouring, the roof ladder gone, a broken drainpipe bracket at the edge, and at the roof's edge a teenage girl ghost in a streaming mint prom gown and a crown of browning gardenias staring down at the dark parking lot, white lightning from above, wide shot",
         "choices": [
           {
             "id": "climb-the-drainpipe",
@@ -394,7 +394,7 @@
         "title": "Look Up",
         "place": "Glimmer Falls High gym, Halloween Hop rehearsal, after dark",
         "text": "The student council is rehearsing the Halloween Hop crowning, and Chip Merriweather is standing on the stage in a cardboard crown beside Tasha Greene, who is practicing her surprised face. You glance up. In the rafters above the stage hangs a galvanized bucket on a fraying rope, dripping, and next to it, sitting on the catwalk with her mint gown hanging down like a curtain, is Roz. \"Every year somebody thinks it's funny,\" she says. \"And every year nobody looks up.\"",
-        "art": "A high school gym stage with two teenagers in cardboard crowns rehearsing a coronation, high above them in the rafters a dripping galvanized bucket on a fraying rope, a ghostly prom queen in a mint gown seated on the catwalk beside it",
+        "art": "A high school gym stage after dark, a preppy 17-year-old boy with side-parted chestnut hair and a navy blazer and a girl in a sweater both wearing cardboard crowns rehearsing a coronation, high above them in the rafters a dripping galvanized bucket hanging on a fraying rope, and seated on the catwalk beside it a teenage girl ghost in a mint prom gown and gardenia crown with her skirt hanging down, a teenager below looking up, stage work lights and dark rafters, low angle shot from the floor",
         "choices": [
           {
             "id": "climb-the-catwalk",
@@ -478,7 +478,7 @@
         "title": "Say Her Name Three Times",
         "place": "A slumber party at the Okafor house, midnight",
         "text": "Nkechi Okafor's slumber party has reached the part of the night where somebody lights a candle and lines everyone up in front of the bathroom mirror. \"Say Spring Queen three times,\" Nkechi whispers, \"and she crowns you.\" Five sleepy kids and you giggle through it. On the third time the giggling stops, because in the mirror everyone is wearing a 1966 gown or a white dinner jacket, and standing behind them, dripping, is Roz. She does not look flattered. \"A game,\" she says. \"I'm a game now.\"",
-        "art": "A candlelit pink-tiled bathroom at a slumber party, kids in pajamas and sleeping bags crowded before a mirror, their reflections dressed in 1966 prom gowns and white dinner jackets, a dripping ghostly prom queen in a gardenia crown standing behind them in the glass",
+        "art": "A candlelit pink-tiled bathroom at a slumber party at midnight, five kids in pajamas crowded in front of the mirror holding a candle, and in the mirror their reflections wearing 1966 prom gowns and white dinner jackets, with a dripping teenage girl ghost in a mint gown and a crown of browning gardenias standing behind them in the glass, unsmiling, warm candle flame and cold blue mirror light, medium shot from behind the kids",
         "choices": [
           {
             "id": "tell-the-true-story",
@@ -566,7 +566,7 @@
         "title": "Need a Lift?",
         "place": "Quarry Road in the rain, 11 p.m.",
         "text": "The late activity bus home from the Pine Ridge away game is crawling down Quarry Road through a storm that came out of a clear sky. In the headlights a girl in a mint gown stands on the shoulder with her shoes in her hand and her crown streaming, and Mrs. Dombrowski stops, because Mrs. Dombrowski always stops. The girl climbs on, drips down the aisle and sits beside you. \"Is this the bus to the gym?\" Roz asks. \"I'm so late. She's waiting.\" You know this story from every sleepover of your life, and it never ends with the girl getting where she's going.",
-        "art": "A yellow school bus at night on a rainy country road, headlights cutting through the downpour, inside a teenager on a vinyl seat beside a soaked ghostly prom queen holding her shoes in her lap, rain streaming down the windows",
+        "art": "The inside of a yellow school bus at night crawling down a rainy country road, headlights cutting through the downpour beyond the windshield, an older woman bus driver at the wheel, a teenager on a green vinyl seat beside a soaked teenage girl ghost in a mint prom gown holding her shoes in her lap, her crown of gardenias dripping, rain streaming down the windows, dim dome light and green dashboard glow, medium shot down the aisle",
         "choices": [
           {
             "id": "lend-your-jacket",
@@ -648,7 +648,7 @@
         "title": "Couples Only",
         "place": "Crystal Street, two a.m.",
         "text": "Every radio on Crystal Street switches on at once and plays the same slow song, skipping on the same scratch. Out of every front door come couples in their pajamas and curlers, sound asleep, waltzing down the driveways toward the high school. The Szymanskis. The newlyweds on the corner. Your own parents, eyes closed, dancing better than you have ever seen them dance. Roz sits on the Heartstone like a throne, conducting.",
-        "art": "A suburban cul-de-sac at 2 a.m. with sleepwalking couples in pajamas and curlers slow-dancing down their driveways, radios glowing in every window, a ghostly prom queen seated on a giant purple geode conducting like a bandleader",
+        "art": "A suburban cul-de-sac at two in the morning, sleepwalking couples in pajamas and hair curlers waltzing with closed eyes down their driveways toward the street, radios glowing in every window, a middle-aged couple dancing gracefully in the foreground, and in the center of the roundabout a teenage girl ghost in a mint prom gown and a gardenia crown sitting on a huge purple crystal rock conducting with both hands, a teenager in pajamas on a lawn, blue moonlight and warm window light, wide shot",
         "choices": [
           {
             "id": "cut-in",
@@ -733,7 +733,7 @@
         "title": "Special Delivery",
         "place": "Your front porch on Crystal Street, midnight",
         "text": "At midnight the doorbell rings once, politely. Nobody is on the porch, only a clear plastic florist's box tied with mint ribbon and beaded with rainwater, though the sky is full of stars. Inside is a wrist corsage of three gardenias, browning at the edges, and a tiny card in looping cursive: Save the last dance. R. A line of wet footprints leads off the porch toward the high school, and the whole yard smells like a storm that happened twenty years ago.",
-        "art": "A suburban front porch at midnight under a starry sky, a clear florist box tied with mint ribbon and beaded with rainwater on the welcome mat, a browning gardenia wrist corsage inside, wet footprints leading down the steps toward a distant high school",
+        "art": "A suburban front porch at midnight under a clear starry sky, a clear plastic florist box tied with mint ribbon and beaded with rainwater on the welcome mat, a wrist corsage of three browning gardenias inside, a line of wet footprints leading down the porch steps and along the sidewalk toward a distant high school gym, a teenager in pajamas in the open doorway, yellow porch light and starlight, medium wide shot",
         "choices": [
           {
             "id": "follow-the-footprints",
@@ -816,7 +816,7 @@
         "title": "Rain Check",
         "place": "Main Street at dusk, walking home past the library",
         "text": "It is a clear, warm evening on Main Street, and it is raining on you. Only you. A stubborn little storm cloud the size of a beach umbrella followed you out of the pharmacy, and it drizzles on your head while people stop to stare: Mr. Park sweeping outside his dry cleaners, two kids on BMX bikes, a Gazette reporter raising a camera. Inside the cloud, something hums a slow song. Whoever Roz is waiting for, she has decided you are going to help her find them.",
-        "art": "A sunny dusk on a small-town main street, a teenager walking under a tiny private storm cloud raining only on them, a shopkeeper with a broom staring, two kids on BMX bikes pointing, a reporter lifting a camera",
+        "art": "A small-town main street at a warm golden dusk, a teenager walking down the sidewalk under a tiny gray storm cloud the size of a beach umbrella raining only on them, puddles at their feet, a Korean American shopkeeper with a broom staring from the dry cleaner's door, two kids on bikes pointing, a reporter raising a camera, library steps ahead, golden sunlight on dry pavement everywhere else, wide shot",
         "choices": [
           {
             "id": "walk-to-the-library",
@@ -900,7 +900,7 @@
         "title": "Pass It On",
         "place": "Glimmer Falls High gym, Halloween Hop decorating night, October 30",
         "text": "The Hop committee is hanging orange streamers when the gym clock spins backward and the storm comes in through the ceiling. The streamers turn into paper moons, the bleachers fill with faceless boys in 1966 letterman jackets, and a folded sheet of pink stationery starts traveling hand to hand up the rows, every echo laughing as he reads it. You know what it is. It is Roz's letter, the one about asking Del to dance, and it is two rows from the three boys waiting at the top. On the stage, Roz watches it climb, white-knuckled, as if this time someone might stop it.",
-        "art": "A high school gym in a sudden indoor storm, orange streamers turning into paper moons, bleachers full of faceless boys in 1960s letterman jackets passing a folded pink letter upward, a rain-soaked prom queen in a gardenia crown watching from the stage",
+        "art": "A high school gym at night in a sudden indoor rainstorm, orange paper streamers turning into silver paper moons, bleachers full of boys in 1960s letterman jackets with smooth blank faces passing a folded sheet of pink stationery hand to hand up the rows, three boys waiting at the top row, a teenager climbing the bleachers in a crouch, and on the stage a rain-soaked girl ghost in a mint gown and gardenia crown gripping her skirt, white lightning flashes, wide shot",
         "choices": [
           {
             "id": "intercept-the-note",
@@ -988,7 +988,7 @@
       "title": "The Queen's Dance",
       "place": "Glimmer Falls High gym, Halloween night, and also May 1966",
       "text": "On Halloween night the gym doors open onto 1966. The storm is inside now, rain falling from the rafters onto paper moons, and every couple in Glimmer Falls is frozen mid-sway on the floor. Roz stands on the stage in her gardenia crown, lightning in her hair, the band behind her playing the same eight bars forever. \"They took my dance,\" she says. \"So nobody leaves the floor. Not tonight. Not ever.\"",
-      "art": "A haunted high school gym transformed into a 1966 prom with rain falling from the rafters, paper moons, hundreds of frozen slow-dancing couples, a furious prom queen ghost on stage with lightning in her hair, a crew of teens in Halloween costumes at the doors",
+      "art": "A high school gym on Halloween night turned into a 1966 prom, rain falling from the rafters through paper moons, hundreds of couples frozen mid-sway on the wet floor, a band in white jackets behind the stage, and on the stage a furious teenage girl ghost with dark wet curls, a crooked crown of browning gardenias, a mint satin gown and lightning crackling in her hair, four teenagers in homemade Halloween costumes at the open doors, white lightning and blue rain light, wide shot",
       "choices": [
         {
           "id": "fight",
@@ -1162,22 +1162,22 @@
       "best": {
         "title": "Hold Me Till the Morning",
         "text": "Roz steps down off the stage and crosses the whole floor in front of everyone, exactly the way she planned it in 1966, and asks Delphine Hart to dance. The frozen couples wake up and make room. For three minutes and ten seconds two girls who were never allowed to are the only thing anyone in Glimmer Falls is looking at, and Roz steps on Delphine's feet twice, and they laugh so hard they have to stop. When the song ends, Roz kisses the ring on Delphine's hand, puts her gardenia crown on Delphine's head and goes up through the rafters like a firework, laughing. The rain is gone. The stars are out. That spring the yearbook prints the milkshake photo on its first page, and Ms. Hart chaperones a prom where anyone can ask anyone, and she dances every single song.",
-        "art": "A joyful ghostly prom queen and a middle-aged librarian in a leather jacket slow-dancing alone in the middle of a gym under paper moons, couples in pajamas and Halloween costumes making a circle around them, starlight pouring through the open roof, gardenia petals drifting like confetti"
+        "art": "A teenage girl ghost in a mint prom gown and a crown of gardenias slow-dancing with a freckled 38-year-old woman with gray-streaked chestnut hair, tortoiseshell glasses and an oxblood cardigan in the middle of a high school gym under paper moons, both laughing, couples in pajamas and Halloween costumes standing in a circle around them, starlight pouring through an open roof, gardenia petals falling, silver light, wide shot"
       },
       "good": {
         "title": "The Floor Is Closed",
         "text": "The couples of Glimmer Falls wake up in the gym parking lot at dawn holding hands, with no idea why their feet hurt. The storm is over. Roz is gone, or at least quiet. You never find out what song she was waiting for. Some nights, driving past the high school, you could swear there is someone on the roof, looking at the stars, still waiting for a ladder.",
-        "art": "Confused couples in pajamas waking up in a high school parking lot at dawn holding hands, a faint silhouette of a girl in a gown on the gym roof against the sunrise"
+        "art": "Confused couples in pajamas and curlers waking up in a high school parking lot at dawn still holding hands, rubbing their eyes and looking at their bare feet, puddles on the asphalt, and on the gym roof against the pink sunrise the small silhouette of a girl in a long gown looking up at the fading stars, wide shot"
       },
       "bittersweet": {
         "title": "A Gardenia in the Rain",
         "text": "You get the town off the dance floor, but not everyone at once. For weeks a few couples on Crystal Street keep sleepwalking into the road at two a.m., swaying to music only they can hear. Ms. Hart quietly stops wearing the ring and starts wearing it again. Every May, a gardenia appears on the gym roof, and nobody ever admits to putting it there.",
-        "art": "A single gardenia lying on a wet high school gym roof at dawn, a sleepwalking couple swaying in a suburban street in the distance"
+        "art": "A single white gardenia lying on the wet tar roof of a high school gym at dawn, beads of rain on its petals, and far below on a suburban street a sleepwalking couple in pajamas swaying together in the road, pale pink morning light, close foreground with a wide background"
       },
       "bad": {
         "title": "Forever 1966",
         "text": "On November first your friends find you asleep on the gym floor, and you do not wake up for them. Behind your eyelids it is always May 1966, the band always playing the same eight bars, and you are dancing with a girl in a dripping crown who never stops looking at the door. Your crew plays every slow song ever recorded at your bedside, trying to find the one that ends it.",
-        "art": "A teenager asleep on a hospital-style cot surrounded by worried friends with a record player and stacks of singles, a faint dream image above them of a teen slow-dancing with a ghostly prom queen in an empty gym"
+        "art": "A teenager asleep on a narrow cot in a dim bedroom, three worried friends around the bed with a portable record player and stacks of seven-inch singles, and floating above them a faint pale image of the same teenager slow-dancing with a girl ghost in a mint prom gown in an empty gym under paper moons, warm lamp light and silver glow, medium wide shot"
       }
     }
   }

@@ -1,9 +1,11 @@
-import { createError, defineEventHandler, getRouterParam } from 'h3'
+import { createError, defineEventHandler, getQuery, getRouterParam } from 'h3'
+import { getImageStorageRoot } from '~/server/utils/imageStorageRoot'
 import prisma from '~/server/utils/prisma'
 import { errorHandler } from '~/server/utils/error'
 import { requireAdminApiUser } from '~/server/utils/authGuard'
 import { playbookFor } from '~/server/utils/playbook'
 import { isPlaybookGame } from '~/utils/playbook/games'
+import { inspectPlaybookArt } from '~/server/utils/playbookArtInventory'
 import {
   projectJobs,
   type JobRow,
@@ -32,6 +34,16 @@ export default defineEventHandler(async (event) => {
     if (!studio && !/^[a-z0-9-]{2,64}$/.test(slug))
       throw createError({ statusCode: 404, message: 'Unknown playbook.' })
     const project = studio ? playbookFor(studio).artProject : slug
+    const inventory = studio
+      ? inspectPlaybookArt(playbookFor(studio), getImageStorageRoot())
+      : { verified: {}, extras: { total: 0, delivered: 0, missing: [] } }
+    if (getQuery(event).inventory === '1') {
+      return {
+        success: true,
+        data: inventory,
+        statusCode: 200,
+      }
+    }
 
     const notes = studio
       ? await prisma.playbookNote.findMany({
@@ -95,6 +107,7 @@ export default defineEventHandler(async (event) => {
         renderSeconds:
           job.status === 'DONE' ? seconds(job.claimedAt, finished) : null,
         error: job.error ? job.error.slice(0, 280) : null,
+        artImageId: job.artImageId ?? null,
       }
     })
     const rowById = new Map(rows.map((row) => [row.id, row]))
@@ -108,6 +121,7 @@ export default defineEventHandler(async (event) => {
         engine: row.engine,
         renderSeconds: row.renderSeconds,
         error: row.error,
+        artImageId: row.artImageId,
       }
       byNode[note.nodeKey] = [...(byNode[note.nodeKey] ?? []), job]
     }
@@ -122,6 +136,9 @@ export default defineEventHandler(async (event) => {
         project,
         edits,
         byNode,
+        painted: inventory.verified,
+        verified: inventory.verified,
+        extras: inventory.extras,
         jobs: projectJobs(project, rows),
         truncated: jobs.length >= MAX_JOBS,
       },

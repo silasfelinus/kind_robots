@@ -53,6 +53,33 @@ export function resolvePlaybookNode(
   return key
 }
 
+/**
+ * Where a note may sit: a beat, or (for the Forge gallery's section and
+ * follower comments) a whole section of one kind (`section:<kind>`) or one
+ * person (`person:<id>`). Both are checked against the authored playbook.
+ */
+export function resolvePlaybookNoteTarget(
+  game: PlaybookGame,
+  raw: unknown,
+): string {
+  const key = String(raw ?? '').trim()
+  const [scope, id = ''] = key.split(/:(.*)/s)
+  if (scope === 'section' || scope === 'person') {
+    const book = playbookFor(game)
+    const known =
+      scope === 'section'
+        ? Object.values(book.nodes).some((node) => node.kind === id)
+        : book.people.some((person) => person.id === id)
+    if (!known)
+      throw createError({
+        statusCode: 404,
+        message: `Unknown playbook ${scope}.`,
+      })
+    return key
+  }
+  return resolvePlaybookNode(game, raw)
+}
+
 export function normalizePlaybookEdit(
   game: PlaybookGame,
   raw: unknown,

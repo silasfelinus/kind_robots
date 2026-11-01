@@ -5,6 +5,8 @@
  * - distinct optional synergies/special routes
  * - offers expire; launched teams return after 1–3 ship days
  */
+import { ACT_THREE_RULES } from './actThree'
+import { ACT_TWO_RULES } from './actTwo'
 import type { CaptainId, CrewId, VoyageRun } from './rules'
 
 export const SKILLS = [
@@ -55,10 +57,10 @@ export const CREW_PROFILES: CrewProfile[] = [
     culture: 'Ashdock worker',
     pronouns: 'he/him',
     talent: 'tactics',
-    quote: 'I repair the ship. I do not repair the captain.',
+    quote: "I'm unionized. So is my toolbox.",
     monogram: 'BP',
     story:
-      'Union mechanic who carries the maintenance notes from a hidden shipyard disaster.',
+      'Keeps broken machines running and remembers the workers whose names the contractors erased.',
     goal: 'Recover the erased names of the workers lost at Ashdock.',
     stats: S(2, 3, 1, 5, 1, 1),
     portraitKey: 'crew-pell',
@@ -66,14 +68,14 @@ export const CREW_PROFILES: CrewProfile[] = [
   {
     id: 'vela',
     name: 'Dr. Vela Sorn',
-    role: 'Doctor',
+    role: 'Physician',
     culture: 'Haleth reef people',
     pronouns: 'she/her',
     talent: 'rescue',
-    quote: 'Primitive is not a diagnosis.',
+    quote: 'If you can argue, you can consent. Start arguing.',
     monogram: 'VS',
     story:
-      'Reef-born physician who refused to categorize an asylum patient as cargo.',
+      'Doctor whose cure was patented by strangers; her triage bell loudly asks whether anyone consented.',
     goal: 'Find the clinic selling her emergency research to fleets.',
     stats: S(5, 4, 2, 1, 1, 2),
     portraitKey: 'crew-vela',
@@ -85,10 +87,10 @@ export const CREW_PROFILES: CrewProfile[] = [
     culture: 'Orbital-diaspora human',
     pronouns: 'she/they',
     talent: 'luck',
-    quote: 'That star is moving. It should not be moving.',
+    quote: 'That star is moving. We are not putting it on a map.',
     monogram: 'TH',
     story:
-      'Navigator whose grandmother left a map of secret drifting safe harbors.',
+      'Navigator who hides sanctuary routes inside a deliberately blank constellation.',
     goal: 'Return a borrowed map without exposing its sanctuary.',
     stats: S(1, 3, 1, 2, 5, 3),
     portraitKey: 'crew-tess',
@@ -100,10 +102,10 @@ export const CREW_PROFILES: CrewProfile[] = [
     culture: 'Concord Freehold',
     pronouns: 'they/them',
     talent: 'diplomacy',
-    quote: 'Who wrote the treaty, and who was missing?',
+    quote: 'Objection. The apology is legally inadequate.',
     monogram: 'RA',
     story:
-      'Former treaty translator who resigned over a clause denying refugee citizenship.',
+      'Diplomat whose translation erased a people from a treaty; carries eleven notarized apologies.',
     goal: 'Bring the missing signatories to a hearing.',
     stats: S(3, 2, 5, 1, 2, 4),
     portraitKey: 'crew-rue',
@@ -111,14 +113,15 @@ export const CREW_PROFILES: CrewProfile[] = [
   {
     id: 'mox',
     name: 'Mox-9',
-    role: 'Scientist',
+    role: 'Sentient android scientist',
     culture: 'Independent synthetic',
     pronouns: 'it/they',
     talent: 'science',
-    quote: 'I have opinions. Unfortunately, they are accurate.',
+    quote:
+      'I was not programmed to want a birthday. That seems an excellent reason to have one.',
     monogram: 'M9',
     story:
-      'Self-repairing laboratory intelligence whose first memory is a demand to erase itself.',
+      'Independent, embodied sentient android with mismatched eyelids, a deletion order, and a demand for its own future.',
     goal: 'Win the right to determine custody of its own source code.',
     stats: S(2, 5, 2, 3, 2, 1),
     portraitKey: 'crew-mox',
@@ -130,10 +133,11 @@ export const CREW_PROFILES: CrewProfile[] = [
     culture: 'Kestrelian Twin Isles',
     pronouns: 'he/they',
     talent: 'culture',
-    quote: 'People tell me things when I stop correcting them.',
+    quote:
+      'That anthem has been banned on five worlds. May I play the instrumental?',
     monogram: 'JM',
     story:
-      'Musician who knows six ceasefire anthems and the patrons behind each.',
+      'Musician forbidden to play the peace anthems he wrote because each one concealed a different lie.',
     goal: 'Reunite a neutral choir with both warring moons.',
     stats: S(2, 1, 4, 2, 3, 5),
     portraitKey: 'crew-jex',
@@ -145,10 +149,10 @@ export const CREW_PROFILES: CrewProfile[] = [
     culture: 'Tessellated Sesh',
     pronouns: 'she/her',
     talent: 'science',
-    quote: 'Ask the machine what broke before naming it.',
+    quote: 'The reactor requested paid leave. It has a point.',
     monogram: 'SQ',
     story:
-      'Six-jointed engineer whose community votes on recognition of sentient machines.',
+      'Six-jointed engineer who repairs thinking machines by asking them if they want the job.',
     goal: 'Find the inventor who abandoned an aware power station.',
     stats: S(2, 5, 2, 3, 2, 3),
     portraitKey: 'crew-sora',
@@ -156,14 +160,15 @@ export const CREW_PROFILES: CrewProfile[] = [
   {
     id: 'kivo',
     name: 'Kivo Drift',
-    role: 'Scout',
+    role: 'Courier scout',
     culture: 'Windglass moons',
     pronouns: 'they/them',
     talent: 'luck',
-    quote: 'Quiet tunnels have something to say.',
+    quote:
+      'The missing courier was my sibling. Please do not open that letter.',
     monogram: 'KD',
     story:
-      'Feather-crested navigator sensing pressure shifts through hollow wrist bones.',
+      'Pressure-sensing scout whose hollow wrist bones whistle when a route, or a lie, changes direction.',
     goal: 'Locate the vanished courier who carried their sibling away.',
     stats: S(3, 2, 2, 3, 5, 3),
     portraitKey: 'crew-kivo',
@@ -171,14 +176,15 @@ export const CREW_PROFILES: CrewProfile[] = [
   {
     id: 'taal',
     name: 'Taal Venn',
-    role: 'Mediator',
+    role: 'Thermal mediator',
     culture: 'Nacre polar shelf',
     pronouns: 'he/him',
     talent: 'diplomacy',
-    quote: 'A silence can be three different answers.',
+    quote:
+      "I've lowered this meeting by three degrees. Interpret that as you wish.",
     monogram: 'TV',
     story:
-      'White-plated amphibious envoy whose home community converses through temperature.',
+      'Thermal-language mediator who once proposed marriage to a thermostat by mistake.',
     goal: 'Recover the falsified assembly votes that broke a long peace.',
     stats: S(2, 3, 5, 2, 1, 4),
     portraitKey: 'crew-taal',
@@ -190,10 +196,10 @@ export const CREW_PROFILES: CrewProfile[] = [
     culture: 'Rootborne Archipelago',
     pronouns: 'she/they',
     talent: 'rescue',
-    quote: 'Your air filter is a garden, and it is thirsty.',
+    quote: 'The oxygen garden would like a union representative.',
     monogram: 'BT',
     story:
-      'Mycelial botanist whose living oxygen filters work only with patient maintenance.',
+      'Living-ecosystem ecologist whose breathing filters work beautifully and sometimes develop political opinions.',
     goal: 'Help two isolated towns share their irrigation systems.',
     stats: S(5, 4, 2, 1, 2, 3),
     portraitKey: 'crew-brin',
@@ -205,10 +211,10 @@ export const CREW_PROFILES: CrewProfile[] = [
     culture: 'Harmonic Belt',
     pronouns: 'any',
     talent: 'culture',
-    quote: 'I can translate the silence between alarms.',
+    quote: "This bell means 'no'. Please learn it before the cheerful bells.",
     monogram: 'O6',
     story:
-      'Small faceted stone being using chest resonators to speak in layered notes.',
+      'Stone-bodied signaler whose six chest resonators can announce a disaster or a very small objection.',
     goal: 'Restore the missing final note of an ignored disaster warning.',
     stats: S(2, 4, 3, 2, 2, 5),
     portraitKey: 'crew-omi',
@@ -216,14 +222,14 @@ export const CREW_PROFILES: CrewProfile[] = [
   {
     id: 'fen',
     name: 'Fen Rho',
-    role: 'Security',
+    role: 'Civilian safety',
     culture: 'Outer Accord diaspora',
     pronouns: 'he/they',
     talent: 'tactics',
-    quote: 'A safe corridor begins with civilian consent.',
+    quote: 'I have retired from border security. My boots have not.',
     monogram: 'FR',
     story:
-      'Former border guard who quit when shelter seekers became trespassers by decree.',
+      'Former border guard with boots that announce CHECKPOINT, now building routes nobody has to show papers to use.',
     goal: 'Return travel papers confiscated from displaced families.',
     stats: S(4, 2, 2, 5, 2, 2),
     portraitKey: 'crew-fen',
@@ -298,6 +304,169 @@ export const SYNERGIES: Synergy[] = [
     route: 'Build a living oxygen bank from failing medical equipment.',
     cost: 'The cure introduces long-term biosecurity work.',
   },
+  {
+    pair: ['pell', 'mox'],
+    missions: ['ashdock', 'gameworld'],
+    bonus: 3,
+    route:
+      'Recover the withheld workers’ charter without exposing protected witnesses.',
+    cost: 'Its ownership stays with the workers, not the captain.',
+  },
+  {
+    pair: ['tess', 'kivo'],
+    missions: ['windglass'],
+    bonus: 3,
+    route: 'Navigate an unmarked rescue track by pressure and stellar drift.',
+    cost: 'The safe harbor must remain deliberately absent from public charts.',
+  },
+  {
+    pair: ['rue', 'taal'],
+    missions: ['nacre'],
+    bonus: 3,
+    route:
+      'Audit the thermal ballot’s silent objections and invite each excluded voter back.',
+    cost: 'A vote is not consent to disclose a voter’s identity.',
+  },
+  {
+    pair: ['vela', 'brin'],
+    missions: ['haleth', 'rootborne'],
+    bonus: 3,
+    route:
+      'Join a clinic’s treatment plans to the reef’s living oxygen commons.',
+    cost: 'Neither a patient nor a forest becomes a medical product.',
+  },
+  {
+    pair: ['sora', 'omi'],
+    missions: ['gameworld', 'nacre'],
+    bonus: 3,
+    route:
+      'Decode the Showrunner’s edited announcements into evidence the contestants own.',
+    cost: 'An accurate transmission is not an excuse to speak for the workers.',
+  },
+  {
+    pair: ['jex', 'fen'],
+    missions: ['gameworld', 'ashdock'],
+    bonus: 2,
+    route:
+      'Turn a ceremonial march into a safe, union-controlled evacuation corridor.',
+    cost: 'Performers must choose whether they want to be a public symbol.',
+  },
+  {
+    pair: ['brin', 'kivo'],
+    missions: ['rootborne', 'windglass'],
+    bonus: 2,
+    route:
+      'Trace the breathing network with a living sensor instead of a public map.',
+    cost: 'The ecosystem has its own right to refuse the shortcut.',
+  },
+  {
+    pair: ['rue', 'fen'],
+    missions: ['concord-intake', 'hoa'],
+    bonus: 3,
+    route:
+      'File each petition by hand, escorted by someone who knows where the checkpoints used to be.',
+    cost: 'Every petitioner signs personally; nobody signs on their behalf.',
+  },
+  {
+    pair: ['mox', 'sora'],
+    missions: ['sesh-backups', 'season-two'],
+    bonus: 3,
+    route: 'Ask each machine what it wants before anybody counts it.',
+    cost: 'Some of them ask to be left exactly where they are.',
+  },
+  {
+    pair: ['rue', 'jex'],
+    missions: ['insult-compiler', 'courtesy-reactor'],
+    bonus: 3,
+    route:
+      'Read the vows as law and as lyrics until the fishing clause turns up.',
+    cost: 'Both parliaments learn who wrote their anthems.',
+  },
+  {
+    pair: ['pell', 'sora'],
+    missions: ['warranty', 'sesh-backups'],
+    bonus: 3,
+    route:
+      'Mend the seam and the suits with tools the warranty has never heard of.',
+    cost: 'The manufacturer will never honor either warranty again.',
+  },
+  {
+    pair: ['tess', 'fen'],
+    missions: ['hoa', 'committee-end'],
+    bonus: 3,
+    route: 'Move the families by a route that appears on no association map.',
+    cost: 'Each family leaves something behind the beige roofs.',
+  },
+  {
+    pair: ['vela', 'kivo'],
+    missions: ['committee-end', 'gig-orchard'],
+    bonus: 2,
+    route:
+      'Triage the second hull by pulse and cabin pressure before the agenda is finished.',
+    cost: 'Kivo flies the flare without a filed flight plan.',
+  },
+  {
+    pair: ['brin', 'omi'],
+    missions: ['gig-orchard', 'overdue'],
+    bonus: 3,
+    route: 'Ring a strike call at a pitch the trees can hear.',
+    cost: 'Breathr rates every participating tree one star.',
+  },
+  {
+    pair: ['taal', 'fen'],
+    missions: ['merger'],
+    bonus: 3,
+    route:
+      'Walk the excluded neighborhood into the chamber with its own heating.',
+    cost: 'The coalition will remember who held the door.',
+  },
+  {
+    pair: ['jex', 'omi'],
+    missions: ['serendipity-tab'],
+    bonus: 2,
+    route: 'Perform a silent duet that the bar accepts as payment.',
+    cost: 'Jex stays banned; the silence counts as attendance.',
+  },
+  {
+    pair: ['pell', 'vela'],
+    missions: ['cushion-recall'],
+    bonus: 3,
+    route:
+      'Treat the couch as a patient: a diagnosis, a repair plan and a second opinion from the dock.',
+    cost: 'The couch is out of service while the union decides.',
+  },
+  {
+    pair: ['tess', 'omi'],
+    missions: ['serendipity-last-call', 'windglass-exodus'],
+    bonus: 3,
+    route:
+      'Move people by quiet routes and a chime only they have been taught to hear.',
+    cost: 'Some guests choose not to follow either.',
+  },
+  {
+    pair: ['mox', 'omi'],
+    missions: ['gameworld-finale', 'deposit-copy'],
+    bonus: 3,
+    route:
+      'Sound the original warning and keep an uncut record of who answered it.',
+    cost: 'The record includes the crew’s own hesitations.',
+  },
+  {
+    pair: ['sora', 'taal'],
+    missions: ['foundry-strike', 'twins-summit'],
+    bonus: 3,
+    route:
+      'Chair the negotiation at a temperature both machines and delegates agree to.',
+    cost: 'The couch’s bubble gets a vote on the thermostat.',
+  },
+  {
+    pair: ['vela', 'fen'],
+    missions: ['inquiry'],
+    bonus: 3,
+    route:
+      'Bring witnesses to the stand with their consent and a clear exit from the room.',
+    cost: 'Several witnesses use the exit.',
+  },
 ]
 export type MissionRule = {
   id: string
@@ -333,6 +502,61 @@ export const MISSION_RULES: MissionRule[] = [
     deadline: 'The witness leaves Serendipity within three ship days.',
     remoteRoute: 'Remote negotiation cannot verify the witness’s safety.',
   },
+
+  {
+    id: 'ashdock',
+    requirements: { tactics: 10, diplomacy: 8 },
+    durationDays: 2,
+    boardDays: 2,
+    deadline:
+      'The contractor will destroy the casualty registers within two days.',
+    remoteRoute:
+      'Shipboard cameras cannot ask the grieving families to testify.',
+  },
+  {
+    id: 'windglass',
+    requirements: { luck: 10, science: 8 },
+    durationDays: 2,
+    boardDays: 3,
+    deadline: 'The moving beacon vanishes after three days.',
+    remoteRoute: 'A distant scan cannot tell a rescue from a pursuit beacon.',
+  },
+  {
+    id: 'nacre',
+    requirements: { diplomacy: 11, culture: 8 },
+    durationDays: 2,
+    boardDays: 3,
+    deadline: 'The assembly holds its binding quorum in three days.',
+    remoteRoute:
+      'An anonymous appeal cannot vote in place of excluded residents.',
+  },
+  {
+    id: 'haleth',
+    requirements: { rescue: 11, science: 8 },
+    durationDays: 3,
+    boardDays: 2,
+    deadline: 'The medical patent renews in two days.',
+    remoteRoute: 'Medical advice cannot remove an unsafe implanted registry.',
+  },
+  {
+    id: 'gameworld',
+    requirements: { tactics: 11, culture: 8 },
+    durationDays: 3,
+    boardDays: 2,
+    deadline: 'The involuntary finalists are chosen in two days.',
+    remoteRoute:
+      'A remote audience may watch, but it cannot open the workers’ exit.',
+  },
+  {
+    id: 'rootborne',
+    requirements: { rescue: 9, science: 10 },
+    durationDays: 2,
+    boardDays: 3,
+    deadline: 'The orchard’s last breathable seed ripens in three days.',
+    remoteRoute: 'A sensor cannot negotiate shared air with a living orchard.',
+  },
+  ...ACT_TWO_RULES,
+  ...ACT_THREE_RULES,
 ]
 export type MissionPreview = {
   chance: number

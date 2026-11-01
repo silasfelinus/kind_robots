@@ -26,6 +26,16 @@
             type="button"
             data-nav
             class="pf-label btn btn-sm btn-primary pf-focusable"
+            title="Every section and person as large art: prompts, renders and comments"
+            @click="forge.openGallery(forge.existing.slug)"
+          >
+            Gallery
+          </button>
+          <button
+            v-if="forge.existing.studio"
+            type="button"
+            data-nav
+            class="pf-label btn btn-sm btn-ghost pf-focusable"
             title="Every beat with the scene editor: overlays, notes and art requests"
             @click="forge.openBeats(forge.existing.slug)"
           >
@@ -77,10 +87,10 @@
         <span
           class="pf-progress relative h-2 flex-1 overflow-hidden bg-base-content/10"
           role="progressbar"
-          :aria-valuenow="Math.round(ledger.progress * 100)"
+          :aria-valuenow="completionPercent(ledger.progress)"
           aria-valuemin="0"
           aria-valuemax="100"
-          aria-label="Beats complete"
+          aria-label="Verified writing and artwork completion"
         >
           <span
             class="absolute inset-y-0 left-0"
@@ -89,7 +99,13 @@
           />
         </span>
         <span class="pf-display w-14 text-right tabular-nums"
-          >{{ Math.round(ledger.progress * 100) }}%</span
+          >{{ completionPercent(ledger.progress) }}%</span
+        >
+        <span
+          class="pf-kicker hidden shrink-0 text-[0.6rem] opacity-70 @3xl:inline"
+          title="Half authored writing, half verified delivered raster art (including extra outcome and portrait slots)"
+          >Written {{ Math.round(ledger.writtenShare * 100) }}% · painted
+          {{ Math.round(ledger.paintedShare * 100) }}%</span
         >
         <span
           class="pf-kicker hidden shrink-0 text-[0.6rem] opacity-70 @3xl:inline"
@@ -99,6 +115,41 @@
         >
       </div>
 
+      <div
+        v-if="ledger.unbuiltUnits"
+        class="flex flex-wrap gap-x-4 gap-y-1 text-xs leading-snug"
+        role="status"
+      >
+        <span class="text-warning"
+          >{{ formatCount(ledger.unbuiltUnits) }} planned
+          {{
+            forge.existing.slug === 'memory-dungeon'
+              ? 'realm positions'
+              : 'beats'
+          }}
+          not authored or painted</span
+        >
+        <span
+          >{{ formatCount(ledger.units) }} authored beats inspected ·
+          {{ formatCount(ledger.plannedUnits) }} total estimated slots</span
+        >
+        <span v-if="memoryRealms"
+          >{{ memoryRealms.built }} of {{ memoryRealms.planned }} realm maps
+          represented ·
+          {{ Math.max(0, memoryRealms.planned - memoryRealms.built) }}
+          remain</span
+        >
+      </div>
+      <p
+        v-if="ledger.extraArt.total"
+        class="text-xs leading-snug tabular-nums text-warning"
+        role="status"
+      >
+        Extra game images verified:
+        {{ formatCount(ledger.extraArt.delivered) }} /
+        {{ formatCount(ledger.extraArt.total) }} (choice outcomes, portraits,
+        villain art and items). SVG fallback scenes are not completed paintings.
+      </p>
       <ul
         class="grid grid-cols-3 gap-x-4 gap-y-2 @3xl:grid-cols-6"
         aria-label="Totals"
@@ -159,6 +210,13 @@
               section.starred ? 'pf-row-starred' : '',
             ]"
             :aria-label="`${section.label}: ${section.starred ? 'starred' : `${section.units.length - section.art.delivered} pictures to go`}`"
+            @click="
+              forge.existing &&
+              forge.openGallery(forge.existing.slug, {
+                type: 'section',
+                id: section.id,
+              })
+            "
             @focus="forge.focusSection(i)"
             @mouseenter="($event.currentTarget as HTMLElement).focus()"
           >
@@ -229,6 +287,7 @@ import { usePlaybookForgeStore } from '~/stores/playbookForgeStore'
 import { formatCount, formatDuration } from '~/utils/playbookForge/estimate'
 import { FACTOR_ROWS } from '~/utils/playbookForge/factors'
 import { kitPlaybook } from '~/utils/playbookKit/games'
+import { completionPercent } from '~/utils/playbookForge/ledger'
 import type {
   ArtState,
   LedgerSection,
@@ -237,6 +296,15 @@ import type {
 
 const forge = usePlaybookForgeStore()
 const ledger = computed(() => forge.ledger)
+const memoryRealms = computed(() => {
+  const entry = forge.existing
+  if (entry?.slug !== 'memory-dungeon') return null
+  const perRealm = 64 + 36
+  return {
+    built: Math.floor(Number(forge.built?.values.encounters ?? 0) / perRealm),
+    planned: Math.ceil(forge.planFor(entry).encounters / perRealm),
+  }
+})
 const kitSpec = computed(() =>
   forge.existing ? kitPlaybook(forge.existing.slug) : undefined,
 )
@@ -314,8 +382,15 @@ const totals = computed(() => {
   return [
     {
       label: 'Art delivered',
-      value: l.units ? `${l.art.delivered}/${l.units}` : '—',
-      cls: l.units && l.art.delivered === l.units ? 'text-success' : '',
+      value:
+        l.plannedUnits + l.extraArt.total
+          ? `${l.art.delivered}/${l.plannedUnits + l.extraArt.total}`
+          : '—',
+      cls:
+        l.plannedUnits + l.extraArt.total > 0 &&
+        l.art.delivered === l.plannedUnits + l.extraArt.total
+          ? 'text-success'
+          : '',
     },
     {
       label: 'Not wired',

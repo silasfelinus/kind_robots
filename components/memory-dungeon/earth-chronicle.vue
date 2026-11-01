@@ -12,6 +12,7 @@
       data-testid="memory-earth-chronicle"
       class="flex h-[min(90dvh,46rem)] w-[min(96vw,64rem)] min-h-0 flex-col overflow-hidden rounded-xl border-2 border-[#ae8d64] bg-[#1e252b] text-[#f9edce] shadow-[0_0_65px_#090b10] outline-none"
       @keydown.esc.prevent="emit('close')"
+      @keydown="trapMemoryDialogTab($event, dialog)"
     >
       <header
         class="flex shrink-0 items-center justify-between gap-3 border-b border-[#94795a] bg-[#332d2b] px-3 py-2 sm:px-5"
@@ -175,6 +176,27 @@
               </div>
             </template>
           </div>
+          <div
+            v-for="(reappraisal, index) in reappraisals"
+            :key="reappraisal.title"
+            data-testid="memory-earth-reappraisal"
+            class="rounded-lg border border-[#8eaa9b] bg-[#253b39] p-3"
+          >
+            <p
+              class="text-[10px] font-bold uppercase tracking-[0.2em] text-[#b8dbcc]"
+            >
+              {{ index === 0 ? 'Evidence reconsidered' : 'Later evidence' }}
+            </p>
+            <h4 class="mt-1 font-serif text-lg font-bold">
+              {{ reappraisal.title }}
+            </h4>
+            <p class="mt-2 text-sm leading-relaxed text-[#e5efe5]">
+              {{ reappraisal.evidence }}
+            </p>
+            <p class="mt-2 text-sm leading-relaxed text-[#cbded2]">
+              {{ reappraisal.reflection }}
+            </p>
+          </div>
           <p class="text-xs italic leading-relaxed text-[#bbb2a8]">
             Your response remains in the Chronicle across expeditions. A later
             photograph may change what you believe; it cannot erase what you
@@ -188,7 +210,9 @@
 
 <script setup lang="ts">
 import { computed, nextTick, onMounted, ref } from 'vue'
+import { trapMemoryDialogTab } from '~/utils/memoryDungeon/dialogFocus'
 import { useMemoryWorldStore } from '~/stores/memoryWorldStore'
+import { earthPhotoReappraisals } from '~/utils/memoryDungeon/chronicle'
 
 const emit = defineEmits<{ close: [] }>()
 const world = useMemoryWorldStore()
@@ -200,6 +224,11 @@ const active = computed(
     world.earthPhotos.find((photo) => photo.id === selected.value) ??
     world.earthPhotos[0] ??
     null,
+)
+const reappraisals = computed(() =>
+  active.value
+    ? earthPhotoReappraisals(world.earthChronicle, active.value.id)
+    : [],
 )
 onMounted(async () => {
   await nextTick()

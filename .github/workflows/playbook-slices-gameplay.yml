@@ -16,7 +16,33 @@ on:
       - 'pages/play/game-of-captains.vue'
       - 'components/home/home-visitor-directory.vue'
       - 'utils/scripts/verifyCometCityAcademy.test.ts'
+      - 'utils/scripts/verifyCometMorningCallbacks.test.ts'
+      - 'utils/scripts/verifyCometCaseMemory.test.ts'
+      - 'utils/scripts/verifyCometPatrolStories.test.ts'
+      - 'utils/scripts/verifyCometOctoberCast.test.ts'
+      - 'utils/scripts/verifyCometConsoleScreens.test.ts'
+      - 'utils/scripts/verifyCometPlaytestReadiness.test.ts'
+      - 'components/play/cometAcademy/**'
+      - 'utils/scripts/verifyPromVillainHenchmen.test.ts'
+      - 'utils/cometAcademy/identityCampaignStages.json'
+      - 'utils/cometAcademy/identityCampaignStages.ts'
+      - 'utils/scripts/verifyPromCampaignStages.test.ts'
+      - 'utils/scripts/verifyComicCharacterReveals.test.ts'
+      - 'components/comic-character-reveal.vue'
+      - 'components/play/cometAcademy/AcademyOpening.vue'
+      - 'pages/admin/every-villain-tactics.vue'
+      - 'utils/scripts/verifyCapesStyleCheck.test.ts'
+      - 'utils/capesStyleCheck.ts'
+      - 'stores/capesStyleCheckStore.ts'
+      - 'server/api/capes/style-check.get.ts'
+      - 'pages/admin/capes.vue'
+      - 'content/channels/admin/capes.md'
       - 'utils/scripts/verifyGameOfCaptains.test.ts'
+      - 'utils/scripts/verifyGameOfCaptainsExpedition.test.ts'
+      - 'utils/scripts/verifyGameOfCaptainsCharacters.test.ts'
+      - 'utils/scripts/verifyGameOfCaptainsTraces.test.ts'
+      - 'utils/scripts/spaceCouchTraceHarness.ts'
+      - 'utils/scripts/fixtures/spaceCouchSaves-2026-10-29.json'
       - '.github/workflows/playbook-slices-gameplay.yml'
   push:
     branches: [main]
@@ -28,6 +54,7 @@ on:
       - 'utils/gameOfCaptains/**'
       - 'pages/play/comet-city-academy.vue'
       - 'pages/play/game-of-captains.vue'
+      - 'components/play/cometAcademy/**'
       - '.github/workflows/playbook-slices-gameplay.yml'
   workflow_dispatch:
 
@@ -50,5 +77,21 @@ jobs:
         run: npm run test:playbook-run-review
       - name: Academy seeded term and saved outcome verification
         run: npm run test:comet-city-academy
+      - name: Early patrol morning callbacks, choices and original full campaign
+        run: npx tsx utils/scripts/verifyCometMorningCallbacks.test.ts
+      - name: Five-night district reputation and campaign save provenance
+        run: npx tsx utils/scripts/verifyCometCaseMemory.test.ts
+      - name: Signature origin missions, villain lairs and lieutenant parity
+        run: npx tsx utils/scripts/verifyPromCampaignStages.test.ts
+      - name: Shared comic character reveals across both games
+        run: npx tsx utils/scripts/verifyComicCharacterReveals.test.ts
+      - name: Shared Capes style gate and live-job projection contract
+        run: npx tsx utils/scripts/verifyCapesStyleCheck.test.ts
+      - name: Villain-specific one-hit bestiary parity
+        run: npx tsx utils/scripts/verifyPromVillainHenchmen.test.ts
       - name: Captains seeded missions and ethical ending verification
         run: npm run test:game-of-captains
+      - name: Space Couch expedition roster, fatalities and allocation verification
+        run: npx tsx utils/scripts/verifyGameOfCaptainsExpedition.test.ts
+      - name: Space Couch character signatures and dossiers
+        run: npx tsx utils/scripts/verifyGameOfCaptainsCharacters.test.ts

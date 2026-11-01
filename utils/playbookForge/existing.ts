@@ -44,7 +44,6 @@ function fromStudio(book: Playbook, ignore: string[] = []): BuiltCounts {
     kinds.set(node.kind, (kinds.get(node.kind) ?? 0) + 1)
   const n = (kind: string) =>
     ignore.includes(kind) ? 0 : (kinds.get(kind) ?? 0)
-  const nodes = Object.values(book.nodes)
   const found: Partial<Record<keyof Blueprint, number>> = {
     encounters: n('encounter'),
     quests: n('quest'),
@@ -71,11 +70,9 @@ function fromStudio(book: Playbook, ignore: string[] = []): BuiltCounts {
   return {
     values,
     measured,
-    art: {
-      painted: nodes.filter((node) => !!node.artUrl).length,
-      total: nodes.length,
-    },
-    source: `Playbook Studio adapter: ${nodes.length} authored beats`,
+    // File delivery is audited by the server, not inferred from authored URLs.
+    art: null,
+    source: `Playbook Studio adapter: ${Object.keys(book.nodes).length} authored beats`,
   }
 }
 
@@ -102,14 +99,22 @@ export const EXISTING_PLAYBOOKS: ExistingPlaybook[] = [
       rosterSize: 6,
       // Silas, 2026-10-26 (kind_robots#4182): a galactic nemesis drawn per run,
       // a personal quest for every crew member that crosses the galaxy, and
-      // endings that change with the opening. Three crew colour an ending;
-      // the captain multiplies it.
-      followers: 16,
+      // endings that change with the opening; the captain multiplies them.
+      // Silas, 2026-10-27: twelve crew in threes is 220 parties, and each
+      // party earns two endings of its own and an interstitial adventure of
+      // several steps; every galactic boss has endings of its own; every crew
+      // member has a romance thread. "This is an adventure across an insane
+      // universe, and we're just along for the ride."
+      followers: 12,
       partySize: 3,
       followerQuestSteps: 3,
       followerEpilogues: true,
+      partyAdventureSteps: 3,
+      partyEndings: 2,
       villains: 8,
       villainPerRun: true,
+      villainEndings: 3,
+      romances: 12,
       acts: 3,
       chaptersPerAct: 4,
       encounters: 40,
@@ -122,41 +127,79 @@ export const EXISTING_PLAYBOOKS: ExistingPlaybook[] = [
       endingVersions: 'per-hero',
       factions: 4,
       saveSlots: 3,
-      idea: 'A very long red couch crosses the galaxy inside a force bubble. Six captains, sixteen crew with errands of their own on far-flung worlds, and one galactic nemesis drawn each run. The absurdity is played dry: procedures, minutes and polite memos about a sofa at warp.',
+      idea: 'A very long red couch crosses the galaxy inside a force bubble. Six captains, twelve crew with errands and romances of their own on far-flung worlds, 220 possible trios each with an adventure and endings nobody else gets, and one galactic nemesis drawn each run. The absurdity is played dry: procedures, minutes and polite memos about a sofa at warp.',
     }),
     count: async () => {
       const rules = await import('../gameOfCaptains/rules')
+      const { CREW_JOURNEYS } = await import('../gameOfCaptains/crewJourneys')
+      const { WARP_ENDINGS } = await import('../gameOfCaptains/artSlots')
+      const { VOYAGE_BOARDS, actOf } =
+        await import('../gameOfCaptains/voyageMap')
+      const acts = new Set(VOYAGE_BOARDS.map((_, i) => actOf(i + 1)))
+      const { NEMESIS_ENDINGS } =
+        await import('../gameOfCaptains/nemesisEndings')
+      const villainEndings = Object.values(NEMESIS_ENDINGS).map(
+        (endings) => Object.keys(endings).length,
+      )
+      const { SOLO_ROMANCE_ROUTES } =
+        await import('../gameOfCaptains/romanceStories')
+      const journeys = Object.values(CREW_JOURNEYS)
+      const { TRIO_ADVENTURES, ALL_PARTIES, TRIO_STEPS } =
+        await import('../gameOfCaptains/trioAdventures')
+      // The plan asks for every party; the factor stays 0 until all of them
+      // have an adventure, and the authored count is stated in the source.
+      const everyParty = TRIO_ADVENTURES.length >= ALL_PARTIES
       return {
         values: {
           rosterSize: rules.CAPTAINS.length,
+          // Chapters are mission boards; an act is a run of boards.
+          acts: acts.size,
+          chaptersPerAct: Math.round(VOYAGE_BOARDS.length / acts.size),
           followers: rules.CREW.length,
           villains: rules.ANTAGONISTS.length,
           quests: rules.MISSIONS.length,
           encounters: rules.MISSIONS.length,
           locations: new Set(rules.MISSIONS.map((mission) => mission.system))
             .size,
-          // No crew member has a personal quest yet.
-          followerQuestSteps: 0,
-          endings: 4,
+          followerQuestSteps: journeys.length
+            ? Math.min(...journeys.map((steps) => steps.length))
+            : 0,
+          // Solo romances only: pair routes and the fourple are extra.
+          romances: SOLO_ROMANCE_ROUTES.length,
+          endings: WARP_ENDINGS.length,
+          // Every galactic boss has its own endings (nemesisEndings.ts);
+          // the factor is the fewest any one boss has.
+          partyAdventureSteps: everyParty ? TRIO_STEPS : 0,
+          partyEndings: everyParty ? 2 : 0,
+          villainEndings: villainEndings.length
+            ? Math.min(...villainEndings)
+            : 0,
         },
         measured: [
           'rosterSize',
+          'acts',
+          'chaptersPerAct',
           'followers',
           'villains',
           'quests',
           'encounters',
           'locations',
           'followerQuestSteps',
+          'romances',
+          'endings',
+          'partyAdventureSteps',
+          'partyEndings',
+          'villainEndings',
         ],
         art: null,
-        source: 'utils/gameOfCaptains/rules.ts',
+        source: `utils/gameOfCaptains/rules.ts, actOne.ts, actTwo.ts, voyageMap.ts, galacticEndings.ts, nemesisEndings.ts, crewJourneys.ts, romance.ts, trioAdventures.ts (${TRIO_ADVENTURES.length} of ${ALL_PARTIES} parties authored, each with ${TRIO_STEPS} interlude steps and 2 endings)`,
       }
     },
   },
   {
     slug: 'comet-city-academy',
     studio: 'comet-city-academy',
-    title: 'Capes & Tassels: Prom of Doom',
+    title: 'Prom of Doom',
     cover: '/comet-city-academy/front/splash.webp',
     route: '/play/comet-city-academy',
     planSource:
@@ -187,10 +230,11 @@ export const EXISTING_PLAYBOOKS: ExistingPlaybook[] = [
       saveSlots: 3,
     }),
     count: async () => {
-      const [rules, roster, districts] = await Promise.all([
+      const [rules, roster, districts, returns] = await Promise.all([
         import('../cometAcademy/rules'),
         import('../cometAcademy/identityArcs'),
         import('../cometAcademy/districtEncounters'),
+        import('../cometAcademy/returnVisits'),
       ])
       const { PROM_ENDINGS } = await import('../cometAcademy/artSlots')
       const { CAMPAIGN_VILLAINS } = await import('../cometAcademy/campaign')
@@ -201,9 +245,10 @@ export const EXISTING_PLAYBOOKS: ExistingPlaybook[] = [
           romances: people.filter((person) => person.romance).length,
           villains: CAMPAIGN_VILLAINS.length,
           encounters:
-            rules.INCIDENTS.length +
+            rules.NIGHT_DECK.length +
             rules.ENCOUNTERS.length +
-            Object.keys(districts.DISTRICT_ENCOUNTERS).length,
+            Object.keys(districts.DISTRICT_ENCOUNTERS).length +
+            Object.keys(returns.RETURN_VISITS).length,
           endings: PROM_ENDINGS.length,
         },
         measured: [
@@ -275,6 +320,191 @@ export const EXISTING_PLAYBOOKS: ExistingPlaybook[] = [
       romances: 4,
     }),
     count: () => studio('ecotone', ['quest']),
+  },
+  {
+    slug: 'memory-dungeon',
+    studio: 'memory-dungeon',
+    title: 'Memory Dungeon',
+    cover: '/memory-dungeon/front/hero.webp',
+    route: '/play/memory',
+    planSource:
+      'Sixteen-Realm Production Bible (conductor projects/memory-dungeon/SIXTEEN-REALM-PRODUCTION.md) and master issue kind_robots#4136',
+    // Silas, 2026-10-27: "Each overworld has 64 encounters, there are 16
+    // overworlds." The bible's targets: 16 realms in four acts, each an 8×8
+    // overworld (1,024 positions) over a 6×6 dungeon (576 rooms); 96 enemies
+    // (a guardian, an elite and four regulars per realm); 128 sidequests; 32
+    // Earth photographs; 64 achievements; 12 illustrated endings (three
+    // choices × four epilogues). Its 128 item definitions and 64 unlocks have
+    // no factor yet.
+    plan: plan('memory-dungeon', 'Memory Dungeon', {
+      genre: 'fable-journey',
+      placement: 'play',
+      creator: 'builder',
+      creatorFactors: 2,
+      optionsPerFactor: 4,
+      acts: 4,
+      chaptersPerAct: 4,
+      encounters: 16 * (64 + 36),
+      choicesPerEncounter: 2,
+      // Realms, dungeons, secret areas and Edgeworlds, each an establishing scene.
+      locations: 16 + 16 + 16 + 4,
+      quests: 16 * 8,
+      // Scylla, Char and Oren travel together; four developments per realm.
+      followers: 3,
+      partySize: 3,
+      followerQuestSteps: Math.round((16 * 4) / 3),
+      villains: 16,
+      figures: 16 * 5,
+      reveals: 32,
+      moments: 16 * 4,
+      endings: 12,
+      outcomeArt: 'success',
+      seededRuns: true,
+      metaProgress: true,
+      saveSlots: 3,
+    }),
+    count: async () => {
+      const counts = await studio('memory-dungeon')
+      const { buildMemoryDungeonPlaybook, isMemoryDungeonPosition } =
+        await import('../playbook/memoryDungeon')
+      const nodes = Object.values(buildMemoryDungeonPlaybook().nodes)
+      const measured: (keyof Blueprint)[] = ['encounters', 'reveals']
+      return {
+        ...counts,
+        // Every overworld tile and dungeon room is an authored position, not
+        // only the tiles tagged as encounters.
+        values: {
+          ...counts.values,
+          encounters: nodes.filter((n) => isMemoryDungeonPosition(n.key))
+            .length,
+          reveals: nodes.filter((n) => n.kind === 'thread').length,
+        },
+        measured: [...new Set([...counts.measured, ...measured])],
+        source: `${counts.source}; encounters count every overworld tile and House room`,
+      }
+    },
+  },
+  {
+    slug: 'cthulhuquarium',
+    studio: 'cthulhuquarium',
+    title: 'Cthulhuquarium',
+    cover: '/cthulhuquarium-front/hero.webp',
+    route: '/play/aquarium',
+    planSource:
+      'conductor projects/cthulhuquarium DESIGN-BRIEF, ECONOMY and FULL-GAME-GAP-AUDIT (151 authored species; the bestiary completing is the credits)',
+    // An aquarium rather than a branching story: species are its encounters,
+    // tank backgrounds its places, the bestiary milestones its quests, the
+    // Last Aquarium its one finale.
+    plan: plan('cthulhuquarium', 'Cthulhuquarium', {
+      genre: 'cozy-mystery',
+      placement: 'play',
+      creator: 'fixed',
+      acts: 1,
+      chaptersPerAct: 1,
+      encounters: 151,
+      choicesPerEncounter: 2,
+      outcomeArt: 'none',
+      quests: 15,
+      questSteps: 1,
+      locations: 16,
+      followers: 2,
+      partySize: 1,
+      followerExpressions: 4,
+      villains: 1,
+      endings: 1,
+      metaProgress: true,
+      saveSlots: 1,
+    }),
+    count: async () => {
+      const counts = await studio('cthulhuquarium')
+      const { buildCthulhuquariumPlaybook } =
+        await import('../playbook/cthulhuquarium')
+      const nodes = Object.values(buildCthulhuquariumPlaybook().nodes)
+      const kind = (k: string) => nodes.filter((n) => n.kind === k).length
+      const measured: (keyof Blueprint)[] = [
+        'encounters',
+        'quests',
+        'locations',
+        'followers',
+      ]
+      return {
+        ...counts,
+        values: {
+          ...counts.values,
+          encounters: kind('encounter'),
+          quests: kind('quest'),
+          locations: kind('thread'),
+          followers: kind('follower'),
+        },
+        measured: [...new Set([...counts.measured, ...measured])],
+        source: `${counts.source}; species, milestones, backgrounds and shopkeepers from the canon`,
+      }
+    },
+  },
+  {
+    slug: 'ruler-hooked',
+    studio: 'ruler-hooked',
+    title: 'The Ruler Is Hooked',
+    cover: '/ruler-hooked/hero.webp',
+    route: '/play/ruler-hooked',
+    planSource:
+      'conductor projects/ruler-hooked FULL-GAME-GAP-AUDIT ("12-20 fish species, several meaningful gear/lure choices, 5-6 substantial character arcs, and enough free-draw encounters that a replay does not immediately repeat") and docs/fish-ecology.md (15 fish)',
+    // Event cards are its encounters, character arcs its quests, the cast
+    // its followers (four expressions each), the playable rulers its heroes.
+    plan: plan('ruler-hooked', 'The Ruler Is Hooked', {
+      genre: 'court-intrigue',
+      placement: 'play',
+      creator: 'roster',
+      rosterSize: 12,
+      acts: 1,
+      chaptersPerAct: 3,
+      encounters: 40,
+      choicesPerEncounter: 2,
+      outcomeArt: 'none',
+      quests: 6,
+      questSteps: 3,
+      locations: 8,
+      followers: 12,
+      partySize: 1,
+      followerExpressions: 3,
+      figures: 15,
+      villains: 1,
+      endings: 4,
+      factions: 3,
+      seededRuns: true,
+      saveSlots: 1,
+    }),
+    count: async () => {
+      const counts = await studio('ruler-hooked')
+      const { RULER_HOOKED_CONTENT } = await import('../rulerHooked/content')
+      const { RULER_HOOKED_FISH } = await import('../rulerHooked/fish')
+      const { RULER_PRESETS } = await import('../rulerHooked/rulerPresets')
+      const content = RULER_HOOKED_CONTENT
+      const measured: (keyof Blueprint)[] = [
+        'encounters',
+        'quests',
+        'followers',
+        'figures',
+        'endings',
+        'rosterSize',
+      ]
+      return {
+        ...counts,
+        values: {
+          ...counts.values,
+          encounters:
+            content.decks.reduce((n, d) => n + d.cards.length, 0) +
+            content.arcs.reduce((n, a) => n + a.steps.length, 0),
+          quests: content.arcs.length,
+          followers: content.characters.length,
+          figures: RULER_HOOKED_FISH.length,
+          endings: content.endings.length,
+          rosterSize: RULER_PRESETS.length,
+        },
+        measured: [...new Set([...counts.measured, ...measured])],
+        source: `${counts.source}; cards, arcs, cast, fish, endings and rulers from utils/rulerHooked`,
+      }
+    },
   },
   {
     slug: 'crystal-street',

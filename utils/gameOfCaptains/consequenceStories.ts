@@ -589,8 +589,13 @@ export function resolveConsequence(
     consequenceHistory: [...(run.consequenceHistory ?? []), record],
     missionHistory: [
       ...(run.missionHistory ?? []),
-      { chapter: run.chapter, missionId: run.missionId!, system: episode.system,
-        policy: choice.policy, result: run.report?.result ?? 'costly' },
+      {
+        chapter: run.chapter,
+        missionId: run.missionId!,
+        system: episode.system,
+        policy: choice.policy,
+        result: run.report?.result ?? 'costly',
+      },
     ],
     worldFlags: [...(run.worldFlags ?? []), ...outcome.flags],
     scene: `${succeeded ? 'SUCCESS' : 'SETBACK'} · ${description}`,
@@ -607,7 +612,9 @@ export function consequenceAftermath(run: VoyageRun): ConsequenceRecord | null {
 export function applyConsequenceEpilogue(run: VoyageRun): VoyageRun {
   if (run.phase !== 'ending') return run
   const flags = new Set(run.worldFlags ?? [])
-  const ending = CONSEQUENCE_ENDINGS.find((item) => item.requires_all.every((flag) => flags.has(flag)))
+  const ending = CONSEQUENCE_ENDINGS.find((item) =>
+    item.requires_all.every((flag) => flags.has(flag)),
+  )
   if (!ending) return run
   const coda = `${ending.title}: ${ending.narrative} Cost: ${ending.cost}`
   return {
@@ -618,19 +625,32 @@ export function applyConsequenceEpilogue(run: VoyageRun): VoyageRun {
   }
 }
 
-export function validConsequenceHistory(value: unknown): value is ConsequenceRecord[] {
-  return Array.isArray(value) && value.length <= 3 && value.every((item) => {
-    if (!item || typeof item !== 'object') return false
-    const record = item as Partial<ConsequenceRecord>
-    const story = Object.entries(CONSEQUENCE_STORIES).find(
-      ([missionId, ep]) => missionId === record.missionId && ep.id === record.episodeId,
-    )?.[1]
-    const choice = story?.choices.find((c) => c.id === record.choiceId)
-    return !!choice && Number.isInteger(record.chapter) &&
-      record.chapter! >= 1 && record.chapter! <= 9 &&
-      typeof record.succeeded === 'boolean' &&
-      record.artKey === `consequences/${record.episodeId}-${record.choiceId}-${record.succeeded ? 'success' : 'failure'}` &&
-      typeof record.callback === 'string' &&
-      Array.isArray(record.flags) && record.flags.every((flag) => typeof flag === 'string')
-  })
+export function validConsequenceHistory(
+  value: unknown,
+): value is ConsequenceRecord[] {
+  return (
+    Array.isArray(value) &&
+    value.length <= 3 &&
+    value.every((item) => {
+      if (!item || typeof item !== 'object') return false
+      const record = item as Partial<ConsequenceRecord>
+      const story = Object.entries(CONSEQUENCE_STORIES).find(
+        ([missionId, ep]) =>
+          missionId === record.missionId && ep.id === record.episodeId,
+      )?.[1]
+      const choice = story?.choices.find((c) => c.id === record.choiceId)
+      return (
+        !!choice &&
+        Number.isInteger(record.chapter) &&
+        record.chapter! >= 1 &&
+        record.chapter! <= 9 &&
+        typeof record.succeeded === 'boolean' &&
+        record.artKey ===
+          `consequences/${record.episodeId}-${record.choiceId}-${record.succeeded ? 'success' : 'failure'}` &&
+        typeof record.callback === 'string' &&
+        Array.isArray(record.flags) &&
+        record.flags.every((flag) => typeof flag === 'string')
+      )
+    })
+  )
 }

@@ -471,15 +471,38 @@
                     data-testid="space-couch-captain-hero"
                   >
                     <img
-                      v-if="portrait('captain-' + selectedCaptain)"
-                      :src="portrait('captain-' + selectedCaptain)!"
+                      v-if="captainDossierPortrait"
+                      :src="captainDossierPortrait"
                       :alt="
                         activeCaptain.name + ' full-size character portrait'
                       "
                       class="cap-personnel-hero-image"
+                      @error="
+                        onPortraitError($event, 'captain-' + selectedCaptain)
+                      "
                     />
                     <div v-else class="cap-personnel-hero-fallback">
                       <strong>{{ activeCaptain.name.slice(0, 1) }}</strong>
+                    </div>
+                    <div
+                      class="cap-expression-tabs"
+                      role="group"
+                      aria-label="Captain portrait expressions"
+                    >
+                      <button
+                        v-for="expression in PORTRAIT_MOODS"
+                        :key="expression"
+                        type="button"
+                        :aria-pressed="captainMood === expression"
+                        :class="{ selected: captainMood === expression }"
+                        @click="captainMood = expression"
+                      >
+                        {{
+                          expression === 'neutral'
+                            ? 'NORMAL'
+                            : expression.toUpperCase()
+                        }}
+                      </button>
                     </div>
                     <figcaption>
                       <span>YOUR CAPTAIN</span>
@@ -684,18 +707,44 @@
                     data-testid="space-couch-crew-hero"
                   >
                     <img
-                      v-if="portrait(crewProfile(focusedCrew).portraitKey)"
-                      :src="portrait(crewProfile(focusedCrew).portraitKey)!"
+                      v-if="crewDossierPortrait"
+                      :src="crewDossierPortrait"
                       :alt="
                         crewProfile(focusedCrew).name +
                         ' full-size character portrait'
                       "
                       class="cap-personnel-hero-image"
+                      @error="
+                        onPortraitError(
+                          $event,
+                          crewProfile(focusedCrew).portraitKey,
+                        )
+                      "
                     />
                     <div v-else class="cap-personnel-hero-fallback">
                       <strong>{{
                         crewProfile(focusedCrew).name.slice(0, 1)
                       }}</strong>
+                    </div>
+                    <div
+                      class="cap-expression-tabs"
+                      role="group"
+                      aria-label="Crew portrait expressions"
+                    >
+                      <button
+                        v-for="expression in PORTRAIT_MOODS"
+                        :key="expression"
+                        type="button"
+                        :aria-pressed="crewMood === expression"
+                        :class="{ selected: crewMood === expression }"
+                        @click="crewMood = expression"
+                      >
+                        {{
+                          expression === 'neutral'
+                            ? 'NORMAL'
+                            : expression.toUpperCase()
+                        }}
+                      </button>
                     </div>
                     <figcaption>
                       <span>OFFICER DOSSIER</span>
@@ -996,12 +1045,18 @@
                   v-for="room in POCKET_ROOMS"
                   :key="room.id"
                   type="button"
-                  class="cap-crew-button"
+                  class="cap-crew-button cap-pocket-room-choice"
                   :class="{ chosen: run.pocketRoom === room.id }"
                   :aria-pressed="run.pocketRoom === room.id"
                   :disabled="run.supplies < 1 && run.pocketRoom !== room.id"
                   @click="store.chooseRoom(room.id)"
                 >
+                  <img
+                    class="cap-pocket-room-art"
+                    :src="pocketRoomPainting(room.id) || COUCH_FALLBACK"
+                    alt=""
+                    @error="onPaintedImageError"
+                  />
                   <span
                     ><strong>{{ room.name }}</strong
                     ><small>{{ room.blurb }}</small></span
@@ -1086,10 +1141,16 @@
                   class="cap-monogram"
                   :data-portrait-key="crewProfile(member.id).portraitKey"
                   ><img
-                    v-if="portrait(crewProfile(member.id).portraitKey)"
-                    :src="portrait(crewProfile(member.id).portraitKey)!"
+                    v-if="crewVoyagePortrait(member.id)"
+                    :src="crewVoyagePortrait(member.id)!"
                     alt=""
                     class="cap-portrait-img"
+                    @error="
+                      onPortraitError(
+                        $event,
+                        crewProfile(member.id).portraitKey,
+                      )
+                    "
                   /><template v-else>{{ member.monogram }}</template></span
                 >
                 <span
@@ -1780,6 +1841,10 @@ const logEntries = computed(() => {
 })
 const starAssessment = ref<StarAssessment | null>(null)
 const focusedCrew = ref<CrewId>('pell')
+const PORTRAIT_MOODS = ['neutral', 'defiant', 'vulnerable'] as const
+type PortraitMood = (typeof PORTRAIT_MOODS)[number]
+const captainMood = ref<PortraitMood>('neutral')
+const crewMood = ref<PortraitMood>('neutral')
 const captainDossierTab = ref<'stats' | 'history' | 'orders'>('stats')
 const crewDossierTab = ref<'history' | 'route' | 'stats'>('history')
 const crewPage = ref(0)
@@ -1796,6 +1861,40 @@ const romanceRecord = computed(
 )
 /** A captain or crew portrait once its render ships; the monogram stands in until then. */
 const portrait = (key: string) => portraitArt(key)
+function portraitForMood(key: string, mood: PortraitMood): string | null {
+  return (
+    (mood !== 'neutral'
+      ? store.onboardingArt['portraits/v2/' + key + '-' + mood]
+      : null) || portrait(key)
+  )
+}
+const captainDossierPortrait = computed(() =>
+  portraitForMood('captain-' + selectedCaptain.value, captainMood.value),
+)
+const crewDossierPortrait = computed(() =>
+  portraitForMood(crewProfile(focusedCrew.value).portraitKey, crewMood.value),
+)
+function crewVoyagePortrait(id: CrewId): string | null {
+  const mood: PortraitMood = unavailable(id)
+    ? 'vulnerable'
+    : run.value?.away.includes(id)
+      ? 'defiant'
+      : 'neutral'
+  return portraitForMood(crewProfile(id).portraitKey, mood)
+}
+function onPortraitError(event: Event, key: string) {
+  const image = event.target as HTMLImageElement
+  const fallback = portrait(key) || COUCH_FALLBACK
+  if (image.getAttribute('src') !== fallback) image.src = fallback
+}
+const POCKET_ROOM_PAINTINGS = {
+  holodeck: 'opening/09-holodeck',
+  'war-room': 'opening/10-war-room',
+  infirmary: 'opening/11-infirmary',
+} as const
+function pocketRoomPainting(id: keyof typeof POCKET_ROOM_PAINTINGS) {
+  return store.onboardingArt[POCKET_ROOM_PAINTINGS[id]] || null
+}
 const COUCH_FALLBACK = '/game-of-captains/space-couch-stage.svg'
 const paintedVoyageImage = (key: string): string | null =>
   store.onboardingArt[key] || null
@@ -1809,15 +1908,28 @@ function onPaintedImageError(event: Event) {
 const stagePainting = computed(() => {
   // Only use newly delivered, access-filtered scene art. The older static
   // mission and antagonist pictures predate the literal red-couch redesign.
-  if (run.value)
+  if (run.value) {
+    if (run.value.phase === 'briefing' && run.value.pocketRoom)
+      return (
+        pocketRoomPainting(run.value.pocketRoom) ||
+        voyageStageArt(run.value, paintedVoyageImage) ||
+        COUCH_FALLBACK
+      )
     return voyageStageArt(run.value, paintedVoyageImage) || COUCH_FALLBACK
+  }
   const key =
     selectionScreen.value === 'stars' || selectionScreen.value === 'background'
       ? ''
       : selectionScreen.value === 'captain'
         ? 'captain-' + selectedCaptain.value
         : 'crew-' + focusedCrew.value
-  return portrait(key) || COUCH_FALLBACK
+  return (
+    (selectionScreen.value === 'captain'
+      ? captainDossierPortrait.value
+      : selectionScreen.value === 'crew'
+        ? crewDossierPortrait.value
+        : portrait(key)) || COUCH_FALLBACK
+  )
 })
 const stageAlt = computed(() =>
   run.value
@@ -2706,6 +2818,17 @@ function toggleAway(id: CrewId) {
   position: absolute;
   right: 0.4rem;
   top: 0.4rem;
+}
+.cap-pocket-room-choice {
+  overflow: hidden;
+}
+.cap-pocket-room-art {
+  display: block;
+  width: 100%;
+  height: clamp(3.5rem, 10cqh, 7.5rem);
+  border: 1px solid #d5b38a8f;
+  border-radius: 0.3rem;
+  object-fit: cover;
 }
 .cap-crew-pages {
   display: flex;
@@ -3923,6 +4046,31 @@ function toggleAway(id: CrewId) {
     serif;
   color: #ffdfa9d9;
   text-shadow: 0 5px 30px #000a;
+}
+.cap-expression-tabs {
+  position: absolute;
+  top: 0.45rem;
+  right: 0.45rem;
+  z-index: 2;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 0.25rem;
+  max-width: 90%;
+}
+.cap-expression-tabs button {
+  min-height: 2rem;
+  padding: 0.35rem 0.45rem;
+  border: 1px solid #f2c59099;
+  border-radius: 0.3rem;
+  background: #0a1828ee;
+  color: #f4d7b7;
+  font-size: clamp(0.55rem, 0.85cqi, 0.72rem);
+  font-weight: 800;
+}
+.cap-expression-tabs button.selected {
+  background: #e7ac83;
+  color: #112039;
 }
 .cap-personnel-hero figcaption {
   position: absolute;

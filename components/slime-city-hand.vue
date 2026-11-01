@@ -39,7 +39,14 @@
         ' · next deal on END ROUND'
       "
     >
-      <span class="sch-back sch-back-stack" aria-hidden="true"></span>
+      <span class="sch-back sch-back-stack" aria-hidden="true"
+        ><SlimeCityArtwork
+          v-if="backArt"
+          class="sch-back-art"
+          :image-id="backArt"
+          alt=""
+          compact
+      /></span>
       <b>{{ lab.match.piles.player.length }}</b>
       <small>DECK</small>
     </div>
@@ -91,7 +98,14 @@
               </span>
               <i v-if="!lab.ready(card.id)" class="sch-used">USED</i>
             </span>
-            <span class="sch-face sch-back" aria-hidden="true"></span>
+            <span class="sch-face sch-back" aria-hidden="true"
+              ><SlimeCityArtwork
+                v-if="backArt"
+                class="sch-back-art"
+                :image-id="backArt"
+                alt=""
+                compact
+            /></span>
           </span>
           <span
             v-if="flipping === card.id"
@@ -116,7 +130,14 @@
       class="sch-pile sch-discard"
       :title="lab.match.discards.player.length + ' in the discard pile'"
     >
-      <span class="sch-back" aria-hidden="true"></span>
+      <span class="sch-back" aria-hidden="true"
+        ><SlimeCityArtwork
+          v-if="backArt"
+          class="sch-back-art"
+          :image-id="backArt"
+          alt=""
+          compact
+      /></span>
       <b>{{ lab.match.discards.player.length }}</b>
       <small>DISCARD</small>
     </div>
@@ -129,6 +150,8 @@ import { useSlimeCityStore } from '~/stores/slimeCity'
 import { slimeArtId } from '~/utils/slimeCity/artManifest'
 
 const lab = useSlimeCityStore()
+/** Painted card back once art round 4 renders; the CSS back until then. */
+const backArt = slimeArtId('ui', 'card-back')
 
 const cards = computed(() => (lab.mode === 'blackout' ? lab.hand : lab.cards))
 
@@ -358,6 +381,19 @@ function sparkleStyle(n: number): Record<string, string> {
   position: absolute;
   inset: 0;
   transform: rotateY(180deg);
+}
+
+.sch-back {
+  overflow: hidden;
+}
+.sch-back .sch-back-art {
+  width: 100%;
+  height: 100%;
+}
+.sch-back .sch-back-art :deep(img) {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
 }
 
 /* Deal: cards arrive face-down from the deck and flip over. */

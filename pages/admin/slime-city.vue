@@ -573,7 +573,7 @@
           <div class="sc-arena-backdrop">
             <SlimeCityArtwork
               class="sc-board-paint"
-              :image-id="slimeArtId('boards', lab.mode)"
+              :image-id="slimeBoardArtId(lab.districtId, lab.mode)"
               :alt="currentMode.title + ' painted arena background'"
               fallback="▦"
               compact
@@ -586,13 +586,14 @@
                   'repeat(' + lab.match.width + ', minmax(0, 1fr))',
                 gridTemplateRows:
                   'repeat(' + lab.match.height + ', minmax(0, 1fr))',
+                '--ratio': lab.match.width / lab.match.height,
               }"
               role="group"
               :aria-label="currentMode.size + ' square-grid battlefield'"
             >
               <SlimeCityArtwork
                 class="sc-board-floor"
-                :image-id="slimeArtId('boards', lab.mode)"
+                :image-id="slimeBoardArtId(lab.districtId, lab.mode)"
                 :alt="currentMode.title + ' painted board'"
                 compact
               />
@@ -1266,7 +1267,11 @@ import {
 import { STREETS, boutTerms, storyMissionTerms } from '~/utils/slimeCity/city'
 import { describeTerms } from '~/utils/slimeCity/campaign'
 import { useSlimeCityStore } from '~/stores/slimeCity'
-import { slimeArtId, SLIME_CITY_ART_COUNT } from '~/utils/slimeCity/artManifest'
+import {
+  slimeArtId,
+  slimeBoardArtId,
+  SLIME_CITY_ART_COUNT,
+} from '~/utils/slimeCity/artManifest'
 import { useSlimeCityArtStore } from '~/stores/slimeCityArt'
 
 const lab = useSlimeCityStore()
@@ -2184,9 +2189,10 @@ onUnmounted(() => {
   position: relative;
   z-index: 1;
   display: grid;
-  width: min(100%, 68cqh);
+  /* Square tiles: the board takes its grid's shape (10x6, 14x6). */
+  width: min(100%, calc(56cqh * var(--ratio, 1)));
   max-height: 100%;
-  aspect-ratio: 1 / 1;
+  aspect-ratio: var(--ratio, 1);
   gap: 1px;
   border: 5px solid #72899a;
   border-radius: 0.35rem;
@@ -2196,12 +2202,6 @@ onUnmounted(() => {
     0 0 0 5px #151820,
     0 16px 40px #0009;
   overflow: hidden;
-}
-.sc-board-gridiron,
-.sc-board-bloodrush {
-  width: min(100%, 105cqw);
-  aspect-ratio: 2 / 1;
-  max-height: 100%;
 }
 .sc-board .sc-board-floor {
   position: absolute;
@@ -2599,10 +2599,7 @@ onUnmounted(() => {
     padding: 0.25rem;
   }
   .sc-board {
-    width: min(100%, 75cqh);
-  }
-  .sc-board-bloodrush {
-    width: 100%;
+    width: min(100%, calc(48cqh * var(--ratio, 1)));
   }
   .sc-battle-bottom {
     min-height: 2.6rem;

@@ -65,6 +65,7 @@ import {
   slimeArtId,
   SLIME_CITY_ART,
   SLIME_CITY_ART_COUNT,
+  slimeBoardArtId,
 } from '../slimeCity/artManifest'
 
 const artIds = [
@@ -93,6 +94,18 @@ for (const mode of MODES) assert.ok(slimeArtId('boards', mode.id))
 assert.deepEqual(
   PLAYER_MODES.map((mode) => mode.id),
   ['blackout', 'bloodrush'],
+)
+// Each district gets its own floor per mode; until round 4 renders, the
+// district falls back to the shared board for that mode.
+for (const district of DISTRICTS)
+  for (const mode of PLAYER_MODES)
+    assert.ok(
+      slimeBoardArtId(district.id, mode.id),
+      district.id + ' ' + mode.id,
+    )
+assert.equal(
+  slimeBoardArtId('nowhere', 'blackout'),
+  slimeArtId('boards', 'blackout'),
 )
 assert.equal(Object.keys(SLIME_CITY_ART.cards).length, 36)
 assert.equal(

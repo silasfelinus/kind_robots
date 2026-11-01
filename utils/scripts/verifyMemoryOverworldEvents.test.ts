@@ -156,7 +156,7 @@ assert.deepEqual(
   BRIAR_COLLISION_SCENES['7,6'].choices.map((choice) => choice.id),
 )
 const routeSites = Object.entries(BRIAR_COLLISION_ROUTE_SITES)
-assert.equal(routeSites.length, 8)
+assert.equal(routeSites.length, 16)
 assert.equal(
   worldEvents('e09').filter((event) => event.memoryFragment).length,
   2,
@@ -217,6 +217,82 @@ for (const [key, scene] of routeSites) {
     )
   }
 }
+
+const newCrossroads = [
+  '4,1',
+  '5,1',
+  '6,1',
+  '7,1',
+  '8,1',
+  '4,3',
+  '5,3',
+  '6,3',
+] as const
+const newCrossroadFlags = new Set<string>()
+const newCrossroadOutcomes = new Set<string>()
+for (const key of newCrossroads) {
+  const scene = BRIAR_COLLISION_ROUTE_SITES[key]
+  const event = worldEvent('e09', key)!
+  assert.equal(event.title, scene.title)
+  assert.equal(event.memoryFragment, undefined)
+  assert.equal(event.choices.length, 2)
+  assert.ok(scene.opening.length > 180, key + ' needs a developed opening')
+  assert.ok(scene.artSubject.length > 70, key + ' needs a visual brief')
+  for (const choice of event.choices) {
+    assert.ok(choice.outcome.length > 130, key + ' needs a consequential ending')
+    assert.ok(Object.values(choice.effects).some((effect) => effect !== 0))
+    assert.ok(!newCrossroadFlags.has(choice.flag), 'flags must be unique')
+    assert.ok(!newCrossroadOutcomes.has(choice.outcome), 'outcomes must be unique')
+    newCrossroadFlags.add(choice.flag)
+    newCrossroadOutcomes.add(choice.outcome)
+    const [x, y] = key.split(',').map(Number) as [number, number]
+    const journal: EarthJournalAction[] = []
+    for (let step = 2; step <= x; step++)
+      journal.push({ type: 'travel', key: step + ',1' })
+    for (let step = 2; step <= y; step++)
+      journal.push({ type: 'travel', key: x + ',' + step })
+    journal.push({ type: 'choose', key, choiceId: choice.id })
+    const replayed = replayEarthJournal('e09', journal)
+    assert.ok(replayed, key + ' must have a legal route')
+    assert.equal(replayed.progress.choices[key], choice.id)
+    assert.ok(replayed.progress.flags.includes(choice.flag))
+    assert.equal(
+      replayEarthJournal('e09', [
+        ...journal,
+        { type: 'choose', key, choiceId: choice.id },
+      ]),
+      null,
+      key + ' cannot pay twice',
+    )
+    assert.equal(
+      replayEarthJournal('e09', [
+        ...journal.slice(0, -1),
+        { type: 'choose', key, choiceId: 'invented-crossroad' },
+      ]),
+      null,
+      key + ' cannot accept a forged choice',
+    )
+    const restored = restoreOverworldEventProgress({
+      ...replayed.progress,
+      supplies: 99999,
+      flags: ['forged-crossroad'],
+    })
+    assert.ok(restored)
+    assert.deepEqual(restored.choices, replayed.progress.choices)
+    assert.deepEqual(restored.flags, replayed.progress.flags)
+    assert.equal(restored.supplies, replayed.progress.supplies)
+    assert.equal(restored.trust, replayed.progress.trust)
+    assert.equal(restored.evidence, replayed.progress.evidence)
+    assert.equal(restored.danger, replayed.progress.danger)
+  }
+}
+assert.equal(newCrossroadFlags.size, 16)
+assert.equal(newCrossroadOutcomes.size, 16)
+assert.equal(
+  worldEvents('e09').filter((event) => event.memoryFragment).length,
+  2,
+  'new crossroads must not mint extra memory fragments',
+)
 
 const witnessCallbacks = new Set<string>()
 for (const verdict of ['trust-witnesses', 'protect-village'] as const) {

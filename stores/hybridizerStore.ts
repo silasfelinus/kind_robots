@@ -1,9 +1,11 @@
-import { computed, ref } from 'vue'
+import { computed, ref, watch } from 'vue'
 import { defineStore } from 'pinia'
 import { useFacetCatalogStore } from '@/stores/facetCatalogStore'
+import { useUserStore } from '@/stores/userStore'
 import { useAchievementStore } from '@/stores/achievementStore'
 import { performFetch } from '@/stores/utils'
 import catalog from '@/utils/hybridizer/starterCatalog.json'
+import { localHybridizerStudies } from '@/utils/hybridizer/studyPersistence'
 
 export type HybridizerIngredient = {
   key: string
@@ -19,6 +21,7 @@ export type HybridizerIngredient = {
   artJobId?: number | null
   imagePath?: string | null
   canRetry?: boolean
+  isPublic?: boolean
 }
 
 export type HybridizerDiscovery = HybridizerIngredient & {
@@ -42,7 +45,8 @@ export type HybridizerVersion = {
 }
 
 const STARTERS = catalog.entries as HybridizerIngredient[]
-const STORAGE_KEY = 'kind-robots-hybridizer-lab-studies-v1'
+const LEGACY_STORAGE_KEY = 'kind-robots-hybridizer-lab-studies-v1'
+const STORAGE_KEY = 'kind-robots-hybridizer-lab-studies-v2'
 const MAX_STUDY_DEPTH = 4
 
 function pairKey(a: string, b: string): string {
@@ -59,6 +63,7 @@ function displayName(a: HybridizerIngredient, b: HybridizerIngredient): string {
 
 export const useHybridizerStore = defineStore('hybridizer', () => {
   const catalogStore = useFacetCatalogStore()
+  const userStore = useUserStore()
   const achievementStore = useAchievementStore()
   const leftKey = ref('cat')
   const rightKey = ref('banana')
@@ -90,10 +95,19 @@ export const useHybridizerStore = defineStore('hybridizer', () => {
   )
   const starterCount = STARTERS.length
 
+  function scopedStorageKey() {
+    return STORAGE_KEY + ':' + (userStore.authenticatedUserId ?? 'guest')
+  }
+
   function save() {
     if (!import.meta.client) return
     try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(discoveries.value))
+      localStorage.setItem(
+        scopedStorageKey(),
+        JSON.stringify(
+          localHybridizerStudies<HybridizerDiscovery>(discoveries.value),
+        ),
+      )
     } catch {
       status.value = 'This browser cannot save studies between visits.'
     }
@@ -102,30 +116,25 @@ export const useHybridizerStore = defineStore('hybridizer', () => {
   function hydrate() {
     if (!import.meta.client) return
     try {
-      const saved = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]')
-      if (!Array.isArray(saved)) return
-      discoveries.value = saved
-        .filter((entry): entry is HybridizerDiscovery =>
-          Boolean(
-            entry &&
-            typeof entry.key === 'string' &&
-            typeof entry.title === 'string' &&
-            Array.isArray(entry.sources) &&
-            entry.sources.length === 2 &&
-            typeof entry.depth === 'number' &&
-            entry.depth <= MAX_STUDY_DEPTH,
-          ),
-        )
-        .slice(-200)
+      // v1 mixed private server data across all accounts. Drop it rather
+      // than displaying an earlier account's discoveries to the next user.
+      localStorage.removeItem(LEGACY_STORAGE_KEY)
+      const saved = JSON.parse(localStorage.getItem(scopedStorageKey()) || '[]')
+      discoveries.value = localHybridizerStudies<HybridizerDiscovery>(
+        saved,
+        MAX_STUDY_DEPTH,
+      )
     } catch {
       discoveries.value = []
     }
   }
 
   async function loadSharedStudies() {
+    const viewerId = userStore.authenticatedUserId
     const response = await performFetch<HybridizerDiscovery[]>(
       '/api/hybridizer/fusions?take=100',
     )
+    if (viewerId !== userStore.authenticatedUserId) return
     if (!response.success || !response.data) {
       status.value =
         'Shared library unavailable. Local studies remain accessible.'
@@ -208,6 +217,7 @@ export const useHybridizerStore = defineStore('hybridizer', () => {
   }
 
   async function loadVersions(key: string): Promise<void> {
+    const viewerId = userStore.authenticatedUserId
     if (!key.startsWith('fusion:')) {
       versions.value = []
       versionsFor.value = null
@@ -218,7 +228,8 @@ export const useHybridizerStore = defineStore('hybridizer', () => {
       versions: HybridizerVersion[]
       canEdit: boolean
     }>('/api/hybridizer/fusions/' + key.slice(7) + '/versions')
-    if (resultKey.value !== key) return
+    if (resultKey.value !== key || viewerId !== userStore.authenticatedUserId)
+      return
     if (response.success && response.data) {
       versions.value = response.data.versions
       versionsFor.value = key
@@ -228,9 +239,11 @@ export const useHybridizerStore = defineStore('hybridizer', () => {
 
   async function openSharedFusion(id: string): Promise<void> {
     if (!/^[a-f0-9]{64}$/.test(id)) return
+    const viewerId = userStore.authenticatedUserId
     const response = await performFetch<HybridizerDiscovery>(
       '/api/hybridizer/fusions/' + id,
     )
+    if (viewerId !== userStore.authenticatedUserId) return
     if (!response.success || !response.data) {
       status.value = 'That discovery is unavailable or private.'
       return
@@ -249,6 +262,7 @@ export const useHybridizerStore = defineStore('hybridizer', () => {
   }
 
   async function resubmit(): Promise<void> {
+    const viewerId = userStore.authenticatedUserId
     const key = resultKey.value
     if (
       !key?.startsWith('fusion:') ||
@@ -262,6 +276,7 @@ export const useHybridizerStore = defineStore('hybridizer', () => {
         '/api/hybridizer/fusions/' + key.slice(7) + '/resubmit',
         { method: 'POST' },
       )
+      if (viewerId !== userStore.authenticatedUserId) return
       if (!response.success || !response.data) {
         status.value = response.message || 'Could not queue a new version.'
         return
@@ -282,6 +297,7 @@ export const useHybridizerStore = defineStore('hybridizer', () => {
   }
 
   async function makePrimary(jobId: number): Promise<void> {
+    const viewerId = userStore.authenticatedUserId
     const key = resultKey.value
     if (
       !key?.startsWith('fusion:') ||
@@ -303,6 +319,7 @@ export const useHybridizerStore = defineStore('hybridizer', () => {
           '/promote',
         { method: 'POST' },
       )
+      if (viewerId !== userStore.authenticatedUserId) return
       if (!response.success || !response.data) {
         status.value = response.message || 'This version cannot become primary.'
         return
@@ -328,6 +345,7 @@ export const useHybridizerStore = defineStore('hybridizer', () => {
 
   async function refreshArtwork(key: string): Promise<void> {
     if (!key.startsWith('fusion:')) return
+    const viewerId = userStore.authenticatedUserId
     const response = await performFetch<{
       key: string
       status: string
@@ -336,6 +354,7 @@ export const useHybridizerStore = defineStore('hybridizer', () => {
       imagePath: string | null
       canRetry: boolean
     }>('/api/hybridizer/fusions/' + key.slice(7) + '/status')
+    if (viewerId !== userStore.authenticatedUserId) return
     if (!response.success || !response.data) return
     const data = response.data
     const prior = discoveries.value.find((entry) => entry.key === key)
@@ -368,6 +387,7 @@ export const useHybridizerStore = defineStore('hybridizer', () => {
 
   async function enqueueArtwork(key: string): Promise<void> {
     if (!key.startsWith('fusion:') || enqueuing.has(key)) return
+    const viewerId = userStore.authenticatedUserId
     const discovery = discoveries.value.find((entry) => entry.key === key)
     if (!discovery || discovery.status === 'READY') {
       if (discovery?.status === 'READY') void refreshArtwork(key)
@@ -382,6 +402,7 @@ export const useHybridizerStore = defineStore('hybridizer', () => {
       }>('/api/hybridizer/fusions/' + key.slice(7) + '/enqueue', {
         method: 'POST',
       })
+      if (viewerId !== userStore.authenticatedUserId) return
       if (response.success && response.data) {
         updateDiscovery(key, {
           artJobId: response.data.artJobId,
@@ -447,6 +468,7 @@ export const useHybridizerStore = defineStore('hybridizer', () => {
       return
     }
 
+    const viewerId = userStore.authenticatedUserId
     working.value = true
     resultKey.value = null
     versions.value = []
@@ -469,6 +491,7 @@ export const useHybridizerStore = defineStore('hybridizer', () => {
         },
       )
       const [response] = await Promise.all([request, animation])
+      if (viewerId !== userStore.authenticatedUserId) return
 
       if (!response.success || !response.data) {
         const existing = discoveries.value.find(
@@ -522,6 +545,24 @@ export const useHybridizerStore = defineStore('hybridizer', () => {
     if (!result.value) return
     choose(side, result.value.key)
   }
+
+  watch(
+    () => userStore.authenticatedUserId,
+    () => {
+      if (!import.meta.client) return
+      discoveries.value = []
+      pendingKeys.value = []
+      readyNotice.value = null
+      resultKey.value = null
+      versions.value = []
+      versionsFor.value = null
+      canEditResult.value = false
+      availableArt.value = {}
+      hydrate()
+      void loadSharedStudies()
+      void loadArtwork()
+    },
+  )
 
   return {
     leftKey,

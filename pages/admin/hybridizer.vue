@@ -178,7 +178,7 @@
                 ✦ Try new art
               </button>
               <button
-                v-if="reactionImageId"
+                v-if="lab.result.isPublic === true && reactionImageId"
                 type="button"
                 data-testid="hybridizer-upvote"
                 :disabled="upvoteBusy"
@@ -187,16 +187,23 @@
                 ♥ Upvote <span v-if="upvoteCount">({{ upvoteCount }})</span>
               </button>
               <button
-                v-if="reactionImageId"
+                v-if="lab.result.isPublic === true && reactionImageId"
                 type="button"
                 data-testid="hybridizer-reactions"
                 @click="reactionOpen = true"
               >
                 ✎ Comment / rate
               </button>
-              <button type="button" @click="shareOpen = !shareOpen">
+              <button
+                v-if="lab.result.isPublic === true"
+                type="button"
+                @click="shareOpen = !shareOpen"
+              >
                 ↗ Share
               </button>
+              <span v-else class="study-label"
+                >Private study · sharing disabled</span
+              >
             </div>
             <div
               v-if="shareOpen"
@@ -507,9 +514,11 @@ const previewArt = computed(() =>
     : lab.imageFor(lab.result),
 )
 const reactionImageId = computed(() =>
-  previewVersion.value
-    ? previewVersion.value.artImageId
-    : lab.result?.artImageId,
+  lab.result?.isPublic !== true
+    ? null
+    : previewVersion.value
+      ? previewVersion.value.artImageId
+      : lab.result?.artImageId,
 )
 const badges = achievementsForGame('hybridizer')
 const imageReactions = computed(() =>
@@ -598,6 +607,10 @@ async function shareFusion(platform: 'copy' | 'x' | 'facebook' | 'reddit') {
     ? lab.result.key.slice(7)
     : null
   if (!id || !import.meta.client) return
+  if (lab.result?.isPublic !== true) {
+    lab.status = 'This study is private. Sharing is disabled.'
+    return
+  }
   const url = new URL('/play/hybridizer', window.location.origin)
   url.searchParams.set('fusion', id)
   const link = url.toString()

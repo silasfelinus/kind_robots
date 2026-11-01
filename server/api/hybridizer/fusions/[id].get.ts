@@ -27,6 +27,7 @@ export default defineEventHandler(async (event) => {
         ],
         depth: fusion.depth,
         status: fusion.status,
+        isPublic: fusion.isPublic,
         createdAt: fusion.createdAt,
         artJobId: fusion.artJobId,
         artImageId: fusion.artImageId,

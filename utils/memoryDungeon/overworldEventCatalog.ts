@@ -1,5 +1,8 @@
 import { BRIAR_SCENES } from './scenes'
-import { BRIAR_COLLISION_SCENES, type BriarCollisionSite } from './briarCollision'
+import {
+  BRIAR_COLLISION_SCENES,
+  type BriarCollisionSite,
+} from './briarCollision'
 import { MEMORY_CHAR_AGENCY_CHOICES } from './reimaginerCampaign'
 import { DARK_BRIAR_SCENES, DARK_BRIAR_SEALS } from './darkBriar'
 import { HOSHIMORI_WARM_SITES } from './hoshimoriWarm'

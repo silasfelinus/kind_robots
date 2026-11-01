@@ -753,7 +753,7 @@ assert.equal(
     {
       ...concludedBriar,
       completed: concludedBriar.completed.filter((id) => id !== 'e09'),
-    }
+    },
     warmCharter('consent'),
     completeBriarJournal,
   ),

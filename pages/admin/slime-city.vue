@@ -559,15 +559,10 @@
                   >ENEMY <b>{{ lab.match.score[1] }}</b></span
                 >
               </template>
-              <button
-                type="button"
-                class="sc-help"
-                data-testid="slime-how-to-play"
-                :aria-expanded="lab.guideOpen"
-                @click="lab.toggleGuide()"
-              >
-                HOW TO PLAY
-              </button>
+              <page-help
+                :label="'How to play ' + currentMode.title"
+                @open="lab.openGuide()"
+              />
             </div>
           </div>
           <div class="sc-arena-backdrop">
@@ -2731,15 +2726,6 @@ onUnmounted(() => {
   .sc-tabs button {
     flex: 1 0 auto;
   }
-}
-.sc-help {
-  padding: 0.3rem 0.55rem;
-  border: 1px solid #d7fc7a99;
-  border-radius: 0.3rem;
-  color: #e7f9bc;
-  font-size: 0.6rem;
-  font-weight: 900;
-  letter-spacing: 0.06em;
 }
 .sc-guide {
   position: absolute;

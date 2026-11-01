@@ -1,6 +1,6 @@
 // /stores/navStore.ts
 import { defineStore } from 'pinia'
-import { computed, ref } from 'vue'
+import { computed, ref, shallowRef } from 'vue'
 import {
   dashboardConfigs,
   getDashboardDefaultTabs,
@@ -166,6 +166,29 @@ export const useNavStore = defineStore('navStore', () => {
 
   function registerConsoleTheme(consoleTheme: string): number {
     return registerPageBar(consoleTheme, false)
+  }
+
+  const pageHelps = shallowRef<{ id: number; label: string; open: () => void }[]>(
+    [],
+  )
+  let nextPageHelpId = 0
+  const pageHelpLabel = computed(() => pageHelps.value.at(-1)?.label ?? '')
+
+  function registerPageHelp(label: string, open: () => void): number {
+    nextPageHelpId += 1
+    pageHelps.value = [...pageHelps.value, { id: nextPageHelpId, label, open }]
+    return nextPageHelpId
+  }
+
+  function releasePageHelp(id: number): void {
+    pageHelps.value = pageHelps.value.filter((help) => help.id !== id)
+  }
+
+  function openPageHelp(): void {
+    const help = pageHelps.value.at(-1)
+    if (!help) return
+    setWorkspaceSheetOpen(false)
+    help.open()
   }
 
   function releasePageBar(id: number): void {
@@ -536,6 +559,10 @@ export const useNavStore = defineStore('navStore', () => {
     consoleTheme,
     registerPageBar,
     registerConsoleTheme,
+    pageHelpLabel,
+    registerPageHelp,
+    releasePageHelp,
+    openPageHelp,
     releasePageBar,
     routeHistory,
     currentIndex,

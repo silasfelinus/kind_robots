@@ -213,7 +213,6 @@
 <script setup lang="ts">
 import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { useCrystalStreetStore } from '~/stores/crystalStreetStore'
-import { useNavStore } from '~/stores/navStore'
 import {
   MAX_DREAD,
   MAX_NERVE,
@@ -238,7 +237,6 @@ type View =
 const MENU_SCREENS = new Set<View>(['settings', 'credits', 'theme'])
 
 const store = useCrystalStreetStore()
-const navStore = useNavStore()
 // Every screen sits on one dial across the top (Silas, 2026-10-24 PT:
 // "settings, info, character bio, scrapbook can be reached via icons on the
 // top, rotating for which is selected"). The scrapbook joins once a week has
@@ -280,22 +278,15 @@ const dialItems = computed<DialItem[]>(() => {
     items.push({ id: 'scrapbook', label: 'Scrapbook', icon: 'kind-icon:book' })
   if (!r || menuScreen.value)
     items.push({ id: 'theme', label: 'Trailer', icon: 'kind-icon:tv' })
-  items.push(
-    { id: 'settings', label: 'Settings', icon: 'kind-icon:settings' },
-    { id: 'help', label: 'How to play', glyph: '?', action: true },
-  )
+  items.push({ id: 'settings', label: 'Settings', icon: 'kind-icon:settings' })
   return items
 })
 
 function onDial(id: string): void {
-  if (id === 'help') return openTutorial()
   if (!menuScreen.value && run.value) fromGame.value = true
   view.value = id as View
 }
 
-function openTutorial(): void {
-  navStore.openWorkspaceSheet()
-}
 const consoleModes = computed(() => [
   store.settings.contrast === 'high' ? 'cs-high-contrast' : '',
   store.settings.motion === 'reduced' ? 'cs-motion-reduced' : '',
@@ -521,24 +512,6 @@ onMounted(() => {
   border: 1px solid color-mix(in oklch, var(--color-primary) 45%, transparent);
   background: color-mix(in oklch, var(--color-base-100) 94%, transparent);
   backdrop-filter: blur(8px);
-}
-.cs .cs-help {
-  display: grid;
-  place-items: center;
-  width: 2.75rem;
-  height: 2.75rem;
-  border-radius: 999px;
-  font-size: 1.5rem;
-  font-weight: 900;
-  color: #fff;
-  background: rgb(10 2 24 / 0.65);
-  border: 2px solid var(--color-primary);
-  backdrop-filter: blur(6px);
-}
-.cs .cs-help-sm {
-  width: 2rem;
-  height: 2rem;
-  font-size: 1.1rem;
 }
 .cs .cs-menu-primary {
   background: color-mix(in oklch, var(--color-primary) 30%, transparent);

@@ -56,9 +56,7 @@
         >
           <span aria-hidden="true">⚙</span> SETTINGS
         </button>
-        <button type="button" @click="openHelp">
-          <span aria-hidden="true">?</span> TUTORIAL
-        </button>
+        <page-help label="Prom of Doom tutorial" @open="openHelp" />
       </div>
     </div>
 

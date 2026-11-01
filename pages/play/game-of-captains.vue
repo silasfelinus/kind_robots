@@ -1022,12 +1022,18 @@
                   v-for="room in POCKET_ROOMS"
                   :key="room.id"
                   type="button"
-                  class="cap-crew-button"
+                  class="cap-crew-button cap-pocket-room-choice"
                   :class="{ chosen: run.pocketRoom === room.id }"
                   :aria-pressed="run.pocketRoom === room.id"
                   :disabled="run.supplies < 1 && run.pocketRoom !== room.id"
                   @click="store.chooseRoom(room.id)"
                 >
+                  <img
+                    class="cap-pocket-room-art"
+                    :src="pocketRoomPainting(room.id) || COUCH_FALLBACK"
+                    alt=""
+                    @error="onPaintedImageError"
+                  />
                   <span
                     ><strong>{{ room.name }}</strong
                     ><small>{{ room.blurb }}</small></span
@@ -1112,10 +1118,11 @@
                   class="cap-monogram"
                   :data-portrait-key="crewProfile(member.id).portraitKey"
                   ><img
-                    v-if="portrait(crewProfile(member.id).portraitKey)"
-                    :src="portrait(crewProfile(member.id).portraitKey)!"
+                    v-if="crewVoyagePortrait(member.id)"
+                    :src="crewVoyagePortrait(member.id)!"
                     alt=""
                     class="cap-portrait-img"
+                    @error="onPortraitError($event, crewProfile(member.id).portraitKey)"
                   /><template v-else>{{ member.monogram }}</template></span
                 >
                 <span
@@ -2784,6 +2791,17 @@ function toggleAway(id: CrewId) {
   position: absolute;
   right: 0.4rem;
   top: 0.4rem;
+}
+.cap-pocket-room-choice {
+  overflow: hidden;
+}
+.cap-pocket-room-art {
+  display: block;
+  width: 100%;
+  height: clamp(3.5rem, 10cqh, 7.5rem);
+  border: 1px solid #d5b38a8f;
+  border-radius: 0.3rem;
+  object-fit: cover;
 }
 .cap-crew-pages {
   display: flex;

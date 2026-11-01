@@ -8,6 +8,14 @@ import {
   type AlienSighting,
   type AlienChoice,
 } from '~/utils/gameOfCaptains/alienFieldGuide'
+import {
+  nextCollectorIncident,
+  resolveCollectorIncident,
+  collectorEcho,
+  type CollectorIncident,
+  type CollectorChoice,
+  type CollectorEnding,
+} from '~/utils/gameOfCaptains/alienMilestones'
 import { performFetch } from '~/stores/utils'
 import { usePlaybookRunReviewStore } from '~/stores/playbookRunReviewStore'
 import {
@@ -108,13 +116,63 @@ export const useGameOfCaptainsStore = defineStore('gameOfCaptains', () => {
     speciesId: string
     recorded: boolean
   } | null>(null)
+  const collectorIncident = ref<CollectorIncident | null>(null)
+  const collectorReport = ref<{
+    at: number
+    ending: CollectorEnding
+    text: string
+  } | null>(null)
+  const pendingCollectorIncident = computed(() =>
+    nextCollectorIncident(alienGuide.value),
+  )
+  function openCollectorIncident() {
+    if (
+      !pendingCollectorIncident.value ||
+      collectorIncident.value ||
+      collectorReport.value ||
+      alienSighting.value ||
+      alienReport.value
+    ) return
+    collectorIncident.value = pendingCollectorIncident.value
+  }
+  function chooseCollectorAction(choice: CollectorChoice) {
+    const incident = collectorIncident.value
+    if (!incident) return
+    const result = resolveCollectorIncident(alienGuide.value, incident.at, choice)
+    if (!result) return
+    alienGuide.value = result.guide
+    collectorReport.value = {
+      at: incident.at,
+      ending: result.ending,
+      text: result.text,
+    }
+    collectorIncident.value = null
+    if (run.value) {
+      run.value = {
+        ...run.value,
+        log: [
+          ...run.value.log,
+          `Ship day ${run.value.day ?? run.value.chapter}: The Couch Natural History Society recorded ${incident.title}. ${result.text}`,
+        ],
+      }
+    }
+    persist()
+  }
+  function dismissCollectorIncident() {
+    collectorIncident.value = null
+    collectorReport.value = null
+  }
   const alienEncounterAvailable = computed(() =>
     maySeeAlien(run.value, alienGuide.value),
   )
   function lookForAlien() {
     if (!run.value || !alienEncounterAvailable.value) return
     alienReport.value = null
-    alienSighting.value = nextAlienSighting(run.value, alienGuide.value)
+    const sighting = nextAlienSighting(run.value, alienGuide.value)
+    const echo = collectorEcho(alienGuide.value)
+    alienSighting.value = sighting && echo
+      ? { ...sighting, scene: sighting.scene + ' The local radio adds: ' + echo }
+      : sighting
   }
   function chooseAlienAction(choice: AlienChoice) {
     const sighting = alienSighting.value
@@ -139,8 +197,10 @@ export const useGameOfCaptainsStore = defineStore('gameOfCaptains', () => {
     persist()
   }
   function dismissAlienEncounter() {
+    const discovered = alienReport.value?.recorded === true
     alienSighting.value = null
     alienReport.value = null
+    if (discovered) openCollectorIncident()
   }
 
   const alienArtwork = ref<Record<string, string>>({})
@@ -451,6 +511,12 @@ export const useGameOfCaptainsStore = defineStore('gameOfCaptains', () => {
     loaded,
     redshirtKnowledge,
     alienGuide,
+    collectorIncident,
+    collectorReport,
+    pendingCollectorIncident,
+    openCollectorIncident,
+    chooseCollectorAction,
+    dismissCollectorIncident,
     alienArtwork,
     loadAlienArtwork,
     alienSighting,

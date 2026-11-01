@@ -150,7 +150,7 @@ function validResult(value: unknown): value is BattleResult {
     r.turns <= 301 &&
     Array.isArray(r.lines) &&
     r.lines.length >= 4 &&
-    r.lines.length <= 8 &&
+    r.lines.length <= 10 &&
     r.lines.every(
       (l) =>
         typeof l.id === 'string' &&

@@ -114,10 +114,16 @@ const partyNames = computed(() =>
   faces.value.map((face) => face.name.toUpperCase()).join(' · '),
 )
 const failedArt = ref<string[]>([])
-const trio = computed(() => adventure.value ? trioKey(adventure.value.crew) : null)
-watch(trio, (key) => {
-  if (key && import.meta.client) void store.loadTrioArtwork(key)
-}, { immediate: true })
+const trio = computed(() =>
+  adventure.value ? trioKey(adventure.value.crew) : null,
+)
+watch(
+  trio,
+  (key) => {
+    if (key && import.meta.client) void store.loadTrioArtwork(key)
+  },
+  { immediate: true },
+)
 function artFor(key: string): string | null {
   const url = store.trioArtwork[key] || warpArt(key)
   return url && !failedArt.value.includes(url) ? url : null

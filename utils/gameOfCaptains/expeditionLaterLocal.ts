@@ -10,88 +10,88 @@ import { ACT_THREE_MISSIONS } from './actThree'
  */
 const LOCAL_SIDES: Readonly<Record<string, readonly [string, string]>> = {
   'concord-intake': [
-    "The Desk That Filed Itself",
-    "A desk declared an employee is ordered to inventory its own legs before petitioners may be heard.",
+    'The Desk That Filed Itself',
+    'A desk declared an employee is ordered to inventory its own legs before petitioners may be heard.',
   ],
   'courtesy-reactor': [
-    "The Twin Candles",
-    "The shared medical rail carries two emergency candles; each parliament insists the other light its candle first.",
+    'The Twin Candles',
+    'The shared medical rail carries two emergency candles; each parliament insists the other light its candle first.',
   ],
   'sesh-backups': [
-    "The Suitcase of Originality",
-    "Four hundred sentient backups all claim a single scuffed suitcase at lost luggage as proof they are the original.",
+    'The Suitcase of Originality',
+    'Four hundred sentient backups all claim a single scuffed suitcase at lost luggage as proof they are the original.',
   ],
   'serendipity-tab': [
-    "The Anonymous Tip Jar",
+    'The Anonymous Tip Jar',
     "Vox finds a stack of future-dated coins in the bar tip jar, each marked with a refugee family's initials.",
   ],
   'insult-compiler': [
-    "The Bridesmaid Armrest",
-    "The couch translator demands to be a bridesmaid at a treaty wedding it accidentally invented.",
+    'The Bridesmaid Armrest',
+    'The couch translator demands to be a bridesmaid at a treaty wedding it accidentally invented.',
   ],
-  'warranty': [
-    "The Satisfaction Coffin",
-    "An insurance counter offers unsafe replacement pressure suits shaped like decorative coffins.",
+  warranty: [
+    'The Satisfaction Coffin',
+    'An insurance counter offers unsafe replacement pressure suits shaped like decorative coffins.',
   ],
-  'hoa': [
-    "The Fourth Moonrise",
-    "A walking navigation buoy has a final notice for excessive moonlight, but its fourth moon keeps arriving late.",
+  hoa: [
+    'The Fourth Moonrise',
+    'A walking navigation buoy has a final notice for excessive moonlight, but its fourth moon keeps arriving late.',
   ],
   'season-two': [
-    "The Door That Was a Backdrop",
+    'The Door That Was a Backdrop',
     "A painted emergency exit on the Showrunner's set receives applause each time somebody collides with it.",
   ],
   'committee-end': [
-    "The Boarding-Order Anthem",
-    "An evacuation committee commissions an eleven-minute anthem with only eight minutes before the next solar flare.",
+    'The Boarding-Order Anthem',
+    'An evacuation committee commissions an eleven-minute anthem with only eight minutes before the next solar flare.',
   ],
   'gig-orchard': [
-    "Surge Pricing for Rain",
-    "The oxygen app charges the orchard an hourly fee for rain and rates every cloud for tardiness.",
+    'Surge Pricing for Rain',
+    'The oxygen app charges the orchard an hourly fee for rain and rates every cloud for tardiness.',
   ],
-  'overdue': [
-    "The Missing Verb",
-    "The Archive repossesses the word knead from a bakery, leaving six terrified cooks staring at flour.",
+  overdue: [
+    'The Missing Verb',
+    'The Archive repossesses the word knead from a bakery, leaving six terrified cooks staring at flour.',
   ],
-  'merger': [
+  merger: [
     "The Thermostat's Proxy Vote",
-    "Residents classified as thermostats attempt to cast twelve thousand proxy votes. Lawyers demand batteries.",
+    'Residents classified as thermostats attempt to cast twelve thousand proxy votes. Lawyers demand batteries.',
   ],
   'jump-gate-permit': [
-    "A Petition from Tomorrow",
-    "A small blue planet brings a complaint about a couch transit that has not happened yet.",
+    'A Petition from Tomorrow',
+    'A small blue planet brings a complaint about a couch transit that has not happened yet.',
   ],
   'serendipity-last-call': [
-    "The Sleeper Booth Lottery",
+    'The Sleeper Booth Lottery',
     "Vox proposes a lottery for the final bed, but the bar's sentient gravity gives tickets to the exhausted.",
   ],
   'gameworld-finale': [
-    "The Unionized Trapdoor",
+    'The Unionized Trapdoor',
     "A trapdoor joins the performers' union and refuses to drop contestants without informed consent.",
   ],
   'cushion-recall': [
-    "The Upholstery Witness",
-    "A scarlet cushion testifies at its own product recall hearing on a conveyor heading into a shredder.",
+    'The Upholstery Witness',
+    'A scarlet cushion testifies at its own product recall hearing on a conveyor heading into a shredder.',
   ],
   'twins-summit': [
-    "The Diplomatic Standing Desk",
-    "A standing desk accommodates every delegate but insists each speaker first sit down.",
+    'The Diplomatic Standing Desk',
+    'A standing desk accommodates every delegate but insists each speaker first sit down.',
   ],
   'foundry-strike': [
-    "The Bubble Lunch Break",
+    'The Bubble Lunch Break',
     "The couch's protective bubble requests a lunch break while promising the passengers will remain safe.",
   ],
-  'inquiry': [
-    "The Exhibit That Objected",
+  inquiry: [
+    'The Exhibit That Objected',
     "An evidence box objects to being called neutral when it was packed by the nemesis's staff.",
   ],
   'windglass-exodus': [
-    "The Unread Road Sign",
-    "A road sign promises to point everywhere except toward the fleeing families it protects.",
+    'The Unread Road Sign',
+    'A road sign promises to point everywhere except toward the fleeing families it protects.',
   ],
   'deposit-copy': [
-    "The Unauthorized Foreword",
-    "A counterfeit memoir arrives with a foreword written by someone who has never boarded the couch.",
+    'The Unauthorized Foreword',
+    'A counterfeit memoir arrives with a foreword written by someone who has never boarded the couch.',
   ],
 }
 const MISSIONS = [...ACT_TWO_MISSIONS, ...ACT_THREE_MISSIONS]
@@ -135,7 +135,8 @@ export function laterLocalEncounter(
       'The redshirt files an unauthorized shortcut and discovers nobody asked the couch to represent them at ' +
       mission.system +
       '.',
-    secretResult: 'A crew member finds a protected record about ' + mission.stake + '.',
+    secretResult:
+      'A crew member finds a protected record about ' + mission.stake + '.',
   }
 }
 

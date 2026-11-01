@@ -218,7 +218,7 @@
       <div v-if="titlePanel === 'aliens'" class="absolute inset-2 z-10 min-h-0 sm:inset-4">
         <SpaceCouchAlienScrapbook
           :guide="store.alienGuide"
-          :artwork="store.onboardingArt"
+          :artwork="store.alienArtwork"
           @close="titlePanel = 'home'"
         />
       </div>
@@ -1824,7 +1824,7 @@
       v-if="store.alienSighting || store.alienReport"
       :sighting="store.alienSighting"
       :report="store.alienReport"
-      :artwork="store.onboardingArt"
+      :artwork="store.alienArtwork"
       @choose="store.chooseAlienAction"
       @close="store.dismissAlienEncounter"
     />
@@ -2286,6 +2286,7 @@ function startNewVoyage() {
 onMounted(() => {
   store.load()
   void store.loadOnboardingArt()
+  void store.loadAlienArtwork()
 })
 useSeoMeta(
   gameLinkPreviewMeta(

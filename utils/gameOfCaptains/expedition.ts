@@ -231,8 +231,21 @@ export function deployExpedition(
     enc.skill === 'diplomacy' &&
     skill < 4
   const succeeds = skill >= 3 || secret || !!revealedPower
+  const casualtyContext: Record<string, string> = {
+    diplomacy:
+      'The delegates leave one chair unfilled. The relief team requests the missing testimony before resuming talks.',
+    rescue:
+      'The evacuees are accounted for, but the rescue team cannot account for the person who went in after them.',
+    science:
+      'The experiment log records an unfinished measurement and the name of the person who made it possible.',
+    culture:
+      'The local witnesses ask for the crew member’s name to be entered into the public record.',
+    tactics:
+      'The tactical report lists a lost officer, not an expendable unit. Command is asked to explain the assignment.',
+    luck: 'The incident report calls it an improbable loss. Personnel is instructed to strike the word lucky.',
+  }
   const outcome = casualty
-    ? `${profile!.name} does not return from ${enc.title}. ${enc.redshirtResult} Personnel prints a tasteful memorial and asks whether the captain would like to requisition another red uniform.`
+    ? `${profile!.name} does not return from ${enc.title}. ${casualtyContext[enc.skill] ?? 'The ship registers the loss and files an unanswered question with command.'} The captain must decide how to inform the next of kin.`
     : dangerouslyUnqualified
       ? `${profile!.name} is entrusted with interstellar diplomacy despite a complete absence of training. ${enc.redshirtResult} The resulting diplomatic incident is not covered by the uniform warranty.`
       : isRedshirt

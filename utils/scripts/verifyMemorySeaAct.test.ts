@@ -233,7 +233,7 @@ const overworld = readFileSync(
 )
 const seaStore = readFileSync('stores/memorySeaStore.ts', 'utf8')
 const world = readFileSync('stores/memoryWorldStore.ts', 'utf8')
-assert.match(root, /memory-dungeon-sea v-else-if="seaMode"/)
+assert.match(root, /memory-dungeon-sea\s+v-else-if="seaMode"/)
 assert.match(earth, /data-testid="memory-enter-scylla"/)
 assert.match(overworld, /data-testid="memory-enter-scylla-sea"/)
 assert.match(sea, /data-testid="memory-sea-act"/)

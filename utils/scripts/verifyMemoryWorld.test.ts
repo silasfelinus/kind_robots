@@ -2175,7 +2175,7 @@ assert.match(
 )
 assert.match(
   classicScreen,
-  /resolveMemoryDungeonDeck\([\s\S]*?selection, needed, 0, \[\.\.\.runSeenImages\]/,
+  /resolveMemoryDungeonDeck\([\s\S]*?selection, needed, 0, \[\s*\.\.\.runSeenImages,?\s*\]/,
   'Classic resolves with a per-run exclusion list of previous floors',
 )
 assert.match(

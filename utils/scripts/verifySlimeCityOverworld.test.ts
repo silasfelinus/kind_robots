@@ -311,7 +311,11 @@ assert.equal(boutBlocked(run, 'chimera'), 'Resolve the citywide crisis first.')
 run = decideCrisis(run, 'broadcast-truth')
 assert.equal(boutBlocked(run, 'chimera'), 'Already beaten.')
 assert.equal(recordBout(run, 'chimera', 'player'), run, 'No double wins')
-assert.equal(totalStanding(run), 7, 'Aftermath and first crisis both change standing')
+assert.equal(
+  totalStanding(run),
+  7,
+  'Aftermath and first crisis both change standing',
+)
 assert.equal(gateReason(run, 'crown'), null, 'Wins open the Gilt Gate')
 assert.equal(cityWon(run), false)
 assert.equal(cityWon(recordBout(run, 'pitworks', 'player')), true)
@@ -676,7 +680,6 @@ lab.showCity()
 lab.resetCity()
 assert.equal(lab.city.contracts.length, 0)
 
-
 // Citywide pressure is earned at two, four and six victories. Each choice is
 // a single-use seeded-independent story beat that affects later real fights.
 assert.deepEqual(
@@ -697,7 +700,11 @@ const opposition: DistrictId[] = [
 for (const [index, id] of opposition.entries()) {
   const before = crisisSweep
   crisisSweep = recordBout(crisisSweep, id, 'player')
-  assert.equal(cityCrisis(crisisSweep), null, 'Champion aftermath is always first')
+  assert.equal(
+    cityCrisis(crisisSweep),
+    null,
+    'Champion aftermath is always first',
+  )
   assert.ok(championAftermath(crisisSweep))
   assert.equal(decideCrisis(crisisSweep, 'broadcast-truth'), crisisSweep)
   assert.equal(
@@ -736,10 +743,7 @@ for (const [index, id] of opposition.entries()) {
     crisisSweep.standing[crisisSweep.location],
     beforeChoice.standing[crisisSweep.location] + choice.standing,
   )
-  assert.equal(
-    crisisSweep.heat,
-    Math.max(0, beforeChoice.heat + choice.heat),
-  )
+  assert.equal(crisisSweep.heat, Math.max(0, beforeChoice.heat + choice.heat))
   assert.equal(
     decideCrisis(crisisSweep, active.choices[0].id),
     crisisSweep,
@@ -760,7 +764,9 @@ assert.equal(
   'The exposed rival armor penalty reaches real future deployments',
 )
 assert.deepEqual(createCity().crisisChoices, {})
-console.log('Slime City citywide acts: 3 crises, choice locks and battle effects PASS')
+console.log(
+  'Slime City citywide acts: 3 crises, choice locks and battle effects PASS',
+)
 
 console.log('Slime City overworld store flow PASS')
 

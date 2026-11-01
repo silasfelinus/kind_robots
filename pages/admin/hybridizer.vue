@@ -514,9 +514,11 @@ const previewArt = computed(() =>
     : lab.imageFor(lab.result),
 )
 const reactionImageId = computed(() =>
-  previewVersion.value
-    ? previewVersion.value.artImageId
-    : lab.result?.artImageId,
+  lab.result?.isPublic !== true
+    ? null
+    : previewVersion.value
+      ? previewVersion.value.artImageId
+      : lab.result?.artImageId,
 )
 const badges = achievementsForGame('hybridizer')
 const imageReactions = computed(() =>

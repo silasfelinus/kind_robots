@@ -26,7 +26,10 @@ export const MAX_SCORE_HISTORY = 64
  * closing choice, never while the final cinematic is still awaiting input. */
 export function scoreFromSave(save: EvtSave): BattleResult | null {
   const state = save.state
-  if (state.phase === 'active' || (save.mode === 'story' && !save.story.completed))
+  if (
+    state.phase === 'active' ||
+    (save.mode === 'story' && !save.story.completed)
+  )
     return null
 
   const won = state.phase === 'victory'
@@ -42,19 +45,43 @@ export function scoreFromSave(save: EvtSave): BattleResult | null {
   const quick = won && state.turn <= 4
   const evidence = save.mode === 'story' ? save.story.evidence : 0
   const lines: ScoreLine[] = [
-    { id: 'outcome', label: won ? 'Objective secured' : 'Mission lost', points: won ? 500 : 50 },
-    { id: 'opponents', label: defeated + ' rival units stopped', points: defeated * 20 },
-    { id: 'evacuation', label: rescued + ' civilians evacuated', points: rescued * 75 },
-    { id: 'evidence', label: evidence + ' evidence recovered', points: evidence * 25 },
+    {
+      id: 'outcome',
+      label: won ? 'Objective secured' : 'Mission lost',
+      points: won ? 500 : 50,
+    },
+    {
+      id: 'opponents',
+      label: defeated + ' rival units stopped',
+      points: defeated * 20,
+    },
+    {
+      id: 'evacuation',
+      label: rescued + ' civilians evacuated',
+      points: rescued * 75,
+    },
+    {
+      id: 'evidence',
+      label: evidence + ' evidence recovered',
+      points: evidence * 25,
+    },
   ]
   if (won && allAlive)
     lines.push({ id: 'survival', label: 'No squad knockouts', points: 150 })
   if (won && allHealthy)
-    lines.push({ id: 'healthy', label: 'Full health at extraction', points: 100 })
+    lines.push({
+      id: 'healthy',
+      label: 'Full health at extraction',
+      points: 100,
+    })
   if (won && allRescued)
     lines.push({ id: 'evacuated', label: 'Every civilian safe', points: 200 })
   if (quick)
-    lines.push({ id: 'tempo', label: 'Fast objective: round four or earlier', points: 75 })
+    lines.push({
+      id: 'tempo',
+      label: 'Fast objective: round four or earlier',
+      points: 75,
+    })
 
   const medals = [
     ...(won && allAlive ? ['no-knockouts'] : []),
@@ -109,7 +136,8 @@ function validResult(value: unknown): value is BattleResult {
     r.stage.length > 0 &&
     r.stage.length <= 120 &&
     IDENTITY_ARCS.some((arc) => arc.signature === r.lead) &&
-    (r.foil === null || IDENTITY_ARCS.some((arc) => arc.signature === r.foil)) &&
+    (r.foil === null ||
+      IDENTITY_ARCS.some((arc) => arc.signature === r.foil)) &&
     ['hero', 'villain', 'henchman', 'sidekick'].includes(r.perspective) &&
     ['victory', 'defeat'].includes(r.outcome) &&
     Number.isInteger(r.turns) &&
@@ -132,7 +160,13 @@ function validResult(value: unknown): value is BattleResult {
     r.medals.every(
       (m) =>
         typeof m === 'string' &&
-        ['no-knockouts', 'healthy-extraction', 'every-civilian', 'quick-clear', 'evidence-recovered'].includes(m),
+        [
+          'no-knockouts',
+          'healthy-extraction',
+          'every-civilian',
+          'quick-clear',
+          'evidence-recovered',
+        ].includes(m),
     )
   )
 }
@@ -150,6 +184,8 @@ export function mergeBattleResults(
       byId.set(result.id, result)
   }
   return [...byId.values()]
-    .sort((a, b) => Date.parse(b.at) - Date.parse(a.at) || a.id.localeCompare(b.id))
+    .sort(
+      (a, b) => Date.parse(b.at) - Date.parse(a.at) || a.id.localeCompare(b.id),
+    )
     .slice(0, MAX_SCORE_HISTORY)
 }

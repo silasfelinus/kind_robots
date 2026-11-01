@@ -287,6 +287,7 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
         throw new Error(response.message || 'Could not load your city story.')
       if (userId !== authId()) return
       city.value = response.data.city
+      districtId.value = response.data.city.location
       campaignSave.value = response.data.campaigns
       storyRevision.value = response.data.revision
       storyAccount.value = userId

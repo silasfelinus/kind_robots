@@ -55,6 +55,13 @@
           <p class="my-3 text-lg" data-testid="space-couch-alien-emotional-cue">
             {{ sighting.scene }}
           </p>
+          <blockquote
+            v-if="priorReport"
+            class="my-3 border-l-2 border-secondary/50 pl-3 text-sm italic opacity-80"
+            data-testid="space-couch-alien-prior-field-note"
+          >
+            From an earlier field notebook: {{ priorReport }}
+          </blockquote>
           <p class="mb-3 text-sm opacity-70">
             What matters to this creature right now? Three actions, one
             uncertain response.
@@ -110,12 +117,15 @@ import { computed, ref, watch } from 'vue'
 import { ALIEN_BY_ID } from '~/utils/gameOfCaptains/alienSpecies'
 import {
   ALIEN_CHOICES,
+  alienObservation,
+  type AlienGuide,
   type AlienChoice,
   type AlienSighting,
 } from '~/utils/gameOfCaptains/alienFieldGuide'
 
 const props = defineProps<{
   sighting: AlienSighting | null
+  guide: AlienGuide
   report: { text: string; speciesId: string; recorded: boolean } | null
   artwork?: Record<string, string>
 }>()
@@ -124,6 +134,17 @@ const species = computed(
   () =>
     props.sighting?.species ?? ALIEN_BY_ID.get(props.report?.speciesId ?? '')!,
 )
+const priorReport = computed(() => {
+  const species = props.sighting?.species
+  if (!species) return null
+  const previous = [...(props.guide.fieldReports ?? [])]
+    .reverse()
+    .find((item) =>
+      item.speciesId !== species.id &&
+      ALIEN_BY_ID.get(item.speciesId)?.category === species.category,
+    )
+  return previous ? alienObservation(previous) : null
+})
 const imageBroken = ref(false)
 watch(
   () => species.value?.id,

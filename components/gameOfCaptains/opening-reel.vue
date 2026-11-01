@@ -23,7 +23,9 @@
     />
     <div class="couch-reel-vignette" aria-hidden="true" />
     <header class="couch-reel-header">
-      <span class="couch-reel-brand">SPACE <em>COUCH</em> / OPENING TITLES</span>
+      <span class="couch-reel-brand"
+        >SPACE <em>COUCH</em> / OPENING TITLES</span
+      >
       <span class="couch-reel-number" data-testid="space-couch-opening-count">
         {{ current + 1 }} / {{ SPACE_COUCH_OPENING.length }}
       </span>
@@ -84,9 +86,13 @@ const current = ref(0)
 const failed = ref<Record<string, boolean>>({})
 const frame = computed(() => SPACE_COUCH_OPENING[current.value]!)
 const atEnd = computed(() => current.value === SPACE_COUCH_OPENING.length - 1)
-const progress = computed(() => ((current.value + 1) / SPACE_COUCH_OPENING.length) * 100)
+const progress = computed(
+  () => ((current.value + 1) / SPACE_COUCH_OPENING.length) * 100,
+)
 const imageSource = computed(() =>
-  failed.value[frame.value.key] ? FALLBACK : props.artwork[frame.value.key] || FALLBACK,
+  failed.value[frame.value.key]
+    ? FALLBACK
+    : props.artwork[frame.value.key] || FALLBACK,
 )
 function onImageError() {
   failed.value[frame.value.key] = true
@@ -195,7 +201,9 @@ onMounted(() => reelRoot.value?.focus())
 }
 .couch-reel-copy h2 {
   margin: 0.35rem 0;
-  font: 900 clamp(1.65rem, 5cqi, 4.7rem)/1 Georgia, serif;
+  font:
+    900 clamp(1.65rem, 5cqi, 4.7rem)/1 Georgia,
+    serif;
   letter-spacing: -0.03em;
 }
 .couch-reel-copy > p:last-child {
@@ -219,8 +227,12 @@ onMounted(() => reelRoot.value?.focus())
   transition: width 180ms ease;
 }
 @keyframes couch-reel-fade {
-  from { opacity: 0.5; }
-  to { opacity: 1; }
+  from {
+    opacity: 0.5;
+  }
+  to {
+    opacity: 1;
+  }
 }
 .couch-reel--still .couch-reel-art,
 .couch-reel--still .couch-reel-meter span {

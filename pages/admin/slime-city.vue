@@ -61,7 +61,21 @@
             "
           >
             <span class="sc-led"></span>
-            <strong>{{
+            <button
+              v-if="lab.storyError"
+              type="button"
+              class="sc-story-reload"
+              :title="lab.storyError"
+              :aria-label="
+                'Story save unavailable. ' +
+                lab.storyError +
+                ' Reload saved story.'
+              "
+              @click="lab.hydrateStory()"
+            >
+              STORY SYNC ERROR · RELOAD
+            </button>
+            <strong v-else>{{
               lab.progressLoaded ? lab.progress.meat + ' MEAT' : 'SIGN IN'
             }}</strong>
           </div>
@@ -1560,6 +1574,18 @@ onUnmounted(() => {
   background: #19271c;
   border: 1px solid #7ba74a77;
   border-radius: 0.3rem;
+}
+.sc-story-reload {
+  max-width: 11rem;
+  padding: 0.45rem 0.5rem;
+  border: 1px solid #f6ad6588;
+  border-radius: 0.3rem;
+  background: #3f281a;
+  color: #ffdab4;
+  font-size: 0.59rem;
+  font-weight: 800;
+  white-space: normal;
+  text-align: center;
 }
 .sc-led {
   height: 0.4rem;

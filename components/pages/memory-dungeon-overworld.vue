@@ -90,6 +90,15 @@
       >
         Pip’s broken forest
       </button>
+      <button
+        v-if="world.campaign.completed.includes('e09')"
+        type="button"
+        class="btn btn-sm border-[#f1c99b] bg-[#42596b] text-[#fff1d7]"
+        data-testid="memory-enter-earth-collision"
+        @click="emit('earth-collision')"
+      >
+        Morrow's broken city
+      </button>
       <span
         v-if="world.activeReality === 'e01'"
         class="shrink-0 text-xs"
@@ -1017,6 +1026,7 @@ const emit = defineEmits<{
   hoshimori: []
   'hoshimori-night': []
   collision: []
+  'earth-collision': []
 }>()
 const world = useMemoryWorldStore()
 const chronicleOpen = ref(false)

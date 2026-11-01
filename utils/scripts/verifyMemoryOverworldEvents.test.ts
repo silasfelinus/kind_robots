@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict'
+import { readFileSync } from 'node:fs'
 import {
   OVERWORLD_EVENT_CATALOG,
   chooseOverworldEvent,
@@ -759,6 +760,53 @@ assert.equal(
   ),
   null,
   'The earned Pip finale gate cannot be skipped',
+)
+
+const e10Console = readFileSync(
+  new URL(
+    '../../components/pages/memory-dungeon-earth-collision.vue',
+    import.meta.url,
+  ),
+  'utf8',
+)
+const e10Store = readFileSync(
+  new URL('../../stores/memoryEarthCollisionStore.ts', import.meta.url),
+  'utf8',
+)
+const memoryPage = readFileSync(
+  new URL('../../components/pages/memory-dungeon.vue', import.meta.url),
+  'utf8',
+)
+const overworldPage = readFileSync(
+  new URL(
+    '../../components/pages/memory-dungeon-overworld.vue',
+    import.meta.url,
+  ),
+  'utf8',
+)
+const campaignStore = readFileSync(
+  new URL('../../stores/memoryWorldStore.ts', import.meta.url),
+  'utf8',
+)
+assert.ok(e10Console.includes('data-testid="memory-earth-collision-console"'))
+assert.ok(e10Console.includes('collision.tiles'))
+assert.ok(e10Console.includes('collision.choose(choice.id)'))
+assert.ok(e10Console.includes('collision.history.charter'))
+assert.ok(e10Store.includes("replayEarthJournal('e10', journal.value)"))
+assert.ok(e10Store.includes("compactEarthJournal('e10', journal.value)"))
+assert.ok(
+  e10Store.includes(
+    'earthCollisionHistory(world.campaign, hoshimori.progress, briar.journal)',
+  ),
+)
+assert.ok(e10Store.includes('world.syncEarthCollisionJournal('))
+assert.ok(campaignStore.includes('recoverEarthCollisionFromJournal('))
+assert.ok(memoryPage.includes('v-else-if="earthCollisionMode"'))
+assert.ok(overworldPage.includes('data-testid="memory-enter-earth-collision"'))
+assert.ok(overworldPage.includes("world.campaign.completed.includes('e09')"))
+assert.ok(
+  !e10Store.includes('completeMemoryExperience('),
+  'e10 cannot be completed until the separate crossroads is implemented',
 )
 
 for (const pilot of HOSHIMORI_NIGHT_SITES) {

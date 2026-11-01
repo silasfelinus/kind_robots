@@ -21,7 +21,10 @@
         @error="onPaintedImageError"
       />
       <div class="cap-menu-shade" aria-hidden="true" />
-      <div v-if="titlePanel !== 'opening' && titlePanel !== 'aliens'" class="cap-menu-body">
+      <div
+        v-if="titlePanel !== 'opening' && titlePanel !== 'aliens'"
+        class="cap-menu-body"
+      >
         <span class="cap-menu-kicker"
           >AN UNLICENSED STARSHIP PRODUCTION · EPISODE ZERO</span
         >
@@ -81,15 +84,15 @@
             }}</small>
           </button>
         </nav>
-          <button
-            v-if="titlePanel === 'home'"
-            type="button"
-            class="cap-menu-back"
-            data-testid="space-couch-open-alien-scrapbook"
-            @click="titlePanel = 'aliens'"
-          >
-            SPECIES SCRAPBOOK · {{ store.alienGuide.discovered.length }}/101 ✳
-          </button>
+        <button
+          v-if="titlePanel === 'home'"
+          type="button"
+          class="cap-menu-back"
+          data-testid="space-couch-open-alien-scrapbook"
+          @click="titlePanel = 'aliens'"
+        >
+          SPECIES SCRAPBOOK · {{ store.alienGuide.discovered.length }}/101 ✳
+        </button>
         <div
           v-if="titlePanel === 'home' && confirmNewVoyage && run"
           class="cap-menu-confirm"
@@ -215,7 +218,10 @@
           CAPTAIN'S CHAIR UNAVAILABLE · THE COUCH WILL HAVE TO DO
         </p>
       </div>
-      <div v-if="titlePanel === 'aliens'" class="absolute inset-2 z-10 min-h-0 sm:inset-4">
+      <div
+        v-if="titlePanel === 'aliens'"
+        class="absolute inset-2 z-10 min-h-0 sm:inset-4"
+      >
         <SpaceCouchAlienScrapbook
           :guide="store.alienGuide"
           :artwork="store.alienArtwork"
@@ -1935,7 +1941,9 @@ function onOriginArtError(event: Event, id: string) {
   }
 }
 const atTitle = ref(true)
-const titlePanel = ref<'home' | 'settings' | 'log' | 'opening' | 'aliens'>('home')
+const titlePanel = ref<'home' | 'settings' | 'log' | 'opening' | 'aliens'>(
+  'home',
+)
 const confirmNewVoyage = ref(false)
 function openCouchMenu() {
   atTitle.value = true

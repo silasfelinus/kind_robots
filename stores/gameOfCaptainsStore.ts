@@ -103,8 +103,14 @@ export const useGameOfCaptainsStore = defineStore('gameOfCaptains', () => {
   const storageWarning = ref('')
   const alienGuide = ref<AlienGuide>(emptyAlienGuide())
   const alienSighting = ref<AlienSighting | null>(null)
-  const alienReport = ref<{ text: string; speciesId: string; recorded: boolean } | null>(null)
-  const alienEncounterAvailable = computed(() => maySeeAlien(run.value, alienGuide.value))
+  const alienReport = ref<{
+    text: string
+    speciesId: string
+    recorded: boolean
+  } | null>(null)
+  const alienEncounterAvailable = computed(() =>
+    maySeeAlien(run.value, alienGuide.value),
+  )
   function lookForAlien() {
     if (!run.value || !alienEncounterAvailable.value) return
     alienReport.value = null

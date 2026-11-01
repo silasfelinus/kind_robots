@@ -21,7 +21,10 @@
         @error="onPaintedImageError"
       />
       <div class="cap-menu-shade" aria-hidden="true" />
-      <div v-if="titlePanel !== 'opening'" class="cap-menu-body">
+      <div
+        v-if="titlePanel !== 'opening' && titlePanel !== 'aliens'"
+        class="cap-menu-body"
+      >
         <span class="cap-menu-kicker"
           >AN UNLICENSED STARSHIP PRODUCTION · EPISODE ZERO</span
         >
@@ -81,6 +84,15 @@
             }}</small>
           </button>
         </nav>
+        <button
+          v-if="titlePanel === 'home'"
+          type="button"
+          class="cap-menu-back"
+          data-testid="space-couch-open-alien-scrapbook"
+          @click="titlePanel = 'aliens'"
+        >
+          SPECIES SCRAPBOOK · {{ store.alienGuide.discovered.length }}/101 ✳
+        </button>
         <div
           v-if="titlePanel === 'home' && confirmNewVoyage && run"
           class="cap-menu-confirm"
@@ -206,6 +218,16 @@
           CAPTAIN'S CHAIR UNAVAILABLE · THE COUCH WILL HAVE TO DO
         </p>
       </div>
+      <div
+        v-if="titlePanel === 'aliens'"
+        class="absolute inset-2 z-10 min-h-0 sm:inset-4"
+      >
+        <SpaceCouchAlienScrapbook
+          :guide="store.alienGuide"
+          :artwork="store.alienArtwork"
+          @close="titlePanel = 'home'"
+        />
+      </div>
       <SpaceCouchOpeningReel
         v-if="titlePanel === 'opening'"
         :artwork="store.onboardingArt"
@@ -235,6 +257,15 @@
       <span v-if="run" class="cap-hud" aria-label="Couch force shield charge"
         >BUBBLE <b>{{ run.shieldCharge ?? 2 }}/3</b></span
       >
+      <button
+        v-if="store.alienEncounterAvailable"
+        type="button"
+        class="cap-reset"
+        data-testid="space-couch-alien-signal"
+        @click="store.lookForAlien()"
+      >
+        ✳ STRANGE SIGNAL
+      </button>
       <button
         type="button"
         class="cap-reset"
@@ -1795,6 +1826,15 @@
         </footer>
       </section>
     </div>
+    <SpaceCouchAlienEncounter
+      v-if="store.alienSighting || store.alienReport"
+      :sighting="store.alienSighting"
+      :report="store.alienReport"
+      :guide="store.alienGuide"
+      :artwork="store.alienArtwork"
+      @choose="store.chooseAlienAction"
+      @close="store.dismissAlienEncounter"
+    />
   </main>
 </template>
 
@@ -1860,6 +1900,8 @@ import {
   type CaptainOriginId,
 } from '~/utils/gameOfCaptains/captainOrigins'
 import SpaceCouchOpeningReel from '~/components/gameOfCaptains/opening-reel.vue'
+import SpaceCouchAlienEncounter from '~/components/gameOfCaptains/alien-encounter.vue'
+import SpaceCouchAlienScrapbook from '~/components/gameOfCaptains/alien-scrapbook.vue'
 import SpaceCouchDailyConsole from '~/components/gameOfCaptains/daily-console.vue'
 import SpaceCouchConstellationTest from '~/components/gameOfCaptains/constellation-test.vue'
 import {
@@ -1902,7 +1944,9 @@ function onOriginArtError(event: Event, id: string) {
   }
 }
 const atTitle = ref(true)
-const titlePanel = ref<'home' | 'settings' | 'log' | 'opening'>('home')
+const titlePanel = ref<'home' | 'settings' | 'log' | 'opening' | 'aliens'>(
+  'home',
+)
 const confirmNewVoyage = ref(false)
 function openCouchMenu() {
   atTitle.value = true
@@ -2253,6 +2297,7 @@ function startNewVoyage() {
 onMounted(() => {
   store.load()
   void store.loadOnboardingArt()
+  void store.loadAlienArtwork()
 })
 useSeoMeta(
   gameLinkPreviewMeta(

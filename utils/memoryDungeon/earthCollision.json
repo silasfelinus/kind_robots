@@ -1,0 +1,96 @@
+[
+  {
+    "key": "2,2",
+    "fragment": "city-lantern-charter",
+    "title": "The Lantern Refuge Charter",
+    "speaker": "Morrow, Mara and the hearth spirit",
+    "kind": "companion",
+    "opening": "The office's break room has acquired a roof of folded cedar shingles. Inside, a small Hoshimori hearth spirit warms three exhausted night workers beneath a lantern that refuses to cast their shadows. Outside, an access-control kiosk labels the room an unauthorized dwelling and schedules a forced eviction at the next shift change. The spirit insists that anyone who eats here must remain until the household is safe; the workers insist they must be free to leave. Morrow knows enough about institutional paperwork now to see that both forms of protection can become a cage. HEARTH SPIRIT: A guest who leaves hungry has been stolen from my house. I have counted their breaths so nobody can lose them. MARA: I need my break, my wages, and the right to go home. Those are three different things. Nobody gets to hold my badge hostage. MORROW: The city calls this an occupancy violation. The spirit calls it care. We can make a door that opens from both sides. VESPER: I can draw the exit without drawing where anyone sleeps. That is the first map I learned to make.",
+    "artSubject": "Morrow and Mara at a fluorescent research office break room whose roof has become cedar shingles, a glowing hearth spirit, three tired workers and a fire exit held open",
+    "puzzle": "The lantern shows two paired marks for each voluntary guest and one unpaired mark for a person the kiosk has counted twice. Match the visible guest marks to the workers who consent to shelter; the extra mark is a duplicate badge, not a hidden fourth person. The paired marks stay visible in the room journal. The noncombat fallback is to ask Mara to read the roster aloud, without losing the quest or surrendering anyone's address.",
+    "choices": [
+      {
+        "id": "revocable-shelter-accord",
+        "label": "Write a revocable shelter charter signed by the workers",
+        "outcome": "MORROW: 'A hearth can offer a bed without owning a body.' HEARTH SPIRIT: 'Then I shall learn to say goodbye.' Mara and the spirit agree on a consent-based exit and rest schedule. The workers keep their badges and can withdraw at any time; the spirit retains a warm room but no list of private addresses. Cost: The spirit must give up its permanent guest ledger; the workers agree to limited shelter hours and a follow-up labor hearing. If the first plan fails: If the kiosk refuses the charter, Mara files an emergency workplace-safety exception and the spirit shelters people until the appeal is heard; no worker is trapped inside.",
+        "flag": "earth-lantern-revocable-rest",
+        "effects": {
+          "trust": 2,
+          "evidence": 1
+        },
+        "artSubject": "Small cedar-roof hearth spirit beside a fluorescent office break-room table, workers signing a revocable shelter charter."
+      },
+      {
+        "id": "workers-shift-vote",
+        "label": "Let the night shift vote on temporary shared control",
+        "outcome": "MARA: 'The people who work here choose the rules.' HEARTH SPIRIT: 'Will you still leave a lantern burning for strangers?' The workers choose rotating stewards, open the exit from both sides and commit to an overtime claim. The spirit stays as a voluntary guest, not an owner of the room. Cost: The vote delays the evacuation past a paid shift and the employer disputes the overtime. If the first plan fails: If the employer blocks the ballot, Mara counts votes outside the security boundary and preserves the signed tally; the spirit offers safe heat without a binding oath.",
+        "flag": "earth-lantern-shift-stewards",
+        "effects": {
+          "trust": 1,
+          "evidence": 2,
+          "danger": 1
+        },
+        "artSubject": "Night workers voting with folded paper beside a glowing yōkai lantern and an office time clock."
+      },
+      {
+        "id": "free-exit-first",
+        "label": "Open the emergency door before negotiating ownership",
+        "outcome": "MORROW: 'No shelter is safe if it locks from the outside.' HEARTH SPIRIT: 'Then help me carry the coals.' The emergency exit opens and the workers leave on their own terms. Oren organizes a temporary warm shelter while the spirit carries its coals in a sealed kettle; no one pretends this solves the housing shortage. Cost: The spirit loses its safe hearth and the displaced guests need a replacement refuge tonight. If the first plan fails: If the door jams, Morrow calls the safety inspector and Oren opens the legal fire stair; the spirit's relocation debt remains visible rather than disappearing.",
+        "flag": "earth-lantern-hearth-displaced",
+        "effects": {
+          "supplies": -2,
+          "trust": 1,
+          "danger": 1
+        },
+        "artSubject": "Emergency office door opening onto a moonlit cedar roof, hearth spirit holding a kettle of glowing coals."
+      }
+    ]
+  },
+  {
+    "key": "7,6",
+    "fragment": "city-forest-hours",
+    "title": "The Living Hours Ledger",
+    "speaker": "Morrow, Oren and the station clerk",
+    "kind": "puzzle",
+    "opening": "Autumn leaves grow through the station's digital departure board. The Briar forest has inserted a second calendar between 11:59 and midnight, and a stranded train keeps arriving before it departed. People are losing wages, medical appointments and, on the sealed-gate branch, the right to be counted among the missing. Morrow's old research notebook contains two independently witnessed time stamps; Oren has a station roster that may have been damaged by the office-clock rescue. A clerk proposes erasing the impossible hour. Morrow refuses to erase the people who lived it. STATION CLERK: There is no such hour in the timetable. If I remove it, the system will balance. OREN: A balanced ledger with uncounted passengers is a tidy form of disappearance. MORROW: My first year here I mistook a bus pass for a ritual token. Now I know what an incorrect timestamp can do to a real person. PIP: Briar roads change seasons when you ask who owns the journey. These commuters already own their hours.",
+    "artSubject": "Morrow and Oren beneath a subway departure board tangled with Briar autumn leaves, a stranded train arriving before it leaves and a witness ledger open",
+    "puzzle": "The station wall shows three observed anchors: the train's arrival bell, Mara's witnessed shift handoff, and the clinic's appointment log. The board repeats one timestamp with an impossible negative duration. Match the two independent real-world anchors before choosing which obligation to prioritize; the third anchor identifies the forgery. All evidence remains inspectable, and asking the clerk for a transcript is a fair noncombat fallback.",
+    "choices": [
+      {
+        "id": "anonymized-hours-audit",
+        "label": "Publish a verified count of lost hours without passengers' addresses",
+        "outcome": "MORROW: 'The count can be public. The names belong to the people.' STATION CLERK: 'Then I will mark the dispute, not erase it.' The station acknowledges the impossible hour and preserves anonymized evidence. Mara opens a confidential claims desk for affected workers; no missing commuter is written out of history. Cost: Individual back pay takes longer to adjudicate because the public ledger cannot identify workers by name. If the first plan fails: If payroll rejects anonymous totals, Mara gathers voluntary private attestations one at a time; the public ledger remains redacted.",
+        "flag": "earth-hours-anonymized-audit",
+        "effects": {
+          "evidence": 2,
+          "trust": 1
+        },
+        "artSubject": "Autumn leaves around a train departure board with one impossible hour highlighted, Morrow and workers reviewing a redacted ledger."
+      },
+      {
+        "id": "rescue-stranded-train",
+        "label": "Spend the only stable hour guiding the stranded train to daylight",
+        "outcome": "OREN: 'I can hold the crossing for twelve minutes. The train gets first claim on them.' MORROW: 'Then we write down what we cannot save.' Oren guides the train through a Briar-grown platform while Morrow records every passenger who consents to be counted. Mara's wage evidence must be reconstructed later, and the tide-gate debt is not retroactively cleared. Cost: The transit rescue succeeds, but the office loses a day of wage evidence and workers must rebuild their claims. If the first plan fails: If the first departure is blocked, the station clerk reroutes the train to a lit maintenance platform and Oren escorts passengers on foot; lost wage evidence remains the price.",
+        "flag": "earth-hours-train-rescue",
+        "effects": {
+          "supplies": -2,
+          "trust": 2,
+          "evidence": -1
+        },
+        "artSubject": "Train emerging from a forest-grown subway tunnel into dawn while Oren signals from a flooded platform."
+      },
+      {
+        "id": "preserve-payroll-witnesses",
+        "label": "Secure workers' testimony and restore the wage archive first",
+        "outcome": "MARA: 'If we lose their wages, the rescue is only half done.' MORROW: 'Then I will keep the platform staffed until the other half arrives.' Mara and Morrow reconstruct shift evidence from voluntary testimony, protecting livelihoods. Pip and Oren establish a safe waiting platform, but the train's delayed evacuation becomes an explicit future obligation. Cost: The train stays stranded for another watch and the passengers need food, medicine and a staffed safe platform. If the first plan fails: If the original timecards were destroyed, the claim proceeds through signed witness statements rather than a magically restored archive; passengers remain provisioned.",
+        "flag": "earth-hours-payroll-first",
+        "effects": {
+          "supplies": -1,
+          "evidence": 2,
+          "danger": 1
+        },
+        "artSubject": "Morrow gathering workers' testimony under a forest-leaf departure board while a waiting train glows in the distance."
+      }
+    ]
+  }
+]

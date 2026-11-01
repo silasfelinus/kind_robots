@@ -55,12 +55,12 @@
 -->
 <template>
   <header
-    class="relative z-30 mb-2 shrink-0 overflow-visible rounded-2xl border border-(--kr-surface-border) bg-(--kr-surface-raised) shadow-sm backdrop-blur"
+    class="kr-system-bar relative z-30 mb-2 shrink-0 overflow-visible rounded-2xl border border-(--kr-surface-border) bg-(--kr-surface-raised) shadow-sm backdrop-blur"
   >
     <fx-region region="header" />
 
     <div
-      class="flex min-h-12 min-w-0 items-center gap-1.5 px-1.5 py-1.5 sm:gap-2 sm:px-2 xl:min-h-16 xl:gap-3 xl:px-3"
+      class="flex min-h-12 min-w-0 flex-wrap items-center gap-1.5 px-1.5 py-1.5 sm:gap-2 sm:px-2 xl:min-h-16 xl:gap-3 xl:px-3"
     >
       <NuxtLink
         to="/"
@@ -196,6 +196,7 @@
             selectable"). Only the tab label to its left opens the menu.
           -->
           <div
+            v-if="!hasPageBar"
             class="pointer-events-none hidden min-w-0 flex-1 items-center gap-4 px-3 lg:flex"
           >
             <div
@@ -260,6 +261,20 @@
           </span>
         </div>
       </div>
+
+      <!--
+        THE PAGE BAR. Silas, 2026-11-01: one header, not two -- "icons are top
+        over the row that is shown for the slime city or other dominant tabs."
+        Pages fill it through header-page-bar.vue. It wraps to its own row
+        under the icons (order-last + basis-full) until xl, where the row is
+        wide enough to hold it inline between the pickers and the account hub.
+        Its own @container lets the page's styles respond to the bar's width.
+      -->
+      <div
+        v-show="hasPageBar"
+        id="kr-header-page-bar"
+        class="@container order-last flex min-w-0 basis-full items-center border-t border-base-300 pt-1.5 xl:order-none xl:basis-0 xl:flex-[2.2] xl:border-t-0 xl:pt-0"
+      />
 
       <!--
         RIGHT OF THE TAB SELECTOR. Silas, 2026-08-11: "login-manager is to the
@@ -493,6 +508,8 @@ const shellSummary = computed(
 )
 
 const showBackButton = computed(() => navStore.canGoBack)
+
+const hasPageBar = computed(() => navStore.hasPageBar)
 
 const workspaceSheetOpen = computed(() => navStore.workspaceSheetOpen)
 

@@ -12,6 +12,7 @@ import { DARK_BRIAR_SCENES, DARK_BRIAR_SEALS } from './darkBriar'
 import { HOSHIMORI_WARM_SITES } from './hoshimoriWarm'
 import { HOSHIMORI_NIGHT_SITES } from './hoshimoriNight'
 import { EARTH_PHOTOS } from './chronicle'
+import earthCollision from './earthCollision.json'
 import recipes from './overworldEventRecipes.json'
 import { BRIAR_SITES } from '../memoryDungeonWorld'
 
@@ -81,6 +82,9 @@ const kinds: readonly OverworldKind[] = [
   'puzzle',
   'companion',
 ]
+const earthCollisionScenes = new Map(
+  earthCollision.map((scene) => [scene.key, scene]),
+)
 const mirrorTitles = new Map(
   HOSHIMORI_WARM_SITES.map((site) => [site.key, site.title]),
 )
@@ -352,8 +356,11 @@ function generated(
     world.id === 'e09'
       ? BRIAR_COLLISION_SCENES[key as BriarCollisionSite]
       : undefined
+  const earthScene =
+    world.id === 'e10' ? earthCollisionScenes.get(key) : undefined
   const authored =
     fragmentScene ??
+    earthScene ??
     (world.id === 'e09'
       ? BRIAR_COLLISION_ROUTE_SITES[key as BriarCollisionRouteSite]
       : undefined)
@@ -362,7 +369,7 @@ function generated(
       id: choice.id,
       label: choice.label,
       outcome: choice.outcome,
-      flag: 'e09:' + choice.flag,
+      flag: world.id + ':' + choice.flag,
       effects: { ...choice.effects },
       art: art(
         world.id,
@@ -380,7 +387,7 @@ function generated(
     title: authored?.title ?? title,
     opening: authored?.opening ?? opening,
     speaker: authored?.speaker ?? district.character,
-    kind: authored?.kind ?? kind,
+    kind: (authored?.kind as OverworldKind | undefined) ?? kind,
     sceneArt: art(
       world.id,
       key,
@@ -398,7 +405,12 @@ function generated(
     choices,
     ...(photo ? { photographId: photo.id } : {}),
     ...(fragment
-      ? { memoryFragment: fragmentScene?.fragment ?? world.id + ':' + key }
+      ? {
+          memoryFragment:
+            fragmentScene?.fragment ??
+            earthScene?.fragment ??
+            world.id + ':' + key,
+        }
       : {}),
     ...(mirror ? { originalSite: mirror } : {}),
     source: 'new-authoring',

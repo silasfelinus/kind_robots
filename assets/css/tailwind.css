@@ -225,6 +225,55 @@
 }
 
 /*
+ * ── SLIME CITY — the Combat Systems Lab console ───────────────────────
+ *
+ * Applied to the WHOLE SHELL (app.vue `data-theme` on .kr-shell) while
+ * /play/slime-city or /admin/slime-city is mounted, via
+ * `<header-page-bar console-theme="slime-city">`. Silas, 2026-11-01: the site
+ * header should read as the console's own system bar and flow into the game,
+ * not sit on it as a cream web header. Tokens are lifted from the page's own
+ * palette: night-ink navy, toxic lime, bloodfairy pink, undertow cyan.
+ */
+@plugin "daisyui/theme" {
+  name: 'slime-city';
+  default: false;
+  prefersdark: false;
+  color-scheme: dark;
+
+  --color-base-100: oklch(19% 0.03 262); /* console panel ink */
+  --color-base-200: oklch(14.5% 0.022 262); /* the night ground */
+  --color-base-300: oklch(30% 0.04 268); /* wells and dividers */
+  --color-base-content: oklch(93% 0.012 260);
+
+  --color-primary: oklch(93% 0.2 125); /* toxic lime */
+  --color-primary-content: oklch(22% 0.04 140);
+  --color-secondary: oklch(72% 0.19 350); /* bloodfairy pink */
+  --color-secondary-content: oklch(16% 0.03 350);
+  --color-accent: oklch(80% 0.12 210); /* undertow cyan */
+  --color-accent-content: oklch(16% 0.03 230);
+  --color-neutral: oklch(24% 0.035 265);
+  --color-neutral-content: oklch(93% 0.012 260);
+
+  --color-info: oklch(80% 0.12 210);
+  --color-info-content: oklch(16% 0.03 230);
+  --color-success: oklch(86% 0.19 130);
+  --color-success-content: oklch(20% 0.04 140);
+  --color-warning: oklch(87% 0.16 90);
+  --color-warning-content: oklch(20% 0.04 90);
+  --color-error: oklch(66% 0.21 25);
+  --color-error-content: oklch(97% 0.01 25);
+
+  --radius-selector: 0.5rem;
+  --radius-field: 0.6rem;
+  --radius-box: 0.85rem;
+  --size-selector: 0.25rem;
+  --size-field: 0.25rem;
+  --border: 1px;
+  --depth: 1;
+  --noise: 0;
+}
+
+/*
  * ── FORGE — the Playbook Forge console ────────────────────────────────
  *
  * Scoped by `data-theme="forge"` on /admin/playbook-forge (and playbook kit
@@ -353,6 +402,43 @@ body,
   margin: 0;
   padding: 0;
   overflow-x: hidden;
+}
+
+.kr-shell[data-kr-console] {
+  font-family:
+    ui-sans-serif,
+    system-ui,
+    -apple-system,
+    'Segoe UI',
+    Roboto,
+    sans-serif;
+  background-image: radial-gradient(
+    ellipse at 50% -20%,
+    color-mix(in oklch, var(--color-base-300) 80%, transparent) 0%,
+    transparent 60%
+  );
+}
+
+/*
+ * The system bar of a console page: one continuous glass strip that carries
+ * the OS controls and the game's own bar, lit along its lower edge in the
+ * game's primary so it hands off into the stage below instead of ending.
+ */
+.kr-shell[data-kr-console] .kr-system-bar {
+  background: linear-gradient(
+    180deg,
+    color-mix(in oklch, var(--color-base-300) 55%, var(--color-base-100)) 0%,
+    var(--color-base-100) 100%
+  );
+  border-color: color-mix(
+    in oklch,
+    var(--color-primary) 18%,
+    var(--color-base-300)
+  );
+  box-shadow:
+    inset 0 1px 0 color-mix(in oklch, white 8%, transparent),
+    0 1px 0 color-mix(in oklch, var(--color-primary) 30%, transparent),
+    0 14px 36px -22px color-mix(in oklch, var(--color-primary) 70%, transparent);
 }
 
 .kr-shell.bg-black {

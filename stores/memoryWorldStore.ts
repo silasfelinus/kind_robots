@@ -68,6 +68,8 @@ import {
   recoverBriarCollisionFromJournal,
   concludeBriarCollisionFromJournal,
 } from '~/utils/memoryDungeon/briarCollisionProgress'
+import { recoverEarthCollisionFromJournal } from '~/utils/memoryDungeon/earthCollisionProgress'
+import { concludeEarthCollisionFromJournal } from '~/utils/memoryDungeon/earthCollisionCrossroad'
 import {
   DARK_BRIAR_WAVES,
   DARK_BRIAR_SCENES,
@@ -681,6 +683,44 @@ export const useMemoryWorldStore = defineStore('memoryWorld', () => {
     journal: readonly EarthJournalAction[],
   ): boolean {
     const next = concludeBriarCollisionFromJournal(campaign.value, journal)
+    if (!next) return false
+    campaign.value = next
+    persistReality()
+    return true
+  }
+
+  function syncEarthCollisionJournal(
+    journal: readonly EarthJournalAction[],
+    hoshimoriSave: unknown,
+    briarJournal: readonly EarthJournalAction[],
+  ): boolean {
+    const next = recoverEarthCollisionFromJournal(
+      campaign.value,
+      journal,
+      hoshimoriSave,
+      briarJournal,
+    )
+    if (!next) return false
+    if (next !== campaign.value) {
+      campaign.value = next
+      persistReality()
+    }
+    return true
+  }
+
+  function finishEarthCollision(
+    journal: readonly EarthJournalAction[],
+    hoshimoriSave: unknown,
+    briarJournal: readonly EarthJournalAction[],
+    verdict: string,
+  ): boolean {
+    const next = concludeEarthCollisionFromJournal(
+      campaign.value,
+      journal,
+      hoshimoriSave,
+      briarJournal,
+      verdict,
+    )
     if (!next) return false
     campaign.value = next
     persistReality()
@@ -2509,6 +2549,8 @@ export const useMemoryWorldStore = defineStore('memoryWorld', () => {
     commitBriarCollision,
     syncBriarCollisionJournal,
     finishBriarCollision,
+    syncEarthCollisionJournal,
+    finishEarthCollision,
     syncScyllaEarthPhoto,
     finishScyllaReality,
     syncHoshimoriNightAchievements,

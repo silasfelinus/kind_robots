@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict'
+import { readFileSync } from 'node:fs'
 import {
   OVERWORLD_EVENT_CATALOG,
   chooseOverworldEvent,
@@ -16,6 +17,22 @@ import { BRIAR_COLLISION_SCENES } from '../memoryDungeon/briarCollision'
 import { briarCollisionWitnessCallback } from '../memoryDungeon/briarCollisionWitness'
 import { restoreMemoryCampaignProgress } from '../memoryDungeon/campaignPersistence'
 import { BRIAR_COLLISION_ROUTE_SITES } from '../memoryDungeon/briarCollisionRoute'
+import earthCollision from '../memoryDungeon/earthCollision.json'
+import {
+  earthCollisionHistory,
+  recoverEarthCollisionFromJournal,
+} from '../memoryDungeon/earthCollisionProgress'
+import {
+  EARTH_CROSSROAD_CHOICES,
+  EARTH_CROSSROAD_SCENE,
+  earthCollisionCrossroadStory,
+  concludeEarthCollisionFromJournal,
+} from '../memoryDungeon/earthCollisionCrossroad'
+import {
+  advanceHoshimoriWarm,
+  newHoshimoriWarmProgress,
+  restoreHoshimoriWarm,
+} from '../memoryDungeon/hoshimoriWarm'
 import {
   recoverBriarCollisionFromJournal,
   concludeBriarCollisionFromJournal,
@@ -156,7 +173,7 @@ assert.deepEqual(
   BRIAR_COLLISION_SCENES['7,6'].choices.map((choice) => choice.id),
 )
 const routeSites = Object.entries(BRIAR_COLLISION_ROUTE_SITES)
-assert.equal(routeSites.length, 8)
+assert.equal(routeSites.length, 16)
 assert.equal(
   worldEvents('e09').filter((event) => event.memoryFragment).length,
   2,
@@ -217,6 +234,88 @@ for (const [key, scene] of routeSites) {
     )
   }
 }
+
+const newCrossroads = [
+  '4,1',
+  '5,1',
+  '6,1',
+  '7,1',
+  '8,1',
+  '4,3',
+  '5,3',
+  '6,3',
+] as const
+const newCrossroadFlags = new Set<string>()
+const newCrossroadOutcomes = new Set<string>()
+for (const key of newCrossroads) {
+  const scene = BRIAR_COLLISION_ROUTE_SITES[key]
+  const event = worldEvent('e09', key)!
+  assert.equal(event.title, scene.title)
+  assert.equal(event.memoryFragment, undefined)
+  assert.equal(event.choices.length, 2)
+  assert.ok(scene.opening.length > 180, key + ' needs a developed opening')
+  assert.ok(scene.artSubject.length > 70, key + ' needs a visual brief')
+  for (const choice of event.choices) {
+    assert.ok(
+      choice.outcome.length > 130,
+      key + ' needs a consequential ending',
+    )
+    assert.ok(Object.values(choice.effects).some((effect) => effect !== 0))
+    assert.ok(!newCrossroadFlags.has(choice.flag), 'flags must be unique')
+    assert.ok(
+      !newCrossroadOutcomes.has(choice.outcome),
+      'outcomes must be unique',
+    )
+    newCrossroadFlags.add(choice.flag)
+    newCrossroadOutcomes.add(choice.outcome)
+    const [x, y] = key.split(',').map(Number) as [number, number]
+    const journal: EarthJournalAction[] = []
+    for (let step = 2; step <= x; step++)
+      journal.push({ type: 'travel', key: step + ',1' })
+    for (let step = 2; step <= y; step++)
+      journal.push({ type: 'travel', key: x + ',' + step })
+    journal.push({ type: 'choose', key, choiceId: choice.id })
+    const replayed = replayEarthJournal('e09', journal)
+    assert.ok(replayed, key + ' must have a legal route')
+    assert.equal(replayed.progress.choices[key], choice.id)
+    assert.ok(replayed.progress.flags.includes(choice.flag))
+    assert.equal(
+      replayEarthJournal('e09', [
+        ...journal,
+        { type: 'choose', key, choiceId: choice.id },
+      ]),
+      null,
+      key + ' cannot pay twice',
+    )
+    assert.equal(
+      replayEarthJournal('e09', [
+        ...journal.slice(0, -1),
+        { type: 'choose', key, choiceId: 'invented-crossroad' },
+      ]),
+      null,
+      key + ' cannot accept a forged choice',
+    )
+    const restored = restoreOverworldEventProgress({
+      ...replayed.progress,
+      supplies: 99999,
+      flags: ['forged-crossroad'],
+    })
+    assert.ok(restored)
+    assert.deepEqual(restored.choices, replayed.progress.choices)
+    assert.deepEqual(restored.flags, replayed.progress.flags)
+    assert.equal(restored.supplies, replayed.progress.supplies)
+    assert.equal(restored.trust, replayed.progress.trust)
+    assert.equal(restored.evidence, replayed.progress.evidence)
+    assert.equal(restored.danger, replayed.progress.danger)
+  }
+}
+assert.equal(newCrossroadFlags.size, 16)
+assert.equal(newCrossroadOutcomes.size, 16)
+assert.equal(
+  worldEvents('e09').filter((event) => event.memoryFragment).length,
+  2,
+  'new crossroads must not mint extra memory fragments',
+)
 
 const witnessCallbacks = new Set<string>()
 for (const verdict of ['trust-witnesses', 'protect-village'] as const) {
@@ -494,6 +593,414 @@ assert.equal(
   null,
   'teleporting after a valid journey must invalidate the entire journal',
 )
+
+const earthScenes = earthCollision
+assert.equal(earthScenes.length, 2)
+assert.deepEqual(
+  earthScenes.map((scene) => scene.key),
+  ['2,2', '7,6'],
+)
+assert.deepEqual(
+  earthScenes.map((scene) => worldEvent('e10', scene.key)!.memoryFragment),
+  ['city-lantern-charter', 'city-forest-hours'],
+)
+assert.deepEqual(
+  EARTH_PHOTOS.filter((photo) => photo.experience === 'e10').map(
+    (photo) => photo.site,
+  ),
+  ['1,5', '5,7'],
+)
+for (const scene of earthScenes) {
+  const event = worldEvent('e10', scene.key)!
+  assert.equal(event.title, scene.title)
+  assert.equal(event.opening, scene.opening)
+  assert.equal(event.choices.length, 3)
+  assert.equal(event.sceneArt.status, 'placeholder')
+  assert.ok(scene.puzzle.length > 200, 'The evidence puzzle needs fair clues')
+  assert.equal(new Set(scene.choices.map((choice) => choice.flag)).size, 3)
+  for (const choice of scene.choices) {
+    const resolved = event.choices.find((item) => item.id === choice.id)!
+    assert.ok(resolved)
+    assert.ok(resolved.outcome.length > 250)
+    assert.ok(resolved.outcome.includes('If the first plan fails:'))
+    assert.ok(resolved.art.prompt.includes(choice.artSubject))
+    assert.deepEqual(resolved.effects, choice.effects)
+  }
+}
+const e10OfficeWalk: EarthJournalAction[] = [
+  { type: 'travel', key: '2,1' },
+  { type: 'travel', key: '2,2' },
+]
+const e10StationWalk: EarthJournalAction[] = [
+  ...['3,2', '4,2', '5,2', '6,2', '7,2', '7,3', '7,4', '7,5', '7,6'].map(
+    (key): EarthJournalAction => ({ type: 'travel', key }),
+  ),
+]
+function warmCharter(choice: 'consent' | 'open') {
+  let warm = newHoshimoriWarmProgress(17)
+  for (let x = 2; x <= 8; x++)
+    warm = advanceHoshimoriWarm(warm, { type: 'move', to: x + ',1' })
+  for (let y = 2; y <= 8; y++)
+    warm = advanceHoshimoriWarm(warm, { type: 'move', to: '8,' + y })
+  warm = advanceHoshimoriWarm(warm, { type: 'choose', id: choice })
+  assert.equal(warm.choices['8,8'], choice)
+  assert.deepEqual(restoreHoshimoriWarm(JSON.parse(JSON.stringify(warm))), warm)
+  return warm
+}
+let e10BranchCases = 0
+for (const tideGate of [
+  'open-the-tide-gate',
+  'seal-the-tide-gate',
+  'divert-the-current',
+] as const) {
+  for (const charter of ['consent', 'open'] as const) {
+    const warm = warmCharter(charter)
+    for (const officeChoice of office.choices) {
+      const briarJournal = completeBriarJournal.map((action) =>
+        action.type === 'choose' && action.key === '2,2'
+          ? { ...action, choiceId: officeChoice.id }
+          : action,
+      )
+      const campaign = {
+        ...concludedBriar,
+        pairDecisions: { ...concludedBriar.pairDecisions, e04: tideGate },
+      }
+      assert.deepEqual(earthCollisionHistory(campaign, warm, briarJournal), {
+        tideGate,
+        charter,
+        office: officeChoice.id,
+      })
+      for (const first of earthScenes[0]!.choices) {
+        for (const second of earthScenes[1]!.choices) {
+          const journal: EarthJournalAction[] = [
+            ...e10OfficeWalk,
+            { type: 'choose', key: '2,2', choiceId: first.id },
+            ...e10StationWalk,
+            { type: 'choose', key: '7,6', choiceId: second.id },
+          ]
+          const replay = replayEarthJournal('e10', journal)
+          assert.ok(replay)
+          assert.equal(replay.position, '7,6')
+          assert.equal(replay.progress.flags.length, 2)
+          assert.equal(
+            replayEarthJournal('e10', [
+              ...journal,
+              { type: 'choose', key: '7,6', choiceId: second.id },
+            ]),
+            null,
+          )
+          const recovered = recoverEarthCollisionFromJournal(
+            campaign,
+            journal,
+            warm,
+            briarJournal,
+          )
+          assert.ok(recovered)
+          assert.deepEqual(recovered.recoveredFragments?.slice(-2), [
+            'city-lantern-charter',
+            'city-forest-hours',
+          ])
+          assert.deepEqual(
+            recoverEarthCollisionFromJournal(
+              recovered,
+              journal,
+              warm,
+              briarJournal,
+            ),
+            recovered,
+            'Replayed fragments cannot be awarded twice',
+          )
+          e10BranchCases++
+        }
+      }
+      assert.deepEqual(
+        recoverEarthCollisionFromJournal(
+          campaign,
+          [...e10OfficeWalk, ...e10StationWalk],
+          warm,
+          briarJournal,
+        )?.recoveredFragments,
+        campaign.recoveredFragments,
+        'Visiting fragment sites without choosing earns nothing',
+      )
+      const shortBriar = briarJournal.filter(
+        (action) =>
+          action.type !== 'choose' || ['2,2', '7,6'].includes(action.key),
+      )
+      assert.equal(earthCollisionHistory(campaign, warm, shortBriar), null)
+      const forgedWarm = { ...warm, flags: ['invented-charter'] }
+      assert.equal(
+        earthCollisionHistory(campaign, forgedWarm, briarJournal),
+        null,
+      )
+      const forgedBriar = [
+        ...briarJournal,
+        { type: 'choose', key: '7,6', choiceId: 'invented' },
+      ]
+      assert.equal(earthCollisionHistory(campaign, warm, forgedBriar), null)
+    }
+  }
+}
+assert.equal(e10BranchCases, 162)
+assert.equal(
+  recoverEarthCollisionFromJournal(
+    concludedBriar,
+    [
+      { type: 'travel', key: '7,6' },
+      { type: 'choose', key: '7,6', choiceId: earthScenes[1]!.choices[0]!.id },
+    ],
+    warmCharter('consent'),
+    completeBriarJournal,
+  ),
+  null,
+  'Teleporting cannot mint Morrow fragments',
+)
+assert.equal(
+  earthCollisionHistory(
+    {
+      ...concludedBriar,
+      completed: concludedBriar.completed.filter((id) => id !== 'e09'),
+    },
+    warmCharter('consent'),
+    completeBriarJournal,
+  ),
+  null,
+  'The earned Pip finale gate cannot be skipped',
+)
+
+const completeEarthJournal: EarthJournalAction[] = []
+let authoredEarthChoices = 0
+for (let y = 1; y <= 8; y++) {
+  const row = Array.from({ length: 8 }, (_, index) =>
+    y % 2 === 1 ? index + 1 : 8 - index,
+  )
+  for (const x of row) {
+    const key = x + ',' + y
+    if (key !== '1,1') completeEarthJournal.push({ type: 'travel', key })
+    if (authoredEarthChoices < 12 || key === '2,2' || key === '7,6') {
+      completeEarthJournal.push({
+        type: 'choose',
+        key,
+        choiceId: worldEvent('e10', key)!.choices[0]!.id,
+      })
+      authoredEarthChoices++
+    }
+  }
+}
+for (let x = 2; x <= 8; x++)
+  completeEarthJournal.push({ type: 'travel', key: x + ',8' })
+const completeEarthReplay = replayEarthJournal('e10', completeEarthJournal)
+assert.ok(completeEarthReplay)
+assert.equal(completeEarthReplay.position, '8,8')
+assert.ok(Object.keys(completeEarthReplay.progress.choices).length >= 12)
+assert.equal(EARTH_CROSSROAD_CHOICES.length, 2)
+assert.ok(EARTH_CROSSROAD_SCENE.art.prompt.length > 100)
+assert.ok(
+  EARTH_CROSSROAD_CHOICES.every((choice) => choice.art.prompt.length > 100),
+)
+let e10VerdictCases = 0
+const e10Openings = new Set<string>()
+for (const tideGate of [
+  'open-the-tide-gate',
+  'seal-the-tide-gate',
+  'divert-the-current',
+] as const) {
+  for (const charter of ['consent', 'open'] as const) {
+    const warm = warmCharter(charter)
+    for (const officeChoice of office.choices) {
+      const briarJournal = completeBriarJournal.map((action) =>
+        action.type === 'choose' && action.key === '2,2'
+          ? { ...action, choiceId: officeChoice.id }
+          : action,
+      )
+      const campaign = {
+        ...concludedBriar,
+        pairDecisions: { ...concludedBriar.pairDecisions, e04: tideGate },
+      }
+      const history = earthCollisionHistory(campaign, warm, briarJournal)
+      assert.ok(history)
+      const story = earthCollisionCrossroadStory(history)
+      assert.ok(story.opening.length > 500)
+      assert.equal(story.outcome, '')
+      assert.ok(!e10Openings.has(story.opening))
+      e10Openings.add(story.opening)
+      for (const verdict of EARTH_CROSSROAD_CHOICES) {
+        const result = concludeEarthCollisionFromJournal(
+          campaign,
+          completeEarthJournal,
+          warm,
+          briarJournal,
+          verdict.id,
+        )
+        assert.ok(result)
+        assert.equal(result.pairDecisions?.e10, verdict.id)
+        assert.ok(result.completed.includes('e10'))
+        assert.deepEqual(availableMemoryExperiences(result), ['e11'])
+        assert.deepEqual(result.recoveredFragments?.slice(-2), [
+          'city-lantern-charter',
+          'city-forest-hours',
+        ])
+        const consequence = earthCollisionCrossroadStory(history, verdict.id)
+        assert.ok(consequence.outcome.length > 450)
+        assert.equal(
+          concludeEarthCollisionFromJournal(
+            result,
+            completeEarthJournal,
+            warm,
+            briarJournal,
+            verdict.id,
+          ),
+          null,
+          'a completed verdict cannot be awarded twice',
+        )
+        assert.deepEqual(
+          earthCollisionHistory(result, warm, briarJournal),
+          history,
+          'completed city must retain the real witness history for its epilogue',
+        )
+        e10VerdictCases++
+      }
+    }
+  }
+}
+assert.equal(e10VerdictCases, 36)
+assert.equal(e10Openings.size, 18)
+const validEarthHistory = warmCharter('consent')
+assert.deepEqual(earthCollisionCrossroadStory(null), {
+  opening: '',
+  outcome: '',
+})
+assert.equal(
+  concludeEarthCollisionFromJournal(
+    concludedBriar,
+    completeEarthJournal,
+    validEarthHistory,
+    completeBriarJournal,
+    'invented-verdict',
+  ),
+  null,
+)
+assert.equal(
+  concludeEarthCollisionFromJournal(
+    concludedBriar,
+    completeEarthJournal.slice(0, -1),
+    validEarthHistory,
+    completeBriarJournal,
+    EARTH_CROSSROAD_CHOICES[0]!.id,
+  ),
+  null,
+  'the crossroad must be reached on foot',
+)
+let optionalEarthChoices = 0
+const tooShortEarthJournal = completeEarthJournal.filter(
+  (action) =>
+    action.type !== 'choose' ||
+    ['2,2', '7,6'].includes(action.key) ||
+    optionalEarthChoices++ < 9,
+)
+assert.ok(
+  Object.keys(replayEarthJournal('e10', tooShortEarthJournal)!.progress.choices)
+    .length < 12,
+)
+assert.equal(
+  concludeEarthCollisionFromJournal(
+    concludedBriar,
+    tooShortEarthJournal,
+    validEarthHistory,
+    completeBriarJournal,
+    EARTH_CROSSROAD_CHOICES[0]!.id,
+  ),
+  null,
+  'both fragments cannot substitute for twelve decisions',
+)
+assert.equal(
+  concludeEarthCollisionFromJournal(
+    concludedBriar,
+    completeEarthJournal.filter(
+      (action) =>
+        action.type !== 'choose' ||
+        (action.key !== '2,2' && action.key !== '7,6'),
+    ),
+    validEarthHistory,
+    completeBriarJournal,
+    EARTH_CROSSROAD_CHOICES[0]!.id,
+  ),
+  null,
+  'serialized fragment receipts cannot replace witnessed choices',
+)
+assert.equal(
+  concludeEarthCollisionFromJournal(
+    concludedBriar,
+    [
+      { type: 'travel', key: '8,8' },
+      { type: 'choose', key: '8,8', choiceId: 'forged' },
+    ],
+    validEarthHistory,
+    completeBriarJournal,
+    EARTH_CROSSROAD_CHOICES[0]!.id,
+  ),
+  null,
+  'teleporting cannot reach the final crisis',
+)
+assert.equal(
+  concludeEarthCollisionFromJournal(
+    concludedBriar,
+    completeEarthJournal,
+    { ...validEarthHistory, flags: ['forged'] },
+    completeBriarJournal,
+    EARTH_CROSSROAD_CHOICES[0]!.id,
+  ),
+  null,
+  'invented Hoshimori testimony cannot unlock the final crisis',
+)
+
+const e10Console = readFileSync(
+  new URL(
+    '../../components/pages/memory-dungeon-earth-collision.vue',
+    import.meta.url,
+  ),
+  'utf8',
+)
+const e10Store = readFileSync(
+  new URL('../../stores/memoryEarthCollisionStore.ts', import.meta.url),
+  'utf8',
+)
+const memoryPage = readFileSync(
+  new URL('../../components/pages/memory-dungeon.vue', import.meta.url),
+  'utf8',
+)
+const overworldPage = readFileSync(
+  new URL(
+    '../../components/pages/memory-dungeon-overworld.vue',
+    import.meta.url,
+  ),
+  'utf8',
+)
+const campaignStore = readFileSync(
+  new URL('../../stores/memoryWorldStore.ts', import.meta.url),
+  'utf8',
+)
+assert.ok(e10Console.includes('data-testid="memory-earth-collision-console"'))
+assert.ok(e10Console.includes('collision.tiles'))
+assert.ok(e10Console.includes('collision.choose(choice.id)'))
+assert.ok(e10Console.includes('collision.history.charter'))
+assert.ok(e10Store.includes("replayEarthJournal('e10', journal.value)"))
+assert.ok(e10Store.includes("compactEarthJournal('e10', journal.value)"))
+assert.ok(
+  e10Store.includes(
+    'earthCollisionHistory(world.campaign, hoshimori.progress, briar.journal)',
+  ),
+)
+assert.ok(e10Store.includes('world.syncEarthCollisionJournal('))
+assert.ok(campaignStore.includes('recoverEarthCollisionFromJournal('))
+assert.ok(memoryPage.includes('v-else-if="earthCollisionMode"'))
+assert.ok(overworldPage.includes('data-testid="memory-enter-earth-collision"'))
+assert.ok(overworldPage.includes("world.campaign.completed.includes('e09')"))
+assert.ok(e10Store.includes('world.finishEarthCollision('))
+assert.ok(e10Store.includes("position.value === '8,8'"))
+assert.ok(e10Console.includes('data-testid="memory-earth-crossroad-choices"'))
+assert.ok(e10Console.includes('collision.conclude(choice.id)'))
+assert.ok(campaignStore.includes('concludeEarthCollisionFromJournal('))
 
 for (const pilot of HOSHIMORI_NIGHT_SITES) {
   const adopted = worldEvent('e08', pilot.key)!

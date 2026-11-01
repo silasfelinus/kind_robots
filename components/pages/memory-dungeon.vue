@@ -6,9 +6,10 @@
     <memory-dungeon-sea v-else-if="seaMode" @leave="seaMode = false; earthMode = true" />
     <memory-dungeon-earth v-else-if="earthMode" @leave="earthMode = false" @sea="seaMode = true; earthMode = false" />
     <memory-dungeon-briar-collision v-else-if="collisionMode" @leave="collisionMode = false" />
+    <memory-dungeon-earth-collision v-else-if="earthCollisionMode" @leave="earthCollisionMode = false" />
     <memory-dungeon-hoshimori-night v-else-if="hoshimoriNightMode" @leave="hoshimoriNightMode = false" />
     <memory-dungeon-hoshimori v-else-if="hoshimoriMode" @leave="hoshimoriMode = false" />
-    <memory-dungeon-overworld v-else-if="worldMode" @leave="worldMode = false" @earth="earthMode = true" @sea="seaMode = true" @hoshimori="hoshimoriMode = true" @hoshimori-night="hoshimoriNightMode = true" @collision="collisionMode = true" />
+    <memory-dungeon-overworld v-else-if="worldMode" @leave="worldMode = false" @earth="earthMode = true" @sea="seaMode = true" @hoshimori="hoshimoriMode = true" @hoshimori-night="hoshimoriNightMode = true" @collision="collisionMode = true" @earth-collision="earthCollisionMode = true" />
     <div v-else class="flex min-h-0 flex-1 flex-col">
     <header
       v-if="gameStarted"
@@ -459,6 +460,7 @@ const seaMode = ref(false)
 const hoshimoriMode = ref(false)
 const hoshimoriNightMode = ref(false)
 const collisionMode = ref(false)
+const earthCollisionMode = ref(false)
 const launchError = ref('')
 const classicDeckIncludesMature = ref(false)
 

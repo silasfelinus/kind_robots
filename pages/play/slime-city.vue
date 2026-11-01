@@ -6,4 +6,9 @@
 
 <script setup lang="ts">
 import SlimeCityGame from '~/pages/admin/slime-city.vue'
+import { gameLinkPreviewMeta } from '~/utils/gameLinkPreview'
+
+useSeoMeta(
+  gameLinkPreviewMeta('slime-city', useRuntimeConfig().public.appBaseUrl) ?? {},
+)
 </script>

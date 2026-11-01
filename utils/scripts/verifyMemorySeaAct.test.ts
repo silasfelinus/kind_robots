@@ -138,7 +138,10 @@ assert.deepEqual(
   MEMORY_CHAR_AGENCY_CHOICES.length,
 )
 assert.throws(() =>
-  chooseMemoryCharAgency(priorEarth('open-the-tide-gate'), 'char-leads-evacuation'),
+  chooseMemoryCharAgency(
+    priorEarth('open-the-tide-gate'),
+    'char-leads-evacuation',
+  ),
 )
 
 let chronicle = newEarthChronicle()

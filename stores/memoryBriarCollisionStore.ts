@@ -1,4 +1,4 @@
-import { computed, ref } from 'vue'
+import { computed, ref, watch } from 'vue'
 import { defineStore } from 'pinia'
 import { useMemoryWorldStore } from './memoryWorldStore'
 import {
@@ -113,6 +113,17 @@ export const useMemoryBriarCollisionStore = defineStore(
       if (committed.value && journal.value.length)
         world.syncBriarCollisionJournal(journal.value)
     }
+
+    watch(
+      () => [
+        world.campaign.finaleCommitted,
+        world.campaign.completed.join(','),
+      ],
+      () => {
+        if (hydrated.value && committed.value && journal.value.length && !completed.value)
+          world.syncBriarCollisionJournal(journal.value)
+      },
+    )
 
     function commit(): void {
       if (!unlocked.value || committed.value || completed.value) return

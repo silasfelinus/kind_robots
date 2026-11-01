@@ -340,7 +340,7 @@ export function recordSquadDamage(
     state.damageTaken += Math.max(0, priorHp - target.hp)
 }
 export function resolveAttack(
-  state: { seed: number },
+  state: { seed: number; damageTaken?: number },
   map: TacticalMap,
   attacker: Fighter,
   defender: Fighter,
@@ -389,7 +389,7 @@ export function prepareOverwatch(unit: Fighter): boolean {
 // Overwatch reserves its AP when armed. Reactions get one attempt as movement
 // occurs, share the exact displayed hit formula and consume RNG only for a shot.
 export function resolveOverwatch(
-  state: { seed: number },
+  state: { seed: number; damageTaken?: number },
   map: TacticalMap,
   watcher: Fighter,
   mover: Fighter,

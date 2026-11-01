@@ -52,15 +52,14 @@
           >
             {{ sighting.milestone.scene }}
           </p>
-          <p class="my-3 text-lg">
-            {{ species.appearance }}. It is
-            {{
-              species.fieldNote.charAt(0).toLowerCase() +
-              species.fieldNote.slice(1)
-            }}.
+          <p
+            class="my-3 text-lg"
+            data-testid="space-couch-alien-emotional-cue"
+          >
+            {{ sighting.scene }}
           </p>
           <p class="mb-3 text-sm opacity-70">
-            One lifeform. Three terrible decisions. No paperwork.
+            What matters to this creature right now? Three actions, one uncertain response.
           </p>
           <div class="grid gap-2">
             <button

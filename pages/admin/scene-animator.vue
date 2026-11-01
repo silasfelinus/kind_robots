@@ -1,29 +1,24 @@
 <template>
   <main class="kr-surface h-full min-h-0 overflow-hidden">
     <div class="kr-scroll kr-container-wide space-y-5 p-4 md:p-6">
-      <!-- Controls only. THE HEADER RULE (interface-vision t-004): the shell's
-           workspace-header already renders this page's title and subtitle from
-           content/channels/admin/scene-animator.md frontmatter, so a page
-           component never renders its own title block. This header previously
-           stacked an "Admin production" eyebrow, a text-3xl font-black
-           "Scene Animator", and a long description on top of the shell's own
-           header -- a triplicate of the frontmatter, laid over the page's
-           background art with no surface behind it, which is why it was close
-           to unreadable. It evaded the `one-header` lint because that rule
-           matches a literal <h1> and this was built from <p> tags. -->
-      <header class="kr-toolbar justify-end">
-        <span class="kr-badge-outline">Private output</span>
-        <span class="kr-badge-outline">ArtJob-backed resume</span>
-        <button
-          type="button"
-          class="kr-btn"
-          :disabled="store.loading || store.queueing || !userStore.isAdmin"
-          @click="store.load()"
+      <header-page-bar>
+        <div
+          class="flex min-w-0 flex-1 items-center justify-end gap-2 px-1"
+          data-testid="scene-animator-bar"
         >
-          <span v-if="store.loading" class="kr-spinner-xs" />
-          Refresh
-        </button>
-      </header>
+          <span class="sa-bar-badge kr-badge-outline">Private output</span>
+          <span class="sa-bar-badge kr-badge-outline">ArtJob-backed resume</span>
+          <button
+            type="button"
+            class="kr-btn btn-ghost"
+            :disabled="store.loading || store.queueing || !userStore.isAdmin"
+            @click="store.load()"
+          >
+            <span v-if="store.loading" class="kr-spinner-xs" />
+            Refresh
+          </button>
+        </div>
+      </header-page-bar>
 
       <div v-if="!ready" class="grid min-h-60 place-items-center kr-panel">
         <span class="kr-spinner-lg-primary" />
@@ -562,3 +557,11 @@ function elapsedLabel(source: SceneAnimatorSource): string {
   return `${formatElapsed(elapsedSeconds)} elapsed · typically ≤ ${ceiling}`
 }
 </script>
+
+<style scoped>
+@container (max-width: 520px) {
+  .sa-bar-badge {
+    display: none;
+  }
+}
+</style>

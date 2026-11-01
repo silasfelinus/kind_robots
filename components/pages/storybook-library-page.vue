@@ -10,113 +10,120 @@
 
       Kept behind ?legacy=1 rather than deleted because storybook/t-037 removes
       this markup together with stores/storybookStore.ts and the ~16 guards that
-      pin it, in one deliberate pass. Nothing new goes in here.
+      pin it, in one deliberate pass. Nothing new goes in here. It docks into
+      the header strip (Silas, 2026-11-01: "One single header strip for all").
     -->
-    <header
-      v-if="legacy"
-      class="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-base-300 bg-(--kr-surface-raised) p-3 shadow-sm"
-    >
-      <div class="min-w-0">
-        <p
-          class="kr-text-eyebrow-bold text-[0.7rem] tracking-wide text-primary/70"
-        >
-          Story library
-        </p>
-        <p class="kr-text-dim-sm mt-0.5">
+    <header-page-bar v-if="legacy">
+      <div class="flex min-w-0 flex-1 items-center gap-2" title="Story library">
+        <p class="kr-text-dim-sm hidden min-w-0 truncate @2xl:block">
           {{ storyStore.recentStories.length }} saved
           {{ storyStore.recentStories.length === 1 ? 'story' : 'stories' }} on
           this account
         </p>
-      </div>
 
-      <div class="flex flex-wrap items-center gap-2">
-        <button
-          type="button"
-          class="btn btn-ghost btn-sm rounded-xl border border-base-300"
-          :aria-expanded="libraryOpen"
-          @click="libraryOpen = !libraryOpen"
-        >
-          <Icon name="kind-icon:book" class="kr-icon-4" />
-          {{ libraryOpen ? 'Hide library' : 'Recent stories' }}
-        </button>
-
-        <template v-if="storyStore.session">
+        <div class="ml-auto flex shrink-0 items-center gap-1.5">
           <button
             type="button"
             class="btn btn-ghost btn-sm rounded-xl border border-base-300"
-            :disabled="storyStore.isWeaving"
-            @click="duplicateCurrent"
+            :aria-expanded="libraryOpen"
+            :title="libraryOpen ? 'Hide library' : 'Recent stories'"
+            @click="libraryOpen = !libraryOpen"
           >
-            <Icon name="kind-icon:copy" class="kr-icon-4" /> Duplicate
+            <Icon name="kind-icon:book" class="kr-icon-4" />
+            <span class="sr-only @xl:not-sr-only">{{
+              libraryOpen ? 'Hide library' : 'Recent stories'
+            }}</span>
           </button>
 
-          <div class="dropdown dropdown-end">
+          <template v-if="storyStore.session">
             <button
               type="button"
-              tabindex="0"
               class="btn btn-ghost btn-sm rounded-xl border border-base-300"
-              aria-haspopup="menu"
+              title="Duplicate"
+              :disabled="storyStore.isWeaving"
+              @click="duplicateCurrent"
             >
-              <Icon name="kind-icon:download" class="kr-icon-4" /> Export
+              <Icon name="kind-icon:copy" class="kr-icon-4" />
+              <span class="sr-only @3xl:not-sr-only">Duplicate</span>
             </button>
-            <ul
-              tabindex="0"
-              class="menu dropdown-content z-20 mt-2 w-44 kr-panel-flat p-2 shadow-xl"
+
+            <div class="dropdown dropdown-end">
+              <button
+                type="button"
+                tabindex="0"
+                class="btn btn-ghost btn-sm rounded-xl border border-base-300"
+                title="Export"
+                aria-haspopup="menu"
+              >
+                <Icon name="kind-icon:download" class="kr-icon-4" />
+                <span class="sr-only @3xl:not-sr-only">Export</span>
+              </button>
+              <ul
+                tabindex="0"
+                class="menu dropdown-content z-20 mt-2 w-44 kr-panel-flat p-2 shadow-xl"
+              >
+                <li>
+                  <button type="button" @click="downloadStoryAsMarkdown">
+                    Markdown
+                  </button>
+                </li>
+                <li>
+                  <button type="button" @click="downloadStoryAsJson">
+                    JSON
+                  </button>
+                </li>
+              </ul>
+            </div>
+
+            <button
+              v-if="!restartArmed"
+              type="button"
+              class="btn btn-ghost btn-sm rounded-xl border border-base-300"
+              title="Restart"
+              :disabled="storyStore.isWeaving"
+              @click="restartArmed = true"
             >
-              <li>
-                <button type="button" @click="downloadStoryAsMarkdown">
-                  Markdown
-                </button>
-              </li>
-              <li>
-                <button type="button" @click="downloadStoryAsJson">JSON</button>
-              </li>
-            </ul>
-          </div>
+              <Icon name="kind-icon:refresh" class="kr-icon-4" />
+              <span class="sr-only @3xl:not-sr-only">Restart</span>
+            </button>
+            <button
+              v-else
+              type="button"
+              class="btn btn-warning btn-sm rounded-xl"
+              :disabled="storyStore.isWeaving"
+              @click="restartCurrent"
+              @blur="restartArmed = false"
+            >
+              <Icon name="kind-icon:alert" class="kr-icon-4" /> Restart from the
+              beginning?
+            </button>
 
-          <button
-            v-if="!restartArmed"
-            type="button"
-            class="btn btn-ghost btn-sm rounded-xl border border-base-300"
-            :disabled="storyStore.isWeaving"
-            @click="restartArmed = true"
-          >
-            <Icon name="kind-icon:refresh" class="kr-icon-4" /> Restart
-          </button>
-          <button
-            v-else
-            type="button"
-            class="btn btn-warning btn-sm rounded-xl"
-            :disabled="storyStore.isWeaving"
-            @click="restartCurrent"
-            @blur="restartArmed = false"
-          >
-            <Icon name="kind-icon:alert" class="kr-icon-4" /> Restart from the
-            beginning?
-          </button>
-
-          <button
-            v-if="!newStoryArmed"
-            type="button"
-            class="kr-btn-primary"
-            :disabled="storyStore.isWeaving"
-            @click="newStoryArmed = true"
-          >
-            <Icon name="kind-icon:plus" class="kr-icon-4" /> New story
-          </button>
-          <button
-            v-else
-            type="button"
-            class="btn btn-warning btn-sm rounded-xl"
-            :disabled="storyStore.isWeaving"
-            @click="startNewStory"
-            @blur="newStoryArmed = false"
-          >
-            <Icon name="kind-icon:alert" class="kr-icon-4" /> Discard this tale?
-          </button>
-        </template>
+            <button
+              v-if="!newStoryArmed"
+              type="button"
+              class="kr-btn-primary"
+              title="New story"
+              :disabled="storyStore.isWeaving"
+              @click="newStoryArmed = true"
+            >
+              <Icon name="kind-icon:plus" class="kr-icon-4" />
+              <span class="sr-only @lg:not-sr-only">New story</span>
+            </button>
+            <button
+              v-else
+              type="button"
+              class="btn btn-warning btn-sm rounded-xl"
+              :disabled="storyStore.isWeaving"
+              @click="startNewStory"
+              @blur="newStoryArmed = false"
+            >
+              <Icon name="kind-icon:alert" class="kr-icon-4" /> Discard this
+              tale?
+            </button>
+          </template>
+        </div>
       </div>
-    </header>
+    </header-page-bar>
 
     <section
       v-if="legacy && libraryOpen"

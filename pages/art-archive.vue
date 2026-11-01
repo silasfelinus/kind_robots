@@ -1,9 +1,11 @@
 <template>
   <main class="kr-surface h-full min-h-0 overflow-hidden">
     <div class="kr-scroll kr-container-wide space-y-4 p-4 md:p-6">
-      <div class="kr-toolbar justify-end">
-        <button type="button" class="kr-btn btn-outline" :disabled="archive.loading" @click="archive.fetchEntries()"><span v-if="archive.loading" class="kr-spinner-xs" /><Icon v-else name="kind-icon:refresh" class="kr-icon-4" /> Refresh</button>
-      </div>
+      <header-page-bar>
+        <div class="flex min-w-0 flex-1 items-center justify-end gap-2 px-1" data-testid="art-archive-bar">
+          <button type="button" class="kr-btn btn-ghost" :disabled="archive.loading" @click="archive.fetchEntries()"><span v-if="archive.loading" class="kr-spinner-xs" /><Icon v-else name="kind-icon:refresh" class="kr-icon-4" /> Refresh</button>
+        </div>
+      </header-page-bar>
 
       <div v-if="!ready" class="grid min-h-52 place-items-center kr-panel"><span class="kr-spinner-lg-primary" /></div>
       <div v-else-if="!userStore.isAdmin" class="kr-note kr-note-error p-8 text-center font-normal"><p class="kr-text-black-xl text-base-content">Administrator access required</p><p class="kr-text-dim-sm mt-2">The private Art Archive is restricted to administrators.</p></div>

@@ -1,9 +1,7 @@
 <template>
   <div class="kr-unbound kr-container max-w-3xl p-6 space-y-8">
-    <h2
-      class="kr-panel-flat kr-text-black-xl flex items-center gap-3 px-4 py-3"
-    >
-      <Icon name="kind-icon:coin" class="kr-icon-6 text-primary" />
+    <h2 class="kr-text-black-lg flex items-center gap-2 px-1">
+      <Icon name="kind-icon:coin" class="kr-icon-5 text-primary" />
       Creator Earnings
     </h2>
 

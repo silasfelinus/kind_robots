@@ -3,11 +3,11 @@
   <section class="kr-surface p-1.5 sm:p-2.5">
     <SnapshotModeBanner />
 
-    <!-- COCKPIT BAR: unified slim context strip -->
-    <div
-      class="kr-toolbar rounded-xl border border-base-300/70 bg-(--kr-surface-raised)/90 px-3 py-1.5"
-    >
-      <!-- Left: breadcrumb or page label -->
+    <header-page-bar>
+      <div
+        class="flex min-w-0 flex-1 items-center gap-2 overflow-x-auto px-1 [scrollbar-width:none]"
+        data-testid="conductor-bar"
+      >
       <div class="flex min-w-0 items-center gap-1.5">
         <button
           v-if="isSubView"
@@ -18,20 +18,13 @@
           <Icon name="kind-icon:chevron-left" class="kr-icon-3" />
           Back
         </button>
-        <span v-else class="flex items-center gap-1.5">
-          <Icon
-            name="kind-icon:gearhammer"
-            class="size-3.5 shrink-0 text-primary/70"
-          />
-          <span class="kr-text-dim-xs font-semibold">
-            {{ userStore.isAdmin ? 'Conductor' : 'Projects' }}
-          </span>
-          <span v-if="userStore.isAdmin" class="kr-badge-primary-xs"
-            >ADMIN</span
-          >
-        </span>
+        <span
+          v-else-if="userStore.isAdmin"
+          class="kr-badge-primary-xs"
+          title="Conductor admin view"
+          >ADMIN</span
+        >
 
-        <!-- Sub-view context label -->
         <span v-if="viewMode === 'tasks'" class="kr-text-dim-xs-70 font-bold"
           >· Tasks
           <span
@@ -50,13 +43,11 @@
             :alt="selectedProject.name"
             class="kr-icon-4 shrink-0 rounded-sm object-cover"
           />
-          <span class="kr-text-bold-xs min-w-0 break-words leading-tight">{{
+          <span class="kr-text-bold-xs min-w-0 truncate leading-tight">{{
             selectedProject.name || selectedProject.slug
           }}</span>
         </span>
 
-        <!-- Project presentation flags are intentionally compact here. They are
-             useful settings, but not project-management content. -->
         <template v-if="userStore.isAdmin && selectedProject && linkedProject">
           <span class="mx-0.5 h-3.5 w-px shrink-0 bg-base-content/10" />
           <button
@@ -132,7 +123,6 @@
         </template>
       </div>
 
-      <!-- Non-admin project count -->
       <template v-if="!userStore.isAdmin && projectStore.loaded">
         <span class="mx-0.5 h-3.5 w-px shrink-0 bg-base-content/10" />
         <span class="flex items-baseline gap-0.5">
@@ -147,7 +137,6 @@
 
       <div class="flex-1" />
 
-      <!-- Error indicator -->
       <span v-if="error" class="kr-text-error-xs flex items-center gap-1">
         <Icon name="kind-icon:warning" class="kr-icon-3" />
         <span class="hidden max-w-32 truncate sm:inline">{{
@@ -155,7 +144,6 @@
         }}</span>
       </span>
 
-      <!-- Loading spinner (initial load only) -->
       <span
         v-if="pending && !conductorStore.hasLoaded"
         class="kr-loading-primary-xs"
@@ -165,7 +153,6 @@
         class="kr-loading-primary-xs"
       />
 
-      <!-- Missing projects sync (admin) -->
       <template v-if="userStore.isAdmin && missingProjectSlugs.length">
         <button
           type="button"
@@ -185,7 +172,6 @@
         >
       </template>
 
-      <!-- Refresh + timestamp (admin) -->
       <template v-if="userStore.isAdmin">
         <span
           v-if="conductorStore.fetchedAt"
@@ -195,6 +181,8 @@
         <button
           type="button"
           class="kr-btn-ghost-xs-lg"
+          title="Refresh workspace"
+          aria-label="Refresh workspace"
           :disabled="pending"
           @click="refreshWorkspace"
         >
@@ -202,7 +190,8 @@
           <Icon v-else name="kind-icon:refresh" class="kr-icon-3-5" />
         </button>
       </template>
-    </div>
+      </div>
+    </header-page-bar>
 
     <!-- Shared scroll owner: admin and non-admin bodies are mutually
          exclusive (fixed per user role, never both mounted at once), so

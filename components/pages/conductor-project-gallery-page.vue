@@ -2,19 +2,62 @@
   <section
     class="kr-surface rounded-2xl border border-base-300 bg-(--kr-surface) p-3"
   >
-    <header class="flex shrink-0 items-start gap-3">
+    <header-page-bar>
       <div
-        class="flex size-12 shrink-0 items-center justify-center rounded-2xl bg-primary/15 text-primary"
+        class="cg-bar"
+        title="Browse projects, flag missing launch destinations, or start a new one."
+        data-testid="conductor-gallery-bar"
       >
-        <Icon name="kind-icon:gallery" class="kr-icon-6" />
+        <button
+          class="kr-btn-xs gap-1"
+          :class="
+            conductor.pendingPitches.length ? 'btn-secondary' : 'btn-ghost'
+          "
+          :aria-label="`Proposed pitches: ${conductor.pendingPitches.length}`"
+          @click="openProposed"
+        >
+          <Icon name="kind-icon:brain" class="kr-icon-3" />
+          <span class="cg-bar-label">Proposed</span>
+          <span class="kr-badge-xs">
+            {{ conductor.pendingPitches.length }}
+          </span>
+        </button>
+
+        <button
+          type="button"
+          class="kr-btn-xs gap-1"
+          :class="manageOpen ? 'btn-primary' : 'btn-ghost'"
+          :aria-expanded="manageOpen"
+          aria-label="Manage projects"
+          @click="manageOpen = !manageOpen"
+        >
+          <Icon name="kind-icon:sliders" class="kr-icon-3" />
+          <span class="cg-bar-label">Manage projects</span>
+        </button>
+
+        <button
+          class="kr-btn-xs gap-1"
+          :class="createOpen ? 'btn-primary' : 'btn-ghost'"
+          :aria-expanded="createOpen"
+          aria-label="Create project"
+          @click="createOpen = !createOpen"
+        >
+          <Icon name="kind-icon:plus" class="kr-icon-3-5" />
+          <span class="cg-bar-label">Create</span>
+        </button>
+
+        <button
+          class="btn btn-ghost btn-xs gap-1"
+          aria-label="Refresh projects"
+          :disabled="loading"
+          @click="refresh"
+        >
+          <span v-if="loading" class="kr-spinner-xs" />
+          <Icon v-else name="kind-icon:refresh" class="kr-icon-3-5" />
+          <span class="cg-bar-label">Refresh</span>
+        </button>
       </div>
-      <div class="min-w-0 flex-1">
-        <h2 class="kr-text-black-2xl tracking-tight">Projects</h2>
-        <p class="kr-text-dim-sm">
-          Browse projects, flag missing launch destinations, or start a new one.
-        </p>
-      </div>
-    </header>
+    </header-page-bar>
 
     <section
       v-if="createOpen"
@@ -282,20 +325,6 @@
             </button>
 
             <button
-              class="kr-btn-xs gap-1"
-              :class="
-                conductor.pendingPitches.length ? 'btn-secondary' : 'btn-ghost'
-              "
-              @click="openProposed"
-            >
-              <Icon name="kind-icon:brain" class="kr-icon-3" />
-              <span class="hidden sm:inline">Proposed</span>
-              <span class="kr-badge-xs">
-                {{ conductor.pendingPitches.length }}
-              </span>
-            </button>
-
-            <button
               v-if="syncIssueCount"
               class="kr-btn-xs gap-1"
               :class="showSync ? 'btn-warning' : 'btn-ghost'"
@@ -317,37 +346,6 @@
               <Icon name="kind-icon:pause" class="kr-icon-3" />
               <span class="hidden sm:inline">Blocked</span>
               <span class="kr-badge-xs">{{ blockedTasks.length }}</span>
-            </button>
-
-            <button
-              type="button"
-              class="kr-btn-xs gap-1"
-              :class="manageOpen ? 'btn-primary' : 'btn-ghost'"
-              :aria-expanded="manageOpen"
-              @click="manageOpen = !manageOpen"
-            >
-              <Icon name="kind-icon:sliders" class="kr-icon-3" />
-              <span class="hidden sm:inline">Manage projects</span>
-            </button>
-
-            <button
-              class="kr-btn-xs gap-1"
-              :class="createOpen ? 'btn-primary' : 'btn-ghost'"
-              :aria-expanded="createOpen"
-              @click="createOpen = !createOpen"
-            >
-              <Icon name="kind-icon:plus" class="kr-icon-3-5" />
-              <span class="hidden sm:inline">Create</span>
-            </button>
-
-            <button
-              class="btn btn-ghost btn-xs gap-1"
-              :disabled="loading"
-              @click="refresh"
-            >
-              <span v-if="loading" class="kr-spinner-xs" />
-              <Icon v-else name="kind-icon:refresh" class="kr-icon-3-5" />
-              <span class="hidden sm:inline">Refresh</span>
             </button>
           </div>
         </template>
@@ -906,3 +904,28 @@ async function createProject(): Promise<void> {
   }
 }
 </script>
+
+<style scoped>
+.cg-bar {
+  display: flex;
+  flex: 1 1 auto;
+  min-width: 0;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.25rem;
+  padding-inline: 0.25rem;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.cg-bar::-webkit-scrollbar {
+  display: none;
+}
+.cg-bar > * {
+  flex: none;
+}
+@container (max-width: 480px) {
+  .cg-bar-label {
+    display: none;
+  }
+}
+</style>

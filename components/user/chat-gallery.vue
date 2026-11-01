@@ -3,59 +3,32 @@
   <section
     class="flex h-full min-h-0 w-full flex-col gap-4 overflow-hidden kr-panel-muted-sm"
   >
-    <header class="flex shrink-0 flex-col gap-3">
-      <div class="flex items-start justify-between gap-3">
-        <div v-if="showHeader" class="flex flex-col gap-1">
-          <p class="kr-text-eyebrow-bold text-xs tracking-wide text-primary">
-            Message Timeline
-          </p>
-          <h2 class="kr-text-black-2xl text-base-content">Chats</h2>
-          <p class="kr-text-dim-sm-70">
-            Human, system, welcome, bot, and beautifully suspicious robot
-            conversations.
-          </p>
-        </div>
+    <div
+      v-if="!activeThread"
+      class="grid shrink-0 gap-2 md:grid-cols-[minmax(0,1fr)_auto] md:items-center"
+    >
+      <label class="kr-input-rounded-2xl flex items-center gap-2 bg-base-100">
+        <Icon name="kind-icon:search" class="kr-icon-4 opacity-60" />
+        <input
+          v-model="searchQuery"
+          type="text"
+          aria-label="Search chats"
+          placeholder="Search people, bots, titles, or messages..."
+          class="grow"
+        />
+      </label>
 
-        <button
-          v-if="activeThread"
-          class="kr-btn-ghost-2xl-outline shrink-0"
-          type="button"
-          @click="closeThread"
-        >
-          <Icon name="kind-icon:arrow-left" class="kr-icon-4" />
-          Back
-        </button>
-      </div>
-
-      <div
-        v-if="!activeThread"
-        class="grid gap-2 md:grid-cols-[minmax(0,1fr)_auto] md:items-center"
+      <button
+        class="kr-btn-ghost-md-2xl-outline"
+        type="button"
+        :disabled="isLoading"
+        @click="refreshChats"
       >
-        <label
-          class="kr-input-rounded-2xl flex items-center gap-2 bg-base-100"
-        >
-          <Icon name="kind-icon:search" class="kr-icon-4 opacity-60" />
-          <input
-            v-model="searchQuery"
-            type="text"
-            aria-label="Search chats"
-            placeholder="Search people, bots, titles, or messages..."
-            class="grow"
-          />
-        </label>
-
-        <button
-          class="kr-btn-ghost-md-2xl-outline"
-          type="button"
-          :disabled="isLoading"
-          @click="refreshChats"
-        >
-          <span v-if="isLoading" class="kr-spinner-xs" />
-          <Icon v-else name="kind-icon:refresh" class="kr-icon-4" />
-          Refresh
-        </button>
-      </div>
-    </header>
+        <span v-if="isLoading" class="kr-spinner-xs" />
+        <Icon v-else name="kind-icon:refresh" class="kr-icon-4" />
+        Refresh
+      </button>
+    </div>
 
     <section
       v-if="!activeThread"
@@ -179,6 +152,15 @@
 
     <section v-else class="kr-stage kr-panel-flat">
       <div class="flex shrink-0 items-center gap-3 kr-panel-header-muted">
+        <button
+          class="kr-btn-ghost-2xl-outline shrink-0"
+          type="button"
+          @click="closeThread"
+        >
+          <Icon name="kind-icon:arrow-left" class="kr-icon-4" />
+          Back
+        </button>
+
         <div
           class="kr-text-black-base flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-2xl bg-primary/15 text-primary"
         >
@@ -247,8 +229,6 @@ import { computed, onMounted, ref, watch } from 'vue'
 import { useChatStore } from '@/stores/chatStore'
 import { useUserStore } from '@/stores/userStore'
 import type { NarrativeTurn } from '@/components/narrative/kr-chat-window.vue'
-
-withDefaults(defineProps<{ showHeader?: boolean }>(), { showHeader: true })
 
 type ChatActorKind =
   'user' | 'bot' | 'character' | 'dream' | 'system' | 'unknown'

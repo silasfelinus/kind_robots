@@ -1,22 +1,5 @@
 <template>
   <section class="kr-surface min-h-0 gap-3 p-2 sm:p-3">
-    <header
-      class="flex shrink-0 items-center gap-3 rounded-2xl border border-base-300 bg-(--kr-surface-raised) p-3"
-    >
-      <div
-        class="flex size-12 shrink-0 items-center justify-center rounded-2xl bg-primary/15 text-primary"
-      >
-        <Icon name="kind-icon:gallery" class="kr-icon-6" />
-      </div>
-      <div class="min-w-0 flex-1">
-        <h2 class="kr-text-black-xl">Explore our projects</h2>
-        <p class="kr-text-dim-sm">
-          Worlds, tools and experiments. Open an experience or browse its
-          illustrated project sheet.
-        </p>
-      </div>
-      <span class="badge badge-primary">{{ featuredProjects.length }}</span>
-    </header>
     <div class="kr-scroll min-h-0 flex-1">
       <kr-gallery
         :items="items"
@@ -26,7 +9,18 @@
         empty-label="public projects"
         @update:mode="mode = $event"
         @open="open"
-      />
+      >
+        <template #toolbar>
+          <span
+            class="badge badge-primary gap-1"
+            title="Worlds, tools and experiments. Open an experience or browse its illustrated project sheet."
+            data-testid="public-projects-count"
+          >
+            <Icon name="kind-icon:gallery" class="kr-icon-3" />
+            {{ featuredProjects.length }} projects
+          </span>
+        </template>
+      </kr-gallery>
       <p
         v-if="store.loaded && !items.length"
         class="py-8 text-center text-base-content/60"

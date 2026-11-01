@@ -15,10 +15,7 @@
       z-30 clears the sticky bar's z-20; `relative` is what makes the z-index
       apply at all on a static element.
     -->
-    <header
-      v-if="showToolbar && !isDropdownMode"
-      class="relative z-30 shrink-0 kr-panel-flat bg-base-100/95 px-2 py-2 shadow-sm backdrop-blur"
-    >
+    <component :is="toolbarHost" v-if="showToolbar && !isDropdownMode">
       <!-- Wraps, rather than scrolling sideways. This row used to be
            `overflow-x-auto whitespace-nowrap` with shrink-0 controls, so on a
            tablet the view picker sat off the right edge behind a scrollbar
@@ -28,15 +25,28 @@
 
            The picker is a button group rather than a <select> for the same
            reason: a dropdown hides every option but one, and the four views
-           are the point. -->
-      <div class="kr-toolbar min-w-0">
+           are the point.
+
+           On /dreams the row docks into the header strip (Silas, 2026-11-01:
+           "One single header strip for all"), which is one row: there the
+           type toggles scroll inside their own group so no control leaves the
+           strip, and the title folds into the count badge's tooltip. Nested
+           in the dashboard it stays an inline, wrapping toolbar. -->
+      <div
+        :class="
+          dockToolbar
+            ? 'flex min-w-0 flex-1 items-center gap-1.5'
+            : 'kr-toolbar min-w-0'
+        "
+      >
         <div
           v-if="showHeader"
           class="flex min-w-0 shrink-0 items-center gap-1.5 pr-1"
-          :title="subtitle"
+          :title="dockToolbar ? title + ': ' + subtitle : subtitle"
         >
           <Icon name="kind-icon:dream" class="kr-icon-primary-4" />
           <h2
+            v-if="!dockToolbar"
             class="kr-text-black-sm max-w-36 truncate text-primary sm:max-w-48"
           >
             {{ title }}
@@ -104,7 +114,12 @@
         -->
         <div
           v-if="showControls"
-          class="flex shrink-0 flex-wrap items-center gap-0.5"
+          class="flex items-center gap-0.5"
+          :class="
+            dockToolbar
+              ? 'min-w-0 shrink overflow-x-auto'
+              : 'shrink-0 flex-wrap'
+          "
           role="group"
           aria-label="Dream type filter"
         >
@@ -190,7 +205,7 @@
           <Icon name="kind-icon:plus" class="kr-icon-4" />
         </button>
       </div>
-    </header>
+    </component>
 
     <kr-card-flip v-model="infoDreamOpen" :label="infoDream?.title || 'Dream'">
       <template #back="{ close, commit }">
@@ -543,7 +558,16 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, ref, watch } from 'vue'
+import {
+  computed,
+  h,
+  inject,
+  onMounted,
+  ref,
+  resolveComponent,
+  watch,
+  type FunctionalComponent,
+} from 'vue'
 import type {
   ArtImage,
   Character,
@@ -646,6 +670,24 @@ const modeVariant = computed(() => MODE_VARIANT[galleryMode.value])
 
 const isDropdownMode = computed(() => props.variant === 'dropdown')
 const isRowMode = computed(() => props.variant === 'row')
+
+const ownerOfPageBar = inject('kr-page-bar-owner', false)
+const dockToolbar = computed(
+  () => props.variant === 'dashboard' && !ownerOfPageBar,
+)
+const HeaderPageBar = resolveComponent('HeaderPageBar')
+const InlineToolbar: FunctionalComponent = (_, { slots }) =>
+  h(
+    'header',
+    {
+      class:
+        'relative z-30 shrink-0 kr-panel-flat bg-base-100/95 px-2 py-2 shadow-sm backdrop-blur',
+    },
+    slots.default?.(),
+  )
+const toolbarHost = computed(() =>
+  dockToolbar.value ? HeaderPageBar : InlineToolbar,
+)
 
 const showToolbar = computed(() => {
   return (

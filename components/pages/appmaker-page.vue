@@ -7,8 +7,11 @@
      non-admin visitor can ever reach. -->
 <template>
   <section class="kr-unbound kr-container space-y-6 p-4">
-    <header class="flex justify-end">
-      <div class="flex items-center gap-2">
+    <header-page-bar>
+      <div
+        class="flex min-w-0 flex-1 items-center justify-end gap-2 px-1"
+        data-testid="appmaker-bar"
+      >
         <button class="kr-btn-plain" :disabled="loading" @click="refresh">
           {{ loading ? 'Refreshing…' : 'Refresh' }}
         </button>
@@ -19,7 +22,7 @@
           ← Workspace
         </button>
       </div>
-    </header>
+    </header-page-bar>
 
     <div v-if="error" class="alert alert-error text-sm">{{ error }}</div>
 

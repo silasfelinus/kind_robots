@@ -1,142 +1,146 @@
 <template>
   <div
+    ref="shell"
     class="journey-shell mx-auto flex min-h-0 w-full max-w-[1650px] flex-1 flex-col gap-2 px-2 pb-2 pt-1 sm:px-4"
     :class="{ 'journey-reduced-motion': reducedMotion }"
   >
-    <header
-      class="kr-toolbar flex-nowrap justify-between gap-2 rounded-2xl border border-base-content/10 bg-base-100/95 px-2 py-1 shadow-md backdrop-blur sm:px-3"
-    >
-      <!-- Silas, 2026-10-16: one bar under the site header. The site header
-           already names the game, so the bar leads with where Zuzu is. -->
-      <p
-        class="flex min-w-0 flex-1 items-baseline gap-1.5 font-serif text-sm font-black sm:text-base"
-        :title="`Land ${game.state.landIndex + 1} of 5: ${game.currentLand.name}`"
+    <header-page-bar>
+      <div
+        class="flex min-w-0 flex-1 items-center justify-between gap-1.5 @lg:gap-2"
+        data-testid="shifting-lands-hud"
       >
-        <span class="shrink-0 whitespace-nowrap text-warning"
-          >{{ game.state.landIndex + 1 }}/5</span
+        <p
+          class="flex min-w-0 flex-1 items-baseline gap-1.5 font-serif text-sm font-black @3xl:text-base"
+          :title="`Land ${game.state.landIndex + 1} of 5: ${game.currentLand.name}`"
         >
-        <span class="truncate max-sm:sr-only">{{ game.currentLand.name }}</span>
-      </p>
-      <nav
-        class="journey-tabs flex shrink-0 gap-1 rounded-xl bg-base-200/80 p-1"
-        role="tablist"
-        aria-label="Journey views"
-      >
-        <button
-          v-for="item in tabs"
-          :key="item.value"
-          type="button"
-          role="tab"
-          class="flex flex-1 items-center justify-center gap-1.5 rounded-xl px-2 py-1 text-sm font-bold transition-colors sm:px-3 focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary"
-          :class="[
-            item.value === 'road' ? 'journey-road-tab' : '',
-            item.value === 'zuzu' && tab === 'road'
-              ? 'journey-side-default'
-              : '',
-            isTabActive(item.value)
-              ? 'bg-primary text-primary-content shadow'
-              : 'opacity-75 hover:bg-base-200',
-          ]"
-          :aria-selected="isTabActive(item.value)"
-          @click="tab = item.value"
-        >
-          <Icon :name="item.icon" class="size-4" />
-          <span class="max-sm:sr-only">{{ item.label }}</span>
-          <span
-            v-if="item.value === 'road' && zoomTarget && tab !== 'road'"
-            class="size-2 rounded-full bg-warning"
-            aria-label="Encounter waiting"
-          />
-        </button>
-      </nav>
-      <div class="flex shrink-0 items-center gap-1.5">
-        <button
-          type="button"
-          class="inline-flex h-8 items-center gap-1 rounded-full border border-base-content/15 bg-base-200 px-2 text-xs font-black focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary"
-          :aria-label="
-            'Health ' +
-            game.characterSheet.hp +
-            ' of ' +
-            game.characterSheet.maxHp +
-            '. Open character sheet'
-          "
-          @click="tab = 'zuzu'"
-        >
-          <Icon name="kind-icon:heart" class="size-3.5 text-error" />
-          {{ game.characterSheet.hp }}/{{ game.characterSheet.maxHp }}
-        </button>
-        <button
-          type="button"
-          class="inline-flex h-8 items-center gap-1 rounded-full border border-base-content/15 bg-base-200 px-2 text-xs font-black focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary"
-          :aria-label="
-            game.characterSheet.provisions + ' provisions. Open character sheet'
-          "
-          @click="tab = 'zuzu'"
-        >
-          <Icon name="kind-icon:bag" class="size-3.5 text-warning" />
-          {{ game.characterSheet.provisions }}
-        </button>
-        <details ref="menu" class="dropdown dropdown-end">
-          <summary
-            class="btn btn-square btn-ghost btn-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary"
-            aria-label="Journey menu"
+          <span class="shrink-0 whitespace-nowrap text-warning"
+            >{{ game.state.landIndex + 1 }}/5</span
           >
-            <Icon name="kind-icon:settings" class="size-5" />
-          </summary>
-          <div
-            class="dropdown-content z-30 mt-2 w-64 space-y-2 rounded-2xl border border-base-content/15 bg-base-100 p-3 shadow-2xl"
+          <span class="sr-only truncate @xl:not-sr-only">{{
+            game.currentLand.name
+          }}</span>
+        </p>
+        <nav
+          class="flex min-w-0 shrink gap-1 overflow-x-auto overscroll-x-contain rounded-xl bg-base-200/80 p-0.5 [scrollbar-width:none]"
+          role="tablist"
+          aria-label="Journey views"
+        >
+          <button
+            v-for="item in tabs"
+            v-show="!(item.value === 'road' && wideBoard)"
+            :key="item.value"
+            type="button"
+            role="tab"
+            class="flex flex-1 shrink-0 items-center justify-center gap-1.5 rounded-xl px-2 py-1 text-sm font-bold transition-colors @3xl:px-3 focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary"
+            :class="
+              isTabActive(item.value)
+                ? 'bg-primary text-primary-content shadow'
+                : isSideDefault(item.value)
+                  ? 'bg-primary text-primary-content'
+                  : 'opacity-75 hover:bg-base-200'
+            "
+            :aria-selected="isTabActive(item.value)"
+            @click="tab = item.value"
           >
-            <NuxtLink
-              to="/admin/worlds/zuzu"
-              class="btn btn-outline btn-sm w-full"
-              >World Studio</NuxtLink
+            <Icon :name="item.icon" class="size-4" />
+            <span class="sr-only @2xl:not-sr-only">{{ item.label }}</span>
+            <span
+              v-if="item.value === 'road' && zoomTarget && tab !== 'road'"
+              class="size-2 rounded-full bg-warning"
+              aria-label="Encounter waiting"
+            />
+          </button>
+        </nav>
+        <div class="flex shrink-0 items-center gap-1.5">
+          <button
+            type="button"
+            class="inline-flex h-8 items-center gap-1 rounded-full border border-base-content/15 bg-base-200 px-2 text-xs font-black focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary"
+            :aria-label="
+              'Health ' +
+              game.characterSheet.hp +
+              ' of ' +
+              game.characterSheet.maxHp +
+              '. Open character sheet'
+            "
+            @click="tab = 'zuzu'"
+          >
+            <Icon name="kind-icon:heart" class="size-3.5 text-error" />
+            {{ game.characterSheet.hp }}/{{ game.characterSheet.maxHp }}
+          </button>
+          <button
+            type="button"
+            class="inline-flex h-8 items-center gap-1 rounded-full border border-base-content/15 bg-base-200 px-2 text-xs font-black focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary"
+            :aria-label="
+              game.characterSheet.provisions +
+              ' provisions. Open character sheet'
+            "
+            @click="tab = 'zuzu'"
+          >
+            <Icon name="kind-icon:bag" class="size-3.5 text-warning" />
+            {{ game.characterSheet.provisions }}
+          </button>
+          <details ref="menu" class="dropdown dropdown-end">
+            <summary
+              class="btn btn-square btn-ghost btn-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary"
+              aria-label="Journey menu"
             >
-            <button
-              type="button"
-              class="btn btn-outline btn-sm w-full"
-              @click="emit('legacy')"
-            >
-              Homestead workshop
-            </button>
-            <button
-              type="button"
-              class="btn btn-primary btn-sm w-full"
-              @click="askNewJourney"
-            >
-              New journey
-            </button>
-            <p
-              class="pt-1 text-[10px] font-black uppercase tracking-widest opacity-60"
-            >
-              Presentation · never changes dice
-            </p>
+              <Icon name="kind-icon:settings" class="size-5" />
+            </summary>
             <div
-              class="grid grid-cols-2 gap-2"
-              aria-label="Animation and dice sound settings"
+              class="dropdown-content z-30 mt-2 w-64 space-y-2 rounded-2xl border border-base-content/15 bg-base-100 p-3 shadow-2xl"
             >
+              <NuxtLink
+                to="/admin/worlds/zuzu"
+                class="btn btn-outline btn-sm w-full"
+                >World Studio</NuxtLink
+              >
               <button
                 type="button"
-                class="btn btn-xs"
-                :class="reducedMotion ? 'btn-outline' : 'btn-primary'"
-                :aria-pressed="!reducedMotion"
-                @click="setReducedMotion(!reducedMotion)"
+                class="btn btn-outline btn-sm w-full"
+                @click="emit('legacy')"
               >
-                {{ reducedMotion ? 'Motion off' : 'Motion on' }}
+                Homestead workshop
               </button>
               <button
                 type="button"
-                class="btn btn-xs"
-                :class="soundEnabled ? 'btn-primary' : 'btn-outline'"
-                :aria-pressed="soundEnabled"
-                @click="setSoundEnabled(!soundEnabled)"
+                class="btn btn-primary btn-sm w-full"
+                @click="askNewJourney"
               >
-                {{ soundEnabled ? 'Dice sound on' : 'Dice muted' }}
+                New journey
               </button>
+              <p
+                class="pt-1 text-[10px] font-black uppercase tracking-widest opacity-60"
+              >
+                Presentation · never changes dice
+              </p>
+              <div
+                class="grid grid-cols-2 gap-2"
+                aria-label="Animation and dice sound settings"
+              >
+                <button
+                  type="button"
+                  class="btn btn-xs"
+                  :class="reducedMotion ? 'btn-outline' : 'btn-primary'"
+                  :aria-pressed="!reducedMotion"
+                  @click="setReducedMotion(!reducedMotion)"
+                >
+                  {{ reducedMotion ? 'Motion off' : 'Motion on' }}
+                </button>
+                <button
+                  type="button"
+                  class="btn btn-xs"
+                  :class="soundEnabled ? 'btn-primary' : 'btn-outline'"
+                  :aria-pressed="soundEnabled"
+                  @click="setSoundEnabled(!soundEnabled)"
+                >
+                  {{ soundEnabled ? 'Dice sound on' : 'Dice muted' }}
+                </button>
+              </div>
             </div>
-          </div>
-        </details>
+          </details>
+        </div>
       </div>
-    </header>
+    </header-page-bar>
 
     <div
       v-if="!game.loaded"
@@ -1511,7 +1515,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, nextTick, onMounted, ref } from 'vue'
+import { computed, nextTick, onBeforeUnmount, onMounted, ref } from 'vue'
 import { useShiftingLandsJourneyStore } from '~/stores/shiftingLandsJourneyStore'
 import { trialForLand } from '~/utils/shiftingLands/authoredBosses'
 import {
@@ -1723,6 +1727,16 @@ function revealed(id: string) {
 function isTabActive(value: JourneyTab) {
   return tab.value === value
 }
+// The view tabs dock into the site's system bar, so they can no longer read
+// the board's width from a container query. The board measures itself: from
+// 64rem the road and the side panel share the screen, the Road tab hides, and
+// the Zuzu tab stands lit as the side panel's default.
+const shell = ref<HTMLElement | null>(null)
+const wideBoard = ref(false)
+let shellObserver: ResizeObserver | null = null
+function isSideDefault(value: JourneyTab) {
+  return wideBoard.value && value === 'zuzu' && tab.value === 'road'
+}
 function askNewJourney() {
   if (menu.value) menu.value.open = false
   confirmNew.value = true
@@ -1857,7 +1871,14 @@ onMounted(() => {
   const settings = readShiftingLandsPresentation()
   reducedMotion.value = settings.reducedMotion
   soundEnabled.value = settings.soundEnabled
+  if (shell.value && typeof ResizeObserver !== 'undefined') {
+    shellObserver = new ResizeObserver(([entry]) => {
+      wideBoard.value = (entry?.contentRect.width ?? 0) >= 1024
+    })
+    shellObserver.observe(shell.value)
+  }
 })
+onBeforeUnmount(() => shellObserver?.disconnect())
 </script>
 
 <style scoped>
@@ -1940,17 +1961,6 @@ onMounted(() => {
   }
   .journey-hidden-narrow {
     display: flex;
-  }
-  .journey-tabs {
-    width: 340px;
-  }
-  .journey-road-tab {
-    display: none;
-  }
-  .journey-side-default {
-    background: var(--color-primary);
-    color: var(--color-primary-content);
-    opacity: 1;
   }
 }
 </style>

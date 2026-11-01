@@ -2,77 +2,66 @@
   <section
     class="kr-surface rounded-3xl border border-base-300/70 bg-gradient-to-br from-primary/5 via-base-200 to-secondary/10 shadow-xl"
   >
-    <header class="shrink-0 border-b border-base-300/70 bg-(--kr-surface-raised)/85 p-4 backdrop-blur">
-      <div class="flex flex-wrap items-start gap-3">
+    <header-page-bar>
+      <div class="pm-bar" data-testid="pitch-review-bar">
         <button
           type="button"
-          class="kr-btn-ghost-2xl"
+          class="btn btn-ghost btn-xs gap-0.5 rounded-lg px-1.5"
           @click="goBack"
         >
-          <Icon name="kind-icon:chevron-left" class="kr-icon-4" />
+          <Icon name="kind-icon:chevron-left" class="kr-icon-3" />
           Projects
         </button>
 
-        <div class="min-w-0 flex-1">
-          <div class="flex flex-wrap items-center gap-2">
-            <span class="flex size-10 items-center justify-center rounded-2xl bg-secondary/15 text-secondary">
-              <Icon name="kind-icon:sparkles" class="kr-icon-5" />
-            </span>
-            <div>
-              <h2 class="kr-text-black-xl tracking-tight sm:text-2xl">
-                Pitch Review
-              </h2>
-              <p class="kr-text-dim-xs font-medium sm:text-sm">
-                Decisions stay visible. Duplicates stop cosplaying as new projects.
-              </p>
-            </div>
-          </div>
-        </div>
-
-        <div class="flex items-center gap-2">
-          <span
-            v-if="conductorStore.fetchedAt"
-            class="hidden text-xs text-base-content/35 lg:inline"
-          >
-            Synced {{ fetchedLabel }}
-          </span>
-          <button
-            type="button"
-            class="kr-btn-ghost-2xl"
-            :disabled="isLoading"
-            @click="refresh"
-          >
-            <span v-if="isLoading" class="kr-spinner-xs" />
-            <Icon v-else name="kind-icon:refresh" class="kr-icon-4" />
-            Refresh
-          </button>
-        </div>
-      </div>
-
-      <div class="mt-4 grid grid-cols-2 gap-2 sm:grid-cols-4">
-        <button
-          v-for="tab in tabOptions"
-          :key="tab.key"
-          type="button"
-          class="group flex items-center gap-3 rounded-2xl border px-3 py-2.5 text-left transition-all"
-          :class="tabClass(tab.key)"
-          @click="activeTab = tab.key"
+        <span
+          class="pm-bar-title"
+          title="Decisions stay visible. Duplicates stop cosplaying as new projects."
         >
-          <span
-            class="kr-icon-8 flex shrink-0 items-center justify-center rounded-xl"
-            :class="tab.iconClass"
+          <Icon name="kind-icon:sparkles" class="kr-icon-3-5 text-secondary" />
+          Pitch Review
+        </span>
+
+        <nav class="pm-bar-tabs" aria-label="Pitch buckets">
+          <button
+            v-for="tab in tabOptions"
+            :key="tab.key"
+            type="button"
+            class="btn btn-xs gap-1 rounded-lg"
+            :class="activeTab === tab.key ? 'btn-primary' : 'btn-ghost'"
+            :aria-pressed="activeTab === tab.key"
+            :aria-label="`${tab.label}: ${tab.count}`"
+            @click="activeTab = tab.key"
           >
-            <Icon :name="tab.icon" class="kr-icon-4" />
-          </span>
-          <span class="min-w-0 flex-1">
-            <span class="kr-text-eyebrow block truncate text-xs tracking-wide">
-              {{ tab.label }}
+            <span
+              class="grid size-4 shrink-0 place-items-center rounded"
+              :class="tab.iconClass"
+            >
+              <Icon :name="tab.icon" class="kr-icon-3" />
             </span>
-            <span class="kr-text-black-lg leading-none">{{ tab.count }}</span>
-          </span>
+            <span class="pm-bar-label">{{ tab.label }}</span>
+            <span class="kr-badge-xs">{{ tab.count }}</span>
+          </button>
+        </nav>
+
+        <span
+          v-if="conductorStore.fetchedAt"
+          class="pm-bar-synced text-xs text-base-content/40"
+        >
+          Synced {{ fetchedLabel }}
+        </span>
+        <button
+          type="button"
+          class="btn btn-ghost btn-xs gap-1 rounded-lg"
+          aria-label="Refresh pitches"
+          :disabled="isLoading"
+          @click="refresh"
+        >
+          <span v-if="isLoading" class="kr-spinner-xs" />
+          <Icon v-else name="kind-icon:refresh" class="kr-icon-3-5" />
+          <span class="pm-bar-label">Refresh</span>
         </button>
       </div>
-    </header>
+    </header-page-bar>
 
     <div class="flex min-h-0 flex-1 flex-col gap-3 p-3 sm:p-4">
       <div class="kr-toolbar">
@@ -586,12 +575,6 @@ function overlapSignals(pitch: ConductorPitch): OverlapSignal[] {
     .slice(0, 4)
 }
 
-function tabClass(tab: PitchBucket): string {
-  return activeTab.value === tab
-    ? 'border-primary/40 bg-primary/10 shadow-sm'
-    : 'border-base-300 bg-base-100/70 hover:border-primary/25 hover:bg-base-100'
-}
-
 function pitchStatus(pitch: ConductorPitch): PitchStatus {
   return conductorStore.pitchStatus(pitch.slug)
 }
@@ -692,3 +675,55 @@ function goBack(): void {
 
 onMounted(refresh)
 </script>
+
+<style scoped>
+.pm-bar {
+  display: flex;
+  flex: 1 1 auto;
+  min-width: 0;
+  align-items: center;
+  gap: 0.375rem;
+  padding-inline: 0.25rem;
+}
+.pm-bar > * {
+  flex: none;
+}
+.pm-bar-title {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  font-size: 0.8125rem;
+  font-weight: 900;
+  white-space: nowrap;
+}
+.pm-bar-tabs {
+  display: flex;
+  flex: 1 1 auto;
+  min-width: 0;
+  align-items: center;
+  gap: 0.25rem;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.pm-bar-tabs::-webkit-scrollbar {
+  display: none;
+}
+.pm-bar-tabs > * {
+  flex: none;
+}
+@container (max-width: 760px) {
+  .pm-bar-synced {
+    display: none;
+  }
+}
+@container (max-width: 600px) {
+  .pm-bar-title {
+    display: none;
+  }
+}
+@container (max-width: 460px) {
+  .pm-bar-label {
+    display: none;
+  }
+}
+</style>

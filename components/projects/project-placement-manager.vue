@@ -1,31 +1,11 @@
 <!-- /components/projects/project-placement-manager.vue -->
 <template>
   <section class="kr-container flex flex-col gap-4 p-4 sm:p-6">
-    <header class="overflow-hidden kr-panel p-0">
-      <div
-        class="flex flex-col gap-3 p-5 sm:flex-row sm:items-start sm:justify-between"
-      >
-        <div class="min-w-0">
-          <div class="flex items-center gap-2">
-            <Icon name="kind-icon:map" class="kr-icon-primary-6" />
-            <h1 class="kr-text-black-xl sm:text-2xl">Project Placement</h1>
-          </div>
-          <p
-            class="mt-2 max-w-3xl text-sm leading-relaxed text-base-content/65"
-          >
-            Apply the canonical channel, tab, and live URL map to existing
-            Project rows. The operation uses the normal guarded Project PATCH
-            endpoint and reports every updated, unchanged, missing, or failed
-            slug.
-          </p>
-        </div>
-
-        <span class="badge badge-warning badge-lg shrink-0 gap-1 font-black">
-          <Icon name="kind-icon:shield" class="kr-icon-4" />
-          Admin
-        </span>
-      </div>
-    </header>
+    <p class="max-w-3xl text-sm leading-relaxed text-base-content/65">
+      Apply the canonical channel, tab, and live URL map to existing Project
+      rows. The operation uses the normal guarded Project PATCH endpoint and
+      reports every updated, unchanged, missing, or failed slug.
+    </p>
 
     <div
       v-if="!canManage"

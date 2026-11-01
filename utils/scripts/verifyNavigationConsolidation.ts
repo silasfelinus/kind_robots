@@ -372,8 +372,8 @@ assert.match(
 )
 assert.match(
   loraTriage,
-  /<header class="kr-panel flex flex-wrap items-center justify-between gap-3 p-3">/,
-  'LoRA Triage toolbar actions must sit on a readable opaque panel',
+  /<header-page-bar>\s*<div class="lt-bar" data-testid="lora-triage-bar">/,
+  'LoRA Triage toolbar actions must sit on a readable surface: the docked system bar, not loose over page art',
 )
 assert.ok(
   loraTriage.includes('to="/resources"'),

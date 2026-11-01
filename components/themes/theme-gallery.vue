@@ -3,100 +3,68 @@
   <section
     class="flex h-full min-h-0 w-full flex-col gap-3 rounded-2xl bg-base-300 p-3"
   >
-    <header class="shrink-0 overflow-hidden kr-panel-flat shadow">
+    <header-page-bar>
       <div
-        class="flex flex-col gap-3 bg-linear-to-br from-primary/12 via-secondary/10 to-accent/10 p-3 lg:flex-row lg:items-center lg:justify-between"
+        class="flex min-w-0 flex-1 items-center gap-2"
+        role="group"
+        aria-label="Theme gallery controls"
       >
-        <div v-if="showHeader" class="flex min-w-0 items-center gap-3">
-          <span
-            class="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl border border-primary/25 bg-primary/15 text-primary shadow-sm"
-          >
-            <Icon name="kind-icon:paintbrush" class="kr-icon-5" />
-          </span>
+        <kr-search-field
+          v-model="searchQuery"
+          label="Search themes"
+          placeholder="Search themes"
+        />
 
-          <div class="min-w-0">
-            <h1 class="kr-text-black-xl truncate text-primary sm:text-2xl">
-              Theme Gallery
-            </h1>
-
-            <p
-              class="kr-text-dim-xs-60 mt-0.5 truncate font-semibold sm:text-sm"
-            >
-              Preview, apply, and tune the whole vibe grid.
-            </p>
-          </div>
-        </div>
-
-        <div class="flex flex-wrap items-center gap-2">
-          <!-- Icon until selected, per Silas 2026-08-10. This one was a
-               standing 16rem box at sm+, beside a row of filter buttons that
-               each carry a count badge — the first thing to wrap. -->
-          <kr-search-field
-            v-model="searchQuery"
-            label="Search themes"
-            placeholder="Search themes"
-          />
-
-          <!--
-            THE COUNTS RIDE THE FILTERS. Each button carries the size of the
-            group it selects, which is the same relationship the Projects
-            gallery settled on -- Silas, 2026-08-07, of a row of standing
-            count badges beside their own filter buttons: "none of those need
-            to be said, they are just duplicates of the same outputs better
-            done as toggles to actually select the appropriate group right
-            after it."
-
-            So `Default 32` is both the number and the control that shows you
-            those 32, and the separate default/shared/showing badge strip below
-            is gone. `All` carries the showing count, because "showing" and
-            "all" are the same number exactly when All is lit -- and when it is
-            not, the lit button is the count.
-          -->
-          <div class="join">
-            <button
-              v-for="filter in themeFilters"
-              :key="filter.value"
-              class="btn join-item btn-sm gap-1 rounded-2xl"
-              :class="
-                activeFilter === filter.value
-                  ? 'btn-primary'
-                  : 'btn-ghost bg-base-100/80'
-              "
-              type="button"
-              @click="activeFilter = filter.value"
-            >
-              {{ filter.label }}
-              <span class="font-black opacity-70">
-                {{ filterCounts[filter.value] }}
-              </span>
-            </button>
-          </div>
-
+        <!--
+          THE COUNTS RIDE THE FILTERS. Silas, 2026-08-07: "none of those need
+          to be said, they are just duplicates of the same outputs better done
+          as toggles to actually select the appropriate group right after it."
+          `All` carries the showing count.
+        -->
+        <div class="join min-w-0 shrink overflow-x-auto">
           <button
-            class="btn btn-sm gap-1.5 rounded-2xl"
+            v-for="filter in themeFilters"
+            :key="filter.value"
+            class="btn join-item btn-sm shrink-0 gap-1 rounded-2xl"
             :class="
-              themeStore.showCustom
-                ? 'btn-accent'
-                : 'btn-ghost bg-base-100/80'
+              activeFilter === filter.value
+                ? 'btn-primary'
+                : 'btn-ghost bg-base-100/60'
             "
             type="button"
-            :aria-pressed="themeStore.showCustom"
-            @click="toggleThemeCreator"
+            @click="activeFilter = filter.value"
           >
-            <Icon name="kind-icon:palette" class="kr-icon-4" />
-            Creator
+            {{ filter.label }}
+            <span class="font-black opacity-70">
+              {{ filterCounts[filter.value] }}
+            </span>
           </button>
-
-          <span
-            v-if="activeThemeName"
-            class="kr-text-black-xs inline-flex max-w-44 items-center gap-1.5 truncate rounded-full border border-accent/40 bg-accent/10 px-2.5 py-1 text-accent"
-          >
-            <Icon name="kind-icon:check" class="kr-icon-3-5 shrink-0" />
-            <span class="truncate">{{ activeThemeName }}</span>
-          </span>
         </div>
+
+        <button
+          class="btn btn-sm shrink-0 gap-1.5 rounded-2xl"
+          :class="
+            themeStore.showCustom ? 'btn-accent' : 'btn-ghost bg-base-100/60'
+          "
+          type="button"
+          title="Theme creator"
+          :aria-pressed="themeStore.showCustom"
+          @click="toggleThemeCreator"
+        >
+          <Icon name="kind-icon:palette" class="kr-icon-4" />
+          <span class="sr-only @md:not-sr-only">Creator</span>
+        </button>
+
+        <span
+          v-if="activeThemeName"
+          class="kr-text-black-xs ml-auto hidden max-w-44 min-w-0 items-center gap-1.5 truncate rounded-full border border-accent/40 bg-accent/10 px-2.5 py-1 text-accent @2xl:inline-flex"
+          :title="'Active theme: ' + activeThemeName"
+        >
+          <Icon name="kind-icon:check" class="kr-icon-3-5 shrink-0" />
+          <span class="truncate">{{ activeThemeName }}</span>
+        </span>
       </div>
-    </header>
+    </header-page-bar>
 
     <section v-if="themeError" class="shrink-0 kr-note kr-note-error p-3">
       <div class="flex items-start gap-2">
@@ -377,8 +345,6 @@ import type { GalleryItem } from '@/components/gallery/kr-gallery.vue'
 import { computed, onMounted, ref } from 'vue'
 import { useAchievementStore } from '@/stores/achievementStore'
 import { useThemeStore, type Theme } from '@/stores/themeStore'
-
-withDefaults(defineProps<{ showHeader?: boolean }>(), { showHeader: true })
 
 type ThemeFilter = 'all' | 'default' | 'shared'
 

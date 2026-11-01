@@ -1,44 +1,35 @@
 <!-- /components/content/user/user-dashboard.vue -->
 <template>
   <section class="kr-tile-md kr-surface gap-4 sm:p-4">
-    <header class="kr-toolbar kr-panel-flat px-4 py-3">
-      <Icon name="kind-icon:sparkles" class="kr-icon-primary-5 shrink-0" />
+    <header-page-bar>
+      <div
+        class="flex min-w-0 flex-1 items-center gap-2"
+        title="Karma, mana, achievements, and everything you've made — all in one place."
+      >
+        <Icon name="kind-icon:sparkles" class="kr-icon-primary-5 shrink-0" />
 
-      <div class="min-w-0 flex-1">
-        <p class="kr-text-black-base truncate text-base-content">
+        <p class="kr-text-black-base min-w-0 flex-1 truncate text-base-content">
           {{ welcomeMessage }}
         </p>
-        <p class="kr-text-dim-xs-55">
-          Karma, mana, achievements, and everything you've made — all in one
-          place.
-        </p>
+
+        <NuxtLink v-if="isGuest" to="/login" class="kr-btn-primary shrink-0">
+          <Icon name="kind-icon:login" class="kr-icon-4" />
+          Sign in
+        </NuxtLink>
+
+        <button
+          v-else
+          class="btn btn-outline btn-sm shrink-0 rounded-xl border-error/40 text-error hover:border-error hover:bg-error hover:text-error-content"
+          type="button"
+          @click="logout"
+        >
+          <Icon name="kind-icon:logout" class="kr-icon-4" />
+          Sign out
+        </button>
       </div>
+    </header-page-bar>
 
-      <button
-        v-if="!isGuest"
-        class="kr-btn-ghost"
-        type="button"
-        @click="introStore.open()"
-      >
-        <Icon name="kind-icon:map" class="kr-icon-4" />
-        Replay intro
-      </button>
-
-      <NuxtLink v-if="isGuest" to="/login" class="kr-btn-primary">
-        <Icon name="kind-icon:login" class="kr-icon-4" />
-        Sign in
-      </NuxtLink>
-
-      <button
-        v-else
-        class="btn btn-outline btn-sm rounded-xl border-error/40 text-error hover:border-error hover:bg-error hover:text-error-content"
-        type="button"
-        @click="logout"
-      >
-        <Icon name="kind-icon:logout" class="kr-icon-4" />
-        Sign out
-      </button>
-    </header>
+    <page-help v-if="!isGuest" label="Replay intro" @open="introStore.open()" />
 
     <div class="kr-scroll">
       <div class="flex flex-col gap-4 pr-1">
@@ -322,7 +313,7 @@
 </template>
 
 <script lang="ts" setup>
-import { computed, onMounted, onUnmounted, watch } from 'vue'
+import { computed, onMounted, onUnmounted, provide, watch } from 'vue'
 import { useAccountStore } from '@/stores/accountStore'
 import { useAchievementStore } from '@/stores/achievementStore'
 import { useIntroStore } from '@/stores/introStore'
@@ -344,6 +335,8 @@ const manaStore = useManaStore()
 const achievementStore = useAchievementStore()
 const themeStore = useThemeStore()
 const navStore = useNavStore()
+
+provide('kr-page-bar-owner', true)
 
 const user = computed(() => userStore.user)
 const isGuest = computed(() => userStore.isGuest)

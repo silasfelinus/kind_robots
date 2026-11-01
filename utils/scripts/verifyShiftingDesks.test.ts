@@ -1678,12 +1678,24 @@ assert.match(
 // Silas, 2026-10-16: one heads-up bar instead of four stacked ones. The
 // floor, meters and envelope live in the toolbar, every chip explains itself
 // on tap, and the ticker and restructure notice wait until the file is open.
+// Silas, 2026-11-01: one header strip site-wide. The heads-up bar docks into
+// the shell's system bar instead of drawing a second strip above the desk.
 const toolbar = page.slice(
-  page.indexOf('class="kr-toolbar'),
-  page.indexOf('<section'),
+  page.indexOf('<header-page-bar'),
+  page.indexOf('</header-page-bar>'),
+)
+assert.ok(
+  page.indexOf('<header-page-bar') > -1 &&
+    page.indexOf('<header-page-bar') < page.indexOf('<section'),
+  'the heads-up bar docks into the system bar before the first screen',
+)
+assert.doesNotMatch(
+  page,
+  /class="kr-toolbar/,
+  'no second header strip above the desk',
 )
 assert.match(toolbar, /class="dept-banner/, 'the floor rides in the toolbar')
-assert.match(toolbar, /<shifting-desks-envelope v-if="atDesk" compact/)
+assert.match(toolbar, /<shifting-desks-envelope\s+v-if="atDesk"\s+compact/)
 assert.match(
   toolbar,
   /v-for="m in meterList"[\s\S]*?v-bind="tipHandlers\(m\.key\)"/,

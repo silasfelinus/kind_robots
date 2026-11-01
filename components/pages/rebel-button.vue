@@ -1,13 +1,12 @@
 <!-- /components/content/weird/rebel-button.vue -->
 <template>
   <main class="kr-unbound">
-    <h2
-      v-if="reviewerMode"
-      class="kr-panel-flat kr-text-black-xl m-2 flex items-center gap-3 px-4 py-3"
-    >
-      <Icon name="kind-icon:button" class="kr-icon-6 text-primary" />
-      Art Reviewer
-    </h2>
+    <header-page-bar v-if="reviewerMode">
+      <h2 class="kr-text-black-base flex min-w-0 items-center gap-2 px-1">
+        <Icon name="kind-icon:button" class="kr-icon-5 shrink-0 text-primary" />
+        <span class="truncate">Art Reviewer</span>
+      </h2>
+    </header-page-bar>
     <div
       v-if="reviewerMode"
       class="flex flex-col gap-4 m-2 p-2 rounded-2xl border bg-(--kr-surface-sunken)"

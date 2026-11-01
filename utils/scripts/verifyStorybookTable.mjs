@@ -140,8 +140,8 @@ check(
 )
 check(
   'the legacy library band only exists at ?legacy=1',
-  shell.includes('<header\n      v-if="legacy"') ||
-    /v-if="legacy"[\s\S]{0,200}kr-surface-raised/.test(shell),
+  shell.includes('<header-page-bar v-if="legacy">') &&
+    !/<header-page-bar(?![^>]*v-if="legacy")/.test(shell),
 )
 
 console.log('\nStorybook Table — settings stay ordinary controls')

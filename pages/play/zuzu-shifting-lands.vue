@@ -5,40 +5,40 @@
       v-else
       class="kr-scroll mx-auto w-full max-w-[1540px] space-y-5 px-3 py-5 sm:px-6"
     >
-      <header
-        class="kr-panel-flat flex flex-wrap items-end justify-between gap-3 px-4 py-3"
-      >
-        <div>
-          <p class="text-xs font-bold uppercase tracking-[.3em] text-warning">
-            The Wasteland · Playable prototype
+      <header-page-bar>
+        <div
+          class="flex min-w-0 flex-1 items-center justify-between gap-2"
+          data-testid="shifting-lands-workshop-bar"
+        >
+          <p
+            class="hidden min-w-0 truncate font-serif text-sm font-black @xl:block @3xl:text-base"
+            title="The Wasteland · Playable prototype. An illustrated journey where every card changes the road."
+          >
+            Homestead workshop
           </p>
-          <h2 class="mt-1 font-serif text-3xl font-black sm:text-5xl">
-            Zuzu: Shifting Lands
-          </h2>
-          <p class="mt-2 text-sm opacity-75">
-            An illustrated journey where every card changes the road.
-          </p>
+          <div class="flex shrink-0 items-center gap-1.5">
+            <NuxtLink
+              class="btn btn-outline btn-xs @2xl:btn-sm"
+              to="/admin/worlds/zuzu"
+              >World Studio</NuxtLink
+            >
+            <button
+              class="btn btn-outline btn-xs @2xl:btn-sm"
+              type="button"
+              @click="legacyMode = false"
+            >
+              Five-land board
+            </button>
+            <button
+              class="btn btn-outline btn-xs @2xl:btn-sm"
+              type="button"
+              @click="resetRun"
+            >
+              New journey
+            </button>
+          </div>
         </div>
-        <div class="flex flex-wrap gap-2">
-          <NuxtLink class="btn btn-outline btn-sm" to="/admin/worlds/zuzu"
-            >World Studio</NuxtLink
-          >
-          <button
-            class="btn btn-outline btn-sm"
-            type="button"
-            @click="legacyMode = false"
-          >
-            Five-land board
-          </button>
-          <button
-            class="btn btn-outline btn-sm"
-            type="button"
-            @click="resetRun"
-          >
-            New journey
-          </button>
-        </div>
-      </header>
+      </header-page-bar>
       <section
         class="overflow-hidden rounded-3xl border border-base-content/15 bg-base-200 shadow-xl"
       >

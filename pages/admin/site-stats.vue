@@ -1,13 +1,11 @@
 <template>
   <main class="kr-surface h-full min-h-0 overflow-hidden">
     <div class="kr-scroll kr-container-wide @container p-4 md:p-6">
-      <header class="flex flex-wrap items-end justify-between gap-3">
-        <div class="min-w-0">
-          <p class="text-sm text-base-content/70">
-            First-party daily counts · no cookies, IPs or user agents stored
-          </p>
-        </div>
-        <div class="flex items-center gap-2">
+      <header-page-bar>
+        <div
+          class="flex min-w-0 flex-1 items-center justify-end gap-2 px-1"
+          data-testid="site-stats-bar"
+        >
           <div class="join" role="group" aria-label="Range">
             <button
               v-for="option in RANGES"
@@ -35,7 +33,11 @@
             <icon v-else name="kind-icon:refresh" class="size-4" />
           </button>
         </div>
-      </header>
+      </header-page-bar>
+
+      <p class="text-sm text-base-content/70">
+        First-party daily counts · no cookies, IPs or user agents stored
+      </p>
 
       <div v-if="!ready" class="grid min-h-64 place-items-center">
         <span class="loading loading-spinner loading-lg text-primary" />

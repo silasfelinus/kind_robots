@@ -1,55 +1,65 @@
 <template>
   <main class="kr-surface flex h-full min-h-0 flex-col overflow-hidden">
     <div class="kr-scroll kr-container-wide w-full space-y-4 p-4 md:p-6">
-      <header class="kr-panel flex flex-wrap items-center justify-between gap-3 p-3">
-        <div class="flex min-w-0 flex-wrap items-center gap-2">
-          <NuxtLink to="/resources" class="btn btn-sm btn-outline rounded-xl">
+      <header-page-bar>
+        <div class="lt-bar" data-testid="lora-triage-bar">
+          <NuxtLink
+            to="/resources"
+            class="btn btn-sm btn-ghost rounded-xl"
+            aria-label="Library"
+          >
             <Icon name="kind-icon:database" class="kr-icon-4" />
-            Library
+            <span class="lt-bar-link">Library</span>
           </NuxtLink>
           <NuxtLink
             to="/resources?tab=discover"
-            class="btn btn-sm btn-outline rounded-xl"
+            class="btn btn-sm btn-ghost rounded-xl"
+            aria-label="Discover and download"
           >
             <Icon name="kind-icon:download" class="kr-icon-4" />
-            Discover &amp; download
+            <span class="lt-bar-link">Discover &amp; download</span>
           </NuxtLink>
-        </div>
-        <div class="flex flex-wrap items-center gap-2">
+          <span class="lt-bar-gap" />
           <button
             type="button"
-            class="kr-btn btn-outline"
+            class="kr-btn btn-ghost"
+            aria-label="Refresh"
             :disabled="triageStore.isSaving || loading"
             @click="refresh"
           >
             <span v-if="loading" class="kr-spinner-xs" />
             <Icon v-else name="kind-icon:refresh" class="kr-icon-4" />
-            Refresh
+            <span class="lt-bar-label">Refresh</span>
           </button>
           <button
             v-if="triageStore.isRendering"
             type="button"
             class="kr-btn btn-outline"
+            aria-label="Stop queueing"
             @click="triageStore.cancelRender()"
           >
             <Icon name="kind-icon:close" class="kr-icon-4" />
-            Stop queueing
+            <span class="lt-bar-label">Stop queueing</span>
           </button>
           <button
             v-else
             type="button"
             class="kr-btn btn-outline"
+            :title="renderPreviewsLabel"
+            :aria-label="renderPreviewsLabel"
             :disabled="loading || triageStore.missingPreviewCount === 0"
             @click="triageStore.renderPreviews()"
           >
             <Icon name="kind-icon:sparkles" class="kr-icon-4" />
-            Render {{ triageStore.missingPreviewCount }} missing preview{{
-              triageStore.missingPreviewCount === 1 ? '' : 's'
-            }}
+            <span class="lt-bar-label">{{ renderPreviewsLabel }}</span>
+            <span class="lt-bar-count">{{
+              triageStore.missingPreviewCount
+            }}</span>
           </button>
           <button
             type="button"
             class="kr-btn-primary"
+            :aria-label="saveChangesLabel"
             :disabled="
               triageStore.isSaving || triageStore.pendingChanges.length === 0
             "
@@ -57,12 +67,13 @@
           >
             <span v-if="triageStore.isSaving" class="kr-spinner-xs" />
             <Icon v-else name="kind-icon:save" class="kr-icon-4" />
-            Save {{ triageStore.pendingChanges.length }} change{{
-              triageStore.pendingChanges.length === 1 ? '' : 's'
-            }}
+            <span class="lt-bar-label">{{ saveChangesLabel }}</span>
+            <span class="lt-bar-count">{{
+              triageStore.pendingChanges.length
+            }}</span>
           </button>
         </div>
-      </header>
+      </header-page-bar>
 
       <div v-if="!ready" class="grid min-h-52 place-items-center kr-panel">
         <span class="kr-spinner-lg-primary" />
@@ -753,6 +764,18 @@ const userStore = useUserStore()
 const triageStore = useLoraTriageStore()
 const ready = ref(false)
 const loading = ref(false)
+const renderPreviewsLabel = computed(
+  () =>
+    `Render ${triageStore.missingPreviewCount} missing preview${
+      triageStore.missingPreviewCount === 1 ? '' : 's'
+    }`,
+)
+const saveChangesLabel = computed(
+  () =>
+    `Save ${triageStore.pendingChanges.length} change${
+      triageStore.pendingChanges.length === 1 ? '' : 's'
+    }`,
+)
 const query = ref('')
 const generation = ref('ALL')
 const maturity = ref<MaturityFilter>('ALL')
@@ -1061,3 +1084,41 @@ onMounted(async () => {
   ready.value = true
 })
 </script>
+
+<style scoped>
+.lt-bar {
+  display: flex;
+  flex: 1 1 auto;
+  min-width: 0;
+  align-items: center;
+  gap: 0.375rem;
+  padding-inline: 0.25rem;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.lt-bar::-webkit-scrollbar {
+  display: none;
+}
+.lt-bar > * {
+  flex: none;
+}
+.lt-bar-gap {
+  flex: 1 1 auto;
+}
+.lt-bar-count {
+  display: none;
+}
+@container (max-width: 860px) {
+  .lt-bar-link {
+    display: none;
+  }
+}
+@container (max-width: 640px) {
+  .lt-bar-label {
+    display: none;
+  }
+  .lt-bar-count {
+    display: inline;
+  }
+}
+</style>

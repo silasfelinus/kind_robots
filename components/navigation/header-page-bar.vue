@@ -11,6 +11,15 @@
   row inside the same header card, under the icons; at xl it joins the icon
   row. The page keeps its own markup, handlers and scoped styles.
 
+  CONSOLE THEME. Silas, same day: "the top header still feels out of place.
+  We are designing after a AAA console experience, that shouldn't skip the os
+  substitute, but ideally, this all flows." A page that passes
+  `console-theme` (a scoped daisyUI theme such as `slime-city`) re-skins the
+  whole shell -- header, pickers, account hub, gutters -- while it is mounted,
+  so the site chrome reads as the game console's system bar rather than a
+  cream web header sitting on top of it. Nothing is hidden; only the skin
+  changes, and it reverts when the page unmounts.
+
   Client-only because a teleport into an in-app target cannot be server
   rendered without a hydration mismatch; the shell loader covers first paint.
 -->
@@ -31,8 +40,13 @@
 import { onBeforeUnmount, onMounted } from 'vue'
 import { useNavStore } from '@/stores/navStore'
 
-const navStore = useNavStore()
+const props = defineProps<{ consoleTheme?: string }>()
 
-onMounted(() => navStore.registerPageBar())
-onBeforeUnmount(() => navStore.releasePageBar())
+const navStore = useNavStore()
+let pageBarId = 0
+
+onMounted(() => {
+  pageBarId = navStore.registerPageBar(props.consoleTheme)
+})
+onBeforeUnmount(() => navStore.releasePageBar(pageBarId))
 </script>

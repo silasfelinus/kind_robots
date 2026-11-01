@@ -5,7 +5,7 @@
     data-testid="slime-city-lab"
   >
     <div class="sc-shell">
-      <header-page-bar>
+      <header-page-bar console-theme="slime-city">
         <div class="sc-header" data-testid="slime-city-header">
           <div
             class="sc-brand"
@@ -1486,10 +1486,7 @@ onUnmounted(() => {
   display: flex;
   align-items: center;
   gap: 0.75rem;
-  padding: 0.25rem 0.35rem 0.25rem 0.85rem;
-  border: 1px solid #69708277;
-  border-radius: 0.75rem;
-  background: radial-gradient(ellipse at 20% 0%, #29314c 0%, #0a0e16 85%);
+  padding: 0 0.25rem 0 0.5rem;
   color: #eef2f8;
 }
 .sc-overline {

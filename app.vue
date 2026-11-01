@@ -5,6 +5,8 @@
     :class="showLoader ? 'bg-black' : 'bg-base-100'"
     :style="shellVars"
     :data-kr-backdrop="hasPageBackdrop ? '' : undefined"
+    :data-theme="consoleTheme || undefined"
+    :data-kr-console="consoleTheme ? '' : undefined"
   >
     <!--
       ai-art-academy/t-062+t-063: @vite-pwa/nuxt does not inject the
@@ -255,7 +257,7 @@ const userStore = useUserStore()
 const introStore = useIntroStore()
 const route = useRoute()
 
-const { workspaceSheetOpen } = storeToRefs(navStore)
+const { workspaceSheetOpen, consoleTheme } = storeToRefs(navStore)
 
 const showLoader = ref(true)
 

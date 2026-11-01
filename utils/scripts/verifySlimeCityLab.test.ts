@@ -776,7 +776,7 @@ assert.match(page, /lab\.guide\.limits/)
 assert.match(page, /lab\.sight/, 'Board renders the redacted view')
 assert.match(
   page,
-  /<header-page-bar>[\s\S]*class="sc-tabs"[\s\S]*<\/header-page-bar>/,
+  /<header-page-bar[^>]*>[\s\S]*class="sc-tabs"[\s\S]*<\/header-page-bar>/,
   'Slime City title, view tabs and HUD live in the shell header page bar',
 )
 assert.doesNotMatch(
@@ -789,6 +789,16 @@ const shellHeader = readFileSync(
   'utf8',
 )
 assert.match(shellHeader, /id="kr-header-page-bar"/)
+assert.match(
+  page,
+  /<header-page-bar console-theme="slime-city">/,
+  'Slime City skins the shell as its console system bar',
+)
+const shellCss = readFileSync(
+  new URL('../../assets/css/tailwind.css', import.meta.url),
+  'utf8',
+)
+assert.match(shellCss, /name: 'slime-city';/)
 
 console.log(
   'Slime City: square topology, fog, AP, cards, combat, flag drops, lane flow, BLOODRUSH ticks, CPU, replays and hidden-info contract PASS',

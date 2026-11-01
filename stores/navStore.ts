@@ -146,15 +146,26 @@ export const useNavStore = defineStore('navStore', () => {
   const dashboardShell = ref<DashboardShellState>(defaultDashboardShellState())
   const workspaceSheetOpen = ref(false)
   const workspaceHandOpen = ref(false)
-  const pageBarCount = ref(0)
-  const hasPageBar = computed(() => pageBarCount.value > 0)
+  const pageBars = ref<{ id: number; consoleTheme: string }[]>([])
+  let nextPageBarId = 0
+  const hasPageBar = computed(() => pageBars.value.length > 0)
+  const consoleTheme = computed(
+    () =>
+      [...pageBars.value].reverse().find((bar) => bar.consoleTheme)
+        ?.consoleTheme ?? '',
+  )
 
-  function registerPageBar(): void {
-    pageBarCount.value += 1
+  function registerPageBar(consoleTheme = ''): number {
+    nextPageBarId += 1
+    pageBars.value = [
+      ...pageBars.value,
+      { id: nextPageBarId, consoleTheme: consoleTheme.trim() },
+    ]
+    return nextPageBarId
   }
 
-  function releasePageBar(): void {
-    pageBarCount.value = Math.max(0, pageBarCount.value - 1)
+  function releasePageBar(id: number): void {
+    pageBars.value = pageBars.value.filter((bar) => bar.id !== id)
   }
 
   const routeHistory = ref<string[]>([])
@@ -518,6 +529,7 @@ export const useNavStore = defineStore('navStore', () => {
     workspaceSheetOpen,
     workspaceHandOpen,
     hasPageBar,
+    consoleTheme,
     registerPageBar,
     releasePageBar,
     routeHistory,

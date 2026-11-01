@@ -12,6 +12,10 @@ import { DARK_BRIAR_SCENES, DARK_BRIAR_SEALS } from './darkBriar'
 import { HOSHIMORI_WARM_SITES } from './hoshimoriWarm'
 import { HOSHIMORI_NIGHT_SITES } from './hoshimoriNight'
 import { EARTH_PHOTOS } from './chronicle'
+import {
+  EARTH_COLLISION_ROUTE_SITES,
+  type EarthCollisionRouteSite,
+} from './earthCollisionRoute'
 import earthCollision from './earthCollision.json'
 import recipes from './overworldEventRecipes.json'
 import { BRIAR_SITES } from '../memoryDungeonWorld'
@@ -363,6 +367,9 @@ function generated(
     earthScene ??
     (world.id === 'e09'
       ? BRIAR_COLLISION_ROUTE_SITES[key as BriarCollisionRouteSite]
+      : undefined) ??
+    (world.id === 'e10'
+      ? EARTH_COLLISION_ROUTE_SITES[key as EarthCollisionRouteSite]
       : undefined)
   if (authored) {
     choices = authored.choices.map((choice, index) => ({

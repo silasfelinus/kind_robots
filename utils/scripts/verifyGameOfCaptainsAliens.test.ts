@@ -13,6 +13,12 @@ import {
   nextAlienSighting,
   resolveAlienSighting,
 } from '../gameOfCaptains/alienFieldGuide'
+import {
+  COLLECTOR_INCIDENTS,
+  nextCollectorIncident,
+  resolveCollectorIncident,
+  collectorEcho,
+} from '../gameOfCaptains/alienMilestones'
 import { startVoyage } from '../gameOfCaptains/rules'
 
 assert.equal(ALIEN_SPECIES.length, 101)
@@ -174,6 +180,9 @@ assert.deepEqual(
     milestoneSeen: [5],
   },
 )
+assert.equal(COLLECTOR_INCIDENTS.length, 6)
+assert.equal(new Set(COLLECTOR_INCIDENTS.map((event) => event.illustrationKey)).size, 6)
+assert.equal(COLLECTOR_INCIDENTS.flatMap((event) => event.options).length, 18)
 for (const count of [5, 12, 25, 50, 75, 100]) {
   const guide = {
     ...emptyAlienGuide(),
@@ -182,19 +191,44 @@ for (const count of [5, 12, 25, 50, 75, 100]) {
       (event) => event.at,
     ),
   }
+  const incident = nextCollectorIncident(guide)!
+  assert.equal(incident.at, count)
+  assert.equal(incident.options.length, 3)
+  assert.ok(incident.scene.length > 100)
+  assert.ok(incident.complication.length > 70)
+  assert.deepEqual(incident.options.map((option) => option.id), ['a', 'b', 'c'])
+  assert.deepEqual(
+    [...new Set(incident.options.map((option) => option.ending))].sort(),
+    ['bond', 'chaos', 'retreat'],
+  )
   const sighting = nextAlienSighting(run, guide)!
-  assert.equal(sighting.milestone?.at, count)
-  const outcome = resolveAlienSighting(
-    guide,
-    sighting,
-    choiceFor(sighting.mood, 'retreat'),
-  )
-  assert.ok(outcome.guide.milestoneSeen.includes(count))
-  assert.equal(
-    nextAlienSighting({ ...run, chapter: 3 }, outcome.guide)!.milestone,
-    null,
-  )
+  assert.ok(sighting)
+  assert.equal('milestone' in sighting, false, 'normal sightings never consume a collector incident')
+  const plain = resolveAlienSighting(guide, sighting, choiceFor(sighting.mood, 'retreat'))
+  assert.equal(nextCollectorIncident(plain.guide)?.at, count, 'alien contact cannot silently use a milestone')
+  assert.equal(resolveCollectorIncident(guide, count + 1, 'a'), null)
+  for (const option of incident.options) {
+    const result = resolveCollectorIncident(guide, count, option.id)!
+    assert.equal(result.ending, option.ending)
+    assert.equal(result.text, option.consequence)
+    assert.ok(result.guide.milestoneSeen.includes(count))
+    assert.equal(result.guide.milestoneDecisions?.[String(count)], option.id)
+    assert.equal(nextCollectorIncident(result.guide), null)
+    assert.equal(collectorEcho(result.guide), option.echo)
+    assert.equal(resolveCollectorIncident(result.guide, count, option.id), null)
+    const restored = normalizeAlienGuide(JSON.parse(JSON.stringify(result.guide)))
+    assert.equal(restored.milestoneDecisions?.[String(count)], option.id)
+    assert.equal(collectorEcho(restored), option.echo)
+  }
 }
+assert.deepEqual(
+  normalizeAlienGuide({
+    milestoneSeen: [5],
+    milestoneDecisions: { '5': 'a', '12': 'b', '100': 'evil' },
+  }).milestoneDecisions,
+  { '5': 'a' },
+)
+
 let guide = emptyAlienGuide()
 for (let i = 0; i < 101; i++) {
   const trip = { ...run, seed: 414414 + i, chapter: 2 + (i % 8) }
@@ -228,6 +262,10 @@ const scrapbook = readFileSync(
   new URL('components/gameOfCaptains/alien-scrapbook.vue', projectRoot),
   'utf8',
 )
+const collector = readFileSync(
+  new URL('components/gameOfCaptains/alien-milestone.vue', projectRoot),
+  'utf8',
+)
 assert.match(page, /space-couch-alien-signal/)
 assert.match(page, /space-couch-open-alien-scrapbook/)
 assert.match(encounter, /v-for="choice in ALIEN_CHOICES"/)
@@ -237,6 +275,12 @@ assert.match(scrapbook, /space-couch-alien-scrapbook-field-note/)
 assert.match(scrapbook, /v-for="\(alien, index\) in ALIEN_SPECIES"/)
 assert.match(store, /game-of-captains-alien-scrapbook-v1/)
 assert.match(store, /normalizeAlienGuide/)
+assert.match(collector, /space-couch-collector-option-/)
+assert.match(scrapbook, /space-couch-collector-from-scrapbook/)
+assert.match(page, /space-couch-collector-signal/)
+assert.match(page, /SpaceCouchAlienMilestone/)
+assert.match(store, /resolveCollectorIncident/)
+assert.match(store, /collectorEcho/)
 console.log(
   'Space Couch aliens: 101 species, 3 choices, six milestones, persistence and reachable collection OK',
 )

@@ -548,7 +548,12 @@ export function tickPowerCooldowns(units: readonly Unit[], team: string) {
       unit.powerCooldown = unit.powerCooldown! - 1
 }
 
-export type PowerState = { map: TacticalMap; units: Unit[]; seed: number; damageTaken?: number }
+export type PowerState = {
+  map: TacticalMap
+  units: Unit[]
+  seed: number
+  damageTaken?: number
+}
 export type PowerEffect = {
   id: string
   side: 'self' | 'ally' | 'enemy'

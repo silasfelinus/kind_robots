@@ -774,6 +774,31 @@ assert.match(page, /data-testid="slime-guide"/)
 assert.match(page, /lab\.guide\.steps/)
 assert.match(page, /lab\.guide\.limits/)
 assert.match(page, /lab\.sight/, 'Board renders the redacted view')
+assert.match(
+  page,
+  /<header-page-bar[^>]*>[\s\S]*class="sc-tabs"[\s\S]*<\/header-page-bar>/,
+  'Slime City title, view tabs and HUD live in the shell header page bar',
+)
+assert.doesNotMatch(
+  page,
+  /<header class="sc-header"/,
+  'Slime City must not render a second persistent header',
+)
+const shellHeader = readFileSync(
+  new URL('../../components/navigation/workspace-header.vue', import.meta.url),
+  'utf8',
+)
+assert.match(shellHeader, /id="kr-header-page-bar"/)
+assert.match(
+  page,
+  /<header-page-bar console-theme="slime-city">/,
+  'Slime City skins the shell as its console system bar',
+)
+const shellCss = readFileSync(
+  new URL('../../assets/css/tailwind.css', import.meta.url),
+  'utf8',
+)
+assert.match(shellCss, /name: 'slime-city';/)
 
 console.log(
   'Slime City: square topology, fog, AP, cards, combat, flag drops, lane flow, BLOODRUSH ticks, CPU, replays and hidden-info contract PASS',

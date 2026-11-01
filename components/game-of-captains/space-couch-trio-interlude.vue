@@ -15,6 +15,7 @@
         class="trio-art"
         :src="stepArt"
         :alt="due.step.title"
+        @error="markArtFailed(stepArt)"
       />
       <div v-else class="trio-faces">
         <span v-for="face in faces" :key="face.id" class="trio-face">
@@ -60,6 +61,7 @@
       class="trio-art"
       :src="endingArt"
       :alt="ending.title"
+      @error="markArtFailed(endingArt)"
     />
     <div v-else class="trio-faces">
       <span v-for="face in faces" :key="face.id" class="trio-face">
@@ -71,7 +73,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, ref, watch } from 'vue'
 import { useGameOfCaptainsStore } from '~/stores/gameOfCaptainsStore'
 import { warpArt } from '~/utils/gameOfCaptains/artManifest'
 import { portraitArt } from '~/utils/gameOfCaptains/artSlots'
@@ -111,22 +113,30 @@ const faces = computed(() =>
 const partyNames = computed(() =>
   faces.value.map((face) => face.name.toUpperCase()).join(' · '),
 )
+const failedArt = ref<string[]>([])
+const trio = computed(() => adventure.value ? trioKey(adventure.value.crew) : null)
+watch(trio, (key) => {
+  if (key && import.meta.client) void store.loadTrioArtwork(key)
+}, { immediate: true })
+function artFor(key: string): string | null {
+  const url = store.trioArtwork[key] || warpArt(key)
+  return url && !failedArt.value.includes(url) ? url : null
+}
+function markArtFailed(url: string | null) {
+  if (url && !failedArt.value.includes(url))
+    failedArt.value = [...failedArt.value, url]
+}
 const stepArt = computed(() =>
-  due.value && adventure.value
-    ? warpArt(
-        trioArtKey(
-          trioKey(adventure.value.crew),
-          (due.value.index + 1) as 1 | 2 | 3,
-        ),
-      )
+  due.value && trio.value
+    ? artFor(trioArtKey(trio.value, (due.value.index + 1) as 1 | 2 | 3))
     : null,
 )
 const endingArt = computed(() => {
-  if (!run.value || !adventure.value) return null
+  if (!run.value || !trio.value) return null
   const index = trioEndingIndex(run.value)
   return index === null
     ? null
-    : warpArt(trioArtKey(trioKey(adventure.value.crew), index ? 'b' : 'a'))
+    : artFor(trioArtKey(trio.value, index ? 'b' : 'a'))
 })
 
 function choose(index: number) {

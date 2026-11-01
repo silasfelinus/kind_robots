@@ -242,8 +242,7 @@ export function deployExpedition(
       'The local witnesses ask for the crew member’s name to be entered into the public record.',
     tactics:
       'The tactical report lists a lost officer, not an expendable unit. Command is asked to explain the assignment.',
-    luck:
-      'The incident report calls it an improbable loss. Personnel is instructed to strike the word lucky.',
+    luck: 'The incident report calls it an improbable loss. Personnel is instructed to strike the word lucky.',
   }
   const outcome = casualty
     ? `${profile!.name} does not return from ${enc.title}. ${casualtyContext[enc.skill] ?? 'The ship registers the loss and files an unanswered question with command.'} The captain must decide how to inform the next of kin.`

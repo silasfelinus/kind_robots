@@ -283,6 +283,11 @@ const SCENE_CLUES: Record<
     },
   },
 }
+export const alienEvidence = (
+  category: AlienSpecies['category'],
+  mood: AlienMood,
+): { incident: string; evidence: string } => SCENE_CLUES[category][mood]
+
 export const alienObservation = (contact: AlienContact): string => {
   const species = ALIEN_BY_ID.get(contact.speciesId)
   if (!species) return ''

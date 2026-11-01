@@ -526,8 +526,10 @@ assert.ok(artEndpoint.includes('...COUCH_EXPRESSION_ART_IDS'))
 assert.ok(page.includes('captainDossierPortrait'))
 assert.ok(page.includes('crewDossierPortrait'))
 assert.ok(page.includes('crewVoyagePortrait(member.id)'))
-assert.ok(page.includes("store.onboardingArt['portraits/v2/' + key + '-' + mood]"))
-assert.ok(page.includes("pocketRoomPainting(run.value.pocketRoom)"))
+assert.ok(
+  page.includes("store.onboardingArt['portraits/v2/' + key + '-' + mood]"),
+)
+assert.ok(page.includes('pocketRoomPainting(run.value.pocketRoom)'))
 assert.ok(page.includes('cap-pocket-room-art'))
 assert.ok(page.includes('cap-expression-tabs'))
 assert.ok(page.includes('voyageStageArt(run.value, paintedVoyageImage)'))

@@ -364,8 +364,7 @@ for (const id of ids) {
   }
   assert.equal(championAftermath(unlocked)?.title, story.title)
   const after = decideAftermath(unlocked, story.choices[0].id)
-  const settled =
-    id === 'pitworks' ? decideFinale(after, 'pit-charter') : after
+  const settled = id === 'pitworks' ? decideFinale(after, 'pit-charter') : after
   const won = recordContract(settled, id, 'player')
   assert.deepEqual(won.contracts, [id])
   assert.equal(recordContract(won, id, 'player'), won)

@@ -4,6 +4,7 @@ import { ALIEN_SPECIES } from '../gameOfCaptains/alienSpecies'
 import {
   ALIEN_CHOICES,
   ALIEN_MILESTONES,
+  alienOutcome,
   emptyAlienGuide,
   normalizeAlienGuide,
   maySeeAlien,
@@ -26,7 +27,7 @@ assert.ok(new Set(ALIEN_SPECIES.map((species) => species.palette)).size >= 6)
 assert.ok(new Set(ALIEN_SPECIES.map((species) => species.social)).size >= 6)
 assert.deepEqual(
   ALIEN_CHOICES.map((choice) => choice.id),
-  ['chaos', 'flee', 'befriend'],
+  ['approach', 'observe', 'improvise'],
 )
 assert.deepEqual(
   ALIEN_MILESTONES.map((item) => item.at),
@@ -41,24 +42,55 @@ const first = nextAlienSighting(run, empty)!
 assert.ok(first)
 assert.equal(first.species.id, nextAlienSighting(run, empty)!.species.id)
 assert.deepEqual(nextAlienSighting(run, empty), first)
-const fleeing = resolveAlienSighting(empty, first, 'flee')
+
+// A fair three-by-three emotional matrix: no action is consistently safe,
+// and no scene telegraphs the retreat outcome on its buttons.
+const moods = ['wary', 'playful', 'protective'] as const
+const outcomes = ['retreat', 'chaos', 'bond'] as const
+for (const mood of moods) {
+  const actual = ALIEN_CHOICES.map((choice) => alienOutcome(mood, choice.id))
+  assert.deepEqual([...actual].sort(), [...outcomes].sort())
+}
+for (const choice of ALIEN_CHOICES) {
+  const actual = moods.map((mood) => alienOutcome(mood, choice.id))
+  assert.deepEqual([...actual].sort(), [...outcomes].sort())
+  assert.doesNotMatch(choice.label + ' ' + choice.hint, /run away|flee|retreat|friend|chaos|record|unlock|discover/i)
+}
+assert.match(first.scene, /broken rescue beacon|stolen a dangling|stands guard/)
+assert.match(first.scene, /couch|bubble/i)
+assert.equal(first.mood, nextAlienSighting(run, empty)!.mood)
+
+const choiceFor = (mood: typeof first.mood, outcome: 'retreat' | 'chaos' | 'bond') =>
+  ALIEN_CHOICES.find((choice) => alienOutcome(mood, choice.id) === outcome)!.id
+const fleeing = resolveAlienSighting(empty, first, choiceFor(first.mood, 'retreat'))
 assert.equal(fleeing.recorded, false)
 assert.equal(fleeing.guide.discovered.length, 0)
 assert.equal(maySeeAlien(run, fleeing.guide), false)
 assert.equal(maySeeAlien({ ...run, chapter: 3 }, fleeing.guide), true)
-const chaos = resolveAlienSighting(empty, first, 'chaos')
+const chaos = resolveAlienSighting(empty, first, choiceFor(first.mood, 'chaos'))
 assert.equal(chaos.recorded, true)
 assert.equal(chaos.guide.discovered.length, 1)
 assert.equal(chaos.guide.friends.length, 0)
-const friend = resolveAlienSighting(empty, first, 'befriend')
+const friend = resolveAlienSighting(empty, first, choiceFor(first.mood, 'bond'))
 assert.equal(friend.recorded, true)
 assert.deepEqual(friend.guide.discovered, chaos.guide.discovered)
 assert.deepEqual(friend.guide.friends, [first.species.id])
 assert.deepEqual(
-  resolveAlienSighting(friend.guide, first, 'chaos').guide,
+  resolveAlienSighting(friend.guide, first, choiceFor(first.mood, 'chaos')).guide,
   friend.guide,
   'the same chapter cannot award twice',
 )
+assert.equal(chaos.guide.lastContact?.outcome, 'chaos')
+assert.equal(friend.guide.lastContact?.outcome, 'bond')
+assert.equal(fleeing.guide.lastContact?.outcome, 'retreat')
+assert.equal(
+  normalizeAlienGuide(JSON.parse(JSON.stringify(friend.guide))).lastContact?.outcome,
+  'bond',
+)
+const followup = nextAlienSighting({ ...run, chapter: 3 }, friend.guide)!
+assert.match(followup.scene, /previous new friend/)
+assert.notEqual(followup.species.id, first.species.id)
+
 assert.deepEqual(
   normalizeAlienGuide({
     discovered: [first.species.id, first.species.id, 'not-a-species'],
@@ -84,7 +116,11 @@ for (const count of [5, 12, 25, 50, 75, 100]) {
   }
   const sighting = nextAlienSighting(run, guide)!
   assert.equal(sighting.milestone?.at, count)
-  const outcome = resolveAlienSighting(guide, sighting, 'flee')
+  const outcome = resolveAlienSighting(
+    guide,
+    sighting,
+    choiceFor(sighting.mood, 'retreat'),
+  )
   assert.ok(outcome.guide.milestoneSeen.includes(count))
   assert.equal(
     nextAlienSighting({ ...run, chapter: 3 }, outcome.guide)!.milestone,
@@ -96,7 +132,11 @@ for (let i = 0; i < 101; i++) {
   const trip = { ...run, seed: 414414 + i, chapter: 2 + (i % 8) }
   const sighting = nextAlienSighting(trip, guide)
   assert.ok(sighting, 'a remaining undiscovered alien stays reachable')
-  guide = resolveAlienSighting(guide, sighting!, 'chaos').guide
+  guide = resolveAlienSighting(
+    guide,
+    sighting!,
+    choiceFor(sighting!.mood, 'chaos'),
+  ).guide
 }
 assert.equal(guide.discovered.length, 101)
 assert.equal(new Set(guide.discovered).size, 101)
@@ -123,6 +163,7 @@ const scrapbook = readFileSync(
 assert.match(page, /space-couch-alien-signal/)
 assert.match(page, /space-couch-open-alien-scrapbook/)
 assert.match(encounter, /v-for="choice in ALIEN_CHOICES"/)
+assert.match(encounter, /space-couch-alien-emotional-cue/)
 assert.match(scrapbook, /v-for="\(alien, index\) in ALIEN_SPECIES"/)
 assert.match(store, /game-of-captains-alien-scrapbook-v1/)
 assert.match(store, /normalizeAlienGuide/)

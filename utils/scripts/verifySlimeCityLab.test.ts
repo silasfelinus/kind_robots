@@ -774,6 +774,18 @@ assert.match(page, /data-testid="slime-guide"/)
 assert.match(page, /lab\.guide\.steps/)
 assert.match(page, /lab\.guide\.limits/)
 assert.match(page, /lab\.sight/, 'Board renders the redacted view')
+// Silas 2026-11-01: the hand is a real card hand along the bottom of the
+// arena (workspace-hand style), and the painted board shows through the grid.
+assert.match(page, /<SlimeCityHand \/>\s*<div class="sc-battle-bottom">/)
+assert.doesNotMatch(page, /class="sc-hand-card"/, 'No sidebar card list')
+assert.match(page, /class="sc-board-floor"/)
+const handUi = readFileSync(
+  new URL('../../components/slime-city-hand.vue', import.meta.url),
+  'utf8',
+)
+assert.match(handUi, /name="sch-deal"/, 'Cards deal in and fly out')
+assert.match(handUi, /is-flipping/, 'Selection flips with sparkles')
+assert.match(handUi, /prefers-reduced-motion/)
 assert.match(
   page,
   /<header-page-bar[^>]*>[\s\S]*class="sc-tabs"[\s\S]*<\/header-page-bar>/,

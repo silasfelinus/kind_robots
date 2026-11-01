@@ -590,6 +590,12 @@
               role="group"
               :aria-label="currentMode.size + ' square-grid battlefield'"
             >
+              <SlimeCityArtwork
+                class="sc-board-floor"
+                :image-id="slimeArtId('boards', lab.mode)"
+                :alt="currentMode.title + ' painted board'"
+                compact
+              />
               <button
                 v-for="cell in lab.board"
                 :key="cell.x + '-' + cell.y"
@@ -802,6 +808,7 @@
               </button>
             </div>
           </div>
+          <SlimeCityHand />
           <div class="sc-battle-bottom">
             <span
               >{{ lab.mode === 'bloodrush' ? 'TICK' : 'ROUND' }}
@@ -1161,56 +1168,6 @@
           </div>
           <template v-if="lab.view === 'arena'">
             <div class="sc-actions">
-              <div class="sc-control-heading">
-                <span class="sc-overline">{{
-                  lab.mode === 'blackout'
-                    ? 'YOUR FOUR-CARD HAND'
-                    : 'ARCADE CARD RACK'
-                }}</span
-                ><span>AVAILABLE {{ lab.match.mana }} MANA</span>
-              </div>
-              <div class="sc-hand">
-                <button
-                  v-for="card in lab.mode === 'blackout' ? lab.hand : lab.cards"
-                  :key="card.id"
-                  type="button"
-                  class="sc-hand-card"
-                  :class="[
-                    {
-                      selected: lab.selectedCard === card.id,
-                      unavailable:
-                        card.cost > lab.match.mana || !lab.ready(card.id),
-                    },
-                    'tone-' + lab.team.color,
-                  ]"
-                  :data-testid="'slime-card-' + card.id"
-                  :aria-pressed="lab.selectedCard === card.id"
-                  @click="lab.chooseCard(card.id)"
-                >
-                  <span class="sc-card-symbol">
-                    <SlimeCityArtwork
-                      :image-id="slimeArtId('cards', card.id)"
-                      :alt="card.name + ' thumbnail'"
-                      :fallback="card.symbol"
-                      compact
-                    />
-                  </span>
-                  <span
-                    ><strong>{{ card.name }}</strong
-                    ><small>{{ card.kind }}</small></span
-                  >
-                  <b>{{ card.cost }}</b>
-                  <i v-if="!lab.ready(card.id)" class="sc-resting">USED</i>
-                </button>
-              </div>
-              <p
-                v-if="lab.mode === 'blackout'"
-                class="sc-hand-count"
-                data-testid="slime-deck-count"
-              >
-                DRAW {{ lab.match.piles.player.length }} · DISCARD
-                {{ lab.match.discards.player.length }} · NEXT DEAL ON END ROUND
-              </p>
               <p v-if="lab.selected" class="sc-selected-line">
                 {{ lab.unitLabel(lab.selected.cardId) }} · HP
                 {{ lab.selected.hp }}/{{ lab.selected.maxHp }} · ATK
@@ -2112,69 +2069,6 @@ onUnmounted(() => {
   font-size: 0.61rem;
   color: #bfff82;
 }
-.sc-hand {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 0.35rem;
-  overflow: auto;
-  min-height: 0;
-  align-content: start;
-}
-.sc-hand-card {
-  display: flex;
-  align-items: center;
-  gap: 0.35rem;
-  min-height: 3.15rem;
-  padding: 0.3rem;
-  border: 1px solid #596b8277;
-  border-radius: 0.4rem;
-  background: linear-gradient(
-    125deg,
-    color-mix(in srgb, var(--tone) 25%, #14202c),
-    #131a26
-  );
-  text-align: left;
-  position: relative;
-}
-.sc-hand-card.selected {
-  border-color: #f8ffad;
-  box-shadow:
-    inset 0 0 0 1px #ffffb6,
-    0 0 12px #c2ff5877;
-}
-.sc-hand-card.unavailable {
-  opacity: 0.55;
-}
-.sc-hand-card .sc-card-symbol {
-  flex: none;
-  display: block;
-  width: 2.4rem;
-  height: 2.8rem;
-  overflow: hidden;
-  border-radius: 0.2rem;
-  border: 1px solid var(--tone);
-}
-.sc-hand-card span:nth-child(2) {
-  display: flex;
-  flex-direction: column;
-  gap: 0.2rem;
-  min-width: 0;
-}
-.sc-hand-card strong {
-  font-size: 0.63rem;
-  line-height: 1.15;
-}
-.sc-hand-card small {
-  font-size: 0.58rem;
-  color: #acbad0;
-}
-.sc-hand-card b {
-  position: absolute;
-  top: 0.15rem;
-  right: 0.2rem;
-  color: #daff8e;
-  font-size: 0.7rem;
-}
 .sc-reveal,
 .sc-reset {
   flex: none;
@@ -2293,10 +2187,11 @@ onUnmounted(() => {
   width: min(100%, 68cqh);
   max-height: 100%;
   aspect-ratio: 1 / 1;
-  gap: 2px;
+  gap: 1px;
   border: 5px solid #72899a;
   border-radius: 0.35rem;
   background: #1e2b34;
+  isolation: isolate;
   box-shadow:
     0 0 0 5px #151820,
     0 16px 40px #0009;
@@ -2308,17 +2203,33 @@ onUnmounted(() => {
   aspect-ratio: 2 / 1;
   max-height: 100%;
 }
+.sc-board .sc-board-floor {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  font-size: 3rem;
+  pointer-events: none;
+}
+.sc-board .sc-board-floor :deep(img) {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: saturate(1.15);
+}
 .sc-tile {
   position: relative;
+  z-index: 1;
   display: grid;
   place-items: center;
   min-width: 0;
   min-height: 0;
-  background: linear-gradient(155deg, #3d5d62, #2a454d);
+  /* Translucent so the painted floor reads through the grid. */
+  background: #0b1a2238;
+  box-shadow: inset 0 0 0 1px #00000040;
   outline-offset: -2px;
 }
-.sc-tile:nth-child(odd) {
-  background: linear-gradient(155deg, #426468, #34505a);
+.sc-tile:nth-child(even) {
+  background: #0b1a2252;
 }
 .sc-tile.home {
   box-shadow: inset 4px 0 #9af8ff6f;
@@ -2327,7 +2238,7 @@ onUnmounted(() => {
   box-shadow: inset -4px 0 #ffa1a14d;
 }
 .sc-tile.flag {
-  background: radial-gradient(#f3e48880, #34635f);
+  background: radial-gradient(#f3e48899, #34635f33 75%);
 }
 .sc-tile.target:hover,
 .sc-tile:focus-visible {
@@ -2341,7 +2252,7 @@ onUnmounted(() => {
   opacity: 0.7;
 }
 .sc-tile.lair {
-  background: radial-gradient(circle, #ff3fbf66, #3a1037 75%);
+  background: radial-gradient(circle, #ff3fbf77, #3a103766 75%);
 }
 .sc-monster {
   z-index: 1;
@@ -2586,9 +2497,6 @@ onUnmounted(() => {
   .sc-controls {
     padding: 0.6rem;
   }
-  .sc-hand {
-    grid-template-columns: 1fr;
-  }
   .sc-crew {
     width: 1.9rem;
     height: 1.9rem;
@@ -2639,16 +2547,6 @@ onUnmounted(() => {
   }
   .sc-actions > .sc-control-heading {
     display: none;
-  }
-  .sc-hand {
-    display: flex;
-    flex-direction: row;
-    overflow-x: auto;
-    max-height: 3.5rem;
-  }
-  .sc-hand-card {
-    flex: 0 0 7.2rem;
-    min-height: 2.65rem;
   }
   .sc-reset,
   .sc-reveal {
@@ -2794,14 +2692,6 @@ onUnmounted(() => {
 .sc-fighter.carrier {
   box-shadow: 0 0 0 2px #ffd34d;
 }
-.sc-resting {
-  position: absolute;
-  bottom: 0.15rem;
-  right: 0.25rem;
-  font-size: 0.5rem;
-  font-style: normal;
-  color: #ffb27a;
-}
 .sc-selected-line {
   margin: 0;
   font-size: 0.6rem;
@@ -2926,10 +2816,6 @@ onUnmounted(() => {
   background: transparent;
   color: #e6ffd3;
   border: 1px solid #99be75;
-}
-.sc-hand-count {
-  color: #bbd1a0;
-  font-size: 0.65rem;
 }
 @container (max-width: 600px) {
   .sc-card-overlay {

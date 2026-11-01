@@ -98,13 +98,14 @@ export function validSlimeCityStory(raw: unknown): raw is SlimeCityStory {
   )
     return false
   const city = raw.city
+  const standing = city.standing
   if (
     !ids.includes(city.location as string) ||
     !number(city.nights, 0, 1000000) ||
     !number(city.heat, 0, 10000) ||
     !number(city.losses, 0, 1000000) ||
-    !record(city.standing) ||
-    ids.some((id) => !number(city.standing[id], -10000, 10000)) ||
+    !record(standing) ||
+    ids.some((id) => !number(standing[id], -10000, 10000)) ||
     !choices(city.choices, districtChoices) ||
     !choices(city.streetChoices, streetChoices) ||
     !choices(city.aftermathChoices, aftermathChoices) ||

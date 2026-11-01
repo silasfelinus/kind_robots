@@ -171,7 +171,7 @@ export const alienOutcome = (mood: AlienMood, choice: AlienChoice): AlienOutcome
 
 const SITUATION = {
   wary: {
-    setup: 'It freezes beside a broken rescue beacon, keeping one eye on the couch bubble.',
+    setup: 'It freezes beside a broken rescue beacon, its whole body turned toward the couch bubble.',
     clue: 'Every loud gesture makes it edge backward. A quiet pause seems to calm it.',
   },
   playful: {
@@ -180,7 +180,7 @@ const SITUATION = {
   },
   protective: {
     setup: 'It stands guard over something fragile in its habitat, refusing to abandon it.',
-    clue: 'A direct approach would cross its boundary. Its eyes track the crew\'s loose equipment.',
+    clue: 'A direct approach would cross its boundary. It follows the movements of the crew\'s loose equipment.',
   },
 } as const
 const visitKey = (run: Pick<VoyageRun, 'seed' | 'chapter'>) =>
@@ -241,7 +241,7 @@ export function nextAlienSighting(
         ? 'A previous new friend has apparently told the locals you are safe to approach.'
         : 'The creature watches the couch cautiously; apparently a previous visitor warned it about awkward tourists.'
     : ''
-  const scene = `${species.name} is ${species.appearance} near ${species.habitat}. ${setting.setup} ${setting.clue} ${callback}`.trim()
+  const scene = `${species.name} is ${species.appearance} near ${species.habitat}. Local rumor: ${species.fieldNote}. ${setting.setup} ${setting.clue} ${callback}`.trim()
   return { species, seed: run.seed, chapter: run.chapter, milestone, mood, scene }
 }
 export const alienHint = (species: AlienSpecies): string =>

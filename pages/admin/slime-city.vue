@@ -174,7 +174,29 @@
           </div>
           <div class="sc-city-selection kr-scroll" data-testid="slime-dossier">
             <article
-              v-if="lab.streetEvent"
+              v-if="lab.aftermathEvent"
+              class="sc-street-encounter"
+              data-testid="slime-champion-aftermath"
+              aria-live="polite"
+            >
+              <span class="sc-overline">CHAMPIONSHIP AFTERMATH · {{ lab.district.name }}</span>
+              <h2>{{ lab.aftermathEvent.title }}</h2>
+              <p class="sc-scene">{{ lab.aftermathEvent.scene }}</p>
+              <div class="sc-choices">
+                <button
+                  v-for="choice in lab.aftermathEvent.choices"
+                  :key="choice.id"
+                  type="button"
+                  :data-testid="'slime-aftermath-' + choice.id"
+                  @click="lab.chooseAftermath(choice.id)"
+                >
+                  <strong>{{ choice.label }}</strong>
+                  <small>{{ choice.outcome }}</small>
+                </button>
+              </div>
+            </article>
+            <article
+              v-else-if="lab.streetEvent"
               class="sc-street-encounter"
               data-testid="slime-street-encounter"
               aria-live="polite"

@@ -78,45 +78,69 @@ export function migrateLegacyEarthJournal(
   const revealed = new Set(progress.revealed)
   const visited = new Set(['1,1'])
   const journal: EarthJournalAction[] = []
-  function visit(key: string): void {
-    const choiceId = progress.choices[key]
-    if (choiceId) journal.push({ type: 'choose', key, choiceId })
+  let position = '1,1'
+
+  function travelTo(target: string): boolean {
+    if (target === position) return true
+    const paths = new Map<string, string[]>([[position, []]])
+    const queue = [position]
+    for (let index = 0; index < queue.length; index++) {
+      const current = queue[index]!
+      if (current === target) break
+      for (const neighbor of eventNeighbors(current)) {
+        if (!revealed.has(neighbor) || paths.has(neighbor)) continue
+        paths.set(neighbor, [...paths.get(current)!, neighbor])
+        queue.push(neighbor)
+      }
+    }
+    const path = paths.get(target)
+    if (!path) return false
+    for (const key of path) {
+      journal.push({ type: 'travel', key })
+      visited.add(key)
+      position = key
+    }
+    return true
+  }
+
+  // The legacy choices object retains decision order. Reordering danger
+  // gains and relief can change its zero-floor resource total.
+  for (const [key, choiceId] of Object.entries(progress.choices)) {
+    if (!revealed.has(key) || !travelTo(key)) return null
+    journal.push({ type: 'choose', key, choiceId })
+  }
+
+  function visitRemaining(key: string, traversed: Set<string>): void {
+    traversed.add(key)
     for (const neighbor of eventNeighbors(key)) {
-      if (!revealed.has(neighbor) || visited.has(neighbor)) continue
+      if (!revealed.has(neighbor) || traversed.has(neighbor)) continue
       visited.add(neighbor)
       journal.push({ type: 'travel', key: neighbor })
-      visit(neighbor)
+      position = neighbor
+      visitRemaining(neighbor, traversed)
       journal.push({ type: 'travel', key })
+      position = key
     }
   }
-  visit('1,1')
-  if (visited.size !== revealed.size) return null
-
-  const paths = new Map<string, string[]>([['1,1', []]])
-  const queue = ['1,1']
-  for (let index = 0; index < queue.length; index++) {
-    const current = queue[index]!
-    if (current === destination) break
-    for (const neighbor of eventNeighbors(current)) {
-      if (!revealed.has(neighbor) || paths.has(neighbor)) continue
-      paths.set(neighbor, [...paths.get(current)!, neighbor])
-      queue.push(neighbor)
-    }
-  }
-  const returnPath = paths.get(destination)
-  if (!returnPath) return null
-  for (const key of returnPath) journal.push({ type: 'travel', key })
+  if (visited.size < revealed.size) visitRemaining(position, new Set())
+  if (visited.size !== revealed.size || !travelTo(destination)) return null
 
   const replayed = replayEarthJournal(reality, journal)
   if (
     !replayed ||
     replayed.position !== destination ||
     replayed.progress.revealed.length !== revealed.size ||
-    Object.keys(replayed.progress.choices).length !==
-      Object.keys(progress.choices).length ||
-    Object.entries(progress.choices).some(
-      ([key, choice]) => replayed.progress.choices[key] !== choice,
-    )
+    progress.revealed.some(
+      (key) => !replayed.progress.revealed.includes(key),
+    ) ||
+    JSON.stringify(replayed.progress.choices) !==
+      JSON.stringify(progress.choices) ||
+    JSON.stringify(replayed.progress.flags) !==
+      JSON.stringify(progress.flags) ||
+    replayed.progress.supplies !== progress.supplies ||
+    replayed.progress.trust !== progress.trust ||
+    replayed.progress.evidence !== progress.evidence ||
+    replayed.progress.danger !== progress.danger
   )
     return null
   return journal

@@ -8,7 +8,9 @@
       class="flex shrink-0 flex-wrap items-center gap-2 border-b border-[#b19b7c]/40 bg-[#282d30] px-3 py-2"
     >
       <div class="min-w-0 flex-1">
-        <p class="text-[10px] font-black uppercase tracking-[.2em] text-[#e2b989]">
+        <p
+          class="text-[10px] font-black uppercase tracking-[.2em] text-[#e2b989]"
+        >
           Pip · The Forest Between Floors
         </p>
         <h2 class="truncate text-lg font-black sm:text-xl">
@@ -18,7 +20,11 @@
       <span class="rounded-lg border border-[#b19b7c]/40 px-2 py-1 text-xs">
         {{ collision.fragments }}/2 fragments
       </span>
-      <button type="button" class="btn btn-sm btn-outline" @click="emit('leave')">
+      <button
+        type="button"
+        class="btn btn-sm btn-outline"
+        @click="emit('leave')"
+      >
         Briar camp
       </button>
     </header>
@@ -30,8 +36,8 @@
     >
       <h3 class="text-2xl font-black">The crossings have not been earned.</h3>
       <p class="max-w-lg text-sm leading-relaxed">
-        Complete both Hoshimori journeys and preserve the earlier witnesses.
-        Pip cannot enter the rewritten forest before those memories exist.
+        Complete both Hoshimori journeys and preserve the earlier witnesses. Pip
+        cannot enter the rewritten forest before those memories exist.
       </p>
       <button type="button" class="btn btn-warning" @click="emit('leave')">
         Return to the journey
@@ -53,7 +59,9 @@
           <p class="mt-1 text-xs">Illustrated establishing scene pending.</p>
         </div>
       </div>
-      <div class="kr-scroll flex min-h-0 flex-col justify-center overflow-y-auto rounded-xl border border-[#c49c71]/40 bg-[#26343a] p-4">
+      <div
+        class="kr-scroll flex min-h-0 flex-col justify-center overflow-y-auto rounded-xl border border-[#c49c71]/40 bg-[#26343a] p-4"
+      >
         <h3 class="text-xl font-black">Pip remembers where the stairs were.</h3>
         <p class="mt-3 text-sm leading-relaxed">
           A research office has grown through the House That Remembers. Salt
@@ -136,7 +144,9 @@
             }}
           </button>
         </div>
-        <div class="flex shrink-0 flex-wrap justify-between gap-2 border-t border-[#b19b7c]/30 px-3 py-2 text-xs">
+        <div
+          class="flex shrink-0 flex-wrap justify-between gap-2 border-t border-[#b19b7c]/30 px-3 py-2 text-xs"
+        >
           <span>Supplies {{ collision.progress.supplies }}</span>
           <span>Trust {{ collision.progress.trust }}</span>
           <span>Evidence {{ collision.progress.evidence }}</span>
@@ -159,13 +169,17 @@
             class="absolute inset-0 h-full w-full object-cover"
           />
           <div class="relative max-w-2xl rounded-lg bg-[#121e26]/85 p-3">
-            <p class="text-[10px] font-black uppercase tracking-widest text-[#e9c48c]">
+            <p
+              class="text-[10px] font-black uppercase tracking-widest text-[#e9c48c]"
+            >
               {{ collision.current.speaker }} · {{ collision.position }}
             </p>
             <h3 class="mt-1 text-lg font-black sm:text-2xl">
               {{ collision.current.title }}
             </h3>
-            <p class="kr-scroll mt-2 max-h-28 overflow-y-auto text-xs leading-relaxed sm:text-sm">
+            <p
+              class="kr-scroll mt-2 max-h-28 overflow-y-auto text-xs leading-relaxed sm:text-sm"
+            >
               {{ collision.current.opening }}
             </p>
           </div>
@@ -177,7 +191,11 @@
           </span>
         </div>
         <div class="kr-scroll min-h-0 flex-1 overflow-y-auto p-3">
-          <p v-if="collision.notice" class="mb-2 text-xs text-[#f6d49a]" role="status">
+          <p
+            v-if="collision.notice"
+            class="mb-2 text-xs text-[#f6d49a]"
+            role="status"
+          >
             {{ collision.notice }}
           </p>
           <div
@@ -192,7 +210,10 @@
               {{ collision.chosen.outcome }}
             </p>
           </div>
-          <div v-else-if="!collision.completed" class="grid gap-2 sm:grid-cols-2">
+          <div
+            v-else-if="!collision.completed"
+            class="grid gap-2 sm:grid-cols-2"
+          >
             <button
               v-for="choice in collision.current?.choices ?? []"
               :key="choice.id"
@@ -201,18 +222,25 @@
               :data-testid="'memory-briar-collision-choice-' + choice.id"
               @click="collision.choose(choice.id)"
             >
-              <div class="relative flex h-16 items-end bg-[linear-gradient(125deg,#455d61,#745d4a,#2b4c51)] p-2">
+              <div
+                class="relative flex h-16 items-end bg-[linear-gradient(125deg,#455d61,#745d4a,#2b4c51)] p-2"
+              >
                 <img
                   v-if="choice.art.status === 'delivered'"
                   :src="choice.art.path"
                   :alt="choice.label"
                   class="absolute inset-0 h-full w-full object-cover"
                 />
-                <span v-else class="relative rounded bg-[#17252b]/85 px-2 py-1 text-[10px]">
+                <span
+                  v-else
+                  class="relative rounded bg-[#17252b]/85 px-2 py-1 text-[10px]"
+                >
                   Choice illustration pending
                 </span>
               </div>
-              <span class="block p-2 text-xs font-bold leading-relaxed sm:text-sm">
+              <span
+                class="block p-2 text-xs font-bold leading-relaxed sm:text-sm"
+              >
                 {{ choice.label }}
               </span>
             </button>

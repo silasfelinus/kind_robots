@@ -14,6 +14,7 @@ on:
       - 'utils/scripts/verifyShiftingDesks.test.ts'
       - 'utils/scripts/verifyShiftingDesksBalance.test.ts'
       - 'utils/scripts/verifyShiftingDesksAdversarial.test.ts'
+      - 'utils/scripts/verifyShiftingDesksReleaseQA.test.ts'
       - 'utils/scripts/verifyShiftingDesksClueChains.test.ts'
       - 'utils/scripts/shiftingDesksAdversarialReport.ts'
       - 'utils/scripts/verifyShiftingDesksArtStyles.test.ts'
@@ -42,6 +43,9 @@ jobs:
       - run: npx tsx utils/scripts/verifyShiftingDesks.test.ts
       - run: npx tsx utils/scripts/verifyShiftingDesksBalance.test.ts
       - run: npx tsx utils/scripts/verifyShiftingDesksAdversarial.test.ts
+      - name: Run 2000-seed release gameplay and reward QA
+        shell: bash
+        run: npx tsx utils/scripts/verifyShiftingDesksReleaseQA.test.ts | tee shifting-desks-release-qa.txt
       - run: npx tsx utils/scripts/verifyShiftingDesksClueChains.test.ts
       - name: Generate adversarial playtest report
         shell: bash
@@ -52,6 +56,7 @@ jobs:
         with:
           name: shifting-desks-adversarial-report
           path: shifting-desks-adversarial-report.md
+            shifting-desks-release-qa.txt
           if-no-files-found: ignore
       - run: npx tsx utils/scripts/verifyShiftingDesksArtStyles.test.ts
 

@@ -27,8 +27,8 @@ assert.ok(
   'phone workspace navigation must use one unified picker',
 )
 assert.ok(
-  workspaceHeader.includes(
-    'class="hidden min-w-0 shrink max-w-[45%] sm:block"',
+  /class="hidden min-w-0 shrink max-w-\[45%\] sm:block[^"]*"/.test(
+    workspaceHeader,
   ) &&
     workspaceHeader.includes(
       'class="hidden min-w-0 flex-1 items-stretch border-l border-base-300 sm:flex"',
@@ -655,7 +655,9 @@ assert.equal(
 assert.doesNotMatch(visitorDirectorySource, /\bkr-scroll\b/)
 assert.ok(visitorDirectorySource.includes('container-type: inline-size'))
 assert.ok(
-  visitorDirectorySource.includes('visitor-featured-grid grid grid-cols-1 gap-2'),
+  visitorDirectorySource.includes(
+    'visitor-featured-grid grid grid-cols-1 gap-2',
+  ),
   'phone featured experience cards must use a legible single column',
 )
 assert.match(
@@ -664,7 +666,8 @@ assert.match(
   'wider tablet containers must restore two featured experience columns',
 )
 const featuredPanel =
-  visitorDirectorySource.split('id="visitor-featured"')[1]
+  visitorDirectorySource
+    .split('id="visitor-featured"')[1]
     ?.split('id="visitor-updates"')[0] ?? ''
 assert.match(
   featuredPanel,

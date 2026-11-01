@@ -191,7 +191,8 @@
         hub. The slot's own @container lets a page's styles follow its width.
       -->
       <div
-        class="kr-page-row order-last flex min-w-0 basis-full items-center gap-2 border-t border-base-300 pt-1.5 xl:order-none xl:basis-0 xl:flex-[2.2] xl:border-t-0 xl:pt-0"
+        data-kr-page-row
+        class="order-last flex min-w-0 basis-full items-center gap-2 border-t border-base-300 pt-1.5 xl:order-none xl:basis-0 xl:flex-[2.2] xl:border-t-0 xl:pt-0"
       >
         <div
           v-show="hasPageBar"

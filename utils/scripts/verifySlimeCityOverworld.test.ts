@@ -89,7 +89,11 @@ for (const district of DISTRICTS)
   assert.ok(slimeArtId('districts', district.id))
 for (const mode of MODES) assert.ok(slimeArtId('boards', mode.id))
 assert.equal(Object.keys(SLIME_CITY_ART.cards).length, 36)
-assert.equal(TEAMS.flatMap((team) => [...team.creatures, ...team.special]).length, 60, 'Six ten-card founder decks')
+assert.equal(
+  TEAMS.flatMap((team) => [...team.creatures, ...team.special]).length,
+  60,
+  'Six ten-card founder decks',
+)
 assert.equal(CARDS.length, 72, '12 new Gutter Crown reserves are playable')
 assert.equal(
   CARDS.filter((card) => slimeArtId('cards', card.id)).length,

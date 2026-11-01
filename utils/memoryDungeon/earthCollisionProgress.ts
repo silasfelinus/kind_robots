@@ -40,6 +40,7 @@ export function earthCollisionHistory(
   if (!briar || Object.keys(briar.progress.choices).length < 12) return null
   const office = briar.progress.choices['2,2']
   if (
+    !office ||
     !BRIAR_COLLISION_SCENES['2,2'].choices.some(
       (choice) => choice.id === office,
     ) ||
@@ -59,8 +60,7 @@ export function recoverEarthCollisionFromJournal(
   hoshimoriSave: unknown,
   briarJournal: unknown,
 ): MemoryCampaignProgress | null {
-  if (!earthCollisionHistory(campaign, hoshimoriSave, briarJournal))
-    return null
+  if (!earthCollisionHistory(campaign, hoshimoriSave, briarJournal)) return null
   const replayed = replayEarthJournal('e10', earthJournal)
   if (!replayed) return null
 

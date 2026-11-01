@@ -9,8 +9,13 @@ import { renderableArtPath } from '~/utils/artImageSrc'
 import { galleryThumbnailUrl } from '~/server/utils/artGalleryArchiveMedia'
 import { COUCH_ONBOARDING_ART_IDS } from '~/utils/gameOfCaptains/onboardingArt'
 import { COUCH_VOYAGE_ART_IDS } from '~/utils/gameOfCaptains/voyagePaintings'
+import { COUCH_EXPRESSION_ART_IDS } from '~/utils/gameOfCaptains/expressionPaintings'
 
-const PAINTED_ART_IDS = { ...COUCH_ONBOARDING_ART_IDS, ...COUCH_VOYAGE_ART_IDS }
+const PAINTED_ART_IDS = {
+  ...COUCH_ONBOARDING_ART_IDS,
+  ...COUCH_VOYAGE_ART_IDS,
+  ...COUCH_EXPRESSION_ART_IDS,
+}
 
 export default defineEventHandler(async (event) => {
   try {

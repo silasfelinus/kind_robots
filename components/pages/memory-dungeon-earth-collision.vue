@@ -137,7 +137,7 @@
             <h3 class="mt-1 text-lg font-black sm:text-2xl">
               {{ collision.crossroadScene.title }}
             </h3>
-            <p class="mt-2 max-h-28 overflow-y-auto text-xs leading-relaxed sm:text-sm">
+            <p class="mt-2 line-clamp-3 text-xs leading-relaxed sm:text-sm">
               {{ collision.crossroadStory.opening }}
             </p>
           </div>
@@ -221,8 +221,7 @@
             data-testid="memory-earth-crossroad-choices"
           >
             <p class="text-sm leading-relaxed">
-              The forecast will abandon seventeen workers unless Morrow
-              chooses who may challenge it. Neither road is free.
+              {{ collision.crossroadStory.opening }}
             </p>
             <div class="grid gap-2 sm:grid-cols-2">
               <button

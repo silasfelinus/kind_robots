@@ -180,7 +180,10 @@ for (let i = 0; i < 3000 && !naturalPolicyPayoff; i++) {
   assert.ok(filed.pending.text.includes('PAL changes your status'))
   naturalPolicyPayoff = true
 }
-assert.ok(naturalPolicyPayoff, 'a natural seed permits the earned policy opt-out')
+assert.ok(
+  naturalPolicyPayoff,
+  'a natural seed permits the earned policy opt-out',
+)
 
 // A player who moves Dale to Toy Division deserves a reunion rather than
 // another independent one-in-eight draw. The pardon then buys a later
@@ -209,8 +212,9 @@ for (let i = 0; i < 24; i++) {
     wellness.deck.includes('the-two-quiet-rooms'),
     'Dale can appear in the Wellness trust dilemma',
   )
-  const room = DEPARTMENTS.find((d) => d.department.id === 'wellness')!
-    .encounters.find((e) => e.id === 'the-two-quiet-rooms')!
+  const room = DEPARTMENTS.find(
+    (d) => d.department.id === 'wellness',
+  )!.encounters.find((e) => e.id === 'the-two-quiet-rooms')!
   const reconciliation = room.choices.find(
     (c) => c.id === 'tap-the-squeak-rhythm',
   )!

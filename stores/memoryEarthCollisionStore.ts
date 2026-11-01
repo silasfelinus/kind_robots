@@ -71,9 +71,7 @@ export const useMemoryEarthCollisionStore = defineStore(
     )
     const readyForCrossroad = computed(
       () =>
-        crossroadEarned.value &&
-        position.value === '8,8' &&
-        !completed.value,
+        crossroadEarned.value && position.value === '8,8' && !completed.value,
     )
     const crossroadStory = computed(() =>
       earthCollisionCrossroadStory(
@@ -210,7 +208,10 @@ export const useMemoryEarthCollisionStore = defineStore(
         notice.value = 'The city needs a witnessed route and a valid verdict.'
         return
       }
-      notice.value = earthCollisionCrossroadStory(history.value, verdict).outcome
+      notice.value = earthCollisionCrossroadStory(
+        history.value,
+        verdict,
+      ).outcome
       persist()
     }
 

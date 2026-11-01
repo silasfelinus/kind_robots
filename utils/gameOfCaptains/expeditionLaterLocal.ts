@@ -95,7 +95,9 @@ const LOCAL_SIDES: Readonly<Record<string, readonly [string, string]>> = {
   ],
 }
 const MISSIONS = [...ACT_TWO_MISSIONS, ...ACT_THREE_MISSIONS]
-const BY_ID = new Map(MISSIONS.map((mission) => [mission.id, mission]))
+const BY_ID = new Map<string, (typeof MISSIONS)[number]>(
+  MISSIONS.map((mission) => [mission.id, mission]),
+)
 
 export function laterLocalEncounter(
   missionId: string,

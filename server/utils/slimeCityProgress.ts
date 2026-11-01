@@ -317,7 +317,7 @@ export async function saveSlimeCityStory(
       revision: current.revision + 1,
       city: proposed.city,
       campaigns: proposed.campaigns,
-      ...(proposed.decks ?? current.decks
+      ...((proposed.decks ?? current.decks)
         ? { decks: proposed.decks ?? current.decks }
         : {}),
     }

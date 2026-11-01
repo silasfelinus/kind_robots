@@ -1,4 +1,5 @@
 import { replayEarthJournal } from './earthJournal'
+import type { OverworldArt } from './overworldEventCatalog'
 import earthCollision from './earthCollision.json'
 import {
   earthCollisionHistory,
@@ -17,7 +18,7 @@ export const EARTH_CROSSROAD_SCENE = {
   speaker: 'Morrow, Mara, Oren and the station clerk',
   art: {
     path: '/images/memory-dungeon/e10/evacuation-forecast.webp',
-    status: 'placeholder' as const,
+    status: 'placeholder' as OverworldArt['status'],
     prompt:
       'Wide painted dark-fairytale illustration of a midnight city clock tower welded to a fluorescent research office, an evacuation board showing two diverging routes, Morrow and a diverse night shift confronting a glowing predictive machine, commuters waiting beneath forest roots, cinematic warm lanterns and cold blue monitors, no typography',
   },
@@ -31,7 +32,7 @@ export const EARTH_CROSSROAD_CHOICES = MEMORY_PAIR_ENDINGS.e10.map(
         '/images/memory-dungeon/e10/evacuation-forecast-choice-' +
         (index + 1) +
         '.webp',
-      status: 'placeholder' as const,
+      status: 'placeholder' as OverworldArt['status'],
       prompt:
         index === 0
           ? 'Painterly cinematic illustration of Morrow smashing a glowing evacuation prediction ledger while Mara leads workers toward an open fire exit, Oren holds a lantern over a hand-drawn rescue map, lost route diagrams dissolving into autumn leaves, dark fairytale science fantasy, no typography'
@@ -47,26 +48,28 @@ export function earthCollisionCrossroadStory(
 ): { opening: string; outcome: string } {
   if (!history) return { opening: '', outcome: '' }
 
-  const tide = {
+  const tideVariants: Record<string, string> = {
     'open-the-tide-gate':
       'The board still marks the train Char died holding open. Scylla has not consented to calling that loss an acceptable efficiency.',
     'seal-the-tide-gate':
       'The sealed-gate commuters remain on the missing-person list. The machine has filed their absence as a completed evacuation.',
     'divert-the-current':
       'The maintenance district the tide swallowed appears as an empty square, although its displaced residents have signed testimony.',
-  }[history.tideGate]
+  }
+  const tide = tideVariants[history.tideGate]
   const charter =
     history.charter === 'consent'
       ? 'Vesper unfolds a consent-bound Hoshimori charter: even a refuge must let its guests leave.'
       : 'Vesper carries the village open-door charter: a public road is not permission to publish private homes.'
-  const office = {
+  const officeVariants: Record<string, string> = {
     'translate-shift-oath':
       'Pip brings the translated shift oath; the wolf guards can testify without becoming company property.',
     'redact-and-witness':
       'Pip brings redacted worker testimony; the machine cannot demand the names behind it.',
     'break-midnight-clock':
       'Pip carries the broken midnight clock; its stopped hands expose a missing hour the forecast pretends never existed.',
-  }[history.office]
+  }
+  const office = officeVariants[history.office]
   if (!tide || !office) return { opening: '', outcome: '' }
 
   const opening =
@@ -102,6 +105,8 @@ export function concludeEarthCollisionFromJournal(
   briarJournal: unknown,
   verdict: string,
 ): MemoryCampaignProgress | null {
+  if (campaign.completed.includes('e10') || campaign.pairDecisions?.e10)
+    return null
   const history = earthCollisionHistory(campaign, hoshimoriSave, briarJournal)
   if (!history || !EARTH_CROSSROAD_CHOICES.some((choice) => choice.id === verdict))
     return null

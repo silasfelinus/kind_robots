@@ -884,18 +884,39 @@
           </div>
           <div class="sc-deck-workbench" data-testid="slime-deck-workbench">
             <div>
-              <span class="sc-overline">TEN-CARD LOADOUT / FOUR CREATURES / ONE SIGNATURE</span>
+              <span class="sc-overline"
+                >TEN-CARD LOADOUT / FOUR CREATURES / ONE SIGNATURE</span
+              >
               <strong>{{ lab.currentDeck.length }}/10 DECK SLOTS FILLED</strong>
               <p aria-live="polite">
-                {{ lab.deckMessage || (lab.replacingCard
-                  ? 'Replace ' + lab.cards.find(card => card.id === lab.replacingCard)?.name + ' with an owned card of the same type.'
-                  : 'Select a deck card, then an owned reserve to swap. Starter cards stay playable for everyone.') }}
+                {{
+                  lab.deckMessage ||
+                  (lab.replacingCard
+                    ? 'Replace ' +
+                      lab.cards.find((card) => card.id === lab.replacingCard)
+                        ?.name +
+                      ' with an owned card of the same type.'
+                    : 'Select a deck card, then an owned reserve to swap. Starter cards stay playable for everyone.')
+                }}
               </p>
-              <small v-if="lab.currentDeckProblems.length" role="alert">{{ lab.currentDeckProblems.join(' · ') }}</small>
+              <small v-if="lab.currentDeckProblems.length" role="alert">{{
+                lab.currentDeckProblems.join(' · ')
+              }}</small>
             </div>
             <div class="sc-deck-actions">
-              <button type="button" data-testid="slime-deck-restore" @click="lab.restoreFounderDeck()">RESTORE FOUNDER</button>
-              <button type="button" data-testid="slime-deck-practice" :disabled="lab.currentDeckProblems.length > 0" @click="lab.testCustomDeck()">
+              <button
+                type="button"
+                data-testid="slime-deck-restore"
+                @click="lab.restoreFounderDeck()"
+              >
+                RESTORE FOUNDER
+              </button>
+              <button
+                type="button"
+                data-testid="slime-deck-practice"
+                :disabled="lab.currentDeckProblems.length > 0"
+                @click="lab.testCustomDeck()"
+              >
                 PRACTICE DECK
               </button>
             </div>
@@ -918,17 +939,32 @@
                 <button
                   type="button"
                   class="sc-deck-card-choice"
-                  :class="{ selected: lab.replacingCard === card.id, equipped: lab.currentDeck.includes(card.id) }"
+                  :class="{
+                    selected: lab.replacingCard === card.id,
+                    equipped: lab.currentDeck.includes(card.id),
+                  }"
                   :data-testid="'slime-deck-card-' + card.id"
                   :aria-pressed="lab.currentDeck.includes(card.id)"
                   @click="lab.selectDeckCard(card.id)"
                 >
-                  {{ lab.currentDeck.includes(card.id) ? (lab.replacingCard === card.id ? 'CHOOSE REPLACEMENT' : 'IN DECK · REPLACE') : (lab.isCardUnlocked(card.id) ? 'OWNED RESERVE · ADD' : 'LOCKED RESERVE') }}
+                  {{
+                    lab.currentDeck.includes(card.id)
+                      ? lab.replacingCard === card.id
+                        ? 'CHOOSE REPLACEMENT'
+                        : 'IN DECK · REPLACE'
+                      : lab.isCardUnlocked(card.id)
+                        ? 'OWNED RESERVE · ADD'
+                        : 'LOCKED RESERVE'
+                  }}
                 </button>
                 <span
                   >{{ lab.cardRarity(card).toUpperCase() }} ·
                   {{
-                    lab.progress.cards.includes(card.id) ? 'OWNED' : (lab.isFounderCard(card.id) ? 'STARTER' : 'LOCKED')
+                    lab.progress.cards.includes(card.id)
+                      ? 'OWNED'
+                      : lab.isFounderCard(card.id)
+                        ? 'STARTER'
+                        : 'LOCKED'
                   }}
                   · {{ card.kind.toUpperCase() }} ·
                   {{ card.cost }} MANA<template v-if="card.signature">
@@ -3431,7 +3467,8 @@ onUnmounted(() => {
   gap: 0.4rem;
   flex-wrap: wrap;
 }
-.sc-deck-actions button, .sc-deck-card-choice {
+.sc-deck-actions button,
+.sc-deck-card-choice {
   padding: 0.4rem 0.65rem;
   border: 1px solid #b8d6bd88;
   border-radius: 0.35rem;

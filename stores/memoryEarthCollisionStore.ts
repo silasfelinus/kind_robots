@@ -134,7 +134,7 @@ export const useMemoryEarthCollisionStore = defineStore(
       } catch {
         notice.value = 'The city route could not be read.'
       }
-      if (unlocked.value && journal.value.length)
+      if (unlocked.value && !completed.value && journal.value.length)
         world.syncEarthCollisionJournal(
           journal.value,
           hoshimori.progress,

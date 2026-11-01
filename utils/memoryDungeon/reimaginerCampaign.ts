@@ -506,6 +506,61 @@ export function chooseMemoryScyllaDeparture(
   return { ...progress, scyllaDeparture: choice }
 }
 
+/**
+ * World Six belongs to Char as well as Scylla. Her choice at the second
+ * departure is earned independently of Scylla's earlier decision and
+ * cannot undo the original Char's fate.
+ */
+export const MEMORY_CHAR_AGENCY_CHOICES = [
+  {
+    id: 'char-leads-evacuation',
+    label: 'Follow Char as she leads stranded families through Oren’s corridor',
+    publicResult:
+      'Char chooses the rescue route herself. Oren gives her the last ropes; Scylla follows her lead, and the families escape without surrendering their names.',
+    worldFlag: 'char-led-evacuation',
+    futureConsequence:
+      'Char has families who can vouch for the crossing, but Oren’s rope stores are depleted.',
+    effects: { supplies: -1, trust: 2 },
+  },
+  {
+    id: 'char-records-survivors',
+    label: 'Help Char gather testimony from the flooded district',
+    publicResult:
+      'Char asks each survivor what may be recorded, then carries their accounts through the flooded galleries. The evidence is real; so is the danger.',
+    worldFlag: 'char-recorded-survivors',
+    futureConsequence:
+      'Char holds consented testimony from the flooded district, including people the official maps omitted.',
+    effects: { evidence: 2, danger: 1 },
+  },
+  {
+    id: 'char-protects-refuge',
+    label: 'Stand guard while Char establishes a refuge beyond the court',
+    publicResult:
+      'Char refuses the court’s promise of compulsory safety. She opens a refuge where anyone may leave, while Scylla and Oren keep the patrol away.',
+    worldFlag: 'char-protected-refuge',
+    futureConsequence:
+      'Char’s refuge shelters people without holding them captive, though the court disputes its authority.',
+    effects: { trust: 1, evidence: 1 },
+  },
+] as const
+
+export type MemoryCharAgencyChoice =
+  (typeof MEMORY_CHAR_AGENCY_CHOICES)[number]['id']
+
+export function chooseMemoryCharAgency(
+  progress: MemoryCampaignProgress,
+  choice: MemoryCharAgencyChoice,
+): MemoryCampaignProgress {
+  if (
+    !availableMemoryExperiences(progress).includes('e06') ||
+    progress.charAgency
+  )
+    throw new Error('Char must choose her own course in the altered sea')
+  if (!MEMORY_CHAR_AGENCY_CHOICES.some((option) => option.id === choice))
+    throw new Error('Unknown Char agency choice')
+  return { ...progress, charAgency: choice }
+}
+
 export type MemoryCharFate = 'lost' | 'alive' | 'unresolved'
 
 export function memoryCharFate(
@@ -926,6 +981,7 @@ export interface MemoryCampaignProgress {
   finaleCommitted: boolean
   pairDecisions?: Partial<Record<MemoryPairEndingWorld, string>>
   scyllaDeparture?: MemoryScyllaDepartureChoice | 'legacy-unspoken'
+  charAgency?: MemoryCharAgencyChoice
   recoveredFragments?: readonly MemoryCollisionFragmentId[]
   lastChoice?: MemoryLastChoice
   /** Historical e09–e16 entries, never automatic completion of new finale. */

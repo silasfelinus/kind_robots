@@ -277,12 +277,17 @@
               data-testid="tactics-mission-score"
             >
               <summary class="cursor-pointer text-lg font-black">
-                {{ store.missionResult.outcome === 'victory' ? 'MISSION CLEARED' : 'MISSION LOST' }}
+                {{
+                  store.missionResult.outcome === 'victory'
+                    ? 'MISSION CLEARED'
+                    : 'MISSION LOST'
+                }}
                 · {{ store.missionResult.total }} PTS
               </summary>
               <p class="mt-1 text-xs opacity-80">
-                {{ store.missionResult.stage }} · {{ store.missionResult.turns }} rounds
-                · {{ store.missionResult.medals.length }} medals earned
+                {{ store.missionResult.stage }} ·
+                {{ store.missionResult.turns }} rounds ·
+                {{ store.missionResult.medals.length }} medals earned
               </p>
               <ol class="mt-2 space-y-1 text-sm">
                 <li
@@ -295,7 +300,8 @@
                 </li>
               </ol>
               <small class="mt-2 block opacity-70">
-                Full health is measured at extraction. Scores are awarded once per unique saved result.
+                Full health is measured at extraction. Scores are awarded once
+                per unique saved result.
               </small>
             </details>
             <div class="evt-panel-head">

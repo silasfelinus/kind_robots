@@ -2,6 +2,7 @@ import { BRIAR_COLLISION_SCENES } from './briarCollision'
 import { replayEarthJournal } from './earthJournal'
 import {
   MEMORY_PAIR_ENDINGS,
+  completeMemoryExperience,
   availableMemoryExperiences,
   recoverMemoryCollisionFragment,
   type MemoryCampaignProgress,
@@ -37,4 +38,25 @@ export function recoverBriarCollisionFromJournal(
       next = recoverMemoryCollisionFragment(next, scene.fragment)
   }
   return next
+}
+
+/**
+ * The finale handoff requires both genuinely recovered fragments and a
+ * substantial witnessed route. Serialized campaign fragments alone are not
+ * proof of twelve choices; replay the journal before advancing.
+ */
+export function concludeBriarCollisionFromJournal(
+  campaign: MemoryCampaignProgress,
+  journal: unknown,
+): MemoryCampaignProgress | null {
+  const replayed = replayEarthJournal('e09', journal)
+  if (!replayed || Object.keys(replayed.progress.choices).length < 12)
+    return null
+  const earned = recoverBriarCollisionFromJournal(campaign, journal)
+  if (!earned) return null
+  try {
+    return completeMemoryExperience(earned, 'e09')
+  } catch {
+    return null
+  }
 }

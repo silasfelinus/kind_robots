@@ -1,4 +1,5 @@
-export type AlienCategory = 'zodiac' | 'hybrid' | 'cosmic' | 'social' | 'ecology' | 'legendary'
+export type AlienCategory =
+  'zodiac' | 'hybrid' | 'cosmic' | 'social' | 'ecology' | 'legendary'
 export type AlienRarity = 'common' | 'unusual' | 'rare' | 'legendary'
 export type AlienSpecies = {
   id: string
@@ -13,13 +14,24 @@ export type AlienSpecies = {
   artKey: string
 }
 const PALETTES = [
-  'scarlet and gold', 'teal and copper', 'electric lilac and midnight blue',
-  'celadon and peach', 'ultraviolet and ivory', 'cobalt and saffron',
-  'dusty rose and graphite', 'iridescent jade and pearl', 'indigo and coral',
+  'scarlet and gold',
+  'teal and copper',
+  'electric lilac and midnight blue',
+  'celadon and peach',
+  'ultraviolet and ivory',
+  'cobalt and saffron',
+  'dusty rose and graphite',
+  'iridescent jade and pearl',
+  'indigo and coral',
 ] as const
 const SOCIAL = [
-  'solitary', 'pair-bonded', 'family pack', 'migrating flock',
-  'multigeneration colony', 'seasonal swarm', 'communal nursery',
+  'solitary',
+  'pair-bonded',
+  'family pack',
+  'migrating flock',
+  'multigeneration colony',
+  'seasonal swarm',
+  'communal nursery',
   'strange symbiotic pair',
 ] as const
 const HABITATS: Record<AlienCategory, string> = {

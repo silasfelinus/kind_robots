@@ -214,9 +214,7 @@ export function restoreMemoryCampaignProgress(
   }
   if (
     next.includes('e06') &&
-    MEMORY_CHAR_AGENCY_CHOICES.some(
-      (option) => option.id === saved.charAgency,
-    )
+    MEMORY_CHAR_AGENCY_CHOICES.some((option) => option.id === saved.charAgency)
   )
     progress = chooseMemoryCharAgency(
       progress,

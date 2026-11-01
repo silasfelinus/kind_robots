@@ -1901,6 +1901,8 @@ import {
 import SpaceCouchOpeningReel from '~/components/gameOfCaptains/opening-reel.vue'
 import SpaceCouchAlienEncounter from '~/components/gameOfCaptains/alien-encounter.vue'
 import SpaceCouchAlienScrapbook from '~/components/gameOfCaptains/alien-scrapbook.vue'
+import SpaceCouchAlienEncounter from '~/components/gameOfCaptains/alien-encounter.vue'
+import SpaceCouchAlienScrapbook from '~/components/gameOfCaptains/alien-scrapbook.vue'
 import SpaceCouchDailyConsole from '~/components/gameOfCaptains/daily-console.vue'
 import SpaceCouchConstellationTest from '~/components/gameOfCaptains/constellation-test.vue'
 import {

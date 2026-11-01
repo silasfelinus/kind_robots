@@ -103,14 +103,6 @@
             BACK TO THE COUCH
           </button>
         </template>
-        <button
-          v-if="sighting"
-          type="button"
-          class="btn btn-ghost mt-4 w-full"
-          @click="$emit('close')"
-        >
-          NOT NOW
-        </button>
       </div>
     </section>
   </div>

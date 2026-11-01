@@ -141,7 +141,10 @@ export function normalizeAlienGuide(value: unknown): AlienGuide {
   }
   const lastContact = validatedContact(source.lastContact) ?? undefined
   const fieldReports = Array.isArray(source.fieldReports)
-    ? source.fieldReports.map(validatedContact).filter((report): report is AlienContact => !!report).slice(-40)
+    ? source.fieldReports
+        .map(validatedContact)
+        .filter((report): report is AlienContact => !!report)
+        .slice(-101)
     : []
   const milestoneSeen = Array.isArray(source.milestoneSeen)
     ? [
@@ -357,7 +360,7 @@ export function nextAlienSighting(
     ? history.outcome === 'chaos'
       ? 'Word of an earlier couch-related incident has already reached this place.'
       : history.outcome === 'bond'
-        ? 'A previous new friend has apparently told the locals you are safe to approach.'
+        ? 'A previous new friend left the captain a note: Consider what this creature might need before assuming it wants company.'
         : 'The creature watches the couch cautiously; apparently a previous visitor warned it about awkward tourists.'
     : ''
   const scene =
@@ -460,7 +463,7 @@ export function resolveAlienSighting(
     fieldReports: [
       ...(guide.fieldReports ?? []),
       { speciesId: sighting.species.id, mood: sighting.mood, outcome, choice },
-    ].slice(-40),
+    ].slice(-101),
   }
   const species = sighting.species
   const reaction =

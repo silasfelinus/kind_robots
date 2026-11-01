@@ -178,7 +178,7 @@
               {{ collision.current.title }}
             </h3>
             <div
-              class="kr-scroll mt-2 max-h-28 overflow-y-auto text-xs leading-relaxed sm:text-sm"
+              class="mt-2 max-h-28 overflow-y-auto text-xs leading-relaxed sm:text-sm"
             >
               <p>{{ collision.current.opening }}</p>
               <p

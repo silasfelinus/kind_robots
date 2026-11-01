@@ -2264,12 +2264,18 @@ export function nextSchoolDay(run: AcademyRun): AcademyRun {
       report.grade,
       report.names === 'No team dispatched',
     )
+  const lastPatrol = run.patrolHistory?.at(-1)
+  const madeNeighborhoodCall = lastPatrol?.day === run.day
+  // A player-led neighborhood patrol owns the next morning; an unanswered
+  // ordinary assignment must never replace that consequence on the report.
   const morningReport =
     run.reports.find(
       (report) => report.names.includes('YOU') && morningFor(report),
-    ) ?? run.reports.find((report) => morningFor(report))
+    ) ??
+    (madeNeighborhoodCall
+      ? undefined
+      : run.reports.find((report) => morningFor(report)))
   const morningMemory = morningReport ? morningFor(morningReport) : null
-  const lastPatrol = run.patrolHistory?.at(-1)
   const storyNight =
     lastPatrol?.day === run.day && lastPatrol.outcome
       ? patrolStoryById(lastPatrol.encounterId)

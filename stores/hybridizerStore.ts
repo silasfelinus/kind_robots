@@ -228,10 +228,7 @@ export const useHybridizerStore = defineStore('hybridizer', () => {
       versions: HybridizerVersion[]
       canEdit: boolean
     }>('/api/hybridizer/fusions/' + key.slice(7) + '/versions')
-    if (
-      resultKey.value !== key ||
-      viewerId !== userStore.authenticatedUserId
-    )
+    if (resultKey.value !== key || viewerId !== userStore.authenticatedUserId)
       return
     if (response.success && response.data) {
       versions.value = response.data.versions

@@ -120,6 +120,39 @@ export function nextAlienSighting(run: VoyageRun, guide: AlienGuide): AlienSight
 export const alienHint = (species: AlienSpecies): string =>
   `Rumored near ${species.habitat}. ${species.rarity === 'legendary' ? 'Extremely rare, never permanently missed.' : 'Try another voyage.'}`
 
+const ALIEN_REACTIONS = {
+  zodiac: {
+    chaos: 'The horoscope runs backward. All twelve signs briefly declare the couch their chief executive.',
+    flee: 'A constellation folds like an umbrella and the visitor slips behind it.',
+    befriend: 'The creature offers a prediction that is probably a hug in zodiac grammar.',
+  },
+  hybrid: {
+    chaos: 'The portable translator issues two incompatible animal passports and a third passport for the couch.',
+    flee: 'One half of the creature retreats before the other half has agreed on a direction.',
+    befriend: 'Both halves agree the red sofa is a very acceptable third parent.',
+  },
+  cosmic: {
+    chaos: 'For eleven seconds gravity obeys interpretive dance. The bubble protects everyone, barely.',
+    flee: 'A tiny local eclipse becomes a perfect getaway car.',
+    befriend: 'A starlight trail wraps itself around the couch like a hand-knitted scarf.',
+  },
+  social: {
+    chaos: 'Every witness starts applauding the wrong side of the argument. A parade forms without permission.',
+    flee: 'A wave of collective embarrassment opens a convenient escape corridor.',
+    befriend: 'The lifeform invites its entire extended social network to future brunch.',
+  },
+  ecology: {
+    chaos: 'The food chain forms a peaceful picket line around the couch. Several predators carry snacks.',
+    flee: 'Its whole symbiotic neighborhood folds itself into the scenery.',
+    befriend: 'Three different generations appear to vote yes on adopting the visitors.',
+  },
+  legendary: {
+    chaos: 'A small corner of reality resigns and must be persuaded to return for the end credits.',
+    flee: 'The impossible visitor leaves a note saying Try Again, written in a language no one owns.',
+    befriend: 'The stars go briefly silent in respect, then someone on the couch sneezes.',
+  },
+} as const
+
 export function resolveAlienSighting(
   guide: AlienGuide,
   sighting: AlienSighting,
@@ -145,11 +178,12 @@ export function resolveAlienSighting(
       ? [...guide.milestoneSeen, sighting.milestone.at]
       : [...guide.milestoneSeen],
   }
-  const name = sighting.species.name
+  const species = sighting.species
+  const reaction = ALIEN_REACTIONS[species.category][choice]
   const text = choice === 'chaos'
-    ? `The captain presses the one button labeled DO NOT PRESS. ${name} reacts with a burst of confetti, a mild gravity incident, and an extremely photogenic pose. Science calls it a documented discovery.`
+    ? `The captain presses DO NOT PRESS. ${reaction} ${species.name} poses for a bewildered field photograph. Discovery recorded.`
     : choice === 'flee'
-      ? `${name} notices the four passengers on a red couch trying to act casual and disappears into ${sighting.species.habitat}. There is no penalty. It can turn up another day.`
-      : `The crew offers a cushion and a snack. ${name} accepts the friendship, declines the snack, and signs the field guide with a tiny muddy footprint.`
+      ? `${species.name} notices the crew attempting to look normal. ${reaction} No penalty: it can return another day.`
+      : `The crew offers a cushion and a snack. ${reaction} ${species.name} accepts the friendship and signs with a muddy footprint.`
   return { guide: next, recorded: recorded && !alreadyKnown, text }
 }

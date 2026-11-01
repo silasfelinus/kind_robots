@@ -1,6 +1,9 @@
 import assert from 'node:assert/strict'
 import { readFileSync } from 'node:fs'
 import { startVoyage, restoreVoyage } from '../gameOfCaptains/rules'
+import { ACT_TWO_MISSIONS } from '../gameOfCaptains/actTwo'
+import { ACT_THREE_MISSIONS } from '../gameOfCaptains/actThree'
+import { LATE_LOCAL_ROUTE_IDS } from '../gameOfCaptains/expeditionLaterLocal'
 import {
   planEpisodeAssignment,
   removeEpisodeAssignment,
@@ -9,6 +12,7 @@ import {
   startWorldTravel,
   arriveAtWorld,
   currentExpedition,
+  expeditionBoard,
   leaveExpedition,
 } from '../gameOfCaptains/expedition'
 import {
@@ -39,6 +43,38 @@ const board = currentExpedition(landing)
 const mandatory = board.filter((card) => card.priority === 'major')
 assert.ok(mandatory.length >= 1 && mandatory.length <= 4)
 assert.ok(episodeIncitingEvent(landing).length > 75)
+const lateMissions = [...ACT_TWO_MISSIONS, ...ACT_THREE_MISSIONS]
+assert.equal(lateMissions.length, 21)
+assert.deepEqual(
+  [...LATE_LOCAL_ROUTE_IDS].sort(),
+  lateMissions.map((mission) => mission.id).sort(),
+)
+const lateMajorTitles = new Set<string>()
+const lateMinorTitles = new Set<string>()
+for (const mission of lateMissions) {
+  const cards = expeditionBoard(442, mission.chapter, mission.id)
+  const major = cards.find((card) => card.priority === 'major')!
+  const minor = cards.find((card) => card.priority === 'minor')!
+  assert.ok(major.title.includes(mission.title), mission.id)
+  assert.ok(minor.setup.length > 60, mission.id)
+  lateMajorTitles.add(major.title)
+  lateMinorTitles.add(minor.title)
+  const visiting = {
+    ...landing,
+    chapter: mission.chapter,
+    missionId: mission.id,
+    expeditionVisit: {
+      chapter: mission.chapter,
+      missionId: mission.id,
+      encounterIds: cards.map((card) => card.id),
+      results: [],
+    },
+  }
+  assert.deepEqual(currentExpedition(visiting), cards)
+  assert.deepEqual(currentExpedition(JSON.parse(JSON.stringify(visiting))), cards)
+}
+assert.equal(lateMajorTitles.size, 21)
+assert.equal(lateMinorTitles.size, 21)
 assert.equal(episodeMajorComplete(landing), false)
 assert.deepEqual(episodeDecks(landing), ['planet', 'casino', 'serendipity'])
 assert.equal(episodeDecksDone(landing), false)

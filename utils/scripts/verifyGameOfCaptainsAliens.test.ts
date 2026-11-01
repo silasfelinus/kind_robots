@@ -4,6 +4,8 @@ import { ALIEN_SPECIES } from '../gameOfCaptains/alienSpecies'
 import {
   ALIEN_CHOICES,
   ALIEN_MILESTONES,
+  alienEvidence,
+  alienObservation,
   alienOutcome,
   emptyAlienGuide,
   normalizeAlienGuide,
@@ -59,7 +61,21 @@ for (const choice of ALIEN_CHOICES) {
     /run away|flee|retreat|friend|chaos|record|unlock|discover/i,
   )
 }
-assert.match(first.scene, /broken rescue beacon|stolen a dangling|stands guard/)
+const observed = alienEvidence(first.species.category, first.mood)
+assert.ok(first.scene.includes(observed.incident))
+assert.ok(first.scene.includes(observed.evidence))
+assert.ok(first.scene.includes(first.species.fieldNote))
+const allScenes = new Set<string>()
+for (const category of ['zodiac', 'hybrid', 'cosmic', 'social', 'ecology', 'legendary'] as const) {
+  for (const mood of moods) {
+    const clue = alienEvidence(category, mood)
+    assert.ok(clue.incident.length >= 65, category + ' incident needs a readable situation')
+    assert.ok(clue.evidence.length >= 65, category + ' evidence needs buried detail')
+    assert.doesNotMatch(clue.incident + ' ' + clue.evidence, /\\b(wary|playful|protective|bond|friendship|retreat|flee|guaranteed)\\b/i)
+    allScenes.add(clue.incident + clue.evidence)
+  }
+}
+assert.equal(allScenes.size, 18, 'different ecology and emotions require different authored clues')
 assert.match(first.scene, /couch|bubble/i)
 assert.equal(first.mood, nextAlienSighting(run, empty)!.mood)
 
@@ -93,11 +109,19 @@ assert.deepEqual(
 )
 assert.equal(chaos.guide.lastContact?.outcome, 'chaos')
 assert.equal(friend.guide.lastContact?.outcome, 'bond')
+assert.equal(friend.guide.lastContact?.choice, choiceFor(first.mood, 'bond'))
+assert.equal(friend.guide.fieldReports?.length, 1)
+assert.equal(friend.guide.fieldReports?.[0]?.speciesId, first.species.id)
+assert.match(alienObservation(friend.guide.fieldReports![0]!), /We tried/)
+assert.match(alienObservation(friend.guide.fieldReports![0]!), /It chose to stay/)
+assert.ok(alienObservation(friend.guide.fieldReports![0]!).includes(observed.evidence))
 assert.equal(fleeing.guide.lastContact?.outcome, 'retreat')
-assert.equal(
-  normalizeAlienGuide(JSON.parse(JSON.stringify(friend.guide))).lastContact
-    ?.outcome,
-  'bond',
+const restoredGuide = normalizeAlienGuide(JSON.parse(JSON.stringify(friend.guide)))
+assert.equal(restoredGuide.lastContact?.outcome, 'bond')
+assert.deepEqual(restoredGuide.fieldReports, friend.guide.fieldReports)
+assert.deepEqual(
+  normalizeAlienGuide({ fieldReports: [{ speciesId: 'invented', mood: 'wary', outcome: 'bond' }, { speciesId: first.species.id, mood: 'fake', outcome: 'bond' }] }).fieldReports,
+  undefined,
 )
 const followup = nextAlienSighting({ ...run, chapter: 3 }, friend.guide)!
 assert.match(followup.scene, /previous new friend/)
@@ -176,6 +200,8 @@ assert.match(page, /space-couch-alien-signal/)
 assert.match(page, /space-couch-open-alien-scrapbook/)
 assert.match(encounter, /v-for="choice in ALIEN_CHOICES"/)
 assert.match(encounter, /space-couch-alien-emotional-cue/)
+assert.match(encounter, /space-couch-alien-prior-field-note/)
+assert.match(scrapbook, /space-couch-alien-scrapbook-field-note/)
 assert.match(scrapbook, /v-for="\(alien, index\) in ALIEN_SPECIES"/)
 assert.match(store, /game-of-captains-alien-scrapbook-v1/)
 assert.match(store, /normalizeAlienGuide/)

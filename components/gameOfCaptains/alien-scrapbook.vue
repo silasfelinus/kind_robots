@@ -1,5 +1,5 @@
 <template>
-  <div class="alien-guide flex h-full min-h-0 flex-col gap-3 rounded-2xl border border-primary/30 bg-base-200 p-3" data-testid="space-couch-alien-scrapbook">
+  <div class="alien-guide @container flex h-full min-h-0 flex-col gap-3 rounded-2xl border border-primary/30 bg-base-200 p-3" data-testid="space-couch-alien-scrapbook">
     <header class="flex shrink-0 flex-wrap items-center justify-between gap-2">
       <div>
         <p class="text-xs uppercase tracking-widest opacity-70">Couch Natural History Society</p>
@@ -8,9 +8,9 @@
       </div>
       <button type="button" class="btn btn-ghost btn-sm" @click="$emit('close')">← MAIN MENU</button>
     </header>
-    <div class="grid min-h-0 flex-1 gap-3 md:grid-cols-[minmax(0,1.2fr)_minmax(0,1fr)]">
-      <section class="flex min-h-0 flex-col gap-2 overflow-hidden" aria-label="Alien catalogue">
-        <div class="kr-scroll grid min-h-0 flex-1 grid-cols-2 gap-2 overflow-y-auto pr-1 sm:grid-cols-3">
+    <div class="kr-scroll grid min-h-0 flex-1 gap-3 overflow-y-auto @md:grid-cols-[minmax(0,1.2fr)_minmax(0,1fr)]">
+      <section class="order-last flex min-h-0 flex-col gap-2 @md:order-first" aria-label="Alien catalogue">
+        <div class="grid grid-cols-2 gap-2 pr-1 @sm:grid-cols-3">
           <button
             v-for="(alien, index) in ALIEN_SPECIES"
             :key="alien.id"
@@ -33,7 +33,7 @@
           </button>
         </div>
       </section>
-      <section class="kr-scroll min-h-0 overflow-y-auto rounded-xl border border-base-content/15 bg-base-100/50 p-3" aria-live="polite">
+      <section class="order-first self-start rounded-xl border border-base-content/15 bg-base-100/50 p-3 @md:sticky @md:top-0 @md:order-last" aria-live="polite">
         <div class="relative mb-3 grid min-h-48 place-items-center overflow-hidden rounded-xl bg-gradient-to-br from-primary/20 via-base-300 to-secondary/20">
           <img
             v-if="known(selected.id) && selectedArt && !brokenImages.includes(selectedArt)"

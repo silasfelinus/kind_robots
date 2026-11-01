@@ -123,6 +123,8 @@ export const useConductorStore = defineStore('conductor', () => {
   const updatingPitchSlugs = ref<string[]>([])
   const updatingTaskKeys = ref<string[]>([])
   const optimisticPitchStatuses = ref<Record<string, PitchStatus>>({})
+  const progressBySlug = ref<Record<string, number>>({})
+  let progressLoadedAt = 0
 
   const liveProjects = computed<ConductorProject[]>(
     () => data.value?.projects ?? [],
@@ -226,6 +228,28 @@ export const useConductorStore = defineStore('conductor', () => {
       }
     })()
     return inFlightFetch
+  }
+
+  /*
+   * One percent-complete number per active/continuous project, for surfaces
+   * (the home strip) that need nothing else. /api/conductor/projects carries
+   * every project's full task list and notes; this is a few hundred bytes.
+   */
+  async function fetchProgress(force = false): Promise<void> {
+    if (!force && Date.now() - progressLoadedAt < FRESH_DATA_MS) return
+    const response = await performFetch<{
+      progress?: Record<string, number>
+    }>('/api/conductor/progress')
+    if (!response.success || !response.data) return
+    progressBySlug.value = response.data.progress ?? {}
+    progressLoadedAt = Date.now()
+  }
+
+  function progressForSlug(slug: string): number | null {
+    const match = projects.value.find((entry) => entry.slug === slug)
+    if (typeof match?.progress === 'number') return match.progress
+    const value = progressBySlug.value[slug]
+    return typeof value === 'number' ? value : null
   }
 
   async function setPitchPlayReady(
@@ -470,6 +494,9 @@ export const useConductorStore = defineStore('conductor', () => {
     rejectedPitches,
     archivedPitches,
     fetchProjects,
+    fetchProgress,
+    progressBySlug,
+    progressForSlug,
     pitchStatus,
     updatePitchStatus,
     setPitchPlayReady,

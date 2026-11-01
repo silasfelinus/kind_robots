@@ -624,16 +624,16 @@ function progressFor(project: ShowcaseCard): number | null {
   const slug = project.conductorSlug
   if (!slug) return null
 
-  const match = conductorStore.projects.find((entry) => entry.slug === slug)
+  const value = conductorStore.progressForSlug(slug)
   /*
    * NULL, not 0, when there is no match. A project conductor has never heard of
    * is of UNKNOWN progress; rendering an empty bar at 0% asserts that no work
    * has been done on it, which is a different and probably false claim. The bar
    * is omitted instead.
    */
-  if (typeof match?.progress !== 'number') return null
+  if (value === null) return null
 
-  return Math.max(0, Math.min(100, Math.round(match.progress)))
+  return Math.max(0, Math.min(100, Math.round(value)))
 }
 
 /** HIGH -> H. The word cost more width than the title could spare. */
@@ -740,13 +740,10 @@ onMounted(() => {
   void showcaseStore.load()
 
   /*
-   * The projects strip's progress bars read conductorStore, and this page is
-   * now the only thing that reliably asks for it. home-attention used to own
-   * this fetch, but it no longer mounts for a signed-out visitor -- who still
-   * sees the strip, and whose bars would otherwise all resolve to null and
-   * disappear. Cached in the store (FRESH_DATA_MS), so it stays a no-op when
-   * anything else on the session has already asked.
+   * The projects strip's progress bars need one number per project. A
+   * signed-out visitor never mounts home-attention, so this page asks for
+   * them itself -- from the slim progress endpoint, not the full projection.
    */
-  void conductorStore.fetchProjects()
+  void conductorStore.fetchProgress()
 })
 </script>

@@ -704,6 +704,7 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
 
   /** Fight this district's rival on its format, with your decision's terms. */
   function fightRival(): void {
+    if (!storyEditable()) return
     const id = districtId.value
     if (!here.value || boutBlocked(city.value, id)) return
     const rival = CITY_PLAN[id].rival
@@ -729,6 +730,7 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
   }
 
   function fightContract(): void {
+    if (!storyEditable()) return
     const id = districtId.value
     if (contractBlocked(city.value, id)) return
     stop()
@@ -757,6 +759,7 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
     if (!guideSeen.has('blackout')) openGuide()
   }
   function startCampaignBattle(choiceId: CampaignApproach): void {
+    if (!storyEditable()) return
     if (campaignBout.value) return
     const fromCity =
       view.value === 'city' &&

@@ -82,7 +82,9 @@ const kinds: readonly OverworldKind[] = [
   'puzzle',
   'companion',
 ]
-const earthCollisionScenes = new Map(earthCollision.map((scene) => [scene.key, scene]))
+const earthCollisionScenes = new Map(
+  earthCollision.map((scene) => [scene.key, scene]),
+)
 const mirrorTitles = new Map(
   HOSHIMORI_WARM_SITES.map((site) => [site.key, site.title]),
 )
@@ -403,7 +405,12 @@ function generated(
     choices,
     ...(photo ? { photographId: photo.id } : {}),
     ...(fragment
-      ? { memoryFragment: fragmentScene?.fragment ?? earthScene?.fragment ?? world.id + ':' + key }
+      ? {
+          memoryFragment:
+            fragmentScene?.fragment ??
+            earthScene?.fragment ??
+            world.id + ':' + key,
+        }
       : {}),
     ...(mirror ? { originalSite: mirror } : {}),
     source: 'new-authoring',

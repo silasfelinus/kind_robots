@@ -1796,6 +1796,7 @@ import {
   CAPTAIN_ORIGINS,
   type CaptainOriginId,
 } from '~/utils/gameOfCaptains/captainOrigins'
+import SpaceCouchOpeningReel from '~/components/gameOfCaptains/opening-reel.vue'
 import SpaceCouchDailyConsole from '~/components/gameOfCaptains/daily-console.vue'
 import SpaceCouchConstellationTest from '~/components/gameOfCaptains/constellation-test.vue'
 import {

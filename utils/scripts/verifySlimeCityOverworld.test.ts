@@ -18,13 +18,16 @@ import {
   boutTerms,
   CITY_PLAN,
   CITY_CONTRACTS,
+  CHAMPION_AFTERMATH,
   CAMPAIGN_DISTRICTS,
+  championAftermath,
   cityRoute,
   cityWon,
   contractBlocked,
   recordContract,
   createCity,
   decide,
+  decideAftermath,
   decideStreet,
   streetStory,
   storyMissionTerms,
@@ -295,9 +298,14 @@ for (const id of ['chimera', 'foundry', 'undertow'] as DistrictId[])
   run = recordBout(run, id, 'player')
 assert.equal(run.cleared.length, 3)
 assert.equal(gateReason(run, 'pitworks'), null, 'Grand Pit opens')
+assert.equal(
+  boutBlocked(run, 'chimera'),
+  'Resolve the champion aftermath first.',
+)
+run = decideAftermath(run, 'undertow-burn')
 assert.equal(boutBlocked(run, 'chimera'), 'Already beaten.')
 assert.equal(recordBout(run, 'chimera', 'player'), run, 'No double wins')
-assert.equal(totalStanding(run), 3)
+assert.equal(totalStanding(run), 5, 'Freeing the spies adds two more standing')
 assert.equal(gateReason(run, 'crown'), null, 'Wins open the Gilt Gate')
 assert.equal(cityWon(run), false)
 assert.equal(cityWon(recordBout(run, 'pitworks', 'player')), true)
@@ -306,11 +314,42 @@ for (const id of ids) {
   const here = { ...createCity(), location: id }
   assert.ok(contractBlocked(here, id))
   const unlocked = recordBout(here, id, 'player')
-  assert.equal(contractBlocked(unlocked, id), null)
-  const won = recordContract(unlocked, id, 'player')
+  assert.equal(unlocked.pendingAftermath, id)
+  assert.equal(championAftermath(unlocked), CHAMPION_AFTERMATH[id])
+  assert.equal(
+    contractBlocked(unlocked, id),
+    'Resolve the champion aftermath first.',
+  )
+  assert.equal(
+    travel(unlocked, streetsFrom(id)[0]!.to),
+    unlocked,
+    'No escaping the aftermath',
+  )
+  assert.equal(decideAftermath(unlocked, 'not-a-choice'), unlocked)
+  const story = CHAMPION_AFTERMATH[id]
+  assert.equal(story.choices.length, 2)
+  for (const choice of story.choices) {
+    const chosenAftermath = decideAftermath(unlocked, choice.id)
+    assert.equal(chosenAftermath.pendingAftermath, null)
+    assert.equal(chosenAftermath.aftermathChoices[id], choice.id)
+    assert.equal(
+      chosenAftermath.standing[id],
+      unlocked.standing[id] + choice.standing,
+    )
+    assert.equal(chosenAftermath.heat, Math.max(0, unlocked.heat + choice.heat))
+    assert.deepEqual(chosenAftermath.streetTerms[id], choice.terms)
+    assert.equal(
+      decideAftermath(chosenAftermath, story.choices[0].id),
+      chosenAftermath,
+    )
+    assert.equal(contractBlocked(chosenAftermath, id), null)
+  }
+  assert.equal(championAftermath(unlocked)?.title, story.title)
+  const settled = decideAftermath(unlocked, story.choices[0].id)
+  const won = recordContract(settled, id, 'player')
   assert.deepEqual(won.contracts, [id])
   assert.equal(recordContract(won, id, 'player'), won)
-  assert.equal(recordContract(unlocked, id, 'enemy').contracts.length, 0)
+  assert.equal(recordContract(settled, id, 'enemy').contracts.length, 0)
   assert.equal(CITY_CONTRACTS[id].team.length > 0, true)
 }
 // Losses raise heat; too much heat bankrolls every rival
@@ -609,6 +648,10 @@ lab.city = recordBout(
   'chimera',
   'player',
 )
+assert.equal(lab.aftermathEvent?.title, CHAMPION_AFTERMATH.chimera.title)
+lab.chooseAftermath('chimera-free')
+assert.equal(lab.city.pendingAftermath, null)
+assert.equal(lab.city.aftermathChoices.chimera, 'chimera-free')
 lab.visit('chimera')
 lab.fightContract()
 assert.equal(lab.view, 'arena')

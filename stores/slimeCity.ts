@@ -54,11 +54,13 @@ import {
   CITY_PLAN,
   CITY_CONTRACTS,
   CAMPAIGN_DISTRICTS,
+  championAftermath,
   cityRoute,
   contractBlocked,
   contractTerms,
   createCity,
   decide,
+  decideAftermath,
   decideStreet,
   streetStory,
   storyMissionTerms,
@@ -284,7 +286,8 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
     () =>
       campaignDistrict.value !== null &&
       city.value.location === campaignDistrict.value &&
-      !city.value.pendingStreet,
+      !city.value.pendingStreet &&
+      !city.value.pendingAftermath,
   )
   const team = computed(() => teamById(activeTeam.value))
   const enemy = computed(() => teamById(enemyTeam.value))
@@ -374,6 +377,7 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
   )
   const plan = computed(() => CITY_PLAN[districtId.value])
   const streetEvent = computed(() => streetStory(city.value))
+  const aftermathEvent = computed(() => championAftermath(city.value))
   const streetProgress = computed(
     () => Object.keys(city.value.streetChoices).length,
   )
@@ -534,6 +538,10 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
 
   function chooseStreet(choiceId: string): void {
     city.value = decideStreet(city.value, choiceId)
+  }
+
+  function chooseAftermath(choiceId: string): void {
+    city.value = decideAftermath(city.value, choiceId)
   }
 
   /** Fight this district's rival on its format, with your decision's terms. */
@@ -857,6 +865,7 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
     campaignAtDestination,
     plan,
     streetEvent,
+    aftermathEvent,
     streetProgress,
     here,
     route,
@@ -909,6 +918,7 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
     walk,
     choose,
     chooseStreet,
+    chooseAftermath,
     fightRival,
     fightContract,
     showCampaign,

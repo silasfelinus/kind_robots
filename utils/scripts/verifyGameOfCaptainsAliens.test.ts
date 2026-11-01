@@ -209,7 +209,7 @@ for (const count of [5, 12, 25, 50, 75, 100]) {
     milestoneDecisions: Object.fromEntries(
       ALIEN_MILESTONES.filter((event) => event.at < count).map((event) => [
         String(event.at),
-        'a',
+        'a' as const,
       ]),
     ),
   }

@@ -245,7 +245,12 @@ export function sanitizeScrapbook(raw: unknown): Scrapbook {
   if (!Array.isArray(records)) return emptyScrapbook()
   return {
     ...mergeScrapbook(emptyScrapbook(), records.filter(validRecord)),
-    results: mergeBattleResults([], (data as Scrapbook).results ?? []),
+    results: mergeBattleResults(
+      [],
+      Array.isArray((data as Scrapbook).results)
+        ? (data as Scrapbook).results
+        : [],
+    ),
   }
 }
 

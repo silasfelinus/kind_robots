@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict'
+import { episodeChoiceArtKeys, episodeResultArtKey } from '../gameOfCaptains/episodeArtwork'
 import { readFileSync } from 'node:fs'
 import { startVoyage, restoreVoyage } from '../gameOfCaptains/rules'
 import {
@@ -39,6 +40,32 @@ const board = currentExpedition(landing)
 const mandatory = board.filter((card) => card.priority === 'major')
 assert.ok(mandatory.length >= 1 && mandatory.length <= 4)
 assert.ok(episodeIncitingEvent(landing).length > 75)
+const planetCards = new Map<string, string>()
+for (let seed = 1; seed <= 300; seed++) {
+  const card = episodeCard({ ...landing, seed }, 'planet')
+  planetCards.set(card.id, card.title)
+}
+assert.equal(planetCards.size, 10, 'every authored planetary dilemma has art slots')
+const episodeArtKeys = [...planetCards.keys()].flatMap((key) =>
+  episodeChoiceArtKeys(key),
+)
+assert.equal(episodeArtKeys.length, 70)
+assert.equal(new Set(episodeArtKeys).size, 70)
+assert.ok(episodeArtKeys.every((key) => key.startsWith('episode/planet-')))
+assert.equal(
+  episodeResultArtKey({ cardId: 'planet-example', choice: 'ask' }),
+  null,
+  'legacy saves without outcomes cannot invent paintings',
+)
+const consoleUI = readFileSync(
+  new URL('../../components/gameOfCaptains/daily-console.vue', import.meta.url),
+  'utf8',
+)
+assert.match(consoleUI, /episodeRevealArtKey/)
+assert.match(consoleUI, /episodeResultArtKey/)
+assert.match(consoleUI, /space-couch-episode-result-art/)
+assert.match(consoleUI, /onEpisodeArtworkError/)
+
 assert.equal(episodeMajorComplete(landing), false)
 assert.deepEqual(episodeDecks(landing), ['planet', 'casino', 'serendipity'])
 assert.equal(episodeDecksDone(landing), false)

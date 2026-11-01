@@ -121,6 +121,15 @@ export const useGameOfCaptainsStore = defineStore('gameOfCaptains', () => {
     if (!sighting) return
     const outcome = resolveAlienSighting(alienGuide.value, sighting, choice)
     alienGuide.value = outcome.guide
+    if (run.value) {
+      run.value = {
+        ...run.value,
+        log: [
+          ...run.value.log,
+          `Ship day ${run.value.day ?? run.value.chapter}: Alien field encounter with ${sighting.species.name}. ${outcome.text}`,
+        ],
+      }
+    }
     alienReport.value = {
       text: outcome.text,
       speciesId: sighting.species.id,

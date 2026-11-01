@@ -2325,13 +2325,18 @@ assert.match(houseScreen, /world\.chooseHouse\(choice\.id\)/)
 assert.match(houseScreen, /memory-house-choice-column/)
 assert.match(
   consoleStage,
-  /class="flex shrink-0 flex-wrap items-center gap-2 border-b/,
-  'World One console header wraps its controls instead of clipping mobile navigation',
+  /<header-page-bar console-theme="memory-dungeon">[\s\S]*class="md-bar-actions"[\s\S]*data-testid="memory-enter-morrow-earth"[\s\S]*<\/header-page-bar>/,
+  'World One console controls live in the shared system bar, not a second header above the map',
 )
 assert.match(
-  consoleStage,
-  /class="min-w-0 w-full md:w-auto md:flex-1"/,
-  'Mobile title keeps a full row without shrinking the playable map to a column',
+  sharedFlipCss,
+  /\.md-bar-actions \{[^}]*overflow-x: auto;/,
+  'World One bar controls scroll horizontally instead of clipping mobile navigation',
+)
+assert.match(
+  sharedFlipCss,
+  /@container \(max-width: 560px\) \{\s*\.md-bar-title \{\s*display: none;/,
+  'Narrow bars drop the title instead of shrinking the playable map to a column',
 )
 assert.match(houseScreen, /data-testid="memory-house-passages"/)
 assert.match(

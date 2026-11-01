@@ -863,10 +863,10 @@ console.log('Slime City civic crisis / campaign store integration PASS')
 
 // Grand Pit victory is a ceremony, not merely a boolean. Champion aftermath
 // comes first; a four-victory crisis takes priority over the final charter.
-const openingCity = createCity()
-assert.equal(cityFinale(openingCity), null)
-assert.equal(decideFinale(openingCity, 'pit-charter'), openingCity)
-const pitVictory = recordBout(openingCity, 'pitworks', 'player')
+const preFinaleCity = createCity()
+assert.equal(cityFinale(preFinaleCity), null)
+assert.equal(decideFinale(preFinaleCity, 'pit-charter'), preFinaleCity)
+const pitVictory = recordBout(preFinaleCity, 'pitworks', 'player')
 assert.equal(cityWon(pitVictory), true)
 assert.equal(cityFinale(pitVictory), null)
 assert.ok(championAftermath(pitVictory))

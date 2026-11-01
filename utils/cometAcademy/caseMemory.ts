@@ -38,7 +38,9 @@ export function recordCaseNight(
   reports: readonly { caseId: string; grade: Grade; names: string }[],
 ): CaseMemory[] {
   if (day < 3 || day > 29) return [...previous]
-  const unique = new Map(previous.map((record) => [record.day + ':' + record.caseId, record]))
+  const unique = new Map(
+    previous.map((record) => [record.day + ':' + record.caseId, record]),
+  )
   for (const report of reports) {
     if (!caseThread(report.caseId)) continue
     const record: CaseMemory = {
@@ -71,11 +73,20 @@ export function caseTrustModifier(
       day - record.day > 5 ||
       record.caseId === caseId ||
       caseThread(record.caseId) !== thread
-    ) return sum
-    return sum + (record.unanswered ? -2
-      : record.grade === 'honors' ? 2
-      : record.grade === 'pass' ? 1
-      : record.grade === 'failed' ? -1 : 0)
+    )
+      return sum
+    return (
+      sum +
+      (record.unanswered
+        ? -2
+        : record.grade === 'honors'
+          ? 2
+          : record.grade === 'pass'
+            ? 1
+            : record.grade === 'failed'
+              ? -1
+              : 0)
+    )
   }, 0)
   return Math.max(-2, Math.min(2, score))
 }
@@ -92,20 +103,23 @@ export function validCaseHistory(
   ])
   const seen = new Set<string>()
   for (const value of history) {
-    if (!value || typeof value !== 'object' || Array.isArray(value)) return false
+    if (!value || typeof value !== 'object' || Array.isArray(value))
+      return false
     const entry = value as CaseMemory
     if (
       Object.keys(entry).sort().join(',') !== 'caseId,day,grade,unanswered' ||
       !Number.isInteger(entry.day) ||
       entry.day < 3 ||
       entry.day > currentDay ||
-      (entry.day === currentDay && !['debrief', 'campus', 'finale', 'ending'].includes(phase)) ||
+      (entry.day === currentDay &&
+        !['debrief', 'campus', 'finale', 'ending'].includes(phase)) ||
       !ids.has(entry.caseId) ||
       !['honors', 'pass', 'partial', 'failed'].includes(entry.grade) ||
       typeof entry.unanswered !== 'boolean' ||
       (entry.unanswered && entry.grade !== 'failed') ||
       seen.has(entry.day + ':' + entry.caseId)
-    ) return false
+    )
+      return false
     seen.add(entry.day + ':' + entry.caseId)
   }
   return true

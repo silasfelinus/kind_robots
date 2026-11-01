@@ -417,6 +417,8 @@ function validateSave(save: EvtSave, migrated: boolean): LoadResult {
   if (!isInt(state.seed, 1, 0xffffffff)) return reject('RNG state is invalid.')
   if (!isInt(state.turn, 1, (state.turnLimit ?? 300) + 1))
     return reject('Turn counter is out of range.')
+  if (state.damageTaken !== undefined && !isInt(state.damageTaken, 0, 1000000))
+    return reject('Squad damage history is invalid.')
   if (!['active', 'victory', 'defeat'].includes(state.phase))
     return reject('Battle phase is invalid.')
   if (!['move', 'fire', 'power'].includes(state.mode))

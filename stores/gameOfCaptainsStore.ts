@@ -1,3 +1,13 @@
+import {
+  emptyAlienGuide,
+  normalizeAlienGuide,
+  nextAlienSighting,
+  maySeeAlien,
+  resolveAlienSighting,
+  type AlienGuide,
+  type AlienSighting,
+  type AlienChoice,
+} from '~/utils/gameOfCaptains/alienFieldGuide'
 import { performFetch } from '~/stores/utils'
 import { usePlaybookRunReviewStore } from '~/stores/playbookRunReviewStore'
 import {
@@ -81,6 +91,7 @@ import {
 } from '~/utils/gameOfCaptains/rules'
 
 const SAVE_KEY = 'game-of-captains-voyage-v1'
+const ALIEN_GUIDE_KEY = 'game-of-captains-alien-scrapbook-v1'
 const KNOWLEDGE_KEY = 'game-of-captains-redshirt-knowledge-v1'
 const PREFERENCES_KEY = 'game-of-captains-preferences-v1'
 type CouchPreferences = { largeText: boolean; reducedMotion: boolean }
@@ -90,6 +101,33 @@ export const useGameOfCaptainsStore = defineStore('gameOfCaptains', () => {
   const loaded = ref(false)
   const redshirtKnowledge = ref<RedshirtKnowledge>({})
   const storageWarning = ref('')
+  const alienGuide = ref<AlienGuide>(emptyAlienGuide())
+  const alienSighting = ref<AlienSighting | null>(null)
+  const alienReport = ref<{ text: string; speciesId: string; recorded: boolean } | null>(null)
+  const alienEncounterAvailable = computed(() => maySeeAlien(run.value, alienGuide.value))
+  function lookForAlien() {
+    if (!run.value || !alienEncounterAvailable.value) return
+    alienReport.value = null
+    alienSighting.value = nextAlienSighting(run.value, alienGuide.value)
+  }
+  function chooseAlienAction(choice: AlienChoice) {
+    const sighting = alienSighting.value
+    if (!sighting) return
+    const outcome = resolveAlienSighting(alienGuide.value, sighting, choice)
+    alienGuide.value = outcome.guide
+    alienReport.value = {
+      text: outcome.text,
+      speciesId: sighting.species.id,
+      recorded: outcome.recorded,
+    }
+    alienSighting.value = null
+    persist()
+  }
+  function dismissAlienEncounter() {
+    alienSighting.value = null
+    alienReport.value = null
+  }
+
   const onboardingArt = ref<Record<string, string>>({})
   const onboardingArtLoaded = ref(false)
   const trioArtwork = ref<Record<string, string>>({})
@@ -153,6 +191,7 @@ export const useGameOfCaptainsStore = defineStore('gameOfCaptains', () => {
         KNOWLEDGE_KEY,
         JSON.stringify(redshirtKnowledge.value),
       )
+      localStorage.setItem(ALIEN_GUIDE_KEY, JSON.stringify(alienGuide.value))
       storageWarning.value = ''
     } catch {
       storageWarning.value =
@@ -183,6 +222,13 @@ export const useGameOfCaptainsStore = defineStore('gameOfCaptains', () => {
       } catch {
         // A damaged knowledge cache cannot invalidate an otherwise valid voyage.
         redshirtKnowledge.value = {}
+      }
+      try {
+        alienGuide.value = normalizeAlienGuide(
+          JSON.parse(localStorage.getItem(ALIEN_GUIDE_KEY) ?? 'null'),
+        )
+      } catch {
+        alienGuide.value = emptyAlienGuide()
       }
       const raw = localStorage.getItem(SAVE_KEY)
       run.value = restoreTrioAdventure(
@@ -372,6 +418,13 @@ export const useGameOfCaptainsStore = defineStore('gameOfCaptains', () => {
     run,
     loaded,
     redshirtKnowledge,
+    alienGuide,
+    alienSighting,
+    alienReport,
+    alienEncounterAvailable,
+    lookForAlien,
+    chooseAlienAction,
+    dismissAlienEncounter,
     saved,
     storageWarning,
     onboardingArt,

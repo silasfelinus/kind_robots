@@ -305,7 +305,7 @@ assert.equal(
 run = decideAftermath(run, 'undertow-burn')
 assert.equal(boutBlocked(run, 'chimera'), 'Already beaten.')
 assert.equal(recordBout(run, 'chimera', 'player'), run, 'No double wins')
-assert.equal(totalStanding(run), 3)
+assert.equal(totalStanding(run), 5, 'Freeing the spies adds two more standing')
 assert.equal(gateReason(run, 'crown'), null, 'Wins open the Gilt Gate')
 assert.equal(cityWon(run), false)
 assert.equal(cityWon(recordBout(run, 'pitworks', 'player')), true)

@@ -1,5 +1,8 @@
 import assert from 'node:assert/strict'
-import { EARLY_NIGHT_MORNINGS, nightCaseMorning } from '../cometAcademy/earlyNightMornings'
+import {
+  EARLY_NIGHT_MORNINGS,
+  nightCaseMorning,
+} from '../cometAcademy/earlyNightMornings'
 import { EXPANDED_MISSIONS } from '../cometAcademy/expandedNightCases'
 import { REAL_NIGHT_CASES, realNightCase } from '../cometAcademy/nightCases'
 import {
@@ -60,7 +63,11 @@ const rescue = result('honors', 'YOU · first response')
 assert.equal(rescue.phase, 'map')
 assert.equal(rescue.day, 8)
 assert.ok(rescue.scene.includes(EARLY_NIGHT_MORNINGS.monorail!.honors))
-assert.equal(rescue.reports.length, 0, 'next day clears the past dispatch board')
+assert.equal(
+  rescue.reports.length,
+  0,
+  'next day clears the past dispatch board',
+)
 const failure = result('failed', 'YOU · first response')
 assert.ok(failure.scene.includes(EARLY_NIGHT_MORNINGS.monorail!.failed))
 const refusal = result('failed', 'No team dispatched')
@@ -81,4 +88,6 @@ assert.ok(
 )
 assert.deepEqual(base.reports, [], 'the original game state is not mutated')
 
-console.log('Prom of Doom: 36 cases, twelve five-way morning callbacks and debrief-to-school continuity verified.')
+console.log(
+  'Prom of Doom: 36 cases, twelve five-way morning callbacks and debrief-to-school continuity verified.',
+)

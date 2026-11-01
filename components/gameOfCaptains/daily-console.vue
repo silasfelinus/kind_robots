@@ -380,6 +380,7 @@
               v-if="flipped !== 'casino' || !franchiseImage"
               :src="revealPainting || backdrop"
               alt="Space Couch episode backdrop"
+              @error="onEpisodeArtworkError"
             />
             <img
               v-else
@@ -469,7 +470,7 @@
           </div>
         </article>
         <div v-else-if="lastDraw" class="daily-recap" aria-live="polite">
-          <img v-if="resultPainting" class="daily-recap-art" :src="resultPainting" :alt="'Painted outcome: ' + lastDraw.cardId" data-testid="space-couch-episode-result-art" />
+          <img v-if="resultPainting" class="daily-recap-art" :src="resultPainting" :alt="'Painted outcome: ' + lastDraw.cardId" data-testid="space-couch-episode-result-art" @error="onEpisodeArtworkError" />
           <strong>PREVIOUSLY, ON SPACE COUCH...</strong>
           <p>{{ lastDraw.result }}</p>
           <p v-if="lastDraw.cast?.length">
@@ -620,15 +621,23 @@ const nextDeck = computed(() =>
   requiredDecks.value.find((deck) => !episodeDeckDone(props.run, deck)),
 )
 const lastDraw = computed(() => episodeDraws(props.run).at(-1))
+const brokenArtwork = ref<string[]>([])
+function onEpisodeArtworkError(event: Event) {
+  const url = (event.target as HTMLImageElement).getAttribute('src')
+  if (url && !brokenArtwork.value.includes(url))
+    brokenArtwork.value = [...brokenArtwork.value, url]
+}
 const revealPainting = computed(() => {
   if (!flipped.value) return null
   const key = episodeRevealArtKey(episodeCard(props.run, flipped.value).id)
-  return props.artwork?.[key] || null
+  const url = props.artwork?.[key]
+  return url && !brokenArtwork.value.includes(url) ? url : null
 })
 const resultPainting = computed(() => {
   if (!lastDraw.value) return null
   const key = episodeResultArtKey(lastDraw.value)
-  return key ? props.artwork?.[key] || null : null
+  const url = key ? props.artwork?.[key] : null
+  return url && !brokenArtwork.value.includes(url) ? url : null
 })
 const actors = computed(() => [
   {

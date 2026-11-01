@@ -11,6 +11,32 @@
         Administrator access required for the Zuzu world studio.
       </div>
       <template v-else>
+        <header-page-bar>
+          <div
+            class="flex min-w-0 flex-1 items-center justify-end gap-2 px-1"
+            data-testid="zuzu-bar"
+          >
+            <a
+              href="https://github.com/silasfelinus/conductor/tree/main/worlds/zuzu"
+              class="kr-btn btn-ghost"
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="Canon and lore"
+            >
+              <Icon name="kind-icon:book-open" class="kr-icon-4" />
+              <span class="zw-bar-label">Canon &amp; lore</span>
+            </a>
+            <NuxtLink
+              to="/characters"
+              class="kr-btn-primary"
+              aria-label="Add character"
+            >
+              <Icon name="kind-icon:plus" class="kr-icon-4" />
+              <span class="zw-bar-label">Add character</span>
+            </NuxtLink>
+          </div>
+        </header-page-bar>
+
         <section
           class="relative isolate overflow-hidden rounded-2xl border border-base-content/10 bg-base-300 shadow-xl"
         >
@@ -25,18 +51,10 @@
             class="absolute inset-0 bg-gradient-to-r from-base-300 via-base-300/90 to-base-300/25"
           />
           <div
-            class="relative flex min-h-48 flex-wrap items-end justify-between gap-4 p-5 md:min-h-56 md:p-8"
+            class="relative flex min-h-40 flex-wrap items-end justify-between gap-4 p-5 md:min-h-48 md:p-8"
           >
-            <div class="max-w-xl">
-              <p class="kr-text-eyebrow text-primary">
-                Shared universe · Private worldbuilding
-              </p>
-              <h2 class="mt-2 text-3xl font-black tracking-tight md:text-5xl">
-                Zuzu World
-              </h2>
-              <p
-                class="mt-3 max-w-lg text-sm text-base-content/75 md:text-base"
-              >
+            <div class="max-w-xl" title="Shared universe · Private worldbuilding">
+              <p class="max-w-lg text-sm text-base-content/75 md:text-base">
                 Every image has a story. Find it, compare it, and give it a new
                 role in another production.
               </p>
@@ -51,21 +69,6 @@
                   >{{ studio.total }} visible matches</span
                 >
               </div>
-            </div>
-            <div class="flex flex-wrap items-center gap-2">
-              <a
-                href="https://github.com/silasfelinus/conductor/tree/main/worlds/zuzu"
-                class="kr-btn btn-outline"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                <Icon name="kind-icon:book-open" class="kr-icon-4" />
-                Canon &amp; lore
-              </a>
-              <NuxtLink to="/characters" class="kr-btn-primary">
-                <Icon name="kind-icon:plus" class="kr-icon-4" />
-                Add character
-              </NuxtLink>
             </div>
           </div>
         </section>

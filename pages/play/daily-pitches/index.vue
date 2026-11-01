@@ -5,31 +5,14 @@
         <span class="kr-spinner-lg-primary" />
       </div>
       <template v-else>
-        <section
-          class="relative overflow-hidden rounded-3xl border border-base-content/15 bg-base-200 p-5 sm:p-8"
-        >
+        <header-page-bar>
           <div
-            class="absolute inset-0 bg-gradient-to-br from-primary/15 via-secondary/10 to-transparent"
-          />
-          <div class="relative flex flex-wrap items-end justify-between gap-4">
-            <div class="max-w-2xl space-y-2">
-              <p
-                class="text-xs font-bold uppercase tracking-[.22em] text-primary"
-              >
-                Daily Dream · the build shelf
-              </p>
-              <h2 class="font-serif text-2xl font-black sm:text-4xl">
-                The Daily Dream Workshop
-              </h2>
-              <p class="text-sm leading-relaxed text-base-content/75">
-                Browse our approved Daily Dream ideas. Games and experiences
-                open to everyone once they are ready; until then, they are
-                coming soon. Administrators can inspect work in progress and
-                approve each preview for Play.
-              </p>
-            </div>
+            class="flex min-w-0 flex-1 items-center justify-end gap-2 px-1"
+            title="Daily Dream · the build shelf"
+            data-testid="daily-pitches-bar"
+          >
             <button
-              class="btn btn-outline btn-sm"
+              class="btn btn-ghost btn-sm"
               type="button"
               :disabled="conductor.pending"
               @click="conductor.fetchProjects(true)"
@@ -37,7 +20,14 @@
               <Icon name="kind-icon:refresh" class="size-4" /> Refresh status
             </button>
           </div>
-        </section>
+        </header-page-bar>
+
+        <p class="max-w-3xl text-sm leading-relaxed text-base-content/75">
+          Browse our approved Daily Dream ideas. Games and experiences open to
+          everyone once they are ready; until then, they are coming soon.
+          Administrators can inspect work in progress and approve each preview
+          for Play.
+        </p>
 
         <div
           v-if="conductor.pending && !hasProjection"

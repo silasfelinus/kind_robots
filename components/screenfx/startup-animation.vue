@@ -111,6 +111,17 @@
           <Icon name="kind-icon:sparkles" class="kr-icon-4" />
           <span>Pause &amp; explore</span>
         </button>
+
+        <button
+          v-if="!isFading"
+          type="button"
+          class="btn btn-xs btn-square border-white/20 bg-white/10 text-white hover:bg-white/20"
+          title="Skip the intro"
+          aria-label="Skip the intro"
+          @click="startupStore.requestExit()"
+        >
+          <Icon name="kind-icon:chevron-double-right" class="kr-icon-4" />
+        </button>
       </template>
     </div>
   </Teleport>

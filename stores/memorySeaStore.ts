@@ -59,7 +59,12 @@ export const useMemorySeaStore = defineStore('memorySea', () => {
   const position = computed(() => save.value.positions[active.value])
   const current = computed(() => worldEvent(active.value, position.value))
   const opening = computed(() =>
-    seaNarrative(active.value, position.value, world.campaign),
+    seaNarrative(
+      active.value,
+      position.value,
+      world.campaign,
+      progress.value.choices,
+    ),
   )
   const charFate = computed(() => memoryCharFate(world.campaign))
   const chosen = computed(() =>
@@ -215,6 +220,7 @@ export const useMemorySeaStore = defineStore('memorySea', () => {
     const success = world.finishScyllaReality(
       active.value,
       progress.value.choices['8,8'],
+      active.value === 'e06' ? progress.value.choices['7,7'] : undefined,
     )
     if (!success) return
     notice.value =

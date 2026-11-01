@@ -24,6 +24,7 @@ import {
   availableMemoryExperiences,
   chooseMemoryPairEnding,
   chooseMemoryScyllaDeparture,
+  chooseMemoryCharAgency,
   completeMemoryExperience,
   memoryCharFate,
   newMemoryCampaignProgress,
@@ -31,7 +32,9 @@ import {
   scyllaOpeningForMemory,
   MEMORY_PAIR_ENDINGS,
   MEMORY_SCYLLA_DEPARTURE_CHOICES,
+  MEMORY_CHAR_AGENCY_CHOICES,
 } from '../memoryDungeon/reimaginerCampaign'
+import { restoreMemoryCampaignProgress } from '../memoryDungeon/campaignPersistence'
 import {
   EARTH_PHOTOS,
   newEarthChronicle,
@@ -85,19 +88,61 @@ for (const fate of MEMORY_PAIR_ENDINGS.e04.map((choice) => choice.id)) {
       /Char|court|palace|timeline/,
     )
     assert.match(seaNarrative('e06', '8,8', atSea), /Char|sisters/)
-    for (const verdict of MEMORY_PAIR_ENDINGS.e06) {
-      let returned = chooseMemoryPairEnding(atSea, 'e06', verdict.id)
-      returned = rememberMemoryWish(returned, 'char-possible-future')
-      returned = completeMemoryExperience(returned, 'e06')
-      assert.equal(returned.pairDecisions?.e06, verdict.id)
-      assert.equal(returned.scyllaDeparture, departure.id)
-      assert.equal(memoryCharFate(returned), memoryCharFate(before))
-      assert.ok(returned.completed.includes('e06'))
-      assert.ok(returned.rememberedAnchors.includes('char-possible-future'))
-      assert.deepEqual(availableMemoryExperiences(returned), ['e07'])
+    for (const agency of MEMORY_CHAR_AGENCY_CHOICES) {
+      const earned = chooseMemoryCharAgency(atSea, agency.id)
+      assert.equal(earned.charAgency, agency.id)
+      assert.throws(() => chooseMemoryCharAgency(earned, agency.id))
+      assert.ok(
+        seaNarrative('e06', '8,8', earned, {
+          '7,7': agency.id,
+        }).includes(agency.futureConsequence),
+      )
+      for (const verdict of MEMORY_PAIR_ENDINGS.e06) {
+        let returned = chooseMemoryPairEnding(earned, 'e06', verdict.id)
+        returned = rememberMemoryWish(returned, 'char-possible-future')
+        returned = completeMemoryExperience(returned, 'e06')
+        assert.equal(returned.pairDecisions?.e06, verdict.id)
+        assert.equal(returned.scyllaDeparture, departure.id)
+        assert.equal(returned.charAgency, agency.id)
+        assert.equal(memoryCharFate(returned), memoryCharFate(before))
+        assert.ok(returned.completed.includes('e06'))
+        assert.ok(returned.rememberedAnchors.includes('char-possible-future'))
+        assert.deepEqual(availableMemoryExperiences(returned), ['e07'])
+        assert.equal(
+          restoreMemoryCampaignProgress(returned).charAgency,
+          agency.id,
+        )
+        assert.equal(
+          restoreMemoryCampaignProgress({
+            ...returned,
+            charAgency: 'forged-resurrection',
+          }).charAgency,
+          undefined,
+        )
+        assert.equal(
+          memoryCharFate(restoreMemoryCampaignProgress(returned)),
+          memoryCharFate(before),
+        )
+      }
     }
   }
 }
+
+const charEncounter = worldEvent('e06', '7,7')!
+assert.deepEqual(
+  charEncounter.choices.map((choice) => choice.id),
+  MEMORY_CHAR_AGENCY_CHOICES.map((choice) => choice.id),
+)
+assert.deepEqual(
+  new Set(charEncounter.choices.map((choice) => choice.flag)).size,
+  MEMORY_CHAR_AGENCY_CHOICES.length,
+)
+assert.throws(() =>
+  chooseMemoryCharAgency(
+    priorEarth('open-the-tide-gate'),
+    'char-leads-evacuation',
+  ),
+)
 
 let chronicle = newEarthChronicle()
 for (const reality of SEA_REALITIES) {
@@ -131,6 +176,14 @@ for (const reality of SEA_REALITIES) {
   assert.equal(Object.keys(replayed.progress.choices).length, 64)
   assert.equal(replayed.position, position)
   assert.equal(seaRealityReady(reality, replayed.progress), true)
+  if (reality === 'e06') {
+    const choices = { ...replayed.progress.choices }
+    delete choices['7,7']
+    assert.equal(
+      seaRealityReady(reality, { ...replayed.progress, choices }),
+      false,
+    )
+  }
   chronicle = reconcileScyllaEarthChronicle(
     chronicle,
     reality,
@@ -194,5 +247,5 @@ assert.match(world, /function finishScyllaReality\(/)
 assert.match(world, /function syncScyllaEarthPhoto\(/)
 
 console.log(
-  'Scylla e05/e06: 128 authored sites, 18 fate/departure/verdict histories, 4 collectible photographs, replay-safe routes and gate checks passed',
+  'Scylla e05/e06: 128 sites, 54 fate/departure/Char-agency/verdict histories, 4 photographs, replay-safe routes and earned Char agency gate passed',
 )

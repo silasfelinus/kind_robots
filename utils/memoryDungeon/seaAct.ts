@@ -7,6 +7,7 @@ import { EARTH_PHOTOS } from './chronicle'
 import {
   MEMORY_PAIR_ENDINGS,
   MEMORY_SCYLLA_DEPARTURE_CHOICES,
+  MEMORY_CHAR_AGENCY_CHOICES,
   memoryCharFate,
   scyllaOpeningForMemory,
   type MemoryCampaignProgress,
@@ -29,6 +30,13 @@ export function seaRealityReady(
   if (progress.experience !== reality) return false
   if (Object.keys(progress.choices).length < SEA_MIN_DECISIONS) return false
   if (!seaRealityPhotos(reality).every((site) => progress.choices[site]))
+    return false
+  if (
+    reality === 'e06' &&
+    !MEMORY_CHAR_AGENCY_CHOICES.some(
+      (option) => option.id === progress.choices['7,7'],
+    )
+  )
     return false
   const ending = progress.choices['8,8']
   if (!ending) return false
@@ -72,6 +80,7 @@ export function seaNarrative(
   reality: SeaReality,
   site: string,
   campaign: MemoryCampaignProgress,
+  choices: Readonly<Record<string, string>> = {},
 ): string {
   const original = SEA_KEY_SCENES[reality][site] ?? ''
   if (site === '1,1')
@@ -93,6 +102,11 @@ export function seaNarrative(
     return [
       original,
       chosen?.futureConsequence ?? '',
+      site === '8,8'
+        ? (MEMORY_CHAR_AGENCY_CHOICES.find(
+            (option) => option.id === choices['7,7'],
+          )?.futureConsequence ?? '')
+        : '',
       memoryCharFate(campaign) === 'lost'
         ? 'The older Char died. A younger Char in this altered past has her own decisions to make; neither history is erased.'
         : '',
@@ -123,5 +137,15 @@ export function seaActCoverage(): string[] {
     )
       issues.push(reality + ' must retain canonical irreversible decisions')
   }
+  const charEncounter = worldEvent('e06', '7,7')
+  if (
+    !charEncounter ||
+    charEncounter.choices.length !== MEMORY_CHAR_AGENCY_CHOICES.length ||
+    MEMORY_CHAR_AGENCY_CHOICES.some(
+      (choice) =>
+        !charEncounter.choices.some((option) => option.id === choice.id),
+    )
+  )
+    issues.push('e06 must offer Char three independent rescue choices')
   return issues
 }

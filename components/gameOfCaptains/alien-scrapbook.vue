@@ -103,6 +103,13 @@
             Social pattern: {{ selected.social }}.
           </p>
           <p
+            v-if="selectedFieldReport"
+            class="mt-3 border-l-2 border-secondary/50 pl-3 text-sm italic"
+            data-testid="space-couch-alien-scrapbook-field-note"
+          >
+            Captain's marginalia: {{ selectedFieldReport }}
+          </p>
+          <p
             v-if="guide.friends.includes(selected.id)"
             class="mt-3 font-bold text-secondary"
           >
@@ -126,6 +133,7 @@ import { computed, ref } from 'vue'
 import { ALIEN_SPECIES } from '~/utils/gameOfCaptains/alienSpecies'
 import {
   alienHint,
+  alienObservation,
   type AlienGuide,
 } from '~/utils/gameOfCaptains/alienFieldGuide'
 
@@ -141,6 +149,12 @@ const selected = computed(
     ALIEN_SPECIES[0]!,
 )
 const known = (id: string): boolean => props.guide.discovered.includes(id)
+const selectedFieldReport = computed(() => {
+  const report = props.guide.fieldReports?.findLast(
+    (entry) => entry.speciesId === selected.value.id,
+  )
+  return report ? alienObservation(report) : null
+})
 const selectedArt = computed(
   () => props.artwork?.[selected.value.artKey] ?? null,
 )

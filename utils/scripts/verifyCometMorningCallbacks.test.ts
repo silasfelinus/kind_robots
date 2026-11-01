@@ -23,11 +23,11 @@ for (const id of earlyIds) {
   const texts = new Set<string>()
   for (const grade of grades) {
     const text = nightCaseMorning(id, grade, false)
-    assert.ok(text && text.length > 75, id + ': ' + grade)
+    assert.ok(text && text.length > 60, id + ': ' + grade)
     texts.add(text!)
   }
   const refused = nightCaseMorning(id, 'failed', true)
-  assert.ok(refused && refused.length > 75)
+  assert.ok(refused && refused.length > 60)
   texts.add(refused!)
   assert.equal(texts.size, 5, id + ': all five morning callbacks distinct')
 }

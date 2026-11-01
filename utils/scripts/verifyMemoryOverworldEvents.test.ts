@@ -332,6 +332,26 @@ assert.equal(
   null,
   'the explicit finale commitment cannot be bypassed',
 )
+const forgedReceiptCampaign = {
+  ...committedCampaign,
+  recoveredFragments: [
+    'briar-office-key',
+    'briar-tide-roots',
+  ] as const,
+}
+const noFragmentChoices = completeBriarJournal.filter(
+  (action) =>
+    action.type !== 'choose' ||
+    (action.key !== '2,2' && action.key !== '7,6'),
+)
+assert.equal(
+  concludeBriarCollisionFromJournal(
+    forgedReceiptCampaign,
+    noFragmentChoices,
+  ),
+  null,
+  'serialized fragment receipts cannot replace both actual scene decisions',
+)
 const concludedBriar = concludeBriarCollisionFromJournal(
   committedCampaign,
   completeBriarJournal,

@@ -316,6 +316,70 @@ export const STREET_STORIES: Record<string, StreetStory> = {
   },
 }
 
+/** A district championship has a human consequence, not merely a cleared badge. */
+export const CHAMPION_AFTERMATH: Record<DistrictId, StreetStory> = {
+  pitworks: {
+    title: 'THE CROWN IS MADE OF TEETH',
+    scene: 'Gutterball drops the city crown at your feet. The arena crowd chants for a ruler; the maintenance crews chant for a door they can finally open.',
+    choices: [
+      { id: 'pit-open', label: 'Open the gates to everyone', outcome: 'Workers run the arena (+2 standing). The old owners send collectors (+1 heat). Your encore crew gains +1 HP.', standing: 2, heat: 1, terms: { playerHp: 1 } },
+      { id: 'pit-crown', label: 'Auction the crown to the stands', outcome: 'The crowd laughs until the landlords recognize you (−1 standing, −1 heat). Your encore begins with +1 mana.', standing: -1, heat: -1, terms: { playerMana: 1 } },
+    ],
+  },
+  chimera: {
+    title: 'THE LAB DOORS ARE STILL LOCKED',
+    scene: 'The Gene Riot champion falls. Behind the cheering comes a quieter noise: engineered siblings calling from behind the clinic shutters.',
+    choices: [
+      { id: 'chimera-free', label: 'Break the locks', outcome: 'Families reunite (+2 standing), the gene-hunters return (+1 heat), and a medic gives your encore fighters +1 HP.', standing: 2, heat: 1, terms: { playerHp: 1 } },
+      { id: 'chimera-files', label: 'Steal the experiment records', outcome: 'You get the lab security codes (enemy −1 armor in the encore), but abandon the captives (−1 standing).', standing: -1, heat: 0, terms: { enemyArmor: -1 } },
+    ],
+  },
+  needles: {
+    title: 'THE AFTERPARTY NEEDS A HOME',
+    scene: 'The Bloodfairies have won back their stage and lost their last safe roof. A demolition drone hovers over the dance floor.',
+    choices: [
+      { id: 'needles-roof', label: 'Stand between the drone and the dancers', outcome: 'The district joins your side (+2 standing), and the demolition firm marks you (+1 heat). Your encore starts with +1 mana.', standing: 2, heat: 1, terms: { playerMana: 1 } },
+      { id: 'needles-stage', label: 'Hijack the drone for a light show', outcome: 'The crowd gets a glorious finale; city brokers buy your silence (−1 standing, −1 heat). Enemy encore armor falls by 1.', standing: -1, heat: -1, terms: { enemyArmor: -1 } },
+    ],
+  },
+  foundry: {
+    title: 'THE FURNACES KEEP BURNING',
+    scene: 'Ironjaw’s machines are yours to stop or restart. Workers in heatproof aprons wait to learn who now owns their shifts.',
+    choices: [
+      { id: 'foundry-coop', label: 'Hand the keys to the workers', outcome: 'Union crews rebuild your armor (+2 standing, +1 HP in the encore). Management retaliates (+1 heat).', standing: 2, heat: 1, terms: { playerHp: 1 } },
+      { id: 'foundry-scrap', label: 'Sell the chrome to pay the debts', outcome: 'Creditors back off (−1 heat), but the workers feel sold out (−1 standing). Your encore starts with +1 mana.', standing: -1, heat: -1, terms: { playerMana: 1 } },
+    ],
+  },
+  undertow: {
+    title: 'THE SPIES LEFT THEIR NAMES BEHIND',
+    scene: 'The sewer intelligence vault unlocks. Its files name everyone who ever hid a fugitive in this city, including people who trusted you.',
+    choices: [
+      { id: 'undertow-burn', label: 'Burn the files in the canal', outcome: 'The neighborhoods trust you (+2 standing). The spies know it was you (+1 heat). Your encore begins with +1 mana.', standing: 2, heat: 1, terms: { playerMana: 1 } },
+      { id: 'undertow-keep', label: 'Keep one secret weapon', outcome: 'You learn the defenses (enemy −1 armor in the encore), but your silence costs trust (−1 standing).', standing: -1, heat: 0, terms: { enemyArmor: -1 } },
+    ],
+  },
+  crown: {
+    title: 'EVERY RECEIPT IS A HOSTAGE',
+    scene: 'The Meat Exchange’s vault is full of contracts signed by people who never got to read them. The debt clock still ticks.',
+    choices: [
+      { id: 'crown-forgive', label: 'Cancel the neighborhoods’ debts', outcome: 'You gain +2 standing and a loyal medic (+1 HP in the encore), but the owners launch a manhunt (+2 heat).', standing: 2, heat: 2, terms: { playerHp: 1 } },
+      { id: 'crown-broker', label: 'Trade the debt book for protection', outcome: 'The collectors leave you alone (−2 heat). The streets see the betrayal (−2 standing). Your encore starts with +1 mana.', standing: -2, heat: -2, terms: { playerMana: 1 } },
+    ],
+  },
+  redline: {
+    title: 'THE RIOT HAS NO EXIT',
+    scene: 'The Riot Saints leave you their detonator and a tram full of terrified witnesses. The cameras have already begun to roll.',
+    choices: [
+      { id: 'redline-disarm', label: 'Cut the fuse and lead everyone out', outcome: 'The city cheers (+2 standing) and the bomb makers come after you (+1 heat). Encore fighters gain +1 HP.', standing: 2, heat: 1, terms: { playerHp: 1 } },
+      { id: 'redline-broadcast', label: 'Broadcast the villains’ confession', outcome: 'The authorities lower your heat (−1), but the witnesses accuse you of using them (−1 standing). Enemy encore armor drops by 1.', standing: -1, heat: -1, terms: { enemyArmor: -1 } },
+    ],
+  },
+}
+
+export function championAftermath(city: CityState): StreetStory | null {
+  return city.pendingAftermath ? CHAMPION_AFTERMATH[city.pendingAftermath] : null
+}
+
 export function streetStory(city: CityState): StreetStory | null {
   return city.pendingStreet
     ? (STREET_STORIES[city.pendingStreet] ?? null)
@@ -676,6 +740,8 @@ export interface CityState {
   streetChoices: Record<string, string>
   streetTerms: Partial<Record<DistrictId, BoutTerms>>
   pendingStreet: string | null
+  pendingAftermath: DistrictId | null
+  aftermathChoices: Partial<Record<DistrictId, string>>
   cleared: DistrictId[]
   contracts: DistrictId[]
   losses: number
@@ -699,6 +765,8 @@ export function createCity(): CityState {
     streetChoices: {},
     streetTerms: {},
     pendingStreet: null,
+    pendingAftermath: null,
+    aftermathChoices: {},
     cleared: [],
     contracts: [],
     losses: 0,
@@ -712,6 +780,7 @@ function copyCity(city: CityState): CityState {
     standing: { ...city.standing },
     choices: { ...city.choices },
     streetChoices: { ...city.streetChoices },
+    aftermathChoices: { ...city.aftermathChoices },
     streetTerms: Object.fromEntries(
       Object.entries(city.streetTerms).map(([id, terms]) => [id, { ...terms }]),
     ),
@@ -780,6 +849,7 @@ export function gateReason(city: CityState, id: DistrictId): string | null {
 /** Why this district's rival will not fight you now, or null. */
 export function boutBlocked(city: CityState, id: DistrictId): string | null {
   if (city.pendingStreet) return 'Settle the street encounter first.'
+  if (city.pendingAftermath) return 'Resolve the champion aftermath first.'
   if (city.cleared.includes(id)) return 'Already beaten.'
   return gateReason(city, id)
 }
@@ -790,6 +860,7 @@ export function contractBlocked(
   id: DistrictId,
 ): string | null {
   if (city.pendingStreet) return 'Settle the street encounter first.'
+  if (city.pendingAftermath) return 'Resolve the champion aftermath first.'
   if (city.location !== id)
     return 'Walk to the district to accept its contract.'
   if (!city.cleared.includes(id)) return 'Beat the district champion first.'
@@ -804,7 +875,7 @@ export function contractTerms(city: CityState, id: DistrictId): BoutTerms {
 
 /** Walk one street to a neighbouring district. */
 export function travel(city: CityState, to: DistrictId): CityState {
-  if (city.pendingStreet) return city
+  if (city.pendingStreet || city.pendingAftermath) return city
   const route = streetsFrom(city.location).find((s) => s.to === to)
   if (!route) return city
   const next = copyCity(city)
@@ -826,7 +897,7 @@ export function travel(city: CityState, to: DistrictId): CityState {
 export function decide(city: CityState, choiceId: string): CityState {
   const plan = CITY_PLAN[city.location]
   const choice = plan.choices.find((c) => c.id === choiceId)
-  if (!choice || city.choices[city.location] || city.pendingStreet) return city
+  if (!choice || city.choices[city.location] || city.pendingStreet || city.pendingAftermath) return city
   if (gateReason(city, city.location)) return city
   const next = copyCity(city)
   next.choices[city.location] = choice.id
@@ -868,6 +939,23 @@ export function decideStreet(city: CityState, choiceId: string): CityState {
     choice.terms,
   )
   note(next, STREET_STORIES[street]!.title + ': ' + choice.outcome)
+  return next
+}
+
+/** The first championship victory opens one irreversible-in-session decision. */
+export function decideAftermath(city: CityState, choiceId: string): CityState {
+  const id = city.pendingAftermath
+  if (!id || city.aftermathChoices[id]) return city
+  const story = CHAMPION_AFTERMATH[id]
+  const choice = story.choices.find((entry) => entry.id === choiceId)
+  if (!choice) return city
+  const next = copyCity(city)
+  next.pendingAftermath = null
+  next.aftermathChoices[id] = choiceId
+  next.standing[id] += choice.standing
+  next.heat = Math.max(0, next.heat + choice.heat)
+  next.streetTerms[id] = mergeTerms(next.streetTerms[id] ?? {}, choice.terms)
+  note(next, story.title + ': ' + choice.outcome)
   return next
 }
 
@@ -957,6 +1045,7 @@ export function recordBout(
   const rival = CITY_PLAN[id].rival.name
   if (result === 'player') {
     next.cleared.push(id)
+    next.pendingAftermath = id
     next.standing[id] += 1
     note(next, 'You beat ' + rival + '. ' + CITY_PLAN[id].street + ' is yours.')
   } else if (result === 'enemy') {

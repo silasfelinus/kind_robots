@@ -115,16 +115,19 @@ export const CHALLENGES: Challenge[] = [
     xp: 120,
   },
 ]
-const RARE_IDS = new Set(
-  TEAMS.flatMap((t) => [
+const RARE_IDS = new Set([
+  ...TEAMS.flatMap((t) => [
     t.signature,
     t.special[0]!,
     t.special[2]!,
     ...(t.id === 'catgirls' || t.id === 'undertow' ? [t.special[4]!] : []),
   ]),
   // Four rare reserves preserve one rare + two normal cards for all 24 packs.
-  ...['splice-runner', 'pogo-punk', 'union-millwright', 'pipe-seer'],
-)
+  'splice-runner',
+  'pogo-punk',
+  'union-millwright',
+  'pipe-seer',
+])
 export function rarityOf(card: Card): Rarity {
   if (RARE_IDS.has(card.id)) return 'rare'
   return card.cost >= 3 ? 'uncommon' : 'common'

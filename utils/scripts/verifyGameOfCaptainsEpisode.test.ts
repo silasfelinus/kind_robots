@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict'
 import { readFileSync } from 'node:fs'
 import { startVoyage, restoreVoyage } from '../gameOfCaptains/rules'
+import { VOYAGE_CHAPTERS } from '../gameOfCaptains/voyageMap'
 import {
   planEpisodeAssignment,
   removeEpisodeAssignment,
@@ -14,6 +15,7 @@ import {
 import {
   EPISODE_CHOICES,
   episodeCard,
+  episodePlotSkill,
   episodeDecks,
   episodeDeckDone,
   episodeDecksDone,
@@ -39,6 +41,66 @@ const board = currentExpedition(landing)
 const mandatory = board.filter((card) => card.priority === 'major')
 assert.ok(mandatory.length >= 1 && mandatory.length <= 4)
 assert.ok(episodeIncitingEvent(landing).length > 75)
+
+// Editorial red-team: the full nine-chapter run must not recycle the same
+// planetary dilemma while other crew-linked stories remain unseen.
+for (let seed = 1; seed <= 240; seed++) {
+  const planetIds = Array.from({ length: VOYAGE_CHAPTERS }, (_, index) =>
+    episodeCard({ ...landing, seed, chapter: index + 1 }, 'planet').id,
+  )
+  assert.equal(
+    new Set(planetIds).size,
+    VOYAGE_CHAPTERS,
+    `Seed ${seed}: the complete voyage should have distinct planet stories`,
+  )
+  assert.deepEqual(
+    planetIds,
+    Array.from({ length: VOYAGE_CHAPTERS }, (_, index) =>
+      episodeCard({ ...landing, seed, chapter: index + 1 }, 'planet').id,
+    ),
+    'the sequence is seed-replayable',
+  )
+}
+const crewLinkedPlanetTitles = [
+  'The Hospital That Patented Its Patients',
+  'The Unopened Letter Tribunal',
+]
+for (const title of crewLinkedPlanetTitles) {
+  assert.ok(
+    Array.from({ length: 96 }, (_, seed) =>
+      Array.from({ length: VOYAGE_CHAPTERS }, (_, index) =>
+        episodeCard({ ...landing, seed, chapter: index + 1 }, 'planet').title,
+      ),
+    ).flat().includes(title),
+    `New crew-linked dilemma must actually be reachable: ${title}`,
+  )
+}
+const previousPlanet = {
+  ...landing,
+  chapter: 2,
+  episodeDrawHistory: [
+    {
+      chapter: 2,
+      day: 2,
+      deck: 'planet' as const,
+      cardId: 'planet-the-moon-that-requested-custody',
+      choice: 'ask' as const,
+      result: 'Previously resolved by the crew',
+    },
+  ],
+}
+assert.equal(
+  episodeCard(previousPlanet, 'planet').title,
+  'The Moon That Requested Custody',
+  'an existing save keeps the planet card it already resolved',
+)
+assert.equal(episodePlotSkill(previousPlanet, 'planet'), 'diplomacy')
+assert.equal(
+  episodeCard(restoreVoyage(JSON.parse(JSON.stringify(previousPlanet)))!, 'planet')
+    .title,
+  'The Moon That Requested Custody',
+  'restoring a saved card does not silently replace the encounter',
+)
 assert.equal(episodeMajorComplete(landing), false)
 assert.deepEqual(episodeDecks(landing), ['planet', 'casino', 'serendipity'])
 assert.equal(episodeDecksDone(landing), false)

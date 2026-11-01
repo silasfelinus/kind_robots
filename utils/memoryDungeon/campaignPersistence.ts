@@ -10,6 +10,9 @@ import {
   MEMORY_SCYLLA_DEPARTURE_CHOICES,
   chooseMemoryPairEnding,
   chooseMemoryScyllaDeparture,
+  chooseMemoryCharAgency,
+  MEMORY_CHAR_AGENCY_CHOICES,
+  type MemoryCharAgencyChoice,
   type MemoryPairEndingWorld,
   type MemoryScyllaDepartureChoice,
   MEMORY_WISH_ANCHORS,
@@ -136,6 +139,16 @@ export function restoreMemoryCampaignProgress(
         progress = { ...progress, scyllaDeparture: 'legacy-unspoken' }
       }
     }
+    if (
+      id === 'e06' &&
+      MEMORY_CHAR_AGENCY_CHOICES.some(
+        (option) => option.id === saved.charAgency,
+      )
+    )
+      progress = chooseMemoryCharAgency(
+        progress,
+        saved.charAgency as MemoryCharAgencyChoice,
+      )
     if (Object.prototype.hasOwnProperty.call(MEMORY_PAIR_ENDINGS, id)) {
       const world = id as MemoryPairEndingWorld
       const ending = validEndingDecision(world)
@@ -199,6 +212,16 @@ export function restoreMemoryCampaignProgress(
         choice as MemoryScyllaDepartureChoice,
       )
   }
+  if (
+    next.includes('e06') &&
+    MEMORY_CHAR_AGENCY_CHOICES.some(
+      (option) => option.id === saved.charAgency,
+    )
+  )
+    progress = chooseMemoryCharAgency(
+      progress,
+      saved.charAgency as MemoryCharAgencyChoice,
+    )
   const pendingWorld = next[0] as MemoryPairEndingWorld | undefined
   if (
     pendingWorld &&

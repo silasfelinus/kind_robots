@@ -37,7 +37,7 @@ export function earthCollisionHistory(
   if (charter !== 'consent' && charter !== 'open') return null
 
   const briar = replayEarthJournal('e09', briarJournal)
-  if (!briar) return null
+  if (!briar || Object.keys(briar.progress.choices).length < 12) return null
   const office = briar.progress.choices['2,2']
   if (
     !BRIAR_COLLISION_SCENES['2,2'].choices.some(

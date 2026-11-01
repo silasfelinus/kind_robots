@@ -94,3 +94,10 @@ icons. Pages do not add a second persistent header above their stage.
   menus, gutters) takes the game's palette while the page is mounted and reverts on unmount. Nothing in
   the OS layer is hidden; only its skin changes.
 - Panel headings, modal headers and in-stage overlays are content, not chrome, and stay in the page.
+- Every page gets the strip's lower row: a docked page bar or, when nothing docks, the page's room and
+  message. Silas, 2026-11-01: "One single header strip for all."
+- **One tutorial button per page, at the end of that lower row.** Silas, 2026-11-01: "just make sure we
+  only have the one for each page, but it should be on the lower bar generally, as that feels more
+  connected to the main content." Pages never draw their own Tutorial / How to play / "?" button. A
+  page with its own guide or tutorial screen mounts `<page-help label="…" @open="…" />`; the workspace
+  sheet the "?" opens then leads with a button into that guide.

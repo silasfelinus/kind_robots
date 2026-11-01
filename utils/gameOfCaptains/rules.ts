@@ -52,7 +52,10 @@ import type { ExpeditionVisit } from './expedition'
 import { validStarAssessment, type StarAssessment } from './starSigns'
 import { CAPTAIN_ORIGINS, type CaptainOriginId } from './captainOrigins'
 import { validCloneProgram, type CloneProgram } from './cloneSaga'
-import { validConsequenceHistory, type ConsequenceRecord } from './consequenceStories'
+import {
+  validConsequenceHistory,
+  type ConsequenceRecord,
+} from './consequenceStories'
 
 export type CaptainId = 'fluke' | 'vale' | 'solace' | 'rex' | 'quill' | 'ro'
 export type CrewId =

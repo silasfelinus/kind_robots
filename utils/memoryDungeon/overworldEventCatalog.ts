@@ -1,4 +1,8 @@
 import { BRIAR_SCENES } from './scenes'
+import {
+  BRIAR_COLLISION_SCENES,
+  type BriarCollisionSite,
+} from './briarCollision'
 import { MEMORY_CHAR_AGENCY_CHOICES } from './reimaginerCampaign'
 import { DARK_BRIAR_SCENES, DARK_BRIAR_SEALS } from './darkBriar'
 import { HOSHIMORI_WARM_SITES } from './hoshimoriWarm'
@@ -340,25 +344,53 @@ function generated(
       ),
     }))
   }
+  const authored =
+    world.id === 'e09'
+      ? BRIAR_COLLISION_SCENES[key as BriarCollisionSite]
+      : undefined
+  if (authored) {
+    choices = authored.choices.map((choice, index) => ({
+      id: choice.id,
+      label: choice.label,
+      outcome: choice.outcome,
+      flag: 'e09:' + choice.flag,
+      effects: { ...choice.effects },
+      art: art(
+        world.id,
+        key,
+        choice.artSubject,
+        'choice-' + (index + 1) + ': ' + choice.label,
+        world.visual,
+      ),
+    }))
+  }
   return {
     id: world.id + ':' + key,
     experience: world.id,
     key,
-    title,
-    opening,
-    speaker: district.character,
-    kind,
-    sceneArt: art(world.id, key, title, 'establishing-scene', world.visual),
+    title: authored?.title ?? title,
+    opening: authored?.opening ?? opening,
+    speaker: authored?.speaker ?? district.character,
+    kind: authored?.kind ?? kind,
+    sceneArt: art(
+      world.id,
+      key,
+      authored?.artSubject ?? title,
+      'establishing-scene',
+      world.visual,
+    ),
     portrait: art(
       world.id,
       key,
-      district.character,
+      authored?.speaker ?? district.character,
       'speaking-portrait',
       world.visual,
     ),
     choices,
     ...(photo ? { photographId: photo.id } : {}),
-    ...(fragment ? { memoryFragment: world.id + ':' + key } : {}),
+    ...(fragment
+      ? { memoryFragment: authored?.fragment ?? world.id + ':' + key }
+      : {}),
     ...(mirror ? { originalSite: mirror } : {}),
     source: 'new-authoring',
   }
@@ -662,5 +694,14 @@ export function validateOverworldEventCatalog(): string[] {
   for (const id of ['e09', 'e10', 'e11', 'e12'])
     if (worldEvents(id).filter((event) => event.memoryFragment).length !== 2)
       problems.push(id + ': missing two map fragments')
+  for (const [key, scene] of Object.entries(BRIAR_COLLISION_SCENES)) {
+    const event = worldEvent('e09', key)
+    if (
+      event?.memoryFragment !== scene.fragment ||
+      event.choices.length !== 3 ||
+      event.choices.some((choice) => !choice.flag.startsWith('e09:'))
+    )
+      problems.push('e09:' + key + ': incomplete earned collision quest')
+  }
   return problems
 }

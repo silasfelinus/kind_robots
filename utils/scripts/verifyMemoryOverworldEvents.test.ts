@@ -12,6 +12,16 @@ import {
 } from '../memoryDungeon/overworldEventCatalog'
 import { EARTH_PHOTOS } from '../memoryDungeon/chronicle'
 import { HOSHIMORI_NIGHT_SITES } from '../memoryDungeon/hoshimoriNight'
+import { BRIAR_COLLISION_SCENES } from '../memoryDungeon/briarCollision'
+import { recoverBriarCollisionFromJournal } from '../memoryDungeon/briarCollisionProgress'
+import {
+  replayEarthJournal,
+  type EarthJournalAction,
+} from '../memoryDungeon/earthJournal'
+import {
+  newMemoryCampaignProgress,
+  type MemoryCampaignProgress,
+} from '../memoryDungeon/reimaginerCampaign'
 
 assert.deepEqual(validateOverworldEventCatalog(), [])
 assert.equal(OVERWORLD_EVENT_CATALOG.length, 12 * 64)
@@ -122,6 +132,122 @@ for (const id of ['e09', 'e10', 'e11', 'e12']) {
     2,
   )
 }
+const office = worldEvent('e09', '2,2')!
+const roots = worldEvent('e09', '7,6')!
+assert.equal(office.memoryFragment, 'briar-office-key')
+assert.equal(roots.memoryFragment, 'briar-tide-roots')
+assert.equal(office.title, 'The Briar Office Key')
+assert.equal(roots.title, 'The Briar Tide Roots')
+assert.deepEqual(
+  office.choices.map((choice) => choice.id),
+  BRIAR_COLLISION_SCENES['2,2'].choices.map((choice) => choice.id),
+)
+assert.deepEqual(
+  roots.choices.map((choice) => choice.id),
+  BRIAR_COLLISION_SCENES['7,6'].choices.map((choice) => choice.id),
+)
+const earnedCampaign: MemoryCampaignProgress = {
+  ...newMemoryCampaignProgress(),
+  completed: ['e01', 'e02', 'e03', 'e04', 'e05', 'e06', 'e07', 'e08'],
+  rememberedAnchors: [
+    'morrow-magic-attempt',
+    'scylla-home-wish',
+    'char-possible-future',
+  ],
+  pairDecisions: { e04: 'open-the-tide-gate' },
+  finaleCommitted: true,
+}
+const walkToOffice: EarthJournalAction[] = [
+  { type: 'travel', key: '2,1' },
+  { type: 'travel', key: '2,2' },
+]
+const walkToRoots: EarthJournalAction[] = [
+  ...['3,2', '4,2', '5,2', '6,2', '7,2', '7,3', '7,4', '7,5', '7,6'].map(
+    (key): EarthJournalAction => ({ type: 'travel', key }),
+  ),
+]
+assert.deepEqual(
+  recoverBriarCollisionFromJournal(earnedCampaign, [
+    ...walkToOffice,
+    ...walkToRoots,
+  ])?.recoveredFragments,
+  [],
+  'reaching a fragment site must not award it without a choice',
+)
+for (const officeChoice of office.choices) {
+  for (const rootsChoice of roots.choices) {
+    const journal: EarthJournalAction[] = [
+      ...walkToOffice,
+      { type: 'choose', key: '2,2', choiceId: officeChoice.id },
+      ...walkToRoots,
+      { type: 'choose', key: '7,6', choiceId: rootsChoice.id },
+    ]
+    const replayed = replayEarthJournal('e09', journal)
+    assert.ok(replayed)
+    assert.equal(replayed.position, '7,6')
+    assert.equal(replayed.progress.choices['2,2'], officeChoice.id)
+    assert.equal(replayed.progress.choices['7,6'], rootsChoice.id)
+    assert.deepEqual(replayed.progress.flags, [
+      officeChoice.flag,
+      rootsChoice.flag,
+    ])
+    const earned = recoverBriarCollisionFromJournal(earnedCampaign, journal)
+    assert.ok(earned)
+    assert.deepEqual(earned.recoveredFragments, [
+      'briar-office-key',
+      'briar-tide-roots',
+    ])
+    assert.deepEqual(
+      recoverBriarCollisionFromJournal(earned, journal)?.recoveredFragments,
+      earned.recoveredFragments,
+      'replaying a completed decision cannot duplicate fragments',
+    )
+    assert.equal(
+      recoverBriarCollisionFromJournal(earnedCampaign, [
+        ...journal,
+        { type: 'choose', key: '7,6', choiceId: rootsChoice.id },
+      ]),
+      null,
+      'duplicate choice journals are rejected',
+    )
+  }
+}
+assert.equal(
+  recoverBriarCollisionFromJournal(earnedCampaign, [
+    { type: 'travel', key: '7,6' },
+    { type: 'choose', key: '7,6', choiceId: roots.choices[0]!.id },
+  ]),
+  null,
+  'teleporting to a fragment cannot be replayed',
+)
+assert.equal(
+  recoverBriarCollisionFromJournal(earnedCampaign, [
+    ...walkToOffice,
+    { type: 'choose', key: '2,2', choiceId: 'forged-fragment' },
+  ]),
+  null,
+  'forged choices cannot mint a fragment',
+)
+assert.equal(
+  recoverBriarCollisionFromJournal({ ...earnedCampaign, pairDecisions: {} }, [
+    ...walkToOffice,
+    { type: 'choose', key: '2,2', choiceId: office.choices[0]!.id },
+  ]),
+  null,
+  'the e04 catastrophe cannot be silently invented',
+)
+assert.equal(
+  recoverBriarCollisionFromJournal(
+    { ...earnedCampaign, completed: earnedCampaign.completed.slice(0, -1) },
+    [
+      ...walkToOffice,
+      { type: 'choose', key: '2,2', choiceId: office.choices[0]!.id },
+    ],
+  ),
+  null,
+  'the e08 passage cannot be skipped',
+)
+
 for (const pilot of HOSHIMORI_NIGHT_SITES) {
   const adopted = worldEvent('e08', pilot.key)!
   assert.equal(adopted.title, pilot.title)

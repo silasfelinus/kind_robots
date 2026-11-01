@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia'
-import { computed, ref } from 'vue'
+import { computed, ref, watch } from 'vue'
 import { IDENTITY_ARCS } from '~/utils/cometAcademy/identityArcs'
 import {
   actorAt,
@@ -45,6 +45,7 @@ import {
   type EvtSettings,
   type Scrapbook,
 } from '~/utils/everyVillainTactics/frontMenu'
+import { mergeBattleResults, scoreFromSave, type BattleResult } from '~/utils/everyVillainTactics/scores'
 import {
   EVT_SAVE_SLOTS,
   clearSlot,
@@ -190,6 +191,7 @@ export const useEveryVillainTacticsStore = defineStore(
     const screen = ref<FrontScreen | null>('title')
     const settings = ref<EvtSettings>({ ...DEFAULT_SETTINGS })
     const scrapbook = ref<Scrapbook>(emptyScrapbook())
+    let restoringSave = false
     /** First press of End Turn when confirmation is on; the second commits. */
     const endTurnArmed = ref(false)
     function browserStorage(): SaveStorage | null {
@@ -215,10 +217,17 @@ export const useEveryVillainTacticsStore = defineStore(
     }
     /** Only pages carried by validated saves are ever added to the book. */
     function recordMoments(saves: readonly EvtSave[]) {
-      const next = mergeScrapbook(
+      const witnessed = mergeScrapbook(
         scrapbook.value,
         saves.flatMap(momentsFromSave),
       )
+      const results = saves
+        .map(scoreFromSave)
+        .filter((result): result is BattleResult => !!result)
+      const next: Scrapbook = {
+        ...witnessed,
+        results: mergeBattleResults(witnessed.results, results),
+      }
       if (JSON.stringify(next) !== JSON.stringify(scrapbook.value)) {
         scrapbook.value = next
         storeJson(evtScrapbookKey, next)
@@ -335,6 +344,20 @@ export const useEveryVillainTacticsStore = defineStore(
       saveMessage.value = 'All saves and scrapbook pages were erased.'
     }
     const scrapbookView = computed(() => scrapbookPages(scrapbook.value))
+    const battleResults = computed(() => scrapbook.value.results)
+    const missionResult = computed(() =>
+      scoreFromSave(
+        createSave({
+          slot: 'auto',
+          perspective: perspective.value,
+          leadSignature: leadSignature.value,
+          foilSignature: foilSignature.value,
+          stage: isPlaytest.value ? draft.value : null,
+          state: state.value,
+          story: story.value,
+        }),
+      ),
+    )
     const animationFactor = computed(() =>
       animationScale(settings.value.animation),
     )
@@ -407,8 +430,10 @@ export const useEveryVillainTacticsStore = defineStore(
       foilSignature.value = save.foilSignature ?? null
       isPlaytest.value = save.mode === 'oneshot'
       if (save.stage) draft.value = structuredClone(save.stage)
+      restoringSave = true
       state.value = structuredClone(save.state)
       story.value = structuredClone(save.story)
+      restoringSave = false
       studioOpen.value = false
       rosterOpen.value = false
       scenePath.value = []
@@ -982,8 +1007,24 @@ export const useEveryVillainTacticsStore = defineStore(
       latch()
     }
     function chooseStory(effect: ChoiceEffect) {
-      return applyChoice(story.value, state.value, perspective.value, effect)
+      const accepted = applyChoice(
+        story.value,
+        state.value,
+        perspective.value,
+        effect,
+      )
+      if (accepted && story.value.completed && state.value.phase !== 'active')
+        saveTo('auto')
+      return accepted
     }
+    watch(
+      () => state.value.phase,
+      (phase, previous) => {
+        if (!restoringSave && previous === 'active' && phase !== 'active')
+          saveTo('auto')
+      },
+      { flush: 'sync' },
+    )
     function fieldClasses(point: Cell) {
       const mark = fieldAt(point)
       if (!mark) return {}
@@ -1136,6 +1177,8 @@ export const useEveryVillainTacticsStore = defineStore(
       chooseBoss,
       updateWave,
       scrapbookView,
+      battleResults,
+      missionResult,
       animationFactor,
       latestSummary,
       endTurnArmed,

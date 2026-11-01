@@ -270,6 +270,40 @@
           </section>
 
           <aside class="evt-command" aria-label="Squad command panel">
+            <details
+              v-if="store.missionResult"
+              open
+              class="mb-3 rounded-2xl border border-base-content/20 bg-base-200/90 p-3"
+              data-testid="tactics-mission-score"
+            >
+              <summary class="cursor-pointer text-lg font-black">
+                {{
+                  store.missionResult.outcome === 'victory'
+                    ? 'MISSION CLEARED'
+                    : 'MISSION LOST'
+                }}
+                · {{ store.missionResult.total }} PTS
+              </summary>
+              <p class="mt-1 text-xs opacity-80">
+                {{ store.missionResult.stage }} ·
+                {{ store.missionResult.turns }} rounds ·
+                {{ store.missionResult.medals.length }} medals earned
+              </p>
+              <ol class="mt-2 space-y-1 text-sm">
+                <li
+                  v-for="line in store.missionResult.lines"
+                  :key="line.id"
+                  class="flex justify-between gap-3"
+                >
+                  <span>{{ line.label }}</span>
+                  <strong>+{{ line.points }}</strong>
+                </li>
+              </ol>
+              <small class="mt-2 block opacity-70">
+                Full health is measured at extraction. Scores are awarded once
+                per unique saved result.
+              </small>
+            </details>
             <div class="evt-panel-head">
               <span class="evt-overline"
                 >FIELD CONTROL / TURN {{ store.state.turn }}</span

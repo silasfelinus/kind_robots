@@ -379,9 +379,40 @@
 
       <div v-else-if="store.screen === 'scrapbook'" class="evf-body kr-scroll">
         <p class="evf-lede">
-          Pages fill in only when a saved battle actually reaches the moment.
-          Points and medals arrive with mission scoring.
+          Pages and scores are earned from completed, verified battle saves.
+          Repeat saves of the same outcome cannot earn the result twice.
         </p>
+        <div
+          v-if="store.battleResults.length"
+          class="evf-pages"
+          data-testid="front-score-results"
+        >
+          <article
+            v-for="result in store.battleResults.slice(0, 6)"
+            :key="result.id"
+            class="evf-page"
+          >
+            <div class="evf-page-text">
+              <small class="evf-kicker">
+                {{ result.mode === 'story' ? 'STORY' : 'ONE-SHOT' }} ·
+                {{ result.outcome.toUpperCase() }}
+              </small>
+              <strong>{{ result.stage }} · {{ result.total }} points</strong>
+              <span
+                >{{ result.turns }} rounds · {{ result.medals.length }} earned
+                medals</span
+              >
+              <small>
+                {{
+                  result.lines
+                    .filter((line) => line.points > 0)
+                    .map((line) => line.label + ' +' + line.points)
+                    .join(' · ')
+                }}
+              </small>
+            </div>
+          </article>
+        </div>
         <div class="evf-pages" data-testid="front-scrapbook-pages">
           <article
             v-for="page in store.scrapbookView"

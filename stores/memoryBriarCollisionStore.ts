@@ -123,7 +123,12 @@ export const useMemoryBriarCollisionStore = defineStore(
         world.campaign.completed.join(','),
       ],
       () => {
-        if (hydrated.value && committed.value && journal.value.length && !completed.value)
+        if (
+          hydrated.value &&
+          committed.value &&
+          journal.value.length &&
+          !completed.value
+        )
           world.syncBriarCollisionJournal(journal.value)
       },
     )
@@ -165,7 +170,11 @@ export const useMemoryBriarCollisionStore = defineStore(
 
     function choose(choiceId: string): void {
       if (!unlocked.value || !committed.value || completed.value) return
-      const next = chooseOverworldEvent(progress.value, position.value, choiceId)
+      const next = chooseOverworldEvent(
+        progress.value,
+        position.value,
+        choiceId,
+      )
       if (next === progress.value || !ensureJournalRoom()) return
       const updated: EarthJournalAction[] = [
         ...journal.value,

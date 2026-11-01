@@ -25,6 +25,7 @@ export function localHybridizerStudies<T extends LocalHybridizerStudy>(
         Array.isArray(entry.sources) &&
         entry.sources.length === 2 &&
         entry.sources.every((source) => typeof source === 'string') &&
+        typeof entry.depth === 'number' &&
         Number.isInteger(entry.depth) &&
         Number(entry.depth) >= 1 &&
         Number(entry.depth) <= maxDepth

@@ -166,7 +166,11 @@ for (let i = 0; i < 24; i++) {
   assert.equal(next.cards.length, (i + 1) * 3)
   wallet = next
 }
-assert.equal(pulled.size, 72, 'All founder and reserve cards available as collectibles')
+assert.equal(
+  pulled.size,
+  72,
+  'All founder and reserve cards available as collectibles',
+)
 assert.equal(
   canBuyPack(wallet),
   false,

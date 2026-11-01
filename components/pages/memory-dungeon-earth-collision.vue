@@ -8,7 +8,9 @@
       class="flex shrink-0 flex-wrap items-center gap-2 border-b border-[#b8a47e]/40 bg-[#27313b] px-3 py-2"
     >
       <div class="min-w-0 flex-1">
-        <p class="text-[10px] font-black uppercase tracking-[.2em] text-[#f1c99b]">
+        <p
+          class="text-[10px] font-black uppercase tracking-[.2em] text-[#f1c99b]"
+        >
           Morrow · The City That Forgot Its Hours
         </p>
         <h2 class="truncate text-lg font-black sm:text-xl">
@@ -18,7 +20,11 @@
       <span class="rounded-lg border border-[#b8a47e]/40 px-2 py-1 text-xs">
         {{ collision.fragments }}/2 memories
       </span>
-      <button type="button" class="btn btn-sm btn-outline" @click="emit('leave')">
+      <button
+        type="button"
+        class="btn btn-sm btn-outline"
+        @click="emit('leave')"
+      >
         Briar camp
       </button>
     </header>
@@ -31,8 +37,8 @@
       <h3 class="text-2xl font-black">The city has no safe entrance yet.</h3>
       <p class="max-w-lg text-sm leading-relaxed">
         Morrow needs Pip's completed forest crossing, both displaced memories,
-        Vesper's genuine village charter and the earlier tide-gate verdict.
-        A borrowed memory cannot open this door.
+        Vesper's genuine village charter and the earlier tide-gate verdict. A
+        borrowed memory cannot open this door.
       </p>
       <button type="button" class="btn btn-warning" @click="emit('leave')">
         Return to the journey
@@ -124,7 +130,9 @@
             class="absolute inset-0 h-full w-full object-cover"
           />
           <div class="relative max-w-2xl rounded-lg bg-[#121e26]/85 p-3">
-            <p class="text-[10px] font-black uppercase tracking-widest text-[#e9c48c]">
+            <p
+              class="text-[10px] font-black uppercase tracking-widest text-[#e9c48c]"
+            >
               {{ collision.current.speaker }} · {{ collision.position }}
             </p>
             <h3 class="mt-1 text-lg font-black sm:text-2xl">
@@ -139,9 +147,13 @@
               data-testid="memory-earth-collision-history"
             >
               Vesper's
-              {{ collision.history.charter === 'consent' ? 'consent-bound' : 'open-door' }}
-              charter and Pip's recorded witnesses follow Morrow into this
-              city. The tide-gate decision remains part of its history.
+              {{
+                collision.history.charter === 'consent'
+                  ? 'consent-bound'
+                  : 'open-door'
+              }}
+              charter and Pip's recorded witnesses follow Morrow into this city.
+              The tide-gate decision remains part of its history.
             </p>
           </div>
           <span
@@ -152,7 +164,11 @@
           </span>
         </div>
         <div class="kr-scroll min-h-0 flex-1 overflow-y-auto p-3">
-          <p v-if="collision.notice" class="mb-2 text-xs text-[#f6d49a]" role="status">
+          <p
+            v-if="collision.notice"
+            class="mb-2 text-xs text-[#f6d49a]"
+            role="status"
+          >
             {{ collision.notice }}
           </p>
           <div
@@ -167,7 +183,10 @@
               {{ collision.chosen.outcome }}
             </p>
           </div>
-          <div v-else-if="!collision.completed" class="grid gap-2 sm:grid-cols-2">
+          <div
+            v-else-if="!collision.completed"
+            class="grid gap-2 sm:grid-cols-2"
+          >
             <button
               v-for="choice in collision.current?.choices ?? []"
               :key="choice.id"
@@ -192,7 +211,9 @@
                   Choice illustration pending
                 </span>
               </div>
-              <span class="block p-2 text-xs font-bold leading-relaxed sm:text-sm">
+              <span
+                class="block p-2 text-xs font-bold leading-relaxed sm:text-sm"
+              >
                 {{ choice.label }}
               </span>
             </button>
@@ -203,9 +224,9 @@
             data-testid="memory-earth-collision-crossroad-pending"
           >
             <p class="text-sm leading-relaxed">
-              Both displaced memories are safe. Morrow has enough testimony
-              to face the city's final crossroads, but its verdict has not
-              yet been written. Continue exploring without losing this route.
+              Both displaced memories are safe. Morrow has enough testimony to
+              face the city's final crossroads, but its verdict has not yet been
+              written. Continue exploring without losing this route.
             </p>
           </div>
         </div>

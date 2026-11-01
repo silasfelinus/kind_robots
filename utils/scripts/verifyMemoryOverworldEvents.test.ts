@@ -763,7 +763,10 @@ assert.equal(
 )
 
 const e10Console = readFileSync(
-  new URL('../../components/pages/memory-dungeon-earth-collision.vue', import.meta.url),
+  new URL(
+    '../../components/pages/memory-dungeon-earth-collision.vue',
+    import.meta.url,
+  ),
   'utf8',
 )
 const e10Store = readFileSync(
@@ -775,7 +778,10 @@ const memoryPage = readFileSync(
   'utf8',
 )
 const overworldPage = readFileSync(
-  new URL('../../components/pages/memory-dungeon-overworld.vue', import.meta.url),
+  new URL(
+    '../../components/pages/memory-dungeon-overworld.vue',
+    import.meta.url,
+  ),
   'utf8',
 )
 const campaignStore = readFileSync(
@@ -788,7 +794,11 @@ assert.ok(e10Console.includes('collision.choose(choice.id)'))
 assert.ok(e10Console.includes('collision.history.charter'))
 assert.ok(e10Store.includes("replayEarthJournal('e10', journal.value)"))
 assert.ok(e10Store.includes("compactEarthJournal('e10', journal.value)"))
-assert.ok(e10Store.includes('earthCollisionHistory(world.campaign, hoshimori.progress, briar.journal)'))
+assert.ok(
+  e10Store.includes(
+    'earthCollisionHistory(world.campaign, hoshimori.progress, briar.journal)',
+  ),
+)
 assert.ok(e10Store.includes('world.syncEarthCollisionJournal('))
 assert.ok(campaignStore.includes('recoverEarthCollisionFromJournal('))
 assert.ok(memoryPage.includes('v-else-if="earthCollisionMode"'))

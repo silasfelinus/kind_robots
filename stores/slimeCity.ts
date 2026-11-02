@@ -28,6 +28,7 @@ import {
   canBulldozeInto,
   cardById,
   cardReady,
+  toggleHandDiscard,
   CARDS,
   loadoutProblems,
   createMatch,
@@ -1081,6 +1082,18 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
     match.value = reveal(match.value, selectedUnit.value)
   }
 
+  function markHandDiscard(id: string): void {
+    if (running.value || match.value.victor) return
+    const result = toggleHandDiscard(match.value, id)
+    if (result !== match.value) {
+      match.value = result
+      if (selectedCard.value === id) {
+        selectedCard.value = null
+        previewOpen.value = false
+      }
+    }
+  }
+
   function nextRound(): void {
     if (running.value || match.value.victor) return
     match.value = advance(match.value)
@@ -1269,6 +1282,7 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
     attackSelected,
     unmask,
     nextRound,
+    markHandDiscard,
     tick,
     toggleRush,
     unitLabel,

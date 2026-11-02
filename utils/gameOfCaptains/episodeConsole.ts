@@ -319,6 +319,8 @@ export const EPISODE_CHOICES: readonly {
   { id: 'override', label: 'Intervene' },
 ]
 
+export const planetChoiceLabels = PLANET_ACTIONS
+
 export function episodeChoiceStakes(
   run: VoyageRun,
   deck: EpisodeDeck,

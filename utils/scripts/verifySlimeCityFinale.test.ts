@@ -185,7 +185,7 @@ for (const crew of TEAMS) {
     assert.equal(new Set(deck).size, 10)
     assert.equal(
       createMatch('blackout', crew.id, foe.id, 199 + index, {}, deck)
-        .playerDeck.join(','),
+        .playerDeck!.join(','),
       deck.join(','),
     )
   }

@@ -15,13 +15,13 @@
     >
       <template #art="{ choice }">
         <img
-          v-if="choice.image && !failed.includes(choice.image)"
-          :src="choice.image"
+          v-if="imageOf(choice)"
+          :src="imageOf(choice)!"
           alt=""
           loading="lazy"
           decoding="async"
           draggable="false"
-          @error="markFailed(choice.image)"
+          @error="markFailed(imageOf(choice)!)"
         />
         <span v-else class="md-hand-plain" aria-hidden="true">{{
           choice.icon
@@ -64,6 +64,15 @@ const failed = ref<string[]>([])
 
 function markFailed(src: string | null | undefined): void {
   if (src && !failed.value.includes(src)) failed.value.push(src)
+}
+
+function imageOf(choice: KrHandChoice): string | null {
+  const list = Array.isArray(choice.image) ? choice.image : [choice.image]
+  return (
+    list.find(
+      (src): src is string => Boolean(src) && !failed.value.includes(src!),
+    ) ?? null
+  )
 }
 
 const cards = computed<KrHandChoice[]>(() =>

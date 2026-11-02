@@ -156,7 +156,7 @@ assert.match(accountSwitch, /alienArtwork\.value = \{\}/)
 assert.match(accountSwitch, /alienArtLoaded\.value = false/)
 assert.match(
   accountSwitch,
-  /if \\(owner === null\\) \\{\\s+try \\{\\s+localStorage\\.setItem\\(ALIEN_GUIDE_OWNER_KEY, String\\(id\\)\\)/,
+  /if \(owner === null\) \{\s+try \{\s+localStorage\.setItem\(ALIEN_GUIDE_OWNER_KEY, String\(id\)\)/,
   'first sign-in must reserve the legacy guest guide before a failed upload allows another account to import it',
 )
 assert.match(

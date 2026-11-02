@@ -13,6 +13,7 @@ import {
   campaignBattleTerms,
   campaignChapter,
   campaignEchoFor,
+  campaignFavorsFor,
   campaignEnding,
   createCampaignSave,
   FACTION_CAMPAIGNS,
@@ -388,9 +389,40 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
 
   const campaignStory = computed(() => FACTION_CAMPAIGNS[activeTeam.value])
   const campaignState = computed(() => campaignSave.value[activeTeam.value])
-  const campaignEcho = computed(() =>
-    campaignEchoFor(campaignSave.value, activeTeam.value),
+  const campaignFavors = computed(() =>
+    campaignFavorsFor(campaignSave.value, activeTeam.value),
   )
+  const favorSelection = ref<{
+    team: TeamId
+    wins: number
+    index: number
+  } | null>(null)
+  const campaignFavorIndex = computed(() => {
+    const saved = favorSelection.value
+    const wins = campaignSave.value[activeTeam.value].wins
+    return saved?.team === activeTeam.value &&
+      saved.wins === wins &&
+      campaignFavors.value.some((favor) => favor.chapterIndex === saved.index)
+      ? saved.index
+      : wins - 1
+  })
+  const campaignEcho = computed(() =>
+    campaignEchoFor(
+      campaignSave.value,
+      activeTeam.value,
+      campaignFavorIndex.value,
+    ),
+  )
+  function selectCampaignFavor(index: number): void {
+    if (!storyEditable() || !activeChapter.value) return
+    if (!campaignFavors.value.some((favor) => favor.chapterIndex === index))
+      return
+    favorSelection.value = {
+      team: activeTeam.value,
+      wins: campaignSave.value[activeTeam.value].wins,
+      index,
+    }
+  }
   const activeChapter = computed(() =>
     campaignChapter(campaignSave.value, activeTeam.value),
   )
@@ -922,6 +954,7 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
         fromCity
           ? storyMissionTerms(city.value, districtId.value, choice.terms)
           : choice.terms,
+        campaignFavorIndex.value,
       ),
     )
     selectedCard.value = null
@@ -1203,6 +1236,9 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
     campaignStory,
     campaignState,
     campaignEcho,
+    campaignFavors,
+    campaignFavorIndex,
+    selectCampaignFavor,
     activeChapter,
     campaignFinale,
     campaignDistrict,

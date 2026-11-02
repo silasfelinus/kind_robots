@@ -122,6 +122,7 @@
             <span class="sch-swirl sch-swirl-a" />
             <span class="sch-swirl sch-swirl-b" />
           </span>
+        </button>
       </TransitionGroup>
       <div v-if="lab.mode === 'blackout'" class="sch-cycle-row">
         <button
@@ -626,6 +627,7 @@ function sparkleStyle(n: number): Record<string, string> {
   }
 }
 .sch-cycle-row {
+  pointer-events: auto;
   display: flex;
   justify-content: center;
   gap: 0.45rem;

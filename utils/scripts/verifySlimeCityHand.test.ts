@@ -250,6 +250,11 @@ const marquee = deploy(funded, 'merc-auction-golem', 0, 1)
 assert.notEqual(marquee, funded, 'Banking unlocks expensive cards on round two')
 assert.equal(marquee.mana, 0)
 
+const legacyFog = createMatch('blackout', 'riot', 'exchange', 371, {
+  classicFog: true,
+})
+assert.equal(legacyFog.mana, 1)
+assert.equal(advance(legacyFog).mana, 2)
 assert.equal(createMatch('gridiron', 'riot').mana, 1)
 assert.equal(createMatch('bloodrush', 'riot').mana, 3)
 

@@ -1011,6 +1011,18 @@ export const ANIMATION_EFFECTS = [
     generationSafe: true,
     preferredSurface: 'fullscreen',
   },
+  {
+    id: 'snow-globe-settle',
+    label: 'Snow Globe Settle',
+    reveal: 'A tiny cottage waits quietly inside a settling snow globe',
+    icon: 'kind-icon:sparkle',
+    tooltip:
+      'Snow drifts down inside a glass globe around a lit cottage ❄️ hover to make nearby flakes glitter, click to shake the globe into a swirl that slowly settles',
+    color: '#bcd8ff',
+    releasedAt: '2026-11-02T14:00:00Z',
+    generationSafe: true,
+    preferredSurface: 'fullscreen',
+  },
 ] as const satisfies readonly AnimationEffectDefinition[]
 
 export type AnimationEffectId = (typeof ANIMATION_EFFECTS)[number]['id']

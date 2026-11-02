@@ -77,7 +77,10 @@ import {
 } from '../gameOfCaptains/cloneSaga'
 import { CAPTAIN_STATS, CREW_PROFILES } from '../gameOfCaptains/crewAssignments'
 import { VOYAGE_CHAPTERS } from '../gameOfCaptains/voyageMap'
-import { consequenceForRun, resolveConsequence } from '../gameOfCaptains/consequenceStories'
+import {
+  consequenceForRun,
+  resolveConsequence,
+} from '../gameOfCaptains/consequenceStories'
 import {
   CAPTAIN_ORIGINS,
   type CaptainOriginId,
@@ -520,7 +523,9 @@ export function playVoyage(
         const order = driver.order(run)
         const policy = order === 'miss' ? 'observe' : order
         const authored = driver.authoredChoices
-          ? consequenceForRun(run)?.choices.find((item) => item.policy === policy)
+          ? consequenceForRun(run)?.choices.find(
+              (item) => item.policy === policy,
+            )
           : null
         step(
           authored ? 'consequence:' + authored.id : 'order:' + order,

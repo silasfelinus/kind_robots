@@ -1,6 +1,10 @@
 <!-- /components/navigation/channel-select.vue -->
 <template>
-  <div class="dropdown" :class="unifiedMobile ? 'w-full min-w-0' : ''">
+  <div
+    ref="dropdownRoot"
+    class="dropdown"
+    :class="unifiedMobile ? 'w-full min-w-0' : ''"
+  >
     <button
       tabindex="0"
       type="button"
@@ -61,6 +65,7 @@
       tabindex="0"
       class="dropdown-content z-110 mt-2 kr-anchor-panes"
       @focusin="scheduleChannelMenuViewportUpdate"
+      @keydown.esc="closeDropdown"
     >
       <!--
         PHONE: one flat, grouped list. Nested hover/flyout navigation is useful
@@ -114,152 +119,280 @@
       </div>
 
       <!--
-        SIZED BY ITS OWN CONTENT, not by the tab lists. Silas, 2026-08-11:
-        "There is a weird gap with our channel selector, it looks like it's
-        always as large as the larger tab listings, but we would have room to
-        show the channel and tabs closer to their actual inline with their
-        header locations if we didn't make that choice."
+        THE LAUNCHER. Silas, 2026-11-02: "If I click nav, I want the most image
+        friendly great shot appropriate for the room ... this is showing me a
+        mobile display when i have an xl display. we should be a lot COOLER."
 
-        He was reading it exactly right. This was `w-[min(22rem,...)]` — the
-        same literal 22rem the tab dropdown uses — so a list of five one-word
-        channel names was held open at the width of the longest TAB list on the
-        site. Measured on /dashboard at 1440: 352px of menu around 239px of
-        content, and the tab flyout consequently started at x=390 when the tab
-        control it stands in for sits at x=185 in the header.
-
-        `w-max` lets the four channel rows decide, with a floor so a short list
-        does not collapse into a sliver and the old 22rem kept as the cap for
-        narrow viewports (where it degrades to the viewport instead). The
-        flyout moves left by whatever the rows save, which is the whole of what
-        "closer to their header locations" asks for.
+        From tablet up the menu is one art-led panel sized to the room the
+        viewport actually has: a rail of channels, each wearing its own art, and
+        a stage for the previewed channel -- a spotlight banner of whatever card
+        is under the pointer, then every destination as an image card in as
+        many columns as the width allows.
       -->
-      <ul
+      <div
         v-if="!unifiedMobile"
         ref="channelMenu"
-        class="menu w-max min-w-56 max-w-[min(22rem,calc(100vw-1rem))] flex-nowrap overflow-x-hidden kr-anchor-scroll kr-panel-flat p-2 shadow-2xl"
+        class="kr-launcher flex overflow-hidden kr-panel-flat shadow-2xl"
         :style="{
+          width: `${launcherWidth}px`,
           maxHeight: `${channelMenuMaxHeight}px`,
-          scrollbarGutter: 'stable',
         }"
-        @scroll="handleChannelMenuScroll"
       >
-        <li
-          v-for="channel in visibleChannels"
-          :key="channel.channelKey"
-          class="channel-menu-item"
-          @mouseenter="previewChannelTabs(channel, $event)"
+        <ul
+          class="flex w-44 shrink-0 flex-col gap-1.5 overflow-x-hidden kr-anchor-scroll border-r border-base-300 bg-base-200/40 p-2 lg:w-56 xl:w-64"
+          :style="{ maxHeight: `${channelMenuMaxHeight}px` }"
+          aria-label="Channels"
         >
-          <div
-            class="flex min-h-12 w-full items-stretch overflow-hidden rounded-xl"
-            :class="
-              activeChannel.channelKey === channel.channelKey
-                ? 'bg-primary text-primary-content'
-                : 'hover:bg-base-200'
-            "
+          <li
+            v-for="channel in visibleChannels"
+            :key="channel.channelKey"
+            class="channel-menu-item"
+            @mouseenter="previewChannel(channel)"
+            @focusin="previewChannel(channel)"
           >
-            <button
-              type="button"
-              class="flex min-w-0 flex-1 items-center gap-2 px-2 py-1.5 text-left"
-              @click="selectChannel(channel)"
+            <div
+              class="group relative flex min-h-14 w-full items-stretch overflow-hidden rounded-xl border transition-all lg:min-h-16 xl:min-h-[4.5rem]"
+              :class="
+                previewedChannelKey === channel.channelKey
+                  ? 'border-primary shadow-lg ring-2 ring-primary/40'
+                  : 'border-base-300 hover:border-primary/50'
+              "
             >
+              <img
+                v-if="imageOk(channel.image)"
+                :src="channel.image"
+                alt=""
+                aria-hidden="true"
+                loading="lazy"
+                class="absolute inset-0 h-full w-full object-cover transition-transform duration-500 group-hover:scale-110"
+                @error="markBroken(channel.image)"
+              />
               <span
-                class="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-base-300/50 bg-base-200 text-base-content xl:h-10 xl:w-10"
-              >
-                <Icon :name="channel.icon" class="kr-icon-4 shrink-0" />
-              </span>
+                class="absolute inset-0 bg-gradient-to-r from-base-100 via-base-100/85 to-base-100/30"
+                aria-hidden="true"
+              />
 
-              <span
-                class="flex min-w-0 flex-1 flex-col items-start leading-tight"
+              <button
+                type="button"
+                class="relative flex min-w-0 flex-1 items-center gap-2 px-2 py-1.5 text-left"
+                :aria-current="
+                  activeChannel.channelKey === channel.channelKey
+                    ? 'location'
+                    : undefined
+                "
+                @click="selectChannel(channel)"
               >
-                <span class="kr-text-black-sm max-w-full truncate xl:text-base">
-                  {{ channel.label }}
+                <span
+                  class="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border shadow-sm xl:h-10 xl:w-10"
+                  :class="
+                    activeChannel.channelKey === channel.channelKey
+                      ? 'border-primary bg-primary text-primary-content'
+                      : 'border-base-300/70 bg-base-100/90 text-base-content'
+                  "
+                >
+                  <Icon :name="channel.icon" class="kr-icon-4 shrink-0" />
+                </span>
+
+                <span
+                  class="flex min-w-0 flex-1 flex-col items-start leading-tight"
+                >
+                  <span
+                    class="kr-text-black-sm max-w-full truncate lg:text-base"
+                  >
+                    {{ channel.label }}
+                  </span>
+                  <span
+                    class="max-w-full truncate text-xs font-semibold opacity-70"
+                  >
+                    {{ destinationTab(channel)?.label || channel.title }}
+                  </span>
+                </span>
+              </button>
+
+              <button
+                v-if="channel.tabs.length > 1"
+                type="button"
+                class="relative flex w-9 shrink-0 items-center justify-center text-base-content/70 hover:text-primary"
+                :aria-label="'Show ' + channel.label + ' destinations'"
+                :aria-expanded="previewedChannelKey === channel.channelKey"
+                @click.stop="previewChannel(channel)"
+              >
+                <Icon
+                  name="kind-icon:chevron-right"
+                  class="kr-icon-4 transition-transform group-hover:translate-x-0.5"
+                />
+              </button>
+            </div>
+          </li>
+        </ul>
+
+        <div
+          v-if="previewedChannel"
+          ref="channelFlyout"
+          class="channel-submenu @container min-w-0 flex-1 flex-nowrap overflow-x-hidden kr-anchor-scroll p-3 xl:p-4"
+          :style="{
+            maxHeight: `${channelFlyoutMaxHeight}px`,
+            scrollbarGutter: 'stable',
+          }"
+          :aria-label="previewedChannel.label + ' destinations'"
+        >
+          <button
+            type="button"
+            class="group relative mb-3 flex h-28 w-full items-end overflow-hidden rounded-2xl border border-base-300 bg-gradient-to-br from-primary/40 via-secondary/30 to-accent/40 text-left shadow-md lg:h-32 xl:h-40"
+            :aria-label="`Open ${spotlight.label}`"
+            @click="openSpotlight"
+          >
+            <img
+              v-if="imageOk(spotlight.image)"
+              :key="spotlight.image"
+              :src="spotlight.image"
+              alt=""
+              aria-hidden="true"
+              class="kr-launcher-spotlight absolute inset-0 h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
+              @error="markBroken(spotlight.image)"
+            />
+            <Icon
+              v-else
+              :name="spotlight.icon"
+              class="absolute right-6 top-1/2 h-20 w-20 -translate-y-1/2 text-base-content/20"
+            />
+            <span
+              class="absolute inset-0 bg-gradient-to-t from-base-100 via-base-100/60 to-transparent"
+              aria-hidden="true"
+            />
+            <span
+              class="relative flex w-full min-w-0 items-end gap-3 p-3 xl:p-4"
+            >
+              <span class="flex min-w-0 flex-1 flex-col leading-tight">
+                <span
+                  class="kr-text-eyebrow truncate text-[0.65rem] tracking-[0.2em] text-primary"
+                >
+                  {{ spotlight.eyebrow }}
                 </span>
                 <span
-                  class="max-w-full truncate text-xs font-semibold opacity-65"
+                  class="kr-text-black-lg truncate text-xl drop-shadow-sm lg:text-2xl xl:text-3xl"
                 >
-                  {{ destinationTab(channel)?.label || channel.title }}
+                  {{ spotlight.label }}
+                </span>
+                <span
+                  v-if="spotlight.blurb"
+                  class="line-clamp-1 text-sm font-medium text-base-content/75 lg:line-clamp-2"
+                >
+                  {{ spotlight.blurb }}
                 </span>
               </span>
-            </button>
+              <span
+                class="btn btn-primary btn-sm hidden shrink-0 rounded-xl shadow-md @lg:inline-flex"
+              >
+                Go
+                <Icon name="kind-icon:arrow-right" class="h-3.5 w-3.5" />
+              </span>
+            </span>
+          </button>
 
-            <button
-              v-if="channel.tabs.length > 1"
-              type="button"
-              class="flex w-10 shrink-0 items-center justify-center border-l border-current/10"
-              :aria-label="'Show ' + channel.label + ' tabs'"
-              :aria-expanded="expandedChannelKey === channel.channelKey"
-              @click.stop="toggleChannel(channel, $event)"
+          <section
+            v-for="section in launcherSections"
+            :key="section.key"
+            class="mb-3 last:mb-0"
+            :aria-label="section.label || previewedChannel.label"
+          >
+            <p
+              v-if="section.label"
+              class="kr-text-eyebrow mb-1.5 flex items-center gap-2 px-1 text-[0.65rem] tracking-[0.18em] text-base-content/55"
             >
               <Icon
-                name="kind-icon:chevron-right"
-                class="kr-icon-4 transition-transform"
-                :class="
-                  expandedChannelKey === channel.channelKey ? 'rotate-90' : ''
-                "
+                v-if="section.parent"
+                :name="section.parent.icon || previewedChannel.icon"
+                class="h-3 w-3"
               />
-            </button>
-          </div>
+              {{ section.label }}
+              <span
+                v-if="section.admin"
+                class="kr-text-eyebrow-bold kr-badge-warning-xs"
+              >
+                Admin
+              </span>
+            </p>
 
-          <!--
-            THE BELOW-FALLBACK, AND IT IS INDENTED. Silas, 2026-08-11: the tabs
-            go to the right "unless we need the space, in which case there
-            still should be an indent."
+            <div
+              class="grid grid-cols-[repeat(auto-fill,minmax(9.5rem,1fr))] gap-2.5 @5xl:grid-cols-[repeat(auto-fill,minmax(11rem,1fr))] @5xl:gap-3"
+            >
+              <button
+                v-for="(tab, index) in section.tabs"
+                :key="tab.tabKey"
+                type="button"
+                class="kr-launcher-card group relative flex min-w-0 flex-col overflow-hidden rounded-2xl border bg-base-100 text-left shadow-sm transition-all duration-200 hover:-translate-y-1 hover:border-primary/60 hover:shadow-xl focus-visible:-translate-y-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+                :class="
+                  isActiveTab(previewedChannel, tab)
+                    ? 'border-secondary ring-2 ring-secondary'
+                    : 'border-base-300'
+                "
+                :style="{ animationDelay: `${Math.min(index, 12) * 25}ms` }"
+                :aria-current="
+                  isActiveTab(previewedChannel, tab) ? 'page' : undefined
+                "
+                @mouseenter="spotlightTabKey = tab.tabKey"
+                @focus="spotlightTabKey = tab.tabKey"
+                @click="selectTab(previewedChannel, tab)"
+              >
+                <span
+                  class="relative block aspect-[4/3] w-full overflow-hidden bg-gradient-to-br from-primary/25 via-base-200 to-secondary/25"
+                >
+                  <Icon
+                    :name="tab.icon || previewedChannel.icon"
+                    class="absolute left-1/2 top-1/2 h-10 w-10 -translate-x-1/2 -translate-y-1/2 text-base-content/30"
+                  />
+                  <img
+                    v-if="imageOk(tab.image)"
+                    :src="tab.image"
+                    :alt="tab.title || tab.label"
+                    loading="lazy"
+                    class="absolute inset-0 h-full w-full object-cover transition-transform duration-500 group-hover:scale-110"
+                    @error="markBroken(tab.image)"
+                  />
+                  <span
+                    class="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-base-content/50 to-transparent opacity-0 transition-opacity group-hover:opacity-100"
+                    aria-hidden="true"
+                  />
+                  <span
+                    class="absolute left-2 top-2 flex h-7 w-7 items-center justify-center rounded-lg bg-base-100/85 shadow-sm backdrop-blur"
+                    aria-hidden="true"
+                  >
+                    <Icon
+                      :name="tab.icon || previewedChannel.icon"
+                      class="h-4 w-4"
+                    />
+                  </span>
+                  <span
+                    v-if="isActiveTab(previewedChannel, tab)"
+                    class="kr-text-eyebrow-bold absolute right-2 top-2 rounded-full bg-secondary px-2 py-0.5 text-[0.6rem] text-secondary-content shadow"
+                  >
+                    Here
+                  </span>
+                  <span
+                    v-else-if="isAdminOnlyTab(previewedChannel, tab)"
+                    class="kr-text-eyebrow-bold kr-badge-warning-xs absolute right-2 top-2"
+                    title="Admin-only page"
+                  >
+                    Admin
+                  </span>
+                </span>
 
-            `ms-5` plus the accent border is that indent: dropped below its
-            channel, a tab list has nothing but position to say which channel it
-            belongs to, and position alone reads as a sixth channel.
-
-            THIS PANEL IS ALLOWED TO WIDEN THE MENU, and that is not a
-            regression of the sizing fix above. Inline only ever runs where the
-            flyout could not fit — under about 582px — and at those widths the
-            menu's 14rem of channel names is sitting in a viewport with 350
-            spare. Pinning it (a `w-0 min-w-full` trick did exactly that in an
-            earlier pass) bought consistency at the price of a 173px-wide tab
-            list on a phone, with every summary ellipsised to three words.
-
-            What Silas objected to was the menu being 22rem "always", including
-            with nothing expanded. It now costs that width only while an inline
-            submenu is actually open, and only where opening one is the only
-            option.
-          -->
-          <div
-            v-if="
-              submenuMode === 'inline' &&
-              expandedChannelKey === channel.channelKey
-            "
-            class="ms-5 mt-1 rounded-xl border border-base-300/70 border-s-2 border-s-primary/40 bg-base-200/60 p-1"
-            :aria-label="channel.label + ' tabs'"
-          >
-            <ChannelTabList
-              :channel="channel"
-              :active-channel-key="activeChannel.channelKey"
-              :active-tab-key="activeTab?.tabKey || ''"
-              :columns="1"
-              @select="selectTab(channel, $event)"
-            />
-          </div>
-        </li>
-      </ul>
-
-      <div
-        v-if="!unifiedMobile && expandedChannel && submenuMode === 'flyout'"
-        ref="channelFlyout"
-        class="channel-submenu absolute left-full z-120 ml-2 flex-nowrap overflow-x-hidden kr-anchor-scroll kr-panel-flat p-2 shadow-2xl"
-        :class="channelFlyoutColumns === 2 ? 'w-[40rem]' : 'w-80'"
-        :style="{
-          top: `${channelFlyoutTop}px`,
-          maxHeight: `${channelFlyoutMaxHeight}px`,
-          scrollbarGutter: 'stable',
-        }"
-        :aria-label="expandedChannel.label + ' tabs'"
-      >
-        <ChannelTabList
-          :channel="expandedChannel"
-          :active-channel-key="activeChannel.channelKey"
-          :active-tab-key="activeTab?.tabKey || ''"
-          :columns="channelFlyoutColumns"
-          @select="selectTab(expandedChannel, $event)"
-        />
+                <span class="flex min-w-0 flex-col gap-0.5 px-2.5 py-2">
+                  <span class="kr-text-black-sm truncate xl:text-base">
+                    {{ tab.label }}
+                  </span>
+                  <span
+                    v-if="tab.summary || tab.description"
+                    class="line-clamp-2 text-[0.72rem] font-medium leading-snug text-base-content/65"
+                  >
+                    {{ tab.summary || tab.description }}
+                  </span>
+                </span>
+              </button>
+            </div>
+          </section>
+        </div>
       </div>
     </div>
   </div>
@@ -274,7 +407,11 @@ import type {
 } from '@/stores/helpers/channelContent'
 import { useChannelContentStore } from '@/stores/channelContentStore'
 import { usePageStore } from '@/stores/pageStore'
-import { hasSeparatedAdminTabs } from '@/utils/channelTabGroups'
+import {
+  channelTabGroups,
+  isAdminOnlyTab,
+  navigationSubtabs,
+} from '@/utils/channelTabGroups'
 import { tabSharesRoute } from '@/utils/tabNavigation'
 
 const { seamless, unifiedMobile } = withDefaults(
@@ -288,50 +425,45 @@ const { seamless, unifiedMobile } = withDefaults(
   },
 )
 
-type SubmenuMode = 'flyout' | 'inline'
-type FlyoutColumns = 1 | 2
+type LauncherSection = {
+  key: string
+  label: string
+  admin: boolean
+  parent: ResolvedTab | null
+  tabs: ResolvedTab[]
+}
+
+type Spotlight = {
+  eyebrow: string
+  label: string
+  blurb: string
+  image: string
+  icon: string
+  tab: ResolvedTab | null
+}
 
 const VIEWPORT_GUTTER = 12
-const FLYOUT_GAP = 8
-const FLYOUT_GUTTER = 8
-const SINGLE_FLYOUT_WIDTH = 320
-const SPLIT_FLYOUT_WIDTH = 640
+const LAUNCHER_MIN_WIDTH = 480
+const LAUNCHER_MAX_WIDTH = 1760
 
 const route = useRoute()
 const router = useRouter()
 const pageStore = usePageStore()
 const channelContentStore = useChannelContentStore()
-const expandedChannelKey = ref('')
 const mobileSubtabsResetToken = ref(0)
-/*
- * Whether the open submenu was opened by hovering rather than by pressing the
- * chevron, so the chevron does not immediately undo the hover.
- *
- * Browsers synthesise mouseenter before click on a tap, so on a touch device
- * wide enough for the flyout the two handlers fought each other: the tap's
- * mouseenter opened the flyout, the tap's own click saw it already open and
- * closed it, and the chevron did nothing at all. Every tablet was in that band
- * once the menu narrowed and the flyout started fitting at 604px.
- */
-const expandedByPointer = ref(false)
+const dropdownRoot = ref<HTMLElement | null>(null)
 const channelMenu = ref<HTMLElement | null>(null)
 const channelFlyout = ref<HTMLElement | null>(null)
-const channelFlyoutTop = ref(0)
 const channelMenuMaxHeight = ref(320)
 const channelFlyoutMaxHeight = ref(320)
-const channelFlyoutColumns = ref<FlyoutColumns>(1)
-const submenuMode = ref<SubmenuMode>('inline')
+const launcherWidth = ref(960)
+const previewedChannelKey = ref('')
+const spotlightTabKey = ref('')
+const brokenImages = ref<Set<string>>(new Set())
 
 await channelContentStore.initialize()
 
 const visibleChannels = computed(() => channelContentStore.navigationChannels)
-const expandedChannel = computed<ResolvedChannel | null>(() => {
-  return (
-    visibleChannels.value.find(
-      (channel) => channel.channelKey === expandedChannelKey.value,
-    ) ?? null
-  )
-})
 const requestedTabKey = computed(() => {
   return typeof route.query.tab === 'string' ? route.query.tab.trim() : ''
 })
@@ -410,6 +542,84 @@ const activeTab = computed<ResolvedTab | null>(() => {
   )
 })
 
+const previewedChannel = computed<ResolvedChannel | null>(() => {
+  const channels = visibleChannels.value
+  return (
+    channels.find(
+      (channel) => channel.channelKey === previewedChannelKey.value,
+    ) ??
+    channels.find(
+      (channel) => channel.channelKey === activeChannel.value.channelKey,
+    ) ??
+    channels[0] ??
+    null
+  )
+})
+
+const launcherSections = computed<LauncherSection[]>(() => {
+  const channel = previewedChannel.value
+  if (!channel) return []
+
+  const sections: LauncherSection[] = []
+  for (const group of channelTabGroups(channel)) {
+    const leaves = group.tabs.filter(
+      (tab) => navigationSubtabs(channel, tab).length === 0,
+    )
+    if (leaves.length) {
+      sections.push({
+        key: group.key,
+        label: group.label,
+        admin: group.admin,
+        parent: null,
+        tabs: leaves,
+      })
+    }
+
+    for (const parent of group.tabs) {
+      const subtabs = navigationSubtabs(channel, parent)
+      if (!subtabs.length) continue
+
+      sections.push({
+        key: `${group.key}:${parent.tabKey}`,
+        label: parent.label,
+        admin: group.admin,
+        parent,
+        tabs: parent.route ? [parent, ...subtabs] : subtabs,
+      })
+    }
+  }
+
+  return sections
+})
+
+const spotlight = computed<Spotlight>(() => {
+  const channel = previewedChannel.value ?? fallbackChannel
+  const tab =
+    channel.tabs.find(
+      (candidate) => candidate.tabKey === spotlightTabKey.value,
+    ) ?? null
+
+  if (tab) {
+    return {
+      eyebrow: `${channel.room || channel.label} · ${channel.label}`,
+      label: tab.title || tab.label,
+      blurb: tab.summary || tab.description || tab.subtitle || '',
+      image: imageOk(tab.image) ? tab.image : channel.image,
+      icon: tab.icon || channel.icon,
+      tab,
+    }
+  }
+
+  return {
+    eyebrow: channel.room || 'Kind Robots',
+    label: channel.title || channel.label,
+    blurb: channel.summary || channel.description || channel.subtitle || '',
+    image: channel.image,
+    icon: channel.icon,
+    tab: null,
+  }
+})
+
 function destinationTab(channel: ResolvedChannel): ResolvedTab | null {
   const storedTabKey = channelContentStore.getActiveTab(channel.channelKey)
 
@@ -421,10 +631,44 @@ function destinationTab(channel: ResolvedChannel): ResolvedTab | null {
   )
 }
 
-function closeChannelTabs(): void {
-  expandedChannelKey.value = ''
-  expandedByPointer.value = false
-  channelFlyoutColumns.value = 1
+function isActiveTab(channel: ResolvedChannel, tab: ResolvedTab): boolean {
+  return (
+    activeChannel.value.channelKey === channel.channelKey &&
+    activeTab.value?.tabKey === tab.tabKey
+  )
+}
+
+function imageOk(src: string | undefined): src is string {
+  return !!src && !brokenImages.value.has(src)
+}
+
+function markBroken(src: string | undefined): void {
+  if (!src || brokenImages.value.has(src)) return
+  const next = new Set(brokenImages.value)
+  next.add(src)
+  brokenImages.value = next
+}
+
+function previewChannel(channel: ResolvedChannel): void {
+  if (previewedChannelKey.value === channel.channelKey) return
+  previewedChannelKey.value = channel.channelKey
+  spotlightTabKey.value = ''
+  void nextTick(() => {
+    channelFlyout.value?.scrollTo({ top: 0 })
+  })
+}
+
+function openSpotlight(): void {
+  const channel = previewedChannel.value
+  if (!channel) return
+
+  const tab = spotlight.value.tab
+  if (tab) {
+    selectTab(channel, tab)
+    return
+  }
+
+  selectChannel(channel)
 }
 
 function getViewportBottom(): number {
@@ -442,30 +686,36 @@ function availableViewportHeight(element: HTMLElement): number {
   )
 }
 
-function updateChannelFlyoutViewport(): void {
-  const flyout = channelFlyout.value
-  if (!flyout) return
+function updateLauncherWidth(): void {
+  const root = dropdownRoot.value
+  if (!root || typeof window === 'undefined') return
 
-  channelFlyoutMaxHeight.value = availableViewportHeight(flyout)
+  const left = root.getBoundingClientRect().left
+  const available = Math.floor(window.innerWidth - left - VIEWPORT_GUTTER)
+  const floor = Math.min(
+    LAUNCHER_MIN_WIDTH,
+    window.innerWidth - VIEWPORT_GUTTER * 2,
+  )
+
+  launcherWidth.value = Math.max(floor, Math.min(LAUNCHER_MAX_WIDTH, available))
 }
 
 function updateChannelMenuViewport(): void {
+  if (!unifiedMobile) updateLauncherWidth()
+
   const menu = channelMenu.value
   if (!menu) return
 
   channelMenuMaxHeight.value = availableViewportHeight(menu)
-
-  const channel = expandedChannel.value
-  if (submenuMode.value === 'flyout' && channel) {
-    channelFlyoutColumns.value = preferredFlyoutColumns(channel)
-  }
-
-  updateChannelFlyoutViewport()
+  channelFlyoutMaxHeight.value = channelMenuMaxHeight.value
 }
 
 function openChannelMenu(): void {
   if (unifiedMobile) {
     mobileSubtabsResetToken.value += 1
+  } else {
+    previewedChannelKey.value = activeChannel.value.channelKey
+    spotlightTabKey.value = ''
   }
 
   scheduleChannelMenuViewportUpdate()
@@ -479,126 +729,29 @@ function scheduleChannelMenuViewportUpdate(): void {
   })
 }
 
-function handleViewportResize(): void {
-  if (
-    submenuMode.value === 'flyout' &&
-    expandedChannel.value &&
-    !canShowFlyoutWidth(SINGLE_FLYOUT_WIDTH)
-  ) {
-    submenuMode.value = 'inline'
-    channelFlyoutColumns.value = 1
-  }
-
-  scheduleChannelMenuViewportUpdate()
-}
-
 onMounted(() => {
-  window.addEventListener('resize', handleViewportResize)
-  window.visualViewport?.addEventListener('resize', handleViewportResize)
-  window.visualViewport?.addEventListener('scroll', handleViewportResize)
+  window.addEventListener('resize', scheduleChannelMenuViewportUpdate)
+  window.visualViewport?.addEventListener(
+    'resize',
+    scheduleChannelMenuViewportUpdate,
+  )
+  window.visualViewport?.addEventListener(
+    'scroll',
+    scheduleChannelMenuViewportUpdate,
+  )
 })
 
 onBeforeUnmount(() => {
-  window.removeEventListener('resize', handleViewportResize)
-  window.visualViewport?.removeEventListener('resize', handleViewportResize)
-  window.visualViewport?.removeEventListener('scroll', handleViewportResize)
-})
-
-function canShowFlyoutWidth(width: number): boolean {
-  const menu = channelMenu.value
-  if (!menu || typeof window === 'undefined') return false
-
-  const menuRect = menu.getBoundingClientRect()
-  const flyoutRight = menuRect.right + FLYOUT_GAP + width
-
-  return flyoutRight <= window.innerWidth - FLYOUT_GUTTER
-}
-
-function preferredFlyoutColumns(channel: ResolvedChannel): FlyoutColumns {
-  return hasSeparatedAdminTabs(channel) &&
-    canShowFlyoutWidth(SPLIT_FLYOUT_WIDTH)
-    ? 2
-    : 1
-}
-
-function positionChannelTabs(event: Event): void {
-  const menu = channelMenu.value
-  const target = (event.currentTarget as HTMLElement | null)?.closest(
-    '.channel-menu-item',
+  window.removeEventListener('resize', scheduleChannelMenuViewportUpdate)
+  window.visualViewport?.removeEventListener(
+    'resize',
+    scheduleChannelMenuViewportUpdate,
   )
-
-  if (!menu || !(target instanceof HTMLElement)) return
-
-  const menuRect = menu.getBoundingClientRect()
-  const targetRect = target.getBoundingClientRect()
-
-  channelFlyoutTop.value = Math.max(0, targetRect.top - menuRect.top)
-
-  void nextTick(() => {
-    const flyout = channelFlyout.value
-    if (!flyout) return
-
-    const maxTop = Math.max(0, menu.clientHeight - flyout.offsetHeight)
-    channelFlyoutTop.value = Math.min(channelFlyoutTop.value, maxTop)
-    scheduleChannelMenuViewportUpdate()
-  })
-}
-
-function openChannelTabs(
-  channel: ResolvedChannel,
-  event: Event,
-  allowInline: boolean,
-): void {
-  if (channel.tabs.length <= 1) {
-    closeChannelTabs()
-    return
-  }
-
-  const nextMode: SubmenuMode = canShowFlyoutWidth(SINGLE_FLYOUT_WIDTH)
-    ? 'flyout'
-    : 'inline'
-  if (nextMode === 'inline' && !allowInline) return
-
-  submenuMode.value = nextMode
-  expandedChannelKey.value = channel.channelKey
-  expandedByPointer.value = !allowInline
-  channelFlyoutColumns.value =
-    nextMode === 'flyout' ? preferredFlyoutColumns(channel) : 1
-
-  if (nextMode === 'flyout') {
-    positionChannelTabs(event)
-  }
-}
-
-function previewChannelTabs(channel: ResolvedChannel, event: Event): void {
-  openChannelTabs(channel, event, false)
-}
-
-function toggleChannel(channel: ResolvedChannel, event: Event): void {
-  if (expandedChannelKey.value === channel.channelKey) {
-    /*
-     * Already open, but only because the pointer passed over the row -- the
-     * user has not asked for it yet, so the first press CLAIMS it rather than
-     * dismissing it. Without this a tap is a no-op (see expandedByPointer) and
-     * a mouse user has to click the chevron twice to make a hover stick.
-     */
-    if (expandedByPointer.value) {
-      expandedByPointer.value = false
-      return
-    }
-
-    closeChannelTabs()
-    return
-  }
-
-  openChannelTabs(channel, event, true)
-}
-
-function handleChannelMenuScroll(): void {
-  if (submenuMode.value === 'flyout') {
-    closeChannelTabs()
-  }
-}
+  window.visualViewport?.removeEventListener(
+    'scroll',
+    scheduleChannelMenuViewportUpdate,
+  )
+})
 
 function navigateToTab(channel: ResolvedChannel, tab: ResolvedTab): void {
   if (!tab.route) return
@@ -640,10 +793,53 @@ function selectTab(channel: ResolvedChannel, tab: ResolvedTab): void {
 }
 
 function closeDropdown(): void {
-  closeChannelTabs()
+  spotlightTabKey.value = ''
   if (typeof document === 'undefined') return
 
   const element = document.activeElement as HTMLElement | null
   element?.blur()
 }
 </script>
+
+<style scoped>
+.kr-launcher {
+  animation: kr-launcher-in 180ms ease-out both;
+  transform-origin: top left;
+}
+
+.kr-launcher-card {
+  animation: kr-launcher-card-in 260ms ease-out both;
+}
+
+.kr-launcher-spotlight {
+  animation: kr-launcher-fade 320ms ease-out both;
+}
+
+@keyframes kr-launcher-in {
+  from {
+    opacity: 0;
+    transform: translateY(-6px) scale(0.985);
+  }
+}
+
+@keyframes kr-launcher-card-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+}
+
+@keyframes kr-launcher-fade {
+  from {
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kr-launcher,
+  .kr-launcher-card,
+  .kr-launcher-spotlight {
+    animation: none;
+  }
+}
+</style>

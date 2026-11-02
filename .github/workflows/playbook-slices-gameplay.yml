@@ -95,3 +95,5 @@ jobs:
         run: npx tsx utils/scripts/verifyGameOfCaptainsExpedition.test.ts
       - name: Space Couch character signatures and dossiers
         run: npx tsx utils/scripts/verifyGameOfCaptainsCharacters.test.ts
+      - name: Space Couch alien render job provenance and viewer gate
+        run: npx tsx utils/scripts/verifyGameOfCaptainsAlienArtJobs.test.ts

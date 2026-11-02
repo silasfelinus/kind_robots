@@ -748,7 +748,11 @@ assert.equal(
   0,
   'New Blackout starts with open deployment',
 )
-assert.equal(lab.hand.length, BLACKOUT_HAND_SIZE, 'New Blackout deals five cards')
+assert.equal(
+  lab.hand.length,
+  BLACKOUT_HAND_SIZE,
+  'New Blackout deals five cards',
+)
 assert.ok(
   lab.match.units
     .filter((u) => u.side === 'player')

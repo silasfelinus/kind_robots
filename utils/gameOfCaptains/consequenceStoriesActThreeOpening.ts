@@ -14,7 +14,8 @@ export const ACT_THREE_OPENING_CASES = {
       {
         id: 'consult-affected-worlds',
         label: 'Invite affected communities to negotiate a shorter hearing',
-        approach: 'Let named witnesses decide how their objections will be heard',
+        approach:
+          'Let named witnesses decide how their objections will be heard',
         cost: 'A genuine hearing costs fuel and time, and the witnesses are free to refuse the route.',
         policy: 'aid',
         check: { ability_any: ['diplomacy', 'culture'], difficulty: 7 },
@@ -38,7 +39,8 @@ export const ACT_THREE_OPENING_CASES = {
       {
         id: 'audit-the-register',
         label: 'Audit the registry before anyone signs a departure permit',
-        approach: 'Separate genuine complainants from forged or duplicated objections',
+        approach:
+          'Separate genuine complainants from forged or duplicated objections',
         cost: 'An independent audit protects identities but cannot settle every real grievance.',
         policy: 'observe',
         check: { ability_any: ['science', 'culture'], difficulty: 8 },
@@ -62,7 +64,8 @@ export const ACT_THREE_OPENING_CASES = {
       {
         id: 'cross-without-permit',
         label: 'Push the couch through the gate using its shield',
-        approach: 'Take immediate passage without binding unconsulted worlds to the captain’s choice',
+        approach:
+          'Take immediate passage without binding unconsulted worlds to the captain’s choice',
         cost: 'The crew gets through, but the act teaches other captains that consent is optional.',
         policy: 'intervene',
         check: { ability_any: ['tactics', 'luck'], difficulty: 6 },
@@ -97,7 +100,8 @@ export const ACT_THREE_OPENING_CASES = {
       {
         id: 'open-pocket-rooms',
         label: 'Lend the couch’s miniaturized rooms to consenting guests',
-        approach: 'Share scarce breathing room while preserving the bar’s right to set its own limits',
+        approach:
+          'Share scarce breathing room while preserving the bar’s right to set its own limits',
         cost: 'The temporary rooms burn ship reserves and must be folded before the next jump.',
         policy: 'aid',
         check: { ability_any: ['rescue', 'science'], difficulty: 7 },
@@ -121,7 +125,8 @@ export const ACT_THREE_OPENING_CASES = {
       {
         id: 'broker-neutral-exit',
         label: 'Ask Vox and Serendipity to agree on voluntary exits',
-        approach: 'Let the two independent hosts negotiate what neutrality can still mean',
+        approach:
+          'Let the two independent hosts negotiate what neutrality can still mean',
         cost: 'Some guests will choose to leave without guaranteed shelter elsewhere.',
         policy: 'observe',
         check: { ability_any: ['diplomacy', 'culture'], difficulty: 8 },
@@ -145,7 +150,8 @@ export const ACT_THREE_OPENING_CASES = {
       {
         id: 'declare-open-sanctuary',
         label: 'Broadcast Serendipity as sanctuary to the entire sector',
-        approach: 'Override the neutrality charter and demand immediate protection',
+        approach:
+          'Override the neutrality charter and demand immediate protection',
         cost: 'A public declaration attracts aid and the creditors who police it.',
         policy: 'intervene',
         check: { ability_any: ['tactics', 'luck'], difficulty: 6 },
@@ -153,7 +159,11 @@ export const ACT_THREE_OPENING_CASES = {
           narrative:
             'Every ship in range brings blankets, oxygen and unwelcome reporters. The crowd spills into the docking ring, where Serendipity uses its gravity to hold everyone safely together. The declaration keeps the creditors from boarding for one night, but their ships mark the station on every public chart. Vox pins a sanctuary sign beneath the NO SOLICITING notice. The bar has survived. It will not be neutral tomorrow.',
           flags: ['lastcall-public-sanctuary', 'lastcall-station-exposed'],
-          delta: { sanctuary_trust: 2, antagonist_pressure: 3, treaty_trust: -2 },
+          delta: {
+            sanctuary_trust: 2,
+            antagonist_pressure: 3,
+            treaty_trust: -2,
+          },
           callback:
             'Serendipity’s public sanctuary is still full. More supplies arrived, along with patrols. Vox is trying to explain to every new visitor that a protected address is not a tourist attraction.',
         },
@@ -180,7 +190,8 @@ export const ACT_THREE_OPENING_CASES = {
       {
         id: 'organize-floor-votes',
         label: 'Help the performers reach every floor and vote privately',
-        approach: 'Give each floor its own choice rather than manufacturing a unanimous finale',
+        approach:
+          'Give each floor its own choice rather than manufacturing a unanimous finale',
         cost: 'The climb consumes time and supplies, and a floor may vote to stay.',
         policy: 'aid',
         check: { ability_any: ['rescue', 'diplomacy'], difficulty: 7 },
@@ -204,7 +215,8 @@ export const ACT_THREE_OPENING_CASES = {
       {
         id: 'challenge-contract',
         label: 'Challenge the sponsor contract in the contestants’ names',
-        approach: 'Use the show’s own rules to expose the illegal exit conditions',
+        approach:
+          'Use the show’s own rules to expose the illegal exit conditions',
         cost: 'Legal review may delay relief while the cameras stay on.',
         policy: 'observe',
         check: { ability_any: ['culture', 'science'], difficulty: 8 },
@@ -219,7 +231,10 @@ export const ACT_THREE_OPENING_CASES = {
         failure: {
           narrative:
             'The contract is valid in the jurisdiction of the studio, which was moved to a moon nobody has seen. The appeal cannot reach its registrar before the finale. Mox-9 preserves the evidence and publishes a guide to the hidden clause; the contestants decide to stop performing anyway. The Showrunner keeps broadcasting their silence, but ticket revenue begins to fall and its sponsors ask difficult questions.',
-          flags: ['gameworld-contract-appealed', 'gameworld-contestants-strike'],
+          flags: [
+            'gameworld-contract-appealed',
+            'gameworld-contestants-strike',
+          ],
           delta: { treaty_trust: -1, crew_trust: 1, antagonist_pressure: 2 },
           callback:
             'The contestants’ silent strike has reached the studio’s financiers. A real court has offered to hear the case if the hidden moon will admit it exists.',
@@ -228,7 +243,8 @@ export const ACT_THREE_OPENING_CASES = {
       {
         id: 'cut-broadcast-power',
         label: 'Cut the arena broadcast and escort everyone out by force',
-        approach: 'Stop the spectacle immediately without awaiting the performers’ vote',
+        approach:
+          'Stop the spectacle immediately without awaiting the performers’ vote',
         cost: 'Power feeds life support as well as the stage, making evacuation hazardous.',
         policy: 'intervene',
         check: { ability_any: ['tactics', 'rescue'], difficulty: 6 },
@@ -243,7 +259,10 @@ export const ACT_THREE_OPENING_CASES = {
         failure: {
           narrative:
             'The cable snaps and one floor loses air while the broadcast stays live. The couch expands its invisible bubble around the trapped performers, who must cross the arena in silence as technicians restore power. Everyone survives, but a contestant points out that the captain never asked whether they wanted the risk. The Showrunner uses the rescue footage in a trailer entitled THE END YOU DESERVE.',
-          flags: ['gameworld-emergency-evacuation', 'gameworld-public-rescue-footage'],
+          flags: [
+            'gameworld-emergency-evacuation',
+            'gameworld-public-rescue-footage',
+          ],
           delta: { ship_fuel: -3, crew_trust: -3, antagonist_pressure: 3 },
           callback:
             'The performers are safe, but the rescue video is being sold as an official finale. Their lawyer is requesting the original footage before the studio edits the testimony.',

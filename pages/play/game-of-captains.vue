@@ -227,6 +227,9 @@
           :guide="store.alienGuide"
           :artwork="store.alienArtwork"
           :pending-incident="!!store.pendingCollectorIncident"
+          :sync-status="store.alienSyncStatus"
+          :sync-warning="store.alienSyncWarning"
+          @retry-sync="store.retryAlienGuideSync()"
           @incident="store.openCollectorIncident()"
           @close="titlePanel = 'home'"
         />

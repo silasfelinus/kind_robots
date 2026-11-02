@@ -226,6 +226,12 @@ assert.equal(
   dispatched,
   'no skipping the deck',
 )
+for (const option of EPISODE_CHOICES) {
+  const result = drawEpisodeDeck(dispatched, 'planet', option.id)
+  const success = episodeDraws(result)[0]!.successful
+  const expected = success ? (option.id === 'ask' ? 2 : option.id === 'document' ? 1 : 0) : -1
+  assert.equal(result.trust - dispatched.trust, expected, option.id)
+}
 const planet = drawEpisodeDeck(dispatched, 'planet', 'ask')
 assert.equal(episodeDraws(planet).length, 1)
 assert.ok(episodeDeckDone(planet, 'planet'))

@@ -98,7 +98,7 @@ assert.ok(
 assert.ok(
   TEAMS.some((team) => team.id === 'ironjaw' && team.name.includes('OGRES')),
 )
-assert.equal(CARDS.length, 204)
+assert.equal(CARDS.length, 300)
 assert.equal(DISTRICTS.length, 7)
 assert.equal(MODES.length, 3)
 assert.deepEqual(

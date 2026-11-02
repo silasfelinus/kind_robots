@@ -51,7 +51,12 @@ const MAX_STUDY_DEPTH = 4
 const MAX_SHELF = 10000
 const PAGE_SIZE = 120
 
-type AtlasMeta = { total: number; ready: number; rendering: number; filteredTotal: number }
+type AtlasMeta = {
+  total: number
+  ready: number
+  rendering: number
+  filteredTotal: number
+}
 
 function pairKey(a: string, b: string): string {
   return JSON.stringify([a, b].sort())
@@ -120,7 +125,9 @@ export const useHybridizerStore = defineStore('hybridizer', () => {
   const favoriteEntries = computed(() =>
     favoriteKeys.value
       .map((key) => byKey.value.get(key))
-      .filter((entry): entry is HybridizerIngredient => !!entry && !!imageFor(entry)),
+      .filter(
+        (entry): entry is HybridizerIngredient => !!entry && !!imageFor(entry),
+      ),
   )
   const canLoadMore = computed(
     () =>
@@ -133,8 +140,10 @@ export const useHybridizerStore = defineStore('hybridizer', () => {
   }
 
   function preferencesKey() {
-    return 'kind-robots-hybridizer-preferences-v1:' +
+    return (
+      'kind-robots-hybridizer-preferences-v1:' +
       (userStore.authenticatedUserId ?? 'guest')
+    )
   }
 
   function savePreferences() {
@@ -189,13 +198,20 @@ export const useHybridizerStore = defineStore('hybridizer', () => {
     favoriteKeys.value = []
     randomStartersOnly.value = false
     try {
-      const preferences = JSON.parse(localStorage.getItem(preferencesKey()) || '{}')
+      const preferences = JSON.parse(
+        localStorage.getItem(preferencesKey()) || '{}',
+      )
       favoriteKeys.value = Array.isArray(preferences.favorites)
-        ? [...new Set(preferences.favorites.filter((key: unknown) =>
-            typeof key === 'string' &&
-            (STARTERS.some((starter) => starter.key === key) ||
-              /^fusion:[a-f0-9]{64}$/.test(key)),
-          ))].slice(0, 1000) as string[]
+        ? ([
+            ...new Set(
+              preferences.favorites.filter(
+                (key: unknown) =>
+                  typeof key === 'string' &&
+                  (STARTERS.some((starter) => starter.key === key) ||
+                    /^fusion:[a-f0-9]{64}$/.test(key)),
+              ),
+            ),
+          ].slice(0, 1000) as string[])
         : []
       randomStartersOnly.value = preferences.randomStartersOnly === true
     } catch {
@@ -312,7 +328,8 @@ export const useHybridizerStore = defineStore('hybridizer', () => {
         requestId !== atlasRequestSerial ||
         viewerId !== userStore.authenticatedUserId ||
         signature !== atlasQuery
-      ) return
+      )
+        return
       if (!response.success || !response.data) {
         status.value = 'Could not load this gallery page.'
         return
@@ -322,7 +339,9 @@ export const useHybridizerStore = defineStore('hybridizer', () => {
       atlasEntries.value = reset
         ? response.data
         : [...atlasEntries.value, ...response.data]
-      const merged = new Map(discoveries.value.map((entry) => [entry.key, entry]))
+      const merged = new Map(
+        discoveries.value.map((entry) => [entry.key, entry]),
+      )
       for (const entry of response.data) merged.set(entry.key, entry)
       discoveries.value = [...merged.values()].slice(-MAX_SHELF)
       const images: Record<string, string> = {}
@@ -350,7 +369,9 @@ export const useHybridizerStore = defineStore('hybridizer', () => {
       )
       if (viewerId !== userStore.authenticatedUserId) return
       if (!response.success || !response.data) continue
-      const merged = new Map(discoveries.value.map((entry) => [entry.key, entry]))
+      const merged = new Map(
+        discoveries.value.map((entry) => [entry.key, entry]),
+      )
       for (const entry of response.data) merged.set(entry.key, entry)
       discoveries.value = [...merged.values()].slice(-MAX_SHELF)
       const images: Record<string, string> = {}
@@ -386,15 +407,17 @@ export const useHybridizerStore = defineStore('hybridizer', () => {
           const sample = await performFetch<HybridizerDiscovery[], AtlasMeta>(
             '/api/hybridizer/fusions?' + params,
           )
-          hybrids = sample.success && sample.data
-            ? sample.data.filter((entry) => !!entry.imagePath)
-            : []
+          hybrids =
+            sample.success && sample.data
+              ? sample.data.filter((entry) => !!entry.imagePath)
+              : []
         }
       }
       if (viewerId !== userStore.authenticatedUserId) return
       const available = [...starters, ...hybrids]
       if (available.length < 2) {
-        status.value = 'Not enough illustrated ingredients yet. Try again as art arrives.'
+        status.value =
+          'Not enough illustrated ingredients yet. Try again as art arrives.'
         return
       }
       const chooseRandom = (excluded?: string) => {
@@ -410,7 +433,9 @@ export const useHybridizerStore = defineStore('hybridizer', () => {
       }
       const first = chooseRandom()
       const second = chooseRandom(first.key)
-      const merged = new Map(discoveries.value.map((entry) => [entry.key, entry]))
+      const merged = new Map(
+        discoveries.value.map((entry) => [entry.key, entry]),
+      )
       const images: Record<string, string> = {}
       for (const entry of hybrids) {
         merged.set(entry.key, entry)

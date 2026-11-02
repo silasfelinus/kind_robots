@@ -3215,8 +3215,52 @@ export const ACT_FIVE_DAYS: readonly DayDef[] = [
               '“He carried letters up the mission road at night, twice a week. Never once looked up to see who was watching. We thought you knew. We thought it was your errand.”',
             ],
           },
+          {
+            flags: ['d39-runner-freed'],
+            lines: [
+              'Corvane comes to the hideout on foot. Behind him walks the runner who carried the storm’s hour on the seventh day. Her chimes are bare now.',
+              '“Your congress paid the extra years we claimed from her,” he says. “She asked to travel with me. I told her she did not have to.”',
+              '“We called your advisor the one who walks. He took the mission road at night, carrying Abbey letters under his coat.”',
+              'The runner steps forward. “I carried the same road by day,” she says. “I remember the carts that passed while the elder was looking elsewhere.”',
+            ],
+          },
+          {
+            flags: ['d39-runner-oath'],
+            lines: [
+              'Corvane comes to the hideout on foot with a runner holding a folded duplicate of her oath. Your Archive paid for it at the congress.',
+              '“You made us put the forecast in writing,” he says. “She kept the copy. Now she wants a second thing recorded.”',
+              '“We called your advisor the one who walks. He took letters to the Abbey at night. We thought it was a crown errand.”',
+              'The runner opens her oath. “The writing says I could speak freely about what I saw. There were carts on the road after dark. I counted them.”',
+            ],
+          },
         ],
         options: [
+          {
+            id: 'hear-freed-runner',
+            label:
+              'Give the freed runner a place at the fire to testify about the Abbey carts, over Corvane’s objections.',
+            requires: { flags: ['d39-runner-freed'] },
+            effects: {
+              affinity: { 'storm-crows': -5 },
+              local: { lamplight: 2 },
+              flags: ['d44-runner-testified'],
+            },
+            response:
+              'She names four wagons, three drivers and one Abbey steward. Vellum writes until his fingers cramp. “I came because I wanted to,” she says. Corvane does not contradict her.',
+          },
+          {
+            id: 'read-runner-oath',
+            label:
+              'Read the commissioned runner’s signed account to the coalition, with her permission.',
+            requires: { flags: ['d39-runner-oath'] },
+            effects: {
+              affinity: { 'storm-crows': -4 },
+              local: { lamplight: 2 },
+              flags: ['d44-runner-account'],
+            },
+            response:
+              'She reads the signed statement from her own copy. Corvane keeps his eyes on the fire. Oriel asks for the names of the cart owners. The runner gives them.',
+          },
           {
             id: 'ask-carts',
             label:
@@ -4725,6 +4769,35 @@ export const ACT_FIVE_DAYS: readonly DayDef[] = [
         speaker: 'Keeper Abelard Vellum',
         npc: 'abelard-vellum',
         faction: 'lamplight',
+        variants: [
+          {
+            flags: ['d39-hearing-entered'],
+            lines: [
+              'Vellum sits by the coals with the Archive’s record on his knees. Hesper Lowe’s testimony lies inside the front cover, under the seal of the congress.',
+              '“You paid for witnesses to a missing child’s name, Majesty. You let his mother speak. There is room in this book to say what the crown did with that.”',
+              '“The last emperor’s entry says only that he kept the tower. It never names the people who lived outside it.”',
+              '“I will write yours tonight. You can have the first line, but the names in this book belong to more than the throne.”',
+            ],
+          },
+          {
+            flags: ['d39-private-record'],
+            lines: [
+              'Vellum sits by the coals with a sealed envelope across the open book. Hesper Lowe’s private testimony is marked for the next Hollow Bell council.',
+              '“You would not spend her son’s name at the congress,” he says. “The Abbey survived that night without a question. The mother kept her choice.”',
+              '“The last emperor wrote that he kept the tower. Nothing about the people who chose not to speak.”',
+              '“What should I write about you, Majesty? I can leave an empty place for what she decides later.”',
+            ],
+          },
+          {
+            flags: ['d39-audit-entered'],
+            lines: [
+              'Vellum sits by the coals with the dated Hollow Bell register and the congress copy. Both are tied with a plain strip of linen.',
+              '“You broke the old seal. The council saw who signed the water bargain. The Abbey still has people who defend the water it gave.”',
+              '“The last emperor’s entry says he kept the tower. The signatures he kept locked away are not listed.”',
+              '“What should your record say, Majesty? We have room for the truth, though not enough for every excuse.”',
+            ],
+          },
+        ],
         lines: [
           'After the coalition goes to its blankets, Vellum sits with you by the coals. The Archive’s great book lies open on his knees. His pen is dry.',
           '“Every emperor has an entry, Majesty. I write it the night before anything that may end a reign. A custom. Most emperors never learn of it.”',
@@ -4732,6 +4805,70 @@ export const ACT_FIVE_DAYS: readonly DayDef[] = [
           '“I would write yours tonight, while you can still tell me I have it wrong. What should it say you were?”',
         ],
         options: [
+          {
+            id: 'name-tobin',
+            label:
+              'Enter Tobin Lowe, Hesper’s testimony, and Mara’s bargain under the crown’s name. Hollow Bell will read it.',
+            requires: { flags: ['d39-hearing-entered'] },
+            effects: {
+              affinity: { 'hollow-bell': -5 },
+              local: { lamplight: 2 },
+              flags: ['d49-tobin-record'],
+            },
+            response:
+              'Vellum writes Tobin first. Then Hesper. Then Mara. He leaves the crown’s name at the bottom, where it will have to answer for the first three.',
+          },
+          {
+            id: 'leave-hesper-space',
+            label:
+              'Leave a sealed space for Hesper’s testimony. Protect her right to decide what becomes public.',
+            requires: { flags: ['d39-private-record'] },
+            effects: {
+              local: { lamplight: 2, 'old-houses': -1 },
+              flags: ['d49-hesper-private-record'],
+            },
+            response:
+              'Vellum draws a rectangle and leaves it white. “Not an omission,” he says. “A place that belongs to somebody else.” The book remains open.',
+          },
+          {
+            id: 'print-audit',
+            label:
+              'Record the unsealed audit with the names of those who signed the water bargain.',
+            requires: { flags: ['d39-audit-entered'] },
+            effects: {
+              affinity: { abbey: -5 },
+              local: { lamplight: 2 },
+              flags: ['d49-audit-record'],
+            },
+            response:
+              'Vellum enters the dates, the signatures, and the cost in water. The first copy goes to Hollow Bell. The second stays where another crown can find it.',
+          },
+          {
+            id: 'record-runner',
+            label:
+              'Enter the Storm Crow runner’s testimony in her own name instead of writing another emperor’s boast.',
+            requires: { flags: ['d44-runner-testified'] },
+            effects: {
+              affinity: { 'storm-crows': -5 },
+              local: { lamplight: 2 },
+              flags: ['d49-runner-record'],
+            },
+            response:
+              'The runner writes her name herself. Vellum lets her use his pen. She adds the words “I chose to speak” and asks that they stay.',
+          },
+          {
+            id: 'record-commission',
+            label:
+              'Preserve the commissioned runner’s signed account. Let the Conclave answer the next court.',
+            requires: { flags: ['d44-runner-account'] },
+            effects: {
+              affinity: { 'storm-crows': -4 },
+              local: { lamplight: 2 },
+              flags: ['d49-runner-record'],
+            },
+            response:
+              'Vellum copies the oath as the runner reads it. The elder’s seal goes beneath her signature, not above it. She checks both copies.',
+          },
           {
             id: 'order',
             label: '“Kept the kingdom standing, whatever it cost.”',

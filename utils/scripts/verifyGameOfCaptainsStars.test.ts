@@ -675,7 +675,14 @@ assert.ok(
 )
 assert.ok(page.includes('pocketRoomPainting(run.value.pocketRoom)'))
 assert.ok(page.includes('cap-pocket-room-art'))
-assert.ok(page.includes('cap-expression-tabs'))
+assert.ok(
+  !page.includes('cap-expression-tabs'),
+  'selection dossiers must not expose portrait mood toggles',
+)
+assert.ok(
+  !page.includes('Claim your cushion'),
+  'captain selection opens straight into the roster, no heading block',
+)
 assert.ok(page.includes('voyageStageArt(run.value, paintedVoyageImage)'))
 assert.ok(page.includes('onPaintedImageError'))
 assert.ok(

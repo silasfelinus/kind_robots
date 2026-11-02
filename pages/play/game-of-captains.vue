@@ -488,17 +488,6 @@
                 </button>
               </template>
               <template v-else-if="selectionScreen === 'captain'">
-                <div class="cap-heading">
-                  <span>01</span>
-                  <div>
-                    <h2>Claim your cushion</h2>
-                    <p>
-                      Select the captain who is about to acquire a questionable
-                      background. The couch runs on personalities as much as
-                      fuel.
-                    </p>
-                  </div>
-                </div>
                 <div class="cap-captains">
                   <button
                     v-for="captain in CAPTAINS"
@@ -554,30 +543,6 @@
                     <div v-else class="cap-personnel-hero-fallback">
                       <strong>{{ activeCaptain.name.slice(0, 1) }}</strong>
                     </div>
-                    <div
-                      class="cap-expression-tabs"
-                      role="group"
-                      aria-label="Captain portrait expressions"
-                    >
-                      <button
-                        v-for="expression in PORTRAIT_MOODS"
-                        :key="expression"
-                        type="button"
-                        :aria-pressed="captainMood === expression"
-                        :class="{ selected: captainMood === expression }"
-                        @click="captainMood = expression"
-                      >
-                        {{
-                          expression === 'neutral'
-                            ? 'NORMAL'
-                            : expression.toUpperCase()
-                        }}
-                      </button>
-                    </div>
-                    <figcaption>
-                      <span>YOUR CAPTAIN</span>
-                      <strong>{{ activeCaptain.name }}</strong>
-                    </figcaption>
                   </figure>
                   <div class="cap-dossier-header">
                     <img
@@ -796,30 +761,6 @@
                         crewProfile(focusedCrew).name.slice(0, 1)
                       }}</strong>
                     </div>
-                    <div
-                      class="cap-expression-tabs"
-                      role="group"
-                      aria-label="Crew portrait expressions"
-                    >
-                      <button
-                        v-for="expression in PORTRAIT_MOODS"
-                        :key="expression"
-                        type="button"
-                        :aria-pressed="crewMood === expression"
-                        :class="{ selected: crewMood === expression }"
-                        @click="crewMood = expression"
-                      >
-                        {{
-                          expression === 'neutral'
-                            ? 'NORMAL'
-                            : expression.toUpperCase()
-                        }}
-                      </button>
-                    </div>
-                    <figcaption>
-                      <span>OFFICER DOSSIER</span>
-                      <strong>{{ crewProfile(focusedCrew).name }}</strong>
-                    </figcaption>
                   </figure>
                   <div class="cap-dossier-header">
                     <img
@@ -2032,10 +1973,7 @@ const logEntries = computed(() => {
 })
 const starAssessment = ref<StarAssessment | null>(null)
 const focusedCrew = ref<CrewId>('pell')
-const PORTRAIT_MOODS = ['neutral', 'defiant', 'vulnerable'] as const
-type PortraitMood = (typeof PORTRAIT_MOODS)[number]
-const captainMood = ref<PortraitMood>('neutral')
-const crewMood = ref<PortraitMood>('neutral')
+type PortraitMood = 'neutral' | 'defiant' | 'vulnerable'
 const captainDossierTab = ref<'stats' | 'history' | 'orders'>('stats')
 const crewDossierTab = ref<'history' | 'route' | 'stats'>('history')
 const crewPage = ref(0)
@@ -2059,11 +1997,13 @@ function portraitForMood(key: string, mood: PortraitMood): string | null {
       : null) || portrait(key)
   )
 }
+// Selection dossiers show the neutral portrait only; mood variants are
+// reserved for the voyage, where they react to what happens to the crew.
 const captainDossierPortrait = computed(() =>
-  portraitForMood('captain-' + selectedCaptain.value, captainMood.value),
+  portrait('captain-' + selectedCaptain.value),
 )
 const crewDossierPortrait = computed(() =>
-  portraitForMood(crewProfile(focusedCrew.value).portraitKey, crewMood.value),
+  portrait(crewProfile(focusedCrew.value).portraitKey),
 )
 function crewVoyagePortrait(id: CrewId): string | null {
   const mood: PortraitMood = unavailable(id)
@@ -4315,11 +4255,24 @@ function toggleAway(id: CrewId) {
 .cap-personnel-frame[data-screen='crew'] {
   grid-template-columns: minmax(0, 0.78fr) minmax(0, 1.22fr);
 }
+/* Captain screen has no heading row: the roster and dossier fill the frame. */
+.cap-personnel-frame[data-screen='captain'] {
+  grid-template-rows: minmax(0, 1fr) auto;
+}
+/* Dossier: portrait column on the left, name / stats / notes on the right. */
 .cap-personnel-frame .cap-personnel-dossier {
   display: grid;
-  grid-template-rows: minmax(0, 1.45fr) auto auto minmax(3.4rem, 0.32fr);
-  gap: clamp(0.2rem, 0.65cqh, 0.5rem);
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  grid-template-rows: auto auto minmax(0, 1fr);
+  gap: clamp(0.3rem, 0.8cqh, 0.6rem) clamp(0.4rem, 1cqi, 0.8rem);
   padding: clamp(0.3rem, 0.8cqi, 0.75rem);
+}
+.cap-personnel-frame .cap-personnel-dossier > .cap-personnel-hero {
+  grid-column: 1;
+  grid-row: 1 / -1;
+}
+.cap-personnel-frame .cap-personnel-dossier > :not(.cap-personnel-hero) {
+  grid-column: 2;
 }
 .cap-personnel-hero {
   position: relative;
@@ -4329,15 +4282,18 @@ function toggleAway(id: CrewId) {
   margin: 0;
   border: 1px solid #d6b88995;
   border-radius: 0.7rem;
-  background: #0e2135;
+  background: radial-gradient(ellipse at center, #1a3350, #08121f);
 }
 .cap-personnel-hero-image,
 .cap-personnel-hero-fallback {
   display: block;
   width: 100%;
   height: 100%;
-  object-fit: cover;
-  object-position: center 23%;
+}
+/* Show the whole painting: portraits are never cropped to fit the frame. */
+.cap-personnel-hero-image {
+  object-fit: contain;
+  object-position: center;
 }
 .cap-personnel-hero-fallback {
   display: grid;
@@ -4353,53 +4309,6 @@ function toggleAway(id: CrewId) {
   color: #ffdfa9d9;
   text-shadow: 0 5px 30px #000a;
 }
-.cap-expression-tabs {
-  position: absolute;
-  top: 0.45rem;
-  right: 0.45rem;
-  z-index: 2;
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: flex-end;
-  gap: 0.25rem;
-  max-width: 90%;
-}
-.cap-expression-tabs button {
-  min-height: 2rem;
-  padding: 0.35rem 0.45rem;
-  border: 1px solid #f2c59099;
-  border-radius: 0.3rem;
-  background: #0a1828ee;
-  color: #f4d7b7;
-  font-size: clamp(0.55rem, 0.85cqi, 0.72rem);
-  font-weight: 800;
-}
-.cap-expression-tabs button.selected {
-  background: #e7ac83;
-  color: #112039;
-}
-.cap-personnel-hero figcaption {
-  position: absolute;
-  inset: auto 0 0;
-  display: grid;
-  gap: 0.1rem;
-  padding: clamp(0.5rem, 1.3cqi, 1rem);
-  background: linear-gradient(0deg, #07101ff5, transparent);
-  text-shadow: 0 2px 8px #000c;
-}
-.cap-personnel-hero figcaption span {
-  color: #f6c792;
-  font-size: clamp(0.55rem, 0.88cqi, 0.75rem);
-  font-weight: 900;
-  letter-spacing: 0.17em;
-}
-.cap-personnel-hero figcaption strong {
-  color: #fff0dd;
-  font:
-    900 clamp(1rem, 2.65cqi, 2.3rem) Georgia,
-    serif;
-  line-height: 1;
-}
 .cap-personnel-frame .cap-dossier-header {
   min-height: 2rem;
 }
@@ -4409,24 +4318,32 @@ function toggleAway(id: CrewId) {
 }
 .cap-personnel-frame .cap-personnel-essential-stats {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 0.2rem;
   margin: 0;
 }
 .cap-personnel-frame .cap-personnel-essential-stats > div {
-  padding: clamp(0.15rem, 0.5cqi, 0.45rem);
-  border: 1px solid #7bb5bc62;
-  border-radius: 0.4rem;
-  text-align: center;
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.25rem;
+  min-width: 0;
+  padding: 0.2rem 0.4rem;
+  border: 1px solid #7bb5bc4a;
+  border-radius: 0.3rem;
   background: #0b1a2abf;
 }
 .cap-personnel-frame .cap-personnel-essential-stats small {
-  display: block;
-  font-size: clamp(0.5rem, 0.8cqi, 0.75rem);
+  overflow: hidden;
+  font-size: clamp(0.5rem, 0.7cqi, 0.62rem);
+  letter-spacing: 0.04em;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 .cap-personnel-frame .cap-personnel-essential-stats strong {
-  display: block;
-  font-size: clamp(0.95rem, 1.8cqi, 1.5rem);
+  margin: 0;
+  font-size: clamp(0.78rem, 1cqi, 0.95rem);
+  line-height: 1.2;
 }
 .cap-personnel-frame .cap-personnel-dossier .cap-insight {
   min-height: 0;
@@ -4448,10 +4365,22 @@ function toggleAway(id: CrewId) {
     grid-template-columns: minmax(0, 0.45fr) minmax(0, 0.55fr);
     grid-template-rows: auto minmax(0, 1fr) auto;
   }
+  .cap-personnel-frame[data-screen='captain'] {
+    grid-template-rows: minmax(0, 1fr) auto;
+  }
   .cap-personnel-frame .cap-personnel-dossier {
     grid-row: 2;
     grid-column: 2;
-    grid-template-rows: minmax(0, 1.35fr) auto auto minmax(3.6rem, 0.3fr);
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: minmax(0, 1.2fr) auto auto minmax(3.6rem, 0.6fr);
+  }
+  .cap-personnel-frame[data-screen='captain'] .cap-personnel-dossier {
+    grid-row: 1;
+  }
+  .cap-personnel-frame .cap-personnel-dossier > .cap-personnel-hero,
+  .cap-personnel-frame .cap-personnel-dossier > :not(.cap-personnel-hero) {
+    grid-column: 1;
+    grid-row: auto;
   }
   .cap-personnel-frame .cap-captains,
   .cap-personnel-frame .cap-crew-picker {
@@ -4473,16 +4402,17 @@ function toggleAway(id: CrewId) {
     display: none;
   }
   .cap-personnel-frame .cap-personnel-essential-stats {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .cap-personnel-frame .cap-personnel-essential-stats > div {
+    padding: 0.15rem 0.3rem;
   }
   .cap-personnel-frame .cap-personnel-essential-stats small {
-    font-size: clamp(0.43rem, 1.5cqi, 0.65rem);
+    font-size: clamp(0.45rem, 1.5cqi, 0.58rem);
     letter-spacing: 0;
-    overflow-wrap: anywhere;
   }
   .cap-personnel-frame .cap-personnel-essential-stats strong {
-    font-size: 1rem;
-    margin-top: 0;
+    font-size: 0.8rem;
   }
   .cap-personnel-frame .cap-crew-pages {
     flex-wrap: wrap;

@@ -1,4 +1,4 @@
-import { CAMPAIGN_ECHOES, campaignChapter, FACTION_CAMPAIGNS, type CampaignApproach, type CampaignSave } from './campaign'
+import { CAMPAIGN_ECHOES, campaignChapter, type CampaignApproach, type CampaignSave } from './campaign'
 import type { TeamId } from './prototypes'
 
 interface RivalExchange {

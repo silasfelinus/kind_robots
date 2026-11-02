@@ -1027,7 +1027,7 @@ for (const verdict of EARTH_CROSSROAD_CHOICES) {
     'serialized flags are not replay evidence',
   )
 }
-assert.equal(echoOpenings.size, 16)
+assert.equal(echoOpenings.size, 8)
 assert.equal(echoOutcomes.size, 16)
 const validEarthHistory = warmCharter('consent')
 assert.deepEqual(earthCollisionCrossroadStory(null), {

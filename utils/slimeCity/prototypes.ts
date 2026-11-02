@@ -2342,13 +2342,24 @@ export function canBulldozeInto(
 ): boolean {
   if (state.mode !== 'blackout' || state.rules.classicFog || state.victor)
     return false
-  if (!hasKeyword(unit, 'bulldoze') || unit.ap < 1 || isRooted(state, unit) || !legalNeighbor(unit, { x, y }))
+  if (
+    !hasKeyword(unit, 'bulldoze') ||
+    unit.ap < 1 ||
+    isRooted(state, unit) ||
+    !legalNeighbor(unit, { x, y })
+  )
     return false
   const target = unitAt(state, x, y)
   if (!target || target.side === unit.side) return false
   const nextX = 2 * x - unit.x
   const nextY = 2 * y - unit.y
-  return nextX >= 0 && nextY >= 0 && nextX < state.width && nextY < state.height && !occupied(state, nextX, nextY)
+  return (
+    nextX >= 0 &&
+    nextY >= 0 &&
+    nextX < state.width &&
+    nextY < state.height &&
+    !occupied(state, nextX, nextY)
+  )
 }
 
 function applyMove(
@@ -2370,7 +2381,10 @@ function applyMove(
     target.y += y - unit.y
     target.hidden = false
     state.stats.shoves++
-    message(state, publicName(unit) + ' shoves ' + name(target) + ' one square.')
+    message(
+      state,
+      publicName(unit) + ' shoves ' + name(target) + ' one square.',
+    )
     triggerTrapAt(state, target)
   } else if (occupied(state, x, y)) return false
   unit.x = x

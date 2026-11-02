@@ -10,10 +10,20 @@ const hand = readFileSync('components/narrative/kr-choice-hand.vue', 'utf8')
 assert.match(hand, /export type KrHandChoice = \{/)
 assert.match(
   hand,
-  /<slot name="art" :choice="choice">/,
+  /<slot\s+name="art"\s+:choice="choice"/,
   'games supply card art',
 )
-assert.match(hand, /v-if="imageOf\(choice\)"/, 'images fall through in order')
+assert.match(hand, /v-if="pictureOf\(choice\)"/, 'images fall through in order')
+assert.match(
+  hand,
+  /const pictures = computed\([\s\S]*?!used\.has\(src\)[\s\S]*?used\.add\(pick\)/,
+  'a hand never shows the same picture on two cards (Silas, 2026-11-02)',
+)
+assert.match(
+  hand,
+  /:src="pictureOf\(choice\)"[\s\S]*?:mark-failed="markFailed"/,
+  'games drawing their own art get the de-duplicated picture',
+)
 assert.match(hand, /emit\('play', choice\)/, 'one tap plays the card')
 assert.doesNotMatch(
   hand,
@@ -196,6 +206,16 @@ const adopters: Array<[game: string, file: string, pattern: RegExp]> = [
     'components/pages/memory-dungeon-launcher.vue',
     /<memory-dungeon-choice-hand[\s\S]*?testid-prefix="memory-prologue-choice"/,
   ],
+  [
+    'Memory Dungeon',
+    'components/memory-dungeon/house-stage.vue',
+    /<memory-dungeon-choice-hand[\s\S]*?testid-prefix="memory-house-choice"/,
+  ],
+  [
+    'Memory Dungeon',
+    'components/memory-dungeon/dark-house-stage.vue',
+    /<memory-dungeon-choice-hand[\s\S]*?testid-prefix="dark-house-choice"/,
+  ],
 ]
 for (const [game, file, pattern] of adopters) {
   assert.match(
@@ -204,6 +224,32 @@ for (const [game, file, pattern] of adopters) {
     `${game}: ${file} uses the hand`,
   )
 }
+
+// No hand repeats a scene (Silas, 2026-11-02, "yes on removing same scenes"):
+// cards never fall back to the stage painting already on screen, and no game
+// pans one shared painting across its cards.
+const read = (file: string) => readFileSync(file, 'utf8')
+assert.doesNotMatch(
+  read('components/game-of-captains/space-couch-choice-hand.vue'),
+  /spread/,
+)
+assert.doesNotMatch(
+  read('components/crystal-street/crystal-street-encounter.vue'),
+  /:fallback="`\/crystal-street\/scenes\//,
+)
+assert.doesNotMatch(read('pages/play/shifting-desks.vue'), /ROUTE_SLICES/)
+assert.doesNotMatch(
+  read('components/shifting-lands-journey-board.vue'),
+  /function choiceArt\(/,
+)
+assert.doesNotMatch(
+  read('components/EmperorFortressDialogue.vue'),
+  /eod-hand-art/,
+)
+assert.doesNotMatch(
+  read('pages/play/comet-city-academy.vue'),
+  /image: stageScenery\.value/,
+)
 
 const games = [...new Set(adopters.map(([game]) => game))]
 console.log(

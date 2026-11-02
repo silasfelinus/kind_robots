@@ -2701,8 +2701,24 @@ type Option = {
   possibilities?: string
   disabled?: boolean
   perkEligible?: boolean
-  thumb?: { scene: SceneKind; art?: string | string[] }
+  thumb?: {
+    scene: SceneKind
+    art?: string | string[]
+    /** False when the drawn scene is the stage's own, already on screen. */
+    sceneFallback?: boolean
+  }
+  icon?: string
   act: () => void
+}
+
+const LENS_ICONS: Record<string, string> = {
+  sober: '💧',
+  tipsy: '🍷',
+  stoned: '🌿',
+  tripping_balls: '🍄',
+  cocaine: '⚡',
+  meth: '🌙',
+  mdma: '💗',
 }
 
 function queueDecision(option: Option) {
@@ -2790,10 +2806,15 @@ const options = computed<Option[]>(() => {
   if (run.phase === 'beat' && card) {
     // Each card shows what the choice leads to: its outcome picture, then
     // the beat's own art, then the drawn scene.
-    const cardArt = [cardArtKey(card.id), ...(card.art ? [card.art] : [])]
-    const thumbFor = (choiceId: string) => ({
+    // Each card shows where its own choice leads (its outcome, or the person
+    // it meets), never the beat's shared painting, which is already the stage.
+    const thumbFor = (choiceId: string, portrait?: string) => ({
       scene: card.scene,
-      art: [outcomeArtKey(card.id, choiceId, 'success'), ...cardArt],
+      art: [
+        outcomeArtKey(card.id, choiceId, 'success'),
+        ...(portrait ? [portrait] : []),
+      ],
+      sceneFallback: false,
     })
     return contextualOpeningChoices(card, run).map((choice) => {
       const lens = choice.lens
@@ -2806,7 +2827,7 @@ const options = computed<Option[]>(() => {
           hint: 'This road is still being written.',
           chip: choice.locked,
           disabled: true,
-          thumb: { scene: card.scene, art: cardArt },
+          icon: '🔒',
           act: () => undefined,
         }
       const establishesPerspective = Boolean(choice.lens && !run.openingState)
@@ -2842,7 +2863,12 @@ const options = computed<Option[]>(() => {
         chip: chip.chip,
         chipTitle: chip.title,
         perkEligible: originPerkAvailable(run, choice.id),
-        thumb: thumbFor(choice.id),
+        thumb: thumbFor(
+          choice.id,
+          prospect?.art ??
+            (choice.meet === true ? game.prospect?.art : undefined),
+        ),
+        icon: LENS_ICONS[choice.lens ?? ''] ?? (choice.wild ? '🐾' : '✦'),
         act: () => {
           game.choose(choice.id, perkSelected.value)
           perkSelected.value = false

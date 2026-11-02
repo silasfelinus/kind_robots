@@ -875,21 +875,19 @@
                       >Take {{ incident.title }} yourself and decide how to use
                       your first friend.</span
                     >
-                    <button
-                      type="button"
-                      class="cca-choice"
-                      @click="store.planCrisis(incident.id, 'split')"
-                    >
-                      SPLIT UP · attempt both rescues
-                    </button>
-                    <button
-                      type="button"
-                      class="cca-choice"
-                      @click="store.planCrisis(incident.id, 'concentrate')"
-                    >
-                      STAY TOGETHER · guarantee the best rescue here, abandon
-                      the other
-                    </button>
+                    <KrChoiceHand
+                      class="cca-hand"
+                      :choices="crisisChoices(incident.id)"
+                      :deal-key="`crisis:${incident.id}`"
+                      testid-prefix="academy-crisis-choice"
+                      @play="
+                        (choice) =>
+                          store.planCrisis(
+                            incident.id,
+                            choice.id as 'split' | 'concentrate',
+                          )
+                      "
+                    />
                   </div>
                   <button
                     v-if="run.flowVersion === 3"
@@ -1364,46 +1362,19 @@
                 >THREAT <b>{{ run.danger }}</b></span
               >
             </div>
-            <button
-              type="button"
-              class="cca-choice"
-              @click="store.end('protect')"
-            >
-              <span>{{
-                run.flowVersion === 3
-                  ? 'Evacuate the guests immediately'
-                  : 'Save the classmates, even if the school expels you'
-              }}</span>
-              ↗
-            </button>
-            <button
-              type="button"
-              class="cca-choice"
-              @click="store.end('command')"
-            >
-              <span>{{
-                run.flowVersion === 3
-                  ? 'Seize the shield console'
-                  : 'Take the catastrophe engine for yourself'
-              }}</span>
-              ↗
-            </button>
-            <button
-              v-if="run.flowVersion === 3"
-              type="button"
-              class="cca-choice"
-              @click="store.end('share')"
-            >
-              <span>Give every neighborhood a shield key</span> ↗
-            </button>
-            <button
-              v-if="run.flowVersion === 3"
-              type="button"
-              class="cca-choice"
-              @click="store.end('evacuate')"
-            >
-              <span>Destroy the transmitter and carry out the injured</span> ↗
-            </button>
+            <KrChoiceHand
+              class="cca-hand"
+              :choices="finaleChoices"
+              question="Your final order"
+              :deal-key="`finale:${run.day}`"
+              testid-prefix="academy-finale-choice"
+              @play="
+                (choice) =>
+                  store.end(
+                    choice.id as 'protect' | 'command' | 'share' | 'evacuate',
+                  )
+              "
+            />
           </template>
 
           <template v-else>
@@ -1505,8 +1476,10 @@ import {
   missionRoute,
 } from '~/utils/cometAcademy/missionTeams'
 import {
+  ENDING_STAND_INS,
   academyStageArt,
   academyVillainArt,
+  endingArtKey,
   incidentArtKey,
   studentArtKey,
 } from '~/utils/cometAcademy/artSlots'
@@ -1529,6 +1502,8 @@ import {
   activePatrolStory,
   recruitableContact,
   emergencyContact,
+  finishAcademy,
+  openingNightFriend,
   type StudentId,
 } from '~/utils/cometAcademy/rules'
 import {
@@ -1645,7 +1620,14 @@ const campusChoices = computed<KrHandChoice[]>(() =>
         .filter(Boolean)
         .join(' · '),
       hint: option.text,
-      image: stageScenery.value,
+      icon:
+        trust > 0
+          ? '🤝'
+          : option.danger < 0
+            ? '🛡️'
+            : option.influence > 0
+              ? '✨'
+              : '⚠️',
     }
   }),
 )
@@ -1668,6 +1650,72 @@ const socialHandChoices = computed<KrHandChoice[]>(() =>
     details: [choice.text],
   })),
 )
+type FinaleChoice = 'protect' | 'command' | 'share' | 'evacuate'
+const FINALE_ICONS: Record<FinaleChoice, string> = {
+  protect: '🛡️',
+  command: '🎛️',
+  share: '🔑',
+  evacuate: '🚑',
+}
+/** Each final order shows the painting of the ending it would really reach. */
+const finaleChoices = computed<KrHandChoice[]>(() => {
+  const current = run.value
+  if (!current) return []
+  const v3 = current.flowVersion === 3
+  const orders: Array<[FinaleChoice, string]> = v3
+    ? [
+        ['protect', 'Evacuate the guests immediately'],
+        ['command', 'Seize the shield console'],
+        ['share', 'Give every neighborhood a shield key'],
+        ['evacuate', 'Destroy the transmitter and carry out the injured'],
+      ]
+    : [
+        ['protect', 'Save the classmates, even if the school expels you'],
+        ['command', 'Take the catastrophe engine for yourself'],
+      ]
+  return orders.map(([id, label]) => {
+    const ending = finishAcademy(current, id).ending ?? ''
+    return {
+      id,
+      label,
+      image: [
+        promArt(endingArtKey(ending)),
+        ENDING_STAND_INS[ending] ? promArt(ENDING_STAND_INS[ending]) : null,
+      ],
+      icon: FINALE_ICONS[id],
+    }
+  })
+})
+function crisisChoices(caseId: string): KrHandChoice[] {
+  const friend = openingNightFriend(run.value?.seed ?? 0)
+  const other = store.incidents.find((incident) => incident.id !== caseId)
+  const planned = run.value?.assignments?.[0]?.caseId
+  return [
+    {
+      id: 'split',
+      label: 'Split up',
+      chip: 'Attempt both rescues',
+      hint: other
+        ? `${friend.name} takes ${other.title} alone.`
+        : `${friend.name} takes the other call.`,
+      badge: planned && planned !== caseId ? 'Planned' : undefined,
+      image: other ? promArt(incidentArtKey(other.id)) : null,
+      icon: '🔀',
+    },
+    {
+      id: 'concentrate',
+      label: 'Stay together',
+      chip: 'Guarantee this rescue',
+      hint: 'Abandon the other call to save this one for certain.',
+      badge: planned === caseId ? 'Planned' : undefined,
+      image: [
+        promArt(studentArtKey(friend.id) + '-positive'),
+        studentPortrait(friend.id),
+      ],
+      icon: '🤝',
+    },
+  ]
+}
 function playSocial(choice: KrHandChoice) {
   const action = socialActionOptions.value.find(
     (option) => option.id === choice.id,

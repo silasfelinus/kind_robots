@@ -48,7 +48,6 @@
             question="Three entirely reasonable options"
             :deal-key="String(incident.at)"
             testid-prefix="space-couch-collector-option"
-            spread
             @play="(choice) => emit('choose', choice.id as CollectorChoice)"
           />
         </template>
@@ -105,12 +104,12 @@ watch(
     imageBroken.value = false
   },
 )
+const COLLECTOR_ICONS: Record<string, string> = { a: '🛸', b: '🤝', c: '📜' }
 const choices = computed<KrHandChoice[]>(() =>
   (props.incident?.options ?? []).map((option) => ({
     id: option.id,
     label: option.label,
-    image: imageBroken.value ? null : painting.value,
-    icon: '✳',
+    icon: COLLECTOR_ICONS[option.id] ?? '✳',
   })),
 )
 const emit = defineEmits<{ choose: [choice: CollectorChoice]; close: [] }>()

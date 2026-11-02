@@ -742,19 +742,20 @@
                     testid-prefix="shifting-desks-route"
                     @play="(card) => pick(face(card.id).route)"
                   >
-                    <template #art="{ choice }">
+                    <template #art="{ choice, src }">
                       <span class="desk-hand-face">
                         <shifting-desks-art
+                          v-if="src"
                           class="!absolute inset-0"
                           frame="h-full w-full"
-                          :src="face(choice.id).art"
+                          :src="src"
                           :position="face(choice.id).position"
                           :fallback-icon="cardIcon"
                           icon-size="2.5rem"
                           :show-brief="false"
                         />
                         <icon
-                          v-if="choice.disabled"
+                          v-if="choice.disabled && src"
                           name="kind-icon:lock"
                           class="desk-hand-lock"
                         />
@@ -1339,16 +1340,14 @@ function hasCost(choice: Choice): boolean {
 
 // Silas, 2026-11-02: a set of choices is a hand of cards whose faces show
 // what each one leads to. A Board verdict shows its epilogue once that ending
-// is on file; otherwise each card shows its own slice of the file's art.
-const ROUTE_SLICES = [
-  'object-[0%_35%]',
-  'object-[15%_35%]',
-  'object-[30%_35%]',
-  'object-[50%_35%]',
-  'object-[70%_35%]',
-  'object-[85%_35%]',
-  'object-[100%_35%]',
-]
+// is on file; otherwise a card gets its own drawn face (never a repeat of the
+// file's art, which is already on the desk above).
+const ROUTE_ICONS: Record<string, string> = {
+  Certain: '✅',
+  Routine: '📄',
+  Risky: '⚠️',
+  Dire: '☠️',
+}
 
 function endingArtFor(choice: Choice): string | null {
   const outcome = choice.success.department_outcome
@@ -1371,15 +1370,14 @@ function costText(choice: Choice): string {
 const routeFaces = computed(
   () =>
     new Map(
-      openRoutes.value.map((choice, index, all) => {
+      openRoutes.value.map((choice) => {
         const ending = endingArtFor(choice)
-        const slice = Math.round(((index + 0.5) / all.length) * 6)
         return [
           choice.id,
           {
             route: choice,
-            art: ending ?? faceArt.value,
-            position: ending ? 'object-[50%_35%]' : ROUTE_SLICES[slice]!,
+            art: ending,
+            position: 'object-[50%_35%]',
             difficulty: choice.roll
               ? (DIFFICULTY[choice.roll.target] ?? 'Roll')
               : null,
@@ -1405,6 +1403,10 @@ const routeCards = computed<KrHandChoice[]>(() =>
       label: choice.label,
       disabled: !!lock,
       hint: lock ?? undefined,
+      image: face(choice.id).art,
+      icon: lock
+        ? '🔒'
+        : (ROUTE_ICONS[face(choice.id).difficulty ?? 'Certain'] ?? '📎'),
       details: [
         choice.intent,
         choice.risk_hint,

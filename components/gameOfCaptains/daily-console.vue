@@ -662,7 +662,7 @@ const decisionCards = computed<KrHandChoice[]>(() => {
         : 'Choose a command card first',
       details: ready ? [] : [episodeChoiceStakes(props.run, deck, choice.id)],
       disabled: !ready,
-      image: [key ? props.artwork?.[key] : null, revealPainting.value],
+      image: key ? props.artwork?.[key] : null,
       icon: deckSymbol(deck),
     }
   })

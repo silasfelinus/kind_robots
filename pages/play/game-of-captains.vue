@@ -1355,7 +1355,6 @@
                 question="Your orders, captain"
                 :deal-key="`${run.chapter}:${mission.id}`"
                 testid-prefix="space-couch-ethical-order"
-                spread
                 @play="(choice) => store.decide(choice.id as PolicyId)"
               />
             </template>
@@ -1511,9 +1510,19 @@
                   (choice) => store.chooseRomance(choice.id as RomanceChoiceId)
                 "
               >
-                <template #art="{ choice }">
+                <template #art="{ choice, src, markFailed }">
+                  <img
+                    v-if="src"
+                    :src="src"
+                    alt=""
+                    class="cap-romance-card-face"
+                    @error="markFailed(src)"
+                  />
                   <span
-                    v-if="romanceFaces(choice.id).length"
+                    v-else-if="
+                      choice.id.startsWith('invite-') &&
+                      romanceFaces(choice.id).length
+                    "
                     class="cap-romance-card-faces"
                     :data-faces="romanceFaces(choice.id).length"
                   >
@@ -1524,7 +1533,6 @@
                       alt=""
                     />
                   </span>
-                  <span v-else class="cap-romance-card-faces is-empty">♡</span>
                 </template>
               </SpaceCouchChoiceHand>
             </section>
@@ -2117,15 +2125,14 @@ const consequenceHand = computed<KrHandChoice[]>(() => {
     chip: `Check ${choice.check.ability_any.join(' / ')} · difficulty ${choice.check.difficulty}`,
     hint: choice.approach,
     details: [`Tradeoff: ${choice.cost}`],
-    image:
-      paintedVoyageImage(`consequences/${episode.id}-${choice.id}-success`) ||
-      consequenceLeadPortrait(choice) ||
-      voyageStageArt(run.value, paintedVoyageImage) ||
-      COUCH_FALLBACK,
+    image: [
+      paintedVoyageImage(`consequences/${episode.id}-${choice.id}-success`),
+      consequenceLeadPortrait(choice),
+    ],
+    icon: '✦',
   }))
 })
 function ethicalOrderChoices(run: VoyageRun): KrHandChoice[] {
-  const image = voyageStageArt(run, paintedVoyageImage) || COUCH_FALLBACK
   return [
     {
       id: 'aid',
@@ -2135,14 +2142,14 @@ function ethicalOrderChoices(run: VoyageRun): KrHandChoice[] {
         run.supplies > 0
           ? '+1 trust, +2 reputation. Help on their terms.'
           : 'Give time and labor: +1 trust, no reputation bonus.',
-      image,
+      icon: '🤝',
     },
     {
       id: 'observe',
       label: ethicalOrders.value.observe,
       chip: 'NO SUPPLIES',
       hint: 'Preserve legal standing. Others live with the result.',
-      image,
+      icon: '🔭',
     },
     {
       id: 'intervene',
@@ -2152,7 +2159,7 @@ function ethicalOrderChoices(run: VoyageRun): KrHandChoice[] {
         run.supplies >= 2
           ? '-2 reputation. Act without permission.'
           : 'Extra reputational harm from the improvised intervention.',
-      image,
+      icon: '✊',
     },
   ]
 }
@@ -2173,6 +2180,8 @@ const romanceHand = computed<KrHandChoice[]>(() =>
     id: choice.id,
     label: choice.label,
     hint: choice.cost,
+    image: choice.id.startsWith('invite-') ? [] : romanceFaces(choice.id),
+    icon: '♡',
   })),
 )
 const routeBoard = computed(() => (run.value ? missionBoard(run.value) : []))
@@ -3971,11 +3980,6 @@ function toggleAway(id: CrewId) {
   height: 100%;
   min-height: 0;
   object-fit: cover;
-}
-.cap-romance-card-faces.is-empty {
-  place-items: center;
-  color: #ffd5ab;
-  font-size: 2.5rem;
 }
 .cap-romance-outcome {
   border-left: 3px solid #efc49c;

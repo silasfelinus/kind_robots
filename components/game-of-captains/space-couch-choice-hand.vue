@@ -1,15 +1,10 @@
 <!-- /components/game-of-captains/space-couch-choice-hand.vue -->
 <!--
   Space Couch's choices on the shared hand (components/narrative/kr-choice-hand),
-  in the bridge's amber-on-midnight palette. `spread` pans one shared painting
-  across the cards, left to right, when a scene has a single picture.
+  in the bridge's amber-on-midnight palette.
 -->
 <template>
-  <div
-    class="sc-hand"
-    :class="{ 'is-spread': spread }"
-    data-testid="space-couch-choice-hand"
-  >
+  <div class="sc-hand" data-testid="space-couch-choice-hand">
     <KrChoiceHand
       :choices="choices"
       :question="question"
@@ -17,8 +12,8 @@
       :testid-prefix="testidPrefix"
       @play="(picked) => emit('play', picked)"
     >
-      <template v-if="$slots.art" #art="{ choice }">
-        <slot name="art" :choice="choice" />
+      <template v-if="$slots.art" #art="scope">
+        <slot name="art" v-bind="scope" />
       </template>
     </KrChoiceHand>
   </div>
@@ -32,7 +27,6 @@ defineProps<{
   question?: string
   dealKey?: string
   testidPrefix?: string
-  spread?: boolean
 }>()
 
 const emit = defineEmits<{ play: [choice: KrHandChoice] }>()
@@ -49,11 +43,5 @@ const emit = defineEmits<{ play: [choice: KrHandChoice] }>()
 .sc-hand :deep(.krh-title strong),
 .sc-hand :deep(.krh-detail strong) {
   font-family: Georgia, serif;
-}
-.sc-hand.is-spread :deep(.krh-card:nth-child(3n + 1) .krh-art img) {
-  object-position: 15% 50%;
-}
-.sc-hand.is-spread :deep(.krh-card:nth-child(3n + 3) .krh-art img) {
-  object-position: 85% 50%;
 }
 </style>

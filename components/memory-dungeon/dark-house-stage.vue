@@ -230,21 +230,25 @@
             <p class="mt-2 text-sm font-bold">
               {{ world.darkHousePuzzle.question }}
             </p>
-            <div
+            <memory-dungeon-choice-hand
               v-if="!puzzleProgress?.solved"
-              class="mt-2 flex flex-col gap-2"
-            >
-              <button
-                v-for="answer in world.darkHousePuzzle.options"
-                :key="answer.id"
-                type="button"
-                class="min-h-12 rounded-md border border-[#80608a] bg-[#554266] px-4 py-3 text-left text-base font-bold leading-snug sm:text-lg text-white disabled:opacity-50"
-                :disabled="Boolean(puzzleProgress?.wrong.includes(answer.id))"
-                @click="world.darkHouseAnswer(answer.id)"
-              >
-                {{ answer.label }}
-              </button>
-            </div>
+              class="mt-2"
+              :choices="
+                world.darkHousePuzzle.options.map((answer) => ({
+                  id: answer.id,
+                  label: answer.label,
+                  disabled: Boolean(puzzleProgress?.wrong.includes(answer.id)),
+                  hint: puzzleProgress?.wrong.includes(answer.id)
+                    ? 'Not this one'
+                    : undefined,
+                }))
+              "
+              :deal-key="`puzzle:${world.darkHouse.current}`"
+              icon="❓"
+              palette="violet"
+              testid-prefix="dark-house-answer"
+              @play="(answer) => world.darkHouseAnswer(answer.id)"
+            />
             <p
               v-if="puzzleProgress?.note"
               class="mt-2 text-xs font-bold"
@@ -321,18 +325,19 @@
               !world.darkHouse.decisions[world.darkHouse.current] &&
               world.darkHouseReady
             "
-            class="mt-3 flex flex-col gap-2"
+            class="mt-3"
             data-testid="dark-house-choices"
           >
-            <button
-              v-for="choice in room?.choices ?? []"
-              :key="choice.id"
-              type="button"
-              class="min-h-12 flex-1 rounded-lg bg-[#513d65] px-4 py-3 text-left text-base font-bold leading-snug sm:text-lg lg:text-xl text-[#fff5e5] hover:bg-[#694f7e] focus-visible:outline-2 focus-visible:outline-[#211629]"
-              @click="world.chooseDarkHouse(choice.id)"
-            >
-              {{ choice.label }}
-            </button>
+            <memory-dungeon-choice-hand
+              :choices="
+                (room?.choices ?? []).map((c) => ({ id: c.id, label: c.label }))
+              "
+              :deal-key="room?.id ?? ''"
+              icon="🕯️"
+              palette="violet"
+              testid-prefix="dark-house-choice"
+              @play="(choice) => world.chooseDarkHouse(choice.id)"
+            />
           </div>
           <p
             v-else-if="world.darkHouse.decisions[world.darkHouse.current]"

@@ -13,26 +13,23 @@
       :testid-prefix="testidPrefix"
       @play="(choice) => emit('play', choice)"
     >
-      <template #art="{ choice }">
+      <template #art="{ src, markFailed }">
         <img
-          v-if="imageOf(choice)"
-          :src="imageOf(choice)!"
+          v-if="src"
+          :src="src"
           alt=""
           loading="lazy"
           decoding="async"
           draggable="false"
-          @error="markFailed(imageOf(choice)!)"
+          @error="markFailed(src)"
         />
-        <span v-else class="md-hand-plain" aria-hidden="true">{{
-          choice.icon
-        }}</span>
       </template>
     </KrChoiceHand>
   </div>
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed } from 'vue'
 import type { KrHandChoice } from '~/components/narrative/kr-choice-hand.vue'
 
 export type MemoryHandChoice = {
@@ -59,21 +56,6 @@ const props = withDefaults(
 )
 
 const emit = defineEmits<{ play: [choice: KrHandChoice] }>()
-
-const failed = ref<string[]>([])
-
-function markFailed(src: string | null | undefined): void {
-  if (src && !failed.value.includes(src)) failed.value.push(src)
-}
-
-function imageOf(choice: KrHandChoice): string | null {
-  const list = Array.isArray(choice.image) ? choice.image : [choice.image]
-  return (
-    list.find(
-      (src): src is string => Boolean(src) && !failed.value.includes(src!),
-    ) ?? null
-  )
-}
 
 const cards = computed<KrHandChoice[]>(() =>
   props.choices.map((choice) => {
@@ -135,24 +117,5 @@ const cards = computed<KrHandChoice[]>(() =>
 }
 .md-hand :deep(.krh-hint) {
   font-size: 0.64rem;
-}
-.md-hand-plain {
-  display: grid;
-  place-items: center;
-  padding-top: 25%;
-  background:
-    radial-gradient(
-      circle at 50% 58%,
-      color-mix(in oklab, var(--accent-2) 40%, transparent),
-      transparent 62%
-    ),
-    linear-gradient(
-      160deg,
-      color-mix(in oklab, var(--accent-2) 30%, var(--band)),
-      var(--band)
-    );
-  color: var(--accent);
-  font-size: 2.6rem;
-  line-height: 1;
 }
 </style>

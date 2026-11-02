@@ -122,20 +122,7 @@
         question="Your answer"
         testid-prefix="eod-answer"
         @play="(answer) => emit('choose', answer.id)"
-      >
-        <template #art>
-          <span class="eod-hand-art" aria-hidden="true">
-            <img
-              v-if="art && !portraitFailed"
-              :src="art"
-              alt=""
-              loading="lazy"
-              @error="portraitFailed = true"
-            />
-            <span v-else class="eod-hand-initial">{{ speaker.charAt(0) }}</span>
-          </span>
-        </template>
-      </KrChoiceHand>
+      />
     </div>
   </section>
 </template>
@@ -170,8 +157,9 @@ const props = defineProps<{
 
 const emit = defineEmits<{ choose: [id: string] }>()
 
+const ANSWER_GLYPHS = ['⚜', '⚖', '✠', '☉']
 const answers = computed<KrHandChoice[]>(() =>
-  props.choices.map((choice) => {
+  props.choices.map((choice, index) => {
     const stakes = (choice.stakes ?? []).map((stake) => stake.text)
     const blocked = choice.blockers.length > 0
     return {
@@ -183,6 +171,7 @@ const answers = computed<KrHandChoice[]>(() =>
         : stakes.slice(0, 2).join(' · ') || undefined,
       details: blocked ? stakes : stakes.slice(2),
       disabled: blocked,
+      icon: blocked ? '🔒' : ANSWER_GLYPHS[index % ANSWER_GLYPHS.length],
     }
   }),
 )
@@ -281,35 +270,3 @@ watch(
 )
 onBeforeUnmount(stop)
 </script>
-
-<style scoped>
-.eod-hand-art {
-  display: block;
-  overflow: hidden;
-  background:
-    radial-gradient(
-      circle at 50% 35%,
-      color-mix(in oklch, var(--hand-accent, currentColor) 30%, transparent),
-      transparent 65%
-    ),
-    linear-gradient(170deg, oklch(30% 0.04 60), oklch(16% 0.025 255));
-}
-.eod-hand-art img {
-  position: absolute;
-  inset: 18% 0 0;
-  width: 100%;
-  height: 82%;
-  object-position: 50% 0;
-}
-.eod-hand-initial {
-  position: absolute;
-  inset: 0;
-  display: grid;
-  place-items: center;
-  padding-bottom: 12%;
-  color: var(--hand-accent, currentColor);
-  font-family: 'Cinzel', ui-serif, Georgia, serif;
-  font-size: 2.5rem;
-  font-weight: 700;
-}
-</style>

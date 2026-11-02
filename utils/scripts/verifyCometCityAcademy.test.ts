@@ -2019,7 +2019,12 @@ assert.ok(page.includes('testid-prefix="academy-social-choice"'))
 assert.ok(page.includes('testid-prefix="academy-campus-choice"'))
 assert.ok(page.includes('@play="(option) => store.choose(option.id)"'))
 assert.ok(page.includes('store.social(selectedSocialId.value, action.id)'))
-assert.ok(page.includes("store.end('share')"))
+assert.ok(page.includes("['share', 'Give every neighborhood a shield key']"))
+assert.ok(page.includes('testid-prefix="academy-finale-choice"'))
+assert.match(
+  page,
+  /store\.end\(\s*choice\.id as 'protect' \| 'command' \| 'share' \| 'evacuate',?\s*\)/,
+)
 assert.ok(page.includes('store.heal(student.id)'))
 assert.ok(page.includes('site.teaser'))
 assert.ok(page.includes("mapView === 'campus'"))

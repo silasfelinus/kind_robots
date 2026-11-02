@@ -657,6 +657,20 @@
               >
                 Find the matching picture to reveal two squares.
               </p>
+              <memory-dungeon-choice-hand
+                v-if="
+                  !world.mapMatching &&
+                  world.activeScene &&
+                  !world.state.sceneChoices[world.activeSiteKey]
+                "
+                class="mt-2 shrink-0"
+                :choices="sceneHand"
+                :deal-key="world.activeSiteKey"
+                :icon="siteSymbol(world.selectedSite?.kind) || '✥'"
+                palette="briar"
+                testid-prefix="memory-world-choice"
+                @play="(choice) => world.chooseScene(choice.id)"
+              />
               <div
                 v-if="
                   !world.mapMatching &&
@@ -664,25 +678,11 @@
                 "
                 class="md-encounter-actions mt-2 flex min-h-0 shrink-0 flex-wrap items-start gap-2"
               >
-                <template
+                <span
                   v-if="
                     world.activeScene &&
-                    !world.state.sceneChoices[world.activeSiteKey]
+                    world.state.sceneChoices[world.activeSiteKey]
                   "
-                >
-                  <button
-                    v-for="choice in world.activeScene.choices"
-                    :key="choice.id"
-                    type="button"
-                    class="md-btn md-story-choice"
-                    :disabled="!canChooseBriarScene(choice, world.state)"
-                    @click="world.chooseScene(choice.id)"
-                  >
-                    {{ choice.label }}
-                  </button>
-                </template>
-                <span
-                  v-else-if="world.activeScene"
                   class="text-xs font-bold text-emerald-900"
                   >✓ Story decision remembered</span
                 >
@@ -993,7 +993,11 @@ import {
   briarConnected,
   briarTileProgress,
 } from '~/utils/memoryDungeonWorld'
-import { canChooseBriarScene } from '~/utils/memoryDungeon/scenes'
+import {
+  canChooseBriarScene,
+  type BriarSceneChoice,
+} from '~/utils/memoryDungeon/scenes'
+import type { MemoryHandChoice } from '~/components/memory-dungeon/memory-dungeon-choice-hand.vue'
 import { briarIllustrationPath } from '~/utils/memoryDungeon/artManifest'
 import {
   BRIAR_CROSS_MAP_KEYS,
@@ -1064,6 +1068,22 @@ const currentIllustrationPath = computed(() =>
     world.state.sceneChoices[world.state.player],
   ),
 )
+const sceneHand = computed<MemoryHandChoice[]>(() =>
+  (world.activeScene?.choices ?? []).map((choice) => ({
+    id: choice.id,
+    label: choice.label,
+    image: briarIllustrationPath(world.activeSiteKey, choice.id),
+    chip: costLabel(choice),
+    disabled: !canChooseBriarScene(choice, world.state),
+  })),
+)
+function costLabel(choice: BriarSceneChoice): string | undefined {
+  const parts = [
+    choice.cost?.wildflowers ? `${choice.cost.wildflowers} 🌼` : '',
+    choice.cost?.lanterns ? `${choice.cost.lanterns} 🏮` : '',
+  ].filter(Boolean)
+  return parts.length ? `Costs ${parts.join(' · ')}` : undefined
+}
 const sceneArtFailed = ref(false)
 const mapArtFailed = ref(false)
 watch(currentIllustrationPath, () => {
@@ -1302,13 +1322,6 @@ onMounted(() => {
   color: #fff4da;
   font-size: 1rem;
   font-weight: 700;
-}
-.md-story-choice {
-  flex: 1 1 12rem;
-  min-height: 3.25rem;
-  font-size: clamp(1rem, 1.85cqw, 1.5rem);
-  line-height: 1.2;
-  text-align: left;
 }
 .md-btn:hover:not(:disabled) {
   background: #617746;

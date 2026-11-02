@@ -56,6 +56,16 @@ assert.doesNotMatch(
   'a scrolling hand would scroll itself to reveal a lifted card',
 )
 assert.match(hand, /container-type: inline-size/, 'cards size to the hand')
+assert.match(
+  hand,
+  /calc\(\(100cqw - 2\.25rem\) \/ var\(--fit/,
+  'the fan never runs wider than the hand',
+)
+assert.doesNotMatch(
+  hand,
+  /'is-tucked'|'is-still'/,
+  "root classes are prefixed so a parent page's scoped styles can't hit them",
+)
 assert.doesNotMatch(hand, /100vh|100dvh/)
 
 const adopters: Array<[game: string, file: string, pattern: RegExp]> = [
@@ -124,6 +134,52 @@ const adopters: Array<[game: string, file: string, pattern: RegExp]> = [
     'components/EmperorFortressBriefing.vue',
     /<KrChoiceHand[\s\S]*?pickChance\(choice\.id\)/,
   ],
+  [
+    'Memory Dungeon',
+    'components/memory-dungeon/memory-dungeon-choice-hand.vue',
+    /<KrChoiceHand/,
+  ],
+  [
+    'Memory Dungeon',
+    'components/pages/memory-dungeon-earth.vue',
+    /<memory-dungeon-choice-hand/,
+  ],
+  [
+    'Memory Dungeon',
+    'components/pages/memory-dungeon-sea.vue',
+    /<memory-dungeon-choice-hand/,
+  ],
+  [
+    'Memory Dungeon',
+    'components/pages/memory-dungeon-briar-collision.vue',
+    /<memory-dungeon-choice-hand/,
+  ],
+  [
+    'Memory Dungeon',
+    'components/pages/memory-dungeon-earth-collision.vue',
+    /<memory-dungeon-choice-hand/,
+  ],
+  [
+    'Memory Dungeon',
+    'components/pages/memory-dungeon-hoshimori.vue',
+    /<memory-dungeon-choice-hand/,
+  ],
+  [
+    'Memory Dungeon',
+    'components/pages/memory-dungeon-hoshimori-night.vue',
+    /<memory-dungeon-choice-hand/,
+  ],
+  [
+    'Memory Dungeon',
+    'components/pages/memory-dungeon-overworld.vue',
+    /<memory-dungeon-choice-hand/,
+  ],
+  [
+    'Memory Dungeon',
+    'components/memory-dungeon/dark-briar-stage.vue',
+    /<memory-dungeon-choice-hand/,
+  ],
+  ['Shifting Desks', 'pages/play/shifting-desks.vue', /<KrChoiceHand/],
 ]
 for (const [game, file, pattern] of adopters) {
   assert.match(

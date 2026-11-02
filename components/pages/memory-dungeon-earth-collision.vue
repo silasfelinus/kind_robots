@@ -117,7 +117,7 @@
       >
         <div
           v-if="collision.readyForCrossroad || collision.completed"
-          class="relative flex min-h-[8rem] flex-[1_1_42%] flex-col justify-end overflow-hidden border-b border-[#b8a47e]/30 bg-[linear-gradient(130deg,#36545d,#6c584c,#263a47)] p-3"
+          class="relative flex min-h-[6rem] flex-[1_1_42%] flex-col justify-end overflow-hidden border-b border-[#b8a47e]/30 bg-[linear-gradient(130deg,#36545d,#6c584c,#263a47)] p-3"
           data-testid="memory-earth-crossroad-stage"
         >
           <img
@@ -148,7 +148,7 @@
         </div>
         <div
           v-else-if="collision.current"
-          class="relative flex min-h-[8rem] flex-[1_1_42%] flex-col justify-end overflow-hidden border-b border-[#b8a47e]/30 bg-[linear-gradient(130deg,#36545d,#6c584c,#263a47)] p-3"
+          class="relative flex min-h-[6rem] flex-[1_1_42%] flex-col justify-end overflow-hidden border-b border-[#b8a47e]/30 bg-[linear-gradient(130deg,#36545d,#6c584c,#263a47)] p-3"
         >
           <img
             v-if="collision.current.sceneArt.status === 'delivered'"
@@ -190,7 +190,9 @@
             Scene illustration pending
           </span>
         </div>
-        <div class="kr-scroll min-h-0 flex-1 overflow-y-auto p-3">
+        <div
+          class="kr-scroll min-h-0 flex-[0_1_auto] overflow-y-auto p-3 empty:hidden"
+        >
           <p
             v-if="collision.notice"
             class="mb-2 text-xs text-[#f6d49a]"
@@ -213,45 +215,12 @@
               The city remembers. Char's crossing is next.
             </p>
           </div>
-          <div
+          <p
             v-else-if="collision.readyForCrossroad"
-            class="space-y-3"
-            data-testid="memory-earth-crossroad-choices"
+            class="text-sm leading-relaxed"
           >
-            <p class="text-sm leading-relaxed">
-              {{ collision.crossroadStory.opening }}
-            </p>
-            <div class="grid gap-2 sm:grid-cols-2">
-              <button
-                v-for="choice in collision.crossroadChoices"
-                :key="choice.id"
-                type="button"
-                class="overflow-hidden rounded-xl border border-[#e9c48c] bg-[#514336] text-left hover:border-[#fff0c5] focus-visible:outline-2 focus-visible:outline-[#ffe3a7]"
-                :data-testid="'memory-earth-crossroad-choice-' + choice.id"
-                @click="collision.conclude(choice.id)"
-              >
-                <div
-                  class="relative flex h-20 items-end bg-[linear-gradient(125deg,#455d61,#745d4a,#2b4c51)] p-2"
-                >
-                  <img
-                    v-if="choice.art.status === 'delivered'"
-                    :src="choice.art.path"
-                    :alt="choice.label"
-                    class="absolute inset-0 h-full w-full object-cover"
-                  />
-                  <span
-                    v-else
-                    class="relative rounded bg-[#17252b]/85 px-2 py-1 text-[10px]"
-                  >
-                    Choice illustration pending
-                  </span>
-                </div>
-                <span class="block p-2 text-sm font-bold leading-relaxed">
-                  {{ choice.label }}
-                </span>
-              </button>
-            </div>
-          </div>
+            {{ collision.crossroadStory.opening }}
+          </p>
           <div
             v-else-if="collision.chosen"
             class="rounded-xl border border-[#87c6ae]/60 bg-[#34524c] p-3"
@@ -263,41 +232,6 @@
             <p class="mt-2 text-sm leading-relaxed">
               {{ collision.chosen.outcome }}
             </p>
-          </div>
-          <div
-            v-else-if="!collision.completed"
-            class="grid gap-2 sm:grid-cols-2"
-          >
-            <button
-              v-for="choice in collision.current?.choices ?? []"
-              :key="choice.id"
-              type="button"
-              class="overflow-hidden rounded-xl border border-[#a99174] bg-[#394d53] text-left hover:border-[#f3d29c] focus-visible:outline-2 focus-visible:outline-[#f3d29c]"
-              :data-testid="'memory-earth-collision-choice-' + choice.id"
-              @click="collision.choose(choice.id)"
-            >
-              <div
-                class="relative flex h-16 items-end bg-[linear-gradient(125deg,#455d61,#745d4a,#2b4c51)] p-2"
-              >
-                <img
-                  v-if="choice.art.status === 'delivered'"
-                  :src="choice.art.path"
-                  :alt="choice.label"
-                  class="absolute inset-0 h-full w-full object-cover"
-                />
-                <span
-                  v-else
-                  class="relative rounded bg-[#17252b]/85 px-2 py-1 text-[10px]"
-                >
-                  Choice illustration pending
-                </span>
-              </div>
-              <span
-                class="block p-2 text-xs font-bold leading-relaxed sm:text-sm"
-              >
-                {{ choice.label }}
-              </span>
-            </button>
           </div>
           <div
             v-if="
@@ -315,6 +249,27 @@
             </p>
           </div>
         </div>
+        <memory-dungeon-choice-hand
+          v-if="!collision.completed && collision.readyForCrossroad"
+          class="shrink-0"
+          data-testid="memory-earth-crossroad-choices"
+          :choices="collision.crossroadChoices"
+          deal-key="crossroad"
+          icon="⌛"
+          testid-prefix="memory-earth-crossroad-choice"
+          @play="(choice) => collision.conclude(choice.id)"
+        />
+        <memory-dungeon-choice-hand
+          v-else-if="
+            !collision.completed && !collision.chosen && collision.current
+          "
+          class="shrink-0"
+          :choices="collision.current.choices"
+          :deal-key="collision.current.id"
+          icon="◈"
+          testid-prefix="memory-earth-collision-choice"
+          @play="(choice) => collision.choose(choice.id)"
+        />
       </section>
     </div>
   </section>

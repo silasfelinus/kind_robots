@@ -126,17 +126,16 @@
             </p>
             <p class="mt-1 text-sm">{{ chosenOutcome }}</p>
           </div>
-          <div v-else class="mt-3 grid gap-2">
-            <button
-              v-for="choice in night.currentSite?.choices ?? []"
-              :key="choice.id"
-              type="button"
-              class="btn btn-outline h-auto min-h-12 justify-start whitespace-normal py-2 text-left text-sm leading-relaxed"
-              @click="night.act({ type: 'choose', id: choice.id })"
-            >
-              {{ choice.label }}
-            </button>
-          </div>
+          <memory-dungeon-choice-hand
+            v-else-if="night.currentSite"
+            class="mt-3"
+            :choices="night.currentSite.choices"
+            :deal-key="night.currentSite.key"
+            icon="🌙"
+            palette="theme"
+            testid-prefix="memory-hoshimori-night-choice"
+            @play="(choice) => night.act({ type: 'choose', id: choice.id })"
+          />
           <div
             v-if="night.progress.current === '4,2' && !night.progress.doorOpen"
             class="mt-3 rounded-xl border border-warning/40 p-3"

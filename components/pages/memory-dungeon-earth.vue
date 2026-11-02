@@ -145,7 +145,7 @@
       >
         <template v-if="earth.current">
           <div
-            class="relative flex min-h-[8rem] flex-[1_1_42%] flex-col justify-end overflow-hidden border-b border-[#a68a6b]/40 p-3"
+            class="relative flex min-h-[6rem] flex-[1_1_42%] flex-col justify-end overflow-hidden border-b border-[#a68a6b]/40 p-3"
             :class="earth.active === 'e04' ? 'md-stage-night' : 'md-stage-day'"
           >
             <img
@@ -179,7 +179,9 @@
               Illustration pending
             </span>
           </div>
-          <div class="kr-scroll min-h-0 flex-1 overflow-y-auto p-2 sm:p-3">
+          <div
+            class="kr-scroll min-h-0 flex-[0_1_auto] overflow-y-auto p-2 empty:hidden sm:p-3"
+          >
             <p
               v-if="earth.notice"
               class="mb-2 rounded-lg bg-[#33443d] p-2 text-xs"
@@ -200,38 +202,6 @@
               <p class="mt-1 text-sm leading-relaxed">
                 {{ earth.chosen.outcome }}
               </p>
-            </div>
-            <div v-else class="grid grid-cols-1 gap-2 sm:grid-cols-2">
-              <button
-                v-for="(choice, index) in earth.current.choices"
-                :key="choice.id"
-                type="button"
-                class="overflow-hidden rounded-xl border border-[#9c8569] bg-[#344250] text-left transition hover:border-[#ffe1a6] hover:bg-[#405366] focus-visible:outline-2 focus-visible:outline-[#ffe1a6]"
-                :data-testid="'memory-earth-choice-' + choice.id"
-                @click="earth.choose(choice.id)"
-              >
-                <div
-                  class="relative flex h-16 items-end bg-[linear-gradient(120deg,#5a6271,#756455,#3b7273)] p-2 sm:h-20"
-                >
-                  <img
-                    v-if="choice.art.status === 'delivered'"
-                    :src="choice.art.path"
-                    :alt="choice.label"
-                    class="absolute inset-0 h-full w-full object-cover"
-                  />
-                  <span
-                    v-else
-                    class="relative rounded bg-[#151d29]/85 px-2 py-1 text-[10px]"
-                  >
-                    Outcome {{ index + 1 }} · art pending
-                  </span>
-                </div>
-                <span
-                  class="block p-2 text-xs font-bold leading-relaxed sm:text-sm"
-                >
-                  {{ choice.label }}
-                </span>
-              </button>
             </div>
             <div
               v-if="earth.readyToLeave"
@@ -259,6 +229,15 @@
               </button>
             </div>
           </div>
+          <memory-dungeon-choice-hand
+            v-if="!earth.chosen"
+            class="shrink-0"
+            :choices="earth.current.choices"
+            :deal-key="earth.current.id"
+            :icon="symbolFor(earth.current.kind)"
+            testid-prefix="memory-earth-choice"
+            @play="(choice) => earth.choose(choice.id)"
+          />
         </template>
       </section>
     </div>

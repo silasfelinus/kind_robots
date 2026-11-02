@@ -25,8 +25,8 @@
 <template>
   <div
     class="krh"
-    :class="{ 'is-tucked': tuck, 'is-still': !animate }"
-    :style="{ '--count': choices.length }"
+    :class="{ 'krh-tucked': tuck, 'krh-still': !animate }"
+    :style="{ '--count': choices.length, '--fit': fitFactor }"
     data-testid="kr-choice-hand"
   >
     <p v-if="question" class="krh-question">{{ question }}</p>
@@ -234,6 +234,15 @@ function ariaFor(choice: KrHandChoice): string {
   return [choice.label, ...linesOf(choice)].join('. ')
 }
 
+/** Card widths the fan occupies, given how much neighbours overlap. */
+function overlapFor(n: number): number {
+  return n <= 3 ? 0.04 : n === 4 ? -0.05 : n === 5 ? -0.14 : -0.24
+}
+const fitFactor = computed(() => {
+  const n = Math.max(1, props.choices.length)
+  return (n * (1 + 2 * overlapFor(n))).toFixed(3)
+})
+
 /** Fan like held cards: a gentle arc, centre card highest. */
 function fanStyle(index: number): Record<string, string> {
   const n = props.choices.length
@@ -244,8 +253,7 @@ function fanStyle(index: number): Record<string, string> {
     '--drop':
       (Math.abs(offset) ** 2 * (n <= 5 ? 0.22 : 0.06)).toFixed(3) + 'rem',
     '--i': String(index),
-    '--overlap':
-      n <= 3 ? '0.04' : n === 4 ? '-0.05' : n === 5 ? '-0.14' : '-0.24',
+    '--overlap': String(overlapFor(n)),
   }
 }
 
@@ -298,7 +306,7 @@ function sparkleStyle(n: number): Record<string, string> {
      scrollbar, and stay modest on short screens. */
   --card-w: min(
     clamp(5.5rem, min(36cqw, 18vh), var(--hand-card-max, 9.25rem)),
-    calc((100cqw - 2rem) / (var(--count, 3) * 0.8))
+    calc((100cqw - 2.25rem) / var(--fit, 2.4))
   );
   --card-h: calc(var(--card-w) * 1.5);
   --peek: calc(var(--card-h) * 0.3 * var(--tuck));
@@ -309,7 +317,7 @@ function sparkleStyle(n: number): Record<string, string> {
   flex-direction: column;
   gap: 0.35rem;
 }
-.krh.is-tucked {
+.krh.krh-tucked {
   --tuck: 1;
 }
 .krh-question {
@@ -545,7 +553,7 @@ function sparkleStyle(n: number): Record<string, string> {
 }
 .krh-title small {
   color: var(--accent);
-  font-size: 0.52rem;
+  font-size: calc(0.46rem * var(--hand-text-scale, 1.2));
   font-weight: 800;
   letter-spacing: 0.08em;
   line-height: 1.2;
@@ -564,7 +572,7 @@ function sparkleStyle(n: number): Record<string, string> {
     color-mix(in oklab, var(--band) 90%, transparent) 40%
   );
   color: color-mix(in oklab, var(--band-ink) 80%, transparent);
-  font-size: 0.56rem;
+  font-size: calc(0.5rem * var(--hand-text-scale, 1.2));
   font-style: normal;
   line-height: 1.25;
 }
@@ -688,12 +696,12 @@ function sparkleStyle(n: number): Record<string, string> {
   }
 }
 
-.krh.is-still .krh-card,
-.krh.is-still .krh-card.is-playing,
-.krh.is-still .krh-deal-enter-active {
+.krh.krh-still .krh-card,
+.krh.krh-still .krh-card.is-playing,
+.krh.krh-still .krh-deal-enter-active {
   transition: none;
 }
-.krh.is-still .krh-deal-enter-active .krh-flip {
+.krh.krh-still .krh-deal-enter-active .krh-flip {
   animation: none;
 }
 @media (prefers-reduced-motion: reduce) {

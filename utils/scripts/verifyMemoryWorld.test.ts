@@ -2079,9 +2079,21 @@ assert.ok(
   questScreen.includes('text-base leading-relaxed sm:text-lg'),
   'Quest narrative is legible like Shifting Desks',
 )
+const choiceHand = readFileSync(
+  'components/memory-dungeon/memory-dungeon-choice-hand.vue',
+  'utf8',
+)
 assert.ok(
-  mapScreen.includes('font-size: clamp(1rem, 1.85cqw, 1.5rem)'),
-  'Story decisions are large at console widths',
+  mapScreen.includes('<memory-dungeon-choice-hand') &&
+    mapScreen.includes(
+      'image: briarIllustrationPath(world.activeSiteKey, choice.id)',
+    ),
+  'Story decisions are a hand of cards showing each outcome',
+)
+assert.match(
+  choiceHand,
+  /\.md-hand :deep\(\.krh-title strong\) \{[^}]*font-family: ui-sans-serif/,
+  'Story decision cards keep solid plain-sans titles',
 )
 
 const memoryCore = readFileSync('stores/memoryStore.ts', 'utf8')

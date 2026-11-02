@@ -161,16 +161,17 @@
             }}
           </p>
           <div class="flex flex-col gap-2">
-            <button
-              v-for="choice in hoshimori.currentOvenRoom.choices"
-              :key="choice.id"
-              type="button"
-              class="btn h-auto min-h-14 justify-start whitespace-normal py-3 text-left text-base leading-snug"
-              :disabled="hoshimori.progress.rations + (choice.rations ?? 0) < 0"
-              @click="hoshimori.act({ type: 'oven-choice', id: choice.id })"
-            >
-              {{ choice.label }}
-            </button>
+            <memory-dungeon-choice-hand
+              :choices="handOf(hoshimori.currentOvenRoom.choices)"
+              :deal-key="hoshimori.currentOvenRoom.id"
+              icon="🔥"
+              palette="theme"
+              testid-prefix="memory-hoshimori-oven-choice"
+              @play="
+                (choice) =>
+                  hoshimori.act({ type: 'oven-choice', id: choice.id })
+              "
+            />
             <button
               type="button"
               class="btn btn-outline"
@@ -206,18 +207,15 @@
               {{ selectedChoice.outcome }}
             </p>
           </template>
-          <div v-else class="flex flex-col gap-2">
-            <button
-              v-for="choice in hoshimori.currentSite?.choices"
-              :key="choice.id"
-              type="button"
-              class="btn h-auto min-h-14 justify-start whitespace-normal py-3 text-left text-base leading-snug"
-              :disabled="hoshimori.progress.rations + (choice.rations ?? 0) < 0"
-              @click="hoshimori.act({ type: 'choose', id: choice.id })"
-            >
-              {{ choice.label }}
-            </button>
-          </div>
+          <memory-dungeon-choice-hand
+            v-else-if="hoshimori.currentSite"
+            :choices="handOf(hoshimori.currentSite.choices)"
+            :deal-key="hoshimori.currentSite.key"
+            icon="🏮"
+            palette="theme"
+            testid-prefix="memory-hoshimori-choice"
+            @play="(choice) => hoshimori.act({ type: 'choose', id: choice.id })"
+          />
 
           <p
             v-if="
@@ -452,6 +450,7 @@
 import { computed, onMounted, ref } from 'vue'
 import { HOSHIMORI_WARM_SITES } from '~/utils/memoryDungeon/hoshimoriWarm'
 import { useMemoryHoshimoriStore } from '~/stores/memoryHoshimoriStore'
+import type { MemoryHandChoice } from '~/components/memory-dungeon/memory-dungeon-choice-hand.vue'
 
 const emit = defineEmits<{ leave: [] }>()
 const hoshimori = useMemoryHoshimoriStore()
@@ -470,6 +469,20 @@ const selectedChoice = computed(() =>
       choice.id === hoshimori.progress.choices[hoshimori.progress.current],
   ),
 )
+
+function handOf(
+  choices: readonly { id: string; label: string; rations?: number }[],
+): MemoryHandChoice[] {
+  return choices.map((choice) => {
+    const rations = choice.rations ?? 0
+    return {
+      id: choice.id,
+      label: choice.label,
+      chip: rations < 0 ? `Costs ${-rations} food` : undefined,
+      disabled: hoshimori.progress.rations + rations < 0,
+    }
+  })
+}
 
 onMounted(() => hoshimori.hydrate())
 </script>

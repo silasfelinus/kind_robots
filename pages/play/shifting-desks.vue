@@ -672,131 +672,6 @@
                     />
                   </details>
                   <div
-                    class="flex shrink-0 flex-col"
-                    :class="manyRoutes ? 'gap-1.5' : 'gap-2 lg:gap-2.5'"
-                  >
-                    <button
-                      v-for="choice in openRoutes"
-                      :key="choice.id"
-                      type="button"
-                      class="desk-choice flex shrink-0 flex-col text-left"
-                      :class="[
-                        manyRoutes
-                          ? 'choice-card-compact gap-1 px-3 py-2'
-                          : fourRoutes
-                            ? 'choice-card choice-four gap-1.5 px-4 py-2.5'
-                            : 'choice-card gap-2 px-4 py-3 lg:px-5 lg:py-4',
-                        { 'is-locked': !!lockFor(choice) },
-                      ]"
-                      :aria-disabled="!!lockFor(choice)"
-                      :title="lockFor(choice) ?? undefined"
-                      @click="pick(choice)"
-                    >
-                      <span
-                        class="choice-label flex items-start gap-2 font-sans font-extrabold"
-                        :class="
-                          manyRoutes
-                            ? 'text-base leading-tight'
-                            : fourRoutes
-                              ? 'text-lg leading-snug lg:text-xl'
-                              : 'text-lg leading-snug sm:text-xl lg:text-2xl'
-                        "
-                      >
-                        <icon
-                          v-if="lockFor(choice)"
-                          name="kind-icon:lock"
-                          class="mt-1 size-4 shrink-0"
-                        />
-                        <span>{{ choice.label }}</span>
-                      </span>
-                      <span
-                        v-if="!(manyRoutes && lockFor(choice))"
-                        class="choice-intent font-sans"
-                        :class="
-                          manyRoutes
-                            ? 'line-clamp-1 text-sm'
-                            : fourRoutes
-                              ? 'text-sm leading-snug lg:text-base'
-                              : 'text-sm leading-snug sm:text-base lg:text-lg'
-                        "
-                        :title="
-                          manyRoutes
-                            ? `${choice.intent} ${choice.risk_hint}`
-                            : undefined
-                        "
-                        >{{ choice.intent }}
-                        <span v-if="!manyRoutes" class="choice-hint">{{
-                          choice.risk_hint
-                        }}</span></span
-                      >
-                      <span
-                        v-if="lockFor(choice)"
-                        class="choice-lock font-sans text-sm font-bold"
-                        :class="{ 'sr-only': manyRoutes }"
-                        >{{ lockFor(choice) }}</span
-                      >
-                      <span
-                        v-else
-                        class="choice-meta flex flex-wrap items-center gap-1.5 font-sans"
-                      >
-                        <span
-                          v-if="choice.roll"
-                          class="choice-stamp flex cursor-help items-center gap-1"
-                          :class="chipSize"
-                          :title="rollExplain(choice)"
-                          @click.stop.prevent="toggleRollTip(choice.id)"
-                        >
-                          <icon name="kind-icon:dice" class="size-3.5" />
-                          {{ DIFFICULTY[choice.roll.target] ?? 'Roll' }}
-                          <span class="roll-need font-black">{{
-                            needFor(choice)
-                          }}</span>
-                          <span class="sr-only">{{ rollExplain(choice) }}</span>
-                        </span>
-                        <span v-else class="choice-stamp" :class="chipSize"
-                          >Certain</span
-                        >
-                        <shifting-desks-effect-chips
-                          v-if="hasCost(choice)"
-                          :effects="choice.cost"
-                          :prefix="manyRoutes ? '' : 'Cost'"
-                          :large="!manyRoutes"
-                          on-dark
-                        />
-                        <span
-                          v-if="run && riskPayoffFor(run, choice)"
-                          class="meta-chip bg-green-200 text-green-950"
-                          >If the check succeeds: +1 Form</span
-                        >
-                        <span
-                          v-if="run && clueChainFor(run, choice)"
-                          class="meta-chip bg-sky-200 text-sky-950"
-                          :title="clueChainFor(run, choice)?.hint"
-                          >Thread: {{ clueChainFor(run, choice)?.hint }}</span
-                        >
-                        <span
-                          v-if="gradeBadge(choice)"
-                          class="meta-chip flex items-center gap-1 bg-amber-100 uppercase text-stone-900"
-                        >
-                          <icon name="kind-icon:document" size="0.75rem" />
-                          {{ gradeBadge(choice) }}
-                        </span>
-                        <span
-                          v-for="badge in aidBadges(choice)"
-                          :key="badge"
-                          class="meta-chip bg-orange-200 uppercase text-orange-950"
-                          >{{ badge }}</span
-                        >
-                      </span>
-                      <span
-                        v-if="rollTip === choice.id && choice.roll"
-                        class="rounded-md bg-sky-100 px-2 py-1 font-sans text-xs leading-snug text-sky-950"
-                        aria-hidden="true"
-                        >{{ rollExplain(choice) }}</span
-                      >
-                    </button>
-                  </div>
-                  <div
                     v-if="
                       lockedRoutes.length ||
                       anyRoll ||
@@ -860,6 +735,79 @@
                       }}<template v-if="witnessed"> (+2 Suspicion)</template>
                     </label>
                   </div>
+                  <p
+                    v-if="tipRoute"
+                    class="shrink-0 rounded-md bg-sky-100 px-2 py-1 font-sans text-xs leading-snug text-sky-950"
+                    aria-hidden="true"
+                  >
+                    {{ rollExplain(tipRoute) }}
+                  </p>
+                  <KrChoiceHand
+                    class="desk-hand shrink-0"
+                    :choices="routeCards"
+                    :deal-key="`${run.department}:${run.position}`"
+                    testid-prefix="shifting-desks-route"
+                    @play="(card) => pick(face(card.id).route)"
+                  >
+                    <template #art="{ choice }">
+                      <span class="desk-hand-face">
+                        <shifting-desks-art
+                          class="!absolute inset-0"
+                          frame="h-full w-full"
+                          :src="face(choice.id).art"
+                          :position="face(choice.id).position"
+                          :fallback-icon="cardIcon"
+                          icon-size="2.5rem"
+                          :show-brief="false"
+                        />
+                        <icon
+                          v-if="choice.disabled"
+                          name="kind-icon:lock"
+                          class="desk-hand-lock"
+                        />
+                        <span v-else class="desk-hand-meta">
+                          <span
+                            v-if="face(choice.id).difficulty"
+                            class="choice-stamp flex cursor-help items-center gap-1 px-1.5 py-0.5 text-xs"
+                            :title="rollExplain(face(choice.id).route)"
+                            @click.stop.prevent="toggleRollTip(choice.id)"
+                          >
+                            <icon name="kind-icon:dice" class="size-3.5" />
+                            {{ face(choice.id).difficulty }}
+                            <span class="roll-need font-black">{{
+                              face(choice.id).need
+                            }}</span>
+                          </span>
+                          <span
+                            v-else
+                            class="choice-stamp px-1.5 py-0.5 text-xs"
+                            >Certain</span
+                          >
+                          <shifting-desks-effect-chips
+                            v-if="hasCost(face(choice.id).route)"
+                            :effects="face(choice.id).route.cost"
+                            on-dark
+                          />
+                          <span
+                            v-if="face(choice.id).payoff"
+                            class="meta-chip bg-green-200 text-green-950"
+                            >+1 Form on success</span
+                          >
+                          <span
+                            v-for="badge in face(choice.id).aids"
+                            :key="badge"
+                            class="meta-chip bg-orange-200 uppercase text-orange-950"
+                            >{{ badge }}</span
+                          >
+                          <span
+                            v-if="openRoutes.length <= 4"
+                            class="desk-hand-intent"
+                            >{{ face(choice.id).route.intent }}</span
+                          >
+                        </span>
+                      </span>
+                    </template>
+                  </KrChoiceHand>
                 </template>
               </template>
 
@@ -980,6 +928,7 @@ import {
   successorLine,
 } from '~/utils/shiftingDesks/memos'
 import { useShiftingDesksStore } from '~/stores/shiftingDesksStore'
+import type { KrHandChoice } from '~/components/narrative/kr-choice-hand.vue'
 import { dailyDateOf, dailyKey, dailyLabel } from '~/utils/shiftingDesks/daily'
 import {
   ART_STYLES,
@@ -1373,24 +1322,13 @@ function aidBadges(choice: Choice): string[] {
 
 const manyRoutes = computed(() => (view.value?.card.choices.length ?? 0) > 4)
 
-const chipSize = computed(() =>
-  manyRoutes.value
-    ? 'px-1.5 py-0.5 text-[11px]'
-    : 'px-2 py-0.5 text-xs sm:py-1 sm:text-sm',
-)
-
-// From four routes up, locked ones fold into lock chips under the open ones,
-// so a payoff you have not earned still teases without taking a full card.
+// From four routes up, locked ones fold into lock chips above the hand, so a
+// payoff you have not earned still teases without taking a full card.
 const chipLocks = computed(() => (view.value?.card.choices.length ?? 0) >= 4)
 const openRoutes = computed(() =>
   (view.value?.card.choices ?? []).filter(
     (c) => !chipLocks.value || !lockFor(c),
   ),
-)
-// Four open routes read one size down so the fourth never falls below the
-// fold (t-031 doubled decks, 2026-10-17); five or more use the compact list.
-const fourRoutes = computed(
-  () => !manyRoutes.value && openRoutes.value.length === 4,
 )
 const denseRoutes = computed(() => manyRoutes.value || chipLocks.value)
 const lockedRoutes = computed(() =>
@@ -1406,6 +1344,94 @@ const anyRoll = computed(
 function hasCost(choice: Choice): boolean {
   return Object.keys(choice.cost).length > 0
 }
+
+// Silas, 2026-11-02: a set of choices is a hand of cards whose faces show
+// what each one leads to. A Board verdict shows its epilogue once that ending
+// is on file; otherwise each card shows its own slice of the file's art.
+const ROUTE_SLICES = [
+  'object-[0%_35%]',
+  'object-[15%_35%]',
+  'object-[30%_35%]',
+  'object-[50%_35%]',
+  'object-[70%_35%]',
+  'object-[85%_35%]',
+  'object-[100%_35%]',
+]
+
+function endingArtFor(choice: Choice): string | null {
+  const outcome = choice.success.department_outcome
+  const ending = outcome
+    ? ENDINGS.find((e) => e.trigger.department_outcome === outcome)
+    : undefined
+  return ending && store.endingsFound.includes(ending.id)
+    ? stationArt('endings', ending.id)
+    : null
+}
+
+function costText(choice: Choice): string {
+  const parts = METERS.filter((m) => choice.cost[m]).map((m) => {
+    const v = choice.cost[m] as number
+    return `${v > 0 ? '+' : ''}${v} ${METER_LABELS[m]}`
+  })
+  return parts.length ? `Cost: ${parts.join(', ')}` : ''
+}
+
+const routeFaces = computed(
+  () =>
+    new Map(
+      openRoutes.value.map((choice, index, all) => {
+        const ending = endingArtFor(choice)
+        const slice = Math.round(((index + 0.5) / all.length) * 6)
+        return [
+          choice.id,
+          {
+            route: choice,
+            art: ending ?? faceArt.value,
+            position: ending ? 'object-[50%_35%]' : ROUTE_SLICES[slice]!,
+            difficulty: choice.roll
+              ? (DIFFICULTY[choice.roll.target] ?? 'Roll')
+              : null,
+            need: needFor(choice),
+            payoff: !!run.value && !!riskPayoffFor(run.value, choice),
+            aids: aidBadges(choice),
+          },
+        ] as const
+      }),
+    ),
+)
+
+function face(id: string) {
+  return routeFaces.value.get(id)!
+}
+
+const routeCards = computed<KrHandChoice[]>(() =>
+  openRoutes.value.map((choice) => {
+    const lock = lockFor(choice)
+    const thread = run.value ? clueChainFor(run.value, choice)?.hint : ''
+    return {
+      id: choice.id,
+      label: choice.label,
+      disabled: !!lock,
+      hint: lock ?? undefined,
+      details: [
+        choice.intent,
+        choice.risk_hint,
+        costText(choice),
+        run.value && riskPayoffFor(run.value, choice)
+          ? 'If the check succeeds: +1 Form'
+          : '',
+        thread ? `Thread: ${thread}` : '',
+        gradeBadge(choice) ?? '',
+        ...aidBadges(choice),
+        lock ? '' : rollExplain(choice),
+      ].filter(Boolean),
+    }
+  }),
+)
+
+const tipRoute = computed(
+  () => openRoutes.value.find((c) => c.id === rollTip.value && c.roll) ?? null,
+)
 
 // The front desk's collectible: every ending this browser has reached.
 const endingsGallery = ref<{ open: () => void } | null>(null)
@@ -1532,55 +1558,67 @@ useHead({ title: 'Shifting Desks' })
 }
 
 /* Choices read like Memory Dungeon's (Silas, 2026-11-02): the file stays
-   serif on manila, every route is a solid ink button in plain sans, and the
-   numbers ride underneath as stamps instead of crowding the label. */
-.desk-choice {
-  border: 2px solid #1c1917;
-  border-radius: 0.75rem;
-  background-color: #2b2622;
-  color: #fdf6e3;
-  box-shadow: 0 3px 0 #0c0a09;
-  transition:
-    background-color 120ms ease,
-    border-color 120ms ease,
-    transform 120ms ease;
+   serif on manila, every route is a card in the shared hand with a solid ink
+   title band in plain sans, and the numbers ride at its foot as stamps. */
+.desk-hand {
+  --hand-accent: #f59e0b;
+  --hand-accent-2: #e9d8a6;
+  --hand-band: #2b2622;
+  --hand-band-ink: #fdf6e3;
+  --hand-text-scale: 1.25;
 }
 
-.desk-choice:hover:not(.is-locked),
-.desk-choice:focus-visible:not(.is-locked) {
-  border-color: #f59e0b;
-  background-color: #3d342d;
+.desk-hand :deep(.krh-title) {
+  padding-bottom: 0.9rem;
+  background: linear-gradient(var(--band) calc(100% - 1rem), transparent);
 }
 
-.desk-choice:active:not(.is-locked) {
-  transform: translateY(2px);
-  box-shadow: 0 1px 0 #0c0a09;
+.desk-hand :deep(.krh-title strong) {
+  -webkit-line-clamp: 4;
+  font-family: ui-sans-serif, system-ui, sans-serif;
+  font-weight: 800;
+  line-height: 1.2;
 }
 
-.desk-choice:focus-visible {
-  outline: 3px solid #f59e0b;
-  outline-offset: 2px;
-}
-
-.desk-choice.is-locked {
-  cursor: not-allowed;
-  border-style: dashed;
-  border-color: #78716c;
-  background-color: #44403c;
-  color: #d6d3d1;
-  box-shadow: none;
-}
-
-.choice-intent {
-  color: rgb(253 246 227 / 0.88);
-}
-
-.choice-hint {
-  color: rgb(253 246 227 / 0.66);
-}
-
-.choice-lock {
+.desk-hand :deep(.krh-hint) {
   color: #fca5a5;
+  font-family: ui-sans-serif, system-ui, sans-serif;
+  font-size: 0.68rem;
+  font-weight: 700;
+}
+
+.desk-hand-meta {
+  position: absolute;
+  inset: auto 0 0;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 1.1rem 0.4rem 0.4rem;
+  background: linear-gradient(transparent, rgb(43 38 34 / 0.94) 1rem);
+  font-family: ui-sans-serif, system-ui, sans-serif;
+}
+
+.desk-hand-intent {
+  display: -webkit-box;
+  width: 100%;
+  overflow: hidden;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+  color: rgb(253 246 227 / 0.88);
+  font-size: 0.66rem;
+  line-height: 1.25;
+}
+
+.desk-hand-lock {
+  position: absolute;
+  top: 55%;
+  left: 50%;
+  width: 2.5rem;
+  height: 2.5rem;
+  translate: -50% -50%;
+  color: #fdf6e3;
+  filter: drop-shadow(0 2px 4px rgb(0 0 0 / 0.8));
 }
 
 .choice-stamp {
@@ -1635,16 +1673,6 @@ useHead({ title: 'Shifting Desks' })
     grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr) !important;
   }
 
-  .choice-card {
-    padding-block: 0.5rem;
-    gap: 0.25rem;
-  }
-
-  .choice-card .choice-label {
-    font-size: 1.25rem;
-    line-height: 1.6rem;
-  }
-
   .desk-brief-text {
     font-size: 1rem;
     line-height: 1.55rem;
@@ -1652,26 +1680,6 @@ useHead({ title: 'Shifting Desks' })
 
   .desk-brief {
     padding: 0.5rem 0.75rem;
-  }
-
-  .choice-card-compact {
-    padding-block: 0.25rem;
-    gap: 0.125rem;
-  }
-
-  .choice-four {
-    padding-block: 0.3rem;
-    gap: 0.125rem;
-  }
-
-  .choice-four .choice-label {
-    font-size: 1.05rem;
-    line-height: 1.35rem;
-  }
-
-  .choice-four .choice-intent {
-    font-size: 0.875rem;
-    line-height: 1.25rem;
   }
 
   .hire-portrait {

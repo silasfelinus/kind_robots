@@ -23,6 +23,7 @@ import {
 import {
   EPISODE_CHOICES,
   episodeChoiceStakes,
+  episodeChoiceLabel,
   episodeCard,
   episodeDecks,
   episodeDeckDone,
@@ -95,6 +96,20 @@ assert.equal(
   10,
   'every authored planetary dilemma has art slots',
 )
+const planetaryDecisions = new Map<string, string[]>()
+for (let seed = 1; seed <= 300; seed++) {
+  const scenario = { ...landing, seed }
+  const key = episodeCard(scenario, 'planet').id
+  const labels = EPISODE_CHOICES.map((option) =>
+    episodeChoiceLabel(scenario, 'planet', option.id),
+  )
+  assert.equal(new Set(labels).size, 3, key)
+  assert.ok(labels.every((label) => label.length >= 12), key)
+  const existing = planetaryDecisions.get(key)
+  if (existing) assert.deepEqual(labels, existing, key)
+  planetaryDecisions.set(key, labels)
+}
+assert.equal(planetaryDecisions.size, 10)
 const episodeArtKeys = [...planetCards.keys()].flatMap((key) =>
   episodeChoiceArtKeys(key),
 )
@@ -114,6 +129,7 @@ assert.match(consoleUI, /episodeRevealArtKey/)
 assert.match(consoleUI, /episodeResultArtKey/)
 assert.match(consoleUI, /space-couch-episode-result-art/)
 assert.match(consoleUI, /onEpisodeArtworkError/)
+assert.match(consoleUI, /episodeChoiceLabel/)
 
 assert.equal(episodeMajorComplete(landing), false)
 assert.deepEqual(episodeDecks(landing), ['planet', 'casino', 'serendipity'])

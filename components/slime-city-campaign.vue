@@ -98,6 +98,17 @@
             FOLLOW THE STORY ON THE CITY MAP · {{ nextDistrictName }} →
           </button>
           <div
+            v-if="lab.campaignEcho"
+            class="campaign-recap"
+            data-testid="slime-campaign-echo"
+          >
+            <strong>PREVIOUS VICTORY · {{ lab.campaignEcho.title }}</strong>
+            <span>{{ lab.campaignEcho.story }}</span>
+            <small
+              >{{ describeTerms(lab.campaignEcho.terms) }} next battle</small
+            >
+          </div>
+          <div
             v-if="lab.campaignState.lastScene"
             class="campaign-recap"
             aria-live="polite"
@@ -129,7 +140,15 @@
             }}</span>
             <span class="decision-copy">
               <strong>{{ choice.label }}</strong>
-              <small>{{ describeTerms(choice.terms) }}</small>
+              <small>{{
+                describeTerms(
+                  campaignBattleTerms(
+                    lab.campaignSave,
+                    lab.activeTeam,
+                    choice.terms,
+                  ),
+                )
+              }}</small>
             </span>
             <span class="decision-arrow" aria-hidden="true">→</span>
           </button>
@@ -140,7 +159,7 @@
           >{{ lab.campaignState.losses }} CAMPAIGN LOSSES · DEFEAT RETRIES ARE
           UNLIMITED</span
         >
-        <span>SESSION-ONLY STORY PROGRESS · NO REAL-MONEY REWARDS</span>
+        <span>ACCOUNT-SAVED STORY · NO REAL-MONEY REWARDS</span>
       </div>
     </div>
   </section>
@@ -148,7 +167,7 @@
 
 <script setup lang="ts">
 import { computed } from 'vue'
-import { describeTerms } from '~/utils/slimeCity/campaign'
+import { campaignBattleTerms, describeTerms } from '~/utils/slimeCity/campaign'
 import { slimeArtId } from '~/utils/slimeCity/artManifest'
 import { useSlimeCityStore } from '~/stores/slimeCity'
 import type { TeamId } from '~/utils/slimeCity/prototypes'

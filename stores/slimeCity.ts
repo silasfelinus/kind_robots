@@ -10,7 +10,9 @@ import {
   type Progression,
 } from '../utils/slimeCity/progression'
 import {
+  campaignBattleTerms,
   campaignChapter,
+  campaignEchoFor,
   campaignEnding,
   createCampaignSave,
   FACTION_CAMPAIGNS,
@@ -386,6 +388,9 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
 
   const campaignStory = computed(() => FACTION_CAMPAIGNS[activeTeam.value])
   const campaignState = computed(() => campaignSave.value[activeTeam.value])
+  const campaignEcho = computed(() =>
+    campaignEchoFor(campaignSave.value, activeTeam.value),
+  )
   const activeChapter = computed(() =>
     campaignChapter(campaignSave.value, activeTeam.value),
   )
@@ -911,9 +916,13 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
     seed.value = rollSeed()
     match.value = applyTerms(
       createMatch('blackout', teamId, chapter.foe, seed.value, rules.value),
-      fromCity
-        ? storyMissionTerms(city.value, districtId.value, choice.terms)
-        : choice.terms,
+      campaignBattleTerms(
+        campaignSave.value,
+        teamId,
+        fromCity
+          ? storyMissionTerms(city.value, districtId.value, choice.terms)
+          : choice.terms,
+      ),
     )
     selectedCard.value = null
     selectedUnit.value = null
@@ -1193,6 +1202,7 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
     lastCampaign,
     campaignStory,
     campaignState,
+    campaignEcho,
     activeChapter,
     campaignFinale,
     campaignDistrict,

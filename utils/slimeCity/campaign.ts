@@ -652,12 +652,149 @@ export function campaignEnding(
     : FACTION_CAMPAIGNS[team].compromise
 }
 
+/**
+ * A won chapter leaves a tactical footprint in the next fight. Only the
+ * latest victory is active, so benefits cannot snowball into invincible
+ * fighters. An approach changes the campaign, not just the ending text.
+ */
+export interface CampaignEcho {
+  title: string
+  story: string
+  terms: BoutTerms
+}
+
+export const CAMPAIGN_ECHOES: Record<
+  TeamId,
+  Record<CampaignApproach, CampaignEcho>
+> = {
+  catgirls: {
+    conviction: {
+      title: 'BACKSTREET CLINIC',
+      story:
+        'The nurses you protected patch up the next rescue team before the doors open.',
+      terms: { playerHp: 1 },
+    },
+    cunning: {
+      title: 'STOLEN GENE SCHEMATICS',
+      story:
+        'Your stolen lab plans reveal the weak seam in the next opponent’s armor.',
+      terms: { enemyArmor: -1 },
+    },
+  },
+  bloodfairies: {
+    conviction: {
+      title: 'ROOFTOP CHOIR',
+      story:
+        'The fairies you brought together smuggle an extra spark of mana into the pit.',
+      terms: { playerMana: 1 },
+    },
+    cunning: {
+      title: 'BOOTLEG AMPLIFIERS',
+      story:
+        'Your illegal speakers pump the crowd for a huge opening, but alert the rival crew.',
+      terms: { playerMana: 2, enemyMana: 1 },
+    },
+  },
+  ironjaw: {
+    conviction: {
+      title: 'SOLIDARITY PLATING',
+      story:
+        'The workers add two layers of scrap protection to their own starting line.',
+      terms: { playerHp: 2 },
+    },
+    cunning: {
+      title: 'FOREMAN BLUEPRINTS',
+      story:
+        'You know where to crack their plates. The foreman knows you stole the plans.',
+      terms: { enemyArmor: -1, enemyMana: 1 },
+    },
+  },
+  riot: {
+    conviction: {
+      title: 'EVACUATION MARSHALS',
+      story:
+        'Your volunteer safety marshals protect the front line and buy one more round.',
+      terms: { playerHp: 1, rounds: 1 },
+    },
+    cunning: {
+      title: 'ILLEGAL FUSE CACHE',
+      story:
+        'A stolen firework gives you an early blast of mana. The opposition heard it.',
+      terms: { playerMana: 2, enemyMana: 1 },
+    },
+  },
+  undertow: {
+    conviction: {
+      title: 'WITNESS NETWORK',
+      story:
+        'Someone you protected quietly persuades one rival guard to walk away.',
+      terms: { fewerRivals: 1 },
+    },
+    cunning: {
+      title: 'DOUBLE AGENT',
+      story:
+        'A paid informant leaks mana to you, but their trap is already buried in the arena.',
+      terms: { playerMana: 2, rivalTrap: true },
+    },
+  },
+  exchange: {
+    conviction: {
+      title: 'DEBT JUBILEE',
+      story: 'One rival collector resigns after seeing the bills you tore up.',
+      terms: { fewerRivals: 1 },
+    },
+    cunning: {
+      title: 'HEDGE FUND ADVANCE',
+      story:
+        'You leverage next quarter’s profits for immediate mana. The rival refinances too.',
+      terms: { playerMana: 2, enemyMana: 1 },
+    },
+  },
+}
+
+export function campaignEchoFor(
+  save: CampaignSave,
+  team: TeamId,
+): CampaignEcho | null {
+  const { wins, decisions } = save[team]
+  if (wins < 1 || wins >= FACTION_CAMPAIGNS[team].chapters.length) return null
+  const lastChoice = decisions[wins - 1]
+  return lastChoice ? CAMPAIGN_ECHOES[team][lastChoice] : null
+}
+
+/** Adds an earned story echo to either city-launched or quick-start terms. */
+export function campaignBattleTerms(
+  save: CampaignSave,
+  team: TeamId,
+  terms: BoutTerms,
+): BoutTerms {
+  const echo = campaignEchoFor(save, team)
+  if (!echo) return terms
+  const merged: BoutTerms = { ...terms }
+  for (const key of [
+    'playerMana',
+    'enemyMana',
+    'playerHp',
+    'enemyArmor',
+    'fewerRivals',
+    'rounds',
+  ] as const) {
+    const value = echo.terms[key]
+    if (value) merged[key] = (merged[key] ?? 0) + value
+  }
+  if (echo.terms.rivalTrap) merged.rivalTrap = true
+  return merged
+}
+
 export function describeTerms(terms: BoutTerms): string {
   const labels: string[] = []
   if (terms.playerMana) labels.push('Your mana ' + signed(terms.playerMana))
   if (terms.enemyMana) labels.push('Rival mana ' + signed(terms.enemyMana))
   if (terms.playerHp) labels.push('Your HP ' + signed(terms.playerHp))
   if (terms.enemyArmor) labels.push('Rival armor ' + signed(terms.enemyArmor))
+  if (terms.fewerRivals)
+    labels.push('Rival starts with ' + terms.fewerRivals + ' fewer fighters')
+  if (terms.rounds) labels.push('Round limit ' + signed(terms.rounds))
   if (terms.rivalTrap) labels.push('Rival starts with a hidden trap')
   return labels.join(' · ') || 'Standard rules'
 }

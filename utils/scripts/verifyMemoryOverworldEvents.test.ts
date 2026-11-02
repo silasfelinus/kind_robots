@@ -955,6 +955,80 @@ for (const tideGate of [
 }
 assert.equal(e10VerdictCases, 36)
 assert.equal(e10Openings.size, 18)
+const routeEchoHistory = {
+  tideGate: 'open-the-tide-gate',
+  charter: 'consent',
+  office: 'translate-shift-oath',
+} as const
+const routeEchoChoices = [
+  ['1,1', 'witness-the-guard'],
+  ['1,1', 'hold-the-landing'],
+  ['3,1', 'publish-the-forgery'],
+  ['3,1', 'escort-the-moth'],
+  ['6,5', 'witness-chosen-households'],
+  ['6,5', 'lease-the-common-stair'],
+  ['8,7', 'keep-uncertain-names'],
+  ['8,7', 'rescue-before-records'],
+] as const
+const echoOpenings = new Set<string>()
+const echoOutcomes = new Set<string>()
+for (const verdict of EARTH_CROSSROAD_CHOICES) {
+  const baseline = earthCollisionCrossroadStory(routeEchoHistory, verdict.id)
+  for (const [key, choiceId] of routeEchoChoices) {
+    const [x, y] = key.split(',').map(Number) as [number, number]
+    const journal: EarthJournalAction[] = []
+    for (let step = 2; step <= x; step++)
+      journal.push({ type: 'travel', key: step + ',1' })
+    for (let step = 2; step <= y; step++)
+      journal.push({ type: 'travel', key: x + ',' + step })
+    journal.push({ type: 'choose', key, choiceId })
+    assert.ok(replayEarthJournal('e10', journal))
+    const echoed = earthCollisionCrossroadStory(
+      routeEchoHistory,
+      verdict.id,
+      journal,
+    )
+    assert.ok(echoed.opening.length > baseline.opening.length)
+    assert.ok(echoed.outcome.length > baseline.outcome.length)
+    assert.deepEqual(
+      earthCollisionCrossroadStory(
+        routeEchoHistory,
+        verdict.id,
+        JSON.parse(JSON.stringify(journal)),
+      ),
+      echoed,
+      'earned route callbacks must survive save/restore',
+    )
+    assert.deepEqual(
+      earthCollisionCrossroadStory(
+        routeEchoHistory,
+        verdict.id,
+        journal.slice(0, -1),
+      ),
+      baseline,
+      'walking past a site cannot award its narrative consequence',
+    )
+    assert.deepEqual(
+      earthCollisionCrossroadStory(routeEchoHistory, verdict.id, [
+        ...journal.slice(0, -1),
+        { type: 'choose', key, choiceId: 'forged-choice' },
+      ]),
+      baseline,
+      'a forged choice cannot manufacture a finale callback',
+    )
+    echoOpenings.add(echoed.opening)
+    echoOutcomes.add(echoed.outcome)
+  }
+  assert.deepEqual(
+    earthCollisionCrossroadStory(routeEchoHistory, verdict.id, {
+      flags: ['canal-honest-manifest'],
+    }),
+    baseline,
+    'serialized flags are not replay evidence',
+  )
+}
+assert.equal(echoOpenings.size, 16)
+assert.equal(echoOutcomes.size, 16)
 const validEarthHistory = warmCharter('consent')
 assert.deepEqual(earthCollisionCrossroadStory(null), {
   opening: '',
@@ -1086,6 +1160,10 @@ assert.ok(campaignStore.includes('recoverEarthCollisionFromJournal('))
 assert.ok(memoryPage.includes('v-else-if="earthCollisionMode"'))
 assert.ok(overworldPage.includes('data-testid="memory-enter-earth-collision"'))
 assert.ok(overworldPage.includes("world.campaign.completed.includes('e09')"))
+assert.match(
+  e10Store,
+  /earthCollisionCrossroadStory\\(\\s*history\\.value,\\s*world\\.campaign\\.pairDecisions\\?\\.e10,\\s*journal\\.value/,
+)
 assert.ok(e10Store.includes('world.finishEarthCollision('))
 assert.ok(e10Store.includes("position.value === '8,8'"))
 assert.ok(e10Console.includes('data-testid="memory-earth-crossroad-choices"'))

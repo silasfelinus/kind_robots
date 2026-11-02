@@ -51,7 +51,7 @@ export const ACT_ONE_EXPANDED_CONSEQUENCES = {
           flags: ['ashdock-crane-witness', 'ashdock-anonymous-inquest'],
           delta: { treaty_trust: 2, medical_knowledge: 1, crew_trust: 1 },
           callback:
-            'The crane has testified at a second hearing. The contractor now contests its right to unionize.',
+            'The crane has testified at a second hearing. The contractor now contests its right to unionize without unpaid overtime.',
         },
         failure: {
           narrative:
@@ -83,7 +83,7 @@ export const ACT_ONE_EXPANDED_CONSEQUENCES = {
           flags: ['ashdock-data-leak', 'ashdock-contractor-retaliation'],
           delta: { crew_trust: -3, treaty_trust: -2, antagonist_pressure: 2 },
           callback:
-            'The contractor has distributed the exposed addresses as evidence of an alleged security breach.',
+            'The contractor has distributed the exposed addresses as evidence of an alleged security breach to local patrols.',
         },
       },
     ],
@@ -142,7 +142,7 @@ export const ACT_ONE_EXPANDED_CONSEQUENCES = {
           flags: ['nacre-audit-obstructed', 'nacre-vote-standing'],
           delta: { treaty_trust: -1, ship_fuel: -1, antagonist_pressure: 1 },
           callback:
-            'The bowl’s manufacturer now sells tamper-proof election equipment to neighboring councils.',
+            'The bowl’s manufacturer now sells tamper-proof election equipment to neighboring councils with a generous bulk discount.',
         },
       },
       {

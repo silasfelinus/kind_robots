@@ -413,6 +413,7 @@
                                 lab.districtId,
                                 choice.terms,
                               ),
+                              lab.campaignFavorIndex,
                             ),
                           )
                         }}</small

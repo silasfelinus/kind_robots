@@ -8,6 +8,7 @@ import {
   campaignBattleTerms,
   campaignChapter,
   campaignEchoFor,
+  campaignFavorsFor,
   CAMPAIGN_ECHOES,
   campaignEnding,
   createCampaignSave,
@@ -700,6 +701,89 @@ for (const team of TEAMS) {
 }
 console.log(
   'Slime City 12 faction campaign echoes: earned, bounded, applied PASS',
+)
+
+// Earned ally favors are existing campaign decisions, not a second inventory.
+// Only one selected favor applies to the battle; no route, defeat, or replay
+// can claim a chapter that has not been won.
+for (const team of TEAMS) {
+  let saved = createCampaignSave()
+  assert.deepEqual(campaignFavorsFor(saved, team.id), [])
+  for (let index = 0; index < 4; index++) {
+    const chapter = FACTION_CAMPAIGNS[team.id].chapters[index]!
+    saved = resolveCampaignBattle(
+      saved,
+      team.id,
+      index,
+      chapter.foe,
+      index % 2 === 0 ? 'conviction' : 'cunning',
+      'player',
+    )
+    const favors = campaignFavorsFor(saved, team.id)
+    assert.equal(favors.length, index + 1)
+    assert.equal(favors[index]!.chapterTitle, chapter.title)
+    assert.equal(favors[index]!.ally, chapter.foe)
+    assert.ok(favors[index]!.echo.speaker.length > 5)
+    assert.ok(favors[index]!.echo.voice.length > 50)
+    assert.deepEqual(campaignEchoFor(saved, team.id), favors[index]!.echo)
+    for (const favor of favors) {
+      assert.deepEqual(
+        campaignEchoFor(saved, team.id, favor.chapterIndex),
+        favor.echo,
+      )
+      assert.deepEqual(
+        campaignBattleTerms(saved, team.id, {}, favor.chapterIndex),
+        favor.echo.terms,
+        'Only the one selected ally contributes terms',
+      )
+    }
+    assert.deepEqual(campaignEchoFor(saved, team.id, -1), favors[index]!.echo)
+    assert.deepEqual(campaignEchoFor(saved, team.id, 999), favors[index]!.echo)
+    assert.deepEqual(campaignEchoFor(saved, team.id, 1.5), favors[index]!.echo)
+    const defeated = resolveCampaignBattle(
+      saved,
+      team.id,
+      index + 1,
+      FACTION_CAMPAIGNS[team.id].chapters[index + 1]!.foe,
+      'cunning',
+      'enemy',
+    )
+    assert.deepEqual(
+      campaignFavorsFor(defeated, team.id),
+      favors,
+      'A lost mission cannot mint or revoke an ally',
+    )
+  }
+  const openingTerms = { playerMana: 1, enemyMana: 1 }
+  const earlier = campaignBattleTerms(saved, team.id, openingTerms, 0)
+  const latest = campaignBattleTerms(saved, team.id, openingTerms)
+  assert.notDeepEqual(earlier, latest)
+  assert.deepEqual(
+    openingTerms,
+    { playerMana: 1, enemyMana: 1 },
+    'Both quick start and district terms stay immutable',
+  )
+  const rival = FACTION_CAMPAIGNS[team.id].chapters[4]!.foe
+  const actual = applyTerms(
+    createMatch('blackout', team.id, rival, 20261102),
+    earlier,
+  )
+  assert.equal(actual.mana, BLACKOUT_MANA_GAIN + (earlier.playerMana ?? 0))
+  assert.equal(actual.enemyMana, BLACKOUT_MANA_GAIN + (earlier.enemyMana ?? 0))
+  const finished = resolveCampaignBattle(
+    saved,
+    team.id,
+    4,
+    rival,
+    'conviction',
+    'player',
+  )
+  assert.equal(campaignFavorsFor(finished, team.id).length, 5)
+  assert.equal(campaignEchoFor(finished, team.id), null)
+  assert.deepEqual(campaignBattleTerms(finished, team.id, {}), {})
+}
+console.log(
+  'Slime City ally dossier: 6 crews, four previous favors, bounded combat PASS',
 )
 
 // Story missions combine district consequences with one specific story

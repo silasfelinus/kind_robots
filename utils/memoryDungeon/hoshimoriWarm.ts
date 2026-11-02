@@ -2010,6 +2010,144 @@ export const HOSHIMORI_OVEN_ROOMS: readonly HoshimoriOvenRoom[] = [
       },
     ],
   },
+  {
+    id: 'OV-28',
+    title: 'The Window That Remembers Faces',
+    opening:
+      'Six panes show the children who once slept behind Vesper’s sold refuge map. One face has no name and one child is now grown. The glass asks Vesper to identify them all before it will open.',
+    choices: [
+      {
+        id: 'glass-let-families-name',
+        label: 'Let families identify themselves without recording their faces',
+        outcome:
+          'The unnamed pane stays unnamed. The families open the window from their side, and Vesper learns that recognizing a person is not the same as owning their story.',
+        trust: 1,
+        flag: 'glass-families-name-themselves',
+      },
+      {
+        id: 'glass-break-index',
+        label: 'Break the indexing frame while preserving each painted pane',
+        outcome:
+          'The numbered frame splinters. Every portrait survives in its household’s hands, but no authority can arrange the faces into a list of addresses.',
+        flag: 'glass-face-index-broken',
+      },
+    ],
+  },
+  {
+    id: 'OV-29',
+    title: 'The House With a Borrowed Door',
+    opening:
+      'A displaced household has found its old front door bolted to the Oven. Opening it would restore their street for one night, but the yōkai behind the hinges would learn where they live now.',
+    choices: [
+      {
+        id: 'glass-return-hinges',
+        label: 'Return the hinges so the family can rebuild on its own terms',
+        outcome:
+          'The family carries the door home in pieces. No street is restored by magic, but the hinges will fit a house whose address they choose.',
+        trust: 1,
+        flag: 'glass-hinges-returned',
+      },
+      {
+        id: 'glass-seal-door',
+        label: 'Seal the door and arrange a witnessed claim for the lost house',
+        outcome:
+          'Oren records the house as a debt, not a location to be raided. The family keeps the claim and can refuse to reveal where it sleeps.',
+        flag: 'glass-lost-house-claimed',
+      },
+    ],
+  },
+  {
+    id: 'OV-30',
+    title: 'Kogane’s Second Shift',
+    opening:
+      'The Oven offers Kogane enough bread for the shelters if the bakers agree to forget the next six hours of work. She has already forgotten three winters of birthdays and refuses to call this bargain free.',
+    choices: [
+      {
+        id: 'glass-refuse-forgetting',
+        label: 'Refuse the memory wage and ration today’s bread fairly',
+        outcome:
+          'The shelter line grows longer, but every baker leaves knowing the day they lived. Pip records the shortage without inventing a happy ending.',
+        trust: 1,
+        flag: 'glass-memory-wage-refused',
+      },
+      {
+        id: 'glass-open-shift-ledger',
+        label: 'Ask the workers to set a paid shift and publish the shortage',
+        outcome:
+          'Kogane posts a voluntary rota and the exact loaves missing. The village must find food tomorrow; the workers owe no stolen hours.',
+        flag: 'glass-worker-rota-open',
+      },
+    ],
+  },
+  {
+    id: 'OV-31',
+    title: 'The Stair of Other Tomorrows',
+    opening:
+      'A staircase rises through impossible reflections of Scylla and Char. Each landing promises to undo one loss, but the images cannot say which sister made the choice. Oren measures the steps and finds that none leads backward.',
+    choices: [
+      {
+        id: 'glass-mark-real-exit',
+        label: 'Mark the real exit and let the sisters decide what to remember',
+        outcome:
+          'Oren marks a safe descent. Scylla keeps the painful reflection without treating it as proof that Char’s choices can be rewritten.',
+        trust: 1,
+        flag: 'glass-real-exit-marked',
+      },
+      {
+        id: 'glass-keep-witness',
+        label: 'Keep a witness sketch, but refuse the staircase’s promised reset',
+        outcome:
+          'The sketch records two possible futures without claiming either happened. Char remains a person, not a prize at the top of a stair.',
+        flag: 'glass-stair-witness-kept',
+      },
+    ],
+  },
+  {
+    id: 'OV-32',
+    title: 'The Rehearsal of Perfect Safety',
+    opening:
+      'A paper procession practices knocking on every door in Hoshimori. Its herald promises nobody will ever be lost again if Vesper supplies one complete list of residents, including those in hiding.',
+    choices: [
+      {
+        id: 'glass-scatter-directions',
+        label: 'Give households separate, changeable routes instead of a list',
+        outcome:
+          'The procession cannot rehearse a door it does not own. Families exchange directions only when they choose, though the roads remain difficult.',
+        trust: 1,
+        flag: 'glass-directions-distributed',
+      },
+      {
+        id: 'glass-teach-refusal',
+        label: 'Teach the escorts a common signal for refusing the herald',
+        outcome:
+          'The escorts practice a refusal together. The herald learns the sound but not the addresses; the village will need courage when it returns.',
+        flag: 'glass-herald-refused',
+      },
+    ],
+  },
+  {
+    id: 'OV-33',
+    title: 'The Sixth Bell: A Charter Under Pressure',
+    opening:
+      'The new refuge charter faces its first real dispute. A council member has quietly sold an escort route to buy medicine. Vesper recognizes the old excuse, and the injured household demands a remedy that cannot be settled by one apology.',
+    choices: [
+      {
+        id: 'glass-recall-council',
+        label: 'Let the affected households recall the member and fund repairs',
+        outcome:
+          'The member loses custody of the route, but the sick still receive medicine. Vesper submits their own earlier sale to the same appeal process.',
+        trust: 1,
+        flag: 'glass-council-recalled',
+      },
+      {
+        id: 'glass-protect-appeal',
+        label: 'Protect the witnesses and require a private, revisitable appeal',
+        outcome:
+          'The household chooses when to testify. The medicine stays with the sick, the compromised route closes, and Vesper cannot declare the debt erased.',
+        flag: 'glass-appeal-protected',
+      },
+    ],
+  },
 ]
 
 export type HoshimoriEvent =
@@ -2021,6 +2159,7 @@ export type HoshimoriEvent =
   | { type: 'enter-ember-wing' }
   | { type: 'enter-cinder-wing' }
   | { type: 'enter-saffron-wing' }
+  | { type: 'enter-glass-wing' }
   | { type: 'oven-choice'; id: string }
   | { type: 'leave' }
 
@@ -2375,6 +2514,36 @@ export function hoshimoriOvenFifthAccount(
   return accounts.join(' ')
 }
 
+/** The Glass Wing requires six replay-earned choices and the prior charter. */
+export function hoshimoriOvenSixthAccount(
+  progress: HoshimoriWarmProgress,
+): string | null {
+  const required = ['OV-28', 'OV-29', 'OV-30', 'OV-31', 'OV-32', 'OV-33']
+  if (required.some((id) => !progress.ovenChoices[id])) return null
+  if (!hoshimoriOvenFifthAccount(progress)) return null
+  const accounts = [
+    progress.ovenChoices['OV-28'] === 'glass-let-families-name'
+      ? 'Families named themselves without giving Vesper an index of faces.'
+      : 'The household portraits survived after the identifying frame broke.',
+    progress.ovenChoices['OV-29'] === 'glass-return-hinges'
+      ? 'A displaced family reclaimed its hinges and chose its own new address.'
+      : 'A lost home became an appealable debt, never a searchable hiding place.',
+    progress.ovenChoices['OV-30'] === 'glass-refuse-forgetting'
+      ? 'Kogane refused to sell another memory for bread, leaving a visible shortage.'
+      : 'Workers chose a paid rota and published the unfilled bread orders.',
+    progress.ovenChoices['OV-31'] === 'glass-mark-real-exit'
+      ? 'Oren marked a real exit while the sisters kept their own memories.'
+      : 'The impossible staircase yielded testimony, not a rewritten life.',
+    progress.ovenChoices['OV-32'] === 'glass-scatter-directions'
+      ? 'Families carried changeable routes beyond the procession’s register.'
+      : 'Escorts learned to refuse the herald without surrendering addresses.',
+    progress.ovenChoices['OV-33'] === 'glass-recall-council'
+      ? 'The compromised council member was recalled, with medicine and restitution preserved.'
+      : 'Witnesses retained private appeals while the compromised route closed.',
+  ]
+  return accounts.join(' ')
+}
+
 export function hoshimoriOvenResolution(
   progress: HoshimoriWarmProgress,
 ): string | null {
@@ -2429,6 +2598,7 @@ function eventShape(event: HoshimoriEvent): boolean {
       event.type === 'enter-ember-wing' ||
       event.type === 'enter-cinder-wing' ||
       event.type === 'enter-saffron-wing' ||
+      event.type === 'enter-glass-wing' ||
       event.type === 'leave') &&
     keys === 'type'
   )
@@ -2547,6 +2717,20 @@ export function advanceHoshimoriWarm(
       }
       break
     }
+    case 'enter-glass-wing': {
+      if (
+        !progress.ovenRoom &&
+        progress.ovenChoices['OV-27'] &&
+        !progress.ovenChoices['OV-33'] &&
+        progress.current === '4,3'
+      ) {
+        const next = HOSHIMORI_OVEN_ROOMS.slice(27, 33).find(
+          (room) => !progress.ovenChoices[room.id],
+        )
+        if (next) changed = { ovenRoom: next.id }
+      }
+      break
+    }
     case 'oven-choice': {
       if (!progress.ovenRoom) break
       const room = OVEN.get(progress.ovenRoom)
@@ -2574,7 +2758,8 @@ export function advanceHoshimoriWarm(
         room!.id === 'OV-09' ||
         room!.id === 'OV-15' ||
         room!.id === 'OV-21' ||
-        room!.id === 'OV-27'
+        room!.id === 'OV-27' ||
+        room!.id === 'OV-33'
           ? null
           : (HOSHIMORI_OVEN_ROOMS[index + 1]?.id ?? null)
       changed = {
@@ -2641,7 +2826,7 @@ export function restoreHoshimoriWarm(
 export function validateHoshimoriWarm(): string[] {
   const errors: string[] = []
   if (SITES.size !== 64) errors.push('Expected sixty-four unique warm sites')
-  if (OVEN.size !== 27) errors.push('Expected twenty-seven authored Oven rooms')
+  if (OVEN.size !== 33) errors.push('Expected thirty-three authored Oven rooms')
   const ovenChoiceIds = HOSHIMORI_OVEN_ROOMS.flatMap((room) =>
     room.choices.map((choice) => choice.id),
   )

@@ -96,7 +96,10 @@ assert.equal(
 )
 assert.equal(candidate.units.length, 0, 'Pure engine does not mutate old state')
 const nextDraw = advance(deployed)
-assert.ok(!nextDraw.hands.player.includes(starter), 'Played card not dealt immediately next round')
+assert.ok(
+  !nextDraw.hands.player.includes(starter),
+  'Played card not dealt immediately next round',
+)
 
 const fixture = createMatch('blackout', 'catgirls', 'bloodfairies', 777)
 fixture.units = [
@@ -170,7 +173,6 @@ for (let round = 2; round <= 9; round++) {
 }
 assert.ok(current.shuffles.player >= 1, 'Marked discards eventually reshuffle')
 
-
 // Unmarked cards persist, and unused mana banks to the cap.
 const banker = createMatch('blackout', 'riot', 'exchange', 371)
 const hold = advance(banker)
@@ -187,7 +189,10 @@ const untoggled = toggleHandDiscard(toggled, banker.hands.player[0]!)
 assert.deepEqual(untoggled.markedDiscards.player, [])
 assert.equal(toggleHandDiscard(banker, 'not-a-card'), banker)
 assert.deepEqual(
-  replayMatch({ mode: 'blackout', teamId: 'riot', foeId: 'exchange', seed: 371 }, untoggled.commands),
+  replayMatch(
+    { mode: 'blackout', teamId: 'riot', foeId: 'exchange', seed: 371 },
+    untoggled.commands,
+  ),
   untoggled,
 )
 const markedBanker = toggleHandDiscard(banker, banker.hands.player[0]!)
@@ -195,7 +200,10 @@ const cycledBanker = advance(markedBanker)
 assert.equal(cycledBanker.mana, 2 * BLACKOUT_MANA_GAIN)
 assert.equal(cycledBanker.hands.player.length, BLACKOUT_HAND_SIZE)
 assert.deepEqual(
-  replayMatch({ mode: 'blackout', teamId: 'riot', foeId: 'exchange', seed: 371 }, cycledBanker.commands),
+  replayMatch(
+    { mode: 'blackout', teamId: 'riot', foeId: 'exchange', seed: 371 },
+    cycledBanker.commands,
+  ),
   cycledBanker,
   'Selective redraw and CPU choices must reproduce exactly',
 )
@@ -216,10 +224,15 @@ const swapSlot = expensiveDeck.findIndex(
 )
 assert.ok(swapSlot >= 0)
 expensiveDeck[swapSlot] = 'merc-auction-golem'
-const expensiveSeed = Array.from({ length: 80 }, (_, i) => i + 1).find(
-  (seed) =>
-    createMatch('blackout', 'riot', 'exchange', seed, {}, expensiveDeck)
-      .hands.player.includes('merc-auction-golem'),
+const expensiveSeed = Array.from({ length: 80 }, (_, i) => i + 1).find((seed) =>
+  createMatch(
+    'blackout',
+    'riot',
+    'exchange',
+    seed,
+    {},
+    expensiveDeck,
+  ).hands.player.includes('merc-auction-golem'),
 )
 assert.ok(expensiveSeed)
 const investment = createMatch(

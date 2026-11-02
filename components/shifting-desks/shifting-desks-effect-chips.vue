@@ -3,15 +3,24 @@
     class="flex flex-wrap items-center gap-1.5"
     :class="large ? 'text-xs sm:text-sm' : 'text-xs'"
   >
-    <span v-if="prefix" class="font-bold opacity-70">{{ prefix }}:</span>
+    <span
+      v-if="prefix"
+      class="font-bold"
+      :class="onDark ? 'text-amber-50/70' : 'opacity-70'"
+      >{{ prefix }}:</span
+    >
     <span
       v-for="chip in chips"
       :key="chip.meter"
       class="rounded-md px-2 py-0.5 font-bold"
       :class="
-        chip.harmful
-          ? 'bg-error/15 text-red-800'
-          : 'bg-success/15 text-green-800'
+        onDark
+          ? chip.harmful
+            ? 'bg-red-200 text-red-950'
+            : 'bg-green-200 text-green-950'
+          : chip.harmful
+            ? 'bg-error/15 text-red-800'
+            : 'bg-success/15 text-green-800'
       "
       >{{ chip.label }}</span
     >
@@ -28,10 +37,17 @@ import {
 } from '~/utils/shiftingDesks/rules'
 
 const props = withDefaults(
-  defineProps<{ effects: Effects; prefix?: string; large?: boolean }>(),
+  defineProps<{
+    effects: Effects
+    prefix?: string
+    large?: boolean
+    /** Pale solid chips for the ink choice buttons. */
+    onDark?: boolean
+  }>(),
   {
     prefix: '',
     large: false,
+    onDark: false,
   },
 )
 

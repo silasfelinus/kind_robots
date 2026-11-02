@@ -1139,7 +1139,7 @@ export function counterCrew(run: VoyageRun): CrewId[] {
 export function quartermasterCost(run: VoyageRun): number {
   return (
     2 +
-    (run.worldFlags ?? []).filter((flag) => /^quartermaster:\\d+$/.test(flag))
+    (run.worldFlags ?? []).filter((flag) => /^quartermaster:\d+$/.test(flag))
       .length
   )
 }

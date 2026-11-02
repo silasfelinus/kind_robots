@@ -48,7 +48,10 @@ const weightedPrompt = hybridizerArtPrompt('Cat', 'Banana', 'creature', {
 })
 assert.match(weightedPrompt, /70% characteristics of a cat/)
 assert.match(weightedPrompt, /30% of a banana/)
-assert.match(weightedPrompt, /Additional creative direction: Make its striped tail/)
+assert.match(
+  weightedPrompt,
+  /Additional creative direction: Make its striped tail/,
+)
 assert.doesNotMatch(prompt, /Additional creative direction/)
 // The jar/specimen look belongs to the front-end chrome, never the artwork.
 for (const banned of [

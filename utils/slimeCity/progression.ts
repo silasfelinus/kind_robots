@@ -127,6 +127,19 @@ const RARE_IDS = new Set([
   'pogo-punk',
   'union-millwright',
   'pipe-seer',
+  // Wave two has one marquee creature and one tactical rare per crew.
+  's1-roof-phantom',
+  's1-surgical-piercers',
+  's1-riot-choir',
+  's1-confetti-cannon',
+  's1-walking-foundry',
+  's1-forge-spark',
+  's1-blast-radius',
+  's1-no-witnesses',
+  's1-basement-ghost',
+  's1-blue-ink-deadfall',
+  's1-executive-repo',
+  's1-margin-call',
 ])
 export function rarityOf(card: Card): Rarity {
   if (RARE_IDS.has(card.id)) return 'rare'

@@ -79,16 +79,31 @@ for (const team of TEAMS) {
           let baseline = baselineCache.get(baselineKey)
           if (!baseline) {
             baseline = playHeadless(
-              'blackout', team.id, chapter.foe, seed, undefined, {}, approachTerms,
+              'blackout',
+              team.id,
+              chapter.foe,
+              seed,
+              undefined,
+              {},
+              approachTerms,
             )
             baselineCache.set(baselineKey, baseline)
           }
           const supported = playHeadless(
-            'blackout', team.id, chapter.foe, seed, undefined, {}, supportedTerms,
+            'blackout',
+            team.id,
+            chapter.foe,
+            seed,
+            undefined,
+            {},
+            supportedTerms,
           )
           assert.ok(baseline.state.victor)
           assert.ok(supported.state.victor)
-          assert.equal(supported.metrics.commands, supported.state.commands.length)
+          assert.equal(
+            supported.metrics.commands,
+            supported.state.commands.length,
+          )
           assert.equal(supported.metrics.playerTeam, team.id)
           assert.equal(supported.metrics.enemyTeam, chapter.foe)
           trials.push({
@@ -101,8 +116,10 @@ for (const team of TEAMS) {
             rival: chapter.foe,
             base: baseline.metrics,
             supported: supported.metrics,
-            changedOutcome: baseline.metrics.victor !== supported.metrics.victor,
-            changedCommands: JSON.stringify(baseline.state.commands) !==
+            changedOutcome:
+              baseline.metrics.victor !== supported.metrics.victor,
+            changedCommands:
+              JSON.stringify(baseline.state.commands) !==
               JSON.stringify(supported.state.commands),
           })
         }
@@ -110,10 +127,29 @@ for (const team of TEAMS) {
       // Prove the same seed and exact earned support replays identically.
       const next = chapters[source + 1]!
       const terms = campaignBattleTerms(
-        save, team.id, next.choices[0]!.terms, source,
+        save,
+        team.id,
+        next.choices[0]!.terms,
+        source,
       )
-      const first = playHeadless('blackout', team.id, next.foe, seeds[0]!, undefined, {}, terms)
-      const second = playHeadless('blackout', team.id, next.foe, seeds[0]!, undefined, {}, terms)
+      const first = playHeadless(
+        'blackout',
+        team.id,
+        next.foe,
+        seeds[0]!,
+        undefined,
+        {},
+        terms,
+      )
+      const second = playHeadless(
+        'blackout',
+        team.id,
+        next.foe,
+        seeds[0]!,
+        undefined,
+        {},
+        terms,
+      )
       assert.deepEqual(first.state, second.state)
       assert.deepEqual(first.metrics, second.metrics)
     }
@@ -139,7 +175,9 @@ function stats(rows: Trial[]) {
     stalled: rows.filter((r) => r.supported.firstContact === null).length,
     draws: rows.filter((r) => r.supported.victor === 'draw').length,
     averageRounds: Number(
-      (rows.reduce((n, r) => n + r.supported.rounds, 0) / rows.length).toFixed(1),
+      (rows.reduce((n, r) => n + r.supported.rounds, 0) / rows.length).toFixed(
+        1,
+      ),
     ),
   }
 }
@@ -154,26 +192,38 @@ const favorReports = TEAMS.flatMap((crew) =>
       crew: crew.id,
       earnedChapter: source + 1,
       choice,
-      ...stats(trials.filter(
-        (r) => r.team === crew.id &&
-          r.source === source && r.sourceChoice === choice,
-      )),
+      ...stats(
+        trials.filter(
+          (r) =>
+            r.team === crew.id &&
+            r.source === source &&
+            r.sourceChoice === choice,
+        ),
+      ),
     })),
   ),
 )
 const report = {
-  method: 'actual Blackout engine, both sides CPU; same-seed paired no-favor control',
+  method:
+    'actual Blackout engine, both sides CPU; same-seed paired no-favor control',
   seeds,
-  scope: 'six crews x four usable earned chapters x two past decisions x two next approaches x two seeds',
+  scope:
+    'six crews x four usable earned chapters x two past decisions x two next approaches x two seeds',
   ...stats(trials),
   crews: crewReports,
   favors: favorReports,
   blockedFifthChapterFavors: 6,
 }
-assert.ok(report.changedCommands > 0, 'Support should change actual combat choices')
-assert.ok(report.changedOutcomes > 0, 'Support should change at least one result')
+assert.ok(
+  report.changedCommands > 0,
+  'Support should change actual combat choices',
+)
+assert.ok(
+  report.changedOutcomes > 0,
+  'Support should change at least one result',
+)
 console.log('SLIME_SUPPORT_PLAYTEST_REPORT ' + JSON.stringify(report))
 console.log(
   'Slime City actual-engine campaign audit: 192 paired comparisons, 96 controls, ' +
-  '48 deterministic replays, all crews and earned choices PASS',
+    '48 deterministic replays, all crews and earned choices PASS',
 )

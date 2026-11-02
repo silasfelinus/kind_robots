@@ -102,13 +102,33 @@ jobs:
             org.opencontainers.image.source=${{ github.server_url }}/${{ github.repository }}
             org.opencontainers.image.revision=${{ github.sha }}
 
+      # Restore (and, on main, refresh) ONLY the Dockerfile's `deps` stage: the
+      # npm ci layer keyed on package.json + package-lock.json. It is the one
+      # expensive layer that survives ordinary commits, so it is the only one
+      # worth caching. The full image is deliberately NOT exported as cache:
+      # `cache-to: type=gha,mode=max` on the whole build used to spend ~4.3
+      # minutes per run uploading layers that the next commit invalidated
+      # (2026-10-20). Exporting just this stage costs a manifest check when the
+      # lockfile is unchanged. A cache miss (first run, private package on a PR)
+      # is a warning, not a failure: the step simply runs npm ci.
+      - name: Restore dependency layer
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: ./Dockerfile
+          target: deps
+          platforms: linux/amd64
+          pull: true
+          push: false
+          cache-from: type=registry,ref=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:buildcache-deps
+          cache-to: ${{ github.event_name != 'pull_request' && format('type=registry,ref={0}/{1}:buildcache-deps,mode=min', env.REGISTRY, env.IMAGE_NAME) || '' }}
+
       - name: Build and publish
         uses: docker/build-push-action@v6
         with:
           context: .
           file: ./Dockerfile
           platforms: linux/amd64
-          pull: true
           push: ${{ github.event_name != 'pull_request' }}
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
@@ -117,8 +137,7 @@ jobs:
           # the explicit COMMIT_SHA build argument.
           build-args: |
             COMMIT_SHA=${{ github.sha }}
-          # No GitHub Actions layer cache. The build stage copies the whole source
-          # tree before installing dependencies, so every commit invalidated every
-          # cached layer and no build ever hit it (zero CACHED steps on 2026-10-20),
-          # while `cache-to: type=gha,mode=max` spent ~4.3 minutes per build
-          # uploading those layers -- about 40% of the job's wall time.
+          # The deps stage is already in this builder from the step above, so
+          # it is reused without a second cache import. The runtime image copies
+          # node_modules from that stage, so its ~1 GB layer keeps the same
+          # digest between deploys and neither GHCR nor the Unraid pull moves it.

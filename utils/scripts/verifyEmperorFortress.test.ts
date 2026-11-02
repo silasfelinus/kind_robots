@@ -7166,7 +7166,6 @@ for (const def of DAYS)
     assert.ok(questDef(questId)!.rewards.success.flags?.includes(flag), flag)
 }
 
-
 {
   // Five-act public record: the Day 4 choice controls the Day 14 Archive,
   // Day 29 mayoral reckoning, Day 39 congress, Day 49 record and epilogue.
@@ -7175,11 +7174,7 @@ for (const def of DAYS)
       (entry) => entry.id === id,
     )!
   const proceed = (day: number, flags: string[], id: string, option: string) =>
-    chooseAudienceOption(
-      onDay(620, day, { brass: 160, flags }),
-      id,
-      option,
-    ).run
+    chooseAudienceOption(onDay(620, day, { brass: 160, flags }), id, option).run
   const routes = [
     {
       source: 'd04-page-posted',
@@ -7227,7 +7222,10 @@ for (const def of DAYS)
       !optionVisible(onDay(620, 14), choice),
       route.archive + ' must be earned',
     )
-    assert.match(sceneLines(initial, archive).map(lineText).join(' '), route.line)
+    assert.match(
+      sceneLines(initial, archive).map(lineText).join(' '),
+      route.line,
+    )
     const afterArchive = proceed(
       14,
       [route.source],
@@ -7244,19 +7242,9 @@ for (const def of DAYS)
       route.reckoning,
     )
     assert.ok(mayor.flags.includes(route.reckoningFlag))
-    const congress = proceed(
-      39,
-      mayor.flags,
-      'd39-congress',
-      route.congress,
-    )
+    const congress = proceed(39, mayor.flags, 'd39-congress', route.congress)
     assert.ok(congress.flags.includes(route.congressFlag))
-    const record = proceed(
-      49,
-      congress.flags,
-      'd49-the-record',
-      route.record,
-    )
+    const record = proceed(49, congress.flags, 'd49-the-record', route.record)
     assert.ok(record.flags.includes(route.recordFlag))
     assert.ok(
       epilogueFor(record, 'open-roads').some(
@@ -7304,12 +7292,7 @@ for (const def of DAYS)
       route.testimony,
     )
     assert.ok(witness.flags.includes(route.testimonyFlag))
-    const record = proceed(
-      49,
-      witness.flags,
-      'd49-the-record',
-      route.record,
-    )
+    const record = proceed(49, witness.flags, 'd49-the-record', route.record)
     assert.ok(record.flags.includes('d49-runner-record'))
     assert.ok(
       epilogueFor(record, 'open-roads').some(

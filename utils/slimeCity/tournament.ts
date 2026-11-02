@@ -1,5 +1,5 @@
 import { TEAMS, type ModeId, type Side, type TeamId } from './prototypes'
-import { type MatchMetrics } from './playtest'
+import type { MatchMetrics } from './playtest'
 
 export interface SideRecord {
   wins: number

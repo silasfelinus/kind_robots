@@ -129,8 +129,13 @@ assert.deepEqual(
   EPISODE_CHOICES.map((c) => c.id),
   ['ask', 'document', 'override'],
 )
-assert.ok(episodeChoiceStakes(landing, 'casino', 'ask').includes('SETBACK: trust -1'))
-assert.equal(visitCasinoVenue({ ...landing, trust: -4 }, 'casino', 'document').trust, -4)
+assert.ok(
+  episodeChoiceStakes(landing, 'casino', 'ask').includes('SETBACK: trust -1'),
+)
+assert.equal(
+  visitCasinoVenue({ ...landing, trust: -4 }, 'casino', 'document').trust,
+  -4,
+)
 for (const option of EPISODE_CHOICES) {
   const forecast = episodeChoiceStakes(landing, 'planet', option.id)
   assert.ok(forecast.startsWith('SUCCESS: '))
@@ -229,7 +234,13 @@ assert.equal(
 for (const option of EPISODE_CHOICES) {
   const result = drawEpisodeDeck(dispatched, 'planet', option.id)
   const success = episodeDraws(result)[0]!.successful
-  const expected = success ? (option.id === 'ask' ? 2 : option.id === 'document' ? 1 : 0) : -1
+  const expected = success
+    ? option.id === 'ask'
+      ? 2
+      : option.id === 'document'
+        ? 1
+        : 0
+    : -1
   assert.equal(result.trust - dispatched.trust, expected, option.id)
 }
 const planet = drawEpisodeDeck(dispatched, 'planet', 'ask')

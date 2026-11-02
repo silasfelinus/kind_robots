@@ -107,7 +107,9 @@ export const useHybridizerStore = defineStore('hybridizer', () => {
   )
   const starterCount = STARTERS.length
   const canLoadMore = computed(
-    () => discoveryTotal.value !== null && remoteLoaded.value < discoveryTotal.value,
+    () =>
+      discoveryTotal.value !== null &&
+      remoteLoaded.value < discoveryTotal.value,
   )
 
   function scopedStorageKey() {
@@ -154,9 +156,14 @@ export const useHybridizerStore = defineStore('hybridizer', () => {
       const response = await performFetch<HybridizerDiscovery[], AtlasMeta>(
         '/api/hybridizer/fusions?take=' + PAGE_SIZE + '&skip=' + skip,
       )
-      if (requestId !== sharedRequestSerial || viewerId !== userStore.authenticatedUserId) return
+      if (
+        requestId !== sharedRequestSerial ||
+        viewerId !== userStore.authenticatedUserId
+      )
+        return
       if (!response.success || !response.data) {
-        status.value = 'Shared library unavailable. Local studies remain accessible.'
+        status.value =
+          'Shared library unavailable. Local studies remain accessible.'
         return
       }
       remoteLoaded.value = skip + response.data.length
@@ -292,7 +299,13 @@ export const useHybridizerStore = defineStore('hybridizer', () => {
     ])
   }
 
-  async function resubmit(options: { focusKey?: string; focusWeight?: number; direction?: string } = {}): Promise<void> {
+  async function resubmit(
+    options: {
+      focusKey?: string
+      focusWeight?: number
+      direction?: string
+    } = {},
+  ): Promise<void> {
     const viewerId = userStore.authenticatedUserId
     const key = resultKey.value
     if (
@@ -645,9 +658,11 @@ export const useHybridizerStore = defineStore('hybridizer', () => {
     reusedArtwork.value = entry.status === 'READY'
     versions.value = []
     canEditResult.value = false
-    status.value = entry.status === 'READY'
-      ? 'Existing artwork retrieved from the discovery atlas.'
-      : 'Saved discovery selected. Artwork status: ' + (entry.status || 'STUDY')
+    status.value =
+      entry.status === 'READY'
+        ? 'Existing artwork retrieved from the discovery atlas.'
+        : 'Saved discovery selected. Artwork status: ' +
+          (entry.status || 'STUDY')
     if (key.startsWith('fusion:')) {
       void refreshArtwork(key)
       void loadVersions(key)

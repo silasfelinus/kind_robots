@@ -130,26 +130,21 @@ assert.deepEqual(
 )
 
 // A fourth authored decision must remain saveable without changing v1.
+function earnLegacyCase(missionId: 'archive' | 'bar', chapter: 2 | 3) {
+  const state: VoyageRun = {
+    ...startVoyage('vale', ['pell', 'rue', 'vela'], 54),
+    chapter,
+    missionId,
+    phase: 'decision',
+  }
+  const choice = consequenceForRun(state)?.choices[0]
+  assert.ok(choice)
+  return resolveConsequence(state, choice.id).consequenceHistory!.at(-1)!
+}
 const firstThree = [
   convoyFirst,
-  {
-    ...convoyFirst,
-    chapter: 2,
-    episodeId: 'warp-a2-last-copy',
-    missionId: 'archive',
-    choiceId: 'evacuate-readers',
-    artKey: 'consequences/warp-a2-last-copy-evacuate-readers-success',
-    flags: [],
-  },
-  {
-    ...convoyFirst,
-    chapter: 3,
-    episodeId: 'warp-a1-weight-of-a-name',
-    missionId: 'bar',
-    choiceId: 'protect-sanctuary',
-    artKey: 'consequences/warp-a1-weight-of-a-name-protect-sanctuary-success',
-    flags: [],
-  },
+  earnLegacyCase('archive', 2),
+  earnLegacyCase('bar', 3),
 ]
 const fourth = {
   ...concordResult,

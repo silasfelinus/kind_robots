@@ -983,9 +983,7 @@ export function decidePolicy(run: VoyageRun, policy: PolicyId): VoyageRun {
         : policy === 'observe'
           ? -1
           : -2 - shortage),
-    trust:
-      run.trust +
-      (policy === 'aid' && !shortage ? 1 : policy === 'observe' ? -1 : 0),
+    trust: run.trust + (policy === 'aid' ? 1 : policy === 'observe' ? -1 : 0),
     missionHistory: [
       ...(run.missionHistory ?? []),
       {

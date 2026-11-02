@@ -1136,6 +1136,33 @@ export function counterCrew(run: VoyageRun): CrewId[] {
     (id) => candidates.includes(id) && (run.journeyProgress?.[id] ?? 0) >= 2,
   )
 }
+export function canRequisitionSupplies(run: VoyageRun): boolean {
+  return (
+    run.phase === 'debrief' &&
+    run.supplies <= 2 &&
+    run.reputation >= 2 &&
+    (run.missionHistory ?? []).some(
+      (mission) => mission.chapter === run.chapter && mission.policy !== 'missed',
+    ) &&
+    !(run.worldFlags ?? []).includes('quartermaster:' + run.chapter)
+  )
+}
+
+/** A real recovery choice: spend earned standing to keep the crew supplied. */
+export function requisitionSupplies(run: VoyageRun): VoyageRun {
+  if (!canRequisitionSupplies(run)) return run
+  const text =
+    'Quartermaster’s emergency requisition approved. Local relief partners release three supply crates against two points of the couch’s earned reputation. The people who helped us expect the favor to be remembered.'
+  return {
+    ...run,
+    supplies: run.supplies + 3,
+    reputation: run.reputation - 2,
+    worldFlags: [...(run.worldFlags ?? []), 'quartermaster:' + run.chapter],
+    scene: text,
+    log: [...run.log, 'Chapter ' + run.chapter + ': ' + text],
+  }
+}
+
 export function nextDestination(run: VoyageRun): VoyageRun {
   if (run.phase !== 'debrief') return run
   if (run.chapter >= VOYAGE_CHAPTERS)

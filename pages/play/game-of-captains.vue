@@ -1504,6 +1504,25 @@
               </div>
             </div>
             <section
+              v-if="canRequisitionSupplies(run)"
+              class="cap-insight"
+              data-testid="space-couch-quartermaster"
+            >
+              <strong>THE QUARTERMASTER KNOWS A WAY</strong>
+              <p>
+                Ask local relief partners for three emergency supply crates.
+                They will collect two points of our earned reputation in
+                exchange. Once per chapter, and only after answering the call.
+              </p>
+              <button class="cap-option" type="button" @click="store.requisition()">
+                <span>
+                  <b>CALL IN AN OWED FAVOR · +3 SUPPLIES</b>
+                  <small>Costs 2 reputation. The galaxy remembers its creditors.</small>
+                </span>
+                ↗
+              </button>
+            </section>
+            <section
               v-if="crewRoutes.length"
               class="cap-insight"
               data-testid="couch-crew-routes"
@@ -1884,6 +1903,7 @@ import {
   missionBoard,
   worldEcho,
   crewDetourOptions,
+  canRequisitionSupplies,
   detourFor,
   counterCrew,
   type CaptainId,

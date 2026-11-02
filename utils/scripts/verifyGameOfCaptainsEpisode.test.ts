@@ -131,6 +131,11 @@ assert.deepEqual(
 )
 assert.ok(episodeChoiceStakes(landing, 'casino', 'ask').includes('SETBACK: trust -1'))
 assert.equal(visitCasinoVenue({ ...landing, trust: -4 }, 'casino', 'document').trust, -4)
+for (const option of EPISODE_CHOICES) {
+  const forecast = episodeChoiceStakes(landing, 'planet', option.id)
+  assert.ok(forecast.startsWith('SUCCESS: '))
+  assert.ok(forecast.includes('SETBACK: trust -1'))
+}
 const cardAlpha = mandatory[0]!.id
 const cardBeta = board.find((card) => card.id !== cardAlpha)!.id
 const cardGamma = board.find(

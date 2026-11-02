@@ -3199,8 +3199,97 @@ export const ACT_FOUR_DAYS: readonly DayDef[] = [
               'Oriel Saltmarsh rises, beak first. “Majesty, your advisor put the Abbess at your right hand and the Moles by the door. Is that where the crown wants them?”',
             ],
           },
+          {
+            flags: ['d29-hesper-hearing'],
+            lines: [
+              'Before the congress sits, Vellum lays the public testimony from Hesper Lowe and Mara Reedbell on the table. The seal is still damp.',
+              'Oriel Saltmarsh stands. “My drivers hauled that water, Majesty. Hollow Bell drank. A mother gave testimony while the pumps still ran. Are we going to hear it or bury it under a seating chart?”',
+              'Young Komodo takes the testimony but does not put it down beside the Abbess. “The crown called the hearing. It owes both women an answer.”',
+            ],
+          },
+          {
+            flags: ['d29-hesper-private'],
+            lines: [
+              'The congress table is set for the banners. Vellum arrives with an envelope sealed for the next Hollow Bell council, not for the assembled factions.',
+              '“There is evidence about the water bargain,” Oriel says. “I am told the mother asked us not to read her son’s name over a table full of strangers. I mean to honor that.”',
+              'Komodo puts the Abbess at the right hand of the throne. Nobody asks whether the woman in the sealed letter has a seat.',
+            ],
+          },
+          {
+            flags: ['d29-seal-audited'],
+            lines: [
+              'The long table fills with maps, banners and the Archive’s dated copy of Hollow Bell’s register. Lady Vask will not touch the evidence.',
+              '“We signed every document we brought,” Oriel says. “Why does the mayor’s signature frighten the Old Houses more than ours?”',
+              'Young Komodo lays out the seating chart. “The Abbey still feeds the roads. The record does not feed anyone. Decide which argument belongs at this table.”',
+            ],
+          },
         ],
         options: [
+          {
+            id: 'enter-hearing',
+            label:
+              'Enter Hesper and Mara’s testimony into the congress record. Lose Hollow Bell’s trust before the war.',
+            requires: { flags: ['d29-hesper-hearing'] },
+            effects: {
+              affinity: { 'hollow-bell': -5, abbey: -5 },
+              local: { lamplight: 2, 'old-houses': -1 },
+              flags: ['d39-hearing-entered'],
+            },
+            response:
+              'Vellum reads the testimony without adding a single word. Mara stays seated. The Abbess offers her a glass of water. She does not drink it.',
+          },
+          {
+            id: 'protect-record',
+            label:
+              'Seal the mother’s private testimony for a later council. Give up a weapon against the Abbey now.',
+            requires: { flags: ['d29-hesper-private'] },
+            effects: {
+              affinity: { 'hollow-bell': 4, abbey: 3 },
+              local: { lamplight: -2 },
+              flags: ['d39-private-record'],
+            },
+            response:
+              'Vellum seals the copy and hands it to the Hollow Bell clerk. The Abbess smiles when the envelope leaves. Oriel watches it go. “Some truths should wait for their owners,” she says.',
+          },
+          {
+            id: 'enter-audit',
+            label:
+              'Read the unsealed Archive audit into the congress record, even though the Old Houses object.',
+            requires: { flags: ['d29-seal-audited'] },
+            effects: {
+              affinity: { abbey: -6, 'hollow-bell': -3 },
+              local: { lamplight: 2, 'old-houses': -2 },
+              flags: ['d39-audit-entered'],
+            },
+            response:
+              'Vellum holds up the paper by its edges. Mara confirms the date. Lady Vask turns her chair so the table sees only the back of it.',
+          },
+          {
+            id: 'redeem-runner',
+            label:
+              'Spend twenty brass buying out the two extra years imposed on the runner the crown sheltered.',
+            requires: { flags: ['d07-runner-penalized'], cost: 20 },
+            effects: {
+              affinity: { 'storm-crows': 3 },
+              local: { yard: -2, lamplight: 1 },
+              flags: ['d39-runner-freed'],
+            },
+            response:
+              'Corvane checks the figures. “Two years.” He tears the additional bond from his register. The runner does not thank the crown. “Those were my years,” she says, and folds the scrap herself.',
+          },
+          {
+            id: 'witness-oath',
+            label:
+              'Spend ten brass recording the returned runner’s paid forecast and oath under witnesses.',
+            requires: { flags: ['d07-runner-commissioned'], cost: 10 },
+            effects: {
+              affinity: { 'storm-crows': -4 },
+              local: { lamplight: 2 },
+              flags: ['d39-runner-oath'],
+            },
+            response:
+              'The runner reads the terms herself. Vellum copies them. Corvane dislikes being made a witness to his own bargain. The runner keeps the second copy in her coat.',
+          },
           {
             id: 'ask-seating',
             label: 'Ask Komodo to explain his seating.',

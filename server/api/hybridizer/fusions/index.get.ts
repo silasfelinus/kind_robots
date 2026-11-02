@@ -37,7 +37,8 @@ export default defineEventHandler(async (event) => {
     const stats = {
       total,
       ready: countFor('READY'),
-      rendering: countFor('QUEUED') + countFor('RENDERING') + countFor('DELIVERING'),
+      rendering:
+        countFor('QUEUED') + countFor('RENDERING') + countFor('DELIVERING'),
     }
 
     // The shelf shows each finished hybrid's picture without a status call per

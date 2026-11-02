@@ -521,44 +521,44 @@
           class="sc-stage sc-collection"
           aria-label="Special cards and creature collection"
         >
-          <div class="sc-collection-title">
-            <span class="sc-overline"
-              >THE ARMORY / DECK WORKBENCH · {{ lab.progress.cards.length }}/{{
-                lab.collectionSize
-              }}
-              COLLECTED</span
+          <div
+            class="sc-deck-workbench"
+            :class="'tone-' + lab.team.color"
+            data-testid="slime-deck-workbench"
+          >
+            <div
+              class="sc-deck-meter"
+              :title="
+                lab.currentDeck.length +
+                ' of 10 deck slots filled · four creatures, one signature, up to three mercenaries'
+              "
             >
-            <h2>{{ lab.team.name }}</h2>
-            <p>{{ lab.team.hook }}</p>
-            <p data-testid="slime-crew-pattern">
-              <b>PLAY PATTERN</b> {{ lab.team.pattern }}
-            </p>
-            <p data-testid="slime-crew-counters">
-              <b>HOW TO BEAT THEM</b> {{ lab.team.counters }}
-            </p>
-            <p class="sc-art-summary" data-testid="slime-art-provenance">
-              {{ SLIME_CITY_ART_COUNT }} RENDERED IDS ·
-              {{ art.loadedCount }} VERIFIED IN BROWSER ·
-              {{ art.failedCount }} UNAVAILABLE · 24 STARTER CARDS STILL NEED
-              ART
-            </p>
-          </div>
-          <div class="sc-deck-workbench" data-testid="slime-deck-workbench">
-            <div>
+              <strong>{{ lab.currentDeck.length }}<small>/10</small></strong>
+              <span class="sc-deck-pips" aria-hidden="true"
+                ><i
+                  v-for="slot in 10"
+                  :key="slot"
+                  :class="{ on: slot <= lab.currentDeck.length }"
+              /></span>
+            </div>
+            <div class="sc-deck-status">
               <span class="sc-overline"
-                >TEN-CARD LOADOUT / FOUR CREATURES / ONE SIGNATURE / UP TO THREE
-                MERCENARIES</span
+                >ARMORY · {{ lab.team.name }} ·
+                {{ lab.progress.cards.length }}/{{
+                  lab.collectionSize
+                }}
+                COLLECTED</span
               >
-              <strong>{{ lab.currentDeck.length }}/10 DECK SLOTS FILLED</strong>
               <p aria-live="polite">
                 {{
                   lab.deckMessage ||
-                  (lab.replacingCard
-                    ? 'Replace ' +
-                      lab.cards.find((card) => card.id === lab.replacingCard)
-                        ?.name +
-                      ' with an owned card of the same type.'
-                    : 'Select a deck card, then an owned reserve to swap. Starter cards stay playable for everyone.')
+                  (swapSource
+                    ? 'Now tap an owned ' +
+                      swapSource.kind +
+                      ' to replace ' +
+                      swapSource.name +
+                      '.'
+                    : 'Tap a deck card, then an owned reserve of the same type.')
                 }}
               </p>
               <small v-if="lab.currentDeckProblems.length" role="alert">{{
@@ -583,83 +583,56 @@
               </button>
             </div>
           </div>
-          <div class="sc-collection-grid kr-scroll">
-            <article
+          <details class="sc-collection-title">
+            <summary>
+              <span class="sc-overline"
+                >CREW DOSSIER · {{ lab.team.motto }}</span
+              >
+            </summary>
+            <p>{{ lab.team.hook }}</p>
+            <p data-testid="slime-crew-pattern">
+              <b>PLAY PATTERN</b> {{ lab.team.pattern }}
+            </p>
+            <p data-testid="slime-crew-counters">
+              <b>HOW TO BEAT THEM</b> {{ lab.team.counters }}
+            </p>
+            <p class="sc-art-summary" data-testid="slime-art-provenance">
+              {{ SLIME_CITY_ART_COUNT }} RENDERED IDS ·
+              {{ art.loadedCount }} VERIFIED IN BROWSER ·
+              {{ art.failedCount }} UNAVAILABLE · 24 STARTER CARDS STILL NEED
+              ART
+            </p>
+          </details>
+          <ul
+            class="sc-collection-grid kr-scroll"
+            :class="{ swapping: !!swapSource }"
+            aria-label="Crew and mercenary cards"
+          >
+            <li
               v-for="card in lab.cards"
               :key="card.id"
-              class="sc-collect-card"
+              class="sc-collect"
               :class="[
-                'tone-' + lab.team.color,
-                { 'is-mercenary': card.team === 'mercenary' },
+                'is-' + deckState(card),
+                {
+                  'is-selected': lab.replacingCard === card.id,
+                  'is-eligible': canSwapIn(card),
+                },
               ]"
             >
-              <div class="sc-collect-art">
-                <SlimeCityArtwork
-                  :image-id="slimeArtId('cards', card.id)"
-                  :alt="card.name + ' collectible card artwork'"
-                  :fallback="card.symbol"
-                />
-              </div>
-              <div>
-                <button
-                  type="button"
-                  class="sc-deck-card-choice"
-                  :class="{
-                    selected: lab.replacingCard === card.id,
-                    equipped: lab.currentDeck.includes(card.id),
-                  }"
-                  :data-testid="'slime-deck-card-' + card.id"
-                  :aria-pressed="lab.currentDeck.includes(card.id)"
-                  @click="lab.selectDeckCard(card.id)"
-                >
-                  {{
-                    lab.currentDeck.includes(card.id)
-                      ? lab.replacingCard === card.id
-                        ? 'CHOOSE REPLACEMENT'
-                        : 'IN DECK · REPLACE'
-                      : lab.isCardUnlocked(card.id)
-                        ? 'OWNED RESERVE · ADD'
-                        : 'LOCKED RESERVE'
-                  }}
-                </button>
-                <span v-if="card.team === 'mercenary'" class="sc-overline">
-                  MERCENARY · AVAILABLE TO ALL SIX CREWS · MAX 3 PER DECK
-                </span>
-                <span
-                  >{{ lab.cardRarity(card).toUpperCase() }} ·
-                  {{
-                    lab.progress.cards.includes(card.id)
-                      ? 'OWNED'
-                      : lab.isFounderCard(card.id)
-                        ? 'STARTER'
-                        : 'LOCKED'
-                  }}
-                  · {{ card.kind.toUpperCase() }} ·
-                  {{ card.cost }} MANA<template v-if="card.signature">
-                    · SIGNATURE</template
-                  ></span
-                ><strong>{{ card.name }}</strong>
-                <p>{{ card.text }}</p>
-                <ul
-                  v-if="(card.keywords ?? card.grants ?? []).length"
-                  class="sc-keywords"
-                >
-                  <li
-                    v-for="k in card.keywords ?? card.grants ?? []"
-                    :key="k"
-                    :title="lab.keywords[k].text"
-                  >
-                    <b>{{ lab.keywords[k].label }}</b>
-                    {{ lab.keywords[k].text }}
-                  </li>
-                </ul>
-              </div>
-              <small v-if="card.kind === 'creature'"
-                >ATK {{ card.attack }} / HP {{ card.hp }} / ARMOR
-                {{ card.armor }} / AP {{ card.ap }}</small
-              >
-            </article>
-          </div>
+              <SlimeCityCard :card="card">
+                <span class="sc-collect-ribbon">{{ deckLabel(card) }}</span>
+              </SlimeCityCard>
+              <button
+                type="button"
+                class="sc-collect-pick"
+                :data-testid="'slime-deck-card-' + card.id"
+                :aria-pressed="lab.currentDeck.includes(card.id)"
+                :aria-label="card.name + ', ' + deckLabel(card).toLowerCase()"
+                @click="lab.selectDeckCard(card.id)"
+              />
+            </li>
+          </ul>
         </section>
 
         <section
@@ -760,18 +733,19 @@
             >
               <strong>YOUR LATEST PACK</strong>
               <div class="sc-pack-cards">
-                <article
+                <SlimeCityCard
                   v-for="id in lab.progress.lastPack"
                   :key="id"
-                  :class="'rarity-' + lab.cardRarity(cardById(id))"
+                  :card="cardById(id)"
                 >
-                  <span class="sc-pack-face">{{ cardById(id).symbol }}</span>
-                  <strong>{{ cardById(id).name }}</strong>
-                  <small
-                    >{{ lab.cardRarity(cardById(id)).toUpperCase() }} ·
-                    {{ teamName(cardById(id).team) }}</small
-                  >
-                </article>
+                  <template #footer>
+                    <small>{{
+                      cardById(id).team === 'mercenary'
+                        ? 'HIRES WITH ANY CREW'
+                        : teamName(cardById(id).team)
+                    }}</small>
+                  </template>
+                </SlimeCityCard>
               </div>
             </div>
             <div class="sc-reward-panel">
@@ -827,7 +801,7 @@
 
 <script setup lang="ts">
 import { computed, onMounted, onUnmounted } from 'vue'
-import { cardById } from '~/utils/slimeCity/prototypes'
+import { cardById, type Card } from '~/utils/slimeCity/prototypes'
 import { STREETS, boutTerms, storyMissionTerms } from '~/utils/slimeCity/city'
 import { campaignBattleTerms, describeTerms } from '~/utils/slimeCity/campaign'
 import { useSlimeCityStore } from '~/stores/slimeCity'
@@ -879,6 +853,34 @@ function pinSymbol(status: string): string {
 }
 function teamName(id: string): string {
   return lab.teams.find((t) => t.id === id)?.name ?? id
+}
+const swapSource = computed(() =>
+  lab.cards.find((card) => card.id === lab.replacingCard),
+)
+function deckState(card: Card): 'deck' | 'owned' | 'starter' | 'locked' {
+  if (lab.currentDeck.includes(card.id)) return 'deck'
+  if (lab.progress.cards.includes(card.id)) return 'owned'
+  return lab.isFounderCard(card.id) ? 'starter' : 'locked'
+}
+function deckLabel(card: Card): string {
+  if (lab.replacingCard === card.id) return 'SWAPPING OUT'
+  if (canSwapIn(card)) return 'SWAP IN'
+  return {
+    deck: 'IN DECK',
+    owned: 'OWNED',
+    starter: 'STARTER',
+    locked: 'LOCKED',
+  }[deckState(card)]
+}
+function canSwapIn(card: Card): boolean {
+  const source = swapSource.value
+  return (
+    !!source &&
+    !source.signature &&
+    source.kind === card.kind &&
+    !lab.currentDeck.includes(card.id) &&
+    lab.isCardUnlocked(card.id)
+  )
 }
 function modeTitle(id: string): string {
   return lab.modes.find((m) => m.id === id)?.title ?? id
@@ -1530,87 +1532,142 @@ onUnmounted(() => {
   letter-spacing: 0.06em;
 }
 .sc-collection {
-  gap: 0.5rem;
-  padding: 1rem;
-  background: radial-gradient(circle at 50% 0%, #413e63, #121c2b 75%);
+  gap: 0.4rem;
+  padding: 0.5rem 0.6rem 0;
+  background:
+    radial-gradient(ellipse at 50% -10%, #413e63, transparent 60%),
+    radial-gradient(ellipse at 50% 120%, #1c3a3a, transparent 55%), #0f1622;
 }
-.sc-collection-title h2 {
-  margin: 0.2rem 0;
-  font-size: clamp(1.15rem, 2.6vw, 2rem);
+.sc-collection-title {
+  flex: none;
+  padding: 0 0.35rem;
+}
+.sc-collection-title summary {
+  cursor: pointer;
+  list-style: none;
+}
+.sc-collection-title summary::-webkit-details-marker {
+  display: none;
+}
+.sc-collection-title summary .sc-overline {
+  display: inline-block;
+  font-size: 0.56rem;
+}
+.sc-collection-title summary .sc-overline::before {
+  content: '▸ ';
+  color: #c5ff59;
+}
+.sc-collection-title[open] summary .sc-overline::before {
+  content: '▾ ';
 }
 .sc-collection-title p {
-  font-size: 0.78rem;
+  font-size: 0.74rem;
   line-height: 1.4;
-  margin: 0;
+  margin: 0.25rem 0 0;
   color: #cbd1df;
-  max-width: 50rem;
+  max-width: 56rem;
 }
 .sc-collection-grid {
   flex: 1;
   min-height: 0;
   overflow: auto;
+  overscroll-behavior: contain;
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(9rem, 1fr));
-  gap: 0.75rem;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 10.5rem), 1fr));
+  gap: 0.9rem 0.75rem;
   align-content: start;
+  align-items: start;
+  margin: 0;
+  padding: 0.5rem 0.35rem 1.25rem;
+  list-style: none;
 }
-.sc-collect-card {
-  display: flex;
-  flex-direction: column;
-  min-height: 14rem;
-  overflow: hidden;
-  border: 1px solid var(--tone);
-  border-radius: 0.5rem;
-  background: #181e2d;
-  box-shadow: 0 5px 16px #0007;
+@container (min-width: 1100px) {
+  .sc-collection-grid {
+    grid-template-columns: repeat(auto-fill, minmax(12.5rem, 1fr));
+    gap: 1.1rem 0.9rem;
+  }
 }
-.sc-collect-art {
-  overflow: hidden;
-  height: clamp(8rem, 19cqw, 14rem);
-  display: grid;
-  place-items: center;
-  min-height: 6rem;
-  font-size: 4rem;
-  color: var(--tone);
-  text-shadow: 0 0 25px var(--tone);
-  background:
-    radial-gradient(circle, #ffffff25, transparent 55%),
-    linear-gradient(
-      135deg,
-      color-mix(in srgb, var(--tone) 35%, #171b2b),
-      #141b28
-    );
+.sc-collect {
+  position: relative;
+  min-width: 0;
+  transition:
+    transform 0.18s cubic-bezier(0.2, 0.9, 0.25, 1.2),
+    filter 0.18s,
+    opacity 0.18s;
+}
+.sc-collect.is-deck {
+  filter: drop-shadow(0 0 6px #c5ff5966);
+}
+.sc-collect:hover,
+.sc-collect:focus-within {
+  z-index: 1;
+  transform: translateY(-3px);
+  filter: drop-shadow(0 0 10px #c5ff5973);
+}
+.sc-collect.is-locked .scc {
+  filter: saturate(0.3) brightness(0.78);
+}
+.sc-collection-grid.swapping .sc-collect:not(.is-eligible, .is-selected) {
+  opacity: 0.45;
+}
+.sc-collect.is-eligible {
+  filter: drop-shadow(0 0 1px #fff) drop-shadow(0 0 10px #6fe7ff);
+}
+.sc-collect.is-selected {
+  transform: translateY(-4px) scale(1.02);
+  filter: drop-shadow(0 0 1px #fff) drop-shadow(0 0 14px #f8ffad);
+}
+.sc-collect-ribbon {
+  padding: 0.28em 0.6em;
+  border-radius: 0.3em;
+  background: #0b1019e6;
+  border: 1px solid #ffffff3a;
+  color: #dfe7f2;
+  font-size: max(0.5rem, 3.6cqw);
+  font-weight: 950;
+  letter-spacing: 0.12em;
+  white-space: nowrap;
+  box-shadow: 0 2px 6px #000a;
+}
+.is-deck .sc-collect-ribbon {
+  background: #c5ff59;
+  border-color: #efffc4;
+  color: #142016;
+}
+.is-owned .sc-collect-ribbon {
+  border-color: #6fc8ff99;
+  color: #bfe6ff;
+}
+.is-starter .sc-collect-ribbon {
+  color: #f6dfa7;
+}
+.is-selected .sc-collect-ribbon {
+  background: #f8ffad;
+  color: #2a2410;
+}
+.is-eligible .sc-collect-ribbon {
+  background: #6fe7ff;
+  border-color: #dff9ff;
+  color: #06222b;
+}
+.sc-collect-pick {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  width: 100%;
+  border: 0;
+  border-radius: 0.9rem;
+  background: transparent;
+  cursor: pointer;
+}
+.sc-collect-pick:focus-visible {
+  outline: 3px solid #c5ff59;
+  outline-offset: 3px;
 }
 .sc-art-summary {
   color: #c8f2a1 !important;
   font-size: 0.65rem !important;
   letter-spacing: 0.04em;
-}
-.sc-collect-card > div:nth-child(2) {
-  padding: 0.6rem;
-  display: flex;
-  flex-direction: column;
-  gap: 0.2rem;
-}
-.sc-collect-card span,
-.sc-collect-card small {
-  font-size: 0.57rem;
-  letter-spacing: 0.06em;
-  color: #c6d7df;
-}
-.sc-collect-card strong {
-  font-size: 0.78rem;
-}
-.sc-collect-card p {
-  font-size: 0.68rem;
-  line-height: 1.4;
-  margin: 0;
-  color: #bfc9d5;
-}
-.sc-collect-card > small {
-  margin-top: auto;
-  padding: 0.55rem;
-  background: #0f1824;
 }
 @container (max-width: 900px) {
   .sc-crew {
@@ -1854,38 +1911,17 @@ onUnmounted(() => {
 }
 .sc-pack-cards {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 0.6rem;
-}
-.sc-pack-cards article {
-  padding: 0.7rem;
-  border: 2px solid #8682a7;
-  border-radius: 0.6rem;
-  display: grid;
-  justify-items: center;
-  gap: 0.3rem;
-  min-width: 0;
-  background: #29243c;
-}
-.sc-pack-cards .rarity-rare {
-  border-color: #f7cb68;
-  background: radial-gradient(circle, #6b4267, #2a2441);
-}
-.sc-pack-face {
-  display: grid;
-  place-content: center;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 9.5rem), 1fr));
+  align-items: start;
+  gap: 0.9rem;
   width: 100%;
-  min-height: 5rem;
-  font-size: 3rem;
-  border-radius: 0.35rem;
-  background: #ffffff0b;
-}
-.sc-pack-cards strong {
-  font-size: 0.8rem;
-  text-align: center;
+  max-width: 48rem;
 }
 .sc-pack-cards small {
+  color: #cfcde3;
   font-size: 0.6rem;
+  font-weight: 800;
+  letter-spacing: 0.12em;
   text-align: center;
 }
 .sc-challenge-grid {
@@ -1944,54 +1980,114 @@ onUnmounted(() => {
   border-color: #ff8db3;
 }
 .sc-deck-workbench {
+  flex: none;
   display: flex;
-  flex-wrap: wrap;
   align-items: center;
-  justify-content: space-between;
-  gap: 0.75rem;
-  margin: 0.5rem 0;
-  padding: 0.7rem;
-  border: 1px solid #8db9aa77;
-  border-radius: 0.7rem;
-  background: linear-gradient(115deg, #1d3338, #202036);
+  gap: 0.7rem;
+  padding: 0.35rem 0.4rem 0.35rem 0.55rem;
+  border: 1px solid color-mix(in srgb, var(--tone) 40%, #4d5567);
+  border-radius: 0.6rem;
+  background:
+    linear-gradient(
+      90deg,
+      color-mix(in srgb, var(--tone) 18%, transparent),
+      transparent 40%
+    ),
+    #0e1420e6;
+  box-shadow:
+    inset 0 -1px 0 color-mix(in srgb, var(--tone) 55%, transparent),
+    0 6px 18px #0007;
+}
+.sc-deck-meter {
+  flex: none;
+  display: grid;
+  justify-items: center;
+  gap: 0.2rem;
+}
+.sc-deck-meter strong {
+  color: #fff;
+  font-size: 1.15rem;
+  font-weight: 1000;
+  line-height: 1;
+}
+.sc-deck-meter strong small {
+  color: #a6aac0;
+  font-size: 0.62rem;
+}
+.sc-deck-pips {
+  display: grid;
+  grid-template-columns: repeat(5, 0.42rem);
+  gap: 2px;
+}
+.sc-deck-pips i {
+  height: 0.28rem;
+  border-radius: 1px;
+  background: #ffffff1f;
+}
+.sc-deck-pips i.on {
+  background: var(--tone);
+  box-shadow: 0 0 4px var(--tone);
+}
+.sc-deck-status {
+  flex: 1;
+  min-width: 0;
+}
+.sc-deck-status .sc-overline {
+  font-size: 0.54rem;
+  letter-spacing: 0.16em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 .sc-deck-workbench p {
-  margin: 0.3rem 0 0;
-  max-width: 45rem;
-  color: #d9e6ec;
-  font-size: 0.8rem;
+  margin: 0.1rem 0 0;
+  color: #e4edf3;
+  font-size: 0.74rem;
+  line-height: 1.3;
 }
 .sc-deck-workbench small {
+  display: block;
   color: #ffb9b9;
+  font-size: 0.64rem;
 }
 .sc-deck-actions {
+  flex: none;
   display: flex;
-  gap: 0.4rem;
-  flex-wrap: wrap;
+  gap: 0.35rem;
 }
-.sc-deck-actions button,
-.sc-deck-card-choice {
-  padding: 0.4rem 0.65rem;
-  border: 1px solid #b8d6bd88;
-  border-radius: 0.35rem;
-  background: #244039;
-  color: #f4fff7;
-  font-size: 0.71rem;
-  font-weight: 800;
+.sc-deck-actions button {
+  padding: 0.45rem 0.65rem;
+  border: 1px solid #b8d6bd66;
+  border-radius: 0.4rem;
+  background: #1b2a2c;
+  color: #e9f6ee;
+  font-size: 0.64rem;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  white-space: nowrap;
+}
+.sc-deck-actions button[data-testid='slime-deck-practice'] {
+  border-color: #c5ff59;
+  background: #c5ff59;
+  color: #142016;
+  box-shadow: 0 0 14px #c5ff5944;
 }
 .sc-deck-actions button:disabled {
   opacity: 0.5;
 }
-.sc-deck-card-choice {
-  margin: 0.2rem 0 0.4rem;
-  display: block;
-  text-align: left;
-}
-.sc-deck-card-choice.selected {
-  border-color: #ffe38b;
-  background: #5a4627;
-}
-.sc-deck-card-choice.equipped {
-  color: #e6ffe7;
+@container (max-width: 600px) {
+  .sc-deck-workbench {
+    flex-wrap: wrap;
+    gap: 0.35rem 0.55rem;
+  }
+  .sc-deck-status {
+    flex-basis: calc(100% - 4rem);
+  }
+  .sc-deck-actions {
+    flex: 1 1 100%;
+  }
+  .sc-deck-actions button {
+    flex: 1;
+  }
 }
 </style>

@@ -181,6 +181,7 @@ export const BEATS: EncounterCard[] = [
     place: 'The Green Ribbon Fair',
     title: 'Something to Share',
     scene: 'meadow',
+    art: 'encounters/gr-2-something-to-share',
     variantBy: 'prospect',
     body: [
       'Somebody always has something to share at the Green Ribbon Fair: water, sandwiches, a joint, and a little tin of the serious brownies, labeled. Nobody has to.',
@@ -1089,6 +1090,7 @@ export const BEATS: EncounterCard[] = [
     place: 'A warehouse at the edge of Arcata',
     title: 'The Pre-Race Party',
     scene: 'theater',
+    art: 'encounters/kn-2-the-afterparty',
     variantBy: 'prospect',
     body: [
       'The night before the race, a warehouse at the edge of Arcata is full of sculptures that barely fit through the doors. The Rainbow Shrimp crew rehearses beside a borrowed brass band; a tired volunteer is repairing a wheel with duct tape and optimism. Someone hands out tomorrow’s safety schedule. There is beer, and there are other offers, but mostly people are here for the gloriously unreasonable machines.',

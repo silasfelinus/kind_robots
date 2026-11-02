@@ -5655,6 +5655,43 @@ for (const def of DAYS)
   assert.ok(backed.affinity.jackalwire < splitRun.affinity.jackalwire)
   assert.ok(validateRun(JSON.parse(JSON.stringify(backed))))
 
+  // Funding the splinter Pack buys passage, not a loyal army. The same
+  // fiddler returns at Thistledown, asking the crown to feed her camp.
+  const thistleWithFiddler = onDay(5, 10, {
+    flags: backed.flags,
+    brass: 35,
+  })
+  const thistleWithoutFiddler = onDay(5, 10, { brass: 35 })
+  const thistleAudience = DAYS[9]!.audiences.find(
+    (audience) => audience.id === 'd10-thistledown',
+  )!
+  const colorsBeat = thistleAudience.beats!.find(
+    (beat) => beat.id === 'colors',
+  )!
+  const grainOption = colorsBeat.options.find(
+    (option) => option.id === 'feed-fiddler',
+  )!
+  assert.ok(optionVisible(thistleWithFiddler, grainOption))
+  assert.ok(!optionVisible(thistleWithoutFiddler, grainOption))
+  assert.match(
+    sceneLines(thistleWithFiddler, colorsBeat).map(lineText).join(' '),
+    /twelve-brass receipt/,
+  )
+  const bargained = answer(
+    thistleWithFiddler,
+    'd10-thistledown',
+    'ask-colors',
+    'feed-fiddler',
+  )
+  assert.equal(bargained.brass, 15)
+  assert.ok(bargained.flags.includes('d10-fiddler-grain-bargain'))
+  assert.ok(
+    bargained.aid?.['q-d10-freehold-raid']?.some(
+      (aid) => aid.resolve === 'partial',
+    ),
+  )
+  assert.ok(validateRun(JSON.parse(JSON.stringify(bargained))))
+
   // Returning a bound runner and sheltering a whistleblower must not
   // collapse to the same "free forecast" outcome three days later.
   const shelteredDay4 = answer(

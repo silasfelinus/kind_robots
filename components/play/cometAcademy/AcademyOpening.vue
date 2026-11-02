@@ -990,7 +990,7 @@ function launch() {
   position: relative;
   z-index: 1;
   display: grid;
-  grid-template-columns: 2fr repeat(5, 1fr);
+  grid-template-columns: 2fr repeat(3, minmax(0, 1fr));
   gap: 0.5rem;
   padding: 0.7rem clamp(1rem, 3vw, 2.5rem) 1rem;
   background: #111527e6;

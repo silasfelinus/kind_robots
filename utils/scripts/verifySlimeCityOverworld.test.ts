@@ -113,7 +113,7 @@ assert.equal(
   60,
   'Six ten-card founder decks',
 )
-assert.equal(CARDS.length, 72, '12 new Gutter Crown reserves are playable')
+assert.equal(CARDS.length, 108, '48 playable Gutter Crown cards are available')
 assert.equal(
   CARDS.filter((card) => slimeArtId('cards', card.id)).length,
   36,

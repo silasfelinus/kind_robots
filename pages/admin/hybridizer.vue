@@ -611,7 +611,7 @@
         </template>
         <template v-if="drawer === 'atlas'">
           <label class="search-wrap">
-            <span class="sr-only">Search loaded discoveries</span>
+            <span class="sr-only">Search all discoveries</span>
             <input
               v-model="search"
               type="search"
@@ -919,7 +919,7 @@ const atlasFilters = [
   { value: 'READY', label: 'Illustrated' },
   { value: 'IN_PROGRESS', label: 'Rendering' },
   { value: 'OTHER', label: 'Unillustrated' },
-]
+] as const
 const search = ref('')
 const filter = ref('ALL')
 const filters = [

@@ -131,28 +131,26 @@ const noMore = nextDestination({
   consequenceHistory: callbacks,
 })
 assert.ok(!noMore.scene.includes('INCOMING FOLLOW-UP:'))
-assert.equal(nextDestination({ ...noMore, phase: 'debrief', chapter: 6 }).chapter, 7)
+assert.equal(
+  nextDestination({ ...noMore, phase: 'debrief', chapter: 6 }).chapter,
+  7,
+)
 
 let visits = 0
 for (let seed = 1; seed <= 12; seed++) {
   const policy = policies[(seed - 1) % policies.length]!
-  const { run, steps } = playVoyage(
-    'fluke',
-    ['pell', 'mox', 'rue'],
-    seed,
-    {
-      name: 'expanded-authored-act-one',
-      order: () => policy,
-      chart: (voyage) => destinations.find(
-        (missionId) =>
-          VOYAGE_BOARDS[voyage.chapter - 1]?.includes(missionId),
+  const { run, steps } = playVoyage('fluke', ['pell', 'mox', 'rue'], seed, {
+    name: 'expanded-authored-act-one',
+    order: () => policy,
+    chart: (voyage) =>
+      destinations.find((missionId) =>
+        VOYAGE_BOARDS[voyage.chapter - 1]?.includes(missionId),
       ),
-      authoredChoices: true,
-      sideQuests: false,
-      errand: () => null,
-      finale: 'protect',
-    },
-  )
+    authoredChoices: true,
+    sideQuests: false,
+    errand: () => null,
+    finale: 'protect',
+  })
   assert.equal(run.phase, 'ending', 'newly authored route cannot softlock')
   assert.equal(run.consequenceHistory?.length, 3)
   assert.deepEqual(

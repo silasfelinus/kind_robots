@@ -2095,7 +2095,8 @@ export const HOSHIMORI_OVEN_ROOMS: readonly HoshimoriOvenRoom[] = [
       },
       {
         id: 'glass-keep-witness',
-        label: 'Keep a witness sketch, but refuse the staircase’s promised reset',
+        label:
+          'Keep a witness sketch, but refuse the staircase’s promised reset',
         outcome:
           'The sketch records two possible futures without claiming either happened. Char remains a person, not a prize at the top of a stair.',
         flag: 'glass-stair-witness-kept',
@@ -2141,7 +2142,8 @@ export const HOSHIMORI_OVEN_ROOMS: readonly HoshimoriOvenRoom[] = [
       },
       {
         id: 'glass-protect-appeal',
-        label: 'Protect the witnesses and require a private, revisitable appeal',
+        label:
+          'Protect the witnesses and require a private, revisitable appeal',
         outcome:
           'The household chooses when to testify. The medicine stays with the sick, the compromised route closes, and Vesper cannot declare the debt erased.',
         flag: 'glass-appeal-protected',

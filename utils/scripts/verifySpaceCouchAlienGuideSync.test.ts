@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict'
+import { readFileSync } from 'node:fs'
 import { ALIEN_SPECIES } from '../gameOfCaptains/alienSpecies'
 import { emptyAlienGuide } from '../gameOfCaptains/alienFieldGuide'
 import { mergeAlienGuideSnapshots } from '../gameOfCaptains/alienGuideSync'
@@ -35,3 +36,20 @@ assert.deepEqual(
   [a],
 )
 console.log('Space Couch: cross-device scrapbook unions and first-earned collector decisions stable')
+const root = new URL('../../', import.meta.url)
+const store = readFileSync(new URL('stores/gameOfCaptainsStore.ts', root), 'utf8')
+const page = readFileSync(new URL('pages/play/game-of-captains.vue', root), 'utf8')
+const ui = readFileSync(new URL('components/gameOfCaptains/alien-scrapbook.vue', root), 'utf8')
+const get = readFileSync(new URL('server/api/game-of-captains/alien-guide.get.ts', root), 'utf8')
+const post = readFileSync(new URL('server/api/game-of-captains/alien-guide.post.ts', root), 'utf8')
+const db = readFileSync(new URL('server/utils/spaceCouchAlienGuide.ts', root), 'utf8')
+assert.match(store, /ALIEN_GUIDE_OWNER_KEY/)
+assert.match(store, /mergeAlienGuideSnapshots/)
+assert.match(store, /syncAlienGuideToAccount/)
+assert.match(page, /alienGuideSyncStatus/)
+assert.match(ui, /Retry sync/)
+assert.match(get, /requireHumanApiUser\(event\)/)
+assert.match(post, /requireHumanApiUser\(event\)/)
+assert.match(db, /version: row.version/)
+assert.match(db, /prisma\.\$transaction/)
+console.log('Space Couch: account owner isolation, save merge, and recovery UI OK')

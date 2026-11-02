@@ -7,6 +7,7 @@ import {
   canMoveHoshimoriNight,
   hoshimoriNightClues,
   hoshimoriNightCouncil,
+  hoshimoriNightWindwardAccount,
   hoshimoriNightOrder,
   newHoshimoriNightProgress,
   restoreHoshimoriNight,
@@ -29,6 +30,9 @@ export const useMemoryHoshimoriNightStore = defineStore(
       hoshimoriNightOrder(progress.value.seed),
     )
     const council = computed(() => hoshimoriNightCouncil(progress.value))
+    const windward = computed(() =>
+      hoshimoriNightWindwardAccount(progress.value),
+    )
     const lastOutcome = computed(() => {
       const last = progress.value.events.at(-1)
       if (last?.type !== 'choose') return null
@@ -106,6 +110,7 @@ export const useMemoryHoshimoriNightStore = defineStore(
       clues,
       expectedOrder,
       council,
+      windward,
       lastOutcome,
       canMove,
       hydrate,

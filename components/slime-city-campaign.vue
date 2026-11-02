@@ -98,15 +98,56 @@
             FOLLOW THE STORY ON THE CITY MAP · {{ nextDistrictName }} →
           </button>
           <div
-            v-if="lab.campaignEcho"
-            class="campaign-recap"
-            data-testid="slime-campaign-echo"
+            v-if="lab.campaignFavors.length"
+            class="campaign-favors"
+            data-testid="slime-campaign-favors"
           >
-            <strong>PREVIOUS VICTORY · {{ lab.campaignEcho.title }}</strong>
-            <span>{{ lab.campaignEcho.story }}</span>
-            <small
-              >{{ describeTerms(lab.campaignEcho.terms) }} next battle</small
+            <strong class="campaign-overline"
+              >EARNED SUPPORT · CHOOSE ONE FOR THE NEXT FIGHT</strong
             >
+            <div
+              class="campaign-favor-grid"
+              role="group"
+              aria-label="Choose earned story support"
+            >
+              <button
+                v-for="favor in lab.campaignFavors"
+                :key="favor.chapterIndex"
+                type="button"
+                class="campaign-favor"
+                :class="{
+                  active: favor.chapterIndex === lab.campaignFavorIndex,
+                }"
+                :aria-pressed="favor.chapterIndex === lab.campaignFavorIndex"
+                :data-testid="'slime-favor-' + favor.chapterIndex"
+                @click="lab.selectCampaignFavor(favor.chapterIndex)"
+              >
+                <SlimeCityArtwork
+                  class="campaign-favor-art"
+                  :image-id="slimeArtId('crews', favor.ally)"
+                  :alt="teamName(favor.ally) + ' earned ally portrait'"
+                  :fallback="teamName(favor.ally)"
+                  compact
+                />
+                <span class="campaign-favor-copy">
+                  <small
+                    >CHAPTER {{ favor.chapterIndex + 1 }} ·
+                    {{ favor.choice.toUpperCase() }}</small
+                  >
+                  <strong>{{ favor.echo.title }}</strong>
+                  <small>{{ describeTerms(favor.echo.terms) }}</small>
+                </span>
+              </button>
+            </div>
+            <div
+              v-if="lab.campaignEcho"
+              class="campaign-recap"
+              data-testid="slime-campaign-echo"
+            >
+              <strong>{{ lab.campaignEcho.speaker }}</strong>
+              <span>“{{ lab.campaignEcho.voice }}”</span>
+              <small>{{ lab.campaignEcho.story }}</small>
+            </div>
           </div>
           <div
             v-if="lab.campaignState.lastScene"
@@ -146,6 +187,7 @@
                     lab.campaignSave,
                     lab.activeTeam,
                     choice.terms,
+                    lab.campaignFavorIndex,
                   ),
                 )
               }}</small>
@@ -512,6 +554,61 @@ function teamName(id: TeamId): string {
 .decision-arrow {
   font-size: 1.4rem;
   color: #d2ed9f;
+}
+.campaign-favors {
+  display: grid;
+  gap: 0.55rem;
+  min-width: 0;
+}
+.campaign-favor-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 12rem), 1fr));
+  gap: 0.45rem;
+}
+.campaign-favor {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  min-width: 0;
+  padding: 0.35rem;
+  background: #192633;
+  color: #f4f4ec;
+  border: 2px solid #5a7077;
+  border-radius: 0.55rem;
+  cursor: pointer;
+  text-align: left;
+}
+.campaign-favor.active {
+  border-color: #f3e2a2;
+  background: #354038;
+}
+.campaign-favor:focus-visible {
+  outline: 3px solid #f5efbf;
+  outline-offset: 2px;
+}
+.campaign-favor-art {
+  flex: 0 0 4rem;
+  width: 4rem;
+  height: 5rem;
+  overflow: hidden;
+  border-radius: 0.3rem;
+}
+.campaign-favor-art :deep(img) {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.campaign-favor-copy {
+  display: grid;
+  gap: 0.2rem;
+  min-width: 0;
+}
+.campaign-favor-copy strong {
+  font-size: 0.76rem;
+}
+.campaign-favor-copy small {
+  font-size: 0.62rem;
+  color: #ced9d6;
 }
 .campaign-recap {
   margin-top: 0.6rem;

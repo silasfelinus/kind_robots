@@ -20,7 +20,7 @@ import {
 
 assert.equal(TEAMS.length, 6)
 assert.equal(RESERVE_CARDS.length, 12)
-assert.equal(CARDS.length, 168)
+assert.equal(CARDS.length, 204)
 assert.equal(RARE_COUNT * 3, CARDS.length)
 assert.equal(new Set(CARDS.map((card) => card.id)).size, CARDS.length)
 assert.equal(new Set(CARDS.map((card) => card.name)).size, CARDS.length)

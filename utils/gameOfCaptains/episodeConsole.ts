@@ -440,7 +440,9 @@ export function episodeCard(run: VoyageRun, deck: EpisodeDeck) {
     return {
       id,
       title: selected.title,
-      setup: callback ? selected.setup + ' PREVIOUSLY ON THIS WORLD: ' + callback : selected.setup,
+      setup: callback
+        ? selected.setup + ' PREVIOUSLY ON THIS WORLD: ' + callback
+        : selected.setup,
       link: run.crew.includes(selected.crew as CrewId)
         ? 'Crew connection: ' +
           (CREW_PROFILES.find((c) => c.id === selected.crew)?.name ?? 'Officer')

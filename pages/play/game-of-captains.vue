@@ -1511,8 +1511,8 @@
               <strong>THE QUARTERMASTER KNOWS A WAY</strong>
               <p>
                 Ask local relief partners for three emergency supply crates.
-                They will collect two points of our earned reputation in
-                exchange. Once per chapter, and only after answering the call.
+                Each favor costs more reputation than the last. You can
+                requisition once per chapter, but only after answering the call.
               </p>
               <button
                 class="cap-option"
@@ -1522,8 +1522,8 @@
                 <span>
                   <b>CALL IN AN OWED FAVOR · +3 SUPPLIES</b>
                   <small
-                    >Costs 2 reputation. The galaxy remembers its
-                    creditors.</small
+                    >Costs {{ quartermasterCost(run) }} reputation. The
+                    galaxy remembers its creditors.</small
                   >
                 </span>
                 ↗
@@ -1911,6 +1911,7 @@ import {
   worldEcho,
   crewDetourOptions,
   canRequisitionSupplies,
+  quartermasterCost,
   detourFor,
   counterCrew,
   type CaptainId,

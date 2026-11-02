@@ -450,6 +450,7 @@ export const ACT_ONE_LATE_DAYS: readonly DayDef[] = [
               'Captain Gristle Vane enters alone. His coat has fresh stitching where a feathered badge was torn away. Outside, two Pack camps face each other across the bridge road. Your warning to the fiddler reached both captains.',
               '“You sent my fiddler a private letter. Now she holds the south bank and I hold the tollhouse. The carts are paying both of us to argue.”',
               '“Thirty brass buys your wagons a week without being stopped. Or pay her for the south bank and see what my north bank does about it.”',
+              'He drops two toll receipts on the carpet. Both carry his Pack stamp. One is crossed through in fresh red paint.',
               {
                 who: 'Young Komodo',
                 npc: 'young-komodo',

@@ -25,6 +25,7 @@ import {
   mayAttack,
   blowDamage,
   legalNeighbor,
+  canBulldozeInto,
   cardById,
   cardReady,
   CARDS,
@@ -545,6 +546,23 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
       ? blowDamage(match.value, selected.value, selectedTarget.value)
       : 0,
   )
+  const canShoveTarget = computed(() => {
+    const unit = selected.value
+    const target = selectedTarget.value
+    return !!unit && !!target && 'side' in target && canBulldozeInto(match.value, unit, target.x, target.y)
+  })
+  function shoveSelected(): void {
+    if (!selected.value || !selectedTarget.value || !canShoveTarget.value) return
+    const target = selectedTarget.value
+    const next = move(match.value, selected.value.id, target.x, target.y)
+    if (next === match.value) return
+    match.value = next
+    targetUnit.value = null
+    if (!next.units.some((u) => u.id === selectedUnit.value && u.ap > 0))
+      selectedUnit.value = null
+    settleBout()
+  }
+
   function canMoveTo(x: number, y: number): boolean {
     const fighter = selected.value
     return (
@@ -1016,8 +1034,8 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
       targetUnit.value = null
       return
     }
-    if (unit?.side === 'enemy' && attackTargets.value.includes(unit.id)) {
-      chooseAttackTarget(unit.id)
+    if (unit?.side === 'enemy' && (attackTargets.value.includes(unit.id) || (!!selected.value && canBulldozeInto(match.value, selected.value, x, y)))) {
+      targetUnit.value = unit.id
       return
     }
     if (
@@ -1177,6 +1195,8 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
     targetUnit,
     attackTargets,
     canMoveTo,
+    canShoveTarget,
+    shoveSelected,
     selectedTarget,
     attackPreview,
     running,

@@ -1,0 +1,33 @@
+name: Space Couch Full Adversarial Voyages
+
+on:
+  pull_request:
+    paths:
+      - 'utils/gameOfCaptains/**'
+      - 'utils/scripts/verifyGameOfCaptainsTraces.test.ts'
+      - 'utils/scripts/spaceCouchTraceHarness.ts'
+      - 'utils/scripts/verifyGameOfCaptainsEpisode.test.ts'
+      - '.github/workflows/space-couch-adversarial.yml'
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.run_id }}
+  cancel-in-progress: true
+
+jobs:
+  complete-voyages:
+    name: All captains, antagonists, crews, and endings
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+      - name: Install project dependencies
+        run: npm ci
+        env:
+          CYPRESS_INSTALL_BINARY: '0'
+      - name: Run full seeded voyage and ending matrix
+        run: npm run test:game-of-captains:traces

@@ -6,6 +6,7 @@ import {
 import { readFileSync } from 'node:fs'
 import { startVoyage, restoreVoyage } from '../gameOfCaptains/rules'
 import { visitCasinoVenue } from '../gameOfCaptains/solarCircuit'
+import { planetReprise } from '../gameOfCaptains/planetReprises'
 import { ACT_TWO_MISSIONS } from '../gameOfCaptains/actTwo'
 import { ACT_THREE_MISSIONS } from '../gameOfCaptains/actThree'
 import { LATE_LOCAL_ROUTE_IDS } from '../gameOfCaptains/expeditionLaterLocal'
@@ -95,6 +96,79 @@ assert.equal(
   planetCards.size,
   10,
   'every authored planetary dilemma has art slots',
+)
+const repriseChoices = ['ask', 'document', 'override'] as const
+for (const title of planetCards.values()) {
+  const callbacks = repriseChoices.map((choice) =>
+    planetReprise(title, choice, true, 1),
+  )
+  assert.equal(new Set(callbacks).size, 3, title)
+  assert.ok(
+    callbacks.every((text) => text.length > 65),
+    title,
+  )
+  const setback = planetReprise(title, 'ask', false, 1)
+  assert.ok(setback.length > 60 && !callbacks.includes(setback), title)
+  assert.equal(planetReprise(title, 'ask', undefined, 1), setback)
+  assert.equal(planetReprise(title, 'ask', true, 0), '')
+  assert.ok(planetReprise(title, 'ask', true, 2).length > callbacks[0]!.length)
+}
+let observedRevisits = 0
+let threeTimeVisits = 0
+let uniquePlanetTotal = 0
+for (let seed = 1; seed <= 300; seed++) {
+  const history: EpisodeRun['episodeDrawHistory'] = []
+  const seen = new Map<string, number>()
+  for (let chapter = 1; chapter <= 9; chapter++) {
+    const voyage: EpisodeRun = {
+      ...landing,
+      seed,
+      chapter,
+      episodeDrawHistory: history,
+    }
+    const card = episodeCard(voyage, 'planet')
+    const firstVisit = episodeCard(
+      { ...voyage, episodeDrawHistory: [] } as EpisodeRun,
+      'planet',
+    )
+    assert.equal(card.id, firstVisit.id)
+    assert.deepEqual(card.outcomes, firstVisit.outcomes)
+    const count = seen.get(card.id) ?? 0
+    if (count === 0) {
+      assert.equal(card.setup, firstVisit.setup)
+    } else {
+      observedRevisits++
+      if (count >= 2) threeTimeVisits++
+      assert.ok(card.setup.startsWith(firstVisit.setup), card.id)
+      assert.ok(card.setup.includes('PREVIOUSLY ON THIS WORLD:'), card.id)
+      assert.notEqual(card.setup, firstVisit.setup, card.id)
+    }
+    seen.set(card.id, count + 1)
+    history.push({
+      chapter,
+      day: chapter,
+      deck: 'planet',
+      cardId: card.id,
+      choice: repriseChoices[(chapter + seed) % 3]!,
+      result: 'Previous incident archived.',
+      successful: (chapter + seed) % 4 !== 0,
+    })
+    assert.deepEqual(
+      episodeCard(JSON.parse(JSON.stringify(voyage)), 'planet'),
+      card,
+      'Callbacks survive persisted saves',
+    )
+  }
+  uniquePlanetTotal += seen.size
+}
+assert.ok(observedRevisits >= 700, 'repeat visits must receive continuity')
+assert.ok(threeTimeVisits > 0, 'third hearings must escalate')
+console.log(
+  'Space Couch planetary pacing: ' +
+    (uniquePlanetTotal / 300).toFixed(2) +
+    ' distinct per nine-chapter voyage; ' +
+    observedRevisits +
+    ' return visits with callbacks across 300 seeds',
 )
 const planetaryDecisions = new Map<string, string[]>()
 for (let seed = 1; seed <= 300; seed++) {

@@ -251,6 +251,18 @@ assert.doesNotMatch(
   /image: stageScenery\.value/,
 )
 
+// Commissioned art shows up on its own once delivered (2026-11-02).
+assert.match(
+  read('components/memory-dungeon/dark-house-stage.vue'),
+  /darkHouseIllustrationPath\(room\.value\.id, choice\.id\)/,
+  'Dark House chamber cards show their outcome plates',
+)
+assert.match(
+  read('pages/play/comet-city-academy.vue'),
+  /promArt\(\s*`choices\/\$\{slugify\(campusEncounter\.value\.title\)\}\/\$\{option\.id\}`/,
+  'campus cards ask for their commissioned choice plates',
+)
+
 const games = [...new Set(adopters.map(([game]) => game))]
 console.log(
   `Shared choice hand contract passed (${games.length} games: ${games.join(', ')})`,

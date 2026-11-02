@@ -67,8 +67,11 @@ const cards = computed<KrHandChoice[]>(() =>
       hint: choice.hint,
       disabled: choice.disabled,
       icon: props.icon,
-      image: delivered ? choice.art!.path : (choice.image ?? null),
-      badge: choice.art && !delivered ? 'Art pending' : undefined,
+      image: [
+        delivered ? choice.art!.path : null,
+        choice.image,
+        choice.art?.path,
+      ],
     }
   }),
 )

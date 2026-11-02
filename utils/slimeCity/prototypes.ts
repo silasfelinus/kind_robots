@@ -2219,6 +2219,9 @@ function applyDeploy(
   } else if (
     card.effect === 'heal' ||
     card.effect === 'scan' ||
+    card.effect === 'armor' ||
+    card.effect === 'sharpen' ||
+    card.effect === 'grant' ||
     card.kind === 'equipment' ||
     card.effect === 'boost'
   ) {

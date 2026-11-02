@@ -512,7 +512,7 @@ export const MERCENARY_CARDS: Card[] = [
     name: "Festival of No Refunds",
     kind: "spell",
     team: "mercenary",
-    cost: 5,
+    cost: 2,
     effect: "chaos",
     text: "The show must go on, loudly. Deal a seeded 1–3 damage to a chosen enemy.",
     symbol: "🎟"

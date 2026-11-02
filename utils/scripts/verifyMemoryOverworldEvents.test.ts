@@ -1162,7 +1162,7 @@ assert.ok(overworldPage.includes('data-testid="memory-enter-earth-collision"'))
 assert.ok(overworldPage.includes("world.campaign.completed.includes('e09')"))
 assert.match(
   e10Store,
-  /earthCollisionCrossroadStory\\(\\s*history\\.value,\\s*world\\.campaign\\.pairDecisions\\?\\.e10,\\s*journal\\.value/,
+  /earthCollisionCrossroadStory\(\s*history\.value,\s*world\.campaign\.pairDecisions\?\.e10,\s*journal\.value/,
 )
 assert.ok(e10Store.includes('world.finishEarthCollision('))
 assert.ok(e10Store.includes("position.value === '8,8'"))

@@ -138,7 +138,15 @@
             }}</span>
             <span class="decision-copy">
               <strong>{{ choice.label }}</strong>
-              <small>{{ describeTerms(campaignBattleTerms(lab.campaignSave, lab.activeTeam, choice.terms)) }}</small>
+              <small>{{
+                describeTerms(
+                  campaignBattleTerms(
+                    lab.campaignSave,
+                    lab.activeTeam,
+                    choice.terms,
+                  ),
+                )
+              }}</small>
             </span>
             <span class="decision-arrow" aria-hidden="true">→</span>
           </button>
@@ -149,7 +157,7 @@
           >{{ lab.campaignState.losses }} CAMPAIGN LOSSES · DEFEAT RETRIES ARE
           UNLIMITED</span
         >
-        <span>SESSION-ONLY STORY PROGRESS · NO REAL-MONEY REWARDS</span>
+        <span>ACCOUNT-SAVED STORY · NO REAL-MONEY REWARDS</span>
       </div>
     </div>
   </section>

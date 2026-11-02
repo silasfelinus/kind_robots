@@ -12,6 +12,7 @@ import {
   hoshimoriOvenSecondAccount,
   hoshimoriOvenThirdAccount,
   hoshimoriOvenFourthAccount,
+  hoshimoriOvenFifthAccount,
   hoshimoriOvenGuardianResolution,
   hoshimoriRidgeAccount,
   hoshimoriLowlandAccount,
@@ -44,7 +45,7 @@ import {
 assert.deepEqual(validateHoshimoriWarm(), [])
 assert.equal(HOSHIMORI_WARM_SITES.length, 64)
 assert.equal(new Set(HOSHIMORI_WARM_SITES.map((site) => site.key)).size, 64)
-assert.equal(HOSHIMORI_OVEN_ROOMS.length, 21)
+assert.equal(HOSHIMORI_OVEN_ROOMS.length, 27)
 assert.equal(new Set(HOSHIMORI_WARM_SITES.map((site) => site.opening)).size, 64)
 assert.equal(
   new Set(
@@ -709,6 +710,117 @@ for (let mask = 0; mask < 64; mask++) {
 assert.equal(cinderMedalIds.size, 8)
 assert.equal(cinderAccounts.size, 64)
 assert.equal(hoshimoriOvenFourthAccount(newHoshimoriWarmProgress(11)), null)
+
+const saffronChoices = [
+  ['saffron-redact-map', 'saffron-return-map'],
+  ['saffron-pay-escort', 'saffron-escort-union'],
+  ['saffron-stop-mill', 'saffron-audit-hours'],
+  ['saffron-feed-without-name', 'saffron-witness-loaf'],
+  ['saffron-refuse-addresses', 'saffron-challenge-book'],
+  ['saffron-recallable-charter', 'saffron-private-escorts'],
+] as const
+const saffronAccounts = new Set<string>()
+for (let mask = 0; mask < 64; mask++) {
+  let run = newHoshimoriWarmProgress(mask + 300)
+  assert.strictEqual(
+    advanceHoshimoriWarm(run, { type: 'enter-saffron-wing' }),
+    run,
+    'Saffron cannot skip the earlier Oven hearings',
+  )
+  for (const key of ['2,1', '3,1', '4,1', '4,2']) run = move(run, key)
+  run = choose(run, 'pledge')
+  run = move(run, '4,3')
+  run = advanceHoshimoriWarm(run, { type: 'enter' })
+  for (const id of ['audit', 'consent', 'pact'])
+    run = advanceHoshimoriWarm(run, { type: 'oven-choice', id })
+  run = advanceHoshimoriWarm(run, { type: 'enter-wing' })
+  for (const pair of ashWingChoices)
+    run = advanceHoshimoriWarm(run, { type: 'oven-choice', id: pair[0] })
+  run = advanceHoshimoriWarm(run, { type: 'enter-ember-wing' })
+  for (const pair of emberWingChoices)
+    run = advanceHoshimoriWarm(run, { type: 'oven-choice', id: pair[0] })
+  run = advanceHoshimoriWarm(run, { type: 'enter-cinder-wing' })
+  for (const pair of cinderChoices)
+    run = advanceHoshimoriWarm(run, { type: 'oven-choice', id: pair[0] })
+  assert.equal(run.ovenRoom, null, 'OV-21 remains terminal for old saves')
+  assert.ok(hoshimoriOvenFourthAccount(run))
+  assert.equal(hoshimoriOvenFifthAccount(run), null)
+  assert.deepEqual(
+    restoreHoshimoriWarm(JSON.parse(JSON.stringify(run))),
+    run,
+    'Existing completed Cinder saves must restore before Saffron opens',
+  )
+  const unearned = {
+    ...run,
+    ovenChoices: { ...run.ovenChoices, 'OV-27': 'saffron-recallable-charter' },
+  }
+  assert.equal(
+    hoshimoriOvenFifthAccount(unearned),
+    null,
+    'A forged final bell cannot invent five missing witnesses',
+  )
+  run = advanceHoshimoriWarm(run, { type: 'enter-saffron-wing' })
+  assert.equal(run.ovenRoom, 'OV-22')
+  for (let index = 0; index < saffronChoices.length; index++) {
+    const room = HOSHIMORI_OVEN_ROOMS[index + 21]!
+    assert.equal(run.ovenRoom, room.id)
+    const id = saffronChoices[index]![(mask >> index) & 1]!
+    const next = advanceHoshimoriWarm(run, { type: 'oven-choice', id })
+    assert.notStrictEqual(next, run, 'Every Saffron choice must advance')
+    run = next
+    if (index === 2 && mask === 0) {
+      const prior = run
+      run = advanceHoshimoriWarm(run, { type: 'leave' })
+      assert.equal(run.ovenRoom, null)
+      run = advanceHoshimoriWarm(run, { type: 'enter-saffron-wing' })
+      assert.equal(run.ovenRoom, 'OV-25')
+      assert.equal(run.rations, prior.rations)
+      assert.equal(run.trust, prior.trust)
+      assert.deepEqual(run.ovenChoices, prior.ovenChoices)
+    }
+  }
+  assert.equal(run.ovenRoom, null, 'OV-27 ends the Saffron Wing')
+  assert.ok(run.rations >= 0)
+  const account = hoshimoriOvenFifthAccount(run)
+  assert.ok(account)
+  assert.match(account, /Vesper|households/)
+  saffronAccounts.add(account)
+  assert.strictEqual(
+    advanceHoshimoriWarm(run, { type: 'enter-saffron-wing' }),
+    run,
+    'Completed Saffron rewards cannot be farmed',
+  )
+  assert.deepEqual(
+    restoreHoshimoriWarm(JSON.parse(JSON.stringify(run))),
+    run,
+    'All six Saffron decisions survive event-replayed save restoration',
+  )
+  const forged = JSON.parse(JSON.stringify(run)) as HoshimoriWarmProgress
+  forged.ovenChoices['OV-24'] =
+    run.ovenChoices['OV-24'] === 'saffron-stop-mill'
+      ? 'saffron-audit-hours'
+      : 'saffron-stop-mill'
+  assert.equal(
+    restoreHoshimoriWarm(forged),
+    null,
+    'A fabricated tide-clock verdict must not survive save restoration',
+  )
+  const missing = {
+    ...run,
+    ovenChoices: { ...run.ovenChoices },
+  }
+  delete missing.ovenChoices['OV-26']
+  assert.equal(
+    hoshimoriOvenFifthAccount(missing),
+    null,
+    'The final account needs the procession witness',
+  )
+}
+assert.equal(
+  saffronAccounts.size,
+  64,
+  'Six Saffron choices need 64 distinct earned narrative accounts',
+)
 
 const windwardAccounts = new Set<string>()
 for (const post of ['deliver', 'archive'] as const) {

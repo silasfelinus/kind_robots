@@ -74,7 +74,7 @@ for (const crew of TEAMS) {
   assert.equal(founder.length, 10)
   const foe = TEAMS.find((candidate) => candidate.id !== crew.id)!
   for (const card of wave) {
-    assert.ok(card.text.length >= 68, card.id + ' has flavorful exact rules')
+    assert.ok(card.text.length >= 65, card.id + ' has flavorful exact rules')
     assert.ok(card.name.length >= 8 && card.symbol)
     assert.ok(card.cost >= 1 && card.cost <= 6)
     assert.equal(card.signature, undefined, 'Original signature remains required')

@@ -5,6 +5,12 @@
 import assert from 'node:assert/strict'
 import { CAMPAIGN_CHOICE_CONSEQUENCES } from '../slimeCity/campaignConsequences'
 import {
+  CAMPAIGN_RETRY_VOICES,
+  CAMPAIGN_RIVAL_EXCHANGES,
+  CAMPAIGN_RIVAL_MEMORY,
+  campaignConversationFor,
+} from '../slimeCity/campaignDialogue'
+import {
   campaignBattleTerms,
   campaignChapter,
   campaignEchoFor,
@@ -784,6 +790,75 @@ for (const team of TEAMS) {
 }
 console.log(
   'Slime City ally dossier: 6 crews, four previous favors, bounded combat PASS',
+)
+
+// Thirty authored rival confrontations respect the current save and never
+// leak a future chapter. Victory history changes what the next rival says;
+// defeat adds a personal retry beat without awarding a chapter or favor.
+const allRivalLines = new Set<string>()
+const allPlayerLines = new Set<string>()
+for (const team of TEAMS) {
+  assert.equal(CAMPAIGN_RIVAL_EXCHANGES[team.id].length, 5)
+  assert.ok(CAMPAIGN_RETRY_VOICES[team.id].length > 65)
+  for (const approach of ['conviction', 'cunning'] as const) {
+    let save = createCampaignSave()
+    for (let index = 0; index < 5; index++) {
+      const chapter = FACTION_CAMPAIGNS[team.id].chapters[index]!
+      const conversation = campaignConversationFor(save, team.id)
+      assert.ok(conversation)
+      assert.equal(conversation.chapterIndex, index)
+      assert.equal(conversation.rivalTeam, chapter.foe)
+      assert.equal(
+        conversation.rivalSpeaker,
+        CAMPAIGN_ECHOES[chapter.foe].conviction.speaker,
+      )
+      assert.equal(
+        conversation.playerSpeaker,
+        CAMPAIGN_ECHOES[team.id].conviction.speaker,
+      )
+      assert.ok(conversation.rivalLine.length > 45)
+      assert.ok(conversation.playerLine.length > 45)
+      assert.equal(conversation.retryLine, null)
+      assert.equal(
+        conversation.rememberedChoice,
+        index === 0 ? null : CAMPAIGN_RIVAL_MEMORY[team.id][approach],
+      )
+      if (approach === 'conviction') {
+        allRivalLines.add(conversation.rivalLine)
+        allPlayerLines.add(conversation.playerLine)
+      }
+      const lost = resolveCampaignBattle(
+        save,
+        team.id,
+        index,
+        chapter.foe,
+        approach,
+        'enemy',
+      )
+      assert.equal(lost[team.id].wins, index)
+      const rematch = campaignConversationFor(lost, team.id)
+      assert.equal(rematch?.retryLine, CAMPAIGN_RETRY_VOICES[team.id])
+      assert.equal(rematch?.rememberedChoice, conversation.rememberedChoice)
+      save = resolveCampaignBattle(
+        lost,
+        team.id,
+        index,
+        chapter.foe,
+        approach,
+        'player',
+      )
+    }
+    assert.equal(campaignConversationFor(save, team.id), null)
+    assert.equal(save[team.id].decisions.length, 5)
+    for (const other of TEAMS.filter((candidate) => candidate.id !== team.id)) {
+      assert.equal(campaignConversationFor(save, other.id)?.chapterIndex, 0)
+    }
+  }
+}
+assert.equal(allRivalLines.size, 30)
+assert.equal(allPlayerLines.size, 30)
+console.log(
+  'Slime City rival dialogue: 30 distinct showdowns, 12 decision callbacks, six rematch beats PASS',
 )
 
 // Story missions combine district consequences with one specific story

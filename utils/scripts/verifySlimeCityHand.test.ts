@@ -199,6 +199,44 @@ assert.deepEqual(
   cycledBanker,
   'Selective redraw and CPU choices must reproduce exactly',
 )
+// Five debt cannot wipe out saved mana; the remainder carries into round three.
+const indebted = createMatch('blackout', 'riot', 'exchange', 88)
+indebted.debt.player = 5
+const firstBill = advance(indebted)
+assert.equal(firstBill.mana, BLACKOUT_MANA_GAIN)
+assert.equal(firstBill.debt.player, 2)
+const secondBill = advance(firstBill)
+assert.equal(secondBill.mana, BLACKOUT_MANA_GAIN + 1)
+assert.equal(secondBill.debt.player, 0)
+
+// The 6-mana marquee creature is a viable two-turn savings decision.
+const expensiveDeck = deckOf('riot').map((card) => card.id)
+const swapSlot = expensiveDeck.findIndex(
+  (id) => cardById(id).kind === 'creature' && !cardById(id).signature,
+)
+assert.ok(swapSlot >= 0)
+expensiveDeck[swapSlot] = 'merc-auction-golem'
+const expensiveSeed = Array.from({ length: 80 }, (_, i) => i + 1).find(
+  (seed) =>
+    createMatch('blackout', 'riot', 'exchange', seed, {}, expensiveDeck)
+      .hands.player.includes('merc-auction-golem'),
+)
+assert.ok(expensiveSeed)
+const investment = createMatch(
+  'blackout',
+  'riot',
+  'exchange',
+  expensiveSeed!,
+  {},
+  expensiveDeck,
+)
+assert.equal(investment.mana, 3)
+const funded = advance(investment)
+assert.equal(funded.mana, 6)
+const marquee = deploy(funded, 'merc-auction-golem', 0, 1)
+assert.notEqual(marquee, funded, 'Banking unlocks expensive cards on round two')
+assert.equal(marquee.mana, 0)
+
 assert.equal(createMatch('gridiron', 'riot').mana, 1)
 assert.equal(createMatch('bloodrush', 'riot').mana, 3)
 

@@ -103,6 +103,15 @@
               </button>
               <button
                 type="button"
+                class="btn btn-outline btn-sm w-full"
+                data-testid="shifting-lands-ledger-menu"
+                @click="openTrailLedger"
+              >
+                <Icon name="kind-icon:book-open" class="size-4" />
+                The Trail Ledger
+              </button>
+              <button
+                type="button"
                 class="btn btn-primary btn-sm w-full"
                 @click="askNewJourney"
               >
@@ -1202,7 +1211,7 @@
         <section
           class="kr-pane rounded-3xl border border-base-content/15 bg-base-200/95 shadow-xl"
           :class="tab === 'road' ? 'journey-hidden-narrow' : ''"
-          :aria-label="sideTab === 'zuzu' ? 'Character sheet' : 'Journal'"
+          :aria-label="sideTab === 'zuzu' ? 'Character sheet' : 'The Trail Ledger'"
         >
           <div class="kr-pane-scroll p-2 sm:p-3">
             <ShiftingLandsCharacterRail
@@ -1212,7 +1221,17 @@
               :phase="game.state.phase"
               @use-reward="useEarnedReward"
             />
-            <div v-else class="space-y-4 p-1">
+            <div v-else class="space-y-4 p-1" data-testid="shifting-lands-trail-ledger">
+              <header class="rounded-2xl border border-warning/30 bg-base-100/80 p-3">
+                <p class="text-[10px] font-black uppercase tracking-[.25em] text-warning">Zuzu's travels</p>
+                <h2 class="font-serif text-2xl font-black">The Trail Ledger</h2>
+                <p class="mt-1 text-xs opacity-70">Every encounter, trial and choice this journey actually reached.</p>
+                <div class="mt-3 grid grid-cols-3 gap-2 text-center text-xs">
+                  <span class="rounded-lg bg-base-200 p-2"><strong class="block text-lg">{{ visitedCards.length }}</strong>Locations</span>
+                  <span class="rounded-lg bg-base-200 p-2"><strong class="block text-lg">{{ game.state.bosses.length }}</strong>Trials</span>
+                  <span class="rounded-lg bg-base-200 p-2"><strong class="block text-lg">{{ game.state.landIndex + 1 }}/5</strong>Lands</span>
+                </div>
+              </header>
               <div v-if="visitedCards.length" aria-label="Discovered locations">
                 <h3 class="font-serif text-lg font-black">
                   Discovered trail · {{ visitedCards.length }}
@@ -1454,7 +1473,7 @@ const tab = ref<JourneyTab>('road')
 const tabs: Array<{ value: JourneyTab; label: string; icon: string }> = [
   { value: 'road', label: 'Road', icon: 'kind-icon:map' },
   { value: 'zuzu', label: 'Zuzu', icon: 'kind-icon:user' },
-  { value: 'journal', label: 'Journal', icon: 'kind-icon:book' },
+  { value: 'journal', label: 'Trail Ledger', icon: 'kind-icon:book' },
 ]
 const sideTab = computed<JourneyTab>(() =>
   tab.value === 'road' ? 'zuzu' : tab.value,
@@ -1560,6 +1579,11 @@ type Reveal = { kind: 'encounter' | 'trial'; turn: number }
 const reveal = ref<Reveal | null>(null)
 const consequenceKey = ref(0)
 const menu = ref<HTMLDetailsElement | null>(null)
+function openTrailLedger() {
+  tab.value = 'journal'
+  menu.value?.removeAttribute('open')
+}
+
 const journalFilters: Array<{ value: JournalFilter; label: string }> = [
   { value: 'all', label: 'All' },
   { value: 'encounter', label: 'Encounters' },

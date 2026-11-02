@@ -1,15 +1,20 @@
 import { runTournament } from '../slimeCity/playtest'
 import { summarizeTournament } from '../slimeCity/tournament'
 
-const seeds = (process.argv.slice(2).length ? process.argv.slice(2) : ['7', '29'])
-  .map(Number)
+const seeds = (
+  process.argv.slice(2).length ? process.argv.slice(2) : ['7', '29']
+).map(Number)
 if (seeds.some((seed) => !Number.isSafeInteger(seed) || seed < 1))
   throw new Error('Seeds must be positive integers.')
 
 const matches = runTournament('blackout', seeds)
 const report = summarizeTournament('blackout', seeds, matches)
 console.log('Slime City BLACKOUT full ordered crew tournament')
-console.log('All ' + report.matches + ' bouts use the CPU and recorded engine, not simulated scores.')
+console.log(
+  'All ' +
+    report.matches +
+    ' bouts use the CPU and recorded engine, not simulated scores.',
+)
 console.table(
   report.crews.map((crew) => ({
     crew: crew.team,

@@ -2002,7 +2002,8 @@ export const HOSHIMORI_OVEN_ROOMS: readonly HoshimoriOvenRoom[] = [
       },
       {
         id: 'saffron-private-escorts',
-        label: 'Keep private routes with consent-based escorts and no master map',
+        label:
+          'Keep private routes with consent-based escorts and no master map',
         outcome:
           'The public atlas remains incomplete by design. Travelers gain a way out without surrendering addresses, while Vesper must answer for the first betrayal without claiming this choice erases it.',
         flag: 'saffron-escorts-private',

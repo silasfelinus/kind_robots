@@ -13,10 +13,25 @@
           {{ guide.discovered.length }} / {{ ALIEN_SPECIES.length }} recorded ·
           {{ guide.friends.length }} declared friends
         </p>
-        <p v-if="syncStatus === 'synced'" class="text-xs opacity-70">Saved to your account</p>
-        <p v-else-if="syncStatus === 'error'" class="text-xs text-warning" role="status">Saved on this device; account sync unavailable.</p>
+        <p v-if="syncStatus === 'synced'" class="text-xs opacity-70">
+          Saved to your account
+        </p>
+        <p
+          v-else-if="syncStatus === 'error'"
+          class="text-xs text-warning"
+          role="status"
+        >
+          Saved on this device; account sync unavailable.
+        </p>
       </div>
-      <button v-if="syncStatus === 'error'" type="button" class="btn btn-ghost btn-sm" @click="$emit('sync')">Retry sync</button>
+      <button
+        v-if="syncStatus === 'error'"
+        type="button"
+        class="btn btn-ghost btn-sm"
+        @click="$emit('sync')"
+      >
+        Retry sync
+      </button>
       <button
         v-if="pendingIncident"
         type="button"

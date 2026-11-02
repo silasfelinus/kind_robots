@@ -92,7 +92,7 @@ function arena(
 const at = (s: MatchState, id: number) => s.units.find((u) => u.id === id)
 
 // --- Six legal, distinct crew decks
-assert.equal(CARDS.length, TEAMS.length * (DECK_SIZE + 2))
+assert.equal(CARDS.length, TEAMS.length * (DECK_SIZE + 8))
 assert.equal(new Set(CARDS.map((c) => c.id)).size, CARDS.length)
 assert.equal(new Set(CARDS.map((c) => c.name)).size, CARDS.length)
 const crewKeywords = new Map<string, string>()

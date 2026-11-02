@@ -569,6 +569,9 @@ const route = useRoute()
 const previewJobId = ref<number | null>(null)
 const reactionOpen = ref(false)
 const shareOpen = ref(false)
+const remixEditorOpen = ref(false)
+const remixDirection = ref('')
+const focusWeight = ref(50)
 const previewVersion = computed(() =>
   lab.versionsFor === lab.result?.key
     ? lab.versions.find((version) => version.jobId === previewJobId.value)
@@ -666,6 +669,9 @@ watch(
     previewJobId.value = null
     reactionOpen.value = false
     shareOpen.value = false
+    remixEditorOpen.value = false
+    remixDirection.value = ''
+    focusWeight.value = 50
   },
 )
 async function shareFusion(platform: 'copy' | 'x' | 'facebook' | 'reddit') {
@@ -705,6 +711,13 @@ async function shareFusion(platform: 'copy' | 'x' | 'facebook' | 'reddit') {
 }
 
 const drawer = ref<'left' | 'right' | 'atlas' | null>(null)
+const atlasStatus = ref('ALL')
+const atlasFilters = [
+  { value: 'ALL', label: 'All' },
+  { value: 'READY', label: 'Illustrated' },
+  { value: 'IN_PROGRESS', label: 'Rendering' },
+  { value: 'OTHER', label: 'Unillustrated' },
+]
 const search = ref('')
 const filter = ref('ALL')
 const filters = [
@@ -718,8 +731,17 @@ const filters = [
 ]
 
 const visibleEntries = computed(() => {
-  if (drawer.value === 'atlas') return [...lab.discoveries].reverse()
   const word = search.value.toLowerCase().trim()
+  if (drawer.value === 'atlas')
+    return [...lab.discoveries].reverse().filter((entry) => {
+      const rendering = ['QUEUED', 'RENDERING', 'DELIVERING'].includes(entry.status || '')
+      const matchesStatus =
+        atlasStatus.value === 'ALL' ||
+        (atlasStatus.value === 'READY' && entry.status === 'READY' && !!lab.imageFor(entry)) ||
+        (atlasStatus.value === 'IN_PROGRESS' && rendering) ||
+        (atlasStatus.value === 'OTHER' && !rendering && (entry.status !== 'READY' || !lab.imageFor(entry)))
+      return matchesStatus && (!word || entry.title.toLowerCase().includes(word))
+    })
   return lab.inputs.filter((entry) => {
     const type =
       entry.taxonomy === 'OTHER' && entry.facetGroup === 'fruit'
@@ -736,13 +758,24 @@ function openDrawer(side: 'left' | 'right' | 'atlas') {
   drawer.value = side
   search.value = ''
   filter.value = side === 'atlas' ? 'HYBRID' : 'ALL'
+  atlasStatus.value = 'ALL'
 }
 
 function pick(key: string) {
   if (drawer.value === 'left' || drawer.value === 'right')
     lab.choose(drawer.value, key)
-  else lab.choose('left', key)
+  else lab.selectAtlasDiscovery(key)
   drawer.value = null
+}
+
+async function submitRemix() {
+  if (!lab.left) return
+  await lab.resubmit({
+    focusKey: lab.left.key,
+    focusWeight: focusWeight.value,
+    direction: remixDirection.value,
+  })
+  if (lab.result?.status === 'QUEUED') remixEditorOpen.value = false
 }
 
 function glyphFor(title?: string, taxonomy?: string): string {
@@ -1017,6 +1050,16 @@ onUnmounted(() => lab.stopArtworkWatch())
     0 0 120px #c27ff4aa;
 }
 
+.known-art-mark {
+  align-self: flex-start;
+  color: #e0f6a6;
+  border: 1px solid #d6eba57a;
+  padding: 2px 7px;
+  border-radius: 999px;
+  font-size: 0.59rem;
+  font-weight: 900;
+  letter-spacing: 0.06em;
+}
 .hybridizer-result {
   position: relative;
   padding: clamp(10px, 1.5vw, 20px);
@@ -1562,6 +1605,82 @@ onUnmounted(() => lab.stopArtworkWatch())
   width: 100%;
   font-size: 0.55rem;
   padding: 4px 1px;
+}
+.remix-editor {
+  position: absolute;
+  z-index: 19;
+  inset: 6px;
+  display: grid;
+  align-content: start;
+  gap: 12px;
+  overflow-y: auto;
+  padding: 14px;
+  border: 1px solid #e4f6b5;
+  border-radius: 16px;
+  background: #251733;
+  box-shadow: 0 9px 28px #110821bb;
+}
+.remix-editor label {
+  display: grid;
+  gap: 5px;
+  color: #e6e7c5;
+  font-size: 0.74rem;
+  font-weight: 800;
+}
+.remix-editor p {
+  font-size: 0.76rem;
+  color: #ead3f4;
+}
+.remix-editor textarea {
+  width: 100%;
+  border: 1px solid #b5a0bd;
+  border-radius: 8px;
+  background: #180f27;
+  color: white;
+  padding: 8px;
+}
+.remix-balance input {
+  width: 100%;
+  accent-color: #dffa98;
+}
+.remix-submit {
+  border-radius: 9px;
+  padding: 10px;
+  background: #dffa98;
+  color: #251733;
+  font-size: 0.75rem;
+  font-weight: 900;
+}
+.remix-submit:disabled {
+  opacity: 0.5;
+}
+.atlas-summary {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+  font-size: 0.76rem;
+  font-weight: 800;
+}
+.atlas-summary span,
+.atlas-loaded {
+  color: #dff1b3;
+}
+.atlas-loaded {
+  font-size: 0.68rem;
+}
+.atlas-entry-status {
+  font-weight: 900;
+}
+.atlas-load-more {
+  grid-column: 1 / -1;
+  border: 1px solid #e1f5ac;
+  border-radius: 10px;
+  padding: 12px;
+  font-weight: 900;
+  color: #ebffb5;
+}
+.atlas-load-more:disabled {
+  opacity: 0.55;
 }
 .reaction-layer {
   position: absolute;

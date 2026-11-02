@@ -26,6 +26,7 @@ import {
   type CasinoChoice,
 } from './solarCircuit'
 import { nemesisMove } from './voyageMap'
+import { planetReprise } from './planetReprises'
 
 export type EpisodeDeck =
   'planet' | 'casino' | 'serendipity' | 'constellation' | 'nemesis'
@@ -419,10 +420,27 @@ export function episodeCard(run: VoyageRun, deck: EpisodeDeck) {
   const system = chapterSystem(run.seed, run.chapter)
   if (deck === 'planet') {
     const selected = selectedPlanetCard(run)
+    const id =
+      'planet-' + selected.title.toLowerCase().replace(/[^a-z0-9]+/g, '-')
+    const earlier = ((run as EpisodeRun).episodeDrawHistory ?? []).filter(
+      (draw) =>
+        draw.deck === 'planet' &&
+        draw.cardId === id &&
+        draw.chapter < run.chapter,
+    )
+    const previous = earlier.at(-1)
+    const callback = previous
+      ? planetReprise(
+          selected.title,
+          previous.choice,
+          previous.successful,
+          earlier.length,
+        )
+      : ''
     return {
-      id: 'planet-' + selected.title.toLowerCase().replace(/[^a-z0-9]+/g, '-'),
+      id,
       title: selected.title,
-      setup: selected.setup,
+      setup: callback ? selected.setup + ' PREVIOUSLY ON THIS WORLD: ' + callback : selected.setup,
       link: run.crew.includes(selected.crew as CrewId)
         ? 'Crew connection: ' +
           (CREW_PROFILES.find((c) => c.id === selected.crew)?.name ?? 'Officer')

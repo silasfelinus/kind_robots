@@ -1562,6 +1562,32 @@ export const ACT_TWO_DAYS: readonly DayDef[] = [
         speaker: 'Keeper Abelard Vellum of the Lamplight Archive',
         npc: 'abelard-vellum',
         faction: 'lamplight',
+        variants: [
+          {
+            flags: ['d04-page-posted'],
+            lines: [
+              'Keeper Vellum carries a map case tied with green thread. A copy of Tobin Lowe’s name from the fortress gate is folded inside it. The ink has run in the rain.',
+              '“The roads are falling out of our books, Majesty. A name can vanish just as easily. Hesper Lowe asked who will make certain the gate copy survives.”',
+              'He unrolls the Ford map beside the letter. “Copying costs paper and brass. Keeping a record when somebody important denies it costs witnesses.”',
+            ],
+          },
+          {
+            flags: ['d04-page-to-mother'],
+            lines: [
+              'Keeper Vellum carries a map case and a sealed note from Hesper Lowe. He has not opened the note. He puts it beside the map of the Eastern Ford.',
+              '“The mother has her copy of the missing page, Majesty. She asked the Archive whether the public is entitled to her boy’s name. I could not answer for her.”',
+              'The Ford map tears at a fold. “Roads need copies. Names need permission. Both need somebody to pay for the paper.”',
+            ],
+          },
+          {
+            flags: ['d04-page-sealed'],
+            lines: [
+              'Keeper Vellum comes with a map case and an empty envelope bearing the crown’s seal. The seal is unbroken. He sets both at the foot of the throne.',
+              '“The original register is locked in the dispatch chest. The Archive has a copy, but no right to check its dates while the seal holds. One bad seal can turn a true name into a rumor.”',
+              'He spreads a crumbling map of the Eastern Ford. “We can repair roads on paper, Majesty. We cannot repair what the crown will not let us read.”',
+            ],
+          },
+        ],
         lines: [
           'Keeper Vellum, in ink-dark robes, takes his time crossing the throne room. He does not apologize.',
           '“The old maps are dust in their cases, Majesty. Roads, wells, tunnels nobody living remembers. Copying costs ink, paper and time. Mostly time.”',
@@ -1573,12 +1599,51 @@ export const ACT_TWO_DAYS: readonly DayDef[] = [
             label: 'Ask which maps are crumbling first.',
             effects: {},
             response:
-              'Keeper Vellum blinks. Slowly. He has waited all year for someone to ask.',
+              'Vellum opens the case to the oldest fold. A fine line of grit falls onto the floor.',
             next: 'shelves',
           },
           {
+            id: 'copy-tobin',
+            label:
+              'Pay twelve brass for witnessed copies of Tobin Lowe’s gate record, despite the mayor’s objections.',
+            requires: { flags: ['d04-page-posted'], cost: 12 },
+            effects: {
+              affinity: { 'hollow-bell': -6 },
+              local: { lamplight: 2, 'old-houses': -1 },
+              flags: ['d14-tobin-witnesses'],
+            },
+            response:
+              'Vellum hires two independent scribes. Hesper puts her thumb beside the name. A clerk from the mayor’s office watches from the door and refuses to sign.',
+          },
+          {
+            id: 'ask-hesper',
+            label:
+              'Send a paid runner to ask Hesper what the Archive may publish. Do not copy her son’s name yet.',
+            requires: { flags: ['d04-page-to-mother'], cost: 8 },
+            effects: {
+              affinity: { 'hollow-bell': 3 },
+              local: { yard: -1, lamplight: -1 },
+              flags: ['d14-hesper-asked'],
+            },
+            response:
+              'Vellum seals the register shut. A Yard messenger takes Hesper a blank permission form and a supper parcel. The Archive loses another day. Her answer will be hers.',
+          },
+          {
+            id: 'open-crown-seal',
+            label:
+              'Break the crown’s seal. Let the Archive compare the missing page with the town’s original.',
+            requires: { flags: ['d04-page-sealed'] },
+            effects: {
+              affinity: { 'hollow-bell': -5 },
+              local: { lamplight: 3, 'old-houses': -2 },
+              flags: ['d14-page-opened'],
+            },
+            response:
+              'Komodo lays the dispatch key on the table without a word. Vellum signs for the page. The Old Houses ask who gave the Archive leave to judge the throne.',
+          },
+          {
             id: 'fund',
-            label: 'Fund the copying.',
+            label: 'Spend twenty brass copying the old roads for public use.',
             requires: { cost: 20 },
             effects: { local: { lamplight: 4 }, flags: ['maps-copied'] },
             response:
@@ -1586,7 +1651,7 @@ export const ACT_TWO_DAYS: readonly DayDef[] = [
           },
           {
             id: 'decline',
-            label: 'The crown needs its brass for the living.',
+            label: 'Keep the twenty brass for food and repairs. Let the old maps crumble.',
             effects: { local: { lamplight: -2 } },
             response:
               'The Archive bows and saves what it can alone. The corner of the Ford is swept up with the morning dust.',

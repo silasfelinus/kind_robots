@@ -1153,11 +1153,18 @@ export function canRequisitionSupplies(run: VoyageRun): boolean {
       (mission) =>
         mission.chapter === run.chapter && mission.policy !== 'missed',
     ) &&
-    !(run.worldFlags ?? []).includes('quartermaster:' + run.chapter)
+    !(run.worldFlags ?? []).some((flag) => {
+      const chapter = /^quartermaster:(\d+)$/.exec(flag)?.[1]
+      return (
+        chapter !== undefined &&
+        Math.floor((Number(chapter) - 1) / 3) ===
+          Math.floor((run.chapter - 1) / 3)
+      )
+    })
   )
 }
 
-/** A real recovery choice: spend earned standing to keep the crew supplied. */
+/** One earned favor per act, charged against increasingly scarce goodwill. */
 export function requisitionSupplies(run: VoyageRun): VoyageRun {
   if (!canRequisitionSupplies(run)) return run
   const cost = quartermasterCost(run)

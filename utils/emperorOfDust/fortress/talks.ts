@@ -14,15 +14,7 @@ import { SECRET_TALKS } from './secretTalks'
 // every other romance's final `romance-<name>-sealed` flag, so that the
 // emperor commits to one.
 
-const ROMANCES = [
-  'rook',
-  'saffron',
-  'nera',
-  'ash',
-  'sable',
-  'vesper',
-  'kiyo',
-] as const
+const ROMANCES = ['rook', 'saffron', 'nera', 'ash', 'sable', 'vesper'] as const
 type Romance = (typeof ROMANCES)[number]
 
 /** The tower has not fallen yet. */
@@ -1660,10 +1652,9 @@ export const TALKS: readonly TalkDef[] = [
     follower: 'F003',
     title: 'A Cup Kept Warm',
     fromDay: 18,
-    romance: true,
     requires: {
       flags: ['heard:kiyo-2'],
-      notFlags: [...courting('kiyo'), 'kiyo-friendship'],
+      notFlags: IN_THE_TOWER,
     },
     lines: [
       'You find Kiyo at the infirmary table, asleep over an open ledger. She wakes before you can turn away. There is a second cup beside hers. The tea in it is still warm.',
@@ -1674,11 +1665,10 @@ export const TALKS: readonly TalkDef[] = [
     options: [
       {
         id: 'stay',
-        label:
-          'Set the crown on the table. Ask whether she wants company, not a promise.',
-        effects: { flags: ['romance-kiyo'] },
+        label: 'Put the crown on the table. Stay until the kettle cools.',
+        effects: { flags: ['kiyo-friendship'] },
         response:
-          'Kiyo studies the crown before looking at you. “Company, yes.” You speak of the river she crossed. Eventually her hand rests near yours, and neither of you moves it away.',
+          'Kiyo tells you how to mend a torn sail. You admit you cannot thread a needle. “That,” she says, “explains the state of your banners.” The tea cools. You pour another cup.',
       },
       {
         id: 'friends',
@@ -1701,42 +1691,51 @@ export const TALKS: readonly TalkDef[] = [
   {
     id: 'kiyo-romance-2',
     follower: 'F003',
-    title: 'A Door Left Unlatched',
+    title: 'The Door Left Unlatched',
     fromDay: 27,
-    romance: true,
     requires: {
-      flags: ['heard:kiyo-close', 'romance-kiyo'],
-      notFlags: courting('kiyo'),
+      flags: ['heard:kiyo-close'],
+      notFlags: IN_THE_TOWER,
     },
     lines: [
-      'A storm makes every window in the infirmary shiver. Kiyo has set a lantern in the hall so the patients can find her. She asks you to stay until the worst has passed.',
-      'Zuzu is asleep in the next room. When he is frightened, he comes to my bed. Tomorrow he will want breakfast and a story. I am not asking you to stand in for anybody.',
-      'She takes your hand. “This can be ours. But I will not let an emperor make promises that a person cannot keep. Tell me what you can actually give.”',
+      'The storm makes every window in the infirmary shiver. A Watch sentry waits in the doorway with a list of names. Two patients inside fought for the other side last week.',
+      'Kiyo has set a lantern in the hall so anybody who needs her can find the door. Zuzu is asleep behind the pantry curtain. The sentry will not leave without an answer.',
+      '“I can stitch a person or I can ask who they serve. Not both. If your Watch stands at this door, the people who fear it will die outside.” She takes the list from the sentry and puts it face down.',
+      '“I need to know whose door this is, Majesty. And who pays when I open it to the wrong person.”',
     ],
     options: [
       {
         id: 'equal',
         label:
-          'Offer honesty, privacy, and a place at the table she can leave whenever she chooses.',
-        effects: { flags: ['romance-kiyo-sealed', 'kiyo-trusted'] },
+          'Make the infirmary neutral ground. The Watch can bring its complaints to you.',
+        effects: {
+          local: { 'gate-watch': -1, yard: 1 },
+          flags: ['kiyo-clinic-neutral', 'kiyo-trusted', 'kiyo-friendship'],
+        },
         response:
-          '“That I believe.” She kisses you once, lightly. At the first knock you both go to open the infirmary door. In the morning she leaves your crown where it belongs, outside.',
+          'You send the sentry away. A wounded raider comes through before dawn, carried by two people who would not give their names. The Watch counts the missing prisoner at roll call. You sign the report yourself.',
       },
       {
         id: 'pressure',
         label:
-          'Offer the weight of the crown: protection for her and Zuzu, whatever it costs.',
-        effects: { flags: ['kiyo-friendship'], clearFlags: ['romance-kiyo'] },
+          'Post the Watch at the door. Keep Zuzu and the patients safe, but accept that some will stay away.',
+        effects: {
+          local: { 'gate-watch': 1, yard: -1 },
+          flags: ['kiyo-clinic-guarded', 'kiyo-friendship'],
+        },
         response:
-          'Kiyo lets go of your hand. “Protection is your duty, not a price.” In the morning you are still welcome for tea. It is a friendship with clear walls.',
+          'The sentry takes the post. By morning the blankets are clean and one cot is empty. Kiyo finds blood on the steps outside, already washed thin by the rain. She says nothing over breakfast.',
       },
       {
         id: 'uncertain',
         label:
-          'Say you cannot promise anything while the fortress is divided. Ask to remain friends.',
-        effects: { flags: ['kiyo-friendship'], clearFlags: ['romance-kiyo'] },
+          'Leave the door and the decisions to Kiyo. The crown will not order her triage.',
+        effects: {
+          local: { yard: 1 },
+          flags: ['kiyo-clinic-independent', 'kiyo-friendship'],
+        },
         response:
-          '“Good,” she says after a while. “It is better to know the shape of a thing.” She keeps the lamp burning until the storm passes. You stay, talking, on opposite sides of the table.',
+          '“Then write that down,” Kiyo says. You do. She takes the paper and hangs it beside the lantern. Three nights later she turns away a man with a knife under his coat. He leaves cursing her. She keeps the paper up.',
       },
     ],
   },

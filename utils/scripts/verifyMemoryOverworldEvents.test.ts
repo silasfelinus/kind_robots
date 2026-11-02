@@ -965,11 +965,24 @@ const routeEchoChoices = [
   ['1,1', 'hold-the-landing'],
   ['3,1', 'publish-the-forgery'],
   ['3,1', 'escort-the-moth'],
+  ['5,1', 'collect-real-consent'],
+  ['5,1', 'fund-the-walkout'],
+  ['8,1', 'repair-without-exchange'],
+  ['8,1', 'trace-the-original-gift'],
+  ['1,3', 'landmark-medicine-route'],
+  ['1,3', 'stabilize-public-exit'],
+  ['4,4', 'triage-by-medical-need'],
+  ['4,4', 'build-a-dry-waiting-room'],
   ['6,5', 'witness-chosen-households'],
   ['6,5', 'lease-the-common-stair'],
   ['8,7', 'keep-uncertain-names'],
   ['8,7', 'rescue-before-records'],
 ] as const
+assert.deepEqual(
+  new Set(routeEchoChoices.map(([key]) => key)),
+  new Set(Object.keys(EARTH_COLLISION_ROUTE_SITES)),
+  'every authored collision-city route must receive an earned finale callback',
+)
 const echoOpenings = new Set<string>()
 const echoOutcomes = new Set<string>()
 for (const verdict of EARTH_CROSSROAD_CHOICES) {
@@ -1027,8 +1040,8 @@ for (const verdict of EARTH_CROSSROAD_CHOICES) {
     'serialized flags are not replay evidence',
   )
 }
-assert.equal(echoOpenings.size, 8)
-assert.equal(echoOutcomes.size, 16)
+assert.equal(echoOpenings.size, 16)
+assert.equal(echoOutcomes.size, 32)
 const validEarthHistory = warmCharter('consent')
 assert.deepEqual(earthCollisionCrossroadStory(null), {
   opening: '',

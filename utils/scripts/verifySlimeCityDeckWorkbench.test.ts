@@ -20,11 +20,11 @@ import {
 
 assert.equal(TEAMS.length, 6)
 assert.equal(RESERVE_CARDS.length, 12)
-assert.ok(CARDS.length >= 132)
+assert.equal(CARDS.length, 168)
 assert.equal(RARE_COUNT * 3, CARDS.length)
 assert.equal(new Set(CARDS.map((card) => card.id)).size, CARDS.length)
 assert.equal(new Set(CARDS.map((card) => card.name)).size, CARDS.length)
-assert.ok(CARDS.filter((card) => card.kind === 'creature').length >= 50)
+assert.ok(CARDS.filter((card) => card.kind === 'creature').length >= 62)
 assert.ok(RESERVE_CARDS.every((card) => !card.signature))
 
 for (const team of TEAMS) {

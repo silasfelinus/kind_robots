@@ -72,6 +72,62 @@ const EARTH_ROUTE_ECHOES: Record<string, Record<string, RouteEcho>> = {
         'Mara accepts a sealed account of the false seal. The refuge stewards retain control of their route, and the public record acknowledges its evidentiary limit.',
     },
   },
+  '5,1': {
+    'collect-real-consent': {
+      opening:
+        'Mara brings the actual shift roster. The brass inspector withdrew its invented future hours, but the employer still contests the wages.',
+      outcome:
+        'The worker board keeps the real signatures separate from the forecast. Mara schedules a wage hearing instead of declaring the unpaid hours settled.',
+    },
+    'fund-the-walkout': {
+      opening:
+        'The night crew arrives together with meal vouchers and safe-ride requests. Their collective exit cost supplies and left a wage dispute open.',
+      outcome:
+        'Oren reserves staffed rides home before reopening the platform. Mara preserves the disputed payroll so solidarity does not become another erased debt.',
+    },
+  },
+  '8,1': {
+    'repair-without-exchange': {
+      opening:
+        'A research technician brings the repaired clock battery. The missing lesson was not sold to make the machine work, and its owner is still owed an answer.',
+      outcome:
+        'Morrow budgets replacement parts without treating a borrowed memory as payment. The technician keeps the unresolved lesson claim in the witness record.',
+    },
+    'trace-the-original-gift': {
+      opening:
+        'The technician found the teacher who first shared the missing lesson. A meeting is possible, but neither memory nor forgiveness can be demanded.',
+      outcome:
+        'Mara offers a private meeting only if both people agree. The clock remains imperfect, and the forecast cannot count an unaccepted invitation as restitution.',
+    },
+  },
+  '1,3': {
+    'landmark-medicine-route': {
+      opening:
+        'Vesper brings a clinic route marked by public landmarks rather than private doors. Patients have chosen their own escorts and meeting points.',
+      outcome:
+        'The evacuation keeps those meeting points voluntary. Vesper leaves the private addresses off every published map, even after the corridor straightens.',
+    },
+    'stabilize-public-exit': {
+      opening:
+        'A temporary clinic operates at the public underpass stair. The folding corridor is braced, but patients unable to travel still need a return visit.',
+      outcome:
+        'Oren assigns a staffed return route to the underpass clinic. Morrow records the delay rather than marking the patients safe on the strength of a map.',
+    },
+  },
+  '4,4': {
+    'triage-by-medical-need': {
+      opening:
+        'Imani reaches the tower with a triage record: the oxygen-dependent patient went first, while Char stayed with the people awaiting the lift.',
+      outcome:
+        'The review board funds a second medical escort. Imani keeps the waiting patients on the active list until the lift actually returns.',
+    },
+    'build-a-dry-waiting-room': {
+      opening:
+        'Char and Imani have built a dry pressure vestibule for three patients. The lift is slower, but nobody was ranked by usefulness to the city.',
+      outcome:
+        'Morrow assigns a relief watch and replacement screens to the vestibule. The slower evacuation remains a cost, not an excuse to erase the patients.',
+    },
+  },
   '6,5': {
     'witness-chosen-households': {
       opening:

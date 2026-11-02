@@ -848,7 +848,7 @@
           <div class="sc-collection-title">
             <span class="sc-overline"
               >THE ARMORY / DECK WORKBENCH · {{ lab.progress.cards.length }}/{{
-                lab.catalogSize
+                lab.collectionSize
               }}
               COLLECTED</span
             >
@@ -915,7 +915,7 @@
               :class="[
                 'tone-' + lab.team.color,
                 { 'is-mercenary': card.team === 'mercenary' },
-              ]"
+              ]
             >
               <div class="sc-collect-art">
                 <SlimeCityArtwork
@@ -1199,7 +1199,11 @@
                   type="button"
                   class="sc-attack-button"
                   data-testid="slime-attack"
-                  :disabled="lab.targetUnit === null"
+                  :disabled="
+                    lab.targetUnit === null ||
+                    (lab.targetUnit !== -1 &&
+                      !lab.attackTargets.includes(lab.targetUnit))
+                  "
                   @click="lab.attackSelected()"
                 >
                   <span class="sc-attack-symbol">{{ attackSymbol }}</span>
@@ -1209,6 +1213,22 @@
                     lab.targetUnit !== null
                       ? lab.attackPreview + ' DAMAGE'
                       : 'CHOOSE TARGET'
+                  }}</span>
+                </button>
+                <button
+                  v-if="lab.selected.keywords?.includes('bulldoze')"
+                  type="button"
+                  class="sc-attack-button"
+                  data-testid="slime-bulldoze"
+                  :disabled="!lab.canShoveTarget"
+                  @click="lab.shoveSelected()"
+                >
+                  <span class="sc-attack-symbol">⇥</span>
+                  BULLDOZE
+                  <span>{{
+                    lab.canShoveTarget
+                      ? 'SHOVE ONE TILE · 1 AP'
+                      : 'NEEDS FREE SPACE BEHIND TARGET'
                   }}</span>
                 </button>
                 <small
@@ -1413,7 +1433,19 @@ function cellAria(x: number, y: number): string {
   const monster = monsterHere(x, y)
     ? 'giant monster, ' + lab.sight.monster!.hp + ' hit points'
     : ''
-  return 'Square ' + (x + 1) + ', ' + (y + 1) + ': ' + (monster || name + flag)
+  const shove =
+    unit?.side === 'enemy' && lab.selected && lab.canMoveTo(x, y)
+      ? ', can be shoved using BULLDOZE'
+      : ''
+  return (
+    'Square ' +
+    (x + 1) +
+    ', ' +
+    (y + 1) +
+    ': ' +
+    (monster || name + flag) +
+    shove
+  )
 }
 onMounted(() => lab.hydrateProgression())
 onUnmounted(() => {

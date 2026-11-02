@@ -17,7 +17,10 @@ export default defineEventHandler(async (event) => {
     // carry an ArtImage ID, and the image itself still needs viewer access.
     const jobEntries = Object.entries(COUCH_ALIEN_ART_JOB_IDS)
     const jobs = await prisma.artJob.findMany({
-      where: { id: { in: jobEntries.map(([, jobId]) => jobId) }, status: 'DONE' },
+      where: {
+        id: { in: jobEntries.map(([, jobId]) => jobId) },
+        status: 'DONE',
+      },
       select: { id: true, artImageId: true },
     })
     const completed = new Map(

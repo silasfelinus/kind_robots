@@ -784,7 +784,10 @@
                   <strong>01 / DRAW A CALL</strong>
                   <span>Choose a mission, then play heroes from your hand</span>
                 </div>
-                <div class="cca-case-picker-deck" data-testid="academy-case-deck">
+                <div
+                  class="cca-case-picker-deck"
+                  data-testid="academy-case-deck"
+                >
                   <button
                     v-for="incident in store.incidents"
                     :key="incident.id"
@@ -797,14 +800,22 @@
                   >
                     <span class="cca-case-pick-art">
                       <img
-                        :src="promArt(incidentArtKey(incident.id)) ?? stageScenery"
+                        :src="
+                          promArt(incidentArtKey(incident.id)) ?? stageScenery
+                        "
                         alt=""
                       />
                     </span>
                     <span class="cca-case-pick-copy">
                       <b>{{ incident.title }}</b>
-                      <small>{{ incident.site }} · RISK {{ incident.risk }}/06</small>
-                      <small v-if="teamFor(incident.id).length" class="cca-case-pick-status">
+                      <small
+                        >{{ incident.site }} · RISK
+                        {{ incident.risk }}/06</small
+                      >
+                      <small
+                        v-if="teamFor(incident.id).length"
+                        class="cca-case-pick-status"
+                      >
                         ✦ {{ teamFor(incident.id).length }} HEROES COMMITTED
                       </small>
                       <small v-else>AWAITING YOUR TEAM</small>
@@ -812,242 +823,316 @@
                   </button>
                 </div>
               </nav>
-              <TransitionGroup name="cca-case-swap" tag="div" class="cca-case-stage">
-              <article
-                v-for="incident in focusedIncidents"
-                :key="incident.id"
-                class="cca-incident"
-                data-testid="academy-active-quest"
+              <TransitionGroup
+                name="cca-case-swap"
+                tag="div"
+                class="cca-case-stage"
               >
-                <div class="cca-incident-scene">
-                  <img
-                    :src="promArt(incidentArtKey(incident.id)) ?? stageScenery"
-                    :alt="'Scene from ' + incident.site"
-                  />
-                  <span>MISSION FILE / {{ incident.allegiance.toUpperCase() }}</span>
-                </div>
-                <div class="cca-incident-name">
-                  <strong>{{ incident.title }}</strong
-                  ><span
-                    >NEEDS {{ statForField(incident.need).toUpperCase() }} ·
-                    RISK {{ incident.risk }} / 06</span
-                  >
-                </div>
-                <div class="cca-incident-location">
-                  {{ incident.site }} ·
-                  {{
-                    incident.allegiance.toUpperCase() +
-                    ' / ' +
-                    (run.flowVersion === 3 || run.day > 2
-                      ? 'REAL NIGHT PATROL'
-                      : 'TRAINING SIMULATION')
-                  }}
-                </div>
-                <p>
-                  {{
-                    run.flowVersion === 3 || run.day > 2
-                      ? (realNightCase(incident.id)?.briefing ??
-                        incident.briefing)
-                      : incident.briefing
-                  }}
-                </p>
-                <div
-                  v-if="run.patrolOpening === 1 && run.day === 3"
-                  class="cca-report-mini"
-                  data-testid="academy-third-night-decision"
+                <article
+                  v-for="incident in focusedIncidents"
+                  :key="incident.id"
+                  class="cca-incident"
+                  data-testid="academy-active-quest"
                 >
-                  <strong>THE THIRD NIGHT · AN IMPOSSIBLE CHOICE</strong>
-                  <span
-                    >Take {{ incident.title }} yourself and decide how to use
-                    your first friend.</span
-                  >
-                  <button
-                    type="button"
-                    class="cca-choice"
-                    @click="store.planCrisis(incident.id, 'split')"
-                  >
-                    SPLIT UP · attempt both rescues
-                  </button>
-                  <button
-                    type="button"
-                    class="cca-choice"
-                    @click="store.planCrisis(incident.id, 'concentrate')"
-                  >
-                    STAY TOGETHER · guarantee the best rescue here, abandon the
-                    other
-                  </button>
-                </div>
-                <button
-                  v-if="run.flowVersion === 3"
-                  type="button"
-                  class="cca-choice"
-                  :aria-pressed="run.playerCaseId === incident.id"
-                  data-testid="academy-lead-patrol"
-                  @click="store.lead(incident.id)"
-                >
-                  <span>
+                  <div class="cca-incident-scene">
+                    <img
+                      :src="
+                        promArt(incidentArtKey(incident.id)) ?? stageScenery
+                      "
+                      :alt="'Scene from ' + incident.site"
+                    />
+                    <span
+                      >MISSION FILE /
+                      {{ incident.allegiance.toUpperCase() }}</span
+                    >
+                  </div>
+                  <div class="cca-incident-name">
+                    <strong>{{ incident.title }}</strong
+                    ><span
+                      >NEEDS {{ statForField(incident.need).toUpperCase() }} ·
+                      RISK {{ incident.risk }} / 06</span
+                    >
+                  </div>
+                  <div class="cca-incident-location">
+                    {{ incident.site }} ·
                     {{
-                      run.playerCaseId === incident.id
-                        ? '✦ YOU ARE LEADING THIS PATROL'
-                        : 'TAKE THIS CALL YOURSELF'
+                      incident.allegiance.toUpperCase() +
+                      ' / ' +
+                      (run.flowVersion === 3 || run.day > 2
+                        ? 'REAL NIGHT PATROL'
+                        : 'TRAINING SIMULATION')
                     }}
-                    <small
-                      >Choose where your own powers, risks and choices go
-                      tonight.</small
-                    >
-                  </span>
-                  <span>↗</span>
-                </button>
-                <div
-                  v-if="
-                    run.playerCaseId === incident.id &&
-                    expandedMissionFor(incident.id)
-                  "
-                  class="cca-mission-tactics"
-                  data-testid="academy-mission-tactics"
-                >
-                  <strong>YOUR DECISION · HOW DO YOU INTERVENE?</strong>
+                  </div>
                   <p>
-                    Saving lives first offers better odds. Investigating the
-                    cause is riskier but can uncover evidence for a later case
-                    in this neighborhood.
-                  </p>
-                  <div class="cca-mission-tactics-grid">
-                    <button
-                      type="button"
-                      class="cca-choice"
-                      :aria-pressed="
-                        (run.missionApproach ?? 'rescue') === 'rescue'
-                      "
-                      :class="{
-                        active: (run.missionApproach ?? 'rescue') === 'rescue',
-                      }"
-                      data-testid="academy-mission-rescue"
-                      @click="store.missionTactic(incident.id, 'rescue')"
-                    >
-                      <strong>RESCUE FIRST</strong>
-                      {{ expandedMissionFor(incident.id)?.tactics.rescue }}
-                    </button>
-                    <button
-                      type="button"
-                      class="cca-choice"
-                      :aria-pressed="run.missionApproach === 'investigate'"
-                      :class="{ active: run.missionApproach === 'investigate' }"
-                      data-testid="academy-mission-investigate"
-                      @click="store.missionTactic(incident.id, 'investigate')"
-                    >
-                      <strong>CHASE THE EVIDENCE</strong>
-                      {{ expandedMissionFor(incident.id)?.tactics.investigate }}
-                    </button>
-                  </div>
-                  <small
-                    >Casebook evidence recovered:
-                    {{ run.missionClues?.length ?? 0 }}. Matching powers and
-                    earlier district clues may reveal a hidden resolution after
-                    your mission succeeds.</small
-                  >
-                </div>
-                <section class="cca-hand-table" data-testid="academy-quest-poster-row" :aria-label="'Hero cards for ' + incident.title">
-                  <div class="cca-hand-heading">
-                    <strong>02 / YOUR HERO HAND</strong>
-                    <span>Tap to assign · tap again to recall · max 3</span>
-                  </div>
-                  <div class="cca-roster" role="group" :aria-label="'Heroes available for ' + incident.title">
-                    <button
-                      v-for="(student, index) in onCall"
-                      :key="student.id"
-                      type="button"
-                      class="cca-roster-button cca-hand-card"
-                       :style="{ animationDelay: index * 65 + 'ms' }"
-                      :class="{
-                        active: isSelected(incident.id, student.id),
-                        unavailable:
-                          isAssignedElsewhere(incident.id, student.id) ||
-                          !store.available(student.id),
-                      }"
-                      :disabled="
-                        isAssignedElsewhere(incident.id, student.id) ||
-                        !store.available(student.id) ||
-                        (!isSelected(incident.id, student.id) &&
-                          teamFor(incident.id).length >= 3)
-                      "
-                      :aria-pressed="isSelected(incident.id, student.id)"
-                      :title="missionReaction(student.id, incident.id).line"
-                      data-testid="academy-hand-card"
-                      @click="toggleStudent(incident.id, student.id)"
-                    >
-                      <span class="cca-poster-art">
-                        <img
-                          v-if="reactionPortrait(student.id, incident.id)"
-                          :src="reactionPortrait(student.id, incident.id)!"
-                          alt=""
-                          class="cca-avatar-img"
-                        />
-                        <span v-else class="cca-poster-initials">{{ student.portrait }}</span>
-                        <span class="cca-expression" :class="'mood-' + missionReaction(student.id, incident.id).mood" :aria-label="missionReaction(student.id, incident.id).mood + ' reaction'">
-                          {{ reactionEmoji(student.id, incident.id) }}
-                        </span>
-                      </span>
-                      <span class="cca-roster-name">{{ student.name.split(' ')[0] }}</span>
-                      <span class="cca-poster-role">{{ student.title }}</span>
-                      <span class="cca-poster-reaction">{{ missionReaction(student.id, incident.id).line }}</span>
-                      <span v-if="isSelected(incident.id, student.id)" class="cca-hand-state">✦ ON THE TEAM</span>
-                      <span v-else-if="isAssignedElsewhere(incident.id, student.id)" class="cca-hand-state">ON ANOTHER CALL</span>
-                      <span v-else-if="!store.available(student.id)" class="cca-hand-state">UNAVAILABLE</span>
-                    </button>
-                  </div>
-                  <div class="cca-team-slots" aria-label="Assigned heroes">
-                    <strong>YOUR TEAM</strong>
-                    <TransitionGroup name="cca-slot" tag="div" class="cca-slot-row">
-                      <button
-                        v-for="id in teamFor(incident.id)"
-                        :key="id"
-                        type="button"
-                        class="cca-slot-card"
-                        :aria-label="'Recall ' + (STUDENTS.find((student) => student.id === id)?.name ?? id)"
-                        @click="toggleStudent(incident.id, id)"
-                      >
-                        ✦ {{ STUDENTS.find((student) => student.id === id)?.name.split(' ')[0] ?? id }} <span>×</span>
-                      </button>
-                    </TransitionGroup>
-                    <span v-if="!teamFor(incident.id).length" class="cca-team-empty">Choose a hero above to commit them to this call</span>
-                  </div>
-                </section>
-                <div class="cca-crew-count" data-testid="academy-quest-odds">
-                  <strong
-                    >{{ run.playerCaseId === incident.id ? 'YOU + ' : '' }}TEAM
-                    {{ teamFor(incident.id).length }}/3</strong
-                  >
-                  <strong>{{
-                    teamFor(incident.id).length ||
-                    run.playerCaseId === incident.id
-                      ? dispatchChance(run, incident.id, teamFor(incident.id)) +
-                        '% CHANCE OF SUCCESS'
-                      : 'CHOOSE HEROES TO SEE ODDS'
-                  }}</strong>
-                </div>
-                <p class="cca-odds-note">
-                  Estimated chance of at least a partial success. Complete
-                  success is harder; injuries and city standing can change the
-                  odds.
-                </p>
-                <div
-                  v-if="missionRoute(incident.id, teamFor(incident.id))"
-                  class="cca-special-route"
-                  data-testid="academy-special-mission-route"
-                >
-                  <strong
-                    >✦ SPECIAL ROUTE:
                     {{
-                      missionRoute(incident.id, teamFor(incident.id))?.label
-                    }}</strong
+                      run.flowVersion === 3 || run.day > 2
+                        ? (realNightCase(incident.id)?.briefing ??
+                          incident.briefing)
+                        : incident.briefing
+                    }}
+                  </p>
+                  <div
+                    v-if="run.patrolOpening === 1 && run.day === 3"
+                    class="cca-report-mini"
+                    data-testid="academy-third-night-decision"
                   >
-                  <span
-                    >This team unlocks an alternative solution with an improved
-                    chance of success.</span
+                    <strong>THE THIRD NIGHT · AN IMPOSSIBLE CHOICE</strong>
+                    <span
+                      >Take {{ incident.title }} yourself and decide how to use
+                      your first friend.</span
+                    >
+                    <button
+                      type="button"
+                      class="cca-choice"
+                      @click="store.planCrisis(incident.id, 'split')"
+                    >
+                      SPLIT UP · attempt both rescues
+                    </button>
+                    <button
+                      type="button"
+                      class="cca-choice"
+                      @click="store.planCrisis(incident.id, 'concentrate')"
+                    >
+                      STAY TOGETHER · guarantee the best rescue here, abandon
+                      the other
+                    </button>
+                  </div>
+                  <button
+                    v-if="run.flowVersion === 3"
+                    type="button"
+                    class="cca-choice"
+                    :aria-pressed="run.playerCaseId === incident.id"
+                    data-testid="academy-lead-patrol"
+                    @click="store.lead(incident.id)"
                   >
-                </div>
-              </article>
+                    <span>
+                      {{
+                        run.playerCaseId === incident.id
+                          ? '✦ YOU ARE LEADING THIS PATROL'
+                          : 'TAKE THIS CALL YOURSELF'
+                      }}
+                      <small
+                        >Choose where your own powers, risks and choices go
+                        tonight.</small
+                      >
+                    </span>
+                    <span>↗</span>
+                  </button>
+                  <div
+                    v-if="
+                      run.playerCaseId === incident.id &&
+                      expandedMissionFor(incident.id)
+                    "
+                    class="cca-mission-tactics"
+                    data-testid="academy-mission-tactics"
+                  >
+                    <strong>YOUR DECISION · HOW DO YOU INTERVENE?</strong>
+                    <p>
+                      Saving lives first offers better odds. Investigating the
+                      cause is riskier but can uncover evidence for a later case
+                      in this neighborhood.
+                    </p>
+                    <div class="cca-mission-tactics-grid">
+                      <button
+                        type="button"
+                        class="cca-choice"
+                        :aria-pressed="
+                          (run.missionApproach ?? 'rescue') === 'rescue'
+                        "
+                        :class="{
+                          active:
+                            (run.missionApproach ?? 'rescue') === 'rescue',
+                        }"
+                        data-testid="academy-mission-rescue"
+                        @click="store.missionTactic(incident.id, 'rescue')"
+                      >
+                        <strong>RESCUE FIRST</strong>
+                        {{ expandedMissionFor(incident.id)?.tactics.rescue }}
+                      </button>
+                      <button
+                        type="button"
+                        class="cca-choice"
+                        :aria-pressed="run.missionApproach === 'investigate'"
+                        :class="{
+                          active: run.missionApproach === 'investigate',
+                        }"
+                        data-testid="academy-mission-investigate"
+                        @click="store.missionTactic(incident.id, 'investigate')"
+                      >
+                        <strong>CHASE THE EVIDENCE</strong>
+                        {{
+                          expandedMissionFor(incident.id)?.tactics.investigate
+                        }}
+                      </button>
+                    </div>
+                    <small
+                      >Casebook evidence recovered:
+                      {{ run.missionClues?.length ?? 0 }}. Matching powers and
+                      earlier district clues may reveal a hidden resolution
+                      after your mission succeeds.</small
+                    >
+                  </div>
+                  <section
+                    class="cca-hand-table"
+                    data-testid="academy-quest-poster-row"
+                    :aria-label="'Hero cards for ' + incident.title"
+                  >
+                    <div class="cca-hand-heading">
+                      <strong>02 / YOUR HERO HAND</strong>
+                      <span>Tap to assign · tap again to recall · max 3</span>
+                    </div>
+                    <div
+                      class="cca-roster"
+                      role="group"
+                      :aria-label="'Heroes available for ' + incident.title"
+                    >
+                      <button
+                        v-for="(student, index) in onCall"
+                        :key="student.id"
+                        type="button"
+                        class="cca-roster-button cca-hand-card"
+                        :style="{ animationDelay: index * 65 + 'ms' }"
+                        :class="{
+                          active: isSelected(incident.id, student.id),
+                          unavailable:
+                            isAssignedElsewhere(incident.id, student.id) ||
+                            !store.available(student.id),
+                        }"
+                        :disabled="
+                          isAssignedElsewhere(incident.id, student.id) ||
+                          !store.available(student.id) ||
+                          (!isSelected(incident.id, student.id) &&
+                            teamFor(incident.id).length >= 3)
+                        "
+                        :aria-pressed="isSelected(incident.id, student.id)"
+                        :title="missionReaction(student.id, incident.id).line"
+                        data-testid="academy-hand-card"
+                        @click="toggleStudent(incident.id, student.id)"
+                      >
+                        <span class="cca-poster-art">
+                          <img
+                            v-if="reactionPortrait(student.id, incident.id)"
+                            :src="reactionPortrait(student.id, incident.id)!"
+                            alt=""
+                            class="cca-avatar-img"
+                          />
+                          <span v-else class="cca-poster-initials">{{
+                            student.portrait
+                          }}</span>
+                          <span
+                            class="cca-expression"
+                            :class="
+                              'mood-' +
+                              missionReaction(student.id, incident.id).mood
+                            "
+                            :aria-label="
+                              missionReaction(student.id, incident.id).mood +
+                              ' reaction'
+                            "
+                          >
+                            {{ reactionEmoji(student.id, incident.id) }}
+                          </span>
+                        </span>
+                        <span class="cca-roster-name">{{
+                          student.name.split(' ')[0]
+                        }}</span>
+                        <span class="cca-poster-role">{{ student.title }}</span>
+                        <span class="cca-poster-reaction">{{
+                          missionReaction(student.id, incident.id).line
+                        }}</span>
+                        <span
+                          v-if="isSelected(incident.id, student.id)"
+                          class="cca-hand-state"
+                          >✦ ON THE TEAM</span
+                        >
+                        <span
+                          v-else-if="
+                            isAssignedElsewhere(incident.id, student.id)
+                          "
+                          class="cca-hand-state"
+                          >ON ANOTHER CALL</span
+                        >
+                        <span
+                          v-else-if="!store.available(student.id)"
+                          class="cca-hand-state"
+                          >UNAVAILABLE</span
+                        >
+                      </button>
+                    </div>
+                    <div class="cca-team-slots" aria-label="Assigned heroes">
+                      <strong>YOUR TEAM</strong>
+                      <TransitionGroup
+                        name="cca-slot"
+                        tag="div"
+                        class="cca-slot-row"
+                      >
+                        <button
+                          v-for="id in teamFor(incident.id)"
+                          :key="id"
+                          type="button"
+                          class="cca-slot-card"
+                          :aria-label="
+                            'Recall ' +
+                            (STUDENTS.find((student) => student.id === id)
+                              ?.name ?? id)
+                          "
+                          @click="toggleStudent(incident.id, id)"
+                        >
+                          ✦
+                          {{
+                            STUDENTS.find(
+                              (student) => student.id === id,
+                            )?.name.split(' ')[0] ?? id
+                          }}
+                          <span>×</span>
+                        </button>
+                      </TransitionGroup>
+                      <span
+                        v-if="!teamFor(incident.id).length"
+                        class="cca-team-empty"
+                        >Choose a hero above to commit them to this call</span
+                      >
+                    </div>
+                  </section>
+                  <div class="cca-crew-count" data-testid="academy-quest-odds">
+                    <strong
+                      >{{
+                        run.playerCaseId === incident.id ? 'YOU + ' : ''
+                      }}TEAM {{ teamFor(incident.id).length }}/3</strong
+                    >
+                    <strong>{{
+                      teamFor(incident.id).length ||
+                      run.playerCaseId === incident.id
+                        ? dispatchChance(
+                            run,
+                            incident.id,
+                            teamFor(incident.id),
+                          ) + '% CHANCE OF SUCCESS'
+                        : 'CHOOSE HEROES TO SEE ODDS'
+                    }}</strong>
+                  </div>
+                  <p class="cca-odds-note">
+                    Estimated chance of at least a partial success. Complete
+                    success is harder; injuries and city standing can change the
+                    odds.
+                  </p>
+                  <div
+                    v-if="missionRoute(incident.id, teamFor(incident.id))"
+                    class="cca-special-route"
+                    data-testid="academy-special-mission-route"
+                  >
+                    <strong
+                      >✦ SPECIAL ROUTE:
+                      {{
+                        missionRoute(incident.id, teamFor(incident.id))?.label
+                      }}</strong
+                    >
+                    <span
+                      >This team unlocks an alternative solution with an
+                      improved chance of success.</span
+                    >
+                  </div>
+                </article>
               </TransitionGroup>
               <button
                 v-if="emergencyBackup"
@@ -1471,7 +1556,9 @@ const run = computed(() => store.run)
 const focusedIncidentId = ref<string | null>(null)
 const focusedIncident = computed(
   () =>
-    store.incidents.find((incident) => incident.id === focusedIncidentId.value) ??
+    store.incidents.find(
+      (incident) => incident.id === focusedIncidentId.value,
+    ) ??
     store.incidents[0] ??
     null,
 )
@@ -2705,7 +2792,10 @@ function toggleStudent(caseId: string, id: StudentId): void {
   color: #fbebdf;
   overflow: hidden;
   box-shadow: 0 5px 16px #0006;
-  transition: transform 220ms ease, border-color 220ms ease, box-shadow 220ms ease;
+  transition:
+    transform 220ms ease,
+    border-color 220ms ease,
+    box-shadow 220ms ease;
 }
 .cca-case-pick:hover,
 .cca-case-pick:focus-visible {
@@ -2714,7 +2804,9 @@ function toggleStudent(caseId: string, id: StudentId): void {
 }
 .cca-case-pick.active {
   border-color: #ffce8b;
-  box-shadow: 0 0 0 1px #ffce8b, 0 7px 18px #0008;
+  box-shadow:
+    0 0 0 1px #ffce8b,
+    0 7px 18px #0008;
   background: #36405c;
 }
 .cca-case-pick-art {
@@ -2735,7 +2827,9 @@ function toggleStudent(caseId: string, id: StudentId): void {
   padding: 0.5rem 0.45rem 0.5rem 0;
 }
 .cca-case-pick-copy b {
-  font: 800 0.89rem Georgia, serif;
+  font:
+    800 0.89rem Georgia,
+    serif;
 }
 .cca-case-pick-copy small {
   font-size: 0.58rem;
@@ -2777,9 +2871,13 @@ function toggleStudent(caseId: string, id: StudentId): void {
 }
 .cca-hand-card {
   position: relative;
-  animation: cca-deal 430ms cubic-bezier(.18,.85,.28,1.1) both;
+  animation: cca-deal 430ms cubic-bezier(0.18, 0.85, 0.28, 1.1) both;
   transform-origin: center bottom;
-  transition: transform 220ms ease, box-shadow 220ms ease, border-color 220ms ease, opacity 220ms ease;
+  transition:
+    transform 220ms ease,
+    box-shadow 220ms ease,
+    border-color 220ms ease,
+    opacity 220ms ease;
 }
 .cca-hand-card:not(:disabled):hover,
 .cca-hand-card:not(:disabled):focus-visible {
@@ -2789,7 +2887,9 @@ function toggleStudent(caseId: string, id: StudentId): void {
 }
 .cca-hand-card.active {
   transform: translateY(-7px);
-  box-shadow: 0 0 0 1px #ffcd8e, 0 12px 20px #0008;
+  box-shadow:
+    0 0 0 1px #ffcd8e,
+    0 12px 20px #0008;
 }
 .cca-hand-card.active .cca-poster-art:after {
   content: '✦';
@@ -2850,7 +2950,9 @@ function toggleStudent(caseId: string, id: StudentId): void {
 }
 .cca-case-swap-enter-active,
 .cca-case-swap-leave-active {
-  transition: opacity 220ms ease, transform 220ms ease;
+  transition:
+    opacity 220ms ease,
+    transform 220ms ease;
 }
 .cca-case-swap-enter-from {
   opacity: 0;
@@ -2862,7 +2964,9 @@ function toggleStudent(caseId: string, id: StudentId): void {
 }
 .cca-slot-enter-active,
 .cca-slot-leave-active {
-  transition: transform 250ms cubic-bezier(.2,1.2,.3,1), opacity 200ms ease;
+  transition:
+    transform 250ms cubic-bezier(0.2, 1.2, 0.3, 1),
+    opacity 200ms ease;
 }
 .cca-slot-enter-from {
   transform: translateY(-20px) scale(1.25);
@@ -2873,12 +2977,24 @@ function toggleStudent(caseId: string, id: StudentId): void {
   opacity: 0;
 }
 @keyframes cca-deal {
-  from { opacity: 0; transform: translateY(28px) rotate(-3deg) scale(0.91); }
-  to { opacity: 1; transform: translateY(0) rotate(0) scale(1); }
+  from {
+    opacity: 0;
+    transform: translateY(28px) rotate(-3deg) scale(0.91);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) rotate(0) scale(1);
+  }
 }
 @keyframes cca-card-glow {
-  from { opacity: 0; transform: scale(1.5); }
-  to { opacity: 1; transform: scale(1); }
+  from {
+    opacity: 0;
+    transform: scale(1.5);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
 }
 @media (prefers-reduced-motion: reduce) {
   .cca-hand-card,

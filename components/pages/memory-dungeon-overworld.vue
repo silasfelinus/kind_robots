@@ -1238,7 +1238,11 @@ onMounted(() => {
   position: absolute;
   inset: 0;
   pointer-events: none;
-  background: radial-gradient(ellipse at center, transparent 45%, #111c1c22 100%);
+  background: radial-gradient(
+    ellipse at center,
+    transparent 45%,
+    #111c1c22 100%
+  );
 }
 .md-fog-seal::after {
   background: radial-gradient(circle at center, #b5a4d01f, #12162870 90%);

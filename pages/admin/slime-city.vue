@@ -378,6 +378,14 @@
                 </span>
                 <div v-else class="sc-mission-ready">
                   <p
+                    v-if="lab.campaignEcho"
+                    class="sc-mission-terms"
+                    data-testid="slime-city-campaign-echo"
+                  >
+                    {{ lab.campaignEcho.title }} ·
+                    {{ describeTerms(lab.campaignEcho.terms) }}
+                  </p>
+                  <p
                     class="sc-mission-terms"
                     data-testid="slime-city-local-terms"
                   >
@@ -397,10 +405,14 @@
                         >WITH STREET CHOICES ·
                         {{
                           describeTerms(
-                            storyMissionTerms(
-                              lab.city,
-                              lab.districtId,
-                              choice.terms,
+                            campaignBattleTerms(
+                              lab.campaignSave,
+                              lab.activeTeam,
+                              storyMissionTerms(
+                                lab.city,
+                                lab.districtId,
+                                choice.terms,
+                              ),
                             ),
                           )
                         }}</small
@@ -1287,7 +1299,7 @@ import {
   type ViewFighter,
 } from '~/utils/slimeCity/prototypes'
 import { STREETS, boutTerms, storyMissionTerms } from '~/utils/slimeCity/city'
-import { describeTerms } from '~/utils/slimeCity/campaign'
+import { campaignBattleTerms, describeTerms } from '~/utils/slimeCity/campaign'
 import { useSlimeCityStore } from '~/stores/slimeCity'
 import {
   slimeArtId,

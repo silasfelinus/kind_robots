@@ -1696,6 +1696,14 @@ assert.doesNotMatch(
 )
 assert.match(toolbar, /class="dept-banner/, 'the floor rides in the toolbar')
 assert.match(toolbar, /<shifting-desks-envelope\s+v-if="atDesk"\s+compact/)
+// The HUD docks into the header's narrow @container slot, so its chips size
+// by container queries. A viewport breakpoint on the envelope label printed
+// "Break the seal" in a narrow strip and clipped File and Leave off the end.
+assert.doesNotMatch(
+  asset('../../components/shifting-desks/shifting-desks-envelope.vue'),
+  /\b(?:sm|md|lg|xl|max-sm|max-md):(?:not-sr-only|px-)/,
+  'the compact envelope chip sizes by its container, not the viewport',
+)
 assert.match(
   toolbar,
   /v-for="m in meterList"[\s\S]*?v-bind="tipHandlers\(m\.key\)"/,

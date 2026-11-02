@@ -188,10 +188,23 @@ export const useGameOfCaptainsStore = defineStore('gameOfCaptains', () => {
         }
       }
     }
-    const task = send().finally(() => {
-      if (writer === task) writer = null
-    })
+    const task = send()
+      .catch(() => {
+        if (epoch === accountEpoch) {
+          alienSyncStatus.value = 'pending'
+          alienSyncWarning.value = 'Connection interrupted. Your account-scoped recovery copy remains available.'
+        }
+      })
+      .finally(() => {
+        if (writer === task) writer = null
+      })
     writer = task
+  }
+
+  function retryAlienGuideSync() {
+    if (!userStore.authenticatedUserId || alienSyncStatus.value === 'loading') return
+    queuedSignature = ''
+    saveAlienGuideToAccount()
   }
 
   async function syncAlienGuideAccount() {
@@ -423,8 +436,13 @@ export const useGameOfCaptainsStore = defineStore('gameOfCaptains', () => {
         JSON.stringify(redshirtKnowledge.value),
       )
       if (userStore.authenticatedUserId) {
-        if (alienSyncStatus.value !== 'loading') saveAlienGuideToAccount()
-        else localStorage.setItem(pendingGuideKey(userStore.authenticatedUserId), JSON.stringify(alienGuide.value))
+        if (alienSyncStatus.value === 'synced' || alienSyncStatus.value === 'pending')
+          saveAlienGuideToAccount()
+        else
+          localStorage.setItem(
+            pendingGuideKey(userStore.authenticatedUserId),
+            JSON.stringify(alienGuide.value),
+          )
       } else {
         localStorage.setItem(ALIEN_GUIDE_KEY, JSON.stringify(alienGuide.value))
       }
@@ -655,6 +673,7 @@ export const useGameOfCaptainsStore = defineStore('gameOfCaptains', () => {
     alienSyncStatus,
     alienSyncWarning,
     syncAlienGuideAccount,
+    retryAlienGuideSync,
     collectorIncident,
     collectorReport,
     pendingCollectorIncident,

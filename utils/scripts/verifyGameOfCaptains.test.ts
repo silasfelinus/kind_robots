@@ -417,8 +417,9 @@ assert.ok(missionBoard(workerRoute).some((m) => m.id === 'gameworld'))
 workerRoute = chooseMission(workerRoute, 'gameworld')
 workerRoute = completeMission(workerRoute)
 assert.equal(
-  workerRoute.worldFlags?.filter((flag) => !flag.startsWith('supply-shortfall:'))
-    .length,
+  workerRoute.worldFlags?.filter(
+    (flag) => !flag.startsWith('supply-shortfall:'),
+  ).length,
   3,
   'original ethical decisions still leave their world flags',
 )

@@ -229,11 +229,13 @@ export function deployExpedition(
     enc.secretCrew.includes(lead as CrewId)
   const revealedPower =
     profile && profile.talent === enc.skill ? profile.secretPower : null
-  // Every deployed redshirt receives an independent deterministic 1-in-3 mortality roll.
+  // The fatality roll is separate from mission success. Relevant training
+  // reduces a redshirt's danger from one in three to one in six.
+  const fatalityDenominator = skill >= 4 ? 6 : 3
   const casualty =
     profile &&
     hash(run.seed + ':' + run.chapter + ':' + enc.id + ':' + lead + ':fatal') %
-      3 ===
+      fatalityDenominator ===
       0
       ? lead
       : null

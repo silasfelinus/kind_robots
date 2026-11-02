@@ -2189,7 +2189,8 @@ export const HOSHIMORI_OVEN_ROOMS: readonly HoshimoriOvenRoom[] = [
       },
       {
         id: 'last-bell-voluntary-bake',
-        label: 'Offer one witnessed bake with worker consent and a cooling bell',
+        label:
+          'Offer one witnessed bake with worker consent and a cooling bell',
         outcome:
           'The workers approve a single shift, not a renewed oath. Kogane keeps the cooling bell, and the village must find a different answer if the next invitation is refused.',
         flag: 'last-bell-bake-revocable',
@@ -2204,7 +2205,8 @@ export const HOSHIMORI_OVEN_ROOMS: readonly HoshimoriOvenRoom[] = [
     choices: [
       {
         id: 'last-bell-household-custody',
-        label: 'Give each household custody of its route and accept public review',
+        label:
+          'Give each household custody of its route and accept public review',
         outcome:
           'Vesper sets down the pen. Families choose their own escorts and a recallable council hears the old betrayal. No single cartographer, guardian or witness may sell the roads again.',
         trust: 1,
@@ -2212,7 +2214,8 @@ export const HOSHIMORI_OVEN_ROOMS: readonly HoshimoriOvenRoom[] = [
       },
       {
         id: 'last-bell-destroy-compulsory-index',
-        label: 'Destroy the compulsory index and preserve sealed restitution claims',
+        label:
+          'Destroy the compulsory index and preserve sealed restitution claims',
         outcome:
           'The address index burns while Pip protects the claims of people still owed shelter. Vesper keeps a record of the harm, not a list of where the harmed now sleep.',
         flag: 'last-bell-index-destroyed',

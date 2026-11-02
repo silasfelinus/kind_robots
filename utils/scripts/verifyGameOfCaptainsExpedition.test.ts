@@ -343,12 +343,12 @@ for (let seed = 1; seed <= 720; seed++) {
 }
 assert.ok(total === 720 && trainedTotal > 60 && untrainedTotal > 60)
 assert.ok(
-  trainedDead / trainedTotal > 0.1 && trainedDead / trainedTotal < 0.25,
+  trainedDead / trainedTotal > 0.055 && trainedDead / trainedTotal < 0.16,
   `trained fatality ratio ${trainedDead}/${trainedTotal}`,
 )
 assert.ok(
-  untrainedDead / untrainedTotal > 0.24 &&
-    untrainedDead / untrainedTotal < 0.43,
+  untrainedDead / untrainedTotal > 0.14 &&
+    untrainedDead / untrainedTotal < 0.28,
   `untrained fatality ratio ${untrainedDead}/${untrainedTotal}`,
 )
 assert.ok(

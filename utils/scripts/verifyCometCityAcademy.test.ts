@@ -1983,6 +1983,19 @@ assert.ok(art.includes('viewBox="0 0 1440 900"'))
 assert.ok(page.includes('Prom of Doom | Capes & Tassels'))
 assert.ok(tab.includes("title: 'Prom of Doom'"))
 assert.ok(opening.includes('data-testid="academy-new-game"'))
+assert.equal(
+  opening.match(/data-testid="academy-opening-yearbook"/g)?.length,
+  1,
+  'one Yearbook destination on the Prom title screen',
+)
+assert.match(opening, /YEARBOOK \/ CLASSIFIED SCHOOL RECORDS/)
+assert.match(opening, /aria-label="Yearbook collections"/)
+assert.match(opening, /discoveredEndings/)
+assert.doesNotMatch(
+  opening.slice(0, opening.indexOf('<template v-else>')),
+  /SCRAPBOOK/,
+  'Scrapbook is a Yearbook section, not a duplicate title button',
+)
 assert.ok(opening.includes("screen === 'title'"))
 assert.ok(opening.includes("screen === 'origin' || screen === 'affinity'"))
 assert.ok(opening.includes('data-testid="academy-persona-triad"'))

@@ -188,9 +188,9 @@
             v-if="!night.council"
             class="mt-3 rounded-lg border border-warning/30 bg-warning/10 p-2 text-sm"
           >
-            The Windward ridge is sealed until the ledger house, festival
-            path and southern council have each recorded a real choice.
-            The shrine detour remains open.
+            The Windward ridge is sealed until the ledger house, festival path
+            and southern council have each recorded a real choice. The shrine
+            detour remains open.
           </p>
           <div
             v-if="night.windward"

@@ -96,6 +96,7 @@ export const useHybridizerStore = defineStore('hybridizer', () => {
   const randomizing = ref(false)
   let atlasRequestSerial = 0
   let atlasQuery = ''
+  let selectionSerial = 0
   const reusedArtwork = ref(false)
   let sharedRequestSerial = 0
   const versions = ref<HybridizerVersion[]>([])
@@ -386,6 +387,7 @@ export const useHybridizerStore = defineStore('hybridizer', () => {
     if (working.value || randomizing.value) return
     const viewerId = userStore.authenticatedUserId
     randomizing.value = true
+    const selectionId = ++selectionSerial
     try {
       if (!STARTERS.some((entry) => imageFor(entry))) await loadArtwork()
       const starters = STARTERS.filter((entry) => !!imageFor(entry))
@@ -413,7 +415,12 @@ export const useHybridizerStore = defineStore('hybridizer', () => {
               : []
         }
       }
-      if (viewerId !== userStore.authenticatedUserId) return
+      if (
+        viewerId !== userStore.authenticatedUserId ||
+        selectionId !== selectionSerial ||
+        working.value
+      )
+        return
       const available = [...starters, ...hybrids]
       if (available.length < 2) {
         status.value =
@@ -794,6 +801,7 @@ export const useHybridizerStore = defineStore('hybridizer', () => {
 
   function choose(side: 'left' | 'right', key: string) {
     if (working.value || !byKey.value.has(key)) return
+    selectionSerial += 1
     if (side === 'left') leftKey.value = key
     else rightKey.value = key
     resultKey.value = null
@@ -820,6 +828,7 @@ export const useHybridizerStore = defineStore('hybridizer', () => {
     }
 
     const viewerId = userStore.authenticatedUserId
+    selectionSerial += 1
     working.value = true
     reusedArtwork.value = false
     resultKey.value = null
@@ -903,6 +912,7 @@ export const useHybridizerStore = defineStore('hybridizer', () => {
   function selectAtlasDiscovery(key: string) {
     const entry = discoveries.value.find((item) => item.key === key)
     if (!entry) return
+    selectionSerial += 1
     leftKey.value = entry.sources[0]
     rightKey.value = entry.sources[1]
     resultKey.value = key

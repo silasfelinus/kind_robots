@@ -96,7 +96,13 @@ for (const [missionId, episode] of Object.entries(CONSEQUENCE_STORIES)) {
   for (const choice of episode.choices) {
     for (const outcome of ['success', 'failure']) {
       const key = 'consequences/' + episode.id + '-' + choice.id + '-' + outcome
-      assert.ok(key in COUCH_CONSEQUENCE_ART_IDS, 'painted outcome: ' + key)
+      if (episode.id.startsWith('warp-b')) {
+        assert.ok(
+          !(key in COUCH_CONSEQUENCE_ART_IDS),
+          'new outcome is awaiting painted art: ' + key,
+        )
+      } else
+        assert.ok(key in COUCH_CONSEQUENCE_ART_IDS, 'painted outcome: ' + key)
     }
     const captain = startVoyage('vale', ['rue', 'vela', 'mox'], 20261101)
     const decision = {
@@ -118,7 +124,11 @@ for (const [missionId, episode] of Object.entries(CONSEQUENCE_STORIES)) {
     assert.equal(outcome.missionHistory?.at(-1)?.missionId, missionId)
     const recorded = outcome.consequenceHistory![0]!
     assert.equal(recorded.choiceId, choice.id)
-    assert.ok(recorded.artKey in COUCH_CONSEQUENCE_ART_IDS)
+    assert.equal(
+      recorded.artKey in COUCH_CONSEQUENCE_ART_IDS,
+      !episode.id.startsWith('warp-b'),
+      'only delivered, access-filtered ArtImages may be claimed as painted',
+    )
     assert.equal(consequenceAftermath(outcome)?.artKey, recorded.artKey)
     assert.ok(outcome.worldFlags?.includes(recorded.flags[0]!))
     assert.equal(

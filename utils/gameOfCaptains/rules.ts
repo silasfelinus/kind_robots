@@ -1227,6 +1227,10 @@ export function nextDestination(run: VoyageRun): VoyageRun {
               record.chapter < ACT_THREE_FIRST_CHAPTER,
         )[followupIndex]
       : null
+  const actThreeEcho =
+    run.chapter >= ACT_THREE_FIRST_CHAPTER
+      ? (run.consequenceHistory ?? []).find((record) => record.chapter === run.chapter)
+      : null
   const opening =
     run.chapter + 1 === ACT_TWO_FIRST_CHAPTER
       ? { act: 'Act II', text: ACT_TWO_OPENING, supplies: ACT_TWO_RESUPPLY }
@@ -1249,13 +1253,14 @@ export function nextDestination(run: VoyageRun): VoyageRun {
     pocketRoom: null,
     report: null,
     supplies: run.supplies + (opening?.supplies ?? 0),
-    scene: `${opening ? opening.text + ' ' : ''}A new star flickers above ${chapterSystem(run.seed, run.chapter + 1).name}. ${worldEcho(run)} ${followup ? 'INCOMING FOLLOW-UP: ' + followup.callback + ' ' : ''}The available local routes reflect what the captain already did.`,
+    scene: `${opening ? opening.text + ' ' : ''}A new star flickers above ${chapterSystem(run.seed, run.chapter + 1).name}. ${worldEcho(run)} ${followup ? 'INCOMING FOLLOW-UP: ' + followup.callback + ' ' : ''}${actThreeEcho ? 'LAST COMMAND CONSEQUENCE: ' + actThreeEcho.callback + ' ' : ''}The available local routes reflect what the captain already did.`,
     log: [
       ...run.log,
       ...(opening
         ? [`${opening.act} begins: ${opening.supplies} supplies received.`]
         : []),
       ...(followup ? ['Follow-up transmission: ' + followup.callback] : []),
+      ...(actThreeEcho ? ['Last command consequence: ' + actThreeEcho.callback] : []),
     ],
   }
 }

@@ -7412,8 +7412,8 @@ for (const def of DAYS)
     assert.ok(result.flags.includes(expected))
     if (id === 'send-paid-volunteers') {
       assert.ok(
-        result.questAids?.some(
-          (aid) => aid.questId === 'q-d31-iron-rain',
+        result.aid?.['q-d31-iron-rain']?.some(
+          (aid) => aid.label === 'The fifty-two paid volunteers defend the Ford',
         ),
         'the paid recruits improve the Ford dispatch odds',
       )

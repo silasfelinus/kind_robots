@@ -5665,16 +5665,16 @@ for (const def of DAYS)
   const thistleAudience = DAYS[9]!.audiences.find(
     (audience) => audience.id === 'd10-thistledown',
   )!
-  const colorsBeat = thistleAudience.beats!.find(
+  const backedColorsBeat = thistleAudience.beats!.find(
     (beat) => beat.id === 'colors',
   )!
-  const grainOption = colorsBeat.options.find(
+  const grainOption = backedColorsBeat.options.find(
     (option) => option.id === 'feed-fiddler',
   )!
   assert.ok(optionVisible(thistleWithFiddler, grainOption))
   assert.ok(!optionVisible(thistleWithoutFiddler, grainOption))
   assert.match(
-    sceneLines(thistleWithFiddler, colorsBeat).map(lineText).join(' '),
+    sceneLines(thistleWithFiddler, backedColorsBeat).map(lineText).join(' '),
     /twelve-brass receipt/,
   )
   const bargained = answer(

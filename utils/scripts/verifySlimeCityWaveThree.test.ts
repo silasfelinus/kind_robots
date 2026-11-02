@@ -13,10 +13,7 @@ import {
   GUTTER_CROWN_WAVE_THREE,
   GUTTER_CROWN_WAVE_THREE_RARE_IDS,
 } from '../slimeCity/gutterCrownWaveThree'
-import {
-  RARE_COUNT,
-  rarityOf,
-} from '../slimeCity/progression'
+import { RARE_COUNT, rarityOf } from '../slimeCity/progression'
 
 assert.equal(GUTTER_CROWN_WAVE_THREE.length, 36)
 assert.equal(CARDS.length, 204)
@@ -55,9 +52,7 @@ const unit = (
 })
 
 for (const crew of TEAMS) {
-  const wave = GUTTER_CROWN_WAVE_THREE.filter(
-    (card) => card.team === crew.id,
-  )
+  const wave = GUTTER_CROWN_WAVE_THREE.filter((card) => card.team === crew.id)
   assert.equal(wave.length, 6, crew.id + ' has six distinct new cards')
   assert.equal(wave.filter((card) => card.kind === 'creature').length, 2)
   assert.equal(wave.filter((card) => card.kind === 'spell').length, 2)
@@ -76,7 +71,11 @@ for (const crew of TEAMS) {
     assert.ok(card.text.length >= 65, card.id + ' has flavorful exact rules')
     assert.ok(card.name.length >= 8 && card.symbol)
     assert.ok(card.cost >= 1 && card.cost <= 6)
-    assert.equal(card.signature, undefined, 'Original signature remains required')
+    assert.equal(
+      card.signature,
+      undefined,
+      'Original signature remains required',
+    )
     const deck = [...founder]
     const substitute = deck.find((id) => {
       const original = cardById(id)
@@ -98,8 +97,11 @@ for (const crew of TEAMS) {
       unit('enemy', 982, 7, 2, foe.creatures[0]!),
     ]
     game.nextId = 983
-    const friendly = card.kind === 'equipment' ||
-      ['heal', 'scan', 'armor', 'sharpen', 'grant', 'boost'].includes(card.effect ?? '')
+    const friendly =
+      card.kind === 'equipment' ||
+      ['heal', 'scan', 'armor', 'sharpen', 'grant', 'boost'].includes(
+        card.effect ?? '',
+      )
     const location =
       card.kind === 'creature'
         ? { x: 0, y: 0 }
@@ -117,7 +119,11 @@ for (const crew of TEAMS) {
     assert.equal(played.mana, 10 - card.cost)
     assert.equal(played.stats.plays.player[card.kind], 1)
     assert.ok(played.discards.player.includes(card.id))
-    assert.ok(played.commands.some((cmd) => cmd.t === 'deploy' && cmd.card === card.id))
+    assert.ok(
+      played.commands.some((cmd) => cmd.t === 'deploy' && cmd.card === card.id),
+    )
   }
 }
-console.log('Slime City wave three: 36 playable crew cards, 12 rares, six distinct archetypes, 204-card economy PASS')
+console.log(
+  'Slime City wave three: 36 playable crew cards, 12 rares, six distinct archetypes, 204-card economy PASS',
+)

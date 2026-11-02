@@ -549,10 +549,16 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
   const canShoveTarget = computed(() => {
     const unit = selected.value
     const target = selectedTarget.value
-    return !!unit && !!target && 'side' in target && canBulldozeInto(match.value, unit, target.x, target.y)
+    return (
+      !!unit &&
+      !!target &&
+      'side' in target &&
+      canBulldozeInto(match.value, unit, target.x, target.y)
+    )
   })
   function shoveSelected(): void {
-    if (!selected.value || !selectedTarget.value || !canShoveTarget.value) return
+    if (!selected.value || !selectedTarget.value || !canShoveTarget.value)
+      return
     const target = selectedTarget.value
     const next = move(match.value, selected.value.id, target.x, target.y)
     if (next === match.value) return
@@ -1034,7 +1040,12 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
       targetUnit.value = null
       return
     }
-    if (unit?.side === 'enemy' && (attackTargets.value.includes(unit.id) || (!!selected.value && canBulldozeInto(match.value, selected.value, x, y)))) {
+    if (
+      unit?.side === 'enemy' &&
+      (attackTargets.value.includes(unit.id) ||
+        (!!selected.value &&
+          canBulldozeInto(match.value, selected.value, x, y)))
+    ) {
       targetUnit.value = unit.id
       return
     }

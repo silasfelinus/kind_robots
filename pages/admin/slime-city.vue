@@ -859,7 +859,7 @@
               <b>HOW TO BEAT THEM</b> {{ lab.team.counters }}
             </p>
             <p class="sc-art-summary" data-testid="slime-art-provenance">
-              ROUND ONE: {{ SLIME_CITY_ART_COUNT }} RENDERED IDS ·
+              {{ SLIME_CITY_ART_COUNT }} RENDERED IDS ·
               {{ art.loadedCount }} VERIFIED IN BROWSER ·
               {{ art.failedCount }} UNAVAILABLE · 24 STARTER CARDS STILL NEED
               ART

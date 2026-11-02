@@ -73,13 +73,14 @@ const artIds = [
   ...Object.values(SLIME_CITY_ART.districts),
   ...Object.values(SLIME_CITY_ART.cards),
   ...Object.values(SLIME_CITY_ART.boards),
+  ...Object.values(SLIME_CITY_ART.ui),
 ]
 assert.equal(
   SLIME_CITY_ART_COUNT,
-  52,
-  'First art round has 52 rendered ArtImage IDs',
+  67,
+  'Round one (52) plus round four (14 district boards and the card back)',
 )
-assert.equal(artIds.length, 52)
+assert.equal(artIds.length, 67)
 assert.equal(
   new Set(artIds).size,
   artIds.length,
@@ -95,14 +96,16 @@ assert.deepEqual(
   PLAYER_MODES.map((mode) => mode.id),
   ['blackout', 'bloodrush'],
 )
-// Each district gets its own floor per mode; until round 4 renders, the
-// district falls back to the shared board for that mode.
+// Each district fights on its own floor per mode (round 4), never the shared
+// mode board; an unknown district still falls back to the shared board.
 for (const district of DISTRICTS)
   for (const mode of PLAYER_MODES)
-    assert.ok(
+    assert.notEqual(
       slimeBoardArtId(district.id, mode.id),
-      district.id + ' ' + mode.id,
+      slimeArtId('boards', mode.id),
+      district.id + ' ' + mode.id + ' has its own board',
     )
+assert.ok(slimeArtId('ui', 'card-back'), 'Painted card back')
 assert.equal(
   slimeBoardArtId('nowhere', 'blackout'),
   slimeArtId('boards', 'blackout'),

@@ -79,6 +79,9 @@ building or reshaping a game, gallery or creative tool.
 - **Art-first:** outside settings/admin/diagnostics, prefer image-led cards, canvases, maps and
   decks over text-and-button panels; an entity's art is a primary part of choosing it; missing
   art keeps an image-shaped fallback slot.
+- **Choices are a hand of cards** (Silas, 2026-11-02): a game's set of one-tap choices renders
+  through `components/narrative/kr-choice-hand.vue` — result art on each card, one tap plays,
+  locked choices as disabled cards. Not for chat quick replies or multi-select pickers.
 - **Console-first:** the stage (art, map, video, game) gets the most space; controls form a
   compact deck around it; use container width on large displays (container queries / intrinsic
   grids); on small displays collapse controls before shrinking the stage.

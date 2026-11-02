@@ -1325,31 +1325,18 @@
                 class="cap-consequence-choices"
                 data-testid="space-couch-authored-consequence"
               >
-                <strong>THREE ORDERS · THREE DIFFERENT COSTS</strong>
                 <p>
                   Your captain and assigned crew attempt the strongest listed
                   skill. A seeded six-sided roll decides the outcome; setbacks
                   continue the story.
                 </p>
-                <button
-                  v-for="choice in featuredConsequence.choices"
-                  :key="choice.id"
-                  type="button"
-                  class="cap-option cap-consequence-choice"
-                  :data-consequence-choice="choice.id"
-                  @click="store.decideConsequence(choice.id)"
-                >
-                  <span>
-                    <b>{{ choice.label }}</b>
-                    <small>{{ choice.approach }}</small>
-                    <small
-                      >CHECK
-                      {{ choice.check.ability_any.join(' / ').toUpperCase() }} ·
-                      DIFFICULTY {{ choice.check.difficulty }}</small
-                    >
-                    <small>TRADEOFF: {{ choice.cost }}</small> </span
-                  >↗
-                </button>
+                <SpaceCouchChoiceHand
+                  :choices="consequenceHand"
+                  question="Three orders · three different costs"
+                  :deal-key="featuredConsequence.id"
+                  testid-prefix="space-couch-consequence-choice"
+                  @play="(choice) => store.decideConsequence(choice.id)"
+                />
               </section>
             </template>
             <template v-else>
@@ -1363,50 +1350,14 @@
                 <p>{{ run.report.text }}</p>
               </div>
               <p class="cap-alert">{{ nemesisLine }}</p>
-              <button
-                class="cap-option"
-                type="button"
-                @click="store.decide('aid')"
-              >
-                <span
-                  ><b>{{ ethicalOrders.aid }}</b
-                  ><small v-if="run.supplies > 0"
-                    >1 SUPPLY · +1 trust, +2 reputation. Help on their
-                    terms.</small
-                  ><small v-else
-                    >EMPTY HOLD · Give time and labor: +1 trust, no reputation
-                    bonus.</small
-                  ></span
-                >↗
-              </button>
-              <button
-                class="cap-option"
-                type="button"
-                @click="store.decide('observe')"
-              >
-                <span
-                  ><b>{{ ethicalOrders.observe }}</b
-                  ><small
-                    >Preserve legal standing. Others live with the
-                    result.</small
-                  ></span
-                >↗
-              </button>
-              <button
-                class="cap-option"
-                type="button"
-                @click="store.decide('intervene')"
-              >
-                <span
-                  ><b>{{ ethicalOrders.intervene }}</b
-                  ><small v-if="run.supplies >= 2"
-                    >2 SUPPLIES · -2 reputation. Act without permission.</small
-                  ><small v-else
-                    >SHORT BY {{ 2 - run.supplies }} · Extra reputational harm
-                    from the improvised intervention.</small
-                  ></span
-                >↗
-              </button>
+              <SpaceCouchChoiceHand
+                :choices="ethicalHand"
+                question="Your orders, captain"
+                :deal-key="`${run.chapter}:${mission.id}`"
+                testid-prefix="space-couch-ethical-order"
+                spread
+                @play="(choice) => store.decide(choice.id as PolicyId)"
+              />
             </template>
           </template>
 
@@ -1552,20 +1503,30 @@
               >
                 <strong>{{ line.name }}:</strong> {{ line.line }}
               </p>
-              <button
-                v-for="choice in romanceScene.choices"
-                :key="choice.id"
-                class="cap-option"
-                type="button"
-                :data-romance-choice="choice.id"
-                @click="store.chooseRomance(choice.id)"
+              <SpaceCouchChoiceHand
+                :choices="romanceHand"
+                :deal-key="`${run.chapter}:${romanceScene.title}`"
+                testid-prefix="space-couch-romance-choice"
+                @play="
+                  (choice) => store.chooseRomance(choice.id as RomanceChoiceId)
+                "
               >
-                <span
-                  ><b>{{ choice.label }}</b
-                  ><small>{{ choice.cost }}</small></span
-                >
-                ↗
-              </button>
+                <template #art="{ choice }">
+                  <span
+                    v-if="romanceFaces(choice.id).length"
+                    class="cap-romance-card-faces"
+                    :data-faces="romanceFaces(choice.id).length"
+                  >
+                    <img
+                      v-for="url in romanceFaces(choice.id)"
+                      :key="url"
+                      :src="url"
+                      alt=""
+                    />
+                  </span>
+                  <span v-else class="cap-romance-card-faces is-empty">♡</span>
+                </template>
+              </SpaceCouchChoiceHand>
             </section>
             <p
               v-else-if="romanceRecord?.lastChapter === run.chapter"
@@ -1863,6 +1824,8 @@ import {
   counterCrew,
   type CaptainId,
   type CrewId,
+  type PolicyId,
+  type VoyageRun,
 } from '~/utils/gameOfCaptains/rules'
 import {
   CAPTAIN_STATS,
@@ -1900,7 +1863,9 @@ import { portraitArt, voyageStageArt } from '~/utils/gameOfCaptains/artSlots'
 import {
   consequenceForRun,
   consequenceAftermath,
+  type ConsequenceChoice,
 } from '~/utils/gameOfCaptains/consequenceStories'
+import type { KrHandChoice } from '~/components/narrative/kr-choice-hand.vue'
 import {
   CAPTAIN_ORIGINS,
   type CaptainOriginId,
@@ -1926,8 +1891,10 @@ import {
 
 import {
   romanceMoment,
+  type RomanceChoiceId,
   type RomanceVoyage,
 } from '~/utils/gameOfCaptains/romance'
+import { romanceStory } from '~/utils/gameOfCaptains/romanceStories'
 
 const store = useGameOfCaptainsStore()
 const selectedCaptain = ref<CaptainId>('fluke')
@@ -2124,6 +2091,89 @@ const featuredConsequence = computed(() =>
 )
 const latestConsequence = computed(() =>
   run.value ? consequenceAftermath(run.value) : null,
+)
+function consequenceLeadPortrait(choice: ConsequenceChoice): string | null {
+  const voyage = run.value
+  if (!voyage) return null
+  const best = (stats: Record<string, number>) =>
+    Math.max(...choice.check.ability_any.map((skill) => stats[skill] ?? 0))
+  let lead = 'captain-' + voyage.captain
+  let score = best(CAPTAIN_STATS[voyage.captain])
+  for (const id of voyage.away.length ? voyage.away : voyage.crew) {
+    const person = crewProfile(id)
+    if (best(person.stats) > score) {
+      lead = person.portraitKey
+      score = best(person.stats)
+    }
+  }
+  return portrait(lead)
+}
+const consequenceHand = computed<KrHandChoice[]>(() => {
+  const episode = featuredConsequence.value
+  if (!episode) return []
+  return episode.choices.map((choice) => ({
+    id: choice.id,
+    label: choice.label,
+    chip: `Check ${choice.check.ability_any.join(' / ')} · difficulty ${choice.check.difficulty}`,
+    hint: choice.approach,
+    details: [`Tradeoff: ${choice.cost}`],
+    image:
+      paintedVoyageImage(`consequences/${episode.id}-${choice.id}-success`) ||
+      consequenceLeadPortrait(choice) ||
+      voyageStageArt(run.value, paintedVoyageImage) ||
+      COUCH_FALLBACK,
+  }))
+})
+function ethicalOrderChoices(run: VoyageRun): KrHandChoice[] {
+  const image = voyageStageArt(run, paintedVoyageImage) || COUCH_FALLBACK
+  return [
+    {
+      id: 'aid',
+      label: ethicalOrders.value.aid,
+      chip: run.supplies > 0 ? '1 SUPPLY' : 'EMPTY HOLD',
+      hint:
+        run.supplies > 0
+          ? '+1 trust, +2 reputation. Help on their terms.'
+          : 'Give time and labor: +1 trust, no reputation bonus.',
+      image,
+    },
+    {
+      id: 'observe',
+      label: ethicalOrders.value.observe,
+      chip: 'NO SUPPLIES',
+      hint: 'Preserve legal standing. Others live with the result.',
+      image,
+    },
+    {
+      id: 'intervene',
+      label: ethicalOrders.value.intervene,
+      chip: run.supplies >= 2 ? '2 SUPPLIES' : `SHORT BY ${2 - run.supplies}`,
+      hint:
+        run.supplies >= 2
+          ? '-2 reputation. Act without permission.'
+          : 'Extra reputational harm from the improvised intervention.',
+      image,
+    },
+  ]
+}
+const ethicalHand = computed(() =>
+  run.value ? ethicalOrderChoices(run.value) : [],
+)
+function romanceFaces(id: string): string[] {
+  const keys = id.startsWith('invite-')
+    ? (romanceStory(id.slice('invite-'.length))?.portraitKeys ?? [])
+    : (romanceScene.value?.portraits ?? [])
+  return keys
+    .slice(0, 4)
+    .map((key) => portrait(key))
+    .filter((url): url is string => Boolean(url))
+}
+const romanceHand = computed<KrHandChoice[]>(() =>
+  (romanceScene.value?.choices ?? []).map((choice) => ({
+    id: choice.id,
+    label: choice.label,
+    hint: choice.cost,
+  })),
 )
 const routeBoard = computed(() => (run.value ? missionBoard(run.value) : []))
 const circuit = computed(() => solarCircuit(run.value?.seed ?? 1))
@@ -3079,13 +3129,6 @@ function toggleAway(id: CrewId) {
   color: #d7e5eb;
   font-size: clamp(0.78rem, 1.15cqi, 0.95rem);
 }
-.cap-consequence-choice {
-  border-left: 0.3rem solid #efb981;
-}
-.cap-consequence-choice small {
-  display: block;
-  margin-top: 0.15rem;
-}
 .cap-consequence-receipt {
   border: 1px solid #f1c287;
   border-radius: 0.5rem;
@@ -3907,6 +3950,32 @@ function toggleAway(id: CrewId) {
 }
 .cap-romance-line strong {
   color: #ffdab0;
+}
+.cap-romance-card-faces {
+  display: grid;
+  grid-auto-columns: minmax(0, 1fr);
+  grid-auto-rows: minmax(0, 1fr);
+  grid-auto-flow: column;
+  background: linear-gradient(160deg, #365266, #0e1b2d);
+}
+.cap-romance-card-faces[data-faces='3'],
+.cap-romance-card-faces[data-faces='4'] {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-auto-flow: row;
+}
+.cap-romance-card-faces[data-faces='3'] img:first-child {
+  grid-column: span 2;
+}
+.cap-romance-card-faces img {
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  object-fit: cover;
+}
+.cap-romance-card-faces.is-empty {
+  place-items: center;
+  color: #ffd5ab;
+  font-size: 2.5rem;
 }
 .cap-romance-outcome {
   border-left: 3px solid #efc49c;

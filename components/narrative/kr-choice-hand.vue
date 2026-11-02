@@ -25,8 +25,8 @@
 <template>
   <div
     class="krh"
-    :class="{ 'is-tucked': tuck }"
-    :style="{ '--count': choices.length }"
+    :class="{ 'krh-tucked': tuck, 'krh-still': !animate }"
+    :style="{ '--count': choices.length, '--fit': fitFactor }"
     data-testid="kr-choice-hand"
   >
     <p v-if="question" class="krh-question">{{ question }}</p>
@@ -46,6 +46,7 @@
       <TransitionGroup
         tag="div"
         name="krh-deal"
+        appear
         class="krh-fan"
         role="list"
         :aria-label="question || 'Choices'"
@@ -63,8 +64,9 @@
             'is-focused': focused === choice.id,
           }"
           :style="fanStyle(index)"
-          :disabled="choice.disabled || Boolean(playing)"
+          :disabled="Boolean(playing)"
           :aria-disabled="choice.disabled ? 'true' : undefined"
+          :aria-keyshortcuts="choice.shortcut"
           :aria-label="ariaFor(choice)"
           :aria-describedby="detailId"
           :title="ariaFor(choice)"
@@ -80,18 +82,27 @@
               <span class="krh-art">
                 <slot name="art" :choice="choice">
                   <img
-                    v-if="choice.image && !failed.includes(choice.id)"
-                    :src="choice.image"
+                    v-if="imageOf(choice)"
+                    :key="imageOf(choice)!"
+                    :src="imageOf(choice)!"
+                    :style="
+                      choice.artPosition
+                        ? { objectPosition: choice.artPosition }
+                        : undefined
+                    "
                     alt=""
                     loading="lazy"
                     decoding="async"
-                    @error="failed.push(choice.id)"
+                    @error="failed.push(imageOf(choice)!)"
                   />
                   <span v-else class="krh-art-plain" aria-hidden="true">{{
                     choice.icon ?? ''
                   }}</span>
                 </slot>
               </span>
+              <kbd v-if="choice.shortcut" class="krh-key">{{
+                choice.shortcut
+              }}</kbd>
               <span v-if="choice.badge" class="krh-badge">{{
                 choice.badge
               }}</span>
@@ -142,10 +153,15 @@ export type KrHandChoice = {
   /** Longer text that only fits in the caption above the lifted card. */
   details?: string[]
   disabled?: boolean
+  /** Keyboard key that plays it (the game handles the key itself). */
+  shortcut?: string
   /** A small corner tag, e.g. "Perk". */
   badge?: string
-  /** Picture of the result or subject; the `art` slot overrides it. */
-  image?: string | null
+  /** Picture of the result or subject, or several to try in order; the
+   *  `art` slot overrides it. */
+  image?: string | readonly (string | null | undefined)[] | null
+  /** CSS object-position for the picture, e.g. to show one part of a shared painting. */
+  artPosition?: string
   /** Emoji or glyph for the drawn fallback when there is no picture. */
   icon?: string
 }
@@ -157,6 +173,8 @@ const props = withDefaults(
     /** Change it whenever a new hand is offered, so the cards deal in again. */
     dealKey?: string
     tuck?: boolean
+    /** False when the game's own motion setting is off. */
+    animate?: boolean
     backImage?: string | null
     testidPrefix?: string
   }>(),
@@ -164,6 +182,7 @@ const props = withDefaults(
     question: '',
     dealKey: '',
     tuck: false,
+    animate: true,
     backImage: null,
     testidPrefix: 'choice-hand',
   },
@@ -176,6 +195,9 @@ const focused = ref('')
 const playing = ref('')
 const failed = ref<string[]>([])
 
+const PLAY_MS = 420
+let playTimer: ReturnType<typeof setTimeout> | null = null
+
 const shown = computed(() => {
   const choice =
     props.choices.find((c) => c.id === playing.value) ??
@@ -186,10 +208,21 @@ const shown = computed(() => {
 watch(
   () => props.dealKey,
   () => {
+    if (playTimer) clearTimeout(playTimer)
+    playTimer = null
     focused.value = ''
     playing.value = ''
   },
 )
+
+function imageOf(choice: KrHandChoice): string | null {
+  const list = Array.isArray(choice.image) ? choice.image : [choice.image]
+  return (
+    list.find(
+      (src): src is string => Boolean(src) && !failed.value.includes(src!),
+    ) ?? null
+  )
+}
 
 function linesOf(choice: KrHandChoice): string[] {
   return [choice.chip, choice.badge, choice.hint, ...(choice.details ?? [])]
@@ -201,6 +234,15 @@ function ariaFor(choice: KrHandChoice): string {
   return [choice.label, ...linesOf(choice)].join('. ')
 }
 
+/** Card widths the fan occupies, given how much neighbours overlap. */
+function overlapFor(n: number): number {
+  return n <= 3 ? 0.04 : n === 4 ? -0.05 : n === 5 ? -0.14 : -0.24
+}
+const fitFactor = computed(() => {
+  const n = Math.max(1, props.choices.length)
+  return (n * (1 + 2 * overlapFor(n))).toFixed(3)
+})
+
 /** Fan like held cards: a gentle arc, centre card highest. */
 function fanStyle(index: number): Record<string, string> {
   const n = props.choices.length
@@ -211,13 +253,9 @@ function fanStyle(index: number): Record<string, string> {
     '--drop':
       (Math.abs(offset) ** 2 * (n <= 5 ? 0.22 : 0.06)).toFixed(3) + 'rem',
     '--i': String(index),
-    '--overlap':
-      n <= 3 ? '0.04' : n === 4 ? '-0.05' : n === 5 ? '-0.14' : '-0.24',
+    '--overlap': String(overlapFor(n)),
   }
 }
-
-const PLAY_MS = 420
-let playTimer: ReturnType<typeof setTimeout> | null = null
 
 function reducedMotion(): boolean {
   try {
@@ -229,7 +267,7 @@ function reducedMotion(): boolean {
 
 function play(choice: KrHandChoice): void {
   if (choice.disabled || playing.value) return
-  if (reducedMotion()) {
+  if (!props.animate || reducedMotion()) {
     emit('play', choice)
     return
   }
@@ -268,7 +306,7 @@ function sparkleStyle(n: number): Record<string, string> {
      scrollbar, and stay modest on short screens. */
   --card-w: min(
     clamp(5.5rem, min(36cqw, 18vh), var(--hand-card-max, 9.25rem)),
-    calc((100cqw - 2rem) / (var(--count, 3) * 0.8))
+    calc((100cqw - 2.25rem) / var(--fit, 2.4))
   );
   --card-h: calc(var(--card-w) * 1.5);
   --peek: calc(var(--card-h) * 0.3 * var(--tuck));
@@ -279,7 +317,7 @@ function sparkleStyle(n: number): Record<string, string> {
   flex-direction: column;
   gap: 0.35rem;
 }
-.krh.is-tucked {
+.krh.krh-tucked {
   --tuck: 1;
 }
 .krh-question {
@@ -297,7 +335,7 @@ function sparkleStyle(n: number): Record<string, string> {
    position, so it never sits under the cards. */
 .krh-detail {
   position: absolute;
-  inset: auto 0 calc(var(--card-h) * 1.17 + 1rem);
+  inset: auto 0 calc(var(--card-h) * (1.16 + 0.11 * (1 - var(--tuck))) + 1.2rem);
   z-index: 12;
   max-height: 7.5em;
   overflow: hidden;
@@ -459,6 +497,23 @@ function sparkleStyle(n: number): Record<string, string> {
   font-size: calc(var(--card-w) * 0.38);
   line-height: 1;
 }
+.krh-key {
+  position: absolute;
+  bottom: 0.3rem;
+  left: 0.3rem;
+  z-index: 1;
+  min-width: 1.1rem;
+  border: 1px solid color-mix(in oklab, var(--band-ink) 55%, transparent);
+  border-bottom-width: 2px;
+  border-radius: 0.3rem;
+  background: var(--band);
+  padding: 0 0.25rem;
+  color: var(--band-ink);
+  font:
+    800 0.6rem / 1.3 ui-monospace,
+    monospace;
+  text-align: center;
+}
 .krh-badge {
   position: absolute;
   bottom: 0.3rem;
@@ -498,7 +553,7 @@ function sparkleStyle(n: number): Record<string, string> {
 }
 .krh-title small {
   color: var(--accent);
-  font-size: 0.52rem;
+  font-size: calc(0.46rem * var(--hand-text-scale, 1.2));
   font-weight: 800;
   letter-spacing: 0.08em;
   line-height: 1.2;
@@ -517,7 +572,7 @@ function sparkleStyle(n: number): Record<string, string> {
     color-mix(in oklab, var(--band) 90%, transparent) 40%
   );
   color: color-mix(in oklab, var(--band-ink) 80%, transparent);
-  font-size: 0.56rem;
+  font-size: calc(0.5rem * var(--hand-text-scale, 1.2));
   font-style: normal;
   line-height: 1.25;
 }
@@ -641,6 +696,14 @@ function sparkleStyle(n: number): Record<string, string> {
   }
 }
 
+.krh.krh-still .krh-card,
+.krh.krh-still .krh-card.is-playing,
+.krh.krh-still .krh-deal-enter-active {
+  transition: none;
+}
+.krh.krh-still .krh-deal-enter-active .krh-flip {
+  animation: none;
+}
 @media (prefers-reduced-motion: reduce) {
   .krh-card,
   .krh-card.is-playing,

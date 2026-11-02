@@ -145,34 +145,23 @@
             <span>{{ lab.campaignState.lastScene }}</span>
           </div>
         </div>
-        <div class="campaign-decision">
-          <span class="campaign-overline"
-            >CHOOSE YOUR APPROACH · BLACKOUT RULES</span
+        <div class="campaign-decision" :class="'tone-' + lab.team.color">
+          <KrChoiceHand
+            :choices="approachChoices"
+            question="CHOOSE YOUR APPROACH · BLACKOUT RULES"
+            :deal-key="lab.activeTeam + ':' + lab.campaignState.wins"
+            testid-prefix="slime-campaign-choice"
+            @play="playApproach"
           >
-          <button
-            v-for="choice in lab.activeChapter.choices"
-            :key="choice.id"
-            type="button"
-            :data-testid="'slime-campaign-choice-' + choice.id"
-            @click="lab.startCampaignBattle(choice.id)"
-          >
-            <span class="decision-mark">{{
-              choice.id === 'conviction' ? '01' : '02'
-            }}</span>
-            <span class="decision-copy">
-              <strong>{{ choice.label }}</strong>
-              <small>{{
-                describeTerms(
-                  campaignBattleTerms(
-                    lab.campaignSave,
-                    lab.activeTeam,
-                    choice.terms,
-                  ),
-                )
-              }}</small>
-            </span>
-            <span class="decision-arrow" aria-hidden="true">→</span>
-          </button>
+            <template #art="{ choice }">
+              <SlimeCityArtwork
+                :image-id="slimeArtId('crews', approachCrew(choice.id))"
+                :alt="choice.label"
+                :fallback="crewInsignia(approachCrew(choice.id))"
+                compact
+              />
+            </template>
+          </KrChoiceHand>
         </div>
       </div>
       <div class="campaign-disclaimer">
@@ -192,6 +181,7 @@ import { campaignBattleTerms, describeTerms } from '~/utils/slimeCity/campaign'
 import { slimeArtId } from '~/utils/slimeCity/artManifest'
 import { useSlimeCityStore } from '~/stores/slimeCity'
 import type { TeamId } from '~/utils/slimeCity/prototypes'
+import type { KrHandChoice } from '~/components/narrative/kr-choice-hand.vue'
 
 const lab = useSlimeCityStore()
 const nextDistrictName = computed(
@@ -229,6 +219,30 @@ const endingArtId = computed(() => {
 })
 function teamName(id: TeamId): string {
   return lab.teams.find((team) => team.id === id)?.name ?? id
+}
+function crewInsignia(id: TeamId): string {
+  return lab.teams.find((team) => team.id === id)?.insignia ?? ''
+}
+function approachCrew(id: string): TeamId {
+  return id === 'cunning' && lab.activeChapter
+    ? lab.activeChapter.foe
+    : lab.activeTeam
+}
+const approachChoices = computed<KrHandChoice[]>(() =>
+  (lab.activeChapter?.choices ?? []).map((choice) => ({
+    id: choice.id,
+    label: choice.label,
+    chip: describeTerms(
+      campaignBattleTerms(lab.campaignSave, lab.activeTeam, choice.terms),
+    ),
+    badge: choice.id === 'conviction' ? 'Conviction' : 'Cunning',
+  })),
+)
+function playApproach(choice: KrHandChoice) {
+  const approach = lab.activeChapter?.choices.find(
+    (option) => option.id === choice.id,
+  )
+  if (approach) lab.startCampaignBattle(approach.id)
 }
 </script>
 
@@ -532,49 +546,27 @@ function teamName(id: TeamId): string {
   outline-offset: 2px;
 }
 .campaign-decision {
-  display: grid;
-  gap: 0.45rem;
-  align-content: start;
-}
-.campaign-decision button {
-  display: flex;
-  align-items: center;
-  text-align: left;
-  gap: 0.55rem;
-  width: 100%;
-  padding: 0.75rem;
-  color: #f4f4ec;
-  background: linear-gradient(120deg, #313b43, #182130);
-  border: 1px solid #a1c6a2;
-  border-radius: 0.55rem;
-  cursor: pointer;
-}
-.campaign-decision button:hover,
-.campaign-decision button:focus-visible {
-  border-color: #effc9f;
-  background: #3a4444;
-}
-.decision-mark {
-  font-size: 1.4rem;
-  font-weight: 1000;
-  color: #c9d78e;
-}
-.decision-copy {
-  display: grid;
-  flex: 1;
+  --tone: #c5ff59;
+  --hand-accent: var(--tone);
+  --hand-accent-2: #c5ff59;
+  --hand-band: #070b12;
+  --hand-band-ink: #f4f4ec;
   min-width: 0;
-  gap: 0.15rem;
 }
-.decision-copy strong {
-  font-size: 0.8rem;
+.campaign-decision.tone-red {
+  --tone: #fe6657;
 }
-.decision-copy small {
-  color: #c7d1d8;
-  font-size: 0.68rem;
+.campaign-decision.tone-blue {
+  --tone: #6fc8ff;
 }
-.decision-arrow {
-  font-size: 1.4rem;
-  color: #d2ed9f;
+.campaign-decision.tone-purple {
+  --tone: #d38cff;
+}
+.campaign-decision.tone-green {
+  --tone: #c7fa62;
+}
+.campaign-decision.tone-gold {
+  --tone: #f7c968;
 }
 .campaign-recap {
   margin-top: 0.6rem;

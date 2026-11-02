@@ -442,80 +442,17 @@
                 </div>
                 <div
                   v-if="game.activeEncounter"
-                  class="grid grid-cols-[repeat(auto-fit,minmax(min(100%,220px),1fr))] gap-2"
+                  class="journey-hand"
+                  data-testid="shifting-encounter-hand"
                 >
-                  <button
-                    v-for="option in openChoices"
-                    :key="option.id"
-                    type="button"
-                    class="group flex w-full flex-col gap-1 rounded-xl border border-base-content/20 bg-base-300 px-3 py-2 text-left transition-colors hover:border-warning focus-visible:outline focus-visible:outline-4 focus-visible:outline-primary"
-                    :title="option.risk"
-                    @click="chooseEncounter(option.id)"
-                  >
-                    <span class="flex items-start justify-between gap-2">
-                      <strong
-                        class="text-sm leading-snug group-hover:text-warning sm:text-base"
-                        >{{ option.label }}</strong
-                      >
-                      <span class="flex shrink-0 flex-wrap justify-end gap-1">
-                        <span
-                          v-for="price in priceOf(option)"
-                          :key="price"
-                          class="inline-flex items-center rounded-lg border border-error/40 px-1.5 py-0.5 text-[11px] font-bold text-error"
-                          >{{ price }}</span
-                        >
-                        <ShiftingLandsCheckChip
-                          v-if="option.roll"
-                          :reading="
-                            readCheck(
-                              option.roll.skill,
-                              option.roll.target,
-                              option.roll.modifier,
-                            )
-                          "
-                          :open="checkTip === option.id"
-                          @toggle="toggleCheckTip(option.id)"
-                        />
-                        <span
-                          v-else
-                          class="inline-flex items-center gap-1 rounded-lg border border-success/40 px-1.5 py-0.5 text-[11px] font-bold"
-                          :title="option.risk"
-                          ><Icon name="kind-icon:check" class="size-3.5" />
-                          Certain</span
-                        >
-                      </span>
-                    </span>
-                    <span class="text-sm leading-snug opacity-85">{{
-                      option.intent
-                    }}</span>
-                    <span
-                      v-if="checkTip === option.id && option.roll"
-                      class="rounded-md bg-base-100 px-2 py-1 text-xs leading-snug"
-                      >{{
-                        readCheck(
-                          option.roll.skill,
-                          option.roll.target,
-                          option.roll.modifier,
-                        ).explain
-                      }}
-                      {{ option.risk }}</span
-                    >
-                  </button>
-                  <button
-                    v-for="option in lockedChoices"
-                    :key="option.id"
-                    type="button"
-                    class="locked-route flex items-center gap-1.5 rounded-xl border border-dashed border-base-content/25 bg-base-200/70 px-3 py-1.5 text-left text-xs text-base-content/70"
-                    :title="lockOf(option) ?? undefined"
-                    :aria-expanded="checkTip === option.id"
-                    @click="toggleCheckTip(option.id)"
-                  >
-                    <Icon name="kind-icon:lock" class="size-3.5 shrink-0" />
-                    <span class="font-bold">{{ option.label }}</span>
-                    <span v-if="checkTip === option.id" class="opacity-90">{{
-                      lockOf(option)
-                    }}</span>
-                  </button>
+                  <KrChoiceHand
+                    :choices="encounterHand"
+                    :deal-key="`${game.activeEncounter.id}:${dealKey}`"
+                    back-image="/shifting-lands/encounter-back.svg"
+                    :animate="!reducedMotion"
+                    testid-prefix="shifting-choice"
+                    @play="(option) => chooseEncounter(option.id)"
+                  />
                 </div>
                 <template v-else>
                   <p
@@ -627,89 +564,41 @@
                     </button>
                   </div>
                   <div
-                    class="grid grid-cols-[repeat(auto-fit,minmax(min(100%,220px),1fr))] gap-2"
+                    class="journey-hand"
                     aria-label="Authored trial approaches"
+                    data-testid="shifting-trial-hand"
                   >
-                    <button
-                      v-for="choice in game.currentTrial.choices"
-                      :key="choice.id"
-                      type="button"
-                      class="group flex w-full flex-col gap-1 rounded-xl border border-base-content/20 bg-base-300 px-3 py-2 text-left transition-colors hover:border-warning focus-visible:outline focus-visible:outline-4 focus-visible:outline-primary disabled:cursor-not-allowed disabled:opacity-55"
-                      :disabled="!game.canTrial(choice.id)"
-                      @click="attemptTrialWithCue(choice.id)"
+                    <KrChoiceHand
+                      :choices="trialHand"
+                      :deal-key="`${game.currentLand.id}:${game.lastTrialOutcome?.turn ?? 0}:${game.preparedTrial}`"
+                      back-image="/shifting-lands/trial-back.svg"
+                      :animate="!reducedMotion"
+                      testid-prefix="shifting-trial"
+                      @play="(choice) => attemptTrialWithCue(choice.id)"
+                    />
+                    <div
+                      v-if="lockedTrialChoices.length"
+                      class="flex flex-wrap gap-1.5"
+                      aria-label="Approaches not yet open"
                     >
-                      <span class="flex items-start justify-between gap-2">
-                        <strong class="text-sm leading-snug sm:text-base">{{
-                          choice.label
-                        }}</strong>
-                        <ShiftingLandsCheckChip
-                          :reading="readCheck(choice.skill, choice.target)"
-                          :open="checkTip === choice.id"
-                          @toggle="toggleCheckTip(choice.id)"
-                        />
-                      </span>
-                      <span class="text-sm leading-snug opacity-85">{{
-                        choice.intent
-                      }}</span>
-                      <span class="text-xs font-bold text-info">
-                        {{ trialSuccessPercent(choice) }}% success on 2d6
-                      </span>
-                      <span
-                        v-if="checkTip === choice.id"
-                        class="rounded-md bg-base-100 px-2 py-1 text-xs leading-snug"
-                        >{{
-                          readCheck(choice.skill, choice.target).explain
-                        }}</span
+                      <button
+                        v-for="choice in lockedTrialChoices"
+                        :key="choice.id"
+                        type="button"
+                        class="locked-route flex items-center gap-1.5 rounded-xl border border-dashed border-base-content/25 bg-base-200/70 px-3 py-1.5 text-left text-xs text-base-content/70"
+                        :title="trialLock(choice) ?? undefined"
+                        :aria-expanded="checkTip === choice.id"
+                        @click="toggleCheckTip(choice.id)"
                       >
-                      <span
-                        v-if="
-                          choice.cost ||
-                          (choice.requiredAnyFlags.length &&
-                            !game.canTrial(choice.id))
-                        "
-                        class="text-xs font-semibold opacity-70"
-                      >
-                        <template v-if="choice.cost"
-                          >Costs {{ choice.cost }} provision</template
+                        <Icon name="kind-icon:lock" class="size-3.5 shrink-0" />
+                        <span class="font-bold">{{ choice.label }}</span>
+                        <span
+                          v-if="checkTip === choice.id"
+                          class="opacity-90"
+                          >{{ trialLock(choice) }}</span
                         >
-                        <template
-                          v-if="
-                            choice.requiredAnyFlags.length &&
-                            !game.canTrial(choice.id)
-                          "
-                        >
-                          Requires discovered evidence</template
-                        >
-                      </span>
-                      <span
-                        v-if="
-                          choice.id === 'witness' && !game.canTrial(choice.id)
-                        "
-                        class="text-xs opacity-70"
-                        >Requires two earned mercy or honesty marks</span
-                      >
-                      <span
-                        v-if="
-                          choice.id === 'scout' && !game.canTrial(choice.id)
-                        "
-                        class="text-xs opacity-70"
-                        >Scout this gate first, spending 1 HP</span
-                      >
-                      <span
-                        v-if="
-                          choice.id === 'solidarity' &&
-                          !game.canTrial(choice.id)
-                        "
-                        class="text-xs opacity-70"
-                        >Requires 4 mercy and 2 honesty marks</span
-                      >
-                      <span
-                        v-if="choice.id === 'coerce'"
-                        class="text-xs font-semibold text-warning"
-                        >Someone else bears this danger; the debt will be
-                        remembered</span
-                      >
-                    </button>
+                      </button>
+                    </div>
                   </div>
                   <div
                     v-if="game.lastTrialOutcome?.landId === game.currentLand.id"
@@ -1517,7 +1406,12 @@
 <script setup lang="ts">
 import { computed, nextTick, onBeforeUnmount, onMounted, ref } from 'vue'
 import { useShiftingLandsJourneyStore } from '~/stores/shiftingLandsJourneyStore'
-import { trialForLand } from '~/utils/shiftingLands/authoredBosses'
+import {
+  trialForLand,
+  type TrialChoice,
+} from '~/utils/shiftingLands/authoredBosses'
+import { outcomeArt } from '~/utils/shiftingLands/sceneArt'
+import type { KrHandChoice } from '~/components/narrative/kr-choice-hand.vue'
 import {
   readCheck,
   type BossApproach,
@@ -1593,6 +1487,75 @@ function priceOf(choice: ShownChoice): string[] {
 function toggleCheckTip(id: string): void {
   checkTip.value = checkTip.value === id ? null : id
 }
+function choiceArt(cardId: string, choiceId: string, scene: string): string {
+  return outcomeArt(cardId, choiceId, true) ?? scene
+}
+const encounterHand = computed<KrHandChoice[]>(() => {
+  const cardId = game.activeEncounter?.id ?? ''
+  return [...openChoices.value, ...lockedChoices.value].map((option) => {
+    const lock = lockOf(option)
+    const reading = option.roll
+      ? readCheck(option.roll.skill, option.roll.target, option.roll.modifier)
+      : null
+    return {
+      id: option.id,
+      label: option.label,
+      chip: [
+        reading ? `${reading.word} · ${reading.need}+` : 'Certain',
+        ...priceOf(option),
+      ].join(' · '),
+      hint: lock ?? option.intent,
+      disabled: !!lock,
+      details: [
+        lock ? option.intent : '',
+        reading?.explain ?? '',
+        option.risk,
+      ].filter(Boolean),
+      image: choiceArt(cardId, option.id, game.activeArt),
+    }
+  })
+})
+const TRIAL_LOCKS: Readonly<Record<string, string>> = {
+  witness: 'Requires two earned mercy or honesty marks',
+  scout: 'Scout this gate first, spending 1 HP',
+  solidarity: 'Requires 4 mercy and 2 honesty marks',
+}
+function trialLock(choice: TrialChoice): string | null {
+  if (game.canTrial(choice.id)) return null
+  if (choice.requiredAnyFlags.length) return 'Requires discovered evidence'
+  return (
+    TRIAL_LOCKS[choice.id] ??
+    `Needs ${choice.cost} provision${choice.cost === 1 ? '' : 's'}`
+  )
+}
+const trialChoices = computed<TrialChoice[]>(
+  () => game.currentTrial?.choices ?? [],
+)
+const lockedTrialChoices = computed(() =>
+  trialChoices.value.filter((choice) => trialLock(choice)),
+)
+const trialHand = computed<KrHandChoice[]>(() =>
+  trialChoices.value
+    .filter((choice) => !trialLock(choice))
+    .map((choice) => ({
+      id: choice.id,
+      label: choice.label,
+      chip: [
+        `${trialSuccessPercent(choice)}% success`,
+        choice.cost ? `${choice.cost} provision` : '',
+      ]
+        .filter(Boolean)
+        .join(' · '),
+      hint: choice.intent,
+      details: [
+        readCheck(choice.skill, choice.target).explain,
+        choice.id === 'coerce'
+          ? 'Someone else bears this danger; the debt will be remembered'
+          : '',
+      ].filter(Boolean),
+      image: choiceArt('trial-' + game.currentLand.id, choice.id, game.bossArt),
+    })),
+)
 type Reveal = { kind: 'encounter' | 'trial'; turn: number }
 const reveal = ref<Reveal | null>(null)
 const consequenceKey = ref(0)
@@ -1942,6 +1905,19 @@ onBeforeUnmount(() => shellObserver?.disconnect())
   .encounter-text {
     justify-content: center;
   }
+}
+.journey-hand {
+  --hand-accent: var(--color-warning);
+  --hand-accent-2: var(--color-error);
+  --hand-band: #17110b;
+  --hand-band-ink: #f4e6cc;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+.journey-hand :deep(.krh-title strong),
+.journey-hand :deep(.krh-detail strong) {
+  font-family: ui-serif, Georgia, serif;
 }
 .journey-hidden-narrow {
   display: none;

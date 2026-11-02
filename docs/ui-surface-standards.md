@@ -51,6 +51,30 @@ button, or data object is technically reachable.
 - Settings-style UI is appropriate for settings. A creative product surface should look and
   feel designed before it is sent to Silas for visual acceptance.
 
+## Choices are a hand of cards (Silas, 2026-11-02 PT)
+
+> "I think the hand choice is very strong and should be the default."
+
+Whenever a game or story offers a **set of one-tap choices**, render them with
+`components/narrative/kr-choice-hand.vue`, not a button list:
+
+- Each card's face is the picture of what the choice leads to: its outcome/result art,
+  else the subject's art (scene, character, location), else the drawn fallback with an
+  icon. Pass game art through the `art` slot or `image`; never ship a text-only hand when
+  art exists.
+- One tap plays. Do not add a confirm step; give the game an undo instead if it needs one.
+- The short title and a chip (roll, odds, cost) go on the card; a short hint at the card
+  foot; anything longer goes in `details` (floating caption + accessible label).
+- Locked choices stay in the hand as disabled cards with the reason as their hint.
+- Game palettes come from the `--hand-*` CSS variables; keep the card text plain and
+  high-contrast (Memory Dungeon's readable choices are the bar).
+- Modifier toggles that apply to the next pick (e.g. Shifting Desks' Form/Favor) sit outside
+  the hand, above it.
+- Not a hand: chat quick replies (`kr-choice-list`), multi-select or pick-then-confirm
+  selectors, revisable toggles, and settings.
+
+Adopters are listed in `utils/scripts/verifyKrChoiceHand.test.ts`; add yours there.
+
 ## Console-first, space-filling creative surfaces (Silas, 2026-10-20 PT)
 
 The default visual metaphor for creative tools and games is a **console**, not a

@@ -30,7 +30,6 @@ on:
       - 'utils/scripts/verifyShiftingV8.test.ts'
       - 'utils/scripts/verifyShiftingFollowerEchoesV8.test.ts'
       - 'utils/scripts/verifyShiftingFollowerRecruitmentV9.test.ts'
-      - 'components/shifting-lands-check-chip.vue'
       - 'components/shifting-lands-scene-image.vue'
       - 'utils/scripts/importShiftingLandsWorld.mjs'
       - '.github/workflows/shifting-lands-gameplay.yml'

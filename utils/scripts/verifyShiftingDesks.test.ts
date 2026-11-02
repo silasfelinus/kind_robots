@@ -1720,9 +1720,27 @@ assert.match(page, /v-if="currentNotice && !opened"/)
 // choices; the card face keeps it only on phones, where Decide zooms.
 assert.match(
   page,
-  /ref="briefHeading"[\s\S]*?view\.card\.flavor_text[\s\S]*?v-for="choice in openRoutes"/,
+  /ref="briefHeading"[\s\S]*?view\.card\.flavor_text[\s\S]*?<KrChoiceHand[\s\S]*?:choices="routeCards"/,
   'the description renders in the choices pane, above the choices',
 )
+// Silas, 2026-11-02: the routes are the shared hand of cards. The open routes
+// become its cards, one tap plays, and the Form / Favor / mutation toggles sit
+// above the hand and still apply to whichever card is played.
+assert.match(
+  page,
+  /const routeCards = computed<KrHandChoice\[\]>\(\(\) =>\s*openRoutes\.value\.map\(/,
+)
+assert.match(
+  page,
+  /v-model="spendForm"[\s\S]*?v-model="useFavor"[\s\S]*?v-model="useMutation"[\s\S]*?<KrChoiceHand/,
+  'the pre-pick toggles sit above the hand',
+)
+assert.match(page, /@play="\(card\) => pick\(face\(card\.id\)\.route\)"/)
+assert.match(
+  page,
+  /function pick\(choice: Choice\)[\s\S]*?spendForm: spendForm\.value,\s*useFavor: favorFor\(choice\),\s*useMutation: mutationFor\(choice\),/,
+)
+assert.match(page, /disabled: !!lock,\s*hint: lock \?\? undefined,/)
 assert.match(page, /p-2 sm:p-3 md:hidden">\s*<p\s+ref="cardHeading"/)
 assert.doesNotMatch(page, /desk-poster/, 'the text-only poster is gone')
 // Themes paint art behind the page, so no container may be see-through.

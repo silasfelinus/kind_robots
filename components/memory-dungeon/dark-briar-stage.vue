@@ -369,19 +369,17 @@
               scene &&
               !world.dark.sceneChoices[world.dark.player]
             "
-            class="flex flex-wrap items-start gap-2 pt-1"
+            class="pt-1"
             data-testid="dark-briar-choices"
           >
-            <button
-              v-for="choice in scene.choices"
-              :key="choice.id"
-              type="button"
-              class="min-h-12 flex-1 rounded-lg border border-[#563462] bg-[#43314f] px-4 py-3 text-left text-base font-bold leading-snug sm:text-lg lg:text-xl text-[#fff0d9] hover:bg-[#654674] disabled:opacity-45 focus-visible:outline-2 focus-visible:outline-[#271a38]"
-              :disabled="!darkBriarCanChoose(world.dark, world.dark.player)"
-              @click="world.darkChooseScene(choice.id)"
-            >
-              {{ choice.label }}
-            </button>
+            <memory-dungeon-choice-hand
+              :choices="sceneHand"
+              :deal-key="world.dark.player"
+              icon="✥"
+              palette="violet"
+              testid-prefix="dark-briar-choice"
+              @play="(choice) => world.darkChooseScene(choice.id)"
+            />
           </div>
           <p
             v-else-if="
@@ -460,6 +458,7 @@ import {
   darkBriarCanDuel,
 } from '~/utils/memoryDungeon/darkBriarDuels'
 import { COMBAT_ROOMS } from '~/utils/memoryDungeon/rooms'
+import type { MemoryHandChoice } from '~/components/memory-dungeon/memory-dungeon-choice-hand.vue'
 
 const world = useMemoryWorldStore()
 const tiles = BRIAR_TILES
@@ -480,6 +479,15 @@ const illustrationPath = computed(() =>
     world.dark.sceneChoices[world.dark.player],
   ),
 )
+const sceneHand = computed<MemoryHandChoice[]>(() => {
+  const locked = !darkBriarCanChoose(world.dark, world.dark.player)
+  return (scene.value?.choices ?? []).map((choice) => ({
+    id: choice.id,
+    label: choice.label,
+    image: darkBriarIllustrationPath(world.dark.player, choice.id),
+    disabled: locked,
+  }))
+})
 const artFailed = ref(false)
 watch(illustrationPath, () => {
   artFailed.value = false

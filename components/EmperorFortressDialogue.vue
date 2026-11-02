@@ -113,56 +113,29 @@
     </div>
 
     <div
-      v-if="showChoices"
+      v-show="showChoices"
       ref="choicesEl"
-      class="grid scroll-mb-3 gap-1.5 border-t border-warning/20 p-3"
+      class="eod-hand scroll-mb-3 border-t border-warning/20 px-1 pb-2 pt-2"
     >
-      <p
-        class="text-[10px] font-semibold uppercase tracking-[0.25em] text-warning"
+      <KrChoiceHand
+        :choices="showChoices ? answers : []"
+        question="Your answer"
+        testid-prefix="eod-answer"
+        @play="(answer) => emit('choose', answer.id)"
       >
-        Your answer
-      </p>
-      <button
-        v-for="choice in choices"
-        :key="choice.id"
-        type="button"
-        class="eod-choice-reading flex items-start gap-3 rounded-md border px-4 py-3 text-left transition-colors"
-        :class="
-          choice.blockers.length
-            ? 'cursor-not-allowed border-base-content/10 opacity-55'
-            : 'border-warning/40 bg-base-200/80 hover:border-warning hover:bg-warning/15'
-        "
-        :disabled="choice.blockers.length > 0"
-        @click="emit('choose', choice.id)"
-      >
-        <span
-          class="mt-2 h-2.5 w-2.5 shrink-0 rotate-45 border border-warning"
-          :class="choice.blockers.length ? '' : 'bg-warning'"
-          aria-hidden="true"
-        />
-        <span class="min-w-0">
-          <strong class="block">{{ choice.label }}</strong>
-          <span v-if="choice.note" class="block text-xs text-warning">{{
-            choice.note
-          }}</span>
-          <span
-            v-if="choice.stakes?.length"
-            class="mt-1 flex flex-wrap gap-1"
-            aria-label="What this answer touches"
-          >
-            <span
-              v-for="(stake, i) in choice.stakes"
-              :key="i"
-              class="rounded-full border px-1.5 py-px text-[10px] font-semibold leading-tight"
-              :class="STAKE_TONE[stake.tone]"
-              >{{ stake.text }}</span
-            >
+        <template #art>
+          <span class="eod-hand-art" aria-hidden="true">
+            <img
+              v-if="art && !portraitFailed"
+              :src="art"
+              alt=""
+              loading="lazy"
+              @error="portraitFailed = true"
+            />
+            <span v-else class="eod-hand-initial">{{ speaker.charAt(0) }}</span>
           </span>
-          <span v-if="choice.blockers.length" class="block text-xs">
-            {{ choice.blockers.join(' · ') }}
-          </span>
-        </span>
-      </button>
+        </template>
+      </KrChoiceHand>
     </div>
   </section>
 </template>
@@ -176,6 +149,7 @@ import { lineText } from '~/utils/emperorOfDust/fortress/engine'
 import { followerDef } from '~/utils/emperorOfDust/fortress/followers'
 import type { SceneLine } from '~/utils/emperorOfDust/fortress/types'
 import type { Stake } from '~/utils/emperorOfDust/fortress/board'
+import type { KrHandChoice } from '~/components/narrative/kr-choice-hand.vue'
 
 const props = defineProps<{
   speaker: string
@@ -194,13 +168,24 @@ const props = defineProps<{
   }[]
 }>()
 
-const STAKE_TONE: Record<Stake['tone'], string> = {
-  gain: 'border-success/50 text-success',
-  loss: 'border-error/50 text-error',
-  neutral: 'border-base-content/25 opacity-80',
-  warning: 'border-warning/60 text-warning',
-}
 const emit = defineEmits<{ choose: [id: string] }>()
+
+const answers = computed<KrHandChoice[]>(() =>
+  props.choices.map((choice) => {
+    const stakes = (choice.stakes ?? []).map((stake) => stake.text)
+    const blocked = choice.blockers.length > 0
+    return {
+      id: choice.id,
+      label: choice.label,
+      chip: choice.note || undefined,
+      hint: blocked
+        ? choice.blockers.join(' · ')
+        : stakes.slice(0, 2).join(' · ') || undefined,
+      details: blocked ? stakes : stakes.slice(2),
+      disabled: blocked,
+    }
+  }),
+)
 
 const court = useEmperorFortressStore()
 const portraitFailed = ref(false)
@@ -296,3 +281,35 @@ watch(
 )
 onBeforeUnmount(stop)
 </script>
+
+<style scoped>
+.eod-hand-art {
+  display: block;
+  overflow: hidden;
+  background:
+    radial-gradient(
+      circle at 50% 35%,
+      color-mix(in oklch, var(--hand-accent, currentColor) 30%, transparent),
+      transparent 65%
+    ),
+    linear-gradient(170deg, oklch(30% 0.04 60), oklch(16% 0.025 255));
+}
+.eod-hand-art img {
+  position: absolute;
+  inset: 18% 0 0;
+  width: 100%;
+  height: 82%;
+  object-position: 50% 0;
+}
+.eod-hand-initial {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding-bottom: 12%;
+  color: var(--hand-accent, currentColor);
+  font-family: 'Cinzel', ui-serif, Georgia, serif;
+  font-size: 2.5rem;
+  font-weight: 700;
+}
+</style>

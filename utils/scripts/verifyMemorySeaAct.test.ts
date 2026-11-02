@@ -240,7 +240,17 @@ assert.match(sea, /data-testid="memory-sea-act"/)
 assert.match(sea, /sea\.travel\(tile\.key\)/)
 assert.match(sea, /sea\.choose\(choice\.id\)/)
 assert.match(sea, /sceneArt\.status === 'delivered'/)
-assert.match(sea, /choice\.art\.status === 'delivered'/)
+assert.match(
+  sea,
+  /<memory-dungeon-choice-hand[\s\S]*?:choices="sea\.current\.choices"/,
+)
+assert.match(
+  readFileSync(
+    'components/memory-dungeon/memory-dungeon-choice-hand.vue',
+    'utf8',
+  ),
+  /choice\.art\?\.status === 'delivered'/,
+)
 assert.match(seaStore, /replayEarthJournal\(/)
 assert.match(seaStore, /world\.finishScyllaReality\(/)
 assert.match(world, /function finishScyllaReality\(/)

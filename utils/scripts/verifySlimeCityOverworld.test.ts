@@ -610,7 +610,6 @@ console.log(
   'Slime City faction campaigns: 6 crews, 30 rival chapters, gating and endings PASS',
 )
 
-
 /**
  * A win's tactical echo survives through account-backed campaign decisions,
  * affects exactly the next chapter, and has the same rules on both story
@@ -641,11 +640,13 @@ for (const team of TEAMS) {
     const expected = CAMPAIGN_ECHOES[team.id][approach]
     assert.deepEqual(campaignEchoFor(saved, team.id), expected)
     assert.ok(expected.title.length > 9 && expected.story.length > 60)
-    assert.deepEqual(
-      campaignBattleTerms(saved, team.id, {}),
-      expected.terms,
-    )
-    const baseTerms = { playerMana: 1, enemyMana: 1, enemyArmor: 1, rivalTrap: true }
+    assert.deepEqual(campaignBattleTerms(saved, team.id, {}), expected.terms)
+    const baseTerms = {
+      playerMana: 1,
+      enemyMana: 1,
+      enemyArmor: 1,
+      rivalTrap: true,
+    }
     const adjusted = campaignBattleTerms(saved, team.id, baseTerms)
     assert.equal(
       adjusted.playerMana,
@@ -695,7 +696,9 @@ for (const team of TEAMS) {
     )
   }
 }
-console.log('Slime City 12 faction campaign echoes: earned, bounded, applied PASS')
+console.log(
+  'Slime City 12 faction campaign echoes: earned, bounded, applied PASS',
+)
 
 // Story missions combine district consequences with one specific story
 // approach; this cannot modify the city, chapter definitions, or browser

@@ -1,6 +1,7 @@
 import { CAPTAIN_STATS, CREW_PROFILES, type Skill } from './crewAssignments'
 import type { PolicyId, VoyageRun } from './rules'
 import { ACT_ONE_EXPANDED_CONSEQUENCES } from './consequenceStoriesActOneExpansion'
+import { ACT_ONE_UNPAINTED_CASES } from './consequenceStoriesActOneRemainder'
 
 type Meter =
   | 'sanctuary_trust'
@@ -483,6 +484,7 @@ export const CONSEQUENCE_STORIES: Record<string, ConsequenceEpisode> = {
     ],
   },
   ...ACT_ONE_EXPANDED_CONSEQUENCES,
+  ...ACT_ONE_UNPAINTED_CASES,
 }
 export const CONSEQUENCE_ENDINGS: readonly ConsequenceEnding[] = [
   {

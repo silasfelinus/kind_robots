@@ -443,6 +443,21 @@ export const ACT_ONE_LATE_DAYS: readonly DayDef[] = [
         npc: 'gristle-vane',
         faction: 'jackalwire',
         requires: { notFlags: ['feast-armed'] },
+        variants: [
+          {
+            flags: ['d04-pack-split-sown'],
+            lines: [
+              'Captain Gristle Vane enters alone. His coat has fresh stitching where a feathered badge was torn away. Outside, two Pack camps face each other across the bridge road. Your warning to the fiddler reached both captains.',
+              '“You sent my fiddler a private letter. Now she holds the south bank and I hold the tollhouse. The carts are paying both of us to argue.”',
+              '“Thirty brass buys your wagons a week without being stopped. Or pay her for the south bank and see what my north bank does about it.”',
+              {
+                who: 'Young Komodo',
+                npc: 'young-komodo',
+                text: 'We split their captains, Your Majesty. We also split the road. One honest bargain will not put it back together.',
+              },
+            ],
+          },
+        ],
         lines: [
           'Captain Gristle Vane does not walk up the carpet. He arrives on it. A greatcoat sewn from a hundred kinds of feather, and a few things that are not feathers. An ear-chain that jangles at every step. The two raiders at the doors pick their teeth with the court’s good spoons.',
           'Your Majesty! One of my captains met you at the bridge. Says you have a soft face and a hard floor. I came to see both.',
@@ -471,6 +486,19 @@ export const ACT_ONE_LATE_DAYS: readonly DayDef[] = [
             response:
               'Saffron steps out from the pillar before you finish her name. Not like her. Vane’s grin widens to the ear-chain.',
             next: 'saffron',
+          },
+          {
+            id: 'fund-fiddler',
+            label:
+              'Give the fiddler twelve brass for medicines and a week of safe passage. Make the split public.',
+            requires: { flags: ['d04-pack-split-sown'], cost: 12 },
+            effects: {
+              affinity: { jackalwire: -10, saltroad: 5 },
+              local: { 'gate-watch': -1, yard: 1 },
+              flags: ['d05-fiddler-backed'],
+            },
+            response:
+              'Vane takes his cap off. The torn badge shows a pale square on his coat. “Twelve brass buys her loyalty for a week. It buys you a second toll collector.” That evening the fiddler walks the first medicine cart over the south bank. The Watch holds the north, one sentry short.',
           },
           {
             id: 'pay',
@@ -1354,6 +1382,34 @@ export const ACT_ONE_LATE_DAYS: readonly DayDef[] = [
             response:
               'A sealed parcel in oilcloth. Heavier than it looks. The Conclave runner who carried it up the mountain does not leave with the envoy.',
             postsQuests: ['q-d07-crow-favor'],
+          },
+          {
+            id: 'ask-sheltered-runner',
+            label:
+              'Ask the runner you sheltered to reveal the storm’s hour. The elders will add years to her bond.',
+            requires: { flags: ['d04-runner-sheltered'] },
+            effects: {
+              schedule: ['d07-storm'],
+              affinity: { freeholds: 5, 'storm-crows': -12 },
+              local: { lamplight: -2, 'gate-watch': -1 },
+              flags: ['crow-forecast-day10', 'd07-runner-penalized'],
+            },
+            response:
+              'The runner you sheltered comes down from the gallery, chimes still wrapped in wool. She gives the hour, the wind, and the safe harvest road. At the third word, the envoy writes two more years against her name. Your guards close the doors, but they cannot undo the ink.',
+          },
+          {
+            id: 'ask-returned-runner',
+            label:
+              'Pay twenty brass for the returned runner’s forecast, without asking her to break her oath.',
+            requires: { flags: ['d04-runner-returned'], cost: 20 },
+            effects: {
+              schedule: ['d07-storm'],
+              affinity: { freeholds: 5, 'storm-crows': 3 },
+              local: { ledger: -1 },
+              flags: ['crow-forecast-day10', 'd07-runner-commissioned'],
+            },
+            response:
+              'The envoy counts twenty brass and sends for the young runner you returned to Corvane. She reads the storm’s hour from a slate bearing the elder’s seal. Her chimes are no longer stuffed with wool. She looks at the floor when the envoy pockets her fee.',
           },
           {
             id: 'pay',

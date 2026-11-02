@@ -31,11 +31,7 @@
         <span
           class="absolute left-3 top-3 rounded-full border border-base-content/30 bg-base-100/80 px-3 py-1 text-xs font-bold uppercase tracking-wide"
         >
-          {{
-            sighting?.milestone
-              ? 'Extraordinary visitation'
-              : 'Unexpected lifeform'
-          }}
+          Unexpected lifeform
         </span>
       </div>
       <div class="kr-scroll min-h-0 overflow-y-auto p-4 md:p-6">
@@ -43,15 +39,7 @@
           <p class="text-xs uppercase tracking-widest opacity-70">
             Couch Natural History Society, chapter {{ sighting.chapter }}
           </p>
-          <h2 class="mt-2 text-2xl font-black">
-            {{ sighting.milestone?.title ?? species.name }}
-          </h2>
-          <p
-            v-if="sighting.milestone"
-            class="my-3 rounded-xl bg-secondary/15 p-3"
-          >
-            {{ sighting.milestone.scene }}
-          </p>
+          <h2 class="mt-2 text-2xl font-black">{{ species.name }}</h2>
           <p class="my-3 text-lg" data-testid="space-couch-alien-emotional-cue">
             {{ sighting.scene }}
           </p>

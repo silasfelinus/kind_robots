@@ -359,17 +359,14 @@
                 <strong>{{ offer.beat.title }}</strong>
                 <span>{{ offer.beat.scene }}</span>
                 <span v-if="offer.waiting">{{ offer.waiting }}</span>
-                <button
-                  v-for="option in offer.options"
-                  :key="option.id"
-                  class="cca-choice"
-                  type="button"
-                  data-testid="academy-triad-choice"
-                  @click="store.negotiate(offer.arc.id, option.id)"
-                >
-                  <span>{{ option.label }}</span
-                  ><span>↗</span>
-                </button>
+                <KrChoiceHand
+                  v-if="offer.options.length"
+                  class="cca-hand"
+                  :choices="triadChoices(offer)"
+                  :deal-key="'triad:' + run.day + ':' + offer.arc.id"
+                  testid-prefix="academy-triad-choice"
+                  @play="(option) => store.negotiate(offer.arc.id, option.id)"
+                />
               </div>
               <div class="cca-map-tabs" aria-label="Choose classmate">
                 <button
@@ -427,17 +424,14 @@
                 {{ selectedSocialProfile.voice }}</span
               >
               <span>{{ selectedSocialProfile?.boundary }}</span>
-              <button
-                v-for="choice in socialActionOptions"
-                :key="choice.id"
-                class="cca-choice"
-                type="button"
-                data-testid="academy-social-choice"
-                @click="store.social(selectedSocialId, choice.id)"
-              >
-                <span>{{ choice.label }}</span
-                ><span>↗</span>
-              </button>
+              <KrChoiceHand
+                v-if="socialActionOptions.length"
+                class="cca-hand"
+                :choices="socialHandChoices"
+                :deal-key="'social:' + run.day + ':' + selectedSocialId"
+                testid-prefix="academy-social-choice"
+                @play="playSocial"
+              />
               <span v-if="!socialActionOptions.length"
                 >This person cannot spend time together today. A betrayal may
                 have changed the roster.</span
@@ -1145,16 +1139,13 @@
                 >{{ report.title }} · {{ report.grade.toUpperCase() }}</span
               >
             </div>
-            <button
-              v-for="option in campusEncounter.options"
-              :key="option.id"
-              class="cca-choice"
-              type="button"
-              @click="store.choose(option.id)"
-            >
-              <span>{{ option.label }}</span
-              ><span>↗</span>
-            </button>
+            <KrChoiceHand
+              class="cca-hand"
+              :choices="campusChoices"
+              :deal-key="'campus:' + run.day + ':' + campusEncounter.title"
+              testid-prefix="academy-campus-choice"
+              @play="(option) => store.choose(option.id)"
+            />
           </template>
 
           <template v-else-if="run.phase === 'debrief'">
@@ -1334,7 +1325,9 @@ import {
   SOCIAL_DAYS,
   compatibilityFor,
   socialChoices,
+  type TriadOffer,
 } from '~/utils/cometAcademy/relationships'
+import type { KrHandChoice } from '~/components/narrative/kr-choice-hand.vue'
 import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { comicIntroFor } from '~/utils/cometAcademy/comicIntroductions'
 import AcademyOpening from '~/components/play/cometAcademy/AcademyOpening.vue'
@@ -1482,6 +1475,71 @@ const chemistryLabel = computed(() => {
 const triadOfferList = computed(() =>
   run.value ? academyTriadOffers(run.value) : [],
 )
+const signedDelta = (name: string, value: number) =>
+  name + ' ' + (value > 0 ? '+' : '') + value
+const campusChoices = computed<KrHandChoice[]>(() =>
+  campusEncounter.value.options.map((option) => {
+    const trust =
+      'trust' in option && typeof option.trust === 'number' ? option.trust : 0
+    return {
+      id: option.id,
+      label: option.label,
+      chip: [
+        signedDelta('Influence', option.influence),
+        signedDelta('Threat', option.danger),
+        trust ? signedDelta('Trust', trust) : '',
+      ]
+        .filter(Boolean)
+        .join(' · '),
+      hint: option.text,
+      image: stageScenery.value,
+    }
+  }),
+)
+const socialMood = (action: string) =>
+  ['listen', 'release', 'visit'].includes(action) ? 'neutral' : 'positive'
+function studentFace(id: StudentId, mood: string): KrHandChoice {
+  const student = STUDENTS.find((person) => person.id === id)
+  return {
+    id,
+    label: student?.name ?? id,
+    image: promArt(studentArtKey(id) + '-' + mood) ?? studentPortrait(id),
+    icon: student?.portrait,
+  }
+}
+const socialHandChoices = computed<KrHandChoice[]>(() =>
+  socialActionOptions.value.map((choice) => ({
+    ...studentFace(selectedSocialId.value, socialMood(choice.id)),
+    id: choice.id,
+    label: choice.label,
+    details: [choice.text],
+  })),
+)
+function playSocial(choice: KrHandChoice) {
+  const action = socialActionOptions.value.find(
+    (option) => option.id === choice.id,
+  )
+  if (action) store.social(selectedSocialId.value, action.id)
+}
+function triadChoices(offer: TriadOffer): KrHandChoice[] {
+  const romance = run.value?.relationships?.romance
+  const other = offer.arc.pair.find((id) => id !== romance) ?? offer.arc.pair[0]
+  const authored = [
+    ...offer.arc.beats.flatMap((beat) => beat.options),
+    offer.arc.resume,
+  ]
+  return offer.options.map((option) => ({
+    ...studentFace(
+      other,
+      authored.find((entry) => entry.id === option.id)?.outcome
+        ? 'neutral'
+        : 'positive',
+    ),
+    id: option.id,
+    label: option.label,
+    details: [option.text],
+  }))
+}
 
 const stageScenery = computed(
   () =>
@@ -2862,6 +2920,13 @@ function toggleStudent(caseId: string, id: StudentId): void {
 .cca-choice:focus-visible {
   border-color: #f9cc9b;
   background: #405d74;
+}
+.cca-hand {
+  --hand-accent: #f9cc9b;
+  --hand-accent-2: #94bac4;
+  --hand-band: #0d1024;
+  --hand-band-ink: #ecf7fa;
+  margin: 0.5rem 0;
 }
 .cca-report {
   background: #ffffff0c;

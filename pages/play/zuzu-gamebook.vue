@@ -107,7 +107,7 @@
               class="flex flex-col gap-6 rounded-2xl border border-warning/20 bg-base-200 px-5 py-5 shadow-xl sm:px-8"
               :class="
                 layout === 'top'
-                  ? 'md:grid md:grid-cols-[minmax(0,7fr)_minmax(18rem,5fr)] md:items-start md:gap-10'
+                  ? 'md:grid md:items-start md:gap-6 xl:grid-cols-[minmax(0,7fr)_minmax(22rem,5fr)] xl:gap-10'
                   : 'md:min-w-0 md:flex-1 md:justify-center'
               "
             >
@@ -260,28 +260,13 @@
                     The foe circles and prepares to strike. Choose your
                     approach.
                   </p>
-                  <div class="mt-4 grid gap-2 sm:grid-cols-2">
-                    <button
-                      v-for="(move, index) in moves"
-                      :key="move.action"
-                      type="button"
-                      :aria-keyshortcuts="String(index + 1)"
-                      class="zuzu-move group rounded-xl border border-base-content/20 bg-base-100 p-3 text-left transition hover:border-warning hover:bg-base-200 focus-visible:outline focus-visible:outline-2 focus-visible:outline-warning"
-                      :disabled="
-                        move.action === 'quiet-draw' && store.run.resolve < 2
-                      "
-                      @click="store.battle(move.action)"
-                    >
-                      <strong class="block text-base"
-                        ><span class="mr-2 font-serif text-warning">{{
-                          index + 1
-                        }}</span
-                        >{{ move.label }}</strong
-                      ><span class="mt-1 block text-xs opacity-65">{{
-                        move.help
-                      }}</span>
-                    </button>
-                  </div>
+                  <KrChoiceHand
+                    class="zuzu-hand mt-2"
+                    :choices="moveCards"
+                    :deal-key="'battle:' + store.run.sceneId"
+                    testid-prefix="zuzu-move"
+                    @play="playMove"
+                  />
                 </div>
                 <template v-else-if="current.ending">
                   <div
@@ -313,44 +298,22 @@
                     </button>
                   </div>
                 </template>
-                <section v-else aria-label="Story choices">
-                  <h3
-                    class="mb-3 text-xs font-black uppercase tracking-[.26em] opacity-65"
-                  >
-                    What will Zuzu do?
-                  </h3>
-                  <div class="grid gap-2">
-                    <button
-                      v-for="(choice, index) in choices"
-                      :key="choice.id"
-                      type="button"
-                      :disabled="!!lockReason(store.run, choice)"
-                      :aria-keyshortcuts="
-                        index < 9 ? String(index + 1) : undefined
-                      "
-                      class="zuzu-choice group flex min-h-12 items-center gap-4 rounded-xl border border-base-content/20 bg-base-100 px-4 py-2.5 text-left transition hover:border-warning hover:bg-base-300 focus-visible:outline focus-visible:outline-2 focus-visible:outline-warning disabled:cursor-not-allowed disabled:opacity-45"
-                      @click="store.choose(choice.id)"
-                    >
-                      <span
-                        class="grid size-9 shrink-0 place-items-center rounded-lg border border-warning/50 font-serif font-bold text-warning"
-                        >{{ index + 1 }}</span
-                      >
-                      <span class="flex-1"
-                        ><span class="block font-semibold leading-snug">{{
-                          choice.label
-                        }}</span
-                        ><span
-                          v-if="lockReason(store.run, choice)"
-                          class="mt-1 block text-xs opacity-75"
-                          >{{ lockReason(store.run, choice) }}</span
-                        ></span
-                      >
-                      <icon
-                        name="kind-icon:arrow-right"
-                        class="size-4 shrink-0 opacity-35 group-hover:opacity-100"
-                      />
-                    </button>
-                  </div>
+                <section
+                  v-else
+                  aria-label="Story choices"
+                  class="zuzu-hand flex flex-col gap-1"
+                >
+                  <KrChoiceHand
+                    v-for="(row, rowIndex) in choiceRows"
+                    :key="rowIndex"
+                    :choices="row"
+                    :question="rowIndex ? '' : 'What will Zuzu do?'"
+                    :deal-key="
+                      store.run.visited.length + ':' + store.run.sceneId
+                    "
+                    testid-prefix="zuzu-choice"
+                    @play="playChoice"
+                  />
                 </section>
               </div>
             </div>
@@ -493,7 +456,9 @@ import {
 } from '~/utils/zuzuGamebook/art'
 import { journal } from '~/utils/zuzuGamebook/journal'
 import { emphasis } from '~/utils/zuzuGamebook/prose'
+import type { Attribute, Choice } from '~/utils/zuzuGamebook/types'
 import { useZuzuGamebookStore } from '~/stores/zuzuGamebookStore'
+import type { KrHandChoice } from '~/components/narrative/kr-choice-hand.vue'
 
 const store = useZuzuGamebookStore()
 const showSheet = ref(false)
@@ -546,28 +511,109 @@ const frameClass = computed(() => {
 const prose = computed(() => emphasis(current.value.text))
 const choices = computed(() => visibleChoices(store.run, current.value))
 const notes = computed(() => journal(store.run.flags))
-const moves: { action: BattleAction; label: string; help: string }[] = [
+const moves: {
+  action: BattleAction
+  icon: string
+  label: string
+  cost: string
+  help: string
+}[] = [
   {
     action: 'strike',
-    label: '⚔ Strike',
-    help: 'Steel check · 3 damage on a hit',
+    icon: '⚔',
+    label: 'Strike',
+    cost: 'Steel check',
+    help: '3 damage on a hit',
   },
   {
     action: 'guard',
-    label: '◈ Guard',
-    help: 'Sense check · block and expose foe for a counter',
+    icon: '◈',
+    label: 'Guard',
+    cost: 'Sense check',
+    help: 'Block and expose foe for a counter',
   },
   {
     action: 'feint',
-    label: '↝ Feint',
-    help: 'Shadow check · expose defenses, 3 damage, blunt retaliation',
+    icon: '↝',
+    label: 'Feint',
+    cost: 'Shadow check',
+    help: 'Expose defenses, 3 damage, blunt retaliation',
   },
   {
     action: 'quiet-draw',
-    label: '✦ Quiet Draw',
-    help: '2 Resolve · 5 damage on a hit',
+    icon: '✦',
+    label: 'Quiet Draw',
+    cost: '2 Resolve',
+    help: '5 damage on a hit',
   },
 ]
+const moveCards = computed<KrHandChoice[]>(() =>
+  moves.map((move, index) => ({
+    id: move.action,
+    label: move.label,
+    chip: move.cost,
+    shortcut: String(index + 1),
+    hint: move.help,
+    icon: move.icon,
+    disabled: move.action === 'quiet-draw' && store.run.resolve < 2,
+  })),
+)
+function playMove(card: KrHandChoice) {
+  const move = moves.find((entry) => entry.action === card.id)
+  if (move && moveCards.value.includes(card)) store.battle(move.action)
+}
+
+const ATTRIBUTE_ICON: Record<Attribute, string> = {
+  steel: '⚔',
+  sense: '◈',
+  shadow: '↝',
+  mercy: '✿',
+}
+// The card shows where the choice leads: a check shows the road it hopes for.
+function destinationPlate(choice: Choice): string {
+  try {
+    return platePath(sectionPlate(scene(choice.check?.success ?? choice.to)))
+  } catch {
+    return platePath(art.value)
+  }
+}
+function splitRules(label: string): { title: string; note?: string } {
+  const match = /^(.+?)\s*\(([^()]+)\)\s*$/.exec(label)
+  return match?.[1] ? { title: match[1], note: match[2] } : { title: label }
+}
+const handChoices = computed<KrHandChoice[]>(() =>
+  choices.value.map((choice, index) => {
+    const { title, note } = splitRules(choice.label)
+    const check = choice.check
+    const locked = lockReason(store.run, choice)
+    return {
+      id: choice.id,
+      label: title,
+      chip: note || undefined,
+      shortcut: index < 9 ? String(index + 1) : undefined,
+      hint: locked ?? undefined,
+      details: check
+        ? [`Roll 2d6 + ${check.attribute} against ${check.target}`]
+        : undefined,
+      disabled: !!locked,
+      image: destinationPlate(choice),
+      icon: check ? ATTRIBUTE_ICON[check.attribute] : '◆',
+    }
+  }),
+)
+// Long lists deal as two short rows so every card keeps a readable width.
+const choiceRows = computed(() => {
+  const cards = handChoices.value
+  const perRow = shortWide.value ? 6 : 4
+  if (cards.length <= perRow) return [cards]
+  const size = Math.ceil(cards.length / Math.ceil(cards.length / perRow))
+  return Array.from({ length: Math.ceil(cards.length / size) }, (_, row) =>
+    cards.slice(row * size, row * size + size),
+  )
+})
+function playChoice(card: KrHandChoice) {
+  if (handChoices.value.includes(card)) store.choose(card.id)
+}
 function restart() {
   if (
     window.confirm(
@@ -679,6 +725,19 @@ useHead({ title: 'Zuzu: Koala Assassin · The Bell That Never Rang' })
   }
 }
 
+.zuzu-hand {
+  --hand-accent: var(--color-warning);
+  --hand-accent-2: color-mix(in oklab, var(--color-warning) 45%, #9a3412);
+  --hand-band: #0c0a09;
+  --hand-band-ink: #f5ead2;
+  --hand-card-max: 8.5rem;
+  --hand-text-scale: 1.1;
+}
+.zuzu-hand :deep(.krh-title strong),
+.zuzu-hand :deep(.krh-detail strong) {
+  font-family: ui-serif, Georgia, serif;
+}
+
 /* Wide but short (a landscape tablet): the plate sits right and the text
    steps down a size so the choices stay in view (Silas, 2026-10-16). */
 article[data-short-wide] > figure {
@@ -693,23 +752,14 @@ article[data-short-wide] .zuzu-battle > * + * {
   margin-top: 0.5rem;
 }
 
-article[data-short-wide] .zuzu-move {
-  padding: 0.5rem 0.75rem;
+article[data-short-wide] .zuzu-hand {
+  --hand-card-max: 7rem;
 }
 
 article[data-short-wide] .zuzu-prose {
   margin-top: 0.5rem;
   font-size: 1rem;
   line-height: 1.5;
-}
-
-article[data-short-wide] .zuzu-choice + .zuzu-choice {
-  margin-top: -0.125rem;
-}
-
-article[data-short-wide] .zuzu-choice {
-  min-height: 2.25rem;
-  padding-block: 0.25rem;
 }
 
 article[data-short-wide] > div {

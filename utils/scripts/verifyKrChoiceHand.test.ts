@@ -13,7 +13,7 @@ assert.match(
   /<slot name="art" :choice="choice">/,
   'games supply card art',
 )
-assert.match(hand, /v-if="choice\.image && !failed\.includes\(choice\.id\)"/)
+assert.match(hand, /v-if="imageOf\(choice\)"/, 'images fall through in order')
 assert.match(hand, /emit\('play', choice\)/, 'one tap plays the card')
 assert.doesNotMatch(
   hand,
@@ -23,6 +23,17 @@ assert.doesNotMatch(
 assert.match(hand, /:aria-label="ariaFor\(choice\)"/, 'full text is accessible')
 assert.match(hand, /:title="ariaFor\(choice\)"/)
 assert.match(hand, /prefers-reduced-motion: reduce/)
+assert.match(
+  hand,
+  /name="krh-deal"\s+appear/,
+  'a freshly mounted hand deals in',
+)
+assert.match(
+  hand,
+  /watch\(\s*\(\) => props\.dealKey,\s*\(\) => \{\s*if \(playTimer\) clearTimeout\(playTimer\)/,
+  'a new hand cancels a play still in flight',
+)
+assert.match(hand, /:aria-keyshortcuts="choice\.shortcut"/)
 assert.match(
   hand,
   /if \(!props\.animate \|\| reducedMotion\(\)\)/,
@@ -64,6 +75,54 @@ const adopters: Array<[game: string, file: string, pattern: RegExp]> = [
     'Shifting Lands',
     'components/shifting-lands-journey-board.vue',
     /<KrChoiceHand\s+:choices="trialHand"/,
+  ],
+  [
+    'Game of Captains',
+    'components/game-of-captains/space-couch-choice-hand.vue',
+    /<KrChoiceHand/,
+  ],
+  [
+    'Game of Captains',
+    'pages/play/game-of-captains.vue',
+    /<SpaceCouchChoiceHand/,
+  ],
+  [
+    'Game of Captains',
+    'components/gameOfCaptains/alien-milestone.vue',
+    /<SpaceCouchChoiceHand/,
+  ],
+  [
+    'Game of Captains',
+    'components/game-of-captains/space-couch-trio-interlude.vue',
+    /<SpaceCouchChoiceHand/,
+  ],
+  [
+    'Game of Captains',
+    'components/gameOfCaptains/constellation-test.vue',
+    /<SpaceCouchChoiceHand/,
+  ],
+  ['Comet City Academy', 'pages/play/comet-city-academy.vue', /<KrChoiceHand/],
+  ['Slime City', 'components/slime-city-campaign.vue', /<KrChoiceHand/],
+  ['Storybook', 'components/storybook/storybook-reading.vue', /<KrChoiceHand/],
+  [
+    'Zuzu Gamebook',
+    'pages/play/zuzu-gamebook.vue',
+    /<KrChoiceHand[\s\S]*?testid-prefix="zuzu-choice"/,
+  ],
+  [
+    'Zuzu Gamebook',
+    'pages/play/zuzu-gamebook.vue',
+    /<KrChoiceHand[\s\S]*?testid-prefix="zuzu-move"/,
+  ],
+  [
+    'Emperor of Dust',
+    'components/EmperorFortressDialogue.vue',
+    /<KrChoiceHand[\s\S]*?emit\('choose', answer\.id\)/,
+  ],
+  [
+    'Emperor of Dust',
+    'components/EmperorFortressBriefing.vue',
+    /<KrChoiceHand[\s\S]*?pickChance\(choice\.id\)/,
   ],
 ]
 for (const [game, file, pattern] of adopters) {

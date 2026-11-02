@@ -89,38 +89,30 @@
             This is a scientifically unlicensed assessment. All responses are
             logged for promotion eligibility.
           </p>
-          <div class="scope-choices">
-            <button
-              v-for="(option, index) in STAR_QUESTIONS[answers.length]!.options"
-              :key="index"
-              type="button"
-              :data-testid="'space-couch-star-answer-' + index"
-              :class="{ 'scope-option-ready': artReady[index] }"
-              @click="choose(index)"
-            >
+          <SpaceCouchChoiceHand
+            class="scope-hand"
+            :choices="answerChoices"
+            :deal-key="String(answers.length)"
+            testid-prefix="space-couch-star-answer"
+            @play="(choice) => choose(Number(choice.id))"
+          >
+            <template #art="{ choice }">
               <img
                 v-if="artworkReady"
                 class="scope-answer-art"
-                :src="answerArtwork(index)"
+                :class="{ 'scope-option-ready': artReady[Number(choice.id)] }"
+                :src="answerArtwork(Number(choice.id))"
                 alt=""
-                @load="artReady[index] = true"
-                @error="onAnswerArtError($event, index)"
+                @load="artReady[Number(choice.id)] = true"
+                @error="onAnswerArtError($event, Number(choice.id))"
               />
-              <div
+              <span
                 v-else
                 class="scope-answer-art scope-answer-art--waiting"
                 aria-hidden="true"
               />
-              <span class="scope-choice-number">{{
-                String.fromCharCode(65 + index)
-              }}</span>
-              <span class="scope-choice-copy"
-                ><strong>{{ option.label }}</strong
-                ><small>{{ option.flavor }}</small></span
-              >
-              <b aria-hidden="true">↗</b>
-            </button>
-          </div>
+            </template>
+          </SpaceCouchChoiceHand>
         </div>
       </template>
       <template v-else>
@@ -199,6 +191,7 @@ import {
   starSignFor,
   type StarAssessment,
 } from '~/utils/gameOfCaptains/starSigns'
+import type { KrHandChoice } from '~/components/narrative/kr-choice-hand.vue'
 
 const {
   largeText = false,
@@ -253,6 +246,16 @@ function onAnswerArtError(event: Event, index: number) {
     image.src = fallback
   }
 }
+const answerChoices = computed<KrHandChoice[]>(() =>
+  (STAR_QUESTIONS[answers.value.length]?.options ?? []).map(
+    (option, index) => ({
+      id: String(index),
+      label: option.label,
+      chip: 'Answer ' + String.fromCharCode(65 + index),
+      hint: option.flavor,
+    }),
+  ),
+)
 const assessment = computed(() => createStarAssessment(answers.value))
 const sign = computed(() =>
   assessment.value ? starSignFor(assessment.value.sign) : null,
@@ -448,71 +451,22 @@ function choose(index: number) {
   font-size: clamp(0.75rem, 1.12cqi, 0.95rem);
   line-height: 1.35;
 }
-.scope-choices {
-  display: grid;
-  gap: clamp(0.25rem, 0.8vh, 0.55rem);
+.scope-hand {
+  flex: none;
   margin-top: clamp(0.45rem, 1.5vh, 0.9rem);
-  width: 100%;
-}
-.scope-choices button {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: clamp(0.3rem, min(0.7cqi, 0.8vh), 0.6rem);
-  border: 1px solid #6e8da3;
-  border-left: 3px solid #ffd197;
-  border-radius: 0.35rem;
-  background: #14253bdc;
-  text-align: left;
-}
-.scope-choices button:hover,
-.scope-choices button:focus-visible {
-  background: #344159;
-  border-color: #ffe3b7;
-  outline-offset: 3px;
 }
 .scope-answer-art {
-  flex: 0 0 clamp(3.6rem, 8cqi, 6.2rem);
-  width: clamp(3.6rem, 8cqi, 6.2rem);
-  height: clamp(3.2rem, 7vh, 5.5rem);
   object-fit: cover;
-  border-radius: 0.25rem;
-  border: 1px solid #b3a188;
 }
 .scope-answer-art--waiting {
   background: #17283b;
-  border-color: #58738f;
 }
-.scope-choice-copy {
-  opacity: 0;
+.scope-hand :deep(:is(.krh-title, .krh-hint)) {
   transition: opacity 200ms ease;
 }
-.scope-option-ready .scope-choice-copy {
-  opacity: 1;
-}
-.scope-choice-number {
-  color: #a7e6e9;
-  font:
-    800 1.2rem Georgia,
-    serif;
-}
-.scope-choices button > span:nth-child(2) {
-  flex: 1;
-  display: grid;
-  gap: 0.16rem;
-}
-.scope-choices strong {
-  color: #fff5df;
-  font-size: clamp(0.76rem, 1.05cqi, 0.94rem);
-  line-height: 1.25;
-}
-.scope-choices small {
-  color: #a9c3c6;
-  font-size: clamp(0.62rem, 0.8cqi, 0.71rem);
-  line-height: 1.25;
-}
-.scope-choices b {
-  color: #ffd59c;
+.scope-hand
+  :deep(.krh-front:not(:has(.scope-option-ready)) :is(.krh-title, .krh-hint)) {
+  opacity: 0;
 }
 .scope-sign-glyph {
   display: block;
@@ -605,9 +559,6 @@ function choose(index: number) {
   .scope-content p {
     font-size: 0.82rem;
   }
-  .scope-choices button {
-    padding: 0.52rem;
-  }
 }
 @media (max-width: 660px) {
   .scope-screen {
@@ -634,27 +585,8 @@ function choose(index: number) {
     font-size: 0.7rem;
     line-height: 1.2;
   }
-  .scope-choices button {
-    padding: 0.32rem;
-    gap: 0.35rem;
-  }
-  .scope-answer-art {
-    flex-basis: 3.25rem;
-    width: 3.25rem;
-    height: 3.6rem;
-  }
-  .scope-choices strong {
-    font-size: 0.74rem;
-  }
-  .scope-choices small {
-    font-size: 0.61rem;
-  }
   .scope-footer {
     font-size: 0.56rem;
-  }
-  .scope-choices {
-    width: 100%;
-    gap: 0.4rem;
   }
   .scope-footer span:last-child {
     display: none;
@@ -663,9 +595,11 @@ function choose(index: number) {
 .scope-large-text .scope-content h2 {
   font-size: clamp(1.75rem, min(3.6cqi, 5.4vh), 3.5rem);
 }
-.scope-large-text .scope-choices strong,
 .scope-large-text .scope-content p {
   font-size: clamp(0.9rem, 1.2cqi, 1.05rem);
+}
+.scope-large-text .scope-hand {
+  --hand-text-scale: 1.4;
 }
 .scope-reduced-motion * {
   animation: none !important;

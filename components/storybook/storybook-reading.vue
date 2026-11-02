@@ -28,7 +28,9 @@
     <div class="space-y-4 p-4 sm:p-5 lg:p-6">
       <!-- Where we are -->
       <div class="flex flex-wrap items-baseline justify-between gap-2">
-        <h2 class="kr-text-black-lg">{{ runStore.run?.title || 'Untitled' }}</h2>
+        <h2 class="kr-text-black-lg">
+          {{ runStore.run?.title || 'Untitled' }}
+        </h2>
         <p class="kr-text-dim-xs" data-testid="storybook-turn-pips">
           <span v-if="runStore.isEndless">
             Turn {{ runStore.turnIndex }} · no last page
@@ -142,21 +144,13 @@
       </p>
 
       <!-- MOVE 1: the offered options -->
-      <div
-        v-if="options.length"
-        class="grid grid-cols-[repeat(auto-fit,minmax(min(100%,14rem),1fr))] gap-2"
-        data-testid="storybook-options"
-      >
-        <button
-          v-for="option in options"
-          :key="option.id"
-          type="button"
-          class="rounded-2xl border-2 border-base-300 bg-base-200/40 p-3 text-left transition hover:border-primary disabled:opacity-50"
-          :disabled="busy"
-          @click="runStore.chooseOption(option.id)"
-        >
-          <span class="kr-text-semibold-sm">{{ option.choiceText }}</span>
-        </button>
+      <div v-if="options.length" data-testid="storybook-options">
+        <KrChoiceHand
+          :choices="optionCards"
+          :deal-key="runStore.run?.id + ':' + runStore.turnIndex"
+          testid-prefix="storybook-option"
+          @play="(option) => runStore.chooseOption(option.id)"
+        />
       </div>
 
       <!-- MOVE 2: write your own -->
@@ -191,7 +185,9 @@
         data-testid="storybook-sheet"
       >
         <p class="kr-text-eyebrow mb-2">Your cards</p>
-        <div class="grid grid-cols-[repeat(auto-fill,minmax(6.5rem,1fr))] gap-2">
+        <div
+          class="grid grid-cols-[repeat(auto-fill,minmax(6.5rem,1fr))] gap-2"
+        >
           <button
             v-for="card in runStore.playableCards"
             :key="card.slug"
@@ -232,10 +228,7 @@
           :disabled="runStore.isResolving"
           @click="resolve"
         >
-          <span
-            v-if="runStore.isResolving"
-            class="kr-spinner-sm"
-          />
+          <span v-if="runStore.isResolving" class="kr-spinner-sm" />
           {{ runStore.isEndless ? 'Bring this to an end' : 'See your ending' }}
         </button>
       </div>
@@ -250,6 +243,8 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
 import { useStorybookRunStore } from '@/stores/storybookRunStore'
+import { resolveArtVariantSource } from '@/utils/artImageSrc'
+import type { KrHandChoice } from '~/components/narrative/kr-choice-hand.vue'
 
 const emit = defineEmits<{ left: []; resolved: [] }>()
 
@@ -258,6 +253,39 @@ const written = ref('')
 
 const busy = computed(() => runStore.isNarrating || runStore.isResolving)
 const options = computed(() => runStore.pendingTurn?.choices ?? [])
+
+/** A long AI-written option keeps its first sentence or clause on the card. */
+function cardLabel(text: string): string {
+  const clean = text.trim()
+  if (clean.length <= 70) return clean
+  const stop = clean.slice(0, 90).search(/[.!?;:—–](\s|$)/)
+  if (stop >= 12)
+    return /[.!?]/.test(clean[stop]!)
+      ? clean.slice(0, stop + 1)
+      : clean.slice(0, stop) + '…'
+  const words = clean.slice(0, 70).split(/\s+/).slice(0, -1).join(' ')
+  return (words || clean.slice(0, 70)) + '…'
+}
+
+const optionCards = computed<KrHandChoice[]>(() => {
+  const image = sceneArt.value
+    ? resolveArtVariantSource(sceneArt.value, 'card').src || null
+    : null
+  return options.value.map((option) => {
+    const label = cardLabel(option.choiceText)
+    return {
+      id: option.id,
+      label,
+      chip: Object.entries(option.effects ?? {})
+        .map(([axis, delta]) => axis + ' ' + (delta > 0 ? '+' : '') + delta)
+        .join(' · '),
+      details: label === option.choiceText.trim() ? [] : [option.choiceText],
+      disabled: busy.value,
+      image,
+      icon: '✦',
+    }
+  })
+})
 const canMove = computed(
   () => Boolean(runStore.pendingTurn) && !runStore.isComplete,
 )

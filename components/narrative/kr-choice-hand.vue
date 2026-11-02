@@ -46,6 +46,7 @@
       <TransitionGroup
         tag="div"
         name="krh-deal"
+        appear
         class="krh-fan"
         role="list"
         :aria-label="question || 'Choices'"
@@ -65,6 +66,7 @@
           :style="fanStyle(index)"
           :disabled="Boolean(playing)"
           :aria-disabled="choice.disabled ? 'true' : undefined"
+          :aria-keyshortcuts="choice.shortcut"
           :aria-label="ariaFor(choice)"
           :aria-describedby="detailId"
           :title="ariaFor(choice)"
@@ -80,18 +82,27 @@
               <span class="krh-art">
                 <slot name="art" :choice="choice">
                   <img
-                    v-if="choice.image && !failed.includes(choice.id)"
-                    :src="choice.image"
+                    v-if="imageOf(choice)"
+                    :key="imageOf(choice)!"
+                    :src="imageOf(choice)!"
+                    :style="
+                      choice.artPosition
+                        ? { objectPosition: choice.artPosition }
+                        : undefined
+                    "
                     alt=""
                     loading="lazy"
                     decoding="async"
-                    @error="failed.push(choice.id)"
+                    @error="failed.push(imageOf(choice)!)"
                   />
                   <span v-else class="krh-art-plain" aria-hidden="true">{{
                     choice.icon ?? ''
                   }}</span>
                 </slot>
               </span>
+              <kbd v-if="choice.shortcut" class="krh-key">{{
+                choice.shortcut
+              }}</kbd>
               <span v-if="choice.badge" class="krh-badge">{{
                 choice.badge
               }}</span>
@@ -142,10 +153,15 @@ export type KrHandChoice = {
   /** Longer text that only fits in the caption above the lifted card. */
   details?: string[]
   disabled?: boolean
+  /** Keyboard key that plays it (the game handles the key itself). */
+  shortcut?: string
   /** A small corner tag, e.g. "Perk". */
   badge?: string
-  /** Picture of the result or subject; the `art` slot overrides it. */
-  image?: string | null
+  /** Picture of the result or subject, or several to try in order; the
+   *  `art` slot overrides it. */
+  image?: string | readonly (string | null | undefined)[] | null
+  /** CSS object-position for the picture, e.g. to show one part of a shared painting. */
+  artPosition?: string
   /** Emoji or glyph for the drawn fallback when there is no picture. */
   icon?: string
 }
@@ -179,6 +195,9 @@ const focused = ref('')
 const playing = ref('')
 const failed = ref<string[]>([])
 
+const PLAY_MS = 420
+let playTimer: ReturnType<typeof setTimeout> | null = null
+
 const shown = computed(() => {
   const choice =
     props.choices.find((c) => c.id === playing.value) ??
@@ -189,10 +208,21 @@ const shown = computed(() => {
 watch(
   () => props.dealKey,
   () => {
+    if (playTimer) clearTimeout(playTimer)
+    playTimer = null
     focused.value = ''
     playing.value = ''
   },
 )
+
+function imageOf(choice: KrHandChoice): string | null {
+  const list = Array.isArray(choice.image) ? choice.image : [choice.image]
+  return (
+    list.find(
+      (src): src is string => Boolean(src) && !failed.value.includes(src!),
+    ) ?? null
+  )
+}
 
 function linesOf(choice: KrHandChoice): string[] {
   return [choice.chip, choice.badge, choice.hint, ...(choice.details ?? [])]
@@ -218,9 +248,6 @@ function fanStyle(index: number): Record<string, string> {
       n <= 3 ? '0.04' : n === 4 ? '-0.05' : n === 5 ? '-0.14' : '-0.24',
   }
 }
-
-const PLAY_MS = 420
-let playTimer: ReturnType<typeof setTimeout> | null = null
 
 function reducedMotion(): boolean {
   try {
@@ -461,6 +488,23 @@ function sparkleStyle(n: number): Record<string, string> {
     );
   font-size: calc(var(--card-w) * 0.38);
   line-height: 1;
+}
+.krh-key {
+  position: absolute;
+  bottom: 0.3rem;
+  left: 0.3rem;
+  z-index: 1;
+  min-width: 1.1rem;
+  border: 1px solid color-mix(in oklab, var(--band-ink) 55%, transparent);
+  border-bottom-width: 2px;
+  border-radius: 0.3rem;
+  background: var(--band);
+  padding: 0 0.25rem;
+  color: var(--band-ink);
+  font:
+    800 0.6rem / 1.3 ui-monospace,
+    monospace;
+  text-align: center;
 }
 .krh-badge {
   position: absolute;

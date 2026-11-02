@@ -915,7 +915,7 @@
               :class="[
                 'tone-' + lab.team.color,
                 { 'is-mercenary': card.team === 'mercenary' },
-              ]
+              ]"
             >
               <div class="sc-collect-art">
                 <SlimeCityArtwork

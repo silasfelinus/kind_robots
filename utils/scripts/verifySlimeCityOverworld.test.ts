@@ -51,6 +51,7 @@ import {
   type DistrictId,
 } from '../slimeCity/city'
 import {
+  BLACKOUT_MANA_GAIN,
   CARDS,
   createMatch,
   deploy,
@@ -635,7 +636,7 @@ assert.equal(
 assert.equal(
   applyTerms(createMatch('blackout', 'catgirls', 'undertow', 2001), combined)
     .mana,
-  4,
+  BLACKOUT_MANA_GAIN + (combined.playerMana ?? 0),
 )
 const scenarioBase = createMatch('blackout', 'catgirls', 'bloodfairies', 2001)
 const scenario = applyTerms(

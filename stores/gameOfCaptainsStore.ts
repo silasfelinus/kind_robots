@@ -242,7 +242,17 @@ export const useGameOfCaptainsStore = defineStore('gameOfCaptains', () => {
       owner === null || owner === String(id)
         ? readCachedGuide(ALIEN_GUIDE_KEY)
         : emptyAlienGuide()
-    if (hasAlienProgress(legacy)) legacyImportUserId = id
+    if (hasAlienProgress(legacy)) {
+      legacyImportUserId = id
+      if (owner === null) {
+        try {
+          localStorage.setItem(ALIEN_GUIDE_OWNER_KEY, String(id))
+        } catch {
+          alienSyncWarning.value =
+            'Legacy scrapbook ownership could not be cached on this device.'
+        }
+      }
+    }
     const response = await performFetch<AlienGuide>(
       '/api/game-of-captains/guide',
     )

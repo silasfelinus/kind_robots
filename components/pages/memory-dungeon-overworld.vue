@@ -432,7 +432,11 @@
                     v-if="tileNeedsAttention(tile.key)"
                   />
                   <span
-                    v-if="sites[tile.key]"
+                    v-if="
+                      sites[tile.key] &&
+                      sites[tile.key]?.kind !== 'story' &&
+                      !tileNeedsAttention(tile.key)
+                    "
                     class="absolute left-1/2 top-1/2 z-10 -translate-x-1/2 -translate-y-1/2 rounded-lg bg-[#162522]/75 px-0.5 text-[clamp(11px,1.7vw,24px)] leading-tight shadow-lg"
                     :title="sites[tile.key]?.name"
                   >
@@ -465,7 +469,8 @@
                 </button>
                 <div
                   v-else-if="crossMapKeys.includes(tile.key)"
-                  class="relative h-full w-full border border-[#a98b5b]/50 bg-[#28283f]/95"
+                  class="md-fog-tile md-fog-seal relative h-full w-full"
+                  :style="fogTileStyle(tile.x, tile.y)"
                 >
                   <button
                     v-if="world.state.waveIndex === 3 && !world.mapMatching"
@@ -487,21 +492,18 @@
                   </button>
                   <span
                     v-else
-                    class="flex h-full items-center justify-center text-sm text-[#c5b28a]/50"
+                    class="flex h-full items-center justify-center text-sm text-[#d7c7ae]/60"
                     aria-label="A mysterious unrevealed seal awaits"
                     >✧</span
                   >
                 </div>
                 <div
                   v-else
-                  class="h-full w-full border border-[#55677b]/60 bg-[#0b1521]/[0.99] shadow-[inset_0_0_16px_#071017]"
+                  class="md-fog-tile h-full w-full"
+                  :style="fogTileStyle(tile.x, tile.y)"
                   aria-hidden="true"
-                >
-                  <span
-                    class="flex h-full items-center justify-center text-[clamp(8px,1.4vw,18px)] text-[#b29c76]/20"
-                    >✦</span
-                  >
-                </div>
+                  data-testid="memory-map-fog"
+                ></div>
               </div>
             </div>
             <div
@@ -1083,6 +1085,11 @@ const sites = BRIAR_SITES
 const completedCount = computed(
   () => tiles.filter((tile) => progressFor(tile.key) === 'complete').length,
 )
+function fogTileStyle(x: number, y: number) {
+  return {
+    backgroundPosition: `${((x - 1) / 7) * 100}% ${((y - 1) / 7) * 100}%`,
+  }
+}
 function progressFor(key: string) {
   return briarTileProgress(world.state, key)
 }
@@ -1217,6 +1224,24 @@ onMounted(() => {
   width: min(100cqw, 100cqh);
   max-width: 100%;
   max-height: 100%;
+}
+.md-fog-tile {
+  position: relative;
+  background-color: #20332f;
+  background-image: url('/memory-dungeon/briar-fog.svg');
+  background-size: 800% 800%;
+  background-repeat: no-repeat;
+  box-shadow: inset 0 0 1px #9faf97;
+}
+.md-fog-tile::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(ellipse at center, transparent 45%, #111c1c22 100%);
+}
+.md-fog-seal::after {
+  background: radial-gradient(circle at center, #b5a4d01f, #12162870 90%);
 }
 .md-encounter-pane {
   min-height: 0;

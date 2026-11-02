@@ -86,7 +86,8 @@ building or reshaping a game, gallery or creative tool.
 - **One header, the console system bar** (Silas, 2026-11-01): a page never renders its own persistent
   header. Its title, view tabs and HUD chips go in `<header-page-bar>`, which docks them into
   `workspace-header`; a game with a scoped daisyUI theme passes `console-theme` so the whole shell takes
-  its palette.
+  its palette. The strip's lower row holds the page's ONE tutorial "?"; pages never add their own help
+  button — a page guide registers through `<page-help>`.
 
 ## Database — standing rules from Silas (2026-07-02)
 

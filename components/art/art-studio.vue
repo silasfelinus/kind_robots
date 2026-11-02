@@ -1,83 +1,90 @@
 <template>
   <section class="kr-surface gap-0">
-    <nav
-      class="mb-2 flex shrink-0 flex-nowrap items-center gap-2 overflow-x-auto kr-panel-flat p-2"
-      aria-label="Art studio views"
-    >
-      <button
-        type="button"
-        class="kr-btn"
-        :class="activeTab === 'generate' ? 'btn-primary' : 'btn-ghost'"
-        :aria-pressed="activeTab === 'generate'"
-        @click="selectPrimaryView('generate')"
-      >
-        <Icon name="kind-icon:sparkles" class="kr-icon-4" />
-        Generate
-      </button>
-
-      <button
-        type="button"
-        class="kr-btn"
-        :class="isPublicGallery ? 'btn-primary' : 'btn-ghost'"
-        :aria-pressed="isPublicGallery"
-        @click="selectPrimaryView('gallery')"
-      >
-        <Icon name="kind-icon:gallery" class="kr-icon-4" />
-        Gallery
-      </button>
-
-      <button
-        v-if="userStore.isAdmin"
-        type="button"
-        class="kr-btn"
-        :class="isPrivateGallery ? 'btn-primary' : 'btn-ghost'"
-        :aria-pressed="isPrivateGallery"
-        @click="selectPrimaryView('private')"
-      >
-        <Icon name="kind-icon:lock" class="kr-icon-4" />
-        Private
-      </button>
-
-      <div
-        v-if="showGalleryFilters"
-        class="ml-auto flex shrink-0 items-center gap-1 rounded-lg border border-base-300 bg-base-100 p-1"
-        aria-label="Gallery maturity filter"
-      >
-        <span class="kr-text-dim-xs-70 px-1 font-bold">Show</span>
-        <button
-          v-for="option in MATURITY_FILTER_OPTIONS"
-          :key="option.value"
-          type="button"
-          class="btn btn-xs rounded-md"
-          :class="
-            maturityFilter === option.value
-              ? 'btn-primary'
-              : 'btn-ghost text-base-content/60'
-          "
-          :aria-pressed="maturityFilter === option.value"
-          @click="maturityFilter = option.value"
+    <art-manager class="min-h-0 flex-1">
+      <template #bar-start>
+        <nav
+          class="flex shrink-0 flex-nowrap items-center gap-1"
+          aria-label="Art studio views"
         >
-          {{ option.label }}
-        </button>
-      </div>
+          <button
+            type="button"
+            class="kr-btn"
+            :class="activeTab === 'generate' ? 'btn-primary' : 'btn-ghost'"
+            :aria-pressed="activeTab === 'generate'"
+            @click="selectPrimaryView('generate')"
+          >
+            <Icon name="kind-icon:sparkles" class="kr-icon-4" />
+            Generate
+          </button>
 
-      <label
-        v-if="showAdminGalleryControls"
-        class="flex shrink-0 cursor-pointer items-center gap-2 rounded-lg border border-error/30 bg-base-100 px-2 py-1"
-        title="Arm one-click delete buttons on gallery images"
-      >
-        <Icon name="kind-icon:trash" class="kr-icon-3-5 text-error" />
-        <span class="kr-text-dim-xs-70 font-bold">Confirm delete</span>
-        <input
-          v-model="deleteMode"
-          type="checkbox"
-          class="kr-toggle-error-xs"
-          aria-label="Confirm delete mode"
-        />
-      </label>
-    </nav>
+          <button
+            type="button"
+            class="kr-btn"
+            :class="isPublicGallery ? 'btn-primary' : 'btn-ghost'"
+            :aria-pressed="isPublicGallery"
+            @click="selectPrimaryView('gallery')"
+          >
+            <Icon name="kind-icon:gallery" class="kr-icon-4" />
+            Gallery
+          </button>
 
-    <art-manager class="min-h-0 flex-1" />
+          <button
+            v-if="userStore.isAdmin"
+            type="button"
+            class="kr-btn"
+            :class="isPrivateGallery ? 'btn-primary' : 'btn-ghost'"
+            :aria-pressed="isPrivateGallery"
+            @click="selectPrimaryView('private')"
+          >
+            <Icon name="kind-icon:lock" class="kr-icon-4" />
+            Private
+          </button>
+        </nav>
+      </template>
+      <template #bar-end>
+        <div
+          v-if="showGalleryFilters"
+          class="ml-auto flex shrink-0 items-center gap-1 rounded-lg border border-base-300 bg-base-100/60 p-1"
+          aria-label="Gallery maturity filter"
+        >
+          <span class="art-studio-label kr-text-dim-xs-70 px-1 font-bold"
+            >Show</span
+          >
+          <button
+            v-for="option in MATURITY_FILTER_OPTIONS"
+            :key="option.value"
+            type="button"
+            class="btn btn-xs rounded-md"
+            :class="
+              maturityFilter === option.value
+                ? 'btn-primary'
+                : 'btn-ghost text-base-content/60'
+            "
+            :aria-pressed="maturityFilter === option.value"
+            @click="maturityFilter = option.value"
+          >
+            {{ option.label }}
+          </button>
+        </div>
+
+        <label
+          v-if="showAdminGalleryControls"
+          class="flex shrink-0 cursor-pointer items-center gap-2 rounded-lg border border-error/30 bg-base-100/60 px-2 py-1"
+          title="Arm one-click delete buttons on gallery images"
+        >
+          <Icon name="kind-icon:trash" class="kr-icon-3-5 text-error" />
+          <span class="art-studio-label kr-text-dim-xs-70 font-bold"
+            >Confirm delete</span
+          >
+          <input
+            v-model="deleteMode"
+            type="checkbox"
+            class="kr-toggle-error-xs"
+            aria-label="Confirm delete mode"
+          />
+        </label>
+      </template>
+    </art-manager>
   </section>
 </template>
 
@@ -147,3 +154,11 @@ function selectPrimaryView(view: ArtPrimaryView): void {
   navStore.setDashboardTab('art', 'gallery', 'art studio primary navigation')
 }
 </script>
+
+<style scoped>
+@container (max-width: 720px) {
+  .art-studio-label {
+    display: none;
+  }
+}
+</style>

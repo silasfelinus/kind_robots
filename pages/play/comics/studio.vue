@@ -1,106 +1,108 @@
 <template>
   <main class="kr-surface h-full min-h-0 overflow-hidden p-2 md:p-3">
-    <div class="kr-toolbar">
-      <select
-        v-if="studio.seriesList.length"
-        :value="studio.series?.id ?? ''"
-        class="kr-select-sm"
-        aria-label="Series"
-        @change="onSeriesChange"
-      >
-        <option
-          v-for="item in studio.seriesList"
-          :key="item.id"
-          :value="item.id"
-        >
-          {{ item.title }}
-        </option>
-      </select>
-      <form
-        v-if="creating || !studio.seriesList.length"
-        class="flex gap-2"
-        @submit.prevent="createSeries"
-      >
-        <input
-          v-model="newSeriesTitle"
-          class="kr-input-sm"
-          placeholder="New series title"
-          aria-label="New series title"
-        />
-        <button
-          type="submit"
-          class="kr-btn btn-primary btn-sm"
-          :disabled="!newSeriesTitle.trim() || studio.saving"
-        >
-          Create
-        </button>
-      </form>
-      <button
-        v-else
-        type="button"
-        class="kr-btn btn-ghost btn-sm"
-        @click="creating = true"
-      >
-        <icon name="kind-icon:plus" class="kr-icon-4" /> Series
-      </button>
-      <div v-if="studio.series" class="join">
-        <button
-          v-for="tab in tabs"
-          :key="tab.mode"
-          type="button"
-          class="kr-btn join-item btn-sm"
-          :class="studio.mode === tab.mode ? 'btn-primary' : 'btn-ghost'"
-          @click="setMode(tab.mode)"
-        >
-          <icon :name="tab.icon" class="kr-icon-4" /> {{ tab.label }}
-        </button>
-      </div>
-      <button
-        v-if="studio.primaryLane"
-        type="button"
-        class="kr-badge-primary-sm flex items-center gap-1"
-        title="House checkpoint: change it in Notes"
-        @click="setMode('notes')"
-      >
-        <icon name="kind-icon:crown" class="kr-icon-3" />
-        {{ studio.primaryLane.label }}
-      </button>
-      <span v-if="studio.activeCount" class="badge badge-info"
-        >{{ studio.activeCount }} rendering</span
-      >
-      <div class="ml-auto flex items-center gap-2">
+    <header-page-bar>
+      <div class="comic-bar" data-testid="comic-studio-page-bar">
         <select
-          v-model="pane"
-          class="kr-select-sm lg:hidden"
-          aria-label="Show pane"
+          v-if="studio.seriesList.length"
+          :value="studio.series?.id ?? ''"
+          class="kr-select-sm"
+          aria-label="Series"
+          @change="onSeriesChange"
         >
-          <option value="rail">
-            {{ studio.mode === 'composer' ? 'Art shelf' : 'Entities' }}
+          <option
+            v-for="item in studio.seriesList"
+            :key="item.id"
+            :value="item.id"
+          >
+            {{ item.title }}
           </option>
-          <option value="center">
-            {{
-              studio.mode === 'composer'
-                ? 'Pages'
-                : studio.mode === 'notes'
-                  ? 'Notes'
-                  : studio.mode === 'cast'
-                    ? 'Cast'
-                    : 'Board'
-            }}
-          </option>
-          <option value="inspector">Details</option>
         </select>
+        <form
+          v-if="creating || !studio.seriesList.length"
+          class="flex shrink-0 gap-2"
+          @submit.prevent="createSeries"
+        >
+          <input
+            v-model="newSeriesTitle"
+            class="kr-input-sm"
+            placeholder="New series title"
+            aria-label="New series title"
+          />
+          <button
+            type="submit"
+            class="kr-btn btn-primary btn-sm"
+            :disabled="!newSeriesTitle.trim() || studio.saving"
+          >
+            Create
+          </button>
+        </form>
         <button
+          v-else
           type="button"
           class="kr-btn btn-ghost btn-sm"
-          :disabled="studio.loading"
-          @click="studio.refresh()"
+          @click="creating = true"
         >
-          <span v-if="studio.loading" class="kr-spinner-xs" />
-          <icon v-else name="kind-icon:refresh" class="kr-icon-4" />
+          <icon name="kind-icon:plus" class="kr-icon-4" /> Series
         </button>
+        <div v-if="studio.series" class="join">
+          <button
+            v-for="tab in tabs"
+            :key="tab.mode"
+            type="button"
+            class="kr-btn join-item btn-sm"
+            :class="studio.mode === tab.mode ? 'btn-primary' : 'btn-ghost'"
+            @click="setMode(tab.mode)"
+          >
+            <icon :name="tab.icon" class="kr-icon-4" /> {{ tab.label }}
+          </button>
+        </div>
+        <button
+          v-if="studio.primaryLane"
+          type="button"
+          class="kr-badge-primary-sm flex items-center gap-1"
+          title="House checkpoint: change it in Notes"
+          @click="setMode('notes')"
+        >
+          <icon name="kind-icon:crown" class="kr-icon-3" />
+          {{ studio.primaryLane.label }}
+        </button>
+        <span v-if="studio.activeCount" class="badge badge-info"
+          >{{ studio.activeCount }} rendering</span
+        >
+        <div class="ml-auto flex shrink-0 items-center gap-2">
+          <select
+            v-model="pane"
+            class="kr-select-sm lg:hidden"
+            aria-label="Show pane"
+          >
+            <option value="rail">
+              {{ studio.mode === 'composer' ? 'Art shelf' : 'Entities' }}
+            </option>
+            <option value="center">
+              {{
+                studio.mode === 'composer'
+                  ? 'Pages'
+                  : studio.mode === 'notes'
+                    ? 'Notes'
+                    : studio.mode === 'cast'
+                      ? 'Cast'
+                      : 'Board'
+              }}
+            </option>
+            <option value="inspector">Details</option>
+          </select>
+          <button
+            type="button"
+            class="kr-btn btn-ghost btn-sm"
+            :disabled="studio.loading"
+            @click="studio.refresh()"
+          >
+            <span v-if="studio.loading" class="kr-spinner-xs" />
+            <icon v-else name="kind-icon:refresh" class="kr-icon-4" />
+          </button>
+        </div>
       </div>
-    </div>
+    </header-page-bar>
 
     <div v-if="!ready" class="grid flex-1 place-items-center">
       <span class="kr-spinner-lg-primary" />
@@ -253,3 +255,25 @@ onBeforeUnmount(() => {
   void studio.flushLayout()
 })
 </script>
+
+<style scoped>
+.comic-bar {
+  display: flex;
+  flex: 1 1 auto;
+  min-width: 0;
+  align-items: center;
+  gap: 0.5rem;
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  scrollbar-width: none;
+}
+.comic-bar::-webkit-scrollbar {
+  display: none;
+}
+.comic-bar > * {
+  flex: none;
+}
+.comic-bar > select {
+  max-width: 14rem;
+}
+</style>

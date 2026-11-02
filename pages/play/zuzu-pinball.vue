@@ -3,19 +3,6 @@
     <div
       class="mx-auto flex h-full min-h-0 w-full max-w-[1500px] flex-col gap-2 px-2 py-2 sm:px-4"
     >
-      <div class="flex shrink-0 justify-end">
-        <button
-          type="button"
-          class="btn btn-ghost btn-sm gap-2 rounded-xl border border-base-300"
-          aria-label="Open Zuzu Pinball tutorial in the sidebar"
-          title="How to play and table rules"
-          @click="navStore.openWorkspaceSheet()"
-        >
-          <Icon name="kind-icon:question" class="kr-icon-4" />
-          Tutorial
-        </button>
-      </div>
-
       <div v-if="!webglReady" class="kr-note kr-note-error p-5">
         This 3D pinball table requires a browser with WebGL enabled.
       </div>
@@ -32,14 +19,12 @@
 
 <script setup lang="ts">
 import { onMounted, ref } from 'vue'
-import { useNavStore } from '~/stores/navStore'
 import { canRenderWebGL } from '~/utils/arcade/games'
 
 useSeoMeta(
   gameLinkPreviewMeta('zuzu-pinball', useRuntimeConfig().public.appBaseUrl) ??
     {},
 )
-const navStore = useNavStore()
 const webglReady = ref(true)
 
 onMounted(() => {

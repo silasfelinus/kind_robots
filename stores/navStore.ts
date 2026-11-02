@@ -1,6 +1,6 @@
 // /stores/navStore.ts
 import { defineStore } from 'pinia'
-import { computed, ref } from 'vue'
+import { computed, ref, shallowRef } from 'vue'
 import {
   dashboardConfigs,
   getDashboardDefaultTabs,
@@ -146,26 +146,59 @@ export const useNavStore = defineStore('navStore', () => {
   const dashboardShell = ref<DashboardShellState>(defaultDashboardShellState())
   const workspaceSheetOpen = ref(false)
   const workspaceHandOpen = ref(false)
-  const pageBars = ref<{ id: number; consoleTheme: string; bar: boolean }[]>([])
+  const pageBars = ref<
+    { id: number; consoleTheme: string; bar: boolean; compact: boolean }[]
+  >([])
   let nextPageBarId = 0
   const hasPageBar = computed(() => pageBars.value.some((entry) => entry.bar))
+  const pageBarCompact = computed(() => {
+    const bars = pageBars.value.filter((entry) => entry.bar)
+    return bars.length > 0 && bars.every((entry) => entry.compact)
+  })
   const consoleTheme = computed(
     () =>
       [...pageBars.value].reverse().find((bar) => bar.consoleTheme)
         ?.consoleTheme ?? '',
   )
 
-  function registerPageBar(consoleTheme = '', bar = true): number {
+  function registerPageBar(
+    consoleTheme = '',
+    bar = true,
+    compact = false,
+  ): number {
     nextPageBarId += 1
     pageBars.value = [
       ...pageBars.value,
-      { id: nextPageBarId, consoleTheme: consoleTheme.trim(), bar },
+      { id: nextPageBarId, consoleTheme: consoleTheme.trim(), bar, compact },
     ]
     return nextPageBarId
   }
 
   function registerConsoleTheme(consoleTheme: string): number {
     return registerPageBar(consoleTheme, false)
+  }
+
+  const pageHelps = shallowRef<
+    { id: number; label: string; open: () => void }[]
+  >([])
+  let nextPageHelpId = 0
+  const pageHelpLabel = computed(() => pageHelps.value.at(-1)?.label ?? '')
+
+  function registerPageHelp(label: string, open: () => void): number {
+    nextPageHelpId += 1
+    pageHelps.value = [...pageHelps.value, { id: nextPageHelpId, label, open }]
+    return nextPageHelpId
+  }
+
+  function releasePageHelp(id: number): void {
+    pageHelps.value = pageHelps.value.filter((help) => help.id !== id)
+  }
+
+  function openPageHelp(): void {
+    const help = pageHelps.value.at(-1)
+    if (!help) return
+    setWorkspaceSheetOpen(false)
+    help.open()
   }
 
   function releasePageBar(id: number): void {
@@ -533,9 +566,14 @@ export const useNavStore = defineStore('navStore', () => {
     workspaceSheetOpen,
     workspaceHandOpen,
     hasPageBar,
+    pageBarCompact,
     consoleTheme,
     registerPageBar,
     registerConsoleTheme,
+    pageHelpLabel,
+    registerPageHelp,
+    releasePageHelp,
+    openPageHelp,
     releasePageBar,
     routeHistory,
     currentIndex,

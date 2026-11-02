@@ -4,64 +4,61 @@
       <span class="kr-spinner-lg-primary" />
     </div>
     <template v-else>
-      <div
-        class="kr-toolbar mx-auto w-[calc(100%-1.5rem)] max-w-[1476px] flex-nowrap justify-between gap-x-3 rounded-2xl bg-base-100/95 px-3 py-1 shadow-sm sm:w-[calc(100%-3rem)] sm:px-4 lg:w-[calc(100%-4rem)]"
-      >
-        <div class="flex min-w-0 items-baseline gap-3">
-          <p class="shrink-0 font-serif text-lg font-black tracking-wide">
-            ZUZU<span class="hidden sm:inline">
-              <span class="text-warning">/</span> KOALA ASSASSIN</span
-            >
-          </p>
+      <header-page-bar>
+        <div
+          class="flex min-w-0 flex-1 items-center justify-between gap-1.5 @lg:gap-2"
+          data-testid="zuzu-gamebook-hud"
+        >
           <p
-            class="hidden truncate text-[11px] font-bold uppercase tracking-[.22em] opacity-60 sm:block"
+            class="hidden min-w-0 truncate text-[11px] font-bold uppercase tracking-[.22em] text-base-content/60 @xl:block"
+            :title="current.chapter"
           >
             {{ current.chapter }}
           </p>
+          <div class="ml-auto flex shrink-0 items-center gap-1.5 @lg:gap-2">
+            <span
+              class="rounded-md bg-base-200 px-2 py-1 text-xs font-bold @lg:px-3"
+              aria-label="Resources"
+            >
+              <span class="text-error">♥ {{ store.run.health }}/12</span>
+              <span class="opacity-40"> · </span>
+              <span class="text-info">✦ {{ store.run.resolve }}/4</span>
+            </span>
+            <button
+              type="button"
+              class="btn btn-sm"
+              :class="showSheet ? 'btn-warning' : 'btn-outline'"
+              :aria-expanded="showSheet"
+              aria-controls="zuzu-sheet"
+              @click="showSheet = !showSheet"
+            >
+              <icon name="kind-icon:book-open" class="size-4" /><span
+                class="@3xl:hidden"
+                >Sheet</span
+              ><span class="hidden @3xl:inline">Character sheet</span>
+            </button>
+            <button
+              v-if="store.recoverable"
+              type="button"
+              class="btn btn-ghost btn-sm px-2 @3xl:px-3"
+              title="Restore previous journey"
+              @click="recover"
+            >
+              <span aria-hidden="true">↶</span>
+              <span class="sr-only @3xl:not-sr-only">Restore</span>
+            </button>
+            <button
+              type="button"
+              class="btn btn-ghost btn-sm px-2 @3xl:px-3"
+              title="New journey"
+              @click="restart"
+            >
+              <icon name="kind-icon:refresh" class="size-4 @3xl:hidden" />
+              <span class="sr-only @3xl:not-sr-only">New journey</span>
+            </button>
+          </div>
         </div>
-        <div class="flex shrink-0 items-center gap-1.5 sm:gap-2">
-          <span
-            class="rounded-md bg-base-200 px-3 py-1.5 text-xs font-bold"
-            aria-label="Resources"
-          >
-            <span class="text-rose-400">♥ {{ store.run.health }}/12</span>
-            <span class="opacity-40"> · </span>
-            <span class="text-sky-400">✦ {{ store.run.resolve }}/4</span>
-          </span>
-          <button
-            type="button"
-            class="btn btn-sm"
-            :class="showSheet ? 'btn-warning' : 'btn-outline'"
-            :aria-expanded="showSheet"
-            aria-controls="zuzu-sheet"
-            @click="showSheet = !showSheet"
-          >
-            <icon name="kind-icon:book-open" class="size-4" /><span
-              class="sm:hidden"
-              >Sheet</span
-            ><span class="hidden sm:inline">Character sheet</span>
-          </button>
-          <button
-            v-if="store.recoverable"
-            type="button"
-            class="btn btn-ghost btn-sm max-sm:px-2"
-            title="Restore previous journey"
-            @click="recover"
-          >
-            <span aria-hidden="true">↶</span>
-            <span class="sr-only sm:not-sr-only">Restore</span>
-          </button>
-          <button
-            type="button"
-            class="btn btn-ghost btn-sm max-sm:px-2"
-            title="New journey"
-            @click="restart"
-          >
-            <icon name="kind-icon:refresh" class="size-4 sm:hidden" />
-            <span class="max-sm:sr-only">New journey</span>
-          </button>
-        </div>
-      </div>
+      </header-page-bar>
 
       <div
         class="kr-panes mx-auto w-full max-w-[1500px] grid-cols-1 px-3 pb-3 sm:px-6 lg:px-8 lg:pb-5"

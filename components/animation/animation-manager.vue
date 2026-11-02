@@ -1,32 +1,21 @@
 <!-- /components/animation/animation-manager.vue -->
 <template>
   <section class="animation-manager-shell kr-unbound gap-4">
-    <header
-      v-if="showHeader"
-      class="flex flex-wrap items-center justify-between gap-3 border-b border-base-300 px-4 py-3"
-    >
-      <div class="flex min-w-0 items-center gap-3">
-        <span
-          class="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl border border-accent/40 bg-accent/10 text-accent"
-        >
-          <Icon name="kind-icon:sparkles" class="kr-icon-6" />
-        </span>
-        <div class="min-w-0">
-          <h2 class="kr-text-black-lg leading-tight text-base-content">
-            Animation Manager
-          </h2>
-          <p class="kr-text-dim-xs-60">
-            {{ store.galleryItems.length }} live catalog effects
-            <span v-if="store.layeredEffectCount > 0">
-              · {{ store.layeredEffectCount }} layered on screen
-            </span>
-          </p>
-        </div>
-      </div>
+    <header-page-bar v-if="showHeader">
+      <div class="flex min-w-0 flex-1 items-center gap-2">
+        <Icon
+          name="kind-icon:sparkles"
+          class="hidden size-5 shrink-0 text-accent @md:block"
+        />
+        <p class="kr-text-dim-xs-60 min-w-0 flex-1 truncate">
+          {{ store.galleryItems.length }} live catalog effects
+          <span v-if="store.layeredEffectCount > 0" class="hidden @2xl:inline">
+            · {{ store.layeredEffectCount }} layered on screen
+          </span>
+        </p>
 
-      <div class="flex flex-wrap items-center gap-2">
         <div
-          class="flex items-center gap-1 rounded-xl border border-base-300 bg-base-200/70 p-1"
+          class="flex shrink-0 items-center gap-1"
           role="group"
           aria-label="Animation display toggles"
         >
@@ -35,7 +24,11 @@
             :class="butterfliesEnabled ? 'btn-primary' : 'btn-outline'"
             type="button"
             :aria-pressed="butterfliesEnabled"
-            :title="butterfliesEnabled ? 'Turn butterflies off' : 'Turn butterflies on'"
+            :title="
+              butterfliesEnabled
+                ? 'Turn butterflies off'
+                : 'Turn butterflies on'
+            "
             @click="toggleButterflies"
           >
             <Icon name="kind-icon:butterfly" class="kr-icon-4" />
@@ -45,23 +38,33 @@
 
         <NuxtLink
           to="/conductor"
-          class="kr-btn btn-outline"
+          class="kr-btn btn-outline shrink-0"
           title="Animation development work lives in Conductor"
         >
           <Icon name="kind-icon:scroll" class="kr-icon-4" />
-          Conductor
+          <span class="sr-only @xl:not-sr-only">Conductor</span>
         </NuxtLink>
         <button
           v-if="store.layeredEffectCount > 0"
-          class="kr-btn-ghost"
+          class="kr-btn-ghost shrink-0"
           type="button"
+          :title="
+            'Clear ' +
+            store.layeredEffectCount +
+            ' layer' +
+            (store.layeredEffectCount === 1 ? '' : 's')
+          "
           @click="store.clearLayers()"
         >
           <Icon name="kind-icon:x" class="kr-icon-4" />
-          Clear {{ store.layeredEffectCount }} layer{{ store.layeredEffectCount === 1 ? '' : 's' }}
+          <span class="sr-only @lg:not-sr-only"
+            >Clear {{ store.layeredEffectCount }} layer{{
+              store.layeredEffectCount === 1 ? '' : 's'
+            }}</span
+          >
         </button>
       </div>
-    </header>
+    </header-page-bar>
 
     <div class="animation-manager-controls-grid grid gap-4">
       <animation-selector />
@@ -132,13 +135,23 @@
           <div class="mt-auto grid grid-cols-2 gap-2">
             <button
               class="kr-btn-xs-lg"
-              :class="store.isPreviewing(effect.id) ? 'btn-secondary' : 'btn-outline'"
+              :class="
+                store.isPreviewing(effect.id) ? 'btn-secondary' : 'btn-outline'
+              "
               type="button"
-              :title="store.isPreviewing(effect.id) ? 'Stop isolated preview' : 'Preview this effect on a clean backdrop'"
+              :title="
+                store.isPreviewing(effect.id)
+                  ? 'Stop isolated preview'
+                  : 'Preview this effect on a clean backdrop'
+              "
               @click="store.previewEffect(effect.id)"
             >
               <Icon
-                :name="store.isPreviewing(effect.id) ? 'kind-icon:x' : 'kind-icon:eye'"
+                :name="
+                  store.isPreviewing(effect.id)
+                    ? 'kind-icon:x'
+                    : 'kind-icon:eye'
+                "
                 class="kr-icon-3"
               />
               {{ store.isPreviewing(effect.id) ? 'Stop preview' : 'Preview' }}
@@ -146,9 +159,15 @@
 
             <button
               class="kr-btn-xs-lg"
-              :class="store.isLayerActive(effect.id) ? 'btn-primary' : 'btn-ghost'"
+              :class="
+                store.isLayerActive(effect.id) ? 'btn-primary' : 'btn-ghost'
+              "
               type="button"
-              :title="store.isLayerActive(effect.id) ? 'Remove this persistent screen layer' : 'Layer this effect across the app'"
+              :title="
+                store.isLayerActive(effect.id)
+                  ? 'Remove this persistent screen layer'
+                  : 'Layer this effect across the app'
+              "
               @click="store.toggleLayer(effect.id)"
             >
               <Icon name="kind-icon:layers" class="kr-icon-3" />
@@ -193,21 +212,37 @@
         </p>
 
         <dl class="grid gap-2 text-sm">
-          <div class="kr-panel-flat flex items-center justify-between gap-3 p-3">
+          <div
+            class="kr-panel-flat flex items-center justify-between gap-3 p-3"
+          >
             <dt class="font-bold">Released</dt>
             <dd>{{ releaseDate(store.selectedItem.releasedAt) }}</dd>
           </div>
-          <div class="kr-panel-flat flex items-center justify-between gap-3 p-3">
+          <div
+            class="kr-panel-flat flex items-center justify-between gap-3 p-3"
+          >
             <dt class="font-bold">Preferred surface</dt>
             <dd>{{ surfaceLabel(store.selectedItem.preferredSurface) }}</dd>
           </div>
-          <div class="kr-panel-flat flex items-center justify-between gap-3 p-3">
+          <div
+            class="kr-panel-flat flex items-center justify-between gap-3 p-3"
+          >
             <dt class="font-bold">Generation</dt>
-            <dd>{{ store.selectedItem.generationSafe ? 'Safe' : 'Manual only' }}</dd>
+            <dd>
+              {{ store.selectedItem.generationSafe ? 'Safe' : 'Manual only' }}
+            </dd>
           </div>
-          <div class="kr-panel-flat flex items-center justify-between gap-3 p-3">
+          <div
+            class="kr-panel-flat flex items-center justify-between gap-3 p-3"
+          >
             <dt class="font-bold">Input</dt>
-            <dd>{{ store.selectedItem.blocksInput ? 'Captures input' : 'Pass-through' }}</dd>
+            <dd>
+              {{
+                store.selectedItem.blocksInput
+                  ? 'Captures input'
+                  : 'Pass-through'
+              }}
+            </dd>
           </div>
         </dl>
 
@@ -218,7 +253,11 @@
             @click="store.previewEffect(store.selectedItem.id)"
           >
             <Icon name="kind-icon:eye" class="kr-icon-4" />
-            {{ store.isPreviewing(store.selectedItem.id) ? 'Stop preview' : 'Preview effect' }}
+            {{
+              store.isPreviewing(store.selectedItem.id)
+                ? 'Stop preview'
+                : 'Preview effect'
+            }}
           </button>
 
           <button
@@ -227,13 +266,18 @@
             @click="store.toggleLayer(store.selectedItem.id)"
           >
             <Icon name="kind-icon:layers" class="kr-icon-4" />
-            {{ store.isLayerActive(store.selectedItem.id) ? 'Remove layer' : 'Add screen layer' }}
+            {{
+              store.isLayerActive(store.selectedItem.id)
+                ? 'Remove layer'
+                : 'Add screen layer'
+            }}
           </button>
         </div>
 
         <p class="kr-text-dim-xs leading-relaxed">
-          Build history lives in source control and Conductor. This page is the single
-          runtime control room for previewing, layering, and startup behavior.
+          Build history lives in source control and Conductor. This page is the
+          single runtime control room for previewing, layering, and startup
+          behavior.
         </p>
       </aside>
     </div>

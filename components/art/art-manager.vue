@@ -1,6 +1,71 @@
 <!-- /components/art/art-manager.vue -->
 <template>
   <section class="kr-surface gap-0">
+    <header-page-bar v-if="hasPageBar">
+      <div class="art-bar" data-testid="art-page-bar">
+        <slot name="bar-start" />
+        <div
+          v-if="activeTab === 'gallery'"
+          role="tablist"
+          aria-label="Gallery view"
+          class="tabs tabs-box tabs-sm shrink-0 flex-nowrap bg-base-200/70"
+        >
+          <button
+            v-for="view in GALLERY_VIEWS"
+            :key="view.value"
+            type="button"
+            role="tab"
+            class="tab h-auto min-h-8 gap-1.5 rounded-xl px-3"
+            :class="{ 'tab-active': galleryView === view.value }"
+            :aria-selected="galleryView === view.value"
+            @click="galleryView = view.value"
+          >
+            <icon :name="view.icon" class="kr-icon-3-5" />
+            {{ view.label }}
+          </button>
+        </div>
+        <div
+          v-else-if="activeTab === 'artjob'"
+          role="tablist"
+          aria-label="ArtJob workspace"
+          class="tabs tabs-box tabs-sm shrink-0 flex-nowrap bg-base-200/70"
+        >
+          <button
+            type="button"
+            role="tab"
+            class="tab h-auto min-h-8 gap-1.5 rounded-xl px-3"
+            :class="{ 'tab-active': artJobWorkspaceTab === 'queue' }"
+            :aria-selected="artJobWorkspaceTab === 'queue'"
+            @click="selectArtJobWorkspace('queue')"
+          >
+            Queue
+            <span
+              v-if="artJobWorkspaceTab === 'queue'"
+              class="kr-badge-outline-xs badge-success rounded-2xl"
+            >
+              Live · 15s
+            </span>
+          </button>
+          <button
+            type="button"
+            role="tab"
+            class="tab h-auto min-h-8 gap-1.5 rounded-xl px-3"
+            :class="{ 'tab-active': artJobWorkspaceTab === 'trainer' }"
+            :aria-selected="artJobWorkspaceTab === 'trainer'"
+            @click="selectArtJobWorkspace('trainer')"
+          >
+            Art trainer
+            <span
+              v-if="pendingTrainerCount"
+              class="kr-badge-primary-sm rounded-2xl"
+            >
+              {{ pendingTrainerCount }}
+            </span>
+          </button>
+        </div>
+        <slot name="bar-end" />
+      </div>
+    </header-page-bar>
     <div
       v-if="isLoadingManager && shouldLoadManagerData"
       class="flex h-full min-h-0 flex-1 items-center justify-center kr-panel"
@@ -31,28 +96,8 @@
 
     <section
       v-else-if="activeTab === 'gallery'"
-      class="kr-stage flex h-full flex-col gap-2"
+      class="kr-stage flex h-full flex-col"
     >
-      <div
-        role="tablist"
-        aria-label="Gallery view"
-        class="tabs tabs-box tabs-sm shrink-0 self-start bg-base-200"
-      >
-        <button
-          v-for="view in GALLERY_VIEWS"
-          :key="view.value"
-          type="button"
-          role="tab"
-          class="tab h-auto min-h-8 gap-1.5 rounded-xl px-3"
-          :class="{ 'tab-active': galleryView === view.value }"
-          :aria-selected="galleryView === view.value"
-          @click="galleryView = view.value"
-        >
-          <icon :name="view.icon" class="kr-icon-3-5" />
-          {{ view.label }}
-        </button>
-      </div>
-
       <art-feed
         v-if="galleryView === 'images'"
         class="min-h-0 flex-1 overflow-hidden"
@@ -124,49 +169,6 @@
 
         <template v-else-if="activeTab === 'artjob'">
           <div
-            class="kr-toolbar border-b border-base-300 bg-base-100 px-2 py-1"
-          >
-            <div
-              role="tablist"
-              aria-label="ArtJob workspace"
-              class="tabs tabs-box tabs-sm bg-base-200"
-            >
-              <button
-                type="button"
-                role="tab"
-                class="tab h-auto min-h-8 gap-1.5 rounded-xl px-3"
-                :class="{ 'tab-active': artJobWorkspaceTab === 'queue' }"
-                :aria-selected="artJobWorkspaceTab === 'queue'"
-                @click="selectArtJobWorkspace('queue')"
-              >
-                Queue
-                <span
-                  v-if="artJobWorkspaceTab === 'queue'"
-                  class="kr-badge-outline-xs badge-success rounded-2xl"
-                >
-                  Live · 15s
-                </span>
-              </button>
-              <button
-                type="button"
-                role="tab"
-                class="tab h-auto min-h-8 gap-1.5 rounded-xl px-3"
-                :class="{ 'tab-active': artJobWorkspaceTab === 'trainer' }"
-                :aria-selected="artJobWorkspaceTab === 'trainer'"
-                @click="selectArtJobWorkspace('trainer')"
-              >
-                Art trainer
-                <span
-                  v-if="pendingTrainerCount"
-                  class="kr-badge-primary-sm rounded-2xl"
-                >
-                  {{ pendingTrainerCount }}
-                </span>
-              </button>
-            </div>
-          </div>
-
-          <div
             v-show="artJobWorkspaceTab === 'queue'"
             class="kr-stage gap-1 p-2"
           >
@@ -235,7 +237,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
+import { computed, onBeforeUnmount, onMounted, ref, useSlots, watch } from 'vue'
 import { useRoute } from '#app'
 import { useArtJobStore } from '@/stores/artJobStore'
 import { useArtStore } from '@/stores/artStore'
@@ -318,6 +320,14 @@ const activeTab = computed<ArtTab>(() => {
 
   return selectedTab as ArtTab
 })
+
+const slots = useSlots()
+const hasPageBar = computed(
+  () =>
+    Boolean(slots['bar-start'] || slots['bar-end']) ||
+    activeTab.value === 'gallery' ||
+    activeTab.value === 'artjob',
+)
 
 const forumPostId = computed(() => querySelectionId(route.query.forumPost))
 // Generate owns its startup data. Keeping it out of the manager-wide loading
@@ -504,3 +514,22 @@ onBeforeUnmount(() => {
   }
 })
 </script>
+
+<style scoped>
+.art-bar {
+  display: flex;
+  flex: 1 1 auto;
+  min-width: 0;
+  align-items: center;
+  gap: 0.5rem;
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  scrollbar-width: none;
+}
+.art-bar::-webkit-scrollbar {
+  display: none;
+}
+.art-bar > :deep(*) {
+  flex: none;
+}
+</style>

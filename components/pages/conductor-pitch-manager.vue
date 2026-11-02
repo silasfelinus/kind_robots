@@ -1,82 +1,73 @@
 <template>
   <section
-    class="kr-surface rounded-3xl border border-base-300/70 bg-gradient-to-br from-primary/5 via-base-200 to-secondary/10 shadow-xl"
+    class="kr-surface rounded-3xl border border-base-300/70 bg-(--kr-surface) bg-gradient-to-br from-primary/5 via-transparent to-secondary/10 shadow-xl"
   >
-    <header class="shrink-0 border-b border-base-300/70 bg-(--kr-surface-raised)/85 p-4 backdrop-blur">
-      <div class="flex flex-wrap items-start gap-3">
+    <header-page-bar>
+      <div class="pm-bar" data-testid="pitch-review-bar">
         <button
           type="button"
-          class="kr-btn-ghost-2xl"
+          class="btn btn-ghost btn-xs gap-0.5 rounded-lg px-1.5"
           @click="goBack"
         >
-          <Icon name="kind-icon:chevron-left" class="kr-icon-4" />
+          <Icon name="kind-icon:chevron-left" class="kr-icon-3" />
           Projects
         </button>
 
-        <div class="min-w-0 flex-1">
-          <div class="flex flex-wrap items-center gap-2">
-            <span class="flex size-10 items-center justify-center rounded-2xl bg-secondary/15 text-secondary">
-              <Icon name="kind-icon:sparkles" class="kr-icon-5" />
-            </span>
-            <div>
-              <h2 class="kr-text-black-xl tracking-tight sm:text-2xl">
-                Pitch Review
-              </h2>
-              <p class="kr-text-dim-xs font-medium sm:text-sm">
-                Decisions stay visible. Duplicates stop cosplaying as new projects.
-              </p>
-            </div>
-          </div>
-        </div>
-
-        <div class="flex items-center gap-2">
-          <span
-            v-if="conductorStore.fetchedAt"
-            class="hidden text-xs text-base-content/35 lg:inline"
-          >
-            Synced {{ fetchedLabel }}
-          </span>
-          <button
-            type="button"
-            class="kr-btn-ghost-2xl"
-            :disabled="isLoading"
-            @click="refresh"
-          >
-            <span v-if="isLoading" class="kr-spinner-xs" />
-            <Icon v-else name="kind-icon:refresh" class="kr-icon-4" />
-            Refresh
-          </button>
-        </div>
-      </div>
-
-      <div class="mt-4 grid grid-cols-2 gap-2 sm:grid-cols-4">
-        <button
-          v-for="tab in tabOptions"
-          :key="tab.key"
-          type="button"
-          class="group flex items-center gap-3 rounded-2xl border px-3 py-2.5 text-left transition-all"
-          :class="tabClass(tab.key)"
-          @click="activeTab = tab.key"
+        <span
+          class="pm-bar-title"
+          title="Decisions stay visible. Duplicates stop cosplaying as new projects."
         >
-          <span
-            class="kr-icon-8 flex shrink-0 items-center justify-center rounded-xl"
-            :class="tab.iconClass"
+          <Icon name="kind-icon:sparkles" class="kr-icon-3-5 text-secondary" />
+          Pitch Review
+        </span>
+
+        <nav class="pm-bar-tabs" aria-label="Pitch buckets">
+          <button
+            v-for="tab in tabOptions"
+            :key="tab.key"
+            type="button"
+            class="btn btn-xs gap-1 rounded-lg"
+            :class="activeTab === tab.key ? 'btn-primary' : 'btn-ghost'"
+            :aria-pressed="activeTab === tab.key"
+            :aria-label="`${tab.label}: ${tab.count}`"
+            @click="activeTab = tab.key"
           >
-            <Icon :name="tab.icon" class="kr-icon-4" />
-          </span>
-          <span class="min-w-0 flex-1">
-            <span class="kr-text-eyebrow block truncate text-xs tracking-wide">
-              {{ tab.label }}
+            <span
+              class="grid size-4 shrink-0 place-items-center rounded"
+              :class="tab.iconClass"
+            >
+              <Icon :name="tab.icon" class="kr-icon-3" />
             </span>
-            <span class="kr-text-black-lg leading-none">{{ tab.count }}</span>
-          </span>
+            <span class="pm-bar-label">{{ tab.label }}</span>
+            <span class="kr-badge-xs">{{ tab.count }}</span>
+          </button>
+        </nav>
+
+        <span
+          v-if="conductorStore.fetchedAt"
+          class="pm-bar-synced text-xs text-base-content/40"
+        >
+          Synced {{ fetchedLabel }}
+        </span>
+        <button
+          type="button"
+          class="btn btn-ghost btn-xs gap-1 rounded-lg"
+          aria-label="Refresh pitches"
+          :disabled="isLoading"
+          @click="refresh"
+        >
+          <span v-if="isLoading" class="kr-spinner-xs" />
+          <Icon v-else name="kind-icon:refresh" class="kr-icon-3-5" />
+          <span class="pm-bar-label">Refresh</span>
         </button>
       </div>
-    </header>
+    </header-page-bar>
 
     <div class="flex min-h-0 flex-1 flex-col gap-3 p-3 sm:p-4">
       <div class="kr-toolbar">
-        <label class="kr-input-sm flex min-w-52 flex-1 items-center gap-2 rounded-2xl bg-base-100">
+        <label
+          class="kr-input-sm flex min-w-52 flex-1 items-center gap-2 rounded-2xl bg-base-100"
+        >
           <Icon name="kind-icon:search" class="size-4 text-base-content/35" />
           <input
             v-model="query"
@@ -91,7 +82,9 @@
           class="badge badge-warning h-8 gap-1 rounded-2xl px-3"
         >
           <Icon name="kind-icon:warning" class="kr-icon-3-5" />
-          {{ likelyOverlapCount }} overlap signal{{ likelyOverlapCount === 1 ? '' : 's' }}
+          {{ likelyOverlapCount }} overlap signal{{
+            likelyOverlapCount === 1 ? '' : 's'
+          }}
         </span>
       </div>
 
@@ -152,13 +145,21 @@
                     {{ statusLabel(pitch) }}
                   </span>
                 </div>
-                <div class="kr-text-dim-xs-45 mt-1 flex flex-wrap items-center gap-x-3 gap-y-1">
-                  <span v-if="pitch.projectTarget" class="flex items-center gap-1">
+                <div
+                  class="kr-text-dim-xs-45 mt-1 flex flex-wrap items-center gap-x-3 gap-y-1"
+                >
+                  <span
+                    v-if="pitch.projectTarget"
+                    class="flex items-center gap-1"
+                  >
                     <Icon name="kind-icon:folder" class="kr-icon-3" />
                     {{ pitch.projectTarget }}
                   </span>
                   <span v-if="pitch.date">{{ pitch.date }}</span>
-                  <span v-if="pitch.effort" class="kr-badge-ghost-xs rounded-xl">
+                  <span
+                    v-if="pitch.effort"
+                    class="kr-badge-ghost-xs rounded-xl"
+                  >
                     {{ pitch.effort }} effort
                   </span>
                 </div>
@@ -167,16 +168,22 @@
 
             <div class="space-y-4 p-4">
               <div>
-                <p class="kr-text-eyebrow text-xs tracking-widest text-base-content/35">
+                <p
+                  class="kr-text-eyebrow text-xs tracking-widest text-base-content/35"
+                >
                   The idea
                 </p>
                 <p class="mt-1 text-sm leading-relaxed text-base-content/75">
-                  {{ pitch.idea || 'No idea summary was parsed from this pitch.' }}
+                  {{
+                    pitch.idea || 'No idea summary was parsed from this pitch.'
+                  }}
                 </p>
               </div>
 
               <div v-if="pitch.whyDoIt">
-                <p class="kr-text-eyebrow text-xs tracking-widest text-base-content/35">
+                <p
+                  class="kr-text-eyebrow text-xs tracking-widest text-base-content/35"
+                >
                   Why bother
                 </p>
                 <p class="kr-text-dim-sm mt-1 leading-relaxed">
@@ -188,7 +195,9 @@
                 v-if="overlapSignals(pitch).length"
                 class="rounded-2xl border border-warning/30 bg-warning/8 p-3"
               >
-                <div class="kr-text-eyebrow flex items-center gap-2 text-xs tracking-wide text-warning">
+                <div
+                  class="kr-text-eyebrow flex items-center gap-2 text-xs tracking-wide text-warning"
+                >
                   <Icon name="kind-icon:warning" class="kr-icon-4" />
                   Existing-work check
                 </div>
@@ -203,7 +212,9 @@
                   </span>
                 </div>
                 <p class="kr-text-dim-xs mt-2 leading-relaxed">
-                  This is a warning, not an automatic verdict. The useful increment may belong inside an existing roadmap instead of becoming another project.
+                  This is a warning, not an automatic verdict. The useful
+                  increment may belong inside an existing roadmap instead of
+                  becoming another project.
                 </p>
               </div>
 
@@ -250,7 +261,10 @@
                 </button>
               </div>
 
-              <div v-else class="flex flex-wrap justify-end gap-2 border-t border-base-300/60 pt-3">
+              <div
+                v-else
+                class="flex flex-wrap justify-end gap-2 border-t border-base-300/60 pt-3"
+              >
                 <button
                   type="button"
                   class="kr-btn-ghost-2xl"
@@ -279,7 +293,9 @@
           v-else
           class="flex min-h-72 flex-col items-center justify-center kr-panel-flat border-dashed rounded-3xl bg-base-100/70 p-8 text-center"
         >
-          <span class="flex size-16 items-center justify-center rounded-3xl bg-success/10 text-success">
+          <span
+            class="flex size-16 items-center justify-center rounded-3xl bg-success/10 text-success"
+          >
             <Icon :name="emptyIcon" class="kr-icon-8" />
           </span>
           <h3 class="kr-text-black-xl mt-4">{{ emptyTitle }}</h3>
@@ -370,26 +386,40 @@ const featureSignals = [
   {
     key: 'coloring-book-feature',
     label: 'Coloring Book project + product pipeline',
-    detail: 'The coloring-book roadmap already covers generated line art, printable books, the app surface, storefront, and purchasable sets.',
+    detail:
+      'The coloring-book roadmap already covers generated line art, printable books, the app surface, storefront, and purchasable sets.',
     words: ['coloring', 'line-art', 'lineart', 'colouring', 'pdf-coloring'],
   },
   {
     key: 'conductor-health-feature',
     label: 'Conductor cockpit + status reporting',
-    detail: 'Conductor already exposes projects, task state, human gates, status snapshots, PR triage, and mobile-client work.',
-    words: ['conductor', 'agent-health', 'health-dashboard', 'task-dashboard', 'roadmap-dashboard'],
+    detail:
+      'Conductor already exposes projects, task state, human gates, status snapshots, PR triage, and mobile-client work.',
+    words: [
+      'conductor',
+      'agent-health',
+      'health-dashboard',
+      'task-dashboard',
+      'roadmap-dashboard',
+    ],
   },
   {
     key: 'subscription-feature',
     label: 'Subscriptions + Stripe + mana credits',
-    detail: 'Kind Robots already has subscription UI, Stripe subscribe APIs, membership state, monthly mana, and credit-purchase work.',
-    words: ['subscription', 'subscriptions', 'session-credits', 'stripe', 'patron', 'mana-credits'],
+    detail:
+      'Kind Robots already has subscription UI, Stripe subscribe APIs, membership state, monthly mana, and credit-purchase work.',
+    words: [
+      'subscription',
+      'subscriptions',
+      'session-credits',
+      'stripe',
+      'patron',
+      'mana-credits',
+    ],
   },
 ]
 
-const isLoading = computed(
-  () => conductorStore.pending || projectStore.loading,
-)
+const isLoading = computed(() => conductorStore.pending || projectStore.loading)
 
 const tabOptions = computed(() => [
   {
@@ -435,7 +465,11 @@ const projectCatalog = computed<ProjectSearchRecord[]>(() => {
         project.kind,
         project.notesFromSilas,
         ...project.milestones.map((milestone) => milestone.title),
-        ...project.tasks.flatMap((task) => [task.title, task.note, task.stakes]),
+        ...project.tasks.flatMap((task) => [
+          task.title,
+          task.note,
+          task.stakes,
+        ]),
       ]
         .filter(Boolean)
         .join(' '),
@@ -529,7 +563,12 @@ function tokenize(value: string): string[] {
 }
 
 function overlapSignals(pitch: ConductorPitch): OverlapSignal[] {
-  const pitchText = [pitch.title, pitch.projectTarget, pitch.idea, pitch.whyDoIt]
+  const pitchText = [
+    pitch.title,
+    pitch.projectTarget,
+    pitch.idea,
+    pitch.whyDoIt,
+  ]
     .filter(Boolean)
     .join(' ')
   const pitchTokens = new Set(tokenize(pitchText))
@@ -567,7 +606,9 @@ function overlapSignals(pitch: ConductorPitch): OverlapSignal[] {
   }
 
   for (const feature of featureSignals) {
-    const matches = feature.words.filter((word) => normalizedText.includes(word))
+    const matches = feature.words.filter((word) =>
+      normalizedText.includes(word),
+    )
     if (!matches.length) continue
     signals.push({
       key: feature.key,
@@ -581,15 +622,10 @@ function overlapSignals(pitch: ConductorPitch): OverlapSignal[] {
     .sort((a, b) => b.score - a.score)
     .filter(
       (signal, index, all) =>
-        all.findIndex((candidate) => candidate.label === signal.label) === index,
+        all.findIndex((candidate) => candidate.label === signal.label) ===
+        index,
     )
     .slice(0, 4)
-}
-
-function tabClass(tab: PitchBucket): string {
-  return activeTab.value === tab
-    ? 'border-primary/40 bg-primary/10 shadow-sm'
-    : 'border-base-300 bg-base-100/70 hover:border-primary/25 hover:bg-base-100'
 }
 
 function pitchStatus(pitch: ConductorPitch): PitchStatus {
@@ -680,7 +716,9 @@ async function requestPitchRun(): Promise<void> {
   } catch (cause) {
     feedbackError.value = true
     feedback.value =
-      cause instanceof Error ? cause.message : 'The pitch run could not be queued.'
+      cause instanceof Error
+        ? cause.message
+        : 'The pitch run could not be queued.'
   } finally {
     requestingPitches.value = false
   }
@@ -692,3 +730,55 @@ function goBack(): void {
 
 onMounted(refresh)
 </script>
+
+<style scoped>
+.pm-bar {
+  display: flex;
+  flex: 1 1 auto;
+  min-width: 0;
+  align-items: center;
+  gap: 0.375rem;
+  padding-inline: 0.25rem;
+}
+.pm-bar > * {
+  flex: none;
+}
+.pm-bar-title {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  font-size: 0.8125rem;
+  font-weight: 900;
+  white-space: nowrap;
+}
+.pm-bar-tabs {
+  display: flex;
+  flex: 1 1 auto;
+  min-width: 0;
+  align-items: center;
+  gap: 0.25rem;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.pm-bar-tabs::-webkit-scrollbar {
+  display: none;
+}
+.pm-bar-tabs > * {
+  flex: none;
+}
+@container (max-width: 760px) {
+  .pm-bar-synced {
+    display: none;
+  }
+}
+@container (max-width: 600px) {
+  .pm-bar-title {
+    display: none;
+  }
+}
+@container (max-width: 460px) {
+  .pm-bar-label {
+    display: none;
+  }
+}
+</style>

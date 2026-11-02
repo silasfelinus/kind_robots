@@ -30,78 +30,53 @@
       <div
         class="mx-auto flex min-h-full w-full flex-col gap-3 lg:h-full lg:min-h-0"
       >
-        <header
-          class="kr-panel flex shrink-0 flex-col gap-3 rounded-3xl p-3 sm:p-4 lg:flex-row lg:items-center"
-        >
+        <header-page-bar>
           <div
-            class="flex min-w-0 items-center gap-3 lg:w-[19rem] xl:w-[21rem]"
+            class="flex min-w-0 flex-1 items-center gap-2"
+            title="Tzaddikim: 36 just people, sourced with receipts"
           >
             <div
-              class="flex size-12 shrink-0 items-center justify-center rounded-2xl bg-primary/15 text-primary shadow-sm"
+              class="flex min-w-0 flex-1 gap-1 overflow-x-auto"
+              role="tablist"
+              aria-label="Tzaddikim sections"
             >
-              <Icon name="kind-icon:stars" class="kr-icon-6" />
+              <button
+                v-for="tab in tabs"
+                :id="`tzaddik-tab-${tab.key}`"
+                :key="tab.key"
+                type="button"
+                role="tab"
+                :aria-selected="activeTab === tab.key"
+                :aria-controls="`tzaddik-panel-${tab.key}`"
+                :tabindex="activeTab === tab.key ? 0 : -1"
+                class="btn btn-sm min-w-max shrink-0 gap-1.5 rounded-xl border-0"
+                :class="activeTab === tab.key ? 'btn-primary' : 'btn-ghost'"
+                @click="activeTab = tab.key"
+                @keydown="onTabKeydown($event, tab.key)"
+              >
+                <Icon :name="tab.icon" class="kr-icon-3-5" />
+                {{ tab.label }}
+              </button>
             </div>
-            <div class="min-w-0">
-              <p class="kr-text-black-lg truncate">Tzaddikim</p>
-              <p class="kr-text-dim-xs-55 truncate">
-                36 just people, sourced with receipts
-              </p>
-            </div>
-          </div>
 
-          <div
-            class="flex min-w-0 flex-1 gap-1 overflow-x-auto rounded-2xl bg-base-200/70 p-1"
-            role="tablist"
-            aria-label="Tzaddikim sections"
-          >
-            <button
-              v-for="tab in tabs"
-              :id="`tzaddik-tab-${tab.key}`"
-              :key="tab.key"
-              type="button"
-              role="tab"
-              :aria-selected="activeTab === tab.key"
-              :aria-controls="`tzaddik-panel-${tab.key}`"
-              :tabindex="activeTab === tab.key ? 0 : -1"
-              class="btn btn-sm min-w-max flex-1 gap-1.5 rounded-xl border-0"
-              :class="activeTab === tab.key ? 'btn-primary' : 'btn-ghost'"
-              @click="activeTab = tab.key"
-              @keydown="onTabKeydown($event, tab.key)"
-            >
-              <Icon :name="tab.icon" class="kr-icon-3-5" />
-              {{ tab.label }}
-            </button>
-          </div>
-
-          <div
-            class="flex shrink-0 flex-wrap items-center justify-end gap-2 lg:w-[19rem] xl:w-[21rem]"
-          >
-            <button
-              type="button"
-              class="btn btn-ghost btn-sm gap-1 rounded-xl border border-base-300"
-              title="Open the Tzaddikim tutorial in the ? sidebar"
-              @click="navStore.openWorkspaceSheet()"
-            >
-              <Icon name="kind-icon:question" class="kr-icon-3-5" />
-              Tutorial
-            </button>
             <button
               v-if="userStore.isLoggedIn"
               type="button"
-              class="btn btn-primary btn-sm gap-1.5 rounded-xl"
+              class="btn btn-primary btn-sm shrink-0 gap-1.5 rounded-xl"
+              title="Submit a candidate"
               @click="showSubmitForm = true"
             >
               <Icon name="kind-icon:plus" class="kr-icon-3-5" />
-              Submit a candidate
+              <span class="sr-only @2xl:not-sr-only">Submit a candidate</span>
             </button>
             <span
               v-else
-              class="rounded-xl border border-base-300 bg-base-100/70 px-3 py-2 text-xs text-base-content/55"
+              class="hidden shrink-0 text-xs text-base-content/55 @2xl:inline"
             >
               Sign in to nominate someone
             </span>
           </div>
-        </header>
+        </header-page-bar>
 
         <main class="min-h-0 flex-1">
           <section
@@ -374,7 +349,6 @@ import type {
   TzaddikModerationQueueFilter,
 } from '@/stores/tzaddikStore'
 import { useUserStore } from '@/stores/userStore'
-import { useNavStore } from '@/stores/navStore'
 import type { TzaddikEditorialTag } from '~/prisma/generated/prisma/client'
 import { TZADDIK_TAG_ORDER, tzaddikTagLabel } from '@/utils/tzaddikTags'
 import { resolveTzaddikImageSrc } from '@/utils/tzaddikImage'
@@ -457,7 +431,6 @@ function onTabKeydown(event: KeyboardEvent, currentKey: TabKey): void {
 
 const tzaddikStore = useTzaddikStore()
 const userStore = useUserStore()
-const navStore = useNavStore()
 const showSubmitForm = ref(false)
 const openCandidateId = ref<number | null>(null)
 const selectedTags = reactive(new Set<TzaddikEditorialTag>())

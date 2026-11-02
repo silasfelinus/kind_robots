@@ -2,54 +2,55 @@
   <section
     class="flex h-full min-h-0 w-full flex-col gap-4 rounded-2xl bg-base-200 p-4"
   >
-    <header
-      class="flex items-center justify-between gap-3 kr-panel-flat px-4 py-3"
-    >
-      <div class="flex min-w-0 items-center gap-3">
+    <header-page-bar>
+      <div class="flex min-w-0 flex-1 items-center gap-2">
         <span
-          class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-primary/15 text-primary"
+          class="hidden shrink-0 items-center gap-1.5 text-base-content @2xl:flex"
+          :title="userStore.username + '\'s Achievements'"
         >
-          <Icon name="kind-icon:jellybean" class="kr-icon-6" />
-        </span>
-        <div class="min-w-0">
-          <h1 class="kr-text-black-lg truncate text-base-content">
-            {{ userStore.username }}'s Achievements
-          </h1>
-          <p class="kr-text-dim-xs">
+          <Icon name="kind-icon:jellybean" class="kr-icon-primary-5" />
+          <span class="kr-text-dim-xs whitespace-nowrap">
             {{ earnedAchievements.length }} earned ·
             {{ unearnedAchievements.length }} remaining
-          </p>
-        </div>
+          </span>
+        </span>
+
+        <nav
+          class="flex min-w-0 flex-1 gap-1.5 overflow-x-auto"
+          aria-label="Achievement sections"
+        >
+          <button
+            v-for="section in sectionChips"
+            :key="section.key"
+            type="button"
+            class="btn btn-sm shrink-0 rounded-xl"
+            :class="
+              activeSection === section.key
+                ? 'btn-primary'
+                : 'btn-ghost border border-base-300'
+            "
+            :aria-pressed="activeSection === section.key"
+            @click="activeSection = section.key"
+          >
+            <Icon :name="section.icon" class="kr-icon-4" />
+            {{ section.label }}
+            <span class="text-xs opacity-70"
+              >{{ section.earned }}/{{ section.total }}</span
+            >
+          </button>
+        </nav>
+
+        <button
+          class="btn btn-ghost btn-sm shrink-0 rounded-xl border border-error/30 text-error hover:border-error hover:bg-error hover:text-error-content"
+          type="button"
+          title="Reset achievements"
+          @click="resetAchievements"
+        >
+          <Icon name="kind-icon:refresh" class="kr-icon-4" />
+          <span class="sr-only @lg:not-sr-only">Reset</span>
+        </button>
       </div>
-
-      <button
-        class="btn btn-ghost btn-sm shrink-0 rounded-xl border border-error/30 text-error hover:border-error hover:bg-error hover:text-error-content"
-        type="button"
-        @click="resetAchievements"
-      >
-        <Icon name="kind-icon:refresh" class="kr-icon-4" />
-        <span class="hidden sm:inline">Reset</span>
-      </button>
-    </header>
-
-    <nav
-      class="flex shrink-0 gap-2 overflow-x-auto pb-1"
-      aria-label="Achievement sections"
-    >
-      <button
-        v-for="section in sectionChips"
-        :key="section.key"
-        type="button"
-        class="btn btn-sm shrink-0 rounded-xl"
-        :class="activeSection === section.key ? 'btn-primary' : 'btn-ghost border border-base-300'"
-        :aria-pressed="activeSection === section.key"
-        @click="activeSection = section.key"
-      >
-        <Icon :name="section.icon" class="kr-icon-4" />
-        {{ section.label }}
-        <span class="text-xs opacity-70">{{ section.earned }}/{{ section.total }}</span>
-      </button>
-    </nav>
+    </header-page-bar>
 
     <div class="kr-scroll flex min-h-0 flex-col gap-6 pr-1">
       <section class="space-y-3">
@@ -60,7 +61,9 @@
             <Icon name="kind-icon:check" class="kr-icon-4" />
           </span>
           <h2 class="kr-text-black-sm text-base-content">Earned</h2>
-          <span class="kr-badge-success-sm">{{ earnedAchievements.length }}</span>
+          <span class="kr-badge-success-sm">{{
+            earnedAchievements.length
+          }}</span>
         </div>
 
         <div class="achievement-grid-shell">
@@ -99,7 +102,9 @@
             <Icon name="kind-icon:question" class="kr-icon-4" />
           </span>
           <h2 class="kr-text-black-sm text-base-content">Undiscovered</h2>
-          <span class="kr-badge-ghost-sm">{{ unearnedAchievements.length }}</span>
+          <span class="kr-badge-ghost-sm">{{
+            unearnedAchievements.length
+          }}</span>
         </div>
 
         <div class="achievement-grid-shell">
@@ -161,8 +166,7 @@ function isVisible(achievement: Achievement) {
 
 function inActiveSection(achievement: Achievement) {
   return (
-    isVisible(achievement) &&
-    activeSection.value === 'all' ||
+    (isVisible(achievement) && activeSection.value === 'all') ||
     achievementSectionOf(achievement.triggerCode) === activeSection.value
   )
 }
@@ -238,7 +242,10 @@ const sectionChips = computed(() => {
       isVisible(achievement) &&
       (key === 'all' || achievementSectionOf(achievement.triggerCode) === key)
     const earned = allEarnedAchievements.value.filter(match).length
-    return { earned, total: earned + allUnearnedAchievements.value.filter(match).length }
+    return {
+      earned,
+      total: earned + allUnearnedAchievements.value.filter(match).length,
+    }
   }
   return [
     { key: 'all' as SectionFilter, label: 'All', icon: 'kind-icon:trophy' },

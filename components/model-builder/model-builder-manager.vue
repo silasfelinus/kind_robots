@@ -4,67 +4,59 @@
     class="flex h-full min-h-0 max-h-full w-full flex-col overflow-hidden kr-panel-muted"
     :aria-busy="resumingRun"
   >
-    <header
-      class="flex h-10 shrink-0 items-center gap-2 border-b border-base-300 bg-base-100 px-2 sm:px-3"
-    >
-      <Icon name="kind-icon:blueprint" class="kr-icon-primary-4 shrink-0" />
+    <header-page-bar>
+      <div class="mb-bar" data-testid="model-builder-page-bar">
+        <nav class="mb-bar-crumbs" aria-label="Model Builder steps">
+          <button
+            v-for="(crumb, index) in crumbs"
+            :key="crumb.step"
+            type="button"
+            class="kr-btn-xs h-7 min-h-7 px-2 text-xs font-semibold"
+            :class="
+              store.step === crumb.step
+                ? 'btn-primary'
+                : crumb.enabled
+                  ? 'btn-ghost text-base-content/60'
+                  : 'btn-ghost text-base-content/30 pointer-events-none'
+            "
+            :disabled="!crumb.enabled || store.startingRun || resumingRun"
+            @click="crumb.enabled && store.goToStep(crumb.step)"
+          >
+            <span class="mb-bar-step-number opacity-50">{{ index + 1 }}.</span>
+            {{ crumb.label }}
+          </button>
+        </nav>
 
-      <h2
-        class="kr-text-black-sm truncate leading-none text-base-content sm:text-base"
-      >
-        Model Builder
-      </h2>
-
-      <nav class="ml-2 hidden min-w-0 flex-1 items-center gap-1 sm:flex">
         <button
-          v-for="(crumb, index) in crumbs"
-          :key="crumb.step"
+          ref="historyToggleButton"
           type="button"
-          class="kr-btn-xs h-7 min-h-7 px-2 text-xs font-semibold"
+          class="kr-btn-xs btn-ghost ml-auto h-7 min-h-7 shrink-0 px-2"
           :class="
-            store.step === crumb.step
-              ? 'btn-primary'
-              : crumb.enabled
-                ? 'btn-ghost text-base-content/60'
-                : 'btn-ghost text-base-content/30 pointer-events-none'
+            showHistory
+              ? 'text-primary'
+              : 'text-base-content/60 hover:text-primary'
           "
-          :disabled="!crumb.enabled || store.startingRun || resumingRun"
-          @click="crumb.enabled && store.goToStep(crumb.step)"
+          :disabled="store.startingRun || resumingRun"
+          aria-label="Toggle run history"
+          :aria-pressed="showHistory"
+          @click="showHistory = !showHistory"
         >
-          <span class="opacity-50">{{ index + 1 }}.</span>
-          {{ crumb.label }}
+          <Icon name="kind-icon:clock" class="kr-icon-3-5" />
+          <span class="mb-bar-label">History</span>
         </button>
-      </nav>
 
-      <button
-        ref="historyToggleButton"
-        type="button"
-        class="kr-btn-xs btn-ghost ml-auto h-7 min-h-7 px-2"
-        :class="
-          showHistory
-            ? 'text-primary'
-            : 'text-base-content/60 hover:text-primary'
-        "
-        :disabled="store.startingRun || resumingRun"
-        aria-label="Toggle run history"
-        :aria-pressed="showHistory"
-        @click="showHistory = !showHistory"
-      >
-        <Icon name="kind-icon:clock" class="kr-icon-3-5" />
-        <span class="hidden sm:inline">History</span>
-      </button>
-
-      <button
-        type="button"
-        class="kr-btn-xs btn-ghost h-7 min-h-7 px-2 text-base-content/60 hover:text-error"
-        :disabled="store.startingRun || resumingRun"
-        aria-label="Reset Model Builder"
-        @click="store.resetAll()"
-      >
-        <Icon name="kind-icon:trash" class="kr-icon-3-5" />
-        <span class="hidden sm:inline">Reset</span>
-      </button>
-    </header>
+        <button
+          type="button"
+          class="kr-btn-xs btn-ghost h-7 min-h-7 shrink-0 px-2 text-base-content/60 hover:text-error"
+          :disabled="store.startingRun || resumingRun"
+          aria-label="Reset Model Builder"
+          @click="store.resetAll()"
+        >
+          <Icon name="kind-icon:trash" class="kr-icon-3-5" />
+          <span class="mb-bar-label">Reset</span>
+        </button>
+      </div>
+    </header-page-bar>
 
     <Transition name="mb-feedback">
       <div
@@ -165,9 +157,9 @@ watch(showHistory, (isOpen) => {
 // source" (store.goToStep('source')), and model-builder-source-picker.vue's
 // record buttons (store.selectSource()) all mutate step synchronously, with
 // nothing moving focus anywhere afterward, so the browser drops it to
-// <body> exactly like the history-panel case. The header's own crumb nav
-// buttons also change store.step, but they live in <header>, which never
-// unmounts across a step change -- a crumb click keeps focus right where it
+// <body> exactly like the history-panel case. The page bar's own crumb nav
+// buttons also change store.step, but they live in <header-page-bar>, which
+// never unmounts across a step change -- a crumb click keeps focus right where it
 // already correctly was, and must stay untouched, so this can't just watch
 // store.step unconditionally the way the showHistory watch above does.
 // Checking `mainContent.value?.contains(document.activeElement)` at watch
@@ -199,6 +191,40 @@ watch(
 </script>
 
 <style scoped>
+.mb-bar {
+  display: flex;
+  flex: 1 1 auto;
+  min-width: 0;
+  align-items: center;
+  gap: 0.25rem;
+}
+.mb-bar-crumbs {
+  display: flex;
+  flex: 1 1 auto;
+  min-width: 0;
+  align-items: center;
+  gap: 0.25rem;
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  scrollbar-width: none;
+}
+.mb-bar-crumbs::-webkit-scrollbar {
+  display: none;
+}
+.mb-bar-crumbs > * {
+  flex: none;
+}
+@container (max-width: 520px) {
+  .mb-bar-label {
+    display: none;
+  }
+}
+@container (max-width: 380px) {
+  .mb-bar-step-number {
+    display: none;
+  }
+}
+
 .mb-feedback-enter-active,
 .mb-feedback-leave-active {
   transition: all 180ms ease;

@@ -5,111 +5,118 @@
     </div>
 
     <template v-else>
-      <div
-        class="kr-toolbar mx-auto w-full max-w-[1400px] justify-between gap-x-2 gap-y-1 sm:gap-x-3 rounded-2xl bg-base-100/95 px-2 py-0.5 shadow-sm sm:px-4 sm:py-1"
-      >
-        <p
-          v-if="!atDesk"
-          class="hidden font-mono text-sm font-black uppercase tracking-[.25em] sm:block"
+      <header-page-bar>
+        <div
+          class="relative flex min-w-0 flex-1 items-center gap-1.5 @lg:gap-2"
+          data-testid="shifting-desks-hud"
         >
-          Shifting <span class="text-warning">/</span> Desks
-        </p>
-        <button
-          type="button"
-          class="btn btn-xs h-7 shrink-0 gap-1 border-2 border-stone-900 bg-base-100 px-1 sm:btn-sm sm:gap-1.5 sm:px-1.5"
-          :title="`Art style: ${currentArtStyle.label}. Change it anytime.`"
-          aria-haspopup="dialog"
-          @click="openArtPicker"
-        >
-          <img
-            :src="artStyleImageSrc(ART_STYLE_SAMPLE, artStyle)"
-            alt=""
-            class="hidden size-6 rounded object-cover object-[50%_30%] sm:block"
-            @error="
-              ($event.target as HTMLImageElement).style.visibility = 'hidden'
-            "
-          />
-          <icon name="kind-icon:palette" class="size-4" />
-          <span class="hidden lg:inline">{{ currentArtStyle.label }}</span>
-          <span class="sr-only">art style, change</span>
-        </button>
-        <button
-          v-if="atDesk && run"
-          type="button"
-          class="dept-banner flex min-w-0 shrink items-center gap-2 sm:max-w-fit sm:flex-1 sm:basis-0 rounded-lg border-2 border-stone-800 px-2 py-1 text-stone-900"
-          :aria-describedby="hudTip === 'floor' ? 'hud-tip' : undefined"
-          v-bind="tipHandlers('floor')"
-        >
-          <span
-            class="truncate font-mono text-[11px] font-black uppercase tracking-wider sm:text-xs"
+          <button
+            type="button"
+            class="btn btn-xs h-7 shrink-0 gap-1 border-2 border-base-content/70 bg-base-100 px-1 @lg:gap-1.5 @lg:px-1.5"
+            :title="`Art style: ${currentArtStyle.label}. Change it anytime.`"
+            aria-haspopup="dialog"
+            @click="openArtPicker"
           >
-            {{ floorFor(currentDept) }} ·
-            {{ currentDept.department.title.split(':')[0] }}
-          </span>
-          <span class="flex shrink-0 items-center gap-0.5" aria-hidden="true">
-            <span
-              v-for="(step, i) in steps"
-              :key="i"
-              class="h-2 w-2 rounded-full border border-stone-800 sm:w-3"
-              :class="
-                i < run.position
-                  ? 'bg-stone-800'
-                  : i === run.position
-                    ? 'bg-amber-50'
-                    : 'bg-stone-800/20'
+            <img
+              :src="artStyleImageSrc(ART_STYLE_SAMPLE, artStyle)"
+              alt=""
+              class="hidden size-6 rounded object-cover object-[50%_30%] @lg:block"
+              @error="
+                ($event.target as HTMLImageElement).style.visibility = 'hidden'
               "
             />
-          </span>
-        </button>
-        <div
-          v-if="run"
-          class="flex flex-wrap items-center justify-end gap-1 sm:shrink-0 sm:gap-1.5 max-sm:flex-1"
-          :class="{ 'max-sm:basis-full': atDesk }"
-          aria-label="Your file"
-        >
-          <button
-            v-for="m in meterList"
-            :key="m.key"
-            type="button"
-            class="flex items-center gap-0.5 rounded-md bg-base-200 px-1 py-1 text-xs font-bold hover:bg-base-300 sm:gap-1 sm:px-2"
-            :class="m.danger ? 'text-error' : ''"
-            :aria-label="`${m.label} ${m.value}`"
-            :aria-describedby="hudTip === m.key ? 'hud-tip' : undefined"
-            v-bind="tipHandlers(m.key)"
-          >
-            <icon :name="m.icon" class="size-3.5" />
-            <span class="hidden xl:inline">{{ m.label }}</span>
-            {{ m.value }}
+            <icon name="kind-icon:palette" class="size-4" />
+            <span class="hidden @4xl:inline">{{ currentArtStyle.label }}</span>
+            <span class="sr-only">art style, change</span>
           </button>
-          <shifting-desks-envelope v-if="atDesk" compact :highlight="!opened" />
-          <button
-            type="button"
-            class="btn btn-ghost btn-xs max-sm:px-1"
-            :title="`Personnel file, ${run.log.length} entries`"
-            @click="openJournal"
+          <div
+            class="flex min-w-0 flex-1 items-center gap-1.5 overflow-x-auto overscroll-x-contain py-0.5 [scrollbar-width:none] @lg:gap-2"
           >
-            <icon name="kind-icon:book" class="size-4" />
-            <span class="sr-only lg:not-sr-only">File</span>
-          </button>
-          <button
-            type="button"
-            class="btn btn-ghost btn-xs max-sm:px-1"
-            title="Leave for the front desk"
-            @click="toFront"
+            <button
+              v-if="atDesk && run"
+              type="button"
+              class="dept-banner flex min-w-0 max-w-fit shrink items-center gap-2 rounded-lg border-2 border-stone-800 px-2 py-1 text-stone-900"
+              :aria-describedby="hudTip === 'floor' ? 'hud-tip' : undefined"
+              v-bind="tipHandlers('floor')"
+            >
+              <span
+                class="truncate font-mono text-[11px] font-black uppercase tracking-wider @2xl:text-xs"
+              >
+                {{ floorFor(currentDept) }} ·
+                {{ currentDept.department.title.split(':')[0] }}
+              </span>
+              <span
+                class="hidden shrink-0 items-center gap-0.5 @xl:flex"
+                aria-hidden="true"
+              >
+                <span
+                  v-for="(step, i) in steps"
+                  :key="i"
+                  class="h-2 w-2 rounded-full border border-stone-800 @3xl:w-3"
+                  :class="
+                    i < run.position
+                      ? 'bg-stone-800'
+                      : i === run.position
+                        ? 'bg-amber-50'
+                        : 'bg-stone-800/20'
+                  "
+                />
+              </span>
+            </button>
+            <div
+              v-if="run"
+              class="ml-auto flex shrink-0 items-center gap-1 @lg:gap-1.5"
+              aria-label="Your file"
+            >
+              <button
+                v-for="m in meterList"
+                :key="m.key"
+                type="button"
+                class="flex items-center gap-0.5 rounded-md bg-base-200 px-1 py-1 text-xs font-bold hover:bg-base-300 @lg:gap-1 @lg:px-2"
+                :class="m.danger ? 'text-error' : ''"
+                :aria-label="`${m.label} ${m.value}`"
+                :aria-describedby="hudTip === m.key ? 'hud-tip' : undefined"
+                v-bind="tipHandlers(m.key)"
+              >
+                <icon :name="m.icon" class="size-3.5" />
+                <span class="hidden @5xl:inline">{{ m.label }}</span>
+                {{ m.value }}
+              </button>
+              <shifting-desks-envelope
+                v-if="atDesk"
+                compact
+                :highlight="!opened"
+              />
+              <button
+                type="button"
+                class="btn btn-ghost btn-xs px-1 @3xl:px-2"
+                :title="`Personnel file, ${run.log.length} entries`"
+                @click="openJournal"
+              >
+                <icon name="kind-icon:book" class="size-4" />
+                <span class="sr-only @4xl:not-sr-only">File</span>
+              </button>
+              <button
+                type="button"
+                class="btn btn-ghost btn-xs px-1 @3xl:px-2"
+                title="Leave for the front desk"
+                @click="toFront"
+              >
+                <icon name="kind-icon:arrow-left" class="size-4" />
+                <span class="sr-only @4xl:not-sr-only">Leave</span>
+              </button>
+            </div>
+          </div>
+          <p
+            v-if="hudTip && hudTipText"
+            id="hud-tip"
+            role="tooltip"
+            class="absolute right-0 top-full z-40 mt-2 max-w-sm rounded-xl border-2 border-base-content/70 bg-base-100 px-3 py-2 text-sm leading-snug text-base-content shadow-xl"
           >
-            <icon name="kind-icon:arrow-left" class="size-4" />
-            <span class="sr-only lg:not-sr-only">Leave</span>
-          </button>
+            {{ hudTipText }}
+          </p>
         </div>
-        <p
-          v-if="hudTip && hudTipText"
-          id="hud-tip"
-          role="tooltip"
-          class="absolute right-2 top-full z-40 mt-1 max-w-sm rounded-xl border-2 border-stone-900 bg-base-100 px-3 py-2 text-sm leading-snug shadow-xl"
-        >
-          {{ hudTipText }}
-        </p>
-      </div>
+      </header-page-bar>
 
       <section
         v-if="screen === 'front'"

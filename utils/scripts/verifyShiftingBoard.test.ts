@@ -200,17 +200,26 @@ assert.doesNotMatch(
 
 // Silas, 2026-10-16 layout sweep: one toolbar row under the site header (no
 // second title), tabs inline, and road cards two by two on portrait screens.
+// Silas, 2026-11-01: one header strip site-wide, so that row docks into the
+// shell's system bar; the board measures its own width for the wide layout.
 const toolbar = board.slice(
-  board.indexOf('<header'),
-  board.indexOf('</header>'),
+  board.indexOf('<header-page-bar'),
+  board.indexOf('</header-page-bar>'),
 )
+assert.ok(toolbar.length > 0, 'the toolbar row docks into the system bar')
 assert.doesNotMatch(
   toolbar,
   /<h1[\s>]/,
   'the site header already names the game',
 )
 assert.doesNotMatch(toolbar, /order-last/, 'tabs stay on the toolbar row')
-assert.match(toolbar, /class="kr-toolbar flex-nowrap/)
+assert.match(toolbar, /role="tablist"[\s\S]*aria-label="Journey views"/)
+assert.doesNotMatch(board, /class="kr-toolbar/, 'no second header strip')
+assert.match(
+  board,
+  /v-show="!\(item\.value === 'road' && wideBoard\)"/,
+  'the Road tab hides when the board shows road and side panel together',
+)
 assert.match(board, /@media \(orientation: portrait\)[\s\S]*?\.road-grid/)
 
 console.log(

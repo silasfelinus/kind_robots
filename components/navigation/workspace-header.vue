@@ -106,7 +106,7 @@
            "I can't actually select the channel option anymore." The children
            round their own outer corners instead. -->
       <div
-        class="flex h-10 min-h-10 min-w-0 flex-1 items-stretch rounded-xl border border-base-300 bg-base-100 shadow-sm sm:h-11 sm:min-h-11 xl:h-14 xl:min-h-14"
+        class="flex h-10 min-h-10 min-w-0 flex-1 items-stretch xl:flex-none rounded-xl border border-base-300 bg-base-100 shadow-sm sm:h-11 sm:min-h-11 xl:h-14 xl:min-h-14"
       >
         <!--
           CAPPED, not just shrinkable. `shrink` alone only says channel-select
@@ -145,7 +145,7 @@
 
         <channel-select
           seamless
-          class="hidden min-w-0 shrink max-w-[45%] sm:block"
+          class="hidden min-w-0 shrink max-w-[45%] sm:block xl:max-w-none"
         />
 
         <div
@@ -162,88 +162,6 @@
             :active-tab-key="activeTabKey"
             @select="goToTab"
           />
-
-          <!--
-            THE EMPTY STRETCH, given something to say. Silas, 2026-08-29: "we
-            still have a wide akward space in the navigation tab selector, it
-            would be better on sufficiently large screens to show a unique tab
-            message, we should have something in front matter." And again after
-            that shipped: "Still seeing no information and a very large tab
-            seletor ... that giant bar is selectable with crazy whitespace ...
-            we could put something else there, a kind robots title and a
-            subtitle?"
-
-            A dropdown needs room for one label and no more, so `flex-1` on it
-            spent the rest of the row on nothing. tab-select now takes only what
-            it needs and this takes the remainder -- but only from `lg`, because
-            below that the row genuinely has no spare width and a truncated
-            half-sentence is worse than blank space.
-
-            TWO REASONS IT WAS STILL BLANK after the first attempt, both fixed:
-
-              1. `tabMessage` was not declared in content.config.ts, so Nuxt
-                 Content dropped the key while parsing frontmatter and
-                 pageStore.tabMessage was always ''. content/index.md had
-                 carried one the whole time. See the note there.
-              2. Nothing else filled in when a page HAD no tabMessage, which is
-                 every page but the home page. The brand line plus the page's
-                 own subtitle always exist, so the stretch now always says
-                 something rather than depending on per-page authoring.
-
-            NOT INTERACTIVE, and that matters: it sits inside the same bordered
-            shell as two dropdowns, so `pointer-events-none` keeps the whole
-            width from reading as one enormous button ("that giant bar is
-            selectable"). Only the tab label to its left opens the menu.
-          -->
-          <div
-            v-if="!hasPageBar"
-            class="pointer-events-none hidden min-w-0 flex-1 items-center gap-4 px-3 lg:flex"
-          >
-            <div
-              class="flex min-w-0 shrink flex-col justify-center leading-tight"
-              :title="headerMessage"
-            >
-              <span
-                class="kr-text-eyebrow truncate text-[0.65rem] tracking-[0.18em] text-primary/75"
-              >
-                {{ brandLine }}
-              </span>
-              <span
-                v-if="headerMessage"
-                class="truncate text-sm text-base-content/55"
-              >
-                {{ headerMessage }}
-              </span>
-            </div>
-
-            <!--
-              THE GREETING. Silas, 2026-09-01: "it's more a part of the main
-              content dash, but we really should see a Welcome {username} in
-              large letters after the room and room info piece."
-
-              "After the room and room info piece" places it exactly: those two
-              lines are to its left, and this takes the rest of the stretch. It
-              stays in the header rather than moving into the page because that
-              is where the room and its blurb live, and because the home page is
-              now a fixed-height desktop layout -- a greeting band there would
-              come out of the dream's height rather than out of space that was
-              already empty.
-
-              THE ONE RULE THIS ROW HAS is that nothing in it grows (see the
-              note at the top of this file: the strip that preceded it needed
-              300 lines of measurement precisely because a child's width was
-              unbounded). So this is `min-w-0 truncate` inside a `shrink`
-              sibling pair, and it appears only from `xl`, where the stretch has
-              room to spare. A long username shortens; it never pushes.
-            -->
-            <p
-              v-if="greeting"
-              class="kr-text-black-lg hidden min-w-0 flex-1 truncate text-right text-base-content/80 xl:block xl:text-xl"
-              :title="greeting"
-            >
-              {{ greeting }}
-            </p>
-          </div>
         </div>
 
         <!-- No tabs resolved (a bare route, or content still loading): fall
@@ -263,18 +181,116 @@
       </div>
 
       <!--
-        THE PAGE BAR. Silas, 2026-11-01: one header, not two -- "icons are top
-        over the row that is shown for the slime city or other dominant tabs."
-        Pages fill it through header-page-bar.vue. It wraps to its own row
-        under the icons (order-last + basis-full) until xl, where the row is
-        wide enough to hold it inline between the pickers and the account hub.
-        Its own @container lets the page's styles respond to the bar's width.
+        THE LOWER ROW: the page's own line. Silas, 2026-11-01: "One single
+        header strip for all." Every page gets it, so the strip reads the same
+        everywhere: a page that docks a bar through header-page-bar.vue fills
+        #kr-header-page-bar; any other page shows its room and message here
+        (moved down from the picker shell's stretch). It ends with the one
+        tutorial button. Below xl it wraps under the icons (order-last +
+        basis-full); from xl it sits inline between the pickers and the account
+        hub. The slot's own @container lets a page's styles follow its width.
       -->
       <div
-        v-show="hasPageBar"
-        id="kr-header-page-bar"
-        class="@container order-last flex min-w-0 basis-full items-center border-t border-base-300 pt-1.5 xl:order-none xl:basis-0 xl:flex-[2.2] xl:border-t-0 xl:pt-0"
-      />
+        data-kr-page-row
+        class="order-last flex min-w-0 basis-full items-center gap-2 border-t border-base-300 pt-1.5 xl:order-none xl:basis-0 xl:flex-[2.2] xl:border-t-0 xl:pt-0"
+      >
+        <div
+          v-if="!hasPageBar || pageBarCompact"
+          class="pointer-events-none flex min-w-0 flex-1 items-center gap-4 px-1"
+        >
+          <div
+            class="flex min-w-0 shrink flex-col justify-center leading-tight"
+            :title="headerMessage"
+          >
+            <span
+              class="kr-text-eyebrow truncate text-[0.65rem] tracking-[0.18em] text-primary/75"
+            >
+              {{ brandLine }}
+            </span>
+            <span
+              v-if="headerMessage"
+              class="truncate text-sm text-base-content/55"
+            >
+              {{ headerMessage }}
+            </span>
+          </div>
+
+          <!--
+            THE GREETING. Silas, 2026-09-01: "it's more a part of the main
+            content dash, but we really should see a Welcome {username} in
+            large letters after the room and room info piece."
+
+            "After the room and room info piece" places it exactly: those two
+            lines are to its left, and this takes the rest of the stretch. It
+            stays in the header rather than moving into the page because that
+            is where the room and its blurb live, and because the home page is
+            now a fixed-height desktop layout -- a greeting band there would
+            come out of the dream's height rather than out of space that was
+            already empty.
+
+            THE ONE RULE THIS ROW HAS is that nothing in it grows (see the
+            note at the top of this file: the strip that preceded it needed
+            300 lines of measurement precisely because a child's width was
+            unbounded). So this is `min-w-0 truncate` inside a `shrink`
+            sibling pair, and it appears only from `xl`, where the stretch has
+            room to spare. A long username shortens; it never pushes.
+          -->
+          <p
+            v-if="greeting"
+            class="kr-text-black-lg hidden min-w-0 flex-1 truncate text-right text-base-content/80 xl:block xl:text-xl"
+            :title="greeting"
+          >
+            {{ greeting }}
+          </p>
+        </div>
+
+        <div
+          v-show="hasPageBar"
+          id="kr-header-page-bar"
+          class="@container flex min-w-0 flex-1 items-center"
+        />
+
+        <!--
+          THE ONE TUTORIAL BUTTON, at the end of the lower row. Silas,
+          2026-11-01: "just make sure we only have the one for each page, but it
+          should be on the lower bar generally, as that feels more connected to
+          the main content." It is the WORKSPACE toggle -- the workspace sheet
+          carries the page tutorial, and leads with a page's own in-game guide
+          when the page registers one through page-help.vue -- so no page draws a
+          second help button of its own.
+        -->
+        <!--
+          NEW-PAGE HIGHLIGHT. Silas, 2026-10-10: "maybe we can have a highlight
+          option with the tutorial icon if a user hasn't viewed that page
+          before." A page whose tab authors its own tutorial lights this button
+          until the workspace sheet has been open on it once; tutorialStore
+          remembers which pages have been seen, per browser.
+        -->
+        <button
+          type="button"
+          class="btn btn-ghost btn-sm btn-square shrink-0 rounded-xl border border-base-300"
+          :class="[
+            workspaceSheetOpen
+              ? 'border-primary bg-primary/15 text-primary'
+              : tutorialUnseen
+                ? 'tutorial-unseen border-secondary bg-secondary/15 text-secondary'
+                : 'bg-base-100',
+          ]"
+          :aria-label="workspaceToggleLabel"
+          :title="workspaceToggleLabel"
+          :aria-expanded="workspaceSheetOpen"
+          @click="navStore.toggleWorkspaceSheet()"
+        >
+          <span class="indicator">
+            <Icon name="kind-icon:question" class="kr-icon-5" />
+            <span
+              v-if="tutorialUnseen && !workspaceSheetOpen"
+              class="indicator-item h-2.5 w-2.5 rounded-full bg-secondary ring-2 ring-base-100"
+              aria-hidden="true"
+            />
+          </span>
+        </button>
+      </div>
 
       <!--
         RIGHT OF THE TAB SELECTOR. Silas, 2026-08-11: "login-manager is to the
@@ -387,47 +403,6 @@
       >
         <Icon name="kind-icon:brain" class="kr-icon-5" />
       </NuxtLink>
-
-      <!--
-        FAR RIGHT, per Silas, and the last icon standing in this row.
-
-        It is the WORKSPACE toggle -- the workspace sheet is what carries the
-        tutorial panel, so this is how you reach the tutorial and reads as the
-        tutorial button from outside. Silas moved it out of the left-most slot
-        in #1708 ("fix tutorial header order") and now to the end; both moves
-        say the same thing, that it is a utility rather than navigation.
-      -->
-      <!--
-        NEW-PAGE HIGHLIGHT. Silas, 2026-10-10: "maybe we can have a highlight
-        option with the tutorial icon if a user hasn't viewed that page
-        before." A page whose tab authors its own tutorial lights this button
-        until the workspace sheet has been open on it once; tutorialStore
-        remembers which pages have been seen, per browser.
-      -->
-      <button
-        type="button"
-        class="btn btn-ghost btn-sm btn-square shrink-0 rounded-xl border border-base-300"
-        :class="[
-          workspaceSheetOpen
-            ? 'border-primary bg-primary/15 text-primary'
-            : tutorialUnseen
-              ? 'tutorial-unseen border-secondary bg-secondary/15 text-secondary'
-              : 'bg-base-100',
-        ]"
-        :aria-label="workspaceToggleLabel"
-        :title="workspaceToggleLabel"
-        :aria-expanded="workspaceSheetOpen"
-        @click="navStore.toggleWorkspaceSheet()"
-      >
-        <span class="indicator">
-          <Icon name="kind-icon:question" class="kr-icon-5" />
-          <span
-            v-if="tutorialUnseen && !workspaceSheetOpen"
-            class="indicator-item h-2.5 w-2.5 rounded-full bg-secondary ring-2 ring-base-100"
-            aria-hidden="true"
-          />
-        </span>
-      </button>
     </div>
   </header>
 </template>
@@ -510,6 +485,7 @@ const shellSummary = computed(
 const showBackButton = computed(() => navStore.canGoBack)
 
 const hasPageBar = computed(() => navStore.hasPageBar)
+const pageBarCompact = computed(() => navStore.pageBarCompact)
 
 const workspaceSheetOpen = computed(() => navStore.workspaceSheetOpen)
 

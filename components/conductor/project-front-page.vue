@@ -3,70 +3,39 @@
   Reusable public-facing shell for a project front page. Give it a conductor
   `slug` and a static `fallback` config; it pulls the live Project record when one
   exists and merges the two so the page always renders something styled. Project
-  specific interactive UI goes in the #interactive slot.
+  specific interactive UI goes in the #interactive slot. Its icon, status and
+  launch actions dock into the system bar through header-page-bar; the channel
+  picker already names the page, so the hero keeps only the art, tagline and
+  stats.
 -->
 <template>
   <div class="kr-surface bg-base-200">
     <div class="kr-scroll flex w-full flex-col overscroll-contain">
-      <!-- HERO -->
-      <header class="relative w-full overflow-hidden">
-        <div
-          class="absolute inset-0 bg-gradient-to-br from-primary/25 via-secondary/15 to-accent/20"
-        />
-        <img
-          v-if="!heroFailed"
-          :src="heroSrc"
-          :alt="view.title"
-          class="absolute inset-0 h-full w-full object-cover"
-          @error="onHeroError"
-        />
-        <div
-          class="absolute inset-0 bg-gradient-to-t from-base-200 via-base-200/70 to-transparent"
-        />
-        <div
-          class="relative kr-container flex max-w-5xl flex-col gap-4 px-5 pb-6 pt-16 sm:pt-24"
-        >
-          <div class="flex flex-wrap items-center gap-2">
-            <span
-              v-if="view.icon"
-              class="flex size-11 shrink-0 items-center justify-center rounded-2xl border border-white/20 bg-base-100/70 text-primary shadow-lg backdrop-blur"
-            >
-              <Icon :name="view.icon" class="kr-icon-6" />
-            </span>
-            <span
-              v-if="statusLabel"
-              class="kr-badge-sm rounded-xl font-semibold"
-              :class="statusBadgeClass"
-              >{{ statusLabel }}</span
-            >
-            <span
-              v-if="view.bridge"
-              class="kr-badge-sm badge-info rounded-xl font-semibold gap-1"
-            >
-              <Icon name="kind-icon:external-link" class="kr-icon-3" />External
-              app
-            </span>
-          </div>
-
-          <p
-            class="text-3xl font-black leading-tight text-base-content sm:text-5xl"
+      <header-page-bar>
+        <div class="pf-bar" data-testid="project-front-bar">
+          <span v-if="view.icon" class="pf-bar-icon" :title="view.title">
+            <Icon :name="view.icon" class="kr-icon-4" />
+          </span>
+          <span
+            v-if="statusLabel"
+            class="kr-badge-sm shrink-0 rounded-xl font-semibold"
+            :class="statusBadgeClass"
+            >{{ statusLabel }}</span
           >
-            {{ view.title }}
-          </p>
-          <p
-            v-if="view.tagline"
-            class="max-w-2xl text-base font-semibold text-base-content/80 sm:text-lg"
+          <span
+            v-if="view.bridge"
+            class="pf-bar-secondary kr-badge-sm badge-info shrink-0 gap-1 rounded-xl font-semibold"
           >
-            {{ view.tagline }}
-          </p>
-
-          <div class="flex flex-wrap items-center gap-2 pt-1">
+            <Icon name="kind-icon:external-link" class="kr-icon-3" />External
+            app
+          </span>
+          <div class="pf-bar-actions">
             <a
               v-if="launch"
               :href="launch.href"
               :target="launch.external ? '_blank' : undefined"
               :rel="launch.external ? 'noopener noreferrer' : undefined"
-              class="kr-btn-primary-2xl gap-1.5 sm:btn-md"
+              class="kr-btn-primary-2xl gap-1.5"
             >
               <Icon
                 :name="launch.icon || 'kind-icon:sparkles'"
@@ -80,20 +49,51 @@
               :href="link.href"
               :target="link.external ? '_blank' : undefined"
               :rel="link.external ? 'noopener noreferrer' : undefined"
-              class="btn btn-ghost btn-sm gap-1.5 rounded-2xl border border-base-300 bg-base-100/60 backdrop-blur"
+              :title="link.label"
+              :aria-label="link.label"
+              class="btn btn-ghost btn-sm gap-1.5 rounded-2xl"
             >
               <Icon
                 :name="link.icon || 'kind-icon:external-link'"
                 class="kr-icon-4"
               />
-              {{ link.label }}
+              <span class="pf-bar-label">{{ link.label }}</span>
             </a>
           </div>
+        </div>
+      </header-page-bar>
 
-          <!-- Stat strip -->
+      <section
+        class="relative w-full overflow-hidden"
+        :aria-label="view.title"
+        data-testid="project-front-hero"
+      >
+        <div
+          class="absolute inset-0 bg-gradient-to-br from-primary/25 via-secondary/15 to-accent/20"
+        />
+        <img
+          v-if="!heroFailed"
+          :src="heroSrc"
+          :alt="view.title"
+          class="absolute inset-0 h-full w-full object-cover"
+          @error="onHeroError"
+        />
+        <div
+          class="absolute inset-0 bg-gradient-to-t from-base-200 via-base-200/50 to-transparent"
+        />
+        <div
+          class="relative kr-container flex min-h-44 max-w-5xl flex-col justify-end gap-3 px-5 pb-5 pt-16 sm:min-h-64"
+        >
+          <p
+            v-if="view.tagline"
+            class="max-w-2xl text-base font-semibold text-base-content/85 sm:text-lg"
+          >
+            {{ view.tagline }}
+          </p>
+
           <div
             v-if="view.stats && view.stats.length"
-            class="mt-1 flex flex-wrap gap-2"
+            class="flex flex-wrap gap-2"
           >
             <div
               v-for="stat in view.stats"
@@ -112,23 +112,20 @@
             </div>
           </div>
         </div>
-      </header>
+      </section>
 
       <div
         class="kr-container flex flex-col gap-5 px-5 pb-10 pt-5"
         :class="wide ? 'max-w-7xl' : 'max-w-5xl'"
       >
-        <!-- Interactive slot — project-specific UI drops in here -->
         <slot name="interactive" :project="project" />
 
-        <!-- Gallery strip -->
         <ProjectGalleryStrip
           v-if="view.collectionLabel"
           :collection-label="view.collectionLabel"
           :title="`${view.title} gallery`"
         />
 
-        <!-- Deliverables / status -->
         <ProjectDeliverablesPanel
           v-if="showDeliverables"
           :project="project"
@@ -136,7 +133,6 @@
           :goal="view.description"
         />
 
-        <!-- Bottom launch banner for bridge projects -->
         <section
           v-if="view.bridge && launch"
           class="flex flex-col items-center gap-3 rounded-3xl border border-info/30 bg-info/5 p-6 text-center"
@@ -288,3 +284,50 @@ const statusBadgeClass = computed(() => {
   }
 })
 </script>
+
+<style scoped>
+.pf-bar {
+  display: flex;
+  flex: 1 1 auto;
+  min-width: 0;
+  align-items: center;
+  gap: 0.5rem;
+  padding-inline: 0.25rem;
+}
+.pf-bar-icon {
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 1.75rem;
+  height: 1.75rem;
+  border-radius: 0.75rem;
+  background: color-mix(in oklch, var(--color-primary) 14%, transparent);
+  color: var(--color-primary);
+}
+.pf-bar-actions {
+  display: flex;
+  flex: 1 1 auto;
+  min-width: 0;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.35rem;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.pf-bar-actions::-webkit-scrollbar {
+  display: none;
+}
+.pf-bar-actions > * {
+  flex: none;
+}
+@container (max-width: 640px) {
+  .pf-bar-label {
+    display: none;
+  }
+}
+@container (max-width: 420px) {
+  .pf-bar-secondary {
+    display: none;
+  }
+}
+</style>

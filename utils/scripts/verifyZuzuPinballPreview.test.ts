@@ -34,7 +34,16 @@ assert.doesNotMatch(tab, /requiredRole: ADMIN/)
 assert.match(tab, /route: \/play\/zuzu-pinball/)
 const publicPlay = read('../../pages/play/zuzu-pinball.vue')
 assert.doesNotMatch(publicPlay, /user\.isAdmin/)
-assert.match(publicPlay, /navStore\.openWorkspaceSheet\(\)/)
+assert.doesNotMatch(
+  publicPlay,
+  /openWorkspaceSheet|kind-icon:question/,
+  'the header "?" is the one tutorial button; the page draws no second one',
+)
+assert.match(
+  tab,
+  /tutorial:/,
+  'the header "?" opens the tab-authored Zuzu Pinball tutorial',
+)
 assert.match(publicPlay, /ArcadeCabinet slug="zuzu-pinball"/)
 assert.match(publicPlay, /zuzu-game-stage/)
 assert.match(publicPlay, /cabinet-marquee/)

@@ -1,32 +1,36 @@
 <template>
-  <div class="kr-unbound flex flex-col items-center bg-(--kr-surface) px-4 py-6">
+  <div
+    class="kr-unbound flex flex-col items-center bg-(--kr-surface) px-4 py-6"
+  >
     <div class="w-full max-w-3xl">
-      <div
-        v-if="userStore.isAdmin"
-        class="kr-panel-flat sticky top-3 z-30 mb-4 flex flex-wrap items-center justify-between gap-3 bg-base-100/95 p-3 shadow-lg backdrop-blur"
-      >
-        <div class="join">
-          <button
-            type="button"
-            class="kr-btn-join-sm"
-            :class="visitorPreview ? 'btn-ghost' : 'btn-primary'"
-            @click="visitorPreview = false"
+      <header-page-bar v-if="userStore.isAdmin">
+        <div class="flex min-w-0 flex-1 items-center gap-2">
+          <div class="join shrink-0">
+            <button
+              type="button"
+              class="kr-btn-join-sm"
+              :class="visitorPreview ? 'btn-ghost' : 'btn-primary'"
+              @click="visitorPreview = false"
+            >
+              Writing mode
+            </button>
+            <button
+              type="button"
+              class="kr-btn-join-sm"
+              :class="visitorPreview ? 'btn-primary' : 'btn-ghost'"
+              @click="visitorPreview = true"
+            >
+              Visitor preview
+            </button>
+          </div>
+          <p
+            class="kr-text-dim-xs-60 ml-auto min-w-0 truncate"
+            :title="visitorPreview ? 'Edit controls hidden' : saveStatus"
           >
-            Writing mode
-          </button>
-          <button
-            type="button"
-            class="kr-btn-join-sm"
-            :class="visitorPreview ? 'btn-primary' : 'btn-ghost'"
-            @click="visitorPreview = true"
-          >
-            Visitor preview
-          </button>
+            {{ visitorPreview ? 'Edit controls hidden' : saveStatus }}
+          </p>
         </div>
-        <p class="kr-text-dim-xs-60">
-          {{ visitorPreview ? 'Edit controls hidden' : saveStatus }}
-        </p>
-      </div>
+      </header-page-bar>
 
       <div
         v-if="userStore.isAdmin && lastError && !loaded"
@@ -47,7 +51,9 @@
       <header
         class="relative mb-6 overflow-hidden rounded-3xl border border-base-300 bg-linear-to-br from-primary/18 via-base-100 to-secondary/16 shadow-lg"
       >
-        <div class="grid gap-6 p-6 sm:grid-cols-[1fr_auto] sm:items-center sm:p-8">
+        <div
+          class="grid gap-6 p-6 sm:grid-cols-[1fr_auto] sm:items-center sm:p-8"
+        >
           <div class="min-w-0">
             <template v-if="editing">
               <input
@@ -65,7 +71,9 @@
               <h2 class="text-3xl font-black text-base-content sm:text-4xl">
                 {{ draft.heroTitle }}
               </h2>
-              <p class="mt-2 text-sm font-semibold text-base-content/75 sm:text-base">
+              <p
+                class="mt-2 text-sm font-semibold text-base-content/75 sm:text-base"
+              >
                 {{ draft.heroSubtitle }}
               </p>
             </template>
@@ -113,7 +121,10 @@
             aria-label="Book description"
             class="textarea textarea-bordered min-h-36 w-full text-sm leading-relaxed"
           />
-          <p v-else class="kr-text-dim-sm-70 whitespace-pre-line leading-relaxed">
+          <p
+            v-else
+            class="kr-text-dim-sm-70 whitespace-pre-line leading-relaxed"
+          >
             {{ draft.bookDescription }}
           </p>
 
@@ -149,9 +160,7 @@
         </div>
       </section>
 
-      <section
-        class="mb-4 kr-panel-flat p-5 shadow-sm"
-      >
+      <section class="mb-4 kr-panel-flat p-5 shadow-sm">
         <div class="mb-3 flex items-center gap-3">
           <span
             class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-secondary/12 text-secondary"

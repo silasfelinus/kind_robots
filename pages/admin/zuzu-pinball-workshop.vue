@@ -11,19 +11,6 @@
         This pinball table is in its private engineering workshop.
       </div>
       <template v-else>
-        <div class="mb-2 flex justify-end">
-          <button
-            type="button"
-            class="btn btn-ghost btn-sm gap-2 rounded-xl border border-base-300"
-            aria-label="Open Zuzu Pinball tutorial in the sidebar"
-            title="How to play, table rules and development notes"
-            @click="navStore.openWorkspaceSheet()"
-          >
-            <Icon name="kind-icon:question" class="kr-icon-4" />
-            Tutorial
-          </button>
-        </div>
-
         <div v-if="!webglReady" class="kr-note kr-note-error p-5">
           This 3D pinball table requires a browser with WebGL enabled.
         </div>
@@ -48,12 +35,10 @@
 
 <script setup lang="ts">
 import { onMounted, ref } from 'vue'
-import { useNavStore } from '~/stores/navStore'
 import { useUserStore } from '~/stores/userStore'
 import { canRenderWebGL } from '~/utils/arcade/games'
 import { ZUZU_LAST_BELL_GREYBOX } from '~/utils/arcade/pinball/tables/zuzuLastBell/table'
 
-const navStore = useNavStore()
 const user = useUserStore()
 const webglReady = ref(true)
 

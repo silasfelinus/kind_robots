@@ -20,58 +20,70 @@
 -->
 <template>
   <section class="kr-surface">
-    <header v-if="showHeader" class="kr-toolbar shrink-0 kr-panel-flat p-3">
-      <Icon name="kind-icon:tag" class="size-5 text-secondary" />
-      <div class="min-w-0 flex-1">
-        <p class="font-black">{{ title }}</p>
-        <p v-if="subtitle" class="kr-text-dim-xs-55">
-          {{ subtitle }}
-        </p>
-      </div>
-      <span v-if="loading" class="kr-spinner-sm" aria-label="Loading facets" />
-      <span class="badge badge-ghost shrink-0">{{ shownLabel }}</span>
-    </header>
-
-    <div v-if="showControls" class="kr-toolbar shrink-0">
-      <kr-search-field
-        v-model="search"
-        label="Search facets"
-        placeholder="Search every taxonomy by title, alias or description..."
-      />
-
-      <button
-        v-if="selectedTaxonomy"
-        type="button"
-        class="kr-btn-ghost shrink-0"
-        @click="clearTaxonomy"
-      >
-        <Icon name="kind-icon:chevron-left" class="kr-icon-4" />
-        All taxonomies
-      </button>
-
-      <label class="kr-text-dim-xs-60 ml-auto flex items-center gap-2">
-        <input
-          v-model="artOnly"
-          type="checkbox"
-          class="kr-toggle-secondary-xs"
-        />
-        Illustrated only
-      </label>
-
-      <select
-        v-model="mode"
-        class="kr-select-sm shrink-0"
-        aria-label="Facet gallery layout"
-      >
-        <option
-          v-for="entry in GALLERY_MODES"
-          :key="entry.value"
-          :value="entry.value"
+    <header-page-bar v-if="showHeader || showControls">
+      <div class="flex min-w-0 flex-1 items-center gap-2">
+        <span
+          v-if="showHeader"
+          class="flex shrink-0 items-center gap-1.5"
+          :title="subtitle ? title + ': ' + subtitle : title"
         >
-          {{ entry.label }}
-        </option>
-      </select>
-    </div>
+          <Icon name="kind-icon:tag" class="size-5 text-secondary" />
+          <span
+            v-if="loading"
+            class="kr-spinner-sm"
+            aria-label="Loading facets"
+          />
+          <span class="badge badge-ghost shrink-0 whitespace-nowrap">{{
+            shownLabel
+          }}</span>
+        </span>
+
+        <template v-if="showControls">
+          <kr-search-field
+            v-model="search"
+            label="Search facets"
+            placeholder="Search every taxonomy by title, alias or description..."
+          />
+
+          <button
+            v-if="selectedTaxonomy"
+            type="button"
+            class="kr-btn-ghost shrink-0"
+            title="All taxonomies"
+            @click="clearTaxonomy"
+          >
+            <Icon name="kind-icon:chevron-left" class="kr-icon-4" />
+            <span class="sr-only @xl:not-sr-only">All taxonomies</span>
+          </button>
+
+          <label
+            class="kr-text-dim-xs-60 ml-auto flex shrink-0 items-center gap-2"
+            title="Illustrated only"
+          >
+            <input
+              v-model="artOnly"
+              type="checkbox"
+              class="kr-toggle-secondary-xs"
+            />
+            <span class="sr-only @lg:not-sr-only">Illustrated only</span>
+          </label>
+
+          <select
+            v-model="mode"
+            class="kr-select-sm shrink-0"
+            aria-label="Facet gallery layout"
+          >
+            <option
+              v-for="entry in GALLERY_MODES"
+              :key="entry.value"
+              :value="entry.value"
+            >
+              {{ entry.label }}
+            </option>
+          </select>
+        </template>
+      </div>
+    </header-page-bar>
 
     <p v-if="errorMessage" class="kr-text-error-sm shrink-0">
       {{ errorMessage }}

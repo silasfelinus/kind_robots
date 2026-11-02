@@ -91,7 +91,7 @@ if (!importButton) {
 } else console.log('PASS: import button stays disabled until a dry run has run')
 
 if (
-  !/function requestImport\(\) \{ if \(archive\.dryRunReport\) pendingImport\.value = true \}/.test(
+  !/function requestImport\(\)\s*\{\s*if \(archive\.dryRunReport\) pendingImport\.value = true;?\s*\}/.test(
     page,
   )
 ) {
@@ -103,7 +103,7 @@ if (
   console.log('PASS: requestImport only arms the confirmation after a dry run')
 
 if (
-  !/async function confirmImport\(\) \{ pendingImport\.value = false; await archive\.runImport\(\) \}/.test(
+  !/async function confirmImport\(\)\s*\{\s*pendingImport\.value = false;?\s*await archive\.runImport\(\);?\s*\}/.test(
     page,
   )
 ) {

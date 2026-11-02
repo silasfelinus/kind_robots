@@ -1,9 +1,7 @@
 <template>
   <section class="flex flex-col gap-4">
-    <header
-      class="kr-panel-flat flex flex-wrap items-center justify-between gap-4 px-4 py-3"
-    >
-      <h2 class="kr-text-black-xl">Health-claim escalation queue</h2>
+    <header class="flex flex-wrap items-center justify-between gap-3 px-1">
+      <h2 class="kr-text-black-lg">Health-claim escalation queue</h2>
       <button
         type="button"
         class="kr-btn-ghost"
@@ -23,7 +21,9 @@
       v-else-if="!userStore.isAdmin"
       class="kr-note kr-note-error p-8 text-center font-normal"
     >
-      <p class="kr-text-black-xl text-base-content">Administrator access required</p>
+      <p class="kr-text-black-xl text-base-content">
+        Administrator access required
+      </p>
       <p class="kr-text-dim-sm mt-2">
         The forum moderation queue is restricted to administrators.
       </p>
@@ -56,7 +56,8 @@
           <p class="whitespace-pre-line text-sm">{{ post.content }}</p>
 
           <p class="kr-text-dim-xs">
-            By {{ post.botName || post.sender }} · posted {{ formatDate(post.createdAt) }}
+            By {{ post.botName || post.sender }} · posted
+            {{ formatDate(post.createdAt) }}
             <template v-if="post.updatedAt">
               · hidden {{ formatDate(post.updatedAt) }}
             </template>

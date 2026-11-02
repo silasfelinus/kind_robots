@@ -1,9 +1,12 @@
 <template>
-  <nav class="@container flex shrink-0 items-center gap-2" :aria-label="label">
+  <nav
+    class="@container flex min-w-0 flex-1 items-center gap-2"
+    :aria-label="label"
+  >
     <div
       role="tablist"
       :aria-label="label"
-      class="flex min-w-0 flex-1 gap-1 rounded-full border border-base-300 bg-base-200 p-1 shadow-sm"
+      class="flex min-w-0 flex-1 gap-1 overflow-x-auto [scrollbar-width:none]"
       @keydown="onKey"
     >
       <button
@@ -16,25 +19,21 @@
         :aria-selected="modelValue === tab.key"
         :aria-controls="`${idPrefix}-${tab.key}`"
         :tabindex="modelValue === tab.key ? 0 : -1"
-        class="flex min-w-0 flex-1 items-center justify-center gap-2 rounded-full px-2 py-2 text-sm font-bold transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary @lg:px-4"
+        class="flex shrink-0 items-center justify-center gap-2 rounded-full px-3 py-1.5 text-sm font-bold transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-primary @lg:px-4"
         :class="
           modelValue === tab.key
             ? 'bg-primary text-primary-content shadow'
-            : 'text-base-content/70 hover:bg-base-300 hover:text-base-content'
+            : 'text-base-content/70 hover:bg-base-content/10 hover:text-base-content'
         "
         @click="emit('update:modelValue', tab.key)"
       >
         <Icon
           v-if="tab.icon"
           :name="tab.icon"
-          class="h-5 w-5 shrink-0"
+          class="h-4 w-4 shrink-0"
           aria-hidden="true"
         />
-        <span
-          :class="
-            tab.icon ? 'sr-only @md:not-sr-only @md:truncate' : 'truncate'
-          "
-        >
+        <span :class="tab.icon ? 'sr-only @xs:not-sr-only' : ''">
           {{ tab.label }}
         </span>
       </button>

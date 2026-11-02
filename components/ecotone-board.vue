@@ -3,126 +3,104 @@
     class="ecotone-board @container flex min-h-0 w-full flex-1 flex-col bg-[#09141c] text-[#f3e6c8]"
     :style="{ '--eco-text-scale': displayScale }"
   >
-    <header
-      class="kr-toolbar flex-nowrap gap-3 border-b border-[#c9a96e]/20 bg-[#070f15] px-3 py-2 @2xl:px-6 @2xl:py-3"
-    >
-      <span class="flex min-w-0 shrink-0 items-center gap-2.5">
-        <svg
-          viewBox="0 0 40 40"
-          class="size-8 shrink-0 text-[#d9b877] @2xl:size-9"
-          aria-hidden="true"
-        >
-          <circle
-            cx="20"
-            cy="20"
-            r="18"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="1.6"
-          />
-          <path
-            d="M20 6 L23 17 L34 20 L23 23 L20 34 L17 23 L6 20 L17 17 Z"
-            fill="currentColor"
-          />
-        </svg>
-        <span class="leading-none">
-          <span
-            class="block font-serif text-xl font-black tracking-[.14em] @2xl:text-2xl"
-            >ECOTONE</span
-          >
-          <span
-            class="mt-1 block text-[9px] font-bold tracking-[.32em] text-[#d9b877]/85 @2xl:text-[10px]"
-            >WEIRD HUMBOLDT</span
-          >
-        </span>
-      </span>
-      <p
-        class="mx-auto hidden min-w-0 truncate text-xs font-bold uppercase tracking-[.18em] @3xl:block"
+    <header-page-bar>
+      <div
+        class="flex min-w-0 flex-1 items-center gap-2 @3xl:gap-3"
+        data-testid="ecotone-hud"
       >
-        {{ chapterLine }}
-      </p>
-      <p
-        v-if="placeLine"
-        class="hidden min-w-0 truncate text-xs font-bold uppercase tracking-[.18em] text-[#8fb8b0] @6xl:block"
-      >
-        {{ placeLine }}
-      </p>
-      <div class="ml-auto flex shrink-0 items-center gap-1.5">
-        <template v-if="game.run">
-          <span
-            class="hidden items-center gap-2 rounded-full border border-[#c9a96e]/40 bg-[#0c1a24] px-3 py-1 text-sm font-semibold @2xl:inline-flex"
-          >
-            <img
-              v-if="activePlayerPortrait && !headerPortraitFailed"
-              :src="activePlayerPortrait"
-              alt=""
-              class="size-7 rounded-full object-cover"
-              @error="headerPortraitFailed = true"
-            />
-            <span v-else aria-hidden="true">{{
-              PLAYER_AVATARS.find((avatar) => avatar.id === game.run?.avatarId)
-                ?.emoji ?? '🖼️'
-            }}</span>
-            {{ game.run.playerName || 'Wanderer' }}
-          </span>
-          <span
-            class="eco-pill hidden @xl:inline-flex"
-            :title="`Nerve ${game.run.nerve} of ${MAX_METER}`"
-            >Nerve {{ game.run.nerve }}</span
-          >
-          <span
-            class="eco-pill hidden @md:inline-flex"
-            :title="`Clarity ${game.run.clarity}`"
-            >Clarity {{ game.run.clarity }}</span
-          >
-        </template>
-        <button
-          type="button"
-          class="inline-flex eco-pill hover:border-[#d9b877]"
-          :title="`Endings found: ${game.unlockedCount} of ${game.endingTotal}`"
-          @click="tab = 'endings'"
+        <p
+          class="hidden min-w-0 truncate text-xs font-bold uppercase tracking-[.18em] @2xl:block"
+          :title="chapterLine"
         >
-          <span class="@xl:hidden"
-            >{{ pad(game.unlockedCount) }}/{{ game.endingTotal }}</span
-          >
-          <span class="hidden @xl:inline"
-            >Endings {{ pad(game.unlockedCount) }}/{{ game.endingTotal }}</span
-          >
-        </button>
-        <button
-          type="button"
-          class="hidden eco-pill hover:border-[#d9b877] @md:inline-flex"
-          :title="`Cases opened: ${game.casesOpened} of ${game.caseTotal}`"
-          @click="tab = 'cases'"
+          {{ chapterLine }}
+        </p>
+        <p
+          v-if="placeLine"
+          class="hidden min-w-0 truncate text-xs font-bold uppercase tracking-[.18em] text-base-content/60 @5xl:block"
+          :title="placeLine"
         >
-          <span class="@xl:hidden"
-            >{{ game.casesOpened }}/{{ game.caseTotal }}</span
+          {{ placeLine }}
+        </p>
+        <div class="ml-auto flex shrink-0 items-center gap-1.5">
+          <template v-if="game.run">
+            <span
+              class="hidden items-center gap-2 rounded-full border border-base-content/20 bg-base-200 px-3 py-0.5 text-sm font-semibold @4xl:inline-flex"
+            >
+              <img
+                v-if="activePlayerPortrait && !headerPortraitFailed"
+                :src="activePlayerPortrait"
+                alt=""
+                class="size-7 rounded-full object-cover"
+                @error="headerPortraitFailed = true"
+              />
+              <span v-else aria-hidden="true">{{
+                PLAYER_AVATARS.find(
+                  (avatar) => avatar.id === game.run?.avatarId,
+                )?.emoji ?? '🖼️'
+              }}</span>
+              {{ game.run.playerName || 'Wanderer' }}
+            </span>
+            <span
+              class="eco-pill hidden @lg:inline-flex"
+              :title="`Nerve ${game.run.nerve} of ${MAX_METER}`"
+              >Nerve {{ game.run.nerve }}</span
+            >
+            <span
+              class="eco-pill hidden @md:inline-flex"
+              :title="`Clarity ${game.run.clarity}`"
+              >Clarity {{ game.run.clarity }}</span
+            >
+          </template>
+          <button
+            type="button"
+            class="inline-flex eco-pill hover:border-primary"
+            :title="`Endings found: ${game.unlockedCount} of ${game.endingTotal}`"
+            @click="tab = 'endings'"
           >
-          <span class="hidden @xl:inline"
-            >Cases {{ game.casesOpened }}/{{ game.caseTotal }}</span
+            <span class="@3xl:hidden"
+              >{{ pad(game.unlockedCount) }}/{{ game.endingTotal }}</span
+            >
+            <span class="hidden @3xl:inline"
+              >Endings {{ pad(game.unlockedCount) }}/{{
+                game.endingTotal
+              }}</span
+            >
+          </button>
+          <button
+            type="button"
+            class="hidden eco-pill hover:border-primary @md:inline-flex"
+            :title="`Cases opened: ${game.casesOpened} of ${game.caseTotal}`"
+            @click="tab = 'cases'"
           >
-        </button>
-        <button
-          type="button"
-          class="inline-flex eco-pill eco-pill-icon hover:border-[#d9b877]"
-          :aria-label="`Art style: ${currentStyle.label}`"
-          :title="`Art style: ${currentStyle.label}`"
-          @click="openStylePicker"
-        >
-          <Icon name="kind-icon:palette" class="size-4" />
-        </button>
-        <button
-          v-if="game.run"
-          type="button"
-          class="inline-flex eco-pill eco-pill-icon hover:border-[#d9b877]"
-          aria-label="Start a new weekend"
-          title="Start a new weekend"
-          @click="restart"
-        >
-          <Icon name="kind-icon:refresh" class="size-4" />
-        </button>
+            <span class="@3xl:hidden"
+              >{{ game.casesOpened }}/{{ game.caseTotal }}</span
+            >
+            <span class="hidden @3xl:inline"
+              >Cases {{ game.casesOpened }}/{{ game.caseTotal }}</span
+            >
+          </button>
+          <button
+            type="button"
+            class="inline-flex eco-pill eco-pill-icon hover:border-primary"
+            :aria-label="`Art style: ${currentStyle.label}`"
+            :title="`Art style: ${currentStyle.label}`"
+            @click="openStylePicker"
+          >
+            <Icon name="kind-icon:palette" class="size-4" />
+          </button>
+          <button
+            v-if="game.run"
+            type="button"
+            class="inline-flex eco-pill eco-pill-icon hover:border-primary"
+            aria-label="Start a new weekend"
+            title="Start a new weekend"
+            @click="restart"
+          >
+            <Icon name="kind-icon:refresh" class="size-4" />
+          </button>
+        </div>
       </div>
-    </header>
+    </header-page-bar>
 
     <section class="@container relative min-h-0 flex-1 overflow-hidden">
       <div
@@ -2920,8 +2898,10 @@ function endingsFor(id: EndingLine) {
   align-items: center;
   gap: 0.25rem;
   border-radius: 9999px;
-  border: 1px solid rgb(201 169 110 / 0.4);
-  background: rgb(18 36 44 / 0.85);
+  border: 1px solid
+    color-mix(in oklab, var(--color-base-content) 20%, transparent);
+  background: var(--color-base-200);
+  color: var(--color-base-content);
   padding: 0 0.85rem;
   font-size: 0.68rem;
   font-weight: 800;

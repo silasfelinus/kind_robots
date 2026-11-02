@@ -4,22 +4,16 @@
       class="plumber-console kr-scroll"
       aria-label="Save the Plumber handheld game menu"
     >
-      <header class="plumber-console-top">
-        <NuxtLink
-          to="/"
-          class="plumber-home"
-          aria-label="Return to Kind Robots dashboard"
-          >⌂</NuxtLink
-        >
-        <span class="plumber-system"
-          >KIND ROBOTS <strong>◆ ADVENTURE SYSTEM</strong></span
-        >
-        <span class="plumber-progress" aria-live="polite">
-          {{
-            plumber.chosen ? 'SAVE ' + plumber.percent + '%' : 'NEW ADVENTURE'
-          }}
-        </span>
-      </header>
+      <header-page-bar compact>
+        <div class="plumber-bar" title="Kind Robots ◆ Adventure System">
+          <span class="plumber-progress" aria-live="polite">
+            {{
+              plumber.chosen ? 'SAVE ' + plumber.percent + '%' : 'NEW ADVENTURE'
+            }}
+          </span>
+        </div>
+      </header-page-bar>
+      <page-help label="Save the Plumber controls" @open="go('guide')" />
 
       <div
         ref="viewport"
@@ -502,7 +496,7 @@ useHead({ title: 'Save the Plumber · Kind Robots Arcade' })
 }
 .plumber-console {
   display: grid;
-  grid-template-rows: auto minmax(0, 1fr) auto;
+  grid-template-rows: minmax(0, 1fr) auto;
   width: 100%;
   height: 100%;
   min-height: 0;
@@ -513,7 +507,6 @@ useHead({ title: 'Save the Plumber · Kind Robots Arcade' })
   background: linear-gradient(120deg, #222b38, #111a29);
   font-family: ui-sans-serif, system-ui, sans-serif;
 }
-.plumber-console-top,
 .plumber-console-bottom {
   display: flex;
   align-items: center;
@@ -526,27 +519,26 @@ useHead({ title: 'Save the Plumber · Kind Robots Arcade' })
   letter-spacing: 0.12em;
   color: #d0e6e8;
 }
-.plumber-console-top {
-  background: #121f2d;
-  border-radius: 0.8rem 0.8rem 0 0;
-}
 .plumber-console-bottom {
   background: #121f2d;
   border-radius: 0 0 0.8rem 0.8rem;
 }
-.plumber-system strong {
-  margin-left: 0.5rem;
-  color: #fbd090;
+.plumber-bar {
+  display: flex;
+  flex: 1;
+  min-width: 0;
+  justify-content: flex-end;
 }
-.plumber-home {
-  display: grid;
-  place-items: center;
-  width: 2rem;
-  height: 2rem;
-  border: 1px solid #82aab1;
-  border-radius: 0.55rem;
-  font-size: 1.5rem;
-  color: #fbd090;
+.plumber-progress {
+  padding: 0.2rem 0.7rem;
+  border: 1px solid
+    color-mix(in oklch, var(--color-base-content) 18%, transparent);
+  border-radius: 999px;
+  font-size: 0.7rem;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  white-space: nowrap;
+  color: var(--color-base-content);
 }
 .plumber-footer-actions {
   display: flex;
@@ -578,6 +570,7 @@ useHead({ title: 'Save the Plumber · Kind Robots Arcade' })
   min-height: 0;
   background: radial-gradient(ellipse at 65% 40%, #235b65, #081b2e 80%);
   border: 2px solid #a5c9c5;
+  border-radius: 0.8rem 0.8rem 0 0;
   outline-offset: -4px;
 }
 .plumber-motion,
@@ -972,13 +965,6 @@ useHead({ title: 'Save the Plumber · Kind Robots Arcade' })
 }
 
 @media (max-width: 640px) and (orientation: portrait) {
-  .plumber-system strong {
-    display: none;
-  }
-  .plumber-progress {
-    font-size: 0.6rem;
-    letter-spacing: 0.03em;
-  }
   .plumber-motion::after {
     background: linear-gradient(
       0deg,
@@ -1080,7 +1066,6 @@ useHead({ title: 'Save the Plumber · Kind Robots Arcade' })
   }
 }
 @media (max-height: 520px) and (orientation: landscape) {
-  .plumber-console-top,
   .plumber-console-bottom {
     min-height: 1.8rem;
     padding-top: 0.1rem;

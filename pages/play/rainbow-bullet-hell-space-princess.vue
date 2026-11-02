@@ -3,32 +3,25 @@
     <div
       class="mx-auto flex h-full min-h-0 w-full max-w-[1500px] flex-col gap-2 p-2 sm:p-3"
     >
-      <ConsoleTabs
-        v-model="view"
-        :tabs="views"
-        label="Rainbow Space Princess"
-        id-prefix="princess"
-      >
-        <button
-          v-if="RAINBOW_OPENING"
-          type="button"
-          class="btn btn-circle btn-ghost shrink-0 border border-base-300 bg-base-200"
-          aria-label="Play the opening music video"
-          title="Opening"
-          @click="replayOpening"
+      <header-page-bar>
+        <ConsoleTabs
+          v-model="view"
+          :tabs="views"
+          label="Rainbow Space Princess"
+          id-prefix="princess"
         >
-          <Icon name="kind-icon:movie" class="kr-icon-5" />
-        </button>
-        <button
-          type="button"
-          class="btn btn-circle btn-ghost shrink-0 border border-base-300 bg-base-200"
-          aria-label="Open the flight manual in the sidebar"
-          title="Flight manual"
-          @click="navStore.openWorkspaceSheet()"
-        >
-          <Icon name="kind-icon:question" class="kr-icon-5" />
-        </button>
-      </ConsoleTabs>
+          <button
+            v-if="RAINBOW_OPENING"
+            type="button"
+            class="btn btn-circle btn-ghost btn-sm shrink-0"
+            aria-label="Play the opening music video"
+            title="Opening"
+            @click="replayOpening"
+          >
+            <Icon name="kind-icon:movie" class="kr-icon-5" />
+          </button>
+        </ConsoleTabs>
+      </header-page-bar>
 
       <section
         v-show="view === 'flight'"
@@ -263,7 +256,6 @@
 
 <script setup lang="ts">
 import { computed, ref } from 'vue'
-import { useNavStore } from '~/stores/navStore'
 import {
   RAINBOW_HERO_ART,
   RAINBOW_KITTY_POWER,
@@ -272,8 +264,6 @@ import {
 } from '~/utils/arcade/games/rainbowPilots'
 import { rainbowSuperCutin } from '~/utils/arcade/games/rainbowGameArt'
 import { RAINBOW_OPENING } from '~/utils/arcade/games/rainbowOpening'
-
-const navStore = useNavStore()
 
 const views = [
   { key: 'flight', label: 'Fly', icon: 'kind-icon:rocket' },

@@ -1335,11 +1335,14 @@ const page = readFileSync(
   join(process.cwd(), 'pages/play/zuzu-gamebook.vue'),
   'utf8',
 )
+// Silas, 2026-11-01: one header strip site-wide. The toolbar row docks into
+// the shell's system bar rather than drawing a second strip over the book.
 assert.match(
   page,
-  /class="kr-toolbar[^"]*bg-base-100\/95/,
-  'toolbar has a solid bar',
+  /<header-page-bar>\s*<div[^>]*data-testid="zuzu-gamebook-hud"/,
+  'the toolbar row docks into the system bar',
 )
+assert.doesNotMatch(page, /class="kr-toolbar/, 'no second header strip')
 assert.match(page, /\(min-width: 1024px\) and \(max-height: 820px\)/)
 assert.match(page, /\(min-width: 768px\) and \(orientation: portrait\)/)
 assert.match(page, /md:grid-rows-\[minmax\(9rem,1fr\)_auto\]/)

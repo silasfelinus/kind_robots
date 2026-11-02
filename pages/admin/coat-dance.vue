@@ -3,108 +3,105 @@
     <div
       class="kr-container-wide flex h-full min-h-0 flex-col gap-2 overflow-hidden p-2 sm:p-3"
     >
-      <!-- One screen: project bar, then a stage that is either the look
-           picker or the player, then the render bar. No tabs, no second
-           copy of the project details. -->
-      <header
-        class="flex min-w-0 shrink-0 flex-wrap items-center gap-2 rounded-2xl border border-base-300 bg-base-100 p-2 text-base-content shadow-sm"
-      >
-        <nav
-          class="flex shrink-0 items-center gap-1 rounded-xl border border-base-300 bg-base-200 p-1"
-          aria-label="Video generation mode"
-        >
-          <NuxtLink to="/play/video-generator" class="kr-btn-xs btn-ghost"
-            >Image to video</NuxtLink
+      <header-page-bar>
+        <div class="cd-bar" data-testid="coat-dance-page-bar">
+          <nav
+            class="flex shrink-0 items-center gap-1 rounded-xl border border-base-300 bg-base-200/70 p-1"
+            aria-label="Video generation mode"
           >
-          <span class="kr-btn-xs btn-primary" aria-current="page"
-            >Full video restyle</span
-          >
-        </nav>
-        <template v-if="ready && userStore.isAdmin">
-          <label
-            for="restyle-current-project"
-            class="hidden shrink-0 text-xs font-semibold sm:block"
-            >Project</label
-          >
-          <select
-            id="restyle-current-project"
-            class="select select-bordered select-sm min-w-[12rem] flex-1"
-            aria-label="Current video restyle project"
-            :value="sourceFile ? '' : (store.selectedId ?? '')"
-            @change="selectJobFromPicker"
-          >
-            <option value="" disabled>
-              {{
-                sourceFile
-                  ? 'New project from upload'
-                  : store.jobs.length
-                    ? 'Choose a project'
-                    : 'No saved videos yet'
-              }}
-            </option>
-            <option v-for="job in store.jobs" :key="job.id" :value="job.id">
-              {{ projectOptionLabel(job) }} · {{ statusLabel(job.status) }}
-            </option>
-          </select>
-          <div
-            v-if="store.selected && !sourceFile"
-            class="flex min-w-[11rem] flex-1 items-center gap-1"
-          >
-            <input
-              v-model="title"
-              type="text"
-              class="input input-bordered input-sm min-w-0 flex-1"
-              maxlength="120"
-              aria-label="Project title"
-              placeholder="Name this video"
-              @keydown.enter="saveProjectTitle"
-            />
-            <button
-              v-if="title.trim() !== store.selected.title"
-              type="button"
-              class="kr-btn-xs btn-primary shrink-0"
-              :disabled="
-                store.busy || isRendering(store.selected) || !title.trim()
-              "
-              @click="saveProjectTitle"
+            <NuxtLink to="/play/video-generator" class="kr-btn-xs btn-ghost"
+              >Image to video</NuxtLink
             >
-              Save title
+            <span class="kr-btn-xs btn-primary" aria-current="page"
+              >Full video restyle</span
+            >
+          </nav>
+          <template v-if="ready && userStore.isAdmin">
+            <label
+              for="restyle-current-project"
+              class="cd-bar-label shrink-0 text-xs font-semibold"
+              >Project</label
+            >
+            <select
+              id="restyle-current-project"
+              class="select select-bordered select-sm min-w-[11rem] max-w-[22rem] flex-1"
+              aria-label="Current video restyle project"
+              :value="sourceFile ? '' : (store.selectedId ?? '')"
+              @change="selectJobFromPicker"
+            >
+              <option value="" disabled>
+                {{
+                  sourceFile
+                    ? 'New project from upload'
+                    : store.jobs.length
+                      ? 'Choose a project'
+                      : 'No saved videos yet'
+                }}
+              </option>
+              <option v-for="job in store.jobs" :key="job.id" :value="job.id">
+                {{ projectOptionLabel(job) }} · {{ statusLabel(job.status) }}
+              </option>
+            </select>
+            <div
+              v-if="store.selected && !sourceFile"
+              class="flex min-w-[10rem] max-w-[18rem] flex-1 items-center gap-1"
+            >
+              <input
+                v-model="title"
+                type="text"
+                class="input input-bordered input-sm min-w-0 flex-1"
+                maxlength="120"
+                aria-label="Project title"
+                placeholder="Name this video"
+                @keydown.enter="saveProjectTitle"
+              />
+              <button
+                v-if="title.trim() !== store.selected.title"
+                type="button"
+                class="kr-btn-xs btn-primary shrink-0"
+                :disabled="
+                  store.busy || isRendering(store.selected) || !title.trim()
+                "
+                @click="saveProjectTitle"
+              >
+                Save title
+              </button>
+            </div>
+            <label class="kr-btn-xs btn-outline shrink-0 cursor-pointer">
+              New from video
+              <input
+                ref="fileInput"
+                type="file"
+                class="sr-only"
+                :accept="RESTYLE_SOURCE_ACCEPT"
+                @change="chooseFile"
+              />
+            </label>
+            <button
+              type="button"
+              class="kr-btn-xs btn-ghost shrink-0"
+              :disabled="store.busy || store.syncing"
+              @click="store.refresh()"
+            >
+              Refresh
             </button>
-          </div>
-          <label class="kr-btn-xs btn-outline shrink-0 cursor-pointer">
-            New from video
-            <input
-              ref="fileInput"
-              type="file"
-              class="sr-only"
-              :accept="RESTYLE_SOURCE_ACCEPT"
-              @change="chooseFile"
-            />
-          </label>
-          <button
-            type="button"
-            class="kr-btn-xs btn-ghost shrink-0"
-            :disabled="store.busy || store.syncing"
-            @click="store.refresh()"
-          >
-            Refresh
-          </button>
-          <button
-            v-if="store.selected && !sourceFile"
-            type="button"
-            class="kr-btn-xs btn-ghost shrink-0 text-error"
-            :disabled="store.busy || isRendering(store.selected)"
-            :title="
-              isRendering(store.selected)
-                ? 'KR Relay is rendering this project; delete it after the render finishes or fails.'
-                : 'Delete this project, its private source video and every render'
-            "
-            @click="deleteSelected"
-          >
-            Delete
-          </button>
-        </template>
-      </header>
+            <button
+              v-if="store.selected && !sourceFile"
+              type="button"
+              class="kr-btn-xs btn-ghost shrink-0 text-error"
+              :disabled="store.busy || isRendering(store.selected)"
+              :title="
+                isRendering(store.selected)
+                  ? 'KR Relay is rendering this project; delete it after the render finishes or fails.'
+                  : 'Delete this project, its private source video and every render'
+              "
+              @click="deleteSelected"
+            >
+              Delete
+            </button>
+          </template>
+        </div>
+      </header-page-bar>
 
       <div v-if="!ready" class="kr-panel grid flex-1 place-items-center">
         <span class="kr-spinner-lg-primary" />
@@ -1413,3 +1410,24 @@ onBeforeUnmount(() => {
   store.clearPreview()
 })
 </script>
+
+<style scoped>
+.cd-bar {
+  display: flex;
+  flex: 1 1 auto;
+  min-width: 0;
+  align-items: center;
+  gap: 0.5rem;
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  scrollbar-width: none;
+}
+.cd-bar::-webkit-scrollbar {
+  display: none;
+}
+@container (max-width: 640px) {
+  .cd-bar-label {
+    display: none;
+  }
+}
+</style>

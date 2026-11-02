@@ -39,17 +39,6 @@
         </p>
       </div>
 
-      <button
-        type="button"
-        class="cs-help absolute right-3 top-3"
-        aria-label="How to play"
-        title="How to play"
-        data-testid="cs-help"
-        @click="openTutorial"
-      >
-        ?
-      </button>
-
       <nav
         v-if="mode === 'menu'"
         class="absolute bottom-3 left-3 right-3 flex flex-col gap-2 @3xl:right-auto @3xl:w-80"
@@ -391,7 +380,6 @@
 <script setup lang="ts">
 import { computed, onBeforeUnmount, onMounted, reactive, ref, watch } from 'vue'
 import { useCrystalStreetStore } from '~/stores/crystalStreetStore'
-import { useNavStore } from '~/stores/navStore'
 import {
   ARCHETYPES,
   AVATARS,
@@ -426,7 +414,6 @@ const STEPS = [
 ] as const
 
 const store = useCrystalStreetStore()
-const navStore = useNavStore()
 const mode = ref<'menu' | 'new'>('menu')
 const stepIndex = ref(0)
 const step = computed(() => STEPS[stepIndex.value]!.id)
@@ -489,10 +476,6 @@ const menu = computed<MenuItem[]>(() => {
   })
   return items
 })
-
-function openTutorial(): void {
-  navStore.openWorkspaceSheet()
-}
 
 function openWizard(fromShare: boolean): void {
   playingShared.value = fromShare && !!sharedVillain.value

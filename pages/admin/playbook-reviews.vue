@@ -2,66 +2,72 @@
   <main
     class="kr-surface flex min-h-0 flex-col gap-3 overflow-hidden p-3 sm:p-5"
   >
-    <header class="flex shrink-0 flex-wrap items-center justify-between gap-2">
-      <div>
-        <p class="text-xs font-black uppercase tracking-widest text-warning">
-          Playbook Studio
-        </p>
-        <h2 class="font-serif text-2xl font-bold">Player run reviews</h2>
-        <p class="text-sm opacity-70">
-          Learn what worked, which endings landed, and what each playthrough
-          actually did.
-        </p>
-      </div>
-      <NuxtLink class="btn btn-outline btn-sm" to="/admin/playbook-manager"
-        >Story Atlas</NuxtLink
+    <header-page-bar>
+      <div
+        class="prv-bar"
+        data-testid="playbook-reviews-page-bar"
+        title="Learn what worked, which endings landed, and what each playthrough actually did."
       >
-    </header>
+        <div
+          v-if="user.isAdmin"
+          class="prv-bar-filters"
+          role="group"
+          aria-label="Review filters"
+        >
+          <label class="prv-bar-field">
+            <span class="prv-bar-label">Game</span>
+            <select
+              v-model="store.game"
+              class="select select-bordered select-sm"
+              aria-label="Game"
+              @change="store.load()"
+            >
+              <option value="">All Playbooks</option>
+              <option
+                v-for="slug in REVIEW_GAME_SLUGS"
+                :key="slug"
+                :value="slug"
+              >
+                {{ slug }}
+              </option>
+            </select>
+          </label>
+          <label class="prv-bar-field">
+            <span class="prv-bar-label">Stars</span>
+            <select
+              v-model.number="store.stars"
+              class="select select-bordered select-sm"
+              aria-label="Stars"
+              @change="store.load()"
+            >
+              <option :value="0">Any rating</option>
+              <option v-for="value in 5" :key="value" :value="value">
+                {{ value }} star{{ value === 1 ? '' : 's' }}
+              </option>
+            </select>
+          </label>
+          <button
+            class="kr-btn-ghost"
+            :disabled="store.loading"
+            @click="store.load()"
+          >
+            Refresh
+          </button>
+          <span class="prv-bar-count"
+            >{{ store.reviews.length }} most recent matches</span
+          >
+        </div>
+        <NuxtLink
+          class="kr-btn-ghost ml-auto shrink-0"
+          to="/admin/playbook-manager"
+          >Story Atlas</NuxtLink
+        >
+      </div>
+    </header-page-bar>
     <div v-if="!user.isAdmin" class="kr-panel p-6" role="alert">
       Administrator access required.
     </div>
     <template v-else>
-      <div
-        class="flex shrink-0 flex-wrap items-end gap-2"
-        aria-label="Review filters"
-      >
-        <label class="form-control">
-          <span class="label-text text-xs">Game</span>
-          <select
-            v-model="store.game"
-            class="select select-bordered select-sm"
-            @change="store.load()"
-          >
-            <option value="">All Playbooks</option>
-            <option v-for="slug in REVIEW_GAME_SLUGS" :key="slug" :value="slug">
-              {{ slug }}
-            </option>
-          </select>
-        </label>
-        <label class="form-control">
-          <span class="label-text text-xs">Stars</span>
-          <select
-            v-model.number="store.stars"
-            class="select select-bordered select-sm"
-            @change="store.load()"
-          >
-            <option :value="0">Any rating</option>
-            <option v-for="value in 5" :key="value" :value="value">
-              {{ value }} star{{ value === 1 ? '' : 's' }}
-            </option>
-          </select>
-        </label>
-        <button
-          class="btn btn-outline btn-sm"
-          :disabled="store.loading"
-          @click="store.load()"
-        >
-          Refresh
-        </button>
-        <span class="text-xs opacity-70"
-          >{{ store.reviews.length }} most recent matches</span
-        >
-      </div>
       <p v-if="store.error" role="alert" class="text-error">
         {{ store.error }}
       </p>
@@ -150,3 +156,54 @@ onMounted(() => {
   if (user.isAdmin) void store.load()
 })
 </script>
+
+<style scoped>
+.prv-bar {
+  display: flex;
+  flex: 1 1 auto;
+  min-width: 0;
+  align-items: center;
+  gap: 0.5rem;
+}
+.prv-bar-filters {
+  display: flex;
+  flex: 1 1 auto;
+  min-width: 0;
+  align-items: center;
+  gap: 0.5rem;
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  scrollbar-width: none;
+}
+.prv-bar-filters::-webkit-scrollbar {
+  display: none;
+}
+.prv-bar-filters > * {
+  flex: none;
+}
+.prv-bar-field {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+}
+.prv-bar-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  opacity: 0.75;
+}
+.prv-bar-count {
+  font-size: 0.75rem;
+  opacity: 0.7;
+  white-space: nowrap;
+}
+@container (max-width: 720px) {
+  .prv-bar-count {
+    display: none;
+  }
+}
+@container (max-width: 520px) {
+  .prv-bar-label {
+    display: none;
+  }
+}
+</style>

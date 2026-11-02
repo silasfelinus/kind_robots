@@ -575,9 +575,10 @@ onMounted(async () => {
       FOUR rows on a phone (`sm:grid-cols-2 xl:grid-cols-4` collapses to one
       column below sm).
 
-      Title and actions stay here; every filter moves to kr-gallery's `#toolbar`
-      slot. The blurb survives at md+ only -- it is orientation text, and it was
-      costing three rows on exactly the screens with the fewest to spare.
+      Every filter moved to kr-gallery's `#toolbar` slot. The actions now dock
+      into the header strip below and the title is gone: the nav pickers
+      already name the page (Silas, 2026-11-01: "One single header strip for
+      all").
     -->
     <!--
       What the last delete actually did. The cascade is partial by design --
@@ -634,49 +635,38 @@ onMounted(async () => {
       </button>
     </div>
 
-    <header class="kr-panel px-3 py-2">
-      <div class="flex flex-wrap items-center justify-between gap-2">
-        <div class="min-w-0">
-          <h2 class="text-base font-bold">Resource Gallery</h2>
-          <!--
-            TITLE ONLY. The blurb under it was `max-w-3xl`, so it claimed the
-            whole line and pushed Library/Discover/Add/Refresh onto a row of
-            their own -- Silas, 2026-08-08, of the preview: "still appears to
-            have multiple rows before the resource cards". It also truncated to
-            "...manufacture a preview wh...", so the row bought an unfinished
-            sentence. The page already carries a `?` help affordance, which is
-            where orientation prose belongs.
-          -->
-        </div>
-
-        <div class="flex shrink-0 items-center gap-2">
-          <!-- The Library/Discover switch lands HERE rather than in a strip of
-               its own above the page. resource-manager fills it; a host that
-               only wants the gallery passes nothing and the row is unchanged. -->
+    <!-- The Library/Discover switch lands in the header strip with Add and
+         Refresh rather than in a band of its own. resource-manager fills the
+         `#tabs` slot; a host that only wants the gallery passes nothing. -->
+    <header-page-bar>
+      <div class="flex min-w-0 flex-1 items-center gap-2">
+        <div class="min-w-0 flex-1">
           <slot name="tabs" />
-
-          <button
-            type="button"
-            class="btn btn-primary btn-xs rounded-2xl"
-            @click="openAddChoice"
-          >
-            <icon name="kind-icon:plus" class="kr-icon-3-5" />
-            Add
-          </button>
-
-          <button
-            type="button"
-            class="btn btn-outline btn-xs rounded-2xl"
-            :disabled="resourceGalleryStore.isLoading"
-            @click="resourceGalleryStore.loadResources()"
-          >
-            <span v-if="resourceGalleryStore.isLoading" class="kr-spinner-xs" />
-            <icon v-else name="kind-icon:refresh" class="kr-icon-3-5" />
-            Refresh
-          </button>
         </div>
+
+        <button
+          type="button"
+          class="btn btn-primary btn-xs shrink-0 rounded-2xl"
+          title="Add a resource"
+          @click="openAddChoice"
+        >
+          <icon name="kind-icon:plus" class="kr-icon-3-5" />
+          <span class="sr-only @lg:not-sr-only">Add</span>
+        </button>
+
+        <button
+          type="button"
+          class="btn btn-outline btn-xs shrink-0 rounded-2xl"
+          title="Refresh resources"
+          :disabled="resourceGalleryStore.isLoading"
+          @click="resourceGalleryStore.loadResources()"
+        >
+          <span v-if="resourceGalleryStore.isLoading" class="kr-spinner-xs" />
+          <icon v-else name="kind-icon:refresh" class="kr-icon-3-5" />
+          <span class="sr-only @lg:not-sr-only">Refresh</span>
+        </button>
       </div>
-    </header>
+    </header-page-bar>
 
     <div v-if="showAddChoice" class="flex flex-col gap-3 kr-panel-flat p-4">
       <p class="kr-text-bold-sm">What are you adding?</p>

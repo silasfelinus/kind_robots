@@ -1,35 +1,29 @@
 <template>
   <main class="playbook-studio kr-surface gap-0">
-    <header
-      class="kr-toolbar flex-nowrap gap-3 border-b border-base-content/15 bg-[#070f15] px-4 py-3 sm:px-8"
-    >
-      <NuxtLink
-        to="/admin/playbook-forge"
-        class="inline-flex studio-pill-button"
+    <header-page-bar compact>
+      <div
+        class="flex min-w-0 flex-1 items-center gap-2"
+        data-testid="art-review-page-bar"
       >
-        <Icon name="kind-icon:chevron-left" class="size-4" /> Playbook Studio
-      </NuxtLink>
-      <span class="min-w-0 leading-tight">
-        <span
-          class="block text-sm font-black uppercase tracking-[.2em] text-primary"
-          >Checkpoint review</span
+        <NuxtLink
+          to="/admin/playbook-forge"
+          class="kr-btn-ghost shrink-0 gap-1"
+          title="Temporary · Ecotone art ledgers"
         >
-        <span
-          class="block truncate text-xs font-bold uppercase tracking-[.2em] text-base-content/75"
-          >Temporary · Ecotone art ledgers</span
+          <Icon name="kind-icon:chevron-left" class="size-4" /> Playbook Studio
+        </NuxtLink>
+        <button
+          type="button"
+          class="kr-btn-ghost ml-auto shrink-0"
+          aria-label="Refresh statuses"
+          :disabled="loading"
+          @click="load"
         >
-      </span>
-      <button
-        type="button"
-        class="ml-auto inline-flex studio-pill-button"
-        aria-label="Refresh statuses"
-        :disabled="loading"
-        @click="load"
-      >
-        <span v-if="loading" class="loading loading-spinner loading-xs" />
-        <Icon v-else name="kind-icon:refresh" class="size-4" />
-      </button>
-    </header>
+          <span v-if="loading" class="loading loading-spinner loading-xs" />
+          <Icon v-else name="kind-icon:refresh" class="size-4" />
+        </button>
+      </div>
+    </header-page-bar>
 
     <div v-if="!ready" class="grid flex-1 place-items-center">
       <span class="loading loading-spinner loading-lg text-primary" />

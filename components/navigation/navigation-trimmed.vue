@@ -8,18 +8,11 @@
 -->
 <template>
   <section class="directory-home kr-unbound flex w-full flex-col gap-3">
-    <header
-      class="sticky top-0 z-10 flex flex-col gap-3 rounded-2xl border border-base-300 bg-base-100/95 p-3 shadow-sm backdrop-blur-sm sm:flex-row sm:items-center sm:justify-between sm:p-4"
-    >
-      <div class="min-w-0">
-        <p class="text-sm font-black text-base-content">
-          Find your next adventure
-        </p>
-        <p class="text-xs text-base-content/65">
-          Every game, story, studio and workshop in one place.
-        </p>
-      </div>
-      <label class="relative flex w-full shrink-0 items-center sm:w-72">
+    <header-page-bar>
+      <label
+        class="relative ml-auto flex w-full max-w-sm min-w-0 items-center"
+        title="Find your next adventure: every game, story, studio and workshop in one place."
+      >
         <Icon
           name="kind-icon:search"
           class="pointer-events-none absolute left-3 h-4 w-4 text-base-content/50"
@@ -29,10 +22,10 @@
           type="search"
           placeholder="Search destinations…"
           aria-label="Search destinations"
-          class="kr-input-rounded-xl h-10 w-full pl-9 text-sm"
+          class="kr-input-rounded-xl h-9 w-full pl-9 text-sm"
         />
       </label>
-    </header>
+    </header-page-bar>
 
     <div class="space-y-4 pb-4 sm:space-y-5">
       <p

@@ -1,6 +1,19 @@
 <!-- /components/navigation/workspace-sheet.vue -->
 <template>
   <aside class="flex min-h-0 flex-col gap-4 overflow-y-auto p-1">
+    <button
+      v-if="navStore.pageHelpLabel"
+      type="button"
+      class="btn btn-primary btn-block justify-between rounded-2xl"
+      data-testid="workspace-page-help"
+      @click="navStore.openPageHelp()"
+    >
+      <span class="flex items-center gap-2">
+        <Icon name="kind-icon:question" class="kr-icon-5" />
+        {{ navStore.pageHelpLabel }}
+      </span>
+      <Icon name="kind-icon:arrow-right" class="kr-icon-4" />
+    </button>
     <section v-if="pageTutorial" class="overflow-hidden kr-panel p-0">
       <div class="relative overflow-hidden bg-base-300">
         <img
@@ -402,6 +415,7 @@ import { useRoute } from 'vue-router'
 import { achievementGameForPath } from '~/utils/achievements/gameAchievements'
 import { useBuilderStore } from '@/stores/builderStore'
 import { useChannelContentStore } from '@/stores/channelContentStore'
+import { useNavStore } from '@/stores/navStore'
 import { usePageStore } from '@/stores/pageStore'
 import { useSheetStore } from '@/stores/sheetStore'
 import { NAV_CARDS } from '@/stores/helpers/navCards'
@@ -446,6 +460,7 @@ const route = useRoute()
 const routeAchievementGame = computed(() => achievementGameForPath(route.path))
 const builderStore = useBuilderStore()
 const channelContentStore = useChannelContentStore()
+const navStore = useNavStore()
 const pageStore = usePageStore()
 const sheetStore = useSheetStore()
 

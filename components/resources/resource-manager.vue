@@ -19,8 +19,9 @@
   The old page also drew its Library/Discover tabs in a `tabs-boxed` strip above
   everything, outside the page surface, which is the band Silas described as "a
   weird library and discover icon set in a dedicated space above everything,
-  partially occluded by the background". The switch now rides resource-gallery's
-  existing header row through its `#tabs` slot, so it costs no band at all.
+  partially occluded by the background". The switch now docks into the header
+  strip: on Library through resource-gallery's `#tabs` slot (beside Add and
+  Refresh), on Discover and Downloads through this file's own header-page-bar.
 
   The tab stays a URL param, per the repo's linkable-routes convention — the
   same reason the old page used one.
@@ -60,35 +61,37 @@
     </resource-gallery>
 
     <template v-else>
-      <!-- Discover has no header of its own to host the switch, so it gets one
-           compact row. Still inside the page surface rather than above it. -->
-      <div
-        role="tablist"
-        class="flex max-w-full shrink-0 items-center gap-1 overflow-x-auto"
-      >
-        <button
-          v-for="tab in tabs"
-          :key="tab.key"
-          role="tab"
-          type="button"
-          class="btn btn-xs shrink-0 gap-1 rounded-2xl"
-          :class="activeTab === tab.key ? 'btn-primary' : 'btn-ghost'"
-          :aria-selected="activeTab === tab.key"
-          :title="tab.label"
-          @click="selectTab(tab.key)"
+      <!-- Discover and Downloads have no gallery header to host the switch,
+           so they dock it into the header strip themselves. -->
+      <header-page-bar>
+        <div
+          role="tablist"
+          class="flex max-w-full min-w-0 items-center gap-1 overflow-x-auto"
         >
-          <Icon :name="tab.icon" class="kr-icon-3-5" />
-          <span class="whitespace-nowrap">{{ tab.label }}</span>
-        </button>
-        <NuxtLink
-          to="/admin/lora-triage"
-          class="btn btn-xs gap-1 rounded-2xl btn-ghost"
-          title="Open LoRA triage"
-        >
-          <Icon name="kind-icon:checklist" class="kr-icon-3-5" />
-          <span class="hidden sm:inline">LoRA Triage</span>
-        </NuxtLink>
-      </div>
+          <button
+            v-for="tab in tabs"
+            :key="tab.key"
+            role="tab"
+            type="button"
+            class="btn btn-xs shrink-0 gap-1 rounded-2xl"
+            :class="activeTab === tab.key ? 'btn-primary' : 'btn-ghost'"
+            :aria-selected="activeTab === tab.key"
+            :title="tab.label"
+            @click="selectTab(tab.key)"
+          >
+            <Icon :name="tab.icon" class="kr-icon-3-5" />
+            <span class="whitespace-nowrap">{{ tab.label }}</span>
+          </button>
+          <NuxtLink
+            to="/admin/lora-triage"
+            class="btn btn-xs gap-1 rounded-2xl btn-ghost"
+            title="Open LoRA triage"
+          >
+            <Icon name="kind-icon:checklist" class="kr-icon-3-5" />
+            <span class="hidden sm:inline">LoRA Triage</span>
+          </NuxtLink>
+        </div>
+      </header-page-bar>
 
       <lora-discover v-if="activeTab === 'discover'" class="min-h-0 flex-1" />
       <resource-downloads v-else class="min-h-0 flex-1" />

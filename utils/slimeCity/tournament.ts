@@ -90,7 +90,7 @@ export function summarizeTournament(
         withoutContact: 0,
         winPaths: {} as Record<string, number>,
       },
-    ]),
+    ] as const),
   )
   for (const match of results) {
     if (

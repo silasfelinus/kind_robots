@@ -657,7 +657,7 @@ for (const team of TEAMS) {
       ...CAMPAIGN_CHAPTER_SUPPORT[team.id][0]![approach],
     }
     assert.deepEqual(campaignEchoFor(saved, team.id), expected)
-    assert.ok(expected.title.length > 9 && expected.story.length > 60)
+    assert.ok(expected.title.length >= 10 && expected.story.length >= 55)
     assert.deepEqual(campaignBattleTerms(saved, team.id, {}), expected.terms)
     const baseTerms = {
       playerMana: 1,

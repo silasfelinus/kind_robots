@@ -1433,8 +1433,8 @@
                     >1 SUPPLY · +1 trust, +2 reputation. Help on their
                     terms.</small
                   ><small v-else
-                    >EMPTY HOLD · Give time and labor: +1 trust, no
-                    reputation bonus.</small
+                    >EMPTY HOLD · Give time and labor: +1 trust, no reputation
+                    bonus.</small
                   ></span
                 >↗
               </button>

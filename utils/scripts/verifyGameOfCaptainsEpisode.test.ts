@@ -130,6 +130,7 @@ assert.deepEqual(
   ['ask', 'document', 'override'],
 )
 assert.ok(episodeChoiceStakes(landing, 'casino', 'ask').includes('SETBACK: trust -1'))
+assert.equal(visitCasinoVenue({ ...landing, trust: -4 }, 'casino', 'document').trust, -4)
 const cardAlpha = mandatory[0]!.id
 const cardBeta = board.find((card) => card.id !== cardAlpha)!.id
 const cardGamma = board.find(

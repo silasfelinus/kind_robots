@@ -110,6 +110,8 @@ export function profileFor(seed: number): Profile {
  * (title → captain → crew → travel → expedition quests and episode decks →
  * call → transit → order → debrief → errands, interludes → finale), through
  * the same compositions the store makes. Traces never inject flags or stats.
+ * Legacy ending pins exercise generic policies; random walks and drivers with
+ * authoredChoices enabled use the actual on-screen story-specific choices.
  *
  * Every state it passes through is checked by `inspect`: it must save and
  * load unchanged, hold finite stats, read without template leaks and offer

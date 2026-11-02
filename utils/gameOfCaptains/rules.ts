@@ -1205,6 +1205,15 @@ export function nextDestination(run: VoyageRun): VoyageRun {
       scene:
         'Your nemesis waits at the jump gate. The force bubble holds. On the cushions, the crew would like a word about what kind of captain you turned out to be.',
     }
+  // First-act casework resurfaces as a specific dispatch in Act II, not
+  // merely as a flag in the final score. One unresolved case per new chapter.
+  const followupIndex = run.chapter + 1 - ACT_TWO_FIRST_CHAPTER
+  const followup =
+    followupIndex >= 0 && followupIndex < 3
+      ? (run.consequenceHistory ?? []).filter((record) =>
+          record.episodeId.startsWith('warp-b'),
+        )[followupIndex]
+      : null
   const opening =
     run.chapter + 1 === ACT_TWO_FIRST_CHAPTER
       ? { act: 'Act II', text: ACT_TWO_OPENING, supplies: ACT_TWO_RESUPPLY }
@@ -1227,13 +1236,14 @@ export function nextDestination(run: VoyageRun): VoyageRun {
     pocketRoom: null,
     report: null,
     supplies: run.supplies + (opening?.supplies ?? 0),
-    scene: `${opening ? opening.text + ' ' : ''}A new star flickers above ${chapterSystem(run.seed, run.chapter + 1).name}. ${worldEcho(run)} The available local routes reflect what the captain already did.`,
-    log: opening
-      ? [
-          ...run.log,
-          `${opening.act} begins: ${opening.supplies} supplies received.`,
-        ]
-      : run.log,
+    scene: `${opening ? opening.text + ' ' : ''}A new star flickers above ${chapterSystem(run.seed, run.chapter + 1).name}. ${worldEcho(run)} ${followup ? 'INCOMING FOLLOW-UP: ' + followup.callback + ' ' : ''}The available local routes reflect what the captain already did.`,
+    log: [
+      ...run.log,
+      ...(opening
+        ? [`${opening.act} begins: ${opening.supplies} supplies received.`]
+        : []),
+      ...(followup ? ['Follow-up transmission: ' + followup.callback] : []),
+    ],
   }
 }
 export function finishVoyage(

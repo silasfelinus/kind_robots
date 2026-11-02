@@ -4,6 +4,7 @@ import { errorHandler } from '~/server/utils/error'
 import { getOptionalApiUser } from '~/server/utils/authGuard'
 import { clientIngredientKey } from '~/server/utils/hybridizerFusion'
 import { hybridizerDeliverableUrl } from '~/server/utils/hybridizerArt'
+import type { Prisma } from '~/prisma/generated/prisma/client'
 import {
   buildArtImageWhere,
   getArtImageAccessContext,
@@ -15,10 +16,35 @@ export default defineEventHandler(async (event) => {
     const query = getQuery(event)
     const take = Math.min(1000, Math.max(1, Number(query.take) || 50))
     const skip = Math.max(0, Math.floor(Number(query.skip) || 0))
-    const where = auth
+    const visibility: Prisma.HybridizerFusionWhereInput = auth
       ? { OR: [{ isPublic: true }, { creatorUserId: auth.user.id }] }
       : { isPublic: true }
-    const [records, grouped] = await Promise.all([
+    const status = typeof query.status === 'string' ? query.status : 'ALL'
+    const search =
+      typeof query.search === 'string' ? query.search.trim().slice(0, 100) : ''
+    const ids =
+      typeof query.ids === 'string'
+        ? [...new Set(query.ids.split(',').filter((id) => /^[a-f0-9]{64}$/.test(id)))].slice(0, 100)
+        : null
+    const maxDepth = Number(query.maxDepth)
+    const filters: Prisma.HybridizerFusionWhereInput[] = [visibility]
+    if (status === 'READY')
+      filters.push({ status: 'READY', artImageId: { not: null } })
+    else if (status === 'IN_PROGRESS')
+      filters.push({ status: { in: ['QUEUED', 'RENDERING', 'DELIVERING'] } })
+    else if (status === 'OTHER')
+      filters.push({
+        OR: [
+          { status: { notIn: ['READY', 'QUEUED', 'RENDERING', 'DELIVERING'] } },
+          { status: 'READY', artImageId: null },
+        ],
+      })
+    if (search) filters.push({ title: { contains: search } })
+    if (ids !== null) filters.push({ id: { in: ids } })
+    if (query.maxDepth !== undefined && Number.isInteger(maxDepth) && maxDepth >= 0 && maxDepth <= 4)
+      filters.push({ depth: { lte: maxDepth } })
+    const where: Prisma.HybridizerFusionWhereInput = { AND: filters }
+    const [records, grouped, filteredTotal] = await Promise.all([
       prisma.hybridizerFusion.findMany({
         where,
         orderBy: [{ createdAt: 'desc' }, { id: 'asc' }],
@@ -27,15 +53,17 @@ export default defineEventHandler(async (event) => {
       }),
       prisma.hybridizerFusion.groupBy({
         by: ['status'],
-        where,
+        where: visibility,
         _count: { _all: true },
       }),
+      prisma.hybridizerFusion.count({ where }),
     ])
     const countFor = (status: string) =>
       grouped.find((item) => item.status === status)?._count._all ?? 0
     const total = grouped.reduce((sum, item) => sum + item._count._all, 0)
     const stats = {
       total,
+      filteredTotal,
       ready: countFor('READY'),
       rendering:
         countFor('QUEUED') + countFor('RENDERING') + countFor('DELIVERING'),

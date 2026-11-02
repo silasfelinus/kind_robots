@@ -8,11 +8,37 @@ import {
 import { renderableArtPath } from '~/utils/artImageSrc'
 import { galleryThumbnailUrl } from '~/server/utils/artGalleryArchiveMedia'
 import { COUCH_ALIEN_ART_IDS } from '~/utils/gameOfCaptains/alienPaintings'
+import { COUCH_ALIEN_ART_JOB_IDS } from '~/utils/gameOfCaptains/alienArtJobs'
 
 export default defineEventHandler(async (event) => {
   try {
     const access = await getArtImageAccessContext(event)
-    const entries = Object.entries(COUCH_ALIEN_ART_IDS)
+    // ArtJob creation does not imply a finished image. A DONE result must
+    // carry an ArtImage ID, and the image itself still needs viewer access.
+    const jobEntries = Object.entries(COUCH_ALIEN_ART_JOB_IDS)
+    const jobs = await prisma.artJob.findMany({
+      where: {
+        id: { in: jobEntries.map(([, jobId]) => jobId) },
+        status: 'DONE',
+      },
+      select: { id: true, artImageId: true },
+    })
+    const completed = new Map(
+      jobs
+        .filter((job): job is typeof job & { artImageId: number } =>
+          Number.isInteger(job.artImageId),
+        )
+        .map((job) => [job.id, job.artImageId]),
+    )
+    const entries = Object.entries({
+      ...Object.fromEntries(
+        jobEntries
+          .filter(([, jobId]) => completed.has(jobId))
+          .map(([key, jobId]) => [key, completed.get(jobId)!]),
+      ),
+      // A separately verified ArtImage may supersede an old ArtJob output.
+      ...COUCH_ALIEN_ART_IDS,
+    })
     if (!entries.length) return { success: true, data: {} }
     const images = await prisma.artImage.findMany({
       where: {

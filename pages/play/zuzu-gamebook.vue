@@ -1,5 +1,5 @@
 <template>
-  <main class="kr-surface">
+  <main class="kr-surface relative">
     <div v-if="!store.loaded" class="kr-stage items-center justify-center">
       <span class="kr-spinner-lg-primary" />
     </div>
@@ -16,6 +16,17 @@
             {{ current.chapter }}
           </p>
           <div class="ml-auto flex shrink-0 items-center gap-1.5 @lg:gap-2">
+            <button
+              type="button"
+              class="btn btn-outline btn-sm"
+              data-testid="zuzu-gamebook-ledger-menu"
+              :aria-expanded="ledgerOpen"
+              @click="ledgerOpen = true"
+            >
+              <icon name="kind-icon:book-open" class="size-4" />
+              <span class="hidden @3xl:inline">The Bell Ledger</span>
+              <span class="@3xl:hidden">Ledger</span>
+            </button>
             <span
               class="rounded-md bg-base-200 px-2 py-1 text-xs font-bold @lg:px-3"
               aria-label="Resources"
@@ -59,6 +70,101 @@
           </div>
         </div>
       </header-page-bar>
+
+      <section
+        v-if="ledgerOpen"
+        class="absolute inset-0 z-40 flex min-h-0 flex-col gap-3 bg-base-100/98 p-3 sm:p-6"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="bell-ledger-heading"
+        data-testid="zuzu-gamebook-ledger"
+      >
+        <header class="flex shrink-0 items-center justify-between gap-3 border-b border-warning/30 pb-3">
+          <div>
+            <p class="text-[10px] font-black uppercase tracking-[.25em] text-warning">Zuzu · The Bell That Never Rang</p>
+            <h2 id="bell-ledger-heading" class="font-serif text-2xl font-black sm:text-4xl">The Bell Ledger</h2>
+          </div>
+          <button type="button" class="btn btn-warning btn-sm" @click="ledgerOpen = false">
+            <icon name="kind-icon:arrow-left" class="size-4" />
+            Continue reading
+          </button>
+        </header>
+        <div class="kr-scroll min-h-0 flex-1 overflow-y-auto">
+          <div class="grid gap-4 @container lg:grid-cols-[minmax(0,1fr)_minmax(0,1.4fr)]">
+            <section class="overflow-hidden rounded-2xl border border-warning/25 bg-base-200">
+              <img
+                src="/zuzu-gamebook/scenes/waterhole.webp"
+                alt="The western road where Zuzu's journeys began"
+                class="max-h-48 w-full object-cover sm:max-h-64"
+              />
+              <div class="space-y-3 p-4">
+                <p class="font-serif text-lg font-bold">The road remembers the roads you took.</p>
+                <div class="grid grid-cols-2 gap-2 text-center">
+                  <div class="rounded-xl bg-base-300 p-3">
+                    <strong class="block text-2xl">{{ rememberedScenes.length }}</strong>
+                    <span class="text-xs">Unique scenes walked</span>
+                  </div>
+                  <div class="rounded-xl bg-base-300 p-3">
+                    <strong class="block text-2xl">{{ store.discovered.length }}/{{ ENDING_IDS.length }}</strong>
+                    <span class="text-xs">Endings uncovered</span>
+                  </div>
+                </div>
+                <p class="text-sm">Current chapter: <strong>{{ current.chapter }}</strong></p>
+                <p v-if="notes.deeds.length" class="text-sm">
+                  <strong>Deeds:</strong> {{ notes.deeds.map((deed) => deed.text).join(' · ') }}
+                </p>
+                <p v-if="notes.debts.length" class="text-sm">
+                  <strong>Debts:</strong> {{ notes.debts.join(' · ') }}
+                </p>
+                <p v-if="notes.learned.length" class="text-sm">
+                  <strong>Learned:</strong> {{ notes.learned.join(' · ') }}
+                </p>
+                <button type="button" class="btn btn-outline btn-sm w-full" @click="restart">
+                  <icon name="kind-icon:refresh" class="size-4" />
+                  Begin a new journey
+                </button>
+                <button v-if="store.recoverable" type="button" class="btn btn-ghost btn-sm w-full" @click="recover">
+                  Restore previous journey
+                </button>
+              </div>
+            </section>
+            <div class="min-w-0 space-y-4">
+              <section class="rounded-2xl border border-warning/25 bg-base-200 p-4">
+                <h3 class="font-serif text-xl font-bold">Endings</h3>
+                <p class="mb-3 text-xs opacity-70">Unfound endings stay secret until the story reveals them.</p>
+                <ul class="grid grid-cols-2 gap-2 sm:grid-cols-3">
+                  <li
+                    v-for="(ending, index) in ENDING_IDS"
+                    :key="ending"
+                    class="rounded-lg border border-base-content/15 p-2 text-xs"
+                    :class="store.discovered.includes(ending) ? 'bg-warning/15' : 'bg-base-300/60 opacity-60'"
+                  >
+                    <icon :name="store.discovered.includes(ending) ? 'kind-icon:book-open' : 'kind-icon:lock'" class="mb-1 size-4" />
+                    <span class="block font-bold">
+                      {{ store.discovered.includes(ending) ? ending : 'Unknown ending ' + (index + 1) }}
+                    </span>
+                  </li>
+                </ul>
+              </section>
+              <section class="rounded-2xl border border-warning/25 bg-base-200 p-4">
+                <h3 class="font-serif text-xl font-bold">Illustrated trail</h3>
+                <p class="mb-3 text-xs opacity-70">Recent scenes from this journey. Earlier discoveries remain in your saved route.</p>
+                <p v-if="!recentTrail.length" class="text-sm opacity-70">Your story is just beginning.</p>
+                <ol v-else class="grid grid-cols-2 gap-2 sm:grid-cols-3">
+                  <li
+                    v-for="entry in recentTrail"
+                    :key="entry.id"
+                    class="overflow-hidden rounded-xl border border-base-content/15 bg-base-300"
+                  >
+                    <img :src="entry.art" :alt="entry.title" class="aspect-video w-full object-cover" />
+                    <p class="p-2 text-xs font-bold">{{ entry.title }}</p>
+                  </li>
+                </ol>
+              </section>
+            </div>
+          </div>
+        </div>
+      </section>
 
       <div
         class="kr-panes mx-auto w-full max-w-[1500px] grid-cols-1 px-3 pb-3 sm:px-6 lg:px-8 lg:pb-5"
@@ -462,6 +568,7 @@ import type { KrHandChoice } from '~/components/narrative/kr-choice-hand.vue'
 
 const store = useZuzuGamebookStore()
 const showSheet = ref(false)
+const ledgerOpen = ref(false)
 const current = computed(() => scene(store.run.sceneId))
 const art = computed(() => sectionPlate(current.value))
 const shape = computed(() => art.value.shape ?? 'wide')
@@ -511,6 +618,13 @@ const frameClass = computed(() => {
 const prose = computed(() => emphasis(current.value.text))
 const choices = computed(() => visibleChoices(store.run, current.value))
 const notes = computed(() => journal(store.run.flags))
+const rememberedScenes = computed(() => [...new Set(store.run.visited)])
+const recentTrail = computed(() =>
+  rememberedScenes.value.slice(-12).reverse().map((id) => {
+    const entry = scene(id)
+    return { id, title: entry.title, art: platePath(sectionPlate(entry)) }
+  }),
+)
 const moves: {
   action: BattleAction
   icon: string
@@ -641,6 +755,10 @@ watch(
   },
 )
 function onKey(event: KeyboardEvent) {
+  if (ledgerOpen.value) {
+    if (event.key === 'Escape') ledgerOpen.value = false
+    return
+  }
   if (
     event.ctrlKey ||
     event.metaKey ||

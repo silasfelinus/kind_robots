@@ -56,10 +56,16 @@ for (const [idx, missionId] of ids.entries()) {
       assert.ok(outcome.callback.length > 90)
       assert.ok(outcome.flags.length >= 2)
       assert.ok(Object.keys(outcome.delta).length >= 2)
-      assert.ok(!narrativeLines.has(outcome.narrative), 'distinct authored aftermath')
+      assert.ok(
+        !narrativeLines.has(outcome.narrative),
+        'distinct authored aftermath',
+      )
       narrativeLines.add(outcome.narrative)
       const key = 'consequences/' + episode.id + '-' + choice.id + '-' + variant
-      assert.ok(!(key in COUCH_CONSEQUENCE_ART_IDS), 'art pending, not delivered')
+      assert.ok(
+        !(key in COUCH_CONSEQUENCE_ART_IDS),
+        'art pending, not delivered',
+      )
     }
     const after = resolveConsequence(raw, choice.id)
     const record = after.consequenceHistory!.at(-1)!
@@ -98,13 +104,14 @@ assert.equal(enriched?.choices.length, 3)
 assert.ok(
   consequenceForRun({
     ...concordWithConvoy,
-    consequenceHistory: [
-      { ...convoyFirst, flags: ['convoy-route-exposed'] },
-    ],
+    consequenceHistory: [{ ...convoyFirst, flags: ['convoy-route-exposed'] }],
   })?.opening.includes('patrols already know'),
 )
 
-const concordResult = resolveConsequence(concordWithConvoy, enriched!.choices[0]!.id)
+const concordResult = resolveConsequence(
+  concordWithConvoy,
+  enriched!.choices[0]!.id,
+)
 const seshWithPrior: VoyageRun = {
   ...startVoyage('vale', ['pell', 'rue', 'vela'], 54),
   chapter: 4,
@@ -117,19 +124,39 @@ assert.ok(
     'successful personhood petition',
   ),
 )
-assert.deepEqual(restoreVoyage(JSON.parse(JSON.stringify(concordResult))), concordResult)
+assert.deepEqual(
+  restoreVoyage(JSON.parse(JSON.stringify(concordResult))),
+  concordResult,
+)
 
 // A fourth authored decision must remain saveable without changing v1.
 const firstThree = [
   convoyFirst,
-  { ...convoyFirst, chapter: 2, episodeId: 'warp-a2-last-copy',
-    missionId: 'archive', choiceId: 'evacuate-readers', artKey: 'consequences/warp-a2-last-copy-evacuate-readers-success', flags: [] },
-  { ...convoyFirst, chapter: 3, episodeId: 'warp-a1-weight-of-a-name',
-    missionId: 'bar', choiceId: 'protect-sanctuary', artKey: 'consequences/warp-a1-weight-of-a-name-protect-sanctuary-success', flags: [] },
+  {
+    ...convoyFirst,
+    chapter: 2,
+    episodeId: 'warp-a2-last-copy',
+    missionId: 'archive',
+    choiceId: 'evacuate-readers',
+    artKey: 'consequences/warp-a2-last-copy-evacuate-readers-success',
+    flags: [],
+  },
+  {
+    ...convoyFirst,
+    chapter: 3,
+    episodeId: 'warp-a1-weight-of-a-name',
+    missionId: 'bar',
+    choiceId: 'protect-sanctuary',
+    artKey: 'consequences/warp-a1-weight-of-a-name-protect-sanctuary-success',
+    flags: [],
+  },
 ]
 const fourth = {
   ...concordResult,
-  consequenceHistory: [...firstThree, concordResult.consequenceHistory!.at(-1)!],
+  consequenceHistory: [
+    ...firstThree,
+    concordResult.consequenceHistory!.at(-1)!,
+  ],
 }
 assert.ok(validConsequenceHistory(fourth.consequenceHistory))
 assert.deepEqual(restoreVoyage(JSON.parse(JSON.stringify(fourth))), fourth)
@@ -147,22 +174,25 @@ const firstFollowup = nextDestination({
   consequenceHistory: [convoyFirst],
 })
 assert.ok(firstFollowup.scene.includes(convoyFirst.callback))
-assert.ok(firstFollowup.log.includes('Follow-up transmission: ' + convoyFirst.callback))
+assert.ok(
+  firstFollowup.log.includes('Follow-up transmission: ' + convoyFirst.callback),
+)
 const midgameFollowup = nextDestination({
   ...startVoyage('vale', ['pell', 'rue', 'vela'], 54),
   phase: 'debrief',
   chapter: 6,
-  consequenceHistory: [
-    convoyFirst,
-    concordResult.consequenceHistory!.at(-1)!,
-  ],
+  consequenceHistory: [convoyFirst, concordResult.consequenceHistory!.at(-1)!],
 })
 assert.equal(midgameFollowup.chapter, 7)
 assert.ok(
-  midgameFollowup.scene.includes(concordResult.consequenceHistory!.at(-1)!.callback),
+  midgameFollowup.scene.includes(
+    concordResult.consequenceHistory!.at(-1)!.callback,
+  ),
 )
 assert.ok(
-  midgameFollowup.log.some((entry) => entry.includes('Follow-up transmission:')),
+  midgameFollowup.log.some((entry) =>
+    entry.includes('Follow-up transmission:'),
+  ),
 )
 assert.deepEqual(
   restoreVoyage(JSON.parse(JSON.stringify(midgameFollowup))),
@@ -172,29 +202,24 @@ assert.deepEqual(
 let storyChoices = 0
 for (let seed = 1; seed <= 12; seed++) {
   const targetActTwo = seed % 2 === 0 ? 'sesh-backups' : 'concord-intake'
-  const { run, steps } = playVoyage(
-    'vale',
-    ['pell', 'rue', 'vela'],
-    seed,
-    {
-      name: 'convoy-into-act-two',
-      order: () => policies[(seed - 1) % 3]!,
-      chart: (voyage) =>
-        voyage.chapter === 1
-          ? 'refugees'
-          : voyage.chapter === 2
-            ? 'archive'
-            : voyage.chapter === 3
-              ? 'bar'
-              : voyage.chapter === 4
-                ? targetActTwo
-                : undefined,
-      authoredChoices: true,
-      sideQuests: false,
-      errand: () => null,
-      finale: 'protect',
-    },
-  )
+  const { run, steps } = playVoyage('vale', ['pell', 'rue', 'vela'], seed, {
+    name: 'convoy-into-act-two',
+    order: () => policies[(seed - 1) % 3]!,
+    chart: (voyage) =>
+      voyage.chapter === 1
+        ? 'refugees'
+        : voyage.chapter === 2
+          ? 'archive'
+          : voyage.chapter === 3
+            ? 'bar'
+            : voyage.chapter === 4
+              ? targetActTwo
+              : undefined,
+    authoredChoices: true,
+    sideQuests: false,
+    errand: () => null,
+    finale: 'protect',
+  })
   assert.equal(run.phase, 'ending')
   assert.equal(run.consequenceHistory?.length, 4)
   assert.equal(run.consequenceHistory?.[0]?.missionId, 'refugees')

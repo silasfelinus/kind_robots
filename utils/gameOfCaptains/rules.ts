@@ -1136,11 +1136,19 @@ export function counterCrew(run: VoyageRun): CrewId[] {
     (id) => candidates.includes(id) && (run.journeyProgress?.[id] ?? 0) >= 2,
   )
 }
+export function quartermasterCost(run: VoyageRun): number {
+  return (
+    2 +
+    (run.worldFlags ?? []).filter((flag) => /^quartermaster:\\d+$/.test(flag))
+      .length
+  )
+}
+
 export function canRequisitionSupplies(run: VoyageRun): boolean {
   return (
     run.phase === 'debrief' &&
     run.supplies <= 2 &&
-    run.reputation >= 2 &&
+    run.reputation >= quartermasterCost(run) &&
     (run.missionHistory ?? []).some(
       (mission) =>
         mission.chapter === run.chapter && mission.policy !== 'missed',
@@ -1152,12 +1160,15 @@ export function canRequisitionSupplies(run: VoyageRun): boolean {
 /** A real recovery choice: spend earned standing to keep the crew supplied. */
 export function requisitionSupplies(run: VoyageRun): VoyageRun {
   if (!canRequisitionSupplies(run)) return run
+  const cost = quartermasterCost(run)
   const text =
-    'Quartermaster’s emergency requisition approved. Local relief partners release three supply crates against two points of the couch’s earned reputation. The people who helped us expect the favor to be remembered.'
+    'Quartermaster’s emergency requisition approved. Local relief partners release three supply crates against ' +
+    cost +
+    ' points of earned reputation. They have raised their rate since the last favor. The invoice has room for one more signature.'
   return {
     ...run,
     supplies: run.supplies + 3,
-    reputation: run.reputation - 2,
+    reputation: run.reputation - cost,
     worldFlags: [...(run.worldFlags ?? []), 'quartermaster:' + run.chapter],
     scene: text,
     log: [...run.log, 'Chapter ' + run.chapter + ': ' + text],

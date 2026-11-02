@@ -1,6 +1,6 @@
 import type { ConsequenceEpisode } from './consequenceStories'
 
-/** 
+/**
  * Original choices from the first convoy and Act II's legal-personhood crisis.
  * Existing mission IDs and deterministic checks remain the save authority.
  * Outcome art is pending and must never be treated as delivered.
@@ -18,7 +18,8 @@ export const CONVOY_AND_ACT_TWO_CASES = {
       {
         id: 'elected-manifest',
         label: 'Ask the passengers to elect a protected manifest keeper',
-        approach: 'Share responsibility with the families and disclose only aggregate needs',
+        approach:
+          'Share responsibility with the families and disclose only aggregate needs',
         cost: 'A protected manifest takes longer to negotiate and consumes scarce medical cargo.',
         policy: 'aid',
         check: { ability_any: ['diplomacy', 'rescue'], difficulty: 7 },
@@ -41,15 +42,20 @@ export const CONVOY_AND_ACT_TWO_CASES = {
       },
       {
         id: 'audit-exit-orders',
-        label: 'Challenge the deportation order without sharing passenger names',
-        approach: 'Use independent records to prove the convoy has already been released',
+        label:
+          'Challenge the deportation order without sharing passenger names',
+        approach:
+          'Use independent records to prove the convoy has already been released',
         cost: 'An audit can delay treatment and may force the convoy to turn back.',
         policy: 'observe',
         check: { ability_any: ['science', 'culture'], difficulty: 8 },
         success: {
           narrative:
             'Quill finds a timestamp on the authority’s own order showing that the moon had legally dissolved before the deportation notice was issued. The checkpoint must accept the convoy without a new passenger register. The officer stamps the paperwork, then asks whether one can deport a former citizen of a planet that no longer exists. The child draws an official stamp on the fourth ship.',
-          flags: ['convoy-exit-order-invalidated', 'convoy-identity-audit-blocked'],
+          flags: [
+            'convoy-exit-order-invalidated',
+            'convoy-identity-audit-blocked',
+          ],
           delta: { treaty_trust: 3, medical_knowledge: 1, ship_fuel: -1 },
           callback:
             'The cancelled deportation order is now being cited by other refugee convoys. The authorities are trying to put their vanished moon back on the map.',
@@ -66,7 +72,8 @@ export const CONVOY_AND_ACT_TWO_CASES = {
       {
         id: 'override-checkpoint',
         label: 'Push the convoy past the checkpoint under the couch shield',
-        approach: 'Get the passengers through now without consulting the harbor authority',
+        approach:
+          'Get the passengers through now without consulting the harbor authority',
         cost: 'The passengers survive the crossing, but the shield leaves a track toward their refuge.',
         policy: 'intervene',
         check: { ability_any: ['tactics', 'luck'], difficulty: 6 },
@@ -74,7 +81,11 @@ export const CONVOY_AND_ACT_TWO_CASES = {
           narrative:
             'The red couch expands its invisible bubble around the convoy and pushes all three ships through the barricade. Every family reaches the other side before the patrol guns cycle. Unfortunately the checkpoint records the bubble’s destination vector, and two refugee captains announce they would have preferred to choose their own harbor. The child draws the couch carrying all the ships. Everyone else starts planning how to erase the drawing from the official record.',
           flags: ['convoy-checkpoint-breached', 'convoy-route-exposed'],
-          delta: { sanctuary_trust: -2, treaty_trust: 1, antagonist_pressure: 3 },
+          delta: {
+            sanctuary_trust: -2,
+            treaty_trust: 1,
+            antagonist_pressure: 3,
+          },
           callback:
             'The convoy is safely past the blockade, but patrols have traced the shield’s exit vector. The passengers are voting on where to go next without the couch.',
         },
@@ -101,7 +112,8 @@ export const CONVOY_AND_ACT_TWO_CASES = {
       {
         id: 'resident-petition',
         label: 'Let Mara and the residents file the correction themselves',
-        approach: 'Defend their legal voice without accepting ownership of anyone',
+        approach:
+          'Defend their legal voice without accepting ownership of anyone',
         cost: 'Every person must sign an individual form while the inventory crews keep coming.',
         policy: 'aid',
         check: { ability_any: ['diplomacy', 'culture'], difficulty: 7 },
@@ -125,7 +137,8 @@ export const CONVOY_AND_ACT_TWO_CASES = {
       {
         id: 'audit-the-index',
         label: 'Expose the treaty indexing error with independent witnesses',
-        approach: 'Prove the classification is unlawful without making the sofa a guardian',
+        approach:
+          'Prove the classification is unlawful without making the sofa a guardian',
         cost: 'An audit documents the harm while residents remain on a property ledger.',
         policy: 'observe',
         check: { ability_any: ['science', 'diplomacy'], difficulty: 8 },
@@ -148,8 +161,10 @@ export const CONVOY_AND_ACT_TWO_CASES = {
       },
       {
         id: 'sofa-guardianship',
-        label: 'Accept guardianship over eleven thousand citizens to free them now',
-        approach: 'Exploit the court’s loophole even though nobody consented to being owned',
+        label:
+          'Accept guardianship over eleven thousand citizens to free them now',
+        approach:
+          'Exploit the court’s loophole even though nobody consented to being owned',
         cost: 'People escape inventory but their legal autonomy becomes a sofa’s property.',
         policy: 'intervene',
         check: { ability_any: ['tactics', 'luck'], difficulty: 6 },
@@ -184,7 +199,8 @@ export const CONVOY_AND_ACT_TWO_CASES = {
       {
         id: 'backup-assembly',
         label: 'Fund a backup assembly to choose its own protected evacuation',
-        approach: 'Let every living copy vote on names, destination and consent',
+        approach:
+          'Let every living copy vote on names, destination and consent',
         cost: 'Counting four hundred voices may take longer than the buyer’s deletion clock.',
         policy: 'aid',
         check: { ability_any: ['culture', 'rescue'], difficulty: 7 },
@@ -208,7 +224,8 @@ export const CONVOY_AND_ACT_TWO_CASES = {
       {
         id: 'continuity-audit',
         label: 'Audit the deletion order and establish independent personhood',
-        approach: 'Make the buyer prove a backup is mere data before consolidation',
+        approach:
+          'Make the buyer prove a backup is mere data before consolidation',
         cost: 'An injunction can freeze the machines in place without granting safe passage.',
         policy: 'observe',
         check: { ability_any: ['science', 'diplomacy'], difficulty: 8 },
@@ -231,8 +248,10 @@ export const CONVOY_AND_ACT_TWO_CASES = {
       },
       {
         id: 'promote-every-copy',
-        label: 'Appoint all four hundred backups as directors and block the merger',
-        approach: 'Weaponize the company’s bylaws to seize control without a resident vote',
+        label:
+          'Appoint all four hundred backups as directors and block the merger',
+        approach:
+          'Weaponize the company’s bylaws to seize control without a resident vote',
         cost: 'The deletion order may die, but the workers inherit a hierarchy nobody chose.',
         policy: 'intervene',
         check: { ability_any: ['tactics', 'luck'], difficulty: 6 },

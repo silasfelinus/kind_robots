@@ -178,7 +178,10 @@ export function validateSlimeCityBattle(
       })
     if (action.t === 'discard') {
       if (typeof action.card !== 'string' || action.card.length > 90)
-        throw createError({ statusCode: 400, message: 'Malformed hand discard.' })
+        throw createError({
+          statusCode: 400,
+          message: 'Malformed hand discard.',
+        })
     } else if (action.t === 'deploy') {
       if (
         !CARDS.some((c) => c.id === action.card) ||

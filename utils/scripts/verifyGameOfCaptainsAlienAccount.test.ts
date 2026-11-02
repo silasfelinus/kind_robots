@@ -105,7 +105,6 @@ const restoredCollection = normalizeAlienGuide(
 assert.deepEqual(restoredCollection.discovered, cumulative.discovered)
 assert.deepEqual(restoredCollection.friends, cumulative.friends)
 
-
 const root = new URL('../../', import.meta.url)
 const file = (path: string) => readFileSync(new URL(path, root), 'utf8')
 const schema = file('prisma/schema.prisma')
@@ -153,21 +152,24 @@ for (const overlay of [
     `${overlay} must never survive a player-account switch`,
   )
 }
-assert.match(accountSwitch, /alienArtwork\\.value = \\{\\}/)
-assert.match(accountSwitch, /alienArtLoaded\\.value = false/)
+assert.match(accountSwitch, /alienArtwork\.value = \{\}/)
+assert.match(accountSwitch, /alienArtLoaded\.value = false/)
 assert.match(
   accountSwitch,
-  /response\\.success &&\\s+response\\.data &&\\s+JSON\\.stringify\\(remote\\)/,
+  /response\.success &&\s+response\.data &&\s+JSON\.stringify\(remote\)/,
   'a failed remote read must never be reported as synced',
 )
 const artworkLoader = store.slice(
   store.indexOf('async function loadAlienArtwork()'),
-  store.indexOf('const onboardingArt', store.indexOf('async function loadAlienArtwork()')),
+  store.indexOf(
+    'const onboardingArt',
+    store.indexOf('async function loadAlienArtwork()'),
+  ),
 )
 assert.match(artworkLoader, /const epoch = accountEpoch/)
 assert.match(
   artworkLoader,
-  /epoch === accountEpoch && response\\.success/,
+  /epoch === accountEpoch && response\.success/,
   'an older account response cannot repopulate a new player art cache',
 )
 

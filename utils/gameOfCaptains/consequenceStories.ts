@@ -560,28 +560,40 @@ export function consequenceForRun(run: VoyageRun): ConsequenceEpisode | null {
     }
   }
   const flags = new Set(run.worldFlags ?? [])
-  if (missionId === 'jump-gate-permit' && flags.has('concord-resident-personhood'))
+  if (
+    missionId === 'jump-gate-permit' &&
+    flags.has('concord-resident-personhood')
+  )
     return {
       ...episode,
       opening:
         episode.opening +
         ' Mara recognizes the captain from the intake hearing. She will not accept guardianship as a substitute for an actual vote this time.',
     }
-  if (missionId === 'serendipity-last-call' && flags.has('sanctuary_charter_preserved'))
+  if (
+    missionId === 'serendipity-last-call' &&
+    flags.has('sanctuary_charter_preserved')
+  )
     return {
       ...episode,
       opening:
         episode.opening +
         ' Vox remembers the witness whose name the couch protected and asks whether the captain will honor that promise with several hundred more guests.',
     }
-  if (missionId === 'gameworld-finale' && flags.has('gameworld-union-clause-upheld'))
+  if (
+    missionId === 'gameworld-finale' &&
+    flags.has('gameworld-union-clause-upheld')
+  )
     return {
       ...episode,
       opening:
         episode.opening +
         ' The union is still carrying the clause the couch helped defend. This time it wants the contestants, not the sponsors, to decide whether the show ends.',
     }
-  if (missionId === 'gameworld-finale' && flags.has('gameworld-contestants-exposed'))
+  if (
+    missionId === 'gameworld-finale' &&
+    flags.has('gameworld-contestants-exposed')
+  )
     return {
       ...episode,
       opening:

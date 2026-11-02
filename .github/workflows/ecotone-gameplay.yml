@@ -11,6 +11,9 @@ on:
       - 'components/ecotone-scene.vue'
       - 'components/ecotone-emblem.vue'
       - 'components/ecotone-mystery-card.vue'
+      - 'components/ecotone-choice-hand.vue'
+      - 'components/narrative/kr-choice-hand.vue'
+      - 'utils/scripts/verifyKrChoiceHand.test.ts'
       - 'pages/play/ecotone.vue'
       - 'content/channels/arcade/ecotone.md'
       - 'public/ecotone/**'
@@ -54,6 +57,8 @@ jobs:
         env:
           CYPRESS_INSTALL_BINARY: '0'
       - run: npm run test:ecotone
+      - run: npx tsx utils/scripts/verifyKrChoiceHand.test.ts
+      - run: npx tsx utils/scripts/verifyEcotoneOnboarding.test.ts
       - run: npm run test:ecotone-mysteries
       - run: npm run test:ecotone-companion-continuity
       - run: npm run test:playbook

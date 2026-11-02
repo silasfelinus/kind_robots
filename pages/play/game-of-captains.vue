@@ -228,7 +228,7 @@
           :artwork="store.alienArtwork"
           :pending-incident="!!store.pendingCollectorIncident"
           @incident="store.openCollectorIncident()"
-          @close="titlePanel = 'home'
+          @close="titlePanel = 'home'"
         />
       </div>
       <SpaceCouchOpeningReel

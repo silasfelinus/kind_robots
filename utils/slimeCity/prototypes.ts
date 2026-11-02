@@ -318,7 +318,7 @@ export const MODES: {
     size: '10 × 6',
     cadence: 'TURN-BASED',
     detail:
-      'Deploy visible monsters from a four-card hand, cross no-man’s-land and capture the flag. Only stealth specialists hide.',
+      'Deploy visible monsters from a five-card hand. Keep the unplayed cards or mark them for end-round redraw, bank up to ten mana, and capture the flag. Only stealth specialists hide.',
   },
   {
     id: 'gridiron',
@@ -1451,7 +1451,7 @@ export const MODE_GUIDES: Record<ModeId, ModeGuide> = {
   blackout: {
     goal: 'Deploy visible monsters from a shuffled hand and cross the no-man’s-land. Grab the ⚑ flag and carry it to your back column, the far left edge. Or wipe out every enemy fighter. After 20 rounds, the side with more total HP left wins.',
     steps: [
-      'Begin with four cards drawn from your faction’s ten-card deck. Tap a card to inspect its art, cost and abilities, then choose a valid square.',
+      'Begin with five cards from your ten-card deck and three mana. Unplayed cards stay in hand; choose KEEP or REDRAW for each card before ending the round.',
       'No fighters start concealed. Spies and specialist stealth cards can hide; other crews play visible monsters.',
       'Summon creatures into the left two columns. Traps belong on empty squares; spells and equipment target fighters.',
       'Press END ROUND. The CPU moves and plays cards, then every fighter beside an enemy strikes at once for attack minus armor.',

@@ -11,6 +11,9 @@ concurrency:
   group: typecheck-${{ github.ref }}
   cancel-in-progress: true
 
+env:
+  CYPRESS_INSTALL_BINARY: '0'
+
 jobs:
   typecheck:
     name: TypeScript

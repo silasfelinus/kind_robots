@@ -6,6 +6,11 @@ on:
       - 'server/utils/artArchiveMissingResourceBacklog.ts'
       - 'utils/scripts/verifyArtArchiveMissingResourceBacklog.test.ts'
       - '.github/workflows/art-archive-missing-resource-backlog.yml'
+concurrency:
+  # Cancel superseded runs on the same PR; push/dispatch runs never cancel.
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.run_id }}
+  cancel-in-progress: true
+
 jobs:
   verify:
     runs-on: ubuntu-latest

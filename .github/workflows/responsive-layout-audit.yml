@@ -4,7 +4,10 @@ name: Responsive Layout Audit
 # deployments are retired; scheduled and manual runs exercise kindrobots.org.
 on:
   schedule:
-    - cron: '41 * * * *'
+    # Daily, not hourly: each run is ~45 runner-minutes against production and
+    # competed with PR checks for runner slots. Dispatch manually after a
+    # layout-heavy deploy if you need a fresh reading sooner.
+    - cron: '41 12 * * *' # 12:41 UTC ≈ 4:41am Pacific
   workflow_dispatch:
     inputs:
       base_url:

@@ -8,15 +8,12 @@ on:
       - 'utils/scripts/arcadeCabinetFixture.mjs'
       - 'utils/scripts/verifyArcadeViewport.browser.test.mjs'
       - '.github/workflows/arcade-viewport.yml'
-  push:
-    branches: [main]
-    paths:
-      - 'components/arcade/**'
-      - 'utils/arcade/**'
-      - 'utils/scripts/arcadeCabinetFixture.mjs'
-      - 'utils/scripts/verifyArcadeViewport.browser.test.mjs'
-      - '.github/workflows/arcade-viewport.yml'
   workflow_dispatch:
+
+concurrency:
+  # Cancel superseded runs on the same PR; push/dispatch runs never cancel.
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.run_id }}
+  cancel-in-progress: true
 
 jobs:
   cabinet-viewport:

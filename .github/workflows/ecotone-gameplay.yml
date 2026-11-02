@@ -35,6 +35,11 @@ on:
       - 'prisma/playbook.prisma'
       - 'utils/scripts/verifyPlaybook.test.ts'
       - '.github/workflows/ecotone-gameplay.yml'
+concurrency:
+  # Cancel superseded runs on the same PR; push/dispatch runs never cancel.
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.run_id }}
+  cancel-in-progress: true
+
 jobs:
   contract:
     runs-on: ubuntu-latest

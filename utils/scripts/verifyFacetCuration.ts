@@ -32,7 +32,8 @@ function forbidFacetArtMutation(path: string, text: string): void {
   // Strip comments first (t-068): a doc comment showing a prisma.facet.update
   // block to explain which fields are protected must not read as one.
   const updateCalls =
-    stripComments(text).match(/prisma\.facet\.update\(\{[\s\S]*?\n\s*\}\)/g) ?? []
+    stripComments(text).match(/prisma\.facet\.update\(\{[\s\S]*?\n\s*\}\)/g) ??
+    []
   const protectedFields = [
     'flavorText',
     'examples',
@@ -64,7 +65,7 @@ async function main(): Promise<void> {
     curation: 'utils/seeds/facetCatalogCuration.ts',
     curator: 'utils/scripts/curateFacetCatalog.ts',
     runner: 'scripts/run_facet_catalog_maintenance.ts',
-    workflow: '.github/workflows/facet-catalog-contract.yml',
+    workflow: '.github/workflows/contract-tests.yml',
   } as const
 
   const entries = await Promise.all(

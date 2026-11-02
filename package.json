@@ -8,6 +8,8 @@
     "audit:server-api-callers": "tsx utils/scripts/auditServerApiCallers.ts",
     "test:server-api-callers-audit": "tsx utils/scripts/auditServerApiCallers.test.ts",
     "audit:default-art": "tsx utils/scripts/auditDefaultArt.ts",
+    "audit:workflow-budget": "node utils/scripts/auditWorkflowBudget.mjs",
+    "test:workflow-budget": "node utils/scripts/auditWorkflowBudget.mjs --self-test && node utils/scripts/auditWorkflowBudget.mjs --check",
     "audit:icons": "tsx utils/scripts/auditIcons.ts",
     "test:icons-selftest": "tsx utils/scripts/auditIcons.ts --self-test",
     "audit:mandarin-provenance": "tsx utils/scripts/auditMandarinCatalog.ts",

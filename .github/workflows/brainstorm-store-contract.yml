@@ -19,6 +19,9 @@ concurrency:
   group: brainstorm-store-${{ github.ref }}
   cancel-in-progress: true
 
+env:
+  CYPRESS_INSTALL_BINARY: '0'
+
 jobs:
   contract:
     name: Typed Brainstorm ownership

@@ -31,18 +31,12 @@ on:
       - 'utils/scripts/verifyPlaybookKit.test.ts'
       - 'utils/scripts/scaffoldPlaybook.ts'
       - '.github/workflows/playbook-kit.yml'
-  push:
-    branches: [main]
-    paths:
-      - 'utils/playbookKit/**'
-      - 'utils/playbookForge/**'
-      - 'stores/playbookKitStore.ts'
-      - 'stores/playbookForgeStore.ts'
-      - 'components/playbook-kit/**'
-      - 'components/playbook-forge/**'
-      - 'utils/playbook/**'
-      - '.github/workflows/playbook-kit.yml'
   workflow_dispatch:
+
+concurrency:
+  # Cancel superseded runs on the same PR; push/dispatch runs never cancel.
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.run_id }}
+  cancel-in-progress: true
 
 jobs:
   budget:

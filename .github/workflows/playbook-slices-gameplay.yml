@@ -44,19 +44,12 @@ on:
       - 'utils/scripts/spaceCouchTraceHarness.ts'
       - 'utils/scripts/fixtures/spaceCouchSaves-2026-10-29.json'
       - '.github/workflows/playbook-slices-gameplay.yml'
-  push:
-    branches: [main]
-    paths:
-      - 'utils/cometAcademy/**'
-      - 'utils/playbook/runReview.ts'
-      - 'components/playbook/playbook-run-review.vue'
-      - 'utils/scripts/verifyPlaybookRunReview.test.ts'
-      - 'utils/gameOfCaptains/**'
-      - 'pages/play/comet-city-academy.vue'
-      - 'pages/play/game-of-captains.vue'
-      - 'components/play/cometAcademy/**'
-      - '.github/workflows/playbook-slices-gameplay.yml'
   workflow_dispatch:
+
+concurrency:
+  # Cancel superseded runs on the same PR; push/dispatch runs never cancel.
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.run_id }}
+  cancel-in-progress: true
 
 jobs:
   seeded-playthroughs:

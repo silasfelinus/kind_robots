@@ -29,7 +29,8 @@
 // are pure and offline; this one asserts against a live third party, so folding
 // it in would make the whole suite go red whenever kindrobots.org is down. It
 // runs where it actually pays: on demand, and as the first step of the publish
-// job in .github/workflows/comment-backfill-live.yml.
+// job in .github/workflows/comment-backfill-live.yml (retired 2026-11-02 after
+// the 2026-08-13 backfill completed; restore it from git history to re-run).
 //
 // ONE KNOWN DIFFERENCE FROM THE PUBLISHER
 // ---------------------------------------

@@ -11,6 +11,11 @@ on:
       - '.github/workflows/coat-dance-vace-pilot.yml'
 permissions:
   contents: read
+concurrency:
+  # Cancel superseded runs on the same PR; push/dispatch runs never cancel.
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.run_id }}
+  cancel-in-progress: true
+
 jobs:
   unit:
     runs-on: ubuntu-latest

@@ -12,7 +12,7 @@
 // `bash -e {0}` — `-e` but NOT `-o pipefail` — so this is silent by default.
 //
 // The damage compounds: every `if: steps.<id>.outcome == 'failure'` that hangs
-// off such a step is unreachable too. facet-catalog-contract.yml had an explicit
+// off such a step is unreachable too. facet-catalog-contract.yml (now folded into contract-tests.yml) had an explicit
 //
 //     - name: Enforce illustrated Builder Facet coverage
 //       if: steps.builder-coverage.outcome == 'failure'

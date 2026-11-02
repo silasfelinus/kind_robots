@@ -38,6 +38,7 @@
 import { spawnSync } from 'node:child_process'
 import { readFileSync } from 'node:fs'
 import { resolve } from 'node:path'
+import { parse } from 'yaml'
 
 const WORKFLOW = '.github/workflows/contract-tests.yml'
 
@@ -53,6 +54,26 @@ const scripts: string[] = [
       .filter((name): name is string => Boolean(name)),
   ),
 ]
+
+// A step that declares its own placeholder DATABASE_URL (e.g. `prisma validate`
+// in the folded Facet catalog steps, which loads prisma.config.ts but never
+// connects) gets exactly that value here too, as it does in CI. Every other
+// script still runs with the variable removed.
+type WorkflowStep = { run?: unknown; env?: Record<string, unknown> }
+type WorkflowJob = { steps?: WorkflowStep[] }
+const declaredDatabaseUrl = new Map<string, string>()
+const jobs =
+  (parse(workflow) as { jobs?: Record<string, WorkflowJob> }).jobs ?? {}
+for (const job of Object.values(jobs)) {
+  for (const step of job.steps ?? []) {
+    const url = step.env?.DATABASE_URL
+    if (typeof step.run !== 'string' || typeof url !== 'string') continue
+    for (const match of step.run.matchAll(/npm run ([\w:-]+)/g)) {
+      const name = match[1]
+      if (name) declaredDatabaseUrl.set(name, url)
+    }
+  }
+}
 
 if (!scripts.length) {
   throw new Error(
@@ -72,12 +93,15 @@ const env: Record<string, string> = Object.fromEntries(
 
 const failed: string[] = []
 
-console.log(`Running ${scripts.length} contract script(s) with DATABASE_URL unset...\n`)
+console.log(
+  `Running ${scripts.length} contract script(s) with DATABASE_URL unset...\n`,
+)
 
 for (const script of scripts) {
+  const placeholder = declaredDatabaseUrl.get(script)
   const result = spawnSync('npm', ['run', '--silent', script], {
     cwd: root,
-    env,
+    env: placeholder ? { ...env, DATABASE_URL: placeholder } : env,
     encoding: 'utf8',
     shell: false,
   })
@@ -105,5 +129,7 @@ if (failed.length) {
   )
   process.exitCode = 1
 } else {
-  console.log(`\n✅ All ${scripts.length} contract scripts pass with no DATABASE_URL.`)
+  console.log(
+    `\n✅ All ${scripts.length} contract scripts pass with no DATABASE_URL.`,
+  )
 }

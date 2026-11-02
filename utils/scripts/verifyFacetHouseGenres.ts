@@ -30,7 +30,7 @@ function requireOrder(
 async function main(): Promise<void> {
   const curatorPath = 'utils/scripts/curateFacetHouseGenres.ts'
   const buildPath = 'scripts/run_facet_catalog_maintenance.ts'
-  const workflowPath = '.github/workflows/facet-catalog-contract.yml'
+  const workflowPath = '.github/workflows/contract-tests.yml'
   const [curator, build, workflow] = await Promise.all([
     read(curatorPath),
     read(buildPath),
@@ -70,7 +70,7 @@ async function main(): Promise<void> {
     requireText(curatorPath, curator, target)
   }
 
-  requireText(curatorPath, curator, "randomWeight: 0.5")
+  requireText(curatorPath, curator, 'randomWeight: 0.5')
   requireText(curatorPath, curator, "relationType: 'RELATED'")
   requireText(curatorPath, curator, 'facetArtImage.count')
   requireText(curatorPath, curator, 'facetArtCollection.count')

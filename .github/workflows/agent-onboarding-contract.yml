@@ -15,6 +15,11 @@ on:
 permissions:
   contents: read
 
+concurrency:
+  # Cancel superseded runs on the same PR; push/dispatch runs never cancel.
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.run_id }}
+  cancel-in-progress: true
+
 jobs:
   agent-onboarding-contract:
     # Kind Robots' main ruleset requires a GitHub Actions check named exactly

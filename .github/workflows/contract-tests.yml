@@ -509,9 +509,6 @@ jobs:
       - name: ESLint ratchet
         run: npm run test:lint-ratchet
 
-      - name: Prettier ratchet
-        run: npm run test:prettier-ratchet
-
       - name: Data surface manifest contract
         run: npm run test:data-surface-manifest
 
@@ -1241,6 +1238,85 @@ jobs:
       - name: Model Builder reset/openRun race guard contract
         run: npm run test:model-builder-reset-open-run-guard
 
+      # Moved from shard 2, which ran both ~100s ratchets back to back and was
+      # the long pole of every Contract verifiers run.
+      - name: Prettier ratchet
+        run: npm run test:prettier-ratchet
+
+      # --- Folded single-purpose workflows (2026-11-02 CI essentialization) ---
+      # Each of these used to be its own workflow: a fresh runner, checkout and
+      # npm ci (~60-90s) to run a few seconds of checks, on nearly every PR
+      # push. Together they take ~17s here. Prefer adding a step to a shard
+      # over adding a new workflow; see docs/ci-test-lifecycle.md.
+      # Keeps this shape from regrowing: PR workflows must cancel superseded
+      # runs, and crons must be daily or rarer unless allowlisted with a reason.
+      - name: Workflow runner budget guard
+        run: npm run test:workflow-budget
+
+      - name: API client follow-ups contract
+        run: npx tsx utils/scripts/verifyApiClientFollowups.ts
+
+      - name: Generated Prisma client parity
+        run: npm run test:generated-client-parity
+        env:
+          DATABASE_URL: 'mysql://user:pass@127.0.0.1:3306/kindrobots'
+
+      - name: No retired provider references
+        run: node utils/scripts/verifyRetiredProviderRefs.mjs
+
+      - name: Verifier filename reference self-test
+        run: node utils/scripts/verifyVerifierFilenameReferences.mjs --self-test
+
+      - name: Deleted guard reference self-test
+        run: node utils/scripts/verifyDeletedGuardReferences.mjs --self-test
+
+      - name: Verify no stale verifier filename references
+        run: node utils/scripts/verifyVerifierFilenameReferences.mjs
+
+      - name: Detect verify*.mjs/ts guards deleted in this pull request
+        if: github.event_name == 'pull_request'
+        id: deleted_guards
+        shell: bash
+        run: |
+          mapfile -d '' deleted_files < <(git diff --name-only --diff-filter=D -z "${{ github.event.pull_request.base.sha }}...HEAD" -- 'utils/scripts')
+          basenames=()
+          for f in "${deleted_files[@]}"; do
+            name="$(basename "$f")"
+            case "$name" in
+              verify*.mjs|verify*.ts) basenames+=("$name") ;;
+            esac
+          done
+          echo "names=${basenames[*]}" >> "$GITHUB_OUTPUT"
+
+      - name: Verify no stale references to guards deleted in this pull request
+        if: github.event_name == 'pull_request'
+        run: node utils/scripts/verifyDeletedGuardReferences.mjs ${{ steps.deleted_guards.outputs.names }}
+
+      - name: MDC scroll ownership
+        run: npx tsx utils/scripts/verifyMdcScrollOwnership.ts
+
+      - name: Lazy workspace card boundary
+        run: node utils/scripts/verifyModelCardLazyBoundary.mjs
+
+      - name: Failed art prompt repair
+        run: npm run test:art-prompt-repair
+
+      - name: Audit literal icon references
+        run: npm run audit:icons
+
+      - name: Comment migration contracts
+        run: |
+          npx tsx utils/scripts/verifyCommentMigrationFoundation.ts
+          npx tsx utils/scripts/verifyCommentSignals.ts
+          npx tsx utils/scripts/verifyCommentCalibrationBatch.ts
+          npx tsx utils/scripts/runCommentCalibrationBatch002Contract.ts
+          npx tsx utils/scripts/verifyCommentCalibrationBatch003.ts
+          npx tsx utils/scripts/verifyPartialPublishPrefix.ts
+          npx tsx utils/scripts/verifyCommentDraftQuality.ts
+          npx tsx utils/scripts/verifyPopulationDraftQuality.ts
+          npx tsx utils/scripts/verifyPopulationCasting.ts
+          npx tsx utils/scripts/verifyReactionTargetCoverage.ts
+
   contract_4:
     name: Contract shard 4/4
     runs-on: ubuntu-latest
@@ -1668,6 +1744,142 @@ jobs:
       - name: Academy examples manifest provenance contract
         shell: bash
         run: npm run test:academy-examples-manifest 2>&1 | tee academy-examples-contract.txt
+
+      # --- Facet catalog contract (folded 2026-11-02) ---
+      # Was facet-catalog-contract.yml, whose paths (components/server/stores/
+      # utils/content/**) fired on nearly every PR: ~85s of runner + npm ci for
+      # ~22s of offline checks. Only the steps that load prisma.config.ts get a
+      # placeholder DATABASE_URL; no database is contacted.
+      - name: Validate Facet schema and cutover
+        env:
+          DATABASE_URL: mysql://facet_contract:facet_contract@127.0.0.1:3306/facet_contract
+        run: npm run test:facet-catalog
+
+      - name: Verify Facet curation batches
+        run: npx tsx utils/scripts/verifyFacetCuration.ts
+
+      - name: Verify house genre curation
+        run: npx tsx utils/scripts/verifyFacetHouseGenres.ts
+
+      - name: Verify cultural genre curation
+        run: npx tsx utils/scripts/verifyFacetCulturalGenres.ts
+
+      - name: Verify Personality synonym merges
+        run: npx tsx utils/scripts/verifyFacetPersonalitySynonyms.ts
+
+      - name: Verify Facet taxonomy leak repairs
+        run: npx tsx utils/scripts/verifyFacetTaxonomyLeaks.ts
+
+      - name: Verify Facet genre leak repairs
+        run: npx tsx utils/scripts/verifyFacetGenreLeaks.ts
+
+      - name: Verify Personality semantic families
+        run: npx tsx utils/scripts/verifyFacetPersonalityFamilies.ts
+
+      - name: Verify final Facet catalog directives
+        run: npx tsx utils/scripts/verifyFacetCatalogDirectives.ts
+
+      # Curation creates MOOD rows; the directives step asserts none remain.
+      # Without this the disagreement only surfaces sixteen minutes into a
+      # production maintenance run, after the delete step has already committed.
+      - name: Verify curated MOOD definitions have a migration
+        run: npx tsx utils/scripts/verifyFacetCurationMoodPolicy.ts
+
+      # 565 authored descriptions is more prose than anyone re-reads. The
+      # failure modes only show up in bulk: one sentence shape repeated a
+      # hundred times, a description restating its own title, filler.
+      - name: Verify authored Facet catalog content
+        run: npm run test:facet-content
+
+      - name: Verify retired Facet cleanup and artwork queue
+        run: npx tsx utils/scripts/verifyFacetCatalogMaintenance.ts
+
+      - name: Verify legacy Facet art prompt signature
+        run: npx tsx utils/scripts/verifyFacetLegacyPromptSignature.ts
+
+      # The signature step above is a whitelist of clauses a producer is known
+      # to have written, so it can only recognize a cohort already diagnosed
+      # from the pictures. This one asks a property of the stored text instead.
+      - name: Verify Facet card-copy prompts are rebuilt
+        run: npx tsx utils/scripts/verifyFacetCardCopyRebuild.ts
+
+      - name: Verify prompt-enhancement swatch and retirement policy
+        run: npx tsx utils/scripts/verifyPromptEnhancementSwatches.ts
+
+      - name: Verify curated Facet art prompts
+        env:
+          DATABASE_URL: mysql://facet_contract:facet_contract@127.0.0.1:3306/facet_contract
+        run: npx tsx utils/scripts/verifyCuratedFacetArtPrompts.ts
+
+      - name: Verify whole-catalog Facet audit
+        run: npx tsx utils/scripts/verifyFacetCatalogAudit.ts
+
+      - name: Verify Facet seed target-slug serialization
+        run: npx tsx utils/scripts/verifyFacetSeedSlugSerialization.ts
+
+      - name: Verify Facet maintenance race handling
+        run: npx tsx utils/scripts/facetCatalogMaintenanceRaces.test.ts
+
+      - name: Verify retired Facet sources
+        run: |
+          node utils/scripts/verifyFacetLegacySeedSnapshots.mjs
+          node utils/scripts/verifyRetiredRewardRandomizers.mjs
+
+      - name: Verify Facet generation contracts
+        run: |
+          npx tsx utils/scripts/verifyFacetArtGeneration.ts
+          npx tsx utils/scripts/verifyDreamRandomCompatibility.ts
+          npx tsx utils/scripts/verifyFacetLibraryAdvanced.ts
+
+      - name: Verify Scenario Genre Facet cutover
+        run: npx tsx utils/scripts/verifyScenarioGenreFacetCutover.ts
+
+      - name: Verify Bot Facet cutover
+        run: npx tsx utils/scripts/verifyBotFacetCutover.ts
+
+      - name: Verify enum-backed system option Facets
+        run: npx tsx utils/scripts/verifySystemOptionFacetCutover.ts
+
+      - name: Verify Facet gallery surface
+        run: npm run test:facet-gallery
+
+      - name: Verify Facet taxonomy authority
+        run: npx tsx utils/scripts/verifyFacetTaxonomyAuthority.ts
+
+      - name: Verify Model Builder Facet synchronization
+        run: npx tsx utils/scripts/verifyModelBuilderFacetSync.ts
+
+      - name: Verify Facet closure
+        run: npm run test:facet-closure
+
+      - name: Verify illustrated Builder Facet coverage
+        env:
+          DATABASE_URL: mysql://facet_contract:facet_contract@127.0.0.1:3306/facet_contract
+        id: builder-coverage
+        continue-on-error: true
+        shell: bash
+        run: npx tsx utils/scripts/verifyFacetBuilderCoverage.ts 2>&1 | tee facet-builder-coverage-report.txt
+
+      - name: Upload Builder Facet coverage diagnostics
+        if: steps.builder-coverage.outcome == 'failure'
+        uses: actions/upload-artifact@v4
+        with:
+          name: facet-builder-coverage-diagnostics
+          path: facet-builder-coverage-report.txt
+          if-no-files-found: error
+
+      - name: Verify curated Facet artwork
+        id: artwork
+        shell: bash
+        run: npx tsx utils/scripts/verifyFacetArtworkMigration.ts 2>&1 | tee facet-artwork-report.txt
+
+      - name: Upload Facet artwork diagnostics
+        if: failure() && steps.artwork.outcome == 'failure'
+        uses: actions/upload-artifact@v4
+        with:
+          name: facet-artwork-diagnostics
+          path: facet-artwork-report.txt
+          if-no-files-found: error
 
       - name: Upload contract diagnostics
         if: always()

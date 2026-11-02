@@ -34,7 +34,10 @@ assert.equal(recovered.trust, base.trust)
 assert.deepEqual(recovered.missionHistory, base.missionHistory)
 assert.ok(recovered.worldFlags?.includes('quartermaster:1'))
 assert.match(recovered.scene, /three supply crates/)
-assert.deepEqual(restoreVoyage(JSON.parse(JSON.stringify(recovered))), recovered)
+assert.deepEqual(
+  restoreVoyage(JSON.parse(JSON.stringify(recovered))),
+  recovered,
+)
 assert.equal(canRequisitionSupplies(recovered), false)
 assert.equal(requisitionSupplies(recovered), recovered)
 assert.ok(!controls(recovered).some((option) => option.label === 'resupply'))
@@ -50,7 +53,11 @@ assert.equal(
   }),
   false,
 )
-assert.ok(!controls({ ...base, supplies: 3 }).some((option) => option.label === 'resupply'))
+assert.ok(
+  !controls({ ...base, supplies: 3 }).some(
+    (option) => option.label === 'resupply',
+  ),
+)
 
 const page = readFileSync(
   new URL('../../pages/play/game-of-captains.vue', import.meta.url),
@@ -59,4 +66,6 @@ const page = readFileSync(
 assert.match(page, /space-couch-quartermaster/)
 assert.match(page, /canRequisitionSupplies\(run\)/)
 assert.match(page, /store\.requisition\(\)/)
-console.log('Space Couch quartermaster: earned, optional and one-time per chapter')
+console.log(
+  'Space Couch quartermaster: earned, optional and one-time per chapter',
+)

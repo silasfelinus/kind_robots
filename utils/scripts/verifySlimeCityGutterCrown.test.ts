@@ -153,12 +153,16 @@ cpuShove.units = [{ ...ironjaw(3, 2), attackedRound: 3 }, rival(4, 2)]
 cpuShove.flag = { x: 1, y: 2 }
 cpuShove.mana = 0
 cpuShove.hands.player = []
-assert.deepEqual(chooseCpuAction(observe(cpuShove, 'player')), {
-  t: 'move',
-  id: 100,
-  x: 4,
-  y: 2,
-}, 'AI chooses legal shove only from visible tactical facts')
+assert.deepEqual(
+  chooseCpuAction(observe(cpuShove, 'player')),
+  {
+    t: 'move',
+    id: 100,
+    x: 4,
+    y: 2,
+  },
+  'AI chooses legal shove only from visible tactical facts',
+)
 const pushed = move(shove, 100, 4, 2)
 assert.notEqual(pushed, shove)
 assert.equal(pushed.units.find((u) => u.id === 100)?.x, 4)

@@ -166,7 +166,10 @@ export const useHybridizerStore = defineStore('hybridizer', () => {
           'Shared library unavailable. Local studies remain accessible.'
         return
       }
-      remoteLoaded.value = Math.max(remoteLoaded.value, skip + response.data.length)
+      remoteLoaded.value = Math.max(
+        remoteLoaded.value,
+        skip + response.data.length,
+      )
       discoveryTotal.value = response.meta?.total ?? remoteLoaded.value
       readyTotal.value = response.meta?.ready ?? 0
       renderingTotal.value = response.meta?.rendering ?? 0

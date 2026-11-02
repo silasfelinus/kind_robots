@@ -321,7 +321,7 @@ function sparkleStyle(n: number): Record<string, string> {
 @container (min-width: 64rem) {
   .ech-scroll {
     overflow: visible;
-    clip-path: inset(-100vh -100vw 0 -100vw);
+    clip-path: inset(-200rem -200rem 0 -200rem);
   }
 }
 .ech-fan {

@@ -1,4 +1,4 @@
-import { createError, defineEventHandler, getRouterParam } from 'h3'
+import { createError, defineEventHandler, getRouterParam, readBody } from 'h3'
 import prisma from '~/server/utils/prisma'
 import { errorHandler } from '~/server/utils/error'
 import { requireScopedApiUser } from '~/server/utils/authGuard'
@@ -7,6 +7,7 @@ import { serializeArtJobPayload } from '~/server/utils/artJobPayload'
 import {
   starterForIdentity,
   fusionIdForIdentity,
+  clientIngredientKey,
 } from '~/server/utils/hybridizerFusion'
 import {
   HYBRIDIZER_ACTIVE_USER_LIMIT,
@@ -32,6 +33,27 @@ export default defineEventHandler(async (event) => {
     const fusion = await prisma.hybridizerFusion.findUnique({ where: { id } })
     requireVisibleFusion(fusion, auth.user.id)
     requireFusionEditor(fusion, auth.user.id, auth.isAdmin)
+    const body = (await readBody<Record<string, unknown>>(event)) ?? {}
+    const direction = body.direction ?? ''
+    const focusWeight = body.focusWeight ?? 50
+    const focusKey = body.focusKey ?? clientIngredientKey(fusion.leftKey)
+    const firstKey = clientIngredientKey(fusion.leftKey)
+    const secondKey = clientIngredientKey(fusion.rightKey)
+    if (
+      typeof direction !== 'string' ||
+      direction.length > 500 ||
+      typeof focusWeight !== 'number' ||
+      !Number.isInteger(focusWeight) ||
+      focusWeight < 10 ||
+      focusWeight > 90 ||
+      (focusKey !== firstKey && focusKey !== secondKey)
+    )
+      throw createError({
+        statusCode: 400,
+        message: 'Use a valid ingredient balance (10–90) and art direction under 500 characters.',
+      })
+    const leftWeight =
+      focusKey === firstKey ? focusWeight : 100 - focusWeight
     if (['QUEUED', 'RENDERING', 'DELIVERING'].includes(fusion.status))
       throw createError({
         statusCode: 409,
@@ -112,6 +134,7 @@ export default defineEventHandler(async (event) => {
       right,
       'revision',
       revision,
+      { leftWeight, direction: direction.trim() },
     )
     const initial = jobs.find((job) => job.projectSlug === 'hybridizer')
     const originalJobId = initial?.id ?? jobs[0]!.id

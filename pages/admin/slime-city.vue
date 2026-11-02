@@ -847,7 +847,9 @@
         >
           <div class="sc-collection-title">
             <span class="sc-overline"
-              >THE ARMORY / DECK WORKBENCH · {{ lab.progress.cards.length }}/{{ lab.catalogSize }}
+              >THE ARMORY / DECK WORKBENCH · {{ lab.progress.cards.length }}/{{
+                lab.catalogSize
+              }}
               COLLECTED</span
             >
             <h2>{{ lab.team.name }}</h2>
@@ -868,7 +870,8 @@
           <div class="sc-deck-workbench" data-testid="slime-deck-workbench">
             <div>
               <span class="sc-overline"
-                >TEN-CARD LOADOUT / FOUR CREATURES / ONE SIGNATURE / UP TO THREE MERCENARIES</span
+                >TEN-CARD LOADOUT / FOUR CREATURES / ONE SIGNATURE / UP TO THREE
+                MERCENARIES</span
               >
               <strong>{{ lab.currentDeck.length }}/10 DECK SLOTS FILLED</strong>
               <p aria-live="polite">

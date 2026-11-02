@@ -466,7 +466,9 @@
                 @click="decide(flipped!, choice.id)"
               >
                 <b>{{ choice.label }}</b
-                ><small>{{ episodeChoiceStakes(run, flipped!, choice.id) }}</small>
+                ><small>{{
+                  episodeChoiceStakes(run, flipped!, choice.id)
+                }}</small>
               </button>
             </div>
           </div>

@@ -69,7 +69,20 @@ function boardKey(state: MatchState): string {
         (u.carryingFlag ? ':flag' : ''),
     )
   const traps = [...state.traps]
-    .map((t) => t.side + '@' + t.x + ',' + t.y + ':' + t.damage + ':' + Boolean(t.roots) + ':' + (t.debt ?? 0))
+    .map(
+      (t) =>
+        t.side +
+        '@' +
+        t.x +
+        ',' +
+        t.y +
+        ':' +
+        t.damage +
+        ':' +
+        Boolean(t.roots) +
+        ':' +
+        (t.debt ?? 0),
+    )
     .sort()
   const monster = state.monster
     ? state.monster.x + ',' + state.monster.y + ':' + state.monster.hp

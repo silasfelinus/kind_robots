@@ -145,7 +145,11 @@ export default defineNuxtConfig({
         { name: 'theme-color', content: '#b4653a' },
       ],
       link: [
-        { rel: 'apple-touch-icon', sizes: '180x180', href: '/apple-touch-icon.png' },
+        {
+          rel: 'apple-touch-icon',
+          sizes: '180x180',
+          href: '/apple-touch-icon.png',
+        },
       ],
       script: [
         // Must stay first: patches builtins the rest of the bundle assumes.
@@ -387,6 +391,29 @@ export default defineNuxtConfig({
     },
     '/plan/projects/ruler-hooked': {
       redirect: { to: '/play/ruler-hooked', statusCode: 301 },
+    },
+  },
+
+  hooks: {
+    // @nuxt/content marks each public collection's sql_dump.txt for prerender.
+    // Those two routes were the only prerender targets, and prerendering them
+    // made Nitro bundle the whole server a second time: "Prerendered 2 routes
+    // in 74.258 seconds" of a ~5 minute `npm run build` (publish run
+    // 41379466994, 2026-11-02). The node preset already registers a runtime
+    // handler for the same route that returns the dump bundled into the server,
+    // so serve it from there instead -- the same thing Content's own
+    // aws-amplify preset does by setting these rules to `prerender: false`.
+    'nitro:config'(nitroConfig) {
+      for (const [route, rule] of Object.entries(
+        nitroConfig.routeRules ?? {},
+      )) {
+        if (
+          route.startsWith('/__nuxt_content/') &&
+          route.endsWith('/sql_dump.txt')
+        ) {
+          rule.prerender = false
+        }
+      }
     },
   },
 

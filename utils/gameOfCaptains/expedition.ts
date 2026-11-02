@@ -230,14 +230,12 @@ export function deployExpedition(
   const revealedPower =
     profile && profile.talent === enc.skill ? profile.secretPower : null
   // The fatality roll is separate from mission success. Relevant training
-  // reduces a redshirt's danger from one in three to one in six.
+  // halves a redshirt's danger from one in five to one in ten.
   const fatalityRoll = hash(
     run.seed + ':' + run.chapter + ':' + enc.id + ':' + lead + ':fatal',
   )
-  // FNV's low bits correlate with encounter IDs; use mixed high bits for
-  // the trained six-way roll while preserving older untrained three-way rolls.
-  const fatalityTest =
-    skill >= 4 ? (fatalityRoll >>> 8) % 6 : fatalityRoll % 3
+  // FNV's low bits correlate with encounter IDs; always use mixed high bits.
+  const fatalityTest = (fatalityRoll >>> 8) % (skill >= 4 ? 10 : 5)
   const casualty = profile && fatalityTest === 0 ? lead : null
   const dangerouslyUnqualified =
     !!profile &&

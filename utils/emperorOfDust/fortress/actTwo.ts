@@ -1651,7 +1651,8 @@ export const ACT_TWO_DAYS: readonly DayDef[] = [
           },
           {
             id: 'decline',
-            label: 'Keep the twenty brass for food and repairs. Let the old maps crumble.',
+            label:
+              'Keep the twenty brass for food and repairs. Let the old maps crumble.',
             effects: { local: { lamplight: -2 } },
             response:
               'The Archive bows and saves what it can alone. The corner of the Ford is swept up with the morning dust.',

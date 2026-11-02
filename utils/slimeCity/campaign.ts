@@ -675,7 +675,8 @@ export const CAMPAIGN_ECHOES: Record<
       story:
         'The nurses you protected patch up the next rescue team before the doors open.',
       speaker: 'Calico Nine',
-      voice: 'We saved a neighborhood, not a specimen. The nurses are coming with us.',
+      voice:
+        'We saved a neighborhood, not a specimen. The nurses are coming with us.',
       terms: { playerHp: 1 },
     },
     cunning: {
@@ -683,7 +684,8 @@ export const CAMPAIGN_ECHOES: Record<
       story:
         'Your stolen lab plans reveal the weak seam in the next opponent’s armor.',
       speaker: 'Calico Nine',
-      voice: 'I stole the schematic. It has my serial number on the back. Make that count.',
+      voice:
+        'I stole the schematic. It has my serial number on the back. Make that count.',
       terms: { enemyArmor: -1 },
     },
   },
@@ -693,7 +695,8 @@ export const CAMPAIGN_ECHOES: Record<
       story:
         'The fairies you brought together smuggle an extra spark of mana into the pit.',
       speaker: 'Mx. Thimble Vex',
-      voice: 'You cannot silence a thousand wings if everybody knows the chorus.',
+      voice:
+        'You cannot silence a thousand wings if everybody knows the chorus.',
       terms: { playerMana: 1 },
     },
     cunning: {
@@ -701,7 +704,8 @@ export const CAMPAIGN_ECHOES: Record<
       story:
         'Your illegal speakers pump the crowd for a huge opening, but alert the rival crew.',
       speaker: 'Mx. Thimble Vex',
-      voice: 'The amplifier is stolen, the batteries are cursed, and the landlord is furious. Perfect.',
+      voice:
+        'The amplifier is stolen, the batteries are cursed, and the landlord is furious. Perfect.',
       terms: { playerMana: 2, enemyMana: 1 },
     },
   },
@@ -711,7 +715,8 @@ export const CAMPAIGN_ECHOES: Record<
       story:
         'The workers add two layers of scrap protection to their own starting line.',
       speaker: 'Forewoman Rivet',
-      voice: 'The bosses called it scrap. My workers called it tomorrow\'s armor.',
+      voice:
+        "The bosses called it scrap. My workers called it tomorrow's armor.",
       terms: { playerHp: 2 },
     },
     cunning: {
@@ -719,7 +724,8 @@ export const CAMPAIGN_ECHOES: Record<
       story:
         'You know where to crack their plates. The foreman knows you stole the plans.',
       speaker: 'Forewoman Rivet',
-      voice: 'They sold us the blueprint for our own bones. Now we know where to hit.',
+      voice:
+        'They sold us the blueprint for our own bones. Now we know where to hit.',
       terms: { enemyArmor: -1, enemyMana: 1 },
     },
   },
@@ -729,7 +735,8 @@ export const CAMPAIGN_ECHOES: Record<
       story:
         'Your volunteer safety marshals protect the front line and buy one more round.',
       speaker: 'Saint Kaboom',
-      voice: 'Nobody gets left under the rubble. That is our most explosive policy.',
+      voice:
+        'Nobody gets left under the rubble. That is our most explosive policy.',
       terms: { playerHp: 1, rounds: 1 },
     },
     cunning: {
@@ -737,7 +744,8 @@ export const CAMPAIGN_ECHOES: Record<
       story:
         'A stolen firework gives you an early blast of mana. The opposition heard it.',
       speaker: 'Saint Kaboom',
-      voice: 'Great news: the fuse works. Bad news: so does the enemy\'s hearing.',
+      voice:
+        "Great news: the fuse works. Bad news: so does the enemy's hearing.",
       terms: { playerMana: 2, enemyMana: 1 },
     },
   },
@@ -747,7 +755,8 @@ export const CAMPAIGN_ECHOES: Record<
       story:
         'Someone you protected quietly persuades one rival guard to walk away.',
       speaker: 'The Drain Oracle',
-      voice: 'We told one frightened guard the truth. They chose not to pull the trigger.',
+      voice:
+        'We told one frightened guard the truth. They chose not to pull the trigger.',
       terms: { fewerRivals: 1 },
     },
     cunning: {
@@ -755,7 +764,8 @@ export const CAMPAIGN_ECHOES: Record<
       story:
         'A paid informant leaks mana to you, but their trap is already buried in the arena.',
       speaker: 'The Drain Oracle',
-      voice: 'Our informant is late. I can already hear the trap clicking.',
+      voice:
+        'Our informant is late. I can already hear the trap clicking.',
       terms: { playerMana: 2, rivalTrap: true },
     },
   },
@@ -764,7 +774,8 @@ export const CAMPAIGN_ECHOES: Record<
       title: 'DEBT JUBILEE',
       story: 'One rival collector resigns after seeing the bills you tore up.',
       speaker: 'Auditor Prime Gilt',
-      voice: 'I closed the account. The collector asked what freedom pays. I told him to try it.',
+      voice:
+        'I closed the account. The collector asked what freedom pays. I told him to try it.',
       terms: { fewerRivals: 1 },
     },
     cunning: {
@@ -772,7 +783,8 @@ export const CAMPAIGN_ECHOES: Record<
       story:
         'You leverage next quarter’s profits for immediate mana. The rival refinances too.',
       speaker: 'Auditor Prime Gilt',
-      voice: 'Borrowed power compounds. Unfortunately, the competition can read a balance sheet.',
+      voice:
+        'Borrowed power compounds. Unfortunately, the competition can read a balance sheet.',
       terms: { playerMana: 2, enemyMana: 1 },
     },
   },

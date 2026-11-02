@@ -38,7 +38,12 @@ export function buildHybridizerArtJob(
     starterForIdentity(fusion.leftKey)?.taxonomy,
     starterForIdentity(fusion.rightKey)?.taxonomy,
   )
-  const promptString = hybridizerArtPrompt(leftTitle, rightTitle, kind, direction)
+  const promptString = hybridizerArtPrompt(
+    leftTitle,
+    rightTitle,
+    kind,
+    direction,
+  )
   const { workflow } = buildKrea2WorkflowFromRequest({
     prompt: promptString,
     seed: hybridizerRevisionSeed(fusion.id, revision),
@@ -62,7 +67,12 @@ export function buildHybridizerArtJob(
       retryCount: 0,
       origin,
       revision,
-      ...(revision ? { direction: direction.direction ?? '', leftWeight: direction.leftWeight ?? 50 } : {}),
+      ...(revision
+        ? {
+            direction: direction.direction ?? '',
+            leftWeight: direction.leftWeight ?? 50,
+          }
+        : {}),
     },
   }
   const normalized = repairQueuedArtSampler(

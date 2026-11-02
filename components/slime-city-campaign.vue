@@ -72,7 +72,11 @@
       >
         <div class="campaign-verdict-heading">
           <strong>
-            {{ lab.campaignAftermath.result === 'player' ? 'AFTERMATH · VICTORY' : 'AFTERMATH · DEFEAT' }}
+            {{
+              lab.campaignAftermath.result === 'player'
+                ? 'AFTERMATH · VICTORY'
+                : 'AFTERMATH · DEFEAT'
+            }}
           </strong>
           <small>
             CHAPTER {{ lab.campaignAftermath.chapterIndex + 1 }} ·

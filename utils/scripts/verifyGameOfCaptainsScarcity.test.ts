@@ -55,11 +55,14 @@ const observation = decidePolicy(baseline, 'observe')
 assert.equal(observation.reputation, 2)
 assert.equal(observation.trust, 1)
 assert.equal(observation.supplies, 0)
-assert.ok(!observation.worldFlags?.some((f) => f.startsWith('supply-shortfall')))
+assert.ok(
+  !observation.worldFlags?.some((f) => f.startsWith('supply-shortfall')),
+)
 assert.equal(decidePolicy(emptyAid, 'aid'), emptyAid, 'no repeat order')
 
 for (const missionId of ['archive', 'bar']) {
-  const chapter = VOYAGE_BOARDS.findIndex((board) => board.includes(missionId)) + 1
+  const chapter =
+    VOYAGE_BOARDS.findIndex((board) => board.includes(missionId)) + 1
   assert.ok(chapter > 0, missionId)
   const scenario: VoyageRun = {
     ...baseline,
@@ -80,10 +83,7 @@ for (const missionId of ['archive', 'bar']) {
     assert.equal(result.consequenceHistory?.at(-1)?.choiceId, choice.id)
     assert.equal(result.missionHistory?.at(-1)?.policy, choice.policy)
     assert.ok(result.scene.includes(choice.label))
-    assert.deepEqual(
-      restoreVoyage(JSON.parse(JSON.stringify(result))),
-      result,
-    )
+    assert.deepEqual(restoreVoyage(JSON.parse(JSON.stringify(result))), result)
     assert.equal(resolveConsequence(result, choice.id), result)
   }
 }
@@ -92,23 +92,18 @@ for (const missionId of ['archive', 'bar']) {
 // function. This crosses the actual first-act Archive and Vox/Serendipity stops.
 let authoredDecisions = 0
 for (let seed = 1; seed <= 12; seed++) {
-  const { run, steps } = playVoyage(
-    'fluke',
-    ['pell', 'mox', 'rue'],
-    seed,
-    {
-      name: 'scarcity-real-page',
-      order: () => 'aid',
-      chart: (run) =>
-        VOYAGE_BOARDS[run.chapter - 1]?.find(
-          (id) => id === 'archive' || id === 'bar',
-        ),
-      authoredChoices: true,
-      sideQuests: false,
-      errand: () => null,
-      finale: 'protect',
-    },
-  )
+  const { run, steps } = playVoyage('fluke', ['pell', 'mox', 'rue'], seed, {
+    name: 'scarcity-real-page',
+    order: () => 'aid',
+    chart: (run) =>
+      VOYAGE_BOARDS[run.chapter - 1]?.find(
+        (id) => id === 'archive' || id === 'bar',
+      ),
+    authoredChoices: true,
+    sideQuests: false,
+    errand: () => null,
+    finale: 'protect',
+  })
   assert.equal(run.phase, 'ending', 'complete real-page voyage')
   authoredDecisions += steps.filter((step) =>
     step.startsWith('consequence:'),

@@ -2399,16 +2399,15 @@ const actionBeaconSource = readFileSync(
   'components/memory-dungeon/action-beacon.vue',
   'utf8',
 )
-const hiddenFogArt = readFileSync(
-  'public/memory-dungeon/briar-fog.svg',
-  'utf8',
-)
+const hiddenFogArt = readFileSync('public/memory-dungeon/briar-fog.svg', 'utf8')
 assert.ok(
   consoleStage.includes('class="md-fog-tile h-full w-full"'),
   'Unrevealed tiles use illustrated fog instead of separate black card cells',
 )
 assert.ok(
-  consoleStage.includes("background-image: url('/memory-dungeon/briar-fog.svg')"),
+  consoleStage.includes(
+    "background-image: url('/memory-dungeon/briar-fog.svg')",
+  ),
   'Unrevealed map squares use the local fog illustration',
 )
 assert.ok(

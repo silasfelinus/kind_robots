@@ -1868,6 +1868,147 @@ export const HOSHIMORI_OVEN_ROOMS: readonly HoshimoriOvenRoom[] = [
       },
     ],
   },
+  {
+    id: 'OV-22',
+    title: 'The Cartographer’s Ash',
+    opening:
+      'A childhood map Vesper sold to buy a stranger’s escape has burned into the Oven wall. Its lines still point to houses that asked to remain invisible. A soot spirit offers to restore the whole map, including every private door.',
+    choices: [
+      {
+        id: 'saffron-redact-map',
+        label: 'Restore only routes whose households consent to being named',
+        outcome:
+          'Vesper redraws the public roads in ash and leaves the refuge doors blank. The families can appoint escorts without handing the spirit a list of targets.',
+        trust: 1,
+        flag: 'saffron-map-redacted',
+      },
+      {
+        id: 'saffron-return-map',
+        label: 'Return the original map to the households it endangered',
+        outcome:
+          'The families keep the dangerous original behind a locked screen. Vesper loses the right to consult it alone, and accepts that restitution need not make them trusted again.',
+        flag: 'saffron-map-returned',
+      },
+    ],
+  },
+  {
+    id: 'OV-23',
+    title: 'The Escort Who Was Paid in Names',
+    opening:
+      'A tired wolf escort has guided families out of the rain, but the Oven paid her with the names of those she saved. She asks for wages she can actually spend and a way to forget the secret paths without abandoning her charges.',
+    choices: [
+      {
+        id: 'saffron-pay-escort',
+        label: 'Pay her from the party rations and erase the copied names',
+        outcome:
+          'The wolf receives real food and returns the list unread. Pip records the missing wages as an open claim; one meal is not a settlement.',
+        rations: -1,
+        trust: 1,
+        flag: 'saffron-escort-paid',
+      },
+      {
+        id: 'saffron-escort-union',
+        label: 'Let escorts organize a voluntary, witnessed wage rota',
+        outcome:
+          'The escorts choose their own shifts and a neutral keeper for sealed routes. Families still wait for the first paid patrol, but no child becomes currency.',
+        trust: 1,
+        flag: 'saffron-escort-organized',
+      },
+    ],
+  },
+  {
+    id: 'OV-24',
+    title: 'The Mill of Borrowed Hours',
+    opening:
+      'A tide clock from Scylla’s palace turns the flour mill backward. Every saved minute costs a night worker an hour they have not yet lived. Oren can stop the gears, but the next bread delivery will be late.',
+    choices: [
+      {
+        id: 'saffron-stop-mill',
+        label: 'Stop the tide clock and let workers choose a slower schedule',
+        outcome:
+          'The mill falls silent. Oren marks a safe restart time, and the workers keep their future hours even as the bread queue grows.',
+        trust: 1,
+        flag: 'saffron-mill-stopped',
+      },
+      {
+        id: 'saffron-audit-hours',
+        label: 'Run one supervised batch and record every borrowed minute',
+        outcome:
+          'One batch reaches the shelter before dusk. The borrowed hours remain an explicit debt to be repaid, and the workers may refuse another shift.',
+        flag: 'saffron-hours-audited',
+      },
+    ],
+  },
+  {
+    id: 'OV-25',
+    title: 'The Loaf That Calls Your Childhood Name',
+    opening:
+      'Fresh bread whispers the names of people whose memories were taken to heat the Oven. A hungry child recognizes a voice, but the loaf cannot prove who owns the memory or whether the speaker wants to be found.',
+    choices: [
+      {
+        id: 'saffron-feed-without-name',
+        label: 'Feed the child from your pack and leave the voice unclaimed',
+        outcome:
+          'The child eats without becoming a witness for the baker. The loaf is sealed until its owner can answer freely, and the party has one fewer meal.',
+        rations: -1,
+        trust: 1,
+        flag: 'saffron-child-fed',
+      },
+      {
+        id: 'saffron-witness-loaf',
+        label: 'Preserve the voice for private identification by its owner',
+        outcome:
+          'Pip wraps the loaf in a soundproof cloth. The child keeps the right not to testify, while a neutral witness records that the Oven still holds stolen voices.',
+        flag: 'saffron-loaf-witnessed',
+      },
+    ],
+  },
+  {
+    id: 'OV-26',
+    title: 'The Procession’s Address Book',
+    opening:
+      'A paper yōkai unfolds from the chimney with a list of perfect addresses. Each correction moves a door to a different wall. Vesper recognizes their childhood handwriting beneath the new ink, and sees how a map can become a command.',
+    choices: [
+      {
+        id: 'saffron-refuse-addresses',
+        label: 'Refuse the address book and give travelers portable markers',
+        outcome:
+          'The paper spirit loses its power to demand a fixed home. The route is harder to chart, but families can carry their own directions away from the procession.',
+        trust: 1,
+        flag: 'saffron-addresses-refused',
+      },
+      {
+        id: 'saffron-challenge-book',
+        label: 'Challenge the false addresses with voluntary witness routes',
+        outcome:
+          'Vesper and the households annotate the book without revealing hidden doors. The yōkai retreats to the chimney, promising to return when the streets fold.',
+        flag: 'saffron-addresses-challenged',
+      },
+    ],
+  },
+  {
+    id: 'OV-27',
+    title: 'The Fifth Bell of Hoshimori',
+    opening:
+      'The Oven rings a bell no one remembers casting. It offers Vesper a final chance to keep every safe route personally, arguing that one trusted mapmaker can protect people better than a quarrelsome village. The families who were exposed by the first map wait for Vesper’s answer.',
+    choices: [
+      {
+        id: 'saffron-recallable-charter',
+        label: 'Give the routes to a recallable council of affected households',
+        outcome:
+          'Vesper surrenders sole custody. Escorts and refuge families can revise the charter, and the village accepts that no map will protect everyone forever.',
+        trust: 1,
+        flag: 'saffron-charter-recallable',
+      },
+      {
+        id: 'saffron-private-escorts',
+        label: 'Keep private routes with consent-based escorts and no master map',
+        outcome:
+          'The public atlas remains incomplete by design. Travelers gain a way out without surrendering addresses, while Vesper must answer for the first betrayal without claiming this choice erases it.',
+        flag: 'saffron-escorts-private',
+      },
+    ],
+  },
 ]
 
 export type HoshimoriEvent =
@@ -1878,6 +2019,7 @@ export type HoshimoriEvent =
   | { type: 'enter-wing' }
   | { type: 'enter-ember-wing' }
   | { type: 'enter-cinder-wing' }
+  | { type: 'enter-saffron-wing' }
   | { type: 'oven-choice'; id: string }
   | { type: 'leave' }
 
@@ -2201,6 +2343,37 @@ export function hoshimoriOvenFourthAccount(
   return guardian + ' ' + accounts.join(' ')
 }
 
+/** Six earned Saffron Wing decisions determine who controls the routes. */
+export function hoshimoriOvenFifthAccount(
+  progress: HoshimoriWarmProgress,
+): string | null {
+  const required = ['OV-22', 'OV-23', 'OV-24', 'OV-25', 'OV-26', 'OV-27']
+  if (required.some((id) => !progress.ovenChoices[id])) return null
+  const restitution = hoshimoriOvenFourthAccount(progress)
+  if (!restitution) return null
+  const accounts = [
+    progress.ovenChoices['OV-22'] === 'saffron-redact-map'
+      ? 'Vesper published only consented roads, leaving refuge doors private.'
+      : 'The endangered households took custody of the original map.',
+    progress.ovenChoices['OV-23'] === 'saffron-pay-escort'
+      ? 'The wolf escort received food while her unpaid wages stayed on record.'
+      : 'Escorts organized a voluntary rota with sealed route custody.',
+    progress.ovenChoices['OV-24'] === 'saffron-stop-mill'
+      ? 'Workers kept their future hours and accepted a slower bake.'
+      : 'A supervised bake left a recorded debt of borrowed hours.',
+    progress.ovenChoices['OV-25'] === 'saffron-feed-without-name'
+      ? 'A child ate without being forced to identify a stolen voice.'
+      : 'The speaking loaf remained sealed for private testimony.',
+    progress.ovenChoices['OV-26'] === 'saffron-refuse-addresses'
+      ? 'Travelers carried directions the procession could not own.'
+      : 'Voluntary witnesses corrected the procession’s false addresses.',
+    progress.ovenChoices['OV-27'] === 'saffron-recallable-charter'
+      ? 'Affected families can recall the route council and revise its charter.'
+      : 'Private escorts preserve exits without creating a master list.',
+  ]
+  return accounts.join(' ')
+}
+
 export function hoshimoriOvenResolution(
   progress: HoshimoriWarmProgress,
 ): string | null {
@@ -2254,6 +2427,7 @@ function eventShape(event: HoshimoriEvent): boolean {
       event.type === 'enter-wing' ||
       event.type === 'enter-ember-wing' ||
       event.type === 'enter-cinder-wing' ||
+      event.type === 'enter-saffron-wing' ||
       event.type === 'leave') &&
     keys === 'type'
   )
@@ -2358,6 +2532,20 @@ export function advanceHoshimoriWarm(
       }
       break
     }
+    case 'enter-saffron-wing': {
+      if (
+        !progress.ovenRoom &&
+        progress.ovenChoices['OV-21'] &&
+        !progress.ovenChoices['OV-27'] &&
+        progress.current === '4,3'
+      ) {
+        const next = HOSHIMORI_OVEN_ROOMS.slice(21, 27).find(
+          (room) => !progress.ovenChoices[room.id],
+        )
+        if (next) changed = { ovenRoom: next.id }
+      }
+      break
+    }
     case 'oven-choice': {
       if (!progress.ovenRoom) break
       const room = OVEN.get(progress.ovenRoom)
@@ -2384,7 +2572,8 @@ export function advanceHoshimoriWarm(
         room!.id === 'OV-03' ||
         room!.id === 'OV-09' ||
         room!.id === 'OV-15' ||
-        room!.id === 'OV-21'
+        room!.id === 'OV-21' ||
+        room!.id === 'OV-27'
           ? null
           : (HOSHIMORI_OVEN_ROOMS[index + 1]?.id ?? null)
       changed = {
@@ -2451,7 +2640,7 @@ export function restoreHoshimoriWarm(
 export function validateHoshimoriWarm(): string[] {
   const errors: string[] = []
   if (SITES.size !== 64) errors.push('Expected sixty-four unique warm sites')
-  if (OVEN.size !== 21) errors.push('Expected twenty-one authored Oven rooms')
+  if (OVEN.size !== 27) errors.push('Expected twenty-seven authored Oven rooms')
   const ovenChoiceIds = HOSHIMORI_OVEN_ROOMS.flatMap((room) =>
     room.choices.map((choice) => choice.id),
   )

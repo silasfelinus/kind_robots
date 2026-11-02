@@ -215,11 +215,11 @@ assert.match(worldStore, /realmArtReady\.value = results\.every\(Boolean\)/)
 // The full Character index lives in browseCharacters, not the one-item
 // selection/detail cache. Linked art must be resolved by ID because the art
 // store keeps only a partial recent subset, even with a full character catalog.
-assert.match(resolver, /records = source\\.browseCharacters/)
-assert.doesNotMatch(resolver, /records = source\\.characters\\b/)
-assert.match(resolver, /await art\\.getArtImageById\\(artId\\)/)
-assert.match(resolver, /await loadImage\\(path\\)/)
-assert.match(resolver, /isEligibleDungeonArt\\(\\s*linkedArt,/)
+assert.match(resolver, /records = source\.browseCharacters/)
+assert.doesNotMatch(resolver, /records = source\.characters\b/)
+assert.match(resolver, /await art\.getArtImageById\(artId\)/)
+assert.match(resolver, /await loadImage\(path\)/)
+assert.match(resolver, /isEligibleDungeonArt\(\s*linkedArt,/)
 assert.match(resolver, /choice\.family === 'realm'/)
 assert.match(resolver, /loadDungeonImagePaths\(candidates, needed\)/)
 assert.match(selector, /choice\.key === 'realm' && !realmDeckReady/)

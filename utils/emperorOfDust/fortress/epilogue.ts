@@ -2018,6 +2018,48 @@ const BARRACKS: EpilogueSubject[] = [
 
 const ENDGAME: EpilogueSubject[] = afterTheWar([
   {
+    id: 'tobin-and-hesper-record',
+    name: 'Hesper Lowe’s record',
+    variants: [
+      {
+        when: { endings: ['long-night'], flags: ['d49-tobin-record'] },
+        mood: 'sad',
+        text: 'Vellum’s last copy of Hesper Lowe’s testimony goes east with the scattered court. The pages tear along the staples. Tobin’s name remains legible.',
+      },
+      {
+        when: { flags: ['d49-tobin-record'] },
+        text: 'Hesper’s testimony is read in Hollow Bell each year, beside Mara’s signature. A boy named Tobin is written back into the register. Hesper asks that the Archive leave room for the children who have not come home.',
+      },
+      {
+        when: { flags: ['d49-hesper-private-record'] },
+        text: 'Hesper’s testimony stays sealed with the Hollow Bell council. The council must ask her before opening it. Once they do, she brings a second page: the names of the mothers who waited beside her at the pump.',
+      },
+      {
+        when: { flags: ['d49-audit-record'] },
+        text: 'The Archive sends Hollow Bell two copies of the unsealed water bargain. One hangs in the cistern office beside the daily water tally. Mara’s signature is still at the bottom when a new mayor takes the chair.',
+      },
+    ],
+  },
+  {
+    id: 'the-runner-kept-her-name',
+    name: 'The runner’s own testimony',
+    variants: [
+      {
+        when: { endings: ['long-night'], flags: ['d49-runner-record'] },
+        mood: 'sad',
+        text: 'The runner carries her signed account through the hills after the tower falls. The Conclave seal gets wet. Her name does not.',
+      },
+      {
+        when: { flags: ['d49-runner-record', 'd39-runner-freed'] },
+        text: 'The former bonded runner teaches the children of the high paths to read their contracts before they sign. Above the first lesson she hangs the paper granting back her two years.',
+      },
+      {
+        when: { flags: ['d49-runner-record'] },
+        text: 'The Archive keeps the runner’s signed forecast and her testimony in the same drawer. The Conclave asks to move them. Vellum refuses. The runner keeps her own copy.',
+      },
+    ],
+  },
+  {
     id: 'charter',
     name: 'The peace signed at the last fire',
     variants: [

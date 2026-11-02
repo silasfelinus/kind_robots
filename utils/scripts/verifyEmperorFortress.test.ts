@@ -7166,4 +7166,141 @@ for (const def of DAYS)
     assert.ok(questDef(questId)!.rewards.success.flags?.includes(flag), flag)
 }
 
+{
+  // Five-act public record: the Day 4 choice controls the Day 14 Archive,
+  // Day 29 mayoral reckoning, Day 39 congress, Day 49 record and epilogue.
+  const audience = (day: number, id: string) =>
+    DAYS.find((entry) => entry.day === day)!.audiences.find(
+      (entry) => entry.id === id,
+    )!
+  const proceed = (day: number, flags: string[], id: string, option: string) =>
+    chooseAudienceOption(onDay(620, day, { brass: 160, flags }), id, option).run
+  const routes = [
+    {
+      source: 'd04-page-posted',
+      archive: 'copy-tobin',
+      archiveFlag: 'd14-tobin-witnesses',
+      reckoning: 'hearing-hesper',
+      reckoningFlag: 'd29-hesper-hearing',
+      congress: 'enter-hearing',
+      congressFlag: 'd39-hearing-entered',
+      record: 'name-tobin',
+      recordFlag: 'd49-tobin-record',
+      line: /Hesper Lowe/,
+    },
+    {
+      source: 'd04-page-to-mother',
+      archive: 'ask-hesper',
+      archiveFlag: 'd14-hesper-asked',
+      reckoning: 'protect-hesper',
+      reckoningFlag: 'd29-hesper-private',
+      congress: 'protect-record',
+      congressFlag: 'd39-private-record',
+      record: 'leave-hesper-space',
+      recordFlag: 'd49-hesper-private-record',
+      line: /permission/,
+    },
+    {
+      source: 'd04-page-sealed',
+      archive: 'open-crown-seal',
+      archiveFlag: 'd14-page-opened',
+      reckoning: 'audit-seal',
+      reckoningFlag: 'd29-seal-audited',
+      congress: 'enter-audit',
+      congressFlag: 'd39-audit-entered',
+      record: 'print-audit',
+      recordFlag: 'd49-audit-record',
+      line: /seal/,
+    },
+  ] as const
+  for (const route of routes) {
+    const archive = audience(14, 'd14-archive-funds')
+    const initial = onDay(620, 14, { brass: 160, flags: [route.source] })
+    const choice = archive.options.find((entry) => entry.id === route.archive)!
+    assert.ok(optionVisible(initial, choice), route.archive)
+    assert.ok(
+      !optionVisible(onDay(620, 14), choice),
+      route.archive + ' must be earned',
+    )
+    assert.match(
+      sceneLines(initial, archive).map(lineText).join(' '),
+      route.line,
+    )
+    const afterArchive = proceed(
+      14,
+      [route.source],
+      'd14-archive-funds',
+      route.archive,
+    )
+    assert.ok(afterArchive.flags.includes(route.archiveFlag))
+    assert.ok(validateRun(JSON.parse(JSON.stringify(afterArchive))))
+
+    const mayor = proceed(
+      29,
+      afterArchive.flags,
+      'd29-mayors-secret',
+      route.reckoning,
+    )
+    assert.ok(mayor.flags.includes(route.reckoningFlag))
+    const congress = proceed(39, mayor.flags, 'd39-congress', route.congress)
+    assert.ok(congress.flags.includes(route.congressFlag))
+    const record = proceed(49, congress.flags, 'd49-the-record', route.record)
+    assert.ok(record.flags.includes(route.recordFlag))
+    assert.ok(
+      epilogueFor(record, 'open-roads').some(
+        (entry) => entry.subject.id === 'tobin-and-hesper-record',
+      ),
+      route.recordFlag + ' reaches the epilogue',
+    )
+    assert.ok(validateRun(JSON.parse(JSON.stringify(record))))
+  }
+
+  // The runner's two mutually exclusive Day 7 outcomes should not be
+  // interchangeable by Day 39, Day 44 or the last archive entry.
+  const runnerRoutes = [
+    {
+      source: 'd07-runner-penalized',
+      congress: 'redeem-runner',
+      congressFlag: 'd39-runner-freed',
+      testimony: 'hear-freed-runner',
+      testimonyFlag: 'd44-runner-testified',
+      record: 'record-runner',
+    },
+    {
+      source: 'd07-runner-commissioned',
+      congress: 'witness-oath',
+      congressFlag: 'd39-runner-oath',
+      testimony: 'read-runner-oath',
+      testimonyFlag: 'd44-runner-account',
+      record: 'record-commission',
+    },
+  ] as const
+  for (const route of runnerRoutes) {
+    const congressScene = audience(39, 'd39-congress')
+    const option = congressScene.options.find(
+      (entry) => entry.id === route.congress,
+    )!
+    assert.ok(optionVisible(onDay(621, 39, { flags: [route.source] }), option))
+    assert.ok(!optionVisible(onDay(621, 39), option))
+    const congress = proceed(39, [route.source], 'd39-congress', route.congress)
+    assert.ok(congress.flags.includes(route.congressFlag))
+    assert.ok(congress.brass < 160)
+    const witness = proceed(
+      44,
+      congress.flags,
+      'd44-crow-name',
+      route.testimony,
+    )
+    assert.ok(witness.flags.includes(route.testimonyFlag))
+    const record = proceed(49, witness.flags, 'd49-the-record', route.record)
+    assert.ok(record.flags.includes('d49-runner-record'))
+    assert.ok(
+      epilogueFor(record, 'open-roads').some(
+        (entry) => entry.subject.id === 'the-runner-kept-her-name',
+      ),
+    )
+    assert.ok(validateRun(JSON.parse(JSON.stringify(record))))
+  }
+}
+
 console.log('Emperor of Dust fortress contract: ok')

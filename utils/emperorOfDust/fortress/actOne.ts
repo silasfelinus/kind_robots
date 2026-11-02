@@ -2257,7 +2257,7 @@ export const ACT_ONE_DAYS: readonly DayDef[] = [
                   flags: ['d04-page-posted'],
                 },
                 response:
-                  'By evening the page is nailed up beside the tax rate. By morning a crowd from Hollow Bell is reading it aloud to each other. Someone has tied a green thread to the nail.',
+                  'By evening the page hangs beside the tax rate. A woman from Hollow Bell reads her son’s name out loud. By morning the mayor’s clerks are asking who gave the crown permission. The page stays up.',
                 next: 'decide',
               },
               {
@@ -2282,7 +2282,7 @@ export const ACT_ONE_DAYS: readonly DayDef[] = [
                   flags: ['d04-page-to-mother'],
                 },
                 response:
-                  'A Yard runner carries it to the far wards in a plain sleeve. He comes back late. He will only say she read it standing, then sat down on the pump step, then thanked him three times.',
+                  'A Yard runner takes the copy to Hesper Lowe in a plain sleeve. She reads it on the pump step and asks him to fold it again. “The boy is mine,” she says. “The next choice about his name should be mine too.”',
                 next: 'decide',
               },
             ],
@@ -2391,7 +2391,7 @@ export const ACT_ONE_DAYS: readonly DayDef[] = [
                   flags: ['d04-runner-sheltered'],
                 },
                 response:
-                  'You say it loud enough for the gallery. Elder Corvane opens his clouded eyes, and every chime in his mantle rings at once, though nothing touched them. Then he is gone. The window he left by stays open all day.',
+                  'You shelter the runner in front of the whole court. Corvane opens his clouded eyes. “The bond follows her under any roof,” he says. His chimes ring once. She is safe from his hands tonight. His ledger is another matter.',
               },
               {
                 id: 'return-runner',

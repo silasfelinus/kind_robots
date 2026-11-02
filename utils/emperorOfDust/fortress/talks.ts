@@ -14,14 +14,7 @@ import { SECRET_TALKS } from './secretTalks'
 // every other romance's final `romance-<name>-sealed` flag, so that the
 // emperor commits to one.
 
-const ROMANCES = [
-  'rook',
-  'saffron',
-  'nera',
-  'ash',
-  'sable',
-  'vesper',
-] as const
+const ROMANCES = ['rook', 'saffron', 'nera', 'ash', 'sable', 'vesper'] as const
 type Romance = (typeof ROMANCES)[number]
 
 /** The tower has not fallen yet. */

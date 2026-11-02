@@ -13,7 +13,10 @@
           Hoshimori · Procession of Shut Doors
         </h2>
         <span class="md-bar-chip">
-          {{ night.progress.visited.length }}/{{ HOSHIMORI_NIGHT_SITES.length }} witnessed
+          {{ night.progress.visited.length }}/{{
+            HOSHIMORI_NIGHT_SITES.length
+          }}
+          witnessed
         </span>
         <div class="md-bar-actions">
           <button

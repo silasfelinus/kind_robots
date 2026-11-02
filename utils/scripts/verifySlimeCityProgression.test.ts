@@ -45,9 +45,9 @@ assert.equal(fresh.meat, 0)
 assert.equal(fresh.xp, 0)
 assert.equal(canBuyPack(fresh), false)
 assert.equal(fresh.cards.length, 0)
-assert.equal(RARE_COUNT, 24)
-assert.equal(CARDS.filter((c) => rarityOf(c) !== 'rare').length, 48)
-assert.equal(new Set(CARDS.map((c) => c.id)).size, 72)
+assert.equal(RARE_COUNT * 3, CARDS.length)
+assert.equal(CARDS.filter((c) => rarityOf(c) !== 'rare').length, RARE_COUNT * 2)
+assert.equal(new Set(CARDS.map((c) => c.id)).size, CARDS.length)
 assert.equal(TEAMS.length, 6)
 
 function battle(
@@ -142,9 +142,9 @@ assert.equal(
 )
 assert.equal(capped.daily.paidBattles, DAILY_PAID_BATTLES)
 
-let wallet = { ...fresh, meat: 2400 }
+let wallet = { ...fresh, meat: RARE_COUNT * PACK_COST }
 const pulled = new Set<string>()
-for (let i = 0; i < 24; i++) {
+for (let i = 0; i < RARE_COUNT; i++) {
   assert.equal(canBuyPack(wallet), true)
   const next = buyPack(wallet, 91823 + i)
   assert.equal(next.meat, wallet.meat - PACK_COST)
@@ -168,7 +168,7 @@ for (let i = 0; i < 24; i++) {
 }
 assert.equal(
   pulled.size,
-  72,
+  CARDS.length,
   'All founder and reserve cards available as collectibles',
 )
 assert.equal(
@@ -177,7 +177,7 @@ assert.equal(
   'Sold out instead of breaking rare guarantee',
 )
 assert.equal(buyPack(wallet, 5), wallet)
-assert.equal(wallet.opened, 24)
+assert.equal(wallet.opened, RARE_COUNT)
 assert.equal(wallet.meat, 0)
 assert.deepEqual(
   buyPack({ ...fresh, meat: 100 }, 1234).lastPack,
@@ -196,5 +196,5 @@ assert.deepEqual(
 )
 
 console.log(
-  'Slime City rewards: Pacific day/week resets, capped CPU XP and Meat, claims, 24 rare-guaranteed packs, no duplicates PASS',
+  'Slime City rewards: Pacific day/week resets, capped CPU XP and Meat, claims, all rare-guaranteed packs, no duplicates PASS',
 )

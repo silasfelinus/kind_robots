@@ -3,6 +3,11 @@
 // has a distinct rival and one street decision whose consequences reach the
 // rival bout and the city's gates, and bout results open the Grand Pit.
 import assert from 'node:assert/strict'
+import {
+  CAMPAIGN_APPROACH_REFLECTIONS,
+  CAMPAIGN_RIVAL_REACTIONS,
+  campaignAftermathFor,
+} from '../slimeCity/campaignAftermath'
 import { CAMPAIGN_CHOICE_CONSEQUENCES } from '../slimeCity/campaignConsequences'
 import {
   CAMPAIGN_RETRY_VOICES,
@@ -860,6 +865,85 @@ assert.equal(allPlayerLines.size, 30)
 console.log(
   'Slime City rival dialogue: 30 distinct showdowns, 12 decision callbacks, six rematch beats PASS',
 )
+
+// Every one of the 30 rival battles has distinct victory and defeat lines.
+// The replay takes no side effects: only the actually attempted tactic can
+// appear on a defeat, and earlier saves remain readable.
+const rivalVictoryLines = new Set<string>()
+const rivalDefeatLines = new Set<string>()
+for (const crew of TEAMS) {
+  const team = crew.id
+  assert.equal(CAMPAIGN_RIVAL_REACTIONS[team].length, 5)
+  assert.equal(campaignAftermathFor(createCampaignSave(), team), null)
+  for (const approach of ['conviction', 'cunning'] as const) {
+    let saved = createCampaignSave()
+    for (let index = 0; index < 5; index++) {
+      const chapter = FACTION_CAMPAIGNS[team].chapters[index]!
+      const lost = resolveCampaignBattle(
+        saved,
+        team,
+        index,
+        chapter.foe,
+        approach,
+        'enemy',
+      )
+      const defeat = campaignAftermathFor(lost, team)
+      assert.equal(defeat?.result, 'enemy')
+      assert.equal(defeat?.chapterIndex, index)
+      assert.equal(defeat?.foe, chapter.foe)
+      assert.equal(defeat?.approach, approach)
+      assert.equal(
+        defeat?.playerLine,
+        CAMPAIGN_APPROACH_REFLECTIONS[team][approach],
+      )
+      assert.equal(defeat?.rivalLine, CAMPAIGN_RIVAL_REACTIONS[team][index]!.defeat)
+      assert.equal(lost[team].lastApproach, approach)
+      assert.equal(lost[team].wins, index)
+      const earlierSave = {
+        ...lost,
+        [team]: { ...lost[team], lastApproach: undefined },
+      }
+      const earlier = campaignAftermathFor(earlierSave, team)
+      assert.equal(earlier?.approach, null, 'Old losses cannot invent a choice')
+      assert.equal(earlier?.playerLine, null)
+      const won = resolveCampaignBattle(
+        lost,
+        team,
+        index,
+        chapter.foe,
+        approach,
+        'player',
+      )
+      const victory = campaignAftermathFor(won, team)
+      assert.equal(victory?.chapterIndex, index)
+      assert.equal(victory?.result, 'player')
+      assert.equal(victory?.approach, approach)
+      assert.equal(
+        victory?.rivalLine,
+        CAMPAIGN_RIVAL_REACTIONS[team][index]!.victory,
+      )
+      const legacyWin = {
+        ...won,
+        [team]: { ...won[team], lastApproach: undefined },
+      }
+      assert.equal(campaignAftermathFor(legacyWin, team)?.approach, approach)
+      assert.equal(won[team].decisions.length, index + 1)
+      if (approach === 'conviction') {
+        rivalVictoryLines.add(victory!.rivalLine)
+        rivalDefeatLines.add(defeat!.rivalLine)
+      }
+      saved = won
+    }
+    assert.equal(campaignAftermathFor(saved, team)?.chapterIndex, 4)
+    assert.equal(campaignChapter(saved, team), null)
+    for (const other of TEAMS.filter((entry) => entry.id !== team)) {
+      assert.equal(campaignAftermathFor(saved, other.id), null)
+    }
+  }
+}
+assert.equal(rivalVictoryLines.size, 30)
+assert.equal(rivalDefeatLines.size, 30)
+console.log('Slime City 60 rival aftermaths: approach fidelity, legacy saves and independent crews PASS')
 
 // Story missions combine district consequences with one specific story
 // approach; this cannot modify the city, chapter definitions, or browser

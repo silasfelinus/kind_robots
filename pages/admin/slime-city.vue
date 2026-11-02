@@ -663,86 +663,6 @@
                 </span>
               </button>
             </div>
-            <div
-              v-if="lab.previewOpen && lab.inspectedCard"
-              class="sc-card-overlay"
-              role="dialog"
-              aria-modal="false"
-              :aria-label="lab.inspectedCard.name + ' card details'"
-              data-testid="slime-card-preview"
-            >
-              <div class="sc-card-poster" :class="'tone-' + lab.team.color">
-                <SlimeCityArtwork
-                  class="sc-inspected-paint"
-                  :image-id="slimeArtId('cards', lab.inspectedCard.id)"
-                  :alt="
-                    lab.inspectedCard.name + ' illustrated collectible card'
-                  "
-                  :fallback="lab.inspectedCard.symbol"
-                />
-              </div>
-              <div class="sc-card-information">
-                <span class="sc-overline"
-                  >{{ lab.inspectedCard.kind.toUpperCase() }} ·
-                  {{ lab.inspectedCard.cost }} MANA</span
-                >
-                <h3>{{ lab.inspectedCard.name }}</h3>
-                <p
-                  v-if="lab.inspectedCard.kind === 'creature'"
-                  class="sc-card-stats"
-                >
-                  ATK {{ lab.inspectedCard.attack }} · HP
-                  {{ lab.inspectedCard.hp }} · ARMOR
-                  {{ lab.inspectedCard.armor }} · MOVE
-                  {{ lab.inspectedCard.ap }} · RANGE
-                  {{ cardAttackRange(lab.inspectedCard) }}
-                </p>
-                <p>{{ lab.inspectedCard.text }}</p>
-                <p
-                  v-if="lab.inspectedCard.keywords?.length"
-                  class="sc-card-stats"
-                >
-                  {{
-                    lab.inspectedCard.keywords
-                      .map((k) => lab.keywords[k].label)
-                      .join(' · ')
-                  }}
-                </p>
-                <p
-                  v-if="lab.inspectedCard.kind === 'creature'"
-                  class="sc-overline"
-                >
-                  Newly summoned monsters cannot attack immediately.
-                </p>
-                <p
-                  v-if="lab.inspectedCard.cost > lab.match.mana"
-                  class="sc-no-mana"
-                >
-                  NEEDS {{ lab.inspectedCard.cost }} MANA · YOU HAVE
-                  {{ lab.match.mana }}
-                </p>
-                <div class="sc-card-cta">
-                  <button
-                    type="button"
-                    data-testid="slime-card-choose-target"
-                    @click="lab.closePreview()"
-                  >
-                    {{
-                      lab.inspectedCard.cost <= lab.match.mana
-                        ? 'CHOOSE TARGET →'
-                        : 'BACK TO ARENA'
-                    }}
-                  </button>
-                  <button
-                    type="button"
-                    class="sc-quiet"
-                    @click="lab.chooseCard(lab.inspectedCard.id)"
-                  >
-                    CANCEL
-                  </button>
-                </div>
-              </div>
-            </div>
             <div v-if="lab.match.victor" class="sc-result" role="status">
               <strong>{{
                 lab.match.victor === 'player'
@@ -1150,6 +1070,84 @@
           class="sc-controls"
           aria-label="Match controls"
         >
+          <div
+            v-if="lab.previewOpen && lab.inspectedCard"
+            class="sc-card-panel"
+            role="dialog"
+            aria-modal="false"
+            :aria-label="lab.inspectedCard.name + ' card details'"
+            data-testid="slime-card-preview"
+          >
+            <div class="sc-card-poster" :class="'tone-' + lab.team.color">
+              <SlimeCityArtwork
+                class="sc-inspected-paint"
+                :image-id="slimeArtId('cards', lab.inspectedCard.id)"
+                :alt="lab.inspectedCard.name + ' illustrated collectible card'"
+                :fallback="lab.inspectedCard.symbol"
+              />
+            </div>
+            <div class="sc-card-information">
+              <span class="sc-overline"
+                >{{ lab.inspectedCard.kind.toUpperCase() }} ·
+                {{ lab.inspectedCard.cost }} MANA</span
+              >
+              <h3>{{ lab.inspectedCard.name }}</h3>
+              <p
+                v-if="lab.inspectedCard.kind === 'creature'"
+                class="sc-card-stats"
+              >
+                ATK {{ lab.inspectedCard.attack }} · HP
+                {{ lab.inspectedCard.hp }} · ARMOR
+                {{ lab.inspectedCard.armor }} · MOVE
+                {{ lab.inspectedCard.ap }} · RANGE
+                {{ cardAttackRange(lab.inspectedCard) }}
+              </p>
+              <p>{{ lab.inspectedCard.text }}</p>
+              <p
+                v-if="lab.inspectedCard.keywords?.length"
+                class="sc-card-stats"
+              >
+                {{
+                  lab.inspectedCard.keywords
+                    .map((k) => lab.keywords[k].label)
+                    .join(' · ')
+                }}
+              </p>
+              <p
+                v-if="lab.inspectedCard.kind === 'creature'"
+                class="sc-overline"
+              >
+                Newly summoned monsters cannot attack immediately.
+              </p>
+              <p
+                v-if="lab.inspectedCard.cost > lab.match.mana"
+                class="sc-no-mana"
+              >
+                NEEDS {{ lab.inspectedCard.cost }} MANA · YOU HAVE
+                {{ lab.match.mana }}
+              </p>
+              <div class="sc-card-cta">
+                <button
+                  type="button"
+                  data-testid="slime-card-choose-target"
+                  @click="lab.closePreview()"
+                >
+                  {{
+                    lab.inspectedCard.cost <= lab.match.mana
+                      ? 'CHOOSE TARGET →'
+                      : 'BACK TO ARENA'
+                  }}
+                </button>
+                <button
+                  type="button"
+                  class="sc-quiet"
+                  @click="lab.chooseCard(lab.inspectedCard.id)"
+                >
+                  CANCEL
+                </button>
+              </div>
+            </div>
+          </div>
           <div class="sc-rules" data-testid="slime-rules">
             <span class="sc-overline">RULE VARIANTS · RESTART SAME SEED</span>
             <div class="sc-rule-list">
@@ -1518,13 +1516,13 @@ onUnmounted(() => {
   margin-inline: auto;
   padding: 0.2rem;
   overflow-x: auto;
-  scrollbar-width: none;
+  /* Never a hidden scrollbar: it once clipped REWARDS off the end of the
+     strip with nothing to say a fifth tab existed (Silas, 2026-11-02). */
+  scrollbar-width: thin;
+  scrollbar-color: #4d5567 transparent;
   border: 1px solid #4d5567;
   border-radius: 0.6rem;
   background: #0e1420;
-}
-.sc-tabs::-webkit-scrollbar {
-  display: none;
 }
 .sc-tabs button {
   flex: none;
@@ -2538,6 +2536,37 @@ onUnmounted(() => {
     height: 1.9rem;
   }
 }
+/*
+  ALL FIVE VIEW TABS, ALWAYS. Silas, 2026-11-02: "worried that the city arena
+  story cards section is not showing everything." It wasn't -- the docked bar
+  (often ~600px wide beside the site icons) gave the tabs what the six full-size
+  crew badges left over, and REWARDS scrolled out of sight. In that middle band
+  the crews fold into a 3x2 grid of small badges instead, which frees ~170px.
+  Below 600px the header already wraps the crews onto their own row.
+*/
+@container (min-width: 601px) and (max-width: 960px) {
+  .sc-crew-picker {
+    display: grid;
+    grid-template-columns: repeat(3, auto);
+    gap: 2px;
+    padding: 2px;
+    border-radius: 0.4rem;
+  }
+  .sc-crew {
+    width: 1.15rem;
+    height: 1.15rem;
+    border-width: 1px;
+    border-radius: 0.25rem;
+  }
+  .sc-crew:hover {
+    transform: none;
+  }
+  .sc-tabs button {
+    min-width: 0;
+    padding: 0.4rem 0.6rem;
+    letter-spacing: 0.08em;
+  }
+}
 @container (max-width: 600px) {
   .sc-header {
     padding: 0.2rem 0.25rem 0.2rem 0.6rem;
@@ -2764,22 +2793,34 @@ onUnmounted(() => {
     box-shadow: none;
   }
 }
-.sc-card-overlay {
-  position: absolute;
-  z-index: 8;
-  top: 3%;
-  right: 3%;
-  bottom: 3%;
-  width: min(31rem, 85%);
-  display: grid;
-  grid-template-rows: minmax(7rem, 46%) minmax(0, 1fr);
-  background: #111a27f5;
+/*
+  CARD DETAIL LIVES IN THE SIDE COLUMN. Silas, 2026-11-02: "the slime city card
+  should appear on the right side open space, not overlaid onto the map." It
+  was an absolute overlay inside the board backdrop and hid the arena; it now
+  heads the match-controls column, which scrolls while a card is open. On a
+  phone-width console the column folds under the board, so there (and only
+  there) it floats over the stage again -- see the 600px block below.
+*/
+.sc-card-panel {
+  flex: none;
+  display: flex;
+  flex-direction: column;
+  background: #111a27;
   border: 2px solid #c8ff78;
   border-radius: 0.75rem;
-  box-shadow:
-    0 15px 70px #000e,
-    0 0 35px #a3ff4755;
-  overflow: auto;
+  box-shadow: 0 0 24px #a3ff4733;
+  overflow: hidden;
+}
+.sc-card-panel .sc-card-poster {
+  flex: none;
+  aspect-ratio: 4 / 3;
+  min-height: 0;
+}
+.sc-controls:has(.sc-card-panel) {
+  overflow-y: auto;
+}
+.sc-controls:has(.sc-card-panel) .sc-actions {
+  flex: none;
 }
 .sc-card-poster {
   position: relative;
@@ -2801,7 +2842,8 @@ onUnmounted(() => {
   inset: 0;
 }
 .sc-card-information {
-  padding: 1rem;
+  flex: 1 1 auto;
+  padding: 0.85rem;
   overflow: auto;
   display: flex;
   flex-direction: column;
@@ -2809,12 +2851,17 @@ onUnmounted(() => {
 }
 .sc-card-information h3 {
   margin: 0;
-  font-size: clamp(1.4rem, 3cqw, 2rem);
+  font-size: 1.35rem;
+  line-height: 1.15;
 }
 .sc-card-information p {
   margin: 0;
   font-size: 0.85rem;
   line-height: 1.4;
+}
+.sc-card-information p.sc-overline {
+  font-size: 0.61rem;
+  line-height: 1.5;
 }
 .sc-card-information .sc-card-stats {
   color: #d9ff95;
@@ -2842,13 +2889,22 @@ onUnmounted(() => {
   border: 1px solid #99be75;
 }
 @container (max-width: 600px) {
-  .sc-card-overlay {
-    width: 93%;
-    left: 3.5%;
-    right: 3.5%;
-    top: 2%;
-    bottom: 2%;
-    grid-template-rows: minmax(4rem, 36%) minmax(0, 1fr);
+  .sc-main.has-controls {
+    position: relative;
+  }
+  .sc-card-panel {
+    position: absolute;
+    z-index: 8;
+    inset: 2% 3.5%;
+    overflow: auto;
+    box-shadow:
+      0 15px 70px #000e,
+      0 0 35px #a3ff4755;
+  }
+  .sc-card-panel .sc-card-poster {
+    aspect-ratio: auto;
+    height: 36%;
+    min-height: 4rem;
   }
   .sc-card-information {
     padding: 0.65rem;

@@ -307,11 +307,158 @@ export const HOSHIMORI_NIGHT_SITES: readonly NightSite[] = [
       'council-consent',
     ),
   ),
+  s(
+    '5,1',
+    'Windward Post / The Letters That Know Your Skin',
+    'The old postmistress sorts envelopes by the scars on their recipients. Every undelivered letter has grown a little hand that points toward a household that asked to be forgotten.',
+    c(
+      'night-post-return',
+      'Return the letters to the people who sent them',
+      'The hands turn toward their senders. The postmistress loses her perfect delivery record, but the absent households keep their addresses.',
+      'night-post-refused',
+    ),
+    c(
+      'night-post-witness',
+      'Let the postmistress read one letter aloud as testimony',
+      'She reads only the accusation against the registry. The evidence survives, though the sender must now decide whether to testify in person.',
+      'night-post-evidence',
+    ),
+  ),
+  s(
+    '6,1',
+    'Kite-Mender’s Loft / The Unwilling Sky',
+    'Paper kites hang from bamboo ribs like folded wings. Their shadows fly in circles above the roofs, each towing a child-sized outline that refuses to land.',
+    c(
+      'night-kites-cut',
+      'Cut the strings without choosing where the kites must land',
+      'Three kites flee into the dark. A fourth stays to carry a warning; Scylla cannot promise that every runaway will return.',
+      'night-kites-free',
+    ),
+    c(
+      'night-kites-roof',
+      'Ask the oldest kite to shelter the children below',
+      'The kite agrees to spread itself across the roof. Its flight ends for tonight, but the children can leave by the stairwell it reveals.',
+      'night-kites-shelter',
+    ),
+  ),
+  s(
+    '7,1',
+    'Tengu’s Weather Desk / Forecast of Missing People',
+    'The tengu courier is pinned beneath a glass weather chart. The ink predicts the exact hour each traveler will vanish, and the chart is always one hour ahead.',
+    c(
+      'night-forecast-break',
+      'Break the chart and let the courier choose the storm',
+      'The tengu escapes with a warning but no reliable forecast. Oren marks a longer ground route for those unwilling to risk the pass.',
+      'night-forecast-freed',
+    ),
+    c(
+      'night-forecast-copy',
+      'Copy only the storm warnings before breaking the glass',
+      'The courier carries a redacted forecast. Rescue teams gain time, but the village must stop using weather reports to predict who belongs at home.',
+      'night-forecast-redacted',
+    ),
+  ),
+  s(
+    '8,1',
+    'Observatory / The Constellation of Locked Doors',
+    'The astronomer points upward. The stars have rearranged into a perfect floor plan of Hoshimori; every lit window is a person who cannot step outside.',
+    c(
+      'night-stars-darken',
+      'Darken the stars that expose occupied rooms',
+      'The astronomer loses her most precise chart. The night sky becomes navigable again by landmarks rather than people.',
+      'night-stars-private',
+    ),
+    c(
+      'night-stars-ask',
+      'Ask the trapped voices which windows may remain visible',
+      'Some windows stay lit as voluntary beacons. Others vanish, and the astronomer must learn to leave a gap in her measurements.',
+      'night-stars-consented',
+    ),
+  ),
+  s(
+    '5,2',
+    'Bamboo Speaking Tubes / The House That Repeats You',
+    'The speaking tubes have grown into the walls. They repeat a resident’s private confession in every room, then insist the echo is a safety announcement.',
+    c(
+      'night-tubes-silence',
+      'Silence the private tubes and leave one public alarm',
+      'The house falls quiet for the first time in years. A public bell still warns of danger, but no one can summon a neighbor by whispering their secrets.',
+      'night-tubes-private',
+    ),
+    c(
+      'night-tubes-witness',
+      'Let the resident record what the house did without naming them',
+      'Pip preserves the testimony in a sealed account. The walls keep speaking until the household can choose its own repair.',
+      'night-tubes-recorded',
+    ),
+  ),
+  s(
+    '6,2',
+    'Tea House of Two Tickets / The Return That Eats Tomorrow',
+    'Every cup contains a folded train ticket. The seller offers a warm seat to anyone who promises to return, while a second door opens only for those who refuse the bargain.',
+    c(
+      'night-ticket-oneway',
+      'Take the one-way door and leave the fare for the next traveler',
+      'Scylla leaves without naming a destination. The seller loses a guaranteed return, but someone else can afford to choose.',
+      'night-ticket-free',
+    ),
+    c(
+      'night-ticket-reserve',
+      'Reserve a return fare without assigning it to a person',
+      'The seller holds the ticket in trust. The door remains open, though the village cannot count the unclaimed fare as a rescued resident.',
+      'night-ticket-held',
+    ),
+  ),
+  s(
+    '7,2',
+    'Threaded Gate / The Invitation That Tightens',
+    'Red invitation cords pass through the gate and disappear beneath the skin of people who once lived here. Pip recognizes his apprenticeship knot and refuses to call it a promise.',
+    c(
+      'night-cords-untie',
+      'Untie the cords whose recipients asked for no contact',
+      'The gate shrieks as its guest count falls. Pip keeps the unclaimed knots as evidence that an invitation is not a summons.',
+      'night-cords-released',
+    ),
+    c(
+      'night-cords-ask',
+      'Offer each traveler a knife and let them decide',
+      'Some cut their cords, some keep them. The procession cannot label either choice a disappearance without a living witness.',
+      'night-cords-chosen',
+    ),
+  ),
+  s(
+    '8,2',
+    'Windward Council / The Registry of Returns',
+    'A council of empty coats sits around a table of addressed envelopes. The registry offers to guarantee every missing person a home, provided nobody can ever leave it.',
+    c(
+      'night-windward-open',
+      'Fund an exit route with witnesses who can be dismissed',
+      'The council releases the coats from their chairs. Some families lose a promised reunion, but the exit route survives its first refusal.',
+      'night-windward-exit',
+    ),
+    c(
+      'night-windward-limited',
+      'Keep an emergency shelter with a public expiry date',
+      'The coats stand up and walk out one by one. Protection continues only while the people inside can renew or refuse it.',
+      'night-windward-sunset',
+    ),
+  ),
 ]
 
 export const HOSHIMORI_NIGHT_CLUE_SITES = ['1,1', '2,1', '3,1'] as const
-export const HOSHIMORI_NIGHT_MAX_EVENTS = 512
+export const HOSHIMORI_NIGHT_MAX_EVENTS = 768
+export const HOSHIMORI_NIGHT_WINDWARD_KEYS = [
+  '5,1',
+  '6,1',
+  '7,1',
+  '8,1',
+  '5,2',
+  '6,2',
+  '7,2',
+  '8,2',
+] as const
 const SITES = new Map(HOSHIMORI_NIGHT_SITES.map((site) => [site.key, site]))
+const WINDWARD_SITES = new Set<string>(HOSHIMORI_NIGHT_WINDWARD_KEYS)
 const SIGNS = ['cedar', 'bell', 'coat', 'ash'] as const
 
 export type NightEvent =
@@ -368,6 +515,7 @@ export function canMoveHoshimoriNight(
   to: string,
 ): boolean {
   if (!SITES.has(to) || !adjacent(progress.current, to)) return false
+  if (WINDWARD_SITES.has(to) && !hoshimoriNightCouncil(progress)) return false
   if (
     !progress.doorOpen &&
     ((progress.current === '4,2' && to === '4,3') ||
@@ -465,6 +613,29 @@ export function hoshimoriNightCouncil(progress: NightProgress): string | null {
   ].join(' ')
 }
 
+export function hoshimoriNightWindwardAccount(
+  progress: NightProgress,
+): string | null {
+  if (
+    !hoshimoriNightCouncil(progress) ||
+    !progress.choices['5,1'] ||
+    !progress.choices['7,1'] ||
+    !progress.choices['8,2']
+  )
+    return null
+  return [
+    progress.choices['5,1'] === 'night-post-return'
+      ? 'Undelivered letters returned to their senders without exposing absent families.'
+      : 'A public accusation survived, but its sender still controls whether to testify.',
+    progress.choices['7,1'] === 'night-forecast-break'
+      ? 'The courier chose an uncertain storm while Oren kept a safe ground route open.'
+      : 'Redacted storm warnings remained useful without becoming a census of people.',
+    progress.choices['8,2'] === 'night-windward-open'
+      ? 'The Windward Council funded a revocable exit, accepting that some reunions will not happen.'
+      : 'The council kept time-limited shelter with an enforceable right to refuse.',
+  ].join(' ')
+}
+
 /** Replay every legal event rather than trusting client-supplied flags or routes. */
 export function restoreHoshimoriNight(value: unknown): NightProgress | null {
   if (!value || typeof value !== 'object') return null
@@ -503,7 +674,7 @@ export function restoreHoshimoriNight(value: unknown): NightProgress | null {
 
 export function validateHoshimoriNight(): string[] {
   const errors: string[] = []
-  if (SITES.size !== 16) errors.push('Expected sixteen unique night sites')
+  if (SITES.size !== 24) errors.push('Expected twenty-four unique night sites')
   const choiceIds = HOSHIMORI_NIGHT_SITES.flatMap((site) =>
     site.choices.map((choice) => choice.id),
   )
@@ -543,7 +714,7 @@ export function validateHoshimoriNight(): string[] {
       }
     }
   }
-  if (reached.size !== 16)
+  if (reached.size !== 24)
     errors.push('A night site requires a blind or sealed crossing')
   if (!SITES.has('1,4') || SITES.has('6,7'))
     errors.push('e08 photo reservations drifted')

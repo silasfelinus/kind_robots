@@ -14,8 +14,7 @@ import type * as Prisma from "../internal/prismaNamespace"
 
 /**
  * Model SlimeCityAccount
- * Slime City is an account-owned virtual game economy, separate from paid
- * Kind Robots mana/tokens. Authoritative state is NEVER browser-local.
+ * 
  */
 export type SlimeCityAccountModel = runtime.Types.Result.DefaultSelection<Prisma.$SlimeCityAccountPayload>
 

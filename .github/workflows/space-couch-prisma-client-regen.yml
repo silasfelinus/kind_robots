@@ -1,0 +1,41 @@
+# Temporary, one-branch codegen helper for the additive Space Couch model.
+# Remove this workflow after generated client files land. No image publish or deployment.
+name: Space Couch Prisma Client Regeneration
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - prisma/schema.prisma
+      - .github/workflows/space-couch-prisma-client-regen.yml
+permissions:
+  contents: write
+jobs:
+  regenerate:
+    if: github.head_ref == 'worker/game-of-captains-t031-account-scrapbook-20261101-d4c8' && github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.head_ref }}
+          persist-credentials: true
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+      - name: Install
+        run: npm ci
+        env:
+          CYPRESS_INSTALL_BINARY: '0'
+      - name: Generate checked-in Prisma client
+        env:
+          DATABASE_URL: mysql://user:pass@127.0.0.1:3306/kindrobots
+        run: |
+          npx prisma generate
+          git add prisma/generated/prisma
+          if ! git diff --cached --quiet; then
+            git config user.name "kind-robots-codegen"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git commit -m "chore(prisma): regenerate client for account-bound alien guide"
+            git push origin HEAD:refs/heads/worker/game-of-captains-t031-account-scrapbook-20261101-d4c8
+          fi

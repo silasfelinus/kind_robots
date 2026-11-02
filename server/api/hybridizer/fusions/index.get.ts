@@ -43,7 +43,7 @@ export default defineEventHandler(async (event) => {
     // The shelf shows each finished hybrid's picture without a status call per
     // card, under the same visibility rules as fusions/[id]/status.
     const imageIds = records
-      .filter((record) => record.status === 'READY' && record.artImageId)
+      .filter((record) => record.artImageId)
       .map((record) => record.artImageId as number)
     const images = imageIds.length
       ? await prisma.artImage.findMany({

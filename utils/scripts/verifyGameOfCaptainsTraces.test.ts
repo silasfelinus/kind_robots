@@ -61,6 +61,49 @@ const familyLine = (title: string, captain: CaptainId) =>
   GALACTIC_ENDINGS.find((e) => e.title === title)?.captains[captain] ??
   UNCLAIMED_ENDING_CAPTAINS[title as UnclaimedEnding]?.[captain]
 const KNOWN_TITLES = new Set<string>([...WARP_ENDINGS, ...UNCLAIMED_ENDINGS])
+const mutiny = GALACTIC_ENDINGS.find(
+  (ending) => ending.title === 'A MOTION OF NO CONFIDENCE',
+)!
+const distrust = {
+  ...startVoyage('vale', ['pell', 'mox', 'rue'], 42),
+  trust: -3,
+}
+const civicPattern = (observed: number, overridden: number) => ({
+  ...distrust,
+  missionHistory: [
+    ...Array.from({ length: observed }, (_, chapter) => ({
+      chapter: chapter + 1,
+      missionId: 'refugees',
+      system: 'First Call',
+      policy: 'observe' as const,
+      result: 'success' as const,
+    })),
+    ...Array.from({ length: overridden }, (_, chapter) => ({
+      chapter: observed + chapter + 1,
+      missionId: 'refugees',
+      system: 'First Call',
+      policy: 'intervene' as const,
+      result: 'success' as const,
+    })),
+  ],
+})
+assert.equal(
+  mutiny.earned(distrust),
+  false,
+  'distrust alone cannot force an unearned crew revolt',
+)
+assert.equal(mutiny.earned(civicPattern(3, 4)), false)
+assert.equal(mutiny.earned(civicPattern(4, 2)), false)
+assert.equal(
+  mutiny.earned(civicPattern(4, 3)),
+  true,
+  'a captain who repeatedly watches and overrides loses the confidence vote',
+)
+assert.equal(
+  mutiny.earned({ ...civicPattern(4, 3), trust: -1 }),
+  false,
+  'the revolt also requires sustained distrust',
+)
 
 /** What every finished voyage owes the player, whatever path reached it. */
 function endingContract(run: VoyageRun, where: string) {

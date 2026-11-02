@@ -175,6 +175,62 @@ const PLANET_CARDS = [
   },
 ] as const
 
+const PLANET_CHOICE_LABELS: Record<
+  (typeof PLANET_CARDS)[number]['title'],
+  Record<EpisodeChoice, string>
+> = {
+  'The Moon That Requested Custody': {
+    ask: 'Offer the moon a hearing',
+    document: 'Find the tidal deed',
+    override: 'Move the tide yourself',
+  },
+  'A Refugee Named Wednesday': {
+    ask: 'Let Wednesday decide',
+    document: "Challenge tomorrow's warrant",
+    override: 'Hide Wednesday in the cushions',
+  },
+  'The Union of Unpaid Suns': {
+    ask: 'Hear the striking stars',
+    document: 'Audit the daylight payroll',
+    override: 'Jump-start a striking sun',
+  },
+  'The Garden That Refused Oxygen': {
+    ask: 'Ask what the grove needs',
+    document: 'Investigate the garden contract',
+    override: 'Order the trees to breathe',
+  },
+  'The Diplomatic Temperature Incident': {
+    ask: 'Let delegates pick an interpreter',
+    document: 'Recover the frost vote',
+    override: 'Warm up the whole meeting',
+  },
+  'A Planet Requests an Exit Interview': {
+    ask: 'Offer a neutral mediator',
+    document: 'Audit the quarry invoices',
+    override: 'Disable the company drill',
+  },
+  'The Twelve-Hour Apology': {
+    ask: 'Ask the survivors',
+    document: 'Preserve original testimony',
+    override: 'Silence the broadcast',
+  },
+  'The Missing Note Committee': {
+    ask: 'Let residents sound the alarm',
+    document: 'Recover the missing note',
+    override: 'Ring every bell at once',
+  },
+  'The Interstellar Costume Inspector': {
+    ask: 'Ask to be counted as real',
+    document: 'Present the couch papers',
+    override: 'Sail through imaginary customs',
+  },
+  'The Gravity Refund Office': {
+    ask: 'Hear the tenants',
+    document: 'Audit the downhill meter',
+    override: 'Redirect the local gravity',
+  },
+}
+
 function selectedPlanetCard(run: VoyageRun) {
   return PLANET_CARDS[
     hash(`${run.seed}:${run.chapter}:planet`) % PLANET_CARDS.length
@@ -257,16 +313,38 @@ export function episodeDuoExperience(run: VoyageRun, cast: string[]): number {
 export const EPISODE_CHOICES: readonly {
   id: EpisodeChoice
   label: string
-  cost: string
 }[] = [
-  { id: 'ask', label: 'Ask permission', cost: 'Host +2 · trust +1' },
-  {
-    id: 'document',
-    label: 'Find the evidence',
-    cost: 'Records +2 · reputation +1',
-  },
-  { id: 'override', label: 'Intervene', cost: 'Supplies +1 · host -2' },
+  { id: 'ask', label: 'Ask permission' },
+  { id: 'document', label: 'Find the evidence' },
+  { id: 'override', label: 'Intervene' },
 ]
+
+export function episodeChoiceLabel(
+  run: VoyageRun,
+  deck: EpisodeDeck,
+  choice: EpisodeChoice,
+): string {
+  if (deck === 'planet')
+    return PLANET_CHOICE_LABELS[selectedPlanetCard(run).title][choice]
+  return EPISODE_CHOICES.find((item) => item.id === choice)?.label ?? choice
+}
+
+export function episodeChoiceStakes(
+  run: VoyageRun,
+  deck: EpisodeDeck,
+  choice: EpisodeChoice,
+): string {
+  const venue = deck === 'casino' || deck === 'serendipity'
+  const venueExpense =
+    run.supplies > 0 ? ', supplies -1' : ', no supplies to spend'
+  const success =
+    choice === 'ask'
+      ? `trust +2, host standing +2${venue ? venueExpense : ''}`
+      : choice === 'document'
+        ? 'trust +1, records +2, reputation +1'
+        : 'trust unchanged, operator standing +1, supplies +1'
+  return `SUCCESS: ${success}. SETBACK: trust -1${venue ? venueExpense : ''}.`
+}
 /** A failed field objective cannot be described as successful consent or a settled claim. */
 const PLOT_SETBACKS: Record<EpisodeDeck, Record<EpisodeChoice, string>> = {
   planet: {

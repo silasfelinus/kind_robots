@@ -5,6 +5,7 @@ import {
 } from '../gameOfCaptains/episodeArtwork'
 import { readFileSync } from 'node:fs'
 import { startVoyage, restoreVoyage } from '../gameOfCaptains/rules'
+import { visitCasinoVenue } from '../gameOfCaptains/solarCircuit'
 import { ACT_TWO_MISSIONS } from '../gameOfCaptains/actTwo'
 import { ACT_THREE_MISSIONS } from '../gameOfCaptains/actThree'
 import { LATE_LOCAL_ROUTE_IDS } from '../gameOfCaptains/expeditionLaterLocal'
@@ -21,6 +22,8 @@ import {
 } from '../gameOfCaptains/expedition'
 import {
   EPISODE_CHOICES,
+  episodeChoiceStakes,
+  episodeChoiceLabel,
   episodeCard,
   episodeDecks,
   episodeDeckDone,
@@ -93,6 +96,23 @@ assert.equal(
   10,
   'every authored planetary dilemma has art slots',
 )
+const planetaryDecisions = new Map<string, string[]>()
+for (let seed = 1; seed <= 300; seed++) {
+  const scenario = { ...landing, seed }
+  const key = episodeCard(scenario, 'planet').id
+  const labels = EPISODE_CHOICES.map((option) =>
+    episodeChoiceLabel(scenario, 'planet', option.id),
+  )
+  assert.equal(new Set(labels).size, 3, key)
+  assert.ok(
+    labels.every((label) => label.length >= 12),
+    key,
+  )
+  const existing = planetaryDecisions.get(key)
+  if (existing) assert.deepEqual(labels, existing, key)
+  planetaryDecisions.set(key, labels)
+}
+assert.equal(planetaryDecisions.size, 10)
 const episodeArtKeys = [...planetCards.keys()].flatMap((key) =>
   episodeChoiceArtKeys(key),
 )
@@ -112,6 +132,7 @@ assert.match(consoleUI, /episodeRevealArtKey/)
 assert.match(consoleUI, /episodeResultArtKey/)
 assert.match(consoleUI, /space-couch-episode-result-art/)
 assert.match(consoleUI, /onEpisodeArtworkError/)
+assert.match(consoleUI, /episodeChoiceLabel/)
 
 assert.equal(episodeMajorComplete(landing), false)
 assert.deepEqual(episodeDecks(landing), ['planet', 'casino', 'serendipity'])
@@ -127,6 +148,18 @@ assert.deepEqual(
   EPISODE_CHOICES.map((c) => c.id),
   ['ask', 'document', 'override'],
 )
+assert.ok(
+  episodeChoiceStakes(landing, 'casino', 'ask').includes('SETBACK: trust -1'),
+)
+assert.equal(
+  visitCasinoVenue({ ...landing, trust: -4 }, 'casino', 'document').trust,
+  -4,
+)
+for (const option of EPISODE_CHOICES) {
+  const forecast = episodeChoiceStakes(landing, 'planet', option.id)
+  assert.ok(forecast.startsWith('SUCCESS: '))
+  assert.ok(forecast.includes('SETBACK: trust -1'))
+}
 const cardAlpha = mandatory[0]!.id
 const cardBeta = board.find((card) => card.id !== cardAlpha)!.id
 const cardGamma = board.find(
@@ -217,6 +250,18 @@ assert.equal(
   dispatched,
   'no skipping the deck',
 )
+for (const option of EPISODE_CHOICES) {
+  const result = drawEpisodeDeck(dispatched, 'planet', option.id)
+  const success = episodeDraws(result)[0]!.successful
+  const expected = success
+    ? option.id === 'ask'
+      ? 2
+      : option.id === 'document'
+        ? 1
+        : 0
+    : -1
+  assert.equal(result.trust - dispatched.trust, expected, option.id)
+}
 const planet = drawEpisodeDeck(dispatched, 'planet', 'ask')
 assert.equal(episodeDraws(planet).length, 1)
 assert.ok(episodeDeckDone(planet, 'planet'))

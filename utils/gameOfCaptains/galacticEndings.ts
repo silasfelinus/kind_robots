@@ -103,8 +103,11 @@ export const GALACTIC_ENDINGS: readonly GalacticEnding[] = [
   {
     title: 'A MOTION OF NO CONFIDENCE',
     orders: BOTH,
-    gate: 'Crew trust at minus two or lower when the gate opens',
-    earned: (run) => run.trust <= -2,
+    gate: 'Crew trust at minus two or lower after watching four calls and intervening without permission three times',
+    earned: (run) =>
+      run.trust <= -2 &&
+      policies(run, 'observe') >= 4 &&
+      policies(run, 'intervene') >= 3,
     text: 'Before the final order can be carried out, the crew tables a motion of no confidence in the captain. It passes three to nothing, with the captain abstaining. The couch makes its last jump under a rotating chair, the order of rotation decided by the length of each officer’s grievance, read in full. The nemesis, who came to negotiate with a captain, is asked to wait while the minutes are approved. The minutes take longer than the jump.',
     captains: {
       fluke:

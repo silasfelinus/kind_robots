@@ -42,7 +42,7 @@ assert.deepEqual(
 )
 assert.equal(canRequisitionSupplies(recovered), false)
 assert.equal(quartermasterCost(recovered), 3)
-const second = {
+const sameAct = {
   ...recovered,
   chapter: 2,
   supplies: 1,
@@ -50,6 +50,17 @@ const second = {
   missionHistory: [
     ...recovered.missionHistory!,
     { ...base.missionHistory[0]!, chapter: 2 },
+  ],
+}
+assert.equal(canRequisitionSupplies(sameAct), false)
+const second = {
+  ...recovered,
+  chapter: 4,
+  supplies: 1,
+  reputation: 5,
+  missionHistory: [
+    ...recovered.missionHistory!,
+    { ...base.missionHistory[0]!, chapter: 4 },
   ],
 }
 assert.equal(canRequisitionSupplies(second), true)
@@ -87,5 +98,5 @@ assert.match(page, /space-couch-quartermaster/)
 assert.match(page, /canRequisitionSupplies\(run\)/)
 assert.match(page, /store\.requisition\(\)/)
 console.log(
-  'Space Couch quartermaster: earned, optional and one-time per chapter',
+  'Space Couch quartermaster: earned, optional and one-time per act',
 )

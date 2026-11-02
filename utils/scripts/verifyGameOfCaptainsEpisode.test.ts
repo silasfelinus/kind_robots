@@ -129,6 +129,7 @@ assert.deepEqual(
   EPISODE_CHOICES.map((c) => c.id),
   ['ask', 'document', 'override'],
 )
+assert.ok(episodeChoiceStakes(landing, 'casino', 'ask').includes('SETBACK: trust -1'))
 const cardAlpha = mandatory[0]!.id
 const cardBeta = board.find((card) => card.id !== cardAlpha)!.id
 const cardGamma = board.find(

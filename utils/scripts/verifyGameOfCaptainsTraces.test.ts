@@ -255,7 +255,9 @@ NEMESES.forEach((nemesis, n) => {
           if (run.trust < 0) balance.negativeTrust++
           if (run.supplies === 0) balance.emptySupplies++
           balance.fallenRedshirts += run.redshirtFallen?.length ?? 0
-          balance.requisitions += steps.filter((step) => step === 'resupply').length
+          balance.requisitions += steps.filter(
+            (step) => step === 'resupply',
+          ).length
         }
       }
     })

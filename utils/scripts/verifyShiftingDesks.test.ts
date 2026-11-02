@@ -1018,7 +1018,7 @@ assert.equal(plain.deck.length, RECORDS.locations.length + 1 + SHIFT)
   )
   assert.match(
     asset('../../pages/play/shifting-desks.vue'),
-    /@click="endingsGallery\?\.open\(\)"/,
+    /@click="openArchive\(\x27milestones\x27\)"/,
   )
   const gallery = asset(
     '../../components/shifting-desks/shifting-desks-endings-gallery.vue',

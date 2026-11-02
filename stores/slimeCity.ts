@@ -20,6 +20,7 @@ import {
   resolveCampaignBattle,
   type CampaignApproach,
 } from '../utils/slimeCity/campaign'
+import { campaignConversationFor } from '../utils/slimeCity/campaignDialogue'
 import type { SlimeCityStory } from '../utils/slimeCity/storySave'
 import { computed, ref, shallowRef, watch } from 'vue'
 import {
@@ -389,6 +390,9 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
 
   const campaignStory = computed(() => FACTION_CAMPAIGNS[activeTeam.value])
   const campaignState = computed(() => campaignSave.value[activeTeam.value])
+  const campaignConversation = computed(() =>
+    campaignConversationFor(campaignSave.value, activeTeam.value),
+  )
   const campaignFavors = computed(() =>
     campaignFavorsFor(campaignSave.value, activeTeam.value),
   )
@@ -1235,6 +1239,7 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
     lastCampaign,
     campaignStory,
     campaignState,
+    campaignConversation,
     campaignEcho,
     campaignFavors,
     campaignFavorIndex,

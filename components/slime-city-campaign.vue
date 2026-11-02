@@ -102,6 +102,63 @@
             data-testid="slime-campaign-chapter-art"
           />
           <p>{{ lab.activeChapter.scene }}</p>
+          <div
+            v-if="lab.campaignConversation"
+            class="campaign-exchange"
+            aria-label="Rival confrontation"
+            data-testid="slime-campaign-conversation"
+          >
+            <div class="campaign-exchange-voice rival">
+              <SlimeCityArtwork
+                class="campaign-exchange-portrait"
+                :image-id="
+                  slimeArtId('crews', lab.campaignConversation.rivalTeam)
+                "
+                :alt="
+                  teamName(lab.campaignConversation.rivalTeam) + ' portrait'
+                "
+                :fallback="crewInsignia(lab.campaignConversation.rivalTeam)"
+                compact
+              />
+              <div class="campaign-exchange-lines">
+                <small
+                  >THE RIVAL ·
+                  {{ lab.campaignConversation.rivalSpeaker }}</small
+                >
+                <p>{{ lab.campaignConversation.rivalLine }}</p>
+                <p
+                  v-if="lab.campaignConversation.rememberedChoice"
+                  class="campaign-exchange-memory"
+                  data-testid="slime-campaign-memory"
+                >
+                  {{ lab.campaignConversation.rememberedChoice }}
+                </p>
+              </div>
+            </div>
+            <div class="campaign-exchange-voice player">
+              <SlimeCityArtwork
+                class="campaign-exchange-portrait"
+                :image-id="slimeArtId('crews', lab.activeTeam)"
+                :alt="lab.team.name + ' leader portrait'"
+                :fallback="lab.team.insignia"
+                compact
+              />
+              <div class="campaign-exchange-lines">
+                <small
+                  >YOUR CREW ·
+                  {{ lab.campaignConversation.playerSpeaker }}</small
+                >
+                <p>{{ lab.campaignConversation.playerLine }}</p>
+                <p
+                  v-if="lab.campaignConversation.retryLine"
+                  class="campaign-exchange-memory"
+                  data-testid="slime-campaign-rematch"
+                >
+                  {{ lab.campaignConversation.retryLine }}
+                </p>
+              </div>
+            </div>
+          </div>
           <button
             v-if="lab.campaignDistrict"
             type="button"
@@ -668,6 +725,60 @@ function playApproach(choice: KrHandChoice) {
 .campaign-favor-copy small {
   font-size: 0.62rem;
   color: #ced9d6;
+}
+.campaign-exchange {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 15rem), 1fr));
+  gap: 0.55rem;
+  margin: 0.45rem 0 0.6rem;
+  min-width: 0;
+}
+.campaign-exchange-voice {
+  display: flex;
+  gap: 0.55rem;
+  padding: 0.45rem;
+  min-width: 0;
+  border: 1px solid #54727a;
+  border-radius: 0.65rem;
+  background: #182b36;
+  align-items: flex-start;
+}
+.campaign-exchange-voice.player {
+  border-color: #9ab88b;
+  background: #26372f;
+}
+.campaign-exchange-portrait {
+  flex: 0 0 4rem;
+  width: 4rem;
+  height: 5.5rem;
+  border-radius: 0.4rem;
+  overflow: hidden;
+}
+.campaign-exchange-portrait :deep(img) {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.campaign-exchange-lines {
+  display: grid;
+  gap: 0.3rem;
+  min-width: 0;
+}
+.campaign-exchange-lines small {
+  font-size: 0.58rem;
+  font-weight: 800;
+  letter-spacing: 0.07em;
+  color: #c9e5d4;
+}
+.campaign-exchange-lines p {
+  margin: 0;
+  font-size: clamp(0.78rem, 1.5cqw, 0.93rem);
+  line-height: 1.35;
+}
+.campaign-exchange-lines .campaign-exchange-memory {
+  padding-top: 0.35rem;
+  border-top: 1px solid #ffffff28;
+  color: #e9dca9;
 }
 .campaign-recap {
   margin-top: 0.6rem;

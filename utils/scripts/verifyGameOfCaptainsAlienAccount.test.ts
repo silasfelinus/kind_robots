@@ -138,7 +138,10 @@ assert.match(store, /retryAlienGuideSync/)
 
 const accountSwitch = store.slice(
   store.indexOf('async function syncAlienGuideAccount()'),
-  store.indexOf('  watch(', store.indexOf('async function syncAlienGuideAccount()')),
+  store.indexOf(
+    '  watch(',
+    store.indexOf('async function syncAlienGuideAccount()'),
+  ),
 )
 for (const overlay of [
   'alienSighting',

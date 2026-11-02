@@ -416,7 +416,16 @@ workerRoute = nextDestination(workerRoute)
 assert.ok(missionBoard(workerRoute).some((m) => m.id === 'gameworld'))
 workerRoute = chooseMission(workerRoute, 'gameworld')
 workerRoute = completeMission(workerRoute)
-assert.equal(workerRoute.worldFlags?.length, 3)
+assert.equal(
+  workerRoute.worldFlags?.filter((flag) => !flag.startsWith('supply-shortfall:'))
+    .length,
+  3,
+  'original ethical decisions still leave their world flags',
+)
+assert.ok(
+  workerRoute.worldFlags?.some((flag) => flag.startsWith('supply-shortfall:')),
+  'underfunded field intervention leaves a visible shortage record',
+)
 const workerEnding = finishVoyage(toFinale(workerRoute), 'protect')
 const villainPressure = {
   ...startVoyage('quill', ['mox', 'sora', 'omi'], 22),

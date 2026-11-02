@@ -233,7 +233,9 @@ export const useGameOfCaptainsStore = defineStore('gameOfCaptains', () => {
     const pending = readCachedGuide(pendingGuideKey(id))
     const owner = localStorage.getItem(ALIEN_GUIDE_OWNER_KEY)
     const legacy =
-      owner === null ? readCachedGuide(ALIEN_GUIDE_KEY) : emptyAlienGuide()
+      owner === null || owner === String(id)
+        ? readCachedGuide(ALIEN_GUIDE_KEY)
+        : emptyAlienGuide()
     if (hasAlienProgress(legacy)) legacyImportUserId = id
     const response = await performFetch<AlienGuide>(
       '/api/game-of-captains/guide',

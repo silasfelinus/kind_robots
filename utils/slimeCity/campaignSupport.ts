@@ -132,7 +132,7 @@ export const CAMPAIGN_CHAPTER_SUPPORT: Record<
     {
       conviction: {
         title: "UNOWNED MOONLIGHT",
-        story: "The freed roofs host a quiet mana-passing choir.",
+        story: "The freed rooftops host a quiet mana-passing choir before the next riot.",
         terms: {"playerMana":1},
       },
       cunning: {
@@ -220,7 +220,7 @@ export const CAMPAIGN_CHAPTER_SUPPORT: Record<
     {
       conviction: {
         title: "PAID OFF SPARKS",
-        story: "Debt-free fireworks buy a clean opening charge.",
+        story: "Debt-free fireworks buy a clean opening charge without alerting the guards.",
         terms: {"playerMana":1},
       },
       cunning: {
@@ -306,7 +306,7 @@ export const CAMPAIGN_CHAPTER_SUPPORT: Record<
     {
       conviction: {
         title: "UNPLUGGED HELMETS",
-        story: "Freed soldiers donate two layers of field protection.",
+        story: "Freed helmeted soldiers donate two layers of field protection for the next mission.",
         terms: {"playerHp":2},
       },
       cunning: {

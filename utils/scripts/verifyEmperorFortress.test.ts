@@ -5626,6 +5626,89 @@ for (const def of DAYS)
     /clean boots/,
   )
 
+  // Day 4's private warning makes Vane's Day 5 bridge split playable,
+  // not merely a line of flavor without downstream cost.
+  const splitDay4 = answer(
+    onDay(5, 4),
+    'd04-painted-feast',
+    'ask-patron',
+    'warn-fiddler',
+  )
+  assert.ok(splitDay4.flags.includes('d04-pack-split-sown'))
+  const splitVane = DAYS[4]!.audiences.find((a) => a.id === 'd05-toll')!
+  const splitRun = onDay(5, 5, {
+    flags: splitDay4.flags,
+    brass: 40,
+  })
+  const fundFiddler = splitVane.options.find(
+    (option) => option.id === 'fund-fiddler',
+  )!
+  assert.ok(optionVisible(splitRun, fundFiddler))
+  assert.ok(!optionVisible(onDay(5, 5), fundFiddler))
+  assert.match(
+    sceneLines(splitRun, splitVane).map(lineText).join(' '),
+    /Your warning to the fiddler reached both captains/,
+  )
+  const backed = answer(splitRun, 'd05-toll', 'fund-fiddler')
+  assert.equal(backed.brass, 28)
+  assert.ok(backed.flags.includes('d05-fiddler-backed'))
+  assert.ok(backed.affinity.jackalwire < splitRun.affinity.jackalwire)
+  assert.ok(validateRun(JSON.parse(JSON.stringify(backed))))
+
+  // Returning a bound runner and sheltering a whistleblower must not
+  // collapse to the same "free forecast" outcome three days later.
+  const shelteredDay4 = answer(
+    onDay(5, 4),
+    'd04-silent-crows',
+    'ask-leave',
+    'shelter-runner',
+  )
+  const returnedDay4 = answer(
+    onDay(5, 4),
+    'd04-silent-crows',
+    'ask-leave',
+    'return-runner',
+  )
+  const crowAudience = DAYS[6]!.audiences.find(
+    (a) => a.id === 'd07-crow-warning',
+  )!
+  const riskRunner = crowAudience.options.find(
+    (option) => option.id === 'ask-sheltered-runner',
+  )!
+  const hireRunner = crowAudience.options.find(
+    (option) => option.id === 'ask-returned-runner',
+  )!
+  const shelteredStart = onDay(5, 7, {
+    flags: shelteredDay4.flags,
+    brass: 40,
+  })
+  const returnedStart = onDay(5, 7, {
+    flags: returnedDay4.flags,
+    brass: 40,
+  })
+  assert.ok(optionVisible(shelteredStart, riskRunner))
+  assert.ok(!optionVisible(returnedStart, riskRunner))
+  assert.ok(optionVisible(returnedStart, hireRunner))
+  assert.ok(!optionVisible(shelteredStart, hireRunner))
+  const risked = answer(shelteredStart, 'd07-crow-warning', 'ask-sheltered-runner')
+  const commissioned = answer(
+    returnedStart,
+    'd07-crow-warning',
+    'ask-returned-runner',
+  )
+  assert.ok(risked.flags.includes('d07-runner-penalized'))
+  assert.ok(commissioned.flags.includes('d07-runner-commissioned'))
+  assert.ok(risked.flags.includes('crow-forecast-day10'))
+  assert.ok(commissioned.flags.includes('crow-forecast-day10'))
+  assert.equal(risked.brass, 40)
+  assert.equal(commissioned.brass, 20)
+  assert.ok(risked.affinity['storm-crows'] < shelteredStart.affinity['storm-crows'])
+  assert.ok(commissioned.affinity['storm-crows'] > returnedStart.affinity['storm-crows'])
+  assert.equal(risked.dues?.find((due) => due.id === 'd07-storm')?.day, 10)
+  assert.equal(commissioned.dues?.find((due) => due.id === 'd07-storm')?.day, 10)
+  assert.ok(validateRun(JSON.parse(JSON.stringify(risked))))
+  assert.ok(validateRun(JSON.parse(JSON.stringify(commissioned))))
+
   // Dominant answers now cost something.
   const brokeVane = onDay(5, 5, { flags: ['feast-armed'], brass: 30 })
   const apology = audienceScene(

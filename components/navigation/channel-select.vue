@@ -315,7 +315,7 @@
             </p>
 
             <div
-              class="grid grid-cols-[repeat(auto-fill,minmax(9.5rem,1fr))] gap-2.5 xl:grid-cols-[repeat(auto-fill,minmax(11rem,1fr))] xl:gap-3"
+              class="grid grid-cols-[repeat(auto-fill,minmax(9.5rem,1fr))] gap-2.5 @5xl:grid-cols-[repeat(auto-fill,minmax(11rem,1fr))] @5xl:gap-3"
             >
               <button
                 v-for="(tab, index) in section.tabs"

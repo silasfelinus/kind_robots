@@ -349,8 +349,7 @@ export const useGameOfCaptainsStore = defineStore('gameOfCaptains', () => {
   }
   const alienEncounterAvailable = computed(
     () =>
-      (alienSyncStatus.value !== 'loading' ||
-        !userStore.authenticatedUserId) &&
+      (alienSyncStatus.value !== 'loading' || !userStore.authenticatedUserId) &&
       maySeeAlien(run.value, alienGuide.value),
   )
   function lookForAlien() {

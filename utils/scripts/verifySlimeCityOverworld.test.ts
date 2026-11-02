@@ -5,7 +5,10 @@
 import assert from 'node:assert/strict'
 import { CAMPAIGN_CHOICE_CONSEQUENCES } from '../slimeCity/campaignConsequences'
 import {
+  campaignBattleTerms,
   campaignChapter,
+  campaignEchoFor,
+  CAMPAIGN_ECHOES,
   campaignEnding,
   createCampaignSave,
   describeTerms,
@@ -606,6 +609,93 @@ assert.equal(
 console.log(
   'Slime City faction campaigns: 6 crews, 30 rival chapters, gating and endings PASS',
 )
+
+
+/**
+ * A win's tactical echo survives through account-backed campaign decisions,
+ * affects exactly the next chapter, and has the same rules on both story
+ * quick-starts and district launches. Defeats do not earn an echo.
+ */
+for (const team of TEAMS) {
+  const chapter = FACTION_CAMPAIGNS[team.id].chapters[0]!
+  const fresh = createCampaignSave()
+  assert.equal(campaignEchoFor(fresh, team.id), null)
+  const defeated = resolveCampaignBattle(
+    fresh,
+    team.id,
+    0,
+    chapter.foe,
+    'cunning',
+    'enemy',
+  )
+  assert.equal(campaignEchoFor(defeated, team.id), null)
+  for (const approach of ['conviction', 'cunning'] as const) {
+    const saved = resolveCampaignBattle(
+      fresh,
+      team.id,
+      0,
+      chapter.foe,
+      approach,
+      'player',
+    )
+    const expected = CAMPAIGN_ECHOES[team.id][approach]
+    assert.deepEqual(campaignEchoFor(saved, team.id), expected)
+    assert.ok(expected.title.length > 9 && expected.story.length > 60)
+    assert.deepEqual(
+      campaignBattleTerms(saved, team.id, {}),
+      expected.terms,
+    )
+    const baseTerms = { playerMana: 1, enemyMana: 1, enemyArmor: 1, rivalTrap: true }
+    const adjusted = campaignBattleTerms(saved, team.id, baseTerms)
+    assert.equal(
+      adjusted.playerMana,
+      baseTerms.playerMana + (expected.terms.playerMana ?? 0),
+    )
+    assert.equal(
+      adjusted.enemyMana,
+      baseTerms.enemyMana + (expected.terms.enemyMana ?? 0),
+    )
+    assert.equal(
+      adjusted.enemyArmor,
+      baseTerms.enemyArmor + (expected.terms.enemyArmor ?? 0),
+    )
+    assert.equal(adjusted.rivalTrap, true)
+    assert.deepEqual(
+      baseTerms,
+      { playerMana: 1, enemyMana: 1, enemyArmor: 1, rivalTrap: true },
+      'Previous encounters and shared chapter data are never mutated',
+    )
+    const nextRival = FACTION_CAMPAIGNS[team.id].chapters[1]!.foe
+    const actualMatch = applyTerms(
+      createMatch('blackout', team.id, nextRival, 20261102),
+      adjusted,
+    )
+    assert.equal(
+      actualMatch.mana,
+      BLACKOUT_MANA_GAIN + (adjusted.playerMana ?? 0),
+    )
+    assert.equal(
+      actualMatch.enemyMana,
+      BLACKOUT_MANA_GAIN + (adjusted.enemyMana ?? 0),
+    )
+    assert.equal(campaignEchoFor(saved, nextRival), null)
+    const before = saved
+    const failedRetry = resolveCampaignBattle(
+      saved,
+      team.id,
+      1,
+      nextRival,
+      approach,
+      'enemy',
+    )
+    assert.deepEqual(
+      campaignEchoFor(failedRetry, team.id),
+      campaignEchoFor(before, team.id),
+      'Losing next chapter does not erase an earned story echo',
+    )
+  }
+}
+console.log('Slime City 12 faction campaign echoes: earned, bounded, applied PASS')
 
 // Story missions combine district consequences with one specific story
 // approach; this cannot modify the city, chapter definitions, or browser

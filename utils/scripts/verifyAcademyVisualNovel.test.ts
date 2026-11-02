@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict'
+import { readFileSync } from 'node:fs'
 import {
   chooseNovelNight,
   finishAcademy,
@@ -99,6 +100,28 @@ assert.ok(
   restoreAcademy(oldSave),
   'saves from before the mode selector remain valid',
 )
+const missionPage = readFileSync(
+  new URL('../../pages/play/comet-city-academy.vue', import.meta.url),
+  'utf8',
+)
+for (const selector of [
+  'data-testid="academy-case-deck"',
+  'data-testid="academy-focus-case"',
+  'data-testid="academy-active-quest"',
+  'data-testid="academy-hand-card"',
+  'data-testid="academy-quest-odds"',
+  'data-testid="academy-special-mission-route"',
+  'name="cca-case-swap"',
+  'name="cca-slot"',
+  '@click="toggleStudent(incident.id, id)"',
+  'prefers-reduced-motion: reduce',
+]) {
+  assert.ok(missionPage.includes(selector), `Missing mission-hand contract: ${selector}`)
+}
+assert.ok(missionPage.includes('v-for="incident in focusedIncidents"'))
+assert.ok(!missionPage.includes('class="cca-roster-button"'))
+assert.ok(missionPage.includes("() => `${run.value?.day ?? 0}:${run.value?.phase ?? ''}`"))
+
 console.log(
   'Prom of Doom visual-novel mode: four independent options, 30-day outcomes, third-night allocation, tactical guard and old save compatibility.',
 )

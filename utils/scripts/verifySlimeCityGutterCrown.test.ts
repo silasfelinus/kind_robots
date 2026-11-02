@@ -25,7 +25,10 @@ assert.equal(CARDS.length, 108)
 assert.equal(RARE_COUNT, 36)
 assert.equal(new Set(CARDS.map((card) => card.id)).size, CARDS.length)
 assert.equal(new Set(CARDS.map((card) => card.name)).size, CARDS.length)
-assert.equal(GUTTER_CROWN_WAVE_TWO.filter((c) => rarityOf(c) === 'rare').length, 12)
+assert.equal(
+  GUTTER_CROWN_WAVE_TWO.filter((c) => rarityOf(c) === 'rare').length,
+  12,
+)
 for (const crew of TEAMS) {
   const wave = GUTTER_CROWN_WAVE_TWO.filter((card) => card.team === crew.id)
   assert.equal(wave.length, 6, crew.id + ' has six authored specials')
@@ -48,7 +51,11 @@ for (const crew of TEAMS) {
     })
     assert.ok(victim, card.id + ' has a legal deck slot')
     deck[deck.indexOf(victim!)] = card.id
-    assert.deepEqual(loadoutProblems(crew.id, deck), [], card.id + ' legal deck')
+    assert.deepEqual(
+      loadoutProblems(crew.id, deck),
+      [],
+      card.id + ' legal deck',
+    )
     const foe = TEAMS.find((candidate) => candidate.id !== crew.id)!
     const initial = createMatch('blackout', crew.id, foe.id, 7091, {}, deck)
     assert.deepEqual(
@@ -102,7 +109,9 @@ for (const crew of TEAMS) {
     assert.equal(played.stats.plays.player[card.kind], 1, card.id)
     assert.equal(played.mana, 10 - card.cost)
     assert.equal(played.hands.player.includes(card.id), false)
-    assert.ok(played.commands.some((cmd) => cmd.t === 'deploy' && cmd.card === card.id))
+    assert.ok(
+      played.commands.some((cmd) => cmd.t === 'deploy' && cmd.card === card.id),
+    )
   }
 }
 
@@ -142,14 +151,22 @@ assert.equal(pushed.units.find((u) => u.id === 100)?.x, 4)
 assert.equal(pushed.units.find((u) => u.id === 101)?.x, 5)
 assert.equal(pushed.units.find((u) => u.id === 100)?.ap, 1)
 assert.equal(pushed.stats.shoves, 1)
-assert.deepEqual(move(shove, 100, 4, 2), pushed, 'Same shove replays from same state')
+assert.deepEqual(
+  move(shove, 100, 4, 2),
+  pushed,
+  'Same shove replays from same state',
+)
 assert.deepEqual(shove.units[0], ironjaw(3, 2), 'Pure command processing')
 
 const blocked = createMatch('blackout', 'ironjaw', 'riot', 83)
 blocked.round = 3
 blocked.units = [ironjaw(3, 2), rival(4, 2), { ...rival(5, 2), id: 102 }]
 assert.equal(canBulldozeInto(blocked, blocked.units[0]!, 4, 2), false)
-assert.equal(move(blocked, 100, 4, 2), blocked, 'No pushes through occupied space')
+assert.equal(
+  move(blocked, 100, 4, 2),
+  blocked,
+  'No pushes through occupied space',
+)
 const wall = createMatch('blackout', 'ironjaw', 'riot', 83)
 wall.round = 3
 wall.units = [ironjaw(8, 2), rival(9, 2)]
@@ -163,7 +180,11 @@ trapped.round = 3
 trapped.units = [ironjaw(3, 2), rival(4, 2)]
 trapped.traps = [{ x: 5, y: 2, side: 'player', damage: 1, roots: true }]
 const sprung = move(trapped, 100, 4, 2)
-assert.equal(sprung.stats.trapsSprung, 1, 'Enemy shoved onto friendly trap triggers it')
+assert.equal(
+  sprung.stats.trapsSprung,
+  1,
+  'Enemy shoved onto friendly trap triggers it',
+)
 assert.equal(sprung.units.find((u) => u.id === 101)?.hp, 2)
 const enemyTrap = createMatch('blackout', 'ironjaw', 'riot', 83)
 enemyTrap.round = 3
@@ -188,4 +209,6 @@ for (let pack = 0; pack < 36; pack++) {
 assert.equal(wallet.cards.length, 108)
 assert.equal(wallet.meat, 0)
 assert.equal(canBuyPack(wallet), false)
-console.log('Slime City Gutter Crown wave two: 36 cards, six faction styles, legal decks, casts, shoves and 36 guaranteed-rare packs PASS')
+console.log(
+  'Slime City Gutter Crown wave two: 36 cards, six faction styles, legal decks, casts, shoves and 36 guaranteed-rare packs PASS',
+)

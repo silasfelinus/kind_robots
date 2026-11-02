@@ -1514,10 +1514,17 @@
                 They will collect two points of our earned reputation in
                 exchange. Once per chapter, and only after answering the call.
               </p>
-              <button class="cap-option" type="button" @click="store.requisition()">
+              <button
+                class="cap-option"
+                type="button"
+                @click="store.requisition()"
+              >
                 <span>
                   <b>CALL IN AN OWED FAVOR · +3 SUPPLIES</b>
-                  <small>Costs 2 reputation. The galaxy remembers its creditors.</small>
+                  <small
+                    >Costs 2 reputation. The galaxy remembers its
+                    creditors.</small
+                  >
                 </span>
                 ↗
               </button>

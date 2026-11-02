@@ -1780,7 +1780,7 @@ function addDebt(state: MatchState, side: Side, amount: number): void {
     else state.enemyMana = Math.max(0, state.enemyMana - amount)
   } else
     state.debt[side] = Math.min(
-      state.mode === 'blackout' ? 6 : DEBT_CAP,
+      state.mode === 'blackout' && !state.rules.classicFog ? 6 : DEBT_CAP,
       state.debt[side] + amount,
     )
 }
@@ -1983,9 +1983,17 @@ export function createMatch(
     round: 1,
     maxRounds: ROUND_LIMITS[mode],
     mana:
-      mode === 'blackout' ? BLACKOUT_MANA_GAIN : mode === 'bloodrush' ? 3 : 1,
+      mode === 'blackout' && !rules.classicFog
+        ? BLACKOUT_MANA_GAIN
+        : mode === 'bloodrush'
+          ? 3
+          : 1,
     enemyMana:
-      mode === 'blackout' ? BLACKOUT_MANA_GAIN : mode === 'bloodrush' ? 3 : 1,
+      mode === 'blackout' && !rules.classicFog
+        ? BLACKOUT_MANA_GAIN
+        : mode === 'bloodrush'
+          ? 3
+          : 1,
     score: [0, 0],
     seed: s,
     nextId: 1,
@@ -3139,7 +3147,7 @@ export function advance(state: MatchState): MatchState {
         next.enemyMana = Math.min(MANA_CAP, next.enemyMana + 1)
       }
     } else {
-      if (next.mode === 'blackout') {
+      if (next.mode === 'blackout' && !next.rules.classicFog) {
         for (const side of ['player', 'enemy'] as Side[]) {
           const paid = Math.min(BLACKOUT_MANA_GAIN, next.debt[side])
           const gain = BLACKOUT_MANA_GAIN - paid

@@ -335,7 +335,7 @@ function sparkleStyle(n: number): Record<string, string> {
    position, so it never sits under the cards. */
 .krh-detail {
   position: absolute;
-  inset: auto 0 calc(var(--card-h) * 1.17 + 1rem);
+  inset: auto 0 calc(var(--card-h) * (1.16 + 0.11 * (1 - var(--tuck))) + 1.2rem);
   z-index: 12;
   max-height: 7.5em;
   overflow: hidden;

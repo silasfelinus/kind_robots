@@ -1020,11 +1020,16 @@ assert.equal(plain.deck.length, RECORDS.locations.length + 1 + SHIFT)
     asset('../../pages/play/shifting-desks.vue'),
     /@click="openArchive\(\x27milestones\x27\)"/,
   )
-  const gallery = asset(
-    '../../components/shifting-desks/shifting-desks-endings-gallery.vue',
+  const archive = asset(
+    '../../components/shifting-desks/shifting-desks-personnel-archive.vue',
   )
-  assert.match(gallery, /v-for="ending in ENDINGS"/)
-  assert.match(gallery, /stationArt\('endings', ending\.id\)/)
+  assert.match(archive, /v-for="ending in ENDINGS"/)
+  assert.match(archive, /stationArt\('endings', ending\.id\)/)
+  assert.doesNotMatch(
+    asset('../../pages/play/shifting-desks.vue'),
+    /endingsGallery/,
+    'the Personnel Archive is the only front-desk progress collection',
+  )
 }
 // Sub-Level Zero's Antechamber Sign-In (conductor shifting-desks t-030): the
 // fourth window shift, at the Board's door, stamped ADMIT / TURN AWAY.

@@ -847,7 +847,9 @@
         >
           <div class="sc-collection-title">
             <span class="sc-overline"
-              >THE ARMORY / DECK WORKBENCH · {{ lab.progress.cards.length }}/{{ lab.collectionSize }}
+              >THE ARMORY / DECK WORKBENCH · {{ lab.progress.cards.length }}/{{
+                lab.collectionSize
+              }}
               COLLECTED</span
             >
             <h2>{{ lab.team.name }}</h2>
@@ -1190,7 +1192,11 @@
                   type="button"
                   class="sc-attack-button"
                   data-testid="slime-attack"
-                  :disabled="lab.targetUnit === null || (lab.targetUnit !== -1 && !lab.attackTargets.includes(lab.targetUnit))"
+                  :disabled="
+                    lab.targetUnit === null ||
+                    (lab.targetUnit !== -1 &&
+                      !lab.attackTargets.includes(lab.targetUnit))
+                  "
                   @click="lab.attackSelected()"
                 >
                   <span class="sc-attack-symbol">{{ attackSymbol }}</span>
@@ -1212,7 +1218,11 @@
                 >
                   <span class="sc-attack-symbol">⇥</span>
                   BULLDOZE
-                  <span>{{ lab.canShoveTarget ? 'SHOVE ONE TILE · 1 AP' : 'NEEDS FREE SPACE BEHIND TARGET' }}</span>
+                  <span>{{
+                    lab.canShoveTarget
+                      ? 'SHOVE ONE TILE · 1 AP'
+                      : 'NEEDS FREE SPACE BEHIND TARGET'
+                  }}</span>
                 </button>
                 <small
                   v-if="

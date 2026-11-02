@@ -61,6 +61,12 @@ const familyLine = (title: string, captain: CaptainId) =>
   GALACTIC_ENDINGS.find((e) => e.title === title)?.captains[captain] ??
   UNCLAIMED_ENDING_CAPTAINS[title as UnclaimedEnding]?.[captain]
 const KNOWN_TITLES = new Set<string>([...WARP_ENDINGS, ...UNCLAIMED_ENDINGS])
+const mutiny = GALACTIC_ENDINGS.find((ending) => ending.title === 'A MOTION OF NO CONFIDENCE')!
+const distrust = { ...startVoyage('vale', ['pell', 'mox', 'rue'], 42), trust: -3 }
+assert.equal(mutiny.earned(distrust), false, 'distrust alone is not an earned crew revolt')
+assert.equal(mutiny.earned({ ...distrust, missionHistory: [
+  { chapter: 1, missionId: 'refugees', system: 'First Call', policy: 'missed', result: 'disaster' },
+] }), true, 'the crew can vote after an ignored emergency and sustained distrust')
 
 /** What every finished voyage owes the player, whatever path reached it. */
 function endingContract(run: VoyageRun, where: string) {

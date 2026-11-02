@@ -179,7 +179,11 @@
                 >
                   <icon name="kind-icon:folder" class="size-5" />
                   Personnel Archive ·
-                  {{ store.archiveUnlocked ? store.rewardArchive.runs.length + ' filed' : 'Sealed' }}
+                  {{
+                    store.archiveUnlocked
+                      ? store.rewardArchive.runs.length + ' filed'
+                      : 'Sealed'
+                  }}
                 </button>
                 <button
                   type="button"

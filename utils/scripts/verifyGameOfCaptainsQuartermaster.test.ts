@@ -97,6 +97,4 @@ const page = readFileSync(
 assert.match(page, /space-couch-quartermaster/)
 assert.match(page, /canRequisitionSupplies\(run\)/)
 assert.match(page, /store\.requisition\(\)/)
-console.log(
-  'Space Couch quartermaster: earned, optional and one-time per act',
-)
+console.log('Space Couch quartermaster: earned, optional and one-time per act')

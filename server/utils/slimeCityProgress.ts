@@ -176,7 +176,10 @@ export function validateSlimeCityBattle(
         statusCode: 403,
         message: 'Cannot submit CPU-owned commands.',
       })
-    if (action.t === 'deploy') {
+    if (action.t === 'discard') {
+      if (typeof action.card !== 'string' || action.card.length > 90)
+        throw createError({ statusCode: 400, message: 'Malformed hand discard.' })
+    } else if (action.t === 'deploy') {
       if (
         !CARDS.some((c) => c.id === action.card) ||
         !Number.isSafeInteger(action.x) ||

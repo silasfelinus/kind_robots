@@ -13,7 +13,7 @@
           Hoshimori · Procession of Shut Doors
         </h2>
         <span class="md-bar-chip">
-          {{ night.progress.visited.length }}/16 witnessed
+          {{ night.progress.visited.length }}/24 witnessed
         </span>
         <div class="md-bar-actions">
           <button
@@ -185,6 +185,21 @@
             <p class="mt-1 text-sm leading-relaxed">{{ night.council }}</p>
           </div>
           <p
+            v-if="!night.council"
+            class="mt-3 rounded-lg border border-warning/30 bg-warning/10 p-2 text-sm"
+          >
+            The Windward ridge is sealed until the ledger house, festival path
+            and southern council have each recorded a real choice. The shrine
+            detour remains open.
+          </p>
+          <div
+            v-if="night.windward"
+            class="mt-3 rounded-xl border border-info/40 bg-info/10 p-3"
+          >
+            <h4 class="font-bold">The Windward Council’s earned account</h4>
+            <p class="mt-1 text-sm leading-relaxed">{{ night.windward }}</p>
+          </div>
+          <p
             v-if="night.notice"
             class="mt-3 text-sm text-warning"
             role="status"
@@ -195,8 +210,8 @@
         <div
           class="shrink-0 border-t border-base-content/10 px-3 py-2 text-xs opacity-75"
         >
-          This is the first connected night district. The remaining forty-eight
-          sites and the transformed Oven are still unwritten.
+          The first twenty-four night sites are playable. Forty more sites and
+          the transformed Oven remain unfinished.
         </div>
       </div>
     </div>

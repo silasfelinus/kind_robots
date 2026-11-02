@@ -2,10 +2,12 @@ import assert from 'node:assert/strict'
 import {
   HOSHIMORI_NIGHT_MAX_EVENTS,
   HOSHIMORI_NIGHT_SITES,
+  HOSHIMORI_NIGHT_WINDWARD_KEYS,
   advanceHoshimoriNight,
   canMoveHoshimoriNight,
   hoshimoriNightClues,
   hoshimoriNightCouncil,
+  hoshimoriNightWindwardAccount,
   hoshimoriNightOrder,
   newHoshimoriNightProgress,
   restoreHoshimoriNight,
@@ -31,16 +33,16 @@ import {
 import { readFileSync } from 'node:fs'
 
 assert.deepEqual(validateHoshimoriNight(), [])
-assert.equal(HOSHIMORI_NIGHT_SITES.length, 16)
+assert.equal(HOSHIMORI_NIGHT_SITES.length, 24)
 assert.equal(
   new Set(HOSHIMORI_NIGHT_SITES.map((site) => site.opening)).size,
-  16,
+  24,
 )
 assert.equal(
   new Set(
     HOSHIMORI_NIGHT_SITES.flatMap((site) => site.choices.map((c) => c.outcome)),
   ).size,
-  32,
+  48,
 )
 assert.ok(
   HOSHIMORI_NIGHT_SITES.every((site) =>
@@ -365,6 +367,104 @@ assert.deepEqual(
   { version: 1, found: ['earth-15'], responses: { 'earth-15': 'hold' } },
   'The first night photo persists while the unbuilt second remains spoiler-locked',
 )
+const windwardAccounts = new Set<string>()
+const windwardKeys = [...HOSHIMORI_NIGHT_WINDWARD_KEYS]
+assert.equal(windwardKeys.length, 8)
+assert.equal(new Set(windwardKeys).size, 8)
+assert.ok(
+  windwardKeys.every((key) =>
+    HOSHIMORI_WARM_SITES.some((site) => site.key === key),
+  ),
+)
+assert.ok(
+  windwardKeys.every((key) => {
+    const warm = HOSHIMORI_WARM_SITES.find((site) => site.key === key)!
+    const night = HOSHIMORI_NIGHT_SITES.find((site) => site.key === key)!
+    return warm.title !== night.title && warm.opening !== night.opening
+  }),
+)
+const ridgeSnake = ['5,1', '6,1', '7,1', '8,1', '8,2', '7,2', '6,2', '5,2']
+for (let seed = 0; seed < 64; seed++) {
+  const bits = seed % 8
+  let progress = newHoshimoriNightProgress(seed)
+  progress = choose(progress, HOSHIMORI_NIGHT_SITES[0]!.choices[0].id)
+  for (const key of ['2,1', '3,1', '4,1']) {
+    progress = visit(progress, key)
+    progress = choose(
+      progress,
+      HOSHIMORI_NIGHT_SITES.find((site) => site.key === key)!.choices[0].id,
+    )
+  }
+  assert.equal(canMoveHoshimoriNight(progress, '5,1'), false)
+  assert.equal(hoshimoriNightWindwardAccount(progress), null)
+  for (const key of snake.slice(3)) {
+    progress = visit(progress, key)
+    progress = choose(
+      progress,
+      HOSHIMORI_NIGHT_SITES.find((site) => site.key === key)!.choices[0].id,
+    )
+  }
+  assert.ok(hoshimoriNightCouncil(progress))
+  for (const key of ['2,4', '3,4', '4,4', '4,3', '4,2', '4,1'])
+    progress = visit(progress, key)
+  assert.equal(canMoveHoshimoriNight(progress, '5,1'), true)
+  for (const key of ridgeSnake) {
+    progress = visit(progress, key)
+    const site = HOSHIMORI_NIGHT_SITES.find((item) => item.key === key)!
+    const index =
+      key === '5,1'
+        ? bits & 1
+        : key === '7,1'
+          ? (bits >> 1) & 1
+          : key === '8,2'
+            ? (bits >> 2) & 1
+            : 0
+    if (!progress.choices['8,2'])
+      assert.equal(
+        hoshimoriNightWindwardAccount(progress),
+        null,
+        'The ridge account requires its final earned council choice',
+      )
+    progress = choose(progress, site.choices[index]!.id)
+    assert.strictEqual(
+      advanceHoshimoriNight(progress, {
+        type: 'choose',
+        id: site.choices[1 - index]!.id,
+      }),
+      progress,
+      'No repeated or reversed ridge choice',
+    )
+  }
+  assert.equal(progress.visited.length, 24)
+  assert.equal(Object.keys(progress.choices).length, 24)
+  const account = hoshimoriNightWindwardAccount(progress)
+  assert.ok(account)
+  windwardAccounts.add(account)
+  const restored = restoreHoshimoriNight(JSON.parse(JSON.stringify(progress)))
+  assert.deepEqual(restored, progress)
+  progress = visit(progress, '5,1')
+  progress = visit(progress, '5,2')
+  assert.equal(hoshimoriNightWindwardAccount(progress), account)
+  assert.deepEqual(
+    restoreHoshimoriNight(JSON.parse(JSON.stringify(progress))),
+    progress,
+    'A retreat and return cannot erase testimony',
+  )
+  const forged = JSON.parse(JSON.stringify(progress)) as NightProgress
+  forged.choices['8,2'] =
+    forged.choices['8,2'] === 'night-windward-open'
+      ? 'night-windward-limited'
+      : 'night-windward-open'
+  assert.equal(restoreHoshimoriNight(forged), null)
+  const skipped = JSON.parse(JSON.stringify(progress)) as NightProgress
+  skipped.events.splice(0, 1, { type: 'move', to: '5,1' })
+  assert.equal(restoreHoshimoriNight(skipped), null)
+}
+assert.equal(
+  windwardAccounts.size,
+  8,
+  'Three earned Windward decisions produce eight distinct accounts',
+)
 console.log(
-  'Hoshimori e08: sixteen mirrored sites, 96 seeded runs, eight council accounts, two fair crossings, save forgery protection OK',
+  'Hoshimori e08: 24 mirrored sites, 96 original + 64 Windward seeded routes, eight council and eight ridge accounts, save forgery protection OK',
 )

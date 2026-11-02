@@ -10,7 +10,8 @@
             <strong>{{ lab.starterCount }}</strong> starters
           </span>
           <span class="hybridizer-bar-chip">
-            <strong>{{ lab.discoveryTotal ?? lab.discoveries.length }}</strong> shared discoveries
+            <strong>{{ lab.discoveryTotal ?? lab.discoveries.length }}</strong>
+            shared discoveries
           </span>
         </div>
       </header-page-bar>
@@ -94,11 +95,12 @@
         <article class="hybridizer-result" aria-live="polite">
           <p class="eyebrow">THE DISCOVERY CHAMBER</p>
           <span
-            v-if="lab.reusedArtwork"
+            v-if="lab.reusedArtwork && previewArt"
             class="known-art-mark"
             data-testid="hybridizer-known-art"
             title="This pairing already has saved artwork"
-          >✦ ART IN ARCHIVE</span>
+            >✦ ART IN ARCHIVE</span
+          >
           <template v-if="lab.result">
             <h2 data-testid="hybridizer-result-title">
               {{ lab.result.title }}
@@ -181,7 +183,7 @@
                 data-testid="hybridizer-resubmit"
                 @click="remixEditorOpen = !remixEditorOpen"
               >
-                ✦ {{ remixEditorOpen ? "Close remix" : "Remix artwork" }}
+                ✦ {{ remixEditorOpen ? 'Close remix' : 'Remix artwork' }}
               </button>
               <button
                 v-if="lab.result.isPublic === true && reactionImageId"
@@ -213,18 +215,37 @@
             </div>
             <form
               v-if="remixEditorOpen && lab.canEditResult"
-              class="remix-editor kr-scroll"
+              class="remix-editor"
               aria-label="Create new artwork version"
               @submit.prevent="submitRemix"
             >
               <div class="reaction-layer-head">
                 <strong>REMIX THE ILLUSTRATION</strong>
-                <button type="button" aria-label="Close remix editor" @click="remixEditorOpen = false">✕</button>
+                <button
+                  type="button"
+                  aria-label="Close remix editor"
+                  @click="remixEditorOpen = false"
+                >
+                  ✕
+                </button>
               </div>
-              <p>The same discovery, new artistic interpretation. Earlier versions stay saved.</p>
+              <p>
+                The same discovery, new artistic interpretation. Earlier
+                versions stay saved.
+              </p>
               <label class="remix-balance">
-                <span>Balance · {{ focusWeight }}% {{ lab.left?.title || 'first' }} / {{ 100 - focusWeight }}% {{ lab.right?.title || 'second' }}</span>
-                <input v-model.number="focusWeight" type="range" min="10" max="90" step="10" />
+                <span
+                  >Balance · {{ focusWeight }}%
+                  {{ lab.left?.title || 'first' }} / {{ 100 - focusWeight }}%
+                  {{ lab.right?.title || 'second' }}</span
+                >
+                <input
+                  v-model.number="focusWeight"
+                  type="range"
+                  min="10"
+                  max="90"
+                  step="10"
+                />
               </label>
               <label>
                 <span>Additional art direction (optional)</span>
@@ -235,7 +256,11 @@
                   placeholder="Try brighter colors, longer whiskers, a peel-shaped tail…"
                 ></textarea>
               </label>
-              <button type="submit" class="remix-submit" :disabled="lab.versionBusy || !lab.left">
+              <button
+                type="submit"
+                class="remix-submit"
+                :disabled="lab.versionBusy || !lab.left"
+              >
                 {{ lab.versionBusy ? 'Submitting…' : '✦ Queue this version' }}
               </button>
             </form>
@@ -454,14 +479,21 @@
           </button>
         </div>
         <div v-if="drawer === 'atlas'" class="atlas-summary" role="status">
-          <span><strong>{{ lab.discoveryTotal ?? lab.discoveries.length }}</strong> saved discoveries</span>
+          <span
+            ><strong>{{ lab.discoveryTotal ?? lab.discoveries.length }}</strong>
+            saved discoveries</span
+          >
           <span>{{ lab.readyTotal }} art-ready</span>
           <span>{{ lab.renderingTotal }} rendering</span>
         </div>
         <template v-if="drawer === 'atlas'">
           <label class="search-wrap">
             <span class="sr-only">Search loaded discoveries</span>
-            <input v-model="search" type="search" placeholder="Search loaded discoveries…" />
+            <input
+              v-model="search"
+              type="search"
+              placeholder="Search loaded discoveries…"
+            />
           </label>
           <div class="type-filters" aria-label="Filter discovery status">
             <button
@@ -471,9 +503,14 @@
               :class="{ selected: atlasStatus === option.value }"
               :aria-pressed="atlasStatus === option.value"
               @click="atlasStatus = option.value"
-            >{{ option.label }}</button>
+            >
+              {{ option.label }}
+            </button>
           </div>
-          <p class="atlas-loaded">{{ lab.discoveries.length }} loaded in this browser. Rendering requests are not completed art.</p>
+          <p class="atlas-loaded">
+            {{ lab.discoveries.length }} loaded in this browser. Rendering
+            requests are not completed art.
+          </p>
         </template>
         <template v-else>
           <label class="search-wrap">
@@ -503,7 +540,11 @@
             :key="entry.key"
             type="button"
             class="ingredient-option"
-            :aria-label="drawer === 'atlas' ? 'View ' + entry.title + ' artwork' : 'Select ' + entry.title"
+            :aria-label="
+              drawer === 'atlas'
+                ? 'View ' + entry.title + ' artwork'
+                : 'Select ' + entry.title
+            "
             @click="pick(entry.key)"
           >
             <img
@@ -517,7 +558,11 @@
             <strong>{{ entry.title }}</strong>
             <em v-if="lab.artPending(entry)" class="art-pending">Art queued</em>
             <small v-if="drawer === 'atlas'" class="atlas-entry-status">
-              {{ entry.status === 'READY' && lab.imageFor(entry) ? '✦ ART READY · VIEW / RATE' : (entry.status || 'STUDY') + ' · VIEW' }}
+              {{
+                entry.status === 'READY' && lab.imageFor(entry)
+                  ? '✦ ART READY · VIEW / RATE'
+                  : (entry.status || 'STUDY') + ' · VIEW'
+              }}
             </small>
             <small v-else>{{
               entry.taxonomy === 'OTHER' && entry.facetGroup === 'fruit'
@@ -538,7 +583,9 @@
             class="atlas-load-more"
             :disabled="lab.loadingShared"
             @click="lab.loadSharedStudies(true)"
-          >{{ lab.loadingShared ? 'Loading atlas…' : 'Load more discoveries' }}</button>
+          >
+            {{ lab.loadingShared ? 'Loading atlas…' : 'Load more discoveries' }}
+          </button>
         </div>
         <p class="drawer-foot">
           Shared matches are remembered across players. Missing artwork is
@@ -734,13 +781,21 @@ const visibleEntries = computed(() => {
   const word = search.value.toLowerCase().trim()
   if (drawer.value === 'atlas')
     return [...lab.discoveries].reverse().filter((entry) => {
-      const rendering = ['QUEUED', 'RENDERING', 'DELIVERING'].includes(entry.status || '')
+      const rendering = ['QUEUED', 'RENDERING', 'DELIVERING'].includes(
+        entry.status || '',
+      )
       const matchesStatus =
         atlasStatus.value === 'ALL' ||
-        (atlasStatus.value === 'READY' && entry.status === 'READY' && !!lab.imageFor(entry)) ||
+        (atlasStatus.value === 'READY' &&
+          entry.status === 'READY' &&
+          !!lab.imageFor(entry)) ||
         (atlasStatus.value === 'IN_PROGRESS' && rendering) ||
-        (atlasStatus.value === 'OTHER' && !rendering && (entry.status !== 'READY' || !lab.imageFor(entry)))
-      return matchesStatus && (!word || entry.title.toLowerCase().includes(word))
+        (atlasStatus.value === 'OTHER' &&
+          !rendering &&
+          (entry.status !== 'READY' || !lab.imageFor(entry)))
+      return (
+        matchesStatus && (!word || entry.title.toLowerCase().includes(word))
+      )
     })
   return lab.inputs.filter((entry) => {
     const type =

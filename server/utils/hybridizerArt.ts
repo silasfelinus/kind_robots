@@ -21,24 +21,49 @@ function withArticle(title: string): string {
 
 // The artwork is the hybrid itself. Specimen jars and fusion machinery are
 // front-end chrome only, so the prompt never stages the result in a laboratory.
+export type HybridizerRevisionDirection = {
+  leftWeight?: number
+  direction?: string
+}
+
 export function hybridizerArtPrompt(
   leftTitle: string,
   rightTitle: string,
   kind: HybridizerSubjectKind = 'creature',
+  revision: HybridizerRevisionDirection = {},
 ): string {
   const left = withArticle(leftTitle)
   const right = withArticle(rightTitle)
+  const leftWeight = revision.leftWeight ?? 50
   const subject =
     kind === 'object' ? 'One single object' : 'One single living creature'
+  const balance =
+    leftWeight === 50
+      ? 'an even physical blend of ' + left + ' and ' + right
+      : 'a physical blend with approximately ' +
+        leftWeight +
+        '% characteristics of ' +
+        left +
+        ' and ' +
+        (100 - leftWeight) +
+        '% of ' +
+        right
   return [
-    subject + ' that is an even physical blend of ' + left,
-    'and ' + right + '. Its shape, colors, surface textures and signature',
+    subject +
+      ' that is ' +
+      balance +
+      '. Its shape, colors, surface textures and signature',
     'features come from both, merged into one coherent body so that both',
     left + ' and ' + right + ' are instantly recognizable.',
     'Full view, centered, three-quarter angle, standing on a plain light grey',
     'studio backdrop with a soft floor shadow and even soft lighting.',
     'Vivid, detailed painterly illustration with crisp edges.',
-  ].join(' ')
+    revision.direction?.trim()
+      ? 'Additional creative direction: ' + revision.direction.trim()
+      : '',
+  ]
+    .filter(Boolean)
+    .join(' ')
 }
 
 export function hybridizerSubjectKind(

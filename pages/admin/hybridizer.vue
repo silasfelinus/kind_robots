@@ -10,7 +10,8 @@
             <strong>{{ lab.starterCount }}</strong> starters
           </span>
           <span class="hybridizer-bar-chip">
-            <strong>{{ lab.discoveries.length }}</strong> discoveries
+            <strong>{{ lab.discoveryTotal ?? lab.discoveries.length }}</strong>
+            shared discoveries
           </span>
         </div>
       </header-page-bar>
@@ -93,6 +94,13 @@
 
         <article class="hybridizer-result" aria-live="polite">
           <p class="eyebrow">THE DISCOVERY CHAMBER</p>
+          <span
+            v-if="lab.reusedArtwork && previewArt"
+            class="known-art-mark"
+            data-testid="hybridizer-known-art"
+            title="This pairing already has saved artwork"
+            >✦ ART IN ARCHIVE</span
+          >
           <template v-if="lab.result">
             <h2 data-testid="hybridizer-result-title">
               {{ lab.result.title }}
@@ -173,9 +181,9 @@
                   )
                 "
                 data-testid="hybridizer-resubmit"
-                @click="lab.resubmit()"
+                @click="remixEditorOpen = !remixEditorOpen"
               >
-                ✦ Try new art
+                ✦ {{ remixEditorOpen ? 'Close remix' : 'Remix artwork' }}
               </button>
               <button
                 v-if="lab.result.isPublic === true && reactionImageId"
@@ -205,6 +213,57 @@
                 >Private study · sharing disabled</span
               >
             </div>
+            <form
+              v-if="remixEditorOpen && lab.canEditResult"
+              class="remix-editor"
+              aria-label="Create new artwork version"
+              @submit.prevent="submitRemix"
+            >
+              <div class="reaction-layer-head">
+                <strong>REMIX THE ILLUSTRATION</strong>
+                <button
+                  type="button"
+                  aria-label="Close remix editor"
+                  @click="remixEditorOpen = false"
+                >
+                  ✕
+                </button>
+              </div>
+              <p>
+                The same discovery, new artistic interpretation. Earlier
+                versions stay saved.
+              </p>
+              <label class="remix-balance">
+                <span
+                  >Balance · {{ focusWeight }}%
+                  {{ lab.left?.title || 'first' }} / {{ 100 - focusWeight }}%
+                  {{ lab.right?.title || 'second' }}</span
+                >
+                <input
+                  v-model.number="focusWeight"
+                  type="range"
+                  min="10"
+                  max="90"
+                  step="10"
+                />
+              </label>
+              <label>
+                <span>Additional art direction (optional)</span>
+                <textarea
+                  v-model="remixDirection"
+                  rows="3"
+                  maxlength="500"
+                  placeholder="Try brighter colors, longer whiskers, a peel-shaped tail…"
+                ></textarea>
+              </label>
+              <button
+                type="submit"
+                class="remix-submit"
+                :disabled="lab.versionBusy || !lab.left"
+              >
+                {{ lab.versionBusy ? 'Submitting…' : '✦ Queue this version' }}
+              </button>
+            </form>
             <div
               v-if="shareOpen"
               class="hybrid-share"
@@ -377,7 +436,7 @@
           data-testid="hybridizer-atlas"
           @click="openDrawer('atlas')"
         >
-          DISCOVERY SHELF · {{ lab.discoveries.length }}
+          DISCOVERY ATLAS · {{ lab.discoveryTotal ?? lab.discoveries.length }}
         </button>
       </footer>
       <div class="hybrid-badges" aria-label="Hybridizer achievements">
@@ -419,7 +478,41 @@
             ✕
           </button>
         </div>
-        <template v-if="drawer !== 'atlas'">
+        <div v-if="drawer === 'atlas'" class="atlas-summary" role="status">
+          <span
+            ><strong>{{ lab.discoveryTotal ?? lab.discoveries.length }}</strong>
+            saved discoveries</span
+          >
+          <span>{{ lab.readyTotal }} art-ready</span>
+          <span>{{ lab.renderingTotal }} rendering</span>
+        </div>
+        <template v-if="drawer === 'atlas'">
+          <label class="search-wrap">
+            <span class="sr-only">Search loaded discoveries</span>
+            <input
+              v-model="search"
+              type="search"
+              placeholder="Search loaded discoveries…"
+            />
+          </label>
+          <div class="type-filters" aria-label="Filter discovery status">
+            <button
+              v-for="option in atlasFilters"
+              :key="option.value"
+              type="button"
+              :class="{ selected: atlasStatus === option.value }"
+              :aria-pressed="atlasStatus === option.value"
+              @click="atlasStatus = option.value"
+            >
+              {{ option.label }}
+            </button>
+          </div>
+          <p class="atlas-loaded">
+            {{ lab.discoveries.length }} loaded in this browser. Rendering
+            requests are not completed art.
+          </p>
+        </template>
+        <template v-else>
           <label class="search-wrap">
             <span class="sr-only">Search ingredients</span>
             <input
@@ -447,7 +540,11 @@
             :key="entry.key"
             type="button"
             class="ingredient-option"
-            :aria-label="'Select ' + entry.title"
+            :aria-label="
+              drawer === 'atlas'
+                ? 'View ' + entry.title + ' artwork'
+                : 'Select ' + entry.title
+            "
             @click="pick(entry.key)"
           >
             <img
@@ -460,7 +557,14 @@
             }}</span>
             <strong>{{ entry.title }}</strong>
             <em v-if="lab.artPending(entry)" class="art-pending">Art queued</em>
-            <small>{{
+            <small v-if="drawer === 'atlas'" class="atlas-entry-status">
+              {{
+                entry.status === 'READY' && lab.imageFor(entry)
+                  ? '✦ ART READY · VIEW / RATE'
+                  : (entry.status || 'STUDY') + ' · VIEW'
+              }}
+            </small>
+            <small v-else>{{
               entry.taxonomy === 'OTHER' && entry.facetGroup === 'fruit'
                 ? 'FRUIT'
                 : entry.taxonomy
@@ -473,6 +577,15 @@
                 : 'No ingredients match your search.'
             }}
           </p>
+          <button
+            v-if="drawer === 'atlas' && lab.canLoadMore"
+            type="button"
+            class="atlas-load-more"
+            :disabled="lab.loadingShared"
+            @click="lab.loadSharedStudies(true)"
+          >
+            {{ lab.loadingShared ? 'Loading atlas…' : 'Load more discoveries' }}
+          </button>
         </div>
         <p class="drawer-foot">
           Shared matches are remembered across players. Missing artwork is
@@ -503,6 +616,9 @@ const route = useRoute()
 const previewJobId = ref<number | null>(null)
 const reactionOpen = ref(false)
 const shareOpen = ref(false)
+const remixEditorOpen = ref(false)
+const remixDirection = ref('')
+const focusWeight = ref(50)
 const previewVersion = computed(() =>
   lab.versionsFor === lab.result?.key
     ? lab.versions.find((version) => version.jobId === previewJobId.value)
@@ -600,6 +716,9 @@ watch(
     previewJobId.value = null
     reactionOpen.value = false
     shareOpen.value = false
+    remixEditorOpen.value = false
+    remixDirection.value = ''
+    focusWeight.value = 50
   },
 )
 async function shareFusion(platform: 'copy' | 'x' | 'facebook' | 'reddit') {
@@ -639,6 +758,13 @@ async function shareFusion(platform: 'copy' | 'x' | 'facebook' | 'reddit') {
 }
 
 const drawer = ref<'left' | 'right' | 'atlas' | null>(null)
+const atlasStatus = ref('ALL')
+const atlasFilters = [
+  { value: 'ALL', label: 'All' },
+  { value: 'READY', label: 'Illustrated' },
+  { value: 'IN_PROGRESS', label: 'Rendering' },
+  { value: 'OTHER', label: 'Unillustrated' },
+]
 const search = ref('')
 const filter = ref('ALL')
 const filters = [
@@ -652,8 +778,25 @@ const filters = [
 ]
 
 const visibleEntries = computed(() => {
-  if (drawer.value === 'atlas') return [...lab.discoveries].reverse()
   const word = search.value.toLowerCase().trim()
+  if (drawer.value === 'atlas')
+    return [...lab.discoveries].reverse().filter((entry) => {
+      const rendering = ['QUEUED', 'RENDERING', 'DELIVERING'].includes(
+        entry.status || '',
+      )
+      const matchesStatus =
+        atlasStatus.value === 'ALL' ||
+        (atlasStatus.value === 'READY' &&
+          entry.status === 'READY' &&
+          !!lab.imageFor(entry)) ||
+        (atlasStatus.value === 'IN_PROGRESS' && rendering) ||
+        (atlasStatus.value === 'OTHER' &&
+          !rendering &&
+          (entry.status !== 'READY' || !lab.imageFor(entry)))
+      return (
+        matchesStatus && (!word || entry.title.toLowerCase().includes(word))
+      )
+    })
   return lab.inputs.filter((entry) => {
     const type =
       entry.taxonomy === 'OTHER' && entry.facetGroup === 'fruit'
@@ -670,13 +813,24 @@ function openDrawer(side: 'left' | 'right' | 'atlas') {
   drawer.value = side
   search.value = ''
   filter.value = side === 'atlas' ? 'HYBRID' : 'ALL'
+  atlasStatus.value = 'ALL'
 }
 
 function pick(key: string) {
   if (drawer.value === 'left' || drawer.value === 'right')
     lab.choose(drawer.value, key)
-  else lab.choose('left', key)
+  else lab.selectAtlasDiscovery(key)
   drawer.value = null
+}
+
+async function submitRemix() {
+  if (!lab.left) return
+  await lab.resubmit({
+    focusKey: lab.left.key,
+    focusWeight: focusWeight.value,
+    direction: remixDirection.value,
+  })
+  if (lab.result?.status === 'QUEUED') remixEditorOpen.value = false
 }
 
 function glyphFor(title?: string, taxonomy?: string): string {
@@ -951,6 +1105,16 @@ onUnmounted(() => lab.stopArtworkWatch())
     0 0 120px #c27ff4aa;
 }
 
+.known-art-mark {
+  align-self: flex-start;
+  color: #e0f6a6;
+  border: 1px solid #d6eba57a;
+  padding: 2px 7px;
+  border-radius: 999px;
+  font-size: 0.59rem;
+  font-weight: 900;
+  letter-spacing: 0.06em;
+}
 .hybridizer-result {
   position: relative;
   padding: clamp(10px, 1.5vw, 20px);
@@ -1496,6 +1660,82 @@ onUnmounted(() => lab.stopArtworkWatch())
   width: 100%;
   font-size: 0.55rem;
   padding: 4px 1px;
+}
+.remix-editor {
+  position: absolute;
+  z-index: 19;
+  inset: 6px;
+  display: grid;
+  align-content: start;
+  gap: 12px;
+  overflow-y: auto;
+  padding: 14px;
+  border: 1px solid #e4f6b5;
+  border-radius: 16px;
+  background: #251733;
+  box-shadow: 0 9px 28px #110821bb;
+}
+.remix-editor label {
+  display: grid;
+  gap: 5px;
+  color: #e6e7c5;
+  font-size: 0.74rem;
+  font-weight: 800;
+}
+.remix-editor p {
+  font-size: 0.76rem;
+  color: #ead3f4;
+}
+.remix-editor textarea {
+  width: 100%;
+  border: 1px solid #b5a0bd;
+  border-radius: 8px;
+  background: #180f27;
+  color: white;
+  padding: 8px;
+}
+.remix-balance input {
+  width: 100%;
+  accent-color: #dffa98;
+}
+.remix-submit {
+  border-radius: 9px;
+  padding: 10px;
+  background: #dffa98;
+  color: #251733;
+  font-size: 0.75rem;
+  font-weight: 900;
+}
+.remix-submit:disabled {
+  opacity: 0.5;
+}
+.atlas-summary {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+  font-size: 0.76rem;
+  font-weight: 800;
+}
+.atlas-summary span,
+.atlas-loaded {
+  color: #dff1b3;
+}
+.atlas-loaded {
+  font-size: 0.68rem;
+}
+.atlas-entry-status {
+  font-weight: 900;
+}
+.atlas-load-more {
+  grid-column: 1 / -1;
+  border: 1px solid #e1f5ac;
+  border-radius: 10px;
+  padding: 12px;
+  font-weight: 900;
+  color: #ebffb5;
+}
+.atlas-load-more:disabled {
+  opacity: 0.55;
 }
 .reaction-layer {
   position: absolute;

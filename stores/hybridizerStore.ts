@@ -48,7 +48,10 @@ const STARTERS = catalog.entries as HybridizerIngredient[]
 const LEGACY_STORAGE_KEY = 'kind-robots-hybridizer-lab-studies-v1'
 const STORAGE_KEY = 'kind-robots-hybridizer-lab-studies-v2'
 const MAX_STUDY_DEPTH = 4
-const MAX_SHELF = 1000
+const MAX_SHELF = 10000
+const PAGE_SIZE = 120
+
+type AtlasMeta = { total: number; ready: number; rendering: number }
 
 function pairKey(a: string, b: string): string {
   return JSON.stringify([a, b].sort())
@@ -75,12 +78,20 @@ export const useHybridizerStore = defineStore('hybridizer', () => {
   const availableArt = ref<Record<string, string>>({})
   const pendingKeys = ref<string[]>([])
   const readyNotice = ref<HybridizerDiscovery | null>(null)
+  const discoveryTotal = ref<number | null>(null)
+  const readyTotal = ref(0)
+  const renderingTotal = ref(0)
+  const remoteLoaded = ref(0)
+  const loadingShared = ref(false)
+  const reusedArtwork = ref(false)
+  let sharedRequestSerial = 0
   const versions = ref<HybridizerVersion[]>([])
   const versionsFor = ref<string | null>(null)
   const canEditResult = ref(false)
   const versionBusy = ref(false)
   const enqueuing = new Set<string>()
   let pollTimer: ReturnType<typeof setInterval> | null = null
+  let pollTicks = 0
 
   const inputs = computed<HybridizerIngredient[]>(() => [
     ...STARTERS,
@@ -95,6 +106,11 @@ export const useHybridizerStore = defineStore('hybridizer', () => {
     resultKey.value ? (byKey.value.get(resultKey.value) ?? null) : null,
   )
   const starterCount = STARTERS.length
+  const canLoadMore = computed(
+    () =>
+      discoveryTotal.value !== null &&
+      remoteLoaded.value < discoveryTotal.value,
+  )
 
   function scopedStorageKey() {
     return STORAGE_KEY + ':' + (userStore.authenticatedUserId ?? 'guest')
@@ -130,47 +146,66 @@ export const useHybridizerStore = defineStore('hybridizer', () => {
     }
   }
 
-  async function loadSharedStudies() {
+  async function loadSharedStudies(loadMore = false) {
+    if (loadMore && (loadingShared.value || !canLoadMore.value)) return
     const viewerId = userStore.authenticatedUserId
-    const response = await performFetch<HybridizerDiscovery[]>(
-      '/api/hybridizer/fusions?take=' + MAX_SHELF,
-    )
-    if (viewerId !== userStore.authenticatedUserId) return
-    if (!response.success || !response.data) {
-      status.value =
-        'Shared library unavailable. Local studies remain accessible.'
-      return
-    }
-    const merged = new Map<string, HybridizerDiscovery>()
-    for (const entry of [...discoveries.value, ...response.data]) {
-      if (entry.key && entry.title && entry.sources?.length === 2) {
-        merged.set(entry.key, entry)
+    const requestId = ++sharedRequestSerial
+    const skip = loadMore ? remoteLoaded.value : 0
+    loadingShared.value = true
+    try {
+      const response = await performFetch<HybridizerDiscovery[], AtlasMeta>(
+        '/api/hybridizer/fusions?take=' + PAGE_SIZE + '&skip=' + skip,
+      )
+      if (
+        requestId !== sharedRequestSerial ||
+        viewerId !== userStore.authenticatedUserId
+      )
+        return
+      if (!response.success || !response.data) {
+        status.value =
+          'Shared library unavailable. Local studies remain accessible.'
+        return
       }
+      remoteLoaded.value = Math.max(
+        remoteLoaded.value,
+        skip + response.data.length,
+      )
+      discoveryTotal.value = response.meta?.total ?? remoteLoaded.value
+      readyTotal.value = response.meta?.ready ?? 0
+      renderingTotal.value = response.meta?.rendering ?? 0
+      const merged = new Map<string, HybridizerDiscovery>()
+      for (const entry of [...discoveries.value, ...response.data]) {
+        if (entry.key && entry.title && entry.sources?.length === 2) {
+          merged.set(entry.key, entry)
+        }
+      }
+      discoveries.value = [...merged.values()]
+      const listedArt: Record<string, string> = {}
+      for (const entry of response.data)
+        if (entry.imagePath) listedArt[entry.key] = entry.imagePath
+      availableArt.value = { ...availableArt.value, ...listedArt }
+      pendingKeys.value = [
+        ...new Set([
+          ...pendingKeys.value,
+          ...response.data
+            .filter(
+              (entry) =>
+                entry.artJobId &&
+                entry.status !== 'READY' &&
+                entry.status !== 'FAILED' &&
+                entry.status !== 'CANCELLED',
+            )
+            .map((entry) => entry.key),
+        ]),
+      ]
+      for (const entry of response.data.slice(0, 10)) {
+        if (entry.artJobId && entry.key.startsWith('fusion:'))
+          void refreshArtwork(entry.key)
+      }
+      save()
+    } finally {
+      if (requestId === sharedRequestSerial) loadingShared.value = false
     }
-    discoveries.value = [...merged.values()].slice(-MAX_SHELF)
-    const listedArt: Record<string, string> = {}
-    for (const entry of response.data)
-      if (entry.imagePath) listedArt[entry.key] = entry.imagePath
-    availableArt.value = { ...availableArt.value, ...listedArt }
-    pendingKeys.value = [
-      ...new Set([
-        ...pendingKeys.value,
-        ...response.data
-          .filter(
-            (entry) =>
-              entry.artJobId &&
-              entry.status !== 'READY' &&
-              entry.status !== 'FAILED' &&
-              entry.status !== 'CANCELLED',
-          )
-          .map((entry) => entry.key),
-      ]),
-    ]
-    for (const entry of response.data.slice(0, 10)) {
-      if (entry.artJobId && entry.key.startsWith('fusion:'))
-        void refreshArtwork(entry.key)
-    }
-    save()
   }
 
   async function loadArtwork() {
@@ -259,6 +294,7 @@ export const useHybridizerStore = defineStore('hybridizer', () => {
       discovery,
     ].slice(-MAX_SHELF)
     resultKey.value = discovery.key
+    reusedArtwork.value = discovery.status === 'READY'
     save()
     await Promise.all([
       refreshArtwork(discovery.key),
@@ -266,7 +302,13 @@ export const useHybridizerStore = defineStore('hybridizer', () => {
     ])
   }
 
-  async function resubmit(): Promise<void> {
+  async function resubmit(
+    options: {
+      focusKey?: string
+      focusWeight?: number
+      direction?: string
+    } = {},
+  ): Promise<void> {
     const viewerId = userStore.authenticatedUserId
     const key = resultKey.value
     if (
@@ -279,7 +321,7 @@ export const useHybridizerStore = defineStore('hybridizer', () => {
     try {
       const response = await performFetch<{ jobId: number; status: string }>(
         '/api/hybridizer/fusions/' + key.slice(7) + '/resubmit',
-        { method: 'POST' },
+        { method: 'POST', body: JSON.stringify(options) },
       )
       if (viewerId !== userStore.authenticatedUserId) return
       if (!response.success || !response.data) {
@@ -295,6 +337,7 @@ export const useHybridizerStore = defineStore('hybridizer', () => {
       status.value =
         'New version queued. Previous artwork is saved in the revision gallery.'
       await loadVersions(key)
+      void loadSharedStudies()
       void achievementStore.rewardAchievementByCode('hybridizer-art-critic')
     } finally {
       versionBusy.value = false
@@ -435,7 +478,11 @@ export const useHybridizerStore = defineStore('hybridizer', () => {
 
   function startArtworkWatch() {
     if (!import.meta.client || pollTimer) return
-    pollTimer = setInterval(() => void pollArtwork(), 10000)
+    pollTimer = setInterval(() => {
+      void pollArtwork()
+      pollTicks += 1
+      if (pollTicks % 6 === 0 && !loadingShared.value) void loadSharedStudies()
+    }, 10000)
     void pollArtwork()
   }
 
@@ -481,7 +528,6 @@ export const useHybridizerStore = defineStore('hybridizer', () => {
     const viewerId = userStore.authenticatedUserId
     const known = await fetchKnownPair(a.key, b.key)
     if (
-      !known ||
       working.value ||
       resultKey.value ||
       viewerId !== userStore.authenticatedUserId ||
@@ -489,6 +535,8 @@ export const useHybridizerStore = defineStore('hybridizer', () => {
       right.value?.key !== b.key
     )
       return
+    if (!known) return
+    reusedArtwork.value = known.status === 'READY'
     adoptDiscovery(known)
     status.value =
       'Already discovered: ' +
@@ -501,6 +549,7 @@ export const useHybridizerStore = defineStore('hybridizer', () => {
     if (side === 'left') leftKey.value = key
     else rightKey.value = key
     resultKey.value = null
+    reusedArtwork.value = false
     versions.value = []
     canEditResult.value = false
     status.value = 'Ready to combine two specimens.'
@@ -524,6 +573,7 @@ export const useHybridizerStore = defineStore('hybridizer', () => {
 
     const viewerId = userStore.authenticatedUserId
     working.value = true
+    reusedArtwork.value = false
     resultKey.value = null
     versions.value = []
     canEditResult.value = false
@@ -587,6 +637,7 @@ export const useHybridizerStore = defineStore('hybridizer', () => {
           ? 'Shared illustrated discovery retrieved.'
           : 'Shared discovery saved. Artwork will render in the background.'
       save()
+      void loadSharedStudies()
       void loadVersions(discovery.key)
       void achievementStore.rewardAchievementByCode('hybridizer-first-fusion')
       if (a.depth || b.depth)
@@ -601,6 +652,26 @@ export const useHybridizerStore = defineStore('hybridizer', () => {
     }
   }
 
+  function selectAtlasDiscovery(key: string) {
+    const entry = discoveries.value.find((item) => item.key === key)
+    if (!entry) return
+    leftKey.value = entry.sources[0]
+    rightKey.value = entry.sources[1]
+    resultKey.value = key
+    reusedArtwork.value = entry.status === 'READY'
+    versions.value = []
+    canEditResult.value = false
+    status.value =
+      entry.status === 'READY'
+        ? 'Existing artwork retrieved from the discovery atlas.'
+        : 'Saved discovery selected. Artwork status: ' +
+          (entry.status || 'STUDY')
+    if (key.startsWith('fusion:')) {
+      void refreshArtwork(key)
+      void loadVersions(key)
+    }
+  }
+
   function remix(side: 'left' | 'right') {
     if (!result.value) return
     choose(side, result.value.key)
@@ -611,9 +682,14 @@ export const useHybridizerStore = defineStore('hybridizer', () => {
     () => {
       if (!import.meta.client) return
       discoveries.value = []
+      discoveryTotal.value = null
+      remoteLoaded.value = 0
+      readyTotal.value = 0
+      renderingTotal.value = 0
       pendingKeys.value = []
       readyNotice.value = null
       resultKey.value = null
+      reusedArtwork.value = false
       versions.value = []
       versionsFor.value = null
       canEditResult.value = false
@@ -631,6 +707,12 @@ export const useHybridizerStore = defineStore('hybridizer', () => {
     right,
     inputs,
     discoveries,
+    discoveryTotal,
+    readyTotal,
+    renderingTotal,
+    loadingShared,
+    canLoadMore,
+    reusedArtwork,
     result,
     resultKey,
     working,
@@ -644,6 +726,7 @@ export const useHybridizerStore = defineStore('hybridizer', () => {
     versionBusy,
     loadVersions,
     openSharedFusion,
+    selectAtlasDiscovery,
     resubmit,
     makePrimary,
     imageFor,

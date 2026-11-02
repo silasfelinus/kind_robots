@@ -1656,7 +1656,10 @@ assert.match(
 assert.match(consoleSource, /data-testid="memory-hoshimori-ember-wing-account"/)
 assert.match(consoleSource, /data-testid="memory-hoshimori-enter-cinder-wing"/)
 assert.match(consoleSource, /data-testid="memory-hoshimori-enter-last-bell"/)
-assert.match(consoleSource, /data-testid="memory-hoshimori-seventh-bell-account"/)
+assert.match(
+  consoleSource,
+  /data-testid="memory-hoshimori-seventh-bell-account"/,
+)
 assert.match(consoleSource, /data-testid="memory-hoshimori-final-guardian"/)
 assert.match(
   consoleSource,
@@ -1679,7 +1682,10 @@ assert.match(
 assert.match(storeSource, /hoshimoriOvenSecondAccount\(progress\.value\)/)
 assert.match(storeSource, /hoshimoriOvenThirdAccount\(progress\.value\)/)
 assert.match(storeSource, /hoshimoriOvenGuardianResolution\(progress\.value\)/)
-assert.match(storeSource, /hoshimoriOvenFinalGuardianResolution\(progress\.value\)/)
+assert.match(
+  storeSource,
+  /hoshimoriOvenFinalGuardianResolution\(progress\.value\)/,
+)
 assert.match(storeSource, /syncHoshimoriAchievements/)
 const worldStoreSource = readFileSync('stores/memoryWorldStore.ts', 'utf8')
 assert.match(worldStoreSource, /campaign\.value\.completed\.includes\('e06'\)/)

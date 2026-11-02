@@ -9,6 +9,7 @@ import {
   campaignAftermathFor,
 } from '../slimeCity/campaignAftermath'
 import { CAMPAIGN_CHOICE_CONSEQUENCES } from '../slimeCity/campaignConsequences'
+import { CAMPAIGN_CHAPTER_SUPPORT } from '../slimeCity/campaignSupport'
 import {
   CAMPAIGN_RETRY_VOICES,
   CAMPAIGN_RIVAL_EXCHANGES,
@@ -651,9 +652,12 @@ for (const team of TEAMS) {
       approach,
       'player',
     )
-    const expected = CAMPAIGN_ECHOES[team.id][approach]
+    const expected = {
+      ...CAMPAIGN_ECHOES[team.id][approach],
+      ...CAMPAIGN_CHAPTER_SUPPORT[team.id][0]![approach],
+    }
     assert.deepEqual(campaignEchoFor(saved, team.id), expected)
-    assert.ok(expected.title.length > 9 && expected.story.length > 60)
+    assert.ok(expected.title.length >= 10 && expected.story.length >= 55)
     assert.deepEqual(campaignBattleTerms(saved, team.id, {}), expected.terms)
     const baseTerms = {
       playerMana: 1,
@@ -712,6 +716,97 @@ for (const team of TEAMS) {
 }
 console.log(
   'Slime City 12 faction campaign echoes: earned, bounded, applied PASS',
+)
+
+// The five saved chapters must offer distinct support choices per crew,
+// not five copies of a two-effect faction buff. Check both approaches
+// independently, all sixty narratives, bounded battle terms and unlock order.
+const supportNames = new Set<string>()
+for (const team of TEAMS) {
+  const chapters = FACTION_CAMPAIGNS[team.id].chapters
+  const support = CAMPAIGN_CHAPTER_SUPPORT[team.id]
+  assert.equal(support.length, chapters.length)
+  const uniqueTerms = new Set<string>()
+  let base = createCampaignSave()
+  for (let index = 0; index < chapters.length; index++) {
+    const chapter = chapters[index]!
+    const pair = support[index]!
+    for (const approach of ['conviction', 'cunning'] as const) {
+      const favor = pair[approach]
+      assert.ok(favor.title.length >= 10)
+      assert.ok(favor.story.length >= 55)
+      assert.ok(
+        !supportNames.has(favor.title),
+        'Each earned ally has a distinct name',
+      )
+      supportNames.add(favor.title)
+      const terms = favor.terms
+      const keys = Object.keys(terms)
+      assert.ok(keys.length > 0)
+      assert.ok(
+        keys.every((key) =>
+          [
+            'playerMana',
+            'enemyMana',
+            'playerHp',
+            'enemyArmor',
+            'fewerRivals',
+            'rounds',
+            'rivalTrap',
+          ].includes(key),
+        ),
+      )
+      assert.ok((terms.playerMana ?? 0) <= 2)
+      assert.ok((terms.enemyMana ?? 0) <= 1)
+      assert.ok((terms.playerHp ?? 0) <= 2)
+      assert.ok((terms.rounds ?? 0) <= 2)
+      assert.ok((terms.fewerRivals ?? 0) <= 1)
+      assert.ok((terms.enemyArmor ?? 0) >= -1)
+      if (terms.rivalTrap) assert.equal(terms.playerMana, 2)
+      uniqueTerms.add(JSON.stringify(terms))
+      if (index < 4) {
+        const unlocked = resolveCampaignBattle(
+          base,
+          team.id,
+          index,
+          chapter.foe,
+          approach,
+          'player',
+        )
+        assert.equal(campaignFavorsFor(unlocked, team.id).length, index + 1)
+        assert.deepEqual(
+          campaignBattleTerms(unlocked, team.id, {}, index),
+          terms,
+          'Saved choice unlocks its own chapter terms and never a later chapter',
+        )
+        assert.equal(
+          campaignFavorsFor(base, team.id).some(
+            (entry) => entry.chapterIndex === index,
+          ),
+          false,
+          'An unearned chapter cannot enter the support dossier',
+        )
+      }
+    }
+    if (index < 4) {
+      base = resolveCampaignBattle(
+        base,
+        team.id,
+        index,
+        chapter.foe,
+        'conviction',
+        'player',
+      )
+    }
+  }
+  assert.ok(
+    uniqueTerms.size >= 8,
+    'Each crew must earn a meaningful tactical variety, not duplicate effects',
+  )
+}
+assert.equal(supportNames.size, 60)
+console.log(
+  'Slime City chapter supports: sixty named/unique favors, bounded terms and unlocks PASS',
 )
 
 // Earned ally favors are existing campaign decisions, not a second inventory.

@@ -1,6 +1,7 @@
 import type { BoutTerms } from './city'
 import type { TeamId } from './prototypes'
 import { CAMPAIGN_CHOICE_CONSEQUENCES } from './campaignConsequences'
+import { CAMPAIGN_CHAPTER_SUPPORT } from './campaignSupport'
 
 export type CampaignApproach = 'conviction' | 'cunning'
 export type CampaignResult = 'player' | 'enemy' | 'draw'
@@ -811,12 +812,13 @@ export function campaignFavorsFor(
     .slice(0, Math.min(progress.wins, progress.decisions.length))
     .map((chapter, chapterIndex) => {
       const choice = progress.decisions[chapterIndex]!
+      const support = CAMPAIGN_CHAPTER_SUPPORT[team][chapterIndex]![choice]
       return {
         chapterIndex,
         chapterTitle: chapter.title,
         ally: chapter.foe,
         choice,
-        echo: CAMPAIGN_ECHOES[team][choice],
+        echo: { ...CAMPAIGN_ECHOES[team][choice], ...support },
       }
     })
 }

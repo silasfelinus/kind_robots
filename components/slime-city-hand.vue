@@ -24,7 +24,7 @@
     :class="'tone-' + lab.team.color"
     data-testid="slime-hand"
     :aria-label="
-      lab.mode === 'blackout' ? 'Your four-card hand' : 'Arcade card rack'
+      lab.mode === 'blackout' ? 'Your five-card hand' : 'Arcade card rack'
     "
   >
     <div
@@ -36,7 +36,7 @@
         lab.match.piles.player.length +
         ' · discard ' +
         lab.match.discards.player.length +
-        ' · next deal on END ROUND'
+        ' · keep or choose discards at END ROUND'
       "
     >
       <span class="sch-back sch-back-stack" aria-hidden="true"
@@ -73,6 +73,7 @@
             unavailable: card.cost > lab.match.mana || !lab.ready(card.id),
             spent: !lab.ready(card.id),
             'is-flipping': flipping === card.id,
+            'marked-discard': lab.match.markedDiscards.player.includes(card.id),
           }"
           :style="fanStyle(index)"
           :data-testid="'slime-card-' + card.id"
@@ -121,8 +122,22 @@
             <span class="sch-swirl sch-swirl-a" />
             <span class="sch-swirl sch-swirl-b" />
           </span>
-        </button>
       </TransitionGroup>
+      <div v-if="lab.mode === 'blackout'" class="sch-cycle-row">
+        <button
+          v-for="card in cards"
+          :key="'cycle-' + card.id"
+          type="button"
+          class="sch-cycle"
+          :class="{ active: lab.match.markedDiscards.player.includes(card.id) }"
+          :aria-pressed="lab.match.markedDiscards.player.includes(card.id)"
+          :aria-label="'Discard ' + card.name + ' at the end of this round'"
+          :data-testid="'slime-discard-' + card.id"
+          @click.stop="lab.markHandDiscard(card.id)"
+        >
+          {{ lab.match.markedDiscards.player.includes(card.id) ? 'REDRAW ↻' : 'KEEP' }}
+        </button>
+      </div>
     </div>
 
     <div
@@ -609,5 +624,30 @@ function sparkleStyle(n: number): Record<string, string> {
     animation: none;
     opacity: 0;
   }
+}
+.sch-cycle-row {
+  display: flex;
+  justify-content: center;
+  gap: 0.45rem;
+  padding: 0.15rem 0.4rem 0.45rem;
+}
+.sch-cycle {
+  border: 1px solid currentColor;
+  border-radius: 999px;
+  min-width: 0;
+  flex: 1;
+  max-width: 7.5rem;
+  padding: 0.22rem 0.3rem;
+  font-size: 0.65rem;
+  font-weight: 800;
+  opacity: 0.65;
+}
+.sch-cycle.active {
+  background: #fcce5e;
+  color: #20141c;
+  opacity: 1;
+}
+.sch-card.marked-discard {
+  filter: saturate(0.5);
 }
 </style>

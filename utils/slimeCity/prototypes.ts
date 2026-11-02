@@ -1460,7 +1460,7 @@ export const MODE_GUIDES: Record<ModeId, ModeGuide> = {
     limits: [
       'Local prototype: the CPU sees where fighters stand but not hidden identities or your trap.',
       'Initiative alternates (you, CPU, CPU, you …): on even rounds the CPU has already moved when your turn starts.',
-      'Ten unique cards per crew, four drawn each round. Played cards leave your hand. Discards recycle only after the deck empties. Mana: 1, 2, 3 … up to 10, minus debt.',
+      'Ten-card deck, five-card hand. Keep or mark any unplayed cards for end-round redraw. Played cards skip the very next draw. Gain three mana per round and bank leftovers up to ten; debt reduces only new mana.',
       'Nothing is saved: no Meat, cards or online results.',
     ],
   },
@@ -1778,7 +1778,11 @@ function addDebt(state: MatchState, side: Side, amount: number): void {
   if (state.mode === 'bloodrush') {
     if (side === 'player') state.mana = Math.max(0, state.mana - amount)
     else state.enemyMana = Math.max(0, state.enemyMana - amount)
-  } else state.debt[side] = Math.min(DEBT_CAP, state.debt[side] + amount)
+  } else
+    state.debt[side] = Math.min(
+      state.mode === 'blackout' ? 6 : DEBT_CAP,
+      state.debt[side] + amount,
+    )
 }
 
 /** Root a fighter now: it loses its current or next movement. */

@@ -128,7 +128,7 @@ for (let seed = 1; seed <= 300; seed++) {
     }
     const card = episodeCard(voyage, 'planet')
     const firstVisit = episodeCard(
-      { ...voyage, episodeDrawHistory: [] },
+      { ...voyage, episodeDrawHistory: [] } as EpisodeRun,
       'planet',
     )
     assert.equal(card.id, firstVisit.id)

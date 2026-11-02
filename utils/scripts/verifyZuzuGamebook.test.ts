@@ -1343,6 +1343,11 @@ assert.match(
   'the toolbar row docks into the system bar',
 )
 assert.doesNotMatch(page, /class="kr-toolbar/, 'no second header strip')
+assert.match(page, /data-testid="zuzu-gamebook-ledger-menu"/)
+assert.match(page, /data-testid="zuzu-gamebook-ledger"/)
+assert.match(page, /store\.discovered\.includes\(ending\)/)
+assert.match(page, /recentTrail/)
+
 assert.match(page, /\(min-width: 1024px\) and \(max-height: 820px\)/)
 assert.match(page, /\(min-width: 768px\) and \(orientation: portrait\)/)
 assert.match(page, /md:grid-rows-\[minmax\(9rem,1fr\)_auto\]/)

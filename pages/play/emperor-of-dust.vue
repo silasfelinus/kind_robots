@@ -306,6 +306,7 @@
       v-if="splashing"
       :ready="court.loaded"
       @done="splashing = false"
+      @chronicle="openChronicleFromSplash"
     />
     <EmperorFortressDawn
       v-if="showDawn && court.lastReport"
@@ -432,6 +433,12 @@ onBeforeUnmount(() => barObserver?.disconnect())
 function enter(room: RoomId) {
   activeRoom.value = room
   stage.value?.scrollTo({ top: 0 })
+}
+
+function openChronicleFromSplash() {
+  splashing.value = false
+  court.closeIntro()
+  enter('chronicle')
 }
 
 function finishIntroduction() {

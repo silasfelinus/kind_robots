@@ -383,16 +383,7 @@ assert.ok(
     return warm.title !== night.title && warm.opening !== night.opening
   }),
 )
-const ridgeSnake = [
-  '5,1',
-  '6,1',
-  '7,1',
-  '8,1',
-  '8,2',
-  '7,2',
-  '6,2',
-  '5,2',
-]
+const ridgeSnake = ['5,1', '6,1', '7,1', '8,1', '8,2', '7,2', '6,2', '5,2']
 for (let seed = 0; seed < 64; seed++) {
   const bits = seed % 8
   let progress = newHoshimoriNightProgress(seed)
@@ -414,14 +405,7 @@ for (let seed = 0; seed < 64; seed++) {
     )
   }
   assert.ok(hoshimoriNightCouncil(progress))
-  for (const key of [
-    '2,4',
-    '3,4',
-    '4,4',
-    '4,3',
-    '4,2',
-    '4,1',
-  ])
+  for (const key of ['2,4', '3,4', '4,4', '4,3', '4,2', '4,1'])
     progress = visit(progress, key)
   assert.equal(canMoveHoshimoriNight(progress, '5,1'), true)
   for (const key of ridgeSnake) {

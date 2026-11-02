@@ -109,7 +109,7 @@ for (let seed = 1; seed <= 12; seed++) {
     step.startsWith('consequence:'),
   ).length
 }
-assert.equal(authoredDecisions, 24, 'two authored first-act scenes per voyage')
+assert.equal(authoredDecisions, 36, 'three authored first-act scenes per voyage')
 
 const ui = readFileSync(
   new URL('../../pages/play/game-of-captains.vue', import.meta.url),

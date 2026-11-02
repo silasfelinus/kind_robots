@@ -735,15 +735,27 @@ for (const team of TEAMS) {
       const favor = pair[approach]
       assert.ok(favor.title.length >= 10)
       assert.ok(favor.story.length >= 55)
-      assert.ok(!supportNames.has(favor.title), 'Each earned ally has a distinct name')
+      assert.ok(
+        !supportNames.has(favor.title),
+        'Each earned ally has a distinct name',
+      )
       supportNames.add(favor.title)
       const terms = favor.terms
       const keys = Object.keys(terms)
       assert.ok(keys.length > 0)
-      assert.ok(keys.every((key) =>
-        ['playerMana', 'enemyMana', 'playerHp', 'enemyArmor',
-          'fewerRivals', 'rounds', 'rivalTrap'].includes(key),
-      ))
+      assert.ok(
+        keys.every((key) =>
+          [
+            'playerMana',
+            'enemyMana',
+            'playerHp',
+            'enemyArmor',
+            'fewerRivals',
+            'rounds',
+            'rivalTrap',
+          ].includes(key),
+        ),
+      )
       assert.ok((terms.playerMana ?? 0) <= 2)
       assert.ok((terms.enemyMana ?? 0) <= 1)
       assert.ok((terms.playerHp ?? 0) <= 2)
@@ -768,7 +780,9 @@ for (const team of TEAMS) {
           'Saved choice unlocks its own chapter terms and never a later chapter',
         )
         assert.equal(
-          campaignFavorsFor(base, team.id).some((entry) => entry.chapterIndex === index),
+          campaignFavorsFor(base, team.id).some(
+            (entry) => entry.chapterIndex === index,
+          ),
           false,
           'An unearned chapter cannot enter the support dossier',
         )
@@ -791,7 +805,9 @@ for (const team of TEAMS) {
   )
 }
 assert.equal(supportNames.size, 60)
-console.log('Slime City chapter supports: sixty named/unique favors, bounded terms and unlocks PASS')
+console.log(
+  'Slime City chapter supports: sixty named/unique favors, bounded terms and unlocks PASS',
+)
 
 // Earned ally favors are existing campaign decisions, not a second inventory.
 // Only one selected favor applies to the battle; no route, defeat, or replay

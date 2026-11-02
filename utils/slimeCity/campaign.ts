@@ -652,7 +652,6 @@ export function campaignEnding(
     : FACTION_CAMPAIGNS[team].compromise
 }
 
-
 /**
  * A won chapter leaves a tactical footprint in the next fight. Only the
  * latest victory is active, so benefits cannot snowball into invincible
@@ -741,8 +740,7 @@ export const CAMPAIGN_ECHOES: Record<
   exchange: {
     conviction: {
       title: 'DEBT JUBILEE',
-      story:
-        'One rival collector resigns after seeing the bills you tore up.',
+      story: 'One rival collector resigns after seeing the bills you tore up.',
       terms: { fewerRivals: 1 },
     },
     cunning: {
@@ -759,8 +757,7 @@ export function campaignEchoFor(
   team: TeamId,
 ): CampaignEcho | null {
   const { wins, decisions } = save[team]
-  if (wins < 1 || wins >= FACTION_CAMPAIGNS[team].chapters.length)
-    return null
+  if (wins < 1 || wins >= FACTION_CAMPAIGNS[team].chapters.length) return null
   const lastChoice = decisions[wins - 1]
   return lastChoice ? CAMPAIGN_ECHOES[team][lastChoice] : null
 }

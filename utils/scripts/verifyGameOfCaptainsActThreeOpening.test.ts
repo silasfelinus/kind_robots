@@ -119,7 +119,8 @@ const afterChapterSeven = nextDestination({
   consequenceHistory: records,
 })
 assert.equal(afterChapterSeven.chapter, 8)
-assert.ok(afterChapterSeven.log.some((line) => line.includes('Follow-up transmission:')))
+assert.ok(afterChapterSeven.scene.includes(records[0]!.callback))
+assert.ok(afterChapterSeven.log.includes('Last command consequence: ' + records[0]!.callback))
 assert.deepEqual(restoreVoyage(JSON.parse(JSON.stringify(afterChapterSeven))), afterChapterSeven)
 
 let choicesSeen = 0

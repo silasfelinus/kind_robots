@@ -1221,7 +1221,22 @@ const BARRACKS: EpilogueSubject[] = [
       {
         when: { flags: ['romance-kiyo-sealed'] },
         mood: 'happy',
-        text: 'Kiyo keeps the infirmary keys. The emperor keeps no key to her door. Every week there is a night they spend together with the crown set outside. In the morning, Zuzu brings breakfast and asks which of them is the better ruler. They both point at him.',
+        text: 'Kiyo keeps the infirmary keys. The emperor has never asked for a copy. Once a week they share bitter tea with the crown left outside. Zuzu brings breakfast and appoints himself the better ruler. Neither adult argues.',
+      },
+      {
+        when: { flags: ['kiyo-clinic-neutral'] },
+        mood: 'happy',
+        text: 'The infirmary admits the wounded without asking whom they fought for. The Watch still sends complaints. Each bears the emperor’s signature at the bottom, never Kiyo’s. Zuzu grows tall enough to hold the lantern at the door.',
+      },
+      {
+        when: { flags: ['kiyo-clinic-guarded'] },
+        mood: 'sad',
+        text: 'The Watch guards the infirmary. Its beds are safe and sometimes empty. Kiyo keeps a second roll of bandages by the outer steps for the wounded who will not pass the sentry. She does not tell Zuzu why.',
+      },
+      {
+        when: { flags: ['kiyo-clinic-independent'] },
+        mood: 'happy',
+        text: 'Kiyo keeps the charter beside her lantern. The crown never signs a patient list. Some mornings she sends the Watch away. Others she asks for its help. She makes mistakes and owns them. The emperor still comes for tea.',
       },
       {
         when: { flags: ['kiyo-friendship-deep'] },

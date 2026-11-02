@@ -16,6 +16,7 @@ import { controls, playVoyage } from './spaceCouchTraceHarness'
 const baseline = {
   ...startVoyage('fluke', ['pell', 'mox', 'rue'], 41),
   phase: 'decision' as const,
+  missionId: 'nacre',
   supplies: 0,
   reputation: 3,
   trust: 2,

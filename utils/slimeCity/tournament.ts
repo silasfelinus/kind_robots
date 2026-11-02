@@ -81,24 +81,21 @@ export function summarizeTournament(
   let traps = 0
   let contactSum = 0
   let contactCount = 0
-  const crews = new Map(
-    teamIds.map(
-      (team) =>
-        [
-          team,
-          {
-            team,
-            ...record(),
-            scoreRate: 0,
-            asPlayer: record(),
-            asEnemy: record(),
-            averageRounds: 0,
-            longestStall: 0,
-            withoutContact: 0,
-            winPaths: {} as Record<string, number>,
-          },
-        ] as const,
-    ),
+  const crews = new Map<TeamId, CrewRecord>(
+    teamIds.map((team): [TeamId, CrewRecord] => [
+      team,
+      {
+        team,
+        ...record(),
+        scoreRate: 0,
+        asPlayer: record(),
+        asEnemy: record(),
+        averageRounds: 0,
+        longestStall: 0,
+        withoutContact: 0,
+        winPaths: {},
+      },
+    ]),
   )
   for (const match of results) {
     if (

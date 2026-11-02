@@ -5,13 +5,13 @@ export const HYBRIDIZER_ART_SIZE = 1024
 export const HYBRIDIZER_ART_PRIORITY = 100
 export const HYBRIDIZER_ACTIVE_USER_LIMIT = 3
 export const HYBRIDIZER_RETRY_LIMIT = 2
-// Launch hybrids queue behind interactive fusions (100) and project runtime art,
-// but ahead of bulk backfill packs (priority 60 and below), so the curated
-// catalogue keeps filling on a busy queue (Silas, 2026-10-30). The window was 60;
-// GitHub fires the top-up cron only every few hours, so it is 100 (2026-11-02).
-export const HYBRIDIZER_BATCH_PRIORITY = 90
+// Launch hybrids are low-priority bulk art: Silas, 2026-11-02, "Hybridizer can just be low
+// priority, submit all, and be done with it." They render only when no interactive fusion,
+// game or project art is waiting, so the whole 4,000-pair launch set can sit in the queue at
+// once instead of trickling in through a small window the top-up cron rarely refills.
+export const HYBRIDIZER_BATCH_PRIORITY = 1
 export const HYBRIDIZER_BATCH_MAX_PAIRS = 50
-export const HYBRIDIZER_BATCH_PENDING_CAP = 100
+export const HYBRIDIZER_BATCH_PENDING_CAP = 4000
 
 export type HybridizerSubjectKind = 'creature' | 'object'
 

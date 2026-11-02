@@ -113,7 +113,7 @@ assert.equal(
   60,
   'Six ten-card founder decks',
 )
-assert.equal(CARDS.length, 72, '12 new Gutter Crown reserves are playable')
+assert.equal(CARDS.length, 108, '48 playable Gutter Crown cards are available')
 assert.equal(
   CARDS.filter((card) => slimeArtId('cards', card.id)).length,
   36,
@@ -128,8 +128,8 @@ assert.equal(
 )
 assert.equal(
   CARDS.filter((card) => !slimeArtId('cards', card.id)).length,
-  36,
-  '12 new reserves also need their own rendered art',
+  72,
+  '72 founder and expansion card illustrations still need verified deliveries',
 )
 assert.equal(slimeArtId('cards', 'calico'), null)
 assert.equal(slimeArtId('cards', 'plating'), 258390)

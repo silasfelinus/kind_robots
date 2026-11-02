@@ -5,6 +5,7 @@
 // ever decides from observe(), the redacted per-side view.
 import { chooseCpuAction } from './cpu'
 import { RESERVE_CARDS } from './reserveCards'
+import { GUTTER_CROWN_WAVE_TWO } from './gutterCrownWaveTwo'
 
 export type Color = 'red' | 'blue' | 'purple' | 'green' | 'gold'
 export type TeamId =
@@ -363,7 +364,7 @@ export const KEYWORDS: Record<Keyword, { label: string; text: string }> = {
   },
   bulldoze: {
     label: 'BULLDOZE',
-    text: 'Lanes: blocked head-on by an enemy, it shoves that enemy one square back.',
+    text: 'BLACKOUT: push an adjacent enemy one square if the space behind them is clear (one movement AP). Lanes: shove enemies blocking your path.',
   },
   volatile: {
     label: 'VOLATILE',
@@ -1262,6 +1263,7 @@ export const CARDS: Card[] = [
     symbol: '✚',
   },
   ...RESERVE_CARDS,
+  ...GUTTER_CROWN_WAVE_TWO,
 ]
 
 export const DISTRICTS = [
@@ -2331,6 +2333,35 @@ function applyDeploy(
   return true
 }
 
+/** Only unblocked enemies can be shoved, at the cost of one movement AP. */
+export function canBulldozeInto(
+  state: MatchState,
+  unit: Fighter,
+  x: number,
+  y: number,
+): boolean {
+  if (state.mode !== 'blackout' || state.rules.classicFog || state.victor)
+    return false
+  if (
+    !hasKeyword(unit, 'bulldoze') ||
+    unit.ap < 1 ||
+    isRooted(state, unit) ||
+    !legalNeighbor(unit, { x, y })
+  )
+    return false
+  const target = unitAt(state, x, y)
+  if (!target || target.side === unit.side) return false
+  const nextX = 2 * x - unit.x
+  const nextY = 2 * y - unit.y
+  return (
+    nextX >= 0 &&
+    nextY >= 0 &&
+    nextX < state.width &&
+    nextY < state.height &&
+    !occupied(state, nextX, nextY)
+  )
+}
+
 function applyMove(
   state: MatchState,
   side: Side,
@@ -2340,10 +2371,22 @@ function applyMove(
 ): boolean {
   if (state.victor || state.mode !== 'blackout') return false
   if (x < 0 || y < 0 || x >= state.width || y >= state.height) return false
-  if (occupied(state, x, y)) return false
   const unit = state.units.find((u) => u.id === id && u.side === side)
   if (!unit || unit.ap < 1 || !legalNeighbor(unit, { x, y })) return false
   if (isRooted(state, unit)) return false
+  const target = unitAt(state, x, y)
+  if (target) {
+    if (!canBulldozeInto(state, unit, x, y)) return false
+    target.x += x - unit.x
+    target.y += y - unit.y
+    target.hidden = false
+    state.stats.shoves++
+    message(
+      state,
+      publicName(unit) + ' shoves ' + name(target) + ' one square.',
+    )
+    triggerTrapAt(state, target)
+  } else if (occupied(state, x, y)) return false
   unit.x = x
   unit.y = y
   unit.ap--

@@ -484,9 +484,9 @@
             type="button"
             class="tool-button"
             data-testid="hybridizer-random"
+            title="Random illustrated ingredients"
             :disabled="lab.randomizing || lab.working"
             @click="lab.randomize()"
-            title="Random illustrated ingredients"
           >
             <span aria-hidden="true">🎲</span>
             {{ lab.randomizing ? 'Rolling…' : 'Surprise' }}
@@ -495,8 +495,8 @@
             type="button"
             class="tool-button"
             data-testid="hybridizer-favorites"
-            @click="openDrawer('favorites')"
             title="Your favorite illustrations"
+            @click="openDrawer('favorites')"
           >
             <span aria-hidden="true">♥</span> Favorites
           </button>
@@ -504,8 +504,8 @@
             type="button"
             class="tool-button"
             data-testid="hybridizer-settings"
-            @click="openDrawer('settings')"
             title="Hybridizer settings"
+            @click="openDrawer('settings')"
           >
             <span aria-hidden="true">⚙</span> Settings
           </button>

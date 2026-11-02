@@ -7,7 +7,7 @@
     <button
       v-if="compact"
       type="button"
-      class="btn btn-xs relative max-sm:px-1"
+      class="btn btn-xs relative px-1 @3xl:px-2"
       :class="
         !store.envelopeOpened && highlight
           ? 'envelope-sealed border-2 border-stone-800 text-stone-900'
@@ -21,9 +21,16 @@
       @click="store.envelopeOpened ? (expanded = true) : breakSeal()"
     >
       <icon name="kind-icon:mask" class="size-4" />
+      <!-- The compact chip docks into the header's @container slot, which is
+           much narrower than the viewport once the page bar joins the icon
+           row at xl. A viewport breakpoint here (lg:) printed the full label
+           in a narrow strip, crushed the floor banner to a sliver and pushed
+           File and Leave off the end of the HUD. Container queries only. -->
       <span
         :class="
-          !store.envelopeOpened && highlight ? '' : 'sr-only lg:not-sr-only'
+          !store.envelopeOpened && highlight
+            ? 'sr-only @2xl:not-sr-only'
+            : 'sr-only @4xl:not-sr-only'
         "
         >{{ store.envelopeOpened ? 'Envelope' : 'Break the seal' }}</span
       >

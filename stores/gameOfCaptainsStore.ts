@@ -114,7 +114,9 @@ export const useGameOfCaptainsStore = defineStore('gameOfCaptains', () => {
   const loaded = ref(false)
   const redshirtKnowledge = ref<RedshirtKnowledge>({})
   const storageWarning = ref('')
-  const alienSyncStatus = ref<'guest' | 'loading' | 'synced' | 'pending'>('guest')
+  const alienSyncStatus = ref<'guest' | 'loading' | 'synced' | 'pending'>(
+    'guest',
+  )
   const alienSyncWarning = ref('')
   let accountEpoch = 0
   let writer: Promise<void> | null = null
@@ -126,7 +128,9 @@ export const useGameOfCaptainsStore = defineStore('gameOfCaptains', () => {
   const pendingGuideKey = (id: number): string => ALIEN_PENDING_PREFIX + id
   const readCachedGuide = (key: string): AlienGuide => {
     try {
-      return normalizeAlienGuide(JSON.parse(localStorage.getItem(key) ?? 'null'))
+      return normalizeAlienGuide(
+        JSON.parse(localStorage.getItem(key) ?? 'null'),
+      )
     } catch {
       return emptyAlienGuide()
     }
@@ -192,7 +196,8 @@ export const useGameOfCaptainsStore = defineStore('gameOfCaptains', () => {
       .catch(() => {
         if (epoch === accountEpoch) {
           alienSyncStatus.value = 'pending'
-          alienSyncWarning.value = 'Connection interrupted. Your account-scoped recovery copy remains available.'
+          alienSyncWarning.value =
+            'Connection interrupted. Your account-scoped recovery copy remains available.'
         }
       })
       .finally(() => {
@@ -202,7 +207,8 @@ export const useGameOfCaptainsStore = defineStore('gameOfCaptains', () => {
   }
 
   function retryAlienGuideSync() {
-    if (!userStore.authenticatedUserId || alienSyncStatus.value === 'loading') return
+    if (!userStore.authenticatedUserId || alienSyncStatus.value === 'loading')
+      return
     queuedSignature = ''
     saveAlienGuideToAccount()
   }
@@ -226,19 +232,24 @@ export const useGameOfCaptainsStore = defineStore('gameOfCaptains', () => {
     alienSyncStatus.value = 'loading'
     const pending = readCachedGuide(pendingGuideKey(id))
     const owner = localStorage.getItem(ALIEN_GUIDE_OWNER_KEY)
-    const legacy = owner === null ? readCachedGuide(ALIEN_GUIDE_KEY) : emptyAlienGuide()
+    const legacy =
+      owner === null ? readCachedGuide(ALIEN_GUIDE_KEY) : emptyAlienGuide()
     if (hasAlienProgress(legacy)) legacyImportUserId = id
-    const response = await performFetch<AlienGuide>('/api/game-of-captains/guide')
+    const response = await performFetch<AlienGuide>(
+      '/api/game-of-captains/guide',
+    )
     if (epoch !== accountEpoch || userStore.authenticatedUserId !== id) return
-    const remote = response.success && response.data
-      ? normalizeAlienGuide(response.data)
-      : emptyAlienGuide()
+    const remote =
+      response.success && response.data
+        ? normalizeAlienGuide(response.data)
+        : emptyAlienGuide()
     alienGuide.value = mergeAlienGuides(
       mergeAlienGuides(remote, pending),
       mergeAlienGuides(legacy, alienGuide.value),
     )
     if (!response.success) {
-      alienSyncWarning.value = 'Account guide could not be read; changes will be merged when the server is available.'
+      alienSyncWarning.value =
+        'Account guide could not be read; changes will be merged when the server is available.'
     }
     queuedSignature = JSON.stringify(remote)
     alienSyncStatus.value = 'pending'
@@ -250,7 +261,9 @@ export const useGameOfCaptainsStore = defineStore('gameOfCaptains', () => {
   }
   watch(
     () => userStore.authenticatedUserId,
-    () => { if (loaded.value) void syncAlienGuideAccount() },
+    () => {
+      if (loaded.value) void syncAlienGuideAccount()
+    },
   )
   const alienGuide = ref<AlienGuide>(emptyAlienGuide())
   const alienSighting = ref<AlienSighting | null>(null)
@@ -436,7 +449,10 @@ export const useGameOfCaptainsStore = defineStore('gameOfCaptains', () => {
         JSON.stringify(redshirtKnowledge.value),
       )
       if (userStore.authenticatedUserId) {
-        if (alienSyncStatus.value === 'synced' || alienSyncStatus.value === 'pending')
+        if (
+          alienSyncStatus.value === 'synced' ||
+          alienSyncStatus.value === 'pending'
+        )
           saveAlienGuideToAccount()
         else
           localStorage.setItem(

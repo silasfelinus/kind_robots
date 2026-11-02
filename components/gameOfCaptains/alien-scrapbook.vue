@@ -13,8 +13,19 @@
           {{ guide.discovered.length }} / {{ ALIEN_SPECIES.length }} recorded ·
           {{ guide.friends.length }} declared friends
         </p>
-        <p class="mt-1 text-xs opacity-75" data-testid="space-couch-alien-sync-status">
-          {{ syncStatus === 'guest' ? 'Guest notebook · sign in for account sync' : syncStatus === 'synced' ? 'Saved to your account' : syncStatus === 'loading' ? 'Loading account scrapbook…' : 'Account save pending' }}
+        <p
+          class="mt-1 text-xs opacity-75"
+          data-testid="space-couch-alien-sync-status"
+        >
+          {{
+            syncStatus === 'guest'
+              ? 'Guest notebook · sign in for account sync'
+              : syncStatus === 'synced'
+                ? 'Saved to your account'
+                : syncStatus === 'loading'
+                  ? 'Loading account scrapbook…'
+                  : 'Account save pending'
+          }}
         </p>
         <p v-if="syncWarning" class="mt-1 max-w-sm text-xs text-warning">
           {{ syncWarning }}

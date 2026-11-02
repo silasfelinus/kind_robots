@@ -17,7 +17,10 @@ export function mergeAlienGuides(
   }
   const discovered = [...new Set([...first.discovered, ...second.discovered])]
   const knownFriends = [...new Set([...first.friends, ...second.friends])]
-  const fieldReports = [...first.fieldReports ?? [], ...second.fieldReports ?? []]
+  const fieldReports = [
+    ...(first.fieldReports ?? []),
+    ...(second.fieldReports ?? []),
+  ]
   const distinctReports = [
     ...new Map(
       fieldReports.map((record) => [
@@ -30,12 +33,16 @@ export function mergeAlienGuides(
     version: 1,
     discovered,
     friends: knownFriends.filter((id) => discovered.includes(id)),
-    attempted: [...new Set([...first.attempted, ...second.attempted])].slice(-400),
-    milestoneSeen: [...new Set([
-      ...first.milestoneSeen,
-      ...second.milestoneSeen,
-      ...Object.keys(milestoneDecisions).map(Number),
-    ])],
+    attempted: [...new Set([...first.attempted, ...second.attempted])].slice(
+      -400,
+    ),
+    milestoneSeen: [
+      ...new Set([
+        ...first.milestoneSeen,
+        ...second.milestoneSeen,
+        ...Object.keys(milestoneDecisions).map(Number),
+      ]),
+    ],
     milestoneDecisions,
     contacts: { ...(first.contacts ?? {}), ...(second.contacts ?? {}) },
     lastContact: second.lastContact ?? first.lastContact,

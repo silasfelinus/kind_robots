@@ -2,18 +2,26 @@ import { createError } from 'h3'
 import prisma from '~/server/utils/prisma'
 import type { Prisma } from '~/prisma/generated/prisma/client'
 import { mergeAlienGuides } from '~/utils/gameOfCaptains/alienAccountMerge'
-import { emptyAlienGuide, normalizeAlienGuide } from '~/utils/gameOfCaptains/alienFieldGuide'
+import {
+  emptyAlienGuide,
+  normalizeAlienGuide,
+} from '~/utils/gameOfCaptains/alienFieldGuide'
 
 const toJson = (guide: unknown): Prisma.InputJsonValue =>
   JSON.parse(JSON.stringify(guide))
 
 export async function getSpaceCouchAlienGuide(userId: number) {
-  const entry = await prisma.spaceCouchAlienGuide.findUnique({ where: { userId } })
+  const entry = await prisma.spaceCouchAlienGuide.findUnique({
+    where: { userId },
+  })
   return entry ? normalizeAlienGuide(entry.data) : emptyAlienGuide()
 }
 
 /** Each version guard is one atomic DB write; conflicts are re-read and merged. */
-export async function saveSpaceCouchAlienGuide(userId: number, submitted: unknown) {
+export async function saveSpaceCouchAlienGuide(
+  userId: number,
+  submitted: unknown,
+) {
   const incoming = normalizeAlienGuide(submitted)
   for (let attempt = 0; attempt < 8; attempt++) {
     const current = await prisma.spaceCouchAlienGuide.findUnique({
@@ -32,7 +40,8 @@ export async function saveSpaceCouchAlienGuide(userId: number, submitted: unknow
           typeof error === 'object' &&
           'code' in error &&
           error.code === 'P2002'
-        ) continue
+        )
+          continue
         throw error
       }
     }

@@ -1,7 +1,10 @@
 import assert from 'node:assert/strict'
 import { readFileSync } from 'node:fs'
 import { mergeAlienGuides } from '../gameOfCaptains/alienAccountMerge'
-import { emptyAlienGuide, normalizeAlienGuide } from '../gameOfCaptains/alienFieldGuide'
+import {
+  emptyAlienGuide,
+  normalizeAlienGuide,
+} from '../gameOfCaptains/alienFieldGuide'
 import { ALIEN_SPECIES } from '../gameOfCaptains/alienSpecies'
 
 const [a, b, c] = ALIEN_SPECIES.slice(0, 3)
@@ -13,7 +16,9 @@ const older = normalizeAlienGuide({
   milestoneSeen: [5],
   milestoneDecisions: { '5': 'a' },
   contacts: { [a.id]: 'bond' },
-  fieldReports: [{ speciesId: a.id, mood: 'wary', outcome: 'bond', choice: 'observe' }],
+  fieldReports: [
+    { speciesId: a.id, mood: 'wary', outcome: 'bond', choice: 'observe' },
+  ],
 })
 const otherDevice = normalizeAlienGuide({
   discovered: [b.id, c.id],
@@ -22,21 +27,45 @@ const otherDevice = normalizeAlienGuide({
   milestoneSeen: [5],
   milestoneDecisions: { '5': 'b' },
   contacts: { [c.id]: 'chaos' },
-  fieldReports: [{ speciesId: c.id, mood: 'protective', outcome: 'chaos', choice: 'approach' }],
+  fieldReports: [
+    {
+      speciesId: c.id,
+      mood: 'protective',
+      outcome: 'chaos',
+      choice: 'approach',
+    },
+  ],
 })
 const merged = mergeAlienGuides(older, otherDevice)
 assert.deepEqual(merged.discovered, [a.id, b.id, c.id])
 assert.deepEqual(merged.friends, [a.id, c.id])
-assert.equal(merged.milestoneDecisions?.['5'], 'a', 'server wins first committed choice')
-assert.ok(merged.attempted.includes('135:2') && merged.attempted.includes('246:3'))
+assert.equal(
+  merged.milestoneDecisions?.['5'],
+  'a',
+  'server wins first committed choice',
+)
+assert.ok(
+  merged.attempted.includes('135:2') && merged.attempted.includes('246:3'),
+)
 assert.equal(merged.fieldReports?.length, 2)
 assert.equal(merged.contacts?.[a.id], 'bond')
 assert.equal(merged.contacts?.[c.id], 'chaos')
-assert.deepEqual(mergeAlienGuides(merged, older), merged, 'stale device cannot remove discoveries')
-assert.deepEqual(mergeAlienGuides(merged, otherDevice), merged, 'replays are idempotent')
+assert.deepEqual(
+  mergeAlienGuides(merged, older),
+  merged,
+  'stale device cannot remove discoveries',
+)
+assert.deepEqual(
+  mergeAlienGuides(merged, otherDevice),
+  merged,
+  'replays are idempotent',
+)
 assert.deepEqual(mergeAlienGuides(null, null), emptyAlienGuide())
 const legacy = normalizeAlienGuide({ discovered: [a.id], milestoneSeen: [5] })
-assert.deepEqual(mergeAlienGuides(legacy, emptyAlienGuide()).milestoneDecisions, undefined)
+assert.deepEqual(
+  mergeAlienGuides(legacy, emptyAlienGuide()).milestoneDecisions,
+  undefined,
+)
 assert.deepEqual(
   mergeAlienGuides(older, { discovered: ['unknown-species'] }).discovered,
   older.discovered,
@@ -46,7 +75,9 @@ assert.deepEqual(
 const root = new URL('../../', import.meta.url)
 const file = (path: string) => readFileSync(new URL(path, root), 'utf8')
 const schema = file('prisma/schema.prisma')
-const migration = file('prisma/migrations/20261102000000_space_couch_alien_guide/migration.sql')
+const migration = file(
+  'prisma/migrations/20261102000000_space_couch_alien_guide/migration.sql',
+)
 const auth = file('server/utils/spaceCouchAlienAuth.ts')
 const getter = file('server/api/game-of-captains/guide.get.ts')
 const saver = file('server/api/game-of-captains/guide.post.ts')
@@ -72,4 +103,6 @@ assert.match(store, /syncAlienGuideAccount/)
 assert.match(store, /retryAlienGuideSync/)
 assert.match(scrapbook, /space-couch-alien-sync-status/)
 assert.match(scrapbook, /space-couch-alien-retry-sync/)
-console.log('Space Couch account guide: owner guard, additive migration, monotonic merge, CAS and retry contracts OK')
+console.log(
+  'Space Couch account guide: owner guard, additive migration, monotonic merge, CAS and retry contracts OK',
+)

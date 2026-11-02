@@ -358,6 +358,15 @@
           >
             Return to the Red Oven · Saffron Wing
           </button>
+          <button
+            v-if="hoshimori.canEnterOvenGlassWing"
+            type="button"
+            class="btn btn-warning min-h-12 text-base"
+            data-testid="memory-hoshimori-enter-glass-wing"
+            @click="hoshimori.act({ type: 'enter-glass-wing' })"
+          >
+            Return to the Red Oven · Glass Wing
+          </button>
           <p
             v-if="hoshimori.resolution"
             class="rounded-xl border border-success/30 bg-success/15 p-3 text-base leading-relaxed"
@@ -398,6 +407,13 @@
             data-testid="memory-hoshimori-saffron-wing-account"
           >
             {{ hoshimori.fifthAccount }}
+          </p>
+          <p
+            v-if="hoshimori.sixthAccount"
+            class="rounded-xl border border-warning/40 bg-warning/10 p-3 text-base leading-relaxed"
+            data-testid="memory-hoshimori-glass-wing-account"
+          >
+            {{ hoshimori.sixthAccount }}
           </p>
         </template>
       </div>

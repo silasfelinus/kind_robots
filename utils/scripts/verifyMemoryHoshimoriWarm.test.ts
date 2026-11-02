@@ -13,6 +13,7 @@ import {
   hoshimoriOvenThirdAccount,
   hoshimoriOvenFourthAccount,
   hoshimoriOvenFifthAccount,
+  hoshimoriOvenSixthAccount,
   hoshimoriOvenGuardianResolution,
   hoshimoriRidgeAccount,
   hoshimoriLowlandAccount,
@@ -45,7 +46,7 @@ import {
 assert.deepEqual(validateHoshimoriWarm(), [])
 assert.equal(HOSHIMORI_WARM_SITES.length, 64)
 assert.equal(new Set(HOSHIMORI_WARM_SITES.map((site) => site.key)).size, 64)
-assert.equal(HOSHIMORI_OVEN_ROOMS.length, 27)
+assert.equal(HOSHIMORI_OVEN_ROOMS.length, 33)
 assert.equal(new Set(HOSHIMORI_WARM_SITES.map((site) => site.opening)).size, 64)
 assert.equal(
   new Set(
@@ -820,6 +821,117 @@ assert.equal(
   saffronAccounts.size,
   64,
   'Six Saffron choices need 64 distinct earned narrative accounts',
+)
+
+const glassChoices = [
+  ['glass-let-families-name', 'glass-break-index'],
+  ['glass-return-hinges', 'glass-seal-door'],
+  ['glass-refuse-forgetting', 'glass-open-shift-ledger'],
+  ['glass-mark-real-exit', 'glass-keep-witness'],
+  ['glass-scatter-directions', 'glass-teach-refusal'],
+  ['glass-recall-council', 'glass-protect-appeal'],
+] as const
+const glassAccounts = new Set<string>()
+for (let mask = 0; mask < 64; mask++) {
+  let run = newHoshimoriWarmProgress(mask + 400)
+  assert.strictEqual(
+    advanceHoshimoriWarm(run, { type: 'enter-glass-wing' }),
+    run,
+    'Glass cannot skip the earlier Oven testimony',
+  )
+  for (const key of ['2,1', '3,1', '4,1', '4,2']) run = move(run, key)
+  run = choose(run, 'pledge')
+  run = move(run, '4,3')
+  run = advanceHoshimoriWarm(run, { type: 'enter' })
+  for (const id of ['audit', 'consent', 'pact'])
+    run = advanceHoshimoriWarm(run, { type: 'oven-choice', id })
+  run = advanceHoshimoriWarm(run, { type: 'enter-wing' })
+  for (const pair of ashWingChoices)
+    run = advanceHoshimoriWarm(run, { type: 'oven-choice', id: pair[0] })
+  run = advanceHoshimoriWarm(run, { type: 'enter-ember-wing' })
+  for (const pair of emberWingChoices)
+    run = advanceHoshimoriWarm(run, { type: 'oven-choice', id: pair[0] })
+  run = advanceHoshimoriWarm(run, { type: 'enter-cinder-wing' })
+  for (const pair of cinderChoices)
+    run = advanceHoshimoriWarm(run, { type: 'oven-choice', id: pair[0] })
+  run = advanceHoshimoriWarm(run, { type: 'enter-saffron-wing' })
+  for (const pair of saffronChoices)
+    run = advanceHoshimoriWarm(run, { type: 'oven-choice', id: pair[0] })
+  assert.equal(run.ovenRoom, null, 'OV-27 remains terminal for old saves')
+  assert.ok(hoshimoriOvenFifthAccount(run))
+  assert.equal(hoshimoriOvenSixthAccount(run), null)
+  assert.deepEqual(
+    restoreHoshimoriWarm(JSON.parse(JSON.stringify(run))),
+    run,
+    'Completed Saffron saves must restore before Glass opens',
+  )
+  const unearned = {
+    ...run,
+    ovenChoices: { ...run.ovenChoices, 'OV-33': 'glass-recall-council' },
+  }
+  assert.equal(
+    hoshimoriOvenSixthAccount(unearned),
+    null,
+    'Forging the final bell cannot supply missing Glass testimony',
+  )
+  run = advanceHoshimoriWarm(run, { type: 'enter-glass-wing' })
+  assert.equal(run.ovenRoom, 'OV-28')
+  for (let index = 0; index < glassChoices.length; index++) {
+    const room = HOSHIMORI_OVEN_ROOMS[index + 27]!
+    assert.equal(run.ovenRoom, room.id)
+    const id = glassChoices[index]![(mask >> index) & 1]!
+    const next = advanceHoshimoriWarm(run, { type: 'oven-choice', id })
+    assert.notStrictEqual(next, run, 'Every Glass choice must advance')
+    run = next
+    if (index === 2 && mask === 0) {
+      const prior = run
+      run = advanceHoshimoriWarm(run, { type: 'leave' })
+      assert.equal(run.ovenRoom, null)
+      run = advanceHoshimoriWarm(run, { type: 'enter-glass-wing' })
+      assert.equal(run.ovenRoom, 'OV-31')
+      assert.equal(run.rations, prior.rations)
+      assert.equal(run.trust, prior.trust)
+      assert.deepEqual(run.ovenChoices, prior.ovenChoices)
+    }
+  }
+  assert.equal(run.ovenRoom, null, 'OV-33 ends the Glass Wing')
+  assert.ok(run.rations >= 0)
+  const account = hoshimoriOvenSixthAccount(run)
+  assert.ok(account)
+  assert.match(account, /Vesper|families|household/i)
+  glassAccounts.add(account)
+  assert.strictEqual(
+    advanceHoshimoriWarm(run, { type: 'enter-glass-wing' }),
+    run,
+    'Completed Glass decisions cannot be farmed',
+  )
+  assert.deepEqual(
+    restoreHoshimoriWarm(JSON.parse(JSON.stringify(run))),
+    run,
+    'All six Glass decisions must survive event-replayed save restoration',
+  )
+  const forged = JSON.parse(JSON.stringify(run)) as HoshimoriWarmProgress
+  forged.ovenChoices['OV-30'] =
+    run.ovenChoices['OV-30'] === 'glass-refuse-forgetting'
+      ? 'glass-open-shift-ledger'
+      : 'glass-refuse-forgetting'
+  assert.equal(
+    restoreHoshimoriWarm(forged),
+    null,
+    'Forged memory wages must not survive event replay',
+  )
+  const missing = { ...run, ovenChoices: { ...run.ovenChoices } }
+  delete missing.ovenChoices['OV-32']
+  assert.equal(
+    hoshimoriOvenSixthAccount(missing),
+    null,
+    'The Glass account needs the procession rehearsal',
+  )
+}
+assert.equal(
+  glassAccounts.size,
+  64,
+  'Six Glass choices must produce 64 distinct earned consequence accounts',
 )
 
 const windwardAccounts = new Set<string>()

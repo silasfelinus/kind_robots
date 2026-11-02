@@ -3589,6 +3589,62 @@ export const ACT_THREE_DAYS: readonly DayDef[] = [
         speaker: 'Mara Reedbell, Mayor of Hollow Bell',
         npc: 'mara-reedbell',
         faction: 'hollow-bell',
+        variants: [
+          {
+            flags: ['d14-tobin-witnesses'],
+            lines: [
+              'Mara Reedbell enters carrying two public copies of Tobin Lowe’s record. The Archive’s witness seals are intact. Her own town seal has been scraped off.',
+              '“You posted his name on your gate. Then you paid people to attest to it. Hesper Lowe was first to sign. Do you know what it cost her to stand there?”',
+              '“I kept a town alive with the Abbey’s water. I gave them the names they demanded. I signed every season. The water was real.”',
+              {
+                who: 'Keeper Abelard Vellum',
+                npc: 'abelard-vellum',
+                text: 'The witnesses copied both hands, Majesty. The mother’s from this month. The mayor’s from the drought. They do not agree about what a name is for.',
+              },
+              {
+                who: 'Young Komodo',
+                npc: 'young-komodo',
+                text: 'Mara kept the pumps running. A witness can make that harder. Do not confuse a record that survives with a child who comes home.',
+              },
+            ],
+          },
+          {
+            flags: ['d14-hesper-asked'],
+            lines: [
+              'Mara Reedbell arrives without her sash. She carries Hesper Lowe’s unopened reply from the Archive, still tied to the Yard messenger’s delivery slip.',
+              '“You asked a mother for permission before you put her son’s name on a wall. I wish I had done that when he was here. She knows what I signed.”',
+              '“The Abbey gave my town water. I paid in lists of names. It sounded smaller than it was.”',
+              {
+                who: 'Keeper Abelard Vellum',
+                npc: 'abelard-vellum',
+                text: 'Hesper wrote that the Archive may preserve the truth. Public names are another matter. She asks to be present for that decision.',
+              },
+              {
+                who: 'Young Komodo',
+                npc: 'young-komodo',
+                text: 'Then invite her, Majesty. But keep the pumps running while you do. Water does not wait for a fair hearing.',
+              },
+            ],
+          },
+          {
+            flags: ['d14-page-opened'],
+            lines: [
+              'Mara Reedbell sets her hand-bell beside the page that the crown unsealed. The Archive has dated the ink and binding. The red thread is newer than the book.',
+              '“You could have kept that in your chest. Instead you opened it. I have been mayor long enough to know that was not free.”',
+              '“I gave the Abbey names. They gave Hollow Bell water. Every family drank from my bargain, even the families who would curse me for making it.”',
+              {
+                who: 'Keeper Abelard Vellum',
+                npc: 'abelard-vellum',
+                text: 'The seal did not make the page false. It made the truth unavailable to the family whose child was taken off the books.',
+              },
+              {
+                who: 'Young Komodo',
+                npc: 'young-komodo',
+                text: 'If you remove her, Majesty, appoint someone who can keep the cisterns full. A righteous empty cup is still empty.',
+              },
+            ],
+          },
+        ],
         lines: [
           'Mara Reedbell comes without her sash. The town ledger is chained to her belt. It falls open where a page was cut close to the spine with a sharp knife. She sets her hand-bell on the dais step, mouth down. It cannot ring.',
           'You’ve heard about the page, Your Majesty. Of course you have.',
@@ -3620,7 +3676,7 @@ export const ACT_THREE_DAYS: readonly DayDef[] = [
           },
           {
             id: 'expose',
-            label: 'Expose the page to Hollow Bell.',
+            label: 'Publish Mara’s signature and let Hollow Bell judge its mayor, even if the pumps suffer.',
             effects: {
               affinity: { 'hollow-bell': -15 },
               local: { lamplight: 4 },
@@ -3631,7 +3687,7 @@ export const ACT_THREE_DAYS: readonly DayDef[] = [
           },
           {
             id: 'protect',
-            label: 'Burn the page. The Bell needs its mayor.',
+            label: 'Burn the evidence. Keep Mara and the water, but leave the families without proof.',
             effects: {
               affinity: { 'hollow-bell': 10 },
               local: { lamplight: -3 },
@@ -3642,7 +3698,7 @@ export const ACT_THREE_DAYS: readonly DayDef[] = [
           },
           {
             id: 'bargain',
-            label: 'Keep the page, and Mara’s debt to the crown.',
+            label: 'Demand twenty brass for the crown’s silence. Leave Mara in office.',
             effects: {
               brass: 20,
               affinity: { 'hollow-bell': 5 },
@@ -3663,8 +3719,47 @@ export const ACT_THREE_DAYS: readonly DayDef[] = [
             label: 'Ask the Keeper who else knew the page had come.',
             effects: { flags: ['d29-runner-question'] },
             response:
-              'Keeper Vellum thinks so long that a candle gutters and a page boy trims it.',
+              'Vellum turns the envelope over. The delivery mark is not the town’s. He asks for more light.',
             next: 'envelope',
+          },
+          {
+            id: 'hearing-hesper',
+            label:
+              'Hold a public hearing with Hesper and the two independent scribes. Let the town challenge the record.',
+            requires: { flags: ['d14-tobin-witnesses'] },
+            effects: {
+              affinity: { 'hollow-bell': -8, abbey: -6 },
+              local: { lamplight: 2, 'old-houses': -1 },
+              flags: ['d29-hesper-hearing'],
+            },
+            response:
+              'Hesper reads Tobin’s name. Mara reads her own signature. Neither woman asks you for permission to finish. Outside, the Hollow Bell pumps still need somebody to tend them.',
+          },
+          {
+            id: 'protect-hesper',
+            label:
+              'Pay ten brass for Hesper to testify privately, with her chosen witnesses. Keep her son off the public notice.',
+            requires: { flags: ['d14-hesper-asked'], cost: 10 },
+            effects: {
+              affinity: { 'hollow-bell': -2 },
+              local: { yard: -1, lamplight: 1 },
+              flags: ['d29-hesper-private'],
+            },
+            response:
+              'Hesper arrives after the petitioners leave. Vellum writes her words and seals them for the next council. The Yard gives up a runner to take her home. Her name stays off the gate.',
+          },
+          {
+            id: 'audit-seal',
+            label:
+              'Make the Archive’s unsealed evidence admissible. The Old Houses lose control of the record.',
+            requires: { flags: ['d14-page-opened'] },
+            effects: {
+              affinity: { abbey: -7, 'hollow-bell': -5 },
+              local: { lamplight: 2, 'old-houses': -2 },
+              flags: ['d29-seal-audited'],
+            },
+            response:
+              'Vellum takes the dated page to the town clerks. Lady Vask refuses the copy they offer her. Mara signs for it. That is the first signature she has given freely in this affair.',
           },
         ],
         beats: [

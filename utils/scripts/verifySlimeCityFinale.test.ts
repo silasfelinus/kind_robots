@@ -137,7 +137,7 @@ for (const crew of TEAMS) {
       assert.ok(fighter, card.id + ' materialized as an actual creature')
       assert.equal(fighter!.maxHp, card.hp)
       assert.ok(
-        (card.keywords ?? []).every((k) => fighter!.keywords.includes(k)),
+        (card.keywords ?? []).every((k) => (fighter!.keywords ?? []).includes(k)),
       )
     }
     if (card.kind === 'trap') {
@@ -151,7 +151,7 @@ for (const crew of TEAMS) {
     }
     if (card.effect === 'grant') {
       const fighter = result.units.find((c) => c.id === 8001)!
-      assert.ok((card.grants ?? []).every((k) => fighter.keywords.includes(k)))
+      assert.ok((card.grants ?? []).every((k) => (fighter.keywords ?? []).includes(k)))
     }
     if (card.effect === 'debt') {
       assert.equal(result.debt.enemy, card.debt)

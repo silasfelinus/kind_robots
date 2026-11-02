@@ -60,9 +60,13 @@ for (const [index, missionId] of destinations.entries()) {
       assert.ok(outcome.callback.length > 85)
       assert.ok(outcome.flags.length >= 2)
       assert.ok(Object.keys(outcome.delta).length >= 2)
-      assert.ok(!scenes.has(outcome.narrative), 'each outcome has original writing')
+      assert.ok(
+        !scenes.has(outcome.narrative),
+        'each outcome has original writing',
+      )
       scenes.add(outcome.narrative)
-      const artKey = 'consequences/' + episode.id + '-' + choice.id + '-' + variant
+      const artKey =
+        'consequences/' + episode.id + '-' + choice.id + '-' + variant
       assert.ok(
         !(artKey in COUCH_CONSEQUENCE_ART_IDS),
         'an unrendered outcome is not represented as finished art',
@@ -110,9 +114,16 @@ for (let index = 0; index < 3; index++) {
   }
   const following = nextDestination(source)
   assert.equal(following.chapter, 4 + index)
-  assert.ok(following.scene.includes('INCOMING FOLLOW-UP: ' + cases[index]!.callback))
-  assert.ok(following.log.includes('Follow-up transmission: ' + cases[index]!.callback))
-  assert.deepEqual(restoreVoyage(JSON.parse(JSON.stringify(following))), following)
+  assert.ok(
+    following.scene.includes('INCOMING FOLLOW-UP: ' + cases[index]!.callback),
+  )
+  assert.ok(
+    following.log.includes('Follow-up transmission: ' + cases[index]!.callback),
+  )
+  assert.deepEqual(
+    restoreVoyage(JSON.parse(JSON.stringify(following))),
+    following,
+  )
 }
 const afterActTwo = nextDestination({
   ...startVoyage('fluke', ['pell', 'mox', 'rue'], 71),

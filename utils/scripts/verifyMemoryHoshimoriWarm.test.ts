@@ -944,9 +944,17 @@ const lastBellChoices = [
 const lastBellAccounts = new Set<string>()
 const finalGuardianModes = new Set<string>()
 const guardianPaths = [
-  { ember: 'release-ember', verdict: 'rewrite-guardian', mode: /freed guardian/ },
+  {
+    ember: 'release-ember',
+    verdict: 'rewrite-guardian',
+    mode: /freed guardian/,
+  },
   { ember: 'offer-ember', verdict: 'rewrite-guardian', mode: /revocable term/ },
-  { ember: 'offer-ember', verdict: 'quench-guardian', mode: /remains quenched/ },
+  {
+    ember: 'offer-ember',
+    verdict: 'quench-guardian',
+    mode: /remains quenched/,
+  },
 ] as const
 for (const guardianPath of guardianPaths) {
   for (let mask = 0; mask < 8; mask++) {
@@ -1042,7 +1050,11 @@ for (const guardianPath of guardianPaths) {
     assert.equal(hoshimoriOvenFinalGuardianResolution(missing), null)
   }
 }
-assert.equal(lastBellAccounts.size, 8, 'Three final choices need eight earned accounts')
+assert.equal(
+  lastBellAccounts.size,
+  8,
+  'Three final choices need eight earned accounts',
+)
 assert.equal(
   finalGuardianModes.size,
   3,

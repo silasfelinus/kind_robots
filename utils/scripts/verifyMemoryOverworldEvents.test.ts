@@ -87,7 +87,7 @@ for (let n = 1; n <= 12; n++) {
       assert.equal(worldEvent(id, photo.site)?.photographId, photo.id)
     assert.equal(
       events.filter((event) => event.source === 'new-authoring').length,
-      id === 'e08' ? 48 : 64,
+      id === 'e08' ? 64 - HOSHIMORI_NIGHT_SITES.length : 64,
     )
   }
 

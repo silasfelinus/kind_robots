@@ -269,14 +269,15 @@ export function episodeChoiceStakes(
   choice: EpisodeChoice,
 ): string {
   const venue = deck === 'casino' || deck === 'serendipity'
-  const supply = run.supplies > 0 ? 1 : 0
+  const venueExpense =
+    run.supplies > 0 ? ', supplies -1' : ', no supplies to spend'
   const success =
     choice === 'ask'
-      ? `trust +2, host standing +2${venue ? `, supplies -${supply}` : ''}`
+      ? `trust +2, host standing +2${venue ? venueExpense : ''}`
       : choice === 'document'
-        ? 'trust +1, evidence +2, reputation +1'
+        ? 'trust +1, records +2, reputation +1'
         : 'trust unchanged, operator standing +1, supplies +1'
-  return `SUCCESS: ${success}. SETBACK: trust -1${venue ? `, supplies -${supply}` : ''}.`
+  return `SUCCESS: ${success}. SETBACK: trust -1${venue ? venueExpense : ''}.`
 }
 /** A failed field objective cannot be described as successful consent or a settled claim. */
 const PLOT_SETBACKS: Record<EpisodeDeck, Record<EpisodeChoice, string>> = {

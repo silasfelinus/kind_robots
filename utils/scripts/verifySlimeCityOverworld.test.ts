@@ -947,7 +947,7 @@ assert.ok(lab.campaignBout, 'City mission uses campaign settlement')
 assert.equal(lab.match.teamId, 'catgirls')
 assert.equal(
   lab.match.mana,
-  4,
+  BLACKOUT_MANA_GAIN + 3,
   'City-based chapter includes +2 cunning mana AND +1 street decision mana',
 )
 assert.equal(
@@ -977,7 +977,7 @@ assert.equal(lab.view, 'arena', 'Crisis resolution unlocks city story fights')
 assert.equal(lab.match.teamId, 'catgirls')
 assert.equal(
   lab.match.mana,
-  2,
+  BLACKOUT_MANA_GAIN + 1,
   'City campaign inherits one bonus opening mana from the crisis',
 )
 console.log('Slime City civic crisis / campaign store integration PASS')

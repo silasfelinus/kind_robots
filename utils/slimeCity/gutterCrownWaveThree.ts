@@ -34,7 +34,7 @@ export const GUTTER_CROWN_WAVE_THREE: Card[] = [
     keywords: [
       'regen'
     ],
-    text: 'The medic's legal donor list has one name: the medic. REGEN patches one wound each round she survives.',
+    text: "The medic's legal donor list has one name: the medic. REGEN patches one wound each round she survives.",
     symbol: '✚'
   },
   {
@@ -51,7 +51,7 @@ export const GUTTER_CROWN_WAVE_THREE: Card[] = [
       'ambush',
       'pierce'
     ],
-    text: 'The rooftop's cutest nightmare pounces for an AMBUSH strike that ignores armor with PIERCE. Folds quickly to focused fire.',
+    text: "The rooftop's cutest nightmare pounces for an AMBUSH strike that ignores armor with PIERCE. Folds quickly to focused fire.",
     symbol: '🐈'
   },
   {
@@ -224,7 +224,7 @@ export const GUTTER_CROWN_WAVE_THREE: Card[] = [
     grants: [
       'bulldoze'
     ],
-    text: 'The union's nonviolent protest forms a very violent wedge. A fighter gains BULLDOZE, if there is a square to shove into.',
+    text: "The union's nonviolent protest forms a very violent wedge. A fighter gains BULLDOZE, if there is a square to shove into.",
     symbol: '✊'
   },
   {
@@ -255,7 +255,7 @@ export const GUTTER_CROWN_WAVE_THREE: Card[] = [
     kind: 'equipment',
     team: 'ironjaw',
     cost: 3,
-    text: 'Management calls it 'efficiency.' Give a fighter one permanent maximum AP, making a slow iron wall finally march.',
+    text: "Management calls it 'efficiency.' Give a fighter one permanent maximum AP, making a slow iron wall finally march.",
     symbol: '🦿'
   },
   {
@@ -310,7 +310,7 @@ export const GUTTER_CROWN_WAVE_THREE: Card[] = [
     cost: 2,
     effect: 'zap',
     power: 3,
-    text: 'A friend of a friend invented ballistics. Three damage to one enemy, no collateral, and the label reads 'probably safe.'',
+    text: "A friend of a friend invented ballistics. Three damage to one enemy, no collateral, and the label reads 'probably safe.'",
     symbol: '🚀'
   },
   {
@@ -351,7 +351,7 @@ export const GUTTER_CROWN_WAVE_THREE: Card[] = [
     keywords: [
       'snare'
     ],
-    text: 'The detective's questions are so long they stop you walking. Hits SNARE the target, though a fast foe may hit first.',
+    text: "The detective's questions are so long they stop you walking. Hits SNARE the target, though a fast foe may hit first.",
     symbol: '🔍'
   },
   {
@@ -416,7 +416,7 @@ export const GUTTER_CROWN_WAVE_THREE: Card[] = [
     grants: [
       'snare'
     ],
-    text: 'The listening post moves into the target's claws. Give a friendly fighter SNARE to rob enemy movement on each hit.',
+    text: "The listening post moves into the target's claws. Give a friendly fighter SNARE to rob enemy movement on each hit.",
     symbol: '📻'
   },
   {
@@ -471,7 +471,7 @@ export const GUTTER_CROWN_WAVE_THREE: Card[] = [
     team: 'exchange',
     cost: 2,
     effect: 'sharpen',
-    text: 'A harmless-looking clause raises a fighter's attack by one permanently. The other crew finds it on page 37.',
+    text: "A harmless-looking clause raises a fighter's attack by one permanently. The other crew finds it on page 37.",
     symbol: '📝'
   },
   {

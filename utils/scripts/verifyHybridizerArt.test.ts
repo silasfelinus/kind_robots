@@ -92,13 +92,15 @@ for (const [left, right] of [
     left + ' + ' + right + ' prompt must pass the art prompt contract',
   )
 }
+// Silas, 2026-11-02: launch hybrids are low priority and all submitted at once.
 assert.ok(
-  HYBRIDIZER_BATCH_PRIORITY > 60 &&
-    HYBRIDIZER_BATCH_PRIORITY < HYBRIDIZER_ART_PRIORITY,
-  'launch hybrids queue behind interactive fusions but ahead of bulk backfill packs',
+  HYBRIDIZER_BATCH_PRIORITY >= 1 && HYBRIDIZER_BATCH_PRIORITY <= 10,
+  'launch hybrids are low-priority bulk art, behind interactive fusions and game art',
 )
+assert.ok(HYBRIDIZER_BATCH_PRIORITY < HYBRIDIZER_ART_PRIORITY)
 assert.ok(
-  HYBRIDIZER_BATCH_MAX_PAIRS <= 50 && HYBRIDIZER_BATCH_PENDING_CAP <= 100,
+  HYBRIDIZER_BATCH_MAX_PAIRS <= 50 && HYBRIDIZER_BATCH_PENDING_CAP >= 4000,
+  'one batch stays small, but the whole 4,000-pair launch set may be queued at once',
 )
 assert.equal(hybridizerQueueState('PENDING', null), 'QUEUED')
 assert.equal(hybridizerQueueState('RUNNING', null), 'RENDERING')

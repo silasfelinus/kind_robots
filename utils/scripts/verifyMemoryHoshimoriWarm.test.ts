@@ -14,6 +14,8 @@ import {
   hoshimoriOvenFourthAccount,
   hoshimoriOvenFifthAccount,
   hoshimoriOvenSixthAccount,
+  hoshimoriOvenSeventhAccount,
+  hoshimoriOvenFinalGuardianResolution,
   hoshimoriOvenGuardianResolution,
   hoshimoriRidgeAccount,
   hoshimoriLowlandAccount,
@@ -46,7 +48,7 @@ import {
 assert.deepEqual(validateHoshimoriWarm(), [])
 assert.equal(HOSHIMORI_WARM_SITES.length, 64)
 assert.equal(new Set(HOSHIMORI_WARM_SITES.map((site) => site.key)).size, 64)
-assert.equal(HOSHIMORI_OVEN_ROOMS.length, 33)
+assert.equal(HOSHIMORI_OVEN_ROOMS.length, 36)
 assert.equal(new Set(HOSHIMORI_WARM_SITES.map((site) => site.opening)).size, 64)
 assert.equal(
   new Set(
@@ -934,6 +936,131 @@ assert.equal(
   'Six Glass choices must produce 64 distinct earned consequence accounts',
 )
 
+const lastBellChoices = [
+  ['last-bell-open-without-register', 'last-bell-seal-witness-route'],
+  ['last-bell-community-kitchens', 'last-bell-voluntary-bake'],
+  ['last-bell-household-custody', 'last-bell-destroy-compulsory-index'],
+] as const
+const lastBellAccounts = new Set<string>()
+const finalGuardianModes = new Set<string>()
+const guardianPaths = [
+  {
+    ember: 'release-ember',
+    verdict: 'rewrite-guardian',
+    mode: /freed guardian/,
+  },
+  { ember: 'offer-ember', verdict: 'rewrite-guardian', mode: /revocable term/ },
+  {
+    ember: 'offer-ember',
+    verdict: 'quench-guardian',
+    mode: /remains quenched/,
+  },
+] as const
+for (const guardianPath of guardianPaths) {
+  for (let mask = 0; mask < 8; mask++) {
+    let run = newHoshimoriWarmProgress(500 + mask)
+    assert.strictEqual(
+      advanceHoshimoriWarm(run, { type: 'enter-last-bell' }),
+      run,
+      'The final three rooms cannot skip earlier hearings',
+    )
+    for (const key of ['2,1', '3,1', '4,1', '4,2']) run = move(run, key)
+    run = choose(run, 'pledge')
+    run = move(run, '4,3')
+    run = advanceHoshimoriWarm(run, { type: 'enter' })
+    for (const id of ['audit', 'consent', 'pact'])
+      run = advanceHoshimoriWarm(run, { type: 'oven-choice', id })
+    run = advanceHoshimoriWarm(run, { type: 'enter-wing' })
+    for (const pair of ashWingChoices)
+      run = advanceHoshimoriWarm(run, { type: 'oven-choice', id: pair[0] })
+    run = advanceHoshimoriWarm(run, { type: 'enter-ember-wing' })
+    for (let index = 0; index < emberWingChoices.length; index++) {
+      const id =
+        index === 2
+          ? guardianPath.ember
+          : index === 5
+            ? guardianPath.verdict
+            : emberWingChoices[index]![0]
+      run = advanceHoshimoriWarm(run, { type: 'oven-choice', id })
+    }
+    run = advanceHoshimoriWarm(run, { type: 'enter-cinder-wing' })
+    for (const pair of cinderChoices)
+      run = advanceHoshimoriWarm(run, { type: 'oven-choice', id: pair[0] })
+    run = advanceHoshimoriWarm(run, { type: 'enter-saffron-wing' })
+    for (const pair of saffronChoices)
+      run = advanceHoshimoriWarm(run, { type: 'oven-choice', id: pair[0] })
+    run = advanceHoshimoriWarm(run, { type: 'enter-glass-wing' })
+    for (const pair of glassChoices)
+      run = advanceHoshimoriWarm(run, { type: 'oven-choice', id: pair[0] })
+    assert.equal(run.ovenRoom, null, 'Legacy Glass ending remains terminal')
+    assert.ok(hoshimoriOvenSixthAccount(run))
+    assert.equal(hoshimoriOvenSeventhAccount(run), null)
+    assert.equal(hoshimoriOvenFinalGuardianResolution(run), null)
+    assert.deepEqual(
+      restoreHoshimoriWarm(JSON.parse(JSON.stringify(run))),
+      run,
+      'A pre-final Glass save remains valid',
+    )
+    run = advanceHoshimoriWarm(run, { type: 'enter-last-bell' })
+    assert.equal(run.ovenRoom, 'OV-34')
+    for (let index = 0; index < lastBellChoices.length; index++) {
+      const id = lastBellChoices[index]![(mask >> index) & 1]!
+      const next = advanceHoshimoriWarm(run, { type: 'oven-choice', id })
+      assert.notStrictEqual(next, run)
+      run = next
+      if (index === 0 && mask === 0) {
+        const prior = run
+        run = advanceHoshimoriWarm(run, { type: 'leave' })
+        assert.equal(run.ovenRoom, null)
+        run = advanceHoshimoriWarm(run, { type: 'enter-last-bell' })
+        assert.equal(run.ovenRoom, 'OV-35')
+        assert.equal(run.rations, prior.rations)
+        assert.equal(run.trust, prior.trust)
+        assert.deepEqual(run.ovenChoices, prior.ovenChoices)
+      }
+    }
+    assert.equal(run.ovenRoom, null, 'OV-36 must end the final wing')
+    assert.ok(run.rations >= 0)
+    const account = hoshimoriOvenSeventhAccount(run)
+    const guardian = hoshimoriOvenFinalGuardianResolution(run)
+    assert.ok(account)
+    assert.ok(guardian)
+    assert.match(guardian, guardianPath.mode)
+    lastBellAccounts.add(account)
+    finalGuardianModes.add(guardian.split('.')[0]!)
+    assert.strictEqual(
+      advanceHoshimoriWarm(run, { type: 'enter-last-bell' }),
+      run,
+      'The final bell cannot be replayed for rewards',
+    )
+    assert.deepEqual(
+      restoreHoshimoriWarm(JSON.parse(JSON.stringify(run))),
+      run,
+      'Every final bell choice must survive journal replay',
+    )
+    const forged = JSON.parse(JSON.stringify(run)) as HoshimoriWarmProgress
+    forged.ovenChoices['OV-35'] =
+      run.ovenChoices['OV-35'] === 'last-bell-community-kitchens'
+        ? 'last-bell-voluntary-bake'
+        : 'last-bell-community-kitchens'
+    assert.equal(restoreHoshimoriWarm(forged), null)
+    const missing = { ...run, ovenChoices: { ...run.ovenChoices } }
+    delete missing.ovenChoices['OV-31']
+    assert.equal(hoshimoriOvenSeventhAccount(missing), null)
+    assert.equal(hoshimoriOvenFinalGuardianResolution(missing), null)
+  }
+}
+assert.equal(
+  lastBellAccounts.size,
+  8,
+  'Three final choices need eight earned accounts',
+)
+assert.equal(
+  finalGuardianModes.size,
+  3,
+  'Quenched, freed and bounded guardians must remain distinct at the last bell',
+)
+
 const windwardAccounts = new Set<string>()
 for (const post of ['deliver', 'archive'] as const) {
   for (const gate of ['invite', 'release'] as const) {
@@ -1528,6 +1655,12 @@ assert.match(
 )
 assert.match(consoleSource, /data-testid="memory-hoshimori-ember-wing-account"/)
 assert.match(consoleSource, /data-testid="memory-hoshimori-enter-cinder-wing"/)
+assert.match(consoleSource, /data-testid="memory-hoshimori-enter-last-bell"/)
+assert.match(
+  consoleSource,
+  /data-testid="memory-hoshimori-seventh-bell-account"/,
+)
+assert.match(consoleSource, /data-testid="memory-hoshimori-final-guardian"/)
 assert.match(
   consoleSource,
   /data-testid="memory-hoshimori-cinder-wing-account"/,
@@ -1549,6 +1682,10 @@ assert.match(
 assert.match(storeSource, /hoshimoriOvenSecondAccount\(progress\.value\)/)
 assert.match(storeSource, /hoshimoriOvenThirdAccount\(progress\.value\)/)
 assert.match(storeSource, /hoshimoriOvenGuardianResolution\(progress\.value\)/)
+assert.match(
+  storeSource,
+  /hoshimoriOvenFinalGuardianResolution\(progress\.value\)/,
+)
 assert.match(storeSource, /syncHoshimoriAchievements/)
 const worldStoreSource = readFileSync('stores/memoryWorldStore.ts', 'utf8')
 assert.match(worldStoreSource, /campaign\.value\.completed\.includes\('e06'\)/)
@@ -1559,5 +1696,5 @@ assert.match(overworldSource, /campaign\.completed\.includes\('e06'\)/)
 assert.match(overworldSource, /data-testid="memory-enter-hoshimori"/)
 
 console.log(
-  'Hoshimori warm proof: 64 sites, 21 Oven rooms, 64 ash-wing, 64 ember-wing and 64 cinder-wing accounts, 3 guardian dispositions, 96 seeds, 24 hearings, two Earth photos, long-run save and spoiler guards passed',
+  'Hoshimori warm proof: 64 sites, 36 Oven rooms, 64 ash/ember/cinder/saffron/glass routes, 24 final guardian routes, 3 dispositions, two Earth photos, replay and spoiler guards passed',
 )

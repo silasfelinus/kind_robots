@@ -19,6 +19,14 @@
   ancestor that clips them should use overflow: clip, not hidden, so a
   focused card can't scroll it.
 
+  Size knobs a game may set on an ancestor: --hand-card-max (widest card),
+  --hand-card-cqw / --hand-card-vh (share of hand width / screen height a
+  card may take) and --hand-focus-scale (how much a lifted card grows).
+
+  Cards are only 3D (perspective, preserve-3d, hidden backfaces) while they
+  deal in or play out. Kept 3D at rest, the browser paints a lifted card as
+  a scaled bitmap and its text goes blurry (Silas, 2026-11-02).
+
   No touch-action and no :active lift, for the iOS reasons documented in
   workspace-hand.vue.
 -->
@@ -342,10 +350,15 @@ function sparkleStyle(n: number): Record<string, string> {
   --band: var(--hand-band, var(--color-neutral, #071016));
   --band-ink: var(--hand-band-ink, var(--color-neutral-content, #f3e6c8));
   --tuck: var(--hand-tuck, 0);
+  --focus-scale: var(--hand-focus-scale, 1.12);
   /* The hand measures itself, so cards always fit its width without a
      scrollbar, and stay modest on short screens. */
   --card-w: min(
-    clamp(5.5rem, min(36cqw, 18vh), var(--hand-card-max, 9.25rem)),
+    clamp(
+      5.5rem,
+      min(var(--hand-card-cqw, 36cqw), var(--hand-card-vh, 18vh)),
+      var(--hand-card-max, 9.25rem)
+    ),
     calc((100cqw - 2.25rem) / var(--fit, 2.4))
   );
   --card-h: calc(var(--card-w) * 1.5);
@@ -409,8 +422,11 @@ function sparkleStyle(n: number): Record<string, string> {
    clipped by paint (clip-path), never by a scroll box, which would scroll
    itself to reveal a tucked card when one lifts or takes focus. */
 .krh-scroll {
-  padding-top: calc(var(--peek) + var(--card-w) * 0.45);
-  margin-top: calc((var(--peek) + var(--card-w) * 0.45) * -1);
+  --headroom: calc(
+    var(--peek) + var(--card-w) * max(0.45, (var(--focus-scale) - 1) * 1.9)
+  );
+  padding-top: var(--headroom);
+  margin-top: calc(var(--headroom) * -1);
   clip-path: inset(-200rem -200rem 0 -200rem);
   pointer-events: none;
 }
@@ -442,14 +458,13 @@ function sparkleStyle(n: number): Record<string, string> {
     transform 0.22s cubic-bezier(0.2, 0.9, 0.25, 1.2),
     filter 0.2s,
     opacity 0.3s;
-  perspective: 700px;
   pointer-events: auto;
 }
 .krh-card:hover:not(:disabled),
 .krh-card:focus-visible,
 .krh-card.is-focused:not(:disabled) {
   --lift: calc(var(--peek) + 0.6rem);
-  --scale: 1.12;
+  --scale: var(--focus-scale);
   --rot: 0deg;
   z-index: 10;
 }
@@ -480,13 +495,24 @@ function sparkleStyle(n: number): Record<string, string> {
 .krh-flip {
   position: relative;
   display: block;
-  transform-style: preserve-3d;
 }
 .krh-face {
   display: block;
+  border-radius: 0.6rem;
+}
+/* 3D only while a card turns over; see the header note on blur. */
+.krh-card.krh-deal-enter-active,
+.krh-card.is-playing {
+  perspective: 700px;
+}
+.krh-deal-enter-active .krh-flip,
+.is-playing .krh-flip {
+  transform-style: preserve-3d;
+}
+.krh-deal-enter-active .krh-face,
+.is-playing .krh-face {
   backface-visibility: hidden;
   -webkit-backface-visibility: hidden;
-  border-radius: 0.6rem;
 }
 .krh-front {
   position: relative;
@@ -637,6 +663,7 @@ function sparkleStyle(n: number): Record<string, string> {
 .krh-flip .krh-back {
   position: absolute;
   inset: 0;
+  visibility: hidden;
   transform: rotateY(180deg);
   border: 2px solid color-mix(in oklab, var(--accent) 60%, transparent);
   background:
@@ -656,6 +683,10 @@ function sparkleStyle(n: number): Record<string, string> {
     transform 0.5s cubic-bezier(0.2, 0.9, 0.25, 1.1),
     opacity 0.3s;
   transition-delay: calc(var(--i) * 70ms);
+}
+.krh-deal-enter-active .krh-back,
+.is-playing .krh-back {
+  visibility: visible;
 }
 .krh-deal-enter-active .krh-flip {
   animation: krh-deal-flip 0.55s calc(var(--i) * 70ms) both

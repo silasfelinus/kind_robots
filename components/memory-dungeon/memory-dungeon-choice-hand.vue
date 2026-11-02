@@ -78,9 +78,14 @@ const cards = computed<KrHandChoice[]>(() =>
 </script>
 
 <style scoped>
+/* A big held hand: cards take more of the row, and the one under the
+   pointer or focus rises well clear of its neighbours (Silas, 2026-11-02). */
 .md-hand {
   --hand-text-scale: 1.15;
-  --hand-card-max: 8.5rem;
+  --hand-card-max: 10.5rem;
+  --hand-card-cqw: 40cqw;
+  --hand-card-vh: 21vh;
+  --hand-focus-scale: 1.32;
 }
 .md-hand-tide {
   --hand-accent: #e9c48c;
@@ -102,7 +107,8 @@ const cards = computed<KrHandChoice[]>(() =>
 }
 @media (max-height: 760px) {
   .md-hand {
-    --hand-card-max: 6.75rem;
+    --hand-card-max: 8.25rem;
+    --hand-card-vh: 19vh;
   }
 }
 .md-hand :deep(.krh-title) {

@@ -83,6 +83,16 @@ assert.doesNotMatch(
   "root classes are prefixed so a parent page's scoped styles can't hit them",
 )
 assert.doesNotMatch(hand, /100vh|100dvh/)
+assert.doesNotMatch(
+  hand,
+  /^(?:\.krh-card \{[^}]*perspective|\.krh-flip \{[^}]*preserve-3d|\.krh-face \{[^}]*backface-visibility)/m,
+  'cards are 3D only while flipping; 3D at rest blurs a lifted card (Silas, 2026-11-02)',
+)
+assert.match(
+  hand,
+  /--scale: var\(--focus-scale\)/,
+  'games can enlarge the lifted card',
+)
 
 const adopters: Array<[game: string, file: string, pattern: RegExp]> = [
   ['Ecotone', 'components/ecotone-choice-hand.vue', /<KrChoiceHand/],

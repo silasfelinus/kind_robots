@@ -443,7 +443,7 @@
                     {{ siteSymbol(sites[tile.key]?.kind) }}
                   </span>
                   <span
-                    class="absolute right-0 top-0 z-20 rounded-bl bg-[#142521]/85 px-0.5 text-[clamp(10px,1.3vw,14px)] font-black leading-tight shadow"
+                    class="md-progress-mark absolute right-0.5 top-0 z-20 text-[clamp(11px,1.4vw,16px)] font-black leading-tight"
                     :class="
                       progressFor(tile.key) === 'complete'
                         ? 'text-emerald-200'
@@ -659,20 +659,6 @@
               >
                 Find the matching picture to reveal two squares.
               </p>
-              <memory-dungeon-choice-hand
-                v-if="
-                  !world.mapMatching &&
-                  world.activeScene &&
-                  !world.state.sceneChoices[world.activeSiteKey]
-                "
-                class="mt-2 shrink-0"
-                :choices="sceneHand"
-                :deal-key="world.activeSiteKey"
-                :icon="siteSymbol(world.selectedSite?.kind) || '✥'"
-                palette="briar"
-                testid-prefix="memory-world-choice"
-                @play="(choice) => world.chooseScene(choice.id)"
-              />
               <div
                 v-if="
                   !world.mapMatching &&
@@ -828,6 +814,20 @@
                 {{ world.earthPhotos.length }} fragments
               </button>
             </div>
+            <memory-dungeon-choice-hand
+              v-if="
+                !world.mapMatching &&
+                world.activeScene &&
+                !world.state.sceneChoices[world.activeSiteKey]
+              "
+              class="md-scene-hand"
+              :choices="sceneHand"
+              :deal-key="world.activeSiteKey"
+              :icon="siteSymbol(world.selectedSite?.kind) || '✥'"
+              palette="briar"
+              testid-prefix="memory-world-choice"
+              @play="(choice) => world.chooseScene(choice.id)"
+            />
           </div>
           <p
             v-if="world.mapDeckError"
@@ -1270,15 +1270,35 @@ onMounted(() => {
 .md-encounter-pane {
   min-height: 0;
 }
+/* A tile's progress mark sits straight on the art, outlined so it reads on
+   any terrain (Silas, 2026-11-02: no dark chip behind the check). */
+.md-progress-mark {
+  text-shadow:
+    0 0 2px #0b1712,
+    0 0 2px #0b1712,
+    0 1px 3px #0b1712;
+}
+/* The story hand gets its own row so its cards can be held large: under the
+   narrative in a narrow pane, across the whole pane once it is wide. */
 .md-scene-overview {
   display: grid;
   grid-template-columns: minmax(0, 0.43fr) minmax(0, 0.57fr);
-  gap: clamp(0.5rem, 1vw, 1rem);
+  grid-template-rows: minmax(0, 1fr) auto;
+  grid-template-areas:
+    'art copy'
+    'art hand';
+  column-gap: clamp(0.5rem, 1vw, 1rem);
   flex: 1 1 0;
   min-height: 0;
   overflow: hidden;
 }
+.md-scene-hand {
+  grid-area: hand;
+  min-width: 0;
+  margin-top: 0.5rem;
+}
 .md-scene-art {
+  grid-area: art;
   position: relative;
   min-height: 0;
   min-width: 0;
@@ -1309,6 +1329,7 @@ onMounted(() => {
   font-weight: 800;
 }
 .md-scene-copy {
+  grid-area: copy;
   display: flex;
   flex-direction: column;
   gap: 0.45rem;
@@ -1335,6 +1356,9 @@ onMounted(() => {
   }
   .md-scene-overview {
     grid-template-columns: minmax(0, 0.52fr) minmax(0, 0.48fr);
+    grid-template-areas:
+      'art copy'
+      'hand hand';
   }
 }
 @container md-world (max-height: 500px) {

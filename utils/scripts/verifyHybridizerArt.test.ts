@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict'
+import { readFileSync } from 'node:fs'
 import {
   hybridizerArtPrompt,
   hybridizerArtSeed,
@@ -128,3 +129,35 @@ for (const value of [
   assert.equal(hybridizerDeliverableUrl(value), null)
 }
 console.log('Hybridizer art readiness and deterministic seed contracts passed.')
+
+const atlasApi = readFileSync(
+  new URL('../../server/api/hybridizer/fusions/index.get.ts', import.meta.url),
+  'utf8',
+)
+const labStore = readFileSync(
+  new URL('../../stores/hybridizerStore.ts', import.meta.url),
+  'utf8',
+)
+const labPage = readFileSync(
+  new URL('../../pages/admin/hybridizer.vue', import.meta.url),
+  'utf8',
+)
+assert.match(atlasApi, /const where: Prisma\.HybridizerFusionWhereInput = \{ AND: filters \}/)
+assert.match(atlasApi, /filteredTotal/)
+assert.match(atlasApi, /status === 'READY'/)
+assert.match(atlasApi, /status === 'IN_PROGRESS'/)
+assert.match(atlasApi, /status === 'OTHER'/)
+assert.match(atlasApi, /prisma\.hybridizerFusion\.count\(\{ where \}\)/)
+assert.match(atlasApi, /ids\.split\(','\)\.filter/)
+assert.match(labStore, /function loadAtlas\(/)
+assert.match(labStore, /atlasEntries\.value/)
+assert.match(labStore, /function randomize\(/)
+assert.match(labStore, /maxDepth=3/)
+assert.match(labStore, /function preferencesKey\(/)
+assert.match(labStore, /authenticatedUserId/)
+assert.match(labStore, /function toggleFavorite\(/)
+assert.match(labPage, /data-testid="hybridizer-random"/)
+assert.match(labPage, /data-testid="hybridizer-favorites"/)
+assert.match(labPage, /data-testid="hybridizer-settings"/)
+assert.match(labPage, /class="favorite-heart/)
+console.log('Hybridizer atlas, randomizer and favorites contracts passed.')

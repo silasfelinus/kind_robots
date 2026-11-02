@@ -352,7 +352,7 @@ export const MERCENARY_CARDS: Card[] = [
     cost: 3,
     effect: 'grant',
     grants: ['swarm'],
-    text: 'The crowd joins a fighter\'s cause. Grant SWARM so allies can amplify its strikes.',
+    text: "The crowd joins a fighter's cause. Grant SWARM so allies can amplify its strikes.",
     symbol: '🎶',
   },
   {
@@ -731,7 +731,7 @@ export const MERCENARY_CARDS: Card[] = [
     cost: 5,
     effect: 'grant',
     grants: ['leech'],
-    text: 'An obsolete saint\'s halo. Grant life-stealing LEECH to a fighter.',
+    text: "An obsolete saint's halo. Grant life-stealing LEECH to a fighter.",
     symbol: '⭕',
   },
   {

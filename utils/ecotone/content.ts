@@ -1095,6 +1095,8 @@ export const ECOTONE_ART: string[] = [
   'chapters/eureka-and-the-bay',
   'chapters/backroads-and-bad-reception',
   'encounters/wh-006-last-exit',
+  'encounters/gr-2-something-to-share',
+  'encounters/kn-2-the-afterparty',
   'ui/card-back',
   'companions/cedar',
   'chapters/southern-humboldt-older-roads',

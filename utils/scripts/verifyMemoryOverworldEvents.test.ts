@@ -174,7 +174,7 @@ assert.deepEqual(
   BRIAR_COLLISION_SCENES['7,6'].choices.map((choice) => choice.id),
 )
 const routeSites = Object.entries(BRIAR_COLLISION_ROUTE_SITES)
-assert.equal(routeSites.length, 16)
+assert.equal(routeSites.length, 20)
 assert.equal(
   worldEvents('e09').filter((event) => event.memoryFragment).length,
   2,
@@ -312,6 +312,86 @@ for (const key of newCrossroads) {
 }
 assert.equal(newCrossroadFlags.size, 16)
 assert.equal(newCrossroadOutcomes.size, 16)
+
+const easternCrossings = ['8,3', '8,4', '7,4', '7,5'] as const
+const easternFlags = new Set<string>()
+const easternOutcomes = new Set<string>()
+const easternRoutes = new Set<string>()
+assert.equal(
+  worldEvent('e09', '7,3')?.title,
+  'The Volunteer Shift',
+  'The earned Earth photograph must not be overwritten by route authoring',
+)
+assert.ok(worldEvent('e09', '7,3')?.photographId)
+for (let bits = 0; bits < 16; bits++) {
+  const journal: EarthJournalAction[] = []
+  for (let x = 2; x <= 8; x++)
+    journal.push({ type: 'travel', key: x + ',1' })
+  journal.push({ type: 'travel', key: '8,2' })
+  journal.push({ type: 'travel', key: '8,3' })
+  const chosen: string[] = []
+  for (const [index, key] of easternCrossings.entries()) {
+    const scene = BRIAR_COLLISION_ROUTE_SITES[key]
+    const event = worldEvent('e09', key)!
+    assert.equal(event.title, scene.title)
+    assert.equal(event.memoryFragment, undefined)
+    assert.equal(event.photographId, undefined)
+    assert.ok(scene.opening.length > 180, key + ' needs a developed scene')
+    assert.ok(scene.artSubject.length > 70, key + ' needs a visual brief')
+    assert.equal(event.choices.length, 2)
+    const choice = event.choices[(bits >> index) & 1]!
+    assert.ok(choice.outcome.length > 130, key + ' needs a real outcome')
+    assert.ok(Object.values(choice.effects).some((value) => value !== 0))
+    easternFlags.add(choice.flag)
+    easternOutcomes.add(choice.outcome)
+    chosen.push(choice.flag)
+    journal.push({ type: 'choose', key, choiceId: choice.id })
+    if (index + 1 < easternCrossings.length)
+      journal.push({ type: 'travel', key: easternCrossings[index + 1]! })
+  }
+  const replayed = replayEarthJournal('e09', journal)
+  assert.ok(replayed, 'All eastern crossing decisions must replay legally')
+  assert.equal(replayed.position, '7,5')
+  assert.equal(Object.keys(replayed.progress.choices).length, 4)
+  assert.deepEqual(replayed.progress.flags, chosen)
+  easternRoutes.add(chosen.join('|'))
+  assert.deepEqual(
+    replayEarthJournal('e09', JSON.parse(JSON.stringify(journal))),
+    replayed,
+    'Eastern crossing saves must replay with identical consequences',
+  )
+  assert.equal(
+    replayEarthJournal('e09', [
+      ...journal,
+      { type: 'choose', key: '7,5', choiceId: worldEvent('e09', '7,5')!.choices[0]!.id },
+    ]),
+    null,
+    'An eastern crossing cannot be paid twice',
+  )
+  const forged = [...journal]
+  forged[forged.length - 1] = {
+    type: 'choose',
+    key: '7,5',
+    choiceId: 'forged-eastern-outcome',
+  }
+  assert.equal(replayEarthJournal('e09', forged), null)
+  const restored = restoreOverworldEventProgress({
+    ...replayed.progress,
+    flags: ['forged-eastern-history'],
+    supplies: 99999,
+    trust: 99999,
+  })
+  assert.ok(restored)
+  assert.deepEqual(restored.choices, replayed.progress.choices)
+  assert.deepEqual(restored.flags, replayed.progress.flags)
+  assert.equal(restored.supplies, replayed.progress.supplies)
+  assert.equal(restored.trust, replayed.progress.trust)
+  assert.equal(restored.evidence, replayed.progress.evidence)
+  assert.equal(restored.danger, replayed.progress.danger)
+}
+assert.equal(easternFlags.size, 8)
+assert.equal(easternOutcomes.size, 8)
+assert.equal(easternRoutes.size, 16)
 assert.equal(
   worldEvents('e09').filter((event) => event.memoryFragment).length,
   2,

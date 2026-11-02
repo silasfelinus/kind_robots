@@ -510,7 +510,7 @@ export const BRIAR_COLLISION_ROUTE_SITES = {
       },
     ],
   },
-  '7,3': {
+  '7,5': {
     title: 'The Umbrella Migration',
     speaker: 'Vesper, Pip and the umbrella keeper',
     kind: 'challenge',

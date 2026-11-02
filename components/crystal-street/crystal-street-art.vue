@@ -9,9 +9,9 @@
       :label="alt"
     />
     <img
-      v-if="src && !failed"
-      :key="src"
-      :src="src"
+      v-if="shown && !failed"
+      :key="shown"
+      :src="shown"
       :alt="alt"
       loading="lazy"
       decoding="async"
@@ -22,7 +22,7 @@
         kind === 'villain' ? 'object-[center_20%]' : '',
       ]"
       @load="loaded = true"
-      @error="failed = true"
+      @error="onError"
     />
     <p
       v-if="brief && !loaded"
@@ -41,6 +41,7 @@ const props = withDefaults(
   defineProps<{
     seed: string
     src?: string
+    fallback?: string
     kind?: 'night' | 'day' | 'dream' | 'villain' | 'location' | 'ending'
     palette?: readonly string[]
     sigil?: string
@@ -50,6 +51,7 @@ const props = withDefaults(
   }>(),
   {
     src: '',
+    fallback: '',
     kind: 'night',
     palette: () => [],
     sigil: '',
@@ -61,12 +63,21 @@ const props = withDefaults(
 
 const loaded = ref(false)
 const failed = ref(false)
+const shown = ref(props.src || props.fallback)
 
 watch(
-  () => props.src,
+  () => [props.src, props.fallback],
   () => {
+    shown.value = props.src || props.fallback
     loaded.value = false
     failed.value = false
   },
 )
+
+function onError(): void {
+  loaded.value = false
+  if (props.fallback && shown.value !== props.fallback)
+    shown.value = props.fallback
+  else failed.value = true
+}
 </script>

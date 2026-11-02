@@ -51,7 +51,7 @@ assert.match(boardSource, /ref="outcomeHeading"/)
 assert.match(boardSource, /tabindex="-1"/)
 assert.match(boardSource, /encounterHeading\.value\?\.focus\(\)/)
 assert.match(boardSource, /outcomeHeading\.value\?\.focus\(\)/)
-assert.match(boardSource, /@click="chooseEncounter\(option\.id\)"/)
+assert.match(boardSource, /@play="\(option\) => chooseEncounter\(option\.id\)"/)
 assert.match(boardSource, /if \(!game\.choose\(id\)\) return/)
 assert.doesNotMatch(boardSource, /@(?:done|halfway|start)="game\./)
 assert.match(

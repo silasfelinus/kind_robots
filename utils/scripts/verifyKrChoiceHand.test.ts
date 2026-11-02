@@ -25,6 +25,17 @@ assert.match(hand, /:title="ariaFor\(choice\)"/)
 assert.match(hand, /prefers-reduced-motion: reduce/)
 assert.match(
   hand,
+  /if \(!props\.animate \|\| reducedMotion\(\)\)/,
+  'game motion setting',
+)
+assert.match(
+  hand,
+  /:disabled="Boolean\(playing\)"[\s\S]*?:aria-disabled="choice\.disabled/,
+  'locked cards stay focusable so their reason can be read',
+)
+assert.match(hand, /if \(choice\.disabled \|\| playing\.value\) return/)
+assert.match(
+  hand,
   /clip-path: inset\(-200rem -200rem 0 -200rem\)/,
   'the tucked edge is clipped by paint, not a scroll box',
 )
@@ -36,14 +47,34 @@ assert.doesNotMatch(
 assert.match(hand, /container-type: inline-size/, 'cards size to the hand')
 assert.doesNotMatch(hand, /100vh|100dvh/)
 
-const adopters: Array<[file: string, pattern: RegExp]> = [
-  ['components/ecotone-choice-hand.vue', /<KrChoiceHand/],
-  ['components/ecotone-board.vue', /<EcotoneChoiceHand/],
+const adopters: Array<[game: string, file: string, pattern: RegExp]> = [
+  ['Ecotone', 'components/ecotone-choice-hand.vue', /<KrChoiceHand/],
+  ['Ecotone', 'components/ecotone-board.vue', /<EcotoneChoiceHand/],
+  [
+    'Crystal Street',
+    'components/crystal-street/crystal-street-encounter.vue',
+    /<KrChoiceHand[\s\S]*testid-prefix="cs-choice"/,
+  ],
+  [
+    'Shifting Lands',
+    'components/shifting-lands-journey-board.vue',
+    /<KrChoiceHand\s+:choices="encounterHand"/,
+  ],
+  [
+    'Shifting Lands',
+    'components/shifting-lands-journey-board.vue',
+    /<KrChoiceHand\s+:choices="trialHand"/,
+  ],
 ]
-for (const [file, pattern] of adopters) {
-  assert.match(readFileSync(file, 'utf8'), pattern, `${file} uses the hand`)
+for (const [game, file, pattern] of adopters) {
+  assert.match(
+    readFileSync(file, 'utf8'),
+    pattern,
+    `${game}: ${file} uses the hand`,
+  )
 }
 
+const games = [...new Set(adopters.map(([game]) => game))]
 console.log(
-  `Shared choice hand contract passed (${adopters.length - 1} game${adopters.length === 2 ? '' : 's'})`,
+  `Shared choice hand contract passed (${games.length} games: ${games.join(', ')})`,
 )

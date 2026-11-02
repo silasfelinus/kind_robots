@@ -25,7 +25,7 @@
 <template>
   <div
     class="krh"
-    :class="{ 'is-tucked': tuck }"
+    :class="{ 'is-tucked': tuck, 'is-still': !animate }"
     :style="{ '--count': choices.length }"
     data-testid="kr-choice-hand"
   >
@@ -63,7 +63,7 @@
             'is-focused': focused === choice.id,
           }"
           :style="fanStyle(index)"
-          :disabled="choice.disabled || Boolean(playing)"
+          :disabled="Boolean(playing)"
           :aria-disabled="choice.disabled ? 'true' : undefined"
           :aria-label="ariaFor(choice)"
           :aria-describedby="detailId"
@@ -157,6 +157,8 @@ const props = withDefaults(
     /** Change it whenever a new hand is offered, so the cards deal in again. */
     dealKey?: string
     tuck?: boolean
+    /** False when the game's own motion setting is off. */
+    animate?: boolean
     backImage?: string | null
     testidPrefix?: string
   }>(),
@@ -164,6 +166,7 @@ const props = withDefaults(
     question: '',
     dealKey: '',
     tuck: false,
+    animate: true,
     backImage: null,
     testidPrefix: 'choice-hand',
   },
@@ -229,7 +232,7 @@ function reducedMotion(): boolean {
 
 function play(choice: KrHandChoice): void {
   if (choice.disabled || playing.value) return
-  if (reducedMotion()) {
+  if (!props.animate || reducedMotion()) {
     emit('play', choice)
     return
   }
@@ -641,6 +644,14 @@ function sparkleStyle(n: number): Record<string, string> {
   }
 }
 
+.krh.is-still .krh-card,
+.krh.is-still .krh-card.is-playing,
+.krh.is-still .krh-deal-enter-active {
+  transition: none;
+}
+.krh.is-still .krh-deal-enter-active .krh-flip {
+  animation: none;
+}
 @media (prefers-reduced-motion: reduce) {
   .krh-card,
   .krh-card.is-playing,

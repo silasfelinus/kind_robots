@@ -135,6 +135,15 @@ assert.deepEqual(
 )
 const board = readFileSync('components/ecotone-board.vue', 'utf8')
 assert.match(board, /questCallbacks/)
+// Earned endings must look earned in the Endings atlas: the card back is a
+// background image, so the unlocked state has to change the image layer
+// (ending art or a gold wash), not just a Tailwind bg tint hidden beneath it.
+assert.match(board, /:style="slotStyle\(slot\)"/)
+assert.match(
+  board,
+  /function slotStyle\(slot[^)]*\)[\s\S]*?endingArtKey\(slot\.id\)/,
+)
+assert.match(board, /:data-unlocked="slot\.unlocked \? 'true' : 'false'"/)
 console.log(
   `Ecotone atlas: ${ids.length} playable stories, ${journeys} adversarial choice runs, ${successes} successes, ${failures} failures, all four seeded draws, ${ids.length} unique story-card art slots`,
 )

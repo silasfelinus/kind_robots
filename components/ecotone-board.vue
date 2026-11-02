@@ -1733,15 +1733,23 @@
               <div
                 v-for="slot in slotsFor(row.id)"
                 :key="slot.id"
-                class="flex aspect-[2/3] flex-col items-center justify-center rounded-lg border bg-cover bg-center text-center"
+                class="relative flex aspect-[2/3] flex-col items-center justify-center overflow-hidden rounded-lg border bg-cover bg-center text-center"
                 :class="
                   slot.unlocked
-                    ? 'border-[#d9b877] bg-[#d9b877]/20'
-                    : 'border-white/10 bg-white/5'
+                    ? 'border-2 border-[#d9b877] shadow-[0_0_10px_rgb(217_184_119/0.55)]'
+                    : 'border-white/10 bg-white/5 opacity-70 grayscale-[.6]'
                 "
-                :style="slotBack"
+                :style="slotStyle(slot)"
+                :data-unlocked="slot.unlocked ? 'true' : 'false'"
+                :aria-label="`${slot.unlocked && slot.title ? `${slot.title}: ` : ''}${slot.lens} · ${slot.fate === 'hope' ? 'hopeful' : 'dark'} · ${slot.unlocked ? 'earned' : 'locked'}`"
                 :title="`${slot.unlocked && slot.title ? `${slot.title}: ` : ''}${slot.lens} · ${slot.fate === 'hope' ? 'hopeful' : 'dark'} · ${slot.unlocked ? 'earned' : 'locked'}`"
               >
+                <span
+                  v-if="slot.unlocked"
+                  class="absolute right-0.5 top-0.5 grid size-4 place-items-center rounded-full bg-[#d9b877] text-[10px] font-black text-[#070f15]"
+                  aria-hidden="true"
+                  >✓</span
+                >
                 <span
                   class="size-3 rounded-full"
                   :class="
@@ -1751,8 +1759,15 @@
                   "
                 />
                 <span
-                  class="mt-0.5 text-[9px] font-bold leading-tight text-white/50"
-                  >{{ slot.short }}</span
+                  class="mt-0.5 line-clamp-2 rounded px-0.5 text-[9px] font-bold leading-tight"
+                  :class="
+                    slot.unlocked
+                      ? 'bg-black/60 text-[#f3e6c8]'
+                      : 'text-white/50'
+                  "
+                  >{{
+                    slot.unlocked && slot.title ? slot.title : slot.short
+                  }}</span
                 >
               </div>
             </div>
@@ -2873,6 +2888,25 @@ const slotBack = computed(() => {
       }
     : undefined
 })
+
+/**
+ * Earned endings show their own ending art (or a bright gold-washed card
+ * back when that art isn't rendered yet); locked ones keep the dimmed back.
+ * The card back is a background image, so a Tailwind bg tint alone sits
+ * underneath it and never shows — the state has to live in the image layer.
+ */
+function slotStyle(slot: { id: string; unlocked: boolean }) {
+  if (!slot.unlocked) return slotBack.value
+  const art = ecotoneArtSrc(endingArtKey(slot.id), artStyle.value)
+  const back = ecotoneArtSrc('ui/card-back', artStyle.value)
+  const url = art ?? back
+  const wash = art
+    ? 'linear-gradient(rgb(0 0 0 / 0) 55%, rgb(0 0 0 / 0.55))'
+    : 'linear-gradient(rgb(217 184 119 / 0.35), rgb(217 184 119 / 0.35))'
+  return url
+    ? { backgroundImage: `${wash}, url(${url})` }
+    : { backgroundColor: 'rgb(217 184 119 / 0.25)' }
+}
 
 function endingsFor(id: EndingLine) {
   return game.endings.filter((key) => key.startsWith(`${id}.`)).length

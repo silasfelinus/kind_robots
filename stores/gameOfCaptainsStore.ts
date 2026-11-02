@@ -198,7 +198,9 @@ export const useGameOfCaptainsStore = defineStore('gameOfCaptains', () => {
           try {
             localStorage.removeItem(ALIEN_GUIDE_KEY)
             localStorage.removeItem(ALIEN_GUIDE_OWNER_KEY)
-          } catch {}
+          } catch {
+            // Storage unavailable; the in-memory guide is already cleared.
+          }
         }
         return
       }

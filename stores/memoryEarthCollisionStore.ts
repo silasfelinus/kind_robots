@@ -77,6 +77,7 @@ export const useMemoryEarthCollisionStore = defineStore(
       earthCollisionCrossroadStory(
         history.value,
         world.campaign.pairDecisions?.e10,
+        journal.value,
       ),
     )
     const tiles = computed(() =>
@@ -211,6 +212,7 @@ export const useMemoryEarthCollisionStore = defineStore(
       notice.value = earthCollisionCrossroadStory(
         history.value,
         verdict,
+        journal.value,
       ).outcome
       persist()
     }

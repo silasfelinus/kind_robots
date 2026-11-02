@@ -3,6 +3,8 @@
 // The real-money/cash-out path is deliberately absent.
 import { MERCENARY_RARE_IDS } from './mercenaryCards'
 import { GUTTER_CROWN_WAVE_THREE_RARE_IDS } from './gutterCrownWaveThree'
+import { GUTTER_CROWN_FINALE_A_RARE_IDS } from './gutterCrownFinaleA'
+import { GUTTER_CROWN_FINALE_B_RARE_IDS } from './gutterCrownFinaleB'
 import {
   CARDS,
   TEAMS,
@@ -147,7 +149,9 @@ export function rarityOf(card: Card): Rarity {
   if (
     RARE_IDS.has(card.id) ||
     MERCENARY_RARE_IDS.has(card.id) ||
-    GUTTER_CROWN_WAVE_THREE_RARE_IDS.has(card.id)
+    GUTTER_CROWN_WAVE_THREE_RARE_IDS.has(card.id) ||
+    GUTTER_CROWN_FINALE_A_RARE_IDS.has(card.id) ||
+    GUTTER_CROWN_FINALE_B_RARE_IDS.has(card.id)
   )
     return 'rare'
   return card.cost >= 3 ? 'uncommon' : 'common'

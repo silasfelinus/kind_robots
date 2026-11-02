@@ -2,6 +2,7 @@ import { CAPTAIN_STATS, CREW_PROFILES, type Skill } from './crewAssignments'
 import type { PolicyId, VoyageRun } from './rules'
 import { ACT_ONE_EXPANDED_CONSEQUENCES } from './consequenceStoriesActOneExpansion'
 import { ACT_ONE_UNPAINTED_CASES } from './consequenceStoriesActOneRemainder'
+import { CONVOY_AND_ACT_TWO_CASES } from './consequenceStoriesConvoyAndActTwo'
 
 type Meter =
   | 'sanctuary_trust'
@@ -485,6 +486,7 @@ export const CONSEQUENCE_STORIES: Record<string, ConsequenceEpisode> = {
   },
   ...ACT_ONE_EXPANDED_CONSEQUENCES,
   ...ACT_ONE_UNPAINTED_CASES,
+  ...CONVOY_AND_ACT_TWO_CASES,
 }
 export const CONSEQUENCE_ENDINGS: readonly ConsequenceEnding[] = [
   {
@@ -523,6 +525,31 @@ export function consequenceForRun(run: VoyageRun): ConsequenceEpisode | null {
     (run.consequenceHistory ?? []).some((item) => item.episodeId === episode.id)
   )
     return null
+  if (missionId === 'concord-intake') {
+    const history = run.consequenceHistory ?? []
+    const convoy = history.find((item) => item.missionId === 'refugees')
+    if (convoy) {
+      const peopleAreHidden = convoy.flags.some((flag) =>
+        ['convoy-witnesses-protected', 'convoy-identities-sheltered', 'convoy-identity-audit-blocked'].includes(flag),
+      )
+      return {
+        ...episode,
+        opening:
+          episode.opening +
+          (peopleAreHidden
+            ? ' A sealed letter arrives from the convoy: its families will need legal personhood without being entered on a public property ledger.'
+            : ' A convoy navigator warns that checkpoint patrols already know her family’s destination, and begs the Freehold not to publish another list.'),
+      }
+    }
+  }
+  if (missionId === 'sesh-backups' && (run.worldFlags ?? []).includes('concord-resident-personhood')) {
+    return {
+      ...episode,
+      opening:
+        episode.opening +
+        ' Mara of Concord has forwarded the citizens’ successful personhood petition. The buyer insists it only applies to living desks, not machines.',
+    }
+  }
   return episode
 }
 
@@ -633,7 +660,7 @@ export function validConsequenceHistory(
 ): value is ConsequenceRecord[] {
   return (
     Array.isArray(value) &&
-    value.length <= 3 &&
+    value.length <= 9 &&
     value.every((item) => {
       if (!item || typeof item !== 'object') return false
       const record = item as Partial<ConsequenceRecord>

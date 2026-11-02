@@ -127,6 +127,38 @@ assert.match(page, /PlaybookKitShell/)
 assert.match(page, /data-testid="tactics-odds"/)
 assert.match(page, /store\.hover\(cell\)/)
 assert.match(page, /store\.rosterOpen/)
+const pageBar = page.match(/<template #bar-actions>[\s\S]*?<\/template>/)?.[0]
+assert.ok(
+  pageBar,
+  "tactics header fills the kit shell's slot in the shared console system bar",
+)
+assert.match(pageBar, /data-testid="tactics-header"/)
+assert.doesNotMatch(
+  page,
+  /<header-page-bar/,
+  'one system bar: the kit shell owns it, the page only fills its slot',
+)
+const kitShell = readFileSync(
+  new URL(
+    '../../components/playbook-kit/playbook-kit-shell.vue',
+    import.meta.url,
+  ),
+  'utf8',
+)
+assert.match(
+  kitShell,
+  /<header-page-bar :console-theme="spec\.theme \?\? 'forge'">[\s\S]*?<slot name="bar-actions" \/>[\s\S]*?<\/header-page-bar>/,
+  'the shell renders its bar-actions slot inside the shared console system bar',
+)
+for (const testId of [
+  'tactics-open-menu',
+  'tactics-exit-playtest',
+  'tactics-open-studio',
+]) {
+  assert.match(pageBar, new RegExp(`data-testid="${testId}"`))
+}
+assert.match(pageBar, /store\.rosterOpen = !store\.rosterOpen/)
+assert.doesNotMatch(page, /class="evt-hud"/)
 assert.match(page, /@media \(prefers-reduced-motion: reduce\)/)
 assert.match(tab, /^requiredRole: ADMIN$/m)
 assert.match(tab, /^route: \/admin\/every-villain-tactics$/m)

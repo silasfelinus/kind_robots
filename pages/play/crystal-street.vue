@@ -9,6 +9,7 @@
     data-theme="crystal-street"
     data-layout="console-fixed"
   >
+    <shell-console-theme theme="crystal-street" />
     <p
       v-if="store.storageWarning"
       class="kr-note kr-note-error p-2 text-sm"
@@ -17,88 +18,98 @@
       {{ store.storageWarning }}
     </p>
 
-    <header
-      v-if="store.loaded && menuScreen"
-      class="kr-toolbar cs-bar"
-      data-testid="cs-menu-bar"
+    <header-page-bar
+      v-if="store.loaded && (menuScreen || (run && view !== 'title'))"
+      console-theme="crystal-street"
     >
-      <button
-        type="button"
-        class="cs-brand"
-        aria-label="Back to the main menu"
-        @click="view = 'title'"
-      >
-        <span class="cs-display hidden text-sm leading-none @3xl:block"
-          >Crystal Street</span
-        >
-        <span
-          class="flex items-center gap-1 cs-label font-bold uppercase tracking-widest"
-        >
-          <icon name="kind-icon:arrow-left" class="h-3 w-3" /> Menu
-        </span>
-      </button>
-      <crystal-street-dial
-        :items="dialItems"
-        :model-value="view"
-        label="Menu screens"
-        @select="onDial"
-      />
-    </header>
-
-    <header
-      v-else-if="store.loaded && run && view !== 'title'"
-      class="kr-toolbar cs-bar"
-    >
-      <button
-        type="button"
-        class="cs-brand"
-        aria-label="Back to the main menu"
-        @click="view = 'title'"
-      >
-        <span class="cs-display hidden text-sm leading-none @3xl:block"
-          >Crystal Street</span
-        >
-        <span class="cs-label font-bold uppercase tracking-widest">
-          {{
-            run.ending
-              ? 'Week over'
-              : `Day ${run.day} · ${run.phase === 'night' ? 'Night' : 'Day'}`
-          }}
-        </span>
-      </button>
       <div
-        class="flex min-w-0 flex-wrap items-center gap-x-2 gap-y-1 text-xs"
-        aria-label="Your state"
+        v-if="menuScreen"
+        class="cs cs-console @container"
+        :class="consoleModes"
+        data-testid="cs-menu-bar"
       >
-        <span class="cs-meter" :title="`Nerve ${run.nerve} of ${MAX_NERVE}`">
-          <icon name="kind-icon:heart" class="h-4 w-4 text-primary" />
-          <strong>{{ run.nerve }}</strong>
-          <span class="sr-only">nerve</span>
-        </span>
-        <span class="cs-meter" :title="`Dread ${run.dread} of ${MAX_DREAD}`">
-          <icon name="kind-icon:ghost" class="h-4 w-4 text-secondary" />
-          <span class="cs-dread" aria-hidden="true">
-            <span :style="{ width: `${run.dread * 10}%` }" />
+        <button
+          type="button"
+          class="cs-brand"
+          aria-label="Back to the main menu"
+          title="Terrors on Crystal Street"
+          @click="view = 'title'"
+        >
+          <span class="cs-display hidden text-sm leading-none @4xl:block"
+            >Crystal Street</span
+          >
+          <span
+            class="flex items-center gap-1 cs-label font-bold uppercase tracking-widest"
+          >
+            <icon name="kind-icon:arrow-left" class="h-3 w-3" /> Menu
           </span>
-          <span class="sr-only">dread {{ run.dread }}</span>
-        </span>
-        <span class="cs-meter hidden @md:flex" title="Quarters">
-          <icon name="kind-icon:coin" class="h-4 w-4 text-accent" />{{
-            run.quarters
-          }}
-        </span>
-        <span class="cs-meter hidden @lg:flex" title="Night wins">
-          <icon name="kind-icon:dice" class="h-4 w-4" />{{ run.wins }}
-        </span>
-        <crystal-street-standing :run="run" class="cs-meter" />
+        </button>
+        <crystal-street-dial
+          :items="dialItems"
+          :model-value="view"
+          label="Menu screens"
+          @select="onDial"
+        />
       </div>
-      <crystal-street-dial
-        :items="dialItems"
-        :model-value="view"
-        label="Game screens"
-        @select="onDial"
-      />
-    </header>
+      <div
+        v-else-if="run"
+        class="cs cs-console @container"
+        :class="consoleModes"
+      >
+        <button
+          type="button"
+          class="cs-brand"
+          aria-label="Back to the main menu"
+          title="Terrors on Crystal Street"
+          @click="view = 'title'"
+        >
+          <span class="cs-display hidden text-sm leading-none @4xl:block"
+            >Crystal Street</span
+          >
+          <span class="cs-label font-bold uppercase tracking-widest">
+            {{
+              run.ending
+                ? 'Week over'
+                : `Day ${run.day} · ${run.phase === 'night' ? 'Night' : 'Day'}`
+            }}
+          </span>
+        </button>
+        <div
+          class="flex min-w-0 shrink-0 items-center gap-2 text-xs"
+          aria-label="Your state"
+        >
+          <span class="cs-meter" :title="`Nerve ${run.nerve} of ${MAX_NERVE}`">
+            <icon name="kind-icon:heart" class="h-4 w-4 text-primary" />
+            <strong>{{ run.nerve }}</strong>
+            <span class="sr-only">nerve</span>
+          </span>
+          <span class="cs-meter" :title="`Dread ${run.dread} of ${MAX_DREAD}`">
+            <icon name="kind-icon:ghost" class="h-4 w-4 text-secondary" />
+            <span class="cs-dread" aria-hidden="true">
+              <span :style="{ width: `${run.dread * 10}%` }" />
+            </span>
+            <span class="sr-only">dread {{ run.dread }}</span>
+          </span>
+          <span class="cs-meter hidden @lg:flex" title="Quarters">
+            <icon name="kind-icon:coin" class="h-4 w-4 text-accent" />{{
+              run.quarters
+            }}
+          </span>
+          <span class="cs-meter hidden @xl:flex" title="Night wins">
+            <icon name="kind-icon:dice" class="h-4 w-4" />{{ run.wins }}
+          </span>
+          <span class="hidden @3xl:flex">
+            <crystal-street-standing :run="run" class="cs-meter" />
+          </span>
+        </div>
+        <crystal-street-dial
+          :items="dialItems"
+          :model-value="view"
+          label="Game screens"
+          @select="onDial"
+        />
+      </div>
+    </header-page-bar>
 
     <crystal-street-tip v-if="store.loaded && view === 'stage'" />
     <div v-if="!store.loaded" class="kr-stage" aria-hidden="true" />
@@ -285,6 +296,10 @@ function onDial(id: string): void {
 function openTutorial(): void {
   navStore.openWorkspaceSheet()
 }
+const consoleModes = computed(() => [
+  store.settings.contrast === 'high' ? 'cs-high-contrast' : '',
+  store.settings.motion === 'reduced' ? 'cs-motion-reduced' : '',
+])
 const TEXT_SCALE = { small: '93.75%', medium: '', large: '112.5%' } as const
 
 useSeoMeta(
@@ -434,14 +449,20 @@ onMounted(() => {
   text-transform: uppercase;
   color: var(--color-secondary);
 }
-.cs .cs-bar {
-  border-radius: 1rem;
-  padding: 0.35rem 0.5rem;
-  background: color-mix(in oklch, var(--color-base-100) 90%, transparent);
-  border: 1px solid color-mix(in oklch, var(--color-primary) 30%, transparent);
+.cs.cs-console {
+  display: flex;
+  flex: 1 1 auto;
+  min-width: 0;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.25rem 0.5rem;
+}
+.cs.cs-console .cs-dial {
+  min-width: 9rem;
 }
 .cs .cs-brand {
   display: flex;
+  flex: none;
   flex-direction: column;
   align-items: flex-start;
   gap: 0.1rem;
@@ -525,7 +546,6 @@ onMounted(() => {
 }
 .cs.cs-high-contrast .cs-frame,
 .cs.cs-high-contrast .cs-card,
-.cs.cs-high-contrast .cs-bar,
 .cs.cs-high-contrast .cs-choice,
 .cs.cs-high-contrast .cs-menu-item {
   background: var(--color-base-100);

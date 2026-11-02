@@ -11,6 +11,7 @@
     data-theme="emperor"
     data-layout="console-fixed"
   >
+    <shell-console-theme theme="emperor" />
     <div
       v-if="!court.loaded || !run"
       class="grid min-h-96 place-items-center"
@@ -28,14 +29,15 @@
         {{ court.storageWarning }}
       </p>
 
-      <header
-        ref="bar"
-        class="eod-frame eod-bar @container relative z-20 shrink-0 px-1.5 py-1.5 sm:px-2"
-        aria-label="Fortress"
-        @pointerover="fitTips"
-        @focusin="fitTips"
-      >
-        <div class="flex items-center gap-1.5">
+      <header-page-bar console-theme="emperor">
+        <div
+          ref="bar"
+          class="eod eod-bar @container flex min-w-0 flex-1 items-center gap-1.5"
+          role="group"
+          aria-label="Fortress"
+          @pointerover="fitTips"
+          @focusin="fitTips"
+        >
           <button
             type="button"
             class="eod-chip tooltip-bottom tooltip-warning flex shrink-0 items-center gap-1.5 px-2 py-1"
@@ -84,12 +86,15 @@
             />
           </button>
 
-          <nav class="flex min-w-0 flex-1 gap-1" aria-label="Fortress rooms">
+          <nav
+            class="no-scrollbar flex min-w-0 flex-1 gap-1 overflow-x-auto pt-1.5 @3xl:overflow-visible @3xl:pt-0"
+            aria-label="Fortress rooms"
+          >
             <button
               v-for="room in rooms"
               :key="room.id"
               type="button"
-              class="eod-tab tooltip tooltip-bottom relative flex min-w-0 flex-1 items-center justify-center gap-1 whitespace-nowrap px-1 py-1.5 text-xs font-semibold uppercase tracking-wider @6xl:px-2"
+              class="eod-tab tooltip tooltip-bottom relative flex min-w-9 shrink-0 items-center @3xl:min-w-0 @3xl:flex-1 @3xl:shrink justify-center gap-1 whitespace-nowrap px-1 py-1.5 text-xs font-semibold uppercase tracking-wider @6xl:px-2"
               :data-tip="room.hint"
               :aria-label="
                 room.label + (room.badge ? `, ${room.badge} waiting` : '')
@@ -121,13 +126,13 @@
             <span class="hidden @6xl:inline">Settings</span>
           </button>
           <ul
-            class="hidden shrink-0 gap-1 @[110rem]:flex"
+            class="hidden shrink-0 gap-1 @3xl:flex"
             aria-label="Fortress support"
           >
             <li v-for="faction in LOCAL_FACTION_DEFS" :key="faction.id">
               <button
                 type="button"
-                class="eod-chip tooltip tooltip-bottom w-20 px-1.5 py-1"
+                class="eod-chip tooltip tooltip-bottom w-12 px-1.5 py-1"
                 :data-tip="`${faction.name}: ${run.local[faction.id]} of ${LOCAL_MAX}. Wants ${faction.wants.toLowerCase()}`"
                 @click="ledgerOpen = true"
               >
@@ -161,14 +166,14 @@
             </li>
           </ul>
         </div>
+      </header-page-bar>
 
-        <EmperorFortressLedger
-          v-if="ledgerOpen"
-          id="eod-ledger"
-          :run="run"
-          :day-line="dayLine"
-        />
-      </header>
+      <div
+        v-if="ledgerOpen"
+        class="eod-frame @container relative z-20 shrink-0 px-1.5 pb-1.5 sm:px-2"
+      >
+        <EmperorFortressLedger id="eod-ledger" :run="run" :day-line="dayLine" />
+      </div>
 
       <div
         class="eod-frame eod-stage relative isolate flex min-h-0 flex-1 flex-col overflow-hidden"
@@ -549,11 +554,11 @@ useHead({ title: 'Emperor of Dust' })
 }
 
 /* Header tooltips are shifted to stay inside the bar (fitTips); the tail stays on its button. */
-.eod .eod-bar [data-tip]::before {
+.eod-bar [data-tip]::before {
   max-width: min(20rem, calc(100cqw - 0.75rem));
 }
 
-.eod .eod-bar .tooltip-bottom::after {
+.eod-bar .tooltip-bottom::after {
   transform: translateX(-50%) translateY(var(--tt-pos, -0.25rem)) rotate(180deg);
 }
 

@@ -4,6 +4,7 @@
 // match can be replayed exactly from its command record, and the CPU only
 // ever decides from observe(), the redacted per-side view.
 import { chooseCpuAction } from './cpu'
+import { RESERVE_CARDS } from './reserveCards'
 
 export type Color = 'red' | 'blue' | 'purple' | 'green' | 'gold'
 export type TeamId =
@@ -204,6 +205,8 @@ export interface MatchState {
   nextId: number
   teamId: TeamId
   foeId: TeamId
+  /** Optional non-rewarding customized deck for the player. */
+  playerDeck?: string[]
   units: Fighter[]
   traps: Trap[]
   /** Optional authored scenario bonuses, applied to fighters deployed later. */
@@ -329,6 +332,13 @@ export const MODES: {
       'Launch units and special cards while both teams advance on a live clock. First to three touchdowns wins.',
   },
 ]
+
+/**
+ * The formats a player can pick. BLACKOUT is the game; BLOODRUSH is the
+ * arcade alternative. MEATBALL (gridiron) is retired from play and stays only
+ * as an engine fixture for the deterministic contract tests.
+ */
+export const PLAYER_MODES = MODES.filter((mode) => mode.id !== 'gridiron')
 
 /**
  * Creature keywords. Each one belongs to a crew's play pattern and has a
@@ -1251,6 +1261,7 @@ export const CARDS: Card[] = [
     text: 'Pay off the medic: restore 3 HP to a friendly fighter.',
     symbol: '✚',
   },
+  ...RESERVE_CARDS,
 ]
 
 export const DISTRICTS = [
@@ -1494,6 +1505,35 @@ export function teamById(id: TeamId): Team {
   return found
 }
 
+/** A deck can swap cards within the same crew, but must preserve its identity. */
+export function loadoutProblems(
+  teamId: TeamId,
+  ids: readonly string[],
+): string[] {
+  const team = teamById(teamId)
+  const out: string[] = []
+  if (ids.length !== DECK_SIZE) out.push('Requires exactly ten cards')
+  if (new Set(ids).size !== ids.length) out.push('Cannot repeat cards')
+  const cards = ids.map((id) => CARDS.find((card) => card.id === id))
+  if (cards.some((card) => !card)) return [...out, 'Unknown card']
+  const known = cards as Card[]
+  if (known.some((card) => card.team !== teamId))
+    out.push('Cards must belong to your crew')
+  if (
+    known.filter((card) => card.kind === 'creature').length !== DECK_CREATURES
+  )
+    out.push('Requires exactly four creatures')
+  for (const kind of ['spell', 'trap', 'equipment'] as CardKind[])
+    if (!known.some((card) => card.kind === kind))
+      out.push('Requires a ' + kind)
+  if (
+    known.filter((card) => card.signature).length !== 1 ||
+    !ids.includes(team.signature)
+  )
+    out.push('Requires your crew signature')
+  return out
+}
+
 /** A crew's playable deck, in deck order: creatures first. */
 export function deckOf(id: TeamId): Card[] {
   const team = teamById(id)
@@ -1668,6 +1708,7 @@ function copy(state: MatchState): MatchState {
     ...state,
     score: [state.score[0], state.score[1]],
     flag: { ...state.flag },
+    ...(state.playerDeck ? { playerDeck: [...state.playerDeck] } : {}),
     units: state.units.map((u) => ({ ...u })),
     traps: state.traps.map((t) => ({ ...t })),
     ...(state.scenarioBonus
@@ -1831,7 +1872,11 @@ function shuffledCells(
 /** The seeded card order is stable for replays and different for both crews. */
 function shuffledDeck(state: MatchState, side: Side): string[] {
   const salt = side === 'player' ? 811 : 977
-  return deckOf(teamOf(state, side))
+  return (
+    side === 'player' && state.playerDeck
+      ? state.playerDeck.map(cardById)
+      : deckOf(teamOf(state, side))
+  )
     .map((card, index) => ({
       id: card.id,
       order: seededHash(state.seed, salt, state.shuffles[side], index),
@@ -1866,6 +1911,7 @@ export function createMatch(
   foeId: TeamId = 'ironjaw',
   seed: number = DEFAULT_SEED,
   rules: Partial<RuleVariants> = {},
+  playerDeck?: string[],
 ): MatchState {
   const m = MODES.find((item) => item.id === mode)
   if (!m) throw new Error('Unknown Slime City match mode')
@@ -1874,6 +1920,8 @@ export function createMatch(
     mode === 'blackout' && rules.classicFog ? 8 : Number(dimensions[0]!)
   const height =
     mode === 'blackout' && rules.classicFog ? 8 : Number(dimensions[1]!)
+  if (playerDeck && loadoutProblems(teamId, playerDeck).length)
+    throw new Error('Illegal Slime City loadout')
   const s = normalizeSeed(seed)
   const rush = mode === 'bloodrush'
   const state: MatchState = {
@@ -1888,6 +1936,7 @@ export function createMatch(
     seed: s,
     nextId: 1,
     teamId,
+    ...(playerDeck ? { playerDeck: [...playerDeck] } : {}),
     // Mirror matches are allowed: a district rival may share your crew.
     foeId,
     units: [],
@@ -3011,6 +3060,7 @@ export interface MatchSetup {
   foeId: TeamId
   seed: number
   rules?: Partial<RuleVariants>
+  playerDeck?: string[]
 }
 
 /** Rebuild a match from its setup and command record. */
@@ -3024,6 +3074,7 @@ export function replayMatch(
     setup.foeId,
     setup.seed,
     setup.rules,
+    setup.playerDeck,
   )
   for (const c of commands) {
     if (c.t === 'end') state = advance(state)

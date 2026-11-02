@@ -1218,6 +1218,17 @@ assert.match(
   /name: 'forge';/,
 )
 
+const forgeConsole = readFileSync(
+  fromRoot('components/playbook-forge/playbook-forge-console.vue'),
+  'utf8',
+)
+assert.match(
+  forgeConsole,
+  /<header-page-bar v-if="forge\.screen !== 'kit'" console-theme="forge">[\s\S]*?aria-label="Loadout pages"[\s\S]*?<\/header-page-bar>/,
+  'the forge header rides the shared console system bar, ceding it to the kit shell on the kit screen',
+)
+assert.doesNotMatch(forgeConsole, /<header[\s>]/)
+
 console.log(
   `Playbook Forge: ${FACTOR_ROWS.length} factors across ${FORGE_TABS.length} pages, ${GENRES.length} genres and ${EXISTING_PLAYBOOKS.length} existing playbooks verified.`,
 )

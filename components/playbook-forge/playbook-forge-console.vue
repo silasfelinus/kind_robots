@@ -6,6 +6,7 @@
     aria-label="Playbook Forge"
     @pointerdown="onPointer"
   >
+    <shell-console-theme theme="forge" />
     <div class="absolute inset-0 overflow-clip" aria-hidden="true">
       <div class="pf-backdrop">
         <transition-group name="pf-xfade">
@@ -23,122 +24,113 @@
     <div class="pf-scan" aria-hidden="true" />
 
     <div class="pf-safe relative z-10 flex min-h-0 flex-1 flex-col">
-      <header class="flex shrink-0 items-center gap-3 pb-3 @3xl:gap-6">
-        <button
-          type="button"
-          class="pf-logo flex shrink-0 items-center gap-2"
-          title="Title screen"
-          @click="forge.go('title')"
+      <header-page-bar v-if="forge.screen !== 'kit'" console-theme="forge">
+        <div
+          class="pf-console pf-bar @container flex min-w-0 flex-1 items-center gap-2"
+          :class="`pf-device-${device}`"
+          data-testid="playbook-forge-bar"
+          @pointerdown="onPointer"
         >
-          <span class="pf-logo-mark" aria-hidden="true" />
-          <span class="hidden leading-none @lg:block">
-            <span class="pf-display block text-lg text-primary @3xl:text-2xl"
+          <button
+            type="button"
+            class="pf-logo flex shrink-0 items-center gap-2"
+            title="Playbook Forge · Kind Robots — title screen"
+            aria-label="Title screen"
+            @click="forge.go('title')"
+          >
+            <span class="pf-logo-mark" aria-hidden="true" />
+            <span
+              class="pf-display hidden text-base leading-none text-primary @4xl:block"
               >Playbook Forge</span
             >
-            <span class="pf-kicker block opacity-60">Kind Robots</span>
-          </span>
-        </button>
+          </button>
 
-        <div
-          v-if="
-            forge.existing &&
-            ['ledger', 'gallery', 'redshirts', 'beats', 'kit'].includes(
-              forge.screen,
-            )
-          "
-          class="flex min-w-0 flex-1 items-center gap-3"
-          aria-label="Selected playbook"
-        >
-          <img
-            :src="forge.existing.cover"
-            :alt="`${forge.existing.title} key art`"
-            class="h-16 w-24 shrink-0 rounded-md border border-primary/40 object-cover shadow-lg @3xl:h-20 @3xl:w-36"
-          />
-          <div class="hidden min-w-0 @md:block">
-            <p class="pf-kicker text-[0.6rem] text-secondary">Now forging</p>
-            <p class="pf-display truncate text-lg text-primary @3xl:text-2xl">
+          <div
+            v-if="
+              forge.existing &&
+              ['ledger', 'gallery', 'redshirts', 'beats'].includes(forge.screen)
+            "
+            class="flex min-w-0 flex-1 items-center gap-2"
+            aria-label="Selected playbook"
+            :title="`Now forging ${forge.existing.title} — ${screenLabel}`"
+          >
+            <img
+              :src="forge.existing.cover"
+              :alt="`${forge.existing.title} key art`"
+              class="h-8 w-12 shrink-0 rounded border border-primary/40 object-cover"
+            />
+            <p
+              class="pf-display hidden min-w-0 truncate text-sm text-primary @md:block"
+            >
               {{ forge.existing.title }}
             </p>
-            <p class="truncate text-xs opacity-70">
-              {{
-                forge.screen === 'redshirts'
-                  ? 'Redshirt story atlas'
-                  : forge.screen === 'ledger'
-                    ? 'Production ledger'
-                    : forge.screen === 'gallery'
-                      ? 'Visual story atlas'
-                      : forge.screen === 'beats'
-                        ? 'Story editor'
-                        : 'Rehearsal'
-              }}
-            </p>
           </div>
+          <nav
+            v-if="tabbed"
+            class="flex min-w-0 flex-1 items-center justify-center gap-1"
+            aria-label="Loadout pages"
+          >
+            <PlaybookForgeGlyph
+              :command="'prevTab'"
+              :device="device"
+              @press="run('prevTab')"
+            />
+            <span
+              class="pf-display flex items-baseline gap-2 text-sm @4xl:hidden"
+            >
+              {{ activeTab.label }}
+              <span class="pf-kicker text-[0.6rem] opacity-60"
+                >{{ activeIndex + 1 }}/{{ FORGE_TABS.length }}</span
+              >
+            </span>
+            <div
+              class="pf-tabs hidden min-w-0 items-center @4xl:flex"
+              role="tablist"
+            >
+              <button
+                v-for="entry in FORGE_TABS"
+                :key="entry.id"
+                type="button"
+                role="tab"
+                class="pf-tab"
+                :class="forge.tab === entry.id ? 'pf-tab-on' : ''"
+                :aria-selected="forge.tab === entry.id"
+                tabindex="-1"
+                @click="forge.setTab(entry.id)"
+              >
+                {{ entry.label }}
+              </button>
+            </div>
+            <PlaybookForgeGlyph
+              :command="'nextTab'"
+              :device="device"
+              @press="run('nextTab')"
+            />
+          </nav>
+          <span v-else class="flex-1" />
+
+          <NuxtLink
+            to="/admin/playbook-reviews"
+            class="pf-icon-btn pf-bar-btn shrink-0"
+            title="Browse completed playthrough reviews"
+            aria-label="Run reviews"
+          >
+            <Icon name="kind-icon:star" class="size-5" />
+          </NuxtLink>
+
+          <button
+            type="button"
+            class="pf-icon-btn pf-bar-btn shrink-0"
+            :title="fullscreen ? 'Leave full screen' : 'Full screen'"
+            @click="toggleFullscreen"
+          >
+            <Icon
+              :name="fullscreen ? 'kind-icon:close' : 'kind-icon:fullscreen'"
+              class="size-5"
+            />
+          </button>
         </div>
-        <nav
-          v-if="tabbed"
-          class="flex min-w-0 flex-1 items-center justify-center gap-1 @3xl:gap-2"
-          aria-label="Loadout pages"
-        >
-          <PlaybookForgeGlyph
-            :command="'prevTab'"
-            :device="device"
-            @press="run('prevTab')"
-          />
-          <span
-            class="pf-display flex items-baseline gap-2 text-base @3xl:hidden"
-          >
-            {{ activeTab.label }}
-            <span class="pf-kicker text-[0.6rem] opacity-60"
-              >{{ activeIndex + 1 }}/{{ FORGE_TABS.length }}</span
-            >
-          </span>
-          <div
-            class="pf-tabs hidden min-w-0 items-center @3xl:flex"
-            role="tablist"
-          >
-            <button
-              v-for="entry in FORGE_TABS"
-              :key="entry.id"
-              type="button"
-              role="tab"
-              class="pf-tab"
-              :class="forge.tab === entry.id ? 'pf-tab-on' : ''"
-              :aria-selected="forge.tab === entry.id"
-              tabindex="-1"
-              @click="forge.setTab(entry.id)"
-            >
-              {{ entry.label }}
-            </button>
-          </div>
-          <PlaybookForgeGlyph
-            :command="'nextTab'"
-            :device="device"
-            @press="run('nextTab')"
-          />
-        </nav>
-        <span v-else class="flex-1" />
-
-        <NuxtLink
-          to="/admin/playbook-reviews"
-          class="pf-icon-btn shrink-0"
-          title="Browse completed playthrough reviews"
-          aria-label="Run reviews"
-        >
-          <Icon name="kind-icon:star" class="size-5" />
-        </NuxtLink>
-
-        <button
-          type="button"
-          class="pf-icon-btn shrink-0"
-          :title="fullscreen ? 'Leave full screen' : 'Full screen'"
-          @click="toggleFullscreen"
-        >
-          <Icon
-            :name="fullscreen ? 'kind-icon:close' : 'kind-icon:fullscreen'"
-            class="size-5"
-          />
-        </button>
-      </header>
+      </header-page-bar>
 
       <p
         v-if="forge.persistWarning"
@@ -212,6 +204,13 @@ const activeIndex = computed(() =>
   ),
 )
 const activeTab = computed(() => FORGE_TABS[activeIndex.value]!)
+const SCREEN_LABELS: Record<string, string> = {
+  redshirts: 'Redshirt story atlas',
+  ledger: 'Production ledger',
+  gallery: 'Visual story atlas',
+  beats: 'Story editor',
+}
+const screenLabel = computed(() => SCREEN_LABELS[forge.screen] ?? '')
 const screenKey = computed(() =>
   tabbed.value ? `loadout-${forge.tab}` : forge.screen,
 )
@@ -320,7 +319,7 @@ function focusFirst() {
 async function toggleFullscreen() {
   try {
     if (document.fullscreenElement) await document.exitFullscreen()
-    else await root.value?.requestFullscreen()
+    else await document.documentElement.requestFullscreen()
   } catch {
     fullscreen.value = !!document.fullscreenElement
   }
@@ -380,3 +379,32 @@ onBeforeUnmount(() => {
   if (montageTimer) clearInterval(montageTimer)
 })
 </script>
+
+<style>
+.pf-bar.pf-console {
+  font-size: 1rem;
+  isolation: auto;
+}
+.pf-bar .pf-logo-mark {
+  height: 1.75rem;
+  width: 1.75rem;
+}
+.pf-bar .pf-tabs {
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.pf-bar .pf-tabs::-webkit-scrollbar {
+  display: none;
+}
+.pf-bar .pf-tab {
+  padding: 0.45rem 0.55rem;
+  font-size: 0.75rem;
+}
+.pf-bar .pf-tab::after {
+  inset-inline: 0.55rem;
+}
+.pf-bar .pf-bar-btn {
+  height: 2.25rem;
+  width: 2.25rem;
+}
+</style>

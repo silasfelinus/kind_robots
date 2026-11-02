@@ -58,12 +58,14 @@ import {
   observe,
   DISTRICTS,
   MODES,
+  PLAYER_MODES,
   TEAMS,
 } from '../slimeCity/prototypes'
 import {
   slimeArtId,
   SLIME_CITY_ART,
   SLIME_CITY_ART_COUNT,
+  slimeBoardArtId,
 } from '../slimeCity/artManifest'
 
 const artIds = [
@@ -88,17 +90,46 @@ for (const team of TEAMS) assert.ok(slimeArtId('crews', team.id))
 for (const district of DISTRICTS)
   assert.ok(slimeArtId('districts', district.id))
 for (const mode of MODES) assert.ok(slimeArtId('boards', mode.id))
+// MEATBALL is retired from play: BLACKOUT is the default tab, BLOODRUSH the other
+assert.deepEqual(
+  PLAYER_MODES.map((mode) => mode.id),
+  ['blackout', 'bloodrush'],
+)
+// Each district gets its own floor per mode; until round 4 renders, the
+// district falls back to the shared board for that mode.
+for (const district of DISTRICTS)
+  for (const mode of PLAYER_MODES)
+    assert.ok(
+      slimeBoardArtId(district.id, mode.id),
+      district.id + ' ' + mode.id,
+    )
+assert.equal(
+  slimeBoardArtId('nowhere', 'blackout'),
+  slimeArtId('boards', 'blackout'),
+)
 assert.equal(Object.keys(SLIME_CITY_ART.cards).length, 36)
-assert.equal(CARDS.length, 60, 'The game has 60 authored starter cards')
+assert.equal(
+  TEAMS.flatMap((team) => [...team.creatures, ...team.special]).length,
+  60,
+  'Six ten-card founder decks',
+)
+assert.equal(CARDS.length, 72, '12 new Gutter Crown reserves are playable')
 assert.equal(
   CARDS.filter((card) => slimeArtId('cards', card.id)).length,
   36,
   '36 illustrations correspond to actual playable card IDs',
 )
 assert.equal(
-  CARDS.filter((card) => !slimeArtId('cards', card.id)).length,
+  TEAMS.flatMap((team) => [...team.creatures, ...team.special]).filter(
+    (id) => !slimeArtId('cards', id),
+  ).length,
   24,
-  'Missing 24 illustrations must remain honest fallbacks',
+  '24 founder cards without art retain fallbacks',
+)
+assert.equal(
+  CARDS.filter((card) => !slimeArtId('cards', card.id)).length,
+  36,
+  '12 new reserves also need their own rendered art',
 )
 assert.equal(slimeArtId('cards', 'calico'), null)
 assert.equal(slimeArtId('cards', 'plating'), 258390)
@@ -171,7 +202,7 @@ for (const team of TEAMS) {
   assert.ok(cityRoute('pitworks', id).length > 0)
 }
 
-// Rivals: distinct names, every crew appears, all three formats appear
+// Rivals: distinct names, every crew appears, both player formats appear (no MEATBALL)
 const rivals = ids.map((id) => CITY_PLAN[id].rival)
 assert.equal(new Set(rivals.map((r) => r.name)).size, 7)
 for (const team of TEAMS)
@@ -181,7 +212,7 @@ for (const team of TEAMS)
   )
 assert.deepEqual(
   new Set(rivals.map((r) => r.mode)),
-  new Set(['blackout', 'gridiron', 'bloodrush']),
+  new Set(['blackout', 'bloodrush']),
 )
 for (const id of ids) {
   const plan = CITY_PLAN[id]

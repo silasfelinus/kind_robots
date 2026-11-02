@@ -4,31 +4,37 @@
     data-layout="console-fixed"
     data-testid="memory-hoshimori-night-console"
   >
-    <header
-      class="flex shrink-0 flex-wrap items-center gap-2 border-b border-error/30 bg-base-200 px-3 py-2"
-    >
-      <div class="min-w-0 flex-1">
-        <h2 class="truncate text-lg font-black">
+    <header-page-bar>
+      <div class="md-bar" data-testid="memory-hoshimori-night-header">
+        <h2
+          class="md-bar-title"
+          title="Scylla remembers the village. The village will not let anyone leave."
+        >
           Hoshimori · Procession of Shut Doors
         </h2>
-        <p class="text-xs opacity-75">
-          Scylla remembers the village. The village will not let anyone leave.
-        </p>
+        <span class="md-bar-chip">
+          {{ night.progress.visited.length }}/16 witnessed
+        </span>
+        <div class="md-bar-actions">
+          <button
+            type="button"
+            class="btn btn-sm btn-ghost"
+            @click="night.restart()"
+          >
+            New night
+          </button>
+        </div>
+        <div class="md-bar-end">
+          <button
+            type="button"
+            class="btn btn-sm btn-outline"
+            @click="emit('leave')"
+          >
+            Back
+          </button>
+        </div>
       </div>
-      <span class="rounded-lg bg-base-300 px-2 py-1 text-xs font-bold">
-        {{ night.progress.visited.length }}/16 witnessed
-      </span>
-      <button
-        type="button"
-        class="btn btn-sm btn-outline"
-        @click="night.restart()"
-      >
-        New night
-      </button>
-      <button type="button" class="btn btn-sm" @click="emit('leave')">
-        Back
-      </button>
-    </header>
+    </header-page-bar>
     <div
       class="grid min-h-0 flex-1 grid-rows-[minmax(0,1fr)_minmax(0,1fr)] gap-2 p-2 md:grid-cols-2 md:grid-rows-1"
     >

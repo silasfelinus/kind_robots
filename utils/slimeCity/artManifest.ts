@@ -62,7 +62,11 @@ export const SLIME_CITY_ART = {
     blackout: 258387,
     gridiron: 258388,
     bloodrush: 258389,
+    // District floors land here as '<district>-<mode>' once round 4
+    // (conductor projects/slime-city/art/DISTRICT-BOARDS-ROUND-4.yaml) renders.
   },
+  /** UI art; 'card-back' arrives with round 4. */
+  ui: {},
 } as const
 
 export type SlimeCityArtGroup = keyof typeof SLIME_CITY_ART
@@ -74,6 +78,16 @@ export function slimeArtId(
 ): number | null {
   const ids: Readonly<Record<string, number>> = SLIME_CITY_ART[group]
   return ids[slug] ?? null
+}
+
+/**
+ * Each district fights on its own floor: the district board for this mode when
+ * it has rendered, otherwise the shared board for the mode.
+ */
+export function slimeBoardArtId(district: string, mode: string): number | null {
+  return (
+    slimeArtId('boards', district + '-' + mode) ?? slimeArtId('boards', mode)
+  )
 }
 
 export const SLIME_CITY_ART_COUNT = 52

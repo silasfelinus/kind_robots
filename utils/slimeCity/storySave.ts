@@ -13,13 +13,15 @@ import {
   createCampaignSave,
   type CampaignSave,
 } from './campaign'
-import { TEAMS, type TeamId } from './prototypes'
+import { TEAMS, loadoutProblems, type TeamId } from './prototypes'
 
 export interface SlimeCityStory {
   version: 1
   revision: number
   city: CityState
   campaigns: CampaignSave
+  /** Saved practice decks; omitted for older saves. */
+  decks?: Partial<Record<TeamId, string[]>>
 }
 
 export function newSlimeCityStory(): SlimeCityStory {
@@ -97,6 +99,18 @@ export function validSlimeCityStory(raw: unknown): raw is SlimeCityStory {
     !record(raw.campaigns)
   )
     return false
+  if (raw.decks !== undefined) {
+    if (!record(raw.decks)) return false
+    for (const [team, deck] of Object.entries(raw.decks)) {
+      if (
+        !teams.includes(team as TeamId) ||
+        !Array.isArray(deck) ||
+        !deck.every((id) => typeof id === 'string') ||
+        loadoutProblems(team as TeamId, deck).length
+      )
+        return false
+    }
+  }
   const city = raw.city
   const standing = city.standing
   if (

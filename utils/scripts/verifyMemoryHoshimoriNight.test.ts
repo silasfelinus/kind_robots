@@ -433,7 +433,7 @@ for (let seed = 0; seed < 64; seed++) {
           : key === '8,2'
             ? (bits >> 2) & 1
             : 0
-    if (key !== '8,2')
+    if (!progress.choices['8,2'])
       assert.equal(
         hoshimoriNightWindwardAccount(progress),
         null,

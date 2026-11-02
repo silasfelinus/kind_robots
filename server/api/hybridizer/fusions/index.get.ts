@@ -24,7 +24,11 @@ export default defineEventHandler(async (event) => {
       typeof query.search === 'string' ? query.search.trim().slice(0, 100) : ''
     const ids =
       typeof query.ids === 'string'
-        ? [...new Set(query.ids.split(',').filter((id) => /^[a-f0-9]{64}$/.test(id)))].slice(0, 100)
+        ? [
+            ...new Set(
+              query.ids.split(',').filter((id) => /^[a-f0-9]{64}$/.test(id)),
+            ),
+          ].slice(0, 100)
         : null
     const maxDepth = Number(query.maxDepth)
     const filters: Prisma.HybridizerFusionWhereInput[] = [visibility]
@@ -41,7 +45,12 @@ export default defineEventHandler(async (event) => {
       })
     if (search) filters.push({ title: { contains: search } })
     if (ids !== null) filters.push({ id: { in: ids } })
-    if (query.maxDepth !== undefined && Number.isInteger(maxDepth) && maxDepth >= 0 && maxDepth <= 4)
+    if (
+      query.maxDepth !== undefined &&
+      Number.isInteger(maxDepth) &&
+      maxDepth >= 0 &&
+      maxDepth <= 4
+    )
       filters.push({ depth: { lte: maxDepth } })
     const where: Prisma.HybridizerFusionWhereInput = { AND: filters }
     const [records, grouped, filteredTotal] = await Promise.all([

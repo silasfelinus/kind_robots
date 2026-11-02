@@ -1237,12 +1237,13 @@ export function nextDestination(run: VoyageRun): VoyageRun {
     report: null,
     supplies: run.supplies + (opening?.supplies ?? 0),
     scene: `${opening ? opening.text + ' ' : ''}A new star flickers above ${chapterSystem(run.seed, run.chapter + 1).name}. ${worldEcho(run)} ${followup ? 'INCOMING FOLLOW-UP: ' + followup.callback + ' ' : ''}The available local routes reflect what the captain already did.`,
-    log: opening
-      ? [
-          ...run.log,
-          `${opening.act} begins: ${opening.supplies} supplies received.`,
-        ]
-      : run.log,
+    log: [
+      ...run.log,
+      ...(opening
+        ? [`${opening.act} begins: ${opening.supplies} supplies received.`]
+        : []),
+      ...(followup ? ['Follow-up transmission: ' + followup.callback] : []),
+    ],
   }
 }
 export function finishVoyage(

@@ -72,6 +72,39 @@ assert.deepEqual(
   'unexpected species IDs never enter account records',
 )
 
+let cumulative = emptyAlienGuide()
+for (const [index, species] of ALIEN_SPECIES.entries()) {
+  const isolatedDevice = normalizeAlienGuide({
+    discovered: [species.id],
+    friends: index % 3 === 0 ? [species.id] : [],
+    attempted: [`${1000 + index}:2`],
+  })
+  const outdatedDevice = cumulative
+  cumulative = mergeAlienGuides(cumulative, isolatedDevice)
+  assert.equal(cumulative.discovered.length, index + 1)
+  assert.ok(cumulative.discovered.includes(species.id))
+  assert.equal(
+    mergeAlienGuides(cumulative, outdatedDevice).discovered.length,
+    index + 1,
+    'an offline device cannot erase any prior discoveries',
+  )
+  assert.deepEqual(
+    mergeAlienGuides(cumulative, isolatedDevice),
+    cumulative,
+    'a repeated device upload must be idempotent',
+  )
+}
+assert.equal(cumulative.discovered.length, 101)
+assert.equal(
+  cumulative.friends.length,
+  ALIEN_SPECIES.filter((_, index) => index % 3 === 0).length,
+)
+const restoredCollection = normalizeAlienGuide(
+  JSON.parse(JSON.stringify(cumulative)),
+)
+assert.deepEqual(restoredCollection.discovered, cumulative.discovered)
+assert.deepEqual(restoredCollection.friends, cumulative.friends)
+
 const root = new URL('../../', import.meta.url)
 const file = (path: string) => readFileSync(new URL(path, root), 'utf8')
 const schema = file('prisma/schema.prisma')
@@ -102,6 +135,54 @@ assert.match(store, /ALIEN_GUIDE_OWNER_KEY/)
 assert.match(store, /owner === null \|\| owner === String\(id\)/)
 assert.match(store, /syncAlienGuideAccount/)
 assert.match(store, /retryAlienGuideSync/)
+
+const accountSwitch = store.slice(
+  store.indexOf('async function syncAlienGuideAccount()'),
+  store.indexOf(
+    '  watch(',
+    store.indexOf('async function syncAlienGuideAccount()'),
+  ),
+)
+for (const overlay of [
+  'alienSighting',
+  'alienReport',
+  'collectorIncident',
+  'collectorReport',
+]) {
+  assert.match(
+    accountSwitch,
+    new RegExp(`\\b${overlay}\\.value = null\\b`),
+    `${overlay} must never survive a player-account switch`,
+  )
+}
+assert.match(accountSwitch, /alienArtwork\.value = \{\}/)
+assert.match(accountSwitch, /alienArtLoaded\.value = false/)
+assert.match(store, /void loadAlienArtwork\(\)/)
+assert.match(store, /alienSyncStatus\.value !== 'loading'/)
+assert.match(
+  accountSwitch,
+  /if \(owner === null\) \{\s+try \{\s+localStorage\.setItem\(ALIEN_GUIDE_OWNER_KEY, String\(id\)\)/,
+  'first sign-in must reserve the legacy guest guide before a failed upload allows another account to import it',
+)
+assert.match(
+  accountSwitch,
+  /response\.success &&\s+response\.data &&\s+JSON\.stringify\(remote\)/,
+  'a failed remote read must never be reported as synced',
+)
+const artworkLoader = store.slice(
+  store.indexOf('async function loadAlienArtwork()'),
+  store.indexOf(
+    'const onboardingArt',
+    store.indexOf('async function loadAlienArtwork()'),
+  ),
+)
+assert.match(artworkLoader, /const epoch = accountEpoch/)
+assert.match(
+  artworkLoader,
+  /epoch === accountEpoch && response\.success/,
+  'an older account response cannot repopulate a new player art cache',
+)
+
 assert.match(scrapbook, /space-couch-alien-sync-status/)
 assert.match(scrapbook, /space-couch-alien-retry-sync/)
 console.log(

@@ -767,10 +767,7 @@ for (const team of TEAMS) {
     earlier,
   )
   assert.equal(actual.mana, BLACKOUT_MANA_GAIN + (earlier.playerMana ?? 0))
-  assert.equal(
-    actual.enemyMana,
-    BLACKOUT_MANA_GAIN + (earlier.enemyMana ?? 0),
-  )
+  assert.equal(actual.enemyMana, BLACKOUT_MANA_GAIN + (earlier.enemyMana ?? 0))
   const finished = resolveCampaignBattle(
     saved,
     team.id,

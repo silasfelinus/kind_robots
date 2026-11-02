@@ -163,7 +163,13 @@ export function validSlimeCityStory(raw: unknown): raw is SlimeCityStory {
         p.lastResult === null ||
         ['player', 'enemy', 'draw'].includes(p.lastResult as string)
       ) ||
-      !(p.lastScene === null || text(p.lastScene, 4000))
+      !(p.lastScene === null || text(p.lastScene, 4000)) ||
+      !(
+        p.lastApproach === undefined ||
+        p.lastApproach === null ||
+        p.lastApproach === 'conviction' ||
+        p.lastApproach === 'cunning'
+      )
     )
       return false
     if (p.wins > FACTION_CAMPAIGNS[team as TeamId].chapters.length) return false

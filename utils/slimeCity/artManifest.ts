@@ -62,11 +62,27 @@ export const SLIME_CITY_ART = {
     blackout: 258387,
     gridiron: 258388,
     bloodrush: 258389,
-    // District floors land here as '<district>-<mode>' once round 4
-    // (conductor projects/slime-city/art/DISTRICT-BOARDS-ROUND-4.yaml) renders.
+    // District floors, round 4 (conductor projects/slime-city/art/
+    // DISTRICT-BOARDS-ROUND-4.yaml, ArtJobs 53120-53133, all DONE).
+    'pitworks-blackout': 260433,
+    'pitworks-bloodrush': 260434,
+    'chimera-blackout': 260435,
+    'chimera-bloodrush': 260436,
+    'needles-blackout': 260437,
+    'needles-bloodrush': 260438,
+    'foundry-blackout': 260439,
+    'foundry-bloodrush': 260440,
+    'undertow-blackout': 260441,
+    'undertow-bloodrush': 260442,
+    'crown-blackout': 260443,
+    'crown-bloodrush': 260444,
+    'redline-blackout': 260445,
+    'redline-bloodrush': 260446,
   },
-  /** UI art; 'card-back' arrives with round 4. */
-  ui: {},
+  /** UI art, round 4 (ArtJob 53119). */
+  ui: {
+    'card-back': 260371,
+  },
 } as const
 
 export type SlimeCityArtGroup = keyof typeof SLIME_CITY_ART
@@ -90,4 +106,4 @@ export function slimeBoardArtId(district: string, mode: string): number | null {
   )
 }
 
-export const SLIME_CITY_ART_COUNT = 52
+export const SLIME_CITY_ART_COUNT = 67

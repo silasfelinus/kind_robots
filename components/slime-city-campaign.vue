@@ -104,7 +104,9 @@
           >
             <strong>PREVIOUS VICTORY · {{ lab.campaignEcho.title }}</strong>
             <span>{{ lab.campaignEcho.story }}</span>
-            <small>{{ describeTerms(lab.campaignEcho.terms) }} next battle</small>
+            <small
+              >{{ describeTerms(lab.campaignEcho.terms) }} next battle</small
+            >
           </div>
           <div
             v-if="lab.campaignState.lastScene"

@@ -1210,9 +1210,9 @@ export function nextDestination(run: VoyageRun): VoyageRun {
   const followupIndex = run.chapter + 1 - ACT_TWO_FIRST_CHAPTER
   const followup =
     followupIndex >= 0 && followupIndex < 3
-      ? (run.consequenceHistory ?? [])
-          .filter((record) => record.episodeId.startsWith('warp-b'))
-          [followupIndex]
+      ? (run.consequenceHistory ?? []).filter((record) =>
+          record.episodeId.startsWith('warp-b'),
+        )[followupIndex]
       : null
   const opening =
     run.chapter + 1 === ACT_TWO_FIRST_CHAPTER

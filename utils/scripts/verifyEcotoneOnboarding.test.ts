@@ -189,7 +189,21 @@ assert.match(board, /portraitRetry/)
 // picture of the result, and the full hint stays readable off-card.
 assert.match(board, /<EcotoneChoiceHand/)
 assert.match(hand, /<KrChoiceHand/)
-assert.match(hand, /thumb!\.art"/)
+assert.match(
+  hand,
+  /image: candidates\(option\)/,
+  'each card offers its own art',
+)
+assert.match(
+  hand,
+  /<template #art="\{ choice, src \}">[\s\S]*?:art="src\.startsWith\(SCENE\) \? undefined : src"/,
+  'cards render the de-duplicated picture, never a repeat',
+)
+assert.doesNotMatch(
+  board,
+  /art: \[outcomeArtKey\(card\.id, choiceId, 'success'\), \.\.\.cardArt\]/,
+  "beat choices don't fall back to the beat's own stage painting",
+)
 assert.match(hand, /option.possibilities/)
 assert.match(board, /outcomeArtKey\(card.id, choiceId, 'success'\)/)
 assert.match(hand, /emit\('play', option\)/)

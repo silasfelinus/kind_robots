@@ -1535,8 +1535,13 @@ function priceOf(choice: ShownChoice): string[] {
 function toggleCheckTip(id: string): void {
   checkTip.value = checkTip.value === id ? null : id
 }
-function choiceArt(cardId: string, choiceId: string, scene: string): string {
-  return outcomeArt(cardId, choiceId, true) ?? scene
+const SKILL_ICONS: Readonly<Record<string, string>> = {
+  steel: '⚔️',
+  awareness: '👁️',
+  wits: '🧩',
+  bearing: '🛡️',
+  resolve: '🔥',
+  insight: '🔮',
 }
 const encounterHand = computed<KrHandChoice[]>(() => {
   const cardId = game.activeEncounter?.id ?? ''
@@ -1559,7 +1564,8 @@ const encounterHand = computed<KrHandChoice[]>(() => {
         reading?.explain ?? '',
         option.risk,
       ].filter(Boolean),
-      image: choiceArt(cardId, option.id, game.activeArt),
+      image: outcomeArt(cardId, option.id, true),
+      icon: option.roll ? (SKILL_ICONS[option.roll.skill] ?? '✦') : '🧭',
     }
   })
 })
@@ -1601,7 +1607,8 @@ const trialHand = computed<KrHandChoice[]>(() =>
           ? 'Someone else bears this danger; the debt will be remembered'
           : '',
       ].filter(Boolean),
-      image: choiceArt('trial-' + game.currentLand.id, choice.id, game.bossArt),
+      image: outcomeArt('trial-' + game.currentLand.id, choice.id, true),
+      icon: SKILL_ICONS[choice.skill] ?? '✦',
     })),
 )
 type Reveal = { kind: 'encounter' | 'trial'; turn: number }

@@ -148,11 +148,10 @@ const hand = computed<KrHandChoice[]>(() => {
   return step.step.options.map((option, index) => ({
     id: String(index),
     label: option.label,
-    image:
-      artFor(trioArtKey(key, option.ending ? 'b' : 'a')) ||
-      stepArt.value ||
-      faces.value[index]?.url ||
-      null,
+    image: [
+      artFor(trioArtKey(key, option.ending ? 'b' : 'a')),
+      faces.value[index]?.url,
+    ],
     icon: '✦',
   }))
 })

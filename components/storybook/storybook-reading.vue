@@ -243,7 +243,6 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
 import { useStorybookRunStore } from '@/stores/storybookRunStore'
-import { resolveArtVariantSource } from '@/utils/artImageSrc'
 import type { KrHandChoice } from '~/components/narrative/kr-choice-hand.vue'
 
 const emit = defineEmits<{ left: []; resolved: [] }>()
@@ -267,11 +266,9 @@ function cardLabel(text: string): string {
   return (words || clean.slice(0, 70)) + '…'
 }
 
+const OPTION_GLYPHS = ['✦', '❖', '✧', '☾', '❀', '✶']
 const optionCards = computed<KrHandChoice[]>(() => {
-  const image = sceneArt.value
-    ? resolveArtVariantSource(sceneArt.value, 'card').src || null
-    : null
-  return options.value.map((option) => {
+  return options.value.map((option, index) => {
     const label = cardLabel(option.choiceText)
     return {
       id: option.id,
@@ -281,8 +278,7 @@ const optionCards = computed<KrHandChoice[]>(() => {
         .join(' · '),
       details: label === option.choiceText.trim() ? [] : [option.choiceText],
       disabled: busy.value,
-      image,
-      icon: '✦',
+      icon: OPTION_GLYPHS[index % OPTION_GLYPHS.length],
     }
   })
 })

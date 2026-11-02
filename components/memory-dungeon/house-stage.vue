@@ -140,18 +140,16 @@
           >
             {{ selectedChoice.outcome }}
           </p>
-          <div v-else class="mt-3 flex flex-col gap-2">
-            <button
-              v-for="choice in room?.choices ?? []"
-              :key="choice.id"
-              class="min-h-12 flex-1 rounded-lg border border-[#807447] bg-[#43563a] px-4 py-3 text-left text-base font-bold leading-snug sm:text-lg lg:text-xl text-white hover:bg-[#617449] focus-visible:outline-2 focus-visible:outline-[#21391e] disabled:cursor-not-allowed disabled:opacity-50"
-              type="button"
-              :disabled="!world.canChooseHouse(choice.id)"
-              @click="world.chooseHouse(choice.id)"
-            >
-              {{ choice.label }}
-            </button>
-          </div>
+          <memory-dungeon-choice-hand
+            v-else
+            class="mt-3"
+            :choices="houseChoices"
+            :deal-key="room?.id ?? ''"
+            icon="🏚️"
+            palette="briar"
+            testid-prefix="memory-house-choice"
+            @play="(choice) => world.chooseHouse(choice.id)"
+          />
           <p
             v-if="
               room?.id === 'HD-32' &&
@@ -218,6 +216,7 @@
 import { computed, ref, watch } from 'vue'
 import { useMemoryWorldStore } from '~/stores/memoryWorldStore'
 import { houseIllustrationPath } from '~/utils/memoryDungeon/artManifest'
+import type { MemoryHandChoice } from '~/components/memory-dungeon/memory-dungeon-choice-hand.vue'
 import { HOUSE_ROOMS } from '~/utils/memoryDungeon/house'
 import { houseFloorBeat } from '~/utils/memoryDungeon/houseFloorStory'
 import { HOUSE_ATLAS_ROOM_IDS } from '~/utils/memoryDungeon/houseAtlas'
@@ -260,6 +259,15 @@ watch(artPath, () => {
   artFailed.value = false
   fallbackArtFailed.value = false
 })
+const houseChoices = computed<MemoryHandChoice[]>(() =>
+  (room.value?.choices ?? []).map((choice) => ({
+    id: choice.id,
+    label: choice.label,
+    image: houseIllustrationPath(room.value?.id ?? '', choice.id),
+    disabled: !world.canChooseHouse(choice.id),
+    hint: world.canChooseHouse(choice.id) ? undefined : 'Not yet available',
+  })),
+)
 </script>
 
 <style scoped>

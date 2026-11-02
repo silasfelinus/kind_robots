@@ -756,11 +756,16 @@ const ATTRIBUTE_ICON: Record<Attribute, string> = {
   mercy: '✿',
 }
 // The card shows where the choice leads: a check shows the road it hopes for.
-function destinationPlate(choice: Choice): string {
+/** The plate of where a choice leads, unless it's the plate already on
+ *  stage; the hand keeps any plate to a single card. */
+function destinationPlate(choice: Choice): string | null {
   try {
-    return platePath(sectionPlate(scene(choice.check?.success ?? choice.to)))
+    const plate = platePath(
+      sectionPlate(scene(choice.check?.success ?? choice.to)),
+    )
+    return plate === platePath(art.value) ? null : plate
   } catch {
-    return platePath(art.value)
+    return null
   }
 }
 function splitRules(label: string): { title: string; note?: string } {

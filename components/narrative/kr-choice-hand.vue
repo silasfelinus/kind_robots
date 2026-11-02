@@ -80,11 +80,23 @@
           <span class="krh-flip">
             <span class="krh-face krh-front">
               <span class="krh-art">
-                <slot name="art" :choice="choice">
+                <span
+                  class="krh-art-plain"
+                  :style="plainStyle(index)"
+                  aria-hidden="true"
+                  >{{ choice.icon ?? '' }}</span
+                >
+                <slot
+                  name="art"
+                  :choice="choice"
+                  :src="pictureOf(choice)"
+                  :index="index"
+                  :mark-failed="markFailed"
+                >
                   <img
-                    v-if="imageOf(choice)"
-                    :key="imageOf(choice)!"
-                    :src="imageOf(choice)!"
+                    v-if="pictureOf(choice)"
+                    :key="pictureOf(choice)!"
+                    :src="pictureOf(choice)!"
                     :style="
                       choice.artPosition
                         ? { objectPosition: choice.artPosition }
@@ -93,11 +105,8 @@
                     alt=""
                     loading="lazy"
                     decoding="async"
-                    @error="failed.push(imageOf(choice)!)"
+                    @error="markFailed(pictureOf(choice))"
                   />
-                  <span v-else class="krh-art-plain" aria-hidden="true">{{
-                    choice.icon ?? ''
-                  }}</span>
                 </slot>
               </span>
               <kbd v-if="choice.shortcut" class="krh-key">{{
@@ -217,13 +226,42 @@ watch(
   },
 )
 
-function imageOf(choice: KrHandChoice): string | null {
+function candidatesOf(choice: KrHandChoice): string[] {
   const list = Array.isArray(choice.image) ? choice.image : [choice.image]
-  return (
-    list.find(
-      (src): src is string => Boolean(src) && !failed.value.includes(src!),
-    ) ?? null
-  )
+  return list.filter((src): src is string => Boolean(src))
+}
+
+/** One picture per card, in hand order: never one that failed to load and
+ *  never one an earlier card already shows, so a hand doesn't repeat a
+ *  scene. A card with nothing left gets its own drawn face instead. */
+const pictures = computed(() => {
+  const used = new Set<string>()
+  const chosen = new Map<string, string | null>()
+  for (const choice of props.choices) {
+    const pick =
+      candidatesOf(choice).find(
+        (src) => !used.has(src) && !failed.value.includes(src),
+      ) ?? null
+    if (pick) used.add(pick)
+    chosen.set(choice.id, pick)
+  }
+  return chosen
+})
+
+function pictureOf(choice: KrHandChoice): string | null {
+  return pictures.value.get(choice.id) ?? null
+}
+
+function markFailed(src: string | null | undefined): void {
+  if (src && !failed.value.includes(src)) failed.value.push(src)
+}
+
+const PLAIN_TINTS = ['--accent-2', '--accent', '--band-ink']
+function plainStyle(index: number): Record<string, string> {
+  return {
+    '--plain-tint': `var(${PLAIN_TINTS[index % PLAIN_TINTS.length]})`,
+    '--plain-angle': `${150 + index * 47}deg`,
+  }
 }
 
 function linesOf(choice: KrHandChoice): string[] {
@@ -491,12 +529,17 @@ function sparkleStyle(n: number): Record<string, string> {
   background:
     radial-gradient(
       circle at 50% 40%,
-      color-mix(in oklab, var(--accent-2) 35%, transparent),
+      color-mix(in oklab, var(--plain-tint, var(--accent-2)) 35%, transparent),
       transparent 60%
     ),
+    repeating-linear-gradient(
+      var(--plain-angle, 45deg),
+      #ffffff08 0 6px,
+      transparent 6px 14px
+    ),
     linear-gradient(
-      160deg,
-      color-mix(in oklab, var(--accent-2) 30%, var(--band)),
+      var(--plain-angle, 160deg),
+      color-mix(in oklab, var(--plain-tint, var(--accent-2)) 30%, var(--band)),
       var(--band)
     );
   font-size: calc(var(--card-w) * 0.38);

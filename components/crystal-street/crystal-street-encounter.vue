@@ -105,15 +105,14 @@
           testid-prefix="cs-choice"
           @play="(picked) => store.choose(picked.id)"
         >
-          <template #art="{ choice }">
-            <crystal-street-art
-              frame="h-full"
-              :seed="`${encounter.id}:${choice.id}`"
-              :src="`/crystal-street/outcomes/${encounter.id}--${choice.id}-success.webp`"
-              :fallback="`/crystal-street/scenes/${encounter.id}.webp`"
-              :kind="artKind"
-              :palette="palette"
-              :sigil="sigil"
+          <template #art="{ src, markFailed }">
+            <img
+              v-if="src"
+              :src="src"
+              alt=""
+              loading="lazy"
+              class="h-full w-full object-cover"
+              @error="markFailed(src)"
             />
           </template>
         </KrChoiceHand>
@@ -147,6 +146,14 @@ import type { KrHandChoice } from '~/components/narrative/kr-choice-hand.vue'
 const store = useCrystalStreetStore()
 const run = computed(() => store.run!)
 const encounter = computed(() => store.encounter)
+const INTENT_ICONS: Record<Choice['intent'], string> = {
+  brave: '🔥',
+  clever: '💡',
+  kind: '💗',
+  camp: '🎭',
+  sneaky: '🕶️',
+  reckless: '💥',
+}
 const hand = computed<KrHandChoice[]>(() =>
   (encounter.value?.choices ?? []).map((choice) => {
     const lock = lockReason(run.value, choice)
@@ -158,6 +165,8 @@ const hand = computed<KrHandChoice[]>(() =>
       chip: `${SKILL_LABELS[choice.skill]} · ${odds(choice)}%`,
       hint: lock || (active ? bonus : undefined),
       disabled: !!lock,
+      image: `/crystal-street/outcomes/${encounter.value!.id}--${choice.id}-success.webp`,
+      icon: INTENT_ICONS[choice.intent],
       details: [
         difficulty(choice.target),
         bonus && !active ? `${bonus} (not yet)` : '',

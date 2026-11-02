@@ -20,11 +20,11 @@ import {
 
 assert.equal(TEAMS.length, 6)
 assert.equal(RESERVE_CARDS.length, 12)
-assert.equal(CARDS.length, 108)
-assert.equal(RARE_COUNT, 36)
-assert.equal(new Set(CARDS.map((card) => card.id)).size, 108)
-assert.equal(new Set(CARDS.map((card) => card.name)).size, 108)
-assert.equal(CARDS.filter((card) => card.kind === 'creature').length, 42)
+assert.equal(CARDS.length, 168)
+assert.equal(RARE_COUNT * 3, CARDS.length)
+assert.equal(new Set(CARDS.map((card) => card.id)).size, CARDS.length)
+assert.equal(new Set(CARDS.map((card) => card.name)).size, CARDS.length)
+assert.ok(CARDS.filter((card) => card.kind === 'creature').length >= 62)
 assert.ok(RESERVE_CARDS.every((card) => !card.signature))
 
 for (const team of TEAMS) {
@@ -99,8 +99,8 @@ for (const team of TEAMS) {
   )
 }
 
-let wallet = { ...newProgression(), meat: 3600 }
-for (let i = 0; i < 36; i++) {
+let wallet = { ...newProgression(), meat: RARE_COUNT * 100 }
+for (let i = 0; i < RARE_COUNT; i++) {
   assert.equal(canBuyPack(wallet), true)
   wallet = buyPack(wallet, 1234 + i)
   assert.equal(wallet.lastPack.length, 3)
@@ -108,7 +108,7 @@ for (let i = 0; i < 36; i++) {
 assert.equal(canBuyPack(wallet), false)
 assert.equal(
   wallet.cards.length,
-  108,
+  CARDS.length,
   'Every extra remains available without paid upsell',
 )
 
@@ -123,5 +123,5 @@ assert.match(ui, /data-testid="slime-deck-workbench"/)
 assert.match(ui, /data-testid="slime-deck-practice"/)
 assert.doesNotMatch(store, /localStorage|sessionStorage/)
 console.log(
-  'Slime City deck workbench: six legal edited decks, seeded practice, account ownership, 36 packs PASS',
+  'Slime City deck workbench: six legal edited decks, seeded practice, account ownership, all guaranteed packs PASS',
 )

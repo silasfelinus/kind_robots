@@ -116,7 +116,11 @@ assert.equal(
   60,
   'Six ten-card founder decks',
 )
-assert.equal(CARDS.length, 108, '48 playable Gutter Crown cards are available')
+assert.equal(
+  CARDS.length,
+  168,
+  '48 Gutter Crown faction cards and 60 neutral mercenaries are playable',
+)
 assert.equal(
   CARDS.filter((card) => slimeArtId('cards', card.id)).length,
   36,
@@ -131,8 +135,8 @@ assert.equal(
 )
 assert.equal(
   CARDS.filter((card) => !slimeArtId('cards', card.id)).length,
-  72,
-  '72 founder and expansion card illustrations still need verified deliveries',
+  CARDS.length - 36,
+  'Unrendered faction and neutral cards retain image-shaped fallbacks',
 )
 assert.equal(slimeArtId('cards', 'calico'), null)
 assert.equal(slimeArtId('cards', 'plating'), 258390)

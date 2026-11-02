@@ -23,8 +23,8 @@ import {
 } from '../slimeCity/progression'
 
 assert.equal(GUTTER_CROWN_WAVE_TWO.length, 36)
-assert.equal(CARDS.length, 108)
-assert.equal(RARE_COUNT, 36)
+assert.equal(CARDS.length, 168)
+assert.equal(RARE_COUNT, 56)
 assert.equal(new Set(CARDS.map((card) => card.id)).size, CARDS.length)
 assert.equal(new Set(CARDS.map((card) => card.name)).size, CARDS.length)
 assert.equal(
@@ -212,8 +212,8 @@ const sprungOnMover = move(enemyTrap, 100, 4, 2)
 assert.equal(sprungOnMover.stats.trapsSprung, 1)
 assert.equal(sprungOnMover.units.find((u) => u.id === 100)?.hp, 5)
 
-let wallet = { ...newProgression(), meat: 3600 }
-for (let pack = 0; pack < 36; pack++) {
+let wallet = { ...newProgression(), meat: RARE_COUNT * 100 }
+for (let pack = 0; pack < RARE_COUNT; pack++) {
   assert.equal(canBuyPack(wallet), true)
   wallet = buyPack(wallet, 5700 + pack)
   assert.equal(wallet.lastPack.length, 3)
@@ -224,9 +224,9 @@ for (let pack = 0; pack < 36; pack++) {
   )
   assert.equal(new Set(wallet.cards).size, wallet.cards.length)
 }
-assert.equal(wallet.cards.length, 108)
+assert.equal(wallet.cards.length, CARDS.length)
 assert.equal(wallet.meat, 0)
 assert.equal(canBuyPack(wallet), false)
 console.log(
-  'Slime City Gutter Crown wave two: 36 cards, six faction styles, legal decks, casts, shoves and 36 guaranteed-rare packs PASS',
+  'Slime City Gutter Crown wave two: 36 cards, six faction styles, legal decks, casts, shoves and all guaranteed-rare packs PASS',
 )

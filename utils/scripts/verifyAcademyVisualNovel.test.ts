@@ -116,11 +116,18 @@ for (const selector of [
   '@click="toggleStudent(incident.id, id)"',
   'prefers-reduced-motion: reduce',
 ]) {
-  assert.ok(missionPage.includes(selector), `Missing mission-hand contract: ${selector}`)
+  assert.ok(
+    missionPage.includes(selector),
+    `Missing mission-hand contract: ${selector}`,
+  )
 }
 assert.ok(missionPage.includes('v-for="incident in focusedIncidents"'))
 assert.ok(!missionPage.includes('class="cca-roster-button"'))
-assert.ok(missionPage.includes("() => `${run.value?.day ?? 0}:${run.value?.phase ?? ''}`"))
+assert.ok(
+  missionPage.includes(
+    "() => `${run.value?.day ?? 0}:${run.value?.phase ?? ''}`",
+  ),
+)
 
 console.log(
   'Prom of Doom visual-novel mode: four independent options, 30-day outcomes, third-night allocation, tactical guard and old save compatibility.',

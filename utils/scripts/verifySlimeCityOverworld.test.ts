@@ -128,8 +128,8 @@ assert.equal(
 )
 assert.equal(
   CARDS.filter((card) => !slimeArtId('cards', card.id)).length,
-  36,
-  '12 new reserves also need their own rendered art',
+  72,
+  '72 founder and expansion card illustrations still need verified deliveries',
 )
 assert.equal(slimeArtId('cards', 'calico'), null)
 assert.equal(slimeArtId('cards', 'plating'), 258390)

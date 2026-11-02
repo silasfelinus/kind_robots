@@ -1429,9 +1429,12 @@
               >
                 <span
                   ><b>{{ ethicalOrders.aid }}</b
-                  ><small
-                    >Spend supplies; earn trust without claiming
-                    authority.</small
+                  ><small v-if="run.supplies > 0"
+                    >1 SUPPLY · +1 trust, +2 reputation. Help on their
+                    terms.</small
+                  ><small v-else
+                    >EMPTY HOLD · Give time and labor: +1 trust, no reputation
+                    bonus.</small
                   ></span
                 >↗
               </button>
@@ -1455,8 +1458,11 @@
               >
                 <span
                   ><b>{{ ethicalOrders.intervene }}</b
-                  ><small
-                    >Act now. Accept the outrage that follows.</small
+                  ><small v-if="run.supplies >= 2"
+                    >2 SUPPLIES · -2 reputation. Act without permission.</small
+                  ><small v-else
+                    >SHORT BY {{ 2 - run.supplies }} · Extra reputational harm
+                    from the improvised intervention.</small
                   ></span
                 >↗
               </button>

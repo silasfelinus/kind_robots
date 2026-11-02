@@ -955,25 +955,34 @@ export function decidePolicy(run: VoyageRun, policy: PolicyId): VoyageRun {
   )
     return run
   const mission = missionFor(run)
+  const required = policy === 'aid' ? 1 : policy === 'intervene' ? 2 : 0
+  const shortage = Math.max(0, required - run.supplies)
   const responses: Record<PolicyId, string> = {
-    aid: 'You offer help and ask first. It costs supplies, and the people you helped get to decide what happens next.',
+    aid: shortage
+      ? 'You arrive without the promised crates. Locals welcome the volunteer effort, but the material aid they requested cannot be delivered.'
+      : 'You offer help and ask first. It costs supplies, and the people you helped get to decide what happens next.',
     observe:
       'You keep your distance and keep a record. The treaty is intact, and so is the record of what you watched.',
-    intervene:
-      'You act without permission. It works quickly, and the paperwork will take years.',
+    intervene: shortage
+      ? 'You intervene without enough resources. The improvised operation succeeds in claiming authority, but the unfinished work earns additional outrage.'
+      : 'You act without permission. It works quickly, and the paperwork will take years.',
   }
   return {
     ...run,
     phase: 'debrief',
-    supplies: Math.max(
-      0,
-      run.supplies - (policy === 'aid' ? 1 : policy === 'intervene' ? 2 : 0),
-    ),
+    supplies: Math.max(0, run.supplies - required),
     intervention:
       run.intervention +
       (policy === 'aid' ? 1 : policy === 'intervene' ? 2 : -1),
     reputation:
-      run.reputation + (policy === 'aid' ? 2 : policy === 'observe' ? -1 : -2),
+      run.reputation +
+      (policy === 'aid'
+        ? shortage
+          ? 0
+          : 2
+        : policy === 'observe'
+          ? -1
+          : -2 - shortage),
     trust: run.trust + (policy === 'aid' ? 1 : policy === 'observe' ? -1 : 0),
     missionHistory: [
       ...(run.missionHistory ?? []),
@@ -988,6 +997,7 @@ export function decidePolicy(run: VoyageRun, policy: PolicyId): VoyageRun {
     worldFlags: [
       ...(run.worldFlags ?? []),
       VOYAGE_CONSEQUENCES[mission.id]![policy].flag,
+      ...(shortage ? ['supply-shortfall:' + run.chapter + ':' + policy] : []),
     ],
     scene: `${responses[policy]} ${mission.note} ${VOYAGE_CONSEQUENCES[mission.id]![policy].text}`,
     log: [

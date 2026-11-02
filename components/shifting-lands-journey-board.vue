@@ -1211,7 +1211,9 @@
         <section
           class="kr-pane rounded-3xl border border-base-content/15 bg-base-200/95 shadow-xl"
           :class="tab === 'road' ? 'journey-hidden-narrow' : ''"
-          :aria-label="sideTab === 'zuzu' ? 'Character sheet' : 'The Trail Ledger'"
+          :aria-label="
+            sideTab === 'zuzu' ? 'Character sheet' : 'The Trail Ledger'
+          "
         >
           <div class="kr-pane-scroll p-2 sm:p-3">
             <ShiftingLandsCharacterRail
@@ -1221,15 +1223,42 @@
               :phase="game.state.phase"
               @use-reward="useEarnedReward"
             />
-            <div v-else class="space-y-4 p-1" data-testid="shifting-lands-trail-ledger">
-              <header class="rounded-2xl border border-warning/30 bg-base-100/80 p-3">
-                <p class="text-[10px] font-black uppercase tracking-[.25em] text-warning">Zuzu's travels</p>
+            <div
+              v-else
+              class="space-y-4 p-1"
+              data-testid="shifting-lands-trail-ledger"
+            >
+              <header
+                class="rounded-2xl border border-warning/30 bg-base-100/80 p-3"
+              >
+                <p
+                  class="text-[10px] font-black uppercase tracking-[.25em] text-warning"
+                >
+                  Zuzu's travels
+                </p>
                 <h2 class="font-serif text-2xl font-black">The Trail Ledger</h2>
-                <p class="mt-1 text-xs opacity-70">Every encounter, trial and choice this journey actually reached.</p>
+                <p class="mt-1 text-xs opacity-70">
+                  Every encounter, trial and choice this journey actually
+                  reached.
+                </p>
                 <div class="mt-3 grid grid-cols-3 gap-2 text-center text-xs">
-                  <span class="rounded-lg bg-base-200 p-2"><strong class="block text-lg">{{ visitedCards.length }}</strong>Locations</span>
-                  <span class="rounded-lg bg-base-200 p-2"><strong class="block text-lg">{{ game.state.bosses.length }}</strong>Trials</span>
-                  <span class="rounded-lg bg-base-200 p-2"><strong class="block text-lg">{{ game.state.landIndex + 1 }}/5</strong>Lands</span>
+                  <span class="rounded-lg bg-base-200 p-2"
+                    ><strong class="block text-lg">{{
+                      visitedCards.length
+                    }}</strong
+                    >Locations</span
+                  >
+                  <span class="rounded-lg bg-base-200 p-2"
+                    ><strong class="block text-lg">{{
+                      game.state.bosses.length
+                    }}</strong
+                    >Trials</span
+                  >
+                  <span class="rounded-lg bg-base-200 p-2"
+                    ><strong class="block text-lg"
+                      >{{ game.state.landIndex + 1 }}/5</strong
+                    >Lands</span
+                  >
                 </div>
               </header>
               <div v-if="visitedCards.length" aria-label="Discovered locations">

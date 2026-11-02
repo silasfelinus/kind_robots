@@ -9,6 +9,7 @@ import {
   type CampaignApproach,
   type CampaignSave,
 } from '../slimeCity/campaign'
+import { CAMPAIGN_CHAPTER_SUPPORT } from '../slimeCity/campaignSupport'
 import { playHeadless, type MatchMetrics } from '../slimeCity/playtest'
 import { TEAMS, type TeamId } from '../slimeCity/prototypes'
 
@@ -50,6 +51,20 @@ interface Trial {
   supported: MatchMetrics
   changedOutcome: boolean
   changedCommands: boolean
+}
+
+// Actual seeded matches ended in seven rounds on average. A modifier
+// that ONLY changes the timeout will often never enter the action loop.
+for (const crew of TEAMS) {
+  for (const pair of CAMPAIGN_CHAPTER_SUPPORT[crew.id]) {
+    for (const approach of approaches) {
+      const favor = pair[approach]
+      assert.ok(
+        Object.keys(favor.terms).some((key) => key !== 'rounds'),
+        favor.title + ' must offer an immediate tactical effect',
+      )
+    }
+  }
 }
 
 const trials: Trial[] = []

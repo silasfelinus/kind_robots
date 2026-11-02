@@ -11,8 +11,12 @@ import { mergeAlienGuideSnapshots } from '~/utils/gameOfCaptains/alienGuideSync'
 const toJson = (guide: AlienGuide): Prisma.InputJsonValue =>
   JSON.parse(JSON.stringify(guide)) as Prisma.InputJsonValue
 
-export async function readSpaceCouchAlienGuide(userId: number): Promise<AlienGuide> {
-  const row = await prisma.spaceCouchAlienGuide.findUnique({ where: { userId } })
+export async function readSpaceCouchAlienGuide(
+  userId: number,
+): Promise<AlienGuide> {
+  const row = await prisma.spaceCouchAlienGuide.findUnique({
+    where: { userId },
+  })
   return row ? normalizeAlienGuide(row.data) : emptyAlienGuide()
 }
 
@@ -44,7 +48,10 @@ export async function saveSpaceCouchAlienGuide(
           },
         })
         if (result.count !== 1)
-          throw createError({ statusCode: 409, message: 'Scrapbook changed in another tab.' })
+          throw createError({
+            statusCode: 409,
+            message: 'Scrapbook changed in another tab.',
+          })
         return guide
       })
     } catch (error) {
@@ -54,7 +61,8 @@ export async function saveSpaceCouchAlienGuide(
         typeof error === 'object' &&
         'statusCode' in error &&
         error.statusCode === 409
-      ) continue
+      )
+        continue
       throw error
     }
   }

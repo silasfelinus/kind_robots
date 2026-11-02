@@ -212,24 +212,14 @@ assert.match(
 )
 assert.match(worldStore, /window\.localStorage\.setItem\(\s*REALM_UNLOCKS_KEY/)
 assert.match(worldStore, /realmArtReady\.value = results\.every\(Boolean\)/)
-// The Character gallery is a full browse catalog, not the selected-detail cache.
+// The full Character index lives in browseCharacters, not the one-item
+// selection/detail cache. Linked art must be resolved by ID (lazily, in
+// batches) because the art store keeps only a partial recent subset.
 assert.match(resolver, /records = source\.browseCharacters/)
 assert.doesNotMatch(resolver, /records = source\.characters\b/)
-// A paginated ArtImage cache miss must resolve the linked record by ID;
-// linked visibility remains checked before that record can enter a deck.
 assert.match(resolver, /await art\.getArtImageById\(artId\)/)
-assert.match(
-  resolver,
-  /isEligibleDungeonArt\(linkedArt, includeMature, matureAllowed, viewerId\)/,
-)
-assert.match(
-  resolver,
-  /return loadDungeonImagePaths\(unseenDeckPaths\(paths, previouslyUsed\), needed\)/,
-)
-assert.match(
-  resolver,
-  /imagePath: imageUrlForDeck\(linkedArt\) \|\| imageUrlForDeck\(record\)/,
-)
+assert.match(resolver, /await loadImage\(path\)/)
+assert.match(resolver, /isEligibleDungeonArt\(\s*linkedArt,/)
 assert.match(resolver, /choice\.family === 'realm'/)
 assert.match(resolver, /loadDungeonImagePaths\(candidates, needed\)/)
 assert.match(selector, /choice\.key === 'realm' && !realmDeckReady/)

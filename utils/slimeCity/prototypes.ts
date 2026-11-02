@@ -1849,7 +1849,8 @@ function addFighter(
           riot: 'blast',
           undertow: 'spell',
           exchange: 'sword',
-        } as Record<TeamId, AttackStyle>
+          mercenary: 'sword',
+        } as Record<TeamId | 'mercenary', AttackStyle>
       )[card.team],
     summonedRound: state.round,
     attackedRound: 0,

@@ -55,9 +55,26 @@ function hp(state: MatchState, side: Side): number {
 }
 
 function boardKey(state: MatchState): string {
-  return state.units
-    .map((u) => u.id + '@' + u.x + ',' + u.y + ':' + u.hp)
-    .join('|')
+  const units = [...state.units]
+    .sort((a, b) => a.id - b.id)
+    .map(
+      (u) =>
+        u.id +
+        '@' +
+        u.x +
+        ',' +
+        u.y +
+        ':' +
+        u.hp +
+        (u.carryingFlag ? ':flag' : ''),
+    )
+  const traps = [...state.traps]
+    .map((t) => t.side + '@' + t.x + ',' + t.y + ':' + t.cardId)
+    .sort()
+  const monster = state.monster
+    ? state.monster.x + ',' + state.monster.y + ':' + state.monster.hp
+    : ''
+  return JSON.stringify([units, traps, monster, state.score])
 }
 
 /** Positive when the player side leads. */
@@ -101,6 +118,9 @@ export function playHeadless(
     const before = boardKey(state)
     const scoreBefore = state.score[0] + state.score[1]
     const trapsBefore = state.stats.trapsSprung
+    const knockoutsBefore =
+      state.stats.knockouts.player + state.stats.knockouts.enemy
+    const monsterHpBefore = state.monster?.hp ?? 0
     const hpBefore = hp(state, 'player') + hp(state, 'enemy')
     state = cpuTurn(state, 'player')
     state = advance(state)
@@ -110,7 +130,9 @@ export function playHeadless(
     const contact =
       scored ||
       state.stats.trapsSprung !== trapsBefore ||
-      state.stats.knockouts.player + state.stats.knockouts.enemy > 0 ||
+      state.stats.knockouts.player + state.stats.knockouts.enemy >
+        knockoutsBefore ||
+      (state.monster?.hp ?? 0) < monsterHpBefore ||
       hpAfter < hpBefore
     if (firstContact === null && contact) firstContact = round
     if (boardKey(state) === before && !scored) {

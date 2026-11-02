@@ -175,62 +175,6 @@ const PLANET_CARDS = [
   },
 ] as const
 
-const PLANET_ACTIONS: Record<
-  (typeof PLANET_CARDS)[number]['title'],
-  Record<EpisodeChoice, string>
-> = {
-  'The Moon That Requested Custody': {
-    ask: 'INVITE THE MOON TO THE CUSTODY HEARING',
-    document: 'LOOK FOR THE ORIGINAL TIDE DEED',
-    override: 'MOVE ONE TIDE WITHOUT A PERMIT',
-  },
-  'A Refugee Named Wednesday': {
-    ask: 'LET WEDNESDAY CHOOSE A SAFE DATE',
-    document: 'CHALLENGE THE WARRANT FROM TOMORROW',
-    override: 'HIDE WEDNESDAY BEHIND THE COUCH',
-  },
-  'The Union of Unpaid Suns': {
-    ask: 'HEAR THE STARS GRIEVANCE',
-    document: 'AUDIT THE DAYLIGHT PAYROLL',
-    override: 'RESTART A SUN WITHOUT VOTING',
-  },
-  'The Garden That Refused Oxygen': {
-    ask: 'NEGOTIATE THE ORCHARDS RETIREMENT',
-    document: 'EXAMINE THE GARDEN CONTRACT',
-    override: 'ORDER THE TREES BACK TO WORK',
-  },
-  'The Diplomatic Temperature Incident': {
-    ask: 'LET THE DELEGATES PICK AN INTERPRETER',
-    document: 'RECOVER THE ORIGINAL FROST VOTE',
-    override: 'WARM THE WHOLE DEBATE',
-  },
-  'A Planet Requests an Exit Interview': {
-    ask: 'OFFER THE PLANET AN EXIT INTERVIEW',
-    document: 'FOLLOW THE UNPAID MINERAL BILL',
-    override: 'UNPLUG THE DRILL RIGHT NOW',
-  },
-  'The Twelve-Hour Apology': {
-    ask: 'LET SURVIVORS SET THE TERMS',
-    document: 'SAVE AN UNALTERED TESTIMONY',
-    override: 'CUT THE APOLOGY TRANSMITTER',
-  },
-  'The Missing Note Committee': {
-    ask: 'ASK THE TOWN ABOUT THE ALARM',
-    document: 'FIND THE CENSORED WAVEFORM',
-    override: 'RING EVERY BELL AT ONCE',
-  },
-  'The Interstellar Costume Inspector': {
-    ask: 'REQUEST A PERSONAL REALITY CHECK',
-    document: 'FIND THE COUCH REGISTRATION',
-    override: 'FLY THROUGH THE IMAGINARY BORDER',
-  },
-  'The Gravity Refund Office': {
-    ask: 'LET TENANTS SET THE GRAVITY RATE',
-    document: 'AUDIT THE DOWNHILL METER',
-    override: 'REVERSE THE OFFICE GRAVITY',
-  },
-}
-
 function selectedPlanetCard(run: VoyageRun) {
   return PLANET_CARDS[
     hash(`${run.seed}:${run.chapter}:planet`) % PLANET_CARDS.length
@@ -318,8 +262,6 @@ export const EPISODE_CHOICES: readonly {
   { id: 'document', label: 'Find the evidence' },
   { id: 'override', label: 'Intervene' },
 ]
-
-export const planetChoiceLabels = PLANET_ACTIONS
 
 export function episodeChoiceStakes(
   run: VoyageRun,

@@ -645,8 +645,16 @@ const shot = chooseCpuAction(observe(finisher, 'player'))
 assert.ok(shot && shot.t === 'deploy')
 assert.equal(shot.x, finisher.monster!.x)
 const monsterVictory = deploy(finisher, shot.card, shot.x, shot.y)
-assert.notEqual(monsterVictory, finisher, 'CPU-selected monster shot must resolve')
-assert.equal(monsterVictory.winPath, 'monster', 'Monster-finish victory remains reachable')
+assert.notEqual(
+  monsterVictory,
+  finisher,
+  'CPU-selected monster shot must resolve',
+)
+assert.equal(
+  monsterVictory.winPath,
+  'monster',
+  'Monster-finish victory remains reachable',
+)
 assert.equal(monsterVictory.victor, 'player')
 
 console.log(

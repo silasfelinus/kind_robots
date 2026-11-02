@@ -1,10 +1,14 @@
-// Blackout-first round-hand contract: visible deployment, four seeded cards,
+// Blackout-first round-hand contract: visible deployment, five seeded cards,
 // hidden legacy only by explicit fixture opt-in, and no infinite card menu.
 import assert from 'node:assert/strict'
 import { chooseCpuAction } from '../slimeCity/cpu'
 import {
   advance,
   attack,
+  replayMatch,
+  toggleHandDiscard,
+  BLACKOUT_MANA_GAIN,
+  MANA_CAP,
   mayAttack,
   BLACKOUT_HAND_SIZE,
   cardById,
@@ -23,7 +27,7 @@ for (const team of TEAMS) {
   assert.equal(fresh.width, 10)
   assert.equal(fresh.height, 6)
   assert.equal(fresh.units.length, 0, 'Open deployment, no forced secret army')
-  assert.equal(fresh.mana, 1)
+  assert.equal(fresh.mana, BLACKOUT_MANA_GAIN)
   assert.equal(fresh.hands.player.length, BLACKOUT_HAND_SIZE)
   assert.equal(fresh.hands.enemy.length, BLACKOUT_HAND_SIZE)
   assert.equal(fresh.piles.player.length, DECK_SIZE - BLACKOUT_HAND_SIZE)
@@ -81,6 +85,7 @@ candidate.mana = 10
 const deployed = deploy(candidate, starter, 0, 0)
 assert.notEqual(deployed, candidate)
 assert.equal(deployed.units.length, 1)
+assert.ok(deployed.playedThisRound.player.includes(starter))
 assert.equal(deployed.units[0]!.hidden, false)
 assert.ok(!deployed.hands.player.includes(starter))
 assert.ok(deployed.discards.player.includes(starter))
@@ -90,6 +95,8 @@ assert.equal(
   'Spent card cannot be replayed',
 )
 assert.equal(candidate.units.length, 0, 'Pure engine does not mutate old state')
+const nextDraw = advance(deployed)
+assert.ok(!nextDraw.hands.player.includes(starter), 'Played card not dealt immediately next round')
 
 const fixture = createMatch('blackout', 'catgirls', 'bloodfairies', 777)
 fixture.units = [
@@ -126,16 +133,20 @@ fixture.units = [
 ]
 fixture.nextId = 902
 let current = fixture
-let pastHand = current.hands.player.join(',')
 for (let round = 2; round <= 9; round++) {
-  const next = advance(current)
+  const held = current.hands.player.slice(2)
+  const marked = toggleHandDiscard(
+    toggleHandDiscard(current, current.hands.player[0]!),
+    current.hands.player[1]!,
+  )
+  const next = advance(marked)
   assert.equal(next.round, round)
   assert.equal(next.hands.player.length, BLACKOUT_HAND_SIZE)
-  assert.notEqual(
-    next.hands.player.join(','),
-    pastHand,
-    'Hand refreshes each round',
+  assert.ok(
+    held.every((id) => next.hands.player.includes(id)),
+    'Unplayed unmarked cards remain in hand',
   )
+  assert.equal(next.markedDiscards.player.length, 0)
   assert.equal(
     new Set([
       ...next.piles.player,
@@ -152,13 +163,44 @@ for (let round = 2; round <= 9; round++) {
   )
   assert.deepEqual(
     next,
-    advance(current),
+    advance(marked),
     'Deck and CPU actions replay from the same state',
   )
-  pastHand = next.hands.player.join(',')
   current = next
 }
-assert.ok(current.shuffles.player >= 1, 'Draw pile recycles when exhausted')
+assert.ok(current.shuffles.player >= 1, 'Marked discards eventually reshuffle')
+
+
+// Unmarked cards persist, and unused mana banks to the cap.
+const banker = createMatch('blackout', 'riot', 'exchange', 371)
+const hold = advance(banker)
+assert.deepEqual(hold.hands.player, banker.hands.player)
+assert.equal(hold.mana, 2 * BLACKOUT_MANA_GAIN)
+const holdAgain = advance(hold)
+assert.deepEqual(holdAgain.hands.player, banker.hands.player)
+assert.equal(holdAgain.mana, 3 * BLACKOUT_MANA_GAIN)
+assert.equal(advance(holdAgain).mana, MANA_CAP)
+
+// Invalid toggles are no-ops; valid toggles have exact server-replay parity.
+const toggled = toggleHandDiscard(banker, banker.hands.player[0]!)
+const untoggled = toggleHandDiscard(toggled, banker.hands.player[0]!)
+assert.deepEqual(untoggled.markedDiscards.player, [])
+assert.equal(toggleHandDiscard(banker, 'not-a-card'), banker)
+assert.deepEqual(
+  replayMatch({ mode: 'blackout', teamId: 'riot', foeId: 'exchange', seed: 371 }, untoggled.commands),
+  untoggled,
+)
+const markedBanker = toggleHandDiscard(banker, banker.hands.player[0]!)
+const cycledBanker = advance(markedBanker)
+assert.equal(cycledBanker.mana, 2 * BLACKOUT_MANA_GAIN)
+assert.equal(cycledBanker.hands.player.length, BLACKOUT_HAND_SIZE)
+assert.deepEqual(
+  replayMatch({ mode: 'blackout', teamId: 'riot', foeId: 'exchange', seed: 371 }, cycledBanker.commands),
+  cycledBanker,
+  'Selective redraw and CPU choices must reproduce exactly',
+)
+assert.equal(createMatch('gridiron', 'riot').mana, 1)
+assert.equal(createMatch('bloodrush', 'riot').mana, 3)
 
 const open = createMatch('blackout', 'riot', 'ironjaw', 1)
 assert.notEqual(
@@ -269,5 +311,5 @@ assert.deepEqual(
 )
 
 console.log(
-  'Slime City Blackout hands: six seeded 10-card decks, 4-card refresh, hand-only play and open arena PASS',
+  'Slime City Blackout hands: six seeded decks, 5-card retention, banked mana and selective cycling PASS',
 )

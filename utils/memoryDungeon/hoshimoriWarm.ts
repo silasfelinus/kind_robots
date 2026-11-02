@@ -2154,7 +2154,7 @@ export const HOSHIMORI_OVEN_ROOMS: readonly HoshimoriOvenRoom[] = [
     id: 'OV-34',
     title: 'The Refuge That Refuses a Name',
     opening:
-      'Beyond the sixth bell stands a refuge built entirely from borrowed doorframes. The guardian asks Vesper to write each resident into its permanent register before the doors can open. A mother who survived the sold map says she will walk back into the rain first.',
+      'Beyond the sixth bell stands a refuge built entirely from borrowed doorframes. The old registry demands Vesper write each resident into its permanent ledger before the doors can open. A mother who survived the sold map says she will walk back into the rain first.',
     choices: [
       {
         id: 'last-bell-open-without-register',
@@ -2177,7 +2177,7 @@ export const HOSHIMORI_OVEN_ROOMS: readonly HoshimoriOvenRoom[] = [
     id: 'OV-35',
     title: 'The Bread That Must Be Made Tomorrow',
     opening:
-      'Kogane shows the village a cold tray and a line of hungry travelers. The Oven offers one more impossible feast if its old claim on the bakers is restored. Pip points to the workers whose stolen hours paid for the last miracle.',
+      'Kogane shows the village a cold tray and a line of hungry travelers. An old recipe promises an impossible feast if the bakers surrender their rights again. Pip points to the workers whose stolen hours paid for the last miracle.',
     choices: [
       {
         id: 'last-bell-community-kitchens',
@@ -2200,7 +2200,7 @@ export const HOSHIMORI_OVEN_ROOMS: readonly HoshimoriOvenRoom[] = [
     id: 'OV-36',
     title: 'The Seventh Bell: The Map Nobody Owns',
     opening:
-      'Vesper finds their childhood atlas waiting beside the guardian, its missing refuge doors finally visible. The spirit offers to keep every traveler safe if Vesper signs alone. The families, Kogane and Pip refuse to let another rescue become a private bargain.',
+      'Vesper finds their childhood atlas beneath the final bell, its missing refuge doors finally visible. An unsigned covenant promises to keep every traveler safe if Vesper signs alone. The families, Kogane and Pip refuse to let another rescue become a private bargain.',
     choices: [
       {
         id: 'last-bell-household-custody',

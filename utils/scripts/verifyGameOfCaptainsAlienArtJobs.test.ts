@@ -10,7 +10,7 @@ assert.equal(new Set(entries.map(([key]) => key)).size, 107)
 assert.equal(new Set(entries.map(([, id]) => id)).size, 107)
 for (const species of ALIEN_SPECIES) {
   const id = COUCH_ALIEN_ART_JOB_IDS[species.artKey]
-  assert.ok(Number.isInteger(id) && id > 0, species.name)
+  assert.ok(typeof id === 'number' && Number.isInteger(id) && id > 0, species.name)
 }
 for (const threshold of [5, 12, 25, 50, 75, 100]) {
   const key = 'aliens/milestone-' + threshold

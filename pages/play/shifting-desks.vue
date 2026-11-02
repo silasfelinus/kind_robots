@@ -1430,9 +1430,6 @@ function openArchive(
 ): void {
   personnelArchive.value?.open(section)
 }
-const endingsCount = computed(
-  () => ENDINGS.filter((e) => store.endingsFound.includes(e.id)).length,
-)
 
 // Silas, 2026-10-16 (free rein): the Daily Memo, one seeded run per day.
 const dailyNext = ref(false)

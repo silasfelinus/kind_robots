@@ -11,7 +11,8 @@
         <p class="pf-display text-2xl @3xl:text-4xl">The 100 redshirts</p>
         <p class="text-xs opacity-75">
           {{ REDSHIRT_ROSTER.length }} unique recruits ·
-          {{ renderedCount }} concept portraits rendered here ·
+          {{ shippedCount }} portraits shipped · {{ renderedCount }} concept
+          portraits rendered here ·
           {{ EXPEDITION_ENCOUNTERS.length }} expedition encounters
         </p>
       </div>
@@ -92,8 +93,8 @@
             >
               <span class="pf-art-card-frame relative block h-32">
                 <img
-                  v-if="atlas.portraits[person.id]?.imageUrl"
-                  :src="atlas.portraits[person.id]?.imageUrl ?? ''"
+                  v-if="portraitSrc(person.id)"
+                  :src="portraitSrc(person.id) ?? ''"
                   :alt="person.name + ' portrait concept'"
                   class="pf-art-card-img"
                 />
@@ -137,8 +138,8 @@
             class="relative aspect-[3/4] overflow-hidden rounded-lg bg-base-300"
           >
             <img
-              v-if="atlas.portraits[selected.id]?.imageUrl"
-              :src="atlas.portraits[selected.id]?.imageUrl ?? ''"
+              v-if="portraitSrc(selected.id)"
+              :src="portraitSrc(selected.id) ?? ''"
               :alt="selected.name + ' portrait concept'"
               class="size-full object-cover"
             />
@@ -446,6 +447,7 @@ import {
   type RedshirtDraft,
 } from '~/utils/playbookForge/redshirtAtlas'
 import { EXPEDITION_ENCOUNTERS } from '~/utils/gameOfCaptains/expedition'
+import { warpArt } from '~/utils/gameOfCaptains/artManifest'
 import type { CatalogItem, CatalogTab } from '~/utils/playbookForge/catalog'
 
 const forge = usePlaybookForgeStore()
@@ -493,6 +495,14 @@ const portraitPreview = computed(() =>
 )
 const renderedCount = computed(
   () => Object.values(atlas.portraits).filter((p) => !!p.imageUrl).length,
+)
+const portraitSrc = (id: string): string | null =>
+  atlas.portraits[id]?.imageUrl || warpArt('redshirts/portraits/' + id)
+const shippedCount = computed(
+  () =>
+    REDSHIRT_ROSTER.filter((person) =>
+      warpArt('redshirts/portraits/' + person.id),
+    ).length,
 )
 const isRendering = computed(() =>
   ['QUEUED', 'RUNNING'].includes(

@@ -3,12 +3,17 @@ import prisma from '~/server/utils/prisma'
 import { errorHandler } from '~/server/utils/error'
 import { getOptionalApiUser } from '~/server/utils/authGuard'
 import { clientIngredientKey } from '~/server/utils/hybridizerFusion'
+import { hybridizerDeliverableUrl } from '~/server/utils/hybridizerArt'
+import {
+  buildArtImageWhere,
+  getArtImageAccessContext,
+} from '~/server/utils/artImageAccess'
 
 export default defineEventHandler(async (event) => {
   try {
     const auth = await getOptionalApiUser(event)
     const query = getQuery(event)
-    const take = Math.min(100, Math.max(1, Number(query.take) || 50))
+    const take = Math.min(1000, Math.max(1, Number(query.take) || 50))
     const records = await prisma.hybridizerFusion.findMany({
       where: auth
         ? { OR: [{ isPublic: true }, { creatorUserId: auth.user.id }] }
@@ -16,6 +21,42 @@ export default defineEventHandler(async (event) => {
       orderBy: [{ createdAt: 'desc' }, { id: 'asc' }],
       take,
     })
+    // The shelf shows each finished hybrid's picture without a status call per
+    // card, under the same visibility rules as fusions/[id]/status.
+    const imageIds = records
+      .filter((record) => record.status === 'READY' && record.artImageId)
+      .map((record) => record.artImageId as number)
+    const images = imageIds.length
+      ? await prisma.artImage.findMany({
+          where: {
+            AND: [
+              { id: { in: imageIds } },
+              buildArtImageWhere(await getArtImageAccessContext(event)),
+            ],
+          },
+          select: {
+            id: true,
+            imagePath: true,
+            isPublic: true,
+            isMature: true,
+            isActive: true,
+            userId: true,
+          },
+        })
+      : []
+    const imageById = new Map(images.map((image) => [image.id, image]))
+    function deliverablePath(record: (typeof records)[number]) {
+      const image = record.artImageId
+        ? imageById.get(record.artImageId)
+        : undefined
+      if (!image || image.isActive === false || image.isMature === true)
+        return null
+      const visible = record.isPublic
+        ? image.isPublic === true
+        : image.userId === record.creatorUserId ||
+          image.userId === auth?.user.id
+      return visible ? hybridizerDeliverableUrl(image.imagePath) : null
+    }
     return {
       success: true,
       data: records.map((record) => ({
@@ -32,6 +73,7 @@ export default defineEventHandler(async (event) => {
         isPublic: record.isPublic,
         artJobId: record.artJobId,
         artImageId: record.artImageId,
+        imagePath: deliverablePath(record),
       })),
     }
   } catch (error) {

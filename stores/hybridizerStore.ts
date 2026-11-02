@@ -48,6 +48,7 @@ const STARTERS = catalog.entries as HybridizerIngredient[]
 const LEGACY_STORAGE_KEY = 'kind-robots-hybridizer-lab-studies-v1'
 const STORAGE_KEY = 'kind-robots-hybridizer-lab-studies-v2'
 const MAX_STUDY_DEPTH = 4
+const MAX_SHELF = 1000
 
 function pairKey(a: string, b: string): string {
   return JSON.stringify([a, b].sort())
@@ -132,7 +133,7 @@ export const useHybridizerStore = defineStore('hybridizer', () => {
   async function loadSharedStudies() {
     const viewerId = userStore.authenticatedUserId
     const response = await performFetch<HybridizerDiscovery[]>(
-      '/api/hybridizer/fusions?take=100',
+      '/api/hybridizer/fusions?take=' + MAX_SHELF,
     )
     if (viewerId !== userStore.authenticatedUserId) return
     if (!response.success || !response.data) {
@@ -146,7 +147,11 @@ export const useHybridizerStore = defineStore('hybridizer', () => {
         merged.set(entry.key, entry)
       }
     }
-    discoveries.value = [...merged.values()].slice(-200)
+    discoveries.value = [...merged.values()].slice(-MAX_SHELF)
+    const listedArt: Record<string, string> = {}
+    for (const entry of response.data)
+      if (entry.imagePath) listedArt[entry.key] = entry.imagePath
+    availableArt.value = { ...availableArt.value, ...listedArt }
     pendingKeys.value = [
       ...new Set([
         ...pendingKeys.value,
@@ -252,7 +257,7 @@ export const useHybridizerStore = defineStore('hybridizer', () => {
     discoveries.value = [
       ...discoveries.value.filter((entry) => entry.key !== discovery.key),
       discovery,
-    ].slice(-200)
+    ].slice(-MAX_SHELF)
     resultKey.value = discovery.key
     save()
     await Promise.all([
@@ -443,6 +448,54 @@ export const useHybridizerStore = defineStore('hybridizer', () => {
     readyNotice.value = null
   }
 
+  // The launch set (and every earlier discovery) is pregenerated: show a pair's
+  // shared hybrid as soon as both ingredients are chosen, for visitors too.
+  async function fetchKnownPair(
+    leftIngredient: string,
+    rightIngredient: string,
+  ): Promise<HybridizerDiscovery | null> {
+    const response = await performFetch<HybridizerDiscovery>(
+      '/api/hybridizer/fusions/pair?left=' +
+        encodeURIComponent(leftIngredient) +
+        '&right=' +
+        encodeURIComponent(rightIngredient),
+    )
+    return response.success && response.data ? response.data : null
+  }
+
+  function adoptDiscovery(discovery: HybridizerDiscovery) {
+    discoveries.value = [
+      ...discoveries.value.filter((entry) => entry.key !== discovery.key),
+      discovery,
+    ].slice(-MAX_SHELF)
+    resultKey.value = discovery.key
+    save()
+    void refreshArtwork(discovery.key)
+    void loadVersions(discovery.key)
+  }
+
+  async function showKnownPair(): Promise<void> {
+    const a = left.value
+    const b = right.value
+    if (working.value || !a || !b || a.key === b.key || resultKey.value) return
+    const viewerId = userStore.authenticatedUserId
+    const known = await fetchKnownPair(a.key, b.key)
+    if (
+      !known ||
+      working.value ||
+      resultKey.value ||
+      viewerId !== userStore.authenticatedUserId ||
+      left.value?.key !== a.key ||
+      right.value?.key !== b.key
+    )
+      return
+    adoptDiscovery(known)
+    status.value =
+      'Already discovered: ' +
+      known.title +
+      '. Change an ingredient to try a new fusion.'
+  }
+
   function choose(side: 'left' | 'right', key: string) {
     if (working.value || !byKey.value.has(key)) return
     if (side === 'left') leftKey.value = key
@@ -452,6 +505,7 @@ export const useHybridizerStore = defineStore('hybridizer', () => {
     canEditResult.value = false
     status.value = 'Ready to combine two specimens.'
     if (key.startsWith('fusion:')) void refreshArtwork(key)
+    void showKnownPair()
   }
 
   async function fuse() {
@@ -494,6 +548,12 @@ export const useHybridizerStore = defineStore('hybridizer', () => {
       if (viewerId !== userStore.authenticatedUserId) return
 
       if (!response.success || !response.data) {
+        const known = await fetchKnownPair(a.key, b.key)
+        if (known && viewerId === userStore.authenticatedUserId) {
+          adoptDiscovery(known)
+          status.value = 'Shared illustrated discovery retrieved.'
+          return
+        }
         const existing = discoveries.value.find(
           (entry) => entry.key === 'hybrid:' + pairKey(a.key, b.key),
         )
@@ -507,7 +567,7 @@ export const useHybridizerStore = defineStore('hybridizer', () => {
           status: 'LOCAL',
         }
         if (!existing)
-          discoveries.value = [...discoveries.value, local].slice(-200)
+          discoveries.value = [...discoveries.value, local].slice(-MAX_SHELF)
         resultKey.value = local.key
         status.value =
           'Local study only. Shared archive is unavailable: ' +
@@ -520,7 +580,7 @@ export const useHybridizerStore = defineStore('hybridizer', () => {
       discoveries.value = [
         ...discoveries.value.filter((entry) => entry.key !== discovery.key),
         discovery,
-      ].slice(-200)
+      ].slice(-MAX_SHELF)
       resultKey.value = discovery.key
       status.value =
         discovery.status === 'READY'
@@ -597,6 +657,7 @@ export const useHybridizerStore = defineStore('hybridizer', () => {
     enqueueArtwork,
     dismissNotice,
     choose,
+    showKnownPair,
     fuse,
     remix,
   }

@@ -700,6 +700,7 @@ onMounted(() => {
   void lab.loadSharedStudies().then(() => {
     const id = route.query.fusion
     if (typeof id === 'string') void lab.openSharedFusion(id)
+    else void lab.showKnownPair()
   })
   lab.startArtworkWatch()
 })

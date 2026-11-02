@@ -137,16 +137,6 @@
             />
           </div>
           <div class="front-vignette absolute inset-0" aria-hidden="true" />
-          <button
-            type="button"
-            class="btn btn-sm absolute right-3 top-3 z-20 border-amber-100 bg-stone-950/85 text-amber-50 hover:bg-stone-900 sm:right-6 sm:top-6"
-            :title="`Endings on file: ${endingsCount} of ${ENDINGS.length}`"
-            @click="endingsGallery?.open()"
-          >
-            <icon name="kind-icon:trophy" class="size-4" />
-            {{ endingsCount }}/{{ ENDINGS.length }}
-            <span class="sr-only">endings found, open the gallery</span>
-          </button>
           <div
             class="relative z-10 flex h-full flex-col justify-between gap-3 p-3 text-amber-50 sm:p-6"
           >
@@ -183,14 +173,13 @@
                   {{ run ? 'New game' : 'Begin' }}
                 </button>
                 <button
-                  v-if="store.archiveUnlocked"
                   type="button"
                   class="btn btn-lg border-amber-100 bg-stone-950/85 text-amber-50 shadow-xl hover:bg-stone-900"
                   @click="openArchive('milestones')"
                 >
-                  <icon name="kind-icon:trophy" class="size-5" />
+                  <icon name="kind-icon:folder" class="size-5" />
                   Personnel Archive ·
-                  {{ store.rewardArchive.runs.length }} filed
+                  {{ store.archiveUnlocked ? store.rewardArchive.runs.length + ' filed' : 'Sealed' }}
                 </button>
                 <button
                   type="button"
@@ -823,7 +812,6 @@
         </div>
       </section>
 
-      <shifting-desks-endings-gallery ref="endingsGallery" />
       <shifting-desks-personnel-archive ref="personnelArchive" />
 
       <dialog ref="artPicker" class="modal" aria-label="Choose your art style">
@@ -1434,7 +1422,6 @@ const tipRoute = computed(
 )
 
 // The front desk's collectible: every ending this browser has reached.
-const endingsGallery = ref<{ open: () => void } | null>(null)
 const personnelArchive = ref<{
   open: (section?: 'milestones' | 'endings' | 'achievements' | 'runs') => void
 } | null>(null)

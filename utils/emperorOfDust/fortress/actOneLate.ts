@@ -443,6 +443,22 @@ export const ACT_ONE_LATE_DAYS: readonly DayDef[] = [
         npc: 'gristle-vane',
         faction: 'jackalwire',
         requires: { notFlags: ['feast-armed'] },
+        variants: [
+          {
+            flags: ['d04-pack-split-sown'],
+            lines: [
+              'Captain Gristle Vane enters alone. His coat has fresh stitching where a feathered badge was torn away. Outside, two Pack camps face each other across the bridge road. Your warning to the fiddler reached both captains.',
+              '“You sent my fiddler a private letter. Now she holds the south bank and I hold the tollhouse. The carts are paying both of us to argue.”',
+              '“Thirty brass buys your wagons a week without being stopped. Or pay her for the south bank and see what my north bank does about it.”',
+              'He drops two toll receipts on the carpet. Both carry his Pack stamp. One is crossed through in fresh red paint.',
+              {
+                who: 'Young Komodo',
+                npc: 'young-komodo',
+                text: 'We split their captains, Your Majesty. We also split the road. One honest bargain will not put it back together.',
+              },
+            ],
+          },
+        ],
         lines: [
           'Captain Gristle Vane does not walk up the carpet. He arrives on it. A greatcoat sewn from a hundred kinds of feather, and a few things that are not feathers. An ear-chain that jangles at every step. The two raiders at the doors pick their teeth with the court’s good spoons.',
           'Your Majesty! One of my captains met you at the bridge. Says you have a soft face and a hard floor. I came to see both.',
@@ -471,6 +487,19 @@ export const ACT_ONE_LATE_DAYS: readonly DayDef[] = [
             response:
               'Saffron steps out from the pillar before you finish her name. Not like her. Vane’s grin widens to the ear-chain.',
             next: 'saffron',
+          },
+          {
+            id: 'fund-fiddler',
+            label:
+              'Give the fiddler twelve brass for medicines and a week of safe passage. Make the split public.',
+            requires: { flags: ['d04-pack-split-sown'], cost: 12 },
+            effects: {
+              affinity: { jackalwire: -10, saltroad: 5 },
+              local: { 'gate-watch': -1, yard: 1 },
+              flags: ['d05-fiddler-backed'],
+            },
+            response:
+              'Vane takes his cap off. The torn badge shows a pale square on his coat. “Twelve brass buys her loyalty for a week. It buys you a second toll collector.” That evening the fiddler walks the first medicine cart over the south bank. The Watch holds the north, one sentry short.',
           },
           {
             id: 'pay',
@@ -1354,6 +1383,34 @@ export const ACT_ONE_LATE_DAYS: readonly DayDef[] = [
             response:
               'A sealed parcel in oilcloth. Heavier than it looks. The Conclave runner who carried it up the mountain does not leave with the envoy.',
             postsQuests: ['q-d07-crow-favor'],
+          },
+          {
+            id: 'ask-sheltered-runner',
+            label:
+              'Ask the runner you sheltered to reveal the storm’s hour. The elders will add years to her bond.',
+            requires: { flags: ['d04-runner-sheltered'] },
+            effects: {
+              schedule: ['d07-storm'],
+              affinity: { freeholds: 5, 'storm-crows': -12 },
+              local: { lamplight: -2, 'gate-watch': -1 },
+              flags: ['crow-forecast-day10', 'd07-runner-penalized'],
+            },
+            response:
+              'The runner you sheltered comes down from the gallery, chimes still wrapped in wool. She gives the hour, the wind, and the safe harvest road. At the third word, the envoy writes two more years against her name. Your guards close the doors, but they cannot undo the ink.',
+          },
+          {
+            id: 'ask-returned-runner',
+            label:
+              'Pay twenty brass for the returned runner’s forecast, without asking her to break her oath.',
+            requires: { flags: ['d04-runner-returned'], cost: 20 },
+            effects: {
+              schedule: ['d07-storm'],
+              affinity: { freeholds: 5, 'storm-crows': 3 },
+              local: { ledger: -1 },
+              flags: ['crow-forecast-day10', 'd07-runner-commissioned'],
+            },
+            response:
+              'The envoy counts twenty brass and sends for the young runner you returned to Corvane. She reads the storm’s hour from a slate bearing the elder’s seal. Her chimes are no longer stuffed with wool. She looks at the floor when the envoy pockets her fee.',
           },
           {
             id: 'pay',
@@ -3110,6 +3167,20 @@ export const ACT_ONE_LATE_DAYS: readonly DayDef[] = [
           },
           {
             id: 'colors',
+            variants: [
+              {
+                flags: ['d05-fiddler-backed'],
+                lines: [
+                  '“Not Vane’s. A fiddler leads them. One wagon still carries the medicine pennant the crown paid for. I saw the twelve-brass receipt sewn under its flap.”',
+                  '“The fiddler says her camp guarded the bridge as promised. Vane kept charging the north toll. Now her people need grain and she wants it from us. She says you can argue with her after they eat.”',
+                  {
+                    who: 'Young Komodo',
+                    npc: 'young-komodo',
+                    text: 'We paid for safe passage, Your Majesty, not an honest captain. She kept her road bargain and broke the peace beside it. You can call her to account, but she will send a bill of her own.',
+                  },
+                ],
+              },
+            ],
             lines: [
               '“Not Vane’s. Or not only. Painted jaws, red wheels, a fiddle on the lead wagon. A captain who laughs.”',
               '“They shout that the crown has the bridge now, and the toll, and the carts, so the Pack needs a new road to eat from. They shout that it’s your fault.”',
@@ -3143,6 +3214,30 @@ export const ACT_ONE_LATE_DAYS: readonly DayDef[] = [
                 },
                 response:
                   'The Watch rides south with the ration-card map. Before dusk the rider watches from the hill as the painted wagons turn for home. She does not cheer. She goes down to the board to see who else is coming.',
+              },
+              {
+                id: 'feed-fiddler',
+                label:
+                  'Spend twenty brass on grain for the fiddler’s camp. Demand she withdraw under the bridge bargain, leaving Vane’s men to the Watch.',
+                requires: { flags: ['d05-fiddler-backed'], cost: 20 },
+                effects: {
+                  affinity: { freeholds: 6, jackalwire: 5, saltroad: -4 },
+                  local: { ledger: -1 },
+                  flags: ['d10-fiddler-grain-bargain'],
+                  questAid: [
+                    {
+                      questId: 'q-d10-freehold-raid',
+                      label:
+                        'The fiddler withdrew after the crown bought her camp grain',
+                      bonus: 2,
+                      resolve: 'partial',
+                      outcome:
+                        'The fiddler took the crown’s grain and brought her wagons back to the bridge. Thistledown kept its granary. Vane’s riders burned the empty outbuildings before the Watch drove them off. The village sent the crown two receipts, one for the grain and one for the roofs.',
+                    },
+                  ],
+                },
+                response:
+                  'The rider carries your offer herself. By dusk the fiddler has turned her wagons toward the bridge with grain stacked under the medicine pennant. Vane’s riders are still at the village. The Thistledown posting stays on the board.',
               },
               {
                 id: 'tincture',

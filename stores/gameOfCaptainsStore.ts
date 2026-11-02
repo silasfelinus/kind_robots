@@ -284,7 +284,9 @@ export const useGameOfCaptainsStore = defineStore('gameOfCaptains', () => {
   watch(
     () => userStore.authenticatedUserId,
     () => {
-      if (loaded.value) void syncAlienGuideAccount()
+      if (!loaded.value) return
+      void syncAlienGuideAccount()
+      void loadAlienArtwork()
     },
   )
   const alienGuide = ref<AlienGuide>(emptyAlienGuide())

@@ -84,6 +84,19 @@ import {
   type DistrictId,
 } from '../utils/slimeCity/city'
 
+/**
+ * One focused city screen at a time (Silas, 2026-11-02: "We should generally
+ * aim for one focused screen at a time"). The painted map is the navigation
+ * screen; every other value is a full-stage scene that replaces it.
+ */
+export type CityScreen = 'map' | 'district' | 'story' | 'contract'
+/** A pending city event that takes over any scene until it is resolved. */
+export type CityEvent =
+  'aftermath' | 'crisis' | 'street' | 'finale' | 'epilogue'
+export type CityScene = CityScreen | CityEvent
+/** The campaign stage shows either the next chapter or the last bout's aftermath. */
+export type CampaignScreen = 'chapter' | 'aftermath'
+
 /** A fresh six-digit seed, easy to read out loud during a playtest. */
 function rollSeed(): number {
   try {
@@ -284,6 +297,7 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
     savedDecks.value = {}
     replacingCard.value = null
     districtId.value = 'pitworks'
+    cityScreen.value = 'map'
     if (!userId || isGuest()) return
     try {
       const response = await performFetch<SlimeCityStory>(
@@ -363,6 +377,7 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
     choice: CampaignApproach
   } | null>(null)
   const lastCampaign = ref<TeamId | null>(null)
+  const campaignScreen = ref<CampaignScreen>('chapter')
   const seed = ref(rollSeed())
   /** t-003 objective variants for the next match; all off by default. */
   const rules = ref<RuleVariants>({ ...DEFAULT_RULES })
@@ -615,6 +630,41 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
   const blocked = computed(() => boutBlocked(city.value, districtId.value))
   const standing = computed(() => totalStanding(city.value))
   const heatLimit = HEAT_LIMIT
+  const cityScreen = ref<CityScreen>('map')
+  const cityEvent = computed<CityEvent | null>(() => {
+    if (aftermathEvent.value) return 'aftermath'
+    if (crisisEvent.value) return 'crisis'
+    if (streetEvent.value) return 'street'
+    if (finaleEvent.value) return 'finale'
+    if (finaleResult.value && !finaleDismissed.value) return 'epilogue'
+    return null
+  })
+  /** The selected district holds this crew's next story chapter. */
+  const storyHere = computed(
+    () => !!activeChapter.value && campaignDistrict.value === districtId.value,
+  )
+  const contractHere = computed(
+    () =>
+      here.value &&
+      !streetEvent.value &&
+      city.value.cleared.includes(districtId.value),
+  )
+  /** What the city stage shows now: the map, a pending event, or a scene. */
+  const cityScene = computed<CityScene>(() => {
+    if (cityScreen.value === 'map') return 'map'
+    if (cityEvent.value) return cityEvent.value
+    if (cityScreen.value === 'story' && storyHere.value) return 'story'
+    if (cityScreen.value === 'contract' && contractHere.value) return 'contract'
+    return 'district'
+  })
+  function arrivalScreen(): CityScreen {
+    return storyHere.value ? 'story' : 'district'
+  }
+  /** After an event resolves mid-route, return to the map to keep walking. */
+  function settleCityScreen(): void {
+    if (cityScreen.value !== 'map' && !cityEvent.value && !here.value)
+      cityScreen.value = 'map'
+  }
   function districtStatus(raw: string): string {
     if (!(raw in CITY_PLAN)) return 'far'
     const id = raw as DistrictId
@@ -675,6 +725,7 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
   function chooseTeam(id: TeamId): void {
     activeTeam.value = id
     replacingCard.value = null
+    campaignScreen.value = 'chapter'
     if (enemyTeam.value === id)
       enemyTeam.value = TEAMS.find((item) => item.id !== id)?.id || 'riot'
     reset()
@@ -685,8 +736,26 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
     reset()
   }
 
+  /** The CITY tab: from another view, return to the screen you left (or the
+   *  event waiting for you); from inside the city, back out to the map. */
   function showCity(): void {
     stop()
+    if (view.value === 'city') cityScreen.value = 'map'
+    else if (cityEvent.value && cityScreen.value === 'map')
+      cityScreen.value = 'district'
+    view.value = 'city'
+  }
+
+  function showCityMap(): void {
+    stop()
+    cityScreen.value = 'map'
+    view.value = 'city'
+  }
+
+  /** Replace the map with a full-stage scene for the selected district. */
+  function enterCity(screen: CityScreen = 'district'): void {
+    stop()
+    cityScreen.value = screen
     view.value = 'city'
   }
 
@@ -694,6 +763,14 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
     stop()
     campaignBout.value = null
     view.value = 'campaign'
+  }
+
+  function continueCampaign(): void {
+    campaignScreen.value = 'chapter'
+  }
+
+  function showCampaignAftermath(): void {
+    campaignScreen.value = 'aftermath'
   }
 
   function showCards(): void {
@@ -711,6 +788,7 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
     if (!campaignDistrict.value) return
     stop()
     districtId.value = campaignDistrict.value
+    cityScreen.value = here.value || cityEvent.value ? 'story' : 'map'
     view.value = 'city'
   }
 
@@ -750,6 +828,7 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
     if (next !== city.value) {
       city.value = next
       persistStory()
+      if (cityEvent.value || here.value) cityScreen.value = arrivalScreen()
     }
   }
 
@@ -768,6 +847,7 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
     if (next !== city.value) {
       city.value = next
       persistStory()
+      settleCityScreen()
     }
   }
 
@@ -777,6 +857,7 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
     if (next !== city.value) {
       city.value = next
       persistStory()
+      settleCityScreen()
     }
   }
 
@@ -786,6 +867,7 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
     if (next !== city.value) {
       city.value = next
       persistStory()
+      settleCityScreen()
     }
   }
 
@@ -801,11 +883,13 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
 
   function dismissFinale(): void {
     finaleDismissed.value = true
+    cityScreen.value = 'map'
   }
 
   function revisitFinale(): void {
     finaleDismissed.value = false
     districtId.value = 'pitworks'
+    cityScreen.value = 'district'
   }
 
   /** Fight this district's rival on its format, with your decision's terms. */
@@ -954,6 +1038,7 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
       lastCampaign.value = team
       persistStory()
       campaignBout.value = null
+      campaignScreen.value = 'aftermath'
       return
     }
     if (contractBout.value) {
@@ -977,6 +1062,7 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
     persistStory()
     finaleDismissed.value = false
     districtId.value = 'pitworks'
+    cityScreen.value = 'map'
   }
 
   function startDistrictMatch(): void {
@@ -1155,6 +1241,9 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
     hydrateStory,
     campaignBout,
     lastCampaign,
+    campaignScreen,
+    continueCampaign,
+    showCampaignAftermath,
     campaignStory,
     campaignState,
     campaignConversation,
@@ -1175,6 +1264,13 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
     finaleResult,
     finaleDismissed,
     streetProgress,
+    cityScreen,
+    cityEvent,
+    cityScene,
+    storyHere,
+    contractHere,
+    showCityMap,
+    enterCity,
     here,
     route,
     routeSteps,

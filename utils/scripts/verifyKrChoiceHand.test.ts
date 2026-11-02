@@ -139,6 +139,11 @@ const adopters: Array<[game: string, file: string, pattern: RegExp]> = [
   ],
   ['Comet City Academy', 'pages/play/comet-city-academy.vue', /<KrChoiceHand/],
   ['Slime City', 'components/slime-city-campaign.vue', /<KrChoiceHand/],
+  [
+    'Slime City',
+    'components/slime-city-scene.vue',
+    /<KrChoiceHand[\s\S]*?testid-prefix="slime-choice"/,
+  ],
   ['Storybook', 'components/storybook/storybook-reading.vue', /<KrChoiceHand/],
   [
     'Zuzu Gamebook',

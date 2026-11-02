@@ -115,378 +115,82 @@
         <section
           v-if="lab.view === 'city'"
           class="sc-stage"
-          aria-label="Slime City district map"
+          :aria-label="
+            lab.cityScene === 'map'
+              ? 'Slime City district map'
+              : 'Slime City scene'
+          "
         >
-          <div class="sc-city">
+          <div
+            v-if="lab.cityScene === 'map'"
+            class="sc-city"
+            data-testid="slime-city-map"
+          >
             <SlimeCityArtwork
               class="sc-district-paint"
               :image-id="slimeArtId('districts', lab.districtId)"
               :alt="lab.district.name + ' panoramic district artwork'"
               fallback="▧"
+              compact
             />
             <div class="sc-moon"></div>
             <div class="sc-skyline sc-skyline-back"></div>
             <div class="sc-skyline sc-skyline-front"></div>
             <div class="sc-road"></div>
             <div class="sc-city-overline">THE CITY IS THE ARENA</div>
-            <svg
-              class="sc-streets"
-              viewBox="0 0 100 100"
-              preserveAspectRatio="none"
-              aria-hidden="true"
-            >
-              <line
-                v-for="street in streetLines"
-                :key="street.name"
-                :x1="street.x1"
-                :y1="street.y1"
-                :x2="street.x2"
-                :y2="street.y2"
-                :class="{
-                  open: street.open,
-                  witnessed: street.witnessed,
-                  planned: street.planned,
-                }"
-              />
-            </svg>
-            <button
-              v-for="place in lab.districts"
-              :key="place.id"
-              type="button"
-              class="sc-district"
-              :class="[
-                'is-' + lab.districtStatus(place.id),
-                {
-                  picked: lab.districtId === place.id,
-                  mission: lab.campaignDistrict === place.id,
-                },
-              ]"
-              :style="{ left: place.x + '%', top: place.y + '%' }"
-              :aria-pressed="lab.districtId === place.id"
-              :aria-label="
-                place.name +
-                ', ' +
-                statusLabel(lab.districtStatus(place.id)) +
-                (lab.campaignDistrict === place.id
-                  ? ', next faction story mission'
-                  : '')
-              "
-              :data-testid="'slime-district-' + place.id"
-              @click="lab.visit(place.id)"
-            >
-              <span class="sc-district-pin">{{
-                pinSymbol(lab.districtStatus(place.id))
-              }}</span>
-              <span class="sc-district-label">{{ place.name }}</span>
-            </button>
-          </div>
-          <div class="sc-city-selection kr-scroll" data-testid="slime-dossier">
-            <article
-              v-if="lab.aftermathEvent"
-              class="sc-street-encounter"
-              data-testid="slime-champion-aftermath"
-              aria-live="polite"
-            >
-              <span class="sc-overline"
-                >CHAMPIONSHIP AFTERMATH · {{ lab.district.name }}</span
+            <div class="sc-map-field">
+              <svg
+                class="sc-streets"
+                viewBox="0 0 100 100"
+                preserveAspectRatio="none"
+                aria-hidden="true"
               >
-              <h2>{{ lab.aftermathEvent.title }}</h2>
-              <p class="sc-scene">{{ lab.aftermathEvent.scene }}</p>
-              <div class="sc-choices">
-                <button
-                  v-for="choice in lab.aftermathEvent.choices"
-                  :key="choice.id"
-                  type="button"
-                  :data-testid="'slime-aftermath-' + choice.id"
-                  @click="lab.chooseAftermath(choice.id)"
-                >
-                  <strong>{{ choice.label }}</strong>
-                  <small>{{ choice.outcome }}</small>
-                </button>
-              </div>
-            </article>
-            <article
-              v-else-if="lab.crisisEvent"
-              class="sc-street-encounter"
-              data-testid="slime-city-crisis"
-              aria-live="polite"
-            >
-              <span class="sc-overline">
-                CITYWIDE CRISIS · ACT
-                {{ Object.keys(lab.city.crisisChoices).length + 1 }}/3
-              </span>
-              <h2>{{ lab.crisisEvent.title }}</h2>
-              <p class="sc-scene">{{ lab.crisisEvent.scene }}</p>
-              <div class="sc-choices">
-                <button
-                  v-for="choice in lab.crisisEvent.choices"
-                  :key="choice.id"
-                  type="button"
-                  :data-testid="'slime-crisis-' + choice.id"
-                  @click="lab.chooseCrisis(choice.id)"
-                >
-                  <strong>{{ choice.label }}</strong>
-                  <small>{{ choice.outcome }}</small>
-                </button>
-              </div>
-            </article>
-            <article
-              v-else-if="lab.streetEvent"
-              class="sc-street-encounter"
-              data-testid="slime-street-encounter"
-              aria-live="polite"
-            >
-              <span class="sc-overline"
-                >STREET STORY · {{ lab.city.pendingStreet }}</span
-              >
-              <h2>{{ lab.streetEvent.title }}</h2>
-              <p class="sc-scene">{{ lab.streetEvent.scene }}</p>
-              <div class="sc-choices">
-                <button
-                  v-for="choice in lab.streetEvent.choices"
-                  :key="choice.id"
-                  type="button"
-                  :data-testid="'slime-street-choice-' + choice.id"
-                  @click="lab.chooseStreet(choice.id)"
-                >
-                  <strong>{{ choice.label }}</strong>
-                  <small>{{ choice.outcome }}</small>
-                </button>
-              </div>
-            </article>
-            <article
-              v-else-if="lab.finaleEvent"
-              class="sc-street-encounter sc-city-finale"
-              data-testid="slime-city-finale"
-              aria-live="polite"
-            >
-              <div class="sc-finale-portrait">
-                <SlimeCityArtwork
-                  :image-id="slimeArtId('crews', lab.activeTeam)"
-                  :alt="lab.team.name + ' champion painting'"
-                  fallback="✷"
-                  compact
+                <line
+                  v-for="street in streetLines"
+                  :key="street.name"
+                  :x1="street.x1"
+                  :y1="street.y1"
+                  :x2="street.x2"
+                  :y2="street.y2"
+                  :class="{
+                    open: street.open,
+                    witnessed: street.witnessed,
+                    planned: street.planned,
+                  }"
                 />
-                <span class="sc-overline">GRAND PIT · CITY FINALE</span>
-              </div>
-              <h2>{{ lab.finaleEvent.title }}</h2>
-              <p class="sc-scene">{{ lab.finaleEvent.scene }}</p>
-              <div class="sc-choices">
-                <button
-                  v-for="choice in lab.finaleEvent.choices"
-                  :key="choice.id"
-                  type="button"
-                  :data-testid="'slime-finale-' + choice.id"
-                  @click="lab.chooseFinale(choice.id)"
-                >
-                  <strong>{{ choice.label }}</strong>
-                  <small>{{ choice.outcome }}</small>
-                </button>
-              </div>
-            </article>
-            <article
-              v-else-if="lab.finaleResult && !lab.finaleDismissed"
-              class="sc-street-encounter sc-city-finale"
-              data-testid="slime-city-epilogue"
-              aria-live="polite"
-            >
-              <div class="sc-finale-portrait">
-                <SlimeCityArtwork
-                  :image-id="slimeArtId('crews', lab.activeTeam)"
-                  :alt="lab.team.name + ' victory portrait'"
-                  fallback="✷"
-                  compact
-                />
-                <span class="sc-overline">THE END · {{ lab.team.name }}</span>
-              </div>
-              <h2>{{ lab.finaleResult.title }}</h2>
-              <p class="sc-scene">{{ lab.finaleResult.scene }}</p>
-              <p class="sc-scene">{{ lab.finaleResult.legacy }}</p>
-              <p class="sc-overline">
-                {{ lab.city.cleared.length }} CHAMPIONS ·
-                {{ lab.city.contracts.length }} CONTRACTS ·
-                {{ Object.keys(lab.city.crisisChoices).length }} CRISES
-              </p>
-              <div class="sc-choices">
-                <button
-                  type="button"
-                  data-testid="slime-finale-explore"
-                  @click="lab.dismissFinale()"
-                >
-                  <strong>CONTINUE EXPLORING</strong>
-                  <small
-                    >Optional contracts and unchallenged rivals remain
-                    playable.</small
-                  >
-                </button>
-                <button
-                  type="button"
-                  data-testid="slime-finale-restart"
-                  @click="lab.resetCity()"
-                >
-                  <strong>NEW CITY RUN</strong>
-                  <small
-                    >Start a fresh session-only overworld with this crew.</small
-                  >
-                </button>
-              </div>
-            </article>
-            <template v-else>
-              <div
-                v-if="!lab.here && lab.routeSteps.length"
-                class="sc-route"
-                data-testid="slime-city-route"
-                aria-live="polite"
-              >
-                <span class="sc-overline"
-                  >WAYFINDER · {{ lab.routeSteps.length }}
-                  {{ lab.routeSteps.length === 1 ? 'STREET' : 'STREETS' }}</span
-                >
-                <strong>{{ routeLabel }}</strong>
-                <small
-                  >Next: {{ lab.route?.street }} · {{ nextStopName }}</small
-                >
-              </div>
-              <article
-                v-if="
-                  lab.activeChapter && lab.campaignDistrict === lab.districtId
+              </svg>
+              <button
+                v-for="place in lab.districts"
+                :key="place.id"
+                type="button"
+                class="sc-district"
+                :class="[
+                  'is-' + lab.districtStatus(place.id),
+                  {
+                    picked: lab.districtId === place.id,
+                    mission: lab.campaignDistrict === place.id,
+                  },
+                ]"
+                :style="{ left: place.x + '%', top: place.y + '%' }"
+                :aria-pressed="lab.districtId === place.id"
+                :aria-label="
+                  place.name +
+                  ', ' +
+                  statusLabel(lab.districtStatus(place.id)) +
+                  (lab.campaignDistrict === place.id
+                    ? ', next faction story mission'
+                    : '')
                 "
-                class="sc-story-mission"
-                data-testid="slime-city-story-mission"
+                :data-testid="'slime-district-' + place.id"
+                @click="lab.visit(place.id)"
               >
-                <div class="sc-mission-poster">
-                  <SlimeCityArtwork
-                    :image-id="slimeArtId('crews', lab.activeChapter.foe)"
-                    :alt="teamName(lab.activeChapter.foe) + ' rival portrait'"
-                    fallback="✷"
-                    compact
-                  />
-                  <span class="sc-mission-poster-label">
-                    <small>CREW CLASH / {{ lab.district.name }}</small>
-                    <strong>{{ teamName(lab.activeChapter.foe) }}</strong>
-                  </span>
-                </div>
-                <span class="sc-overline"
-                  >CREW STORY · CHAPTER {{ lab.campaignState.wins + 1 }}/5 ·
-                  {{ teamName(lab.activeChapter.foe) }}</span
-                >
-                <strong>{{ lab.activeChapter.title }}</strong>
-                <p class="sc-scene">{{ lab.activeChapter.scene }}</p>
-                <span v-if="!lab.campaignAtDestination" class="sc-mission-hint">
-                  Follow the marked streets and resolve each street story to
-                  stage this battle. Your choices change its opening conditions.
-                </span>
-                <div v-else class="sc-mission-ready">
-                  <p
-                    v-if="lab.campaignEcho"
-                    class="sc-mission-terms"
-                    data-testid="slime-city-campaign-echo"
-                  >
-                    {{ lab.campaignEcho.title }} ·
-                    {{ describeTerms(lab.campaignEcho.terms) }}
-                  </p>
-                  <p
-                    class="sc-mission-terms"
-                    data-testid="slime-city-local-terms"
-                  >
-                    CITY CONSEQUENCES ·
-                    {{ describeTerms(boutTerms(lab.city, lab.districtId)) }}
-                  </p>
-                  <div class="sc-choices">
-                    <button
-                      v-for="choice in lab.activeChapter.choices"
-                      :key="choice.id"
-                      type="button"
-                      :data-testid="'slime-city-mission-' + choice.id"
-                      @click="lab.startCampaignBattle(choice.id)"
-                    >
-                      <strong>{{ choice.label }}</strong>
-                      <small
-                        >WITH STREET CHOICES ·
-                        {{
-                          describeTerms(
-                            campaignBattleTerms(
-                              lab.campaignSave,
-                              lab.activeTeam,
-                              storyMissionTerms(
-                                lab.city,
-                                lab.districtId,
-                                choice.terms,
-                              ),
-                              lab.campaignFavorIndex,
-                            ),
-                          )
-                        }}</small
-                      >
-                    </button>
-                  </div>
-                </div>
-              </article>
-              <p class="sc-overline">
-                {{ lab.district.name }} /
-                {{ statusLabel(lab.districtStatus(lab.districtId)) }}
-              </p>
-              <p class="sc-scene">{{ lab.plan.scene }}</p>
-              <p class="sc-rival">
-                <strong>{{ lab.plan.rival.name }}</strong>
-                · {{ lab.plan.rival.title }} ·
-                {{ teamName(lab.plan.rival.team) }} ·
-                {{ modeTitle(lab.plan.rival.mode) }}
-                <em>“{{ lab.plan.rival.taunt }}”</em>
-              </p>
-              <template v-if="lab.here">
-                <div v-if="chosenChoice" class="sc-decided">
-                  <span class="sc-overline">YOUR CALL</span>
-                  {{ chosenChoice.label }}: {{ chosenChoice.outcome }}
-                </div>
-                <div v-else-if="!lab.gate" class="sc-choices">
-                  <button
-                    v-for="choice in lab.plan.choices"
-                    :key="choice.id"
-                    type="button"
-                    :data-testid="'slime-choice-' + choice.id"
-                    @click="lab.choose(choice.id)"
-                  >
-                    <strong>{{ choice.label }}</strong>
-                    <small>{{ choice.outcome }}</small>
-                  </button>
-                </div>
-                <p v-if="lab.blocked" class="sc-gate">{{ lab.blocked }}</p>
-                <span class="sc-city-actions">
-                  <button
-                    type="button"
-                    data-testid="slime-fight-rival"
-                    :disabled="!!lab.blocked"
-                    @click="lab.fightRival()"
-                  >
-                    FIGHT {{ lab.plan.rival.name.toUpperCase() }} →
-                  </button>
-                  <button
-                    type="button"
-                    class="sc-quiet"
-                    @click="lab.startDistrictMatch()"
-                  >
-                    QUICK MATCH
-                  </button>
-                </span>
-                <SlimeCityDistrictContract />
-              </template>
-              <span v-else class="sc-city-actions">
-                <button
-                  v-if="lab.route"
-                  type="button"
-                  data-testid="slime-walk"
-                  @click="lab.walk()"
-                >
-                  WALK {{ lab.route.street.toUpperCase() }} ·
-                  {{ nextStopName.toUpperCase() }} →
-                </button>
-                <span v-else class="sc-gate"
-                  >No route available. Choose a connected district.</span
-                >
-              </span>
-            </template>
-            <div class="sc-city-nav" aria-label="Crew destinations">
+                <span class="sc-district-pin">{{
+                  pinSymbol(lab.districtStatus(place.id))
+                }}</span>
+                <span class="sc-district-label">{{ place.name }}</span>
+              </button>
+            </div>
+            <nav class="sc-city-nav" aria-label="Crew destinations">
               <button
                 type="button"
                 data-testid="slime-city-story-shortcut"
@@ -499,7 +203,7 @@
                 data-testid="slime-city-cards-shortcut"
                 @click="lab.showCards()"
               >
-                INSPECT DECK · {{ lab.cards.length }} CARDS
+                DECK · {{ lab.cards.length }}
               </button>
               <button
                 v-if="lab.finaleResult && lab.finaleDismissed"
@@ -509,8 +213,61 @@
               >
                 REVISIT THE ENDING
               </button>
+            </nav>
+            <div
+              class="sc-map-hud"
+              data-testid="slime-city-map-hud"
+              aria-live="polite"
+            >
+              <div class="sc-map-caption">
+                <span class="sc-overline">{{ mapCaption.overline }}</span>
+                <strong>{{ mapCaption.title }}</strong>
+                <small
+                  v-if="!lab.cityEvent && !lab.here && lab.routeSteps.length"
+                  data-testid="slime-city-route"
+                  >{{ routeLabel }}</small
+                >
+                <small v-else-if="!lab.cityEvent && lab.storyHere"
+                  >CREW STORY · CHAPTER {{ lab.campaignState.wins + 1 }}/5 WAITS
+                  HERE</small
+                >
+              </div>
+              <div class="sc-map-actions">
+                <button
+                  v-if="lab.cityEvent || lab.here"
+                  type="button"
+                  class="sc-map-cta"
+                  data-testid="slime-city-enter"
+                  @click="lab.enterCity(lab.storyHere ? 'story' : 'district')"
+                >
+                  {{ mapCaption.cta }} →
+                </button>
+                <template v-else>
+                  <button
+                    v-if="lab.route"
+                    type="button"
+                    class="sc-map-cta"
+                    data-testid="slime-walk"
+                    @click="lab.walk()"
+                  >
+                    WALK {{ lab.route.street.toUpperCase() }} →
+                  </button>
+                  <span v-else class="sc-gate"
+                    >No route available. Choose a connected district.</span
+                  >
+                  <button
+                    type="button"
+                    class="sc-map-cta sc-quiet"
+                    data-testid="slime-city-dossier"
+                    @click="lab.enterCity(lab.storyHere ? 'story' : 'district')"
+                  >
+                    DOSSIER
+                  </button>
+                </template>
+              </div>
             </div>
           </div>
+          <SlimeCityScene v-else />
         </section>
 
         <SlimeCityCampaign v-else-if="lab.view === 'campaign'" />
@@ -802,8 +559,7 @@
 <script setup lang="ts">
 import { computed, onMounted, onUnmounted } from 'vue'
 import { cardById, type Card } from '~/utils/slimeCity/prototypes'
-import { STREETS, boutTerms, storyMissionTerms } from '~/utils/slimeCity/city'
-import { campaignBattleTerms, describeTerms } from '~/utils/slimeCity/campaign'
+import { STREETS } from '~/utils/slimeCity/city'
 import { useSlimeCityStore } from '~/stores/slimeCity'
 import { slimeArtId, SLIME_CITY_ART_COUNT } from '~/utils/slimeCity/artManifest'
 import { useSlimeCityArtStore } from '~/stores/slimeCityArt'
@@ -813,9 +569,6 @@ const art = useSlimeCityArtStore()
 
 const hereName = computed(
   () => lab.districts.find((d) => d.id === lab.city.location)?.name ?? 'here',
-)
-const chosenChoice = computed(() =>
-  lab.plan.choices.find((c) => c.id === lab.city.choices[lab.districtId]),
 )
 const streetLines = computed(() =>
   STREETS.map(([a, b, name]) => {
@@ -882,12 +635,35 @@ function canSwapIn(card: Card): boolean {
     lab.isCardUnlocked(card.id)
   )
 }
-function modeTitle(id: string): string {
-  return lab.modes.find((m) => m.id === id)?.title ?? id
-}
-const nextStopName = computed(
-  () => lab.districts.find((d) => d.id === lab.route?.to)?.name ?? '',
-)
+const MAP_EVENT_CAPTIONS = {
+  aftermath: ['CHAMPIONSHIP AFTERMATH', 'SETTLE THE AFTERMATH'],
+  crisis: ['CITYWIDE CRISIS', 'ANSWER THE CRISIS'],
+  street: ['STREET STORY', 'PLAY THE STREET STORY'],
+  finale: ['GRAND PIT · CITY FINALE', 'ENTER THE GRAND PIT'],
+  epilogue: ['THE END', 'SEE THE ENDING'],
+} as const
+const mapCaption = computed(() => {
+  const event = lab.cityEvent
+  if (event) {
+    const [overline, cta] = MAP_EVENT_CAPTIONS[event]
+    const story =
+      lab.aftermathEvent ??
+      lab.crisisEvent ??
+      lab.streetEvent ??
+      lab.finaleEvent ??
+      lab.finaleResult
+    return {
+      overline: overline + ' · ' + hereName.value,
+      title: story?.title ?? '',
+      cta,
+    }
+  }
+  return {
+    overline: statusLabel(lab.districtStatus(lab.districtId)),
+    title: lab.district.name,
+    cta: lab.storyHere ? 'FOLLOW THE STORY' : 'ENTER DISTRICT',
+  }
+})
 const routeLabel = computed(() =>
   [
     hereName.value,
@@ -1250,35 +1026,86 @@ onUnmounted(() => {
   color: #1c2b27;
   box-shadow: 0 0 25px #d5ff62;
 }
-.sc-city-selection {
+/* The map is its own full-stage screen: nodes sit in a field above the
+   one-line HUD, so no district ever hides under the caption. */
+.sc-map-field {
+  position: absolute;
+  z-index: 2;
+  inset: 3.6rem 2.5rem 7.5rem;
+}
+.sc-map-hud {
   position: absolute;
   z-index: 3;
-  bottom: 1rem;
-  left: 1rem;
-  right: 1rem;
+  left: 50%;
+  bottom: clamp(0.6rem, 2.5cqh, 1.4rem);
+  transform: translateX(-50%);
+  width: min(calc(100% - 1.2rem), 50rem);
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 0.8rem;
-  padding: 0.7rem 1rem;
+  gap: 1rem;
+  padding: 0.75rem 0.8rem 0.75rem 1.2rem;
   border: 1px solid #d5f9a566;
-  background: #0c1821ed;
+  border-radius: 0.9rem;
+  background: #0a1520e6;
+  box-shadow: 0 14px 44px #000b;
   backdrop-filter: blur(8px);
-  border-radius: 0.55rem;
 }
-.sc-city-selection p {
-  margin: 0;
-  font-size: 0.8rem;
+.sc-map-caption {
+  display: grid;
+  gap: 0.2rem;
+  min-width: 0;
 }
-.sc-city-selection {
-  position: relative;
-  inset: auto;
+.sc-map-caption .sc-overline {
+  color: #e1fc9c;
+  font-size: 0.68rem;
+}
+.sc-map-caption strong {
+  overflow: hidden;
+  font-size: clamp(1.25rem, 3.2cqw, 2.1rem);
+  font-weight: 1000;
+  font-style: italic;
+  line-height: 1;
+  letter-spacing: -0.035em;
+  text-overflow: ellipsis;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+.sc-map-caption small {
+  overflow: hidden;
+  color: #ffe9b0;
+  font-size: 0.78rem;
+  font-weight: 750;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.sc-map-actions {
   flex: none;
-  flex-direction: column;
-  align-items: stretch;
-  max-height: 34%;
-  overflow: auto;
-  margin: 0.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.sc-map-cta {
+  min-height: 3.25rem;
+  padding: 0.8rem 1.4rem;
+  border: 2px solid #c8f960;
+  border-radius: 0.6rem;
+  background: #c8f960;
+  color: #142016;
+  font-size: clamp(0.82rem, 1.3cqw, 1.02rem);
+  font-weight: 1000;
+  letter-spacing: 0.1em;
+  box-shadow: 0 0 28px #c5ff5955;
+}
+.sc-map-cta:hover,
+.sc-map-cta:focus-visible {
+  box-shadow: 0 0 38px #c5ff59aa;
+  outline: none;
+}
+.sc-map-cta.sc-quiet {
+  background: transparent;
+  color: #e7f9bc;
+  box-shadow: none;
 }
 .sc-streets {
   position: absolute;
@@ -1315,49 +1142,6 @@ onUnmounted(() => {
   opacity: 0.55;
   border-style: dashed;
 }
-.sc-street-encounter {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-  border-left: 3px solid #f0b4ff;
-  padding: 0.3rem 0.35rem 0.3rem 0.8rem;
-  background: linear-gradient(90deg, #592b7442, transparent 80%);
-}
-.sc-city-finale {
-  border-left-color: #ffd45c;
-  background: linear-gradient(90deg, #6b4d1547, transparent 85%);
-}
-.sc-city-finale h2 {
-  color: #ffe29b;
-}
-.sc-finale-portrait {
-  display: flex;
-  align-items: center;
-  gap: 0.65rem;
-  min-height: 4rem;
-}
-.sc-finale-portrait > :first-child {
-  width: clamp(4rem, 16%, 6rem);
-  height: 4rem;
-  flex: 0 0 auto;
-  overflow: hidden;
-  border: 1px solid #ffdf81;
-  border-radius: 0.4rem;
-}
-.sc-finale-portrait .sc-overline {
-  color: #ffe29b;
-}
-.sc-street-encounter h2 {
-  margin: 0;
-  color: #f1c6ff;
-  letter-spacing: 0.055em;
-  font-size: clamp(1rem, 2cqw, 1.4rem);
-  font-weight: 900;
-}
-.sc-street-encounter .sc-choices button {
-  border-color: #d9a2ee;
-  min-width: 0;
-}
 .sc-streets line.witnessed {
   stroke: #e6a7ff;
   stroke-width: 2.5;
@@ -1368,168 +1152,38 @@ onUnmounted(() => {
   stroke-width: 3.5;
   stroke-dasharray: none;
 }
-.sc-scene {
-  color: #dbe3ee;
-  line-height: 1.4;
-}
-.sc-rival {
-  font-size: 0.72rem !important;
-  color: #b8c4d0;
-}
-.sc-rival strong {
-  color: #ffd34d;
-}
-.sc-rival em {
-  display: block;
-  color: #e7f9bc;
-}
-.sc-choices {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(12rem, 1fr));
-  gap: 0.4rem;
-}
-.sc-city-selection .sc-choices button {
-  display: flex;
-  flex-direction: column;
-  gap: 0.2rem;
-  text-align: left;
-  background: #1c2a36;
-  color: #f2f6fa;
-  border: 1px solid #d5ff6288;
-  letter-spacing: 0.02em;
-}
-.sc-choices small {
-  font-weight: 500;
-  color: #b8c4d0;
-  font-size: 0.66rem;
-  line-height: 1.3;
-}
-.sc-story-mission {
-  display: grid;
-  gap: 0.35rem;
-  padding: 0.65rem 0.75rem;
-  border-left: 3px solid #e6a7ff;
-  background: linear-gradient(110deg, #542c624d, #172332b8);
-}
-.sc-mission-poster {
-  position: relative;
-  width: 100%;
-  height: clamp(7rem, 16cqw, 12rem);
-  overflow: hidden;
-  border: 1px solid #dba9ff80;
-  border-radius: 0.4rem;
-}
-.sc-mission-poster :deep(.slime-art img) {
-  object-position: center 30%;
-}
-.sc-mission-poster-label {
-  position: absolute;
-  inset: auto 0 0;
-  display: grid;
-  gap: 0.15rem;
-  padding: 0.5rem 0.75rem;
-  background: linear-gradient(transparent, #0e1223ef 28%);
-  color: #fce5ff;
-  text-shadow: 0 1px 6px #080b15;
-}
-.sc-mission-poster-label small {
-  font-size: 0.56rem;
-  font-weight: 900;
-  letter-spacing: 0.12em;
-}
-.sc-mission-poster-label strong {
-  font-size: clamp(0.8rem, 1.7cqw, 1.2rem);
-}
-.sc-mission-ready {
-  display: grid;
-  gap: 0.35rem;
-}
-.sc-mission-terms {
-  color: #d9fbb3;
-  font-size: 0.67rem;
-  font-weight: 750;
-}
-.sc-story-mission > strong {
-  font-size: 1rem;
-  color: #f9d5ff;
-}
-.sc-mission-hint {
-  color: #fee5aa;
-  font-size: 0.72rem;
-}
-.sc-route {
-  display: flex;
-  flex-direction: column;
-  gap: 0.25rem;
-  padding: 0.55rem 0.7rem;
-  border-left: 3px solid #ffdc83;
-  background: #ffdc8315;
-}
-.sc-route strong {
-  font-size: 0.8rem;
-  line-height: 1.35;
-  color: #fff1c6;
-}
-.sc-route small {
-  color: #cdd9e2;
-  font-size: 0.7rem;
-}
 .sc-city-nav {
+  position: absolute;
+  z-index: 3;
+  top: 0.9rem;
+  right: 0.9rem;
   display: flex;
   flex-wrap: wrap;
+  justify-content: flex-end;
   gap: 0.4rem;
-  border-top: 1px solid #6b778466;
-  padding-top: 0.55rem;
+  max-width: 60%;
 }
-.sc-city-selection .sc-city-nav button {
-  background: #283348;
-  color: #e7f9bc;
+.sc-city-nav button {
+  min-height: 2.5rem;
+  padding: 0.45rem 0.8rem;
   border: 1px solid #b5ca8c99;
-}
-.sc-decided {
-  font-size: 0.72rem;
+  border-radius: 0.5rem;
+  background: #0b1219d9;
   color: #e7f9bc;
+  font-size: 0.7rem;
+  font-weight: 900;
+  letter-spacing: 0.1em;
+  backdrop-filter: blur(6px);
+}
+.sc-city-nav button:hover,
+.sc-city-nav button:focus-visible {
+  border-color: #d5ff62;
+  outline: none;
 }
 .sc-gate {
   color: #ffb27a;
-  font-size: 0.7rem;
-}
-.sc-city-actions {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.4rem;
-  align-items: center;
-}
-.sc-city-selection button:disabled {
-  opacity: 0.45;
-}
-.sc-city-selection button.sc-quiet {
-  background: transparent;
-  color: #e7f9bc;
-  border: 1px solid #d5ff6288;
-}
-.sc-city-selection button {
-  flex: none;
-  background: #c8f960;
-  border-radius: 0.3rem;
-  color: #192018;
-  font-size: 0.72rem;
-  font-weight: 1000;
-  padding: 0.65rem 0.8rem;
-  letter-spacing: 0.07em;
-}
-.sc-keywords {
-  margin: 0.2rem 0 0;
-  padding: 0;
-  list-style: none;
-  display: grid;
-  gap: 0.15rem;
-  font-size: 0.58rem;
-  color: #d9e5ec;
-}
-.sc-keywords b {
-  color: var(--tone);
-  letter-spacing: 0.06em;
+  font-size: 0.8rem;
+  font-weight: 750;
 }
 .sc-collection {
   gap: 0.4rem;
@@ -1732,31 +1386,45 @@ onUnmounted(() => {
     width: 2rem;
     height: 2rem;
   }
-  .sc-city-selection {
-    margin: 0.3rem;
-    padding: 0.4rem;
-    gap: 0.25rem;
+  .sc-map-field {
+    inset: 3.4rem 1.4rem 9.6rem;
   }
-  .sc-city-selection p {
-    font-size: 0.62rem;
+  .sc-map-hud {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.55rem;
+    padding: 0.65rem;
   }
-  .sc-city-selection button {
-    padding: 0.45rem;
-    font-size: 0.57rem;
+  .sc-map-actions .sc-map-cta {
+    flex: 1 1 auto;
+    min-height: 2.9rem;
+    padding: 0.65rem 0.8rem;
+  }
+  .sc-map-actions .sc-gate {
+    flex: 1 1 100%;
+  }
+  .sc-city-nav {
+    top: 0.5rem;
+    right: 0.5rem;
+    left: 0.5rem;
+    max-width: none;
+  }
+  .sc-city-nav button {
+    min-height: 2.2rem;
+    padding: 0.35rem 0.55rem;
+    font-size: 0.6rem;
   }
   .sc-district-pin {
-    height: 1.3rem;
-    width: 1.3rem;
-    font-size: 0.55rem;
+    height: 1.7rem;
+    width: 1.7rem;
+    font-size: 0.75rem;
   }
   .sc-district-label {
-    font-size: 0.43rem;
-    max-width: 5rem;
+    font-size: 0.55rem;
+    max-width: 5.5rem;
   }
   .sc-city-overline {
-    left: 0.4rem;
-    top: 0.4rem;
-    font-size: 0.55rem;
+    display: none;
   }
 }
 @container (max-width: 680px) {

@@ -270,6 +270,11 @@ function bonusLabel(choice: Choice): string {
   --hand-band: var(--color-base-200);
   --hand-band-ink: var(--color-base-content);
 }
+@container (max-width: 40rem) {
+  .cs-hand {
+    --hand-card-max: 5.75rem;
+  }
+}
 .cs-hand :deep(.krh-card:focus-visible) {
   outline: none;
 }

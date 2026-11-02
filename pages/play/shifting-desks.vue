@@ -1575,6 +1575,29 @@ useHead({ title: 'Shifting Desks' })
   font-weight: 700;
 }
 
+.desk-hand-face {
+  container-type: inline-size;
+}
+
+@container (max-width: 8rem) {
+  .desk-hand-meta {
+    flex-wrap: nowrap;
+    overflow: hidden;
+    gap: 0.15rem;
+    padding: 0.8rem 0.3rem 0.3rem;
+  }
+  .desk-hand-meta > * {
+    flex-shrink: 1;
+    min-width: 0;
+    overflow: hidden;
+    font-size: 0.58rem;
+    white-space: nowrap;
+  }
+  .desk-hand-meta .desk-hand-intent {
+    display: none;
+  }
+}
+
 .desk-hand-meta {
   position: absolute;
   inset: auto 0 0;

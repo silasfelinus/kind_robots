@@ -83,32 +83,15 @@
         >
           What did you hold onto as the worlds changed?
         </p>
-        <div class="mt-2 grid gap-2">
-          <button
-            type="button"
-            class="min-h-14 rounded-xl border border-[#d7bd84]/75 bg-[#344940] px-4 py-3 text-left text-base font-bold leading-snug sm:text-lg text-[#fff2d6] hover:bg-[#46624e] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#f7dfaa]"
-            @click="finishPrologue('terms')"
-          >
-            Demand the terms of the bargain
-            <span
-              class="mt-1 block text-sm font-normal leading-relaxed text-[#e4cfab]"
-            >
-              Keep a question burning. Begin with an extra Lantern.
-            </span>
-          </button>
-          <button
-            type="button"
-            class="min-h-14 rounded-xl border border-[#d7bd84]/75 bg-[#344940] px-4 py-3 text-left text-base font-bold leading-snug sm:text-lg text-[#fff2d6] hover:bg-[#46624e] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#f7dfaa]"
-            @click="finishPrologue('anchor')"
-          >
-            Remember one unremarkable morning
-            <span
-              class="mt-1 block text-sm font-normal leading-relaxed text-[#e4cfab]"
-            >
-              Preserve a fragment of home. Begin with a silver wildflower.
-            </span>
-          </button>
-        </div>
+        <memory-dungeon-choice-hand
+          class="mt-2"
+          :choices="PROLOGUE_CHOICES"
+          deal-key="prologue"
+          icon="✦"
+          palette="briar"
+          testid-prefix="memory-prologue-choice"
+          @play="(choice) => finishPrologue(choice.id as BriarPrologueChoice)"
+        />
         <button
           type="button"
           class="mt-3 self-start rounded-lg px-2 py-2 text-xs font-semibold text-[#e6c99a] underline underline-offset-4 hover:text-white"
@@ -260,6 +243,21 @@ function beginAdventure(): void {
   }
   prologueOpen.value = true
 }
+
+const PROLOGUE_CHOICES = [
+  {
+    id: 'terms',
+    label: 'Demand the terms of the bargain',
+    chip: '+1 Lantern',
+    hint: 'Keep a question burning. Begin with an extra Lantern.',
+  },
+  {
+    id: 'anchor',
+    label: 'Remember one unremarkable morning',
+    chip: 'Silver wildflower',
+    hint: 'Preserve a fragment of home. Begin with a silver wildflower.',
+  },
+]
 
 function finishPrologue(choice: BriarPrologueChoice): void {
   world.recordPrologueChoice(choice)

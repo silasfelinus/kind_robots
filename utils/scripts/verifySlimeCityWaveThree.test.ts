@@ -7,7 +7,6 @@ import {
   deckOf,
   deploy,
   loadoutProblems,
-  type Card,
   type Fighter,
 } from '../slimeCity/prototypes'
 import {

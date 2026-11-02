@@ -16,6 +16,7 @@ export type AlienGuide = {
   friends: string[]
   attempted: string[]
   milestoneSeen: number[]
+  milestoneDecisions?: Record<string, 'a' | 'b' | 'c'>
   contacts?: Record<string, AlienOutcome>
   lastContact?: AlienContact
   fieldReports?: AlienContact[]
@@ -24,7 +25,6 @@ export type AlienSighting = {
   species: AlienSpecies
   chapter: number
   seed: number
-  milestone: (typeof ALIEN_MILESTONES)[number] | null
   mood: AlienMood
   scene: string
 }
@@ -157,12 +157,29 @@ export function normalizeAlienGuide(value: unknown): AlienGuide {
         ),
       ]
     : []
+  const storedDecisions = source.milestoneDecisions
+  const milestoneDecisions: Record<string, 'a' | 'b' | 'c'> = {}
+  if (
+    storedDecisions &&
+    typeof storedDecisions === 'object' &&
+    !Array.isArray(storedDecisions)
+  ) {
+    for (const [at, choice] of Object.entries(storedDecisions)) {
+      if (
+        milestoneSeen.includes(Number(at)) &&
+        (choice === 'a' || choice === 'b' || choice === 'c')
+      ) {
+        milestoneDecisions[at] = choice
+      }
+    }
+  }
   return {
     version: 1,
     discovered,
     friends,
     attempted,
     milestoneSeen,
+    ...(Object.keys(milestoneDecisions).length ? { milestoneDecisions } : {}),
     ...(Object.keys(contacts).length ? { contacts } : {}),
     ...(lastContact ? { lastContact } : {}),
     ...(fieldReports.length ? { fieldReports } : {}),
@@ -385,10 +402,6 @@ export function nextAlienSighting(
     candidates[
       hash(visitKey(run) + ':' + count + ':' + attempts) % candidates.length
     ]
-  const milestone =
-    ALIEN_MILESTONES.find(
-      (item) => count >= item.at && !guide.milestoneSeen.includes(item.at),
-    ) ?? null
   if (!species) return null
   const mood = ALIEN_MOODS[hash(visitKey(run) + ':mood:' + species.id) % 3]!
   const setting = SCENE_CLUES[species.category][mood]
@@ -406,7 +419,6 @@ export function nextAlienSighting(
     species,
     seed: run.seed,
     chapter: run.chapter,
-    milestone,
     mood,
     scene,
   }
@@ -487,9 +499,10 @@ export function resolveAlienSighting(
     discovered,
     friends,
     attempted: [...guide.attempted, key].slice(-400),
-    milestoneSeen: sighting.milestone
-      ? [...guide.milestoneSeen, sighting.milestone.at]
-      : [...guide.milestoneSeen],
+    milestoneSeen: [...guide.milestoneSeen],
+    ...(guide.milestoneDecisions
+      ? { milestoneDecisions: { ...guide.milestoneDecisions } }
+      : {}),
     contacts: { ...(guide.contacts ?? {}), [sighting.species.id]: outcome },
     lastContact: {
       speciesId: sighting.species.id,

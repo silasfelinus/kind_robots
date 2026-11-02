@@ -15,6 +15,15 @@
         </p>
       </div>
       <button
+        v-if="pendingIncident"
+        type="button"
+        class="btn btn-secondary btn-sm"
+        data-testid="space-couch-collector-from-scrapbook"
+        @click="$emit('incident')"
+      >
+        ✳ STRANGE COUCH MAIL
+      </button>
+      <button
         type="button"
         class="btn btn-ghost btn-sm"
         @click="$emit('close')"
@@ -139,9 +148,10 @@ import {
 
 const props = defineProps<{
   guide: AlienGuide
+  pendingIncident?: boolean
   artwork?: Record<string, string>
 }>()
-defineEmits<{ close: [] }>()
+defineEmits<{ close: []; incident: [] }>()
 const selectedId = ref(ALIEN_SPECIES[0]!.id)
 const selected = computed(
   () =>

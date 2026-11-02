@@ -1184,7 +1184,7 @@ function siteSymbol(kind: BriarSiteKind | undefined): string {
     enemy: '⚔️',
     gate: '🌿',
     rune: '🪨',
-    story: '◇',
+    story: '',
   }
   return kind ? icons[kind] : ''
 }

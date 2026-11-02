@@ -1164,7 +1164,11 @@ export function requisitionSupplies(run: VoyageRun): VoyageRun {
   const text =
     'Quartermaster’s emergency requisition approved. Local relief partners release three supply crates against ' +
     cost +
-    ' points of earned reputation. They have raised their rate since the last favor. The invoice has room for one more signature.'
+    ' points of earned reputation. ' +
+    (cost === 2
+      ? 'The first favor is entered in permanent ink.'
+      : 'They have raised their rate since the last favor.') +
+    ' The invoice has room for one more signature.'
   return {
     ...run,
     supplies: run.supplies + 3,

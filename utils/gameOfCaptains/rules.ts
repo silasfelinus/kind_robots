@@ -1211,7 +1211,7 @@ export function nextDestination(run: VoyageRun): VoyageRun {
   const followup =
     followupIndex >= 0 && followupIndex < 3
       ? (run.consequenceHistory ?? []).filter((record) =>
-          record.episodeId.startsWith('warp-b'),
+          /^warp-[bc]/.test(record.episodeId),
         )[followupIndex]
       : null
   const opening =

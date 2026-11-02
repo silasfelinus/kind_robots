@@ -300,11 +300,15 @@ assert.deepEqual(
   completed,
 )
 
-// Redshirt casualties are deterministic per deployment and occur approximately
-// one third of the time, with no fictional replacement of a fallen ID.
+// Training changes independent survival odds without making an assignment
+// safe. Neither death nor mission success may depend on previous play history.
 let dead = 0
 let total = 0
-for (let seed = 1; seed <= 360; seed++) {
+let trainedDead = 0
+let trainedTotal = 0
+let untrainedDead = 0
+let untrainedTotal = 0
+for (let seed = 1; seed <= 720; seed++) {
   let sample = arriveAtWorld(
     startWorldTravel(startVoyage('fluke', [...party], seed)),
   )
@@ -313,8 +317,13 @@ for (let seed = 1; seed <= 360; seed++) {
   const after = deployExpedition(sample, encounter.id, 'rs-001')
   assert.notEqual(after, sample)
   const result = after.expeditionVisit!.results[0]!
+  const trained = REDSHIRT_BY_ID['rs-001']!.stats[encounter.skill] >= 4
   total++
+  if (trained) trainedTotal++
+  else untrainedTotal++
   if (result.casualty) {
+    if (trained) trainedDead++
+    else untrainedDead++
     dead++
     assert.equal(result.casualty, 'rs-001')
     assert.equal(after.redshirtRoster?.includes('rs-001'), false)
@@ -332,10 +341,21 @@ for (let seed = 1; seed <= 360; seed++) {
   assert.deepEqual(deployExpedition(sample, encounter.id, 'rs-001'), after)
   assert.deepEqual(restoreVoyage(JSON.parse(JSON.stringify(after))), after)
 }
+assert.ok(total === 720 && trainedTotal > 60 && untrainedTotal > 60)
 assert.ok(
-  dead / total > 0.27 && dead / total < 0.39,
-  `fatality ratio ${dead}/${total}`,
+  trainedDead / trainedTotal > 0.1 && trainedDead / trainedTotal < 0.25,
+  `trained fatality ratio ${trainedDead}/${trainedTotal}`,
 )
+assert.ok(
+  untrainedDead / untrainedTotal > 0.24 &&
+    untrainedDead / untrainedTotal < 0.43,
+  `untrained fatality ratio ${untrainedDead}/${untrainedTotal}`,
+)
+assert.ok(
+  trainedDead / trainedTotal < untrainedDead / untrainedTotal,
+  'assignment expertise materially reduces deaths',
+)
+assert.equal(dead, trainedDead + untrainedDead)
 
 // Diplomatic incompetence has a distinct, actual reputational consequence,
 // not simply a change to the narration.

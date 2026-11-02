@@ -38,9 +38,7 @@ export const useMemoryHoshimoriNightStore = defineStore(
     const bellroad = computed(() =>
       hoshimoriNightBellroadAccount(progress.value),
     )
-    const lowbank = computed(() =>
-      hoshimoriNightLowbankAccount(progress.value),
-    )
+    const lowbank = computed(() => hoshimoriNightLowbankAccount(progress.value))
     const lastOutcome = computed(() => {
       const last = progress.value.events.at(-1)
       if (last?.type !== 'choose') return null

@@ -77,6 +77,7 @@ import {
 } from '../gameOfCaptains/cloneSaga'
 import { CAPTAIN_STATS, CREW_PROFILES } from '../gameOfCaptains/crewAssignments'
 import { VOYAGE_CHAPTERS } from '../gameOfCaptains/voyageMap'
+import { consequenceForRun, resolveConsequence } from '../gameOfCaptains/consequenceStories'
 import {
   CAPTAIN_ORIGINS,
   type CaptainOriginId,
@@ -155,6 +156,7 @@ export const act = {
   launch: launchMission,
   advanceDay: advanceVoyageDay,
   decide: decidePolicy,
+  decideConsequence: resolveConsequence,
   next: nextDestination,
   resupply: requisitionSupplies,
   romance: chooseRomance,
@@ -308,10 +310,17 @@ export function controls(run: VoyageRun): Control[] {
     case 'transit':
       add('wait', act.advanceDay(run))
       break
-    case 'decision':
-      for (const policy of ['aid', 'observe', 'intervene'] as const)
-        add('order:' + policy, act.decide(run, policy))
+    case 'decision': {
+      const authored = consequenceForRun(run)
+      if (authored) {
+        for (const choice of authored.choices)
+          add('consequence:' + choice.id, act.decideConsequence(run, choice.id))
+      } else {
+        for (const policy of ['aid', 'observe', 'intervene'] as const)
+          add('order:' + policy, act.decide(run, policy))
+      }
       break
+    }
     case 'debrief': {
       for (const id of crewDetourOptions(run))
         add('detour:' + id, act.detour(run, id))
@@ -396,6 +405,7 @@ export type Driver = {
   instinct?: (run: VoyageRun) => 'impulse' | 'restraint' | null
   episode?: (run: VoyageRun, deck: EpisodeDeck) => EpisodeChoice
   sideQuests?: boolean
+  authoredChoices?: boolean
   resupply?: (run: VoyageRun) => boolean
   /** Send redshirts to the major quests before any command seat. */
   redshirtsFirst?: boolean
@@ -506,9 +516,15 @@ export function playVoyage(
         break
       case 'decision': {
         const order = driver.order(run)
+        const policy = order === 'miss' ? 'observe' : order
+        const authored = driver.authoredChoices
+          ? consequenceForRun(run)?.choices.find((item) => item.policy === policy)
+          : null
         step(
-          'order:' + order,
-          act.decide(run, order === 'miss' ? 'observe' : order),
+          authored ? 'consequence:' + authored.id : 'order:' + order,
+          authored
+            ? act.decideConsequence(run, authored.id)
+            : act.decide(run, policy),
         )
         break
       }

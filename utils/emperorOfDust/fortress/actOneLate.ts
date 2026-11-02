@@ -3167,6 +3167,20 @@ export const ACT_ONE_LATE_DAYS: readonly DayDef[] = [
           },
           {
             id: 'colors',
+            variants: [
+              {
+                flags: ['d05-fiddler-backed'],
+                lines: [
+                  '“Not Vane’s. A fiddler leads them. One wagon still carries the medicine pennant the crown paid for. I saw the twelve-brass receipt sewn under its flap.”',
+                  '“The fiddler says her camp guarded the bridge as promised. Vane kept charging the north toll. Now her people need grain and she wants it from us. She says you can argue with her after they eat.”',
+                  {
+                    who: 'Young Komodo',
+                    npc: 'young-komodo',
+                    text: 'We paid for safe passage, Your Majesty, not an honest captain. She kept her road bargain and broke the peace beside it. You can call her to account, but she will send a bill of her own.',
+                  },
+                ],
+              },
+            ],
             lines: [
               '“Not Vane’s. Or not only. Painted jaws, red wheels, a fiddle on the lead wagon. A captain who laughs.”',
               '“They shout that the crown has the bridge now, and the toll, and the carts, so the Pack needs a new road to eat from. They shout that it’s your fault.”',
@@ -3200,6 +3214,29 @@ export const ACT_ONE_LATE_DAYS: readonly DayDef[] = [
                 },
                 response:
                   'The Watch rides south with the ration-card map. Before dusk the rider watches from the hill as the painted wagons turn for home. She does not cheer. She goes down to the board to see who else is coming.',
+              },
+              {
+                id: 'feed-fiddler',
+                label:
+                  'Spend twenty brass on grain for the fiddler’s camp. Demand she withdraw under the bridge bargain, leaving Vane’s men to the Watch.',
+                requires: { flags: ['d05-fiddler-backed'], cost: 20 },
+                effects: {
+                  affinity: { freeholds: 6, jackalwire: 5, saltroad: -4 },
+                  local: { ledger: -1 },
+                  flags: ['d10-fiddler-grain-bargain'],
+                  questAid: [
+                    {
+                      questId: 'q-d10-freehold-raid',
+                      label: 'The fiddler withdrew after the crown bought her camp grain',
+                      bonus: 2,
+                      resolve: 'partial',
+                      outcome:
+                        'The fiddler took the crown’s grain and brought her wagons back to the bridge. Thistledown kept its granary. Vane’s riders burned the empty outbuildings before the Watch drove them off. The village sent the crown two receipts, one for the grain and one for the roofs.',
+                    },
+                  ],
+                },
+                response:
+                  'The rider carries your offer herself. By dusk the fiddler has turned her wagons toward the bridge with grain stacked under the medicine pennant. Vane’s riders are still at the village. The Thistledown posting stays on the board.',
               },
               {
                 id: 'tincture',

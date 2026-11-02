@@ -1943,10 +1943,7 @@ function drawHand(state: MatchState, side: Side): void {
 function chooseCpuDiscards(state: MatchState): void {
   const side: Side = 'enemy'
   if (state.mode !== 'blackout' || state.rules.classicFog) return
-  const availableMana = Math.min(
-    MANA_CAP,
-    state.enemyMana + BLACKOUT_MANA_GAIN,
-  )
+  const availableMana = Math.min(MANA_CAP, state.enemyMana + BLACKOUT_MANA_GAIN)
   const creatures = state.units.filter((unit) => unit.side === side).length
   const traps = state.traps.filter((trap) => trap.side === side).length
   const ordered = state.hands.enemy
@@ -1985,7 +1982,8 @@ export function createMatch(
     height,
     round: 1,
     maxRounds: ROUND_LIMITS[mode],
-    mana: mode === 'blackout' ? BLACKOUT_MANA_GAIN : mode === 'bloodrush' ? 3 : 1,
+    mana:
+      mode === 'blackout' ? BLACKOUT_MANA_GAIN : mode === 'bloodrush' ? 3 : 1,
     enemyMana:
       mode === 'blackout' ? BLACKOUT_MANA_GAIN : mode === 'bloodrush' ? 3 : 1,
     score: [0, 0],
@@ -3162,7 +3160,10 @@ export function advance(state: MatchState): MatchState {
       chooseCpuDiscards(next)
       drawHand(next, 'player')
       drawHand(next, 'enemy')
-      message(next, 'Unplayed cards held; selected discards replaced up to five.')
+      message(
+        next,
+        'Unplayed cards held; selected discards replaced up to five.',
+      )
     }
     // Carriers lumber: one square per round, unless a card boosts them.
     // Rooted fighters get no AP this round.

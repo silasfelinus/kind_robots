@@ -3676,7 +3676,8 @@ export const ACT_THREE_DAYS: readonly DayDef[] = [
           },
           {
             id: 'expose',
-            label: 'Publish Mara’s signature and let Hollow Bell judge its mayor, even if the pumps suffer.',
+            label:
+              'Publish Mara’s signature and let Hollow Bell judge its mayor, even if the pumps suffer.',
             effects: {
               affinity: { 'hollow-bell': -15 },
               local: { lamplight: 4 },
@@ -3687,7 +3688,8 @@ export const ACT_THREE_DAYS: readonly DayDef[] = [
           },
           {
             id: 'protect',
-            label: 'Burn the evidence. Keep Mara and the water, but leave the families without proof.',
+            label:
+              'Burn the evidence. Keep Mara and the water, but leave the families without proof.',
             effects: {
               affinity: { 'hollow-bell': 10 },
               local: { lamplight: -3 },
@@ -3698,7 +3700,8 @@ export const ACT_THREE_DAYS: readonly DayDef[] = [
           },
           {
             id: 'bargain',
-            label: 'Demand twenty brass for the crown’s silence. Leave Mara in office.',
+            label:
+              'Demand twenty brass for the crown’s silence. Leave Mara in office.',
             effects: {
               brass: 20,
               affinity: { 'hollow-bell': 5 },

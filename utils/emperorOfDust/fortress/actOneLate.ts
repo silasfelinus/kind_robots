@@ -3227,7 +3227,8 @@ export const ACT_ONE_LATE_DAYS: readonly DayDef[] = [
                   questAid: [
                     {
                       questId: 'q-d10-freehold-raid',
-                      label: 'The fiddler withdrew after the crown bought her camp grain',
+                      label:
+                        'The fiddler withdrew after the crown bought her camp grain',
                       bonus: 2,
                       resolve: 'partial',
                       outcome:

@@ -100,7 +100,8 @@ export const ACT_ONE_EXPANDED_CONSEQUENCES = {
       {
         id: 'shadow-franchise',
         label: 'Negotiate private ballots with a neighborhood veto',
-        approach: 'Let residents choose a protected representative and keep their names',
+        approach:
+          'Let residents choose a protected representative and keep their names',
         cost: 'A secret ballot can be challenged by officials who profit from the missing votes.',
         policy: 'aid',
         check: { ability_any: ['diplomacy', 'culture'], difficulty: 7 },
@@ -116,7 +117,11 @@ export const ACT_ONE_EXPANDED_CONSEQUENCES = {
           narrative:
             'The council accepts the urns, then rules their insulation illegal. Half the neighborhood warms a bowl that refuses to register heat. Iri has everyone leave before the occupiers can collect names. The referendum stands, though the council now knows someone is watching its thermometers.',
           flags: ['nacre-ballot-rejected', 'nacre-voters-hidden'],
-          delta: { sanctuary_trust: 1, treaty_trust: -1, antagonist_pressure: 1 },
+          delta: {
+            sanctuary_trust: 1,
+            treaty_trust: -1,
+            antagonist_pressure: 1,
+          },
           callback:
             'Iri has begun gathering portable heaters as evidence. The council insists the heaters are not constituents.',
         },
@@ -124,7 +129,8 @@ export const ACT_ONE_EXPANDED_CONSEQUENCES = {
       {
         id: 'audit-the-heat',
         label: 'Audit the counting bowl without entering anyone’s name',
-        approach: 'Expose the fraudulent zoning rule through independent measurements',
+        approach:
+          'Expose the fraudulent zoning rule through independent measurements',
         cost: 'Proof of fraud takes time, and the occupying fleet keeps moving.',
         policy: 'observe',
         check: { ability_any: ['science', 'culture'], difficulty: 8 },
@@ -156,7 +162,11 @@ export const ACT_ONE_EXPANDED_CONSEQUENCES = {
           narrative:
             'The couch’s bubble pries open the floor. Hundreds of citizens emerge into the assembly and warm the bowl together. Annexation fails. Coalition officers immediately mark the new entrances on their tactical maps. Iri shakes the captain’s hand and then asks why nobody was consulted before the roof was removed.',
           flags: ['nacre-annexation-reversed', 'nacre-neighborhood-exposed'],
-          delta: { sanctuary_trust: -2, treaty_trust: 1, antagonist_pressure: 3 },
+          delta: {
+            sanctuary_trust: -2,
+            treaty_trust: 1,
+            antagonist_pressure: 3,
+          },
           callback:
             'The annexation is dead, but the new entrances need defending from a coalition that has their coordinates.',
         },
@@ -183,7 +193,8 @@ export const ACT_ONE_EXPANDED_CONSEQUENCES = {
       {
         id: 'quiet-exit-network',
         label: 'Help contestants build a concealed exit route',
-        approach: 'Ask the floor-three organizers who wants out before touching the doors',
+        approach:
+          'Ask the floor-three organizers who wants out before touching the doors',
         cost: 'Evacuation is slow; people still inside must survive another broadcast.',
         policy: 'aid',
         check: { ability_any: ['rescue', 'tactics'], difficulty: 7 },
@@ -207,14 +218,18 @@ export const ACT_ONE_EXPANDED_CONSEQUENCES = {
       {
         id: 'contract-on-air',
         label: 'Read the escape clause using anonymous voice actors',
-        approach: 'Win a labor case in public without exposing the original union authors',
+        approach:
+          'Win a labor case in public without exposing the original union authors',
         cost: 'Court verification costs a full broadcast cycle while the dungeon remains live.',
         policy: 'observe',
         check: { ability_any: ['culture', 'science'], difficulty: 8 },
         success: {
           narrative:
             'A chorus of understudies reads clause nine over footage of the empty couch cushions. The union’s original names never appear. The audience recognizes the clause before the Showrunner can cut transmission and starts demanding that the contestants be released. The host is obliged to announce an unexpected season finale and does so through clenched applause.',
-          flags: ['gameworld-union-clause-upheld', 'gameworld-organizers-protected'],
+          flags: [
+            'gameworld-union-clause-upheld',
+            'gameworld-organizers-protected',
+          ],
           delta: { treaty_trust: 3, crew_trust: 1, antagonist_pressure: -1 },
           callback:
             'Off-world contestants are citing the anonymous broadcast in their own petitions. The Showrunner has banned the number nine.',
@@ -231,14 +246,18 @@ export const ACT_ONE_EXPANDED_CONSEQUENCES = {
       {
         id: 'cut-the-feed',
         label: 'Crash the show and tear open the twelfth floor',
-        approach: 'Destroy the spectacle now rather than seek anyone’s permission',
+        approach:
+          'Destroy the spectacle now rather than seek anyone’s permission',
         cost: 'Contestants may escape, but the sponsor controls the emergency systems.',
         policy: 'intervene',
         check: { ability_any: ['tactics', 'luck'], difficulty: 6 },
         success: {
           narrative:
             'The couch slams through a giant product-placement moon and lands against the twelfth-floor control panel. The locks snap open. The Showrunner is forced to broadcast thousands of contestants pouring into the street; the audience calls it the best finale ever. The union organizer insists the people were not props in the captain’s spectacular rescue.',
-          flags: ['gameworld-broadcast-destroyed', 'gameworld-contestants-exposed'],
+          flags: [
+            'gameworld-broadcast-destroyed',
+            'gameworld-contestants-exposed',
+          ],
           delta: { crew_trust: -1, antagonist_pressure: 3, ship_fuel: -1 },
           callback:
             'The game has ended on this planet, but the Showrunner is selling footage of the escape without the survivors’ consent.',

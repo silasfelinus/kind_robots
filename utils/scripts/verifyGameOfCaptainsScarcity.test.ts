@@ -25,7 +25,7 @@ const baseline = {
 const emptyAid = decidePolicy(baseline, 'aid')
 assert.equal(emptyAid.phase, 'debrief')
 assert.equal(emptyAid.supplies, 0)
-assert.equal(emptyAid.trust, 2)
+assert.equal(emptyAid.trust, 3)
 assert.equal(emptyAid.reputation, 3)
 assert.match(emptyAid.scene, /without the promised crates/)
 assert.ok(emptyAid.worldFlags?.includes('supply-shortfall:1:aid'))

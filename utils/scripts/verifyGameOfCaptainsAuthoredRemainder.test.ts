@@ -150,14 +150,18 @@ for (let seed = 1; seed <= 12; seed++) {
     finale: 'protect',
   })
   assert.equal(run.phase, 'ending')
+  assert.equal(run.consequenceHistory?.length, 4)
   assert.deepEqual(
-    run.consequenceHistory?.map((record) => record.missionId),
+    run.consequenceHistory
+      ?.filter((record) => record.chapter <= 3)
+      .map((record) => record.missionId),
     destinations,
   )
+  assert.equal(run.consequenceHistory?.[3]?.missionId, 'concord-intake')
   visits += steps.filter((step) => step.startsWith('consequence:')).length
   assert.deepEqual(restoreVoyage(JSON.parse(JSON.stringify(run))), run)
 }
-assert.equal(visits, 36)
+assert.equal(visits, 48)
 
 const page = readFileSync(
   new URL('../../pages/play/game-of-captains.vue', import.meta.url),

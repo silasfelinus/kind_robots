@@ -79,13 +79,15 @@ const artIds = [
   ...Object.values(SLIME_CITY_ART.cards),
   ...Object.values(SLIME_CITY_ART.boards),
   ...Object.values(SLIME_CITY_ART.ui),
+  ...Object.values(SLIME_CITY_ART.story),
+  ...Object.values(SLIME_CITY_ART.attacks),
 ]
 assert.equal(
   SLIME_CITY_ART_COUNT,
-  67,
-  'Round one (52) plus round four (14 district boards and the card back)',
+  185,
+  'Round one (52), round four (15), plus the 2026-11-02 curation: 37 cards, 77 story plates, 4 attack icons',
 )
-assert.equal(artIds.length, 67)
+assert.equal(artIds.length, 185)
 assert.equal(
   new Set(artIds).size,
   artIds.length,
@@ -115,7 +117,7 @@ assert.equal(
   slimeBoardArtId('nowhere', 'blackout'),
   slimeArtId('boards', 'blackout'),
 )
-assert.equal(Object.keys(SLIME_CITY_ART.cards).length, 36)
+assert.equal(Object.keys(SLIME_CITY_ART.cards).length, 73)
 assert.equal(
   TEAMS.flatMap((team) => [...team.creatures, ...team.special]).length,
   60,
@@ -128,19 +130,19 @@ assert.equal(
 )
 assert.equal(
   CARDS.filter((card) => slimeArtId('cards', card.id)).length,
-  36,
-  '36 illustrations correspond to actual playable card IDs',
+  73,
+  '73 illustrations correspond to actual playable card IDs',
 )
 assert.equal(
   TEAMS.flatMap((team) => [...team.creatures, ...team.special]).filter(
     (id) => !slimeArtId('cards', id),
   ).length,
-  24,
-  '24 founder cards without art retain fallbacks',
+  18,
+  '18 founder cards without art retain fallbacks',
 )
 assert.equal(
   CARDS.filter((card) => !slimeArtId('cards', card.id)).length,
-  CARDS.length - 36,
+  CARDS.length - 73,
   'Unrendered faction and neutral cards retain image-shaped fallbacks',
 )
 assert.equal(slimeArtId('cards', 'calico'), null)

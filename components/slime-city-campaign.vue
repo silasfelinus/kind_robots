@@ -7,7 +7,7 @@
     <div class="campaign-hero" :class="'crew-' + lab.activeTeam">
       <SlimeCityArtwork
         class="campaign-hero-art"
-        :image-id="slimeArtId('crews', lab.activeTeam)"
+        :image-id="heroArtId"
         :alt="lab.team.name + ' illustrated campaign poster'"
         :fallback="lab.team.insignia"
       />
@@ -73,6 +73,13 @@
           >STORY COMPLETE / 5 OF 5 RIVALS DEFEATED</span
         >
         <h3>{{ lab.campaignStory.title }}: THE END</h3>
+        <SlimeCityArtwork
+          v-if="endingArtId"
+          class="campaign-plate"
+          :image-id="endingArtId"
+          :alt="lab.campaignStory.title + ' illustrated ending'"
+          data-testid="slime-campaign-ending-art"
+        />
         <p>{{ lab.campaignFinale }}</p>
         <small
           >All six campaigns have independent playtest progress. Story wins
@@ -87,6 +94,13 @@
             {{ teamName(lab.activeChapter.foe).toUpperCase() }}
           </span>
           <h3>{{ lab.activeChapter.title }}</h3>
+          <SlimeCityArtwork
+            v-if="chapterArtId"
+            class="campaign-plate"
+            :image-id="chapterArtId"
+            :alt="lab.activeChapter.title + ' illustrated chapter scene'"
+            data-testid="slime-campaign-chapter-art"
+          />
           <p>{{ lab.activeChapter.scene }}</p>
           <button
             v-if="lab.campaignDistrict"
@@ -121,6 +135,13 @@
                   ? 'LAST DEFEAT'
                   : 'LAST DRAW'
             }}</strong>
+            <SlimeCityArtwork
+              v-if="recapArtId"
+              class="campaign-plate"
+              :image-id="recapArtId"
+              alt="Illustrated result of the last battle"
+              data-testid="slime-campaign-recap-art"
+            />
             <span>{{ lab.campaignState.lastScene }}</span>
           </div>
         </div>
@@ -178,12 +199,54 @@ const nextDistrictName = computed(
     lab.districts.find((district) => district.id === lab.campaignDistrict)
       ?.name ?? 'Unknown district',
 )
+// Story plates (conductor slime-city BLACKOUT-STORY-ROUND-2): the opening, each chapter's scene, the
+// approach the last victory used (or the defeat), and the ending the decisions earned. Unrendered
+// plates fall back to what the screen showed before.
+function storyArt(key: string): number | null {
+  return slimeArtId('story', lab.activeTeam + '/' + key)
+}
+const heroArtId = computed(
+  () => storyArt('opening') ?? slimeArtId('crews', lab.activeTeam),
+)
+const chapterArtId = computed(() =>
+  lab.activeChapter ? storyArt(lab.campaignState.wins + 1 + '/scene') : null,
+)
+const recapArtId = computed(() => {
+  const state = lab.campaignState
+  if (state.lastResult === 'player') {
+    const choice = state.decisions[state.decisions.length - 1]
+    return choice ? storyArt(state.wins + '/' + choice) : null
+  }
+  if (state.lastResult === 'enemy') return storyArt(state.wins + 1 + '/defeat')
+  return null
+})
+const endingArtId = computed(() => {
+  if (!lab.campaignFinale) return null
+  const conviction = lab.campaignState.decisions.filter(
+    (id) => id === 'conviction',
+  ).length
+  return storyArt(conviction >= 3 ? 'ending-triumph' : 'ending-compromise')
+})
 function teamName(id: TeamId): string {
   return lab.teams.find((team) => team.id === id)?.name ?? id
 }
 </script>
 
 <style scoped>
+.campaign-plate {
+  display: block;
+  width: 100%;
+  max-height: 11rem;
+  aspect-ratio: 16 / 9;
+  margin: 0.5rem 0;
+  overflow: hidden;
+  border-radius: 0.75rem;
+}
+.campaign-plate :deep(img) {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
 .sc-campaign {
   display: flex;
   flex-direction: column;

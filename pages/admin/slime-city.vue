@@ -1430,7 +1430,15 @@ function cellAria(x: number, y: number): string {
     unit?.side === 'enemy' && lab.selected && lab.canMoveTo(x, y)
       ? ', can be shoved using BULLDOZE'
       : ''
-  return 'Square ' + (x + 1) + ', ' + (y + 1) + ': ' + (monster || name + flag) + shove
+  return (
+    'Square ' +
+    (x + 1) +
+    ', ' +
+    (y + 1) +
+    ': ' +
+    (monster || name + flag) +
+    shove
+  )
 }
 onMounted(() => lab.hydrateProgression())
 onUnmounted(() => {

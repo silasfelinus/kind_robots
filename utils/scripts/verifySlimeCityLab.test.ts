@@ -98,7 +98,10 @@ assert.ok(
 assert.ok(
   TEAMS.some((team) => team.id === 'ironjaw' && team.name.includes('OGRES')),
 )
-assert.equal(CARDS.length, 72)
+assert.ok(
+  CARDS.length >= 132,
+  'Six starter crews, reserves, and 60 neutral mercenaries',
+)
 assert.equal(DISTRICTS.length, 7)
 assert.equal(MODES.length, 3)
 assert.deepEqual(

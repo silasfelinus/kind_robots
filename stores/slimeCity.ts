@@ -405,7 +405,9 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
   const team = computed(() => teamById(activeTeam.value))
   const enemy = computed(() => teamById(enemyTeam.value))
   const cards = computed(() =>
-    CARDS.filter((item) => item.team === activeTeam.value),
+    CARDS.filter(
+      (item) => item.team === activeTeam.value || item.team === 'mercenary',
+    ),
   )
   const starterCards = (id: TeamId): string[] => {
     const starter = teamById(id)
@@ -419,7 +421,11 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
   )
   function isFounderCard(id: string): boolean {
     const card = CARDS.find((entry) => entry.id === id)
-    return !!card && starterCards(card.team).includes(id)
+    return (
+      !!card &&
+      card.team !== 'mercenary' &&
+      starterCards(card.team).includes(id)
+    )
   }
   function isCardUnlocked(id: string): boolean {
     return isFounderCard(id) || progress.value.cards.includes(id)
@@ -446,7 +452,7 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
       return
     }
     if (!isCardUnlocked(id)) {
-      deckMessage.value = 'Unlock this reserve in a Meat pack before using it.'
+      deckMessage.value = 'Unlock this card in a Meat pack before using it.'
       return
     }
     const updated = currentDeck.value.map((cardId) =>
@@ -1184,6 +1190,7 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
     team,
     enemy,
     cards,
+    catalogSize: CARDS.length,
     hand,
     inspectedCard,
     selected,

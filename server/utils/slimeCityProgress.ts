@@ -304,7 +304,8 @@ export async function saveSlimeCityStory(
       if (deck?.some((id) => !founderCards.has(id) && !ownedCards.has(id)))
         throw createError({
           statusCode: 403,
-          message: 'Unlock reserve cards before adding them to a deck.',
+          message:
+            'Unlock reserve or mercenary cards before adding them to a deck.',
         })
     }
     if (proposed.revision !== current.revision)

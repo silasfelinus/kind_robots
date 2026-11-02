@@ -5,6 +5,7 @@
 // ever decides from observe(), the redacted per-side view.
 import { chooseCpuAction } from './cpu'
 import { RESERVE_CARDS } from './reserveCards'
+import { MERCENARY_CARDS } from './mercenaryCards'
 
 export type Color = 'red' | 'blue' | 'purple' | 'green' | 'gold'
 export type TeamId =
@@ -89,7 +90,7 @@ export interface Card {
   id: string
   name: string
   kind: CardKind
-  team: TeamId
+  team: TeamId | 'mercenary'
   cost: number
   hp?: number
   attack?: number
@@ -1262,6 +1263,7 @@ export const CARDS: Card[] = [
     symbol: '✚',
   },
   ...RESERVE_CARDS,
+  ...MERCENARY_CARDS,
 ]
 
 export const DISTRICTS = [
@@ -1517,8 +1519,10 @@ export function loadoutProblems(
   const cards = ids.map((id) => CARDS.find((card) => card.id === id))
   if (cards.some((card) => !card)) return [...out, 'Unknown card']
   const known = cards as Card[]
-  if (known.some((card) => card.team !== teamId))
-    out.push('Cards must belong to your crew')
+  if (known.some((card) => card.team !== teamId && card.team !== 'mercenary'))
+    out.push('Cards must belong to your crew or the mercenary pool')
+  if (known.filter((card) => card.team === 'mercenary').length > 3)
+    out.push('At most three mercenaries per deck')
   if (
     known.filter((card) => card.kind === 'creature').length !== DECK_CREATURES
   )
@@ -1845,7 +1849,8 @@ function addFighter(
           riot: 'blast',
           undertow: 'spell',
           exchange: 'sword',
-        } as Record<TeamId, AttackStyle>
+          mercenary: 'sword',
+        } as Record<TeamId | 'mercenary', AttackStyle>
       )[card.team],
     summonedRound: state.round,
     attackedRound: 0,
@@ -2144,7 +2149,12 @@ function applyDeploy(
   y: number,
 ): boolean {
   const card = CARDS.find((item) => item.id === cardId)
-  if (!card || state.victor || card.team !== teamOf(state, side)) return false
+  if (
+    !card ||
+    state.victor ||
+    (card.team !== teamOf(state, side) && card.team !== 'mercenary')
+  )
+    return false
   if (card.cost > manaOf(state, side)) return false
   if (!cardReady(state, side, cardId)) return false
   if (
@@ -2209,6 +2219,9 @@ function applyDeploy(
   } else if (
     card.effect === 'heal' ||
     card.effect === 'scan' ||
+    card.effect === 'armor' ||
+    card.effect === 'sharpen' ||
+    card.effect === 'grant' ||
     card.kind === 'equipment' ||
     card.effect === 'boost'
   ) {

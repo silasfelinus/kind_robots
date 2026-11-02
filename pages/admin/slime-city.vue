@@ -847,7 +847,9 @@
         >
           <div class="sc-collection-title">
             <span class="sc-overline"
-              >THE ARMORY / DECK WORKBENCH · {{ lab.progress.cards.length }}/72
+              >THE ARMORY / DECK WORKBENCH · {{ lab.progress.cards.length }}/{{
+                lab.catalogSize
+              }}
               COLLECTED</span
             >
             <h2>{{ lab.team.name }}</h2>
@@ -868,7 +870,8 @@
           <div class="sc-deck-workbench" data-testid="slime-deck-workbench">
             <div>
               <span class="sc-overline"
-                >TEN-CARD LOADOUT / FOUR CREATURES / ONE SIGNATURE</span
+                >TEN-CARD LOADOUT / FOUR CREATURES / ONE SIGNATURE / UP TO THREE
+                MERCENARIES</span
               >
               <strong>{{ lab.currentDeck.length }}/10 DECK SLOTS FILLED</strong>
               <p aria-live="polite">
@@ -909,7 +912,10 @@
               v-for="card in lab.cards"
               :key="card.id"
               class="sc-collect-card"
-              :class="'tone-' + lab.team.color"
+              :class="[
+                'tone-' + lab.team.color,
+                { 'is-mercenary': card.team === 'mercenary' },
+              ]"
             >
               <div class="sc-collect-art">
                 <SlimeCityArtwork
@@ -940,6 +946,9 @@
                         : 'LOCKED RESERVE'
                   }}
                 </button>
+                <span v-if="card.team === 'mercenary'" class="sc-overline">
+                  MERCENARY · AVAILABLE TO ALL SIX CREWS · MAX 3 PER DECK
+                </span>
                 <span
                   >{{ lab.cardRarity(card).toUpperCase() }} ·
                   {{

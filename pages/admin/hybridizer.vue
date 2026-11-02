@@ -18,47 +18,53 @@
 
       <section class="hybridizer-stage" aria-label="Creature fusion laboratory">
         <div class="specimen-slot left-chamber">
-        <button
-          type="button"
-          class="specimen-chamber"
-          data-testid="hybridizer-left"
-          aria-label="Choose left ingredient"
-          @click="openDrawer('left')"
-        >
-          <div class="chamber-label">
-            <span>CHAMBER 01</span>
-            <strong>{{ lab.left?.title || 'Choose specimen' }}</strong>
-          </div>
-          <div class="specimen-art">
-            <img
-              v-if="lab.imageFor(lab.left)"
-              :src="lab.imageFor(lab.left) || undefined"
-              :alt="lab.left?.title || ''"
-              class="specimen-image"
-            />
-            <div v-else class="specimen-fallback">
-              <span class="specimen-glow" aria-hidden="true"></span>
-              <span class="specimen-glyph" aria-hidden="true">{{
-                glyphFor(lab.left?.title, lab.left?.taxonomy)
-              }}</span>
-              <span v-if="lab.artPending(lab.left)" class="art-pending"
-                >Portrait queued</span
-              >
-            </div>
-          </div>
-          <span class="chamber-bottom"
-            >{{ lab.left?.taxonomy || 'EMPTY' }} <span>CHANGE ✦</span></span
+          <button
+            type="button"
+            class="specimen-chamber"
+            data-testid="hybridizer-left"
+            aria-label="Choose left ingredient"
+            @click="openDrawer('left')"
           >
-        </button>
-        <button
-          v-if="lab.left && lab.imageFor(lab.left)"
-          type="button"
-          class="favorite-heart chamber-heart"
-          :class="{ active: lab.isFavorite(lab.left.key) }"
-          :aria-label="lab.isFavorite(lab.left.key) ? 'Remove left ingredient from favorites' : 'Favorite left ingredient'"
-          :aria-pressed="lab.isFavorite(lab.left.key)"
-          @click="lab.toggleFavorite(lab.left.key)"
-        >{{ lab.isFavorite(lab.left.key) ? '♥' : '♡' }}</button>
+            <div class="chamber-label">
+              <span>CHAMBER 01</span>
+              <strong>{{ lab.left?.title || 'Choose specimen' }}</strong>
+            </div>
+            <div class="specimen-art">
+              <img
+                v-if="lab.imageFor(lab.left)"
+                :src="lab.imageFor(lab.left) || undefined"
+                :alt="lab.left?.title || ''"
+                class="specimen-image"
+              />
+              <div v-else class="specimen-fallback">
+                <span class="specimen-glow" aria-hidden="true"></span>
+                <span class="specimen-glyph" aria-hidden="true">{{
+                  glyphFor(lab.left?.title, lab.left?.taxonomy)
+                }}</span>
+                <span v-if="lab.artPending(lab.left)" class="art-pending"
+                  >Portrait queued</span
+                >
+              </div>
+            </div>
+            <span class="chamber-bottom"
+              >{{ lab.left?.taxonomy || 'EMPTY' }} <span>CHANGE ✦</span></span
+            >
+          </button>
+          <button
+            v-if="lab.left && lab.imageFor(lab.left)"
+            type="button"
+            class="favorite-heart chamber-heart"
+            :class="{ active: lab.isFavorite(lab.left.key) }"
+            :aria-label="
+              lab.isFavorite(lab.left.key)
+                ? 'Remove left ingredient from favorites'
+                : 'Favorite left ingredient'
+            "
+            :aria-pressed="lab.isFavorite(lab.left.key)"
+            @click="lab.toggleFavorite(lab.left.key)"
+          >
+            {{ lab.isFavorite(lab.left.key) ? '♥' : '♡' }}
+          </button>
         </div>
 
         <div class="hybridizer-machine" aria-hidden="true">
@@ -71,47 +77,53 @@
         </div>
 
         <div class="specimen-slot right-chamber">
-        <button
-          type="button"
-          class="specimen-chamber"
-          data-testid="hybridizer-right"
-          aria-label="Choose right ingredient"
-          @click="openDrawer('right')"
-        >
-          <div class="chamber-label">
-            <span>CHAMBER 02</span>
-            <strong>{{ lab.right?.title || 'Choose specimen' }}</strong>
-          </div>
-          <div class="specimen-art">
-            <img
-              v-if="lab.imageFor(lab.right)"
-              :src="lab.imageFor(lab.right) || undefined"
-              :alt="lab.right?.title || ''"
-              class="specimen-image"
-            />
-            <div v-else class="specimen-fallback">
-              <span class="specimen-glow" aria-hidden="true"></span>
-              <span class="specimen-glyph" aria-hidden="true">{{
-                glyphFor(lab.right?.title, lab.right?.taxonomy)
-              }}</span>
-              <span v-if="lab.artPending(lab.right)" class="art-pending"
-                >Portrait queued</span
-              >
-            </div>
-          </div>
-          <span class="chamber-bottom"
-            >{{ lab.right?.taxonomy || 'EMPTY' }} <span>CHANGE ✦</span></span
+          <button
+            type="button"
+            class="specimen-chamber"
+            data-testid="hybridizer-right"
+            aria-label="Choose right ingredient"
+            @click="openDrawer('right')"
           >
-        </button>
-        <button
-          v-if="lab.right && lab.imageFor(lab.right)"
-          type="button"
-          class="favorite-heart chamber-heart"
-          :class="{ active: lab.isFavorite(lab.right.key) }"
-          :aria-label="lab.isFavorite(lab.right.key) ? 'Remove right ingredient from favorites' : 'Favorite right ingredient'"
-          :aria-pressed="lab.isFavorite(lab.right.key)"
-          @click="lab.toggleFavorite(lab.right.key)"
-        >{{ lab.isFavorite(lab.right.key) ? '♥' : '♡' }}</button>
+            <div class="chamber-label">
+              <span>CHAMBER 02</span>
+              <strong>{{ lab.right?.title || 'Choose specimen' }}</strong>
+            </div>
+            <div class="specimen-art">
+              <img
+                v-if="lab.imageFor(lab.right)"
+                :src="lab.imageFor(lab.right) || undefined"
+                :alt="lab.right?.title || ''"
+                class="specimen-image"
+              />
+              <div v-else class="specimen-fallback">
+                <span class="specimen-glow" aria-hidden="true"></span>
+                <span class="specimen-glyph" aria-hidden="true">{{
+                  glyphFor(lab.right?.title, lab.right?.taxonomy)
+                }}</span>
+                <span v-if="lab.artPending(lab.right)" class="art-pending"
+                  >Portrait queued</span
+                >
+              </div>
+            </div>
+            <span class="chamber-bottom"
+              >{{ lab.right?.taxonomy || 'EMPTY' }} <span>CHANGE ✦</span></span
+            >
+          </button>
+          <button
+            v-if="lab.right && lab.imageFor(lab.right)"
+            type="button"
+            class="favorite-heart chamber-heart"
+            :class="{ active: lab.isFavorite(lab.right.key) }"
+            :aria-label="
+              lab.isFavorite(lab.right.key)
+                ? 'Remove right ingredient from favorites'
+                : 'Favorite right ingredient'
+            "
+            :aria-pressed="lab.isFavorite(lab.right.key)"
+            @click="lab.toggleFavorite(lab.right.key)"
+          >
+            {{ lab.isFavorite(lab.right.key) ? '♥' : '♡' }}
+          </button>
         </div>
 
         <article class="hybridizer-result" aria-live="polite">
@@ -136,10 +148,16 @@
                 type="button"
                 class="favorite-heart result-heart"
                 :class="{ active: lab.isFavorite(lab.result.key) }"
-                :aria-label="lab.isFavorite(lab.result.key) ? 'Remove discovery from favorites' : 'Favorite discovery'"
+                :aria-label="
+                  lab.isFavorite(lab.result.key)
+                    ? 'Remove discovery from favorites'
+                    : 'Favorite discovery'
+                "
                 :aria-pressed="lab.isFavorite(lab.result.key)"
                 @click="lab.toggleFavorite(lab.result.key)"
-              >{{ lab.isFavorite(lab.result.key) ? '♥' : '♡' }}</button>
+              >
+                {{ lab.isFavorite(lab.result.key) ? '♥' : '♡' }}
+              </button>
               <img
                 v-if="previewArt"
                 class="fusion-generated"
@@ -462,13 +480,33 @@
         </button>
         <p class="lab-status" role="status">{{ lab.status }}</p>
         <div class="hybridizer-tools">
-          <button type="button" class="tool-button" data-testid="hybridizer-random" :disabled="lab.randomizing || lab.working" @click="lab.randomize()" title="Random illustrated ingredients">
-            <span aria-hidden="true">🎲</span> {{ lab.randomizing ? 'Rolling…' : 'Surprise' }}
+          <button
+            type="button"
+            class="tool-button"
+            data-testid="hybridizer-random"
+            :disabled="lab.randomizing || lab.working"
+            @click="lab.randomize()"
+            title="Random illustrated ingredients"
+          >
+            <span aria-hidden="true">🎲</span>
+            {{ lab.randomizing ? 'Rolling…' : 'Surprise' }}
           </button>
-          <button type="button" class="tool-button" data-testid="hybridizer-favorites" @click="openDrawer('favorites')" title="Your favorite illustrations">
+          <button
+            type="button"
+            class="tool-button"
+            data-testid="hybridizer-favorites"
+            @click="openDrawer('favorites')"
+            title="Your favorite illustrations"
+          >
             <span aria-hidden="true">♥</span> Favorites
           </button>
-          <button type="button" class="tool-button" data-testid="hybridizer-settings" @click="openDrawer('settings')" title="Hybridizer settings">
+          <button
+            type="button"
+            class="tool-button"
+            data-testid="hybridizer-settings"
+            @click="openDrawer('settings')"
+            title="Hybridizer settings"
+          >
             <span aria-hidden="true">⚙</span> Settings
           </button>
           <button
@@ -476,7 +514,9 @@
             class="atlas-button"
             data-testid="hybridizer-atlas"
             @click="openDrawer('atlas')"
-          >Atlas · {{ lab.discoveryTotal ?? lab.discoveries.length }}</button>
+          >
+            Atlas · {{ lab.discoveryTotal ?? lab.discoveries.length }}
+          </button>
         </div>
       </footer>
       <div class="hybrid-badges" aria-label="Hybridizer achievements">
@@ -499,7 +539,15 @@
         <div class="drawer-head">
           <div>
             <p class="eyebrow">
-              {{ drawer === 'atlas' ? 'DISCOVERY ATLAS' : drawer === 'favorites' ? 'YOUR COLLECTION' : drawer === 'settings' ? 'LAB SETTINGS' : 'SPECIMEN DRAWER' }}
+              {{
+                drawer === 'atlas'
+                  ? 'DISCOVERY ATLAS'
+                  : drawer === 'favorites'
+                    ? 'YOUR COLLECTION'
+                    : drawer === 'settings'
+                      ? 'LAB SETTINGS'
+                      : 'SPECIMEN DRAWER'
+              }}
             </p>
             <h2>
               {{
@@ -530,15 +578,36 @@
           <span>{{ lab.readyTotal }} art-ready</span>
           <span>{{ lab.renderingTotal }} rendering</span>
         </div>
-        <section v-if="drawer === 'settings'" class="hybridizer-settings" aria-label="Laboratory settings">
+        <section
+          v-if="drawer === 'settings'"
+          class="hybridizer-settings"
+          aria-label="Laboratory settings"
+        >
           <label class="settings-choice">
-            <input type="checkbox" :checked="lab.randomStartersOnly" @change="onBaseOnlyChanged" />
-            <span><strong>Only the original 200</strong><small>🎲 Surprise selects two illustrated starters. Turn this off to include illustrated reusable hybrids as well.</small></span>
+            <input
+              type="checkbox"
+              :checked="lab.randomStartersOnly"
+              @change="onBaseOnlyChanged"
+            />
+            <span
+              ><strong>Only the original 200</strong
+              ><small
+                >🎲 Surprise selects two illustrated starters. Turn this off to
+                include illustrated reusable hybrids as well.</small
+              ></span
+            >
           </label>
-          <p class="settings-note">Only ingredients with delivered, accessible pictures can be randomly selected. Favorites and settings are saved in this browser for the current account.</p>
+          <p class="settings-note">
+            Only ingredients with delivered, accessible pictures can be randomly
+            selected. Favorites and settings are saved in this browser for the
+            current account.
+          </p>
         </section>
         <template v-if="drawer === 'favorites'">
-          <p class="atlas-loaded">{{ lab.favoriteEntries.length }} illustrated favorites. Tap an image to explore it.</p>
+          <p class="atlas-loaded">
+            {{ lab.favoriteEntries.length }} illustrated favorites. Tap an image
+            to explore it.
+          </p>
         </template>
         <template v-if="drawer === 'atlas'">
           <label class="search-wrap">
@@ -562,8 +631,9 @@
             </button>
           </div>
           <p class="atlas-loaded">
-            {{ lab.atlasEntries.length }} of {{ lab.atlasFilteredTotal }} matching discoveries loaded.
-            Rendering requests are not completed art.
+            {{ lab.atlasEntries.length }} of
+            {{ lab.atlasFilteredTotal }} matching discoveries loaded. Rendering
+            requests are not completed art.
           </p>
         </template>
         <template v-else-if="drawer !== 'favorites' && drawer !== 'settings'">
@@ -589,49 +659,64 @@
           </div>
         </template>
         <div v-if="drawer !== 'settings'" class="ingredient-grid kr-scroll">
-          <div v-for="entry in visibleEntries" :key="entry.key" class="ingredient-tile">
-          <button
-            type="button"
-            class="ingredient-option"
-            :aria-label="
-              drawer === 'atlas' || drawer === 'favorites'
-                ? 'View ' + entry.title + ' artwork'
-                : 'Select ' + entry.title
-            "
-            @click="pick(entry.key)"
+          <div
+            v-for="entry in visibleEntries"
+            :key="entry.key"
+            class="ingredient-tile"
           >
-            <img
+            <button
+              type="button"
+              class="ingredient-option"
+              :aria-label="
+                drawer === 'atlas' || drawer === 'favorites'
+                  ? 'View ' + entry.title + ' artwork'
+                  : 'Select ' + entry.title
+              "
+              @click="pick(entry.key)"
+            >
+              <img
+                v-if="lab.imageFor(entry)"
+                :src="lab.imageFor(entry) || undefined"
+                :alt="entry.title"
+              />
+              <span v-else class="option-glyph" aria-hidden="true">{{
+                glyphFor(entry.title, entry.taxonomy)
+              }}</span>
+              <strong>{{ entry.title }}</strong>
+              <em v-if="lab.artPending(entry)" class="art-pending"
+                >Art queued</em
+              >
+              <small
+                v-if="drawer === 'atlas' || drawer === 'favorites'"
+                class="atlas-entry-status"
+              >
+                {{
+                  entry.status === 'READY' && lab.imageFor(entry)
+                    ? '✦ ART READY · VIEW / RATE'
+                    : (entry.status || 'STUDY') + ' · VIEW'
+                }}
+              </small>
+              <small v-else>{{
+                entry.taxonomy === 'OTHER' && entry.facetGroup === 'fruit'
+                  ? 'FRUIT'
+                  : entry.taxonomy
+              }}</small>
+            </button>
+            <button
               v-if="lab.imageFor(entry)"
-              :src="lab.imageFor(entry) || undefined"
-              :alt="entry.title"
-            />
-            <span v-else class="option-glyph" aria-hidden="true">{{
-              glyphFor(entry.title, entry.taxonomy)
-            }}</span>
-            <strong>{{ entry.title }}</strong>
-            <em v-if="lab.artPending(entry)" class="art-pending">Art queued</em>
-            <small v-if="drawer === 'atlas' || drawer === 'favorites'" class="atlas-entry-status">
-              {{
-                entry.status === 'READY' && lab.imageFor(entry)
-                  ? '✦ ART READY · VIEW / RATE'
-                  : (entry.status || 'STUDY') + ' · VIEW'
-              }}
-            </small>
-            <small v-else>{{
-              entry.taxonomy === 'OTHER' && entry.facetGroup === 'fruit'
-                ? 'FRUIT'
-                : entry.taxonomy
-            }}</small>
-          </button>
-          <button
-            v-if="lab.imageFor(entry)"
-            type="button"
-            class="favorite-heart tile-heart"
-            :class="{ active: lab.isFavorite(entry.key) }"
-            :aria-label="lab.isFavorite(entry.key) ? 'Remove ' + entry.title + ' from favorites' : 'Favorite ' + entry.title"
-            :aria-pressed="lab.isFavorite(entry.key)"
-            @click.stop="lab.toggleFavorite(entry.key)"
-          >{{ lab.isFavorite(entry.key) ? '♥' : '♡' }}</button>
+              type="button"
+              class="favorite-heart tile-heart"
+              :class="{ active: lab.isFavorite(entry.key) }"
+              :aria-label="
+                lab.isFavorite(entry.key)
+                  ? 'Remove ' + entry.title + ' from favorites'
+                  : 'Favorite ' + entry.title
+              "
+              :aria-pressed="lab.isFavorite(entry.key)"
+              @click.stop="lab.toggleFavorite(entry.key)"
+            >
+              {{ lab.isFavorite(entry.key) ? '♥' : '♡' }}
+            </button>
           </div>
           <p v-if="!visibleEntries.length" class="empty-filter">
             {{
@@ -653,7 +738,11 @@
           </button>
         </div>
         <p v-if="drawer !== 'settings'" class="drawer-foot">
-          {{ drawer === 'favorites' ? 'Tap ♡ again to remove a favorite.' : 'Discoveries are shared. Missing art continues through the art relay while you explore.' }}
+          {{
+            drawer === 'favorites'
+              ? 'Tap ♡ again to remove a favorite.'
+              : 'Discoveries are shared. Missing art continues through the art relay while you explore.'
+          }}
         </p>
       </aside>
     </div>
@@ -821,7 +910,9 @@ async function shareFusion(platform: 'copy' | 'x' | 'facebook' | 'reddit') {
   }
 }
 
-const drawer = ref<'left' | 'right' | 'atlas' | 'favorites' | 'settings' | null>(null)
+const drawer = ref<
+  'left' | 'right' | 'atlas' | 'favorites' | 'settings' | null
+>(null)
 const atlasStatus = ref<'ALL' | 'READY' | 'IN_PROGRESS' | 'OTHER'>('ALL')
 const atlasFilters = [
   { value: 'ALL', label: 'All' },
@@ -870,7 +961,9 @@ function onBaseOnlyChanged(event: Event) {
   lab.setRandomStartersOnly((event.target as HTMLInputElement).checked)
 }
 
-function openDrawer(side: 'left' | 'right' | 'atlas' | 'favorites' | 'settings') {
+function openDrawer(
+  side: 'left' | 'right' | 'atlas' | 'favorites' | 'settings',
+) {
   drawer.value = side
   search.value = ''
   filter.value = 'ALL'

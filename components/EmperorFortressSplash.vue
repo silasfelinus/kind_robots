@@ -3,11 +3,7 @@
     class="eod-splash absolute inset-0 z-30 grid cursor-pointer place-items-center overflow-hidden bg-base-200"
     :class="leaving ? 'eod-splash-leave' : ''"
     aria-label="Emperor of Dust"
-    role="button"
-    tabindex="0"
     @click="leave"
-    @keydown.enter.prevent="leave"
-    @keydown.space.prevent="leave"
   >
     <img
       src="/emperor-of-dust/map/wasteland.webp"
@@ -45,21 +41,39 @@
         Rule a fractured kingdom. Send them into the wasteland. Remember what
         matters.
       </p>
-      <p
-        class="eod-splash-hint mt-6 text-sm italic"
-        :class="ready ? 'opacity-100' : 'opacity-0'"
-      >
-        {{ ready ? 'Tap to enter the fortress' : 'The dust is settling…' }}
+      <nav class="mt-6 flex flex-wrap items-center justify-center gap-3" aria-label="Main menu">
+        <button
+          type="button"
+          class="btn btn-warning min-w-40 font-bold"
+          :disabled="!ready || leaving"
+          @click.stop="leave"
+        >
+          <Icon name="kind-icon:crown" class="size-5" />
+          Enter fortress
+        </button>
+        <button
+          type="button"
+          class="btn btn-outline min-w-40 border-warning/70 text-warning"
+          :disabled="!ready || leaving"
+          data-testid="emperor-chronicle-menu"
+          @click.stop="openChronicle"
+        >
+          <Icon name="kind-icon:book-open" class="size-5" />
+          Chronicle of Ash
+        </button>
+      </nav>
+      <p class="eod-splash-hint text-xs italic">
+        {{ ready ? 'The court remembers every reign.' : 'The dust is settling…' }}
       </p>
     </div>
   </section>
 </template>
 
 <script setup lang="ts">
-import { onBeforeUnmount, onMounted, ref } from 'vue'
+import { onBeforeUnmount, ref } from 'vue'
 
 const props = defineProps<{ ready: boolean }>()
-const emit = defineEmits<{ done: [] }>()
+const emit = defineEmits<{ done: []; chronicle: [] }>()
 
 const TITLE = 'Emperor of Dust'.split('')
 const MOTES = Array.from({ length: 26 }, (_, id) => {
@@ -86,19 +100,10 @@ function leave() {
   timer = setTimeout(() => emit('done'), 600)
 }
 
-// Kind Robots' own boot loader (.loader-root, app.vue) can still cover the
-// page after this mounts; the splash only counts time it is actually seen.
-// Its own failsafe retires within 9s, so the wait is capped there.
-onMounted(() => {
-  let seen = 0
-  let waited = 0
-  timer = setTimeout(function tick() {
-    waited += 250
-    if (!document.querySelector('.loader-root') || waited > 9000) seen += 250
-    if (seen >= 4500 && props.ready) leave()
-    else timer = setTimeout(tick, 250)
-  }, 250)
-})
+function openChronicle() {
+  if (!props.ready || leaving.value) return
+  emit('chronicle')
+}
 
 onBeforeUnmount(() => {
   if (timer) clearTimeout(timer)

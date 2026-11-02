@@ -50,10 +50,10 @@ export default defineEventHandler(async (event) => {
     )
       throw createError({
         statusCode: 400,
-        message: 'Use a valid ingredient balance (10–90) and art direction under 500 characters.',
+        message:
+          'Use a valid ingredient balance (10–90) and art direction under 500 characters.',
       })
-    const leftWeight =
-      focusKey === firstKey ? focusWeight : 100 - focusWeight
+    const leftWeight = focusKey === firstKey ? focusWeight : 100 - focusWeight
     if (['QUEUED', 'RENDERING', 'DELIVERING'].includes(fusion.status))
       throw createError({
         statusCode: 409,

@@ -205,7 +205,10 @@ for (const crew of TEAMS) {
 
         // Every archetype gets a real exact server-replay audit, not just a
         // two-runs-have-same-victor comparison.
-        if (seed === seeds[0] && foe.id === TEAMS.find((t) => t.id !== crew.id)!.id) {
+        if (
+          seed === seeds[0] &&
+          foe.id === TEAMS.find((t) => t.id !== crew.id)!.id
+        ) {
           assert.deepEqual(
             replayMatch(
               {

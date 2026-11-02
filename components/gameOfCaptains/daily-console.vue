@@ -171,7 +171,7 @@
               classified; field experience may reveal them. Moving a character
               between cards swaps their existing assignment instead of
               abandoning it. Every redshirt also faces a separate fatality roll:
-              1-in-3 without relevant expertise, 1-in-6 when their matching
+              1-in-5 without relevant expertise, 1-in-10 when their matching
               skill is at least 4. Even a successful mission can cost a life.
             </p>
           </div>

@@ -216,6 +216,12 @@ export const useGameOfCaptainsStore = defineStore('gameOfCaptains', () => {
   async function syncAlienGuideAccount() {
     if (!loaded.value) return
     const epoch = ++accountEpoch
+    alienSighting.value = null
+    alienReport.value = null
+    collectorIncident.value = null
+    collectorReport.value = null
+    alienArtwork.value = {}
+    alienArtLoaded.value = false
     const id = userStore.authenticatedUserId
     writer = null
     queuedSignature = ''
@@ -256,7 +262,11 @@ export const useGameOfCaptainsStore = defineStore('gameOfCaptains', () => {
     queuedSignature = JSON.stringify(remote)
     alienSyncStatus.value = 'pending'
     saveAlienGuideToAccount()
-    if (JSON.stringify(remote) === JSON.stringify(alienGuide.value)) {
+    if (
+      response.success &&
+      response.data &&
+      JSON.stringify(remote) === JSON.stringify(alienGuide.value)
+    ) {
       // A no-op save is unnecessary; the server already has this guide.
       alienSyncStatus.value = 'synced'
     }
@@ -374,17 +384,18 @@ export const useGameOfCaptainsStore = defineStore('gameOfCaptains', () => {
   const alienArtLoaded = ref(false)
   async function loadAlienArtwork() {
     if (alienArtLoaded.value) return
+    const epoch = accountEpoch
     try {
       const response = await performFetch<Record<string, string>>(
         '/api/game-of-captains/alien-art',
       )
-      if (response.success && response.data) {
+      if (epoch === accountEpoch && response.success && response.data) {
         alienArtwork.value = response.data
       }
     } catch {
-      alienArtwork.value = {}
+      if (epoch === accountEpoch) alienArtwork.value = {}
     } finally {
-      alienArtLoaded.value = true
+      if (epoch === accountEpoch) alienArtLoaded.value = true
     }
   }
   const onboardingArt = ref<Record<string, string>>({})

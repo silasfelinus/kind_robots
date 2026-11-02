@@ -896,7 +896,10 @@ for (const crew of TEAMS) {
         defeat?.playerLine,
         CAMPAIGN_APPROACH_REFLECTIONS[team][approach],
       )
-      assert.equal(defeat?.rivalLine, CAMPAIGN_RIVAL_REACTIONS[team][index]!.defeat)
+      assert.equal(
+        defeat?.rivalLine,
+        CAMPAIGN_RIVAL_REACTIONS[team][index]!.defeat,
+      )
       assert.equal(lost[team].lastApproach, approach)
       assert.equal(lost[team].wins, index)
       const earlierSave = {
@@ -943,7 +946,9 @@ for (const crew of TEAMS) {
 }
 assert.equal(rivalVictoryLines.size, 30)
 assert.equal(rivalDefeatLines.size, 30)
-console.log('Slime City 60 rival aftermaths: approach fidelity, legacy saves and independent crews PASS')
+console.log(
+  'Slime City 60 rival aftermaths: approach fidelity, legacy saves and independent crews PASS',
+)
 
 // Story missions combine district consequences with one specific story
 // approach; this cannot modify the city, chapter definitions, or browser

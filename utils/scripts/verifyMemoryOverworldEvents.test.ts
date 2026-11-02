@@ -17,6 +17,7 @@ import { BRIAR_COLLISION_SCENES } from '../memoryDungeon/briarCollision'
 import { briarCollisionWitnessCallback } from '../memoryDungeon/briarCollisionWitness'
 import { restoreMemoryCampaignProgress } from '../memoryDungeon/campaignPersistence'
 import { BRIAR_COLLISION_ROUTE_SITES } from '../memoryDungeon/briarCollisionRoute'
+import { EARTH_COLLISION_ROUTE_SITES } from '../memoryDungeon/earthCollisionRoute'
 import earthCollision from '../memoryDungeon/earthCollision.json'
 import {
   earthCollisionHistory,
@@ -627,6 +628,95 @@ for (const scene of earthScenes) {
     assert.deepEqual(resolved.effects, choice.effects)
   }
 }
+const e10RouteSites = Object.entries(EARTH_COLLISION_ROUTE_SITES)
+assert.equal(e10RouteSites.length, 8)
+assert.equal(
+  worldEvents('e10').filter((event) => event.memoryFragment).length,
+  2,
+  'new connective encounters must not create additional memory fragments',
+)
+const e10RouteFlags = new Set<string>()
+const e10RouteOutcomes = new Set<string>()
+let e10RouteCases = 0
+for (const [key, scene] of e10RouteSites) {
+  assert.ok(
+    !earthScenes.some((fragment) => fragment.key === key) &&
+      !EARTH_PHOTOS.some(
+        (photo) => photo.experience === 'e10' && photo.site === key,
+      ) &&
+      key !== '8,8',
+    key + ' must not overwrite a fragment, photo, or final verdict',
+  )
+  const event = worldEvent('e10', key)!
+  assert.equal(event.title, scene.title)
+  assert.equal(event.opening, scene.opening)
+  assert.equal(event.speaker, scene.speaker)
+  assert.equal(event.kind, scene.kind)
+  assert.equal(event.memoryFragment, undefined)
+  assert.equal(event.choices.length, 2)
+  assert.ok(scene.opening.length > 200, key + ' needs a developed opening')
+  assert.ok(scene.artSubject.length > 70, key + ' needs visual direction')
+  assert.equal(event.sceneArt.status, 'placeholder')
+  assert.ok(event.sceneArt.prompt.includes(scene.artSubject))
+  for (const choice of event.choices) {
+    assert.ok(choice.outcome.length > 180, key + ' needs a real aftermath')
+    assert.ok(
+      Object.values(choice.effects).some((effect) => effect !== 0),
+      key + ' must have an actual resource consequence',
+    )
+    assert.ok(!e10RouteFlags.has(choice.flag), 'flags must be unique')
+    assert.ok(!e10RouteOutcomes.has(choice.outcome), 'outcomes must be unique')
+    e10RouteFlags.add(choice.flag)
+    e10RouteOutcomes.add(choice.outcome)
+    assert.ok(choice.art.prompt.includes(choice.label))
+    assert.equal(choice.art.status, 'placeholder')
+    const [x, y] = key.split(',').map(Number) as [number, number]
+    const journal: EarthJournalAction[] = []
+    for (let step = 2; step <= x; step++)
+      journal.push({ type: 'travel', key: step + ',1' })
+    for (let step = 2; step <= y; step++)
+      journal.push({ type: 'travel', key: x + ',' + step })
+    journal.push({ type: 'choose', key, choiceId: choice.id })
+    const replayed = replayEarthJournal('e10', journal)
+    assert.ok(replayed, key + ' must be reachable by adjacent travel')
+    assert.equal(replayed.position, key)
+    assert.equal(replayed.progress.choices[key], choice.id)
+    assert.ok(replayed.progress.flags.includes(choice.flag))
+    assert.equal(replayed.progress.supplies, choice.effects.supplies ?? 0)
+    assert.equal(replayed.progress.trust, choice.effects.trust ?? 0)
+    assert.equal(replayed.progress.evidence, choice.effects.evidence ?? 0)
+    assert.equal(
+      replayed.progress.danger,
+      Math.max(0, choice.effects.danger ?? 0),
+    )
+    assert.deepEqual(
+      replayEarthJournal('e10', JSON.parse(JSON.stringify(journal))),
+      replayed,
+      'authored consequences must survive a save/restore roundtrip',
+    )
+    assert.equal(
+      replayEarthJournal('e10', [
+        ...journal,
+        { type: 'choose', key, choiceId: choice.id },
+      ]),
+      null,
+      'replayed decisions cannot pay twice',
+    )
+    assert.equal(
+      replayEarthJournal('e10', [
+        ...journal.slice(0, -1),
+        { type: 'choose', key, choiceId: 'forged' },
+      ]),
+      null,
+      'invented choice IDs cannot be restored',
+    )
+    e10RouteCases++
+  }
+}
+assert.equal(e10RouteCases, 16)
+assert.equal(e10RouteFlags.size, 16)
+assert.equal(e10RouteOutcomes.size, 16)
+
 const e10OfficeWalk: EarthJournalAction[] = [
   { type: 'travel', key: '2,1' },
   { type: 'travel', key: '2,2' },

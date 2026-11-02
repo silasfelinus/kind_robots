@@ -277,6 +277,160 @@ export const useHybridizerStore = defineStore('hybridizer', () => {
     }
   }
 
+  async function loadAtlas(
+    reset = true,
+    filter: 'ALL' | 'READY' | 'IN_PROGRESS' | 'OTHER' = 'ALL',
+    search = '',
+  ) {
+    const signature = filter + ':' + search.trim()
+    if (reset) {
+      atlasEntries.value = []
+      atlasFilteredTotal.value = 0
+      atlasQuery = signature
+    } else if (
+      atlasLoading.value ||
+      !atlasCanLoadMore.value ||
+      signature !== atlasQuery
+    ) {
+      return
+    }
+    const requestId = ++atlasRequestSerial
+    const viewerId = userStore.authenticatedUserId
+    const skip = reset ? 0 : atlasEntries.value.length
+    atlasLoading.value = true
+    try {
+      const params = new URLSearchParams({
+        take: String(PAGE_SIZE),
+        skip: String(skip),
+        status: filter,
+        search: search.trim().slice(0, 100),
+      })
+      const response = await performFetch<HybridizerDiscovery[], AtlasMeta>(
+        '/api/hybridizer/fusions?' + params,
+      )
+      if (
+        requestId !== atlasRequestSerial ||
+        viewerId !== userStore.authenticatedUserId ||
+        signature !== atlasQuery
+      ) return
+      if (!response.success || !response.data) {
+        status.value = 'Could not load this gallery page.'
+        return
+      }
+      atlasFilteredTotal.value =
+        response.meta?.filteredTotal ?? response.data.length
+      atlasEntries.value = reset
+        ? response.data
+        : [...atlasEntries.value, ...response.data]
+      const merged = new Map(discoveries.value.map((entry) => [entry.key, entry]))
+      for (const entry of response.data) merged.set(entry.key, entry)
+      discoveries.value = [...merged.values()].slice(-MAX_SHELF)
+      const images: Record<string, string> = {}
+      for (const entry of response.data) {
+        if (entry.imagePath) images[entry.key] = entry.imagePath
+      }
+      availableArt.value = { ...availableArt.value, ...images }
+    } finally {
+      if (requestId === atlasRequestSerial) atlasLoading.value = false
+    }
+  }
+
+  async function loadFavoriteRecords() {
+    const viewerId = userStore.authenticatedUserId
+    const ids = favoriteKeys.value
+      .filter((key) => key.startsWith('fusion:'))
+      .map((key) => key.slice(7))
+    for (let offset = 0; offset < ids.length; offset += 80) {
+      const params = new URLSearchParams({
+        ids: ids.slice(offset, offset + 80).join(','),
+        take: '100',
+      })
+      const response = await performFetch<HybridizerDiscovery[], AtlasMeta>(
+        '/api/hybridizer/fusions?' + params,
+      )
+      if (viewerId !== userStore.authenticatedUserId) return
+      if (!response.success || !response.data) continue
+      const merged = new Map(discoveries.value.map((entry) => [entry.key, entry]))
+      for (const entry of response.data) merged.set(entry.key, entry)
+      discoveries.value = [...merged.values()].slice(-MAX_SHELF)
+      const images: Record<string, string> = {}
+      for (const entry of response.data) {
+        if (entry.imagePath) images[entry.key] = entry.imagePath
+      }
+      availableArt.value = { ...availableArt.value, ...images }
+    }
+  }
+
+  async function randomize() {
+    if (working.value || randomizing.value) return
+    const viewerId = userStore.authenticatedUserId
+    randomizing.value = true
+    try {
+      if (!STARTERS.some((entry) => imageFor(entry))) await loadArtwork()
+      const starters = STARTERS.filter((entry) => !!imageFor(entry))
+      let hybrids: HybridizerDiscovery[] = []
+      let hybridCount = 0
+      if (!randomStartersOnly.value) {
+        const initial = await performFetch<HybridizerDiscovery[], AtlasMeta>(
+          '/api/hybridizer/fusions?take=1&status=READY&maxDepth=3',
+        )
+        hybridCount = initial.success ? (initial.meta?.filteredTotal ?? 0) : 0
+        if (hybridCount) {
+          const offset = Math.floor(Math.random() * hybridCount)
+          const params = new URLSearchParams({
+            status: 'READY',
+            maxDepth: '3',
+            take: '30',
+            skip: String(Math.max(0, offset - 15)),
+          })
+          const sample = await performFetch<HybridizerDiscovery[], AtlasMeta>(
+            '/api/hybridizer/fusions?' + params,
+          )
+          hybrids = sample.success && sample.data
+            ? sample.data.filter((entry) => !!entry.imagePath)
+            : []
+        }
+      }
+      if (viewerId !== userStore.authenticatedUserId) return
+      const available = [...starters, ...hybrids]
+      if (available.length < 2) {
+        status.value = 'Not enough illustrated ingredients yet. Try again as art arrives.'
+        return
+      }
+      const chooseRandom = (excluded?: string) => {
+        const selectHybrid =
+          hybrids.length > 0 &&
+          Math.random() * (starters.length + hybridCount) >= starters.length
+        const primary = selectHybrid ? hybrids : starters
+        const remaining = primary.filter((entry) => entry.key !== excluded)
+        const pool = remaining.length
+          ? remaining
+          : available.filter((entry) => entry.key !== excluded)
+        return pool[Math.floor(Math.random() * pool.length)]!
+      }
+      const first = chooseRandom()
+      const second = chooseRandom(first.key)
+      const merged = new Map(discoveries.value.map((entry) => [entry.key, entry]))
+      const images: Record<string, string> = {}
+      for (const entry of hybrids) {
+        merged.set(entry.key, entry)
+        if (entry.imagePath) images[entry.key] = entry.imagePath
+      }
+      discoveries.value = [...merged.values()].slice(-MAX_SHELF)
+      availableArt.value = { ...availableArt.value, ...images }
+      leftKey.value = first.key
+      rightKey.value = second.key
+      resultKey.value = null
+      reusedArtwork.value = false
+      versions.value = []
+      canEditResult.value = false
+      status.value = 'Two illustrated ingredients selected. Ready to fuse!'
+      void showKnownPair()
+    } finally {
+      randomizing.value = false
+    }
+  }
+
   async function loadArtwork() {
     try {
       const records = await catalogStore.fetchCatalogSlice({

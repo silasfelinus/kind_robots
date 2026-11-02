@@ -113,7 +113,11 @@ assert.equal(
   60,
   'Six ten-card founder decks',
 )
-assert.equal(CARDS.length, 168, '48 Gutter Crown faction cards and 60 neutral mercenaries are playable')
+assert.equal(
+  CARDS.length,
+  168,
+  '48 Gutter Crown faction cards and 60 neutral mercenaries are playable',
+)
 assert.equal(
   CARDS.filter((card) => slimeArtId('cards', card.id)).length,
   36,

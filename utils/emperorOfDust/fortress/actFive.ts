@@ -2983,6 +2983,18 @@ export const ACT_FIVE_DAYS: readonly DayDef[] = [
               ),
             ],
           },
+          {
+            flags: ['d40-komodo-followed'],
+            lines: [
+              'The rider under the white rag is Captain Dunmark. Coat torn. Gorget gone. His horse is lame in the off foreleg.',
+              'He kneels in the dirt unasked. Rook stands back by the fire, still carrying road dust from the track followed on Day Forty.',
+              '“Your watcher was right about the mission road, Majesty. Half the Watch rode out on a seal that sent us to the Abbey. The sisters had supper and blankets. In the morning I counted us. We were fewer.”',
+              '“I came back. Twenty-two guards wait on the ridge. They know someone found the trail before we rode it. They want to know why the crown could not stop us.”',
+              vellumSays(
+                '“A road discovered is not a road closed, Majesty. But it is evidence of who knew the way.”',
+              ),
+            ],
+          },
         ],
         options: [
           {
@@ -4148,6 +4160,43 @@ export const ACT_FIVE_DAYS: readonly DayDef[] = [
         ],
         options: [
           {
+            id: 'paid-volunteers-record',
+            label:
+              'Read the names of the volunteers you sent to the Ford. Refuse the new writ until every death has a witness.',
+            requires: { flags: ['d31-volunteers-sent'] },
+            effects: {
+              local: { 'gate-watch': -2, yard: 1, lamplight: 2 },
+              flags: ['watch-writ-refused', 'd47-volunteers-named'],
+            },
+            response:
+              'Dunmark opens the bounty roll. Some names are crossed out. He reads those names first. The paid recruits at the fire stand for the dead, then ask who will guard their families.',
+          },
+          {
+            id: 'volunteers-commission',
+            label:
+              'Admit the paid volunteers stayed on your walls while the Ford burned. Give the villages a right to appoint Watch captains.',
+            requires: { flags: ['d31-volunteers-kept'] },
+            effects: {
+              affinity: { freeholds: 6 },
+              local: { 'gate-watch': -3, 'old-houses': -1 },
+              flags: ['watch-writ-refused', 'd47-village-commission'],
+            },
+            response:
+              'The Freehold delegation does not forgive the lost road. They sign the new appointments anyway. Dunmark says he will report to a council before he reports to a crown.',
+          },
+          {
+            id: 'rook-road-evidence',
+            label:
+              'Enter Rook’s Day Forty mission-road evidence into the Watch record. Take responsibility for not stopping Komodo.',
+            requires: { flags: ['d40-komodo-followed'] },
+            effects: {
+              local: { lamplight: 2, 'gate-watch': -1 },
+              flags: ['watch-writ-refused', 'd47-rook-road-recorded'],
+            },
+            response:
+              'Rook draws the false Saltroad turn in the dirt. Dunmark copies it. “He wanted to be followed,” Rook says. “We saw the road. We did not see why.” Nobody calls it proof of innocence.',
+          },
+          {
             id: 'tanner-names',
             label:
               'Record the two executed guards by name and ban unreviewed detention. Lose Watch support rather than sign another blank order.',
@@ -4604,6 +4653,19 @@ export const ACT_FIVE_DAYS: readonly DayDef[] = [
           },
         ],
         options: [
+          {
+            id: 'wenna-council-seat',
+            label:
+              'Spend twenty brass bringing Wenna Coldbrook to the town council. She was paid to go away once. Let her speak now.',
+            requires: { flags: ['d24-wenna-paid'], cost: 20 },
+            effects: {
+              affinity: { freeholds: 7, abbey: -8, 'hollow-bell': -4 },
+              local: { lamplight: 2 },
+              flags: ['d48-wenna-council'],
+            },
+            response:
+              'Mara signs the invitation. Wenna arrives with her baby and the old purse, which she puts on the table. “You paid me to leave,” she says. “This time you will hear why I came.”',
+          },
           {
             id: 'ask-last',
             label:

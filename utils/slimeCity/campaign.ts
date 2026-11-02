@@ -759,7 +759,8 @@ export function campaignEchoFor(
   team: TeamId,
 ): CampaignEcho | null {
   const { wins, decisions } = save[team]
-  if (wins < 1 || wins >= FACTION_CAMPAIGNS[team].chapters.length) return null
+  if (wins < 1 || wins >= FACTION_CAMPAIGNS[team].chapters.length)
+    return null
   const lastChoice = decisions[wins - 1]
   return lastChoice ? CAMPAIGN_ECHOES[team][lastChoice] : null
 }
@@ -794,6 +795,9 @@ export function describeTerms(terms: BoutTerms): string {
   if (terms.enemyMana) labels.push('Rival mana ' + signed(terms.enemyMana))
   if (terms.playerHp) labels.push('Your HP ' + signed(terms.playerHp))
   if (terms.enemyArmor) labels.push('Rival armor ' + signed(terms.enemyArmor))
+  if (terms.fewerRivals)
+    labels.push('Rival starts with ' + terms.fewerRivals + ' fewer fighters')
+  if (terms.rounds) labels.push('Round limit ' + signed(terms.rounds))
   if (terms.rivalTrap) labels.push('Rival starts with a hidden trap')
   return labels.join(' · ') || 'Standard rules'
 }

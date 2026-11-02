@@ -67,7 +67,12 @@ export function summarizeTournament(
     throw new Error('Tournament needs unique seeds')
   const expected = teamIds.length * (teamIds.length - 1) * seeds.length
   if (results.length !== expected)
-    throw new Error('Incomplete tournament: expected ' + expected + ' matches, got ' + results.length)
+    throw new Error(
+      'Incomplete tournament: expected ' +
+        expected +
+        ' matches, got ' +
+        results.length,
+    )
 
   const seen = new Set<string>()
   const counts = { player: 0, enemy: 0, draws: 0 }
@@ -77,20 +82,23 @@ export function summarizeTournament(
   let contactSum = 0
   let contactCount = 0
   const crews = new Map(
-    teamIds.map((team) => [
-      team,
-      {
-        team,
-        ...record(),
-        scoreRate: 0,
-        asPlayer: record(),
-        asEnemy: record(),
-        averageRounds: 0,
-        longestStall: 0,
-        withoutContact: 0,
-        winPaths: {} as Record<string, number>,
-      },
-    ] as const),
+    teamIds.map(
+      (team) =>
+        [
+          team,
+          {
+            team,
+            ...record(),
+            scoreRate: 0,
+            asPlayer: record(),
+            asEnemy: record(),
+            averageRounds: 0,
+            longestStall: 0,
+            withoutContact: 0,
+            winPaths: {} as Record<string, number>,
+          },
+        ] as const,
+    ),
   )
   for (const match of results) {
     if (
@@ -101,8 +109,11 @@ export function summarizeTournament(
       !seeds.includes(match.seed) ||
       !Number.isFinite(match.rounds) ||
       match.rounds < 1 ||
-      match.victor !== 'draw' && match.victor !== 'player' && match.victor !== 'enemy'
-    ) throw new Error('Invalid tournament matchup')
+      (match.victor !== 'draw' &&
+        match.victor !== 'player' &&
+        match.victor !== 'enemy')
+    )
+      throw new Error('Invalid tournament matchup')
     const key = [match.seed, match.playerTeam, match.enemyTeam].join(':')
     if (seen.has(key)) throw new Error('Duplicate tournament matchup: ' + key)
     seen.add(key)
@@ -137,11 +148,18 @@ export function summarizeTournament(
   }))
   const warnings: string[] = []
   if (seeds.length < 10)
-    warnings.push('Exploratory sample: fewer than ten seeds per ordered pairing; do not infer faction balance.')
+    warnings.push(
+      'Exploratory sample: fewer than ten seeds per ordered pairing; do not infer faction balance.',
+    )
   if (counts.draws / results.length > 0.4)
     warnings.push('Over 40% draws: examine stalls and objective reachability.')
-  if (seeds.length >= 10 && Math.abs(counts.player - counts.enemy) / results.length > 0.25)
-    warnings.push('Large first-side victory gap: inspect initiative and mirrored matchups.')
+  if (
+    seeds.length >= 10 &&
+    Math.abs(counts.player - counts.enemy) / results.length > 0.25
+  )
+    warnings.push(
+      'Large first-side victory gap: inspect initiative and mirrored matchups.',
+    )
   return {
     mode,
     seeds: [...seeds],

@@ -51,6 +51,7 @@ import {
   type DistrictId,
 } from '../slimeCity/city'
 import {
+  BLACKOUT_HAND_SIZE,
   BLACKOUT_MANA_GAIN,
   CARDS,
   createMatch,
@@ -643,8 +644,18 @@ const scenario = applyTerms(
   {
     ...scenarioBase,
     hands: {
-      player: ['lynx', ...scenarioBase.hands.player.slice(0, 3)],
-      enemy: ['sprite', ...scenarioBase.hands.enemy.slice(0, 3)],
+      player: [
+        'lynx',
+        ...scenarioBase.hands.player
+          .filter((id) => id !== 'lynx')
+          .slice(0, BLACKOUT_HAND_SIZE - 1),
+      ],
+      enemy: [
+        'sprite',
+        ...scenarioBase.hands.enemy
+          .filter((id) => id !== 'sprite')
+          .slice(0, BLACKOUT_HAND_SIZE - 1),
+      ],
     },
   },
   { playerHp: 2, enemyArmor: 1, fewerRivals: 1 },
@@ -737,7 +748,7 @@ assert.equal(
   0,
   'New Blackout starts with open deployment',
 )
-assert.equal(lab.hand.length, 4, 'New Blackout deals four cards')
+assert.equal(lab.hand.length, BLACKOUT_HAND_SIZE, 'New Blackout deals five cards')
 assert.ok(
   lab.match.units
     .filter((u) => u.side === 'player')
@@ -859,7 +870,11 @@ const boosted = applyTerms(
   createMatch('blackout', 'riot', 'catgirls', 421),
   boutTerms(crisisSweep, 'pitworks'),
 )
-assert.equal(boosted.mana, 3, 'Citywide alliance supplies two opening mana')
+assert.equal(
+  boosted.mana,
+  BLACKOUT_MANA_GAIN + 2,
+  'Citywide alliance supplies two opening mana',
+)
 assert.equal(
   boosted.scenarioBonus?.enemyArmor,
   -1,
@@ -881,7 +896,11 @@ assert.equal(lab.view, 'arena')
 assert.equal(lab.mode, 'blackout')
 assert.equal(lab.match.foeId, 'exchange')
 assert.equal(lab.campaignBout?.team, 'ironjaw')
-assert.equal(lab.match.enemyMana, 2, 'Story approach affects match resources')
+assert.equal(
+  lab.match.enemyMana,
+  BLACKOUT_MANA_GAIN + 1,
+  'Story approach affects match resources',
+)
 lab.closeGuide()
 for (let i = 0; i < 40 && !lab.match.victor; i++) lab.nextRound()
 assert.ok(lab.match.victor)

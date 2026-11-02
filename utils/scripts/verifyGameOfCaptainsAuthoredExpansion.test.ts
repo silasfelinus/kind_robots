@@ -163,7 +163,11 @@ for (let seed = 1; seed <= 12; seed++) {
   visits += steps.filter((step) => step.startsWith('consequence:')).length
   assert.deepEqual(restoreVoyage(JSON.parse(JSON.stringify(run))), run)
 }
-assert.equal(visits, 48, 'three first-act cases and the Act II Concord case per voyage')
+assert.equal(
+  visits,
+  48,
+  'three first-act cases and the Act II Concord case per voyage',
+)
 const page = readFileSync(
   new URL('../../pages/play/game-of-captains.vue', import.meta.url),
   'utf8',

@@ -9,9 +9,11 @@ import {
   deploy,
   loadoutProblems,
   move,
+  observe,
   type Fighter,
 } from '../slimeCity/prototypes'
 import { GUTTER_CROWN_WAVE_TWO } from '../slimeCity/gutterCrownWaveTwo'
+import { chooseCpuAction } from '../slimeCity/cpu'
 import {
   RARE_COUNT,
   buyPack,
@@ -145,6 +147,18 @@ const shove = createMatch('blackout', 'ironjaw', 'riot', 83)
 shove.round = 3
 shove.units = [ironjaw(3, 2), rival(4, 2)]
 assert.equal(canBulldozeInto(shove, shove.units[0]!, 4, 2), true)
+const cpuShove = createMatch('blackout', 'ironjaw', 'riot', 83)
+cpuShove.round = 3
+cpuShove.units = [{ ...ironjaw(3, 2), attackedRound: 3 }, rival(4, 2)]
+cpuShove.flag = { x: 1, y: 2 }
+cpuShove.mana = 0
+cpuShove.hands.player = []
+assert.deepEqual(chooseCpuAction(observe(cpuShove, 'player')), {
+  t: 'move',
+  id: 100,
+  x: 4,
+  y: 2,
+}, 'AI chooses legal shove only from visible tactical facts')
 const pushed = move(shove, 100, 4, 2)
 assert.notEqual(pushed, shove)
 assert.equal(pushed.units.find((u) => u.id === 100)?.x, 4)

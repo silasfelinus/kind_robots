@@ -470,7 +470,7 @@
         <button
           type="button"
           class="fusion-button"
-          :disabled="lab.working"
+          :disabled="lab.working || lab.randomizing"
           data-testid="hybridizer-fuse"
           @click="lab.fuse()"
         >

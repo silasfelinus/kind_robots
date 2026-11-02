@@ -142,7 +142,10 @@ const labPage = readFileSync(
   new URL('../../pages/admin/hybridizer.vue', import.meta.url),
   'utf8',
 )
-assert.match(atlasApi, /const where: Prisma\.HybridizerFusionWhereInput = \{ AND: filters \}/)
+assert.match(
+  atlasApi,
+  /const where: Prisma\.HybridizerFusionWhereInput = \{ AND: filters \}/,
+)
 assert.match(atlasApi, /filteredTotal/)
 assert.match(atlasApi, /status === 'READY'/)
 assert.match(atlasApi, /status === 'IN_PROGRESS'/)

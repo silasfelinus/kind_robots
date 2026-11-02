@@ -77,8 +77,14 @@
 }
 
 @keyframes md-beacon-aura {
-  from { opacity: 0.52; transform: scale(0.85); }
-  to { opacity: 1; transform: scale(1.04); }
+  from {
+    opacity: 0.52;
+    transform: scale(0.85);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1.04);
+  }
 }
 
 @keyframes md-beacon-turn {
@@ -91,7 +97,9 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .md-action-beacon::before { animation: none; }
+  .md-action-beacon::before {
+    animation: none;
+  }
   .md-action-beacon-gem {
     animation: none;
     transform: rotateX(-18deg) rotateY(-25deg);

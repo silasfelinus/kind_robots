@@ -23,8 +23,8 @@ import {
 } from '../slimeCity/progression'
 
 assert.equal(GUTTER_CROWN_WAVE_TWO.length, 36)
-assert.equal(CARDS.length, 204)
-assert.equal(RARE_COUNT, 68)
+assert.equal(CARDS.length, 300)
+assert.equal(RARE_COUNT, 100)
 assert.equal(new Set(CARDS.map((card) => card.id)).size, CARDS.length)
 assert.equal(new Set(CARDS.map((card) => card.name)).size, CARDS.length)
 assert.equal(

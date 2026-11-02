@@ -114,7 +114,9 @@ export const useGameOfCaptainsStore = defineStore('gameOfCaptains', () => {
   const redshirtKnowledge = ref<RedshirtKnowledge>({})
   const storageWarning = ref('')
   const alienGuide = ref<AlienGuide>(emptyAlienGuide())
-  const alienGuideSyncStatus = ref<'local' | 'syncing' | 'synced' | 'error'>('local')
+  const alienGuideSyncStatus = ref<'local' | 'syncing' | 'synced' | 'error'>(
+    'local',
+  )
   let alienGuideSyncBusy = false
   let alienGuideSyncQueued = false
   let alienGuideRevision = 0
@@ -125,7 +127,8 @@ export const useGameOfCaptainsStore = defineStore('gameOfCaptains', () => {
       !loaded.value ||
       !userStore.isLoggedIn ||
       !userStore.userId
-    ) return
+    )
+      return
     const ownerId = userStore.userId
     if (alienGuideSyncBusy) {
       alienGuideSyncQueued = true
@@ -166,7 +169,10 @@ export const useGameOfCaptainsStore = defineStore('gameOfCaptains', () => {
         alienGuideSyncStatus.value = 'synced'
         try {
           localStorage.setItem(ALIEN_GUIDE_OWNER_KEY, String(ownerId))
-          localStorage.setItem(ALIEN_GUIDE_KEY, JSON.stringify(alienGuide.value))
+          localStorage.setItem(
+            ALIEN_GUIDE_KEY,
+            JSON.stringify(alienGuide.value),
+          )
         } catch {
           // Account is canonical even if the local cache cannot be saved.
         }

@@ -1512,7 +1512,7 @@
               <p>
                 Ask local relief partners for three emergency supply crates.
                 Each favor costs more reputation than the last. You can
-                requisition once per chapter, but only after answering the call.
+                requisition once per act, but only after answering the call.
               </p>
               <button
                 class="cap-option"

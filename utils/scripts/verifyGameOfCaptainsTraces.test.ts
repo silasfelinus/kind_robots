@@ -138,6 +138,7 @@ const STYLES: Driver[] = [
     name: 'rescuer',
     order: () => 'aid',
     finale: 'protect',
+    resupply: () => true,
     errand: (run) => [run.crew[run.chapter % 3]!, 'careful', 'careful'],
     romance: (_run, ids) => ids[0] ?? null,
     instinct: () => 'restraint',
@@ -163,6 +164,7 @@ const STYLES: Driver[] = [
   {
     name: 'legalist',
     order: (run) => (run.chapter % 2 ? 'observe' : 'aid'),
+    resupply: () => true,
     finale: (run) => (counterCrew(run).length ? 'counter' : 'protect'),
     episode: (run) => (run.chapter % 2 ? 'document' : 'ask'),
     errand: (run) => [run.crew[0]!, 'bold', 'careful'],
@@ -213,6 +215,7 @@ type StyleBalance = {
   negativeTrust: number
   emptySupplies: number
   fallenRedshirts: number
+  requisitions: number
 }
 const styleBalances = new Map<string, StyleBalance>(
   STYLES.map((style) => [
@@ -223,6 +226,7 @@ const styleBalances = new Map<string, StyleBalance>(
       negativeTrust: 0,
       emptySupplies: 0,
       fallenRedshirts: 0,
+      requisitions: 0,
     },
   ]),
 )
@@ -237,7 +241,7 @@ NEMESES.forEach((nemesis, n) => {
     crews.forEach((crew, k) => {
       for (const style of styles) {
         const seed = seeds[k % seeds.length]!
-        const { run } = playVoyage(captain, crew, seed, style)
+        const { run, steps } = playVoyage(captain, crew, seed, style)
         voyages++
         const where = `${nemesis}/${captain}/${crew.join('+')}/${style.name}`
         assert.equal(antagonistFor(run).id, nemesis, where)
@@ -251,6 +255,7 @@ NEMESES.forEach((nemesis, n) => {
           if (run.trust < 0) balance.negativeTrust++
           if (run.supplies === 0) balance.emptySupplies++
           balance.fallenRedshirts += run.redshirtFallen?.length ?? 0
+          balance.requisitions += steps.filter((step) => step === 'resupply').length
         }
       }
     })
@@ -280,7 +285,9 @@ if (FULL) {
         ', empty supplies ' +
         balance.emptySupplies +
         ', fallen redshirts ' +
-        balance.fallenRedshirts,
+        balance.fallenRedshirts +
+        ', paid requisitions ' +
+        balance.requisitions,
     )
   }
 }

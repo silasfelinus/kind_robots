@@ -2403,35 +2403,36 @@ const hiddenFogArt = readFileSync(
   'public/memory-dungeon/briar-fog.svg',
   'utf8',
 )
-assert.match(
-  consoleStage,
-  /class="md-fog-tile h-full w-full"/,
+assert.ok(
+  consoleStage.includes('class="md-fog-tile h-full w-full"'),
   'Unrevealed tiles use illustrated fog instead of separate black card cells',
 )
-assert.match(
-  consoleStage,
-  /background-image: url\\('\/memory-dungeon\/briar-fog\\.svg'\\)/,
+assert.ok(
+  consoleStage.includes("background-image: url('/memory-dungeon/briar-fog.svg')"),
   'Unrevealed map squares use the local fog illustration',
 )
-assert.match(
-  consoleStage,
-  /:style="fogTileStyle\\(tile\\.x, tile\\.y\\)"/,
-  'Fog tiles align their background to fixed eight-by-eight world coordinates',
+assert.ok(
+  consoleStage.includes(':style="fogTileStyle(tile.x, tile.y)"'),
+  'Fog tiles align to fixed eight-by-eight world coordinates',
 )
-assert.match(hiddenFogArt, /<svg [\\s\\S]*viewBox="0 0 800 800"/)
-assert.ok(!consoleStage.includes("story: '◇'"), 'Ordinary explored stories have no misleading diamond')
-assert.match(
-  consoleStage,
-  /sites\\[tile\\.key\\]\\?\\.kind !== 'story' &&[\\s\\S]*?!tileNeedsAttention\\(tile\\.key\\)/,
-  'Actionable squares use a single central beacon instead of overlapping site emojis',
+assert.ok(hiddenFogArt.includes('viewBox="0 0 800 800"'))
+assert.ok(
+  !consoleStage.includes("story: '◇'"),
+  'Ordinary explored stories have no misleading diamond',
 )
-assert.match(
-  actionBeaconSource,
-  /top: 50%;[\\s\\S]*?left: 50%;[\\s\\S]*?translate\\(-50%, -50%\\)/,
+assert.ok(
+  consoleStage.includes("sites[tile.key]?.kind !== 'story' &&") &&
+    consoleStage.includes('!tileNeedsAttention(tile.key)'),
+  'Actionable squares use a central beacon instead of overlapping site emojis',
+)
+assert.ok(
+  actionBeaconSource.includes('top: 50%;') &&
+    actionBeaconSource.includes('left: 50%;') &&
+    actionBeaconSource.includes('translate(-50%, -50%)'),
   'The animated 3D exploration beacon is centered in the map square',
 )
-assert.match(actionBeaconSource, /width: clamp\\(1\\.5rem, 6cqw, 3rem\\)/)
-assert.match(actionBeaconSource, /prefers-reduced-motion: reduce/)
+assert.ok(actionBeaconSource.includes('width: clamp(1.5rem, 6cqw, 3rem)'))
+assert.ok(actionBeaconSource.includes('prefers-reduced-motion: reduce'))
 
 assert.match(
   consoleStage,

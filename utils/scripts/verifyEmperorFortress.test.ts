@@ -5690,7 +5690,11 @@ for (const def of DAYS)
   assert.ok(!optionVisible(returnedStart, riskRunner))
   assert.ok(optionVisible(returnedStart, hireRunner))
   assert.ok(!optionVisible(shelteredStart, hireRunner))
-  const risked = answer(shelteredStart, 'd07-crow-warning', 'ask-sheltered-runner')
+  const risked = answer(
+    shelteredStart,
+    'd07-crow-warning',
+    'ask-sheltered-runner',
+  )
   const commissioned = answer(
     returnedStart,
     'd07-crow-warning',
@@ -5702,10 +5706,18 @@ for (const def of DAYS)
   assert.ok(commissioned.flags.includes('crow-forecast-day10'))
   assert.equal(risked.brass, 40)
   assert.equal(commissioned.brass, 20)
-  assert.ok(risked.affinity['storm-crows'] < shelteredStart.affinity['storm-crows'])
-  assert.ok(commissioned.affinity['storm-crows'] > returnedStart.affinity['storm-crows'])
+  assert.ok(
+    risked.affinity['storm-crows'] < shelteredStart.affinity['storm-crows'],
+  )
+  assert.ok(
+    commissioned.affinity['storm-crows'] >
+      returnedStart.affinity['storm-crows'],
+  )
   assert.equal(risked.dues?.find((due) => due.id === 'd07-storm')?.day, 10)
-  assert.equal(commissioned.dues?.find((due) => due.id === 'd07-storm')?.day, 10)
+  assert.equal(
+    commissioned.dues?.find((due) => due.id === 'd07-storm')?.day,
+    10,
+  )
   assert.ok(validateRun(JSON.parse(JSON.stringify(risked))))
   assert.ok(validateRun(JSON.parse(JSON.stringify(commissioned))))
 

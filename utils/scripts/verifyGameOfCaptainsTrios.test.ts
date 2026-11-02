@@ -367,8 +367,8 @@ if (unauthored) {
 const paintedKeys = Object.keys(COUCH_TRIO_ART_IDS)
 assert.equal(
   paintedKeys.length,
-  798,
-  'only completed trio paintings are registered',
+  1073,
+  'only completed, curated trio paintings are registered (2026-11-02: +275 from packs 4-7)',
 )
 assert.equal(
   new Set(Object.values(COUCH_TRIO_ART_IDS)).size,
@@ -389,8 +389,8 @@ assert.equal(
   new Set(
     paintedKeys.map((key) => key.replace(/-(step-[123]|ending-[ab])$/, '')),
   ).size,
-  161,
-  'finished art now reaches 161 of 220 authored parties',
+  220,
+  'finished art now reaches 220 of 220 authored parties',
 )
 const trioRoute = fromRoot('server/api/game-of-captains/trio-art.get.ts')
 const trioComponent = fromRoot(

@@ -382,8 +382,9 @@ export const MERCENARY_CARDS: Card[] = [
     kind: "spell",
     team: "mercenary",
     cost: 3,
-    effect: "boost",
-    text: "A surprise dance opens the lane. Give a friendly fighter 2 AP now.",
+    effect: "grant",
+    grants: ["swarm"],
+    text: "The crowd joins a fighter's cause. Grant SWARM so allies can amplify its strikes.",
     symbol: "🎶"
   },
   {
@@ -491,8 +492,10 @@ export const MERCENARY_CARDS: Card[] = [
     kind: "spell",
     team: "mercenary",
     cost: 3,
-    effect: "scan",
-    text: "Gossip runs under locked doors. Scan within two squares of an ally and clear rival traps.",
+    effect: "debt",
+    debt: 2,
+    power: 2,
+    text: "A well-placed rumor becomes an invoice. Deal 2 damage and add two mana debt.",
     symbol: "👂"
   },
   {
@@ -512,9 +515,11 @@ export const MERCENARY_CARDS: Card[] = [
     name: "Festival of No Refunds",
     kind: "spell",
     team: "mercenary",
-    cost: 2,
-    effect: "chaos",
-    text: "The show must go on, loudly. Deal a seeded 1–3 damage to a chosen enemy.",
+    cost: 3,
+    effect: "blast",
+    splash: "all",
+    power: 2,
+    text: "Refunds are forbidden. Hit one enemy for 2, and every adjacent fighter for 1, including friends.",
     symbol: "🎟"
   },
   {
@@ -549,8 +554,8 @@ export const MERCENARY_CARDS: Card[] = [
     team: "mercenary",
     cost: 2,
     effect: "snare",
-    power: 2,
-    text: "Every postcard hides a hole. Deals 2 damage when a rival steps on it.",
+    power: 3,
+    text: "Every postcard hides a hole. Deals 3 damage when a rival steps on it.",
     symbol: "🕳"
   },
   {
@@ -560,9 +565,9 @@ export const MERCENARY_CARDS: Card[] = [
     team: "mercenary",
     cost: 3,
     effect: "snare",
-    power: 1,
+    power: 2,
     debt: 1,
-    text: "A toll payable in your next mana grant. Deals 1 and one debt.",
+    text: "A toll payable in your next mana grant. Deals 2 and one debt.",
     symbol: "🪙"
   },
   {
@@ -572,8 +577,8 @@ export const MERCENARY_CARDS: Card[] = [
     team: "mercenary",
     cost: 4,
     effect: "snare",
-    power: 3,
-    text: "An all-you-can-eat sign returns at head height. Deals 3 damage.",
+    power: 5,
+    text: "An all-you-can-eat sign returns at head height. Deals 5 damage.",
     symbol: "🥘"
   },
   {
@@ -583,9 +588,9 @@ export const MERCENARY_CARDS: Card[] = [
     team: "mercenary",
     cost: 2,
     effect: "snare",
-    power: 1,
+    power: 2,
     roots: true,
-    text: "The road works have become their own government. Deal 1 and stop a move.",
+    text: "The road works have become their own government. Deal 2 and stop a move.",
     symbol: "🚧"
   },
   {
@@ -595,9 +600,9 @@ export const MERCENARY_CARDS: Card[] = [
     team: "mercenary",
     cost: 3,
     effect: "snare",
-    power: 2,
+    power: 3,
     roots: true,
-    text: "Some bargains cost an ankle. Deal 2 damage and prevent the next move.",
+    text: "Some bargains cost an ankle. Deal 3 damage and prevent the next move.",
     symbol: "🧵"
   },
   {
@@ -607,8 +612,8 @@ export const MERCENARY_CARDS: Card[] = [
     team: "mercenary",
     cost: 5,
     effect: "snare",
-    power: 4,
-    text: "One flooded socket, ten blocks without lights. Deal 4 on entry.",
+    power: 6,
+    text: "One flooded socket, ten blocks without lights. Deal 6 damage on entry.",
     symbol: "🔌"
   },
   {
@@ -628,11 +633,11 @@ export const MERCENARY_CARDS: Card[] = [
     name: "Dog-Eared Mine",
     kind: "trap",
     team: "mercenary",
-    cost: 4,
+    cost: 5,
     effect: "snare",
-    power: 3,
+    power: 5,
     roots: true,
-    text: "A discarded war manual still works. Deal 3 damage and pin the intruder.",
+    text: "A discarded war manual still works. Deal 5 damage and pin the intruder.",
     symbol: "💣"
   },
   {
@@ -642,8 +647,8 @@ export const MERCENARY_CARDS: Card[] = [
     team: "mercenary",
     cost: 1,
     effect: "snare",
-    power: 1,
-    text: "Route planning by vengeful committee. Deals 1 damage, nothing more.",
+    power: 2,
+    text: "Route planning by vengeful committee. Deals 2 damage, but cannot stop movement.",
     symbol: "🪧"
   },
   {
@@ -665,9 +670,9 @@ export const MERCENARY_CARDS: Card[] = [
     team: "mercenary",
     cost: 4,
     effect: "snare",
-    power: 3,
+    power: 4,
     roots: true,
-    text: "Never ask where the bag came from. Deal 3 and deny the next move.",
+    text: "Never ask where the bag came from. Deal 4 and deny the next move.",
     symbol: "🐝"
   },
   {
@@ -695,8 +700,9 @@ export const MERCENARY_CARDS: Card[] = [
     kind: "equipment",
     team: "mercenary",
     cost: 3,
-    effect: "armor",
-    text: "A snack with stopping power. Give one fighter +1 permanent armor.",
+    effect: "grant",
+    grants: ["snare"],
+    text: "One bite of armor-jam gives a fighter SNARE: its hits prevent the next enemy move.",
     symbol: "🥪"
   },
   {
@@ -718,8 +724,9 @@ export const MERCENARY_CARDS: Card[] = [
     kind: "equipment",
     team: "mercenary",
     cost: 3,
-    effect: "sharpen",
-    text: "Cuts bureaucratic bonds and armor budgets. +1 permanent attack.",
+    effect: "grant",
+    grants: ["pierce"],
+    text: "Snip the forms and the armor. Grant PIERCE to a friendly fighter.",
     symbol: "✂"
   },
   {
@@ -741,7 +748,8 @@ export const MERCENARY_CARDS: Card[] = [
     kind: "equipment",
     team: "mercenary",
     cost: 2,
-    text: "Official permission to hurry. Give a fighter +1 permanent maximum AP.",
+    effect: "sharpen",
+    text: "Permission to cause damage. Give a friendly fighter +1 permanent attack.",
     symbol: "🪪"
   },
   {

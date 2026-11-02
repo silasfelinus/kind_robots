@@ -7303,7 +7303,6 @@ for (const def of DAYS)
   }
 }
 
-
 {
   // Every day is in the editorial inventory, not merely the opening and finale.
   const ids = new Set<string>()
@@ -7337,25 +7336,121 @@ for (const def of DAYS)
     onDay(624, day, {
       brass: 150,
       flags: ['komodo-betrayal', ...flags],
-      roster: includeKiyo
-        ? [{ id: 'F003', joinedDay: 1, equipment: {} }]
-        : [],
+      roster: includeKiyo ? [{ id: 'F003', joinedDay: 1, equipment: {} }] : [],
     })
   const routes = [
-    [45, 'd45-envoy', 'd28-sable-head-start', 'sable-road-account', 'd45-sable-search-funded', 'sables-early-fate'],
-    [45, 'd45-envoy', 'd28-sable-confined', 'sable-cell-account', 'd45-sable-detention-admitted', 'sables-early-fate'],
-    [46, 'd46-reedlight', 'd03-mire-count-filed', 'counted-names', 'd46-count-read-aloud', 'the-mirefens-missing-count'],
-    [46, 'd46-reedlight', 'd03-mire-count-dropped', 'uncounted-guests', 'd46-names-kept-private', 'the-mirefens-missing-count'],
-    [47, 'd47-watch-writ', 'd36-tanners-hanged', 'tanner-names', 'd47-tanners-named', 'tanner-brothers'],
-    [47, 'd47-watch-writ', 'd36-tanners-held', 'tanner-release', 'd47-tanners-released', 'tanner-brothers'],
-    [47, 'd47-watch-writ', 'd36-tanners-patrol', 'tanner-orders', 'd47-tanner-order-exposed', 'tanner-brothers'],
-    [47, 'd47-watch-writ', 'd36-tanners-leave', 'tanner-oath', 'd47-tanners-oath-kept', 'tanner-brothers'],
-    [47, 'd47-kiyo', 'd03-kiyo-brews', 'kettle', 'd47-kiyo-taught-brew', 'kiyos-medicine'],
-    [47, 'd47-kiyo', 'd03-kiyo-recipe-shared', 'recipe', 'd47-kiyo-recipe-public', 'kiyos-medicine'],
-    [47, 'd47-watch-writ', 'd31-volunteers-sent', 'paid-volunteers-record', 'd47-volunteers-named', 'the-ford-volunteers'],
-    [47, 'd47-watch-writ', 'd31-volunteers-kept', 'volunteers-commission', 'd47-village-commission', 'the-ford-volunteers'],
-    [47, 'd47-watch-writ', 'd40-komodo-followed', 'rook-road-evidence', 'd47-rook-road-recorded', 'rooks-mission-road'],
-    [48, 'd48-mara', 'd24-wenna-paid', 'wenna-council-seat', 'd48-wenna-council', 'wenna-at-the-council'],
+    [
+      45,
+      'd45-envoy',
+      'd28-sable-head-start',
+      'sable-road-account',
+      'd45-sable-search-funded',
+      'sables-early-fate',
+    ],
+    [
+      45,
+      'd45-envoy',
+      'd28-sable-confined',
+      'sable-cell-account',
+      'd45-sable-detention-admitted',
+      'sables-early-fate',
+    ],
+    [
+      46,
+      'd46-reedlight',
+      'd03-mire-count-filed',
+      'counted-names',
+      'd46-count-read-aloud',
+      'the-mirefens-missing-count',
+    ],
+    [
+      46,
+      'd46-reedlight',
+      'd03-mire-count-dropped',
+      'uncounted-guests',
+      'd46-names-kept-private',
+      'the-mirefens-missing-count',
+    ],
+    [
+      47,
+      'd47-watch-writ',
+      'd36-tanners-hanged',
+      'tanner-names',
+      'd47-tanners-named',
+      'tanner-brothers',
+    ],
+    [
+      47,
+      'd47-watch-writ',
+      'd36-tanners-held',
+      'tanner-release',
+      'd47-tanners-released',
+      'tanner-brothers',
+    ],
+    [
+      47,
+      'd47-watch-writ',
+      'd36-tanners-patrol',
+      'tanner-orders',
+      'd47-tanner-order-exposed',
+      'tanner-brothers',
+    ],
+    [
+      47,
+      'd47-watch-writ',
+      'd36-tanners-leave',
+      'tanner-oath',
+      'd47-tanners-oath-kept',
+      'tanner-brothers',
+    ],
+    [
+      47,
+      'd47-kiyo',
+      'd03-kiyo-brews',
+      'kettle',
+      'd47-kiyo-taught-brew',
+      'kiyos-medicine',
+    ],
+    [
+      47,
+      'd47-kiyo',
+      'd03-kiyo-recipe-shared',
+      'recipe',
+      'd47-kiyo-recipe-public',
+      'kiyos-medicine',
+    ],
+    [
+      47,
+      'd47-watch-writ',
+      'd31-volunteers-sent',
+      'paid-volunteers-record',
+      'd47-volunteers-named',
+      'the-ford-volunteers',
+    ],
+    [
+      47,
+      'd47-watch-writ',
+      'd31-volunteers-kept',
+      'volunteers-commission',
+      'd47-village-commission',
+      'the-ford-volunteers',
+    ],
+    [
+      47,
+      'd47-watch-writ',
+      'd40-komodo-followed',
+      'rook-road-evidence',
+      'd47-rook-road-recorded',
+      'rooks-mission-road',
+    ],
+    [
+      48,
+      'd48-mara',
+      'd24-wenna-paid',
+      'wenna-council-seat',
+      'd48-wenna-council',
+      'wenna-at-the-council',
+    ],
   ] as const
   for (const [day, audienceId, prior, choiceId, later, epilogueId] of routes) {
     const audience = at(day, audienceId)
@@ -7407,13 +7502,17 @@ for (const def of DAYS)
       brass: 150,
     })
     assert.ok(optionVisible(prepared, option))
-    assert.match(sceneLines(prepared, muster).map(lineText).join(' '), /Fifty-two/)
+    assert.match(
+      sceneLines(prepared, muster).map(lineText).join(' '),
+      /Fifty-two/,
+    )
     const result = chooseAudienceOption(prepared, 'd31-muster', id).run
     assert.ok(result.flags.includes(expected))
     if (id === 'send-paid-volunteers') {
       assert.ok(
         result.aid?.['q-d31-iron-rain']?.some(
-          (aid) => aid.label === 'The fifty-two paid volunteers defend the Ford',
+          (aid) =>
+            aid.label === 'The fifty-two paid volunteers defend the Ford',
         ),
         'the paid recruits improve the Ford dispatch odds',
       )

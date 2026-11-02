@@ -104,7 +104,10 @@ for (let seed = 1; seed <= 300; seed++) {
     episodeChoiceLabel(scenario, 'planet', option.id),
   )
   assert.equal(new Set(labels).size, 3, key)
-  assert.ok(labels.every((label) => label.length >= 12), key)
+  assert.ok(
+    labels.every((label) => label.length >= 12),
+    key,
+  )
   const existing = planetaryDecisions.get(key)
   if (existing) assert.deepEqual(labels, existing, key)
   planetaryDecisions.set(key, labels)

@@ -495,7 +495,8 @@ function bestShove(view: MatchView, tried: Set<string>): CpuAction | null {
       (unit.ap ?? 0) < 1 ||
       unit.rooted ||
       unit.carryingFlag
-    ) continue
+    )
+      continue
     for (const enemy of view.units) {
       if (enemy.side === view.side || dist(unit, enemy) !== 1) continue
       const landing = {
@@ -508,9 +509,16 @@ function bestShove(view: MatchView, tried: Set<string>): CpuAction | null {
         landing.x >= view.width ||
         landing.y >= view.height ||
         blocked(view, landing.x, landing.y)
-      ) continue
-      const enemyHome = { x: view.side === 'player' ? view.width - 1 : 0, y: enemy.y }
-      if (enemy.carryingFlag && dist(landing, enemyHome) < dist(enemy, enemyHome))
+      )
+        continue
+      const enemyHome = {
+        x: view.side === 'player' ? view.width - 1 : 0,
+        y: enemy.y,
+      }
+      if (
+        enemy.carryingFlag &&
+        dist(landing, enemyHome) < dist(enemy, enemyHome)
+      )
         continue
       const trap = view.traps.some(
         (t) => t.side === view.side && t.x === landing.x && t.y === landing.y,
@@ -520,11 +528,21 @@ function bestShove(view: MatchView, tried: Set<string>): CpuAction | null {
         (dist(landing, view.flag) - dist(enemy, view.flag)) * 3 +
         (dist(unit, view.flag) > dist(enemy, view.flag) ? 2 : 0) +
         (trap ? 8 : 0)
-      const action: CpuAction = { t: 'move', id: unit.id, x: enemy.x, y: enemy.y }
-      if (value > 0 && !tried.has(key(action))) candidates.push({ action, value })
+      const action: CpuAction = {
+        t: 'move',
+        id: unit.id,
+        x: enemy.x,
+        y: enemy.y,
+      }
+      if (value > 0 && !tried.has(key(action)))
+        candidates.push({ action, value })
     }
   }
-  return candidates.sort((a, b) => b.value - a.value || key(a.action).localeCompare(key(b.action)))[0]?.action ?? null
+  return (
+    candidates.sort(
+      (a, b) => b.value - a.value || key(a.action).localeCompare(key(b.action)),
+    )[0]?.action ?? null
+  )
 }
 
 function bestMove(view: MatchView, tried: Set<string>): CpuAction | null {
@@ -634,6 +652,7 @@ export function chooseCpuAction(
   if (attack) return attack
   const card = bestCard(view, tried)
   if (card) return card
-  if (view.mode === 'blackout') return bestShove(view, tried) ?? bestMove(view, tried)
+  if (view.mode === 'blackout')
+    return bestShove(view, tried) ?? bestMove(view, tried)
   return null
 }

@@ -170,7 +170,9 @@
               Known forecasts are shown. Untried redshirt skills stay
               classified; field experience may reveal them. Moving a character
               between cards swaps their existing assignment instead of
-              abandoning it.
+              abandoning it. Every redshirt also faces an independent 1-in-3
+              fatality roll per mission. A high success forecast never means a
+              guaranteed safe return.
             </p>
           </div>
           <div v-else class="daily-quest-grid">
@@ -464,7 +466,7 @@
                 @click="decide(flipped!, choice.id)"
               >
                 <b>{{ choice.label }}</b
-                ><small>{{ choice.cost }}</small>
+                ><small>{{ episodeChoiceStakes(run, flipped!, choice.id) }}</small>
               </button>
             </div>
           </div>
@@ -553,6 +555,7 @@ import {
 } from '~/utils/gameOfCaptains/episodePlanner'
 import {
   EPISODE_CHOICES,
+  episodeChoiceStakes,
   episodeCard,
   episodeDecks,
   episodeDeckDone,

@@ -493,7 +493,8 @@ for (let seed = 0; seed < 64; seed++) {
     progress.choices,
   ).found
   assert.deepEqual(photoBefore, ['earth-15'])
-  for (const key of ['2,4', '3,4', '4,4', '4,3']) progress = visit(progress, key)
+  for (const key of ['2,4', '3,4', '4,4', '4,3'])
+    progress = visit(progress, key)
   assert.equal(
     canMoveHoshimoriNight(progress, '5,3'),
     false,

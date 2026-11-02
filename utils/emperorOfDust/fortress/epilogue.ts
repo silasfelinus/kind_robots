@@ -1219,11 +1219,6 @@ const BARRACKS: EpilogueSubject[] = [
         text: 'When the roads went wrong, Kiyo took her boy and her kettle to the coast and found a salt boat. He slept through the crossing in a basket. He never knew she was afraid. She made sure.',
       },
       {
-        when: { flags: ['romance-kiyo-sealed'] },
-        mood: 'happy',
-        text: 'Kiyo keeps the infirmary keys. The emperor has never asked for a copy. Once a week they share bitter tea with the crown left outside. Zuzu brings breakfast and appoints himself the better ruler. Neither adult argues.',
-      },
-      {
         when: { flags: ['kiyo-clinic-neutral'] },
         mood: 'happy',
         text: 'The infirmary admits the wounded without asking whom they fought for. The Watch still sends complaints. Each bears the emperor’s signature at the bottom, never Kiyo’s. Zuzu grows tall enough to hold the lantern at the door.',
@@ -1242,6 +1237,11 @@ const BARRACKS: EpilogueSubject[] = [
         when: { flags: ['kiyo-friendship-deep'] },
         mood: 'happy',
         text: 'Kiyo and the emperor meet once a week with the court locked outside. Zuzu still wins every game of spoons and crowns. They have never let him win on purpose.',
+      },
+      {
+        when: { flags: ['kiyo-friendship'] },
+        mood: 'happy',
+        text: 'Kiyo keeps the infirmary keys. The emperor has never asked for a copy. Once a week they share bitter tea with the crown left outside. Zuzu brings breakfast and appoints himself the better ruler. Neither adult argues.',
       },
       {
         when: { flags: ['kiyo-bell-lesson'] },

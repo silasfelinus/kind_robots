@@ -821,8 +821,8 @@ async function shareFusion(platform: 'copy' | 'x' | 'facebook' | 'reddit') {
   }
 }
 
-const drawer = ref<'left' | 'right' | 'atlas' | null>(null)
-const atlasStatus = ref('ALL')
+const drawer = ref<'left' | 'right' | 'atlas' | 'favorites' | 'settings' | null>(null)
+const atlasStatus = ref<'ALL' | 'READY' | 'IN_PROGRESS' | 'OTHER'>('ALL')
 const atlasFilters = [
   { value: 'ALL', label: 'All' },
   { value: 'READY', label: 'Illustrated' },
@@ -842,48 +842,50 @@ const filters = [
 ]
 
 const visibleEntries = computed(() => {
+  if (drawer.value === 'atlas') return lab.atlasEntries
+  if (drawer.value === 'favorites') return lab.favoriteEntries
   const word = search.value.toLowerCase().trim()
-  if (drawer.value === 'atlas')
-    return [...lab.discoveries].reverse().filter((entry) => {
-      const rendering = ['QUEUED', 'RENDERING', 'DELIVERING'].includes(
-        entry.status || '',
-      )
-      const matchesStatus =
-        atlasStatus.value === 'ALL' ||
-        (atlasStatus.value === 'READY' &&
-          entry.status === 'READY' &&
-          !!lab.imageFor(entry)) ||
-        (atlasStatus.value === 'IN_PROGRESS' && rendering) ||
-        (atlasStatus.value === 'OTHER' &&
-          !rendering &&
-          (entry.status !== 'READY' || !lab.imageFor(entry)))
-      return (
-        matchesStatus && (!word || entry.title.toLowerCase().includes(word))
-      )
-    })
   return lab.inputs.filter((entry) => {
     const type =
       entry.taxonomy === 'OTHER' && entry.facetGroup === 'fruit'
         ? 'FRUIT'
         : entry.taxonomy
     return (
-      (filter.value === 'ALL' || type === filter.value) &&
+      (filter.value === 'ALL' || filter.value === type) &&
       (!word || entry.title.toLowerCase().includes(word))
     )
   })
 })
 
-function openDrawer(side: 'left' | 'right' | 'atlas') {
+let atlasSearchTimer: ReturnType<typeof setTimeout> | null = null
+watch([drawer, atlasStatus, search], () => {
+  if (drawer.value !== 'atlas') return
+  if (atlasSearchTimer) clearTimeout(atlasSearchTimer)
+  atlasSearchTimer = setTimeout(() => {
+    void lab.loadAtlas(true, atlasStatus.value, search.value)
+  }, 250)
+})
+
+function onBaseOnlyChanged(event: Event) {
+  lab.setRandomStartersOnly((event.target as HTMLInputElement).checked)
+}
+
+function openDrawer(side: 'left' | 'right' | 'atlas' | 'favorites' | 'settings') {
   drawer.value = side
   search.value = ''
-  filter.value = side === 'atlas' ? 'HYBRID' : 'ALL'
+  filter.value = 'ALL'
   atlasStatus.value = 'ALL'
+  if (side === 'favorites') void lab.loadFavoriteRecords()
 }
 
 function pick(key: string) {
-  if (drawer.value === 'left' || drawer.value === 'right')
+  if (drawer.value === 'left' || drawer.value === 'right') {
     lab.choose(drawer.value, key)
-  else lab.selectAtlasDiscovery(key)
+  } else if (key.startsWith('fusion:')) {
+    lab.selectAtlasDiscovery(key)
+  } else {
+    lab.choose('left', key)
+  }
   drawer.value = null
 }
 
@@ -922,7 +924,10 @@ onMounted(() => {
   })
   lab.startArtworkWatch()
 })
-onUnmounted(() => lab.stopArtworkWatch())
+onUnmounted(() => {
+  if (atlasSearchTimer) clearTimeout(atlasSearchTimer)
+  lab.stopArtworkWatch()
+})
 </script>
 
 <style scoped>

@@ -1,11 +1,13 @@
 import assert from 'node:assert/strict'
 import {
   HOSHIMORI_NIGHT_MAX_EVENTS,
+  HOSHIMORI_NIGHT_BELLROAD_KEYS,
   HOSHIMORI_NIGHT_SITES,
   HOSHIMORI_NIGHT_WINDWARD_KEYS,
   advanceHoshimoriNight,
   canMoveHoshimoriNight,
   hoshimoriNightClues,
+  hoshimoriNightBellroadAccount,
   hoshimoriNightCouncil,
   hoshimoriNightWindwardAccount,
   hoshimoriNightOrder,
@@ -33,16 +35,16 @@ import {
 import { readFileSync } from 'node:fs'
 
 assert.deepEqual(validateHoshimoriNight(), [])
-assert.equal(HOSHIMORI_NIGHT_SITES.length, 24)
+assert.equal(HOSHIMORI_NIGHT_SITES.length, 32)
 assert.equal(
   new Set(HOSHIMORI_NIGHT_SITES.map((site) => site.opening)).size,
-  24,
+  32,
 )
 assert.equal(
   new Set(
     HOSHIMORI_NIGHT_SITES.flatMap((site) => site.choices.map((c) => c.outcome)),
   ).size,
-  48,
+  64,
 )
 assert.ok(
   HOSHIMORI_NIGHT_SITES.every((site) =>
@@ -465,6 +467,102 @@ assert.equal(
   8,
   'Three earned Windward decisions produce eight distinct accounts',
 )
+const bellroadAccounts = new Set<string>()
+const bellroadKeys = [...HOSHIMORI_NIGHT_BELLROAD_KEYS]
+assert.equal(bellroadKeys.length, 8)
+assert.equal(new Set(bellroadKeys).size, 8)
+assert.ok(
+  bellroadKeys.every((key) => {
+    const warm = HOSHIMORI_WARM_SITES.find((site) => site.key === key)!
+    const night = HOSHIMORI_NIGHT_SITES.find((site) => site.key === key)!
+    return warm.title !== night.title && warm.opening !== night.opening
+  }),
+)
+const bellroadSnake = ['5,3', '6,3', '7,3', '8,3', '8,4', '7,4', '6,4', '5,4']
+for (let seed = 0; seed < 64; seed++) {
+  const bits = seed % 8
+  let progress = newHoshimoriNightProgress(seed)
+  progress = choose(progress, HOSHIMORI_NIGHT_SITES[0]!.choices[0].id)
+  for (const key of snake) {
+    progress = visit(progress, key)
+    const site = HOSHIMORI_NIGHT_SITES.find((item) => item.key === key)!
+    progress = choose(progress, site.choices[0].id)
+  }
+  const photoBefore = reconcileHoshimoriNightEarthChronicle(
+    newEarthChronicle(),
+    progress.choices,
+  ).found
+  assert.deepEqual(photoBefore, ['earth-15'])
+  for (const key of ['2,4', '3,4', '4,4', '4,3'])
+    progress = visit(progress, key)
+  assert.equal(
+    canMoveHoshimoriNight(progress, '5,3'),
+    false,
+    'The Bellroad cannot be entered directly from the southern council',
+  )
+  for (const key of ['4,2', '4,1']) progress = visit(progress, key)
+  for (const key of ridgeSnake) {
+    progress = visit(progress, key)
+    const site = HOSHIMORI_NIGHT_SITES.find((item) => item.key === key)!
+    progress = choose(progress, site.choices[0].id)
+  }
+  assert.ok(hoshimoriNightWindwardAccount(progress))
+  assert.equal(hoshimoriNightBellroadAccount(progress), null)
+  assert.equal(canMoveHoshimoriNight(progress, '5,3'), true)
+  for (const key of bellroadSnake) {
+    progress = visit(progress, key)
+    const site = HOSHIMORI_NIGHT_SITES.find((item) => item.key === key)!
+    const index =
+      key === '5,3'
+        ? bits & 1
+        : key === '6,4'
+          ? (bits >> 1) & 1
+          : key === '8,4'
+            ? (bits >> 2) & 1
+            : 0
+    progress = choose(progress, site.choices[index]!.id)
+    assert.strictEqual(
+      advanceHoshimoriNight(progress, {
+        type: 'choose',
+        id: site.choices[1 - index]!.id,
+      }),
+      progress,
+      'A Bellroad choice cannot be reversed for another reward',
+    )
+  }
+  assert.equal(progress.visited.length, 32)
+  assert.equal(Object.keys(progress.choices).length, 32)
+  const account = hoshimoriNightBellroadAccount(progress)
+  assert.ok(account)
+  bellroadAccounts.add(account)
+  assert.deepEqual(
+    reconcileHoshimoriNightEarthChronicle(newEarthChronicle(), progress.choices)
+      .found,
+    photoBefore,
+    'Nightmare expansion cannot alter an earned Earth photograph',
+  )
+  assert.deepEqual(
+    restoreHoshimoriNight(JSON.parse(JSON.stringify(progress))),
+    progress,
+  )
+  progress = visit(progress, '5,3')
+  progress = visit(progress, '5,4')
+  assert.equal(hoshimoriNightBellroadAccount(progress), account)
+  const forged = JSON.parse(JSON.stringify(progress)) as NightProgress
+  forged.choices['8,4'] =
+    forged.choices['8,4'] === 'night-shrine-offer'
+      ? 'night-shrine-release'
+      : 'night-shrine-offer'
+  assert.equal(restoreHoshimoriNight(forged), null)
+  const skipped = JSON.parse(JSON.stringify(progress)) as NightProgress
+  skipped.events.splice(0, 1, { type: 'move', to: '5,3' })
+  assert.equal(restoreHoshimoriNight(skipped), null)
+}
+assert.equal(
+  bellroadAccounts.size,
+  8,
+  'Three earned Bellroad decisions must produce eight distinct accounts',
+)
 console.log(
-  'Hoshimori e08: 24 mirrored sites, 96 original + 64 Windward seeded routes, eight council and eight ridge accounts, save forgery protection OK',
+  'Hoshimori e08: 32 mirrored sites, 96 original + 64 Windward + 64 Bellroad seeded routes, eight council, ridge and Bellroad accounts, save forgery protection OK',
 )

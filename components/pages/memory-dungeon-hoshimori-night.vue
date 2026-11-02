@@ -13,7 +13,8 @@
           Hoshimori · Procession of Shut Doors
         </h2>
         <span class="md-bar-chip">
-          {{ night.progress.visited.length }}/24 witnessed
+          {{ night.progress.visited.length }}/{{ HOSHIMORI_NIGHT_SITES.length }}
+          witnessed
         </span>
         <div class="md-bar-actions">
           <button
@@ -200,6 +201,21 @@
             <p class="mt-1 text-sm leading-relaxed">{{ night.windward }}</p>
           </div>
           <p
+            v-if="night.council && !night.windward"
+            class="mt-3 rounded-lg border border-warning/30 bg-warning/10 p-2 text-sm"
+          >
+            The Bellroad is closed until the Windward post, weather desk and
+            council have recorded a real decision. No traveler is required to
+            trade a name for passage.
+          </p>
+          <div
+            v-if="night.bellroad"
+            class="mt-3 rounded-xl border border-success/40 bg-success/10 p-3"
+          >
+            <h4 class="font-bold">The Bellroad's earned witness account</h4>
+            <p class="mt-1 text-sm leading-relaxed">{{ night.bellroad }}</p>
+          </div>
+          <p
             v-if="night.notice"
             class="mt-3 text-sm text-warning"
             role="status"
@@ -210,8 +226,8 @@
         <div
           class="shrink-0 border-t border-base-content/10 px-3 py-2 text-xs opacity-75"
         >
-          The first twenty-four night sites are playable. Forty more sites and
-          the transformed Oven remain unfinished.
+          Thirty-two night sites are playable. Thirty-two more sites and the
+          transformed Oven remain unfinished.
         </div>
       </div>
     </div>

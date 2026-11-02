@@ -1190,7 +1190,7 @@
                   type="button"
                   class="sc-attack-button"
                   data-testid="slime-attack"
-                  :disabled="lab.targetUnit === null"
+                  :disabled="lab.targetUnit === null || (lab.targetUnit !== -1 && !lab.attackTargets.includes(lab.targetUnit))"
                   @click="lab.attackSelected()"
                 >
                   <span class="sc-attack-symbol">{{ attackSymbol }}</span>
@@ -1201,6 +1201,18 @@
                       ? lab.attackPreview + ' DAMAGE'
                       : 'CHOOSE TARGET'
                   }}</span>
+                </button>
+                <button
+                  v-if="lab.selected.keywords?.includes('bulldoze')"
+                  type="button"
+                  class="sc-attack-button"
+                  data-testid="slime-bulldoze"
+                  :disabled="!lab.canShoveTarget"
+                  @click="lab.shoveSelected()"
+                >
+                  <span class="sc-attack-symbol">⇥</span>
+                  BULLDOZE
+                  <span>{{ lab.canShoveTarget ? 'SHOVE ONE TILE · 1 AP' : 'NEEDS FREE SPACE BEHIND TARGET' }}</span>
                 </button>
                 <small
                   v-if="

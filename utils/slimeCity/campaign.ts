@@ -764,8 +764,7 @@ export const CAMPAIGN_ECHOES: Record<
       story:
         'A paid informant leaks mana to you, but their trap is already buried in the arena.',
       speaker: 'The Drain Oracle',
-      voice:
-        'Our informant is late. I can already hear the trap clicking.',
+      voice: 'Our informant is late. I can already hear the trap clicking.',
       terms: { playerMana: 2, rivalTrap: true },
     },
   },

@@ -175,6 +175,7 @@ assert.equal(sceneMomentOffer(findCard('GR-4')!, momentRun), null)
 
 const store = readFileSync('stores/ecotoneStore.ts', 'utf8')
 const board = readFileSync('components/ecotone-board.vue', 'utf8')
+const hand = readFileSync('components/ecotone-choice-hand.vue', 'utf8')
 assert.match(store, /UNDO_KEY/)
 assert.match(store, /undoSnapshot/)
 assert.match(store, /function undo\(/)
@@ -184,8 +185,14 @@ assert.match(store, /function exportSave\(/)
 assert.match(store, /function importSave\(/)
 assert.match(store, /restoreRun\(payload\.run\)/)
 assert.match(board, /portraitRetry/)
-assert.match(board, /:art="option.thumb.art"/)
-assert.match(board, /option.possibilities/)
+// Choices are a hand of cards (Silas, 2026-11-02): each card's face is the
+// picture of the result, and the full hint stays readable off-card.
+assert.match(board, /<EcotoneChoiceHand/)
+assert.match(hand, /:art="option.thumb.art"/)
+assert.match(hand, /option.possibilities/)
+assert.match(board, /outcomeArtKey\(card.id, choiceId, 'success'\)/)
+assert.match(hand, /emit\('play', option\)/)
+assert.doesNotMatch(hand, /Confirm your decision|confirmDecision|stagedChoice/)
 assert.match(board, /uploadPortrait/)
 assert.match(board, /game.setPlayerLook/)
 assert.match(board, /max-h-none/)
@@ -221,8 +228,13 @@ assert.match(
 )
 assert.match(
   board,
-  /@4xl:col-start-1 @4xl:row-start-2 @4xl:max-h-\[42vh\] @4xl:overflow-y-auto/,
-  'choices share the text column and can scroll when crowded',
+  /@4xl:col-start-1 @4xl:row-start-2 @4xl:px-7/,
+  'the choice hand shares the text column, below the story',
+)
+assert.doesNotMatch(
+  board,
+  /@4xl:max-h-\[42vh\]|@4xl:flex-1 @4xl:overflow-hidden/,
+  'story text sizes to itself instead of a squeezed nested scroll box',
 )
 assert.match(
   board,

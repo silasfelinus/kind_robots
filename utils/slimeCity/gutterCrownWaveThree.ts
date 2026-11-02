@@ -31,11 +31,9 @@ export const GUTTER_CROWN_WAVE_THREE: Card[] = [
     attack: 1,
     armor: 0,
     ap: 2,
-    keywords: [
-      'regen'
-    ],
+    keywords: ['regen'],
     text: "The medic's legal donor list has one name: the medic. REGEN patches one wound each round she survives.",
-    symbol: '✚'
+    symbol: '✚',
   },
   {
     id: 's2-catgirls-parapet-ghost-kitten',
@@ -47,12 +45,9 @@ export const GUTTER_CROWN_WAVE_THREE: Card[] = [
     attack: 3,
     armor: 0,
     ap: 3,
-    keywords: [
-      'ambush',
-      'pierce'
-    ],
+    keywords: ['ambush', 'pierce'],
     text: "The rooftop's cutest nightmare pounces for an AMBUSH strike that ignores armor with PIERCE. Folds quickly to focused fire.",
-    symbol: '🐈'
+    symbol: '🐈',
   },
   {
     id: 's2-catgirls-emergency-molt',
@@ -63,7 +58,7 @@ export const GUTTER_CROWN_WAVE_THREE: Card[] = [
     effect: 'heal',
     power: 5,
     text: 'Even stolen skin heals better than corporate insurance. Restore up to five HP to a wounded ally, if it survives to receive it.',
-    symbol: '🧬'
+    symbol: '🧬',
   },
   {
     id: 's2-catgirls-needle-thread-ambush',
@@ -72,11 +67,9 @@ export const GUTTER_CROWN_WAVE_THREE: Card[] = [
     team: 'catgirls',
     cost: 3,
     effect: 'grant',
-    grants: [
-      'ambush'
-    ],
+    grants: ['ambush'],
     text: 'An entire strike team gets one stolen stealth trick. Give a fighter AMBUSH for a devastating first swing; repeated grafts do nothing.',
-    symbol: '🪡'
+    symbol: '🪡',
   },
   {
     id: 's2-catgirls-sterile-alley-wire',
@@ -88,7 +81,7 @@ export const GUTTER_CROWN_WAVE_THREE: Card[] = [
     power: 2,
     roots: true,
     text: 'A single hospital-grade suture stretched across the alley. The first intruder takes two damage and loses its move.',
-    symbol: '🧵'
+    symbol: '🧵',
   },
   {
     id: 's2-catgirls-lab-escape-atlas',
@@ -97,11 +90,9 @@ export const GUTTER_CROWN_WAVE_THREE: Card[] = [
     team: 'catgirls',
     cost: 3,
     effect: 'grant',
-    grants: [
-      'pierce'
-    ],
+    grants: ['pierce'],
     text: 'Every patent has a weakness highlighted in red. Give a fighter PIERCE so its attacks slip through armored targets.',
-    symbol: '🗺'
+    symbol: '🗺',
   },
   {
     id: 's2-bloodfairies-mosquito-disc-jockey',
@@ -113,12 +104,9 @@ export const GUTTER_CROWN_WAVE_THREE: Card[] = [
     attack: 1,
     armor: 0,
     ap: 3,
-    keywords: [
-      'swarm',
-      'leech'
-    ],
+    keywords: ['swarm', 'leech'],
     text: 'Keeps the mosh pit alive by stealing a little back on each hit. SWARM boosts the noise when allies crowd in.',
-    symbol: '🎧'
+    symbol: '🎧',
   },
   {
     id: 's2-bloodfairies-bassquake-colossus',
@@ -130,12 +118,9 @@ export const GUTTER_CROWN_WAVE_THREE: Card[] = [
     attack: 2,
     armor: 0,
     ap: 2,
-    keywords: [
-      'swarm',
-      'volatile'
-    ],
+    keywords: ['swarm', 'volatile'],
     text: 'A walking speaker-stack. Friends turn the bass up, but on death its VOLATILE final note hits anyone close by.',
-    symbol: '🔊'
+    symbol: '🔊',
   },
   {
     id: 's2-bloodfairies-glitterglass-flood',
@@ -147,7 +132,7 @@ export const GUTTER_CROWN_WAVE_THREE: Card[] = [
     power: 3,
     splash: 'all',
     text: 'The chorus shatters every nearby window. Three to a chosen enemy, one to ALL adjacent bodies, including the band.',
-    symbol: '✨'
+    symbol: '✨',
   },
   {
     id: 's2-bloodfairies-afterparty-first-aid',
@@ -158,7 +143,7 @@ export const GUTTER_CROWN_WAVE_THREE: Card[] = [
     effect: 'heal',
     power: 3,
     text: 'Nobody goes home until the smallest fairy is standing again. Heal three HP; the bandage is made of dance-floor flyers.',
-    symbol: '🩹'
+    symbol: '🩹',
   },
   {
     id: 's2-bloodfairies-earworm-feedback',
@@ -170,7 +155,7 @@ export const GUTTER_CROWN_WAVE_THREE: Card[] = [
     power: 2,
     roots: true,
     text: 'Play the wrong chord and the sidewalk grabs your boots. Two damage and no next move for the trespasser.',
-    symbol: '🎸'
+    symbol: '🎸',
   },
   {
     id: 's2-bloodfairies-roadie-megaphone',
@@ -179,11 +164,9 @@ export const GUTTER_CROWN_WAVE_THREE: Card[] = [
     team: 'bloodfairies',
     cost: 2,
     effect: 'grant',
-    grants: [
-      'swarm'
-    ],
+    grants: ['swarm'],
     text: 'The road crew can turn any solo act into a gang fight. Grant SWARM to one fighter; it needs an adjacent friend to pay off.',
-    symbol: '📣'
+    symbol: '📣',
   },
   {
     id: 's2-ironjaw-union-bridgebearer',
@@ -196,7 +179,7 @@ export const GUTTER_CROWN_WAVE_THREE: Card[] = [
     armor: 1,
     ap: 1,
     text: 'An industrial bridge with a union card. Slow and hard to dislodge, it holds a lane while faster fighters cross.',
-    symbol: '🌉'
+    symbol: '🌉',
   },
   {
     id: 's2-ironjaw-foundry-lion',
@@ -208,11 +191,9 @@ export const GUTTER_CROWN_WAVE_THREE: Card[] = [
     attack: 3,
     armor: 2,
     ap: 1,
-    keywords: [
-      'bulldoze'
-    ],
+    keywords: ['bulldoze'],
     text: 'Forged from the last working crane. This pricey armored beast shoves foes aside with BULLDOZE, but needs two turns of savings.',
-    symbol: '🦁'
+    symbol: '🦁',
   },
   {
     id: 's2-ironjaw-shift-change-shove',
@@ -221,11 +202,9 @@ export const GUTTER_CROWN_WAVE_THREE: Card[] = [
     team: 'ironjaw',
     cost: 3,
     effect: 'grant',
-    grants: [
-      'bulldoze'
-    ],
+    grants: ['bulldoze'],
     text: "The union's nonviolent protest forms a very violent wedge. A fighter gains BULLDOZE, if there is a square to shove into.",
-    symbol: '✊'
+    symbol: '✊',
   },
   {
     id: 's2-ironjaw-spare-rivet-shower',
@@ -235,7 +214,7 @@ export const GUTTER_CROWN_WAVE_THREE: Card[] = [
     cost: 2,
     effect: 'armor',
     text: 'The foreman loads a lunch pail with rivets. A fighter gains one permanent armor; a cheap answer to a thousand cuts.',
-    symbol: '🔩'
+    symbol: '🔩',
   },
   {
     id: 's2-ironjaw-hydraulic-lockjaw',
@@ -247,7 +226,7 @@ export const GUTTER_CROWN_WAVE_THREE: Card[] = [
     power: 2,
     roots: true,
     text: 'A hidden steel jaw clamps down on the lane. Two damage and one lost move buy the foundry another precious shift.',
-    symbol: '⚙'
+    symbol: '⚙',
   },
   {
     id: 's2-ironjaw-overtime-pistons',
@@ -256,7 +235,7 @@ export const GUTTER_CROWN_WAVE_THREE: Card[] = [
     team: 'ironjaw',
     cost: 3,
     text: "Management calls it 'efficiency.' Give a fighter one permanent maximum AP, making a slow iron wall finally march.",
-    symbol: '🦿'
+    symbol: '🦿',
   },
   {
     id: 's2-riot-fuse-lit-bicycle-courier',
@@ -268,11 +247,9 @@ export const GUTTER_CROWN_WAVE_THREE: Card[] = [
     attack: 2,
     armor: 0,
     ap: 3,
-    keywords: [
-      'volatile'
-    ],
+    keywords: ['volatile'],
     text: 'There is a ticking package strapped to the handlebars. The courier is fast; the final delivery explodes on whoever stands nearby.',
-    symbol: '🚲'
+    symbol: '🚲',
   },
   {
     id: 's2-riot-radioactive-parade-float',
@@ -284,11 +261,9 @@ export const GUTTER_CROWN_WAVE_THREE: Card[] = [
     attack: 3,
     armor: 0,
     ap: 2,
-    keywords: [
-      'volatile'
-    ],
+    keywords: ['volatile'],
     text: 'The city canceled the parade, so the parade ate the city. A VOLATILE five-cost bruiser that hurts allies when it dies.',
-    symbol: '🎈'
+    symbol: '🎈',
   },
   {
     id: 's2-riot-friendly-fire-rehearsal',
@@ -300,7 +275,7 @@ export const GUTTER_CROWN_WAVE_THREE: Card[] = [
     power: 4,
     splash: 'all',
     text: 'The safety drill is a terrible idea. Deal four to a chosen enemy and one to ALL adjacent fighters; do not park friends nearby.',
-    symbol: '💥'
+    symbol: '💥',
   },
   {
     id: 's2-riot-homemade-bottle-rocket',
@@ -311,7 +286,7 @@ export const GUTTER_CROWN_WAVE_THREE: Card[] = [
     effect: 'zap',
     power: 3,
     text: "A friend of a friend invented ballistics. Three damage to one enemy, no collateral, and the label reads 'probably safe.'",
-    symbol: '🚀'
+    symbol: '🚀',
   },
   {
     id: 's2-riot-fusebox-fireworks',
@@ -323,7 +298,7 @@ export const GUTTER_CROWN_WAVE_THREE: Card[] = [
     power: 2,
     roots: true,
     text: 'An unattended celebration beneath the bridge. Two damage and a lost move when someone trips the fuse.',
-    symbol: '🧨'
+    symbol: '🧨',
   },
   {
     id: 's2-riot-last-stand-matchbook',
@@ -332,11 +307,9 @@ export const GUTTER_CROWN_WAVE_THREE: Card[] = [
     team: 'riot',
     cost: 3,
     effect: 'grant',
-    grants: [
-      'volatile'
-    ],
+    grants: ['volatile'],
     text: 'Nobody mentioned the blast radius at orientation. Give a fighter VOLATILE: defeat brings a messy last explosion.',
-    symbol: '🔥'
+    symbol: '🔥',
   },
   {
     id: 's2-undertow-drainpipe-interrogator',
@@ -348,11 +321,9 @@ export const GUTTER_CROWN_WAVE_THREE: Card[] = [
     attack: 1,
     armor: 0,
     ap: 2,
-    keywords: [
-      'snare'
-    ],
+    keywords: ['snare'],
     text: "The detective's questions are so long they stop you walking. Hits SNARE the target, though a fast foe may hit first.",
-    symbol: '🔍'
+    symbol: '🔍',
   },
   {
     id: 's2-undertow-subsurface-warden',
@@ -364,12 +335,9 @@ export const GUTTER_CROWN_WAVE_THREE: Card[] = [
     attack: 2,
     armor: 1,
     ap: 1,
-    keywords: [
-      'snare',
-      'regen'
-    ],
+    keywords: ['snare', 'regen'],
     text: 'Deep beneath the city, a slow watchman traps intruders and REGENs between fights. Armor piercing still ruins his shift.',
-    symbol: '🗝'
+    symbol: '🗝',
   },
   {
     id: 's2-undertow-floodlight-leak',
@@ -379,7 +347,7 @@ export const GUTTER_CROWN_WAVE_THREE: Card[] = [
     cost: 2,
     effect: 'scan',
     text: 'The surveillance ledger is left on the wrong desk. Reveal nearby hidden foes and disable enemy traps within two squares of an ally.',
-    symbol: '🔦'
+    symbol: '🔦',
   },
   {
     id: 's2-undertow-backwater-iou',
@@ -391,7 +359,7 @@ export const GUTTER_CROWN_WAVE_THREE: Card[] = [
     power: 2,
     debt: 2,
     text: 'The Undertow keeps its receipts underwater. Deal two damage and add two mana debt; the next grant arrives short.',
-    symbol: '🧾'
+    symbol: '🧾',
   },
   {
     id: 's2-undertow-culvert-tollwire',
@@ -404,7 +372,7 @@ export const GUTTER_CROWN_WAVE_THREE: Card[] = [
     roots: true,
     debt: 1,
     text: 'A hidden checkpoint with a very literal fine print. Deals two, steals one mana from the next grant, and stops movement.',
-    symbol: '🚧'
+    symbol: '🚧',
   },
   {
     id: 's2-undertow-wiretap-spikes',
@@ -413,11 +381,9 @@ export const GUTTER_CROWN_WAVE_THREE: Card[] = [
     team: 'undertow',
     cost: 3,
     effect: 'grant',
-    grants: [
-      'snare'
-    ],
+    grants: ['snare'],
     text: "The listening post moves into the target's claws. Give a friendly fighter SNARE to rob enemy movement on each hit.",
-    symbol: '📻'
+    symbol: '📻',
   },
   {
     id: 's2-exchange-bargain-rate-collector',
@@ -429,11 +395,9 @@ export const GUTTER_CROWN_WAVE_THREE: Card[] = [
     attack: 1,
     armor: 0,
     ap: 2,
-    keywords: [
-      'collect'
-    ],
+    keywords: ['collect'],
     text: 'Shows up with a polite smile and a bill stapled to its fist. Successful COLLECT hits put the other crew in mana debt.',
-    symbol: '💼'
+    symbol: '💼',
   },
   {
     id: 's2-exchange-golden-bailiff',
@@ -445,12 +409,9 @@ export const GUTTER_CROWN_WAVE_THREE: Card[] = [
     attack: 3,
     armor: 1,
     ap: 1,
-    keywords: [
-      'collect',
-      'bulldoze'
-    ],
+    keywords: ['collect', 'bulldoze'],
     text: 'An overdue summons in six tons of polished brass. Bulldozes the doorway and COLLECTs fees with every strike.',
-    symbol: '⚖'
+    symbol: '⚖',
   },
   {
     id: 's2-exchange-compound-interest-notice',
@@ -462,7 +423,7 @@ export const GUTTER_CROWN_WAVE_THREE: Card[] = [
     power: 2,
     debt: 2,
     text: 'Two damage now, two mana owed next turn. The interest is entirely imaginary and absolutely enforceable.',
-    symbol: '📈'
+    symbol: '📈',
   },
   {
     id: 's2-exchange-contract-amendment',
@@ -472,7 +433,7 @@ export const GUTTER_CROWN_WAVE_THREE: Card[] = [
     cost: 2,
     effect: 'sharpen',
     text: "A harmless-looking clause raises a fighter's attack by one permanently. The other crew finds it on page 37.",
-    symbol: '📝'
+    symbol: '📝',
   },
   {
     id: 's2-exchange-invisible-lien',
@@ -484,7 +445,7 @@ export const GUTTER_CROWN_WAVE_THREE: Card[] = [
     power: 2,
     debt: 2,
     text: 'A hidden parking fee larger than a house. Deals two damage and charges two future mana, but cannot stop movement.',
-    symbol: '🪙'
+    symbol: '🪙',
   },
   {
     id: 's2-exchange-executive-health-coverage',
@@ -493,10 +454,8 @@ export const GUTTER_CROWN_WAVE_THREE: Card[] = [
     team: 'exchange',
     cost: 3,
     effect: 'grant',
-    grants: [
-      'regen'
-    ],
+    grants: ['regen'],
     text: 'The insurance finally pays out to someone dangerous. Grant REGEN so a surviving fighter heals between exchanges.',
-    symbol: '🏥'
+    symbol: '🏥',
   },
 ]

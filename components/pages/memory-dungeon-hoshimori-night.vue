@@ -219,9 +219,9 @@
             v-if="night.bellroad && !night.lowbank"
             class="mt-3 rounded-lg border border-warning/30 bg-warning/10 p-2 text-sm"
           >
-            The Lowbank flood route requires earned testimony from the
-            Mooncake Queue, kappa ferry and shrine. No family must surrender
-            its home to enter.
+            The Lowbank flood route requires earned testimony from the Mooncake
+            Queue, kappa ferry and shrine. No family must surrender its home to
+            enter.
           </p>
           <div
             v-if="night.lowbank"

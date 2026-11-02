@@ -11,13 +11,13 @@ import { controls } from './spaceCouchTraceHarness'
 const base = {
   ...startVoyage('vale', ['pell', 'mox', 'rue'], 42),
   phase: 'debrief' as const,
-  chapter: 2,
+  chapter: 1,
   supplies: 1,
   reputation: 4,
   missionHistory: [
     {
-      chapter: 2,
-      missionId: 'refugees',
+      chapter: 1,
+      missionId: startVoyage('vale', ['pell', 'mox', 'rue'], 42).missionId!,
       system: 'Test Station',
       policy: 'aid' as const,
       result: 'flawless' as const,
@@ -32,7 +32,7 @@ assert.equal(recovered.supplies, 4)
 assert.equal(recovered.reputation, 2)
 assert.equal(recovered.trust, base.trust)
 assert.deepEqual(recovered.missionHistory, base.missionHistory)
-assert.ok(recovered.worldFlags?.includes('quartermaster:2'))
+assert.ok(recovered.worldFlags?.includes('quartermaster:1'))
 assert.match(recovered.scene, /three supply crates/)
 assert.deepEqual(restoreVoyage(JSON.parse(JSON.stringify(recovered))), recovered)
 assert.equal(canRequisitionSupplies(recovered), false)

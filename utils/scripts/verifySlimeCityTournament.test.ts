@@ -29,10 +29,14 @@ for (const crew of report.crews) {
   assert.ok(crew.scoreRate >= 0 && crew.scoreRate <= 1)
   assert.ok(crew.averageRounds > 0)
 }
-assert.ok(report.warnings.some((warning) => warning.includes('Exploratory sample')))
+assert.ok(
+  report.warnings.some((warning) => warning.includes('Exploratory sample')),
+)
 assert.ok(report.averageDeadRounds >= 0)
 assert.ok(report.averageTrapsSprung >= 0)
-assert.ok(report.firstContactAverage === null || report.firstContactAverage >= 1)
+assert.ok(
+  report.firstContactAverage === null || report.firstContactAverage >= 1,
+)
 
 assert.throws(
   () => summarizeTournament('blackout', seeds, matches.slice(1)),
@@ -63,12 +67,16 @@ assert.deepEqual(
   sample.state,
   'A sample tournament command log must reproduce its final state exactly',
 )
-console.log('Slime City matchup audit: all 30 ordered pairs, six crew summaries, full coverage and seed replay PASS')
-console.log('Blackout baseline (one seed; NOT a balance claim): ' +
-  JSON.stringify({
-    wins: report.wins,
-    rounds: report.averageRounds,
-    deadRounds: report.averageDeadRounds,
-    traps: report.averageTrapsSprung,
-    winRates: report.crews.map((crew) => [crew.team, crew.scoreRate]),
-  }))
+console.log(
+  'Slime City matchup audit: all 30 ordered pairs, six crew summaries, full coverage and seed replay PASS',
+)
+console.log(
+  'Blackout baseline (one seed; NOT a balance claim): ' +
+    JSON.stringify({
+      wins: report.wins,
+      rounds: report.averageRounds,
+      deadRounds: report.averageDeadRounds,
+      traps: report.averageTrapsSprung,
+      winRates: report.crews.map((crew) => [crew.team, crew.scoreRate]),
+    }),
+)

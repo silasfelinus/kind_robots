@@ -156,6 +156,11 @@ assert.match(accountSwitch, /alienArtwork\.value = \{\}/)
 assert.match(accountSwitch, /alienArtLoaded\.value = false/)
 assert.match(
   accountSwitch,
+  /if \\(owner === null\\) \\{\\s+try \\{\\s+localStorage\\.setItem\\(ALIEN_GUIDE_OWNER_KEY, String\\(id\\)\\)/,
+  'first sign-in must reserve the legacy guest guide before a failed upload allows another account to import it',
+)
+assert.match(
+  accountSwitch,
   /response\.success &&\s+response\.data &&\s+JSON\.stringify\(remote\)/,
   'a failed remote read must never be reported as synced',
 )

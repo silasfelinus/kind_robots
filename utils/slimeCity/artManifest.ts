@@ -216,7 +216,8 @@ export const SLIME_CITY_ART = {
   },
   /**
    * Board tokens: one painted reaction-face portrait per creature and mood,
-   * keyed '<cardId>/<mood>' (fierce, guard, hurt, dazed, ouch, gleeful).
+   * keyed '<cardId>/<mood>' (fierce, guard, hurt), from Conductor
+   * projects/slime-city/art/BOARD-TOKENS-ROUND-6.yaml.
    * Silas, 2026-11-02: "we need custom tokens for all cards on the board.
    * Images with reaction faces would probably work." Until a creature's
    * portraits render, its token uses the card art with a reaction badge.

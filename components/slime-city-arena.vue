@@ -502,11 +502,21 @@ function mood(unit: ViewFighter): Mood {
   if (share <= 0.67) return 'hurt'
   return unit.stance === 'defend' ? 'guard' : 'fierce'
 }
+/** The three painted token portraits each creature gets (art round 6). */
+const PORTRAIT: Record<Mood, 'fierce' | 'guard' | 'hurt'> = {
+  fierce: 'fierce',
+  gleeful: 'fierce',
+  sly: 'fierce',
+  guard: 'guard',
+  hurt: 'hurt',
+  dazed: 'hurt',
+  ouch: 'hurt',
+}
 /** A painted mood portrait when one exists, else the card's own art. */
 function tokenArt(unit: ViewFighter): number | null {
   if (!unit.cardId) return null
   return (
-    slimeArtId('tokens', unit.cardId + '/' + mood(unit)) ??
+    slimeArtId('tokens', unit.cardId + '/' + PORTRAIT[mood(unit)]) ??
     slimeArtId('cards', unit.cardId)
   )
 }

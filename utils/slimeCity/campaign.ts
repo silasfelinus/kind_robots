@@ -577,6 +577,8 @@ export interface CampaignProgress {
   decisions: CampaignApproach[]
   lastResult: CampaignResult | null
   lastScene: string | null
+  /** Most recent battle approach, including defeats; absent in old saves. */
+  lastApproach?: CampaignApproach | null
 }
 
 export type CampaignSave = Record<TeamId, CampaignProgress>
@@ -588,6 +590,7 @@ export function createCampaignSave(): CampaignSave {
     decisions: [],
     lastResult: null,
     lastScene: null,
+    lastApproach: null,
   })
   return {
     catgirls: empty(),
@@ -630,6 +633,7 @@ export function resolveCampaignBattle(
       losses: old.losses + (result === 'enemy' ? 1 : 0),
       decisions: won ? [...old.decisions, choice] : [...old.decisions],
       lastResult: result,
+      lastApproach: choice,
       lastScene:
         result === 'player'
           ? [chapter.victory, consequence?.victory].filter(Boolean).join(' ')

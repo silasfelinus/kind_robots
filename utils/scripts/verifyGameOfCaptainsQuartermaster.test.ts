@@ -2,6 +2,7 @@ import assert from 'node:assert/strict'
 import { readFileSync } from 'node:fs'
 import {
   canRequisitionSupplies,
+  quartermasterCost,
   requisitionSupplies,
   restoreVoyage,
   startVoyage,
@@ -24,6 +25,7 @@ const base = {
     },
   ],
 }
+assert.equal(quartermasterCost(base), 2)
 assert.equal(canRequisitionSupplies(base), true)
 assert.ok(controls(base).some((option) => option.label === 'resupply'))
 const recovered = requisitionSupplies(base)
@@ -39,6 +41,24 @@ assert.deepEqual(
   recovered,
 )
 assert.equal(canRequisitionSupplies(recovered), false)
+assert.equal(quartermasterCost(recovered), 3)
+const second = {
+  ...recovered,
+  chapter: 2,
+  supplies: 1,
+  reputation: 5,
+  missionHistory: [
+    ...recovered.missionHistory!,
+    { ...base.missionHistory[0]!, chapter: 2 },
+  ],
+}
+assert.equal(canRequisitionSupplies(second), true)
+const secondTrade = requisitionSupplies(second)
+assert.equal(secondTrade.supplies, 4)
+assert.equal(secondTrade.reputation, 2)
+assert.equal(quartermasterCost(secondTrade), 4)
+assert.match(secondTrade.scene, /against 3 points/)
+assert.equal(canRequisitionSupplies({ ...second, reputation: 2 }), false)
 assert.equal(requisitionSupplies(recovered), recovered)
 assert.ok(!controls(recovered).some((option) => option.label === 'resupply'))
 const briefing = { ...base, phase: 'briefing' as const }

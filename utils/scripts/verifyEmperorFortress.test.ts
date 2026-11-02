@@ -1294,8 +1294,14 @@ assert.ok(sceneCount >= 3, 'the court holds scenes, not only petitions')
   const kiyoClinic = TALKS.find((talk) => talk.id === 'kiyo-romance-2')!
   assert.deepEqual(
     kiyoClinic.requires?.flags,
-    ['heard:kiyo-close', 'kiyo-friendship'],
-    'the legacy talk id remains accessible without a romance flag',
+    ['heard:kiyo-close'],
+    'prior saved choices still unlock the clinic without a romance gate',
+  )
+  assert.ok(
+    kiyoClinic.options.every((option) =>
+      option.effects.flags?.includes('kiyo-friendship'),
+    ),
+    'legacy saves rejoin the friendship arc through each clinic decision',
   )
   assert.deepEqual(
     kiyoClinic.options.map((option) => option.id),

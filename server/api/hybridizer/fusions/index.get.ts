@@ -4,6 +4,10 @@ import { errorHandler } from '~/server/utils/error'
 import { getOptionalApiUser } from '~/server/utils/authGuard'
 import { clientIngredientKey } from '~/server/utils/hybridizerFusion'
 import { hybridizerDeliverableUrl } from '~/server/utils/hybridizerArt'
+import {
+  buildArtImageWhere,
+  getArtImageAccessContext,
+} from '~/server/utils/artImageAccess'
 
 export default defineEventHandler(async (event) => {
   try {
@@ -24,7 +28,12 @@ export default defineEventHandler(async (event) => {
       .map((record) => record.artImageId as number)
     const images = imageIds.length
       ? await prisma.artImage.findMany({
-          where: { id: { in: imageIds } },
+          where: {
+            AND: [
+              { id: { in: imageIds } },
+              buildArtImageWhere(await getArtImageAccessContext(event)),
+            ],
+          },
           select: {
             id: true,
             imagePath: true,

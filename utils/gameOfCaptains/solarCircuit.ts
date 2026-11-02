@@ -849,10 +849,7 @@ export function visitCasinoVenue(
       0,
       run.supplies + (choice === 'ask' ? -1 : choice === 'override' ? 1 : 0),
     ),
-    trust: Math.max(
-      0,
-      run.trust + (choice === 'ask' ? 1 : choice === 'override' ? -1 : 0),
-    ),
+    trust: run.trust + (choice === 'ask' ? 1 : choice === 'override' ? -1 : 0),
     reputation: run.reputation + (choice === 'document' ? 1 : 0),
     intervention: run.intervention + (choice === 'override' ? 1 : 0),
     worldFlags: [

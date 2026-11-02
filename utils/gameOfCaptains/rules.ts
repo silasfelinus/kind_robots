@@ -1142,7 +1142,8 @@ export function canRequisitionSupplies(run: VoyageRun): boolean {
     run.supplies <= 2 &&
     run.reputation >= 2 &&
     (run.missionHistory ?? []).some(
-      (mission) => mission.chapter === run.chapter && mission.policy !== 'missed',
+      (mission) =>
+        mission.chapter === run.chapter && mission.policy !== 'missed',
     ) &&
     !(run.worldFlags ?? []).includes('quartermaster:' + run.chapter)
   )

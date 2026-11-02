@@ -448,7 +448,7 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
       return
     }
     if (!isCardUnlocked(id)) {
-      deckMessage.value = 'Unlock this reserve in a Meat pack before using it.'
+      deckMessage.value = 'Unlock this card in a Meat pack before using it.'
       return
     }
     const updated = currentDeck.value.map((cardId) =>

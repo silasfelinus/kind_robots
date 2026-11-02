@@ -1204,6 +1204,7 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
     team,
     enemy,
     cards,
+    collectionSize: CARDS.length,
     hand,
     inspectedCard,
     selected,

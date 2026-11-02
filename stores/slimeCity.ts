@@ -26,11 +26,7 @@ import type { SlimeCityStory } from '../utils/slimeCity/storySave'
 import { computed, ref, shallowRef, watch } from 'vue'
 import {
   advance,
-  attack,
-  mayAttack,
-  blowDamage,
-  legalNeighbor,
-  canBulldozeInto,
+  autoBattle,
   cardById,
   cardReady,
   toggleHandDiscard,
@@ -43,17 +39,17 @@ import {
   KEYWORDS,
   MODE_GUIDES,
   PLAYER_MODES,
-  move,
   normalizeSeed,
   observe,
   reveal,
+  setStance,
   RULE_VARIANTS,
   RUSH_TICK_MS,
   TEAMS,
   teamById,
-  unitAt,
   type ModeId,
   type RuleVariants,
+  type Stance,
   type TeamId,
 } from '../utils/slimeCity/prototypes'
 import {
@@ -381,8 +377,10 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
   )
   const selectedCard = ref<string | null>(null)
   const previewOpen = ref(false)
+  /** The board token whose card is open in the inspector. */
   const selectedUnit = ref<number | null>(null)
-  const targetUnit = ref<number | null>(null)
+  /** The hand card being dragged, so the board can light its landing squares. */
+  const dragCard = ref<string | null>(null)
   const running = ref(false)
   /** The how-to-play panel opens once per format for a first-time tester. */
   const guideOpen = ref(false)
@@ -547,7 +545,6 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
     selectedCard.value = null
     previewOpen.value = false
     selectedUnit.value = null
-    targetUnit.value = null
     bout.value = null
     contractBout.value = null
     campaignBout.value = null
@@ -573,87 +570,18 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
       (item) => item.id === selectedUnit.value && item.side === 'player',
     ),
   )
-  const attackTargets = computed(() => {
-    if (mode.value !== 'blackout' || !selected.value) return []
-    return sight.value.units
-      .filter(
-        (unit) =>
-          unit.side === 'enemy' &&
-          unit.known &&
-          match.value.units.some(
-            (actual) =>
-              actual.id === unit.id &&
-              mayAttack(match.value, selected.value!, actual),
-          ),
-      )
-      .map((unit) => unit.id)
-  })
-  const selectedTarget = computed(() =>
-    targetUnit.value === -1
-      ? match.value.monster
-      : match.value.units.find((u) => u.id === targetUnit.value),
+  /** The fighter behind the open token, as the player may see it. */
+  const inspectedUnit = computed(
+    () => sight.value.units.find((u) => u.id === selectedUnit.value) ?? null,
   )
-  const attackPreview = computed(() =>
-    selected.value && selectedTarget.value
-      ? blowDamage(match.value, selected.value, selectedTarget.value)
-      : 0,
-  )
-  const canShoveTarget = computed(() => {
-    const unit = selected.value
-    const target = selectedTarget.value
-    return (
-      !!unit &&
-      !!target &&
-      'side' in target &&
-      canBulldozeInto(match.value, unit, target.x, target.y)
-    )
-  })
-  function shoveSelected(): void {
-    if (!selected.value || !selectedTarget.value || !canShoveTarget.value)
-      return
-    const target = selectedTarget.value
-    const next = move(match.value, selected.value.id, target.x, target.y)
-    if (next === match.value) return
-    match.value = next
-    targetUnit.value = null
-    if (!next.units.some((u) => u.id === selectedUnit.value && u.ap > 0))
-      selectedUnit.value = null
-    settleBout()
+  /** Arena orders for one of your creatures. */
+  function orderStance(id: number, stance: Stance): void {
+    if (match.value.victor) return
+    const next = setStance(match.value, id, stance)
+    if (next !== match.value) match.value = next
   }
-
-  function canMoveTo(x: number, y: number): boolean {
-    const fighter = selected.value
-    return (
-      !!fighter &&
-      mode.value === 'blackout' &&
-      fighter.ap > 0 &&
-      legalNeighbor(fighter, { x, y }) &&
-      (canBulldozeInto(match.value, fighter, x, y) ||
-        (!match.value.units.some((u) => u.x === x && u.y === y) &&
-          !(match.value.monster?.x === x && match.value.monster?.y === y)))
-    )
-  }
-
-  function chooseAttackTarget(id: number): void {
-    if (id === -1) {
-      if (
-        selected.value &&
-        match.value.monster &&
-        mayAttack(match.value, selected.value, match.value.monster)
-      )
-        targetUnit.value = -1
-      return
-    }
-    if (attackTargets.value.includes(id)) targetUnit.value = id
-  }
-  function attackSelected(): void {
-    if (selectedUnit.value === null || targetUnit.value === null) return
-    const next = attack(match.value, selectedUnit.value, targetUnit.value)
-    if (next !== match.value) {
-      match.value = next
-      targetUnit.value = null
-      settleBout()
-    }
+  function closeUnit(): void {
+    selectedUnit.value = null
   }
 
   const district = computed(
@@ -731,7 +659,6 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
     selectedCard.value = null
     previewOpen.value = false
     selectedUnit.value = null
-    targetUnit.value = null
   }
 
   /** Switch one rule variant and restart on the same seed to compare. */
@@ -929,7 +856,6 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
     selectedCard.value = null
     previewOpen.value = false
     selectedUnit.value = null
-    targetUnit.value = null
     bout.value = null
     lastBout.value = null
     contractBout.value = id
@@ -967,7 +893,6 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
     )
     selectedCard.value = null
     selectedUnit.value = null
-    targetUnit.value = null
     previewOpen.value = false
     bout.value = null
     lastBout.value = null
@@ -1061,12 +986,11 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
   }
 
   function chooseCard(id: string): void {
-    if (mode.value === 'blackout' && !match.value.hands.player.includes(id))
+    if (autoBattle(match.value) && !match.value.hands.player.includes(id))
       return
     selectedCard.value = selectedCard.value === id ? null : id
-    previewOpen.value = !!selectedCard.value && mode.value === 'blackout'
+    previewOpen.value = false
     selectedUnit.value = null
-    targetUnit.value = null
   }
 
   function closePreview(): void {
@@ -1076,13 +1000,17 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
   function ready(id: string): boolean {
     return (
       cardReady(match.value, 'player', id) &&
-      (mode.value !== 'blackout' || match.value.hands.player.includes(id))
+      (!autoBattle(match.value) || match.value.hands.player.includes(id))
     )
   }
 
+  /**
+   * Tap a square: with a card in hand it plays there; otherwise a token opens
+   * its card. Creatures move and fight on their own, so there is nothing else.
+   */
   function touchSquare(x: number, y: number): void {
-    if (match.value.victor) return
     if (selectedCard.value) {
+      if (match.value.victor) return
       const result = deploy(match.value, selectedCard.value, x, y)
       if (result !== match.value) {
         match.value = result
@@ -1092,39 +1020,20 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
       }
       return
     }
-    const unit = unitAt(match.value, x, y)
-    if (unit?.side === 'player') {
-      selectedUnit.value = unit.id
-      targetUnit.value = null
-      return
-    }
-    if (
-      unit?.side === 'enemy' &&
-      (attackTargets.value.includes(unit.id) ||
-        (!!selected.value &&
-          canBulldozeInto(match.value, selected.value, x, y)))
-    ) {
-      targetUnit.value = unit.id
-      return
-    }
-    if (
-      selected.value &&
-      match.value.monster?.x === x &&
-      match.value.monster?.y === y
-    ) {
-      chooseAttackTarget(-1)
-      return
-    }
-    if (selectedUnit.value !== null) {
-      const result = move(match.value, selectedUnit.value, x, y)
-      if (result !== match.value) {
-        match.value = result
-        // Keep a fighter selected while it still has AP to spend.
-        const still = result.units.find((u) => u.id === selectedUnit.value)
-        if (!still || still.ap < 1) selectedUnit.value = null
-        settleBout()
-      }
-    }
+    const unit = sight.value.units.find((u) => u.x === x && u.y === y)
+    selectedUnit.value = unit && unit.id !== selectedUnit.value ? unit.id : null
+  }
+
+  /** Drag-and-drop: a card dropped on a square plays there if it can. */
+  function dropCard(id: string, x: number, y: number): boolean {
+    if (match.value.victor || !ready(id)) return false
+    const result = deploy(match.value, id, x, y)
+    if (result === match.value) return false
+    match.value = result
+    selectedCard.value = null
+    previewOpen.value = false
+    settleBout()
+    return true
   }
 
   function unmask(): void {
@@ -1132,8 +1041,9 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
     match.value = reveal(match.value, selectedUnit.value)
   }
 
+  /** Toss a card onto the discard pile; it is replaced at the next draw. */
   function markHandDiscard(id: string): void {
-    if (running.value || match.value.victor) return
+    if (match.value.victor) return
     const result = toggleHandDiscard(match.value, id)
     if (result !== match.value) {
       match.value = result
@@ -1143,11 +1053,15 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
       }
     }
   }
+  /** Take the most recently tossed card back into the hand. */
+  function undoDiscard(): void {
+    const last = match.value.markedDiscards.player.at(-1)
+    if (last) markHandDiscard(last)
+  }
 
   function nextRound(): void {
     if (running.value || match.value.victor) return
     match.value = advance(match.value)
-    targetUnit.value = null
     if (selectedCard.value && !ready(selectedCard.value)) {
       selectedCard.value = null
       previewOpen.value = false
@@ -1279,13 +1193,10 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
     selectedCard,
     previewOpen,
     selectedUnit,
-    targetUnit,
-    attackTargets,
-    canMoveTo,
-    canShoveTarget,
-    shoveSelected,
-    selectedTarget,
-    attackPreview,
+    dragCard,
+    inspectedUnit,
+    orderStance,
+    closeUnit,
     running,
     guideOpen,
     team,
@@ -1334,11 +1245,11 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
     closePreview,
     ready,
     touchSquare,
-    chooseAttackTarget,
-    attackSelected,
+    dropCard,
     unmask,
     nextRound,
     markHandDiscard,
+    undoDiscard,
     tick,
     toggleRush,
     unitLabel,

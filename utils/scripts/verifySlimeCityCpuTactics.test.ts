@@ -37,6 +37,7 @@ const makeFighter = (
   summonedRound: 0,
   attackedRound: 0,
   rooted: false,
+  stance: 'attack',
   ...options,
 })
 
@@ -50,15 +51,19 @@ const base = (): MatchView => {
   view.trapCap = 2
   return view
 }
+// Arena CPU (Silas, 2026-11-02): no manual moves or attacks, only cards and
+// battle orders. Traps go in the path of a raider closing on our base.
+const ownBase = (view: MatchView) =>
+  view.side === 'player' ? 0 : view.width - 1
 const nearing = base()
-nearing.units = [makeFighter(7, 'enemy', nearing.flag.x + 2, nearing.flag.y)]
+nearing.units = [makeFighter(7, 'enemy', 4, 2)]
 const trap = chooseCpuAction(nearing)
 assert.ok(trap && trap.t === 'deploy' && trap.card === 'tripwire')
 if (trap?.t === 'deploy') {
-  assert.equal(
-    Math.abs(trap.x - nearing.flag.x) + Math.abs(trap.y - nearing.flag.y),
-    1,
-    'The trap protects an approach to the flag, not a random corner',
+  assert.equal(trap.y, 2, 'The trap sits in the raider’s row')
+  assert.ok(
+    trap.x < 4 && trap.x > ownBase(nearing),
+    'The trap lies between the raider and our base',
   )
 }
 assert.deepEqual(
@@ -67,20 +72,10 @@ assert.deepEqual(
   'Identical visible state gives identical action',
 )
 
-// Pursue an escaping flag carrier instead of dumping a trap behind it.
-const escape = base()
-escape.units = [makeFighter(8, 'enemy', 6, 2, { carryingFlag: true })]
-const intercept = chooseCpuAction(escape)
-assert.ok(intercept && intercept.t === 'deploy')
-if (intercept?.t === 'deploy') {
-  assert.equal(intercept.x, 7)
-  assert.equal(intercept.y, 2)
-}
-
 // Do not reveal hidden rival identity when choosing trap squares.
 const hidden = base()
 hidden.units = [
-  makeFighter(1, 'enemy', hidden.flag.x + 2, hidden.flag.y, {
+  makeFighter(1, 'enemy', 4, 2, {
     hidden: true,
     known: false,
     cardId: null,
@@ -101,20 +96,31 @@ hidden.units = [
 const unknown = chooseCpuAction(hidden)
 assert.deepEqual(chooseCpuAction(hidden), unknown)
 
-// A visibly carried flag is a larger threat than a low-HP bystander.
-const attack = base()
-attack.hand = []
-attack.mana = 0
-attack.units = [
-  makeFighter(1, 'player', 3, 2, { attack: 2 }),
-  makeFighter(2, 'enemy', 4, 2, { carryingFlag: true, hp: 4 }),
-  makeFighter(3, 'enemy', 3, 3, { hp: 1 }),
+// A stolen flag pulls the creature closest to home back on DEFEND.
+const orders = base()
+orders.hand = []
+orders.mana = 0
+orders.flags[0] = { x: 3, y: 2, carrier: 9 }
+orders.units = [
+  makeFighter(1, 'player', 1, 1),
+  makeFighter(2, 'player', 5, 1),
+  makeFighter(3, 'player', 6, 4),
+  makeFighter(9, 'enemy', 3, 2, { carryingFlag: true }),
 ]
-assert.deepEqual(chooseCpuAction(attack), {
-  t: 'attack',
+assert.deepEqual(chooseCpuAction(orders), {
+  t: 'stance',
   id: 1,
-  target: 2,
+  stance: 'defend',
 })
+// With nothing to answer, everyone keeps attacking: the CPU passes.
+const calm = base()
+calm.hand = []
+calm.units = [makeFighter(1, 'player', 1, 1), makeFighter(2, 'player', 2, 4)]
+assert.equal(chooseCpuAction(calm), null)
+// It never issues a manual move in the arena.
+for (const view of [nearing, hidden, orders, calm])
+  assert.notEqual(chooseCpuAction(view)?.t, 'move')
+
 // Exercise the real controller and settlement loop for all six authored crews.
 // Comparisons are reproducible, not win-rate claims from an inadequate sample.
 for (const [index, team] of [
@@ -146,5 +152,5 @@ for (const [index, team] of [
   )
 }
 console.log(
-  'Slime City Blackout CPU: carrier interception, flag traps, concealed information, six deterministic full bouts PASS',
+  'Slime City arena CPU: raider traps, flag-thief orders, concealed information, six deterministic full bouts PASS',
 )

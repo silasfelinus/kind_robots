@@ -1430,7 +1430,8 @@
                 <span
                   ><b>{{ ethicalOrders.aid }}</b
                   ><small v-if="run.supplies > 0"
-                    >1 SUPPLY · +1 trust, +2 reputation. Help on their terms.</small
+                    >1 SUPPLY · +1 trust, +2 reputation. Help on their
+                    terms.</small
                   ><small v-else
                     >EMPTY HOLD · Offer time and labor instead. No trust or
                     reputation bonus.</small

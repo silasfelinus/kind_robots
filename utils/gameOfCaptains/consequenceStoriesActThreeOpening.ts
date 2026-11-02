@@ -217,8 +217,7 @@ export const ACT_THREE_OPENING_CASES = {
         label: 'Challenge the sponsor contract in the contestants’ names',
         approach:
           'Use the show’s own rules to expose the illegal exit conditions',
-        cost:
-          'Legal review may delay relief while the cameras stay on and injured contestants wait for treatment.',
+        cost: 'Legal review may delay relief while the cameras stay on and injured contestants wait for treatment.',
         policy: 'observe',
         check: { ability_any: ['culture', 'science'], difficulty: 8 },
         success: {

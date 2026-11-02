@@ -111,13 +111,20 @@
             <div class="campaign-exchange-voice rival">
               <SlimeCityArtwork
                 class="campaign-exchange-portrait"
-                :image-id="slimeArtId('crews', lab.campaignConversation.rivalTeam)"
-                :alt="teamName(lab.campaignConversation.rivalTeam) + ' portrait'"
+                :image-id="
+                  slimeArtId('crews', lab.campaignConversation.rivalTeam)
+                "
+                :alt="
+                  teamName(lab.campaignConversation.rivalTeam) + ' portrait'
+                "
                 :fallback="crewInsignia(lab.campaignConversation.rivalTeam)"
                 compact
               />
               <div class="campaign-exchange-lines">
-                <small>THE RIVAL · {{ lab.campaignConversation.rivalSpeaker }}</small>
+                <small
+                  >THE RIVAL ·
+                  {{ lab.campaignConversation.rivalSpeaker }}</small
+                >
                 <p>{{ lab.campaignConversation.rivalLine }}</p>
                 <p
                   v-if="lab.campaignConversation.rememberedChoice"
@@ -137,7 +144,10 @@
                 compact
               />
               <div class="campaign-exchange-lines">
-                <small>YOUR CREW · {{ lab.campaignConversation.playerSpeaker }}</small>
+                <small
+                  >YOUR CREW ·
+                  {{ lab.campaignConversation.playerSpeaker }}</small
+                >
                 <p>{{ lab.campaignConversation.playerLine }}</p>
                 <p
                   v-if="lab.campaignConversation.retryLine"

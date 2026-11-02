@@ -1481,6 +1481,7 @@ import {
   academyVillainArt,
   endingArtKey,
   incidentArtKey,
+  slugify,
   studentArtKey,
 } from '~/utils/cometAcademy/artSlots'
 import {
@@ -1620,6 +1621,9 @@ const campusChoices = computed<KrHandChoice[]>(() =>
         .filter(Boolean)
         .join(' · '),
       hint: option.text,
+      image: promArt(
+        `choices/${slugify(campusEncounter.value.title)}/${option.id}`,
+      ),
       icon:
         trust > 0
           ? '🤝'

@@ -329,9 +329,7 @@
             data-testid="dark-house-choices"
           >
             <memory-dungeon-choice-hand
-              :choices="
-                (room?.choices ?? []).map((c) => ({ id: c.id, label: c.label }))
-              "
+              :choices="chamberChoices"
               :deal-key="room?.id ?? ''"
               icon="🕯️"
               palette="violet"
@@ -402,6 +400,7 @@
 import { computed, ref, watch } from 'vue'
 import { useMemoryWorldStore } from '~/stores/memoryWorldStore'
 import { DARK_HOUSE_ROOMS } from '~/utils/memoryDungeon/darkHouse'
+import { darkHouseIllustrationPath } from '~/utils/memoryDungeon/artManifest'
 import { HOUSE_ATLAS_ROOM_IDS } from '~/utils/memoryDungeon/houseAtlas'
 
 const world = useMemoryWorldStore()
@@ -440,6 +439,15 @@ watch(
   () => {
     artAvailable.value = true
   },
+)
+const chamberChoices = computed(() =>
+  (room.value?.choices ?? []).map((choice) => ({
+    id: choice.id,
+    label: choice.label,
+    image: room.value
+      ? darkHouseIllustrationPath(room.value.id, choice.id)
+      : null,
+  })),
 )
 </script>
 

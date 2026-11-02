@@ -16,13 +16,13 @@ import {
 import { RARE_COUNT, rarityOf } from '../slimeCity/progression'
 
 assert.equal(GUTTER_CROWN_WAVE_THREE.length, 36)
-assert.equal(CARDS.length, 204)
-assert.equal(RARE_COUNT, 68)
+assert.equal(CARDS.length, 300)
+assert.equal(RARE_COUNT, 100)
 assert.equal(GUTTER_CROWN_WAVE_THREE_RARE_IDS.size, 12)
 assert.equal(new Set(CARDS.map((card) => card.id)).size, CARDS.length)
 assert.equal(new Set(CARDS.map((card) => card.name)).size, CARDS.length)
-assert.equal(CARDS.filter((card) => rarityOf(card) === 'rare').length, 68)
-assert.equal(CARDS.filter((card) => rarityOf(card) !== 'rare').length, 136)
+assert.equal(CARDS.filter((card) => rarityOf(card) === 'rare').length, 100)
+assert.equal(CARDS.filter((card) => rarityOf(card) !== 'rare').length, 200)
 assert.equal(
   GUTTER_CROWN_WAVE_THREE.filter((card) => rarityOf(card) === 'rare').length,
   12,
@@ -61,7 +61,7 @@ for (const crew of TEAMS) {
   assert.equal(wave.filter((card) => rarityOf(card) === 'rare').length, 2)
   assert.equal(
     CARDS.filter((card) => card.team === crew.id).length,
-    24,
+    40,
     'Each crew now has exactly 24 of its target 40 cards',
   )
   const founder = deckOf(crew.id).map((card) => card.id)
@@ -125,5 +125,5 @@ for (const crew of TEAMS) {
   }
 }
 console.log(
-  'Slime City wave three: 36 playable crew cards, 12 rares, six distinct archetypes, 204-card economy PASS',
+  'Slime City wave three: 36 playable crew cards, 12 rares, six distinct archetypes, 300-card economy PASS',
 )

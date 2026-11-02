@@ -16,9 +16,11 @@ tutorial:
   body: >-
     Choose one of six crews, then explore the city, follow your crew's five
     rival chapters in STORY, or start a direct battle in ARENA. BLACKOUT is
-    the main format: deploy visible creatures from a seeded four-card hand
-    onto the rectangular board. Mana refreshes by round; most newly deployed
-    units cannot attack until the next turn. Choose a unit to move, then use
+    the main format: draw five cards from your ten-card deck and deploy
+    visible creatures onto the rectangular board. Start with three mana and
+    bank three more each round (up to ten). Keep unplayed cards or mark them
+    for end-round redraw; a played card cannot return on the next deal.
+    Most newly deployed units cannot attack until the next turn. Choose a unit to move, then use
     the separate attack action when an enemy is in range. Capture the flag,
     defeat the opposing squad or survive the time limit. Visit districts on
     the city map, walk the streets, and make story decisions that change the

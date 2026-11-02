@@ -7,6 +7,7 @@ import {
   canMoveHoshimoriNight,
   hoshimoriNightClues,
   hoshimoriNightBellroadAccount,
+  hoshimoriNightLowbankAccount,
   hoshimoriNightCouncil,
   hoshimoriNightWindwardAccount,
   hoshimoriNightOrder,
@@ -36,6 +37,9 @@ export const useMemoryHoshimoriNightStore = defineStore(
     )
     const bellroad = computed(() =>
       hoshimoriNightBellroadAccount(progress.value),
+    )
+    const lowbank = computed(() =>
+      hoshimoriNightLowbankAccount(progress.value),
     )
     const lastOutcome = computed(() => {
       const last = progress.value.events.at(-1)
@@ -116,6 +120,7 @@ export const useMemoryHoshimoriNightStore = defineStore(
       council,
       windward,
       bellroad,
+      lowbank,
       lastOutcome,
       canMove,
       hydrate,

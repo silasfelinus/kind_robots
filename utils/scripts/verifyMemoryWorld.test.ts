@@ -2407,6 +2407,44 @@ assert.ok(consoleStage.includes('overflow-y: auto;'))
 assert.ok(consoleStage.includes('ring-[3px] ring-inset ring-cyan-50'))
 assert.ok(consoleStage.includes('ring-[3px] ring-inset ring-amber-100'))
 
+const actionBeaconSource = readFileSync(
+  'components/memory-dungeon/action-beacon.vue',
+  'utf8',
+)
+const hiddenFogArt = readFileSync('public/memory-dungeon/briar-fog.svg', 'utf8')
+assert.ok(
+  consoleStage.includes('class="md-fog-tile h-full w-full"'),
+  'Unrevealed tiles use illustrated fog instead of separate black card cells',
+)
+assert.ok(
+  consoleStage.includes(
+    "background-image: url('/memory-dungeon/briar-fog.svg')",
+  ),
+  'Unrevealed map squares use the local fog illustration',
+)
+assert.ok(
+  consoleStage.includes(':style="fogTileStyle(tile.x, tile.y)"'),
+  'Fog tiles align to fixed eight-by-eight world coordinates',
+)
+assert.ok(hiddenFogArt.includes('viewBox="0 0 800 800"'))
+assert.ok(
+  !consoleStage.includes("story: '◇'"),
+  'Ordinary explored stories have no misleading diamond',
+)
+assert.ok(
+  consoleStage.includes("sites[tile.key]?.kind !== 'story' &&") &&
+    consoleStage.includes('!tileNeedsAttention(tile.key)'),
+  'Actionable squares use a central beacon instead of overlapping site emojis',
+)
+assert.ok(
+  actionBeaconSource.includes('top: 50%;') &&
+    actionBeaconSource.includes('left: 50%;') &&
+    actionBeaconSource.includes('translate(-50%, -50%)'),
+  'The animated 3D exploration beacon is centered in the map square',
+)
+assert.ok(actionBeaconSource.includes('width: clamp(1.5rem, 6cqw, 3rem)'))
+assert.ok(actionBeaconSource.includes('prefers-reduced-motion: reduce'))
+
 assert.match(
   consoleStage,
   /data-testid="memory-world-console-stage"/,

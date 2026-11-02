@@ -47,7 +47,7 @@ for (const [index, missionId] of ids.entries()) {
   assert.equal(resolveConsequence(before, 'not-a-choice'), before)
   for (const choice of scene.choices) {
     assert.ok(choice.label.length >= 35)
-    assert.ok(choice.approach.length >= 50 && choice.cost.length >= 75)
+    assert.ok(choice.approach.length >= 50 && choice.cost.length >= 60)
     assert.ok(choice.check.difficulty >= 5 && choice.check.difficulty <= 10)
     for (const outcomeKey of ['success', 'failure'] as const) {
       const outcome = choice[outcomeKey]

@@ -96,7 +96,7 @@ for (const [missionId, episode] of Object.entries(CONSEQUENCE_STORIES)) {
   for (const choice of episode.choices) {
     for (const outcome of ['success', 'failure']) {
       const key = 'consequences/' + episode.id + '-' + choice.id + '-' + outcome
-      if (/^warp-[bcd]/.test(episode.id)) {
+      if (/^warp-[bcde]/.test(episode.id)) {
         assert.ok(
           !(key in COUCH_CONSEQUENCE_ART_IDS),
           'new outcome is awaiting painted art: ' + key,
@@ -126,7 +126,7 @@ for (const [missionId, episode] of Object.entries(CONSEQUENCE_STORIES)) {
     assert.equal(recorded.choiceId, choice.id)
     assert.equal(
       recorded.artKey in COUCH_CONSEQUENCE_ART_IDS,
-      !/^warp-[bcd]/.test(episode.id),
+      !/^warp-[bcde]/.test(episode.id),
       'only delivered, access-filtered ArtImages may be claimed as painted',
     )
     assert.equal(consequenceAftermath(outcome)?.artKey, recorded.artKey)

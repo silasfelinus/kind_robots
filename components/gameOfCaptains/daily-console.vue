@@ -465,7 +465,7 @@
                 :disabled="plotCast.length === 0"
                 @click="decide(flipped!, choice.id)"
               >
-                <b>{{ choice.label }}</b
+                <b>{{ episodeChoiceLabel(run, flipped!, choice.id) }}</b
                 ><small>{{
                   episodeChoiceStakes(run, flipped!, choice.id)
                 }}</small>
@@ -558,6 +558,7 @@ import {
 import {
   EPISODE_CHOICES,
   episodeChoiceStakes,
+  episodeChoiceLabel,
   episodeCard,
   episodeDecks,
   episodeDeckDone,

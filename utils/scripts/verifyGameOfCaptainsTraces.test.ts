@@ -64,7 +64,10 @@ const KNOWN_TITLES = new Set<string>([...WARP_ENDINGS, ...UNCLAIMED_ENDINGS])
 const mutiny = GALACTIC_ENDINGS.find(
   (ending) => ending.title === 'A MOTION OF NO CONFIDENCE',
 )!
-const distrust = { ...startVoyage('vale', ['pell', 'mox', 'rue'], 42), trust: -3 }
+const distrust = {
+  ...startVoyage('vale', ['pell', 'mox', 'rue'], 42),
+  trust: -3,
+}
 const civicPattern = (observed: number, overridden: number) => ({
   ...distrust,
   missionHistory: [

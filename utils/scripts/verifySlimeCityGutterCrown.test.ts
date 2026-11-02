@@ -10,7 +10,6 @@ import {
   loadoutProblems,
   move,
   type Fighter,
-  type TeamId,
 } from '../slimeCity/prototypes'
 import { GUTTER_CROWN_WAVE_TWO } from '../slimeCity/gutterCrownWaveTwo'
 import {
@@ -164,7 +163,8 @@ trapped.round = 3
 trapped.units = [ironjaw(3, 2), rival(4, 2)]
 trapped.traps = [{ x: 5, y: 2, side: 'player', damage: 1, roots: true }]
 const sprung = move(trapped, 100, 4, 2)
-assert.equal(sprung.stats.trapsSprung, 0, 'Friendly trap does not fire on own target')
+assert.equal(sprung.stats.trapsSprung, 1, 'Enemy shoved onto friendly trap triggers it')
+assert.equal(sprung.units.find((u) => u.id === 101)?.hp, 2)
 const enemyTrap = createMatch('blackout', 'ironjaw', 'riot', 83)
 enemyTrap.round = 3
 enemyTrap.units = [ironjaw(3, 2), rival(4, 2)]

@@ -744,6 +744,25 @@ export const ACT_FOUR_DAYS: readonly DayDef[] = [
         speaker: 'Captain Ferro Dunmark of the Gate Watch',
         npc: 'ferro-dunmark',
         faction: 'gate-watch',
+        variants: [
+          {
+            flags: ['d20-volunteer-bounty'],
+            lines: [
+              'Dunmark brings the training roll from Day Twenty, written on the backs of treasury receipts. Fifty-two people volunteered. Some had never held a spear.',
+              '“The Ford is under arrows. Those recruits are ready to go, Majesty. They were paid to stand where the crown needs them, not where it is safe.”',
+              {
+                who: 'A Freehold rider',
+                text: 'My brother signed that roll for the bounty. My family needs him. My village needs the road. I cannot ask him to do both.',
+              },
+              '“I can take them to the Ford and leave the tower thin. Or keep them here while somebody else pays for the crossing. I will not call either free.”',
+              {
+                who: 'Young Komodo',
+                npc: 'young-komodo',
+                text: 'You bought willingness, Majesty. You did not buy certainty. The choice of where to use it is yours.',
+              },
+            ],
+          },
+        ],
         lines: [
           'Dunmark comes up the carpet buckling his dented gorget. A Freehold rider limps at his elbow, a young ewe, a broken arrow shaft tied off in her arm. Nobody offers her a chair. She would not take one.',
           '“The Ford is under arrows, Majesty. The Freeholds are asking for the Gate Watch by name.”',
@@ -759,6 +778,40 @@ export const ACT_FOUR_DAYS: readonly DayDef[] = [
           },
         ],
         options: [
+          {
+            id: 'send-paid-volunteers',
+            label:
+              'Send the fifty-two trained volunteers to defend the Ford. Leave the tower short of guards.',
+            requires: { flags: ['d20-volunteer-bounty'] },
+            effects: {
+              affinity: { freeholds: 8 },
+              local: { 'gate-watch': -2, yard: -1 },
+              flags: ['d31-volunteers-sent'],
+              questAid: [
+                {
+                  questId: 'q-d31-iron-rain',
+                  label: 'The fifty-two paid volunteers defend the Ford',
+                  bonus: 2,
+                  stat: 'might',
+                },
+              ],
+            },
+            response:
+              'Dunmark calls the names from the old bounty roll. The rider finds her brother and hands him a dry coat. At noon the Ford gets its reinforcements. The tower watches them go.',
+          },
+          {
+            id: 'keep-paid-volunteers',
+            label:
+              'Keep the paid volunteers on the fortress wall. The Ford must survive with fewer defenders.',
+            requires: { flags: ['d20-volunteer-bounty'] },
+            effects: {
+              affinity: { freeholds: -6 },
+              local: { 'gate-watch': 2, yard: 1 },
+              flags: ['d31-volunteers-kept'],
+            },
+            response:
+              'Dunmark puts the bounty roll inside the wall register. The Freehold rider takes her coat back. She rides toward the Ford without asking for anyone to follow.',
+          },
           {
             id: 'ask-walls',
             label: 'Ask Dunmark who would be left on the walls.',

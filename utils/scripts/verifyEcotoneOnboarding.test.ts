@@ -188,7 +188,8 @@ assert.match(board, /portraitRetry/)
 // Choices are a hand of cards (Silas, 2026-11-02): each card's face is the
 // picture of the result, and the full hint stays readable off-card.
 assert.match(board, /<EcotoneChoiceHand/)
-assert.match(hand, /:art="option.thumb.art"/)
+assert.match(hand, /<KrChoiceHand/)
+assert.match(hand, /thumb!\.art"/)
 assert.match(hand, /option.possibilities/)
 assert.match(board, /outcomeArtKey\(card.id, choiceId, 'success'\)/)
 assert.match(hand, /emit\('play', option\)/)

@@ -73,7 +73,7 @@
 
       <section
         v-if="ledgerOpen"
-        class="absolute inset-0 z-40 flex min-h-0 flex-col gap-3 bg-base-100/98 p-3 sm:p-6"
+        class="fixed inset-0 z-40 flex min-h-0 flex-col gap-3 bg-base-100 p-3 sm:p-6"
         role="dialog"
         aria-modal="true"
         aria-labelledby="bell-ledger-heading"

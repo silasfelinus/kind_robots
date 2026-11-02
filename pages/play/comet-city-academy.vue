@@ -958,7 +958,7 @@
                       :key="student.id"
                       type="button"
                       class="cca-roster-button cca-hand-card"
-                      :style="{ '--deal-index': index }"
+                       :style="{ animationDelay: index * 65 + 'ms' }"
                       :class="{
                         active: isSelected(incident.id, student.id),
                         unavailable:
@@ -1479,7 +1479,7 @@ const focusedIncidents = computed(() =>
   focusedIncident.value ? [focusedIncident.value] : [],
 )
 watch(
-  () => [run.value?.day, run.value?.phase],
+  () => `${run.value?.day ?? 0}:${run.value?.phase ?? ''}`,
   () => {
     focusedIncidentId.value = null
   },
@@ -2778,7 +2778,6 @@ function toggleStudent(caseId: string, id: StudentId): void {
 .cca-hand-card {
   position: relative;
   animation: cca-deal 430ms cubic-bezier(.18,.85,.28,1.1) both;
-  animation-delay: calc(var(--deal-index) * 65ms);
   transform-origin: center bottom;
   transition: transform 220ms ease, box-shadow 220ms ease, border-color 220ms ease, opacity 220ms ease;
 }
@@ -2807,6 +2806,10 @@ function toggleStudent(caseId: string, id: StudentId): void {
   font-weight: 800;
   color: #f8cea2;
   text-align: center;
+}
+.cca-hand-table .cca-roster {
+  padding-top: 0.85rem;
+  padding-bottom: 0.75rem;
 }
 .cca-team-slots {
   display: grid;

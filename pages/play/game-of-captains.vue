@@ -226,6 +226,10 @@
         <SpaceCouchAlienScrapbook
           :guide="store.alienGuide"
           :artwork="store.alienArtwork"
+          :sync-status="store.alienGuideSyncStatus"
+          @sync="store.syncAlienGuideToAccount()"
+          :pending-incident="!!store.pendingCollectorIncident"
+          @incident="store.openCollectorIncident()"
           @close="titlePanel = 'home'"
         />
       </div>
@@ -263,6 +267,15 @@
           >
         </div>
         <div class="cap-actions">
+          <button
+            v-if="store.pendingCollectorIncident"
+            type="button"
+            class="cap-reset cap-signal"
+            data-testid="space-couch-collector-signal"
+            @click="store.openCollectorIncident()"
+          >
+            ✳ <span class="cap-signal-label">STRANGE COUCH </span>MAIL
+          </button>
           <button
             v-if="store.alienEncounterAvailable"
             type="button"
@@ -1834,6 +1847,15 @@
         </footer>
       </section>
     </div>
+    <SpaceCouchAlienMilestone
+      v-if="store.collectorIncident || store.collectorReport"
+      :incident="store.collectorIncident"
+      :artwork="store.alienArtwork"
+      :report="store.collectorReport"
+      :at="store.collectorIncident?.at ?? store.collectorReport?.at ?? 0"
+      @choose="store.chooseCollectorAction"
+      @close="store.dismissCollectorIncident"
+    />
     <SpaceCouchAlienEncounter
       v-if="store.alienSighting || store.alienReport"
       :sighting="store.alienSighting"
@@ -1910,6 +1932,7 @@ import {
 import SpaceCouchOpeningReel from '~/components/gameOfCaptains/opening-reel.vue'
 import SpaceCouchAlienEncounter from '~/components/gameOfCaptains/alien-encounter.vue'
 import SpaceCouchAlienScrapbook from '~/components/gameOfCaptains/alien-scrapbook.vue'
+import SpaceCouchAlienMilestone from '~/components/gameOfCaptains/alien-milestone.vue'
 import SpaceCouchDailyConsole from '~/components/gameOfCaptains/daily-console.vue'
 import SpaceCouchConstellationTest from '~/components/gameOfCaptains/constellation-test.vue'
 import {

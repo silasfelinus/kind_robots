@@ -10,7 +10,7 @@
             <strong>{{ lab.starterCount }}</strong> starters
           </span>
           <span class="hybridizer-bar-chip">
-            <strong>{{ lab.discoveries.length }}</strong> discoveries
+            <strong>{{ lab.discoveryTotal ?? lab.discoveries.length }}</strong> shared discoveries
           </span>
         </div>
       </header-page-bar>
@@ -93,6 +93,12 @@
 
         <article class="hybridizer-result" aria-live="polite">
           <p class="eyebrow">THE DISCOVERY CHAMBER</p>
+          <span
+            v-if="lab.reusedArtwork"
+            class="known-art-mark"
+            data-testid="hybridizer-known-art"
+            title="This pairing already has saved artwork"
+          >✦ ART IN ARCHIVE</span>
           <template v-if="lab.result">
             <h2 data-testid="hybridizer-result-title">
               {{ lab.result.title }}
@@ -173,9 +179,9 @@
                   )
                 "
                 data-testid="hybridizer-resubmit"
-                @click="lab.resubmit()"
+                @click="remixEditorOpen = !remixEditorOpen"
               >
-                ✦ Try new art
+                ✦ {{ remixEditorOpen ? "Close remix" : "Remix artwork" }}
               </button>
               <button
                 v-if="lab.result.isPublic === true && reactionImageId"
@@ -205,6 +211,34 @@
                 >Private study · sharing disabled</span
               >
             </div>
+            <form
+              v-if="remixEditorOpen && lab.canEditResult"
+              class="remix-editor kr-scroll"
+              aria-label="Create new artwork version"
+              @submit.prevent="submitRemix"
+            >
+              <div class="reaction-layer-head">
+                <strong>REMIX THE ILLUSTRATION</strong>
+                <button type="button" aria-label="Close remix editor" @click="remixEditorOpen = false">✕</button>
+              </div>
+              <p>The same discovery, new artistic interpretation. Earlier versions stay saved.</p>
+              <label class="remix-balance">
+                <span>Balance · {{ focusWeight }}% {{ lab.left?.title || 'first' }} / {{ 100 - focusWeight }}% {{ lab.right?.title || 'second' }}</span>
+                <input v-model.number="focusWeight" type="range" min="10" max="90" step="10" />
+              </label>
+              <label>
+                <span>Additional art direction (optional)</span>
+                <textarea
+                  v-model="remixDirection"
+                  rows="3"
+                  maxlength="500"
+                  placeholder="Try brighter colors, longer whiskers, a peel-shaped tail…"
+                ></textarea>
+              </label>
+              <button type="submit" class="remix-submit" :disabled="lab.versionBusy || !lab.left">
+                {{ lab.versionBusy ? 'Submitting…' : '✦ Queue this version' }}
+              </button>
+            </form>
             <div
               v-if="shareOpen"
               class="hybrid-share"
@@ -377,7 +411,7 @@
           data-testid="hybridizer-atlas"
           @click="openDrawer('atlas')"
         >
-          DISCOVERY SHELF · {{ lab.discoveries.length }}
+          DISCOVERY ATLAS · {{ lab.discoveryTotal ?? lab.discoveries.length }}
         </button>
       </footer>
       <div class="hybrid-badges" aria-label="Hybridizer achievements">
@@ -419,7 +453,29 @@
             ✕
           </button>
         </div>
-        <template v-if="drawer !== 'atlas'">
+        <div v-if="drawer === 'atlas'" class="atlas-summary" role="status">
+          <span><strong>{{ lab.discoveryTotal ?? lab.discoveries.length }}</strong> saved discoveries</span>
+          <span>{{ lab.readyTotal }} art-ready</span>
+          <span>{{ lab.renderingTotal }} rendering</span>
+        </div>
+        <template v-if="drawer === 'atlas'">
+          <label class="search-wrap">
+            <span class="sr-only">Search loaded discoveries</span>
+            <input v-model="search" type="search" placeholder="Search loaded discoveries…" />
+          </label>
+          <div class="type-filters" aria-label="Filter discovery status">
+            <button
+              v-for="option in atlasFilters"
+              :key="option.value"
+              type="button"
+              :class="{ selected: atlasStatus === option.value }"
+              :aria-pressed="atlasStatus === option.value"
+              @click="atlasStatus = option.value"
+            >{{ option.label }}</button>
+          </div>
+          <p class="atlas-loaded">{{ lab.discoveries.length }} loaded in this browser. Rendering requests are not completed art.</p>
+        </template>
+        <template v-else>
           <label class="search-wrap">
             <span class="sr-only">Search ingredients</span>
             <input
@@ -447,7 +503,7 @@
             :key="entry.key"
             type="button"
             class="ingredient-option"
-            :aria-label="'Select ' + entry.title"
+            :aria-label="drawer === 'atlas' ? 'View ' + entry.title + ' artwork' : 'Select ' + entry.title"
             @click="pick(entry.key)"
           >
             <img
@@ -460,7 +516,10 @@
             }}</span>
             <strong>{{ entry.title }}</strong>
             <em v-if="lab.artPending(entry)" class="art-pending">Art queued</em>
-            <small>{{
+            <small v-if="drawer === 'atlas'" class="atlas-entry-status">
+              {{ entry.status === 'READY' && lab.imageFor(entry) ? '✦ ART READY · VIEW / RATE' : (entry.status || 'STUDY') + ' · VIEW' }}
+            </small>
+            <small v-else>{{
               entry.taxonomy === 'OTHER' && entry.facetGroup === 'fruit'
                 ? 'FRUIT'
                 : entry.taxonomy
@@ -473,6 +532,13 @@
                 : 'No ingredients match your search.'
             }}
           </p>
+          <button
+            v-if="drawer === 'atlas' && lab.canLoadMore"
+            type="button"
+            class="atlas-load-more"
+            :disabled="lab.loadingShared"
+            @click="lab.loadSharedStudies(true)"
+          >{{ lab.loadingShared ? 'Loading atlas…' : 'Load more discoveries' }}</button>
         </div>
         <p class="drawer-foot">
           Shared matches are remembered across players. Missing artwork is

@@ -372,7 +372,9 @@ const windwardKeys = [...HOSHIMORI_NIGHT_WINDWARD_KEYS]
 assert.equal(windwardKeys.length, 8)
 assert.equal(new Set(windwardKeys).size, 8)
 assert.ok(
-  windwardKeys.every((key) => HOSHIMORI_WARM_SITES.some((site) => site.key === key)),
+  windwardKeys.every((key) =>
+    HOSHIMORI_WARM_SITES.some((site) => site.key === key),
+  ),
 )
 assert.ok(
   windwardKeys.every((key) => {

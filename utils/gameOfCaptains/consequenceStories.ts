@@ -1,5 +1,6 @@
 import { CAPTAIN_STATS, CREW_PROFILES, type Skill } from './crewAssignments'
 import type { PolicyId, VoyageRun } from './rules'
+import { ACT_ONE_EXPANDED_CONSEQUENCES } from './consequenceStoriesActOneExpansion'
 
 type Meter =
   | 'sanctuary_trust'
@@ -50,9 +51,8 @@ export type ConsequenceEnding = {
   cost: string
 }
 
-/** Faithful playable subset of Conductor CONSEQUENCES-ROUND-1.json.
- * The 21 completed art slots are resolved by the access-filtered art endpoint.
- * Do not use the old provisional painting descriptions as cast canon.
+/** Round 1's painted cases plus Round 2's authored, not-yet-painted cases.
+ * Painting lookup remains access-filtered and falls back to voyage art for new scenes.
  */
 export const CONSEQUENCE_STORIES: Record<string, ConsequenceEpisode> = {
   bar: {
@@ -482,6 +482,7 @@ export const CONSEQUENCE_STORIES: Record<string, ConsequenceEpisode> = {
       },
     ],
   },
+  ...ACT_ONE_EXPANDED_CONSEQUENCES,
 }
 export const CONSEQUENCE_ENDINGS: readonly ConsequenceEnding[] = [
   {

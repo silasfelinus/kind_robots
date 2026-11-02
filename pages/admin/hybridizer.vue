@@ -1021,6 +1021,61 @@ onUnmounted(() => {
     inset 0 0 0 7px #28204478;
 }
 
+.specimen-slot {
+  position: relative;
+  min-height: 0;
+  min-width: 0;
+}
+
+.specimen-slot > .specimen-chamber {
+  width: 100%;
+  height: 100%;
+}
+
+.favorite-heart {
+  position: absolute;
+  z-index: 5;
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  border: 1px solid #e7d8ed;
+  color: #fff;
+  background: #20132bd9;
+  font-size: 1.5rem;
+  line-height: 1;
+  cursor: pointer;
+  box-shadow: 0 2px 8px #170d2799;
+}
+
+.favorite-heart.active {
+  color: #ff789e;
+  border-color: #ffb7cd;
+}
+
+.favorite-heart:focus-visible {
+  outline: 3px solid #e6f6ae;
+}
+
+.chamber-heart,
+.result-heart {
+  top: 12px;
+  right: 12px;
+}
+
+.ingredient-tile {
+  position: relative;
+  min-width: 0;
+}
+
+.tile-heart {
+  top: 5px;
+  right: 5px;
+  width: 30px;
+  height: 30px;
+}
+
 .specimen-chamber {
   display: flex;
   flex-direction: column;
@@ -1309,7 +1364,7 @@ onUnmounted(() => {
 
 .hybridizer-footer {
   display: grid;
-  grid-template-columns: minmax(0, 1.4fr) minmax(0, 1.2fr) auto;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.4fr);
   align-items: center;
   gap: 10px;
   min-height: 0;
@@ -1332,7 +1387,33 @@ onUnmounted(() => {
   cursor: progress;
 }
 
+.hybridizer-tools {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 6px;
+  grid-column: 2;
+  grid-row: 1;
+}
+
+.tool-button {
+  padding: 9px;
+  min-height: 38px;
+  border: 1px solid #ab8cbb;
+  background: #3d2c54;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-weight: 800;
+}
+
+.tool-button:disabled {
+  opacity: 0.6;
+}
+
 .lab-status {
+  grid-column: 1 / -1;
+  grid-row: 2;
   color: #dbc5e7;
   font-size: 0.75rem;
   line-height: 1.3;
@@ -1425,6 +1506,8 @@ onUnmounted(() => {
 }
 
 .ingredient-option {
+  width: 100%;
+  height: 100%;
   display: flex;
   flex-direction: column;
   min-width: 0;
@@ -1435,6 +1518,48 @@ onUnmounted(() => {
   border-radius: 14px;
   padding: 8px;
   background: linear-gradient(155deg, #35425b, #39234e);
+}
+
+.hybridizer-settings {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  overflow-y: auto;
+  min-height: 0;
+  padding: 15px 4px;
+}
+
+.settings-choice {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  padding: 18px;
+  border: 1px solid #987db1;
+  border-radius: 16px;
+  background: #39294f;
+}
+
+.settings-choice input {
+  width: 24px;
+  height: 24px;
+  accent-color: #cfea91;
+  flex: 0 0 auto;
+}
+
+.settings-choice span {
+  display: grid;
+  gap: 8px;
+}
+
+.settings-choice strong {
+  color: #e5f6a9;
+  font-size: 1rem;
+}
+
+.settings-choice small,
+.settings-note {
+  color: #e0d1e7;
+  line-height: 1.5;
 }
 
 .ingredient-option:hover,
@@ -1519,16 +1644,20 @@ onUnmounted(() => {
     font-size: clamp(3rem, 15vw, 7rem);
   }
   .hybridizer-footer {
-    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-columns: minmax(0, 1fr);
   }
   .fusion-button {
-    grid-column: 1/3;
+    grid-column: 1;
+    grid-row: 1;
+  }
+  .hybridizer-tools {
+    grid-column: 1;
+    grid-row: 2;
+    justify-content: center;
   }
   .lab-status {
     grid-column: 1;
-  }
-  .atlas-button {
-    grid-column: 2;
+    grid-row: 3;
   }
   .result-foot {
     align-items: center;
@@ -1594,9 +1723,15 @@ onUnmounted(() => {
   .lab-status {
     font-size: 0.61rem;
   }
-  .atlas-button {
+  .atlas-button,
+  .tool-button {
     font-size: 0.61rem;
     padding: 8px;
+  }
+  .favorite-heart {
+    width: 28px;
+    height: 28px;
+    font-size: 1.25rem;
   }
   .fusion-button {
     padding: 9px;

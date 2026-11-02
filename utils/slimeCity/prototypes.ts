@@ -173,6 +173,7 @@ export type Command =
   | { t: 'reveal'; side: Side; id: number }
   | { t: 'attack'; side: Side; id: number; target: number }
   | { t: 'end' }
+  | { t: 'discard'; side: Side; card: string }
 
 export interface MatchStats {
   plays: Record<Side, Record<CardKind, number>>
@@ -232,6 +233,10 @@ export interface MatchState {
   piles: Record<Side, string[]>
   hands: Record<Side, string[]>
   discards: Record<Side, string[]>
+  /** Cards the player deliberately marked to cycle at the next round. */
+  markedDiscards: Record<Side, string[]>
+  /** Played cards in the current turn; never drawn in the next deal. */
+  playedThisRound: Record<Side, string[]>
   shuffles: Record<Side, number>
   /** Round/tick from which each side may play each card again. */
   cooldowns: Record<Side, Record<string, number>>
@@ -313,7 +318,7 @@ export const MODES: {
     size: '10 × 6',
     cadence: 'TURN-BASED',
     detail:
-      'Deploy visible monsters from a four-card hand, cross no-man’s-land and capture the flag. Only stealth specialists hide.',
+      'Deploy visible monsters from a five-card hand. Keep the unplayed cards or mark them for end-round redraw, bank up to ten mana, and capture the flag. Only stealth specialists hide.',
   },
   {
     id: 'gridiron',
@@ -387,7 +392,9 @@ export const KEYWORDS: Record<Keyword, { label: string; text: string }> = {
 
 /** Every crew deck: exactly this many cards and this many creatures. */
 export const DECK_SIZE = 10
-export const BLACKOUT_HAND_SIZE = 4
+export const BLACKOUT_HAND_SIZE = 5
+/** BLACKOUT grants three new mana each turn; leftovers bank to the cap. */
+export const BLACKOUT_MANA_GAIN = 3
 export const DECK_CREATURES = 4
 /** Unpaid debt never stacks past this; it comes out of the next refill. */
 export const DEBT_CAP = 2
@@ -1444,7 +1451,7 @@ export const MODE_GUIDES: Record<ModeId, ModeGuide> = {
   blackout: {
     goal: 'Deploy visible monsters from a shuffled hand and cross the no-man’s-land. Grab the ⚑ flag and carry it to your back column, the far left edge. Or wipe out every enemy fighter. After 20 rounds, the side with more total HP left wins.',
     steps: [
-      'Begin with four cards drawn from your faction’s ten-card deck. Tap a card to inspect its art, cost and abilities, then choose a valid square.',
+      'Begin with five cards from your ten-card deck and three mana. Unplayed cards stay in hand; choose KEEP or REDRAW for each card before ending the round.',
       'No fighters start concealed. Spies and specialist stealth cards can hide; other crews play visible monsters.',
       'Summon creatures into the left two columns. Traps belong on empty squares; spells and equipment target fighters.',
       'Press END ROUND. The CPU moves and plays cards, then every fighter beside an enemy strikes at once for attack minus armor.',
@@ -1453,7 +1460,7 @@ export const MODE_GUIDES: Record<ModeId, ModeGuide> = {
     limits: [
       'Local prototype: the CPU sees where fighters stand but not hidden identities or your trap.',
       'Initiative alternates (you, CPU, CPU, you …): on even rounds the CPU has already moved when your turn starts.',
-      'Ten unique cards per crew, four drawn each round. Played cards leave your hand. Discards recycle only after the deck empties. Mana: 1, 2, 3 … up to 10, minus debt.',
+      'Ten-card deck, five-card hand. Keep or mark any unplayed cards for end-round redraw. Played cards skip the very next draw. Gain three mana per round and bank leftovers up to ten; debt reduces only new mana.',
       'Nothing is saved: no Meat, cards or online results.',
     ],
   },
@@ -1736,6 +1743,14 @@ function copy(state: MatchState): MatchState {
       player: [...state.discards.player],
       enemy: [...state.discards.enemy],
     },
+    markedDiscards: {
+      player: [...state.markedDiscards.player],
+      enemy: [...state.markedDiscards.enemy],
+    },
+    playedThisRound: {
+      player: [...state.playedThisRound.player],
+      enemy: [...state.playedThisRound.enemy],
+    },
     shuffles: { ...state.shuffles },
     cooldowns: {
       player: { ...state.cooldowns.player },
@@ -1763,7 +1778,11 @@ function addDebt(state: MatchState, side: Side, amount: number): void {
   if (state.mode === 'bloodrush') {
     if (side === 'player') state.mana = Math.max(0, state.mana - amount)
     else state.enemyMana = Math.max(0, state.enemyMana - amount)
-  } else state.debt[side] = Math.min(DEBT_CAP, state.debt[side] + amount)
+  } else
+    state.debt[side] = Math.min(
+      state.mode === 'blackout' && !state.rules.classicFog ? 6 : DEBT_CAP,
+      state.debt[side] + amount,
+    )
 }
 
 /** Root a fighter now: it loses its current or next movement. */
@@ -1892,24 +1911,51 @@ function shuffledDeck(state: MatchState, side: Side): string[] {
     .map(({ id }) => id)
 }
 
-/** Clear unplayed cards and deal from the remaining pile without duplication. */
+/** Keep unplayed cards, cycle only marked cards, and exclude last turn's plays. */
 function drawHand(state: MatchState, side: Side): void {
-  state.discards[side].push(...state.hands[side])
-  state.hands[side] = []
+  const marked = new Set(state.markedDiscards[side])
+  state.discards[side].push(...state.hands[side].filter((id) => marked.has(id)))
+  state.hands[side] = state.hands[side].filter((id) => !marked.has(id))
+  state.markedDiscards[side] = []
+  const forbidden = new Set(state.playedThisRound[side])
   while (state.hands[side].length < BLACKOUT_HAND_SIZE) {
     if (!state.piles[side].length) {
-      if (!state.discards[side].length) break
-      state.shuffles[side]++
-      const discarded = new Set(state.discards[side])
-      state.piles[side] = shuffledDeck(state, side).filter((id) =>
-        discarded.has(id),
+      const available = new Set(
+        state.discards[side].filter((id) => !forbidden.has(id)),
       )
-      state.discards[side] = []
+      if (!available.size) break
+      state.shuffles[side]++
+      state.piles[side] = shuffledDeck(state, side).filter((id) =>
+        available.has(id),
+      )
+      state.discards[side] = state.discards[side].filter(
+        (id) => !available.has(id),
+      )
     }
     const next = state.piles[side].shift()
     if (!next) break
     state.hands[side].push(next)
   }
+  state.playedThisRound[side] = []
+}
+
+/** CPU hand decisions use only its own cards and public board state. */
+function chooseCpuDiscards(state: MatchState): void {
+  const side: Side = 'enemy'
+  if (state.mode !== 'blackout' || state.rules.classicFog) return
+  const availableMana = Math.min(MANA_CAP, state.enemyMana + BLACKOUT_MANA_GAIN)
+  const creatures = state.units.filter((unit) => unit.side === side).length
+  const traps = state.traps.filter((trap) => trap.side === side).length
+  const ordered = state.hands.enemy
+    .map(cardById)
+    .filter(
+      (card) =>
+        (card.kind === 'creature' && creatures >= FIELD_CAP.blackout) ||
+        (card.kind === 'trap' && traps >= trapCapOf(state, side)) ||
+        card.cost > availableMana + (state.round < 3 ? 1 : 0),
+    )
+    .sort((a, b) => b.cost - a.cost || a.id.localeCompare(b.id))
+  state.markedDiscards.enemy = ordered.slice(0, 2).map((card) => card.id)
 }
 
 export function createMatch(
@@ -1930,15 +1976,24 @@ export function createMatch(
   if (playerDeck && loadoutProblems(teamId, playerDeck).length)
     throw new Error('Illegal Slime City loadout')
   const s = normalizeSeed(seed)
-  const rush = mode === 'bloodrush'
   const state: MatchState = {
     mode,
     width,
     height,
     round: 1,
     maxRounds: ROUND_LIMITS[mode],
-    mana: rush ? 3 : 1,
-    enemyMana: rush ? 3 : 1,
+    mana:
+      mode === 'blackout' && !rules.classicFog
+        ? BLACKOUT_MANA_GAIN
+        : mode === 'bloodrush'
+          ? 3
+          : 1,
+    enemyMana:
+      mode === 'blackout' && !rules.classicFog
+        ? BLACKOUT_MANA_GAIN
+        : mode === 'bloodrush'
+          ? 3
+          : 1,
     score: [0, 0],
     seed: s,
     nextId: 1,
@@ -1967,6 +2022,8 @@ export function createMatch(
     piles: { player: [], enemy: [] },
     hands: { player: [], enemy: [] },
     discards: { player: [], enemy: [] },
+    markedDiscards: { player: [], enemy: [] },
+    playedThisRound: { player: [], enemy: [] },
     shuffles: { player: 0, enemy: 0 },
     cooldowns: { player: {}, enemy: {} },
     debt: { player: 0, enemy: 0 },
@@ -1990,7 +2047,7 @@ export function createMatch(
     }
     message(
       state,
-      'Deploy a visible monster. Four cards in hand, the rest in your deck.',
+      'Five cards in hand. Keep unplayed cards or mark them to redraw at round end.',
     )
   }
   if (state.rules.monster) {
@@ -2336,6 +2393,7 @@ function applyDeploy(
   if (state.mode === 'blackout' && !state.rules.classicFog) {
     state.hands[side] = state.hands[side].filter((id) => id !== cardId)
     state.discards[side].push(cardId)
+    state.playedThisRound[side].push(cardId)
   }
   state.cooldowns[side][cardId] =
     state.round + (state.mode === 'bloodrush' ? RUSH_COOLDOWN : 1)
@@ -2516,6 +2574,36 @@ function recorded(
   if (!apply(next)) return state
   next.commands.push(command)
   return next
+}
+
+/** Record a voluntary discard toggle; only the current player may make it. */
+export function toggleHandDiscard(
+  state: MatchState,
+  cardId: string,
+): MatchState {
+  return discardAs(state, 'player', cardId)
+}
+
+export function discardAs(
+  state: MatchState,
+  side: Side,
+  cardId: string,
+): MatchState {
+  return recorded(state, { t: 'discard', side, card: cardId }, (draft) => {
+    if (
+      draft.victor ||
+      side !== 'player' ||
+      draft.mode !== 'blackout' ||
+      !!draft.rules.classicFog ||
+      !draft.hands[side].includes(cardId)
+    )
+      return false
+    const marked = draft.markedDiscards[side]
+    draft.markedDiscards[side] = marked.includes(cardId)
+      ? marked.filter((id) => id !== cardId)
+      : [...marked, cardId]
+    return true
+  })
 }
 
 /** Play a card as the human player. Returns the same object when illegal. */
@@ -3059,26 +3147,31 @@ export function advance(state: MatchState): MatchState {
         next.enemyMana = Math.min(MANA_CAP, next.enemyMana + 1)
       }
     } else {
-      // Debt comes straight out of the refill, then is paid off.
-      const base = Math.min(MANA_CAP, next.round)
-      next.mana = Math.max(0, base - next.debt.player)
-      next.enemyMana = Math.max(0, base - next.debt.enemy)
-      message(
-        next,
-        'Round ' +
-          next.round +
-          ' · ' +
-          next.mana +
-          ' mana available' +
-          (next.debt.player ? ' (' + next.debt.player + ' went on debt)' : '') +
-          '.',
-      )
-      next.debt = { player: 0, enemy: 0 }
+      if (next.mode === 'blackout' && !next.rules.classicFog) {
+        for (const side of ['player', 'enemy'] as Side[]) {
+          const paid = Math.min(BLACKOUT_MANA_GAIN, next.debt[side])
+          const gain = BLACKOUT_MANA_GAIN - paid
+          if (side === 'player')
+            next.mana = Math.min(MANA_CAP, next.mana + gain)
+          else next.enemyMana = Math.min(MANA_CAP, next.enemyMana + gain)
+          next.debt[side] -= paid
+        }
+      } else {
+        const base = Math.min(MANA_CAP, next.round)
+        next.mana = Math.max(0, base - next.debt.player)
+        next.enemyMana = Math.max(0, base - next.debt.enemy)
+        next.debt = { player: 0, enemy: 0 }
+      }
+      message(next, 'Round ' + next.round + ' · ' + next.mana + ' banked mana.')
     }
     if (next.mode === 'blackout' && !next.rules.classicFog) {
+      chooseCpuDiscards(next)
       drawHand(next, 'player')
       drawHand(next, 'enemy')
-      message(next, 'Four fresh cards dealt from your faction deck.')
+      message(
+        next,
+        'Unplayed cards held; selected discards replaced up to five.',
+      )
     }
     // Carriers lumber: one square per round, unless a card boosts them.
     // Rooted fighters get no AP this round.
@@ -3134,6 +3227,7 @@ export function replayMatch(
   )
   for (const c of commands) {
     if (c.t === 'end') state = advance(state)
+    else if (c.t === 'discard') state = discardAs(state, c.side, c.card)
     else if (c.t === 'deploy') state = deployAs(state, c.side, c.card, c.x, c.y)
     else if (c.t === 'move') state = moveAs(state, c.side, c.id, c.x, c.y)
     else if (c.t === 'attack') state = attackAs(state, c.side, c.id, c.target)

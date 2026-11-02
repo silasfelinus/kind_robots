@@ -51,6 +51,8 @@ import {
   type DistrictId,
 } from '../slimeCity/city'
 import {
+  BLACKOUT_HAND_SIZE,
+  BLACKOUT_MANA_GAIN,
   CARDS,
   createMatch,
   deploy,
@@ -635,15 +637,25 @@ assert.equal(
 assert.equal(
   applyTerms(createMatch('blackout', 'catgirls', 'undertow', 2001), combined)
     .mana,
-  4,
+  BLACKOUT_MANA_GAIN + (combined.playerMana ?? 0),
 )
 const scenarioBase = createMatch('blackout', 'catgirls', 'bloodfairies', 2001)
 const scenario = applyTerms(
   {
     ...scenarioBase,
     hands: {
-      player: ['lynx', ...scenarioBase.hands.player.slice(0, 3)],
-      enemy: ['sprite', ...scenarioBase.hands.enemy.slice(0, 3)],
+      player: [
+        'lynx',
+        ...scenarioBase.hands.player
+          .filter((id) => id !== 'lynx')
+          .slice(0, BLACKOUT_HAND_SIZE - 1),
+      ],
+      enemy: [
+        'sprite',
+        ...scenarioBase.hands.enemy
+          .filter((id) => id !== 'sprite')
+          .slice(0, BLACKOUT_HAND_SIZE - 1),
+      ],
     },
   },
   { playerHp: 2, enemyArmor: 1, fewerRivals: 1 },
@@ -736,7 +748,11 @@ assert.equal(
   0,
   'New Blackout starts with open deployment',
 )
-assert.equal(lab.hand.length, 4, 'New Blackout deals four cards')
+assert.equal(
+  lab.hand.length,
+  BLACKOUT_HAND_SIZE,
+  'New Blackout deals five cards',
+)
 assert.ok(
   lab.match.units
     .filter((u) => u.side === 'player')
@@ -858,7 +874,11 @@ const boosted = applyTerms(
   createMatch('blackout', 'riot', 'catgirls', 421),
   boutTerms(crisisSweep, 'pitworks'),
 )
-assert.equal(boosted.mana, 3, 'Citywide alliance supplies two opening mana')
+assert.equal(
+  boosted.mana,
+  BLACKOUT_MANA_GAIN + 2,
+  'Citywide alliance supplies two opening mana',
+)
 assert.equal(
   boosted.scenarioBonus?.enemyArmor,
   -1,
@@ -880,7 +900,11 @@ assert.equal(lab.view, 'arena')
 assert.equal(lab.mode, 'blackout')
 assert.equal(lab.match.foeId, 'exchange')
 assert.equal(lab.campaignBout?.team, 'ironjaw')
-assert.equal(lab.match.enemyMana, 2, 'Story approach affects match resources')
+assert.equal(
+  lab.match.enemyMana,
+  BLACKOUT_MANA_GAIN + 1,
+  'Story approach affects match resources',
+)
 lab.closeGuide()
 for (let i = 0; i < 40 && !lab.match.victor; i++) lab.nextRound()
 assert.ok(lab.match.victor)
@@ -923,7 +947,7 @@ assert.ok(lab.campaignBout, 'City mission uses campaign settlement')
 assert.equal(lab.match.teamId, 'catgirls')
 assert.equal(
   lab.match.mana,
-  4,
+  BLACKOUT_MANA_GAIN + 3,
   'City-based chapter includes +2 cunning mana AND +1 street decision mana',
 )
 assert.equal(
@@ -953,7 +977,7 @@ assert.equal(lab.view, 'arena', 'Crisis resolution unlocks city story fights')
 assert.equal(lab.match.teamId, 'catgirls')
 assert.equal(
   lab.match.mana,
-  2,
+  BLACKOUT_MANA_GAIN + 1,
   'City campaign inherits one bonus opening mana from the crisis',
 )
 console.log('Slime City civic crisis / campaign store integration PASS')

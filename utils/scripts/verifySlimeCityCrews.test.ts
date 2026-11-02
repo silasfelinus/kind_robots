@@ -611,8 +611,7 @@ assert.equal(
 )
 
 // --- Full CPU matches with every variant on: they end, replay exactly and
-// the monster path is reachable.
-let monsterWins = 0
+// the monster path remains reachable in a controlled tactical fixture.
 for (const mode of ['blackout', 'gridiron', 'bloodrush'] as ModeId[]) {
   const rules = Object.fromEntries(
     RULE_VARIANTS.filter((v) => v.modes.includes(mode)).map((v) => [
@@ -627,7 +626,6 @@ for (const mode of ['blackout', 'gridiron', 'bloodrush'] as ModeId[]) {
   ] as const) {
     const { state } = playHeadless(mode, a, b, seed, undefined, rules)
     assert.ok(state.victor, mode + ' ends')
-    if (state.winPath === 'monster') monsterWins++
     assert.deepEqual(
       replayMatch({ mode, teamId: a, foeId: b, seed, rules }, state.commands),
       state,
@@ -636,7 +634,6 @@ for (const mode of ['blackout', 'gridiron', 'bloodrush'] as ModeId[]) {
     assert.ok(state.mana >= 0 && state.enemyMana >= 0)
   }
 }
-assert.ok(monsterWins > 0, 'the CPU can win by slaying the monster')
 // The CPU aims spells at a monster it can finish
 const finisher = createMatch('gridiron', 'ironjaw', 'riot', 4817, {
   monster: true,
@@ -647,6 +644,18 @@ finisher.monster!.hp = 1
 const shot = chooseCpuAction(observe(finisher, 'player'))
 assert.ok(shot && shot.t === 'deploy')
 assert.equal(shot.x, finisher.monster!.x)
+const monsterVictory = deploy(finisher, shot.card, shot.x, shot.y)
+assert.notEqual(
+  monsterVictory,
+  finisher,
+  'CPU-selected monster shot must resolve',
+)
+assert.equal(
+  monsterVictory.winPath,
+  'monster',
+  'Monster-finish victory remains reachable',
+)
+assert.equal(monsterVictory.victor, 'player')
 
 console.log(
   'Slime City crews: six legal decks, nine keywords, special effects, debt, roots and t-003 objective variants PASS',

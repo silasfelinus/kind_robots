@@ -182,6 +182,7 @@ export const ModelName = {
   MediaEntry: 'MediaEntry',
   ResourcePreview: 'ResourcePreview',
   HybridizerFusion: 'HybridizerFusion',
+  SpaceCouchAlienGuide: 'SpaceCouchAlienGuide',
   SlimeCityAccount: 'SlimeCityAccount',
   SlimeCityMatch: 'SlimeCityMatch',
   SiteStatDaily: 'SiteStatDaily',
@@ -2736,6 +2737,17 @@ export const HybridizerFusionScalarFieldEnum = {
 } as const
 
 export type HybridizerFusionScalarFieldEnum = (typeof HybridizerFusionScalarFieldEnum)[keyof typeof HybridizerFusionScalarFieldEnum]
+
+
+export const SpaceCouchAlienGuideScalarFieldEnum = {
+  userId: 'userId',
+  data: 'data',
+  version: 'version',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type SpaceCouchAlienGuideScalarFieldEnum = (typeof SpaceCouchAlienGuideScalarFieldEnum)[keyof typeof SpaceCouchAlienGuideScalarFieldEnum]
 
 
 export const SlimeCityAccountScalarFieldEnum = {

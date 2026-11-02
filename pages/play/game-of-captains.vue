@@ -226,6 +226,8 @@
         <SpaceCouchAlienScrapbook
           :guide="store.alienGuide"
           :artwork="store.alienArtwork"
+          :sync-status="store.alienGuideSyncStatus"
+          @sync="store.syncAlienGuideToAccount()"
           :pending-incident="!!store.pendingCollectorIncident"
           @incident="store.openCollectorIncident()"
           @close="titlePanel = 'home'"

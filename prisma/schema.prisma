@@ -1892,6 +1892,7 @@ model User {
   GrantsReceived         Grant[]                   @relation("GrantGrantee")
   PacksOwned             Pack[]                    @relation("PackOwner")
   SlimeCityAccount       SlimeCityAccount?
+  SpaceCouchAlienGuide   SpaceCouchAlienGuide?
   SlimeCityMatches       SlimeCityMatch[]
 
   @@index([artImageId], map: "User_artImageId_fkey")
@@ -3804,6 +3805,17 @@ model HybridizerFusion {
  
 /// Slime City is an account-owned virtual game economy, separate from paid
 /// Kind Robots mana/tokens. Authoritative state is NEVER browser-local.
+/// The Space Couch alien field guide belongs to an authenticated user across devices.
+/// Cache fields are versioned for collision-safe unions of independent discoveries.
+model SpaceCouchAlienGuide {
+  userId    Int      @id
+  data      Json
+  version   Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  User      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
 model SlimeCityAccount {
   userId    Int      @id
   data      Json

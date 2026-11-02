@@ -1170,9 +1170,16 @@ export type ResourcePreview = Prisma.ResourcePreviewModel
  */
 export type HybridizerFusion = Prisma.HybridizerFusionModel
 /**
- * Model SlimeCityAccount
+ * Model SpaceCouchAlienGuide
  * Slime City is an account-owned virtual game economy, separate from paid
  * Kind Robots mana/tokens. Authoritative state is NEVER browser-local.
+ * The Space Couch alien field guide belongs to an authenticated user across devices.
+ * Cache fields are versioned for collision-safe unions of independent discoveries.
+ */
+export type SpaceCouchAlienGuide = Prisma.SpaceCouchAlienGuideModel
+/**
+ * Model SlimeCityAccount
+ * 
  */
 export type SlimeCityAccount = Prisma.SlimeCityAccountModel
 /**

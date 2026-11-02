@@ -402,7 +402,7 @@ export const MERCENARY_CARDS: Card[] = [
     name: "Allergy Season",
     kind: "spell",
     team: "mercenary",
-    cost: 3,
+    cost: 2,
     effect: "chaos",
     text: "The whole city sneezes; deal a seeded 1–3 damage to a rival.",
     symbol: "🌾"
@@ -436,7 +436,7 @@ export const MERCENARY_CARDS: Card[] = [
     name: "Mortgage Holiday",
     kind: "spell",
     team: "mercenary",
-    cost: 3,
+    cost: 1,
     effect: "debt",
     power: 1,
     text: "A tempting payment deferral. Deal 1 damage and inflict 1 mana debt.",
@@ -505,9 +505,9 @@ export const MERCENARY_CARDS: Card[] = [
     team: "mercenary",
     cost: 5,
     effect: "blast",
-    power: 3,
-    splash: "all",
-    text: "A landlord fumigates the neighborhood. Hit a foe for 3 and adjacent fighters for 1.",
+    power: 6,
+    splash: "enemies",
+    text: "A landlord fumigates the neighborhood. Hit a foe for 6 and adjacent enemies for 1.",
     symbol: "🫙"
   },
   {

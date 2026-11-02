@@ -5,6 +5,7 @@
 // ever decides from observe(), the redacted per-side view.
 import { chooseCpuAction } from './cpu'
 import { RESERVE_CARDS } from './reserveCards'
+import { GUTTER_CROWN_WAVE_TWO } from './gutterCrownWaveTwo'
 
 export type Color = 'red' | 'blue' | 'purple' | 'green' | 'gold'
 export type TeamId =
@@ -1262,6 +1263,7 @@ export const CARDS: Card[] = [
     symbol: '✚',
   },
   ...RESERVE_CARDS,
+  ...GUTTER_CROWN_WAVE_TWO,
 ]
 
 export const DISTRICTS = [

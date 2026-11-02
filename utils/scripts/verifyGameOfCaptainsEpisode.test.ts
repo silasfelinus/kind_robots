@@ -5,6 +5,7 @@ import {
 } from '../gameOfCaptains/episodeArtwork'
 import { readFileSync } from 'node:fs'
 import { startVoyage, restoreVoyage } from '../gameOfCaptains/rules'
+import { visitCasinoVenue } from '../gameOfCaptains/solarCircuit'
 import { ACT_TWO_MISSIONS } from '../gameOfCaptains/actTwo'
 import { ACT_THREE_MISSIONS } from '../gameOfCaptains/actThree'
 import { LATE_LOCAL_ROUTE_IDS } from '../gameOfCaptains/expeditionLaterLocal'
@@ -21,6 +22,7 @@ import {
 } from '../gameOfCaptains/expedition'
 import {
   EPISODE_CHOICES,
+  episodeChoiceStakes,
   episodeCard,
   episodeDecks,
   episodeDeckDone,

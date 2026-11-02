@@ -103,7 +103,10 @@ for (const title of planetCards.values()) {
     planetReprise(title, choice, true, 1),
   )
   assert.equal(new Set(callbacks).size, 3, title)
-  assert.ok(callbacks.every((text) => text.length > 65), title)
+  assert.ok(
+    callbacks.every((text) => text.length > 65),
+    title,
+  )
   const setback = planetReprise(title, 'ask', false, 1)
   assert.ok(setback.length > 60 && !callbacks.includes(setback), title)
   assert.equal(planetReprise(title, 'ask', undefined, 1), setback)
@@ -117,7 +120,7 @@ for (let seed = 1; seed <= 300; seed++) {
   const history: EpisodeRun['episodeDrawHistory'] = []
   const seen = new Map<string, number>()
   for (let chapter = 1; chapter <= 9; chapter++) {
-    const voyage = { ...landing, seed, chapter, episodeDrawHistory: history }
+    const voyage: EpisodeRun = { ...landing, seed, chapter, episodeDrawHistory: history }
     const card = episodeCard(voyage, 'planet')
     const firstVisit = episodeCard(
       { ...voyage, episodeDrawHistory: [] },

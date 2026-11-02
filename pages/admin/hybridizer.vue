@@ -499,13 +499,17 @@
         <div class="drawer-head">
           <div>
             <p class="eyebrow">
-              {{ drawer === 'atlas' ? 'DISCOVERY ATLAS' : 'SPECIMEN DRAWER' }}
+              {{ drawer === 'atlas' ? 'DISCOVERY ATLAS' : drawer === 'favorites' ? 'YOUR COLLECTION' : drawer === 'settings' ? 'LAB SETTINGS' : 'SPECIMEN DRAWER' }}
             </p>
             <h2>
               {{
                 drawer === 'atlas'
                   ? 'Discovery shelf'
-                  : 'Choose ' + drawer + ' ingredient'
+                  : drawer === 'favorites'
+                    ? 'Favorite creatures'
+                    : drawer === 'settings'
+                      ? 'Laboratory settings'
+                      : 'Choose ' + drawer + ' ingredient'
               }}
             </h2>
           </div>
@@ -526,6 +530,16 @@
           <span>{{ lab.readyTotal }} art-ready</span>
           <span>{{ lab.renderingTotal }} rendering</span>
         </div>
+        <section v-if="drawer === 'settings'" class="hybridizer-settings" aria-label="Laboratory settings">
+          <label class="settings-choice">
+            <input type="checkbox" :checked="lab.randomStartersOnly" @change="onBaseOnlyChanged" />
+            <span><strong>Only the original 200</strong><small>🎲 Surprise selects two illustrated starters. Turn this off to include illustrated reusable hybrids as well.</small></span>
+          </label>
+          <p class="settings-note">Only ingredients with delivered, accessible pictures can be randomly selected. Favorites and settings are saved in this browser for the current account.</p>
+        </section>
+        <template v-if="drawer === 'favorites'">
+          <p class="atlas-loaded">{{ lab.favoriteEntries.length }} illustrated favorites. Tap an image to explore it.</p>
+        </template>
         <template v-if="drawer === 'atlas'">
           <label class="search-wrap">
             <span class="sr-only">Search loaded discoveries</span>
@@ -548,11 +562,11 @@
             </button>
           </div>
           <p class="atlas-loaded">
-            {{ lab.discoveries.length }} loaded in this browser. Rendering
-            requests are not completed art.
+            {{ lab.atlasEntries.length }} of {{ lab.atlasFilteredTotal }} matching discoveries loaded.
+            Rendering requests are not completed art.
           </p>
         </template>
-        <template v-else>
+        <template v-else-if="drawer !== 'favorites' && drawer !== 'settings'">
           <label class="search-wrap">
             <span class="sr-only">Search ingredients</span>
             <input
@@ -574,14 +588,13 @@
             </button>
           </div>
         </template>
-        <div class="ingredient-grid kr-scroll">
+        <div v-if="drawer !== 'settings'" class="ingredient-grid kr-scroll">
+          <div v-for="entry in visibleEntries" :key="entry.key" class="ingredient-tile">
           <button
-            v-for="entry in visibleEntries"
-            :key="entry.key"
             type="button"
             class="ingredient-option"
             :aria-label="
-              drawer === 'atlas'
+              drawer === 'atlas' || drawer === 'favorites'
                 ? 'View ' + entry.title + ' artwork'
                 : 'Select ' + entry.title
             "
@@ -597,7 +610,7 @@
             }}</span>
             <strong>{{ entry.title }}</strong>
             <em v-if="lab.artPending(entry)" class="art-pending">Art queued</em>
-            <small v-if="drawer === 'atlas'" class="atlas-entry-status">
+            <small v-if="drawer === 'atlas' || drawer === 'favorites'" class="atlas-entry-status">
               {{
                 entry.status === 'READY' && lab.imageFor(entry)
                   ? '✦ ART READY · VIEW / RATE'
@@ -610,26 +623,37 @@
                 : entry.taxonomy
             }}</small>
           </button>
+          <button
+            v-if="lab.imageFor(entry)"
+            type="button"
+            class="favorite-heart tile-heart"
+            :class="{ active: lab.isFavorite(entry.key) }"
+            :aria-label="lab.isFavorite(entry.key) ? 'Remove ' + entry.title + ' from favorites' : 'Favorite ' + entry.title"
+            :aria-pressed="lab.isFavorite(entry.key)"
+            @click.stop="lab.toggleFavorite(entry.key)"
+          >{{ lab.isFavorite(entry.key) ? '♥' : '♡' }}</button>
+          </div>
           <p v-if="!visibleEntries.length" class="empty-filter">
             {{
-              drawer === 'atlas'
-                ? 'Your local discovery shelf is empty. Try a fusion.'
-                : 'No ingredients match your search.'
+              drawer === 'favorites'
+                ? 'No illustrated favorites yet. Tap ♡ on any artwork.'
+                : drawer === 'atlas'
+                  ? 'No discoveries match this filter.'
+                  : 'No ingredients match your search.'
             }}
           </p>
           <button
-            v-if="drawer === 'atlas' && lab.canLoadMore"
+            v-if="drawer === 'atlas' && lab.atlasCanLoadMore"
             type="button"
             class="atlas-load-more"
-            :disabled="lab.loadingShared"
-            @click="lab.loadSharedStudies(true)"
+            :disabled="lab.atlasLoading"
+            @click="lab.loadAtlas(false, atlasStatus, search)"
           >
-            {{ lab.loadingShared ? 'Loading atlas…' : 'Load more discoveries' }}
+            {{ lab.atlasLoading ? 'Loading atlas…' : 'Load more discoveries' }}
           </button>
         </div>
-        <p class="drawer-foot">
-          Shared matches are remembered across players. Missing artwork is
-          queued through the ArtJob relay while you keep exploring.
+        <p v-if="drawer !== 'settings'" class="drawer-foot">
+          {{ drawer === 'favorites' ? 'Tap ♡ again to remove a favorite.' : 'Discoveries are shared. Missing art continues through the art relay while you explore.' }}
         </p>
       </aside>
     </div>

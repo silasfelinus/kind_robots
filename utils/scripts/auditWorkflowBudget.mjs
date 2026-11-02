@@ -85,15 +85,15 @@ export function cronRunsPerDay(cron) {
   const count = (field, size) => {
     if (field === '*') return size
     return field.split(',').reduce((sum, part) => {
-      const step = part.match(/^(\*|\d+-\d+)\/(\d+)$/)
-      if (step) {
-        const [lo, hi] =
-          step[1] === '*' ? [0, size - 1] : step[1].split('-').map(Number)
-        return sum + Math.floor((hi - lo) / Number(step[2])) + 1
-      }
-      const range = part.match(/^(\d+)-(\d+)$/)
-      if (range) return sum + Number(range[2]) - Number(range[1]) + 1
-      return sum + 1
+      const [base = '', stepText] = part.split('/')
+      const [lo, hi] =
+        base === '*'
+          ? [0, size - 1]
+          : base.includes('-')
+            ? base.split('-').map(Number)
+            : [Number(base), stepText ? size - 1 : Number(base)]
+      const step = stepText ? Number(stepText) : 1
+      return sum + Math.floor((hi - lo) / step) + 1
     }, 0)
   }
   const perDay = count(minute, 60) * count(hour, 24)

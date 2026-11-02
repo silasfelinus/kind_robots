@@ -136,7 +136,11 @@
           :data-testid="'slime-discard-' + card.id"
           @click.stop="lab.markHandDiscard(card.id)"
         >
-          {{ lab.match.markedDiscards.player.includes(card.id) ? 'REDRAW ↻' : 'KEEP' }}
+          {{
+            lab.match.markedDiscards.player.includes(card.id)
+              ? 'REDRAW ↻'
+              : 'KEEP'
+          }}
         </button>
       </div>
     </div>

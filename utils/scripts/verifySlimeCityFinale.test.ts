@@ -129,7 +129,9 @@ for (const crew of TEAMS) {
     assert.equal(result.mana, 10 - card.cost)
     assert.equal(result.stats.plays.player[card.kind], 1)
     assert.ok(result.discards.player.includes(card.id))
-    assert.ok(result.commands.some((c) => c.t === 'deploy' && c.card === card.id))
+    assert.ok(
+      result.commands.some((c) => c.t === 'deploy' && c.card === card.id),
+    )
     if (card.kind === 'creature') {
       const fighter = result.units.find((c) => c.cardId === card.id)
       assert.ok(fighter, card.id + ' materialized as an actual creature')
@@ -184,8 +186,14 @@ for (const crew of TEAMS) {
     )
     assert.equal(new Set(deck).size, 10)
     assert.equal(
-      createMatch('blackout', crew.id, foe.id, 199 + index, {}, deck)
-        .playerDeck!.join(','),
+      createMatch(
+        'blackout',
+        crew.id,
+        foe.id,
+        199 + index,
+        {},
+        deck,
+      ).playerDeck!.join(','),
       deck.join(','),
     )
   }

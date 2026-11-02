@@ -847,7 +847,7 @@
         >
           <div class="sc-collection-title">
             <span class="sc-overline"
-              >THE ARMORY / DECK WORKBENCH · {{ lab.progress.cards.length }}/72
+              >THE ARMORY / DECK WORKBENCH · {{ lab.progress.cards.length }}/{{ lab.collectionSize }}
               COLLECTED</span
             >
             <h2>{{ lab.team.name }}</h2>

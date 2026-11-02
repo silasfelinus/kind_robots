@@ -120,7 +120,7 @@ assert.equal(
 )
 assert.equal(
   CARDS.length,
-  168,
+  204,
   '48 Gutter Crown faction cards and 60 neutral mercenaries are playable',
 )
 assert.equal(

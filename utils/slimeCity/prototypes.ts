@@ -6,6 +6,7 @@
 import { chooseCpuAction } from './cpu'
 import { RESERVE_CARDS } from './reserveCards'
 import { GUTTER_CROWN_WAVE_TWO } from './gutterCrownWaveTwo'
+import { GUTTER_CROWN_WAVE_THREE } from './gutterCrownWaveThree'
 import { MERCENARY_CARDS } from './mercenaryCards'
 
 export type Color = 'red' | 'blue' | 'purple' | 'green' | 'gold'
@@ -1272,6 +1273,7 @@ export const CARDS: Card[] = [
   },
   ...RESERVE_CARDS,
   ...GUTTER_CROWN_WAVE_TWO,
+  ...GUTTER_CROWN_WAVE_THREE,
   ...MERCENARY_CARDS,
 ]
 

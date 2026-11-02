@@ -576,8 +576,9 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
       mode.value === 'blackout' &&
       fighter.ap > 0 &&
       legalNeighbor(fighter, { x, y }) &&
-      !match.value.units.some((u) => u.x === x && u.y === y) &&
-      !(match.value.monster?.x === x && match.value.monster?.y === y)
+      (canBulldozeInto(match.value, fighter, x, y) ||
+        (!match.value.units.some((u) => u.x === x && u.y === y) &&
+          !(match.value.monster?.x === x && match.value.monster?.y === y)))
     )
   }
 

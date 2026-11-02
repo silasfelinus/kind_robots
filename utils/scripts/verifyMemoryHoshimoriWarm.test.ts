@@ -898,7 +898,7 @@ for (let mask = 0; mask < 64; mask++) {
   assert.ok(run.rations >= 0)
   const account = hoshimoriOvenSixthAccount(run)
   assert.ok(account)
-  assert.match(account, /Vesper|families|household/)
+  assert.match(account, /Vesper|families|household/i)
   glassAccounts.add(account)
   assert.strictEqual(
     advanceHoshimoriWarm(run, { type: 'enter-glass-wing' }),

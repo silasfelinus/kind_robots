@@ -49,7 +49,10 @@ export function hybridizerArtPrompt(
         '% of ' +
         right
   return [
-    subject + ' that is ' + balance + '. Its shape, colors, surface textures and signature',
+    subject +
+      ' that is ' +
+      balance +
+      '. Its shape, colors, surface textures and signature',
     'features come from both, merged into one coherent body so that both',
     left + ' and ' + right + ' are instantly recognizable.',
     'Full view, centered, three-quarter angle, standing on a plain light grey',

@@ -17,9 +17,10 @@
       </header-page-bar>
 
       <section class="hybridizer-stage" aria-label="Creature fusion laboratory">
+        <div class="specimen-slot left-chamber">
         <button
           type="button"
-          class="specimen-chamber left-chamber"
+          class="specimen-chamber"
           data-testid="hybridizer-left"
           aria-label="Choose left ingredient"
           @click="openDrawer('left')"
@@ -49,6 +50,16 @@
             >{{ lab.left?.taxonomy || 'EMPTY' }} <span>CHANGE ✦</span></span
           >
         </button>
+        <button
+          v-if="lab.left && lab.imageFor(lab.left)"
+          type="button"
+          class="favorite-heart chamber-heart"
+          :class="{ active: lab.isFavorite(lab.left.key) }"
+          :aria-label="lab.isFavorite(lab.left.key) ? 'Remove left ingredient from favorites' : 'Favorite left ingredient'"
+          :aria-pressed="lab.isFavorite(lab.left.key)"
+          @click="lab.toggleFavorite(lab.left.key)"
+        >{{ lab.isFavorite(lab.left.key) ? '♥' : '♡' }}</button>
+        </div>
 
         <div class="hybridizer-machine" aria-hidden="true">
           <span class="coil coil-one"></span>
@@ -59,9 +70,10 @@
           }}</span>
         </div>
 
+        <div class="specimen-slot right-chamber">
         <button
           type="button"
-          class="specimen-chamber right-chamber"
+          class="specimen-chamber"
           data-testid="hybridizer-right"
           aria-label="Choose right ingredient"
           @click="openDrawer('right')"
@@ -91,6 +103,16 @@
             >{{ lab.right?.taxonomy || 'EMPTY' }} <span>CHANGE ✦</span></span
           >
         </button>
+        <button
+          v-if="lab.right && lab.imageFor(lab.right)"
+          type="button"
+          class="favorite-heart chamber-heart"
+          :class="{ active: lab.isFavorite(lab.right.key) }"
+          :aria-label="lab.isFavorite(lab.right.key) ? 'Remove right ingredient from favorites' : 'Favorite right ingredient'"
+          :aria-pressed="lab.isFavorite(lab.right.key)"
+          @click="lab.toggleFavorite(lab.right.key)"
+        >{{ lab.isFavorite(lab.right.key) ? '♥' : '♡' }}</button>
+        </div>
 
         <article class="hybridizer-result" aria-live="polite">
           <p class="eyebrow">THE DISCOVERY CHAMBER</p>
@@ -109,6 +131,15 @@
               class="fusion-study"
               aria-label="Hybrid creature artwork or source composition preview"
             >
+              <button
+                v-if="previewArt"
+                type="button"
+                class="favorite-heart result-heart"
+                :class="{ active: lab.isFavorite(lab.result.key) }"
+                :aria-label="lab.isFavorite(lab.result.key) ? 'Remove discovery from favorites' : 'Favorite discovery'"
+                :aria-pressed="lab.isFavorite(lab.result.key)"
+                @click="lab.toggleFavorite(lab.result.key)"
+              >{{ lab.isFavorite(lab.result.key) ? '♥' : '♡' }}</button>
               <img
                 v-if="previewArt"
                 class="fusion-generated"
@@ -430,14 +461,23 @@
           <span aria-hidden="true">✦</span>
         </button>
         <p class="lab-status" role="status">{{ lab.status }}</p>
-        <button
-          type="button"
-          class="atlas-button"
-          data-testid="hybridizer-atlas"
-          @click="openDrawer('atlas')"
-        >
-          DISCOVERY ATLAS · {{ lab.discoveryTotal ?? lab.discoveries.length }}
-        </button>
+        <div class="hybridizer-tools">
+          <button type="button" class="tool-button" data-testid="hybridizer-random" :disabled="lab.randomizing || lab.working" @click="lab.randomize()" title="Random illustrated ingredients">
+            <span aria-hidden="true">🎲</span> {{ lab.randomizing ? 'Rolling…' : 'Surprise' }}
+          </button>
+          <button type="button" class="tool-button" data-testid="hybridizer-favorites" @click="openDrawer('favorites')" title="Your favorite illustrations">
+            <span aria-hidden="true">♥</span> Favorites
+          </button>
+          <button type="button" class="tool-button" data-testid="hybridizer-settings" @click="openDrawer('settings')" title="Hybridizer settings">
+            <span aria-hidden="true">⚙</span> Settings
+          </button>
+          <button
+            type="button"
+            class="atlas-button"
+            data-testid="hybridizer-atlas"
+            @click="openDrawer('atlas')"
+          >Atlas · {{ lab.discoveryTotal ?? lab.discoveries.length }}</button>
+        </div>
       </footer>
       <div class="hybrid-badges" aria-label="Hybridizer achievements">
         <span

@@ -530,7 +530,11 @@ export function consequenceForRun(run: VoyageRun): ConsequenceEpisode | null {
     const convoy = history.find((item) => item.missionId === 'refugees')
     if (convoy) {
       const peopleAreHidden = convoy.flags.some((flag) =>
-        ['convoy-witnesses-protected', 'convoy-identities-sheltered', 'convoy-identity-audit-blocked'].includes(flag),
+        [
+          'convoy-witnesses-protected',
+          'convoy-identities-sheltered',
+          'convoy-identity-audit-blocked',
+        ].includes(flag),
       )
       return {
         ...episode,
@@ -542,7 +546,10 @@ export function consequenceForRun(run: VoyageRun): ConsequenceEpisode | null {
       }
     }
   }
-  if (missionId === 'sesh-backups' && (run.worldFlags ?? []).includes('concord-resident-personhood')) {
+  if (
+    missionId === 'sesh-backups' &&
+    (run.worldFlags ?? []).includes('concord-resident-personhood')
+  ) {
     return {
       ...episode,
       opening:

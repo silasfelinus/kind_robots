@@ -14,13 +14,32 @@ export default defineEventHandler(async (event) => {
     const auth = await getOptionalApiUser(event)
     const query = getQuery(event)
     const take = Math.min(1000, Math.max(1, Number(query.take) || 50))
-    const records = await prisma.hybridizerFusion.findMany({
-      where: auth
-        ? { OR: [{ isPublic: true }, { creatorUserId: auth.user.id }] }
-        : { isPublic: true },
-      orderBy: [{ createdAt: 'desc' }, { id: 'asc' }],
-      take,
-    })
+    const skip = Math.max(0, Math.floor(Number(query.skip) || 0))
+    const where = auth
+      ? { OR: [{ isPublic: true }, { creatorUserId: auth.user.id }] }
+      : { isPublic: true }
+    const [records, grouped] = await Promise.all([
+      prisma.hybridizerFusion.findMany({
+        where,
+        orderBy: [{ createdAt: 'desc' }, { id: 'asc' }],
+        take,
+        skip,
+      }),
+      prisma.hybridizerFusion.groupBy({
+        by: ['status'],
+        where,
+        _count: { _all: true },
+      }),
+    ])
+    const countFor = (status: string) =>
+      grouped.find((item) => item.status === status)?._count._all ?? 0
+    const total = grouped.reduce((sum, item) => sum + item._count._all, 0)
+    const stats = {
+      total,
+      ready: countFor('READY'),
+      rendering: countFor('QUEUED') + countFor('RENDERING') + countFor('DELIVERING'),
+    }
+
     // The shelf shows each finished hybrid's picture without a status call per
     // card, under the same visibility rules as fusions/[id]/status.
     const imageIds = records
@@ -59,6 +78,7 @@ export default defineEventHandler(async (event) => {
     }
     return {
       success: true,
+      meta: stats,
       data: records.map((record) => ({
         key: 'fusion:' + record.id,
         title: record.title,

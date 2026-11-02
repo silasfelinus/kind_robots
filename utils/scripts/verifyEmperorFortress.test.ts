@@ -7352,6 +7352,10 @@ for (const def of DAYS)
     [47, 'd47-watch-writ', 'd36-tanners-leave', 'tanner-oath', 'd47-tanners-oath-kept', 'tanner-brothers'],
     [47, 'd47-kiyo', 'd03-kiyo-brews', 'kettle', 'd47-kiyo-taught-brew', 'kiyos-medicine'],
     [47, 'd47-kiyo', 'd03-kiyo-recipe-shared', 'recipe', 'd47-kiyo-recipe-public', 'kiyos-medicine'],
+    [47, 'd47-watch-writ', 'd31-volunteers-sent', 'paid-volunteers-record', 'd47-volunteers-named', 'the-ford-volunteers'],
+    [47, 'd47-watch-writ', 'd31-volunteers-kept', 'volunteers-commission', 'd47-village-commission', 'the-ford-volunteers'],
+    [47, 'd47-watch-writ', 'd40-komodo-followed', 'rook-road-evidence', 'd47-rook-road-recorded', 'rooks-mission-road'],
+    [48, 'd48-mara', 'd24-wenna-paid', 'wenna-council-seat', 'd48-wenna-council', 'wenna-at-the-council'],
   ] as const
   for (const [day, audienceId, prior, choiceId, later, epilogueId] of routes) {
     const audience = at(day, audienceId)
@@ -7390,6 +7394,36 @@ for (const def of DAYS)
       .map(lineText)
       .join(' '),
     /willowbark/,
+  )
+  const muster = at(31, 'd31-muster')
+  for (const [id, expected] of [
+    ['send-paid-volunteers', 'd31-volunteers-sent'],
+    ['keep-paid-volunteers', 'd31-volunteers-kept'],
+  ] as const) {
+    const option = muster.options.find((entry) => entry.id === id)!
+    assert.ok(!optionVisible(onDay(624, 31), option))
+    const prepared = onDay(624, 31, {
+      flags: ['d20-volunteer-bounty'],
+      brass: 150,
+    })
+    assert.ok(optionVisible(prepared, option))
+    assert.match(sceneLines(prepared, muster).map(lineText).join(' '), /Fifty-two/)
+    const result = chooseAudienceOption(prepared, 'd31-muster', id).run
+    assert.ok(result.flags.includes(expected))
+    if (id === 'send-paid-volunteers') {
+      assert.ok(
+        result.questAids?.some(
+          (aid) => aid.questId === 'q-d31-iron-rain',
+        ),
+        'the paid recruits improve the Ford dispatch odds',
+      )
+    }
+  }
+  assert.match(
+    sceneLines(make(43, ['d40-komodo-followed']), at(43, 'd43-defector'))
+      .map(lineText)
+      .join(' '),
+    /Rook/,
   )
 }
 

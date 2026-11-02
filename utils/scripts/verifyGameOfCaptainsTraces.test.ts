@@ -207,6 +207,25 @@ function counterSet(nemesis: string, offset: number): CrewId[] {
 
 // 1. Antagonist × captain × crew. Every nemesis meets every captain.
 const seenEndings = new Set<string>()
+type StyleBalance = {
+  voyages: number
+  endings: Map<string, number>
+  negativeTrust: number
+  emptySupplies: number
+  fallenRedshirts: number
+}
+const styleBalances = new Map<string, StyleBalance>(
+  STYLES.map((style) => [
+    style.name,
+    {
+      voyages: 0,
+      endings: new Map<string, number>(),
+      negativeTrust: 0,
+      emptySupplies: 0,
+      fallenRedshirts: 0,
+    },
+  ]),
+)
 NEMESES.forEach((nemesis, n) => {
   const seeds = seedsFacing(nemesis, FULL ? 3 : 1)
   assert.equal(seeds.length, FULL ? 3 : 1, `${nemesis}: seeds`)
@@ -224,6 +243,15 @@ NEMESES.forEach((nemesis, n) => {
         assert.equal(antagonistFor(run).id, nemesis, where)
         endingContract(run, where)
         seenEndings.add(endingFamilyTitle(run.ending!))
+        if (FULL) {
+          const balance = styleBalances.get(style.name)!
+          const family = endingFamilyTitle(run.ending!)
+          balance.voyages++
+          balance.endings.set(family, (balance.endings.get(family) ?? 0) + 1)
+          if (run.trust < 0) balance.negativeTrust++
+          if (run.supplies === 0) balance.emptySupplies++
+          balance.fallenRedshirts += run.redshirtFallen?.length ?? 0
+        }
       }
     })
   })
@@ -232,6 +260,30 @@ assert.ok(
   seenEndings.size >= 5,
   `the matrix reaches varied endings: ${[...seenEndings]}`,
 )
+if (FULL) {
+  for (const [name, balance] of styleBalances) {
+    assert.ok(balance.voyages > 0, name + ': untested play style')
+    const top = [...balance.endings.entries()].sort((a, b) => b[1] - a[1])[0]!
+    console.log(
+      'Space Couch balance ' +
+        name +
+        ': ' +
+        balance.voyages +
+        ' voyages, ' +
+        balance.endings.size +
+        ' endings, dominant ' +
+        top[0] +
+        ' (' +
+        Math.round((top[1] * 100) / balance.voyages) +
+        '%), negative trust ' +
+        balance.negativeTrust +
+        ', empty supplies ' +
+        balance.emptySupplies +
+        ', fallen redshirts ' +
+        balance.fallenRedshirts,
+    )
+  }
+}
 
 // 2. Every ending × every captain, from a new voyage on the page's path. The
 // plans are the ones verifyGameOfCaptains.test.ts charts on the short path;

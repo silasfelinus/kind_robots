@@ -229,14 +229,14 @@ export function deployExpedition(
     enc.secretCrew.includes(lead as CrewId)
   const revealedPower =
     profile && profile.talent === enc.skill ? profile.secretPower : null
-  // Every deployed redshirt receives an independent deterministic 1-in-3 mortality roll.
-  const casualty =
-    profile &&
-    hash(run.seed + ':' + run.chapter + ':' + enc.id + ':' + lead + ':fatal') %
-      3 ===
-      0
-      ? lead
-      : null
+  // The fatality roll is separate from mission success. Relevant training
+  // halves a redshirt's danger from one in five to one in ten.
+  const fatalityRoll = hash(
+    run.seed + ':' + run.chapter + ':' + enc.id + ':' + lead + ':fatal',
+  )
+  // FNV's low bits correlate with encounter IDs; always use mixed high bits.
+  const fatalityTest = (fatalityRoll >>> 8) % (skill >= 4 ? 10 : 5)
+  const casualty = profile && fatalityTest === 0 ? lead : null
   const dangerouslyUnqualified =
     !!profile &&
     enc.priority === 'major' &&

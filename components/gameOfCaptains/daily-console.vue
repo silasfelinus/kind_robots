@@ -170,9 +170,9 @@
               Known forecasts are shown. Untried redshirt skills stay
               classified; field experience may reveal them. Moving a character
               between cards swaps their existing assignment instead of
-              abandoning it. Every redshirt also faces an independent 1-in-3
-              fatality roll per mission. A high success forecast never means a
-              guaranteed safe return.
+              abandoning it. Every redshirt also faces a separate fatality roll:
+              1-in-5 without relevant expertise, 1-in-10 when their matching
+              skill is at least 4. Even a successful mission can cost a life.
             </p>
           </div>
           <div v-else class="daily-quest-grid">

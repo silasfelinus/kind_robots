@@ -17,6 +17,7 @@ import {
   missionBoard,
   missionFor,
   nextDestination,
+  requisitionSupplies,
   previewMission,
   rechargeCouchShield,
   resolveCrewDetour,
@@ -155,6 +156,7 @@ export const act = {
   advanceDay: advanceVoyageDay,
   decide: decidePolicy,
   next: nextDestination,
+  resupply: requisitionSupplies,
   romance: chooseRomance,
   trio: chooseTrioStep,
   detour: beginCrewDetour,
@@ -318,6 +320,7 @@ export function controls(run: VoyageRun): Control[] {
       if (trioStepDue(run))
         for (const option of [0, 1] as const)
           add('trio:' + option, act.trio(run, option))
+      add('resupply', act.resupply(run))
       add('next', act.next(run))
       break
     }
@@ -393,6 +396,7 @@ export type Driver = {
   instinct?: (run: VoyageRun) => 'impulse' | 'restraint' | null
   episode?: (run: VoyageRun, deck: EpisodeDeck) => EpisodeChoice
   sideQuests?: boolean
+  resupply?: (run: VoyageRun) => boolean
   /** Send redshirts to the major quests before any command seat. */
   redshirtsFirst?: boolean
   room?: (run: VoyageRun) => PocketRoom | null
@@ -509,6 +513,13 @@ export function playVoyage(
         break
       }
       case 'debrief': {
+        if (driver.resupply?.(run)) {
+          const replenished = act.resupply(run)
+          if (replenished !== run) {
+            step('resupply', replenished)
+            break
+          }
+        }
         const moment = romanceMoment(run)
         if (moment) {
           const pick = driver.romance?.(

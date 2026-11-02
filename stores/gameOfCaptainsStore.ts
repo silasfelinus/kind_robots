@@ -85,6 +85,7 @@ import {
   finishVoyage,
   launchMission,
   nextDestination,
+  requisitionSupplies,
   chooseMission,
   beginCrewDetour,
   stageCrewDetour,
@@ -655,6 +656,11 @@ export const useGameOfCaptainsStore = defineStore('gameOfCaptains', () => {
     run.value = resolveConsequence(run.value, choiceId)
     persist()
   }
+  function requisition() {
+    if (!run.value) return
+    run.value = requisitionSupplies(run.value)
+    persist()
+  }
   function next() {
     if (!run.value) return
     run.value = nextDestination(run.value)
@@ -761,6 +767,7 @@ export const useGameOfCaptainsStore = defineStore('gameOfCaptains', () => {
     advanceDay,
     decide,
     decideConsequence,
+    requisition,
     next,
     chooseRomance,
     chooseTrio,

@@ -1136,6 +1136,56 @@ export function counterCrew(run: VoyageRun): CrewId[] {
     (id) => candidates.includes(id) && (run.journeyProgress?.[id] ?? 0) >= 2,
   )
 }
+export function quartermasterCost(run: VoyageRun): number {
+  return (
+    2 +
+    (run.worldFlags ?? []).filter((flag) => /^quartermaster:\d+$/.test(flag))
+      .length
+  )
+}
+
+export function canRequisitionSupplies(run: VoyageRun): boolean {
+  return (
+    run.phase === 'debrief' &&
+    run.supplies <= 2 &&
+    run.reputation >= quartermasterCost(run) &&
+    (run.missionHistory ?? []).some(
+      (mission) =>
+        mission.chapter === run.chapter && mission.policy !== 'missed',
+    ) &&
+    !(run.worldFlags ?? []).some((flag) => {
+      const chapter = /^quartermaster:(\d+)$/.exec(flag)?.[1]
+      return (
+        chapter !== undefined &&
+        Math.floor((Number(chapter) - 1) / 3) ===
+          Math.floor((run.chapter - 1) / 3)
+      )
+    })
+  )
+}
+
+/** One earned favor per act, charged against increasingly scarce goodwill. */
+export function requisitionSupplies(run: VoyageRun): VoyageRun {
+  if (!canRequisitionSupplies(run)) return run
+  const cost = quartermasterCost(run)
+  const text =
+    'Quartermaster’s emergency requisition approved. Local relief partners release three supply crates against ' +
+    cost +
+    ' points of earned reputation. ' +
+    (cost === 2
+      ? 'The first favor is entered in permanent ink.'
+      : 'They have raised their rate since the last favor.') +
+    ' The invoice has room for one more signature.'
+  return {
+    ...run,
+    supplies: run.supplies + 3,
+    reputation: run.reputation - cost,
+    worldFlags: [...(run.worldFlags ?? []), 'quartermaster:' + run.chapter],
+    scene: text,
+    log: [...run.log, 'Chapter ' + run.chapter + ': ' + text],
+  }
+}
+
 export function nextDestination(run: VoyageRun): VoyageRun {
   if (run.phase !== 'debrief') return run
   if (run.chapter >= VOYAGE_CHAPTERS)

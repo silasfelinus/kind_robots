@@ -367,6 +367,15 @@
           >
             Return to the Red Oven · Glass Wing
           </button>
+          <button
+            v-if="hoshimori.canEnterOvenLastBell"
+            type="button"
+            class="btn btn-warning min-h-12 text-base"
+            data-testid="memory-hoshimori-enter-last-bell"
+            @click="hoshimori.act({ type: 'enter-last-bell' })"
+          >
+            Enter the Red Oven · Seventh Bell
+          </button>
           <p
             v-if="hoshimori.resolution"
             class="rounded-xl border border-success/30 bg-success/15 p-3 text-base leading-relaxed"
@@ -414,6 +423,20 @@
             data-testid="memory-hoshimori-glass-wing-account"
           >
             {{ hoshimori.sixthAccount }}
+          </p>
+          <p
+            v-if="hoshimori.seventhAccount"
+            class="rounded-xl border border-warning/40 bg-warning/10 p-3 text-base leading-relaxed"
+            data-testid="memory-hoshimori-seventh-bell-account"
+          >
+            {{ hoshimori.seventhAccount }}
+          </p>
+          <p
+            v-if="hoshimori.finalGuardianResolution"
+            class="rounded-xl border border-success/40 bg-success/10 p-3 text-base leading-relaxed"
+            data-testid="memory-hoshimori-final-guardian"
+          >
+            {{ hoshimori.finalGuardianResolution }}
           </p>
         </template>
       </div>

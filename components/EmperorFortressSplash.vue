@@ -41,7 +41,10 @@
         Rule a fractured kingdom. Send them into the wasteland. Remember what
         matters.
       </p>
-      <nav class="mt-6 flex flex-wrap items-center justify-center gap-3" aria-label="Main menu">
+      <nav
+        class="mt-6 flex flex-wrap items-center justify-center gap-3"
+        aria-label="Main menu"
+      >
         <button
           type="button"
           class="btn btn-warning min-w-40 font-bold"
@@ -63,7 +66,9 @@
         </button>
       </nav>
       <p class="eod-splash-hint text-xs italic">
-        {{ ready ? 'The court remembers every reign.' : 'The dust is settling…' }}
+        {{
+          ready ? 'The court remembers every reign.' : 'The dust is settling…'
+        }}
       </p>
     </div>
   </section>

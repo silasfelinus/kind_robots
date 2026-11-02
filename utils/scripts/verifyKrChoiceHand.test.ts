@@ -36,6 +36,12 @@ assert.match(
 assert.match(hand, /:aria-keyshortcuts="choice\.shortcut"/)
 assert.match(
   hand,
+  /\.krh-hint > span \{[^}]*-webkit-line-clamp: 3/,
+  'the hint clamps its text, not its padded box',
+)
+assert.match(hand, /max-width: min\(100%, 26rem\)/, 'caption stays compact')
+assert.match(
+  hand,
   /if \(!props\.animate \|\| reducedMotion\(\)\)/,
   'game motion setting',
 )
@@ -180,6 +186,16 @@ const adopters: Array<[game: string, file: string, pattern: RegExp]> = [
     /<memory-dungeon-choice-hand/,
   ],
   ['Shifting Desks', 'pages/play/shifting-desks.vue', /<KrChoiceHand/],
+  [
+    'Game of Captains',
+    'components/gameOfCaptains/daily-console.vue',
+    /<SpaceCouchChoiceHand[\s\S]*?testid-prefix="space-couch-choose"/,
+  ],
+  [
+    'Memory Dungeon',
+    'components/pages/memory-dungeon-launcher.vue',
+    /<memory-dungeon-choice-hand[\s\S]*?testid-prefix="memory-prologue-choice"/,
+  ],
 ]
 for (const [game, file, pattern] of adopters) {
   assert.match(

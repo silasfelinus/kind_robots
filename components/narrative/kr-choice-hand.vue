@@ -110,7 +110,9 @@
                 <strong>{{ choice.label }}</strong>
                 <small v-if="choice.chip">{{ choice.chip }}</small>
               </span>
-              <em v-if="choice.hint" class="krh-hint">{{ choice.hint }}</em>
+              <em v-if="choice.hint" class="krh-hint"
+                ><span>{{ choice.hint }}</span></em
+              >
             </span>
             <span
               class="krh-face krh-back"
@@ -337,7 +339,10 @@ function sparkleStyle(n: number): Record<string, string> {
   position: absolute;
   inset: auto 0 calc(var(--card-h) * (1.16 + 0.11 * (1 - var(--tuck))) + 1.2rem);
   z-index: 12;
-  max-height: 7.5em;
+  width: fit-content;
+  max-width: min(100%, 26rem);
+  max-height: 5.6em;
+  margin-inline: auto;
   overflow: hidden;
   border: 1px solid color-mix(in oklab, var(--accent) 45%, transparent);
   border-radius: 0.75rem;
@@ -547,9 +552,14 @@ function sparkleStyle(n: number): Record<string, string> {
   -webkit-box-orient: vertical;
   -webkit-line-clamp: 3;
   color: var(--band-ink);
-  font-size: calc(0.68rem * var(--hand-text-scale, 1.2));
+  font-size: min(
+    calc(0.68rem * var(--hand-text-scale, 1.2)),
+    calc(var(--card-w) * 0.105)
+  );
   font-weight: 900;
   line-height: 1.15;
+  overflow-wrap: break-word;
+  hyphens: auto;
 }
 .krh-title small {
   color: var(--accent);
@@ -562,10 +572,7 @@ function sparkleStyle(n: number): Record<string, string> {
 .krh-hint {
   position: absolute;
   inset: auto 0 0;
-  display: -webkit-box;
-  overflow: hidden;
-  -webkit-box-orient: vertical;
-  -webkit-line-clamp: 3;
+  display: block;
   padding: 1.2rem 0.45rem 0.4rem;
   background: linear-gradient(
     transparent,
@@ -575,6 +582,14 @@ function sparkleStyle(n: number): Record<string, string> {
   font-size: calc(0.5rem * var(--hand-text-scale, 1.2));
   font-style: normal;
   line-height: 1.25;
+}
+/* The clamp sits on the text itself, so the padding below can't reveal the
+   top of a fourth line. */
+.krh-hint > span {
+  display: -webkit-box;
+  overflow: hidden;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
 }
 .krh-flip .krh-back {
   position: absolute;

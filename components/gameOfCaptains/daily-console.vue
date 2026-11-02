@@ -457,19 +457,12 @@
               >
             </div>
             <div class="daily-decisions">
-              <button
-                v-for="choice in EPISODE_CHOICES"
-                :key="choice.id"
-                type="button"
-                :data-testid="'space-couch-choose-' + choice.id"
-                :disabled="plotCast.length === 0"
-                @click="decide(flipped!, choice.id)"
-              >
-                <b>{{ episodeChoiceLabel(run, flipped!, choice.id) }}</b
-                ><small>{{
-                  episodeChoiceStakes(run, flipped!, choice.id)
-                }}</small>
-              </button>
+              <SpaceCouchChoiceHand
+                :choices="decisionCards"
+                :deal-key="`${flipped}:${episodeCard(run, flipped!).id}`"
+                testid-prefix="space-couch-choose"
+                @play="(picked) => decide(flipped!, picked.id as EpisodeChoice)"
+              />
             </div>
           </div>
         </article>
@@ -523,6 +516,7 @@
 
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue'
+import type { KrHandChoice } from '~/components/narrative/kr-choice-hand.vue'
 import SpaceCouchCloneLab from '~/components/gameOfCaptains/clone-lab.vue'
 import {
   cloneGeneration,
@@ -648,6 +642,30 @@ const revealPainting = computed(() => {
   const key = episodeRevealArtKey(episodeCard(props.run, flipped.value).id)
   const url = props.artwork?.[key]
   return url && !brokenArtwork.value.includes(url) ? url : null
+})
+const decisionCards = computed<KrHandChoice[]>(() => {
+  const deck = flipped.value
+  if (!deck) return []
+  const cardId = episodeCard(props.run, deck).id
+  const ready = plotCast.value.length > 0
+  return EPISODE_CHOICES.map((choice) => {
+    const key = episodeResultArtKey({
+      cardId,
+      choice: choice.id,
+      successful: true,
+    })
+    return {
+      id: choice.id,
+      label: episodeChoiceLabel(props.run, deck, choice.id),
+      hint: ready
+        ? episodeChoiceStakes(props.run, deck, choice.id)
+        : 'Choose a command card first',
+      details: ready ? [] : [episodeChoiceStakes(props.run, deck, choice.id)],
+      disabled: !ready,
+      image: [key ? props.artwork?.[key] : null, revealPainting.value],
+      icon: deckSymbol(deck),
+    }
+  })
 })
 const resultPainting = computed(() => {
   if (!lastDraw.value) return null
@@ -1407,24 +1425,7 @@ function decide(deck: EpisodeDeck, choice: EpisodeChoice) {
   color: #a6d6e5;
 }
 .daily-decisions {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 0.5rem;
   margin-top: 1rem;
-}
-.daily-decisions button {
-  display: grid;
-  gap: 0.2rem;
-  padding: 0.65rem;
-  border: 1px solid #d8aa77;
-  border-radius: 0.4rem;
-  background: #3b334b;
-  color: #ffe5bb;
-  text-align: left;
-  font-size: 0.74rem;
-}
-.daily-decisions button small {
-  font-size: 0.63rem;
 }
 .daily-recap-art {
   width: 100%;
@@ -1574,9 +1575,6 @@ function decide(deck: EpisodeDeck, choice: EpisodeChoice) {
   }
   .daily-deck {
     padding: 0.2rem;
-  }
-  .daily-decisions {
-    grid-template-columns: 1fr;
   }
 }
 @media (prefers-reduced-motion: reduce) {

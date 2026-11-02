@@ -1522,8 +1522,8 @@
                 <span>
                   <b>CALL IN AN OWED FAVOR · +3 SUPPLIES</b>
                   <small
-                    >Costs {{ quartermasterCost(run) }} reputation. The
-                    galaxy remembers its creditors.</small
+                    >Costs {{ quartermasterCost(run) }} reputation. The galaxy
+                    remembers its creditors.</small
                   >
                 </span>
                 ↗

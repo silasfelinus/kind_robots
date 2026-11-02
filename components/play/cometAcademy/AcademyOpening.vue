@@ -452,7 +452,10 @@
       >
         <p class="prom-eyebrow">YEARBOOK / CLASSIFIED SCHOOL RECORDS</p>
         <h2>Your class. Your secrets. Your endings.</h2>
-        <div class="grid grid-cols-3 gap-2 py-2 text-center" aria-label="Yearbook progress">
+        <div
+          class="grid grid-cols-3 gap-2 py-2 text-center"
+          aria-label="Yearbook progress"
+        >
           <div class="rounded-xl border border-white/20 bg-black/20 p-2">
             <strong class="block text-xl">{{ historyCount }}/48</strong>
             <small>Identities</small>
@@ -466,12 +469,20 @@
             <small>Endings found</small>
           </div>
         </div>
-        <nav class="flex gap-2 py-2" role="tablist" aria-label="Yearbook collections">
+        <nav
+          class="flex gap-2 py-2"
+          role="tablist"
+          aria-label="Yearbook collections"
+        >
           <button
             type="button"
             role="tab"
             class="rounded-lg border border-white/30 px-4 py-2 text-sm font-bold"
-            :class="screen === 'yearbook' ? 'bg-white text-slate-950' : 'bg-black/30 text-white'"
+            :class="
+              screen === 'yearbook'
+                ? 'bg-white text-slate-950'
+                : 'bg-black/30 text-white'
+            "
             :aria-selected="screen === 'yearbook'"
             @click="screen = 'yearbook'"
           >
@@ -483,7 +494,11 @@
             role="tab"
             data-testid="academy-opening-scrapbook"
             class="rounded-lg border border-white/30 px-4 py-2 text-sm font-bold"
-            :class="screen === 'scrapbook' ? 'bg-white text-slate-950' : 'bg-black/30 text-white'"
+            :class="
+              screen === 'scrapbook'
+                ? 'bg-white text-slate-950'
+                : 'bg-black/30 text-white'
+            "
             :aria-selected="screen === 'scrapbook'"
             @click="screen = 'scrapbook'"
           >
@@ -493,7 +508,8 @@
         </nav>
         <template v-if="screen === 'yearbook'">
           <p v-if="!historyCount">
-            No students explored yet. Every new game earns its own place in the yearbook.
+            No students explored yet. Every new game earns its own place in the
+            yearbook.
           </p>
           <div v-else class="prom-yearbook-list">
             <button
@@ -510,11 +526,17 @@
                 :src="promArt('identities/' + entry.id + '/student')!"
                 :alt="entry.name"
               />
-              <span v-else class="prom-yearbook-avatar" aria-hidden="true">★</span>
+              <span v-else class="prom-yearbook-avatar" aria-hidden="true"
+                >★</span
+              >
               <strong>{{ entry.name }}</strong>
               <span>{{ entry.plays }} RUNS · {{ entry.alias }}</span>
               <small>
-                {{ entry.forms.length ? entry.forms.join(' / ').toUpperCase() + ' UNLOCKED' : 'STUDENT DISCOVERED' }}
+                {{
+                  entry.forms.length
+                    ? entry.forms.join(' / ').toUpperCase() + ' UNLOCKED'
+                    : 'STUDENT DISCOVERED'
+                }}
                 · {{ entry.endings.length }} ENDINGS
               </small>
               <span class="prom-yearbook-open">OPEN CHARACTER CARD ›</span>
@@ -524,7 +546,8 @@
         <template v-else>
           <div data-testid="academy-opening-scrapbook-screen">
             <p v-if="!historyCount">
-              No stories recovered yet. Start a term to uncover identities and endings.
+              No stories recovered yet. Start a term to uncover identities and
+              endings.
             </p>
             <div v-else class="prom-yearbook-list">
               <article
@@ -539,15 +562,22 @@
                   :alt="entry.name"
                 />
                 <strong>{{ entry.name }}</strong>
-                <small>{{ entry.plays }} TERMS · {{ entry.forms.join(', ') || 'STUDENT' }}</small>
+                <small
+                  >{{ entry.plays }} TERMS ·
+                  {{ entry.forms.join(', ') || 'STUDENT' }}</small
+                >
                 <p>
-                  {{ entry.endings.length ? entry.endings.join(' · ') : 'The ending is still unwritten.' }}
+                  {{
+                    entry.endings.length
+                      ? entry.endings.join(' · ')
+                      : 'The ending is still unwritten.'
+                  }}
                 </p>
               </article>
             </div>
             <p class="prom-card-note">
-              During a term, the in-game Scrapbook records discoveries, relationships,
-              secrets and places you have visited.
+              During a term, the in-game Scrapbook records discoveries,
+              relationships, secrets and places you have visited.
             </p>
           </div>
         </template>
@@ -754,10 +784,15 @@ const signatureNumber = computed(
 )
 const historyCount = computed(() => Object.keys(props.yearbook).length)
 const earnedForms = computed(() =>
-  Object.values(props.yearbook).reduce((sum, entry) => sum + entry.forms.length, 0),
+  Object.values(props.yearbook).reduce(
+    (sum, entry) => sum + entry.forms.length,
+    0,
+  ),
 )
 const discoveredEndings = computed(
-  () => new Set(Object.values(props.yearbook).flatMap((entry) => entry.endings)).size,
+  () =>
+    new Set(Object.values(props.yearbook).flatMap((entry) => entry.endings))
+      .size,
 )
 const explored = computed(() =>
   Object.entries(props.yearbook)

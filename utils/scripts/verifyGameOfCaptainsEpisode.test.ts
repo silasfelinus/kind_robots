@@ -120,7 +120,12 @@ for (let seed = 1; seed <= 300; seed++) {
   const history: EpisodeRun['episodeDrawHistory'] = []
   const seen = new Map<string, number>()
   for (let chapter = 1; chapter <= 9; chapter++) {
-    const voyage: EpisodeRun = { ...landing, seed, chapter, episodeDrawHistory: history }
+    const voyage: EpisodeRun = {
+      ...landing,
+      seed,
+      chapter,
+      episodeDrawHistory: history,
+    }
     const card = episodeCard(voyage, 'planet')
     const firstVisit = episodeCard(
       { ...voyage, episodeDrawHistory: [] },

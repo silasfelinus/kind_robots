@@ -51,7 +51,7 @@ const MAX_STUDY_DEPTH = 4
 const MAX_SHELF = 10000
 const PAGE_SIZE = 120
 
-type AtlasMeta = { total: number; ready: number; rendering: number }
+type AtlasMeta = { total: number; ready: number; rendering: number; filteredTotal: number }
 
 function pairKey(a: string, b: string): string {
   return JSON.stringify([a, b].sort())
@@ -83,6 +83,14 @@ export const useHybridizerStore = defineStore('hybridizer', () => {
   const renderingTotal = ref(0)
   const remoteLoaded = ref(0)
   const loadingShared = ref(false)
+  const atlasEntries = ref<HybridizerDiscovery[]>([])
+  const atlasFilteredTotal = ref(0)
+  const atlasLoading = ref(false)
+  const favoriteKeys = ref<string[]>([])
+  const randomStartersOnly = ref(false)
+  const randomizing = ref(false)
+  let atlasRequestSerial = 0
+  let atlasQuery = ''
   const reusedArtwork = ref(false)
   let sharedRequestSerial = 0
   const versions = ref<HybridizerVersion[]>([])
@@ -106,6 +114,14 @@ export const useHybridizerStore = defineStore('hybridizer', () => {
     resultKey.value ? (byKey.value.get(resultKey.value) ?? null) : null,
   )
   const starterCount = STARTERS.length
+  const atlasCanLoadMore = computed(
+    () => atlasEntries.value.length < atlasFilteredTotal.value,
+  )
+  const favoriteEntries = computed(() =>
+    favoriteKeys.value
+      .map((key) => byKey.value.get(key))
+      .filter((entry): entry is HybridizerIngredient => !!entry && !!imageFor(entry)),
+  )
   const canLoadMore = computed(
     () =>
       discoveryTotal.value !== null &&
@@ -114,6 +130,44 @@ export const useHybridizerStore = defineStore('hybridizer', () => {
 
   function scopedStorageKey() {
     return STORAGE_KEY + ':' + (userStore.authenticatedUserId ?? 'guest')
+  }
+
+  function preferencesKey() {
+    return 'kind-robots-hybridizer-preferences-v1:' +
+      (userStore.authenticatedUserId ?? 'guest')
+  }
+
+  function savePreferences() {
+    if (!import.meta.client) return
+    try {
+      localStorage.setItem(
+        preferencesKey(),
+        JSON.stringify({
+          favorites: favoriteKeys.value,
+          randomStartersOnly: randomStartersOnly.value,
+        }),
+      )
+    } catch {
+      status.value = 'This browser cannot save favorites or settings.'
+    }
+  }
+
+  function setRandomStartersOnly(value: boolean) {
+    randomStartersOnly.value = value
+    savePreferences()
+  }
+
+  function isFavorite(key: string) {
+    return favoriteKeys.value.includes(key)
+  }
+
+  function toggleFavorite(key: string) {
+    const entry = byKey.value.get(key)
+    if (!entry || !imageFor(entry)) return
+    favoriteKeys.value = isFavorite(key)
+      ? favoriteKeys.value.filter((item) => item !== key)
+      : [...favoriteKeys.value, key]
+    savePreferences()
   }
 
   function save() {
@@ -132,6 +186,21 @@ export const useHybridizerStore = defineStore('hybridizer', () => {
 
   function hydrate() {
     if (!import.meta.client) return
+    favoriteKeys.value = []
+    randomStartersOnly.value = false
+    try {
+      const preferences = JSON.parse(localStorage.getItem(preferencesKey()) || '{}')
+      favoriteKeys.value = Array.isArray(preferences.favorites)
+        ? [...new Set(preferences.favorites.filter((key: unknown) =>
+            typeof key === 'string' &&
+            (STARTERS.some((starter) => starter.key === key) ||
+              /^fusion:[a-f0-9]{64}$/.test(key)),
+          ))].slice(0, 1000) as string[]
+        : []
+      randomStartersOnly.value = preferences.randomStartersOnly === true
+    } catch {
+      favoriteKeys.value = []
+    }
     try {
       // v1 mixed private server data across all accounts. Drop it rather
       // than displaying an earlier account's discoveries to the next user.

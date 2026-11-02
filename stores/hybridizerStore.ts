@@ -91,6 +91,7 @@ export const useHybridizerStore = defineStore('hybridizer', () => {
   const versionBusy = ref(false)
   const enqueuing = new Set<string>()
   let pollTimer: ReturnType<typeof setInterval> | null = null
+  let pollTicks = 0
 
   const inputs = computed<HybridizerIngredient[]>(() => [
     ...STARTERS,
@@ -283,7 +284,7 @@ export const useHybridizerStore = defineStore('hybridizer', () => {
       discovery,
     ].slice(-MAX_SHELF)
     resultKey.value = discovery.key
-    reusedArtwork.value = true
+    reusedArtwork.value = discovery.status === 'READY'
     save()
     await Promise.all([
       refreshArtwork(discovery.key),
@@ -320,6 +321,7 @@ export const useHybridizerStore = defineStore('hybridizer', () => {
       status.value =
         'New version queued. Previous artwork is saved in the revision gallery.'
       await loadVersions(key)
+      void loadSharedStudies()
       void achievementStore.rewardAchievementByCode('hybridizer-art-critic')
     } finally {
       versionBusy.value = false
@@ -460,7 +462,11 @@ export const useHybridizerStore = defineStore('hybridizer', () => {
 
   function startArtworkWatch() {
     if (!import.meta.client || pollTimer) return
-    pollTimer = setInterval(() => void pollArtwork(), 10000)
+    pollTimer = setInterval(() => {
+      void pollArtwork()
+      pollTicks += 1
+      if (pollTicks % 6 === 0 && !loadingShared.value) void loadSharedStudies()
+    }, 10000)
     void pollArtwork()
   }
 
@@ -615,6 +621,7 @@ export const useHybridizerStore = defineStore('hybridizer', () => {
           ? 'Shared illustrated discovery retrieved.'
           : 'Shared discovery saved. Artwork will render in the background.'
       save()
+      void loadSharedStudies()
       void loadVersions(discovery.key)
       void achievementStore.rewardAchievementByCode('hybridizer-first-fusion')
       if (a.depth || b.depth)
@@ -632,8 +639,8 @@ export const useHybridizerStore = defineStore('hybridizer', () => {
   function selectAtlasDiscovery(key: string) {
     const entry = discoveries.value.find((item) => item.key === key)
     if (!entry) return
-    if (byKey.value.has(entry.sources[0])) leftKey.value = entry.sources[0]
-    if (byKey.value.has(entry.sources[1])) rightKey.value = entry.sources[1]
+    leftKey.value = entry.sources[0]
+    rightKey.value = entry.sources[1]
     resultKey.value = key
     reusedArtwork.value = entry.status === 'READY'
     versions.value = []

@@ -1229,7 +1229,9 @@ export function nextDestination(run: VoyageRun): VoyageRun {
       : null
   const actThreeEcho =
     run.chapter >= ACT_THREE_FIRST_CHAPTER
-      ? (run.consequenceHistory ?? []).find((record) => record.chapter === run.chapter)
+      ? (run.consequenceHistory ?? []).find(
+          (record) => record.chapter === run.chapter,
+        )
       : null
   const opening =
     run.chapter + 1 === ACT_TWO_FIRST_CHAPTER
@@ -1260,7 +1262,9 @@ export function nextDestination(run: VoyageRun): VoyageRun {
         ? [`${opening.act} begins: ${opening.supplies} supplies received.`]
         : []),
       ...(followup ? ['Follow-up transmission: ' + followup.callback] : []),
-      ...(actThreeEcho ? ['Last command consequence: ' + actThreeEcho.callback] : []),
+      ...(actThreeEcho
+        ? ['Last command consequence: ' + actThreeEcho.callback]
+        : []),
     ],
   }
 }

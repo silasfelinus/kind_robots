@@ -23,7 +23,7 @@ assert.equal(RESERVE_CARDS.length, 12)
 assert.equal(CARDS.length, 108)
 assert.equal(RARE_COUNT, 36)
 assert.equal(new Set(CARDS.map((card) => card.id)).size, 108)
-assert.equal(new Set(CARDS.map((card) => card.name)).size, 72)
+assert.equal(new Set(CARDS.map((card) => card.name)).size, 108)
 assert.equal(CARDS.filter((card) => card.kind === 'creature').length, 42)
 assert.ok(RESERVE_CARDS.every((card) => !card.signature))
 

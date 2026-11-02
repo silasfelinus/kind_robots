@@ -279,6 +279,15 @@ export const EPISODE_CHOICES: readonly {
   { id: 'override', label: 'Intervene' },
 ]
 
+export function episodeChoiceLabel(
+  run: VoyageRun,
+  deck: EpisodeDeck,
+  choice: EpisodeChoice,
+): string {
+  if (deck === 'planet') return PLANET_CHOICE_LABELS[selectedPlanetCard(run).title][choice]
+  return EPISODE_CHOICES.find((item) => item.id === choice)?.label ?? choice
+}
+
 export function episodeChoiceStakes(
   run: VoyageRun,
   deck: EpisodeDeck,

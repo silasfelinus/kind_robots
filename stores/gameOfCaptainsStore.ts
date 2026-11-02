@@ -17,6 +17,8 @@ import {
   type CollectorEnding,
 } from '~/utils/gameOfCaptains/alienMilestones'
 import { performFetch } from '~/stores/utils'
+import { useUserStore } from '~/stores/userStore'
+import { mergeAlienGuides } from '~/utils/gameOfCaptains/alienAccountMerge'
 import { usePlaybookRunReviewStore } from '~/stores/playbookRunReviewStore'
 import {
   visitCasinoVenue,
@@ -72,7 +74,7 @@ import {
   type EpisodeDeck,
   type EpisodeChoice,
 } from '~/utils/gameOfCaptains/episodeConsole'
-import { computed, ref } from 'vue'
+import { computed, ref, watch } from 'vue'
 import { defineStore } from 'pinia'
 import {
   assignAwayTeam,
@@ -100,15 +102,171 @@ import {
 
 const SAVE_KEY = 'game-of-captains-voyage-v1'
 const ALIEN_GUIDE_KEY = 'game-of-captains-alien-scrapbook-v1'
+const ALIEN_GUIDE_OWNER_KEY = 'game-of-captains-alien-legacy-import-owner-v1'
+const ALIEN_PENDING_PREFIX = 'game-of-captains-alien-pending-user-'
 const KNOWLEDGE_KEY = 'game-of-captains-redshirt-knowledge-v1'
 const PREFERENCES_KEY = 'game-of-captains-preferences-v1'
 type CouchPreferences = { largeText: boolean; reducedMotion: boolean }
 
 export const useGameOfCaptainsStore = defineStore('gameOfCaptains', () => {
+  const userStore = useUserStore()
   const run = ref<VoyageRun | null>(null)
   const loaded = ref(false)
   const redshirtKnowledge = ref<RedshirtKnowledge>({})
   const storageWarning = ref('')
+  const alienSyncStatus = ref<'guest' | 'loading' | 'synced' | 'pending'>(
+    'guest',
+  )
+  const alienSyncWarning = ref('')
+  let accountEpoch = 0
+  let writer: Promise<void> | null = null
+  let queuedSignature = ''
+  let desiredRevision = 0
+  let completedRevision = 0
+  let legacyImportUserId: number | null = null
+
+  const pendingGuideKey = (id: number): string => ALIEN_PENDING_PREFIX + id
+  const readCachedGuide = (key: string): AlienGuide => {
+    try {
+      return normalizeAlienGuide(
+        JSON.parse(localStorage.getItem(key) ?? 'null'),
+      )
+    } catch {
+      return emptyAlienGuide()
+    }
+  }
+  const hasAlienProgress = (guide: AlienGuide): boolean =>
+    guide.discovered.length > 0 ||
+    guide.attempted.length > 0 ||
+    guide.milestoneSeen.length > 0
+
+  function saveAlienGuideToAccount() {
+    const id = userStore.authenticatedUserId
+    if (!id) return
+    const snapshot = JSON.stringify(alienGuide.value)
+    if (snapshot === queuedSignature) return
+    queuedSignature = snapshot
+    desiredRevision++
+    try {
+      localStorage.setItem(pendingGuideKey(id), snapshot)
+    } catch {
+      alienSyncWarning.value = 'Browser recovery storage is unavailable.'
+    }
+    alienSyncStatus.value = 'pending'
+    if (writer) return
+    const epoch = accountEpoch
+    const send = async () => {
+      while (epoch === accountEpoch && completedRevision < desiredRevision) {
+        const revision = desiredRevision
+        const response = await performFetch<AlienGuide>(
+          '/api/game-of-captains/guide',
+          {
+            method: 'POST',
+            body: JSON.stringify(alienGuide.value),
+          },
+        )
+        if (epoch !== accountEpoch || userStore.authenticatedUserId !== id)
+          return
+        if (!response.success || !response.data) {
+          alienSyncStatus.value = 'pending'
+          alienSyncWarning.value =
+            'Scrapbook not yet synced. Local recovery is saved for your next visit.'
+          return
+        }
+        alienGuide.value = mergeAlienGuides(response.data, alienGuide.value)
+        completedRevision = revision
+        alienSyncWarning.value = ''
+        if (completedRevision === desiredRevision) {
+          queuedSignature = JSON.stringify(alienGuide.value)
+          alienSyncStatus.value = 'synced'
+          try {
+            localStorage.removeItem(pendingGuideKey(id))
+            if (legacyImportUserId === id) {
+              localStorage.removeItem(ALIEN_GUIDE_KEY)
+              localStorage.setItem(ALIEN_GUIDE_OWNER_KEY, String(id))
+              legacyImportUserId = null
+            }
+          } catch {
+            // The server accepted the guide. Local cleanup is optional.
+          }
+        }
+      }
+    }
+    const task = send()
+      .catch(() => {
+        if (epoch === accountEpoch) {
+          alienSyncStatus.value = 'pending'
+          alienSyncWarning.value =
+            'Connection interrupted. Your account-scoped recovery copy remains available.'
+        }
+      })
+      .finally(() => {
+        if (writer === task) writer = null
+      })
+    writer = task
+  }
+
+  function retryAlienGuideSync() {
+    if (!userStore.authenticatedUserId || alienSyncStatus.value === 'loading')
+      return
+    queuedSignature = ''
+    saveAlienGuideToAccount()
+  }
+
+  async function syncAlienGuideAccount() {
+    if (!loaded.value) return
+    const epoch = ++accountEpoch
+    const id = userStore.authenticatedUserId
+    writer = null
+    queuedSignature = ''
+    desiredRevision = 0
+    completedRevision = 0
+    legacyImportUserId = null
+    alienSyncWarning.value = ''
+    if (!id) {
+      alienGuide.value = readCachedGuide(ALIEN_GUIDE_KEY)
+      alienSyncStatus.value = 'guest'
+      return
+    }
+    alienGuide.value = emptyAlienGuide()
+    alienSyncStatus.value = 'loading'
+    const pending = readCachedGuide(pendingGuideKey(id))
+    const owner = localStorage.getItem(ALIEN_GUIDE_OWNER_KEY)
+    const legacy =
+      owner === null || owner === String(id)
+        ? readCachedGuide(ALIEN_GUIDE_KEY)
+        : emptyAlienGuide()
+    if (hasAlienProgress(legacy)) legacyImportUserId = id
+    const response = await performFetch<AlienGuide>(
+      '/api/game-of-captains/guide',
+    )
+    if (epoch !== accountEpoch || userStore.authenticatedUserId !== id) return
+    const remote =
+      response.success && response.data
+        ? normalizeAlienGuide(response.data)
+        : emptyAlienGuide()
+    alienGuide.value = mergeAlienGuides(
+      mergeAlienGuides(remote, pending),
+      mergeAlienGuides(legacy, alienGuide.value),
+    )
+    if (!response.success) {
+      alienSyncWarning.value =
+        'Account guide could not be read; changes will be merged when the server is available.'
+    }
+    queuedSignature = JSON.stringify(remote)
+    alienSyncStatus.value = 'pending'
+    saveAlienGuideToAccount()
+    if (JSON.stringify(remote) === JSON.stringify(alienGuide.value)) {
+      // A no-op save is unnecessary; the server already has this guide.
+      alienSyncStatus.value = 'synced'
+    }
+  }
+  watch(
+    () => userStore.authenticatedUserId,
+    () => {
+      if (loaded.value) void syncAlienGuideAccount()
+    },
+  )
   const alienGuide = ref<AlienGuide>(emptyAlienGuide())
   const alienSighting = ref<AlienSighting | null>(null)
   const alienReport = ref<{
@@ -292,7 +450,20 @@ export const useGameOfCaptainsStore = defineStore('gameOfCaptains', () => {
         KNOWLEDGE_KEY,
         JSON.stringify(redshirtKnowledge.value),
       )
-      localStorage.setItem(ALIEN_GUIDE_KEY, JSON.stringify(alienGuide.value))
+      if (userStore.authenticatedUserId) {
+        if (
+          alienSyncStatus.value === 'synced' ||
+          alienSyncStatus.value === 'pending'
+        )
+          saveAlienGuideToAccount()
+        else
+          localStorage.setItem(
+            pendingGuideKey(userStore.authenticatedUserId),
+            JSON.stringify(alienGuide.value),
+          )
+      } else {
+        localStorage.setItem(ALIEN_GUIDE_KEY, JSON.stringify(alienGuide.value))
+      }
       storageWarning.value = ''
     } catch {
       storageWarning.value =
@@ -324,18 +495,15 @@ export const useGameOfCaptainsStore = defineStore('gameOfCaptains', () => {
         // A damaged knowledge cache cannot invalidate an otherwise valid voyage.
         redshirtKnowledge.value = {}
       }
-      try {
-        alienGuide.value = normalizeAlienGuide(
-          JSON.parse(localStorage.getItem(ALIEN_GUIDE_KEY) ?? 'null'),
-        )
-      } catch {
-        alienGuide.value = emptyAlienGuide()
-      }
+      alienGuide.value = userStore.authenticatedUserId
+        ? emptyAlienGuide()
+        : readCachedGuide(ALIEN_GUIDE_KEY)
       const raw = localStorage.getItem(SAVE_KEY)
       run.value = restoreTrioAdventure(
         restoreVoyage(raw ? JSON.parse(raw) : null),
       )
       if (run.value) persist()
+      void syncAlienGuideAccount()
     } catch {
       run.value = null
       storageWarning.value =
@@ -520,6 +688,10 @@ export const useGameOfCaptainsStore = defineStore('gameOfCaptains', () => {
     loaded,
     redshirtKnowledge,
     alienGuide,
+    alienSyncStatus,
+    alienSyncWarning,
+    syncAlienGuideAccount,
+    retryAlienGuideSync,
     collectorIncident,
     collectorReport,
     pendingCollectorIncident,

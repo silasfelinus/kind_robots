@@ -13,6 +13,32 @@
           {{ guide.discovered.length }} / {{ ALIEN_SPECIES.length }} recorded ·
           {{ guide.friends.length }} declared friends
         </p>
+        <p
+          class="mt-1 text-xs opacity-75"
+          data-testid="space-couch-alien-sync-status"
+        >
+          {{
+            syncStatus === 'guest'
+              ? 'Guest notebook · sign in for account sync'
+              : syncStatus === 'synced'
+                ? 'Saved to your account'
+                : syncStatus === 'loading'
+                  ? 'Loading account scrapbook…'
+                  : 'Account save pending'
+          }}
+        </p>
+        <p v-if="syncWarning" class="mt-1 max-w-sm text-xs text-warning">
+          {{ syncWarning }}
+        </p>
+        <button
+          v-if="syncStatus === 'pending'"
+          type="button"
+          class="btn btn-outline btn-xs mt-2"
+          data-testid="space-couch-alien-retry-sync"
+          @click="$emit('retrySync')"
+        >
+          RETRY ACCOUNT SAVE
+        </button>
       </div>
       <button
         v-if="pendingIncident"
@@ -149,9 +175,11 @@ import {
 const props = defineProps<{
   guide: AlienGuide
   pendingIncident?: boolean
+  syncStatus?: 'guest' | 'loading' | 'synced' | 'pending'
+  syncWarning?: string
   artwork?: Record<string, string>
 }>()
-defineEmits<{ close: []; incident: [] }>()
+defineEmits<{ close: []; incident: []; retrySync: [] }>()
 const selectedId = ref(ALIEN_SPECIES[0]!.id)
 const selected = computed(
   () =>

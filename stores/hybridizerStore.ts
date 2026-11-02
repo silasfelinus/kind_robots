@@ -905,6 +905,10 @@ export const useHybridizerStore = defineStore('hybridizer', () => {
     () => {
       if (!import.meta.client) return
       discoveries.value = []
+      atlasEntries.value = []
+      atlasFilteredTotal.value = 0
+      atlasRequestSerial += 1
+      favoriteKeys.value = []
       discoveryTotal.value = null
       remoteLoaded.value = 0
       readyTotal.value = 0
@@ -935,6 +939,20 @@ export const useHybridizerStore = defineStore('hybridizer', () => {
     renderingTotal,
     loadingShared,
     canLoadMore,
+    atlasEntries,
+    atlasFilteredTotal,
+    atlasLoading,
+    atlasCanLoadMore,
+    loadAtlas,
+    favoriteEntries,
+    favoriteKeys,
+    isFavorite,
+    toggleFavorite,
+    loadFavoriteRecords,
+    randomStartersOnly,
+    setRandomStartersOnly,
+    randomizing,
+    randomize,
     reusedArtwork,
     result,
     resultKey,

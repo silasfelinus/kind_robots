@@ -12,7 +12,6 @@ import {
   DESIGNED_DUNGEON_ART,
   imageUrlForDeck,
   isEligibleDungeonArt,
-  uniqueDeckPaths,
   unseenDeckPaths,
   deckImageIdentity,
   type DungeonDeckSelection,
@@ -186,7 +185,7 @@ export async function resolveMemoryDungeonDeck(
   } else if (choice.entityKind === 'characters') {
     const source = useCharacterStore()
     await source.fetchCharacters()
-    records = source.characters
+    records = source.browseCharacters
   } else if (choice.entityKind === 'bots') {
     const source = useBotStore()
     await source.fetchBots()
@@ -207,34 +206,62 @@ export async function resolveMemoryDungeonDeck(
     await source.fetchFacets({ includeMature })
     records = source.facets
   }
+  // A Character's artwork can be linked to an ArtImage that is not in the
+  // global gallery cache (which stores only a recent subset). Resolve its
+  // actual linked record through the access-controlled by-ID API instead of
+  // interpreting a cache miss as missing or forbidden artwork.
   await art.initialize({
-    fetchRemote: true,
+    fetchRemote: false,
     hydrateImages: true,
     initializeCollections: false,
   })
-  const byId = new Map(art.artImages.map((item) => [item.id, item]))
-  const paths = uniqueDeckPaths(
-    records
-      .filter((record) => {
-        if (
-          !isEligibleDungeonArt(record, includeMature, matureAllowed, viewerId)
-        )
-          return false
-        const artId = (record as { artImageId?: number | null }).artImageId
-        if (!artId) return true
-        const linkedArt = byId.get(artId)
-        return linkedArt
-          ? isEligibleDungeonArt(
-              linkedArt,
-              includeMature,
-              matureAllowed,
-              viewerId,
-            )
-          : false
-      })
-      .map(imageUrlForDeck),
+  const eligible = records.filter((record) =>
+    isEligibleDungeonArt(record, includeMature, matureAllowed, viewerId),
   )
-  return loadDungeonImagePaths(unseenDeckPaths(paths, previouslyUsed), needed)
+  const candidates = [...eligible].sort(() => Math.random() - 0.5)
+  const seen = [...previouslyUsed]
+  const selected: string[] = []
+
+  // Load just enough art for the current round; avoid requesting the entire
+  // character catalog's linked images or rendering a broken image as a card.
+  for (
+    let offset = 0;
+    offset < candidates.length && selected.length < needed;
+    offset += 16
+  ) {
+    const batch = candidates.slice(offset, offset + 16)
+    const paths = await Promise.all(
+      batch.map(async (record) => {
+        const artId = (record as { artImageId?: number | null }).artImageId
+        if (!artId) return imageUrlForDeck(record)
+        const linkedArt = await art.getArtImageById(artId)
+        if (
+          !linkedArt ||
+          !isEligibleDungeonArt(
+            linkedArt,
+            includeMature,
+            matureAllowed,
+            viewerId,
+          )
+        )
+          return ''
+        return imageUrlForDeck(linkedArt) || imageUrlForDeck(record)
+      }),
+    )
+    const unseen = unseenDeckPaths(paths, seen)
+    seen.push(...unseen)
+    const loaded = await Promise.all(
+      unseen.map(async (path) => ({ path, ok: await loadImage(path) })),
+    )
+    for (const result of loaded) {
+      if (result.ok && selected.length < needed) selected.push(result.path)
+    }
+  }
+  if (selected.length < needed)
+    throw new Error(
+      `Only ${selected.length} distinct usable images are available; this round needs ${needed}. Try the designed deck, a different public collection, or check saved art paths.`,
+    )
+  return selected
 }
 
 async function loadDungeonImagePaths(

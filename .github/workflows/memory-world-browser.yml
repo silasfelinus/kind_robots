@@ -12,19 +12,12 @@ on:
       - 'utils/memoryDungeonWaves.ts'
       - 'utils/scripts/verifyMemoryWorldBrowser.browser.test.mjs'
       - '.github/workflows/memory-world-browser.yml'
-  push:
-    branches: [main]
-    paths:
-      - 'stores/memoryWorldStore.ts'
-      - 'components/pages/memory-dungeon-overworld.vue'
-      - 'components/memory-dungeon/earth-chronicle.vue'
-      - 'components/memory-dungeon/quest-log.vue'
-      - 'utils/memoryDungeon/**'
-      - 'utils/memoryDungeonWorld.ts'
-      - 'utils/memoryDungeonWaves.ts'
-      - 'utils/scripts/verifyMemoryWorldBrowser.browser.test.mjs'
-      - '.github/workflows/memory-world-browser.yml'
   workflow_dispatch:
+
+concurrency:
+  # Cancel superseded runs on the same PR; push/dispatch runs never cancel.
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.run_id }}
+  cancel-in-progress: true
 
 jobs:
   browser-interruptions:

@@ -45,6 +45,11 @@ on:
       - '.github/workflows/navigation-consolidation-contract.yml'
   workflow_dispatch:
 
+concurrency:
+  # Cancel superseded runs on the same PR; push/dispatch runs never cancel.
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.run_id }}
+  cancel-in-progress: true
+
 jobs:
   navigation-consolidation:
     name: Navigation consolidation verifier

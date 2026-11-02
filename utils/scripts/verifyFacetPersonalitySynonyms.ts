@@ -30,7 +30,7 @@ function requireOrder(
 async function main(): Promise<void> {
   const mergePath = 'utils/scripts/mergeFacetPersonalitySynonyms.ts'
   const buildPath = 'scripts/run_facet_catalog_maintenance.ts'
-  const workflowPath = '.github/workflows/facet-catalog-contract.yml'
+  const workflowPath = '.github/workflows/contract-tests.yml'
   const [merge, build, workflow] = await Promise.all([
     read(mergePath),
     read(buildPath),
@@ -40,14 +40,8 @@ async function main(): Promise<void> {
   const synonymPairs: ReadonlyArray<readonly [string, string]> = [
     ["canonicalSlug: 'optimist'", "duplicateSlug: 'optimistic'"],
     ["canonicalSlug: 'pessimist'", "duplicateSlug: 'pessimistic'"],
-    [
-      "canonicalSlug: 'melancholy'",
-      "duplicateSlug: 'personality-melancholic'",
-    ],
-    [
-      "canonicalSlug: 'inquisitive'",
-      "duplicateSlug: 'personality-curious'",
-    ],
+    ["canonicalSlug: 'melancholy'", "duplicateSlug: 'personality-melancholic'"],
+    ["canonicalSlug: 'inquisitive'", "duplicateSlug: 'personality-curious'"],
     [
       "canonicalSlug: 'scatter-brained'",
       "duplicateSlug: 'personality-scattered'",
@@ -74,16 +68,16 @@ async function main(): Promise<void> {
     requireText(mergePath, merge, `prisma.${model}`)
   }
 
-  requireText(mergePath, merge, 'canonical.description || duplicate.description')
+  requireText(
+    mergePath,
+    merge,
+    'canonical.description || duplicate.description',
+  )
   requireText(mergePath, merge, 'canonical.imagePath || duplicate.imagePath')
   requireText(mergePath, merge, 'canonical.artImageId ?? duplicate.artImageId')
   requireText(mergePath, merge, 'skipDuplicates: true')
   requireText(mergePath, merge, "action: 'merge-exact-synonym'")
-  requireText(
-    mergePath,
-    merge,
-    'Only exact personality synonyms are merged',
-  )
+  requireText(mergePath, merge, 'Only exact personality synonyms are merged')
 
   requireText(buildPath, build, 'mergeFacetPersonalitySynonyms.ts')
   requireOrder(

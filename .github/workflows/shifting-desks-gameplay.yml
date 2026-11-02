@@ -27,6 +27,11 @@ on:
         description: 'Deployed base URL to verify'
         required: false
         default: 'https://kindrobots.org'
+concurrency:
+  # Cancel superseded runs on the same PR; push/dispatch runs never cancel.
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.run_id }}
+  cancel-in-progress: true
+
 jobs:
   contract:
     runs-on: ubuntu-latest

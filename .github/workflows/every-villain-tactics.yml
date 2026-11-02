@@ -22,14 +22,12 @@ on:
       - 'utils/scripts/verifyEveryVillainScenes.test.ts'
       - 'components/every-villain-tactics/**'
       - '.github/workflows/every-villain-tactics.yml'
-  push:
-    branches: [main]
-    paths:
-      - 'utils/everyVillainTactics/**'
-      - 'stores/everyVillainTacticsStore.ts'
-      - 'utils/playbookKit/games/everyVillainTactics.ts'
-      - 'components/every-villain-tactics/**'
   workflow_dispatch:
+
+concurrency:
+  # Cancel superseded runs on the same PR; push/dispatch runs never cancel.
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.run_id }}
+  cancel-in-progress: true
 
 jobs:
   training:

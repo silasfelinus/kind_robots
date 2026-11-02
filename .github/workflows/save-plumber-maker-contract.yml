@@ -11,21 +11,16 @@ on:
       - 'stores/savePlumberMakerStore.ts'
       - 'utils/scripts/verifySavePlumberMaker.test.ts'
       - '.github/workflows/save-plumber-maker-contract.yml'
-  push:
-    branches:
-      - main
-    paths:
-      - 'utils/arcade/games/savePlumberMaker.ts'
-      - 'utils/arcade/games/savePlumberLevels.ts'
-      - 'utils/arcade/games/savePlumberPreview.ts'
-      - 'utils/arcade/games/savePlumberWorlds.ts'
-      - 'components/arcade/plumber-level-maker.vue'
-      - 'components/arcade/plumber-maker-sidebar.vue'
-      - 'stores/savePlumberMakerStore.ts'
-      - 'utils/scripts/verifySavePlumberMaker.test.ts'
-      - '.github/workflows/save-plumber-maker-contract.yml'
 permissions:
   contents: read
+env:
+  CYPRESS_INSTALL_BINARY: '0'
+
+concurrency:
+  # Cancel superseded runs on the same PR; push/dispatch runs never cancel.
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.run_id }}
+  cancel-in-progress: true
+
 jobs:
   maker-contract:
     runs-on: ubuntu-latest

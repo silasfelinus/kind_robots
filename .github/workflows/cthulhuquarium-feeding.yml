@@ -8,6 +8,11 @@ on:
       - 'utils/cthulhuquariumFood.selftest.ts'
       - '.github/workflows/cthulhuquarium-feeding.yml'
 
+concurrency:
+  # Cancel superseded runs on the same PR; push/dispatch runs never cancel.
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.run_id }}
+  cancel-in-progress: true
+
 jobs:
   food-interaction:
     runs-on: ubuntu-24.04

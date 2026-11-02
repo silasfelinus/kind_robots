@@ -22,6 +22,9 @@ concurrency:
   group: brainstorm-generation-${{ github.ref }}
   cancel-in-progress: true
 
+env:
+  CYPRESS_INSTALL_BINARY: '0'
+
 jobs:
   contract:
     name: Structured provider contract

@@ -14,7 +14,12 @@ function requireText(path: string, text: string, value: string): void {
   }
 }
 
-function requireOrder(path: string, text: string, before: string, after: string): void {
+function requireOrder(
+  path: string,
+  text: string,
+  before: string,
+  after: string,
+): void {
   const beforeIndex = text.indexOf(before)
   const afterIndex = text.indexOf(after)
   if (beforeIndex < 0 || afterIndex < 0 || beforeIndex >= afterIndex) {
@@ -25,7 +30,7 @@ function requireOrder(path: string, text: string, before: string, after: string)
 async function main(): Promise<void> {
   const curatorPath = 'utils/scripts/curateFacetCulturalGenres.ts'
   const buildPath = 'scripts/run_facet_catalog_maintenance.ts'
-  const workflowPath = '.github/workflows/facet-catalog-contract.yml'
+  const workflowPath = '.github/workflows/contract-tests.yml'
   const [curator, build, workflow] = await Promise.all([
     read(curatorPath),
     read(buildPath),

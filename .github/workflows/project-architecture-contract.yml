@@ -1,9 +1,16 @@
 name: Project Architecture Contract
 
+# Kept as its own unfiltered workflow on purpose: its `verify` job is the
+# always-present check docs/ci-test-lifecycle.md promises on every PR. It needs
+# no npm ci, so it costs only a checkout. The push-to-main rerun was dropped
+# (2026-11-02): the PR run already proved the merged tree.
 on:
   pull_request:
-  push:
-    branches: [main]
+
+concurrency:
+  # Cancel superseded runs on the same PR; push/dispatch runs never cancel.
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.run_id }}
+  cancel-in-progress: true
 
 jobs:
   verify:

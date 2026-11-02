@@ -9,6 +9,11 @@ on:
       - '.github/workflows/artjob-lineage-cleanup-contract.yml'
   workflow_dispatch:
 
+concurrency:
+  # Cancel superseded runs on the same PR; push/dispatch runs never cancel.
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.run_id }}
+  cancel-in-progress: true
+
 jobs:
   verify:
     runs-on: ubuntu-latest

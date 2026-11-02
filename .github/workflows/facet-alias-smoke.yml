@@ -22,6 +22,9 @@ concurrency:
   group: facet-alias-${{ github.ref }}
   cancel-in-progress: true
 
+env:
+  CYPRESS_INSTALL_BINARY: '0'
+
 jobs:
   facet-alias-smoke:
     runs-on: ubuntu-latest

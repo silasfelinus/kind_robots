@@ -115,6 +115,10 @@ for (let i = 0; i < callbacks.length; i++) {
     'a distinct earned case resurfaces once in Act II, chapter ' +
       following.chapter,
   )
+  assert.ok(
+    following.log.includes('Follow-up transmission: ' + callbacks[i]!.callback),
+    'the earned follow-up must remain in the captain log',
+  )
   assert.deepEqual(
     restoreVoyage(JSON.parse(JSON.stringify(following))),
     following,

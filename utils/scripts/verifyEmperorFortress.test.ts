@@ -1261,6 +1261,52 @@ assert.ok(sceneCount >= 3, 'the court holds scenes, not only petitions')
 {
   const talkIds = TALKS.map((talk) => talk.id)
   assert.equal(new Set(talkIds).size, talkIds.length, 'talk ids are unique')
+  const romanticFollowers = [
+    ...new Set(TALKS.filter((talk) => talk.romance).map((talk) => talk.follower)),
+  ].sort()
+  assert.deepEqual(
+    romanticFollowers,
+    ['F001', 'F002', 'F006', 'F007', 'F016', 'F018'],
+    'only the six canonical followers have romance scenes',
+  )
+  const kiyoTalks = TALKS.filter((talk) => talk.follower === 'F003')
+  assert.ok(kiyoTalks.length > 0, 'Kiyo has barracks conversations')
+  for (const talk of kiyoTalks) {
+    assert.ok(!talk.romance, `${talk.id} keeps Kiyo non-romanceable`)
+    for (const option of [
+      ...talk.options,
+      ...(talk.beats ?? []).flatMap((beat) => beat.options),
+    ])
+      assert.ok(
+        !(option.effects.flags ?? []).some((flag) =>
+          flag.startsWith('romance-kiyo'),
+        ),
+        `${talk.id}/${option.id} must not create Kiyo romance state`,
+      )
+  }
+  const kiyoCup = TALKS.find((talk) => talk.id === 'kiyo-close')!
+  assert.ok(
+    kiyoCup.options.every((option) =>
+      option.effects.flags?.includes('kiyo-friendship'),
+    ),
+    'each cup response opens Kiyo’s later friendship scenes',
+  )
+  const kiyoClinic = TALKS.find((talk) => talk.id === 'kiyo-romance-2')!
+  assert.deepEqual(
+    kiyoClinic.requires?.flags,
+    ['heard:kiyo-close', 'kiyo-friendship'],
+    'the legacy talk id remains accessible without a romance flag',
+  )
+  assert.deepEqual(
+    kiyoClinic.options.map((option) => option.id),
+    ['equal', 'pressure', 'uncertain'],
+    'all original option IDs remain stable for saved choices',
+  )
+  assert.deepEqual(
+    kiyoClinic.options.map((option) => option.effects.flags?.[0]),
+    ['kiyo-clinic-neutral', 'kiyo-clinic-guarded', 'kiyo-clinic-independent'],
+    'Kiyo’s three medical-ethics decisions have distinct lasting flags',
+  )
   const allFlags = new Set(
     TALKS.flatMap((talk) =>
       [

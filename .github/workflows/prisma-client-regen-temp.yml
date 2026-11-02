@@ -1,0 +1,38 @@
+name: Temporary Prisma client regeneration for Space Couch PR 4617
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/prisma-client-regen-temp.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  regenerate:
+    if: github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository && github.head_ref == 'worker/game-of-captains-t031-account-guide-20261101-n4q2'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.head_ref }}
+          persist-credentials: true
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: 'npm'
+      - name: Install exactly locked dependencies
+        run: npm ci
+        env:
+          CYPRESS_INSTALL_BINARY: '0'
+      - name: Generate Prisma files from pull-request schema
+        run: npx prisma generate
+        env:
+          DATABASE_URL: mysql://test:test@127.0.0.1:3306/kindrobots
+      - name: Commit only generated client files
+        run: |
+          git add prisma/generated/prisma
+          if ! git diff --cached --quiet; then
+            git -c user.name='space-couch-ci' -c user.email='space-couch-ci@users.noreply.github.com' commit -m 'chore(prisma): regenerate client for Space Couch alien guide'
+            git push origin HEAD:refs/heads/${{ github.head_ref }}
+          fi

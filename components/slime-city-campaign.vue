@@ -64,6 +64,52 @@
       </div>
 
       <div
+        v-if="lab.campaignAftermath"
+        class="campaign-rival-verdict"
+        :class="lab.campaignAftermath.result === 'player' ? 'won' : 'lost'"
+        aria-live="polite"
+        data-testid="slime-campaign-rival-verdict"
+      >
+        <div class="campaign-verdict-heading">
+          <strong>
+            {{
+              lab.campaignAftermath.result === 'player'
+                ? 'AFTERMATH · VICTORY'
+                : 'AFTERMATH · DEFEAT'
+            }}
+          </strong>
+          <small>
+            CHAPTER {{ lab.campaignAftermath.chapterIndex + 1 }} ·
+            {{ lab.campaignAftermath.chapterTitle }}
+            <template v-if="lab.campaignAftermath.approach">
+              · {{ lab.campaignAftermath.approach.toUpperCase() }}
+            </template>
+          </small>
+        </div>
+        <div class="campaign-verdict-lines">
+          <SlimeCityArtwork
+            class="campaign-verdict-portrait"
+            :image-id="slimeArtId('crews', lab.campaignAftermath.foe)"
+            :alt="teamName(lab.campaignAftermath.foe) + ' rival portrait'"
+            :fallback="crewInsignia(lab.campaignAftermath.foe)"
+            compact
+          />
+          <div>
+            <strong>{{ lab.campaignAftermath.rivalSpeaker }}</strong>
+            <p>“{{ lab.campaignAftermath.rivalLine }}”</p>
+            <div
+              v-if="lab.campaignAftermath.playerLine"
+              class="campaign-verdict-reply"
+              data-testid="slime-campaign-player-reflection"
+            >
+              <small>{{ lab.campaignAftermath.playerSpeaker }}</small>
+              <p>“{{ lab.campaignAftermath.playerLine }}”</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div
         v-if="lab.campaignFinale"
         class="campaign-finale"
         data-testid="slime-campaign-finale"
@@ -779,6 +825,65 @@ function playApproach(choice: KrHandChoice) {
   padding-top: 0.35rem;
   border-top: 1px solid #ffffff28;
   color: #e9dca9;
+}
+.campaign-rival-verdict {
+  display: grid;
+  gap: 0.55rem;
+  padding: 0.75rem;
+  border: 1px solid #d1b783;
+  border-left: 4px solid #e2c07e;
+  border-radius: 0.7rem;
+  background: #2c302d;
+}
+.campaign-rival-verdict.lost {
+  border-color: #b9888d;
+  border-left-color: #ef9ea4;
+  background: #372b32;
+}
+.campaign-verdict-heading {
+  display: grid;
+  gap: 0.2rem;
+}
+.campaign-verdict-heading strong {
+  font-size: 0.75rem;
+  letter-spacing: 0.09em;
+}
+.campaign-verdict-heading small {
+  font-size: 0.63rem;
+  color: #e3d5c2;
+}
+.campaign-verdict-lines {
+  display: grid;
+  grid-template-columns: 4.7rem minmax(0, 1fr);
+  align-items: start;
+  gap: 0.65rem;
+}
+.campaign-verdict-portrait {
+  width: 4.7rem;
+  height: 6rem;
+  overflow: hidden;
+  border-radius: 0.5rem;
+}
+.campaign-verdict-portrait :deep(img) {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.campaign-verdict-lines strong,
+.campaign-verdict-reply small {
+  font-size: 0.68rem;
+  color: #f3dfb3;
+  font-weight: 800;
+}
+.campaign-verdict-lines p {
+  font-size: 0.85rem;
+  line-height: 1.4;
+  margin: 0.25rem 0;
+}
+.campaign-verdict-reply {
+  margin-top: 0.55rem;
+  padding-top: 0.55rem;
+  border-top: 1px solid #ffffff30;
 }
 .campaign-recap {
   margin-top: 0.6rem;

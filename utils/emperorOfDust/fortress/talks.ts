@@ -1701,7 +1701,7 @@ export const TALKS: readonly TalkDef[] = [
     title: 'The Door Left Unlatched',
     fromDay: 27,
     requires: {
-      flags: ['heard:kiyo-close', 'kiyo-friendship'],
+      flags: ['heard:kiyo-close'],
       notFlags: IN_THE_TOWER,
     },
     lines: [
@@ -1717,7 +1717,7 @@ export const TALKS: readonly TalkDef[] = [
           'Make the infirmary neutral ground. The Watch can bring its complaints to you.',
         effects: {
           local: { 'gate-watch': -1, yard: 1 },
-          flags: ['kiyo-clinic-neutral', 'kiyo-trusted'],
+          flags: ['kiyo-clinic-neutral', 'kiyo-trusted', 'kiyo-friendship'],
         },
         response:
           'You send the sentry away. A wounded raider comes through before dawn, carried by two people who would not give their names. The Watch counts the missing prisoner at roll call. You sign the report yourself.',
@@ -1728,7 +1728,7 @@ export const TALKS: readonly TalkDef[] = [
           'Post the Watch at the door. Keep Zuzu and the patients safe, but accept that some will stay away.',
         effects: {
           local: { 'gate-watch': 1, yard: -1 },
-          flags: ['kiyo-clinic-guarded'],
+          flags: ['kiyo-clinic-guarded', 'kiyo-friendship'],
         },
         response:
           'The sentry takes the post. By morning the blankets are clean and one cot is empty. Kiyo finds blood on the steps outside, already washed thin by the rain. She says nothing over breakfast.',
@@ -1739,7 +1739,7 @@ export const TALKS: readonly TalkDef[] = [
           'Leave the door and the decisions to Kiyo. The crown will not order her triage.',
         effects: {
           local: { yard: 1 },
-          flags: ['kiyo-clinic-independent'],
+          flags: ['kiyo-clinic-independent', 'kiyo-friendship'],
         },
         response:
           '“Then write that down,” Kiyo says. You do. She takes the paper and hangs it beside the lantern. Three nights later she turns away a man with a knife under his coat. He leaves cursing her. She keeps the paper up.',

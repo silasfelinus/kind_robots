@@ -1262,7 +1262,9 @@ assert.ok(sceneCount >= 3, 'the court holds scenes, not only petitions')
   const talkIds = TALKS.map((talk) => talk.id)
   assert.equal(new Set(talkIds).size, talkIds.length, 'talk ids are unique')
   const romanticFollowers = [
-    ...new Set(TALKS.filter((talk) => talk.romance).map((talk) => talk.follower)),
+    ...new Set(
+      TALKS.filter((talk) => talk.romance).map((talk) => talk.follower),
+    ),
   ].sort()
   assert.deepEqual(
     romanticFollowers,

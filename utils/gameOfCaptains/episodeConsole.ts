@@ -257,16 +257,27 @@ export function episodeDuoExperience(run: VoyageRun, cast: string[]): number {
 export const EPISODE_CHOICES: readonly {
   id: EpisodeChoice
   label: string
-  cost: string
 }[] = [
-  { id: 'ask', label: 'Ask permission', cost: 'Host +2 · trust +1' },
-  {
-    id: 'document',
-    label: 'Find the evidence',
-    cost: 'Records +2 · reputation +1',
-  },
-  { id: 'override', label: 'Intervene', cost: 'Supplies +1 · host -2' },
+  { id: 'ask', label: 'Ask permission' },
+  { id: 'document', label: 'Find the evidence' },
+  { id: 'override', label: 'Intervene' },
 ]
+
+export function episodeChoiceStakes(
+  run: VoyageRun,
+  deck: EpisodeDeck,
+  choice: EpisodeChoice,
+): string {
+  const venue = deck === 'casino' || deck === 'serendipity'
+  const supply = run.supplies > 0 ? 1 : 0
+  const success =
+    choice === 'ask'
+      ? `trust +2, host standing +2${venue ? `, supplies -${supply}` : ''}`
+      : choice === 'document'
+        ? 'trust +1, evidence +2, reputation +1'
+        : 'trust unchanged, operator standing +1, supplies +1'
+  return `SUCCESS: ${success}. SETBACK: trust -1${venue ? `, supplies -${supply}` : ''}.`
+}
 /** A failed field objective cannot be described as successful consent or a settled claim. */
 const PLOT_SETBACKS: Record<EpisodeDeck, Record<EpisodeChoice, string>> = {
   planet: {

@@ -158,6 +158,7 @@ for (const overlay of [
 assert.match(accountSwitch, /alienArtwork\.value = \{\}/)
 assert.match(accountSwitch, /alienArtLoaded\.value = false/)
 assert.match(store, /void loadAlienArtwork\(\)/)
+assert.match(store, /alienSyncStatus\.value !== 'loading'/)
 assert.match(
   accountSwitch,
   /if \(owner === null\) \{\s+try \{\s+localStorage\.setItem\(ALIEN_GUIDE_OWNER_KEY, String\(id\)\)/,

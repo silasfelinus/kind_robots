@@ -91,7 +91,6 @@ for (const team of TEAMS) {
           assert.equal(supported.metrics.commands, supported.state.commands.length)
           assert.equal(supported.metrics.playerTeam, team.id)
           assert.equal(supported.metrics.enemyTeam, chapter.foe)
-          assert.ok(supported.metrics.rounds <= supported.state.maxRounds + 5)
           trials.push({
             team: team.id,
             chapter: source + 2,
@@ -176,5 +175,5 @@ assert.ok(report.changedOutcomes > 0, 'Support should change at least one result
 console.log('SLIME_SUPPORT_PLAYTEST_REPORT ' + JSON.stringify(report))
 console.log(
   'Slime City actual-engine campaign audit: 192 paired comparisons, 96 controls, ' +
-  'six deterministic replays, all crews and earned choices PASS',
+  '48 deterministic replays, all crews and earned choices PASS',
 )

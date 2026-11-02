@@ -2018,6 +2018,56 @@ const BARRACKS: EpilogueSubject[] = [
 
 const ENDGAME: EpilogueSubject[] = afterTheWar([
   {
+    id: 'the-ford-volunteers',
+    name: 'The fifty-two paid volunteers',
+    variants: [
+      {
+        when: { flags: ['d47-volunteers-named'] },
+        text: 'The bounty roll hangs in the Watch hall. Names of those lost at the Ford are still readable under the crossed lines. Every recruit learns to read them before receiving the first brass.',
+      },
+      {
+        when: { flags: ['d47-village-commission'] },
+        text: 'The Freehold councils appoint their own Watch captains. The first meeting begins with the names of the recruits who stayed behind the tower walls while the Ford burned. They do not call it an apology.',
+      },
+      {
+        when: { flags: ['d31-volunteers-sent'] },
+        text: 'The fifty-two trained volunteers rode to the Ford. The families kept their bounty receipts. Some came back and put them on the mantle. Others had only the receipts.',
+      },
+      {
+        when: { flags: ['d31-volunteers-kept'] },
+        text: 'The fifty-two volunteers held the fortress wall through the worst of the war. Each spring a rider from the Ford asks how many they saved there. The Watch cannot answer.',
+      },
+    ],
+  },
+  {
+    id: 'wenna-at-the-council',
+    name: 'Wenna Coldbrook’s seat',
+    variants: [
+      {
+        when: { flags: ['d48-wenna-council'] },
+        text: 'Wenna Coldbrook attends every Hollow Bell council with her child on her hip. The purse given to send her away sits on the meeting table. Every new councillor has to ask what it means.',
+      },
+      {
+        when: { flags: ['d24-wenna-paid'] },
+        text: 'Wenna Coldbrook spent the crown’s fifteen brass on food and a winter coat. Nobody from the Abbey asked whether the children had come home. She keeps the empty purse.',
+      },
+    ],
+  },
+  {
+    id: 'rooks-mission-road',
+    name: 'Rook’s last pursuit',
+    variants: [
+      {
+        when: { flags: ['d47-rook-road-recorded'] },
+        text: 'Rook’s map of the false Saltroad turn hangs beside the Watch ledger. Everyone can see where Komodo doubled back toward the Abbey. The margin asks the question no one could answer that night: who was sent after him?',
+      },
+      {
+        when: { flags: ['d40-komodo-followed'] },
+        text: 'Rook kept the last map drawn for the crown before the tower fell. It shows where Young Komodo lied to the road. It does not show where the emperor chose to look away.',
+      },
+    ],
+  },
+  {
     id: 'tanner-brothers',
     name: 'Cass and Ward Tanner',
     variants: [

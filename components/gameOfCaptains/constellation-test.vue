@@ -16,6 +16,14 @@
         alt=""
         @error="onQuestionArtError"
       />
+      <img
+        v-else-if="assessment && signArtwork && !signArtFailed"
+        class="scope-question-art scope-sign-art"
+        data-testid="space-couch-star-sign-art"
+        :src="signArtwork"
+        alt=""
+        @error="signArtFailed = true"
+      />
       <svg v-else viewBox="0 0 480 430" preserveAspectRatio="xMidYMid meet">
         <defs>
           <radialGradient id="scope-starglow">
@@ -64,7 +72,7 @@
           aria-label="Assessment progress"
         >
           <span
-            v-for="index in 4"
+            v-for="index in STAR_QUESTIONS.length"
             :key="index"
             :class="{
               current: answers.length === index - 1,
@@ -79,16 +87,13 @@
       <template v-if="!assessment">
         <div class="scope-content" data-testid="space-couch-star-question">
           <span class="scope-episode"
-            >QUESTION {{ answers.length + 1 }} OF 04</span
+            >QUESTION {{ answers.length + 1 }} OF
+            {{ String(STAR_QUESTIONS.length).padStart(2, '0') }}</span
           >
           <span class="scope-kicker">{{
             STAR_QUESTIONS[answers.length]!.cue
           }}</span>
           <h2>{{ STAR_QUESTIONS[answers.length]!.prompt }}</h2>
-          <p>
-            This is a scientifically unlicensed assessment. All responses are
-            logged for promotion eligibility.
-          </p>
           <SpaceCouchChoiceHand
             class="scope-hand"
             :choices="answerChoices"
@@ -117,26 +122,19 @@
       </template>
       <template v-else>
         <div class="scope-reveal" data-testid="space-couch-star-reveal">
-          <span class="scope-episode"
-            >PROVISIONAL WORKPLACE PERSONALITY CLASSIFICATION</span
+          <span class="scope-episode">YOUR CONSTELLATION</span>
+          <span
+            v-if="!signArtwork || signArtFailed"
+            class="scope-sign-glyph"
+            aria-hidden="true"
+            >{{ sign?.glyph }}</span
           >
-          <span class="scope-sign-glyph" aria-hidden="true">{{
-            sign?.glyph
-          }}</span>
           <h2>{{ sign?.name }}</h2>
           <strong>{{ sign?.epithet }}</strong>
           <p class="scope-hr-verdict">
-            <strong>OFFICIAL PERSONNEL FINDING:</strong>
             {{ sign ? STAR_HR_VERDICTS[sign.id] : '' }}
           </p>
-          <p>{{ sign?.myth }}</p>
-          <p class="scope-omen">
-            ✧ OFFICIAL PERFORMANCE FORECAST: {{ sign?.omen }}
-          </p>
-          <p class="scope-exclusive">
-            CORPORATE BENEFIT: THREE EXCLUSIVE ASSIGNMENTS, NONE COVERED BY
-            INSURANCE.
-          </p>
+          <p class="scope-omen">✧ {{ sign?.omen }}</p>
           <div class="scope-final-actions">
             <button
               type="button"
@@ -207,34 +205,27 @@ const {
 const emit = defineEmits<{ confirm: [assessment: StarAssessment]; back: [] }>()
 const answers = ref<number[]>([])
 const artReady = ref<Record<number, boolean>>({})
-const questionArtwork = computed(() => {
-  const index = String(
-    Math.min(answers.value.length + 1, STAR_QUESTIONS.length),
-  ).padStart(2, '0')
-  return (
-    artwork['couchscope/question-' + index] ||
-    warpArt('couchscope/question-' + index) ||
-    '/game-of-captains/couchscope/question-' + index + '.svg'
-  )
-})
+const signArtFailed = ref(false)
+const currentQuestion = computed(
+  () =>
+    STAR_QUESTIONS[Math.min(answers.value.length, STAR_QUESTIONS.length - 1)]!,
+)
+const questionArtwork = computed(
+  () =>
+    artwork[currentQuestion.value.art] ||
+    warpArt(currentQuestion.value.art) ||
+    currentQuestion.value.fallback,
+)
 function answerArtwork(optionIndex: number): string {
-  const question = String(Math.min(answers.value.length + 1, 4)).padStart(
-    2,
-    '0',
-  )
-  const answer = String.fromCharCode(97 + optionIndex)
-  return (
-    artwork['couchscope/question-' + question + '-answer-' + answer] ||
-    warpArt('couchscope/question-' + question + '-answer-' + answer) ||
-    questionArtwork.value
-  )
+  const key =
+    currentQuestion.value.art +
+    '-answer-' +
+    String.fromCharCode(97 + optionIndex)
+  return artwork[key] || warpArt(key) || questionArtwork.value
 }
 function onQuestionArtError(event: Event) {
   const image = event.target as HTMLImageElement
-  const fallback =
-    '/game-of-captains/couchscope/question-' +
-    String(Math.min(answers.value.length + 1, 4)).padStart(2, '0') +
-    '.svg'
+  const fallback = currentQuestion.value.fallback
   if (image.getAttribute('src') !== fallback) image.src = fallback
 }
 function onAnswerArtError(event: Event, index: number) {
@@ -260,6 +251,11 @@ const assessment = computed(() => createStarAssessment(answers.value))
 const sign = computed(() =>
   assessment.value ? starSignFor(assessment.value.sign) : null,
 )
+const signArtwork = computed(() => {
+  if (!sign.value) return ''
+  const key = 'couchscope/sign-' + sign.value.id
+  return artwork[key] || warpArt(key) || ''
+})
 const constellations: [number, number][] = [
   [90, 318],
   [160, 252],
@@ -275,10 +271,12 @@ const constellations: [number, number][] = [
 function retakeAssessment() {
   answers.value = []
   artReady.value = {}
+  signArtFailed.value = false
 }
 function previousQuestion() {
   answers.value = answers.value.slice(0, -1)
   artReady.value = {}
+  signArtFailed.value = false
 }
 function choose(index: number) {
   if (answers.value.length >= STAR_QUESTIONS.length || index < 0 || index > 2)
@@ -488,10 +486,13 @@ function choose(index: number) {
   font-weight: 800;
   color: #f8c58f !important;
 }
-.scope-exclusive {
-  padding: 0.5rem;
-  border-left: 3px solid #8cdde0;
-  background: #1a395482;
+.scope-hr-verdict {
+  font-size: clamp(0.9rem, 1.5cqi, 1.15rem) !important;
+  color: #f1e6da !important;
+}
+.scope-sign-art {
+  object-fit: cover;
+  mask-image: linear-gradient(to right, transparent, #000 18%);
 }
 .scope-final-actions {
   display: flex;

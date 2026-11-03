@@ -46,8 +46,16 @@ import {
 
 assert.equal(
   STAR_QUESTIONS.length,
-  4,
-  'four questions after the captain dossier',
+  3,
+  'three questions after the captain background',
+)
+assert.ok(
+  STAR_QUESTIONS.some((q) => /trolley/i.test(q.cue + q.prompt)),
+  'the Couchscope keeps its trolley problem',
+)
+assert.ok(
+  STAR_QUESTIONS[0]!.prompt.includes('moon'),
+  'the sun-and-moon question stays first',
 )
 assert.equal(STAR_SIGNS.length, 12, 'an original dozen constellations')
 assert.equal(
@@ -257,21 +265,37 @@ for (const sign of STAR_SIGNS) {
 const seen = new Map<string, ReturnType<typeof createStarAssessment>>()
 for (let a = 0; a < 3; a++)
   for (let b = 0; b < 3; b++)
-    for (let c = 0; c < 3; c++)
-      for (let d = 0; d < 3; d++) {
-        const answers: [number, number, number, number] = [a, b, c, d]
-        const assessment = createStarAssessment(answers)!
-        assert.ok(validStarAssessment(assessment))
-        assert.equal(assessment.sign, calculateStarSign(answers).id)
-        seen.set(assessment.sign, assessment)
-      }
+    for (let c = 0; c < 3; c++) {
+      const answers = [a, b, c]
+      const assessment = createStarAssessment(answers)!
+      assert.ok(validStarAssessment(assessment))
+      assert.equal(assessment.sign, calculateStarSign(answers).id)
+      seen.set(assessment.sign, assessment)
+    }
 assert.equal(
   seen.size,
   12,
   'every sign is reachable with actual answer choices',
 )
+const legacySigns = new Set<string>()
+for (let a = 0; a < 3; a++)
+  for (let b = 0; b < 3; b++)
+    for (let c = 0; c < 3; c++)
+      for (let d = 0; d < 3; d++) {
+        const legacy = createStarAssessment([a, b, c, d])!
+        assert.ok(validStarAssessment(legacy), 'four-answer saves still load')
+        legacySigns.add(legacy.sign)
+      }
+assert.equal(legacySigns.size, 12)
+assert.equal(
+  createStarAssessment([1, 2, 0, 1])!.sign,
+  STAR_SIGNS[(1 + 6 + 0 + 7) % 12]!.id,
+  'a saved four-answer voyage keeps the sign it was given',
+)
 for (const invalid of [
-  [0, 1, 2],
+  [0, 1],
+  [0, 0, 3],
+  [0, 0, 0, 0, 0],
   [0, 0, 0, 3],
   [0, -1, 0, 0],
   [],
@@ -532,9 +556,14 @@ assert.ok(
   'Couchscope options reserve a painted art slot',
 )
 assert.ok(
-  quiz.includes('couchscope/question-'),
-  'Couchscope art slots are sign-specific',
+  quiz.includes('currentQuestion.value.art'),
+  'Couchscope art slots are question-specific',
 )
+assert.ok(
+  quiz.includes("'couchscope/sign-' + sign.value.id"),
+  'each constellation reveal reserves its own painted plate',
+)
+assert.ok(quiz.includes('space-couch-star-sign-art'))
 assert.ok(
   quiz.includes('scope-option-ready'),
   'Couchscope detail text reveals after image',
@@ -548,30 +577,33 @@ assert.ok(page.includes('    selectedOrigin.value,'))
 assert.ok(page.includes('class="cap-menu-journal"'))
 assert.ok(page.includes('cap-layout--personnel'))
 assert.ok(page.includes('cap-personnel-scroll'))
-assert.ok(page.includes('data-testid="space-couch-crew-roster"'))
-assert.ok(page.includes('data-testid="space-couch-crew-prev"'))
-assert.ok(page.includes('data-testid="space-couch-crew-next"'))
+const crewBoard = readFileSync(
+  new URL('../../components/gameOfCaptains/crew-board.vue', import.meta.url),
+  'utf8',
+)
+assert.ok(page.includes('<SpaceCouchCrewBoard'))
+assert.ok(crewBoard.includes('data-testid="space-couch-crew-roster"'))
+assert.ok(
+  crewBoard.includes('v-for="member in CREW"'),
+  'all twelve officers share one screen',
+)
+assert.ok(
+  crewBoard.includes('grid-template-rows: repeat(3, minmax(0, 1fr))'),
+  'the twelve-officer grid is bounded, never a scrolling list',
+)
+assert.ok(
+  crewBoard.includes("'space-couch-crew-seat-' + (seat + 1)"),
+  'three visible seats fill as officers are appointed',
+)
+assert.ok(crewBoard.includes("'space-couch-crew-release-' + id"))
+assert.ok(!page.includes('space-couch-crew-prev'), 'no paged roster')
 assert.ok(page.includes('data-testid="space-couch-captain-dossier-tab"'))
 assert.ok(page.includes('data-testid="space-couch-crew-dossier-tab"'))
-assert.ok(page.includes('crewPageMembers'))
-assert.ok(page.includes('CREW.slice(crewPage.value * 6'))
-assert.ok(page.includes('crewPage.value = 0'))
 assert.ok(page.includes("captainDossierTab === 'history'"))
 assert.ok(page.includes("crewDossierTab === 'route'"))
 assert.ok(page.includes('overflow: hidden;'))
-assert.ok(
-  !page.includes('v-for="member in CREW"'),
-  '12 personnel should not become a scrolling list',
-)
-assert.equal(CREW.length, 12, 'two complete six-person roster screens')
-const firstRoster = CREW.slice(0, 6)
-const secondRoster = CREW.slice(6, 12)
-assert.equal(firstRoster.length, 6)
-assert.equal(secondRoster.length, 6)
-assert.equal(
-  new Set([...firstRoster, ...secondRoster].map((member) => member.id)).size,
-  12,
-)
+assert.equal(CREW.length, 12, 'one twelve-officer roster screen')
+assert.equal(new Set(CREW.map((member) => member.id)).size, 12)
 for (const role of ['captain', 'crew'] as const) {
   assert.ok(
     page.includes('data-testid="space-couch-' + role + '-hero"'),
@@ -606,25 +638,21 @@ for (const marker of [
   assert.ok(quiz.includes(marker), marker)
 }
 assert.ok(quiz.includes("emit('confirm', assessment)"))
-assert.ok(quiz.includes("warpArt('couchscope/question-' + index)"))
+assert.ok(quiz.includes('warpArt(currentQuestion.value.art)'))
 assert.ok(quiz.includes('scope-question-art'))
 assert.ok(quiz.includes('space-couch-star-return-background'))
 assert.ok(quiz.includes('max-height: 560px'))
-for (const [index, subject] of [
-  ['01', 'protesting crescent moon'],
-  ['02', 'time portal'],
-  ['03', 'lost-and-found'],
-  ['04', 'one-time miracle'],
+for (const [question, subject] of [
+  [STAR_QUESTIONS[0]!, 'protesting crescent moon'],
+  [STAR_QUESTIONS[1]!, 'cake trolley'],
+  [STAR_QUESTIONS[2]!, 'lost-and-found'],
 ] as const) {
   const drawing = readFileSync(
-    new URL(
-      '../../public/game-of-captains/couchscope/question-' + index + '.svg',
-      import.meta.url,
-    ),
+    new URL('../../public' + question.fallback, import.meta.url),
     'utf8',
   )
   assert.ok(drawing.includes('<svg'))
-  assert.ok(drawing.includes(subject), 'distinct authored drawing ' + index)
+  assert.ok(drawing.includes(subject), 'distinct authored drawing ' + subject)
 }
 const openingComponent = readFileSync(
   new URL('../../components/gameOfCaptains/opening-reel.vue', import.meta.url),
@@ -695,7 +723,7 @@ assert.ok(
 assert.ok(page.includes("store.onboardingArt['origins/' + origin.id]"))
 assert.ok(
   quiz.includes(
-    "artwork['couchscope/question-' + question + '-answer-' + answer]",
+    "currentQuestion.value.art + '-answer-' + String.fromCharCode(97 + optionIndex)",
   ),
 )
 assert.ok(
@@ -712,5 +740,5 @@ assert.ok(store.includes('origin?: CaptainOriginId'))
 assert.ok(deck.includes('YOUR STAR SIGN QUEST'))
 assert.ok(store.includes('assessment?: StarAssessment'))
 console.log(
-  'Space Couch 12 constellations, 4-question test, 36 sign quests, save and finale contract verified',
+  'Space Couch 12 constellations, 3-question test, 36 sign quests, save and finale contract verified',
 )

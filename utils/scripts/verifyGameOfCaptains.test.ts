@@ -764,7 +764,7 @@ assert.ok(
 )
 assert.ok(page.includes('sentences.slice(0, 2)'), 'short ending stage copy')
 for (const [file, selector] of [
-  ['pages/play/game-of-captains.vue', '.cap-crew-pages button {'],
+  ['components/gameOfCaptains/crew-board.vue', '.crew-seat-release {'],
   ['components/gameOfCaptains/daily-console.vue', '.daily-undo {'],
   [
     'components/gameOfCaptains/constellation-test.vue',

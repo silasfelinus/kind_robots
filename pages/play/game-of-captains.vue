@@ -659,83 +659,15 @@
                   <div>
                     <h2>Appoint your crew</h2>
                     <p>
-                      Choose exactly three officers from twelve. Their
-                      abilities, conflicts and personal quests change the
-                      routes.
+                      Fill three seats. Tap an officer to seat them; tap again
+                      to stand them down.
                     </p>
                   </div>
                 </div>
-                <div
-                  class="cap-crew-roster"
-                  data-testid="space-couch-crew-roster"
-                >
-                  <div class="cap-crew-picker">
-                    <button
-                      v-for="member in crewPageMembers"
-                      :key="member.id"
-                      type="button"
-                      class="cap-crew-button"
-                      :class="{ chosen: chosenCrew.includes(member.id) }"
-                      :aria-pressed="chosenCrew.includes(member.id)"
-                      :title="
-                        chosenCrew.length >= 3 &&
-                        !chosenCrew.includes(member.id)
-                          ? 'Release a selected officer to appoint this one'
-                          : 'View dossier and toggle crew appointment'
-                      "
-                      @click="selectCrewForDossier(member.id)"
-                    >
-                      <span
-                        class="cap-monogram"
-                        :data-portrait-key="crewProfile(member.id).portraitKey"
-                        ><img
-                          v-if="portrait(crewProfile(member.id).portraitKey)"
-                          :src="portrait(crewProfile(member.id).portraitKey)!"
-                          alt=""
-                          class="cap-portrait-img"
-                        /><template v-else>{{
-                          member.monogram
-                        }}</template></span
-                      >
-                      <span
-                        ><strong>{{ member.name }}</strong
-                        ><small
-                          >{{ member.role }} ·
-                          {{ crewProfile(member.id).pronouns }}</small
-                        ></span
-                      ><b>{{ chosenCrew.includes(member.id) ? '✓' : '+' }}</b>
-                    </button>
-                  </div>
-                  <nav class="cap-crew-pages" aria-label="Crew roster pages">
-                    <button
-                      type="button"
-                      data-testid="space-couch-crew-prev"
-                      :disabled="crewPage === 0"
-                      @click="crewPage--"
-                    >
-                      ← PREVIOUS
-                    </button>
-                    <span
-                      >ROSTER {{ crewPage + 1 }} / {{ crewPageCount }} ·
-                      {{ chosenCrew.length }}/3 APPOINTED</span
-                    >
-                    <button
-                      type="button"
-                      data-testid="space-couch-crew-next"
-                      :disabled="crewPage >= crewPageCount - 1"
-                      @click="crewPage++"
-                    >
-                      NEXT SIX →
-                    </button>
-                  </nav>
-                  <div class="cap-team-note" aria-live="polite">
-                    {{
-                      chosenCrew
-                        .map((id) => crewProfile(id).name)
-                        .join(' · ') || 'Choose three officers to take command'
-                    }}
-                  </div>
-                </div>
+                <SpaceCouchCrewBoard
+                  v-model:chosen="chosenCrew"
+                  v-model:focused="focusedCrew"
+                />
                 <div class="cap-personnel-dossier" aria-live="polite">
                   <figure
                     class="cap-personnel-hero"
@@ -1884,6 +1816,7 @@ import SpaceCouchAlienScrapbook from '~/components/gameOfCaptains/alien-scrapboo
 import SpaceCouchAlienMilestone from '~/components/gameOfCaptains/alien-milestone.vue'
 import SpaceCouchDailyConsole from '~/components/gameOfCaptains/daily-console.vue'
 import SpaceCouchConstellationTest from '~/components/gameOfCaptains/constellation-test.vue'
+import SpaceCouchCrewBoard from '~/components/gameOfCaptains/crew-board.vue'
 import {
   starSignFor,
   type StarAssessment,
@@ -1951,11 +1884,6 @@ const focusedCrew = ref<CrewId>('pell')
 type PortraitMood = 'neutral' | 'defiant' | 'vulnerable'
 const captainDossierTab = ref<'stats' | 'history' | 'orders'>('stats')
 const crewDossierTab = ref<'history' | 'route' | 'stats'>('history')
-const crewPage = ref(0)
-const crewPageCount = Math.ceil(CREW.length / 6)
-const crewPageMembers = computed(() =>
-  CREW.slice(crewPage.value * 6, (crewPage.value + 1) * 6),
-)
 const run = computed(() => store.run)
 const romanceScene = computed(() =>
   run.value ? romanceMoment(run.value) : null,
@@ -2340,7 +2268,6 @@ function restartVoyage() {
   starAssessment.value = null
   selectionScreen.value = 'captain'
   chosenCrew.value = []
-  crewPage.value = 0
   captainDossierTab.value = 'stats'
   crewDossierTab.value = 'history'
   selectedOrigin.value = null
@@ -2372,17 +2299,6 @@ useSeoMeta(
 )
 useHead({ title: 'Space Couch | Kind Robots' })
 
-function selectCrewForDossier(id: CrewId) {
-  focusedCrew.value = id
-  toggleCrew(id)
-}
-function toggleCrew(id: CrewId) {
-  chosenCrew.value = chosenCrew.value.includes(id)
-    ? chosenCrew.value.filter((x) => x !== id)
-    : chosenCrew.value.length < 3
-      ? [...chosenCrew.value, id]
-      : chosenCrew.value
-}
 function toggleAway(id: CrewId) {
   if (!run.value) return
   const current = run.value.away
@@ -3050,9 +2966,7 @@ function toggleAway(id: CrewId) {
   font-weight: 900;
 }
 .cap-dossier-header button:hover,
-.cap-dossier-header button:focus-visible,
-.cap-crew-pages button:hover:not(:disabled),
-.cap-crew-pages button:focus-visible {
+.cap-dossier-header button:focus-visible {
   background: #36556a;
   outline-offset: 2px;
 }
@@ -3077,13 +2991,6 @@ function toggleAway(id: CrewId) {
   margin: 0.2rem 0;
   font-size: clamp(0.65rem, 0.95cqi, 0.84rem);
   line-height: 1.35;
-}
-.cap-crew-roster {
-  display: grid;
-  grid-template-rows: minmax(0, 1fr) auto auto;
-  min-height: 0;
-  min-width: 0;
-  gap: clamp(0.2rem, 0.6cqh, 0.5rem);
 }
 .cap-personnel-frame .cap-crew-picker {
   min-height: 0;
@@ -3143,25 +3050,6 @@ function toggleAway(id: CrewId) {
   border-radius: 0.5rem;
   padding: 0.75rem;
   background: #102b3ee8;
-}
-.cap-crew-pages {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 0.3rem;
-  color: #9de6e8;
-  font-size: clamp(0.59rem, 0.95cqi, 0.76rem);
-  font-weight: 900;
-}
-.cap-crew-pages button {
-  min-height: 2rem;
-  padding: 0.4rem 0.55rem;
-  border: 1px solid #88b2bd;
-  border-radius: 0.3rem;
-  color: #ffdbac;
-}
-.cap-crew-pages button:disabled {
-  opacity: 0.4;
 }
 .cap-personnel-frame .cap-team-note {
   min-width: 0;
@@ -3247,12 +3135,6 @@ function toggleAway(id: CrewId) {
   }
   .cap-personnel-frame .cap-crew-button small {
     display: none;
-  }
-  .cap-personnel-frame .cap-crew-pages {
-    font-size: 0.56rem;
-  }
-  .cap-personnel-frame .cap-crew-pages button {
-    padding: 0.3rem;
   }
 }
 
@@ -4328,6 +4210,9 @@ function toggleAway(id: CrewId) {
 .cap-personnel-frame[data-screen='crew'] {
   grid-template-columns: minmax(0, 0.78fr) minmax(0, 1.22fr);
 }
+.cap-personnel-frame[data-screen='crew'] {
+  grid-template-columns: minmax(0, 1.15fr) minmax(0, 0.85fr);
+}
 /* Captain screen has no heading row: the roster and dossier fill the frame. */
 .cap-personnel-frame[data-screen='captain'] {
   grid-template-rows: minmax(0, 1fr) auto;
@@ -4487,8 +4372,28 @@ function toggleAway(id: CrewId) {
   .cap-personnel-frame .cap-personnel-essential-stats strong {
     font-size: 0.8rem;
   }
-  .cap-personnel-frame .cap-crew-pages {
-    flex-wrap: wrap;
+}
+@media (max-width: 650px) {
+  .cap-personnel-frame[data-screen='crew'] {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: auto minmax(0, 1.3fr) minmax(0, 0.7fr) auto;
+  }
+  .cap-personnel-frame[data-screen='crew'] .cap-personnel-dossier {
+    grid-row: 3;
+    grid-column: 1;
+    grid-template-columns: minmax(0, 0.75fr) minmax(0, 1.25fr);
+    grid-template-rows: auto auto minmax(0, 1fr);
+  }
+  .cap-personnel-frame[data-screen='crew']
+    .cap-personnel-dossier
+    > .cap-personnel-hero {
+    grid-column: 1;
+    grid-row: 1 / -1;
+  }
+  .cap-personnel-frame[data-screen='crew']
+    .cap-personnel-dossier
+    > :not(.cap-personnel-hero) {
+    grid-column: 2;
   }
 }
 </style>

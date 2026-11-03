@@ -1802,6 +1802,9 @@ export const useMemoryWorldStore = defineStore('memoryWorld', () => {
       scene && !state.value.sceneChoices[key]
         ? briarSceneOpening(scene, state.value.sceneChoices)
         : (BRIAR_SITES[key]?.description ?? 'You retrace a familiar path.')
+    if (scene?.autoChoiceId && !state.value.sceneChoices[key]) {
+      chooseScene(scene.autoChoiceId)
+    }
     persist()
   }
 

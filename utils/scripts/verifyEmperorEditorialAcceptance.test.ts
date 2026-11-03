@@ -278,8 +278,10 @@ for (const quest of quests) {
     'expired',
   ] as const) {
     const prose = quest.outcomes[tier] ?? ''
+    const optionalTriumph = tier === 'triumph' && !prose.trim()
     const issues: string[] = []
-    if (!prose.trim()) issues.push('outcome tier has no authored prose')
+    if (!prose.trim() && !optionalTriumph)
+      issues.push('outcome tier has no authored prose')
     if (prose.length > 0 && prose.length < 100)
       issues.push('short quest outcome: less than 100 characters')
     const variantCount = quest.outcomeVariants?.[tier]?.length ?? 0
@@ -291,14 +293,14 @@ for (const quest of quests) {
       day: quest.days?.[0] ?? Number(quest.id.match(/^q-d([0-9]+)/)?.[1] ?? 0),
       title: `${quest.title} · ${tier}`,
       scores: {
-        mood: clamp(!prose ? 1 : hasConcreteDetail(prose) ? 4 : 3),
-        clarity: clamp(!prose ? 1 : quest.summary.length >= 65 ? 4 : 3),
-        originality: clamp(!prose ? 1 : 3),
+        mood: clamp(optionalTriumph ? 3 : !prose ? 1 : hasConcreteDetail(prose) ? 4 : 3),
+        clarity: clamp(optionalTriumph ? 3 : !prose ? 1 : quest.summary.length >= 65 ? 4 : 3),
+        originality: clamp(optionalTriumph ? 3 : !prose ? 1 : 3),
         choice: clamp(quest.requirements.length >= 2 ? 4 : 3),
-        consequence: clamp(!hasEffect ? 2 : variantCount ? 5 : 4),
+        consequence: clamp(optionalTriumph ? 3 : !hasEffect ? 2 : variantCount ? 5 : 4),
       },
       issues,
-      evidence: `${clipped(prose)} | ${quest.danger} danger, ${quest.requirements.length} requirements, ${variantCount} variants`,
+      evidence: `${optionalTriumph ? '[optional tier unused]' : clipped(prose)} | ${quest.danger} danger, ${quest.requirements.length} requirements, ${variantCount} variants`,
     })
     for (const [index, variant] of (
       quest.outcomeVariants?.[tier] ?? []
@@ -340,6 +342,12 @@ for (const quest of quests) {
     }
   }
 }
+assert.ok(
+  rows.filter((row) => row.kind === 'quest-outcome' && row.id.endsWith(':triumph')).every(
+    (row) => !row.issues.includes('outcome tier has no authored prose'),
+  ),
+  'unused optional triumph outcomes are not missing-content defects',
+)
 for (const subject of EPILOGUE) {
   for (const [index, variant] of subject.variants.entries()) {
     rows.push({

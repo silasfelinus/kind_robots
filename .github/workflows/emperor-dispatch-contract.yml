@@ -76,6 +76,6 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: emperor-editorial-screening
-          path: artifacts/emperor/editorial-screening.*
+          path: artifacts/emperor/editorial-*
           retention-days: 30
           if-no-files-found: warn

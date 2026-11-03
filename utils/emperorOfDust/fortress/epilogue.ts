@@ -642,6 +642,10 @@ const KINGDOM: EpilogueSubject[] = afterTheWar([
         text: 'Ferro Dunmark kept his sergeant’s stripe and never asked for the captain’s knot back. The Watch calls him Captain when the crown is out of earshot. He corrects them every time. It never sounds like he means it.',
       },
       {
+        when: { flags: ['d43-dunmark-absolved'] },
+        text: 'Dunmark kept the paper that cleared his name. He never framed it. When a young Watch captain takes blame for a lost patrol, Dunmark sets the page on the table between them. “The order was mine,” he says. Then he signs the next one himself.',
+      },
+      {
         when: { flags: ['d10-oath-of-reasons'] },
         text: 'Every order had its reason. Every name was read aloud after. Dunmark keeps the list. It runs to four pages. On the tenth day of every year he reads all four at the gate, and the Watch stands until he is done.',
       },
@@ -1118,6 +1122,10 @@ const BARRACKS: EpilogueSubject[] = [
       {
         when: { flags: ['rook-hunts-komodo'] },
         text: 'Rook rode north after Komodo with two days’ bread and a rope. They came back. They never said whether they found him. The rope was gone.',
+      },
+      {
+        when: { flags: ['rook-honest-answer'] },
+        text: 'Rook still asks what the crown would do if the painted scout rode home in irons. The emperor never gives an easy answer. When the patrol ledger names a prisoner, Rook comes to the tower with the file instead of a rope. They read it together before anyone signs.',
       },
       {
         when: { flags: ['rook-friendship'] },

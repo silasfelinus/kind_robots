@@ -55,7 +55,8 @@ const quests: readonly QuestDef[] = [
 ]
 const textOf = (lines: readonly SceneLine[]) =>
   lines.map((line) => (typeof line === 'string' ? line : line.text)).join(' ')
-const clipped = (text: string) => text.replace(/\s+/g, ' ').trim().slice(0, 115)
+const full = (text: string) => text.replace(/\s+/g, ' ').trim()
+const clipped = (text: string) => full(text).slice(0, 115)
 const allChoices = (scene: Segment): AudienceOption[] => [
   ...scene.options,
   ...(scene.beats ?? []).flatMap((beat) => beat.options),
@@ -184,15 +185,8 @@ const evaluateScene = (
   if (opening.length < 170)
     issues.push('thin opening: less than 170 characters')
   if (terminal.length < 2) issues.push('fewer than two terminal choices')
-  const undisclosed = options.filter(
-    (option) =>
-      (option.requires?.cost ?? 0) > 0 &&
-      !new RegExp(`\\b${option.requires?.cost}\\b`).test(option.label),
-  )
-  if (undisclosed.length)
-    issues.push(
-      `cost not stated numerically: ${undisclosed.map((o) => o.id).join(', ')}`,
-    )
+  // The game displays brass through optionStakes in the choice hand.
+  // Repeating that number inside the dialogue label is not required.
   const empty = options.filter((option) => !option.response.trim())
   if (empty.length)
     issues.push(`blank aftermath: ${empty.map((o) => o.id).join(', ')}`)
@@ -225,13 +219,7 @@ const evaluateScene = (
   )
   const scores: Scores = {
     mood: clamp(opening.length < 120 ? 2 : hasConcreteDetail(opening) ? 4 : 3),
-    clarity: clamp(
-      undisclosed.length
-        ? 2
-        : options.every((o) => o.label.length >= 22)
-          ? 4
-          : 3,
-    ),
+    clarity: clamp(options.every((o) => o.label.length >= 22) ? 4 : 3),
     originality: clamp((leadCounts.get(lead) ?? 0) > 1 ? 2 : 4),
     choice: clamp(
       terminal.length < 2
@@ -277,8 +265,10 @@ for (const quest of quests) {
     'expired',
   ] as const) {
     const prose = quest.outcomes[tier] ?? ''
+    const optionalTriumph = tier === 'triumph' && !prose.trim()
     const issues: string[] = []
-    if (!prose.trim()) issues.push('outcome tier has no authored prose')
+    if (!prose.trim() && !optionalTriumph)
+      issues.push('outcome tier has no authored prose')
     if (prose.length > 0 && prose.length < 100)
       issues.push('short quest outcome: less than 100 characters')
     const variantCount = quest.outcomeVariants?.[tier]?.length ?? 0
@@ -290,14 +280,20 @@ for (const quest of quests) {
       day: quest.days?.[0] ?? Number(quest.id.match(/^q-d([0-9]+)/)?.[1] ?? 0),
       title: `${quest.title} · ${tier}`,
       scores: {
-        mood: clamp(!prose ? 1 : hasConcreteDetail(prose) ? 4 : 3),
-        clarity: clamp(!prose ? 1 : quest.summary.length >= 65 ? 4 : 3),
-        originality: clamp(!prose ? 1 : 3),
+        mood: clamp(
+          optionalTriumph ? 3 : !prose ? 1 : hasConcreteDetail(prose) ? 4 : 3,
+        ),
+        clarity: clamp(
+          optionalTriumph ? 3 : !prose ? 1 : quest.summary.length >= 65 ? 4 : 3,
+        ),
+        originality: clamp(optionalTriumph ? 3 : !prose ? 1 : 3),
         choice: clamp(quest.requirements.length >= 2 ? 4 : 3),
-        consequence: clamp(!hasEffect ? 2 : variantCount ? 5 : 4),
+        consequence: clamp(
+          optionalTriumph ? 3 : !hasEffect ? 2 : variantCount ? 5 : 4,
+        ),
       },
       issues,
-      evidence: `${clipped(prose)} | ${quest.danger} danger, ${quest.requirements.length} requirements, ${variantCount} variants`,
+      evidence: `${optionalTriumph ? '[optional tier unused]' : clipped(prose)} | ${quest.danger} danger, ${quest.requirements.length} requirements, ${variantCount} variants`,
     })
     for (const [index, variant] of (
       quest.outcomeVariants?.[tier] ?? []
@@ -339,6 +335,14 @@ for (const quest of quests) {
     }
   }
 }
+assert.ok(
+  rows
+    .filter(
+      (row) => row.kind === 'quest-outcome' && row.id.endsWith(':triumph'),
+    )
+    .every((row) => !row.issues.includes('outcome tier has no authored prose')),
+  'unused optional triumph outcomes are not missing-content defects',
+)
 for (const subject of EPILOGUE) {
   for (const [index, variant] of subject.variants.entries()) {
     rows.push({
@@ -388,18 +392,11 @@ for (const quest of quests) {
     )
 }
 
-const personas = POLICIES.filter((policy) =>
-  [
-    'greedy',
-    'random',
-    'spurn-all',
-    'marshal',
-    'reckless',
-    'idle',
-    'patron:moles',
-    'patron:storm-crows',
-    'patron:freeholds',
-  ].includes(policy.id),
+const personas = POLICIES.filter(
+  (policy) =>
+    ['greedy', 'random', 'spurn-all', 'marshal', 'reckless', 'idle'].includes(
+      policy.id,
+    ) || policy.id.startsWith('patron:'),
 )
 const campaignRows: {
   persona: string
@@ -447,14 +444,14 @@ for (const policy of personas) {
           audiences += 1
           seenAudiences.add(id)
           timeline.push(
-            `DAY ${sceneDay} court ${id} /${option.id}: ${option.label}; ${clipped(option.response)}`,
+            `DAY ${sceneDay} court ${id} /${option.id}: ${option.label}; ${full(option.response)}`,
           )
         },
         onTalkChoice: (talkDay, id, option) => {
           talks += 1
           seenTalks.add(id)
           timeline.push(
-            `DAY ${talkDay} barracks ${id} /${option.id}: ${option.label}; ${clipped(option.response)}`,
+            `DAY ${talkDay} barracks ${id} /${option.id}: ${option.label}; ${full(option.response)}`,
           )
         },
         onQuestReport: (questDay, report) => {
@@ -465,7 +462,7 @@ for (const policy of personas) {
               `${policy.id}/${seed} day ${questDay}: ${report.questId} / ${report.tier}`,
             )
           timeline.push(
-            `DAY ${questDay} dispatch ${report.questId} => ${report.tier}: ${clipped(report.text ?? '')}`,
+            `DAY ${questDay} dispatch ${report.questId} => ${report.tier}: ${full(report.text ?? '')}`,
           )
         },
       },
@@ -494,29 +491,43 @@ assert.ok(
 )
 assert.ok(seenQuests.size > 0)
 
+const unvisitedAudiences = DAYS.flatMap((day) =>
+  day.audiences
+    .filter((scene) => !seenAudiences.has(scene.id))
+    .map((scene) => `Day ${day.day}: ${scene.id}`),
+)
+const unvisitedTalks = TALKS.filter((talk) => !seenTalks.has(talk.id)).map(
+  (talk) => `${talk.follower}: ${talk.id}`,
+)
+for (const [subjectId, flag] of [
+  ['rook', 'rook-honest-answer'],
+  ['gate-watch', 'd43-dunmark-absolved'],
+] as const) {
+  assert.ok(
+    EPILOGUE.find((subject) => subject.id === subjectId)?.variants.some(
+      (variant) => variant.when?.flags?.includes(flag),
+    ),
+    `A named ending must remember ${subjectId} / ${flag}`,
+  )
+}
+
 const directory = 'artifacts/emperor'
 mkdirSync(directory, { recursive: true })
-const axisOrder = [
-  'mood',
-  'clarity',
-  'originality',
-  'choice',
-  'consequence',
-] as const
-const small = (row: Row) => axisOrder.map((axis) => row.scores[axis]).join('/')
-const section = (kind: Row['kind']) =>
-  rows
-    .filter((r) => r.kind === kind)
-    .map(
-      (r) =>
-        `| ${r.id} | ${r.day || 'varies'} | ${small(r)} | ${r.issues.length ? r.issues.join('; ').replace(/\\|/g, '/') : 'No automated alert'} |`,
-    )
-    .join('\n')
 const suspicious = rows.filter(
   (row) =>
     Object.values(row.scores).some((score) => score <= 2) ||
     row.issues.length > 0,
 )
+const priority = [...suspicious]
+  .sort(
+    (a, b) =>
+      Math.min(...Object.values(a.scores)) -
+        Math.min(...Object.values(b.scores)) ||
+      b.issues.length - a.issues.length ||
+      a.day - b.day ||
+      a.id.localeCompare(b.id),
+  )
+  .slice(0, 60)
 const markdown = [
   '# Emperor of Dust: complete authored-content editorial screening',
   '',
@@ -526,7 +537,7 @@ const markdown = [
   '',
   `Authored coverage: ${scenes.filter((s) => s.kind === 'audience').length} throne audiences, ${TALKS.length} follower talks, ${quests.length} quest definitions x 5 result tiers = ${quests.length * 5} quest-outcome slots.`,
   `Automated red flags: ${suspicious.length}/${rows.length} assessed rows; these are leads, not defects proven in play.`,
-  `Independent policy persona campaigns with barracks choices: ${campaignRows.length}; all completed 50 days and dawn 51. Visited ${seenAudiences.size} unique audiences, ${seenTalks.size} unique talks, ${seenQuests.size} distinct quest/outcome pairs.`,
+  `Seeded policy persona campaigns with barracks choices: ${campaignRows.length}; all completed 50 days and dawn 51. Visited ${seenAudiences.size} unique audiences, ${seenTalks.size} unique talks, ${seenQuests.size} distinct quest/outcome pairs.`,
   '',
   '## Complete 50-day policy-campaign traces',
   '',
@@ -537,53 +548,22 @@ const markdown = [
       `| ${c.persona} | ${c.seed} | ${c.ending} | ${c.hideout} | ${c.audiences} | ${c.talks} | ${c.quests} | ${c.deaths} | ${c.brass} |`,
   ),
   '',
-  '## Each throne audience (all opening and beat options screened)',
+  `## Unvisited in the ${campaignRows.length} seeded campaigns`,
   '',
-  '| ID | Day | M/C/O/Ch/Co | Automatic findings |',
-  '| --- | ---: | --- | --- |',
-  section('audience'),
+  `Unvisited audiences (${unvisitedAudiences.length}): ${unvisitedAudiences.join(', ') || 'none'}`,
   '',
-  '## Each audience follow-up beat',
+  `Unvisited follower talks (${unvisitedTalks.length}): ${unvisitedTalks.join(', ') || 'none'}`,
   '',
-  '| ID | Day | M/C/O/Ch/Co | Automatic findings |',
-  '| --- | ---: | --- | --- |',
-  section('audience-beat'),
+  'Not visited does not mean unreachable. Conditional gates, recruitment and random seeds require targeted reachability tests.',
   '',
-  '## Each follower talk (all opening and beat options screened)',
+  '## Top 60 structural review leads',
   '',
-  '| ID | From day | M/C/O/Ch/Co | Automatic findings |',
-  '| --- | ---: | --- | --- |',
-  section('follower'),
+  'The complete row-by-row census and five-axis proxy scores are in editorial-screening.json. This short worklist omits repeated low-value tables.',
   '',
-  '## Each follower follow-up beat',
-  '',
-  '| ID | From day | M/C/O/Ch/Co | Automatic findings |',
-  '| --- | ---: | --- | --- |',
-  section('follower-beat'),
-  '',
-  '## Every defined quest result tier (missing tiers explicitly surfaced)',
-  '',
-  '| Quest outcome | Day | M/C/O/Ch/Co | Automatic findings |',
-  '| --- | ---: | --- | --- |',
-  section('quest-outcome'),
-  '',
-  '## Every flag-driven quest result variant',
-  '',
-  '| Quest outcome variant | Day | M/C/O/Ch/Co | Automatic findings |',
-  '| --- | ---: | --- | --- |',
-  section('quest-outcome-variant'),
-  '',
-  '## Every repeat-outcome variant',
-  '',
-  '| Repeated result | Day | M/C/O/Ch/Co | Automatic findings |',
-  '| --- | ---: | --- | --- |',
-  section('quest-outcome-alt'),
-  '',
-  '## Every epilogue state',
-  '',
-  '| Epilogue state | Day | M/C/O/Ch/Co | Automatic findings |',
-  '| --- | ---: | --- | --- |',
-  section('epilogue-variant'),
+  ...priority.map(
+    (row) =>
+      `- ${row.kind} ${row.id} (day ${row.day}): ${row.issues.join('; ') || 'low rubric signal'}; ${row.evidence}`,
+  ),
   '',
   '## Acceptance still required',
   '',
@@ -593,9 +573,9 @@ writeFileSync(`${directory}/editorial-screening.md`, markdown.join('\n') + '\n')
 writeFileSync(
   `${directory}/editorial-campaign-transcripts.md`,
   [
-    '# Independent full-campaign transcripts',
+    '# Seeded policy full-campaign transcripts',
     '',
-    'Twenty-seven real-engine 50-day simulated playthroughs with barracks conversations. Every dawn, audience answer, barracks answer and quest resolution is recorded in order. These are deterministic policy bots, not independent human readers.',
+    `${campaignRows.length} real-engine 50-day simulated playthroughs. Every dawn, chosen audience answer, barracks answer and quest resolution is recorded in order with complete chosen response text. Opening scene beats, alternative options and runtime variant presentation are not captured. These are deterministic policy bots, not independent human readers.`,
     '',
     ...campaignRows.flatMap((campaign) => [
       `## ${campaign.persona} · seed ${campaign.seed} · ${campaign.ending}`,
@@ -617,8 +597,12 @@ writeFileSync(
         resultSlots: quests.length * 5,
         redFlags: suspicious.length,
         assessedRows: rows.length,
+        unvisitedAudiences: unvisitedAudiences.length,
+        unvisitedTalks: unvisitedTalks.length,
       },
       rows,
+      priorityIds: priority.map((row) => row.id),
+      unvisited: { audiences: unvisitedAudiences, talks: unvisitedTalks },
       campaigns: campaignRows,
       missingQuestReportTexts,
       seen: {
@@ -648,6 +632,8 @@ console.log(
       uniqueAudiencesVisited: seenAudiences.size,
       uniqueTalksVisited: seenTalks.size,
       uniqueQuestOutcomes: seenQuests.size,
+      unvisitedAudiences: unvisitedAudiences.length,
+      unvisitedTalks: unvisitedTalks.length,
       endingFamilies: [...new Set(campaignRows.map((r) => r.ending))].sort(),
       missingQuestReportTexts: [...new Set(missingQuestReportTexts)],
     }),

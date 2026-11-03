@@ -134,6 +134,19 @@ export type ColoringBookProposal = {
   colorUrl: string | null
   bwPath?: string | null
   bwUrl: string | null
+  concept?: ColoringBookConcept | null
+}
+
+export type ColoringBookConcept = {
+  sourceLineage: string | null
+  recast: string | null
+  bodyDirection: string | null
+  framing: string | null
+  horrorEngine: string | null
+  campEngine: string | null
+  sensuality: string | null
+  visualHook: string | null
+  originalizationHook: string | null
 }
 
 export type ColoringBookCounts = {

@@ -5,12 +5,15 @@
     slug="coloring-book"
     :fallback="config"
     :show-deliverables="false"
+    wide
   >
     <template #interactive>
       <div class="flex flex-col gap-5">
         <CurationColoringBookCuration />
 
-        <details class="group rounded-3xl border border-base-300 bg-base-100 shadow-sm">
+        <details
+          class="group rounded-3xl border border-base-300 bg-base-100 shadow-sm"
+        >
           <summary
             class="flex cursor-pointer list-none flex-wrap items-center justify-between gap-3 p-4 marker:hidden"
           >
@@ -20,10 +23,13 @@
                 Production controls & diagnostics
               </h3>
               <p class="mt-1 text-sm text-base-content/55">
-                Readiness, packaging, covers, queue actions, history, and the full ledger inspector.
+                Readiness, packaging, covers, queue actions, history, and the
+                full ledger inspector.
               </p>
             </div>
-            <span class="badge badge-outline rounded-2xl group-open:badge-primary">
+            <span
+              class="badge badge-outline rounded-2xl group-open:badge-primary"
+            >
               Secondary tools
             </span>
           </summary>

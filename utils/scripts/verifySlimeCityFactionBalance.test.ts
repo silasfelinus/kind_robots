@@ -13,7 +13,7 @@ const matches = runTournament('blackout', seeds)
 const summary = summarizeTournament('blackout', seeds, matches)
 const teamIds = TEAMS.map((team) => team.id)
 const matchup = new Map<string, MatchMetrics>(
-  matches.map((match) => [
+  matches.map((match): [string, MatchMetrics] => [
     [match.playerTeam, match.enemyTeam, match.seed].join(':'),
     match,
   ]),

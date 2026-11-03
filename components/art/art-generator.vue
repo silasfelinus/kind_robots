@@ -52,6 +52,15 @@
             <p class="kr-text-dim-xs text-center">
               {{ readinessSummary }}
             </p>
+
+            <NuxtLink
+              v-if="!canAfford"
+              to="/wallet"
+              data-testid="art-generator-out-of-mana-link"
+              class="btn btn-outline btn-accent btn-sm w-full rounded-2xl"
+            >
+              Get more mana, or bring your own server
+            </NuxtLink>
           </div>
         </div>
 

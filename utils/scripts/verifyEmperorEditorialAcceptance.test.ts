@@ -63,9 +63,29 @@ const allChoices = (scene: Segment): AudienceOption[] => [
   ...(scene.beats ?? []).flatMap((beat) => beat.options),
 ]
 const markers = [
-  'door', 'road', 'coat', 'hand', 'table', 'bell', 'mud', 'bread',
-  'blood', 'rain', 'rope', 'fire', 'ink', 'dust', 'cup', 'shoe',
-  'lantern', 'knife', 'letter', 'child', 'water', 'wall', 'horse',
+  'door',
+  'road',
+  'coat',
+  'hand',
+  'table',
+  'bell',
+  'mud',
+  'bread',
+  'blood',
+  'rain',
+  'rope',
+  'fire',
+  'ink',
+  'dust',
+  'cup',
+  'shoe',
+  'lantern',
+  'knife',
+  'letter',
+  'child',
+  'water',
+  'wall',
+  'horse',
 ]
 const hasConcreteDetail = (text: string) =>
   markers.some((word) => new RegExp(`\\b${word}s?\\b`, 'i').test(text))
@@ -114,13 +134,16 @@ for (const subject of EPILOGUE)
     readGate(variant.when, `epilogue:${subject.id}`)
 for (const quest of quests)
   for (const group of Object.values(quest.outcomeVariants ?? {}))
-    for (const variant of group ?? [])
-      readGate(variant, `quest:${quest.id}`)
+    for (const variant of group ?? []) readGate(variant, `quest:${quest.id}`)
 
 const leadCounts = new Map<string, number>()
 const scenes = [
   ...DAYS.flatMap((day) =>
-    day.audiences.map((scene) => ({ scene, day: day.day, kind: 'audience' as const })),
+    day.audiences.map((scene) => ({
+      scene,
+      day: day.day,
+      kind: 'audience' as const,
+    })),
   ),
   ...TALKS.map((scene) => ({
     scene,
@@ -139,7 +162,10 @@ const segments = [
         options: beat.options,
       },
       day,
-      kind: kind === 'audience' ? ('audience-beat' as const) : ('follower-beat' as const),
+      kind:
+        kind === 'audience'
+          ? ('audience-beat' as const)
+          : ('follower-beat' as const),
     })),
   ),
 ]
@@ -157,7 +183,8 @@ const evaluateScene = (
   const options = allChoices(scene)
   const terminal = options.filter((choice) => !choice.next)
   const issues: string[] = []
-  if (opening.length < 170) issues.push('thin opening: less than 170 characters')
+  if (opening.length < 170)
+    issues.push('thin opening: less than 170 characters')
   if (terminal.length < 2) issues.push('fewer than two terminal choices')
   const undisclosed = options.filter(
     (option) =>
@@ -165,7 +192,9 @@ const evaluateScene = (
       !new RegExp(`\\b${option.requires?.cost}\\b`).test(option.label),
   )
   if (undisclosed.length)
-    issues.push(`cost not stated numerically: ${undisclosed.map((o) => o.id).join(', ')}`)
+    issues.push(
+      `cost not stated numerically: ${undisclosed.map((o) => o.id).join(', ')}`,
+    )
   const empty = options.filter((option) => !option.response.trim())
   if (empty.length)
     issues.push(`blank aftermath: ${empty.map((o) => o.id).join(', ')}`)
@@ -175,11 +204,15 @@ const evaluateScene = (
   const long = options.filter((option) => option.response.length < 55)
   if (long.length)
     issues.push(`short after-response: ${long.map((o) => o.id).join(', ')}`)
-  const setFlags = [...new Set(options.flatMap((option) => option.effects.flags ?? []))]
+  const setFlags = [
+    ...new Set(options.flatMap((option) => option.effects.flags ?? [])),
+  ]
   const usedFlags = setFlags.filter((flag) => flagConsumers.has(flag))
   const unread = setFlags.filter((flag) => !flagConsumers.has(flag))
   if (unread.length)
-    issues.push(`no literal narrative reader for flags: ${unread.slice(0, 8).join(', ')}`)
+    issues.push(
+      `no literal narrative reader for flags: ${unread.slice(0, 8).join(', ')}`,
+    )
   const lead = clipped(opening).toLowerCase()
   if ((leadCounts.get(lead) ?? 0) > 1)
     issues.push('opening duplicates another authored scene')
@@ -194,15 +227,42 @@ const evaluateScene = (
   )
   const scores: Scores = {
     mood: clamp(opening.length < 120 ? 2 : hasConcreteDetail(opening) ? 4 : 3),
-    clarity: clamp(undisclosed.length ? 2 : options.every((o) => o.label.length >= 22) ? 4 : 3),
+    clarity: clamp(
+      undisclosed.length
+        ? 2
+        : options.every((o) => o.label.length >= 22)
+          ? 4
+          : 3,
+    ),
     originality: clamp((leadCounts.get(lead) ?? 0) > 1 ? 2 : 4),
-    choice: clamp(terminal.length < 2 ? 2 : distinct < terminal.length ? 2 : meaningful >= 2 && conflicts ? 5 : meaningful >= 2 ? 4 : 3),
-    consequence: clamp(usedFlags.length >= 2 ? 5 : usedFlags.length === 1 ? 4 : meaningful >= 2 ? 3 : 2),
+    choice: clamp(
+      terminal.length < 2
+        ? 2
+        : distinct < terminal.length
+          ? 2
+          : meaningful >= 2 && conflicts
+            ? 5
+            : meaningful >= 2
+              ? 4
+              : 3,
+    ),
+    consequence: clamp(
+      usedFlags.length >= 2
+        ? 5
+        : usedFlags.length === 1
+          ? 4
+          : meaningful >= 2
+            ? 3
+            : 2,
+    ),
   }
   return {
-    kind, id: scene.id, day,
+    kind,
+    id: scene.id,
+    day,
     title: scene.title,
-    scores, issues,
+    scores,
+    issues,
     evidence: `${clipped(opening)} | ${terminal.length} final choices; ${usedFlags.length}/${setFlags.length} set flags have authored readers`,
   }
 }
@@ -211,7 +271,13 @@ const rows: Row[] = segments.map(({ scene, day, kind }) =>
   evaluateScene(scene, day, kind),
 )
 for (const quest of quests) {
-  for (const tier of ['triumph', 'success', 'partial', 'failure', 'expired'] as const) {
+  for (const tier of [
+    'triumph',
+    'success',
+    'partial',
+    'failure',
+    'expired',
+  ] as const) {
     const prose = quest.outcomes[tier] ?? ''
     const issues: string[] = []
     if (!prose.trim()) issues.push('outcome tier has no authored prose')
@@ -235,11 +301,14 @@ for (const quest of quests) {
       issues,
       evidence: `${clipped(prose)} | ${quest.danger} danger, ${quest.requirements.length} requirements, ${variantCount} variants`,
     })
-    for (const [index, variant] of (quest.outcomeVariants?.[tier] ?? []).entries()) {
+    for (const [index, variant] of (
+      quest.outcomeVariants?.[tier] ?? []
+    ).entries()) {
       rows.push({
         kind: 'quest-outcome-variant',
         id: `${quest.id}:${tier}:variant:${index}`,
-        day: quest.days?.[0] ?? Number(quest.id.match(/^q-d([0-9]+)/)?.[1] ?? 0),
+        day:
+          quest.days?.[0] ?? Number(quest.id.match(/^q-d([0-9]+)/)?.[1] ?? 0),
         title: `${quest.title} · ${tier} · flag variant ${index}`,
         scores: {
           mood: hasConcreteDetail(variant.text) ? 4 : 3,
@@ -256,7 +325,8 @@ for (const quest of quests) {
       rows.push({
         kind: 'quest-outcome-alt',
         id: `${quest.id}:${tier}:alt:${index}`,
-        day: quest.days?.[0] ?? Number(quest.id.match(/^q-d([0-9]+)/)?.[1] ?? 0),
+        day:
+          quest.days?.[0] ?? Number(quest.id.match(/^q-d([0-9]+)/)?.[1] ?? 0),
         title: `${quest.title} · ${tier} · repeat ${index}`,
         scores: {
           mood: hasConcreteDetail(text) ? 4 : 3,
@@ -292,18 +362,38 @@ for (const subject of EPILOGUE) {
 }
 
 const duplicateIds = rows.filter(
-  (row, index) => rows.findIndex((other) => other.kind === row.kind && other.id === row.id) !== index,
+  (row, index) =>
+    rows.findIndex(
+      (other) => other.kind === row.kind && other.id === row.id,
+    ) !== index,
 )
-assert.equal(duplicateIds.length, 0, 'every assessed item has a unique scoped identity')
+assert.equal(
+  duplicateIds.length,
+  0,
+  'every assessed item has a unique scoped identity',
+)
 assert.equal(new Set(DAYS.map((day) => day.day)).size, 50)
-assert.equal(scenes.filter((s) => s.kind === 'audience').length, DAYS.flatMap((d) => d.audiences).length)
+assert.equal(
+  scenes.filter((s) => s.kind === 'audience').length,
+  DAYS.flatMap((d) => d.audiences).length,
+)
 assert.equal(scenes.filter((s) => s.kind === 'follower').length, TALKS.length)
-assert.equal(rows.filter((r) => r.kind === 'quest-outcome').length, quests.length * 5)
+assert.equal(
+  rows.filter((r) => r.kind === 'quest-outcome').length,
+  quests.length * 5,
+)
 
 const personas = POLICIES.filter((policy) =>
   [
-    'greedy', 'random', 'spurn-all', 'marshal', 'reckless',
-    'idle', 'patron:moles', 'patron:storm-crows', 'patron:freeholds',
+    'greedy',
+    'random',
+    'spurn-all',
+    'marshal',
+    'reckless',
+    'idle',
+    'patron:moles',
+    'patron:storm-crows',
+    'patron:freeholds',
   ].includes(policy.id),
 )
 const campaignRows: {
@@ -331,13 +421,18 @@ for (const policy of personas) {
     const checkpoints: string[] = []
     const timeline: string[] = []
     const result = playCampaign(
-      policy, seed,
+      policy,
+      seed,
       (run) => {
         assert.equal(run.day, day, `${policy.id}/${seed}: sequential dawns`)
         assert.ok(validateRun(run), `${policy.id}/${seed}: serializable dawn`)
-        timeline.push(`DAY ${day} dawn: ${run.brass} brass, ${run.roster.filter((f) => !f.dead && !f.departed).length} at court, ${run.memorials.length} dead, ${run.flags.length} story flags`)
+        timeline.push(
+          `DAY ${day} dawn: ${run.brass} brass, ${run.roster.filter((f) => !f.dead && !f.departed).length} at court, ${run.memorials.length} dead, ${run.flags.length} story flags`,
+        )
         if ([1, 11, 21, 31, 41, 51].includes(day))
-          checkpoints.push(`${day}:${run.brass} brass/${run.roster.filter((f) => !f.dead && !f.departed).length} at court`)
+          checkpoints.push(
+            `${day}:${run.brass} brass/${run.roster.filter((f) => !f.dead && !f.departed).length} at court`,
+          )
         day += 1
       },
       {
@@ -345,44 +440,76 @@ for (const policy of personas) {
         onAudienceChoice: (sceneDay, id, option) => {
           audiences += 1
           seenAudiences.add(id)
-          timeline.push(`DAY ${sceneDay} court ${id} /${option.id}: ${option.label}; ${clipped(option.response)}`)
+          timeline.push(
+            `DAY ${sceneDay} court ${id} /${option.id}: ${option.label}; ${clipped(option.response)}`,
+          )
         },
         onTalkChoice: (talkDay, id, option) => {
           talks += 1
           seenTalks.add(id)
-          timeline.push(`DAY ${talkDay} barracks ${id} /${option.id}: ${option.label}; ${clipped(option.response)}`)
+          timeline.push(
+            `DAY ${talkDay} barracks ${id} /${option.id}: ${option.label}; ${clipped(option.response)}`,
+          )
         },
         onQuestReport: (questDay, report) => {
           questReports += 1
           seenQuests.add(`${report.questId}:${report.tier}`)
-          assert.ok(report.text?.length, `${policy.id}/${seed}: quest report has prose`)
-          timeline.push(`DAY ${questDay} dispatch ${report.questId} => ${report.tier}: ${clipped(report.text ?? '')}`)
+          assert.ok(
+            report.text?.length,
+            `${policy.id}/${seed}: quest report has prose`,
+          )
+          timeline.push(
+            `DAY ${questDay} dispatch ${report.questId} => ${report.tier}: ${clipped(report.text ?? '')}`,
+          )
         },
       },
     )
     assert.equal(day, 52, 'a persona plays all fifty days and a final dawn')
     campaignRows.push({
-      persona: policy.id, seed, ending: result.ending,
-      hideout: result.hideout, audiences, talks, quests: questReports,
-      deaths: result.deaths, brass: result.brass, checkpoints, timeline,
+      persona: policy.id,
+      seed,
+      ending: result.ending,
+      hideout: result.hideout,
+      audiences,
+      talks,
+      quests: questReports,
+      deaths: result.deaths,
+      brass: result.brass,
+      checkpoints,
+      timeline,
     })
   }
 }
 assert.equal(campaignRows.length, personas.length * 3)
 assert.ok(campaignRows.every((run) => run.audiences > 0))
-assert.ok(campaignRows.some((run) => run.talks > 0), 'a full campaign hears follower dialogue')
+assert.ok(
+  campaignRows.some((run) => run.talks > 0),
+  'a full campaign hears follower dialogue',
+)
 assert.ok(seenQuests.size > 0)
 
 const directory = 'artifacts/emperor'
 mkdirSync(directory, { recursive: true })
-const axisOrder = ['mood', 'clarity', 'originality', 'choice', 'consequence'] as const
+const axisOrder = [
+  'mood',
+  'clarity',
+  'originality',
+  'choice',
+  'consequence',
+] as const
 const small = (row: Row) => axisOrder.map((axis) => row.scores[axis]).join('/')
 const section = (kind: Row['kind']) =>
-  rows.filter((r) => r.kind === kind)
-    .map((r) => `| ${r.id} | ${r.day || 'varies'} | ${small(r)} | ${r.issues.length ? r.issues.join('; ').replace(/\\|/g, '/') : 'No automated alert'} |`)
+  rows
+    .filter((r) => r.kind === kind)
+    .map(
+      (r) =>
+        `| ${r.id} | ${r.day || 'varies'} | ${small(r)} | ${r.issues.length ? r.issues.join('; ').replace(/\\|/g, '/') : 'No automated alert'} |`,
+    )
     .join('\n')
-const suspicious = rows.filter((row) =>
-  Object.values(row.scores).some((score) => score <= 2) || row.issues.length > 0,
+const suspicious = rows.filter(
+  (row) =>
+    Object.values(row.scores).some((score) => score <= 2) ||
+    row.issues.length > 0,
 )
 const markdown = [
   '# Emperor of Dust: complete authored-content editorial screening',
@@ -399,8 +526,10 @@ const markdown = [
   '',
   '| Policy | Seed | Ending | Hideout | Audience choices | Talk choices | Resolved quests | Deaths | Brass |',
   '| --- | ---: | --- | --- | ---: | ---: | ---: | ---: | ---: |',
-  ...campaignRows.map((c) =>
-    `| ${c.persona} | ${c.seed} | ${c.ending} | ${c.hideout} | ${c.audiences} | ${c.talks} | ${c.quests} | ${c.deaths} | ${c.brass} |`),
+  ...campaignRows.map(
+    (c) =>
+      `| ${c.persona} | ${c.seed} | ${c.ending} | ${c.hideout} | ${c.audiences} | ${c.talks} | ${c.quests} | ${c.deaths} | ${c.brass} |`,
+  ),
   '',
   '## Each throne audience (all opening and beat options screened)',
   '',
@@ -470,38 +599,48 @@ writeFileSync(
     ]),
   ].join('\n') + '\n',
 )
-writeFileSync(`${directory}/editorial-screening.json`, JSON.stringify({
-  rubric: 'deterministic proxy; not editorial acceptance',
-  counts: {
-    audiences: scenes.filter((s) => s.kind === 'audience').length,
-    followerTalks: TALKS.length,
-    quests: quests.length,
-    resultSlots: quests.length * 5,
-    redFlags: suspicious.length,
-    assessedRows: rows.length,
-  },
-  rows,
-  campaigns: campaignRows,
-  seen: {
-    audiences: [...seenAudiences].sort(),
-    talks: [...seenTalks].sort(),
-    questOutcomes: [...seenQuests].sort(),
-  },
-}, null, 2) + '\n')
-console.log('EMPEROR_EDITORIAL_SCREENING ' + JSON.stringify({
-  scenes: scenes.length,
-  individualBeats: segments.length - scenes.length,
-  epilogueStates: rows.filter((r) => r.kind === 'epilogue-variant').length,
-  audiences: scenes.filter((s) => s.kind === 'audience').length,
-  talks: TALKS.length,
-  quests: quests.length,
-  assessedRows: rows.length,
-  flagged: suspicious.length,
-  campaigns: campaignRows.length,
-  totalAudienceChoices: campaignRows.reduce((n, r) => n + r.audiences, 0),
-  totalTalkChoices: campaignRows.reduce((n, r) => n + r.talks, 0),
-  uniqueAudiencesVisited: seenAudiences.size,
-  uniqueTalksVisited: seenTalks.size,
-  uniqueQuestOutcomes: seenQuests.size,
-  endingFamilies: [...new Set(campaignRows.map((r) => r.ending))].sort(),
-}))
+writeFileSync(
+  `${directory}/editorial-screening.json`,
+  JSON.stringify(
+    {
+      rubric: 'deterministic proxy; not editorial acceptance',
+      counts: {
+        audiences: scenes.filter((s) => s.kind === 'audience').length,
+        followerTalks: TALKS.length,
+        quests: quests.length,
+        resultSlots: quests.length * 5,
+        redFlags: suspicious.length,
+        assessedRows: rows.length,
+      },
+      rows,
+      campaigns: campaignRows,
+      seen: {
+        audiences: [...seenAudiences].sort(),
+        talks: [...seenTalks].sort(),
+        questOutcomes: [...seenQuests].sort(),
+      },
+    },
+    null,
+    2,
+  ) + '\n',
+)
+console.log(
+  'EMPEROR_EDITORIAL_SCREENING ' +
+    JSON.stringify({
+      scenes: scenes.length,
+      individualBeats: segments.length - scenes.length,
+      epilogueStates: rows.filter((r) => r.kind === 'epilogue-variant').length,
+      audiences: scenes.filter((s) => s.kind === 'audience').length,
+      talks: TALKS.length,
+      quests: quests.length,
+      assessedRows: rows.length,
+      flagged: suspicious.length,
+      campaigns: campaignRows.length,
+      totalAudienceChoices: campaignRows.reduce((n, r) => n + r.audiences, 0),
+      totalTalkChoices: campaignRows.reduce((n, r) => n + r.talks, 0),
+      uniqueAudiencesVisited: seenAudiences.size,
+      uniqueTalksVisited: seenTalks.size,
+      uniqueQuestOutcomes: seenQuests.size,
+      endingFamilies: [...new Set(campaignRows.map((r) => r.ending))].sort(),
+    }),
+)

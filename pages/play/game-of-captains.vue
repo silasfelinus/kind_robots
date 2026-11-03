@@ -822,7 +822,7 @@
                 </button>
               </nav>
 
-              <div class="cap-brief-body kr-scroll">
+              <div class="cap-brief-body">
                 <template v-if="briefingStep === 'course'">
                   <section
                     class="cap-brief-intro"
@@ -1812,7 +1812,6 @@ import {
   CAPTAIN_STATS,
   CREW_PROFILES,
   SKILLS,
-  ruleFor,
 } from '~/utils/gameOfCaptains/crewAssignments'
 import {
   VOYAGE_CHAPTERS,
@@ -2240,7 +2239,6 @@ const counterOfficers = computed(() =>
   run.value ? counterCrew(run.value) : [],
 )
 const ethicalOrders = computed(() => VOYAGE_ORDERS[mission.value.id]!)
-const missionRule = computed(() => ruleFor(mission.value.id))
 const actLabel = computed(() => actName(run.value?.chapter ?? 1))
 const briefingCallbacks = computed(() =>
   run.value

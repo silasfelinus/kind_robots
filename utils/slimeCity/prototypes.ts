@@ -1438,6 +1438,8 @@ export const RUSH_COOLDOWN = 4
 export const RUSH_MOVE_EVERY = 2
 /** Most hidden traps one side may have armed at once. */
 export const TRAP_CAP = 1
+/** TURF: hidden tripwires each side may keep armed at once. */
+export const TURF_TRAP_CAP = 3
 /** Formats whose CPU alternates initiative (player, CPU, CPU, player...). */
 export const ALTERNATING_INITIATIVE: Record<ModeId, boolean> = {
   turf: false,
@@ -1565,7 +1567,7 @@ export const MODE_GUIDES: Record<ModeId, ModeGuide> = {
       'Drag a card onto any empty point (or tap it, then the point). Every card is a token; placing it ends your turn and the enemy answers.',
       'A group of touching stones lives while it has a liberty, an open point beside it. Fill an enemy group’s last liberty and it is captured.',
       'You may not fill your own group’s last liberty (unless that captures), and you may not repeat the position you just left (ko).',
-      'Every card lands with its TURF effect: creatures carry their keywords as traits, attack spells slime an enemy liberty, wards protect a group, traps capture whoever lands on them.',
+      'Every card lands with its TURF effect: creatures carry their keywords as traits, attack spells slime an enemy liberty, wards make a group uncapturable, wash off its slime and close its liberties to the enemy, and traps land as concealed stones whose tripwire captures the first enemy stone played beside them (three armed at once).',
       'Gain two mana a round and bank leftovers up to ten. PASS when no move helps you: two passes in a row end the game.',
     ],
     limits: [
@@ -1949,7 +1951,8 @@ function copy(state: MatchState): MatchState {
 
 /** Hidden traps a side may keep armed: Undertow rigs two. */
 export function trapCapOf(state: MatchState, side: Side): number {
-  return teamById(teamOf(state, side)).trapCap ?? TRAP_CAP
+  const cap = teamById(teamOf(state, side)).trapCap ?? TRAP_CAP
+  return state.mode === 'turf' ? Math.max(TURF_TRAP_CAP, cap) : cap
 }
 
 /**
@@ -3855,6 +3858,21 @@ function warded(state: MatchState, group: Fighter[]): boolean {
   return group.some((s) => (s.wardedUntil ?? 0) >= state.round)
 }
 
+/** TURF: this point is a liberty of a warded enemy group (closed to `side`). */
+export function turfNoGo(
+  state: MatchState,
+  side: Side,
+  x: number,
+  y: number,
+): boolean {
+  return neighbors(state, x, y).some((n) => {
+    const stone = unitAt(state, n.x, n.y)
+    return (
+      !!stone && stone.side !== side && warded(state, turfGroup(state, stone))
+    )
+  })
+}
+
 /** The position, for the ko rule: stones and puddles only. */
 function turfHash(state: MatchState): string {
   return [
@@ -3904,6 +3922,10 @@ function turfCapture(state: MatchState, victim: Side, piercing: boolean) {
   }
   state.prisoners[other(victim)] += taken
   state.stats.knockouts[victim] += taken
+  // A captured trap stone takes its tripwire with it.
+  state.traps = state.traps.filter((t) =>
+    state.units.some((u) => u.side === t.side && u.x === t.x && u.y === t.y),
+  )
   return taken
 }
 
@@ -3923,8 +3945,8 @@ export function turfText(card: Card): string {
   }
   if (card.kind === 'trap')
     return (
-      'Hidden. An enemy stone played on this point is captured at once' +
-      (card.roots ? ', and the point stays slimed for 2 turns' : '') +
+      'A concealed stone wired with a tripwire: the first enemy stone played beside it is captured at once' +
+      (card.roots ? ', and its point stays slimed for 2 turns' : '') +
       (card.debt ? '; its crew owes ' + card.debt + ' mana' : '') +
       '.'
     )
@@ -3949,9 +3971,9 @@ export function turfText(card: Card): string {
     return 'A stone that finds and disarms enemy traps within two points.'
   const grants = (card.grants ?? []).map((k) => KEYWORDS[k].label)
   return (
-    'A stone that wards its group: it cannot be captured for ' +
+    'A stone that wards its group for ' +
     turns +
-    ' turns' +
+    ' turns: it cannot be captured or slimed, its slime washes away, and enemy stones cannot be played on its liberties' +
     (grants.length ? '. It also gains ' + grants.join(', ') : '') +
     '.'
   )
@@ -3977,8 +3999,10 @@ function turfDuration(card: Card, salt: number): number {
   if (card.effect === 'root') return Math.min(3, power + 1)
   if (card.effect === 'chaos') return 1 + (salt % 3)
   if (card.effect === 'blast') return 1
-  if (card.effect === 'heal') return Math.max(1, Math.min(3, power))
-  return Math.max(1, Math.min(3, card.effect === 'zap' ? power : 2))
+  if (card.effect === 'heal') return Math.max(3, Math.min(4, power))
+  if (card.effect === 'zap') return Math.max(1, Math.min(3, power))
+  // Wards (Silas, 2026-11-03: "Stronger wards and traps") hold three turns.
+  return 3
 }
 
 /** Area score: stones (SWARM counts twice) plus empty points only one side borders. */
@@ -4046,86 +4070,100 @@ function applyTurf(
   if (state.traps.some((t) => t.side === side && t.x === x && t.y === y))
     return false
   const foe = other(side)
+  // A warded group's liberties are a no-go zone for enemy stones; PIERCE and
+  // SNARE exist to break wards, so they may land there.
+  if (
+    turfNoGo(state, side, x, y) &&
+    !(card.keywords ?? []).some((k) => k === 'pierce' || k === 'snare')
+  )
+    return false
   let line: string
-  if (card.kind === 'trap') {
+  // Traps (Silas, 2026-11-03: "Stronger wards and traps") land as a concealed
+  // stone like every other card, wired with a hidden tripwire.
+  const wiring = card.kind === 'trap'
+  if (
+    wiring &&
+    state.traps.filter((t) => t.side === side).length >= trapCapOf(state, side)
+  )
+    return false
+  const before = turfHash(state)
+  const stone = addFighter(state, cardId, side, x, y, wiring)
+  // A tripwire catches the first enemy stone played beside its stone.
+  const sprung = state.traps.findIndex(
+    (t) => t.side === foe && Math.abs(t.x - x) + Math.abs(t.y - y) <= 1,
+  )
+  if (sprung >= 0) {
+    const trap = state.traps.splice(sprung, 1)[0]!
+    state.units = state.units.filter((u) => u.id !== stone.id)
+    state.prisoners[foe]++
+    state.stats.trapsSprung++
+    if (trap.debt) addDebt(state, side, trap.debt)
+    if (trap.roots) state.puddles.push({ x, y, until: state.round + 2 })
+    const hash = turfHash(state)
+    state.history = [...state.history, before, hash].slice(-8)
+    line =
+      publicName(stone) + ' trips a hidden wire and is captured on the spot!'
+  } else {
+    const extra = turfLanding(state, stone, card)
+    const captured = turfCapture(state, foe, hasKeyword(stone, 'pierce'))
+    // Suicide is illegal: every group of yours must keep a liberty.
     if (
-      state.traps.filter((t) => t.side === side).length >=
-      trapCapOf(state, side)
+      turfGroups(state, side).some(
+        (g) => !turfLiberties(state, g).length && !warded(state, g),
+      )
     )
       return false
-    const trap: Trap = { x, y, side, damage: 0 }
-    if (card.roots) trap.roots = true
-    if (card.debt) trap.debt = card.debt
-    state.traps.push(trap)
-    line =
-      side === 'enemy'
-        ? 'The enemy hides a trap somewhere.'
-        : 'You hide ' + card.name + ' on the turf.'
-  } else {
-    const before = turfHash(state)
-    const stone = addFighter(state, cardId, side, x, y)
-    const sprung = state.traps.findIndex(
-      (t) => t.side === foe && t.x === x && t.y === y,
-    )
-    if (sprung >= 0) {
-      const trap = state.traps.splice(sprung, 1)[0]!
-      state.units = state.units.filter((u) => u.id !== stone.id)
-      state.prisoners[foe]++
-      state.stats.trapsSprung++
-      if (trap.roots) state.puddles.push({ x, y, until: state.round + 2 })
-      if (trap.debt) addDebt(state, side, trap.debt)
-      line =
-        publicName(stone) +
-        ' lands on a hidden trap and is captured on the spot!'
-    } else {
-      const extra = turfLanding(state, stone, card)
-      const captured = turfCapture(state, foe, hasKeyword(stone, 'pierce'))
-      // Suicide is illegal: every group of yours must keep a liberty.
-      if (
-        turfGroups(state, side).some(
-          (g) => !turfLiberties(state, g).length && !warded(state, g),
-        )
-      )
-        return false
-      // Ko (as a small superko): never recreate a recent position.
-      const hash = turfHash(state)
-      if (!hasKeyword(stone, 'ambush') && state.history.includes(hash))
-        return false
-      const last = state.history[state.history.length - 1]
-      state.history = [
-        ...state.history,
-        ...(last === before ? [] : [before]),
-        hash,
-      ].slice(-8)
-      if (captured) {
-        if (hasKeyword(stone, 'leech'))
-          if (side === 'player')
-            state.mana = Math.min(MANA_CAP, state.mana + captured)
-          else state.enemyMana = Math.min(MANA_CAP, state.enemyMana + captured)
-        if (hasKeyword(stone, 'collect'))
-          collectDebt(state, foe, Math.min(3, captured))
-      }
-      if (
-        card.kind !== 'creature' &&
-        card.effect &&
-        WARDING.includes(card.effect)
-      ) {
-        const until = state.round + turfDuration(card, 0)
-        for (const s of turfGroup(state, stone))
-          s.wardedUntil = Math.max(s.wardedUntil ?? 0, until)
-      }
-      line =
-        (side === 'enemy' ? 'Enemy ' : '') +
-        card.name +
-        ' lands on ' +
-        String.fromCharCode(65 + x) +
-        (state.height - y) +
-        extra +
-        (captured
-          ? ' · captures ' + captured + (captured === 1 ? ' stone' : ' stones')
-          : '') +
-        '.'
+    // Ko (as a small superko): never recreate a recent position.
+    const hash = turfHash(state)
+    if (!hasKeyword(stone, 'ambush') && state.history.includes(hash))
+      return false
+    const last = state.history[state.history.length - 1]
+    state.history = [
+      ...state.history,
+      ...(last === before ? [] : [before]),
+      hash,
+    ].slice(-8)
+    if (captured) {
+      if (hasKeyword(stone, 'leech'))
+        if (side === 'player')
+          state.mana = Math.min(MANA_CAP, state.mana + captured)
+        else state.enemyMana = Math.min(MANA_CAP, state.enemyMana + captured)
+      if (hasKeyword(stone, 'collect'))
+        collectDebt(state, foe, Math.min(3, captured))
     }
+    if (
+      card.kind !== 'creature' &&
+      card.effect &&
+      WARDING.includes(card.effect)
+    ) {
+      const until = state.round + turfDuration(card, 0)
+      const libs = new Set<string>()
+      for (const s of turfGroup(state, stone)) {
+        s.wardedUntil = Math.max(s.wardedUntil ?? 0, until)
+        for (const n of neighbors(state, s.x, s.y)) libs.add(n.x + ':' + n.y)
+      }
+      // A ward washes the slime off its group's liberties.
+      state.puddles = state.puddles.filter((p) => !libs.has(p.x + ':' + p.y))
+    }
+    if (wiring) {
+      const trap: Trap = { x, y, side, damage: 0 }
+      if (card.roots) trap.roots = true
+      if (card.debt) trap.debt = card.debt
+      state.traps.push(trap)
+    }
+    line =
+      (wiring && side === 'enemy'
+        ? 'A concealed enemy stone'
+        : (side === 'enemy' ? 'Enemy ' : '') + card.name) +
+      ' lands on ' +
+      String.fromCharCode(65 + x) +
+      (state.height - y) +
+      (wiring && side === 'player' ? ', wired with a tripwire' : '') +
+      extra +
+      (captured
+        ? ' · captures ' + captured + (captured === 1 ? ' stone' : ' stones')
+        : '') +
+      '.'
   }
   spend(state, side, card.cost)
   parityBook(state, side, card)
@@ -4173,8 +4211,10 @@ function turfLanding(state: MatchState, stone: Fighter, card: Card): string {
   }
   if (card.kind === 'creature') return ''
   if (card.effect && OFFENSIVE.includes(card.effect)) {
+    // Slime slides off a warded group.
     const groups = beside(stone)
       .map((e) => turfGroup(state, e))
+      .filter((g) => !warded(state, g))
       .sort(
         (a, b) =>
           turfLiberties(state, a).length - turfLiberties(state, b).length ||

@@ -18,9 +18,12 @@ import {
   MILESTONES,
   REWARD_ARCHIVE_LIMIT,
   emptyRewardArchive,
+  migrateFoundEndings,
   newMilestonesForRun,
+  parseSavedJSON,
   receiptFor,
   recordReward,
+  restoreEndingGallery,
   restoreRewardArchive,
 } from '../shiftingDesks/rewards'
 
@@ -150,6 +153,61 @@ for (const id of Object.keys(archive.milestones))
     MILESTONES.some((m) => m.id === id),
     'unknown earned award: ' + id,
   )
+
+// A malformed gallery key must not wipe a valid save or invent three endings.
+assert.equal(parseSavedJSON('{broken JSON'), null)
+assert.equal(parseSavedJSON(null), null)
+assert.deepEqual(parseSavedJSON('["one", "two"]'), ['one', 'two'])
+const threeRealEndingIds = ENDINGS.slice(0, 3).map((ending) => ending.id)
+assert.deepEqual(
+  restoreEndingGallery([
+    threeRealEndingIds[0],
+    threeRealEndingIds[0],
+    null,
+    'not-an-authored-ending',
+    threeRealEndingIds[1],
+    threeRealEndingIds[2],
+  ]),
+  threeRealEndingIds,
+  'gallery preserves only distinct known endings in discovery order',
+)
+assert.deepEqual(restoreEndingGallery({ bad: 'ledger' }), [])
+const latestReceipt = archive.runs.at(-1)!
+const repeatedEndingId = [threeRealEndingIds[0]!, threeRealEndingIds[0]!]
+assert.ok(
+  !recordReward(emptyRewardArchive(), latestReceipt, repeatedEndingId)
+    .milestones['three-endings'],
+  'repeated gallery entries cannot mint the three-endings award',
+)
+assert.ok(
+  !migrateFoundEndings(
+    { version: 1, runs: [latestReceipt], milestones: {} },
+    repeatedEndingId,
+  ).milestones['three-endings'],
+  'legacy migration must not date a duplicated gallery entry as a new award',
+)
+const badReceipts: unknown[] = [
+  { ...latestReceipt, files: -1 },
+  { ...latestReceipt, employees: null },
+  { ...latestReceipt, forms: -3 },
+  { ...latestReceipt, grades: { ...latestReceipt.grades, empathy: Infinity } },
+  { ...latestReceipt, flags: [...latestReceipt.flags, 42] },
+  { ...latestReceipt, societyMet: 'yes' },
+]
+assert.deepEqual(
+  restoreRewardArchive({ version: 1, milestones: {}, runs: badReceipts }).runs,
+  [],
+  'malformed receipt fields cannot poison a saved dossier',
+)
+assert.deepEqual(
+  restoreRewardArchive({
+    version: 1,
+    milestones: {},
+    runs: [latestReceipt, ...badReceipts, latestReceipt],
+  }).runs,
+  [latestReceipt],
+  'a corrupted archive keeps valid distinct receipts without duplicate awards',
+)
 
 const summary = {
   seededCampaigns: attempts,

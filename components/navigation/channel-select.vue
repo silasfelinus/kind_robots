@@ -11,21 +11,11 @@
       class="flex h-full min-h-10 w-full min-w-0 items-center gap-2 overflow-hidden px-2 transition-all xl:gap-2.5 xl:px-3"
       :class="
         seamless
-          ? unifiedMobile
-            ? 'rounded-xl hover:bg-base-200'
-            : 'rounded-l-xl hover:bg-base-200'
+          ? 'rounded-xl hover:bg-base-200'
           : 'h-10 rounded-xl border border-base-300 bg-base-100 shadow-sm hover:-translate-y-0.5 hover:shadow-md sm:h-11 sm:min-h-11 xl:h-14 xl:min-h-14'
       "
-      :title="
-        unifiedMobile
-          ? `Navigate workspace — current tab ${activeTab?.label || activeChannel.label}`
-          : `Navigate ${activeChannel.label}`
-      "
-      :aria-label="
-        unifiedMobile
-          ? `Navigate workspace — current tab ${activeTab?.label || activeChannel.label}`
-          : `Navigate ${activeChannel.label}`
-      "
+      :title="`Navigate workspace — current tab ${activeTab?.label || activeChannel.label}`"
+      :aria-label="`Navigate workspace — current tab ${activeTab?.label || activeChannel.label}`"
       aria-haspopup="menu"
       @click="openChannelMenu"
       @focus="scheduleChannelMenuViewportUpdate"
@@ -34,24 +24,13 @@
         class="kr-icon-8 flex shrink-0 items-center justify-center rounded-lg border border-base-300/70 bg-base-200 sm:h-9 sm:w-9 xl:h-10 xl:w-10"
       >
         <Icon
-          :name="
-            unifiedMobile
-              ? activeTab?.icon || activeChannel.icon
-              : activeChannel.icon
-          "
+          :name="activeTab?.icon || activeChannel.icon"
           class="kr-icon-4 shrink-0 xl:h-5 xl:w-5"
         />
       </span>
 
       <span class="kr-text-black-sm min-w-0 truncate sm:text-base xl:text-lg">
-        {{
-          unifiedMobile
-            ? activeChannel.channelKey === 'home'
-              ? 'Explore'
-              : activeTab?.label || activeChannel.label
-            : activeChannel.channelKey === 'home'
-              ? 'Explore'
-              : activeChannel.label
+        {{ activeTab?.label || activeChannel.label }}
         }}
       </span>
 

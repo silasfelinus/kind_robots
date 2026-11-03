@@ -3301,8 +3301,7 @@ function clash(state: MatchState): void {
   const onMonster: Record<Side, number> = { player: 0, enemy: 0 }
   for (const fighter of state.units) {
     if (fighter.hp <= 0) continue
-    if (fighter.summonedRound === state.round && !hasKeyword(fighter, 'ambush'))
-      continue
+    if (fighter.summonedRound === state.round) continue
     const reach = fighter.range ?? 1
     const foes = state.units.filter(
       (o) => o.side !== fighter.side && o.hp > 0 && gap(o, fighter) <= reach,

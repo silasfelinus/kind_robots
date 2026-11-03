@@ -269,7 +269,7 @@ export const ACT_FIVE_QUESTS: readonly QuestDef[] = [
       success:
         'Every painted wagon leaves the circle on its own wheels. Vane checks the last axle with his foot, then paints a small crown on his own. He tells the court it is a bill of thanks, not a surrender.',
       partial:
-        'The front wagons roll. The rest sit on stones with their axles laid beside them. Vane paints working wheels blue and broken ones red. The crown's bedding is in a red wagon.',
+        'The front wagons roll. The rest sit on stones with their axles laid beside them. Vane paints working wheels blue and broken ones red. The crown’s bedding is in a red wagon.',
       failure:
         'The Pack gets half its wagons moving. Vane paints a number on each stalled axle and sets the repair bill beneath the crown’s borrowed flag. He can still count what he is owed.',
       expired:
@@ -376,7 +376,7 @@ export const ACT_FIVE_QUESTS: readonly QuestDef[] = [
       success:
         'The abandoned engine is stripped to its bolts before the other salvagers arrive. Jinx keeps the clean gears and lays the usable copper on the station floor. The winch can turn again.',
       partial:
-        'Jinx brings the engine's gears home, but the copper is gone. The station's winch turns again. Its lamps stay dark. Jinx hands the crown a grease-black bolt instead of the payment they had hoped for.',
+        'Jinx brings the engine’s gears home, but the copper is gone. The station’s winch turns again. Its lamps stay dark. Jinx hands the crown a grease-black bolt instead of the payment they had hoped for.',
       failure:
         'Jinx finds the salvage engine stripped of its copper and good bolts. Only a broken brass nameplate remains. They hold it up to the sun and say the crown can have that much for free.',
       expired:

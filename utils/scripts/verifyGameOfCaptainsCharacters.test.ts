@@ -114,8 +114,9 @@ for (const key of [
   'couch-captain-promise',
   'couch-crew-promise',
   'couch-captain-instinct',
-  'couch-captain-impulse',
-  'couch-captain-restraint',
+  'testid-prefix="couch-captain"',
+  "id: 'impulse'",
+  "id: 'restraint'",
 ])
   assert.ok(page.includes(key), key)
 assert.ok(page.includes('store.captainAction'))

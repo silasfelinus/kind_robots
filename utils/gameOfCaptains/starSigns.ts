@@ -1,15 +1,26 @@
 /**
  * The Couchscope: twelve wholly fictional star constellations.
- * Four playful answers choose a sign; captain selection never overrides it.
+ * Three playful answers choose a sign; captain selection never overrides it.
  * Each constellation has three gated, authored episodic quests.
+ * Voyages saved under the retired four-question form keep their sign.
  */
 export const STAR_QUEST_CHAPTERS = [1, 4, 7] as const
 
-export const STAR_QUESTIONS = [
+export type StarQuestion = {
+  prompt: string
+  cue: string
+  art: string
+  fallback: string
+  options: readonly { label: string; flavor: string }[]
+}
+
+export const STAR_QUESTIONS: readonly StarQuestion[] = [
   {
     prompt:
       'The moon has filed a formal grievance against sunrise. How do you close the ticket?',
     cue: 'FORM HR-01 · CONFLICT MANAGEMENT',
+    art: 'couchscope/question-01',
+    fallback: '/game-of-captains/couchscope/question-01.svg',
     options: [
       {
         label: 'Offer the moon a blanket and an impartial mediator',
@@ -27,64 +38,49 @@ export const STAR_QUESTIONS = [
   },
   {
     prompt:
-      'Next-week-you arrives on the couch requesting retroactive leave. HR demands a response.',
-    cue: 'FORM HR-02 · IDENTITY VERIFICATION',
+      'A runaway cake trolley will frost five interns. The lever sends it into the couch. You’re on the couch.',
+    cue: 'FORM HR-02 · THE TROLLEY PROBLEM (MANDATORY)',
+    art: 'couchscope/trolley',
+    fallback: '/game-of-captains/couchscope/trolley.svg',
     options: [
       {
-        label: 'Provide tea and ask about their work-life balance',
-        flavor: 'Unbillable emotional labor',
+        label: 'Pull the lever and brace for frosting',
+        flavor: 'Self-sacrifice, delicious',
       },
       {
-        label: 'Cross-check memories, signatures and the time-stamped badge',
-        flavor: 'An inconveniently thorough investigation',
+        label: 'Ask the interns to complete a risk survey first',
+        flavor: 'Process over pastry',
       },
       {
-        label: 'Declare a mandatory zero-gravity team-building exercise',
-        flavor: 'Conflict resolved through organized spectacle',
+        label: 'Pull it halfway and attempt a multi-track drift',
+        flavor: 'Unauthorized, legendary',
       },
     ],
   },
   {
     prompt:
-      'Your interns discover a planet-sized lost-property depot. Headquarters wants measurable results.',
+      'The galaxy’s lost-and-found holds one item tagged DO NOT WEAR. It is a crown. HR wants it handled.',
     cue: 'FORM HR-03 · ASSET STEWARDSHIP',
+    art: 'couchscope/question-03',
+    fallback: '/game-of-captains/couchscope/question-03.svg',
     options: [
       {
-        label: 'Return every object to its owner, including the dangerous ones',
+        label: 'Track down its rightful owner, however dangerous',
         flavor: 'Accountability without an expense limit',
       },
       {
-        label: 'Catalog the artifacts before anyone can erase the records',
+        label: 'Catalog it before anyone can erase the record',
         flavor: 'Documentation is its own reward',
       },
       {
-        label: 'Wear the royal crown from the restricted inventory',
+        label: 'Put it on. For science.',
         flavor: 'Leadership initiative, legally questionable',
       },
     ],
   },
-  {
-    prompt:
-      'You are authorized to approve one miracle. Finance has forwarded you the invoice.',
-    cue: 'FORM HR-04 · EXECUTIVE RESOURCE ALLOCATION',
-    options: [
-      {
-        label: 'Rescue someone the quarterly report forgot to include',
-        flavor: 'Impact outside the approved metrics',
-      },
-      {
-        label: 'Publish the one truth the board has been suppressing',
-        flavor: 'Transparency without a communications plan',
-      },
-      {
-        label: 'Fund a new ending for everyone, then resign',
-        flavor: 'Transformational change and a severance request',
-      },
-    ],
-  },
-] as const
+]
 
-export type StarAnswers = [number, number, number, number]
+export type StarAnswers = number[]
 export type StarSignId =
   | 'northern-sloth'
   | 'princess-mantic-shrimp'
@@ -523,26 +519,30 @@ export const STAR_SIGNS: readonly StarSign[] = [
   },
 ] as const
 
+const LEGACY_STAR_ANSWER_COUNT = 4
+
 export function validStarAnswers(raw: unknown): raw is StarAnswers {
   return (
     Array.isArray(raw) &&
-    raw.length === STAR_QUESTIONS.length &&
+    (raw.length === STAR_QUESTIONS.length ||
+      raw.length === LEGACY_STAR_ANSWER_COUNT) &&
     raw.every((v) => Number.isInteger(v) && v >= 0 && v < 3)
   )
 }
 
-/** All twelve signs are reachable across the 81 possible answer combinations. */
+/** All twelve signs are reachable across the 27 three-answer combinations. */
 export function calculateStarSign(answers: StarAnswers): StarSign {
   const index =
-    (answers[0] + answers[1] * 3 + answers[2] * 5 + answers[3] * 7) %
-    STAR_SIGNS.length
-  return STAR_SIGNS[index]!
+    answers.length === LEGACY_STAR_ANSWER_COUNT
+      ? answers[0]! + answers[1]! * 3 + answers[2]! * 5 + answers[3]! * 7
+      : answers[0]! + answers[1]! * 3 + answers[2]! * 9
+  return STAR_SIGNS[index % STAR_SIGNS.length]!
 }
 
 export function createStarAssessment(raw: unknown): StarAssessment | null {
   if (!validStarAnswers(raw)) return null
   return {
-    answers: [...raw] as StarAnswers,
+    answers: [...raw],
     sign: calculateStarSign(raw).id,
   }
 }

@@ -297,7 +297,7 @@ export const ACT_THREE_QUESTS: readonly QuestDef[] = [
     id: 'q-d26-dry-well',
     title: 'A Friendly Raid',
     summary:
-      'Gristle Vane wants help against a worse band: the dry-well jackals. They take people, not goats.',
+      'Gristle Vane wants help against a worse band: the dry-well raiders. They take people, not goats.',
     region: 'jackalwire',
     faction: 'jackalwire',
     durationDays: 2,
@@ -323,7 +323,7 @@ export const ACT_THREE_QUESTS: readonly QuestDef[] = [
     expired: { affinity: { jackalwire: -10 } },
     outcomes: {
       success:
-        'The dry-well jackals are scattered. Vane threw a feast in their own camp and sat the freed Freehold farmers at the head of the table. He served them himself. Badly.',
+        'The dry-well raiders are scattered. Vane threw a feast in their own camp and sat the freed Freehold farmers at the head of the table. He served them himself. Badly.',
       partial:
         'The raiders retreat into the dry well and drag a painted wagon across its mouth. Farmers bring the crown a map of the escape route. Vane offers to settle the account before the raiders find another gate.',
       failure:
@@ -2564,7 +2564,7 @@ export const ACT_THREE_DAYS: readonly DayDef[] = [
       {
         id: 'dry-well',
         source: 'Jackalwire runners',
-        text: 'The dry-well jackals are raiding Freehold farms. They take people, not goats.',
+        text: 'The dry-well raiders are raiding Freehold farms. They take people, not goats.',
         truth: true,
       },
       {
@@ -2587,16 +2587,16 @@ export const ACT_THREE_DAYS: readonly DayDef[] = [
       },
     ],
     komodo:
-      'Vane will die old in bed, Your Majesty, out of spite. The dry-well jackals are another thing. Nobody bargains with them.',
+      'Vane will die old in bed, Your Majesty, out of spite. The dry-well raiders are another thing. Nobody bargains with them.',
     // Bett Ormond, two days after the crown read her letter.
     komodoVariants: [
       {
         flags: ['d24-form-letter-told'],
-        text: 'Vane will die old in bed, Your Majesty, out of spite. The dry-well jackals are another thing. And the Freehold mother sleeps at the mission-road well now. The sisters bring her soup. She takes it.',
+        text: 'Vane will die old in bed, Your Majesty, out of spite. The dry-well raiders are another thing. And the Freehold mother sleeps at the mission-road well now. The sisters bring her soup. She takes it.',
       },
       {
         flags: ['d24-letter-read-kindly'],
-        text: 'Vane will die old in bed, Your Majesty, out of spite. The dry-well jackals are another thing. And the Freehold mother went home singing. Her reeve says she has the letter by heart.',
+        text: 'Vane will die old in bed, Your Majesty, out of spite. The dry-well raiders are another thing. And the Freehold mother went home singing. Her reeve says she has the letter by heart.',
       },
     ],
     quests: [],
@@ -2609,7 +2609,7 @@ export const ACT_THREE_DAYS: readonly DayDef[] = [
         faction: 'jackalwire',
         lines: [
           'Vane does not swagger in today. Bandaged forearm. Two wagons fewer than last week. The look of a raider offended professionally.',
-          'The dry-well jackals take people, Majesty. Not goats. Even raiders have rules. A goat you sell back. A person you ransom. These do neither.',
+          'The dry-well raiders take people, Majesty. Not goats. Even raiders have rules. A goat you sell back. A person you ransom. These do neither.',
           'Help the Pack clear them out. I’ll ride in front. You stand at the back and look imperial.',
           {
             who: 'Young Komodo',
@@ -2634,7 +2634,7 @@ export const ACT_THREE_DAYS: readonly DayDef[] = [
           },
           {
             id: 'ask-where',
-            label: 'Ask where the dry-well jackals take the people they catch.',
+            label: 'Ask where the dry-well raiders take the people they catch.',
             effects: {},
             response:
               'Vane goes quiet. The ear-chain stops jangling. He brings a folded sack out of his coat.',
@@ -3259,7 +3259,7 @@ export const ACT_THREE_DAYS: readonly DayDef[] = [
               flags: ['d28-pups-asked'],
             },
             response:
-              '“The little hyenas,” says the envoy, fondly. “Well. Warm. No more coughing.” A pause. “They will not want to come back. Their mothers would not know them.” The envoy does not offer them. That is your answer.',
+              '“The children,” says the envoy, fondly. “Well. Warm. No more coughing.” A pause. “They will not want to come back. Their mothers would not know them.” The envoy does not offer them. That is your answer.',
           },
           {
             id: 'accept',
@@ -4329,7 +4329,7 @@ export const ACT_THREE_DUES: readonly DueDef[] = [
     title: 'The Watch on the dry-well road',
     inDays: 2,
     warning:
-      'The Watch rides behind the dry-well jackals and reports what it saw.',
+      'The Watch rides behind the dry-well raiders and reports what it saw.',
     line: 'The Watch came back from the dry-well road. They followed eleven Freehold people on a rope to a crossroads below the mission road. Wagons without marks took them north. The Watch did not interfere. Orders.',
     effects: { local: { 'gate-watch': -1 } },
   },

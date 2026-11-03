@@ -210,7 +210,15 @@
 
 <script setup lang="ts">
 import { onMounted } from 'vue'
+import { gameLinkPreviewMeta } from '~/utils/gameLinkPreview'
 import { useSlidingTileGalleryStore } from '~/stores/slidingTileGalleryStore'
+
+useSeoMeta(
+  gameLinkPreviewMeta(
+    'sliding-tile-gallery',
+    useRuntimeConfig().public.appBaseUrl,
+  ) ?? {},
+)
 
 const gallery = useSlidingTileGalleryStore()
 

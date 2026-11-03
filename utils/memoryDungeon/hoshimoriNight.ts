@@ -715,6 +715,74 @@ export const HOSHIMORI_NIGHT_SITES: readonly NightSite[] = [
       'night-lowland-recall',
     ),
   ),
+  s(
+    '1,7',
+    'Reed Ferry / The Boat of Unsent Apologies',
+    'At the old ferry landing, a boatman rows across dry ground. Every passenger is an apology somebody wrote but never delivered; the boat sinks when a stranger reads one aloud.',
+    c(
+      'night-ferry-seal',
+      'Seal the letters and let their authors choose whether to send them',
+      'Scylla pays the ferryman in blank paper. The boat rises, but families must now speak for themselves without the comfort of a forced confession.',
+      'night-ferry-consent',
+    ),
+    c(
+      'night-ferry-witness',
+      'Offer a confidential witness to anyone who wants to be heard',
+      'Oren stays at the landing until dawn. Three apologies reach their intended people; the rest remain safely unread.',
+      'night-ferry-private-witness',
+    ),
+  ),
+  s(
+    '2,7',
+    'Willow Mill / The Flour That Remembers',
+    'The mill grinds lost afternoons into white flour. Its hungry workers have been promised their hours back once everyone in the village is fed.',
+    c(
+      'night-mill-stop',
+      'Stop the wheel and distribute the flour already made',
+      'The village loses a day of bread. The mill workers keep the rest of their lives, and Pip organizes an honest ration queue.',
+      'night-mill-rest',
+    ),
+    c(
+      'night-mill-ledger',
+      'Make the mill publish the hours it owes before it turns again',
+      'The miller signs a debt no spell can erase. Char takes the first shift so the exhausted workers can leave.',
+      'night-mill-restitution',
+    ),
+  ),
+  s(
+    '3,7',
+    'Foxglove Field / The Scarecrow Census',
+    'Scarecrows wear the faces of people who fled the flood. Each time a crow lands, the council counts one more resident safely returned.',
+    c(
+      'night-field-count',
+      'Count only people who actually choose to come home',
+      'The census shrinks overnight. Relief funds must be renegotiated, but nobody is declared safe by a straw imitation.',
+      'night-field-truth',
+    ),
+    c(
+      'night-field-shelter',
+      'Turn the scarecrows into shelters without claiming their names',
+      'The field fills with dry places to sleep. The council loses its flattering numbers and gains a place for real survivors.',
+      'night-field-refuge',
+    ),
+  ),
+  s(
+    '4,7',
+    'Ashen Orchard / The Harvest of Tomorrow',
+    'Fruit ripens into small glass futures. The orchard keeper offers Scylla a vision of Char alive, but demands the names of every child who might one day be born here.',
+    c(
+      'night-orchard-refuse',
+      'Refuse the bargain and ask Char what future she wants',
+      'Char breaks the glass fruit herself. Scylla leaves without certainty, carrying her sister’s freely given promise to keep trying.',
+      'night-orchard-agency',
+    ),
+    c(
+      'night-orchard-share',
+      'Let each family decide whether to see its own possible tomorrow',
+      'The keeper loses the right to trade anyone else’s future. Some families look; others walk past. Scylla cannot choose for Char.',
+      'night-orchard-choice',
+    ),
+  ),
 ]
 
 export const HOSHIMORI_NIGHT_CLUE_SITES = ['1,1', '2,1', '3,1'] as const
@@ -739,6 +807,12 @@ export const HOSHIMORI_NIGHT_BELLROAD_KEYS = [
   '7,4',
   '8,4',
 ] as const
+export const HOSHIMORI_NIGHT_SOUTHERN_KEYS = [
+  '1,7',
+  '2,7',
+  '3,7',
+  '4,7',
+] as const
 export const HOSHIMORI_NIGHT_LOWBANK_KEYS = [
   '1,5',
   '2,5',
@@ -753,6 +827,7 @@ const SITES = new Map(HOSHIMORI_NIGHT_SITES.map((site) => [site.key, site]))
 const WINDWARD_SITES = new Set<string>(HOSHIMORI_NIGHT_WINDWARD_KEYS)
 const BELLROAD_SITES = new Set<string>(HOSHIMORI_NIGHT_BELLROAD_KEYS)
 const LOWBANK_SITES = new Set<string>(HOSHIMORI_NIGHT_LOWBANK_KEYS)
+const SOUTHERN_SITES = new Set<string>(HOSHIMORI_NIGHT_SOUTHERN_KEYS)
 const SIGNS = ['cedar', 'bell', 'coat', 'ash'] as const
 
 export type NightEvent =
@@ -813,6 +888,8 @@ export function canMoveHoshimoriNight(
   if (BELLROAD_SITES.has(to) && !hoshimoriNightWindwardAccount(progress))
     return false
   if (LOWBANK_SITES.has(to) && !hoshimoriNightBellroadAccount(progress))
+    return false
+  if (SOUTHERN_SITES.has(to) && !hoshimoriNightLowbankAccount(progress))
     return false
   if (
     !progress.doorOpen &&
@@ -1018,7 +1095,7 @@ export function restoreHoshimoriNight(value: unknown): NightProgress | null {
 
 export function validateHoshimoriNight(): string[] {
   const errors: string[] = []
-  if (SITES.size !== 40) errors.push('Expected forty unique night sites')
+  if (SITES.size !== 44) errors.push('Expected forty-four unique night sites')
   const choiceIds = HOSHIMORI_NIGHT_SITES.flatMap((site) =>
     site.choices.map((choice) => choice.id),
   )
@@ -1058,7 +1135,7 @@ export function validateHoshimoriNight(): string[] {
       }
     }
   }
-  if (reached.size !== 40)
+  if (reached.size !== 44)
     errors.push('A night site requires a blind or sealed crossing')
   if (!SITES.has('1,4') || SITES.has('6,7'))
     errors.push('e08 photo reservations drifted')

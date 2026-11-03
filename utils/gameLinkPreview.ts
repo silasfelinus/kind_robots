@@ -171,6 +171,13 @@ export const GAME_LINK_PREVIEWS: Record<string, GameLinkPreview> = {
     image: FALLBACK_PREVIEW_IMAGE,
     path: '/play/comics/studio',
   },
+  'tzaddik-gallery': {
+    title: 'Tzaddik Gallery | Kind Robots',
+    description:
+      'Thirty-six just people, living and remembered, each sourced with receipts. Free to browse in your browser, sign in only to nominate someone.',
+    image: FALLBACK_PREVIEW_IMAGE,
+    path: '/tzaddik-gallery',
+  },
   'challenge-leaderboard': {
     title: 'Challenge Center Hall of Contenders | Kind Robots',
     description:

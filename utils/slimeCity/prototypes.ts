@@ -4350,6 +4350,8 @@ export const PARITY_CREW_EDGE: Record<ParityMode, Record<TeamId, number>> = {
     undertow: 1.75,
     exchange: -1,
   },
+  // TURF never fights with stats (a stone is a stone), so a creature budget
+  // cannot move its crews; its balance needs a Go lever, not this one.
   turf: {
     catgirls: 0,
     bloodfairies: 0,

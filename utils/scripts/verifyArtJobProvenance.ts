@@ -6,8 +6,15 @@ import {
   hashArtImageData,
   validateArtJobCompletionProof,
 } from '../../server/utils/artJobProvenance'
-import { applyArtJobOverrides } from '../../server/utils/artJobRetry'
-import { rewriteKreaWorkflowPositivePrompt } from '../kreaSemanticPrompt'
+import {
+  applyArtJobOverrides,
+  workflowRendersPrompt,
+} from '../../server/utils/artJobRetry'
+import { buildKrea2WorkflowFromRequest } from '../../server/api/comfy/krea2/utils/workflow'
+import {
+  buildKreaSemanticPrompt,
+  rewriteKreaWorkflowPositivePrompt,
+} from '../kreaSemanticPrompt'
 
 function workflow(prompt: string, seed: number) {
   return {
@@ -268,3 +275,84 @@ console.log('ArtJob prompt provenance contract passed.')
 }
 
 console.log('ArtJob queue-edit prompt drift contract passed.')
+
+// A Krea encoder holds buildKreaSemanticPrompt(prompt), not the prompt: "clean
+// unmarked surfaces" becomes "clean surfaces", so neither exact nor letter
+// matching finds it. ArtJob 61064 (2026-11-03): the edit reported success and
+// updated only _meta.request_prompt while the encoder kept the old scene.
+{
+  type Node = {
+    class_type: string
+    inputs: Record<string, unknown>
+    _meta?: Record<string, unknown>
+  }
+  const stored =
+    'A velvet couch in a parade of alien species, an anthem in six time signatures. ' +
+    'Hand-painted gouache, naturally bare and clean unmarked surfaces.'
+  const next =
+    'Two inky shadows in bowler hats shake hands across a tiny desk while the crew stare from a long red couch. ' +
+    'Hand-painted gouache, naturally bare and clean unmarked surfaces.'
+  const built = buildKrea2WorkflowFromRequest({
+    prompt: stored,
+    seed: 7,
+  }).workflow
+  const encoderText = (wf: unknown) =>
+    Object.values(wf as Record<string, Node>)
+      .filter(
+        (n) =>
+          n.class_type === 'CLIPTextEncode' &&
+          n._meta?.title !== 'Negative Prompt',
+      )
+      .map((n) => String(n.inputs.text))
+  assert.notEqual(
+    encoderText(built)[0],
+    stored,
+    'the Krea encoder carries the semantic rewrite',
+  )
+
+  const edited = applyArtJobOverrides(
+    { promptString: stored, workflow: built },
+    { promptString: next },
+  )
+  const nodes = edited.workflow as Record<string, Node>
+  assert.deepEqual(
+    encoderText(nodes),
+    [buildKreaSemanticPrompt(next)],
+    'the encoder takes the edited scene',
+  )
+  assert.ok(
+    encoderText(nodes)[0]?.includes('inky shadows'),
+    'the new scene reaches the encoder',
+  )
+  const negative = Object.values(nodes).find(
+    (n) => n._meta?.title === 'Negative Prompt',
+  )
+  assert.equal(negative?.inputs.text, '', 'the negative encoder is untouched')
+  assert.ok(
+    Object.values(nodes).some((n) => n._meta?.request_prompt === next),
+    'request_prompt provenance follows the edit',
+  )
+  assert.equal(workflowRendersPrompt(edited, next), true)
+
+  const stale = {
+    promptString: next,
+    workflow: {
+      '3': {
+        class_type: 'CLIPTextEncode',
+        inputs: { text: 'a parade of alien species' },
+      },
+    },
+  }
+  assert.equal(
+    workflowRendersPrompt(stale, next),
+    false,
+    'a stale encoder is detected, not reported as edited',
+  )
+  assert.equal(
+    workflowRendersPrompt({ promptString: next }, next),
+    true,
+    'no workflow yet: built from promptString',
+  )
+}
+
+console.log('ArtJob queue-edit Krea semantic prompt contract passed.')

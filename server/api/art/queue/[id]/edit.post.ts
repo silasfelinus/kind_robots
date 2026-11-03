@@ -14,6 +14,7 @@ import {
 } from '../../../../utils/artJobPayload'
 import {
   applyArtJobOverrides,
+  workflowRendersPrompt,
   type ArtJobOverrides,
 } from '../../../../utils/artJobRetry'
 import { refreshArtJobLoraResources } from '../../../../utils/artJobResourceRefresh'
@@ -79,6 +80,7 @@ export default defineEventHandler(async (event) => {
     const payload = resourceRefresh.payload
     const currentRequest = extractRenderRequest(payload)
     const currentBasePrompt = cleanArtPrompt(payload.basePromptString)
+    const previousPrompt = cleanArtPrompt(payload.promptString)
     const requestedBasePrompt = cleanArtPrompt(
       body?.overrides?.basePromptString ?? body?.overrides?.promptString,
     )
@@ -138,6 +140,17 @@ export default defineEventHandler(async (event) => {
     const updatedPayload = applyArtJobOverrides(payload, renderOverrides)
     applyArtJobVisibility(updatedPayload, body?.overrides)
     applyArtFacetsToPayload(updatedPayload, basePrompt, facets)
+    if (
+      prompt !== previousPrompt &&
+      !workflowRendersPrompt(updatedPayload, prompt)
+    ) {
+      throw createError({
+        statusCode: 409,
+        message:
+          `Job ${id}'s workflow encoder could not be matched to its stored prompt, so this edit ` +
+          'would change promptString but render the old scene. Queue a replacement job instead.',
+      })
+    }
     updatedPayload.queueEdit = {
       editedAt: new Date().toISOString(),
       editedByUserId: auth.user.id,

@@ -2127,6 +2127,25 @@ assert.match(
   /keys\.length \/ 2,[\s\S]*?usedPrior,[\s\S]*?state\.value\.seenMapImages/,
   'A new map round excludes all previous wave images',
 )
+const deckSource = readFileSync(
+  'stores/helpers/memoryDungeonDeckSource.ts',
+  'utf8',
+)
+assert.ok(
+  deckSource.includes('records = source.browseCharacters'),
+  'character decks use the complete browse list, not the detail cache',
+)
+assert.ok(
+  deckSource.includes('byId.get(artId) ?? (await art.getArtImageById(artId))'),
+  'linked art absent from the paginated archive cache is fetched by ID',
+)
+assert.ok(
+  deckSource.includes(
+    'isEligibleDungeonArt(linkedArt, includeMature, matureAllowed, viewerId)',
+  ),
+  'resolved linked art still enforces visibility and maturity restrictions',
+)
+
 assert.match(
   classicScreen,
   /runSeenImages\.add\(path\)/,

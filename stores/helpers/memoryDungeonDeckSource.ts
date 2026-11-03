@@ -186,7 +186,7 @@ export async function resolveMemoryDungeonDeck(
   } else if (choice.entityKind === 'characters') {
     const source = useCharacterStore()
     await source.fetchCharacters()
-    records = source.characters
+    records = source.browseCharacters
   } else if (choice.entityKind === 'bots') {
     const source = useBotStore()
     await source.fetchBots()
@@ -213,27 +213,25 @@ export async function resolveMemoryDungeonDeck(
     initializeCollections: false,
   })
   const byId = new Map(art.artImages.map((item) => [item.id, item]))
-  const paths = uniqueDeckPaths(
-    records
-      .filter((record) => {
-        if (
-          !isEligibleDungeonArt(record, includeMature, matureAllowed, viewerId)
-        )
-          return false
-        const artId = (record as { artImageId?: number | null }).artImageId
-        if (!artId) return true
-        const linkedArt = byId.get(artId)
-        return linkedArt
-          ? isEligibleDungeonArt(
-              linkedArt,
-              includeMature,
-              matureAllowed,
-              viewerId,
-            )
-          : false
-      })
-      .map(imageUrlForDeck),
-  )
+  const eligibleRecords: VisibleDeckImage[] = []
+  for (const record of records) {
+    if (!isEligibleDungeonArt(record, includeMature, matureAllowed, viewerId))
+      continue
+    const artId = (record as { artImageId?: number | null }).artImageId
+    if (!artId) {
+      eligibleRecords.push(record)
+      continue
+    }
+    // The art archive is paginated; a cache miss is not evidence of missing art.
+    // Resolve the linked image individually before applying its visibility rules.
+    const linkedArt = byId.get(artId) ?? (await art.getArtImageById(artId))
+    if (
+      linkedArt &&
+      isEligibleDungeonArt(linkedArt, includeMature, matureAllowed, viewerId)
+    )
+      eligibleRecords.push(record)
+  }
+  const paths = uniqueDeckPaths(eligibleRecords.map(imageUrlForDeck))
   return loadDungeonImagePaths(unseenDeckPaths(paths, previouslyUsed), needed)
 }
 

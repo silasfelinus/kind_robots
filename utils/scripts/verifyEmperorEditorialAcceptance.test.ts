@@ -925,7 +925,7 @@ for (const faction of HOST_FACTIONS) {
       seed,
       ending: run.ending,
       hideout: run.hideout,
-      ...(day46Brass !== undefined ? { dawn46Brass } : {}),
+      ...(day46Brass !== undefined ? { dawn46Brass: day46Brass } : {}),
       unpaid,
       choices,
       market,

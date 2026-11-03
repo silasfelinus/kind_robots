@@ -163,6 +163,8 @@ export const ACT_FIVE_QUESTS: readonly QuestDef[] = [
     outcomes: {
       success:
         'Every support holds beneath the burrow roof. Granny Umber strikes the newest brace with her walking stick and listens for the answer. She opens the inner gate, but keeps the keys.',
+      partial:
+        'The first brace holds, but only the east gallery opens. Families carry bedding through a crawlspace. Granny Umber accepts the timber and keeps the inner gate locked until the second shift.',
       failure:
         'One brace snaps and half a passage fills with dust. The families reach the deeper gallery unharmed, carrying their bedding through ankle-high rubble. Granny Umber asks for timber before she asks for thanks.',
       expired:
@@ -195,7 +197,9 @@ export const ACT_FIVE_QUESTS: readonly QuestDef[] = [
     expired: { affinity: { 'storm-crows': -10 } },
     outcomes: {
       success:
-        'Three nights on the ledges. On the third, a line of lanterns went up the Abbey road. None came down.',
+        'The sentries keep the ledge through one hard night. At dawn a line of lanterns climbs the Abbey road. None comes back down. Corvane copies the times for the court and keeps the original.',
+      partial:
+        'One movement on the Abbey road is recorded before the fog takes the ledges. Corvane lets the court keep a copy of the sighting. His sentries stay on the cliff, waiting for the rest.',
       failure:
         'Two watchers miss the change of lanterns on the Abbey road. Corvane’s sentries record it in their night ledger and deliver a copy to the court. They keep the original.',
       expired:
@@ -228,7 +232,9 @@ export const ACT_FIVE_QUESTS: readonly QuestDef[] = [
     expired: { affinity: { 'hollow-bell': -10 } },
     outcomes: {
       success:
-        'The aqueduct runs. Mara Reedbell rings the chapel bell once, quietly. For the court.',
+        'The patched channel carries water to the last houses before sunrise. Mara Reedbell checks the far taps herself. Then she rings the chapel bell once, quietly. The people in the cellars hear it.',
+      partial:
+        'Water runs into the near wards before the patch begins to leak. The far houses still carry jars up the chapel steps. Mara thanks the crew in public and asks for another shift in private.',
       failure:
         'The aqueduct loses water through a broken joint near the chapel. Mara Reedbell orders the public taps shut between bells. By afternoon a row of empty jars stands against the town hall.',
       expired:
@@ -261,7 +267,9 @@ export const ACT_FIVE_QUESTS: readonly QuestDef[] = [
     expired: { affinity: { jackalwire: -10 } },
     outcomes: {
       success:
-        'Every wagon rolls. Vane paints a small crown on the axle of his own.',
+        'Every painted wagon leaves the circle on its own wheels. Vane checks the last axle with his foot, then paints a small crown on his own. He tells the court it is a bill of thanks, not a surrender.',
+      partial:
+        'The front wagons roll. The rest sit on stones with their axles laid beside them. Vane paints working wheels blue and broken ones red. The crown’s bedding is in a red wagon.',
       failure:
         'The Pack gets half its wagons moving. Vane paints a number on each stalled axle and sets the repair bill beneath the crown’s borrowed flag. He can still count what he is owed.',
       expired:
@@ -295,7 +303,9 @@ export const ACT_FIVE_QUESTS: readonly QuestDef[] = [
     expired: { affinity: { saltroad: -10 } },
     outcomes: {
       success:
-        'The caravan made the salt flats by dawn. Not a wheel lost. Not a guest.',
+        'The caravan crosses the salt flats before sunrise. No wheel breaks and no guest goes missing. Oriel counts the drivers twice, then returns the roster to the crown with every name still on it.',
+      partial:
+        'Most of the wagons reach the flats. A medicine cart loses its axle and arrives after sunrise with Oriel walking beside the patients. She writes down who stayed with it. Her tally leaves no room for applause.',
       failure:
         'The caravan limps into the salt flats missing two wagons. Oriel Saltmarsh sets out two empty harnesses in front of the paymaster and asks which account covers the drivers who were hired to bring them home.',
       expired:
@@ -328,7 +338,9 @@ export const ACT_FIVE_QUESTS: readonly QuestDef[] = [
     expired: { affinity: { freeholds: -10 } },
     outcomes: {
       success:
-        'The field is in. Hester hands every reaper a warm egg, like pinning on a medal.',
+        'The last sheaves come in before the riders find the field. Hester counts enough grain to see the families through winter. She hands every reaper a warm egg and saves the largest for her sister.',
+      partial:
+        'Hester gets the seed grain under cover. The outer field burns before the reapers reach it. She has saved spring and lost part of winter. At supper her sister cuts the loaves thinner.',
       failure:
         'Half the harvest is lost before the sheaves are stacked. Hester keeps the remaining sacks under guard. Her sister counts how many households they can feed, then stops when she reaches winter.',
       expired:
@@ -362,7 +374,9 @@ export const ACT_FIVE_QUESTS: readonly QuestDef[] = [
     expired: { affinity: { rustline: -10 } },
     outcomes: {
       success:
-        'The engine is stripped to the bolts. Jinx keeps the shiny ones.',
+        'The abandoned engine is stripped to its bolts before the other salvagers arrive. Jinx keeps the clean gears and lays the usable copper on the station floor. The winch can turn again.',
+      partial:
+        'Jinx brings the engine’s gears home, but the copper is gone. The station’s winch turns again. Its lamps stay dark. Jinx hands the crown a grease-black bolt instead of the payment they had hoped for.',
       failure:
         'Jinx finds the salvage engine stripped of its copper and good bolts. Only a broken brass nameplate remains. They hold it up to the sun and say the crown can have that much for free.',
       expired:
@@ -391,7 +405,9 @@ export const ACT_FIVE_QUESTS: readonly QuestDef[] = [
     expired: { local: { yard: -3 } },
     outcomes: {
       success:
-        'Roots, a snared hare, somebody’s abandoned flour. Tonight nobody is hungry.',
+        'The foragers find roots, a snared hare, and flour left in an empty cart. Dunmore makes a meal that reaches the last person at the fire. The watch gets the same bowl as the children.',
+      partial:
+        'The party brings back roots and one sack of grain found in an empty shed. It feeds the guards, not everyone waiting in the dark. Dunmore tears the last ration chit in half and calls it supper.',
       failure:
         'The party comes back carrying dry roots and one cracked cooking pot. The last bread is gone before the evening fire. Dunmore measures tomorrow’s portions with a string.',
       expired:
@@ -509,6 +525,8 @@ export const ACT_FIVE_QUESTS: readonly QuestDef[] = [
         'The clapper lay in the Mirefen’s deepest pool, in prayer cloth older than the Abbey. The Mire Mothers kept it there on purpose. They gave it up on purpose. Older treasures lay beside it. Those came home too.',
       success:
         'The clapper lay in the Mirefen’s deepest pool, in prayer cloth older than the Abbey. It is heavy. It hums when nobody touches it.',
+      partial:
+        'The party brings back the prayer cloth and an empty bronze cradle, not the clapper. Reedlight says the pool has moved. Vellum records the loss without naming a thief. The bell keeper keeps the ropes ready.',
       failure:
         'The recovery party returns with empty cloth and river mud in its boots. Sister Reedlight says the old pool has changed its banks. The throne must decide whether the bell can ring without its heart.',
       expired:
@@ -2743,7 +2761,7 @@ export const ACT_FIVE_DAYS: readonly DayDef[] = [
         // Who went up, for how long, and what the Day 34 gate cost (t-036).
         variants: D42_RUNNER_VARIANTS,
         lines: [
-          'A young stoat in a Conclave sash brings you water in the morning. She stands holding the bowl. Not leaving.',
+          'A young courier in a Conclave sash brings you water in the morning. She stands holding the bowl. Not leaving.',
           '“You won’t know me, Majesty. You sent three of us from the Yard to pay for the rain. I was the third.”',
           '“They treat us all right. They feed us. We run the high paths in storms with letters. Two of us fell. The Crows sang for them. Decent of them.”',
           '“The bond runs seven more years. I’m not asking anything. I wanted the emperor to see one of us. Once.”',
@@ -2980,6 +2998,18 @@ export const ACT_FIVE_DAYS: readonly DayDef[] = [
               '“I came back. Some of them want to. Twenty-two wait on the ridge for your answer. They’ll see it from there, whatever it is.”',
               vellumSays(
                 '“No seal sent them, Majesty. They went after one of their own. Someone here will say they deserted. This time it will be nearer true.”',
+              ),
+            ],
+          },
+          {
+            flags: ['d40-komodo-followed'],
+            lines: [
+              'The rider under the white rag is Captain Dunmark. Coat torn. Gorget gone. His horse is lame in the off foreleg.',
+              'He kneels in the dirt unasked. Rook stands back by the fire, still carrying road dust from the track followed on Day Forty.',
+              '“Your watcher was right about the mission road, Majesty. Half the Watch rode out on a seal that sent us to the Abbey. The sisters had supper and blankets. In the morning I counted us. We were fewer.”',
+              '“I came back. Twenty-two guards wait on the ridge. They know someone found the trail before we rode it. They want to know why the crown could not stop us.”',
+              vellumSays(
+                '“A road discovered is not a road closed, Majesty. But it is evidence of who knew the way.”',
               ),
             ],
           },
@@ -3522,6 +3552,20 @@ export const ACT_FIVE_DAYS: readonly DayDef[] = [
         lines: D45_ENVOY,
         variants: [
           {
+            flags: ['d28-sable-head-start'],
+            lines: swapLines(D45_ENVOY, {
+              1: 'The envoy puts a torn horse blanket on the firewood. It came from the mount you gave Sable on the twenty-eighth day. The saddle is empty. They will not say where they found it.',
+              3: '“The Verge wants help against the singing at our manors,” the envoy says. “You spent ten brass sending one of our people down a road alone. We are still counting who walked back.”',
+            }),
+          },
+          {
+            flags: ['d28-sable-confined'],
+            lines: swapLines(D45_ENVOY, {
+              1: 'The envoy stands beside the fire with a copied key on a string. Sable’s tower door had a lock, and the Verge bought its pattern from a frightened guard.',
+              3: '“Now the singing has reached our manors,” they say. “The crown kept someone behind a locked door for us once. Help us, if you can still tell protection from custody.”',
+            }),
+          },
+          {
             flags: ['buyer:black-verge'],
             lines: swapLines(D45_ENVOY, {
               1: 'The court goes quiet. Five nights ago plum riders came through the tower gate at a walk. They have hunted this fire ever since. Some here have lost people to them.',
@@ -3530,6 +3574,32 @@ export const ACT_FIVE_DAYS: readonly DayDef[] = [
           },
         ],
         options: [
+          {
+            id: 'sable-road-account',
+            label:
+              'Spend twenty brass searching for Sable, whom you sent away alone. Lose the Verge’s help on the road.',
+            requires: { flags: ['d28-sable-head-start'], cost: 20 },
+            effects: {
+              affinity: { 'black-verge': -8, saltroad: 3 },
+              local: { lamplight: 1 },
+              flags: ['d45-sable-search-funded'],
+            },
+            response:
+              'Oriel takes the horse blanket and the money. “A search, not a rescue,” she says. “I cannot promise the second.” The envoy refuses the map she offers.',
+          },
+          {
+            id: 'sable-cell-account',
+            label:
+              'Admit publicly that the crown locked Sable away. Give the Verge no excuse to call it sanctuary.',
+            requires: { flags: ['d28-sable-confined'] },
+            effects: {
+              affinity: { 'black-verge': -6, freeholds: 3 },
+              local: { 'old-houses': -2, lamplight: 2 },
+              flags: ['d45-sable-detention-admitted'],
+            },
+            response:
+              'Vellum writes the word detained. The envoy asks him to write imprisoned. He does. Nobody at the fire is comfortable with either word.',
+          },
           {
             id: 'ask-singing',
             label: 'Ask the Envoy who is singing.',
@@ -3799,6 +3869,32 @@ export const ACT_FIVE_DAYS: readonly DayDef[] = [
         ],
         options: [
           {
+            id: 'counted-names',
+            label:
+              'Read the missing names from the fen count you filed on Day Three. Demand an answer before accepting help.',
+            requires: { flags: ['d03-mire-count-filed'] },
+            effects: {
+              affinity: { 'mire-mothers': -8, freeholds: 3 },
+              local: { lamplight: 2 },
+              flags: ['d46-count-read-aloud'],
+            },
+            response:
+              'Reedlight hears the whole count. “You still have numbers,” she says. “I have graves and no names to give you.” Vellum keeps the record. The lantern stays with her.',
+          },
+          {
+            id: 'uncounted-guests',
+            label:
+              'Ask Reedlight privately after the guests you refused to count. Protect their names but surrender the public record.',
+            requires: { flags: ['d03-mire-count-dropped'] },
+            effects: {
+              affinity: { 'mire-mothers': 4 },
+              local: { lamplight: -2, 'gate-watch': -1 },
+              flags: ['d46-names-kept-private'],
+            },
+            response:
+              'Reedlight traces forty-one marks in the dirt, then rubs them out. “I was trusted with them,” she says. “You were trusted not to ask.” The fire burns until dawn.',
+          },
+          {
             id: 'ask-burns',
             label: 'Ask what the lantern burns on.',
             effects: {},
@@ -4036,6 +4132,44 @@ export const ACT_FIVE_DAYS: readonly DayDef[] = [
         title: 'A Writ for the Roads',
         speaker: 'Ferro Dunmark',
         npc: 'ferro-dunmark',
+        variants: [
+          {
+            flags: ['d36-tanners-hanged'],
+            lines: [
+              'Dunmark brings a folded writ. There are two names on its back: Cass Tanner and Ward Tanner. He wrote them after their execution.',
+              '“When we took their lives for leaving the wall, we taught every guard that the road belongs to a rule, not a family. Now the Watch wants the whole road.”',
+              'The writ permits searches without witnesses, detention without a village hearing, and rations taken from the Yard. The two brothers’ mother would have to ask a captain before crossing to the graves.',
+              '“Sign or refuse, Majesty. But their names stay on my copy. I cannot give back what I took.”',
+            ],
+          },
+          {
+            flags: ['d36-tanners-held'],
+            lines: [
+              'Dunmark comes with a writ and a letter from Cass and Ward Tanner. They are still asking who may visit their mother across the road.',
+              '“You held them to the crown’s oath in irons. The law was plain. The same law now asks whether every traveler belongs to a captain.”',
+              'The writ permits checkpoints without a council, detention until a captain agrees to release a traveler, and rations taken from the Yard.',
+              '“I can hold the roads, Majesty. I can also tell you what it is like to watch two people obey when their hands are tied.”',
+            ],
+          },
+          {
+            flags: ['d36-tanners-patrol'],
+            lines: [
+              'Dunmark brings three pages. On the back of the last is the patrol order Young Komodo backdated for the Tanner brothers on Day Thirty-Six.',
+              '“They rode out under a lie written as an order, Majesty. They got their mother clear. The Watch can still call it a patrol if nobody reads the date.”',
+              'The new writ permits searches without witnesses and detention at a captain’s pleasure. The first ration carts would leave the Yard.',
+              '“If you sign, paper can save a town. It can also bury a person. I have signed both sorts.”',
+            ],
+          },
+          {
+            flags: ['d36-tanners-leave'],
+            lines: [
+              'Dunmark comes with a writ and a scuffed Watch tabard. Cass and Ward Tanner returned from their mother on the second day of the leave you granted.',
+              '“You swore not to spend your guards cheaply. You let them go. They came back because they trusted the word you gave them.”',
+              'The new writ grants detention without witnesses, searches without a council, and control over the Yard’s rations.',
+              '“There is still a Watch if you refuse. The men will ask whether your first oath was only for them.”',
+            ],
+          },
+        ],
         lines: [
           'Dunmark comes to the shared fire with three pages rolled tight in his fist. No battle maps. No orders for the Abbey. These orders begin the morning after.',
           '“If we take the tower back, somebody has to hold the roads. Every bridge, every village gate. My Watch can do it. But I need the crown’s word before I ask them to search their own neighbors.”',
@@ -4043,6 +4177,91 @@ export const ACT_FIVE_DAYS: readonly DayDef[] = [
           '“Sign and I can stand behind an iron peace at the last fire. Refuse and I will tell them the Watch answers to their charters. Either way, Majesty, I am the one who has to look those people in the face.”',
         ],
         options: [
+          {
+            id: 'paid-volunteers-record',
+            label:
+              'Read the names of the volunteers you sent to the Ford. Refuse the new writ until every death has a witness.',
+            requires: { flags: ['d31-volunteers-sent'] },
+            effects: {
+              local: { 'gate-watch': -2, yard: 1, lamplight: 2 },
+              flags: ['watch-writ-refused', 'd47-volunteers-named'],
+            },
+            response:
+              'Dunmark opens the bounty roll. Some names are crossed out. He reads those names first. The paid recruits at the fire stand for the dead, then ask who will guard their families.',
+          },
+          {
+            id: 'volunteers-commission',
+            label:
+              'Admit the paid volunteers stayed on your walls while the Ford burned. Give the villages a right to appoint Watch captains.',
+            requires: { flags: ['d31-volunteers-kept'] },
+            effects: {
+              affinity: { freeholds: 6 },
+              local: { 'gate-watch': -3, 'old-houses': -1 },
+              flags: ['watch-writ-refused', 'd47-village-commission'],
+            },
+            response:
+              'The Freehold delegation does not forgive the lost road. They sign the new appointments anyway. Dunmark says he will report to a council before he reports to a crown.',
+          },
+          {
+            id: 'rook-road-evidence',
+            label:
+              'Enter Rook’s Day Forty mission-road evidence into the Watch record. Take responsibility for not stopping Komodo.',
+            requires: { flags: ['d40-komodo-followed'] },
+            effects: {
+              local: { lamplight: 2, 'gate-watch': -1 },
+              flags: ['watch-writ-refused', 'd47-rook-road-recorded'],
+            },
+            response:
+              'Rook draws the false Saltroad turn in the dirt. Dunmark copies it. “He wanted to be followed,” Rook says. “We saw the road. We did not see why.” Nobody calls it proof of innocence.',
+          },
+          {
+            id: 'tanner-names',
+            label:
+              'Record the two executed guards by name and ban unreviewed detention. Lose Watch support rather than sign another blank order.',
+            requires: { flags: ['d36-tanners-hanged'] },
+            effects: {
+              local: { 'gate-watch': -3, lamplight: 2, yard: 1 },
+              flags: ['watch-writ-refused', 'd47-tanners-named'],
+            },
+            response:
+              'Dunmark puts the brothers’ names at the top of the new register. “It starts with them,” he says. He tears the detention clauses out of the writ himself.',
+          },
+          {
+            id: 'tanner-release',
+            label:
+              'Spend twenty brass releasing Cass and Ward from irons. Make the Watch answer to village witnesses.',
+            requires: { flags: ['d36-tanners-held'], cost: 20 },
+            effects: {
+              local: { 'gate-watch': -2, lamplight: 2, yard: 1 },
+              flags: ['watch-writ-refused', 'd47-tanners-released'],
+            },
+            response:
+              'Dunmark finds the old key in his coat. The brothers stand at the fire a long time before they sit. “We will still serve,” Cass says. “We get to ask where.”',
+          },
+          {
+            id: 'tanner-orders',
+            label:
+              'Publish the backdated patrol order. The crown takes the blame, and no Watch writ passes without witnesses.',
+            requires: { flags: ['d36-tanners-patrol'] },
+            effects: {
+              local: { 'gate-watch': -2, ledger: -2, lamplight: 3 },
+              flags: ['watch-writ-refused', 'd47-tanner-order-exposed'],
+            },
+            response:
+              'Vellum reads Komodo’s false date aloud. Dunmark signs below it in his own hand. The Watch wants a new rule. The Yard wants to know who wrote the old one.',
+          },
+          {
+            id: 'tanner-oath',
+            label:
+              'Keep the promise that brought the brothers home. Refuse the new writ and leave travel to village councils.',
+            requires: { flags: ['d36-tanners-leave'] },
+            effects: {
+              local: { 'gate-watch': -2, yard: 2, 'old-houses': -1 },
+              flags: ['watch-writ-refused', 'd47-tanners-oath-kept'],
+            },
+            response:
+              'Dunmark returns the tabard to Cass. “Your mother still has a road,” he says. The brothers take a watch post by it, not above it.',
+          },
           {
             id: 'refuse',
             label:
@@ -4073,6 +4292,26 @@ export const ACT_FIVE_DAYS: readonly DayDef[] = [
         title: 'A Letter for Later',
         speaker: 'Kiyo',
         requires: { follower: 'F003' },
+        variants: [
+          {
+            flags: ['d03-kiyo-brews'],
+            lines: [
+              'Kiyo sits by the last fire with her copper kettle. The handle was blackened on Day Three, when she brewed medicine for the Pack in the Yard.',
+              '“The kitchen smelled of willowbark for a week,” she says. “The factor stopped writing to me. The children slept. That was the trade.”',
+              '“My boy is home. He collects beetles and lets them go. I would like him to know why I kept this kettle when we lost everything else.”',
+              '“I wrote him a letter for when he is older. You used to have a vault. Will you keep it safe and leave it closed?”',
+            ],
+          },
+          {
+            flags: ['d03-kiyo-recipe-shared'],
+            lines: [
+              'Kiyo sits by the fire with her copper kettle and a second copy of the recipe she gave the Saltroad factor on Day Three.',
+              '“The road made money from what I gave freely,” she says. “It carried my family here once. I wanted to repay a debt. I did not know the price would stay the same.”',
+              '“My boy is home. He collects beetles and lets them go. I want him to know I was trying, not that I was clever.”',
+              '“I wrote him a letter for later. Will you keep it, Majesty? Nobody else here used to have a vault.”',
+            ],
+          },
+        ],
         lines: [
           'One fire for everyone, the first since the tower. Kiyo sits beside you with her kettle and does not pour. The people nearest go quiet. Kiyo always pours.',
           '“If it goes bad at the Abbey, somebody needs to know about my boy. He’s small. He wants to be a hero and he can’t finish a cup of tea.”',
@@ -4080,6 +4319,32 @@ export const ACT_FIVE_DAYS: readonly DayDef[] = [
           '“I wrote him a letter for when he’s older. Will you keep it, Majesty? You’re the only person I know who used to have a vault. That’ll have to do.”',
         ],
         options: [
+          {
+            id: 'kettle',
+            label:
+              'Ask Kiyo to teach the Yard the medicine she brewed for the Pack. She stays to teach instead of riding home tonight.',
+            requires: { flags: ['d03-kiyo-brews'] },
+            effects: {
+              local: { yard: 2, 'gate-watch': -1 },
+              affinity: { saltroad: -5 },
+              flags: ['d47-kiyo-taught-brew'],
+            },
+            response:
+              'Kiyo leaves the kettle with two apprentices and measures the willowbark twice. “They will do it differently,” she says. “Good. It needs to belong to more than me.”',
+          },
+          {
+            id: 'recipe',
+            label:
+              'Pay ten brass for the Archive to publish Kiyo’s recipe at cost. The Saltroad loses its monopoly.',
+            requires: { flags: ['d03-kiyo-recipe-shared'], cost: 10 },
+            effects: {
+              affinity: { saltroad: -8, jackalwire: 5 },
+              local: { lamplight: 2 },
+              flags: ['d47-kiyo-recipe-public'],
+            },
+            response:
+              'Vellum prints the measures without Kiyo’s private note. Kiyo checks them before they leave. “The next mother should not have to ask a factor,” she says.',
+          },
           {
             id: 'ask-boy',
             label: 'Ask her to tell you about him, while there is time.',
@@ -4406,6 +4671,19 @@ export const ACT_FIVE_DAYS: readonly DayDef[] = [
           },
         ],
         options: [
+          {
+            id: 'wenna-council-seat',
+            label:
+              'Spend twenty brass bringing Wenna Coldbrook to the town council. She was paid to go away once. Let her speak now.',
+            requires: { flags: ['d24-wenna-paid'], cost: 20 },
+            effects: {
+              affinity: { freeholds: 7, abbey: -8, 'hollow-bell': -4 },
+              local: { lamplight: 2 },
+              flags: ['d48-wenna-council'],
+            },
+            response:
+              'Mara signs the invitation. Wenna arrives with her baby and the old purse, which she puts on the table. “You paid me to leave,” she says. “This time you will hear why I came.”',
+          },
           {
             id: 'ask-last',
             label:

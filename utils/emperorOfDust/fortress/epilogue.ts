@@ -2018,6 +2018,144 @@ const BARRACKS: EpilogueSubject[] = [
 
 const ENDGAME: EpilogueSubject[] = afterTheWar([
   {
+    id: 'the-ford-volunteers',
+    name: 'The fifty-two paid volunteers',
+    variants: [
+      {
+        when: { flags: ['d47-volunteers-named'] },
+        text: 'The bounty roll hangs in the Watch hall. Names of those lost at the Ford are still readable under the crossed lines. Every recruit learns to read them before receiving the first brass.',
+      },
+      {
+        when: { flags: ['d47-village-commission'] },
+        text: 'The Freehold councils appoint their own Watch captains. The first meeting begins with the names of the recruits who stayed behind the tower walls while the Ford burned. They do not call it an apology.',
+      },
+      {
+        when: { flags: ['d31-volunteers-sent'] },
+        text: 'The fifty-two trained volunteers rode to the Ford. The families kept their bounty receipts. Some came back and put them on the mantle. Others had only the receipts.',
+      },
+      {
+        when: { flags: ['d31-volunteers-kept'] },
+        text: 'The fifty-two volunteers held the fortress wall through the worst of the war. Each spring a rider from the Ford asks how many they saved there. The Watch cannot answer.',
+      },
+    ],
+  },
+  {
+    id: 'wenna-at-the-council',
+    name: 'Wenna Coldbrook’s seat',
+    variants: [
+      {
+        when: { flags: ['d48-wenna-council'] },
+        text: 'Wenna Coldbrook attends every Hollow Bell council with her child on her hip. The purse given to send her away sits on the meeting table. Every new councillor has to ask what it means.',
+      },
+      {
+        when: { flags: ['d24-wenna-paid'] },
+        text: 'Wenna Coldbrook spent the crown’s fifteen brass on food and a winter coat. Nobody from the Abbey asked whether the children had come home. She keeps the empty purse.',
+      },
+    ],
+  },
+  {
+    id: 'rooks-mission-road',
+    name: 'Rook’s last pursuit',
+    variants: [
+      {
+        when: { flags: ['d47-rook-road-recorded'] },
+        text: 'Rook’s map of the false Saltroad turn hangs beside the Watch ledger. Everyone can see where Komodo doubled back toward the Abbey. The margin asks the question no one could answer that night: who was sent after him?',
+      },
+      {
+        when: { flags: ['d40-komodo-followed'] },
+        text: 'Rook kept the last map drawn for the crown before the tower fell. It shows where Young Komodo lied to the road. It does not show where the emperor chose to look away.',
+      },
+    ],
+  },
+  {
+    id: 'tanner-brothers',
+    name: 'Cass and Ward Tanner',
+    variants: [
+      {
+        when: { flags: ['d47-tanners-named'] },
+        text: 'The Watch keeps a book of names at every road post. The first page lists Cass and Ward Tanner, executed for leaving the wall to fetch their mother. Their mother reads it once, then asks who signs the next page.',
+      },
+      {
+        when: { flags: ['d47-tanners-released'] },
+        text: 'Cass and Ward Tanner take the Watch post on the road to their mother’s house. Travelers can ask them why they once wore irons. They answer. The Watch has begun asking its recruits that question too.',
+      },
+      {
+        when: { flags: ['d47-tanner-order-exposed'] },
+        text: 'Young Komodo’s backdated patrol order hangs beside the Watch charter. The date is circled in red, with Dunmark’s signature beneath. Cass and Ward Tanner keep their mother’s house. The Watch keeps its copy.',
+      },
+      {
+        when: { flags: ['d47-tanners-oath-kept'] },
+        text: 'The Tanner brothers serve a road chosen by its villages. Every spring their mother visits their post and brings two pies. There is no imperial seal on the gate. They have never asked for one.',
+      },
+      {
+        when: { flags: ['d36-tanners-hanged'] },
+        text: 'Cass and Ward Tanner are named on a stone outside the tower. Their mother plants two trees there and never asks the Watch for permission to water them.',
+      },
+      {
+        when: { flags: ['d36-tanners-held'] },
+        text: 'The Tanner brothers keep the scar of their irons. On the road to their mother’s home they show their wrists at every checkpoint. Some guards let them through. Some ask to see a paper.',
+      },
+      {
+        when: { flags: ['d36-tanners-patrol'] },
+        text: 'In the Watch ledger Cass and Ward Tanner served a patrol that began the day before they left the wall. Dunmark keeps a private copy of the real date beneath the floorboards.',
+      },
+      {
+        when: { flags: ['d36-tanners-leave'] },
+        text: 'Cass and Ward Tanner came back early from their leave. Their mother says it was the first time they went home as sons instead of guards. The Watch still argues about that distinction.',
+      },
+    ],
+  },
+  {
+    id: 'the-mirefens-missing-count',
+    name: 'The missing count of the Mirefen',
+    variants: [
+      {
+        when: { flags: ['d46-count-read-aloud'] },
+        text: 'The Archive reads the old lantern count to the fen council. Forty-one went in. Forty came out. The Mothers will not sign the next number. The crown leaves a line for the missing name and keeps the book open.',
+      },
+      {
+        when: { flags: ['d46-names-kept-private'] },
+        text: 'Reedlight never gives the crown a list. The fen keeps its own names in a room without a lock. Everyone who belongs to the room knows where it is. The Watch does not.',
+      },
+    ],
+  },
+  {
+    id: 'kiyos-medicine',
+    name: 'Kiyo’s kettle and the medicine road',
+    variants: [
+      {
+        when: { flags: ['d47-kiyo-taught-brew'] },
+        text: 'The Yard keeps Kiyo’s copper kettle over a public stove. Two apprentices disagree about the measure of willowbark. The children who come for medicine know either one will stay until the last cup is poured.',
+      },
+      {
+        when: { flags: ['d47-kiyo-recipe-public'] },
+        text: 'The Archive posts the recipe beside the medicines sold by the Saltroad. Kiyo reads it before the ink dries. The factor still charges for the vials, but nobody charges to know what goes into them.',
+      },
+    ],
+  },
+  {
+    id: 'sables-early-fate',
+    name: 'The road and room promised to Sable',
+    variants: [
+      {
+        when: { flags: ['d45-sable-search-funded'] },
+        text: 'The Saltroad keeps a search for Sable Thorne in its route ledger. Every convoy asks after the rider on the old horse blanket. Some return with a rumor. Oriel writes each down and refuses to call any one an ending.',
+      },
+      {
+        when: { flags: ['d45-sable-detention-admitted'] },
+        text: 'The Archive records that the crown locked Sable Thorne behind a tower door and called it sanctuary. Sable is given a copy. They carry it for one season, then let the council keep it.',
+      },
+      {
+        when: { flags: ['d28-sable-head-start'] },
+        text: 'Sable Thorne rode away with the crown’s ten brass and a day on the hunters. Nobody at court saw the horse return. The salt road still carries the question of where they went.',
+      },
+      {
+        when: { flags: ['d28-sable-confined'] },
+        text: 'The tower’s old room still has the lock put on it for Sable Thorne. Its key hangs in the public hall. No one has decided whether it is an apology or a warning.',
+      },
+    ],
+  },
+  {
     id: 'tobin-and-hesper-record',
     name: 'Hesper Lowe’s record',
     variants: [

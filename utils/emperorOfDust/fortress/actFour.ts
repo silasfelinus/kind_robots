@@ -744,8 +744,27 @@ export const ACT_FOUR_DAYS: readonly DayDef[] = [
         speaker: 'Captain Ferro Dunmark of the Gate Watch',
         npc: 'ferro-dunmark',
         faction: 'gate-watch',
+        variants: [
+          {
+            flags: ['d20-volunteer-bounty'],
+            lines: [
+              'Dunmark brings the training roll from Day Twenty, written on the backs of treasury receipts. Fifty-two people volunteered. Some had never held a spear.',
+              '“The Ford is under arrows. Those recruits are ready to go, Majesty. They were paid to stand where the crown needs them, not where it is safe.”',
+              {
+                who: 'A Freehold rider',
+                text: 'My brother signed that roll for the bounty. My family needs him. My village needs the road. I cannot ask him to do both.',
+              },
+              '“I can take them to the Ford and leave the tower thin. Or keep them here while somebody else pays for the crossing. I will not call either free.”',
+              {
+                who: 'Young Komodo',
+                npc: 'young-komodo',
+                text: 'You bought willingness, Majesty. You did not buy certainty. The choice of where to use it is yours.',
+              },
+            ],
+          },
+        ],
         lines: [
-          'Dunmark comes up the carpet buckling his dented gorget. A Freehold rider limps at his elbow, a young ewe, a broken arrow shaft tied off in her arm. Nobody offers her a chair. She would not take one.',
+          'Dunmark comes up the carpet buckling his dented gorget. A Freehold rider limps at his elbow, her coat torn, a broken arrow shaft tied off in her arm. Nobody offers her a chair. She would not take one.',
           '“The Ford is under arrows, Majesty. The Freeholds are asking for the Gate Watch by name.”',
           {
             who: 'A Freehold rider',
@@ -759,6 +778,40 @@ export const ACT_FOUR_DAYS: readonly DayDef[] = [
           },
         ],
         options: [
+          {
+            id: 'send-paid-volunteers',
+            label:
+              'Send the fifty-two trained volunteers to defend the Ford. Leave the tower short of guards.',
+            requires: { flags: ['d20-volunteer-bounty'] },
+            effects: {
+              affinity: { freeholds: 8 },
+              local: { 'gate-watch': -2, yard: -1 },
+              flags: ['d31-volunteers-sent'],
+              questAid: [
+                {
+                  questId: 'q-d31-iron-rain',
+                  label: 'The fifty-two paid volunteers defend the Ford',
+                  bonus: 2,
+                  stat: 'might',
+                },
+              ],
+            },
+            response:
+              'Dunmark calls the names from the old bounty roll. The rider finds her brother and hands him a dry coat. At noon the Ford gets its reinforcements. The tower watches them go.',
+          },
+          {
+            id: 'keep-paid-volunteers',
+            label:
+              'Keep the paid volunteers on the fortress wall. The Ford must survive with fewer defenders.',
+            requires: { flags: ['d20-volunteer-bounty'] },
+            effects: {
+              affinity: { freeholds: -6 },
+              local: { 'gate-watch': 2, yard: 1 },
+              flags: ['d31-volunteers-kept'],
+            },
+            response:
+              'Dunmark puts the bounty roll inside the wall register. The Freehold rider takes her coat back. She rides toward the Ford without asking for anyone to follow.',
+          },
           {
             id: 'ask-walls',
             label: 'Ask Dunmark who would be left on the walls.',
@@ -1964,7 +2017,7 @@ export const ACT_FOUR_DAYS: readonly DayDef[] = [
         faction: 'freeholds',
         requires: { flags: ['ford-lost'] },
         lines: [
-          'The Freehold militia has camped in the outer court since the Ford fell. Their sergeant, an old ram with a bandaged eye, brings his company up the carpet. Smoke, wet wool, wounds that need cleaning.',
+          'The Freehold militia has camped in the outer court since the Ford fell. Their sergeant, an old veteran with a bandaged eye, brings his company up the carpet. Smoke, wet wool, wounds that need cleaning.',
           '“We lost the Ford, Majesty. Thirty-one of us came back. Two days on the Yard’s bread, and the Foreman has started counting it at us.”',
           '“Arm us and we’ll go take it back. Or we go home, what’s left of it. Or we stay, and the Yard keeps counting.”',
           {
@@ -2019,7 +2072,7 @@ export const ACT_FOUR_DAYS: readonly DayDef[] = [
               flags: ['d34-militia-on-gate'],
             },
             response:
-              'The sergeant salutes with the hand that still works. That night there are rams on the gate. Foreman Ash counts thirty-one more bowls and says nothing about it, loudly.',
+              'The sergeant salutes with the hand that still works. That night the Freehold militia stands the gate. Foreman Ash counts thirty-one more bowls and says nothing about it, loudly.',
           },
           {
             id: 'water-first',
@@ -3806,7 +3859,7 @@ export const ACT_FOUR_DAYS: readonly DayDef[] = [
             lines: [
               '“Oriel Saltmarsh’s factor holds three of the crown’s notes, and a fourth that is, technically, mine. A caravan master on the salt flats owes the court eleven barrels of lamp oil. That sort of thing.”',
               'He says it lightly. He does not open the ledger. In forty days you have never heard him quote a number without opening the ledger first.',
-              '“The roads are quiet tonight. I made sure. I will be back before anyone misses me. If they do, say I went to count barrels. Nobody follows a lizard who is counting barrels.”',
+              '“The roads are quiet tonight. I made sure. I will be back before anyone misses me. If they do, say I went to count barrels. Nobody follows a courtier who is counting barrels.”',
             ],
             options: [
               {

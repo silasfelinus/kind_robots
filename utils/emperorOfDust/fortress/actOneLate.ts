@@ -553,7 +553,7 @@ export const ACT_ONE_LATE_DAYS: readonly DayDef[] = [
                 flags: ['d03-caravan-burners-named'],
                 lines: [
                   '“Red Spoke. You named them at court. Chalked it above your Watch’s fire.” Vane says it pleasantly. “They were mine once. They are not now. Because of you, nobody on the Ford road will sell to them, so they sell to me, and I cannot pay.”',
-                  '“So the toll doubled. The tincture did not get cheaper because you found the right hyenas to blame. The Saltroad still prices it like we all burned that caravan.”',
+                  '“So the toll doubled. The tincture did not get cheaper because you found the right raiders to blame. The Saltroad still prices it like we all burned that caravan.”',
                   '“I am a thief. I am also the cheapest thief between here and the canyon. The next one won’t wear such a good coat.”',
                   {
                     who: 'Young Komodo',
@@ -577,7 +577,7 @@ export const ACT_ONE_LATE_DAYS: readonly DayDef[] = [
               },
             ],
             lines: [
-              '“Because the tincture doubled, Your Majesty. Dust lung. The pups cough. The Saltroad sells the cure, and it has learned hyenas pay whatever they are asked.”',
+              '“Because the tincture doubled, Your Majesty. Dust lung. The pups cough. The Saltroad sells the cure, and it has learned the Pack pays whatever it is asked.”',
               '“So the carts pay me, I pay the carts, and the brass goes round the bridge like water round a drain. Everybody gets wet. Nobody drinks.”',
               '“I am a thief. I am also the cheapest thief between here and the canyon. The next one won’t wear such a good coat.”',
               {
@@ -2229,7 +2229,7 @@ export const ACT_ONE_LATE_DAYS: readonly DayDef[] = [
               ],
             },
             response:
-              'A long look. “Wolves beside the sheep. Bold.” The posting stays on the board. The Pack rides with whoever you send, not instead.',
+              'A long look. “Raiders beside the people they once robbed. Bold.” The posting stays on the board. The Pack rides with whoever you send, not instead.',
           },
           {
             id: 'not-ours',
@@ -2342,7 +2342,7 @@ export const ACT_ONE_LATE_DAYS: readonly DayDef[] = [
                   ],
                 },
                 response:
-                  '“Wolves to scare the sheep off the other wolves. Bold.” The posting stays on the board. Somebody of yours still has to ride.',
+                  '“Raiders to protect the Ford from other raiders. Bold.” The posting stays on the board. Somebody of yours still has to ride.',
               },
               {
                 id: 'not-ours',

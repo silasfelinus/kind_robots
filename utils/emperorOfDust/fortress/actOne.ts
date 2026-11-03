@@ -853,7 +853,7 @@ export const ACT_ONE_DAYS: readonly DayDef[] = [
           {
             id: 'dust-lung',
             lines: [
-              '“Dust lung. Half our pups cough black by morning. Saltroad sells the tincture at triple last year’s price. Who else sells to hyenas?”',
+              '“Dust lung. Half our pups cough black by morning. Saltroad sells the tincture at triple last year’s price. Who else sells to the Pack?”',
               '“So we stand on their bridge. Their carts pay us. We pay them for tincture. Everybody calls us raiders. Nobody calls them anything.”',
               '“You want the bridge open? Get my pups their medicine and I’ll play your coronation march myself. Badly. With feeling.”',
               {

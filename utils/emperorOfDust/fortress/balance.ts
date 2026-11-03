@@ -17,6 +17,9 @@ import {
   optionBlockers,
   previewQuest,
   recruit,
+  talkFor,
+  talkScene,
+  chooseTalkOption,
   upgradeBeds,
 } from './engine'
 import type {
@@ -24,6 +27,7 @@ import type {
   FortressRun,
   KingdomFactionId,
   QuestDef,
+  QuestReport,
 } from './types'
 
 export type Policy = {
@@ -195,6 +199,27 @@ export type CampaignResult = {
 }
 
 /**
+ * Optional independent-playtest trace hooks. Existing balance simulations
+ * deliberately keep the original no-barracks policy unless playTalks is set.
+ */
+export type CampaignObserver = {
+  playTalks?: boolean
+  onAudienceChoice?: (
+    day: number,
+    audienceId: string,
+    option: AudienceOption,
+    run: FortressRun,
+  ) => void
+  onTalkChoice?: (
+    day: number,
+    talkId: string,
+    option: AudienceOption,
+    run: FortressRun,
+  ) => void
+  onQuestReport?: (day: number, report: QuestReport, run: FortressRun) => void
+}
+
+/**
  * One whole campaign, Day 1 to the ending, played by a policy. `onDawn` sees
  * the run at every dawn (Day 1 and after each Finish), as the autosave does.
  */
@@ -202,6 +227,7 @@ export const playCampaign = (
   policy: Policy,
   seed: number,
   onDawn?: (run: FortressRun) => void,
+  observer?: CampaignObserver,
 ): CampaignResult => {
   let run = createRun(seed)
   onDawn?.(run)
@@ -234,6 +260,32 @@ export const playCampaign = (
           .sort((a, b) => b.score - a.score || a.i - b.i)[0]
         if (!pick) break
         run = chooseAudienceOption(run, audience.id, pick.option.id).run
+        observer?.onAudienceChoice?.(run.day, audience.id, pick.option, run)
+      }
+    }
+    if (observer?.playTalks) {
+      const available = run.roster
+        .map((state) => talkFor(run, state.id))
+        .filter((talk) => talk !== undefined)
+      const selected =
+        available[(seed + run.day + policy.id.length) % available.length]
+      if (selected) {
+        for (let beat = 0; beat < 8; beat += 1) {
+          if ((run.talksHeard ?? []).includes(selected.id)) break
+          const open = talkScene(run, selected).options.filter(
+            (option) => optionBlockers(run, option).length === 0,
+          )
+          const pick = open
+            .map((option, i) => ({
+              option,
+              i,
+              score: policy.score(option, run, seed),
+            }))
+            .sort((a, b) => b.score - a.score || a.i - b.i)[0]
+          if (!pick) break
+          run = chooseTalkOption(run, selected.id, pick.option.id).run
+          observer.onTalkChoice?.(run.day, selected.id, pick.option, run)
+        }
       }
     }
     const board = [...run.board].sort((a, b) => {
@@ -254,7 +306,11 @@ export const playCampaign = (
         // A party the engine refuses (a rule the bot does not model) stays home.
       }
     }
-    run = finishDay(run).run
+    const completedDay = run.day
+    const ended = finishDay(run)
+    run = ended.run
+    for (const report of ended.report.quests)
+      observer?.onQuestReport?.(completedDay, report, run)
     onDawn?.(run)
   }
   return {

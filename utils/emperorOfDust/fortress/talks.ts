@@ -4974,7 +4974,7 @@ export const TALKS: readonly TalkDef[] = [
     lines: [
       'There’s a Saltroad agent at the gate with a ledger and two drivers. Big drivers. Pell watches them from the barracks window. Coat on. All forty pockets buttoned.',
       'Oriel’s people. I owe the Saltroad two hundred brass. They’ve come for it, or for me, or for my stash. Their choice of order.',
-      'Fair’s fair. I owe it. I haven’t got it. If I go with them I work it off in the salt pans, and you lose your rail rat.',
+      'Fair’s fair. I owe it. I haven’t got it. If I go with them I work it off in the salt pans, and you lose your best mechanic.',
       'I’m not asking you to pay. I’m telling you they’re at the gate. That’s different.',
     ],
     options: [
@@ -5987,7 +5987,7 @@ export const TALKS: readonly TalkDef[] = [
     },
     lines: [
       'Supper. The barracks table. Cobb comes in with his bowl, sees who is on the bench, and stops.',
-      'Saffron Kett. Jackal. Welding scars. She is mid-story and does not see him.',
+      'Saffron Kett. The old raider’s insignia. Welding scars. She is mid-story and does not see him.',
       'Cobb takes his bowl outside and eats on the chopping block in the cold. Third night running. You follow him out.',
       'I know she left them. I know what she builds. I know it ain’t fair. I can’t sit there. I smell smoke.',
     ],

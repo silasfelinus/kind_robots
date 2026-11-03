@@ -315,8 +315,8 @@ export const playCampaign = (
       const event = chanceEvent(run.dailyEvent)
       const choices = event?.choices.filter(
         (choice) =>
-          unmetRequirements(run, choice.requires, choice.effects.recruit).length ===
-          0,
+          unmetRequirements(run, choice.requires, choice.effects.recruit)
+            .length === 0,
       )
       const preferred = observer.selectChanceChoice?.(
         run.day,

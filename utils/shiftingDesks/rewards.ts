@@ -188,6 +188,14 @@ export function restoreRewardArchive(raw: unknown): RewardArchive {
   }
 }
 
+function nonNegativeInteger(value: unknown): value is number {
+  return typeof value === 'number' && Number.isInteger(value) && value >= 0
+}
+
+function finiteNumber(value: unknown): value is number {
+  return typeof value === 'number' && Number.isFinite(value)
+}
+
 function isRunReceipt(value: unknown): value is RunReceipt {
   if (!value || typeof value !== 'object') return false
   const run = value as Partial<RunReceipt>
@@ -200,20 +208,16 @@ function isRunReceipt(value: unknown): value is RunReceipt {
     typeof run.jobTitle === 'string' &&
     typeof run.society === 'string' &&
     typeof run.mutation === 'string' &&
-    Number.isInteger(run.floors) &&
-    run.floors! >= 0 &&
-    Number.isInteger(run.files) &&
-    run.files! >= 0 &&
-    Number.isInteger(run.employees) &&
-    run.employees! >= 1 &&
-    Number.isInteger(run.forms) &&
-    run.forms! >= 0 &&
-    Number.isInteger(run.successors) &&
-    run.successors! >= 0 &&
-    Number.isFinite(run.grades?.empathy) &&
-    Number.isFinite(run.grades?.obedience) &&
-    Number.isFinite(run.grades?.ingenuity) &&
-    Number.isFinite(run.grades?.spite) &&
+    nonNegativeInteger(run.floors) &&
+    nonNegativeInteger(run.files) &&
+    nonNegativeInteger(run.employees) &&
+    run.employees >= 1 &&
+    nonNegativeInteger(run.forms) &&
+    nonNegativeInteger(run.successors) &&
+    finiteNumber(run.grades?.empathy) &&
+    finiteNumber(run.grades?.obedience) &&
+    finiteNumber(run.grades?.ingenuity) &&
+    finiteNumber(run.grades?.spite) &&
     typeof run.mutationUsed === 'boolean' &&
     typeof run.societyMet === 'boolean' &&
     Array.isArray(run.flags) &&

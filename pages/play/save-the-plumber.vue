@@ -276,7 +276,7 @@
             aria-labelledby="guide-heading"
           >
             <div class="plumber-guide-inner">
-              <p class="plumber-eyebrow">CONTROLLER MANUAL</p>
+              <p class="plumber-eyebrow">CONTROL GUIDE</p>
               <h2 id="guide-heading" class="plumber-section-title">
                 HOW TO PLAY
               </h2>

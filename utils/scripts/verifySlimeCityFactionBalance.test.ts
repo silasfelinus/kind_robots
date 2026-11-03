@@ -1,5 +1,9 @@
 import assert from 'node:assert/strict'
-import { playHeadless, runTournament, type MatchMetrics } from '../slimeCity/playtest'
+import {
+  playHeadless,
+  runTournament,
+  type MatchMetrics,
+} from '../slimeCity/playtest'
 import { TEAMS, replayMatch, type TeamId } from '../slimeCity/prototypes'
 import { summarizeTournament } from '../slimeCity/tournament'
 
@@ -107,9 +111,7 @@ for (const crew of crews) {
       crew.team + ' has a highly skewed 100-bout score in this seed sample',
     )
 }
-if (
-  Math.abs(summary.wins.player - summary.wins.enemy) / matches.length > 0.15
-)
+if (Math.abs(summary.wins.player - summary.wins.enemy) / matches.length > 0.15)
   warnings.push('Over 15 percentage points of first/second-side separation')
 
 const noContact = matches.filter((match) => match.firstContact === null).length
@@ -164,7 +166,8 @@ console.log(
       crews,
       pairs,
       warnings,
-      interpretation: 'Exploratory ten-seed sample; not a player-fun or balance approval',
+      interpretation:
+        'Exploratory ten-seed sample; not a player-fun or balance approval',
     }),
 )
 console.log(

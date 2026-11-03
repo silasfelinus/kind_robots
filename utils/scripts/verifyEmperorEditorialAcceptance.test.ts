@@ -28,7 +28,15 @@ type Scores = {
   consequence: number
 }
 type Row = {
-  kind: 'audience' | 'follower' | 'quest-outcome'
+  kind:
+    | 'audience'
+    | 'audience-beat'
+    | 'follower'
+    | 'follower-beat'
+    | 'quest-outcome'
+    | 'quest-outcome-variant'
+    | 'quest-outcome-alt'
+    | 'epilogue-variant'
   id: string
   day: number
   title: string
@@ -37,6 +45,7 @@ type Row = {
   evidence: string
 }
 type Scene = AudienceDef | TalkDef
+type Segment = Pick<AudienceDef, 'id' | 'title' | 'lines' | 'options' | 'beats'>
 const quests: readonly QuestDef[] = [
   ...ACT_ONE_QUESTS,
   ...ACT_ONE_LATE_QUESTS,
@@ -49,7 +58,7 @@ const quests: readonly QuestDef[] = [
 const textOf = (lines: readonly SceneLine[]) =>
   lines.map((line) => (typeof line === 'string' ? line : line.text)).join(' ')
 const clipped = (text: string) => text.replace(/\s+/g, ' ').trim().slice(0, 115)
-const allChoices = (scene: Scene): AudienceOption[] => [
+const allChoices = (scene: Segment): AudienceOption[] => [
   ...scene.options,
   ...(scene.beats ?? []).flatMap((beat) => beat.options),
 ]
@@ -119,15 +128,30 @@ const scenes = [
     kind: 'follower' as const,
   })),
 ]
-for (const { scene } of scenes) {
+const segments = [
+  ...scenes,
+  ...scenes.flatMap(({ scene, day, kind }) =>
+    (scene.beats ?? []).map((beat) => ({
+      scene: {
+        id: `${scene.id}/${beat.id}`,
+        title: `${scene.title} · ${beat.id}`,
+        lines: beat.lines,
+        options: beat.options,
+      },
+      day,
+      kind: kind === 'audience' ? ('audience-beat' as const) : ('follower-beat' as const),
+    })),
+  ),
+]
+for (const { scene } of segments) {
   const lead = clipped(textOf(scene.lines)).toLowerCase()
   leadCounts.set(lead, (leadCounts.get(lead) ?? 0) + 1)
 }
 
 const evaluateScene = (
-  scene: Scene,
+  scene: Segment,
   day: number,
-  kind: 'audience' | 'follower',
+  kind: 'audience' | 'audience-beat' | 'follower' | 'follower-beat',
 ): Row => {
   const opening = textOf(scene.lines)
   const options = allChoices(scene)
@@ -183,7 +207,7 @@ const evaluateScene = (
   }
 }
 
-const rows: Row[] = scenes.map(({ scene, day, kind }) =>
+const rows: Row[] = segments.map(({ scene, day, kind }) =>
   evaluateScene(scene, day, kind),
 )
 for (const quest of quests) {
@@ -210,6 +234,59 @@ for (const quest of quests) {
       },
       issues,
       evidence: `${clipped(prose)} | ${quest.danger} danger, ${quest.requirements.length} requirements, ${variantCount} variants`,
+    })
+    for (const [index, variant] of (quest.outcomeVariants?.[tier] ?? []).entries()) {
+      rows.push({
+        kind: 'quest-outcome-variant',
+        id: `${quest.id}:${tier}:variant:${index}`,
+        day: quest.days?.[0] ?? Number(quest.id.match(/^q-d([0-9]+)/)?.[1] ?? 0),
+        title: `${quest.title} · ${tier} · flag variant ${index}`,
+        scores: {
+          mood: hasConcreteDetail(variant.text) ? 4 : 3,
+          clarity: variant.text.length > 75 ? 4 : 3,
+          originality: 3,
+          choice: 3,
+          consequence: 5,
+        },
+        issues: variant.text.length < 70 ? ['brief flag-driven outcome'] : [],
+        evidence: clipped(variant.text),
+      })
+    }
+    for (const [index, text] of (quest.outcomeAlts?.[tier] ?? []).entries()) {
+      rows.push({
+        kind: 'quest-outcome-alt',
+        id: `${quest.id}:${tier}:alt:${index}`,
+        day: quest.days?.[0] ?? Number(quest.id.match(/^q-d([0-9]+)/)?.[1] ?? 0),
+        title: `${quest.title} · ${tier} · repeat ${index}`,
+        scores: {
+          mood: hasConcreteDetail(text) ? 4 : 3,
+          clarity: text.length > 75 ? 4 : 3,
+          originality: 3,
+          choice: 3,
+          consequence: 3,
+        },
+        issues: text.length < 70 ? ['brief repeat-outcome variant'] : [],
+        evidence: clipped(text),
+      })
+    }
+  }
+}
+for (const subject of EPILOGUE) {
+  for (const [index, variant] of subject.variants.entries()) {
+    rows.push({
+      kind: 'epilogue-variant',
+      id: `${subject.id}:${index}`,
+      day: 51,
+      title: `${subject.name} · ending state ${index}`,
+      scores: {
+        mood: hasConcreteDetail(variant.text) ? 4 : 3,
+        clarity: variant.text.length >= 75 ? 4 : 3,
+        originality: 3,
+        choice: 3,
+        consequence: variant.when ? 5 : 3,
+      },
+      issues: variant.text.length < 75 ? ['thin epilogue text'] : [],
+      evidence: clipped(variant.text),
     })
   }
 }
@@ -331,17 +408,47 @@ const markdown = [
   '| --- | ---: | --- | --- |',
   section('audience'),
   '',
+  '## Each audience follow-up beat',
+  '',
+  '| ID | Day | M/C/O/Ch/Co | Automatic findings |',
+  '| --- | ---: | --- | --- |',
+  section('audience-beat'),
+  '',
   '## Each follower talk (all opening and beat options screened)',
   '',
   '| ID | From day | M/C/O/Ch/Co | Automatic findings |',
   '| --- | ---: | --- | --- |',
   section('follower'),
   '',
+  '## Each follower follow-up beat',
+  '',
+  '| ID | From day | M/C/O/Ch/Co | Automatic findings |',
+  '| --- | ---: | --- | --- |',
+  section('follower-beat'),
+  '',
   '## Every defined quest result tier (missing tiers explicitly surfaced)',
   '',
   '| Quest outcome | Day | M/C/O/Ch/Co | Automatic findings |',
   '| --- | ---: | --- | --- |',
   section('quest-outcome'),
+  '',
+  '## Every flag-driven quest result variant',
+  '',
+  '| Quest outcome variant | Day | M/C/O/Ch/Co | Automatic findings |',
+  '| --- | ---: | --- | --- |',
+  section('quest-outcome-variant'),
+  '',
+  '## Every repeat-outcome variant',
+  '',
+  '| Repeated result | Day | M/C/O/Ch/Co | Automatic findings |',
+  '| --- | ---: | --- | --- |',
+  section('quest-outcome-alt'),
+  '',
+  '## Every epilogue state',
+  '',
+  '| Epilogue state | Day | M/C/O/Ch/Co | Automatic findings |',
+  '| --- | ---: | --- | --- |',
+  section('epilogue-variant'),
   '',
   '## Acceptance still required',
   '',
@@ -383,6 +490,8 @@ writeFileSync(`${directory}/editorial-screening.json`, JSON.stringify({
 }, null, 2) + '\n')
 console.log('EMPEROR_EDITORIAL_SCREENING ' + JSON.stringify({
   scenes: scenes.length,
+  individualBeats: segments.length - scenes.length,
+  epilogueStates: rows.filter((r) => r.kind === 'epilogue-variant').length,
   audiences: scenes.filter((s) => s.kind === 'audience').length,
   talks: TALKS.length,
   quests: quests.length,

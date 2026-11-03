@@ -1141,6 +1141,26 @@ const BARRACKS: EpilogueSubject[] = [
     ],
   },
   {
+    id: 'rook-dry-wash-promise',
+    name: 'The Dry Wash Promise',
+    follower: 'F001',
+    variants: [
+      {
+        when: { flags: ['rook-promise-kept'], alive: ['F001'], endings: PEACE },
+        text: 'The Watch stayed out of the dry wash until the thaw. Caravan drivers brought the crown their missing-goods lists and found Rook at the gate, taking every name. On the first warm morning Rook rode south to tell the scout the winter was over. Neither thanked the other.',
+      },
+      {
+        when: { flags: ['rook-promise-bounded'], alive: ['F001'], endings: PEACE },
+        text: 'A caravan came in short three sacks of grain. Rook rode to the dry wash with the warning before the Watch could muster. The wagons left that night. The missing grain came back to the gate; nobody brought a confession. Rook kept the signed terms pinned above the road map.',
+      },
+      {
+        when: { flags: ['rook-promise-broken'], alive: ['F001'], endings: PEACE },
+        mood: 'sad',
+        text: 'The Watch rode through the dry wash before the thaw. The old scout struck her tents on frozen ground. Rook refused the patrol but copied down the names of everyone the Watch drove out. That list stays in the barracks, beside the crown’s orders. No one has crossed a name off.',
+      },
+    ],
+  },
+  {
     id: 'saffron',
     name: 'Saffron Kett',
     follower: 'F002',

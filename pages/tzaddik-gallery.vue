@@ -352,6 +352,14 @@ import { useUserStore } from '@/stores/userStore'
 import type { TzaddikEditorialTag } from '~/prisma/generated/prisma/client'
 import { TZADDIK_TAG_ORDER, tzaddikTagLabel } from '@/utils/tzaddikTags'
 import { resolveTzaddikImageSrc } from '@/utils/tzaddikImage'
+import { gameLinkPreviewMeta } from '@/utils/gameLinkPreview'
+
+useSeoMeta(
+  gameLinkPreviewMeta(
+    'tzaddik-gallery',
+    useRuntimeConfig().public.appBaseUrl,
+  ) ?? {},
+)
 
 type TabKey = 'living' | 'memorial' | 'popculture' | 'suggestions' | 'review'
 

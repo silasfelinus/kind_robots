@@ -4,16 +4,19 @@
 // hideout and every ending stays reachable, careful play rarely loses the
 // crypt, and a full barracks does not live on the Ledger's loans.
 import { questDef } from './content'
+import { chanceEvent } from './dailyEvents'
 import { type EndingId, endingOf } from './endings'
 import {
   assignQuest,
   audienceScene,
   audiencesToday,
   chooseAudienceOption,
+  chooseChanceEvent,
   createRun,
   finishDay,
   followerStatus,
   isOver,
+  unmetRequirements,
   optionBlockers,
   previewQuest,
   recruit,
@@ -206,11 +209,26 @@ export type CampaignResult = {
  */
 export type CampaignObserver = {
   playTalks?: boolean
+  shouldRecruit?: (day: number, followerId: string, run: FortressRun) => boolean
+  /** Opt-in: answer the actual dawn encounter instead of ignoring it. */
+  playChanceEvents?: boolean
+  selectChanceChoice?: (
+    day: number,
+    eventId: string,
+    choices: readonly string[],
+    run: FortressRun,
+  ) => string | undefined
+  onChanceChoice?: (
+    day: number,
+    eventId: string,
+    choiceId: string,
+    run: FortressRun,
+  ) => void
   selectTalk?: (
     day: number,
     available: readonly TalkDef[],
     run: FortressRun,
-  ) => string | undefined
+  ) => string | null | undefined
   onAudienceScene?: (
     day: number,
     audienceId: string,
@@ -255,6 +273,7 @@ export const playCampaign = (
   while (!isOver(run)) {
     // Everyone who offers is taken on, with another bed bought if needed.
     for (const id of [...run.recruitable]) {
+      if (observer?.shouldRecruit?.(run.day, id, run) === false) continue
       try {
         run = recruit(run, id)
       } catch {
@@ -292,14 +311,38 @@ export const playCampaign = (
         observer?.onAudienceChoice?.(run.day, audience.id, pick.option, run)
       }
     }
+    if (observer?.playChanceEvents && run.dailyEvent) {
+      const event = chanceEvent(run.dailyEvent)
+      const choices = event?.choices.filter(
+        (choice) =>
+          unmetRequirements(run, choice.requires, choice.effects.recruit)
+            .length === 0,
+      )
+      const preferred = observer.selectChanceChoice?.(
+        run.day,
+        event?.id ?? '',
+        choices?.map((entry) => entry.id) ?? [],
+        run,
+      )
+      const choice =
+        choices?.find((entry) => entry.id === preferred) ??
+        choices?.find((entry) => entry.id === 'welcome') ??
+        choices?.[0]
+      if (event && choice) {
+        run = chooseChanceEvent(run, event.id, choice.id).run
+        observer.onChanceChoice?.(run.day, event.id, choice.id, run)
+      }
+    }
     if (observer?.playTalks) {
       const available = run.roster
         .map((state) => talkFor(run, state.id))
         .filter((talk) => talk !== undefined)
       const preferred = observer.selectTalk?.(run.day, available, run)
       const selected =
-        available.find((talk) => talk.id === preferred) ??
-        available[(seed + run.day + policy.id.length) % available.length]
+        preferred === null
+          ? undefined
+          : (available.find((talk) => talk.id === preferred) ??
+            available[(seed + run.day + policy.id.length) % available.length])
       if (selected) {
         for (let beat = 0; beat < 8; beat += 1) {
           if ((run.talksHeard ?? []).includes(selected.id)) break

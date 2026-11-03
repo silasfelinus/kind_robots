@@ -62,6 +62,8 @@ export const ModelName = {
   ArchiveActionPreset: 'ArchiveActionPreset',
   BrainstormSession: 'BrainstormSession',
   BrainstormCandidate: 'BrainstormCandidate',
+  BrainstormRiff: 'BrainstormRiff',
+  BrainstormLine: 'BrainstormLine',
   ComicSeries: 'ComicSeries',
   ComicEntity: 'ComicEntity',
   ComicSlot: 'ComicSlot',
@@ -383,6 +385,41 @@ export const BrainstormCandidateScalarFieldEnum = {
 } as const
 
 export type BrainstormCandidateScalarFieldEnum = (typeof BrainstormCandidateScalarFieldEnum)[keyof typeof BrainstormCandidateScalarFieldEnum]
+
+
+export const BrainstormRiffScalarFieldEnum = {
+  id: 'id',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  userId: 'userId',
+  starterKey: 'starterKey',
+  flavor: 'flavor',
+  title: 'title',
+  stem: 'stem',
+  vibe: 'vibe',
+  crossoverIds: 'crossoverIds',
+  isPublic: 'isPublic',
+  isOpen: 'isOpen',
+  lastLineAt: 'lastLineAt'
+} as const
+
+export type BrainstormRiffScalarFieldEnum = (typeof BrainstormRiffScalarFieldEnum)[keyof typeof BrainstormRiffScalarFieldEnum]
+
+
+export const BrainstormLineScalarFieldEnum = {
+  id: 'id',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  riffId: 'riffId',
+  userId: 'userId',
+  authorName: 'authorName',
+  text: 'text',
+  aiSpark: 'aiSpark',
+  artJobId: 'artJobId',
+  artImageId: 'artImageId'
+} as const
+
+export type BrainstormLineScalarFieldEnum = (typeof BrainstormLineScalarFieldEnum)[keyof typeof BrainstormLineScalarFieldEnum]
 
 
 export const ComicSeriesScalarFieldEnum = {
@@ -1719,6 +1756,7 @@ export const ReactionScalarFieldEnum = {
   facetId: 'facetId',
   tzaddikCandidateId: 'tzaddikCandidateId',
   plumberLevelId: 'plumberLevelId',
+  brainstormLineId: 'brainstormLineId',
   authorBotId: 'authorBotId',
   authorCharacterId: 'authorCharacterId'
 } as const
@@ -2990,6 +3028,27 @@ export const BrainstormCandidateOrderByRelevanceFieldEnum = {
 } as const
 
 export type BrainstormCandidateOrderByRelevanceFieldEnum = (typeof BrainstormCandidateOrderByRelevanceFieldEnum)[keyof typeof BrainstormCandidateOrderByRelevanceFieldEnum]
+
+
+export const BrainstormRiffOrderByRelevanceFieldEnum = {
+  starterKey: 'starterKey',
+  flavor: 'flavor',
+  title: 'title',
+  stem: 'stem',
+  vibe: 'vibe',
+  crossoverIds: 'crossoverIds'
+} as const
+
+export type BrainstormRiffOrderByRelevanceFieldEnum = (typeof BrainstormRiffOrderByRelevanceFieldEnum)[keyof typeof BrainstormRiffOrderByRelevanceFieldEnum]
+
+
+export const BrainstormLineOrderByRelevanceFieldEnum = {
+  authorName: 'authorName',
+  text: 'text',
+  aiSpark: 'aiSpark'
+} as const
+
+export type BrainstormLineOrderByRelevanceFieldEnum = (typeof BrainstormLineOrderByRelevanceFieldEnum)[keyof typeof BrainstormLineOrderByRelevanceFieldEnum]
 
 
 export const ComicSeriesOrderByRelevanceFieldEnum = {

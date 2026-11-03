@@ -523,7 +523,8 @@ export const Reaction_reactionCategory = {
   REWARD: 'REWARD',
   SCENARIO: 'SCENARIO',
   THEME: 'THEME',
-  TZADDIK: 'TZADDIK'
+  TZADDIK: 'TZADDIK',
+  BRAINSTORM_LINE: 'BRAINSTORM_LINE'
 } as const
 
 export type Reaction_reactionCategory = (typeof Reaction_reactionCategory)[keyof typeof Reaction_reactionCategory]

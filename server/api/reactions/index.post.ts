@@ -265,6 +265,9 @@ function getExpectedTargetField(
     // 20260821230000_retire_butterfly_reaction_target, so naming it now would
     // not compile.
     [Reaction_reactionCategory.COMPONENT]: null,
+    // Brainstorm lines toggle through /api/brainstorm/lines/[id]/react, which
+    // owns the one-reaction-per-line rule and the riff visibility check.
+    [Reaction_reactionCategory.BRAINSTORM_LINE]: null,
   }
 
   return map[category]
@@ -565,6 +568,12 @@ export default defineEventHandler(async (event) => {
       throw createError({
         statusCode: 400,
         message: 'Use /api/plumber-levels/reviews to submit a verified course rating.',
+      })
+    }
+    if (reactionCategory === Reaction_reactionCategory.BRAINSTORM_LINE) {
+      throw createError({
+        statusCode: 400,
+        message: 'Use /api/brainstorm/lines/[id]/react to react to a Brainstorm line.',
       })
     }
     const targetWhere = buildTargetWhere(reactionCategory, targets)

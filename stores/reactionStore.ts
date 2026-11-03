@@ -44,6 +44,7 @@ export const reactionCategories: ReactionCategoryEnum[] = [
   'SCENARIO',
   'THEME',
   'TZADDIK',
+  'BRAINSTORM_LINE',
 ]
 
 // t-066: a reaction target and a karma-earning object are the same set by

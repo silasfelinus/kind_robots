@@ -46,6 +46,7 @@ export type ReactionAvgAggregateOutputType = {
   facetId: number | null
   tzaddikCandidateId: number | null
   plumberLevelId: number | null
+  brainstormLineId: number | null
   authorBotId: number | null
   authorCharacterId: number | null
 }
@@ -70,6 +71,7 @@ export type ReactionSumAggregateOutputType = {
   facetId: number | null
   tzaddikCandidateId: number | null
   plumberLevelId: number | null
+  brainstormLineId: number | null
   authorBotId: number | null
   authorCharacterId: number | null
 }
@@ -99,6 +101,7 @@ export type ReactionMinAggregateOutputType = {
   facetId: number | null
   tzaddikCandidateId: number | null
   plumberLevelId: number | null
+  brainstormLineId: number | null
   authorBotId: number | null
   authorCharacterId: number | null
 }
@@ -128,6 +131,7 @@ export type ReactionMaxAggregateOutputType = {
   facetId: number | null
   tzaddikCandidateId: number | null
   plumberLevelId: number | null
+  brainstormLineId: number | null
   authorBotId: number | null
   authorCharacterId: number | null
 }
@@ -157,6 +161,7 @@ export type ReactionCountAggregateOutputType = {
   facetId: number
   tzaddikCandidateId: number
   plumberLevelId: number
+  brainstormLineId: number
   authorBotId: number
   authorCharacterId: number
   _all: number
@@ -183,6 +188,7 @@ export type ReactionAvgAggregateInputType = {
   facetId?: true
   tzaddikCandidateId?: true
   plumberLevelId?: true
+  brainstormLineId?: true
   authorBotId?: true
   authorCharacterId?: true
 }
@@ -207,6 +213,7 @@ export type ReactionSumAggregateInputType = {
   facetId?: true
   tzaddikCandidateId?: true
   plumberLevelId?: true
+  brainstormLineId?: true
   authorBotId?: true
   authorCharacterId?: true
 }
@@ -236,6 +243,7 @@ export type ReactionMinAggregateInputType = {
   facetId?: true
   tzaddikCandidateId?: true
   plumberLevelId?: true
+  brainstormLineId?: true
   authorBotId?: true
   authorCharacterId?: true
 }
@@ -265,6 +273,7 @@ export type ReactionMaxAggregateInputType = {
   facetId?: true
   tzaddikCandidateId?: true
   plumberLevelId?: true
+  brainstormLineId?: true
   authorBotId?: true
   authorCharacterId?: true
 }
@@ -294,6 +303,7 @@ export type ReactionCountAggregateInputType = {
   facetId?: true
   tzaddikCandidateId?: true
   plumberLevelId?: true
+  brainstormLineId?: true
   authorBotId?: true
   authorCharacterId?: true
   _all?: true
@@ -410,6 +420,7 @@ export type ReactionGroupByOutputType = {
   facetId: number | null
   tzaddikCandidateId: number | null
   plumberLevelId: number | null
+  brainstormLineId: number | null
   authorBotId: number | null
   authorCharacterId: number | null
   _count: ReactionCountAggregateOutputType | null
@@ -462,6 +473,7 @@ export type ReactionWhereInput = {
   facetId?: Prisma.IntNullableFilter<"Reaction"> | number | null
   tzaddikCandidateId?: Prisma.IntNullableFilter<"Reaction"> | number | null
   plumberLevelId?: Prisma.IntNullableFilter<"Reaction"> | number | null
+  brainstormLineId?: Prisma.IntNullableFilter<"Reaction"> | number | null
   authorBotId?: Prisma.IntNullableFilter<"Reaction"> | number | null
   authorCharacterId?: Prisma.IntNullableFilter<"Reaction"> | number | null
   ArtCollection?: Prisma.XOR<Prisma.ArtCollectionNullableScalarRelationFilter, Prisma.ArtCollectionWhereInput> | null
@@ -482,6 +494,7 @@ export type ReactionWhereInput = {
   Theme?: Prisma.XOR<Prisma.ThemeNullableScalarRelationFilter, Prisma.ThemeWhereInput> | null
   TzaddikCandidate?: Prisma.XOR<Prisma.TzaddikCandidateNullableScalarRelationFilter, Prisma.TzaddikCandidateWhereInput> | null
   PlumberLevel?: Prisma.XOR<Prisma.PlumberLevelNullableScalarRelationFilter, Prisma.PlumberLevelWhereInput> | null
+  BrainstormLine?: Prisma.XOR<Prisma.BrainstormLineNullableScalarRelationFilter, Prisma.BrainstormLineWhereInput> | null
   User?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
 }
 
@@ -510,6 +523,7 @@ export type ReactionOrderByWithRelationInput = {
   facetId?: Prisma.SortOrderInput | Prisma.SortOrder
   tzaddikCandidateId?: Prisma.SortOrderInput | Prisma.SortOrder
   plumberLevelId?: Prisma.SortOrderInput | Prisma.SortOrder
+  brainstormLineId?: Prisma.SortOrderInput | Prisma.SortOrder
   authorBotId?: Prisma.SortOrderInput | Prisma.SortOrder
   authorCharacterId?: Prisma.SortOrderInput | Prisma.SortOrder
   ArtCollection?: Prisma.ArtCollectionOrderByWithRelationInput
@@ -530,6 +544,7 @@ export type ReactionOrderByWithRelationInput = {
   Theme?: Prisma.ThemeOrderByWithRelationInput
   TzaddikCandidate?: Prisma.TzaddikCandidateOrderByWithRelationInput
   PlumberLevel?: Prisma.PlumberLevelOrderByWithRelationInput
+  BrainstormLine?: Prisma.BrainstormLineOrderByWithRelationInput
   User?: Prisma.UserOrderByWithRelationInput
   _relevance?: Prisma.ReactionOrderByRelevanceInput
 }
@@ -538,6 +553,7 @@ export type ReactionWhereUniqueInput = Prisma.AtLeast<{
   id?: number
   userId_challengeSubmissionId?: Prisma.ReactionUserIdChallengeSubmissionIdCompoundUniqueInput
   userId_plumberLevelId?: Prisma.ReactionUserIdPlumberLevelIdCompoundUniqueInput
+  userId_brainstormLineId?: Prisma.ReactionUserIdBrainstormLineIdCompoundUniqueInput
   AND?: Prisma.ReactionWhereInput | Prisma.ReactionWhereInput[]
   OR?: Prisma.ReactionWhereInput[]
   NOT?: Prisma.ReactionWhereInput | Prisma.ReactionWhereInput[]
@@ -564,6 +580,7 @@ export type ReactionWhereUniqueInput = Prisma.AtLeast<{
   facetId?: Prisma.IntNullableFilter<"Reaction"> | number | null
   tzaddikCandidateId?: Prisma.IntNullableFilter<"Reaction"> | number | null
   plumberLevelId?: Prisma.IntNullableFilter<"Reaction"> | number | null
+  brainstormLineId?: Prisma.IntNullableFilter<"Reaction"> | number | null
   authorBotId?: Prisma.IntNullableFilter<"Reaction"> | number | null
   authorCharacterId?: Prisma.IntNullableFilter<"Reaction"> | number | null
   ArtCollection?: Prisma.XOR<Prisma.ArtCollectionNullableScalarRelationFilter, Prisma.ArtCollectionWhereInput> | null
@@ -584,8 +601,9 @@ export type ReactionWhereUniqueInput = Prisma.AtLeast<{
   Theme?: Prisma.XOR<Prisma.ThemeNullableScalarRelationFilter, Prisma.ThemeWhereInput> | null
   TzaddikCandidate?: Prisma.XOR<Prisma.TzaddikCandidateNullableScalarRelationFilter, Prisma.TzaddikCandidateWhereInput> | null
   PlumberLevel?: Prisma.XOR<Prisma.PlumberLevelNullableScalarRelationFilter, Prisma.PlumberLevelWhereInput> | null
+  BrainstormLine?: Prisma.XOR<Prisma.BrainstormLineNullableScalarRelationFilter, Prisma.BrainstormLineWhereInput> | null
   User?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
-}, "id" | "id" | "userId_challengeSubmissionId" | "userId_plumberLevelId">
+}, "id" | "id" | "userId_challengeSubmissionId" | "userId_plumberLevelId" | "userId_brainstormLineId">
 
 export type ReactionOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
@@ -612,6 +630,7 @@ export type ReactionOrderByWithAggregationInput = {
   facetId?: Prisma.SortOrderInput | Prisma.SortOrder
   tzaddikCandidateId?: Prisma.SortOrderInput | Prisma.SortOrder
   plumberLevelId?: Prisma.SortOrderInput | Prisma.SortOrder
+  brainstormLineId?: Prisma.SortOrderInput | Prisma.SortOrder
   authorBotId?: Prisma.SortOrderInput | Prisma.SortOrder
   authorCharacterId?: Prisma.SortOrderInput | Prisma.SortOrder
   _count?: Prisma.ReactionCountOrderByAggregateInput
@@ -649,6 +668,7 @@ export type ReactionScalarWhereWithAggregatesInput = {
   facetId?: Prisma.IntNullableWithAggregatesFilter<"Reaction"> | number | null
   tzaddikCandidateId?: Prisma.IntNullableWithAggregatesFilter<"Reaction"> | number | null
   plumberLevelId?: Prisma.IntNullableWithAggregatesFilter<"Reaction"> | number | null
+  brainstormLineId?: Prisma.IntNullableWithAggregatesFilter<"Reaction"> | number | null
   authorBotId?: Prisma.IntNullableWithAggregatesFilter<"Reaction"> | number | null
   authorCharacterId?: Prisma.IntNullableWithAggregatesFilter<"Reaction"> | number | null
 }
@@ -678,6 +698,7 @@ export type ReactionCreateInput = {
   Theme?: Prisma.ThemeCreateNestedOneWithoutReactionsInput
   TzaddikCandidate?: Prisma.TzaddikCandidateCreateNestedOneWithoutReactionsInput
   PlumberLevel?: Prisma.PlumberLevelCreateNestedOneWithoutReactionsInput
+  BrainstormLine?: Prisma.BrainstormLineCreateNestedOneWithoutReactionsInput
   User: Prisma.UserCreateNestedOneWithoutReactionsInput
 }
 
@@ -706,6 +727,7 @@ export type ReactionUncheckedCreateInput = {
   facetId?: number | null
   tzaddikCandidateId?: number | null
   plumberLevelId?: number | null
+  brainstormLineId?: number | null
   authorBotId?: number | null
   authorCharacterId?: number | null
 }
@@ -735,6 +757,7 @@ export type ReactionUpdateInput = {
   Theme?: Prisma.ThemeUpdateOneWithoutReactionsNestedInput
   TzaddikCandidate?: Prisma.TzaddikCandidateUpdateOneWithoutReactionsNestedInput
   PlumberLevel?: Prisma.PlumberLevelUpdateOneWithoutReactionsNestedInput
+  BrainstormLine?: Prisma.BrainstormLineUpdateOneWithoutReactionsNestedInput
   User?: Prisma.UserUpdateOneRequiredWithoutReactionsNestedInput
 }
 
@@ -763,6 +786,7 @@ export type ReactionUncheckedUpdateInput = {
   facetId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   tzaddikCandidateId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   plumberLevelId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  brainstormLineId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   authorBotId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   authorCharacterId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
 }
@@ -792,6 +816,7 @@ export type ReactionCreateManyInput = {
   facetId?: number | null
   tzaddikCandidateId?: number | null
   plumberLevelId?: number | null
+  brainstormLineId?: number | null
   authorBotId?: number | null
   authorCharacterId?: number | null
 }
@@ -830,6 +855,7 @@ export type ReactionUncheckedUpdateManyInput = {
   facetId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   tzaddikCandidateId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   plumberLevelId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  brainstormLineId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   authorBotId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   authorCharacterId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
 }
@@ -860,6 +886,11 @@ export type ReactionUserIdPlumberLevelIdCompoundUniqueInput = {
   plumberLevelId: number
 }
 
+export type ReactionUserIdBrainstormLineIdCompoundUniqueInput = {
+  userId: number
+  brainstormLineId: number
+}
+
 export type ReactionCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -885,6 +916,7 @@ export type ReactionCountOrderByAggregateInput = {
   facetId?: Prisma.SortOrder
   tzaddikCandidateId?: Prisma.SortOrder
   plumberLevelId?: Prisma.SortOrder
+  brainstormLineId?: Prisma.SortOrder
   authorBotId?: Prisma.SortOrder
   authorCharacterId?: Prisma.SortOrder
 }
@@ -909,6 +941,7 @@ export type ReactionAvgOrderByAggregateInput = {
   facetId?: Prisma.SortOrder
   tzaddikCandidateId?: Prisma.SortOrder
   plumberLevelId?: Prisma.SortOrder
+  brainstormLineId?: Prisma.SortOrder
   authorBotId?: Prisma.SortOrder
   authorCharacterId?: Prisma.SortOrder
 }
@@ -938,6 +971,7 @@ export type ReactionMaxOrderByAggregateInput = {
   facetId?: Prisma.SortOrder
   tzaddikCandidateId?: Prisma.SortOrder
   plumberLevelId?: Prisma.SortOrder
+  brainstormLineId?: Prisma.SortOrder
   authorBotId?: Prisma.SortOrder
   authorCharacterId?: Prisma.SortOrder
 }
@@ -967,6 +1001,7 @@ export type ReactionMinOrderByAggregateInput = {
   facetId?: Prisma.SortOrder
   tzaddikCandidateId?: Prisma.SortOrder
   plumberLevelId?: Prisma.SortOrder
+  brainstormLineId?: Prisma.SortOrder
   authorBotId?: Prisma.SortOrder
   authorCharacterId?: Prisma.SortOrder
 }
@@ -991,8 +1026,51 @@ export type ReactionSumOrderByAggregateInput = {
   facetId?: Prisma.SortOrder
   tzaddikCandidateId?: Prisma.SortOrder
   plumberLevelId?: Prisma.SortOrder
+  brainstormLineId?: Prisma.SortOrder
   authorBotId?: Prisma.SortOrder
   authorCharacterId?: Prisma.SortOrder
+}
+
+export type ReactionCreateNestedManyWithoutBrainstormLineInput = {
+  create?: Prisma.XOR<Prisma.ReactionCreateWithoutBrainstormLineInput, Prisma.ReactionUncheckedCreateWithoutBrainstormLineInput> | Prisma.ReactionCreateWithoutBrainstormLineInput[] | Prisma.ReactionUncheckedCreateWithoutBrainstormLineInput[]
+  connectOrCreate?: Prisma.ReactionCreateOrConnectWithoutBrainstormLineInput | Prisma.ReactionCreateOrConnectWithoutBrainstormLineInput[]
+  createMany?: Prisma.ReactionCreateManyBrainstormLineInputEnvelope
+  connect?: Prisma.ReactionWhereUniqueInput | Prisma.ReactionWhereUniqueInput[]
+}
+
+export type ReactionUncheckedCreateNestedManyWithoutBrainstormLineInput = {
+  create?: Prisma.XOR<Prisma.ReactionCreateWithoutBrainstormLineInput, Prisma.ReactionUncheckedCreateWithoutBrainstormLineInput> | Prisma.ReactionCreateWithoutBrainstormLineInput[] | Prisma.ReactionUncheckedCreateWithoutBrainstormLineInput[]
+  connectOrCreate?: Prisma.ReactionCreateOrConnectWithoutBrainstormLineInput | Prisma.ReactionCreateOrConnectWithoutBrainstormLineInput[]
+  createMany?: Prisma.ReactionCreateManyBrainstormLineInputEnvelope
+  connect?: Prisma.ReactionWhereUniqueInput | Prisma.ReactionWhereUniqueInput[]
+}
+
+export type ReactionUpdateManyWithoutBrainstormLineNestedInput = {
+  create?: Prisma.XOR<Prisma.ReactionCreateWithoutBrainstormLineInput, Prisma.ReactionUncheckedCreateWithoutBrainstormLineInput> | Prisma.ReactionCreateWithoutBrainstormLineInput[] | Prisma.ReactionUncheckedCreateWithoutBrainstormLineInput[]
+  connectOrCreate?: Prisma.ReactionCreateOrConnectWithoutBrainstormLineInput | Prisma.ReactionCreateOrConnectWithoutBrainstormLineInput[]
+  upsert?: Prisma.ReactionUpsertWithWhereUniqueWithoutBrainstormLineInput | Prisma.ReactionUpsertWithWhereUniqueWithoutBrainstormLineInput[]
+  createMany?: Prisma.ReactionCreateManyBrainstormLineInputEnvelope
+  set?: Prisma.ReactionWhereUniqueInput | Prisma.ReactionWhereUniqueInput[]
+  disconnect?: Prisma.ReactionWhereUniqueInput | Prisma.ReactionWhereUniqueInput[]
+  delete?: Prisma.ReactionWhereUniqueInput | Prisma.ReactionWhereUniqueInput[]
+  connect?: Prisma.ReactionWhereUniqueInput | Prisma.ReactionWhereUniqueInput[]
+  update?: Prisma.ReactionUpdateWithWhereUniqueWithoutBrainstormLineInput | Prisma.ReactionUpdateWithWhereUniqueWithoutBrainstormLineInput[]
+  updateMany?: Prisma.ReactionUpdateManyWithWhereWithoutBrainstormLineInput | Prisma.ReactionUpdateManyWithWhereWithoutBrainstormLineInput[]
+  deleteMany?: Prisma.ReactionScalarWhereInput | Prisma.ReactionScalarWhereInput[]
+}
+
+export type ReactionUncheckedUpdateManyWithoutBrainstormLineNestedInput = {
+  create?: Prisma.XOR<Prisma.ReactionCreateWithoutBrainstormLineInput, Prisma.ReactionUncheckedCreateWithoutBrainstormLineInput> | Prisma.ReactionCreateWithoutBrainstormLineInput[] | Prisma.ReactionUncheckedCreateWithoutBrainstormLineInput[]
+  connectOrCreate?: Prisma.ReactionCreateOrConnectWithoutBrainstormLineInput | Prisma.ReactionCreateOrConnectWithoutBrainstormLineInput[]
+  upsert?: Prisma.ReactionUpsertWithWhereUniqueWithoutBrainstormLineInput | Prisma.ReactionUpsertWithWhereUniqueWithoutBrainstormLineInput[]
+  createMany?: Prisma.ReactionCreateManyBrainstormLineInputEnvelope
+  set?: Prisma.ReactionWhereUniqueInput | Prisma.ReactionWhereUniqueInput[]
+  disconnect?: Prisma.ReactionWhereUniqueInput | Prisma.ReactionWhereUniqueInput[]
+  delete?: Prisma.ReactionWhereUniqueInput | Prisma.ReactionWhereUniqueInput[]
+  connect?: Prisma.ReactionWhereUniqueInput | Prisma.ReactionWhereUniqueInput[]
+  update?: Prisma.ReactionUpdateWithWhereUniqueWithoutBrainstormLineInput | Prisma.ReactionUpdateWithWhereUniqueWithoutBrainstormLineInput[]
+  updateMany?: Prisma.ReactionUpdateManyWithWhereWithoutBrainstormLineInput | Prisma.ReactionUpdateManyWithWhereWithoutBrainstormLineInput[]
+  deleteMany?: Prisma.ReactionScalarWhereInput | Prisma.ReactionScalarWhereInput[]
 }
 
 export type ReactionCreateNestedManyWithoutArtImageInput = {
@@ -1801,7 +1879,7 @@ export type ReactionUncheckedUpdateManyWithoutTzaddikCandidateNestedInput = {
   deleteMany?: Prisma.ReactionScalarWhereInput | Prisma.ReactionScalarWhereInput[]
 }
 
-export type ReactionCreateWithoutArtImageInput = {
+export type ReactionCreateWithoutBrainstormLineInput = {
   createdAt?: Date | string
   updatedAt?: Date | string | null
   comment?: string | null
@@ -1809,6 +1887,7 @@ export type ReactionCreateWithoutArtImageInput = {
   reactionCategory?: $Enums.Reaction_reactionCategory
   rating?: number
   ArtCollection?: Prisma.ArtCollectionCreateNestedOneWithoutReactionsInput
+  ArtImage?: Prisma.ArtImageCreateNestedOneWithoutReactionsInput
   Bot?: Prisma.BotCreateNestedOneWithoutReactionsInput
   AuthorBot?: Prisma.BotCreateNestedOneWithoutAuthoredReactionsInput
   ChallengeSubmission?: Prisma.ChallengeSubmissionCreateNestedOneWithoutReactionsInput
@@ -1828,7 +1907,7 @@ export type ReactionCreateWithoutArtImageInput = {
   User: Prisma.UserCreateNestedOneWithoutReactionsInput
 }
 
-export type ReactionUncheckedCreateWithoutArtImageInput = {
+export type ReactionUncheckedCreateWithoutBrainstormLineInput = {
   id?: number
   createdAt?: Date | string
   updatedAt?: Date | string | null
@@ -1837,6 +1916,7 @@ export type ReactionUncheckedCreateWithoutArtImageInput = {
   reactionType: $Enums.ReactionType
   reactionCategory?: $Enums.Reaction_reactionCategory
   rating?: number
+  artImageId?: number | null
   botId?: number | null
   promptId?: number | null
   resourceId?: number | null
@@ -1856,30 +1936,30 @@ export type ReactionUncheckedCreateWithoutArtImageInput = {
   authorCharacterId?: number | null
 }
 
-export type ReactionCreateOrConnectWithoutArtImageInput = {
+export type ReactionCreateOrConnectWithoutBrainstormLineInput = {
   where: Prisma.ReactionWhereUniqueInput
-  create: Prisma.XOR<Prisma.ReactionCreateWithoutArtImageInput, Prisma.ReactionUncheckedCreateWithoutArtImageInput>
+  create: Prisma.XOR<Prisma.ReactionCreateWithoutBrainstormLineInput, Prisma.ReactionUncheckedCreateWithoutBrainstormLineInput>
 }
 
-export type ReactionCreateManyArtImageInputEnvelope = {
-  data: Prisma.ReactionCreateManyArtImageInput | Prisma.ReactionCreateManyArtImageInput[]
+export type ReactionCreateManyBrainstormLineInputEnvelope = {
+  data: Prisma.ReactionCreateManyBrainstormLineInput | Prisma.ReactionCreateManyBrainstormLineInput[]
   skipDuplicates?: boolean
 }
 
-export type ReactionUpsertWithWhereUniqueWithoutArtImageInput = {
+export type ReactionUpsertWithWhereUniqueWithoutBrainstormLineInput = {
   where: Prisma.ReactionWhereUniqueInput
-  update: Prisma.XOR<Prisma.ReactionUpdateWithoutArtImageInput, Prisma.ReactionUncheckedUpdateWithoutArtImageInput>
-  create: Prisma.XOR<Prisma.ReactionCreateWithoutArtImageInput, Prisma.ReactionUncheckedCreateWithoutArtImageInput>
+  update: Prisma.XOR<Prisma.ReactionUpdateWithoutBrainstormLineInput, Prisma.ReactionUncheckedUpdateWithoutBrainstormLineInput>
+  create: Prisma.XOR<Prisma.ReactionCreateWithoutBrainstormLineInput, Prisma.ReactionUncheckedCreateWithoutBrainstormLineInput>
 }
 
-export type ReactionUpdateWithWhereUniqueWithoutArtImageInput = {
+export type ReactionUpdateWithWhereUniqueWithoutBrainstormLineInput = {
   where: Prisma.ReactionWhereUniqueInput
-  data: Prisma.XOR<Prisma.ReactionUpdateWithoutArtImageInput, Prisma.ReactionUncheckedUpdateWithoutArtImageInput>
+  data: Prisma.XOR<Prisma.ReactionUpdateWithoutBrainstormLineInput, Prisma.ReactionUncheckedUpdateWithoutBrainstormLineInput>
 }
 
-export type ReactionUpdateManyWithWhereWithoutArtImageInput = {
+export type ReactionUpdateManyWithWhereWithoutBrainstormLineInput = {
   where: Prisma.ReactionScalarWhereInput
-  data: Prisma.XOR<Prisma.ReactionUpdateManyMutationInput, Prisma.ReactionUncheckedUpdateManyWithoutArtImageInput>
+  data: Prisma.XOR<Prisma.ReactionUpdateManyMutationInput, Prisma.ReactionUncheckedUpdateManyWithoutBrainstormLineInput>
 }
 
 export type ReactionScalarWhereInput = {
@@ -1910,8 +1990,92 @@ export type ReactionScalarWhereInput = {
   facetId?: Prisma.IntNullableFilter<"Reaction"> | number | null
   tzaddikCandidateId?: Prisma.IntNullableFilter<"Reaction"> | number | null
   plumberLevelId?: Prisma.IntNullableFilter<"Reaction"> | number | null
+  brainstormLineId?: Prisma.IntNullableFilter<"Reaction"> | number | null
   authorBotId?: Prisma.IntNullableFilter<"Reaction"> | number | null
   authorCharacterId?: Prisma.IntNullableFilter<"Reaction"> | number | null
+}
+
+export type ReactionCreateWithoutArtImageInput = {
+  createdAt?: Date | string
+  updatedAt?: Date | string | null
+  comment?: string | null
+  reactionType: $Enums.ReactionType
+  reactionCategory?: $Enums.Reaction_reactionCategory
+  rating?: number
+  ArtCollection?: Prisma.ArtCollectionCreateNestedOneWithoutReactionsInput
+  Bot?: Prisma.BotCreateNestedOneWithoutReactionsInput
+  AuthorBot?: Prisma.BotCreateNestedOneWithoutAuthoredReactionsInput
+  ChallengeSubmission?: Prisma.ChallengeSubmissionCreateNestedOneWithoutReactionsInput
+  Character?: Prisma.CharacterCreateNestedOneWithoutReactionsInput
+  AuthorCharacter?: Prisma.CharacterCreateNestedOneWithoutAuthoredReactionsInput
+  Chat?: Prisma.ChatCreateNestedOneWithoutReactionsInput
+  Dream?: Prisma.DreamCreateNestedOneWithoutReactionsInput
+  Facet?: Prisma.FacetCreateNestedOneWithoutReactionsInput
+  Project?: Prisma.ProjectCreateNestedOneWithoutReactionsInput
+  Prompt?: Prisma.PromptCreateNestedOneWithoutReactionsInput
+  Resource?: Prisma.ResourceCreateNestedOneWithoutReactionsInput
+  Reward?: Prisma.RewardCreateNestedOneWithoutReactionsInput
+  Scenario?: Prisma.ScenarioCreateNestedOneWithoutReactionsInput
+  Theme?: Prisma.ThemeCreateNestedOneWithoutReactionsInput
+  TzaddikCandidate?: Prisma.TzaddikCandidateCreateNestedOneWithoutReactionsInput
+  PlumberLevel?: Prisma.PlumberLevelCreateNestedOneWithoutReactionsInput
+  BrainstormLine?: Prisma.BrainstormLineCreateNestedOneWithoutReactionsInput
+  User: Prisma.UserCreateNestedOneWithoutReactionsInput
+}
+
+export type ReactionUncheckedCreateWithoutArtImageInput = {
+  id?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string | null
+  comment?: string | null
+  userId: number
+  reactionType: $Enums.ReactionType
+  reactionCategory?: $Enums.Reaction_reactionCategory
+  rating?: number
+  botId?: number | null
+  promptId?: number | null
+  resourceId?: number | null
+  rewardId?: number | null
+  chatId?: number | null
+  dreamId?: number | null
+  artCollectionId?: number | null
+  characterId?: number | null
+  scenarioId?: number | null
+  themeId?: number | null
+  challengeSubmissionId?: number | null
+  projectId?: number | null
+  facetId?: number | null
+  tzaddikCandidateId?: number | null
+  plumberLevelId?: number | null
+  brainstormLineId?: number | null
+  authorBotId?: number | null
+  authorCharacterId?: number | null
+}
+
+export type ReactionCreateOrConnectWithoutArtImageInput = {
+  where: Prisma.ReactionWhereUniqueInput
+  create: Prisma.XOR<Prisma.ReactionCreateWithoutArtImageInput, Prisma.ReactionUncheckedCreateWithoutArtImageInput>
+}
+
+export type ReactionCreateManyArtImageInputEnvelope = {
+  data: Prisma.ReactionCreateManyArtImageInput | Prisma.ReactionCreateManyArtImageInput[]
+  skipDuplicates?: boolean
+}
+
+export type ReactionUpsertWithWhereUniqueWithoutArtImageInput = {
+  where: Prisma.ReactionWhereUniqueInput
+  update: Prisma.XOR<Prisma.ReactionUpdateWithoutArtImageInput, Prisma.ReactionUncheckedUpdateWithoutArtImageInput>
+  create: Prisma.XOR<Prisma.ReactionCreateWithoutArtImageInput, Prisma.ReactionUncheckedCreateWithoutArtImageInput>
+}
+
+export type ReactionUpdateWithWhereUniqueWithoutArtImageInput = {
+  where: Prisma.ReactionWhereUniqueInput
+  data: Prisma.XOR<Prisma.ReactionUpdateWithoutArtImageInput, Prisma.ReactionUncheckedUpdateWithoutArtImageInput>
+}
+
+export type ReactionUpdateManyWithWhereWithoutArtImageInput = {
+  where: Prisma.ReactionScalarWhereInput
+  data: Prisma.XOR<Prisma.ReactionUpdateManyMutationInput, Prisma.ReactionUncheckedUpdateManyWithoutArtImageInput>
 }
 
 export type ReactionCreateWithoutArtCollectionInput = {
@@ -1938,6 +2102,7 @@ export type ReactionCreateWithoutArtCollectionInput = {
   Theme?: Prisma.ThemeCreateNestedOneWithoutReactionsInput
   TzaddikCandidate?: Prisma.TzaddikCandidateCreateNestedOneWithoutReactionsInput
   PlumberLevel?: Prisma.PlumberLevelCreateNestedOneWithoutReactionsInput
+  BrainstormLine?: Prisma.BrainstormLineCreateNestedOneWithoutReactionsInput
   User: Prisma.UserCreateNestedOneWithoutReactionsInput
 }
 
@@ -1965,6 +2130,7 @@ export type ReactionUncheckedCreateWithoutArtCollectionInput = {
   facetId?: number | null
   tzaddikCandidateId?: number | null
   plumberLevelId?: number | null
+  brainstormLineId?: number | null
   authorBotId?: number | null
   authorCharacterId?: number | null
 }
@@ -2019,6 +2185,7 @@ export type ReactionCreateWithoutBotInput = {
   Theme?: Prisma.ThemeCreateNestedOneWithoutReactionsInput
   TzaddikCandidate?: Prisma.TzaddikCandidateCreateNestedOneWithoutReactionsInput
   PlumberLevel?: Prisma.PlumberLevelCreateNestedOneWithoutReactionsInput
+  BrainstormLine?: Prisma.BrainstormLineCreateNestedOneWithoutReactionsInput
   User: Prisma.UserCreateNestedOneWithoutReactionsInput
 }
 
@@ -2046,6 +2213,7 @@ export type ReactionUncheckedCreateWithoutBotInput = {
   facetId?: number | null
   tzaddikCandidateId?: number | null
   plumberLevelId?: number | null
+  brainstormLineId?: number | null
   authorBotId?: number | null
   authorCharacterId?: number | null
 }
@@ -2084,6 +2252,7 @@ export type ReactionCreateWithoutAuthorBotInput = {
   Theme?: Prisma.ThemeCreateNestedOneWithoutReactionsInput
   TzaddikCandidate?: Prisma.TzaddikCandidateCreateNestedOneWithoutReactionsInput
   PlumberLevel?: Prisma.PlumberLevelCreateNestedOneWithoutReactionsInput
+  BrainstormLine?: Prisma.BrainstormLineCreateNestedOneWithoutReactionsInput
   User: Prisma.UserCreateNestedOneWithoutReactionsInput
 }
 
@@ -2112,6 +2281,7 @@ export type ReactionUncheckedCreateWithoutAuthorBotInput = {
   facetId?: number | null
   tzaddikCandidateId?: number | null
   plumberLevelId?: number | null
+  brainstormLineId?: number | null
   authorCharacterId?: number | null
 }
 
@@ -2181,6 +2351,7 @@ export type ReactionCreateWithoutCharacterInput = {
   Theme?: Prisma.ThemeCreateNestedOneWithoutReactionsInput
   TzaddikCandidate?: Prisma.TzaddikCandidateCreateNestedOneWithoutReactionsInput
   PlumberLevel?: Prisma.PlumberLevelCreateNestedOneWithoutReactionsInput
+  BrainstormLine?: Prisma.BrainstormLineCreateNestedOneWithoutReactionsInput
   User: Prisma.UserCreateNestedOneWithoutReactionsInput
 }
 
@@ -2208,6 +2379,7 @@ export type ReactionUncheckedCreateWithoutCharacterInput = {
   facetId?: number | null
   tzaddikCandidateId?: number | null
   plumberLevelId?: number | null
+  brainstormLineId?: number | null
   authorBotId?: number | null
   authorCharacterId?: number | null
 }
@@ -2246,6 +2418,7 @@ export type ReactionCreateWithoutAuthorCharacterInput = {
   Theme?: Prisma.ThemeCreateNestedOneWithoutReactionsInput
   TzaddikCandidate?: Prisma.TzaddikCandidateCreateNestedOneWithoutReactionsInput
   PlumberLevel?: Prisma.PlumberLevelCreateNestedOneWithoutReactionsInput
+  BrainstormLine?: Prisma.BrainstormLineCreateNestedOneWithoutReactionsInput
   User: Prisma.UserCreateNestedOneWithoutReactionsInput
 }
 
@@ -2274,6 +2447,7 @@ export type ReactionUncheckedCreateWithoutAuthorCharacterInput = {
   facetId?: number | null
   tzaddikCandidateId?: number | null
   plumberLevelId?: number | null
+  brainstormLineId?: number | null
   authorBotId?: number | null
 }
 
@@ -2343,6 +2517,7 @@ export type ReactionCreateWithoutChatInput = {
   Theme?: Prisma.ThemeCreateNestedOneWithoutReactionsInput
   TzaddikCandidate?: Prisma.TzaddikCandidateCreateNestedOneWithoutReactionsInput
   PlumberLevel?: Prisma.PlumberLevelCreateNestedOneWithoutReactionsInput
+  BrainstormLine?: Prisma.BrainstormLineCreateNestedOneWithoutReactionsInput
   User: Prisma.UserCreateNestedOneWithoutReactionsInput
 }
 
@@ -2370,6 +2545,7 @@ export type ReactionUncheckedCreateWithoutChatInput = {
   facetId?: number | null
   tzaddikCandidateId?: number | null
   plumberLevelId?: number | null
+  brainstormLineId?: number | null
   authorBotId?: number | null
   authorCharacterId?: number | null
 }
@@ -2424,6 +2600,7 @@ export type ReactionCreateWithoutDreamInput = {
   Theme?: Prisma.ThemeCreateNestedOneWithoutReactionsInput
   TzaddikCandidate?: Prisma.TzaddikCandidateCreateNestedOneWithoutReactionsInput
   PlumberLevel?: Prisma.PlumberLevelCreateNestedOneWithoutReactionsInput
+  BrainstormLine?: Prisma.BrainstormLineCreateNestedOneWithoutReactionsInput
   User: Prisma.UserCreateNestedOneWithoutReactionsInput
 }
 
@@ -2451,6 +2628,7 @@ export type ReactionUncheckedCreateWithoutDreamInput = {
   facetId?: number | null
   tzaddikCandidateId?: number | null
   plumberLevelId?: number | null
+  brainstormLineId?: number | null
   authorBotId?: number | null
   authorCharacterId?: number | null
 }
@@ -2505,6 +2683,7 @@ export type ReactionCreateWithoutProjectInput = {
   Theme?: Prisma.ThemeCreateNestedOneWithoutReactionsInput
   TzaddikCandidate?: Prisma.TzaddikCandidateCreateNestedOneWithoutReactionsInput
   PlumberLevel?: Prisma.PlumberLevelCreateNestedOneWithoutReactionsInput
+  BrainstormLine?: Prisma.BrainstormLineCreateNestedOneWithoutReactionsInput
   User: Prisma.UserCreateNestedOneWithoutReactionsInput
 }
 
@@ -2532,6 +2711,7 @@ export type ReactionUncheckedCreateWithoutProjectInput = {
   facetId?: number | null
   tzaddikCandidateId?: number | null
   plumberLevelId?: number | null
+  brainstormLineId?: number | null
   authorBotId?: number | null
   authorCharacterId?: number | null
 }
@@ -2586,6 +2766,7 @@ export type ReactionCreateWithoutFacetInput = {
   Theme?: Prisma.ThemeCreateNestedOneWithoutReactionsInput
   TzaddikCandidate?: Prisma.TzaddikCandidateCreateNestedOneWithoutReactionsInput
   PlumberLevel?: Prisma.PlumberLevelCreateNestedOneWithoutReactionsInput
+  BrainstormLine?: Prisma.BrainstormLineCreateNestedOneWithoutReactionsInput
   User: Prisma.UserCreateNestedOneWithoutReactionsInput
 }
 
@@ -2613,6 +2794,7 @@ export type ReactionUncheckedCreateWithoutFacetInput = {
   projectId?: number | null
   tzaddikCandidateId?: number | null
   plumberLevelId?: number | null
+  brainstormLineId?: number | null
   authorBotId?: number | null
   authorCharacterId?: number | null
 }
@@ -2667,6 +2849,7 @@ export type ReactionCreateWithoutPromptInput = {
   Theme?: Prisma.ThemeCreateNestedOneWithoutReactionsInput
   TzaddikCandidate?: Prisma.TzaddikCandidateCreateNestedOneWithoutReactionsInput
   PlumberLevel?: Prisma.PlumberLevelCreateNestedOneWithoutReactionsInput
+  BrainstormLine?: Prisma.BrainstormLineCreateNestedOneWithoutReactionsInput
   User: Prisma.UserCreateNestedOneWithoutReactionsInput
 }
 
@@ -2694,6 +2877,7 @@ export type ReactionUncheckedCreateWithoutPromptInput = {
   facetId?: number | null
   tzaddikCandidateId?: number | null
   plumberLevelId?: number | null
+  brainstormLineId?: number | null
   authorBotId?: number | null
   authorCharacterId?: number | null
 }
@@ -2748,6 +2932,7 @@ export type ReactionCreateWithoutPlumberLevelInput = {
   Scenario?: Prisma.ScenarioCreateNestedOneWithoutReactionsInput
   Theme?: Prisma.ThemeCreateNestedOneWithoutReactionsInput
   TzaddikCandidate?: Prisma.TzaddikCandidateCreateNestedOneWithoutReactionsInput
+  BrainstormLine?: Prisma.BrainstormLineCreateNestedOneWithoutReactionsInput
   User: Prisma.UserCreateNestedOneWithoutReactionsInput
 }
 
@@ -2775,6 +2960,7 @@ export type ReactionUncheckedCreateWithoutPlumberLevelInput = {
   projectId?: number | null
   facetId?: number | null
   tzaddikCandidateId?: number | null
+  brainstormLineId?: number | null
   authorBotId?: number | null
   authorCharacterId?: number | null
 }
@@ -2829,6 +3015,7 @@ export type ReactionCreateWithoutResourceInput = {
   Theme?: Prisma.ThemeCreateNestedOneWithoutReactionsInput
   TzaddikCandidate?: Prisma.TzaddikCandidateCreateNestedOneWithoutReactionsInput
   PlumberLevel?: Prisma.PlumberLevelCreateNestedOneWithoutReactionsInput
+  BrainstormLine?: Prisma.BrainstormLineCreateNestedOneWithoutReactionsInput
   User: Prisma.UserCreateNestedOneWithoutReactionsInput
 }
 
@@ -2856,6 +3043,7 @@ export type ReactionUncheckedCreateWithoutResourceInput = {
   facetId?: number | null
   tzaddikCandidateId?: number | null
   plumberLevelId?: number | null
+  brainstormLineId?: number | null
   authorBotId?: number | null
   authorCharacterId?: number | null
 }
@@ -2910,6 +3098,7 @@ export type ReactionCreateWithoutRewardInput = {
   Theme?: Prisma.ThemeCreateNestedOneWithoutReactionsInput
   TzaddikCandidate?: Prisma.TzaddikCandidateCreateNestedOneWithoutReactionsInput
   PlumberLevel?: Prisma.PlumberLevelCreateNestedOneWithoutReactionsInput
+  BrainstormLine?: Prisma.BrainstormLineCreateNestedOneWithoutReactionsInput
   User: Prisma.UserCreateNestedOneWithoutReactionsInput
 }
 
@@ -2937,6 +3126,7 @@ export type ReactionUncheckedCreateWithoutRewardInput = {
   facetId?: number | null
   tzaddikCandidateId?: number | null
   plumberLevelId?: number | null
+  brainstormLineId?: number | null
   authorBotId?: number | null
   authorCharacterId?: number | null
 }
@@ -2991,6 +3181,7 @@ export type ReactionCreateWithoutScenarioInput = {
   Theme?: Prisma.ThemeCreateNestedOneWithoutReactionsInput
   TzaddikCandidate?: Prisma.TzaddikCandidateCreateNestedOneWithoutReactionsInput
   PlumberLevel?: Prisma.PlumberLevelCreateNestedOneWithoutReactionsInput
+  BrainstormLine?: Prisma.BrainstormLineCreateNestedOneWithoutReactionsInput
   User: Prisma.UserCreateNestedOneWithoutReactionsInput
 }
 
@@ -3018,6 +3209,7 @@ export type ReactionUncheckedCreateWithoutScenarioInput = {
   facetId?: number | null
   tzaddikCandidateId?: number | null
   plumberLevelId?: number | null
+  brainstormLineId?: number | null
   authorBotId?: number | null
   authorCharacterId?: number | null
 }
@@ -3072,6 +3264,7 @@ export type ReactionCreateWithoutThemeInput = {
   Scenario?: Prisma.ScenarioCreateNestedOneWithoutReactionsInput
   TzaddikCandidate?: Prisma.TzaddikCandidateCreateNestedOneWithoutReactionsInput
   PlumberLevel?: Prisma.PlumberLevelCreateNestedOneWithoutReactionsInput
+  BrainstormLine?: Prisma.BrainstormLineCreateNestedOneWithoutReactionsInput
   User: Prisma.UserCreateNestedOneWithoutReactionsInput
 }
 
@@ -3099,6 +3292,7 @@ export type ReactionUncheckedCreateWithoutThemeInput = {
   facetId?: number | null
   tzaddikCandidateId?: number | null
   plumberLevelId?: number | null
+  brainstormLineId?: number | null
   authorBotId?: number | null
   authorCharacterId?: number | null
 }
@@ -3154,6 +3348,7 @@ export type ReactionCreateWithoutUserInput = {
   Theme?: Prisma.ThemeCreateNestedOneWithoutReactionsInput
   TzaddikCandidate?: Prisma.TzaddikCandidateCreateNestedOneWithoutReactionsInput
   PlumberLevel?: Prisma.PlumberLevelCreateNestedOneWithoutReactionsInput
+  BrainstormLine?: Prisma.BrainstormLineCreateNestedOneWithoutReactionsInput
 }
 
 export type ReactionUncheckedCreateWithoutUserInput = {
@@ -3180,6 +3375,7 @@ export type ReactionUncheckedCreateWithoutUserInput = {
   facetId?: number | null
   tzaddikCandidateId?: number | null
   plumberLevelId?: number | null
+  brainstormLineId?: number | null
   authorBotId?: number | null
   authorCharacterId?: number | null
 }
@@ -3234,6 +3430,7 @@ export type ReactionCreateWithoutChallengeSubmissionInput = {
   Theme?: Prisma.ThemeCreateNestedOneWithoutReactionsInput
   TzaddikCandidate?: Prisma.TzaddikCandidateCreateNestedOneWithoutReactionsInput
   PlumberLevel?: Prisma.PlumberLevelCreateNestedOneWithoutReactionsInput
+  BrainstormLine?: Prisma.BrainstormLineCreateNestedOneWithoutReactionsInput
   User: Prisma.UserCreateNestedOneWithoutReactionsInput
 }
 
@@ -3261,6 +3458,7 @@ export type ReactionUncheckedCreateWithoutChallengeSubmissionInput = {
   facetId?: number | null
   tzaddikCandidateId?: number | null
   plumberLevelId?: number | null
+  brainstormLineId?: number | null
   authorBotId?: number | null
   authorCharacterId?: number | null
 }
@@ -3315,6 +3513,7 @@ export type ReactionCreateWithoutTzaddikCandidateInput = {
   Scenario?: Prisma.ScenarioCreateNestedOneWithoutReactionsInput
   Theme?: Prisma.ThemeCreateNestedOneWithoutReactionsInput
   PlumberLevel?: Prisma.PlumberLevelCreateNestedOneWithoutReactionsInput
+  BrainstormLine?: Prisma.BrainstormLineCreateNestedOneWithoutReactionsInput
   User: Prisma.UserCreateNestedOneWithoutReactionsInput
 }
 
@@ -3342,6 +3541,7 @@ export type ReactionUncheckedCreateWithoutTzaddikCandidateInput = {
   projectId?: number | null
   facetId?: number | null
   plumberLevelId?: number | null
+  brainstormLineId?: number | null
   authorBotId?: number | null
   authorCharacterId?: number | null
 }
@@ -3372,6 +3572,121 @@ export type ReactionUpdateManyWithWhereWithoutTzaddikCandidateInput = {
   data: Prisma.XOR<Prisma.ReactionUpdateManyMutationInput, Prisma.ReactionUncheckedUpdateManyWithoutTzaddikCandidateInput>
 }
 
+export type ReactionCreateManyBrainstormLineInput = {
+  id?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string | null
+  comment?: string | null
+  userId: number
+  reactionType: $Enums.ReactionType
+  reactionCategory?: $Enums.Reaction_reactionCategory
+  rating?: number
+  artImageId?: number | null
+  botId?: number | null
+  promptId?: number | null
+  resourceId?: number | null
+  rewardId?: number | null
+  chatId?: number | null
+  dreamId?: number | null
+  artCollectionId?: number | null
+  characterId?: number | null
+  scenarioId?: number | null
+  themeId?: number | null
+  challengeSubmissionId?: number | null
+  projectId?: number | null
+  facetId?: number | null
+  tzaddikCandidateId?: number | null
+  plumberLevelId?: number | null
+  authorBotId?: number | null
+  authorCharacterId?: number | null
+}
+
+export type ReactionUpdateWithoutBrainstormLineInput = {
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  comment?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reactionType?: Prisma.EnumReactionTypeFieldUpdateOperationsInput | $Enums.ReactionType
+  reactionCategory?: Prisma.EnumReaction_reactionCategoryFieldUpdateOperationsInput | $Enums.Reaction_reactionCategory
+  rating?: Prisma.IntFieldUpdateOperationsInput | number
+  ArtCollection?: Prisma.ArtCollectionUpdateOneWithoutReactionsNestedInput
+  ArtImage?: Prisma.ArtImageUpdateOneWithoutReactionsNestedInput
+  Bot?: Prisma.BotUpdateOneWithoutReactionsNestedInput
+  AuthorBot?: Prisma.BotUpdateOneWithoutAuthoredReactionsNestedInput
+  ChallengeSubmission?: Prisma.ChallengeSubmissionUpdateOneWithoutReactionsNestedInput
+  Character?: Prisma.CharacterUpdateOneWithoutReactionsNestedInput
+  AuthorCharacter?: Prisma.CharacterUpdateOneWithoutAuthoredReactionsNestedInput
+  Chat?: Prisma.ChatUpdateOneWithoutReactionsNestedInput
+  Dream?: Prisma.DreamUpdateOneWithoutReactionsNestedInput
+  Facet?: Prisma.FacetUpdateOneWithoutReactionsNestedInput
+  Project?: Prisma.ProjectUpdateOneWithoutReactionsNestedInput
+  Prompt?: Prisma.PromptUpdateOneWithoutReactionsNestedInput
+  Resource?: Prisma.ResourceUpdateOneWithoutReactionsNestedInput
+  Reward?: Prisma.RewardUpdateOneWithoutReactionsNestedInput
+  Scenario?: Prisma.ScenarioUpdateOneWithoutReactionsNestedInput
+  Theme?: Prisma.ThemeUpdateOneWithoutReactionsNestedInput
+  TzaddikCandidate?: Prisma.TzaddikCandidateUpdateOneWithoutReactionsNestedInput
+  PlumberLevel?: Prisma.PlumberLevelUpdateOneWithoutReactionsNestedInput
+  User?: Prisma.UserUpdateOneRequiredWithoutReactionsNestedInput
+}
+
+export type ReactionUncheckedUpdateWithoutBrainstormLineInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  comment?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  userId?: Prisma.IntFieldUpdateOperationsInput | number
+  reactionType?: Prisma.EnumReactionTypeFieldUpdateOperationsInput | $Enums.ReactionType
+  reactionCategory?: Prisma.EnumReaction_reactionCategoryFieldUpdateOperationsInput | $Enums.Reaction_reactionCategory
+  rating?: Prisma.IntFieldUpdateOperationsInput | number
+  artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  botId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  promptId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  resourceId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  rewardId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  chatId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  dreamId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  artCollectionId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  characterId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  scenarioId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  themeId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  challengeSubmissionId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  projectId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  facetId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  tzaddikCandidateId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  plumberLevelId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  authorBotId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  authorCharacterId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+}
+
+export type ReactionUncheckedUpdateManyWithoutBrainstormLineInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  comment?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  userId?: Prisma.IntFieldUpdateOperationsInput | number
+  reactionType?: Prisma.EnumReactionTypeFieldUpdateOperationsInput | $Enums.ReactionType
+  reactionCategory?: Prisma.EnumReaction_reactionCategoryFieldUpdateOperationsInput | $Enums.Reaction_reactionCategory
+  rating?: Prisma.IntFieldUpdateOperationsInput | number
+  artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  botId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  promptId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  resourceId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  rewardId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  chatId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  dreamId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  artCollectionId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  characterId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  scenarioId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  themeId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  challengeSubmissionId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  projectId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  facetId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  tzaddikCandidateId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  plumberLevelId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  authorBotId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  authorCharacterId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+}
+
 export type ReactionCreateManyArtImageInput = {
   id?: number
   createdAt?: Date | string
@@ -3396,6 +3711,7 @@ export type ReactionCreateManyArtImageInput = {
   facetId?: number | null
   tzaddikCandidateId?: number | null
   plumberLevelId?: number | null
+  brainstormLineId?: number | null
   authorBotId?: number | null
   authorCharacterId?: number | null
 }
@@ -3424,6 +3740,7 @@ export type ReactionUpdateWithoutArtImageInput = {
   Theme?: Prisma.ThemeUpdateOneWithoutReactionsNestedInput
   TzaddikCandidate?: Prisma.TzaddikCandidateUpdateOneWithoutReactionsNestedInput
   PlumberLevel?: Prisma.PlumberLevelUpdateOneWithoutReactionsNestedInput
+  BrainstormLine?: Prisma.BrainstormLineUpdateOneWithoutReactionsNestedInput
   User?: Prisma.UserUpdateOneRequiredWithoutReactionsNestedInput
 }
 
@@ -3451,6 +3768,7 @@ export type ReactionUncheckedUpdateWithoutArtImageInput = {
   facetId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   tzaddikCandidateId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   plumberLevelId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  brainstormLineId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   authorBotId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   authorCharacterId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
 }
@@ -3479,6 +3797,7 @@ export type ReactionUncheckedUpdateManyWithoutArtImageInput = {
   facetId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   tzaddikCandidateId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   plumberLevelId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  brainstormLineId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   authorBotId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   authorCharacterId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
 }
@@ -3507,6 +3826,7 @@ export type ReactionCreateManyArtCollectionInput = {
   facetId?: number | null
   tzaddikCandidateId?: number | null
   plumberLevelId?: number | null
+  brainstormLineId?: number | null
   authorBotId?: number | null
   authorCharacterId?: number | null
 }
@@ -3535,6 +3855,7 @@ export type ReactionUpdateWithoutArtCollectionInput = {
   Theme?: Prisma.ThemeUpdateOneWithoutReactionsNestedInput
   TzaddikCandidate?: Prisma.TzaddikCandidateUpdateOneWithoutReactionsNestedInput
   PlumberLevel?: Prisma.PlumberLevelUpdateOneWithoutReactionsNestedInput
+  BrainstormLine?: Prisma.BrainstormLineUpdateOneWithoutReactionsNestedInput
   User?: Prisma.UserUpdateOneRequiredWithoutReactionsNestedInput
 }
 
@@ -3562,6 +3883,7 @@ export type ReactionUncheckedUpdateWithoutArtCollectionInput = {
   facetId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   tzaddikCandidateId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   plumberLevelId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  brainstormLineId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   authorBotId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   authorCharacterId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
 }
@@ -3590,6 +3912,7 @@ export type ReactionUncheckedUpdateManyWithoutArtCollectionInput = {
   facetId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   tzaddikCandidateId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   plumberLevelId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  brainstormLineId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   authorBotId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   authorCharacterId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
 }
@@ -3618,6 +3941,7 @@ export type ReactionCreateManyBotInput = {
   facetId?: number | null
   tzaddikCandidateId?: number | null
   plumberLevelId?: number | null
+  brainstormLineId?: number | null
   authorBotId?: number | null
   authorCharacterId?: number | null
 }
@@ -3647,6 +3971,7 @@ export type ReactionCreateManyAuthorBotInput = {
   facetId?: number | null
   tzaddikCandidateId?: number | null
   plumberLevelId?: number | null
+  brainstormLineId?: number | null
   authorCharacterId?: number | null
 }
 
@@ -3674,6 +3999,7 @@ export type ReactionUpdateWithoutBotInput = {
   Theme?: Prisma.ThemeUpdateOneWithoutReactionsNestedInput
   TzaddikCandidate?: Prisma.TzaddikCandidateUpdateOneWithoutReactionsNestedInput
   PlumberLevel?: Prisma.PlumberLevelUpdateOneWithoutReactionsNestedInput
+  BrainstormLine?: Prisma.BrainstormLineUpdateOneWithoutReactionsNestedInput
   User?: Prisma.UserUpdateOneRequiredWithoutReactionsNestedInput
 }
 
@@ -3701,6 +4027,7 @@ export type ReactionUncheckedUpdateWithoutBotInput = {
   facetId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   tzaddikCandidateId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   plumberLevelId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  brainstormLineId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   authorBotId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   authorCharacterId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
 }
@@ -3729,6 +4056,7 @@ export type ReactionUncheckedUpdateManyWithoutBotInput = {
   facetId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   tzaddikCandidateId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   plumberLevelId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  brainstormLineId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   authorBotId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   authorCharacterId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
 }
@@ -3757,6 +4085,7 @@ export type ReactionUpdateWithoutAuthorBotInput = {
   Theme?: Prisma.ThemeUpdateOneWithoutReactionsNestedInput
   TzaddikCandidate?: Prisma.TzaddikCandidateUpdateOneWithoutReactionsNestedInput
   PlumberLevel?: Prisma.PlumberLevelUpdateOneWithoutReactionsNestedInput
+  BrainstormLine?: Prisma.BrainstormLineUpdateOneWithoutReactionsNestedInput
   User?: Prisma.UserUpdateOneRequiredWithoutReactionsNestedInput
 }
 
@@ -3785,6 +4114,7 @@ export type ReactionUncheckedUpdateWithoutAuthorBotInput = {
   facetId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   tzaddikCandidateId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   plumberLevelId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  brainstormLineId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   authorCharacterId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
 }
 
@@ -3813,6 +4143,7 @@ export type ReactionUncheckedUpdateManyWithoutAuthorBotInput = {
   facetId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   tzaddikCandidateId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   plumberLevelId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  brainstormLineId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   authorCharacterId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
 }
 
@@ -3840,6 +4171,7 @@ export type ReactionCreateManyCharacterInput = {
   facetId?: number | null
   tzaddikCandidateId?: number | null
   plumberLevelId?: number | null
+  brainstormLineId?: number | null
   authorBotId?: number | null
   authorCharacterId?: number | null
 }
@@ -3869,6 +4201,7 @@ export type ReactionCreateManyAuthorCharacterInput = {
   facetId?: number | null
   tzaddikCandidateId?: number | null
   plumberLevelId?: number | null
+  brainstormLineId?: number | null
   authorBotId?: number | null
 }
 
@@ -3896,6 +4229,7 @@ export type ReactionUpdateWithoutCharacterInput = {
   Theme?: Prisma.ThemeUpdateOneWithoutReactionsNestedInput
   TzaddikCandidate?: Prisma.TzaddikCandidateUpdateOneWithoutReactionsNestedInput
   PlumberLevel?: Prisma.PlumberLevelUpdateOneWithoutReactionsNestedInput
+  BrainstormLine?: Prisma.BrainstormLineUpdateOneWithoutReactionsNestedInput
   User?: Prisma.UserUpdateOneRequiredWithoutReactionsNestedInput
 }
 
@@ -3923,6 +4257,7 @@ export type ReactionUncheckedUpdateWithoutCharacterInput = {
   facetId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   tzaddikCandidateId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   plumberLevelId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  brainstormLineId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   authorBotId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   authorCharacterId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
 }
@@ -3951,6 +4286,7 @@ export type ReactionUncheckedUpdateManyWithoutCharacterInput = {
   facetId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   tzaddikCandidateId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   plumberLevelId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  brainstormLineId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   authorBotId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   authorCharacterId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
 }
@@ -3979,6 +4315,7 @@ export type ReactionUpdateWithoutAuthorCharacterInput = {
   Theme?: Prisma.ThemeUpdateOneWithoutReactionsNestedInput
   TzaddikCandidate?: Prisma.TzaddikCandidateUpdateOneWithoutReactionsNestedInput
   PlumberLevel?: Prisma.PlumberLevelUpdateOneWithoutReactionsNestedInput
+  BrainstormLine?: Prisma.BrainstormLineUpdateOneWithoutReactionsNestedInput
   User?: Prisma.UserUpdateOneRequiredWithoutReactionsNestedInput
 }
 
@@ -4007,6 +4344,7 @@ export type ReactionUncheckedUpdateWithoutAuthorCharacterInput = {
   facetId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   tzaddikCandidateId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   plumberLevelId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  brainstormLineId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   authorBotId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
 }
 
@@ -4035,6 +4373,7 @@ export type ReactionUncheckedUpdateManyWithoutAuthorCharacterInput = {
   facetId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   tzaddikCandidateId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   plumberLevelId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  brainstormLineId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   authorBotId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
 }
 
@@ -4062,6 +4401,7 @@ export type ReactionCreateManyChatInput = {
   facetId?: number | null
   tzaddikCandidateId?: number | null
   plumberLevelId?: number | null
+  brainstormLineId?: number | null
   authorBotId?: number | null
   authorCharacterId?: number | null
 }
@@ -4090,6 +4430,7 @@ export type ReactionUpdateWithoutChatInput = {
   Theme?: Prisma.ThemeUpdateOneWithoutReactionsNestedInput
   TzaddikCandidate?: Prisma.TzaddikCandidateUpdateOneWithoutReactionsNestedInput
   PlumberLevel?: Prisma.PlumberLevelUpdateOneWithoutReactionsNestedInput
+  BrainstormLine?: Prisma.BrainstormLineUpdateOneWithoutReactionsNestedInput
   User?: Prisma.UserUpdateOneRequiredWithoutReactionsNestedInput
 }
 
@@ -4117,6 +4458,7 @@ export type ReactionUncheckedUpdateWithoutChatInput = {
   facetId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   tzaddikCandidateId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   plumberLevelId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  brainstormLineId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   authorBotId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   authorCharacterId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
 }
@@ -4145,6 +4487,7 @@ export type ReactionUncheckedUpdateManyWithoutChatInput = {
   facetId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   tzaddikCandidateId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   plumberLevelId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  brainstormLineId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   authorBotId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   authorCharacterId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
 }
@@ -4173,6 +4516,7 @@ export type ReactionCreateManyDreamInput = {
   facetId?: number | null
   tzaddikCandidateId?: number | null
   plumberLevelId?: number | null
+  brainstormLineId?: number | null
   authorBotId?: number | null
   authorCharacterId?: number | null
 }
@@ -4201,6 +4545,7 @@ export type ReactionUpdateWithoutDreamInput = {
   Theme?: Prisma.ThemeUpdateOneWithoutReactionsNestedInput
   TzaddikCandidate?: Prisma.TzaddikCandidateUpdateOneWithoutReactionsNestedInput
   PlumberLevel?: Prisma.PlumberLevelUpdateOneWithoutReactionsNestedInput
+  BrainstormLine?: Prisma.BrainstormLineUpdateOneWithoutReactionsNestedInput
   User?: Prisma.UserUpdateOneRequiredWithoutReactionsNestedInput
 }
 
@@ -4228,6 +4573,7 @@ export type ReactionUncheckedUpdateWithoutDreamInput = {
   facetId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   tzaddikCandidateId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   plumberLevelId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  brainstormLineId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   authorBotId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   authorCharacterId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
 }
@@ -4256,6 +4602,7 @@ export type ReactionUncheckedUpdateManyWithoutDreamInput = {
   facetId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   tzaddikCandidateId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   plumberLevelId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  brainstormLineId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   authorBotId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   authorCharacterId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
 }
@@ -4284,6 +4631,7 @@ export type ReactionCreateManyProjectInput = {
   facetId?: number | null
   tzaddikCandidateId?: number | null
   plumberLevelId?: number | null
+  brainstormLineId?: number | null
   authorBotId?: number | null
   authorCharacterId?: number | null
 }
@@ -4312,6 +4660,7 @@ export type ReactionUpdateWithoutProjectInput = {
   Theme?: Prisma.ThemeUpdateOneWithoutReactionsNestedInput
   TzaddikCandidate?: Prisma.TzaddikCandidateUpdateOneWithoutReactionsNestedInput
   PlumberLevel?: Prisma.PlumberLevelUpdateOneWithoutReactionsNestedInput
+  BrainstormLine?: Prisma.BrainstormLineUpdateOneWithoutReactionsNestedInput
   User?: Prisma.UserUpdateOneRequiredWithoutReactionsNestedInput
 }
 
@@ -4339,6 +4688,7 @@ export type ReactionUncheckedUpdateWithoutProjectInput = {
   facetId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   tzaddikCandidateId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   plumberLevelId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  brainstormLineId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   authorBotId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   authorCharacterId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
 }
@@ -4367,6 +4717,7 @@ export type ReactionUncheckedUpdateManyWithoutProjectInput = {
   facetId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   tzaddikCandidateId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   plumberLevelId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  brainstormLineId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   authorBotId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   authorCharacterId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
 }
@@ -4395,6 +4746,7 @@ export type ReactionCreateManyFacetInput = {
   projectId?: number | null
   tzaddikCandidateId?: number | null
   plumberLevelId?: number | null
+  brainstormLineId?: number | null
   authorBotId?: number | null
   authorCharacterId?: number | null
 }
@@ -4423,6 +4775,7 @@ export type ReactionUpdateWithoutFacetInput = {
   Theme?: Prisma.ThemeUpdateOneWithoutReactionsNestedInput
   TzaddikCandidate?: Prisma.TzaddikCandidateUpdateOneWithoutReactionsNestedInput
   PlumberLevel?: Prisma.PlumberLevelUpdateOneWithoutReactionsNestedInput
+  BrainstormLine?: Prisma.BrainstormLineUpdateOneWithoutReactionsNestedInput
   User?: Prisma.UserUpdateOneRequiredWithoutReactionsNestedInput
 }
 
@@ -4450,6 +4803,7 @@ export type ReactionUncheckedUpdateWithoutFacetInput = {
   projectId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   tzaddikCandidateId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   plumberLevelId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  brainstormLineId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   authorBotId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   authorCharacterId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
 }
@@ -4478,6 +4832,7 @@ export type ReactionUncheckedUpdateManyWithoutFacetInput = {
   projectId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   tzaddikCandidateId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   plumberLevelId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  brainstormLineId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   authorBotId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   authorCharacterId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
 }
@@ -4506,6 +4861,7 @@ export type ReactionCreateManyPromptInput = {
   facetId?: number | null
   tzaddikCandidateId?: number | null
   plumberLevelId?: number | null
+  brainstormLineId?: number | null
   authorBotId?: number | null
   authorCharacterId?: number | null
 }
@@ -4534,6 +4890,7 @@ export type ReactionUpdateWithoutPromptInput = {
   Theme?: Prisma.ThemeUpdateOneWithoutReactionsNestedInput
   TzaddikCandidate?: Prisma.TzaddikCandidateUpdateOneWithoutReactionsNestedInput
   PlumberLevel?: Prisma.PlumberLevelUpdateOneWithoutReactionsNestedInput
+  BrainstormLine?: Prisma.BrainstormLineUpdateOneWithoutReactionsNestedInput
   User?: Prisma.UserUpdateOneRequiredWithoutReactionsNestedInput
 }
 
@@ -4561,6 +4918,7 @@ export type ReactionUncheckedUpdateWithoutPromptInput = {
   facetId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   tzaddikCandidateId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   plumberLevelId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  brainstormLineId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   authorBotId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   authorCharacterId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
 }
@@ -4589,6 +4947,7 @@ export type ReactionUncheckedUpdateManyWithoutPromptInput = {
   facetId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   tzaddikCandidateId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   plumberLevelId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  brainstormLineId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   authorBotId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   authorCharacterId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
 }
@@ -4617,6 +4976,7 @@ export type ReactionCreateManyPlumberLevelInput = {
   projectId?: number | null
   facetId?: number | null
   tzaddikCandidateId?: number | null
+  brainstormLineId?: number | null
   authorBotId?: number | null
   authorCharacterId?: number | null
 }
@@ -4645,6 +5005,7 @@ export type ReactionUpdateWithoutPlumberLevelInput = {
   Scenario?: Prisma.ScenarioUpdateOneWithoutReactionsNestedInput
   Theme?: Prisma.ThemeUpdateOneWithoutReactionsNestedInput
   TzaddikCandidate?: Prisma.TzaddikCandidateUpdateOneWithoutReactionsNestedInput
+  BrainstormLine?: Prisma.BrainstormLineUpdateOneWithoutReactionsNestedInput
   User?: Prisma.UserUpdateOneRequiredWithoutReactionsNestedInput
 }
 
@@ -4672,6 +5033,7 @@ export type ReactionUncheckedUpdateWithoutPlumberLevelInput = {
   projectId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   facetId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   tzaddikCandidateId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  brainstormLineId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   authorBotId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   authorCharacterId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
 }
@@ -4700,6 +5062,7 @@ export type ReactionUncheckedUpdateManyWithoutPlumberLevelInput = {
   projectId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   facetId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   tzaddikCandidateId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  brainstormLineId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   authorBotId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   authorCharacterId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
 }
@@ -4728,6 +5091,7 @@ export type ReactionCreateManyResourceInput = {
   facetId?: number | null
   tzaddikCandidateId?: number | null
   plumberLevelId?: number | null
+  brainstormLineId?: number | null
   authorBotId?: number | null
   authorCharacterId?: number | null
 }
@@ -4756,6 +5120,7 @@ export type ReactionUpdateWithoutResourceInput = {
   Theme?: Prisma.ThemeUpdateOneWithoutReactionsNestedInput
   TzaddikCandidate?: Prisma.TzaddikCandidateUpdateOneWithoutReactionsNestedInput
   PlumberLevel?: Prisma.PlumberLevelUpdateOneWithoutReactionsNestedInput
+  BrainstormLine?: Prisma.BrainstormLineUpdateOneWithoutReactionsNestedInput
   User?: Prisma.UserUpdateOneRequiredWithoutReactionsNestedInput
 }
 
@@ -4783,6 +5148,7 @@ export type ReactionUncheckedUpdateWithoutResourceInput = {
   facetId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   tzaddikCandidateId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   plumberLevelId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  brainstormLineId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   authorBotId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   authorCharacterId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
 }
@@ -4811,6 +5177,7 @@ export type ReactionUncheckedUpdateManyWithoutResourceInput = {
   facetId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   tzaddikCandidateId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   plumberLevelId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  brainstormLineId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   authorBotId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   authorCharacterId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
 }
@@ -4839,6 +5206,7 @@ export type ReactionCreateManyRewardInput = {
   facetId?: number | null
   tzaddikCandidateId?: number | null
   plumberLevelId?: number | null
+  brainstormLineId?: number | null
   authorBotId?: number | null
   authorCharacterId?: number | null
 }
@@ -4867,6 +5235,7 @@ export type ReactionUpdateWithoutRewardInput = {
   Theme?: Prisma.ThemeUpdateOneWithoutReactionsNestedInput
   TzaddikCandidate?: Prisma.TzaddikCandidateUpdateOneWithoutReactionsNestedInput
   PlumberLevel?: Prisma.PlumberLevelUpdateOneWithoutReactionsNestedInput
+  BrainstormLine?: Prisma.BrainstormLineUpdateOneWithoutReactionsNestedInput
   User?: Prisma.UserUpdateOneRequiredWithoutReactionsNestedInput
 }
 
@@ -4894,6 +5263,7 @@ export type ReactionUncheckedUpdateWithoutRewardInput = {
   facetId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   tzaddikCandidateId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   plumberLevelId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  brainstormLineId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   authorBotId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   authorCharacterId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
 }
@@ -4922,6 +5292,7 @@ export type ReactionUncheckedUpdateManyWithoutRewardInput = {
   facetId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   tzaddikCandidateId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   plumberLevelId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  brainstormLineId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   authorBotId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   authorCharacterId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
 }
@@ -4950,6 +5321,7 @@ export type ReactionCreateManyScenarioInput = {
   facetId?: number | null
   tzaddikCandidateId?: number | null
   plumberLevelId?: number | null
+  brainstormLineId?: number | null
   authorBotId?: number | null
   authorCharacterId?: number | null
 }
@@ -4978,6 +5350,7 @@ export type ReactionUpdateWithoutScenarioInput = {
   Theme?: Prisma.ThemeUpdateOneWithoutReactionsNestedInput
   TzaddikCandidate?: Prisma.TzaddikCandidateUpdateOneWithoutReactionsNestedInput
   PlumberLevel?: Prisma.PlumberLevelUpdateOneWithoutReactionsNestedInput
+  BrainstormLine?: Prisma.BrainstormLineUpdateOneWithoutReactionsNestedInput
   User?: Prisma.UserUpdateOneRequiredWithoutReactionsNestedInput
 }
 
@@ -5005,6 +5378,7 @@ export type ReactionUncheckedUpdateWithoutScenarioInput = {
   facetId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   tzaddikCandidateId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   plumberLevelId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  brainstormLineId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   authorBotId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   authorCharacterId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
 }
@@ -5033,6 +5407,7 @@ export type ReactionUncheckedUpdateManyWithoutScenarioInput = {
   facetId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   tzaddikCandidateId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   plumberLevelId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  brainstormLineId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   authorBotId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   authorCharacterId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
 }
@@ -5061,6 +5436,7 @@ export type ReactionCreateManyThemeInput = {
   facetId?: number | null
   tzaddikCandidateId?: number | null
   plumberLevelId?: number | null
+  brainstormLineId?: number | null
   authorBotId?: number | null
   authorCharacterId?: number | null
 }
@@ -5089,6 +5465,7 @@ export type ReactionUpdateWithoutThemeInput = {
   Scenario?: Prisma.ScenarioUpdateOneWithoutReactionsNestedInput
   TzaddikCandidate?: Prisma.TzaddikCandidateUpdateOneWithoutReactionsNestedInput
   PlumberLevel?: Prisma.PlumberLevelUpdateOneWithoutReactionsNestedInput
+  BrainstormLine?: Prisma.BrainstormLineUpdateOneWithoutReactionsNestedInput
   User?: Prisma.UserUpdateOneRequiredWithoutReactionsNestedInput
 }
 
@@ -5116,6 +5493,7 @@ export type ReactionUncheckedUpdateWithoutThemeInput = {
   facetId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   tzaddikCandidateId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   plumberLevelId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  brainstormLineId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   authorBotId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   authorCharacterId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
 }
@@ -5144,6 +5522,7 @@ export type ReactionUncheckedUpdateManyWithoutThemeInput = {
   facetId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   tzaddikCandidateId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   plumberLevelId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  brainstormLineId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   authorBotId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   authorCharacterId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
 }
@@ -5172,6 +5551,7 @@ export type ReactionCreateManyUserInput = {
   facetId?: number | null
   tzaddikCandidateId?: number | null
   plumberLevelId?: number | null
+  brainstormLineId?: number | null
   authorBotId?: number | null
   authorCharacterId?: number | null
 }
@@ -5201,6 +5581,7 @@ export type ReactionUpdateWithoutUserInput = {
   Theme?: Prisma.ThemeUpdateOneWithoutReactionsNestedInput
   TzaddikCandidate?: Prisma.TzaddikCandidateUpdateOneWithoutReactionsNestedInput
   PlumberLevel?: Prisma.PlumberLevelUpdateOneWithoutReactionsNestedInput
+  BrainstormLine?: Prisma.BrainstormLineUpdateOneWithoutReactionsNestedInput
 }
 
 export type ReactionUncheckedUpdateWithoutUserInput = {
@@ -5227,6 +5608,7 @@ export type ReactionUncheckedUpdateWithoutUserInput = {
   facetId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   tzaddikCandidateId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   plumberLevelId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  brainstormLineId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   authorBotId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   authorCharacterId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
 }
@@ -5255,6 +5637,7 @@ export type ReactionUncheckedUpdateManyWithoutUserInput = {
   facetId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   tzaddikCandidateId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   plumberLevelId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  brainstormLineId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   authorBotId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   authorCharacterId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
 }
@@ -5283,6 +5666,7 @@ export type ReactionCreateManyChallengeSubmissionInput = {
   facetId?: number | null
   tzaddikCandidateId?: number | null
   plumberLevelId?: number | null
+  brainstormLineId?: number | null
   authorBotId?: number | null
   authorCharacterId?: number | null
 }
@@ -5311,6 +5695,7 @@ export type ReactionUpdateWithoutChallengeSubmissionInput = {
   Theme?: Prisma.ThemeUpdateOneWithoutReactionsNestedInput
   TzaddikCandidate?: Prisma.TzaddikCandidateUpdateOneWithoutReactionsNestedInput
   PlumberLevel?: Prisma.PlumberLevelUpdateOneWithoutReactionsNestedInput
+  BrainstormLine?: Prisma.BrainstormLineUpdateOneWithoutReactionsNestedInput
   User?: Prisma.UserUpdateOneRequiredWithoutReactionsNestedInput
 }
 
@@ -5338,6 +5723,7 @@ export type ReactionUncheckedUpdateWithoutChallengeSubmissionInput = {
   facetId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   tzaddikCandidateId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   plumberLevelId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  brainstormLineId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   authorBotId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   authorCharacterId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
 }
@@ -5366,6 +5752,7 @@ export type ReactionUncheckedUpdateManyWithoutChallengeSubmissionInput = {
   facetId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   tzaddikCandidateId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   plumberLevelId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  brainstormLineId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   authorBotId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   authorCharacterId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
 }
@@ -5394,6 +5781,7 @@ export type ReactionCreateManyTzaddikCandidateInput = {
   projectId?: number | null
   facetId?: number | null
   plumberLevelId?: number | null
+  brainstormLineId?: number | null
   authorBotId?: number | null
   authorCharacterId?: number | null
 }
@@ -5422,6 +5810,7 @@ export type ReactionUpdateWithoutTzaddikCandidateInput = {
   Scenario?: Prisma.ScenarioUpdateOneWithoutReactionsNestedInput
   Theme?: Prisma.ThemeUpdateOneWithoutReactionsNestedInput
   PlumberLevel?: Prisma.PlumberLevelUpdateOneWithoutReactionsNestedInput
+  BrainstormLine?: Prisma.BrainstormLineUpdateOneWithoutReactionsNestedInput
   User?: Prisma.UserUpdateOneRequiredWithoutReactionsNestedInput
 }
 
@@ -5449,6 +5838,7 @@ export type ReactionUncheckedUpdateWithoutTzaddikCandidateInput = {
   projectId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   facetId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   plumberLevelId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  brainstormLineId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   authorBotId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   authorCharacterId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
 }
@@ -5477,6 +5867,7 @@ export type ReactionUncheckedUpdateManyWithoutTzaddikCandidateInput = {
   projectId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   facetId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   plumberLevelId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  brainstormLineId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   authorBotId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   authorCharacterId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
 }
@@ -5508,6 +5899,7 @@ export type ReactionSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs
   facetId?: boolean
   tzaddikCandidateId?: boolean
   plumberLevelId?: boolean
+  brainstormLineId?: boolean
   authorBotId?: boolean
   authorCharacterId?: boolean
   ArtCollection?: boolean | Prisma.Reaction$ArtCollectionArgs<ExtArgs>
@@ -5528,6 +5920,7 @@ export type ReactionSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs
   Theme?: boolean | Prisma.Reaction$ThemeArgs<ExtArgs>
   TzaddikCandidate?: boolean | Prisma.Reaction$TzaddikCandidateArgs<ExtArgs>
   PlumberLevel?: boolean | Prisma.Reaction$PlumberLevelArgs<ExtArgs>
+  BrainstormLine?: boolean | Prisma.Reaction$BrainstormLineArgs<ExtArgs>
   User?: boolean | Prisma.UserDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["reaction"]>
 
@@ -5558,11 +5951,12 @@ export type ReactionSelectScalar = {
   facetId?: boolean
   tzaddikCandidateId?: boolean
   plumberLevelId?: boolean
+  brainstormLineId?: boolean
   authorBotId?: boolean
   authorCharacterId?: boolean
 }
 
-export type ReactionOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "createdAt" | "updatedAt" | "comment" | "userId" | "reactionType" | "reactionCategory" | "rating" | "artImageId" | "botId" | "promptId" | "resourceId" | "rewardId" | "chatId" | "dreamId" | "artCollectionId" | "characterId" | "scenarioId" | "themeId" | "challengeSubmissionId" | "projectId" | "facetId" | "tzaddikCandidateId" | "plumberLevelId" | "authorBotId" | "authorCharacterId", ExtArgs["result"]["reaction"]>
+export type ReactionOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "createdAt" | "updatedAt" | "comment" | "userId" | "reactionType" | "reactionCategory" | "rating" | "artImageId" | "botId" | "promptId" | "resourceId" | "rewardId" | "chatId" | "dreamId" | "artCollectionId" | "characterId" | "scenarioId" | "themeId" | "challengeSubmissionId" | "projectId" | "facetId" | "tzaddikCandidateId" | "plumberLevelId" | "brainstormLineId" | "authorBotId" | "authorCharacterId", ExtArgs["result"]["reaction"]>
 export type ReactionInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   ArtCollection?: boolean | Prisma.Reaction$ArtCollectionArgs<ExtArgs>
   ArtImage?: boolean | Prisma.Reaction$ArtImageArgs<ExtArgs>
@@ -5582,6 +5976,7 @@ export type ReactionInclude<ExtArgs extends runtime.Types.Extensions.InternalArg
   Theme?: boolean | Prisma.Reaction$ThemeArgs<ExtArgs>
   TzaddikCandidate?: boolean | Prisma.Reaction$TzaddikCandidateArgs<ExtArgs>
   PlumberLevel?: boolean | Prisma.Reaction$PlumberLevelArgs<ExtArgs>
+  BrainstormLine?: boolean | Prisma.Reaction$BrainstormLineArgs<ExtArgs>
   User?: boolean | Prisma.UserDefaultArgs<ExtArgs>
 }
 
@@ -5606,6 +6001,7 @@ export type $ReactionPayload<ExtArgs extends runtime.Types.Extensions.InternalAr
     Theme: Prisma.$ThemePayload<ExtArgs> | null
     TzaddikCandidate: Prisma.$TzaddikCandidatePayload<ExtArgs> | null
     PlumberLevel: Prisma.$PlumberLevelPayload<ExtArgs> | null
+    BrainstormLine: Prisma.$BrainstormLinePayload<ExtArgs> | null
     User: Prisma.$UserPayload<ExtArgs>
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
@@ -5633,6 +6029,7 @@ export type $ReactionPayload<ExtArgs extends runtime.Types.Extensions.InternalAr
     facetId: number | null
     tzaddikCandidateId: number | null
     plumberLevelId: number | null
+    brainstormLineId: number | null
     /**
      * The Bot or Character a first-party comment is spoken BY, as opposed to
      * botId/characterId, which are what a reaction is spoken ABOUT. userId stays
@@ -6004,6 +6401,7 @@ export interface Prisma__ReactionClient<T, Null = never, ExtArgs extends runtime
   Theme<T extends Prisma.Reaction$ThemeArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Reaction$ThemeArgs<ExtArgs>>): Prisma.Prisma__ThemeClient<runtime.Types.Result.GetResult<Prisma.$ThemePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   TzaddikCandidate<T extends Prisma.Reaction$TzaddikCandidateArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Reaction$TzaddikCandidateArgs<ExtArgs>>): Prisma.Prisma__TzaddikCandidateClient<runtime.Types.Result.GetResult<Prisma.$TzaddikCandidatePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   PlumberLevel<T extends Prisma.Reaction$PlumberLevelArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Reaction$PlumberLevelArgs<ExtArgs>>): Prisma.Prisma__PlumberLevelClient<runtime.Types.Result.GetResult<Prisma.$PlumberLevelPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+  BrainstormLine<T extends Prisma.Reaction$BrainstormLineArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Reaction$BrainstormLineArgs<ExtArgs>>): Prisma.Prisma__BrainstormLineClient<runtime.Types.Result.GetResult<Prisma.$BrainstormLinePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   User<T extends Prisma.UserDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.UserDefaultArgs<ExtArgs>>): Prisma.Prisma__UserClient<runtime.Types.Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
@@ -6058,6 +6456,7 @@ export interface ReactionFieldRefs {
   readonly facetId: Prisma.FieldRef<"Reaction", 'Int'>
   readonly tzaddikCandidateId: Prisma.FieldRef<"Reaction", 'Int'>
   readonly plumberLevelId: Prisma.FieldRef<"Reaction", 'Int'>
+  readonly brainstormLineId: Prisma.FieldRef<"Reaction", 'Int'>
   readonly authorBotId: Prisma.FieldRef<"Reaction", 'Int'>
   readonly authorCharacterId: Prisma.FieldRef<"Reaction", 'Int'>
 }
@@ -6747,6 +7146,25 @@ export type Reaction$PlumberLevelArgs<ExtArgs extends runtime.Types.Extensions.I
    */
   include?: Prisma.PlumberLevelInclude<ExtArgs> | null
   where?: Prisma.PlumberLevelWhereInput
+}
+
+/**
+ * Reaction.BrainstormLine
+ */
+export type Reaction$BrainstormLineArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the BrainstormLine
+   */
+  select?: Prisma.BrainstormLineSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the BrainstormLine
+   */
+  omit?: Prisma.BrainstormLineOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.BrainstormLineInclude<ExtArgs> | null
+  where?: Prisma.BrainstormLineWhereInput
 }
 
 /**

@@ -270,10 +270,12 @@ export const PROJECT_PLACEMENTS: Record<string, ProjectPlacement> = {
     tabKey: 'academy',
     route: '/academy',
   },
+  // Silas, 2026-11-03: Brainstorm is the social riff-board party game in Play.
+  // The original idea workbench stays at /brainstorm for admins.
   brainstorm: {
-    channelKey: 'admin',
+    channelKey: 'arcade',
     tabKey: 'brainstorm',
-    route: '/brainstorm',
+    route: '/play/brainstorm',
   },
   conductor: {
     channelKey: 'projects',

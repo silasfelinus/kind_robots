@@ -408,6 +408,8 @@ export const ModelName = {
   ArchiveActionPreset: 'ArchiveActionPreset',
   BrainstormSession: 'BrainstormSession',
   BrainstormCandidate: 'BrainstormCandidate',
+  BrainstormRiff: 'BrainstormRiff',
+  BrainstormLine: 'BrainstormLine',
   ComicSeries: 'ComicSeries',
   ComicEntity: 'ComicEntity',
   ComicSlot: 'ComicSlot',
@@ -550,7 +552,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "agentProfile" | "agentProfileCredential" | "agentCheckIn" | "agentNote" | "arcadeScore" | "arcadeReview" | "arcadeGuestRating" | "archiveEntry" | "archiveActionPreset" | "brainstormSession" | "brainstormCandidate" | "comicSeries" | "comicEntity" | "comicSlot" | "comicAttempt" | "comicIssue" | "comicCritique" | "facetAlias" | "facetProfile" | "characterFacet" | "botFacet" | "rewardFacet" | "mandarinAudioAsset" | "mandarinCatalogOverride" | "mandarinCatalogChange" | "mandarinLessonProgress" | "mandarinPointEvent" | "mandarinLearnerProfile" | "mandarinRequestedCard" | "mandarinCustomSet" | "mandarinArtJobLink" | "mandarinCardProgress" | "mandarinReviewEvent" | "modelBuildRun" | "modelBuildItem" | "modelBuildArtifact" | "modelBuildRevision" | "musicVideo" | "playbookEdit" | "playbookNote" | "playbookRunReview" | "projectPageContent" | "artImage" | "artCollection" | "bot" | "character" | "chat" | "dream" | "dreamRelation" | "project" | "facet" | "dreamFacet" | "scenarioFacet" | "projectFacet" | "projectArtImage" | "projectArtCollection" | "entityArtImage" | "facetArtImage" | "facetArtCollection" | "facetRelation" | "expressionMedia" | "expressionTransition" | "log" | "achievement" | "manaTransaction" | "revenueSplit" | "socialPostDraft" | "missionRemittance" | "product" | "order" | "orderItem" | "entitlement" | "printJob" | "grant" | "pack" | "achievementRecord" | "narratorTopic" | "narratorThread" | "pitchSheet" | "prompt" | "plumberLevel" | "reaction" | "resource" | "reward" | "scenario" | "server" | "serverHealthCheck" | "sceneAnimatorPrompt" | "smartIcon" | "theme" | "user" | "stylistClient" | "stylistAppointment" | "artJob" | "queueControl" | "downloadRequest" | "karmaTransaction" | "referral" | "userRelation" | "userRole" | "todo" | "challenge" | "challengeSubmission" | "contender" | "endingDeck" | "lifeRun" | "lifeChoice" | "lifeStat" | "lifeEnding" | "lifeAchievement" | "lifeAchievementUnlock" | "lifeRunArt" | "aquarium" | "aquariumStock" | "aquariumSet" | "aquariumDecor" | "aquariumEgg" | "aquariumCodexEntry" | "monster" | "aquariumEvent" | "authToken" | "agentCredential" | "conversation" | "conversationParticipant" | "directMessage" | "notification" | "githubInstallation" | "appRepo" | "mediaEntry" | "resourcePreview" | "hybridizerFusion" | "spaceCouchAlienGuide" | "slimeCityAccount" | "slimeCityMatch" | "siteStatDaily" | "tzaddikCandidate" | "tzaddikCandidateTag" | "tzaddikRecheckRequest"
+    modelProps: "agentProfile" | "agentProfileCredential" | "agentCheckIn" | "agentNote" | "arcadeScore" | "arcadeReview" | "arcadeGuestRating" | "archiveEntry" | "archiveActionPreset" | "brainstormSession" | "brainstormCandidate" | "brainstormRiff" | "brainstormLine" | "comicSeries" | "comicEntity" | "comicSlot" | "comicAttempt" | "comicIssue" | "comicCritique" | "facetAlias" | "facetProfile" | "characterFacet" | "botFacet" | "rewardFacet" | "mandarinAudioAsset" | "mandarinCatalogOverride" | "mandarinCatalogChange" | "mandarinLessonProgress" | "mandarinPointEvent" | "mandarinLearnerProfile" | "mandarinRequestedCard" | "mandarinCustomSet" | "mandarinArtJobLink" | "mandarinCardProgress" | "mandarinReviewEvent" | "modelBuildRun" | "modelBuildItem" | "modelBuildArtifact" | "modelBuildRevision" | "musicVideo" | "playbookEdit" | "playbookNote" | "playbookRunReview" | "projectPageContent" | "artImage" | "artCollection" | "bot" | "character" | "chat" | "dream" | "dreamRelation" | "project" | "facet" | "dreamFacet" | "scenarioFacet" | "projectFacet" | "projectArtImage" | "projectArtCollection" | "entityArtImage" | "facetArtImage" | "facetArtCollection" | "facetRelation" | "expressionMedia" | "expressionTransition" | "log" | "achievement" | "manaTransaction" | "revenueSplit" | "socialPostDraft" | "missionRemittance" | "product" | "order" | "orderItem" | "entitlement" | "printJob" | "grant" | "pack" | "achievementRecord" | "narratorTopic" | "narratorThread" | "pitchSheet" | "prompt" | "plumberLevel" | "reaction" | "resource" | "reward" | "scenario" | "server" | "serverHealthCheck" | "sceneAnimatorPrompt" | "smartIcon" | "theme" | "user" | "stylistClient" | "stylistAppointment" | "artJob" | "queueControl" | "downloadRequest" | "karmaTransaction" | "referral" | "userRelation" | "userRole" | "todo" | "challenge" | "challengeSubmission" | "contender" | "endingDeck" | "lifeRun" | "lifeChoice" | "lifeStat" | "lifeEnding" | "lifeAchievement" | "lifeAchievementUnlock" | "lifeRunArt" | "aquarium" | "aquariumStock" | "aquariumSet" | "aquariumDecor" | "aquariumEgg" | "aquariumCodexEntry" | "monster" | "aquariumEvent" | "authToken" | "agentCredential" | "conversation" | "conversationParticipant" | "directMessage" | "notification" | "githubInstallation" | "appRepo" | "mediaEntry" | "resourcePreview" | "hybridizerFusion" | "spaceCouchAlienGuide" | "slimeCityAccount" | "slimeCityMatch" | "siteStatDaily" | "tzaddikCandidate" | "tzaddikCandidateTag" | "tzaddikRecheckRequest"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -1277,6 +1279,138 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         count: {
           args: Prisma.BrainstormCandidateCountArgs<ExtArgs>
           result: runtime.Types.Utils.Optional<Prisma.BrainstormCandidateCountAggregateOutputType> | number
+        }
+      }
+    }
+    BrainstormRiff: {
+      payload: Prisma.$BrainstormRiffPayload<ExtArgs>
+      fields: Prisma.BrainstormRiffFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.BrainstormRiffFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BrainstormRiffPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.BrainstormRiffFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BrainstormRiffPayload>
+        }
+        findFirst: {
+          args: Prisma.BrainstormRiffFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BrainstormRiffPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.BrainstormRiffFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BrainstormRiffPayload>
+        }
+        findMany: {
+          args: Prisma.BrainstormRiffFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BrainstormRiffPayload>[]
+        }
+        create: {
+          args: Prisma.BrainstormRiffCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BrainstormRiffPayload>
+        }
+        createMany: {
+          args: Prisma.BrainstormRiffCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        delete: {
+          args: Prisma.BrainstormRiffDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BrainstormRiffPayload>
+        }
+        update: {
+          args: Prisma.BrainstormRiffUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BrainstormRiffPayload>
+        }
+        deleteMany: {
+          args: Prisma.BrainstormRiffDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.BrainstormRiffUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        upsert: {
+          args: Prisma.BrainstormRiffUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BrainstormRiffPayload>
+        }
+        aggregate: {
+          args: Prisma.BrainstormRiffAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateBrainstormRiff>
+        }
+        groupBy: {
+          args: Prisma.BrainstormRiffGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.BrainstormRiffGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.BrainstormRiffCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.BrainstormRiffCountAggregateOutputType> | number
+        }
+      }
+    }
+    BrainstormLine: {
+      payload: Prisma.$BrainstormLinePayload<ExtArgs>
+      fields: Prisma.BrainstormLineFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.BrainstormLineFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BrainstormLinePayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.BrainstormLineFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BrainstormLinePayload>
+        }
+        findFirst: {
+          args: Prisma.BrainstormLineFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BrainstormLinePayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.BrainstormLineFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BrainstormLinePayload>
+        }
+        findMany: {
+          args: Prisma.BrainstormLineFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BrainstormLinePayload>[]
+        }
+        create: {
+          args: Prisma.BrainstormLineCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BrainstormLinePayload>
+        }
+        createMany: {
+          args: Prisma.BrainstormLineCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        delete: {
+          args: Prisma.BrainstormLineDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BrainstormLinePayload>
+        }
+        update: {
+          args: Prisma.BrainstormLineUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BrainstormLinePayload>
+        }
+        deleteMany: {
+          args: Prisma.BrainstormLineDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.BrainstormLineUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        upsert: {
+          args: Prisma.BrainstormLineUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BrainstormLinePayload>
+        }
+        aggregate: {
+          args: Prisma.BrainstormLineAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateBrainstormLine>
+        }
+        groupBy: {
+          args: Prisma.BrainstormLineGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.BrainstormLineGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.BrainstormLineCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.BrainstormLineCountAggregateOutputType> | number
         }
       }
     }
@@ -9879,6 +10013,41 @@ export const BrainstormCandidateScalarFieldEnum = {
 export type BrainstormCandidateScalarFieldEnum = (typeof BrainstormCandidateScalarFieldEnum)[keyof typeof BrainstormCandidateScalarFieldEnum]
 
 
+export const BrainstormRiffScalarFieldEnum = {
+  id: 'id',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  userId: 'userId',
+  starterKey: 'starterKey',
+  flavor: 'flavor',
+  title: 'title',
+  stem: 'stem',
+  vibe: 'vibe',
+  crossoverIds: 'crossoverIds',
+  isPublic: 'isPublic',
+  isOpen: 'isOpen',
+  lastLineAt: 'lastLineAt'
+} as const
+
+export type BrainstormRiffScalarFieldEnum = (typeof BrainstormRiffScalarFieldEnum)[keyof typeof BrainstormRiffScalarFieldEnum]
+
+
+export const BrainstormLineScalarFieldEnum = {
+  id: 'id',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  riffId: 'riffId',
+  userId: 'userId',
+  authorName: 'authorName',
+  text: 'text',
+  aiSpark: 'aiSpark',
+  artJobId: 'artJobId',
+  artImageId: 'artImageId'
+} as const
+
+export type BrainstormLineScalarFieldEnum = (typeof BrainstormLineScalarFieldEnum)[keyof typeof BrainstormLineScalarFieldEnum]
+
+
 export const ComicSeriesScalarFieldEnum = {
   id: 'id',
   createdAt: 'createdAt',
@@ -11213,6 +11382,7 @@ export const ReactionScalarFieldEnum = {
   facetId: 'facetId',
   tzaddikCandidateId: 'tzaddikCandidateId',
   plumberLevelId: 'plumberLevelId',
+  brainstormLineId: 'brainstormLineId',
   authorBotId: 'authorBotId',
   authorCharacterId: 'authorCharacterId'
 } as const
@@ -12484,6 +12654,27 @@ export const BrainstormCandidateOrderByRelevanceFieldEnum = {
 } as const
 
 export type BrainstormCandidateOrderByRelevanceFieldEnum = (typeof BrainstormCandidateOrderByRelevanceFieldEnum)[keyof typeof BrainstormCandidateOrderByRelevanceFieldEnum]
+
+
+export const BrainstormRiffOrderByRelevanceFieldEnum = {
+  starterKey: 'starterKey',
+  flavor: 'flavor',
+  title: 'title',
+  stem: 'stem',
+  vibe: 'vibe',
+  crossoverIds: 'crossoverIds'
+} as const
+
+export type BrainstormRiffOrderByRelevanceFieldEnum = (typeof BrainstormRiffOrderByRelevanceFieldEnum)[keyof typeof BrainstormRiffOrderByRelevanceFieldEnum]
+
+
+export const BrainstormLineOrderByRelevanceFieldEnum = {
+  authorName: 'authorName',
+  text: 'text',
+  aiSpark: 'aiSpark'
+} as const
+
+export type BrainstormLineOrderByRelevanceFieldEnum = (typeof BrainstormLineOrderByRelevanceFieldEnum)[keyof typeof BrainstormLineOrderByRelevanceFieldEnum]
 
 
 export const ComicSeriesOrderByRelevanceFieldEnum = {
@@ -14585,6 +14776,8 @@ export type GlobalOmitConfig = {
   archiveActionPreset?: Prisma.ArchiveActionPresetOmit
   brainstormSession?: Prisma.BrainstormSessionOmit
   brainstormCandidate?: Prisma.BrainstormCandidateOmit
+  brainstormRiff?: Prisma.BrainstormRiffOmit
+  brainstormLine?: Prisma.BrainstormLineOmit
   comicSeries?: Prisma.ComicSeriesOmit
   comicEntity?: Prisma.ComicEntityOmit
   comicSlot?: Prisma.ComicSlotOmit

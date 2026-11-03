@@ -10,6 +10,13 @@ on:
       - 'types/brainstorm.ts'
       - 'utils/scripts/verifyBrainstormStoreContract.mjs'
       - 'utils/scripts/verifyBrainstormCandidateLifecycle.test.ts'
+      - 'stores/brainstormRiffStore.ts'
+      - 'utils/brainstormRiffs.ts'
+      - 'server/utils/brainstorm/riffBoard.ts'
+      - 'server/api/brainstorm/**'
+      - 'server/api/reactions/index.post.ts'
+      - 'server/utils/artPromptContract.ts'
+      - 'utils/scripts/verifyBrainstormRiffs.test.ts'
   workflow_dispatch:
 
 permissions:
@@ -45,3 +52,6 @@ jobs:
 
       - name: Verify Brainstorm candidate lifecycle contract
         run: npx tsx utils/scripts/verifyBrainstormCandidateLifecycle.test.ts
+
+      - name: Verify Brainstorm riff board rules
+        run: npx tsx utils/scripts/verifyBrainstormRiffs.test.ts

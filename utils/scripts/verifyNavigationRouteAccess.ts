@@ -524,7 +524,7 @@ for (const { slug, from, to, route, admin } of navigationMoves) {
   assert.ok(tab.includes(`${newline}route: ${route}${newline}`))
   assert.equal(tab.includes(`${newline}requiredRole: ADMIN${newline}`), admin)
   assert.equal(existsSync(`content/channels/${from}/${slug}.md`), false)
-  if (slug !== 'arcade') {
+  if (slug !== 'arcade' && slug !== 'brainstorm') {
     assert.deepEqual(PROJECT_PLACEMENTS[slug], {
       channelKey: to,
       tabKey: slug,
@@ -567,6 +567,17 @@ const storybookNav = readFileSync(
   'utf8',
 )
 const storybookPage = readFileSync('content/storybook.md', 'utf8')
+// Silas, 2026-11-03: the Brainstorm project is the riff-board party game in
+// Play; the admin idea workbench keeps its /brainstorm tab above.
+assert.deepEqual(PROJECT_PLACEMENTS.brainstorm, {
+  channelKey: 'arcade',
+  tabKey: 'brainstorm',
+  route: '/play/brainstorm',
+})
+const brainstormPlayTab = readFileSync('content/channels/arcade/brainstorm.md', 'utf8')
+assert.match(brainstormPlayTab, /^route: \/play\/brainstorm$/m)
+assert.doesNotMatch(brainstormPlayTab, /^requiredRole:/m)
+
 const storybookIcon = readFileSync('assets/icons/storybook.svg', 'utf8')
 for (const metadata of [storybookNav, storybookPage]) {
   assert.match(

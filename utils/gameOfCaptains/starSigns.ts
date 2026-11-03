@@ -38,7 +38,7 @@ export const STAR_QUESTIONS: readonly StarQuestion[] = [
   },
   {
     prompt:
-      'A runaway trolley full of cake is about to frost five interns. The lever sends it into the couch. You are on the couch.',
+      'A runaway cake trolley will frost five interns. The lever sends it into the couch. You’re on the couch.',
     cue: 'FORM HR-02 · THE TROLLEY PROBLEM (MANDATORY)',
     art: 'couchscope/trolley',
     fallback: '/game-of-captains/couchscope/trolley.svg',

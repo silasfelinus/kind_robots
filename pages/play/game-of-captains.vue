@@ -4374,6 +4374,16 @@ function toggleAway(id: CrewId) {
   }
 }
 @media (max-width: 650px) {
+  .cap-personnel-frame[data-screen='crew'] > .cap-option {
+    position: static;
+    grid-row: 1;
+    grid-column: 1;
+    justify-self: end;
+    align-self: start;
+  }
+  .cap-personnel-frame[data-screen='crew'] > .cap-heading {
+    grid-row: 1;
+  }
   .cap-personnel-frame[data-screen='crew'] {
     grid-template-columns: minmax(0, 1fr);
     grid-template-rows: auto minmax(0, 1.3fr) minmax(0, 0.7fr) auto;

@@ -434,7 +434,7 @@ function choose(index: number) {
 }
 .scope-content h2,
 .scope-reveal h2 {
-  max-width: 24ch;
+  max-width: 30ch;
   margin: 0.25rem 0 0.4rem;
   font:
     900 clamp(1.55rem, min(3.25cqi, 5.2vh), 3.25rem)/1.04 Georgia,

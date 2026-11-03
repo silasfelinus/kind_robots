@@ -17,7 +17,6 @@ import type {
   FlagGate,
   QuestDef,
   SceneLine,
-  TalkDef,
 } from '../emperorOfDust/fortress/types'
 
 type Scores = {

@@ -29,6 +29,7 @@ import type {
   QuestDef,
   QuestReport,
   SceneLine,
+  TalkDef,
 } from './types'
 
 export type Policy = {

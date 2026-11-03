@@ -23,7 +23,11 @@
   COMPACT. A page that docks only a few actions (a Refresh, a range switch, a
   status chip) passes `compact`: its bar takes the right of the row and the
   page's room and message stay visible on the left, so the strip still says
-  where you are.
+  where you are. A compact bar that is wider than its half of the row clips at
+  its own edge (justify-end-safe + overflow-x-clip) instead of spilling left
+  over the room title -- the overlap Silas caught on the Hybridizer,
+  2026-11-03. Pages should still collapse their chips with container queries
+  before that guard is ever reached.
 
   NESTED. A page that docks its own bar and also embeds components that could
   dock one (the user dashboard embeds the galleries) calls
@@ -45,7 +49,7 @@
     <Teleport to="#kr-header-page-bar" defer>
       <div
         class="flex min-w-0 flex-1 items-center gap-2"
-        :class="compact ? 'justify-end' : ''"
+        :class="compact ? 'justify-end-safe overflow-x-clip' : ''"
         data-testid="header-page-bar"
       >
         <slot />

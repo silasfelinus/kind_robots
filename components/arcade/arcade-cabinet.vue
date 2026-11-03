@@ -263,8 +263,8 @@
           v-else-if="!touchControls && props.slug === 'save-the-plumber'"
           class="cabinet-hint"
         >
-          WASD / arrows move · Space / Up jump · Shift sprint · E wrench ·
-          F special · Down duck / pipe · Enter start · P pause
+          WASD / arrows move · Space / Up jump · Shift sprint · E wrench · F
+          special · Down duck / pipe · Enter start · P pause
         </p>
         <p v-else-if="!touchControls && fourButtons" class="cabinet-hint">
           Arrows or WASD move · Space or Z = A · X or Shift = B · C = X · V = Y

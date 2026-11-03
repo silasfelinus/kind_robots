@@ -31,6 +31,7 @@ const publicRoutes = [
   '/play/zuzu-pinball',
   '/play/zuzu-shifting-lands',
   '/play/zuzu-gamebook',
+  '/play/zuzu-showdown',
   '/play/ecotone',
   '/play/shifting-desks',
   '/play/aquarium',

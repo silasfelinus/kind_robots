@@ -22,8 +22,10 @@ import {
   emptyRewardArchive,
   migrateFoundEndings,
   newMilestonesForRun,
+  parseSavedJSON,
   receiptFor,
   recordReward,
+  restoreEndingGallery,
   restoreRewardArchive,
   type RewardArchive,
   type RunReceipt,
@@ -83,31 +85,18 @@ export const useShiftingDesksStore = defineStore('shiftingDesks', () => {
     if (loaded.value) return
     newlyEarnedMilestones.value = []
     try {
-      const raw = localStorage.getItem(SAVE_KEY)
-      const parsed: unknown = raw ? JSON.parse(raw) : null
-      run.value = upgradeRun(parsed)
+      run.value = upgradeRun(parseSavedJSON(localStorage.getItem(SAVE_KEY)))
       envelopeOpened.value =
         localStorage.getItem(ENVELOPE_KEY) === run.value?.seed
-      const seen: unknown = JSON.parse(
-        localStorage.getItem(OUTCOMES_KEY) ?? '[]',
-      )
+      const seen = parseSavedJSON(localStorage.getItem(OUTCOMES_KEY))
       discovered.value = Array.isArray(seen)
-        ? seen.filter((s): s is string => typeof s === 'string')
+        ? [...new Set(seen.filter((s): s is string => typeof s === 'string'))]
         : []
-      const endings: unknown = JSON.parse(
-        localStorage.getItem(ENDINGS_KEY) ?? '[]',
+      endingsFound.value = restoreEndingGallery(
+        parseSavedJSON(localStorage.getItem(ENDINGS_KEY)),
       )
-      endingsFound.value = Array.isArray(endings)
-        ? endings.filter((s): s is string => typeof s === 'string')
-        : []
-      let rewards: unknown = null
-      try {
-        rewards = JSON.parse(localStorage.getItem(REWARD_KEY) ?? 'null')
-      } catch {
-        rewards = null
-      }
       rewardArchive.value = migrateFoundEndings(
-        restoreRewardArchive(rewards),
+        restoreRewardArchive(parseSavedJSON(localStorage.getItem(REWARD_KEY))),
         endingsFound.value,
       )
       recordEnding()

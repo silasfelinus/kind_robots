@@ -381,17 +381,17 @@ export const SECRET_TALKS: readonly TalkDef[] = [
     follower: 'F024',
     title: 'The Toll Nobody Wrote Down',
     fromDay: 43,
-    requires: { flags: ['heard:tarn-1'], notFlags: ['komodo-betrayal'] },
+    requires: { flags: ['heard:tarn-1', 'komodo-betrayal'] },
     lines: [
-      'Tarn has walked the pass alone and counted what it costs. Every night a Watch sergeant takes a handful of coins from the families who cross, and not one coin reaches the ledger.',
-      '“He buys lamp oil for the guard post with it,” Tarn says. “Without the oil the post goes dark and the crossing is blind. With the oil, the families are robbed by the people sworn to guard them.”',
-      'Tarn has not told the sergeant what the map shows. The emperor decides what the sergeant hears.',
+      'Tarn comes back to the hideout on foot. A Watch sergeant who fled the tower has kept the exile pass lit. Every night he takes coin from the families crossing it. Not one coin is written down.',
+      '“He buys lamp oil with it,” Tarn says. “Without the oil the post goes dark. With it the people running from Komodo pay the same Watch that let him through.”',
+      'Tarn puts the sergeant’s coin roll beside the court’s nearly empty purse. “We lost the tower. We brought the tolls with us.”',
     ],
     options: [
       {
         id: 'fund-oil',
         label:
-          'Fund the lamp oil from the treasury and order the sergeant to stop taking coin.',
+          'Pay for the lamps from the court’s purse. End the private toll.'
         requires: { cost: 10 },
         effects: {
           local: { yard: 1, 'gate-watch': 1 },
@@ -403,14 +403,14 @@ export const SECRET_TALKS: readonly TalkDef[] = [
       {
         id: 'name-the-toll',
         label:
-          'Write the toll into the ledger and let the Watch answer to the Archive for it.',
+          'Publish a six-brass passage levy to fund the lamps. Make the sergeant answer for the hidden collections.'
         effects: {
           brass: 6,
           local: { ledger: 2, 'gate-watch': -2 },
           flags: ['tarn-toll-written'],
         },
         response:
-          'The oil is paid for in the open and the sergeant is fined in front of his own watch. Two guards ask for new posts. Tarn says an honest toll is still a toll and keeps walking the pass.',
+          'Families count six brass onto the ledger. The oil arrives and the sergeant is fined in front of his own watch. Two guards ask for new posts. “It’s in ink now,” Tarn says. “They still have to pay.”'
       },
     ],
   },

@@ -4,16 +4,19 @@
 // hideout and every ending stays reachable, careful play rarely loses the
 // crypt, and a full barracks does not live on the Ledger's loans.
 import { questDef } from './content'
+import { chanceEvent } from './dailyEvents'
 import { type EndingId, endingOf } from './endings'
 import {
   assignQuest,
   audienceScene,
   audiencesToday,
   chooseAudienceOption,
+  chooseChanceEvent,
   createRun,
   finishDay,
   followerStatus,
   isOver,
+  unmetRequirements,
   optionBlockers,
   previewQuest,
   recruit,
@@ -206,6 +209,14 @@ export type CampaignResult = {
  */
 export type CampaignObserver = {
   playTalks?: boolean
+  /** Opt-in: answer the actual dawn encounter instead of ignoring it. */
+  playChanceEvents?: boolean
+  onChanceChoice?: (
+    day: number,
+    eventId: string,
+    choiceId: string,
+    run: FortressRun,
+  ) => void
   selectTalk?: (
     day: number,
     available: readonly TalkDef[],
@@ -290,6 +301,20 @@ export const playCampaign = (
         if (!pick) break
         run = chooseAudienceOption(run, audience.id, pick.option.id).run
         observer?.onAudienceChoice?.(run.day, audience.id, pick.option, run)
+      }
+    }
+    if (observer?.playChanceEvents && run.dailyEvent) {
+      const event = chanceEvent(run.dailyEvent)
+      const choices = event?.choices.filter(
+        (choice) =>
+          unmetRequirements(run, choice.requires, choice.effects.recruit).length ===
+          0,
+      )
+      const choice =
+        choices?.find((entry) => entry.id === 'welcome') ?? choices?.[0]
+      if (event && choice) {
+        run = chooseChanceEvent(run, event.id, choice.id).run
+        observer.onChanceChoice?.(run.day, event.id, choice.id, run)
       }
     }
     if (observer?.playTalks) {

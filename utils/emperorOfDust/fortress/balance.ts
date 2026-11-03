@@ -211,6 +211,12 @@ export type CampaignObserver = {
   playTalks?: boolean
   /** Opt-in: answer the actual dawn encounter instead of ignoring it. */
   playChanceEvents?: boolean
+  selectChanceChoice?: (
+    day: number,
+    eventId: string,
+    choices: readonly string[],
+    run: FortressRun,
+  ) => string | undefined
   onChanceChoice?: (
     day: number,
     eventId: string,
@@ -310,8 +316,16 @@ export const playCampaign = (
           unmetRequirements(run, choice.requires, choice.effects.recruit).length ===
           0,
       )
+      const preferred = observer.selectChanceChoice?.(
+        run.day,
+        event?.id ?? '',
+        choices?.map((entry) => entry.id) ?? [],
+        run,
+      )
       const choice =
-        choices?.find((entry) => entry.id === 'welcome') ?? choices?.[0]
+        choices?.find((entry) => entry.id === preferred) ??
+        choices?.find((entry) => entry.id === 'welcome') ??
+        choices?.[0]
       if (event && choice) {
         run = chooseChanceEvent(run, event.id, choice.id).run
         observer.onChanceChoice?.(run.day, event.id, choice.id, run)

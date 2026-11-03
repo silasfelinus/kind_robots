@@ -12,6 +12,7 @@ on:
       - 'utils/scripts/verifyEmperorFortress.test.ts'
       - 'utils/scripts/verifyEmperorFortressBalance.test.ts'
       - 'utils/scripts/verifyEmperorFortressAdversarial.test.ts'
+      - 'utils/scripts/verifyEmperorEditorialAcceptance.test.ts'
       - 'utils/scripts/verifyEmperorFortressStore.test.ts'
       - 'utils/scripts/verifyEmperorFortressOnboardingLayout.test.ts'
       - 'utils/scripts/verifyEmperorRoleFirstProse.test.ts'
@@ -68,3 +69,13 @@ jobs:
       - run: npx tsx utils/scripts/verifyEmperorQuestBriefs.test.ts
       - run: npx tsx utils/scripts/verifyEmperorFortressSecretTalks.test.ts
       - run: npx tsx utils/scripts/verifyEmperorFortressAdversarial.test.ts
+      - name: Complete authored narrative screening and independent 50-day campaigns
+        run: npx tsx utils/scripts/verifyEmperorEditorialAcceptance.test.ts
+      - name: Preserve per-scene, quest and follower score register
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: emperor-editorial-screening
+          path: artifacts/emperor/editorial-screening.*
+          retention-days: 30
+          if-no-files-found: warn

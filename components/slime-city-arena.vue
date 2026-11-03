@@ -286,16 +286,6 @@
         >
           ✕
         </button>
-        <SlimeCityCard
-          v-if="inspectedCard"
-          class="sca-inspect-card"
-          :card="inspectedCard"
-        />
-        <div v-else class="sca-inspect-card sca-concealed">
-          <span>?</span>
-          <strong>CONCEALED</strong>
-          <small>A spy you have not unmasked yet.</small>
-        </div>
         <div class="sca-inspect-live">
           <span class="sca-tag">{{
             lab.inspectedUnit.side === 'player' ? 'YOUR CREW' : 'ENEMY'
@@ -353,6 +343,16 @@
                 : 'Charging your base.'
             }}
           </p>
+        </div>
+        <SlimeCityCard
+          v-if="inspectedCard"
+          class="sca-inspect-card"
+          :card="inspectedCard"
+        />
+        <div v-else class="sca-inspect-card sca-concealed">
+          <span>?</span>
+          <strong>CONCEALED</strong>
+          <small>A spy you have not unmasked yet.</small>
         </div>
       </div>
 
@@ -1237,7 +1237,7 @@ onBeforeUnmount(() => {
 }
 .sca-inspect-card {
   flex: none;
-  width: min(100%, 15rem);
+  width: min(100%, 13.5rem);
   margin: 0 auto;
 }
 .sca-concealed {
@@ -1263,6 +1263,7 @@ onBeforeUnmount(() => {
 .sca-inspect-live {
   display: grid;
   gap: 0.5rem;
+  padding-right: 2rem;
 }
 .sca-live-stats {
   display: flex;

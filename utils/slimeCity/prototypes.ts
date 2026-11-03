@@ -49,6 +49,8 @@ export interface RuleVariants {
   rushAlternate: boolean
   /** Legacy hidden-army fixture only; the normal Blackout game is open. */
   classicFog?: boolean
+  /** One play a turn, no mana, every card normalized to one budget. */
+  parity?: boolean
 }
 export type Keyword =
   | 'ambush'
@@ -273,6 +275,10 @@ export interface MatchState {
   prisoners: Record<Side, number>
   /** TURF: the last eight positions, for the ko rule. */
   history: string[]
+  /** PARITY: how many of each side's next plays will fizzle. */
+  jammed: Record<Side, number>
+  /** PARITY: free (faction-bonus) plays used this turn. */
+  freePlays: Record<Side, number>
 }
 
 export interface ArenaFlag {
@@ -341,6 +347,13 @@ export interface MatchView {
   turfScore: [number, number]
   /** TURF: this side already placed its token this round. */
   turfPlayed: boolean
+  /** PARITY is on: no mana, one play a turn, normalized cards. */
+  parity: boolean
+  /** PARITY: [own, opponent] jammed plays still to fizzle. */
+  jammed: [number, number]
+  /** PARITY: this side's free card kind, and whether this turn's play is spent. */
+  freeKind: CardKind | null
+  playSpent: boolean
   /** [own, opponent] base HP. */
   bases: [number, number]
   baseMax: number
@@ -1440,6 +1453,7 @@ export const DEFAULT_RULES: RuleVariants = {
   monster: false,
   rout: false,
   rushAlternate: false,
+  parity: false,
 }
 /** Lab toggles, with the formats each one changes. */
 export const RULE_VARIANTS: {
@@ -1477,6 +1491,12 @@ export const RULE_VARIANTS: {
     label: 'YARDAGE TIEBREAK',
     modes: ['gridiron'],
     text: 'Lanes: still tied at the end, the crew whose fighters stand further upfield wins.',
+  },
+  {
+    id: 'parity',
+    label: 'PARITY',
+    modes: ['blackout', 'bloodrush', 'turf'],
+    text: 'One card a turn and no mana: every card is normalized to the same strength. Mana debt becomes JAM (the other crew’s next plays fizzle), and each crew has one card kind that does not use up its play.',
   },
   {
     id: 'rushAlternate',
@@ -1922,6 +1942,8 @@ function copy(state: MatchState): MatchState {
     puddles: state.puddles.map((p) => ({ ...p })),
     prisoners: { ...state.prisoners },
     history: [...state.history],
+    jammed: { ...state.jammed },
+    freePlays: { ...state.freePlays },
   }
 }
 
@@ -1937,6 +1959,13 @@ export function trapCapOf(state: MatchState, side: Side): number {
 function addDebt(state: MatchState, side: Side, amount: number): void {
   if (amount <= 0) return
   state.stats.debt += amount
+  if (parityOn(state)) {
+    state.jammed[side] = Math.min(
+      JAM_CAP,
+      state.jammed[side] + Math.min(JAM_CAP, amount),
+    )
+    return
+  }
   if (state.mode === 'bloodrush') {
     if (side === 'player') state.mana = Math.max(0, state.mana - amount)
     else state.enemyMana = Math.max(0, state.enemyMana - amount)
@@ -1945,6 +1974,15 @@ function addDebt(state: MatchState, side: Side, amount: number): void {
       dealsHands(state) ? 6 : DEBT_CAP,
       state.debt[side] + amount,
     )
+}
+
+/**
+ * COLLECT's passive debt. In PARITY a jammed turn is a lost turn, so only
+ * cards whose whole job is to jam (debt spells and debt traps) may jam; the
+ * keyword's chip-tax has no mana to bite on and does nothing.
+ */
+function collectDebt(state: MatchState, side: Side, amount: number): void {
+  if (!parityOn(state)) addDebt(state, side, amount)
 }
 
 /** Root a fighter now: it loses its current or next movement. */
@@ -1994,7 +2032,7 @@ function addFighter(
   y: number,
   hidden = false,
 ): Fighter {
-  const card = cardById(cardId)
+  const card = playedCard(state, cardById(cardId))
   const fighter: Fighter = {
     id: state.nextId++,
     cardId,
@@ -2099,6 +2137,7 @@ function drawHand(state: MatchState, side: Side): void {
     state.hands[side].push(next)
   }
   state.playedThisRound[side] = []
+  state.freePlays[side] = 0
 }
 
 /** CPU hand decisions use only its own cards and public board state. */
@@ -2211,6 +2250,8 @@ export function createMatch(
     puddles: [],
     prisoners: { player: 0, enemy: 0 },
     history: [],
+    jammed: { player: 0, enemy: 0 },
+    freePlays: { player: 0, enemy: 0 },
   }
   if (mode === 'blackout' && rules.classicFog) {
     for (const side of ['player', 'enemy'] as Side[]) {
@@ -2412,7 +2453,8 @@ function applyDeploy(
     Object.assign(state, draft)
     return true
   }
-  const card = CARDS.find((item) => item.id === cardId)
+  const found = CARDS.find((item) => item.id === cardId)
+  const card = found && playedCard(state, found)
   if (
     !card ||
     state.victor ||
@@ -2422,6 +2464,13 @@ function applyDeploy(
   if (card.cost > manaOf(state, side)) return false
   if (!cardReady(state, side, cardId)) return false
   if (autoBattle(state) && !state.hands[side].includes(cardId)) return false
+  if (parityOn(state)) {
+    if (!parityMayPlay(state, side, card)) return false
+    if (parityJam(state, side, card)) {
+      state.stats.plays[side][card.kind]++
+      return true
+    }
+  }
   if (x < 0 || y < 0 || x >= state.width || y >= state.height) return false
   const target = unitAt(state, x, y)
   const hidden =
@@ -2522,6 +2571,10 @@ function applyDeploy(
       target.ap += 2
       if (card.rearm) target.struck = false
     }
+    if (parityOn(state) && card.effect !== 'heal' && card.effect !== 'scan') {
+      target.maxHp += PARITY_BUFF_HP
+      target.hp += PARITY_BUFF_HP
+    }
     line =
       (side === 'enemy' ? 'Enemy plays ' : 'You play ') +
       card.name +
@@ -2592,6 +2645,7 @@ function applyDeploy(
   }
   spend(state, side, card.cost)
   if (autoBattle(state)) {
+    if (parityOn(state)) parityBook(state, side, card)
     state.hands[side] = state.hands[side].filter((id) => id !== cardId)
     state.discards[side].push(cardId)
     state.playedThisRound[side].push(cardId)
@@ -2814,7 +2868,17 @@ export function observe(state: MatchState, side: Side): MatchView {
       const { score } = turfTerritory(state)
       return [score[side], score[other(side)]] as [number, number]
     })(),
-    turfPlayed: state.playedThisRound[side].length > 0,
+    turfPlayed: parityOn(state)
+      ? state.playedThisRound[side].length - state.freePlays[side] >= 1 &&
+        (state.freePlays[side] >= 1 ||
+          !state.hands[side].some(
+            (id) => cardById(id).kind === PARITY_FREE_KIND[teamOf(state, side)],
+          ))
+      : state.playedThisRound[side].length > 0,
+    parity: parityOn(state),
+    jammed: [state.jammed[side], state.jammed[other(side)]],
+    freeKind: parityOn(state) ? PARITY_FREE_KIND[teamOf(state, side)] : null,
+    playSpent: state.playedThisRound[side].length - state.freePlays[side] >= 1,
     bases: [state.bases[side], state.bases[other(side)]],
     baseMax: BASE_HP[state.mode],
     flags: [{ ...state.flags[side] }, { ...state.flags[other(side)] }],
@@ -2852,7 +2916,7 @@ export function observe(state: MatchState, side: Side): MatchView {
       }),
     traps: state.traps.filter((t) => t.side === side).map((t) => ({ ...t })),
     hand: (dealsHands(state)
-      ? state.hands[side].map(cardById)
+      ? state.hands[side].map((id) => playedCard(state, cardById(id)))
       : deckOf(teamOf(state, side))
     ).filter((card) => cardReady(state, side, card.id)),
     victor: state.victor,
@@ -3125,7 +3189,8 @@ function combat(state: MatchState): void {
         fighter.hp = Math.min(fighter.maxHp, fighter.hp + 1)
       if (hasKeyword(fighter, 'snare') && victim.hp > 0)
         root(state, victim, true)
-      if (hasKeyword(fighter, 'collect')) addDebt(state, other(fighter.side), 1)
+      if (hasKeyword(fighter, 'collect'))
+        collectDebt(state, other(fighter.side), 1)
     }
     message(
       state,
@@ -3470,7 +3535,8 @@ function clash(state: MatchState): void {
     if (hasKeyword(fighter, 'leech') && fighter.hp > 0)
       fighter.hp = Math.min(fighter.maxHp, fighter.hp + 1)
     if (hasKeyword(fighter, 'snare') && victim.hp > 0) root(state, victim, true)
-    if (hasKeyword(fighter, 'collect')) addDebt(state, other(fighter.side), 1)
+    if (hasKeyword(fighter, 'collect'))
+      collectDebt(state, other(fighter.side), 1)
   }
   if (damage.size)
     message(
@@ -3957,16 +4023,23 @@ function applyTurf(
   x: number,
   y: number,
 ): boolean {
-  const card = CARDS.find((item) => item.id === cardId)
+  const found = CARDS.find((item) => item.id === cardId)
+  const card = found && playedCard(state, found)
   if (
     !card ||
     state.victor ||
     (card.team !== teamOf(state, side) && card.team !== 'mercenary') ||
     card.cost > manaOf(state, side) ||
     !state.hands[side].includes(cardId) ||
-    state.playedThisRound[side].length > 0
+    (parityOn(state)
+      ? !parityMayPlay(state, side, card)
+      : state.playedThisRound[side].length > 0)
   )
     return false
+  if (parityJam(state, side, card)) {
+    state.stats.plays[side][card.kind]++
+    return true
+  }
   if (x < 0 || y < 0 || x >= state.width || y >= state.height) return false
   if (turfBlocked(state, x, y)) return false
   // Your own traps block a point for you; an enemy's is invisible to you.
@@ -4030,7 +4103,7 @@ function applyTurf(
             state.mana = Math.min(MANA_CAP, state.mana + captured)
           else state.enemyMana = Math.min(MANA_CAP, state.enemyMana + captured)
         if (hasKeyword(stone, 'collect'))
-          addDebt(state, foe, Math.min(3, captured))
+          collectDebt(state, foe, Math.min(3, captured))
       }
       if (
         card.kind !== 'creature' &&
@@ -4055,6 +4128,7 @@ function applyTurf(
     }
   }
   spend(state, side, card.cost)
+  parityBook(state, side, card)
   state.hands[side] = state.hands[side].filter((id) => id !== cardId)
   state.discards[side].push(cardId)
   state.playedThisRound[side].push(cardId)
@@ -4200,6 +4274,161 @@ function finishTurf(state: MatchState): void {
           ? 'THE ENEMY HOLDS THE STREETS.'
           : 'A DEAD HEAT.'),
   )
+}
+
+// ---------------------------------------------------------------------------
+// PARITY (Silas, 2026-11-03): "each turn you play one card. That's it. A card
+// can have an effect to nullify the next x plays, or not register as a play
+// (faction bonus) but in general, let's test a system where every card is
+// theoretically as good as every other card." A lab variant: no mana, one
+// play a turn, every card normalized to one power budget, mana debt becomes
+// JAM (the other crew's next plays fizzle), and each crew has one card kind
+// that does not use up its play.
+// ---------------------------------------------------------------------------
+
+/** Every creature's stats, keywords, reach and speed add up to this. */
+export const PARITY_WORTH = 11
+/**
+ * Most plays a side can have jammed at once. A jam card spends your play to
+ * cancel one of theirs: one for one, so JAM never stacks past a single play.
+ */
+export const JAM_CAP = 1
+/** PARITY: a buff is a whole play, so it also toughens its target this much. */
+export const PARITY_BUFF_HP = 2
+/** Each crew's faction bonus: this kind of card does not use up the turn's play. */
+export const PARITY_FREE_KIND: Record<TeamId, CardKind> = {
+  catgirls: 'equipment',
+  bloodfairies: 'trap',
+  ironjaw: 'equipment',
+  riot: 'trap',
+  undertow: 'trap',
+  exchange: 'equipment',
+}
+const PARITY_KEYWORD_WORTH: Record<Keyword, number> = {
+  ambush: 1.5,
+  regen: 1.5,
+  swarm: 1,
+  leech: 1,
+  bulldoze: 1,
+  volatile: 0.5,
+  pierce: 1,
+  snare: 1,
+  collect: 1,
+}
+
+/** What a creature is worth beyond its hp, attack and armor. */
+function parityExtras(card: Card): number {
+  return (
+    (card.keywords ?? []).reduce((sum, k) => sum + PARITY_KEYWORD_WORTH[k], 0) +
+    (cardAttackRange(card) >= 2 ? 2 : 0) +
+    0.5 * (card.ap || 1)
+  )
+}
+
+/** A creature's total PARITY worth: stats, keywords, reach and speed. */
+export function parityWorth(card: Card): number {
+  return (
+    (card.hp || 2) +
+    2 * (card.attack || 1) +
+    2 * (card.armor || 0) +
+    parityExtras(card)
+  )
+}
+
+/** The card as PARITY plays it: free, and as strong as every other card. */
+export function parityCard(card: Card): Card {
+  if (card.kind === 'creature') {
+    const budget = Math.max(4, PARITY_WORTH - parityExtras(card))
+    const hp = card.hp || 2
+    const attack = card.attack || 1
+    const armor = card.armor || 0
+    const scale = budget / (hp + 2 * attack + 2 * armor)
+    let newAttack = Math.max(1, Math.round(attack * scale))
+    let newArmor = Math.round(armor * scale)
+    while (budget - 2 * newAttack - 2 * newArmor < 1) {
+      if (newArmor > 0) newArmor--
+      else if (newAttack > 1) newAttack--
+      else break
+    }
+    const newHp = Math.max(1, Math.round(budget - 2 * newAttack - 2 * newArmor))
+    return {
+      ...card,
+      cost: 0,
+      hp: newHp,
+      attack: newAttack,
+      armor: newArmor,
+    }
+  }
+  const power =
+    card.effect === 'blast'
+      ? 1
+      : card.effect === 'zap' ||
+          card.effect === 'chaos' ||
+          card.effect === 'heal' ||
+          card.kind === 'trap'
+        ? 2
+        : card.power
+  const jam =
+    card.debt || card.effect === 'debt'
+      ? Math.max(1, Math.min(JAM_CAP, card.debt ?? 1))
+      : undefined
+  return {
+    ...card,
+    cost: 0,
+    ...(power === undefined ? {} : { power }),
+    ...(jam === undefined ? {} : { debt: jam }),
+  }
+}
+
+export function parityOn(state: {
+  mode: ModeId
+  rules?: Partial<RuleVariants>
+}): boolean {
+  return !!state.rules?.parity && dealsHands(state)
+}
+
+/** The card as this match plays it. */
+export function playedCard(state: MatchState, card: Card): Card {
+  return parityOn(state) ? parityCard(card) : card
+}
+
+/** PARITY: this card would not use up its side's play this turn. */
+export function parityFree(state: MatchState, side: Side, card: Card): boolean {
+  return (
+    parityOn(state) &&
+    state.freePlays[side] < 1 &&
+    PARITY_FREE_KIND[teamOf(state, side)] === card.kind
+  )
+}
+
+/** PARITY: may this side still play this card this turn? */
+function parityMayPlay(state: MatchState, side: Side, card: Card): boolean {
+  const used = state.playedThisRound[side].length - state.freePlays[side]
+  return used < 1 || parityFree(state, side, card)
+}
+
+/** Book a PARITY play: the turn's first free-kind card never uses up the play. */
+function parityBook(state: MatchState, side: Side, card: Card): void {
+  if (parityFree(state, side, card)) state.freePlays[side]++
+}
+
+/** A jammed side's play fizzles: the card is spent and nothing happens. */
+function parityJam(state: MatchState, side: Side, card: Card): boolean {
+  if (!parityOn(state) || state.jammed[side] < 1) return false
+  state.jammed[side]--
+  parityBook(state, side, card)
+  state.hands[side] = state.hands[side].filter((id) => id !== card.id)
+  state.discards[side].push(card.id)
+  state.playedThisRound[side].push(card.id)
+  message(
+    state,
+    (side === 'enemy' ? 'Enemy ' : 'Your ') +
+      card.name +
+      ' fizzles: JAMMED' +
+      (state.jammed[side] ? ' (' + state.jammed[side] + ' more)' : '') +
+      '.',
+  )
+  return true
 }
 
 export interface MatchSetup {

@@ -92,7 +92,13 @@
                 :fallback="card.symbol"
                 compact
               />
-              <b class="sch-cost">{{ card.cost }}</b>
+              <b v-if="!lab.sight.parity" class="sch-cost">{{ card.cost }}</b>
+              <b
+                v-else-if="card.kind === lab.sight.freeKind"
+                class="sch-cost sch-free"
+                title="Faction bonus: does not use up your play this turn"
+                >FREE</b
+              >
               <span class="sch-label">
                 <strong>{{ card.name }}</strong>
                 <small>{{ card.kind }}</small>
@@ -457,6 +463,13 @@ function sparkleStyle(n: number): Record<string, string> {
   font-size: 0.78rem;
   font-weight: 1000;
   box-shadow: 0 2px 5px #000a;
+}
+.sch-free {
+  width: auto;
+  padding: 0 0.4rem;
+  border-radius: 999px;
+  font-size: 0.55rem;
+  letter-spacing: 0.1em;
 }
 .sch-label {
   position: absolute;

@@ -35,7 +35,7 @@ import { newBriarSave, restoreBriarSave } from '../memoryDungeonWorld'
 import { buildMemoryDungeonPlaybook } from '../playbook/memoryDungeon'
 
 // Fast-resolution encounters preserve both legacy decision IDs for old saves,
- // but new visits apply the authored default without an extra choice panel.
+// but new visits apply the authored default without an extra choice panel.
 const quickDiscoveries: Record<string, string> = {
   '1,5': 'guide',
   '1,6': 'rescue',

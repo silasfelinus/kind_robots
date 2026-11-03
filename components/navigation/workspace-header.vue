@@ -1,58 +1,3 @@
-<!-- /components/navigation/workspace-header.vue -->
-<!--
-  FOUR THINGS. Silas, 2026-08-10:
-
-    "Let's move all the icons in that top bar, except the tutorial toggle and
-     login-manager, their options inside the login-manager ... so the new header
-     has the channel and tab select (but we need to combine the tab title and
-     the tab selector, we don't need two icons, clicking the active tab title
-     should get us the dropdown to change tabs). login-manager should be on the
-     left, tutorial toggle on far right and that's all that's seen. No lost
-     options."
-
-  So: account hub, channel, tab, tutorial. Everything else moved into the hub
-  (see account-hub.vue for the inventory) and the horizontal tab strip became a
-  dropdown hanging off its own title (see tab-select.vue).
-
-  FIVE, as of 2026-09-08. Silas asked for a Memory Dungeon link "on the
-  dashboard next to the tutorial and account manager links", and this cluster is
-  the only place those two sit side by side. It is a deliberate exception to the
-  rule above, not an oversight: the game is one of his oldest projects and he
-  wants it one click from anywhere. It obeys the constraint that actually
-  matters here -- a fixed-width square icon that never grows -- so it costs the
-  row nothing. It sits BEFORE the workspace toggle, because that one is
-  documented below as the last icon in the row and stays that way.
-
-  SIX FOR ADMINS, same day: an ArtJob queue shortcut, rendered only when
-  userStore.isAdmin. Everyone else still sees five.
-
-  ART and ARCADE join that shortcut cluster as fixed-width route buttons too.
-  They are primary creative/play surfaces rather than account controls, so both
-  are visible to everyone. The row reads account -> ops -> art -> arcade -> play
-  -> help for admins and account -> art -> arcade -> play -> help for everyone
-  else.
-
-  If another shortcut is proposed, weigh it against the fixed-width rule rather
-  than against the count: what this row cannot afford is a child whose width is unbounded,
-  which is what the 300 lines of deleted measurement below were all for.
-
-  WHAT THIS DELETES, and why none of it is missed
-  ----------------------------------------------
-  The strip took a scrolling viewport, two chevron scrollers, a map-icon
-  dropdown listing the same tabs again, per-breakpoint capacity arithmetic
-  (tabLayoutMetrics/tabCapacity/updateVisibleTabCount), a percentage flex-basis,
-  scroll-position state, a ResizeObserver, and a measured control-density rule
-  that stacked the utility icons whenever the strip hit its min-width floor.
-
-  Every one of those existed to manage a control whose width was unbounded: a
-  strip wants room for N tabs and the row only has room for some. A dropdown
-  wants room for ONE label. With the demand bounded the competition disappears,
-  and everything built to referee it goes with it -- including the density
-  measurement added earlier the same day, which now has no floor to watch.
-
-  Keep that in mind before re-adding a wide control here. The reason this row
-  is finally quiet is that nothing in it grows.
--->
 <template>
   <header
     class="kr-system-bar relative z-30 mb-2 shrink-0 overflow-visible rounded-2xl border border-(--kr-surface-border) bg-(--kr-surface-raised) shadow-sm backdrop-blur"
@@ -95,89 +40,18 @@
         <Icon name="kind-icon:arrow-left" class="kr-icon-5" />
       </button>
 
-      <!-- Channel picker and tab picker share one bordered shell so they read
-           as a single control -- the same join the channel/strip pair had, now
-           with a second dropdown instead of a scroller on the right of it.
-
-           NO `overflow-hidden` on this shell, however much it wants it for the
-           seamless rounded join: both children open absolutely-positioned
-           menus that are far taller than this 40px row, and clipping them
-           painted the menus away and left them un-hittable. Silas, 2026-08-04:
-           "I can't actually select the channel option anymore." The children
-           round their own outer corners instead. -->
       <div
-        class="flex h-10 min-h-10 min-w-0 flex-1 items-stretch xl:flex-none rounded-xl border border-base-300 bg-base-100 shadow-sm sm:h-11 sm:min-h-11 xl:h-14 xl:min-h-14"
+        class="flex h-10 min-h-10 min-w-0 flex-1 items-stretch rounded-xl border border-base-300 bg-base-100 shadow-sm sm:h-11 sm:min-h-11 xl:h-14 xl:min-h-14 xl:flex-none"
       >
-        <!--
-          CAPPED, not just shrinkable. `shrink` alone only says channel-select
-          MAY give up room -- it says nothing about how MUCH, and tab-select's
-          `flex-1` starts from a 0% basis (see tab-select.vue), so under the
-          flexbox shrink algorithm a zero-basis sibling absorbs none of an
-          overflow: channel-select keeps its full preferred width and
-          tab-select is left with whatever is left over, down to nothing.
-
-          Confirmed on kindrobots.org's phone audit (responsive-layout-audit,
-          2026-08-12 through 2026-08-14, 30+ consecutive scheduled failures):
-          "Sanctuary" -- at 9 characters the longest of the five channel
-          labels (Home/Plan/Play/Admin/Sanctuary) -- rendered in full while
-          every Sanctuary tab (About, Cart, Giving, Mermaids, Privacy) was
-          crushed to a 32px sliver right next to it. `max-w-[45%]` is a
-          ceiling, not a width: the four short labels already sit well under
-          it and are unaffected; only a label that would otherwise claim more
-          than its fair share of the shell gets truncated first, which is
-          what guarantees tab-select a usable floor instead of whatever crumb
-          is left.
-        -->
-        <!--
-          PHONE NAVIGATION IS ONE PICKER, not channel + tab squeezed side by
-          side. On narrow screens the channel name was collapsing to a couple
-          of characters while the tab picker fought it for the same handful of
-          pixels. The unified channel-select below shows the ACTIVE TAB label
-          and expands a grouped channel/tab list, so the user sees where they
-          are and can still reach the whole navigation tree from one control.
-          Tablet and desktop keep the two-stage channel + tab controls.
-        -->
         <channel-select
           seamless
           unified-mobile
-          class="min-w-0 flex-1 sm:hidden"
+          class="nav-launcher-phone min-w-0 flex-1 sm:hidden"
         />
-
         <channel-select
           seamless
-          class="hidden min-w-0 shrink max-w-[45%] sm:block xl:max-w-none"
+          class="nav-launcher-desktop hidden min-w-0 sm:block"
         />
-
-        <div
-          v-if="
-            resolvedChannel &&
-            resolvedChannel.channelKey !== 'home' &&
-            resolvedTabs.length
-          "
-          class="hidden min-w-0 flex-1 items-stretch border-l border-base-300 sm:flex"
-        >
-          <tab-select
-            class="min-w-0 shrink-0"
-            :channel="resolvedChannel"
-            :active-tab-key="activeTabKey"
-            @select="goToTab"
-          />
-        </div>
-
-        <!-- No tabs resolved (a bare route, or content still loading): fall
-             back to naming the page rather than rendering an empty bar. -->
-        <div
-          v-else
-          class="hidden min-w-0 flex-1 items-center gap-2 border-l border-base-300 px-2 sm:flex"
-        >
-          <Icon
-            :name="activeTabConfig.icon || fallbackIcon"
-            class="h-4 w-4 shrink-0 text-primary/70"
-          />
-          <span class="kr-text-black-sm min-w-0 truncate xl:text-base">
-            {{ activeTitle }}
-          </span>
-        </div>
       </div>
 
       <!--
@@ -296,16 +170,6 @@
         </button>
       </div>
 
-      <!--
-        RIGHT OF THE TAB SELECTOR. Silas, 2026-08-11: "login-manager is to the
-        right of the tab selector."
-
-        It shipped on the far left, which put the account before the navigation
-        in both reading and tab order. Here it reads Channel -> Tab -> You ->
-        Tutorial: where you are, then whose session it is, then help. The panel
-        it opens had to flip to right-anchored when it moved here -- see the
-        note in account-hub.vue.
-      -->
       <account-hub class="header-account shrink-0" />
 
       <!--
@@ -421,7 +285,6 @@ import { useNavStore } from '@/stores/navStore'
 import { usePageStore } from '@/stores/pageStore'
 import { tutorialPageKey, useTutorialStore } from '@/stores/tutorialStore'
 import { useUserStore } from '@/stores/userStore'
-import { tabRouteTarget } from '@/utils/tabNavigation'
 
 const fallbackIcon = 'kind-icon:sparkles'
 
@@ -477,10 +340,6 @@ const resolvedChannel = computed(
   () => routeChannelLocation.value?.channel ?? pageStore.resolvedChannel,
 )
 const resolvedTabs = computed(() => resolvedChannel.value?.tabs ?? [])
-
-// The room label this fed ("CREATIVE WORLDS") sat above the page title in the
-// old title section. The channel name in channel-select says the same thing one
-// control to the left, so nothing repeats it.
 
 const shellSummary = computed(
   () => pageStore.subtitle || pageStore.description || '',
@@ -703,26 +562,6 @@ const headerMessage = computed(() => {
     ''
   )
 })
-
-/**
- * Navigates the tab picker. Routes through the shared tabRouteTarget so this
- * agrees with channel-select's dropdown, which reaches the same tabs — several
- * tabs in a channel can share one route and are disambiguated by `?tab=`, and
- * a second hand-rolled copy of that rule would drift.
- */
-function goToTab(tab: ResolvedTab): void {
-  const channel = resolvedChannel.value
-  if (!channel) return
-
-  const target = tabRouteTarget(channel, tab)
-  if (!target) return
-
-  // Already here — pushing again would add a redundant history entry the back
-  // button then has to be pressed twice to escape.
-  if (router.resolve(target).fullPath === route.fullPath) return
-
-  void router.push(target)
-}
 
 watch(
   () => ({

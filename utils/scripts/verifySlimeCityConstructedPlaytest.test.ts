@@ -149,6 +149,7 @@ for (const crew of TEAMS) {
             assert.ok(state.hands.player.length <= BLACKOUT_HAND_SIZE)
           },
           {},
+          undefined,
           deck,
         )
         const { state, metrics } = game

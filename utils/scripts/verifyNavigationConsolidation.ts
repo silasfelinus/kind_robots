@@ -18,29 +18,29 @@ function source(path: string): string {
 
 const workspaceHeader = source('components/navigation/workspace-header.vue')
 const channelSelect = source('components/navigation/channel-select.vue')
-const tabSelect = source('components/navigation/tab-select.vue')
 const channelTabList = source('components/navigation/channel-tab-list.vue')
 
+assert.equal(
+  (workspaceHeader.match(/<channel-select\b/g) ?? []).length,
+  2,
+  'only the mobile and desktop variants of the same launcher may appear in the header',
+)
 assert.ok(
   workspaceHeader.includes('unified-mobile') &&
-    workspaceHeader.includes('class="min-w-0 flex-1 sm:hidden"'),
-  'phone workspace navigation must use one unified picker',
+    workspaceHeader.includes('class="nav-launcher-phone min-w-0 flex-1 sm:hidden"') &&
+    workspaceHeader.includes('class="nav-launcher-desktop hidden min-w-0 sm:block"'),
+  'phone and desktop must have one active navigation launcher at their respective widths',
+)
+assert.doesNotMatch(
+  workspaceHeader,
+  /<tab-select\b/,
+  'the separate desktop tab dropdown must not return',
 )
 assert.ok(
-  /class="hidden min-w-0 shrink max-w-\[45%\] sm:block[^"]*"/.test(
-    workspaceHeader,
-  ) &&
-    workspaceHeader.includes(
-      'class="hidden min-w-0 flex-1 items-stretch border-l border-base-300 sm:flex"',
-    ),
-  'channel + tab pickers must remain the tablet/desktop navigation',
-)
-assert.ok(
-  channelSelect
-    .replace(/\s+/g, ' ')
-    .includes("activeChannel.channelKey === 'home' ? 'Explore'") &&
-    channelSelect.includes('activeTab?.label || activeChannel.label'),
-  'the unified phone picker must show the active tab label rather than only the channel label',
+  channelSelect.includes(':name="activeTab?.icon || activeChannel.icon"') &&
+    channelSelect.includes('{{ activeTab?.label || activeChannel.label }}') &&
+    channelSelect.includes('Navigate workspace — current tab'),
+  'both launcher triggers must display the active tab name and icon, not the channel name',
 )
 assert.ok(
   channelSelect.includes('v-if="unifiedMobile"') &&
@@ -49,14 +49,6 @@ assert.ok(
   'the unified phone dropdown must render a grouped, directly selectable channel/tab list',
 )
 
-assert.ok(
-  tabSelect.includes('class="tab-select dropdown dropdown-start min-w-0"') &&
-    tabSelect.includes(
-      'const availableWidth = window.innerWidth - rect.left',
-    ) &&
-    tabSelect.includes('Math.min(3, fitColumns, neededColumns)'),
-  'the tab menu must open beneath its trigger and size its columns to the width actually available, so a tablet gets fewer columns than a desktop',
-)
 assert.equal(
   channelTabList.match(
     /class="w-full whitespace-nowrap text-\[0\.7rem\] font-medium tracking-tight opacity-65"/g,
@@ -513,9 +505,8 @@ assert.ok(
   siteDirectorySource.includes('channelContentStore.navigationChannels'),
 )
 assert.ok(
-  pickerSource
-    .replace(/\s+/g, ' ')
-    .includes("activeChannel.channelKey === 'home' ? 'Explore'"),
+  pickerSource.includes('{{ activeTab?.label || activeChannel.label }}'),
+  'Home and every other channel should name the actual tab in the launcher',
 )
 assert.ok(
   homePageSource.includes("route.query.view !== 'dashboard'"),

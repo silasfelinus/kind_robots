@@ -136,7 +136,7 @@ export const CAMPAIGN_CHAPTER_SUPPORT: Record<
       conviction: {
         title: 'TOLL FREE SKY',
         story: 'The reclaimed bridge grants the fairies time to cross safely.',
-        terms: { rounds: 2 },
+        terms: { playerHp: 1, rounds: 2 },
       },
       cunning: {
         title: 'BRIDGE KEY HEIST',
@@ -179,7 +179,7 @@ export const CAMPAIGN_CHAPTER_SUPPORT: Record<
         title: 'REPAIRED SHIFT CLOCK',
         story:
           'An honest shift schedule buys enough time to recover the wounded.',
-        terms: { rounds: 2 },
+        terms: { playerMana: 1, rounds: 2 },
       },
       cunning: {
         title: 'STOLEN OVERTIME',
@@ -262,7 +262,7 @@ export const CAMPAIGN_CHAPTER_SUPPORT: Record<
         title: 'SHARED ENCORE',
         story:
           'The rival band stalls for a second encore, buying your crew more time.',
-        terms: { rounds: 2 },
+        terms: { playerMana: 1, rounds: 2 },
       },
       cunning: {
         title: 'STOLEN SOUND TOWER',
@@ -317,7 +317,7 @@ export const CAMPAIGN_CHAPTER_SUPPORT: Record<
       conviction: {
         title: 'PRIVACY WINDOW',
         story: 'Taking the stolen recordings offline buys a little extra time.',
-        terms: { rounds: 2 },
+        terms: { playerHp: 1, rounds: 2 },
       },
       cunning: {
         title: 'LEAKED AUDIO KEYS',
@@ -414,7 +414,7 @@ export const CAMPAIGN_CHAPTER_SUPPORT: Record<
         title: 'HUMAN RIGHTS HEARING',
         story:
           'The rights case extends the negotiation window for the whole crew.',
-        terms: { rounds: 2 },
+        terms: { playerHp: 1, rounds: 2 },
       },
       cunning: {
         title: 'SETTLEMENT CLAUSE',

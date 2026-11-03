@@ -359,7 +359,15 @@
           >
             <span aria-hidden="true">←</span> TITLE MENU
           </button>
-          <span v-if="screen === 'guide' || screen === 'story' || screen === 'worlds' || screen === 'crew'">ESC BACK</span>
+          <span
+            v-if="
+              screen === 'guide' ||
+              screen === 'story' ||
+              screen === 'worlds' ||
+              screen === 'crew'
+            "
+            >ESC BACK</span
+          >
           <span v-else-if="screen === 'play' || screen === 'maker'">
             ENTER START · P PAUSE
           </span>

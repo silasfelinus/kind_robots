@@ -412,6 +412,7 @@ const campaignRows: {
 const seenAudiences = new Set<string>()
 const seenTalks = new Set<string>()
 const seenQuests = new Set<string>()
+const missingQuestReportTexts: string[] = []
 for (const policy of personas) {
   for (const seed of [17, 41, 99]) {
     let day = 1
@@ -454,10 +455,10 @@ for (const policy of personas) {
         onQuestReport: (questDay, report) => {
           questReports += 1
           seenQuests.add(`${report.questId}:${report.tier}`)
-          assert.ok(
-            report.text?.length,
-            `${policy.id}/${seed}: quest report has prose`,
-          )
+          if (!report.text?.trim())
+            missingQuestReportTexts.push(
+              `${policy.id}/${seed} day ${questDay}: ${report.questId} / ${report.tier}`,
+            )
           timeline.push(
             `DAY ${questDay} dispatch ${report.questId} => ${report.tier}: ${clipped(report.text ?? '')}`,
           )
@@ -614,6 +615,7 @@ writeFileSync(
       },
       rows,
       campaigns: campaignRows,
+      missingQuestReportTexts,
       seen: {
         audiences: [...seenAudiences].sort(),
         talks: [...seenTalks].sort(),
@@ -642,5 +644,11 @@ console.log(
       uniqueTalksVisited: seenTalks.size,
       uniqueQuestOutcomes: seenQuests.size,
       endingFamilies: [...new Set(campaignRows.map((r) => r.ending))].sort(),
+      missingQuestReportTexts: [...new Set(missingQuestReportTexts)],
     }),
+)
+assert.deepEqual(
+  [...new Set(missingQuestReportTexts)],
+  [],
+  'Every played quest outcome needs an actual authored line',
 )

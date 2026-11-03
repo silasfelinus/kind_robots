@@ -3,6 +3,7 @@ import {
   HOSHIMORI_NIGHT_MAX_EVENTS,
   HOSHIMORI_NIGHT_BELLROAD_KEYS,
   HOSHIMORI_NIGHT_LOWBANK_KEYS,
+  HOSHIMORI_NIGHT_SOUTHERN_KEYS,
   HOSHIMORI_NIGHT_SITES,
   HOSHIMORI_NIGHT_WINDWARD_KEYS,
   advanceHoshimoriNight,
@@ -37,16 +38,16 @@ import {
 import { readFileSync } from 'node:fs'
 
 assert.deepEqual(validateHoshimoriNight(), [])
-assert.equal(HOSHIMORI_NIGHT_SITES.length, 40)
+assert.equal(HOSHIMORI_NIGHT_SITES.length, 44)
 assert.equal(
   new Set(HOSHIMORI_NIGHT_SITES.map((site) => site.opening)).size,
-  40,
+  44,
 )
 assert.equal(
   new Set(
     HOSHIMORI_NIGHT_SITES.flatMap((site) => site.choices.map((c) => c.outcome)),
   ).size,
-  80,
+  88,
 )
 assert.ok(
   HOSHIMORI_NIGHT_SITES.every((site) =>
@@ -666,11 +667,81 @@ for (let seed = 0; seed < 64; seed++) {
   skipped.events.splice(0, 1, { type: 'move', to: '4,5' })
   assert.equal(restoreHoshimoriNight(skipped), null)
 }
+const southernKeys = [...HOSHIMORI_NIGHT_SOUTHERN_KEYS]
+assert.deepEqual(southernKeys, ['1,7', '2,7', '3,7', '4,7'])
+for (let seed = 0; seed < 16; seed++) {
+  let progress = newHoshimoriNightProgress(seed)
+  progress = choose(progress, HOSHIMORI_NIGHT_SITES[0]!.choices[0].id)
+  for (const key of snake) {
+    progress = visit(progress, key)
+    progress = choose(
+      progress,
+      HOSHIMORI_NIGHT_SITES.find((site) => site.key === key)!.choices[0].id,
+    )
+  }
+  for (const key of ['2,4', '3,4', '4,4', '4,3', '4,2', '4,1'])
+    progress = visit(progress, key)
+  for (const key of ridgeSnake) {
+    progress = visit(progress, key)
+    progress = choose(
+      progress,
+      HOSHIMORI_NIGHT_SITES.find((site) => site.key === key)!.choices[0].id,
+    )
+  }
+  for (const key of bellroadSnake) {
+    progress = visit(progress, key)
+    progress = choose(
+      progress,
+      HOSHIMORI_NIGHT_SITES.find((site) => site.key === key)!.choices[0].id,
+    )
+  }
+  progress = visit(progress, '4,4')
+  for (const key of lowbankSnake) {
+    progress = visit(progress, key)
+    if (key === '1,6')
+      assert.equal(canMoveHoshimoriNight(progress, '1,7'), false)
+    progress = choose(
+      progress,
+      HOSHIMORI_NIGHT_SITES.find((site) => site.key === key)!.choices[0].id,
+    )
+  }
+  assert.ok(hoshimoriNightLowbankAccount(progress))
+  progress = visit(progress, '3,6')
+  progress = visit(progress, '2,6')
+  progress = visit(progress, '1,6')
+  for (const key of southernKeys) {
+    progress = visit(progress, key)
+    const site = HOSHIMORI_NIGHT_SITES.find((item) => item.key === key)!
+    const selected = site.choices[(seed >> (Number(key[0]) - 1)) & 1]!
+    progress = choose(progress, selected.id)
+    assert.strictEqual(
+      advanceHoshimoriNight(progress, {
+        type: 'choose',
+        id: site.choices.find((choice) => choice.id !== selected.id)!.id,
+      }),
+      progress,
+    )
+  }
+  assert.equal(progress.visited.length, 44)
+  assert.equal(Object.keys(progress.choices).length, 44)
+  assert.deepEqual(
+    restoreHoshimoriNight(JSON.parse(JSON.stringify(progress))),
+    progress,
+  )
+  const forged = JSON.parse(JSON.stringify(progress)) as NightProgress
+  forged.choices['4,7'] = 'night-orchard-nonexistent'
+  assert.equal(restoreHoshimoriNight(forged), null)
+  assert.deepEqual(
+    reconcileHoshimoriNightEarthChronicle(newEarthChronicle(), progress.choices)
+      .found,
+    ['earth-15'],
+  )
+}
 assert.equal(
   lowbankAccounts.size,
   8,
   'Three earned Lowbank decisions must produce eight distinct flood accounts',
 )
 console.log(
-  'Hoshimori e08: 40 mirrored sites, 96 original + 64 Windward + 64 Bellroad + 64 Lowbank seeded routes, eight council/ridge/Bellroad/Lowbank accounts, save forgery protection OK',
+  'Hoshimori e08: 44 mirrored sites, 96 original + 64 Windward + 64 Bellroad + 64 Lowbank seeded routes, eight council/ridge/Bellroad/Lowbank accounts, save forgery protection OK',
 )

@@ -16,7 +16,7 @@ import type * as Prisma from "../internal/prismaNamespace"
  * Model BrainstormLine
  * One human-written answer to a Riff. `authorName` is the display name on
  * the card (in table mode, the player at the table, not the account).
- * `aiSpark` records the coach spark that prompted the line, if any; the AI
+ * `aiSpark` records the coach spark that inspired the line, if any; the AI
  * never writes a Line. Art is attached through `artJobId` -> ArtJob.artImageId.
  */
 export type BrainstormLineModel = runtime.Types.Result.DefaultSelection<Prisma.$BrainstormLinePayload>

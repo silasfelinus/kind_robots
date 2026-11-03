@@ -1,6 +1,6 @@
 <template>
-  <main
-    class="kr-surface bs-root"
+  <div
+    class="kr-stage bs-root"
     data-theme="brainstorm"
     data-testid="brainstorm-play"
   >
@@ -122,7 +122,7 @@
         <button type="submit" aria-label="Close help">close</button>
       </form>
     </dialog>
-  </main>
+  </div>
 </template>
 
 <script setup lang="ts">

@@ -6,7 +6,7 @@ label: Brainstorm
 title: Brainstorm
 subtitle: Show me what you got.
 description: A party game of prompts and pile-ons. Invent a ridiculous person, a terrible list or a "yes, but" swerve, then trade lines with your table. Every line gets painted, the best ones rise to the top, and a coach is on hand when you're stuck.
-summary: Trade lines on a prompt. Every idea gets painted.
+summary: Trade lines. Every idea gets painted.
 icon: kind-icon:brain
 route: /play/brainstorm
 sort: 151

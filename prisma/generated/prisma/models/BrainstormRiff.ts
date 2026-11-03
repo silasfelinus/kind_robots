@@ -14,7 +14,7 @@ import type * as Prisma from "../internal/prismaNamespace"
 
 /**
  * Model BrainstormRiff
- * The social riff board at /play/brainstorm. A Riff is one table prompt
+ * The social riff board at /play/brainstorm. A Riff is one table premise
  * ("Terrible ice cream flavors", "Vanderbuilt Lacrosse…") that people answer
  * with Lines. `starterKey` marks the shared starter decks seeded from
  * utils/brainstormRiffs.ts; those rows have no owner (`userId` null).

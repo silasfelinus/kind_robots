@@ -46,6 +46,13 @@ export const KEY_MAP: Record<string, ArcadeButton> = {
   NumpadEnter: 'start',
 }
 
+/** Save the Plumber keeps the shared Arcade keys, with reachable action keys by WASD. */
+export const SAVE_PLUMBER_KEYS: Record<string, ArcadeButton> = {
+  ...KEY_MAP,
+  KeyE: 'x',
+  KeyF: 'y',
+}
+
 /** Two on one keyboard: player 1 on the left of the board... */
 export const P1_KEYS: Record<string, ArcadeButton> = {
   KeyW: 'up',

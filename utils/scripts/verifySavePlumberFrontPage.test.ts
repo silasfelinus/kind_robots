@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict'
+import { KEY_MAP, SAVE_PLUMBER_KEYS, readFourButtonPad } from '../arcade/input'
 import { existsSync, readFileSync } from 'node:fs'
 import {
   DEFAULT_HEROINE_SEED,
@@ -143,7 +144,71 @@ assert.equal(
   0,
 )
 
+const gamepad = (pressed: number[]) =>
+  readFourButtonPad({
+    buttons: Array.from({ length: 17 }, (_, index) => ({
+      pressed: pressed.includes(index),
+    })) as unknown as Gamepad['buttons'],
+    axes: [0, 0],
+  })
+for (const [key, button] of [
+  ['Space', 'a'],
+  ['ArrowUp', 'up'],
+  ['ShiftLeft', 'b'],
+  ['KeyE', 'x'],
+  ['KeyF', 'y'],
+  ['ArrowDown', 'down'],
+] as const)
+  assert.equal(SAVE_PLUMBER_KEYS[key], button, `${key} activates ${button}`)
+assert.equal(
+  KEY_MAP.KeyE,
+  undefined,
+  'other Arcade games keep their own keyboard',
+)
+assert.equal(
+  KEY_MAP.KeyF,
+  undefined,
+  'other Arcade games keep their own keyboard',
+)
+for (const [buttonIndex, action] of [
+  [0, 'a'],
+  [1, 'b'],
+  [2, 'x'],
+  [3, 'y'],
+] as const)
+  assert.equal(
+    gamepad([buttonIndex])[action],
+    true,
+    `pad button ${buttonIndex} maps to ${action}`,
+  )
+const cabinet = source('../../components/arcade/arcade-cabinet.vue')
+assert.match(
+  cabinet,
+  /props.slug === 'save-the-plumber' \? SAVE_PLUMBER_KEYS : KEY_MAP/,
+)
+assert.match(
+  cabinet,
+  /props.slug === 'save-the-plumber'[\s\S]*?SAVE_PLUMBER_KEYS[\s\S]*?: KEY_MAP/,
+)
+assert.match(cabinet, /E wrench/)
+assert.match(cabinet, /F\s+special/)
+
 const page = source('../../pages/play/save-the-plumber.vue')
+assert.match(page, /control.keyboard/)
+assert.match(page, /control.pad/)
+assert.match(page, /plumber-guide-inner[\s\S]*?overflow-y: auto/)
+assert.doesNotMatch(page, /<b>B<\/b> MENU/, 'B cannot be both menu and sprint')
+const arcadeMeta = source('../arcade/games.ts')
+assert.ok(
+  arcadeMeta.includes(
+    "'KEYBOARD  SHIFT SPRINT   E / C WRENCH   F / V SPECIAL'",
+  ),
+  'keyboard guide reflects the game input',
+)
+assert.ok(
+  arcadeMeta.includes("'CONTROLLER  A JUMP   B RUN   X WRENCH   Y SPECIAL'"),
+  'controller guide reflects the gamepad input',
+)
 for (const part of [
   'plumber-console',
   'plumber-viewport',

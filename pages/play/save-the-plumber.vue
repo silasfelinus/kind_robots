@@ -77,7 +77,7 @@
                   {{
                     plumber.chosen ? 'CONTINUE ADVENTURE' : 'START ADVENTURE'
                   }}
-                  <span class="plumber-option-arrow">A</span>
+                  <span class="plumber-option-arrow" aria-hidden="true">›</span>
                 </button>
                 <button
                   type="button"
@@ -276,21 +276,33 @@
             aria-labelledby="guide-heading"
           >
             <div class="plumber-guide-inner">
-              <p class="plumber-eyebrow">CONTROLLER MANUAL</p>
+              <p class="plumber-eyebrow">CONTROL GUIDE</p>
               <h2 id="guide-heading" class="plumber-section-title">
                 HOW TO PLAY
               </h2>
+              <p class="plumber-guide-intro">
+                Keyboard and gamepad bindings, side by side.
+              </p>
               <div class="plumber-guide-grid">
                 <div
                   v-for="control in controls"
                   :key="control.label"
                   class="plumber-guide-action"
                 >
-                  <kbd>{{ control.key }}</kbd>
-                  <span
-                    ><strong>{{ control.label }}</strong
-                    ><small>{{ control.does }}</small></span
-                  >
+                  <div class="plumber-guide-bindings">
+                    <span class="plumber-guide-binding">
+                      <small>KEYBOARD</small>
+                      <kbd>{{ control.keyboard }}</kbd>
+                    </span>
+                    <span class="plumber-guide-binding">
+                      <small>GAMEPAD</small>
+                      <kbd>{{ control.pad }}</kbd>
+                    </span>
+                  </div>
+                  <span class="plumber-guide-description">
+                    <strong>{{ control.label }}</strong>
+                    <small>{{ control.does }}</small>
+                  </span>
                 </div>
               </div>
               <div class="plumber-guide-bottom">
@@ -330,14 +342,13 @@
       </div>
 
       <footer class="plumber-console-bottom">
-        <span
-          ><span class="plumber-dpad">✚</span>
-          {{
-            screen === 'story' || screen === 'worlds'
-              ? 'CHANGE SCENE'
-              : 'SELECT'
-          }}</span
-        >
+        <span v-if="screen === 'story' || screen === 'worlds'">
+          <span class="plumber-dpad">← →</span> CHANGE SCENE
+        </span>
+        <span v-else-if="screen === 'play' || screen === 'maker'">
+          GAME CONTROLS ACTIVE
+        </span>
+        <span v-else>CLICK / TAP TO SELECT</span>
         <div class="plumber-footer-actions">
           <button
             v-if="screen !== 'title'"
@@ -346,12 +357,20 @@
             aria-label="Return to Save the Plumber title menu"
             @click="go('title')"
           >
-            <b>B</b> MENU
+            <span aria-hidden="true">←</span> TITLE MENU
           </button>
-          <span v-if="screen !== 'play' && screen !== 'maker'"
-            ><b>A</b> CONFIRM</span
+          <span
+            v-if="
+              screen === 'guide' ||
+              screen === 'story' ||
+              screen === 'worlds' ||
+              screen === 'crew'
+            "
+            >ESC BACK</span
           >
-          <span v-else>GAME CONTROLS ACTIVE</span>
+          <span v-else-if="screen === 'play' || screen === 'maker'">
+            ENTER START · P PAUSE
+          </span>
         </div>
       </footer>
     </div>
@@ -408,12 +427,42 @@ const storySlides = [
 ]
 
 const controls = [
-  { key: '← →', label: 'MOVE', does: 'Run across platforms' },
-  { key: 'A / ↑', label: 'JUMP', does: 'Hold for more height' },
-  { key: 'B', label: 'SPRINT', does: 'Hold while moving' },
-  { key: 'X', label: 'WRENCH', does: 'Break, stun and turn valves' },
-  { key: 'Y', label: 'SPECIAL', does: 'Heroine ability' },
-  { key: '↓', label: 'DUCK / PIPE', does: 'Crawl, drop or enter' },
+  {
+    keyboard: '← → / A D',
+    pad: 'D-PAD / STICK',
+    label: 'MOVE',
+    does: 'Walk and change direction',
+  },
+  {
+    keyboard: 'SPACE / ↑',
+    pad: 'A',
+    label: 'JUMP',
+    does: 'Hold to jump higher; W works too',
+  },
+  {
+    keyboard: 'SHIFT',
+    pad: 'B',
+    label: 'SPRINT / SLIDE',
+    does: 'Hold while moving to run; hold still to duck',
+  },
+  {
+    keyboard: 'E / C',
+    pad: 'X',
+    label: 'WRENCH',
+    does: 'Strike enemies, crates and valves',
+  },
+  {
+    keyboard: 'F / V',
+    pad: 'Y',
+    label: 'SPECIAL',
+    does: 'Use your heroine’s unique power',
+  },
+  {
+    keyboard: '↓ / S',
+    pad: '↓',
+    label: 'DUCK / PIPE',
+    does: 'Crouch, drop or enter a door or pipe',
+  },
 ]
 
 function go(next: Screen) {
@@ -887,52 +936,80 @@ useHead({ title: 'Save the Plumber · Kind Robots Arcade' })
 .plumber-guide-view {
   align-items: center;
   justify-content: center;
-  padding: clamp(0.6rem, 3vw, 2rem);
+  padding: clamp(0.6rem, 2vw, 2rem);
   background: radial-gradient(ellipse at center, #174357, #071521);
 }
 .plumber-guide-inner {
-  width: min(100%, 57rem);
+  width: min(100%, 80rem);
   max-height: 100%;
+  min-height: 0;
   display: flex;
   flex-direction: column;
-  gap: clamp(0.5rem, 1.4vh, 1rem);
+  gap: clamp(0.4rem, 1.3vh, 0.9rem);
+  overflow-y: auto;
+}
+.plumber-guide-intro {
+  color: #d7e8e6;
+  font-size: clamp(0.85rem, 1.2vw, 1.1rem);
 }
 .plumber-guide-grid {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: clamp(0.35rem, 1vw, 0.8rem);
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: clamp(0.4rem, 1vw, 0.85rem);
 }
 .plumber-guide-action {
   display: flex;
   align-items: center;
-  gap: 0.8rem;
+  gap: clamp(0.5rem, 1vw, 1rem);
   min-width: 0;
-  padding: clamp(0.5rem, 1.1vw, 1rem);
+  padding: clamp(0.6rem, 1.2vw, 1.15rem);
   border: 1px solid #437c89;
-  border-radius: 0.6rem;
+  border-radius: 0.75rem;
   background: #132c3d;
 }
-.plumber-guide-action kbd {
+.plumber-guide-bindings {
+  display: flex;
   flex: 0 0 auto;
-  min-width: 2.8rem;
-  padding: 0.5rem;
+  gap: 0.4rem;
+}
+.plumber-guide-binding {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  min-width: 0;
+}
+.plumber-guide-binding small {
+  font-size: 0.57rem;
+  font-weight: 900;
+  letter-spacing: 0.1em;
+  color: #a9d1d1;
+}
+.plumber-guide-binding kbd {
+  display: grid;
+  place-items: center;
+  min-width: 3.2rem;
+  min-height: 2.5rem;
+  padding: 0.4rem 0.55rem;
   border: 2px solid #ffc977;
   border-radius: 0.4rem;
   text-align: center;
+  font-size: clamp(0.65rem, 0.8vw, 0.85rem);
   font-weight: 900;
+  white-space: nowrap;
   color: #ffdf9c;
 }
-.plumber-guide-action span {
+.plumber-guide-description {
   display: flex;
   flex-direction: column;
   gap: 0.3rem;
   min-width: 0;
 }
-.plumber-guide-action strong {
-  font-size: 0.83rem;
+.plumber-guide-description strong {
+  font-size: clamp(0.85rem, 1.1vw, 1.12rem);
 }
-.plumber-guide-action small {
-  font-size: 0.74rem;
+.plumber-guide-description small {
+  font-size: clamp(0.72rem, 0.9vw, 0.9rem);
+  line-height: 1.4;
   color: #c7e0df;
 }
 .plumber-guide-bottom {
@@ -940,7 +1017,7 @@ useHead({ title: 'Save the Plumber · Kind Robots Arcade' })
   align-items: center;
   justify-content: space-between;
   gap: 1rem;
-  font-size: 0.8rem;
+  font-size: clamp(0.75rem, 1vw, 0.95rem);
 }
 .plumber-game-view {
   background: #070c19;
@@ -1043,26 +1120,24 @@ useHead({ title: 'Save the Plumber · Kind Robots Arcade' })
     font-size: 0.8rem;
   }
   .plumber-guide-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-columns: minmax(0, 1fr);
   }
   .plumber-guide-action {
-    gap: 0.4rem;
+    padding: 0.5rem;
   }
-  .plumber-guide-action kbd {
-    min-width: 2rem;
-    padding: 0.25rem;
-    font-size: 0.75rem;
+  .plumber-guide-binding kbd {
+    min-width: 3rem;
+    min-height: 2rem;
+    padding: 0.3rem;
+    font-size: 0.7rem;
   }
-  .plumber-guide-action strong {
-    font-size: 0.68rem;
-  }
-  .plumber-guide-action small {
-    font-size: 0.63rem;
+  .plumber-guide-binding small {
+    font-size: 0.53rem;
   }
   .plumber-guide-bottom {
     flex-direction: column;
     align-items: flex-start;
-    font-size: 0.7rem;
+    font-size: 0.75rem;
   }
 }
 @media (max-height: 520px) and (orientation: landscape) {
@@ -1091,13 +1166,10 @@ useHead({ title: 'Save the Plumber · Kind Robots Arcade' })
     display: none;
   }
   .plumber-guide-action {
-    padding: 0.3rem;
-  }
-  .plumber-guide-action kbd {
-    padding: 0.2rem;
+    padding: 0.35rem;
   }
   .plumber-guide-grid {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
   .plumber-guide-bottom {
     font-size: 0.7rem;

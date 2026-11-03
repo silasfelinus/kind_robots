@@ -78,6 +78,13 @@ export const SHARE_PREVIEWS: readonly SharePreview[] = [
       'Choose the koala ronin’s road through dice, danger and branching stories.',
   },
   {
+    route: '/play/zuzu-showdown',
+    image: '/zuzu-showdown-map/wasteland-hd.webp',
+    title: 'Zuzu Showdown',
+    description:
+      'Cross the wasteland, face the bosses and chase one of many endings.',
+  },
+  {
     route: '/play/ecotone',
     image: '/ecotone/title/key-art.webp',
     title: 'Ecotone: Weird Humboldt',

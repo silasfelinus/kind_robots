@@ -7,6 +7,10 @@ import {
   isFluxDualClipLoader,
   kontextDualClipLoaderNode,
 } from './fluxTextEncoders'
+import {
+  buildKreaSemanticPrompt,
+  rewriteKreaWorkflowPositivePrompt,
+} from '../../utils/kreaSemanticPrompt'
 
 export type ArtJobRetryMode = 'NEW_OUTPUT' | 'OVERWRITE'
 
@@ -122,6 +126,64 @@ function replaceDriftedPositivePrompt(
       if (promptLetters(value) === target) inputs[key] = nextPrompt
     }
   }
+}
+
+/*
+ * Krea workflows never carry the request prompt in their encoder: the builder
+ * conditions on buildKreaSemanticPrompt(prompt), which rewrites phrases ("clean
+ * unmarked surfaces" -> "clean surfaces"), and keeps the raw request only as
+ * _meta.request_prompt. Neither exact nor letter matching can find that text,
+ * so a queue edit reported success while the encoder kept the old scene
+ * (ArtJob 61064, 2026-11-03). Re-run the builder's own rewrite instead.
+ */
+function isKreaWorkflow(workflow: ArtJobPayloadRecord): boolean {
+  return Object.values(workflow).some((node) => {
+    const record = asRecord(node)
+    const inputs = asRecord(record.inputs)
+    return (
+      (String(record.class_type || '') === 'CLIPLoader' &&
+        String(inputs.type || '').toLowerCase() === 'krea2') ||
+      typeof asRecord(record._meta).request_prompt === 'string'
+    )
+  })
+}
+
+function positiveEncoderTexts(workflow: ArtJobPayloadRecord): string[] {
+  const texts: string[] = []
+  for (const node of Object.values(workflow)) {
+    const record = asRecord(node)
+    if (!PROMPT_ENCODER_TYPES.has(String(record.class_type || ''))) continue
+    const title = String(asRecord(record._meta).title || '').toLowerCase()
+    if (title.includes('negative')) continue
+    const inputs = asRecord(record.inputs)
+    for (const key of ['text', 'wildcard_text', 'populated_text']) {
+      const value = inputs[key]
+      if (typeof value === 'string' && value.trim()) texts.push(value)
+    }
+  }
+  return texts
+}
+
+/**
+ * Whether the text a job will actually render reflects `prompt`. True when the
+ * job has no workflow yet (it is built from promptString at claim time).
+ */
+export function workflowRendersPrompt(
+  payload: ArtJobPayloadRecord,
+  prompt: string,
+): boolean {
+  const workflow = asRecord(payload.workflow)
+  if (!Object.keys(workflow).length) return true
+  const texts = positiveEncoderTexts(workflow)
+  if (!texts.length) return true
+  const wanted = [promptLetters(prompt)]
+  if (isKreaWorkflow(workflow)) {
+    wanted.push(promptLetters(buildKreaSemanticPrompt(prompt)))
+  }
+  return texts.some((text) => {
+    const letters = promptLetters(text)
+    return wanted.some((target) => target && letters.includes(target))
+  })
 }
 
 export type ArtJobOverrides = {
@@ -319,6 +381,13 @@ export function applyArtJobOverrides(
     const replaced = replaceExactPrompt(payload, oldPrompt, promptString)
     Object.assign(payload, asRecord(replaced))
     replaceDriftedPositivePrompt(payload, oldPrompt, promptString)
+    const currentWorkflow = asRecord(payload.workflow)
+    if (isKreaWorkflow(currentWorkflow)) {
+      payload.workflow = rewriteKreaWorkflowPositivePrompt(
+        currentWorkflow,
+        promptString,
+      ).workflow
+    }
     payload.promptString = promptString
   }
 

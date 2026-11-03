@@ -1960,10 +1960,13 @@ function addDebt(state: MatchState, side: Side, amount: number): void {
   if (amount <= 0) return
   state.stats.debt += amount
   if (parityOn(state)) {
-    state.jammed[side] = Math.min(
-      JAM_CAP,
-      state.jammed[side] + Math.min(JAM_CAP, amount),
-    )
+    // TURF keeps one token a turn for both sides: a jam would hand the other
+    // crew a double move, so PARITY TURF debt cards land as plain stones.
+    if (state.mode !== 'turf')
+      state.jammed[side] = Math.min(
+        JAM_CAP,
+        state.jammed[side] + Math.min(JAM_CAP, amount),
+      )
     return
   }
   if (state.mode === 'bloodrush') {
@@ -2868,16 +2871,13 @@ export function observe(state: MatchState, side: Side): MatchView {
       const { score } = turfTerritory(state)
       return [score[side], score[other(side)]] as [number, number]
     })(),
-    turfPlayed: parityOn(state)
-      ? state.playedThisRound[side].length - state.freePlays[side] >= 1 &&
-        (state.freePlays[side] >= 1 ||
-          !state.hands[side].some(
-            (id) => cardById(id).kind === PARITY_FREE_KIND[teamOf(state, side)],
-          ))
-      : state.playedThisRound[side].length > 0,
+    turfPlayed: state.playedThisRound[side].length > 0,
     parity: parityOn(state),
     jammed: [state.jammed[side], state.jammed[other(side)]],
-    freeKind: parityOn(state) ? PARITY_FREE_KIND[teamOf(state, side)] : null,
+    freeKind:
+      parityOn(state) && state.mode !== 'turf'
+        ? PARITY_FREE_KIND[teamOf(state, side)]
+        : null,
     playSpent: state.playedThisRound[side].length - state.freePlays[side] >= 1,
     bases: [state.bases[side], state.bases[other(side)]],
     baseMax: BASE_HP[state.mode],
@@ -4350,6 +4350,8 @@ export const PARITY_CREW_EDGE: Record<ParityMode, Record<TeamId, number>> = {
     undertow: 1.75,
     exchange: -1,
   },
+  // TURF never fights with stats (a stone is a stone), so a creature budget
+  // cannot move its crews; its balance needs a Go lever, not this one.
   turf: {
     catgirls: 0,
     bloodfairies: 0,
@@ -4446,6 +4448,8 @@ export function playedCard(state: MatchState, card: Card): Card {
 export function parityFree(state: MatchState, side: Side, card: Card): boolean {
   return (
     parityOn(state) &&
+    // TURF is one token a turn, full stop: a free second stone is a double move.
+    state.mode !== 'turf' &&
     state.freePlays[side] < 1 &&
     PARITY_FREE_KIND[teamOf(state, side)] === card.kind
   )

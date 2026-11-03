@@ -722,7 +722,13 @@ function turfAction(view: MatchView, tried: Set<string>): CpuAction | null {
   const groups = turfGroupsOn(view, grid, wards)
   const groupAt = (c: Cell) =>
     groups.find((g) => g.cells.some((s) => s.x === c.x && s.y === c.y))
-  const cards = view.hand.filter((c) => c.cost <= view.mana)
+  // PARITY: once the turn's play is spent, only the crew's free kind is left,
+  // so never price cards the engine would refuse (that cost 80 retries a turn).
+  const cards = view.hand.filter(
+    (c) =>
+      c.cost <= view.mana &&
+      (!view.playSpent || (view.parity && c.kind === view.freeKind)),
+  )
   if (!cards.length) return null
   const early = view.round < 8
   const options: Candidate[] = []

@@ -163,7 +163,18 @@ turf.mana = 0
 const stone = deploy(turf, creatures[0]!, 4, 4)
 assert.notEqual(stone, turf)
 assert.equal(deploy(stone, creatures[1]!, 5, 5), stone)
-assert.notEqual(deploy(stone, freeCard.id, 2, 2), stone)
+assert.equal(
+  deploy(stone, freeCard.id, 2, 2),
+  stone,
+  'TURF stays one token a turn: no free second stone',
+)
+assert.equal(observe(stone, 'player').freeKind, null)
+// TURF has no JAM either: a lost move would be a double move for the other crew.
+const turfJammer = createMatch('turf', 'exchange', 'riot', 12, parity)
+turfJammer.hands.player = [jammer.id]
+const turfJam = deploy(turfJammer, jammer.id, 4, 4)
+assert.notEqual(turfJam, turfJammer, 'A debt card lands as a stone')
+assert.equal(turfJam.jammed.enemy, 0)
 
 // --- Whole games resolve and replay in every format.
 for (const mode of ['blackout', 'bloodrush', 'turf'] as ModeId[]) {

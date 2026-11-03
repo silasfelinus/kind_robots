@@ -527,9 +527,10 @@
     <SlimeCityHand />
     <div class="sc-battle-bottom">
       <span v-if="lab.sight.parity" data-testid="slime-parity-status"
-        >{{ lab.sight.playSpent ? 'PLAY USED' : '1 PLAY' }} · FREE
-        {{ lab.sight.freeKind?.toUpperCase()
-        }}<template v-if="lab.sight.jammed[0]">
+        >{{ lab.sight.playSpent ? 'PLAY USED' : '1 PLAY'
+        }}<template v-if="lab.sight.freeKind">
+          · FREE {{ lab.sight.freeKind.toUpperCase() }}</template
+        ><template v-if="lab.sight.jammed[0]">
           · JAMMED ×{{ lab.sight.jammed[0] }}</template
         ><template v-if="lab.sight.jammed[1]">
           · ENEMY JAMMED ×{{ lab.sight.jammed[1] }}</template

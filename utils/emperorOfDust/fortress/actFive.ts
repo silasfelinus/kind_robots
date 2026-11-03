@@ -2743,7 +2743,7 @@ export const ACT_FIVE_DAYS: readonly DayDef[] = [
         // Who went up, for how long, and what the Day 34 gate cost (t-036).
         variants: D42_RUNNER_VARIANTS,
         lines: [
-          'A young stoat in a Conclave sash brings you water in the morning. She stands holding the bowl. Not leaving.',
+          'A young courier in a Conclave sash brings you water in the morning. She stands holding the bowl. Not leaving.',
           '“You won’t know me, Majesty. You sent three of us from the Yard to pay for the rain. I was the third.”',
           '“They treat us all right. They feed us. We run the high paths in storms with letters. Two of us fell. The Crows sang for them. Decent of them.”',
           '“The bond runs seven more years. I’m not asking anything. I wanted the emperor to see one of us. Once.”',

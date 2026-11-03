@@ -8,6 +8,7 @@ import { ACT_FOUR_QUESTS } from '../emperorOfDust/fortress/actFour'
 import { ACT_FIVE_QUESTS } from '../emperorOfDust/fortress/actFive'
 import { DAYS, QUEST_TEMPLATES } from '../emperorOfDust/fortress/content'
 import { EPILOGUE, epilogueFor } from '../emperorOfDust/fortress/epilogue'
+import { itemDef } from '../emperorOfDust/fortress/items'
 import { MOLE_CONCESSIONS } from '../emperorOfDust/fortress/moles'
 import {
   audienceScene,
@@ -21,7 +22,12 @@ import {
   talkFor,
   talkScene,
 } from '../emperorOfDust/fortress/engine'
-import { POLICIES, playCampaign } from '../emperorOfDust/fortress/balance'
+import {
+  HOST_FACTIONS,
+  HOST_HIDEOUT,
+  POLICIES,
+  playCampaign,
+} from '../emperorOfDust/fortress/balance'
 import { validateRun } from '../emperorOfDust/fortress/saves'
 import { TALKS } from '../emperorOfDust/fortress/talks'
 import type {
@@ -814,10 +820,208 @@ for (const id of callbackTargets) {
   )
 }
 
+// Act V's missing audiences depend on policy decisions and, on Day 46,
+// *actual poverty*. Give the player only valid market purchases and let the
+// host's posted job expire: no injected balances, flags or pretend quest fails.
+const rareTargets = [
+  'd05-toll-grudge',
+  'd34-crow-debt',
+  'd42-cage-wagon',
+  'd42-mill-doors',
+  'd42-waystation-graves',
+  ...HOST_FACTIONS.map((faction) => `d46-patience-${HOST_HIDEOUT[faction]}`),
+]
+assert.equal(rareTargets.length, 12)
+const rareReached = new Set<string>()
+const rareRuns: {
+  target: string
+  seed: number
+  ending: string
+  hideout: string
+  dawn46Brass?: number
+  unpaid?: boolean
+  choices: string[]
+  market: string[]
+  reached: string[]
+}[] = []
+const rareSeeds = [17, 41, 99, 1, 3, 7, 13, 23, 31, 43]
+const spendAtMarket = (stock: readonly string[], brass: number) => {
+  // Best subset of what this real peddler has, subject to the court's purse.
+  // Every resulting purchase still passes through buyItem's validation.
+  const affordable = stock.map((id) => ({ id, price: itemDef(id)?.price ?? 0 }))
+  const totals = new Map<number, string[]>([[0, []]])
+  for (const item of affordable) {
+    if (!item.price) continue
+    for (const [total, chosen] of [...totals]) {
+      const next = total + item.price
+      if (next <= brass && !totals.has(next))
+        totals.set(next, [...chosen, item.id])
+    }
+  }
+  return totals.get(Math.max(...totals.keys())) ?? []
+}
+for (const faction of HOST_FACTIONS) {
+  const hideout = HOST_HIDEOUT[faction]!
+  const target = `d46-patience-${hideout}`
+  const policy = POLICIES.find((entry) => entry.id === `patron:${faction}`)!
+  for (const seed of rareSeeds) {
+    let day46Brass: number | undefined
+    let unpaid = false
+    const choices: string[] = []
+    const market: string[] = []
+    const reached: string[] = []
+    const run = playCampaign(
+      policy,
+      seed,
+      (state) => {
+        if (state.day === 46) {
+          day46Brass = state.brass
+          unpaid = state.flags.includes('host-demand-unpaid')
+        }
+      },
+      {
+        selectAudienceChoice: (_day, id, open) => {
+          if (id === `d42-terms-${hideout}`) return 'accept'
+          if (id === target) return 'time'
+          const guided: Record<string, readonly string[]> = {
+            'd01-toll': ['ask-toll', 'informant'],
+            'd01-aqueduct': ['ask-why', 'levy-millers'],
+            'd33-both-roads': ['saltroad'],
+          }
+          const special =
+            (faction === 'jackalwire' && id === 'd01-toll') ||
+            (faction === 'hollow-bell' && id === 'd01-aqueduct') ||
+            (faction === 'saltroad' && id === 'd33-both-roads')
+          return special
+            ? guided[id]?.find((choice) =>
+                open.some((entry) => entry.id === choice),
+              )
+            : undefined
+        },
+        shouldAssignQuest: (day, questId) =>
+          !(
+            (day >= 42 && day <= 45) ||
+            (faction === 'saltroad' && questId === 'q-d33-waystation')
+          ),
+        selectMarketPurchases: (day, offered, state) =>
+          day === 42 || day === 45 ? spendAtMarket(offered, state.brass) : [],
+        onMarketPurchase: (day, id, state) => {
+          market.push(`D${day} ${id} (${state.brass} left)`)
+        },
+        onAudienceChoice: (day, id, option, state) => {
+          if (
+            id.startsWith('d42-terms-') ||
+            id.startsWith('d46-patience-') ||
+            id === 'd33-both-roads' ||
+            id === 'd01-toll' ||
+            id === 'd01-aqueduct'
+          )
+            choices.push(`D${day} ${id}/${option.id}`)
+          if (rareTargets.includes(id) && state.audiencesHeard.includes(id)) {
+            seenAudiences.add(id)
+            rareReached.add(id)
+            if (!reached.includes(id)) reached.push(id)
+          }
+        },
+      },
+    )
+    rareRuns.push({
+      target,
+      seed,
+      ending: run.ending,
+      hideout: run.hideout,
+      ...(day46Brass !== undefined ? { dawn46Brass: day46Brass } : {}),
+      unpaid,
+      choices,
+      market,
+      reached,
+    })
+    if (reached.includes(target) && run.hideout === hideout) break
+  }
+}
+// The Day 5 grievance follows a real successful armed-feast dispatch. The
+// Day 34 debt requires signing the rain covenant and refusing its price.
+for (const scenario of [
+  { id: 'd05-toll-grudge', policy: 'patron:jackalwire' },
+  { id: 'd34-crow-debt', policy: 'patron:storm-crows' },
+] as const) {
+  for (const seed of rareSeeds) {
+    const choices: string[] = []
+    const reached: string[] = []
+    const run = playCampaign(
+      POLICIES.find((policy) => policy.id === scenario.policy)!,
+      seed,
+      undefined,
+      {
+        selectAudienceChoice: (day, id, open) => {
+          if (scenario.id === 'd05-toll-grudge' && day === 4)
+            return open.find((option) => option.id === 'attend-armed')?.id
+          if (scenario.id === 'd34-crow-debt') {
+            if (id === 'd11-rainmaker') return 'covenant'
+            if (id === 'd20-covenant-due') return 'break'
+          }
+          return undefined
+        },
+        onAudienceChoice: (day, id, option, state) => {
+          if (
+            (day === 4 && option.id === 'attend-armed') ||
+            id === 'd11-rainmaker' ||
+            id === 'd20-covenant-due' ||
+            id === scenario.id
+          )
+            choices.push(`D${day} ${id}/${option.id}`)
+          if (id === scenario.id && state.audiencesHeard.includes(id)) {
+            seenAudiences.add(id)
+            rareReached.add(id)
+            reached.push(id)
+          }
+        },
+      },
+    )
+    rareRuns.push({
+      target: scenario.id,
+      seed,
+      ending: run.ending,
+      hideout: run.hideout,
+      choices,
+      market: [],
+      reached,
+    })
+    if (reached.length) break
+  }
+}
+console.log(
+  'EMPEROR_RARE_AUDIENCE_ROUTES ' +
+    JSON.stringify({
+      reached: [...rareReached].sort(),
+      missing: rareTargets.filter((id) => !rareReached.has(id)),
+      runs: rareRuns.map((run) => ({
+        target: run.target,
+        seed: run.seed,
+        hideout: run.hideout,
+        dawn46Brass: run.dawn46Brass,
+        unpaid: run.unpaid,
+        reached: run.reached,
+        choices: run.choices,
+        purchases: run.market.length,
+      })),
+    }),
+)
+assert.deepEqual(
+  rareTargets.filter((id) => !rareReached.has(id)),
+  [],
+  'Every formerly missing rare audience needs a real, unmodified 50-day route',
+)
+
 const unvisitedAudiences = DAYS.flatMap((day) =>
   day.audiences
     .filter((scene) => !seenAudiences.has(scene.id))
     .map((scene) => `Day ${day.day}: ${scene.id}`),
+)
+assert.equal(
+  unvisitedAudiences.length,
+  0,
+  'Every authored throne-room audience must close in a real 50-day campaign',
 )
 const unvisitedTalks = TALKS.filter((talk) => !seenTalks.has(talk.id)).map(
   (talk) => `${talk.follower}: ${talk.id}`,
@@ -1049,6 +1253,15 @@ const markdown = [
   '',
   `Choices on that route: ${conditionalRouteChoicesMade.join(' | ')}`,
   '',
+  `Rare-audience replay: ${rareTargets.filter((id) => rareReached.has(id)).length}/${rareTargets.length} formerly unvisited throne scenes resolved organically; ${rareRuns.length} complete 50-day attempts (no injected prerequisites, market buys and declined quests are legal engine actions).`,
+  '',
+  ...rareRuns
+    .filter((run) => run.reached.length)
+    .map(
+      (run) =>
+        `- ${run.target}: seed ${run.seed}, ${run.hideout}, ${run.reached.join(', ')}, market purchases ${run.market.length}.`,
+    ),
+  '',
   '## Complete 50-day policy-campaign traces',
   '',
   '| Policy | Seed | Ending | Hideout | Audience choices | Talk choices | Resolved quests | Deaths | Brass |',
@@ -1143,6 +1356,11 @@ writeFileSync(
       },
       previousGaps,
       fixtureCovered,
+      rareAudienceRoutes: {
+        targets: rareTargets,
+        reached: [...rareReached].sort(),
+        runs: rareRuns,
+      },
       missingQuestReportTexts,
       seen: {
         audiences: [...seenAudiences].sort(),

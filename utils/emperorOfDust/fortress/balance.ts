@@ -4,6 +4,7 @@
 // hideout and every ending stays reachable, careful play rarely loses the
 // crypt, and a full barracks does not live on the Ledger's loans.
 import { questDef } from './content'
+import { buyItem, marketStock } from './market'
 import { chanceEvent } from './dailyEvents'
 import { type EndingId, endingOf } from './endings'
 import {
@@ -229,6 +230,19 @@ export type CampaignObserver = {
     available: readonly TalkDef[],
     run: FortressRun,
   ) => string | null | undefined
+  /** Deliberately leave an offered dispatch on the board. */
+  shouldAssignQuest?: (
+    day: number,
+    questId: string,
+    run: FortressRun,
+  ) => boolean
+  /** Return items from today's actual market stalls, purchased in this order. */
+  selectMarketPurchases?: (
+    day: number,
+    offered: readonly string[],
+    run: FortressRun,
+  ) => readonly string[]
+  onMarketPurchase?: (day: number, itemId: string, run: FortressRun) => void
   /** Chooses only among currently legal throne-room answers. */
   selectAudienceChoice?: (
     day: number,
@@ -386,6 +400,19 @@ export const playCampaign = (
         }
       }
     }
+    if (observer?.selectMarketPurchases) {
+      const offered = marketStock(run)
+      const chosen = observer.selectMarketPurchases(run.day, offered, run)
+      for (const itemId of chosen) {
+        if (!offered.includes(itemId)) continue
+        try {
+          run = buyItem(run, itemId)
+          observer.onMarketPurchase?.(run.day, itemId, run)
+        } catch {
+          // The market may reject a second purchase or an unaffordable item.
+        }
+      }
+    }
     const board = [...run.board].sort((a, b) => {
       const qa = questDef(a.questId)!
       const qb = questDef(b.questId)!
@@ -395,6 +422,8 @@ export const playCampaign = (
       return rank(qb) - rank(qa)
     })
     for (const entry of board) {
+      if (observer?.shouldAssignQuest?.(run.day, entry.questId, run) === false)
+        continue
       if (!ready(run).length) break
       const party = partyFor(run, questDef(entry.questId)!, policy)
       if (!party) continue

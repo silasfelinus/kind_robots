@@ -126,6 +126,23 @@ export type BrainstormSession = Prisma.BrainstormSessionModel
  */
 export type BrainstormCandidate = Prisma.BrainstormCandidateModel
 /**
+ * Model BrainstormRiff
+ * The social riff board at /play/brainstorm. A Riff is one table prompt
+ * ("Terrible ice cream flavors", "Vanderbuilt Lacrosse…") that people answer
+ * with Lines. `starterKey` marks the shared starter decks seeded from
+ * utils/brainstormRiffs.ts; those rows have no owner (`userId` null).
+ * `crossoverIds` is a JSON array of the persona riffs a crossover joins.
+ */
+export type BrainstormRiff = Prisma.BrainstormRiffModel
+/**
+ * Model BrainstormLine
+ * One human-written answer to a Riff. `authorName` is the display name on
+ * the card (in table mode, the player at the table, not the account).
+ * `aiSpark` records the coach spark that prompted the line, if any; the AI
+ * never writes a Line. Art is attached through `artJobId` -> ArtJob.artImageId.
+ */
+export type BrainstormLine = Prisma.BrainstormLineModel
+/**
  * Model ComicSeries
  * Comic Studio (conductor project comic-creator/t-013, t-014): an admin-only workspace
  * for one comic series. Renders are vetted lane by lane (a lane is an engine plus an

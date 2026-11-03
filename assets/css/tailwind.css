@@ -274,6 +274,52 @@
 }
 
 /*
+ * ── BRAINSTORM — the riff-board handheld ──────────────────────────────
+ *
+ * Applied to the whole shell while /play/brainstorm is mounted, via
+ * `<shell-console-theme theme="brainstorm">`. A candy-shell handheld: grape
+ * console body, hot-pink A button, lemon B button, arcade cyan screen glow.
+ */
+@plugin "daisyui/theme" {
+  name: 'brainstorm';
+  default: false;
+  prefersdark: false;
+  color-scheme: dark;
+
+  --color-base-100: oklch(24% 0.075 300); /* console shell */
+  --color-base-200: oklch(17% 0.06 295); /* screen ground */
+  --color-base-300: oklch(33% 0.09 300); /* bezels and wells */
+  --color-base-content: oklch(96% 0.02 300);
+
+  --color-primary: oklch(72% 0.22 355); /* A button pink */
+  --color-primary-content: oklch(18% 0.05 355);
+  --color-secondary: oklch(90% 0.17 100); /* B button lemon */
+  --color-secondary-content: oklch(22% 0.05 100);
+  --color-accent: oklch(83% 0.13 200); /* screen cyan */
+  --color-accent-content: oklch(18% 0.04 220);
+  --color-neutral: oklch(28% 0.08 300);
+  --color-neutral-content: oklch(96% 0.02 300);
+
+  --color-info: oklch(83% 0.13 200);
+  --color-info-content: oklch(18% 0.04 220);
+  --color-success: oklch(85% 0.18 150);
+  --color-success-content: oklch(20% 0.05 150);
+  --color-warning: oklch(88% 0.16 85);
+  --color-warning-content: oklch(22% 0.05 85);
+  --color-error: oklch(66% 0.22 25);
+  --color-error-content: oklch(97% 0.01 25);
+
+  --radius-selector: 1rem;
+  --radius-field: 0.9rem;
+  --radius-box: 1.25rem;
+  --size-selector: 0.25rem;
+  --size-field: 0.25rem;
+  --border: 1px;
+  --depth: 1;
+  --noise: 0;
+}
+
+/*
  * ── SPACE COUCH — the couch bridge console ────────────────────────────
  *
  * Applied to the whole shell while /play/game-of-captains is past its title

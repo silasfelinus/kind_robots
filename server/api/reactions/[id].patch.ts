@@ -162,6 +162,13 @@ export default defineEventHandler(async (event) => {
       })
     }
 
+    if (existingReaction.reactionCategory === 'BRAINSTORM_LINE') {
+      throw createError({
+        statusCode: 400,
+        message: 'Use /api/brainstorm/lines/[id]/react to change a Brainstorm line reaction.',
+      })
+    }
+
     const body = await readBody<unknown>(event)
     const data = await prisma.reaction.update({
       where: { id: reactionId },

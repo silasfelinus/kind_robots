@@ -1367,6 +1367,7 @@ model Reaction {
   facetId               Int?
   tzaddikCandidateId    Int?
   plumberLevelId        Int?
+  brainstormLineId      Int?
   /// The Bot or Character a first-party comment is spoken BY, as opposed to
   /// botId/characterId, which are what a reaction is spoken ABOUT. userId stays
   /// the authenticated account accountable for the row. At most one of these
@@ -1396,10 +1397,12 @@ model Reaction {
   Theme                 Theme?                    @relation(fields: [themeId], references: [id])
   TzaddikCandidate      TzaddikCandidate?         @relation(fields: [tzaddikCandidateId], references: [id])
   PlumberLevel          PlumberLevel?             @relation(fields: [plumberLevelId], references: [id], onDelete: Cascade)
+  BrainstormLine        BrainstormLine?           @relation(fields: [brainstormLineId], references: [id], onDelete: Cascade)
   User                  User                      @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([userId, challengeSubmissionId])
   @@unique([userId, plumberLevelId])
+  @@unique([userId, brainstormLineId])
   @@index([userId], map: "Reaction_userId_fkey")
   @@index([artImageId], map: "Reaction_artImageId_fkey")
   @@index([artCollectionId], map: "Reaction_artCollectionId_fkey")
@@ -1417,6 +1420,7 @@ model Reaction {
   @@index([themeId], map: "Reaction_themeId_fkey")
   @@index([challengeSubmissionId])
   @@index([plumberLevelId])
+  @@index([brainstormLineId])
   @@index([authorBotId], map: "Reaction_authorBotId_idx")
   @@index([authorCharacterId], map: "Reaction_authorCharacterId_idx")
 }
@@ -3353,6 +3357,7 @@ enum Reaction_reactionCategory {
   SCENARIO
   THEME
   TZADDIK
+  BRAINSTORM_LINE
 }
 
 enum ServerType {

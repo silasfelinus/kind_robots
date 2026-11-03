@@ -45,10 +45,7 @@ export function judge(m, vw) {
 
   const available = Math.floor(vw - m.trigger.left - VIEWPORT_GUTTER)
   const floor = Math.min(LAUNCHER_MIN_WIDTH, vw - VIEWPORT_GUTTER * 2)
-  const expectedWidth = Math.max(
-    floor,
-    Math.min(LAUNCHER_MAX_WIDTH, available),
-  )
+  const expectedWidth = Math.max(floor, Math.min(LAUNCHER_MAX_WIDTH, available))
   if (Math.abs(m.menu.width - expectedWidth) > 2) {
     problems.push(
       `WIDTH ${m.menu.width}px vs ${expectedWidth}px for the available viewport`,
@@ -86,7 +83,9 @@ function measure() {
 export function judgeLegacy(m, vw) {
   const problems = []
   if (Math.abs(m.menu.left - m.trigger.left) > ANCHOR_TOLERANCE_PX) {
-    problems.push(`ANCHOR menu left ${m.menu.left} vs trigger left ${m.trigger.left}`)
+    problems.push(
+      `ANCHOR menu left ${m.menu.left} vs trigger left ${m.trigger.left}`,
+    )
   }
   const available = Math.max(0, vw - m.trigger.left - VIEWPORT_GUTTER)
   if (!Number.isInteger(m.columns) || m.columns < 1 || m.columns > 3) {
@@ -104,7 +103,8 @@ export function judgeLegacy(m, vw) {
     problems.push(`INSIDE menu spans ${m.menu.left}..${m.menu.right} of ${vw}`)
   }
   if (!m.rows) problems.push('DENSITY no rows found')
-  if (m.tallRows.length) problems.push(`DENSITY rows taller than 64px: ${m.tallRows.join(' | ')}`)
+  if (m.tallRows.length)
+    problems.push(`DENSITY rows taller than 64px: ${m.tallRows.join(' | ')}`)
   return problems
 }
 
@@ -129,13 +129,17 @@ function measureLegacy() {
   return {
     trigger: box(trigger),
     menu: box(menu),
-    columns: style?.display === 'grid'
-      ? style.gridTemplateColumns.split(' ').filter(Boolean).length
-      : 1,
+    columns:
+      style?.display === 'grid'
+        ? style.gridTemplateColumns.split(' ').filter(Boolean).length
+        : 1,
     rows: rows.length,
     tallRows: rows
       .filter((b) => b.getBoundingClientRect().height > 64)
-      .map((b) => `${(b.textContent || '').trim().slice(0, 40)} (${Math.round(b.getBoundingClientRect().height)}px)`),
+      .map(
+        (b) =>
+          `${(b.textContent || '').trim().slice(0, 40)} (${Math.round(b.getBoundingClientRect().height)}px)`,
+      ),
   }
 }
 
@@ -183,12 +187,18 @@ async function main() {
         const newLauncher = page.locator('.nav-launcher-desktop > button')
         const legacySelector = page.locator('.tab-select > button')
         if (await newLauncher.count()) {
-          await newLauncher.first().click({ timeout: 10000 }).catch(() => {})
+          await newLauncher
+            .first()
+            .click({ timeout: 10000 })
+            .catch(() => {})
           await page.waitForTimeout(400)
           m = await page.evaluate(measure).catch(() => null)
           if (m) m.variant = 'launcher'
         } else if (await legacySelector.count()) {
-          await legacySelector.first().click({ timeout: 10000 }).catch(() => {})
+          await legacySelector
+            .first()
+            .click({ timeout: 10000 })
+            .catch(() => {})
           await page.waitForTimeout(400)
           m = await page.evaluate(measureLegacy).catch(() => null)
           if (m) m.variant = 'legacy'
@@ -200,7 +210,8 @@ async function main() {
           `${label} ❌ ${loaded ? 'launcher not found' : 'navigation failed'} -- nothing measured`,
         )
       } else {
-        const problems = m.variant === 'legacy' ? judgeLegacy(m, vp.width) : judge(m, vp.width)
+        const problems =
+          m.variant === 'legacy' ? judgeLegacy(m, vp.width) : judge(m, vp.width)
         if (problems.length) {
           failures += 1
           console.log(`${label} ❌`)
@@ -220,7 +231,9 @@ async function main() {
     process.exitCode = 1
     return
   }
-  console.log('\n✅ Tablet navigation launcher is anchored, adaptive, and populated.')
+  console.log(
+    '\n✅ Tablet navigation launcher is anchored, adaptive, and populated.',
+  )
 }
 
 if (process.argv[1] && fileURLToPath(import.meta.url) === process.argv[1]) {

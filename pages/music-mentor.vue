@@ -164,18 +164,19 @@
 </template>
 
 <script setup lang="ts">
-import { gameLinkPreviewMeta } from '~/utils/gameLinkPreview'
-
-useSeoMeta(
-  gameLinkPreviewMeta('music-mentor', useRuntimeConfig().public.appBaseUrl) ??
-    {},
-)
 import { ref, computed } from 'vue'
 import {
   useMusicMentorStore,
   type MentorDimension,
 } from '@/stores/musicMentorStore'
 import { useUserStore } from '@/stores/userStore'
+
+import { gameLinkPreviewMeta } from '~/utils/gameLinkPreview'
+
+useSeoMeta(
+  gameLinkPreviewMeta('music-mentor', useRuntimeConfig().public.appBaseUrl) ??
+    {},
+)
 
 const MAX_MB = 250
 

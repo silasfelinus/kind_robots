@@ -953,14 +953,6 @@
 </template>
 
 <script setup lang="ts">
-import { gameLinkPreviewMeta } from '~/utils/gameLinkPreview'
-
-useSeoMeta(
-  gameLinkPreviewMeta(
-    'video-generator',
-    useRuntimeConfig().public.appBaseUrl,
-  ) ?? {},
-)
 import { computed, nextTick, onMounted, onUnmounted, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useResourceStore } from '@/stores/resourceStore'
@@ -991,6 +983,15 @@ import {
   type VideoOutputFormat,
   type VideoPresetId,
 } from '@/utils/videoPresets'
+
+import { gameLinkPreviewMeta } from '~/utils/gameLinkPreview'
+
+useSeoMeta(
+  gameLinkPreviewMeta(
+    'video-generator',
+    useRuntimeConfig().public.appBaseUrl,
+  ) ?? {},
+)
 
 const LOGO_SRC = '/images/kindlogo_new.webp'
 const WINK_PRESET =

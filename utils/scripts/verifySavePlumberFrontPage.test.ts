@@ -200,7 +200,9 @@ assert.match(page, /plumber-guide-inner[\s\S]*?overflow-y: auto/)
 assert.doesNotMatch(page, /<b>B<\/b> MENU/, 'B cannot be both menu and sprint')
 const arcadeMeta = source('../arcade/games.ts')
 assert.ok(
-  arcadeMeta.includes("'KEYBOARD  SHIFT SPRINT   E / C WRENCH   F / V SPECIAL'"),
+  arcadeMeta.includes(
+    "'KEYBOARD  SHIFT SPRINT   E / C WRENCH   F / V SPECIAL'",
+  ),
   'keyboard guide reflects the game input',
 )
 assert.ok(

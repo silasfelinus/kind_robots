@@ -763,6 +763,57 @@ for (const id of previousGaps) {
 }
 assert.equal(fixtureCovered.length, previousGaps.length)
 
+// A real Day 1-to-51 route, not injected flags. The early choice to pay
+// the informant and count the Mirefen escort determines two Act II/III
+// callbacks; Komodo's final answer on Day 40 determines the gate confession.
+const conditionalRouteChoices: Record<string, readonly string[]> = {
+  'd01-toll': ['ask-toll', 'informant'],
+  'd01-mirefen': ['ask-lanterns', 'quiet-count'],
+  'd16-bandaged-paw': ['ask-pack', 'spy'],
+  'd40-quiet-word': ['sit', 'ask', 'do-it', 'stay'],
+}
+const conditionalRouteVisited: string[] = []
+const conditionalRouteChoicesMade: string[] = []
+const callbackTargets = [
+  'd19-knotted-bandage',
+  'd27-fen-count',
+  'd41-midnight-gate',
+]
+const callbackRun = playCampaign(
+  POLICIES.find((policy) => policy.id === 'idle')!,
+  17,
+  (run) => {
+    assert.ok(
+      validateRun(run),
+      'conditional-callback route must save at every dawn',
+    )
+  },
+  {
+    selectAudienceChoice: (_day, id, open) =>
+      conditionalRouteChoices[id]?.find((choiceId) =>
+        open.some((option) => option.id === choiceId),
+      ),
+    onAudienceChoice: (day, id, option, run) => {
+      if (conditionalRouteChoices[id] || callbackTargets.includes(id))
+        conditionalRouteChoicesMade.push(`Day ${day}: ${id}/${option.id}`)
+      if (run.audiencesHeard.includes(id)) {
+        seenAudiences.add(id)
+        if (
+          callbackTargets.includes(id) &&
+          !conditionalRouteVisited.includes(id)
+        )
+          conditionalRouteVisited.push(id)
+      }
+    },
+  },
+)
+for (const id of callbackTargets) {
+  assert.ok(
+    conditionalRouteVisited.includes(id),
+    `${id} must be reached through a real, complete campaign with earned prerequisites`,
+  )
+}
+
 const unvisitedAudiences = DAYS.flatMap((day) =>
   day.audiences
     .filter((scene) => !seenAudiences.has(scene.id))
@@ -994,6 +1045,10 @@ const markdown = [
   `Automated red flags: ${suspicious.length}/${rows.length} assessed rows; these are leads, not defects proven in play.`,
   `Seeded policy persona campaigns with full played dialogue beats and coverage-directed barracks choices (unheard talks first, one per day): ${campaignRows.length}; all completed 50 days and dawn 51. An additional ${focusedCampaigns.length} complete 50-day campaigns pursue specific follower stories with actual chance encounters. Visited ${seenAudiences.size} unique audiences, ${seenTalks.size} unique talks, ${seenQuests.size} distinct quest/outcome pairs.`,
   '',
+  `One additional 50-day chronology route reached ${callbackTargets.filter((id) => conditionalRouteVisited.includes(id)).length}/${callbackTargets.length} previously missing conditional audiences, without injected flags (ending ${callbackRun.ending}, seed 17).`,
+  '',
+  `Choices on that route: ${conditionalRouteChoicesMade.join(' | ')}`,
+  '',
   '## Complete 50-day policy-campaign traces',
   '',
   '| Policy | Seed | Ending | Hideout | Audience choices | Talk choices | Resolved quests | Deaths | Brass |',
@@ -1079,6 +1134,13 @@ writeFileSync(
       unvisited: { audiences: unvisitedAudiences, talks: unvisitedTalks },
       campaigns: campaignRows,
       focusedCampaigns,
+      conditionalCallbackRoute: {
+        seed: 17,
+        ending: callbackRun.ending,
+        targets: callbackTargets,
+        visited: conditionalRouteVisited,
+        choices: conditionalRouteChoicesMade,
+      },
       previousGaps,
       fixtureCovered,
       missingQuestReportTexts,

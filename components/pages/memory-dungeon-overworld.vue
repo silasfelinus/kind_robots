@@ -432,14 +432,18 @@
                     v-if="tileNeedsAttention(tile.key)"
                   />
                   <span
-                    v-if="sites[tile.key]"
+                    v-if="
+                      sites[tile.key] &&
+                      sites[tile.key]?.kind !== 'story' &&
+                      !tileNeedsAttention(tile.key)
+                    "
                     class="absolute left-1/2 top-1/2 z-10 -translate-x-1/2 -translate-y-1/2 rounded-lg bg-[#162522]/75 px-0.5 text-[clamp(11px,1.7vw,24px)] leading-tight shadow-lg"
                     :title="sites[tile.key]?.name"
                   >
                     {{ siteSymbol(sites[tile.key]?.kind) }}
                   </span>
                   <span
-                    class="absolute right-0 top-0 z-20 rounded-bl bg-[#142521]/85 px-0.5 text-[clamp(10px,1.3vw,14px)] font-black leading-tight shadow"
+                    class="md-progress-mark absolute right-0.5 top-0 z-20 text-[clamp(11px,1.4vw,16px)] font-black leading-tight"
                     :class="
                       progressFor(tile.key) === 'complete'
                         ? 'text-emerald-200'
@@ -465,7 +469,8 @@
                 </button>
                 <div
                   v-else-if="crossMapKeys.includes(tile.key)"
-                  class="relative h-full w-full border border-[#a98b5b]/50 bg-[#28283f]/95"
+                  class="md-fog-tile md-fog-seal relative h-full w-full"
+                  :style="fogTileStyle(tile.x, tile.y)"
                 >
                   <button
                     v-if="world.state.waveIndex === 3 && !world.mapMatching"
@@ -487,21 +492,18 @@
                   </button>
                   <span
                     v-else
-                    class="flex h-full items-center justify-center text-sm text-[#c5b28a]/50"
+                    class="flex h-full items-center justify-center text-sm text-[#d7c7ae]/60"
                     aria-label="A mysterious unrevealed seal awaits"
                     >✧</span
                   >
                 </div>
                 <div
                   v-else
-                  class="h-full w-full border border-[#55677b]/60 bg-[#0b1521]/[0.99] shadow-[inset_0_0_16px_#071017]"
+                  class="md-fog-tile h-full w-full"
+                  :style="fogTileStyle(tile.x, tile.y)"
                   aria-hidden="true"
-                >
-                  <span
-                    class="flex h-full items-center justify-center text-[clamp(8px,1.4vw,18px)] text-[#b29c76]/20"
-                    >✦</span
-                  >
-                </div>
+                  data-testid="memory-map-fog"
+                ></div>
               </div>
             </div>
             <div
@@ -664,25 +666,11 @@
                 "
                 class="md-encounter-actions mt-2 flex min-h-0 shrink-0 flex-wrap items-start gap-2"
               >
-                <template
+                <span
                   v-if="
                     world.activeScene &&
-                    !world.state.sceneChoices[world.activeSiteKey]
+                    world.state.sceneChoices[world.activeSiteKey]
                   "
-                >
-                  <button
-                    v-for="choice in world.activeScene.choices"
-                    :key="choice.id"
-                    type="button"
-                    class="md-btn md-story-choice"
-                    :disabled="!canChooseBriarScene(choice, world.state)"
-                    @click="world.chooseScene(choice.id)"
-                  >
-                    {{ choice.label }}
-                  </button>
-                </template>
-                <span
-                  v-else-if="world.activeScene"
                   class="text-xs font-bold text-emerald-900"
                   >✓ Story decision remembered</span
                 >
@@ -826,6 +814,20 @@
                 {{ world.earthPhotos.length }} fragments
               </button>
             </div>
+            <memory-dungeon-choice-hand
+              v-if="
+                !world.mapMatching &&
+                world.activeScene &&
+                !world.state.sceneChoices[world.activeSiteKey]
+              "
+              class="md-scene-hand"
+              :choices="sceneHand"
+              :deal-key="world.activeSiteKey"
+              :icon="siteSymbol(world.selectedSite?.kind) || '✥'"
+              palette="briar"
+              testid-prefix="memory-world-choice"
+              @play="(choice) => world.chooseScene(choice.id)"
+            />
           </div>
           <p
             v-if="world.mapDeckError"
@@ -993,7 +995,11 @@ import {
   briarConnected,
   briarTileProgress,
 } from '~/utils/memoryDungeonWorld'
-import { canChooseBriarScene } from '~/utils/memoryDungeon/scenes'
+import {
+  canChooseBriarScene,
+  type BriarSceneChoice,
+} from '~/utils/memoryDungeon/scenes'
+import type { MemoryHandChoice } from '~/components/memory-dungeon/memory-dungeon-choice-hand.vue'
 import { briarIllustrationPath } from '~/utils/memoryDungeon/artManifest'
 import {
   BRIAR_CROSS_MAP_KEYS,
@@ -1064,6 +1070,22 @@ const currentIllustrationPath = computed(() =>
     world.state.sceneChoices[world.state.player],
   ),
 )
+const sceneHand = computed<MemoryHandChoice[]>(() =>
+  (world.activeScene?.choices ?? []).map((choice) => ({
+    id: choice.id,
+    label: choice.label,
+    image: briarIllustrationPath(world.activeSiteKey, choice.id),
+    chip: costLabel(choice),
+    disabled: !canChooseBriarScene(choice, world.state),
+  })),
+)
+function costLabel(choice: BriarSceneChoice): string | undefined {
+  const parts = [
+    choice.cost?.wildflowers ? `${choice.cost.wildflowers} 🌼` : '',
+    choice.cost?.lanterns ? `${choice.cost.lanterns} 🏮` : '',
+  ].filter(Boolean)
+  return parts.length ? `Costs ${parts.join(' · ')}` : undefined
+}
 const sceneArtFailed = ref(false)
 const mapArtFailed = ref(false)
 watch(currentIllustrationPath, () => {
@@ -1083,6 +1105,11 @@ const sites = BRIAR_SITES
 const completedCount = computed(
   () => tiles.filter((tile) => progressFor(tile.key) === 'complete').length,
 )
+function fogTileStyle(x: number, y: number) {
+  return {
+    backgroundPosition: `${((x - 1) / 7) * 100}% ${((y - 1) / 7) * 100}%`,
+  }
+}
 function progressFor(key: string) {
   return briarTileProgress(world.state, key)
 }
@@ -1177,7 +1204,7 @@ function siteSymbol(kind: BriarSiteKind | undefined): string {
     enemy: '⚔️',
     gate: '🌿',
     rune: '🪨',
-    story: '◇',
+    story: '',
   }
   return kind ? icons[kind] : ''
 }
@@ -1218,18 +1245,60 @@ onMounted(() => {
   max-width: 100%;
   max-height: 100%;
 }
+.md-fog-tile {
+  position: relative;
+  background-color: #20332f;
+  background-image: url('/memory-dungeon/briar-fog.svg');
+  background-size: 800% 800%;
+  background-repeat: no-repeat;
+  box-shadow: inset 0 0 1px #9faf97;
+}
+.md-fog-tile::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(
+    ellipse at center,
+    transparent 45%,
+    #111c1c22 100%
+  );
+}
+.md-fog-seal::after {
+  background: radial-gradient(circle at center, #b5a4d01f, #12162870 90%);
+}
 .md-encounter-pane {
   min-height: 0;
 }
+/* A tile's progress mark sits straight on the art, outlined so it reads on
+   any terrain (Silas, 2026-11-02: no dark chip behind the check). */
+.md-progress-mark {
+  text-shadow:
+    0 0 2px #0b1712,
+    0 0 2px #0b1712,
+    0 1px 3px #0b1712;
+}
+/* The story hand gets its own row so its cards can be held large: under the
+   narrative in a narrow pane, across the whole pane once it is wide. */
 .md-scene-overview {
   display: grid;
   grid-template-columns: minmax(0, 0.43fr) minmax(0, 0.57fr);
-  gap: clamp(0.5rem, 1vw, 1rem);
+  grid-template-rows: minmax(0, 1fr) auto;
+  grid-template-areas:
+    'art copy'
+    'art hand';
+  column-gap: clamp(0.5rem, 1vw, 1rem);
   flex: 1 1 0;
   min-height: 0;
   overflow: hidden;
 }
+.md-scene-hand {
+  grid-area: hand;
+  min-width: 0;
+  margin-top: 0.5rem;
+}
 .md-scene-art {
+  grid-area: art;
   position: relative;
   min-height: 0;
   min-width: 0;
@@ -1260,6 +1329,7 @@ onMounted(() => {
   font-weight: 800;
 }
 .md-scene-copy {
+  grid-area: copy;
   display: flex;
   flex-direction: column;
   gap: 0.45rem;
@@ -1286,6 +1356,9 @@ onMounted(() => {
   }
   .md-scene-overview {
     grid-template-columns: minmax(0, 0.52fr) minmax(0, 0.48fr);
+    grid-template-areas:
+      'art copy'
+      'hand hand';
   }
 }
 @container md-world (max-height: 500px) {
@@ -1302,13 +1375,6 @@ onMounted(() => {
   color: #fff4da;
   font-size: 1rem;
   font-weight: 700;
-}
-.md-story-choice {
-  flex: 1 1 12rem;
-  min-height: 3.25rem;
-  font-size: clamp(1rem, 1.85cqw, 1.5rem);
-  line-height: 1.2;
-  text-align: left;
 }
 .md-btn:hover:not(:disabled) {
   background: #617746;

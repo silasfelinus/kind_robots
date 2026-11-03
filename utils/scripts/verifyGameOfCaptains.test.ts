@@ -948,7 +948,11 @@ noRomance = nextDestination(noRomance)
 assert.equal(noRomance.phase, 'briefing')
 
 assert.ok(page.includes('data-testid="space-couch-romance-scene"'))
-assert.ok(page.includes('data-romance-choice'))
+assert.ok(
+  page.includes('testid-prefix="space-couch-romance-choice"') &&
+    page.includes('store.chooseRomance(choice.id as RomanceChoiceId)'),
+  'each romance choice is its own card that plays the chosen id',
+)
 assert.ok(page.includes('romanceScene.speakers'))
 // Every current adult officer has a distinct complete three-chapter relationship.
 // Six two-crew arcs cover the entire roster, without replacing the four-person path.

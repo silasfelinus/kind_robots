@@ -37,8 +37,10 @@ export const ART_STYLES = [
 // the classic. classic should be default."
 export const DEFAULT_ART_STYLE = 'classic'
 // The same card in every edition, so the picker compares like with like.
+// 2026-11-02: moved off gus-shop-steward, whose Western Cartoon render is a
+// woman with antennae rather than Gus (see WITHDRAWN_RENDERS).
 export const ART_STYLE_SAMPLE =
-  '/images/shifting-desks/cards/orientation/gus-shop-steward.webp'
+  '/images/shifting-desks/cards/orientation/the-guard-who-is-also-you.webp'
 
 export type ShiftingDesksArtStyle = (typeof ART_STYLES)[number]['id']
 // v3: v2 visitors were saved on Western Cartoon while it was the default.
@@ -52,7 +54,29 @@ export function normalizeArtStyle(value: unknown): ShiftingDesksArtStyle {
 // a corrected render replaces them. Paths are relative to /images/shifting-desks/.
 export const WITHDRAWN_RENDERS: Record<string, readonly string[]> = {
   // 2026-10-14: the Western Cartoon render shows explicit nudity.
-  'western-cartoon': ['cards/records/the-jam-in-tube-14.webp'],
+  // 2026-11-02 (Silas: "that is not a cockroach"): the Illustrious checkpoint
+  // drew the Roach Union as humans with antennae. Classic keeps the roaches.
+  'western-cartoon': [
+    'cards/records/the-jam-in-tube-14.webp',
+    'cards/toy-division/the-union-walkthrough.webp',
+    'cards/toy-division/gus-in-a-beanie.webp',
+    'cards/orientation/gus-shop-steward.webp',
+    'cards/orientation/refreshments-are-served.webp',
+    'cards/orientation/gus-files-a-grievance.webp',
+    'cards/orientation/fumigation-thursday.webp',
+    'cards/wellness/the-spotless-plate-initiative.webp',
+    'cards/sub-level-zero/gus-in-a-borrowed-suit.webp',
+    'cards/records/the-union-archive.webp',
+    'cards/records/flawless-paperwork.webp',
+    'cards/records/gus-measures-the-glass.webp',
+  ],
+  // 2026-11-02: these Noir renders lost the roach the card is about.
+  'corporate-noir': [
+    'cards/toy-division/the-union-walkthrough.webp',
+    'cards/wellness/the-spotless-plate-initiative.webp',
+    'cards/sub-level-zero/gus-in-a-borrowed-suit.webp',
+    'cards/records/flawless-paperwork.webp',
+  ],
 }
 
 /** A stable, separate namespace so Classic assets can never be overwritten. */

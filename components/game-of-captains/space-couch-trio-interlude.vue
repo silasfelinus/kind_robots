@@ -28,17 +28,12 @@
       {{ due.adventure.premise }}
     </p>
     <p class="trio-setup">{{ due.step.setup }}</p>
-    <button
-      v-for="(option, index) in due.step.options"
-      :key="option.label"
-      class="trio-option"
-      type="button"
-      :data-trio-choice="index"
-      @click="choose(index)"
-    >
-      <b>{{ option.label }}</b
-      ><span>↗</span>
-    </button>
+    <SpaceCouchChoiceHand
+      :choices="hand"
+      :deal-key="`${trio}:${due.index}`"
+      testid-prefix="space-couch-trio-choice"
+      @play="(choice) => choose(Number(choice.id))"
+    />
   </section>
   <p
     v-else-if="outcome"
@@ -78,6 +73,7 @@ import { useGameOfCaptainsStore } from '~/stores/gameOfCaptainsStore'
 import { warpArt } from '~/utils/gameOfCaptains/artManifest'
 import { portraitArt } from '~/utils/gameOfCaptains/artSlots'
 import { CREW_PROFILES } from '~/utils/gameOfCaptains/crewAssignments'
+import type { KrHandChoice } from '~/components/narrative/kr-choice-hand.vue'
 import {
   trioAdventureFor,
   trioArtKey,
@@ -143,6 +139,21 @@ const endingArt = computed(() => {
   return index === null
     ? null
     : artFor(trioArtKey(trio.value, index ? 'b' : 'a'))
+})
+
+const hand = computed<KrHandChoice[]>(() => {
+  const step = due.value
+  const key = trio.value
+  if (!step || !key) return []
+  return step.step.options.map((option, index) => ({
+    id: String(index),
+    label: option.label,
+    image: [
+      artFor(trioArtKey(key, option.ending ? 'b' : 'a')),
+      faces.value[index]?.url,
+    ],
+    icon: '✦',
+  }))
 })
 
 function choose(index: number) {
@@ -216,19 +227,5 @@ function choose(index: number) {
   border-left: 3px solid #efc49c;
   padding: 0.6rem 0.85rem;
   background: #4a3a5270;
-}
-.trio-option {
-  width: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 0.65rem;
-  text-align: left;
-  border: 1px solid #c2a6c296;
-  border-radius: 0.65rem;
-  background: linear-gradient(90deg, #5a3f6894, #2b2a4b);
-  padding: 0.9rem;
-  margin: 0.5rem 0;
-  color: #fcf1e4;
 }
 </style>

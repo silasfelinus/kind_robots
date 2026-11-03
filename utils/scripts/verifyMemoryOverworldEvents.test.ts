@@ -52,6 +52,21 @@ import {
 
 assert.deepEqual(validateOverworldEventCatalog(), [])
 assert.equal(OVERWORLD_EVENT_CATALOG.length, 12 * 64)
+assert.equal(
+  worldEvent('e07', '4,3')?.kind,
+  'dungeon',
+  'Warm Red Oven entrance',
+)
+assert.equal(
+  worldEvent('e08', '4,3')?.kind,
+  'dungeon',
+  'Night Red Oven entrance',
+)
+assert.notEqual(
+  worldEvent('e08', '3,6')?.kind,
+  'dungeon',
+  'Rainkeeper is not an Oven',
+)
 
 for (let n = 1; n <= 12; n++) {
   const id = 'e' + String(n).padStart(2, '0')
@@ -87,7 +102,7 @@ for (let n = 1; n <= 12; n++) {
       assert.equal(worldEvent(id, photo.site)?.photographId, photo.id)
     assert.equal(
       events.filter((event) => event.source === 'new-authoring').length,
-      id === 'e08' ? 48 : 64,
+      id === 'e08' ? 64 - HOSHIMORI_NIGHT_SITES.length : 64,
     )
   }
 

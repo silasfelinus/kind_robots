@@ -563,7 +563,16 @@ assert.match(stage, /data-testid="memory-earth-act"/)
 assert.match(stage, /earth\.travel\(tile\.key\)/)
 assert.match(stage, /earth\.choose\(choice\.id\)/)
 assert.match(stage, /sceneArt\.status === 'delivered'/)
-assert.match(stage, /choice\.art\.status === 'delivered'/)
+const hand = readFileSync(
+  'components/memory-dungeon/memory-dungeon-choice-hand.vue',
+  'utf8',
+)
+assert.match(
+  stage,
+  /<memory-dungeon-choice-hand[\s\S]*?:choices="earth\.current\.choices"/,
+)
+assert.match(hand, /<KrChoiceHand/)
+assert.match(hand, /choice\.art\?\.status === 'delivered'/)
 assert.match(root, /memory-dungeon-earth\s+v-else-if="earthMode"/)
 assert.match(briar, /v-if="world\.campaign\.completed\.includes\('e02'\)"/)
 assert.match(store, /world\.finishMorrowEarthReality\(/)

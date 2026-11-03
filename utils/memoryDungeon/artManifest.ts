@@ -349,6 +349,14 @@ export function houseIllustrationPath(
   return room.imagePath
 }
 
+/** The Dark House chamber outcome plate for one choice (attend / refuse). */
+export function darkHouseIllustrationPath(
+  roomId: string,
+  choiceId: string,
+): string {
+  return `${artRoot}/dark-briar/house/outcomes/${roomId.toLowerCase()}-${choiceId}.webp`
+}
+
 export function validateWorldOneArtManifest(): string[] {
   const issues: string[] = validateRealmGallery(WORLD_ONE_GALLERY, 1)
   const ids = new Set<string>()

@@ -13,7 +13,8 @@
           Hoshimori · Procession of Shut Doors
         </h2>
         <span class="md-bar-chip">
-          {{ night.progress.visited.length }}/16 witnessed
+          {{ night.progress.visited.length }}/{{ HOSHIMORI_NIGHT_SITES.length }}
+          witnessed
         </span>
         <div class="md-bar-actions">
           <button
@@ -126,17 +127,16 @@
             </p>
             <p class="mt-1 text-sm">{{ chosenOutcome }}</p>
           </div>
-          <div v-else class="mt-3 grid gap-2">
-            <button
-              v-for="choice in night.currentSite?.choices ?? []"
-              :key="choice.id"
-              type="button"
-              class="btn btn-outline h-auto min-h-12 justify-start whitespace-normal py-2 text-left text-sm leading-relaxed"
-              @click="night.act({ type: 'choose', id: choice.id })"
-            >
-              {{ choice.label }}
-            </button>
-          </div>
+          <memory-dungeon-choice-hand
+            v-else-if="night.currentSite"
+            class="mt-3"
+            :choices="night.currentSite.choices"
+            :deal-key="night.currentSite.key"
+            icon="🌙"
+            palette="theme"
+            testid-prefix="memory-hoshimori-night-choice"
+            @play="(choice) => night.act({ type: 'choose', id: choice.id })"
+          />
           <div
             v-if="night.progress.current === '4,2' && !night.progress.doorOpen"
             class="mt-3 rounded-xl border border-warning/40 p-3"
@@ -186,6 +186,51 @@
             <p class="mt-1 text-sm leading-relaxed">{{ night.council }}</p>
           </div>
           <p
+            v-if="!night.council"
+            class="mt-3 rounded-lg border border-warning/30 bg-warning/10 p-2 text-sm"
+          >
+            The Windward ridge is sealed until the ledger house, festival path
+            and southern council have each recorded a real choice. The shrine
+            detour remains open.
+          </p>
+          <div
+            v-if="night.windward"
+            class="mt-3 rounded-xl border border-info/40 bg-info/10 p-3"
+          >
+            <h4 class="font-bold">The Windward Council’s earned account</h4>
+            <p class="mt-1 text-sm leading-relaxed">{{ night.windward }}</p>
+          </div>
+          <p
+            v-if="night.council && !night.windward"
+            class="mt-3 rounded-lg border border-warning/30 bg-warning/10 p-2 text-sm"
+          >
+            The Bellroad is closed until the Windward post, weather desk and
+            council have recorded a real decision. No traveler is required to
+            trade a name for passage.
+          </p>
+          <div
+            v-if="night.bellroad"
+            class="mt-3 rounded-xl border border-success/40 bg-success/10 p-3"
+          >
+            <h4 class="font-bold">The Bellroad's earned witness account</h4>
+            <p class="mt-1 text-sm leading-relaxed">{{ night.bellroad }}</p>
+          </div>
+          <p
+            v-if="night.bellroad && !night.lowbank"
+            class="mt-3 rounded-lg border border-warning/30 bg-warning/10 p-2 text-sm"
+          >
+            The Lowbank flood route requires earned testimony from the Mooncake
+            Queue, kappa ferry and shrine. No family must surrender its home to
+            enter.
+          </p>
+          <div
+            v-if="night.lowbank"
+            class="mt-3 rounded-xl border border-info/40 bg-info/10 p-3"
+          >
+            <h4 class="font-bold">The Lowbank’s earned flood account</h4>
+            <p class="mt-1 text-sm leading-relaxed">{{ night.lowbank }}</p>
+          </div>
+          <p
             v-if="night.notice"
             class="mt-3 text-sm text-warning"
             role="status"
@@ -196,8 +241,8 @@
         <div
           class="shrink-0 border-t border-base-content/10 px-3 py-2 text-xs opacity-75"
         >
-          This is the first connected night district. The remaining forty-eight
-          sites and the transformed Oven are still unwritten.
+          Forty night sites are playable. Twenty-four more sites and the
+          transformed Oven remain unfinished.
         </div>
       </div>
     </div>

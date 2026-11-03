@@ -1983,6 +1983,19 @@ assert.ok(art.includes('viewBox="0 0 1440 900"'))
 assert.ok(page.includes('Prom of Doom | Capes & Tassels'))
 assert.ok(tab.includes("title: 'Prom of Doom'"))
 assert.ok(opening.includes('data-testid="academy-new-game"'))
+assert.equal(
+  opening.match(/data-testid="academy-opening-yearbook"/g)?.length,
+  1,
+  'one Yearbook destination on the Prom title screen',
+)
+assert.match(opening, /YEARBOOK \/ CLASSIFIED SCHOOL RECORDS/)
+assert.match(opening, /aria-label="Yearbook collections"/)
+assert.match(opening, /discoveredEndings/)
+assert.doesNotMatch(
+  opening.slice(0, opening.indexOf('<template v-else>')),
+  /SCRAPBOOK/,
+  'Scrapbook is a Yearbook section, not a duplicate title button',
+)
 assert.ok(opening.includes("screen === 'title'"))
 assert.ok(opening.includes("screen === 'origin' || screen === 'affinity'"))
 assert.ok(opening.includes('data-testid="academy-persona-triad"'))
@@ -2002,8 +2015,16 @@ assert.ok(page.includes('data-testid="academy-evolution-dossier"'))
 assert.ok(page.includes('data-testid="academy-identity-choice"'))
 assert.ok(page.includes('data-testid="academy-social-switch"'))
 assert.ok(page.includes('data-testid="academy-social-panel"'))
-assert.ok(page.includes('data-testid="academy-social-choice"'))
-assert.ok(page.includes("store.end('share')"))
+assert.ok(page.includes('testid-prefix="academy-social-choice"'))
+assert.ok(page.includes('testid-prefix="academy-campus-choice"'))
+assert.ok(page.includes('@play="(option) => store.choose(option.id)"'))
+assert.ok(page.includes('store.social(selectedSocialId.value, action.id)'))
+assert.ok(page.includes("['share', 'Give every neighborhood a shield key']"))
+assert.ok(page.includes('testid-prefix="academy-finale-choice"'))
+assert.match(
+  page,
+  /store\.end\(\s*choice\.id as 'protect' \| 'command' \| 'share' \| 'evacuate',?\s*\)/,
+)
 assert.ok(page.includes('store.heal(student.id)'))
 assert.ok(page.includes('site.teaser'))
 assert.ok(page.includes("mapView === 'campus'"))
@@ -3262,7 +3283,7 @@ assert.equal(Object.keys(RETURN_VISITS).length, CITY_SITES.length)
 }
 
 assert.ok(page.includes('data-testid="academy-triad-panel"'))
-assert.ok(page.includes('data-testid="academy-triad-choice"'))
+assert.ok(page.includes('testid-prefix="academy-triad-choice"'))
 assert.ok(page.includes('data-testid="academy-social-chemistry"'))
 assert.ok(page.includes('data-testid="academy-infirmary-visit"'))
 assert.ok(page.includes('store.negotiate(offer.arc.id, option.id)'))

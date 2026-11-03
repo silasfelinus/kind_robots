@@ -31,6 +31,27 @@ const branch = resolveCampaignBattle(
   'player',
 )
 assert.equal(branch.catgirls.wins, 1)
+assert.equal(branch.catgirls.lastApproach, 'cunning')
+const defeat = resolveCampaignBattle(
+  save,
+  'catgirls',
+  0,
+  'undertow',
+  'conviction',
+  'enemy',
+)
+assert.equal(defeat.catgirls.lastApproach, 'conviction')
+assert.equal(defeat.catgirls.wins, 0)
+assert.equal(validSlimeCityStory({ ...base, campaigns: defeat }), true)
+const legacyCampaigns = {
+  ...save,
+  catgirls: { ...save.catgirls, lastApproach: undefined },
+}
+assert.equal(
+  validSlimeCityStory({ ...base, campaigns: legacyCampaigns }),
+  true,
+  'Older account-backed saves remain valid with no last-attempt field',
+)
 assert.equal(
   validSlimeCityStory({ ...base, city: arrived, campaigns: branch }),
   true,
@@ -64,6 +85,20 @@ for (const mutation of [
     city: { ...city, streetTerms: { pitworks: { playerHp: 99999 } } },
   },
   { ...base, campaigns: { ...save, catgirls: { ...save.catgirls, wins: 6 } } },
+  {
+    ...base,
+    campaigns: {
+      ...save,
+      catgirls: { ...save.catgirls, lastApproach: 'purchased-win' },
+    },
+  },
+  {
+    ...base,
+    campaigns: {
+      ...save,
+      catgirls: { ...save.catgirls, lastApproach: 4 },
+    },
+  },
   {
     ...base,
     campaigns: {

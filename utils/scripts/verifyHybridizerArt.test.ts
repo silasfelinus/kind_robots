@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict'
+import { readFileSync } from 'node:fs'
 import {
   hybridizerArtPrompt,
   hybridizerArtSeed,
@@ -42,6 +43,17 @@ assert.match(prompt, /a cat/)
 assert.match(prompt, /a banana/)
 assert.match(prompt, /living creature/)
 assert.ok(prompt.length > 90)
+const weightedPrompt = hybridizerArtPrompt('Cat', 'Banana', 'creature', {
+  leftWeight: 70,
+  direction: 'Make its striped tail curl around its peel-shaped body.',
+})
+assert.match(weightedPrompt, /70% characteristics of a cat/)
+assert.match(weightedPrompt, /30% of a banana/)
+assert.match(
+  weightedPrompt,
+  /Additional creative direction: Make its striped tail/,
+)
+assert.doesNotMatch(prompt, /Additional creative direction/)
 // The jar/specimen look belongs to the front-end chrome, never the artwork.
 for (const banned of [
   /\bjar\b/i,
@@ -81,13 +93,15 @@ for (const [left, right] of [
     left + ' + ' + right + ' prompt must pass the art prompt contract',
   )
 }
+// Silas, 2026-11-02: launch hybrids are low priority and all submitted at once.
 assert.ok(
-  HYBRIDIZER_BATCH_PRIORITY > 60 &&
-    HYBRIDIZER_BATCH_PRIORITY < HYBRIDIZER_ART_PRIORITY,
-  'launch hybrids queue behind interactive fusions but ahead of bulk backfill packs',
+  HYBRIDIZER_BATCH_PRIORITY >= 1 && HYBRIDIZER_BATCH_PRIORITY <= 10,
+  'launch hybrids are low-priority bulk art, behind interactive fusions and game art',
 )
+assert.ok(HYBRIDIZER_BATCH_PRIORITY < HYBRIDIZER_ART_PRIORITY)
 assert.ok(
-  HYBRIDIZER_BATCH_MAX_PAIRS <= 50 && HYBRIDIZER_BATCH_PENDING_CAP <= 100,
+  HYBRIDIZER_BATCH_MAX_PAIRS <= 50 && HYBRIDIZER_BATCH_PENDING_CAP >= 4000,
+  'one batch stays small, but the whole 4,000-pair launch set may be queued at once',
 )
 assert.equal(hybridizerQueueState('PENDING', null), 'QUEUED')
 assert.equal(hybridizerQueueState('RUNNING', null), 'RENDERING')
@@ -115,3 +129,38 @@ for (const value of [
   assert.equal(hybridizerDeliverableUrl(value), null)
 }
 console.log('Hybridizer art readiness and deterministic seed contracts passed.')
+
+const atlasApi = readFileSync(
+  new URL('../../server/api/hybridizer/fusions/index.get.ts', import.meta.url),
+  'utf8',
+)
+const labStore = readFileSync(
+  new URL('../../stores/hybridizerStore.ts', import.meta.url),
+  'utf8',
+)
+const labPage = readFileSync(
+  new URL('../../pages/admin/hybridizer.vue', import.meta.url),
+  'utf8',
+)
+assert.match(
+  atlasApi,
+  /const where: Prisma\.HybridizerFusionWhereInput = \{ AND: filters \}/,
+)
+assert.match(atlasApi, /filteredTotal/)
+assert.match(atlasApi, /status === 'READY'/)
+assert.match(atlasApi, /status === 'IN_PROGRESS'/)
+assert.match(atlasApi, /status === 'OTHER'/)
+assert.match(atlasApi, /prisma\.hybridizerFusion\.count\(\{ where \}\)/)
+assert.match(atlasApi, /ids\.split\(','\)\.filter/)
+assert.match(labStore, /function loadAtlas\(/)
+assert.match(labStore, /atlasEntries\.value/)
+assert.match(labStore, /function randomize\(/)
+assert.match(labStore, /maxDepth=3/)
+assert.match(labStore, /function preferencesKey\(/)
+assert.match(labStore, /authenticatedUserId/)
+assert.match(labStore, /function toggleFavorite\(/)
+assert.match(labPage, /data-testid="hybridizer-random"/)
+assert.match(labPage, /data-testid="hybridizer-favorites"/)
+assert.match(labPage, /data-testid="hybridizer-settings"/)
+assert.match(labPage, /class="favorite-heart/)
+console.log('Hybridizer atlas, randomizer and favorites contracts passed.')

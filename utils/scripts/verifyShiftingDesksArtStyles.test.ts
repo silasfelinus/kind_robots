@@ -27,7 +27,8 @@ assert.equal(normalizeArtStyle('unknown'), 'classic')
 assert.equal(normalizeArtStyle('classic'), 'classic')
 assert.equal(normalizeArtStyle('western-cartoon'), 'western-cartoon')
 
-const classic = '/images/shifting-desks/cards/orientation/gus-shop-steward.webp'
+const classic =
+  '/images/shifting-desks/cards/orientation/the-guard-who-is-also-you.webp'
 assert.equal(artStyleImageSrc(classic, 'classic'), classic)
 assert.equal(
   artStyleImageSrc(classic, 'invalid'),
@@ -36,12 +37,18 @@ assert.equal(
 )
 assert.equal(
   artStyleImageSrc(classic, 'corporate-noir'),
-  '/images/shifting-desks/styles/corporate-noir/cards/orientation/gus-shop-steward.webp',
+  '/images/shifting-desks/styles/corporate-noir/cards/orientation/the-guard-who-is-also-you.webp',
 )
 assert.equal(
   artStyleImageSrc(classic, 'western-cartoon'),
-  '/images/shifting-desks/styles/western-cartoon/cards/orientation/gus-shop-steward.webp',
+  '/images/shifting-desks/styles/western-cartoon/cards/orientation/the-guard-who-is-also-you.webp',
 )
+// Silas, 2026-11-02: "that is not a cockroach". A render that drew Beverly
+// as a human falls back to the Classic roach in every style that lost her.
+const beverly =
+  '/images/shifting-desks/cards/toy-division/the-union-walkthrough.webp'
+assert.equal(artStyleImageSrc(beverly, 'western-cartoon'), beverly)
+assert.equal(artStyleImageSrc(beverly, 'corporate-noir'), beverly)
 assert.equal(
   artStyleImageSrc('/unrelated/image.webp', 'western-cartoon'),
   '/unrelated/image.webp',

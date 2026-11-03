@@ -1018,13 +1018,18 @@ assert.equal(plain.deck.length, RECORDS.locations.length + 1 + SHIFT)
   )
   assert.match(
     asset('../../pages/play/shifting-desks.vue'),
-    /@click="endingsGallery\?\.open\(\)"/,
+    /@click="openArchive\(\x27milestones\x27\)"/,
   )
-  const gallery = asset(
-    '../../components/shifting-desks/shifting-desks-endings-gallery.vue',
+  const archive = asset(
+    '../../components/shifting-desks/shifting-desks-personnel-archive.vue',
   )
-  assert.match(gallery, /v-for="ending in ENDINGS"/)
-  assert.match(gallery, /stationArt\('endings', ending\.id\)/)
+  assert.match(archive, /v-for="ending in ENDINGS"/)
+  assert.match(archive, /stationArt\('endings', ending\.id\)/)
+  assert.doesNotMatch(
+    asset('../../pages/play/shifting-desks.vue'),
+    /endingsGallery/,
+    'the Personnel Archive is the only front-desk progress collection',
+  )
 }
 // Sub-Level Zero's Antechamber Sign-In (conductor shifting-desks t-030): the
 // fourth window shift, at the Board's door, stamped ADMIT / TURN AWAY.
@@ -1696,6 +1701,14 @@ assert.doesNotMatch(
 )
 assert.match(toolbar, /class="dept-banner/, 'the floor rides in the toolbar')
 assert.match(toolbar, /<shifting-desks-envelope\s+v-if="atDesk"\s+compact/)
+// The HUD docks into the header's narrow @container slot, so its chips size
+// by container queries. A viewport breakpoint on the envelope label printed
+// "Break the seal" in a narrow strip and clipped File and Leave off the end.
+assert.doesNotMatch(
+  asset('../../components/shifting-desks/shifting-desks-envelope.vue'),
+  /\b(?:sm|md|lg|xl|max-sm|max-md):(?:not-sr-only|px-)/,
+  'the compact envelope chip sizes by its container, not the viewport',
+)
 assert.match(
   toolbar,
   /v-for="m in meterList"[\s\S]*?v-bind="tipHandlers\(m\.key\)"/,
@@ -1712,9 +1725,27 @@ assert.match(page, /v-if="currentNotice && !opened"/)
 // choices; the card face keeps it only on phones, where Decide zooms.
 assert.match(
   page,
-  /ref="briefHeading"[\s\S]*?view\.card\.flavor_text[\s\S]*?v-for="choice in openRoutes"/,
+  /ref="briefHeading"[\s\S]*?view\.card\.flavor_text[\s\S]*?<KrChoiceHand[\s\S]*?:choices="routeCards"/,
   'the description renders in the choices pane, above the choices',
 )
+// Silas, 2026-11-02: the routes are the shared hand of cards. The open routes
+// become its cards, one tap plays, and the Form / Favor / mutation toggles sit
+// above the hand and still apply to whichever card is played.
+assert.match(
+  page,
+  /const routeCards = computed<KrHandChoice\[\]>\(\(\) =>\s*openRoutes\.value\.map\(/,
+)
+assert.match(
+  page,
+  /v-model="spendForm"[\s\S]*?v-model="useFavor"[\s\S]*?v-model="useMutation"[\s\S]*?<KrChoiceHand/,
+  'the pre-pick toggles sit above the hand',
+)
+assert.match(page, /@play="\(card\) => pick\(face\(card\.id\)\.route\)"/)
+assert.match(
+  page,
+  /function pick\(choice: Choice\)[\s\S]*?spendForm: spendForm\.value,\s*useFavor: favorFor\(choice\),\s*useMutation: mutationFor\(choice\),/,
+)
+assert.match(page, /disabled: !!lock,\s*hint: lock \?\? undefined,/)
 assert.match(page, /p-2 sm:p-3 md:hidden">\s*<p\s+ref="cardHeading"/)
 assert.doesNotMatch(page, /desk-poster/, 'the text-only poster is gone')
 // Themes paint art behind the page, so no container may be see-through.

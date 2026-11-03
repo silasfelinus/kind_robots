@@ -1,5 +1,5 @@
 <template>
-  <main class="kr-surface">
+  <main class="kr-surface relative">
     <div v-if="!store.loaded" class="kr-stage items-center justify-center">
       <span class="kr-spinner-lg-primary" />
     </div>
@@ -16,6 +16,17 @@
             {{ current.chapter }}
           </p>
           <div class="ml-auto flex shrink-0 items-center gap-1.5 @lg:gap-2">
+            <button
+              type="button"
+              class="btn btn-outline btn-sm"
+              data-testid="zuzu-gamebook-ledger-menu"
+              :aria-expanded="ledgerOpen"
+              @click="ledgerOpen = true"
+            >
+              <icon name="kind-icon:book-open" class="size-4" />
+              <span class="hidden @3xl:inline">The Bell Ledger</span>
+              <span class="@3xl:hidden">Ledger</span>
+            </button>
             <span
               class="rounded-md bg-base-200 px-2 py-1 text-xs font-bold @lg:px-3"
               aria-label="Resources"
@@ -59,6 +70,170 @@
           </div>
         </div>
       </header-page-bar>
+
+      <section
+        v-if="ledgerOpen"
+        class="fixed inset-0 z-40 flex min-h-0 flex-col gap-3 bg-base-100 p-3 sm:p-6"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="bell-ledger-heading"
+        data-testid="zuzu-gamebook-ledger"
+      >
+        <header
+          class="flex shrink-0 items-center justify-between gap-3 border-b border-warning/30 pb-3"
+        >
+          <div>
+            <p
+              class="text-[10px] font-black uppercase tracking-[.25em] text-warning"
+            >
+              Zuzu · The Bell That Never Rang
+            </p>
+            <h2
+              id="bell-ledger-heading"
+              class="font-serif text-2xl font-black sm:text-4xl"
+            >
+              The Bell Ledger
+            </h2>
+          </div>
+          <button
+            type="button"
+            class="btn btn-warning btn-sm"
+            @click="ledgerOpen = false"
+          >
+            <icon name="kind-icon:arrow-left" class="size-4" />
+            Continue reading
+          </button>
+        </header>
+        <div class="kr-scroll min-h-0 flex-1 overflow-y-auto">
+          <div
+            class="grid gap-4 @container lg:grid-cols-[minmax(0,1fr)_minmax(0,1.4fr)]"
+          >
+            <section
+              class="overflow-hidden rounded-2xl border border-warning/25 bg-base-200"
+            >
+              <img
+                src="/zuzu-gamebook/scenes/waterhole.webp"
+                alt="The western road where Zuzu's journeys began"
+                class="max-h-48 w-full object-cover sm:max-h-64"
+              />
+              <div class="space-y-3 p-4">
+                <p class="font-serif text-lg font-bold">
+                  The road remembers the roads you took.
+                </p>
+                <div class="grid grid-cols-2 gap-2 text-center">
+                  <div class="rounded-xl bg-base-300 p-3">
+                    <strong class="block text-2xl">{{
+                      rememberedScenes.length
+                    }}</strong>
+                    <span class="text-xs">Unique scenes walked</span>
+                  </div>
+                  <div class="rounded-xl bg-base-300 p-3">
+                    <strong class="block text-2xl"
+                      >{{ store.discovered.length }}/{{
+                        ENDING_IDS.length
+                      }}</strong
+                    >
+                    <span class="text-xs">Endings uncovered</span>
+                  </div>
+                </div>
+                <p class="text-sm">
+                  Current chapter: <strong>{{ current.chapter }}</strong>
+                </p>
+                <p v-if="notes.deeds.length" class="text-sm">
+                  <strong>Deeds:</strong>
+                  {{ notes.deeds.map((deed) => deed.text).join(' · ') }}
+                </p>
+                <p v-if="notes.debts.length" class="text-sm">
+                  <strong>Debts:</strong> {{ notes.debts.join(' · ') }}
+                </p>
+                <p v-if="notes.learned.length" class="text-sm">
+                  <strong>Learned:</strong> {{ notes.learned.join(' · ') }}
+                </p>
+                <button
+                  type="button"
+                  class="btn btn-outline btn-sm w-full"
+                  @click="restart"
+                >
+                  <icon name="kind-icon:refresh" class="size-4" />
+                  Begin a new journey
+                </button>
+                <button
+                  v-if="store.recoverable"
+                  type="button"
+                  class="btn btn-ghost btn-sm w-full"
+                  @click="recover"
+                >
+                  Restore previous journey
+                </button>
+              </div>
+            </section>
+            <div class="min-w-0 space-y-4">
+              <section
+                class="rounded-2xl border border-warning/25 bg-base-200 p-4"
+              >
+                <h3 class="font-serif text-xl font-bold">Endings</h3>
+                <p class="mb-3 text-xs opacity-70">
+                  Unfound endings stay secret until the story reveals them.
+                </p>
+                <ul class="grid grid-cols-2 gap-2 sm:grid-cols-3">
+                  <li
+                    v-for="(ending, index) in ENDING_IDS"
+                    :key="ending"
+                    class="rounded-lg border border-base-content/15 p-2 text-xs"
+                    :class="
+                      store.discovered.includes(ending)
+                        ? 'bg-warning/15'
+                        : 'bg-base-300/60 opacity-60'
+                    "
+                  >
+                    <icon
+                      :name="
+                        store.discovered.includes(ending)
+                          ? 'kind-icon:book-open'
+                          : 'kind-icon:lock'
+                      "
+                      class="mb-1 size-4"
+                    />
+                    <span class="block font-bold">
+                      {{
+                        store.discovered.includes(ending)
+                          ? ending
+                          : 'Unknown ending ' + (index + 1)
+                      }}
+                    </span>
+                  </li>
+                </ul>
+              </section>
+              <section
+                class="rounded-2xl border border-warning/25 bg-base-200 p-4"
+              >
+                <h3 class="font-serif text-xl font-bold">Illustrated trail</h3>
+                <p class="mb-3 text-xs opacity-70">
+                  Recent scenes from this journey. Earlier discoveries remain in
+                  your saved route.
+                </p>
+                <p v-if="!recentTrail.length" class="text-sm opacity-70">
+                  Your story is just beginning.
+                </p>
+                <ol v-else class="grid grid-cols-2 gap-2 sm:grid-cols-3">
+                  <li
+                    v-for="entry in recentTrail"
+                    :key="entry.id"
+                    class="overflow-hidden rounded-xl border border-base-content/15 bg-base-300"
+                  >
+                    <img
+                      :src="entry.art"
+                      :alt="entry.title"
+                      class="aspect-video w-full object-cover"
+                    />
+                    <p class="p-2 text-xs font-bold">{{ entry.title }}</p>
+                  </li>
+                </ol>
+              </section>
+            </div>
+          </div>
+        </div>
+      </section>
 
       <div
         class="kr-panes mx-auto w-full max-w-[1500px] grid-cols-1 px-3 pb-3 sm:px-6 lg:px-8 lg:pb-5"
@@ -107,7 +282,7 @@
               class="flex flex-col gap-6 rounded-2xl border border-warning/20 bg-base-200 px-5 py-5 shadow-xl sm:px-8"
               :class="
                 layout === 'top'
-                  ? 'md:grid md:grid-cols-[minmax(0,7fr)_minmax(18rem,5fr)] md:items-start md:gap-10'
+                  ? 'md:grid md:items-start md:gap-6 xl:grid-cols-[minmax(0,7fr)_minmax(22rem,5fr)] xl:gap-10'
                   : 'md:min-w-0 md:flex-1 md:justify-center'
               "
             >
@@ -260,28 +435,13 @@
                     The foe circles and prepares to strike. Choose your
                     approach.
                   </p>
-                  <div class="mt-4 grid gap-2 sm:grid-cols-2">
-                    <button
-                      v-for="(move, index) in moves"
-                      :key="move.action"
-                      type="button"
-                      :aria-keyshortcuts="String(index + 1)"
-                      class="zuzu-move group rounded-xl border border-base-content/20 bg-base-100 p-3 text-left transition hover:border-warning hover:bg-base-200 focus-visible:outline focus-visible:outline-2 focus-visible:outline-warning"
-                      :disabled="
-                        move.action === 'quiet-draw' && store.run.resolve < 2
-                      "
-                      @click="store.battle(move.action)"
-                    >
-                      <strong class="block text-base"
-                        ><span class="mr-2 font-serif text-warning">{{
-                          index + 1
-                        }}</span
-                        >{{ move.label }}</strong
-                      ><span class="mt-1 block text-xs opacity-65">{{
-                        move.help
-                      }}</span>
-                    </button>
-                  </div>
+                  <KrChoiceHand
+                    class="zuzu-hand mt-2"
+                    :choices="moveCards"
+                    :deal-key="'battle:' + store.run.sceneId"
+                    testid-prefix="zuzu-move"
+                    @play="playMove"
+                  />
                 </div>
                 <template v-else-if="current.ending">
                   <div
@@ -313,44 +473,22 @@
                     </button>
                   </div>
                 </template>
-                <section v-else aria-label="Story choices">
-                  <h3
-                    class="mb-3 text-xs font-black uppercase tracking-[.26em] opacity-65"
-                  >
-                    What will Zuzu do?
-                  </h3>
-                  <div class="grid gap-2">
-                    <button
-                      v-for="(choice, index) in choices"
-                      :key="choice.id"
-                      type="button"
-                      :disabled="!!lockReason(store.run, choice)"
-                      :aria-keyshortcuts="
-                        index < 9 ? String(index + 1) : undefined
-                      "
-                      class="zuzu-choice group flex min-h-12 items-center gap-4 rounded-xl border border-base-content/20 bg-base-100 px-4 py-2.5 text-left transition hover:border-warning hover:bg-base-300 focus-visible:outline focus-visible:outline-2 focus-visible:outline-warning disabled:cursor-not-allowed disabled:opacity-45"
-                      @click="store.choose(choice.id)"
-                    >
-                      <span
-                        class="grid size-9 shrink-0 place-items-center rounded-lg border border-warning/50 font-serif font-bold text-warning"
-                        >{{ index + 1 }}</span
-                      >
-                      <span class="flex-1"
-                        ><span class="block font-semibold leading-snug">{{
-                          choice.label
-                        }}</span
-                        ><span
-                          v-if="lockReason(store.run, choice)"
-                          class="mt-1 block text-xs opacity-75"
-                          >{{ lockReason(store.run, choice) }}</span
-                        ></span
-                      >
-                      <icon
-                        name="kind-icon:arrow-right"
-                        class="size-4 shrink-0 opacity-35 group-hover:opacity-100"
-                      />
-                    </button>
-                  </div>
+                <section
+                  v-else
+                  aria-label="Story choices"
+                  class="zuzu-hand flex flex-col gap-1"
+                >
+                  <KrChoiceHand
+                    v-for="(row, rowIndex) in choiceRows"
+                    :key="rowIndex"
+                    :choices="row"
+                    :question="rowIndex ? '' : 'What will Zuzu do?'"
+                    :deal-key="
+                      store.run.visited.length + ':' + store.run.sceneId
+                    "
+                    testid-prefix="zuzu-choice"
+                    @play="playChoice"
+                  />
                 </section>
               </div>
             </div>
@@ -493,10 +631,13 @@ import {
 } from '~/utils/zuzuGamebook/art'
 import { journal } from '~/utils/zuzuGamebook/journal'
 import { emphasis } from '~/utils/zuzuGamebook/prose'
+import type { Attribute, Choice } from '~/utils/zuzuGamebook/types'
 import { useZuzuGamebookStore } from '~/stores/zuzuGamebookStore'
+import type { KrHandChoice } from '~/components/narrative/kr-choice-hand.vue'
 
 const store = useZuzuGamebookStore()
 const showSheet = ref(false)
+const ledgerOpen = ref(false)
 const current = computed(() => scene(store.run.sceneId))
 const art = computed(() => sectionPlate(current.value))
 const shape = computed(() => art.value.shape ?? 'wide')
@@ -546,28 +687,124 @@ const frameClass = computed(() => {
 const prose = computed(() => emphasis(current.value.text))
 const choices = computed(() => visibleChoices(store.run, current.value))
 const notes = computed(() => journal(store.run.flags))
-const moves: { action: BattleAction; label: string; help: string }[] = [
+const rememberedScenes = computed(() => [...new Set(store.run.visited)])
+const recentTrail = computed(() =>
+  rememberedScenes.value
+    .slice(-12)
+    .reverse()
+    .map((id) => {
+      const entry = scene(id)
+      return { id, title: entry.title, art: platePath(sectionPlate(entry)) }
+    }),
+)
+const moves: {
+  action: BattleAction
+  icon: string
+  label: string
+  cost: string
+  help: string
+}[] = [
   {
     action: 'strike',
-    label: '⚔ Strike',
-    help: 'Steel check · 3 damage on a hit',
+    icon: '⚔',
+    label: 'Strike',
+    cost: 'Steel check',
+    help: '3 damage on a hit',
   },
   {
     action: 'guard',
-    label: '◈ Guard',
-    help: 'Sense check · block and expose foe for a counter',
+    icon: '◈',
+    label: 'Guard',
+    cost: 'Sense check',
+    help: 'Block and expose foe for a counter',
   },
   {
     action: 'feint',
-    label: '↝ Feint',
-    help: 'Shadow check · expose defenses, 3 damage, blunt retaliation',
+    icon: '↝',
+    label: 'Feint',
+    cost: 'Shadow check',
+    help: 'Expose defenses, 3 damage, blunt retaliation',
   },
   {
     action: 'quiet-draw',
-    label: '✦ Quiet Draw',
-    help: '2 Resolve · 5 damage on a hit',
+    icon: '✦',
+    label: 'Quiet Draw',
+    cost: '2 Resolve',
+    help: '5 damage on a hit',
   },
 ]
+const moveCards = computed<KrHandChoice[]>(() =>
+  moves.map((move, index) => ({
+    id: move.action,
+    label: move.label,
+    chip: move.cost,
+    shortcut: String(index + 1),
+    hint: move.help,
+    icon: move.icon,
+    disabled: move.action === 'quiet-draw' && store.run.resolve < 2,
+  })),
+)
+function playMove(card: KrHandChoice) {
+  const move = moves.find((entry) => entry.action === card.id)
+  if (move && moveCards.value.includes(card)) store.battle(move.action)
+}
+
+const ATTRIBUTE_ICON: Record<Attribute, string> = {
+  steel: '⚔',
+  sense: '◈',
+  shadow: '↝',
+  mercy: '✿',
+}
+// The card shows where the choice leads: a check shows the road it hopes for.
+/** The plate of where a choice leads, unless it's the plate already on
+ *  stage; the hand keeps any plate to a single card. */
+function destinationPlate(choice: Choice): string | null {
+  try {
+    const plate = platePath(
+      sectionPlate(scene(choice.check?.success ?? choice.to)),
+    )
+    return plate === platePath(art.value) ? null : plate
+  } catch {
+    return null
+  }
+}
+function splitRules(label: string): { title: string; note?: string } {
+  const match = /^(.+?)\s*\(([^()]+)\)\s*$/.exec(label)
+  return match?.[1] ? { title: match[1], note: match[2] } : { title: label }
+}
+const handChoices = computed<KrHandChoice[]>(() =>
+  choices.value.map((choice, index) => {
+    const { title, note } = splitRules(choice.label)
+    const check = choice.check
+    const locked = lockReason(store.run, choice)
+    return {
+      id: choice.id,
+      label: title,
+      chip: note || undefined,
+      shortcut: index < 9 ? String(index + 1) : undefined,
+      hint: locked ?? undefined,
+      details: check
+        ? [`Roll 2d6 + ${check.attribute} against ${check.target}`]
+        : undefined,
+      disabled: !!locked,
+      image: destinationPlate(choice),
+      icon: check ? ATTRIBUTE_ICON[check.attribute] : '◆',
+    }
+  }),
+)
+// Long lists deal as two short rows so every card keeps a readable width.
+const choiceRows = computed(() => {
+  const cards = handChoices.value
+  const perRow = shortWide.value ? 6 : 4
+  if (cards.length <= perRow) return [cards]
+  const size = Math.ceil(cards.length / Math.ceil(cards.length / perRow))
+  return Array.from({ length: Math.ceil(cards.length / size) }, (_, row) =>
+    cards.slice(row * size, row * size + size),
+  )
+})
+function playChoice(card: KrHandChoice) {
+  if (handChoices.value.includes(card)) store.choose(card.id)
+}
 function restart() {
   if (
     window.confirm(
@@ -595,6 +832,10 @@ watch(
   },
 )
 function onKey(event: KeyboardEvent) {
+  if (ledgerOpen.value) {
+    if (event.key === 'Escape') ledgerOpen.value = false
+    return
+  }
   if (
     event.ctrlKey ||
     event.metaKey ||
@@ -679,6 +920,19 @@ useHead({ title: 'Zuzu: Koala Assassin · The Bell That Never Rang' })
   }
 }
 
+.zuzu-hand {
+  --hand-accent: var(--color-warning);
+  --hand-accent-2: color-mix(in oklab, var(--color-warning) 45%, #9a3412);
+  --hand-band: #0c0a09;
+  --hand-band-ink: #f5ead2;
+  --hand-card-max: 8.5rem;
+  --hand-text-scale: 1.1;
+}
+.zuzu-hand :deep(.krh-title strong),
+.zuzu-hand :deep(.krh-detail strong) {
+  font-family: ui-serif, Georgia, serif;
+}
+
 /* Wide but short (a landscape tablet): the plate sits right and the text
    steps down a size so the choices stay in view (Silas, 2026-10-16). */
 article[data-short-wide] > figure {
@@ -693,23 +947,14 @@ article[data-short-wide] .zuzu-battle > * + * {
   margin-top: 0.5rem;
 }
 
-article[data-short-wide] .zuzu-move {
-  padding: 0.5rem 0.75rem;
+article[data-short-wide] .zuzu-hand {
+  --hand-card-max: 7rem;
 }
 
 article[data-short-wide] .zuzu-prose {
   margin-top: 0.5rem;
   font-size: 1rem;
   line-height: 1.5;
-}
-
-article[data-short-wide] .zuzu-choice + .zuzu-choice {
-  margin-top: -0.125rem;
-}
-
-article[data-short-wide] .zuzu-choice {
-  min-height: 2.25rem;
-  padding-block: 0.25rem;
 }
 
 article[data-short-wide] > div {

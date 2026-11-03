@@ -45,44 +45,9 @@
           </h2>
         </header>
 
-        <template v-if="!pending">
-          <p class="text-sm leading-relaxed sm:text-base">
-            {{ encounter.text }}
-          </p>
-          <ul class="grid gap-2">
-            <li v-for="choice in encounter.choices" :key="choice.id">
-              <button
-                type="button"
-                class="cs-choice w-full text-left"
-                :disabled="!!lockReason(run, choice)"
-                :data-testid="`cs-choice-${choice.id}`"
-                @click="store.choose(choice.id)"
-              >
-                <span class="block font-semibold leading-snug">{{
-                  choice.label
-                }}</span>
-                <span
-                  class="mt-1 flex flex-wrap items-center gap-1 cs-label uppercase tracking-wider opacity-85"
-                >
-                  <span class="cs-pill">{{ SKILL_LABELS[choice.skill] }}</span>
-                  <span class="cs-pill">{{ difficulty(choice.target) }}</span>
-                  <span class="cs-pill cs-pill-odds">{{ odds(choice) }}%</span>
-                  <span
-                    v-if="bonusLabel(choice)"
-                    class="cs-pill"
-                    :class="bonusActive(choice) ? 'cs-pill-good' : 'opacity-60'"
-                    >{{ bonusLabel(choice) }}</span
-                  >
-                  <span
-                    v-if="lockReason(run, choice)"
-                    class="cs-pill cs-pill-bad"
-                    >{{ lockReason(run, choice) }}</span
-                  >
-                </span>
-              </button>
-            </li>
-          </ul>
-        </template>
+        <p v-if="!pending" class="text-sm leading-relaxed sm:text-base">
+          {{ encounter.text }}
+        </p>
 
         <template v-else-if="outcome">
           <p
@@ -133,6 +98,25 @@
           </div>
         </template>
       </div>
+      <div v-if="!pending" class="cs-hand shrink-0 pt-2">
+        <KrChoiceHand
+          :choices="hand"
+          :deal-key="`${encounter.id}:${run.log.length}`"
+          testid-prefix="cs-choice"
+          @play="(picked) => store.choose(picked.id)"
+        >
+          <template #art="{ src, markFailed }">
+            <img
+              v-if="src"
+              :src="src"
+              alt=""
+              loading="lazy"
+              class="h-full w-full object-cover"
+              @error="markFailed(src)"
+            />
+          </template>
+        </KrChoiceHand>
+      </div>
     </div>
   </section>
 </template>
@@ -157,10 +141,39 @@ import {
   standingShift,
 } from '~/utils/crystalStreet/rules'
 import type { Choice, Faction } from '~/utils/crystalStreet/types'
+import type { KrHandChoice } from '~/components/narrative/kr-choice-hand.vue'
 
 const store = useCrystalStreetStore()
 const run = computed(() => store.run!)
 const encounter = computed(() => store.encounter)
+const INTENT_ICONS: Record<Choice['intent'], string> = {
+  brave: '🔥',
+  clever: '💡',
+  kind: '💗',
+  camp: '🎭',
+  sneaky: '🕶️',
+  reckless: '💥',
+}
+const hand = computed<KrHandChoice[]>(() =>
+  (encounter.value?.choices ?? []).map((choice) => {
+    const lock = lockReason(run.value, choice)
+    const bonus = bonusLabel(choice)
+    const active = bonusActive(choice)
+    return {
+      id: choice.id,
+      label: choice.label,
+      chip: `${SKILL_LABELS[choice.skill]} · ${odds(choice)}%`,
+      hint: lock || (active ? bonus : undefined),
+      disabled: !!lock,
+      image: `/crystal-street/outcomes/${encounter.value!.id}--${choice.id}-success.webp`,
+      icon: INTENT_ICONS[choice.intent],
+      details: [
+        difficulty(choice.target),
+        bonus && !active ? `${bonus} (not yet)` : '',
+      ].filter(Boolean),
+    }
+  }),
+)
 const pending = computed(() => store.run?.pending ?? null)
 const outcome = computed(() => store.outcome)
 const chosen = computed(() =>
@@ -258,3 +271,20 @@ function bonusLabel(choice: Choice): string {
   return `Something you learned +${b.amount}`
 }
 </script>
+
+<style scoped>
+.cs-hand {
+  --hand-accent: var(--color-secondary);
+  --hand-accent-2: var(--color-primary);
+  --hand-band: var(--color-base-200);
+  --hand-band-ink: var(--color-base-content);
+}
+@container (max-width: 40rem) {
+  .cs-hand {
+    --hand-card-max: 5.75rem;
+  }
+}
+.cs-hand :deep(.krh-card:focus-visible) {
+  outline: none;
+}
+</style>

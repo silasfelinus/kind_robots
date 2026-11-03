@@ -333,7 +333,7 @@
       <div
         v-else-if="tab === 'road' && game.run"
         ref="playScroll"
-        class="h-full overflow-y-auto overscroll-contain @4xl:overflow-hidden"
+        class="h-full overflow-y-auto overscroll-contain @4xl:overflow-clip"
       >
         <div class="relative min-h-full @4xl:h-full">
           <div
@@ -418,6 +418,7 @@
             class="relative grid min-h-full grid-cols-1 content-start gap-4 p-4 pt-[calc(clamp(13rem,32vh,22rem)+1.25rem)] @xl:p-6 @xl:pt-[calc(clamp(13rem,32vh,22rem)+1.5rem)] @4xl:h-full @4xl:grid-cols-[minmax(0,55%)_minmax(0,45%)] @4xl:grid-rows-[minmax(0,1fr)_auto] @4xl:gap-0 @4xl:p-0"
           >
             <div
+              ref="storyColumn"
               class="flex min-h-0 flex-col gap-3 bg-[#09141c] @4xl:col-start-1 @4xl:row-start-1 @4xl:overflow-y-auto @4xl:overscroll-contain @4xl:px-7 @4xl:pt-6"
             >
               <div class="flex flex-col justify-start gap-2 @4xl:shrink-0">
@@ -455,7 +456,7 @@
               </div>
 
               <div
-                class="eco-panel flex min-h-0 flex-col gap-3 @4xl:flex-1 @4xl:overflow-hidden"
+                class="eco-panel flex shrink-0 flex-col gap-3"
                 aria-live="polite"
               >
                 <template v-if="pending">
@@ -529,7 +530,7 @@
                       }}
                     </span>
                   </div>
-                  <div class="max-h-full min-h-0 flex-1 overflow-y-auto">
+                  <div>
                     <p
                       class="eco-story-copy whitespace-pre-line font-serif leading-relaxed"
                     >
@@ -563,9 +564,7 @@
                     future · {{ leadName(game.ending.lead) }} ·
                     {{ lensLabel(game.ending.lens) }}
                   </p>
-                  <div
-                    class="flex max-h-full min-h-0 flex-1 flex-col gap-3 overflow-y-auto"
-                  >
+                  <div class="flex flex-col gap-3">
                     <p
                       v-if="signature"
                       class="font-serif text-base italic text-[#f3e6c8]/80"
@@ -725,9 +724,7 @@
 
                 <template v-else>
                   <p class="eco-label">{{ stage.panelKicker }}</p>
-                  <div
-                    class="flex max-h-full min-h-12 flex-1 flex-col gap-3 overflow-y-auto"
-                  >
+                  <div class="flex min-h-12 flex-col gap-3">
                     <figure
                       v-if="stage.message"
                       class="ecotone-message self-start rounded-2xl border p-3 text-sm"
@@ -788,7 +785,8 @@
             </div>
 
             <div
-              class="eco-choices flex min-h-0 flex-col gap-3 self-start rounded-xl bg-[#09141c] @4xl:col-start-1 @4xl:row-start-2 @4xl:max-h-[42vh] @4xl:overflow-y-auto @4xl:overscroll-contain @4xl:px-7 @4xl:pb-5 @4xl:pt-3"
+              class="eco-choices relative z-10 flex min-h-0 flex-col gap-3 rounded-xl bg-[#09141c] @4xl:col-start-1 @4xl:row-start-2 @4xl:px-7 @4xl:pb-4 @4xl:pt-2"
+              :class="{ 'is-hand': showsHand }"
             >
               <button
                 v-if="game.canUndo"
@@ -853,7 +851,6 @@
                     </button>
                   </div>
                 </details>
-                <p class="eco-label px-1">{{ stage.question }}</p>
                 <label
                   v-if="options.some((option) => option.perkEligible)"
                   class="flex items-center gap-2 rounded-lg border border-[#d9b877]/50 bg-black/35 px-3 py-2 text-xs text-[#f3e6c8]"
@@ -865,68 +862,24 @@
                   />
                   Use my origin perk on an eligible choice (once this chapter)
                 </label>
-                <div
-                  class="flex max-h-full min-h-0 flex-col gap-2 overflow-y-auto"
+                <button
+                  v-if="hasHiddenText"
+                  type="button"
+                  class="rounded-lg border border-[#8fb8b0]/50 bg-[#09141c] px-3 py-2 text-base font-bold"
+                  @click="revealAll"
                 >
-                  <button
-                    v-for="(option, index) in options"
-                    :key="option.id"
-                    type="button"
-                    class="eco-choice group"
-                    :class="index === 0 && !option.disabled ? 'is-lead' : ''"
-                    :disabled="option.disabled"
-                    :title="option.chipTitle"
-                    @click="queueDecision(option)"
-                  >
-                    <span
-                      v-if="option.thumb"
-                      class="relative h-11 w-16 shrink-0 overflow-hidden rounded-md"
-                    >
-                      <EcotoneScene
-                        :kind="option.thumb.scene"
-                        :art="option.thumb.art"
-                        :label="option.label"
-                        class="absolute inset-0"
-                      />
-                    </span>
-                    <span class="min-w-0 flex-1">
-                      <span
-                        class="eco-choice-main block font-bold leading-snug"
-                        >{{ option.label }}</span
-                      >
-                      <span
-                        v-if="option.chip || option.hint"
-                        class="mt-1 block text-sm leading-snug text-[#f3e6c8]/75 @4xl:text-base"
-                        >{{
-                          [
-                            option.chip,
-                            option.perkEligible ? 'Origin perk available' : '',
-                            option.hint,
-                          ]
-                            .filter(Boolean)
-                            .join(' · ')
-                        }}</span
-                      >
-                      <span
-                        v-if="option.preview"
-                        class="mt-1 block text-sm leading-snug text-[#8fb8b0]"
-                        >{{ option.preview }}</span
-                      >
-                      <span
-                        v-if="option.possibilities"
-                        class="mt-1 block text-xs leading-snug text-[#f3e6c8]/65"
-                        >{{ option.possibilities }}</span
-                      >
-                    </span>
-                    <Icon
-                      name="kind-icon:chevron-right"
-                      class="size-4 shrink-0 text-[#d9b877] transition group-hover:translate-x-0.5"
-                    />
-                  </button>
-                </div>
+                  Show full text
+                </button>
+                <EcotoneChoiceHand
+                  :options="options"
+                  :question="stage.question"
+                  :deal-key="handKey"
+                  :art-style="artStyle"
+                  @play="(picked) => playChoice(picked.id)"
+                />
               </template>
               <button
-                v-if="hasHiddenText"
+                v-if="hasHiddenText && !showsHand"
                 type="button"
                 class="rounded-lg border border-[#8fb8b0]/50 bg-[#09141c] px-3 py-2 text-base font-bold"
                 @click="revealAll"
@@ -1965,7 +1918,11 @@ import {
   styleHasRender,
   type EcotoneArtStyle,
 } from '~/utils/ecotone/artStyles'
-import { cardArtKey, endingArtKey } from '~/utils/ecotone/artSlots'
+import {
+  cardArtKey,
+  endingArtKey,
+  outcomeArtKey,
+} from '~/utils/ecotone/artSlots'
 import {
   contextualOpeningChoices,
   contextualOfferLine,
@@ -2250,12 +2207,29 @@ const pending = computed(() => game.run?.pending?.entry ?? null)
 // Each new beat starts at the top of the stage (the Continue focus may
 // have scrolled it on a phone).
 const playScroll = ref<HTMLElement | null>(null)
+// On wide screens the story column scrolls on its own, so reset it too.
+const storyColumn = ref<HTMLElement | null>(null)
 watch(
   () =>
     pending.value ? null : `${game.run?.phase}:${game.run?.log.length ?? 0}`,
   (key) => {
-    if (key) playScroll.value?.scrollTo({ top: 0 })
+    if (!key) return
+    playScroll.value?.scrollTo({ top: 0 })
+    storyColumn.value?.scrollTo({ top: 0 })
   },
+)
+
+const showsHand = computed(
+  () =>
+    Boolean(game.run) &&
+    !pending.value &&
+    !(game.run?.phase === 'end' && game.ending),
+)
+
+/** A fresh key per offered hand, so each new set of choices deals in. */
+const handKey = computed(
+  () =>
+    `${game.run?.phase ?? ''}:${game.run?.card ?? ''}:${game.run?.log.length ?? 0}`,
 )
 
 watch(pending, async (value) => {
@@ -2727,13 +2701,43 @@ type Option = {
   possibilities?: string
   disabled?: boolean
   perkEligible?: boolean
-  thumb?: { scene: SceneKind; art?: string | string[] }
+  thumb?: {
+    scene: SceneKind
+    art?: string | string[]
+    /** False when the drawn scene is the stage's own, already on screen. */
+    sceneFallback?: boolean
+  }
+  icon?: string
   act: () => void
+}
+
+const LENS_ICONS: Record<string, string> = {
+  sober: '💧',
+  tipsy: '🍷',
+  stoned: '🌿',
+  tripping_balls: '🍄',
+  cocaine: '⚡',
+  meth: '🌙',
+  mdma: '💗',
 }
 
 function queueDecision(option: Option) {
   if (option.disabled) return
   option.act()
+}
+
+/** Crossroads cards show who you would be walking with. */
+function crossroadsThumb(...art: (string | undefined)[]) {
+  const keys = art.filter((key): key is string => Boolean(key))
+  return {
+    scene: (eventInfo.value?.scene ?? 'dunes') as SceneKind,
+    art: keys.length ? keys : undefined,
+  }
+}
+
+function playChoice(id: string) {
+  const option = options.value.find((o) => o.id === id)
+  if (option) queueDecision(option)
 }
 
 const options = computed<Option[]>(() => {
@@ -2773,6 +2777,7 @@ const options = computed<Option[]>(() => {
         id: 'stay',
         label: game.lead ? `Stay with ${game.lead.name}` : 'Keep going alone',
         hint: `${n.name} goes their own way, and remembers you.`,
+        thumb: crossroadsThumb(game.lead?.art),
         act: () => game.crossroads(false),
       },
       {
@@ -2781,6 +2786,7 @@ const options = computed<Option[]>(() => {
         hint: game.lead
           ? `${game.lead.name} carries on alone. ${n.name} helps with ${skillLabel(LEAD_BONUS[n.id])} checks.`
           : `${n.name} helps with ${skillLabel(LEAD_BONUS[n.id])} checks.`,
+        thumb: crossroadsThumb(n.art),
         act: () => game.crossroads('follow'),
       },
       ...(game.lead
@@ -2789,6 +2795,7 @@ const options = computed<Option[]>(() => {
               id: 'together',
               label: `Invite ${n.name} to travel with us`,
               hint: `Keep ${game.lead.name} and welcome ${n.name}. Both contribute their strengths, but no roll gets stacked bonuses.`,
+              thumb: crossroadsThumb(n.art, game.lead.art),
               act: () => game.crossroads('together'),
             },
           ]
@@ -2797,6 +2804,18 @@ const options = computed<Option[]>(() => {
   }
   const card = game.card
   if (run.phase === 'beat' && card) {
+    // Each card shows what the choice leads to: its outcome picture, then
+    // the beat's own art, then the drawn scene.
+    // Each card shows where its own choice leads (its outcome, or the person
+    // it meets), never the beat's shared painting, which is already the stage.
+    const thumbFor = (choiceId: string, portrait?: string) => ({
+      scene: card.scene,
+      art: [
+        outcomeArtKey(card.id, choiceId, 'success'),
+        ...(portrait ? [portrait] : []),
+      ],
+      sceneFallback: false,
+    })
     return contextualOpeningChoices(card, run).map((choice) => {
       const lens = choice.lens
         ? LENSES.find((l) => l.id === choice.lens)
@@ -2808,6 +2827,7 @@ const options = computed<Option[]>(() => {
           hint: 'This road is still being written.',
           chip: choice.locked,
           disabled: true,
+          icon: '🔒',
           act: () => undefined,
         }
       const establishesPerspective = Boolean(choice.lens && !run.openingState)
@@ -2843,6 +2863,12 @@ const options = computed<Option[]>(() => {
         chip: chip.chip,
         chipTitle: chip.title,
         perkEligible: originPerkAvailable(run, choice.id),
+        thumb: thumbFor(
+          choice.id,
+          prospect?.art ??
+            (choice.meet === true ? game.prospect?.art : undefined),
+        ),
+        icon: LENS_ICONS[choice.lens ?? ''] ?? (choice.wild ? '🐾' : '✦'),
         act: () => {
           game.choose(choice.id, perkSelected.value)
           perkSelected.value = false
@@ -2991,6 +3017,16 @@ function endingsFor(id: EndingLine) {
   padding: 1rem;
   box-shadow: 0 18px 40px rgb(0 0 0 / 0.45);
   backdrop-filter: blur(6px);
+}
+@container (min-width: 64rem) {
+  .eco-choices.is-hand {
+    border-color: transparent;
+    border-radius: 0;
+    background: linear-gradient(transparent, #09141c 2.5rem);
+    box-shadow: none;
+    backdrop-filter: none;
+    padding-bottom: 0;
+  }
 }
 .eco-choice {
   position: relative;

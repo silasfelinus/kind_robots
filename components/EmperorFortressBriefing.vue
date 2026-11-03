@@ -41,23 +41,14 @@
           {{ chance.title }}
         </h3>
         <p class="eod-reading mt-2">{{ chance.text }}</p>
-        <div class="mt-3 grid gap-2">
-          <button
-            v-for="choice in chance.choices"
-            :key="choice.id"
-            type="button"
-            class="eod-choice-reading rounded-md border border-warning/40 bg-base-100/75 px-3 py-3 text-left transition-colors hover:border-warning hover:bg-warning/10 disabled:opacity-50"
-            :disabled="acting || (choice.requires?.cost ?? 0) > run.brass"
-            @click="pickChance(choice.id)"
-          >
-            <strong class="block">{{ choice.label }}</strong>
-            <span
-              class="mt-1 block text-sm font-sans not-italic text-warning opacity-85"
-            >
-              {{ costLine(choice) }}
-            </span>
-          </button>
-        </div>
+        <KrChoiceHand
+          class="eod-hand mt-2"
+          :choices="chanceCards"
+          question="Your answer"
+          :deal-key="chance.id"
+          testid-prefix="eod-chance"
+          @play="(choice) => pickChance(choice.id)"
+        />
         <p v-if="chanceError" class="mt-2 text-sm text-error" role="alert">
           {{ chanceError }}
         </p>
@@ -251,6 +242,7 @@ import type {
   Briefing,
   FortressRun,
 } from '~/utils/emperorOfDust/fortress/types'
+import type { KrHandChoice } from '~/components/narrative/kr-choice-hand.vue'
 
 // The day opens here: the advisor's three dispatches, before court sits.
 const props = defineProps<{ run: FortressRun }>()
@@ -283,6 +275,24 @@ const costLine = (choice: ChanceEventChoice): string => {
       .join(' · ') || 'A story to remember'
   )
 }
+const chanceCards = computed<KrHandChoice[]>(() =>
+  (chance.value?.choices ?? []).map((choice) => {
+    const cost = choice.requires?.cost ?? 0
+    const net = (choice.effects.brass ?? 0) - cost
+    const recruit = choice.effects.recruitable?.[0]
+    return {
+      id: choice.id,
+      label: choice.label,
+      chip: cost
+        ? `Costs ${cost} brass${cost > props.run.brass ? ` · you have ${props.run.brass}` : ''}`
+        : undefined,
+      hint: costLine(choice),
+      disabled: acting.value || cost > props.run.brass,
+      image: recruit ? illustration('followers', recruit) : undefined,
+      icon: recruit ? '☗' : net > 0 ? '◎' : net < 0 ? '⚖' : '✦',
+    }
+  }),
+)
 function pickChance(choiceId: string) {
   const offered = chance.value
   if (!offered || acting.value) return

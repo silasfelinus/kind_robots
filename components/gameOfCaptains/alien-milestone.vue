@@ -43,21 +43,13 @@
         <template v-if="incident">
           <p class="text-lg">{{ incident.scene }}</p>
           <p class="my-3 text-base opacity-85">{{ incident.complication }}</p>
-          <p class="mb-3 text-xs uppercase tracking-widest opacity-70">
-            Three entirely reasonable options
-          </p>
-          <div class="grid gap-2">
-            <button
-              v-for="option in incident.options"
-              :key="option.id"
-              type="button"
-              class="rounded-xl border border-base-content/20 bg-base-100 p-3 text-left font-semibold transition hover:border-secondary hover:bg-secondary/15 focus-visible:outline focus-visible:outline-primary"
-              :data-testid="'space-couch-collector-option-' + option.id"
-              @click="$emit('choose', option.id)"
-            >
-              {{ option.label }}
-            </button>
-          </div>
+          <SpaceCouchChoiceHand
+            :choices="choices"
+            question="Three entirely reasonable options"
+            :deal-key="String(incident.at)"
+            testid-prefix="space-couch-collector-option"
+            @play="(choice) => emit('choose', choice.id as CollectorChoice)"
+          />
         </template>
         <template v-else-if="report">
           <p class="text-xs uppercase tracking-widest opacity-70">
@@ -90,6 +82,7 @@ import type {
   CollectorChoice,
   CollectorEnding,
 } from '~/utils/gameOfCaptains/alienMilestones'
+import type { KrHandChoice } from '~/components/narrative/kr-choice-hand.vue'
 
 const props = defineProps<{
   incident: CollectorIncident | null
@@ -111,5 +104,13 @@ watch(
     imageBroken.value = false
   },
 )
-defineEmits<{ choose: [choice: CollectorChoice]; close: [] }>()
+const COLLECTOR_ICONS: Record<string, string> = { a: '🛸', b: '🤝', c: '📜' }
+const choices = computed<KrHandChoice[]>(() =>
+  (props.incident?.options ?? []).map((option) => ({
+    id: option.id,
+    label: option.label,
+    icon: COLLECTOR_ICONS[option.id] ?? '✳',
+  })),
+)
+const emit = defineEmits<{ choose: [choice: CollectorChoice]; close: [] }>()
 </script>

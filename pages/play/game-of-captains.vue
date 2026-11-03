@@ -488,17 +488,6 @@
                 </button>
               </template>
               <template v-else-if="selectionScreen === 'captain'">
-                <div class="cap-heading">
-                  <span>01</span>
-                  <div>
-                    <h2>Claim your cushion</h2>
-                    <p>
-                      Select the captain who is about to acquire a questionable
-                      background. The couch runs on personalities as much as
-                      fuel.
-                    </p>
-                  </div>
-                </div>
                 <div class="cap-captains">
                   <button
                     v-for="captain in CAPTAINS"
@@ -554,30 +543,6 @@
                     <div v-else class="cap-personnel-hero-fallback">
                       <strong>{{ activeCaptain.name.slice(0, 1) }}</strong>
                     </div>
-                    <div
-                      class="cap-expression-tabs"
-                      role="group"
-                      aria-label="Captain portrait expressions"
-                    >
-                      <button
-                        v-for="expression in PORTRAIT_MOODS"
-                        :key="expression"
-                        type="button"
-                        :aria-pressed="captainMood === expression"
-                        :class="{ selected: captainMood === expression }"
-                        @click="captainMood = expression"
-                      >
-                        {{
-                          expression === 'neutral'
-                            ? 'NORMAL'
-                            : expression.toUpperCase()
-                        }}
-                      </button>
-                    </div>
-                    <figcaption>
-                      <span>YOUR CAPTAIN</span>
-                      <strong>{{ activeCaptain.name }}</strong>
-                    </figcaption>
                   </figure>
                   <div class="cap-dossier-header">
                     <img
@@ -796,30 +761,6 @@
                         crewProfile(focusedCrew).name.slice(0, 1)
                       }}</strong>
                     </div>
-                    <div
-                      class="cap-expression-tabs"
-                      role="group"
-                      aria-label="Crew portrait expressions"
-                    >
-                      <button
-                        v-for="expression in PORTRAIT_MOODS"
-                        :key="expression"
-                        type="button"
-                        :aria-pressed="crewMood === expression"
-                        :class="{ selected: crewMood === expression }"
-                        @click="crewMood = expression"
-                      >
-                        {{
-                          expression === 'neutral'
-                            ? 'NORMAL'
-                            : expression.toUpperCase()
-                        }}
-                      </button>
-                    </div>
-                    <figcaption>
-                      <span>OFFICER DOSSIER</span>
-                      <strong>{{ crewProfile(focusedCrew).name }}</strong>
-                    </figcaption>
                   </figure>
                   <div class="cap-dossier-header">
                     <img
@@ -1384,31 +1325,18 @@
                 class="cap-consequence-choices"
                 data-testid="space-couch-authored-consequence"
               >
-                <strong>THREE ORDERS · THREE DIFFERENT COSTS</strong>
                 <p>
                   Your captain and assigned crew attempt the strongest listed
                   skill. A seeded six-sided roll decides the outcome; setbacks
                   continue the story.
                 </p>
-                <button
-                  v-for="choice in featuredConsequence.choices"
-                  :key="choice.id"
-                  type="button"
-                  class="cap-option cap-consequence-choice"
-                  :data-consequence-choice="choice.id"
-                  @click="store.decideConsequence(choice.id)"
-                >
-                  <span>
-                    <b>{{ choice.label }}</b>
-                    <small>{{ choice.approach }}</small>
-                    <small
-                      >CHECK
-                      {{ choice.check.ability_any.join(' / ').toUpperCase() }} ·
-                      DIFFICULTY {{ choice.check.difficulty }}</small
-                    >
-                    <small>TRADEOFF: {{ choice.cost }}</small> </span
-                  >↗
-                </button>
+                <SpaceCouchChoiceHand
+                  :choices="consequenceHand"
+                  question="Three orders · three different costs"
+                  :deal-key="featuredConsequence.id"
+                  testid-prefix="space-couch-consequence-choice"
+                  @play="(choice) => store.decideConsequence(choice.id)"
+                />
               </section>
             </template>
             <template v-else>
@@ -1422,50 +1350,13 @@
                 <p>{{ run.report.text }}</p>
               </div>
               <p class="cap-alert">{{ nemesisLine }}</p>
-              <button
-                class="cap-option"
-                type="button"
-                @click="store.decide('aid')"
-              >
-                <span
-                  ><b>{{ ethicalOrders.aid }}</b
-                  ><small v-if="run.supplies > 0"
-                    >1 SUPPLY · +1 trust, +2 reputation. Help on their
-                    terms.</small
-                  ><small v-else
-                    >EMPTY HOLD · Give time and labor: +1 trust, no reputation
-                    bonus.</small
-                  ></span
-                >↗
-              </button>
-              <button
-                class="cap-option"
-                type="button"
-                @click="store.decide('observe')"
-              >
-                <span
-                  ><b>{{ ethicalOrders.observe }}</b
-                  ><small
-                    >Preserve legal standing. Others live with the
-                    result.</small
-                  ></span
-                >↗
-              </button>
-              <button
-                class="cap-option"
-                type="button"
-                @click="store.decide('intervene')"
-              >
-                <span
-                  ><b>{{ ethicalOrders.intervene }}</b
-                  ><small v-if="run.supplies >= 2"
-                    >2 SUPPLIES · -2 reputation. Act without permission.</small
-                  ><small v-else
-                    >SHORT BY {{ 2 - run.supplies }} · Extra reputational harm
-                    from the improvised intervention.</small
-                  ></span
-                >↗
-              </button>
+              <SpaceCouchChoiceHand
+                :choices="ethicalHand"
+                question="Your orders, captain"
+                :deal-key="`${run.chapter}:${mission.id}`"
+                testid-prefix="space-couch-ethical-order"
+                @play="(choice) => store.decide(choice.id as PolicyId)"
+              />
             </template>
           </template>
 
@@ -1611,20 +1502,39 @@
               >
                 <strong>{{ line.name }}:</strong> {{ line.line }}
               </p>
-              <button
-                v-for="choice in romanceScene.choices"
-                :key="choice.id"
-                class="cap-option"
-                type="button"
-                :data-romance-choice="choice.id"
-                @click="store.chooseRomance(choice.id)"
+              <SpaceCouchChoiceHand
+                :choices="romanceHand"
+                :deal-key="`${run.chapter}:${romanceScene.title}`"
+                testid-prefix="space-couch-romance-choice"
+                @play="
+                  (choice) => store.chooseRomance(choice.id as RomanceChoiceId)
+                "
               >
-                <span
-                  ><b>{{ choice.label }}</b
-                  ><small>{{ choice.cost }}</small></span
-                >
-                ↗
-              </button>
+                <template #art="{ choice, src, markFailed }">
+                  <img
+                    v-if="src"
+                    :src="src"
+                    alt=""
+                    class="cap-romance-card-face"
+                    @error="markFailed(src)"
+                  />
+                  <span
+                    v-else-if="
+                      choice.id.startsWith('invite-') &&
+                      romanceFaces(choice.id).length
+                    "
+                    class="cap-romance-card-faces"
+                    :data-faces="romanceFaces(choice.id).length"
+                  >
+                    <img
+                      v-for="url in romanceFaces(choice.id)"
+                      :key="url"
+                      :src="url"
+                      alt=""
+                    />
+                  </span>
+                </template>
+              </SpaceCouchChoiceHand>
             </section>
             <p
               v-else-if="romanceRecord?.lastChapter === run.chapter"
@@ -1922,6 +1832,8 @@ import {
   counterCrew,
   type CaptainId,
   type CrewId,
+  type PolicyId,
+  type VoyageRun,
 } from '~/utils/gameOfCaptains/rules'
 import {
   CAPTAIN_STATS,
@@ -1959,7 +1871,9 @@ import { portraitArt, voyageStageArt } from '~/utils/gameOfCaptains/artSlots'
 import {
   consequenceForRun,
   consequenceAftermath,
+  type ConsequenceChoice,
 } from '~/utils/gameOfCaptains/consequenceStories'
+import type { KrHandChoice } from '~/components/narrative/kr-choice-hand.vue'
 import {
   CAPTAIN_ORIGINS,
   type CaptainOriginId,
@@ -1985,8 +1899,10 @@ import {
 
 import {
   romanceMoment,
+  type RomanceChoiceId,
   type RomanceVoyage,
 } from '~/utils/gameOfCaptains/romance'
+import { romanceStory } from '~/utils/gameOfCaptains/romanceStories'
 
 const store = useGameOfCaptainsStore()
 const selectedCaptain = ref<CaptainId>('fluke')
@@ -2032,10 +1948,7 @@ const logEntries = computed(() => {
 })
 const starAssessment = ref<StarAssessment | null>(null)
 const focusedCrew = ref<CrewId>('pell')
-const PORTRAIT_MOODS = ['neutral', 'defiant', 'vulnerable'] as const
-type PortraitMood = (typeof PORTRAIT_MOODS)[number]
-const captainMood = ref<PortraitMood>('neutral')
-const crewMood = ref<PortraitMood>('neutral')
+type PortraitMood = 'neutral' | 'defiant' | 'vulnerable'
 const captainDossierTab = ref<'stats' | 'history' | 'orders'>('stats')
 const crewDossierTab = ref<'history' | 'route' | 'stats'>('history')
 const crewPage = ref(0)
@@ -2059,11 +1972,13 @@ function portraitForMood(key: string, mood: PortraitMood): string | null {
       : null) || portrait(key)
   )
 }
+// Selection dossiers show the neutral portrait only; mood variants are
+// reserved for the voyage, where they react to what happens to the crew.
 const captainDossierPortrait = computed(() =>
-  portraitForMood('captain-' + selectedCaptain.value, captainMood.value),
+  portrait('captain-' + selectedCaptain.value),
 )
 const crewDossierPortrait = computed(() =>
-  portraitForMood(crewProfile(focusedCrew.value).portraitKey, crewMood.value),
+  portrait(crewProfile(focusedCrew.value).portraitKey),
 )
 function crewVoyagePortrait(id: CrewId): string | null {
   const mood: PortraitMood = unavailable(id)
@@ -2184,6 +2099,90 @@ const featuredConsequence = computed(() =>
 )
 const latestConsequence = computed(() =>
   run.value ? consequenceAftermath(run.value) : null,
+)
+function consequenceLeadPortrait(choice: ConsequenceChoice): string | null {
+  const voyage = run.value
+  if (!voyage) return null
+  const best = (stats: Record<string, number>) =>
+    Math.max(...choice.check.ability_any.map((skill) => stats[skill] ?? 0))
+  let lead = 'captain-' + voyage.captain
+  let score = best(CAPTAIN_STATS[voyage.captain])
+  for (const id of voyage.away.length ? voyage.away : voyage.crew) {
+    const person = crewProfile(id)
+    if (best(person.stats) > score) {
+      lead = person.portraitKey
+      score = best(person.stats)
+    }
+  }
+  return portrait(lead)
+}
+const consequenceHand = computed<KrHandChoice[]>(() => {
+  const episode = featuredConsequence.value
+  if (!episode) return []
+  return episode.choices.map((choice) => ({
+    id: choice.id,
+    label: choice.label,
+    chip: `Check ${choice.check.ability_any.join(' / ')} · difficulty ${choice.check.difficulty}`,
+    hint: choice.approach,
+    details: [`Tradeoff: ${choice.cost}`],
+    image: [
+      paintedVoyageImage(`consequences/${episode.id}-${choice.id}-success`),
+      consequenceLeadPortrait(choice),
+    ],
+    icon: '✦',
+  }))
+})
+function ethicalOrderChoices(run: VoyageRun): KrHandChoice[] {
+  return [
+    {
+      id: 'aid',
+      label: ethicalOrders.value.aid,
+      chip: run.supplies > 0 ? '1 SUPPLY' : 'EMPTY HOLD',
+      hint:
+        run.supplies > 0
+          ? '+1 trust, +2 reputation. Help on their terms.'
+          : 'Give time and labor: +1 trust, no reputation bonus.',
+      icon: '🤝',
+    },
+    {
+      id: 'observe',
+      label: ethicalOrders.value.observe,
+      chip: 'NO SUPPLIES',
+      hint: 'Preserve legal standing. Others live with the result.',
+      icon: '🔭',
+    },
+    {
+      id: 'intervene',
+      label: ethicalOrders.value.intervene,
+      chip: run.supplies >= 2 ? '2 SUPPLIES' : `SHORT BY ${2 - run.supplies}`,
+      hint:
+        run.supplies >= 2
+          ? '-2 reputation. Act without permission.'
+          : 'Extra reputational harm from the improvised intervention.',
+      icon: '✊',
+    },
+  ]
+}
+const ethicalHand = computed(() =>
+  run.value ? ethicalOrderChoices(run.value) : [],
+)
+function romanceFaces(id: string): string[] {
+  const keys = id.startsWith('invite-')
+    ? (romanceStory(id.slice('invite-'.length))?.portraitKeys ?? [])
+    : (romanceScene.value?.portraits ?? [])
+  return keys
+    .slice(0, 4)
+    .map((key) => portrait(key))
+    .filter((url): url is string => Boolean(url))
+}
+const romanceHand = computed<KrHandChoice[]>(() =>
+  (romanceScene.value?.choices ?? []).map((choice) => ({
+    id: choice.id,
+    label: choice.label,
+    hint: choice.cost,
+    image: choice.id.startsWith('invite-') ? [] : romanceFaces(choice.id),
+    icon: '♡',
+  })),
 )
 const routeBoard = computed(() => (run.value ? missionBoard(run.value) : []))
 const circuit = computed(() => solarCircuit(run.value?.seed ?? 1))
@@ -3139,13 +3138,6 @@ function toggleAway(id: CrewId) {
   color: #d7e5eb;
   font-size: clamp(0.78rem, 1.15cqi, 0.95rem);
 }
-.cap-consequence-choice {
-  border-left: 0.3rem solid #efb981;
-}
-.cap-consequence-choice small {
-  display: block;
-  margin-top: 0.15rem;
-}
 .cap-consequence-receipt {
   border: 1px solid #f1c287;
   border-radius: 0.5rem;
@@ -3968,6 +3960,27 @@ function toggleAway(id: CrewId) {
 .cap-romance-line strong {
   color: #ffdab0;
 }
+.cap-romance-card-faces {
+  display: grid;
+  grid-auto-columns: minmax(0, 1fr);
+  grid-auto-rows: minmax(0, 1fr);
+  grid-auto-flow: column;
+  background: linear-gradient(160deg, #365266, #0e1b2d);
+}
+.cap-romance-card-faces[data-faces='3'],
+.cap-romance-card-faces[data-faces='4'] {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-auto-flow: row;
+}
+.cap-romance-card-faces[data-faces='3'] img:first-child {
+  grid-column: span 2;
+}
+.cap-romance-card-faces img {
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  object-fit: cover;
+}
 .cap-romance-outcome {
   border-left: 3px solid #efc49c;
   padding: 0.6rem 0.85rem;
@@ -4315,11 +4328,24 @@ function toggleAway(id: CrewId) {
 .cap-personnel-frame[data-screen='crew'] {
   grid-template-columns: minmax(0, 0.78fr) minmax(0, 1.22fr);
 }
+/* Captain screen has no heading row: the roster and dossier fill the frame. */
+.cap-personnel-frame[data-screen='captain'] {
+  grid-template-rows: minmax(0, 1fr) auto;
+}
+/* Dossier: portrait column on the left, name / stats / notes on the right. */
 .cap-personnel-frame .cap-personnel-dossier {
   display: grid;
-  grid-template-rows: minmax(0, 1.45fr) auto auto minmax(3.4rem, 0.32fr);
-  gap: clamp(0.2rem, 0.65cqh, 0.5rem);
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  grid-template-rows: auto auto minmax(0, 1fr);
+  gap: clamp(0.3rem, 0.8cqh, 0.6rem) clamp(0.4rem, 1cqi, 0.8rem);
   padding: clamp(0.3rem, 0.8cqi, 0.75rem);
+}
+.cap-personnel-frame .cap-personnel-dossier > .cap-personnel-hero {
+  grid-column: 1;
+  grid-row: 1 / -1;
+}
+.cap-personnel-frame .cap-personnel-dossier > :not(.cap-personnel-hero) {
+  grid-column: 2;
 }
 .cap-personnel-hero {
   position: relative;
@@ -4329,15 +4355,18 @@ function toggleAway(id: CrewId) {
   margin: 0;
   border: 1px solid #d6b88995;
   border-radius: 0.7rem;
-  background: #0e2135;
+  background: radial-gradient(ellipse at center, #1a3350, #08121f);
 }
 .cap-personnel-hero-image,
 .cap-personnel-hero-fallback {
   display: block;
   width: 100%;
   height: 100%;
-  object-fit: cover;
-  object-position: center 23%;
+}
+/* Show the whole painting: portraits are never cropped to fit the frame. */
+.cap-personnel-hero-image {
+  object-fit: contain;
+  object-position: center;
 }
 .cap-personnel-hero-fallback {
   display: grid;
@@ -4353,53 +4382,6 @@ function toggleAway(id: CrewId) {
   color: #ffdfa9d9;
   text-shadow: 0 5px 30px #000a;
 }
-.cap-expression-tabs {
-  position: absolute;
-  top: 0.45rem;
-  right: 0.45rem;
-  z-index: 2;
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: flex-end;
-  gap: 0.25rem;
-  max-width: 90%;
-}
-.cap-expression-tabs button {
-  min-height: 2rem;
-  padding: 0.35rem 0.45rem;
-  border: 1px solid #f2c59099;
-  border-radius: 0.3rem;
-  background: #0a1828ee;
-  color: #f4d7b7;
-  font-size: clamp(0.55rem, 0.85cqi, 0.72rem);
-  font-weight: 800;
-}
-.cap-expression-tabs button.selected {
-  background: #e7ac83;
-  color: #112039;
-}
-.cap-personnel-hero figcaption {
-  position: absolute;
-  inset: auto 0 0;
-  display: grid;
-  gap: 0.1rem;
-  padding: clamp(0.5rem, 1.3cqi, 1rem);
-  background: linear-gradient(0deg, #07101ff5, transparent);
-  text-shadow: 0 2px 8px #000c;
-}
-.cap-personnel-hero figcaption span {
-  color: #f6c792;
-  font-size: clamp(0.55rem, 0.88cqi, 0.75rem);
-  font-weight: 900;
-  letter-spacing: 0.17em;
-}
-.cap-personnel-hero figcaption strong {
-  color: #fff0dd;
-  font:
-    900 clamp(1rem, 2.65cqi, 2.3rem) Georgia,
-    serif;
-  line-height: 1;
-}
 .cap-personnel-frame .cap-dossier-header {
   min-height: 2rem;
 }
@@ -4409,24 +4391,32 @@ function toggleAway(id: CrewId) {
 }
 .cap-personnel-frame .cap-personnel-essential-stats {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 0.2rem;
   margin: 0;
 }
 .cap-personnel-frame .cap-personnel-essential-stats > div {
-  padding: clamp(0.15rem, 0.5cqi, 0.45rem);
-  border: 1px solid #7bb5bc62;
-  border-radius: 0.4rem;
-  text-align: center;
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.25rem;
+  min-width: 0;
+  padding: 0.2rem 0.4rem;
+  border: 1px solid #7bb5bc4a;
+  border-radius: 0.3rem;
   background: #0b1a2abf;
 }
 .cap-personnel-frame .cap-personnel-essential-stats small {
-  display: block;
-  font-size: clamp(0.5rem, 0.8cqi, 0.75rem);
+  overflow: hidden;
+  font-size: clamp(0.5rem, 0.7cqi, 0.62rem);
+  letter-spacing: 0.04em;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 .cap-personnel-frame .cap-personnel-essential-stats strong {
-  display: block;
-  font-size: clamp(0.95rem, 1.8cqi, 1.5rem);
+  margin: 0;
+  font-size: clamp(0.78rem, 1cqi, 0.95rem);
+  line-height: 1.2;
 }
 .cap-personnel-frame .cap-personnel-dossier .cap-insight {
   min-height: 0;
@@ -4448,10 +4438,22 @@ function toggleAway(id: CrewId) {
     grid-template-columns: minmax(0, 0.45fr) minmax(0, 0.55fr);
     grid-template-rows: auto minmax(0, 1fr) auto;
   }
+  .cap-personnel-frame[data-screen='captain'] {
+    grid-template-rows: minmax(0, 1fr) auto;
+  }
   .cap-personnel-frame .cap-personnel-dossier {
     grid-row: 2;
     grid-column: 2;
-    grid-template-rows: minmax(0, 1.35fr) auto auto minmax(3.6rem, 0.3fr);
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: minmax(0, 1.2fr) auto auto minmax(3.6rem, 0.6fr);
+  }
+  .cap-personnel-frame[data-screen='captain'] .cap-personnel-dossier {
+    grid-row: 1;
+  }
+  .cap-personnel-frame .cap-personnel-dossier > .cap-personnel-hero,
+  .cap-personnel-frame .cap-personnel-dossier > :not(.cap-personnel-hero) {
+    grid-column: 1;
+    grid-row: auto;
   }
   .cap-personnel-frame .cap-captains,
   .cap-personnel-frame .cap-crew-picker {
@@ -4473,16 +4475,17 @@ function toggleAway(id: CrewId) {
     display: none;
   }
   .cap-personnel-frame .cap-personnel-essential-stats {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .cap-personnel-frame .cap-personnel-essential-stats > div {
+    padding: 0.15rem 0.3rem;
   }
   .cap-personnel-frame .cap-personnel-essential-stats small {
-    font-size: clamp(0.43rem, 1.5cqi, 0.65rem);
+    font-size: clamp(0.45rem, 1.5cqi, 0.58rem);
     letter-spacing: 0;
-    overflow-wrap: anywhere;
   }
   .cap-personnel-frame .cap-personnel-essential-stats strong {
-    font-size: 1rem;
-    margin-top: 0;
+    font-size: 0.8rem;
   }
   .cap-personnel-frame .cap-crew-pages {
     flex-wrap: wrap;

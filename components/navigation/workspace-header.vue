@@ -187,12 +187,16 @@
         #kr-header-page-bar; any other page shows its room and message here
         (moved down from the picker shell's stretch). It ends with the one
         tutorial button. Below xl it wraps under the icons (order-last +
-        basis-full); from xl it sits inline between the pickers and the account
-        hub. The slot's own @container lets a page's styles follow its width.
+        basis-full); from xl the row dissolves into the top strip
+        (xl:contents) so its page line sits between the pickers and the account
+        hub while the tutorial button moves to the far right end of the icons.
+        Silas, 2026-11-02: "the tutorial icon link should be on the right side,
+        not the far left of icons." The slot's own @container lets a page's
+        styles follow its width.
       -->
       <div
         data-kr-page-row
-        class="order-last flex min-w-0 basis-full items-center gap-2 border-t border-base-300 pt-1.5 xl:order-none xl:basis-0 xl:flex-[2.2] xl:border-t-0 xl:pt-0"
+        class="order-last flex min-w-0 basis-full items-center gap-2 border-t border-base-300 pt-1.5 xl:contents"
       >
         <div
           v-if="!hasPageBar || pageBarCompact"
@@ -268,7 +272,7 @@
         -->
         <button
           type="button"
-          class="btn btn-ghost btn-sm btn-square shrink-0 rounded-xl border border-base-300"
+          class="btn btn-ghost btn-sm btn-square shrink-0 rounded-xl border border-base-300 xl:order-last"
           :class="[
             workspaceSheetOpen
               ? 'border-primary bg-primary/15 text-primary'

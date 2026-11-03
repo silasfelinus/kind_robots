@@ -96,7 +96,7 @@ for (const [missionId, episode] of Object.entries(CONSEQUENCE_STORIES)) {
   for (const choice of episode.choices) {
     for (const outcome of ['success', 'failure']) {
       const key = 'consequences/' + episode.id + '-' + choice.id + '-' + outcome
-      if (episode.id.startsWith('warp-b')) {
+      if (/^warp-[bcde]/.test(episode.id)) {
         assert.ok(
           !(key in COUCH_CONSEQUENCE_ART_IDS),
           'new outcome is awaiting painted art: ' + key,
@@ -126,7 +126,7 @@ for (const [missionId, episode] of Object.entries(CONSEQUENCE_STORIES)) {
     assert.equal(recorded.choiceId, choice.id)
     assert.equal(
       recorded.artKey in COUCH_CONSEQUENCE_ART_IDS,
-      !episode.id.startsWith('warp-b'),
+      !/^warp-[bcde]/.test(episode.id),
       'only delivered, access-filtered ArtImages may be claimed as painted',
     )
     assert.equal(consequenceAftermath(outcome)?.artKey, recorded.artKey)
@@ -675,7 +675,14 @@ assert.ok(
 )
 assert.ok(page.includes('pocketRoomPainting(run.value.pocketRoom)'))
 assert.ok(page.includes('cap-pocket-room-art'))
-assert.ok(page.includes('cap-expression-tabs'))
+assert.ok(
+  !page.includes('cap-expression-tabs'),
+  'selection dossiers must not expose portrait mood toggles',
+)
+assert.ok(
+  !page.includes('Claim your cushion'),
+  'captain selection opens straight into the roster, no heading block',
+)
 assert.ok(page.includes('voyageStageArt(run.value, paintedVoyageImage)'))
 assert.ok(page.includes('onPaintedImageError'))
 assert.ok(

@@ -451,4 +451,19 @@ const finishWithRecruitment = (
   )
 }
 
+const { readFileSync } = await import('node:fs')
+const { join } = await import('node:path')
+const emperorTitle = readFileSync(
+  join(process.cwd(), 'components/EmperorFortressSplash.vue'),
+  'utf8',
+)
+const emperorPage = readFileSync(
+  join(process.cwd(), 'pages/play/emperor-of-dust.vue'),
+  'utf8',
+)
+assert.match(emperorTitle, /data-testid="emperor-chronicle-menu"/)
+assert.match(emperorTitle, /@click\.stop="openChronicle"/)
+assert.match(emperorPage, /@chronicle="openChronicleFromSplash"/)
+assert.match(emperorPage, /enter\('chronicle'\)/)
+
 console.log('Emperor of Dust store persistence: ok')

@@ -425,6 +425,7 @@ function generated(
 }
 
 function legacyKind(world: string, key: string): OverworldKind {
+  if ((world === 'e07' || world === 'e08') && key === '4,3') return 'dungeon'
   if (photos.get(world)?.some((photo) => photo.site === key)) return 'memory'
   if (world === 'e02' && Object.hasOwn(DARK_BRIAR_SEALS, key)) return 'puzzle'
   if (world === 'e01') {

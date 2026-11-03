@@ -3,9 +3,25 @@
 // has a distinct rival and one street decision whose consequences reach the
 // rival bout and the city's gates, and bout results open the Grand Pit.
 import assert from 'node:assert/strict'
-import { CAMPAIGN_CHOICE_CONSEQUENCES } from '../slimeCity/campaignConsequences'
 import {
+  CAMPAIGN_APPROACH_REFLECTIONS,
+  CAMPAIGN_RIVAL_REACTIONS,
+  campaignAftermathFor,
+} from '../slimeCity/campaignAftermath'
+import { CAMPAIGN_CHOICE_CONSEQUENCES } from '../slimeCity/campaignConsequences'
+import { CAMPAIGN_CHAPTER_SUPPORT } from '../slimeCity/campaignSupport'
+import {
+  CAMPAIGN_RETRY_VOICES,
+  CAMPAIGN_RIVAL_EXCHANGES,
+  CAMPAIGN_RIVAL_MEMORY,
+  campaignConversationFor,
+} from '../slimeCity/campaignDialogue'
+import {
+  campaignBattleTerms,
   campaignChapter,
+  campaignEchoFor,
+  campaignFavorsFor,
+  CAMPAIGN_ECHOES,
   campaignEnding,
   createCampaignSave,
   describeTerms,
@@ -76,13 +92,15 @@ const artIds = [
   ...Object.values(SLIME_CITY_ART.cards),
   ...Object.values(SLIME_CITY_ART.boards),
   ...Object.values(SLIME_CITY_ART.ui),
+  ...Object.values(SLIME_CITY_ART.story),
+  ...Object.values(SLIME_CITY_ART.attacks),
 ]
 assert.equal(
   SLIME_CITY_ART_COUNT,
-  67,
-  'Round one (52) plus round four (14 district boards and the card back)',
+  185,
+  'Round one (52), round four (15), plus the 2026-11-02 curation: 37 cards, 77 story plates, 4 attack icons',
 )
-assert.equal(artIds.length, 67)
+assert.equal(artIds.length, 185)
 assert.equal(
   new Set(artIds).size,
   artIds.length,
@@ -112,7 +130,7 @@ assert.equal(
   slimeBoardArtId('nowhere', 'blackout'),
   slimeArtId('boards', 'blackout'),
 )
-assert.equal(Object.keys(SLIME_CITY_ART.cards).length, 36)
+assert.equal(Object.keys(SLIME_CITY_ART.cards).length, 73)
 assert.equal(
   TEAMS.flatMap((team) => [...team.creatures, ...team.special]).length,
   60,
@@ -125,19 +143,19 @@ assert.equal(
 )
 assert.equal(
   CARDS.filter((card) => slimeArtId('cards', card.id)).length,
-  36,
-  '36 illustrations correspond to actual playable card IDs',
+  73,
+  '73 illustrations correspond to actual playable card IDs',
 )
 assert.equal(
   TEAMS.flatMap((team) => [...team.creatures, ...team.special]).filter(
     (id) => !slimeArtId('cards', id),
   ).length,
-  24,
-  '24 founder cards without art retain fallbacks',
+  18,
+  '18 founder cards without art retain fallbacks',
 )
 assert.equal(
   CARDS.filter((card) => !slimeArtId('cards', card.id)).length,
-  CARDS.length - 36,
+  CARDS.length - 73,
   'Unrendered faction and neutral cards retain image-shaped fallbacks',
 )
 assert.equal(slimeArtId('cards', 'calico'), null)
@@ -607,6 +625,426 @@ console.log(
   'Slime City faction campaigns: 6 crews, 30 rival chapters, gating and endings PASS',
 )
 
+/**
+ * A win's tactical echo survives through account-backed campaign decisions,
+ * affects exactly the next chapter, and has the same rules on both story
+ * quick-starts and district launches. Defeats do not earn an echo.
+ */
+for (const team of TEAMS) {
+  const chapter = FACTION_CAMPAIGNS[team.id].chapters[0]!
+  const fresh = createCampaignSave()
+  assert.equal(campaignEchoFor(fresh, team.id), null)
+  const defeated = resolveCampaignBattle(
+    fresh,
+    team.id,
+    0,
+    chapter.foe,
+    'cunning',
+    'enemy',
+  )
+  assert.equal(campaignEchoFor(defeated, team.id), null)
+  for (const approach of ['conviction', 'cunning'] as const) {
+    const saved = resolveCampaignBattle(
+      fresh,
+      team.id,
+      0,
+      chapter.foe,
+      approach,
+      'player',
+    )
+    const expected = {
+      ...CAMPAIGN_ECHOES[team.id][approach],
+      ...CAMPAIGN_CHAPTER_SUPPORT[team.id][0]![approach],
+    }
+    assert.deepEqual(campaignEchoFor(saved, team.id), expected)
+    assert.ok(expected.title.length >= 10 && expected.story.length >= 55)
+    assert.deepEqual(campaignBattleTerms(saved, team.id, {}), expected.terms)
+    const baseTerms = {
+      playerMana: 1,
+      enemyMana: 1,
+      enemyArmor: 1,
+      rivalTrap: true,
+    }
+    const adjusted = campaignBattleTerms(saved, team.id, baseTerms)
+    assert.equal(
+      adjusted.playerMana,
+      baseTerms.playerMana + (expected.terms.playerMana ?? 0),
+    )
+    assert.equal(
+      adjusted.enemyMana,
+      baseTerms.enemyMana + (expected.terms.enemyMana ?? 0),
+    )
+    assert.equal(
+      adjusted.enemyArmor,
+      baseTerms.enemyArmor + (expected.terms.enemyArmor ?? 0),
+    )
+    assert.equal(adjusted.rivalTrap, true)
+    assert.deepEqual(
+      baseTerms,
+      { playerMana: 1, enemyMana: 1, enemyArmor: 1, rivalTrap: true },
+      'Previous encounters and shared chapter data are never mutated',
+    )
+    const nextRival = FACTION_CAMPAIGNS[team.id].chapters[1]!.foe
+    const actualMatch = applyTerms(
+      createMatch('blackout', team.id, nextRival, 20261102),
+      adjusted,
+    )
+    assert.equal(
+      actualMatch.mana,
+      BLACKOUT_MANA_GAIN + (adjusted.playerMana ?? 0),
+    )
+    assert.equal(
+      actualMatch.enemyMana,
+      BLACKOUT_MANA_GAIN + (adjusted.enemyMana ?? 0),
+    )
+    assert.equal(campaignEchoFor(saved, nextRival), null)
+    const before = saved
+    const failedRetry = resolveCampaignBattle(
+      saved,
+      team.id,
+      1,
+      nextRival,
+      approach,
+      'enemy',
+    )
+    assert.deepEqual(
+      campaignEchoFor(failedRetry, team.id),
+      campaignEchoFor(before, team.id),
+      'Losing next chapter does not erase an earned story echo',
+    )
+  }
+}
+console.log(
+  'Slime City 12 faction campaign echoes: earned, bounded, applied PASS',
+)
+
+// The five saved chapters must offer distinct support choices per crew,
+// not five copies of a two-effect faction buff. Check both approaches
+// independently, all sixty narratives, bounded battle terms and unlock order.
+const supportNames = new Set<string>()
+for (const team of TEAMS) {
+  const chapters = FACTION_CAMPAIGNS[team.id].chapters
+  const support = CAMPAIGN_CHAPTER_SUPPORT[team.id]
+  assert.equal(support.length, chapters.length)
+  const uniqueTerms = new Set<string>()
+  let base = createCampaignSave()
+  for (let index = 0; index < chapters.length; index++) {
+    const chapter = chapters[index]!
+    const pair = support[index]!
+    for (const approach of ['conviction', 'cunning'] as const) {
+      const favor = pair[approach]
+      assert.ok(favor.title.length >= 10)
+      assert.ok(favor.story.length >= 55)
+      assert.ok(
+        !supportNames.has(favor.title),
+        'Each earned ally has a distinct name',
+      )
+      supportNames.add(favor.title)
+      const terms = favor.terms
+      const keys = Object.keys(terms)
+      assert.ok(keys.length > 0)
+      assert.ok(
+        keys.every((key) =>
+          [
+            'playerMana',
+            'enemyMana',
+            'playerHp',
+            'enemyArmor',
+            'fewerRivals',
+            'rounds',
+            'rivalTrap',
+          ].includes(key),
+        ),
+      )
+      assert.ok((terms.playerMana ?? 0) <= 2)
+      assert.ok((terms.enemyMana ?? 0) <= 1)
+      assert.ok((terms.playerHp ?? 0) <= 2)
+      assert.ok((terms.rounds ?? 0) <= 2)
+      assert.ok((terms.fewerRivals ?? 0) <= 1)
+      assert.ok((terms.enemyArmor ?? 0) >= -1)
+      if (terms.rivalTrap) assert.equal(terms.playerMana, 2)
+      uniqueTerms.add(JSON.stringify(terms))
+      if (index < 4) {
+        const unlocked = resolveCampaignBattle(
+          base,
+          team.id,
+          index,
+          chapter.foe,
+          approach,
+          'player',
+        )
+        assert.equal(campaignFavorsFor(unlocked, team.id).length, index + 1)
+        assert.deepEqual(
+          campaignBattleTerms(unlocked, team.id, {}, index),
+          terms,
+          'Saved choice unlocks its own chapter terms and never a later chapter',
+        )
+        assert.equal(
+          campaignFavorsFor(base, team.id).some(
+            (entry) => entry.chapterIndex === index,
+          ),
+          false,
+          'An unearned chapter cannot enter the support dossier',
+        )
+      }
+    }
+    if (index < 4) {
+      base = resolveCampaignBattle(
+        base,
+        team.id,
+        index,
+        chapter.foe,
+        'conviction',
+        'player',
+      )
+    }
+  }
+  assert.ok(
+    uniqueTerms.size >= 8,
+    'Each crew must earn a meaningful tactical variety, not duplicate effects',
+  )
+}
+assert.equal(supportNames.size, 60)
+console.log(
+  'Slime City chapter supports: sixty named/unique favors, bounded terms and unlocks PASS',
+)
+
+// Earned ally favors are existing campaign decisions, not a second inventory.
+// Only one selected favor applies to the battle; no route, defeat, or replay
+// can claim a chapter that has not been won.
+for (const team of TEAMS) {
+  let saved = createCampaignSave()
+  assert.deepEqual(campaignFavorsFor(saved, team.id), [])
+  for (let index = 0; index < 4; index++) {
+    const chapter = FACTION_CAMPAIGNS[team.id].chapters[index]!
+    saved = resolveCampaignBattle(
+      saved,
+      team.id,
+      index,
+      chapter.foe,
+      index % 2 === 0 ? 'conviction' : 'cunning',
+      'player',
+    )
+    const favors = campaignFavorsFor(saved, team.id)
+    assert.equal(favors.length, index + 1)
+    assert.equal(favors[index]!.chapterTitle, chapter.title)
+    assert.equal(favors[index]!.ally, chapter.foe)
+    assert.ok(favors[index]!.echo.speaker.length > 5)
+    assert.ok(favors[index]!.echo.voice.length > 50)
+    assert.deepEqual(campaignEchoFor(saved, team.id), favors[index]!.echo)
+    for (const favor of favors) {
+      assert.deepEqual(
+        campaignEchoFor(saved, team.id, favor.chapterIndex),
+        favor.echo,
+      )
+      assert.deepEqual(
+        campaignBattleTerms(saved, team.id, {}, favor.chapterIndex),
+        favor.echo.terms,
+        'Only the one selected ally contributes terms',
+      )
+    }
+    assert.deepEqual(campaignEchoFor(saved, team.id, -1), favors[index]!.echo)
+    assert.deepEqual(campaignEchoFor(saved, team.id, 999), favors[index]!.echo)
+    assert.deepEqual(campaignEchoFor(saved, team.id, 1.5), favors[index]!.echo)
+    const defeated = resolveCampaignBattle(
+      saved,
+      team.id,
+      index + 1,
+      FACTION_CAMPAIGNS[team.id].chapters[index + 1]!.foe,
+      'cunning',
+      'enemy',
+    )
+    assert.deepEqual(
+      campaignFavorsFor(defeated, team.id),
+      favors,
+      'A lost mission cannot mint or revoke an ally',
+    )
+  }
+  const openingTerms = { playerMana: 1, enemyMana: 1 }
+  const earlier = campaignBattleTerms(saved, team.id, openingTerms, 0)
+  const latest = campaignBattleTerms(saved, team.id, openingTerms)
+  assert.notDeepEqual(earlier, latest)
+  assert.deepEqual(
+    openingTerms,
+    { playerMana: 1, enemyMana: 1 },
+    'Both quick start and district terms stay immutable',
+  )
+  const rival = FACTION_CAMPAIGNS[team.id].chapters[4]!.foe
+  const actual = applyTerms(
+    createMatch('blackout', team.id, rival, 20261102),
+    earlier,
+  )
+  assert.equal(actual.mana, BLACKOUT_MANA_GAIN + (earlier.playerMana ?? 0))
+  assert.equal(actual.enemyMana, BLACKOUT_MANA_GAIN + (earlier.enemyMana ?? 0))
+  const finished = resolveCampaignBattle(
+    saved,
+    team.id,
+    4,
+    rival,
+    'conviction',
+    'player',
+  )
+  assert.equal(campaignFavorsFor(finished, team.id).length, 5)
+  assert.equal(campaignEchoFor(finished, team.id), null)
+  assert.deepEqual(campaignBattleTerms(finished, team.id, {}), {})
+}
+console.log(
+  'Slime City ally dossier: 6 crews, four previous favors, bounded combat PASS',
+)
+
+// Thirty authored rival confrontations respect the current save and never
+// leak a future chapter. Victory history changes what the next rival says;
+// defeat adds a personal retry beat without awarding a chapter or favor.
+const allRivalLines = new Set<string>()
+const allPlayerLines = new Set<string>()
+for (const team of TEAMS) {
+  assert.equal(CAMPAIGN_RIVAL_EXCHANGES[team.id].length, 5)
+  assert.ok(CAMPAIGN_RETRY_VOICES[team.id].length > 65)
+  for (const approach of ['conviction', 'cunning'] as const) {
+    let save = createCampaignSave()
+    for (let index = 0; index < 5; index++) {
+      const chapter = FACTION_CAMPAIGNS[team.id].chapters[index]!
+      const conversation = campaignConversationFor(save, team.id)
+      assert.ok(conversation)
+      assert.equal(conversation.chapterIndex, index)
+      assert.equal(conversation.rivalTeam, chapter.foe)
+      assert.equal(
+        conversation.rivalSpeaker,
+        CAMPAIGN_ECHOES[chapter.foe].conviction.speaker,
+      )
+      assert.equal(
+        conversation.playerSpeaker,
+        CAMPAIGN_ECHOES[team.id].conviction.speaker,
+      )
+      assert.ok(conversation.rivalLine.length > 45)
+      assert.ok(conversation.playerLine.length > 45)
+      assert.equal(conversation.retryLine, null)
+      assert.equal(
+        conversation.rememberedChoice,
+        index === 0 ? null : CAMPAIGN_RIVAL_MEMORY[team.id][approach],
+      )
+      if (approach === 'conviction') {
+        allRivalLines.add(conversation.rivalLine)
+        allPlayerLines.add(conversation.playerLine)
+      }
+      const lost = resolveCampaignBattle(
+        save,
+        team.id,
+        index,
+        chapter.foe,
+        approach,
+        'enemy',
+      )
+      assert.equal(lost[team.id].wins, index)
+      const rematch = campaignConversationFor(lost, team.id)
+      assert.equal(rematch?.retryLine, CAMPAIGN_RETRY_VOICES[team.id])
+      assert.equal(rematch?.rememberedChoice, conversation.rememberedChoice)
+      save = resolveCampaignBattle(
+        lost,
+        team.id,
+        index,
+        chapter.foe,
+        approach,
+        'player',
+      )
+    }
+    assert.equal(campaignConversationFor(save, team.id), null)
+    assert.equal(save[team.id].decisions.length, 5)
+    for (const other of TEAMS.filter((candidate) => candidate.id !== team.id)) {
+      assert.equal(campaignConversationFor(save, other.id)?.chapterIndex, 0)
+    }
+  }
+}
+assert.equal(allRivalLines.size, 30)
+assert.equal(allPlayerLines.size, 30)
+console.log(
+  'Slime City rival dialogue: 30 distinct showdowns, 12 decision callbacks, six rematch beats PASS',
+)
+
+// Every one of the 30 rival battles has distinct victory and defeat lines.
+// The replay takes no side effects: only the actually attempted tactic can
+// appear on a defeat, and earlier saves remain readable.
+const rivalVictoryLines = new Set<string>()
+const rivalDefeatLines = new Set<string>()
+for (const crew of TEAMS) {
+  const team = crew.id
+  assert.equal(CAMPAIGN_RIVAL_REACTIONS[team].length, 5)
+  assert.equal(campaignAftermathFor(createCampaignSave(), team), null)
+  for (const approach of ['conviction', 'cunning'] as const) {
+    let saved = createCampaignSave()
+    for (let index = 0; index < 5; index++) {
+      const chapter = FACTION_CAMPAIGNS[team].chapters[index]!
+      const lost = resolveCampaignBattle(
+        saved,
+        team,
+        index,
+        chapter.foe,
+        approach,
+        'enemy',
+      )
+      const defeat = campaignAftermathFor(lost, team)
+      assert.equal(defeat?.result, 'enemy')
+      assert.equal(defeat?.chapterIndex, index)
+      assert.equal(defeat?.foe, chapter.foe)
+      assert.equal(defeat?.approach, approach)
+      assert.equal(
+        defeat?.playerLine,
+        CAMPAIGN_APPROACH_REFLECTIONS[team][approach],
+      )
+      assert.equal(
+        defeat?.rivalLine,
+        CAMPAIGN_RIVAL_REACTIONS[team][index]!.defeat,
+      )
+      assert.equal(lost[team].lastApproach, approach)
+      assert.equal(lost[team].wins, index)
+      const earlierSave = {
+        ...lost,
+        [team]: { ...lost[team], lastApproach: undefined },
+      }
+      const earlier = campaignAftermathFor(earlierSave, team)
+      assert.equal(earlier?.approach, null, 'Old losses cannot invent a choice')
+      assert.equal(earlier?.playerLine, null)
+      const won = resolveCampaignBattle(
+        lost,
+        team,
+        index,
+        chapter.foe,
+        approach,
+        'player',
+      )
+      const victory = campaignAftermathFor(won, team)
+      assert.equal(victory?.chapterIndex, index)
+      assert.equal(victory?.result, 'player')
+      assert.equal(victory?.approach, approach)
+      assert.equal(
+        victory?.rivalLine,
+        CAMPAIGN_RIVAL_REACTIONS[team][index]!.victory,
+      )
+      const legacyWin = {
+        ...won,
+        [team]: { ...won[team], lastApproach: undefined },
+      }
+      assert.equal(campaignAftermathFor(legacyWin, team)?.approach, approach)
+      assert.equal(won[team].decisions.length, index + 1)
+      if (approach === 'conviction') {
+        rivalVictoryLines.add(victory!.rivalLine)
+        rivalDefeatLines.add(defeat!.rivalLine)
+      }
+      saved = won
+    }
+    assert.equal(campaignAftermathFor(saved, team)?.chapterIndex, 4)
+    assert.equal(campaignChapter(saved, team), null)
+    for (const other of TEAMS.filter((entry) => entry.id !== team)) {
+      assert.equal(campaignAftermathFor(saved, other.id), null)
+    }
+  }
+}
+assert.equal(rivalVictoryLines.size, 30)
+assert.equal(rivalDefeatLines.size, 30)
+console.log(
+  'Slime City 60 rival aftermaths: approach fidelity, legacy saves and independent crews PASS',
+)
+
 // Story missions combine district consequences with one specific story
 // approach; this cannot modify the city, chapter definitions, or browser
 // account rewards. The direct STORY button keeps the original terms.
@@ -697,6 +1135,7 @@ assert.equal(lab.route?.to, 'undertow')
 lab.walk()
 assert.equal(lab.city.location, 'undertow')
 assert.equal(lab.city.pendingStreet, 'The Long Drain')
+assert.equal(lab.cityScene, 'street', 'A street story takes over the stage')
 assert.equal(lab.districtId, 'crown', 'Destination remains selected en route')
 lab.walk()
 assert.equal(
@@ -707,6 +1146,11 @@ assert.equal(
 lab.chooseStreet(STREET_STORIES['The Long Drain']!.choices[0].id)
 assert.equal(streetStory(lab.city), null)
 assert.equal(lab.districtId, 'crown', 'Choice preserves onward destination')
+assert.equal(
+  lab.cityScene,
+  'map',
+  'Mid-route, a settled story returns to the map',
+)
 assert.equal(lab.route?.to, 'crown')
 lab.walk()
 assert.equal(lab.city.location, 'crown')
@@ -714,6 +1158,13 @@ assert.equal(lab.city.pendingStreet, 'Ledger Sewer')
 lab.chooseStreet(STREET_STORIES['Ledger Sewer']!.choices[1].id)
 assert.equal(lab.city.location, 'crown')
 assert.equal(lab.routeSteps.length, 0)
+assert.equal(lab.cityScene, 'district', 'Arriving opens the district scene')
+lab.showCityMap()
+assert.equal(lab.cityScene, 'map')
+lab.enterCity()
+assert.equal(lab.cityScene, 'district')
+lab.showCity()
+assert.equal(lab.cityScene, 'map', 'The CITY tab backs out to the map')
 lab.showCards()
 assert.equal(lab.view, 'cards')
 lab.showCity()
@@ -916,6 +1367,15 @@ assert.equal(
 )
 lab.showCampaign()
 assert.equal(lab.view, 'campaign')
+assert.equal(
+  lab.campaignScreen,
+  'aftermath',
+  'A settled chapter returns to its aftermath scene first',
+)
+lab.continueCampaign()
+assert.equal(lab.campaignScreen, 'chapter')
+lab.showCampaignAftermath()
+assert.equal(lab.campaignScreen, 'aftermath')
 assert.equal(lab.campaignSave.catgirls.wins, 0)
 lab.chooseTeam('catgirls')
 assert.equal(
@@ -931,15 +1391,26 @@ lab.findCampaignBattle()
 assert.equal(lab.view, 'city')
 assert.equal(lab.districtId, 'undertow')
 assert.equal(lab.routeSteps.length, 1)
+assert.equal(
+  lab.cityScene,
+  'map',
+  'Across town, following the story shows the lit route on the map',
+)
 lab.startCampaignBattle('conviction')
 assert.equal(lab.view, 'city', 'Cannot launch mission while across town')
 lab.walk()
 assert.equal(lab.city.location, 'undertow')
 assert.equal(lab.city.pendingStreet, 'The Long Drain')
+assert.equal(lab.cityScene, 'street')
 lab.startCampaignBattle('conviction')
 assert.equal(lab.view, 'city', 'Unresolved street encounter blocks mission')
 lab.chooseStreet(STREET_STORIES['The Long Drain']!.choices[0].id)
 assert.equal(lab.campaignAtDestination, true)
+assert.equal(
+  lab.cityScene,
+  'story',
+  'Arriving opens the story mission as its own full-stage scene',
+)
 lab.startCampaignBattle('cunning')
 assert.equal(lab.view, 'arena')
 assert.equal(lab.match.foeId, 'undertow')
@@ -966,6 +1437,7 @@ lab.chooseTeam('catgirls')
 lab.findCampaignBattle()
 assert.equal(lab.view, 'city')
 assert.equal(lab.crisisEvent?.id, 'broadcast')
+assert.equal(lab.cityScene, 'crisis', 'The crisis takes the stage first')
 assert.equal(lab.campaignAtDestination, false)
 lab.startCampaignBattle('conviction')
 assert.equal(lab.view, 'city', 'City crisis blocks the mission button')

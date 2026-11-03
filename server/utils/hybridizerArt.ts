@@ -5,12 +5,13 @@ export const HYBRIDIZER_ART_SIZE = 1024
 export const HYBRIDIZER_ART_PRIORITY = 100
 export const HYBRIDIZER_ACTIVE_USER_LIMIT = 3
 export const HYBRIDIZER_RETRY_LIMIT = 2
-// Launch hybrids queue behind interactive fusions (100) and project runtime art,
-// but ahead of bulk backfill packs (priority 60 and below), so the curated
-// catalogue keeps filling on a busy queue (Silas, 2026-10-30).
-export const HYBRIDIZER_BATCH_PRIORITY = 90
+// Launch hybrids are low-priority bulk art: Silas, 2026-11-02, "Hybridizer can just be low
+// priority, submit all, and be done with it." They render only when no interactive fusion,
+// game or project art is waiting, so the whole 4,000-pair launch set can sit in the queue at
+// once instead of trickling in through a small window the top-up cron rarely refills.
+export const HYBRIDIZER_BATCH_PRIORITY = 1
 export const HYBRIDIZER_BATCH_MAX_PAIRS = 50
-export const HYBRIDIZER_BATCH_PENDING_CAP = 60
+export const HYBRIDIZER_BATCH_PENDING_CAP = 4000
 
 export type HybridizerSubjectKind = 'creature' | 'object'
 
@@ -21,24 +22,49 @@ function withArticle(title: string): string {
 
 // The artwork is the hybrid itself. Specimen jars and fusion machinery are
 // front-end chrome only, so the prompt never stages the result in a laboratory.
+export type HybridizerRevisionDirection = {
+  leftWeight?: number
+  direction?: string
+}
+
 export function hybridizerArtPrompt(
   leftTitle: string,
   rightTitle: string,
   kind: HybridizerSubjectKind = 'creature',
+  revision: HybridizerRevisionDirection = {},
 ): string {
   const left = withArticle(leftTitle)
   const right = withArticle(rightTitle)
+  const leftWeight = revision.leftWeight ?? 50
   const subject =
     kind === 'object' ? 'One single object' : 'One single living creature'
+  const balance =
+    leftWeight === 50
+      ? 'an even physical blend of ' + left + ' and ' + right
+      : 'a physical blend with approximately ' +
+        leftWeight +
+        '% characteristics of ' +
+        left +
+        ' and ' +
+        (100 - leftWeight) +
+        '% of ' +
+        right
   return [
-    subject + ' that is an even physical blend of ' + left,
-    'and ' + right + '. Its shape, colors, surface textures and signature',
+    subject +
+      ' that is ' +
+      balance +
+      '. Its shape, colors, surface textures and signature',
     'features come from both, merged into one coherent body so that both',
     left + ' and ' + right + ' are instantly recognizable.',
     'Full view, centered, three-quarter angle, standing on a plain light grey',
     'studio backdrop with a soft floor shadow and even soft lighting.',
     'Vivid, detailed painterly illustration with crisp edges.',
-  ].join(' ')
+    revision.direction?.trim()
+      ? 'Additional creative direction: ' + revision.direction.trim()
+      : '',
+  ]
+    .filter(Boolean)
+    .join(' ')
 }
 
 export function hybridizerSubjectKind(

@@ -1,5 +1,5 @@
 /**
- * Hoshimori's first sixteen night-procession sites. e08 mirrors e07's immutable
+ * Hoshimori's authored night-procession sites. e08 mirrors e07's immutable
  * coordinates but records a separate Scylla-viewpoint expedition and testimony.
  */
 export interface NightChoice {
@@ -307,11 +307,452 @@ export const HOSHIMORI_NIGHT_SITES: readonly NightSite[] = [
       'council-consent',
     ),
   ),
+  s(
+    '5,1',
+    'Windward Post / The Letters That Know Your Skin',
+    'The old postmistress sorts envelopes by the scars on their recipients. Every undelivered letter has grown a little hand that points toward a household that asked to be forgotten.',
+    c(
+      'night-post-return',
+      'Return the letters to the people who sent them',
+      'The hands turn toward their senders. The postmistress loses her perfect delivery record, but the absent households keep their addresses.',
+      'night-post-refused',
+    ),
+    c(
+      'night-post-witness',
+      'Let the postmistress read one letter aloud as testimony',
+      'She reads only the accusation against the registry. The evidence survives, though the sender must now decide whether to testify in person.',
+      'night-post-evidence',
+    ),
+  ),
+  s(
+    '6,1',
+    'Kite-Mender’s Loft / The Unwilling Sky',
+    'Paper kites hang from bamboo ribs like folded wings. Their shadows fly in circles above the roofs, each towing a child-sized outline that refuses to land.',
+    c(
+      'night-kites-cut',
+      'Cut the strings without choosing where the kites must land',
+      'Three kites flee into the dark. A fourth stays to carry a warning; Scylla cannot promise that every runaway will return.',
+      'night-kites-free',
+    ),
+    c(
+      'night-kites-roof',
+      'Ask the oldest kite to shelter the children below',
+      'The kite agrees to spread itself across the roof. Its flight ends for tonight, but the children can leave by the stairwell it reveals.',
+      'night-kites-shelter',
+    ),
+  ),
+  s(
+    '7,1',
+    'Tengu’s Weather Desk / Forecast of Missing People',
+    'The tengu courier is pinned beneath a glass weather chart. The ink predicts the exact hour each traveler will vanish, and the chart is always one hour ahead.',
+    c(
+      'night-forecast-break',
+      'Break the chart and let the courier choose the storm',
+      'The tengu escapes with a warning but no reliable forecast. Oren marks a longer ground route for those unwilling to risk the pass.',
+      'night-forecast-freed',
+    ),
+    c(
+      'night-forecast-copy',
+      'Copy only the storm warnings before breaking the glass',
+      'The courier carries a redacted forecast. Rescue teams gain time, but the village must stop using weather reports to predict who belongs at home.',
+      'night-forecast-redacted',
+    ),
+  ),
+  s(
+    '8,1',
+    'Observatory / The Constellation of Locked Doors',
+    'The astronomer points upward. The stars have rearranged into a perfect floor plan of Hoshimori; every lit window is a person who cannot step outside.',
+    c(
+      'night-stars-darken',
+      'Darken the stars that expose occupied rooms',
+      'The astronomer loses her most precise chart. The night sky becomes navigable again by landmarks rather than people.',
+      'night-stars-private',
+    ),
+    c(
+      'night-stars-ask',
+      'Ask the trapped voices which windows may remain visible',
+      'Some windows stay lit as voluntary beacons. Others vanish, and the astronomer must learn to leave a gap in her measurements.',
+      'night-stars-consented',
+    ),
+  ),
+  s(
+    '5,2',
+    'Bamboo Speaking Tubes / The House That Repeats You',
+    'The speaking tubes have grown into the walls. They repeat a resident’s private confession in every room, then insist the echo is a safety announcement.',
+    c(
+      'night-tubes-silence',
+      'Silence the private tubes and leave one public alarm',
+      'The house falls quiet for the first time in years. A public bell still warns of danger, but no one can summon a neighbor by whispering their secrets.',
+      'night-tubes-private',
+    ),
+    c(
+      'night-tubes-witness',
+      'Let the resident record what the house did without naming them',
+      'Pip preserves the testimony in a sealed account. The walls keep speaking until the household can choose its own repair.',
+      'night-tubes-recorded',
+    ),
+  ),
+  s(
+    '6,2',
+    'Tea House of Two Tickets / The Return That Eats Tomorrow',
+    'Every cup contains a folded train ticket. The seller offers a warm seat to anyone who promises to return, while a second door opens only for those who refuse the bargain.',
+    c(
+      'night-ticket-oneway',
+      'Take the one-way door and leave the fare for the next traveler',
+      'Scylla leaves without naming a destination. The seller loses a guaranteed return, but someone else can afford to choose.',
+      'night-ticket-free',
+    ),
+    c(
+      'night-ticket-reserve',
+      'Reserve a return fare without assigning it to a person',
+      'The seller holds the ticket in trust. The door remains open, though the village cannot count the unclaimed fare as a rescued resident.',
+      'night-ticket-held',
+    ),
+  ),
+  s(
+    '7,2',
+    'Threaded Gate / The Invitation That Tightens',
+    'Red invitation cords pass through the gate and disappear beneath the skin of people who once lived here. Pip recognizes his apprenticeship knot and refuses to call it a promise.',
+    c(
+      'night-cords-untie',
+      'Untie the cords whose recipients asked for no contact',
+      'The gate shrieks as its guest count falls. Pip keeps the unclaimed knots as evidence that an invitation is not a summons.',
+      'night-cords-released',
+    ),
+    c(
+      'night-cords-ask',
+      'Offer each traveler a knife and let them decide',
+      'Some cut their cords, some keep them. The procession cannot label either choice a disappearance without a living witness.',
+      'night-cords-chosen',
+    ),
+  ),
+  s(
+    '8,2',
+    'Windward Council / The Registry of Returns',
+    'A council of empty coats sits around a table of addressed envelopes. The registry offers to guarantee every missing person a home, provided nobody can ever leave it.',
+    c(
+      'night-windward-open',
+      'Fund an exit route with witnesses who can be dismissed',
+      'The council releases the coats from their chairs. Some families lose a promised reunion, but the exit route survives its first refusal.',
+      'night-windward-exit',
+    ),
+    c(
+      'night-windward-limited',
+      'Keep an emergency shelter with a public expiry date',
+      'The coats stand up and walk out one by one. Protection continues only while the people inside can renew or refuse it.',
+      'night-windward-sunset',
+    ),
+  ),
+  s(
+    '5,3',
+    'Mooncake Queue / The Banquet of Borrowed Mouths',
+    'A queue of open mouths stretches around an empty stall. The clay-bowl spirit has fed each mouth the same remembered supper for years, while the people attached to them are still hungry.',
+    c(
+      'night-mooncake-portion',
+      'Feed the living guests before counting the bowls',
+      'Scylla breaks the repeating meal into real portions. The spirit admits its perfect service record never counted a stomach.',
+      'night-mooncake-fed',
+    ),
+    c(
+      'night-mooncake-audit',
+      'Ask the spirit to name everyone who refused the meal',
+      'The spirit cannot. Pip keeps the false tally as evidence, while Char brings food to those still waiting.',
+      'night-mooncake-witness',
+    ),
+  ),
+  s(
+    '6,3',
+    'Foxfire Registry / The Flame That Recites Your Bones',
+    'Blue foxfire writes birth names along the inside of visitors’ ribs. The kitsune courier says it began as a way to find lost children, but the letters now burn whenever anyone tries to leave.',
+    c(
+      'night-foxfire-choice',
+      'Let each traveler choose which name the flame may keep',
+      'The courier carries only consented names. A few flames go out, and their owners remain no less real.',
+      'night-foxfire-consent',
+    ),
+    c(
+      'night-foxfire-unwrite',
+      'Unwrite the compulsory registry and keep a voluntary signal',
+      'Oren makes a public rescue lantern. The courier loses an effortless census but gains a way to help without marking bodies.',
+      'night-foxfire-release',
+    ),
+  ),
+  s(
+    '7,3',
+    'Umbrella Funeral / The Rain That Borrows Fingers',
+    'An umbrella walks beneath the rain on ribs made from the fingers of people it once sheltered. Its maker calls the arrangement gratitude; the umbrella calls it a debt that never ends.',
+    c(
+      'night-umbrella-rest',
+      'Return the borrowed bones and let the umbrella retire',
+      'The maker holds a funeral without claiming the shelterers. The rain is cold, but nobody owes a body for yesterday’s kindness.',
+      'night-umbrella-retired',
+    ),
+    c(
+      'night-umbrella-terms',
+      'Offer a one-night shelter pact that anyone can end',
+      'The umbrella agrees to one more storm with wooden ribs. The former shelterers keep their hands and their right to walk away.',
+      'night-umbrella-repaired',
+    ),
+  ),
+  s(
+    '8,3',
+    'Boundary Bell / The Sound Inside Your Chest',
+    'The bell no longer hangs at the ridge. It rings inside the ribs of anyone who considers departing, and the watchkeeper insists the pain is proof that someone cares.',
+    c(
+      'night-boundary-farewell',
+      'Ring once for departure and let the traveler go',
+      'The bell returns to its tower. The watchkeeper hears a farewell without mistaking it for an emergency.',
+      'night-boundary-freedom',
+    ),
+    c(
+      'night-boundary-signal',
+      'Give travelers an optional signal for help',
+      'Char carries the first signal beyond the ridge and does not use it. The watchkeeper learns that silence can mean safety.',
+      'night-boundary-signal-kept',
+    ),
+  ),
+  s(
+    '5,4',
+    'Soup-Stone Waystation / The Pot That Remembers Starvation',
+    'A stone boils with the memories of famine. Its soup never runs out, but every diner must relive the worst hunger of their life before they are permitted to stand.',
+    c(
+      'night-stone-feed',
+      'Serve the soup without demanding a memory',
+      'The cook discovers the pot still feeds people when nobody suffers for it. The stone loses its ledger and keeps its warmth.',
+      'night-stone-open',
+    ),
+    c(
+      'night-stone-rest',
+      'Bank the stone’s heat and let the diners leave',
+      'Oren arranges ordinary meals for tomorrow. The stone goes quiet, and the cook finally gets a night off.',
+      'night-stone-rested',
+    ),
+  ),
+  s(
+    '6,4',
+    'Kappa Ferry Ledger / The Crossing Without Reflections',
+    'The kappa has collected reflections as ferry fare. Travelers reach the opposite shore, but their images remain in the water, endlessly boarding boats they never chose.',
+    c(
+      'night-kappa-return',
+      'Return the reflections privately to their owners',
+      'The kappa releases each image without announcing a name. The ferry still runs, now paid for by the village rather than stolen selves.',
+      'night-kappa-restored',
+    ),
+    c(
+      'night-kappa-witness',
+      'Fund a free crossing and ask for independent witnesses',
+      'A passenger watches the kappa empty its ledger. Nobody is required to testify in order to cross the river.',
+      'night-kappa-free',
+    ),
+  ),
+  s(
+    '7,4',
+    'Bellkeeper’s Rest / The Tongues Beneath the Floor',
+    'The bellkeeper has sewn the voices of missing travelers into the floorboards. Each voice must answer a nightly roll call, even when the speaker is long gone or wants to be forgotten.',
+    c(
+      'night-bellkeeper-release',
+      'Let the voices rest and organize a living search',
+      'The floorboards stop answering. The bellkeeper joins Oren’s search parties instead of calling imprisonment remembrance.',
+      'night-bellkeeper-search',
+    ),
+    c(
+      'night-bellkeeper-invite',
+      'Invite voluntary messages and retire the roll call',
+      'Two voices ask to send a farewell; the rest fall silent. The bellkeeper keeps the messages without claiming their speakers.',
+      'night-bellkeeper-consent',
+    ),
+  ),
+  s(
+    '8,4',
+    'Shrine of Returning Names / The Tags With Teeth',
+    'Wooden name tags bite into the skin of anyone who has ever fled Hoshimori. The shrine keeper says a name returned is a home restored, even when its owner has built a different life.',
+    c(
+      'night-shrine-offer',
+      'Offer each name back without demanding a return',
+      'Some travelers reclaim their names; others leave the tags untouched. Vesper recognizes a road that belongs to its walkers.',
+      'night-shrine-choice',
+    ),
+    c(
+      'night-shrine-release',
+      'Release the biting tags before asking for testimony',
+      'Scylla and Char cut the tags loose. The keeper must now invite people home rather than drag them by the name.',
+      'night-shrine-unbound',
+    ),
+  ),
+  s(
+    '1,5',
+    'Floodmark Steps / The Waterline Under the Skin',
+    'The two old neighbors still hold their house keys. Tonight each floodmark is cut into their wrists, and the water rises whenever a census clerk calls their homes abandoned.',
+    c(
+      'night-flood-keys',
+      'Carry the neighbors’ keys to higher ground without signing away their homes',
+      'Scylla leads them uphill. The houses remain theirs, but the lower street loses its last two night watchkeepers.',
+      'night-flood-homes-kept',
+    ),
+    c(
+      'night-flood-evac',
+      'Open the evacuation steps before disputing the false abandonment records',
+      'Oren clears the stairs and saves the neighbors from the rising water. Their property claims remain contested until living witnesses return.',
+      'night-flood-people-first',
+    ),
+  ),
+  s(
+    '2,5',
+    'Paper-Barge Library / The Books That Breathe Water',
+    'The paper barge floats on a river of wet pages. Books have grown gills; each warning read aloud steals a breath from the reader, while the librarian clutches a cookbook with her mother’s handwriting.',
+    c(
+      'night-barge-warnings',
+      'Copy the flood warnings onto the boat’s sail and spare the readers',
+      'The warning reaches downstream without another stolen breath. The librarian loses the last dry copy of her mother’s recipes.',
+      'night-barge-warned',
+    ),
+    c(
+      'night-barge-recipes',
+      'Save the recipes and send a living messenger with the river heights',
+      'Vesper guides the messenger by an unrecorded bank. The recipes survive, but the warning arrives later and the lowland must move quickly.',
+      'night-barge-memory',
+    ),
+  ),
+  s(
+    '3,5',
+    'Borrowed-Rain Weir / The Dam of Sleeping Neighbors',
+    'The bakery’s floodwall is built from sleepers wrapped in sandbags. They breathe whenever the sluice opens; the keeper calls them volunteers, though their signatures are all in the same hand.',
+    c(
+      'night-weir-share',
+      'Open both sluices and move the sleepers before the bakery floods',
+      'The lower cottages are spared the worst surge. The bakery loses its flour stores, and its keeper must ask the village for help.',
+      'night-weir-shared-cost',
+    ),
+    c(
+      'night-weir-witness',
+      'Wake the sleepers and expose the forged floodwall contracts',
+      'The sleepers leave the dam. The lower bank must evacuate at once, but no person remains an unwilling barrier for someone else’s bread.',
+      'night-weir-testified',
+    ),
+  ),
+  s(
+    '4,5',
+    'Siltglass Shrine / The Bells in Their Throats',
+    'Glass bells have rooted in the throats of displaced villagers. Each chime broadcasts a family’s whereabouts to the procession; the shrine spirit insists it is only delivering messages.',
+    c(
+      'night-siltglass-ask',
+      'Ask each family which message may be carried',
+      'Some bells sound a chosen reunion. Others are wrapped in cloth, and the spirit learns to deliver silence without calling it a loss.',
+      'night-siltglass-consent',
+    ),
+    c(
+      'night-siltglass-break',
+      'Break the compulsory bells and preserve the sealed letters',
+      'The families can speak freely again. The spirit keeps the letters until their recipients seek them, even if some messages never arrive.',
+      'night-siltglass-quiet',
+    ),
+  ),
+  s(
+    '1,6',
+    'Boatmaker’s Yard / The Skiff of Borrowed Hands',
+    'An apprentice has sewn six sleeping hands into a rescue skiff. They row without stopping, while their owners wait on shore unable to carry their own children.',
+    c(
+      'night-skiff-release',
+      'Return the hands and build a slower boat with the apprentice',
+      'The families can hold one another again. The first crossing is delayed, so Oren organizes a dry-bank shelter before nightfall.',
+      'night-skiff-restored',
+    ),
+    c(
+      'night-skiff-one-trip',
+      'Ask the owners for one last rescue trip, then unpick every stitch',
+      'Two stranded travelers cross. The hands return exhausted but whole; the apprentice promises never again to call borrowed bodies equipment.',
+      'night-skiff-consented',
+    ),
+  ),
+  s(
+    '2,6',
+    'Lantern Refuge / The Hearth That Counts Scars',
+    'The refugee cook’s stove lights only when it can count every guest’s scars. A paper official watches from the chimney and threatens to withhold firewood from anyone who refuses inspection.',
+    c(
+      'night-refuge-wood',
+      'Carry the wood inside and refuse the chimney census',
+      'The cook serves supper while the official burns its own forms for warmth. The refuge stays hidden, though tomorrow’s fuel must be found elsewhere.',
+      'night-refuge-unlisted',
+    ),
+    c(
+      'night-refuge-stove',
+      'Move the stove outdoors where anyone may eat without entering a register',
+      'The meal becomes a public gathering rather than a trap. The cook gives up the refuge’s secrecy but keeps every guest free to depart.',
+      'night-refuge-open',
+    ),
+  ),
+  s(
+    '3,6',
+    'Rainkeeper’s Accounts / The Invoice of Borrowed Breaths',
+    'The rainkeeper has billed the lowlands for air trapped inside undelivered sandbags. The unpaid invoices fold into paper lungs and follow the debtors through their dreams.',
+    c(
+      'night-rain-audit',
+      'Audit the deliveries and cancel charges for sandbags never received',
+      'Pip proves the fraud. The paper lungs dissolve, but the village still needs a real flood fund before the next storm.',
+      'night-rain-corrected',
+    ),
+    c(
+      'night-rain-fund',
+      'Fund the next storm collectively and release the named debtors',
+      'The rainkeeper accepts a public budget instead of private punishment. Oren warns that the new fund will require ordinary, difficult arguments.',
+      'night-rain-shared',
+    ),
+  ),
+  s(
+    '4,6',
+    'Lowland Council / The Door with Eight Hinges',
+    'The rescue road is a door whose hinges are made from the collarbones of people denied passage. Each councilor can open it only by naming someone else who must stay behind.',
+    c(
+      'night-lowland-road',
+      'Open the road to all and accept a shared, slower repair rota',
+      'The hinges become ordinary iron. Families leave at their own pace; the bakery must surrender its exclusive supply route.',
+      'night-lowland-open',
+    ),
+    c(
+      'night-lowland-veto',
+      'Give the displaced households power to refuse any future closure',
+      'The council loses its emergency shortcut. The households choose a temporary route and can revoke it without sacrificing another traveler.',
+      'night-lowland-recall',
+    ),
+  ),
 ]
 
 export const HOSHIMORI_NIGHT_CLUE_SITES = ['1,1', '2,1', '3,1'] as const
-export const HOSHIMORI_NIGHT_MAX_EVENTS = 512
+export const HOSHIMORI_NIGHT_MAX_EVENTS = 768
+export const HOSHIMORI_NIGHT_WINDWARD_KEYS = [
+  '5,1',
+  '6,1',
+  '7,1',
+  '8,1',
+  '5,2',
+  '6,2',
+  '7,2',
+  '8,2',
+] as const
+export const HOSHIMORI_NIGHT_BELLROAD_KEYS = [
+  '5,3',
+  '6,3',
+  '7,3',
+  '8,3',
+  '5,4',
+  '6,4',
+  '7,4',
+  '8,4',
+] as const
+export const HOSHIMORI_NIGHT_LOWBANK_KEYS = [
+  '1,5',
+  '2,5',
+  '3,5',
+  '4,5',
+  '1,6',
+  '2,6',
+  '3,6',
+  '4,6',
+] as const
 const SITES = new Map(HOSHIMORI_NIGHT_SITES.map((site) => [site.key, site]))
+const WINDWARD_SITES = new Set<string>(HOSHIMORI_NIGHT_WINDWARD_KEYS)
+const BELLROAD_SITES = new Set<string>(HOSHIMORI_NIGHT_BELLROAD_KEYS)
+const LOWBANK_SITES = new Set<string>(HOSHIMORI_NIGHT_LOWBANK_KEYS)
 const SIGNS = ['cedar', 'bell', 'coat', 'ash'] as const
 
 export type NightEvent =
@@ -368,6 +809,11 @@ export function canMoveHoshimoriNight(
   to: string,
 ): boolean {
   if (!SITES.has(to) || !adjacent(progress.current, to)) return false
+  if (WINDWARD_SITES.has(to) && !hoshimoriNightCouncil(progress)) return false
+  if (BELLROAD_SITES.has(to) && !hoshimoriNightWindwardAccount(progress))
+    return false
+  if (LOWBANK_SITES.has(to) && !hoshimoriNightBellroadAccount(progress))
+    return false
   if (
     !progress.doorOpen &&
     ((progress.current === '4,2' && to === '4,3') ||
@@ -465,6 +911,75 @@ export function hoshimoriNightCouncil(progress: NightProgress): string | null {
   ].join(' ')
 }
 
+export function hoshimoriNightWindwardAccount(
+  progress: NightProgress,
+): string | null {
+  if (
+    !hoshimoriNightCouncil(progress) ||
+    !progress.choices['5,1'] ||
+    !progress.choices['7,1'] ||
+    !progress.choices['8,2']
+  )
+    return null
+  return [
+    progress.choices['5,1'] === 'night-post-return'
+      ? 'Undelivered letters returned to their senders without exposing absent families.'
+      : 'A public accusation survived, but its sender still controls whether to testify.',
+    progress.choices['7,1'] === 'night-forecast-break'
+      ? 'The courier chose an uncertain storm while Oren kept a safe ground route open.'
+      : 'Redacted storm warnings remained useful without becoming a census of people.',
+    progress.choices['8,2'] === 'night-windward-open'
+      ? 'The Windward Council funded a revocable exit, accepting that some reunions will not happen.'
+      : 'The council kept time-limited shelter with an enforceable right to refuse.',
+  ].join(' ')
+}
+
+export function hoshimoriNightBellroadAccount(
+  progress: NightProgress,
+): string | null {
+  if (
+    !hoshimoriNightWindwardAccount(progress) ||
+    !progress.choices['5,3'] ||
+    !progress.choices['6,4'] ||
+    !progress.choices['8,4']
+  )
+    return null
+  return [
+    progress.choices['5,3'] === 'night-mooncake-portion'
+      ? 'The queue received actual food instead of a perfect imaginary supper.'
+      : 'Pip preserved proof of the false meal tally while Char fed those still waiting.',
+    progress.choices['6,4'] === 'night-kappa-return'
+      ? 'The kappa returned stolen reflections without publishing the travelers.'
+      : 'The river gained a publicly funded free crossing with voluntary witnesses.',
+    progress.choices['8,4'] === 'night-shrine-offer'
+      ? 'Names could be reclaimed without forcing their owners back to Hoshimori.'
+      : 'The shrine released its biting tags before requesting anyone’s testimony.',
+  ].join(' ')
+}
+
+export function hoshimoriNightLowbankAccount(
+  progress: NightProgress,
+): string | null {
+  if (
+    !hoshimoriNightBellroadAccount(progress) ||
+    !progress.choices['1,5'] ||
+    !progress.choices['3,5'] ||
+    !progress.choices['4,6']
+  )
+    return null
+  return [
+    progress.choices['1,5'] === 'night-flood-keys'
+      ? 'The neighbors kept their homes but the flood watch lost two volunteers.'
+      : 'The neighbors reached safety while their disputed homes await witnesses.',
+    progress.choices['3,5'] === 'night-weir-share'
+      ? 'The bakery sacrificed its flour to spare the cottages a worse flood.'
+      : 'The forged dam contracts were exposed and the lowlands had to evacuate.',
+    progress.choices['4,6'] === 'night-lowland-road'
+      ? 'The rescue road opened to all with a shared repair burden.'
+      : 'Displaced households gained a recallable veto over future closures.',
+  ].join(' ')
+}
+
 /** Replay every legal event rather than trusting client-supplied flags or routes. */
 export function restoreHoshimoriNight(value: unknown): NightProgress | null {
   if (!value || typeof value !== 'object') return null
@@ -503,7 +1018,7 @@ export function restoreHoshimoriNight(value: unknown): NightProgress | null {
 
 export function validateHoshimoriNight(): string[] {
   const errors: string[] = []
-  if (SITES.size !== 16) errors.push('Expected sixteen unique night sites')
+  if (SITES.size !== 40) errors.push('Expected forty unique night sites')
   const choiceIds = HOSHIMORI_NIGHT_SITES.flatMap((site) =>
     site.choices.map((choice) => choice.id),
   )
@@ -543,7 +1058,7 @@ export function validateHoshimoriNight(): string[] {
       }
     }
   }
-  if (reached.size !== 16)
+  if (reached.size !== 40)
     errors.push('A night site requires a blind or sealed crossing')
   if (!SITES.has('1,4') || SITES.has('6,7'))
     errors.push('e08 photo reservations drifted')

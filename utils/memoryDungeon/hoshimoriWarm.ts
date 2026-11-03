@@ -2150,6 +2150,78 @@ export const HOSHIMORI_OVEN_ROOMS: readonly HoshimoriOvenRoom[] = [
       },
     ],
   },
+  {
+    id: 'OV-34',
+    title: 'The Refuge That Refuses a Name',
+    opening:
+      'Beyond the sixth bell stands a refuge built entirely from borrowed doorframes. The old registry demands Vesper write each resident into its permanent ledger before the doors can open. A mother who survived the sold map says she will walk back into the rain first.',
+    choices: [
+      {
+        id: 'last-bell-open-without-register',
+        label: 'Let households open their own doors without a central register',
+        outcome:
+          'The mother opens the first door herself. The refuge gains no master list, and Vesper accepts that the escorts must learn the paths by invitation rather than ownership.',
+        trust: 1,
+        flag: 'last-bell-refuge-self-governed',
+      },
+      {
+        id: 'last-bell-seal-witness-route',
+        label: 'Seal a witnessed rescue route that expires after this crossing',
+        outcome:
+          'Oren measures a temporary passage while Pip seals its witness record. The mother can revoke the route at dawn; nobody is enrolled as a permanent address.',
+        flag: 'last-bell-route-expires',
+      },
+    ],
+  },
+  {
+    id: 'OV-35',
+    title: 'The Bread That Must Be Made Tomorrow',
+    opening:
+      'Kogane shows the village a cold tray and a line of hungry travelers. An old recipe promises an impossible feast if the bakers surrender their rights again. Pip points to the workers whose stolen hours paid for the last miracle.',
+    choices: [
+      {
+        id: 'last-bell-community-kitchens',
+        label: 'Fund ordinary kitchens and publish the shortfall honestly',
+        outcome:
+          'Oren distributes flour, Pip publishes the unfilled orders, and Kogane recruits cooks who may leave at the end of their shifts. The first morning is lean, but nobody is fuel.',
+        trust: 1,
+        flag: 'last-bell-kitchens-independent',
+      },
+      {
+        id: 'last-bell-voluntary-bake',
+        label:
+          'Offer one witnessed bake with worker consent and a cooling bell',
+        outcome:
+          'The workers approve a single shift, not a renewed oath. Kogane keeps the cooling bell, and the village must find a different answer if the next invitation is refused.',
+        flag: 'last-bell-bake-revocable',
+      },
+    ],
+  },
+  {
+    id: 'OV-36',
+    title: 'The Seventh Bell: The Map Nobody Owns',
+    opening:
+      'Vesper finds their childhood atlas beneath the final bell, its missing refuge doors finally visible. An unsigned covenant promises to keep every traveler safe if Vesper signs alone. The families, Kogane and Pip refuse to let another rescue become a private bargain.',
+    choices: [
+      {
+        id: 'last-bell-household-custody',
+        label:
+          'Give each household custody of its route and accept public review',
+        outcome:
+          'Vesper sets down the pen. Families choose their own escorts and a recallable council hears the old betrayal. No single cartographer, guardian or witness may sell the roads again.',
+        trust: 1,
+        flag: 'last-bell-atlas-shared',
+      },
+      {
+        id: 'last-bell-destroy-compulsory-index',
+        label:
+          'Destroy the compulsory index and preserve sealed restitution claims',
+        outcome:
+          'The address index burns while Pip protects the claims of people still owed shelter. Vesper keeps a record of the harm, not a list of where the harmed now sleep.',
+        flag: 'last-bell-index-destroyed',
+      },
+    ],
+  },
 ]
 
 export type HoshimoriEvent =
@@ -2162,6 +2234,7 @@ export type HoshimoriEvent =
   | { type: 'enter-cinder-wing' }
   | { type: 'enter-saffron-wing' }
   | { type: 'enter-glass-wing' }
+  | { type: 'enter-last-bell' }
   | { type: 'oven-choice'; id: string }
   | { type: 'leave' }
 
@@ -2546,6 +2619,50 @@ export function hoshimoriOvenSixthAccount(
   return accounts.join(' ')
 }
 
+/** Every last-bell choice needs the preceding six-wing testimony. */
+export function hoshimoriOvenSeventhAccount(
+  progress: HoshimoriWarmProgress,
+): string | null {
+  const required = ['OV-34', 'OV-35', 'OV-36']
+  if (required.some((id) => !progress.ovenChoices[id])) return null
+  if (!hoshimoriOvenSixthAccount(progress)) return null
+  return [
+    progress.ovenChoices['OV-34'] === 'last-bell-open-without-register'
+      ? 'The refuge opened by household invitation without a permanent register.'
+      : 'The witnessed rescue route expires at dawn unless households renew it.',
+    progress.ovenChoices['OV-35'] === 'last-bell-community-kitchens'
+      ? 'Independent kitchens publish the shortages and protect paid working hours.'
+      : 'A single voluntary bake has a cooling bell and no inherited labor oath.',
+    progress.ovenChoices['OV-36'] === 'last-bell-household-custody'
+      ? 'Vesper surrendered the atlas to a recallable council of affected households.'
+      : 'The compulsory address index was destroyed while restitution claims survived.',
+  ].join(' ')
+}
+
+/** The original guardian choice cannot be undone by a late miracle. */
+export function hoshimoriOvenFinalGuardianResolution(
+  progress: HoshimoriWarmProgress,
+): string | null {
+  if (!hoshimoriOvenSeventhAccount(progress)) return null
+  const prior = hoshimoriOvenGuardianResolution(progress)
+  if (!prior) return null
+  const guardian =
+    progress.ovenChoices['OV-15'] === 'quench-guardian'
+      ? 'The guardian remains quenched. No later bell can resurrect its claim on a memory.'
+      : progress.ovenChoices['OV-12'] === 'release-ember'
+        ? 'The freed guardian may witness a voluntary agreement but cannot compel one.'
+        : 'The guardian serves a revocable term under Kogane’s independent cooling bell.'
+  const food =
+    progress.ovenChoices['OV-35'] === 'last-bell-community-kitchens'
+      ? 'Ordinary kitchens carry the next meal without supernatural wages.'
+      : 'The workers consent to one bake only; the village records what remains unfed.'
+  const custody =
+    progress.ovenChoices['OV-36'] === 'last-bell-household-custody'
+      ? 'Affected families can recall the route council, including Vesper.'
+      : 'Private refuge addresses stay destroyed while claims remain appealable.'
+  return [guardian, food, custody].join(' ')
+}
+
 export function hoshimoriOvenResolution(
   progress: HoshimoriWarmProgress,
 ): string | null {
@@ -2601,6 +2718,7 @@ function eventShape(event: HoshimoriEvent): boolean {
       event.type === 'enter-cinder-wing' ||
       event.type === 'enter-saffron-wing' ||
       event.type === 'enter-glass-wing' ||
+      event.type === 'enter-last-bell' ||
       event.type === 'leave') &&
     keys === 'type'
   )
@@ -2733,6 +2851,20 @@ export function advanceHoshimoriWarm(
       }
       break
     }
+    case 'enter-last-bell': {
+      if (
+        !progress.ovenRoom &&
+        progress.ovenChoices['OV-33'] &&
+        !progress.ovenChoices['OV-36'] &&
+        progress.current === '4,3'
+      ) {
+        const next = HOSHIMORI_OVEN_ROOMS.slice(33, 36).find(
+          (room) => !progress.ovenChoices[room.id],
+        )
+        if (next) changed = { ovenRoom: next.id }
+      }
+      break
+    }
     case 'oven-choice': {
       if (!progress.ovenRoom) break
       const room = OVEN.get(progress.ovenRoom)
@@ -2761,7 +2893,8 @@ export function advanceHoshimoriWarm(
         room!.id === 'OV-15' ||
         room!.id === 'OV-21' ||
         room!.id === 'OV-27' ||
-        room!.id === 'OV-33'
+        room!.id === 'OV-33' ||
+        room!.id === 'OV-36'
           ? null
           : (HOSHIMORI_OVEN_ROOMS[index + 1]?.id ?? null)
       changed = {
@@ -2828,7 +2961,7 @@ export function restoreHoshimoriWarm(
 export function validateHoshimoriWarm(): string[] {
   const errors: string[] = []
   if (SITES.size !== 64) errors.push('Expected sixty-four unique warm sites')
-  if (OVEN.size !== 33) errors.push('Expected thirty-three authored Oven rooms')
+  if (OVEN.size !== 36) errors.push('Expected thirty-six authored Oven rooms')
   const ovenChoiceIds = HOSHIMORI_OVEN_ROOMS.flatMap((room) =>
     room.choices.map((choice) => choice.id),
   )

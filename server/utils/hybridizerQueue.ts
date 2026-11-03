@@ -9,6 +9,7 @@ import { serializeArtJobPayload } from '~/server/utils/artJobPayload'
 import { starterForIdentity } from '~/server/utils/hybridizerFusion'
 import {
   hybridizerArtPrompt,
+  type HybridizerRevisionDirection,
   hybridizerRevisionSeed,
   hybridizerSubjectKind,
   HYBRIDIZER_ART_SIZE,
@@ -31,12 +32,18 @@ export function buildHybridizerArtJob(
   rightTitle: string,
   origin: 'interactive' | 'launch-batch' | 'revision' = 'interactive',
   revision = 0,
+  direction: HybridizerRevisionDirection = {},
 ) {
   const kind = hybridizerSubjectKind(
     starterForIdentity(fusion.leftKey)?.taxonomy,
     starterForIdentity(fusion.rightKey)?.taxonomy,
   )
-  const promptString = hybridizerArtPrompt(leftTitle, rightTitle, kind)
+  const promptString = hybridizerArtPrompt(
+    leftTitle,
+    rightTitle,
+    kind,
+    direction,
+  )
   const { workflow } = buildKrea2WorkflowFromRequest({
     prompt: promptString,
     seed: hybridizerRevisionSeed(fusion.id, revision),
@@ -60,6 +67,12 @@ export function buildHybridizerArtJob(
       retryCount: 0,
       origin,
       revision,
+      ...(revision
+        ? {
+            direction: direction.direction ?? '',
+            leftWeight: direction.leftWeight ?? 50,
+          }
+        : {}),
     },
   }
   const normalized = repairQueuedArtSampler(

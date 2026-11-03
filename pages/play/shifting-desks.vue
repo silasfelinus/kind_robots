@@ -137,16 +137,6 @@
             />
           </div>
           <div class="front-vignette absolute inset-0" aria-hidden="true" />
-          <button
-            type="button"
-            class="btn btn-sm absolute right-3 top-3 z-20 border-amber-100 bg-stone-950/85 text-amber-50 hover:bg-stone-900 sm:right-6 sm:top-6"
-            :title="`Endings on file: ${endingsCount} of ${ENDINGS.length}`"
-            @click="endingsGallery?.open()"
-          >
-            <icon name="kind-icon:trophy" class="size-4" />
-            {{ endingsCount }}/{{ ENDINGS.length }}
-            <span class="sr-only">endings found, open the gallery</span>
-          </button>
           <div
             class="relative z-10 flex h-full flex-col justify-between gap-3 p-3 text-amber-50 sm:p-6"
           >
@@ -183,14 +173,17 @@
                   {{ run ? 'New game' : 'Begin' }}
                 </button>
                 <button
-                  v-if="store.archiveUnlocked"
                   type="button"
                   class="btn btn-lg border-amber-100 bg-stone-950/85 text-amber-50 shadow-xl hover:bg-stone-900"
                   @click="openArchive('milestones')"
                 >
-                  <icon name="kind-icon:trophy" class="size-5" />
+                  <icon name="kind-icon:folder" class="size-5" />
                   Personnel Archive ·
-                  {{ store.rewardArchive.runs.length }} filed
+                  {{
+                    store.archiveUnlocked
+                      ? store.rewardArchive.runs.length + ' filed'
+                      : 'Sealed'
+                  }}
                 </button>
                 <button
                   type="button"
@@ -672,153 +665,13 @@
                     />
                   </details>
                   <div
-                    class="flex shrink-0 flex-col"
-                    :class="manyRoutes ? 'gap-1.5' : 'grow gap-2 lg:gap-3'"
-                  >
-                    <button
-                      v-for="choice in openRoutes"
-                      :key="choice.id"
-                      type="button"
-                      class="flex shrink-0 flex-col rounded-xl border-2 text-left transition"
-                      :class="[
-                        manyRoutes
-                          ? 'choice-card-compact gap-1 px-3 py-1.5'
-                          : fourRoutes
-                            ? 'choice-card choice-four grow justify-center gap-1 px-3 py-2 lg:rounded-2xl lg:px-4'
-                            : 'choice-card grow justify-center gap-1.5 px-4 py-3 lg:gap-2 lg:rounded-2xl lg:px-5',
-                        lockFor(choice)
-                          ? 'cursor-not-allowed border-base-300 bg-base-200 text-base-content/60'
-                          : 'border-base-300 bg-base-100 hover:border-warning focus-visible:border-warning',
-                      ]"
-                      :aria-disabled="!!lockFor(choice)"
-                      :title="lockFor(choice) ?? undefined"
-                      @click="pick(choice)"
-                    >
-                      <span class="flex flex-wrap items-center gap-x-2 gap-y-1">
-                        <icon
-                          v-if="manyRoutes && lockFor(choice)"
-                          name="kind-icon:lock"
-                          class="size-3.5 text-error"
-                        />
-                        <span
-                          class="font-bold"
-                          :class="
-                            manyRoutes
-                              ? 'text-sm'
-                              : fourRoutes
-                                ? 'choice-label text-base lg:text-xl'
-                                : 'choice-label text-base sm:text-lg lg:text-2xl'
-                          "
-                          >{{ choice.label }}</span
-                        >
-                        <span
-                          v-if="manyRoutes && lockFor(choice)"
-                          class="sr-only"
-                          >{{ lockFor(choice) }}</span
-                        >
-                        <template v-if="!(manyRoutes && lockFor(choice))">
-                          <span
-                            v-if="choice.roll"
-                            class="flex cursor-help items-center gap-1 rounded-md bg-base-300 font-bold"
-                            :class="chipSize"
-                            :title="rollExplain(choice)"
-                            @click.stop.prevent="toggleRollTip(choice.id)"
-                          >
-                            <icon name="kind-icon:dice" class="size-3.5" />
-                            {{ DIFFICULTY[choice.roll.target] ?? 'Roll' }}
-                            <span class="roll-need font-black text-sky-700">{{
-                              needFor(choice)
-                            }}</span>
-                            <span class="sr-only">{{
-                              rollExplain(choice)
-                            }}</span>
-                          </span>
-                          <span
-                            v-else
-                            class="rounded-md bg-base-300 font-bold"
-                            :class="chipSize"
-                            >Certain</span
-                          >
-                          <shifting-desks-effect-chips
-                            v-if="hasCost(choice)"
-                            :effects="choice.cost"
-                            :prefix="manyRoutes ? '' : 'Cost'"
-                            :large="!manyRoutes"
-                          />
-                        </template>
-                      </span>
-                      <span
-                        v-if="!(manyRoutes && lockFor(choice))"
-                        class="opacity-80"
-                        :class="
-                          manyRoutes
-                            ? 'line-clamp-1 text-xs'
-                            : fourRoutes
-                              ? 'choice-intent text-sm leading-snug lg:text-base'
-                              : 'text-sm leading-snug sm:text-base lg:text-lg'
-                        "
-                        :title="
-                          manyRoutes
-                            ? `${choice.intent} ${choice.risk_hint}`
-                            : undefined
-                        "
-                        >{{ choice.intent }}
-                        <span v-if="!manyRoutes" class="italic opacity-80">{{
-                          choice.risk_hint
-                        }}</span></span
-                      >
-                      <span
-                        v-if="run && riskPayoffFor(run, choice)"
-                        class="self-start rounded-md bg-success/15 px-2 py-0.5 text-[11px] font-semibold text-success-content"
-                        >If the check succeeds: +1 Form</span
-                      >
-                      <span
-                        v-if="run && clueChainFor(run, choice)"
-                        class="self-start rounded-md border border-info/40 bg-info/10 px-2 py-0.5 text-[11px] font-semibold"
-                        :title="clueChainFor(run, choice)?.hint"
-                        >Thread: {{ clueChainFor(run, choice)?.hint }}</span
-                      >
-                      <span
-                        v-if="rollTip === choice.id && choice.roll"
-                        class="rounded-md bg-sky-100 px-2 py-1 text-xs leading-snug text-sky-950"
-                        aria-hidden="true"
-                        >{{ rollExplain(choice) }}</span
-                      >
-                      <span
-                        v-if="gradeBadge(choice)"
-                        class="flex items-center gap-1 self-start rounded-md bg-stone-800 px-2 py-0.5 text-[10px] font-bold uppercase text-amber-50"
-                      >
-                        <icon name="kind-icon:document" size="0.75rem" />
-                        {{ gradeBadge(choice) }}
-                      </span>
-                      <span
-                        v-if="aidBadges(choice).length"
-                        class="flex flex-wrap gap-1.5 text-[10px] font-bold uppercase"
-                      >
-                        <span
-                          v-for="badge in aidBadges(choice)"
-                          :key="badge"
-                          class="rounded-md bg-warning/20 px-2 py-0.5"
-                          >{{ badge }}</span
-                        >
-                      </span>
-                      <span
-                        v-if="lockFor(choice) && !manyRoutes"
-                        class="text-xs font-bold text-error"
-                      >
-                        <icon name="kind-icon:lock" class="size-3" />
-                        {{ lockFor(choice) }}
-                      </span>
-                    </button>
-                  </div>
-                  <div
                     v-if="
                       lockedRoutes.length ||
                       anyRoll ||
                       favorToggleShown ||
                       mutationToggleShown
                     "
-                    class="flex shrink-0 flex-wrap items-center gap-1.5 text-xs"
+                    class="flex shrink-0 flex-wrap items-center gap-1.5 font-sans text-sm"
                   >
                     <ul
                       v-if="lockedRoutes.length"
@@ -828,20 +681,17 @@
                       <li
                         v-for="choice in lockedRoutes"
                         :key="choice.id"
-                        class="locked-chip flex max-w-full items-center gap-1 rounded-lg border border-base-300 bg-base-200 px-2 py-1 text-xs text-base-content/70 max-md:max-w-[calc(50%-0.375rem)]"
+                        class="locked-chip flex max-w-full items-center gap-1 rounded-lg border-2 border-dashed border-stone-500 bg-stone-200 px-2 py-1 text-stone-700 max-md:max-w-[calc(50%-0.375rem)]"
                         :title="lockFor(choice) ?? undefined"
                       >
-                        <icon
-                          name="kind-icon:lock"
-                          class="size-3 shrink-0 text-error"
-                        />
+                        <icon name="kind-icon:lock" class="size-3 shrink-0" />
                         <span class="truncate">{{ choice.label }}</span>
                         <span class="sr-only">{{ lockFor(choice) }}</span>
                       </li>
                     </ul>
                     <label
                       v-if="anyRoll"
-                      class="flex cursor-pointer items-center gap-1.5 rounded-lg border border-base-300 bg-base-200 px-2 py-1"
+                      class="desk-toggle flex cursor-pointer items-center gap-1.5 rounded-lg border-2 border-stone-800 px-2.5 py-1 font-semibold text-stone-900"
                       title="Attach a signed Form for +2 to the roll. Costs 1 Form, rolls only."
                     >
                       <input
@@ -854,7 +704,7 @@
                     </label>
                     <label
                       v-if="favorToggleShown"
-                      class="flex cursor-pointer items-center gap-1.5 rounded-lg border border-base-300 bg-base-200 px-2 py-1"
+                      class="desk-toggle flex cursor-pointer items-center gap-1.5 rounded-lg border-2 border-stone-800 px-2.5 py-1 font-semibold text-stone-900"
                       :title="`${society.favor.text} Once per run.`"
                     >
                       <input
@@ -866,7 +716,7 @@
                     </label>
                     <label
                       v-if="mutationToggleShown"
-                      class="flex cursor-pointer items-center gap-1.5 rounded-lg border border-base-300 bg-base-200 px-2 py-1"
+                      class="desk-toggle flex cursor-pointer items-center gap-1.5 rounded-lg border-2 border-stone-800 px-2.5 py-1 font-semibold text-stone-900"
                       :title="`${mutation.text}${witnessed ? ' Someone is watching: +2 Suspicion.' : ''}`"
                     >
                       <input
@@ -878,6 +728,80 @@
                       }}<template v-if="witnessed"> (+2 Suspicion)</template>
                     </label>
                   </div>
+                  <p
+                    v-if="tipRoute"
+                    class="shrink-0 rounded-md bg-sky-100 px-2 py-1 font-sans text-xs leading-snug text-sky-950"
+                    aria-hidden="true"
+                  >
+                    {{ rollExplain(tipRoute) }}
+                  </p>
+                  <KrChoiceHand
+                    class="desk-hand shrink-0"
+                    :choices="routeCards"
+                    :deal-key="`${run.department}:${run.position}`"
+                    testid-prefix="shifting-desks-route"
+                    @play="(card) => pick(face(card.id).route)"
+                  >
+                    <template #art="{ choice, src }">
+                      <span class="desk-hand-face">
+                        <shifting-desks-art
+                          v-if="src"
+                          class="!absolute inset-0"
+                          frame="h-full w-full"
+                          :src="src"
+                          :position="face(choice.id).position"
+                          :fallback-icon="cardIcon"
+                          icon-size="2.5rem"
+                          :show-brief="false"
+                        />
+                        <icon
+                          v-if="choice.disabled && src"
+                          name="kind-icon:lock"
+                          class="desk-hand-lock"
+                        />
+                        <span v-else class="desk-hand-meta">
+                          <span
+                            v-if="face(choice.id).difficulty"
+                            class="choice-stamp flex cursor-help items-center gap-1 px-1.5 py-0.5 text-xs"
+                            :title="rollExplain(face(choice.id).route)"
+                            @click.stop.prevent="toggleRollTip(choice.id)"
+                          >
+                            <icon name="kind-icon:dice" class="size-3.5" />
+                            {{ face(choice.id).difficulty }}
+                            <span class="roll-need font-black">{{
+                              face(choice.id).need
+                            }}</span>
+                          </span>
+                          <span
+                            v-else
+                            class="choice-stamp px-1.5 py-0.5 text-xs"
+                            >Certain</span
+                          >
+                          <shifting-desks-effect-chips
+                            v-if="hasCost(face(choice.id).route)"
+                            :effects="face(choice.id).route.cost"
+                            on-dark
+                          />
+                          <span
+                            v-if="face(choice.id).payoff"
+                            class="meta-chip bg-green-200 text-green-950"
+                            >+1 Form on success</span
+                          >
+                          <span
+                            v-for="badge in face(choice.id).aids"
+                            :key="badge"
+                            class="meta-chip bg-orange-200 uppercase text-orange-950"
+                            >{{ badge }}</span
+                          >
+                          <span
+                            v-if="openRoutes.length <= 4"
+                            class="desk-hand-intent"
+                            >{{ face(choice.id).route.intent }}</span
+                          >
+                        </span>
+                      </span>
+                    </template>
+                  </KrChoiceHand>
                 </template>
               </template>
 
@@ -893,7 +817,6 @@
         </div>
       </section>
 
-      <shifting-desks-endings-gallery ref="endingsGallery" />
       <shifting-desks-personnel-archive ref="personnelArchive" />
 
       <dialog ref="artPicker" class="modal" aria-label="Choose your art style">
@@ -998,6 +921,7 @@ import {
   successorLine,
 } from '~/utils/shiftingDesks/memos'
 import { useShiftingDesksStore } from '~/stores/shiftingDesksStore'
+import type { KrHandChoice } from '~/components/narrative/kr-choice-hand.vue'
 import { dailyDateOf, dailyKey, dailyLabel } from '~/utils/shiftingDesks/daily'
 import {
   ART_STYLES,
@@ -1391,24 +1315,13 @@ function aidBadges(choice: Choice): string[] {
 
 const manyRoutes = computed(() => (view.value?.card.choices.length ?? 0) > 4)
 
-const chipSize = computed(() =>
-  manyRoutes.value
-    ? 'px-1.5 py-0.5 text-[11px]'
-    : 'px-2 py-0.5 text-xs sm:py-1 sm:text-sm',
-)
-
-// From four routes up, locked ones fold into lock chips under the open ones,
-// so a payoff you have not earned still teases without taking a full card.
+// From four routes up, locked ones fold into lock chips above the hand, so a
+// payoff you have not earned still teases without taking a full card.
 const chipLocks = computed(() => (view.value?.card.choices.length ?? 0) >= 4)
 const openRoutes = computed(() =>
   (view.value?.card.choices ?? []).filter(
     (c) => !chipLocks.value || !lockFor(c),
   ),
-)
-// Four open routes read one size down so the fourth never falls below the
-// fold (t-031 doubled decks, 2026-10-17); five or more use the compact list.
-const fourRoutes = computed(
-  () => !manyRoutes.value && openRoutes.value.length === 4,
 )
 const denseRoutes = computed(() => manyRoutes.value || chipLocks.value)
 const lockedRoutes = computed(() =>
@@ -1425,8 +1338,96 @@ function hasCost(choice: Choice): boolean {
   return Object.keys(choice.cost).length > 0
 }
 
+// Silas, 2026-11-02: a set of choices is a hand of cards whose faces show
+// what each one leads to. A Board verdict shows its epilogue once that ending
+// is on file; otherwise a card gets its own drawn face (never a repeat of the
+// file's art, which is already on the desk above).
+const ROUTE_ICONS: Record<string, string> = {
+  Certain: '✅',
+  Routine: '📄',
+  Risky: '⚠️',
+  Dire: '☠️',
+}
+
+function endingArtFor(choice: Choice): string | null {
+  const outcome = choice.success.department_outcome
+  const ending = outcome
+    ? ENDINGS.find((e) => e.trigger.department_outcome === outcome)
+    : undefined
+  return ending && store.endingsFound.includes(ending.id)
+    ? stationArt('endings', ending.id)
+    : null
+}
+
+function costText(choice: Choice): string {
+  const parts = METERS.filter((m) => choice.cost[m]).map((m) => {
+    const v = choice.cost[m] as number
+    return `${v > 0 ? '+' : ''}${v} ${METER_LABELS[m]}`
+  })
+  return parts.length ? `Cost: ${parts.join(', ')}` : ''
+}
+
+const routeFaces = computed(
+  () =>
+    new Map(
+      openRoutes.value.map((choice) => {
+        const ending = endingArtFor(choice)
+        return [
+          choice.id,
+          {
+            route: choice,
+            art: ending,
+            position: 'object-[50%_35%]',
+            difficulty: choice.roll
+              ? (DIFFICULTY[choice.roll.target] ?? 'Roll')
+              : null,
+            need: needFor(choice),
+            payoff: !!run.value && !!riskPayoffFor(run.value, choice),
+            aids: aidBadges(choice),
+          },
+        ] as const
+      }),
+    ),
+)
+
+function face(id: string) {
+  return routeFaces.value.get(id)!
+}
+
+const routeCards = computed<KrHandChoice[]>(() =>
+  openRoutes.value.map((choice) => {
+    const lock = lockFor(choice)
+    const thread = run.value ? clueChainFor(run.value, choice)?.hint : ''
+    return {
+      id: choice.id,
+      label: choice.label,
+      disabled: !!lock,
+      hint: lock ?? undefined,
+      image: face(choice.id).art,
+      icon: lock
+        ? '🔒'
+        : (ROUTE_ICONS[face(choice.id).difficulty ?? 'Certain'] ?? '📎'),
+      details: [
+        choice.intent,
+        choice.risk_hint,
+        costText(choice),
+        run.value && riskPayoffFor(run.value, choice)
+          ? 'If the check succeeds: +1 Form'
+          : '',
+        thread ? `Thread: ${thread}` : '',
+        gradeBadge(choice) ?? '',
+        ...aidBadges(choice),
+        lock ? '' : rollExplain(choice),
+      ].filter(Boolean),
+    }
+  }),
+)
+
+const tipRoute = computed(
+  () => openRoutes.value.find((c) => c.id === rollTip.value && c.roll) ?? null,
+)
+
 // The front desk's collectible: every ending this browser has reached.
-const endingsGallery = ref<{ open: () => void } | null>(null)
 const personnelArchive = ref<{
   open: (section?: 'milestones' | 'endings' | 'achievements' | 'runs') => void
 } | null>(null)
@@ -1435,9 +1436,6 @@ function openArchive(
 ): void {
   personnelArchive.value?.open(section)
 }
-const endingsCount = computed(
-  () => ENDINGS.filter((e) => store.endingsFound.includes(e.id)).length,
-)
 
 // Silas, 2026-10-16 (free rein): the Daily Memo, one seeded run per day.
 const dailyNext = ref(false)
@@ -1545,6 +1543,116 @@ useHead({ title: 'Shifting Desks' })
   background-size: 6px 6px;
 }
 
+.desk-toggle {
+  background-color: #e9d8a6;
+}
+
+/* Choices read like Memory Dungeon's (Silas, 2026-11-02): the file stays
+   serif on manila, every route is a card in the shared hand with a solid ink
+   title band in plain sans, and the numbers ride at its foot as stamps. */
+.desk-hand {
+  --hand-accent: #f59e0b;
+  --hand-accent-2: #e9d8a6;
+  --hand-band: #2b2622;
+  --hand-band-ink: #fdf6e3;
+  --hand-text-scale: 1.25;
+}
+
+.desk-hand :deep(.krh-title) {
+  padding-bottom: 0.9rem;
+  background: linear-gradient(var(--band) calc(100% - 1rem), transparent);
+}
+
+.desk-hand :deep(.krh-title strong) {
+  -webkit-line-clamp: 4;
+  font-family: ui-sans-serif, system-ui, sans-serif;
+  font-weight: 800;
+  line-height: 1.2;
+}
+
+.desk-hand :deep(.krh-hint) {
+  color: #fca5a5;
+  font-family: ui-sans-serif, system-ui, sans-serif;
+  font-size: 0.68rem;
+  font-weight: 700;
+}
+
+.desk-hand-face {
+  container-type: inline-size;
+}
+
+@container (max-width: 8rem) {
+  .desk-hand-meta {
+    flex-wrap: nowrap;
+    overflow: hidden;
+    gap: 0.15rem;
+    padding: 0.8rem 0.3rem 0.3rem;
+  }
+  .desk-hand-meta > * {
+    flex-shrink: 1;
+    min-width: 0;
+    overflow: hidden;
+    font-size: 0.58rem;
+    white-space: nowrap;
+  }
+  .desk-hand-meta .desk-hand-intent {
+    display: none;
+  }
+}
+
+.desk-hand-meta {
+  position: absolute;
+  inset: auto 0 0;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 1.1rem 0.4rem 0.4rem;
+  background: linear-gradient(transparent, rgb(43 38 34 / 0.94) 1rem);
+  font-family: ui-sans-serif, system-ui, sans-serif;
+}
+
+.desk-hand-intent {
+  display: -webkit-box;
+  width: 100%;
+  overflow: hidden;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+  color: rgb(253 246 227 / 0.88);
+  font-size: 0.66rem;
+  line-height: 1.25;
+}
+
+.desk-hand-lock {
+  position: absolute;
+  top: 55%;
+  left: 50%;
+  width: 2.5rem;
+  height: 2.5rem;
+  translate: -50% -50%;
+  color: #fdf6e3;
+  filter: drop-shadow(0 2px 4px rgb(0 0 0 / 0.8));
+}
+
+.choice-stamp {
+  display: inline-flex;
+  border-radius: 0.375rem;
+  background-color: #e9d8a6;
+  color: #1c1917;
+  font-weight: 800;
+}
+
+.choice-stamp .roll-need {
+  color: #9a3412;
+}
+
+.meta-chip {
+  border-radius: 0.375rem;
+  padding: 0.125rem 0.5rem;
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
 .desk-plate {
   background-color: #d9c48c;
   border-bottom: 4px solid #292524;
@@ -1578,16 +1686,6 @@ useHead({ title: 'Shifting Desks' })
     grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr) !important;
   }
 
-  .choice-card {
-    padding-block: 0.5rem;
-    gap: 0.25rem;
-  }
-
-  .choice-label {
-    font-size: 1.25rem;
-    line-height: 1.6rem;
-  }
-
   .desk-brief-text {
     font-size: 1rem;
     line-height: 1.55rem;
@@ -1595,26 +1693,6 @@ useHead({ title: 'Shifting Desks' })
 
   .desk-brief {
     padding: 0.5rem 0.75rem;
-  }
-
-  .choice-card-compact {
-    padding-block: 0.25rem;
-    gap: 0.125rem;
-  }
-
-  .choice-four {
-    padding-block: 0.3rem;
-    gap: 0.125rem;
-  }
-
-  .choice-four .choice-label {
-    font-size: 1.05rem;
-    line-height: 1.35rem;
-  }
-
-  .choice-four .choice-intent {
-    font-size: 0.875rem;
-    line-height: 1.25rem;
   }
 
   .hire-portrait {

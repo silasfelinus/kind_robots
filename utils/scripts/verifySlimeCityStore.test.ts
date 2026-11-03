@@ -6,7 +6,7 @@ import assert from 'node:assert/strict'
 import { mock } from 'node:test'
 import { createPinia, setActivePinia } from 'pinia'
 import { useSlimeCityStore } from '../../stores/slimeCity'
-import { replayMatch, RUSH_TICK_MS } from '../slimeCity/prototypes'
+import { flagSquare, replayMatch, RUSH_TICK_MS } from '../slimeCity/prototypes'
 
 mock.timers.enable({ apis: ['setInterval'] })
 setActivePinia(createPinia())
@@ -47,11 +47,14 @@ assert.equal(JSON.stringify(lab.match), frozen, 'Paused: nothing advances')
 
 // A between-tick play while paused lands before the next tick
 const open = [0, 1, 2, 3, 4, 5].find(
-  (y) => !lab.match.units.some((u) => u.x === 0 && u.y === y),
+  (y) =>
+    !lab.match.units.some((u) => u.x === 0 && u.y === y) &&
+    !flagSquare(lab.match, 0, y),
 )!
-const card = lab.cards.find(
+const card = lab.hand.find(
   (c) => c.kind === 'creature' && c.cost <= lab.match.mana,
 )!
+assert.ok(card, 'BLOODRUSH deals a hand with a creature in it')
 lab.chooseCard(card.id)
 lab.touchSquare(0, open)
 assert.ok(
@@ -63,7 +66,7 @@ assert.equal(lab.match.round, 4, 'Deploying does not tick the clock')
 lab.toggleRush()
 mock.timers.tick(RUSH_TICK_MS)
 assert.equal(lab.match.round, 5)
-const spell = lab.cards.find(
+const spell = lab.hand.find(
   (c) => c.kind !== 'creature' && c.cost <= lab.match.mana && lab.ready(c.id),
 )
 if (spell) lab.chooseCard(spell.id)
@@ -109,12 +112,23 @@ lab.toggleRush()
 assert.equal(lab.running, false)
 lab.nextRound()
 assert.equal(lab.match.round, 2)
-// Selecting a fighter keeps it selected while it has AP left
-const mine = lab.match.units.find((u) => u.side === 'player' && u.maxAp >= 2)
+// Tapping a token opens its card; stance orders are the only board command.
+const mine = lab.match.units.find((u) => u.side === 'player')
 if (mine) {
   lab.touchSquare(mine.x, mine.y)
   assert.equal(lab.selectedUnit, mine.id)
+  assert.equal(lab.inspectedUnit?.id, mine.id)
+  lab.orderStance(mine.id, 'defend')
+  assert.equal(lab.inspectedUnit?.stance, 'defend')
+  lab.touchSquare(mine.x, mine.y)
+  assert.equal(lab.selectedUnit, null, 'Tapping it again closes the card')
 }
+// Drag a card to the discard pile and take it back.
+const tossed = lab.hand[0]!
+lab.markHandDiscard(tossed.id)
+assert.ok(lab.match.markedDiscards.player.includes(tossed.id))
+lab.undoDiscard()
+assert.equal(lab.match.markedDiscards.player.length, 0)
 lab.dispose()
 mock.timers.reset()
 console.log(

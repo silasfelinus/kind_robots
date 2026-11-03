@@ -359,17 +359,14 @@
                 <strong>{{ offer.beat.title }}</strong>
                 <span>{{ offer.beat.scene }}</span>
                 <span v-if="offer.waiting">{{ offer.waiting }}</span>
-                <button
-                  v-for="option in offer.options"
-                  :key="option.id"
-                  class="cca-choice"
-                  type="button"
-                  data-testid="academy-triad-choice"
-                  @click="store.negotiate(offer.arc.id, option.id)"
-                >
-                  <span>{{ option.label }}</span
-                  ><span>↗</span>
-                </button>
+                <KrChoiceHand
+                  v-if="offer.options.length"
+                  class="cca-hand"
+                  :choices="triadChoices(offer)"
+                  :deal-key="'triad:' + run.day + ':' + offer.arc.id"
+                  testid-prefix="academy-triad-choice"
+                  @play="(option) => store.negotiate(offer.arc.id, option.id)"
+                />
               </div>
               <div class="cca-map-tabs" aria-label="Choose classmate">
                 <button
@@ -427,17 +424,14 @@
                 {{ selectedSocialProfile.voice }}</span
               >
               <span>{{ selectedSocialProfile?.boundary }}</span>
-              <button
-                v-for="choice in socialActionOptions"
-                :key="choice.id"
-                class="cca-choice"
-                type="button"
-                data-testid="academy-social-choice"
-                @click="store.social(selectedSocialId, choice.id)"
-              >
-                <span>{{ choice.label }}</span
-                ><span>↗</span>
-              </button>
+              <KrChoiceHand
+                v-if="socialActionOptions.length"
+                class="cca-hand"
+                :choices="socialHandChoices"
+                :deal-key="'social:' + run.day + ':' + selectedSocialId"
+                testid-prefix="academy-social-choice"
+                @play="playSocial"
+              />
               <span v-if="!socialActionOptions.length"
                 >This person cannot spend time together today. A betrayal may
                 have changed the roster.</span
@@ -681,19 +675,19 @@
                   </p>
                 </div>
               </div>
-              <section
+              <details
                 v-if="run.patrolOpening === 1 && run.day >= 4"
                 class="cca-patrol-board"
                 data-testid="academy-night-district-patrol"
                 aria-label="Neighborhood night patrol"
               >
-                <div class="cca-patrol-heading">
+                <summary class="cca-patrol-heading">
                   <strong>✦ WALK THE BLOCK · OPTIONAL PATROL</strong>
                   <small
                     >Choose a neighborhood instead of a major call. Your allies
                     can still answer other emergencies.</small
                   >
-                </div>
+                </summary>
                 <div
                   class="cca-patrol-zones"
                   role="group"
@@ -778,228 +772,360 @@
                     to change your plan
                   </small>
                 </div>
-              </section>
-              <article
-                v-for="incident in store.incidents"
-                :key="incident.id"
-                class="cca-incident"
-              >
-                <div class="cca-incident-name">
-                  <strong>{{ incident.title }}</strong
-                  ><span
-                    >NEEDS {{ statForField(incident.need).toUpperCase() }} ·
-                    RISK {{ incident.risk }} / 06</span
-                  >
-                </div>
-                <div class="cca-incident-location">
-                  {{ incident.site }} ·
-                  {{
-                    incident.allegiance.toUpperCase() +
-                    ' / ' +
-                    (run.flowVersion === 3 || run.day > 2
-                      ? 'REAL NIGHT PATROL'
-                      : 'TRAINING SIMULATION')
-                  }}
-                </div>
-                <p>
-                  {{
-                    run.flowVersion === 3 || run.day > 2
-                      ? (realNightCase(incident.id)?.briefing ??
-                        incident.briefing)
-                      : incident.briefing
-                  }}
-                </p>
-                <div
-                  v-if="run.patrolOpening === 1 && run.day === 3"
-                  class="cca-report-mini"
-                  data-testid="academy-third-night-decision"
-                >
-                  <strong>THE THIRD NIGHT · AN IMPOSSIBLE CHOICE</strong>
-                  <span
-                    >Take {{ incident.title }} yourself and decide how to use
-                    your first friend.</span
-                  >
-                  <button
-                    type="button"
-                    class="cca-choice"
-                    @click="store.planCrisis(incident.id, 'split')"
-                  >
-                    SPLIT UP · attempt both rescues
-                  </button>
-                  <button
-                    type="button"
-                    class="cca-choice"
-                    @click="store.planCrisis(incident.id, 'concentrate')"
-                  >
-                    STAY TOGETHER · guarantee the best rescue here, abandon the
-                    other
-                  </button>
-                </div>
-                <button
-                  v-if="run.flowVersion === 3"
-                  type="button"
-                  class="cca-choice"
-                  :aria-pressed="run.playerCaseId === incident.id"
-                  data-testid="academy-lead-patrol"
-                  @click="store.lead(incident.id)"
-                >
-                  <span>
-                    {{
-                      run.playerCaseId === incident.id
-                        ? '✦ YOU ARE LEADING THIS PATROL'
-                        : 'TAKE THIS CALL YOURSELF'
-                    }}
-                    <small
-                      >Choose where your own powers, risks and choices go
-                      tonight.</small
-                    >
-                  </span>
-                  <span>↗</span>
-                </button>
-                <div
-                  v-if="
-                    run.playerCaseId === incident.id &&
-                    expandedMissionFor(incident.id)
-                  "
-                  class="cca-mission-tactics"
-                  data-testid="academy-mission-tactics"
-                >
-                  <strong>YOUR DECISION · HOW DO YOU INTERVENE?</strong>
-                  <p>
-                    Saving lives first offers better odds. Investigating the
-                    cause is riskier but can uncover evidence for a later case
-                    in this neighborhood.
-                  </p>
-                  <div class="cca-mission-tactics-grid">
-                    <button
-                      type="button"
-                      class="cca-choice"
-                      :aria-pressed="
-                        (run.missionApproach ?? 'rescue') === 'rescue'
-                      "
-                      :class="{
-                        active: (run.missionApproach ?? 'rescue') === 'rescue',
-                      }"
-                      data-testid="academy-mission-rescue"
-                      @click="store.missionTactic(incident.id, 'rescue')"
-                    >
-                      <strong>RESCUE FIRST</strong>
-                      {{ expandedMissionFor(incident.id)?.tactics.rescue }}
-                    </button>
-                    <button
-                      type="button"
-                      class="cca-choice"
-                      :aria-pressed="run.missionApproach === 'investigate'"
-                      :class="{ active: run.missionApproach === 'investigate' }"
-                      data-testid="academy-mission-investigate"
-                      @click="store.missionTactic(incident.id, 'investigate')"
-                    >
-                      <strong>CHASE THE EVIDENCE</strong>
-                      {{ expandedMissionFor(incident.id)?.tactics.investigate }}
-                    </button>
-                  </div>
-                  <small
-                    >Casebook evidence recovered:
-                    {{ run.missionClues?.length ?? 0 }}. Matching powers and
-                    earlier district clues may reveal a hidden resolution after
-                    your mission succeeds.</small
-                  >
+              </details>
+              <nav class="cca-case-picker" aria-label="Tonight's mission cards">
+                <div class="cca-case-picker-heading">
+                  <strong>01 / DRAW A CALL</strong>
+                  <span>Choose a mission, then play heroes from your hand</span>
                 </div>
                 <div
-                  class="cca-roster"
-                  data-testid="academy-quest-poster-row"
-                  role="group"
-                  :aria-label="'Heroes available for ' + incident.title"
+                  class="cca-case-picker-deck"
+                  data-testid="academy-case-deck"
                 >
                   <button
-                    v-for="student in onCall"
-                    :key="student.id"
+                    v-for="incident in store.incidents"
+                    :key="incident.id"
                     type="button"
-                    class="cca-roster-button"
-                    :class="{
-                      active: isSelected(incident.id, student.id),
-                      unavailable:
-                        isAssignedElsewhere(incident.id, student.id) ||
-                        !store.available(student.id),
-                    }"
-                    :disabled="
-                      isAssignedElsewhere(incident.id, student.id) ||
-                      !store.available(student.id) ||
-                      (!isSelected(incident.id, student.id) &&
-                        teamFor(incident.id).length >= 3)
-                    "
-                    :aria-pressed="isSelected(incident.id, student.id)"
-                    :title="missionReaction(student.id, incident.id).line"
-                    @click="toggleStudent(incident.id, student.id)"
+                    class="cca-case-pick"
+                    :class="{ active: focusedIncident?.id === incident.id }"
+                    :aria-pressed="focusedIncident?.id === incident.id"
+                    data-testid="academy-focus-case"
+                    @click="focusedIncidentId = incident.id"
                   >
-                    <span class="cca-poster-art">
+                    <span class="cca-case-pick-art">
                       <img
-                        v-if="reactionPortrait(student.id, incident.id)"
-                        :src="reactionPortrait(student.id, incident.id)!"
+                        :src="
+                          promArt(incidentArtKey(incident.id)) ?? stageScenery
+                        "
                         alt=""
-                        class="cca-avatar-img"
                       />
-                      <span v-else class="cca-poster-initials">{{
-                        student.portrait
-                      }}</span>
-                      <span
-                        class="cca-expression"
-                        :class="
-                          'mood-' +
-                          missionReaction(student.id, incident.id).mood
-                        "
-                        :aria-label="
-                          missionReaction(student.id, incident.id).mood +
-                          ' reaction'
-                        "
-                      >
-                        {{ reactionEmoji(student.id, incident.id) }}
-                      </span>
                     </span>
-                    <span class="cca-roster-name">{{
-                      student.name.split(' ')[0]
-                    }}</span>
-                    <span class="cca-poster-role">{{ student.title }}</span>
-                    <span class="cca-poster-reaction">{{
-                      missionReaction(student.id, incident.id).line
-                    }}</span>
+                    <span class="cca-case-pick-copy">
+                      <b>{{ incident.title }}</b>
+                      <small
+                        >{{ incident.site }} · RISK
+                        {{ incident.risk }}/06</small
+                      >
+                      <small
+                        v-if="teamFor(incident.id).length"
+                        class="cca-case-pick-status"
+                      >
+                        ✦ {{ teamFor(incident.id).length }} HEROES COMMITTED
+                      </small>
+                      <small v-else>AWAITING YOUR TEAM</small>
+                    </span>
                   </button>
                 </div>
-                <div class="cca-crew-count" data-testid="academy-quest-odds">
-                  <strong
-                    >{{ run.playerCaseId === incident.id ? 'YOU + ' : '' }}TEAM
-                    {{ teamFor(incident.id).length }}/3</strong
-                  >
-                  <strong>{{
-                    teamFor(incident.id).length ||
-                    run.playerCaseId === incident.id
-                      ? dispatchChance(run, incident.id, teamFor(incident.id)) +
-                        '% CHANCE OF SUCCESS'
-                      : 'CHOOSE HEROES TO SEE ODDS'
-                  }}</strong>
-                </div>
-                <p class="cca-odds-note">
-                  Estimated chance of at least a partial success. Complete
-                  success is harder; injuries and city standing can change the
-                  odds.
-                </p>
-                <div
-                  v-if="missionRoute(incident.id, teamFor(incident.id))"
-                  class="cca-special-route"
-                  data-testid="academy-special-mission-route"
+              </nav>
+              <TransitionGroup
+                name="cca-case-swap"
+                tag="div"
+                class="cca-case-stage"
+              >
+                <article
+                  v-for="incident in focusedIncidents"
+                  :key="incident.id"
+                  class="cca-incident"
+                  data-testid="academy-active-quest"
                 >
-                  <strong
-                    >✦ SPECIAL ROUTE:
+                  <div class="cca-incident-scene">
+                    <img
+                      :src="
+                        promArt(incidentArtKey(incident.id)) ?? stageScenery
+                      "
+                      :alt="'Scene from ' + incident.site"
+                    />
+                    <span
+                      >MISSION FILE /
+                      {{ incident.allegiance.toUpperCase() }}</span
+                    >
+                  </div>
+                  <div class="cca-incident-name">
+                    <strong>{{ incident.title }}</strong
+                    ><span
+                      >NEEDS {{ statForField(incident.need).toUpperCase() }} ·
+                      RISK {{ incident.risk }} / 06</span
+                    >
+                  </div>
+                  <div class="cca-incident-location">
+                    {{ incident.site }} ·
                     {{
-                      missionRoute(incident.id, teamFor(incident.id))?.label
-                    }}</strong
+                      incident.allegiance.toUpperCase() +
+                      ' / ' +
+                      (run.flowVersion === 3 || run.day > 2
+                        ? 'REAL NIGHT PATROL'
+                        : 'TRAINING SIMULATION')
+                    }}
+                  </div>
+                  <p>
+                    {{
+                      run.flowVersion === 3 || run.day > 2
+                        ? (realNightCase(incident.id)?.briefing ??
+                          incident.briefing)
+                        : incident.briefing
+                    }}
+                  </p>
+                  <div
+                    v-if="run.patrolOpening === 1 && run.day === 3"
+                    class="cca-report-mini"
+                    data-testid="academy-third-night-decision"
                   >
-                  <span
-                    >This team unlocks an alternative solution with an improved
-                    chance of success.</span
+                    <strong>THE THIRD NIGHT · AN IMPOSSIBLE CHOICE</strong>
+                    <span
+                      >Take {{ incident.title }} yourself and decide how to use
+                      your first friend.</span
+                    >
+                    <KrChoiceHand
+                      class="cca-hand"
+                      :choices="crisisChoices(incident.id)"
+                      :deal-key="`crisis:${incident.id}`"
+                      testid-prefix="academy-crisis-choice"
+                      @play="
+                        (choice) =>
+                          store.planCrisis(
+                            incident.id,
+                            choice.id as 'split' | 'concentrate',
+                          )
+                      "
+                    />
+                  </div>
+                  <button
+                    v-if="run.flowVersion === 3"
+                    type="button"
+                    class="cca-choice"
+                    :aria-pressed="run.playerCaseId === incident.id"
+                    data-testid="academy-lead-patrol"
+                    @click="store.lead(incident.id)"
                   >
-                </div>
-              </article>
+                    <span>
+                      {{
+                        run.playerCaseId === incident.id
+                          ? '✦ YOU ARE LEADING THIS PATROL'
+                          : 'TAKE THIS CALL YOURSELF'
+                      }}
+                      <small
+                        >Choose where your own powers, risks and choices go
+                        tonight.</small
+                      >
+                    </span>
+                    <span>↗</span>
+                  </button>
+                  <div
+                    v-if="
+                      run.playerCaseId === incident.id &&
+                      expandedMissionFor(incident.id)
+                    "
+                    class="cca-mission-tactics"
+                    data-testid="academy-mission-tactics"
+                  >
+                    <strong>YOUR DECISION · HOW DO YOU INTERVENE?</strong>
+                    <p>
+                      Saving lives first offers better odds. Investigating the
+                      cause is riskier but can uncover evidence for a later case
+                      in this neighborhood.
+                    </p>
+                    <div class="cca-mission-tactics-grid">
+                      <button
+                        type="button"
+                        class="cca-choice"
+                        :aria-pressed="
+                          (run.missionApproach ?? 'rescue') === 'rescue'
+                        "
+                        :class="{
+                          active:
+                            (run.missionApproach ?? 'rescue') === 'rescue',
+                        }"
+                        data-testid="academy-mission-rescue"
+                        @click="store.missionTactic(incident.id, 'rescue')"
+                      >
+                        <strong>RESCUE FIRST</strong>
+                        {{ expandedMissionFor(incident.id)?.tactics.rescue }}
+                      </button>
+                      <button
+                        type="button"
+                        class="cca-choice"
+                        :aria-pressed="run.missionApproach === 'investigate'"
+                        :class="{
+                          active: run.missionApproach === 'investigate',
+                        }"
+                        data-testid="academy-mission-investigate"
+                        @click="store.missionTactic(incident.id, 'investigate')"
+                      >
+                        <strong>CHASE THE EVIDENCE</strong>
+                        {{
+                          expandedMissionFor(incident.id)?.tactics.investigate
+                        }}
+                      </button>
+                    </div>
+                    <small
+                      >Casebook evidence recovered:
+                      {{ run.missionClues?.length ?? 0 }}. Matching powers and
+                      earlier district clues may reveal a hidden resolution
+                      after your mission succeeds.</small
+                    >
+                  </div>
+                  <section
+                    class="cca-hand-table"
+                    data-testid="academy-quest-poster-row"
+                    :aria-label="'Hero cards for ' + incident.title"
+                  >
+                    <div class="cca-hand-heading">
+                      <strong>02 / YOUR HERO HAND</strong>
+                      <span>Tap to assign · tap again to recall · max 3</span>
+                    </div>
+                    <div
+                      class="cca-roster"
+                      role="group"
+                      :aria-label="'Heroes available for ' + incident.title"
+                    >
+                      <button
+                        v-for="(student, index) in onCall"
+                        :key="student.id"
+                        type="button"
+                        class="cca-roster-button cca-hand-card"
+                        :style="{ animationDelay: index * 65 + 'ms' }"
+                        :class="{
+                          active: isSelected(incident.id, student.id),
+                          unavailable:
+                            isAssignedElsewhere(incident.id, student.id) ||
+                            !store.available(student.id),
+                        }"
+                        :disabled="
+                          isAssignedElsewhere(incident.id, student.id) ||
+                          !store.available(student.id) ||
+                          (!isSelected(incident.id, student.id) &&
+                            teamFor(incident.id).length >= 3)
+                        "
+                        :aria-pressed="isSelected(incident.id, student.id)"
+                        :title="missionReaction(student.id, incident.id).line"
+                        data-testid="academy-hand-card"
+                        @click="toggleStudent(incident.id, student.id)"
+                      >
+                        <span class="cca-poster-art">
+                          <img
+                            v-if="reactionPortrait(student.id, incident.id)"
+                            :src="reactionPortrait(student.id, incident.id)!"
+                            alt=""
+                            class="cca-avatar-img"
+                          />
+                          <span v-else class="cca-poster-initials">{{
+                            student.portrait
+                          }}</span>
+                          <span
+                            class="cca-expression"
+                            :class="
+                              'mood-' +
+                              missionReaction(student.id, incident.id).mood
+                            "
+                            :aria-label="
+                              missionReaction(student.id, incident.id).mood +
+                              ' reaction'
+                            "
+                          >
+                            {{ reactionEmoji(student.id, incident.id) }}
+                          </span>
+                        </span>
+                        <span class="cca-roster-name">{{
+                          student.name.split(' ')[0]
+                        }}</span>
+                        <span class="cca-poster-role">{{ student.title }}</span>
+                        <span class="cca-poster-reaction">{{
+                          missionReaction(student.id, incident.id).line
+                        }}</span>
+                        <span
+                          v-if="isSelected(incident.id, student.id)"
+                          class="cca-hand-state"
+                          >✦ ON THE TEAM</span
+                        >
+                        <span
+                          v-else-if="
+                            isAssignedElsewhere(incident.id, student.id)
+                          "
+                          class="cca-hand-state"
+                          >ON ANOTHER CALL</span
+                        >
+                        <span
+                          v-else-if="!store.available(student.id)"
+                          class="cca-hand-state"
+                          >UNAVAILABLE</span
+                        >
+                      </button>
+                    </div>
+                    <div class="cca-team-slots" aria-label="Assigned heroes">
+                      <strong>YOUR TEAM</strong>
+                      <TransitionGroup
+                        name="cca-slot"
+                        tag="div"
+                        class="cca-slot-row"
+                      >
+                        <button
+                          v-for="id in teamFor(incident.id)"
+                          :key="id"
+                          type="button"
+                          class="cca-slot-card"
+                          :aria-label="
+                            'Recall ' +
+                            (STUDENTS.find((student) => student.id === id)
+                              ?.name ?? id)
+                          "
+                          @click="toggleStudent(incident.id, id)"
+                        >
+                          ✦
+                          {{
+                            STUDENTS.find(
+                              (student) => student.id === id,
+                            )?.name.split(' ')[0] ?? id
+                          }}
+                          <span>×</span>
+                        </button>
+                      </TransitionGroup>
+                      <span
+                        v-if="!teamFor(incident.id).length"
+                        class="cca-team-empty"
+                        >Choose a hero above to commit them to this call</span
+                      >
+                    </div>
+                  </section>
+                  <div class="cca-crew-count" data-testid="academy-quest-odds">
+                    <strong
+                      >{{
+                        run.playerCaseId === incident.id ? 'YOU + ' : ''
+                      }}TEAM {{ teamFor(incident.id).length }}/3</strong
+                    >
+                    <strong>{{
+                      teamFor(incident.id).length ||
+                      run.playerCaseId === incident.id
+                        ? dispatchChance(
+                            run,
+                            incident.id,
+                            teamFor(incident.id),
+                          ) + '% CHANCE OF SUCCESS'
+                        : 'CHOOSE HEROES TO SEE ODDS'
+                    }}</strong>
+                  </div>
+                  <p class="cca-odds-note">
+                    Estimated chance of at least a partial success. Complete
+                    success is harder; injuries and city standing can change the
+                    odds.
+                  </p>
+                  <div
+                    v-if="missionRoute(incident.id, teamFor(incident.id))"
+                    class="cca-special-route"
+                    data-testid="academy-special-mission-route"
+                  >
+                    <strong
+                      >✦ SPECIAL ROUTE:
+                      {{
+                        missionRoute(incident.id, teamFor(incident.id))?.label
+                      }}</strong
+                    >
+                    <span
+                      >This team unlocks an alternative solution with an
+                      improved chance of success.</span
+                    >
+                  </div>
+                </article>
+              </TransitionGroup>
               <button
                 v-if="emergencyBackup"
                 class="cca-choice"
@@ -1145,16 +1271,13 @@
                 >{{ report.title }} · {{ report.grade.toUpperCase() }}</span
               >
             </div>
-            <button
-              v-for="option in campusEncounter.options"
-              :key="option.id"
-              class="cca-choice"
-              type="button"
-              @click="store.choose(option.id)"
-            >
-              <span>{{ option.label }}</span
-              ><span>↗</span>
-            </button>
+            <KrChoiceHand
+              class="cca-hand"
+              :choices="campusChoices"
+              :deal-key="'campus:' + run.day + ':' + campusEncounter.title"
+              testid-prefix="academy-campus-choice"
+              @play="(option) => store.choose(option.id)"
+            />
           </template>
 
           <template v-else-if="run.phase === 'debrief'">
@@ -1239,46 +1362,19 @@
                 >THREAT <b>{{ run.danger }}</b></span
               >
             </div>
-            <button
-              type="button"
-              class="cca-choice"
-              @click="store.end('protect')"
-            >
-              <span>{{
-                run.flowVersion === 3
-                  ? 'Evacuate the guests immediately'
-                  : 'Save the classmates, even if the school expels you'
-              }}</span>
-              ↗
-            </button>
-            <button
-              type="button"
-              class="cca-choice"
-              @click="store.end('command')"
-            >
-              <span>{{
-                run.flowVersion === 3
-                  ? 'Seize the shield console'
-                  : 'Take the catastrophe engine for yourself'
-              }}</span>
-              ↗
-            </button>
-            <button
-              v-if="run.flowVersion === 3"
-              type="button"
-              class="cca-choice"
-              @click="store.end('share')"
-            >
-              <span>Give every neighborhood a shield key</span> ↗
-            </button>
-            <button
-              v-if="run.flowVersion === 3"
-              type="button"
-              class="cca-choice"
-              @click="store.end('evacuate')"
-            >
-              <span>Destroy the transmitter and carry out the injured</span> ↗
-            </button>
+            <KrChoiceHand
+              class="cca-hand"
+              :choices="finaleChoices"
+              question="Your final order"
+              :deal-key="`finale:${run.day}`"
+              testid-prefix="academy-finale-choice"
+              @play="
+                (choice) =>
+                  store.end(
+                    choice.id as 'protect' | 'command' | 'share' | 'evacuate',
+                  )
+              "
+            />
           </template>
 
           <template v-else>
@@ -1334,7 +1430,9 @@ import {
   SOCIAL_DAYS,
   compatibilityFor,
   socialChoices,
+  type TriadOffer,
 } from '~/utils/cometAcademy/relationships'
+import type { KrHandChoice } from '~/components/narrative/kr-choice-hand.vue'
 import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { comicIntroFor } from '~/utils/cometAcademy/comicIntroductions'
 import AcademyOpening from '~/components/play/cometAcademy/AcademyOpening.vue'
@@ -1378,8 +1476,12 @@ import {
   missionRoute,
 } from '~/utils/cometAcademy/missionTeams'
 import {
+  ENDING_STAND_INS,
   academyStageArt,
   academyVillainArt,
+  endingArtKey,
+  incidentArtKey,
+  slugify,
   studentArtKey,
 } from '~/utils/cometAcademy/artSlots'
 import {
@@ -1401,6 +1503,8 @@ import {
   activePatrolStory,
   recruitableContact,
   emergencyContact,
+  finishAcademy,
+  openingNightFriend,
   type StudentId,
 } from '~/utils/cometAcademy/rules'
 import {
@@ -1418,6 +1522,24 @@ const patrolZone = ref<PatrolZoneId>('academy')
 const mapNodes = computed(() => projectCitySites(mapView.value))
 const mapRoads = computed(() => projectedCityRoads(mapView.value))
 const run = computed(() => store.run)
+const focusedIncidentId = ref<string | null>(null)
+const focusedIncident = computed(
+  () =>
+    store.incidents.find(
+      (incident) => incident.id === focusedIncidentId.value,
+    ) ??
+    store.incidents[0] ??
+    null,
+)
+const focusedIncidents = computed(() =>
+  focusedIncident.value ? [focusedIncident.value] : [],
+)
+watch(
+  () => `${run.value?.day ?? 0}:${run.value?.phase ?? ''}`,
+  () => {
+    focusedIncidentId.value = null
+  },
+)
 const onCall = computed(() =>
   run.value
     ? STUDENTS.filter((person) => knownContacts(run.value!).includes(person.id))
@@ -1482,6 +1604,147 @@ const chemistryLabel = computed(() => {
 const triadOfferList = computed(() =>
   run.value ? academyTriadOffers(run.value) : [],
 )
+const signedDelta = (name: string, value: number) =>
+  name + ' ' + (value > 0 ? '+' : '') + value
+const campusChoices = computed<KrHandChoice[]>(() =>
+  campusEncounter.value.options.map((option) => {
+    const trust =
+      'trust' in option && typeof option.trust === 'number' ? option.trust : 0
+    return {
+      id: option.id,
+      label: option.label,
+      chip: [
+        signedDelta('Influence', option.influence),
+        signedDelta('Threat', option.danger),
+        trust ? signedDelta('Trust', trust) : '',
+      ]
+        .filter(Boolean)
+        .join(' · '),
+      hint: option.text,
+      image: promArt(
+        `choices/${slugify(campusEncounter.value.title)}/${option.id}`,
+      ),
+      icon:
+        trust > 0
+          ? '🤝'
+          : option.danger < 0
+            ? '🛡️'
+            : option.influence > 0
+              ? '✨'
+              : '⚠️',
+    }
+  }),
+)
+const socialMood = (action: string) =>
+  ['listen', 'release', 'visit'].includes(action) ? 'neutral' : 'positive'
+function studentFace(id: StudentId, mood: string): KrHandChoice {
+  const student = STUDENTS.find((person) => person.id === id)
+  return {
+    id,
+    label: student?.name ?? id,
+    image: promArt(studentArtKey(id) + '-' + mood) ?? studentPortrait(id),
+    icon: student?.portrait,
+  }
+}
+const socialHandChoices = computed<KrHandChoice[]>(() =>
+  socialActionOptions.value.map((choice) => ({
+    ...studentFace(selectedSocialId.value, socialMood(choice.id)),
+    id: choice.id,
+    label: choice.label,
+    details: [choice.text],
+  })),
+)
+type FinaleChoice = 'protect' | 'command' | 'share' | 'evacuate'
+const FINALE_ICONS: Record<FinaleChoice, string> = {
+  protect: '🛡️',
+  command: '🎛️',
+  share: '🔑',
+  evacuate: '🚑',
+}
+/** Each final order shows the painting of the ending it would really reach. */
+const finaleChoices = computed<KrHandChoice[]>(() => {
+  const current = run.value
+  if (!current) return []
+  const v3 = current.flowVersion === 3
+  const orders: Array<[FinaleChoice, string]> = v3
+    ? [
+        ['protect', 'Evacuate the guests immediately'],
+        ['command', 'Seize the shield console'],
+        ['share', 'Give every neighborhood a shield key'],
+        ['evacuate', 'Destroy the transmitter and carry out the injured'],
+      ]
+    : [
+        ['protect', 'Save the classmates, even if the school expels you'],
+        ['command', 'Take the catastrophe engine for yourself'],
+      ]
+  return orders.map(([id, label]) => {
+    const ending = finishAcademy(current, id).ending ?? ''
+    return {
+      id,
+      label,
+      image: [
+        promArt(endingArtKey(ending)),
+        ENDING_STAND_INS[ending] ? promArt(ENDING_STAND_INS[ending]) : null,
+      ],
+      icon: FINALE_ICONS[id],
+    }
+  })
+})
+function crisisChoices(caseId: string): KrHandChoice[] {
+  const friend = openingNightFriend(run.value?.seed ?? 0)
+  const other = store.incidents.find((incident) => incident.id !== caseId)
+  const planned = run.value?.assignments?.[0]?.caseId
+  return [
+    {
+      id: 'split',
+      label: 'Split up',
+      chip: 'Attempt both rescues',
+      hint: other
+        ? `${friend.name} takes ${other.title} alone.`
+        : `${friend.name} takes the other call.`,
+      badge: planned && planned !== caseId ? 'Planned' : undefined,
+      image: other ? promArt(incidentArtKey(other.id)) : null,
+      icon: '🔀',
+    },
+    {
+      id: 'concentrate',
+      label: 'Stay together',
+      chip: 'Guarantee this rescue',
+      hint: 'Abandon the other call to save this one for certain.',
+      badge: planned === caseId ? 'Planned' : undefined,
+      image: [
+        promArt(studentArtKey(friend.id) + '-positive'),
+        studentPortrait(friend.id),
+      ],
+      icon: '🤝',
+    },
+  ]
+}
+function playSocial(choice: KrHandChoice) {
+  const action = socialActionOptions.value.find(
+    (option) => option.id === choice.id,
+  )
+  if (action) store.social(selectedSocialId.value, action.id)
+}
+function triadChoices(offer: TriadOffer): KrHandChoice[] {
+  const romance = run.value?.relationships?.romance
+  const other = offer.arc.pair.find((id) => id !== romance) ?? offer.arc.pair[0]
+  const authored = [
+    ...offer.arc.beats.flatMap((beat) => beat.options),
+    offer.arc.resume,
+  ]
+  return offer.options.map((option) => ({
+    ...studentFace(
+      other,
+      authored.find((entry) => entry.id === option.id)?.outcome
+        ? 'neutral'
+        : 'positive',
+    ),
+    id: option.id,
+    label: option.label,
+    details: [option.text],
+  }))
+}
 
 const stageScenery = computed(
   () =>
@@ -2598,6 +2861,264 @@ function toggleStudent(caseId: string, id: StudentId): void {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
+.cca-case-picker {
+  margin: 0.5rem 0 0.65rem;
+  display: grid;
+  gap: 0.45rem;
+}
+.cca-case-picker-heading,
+.cca-hand-heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 0.45rem;
+  flex-wrap: wrap;
+  font-size: 0.66rem;
+  letter-spacing: 0.08em;
+}
+.cca-case-picker-heading strong,
+.cca-hand-heading strong {
+  color: #ffd8a9;
+}
+.cca-case-picker-heading span,
+.cca-hand-heading span {
+  color: #c5d4e2;
+  letter-spacing: 0;
+}
+.cca-case-picker-deck {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 11rem), 1fr));
+  gap: 0.5rem;
+}
+.cca-case-pick {
+  display: flex;
+  align-items: stretch;
+  text-align: left;
+  gap: 0.45rem;
+  min-width: 0;
+  border: 1px solid #94afc277;
+  border-radius: 0.7rem;
+  background: #19263b;
+  color: #fbebdf;
+  overflow: hidden;
+  box-shadow: 0 5px 16px #0006;
+  transition:
+    transform 220ms ease,
+    border-color 220ms ease,
+    box-shadow 220ms ease;
+}
+.cca-case-pick:hover,
+.cca-case-pick:focus-visible {
+  transform: translateY(-3px);
+  border-color: #f1cd95;
+}
+.cca-case-pick.active {
+  border-color: #ffce8b;
+  box-shadow:
+    0 0 0 1px #ffce8b,
+    0 7px 18px #0008;
+  background: #36405c;
+}
+.cca-case-pick-art {
+  flex: 0 0 38%;
+  min-height: 5.8rem;
+  overflow: hidden;
+}
+.cca-case-pick-art img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.cca-case-pick-copy {
+  min-width: 0;
+  display: grid;
+  align-content: center;
+  gap: 0.3rem;
+  padding: 0.5rem 0.45rem 0.5rem 0;
+}
+.cca-case-pick-copy b {
+  font:
+    800 0.89rem Georgia,
+    serif;
+}
+.cca-case-pick-copy small {
+  font-size: 0.58rem;
+  color: #c4d8e3;
+}
+.cca-case-pick-copy .cca-case-pick-status {
+  color: #ffe2a1;
+}
+.cca-incident-scene {
+  position: relative;
+  overflow: hidden;
+  height: clamp(7rem, 19vh, 12rem);
+  border-radius: 0.6rem;
+  margin-bottom: 0.7rem;
+  background: #222b45;
+}
+.cca-incident-scene img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center 42%;
+}
+.cca-incident-scene span {
+  position: absolute;
+  left: 0.55rem;
+  bottom: 0.55rem;
+  padding: 0.2rem 0.4rem;
+  font-weight: 800;
+  font-size: 0.62rem;
+  letter-spacing: 0.09em;
+  background: #121a2cd9;
+  border: 1px solid #ffffff55;
+  border-radius: 0.3rem;
+}
+.cca-hand-table {
+  border-top: 1px solid #a4bbcf44;
+  margin-top: 0.75rem;
+  padding-top: 0.65rem;
+}
+.cca-hand-card {
+  position: relative;
+  animation: cca-deal 430ms cubic-bezier(0.18, 0.85, 0.28, 1.1) both;
+  transform-origin: center bottom;
+  transition:
+    transform 220ms ease,
+    box-shadow 220ms ease,
+    border-color 220ms ease,
+    opacity 220ms ease;
+}
+.cca-hand-card:not(:disabled):hover,
+.cca-hand-card:not(:disabled):focus-visible {
+  transform: perspective(650px) rotateY(-5deg) translateY(-9px) scale(1.035);
+  z-index: 1;
+  box-shadow: 0 12px 24px #000a;
+}
+.cca-hand-card.active {
+  transform: translateY(-7px);
+  box-shadow:
+    0 0 0 1px #ffcd8e,
+    0 12px 20px #0008;
+}
+.cca-hand-card.active .cca-poster-art:after {
+  content: '✦';
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  font-size: 2.5rem;
+  background: #f4b46a33;
+  animation: cca-card-glow 350ms ease-out both;
+}
+.cca-hand-state {
+  font-size: 0.56rem;
+  font-weight: 800;
+  color: #f8cea2;
+  text-align: center;
+}
+.cca-hand-table .cca-roster {
+  padding-top: 0.85rem;
+  padding-bottom: 0.75rem;
+}
+.cca-team-slots {
+  display: grid;
+  gap: 0.35rem;
+  margin-top: 0.45rem;
+  padding: 0.55rem;
+  border: 1px dashed #ffd49b66;
+  border-radius: 0.6rem;
+  background: #121a2a;
+}
+.cca-team-slots > strong {
+  color: #ffd6a5;
+  font-size: 0.58rem;
+  letter-spacing: 0.08em;
+}
+.cca-slot-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem;
+}
+.cca-slot-card {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  background: #3b536c;
+  border: 1px solid #f1c98f;
+  border-radius: 0.35rem;
+  padding: 0.32rem 0.5rem;
+  font-size: 0.72rem;
+}
+.cca-slot-card span {
+  font-weight: 900;
+  color: #ffd49b;
+}
+.cca-team-empty {
+  color: #b3c5d7;
+  font-size: 0.72rem;
+}
+.cca-case-swap-enter-active,
+.cca-case-swap-leave-active {
+  transition:
+    opacity 220ms ease,
+    transform 220ms ease;
+}
+.cca-case-swap-enter-from {
+  opacity: 0;
+  transform: translateX(25px) rotateY(-4deg);
+}
+.cca-case-swap-leave-to {
+  opacity: 0;
+  transform: translateX(-25px) rotateY(4deg);
+}
+.cca-slot-enter-active,
+.cca-slot-leave-active {
+  transition:
+    transform 250ms cubic-bezier(0.2, 1.2, 0.3, 1),
+    opacity 200ms ease;
+}
+.cca-slot-enter-from {
+  transform: translateY(-20px) scale(1.25);
+  opacity: 0;
+}
+.cca-slot-leave-to {
+  transform: translateY(15px) scale(0.65);
+  opacity: 0;
+}
+@keyframes cca-deal {
+  from {
+    opacity: 0;
+    transform: translateY(28px) rotate(-3deg) scale(0.91);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) rotate(0) scale(1);
+  }
+}
+@keyframes cca-card-glow {
+  from {
+    opacity: 0;
+    transform: scale(1.5);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .cca-hand-card,
+  .cca-hand-card.active,
+  .cca-case-pick,
+  .cca-case-swap-enter-active,
+  .cca-case-swap-leave-active,
+  .cca-slot-enter-active,
+  .cca-slot-leave-active {
+    animation: none;
+    transition: none;
+    transform: none;
+  }
+}
 .cca-incident {
   padding: 0.75rem;
   margin-bottom: 0.7rem;
@@ -2862,6 +3383,13 @@ function toggleStudent(caseId: string, id: StudentId): void {
 .cca-choice:focus-visible {
   border-color: #f9cc9b;
   background: #405d74;
+}
+.cca-hand {
+  --hand-accent: #f9cc9b;
+  --hand-accent-2: #94bac4;
+  --hand-band: #0d1024;
+  --hand-band-ink: #ecf7fa;
+  margin: 0.5rem 0;
 }
 .cca-report {
   background: #ffffff0c;

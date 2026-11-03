@@ -2079,9 +2079,21 @@ assert.ok(
   questScreen.includes('text-base leading-relaxed sm:text-lg'),
   'Quest narrative is legible like Shifting Desks',
 )
+const choiceHand = readFileSync(
+  'components/memory-dungeon/memory-dungeon-choice-hand.vue',
+  'utf8',
+)
 assert.ok(
-  mapScreen.includes('font-size: clamp(1rem, 1.85cqw, 1.5rem)'),
-  'Story decisions are large at console widths',
+  mapScreen.includes('<memory-dungeon-choice-hand') &&
+    mapScreen.includes(
+      'image: briarIllustrationPath(world.activeSiteKey, choice.id)',
+    ),
+  'Story decisions are a hand of cards showing each outcome',
+)
+assert.match(
+  choiceHand,
+  /\.md-hand :deep\(\.krh-title strong\) \{[^}]*font-family: ui-sans-serif/,
+  'Story decision cards keep solid plain-sans titles',
 )
 
 const memoryCore = readFileSync('stores/memoryStore.ts', 'utf8')
@@ -2394,6 +2406,53 @@ assert.ok(
 assert.ok(consoleStage.includes('overflow-y: auto;'))
 assert.ok(consoleStage.includes('ring-[3px] ring-inset ring-cyan-50'))
 assert.ok(consoleStage.includes('ring-[3px] ring-inset ring-amber-100'))
+
+const actionBeaconSource = readFileSync(
+  'components/memory-dungeon/action-beacon.vue',
+  'utf8',
+)
+const hiddenFogArt = readFileSync('public/memory-dungeon/briar-fog.svg', 'utf8')
+assert.ok(
+  consoleStage.includes('class="md-fog-tile h-full w-full"'),
+  'Unrevealed tiles use illustrated fog instead of separate black card cells',
+)
+assert.ok(
+  consoleStage.includes(
+    "background-image: url('/memory-dungeon/briar-fog.svg')",
+  ),
+  'Unrevealed map squares use the local fog illustration',
+)
+assert.ok(
+  consoleStage.includes(':style="fogTileStyle(tile.x, tile.y)"'),
+  'Fog tiles align to fixed eight-by-eight world coordinates',
+)
+assert.ok(hiddenFogArt.includes('viewBox="0 0 800 800"'))
+assert.ok(
+  !consoleStage.includes("story: '◇'"),
+  'Ordinary explored stories have no misleading diamond',
+)
+assert.ok(
+  consoleStage.includes("sites[tile.key]?.kind !== 'story' &&") &&
+    consoleStage.includes('!tileNeedsAttention(tile.key)'),
+  'Actionable squares use a central beacon instead of overlapping site emojis',
+)
+assert.ok(
+  actionBeaconSource.includes('top: 50%;') &&
+    actionBeaconSource.includes('left: 50%;') &&
+    actionBeaconSource.includes('translate(-50%, -50%)'),
+  'The animated 3D exploration beacon is centered in the map square',
+)
+assert.ok(actionBeaconSource.includes('width: clamp(1.1rem, 4.2cqw, 2.1rem)'))
+assert.ok(actionBeaconSource.includes('prefers-reduced-motion: reduce'))
+assert.ok(
+  !/md-progress-mark[^"]*bg-\[/.test(consoleStage),
+  'Tile progress marks sit on the art with no dark chip (Silas, 2026-11-02)',
+)
+assert.match(
+  consoleStage,
+  /'hand hand'/,
+  'A wide encounter pane gives the story hand its own full-width row',
+)
 
 assert.match(
   consoleStage,

@@ -1,46 +1,31 @@
 <template>
   <section
     class="sc-stage sc-campaign"
+    :class="'crew-' + lab.activeTeam"
     aria-label="Faction story mode"
     data-testid="slime-faction-campaign"
   >
-    <div class="campaign-hero" :class="'crew-' + lab.activeTeam">
-      <SlimeCityArtwork
-        class="campaign-hero-art"
-        :image-id="slimeArtId('crews', lab.activeTeam)"
-        :alt="lab.team.name + ' illustrated campaign poster'"
-        :fallback="lab.team.insignia"
-      />
-      <div class="campaign-hero-ink" aria-hidden="true">
-        <span class="ink-sun"></span>
-        <span class="ink-tower ink-tower-a"></span>
-        <span class="ink-tower ink-tower-b"></span>
-        <span class="ink-figure"></span>
-      </div>
-      <div class="campaign-headline">
+    <SlimeCityArtwork
+      :key="backdrop.key"
+      class="campaign-backdrop"
+      :image-id="backdrop.id"
+      :alt="backdrop.alt"
+      :fallback="lab.team.insignia"
+      compact
+      :data-testid="backdrop.testid ?? undefined"
+    />
+    <div class="campaign-shade" aria-hidden="true"></div>
+
+    <div class="campaign-strip">
+      <div class="campaign-title" :title="lab.campaignStory.principle">
         <span class="campaign-overline"
-          >SLIME CITY ORIGINAL / FACTION STORY MODE</span
-        >
-        <span class="campaign-serial"
-          >CAMPAIGN {{ String(lab.campaignState.wins + 1).padStart(2, '0') }} /
-          06</span
+          >FACTION STORY · CAMPAIGN
+          {{ String(lab.campaignState.wins + 1).padStart(2, '0') }} / 06</span
         >
         <h2>{{ lab.campaignStory.title }}</h2>
-        <p>{{ lab.campaignStory.prologue }}</p>
-        <strong class="campaign-principle">{{
-          lab.campaignStory.principle
-        }}</strong>
       </div>
-      <div class="campaign-stamp">
-        <span>FIVE RIVALS</span>
-        <b>{{ lab.campaignState.wins }} / 5</b>
-        <small>VICTORIES</small>
-      </div>
-    </div>
-
-    <div class="campaign-body kr-scroll">
-      <div class="campaign-track" aria-label="Five rival chapters">
-        <div
+      <ol class="campaign-track" aria-label="Five rival chapters">
+        <li
           v-for="(chapter, index) in lab.campaignStory.chapters"
           :key="chapter.foe"
           class="campaign-step"
@@ -49,98 +34,308 @@
             current: index === lab.campaignState.wins,
           }"
           :aria-current="index === lab.campaignState.wins ? 'step' : undefined"
-          :data-testid="'slime-chapter-' + index"
-        >
-          <span>{{ String(index + 1).padStart(2, '0') }}</span>
-          <strong>{{ teamName(chapter.foe) }}</strong>
-          <small>{{
-            index < lab.campaignState.wins
+          :title="
+            teamName(chapter.foe) +
+            ' · ' +
+            (index < lab.campaignState.wins
               ? 'DEFEATED'
               : index === lab.campaignState.wins
                 ? 'NEXT BATTLE'
-                : 'LOCKED'
-          }}</small>
-        </div>
-      </div>
-
+                : 'LOCKED')
+          "
+          :data-testid="'slime-chapter-' + index"
+        >
+          <SlimeCityArtwork
+            class="campaign-step-art"
+            :image-id="slimeArtId('crews', chapter.foe)"
+            :alt="teamName(chapter.foe) + ' rival portrait'"
+            :fallback="String(index + 1)"
+            compact
+          />
+          <span>{{ String(index + 1).padStart(2, '0') }}</span>
+        </li>
+      </ol>
       <div
-        v-if="lab.campaignFinale"
-        class="campaign-finale"
-        data-testid="slime-campaign-finale"
-        aria-live="polite"
+        class="campaign-stamp"
+        :title="
+          lab.campaignState.losses +
+          ' campaign losses. Defeat retries are unlimited. Account-saved story; no real-money rewards.'
+        "
       >
+        <b>{{ lab.campaignState.wins }}/5</b>
+        <small>VICTORIES</small>
+      </div>
+    </div>
+
+    <div
+      v-if="aftermathShown"
+      class="campaign-scene"
+      :class="lab.campaignAftermath?.result === 'player' ? 'won' : 'lost'"
+    >
+      <article class="campaign-panel kr-scroll" aria-live="polite">
+        <div
+          v-if="lab.campaignAftermath"
+          class="campaign-rival-verdict"
+          data-testid="slime-campaign-rival-verdict"
+        >
+          <span class="campaign-overline">
+            CHAPTER {{ lab.campaignAftermath.chapterIndex + 1 }} ·
+            {{ lab.campaignAftermath.chapterTitle }}
+            <template v-if="lab.campaignAftermath.approach">
+              · {{ lab.campaignAftermath.approach.toUpperCase() }}
+            </template>
+          </span>
+          <h3>
+            {{
+              lab.campaignAftermath.result === 'player'
+                ? 'AFTERMATH · VICTORY'
+                : 'AFTERMATH · DEFEAT'
+            }}
+          </h3>
+          <div class="campaign-voice rival">
+            <SlimeCityArtwork
+              class="campaign-voice-portrait"
+              :image-id="slimeArtId('crews', lab.campaignAftermath.foe)"
+              :alt="teamName(lab.campaignAftermath.foe) + ' rival portrait'"
+              :fallback="crewInsignia(lab.campaignAftermath.foe)"
+              compact
+            />
+            <div>
+              <small>{{ lab.campaignAftermath.rivalSpeaker }}</small>
+              <p>“{{ lab.campaignAftermath.rivalLine }}”</p>
+            </div>
+          </div>
+          <div
+            v-if="lab.campaignAftermath.playerLine"
+            class="campaign-voice player"
+            data-testid="slime-campaign-player-reflection"
+          >
+            <SlimeCityArtwork
+              class="campaign-voice-portrait"
+              :image-id="slimeArtId('crews', lab.activeTeam)"
+              :alt="lab.team.name + ' leader portrait'"
+              :fallback="lab.team.insignia"
+              compact
+            />
+            <div>
+              <small>{{ lab.campaignAftermath.playerSpeaker }}</small>
+              <p>“{{ lab.campaignAftermath.playerLine }}”</p>
+            </div>
+          </div>
+        </div>
+        <div
+          v-if="lab.campaignState.lastScene"
+          class="campaign-recap"
+          data-testid="slime-campaign-recap"
+        >
+          <strong>{{
+            lab.campaignState.lastResult === 'player'
+              ? 'LAST VICTORY'
+              : lab.campaignState.lastResult === 'enemy'
+                ? 'LAST DEFEAT'
+                : 'LAST DRAW'
+          }}</strong>
+          <p>{{ lab.campaignState.lastScene }}</p>
+        </div>
+      </article>
+      <div class="campaign-deck">
+        <button
+          type="button"
+          class="campaign-cta"
+          data-testid="slime-campaign-continue"
+          @click="lab.continueCampaign()"
+        >
+          {{
+            lab.campaignFinale
+              ? 'SEE THE ENDING →'
+              : lab.campaignState.lastResult === 'player'
+                ? 'NEXT CHAPTER →'
+                : 'TRY AGAIN →'
+          }}
+        </button>
+      </div>
+    </div>
+
+    <div
+      v-else-if="lab.campaignFinale"
+      class="campaign-scene"
+      data-testid="slime-campaign-finale"
+      aria-live="polite"
+    >
+      <article class="campaign-panel kr-scroll">
         <span class="campaign-overline"
           >STORY COMPLETE / 5 OF 5 RIVALS DEFEATED</span
         >
         <h3>{{ lab.campaignStory.title }}: THE END</h3>
-        <p>{{ lab.campaignFinale }}</p>
-        <small
+        <p class="campaign-lede">{{ lab.campaignFinale }}</p>
+        <small class="campaign-note"
           >All six campaigns have independent playtest progress. Story wins
           grant no account Meat, XP or pack cards.</small
         >
+      </article>
+      <div v-if="hasAftermath" class="campaign-deck">
+        <button
+          type="button"
+          class="campaign-cta campaign-quiet"
+          data-testid="slime-campaign-last-bout"
+          @click="lab.showCampaignAftermath()"
+        >
+          LAST BOUT
+        </button>
       </div>
+    </div>
 
-      <div v-else-if="lab.activeChapter" class="campaign-mission">
-        <div class="campaign-briefing">
-          <span class="campaign-overline">
-            CHAPTER {{ lab.campaignState.wins + 1 }} / 5 · VERSUS
-            {{ teamName(lab.activeChapter.foe).toUpperCase() }}
-          </span>
-          <h3>{{ lab.activeChapter.title }}</h3>
-          <p>{{ lab.activeChapter.scene }}</p>
+    <div v-else-if="lab.activeChapter" class="campaign-scene">
+      <article class="campaign-panel kr-scroll">
+        <span class="campaign-overline">
+          CHAPTER {{ lab.campaignState.wins + 1 }} / 5 · VERSUS
+          {{ teamName(lab.activeChapter.foe).toUpperCase() }}
+        </span>
+        <h3>{{ lab.activeChapter.title }}</h3>
+        <p v-if="lab.campaignState.wins === 0" class="campaign-prologue">
+          {{ lab.campaignStory.prologue }}
+        </p>
+        <p class="campaign-lede">{{ lab.activeChapter.scene }}</p>
+        <div
+          v-if="lab.campaignConversation"
+          class="campaign-exchange"
+          aria-label="Rival confrontation"
+          data-testid="slime-campaign-conversation"
+        >
+          <div class="campaign-voice rival">
+            <SlimeCityArtwork
+              class="campaign-voice-portrait"
+              :image-id="
+                slimeArtId('crews', lab.campaignConversation.rivalTeam)
+              "
+              :alt="teamName(lab.campaignConversation.rivalTeam) + ' portrait'"
+              :fallback="crewInsignia(lab.campaignConversation.rivalTeam)"
+              compact
+            />
+            <div>
+              <small
+                >THE RIVAL · {{ lab.campaignConversation.rivalSpeaker }}</small
+              >
+              <p>{{ lab.campaignConversation.rivalLine }}</p>
+              <p
+                v-if="lab.campaignConversation.rememberedChoice"
+                class="campaign-memory"
+                data-testid="slime-campaign-memory"
+              >
+                {{ lab.campaignConversation.rememberedChoice }}
+              </p>
+            </div>
+          </div>
+          <div class="campaign-voice player">
+            <SlimeCityArtwork
+              class="campaign-voice-portrait"
+              :image-id="slimeArtId('crews', lab.activeTeam)"
+              :alt="lab.team.name + ' leader portrait'"
+              :fallback="lab.team.insignia"
+              compact
+            />
+            <div>
+              <small
+                >YOUR CREW · {{ lab.campaignConversation.playerSpeaker }}</small
+              >
+              <p>{{ lab.campaignConversation.playerLine }}</p>
+              <p
+                v-if="lab.campaignConversation.retryLine"
+                class="campaign-memory"
+                data-testid="slime-campaign-rematch"
+              >
+                {{ lab.campaignConversation.retryLine }}
+              </p>
+            </div>
+          </div>
+        </div>
+        <div
+          v-if="lab.campaignEcho"
+          class="campaign-recap"
+          data-testid="slime-campaign-echo"
+        >
+          <strong>{{ lab.campaignEcho.speaker }}</strong>
+          <p>“{{ lab.campaignEcho.voice }}”</p>
+          <small>{{ lab.campaignEcho.story }}</small>
+        </div>
+      </article>
+      <div class="campaign-deck" :class="'tone-' + lab.team.color">
+        <div
+          v-if="lab.campaignFavors.length"
+          class="campaign-favors"
+          role="group"
+          aria-label="Choose earned story support"
+          data-testid="slime-campaign-favors"
+        >
+          <span class="campaign-overline">EARNED SUPPORT · NEXT FIGHT</span>
+          <div class="campaign-favor-row">
+            <button
+              v-for="favor in lab.campaignFavors"
+              :key="favor.chapterIndex"
+              type="button"
+              class="campaign-favor"
+              :class="{
+                active: favor.chapterIndex === lab.campaignFavorIndex,
+              }"
+              :aria-pressed="favor.chapterIndex === lab.campaignFavorIndex"
+              :title="
+                'Chapter ' +
+                (favor.chapterIndex + 1) +
+                ' · ' +
+                favor.choice +
+                ' · ' +
+                describeTerms(favor.echo.terms)
+              "
+              :data-testid="'slime-favor-' + favor.chapterIndex"
+              @click="lab.selectCampaignFavor(favor.chapterIndex)"
+            >
+              <SlimeCityArtwork
+                class="campaign-favor-art"
+                :image-id="slimeArtId('crews', favor.ally)"
+                :alt="teamName(favor.ally) + ' earned ally portrait'"
+                :fallback="teamName(favor.ally)"
+                compact
+              />
+              <strong>{{ favor.echo.title }}</strong>
+            </button>
+          </div>
+        </div>
+        <KrChoiceHand
+          :choices="approachChoices"
+          question="CHOOSE YOUR APPROACH · BLACKOUT RULES"
+          :deal-key="lab.activeTeam + ':' + lab.campaignState.wins"
+          testid-prefix="slime-campaign-choice"
+          @play="playApproach"
+        >
+          <template #art="{ choice }">
+            <SlimeCityArtwork
+              :image-id="slimeArtId('crews', approachCrew(choice.id))"
+              :alt="choice.label"
+              :fallback="crewInsignia(approachCrew(choice.id))"
+              compact
+            />
+          </template>
+        </KrChoiceHand>
+        <div class="campaign-actions">
+          <button
+            v-if="hasAftermath"
+            type="button"
+            class="campaign-cta campaign-quiet"
+            data-testid="slime-campaign-last-bout"
+            @click="lab.showCampaignAftermath()"
+          >
+            LAST BOUT
+          </button>
           <button
             v-if="lab.campaignDistrict"
             type="button"
-            class="campaign-find"
+            class="campaign-cta"
             data-testid="slime-find-campaign-district"
             @click="lab.findCampaignBattle()"
           >
-            FOLLOW THE STORY ON THE CITY MAP · {{ nextDistrictName }} →
-          </button>
-          <div
-            v-if="lab.campaignState.lastScene"
-            class="campaign-recap"
-            aria-live="polite"
-            data-testid="slime-campaign-recap"
-          >
-            <strong>{{
-              lab.campaignState.lastResult === 'player'
-                ? 'LAST VICTORY'
-                : lab.campaignState.lastResult === 'enemy'
-                  ? 'LAST DEFEAT'
-                  : 'LAST DRAW'
-            }}</strong>
-            <span>{{ lab.campaignState.lastScene }}</span>
-          </div>
-        </div>
-        <div class="campaign-decision">
-          <span class="campaign-overline"
-            >CHOOSE YOUR APPROACH · BLACKOUT RULES</span
-          >
-          <button
-            v-for="choice in lab.activeChapter.choices"
-            :key="choice.id"
-            type="button"
-            :data-testid="'slime-campaign-choice-' + choice.id"
-            @click="lab.startCampaignBattle(choice.id)"
-          >
-            <span class="decision-mark">{{
-              choice.id === 'conviction' ? '01' : '02'
-            }}</span>
-            <span class="decision-copy">
-              <strong>{{ choice.label }}</strong>
-              <small>{{ describeTerms(choice.terms) }}</small>
-            </span>
-            <span class="decision-arrow" aria-hidden="true">→</span>
+            FOLLOW THE STORY · {{ nextDistrictName.toUpperCase() }} →
           </button>
         </div>
-      </div>
-      <div class="campaign-disclaimer">
-        <span
-          >{{ lab.campaignState.losses }} CAMPAIGN LOSSES · DEFEAT RETRIES ARE
-          UNLIMITED</span
-        >
-        <span>SESSION-ONLY STORY PROGRESS · NO REAL-MONEY REWARDS</span>
       </div>
     </div>
   </section>
@@ -148,10 +343,11 @@
 
 <script setup lang="ts">
 import { computed } from 'vue'
-import { describeTerms } from '~/utils/slimeCity/campaign'
+import { campaignBattleTerms, describeTerms } from '~/utils/slimeCity/campaign'
 import { slimeArtId } from '~/utils/slimeCity/artManifest'
 import { useSlimeCityStore } from '~/stores/slimeCity'
 import type { TeamId } from '~/utils/slimeCity/prototypes'
+import type { KrHandChoice } from '~/components/narrative/kr-choice-hand.vue'
 
 const lab = useSlimeCityStore()
 const nextDistrictName = computed(
@@ -159,417 +355,497 @@ const nextDistrictName = computed(
     lab.districts.find((district) => district.id === lab.campaignDistrict)
       ?.name ?? 'Unknown district',
 )
+const hasAftermath = computed(
+  () => !!lab.campaignAftermath || !!lab.campaignState.lastScene,
+)
+const aftermathShown = computed(
+  () => lab.campaignScreen === 'aftermath' && hasAftermath.value,
+)
+// Story plates (conductor slime-city BLACKOUT-STORY-ROUND-2): the opening, each chapter's scene, the
+// approach the last victory used (or the defeat), and the ending the decisions earned. Each screen
+// paints its own plate across the whole stage; unrendered plates fall back to the crew's art.
+function storyArt(key: string): number | null {
+  return slimeArtId('story', lab.activeTeam + '/' + key)
+}
+const heroArtId = computed(
+  () => storyArt('opening') ?? slimeArtId('crews', lab.activeTeam),
+)
+const chapterArtId = computed(() =>
+  lab.activeChapter ? storyArt(lab.campaignState.wins + 1 + '/scene') : null,
+)
+const recapArtId = computed(() => {
+  const state = lab.campaignState
+  if (state.lastResult === 'player') {
+    const choice = state.decisions[state.decisions.length - 1]
+    return choice ? storyArt(state.wins + '/' + choice) : null
+  }
+  if (state.lastResult === 'enemy') return storyArt(state.wins + 1 + '/defeat')
+  return null
+})
+const endingArtId = computed(() => {
+  if (!lab.campaignFinale) return null
+  const conviction = lab.campaignState.decisions.filter(
+    (id) => id === 'conviction',
+  ).length
+  return storyArt(conviction >= 3 ? 'ending-triumph' : 'ending-compromise')
+})
+const backdrop = computed<{
+  key: string
+  id: number | null
+  alt: string
+  testid: string | null
+}>(() => {
+  const plate = (id: number | null, alt: string, testid: string) =>
+    id ? { key: 'plate-' + id, id, alt, testid } : null
+  const chosen = aftermathShown.value
+    ? plate(
+        recapArtId.value,
+        'Illustrated result of the last battle',
+        'slime-campaign-recap-art',
+      )
+    : lab.campaignFinale
+      ? plate(
+          endingArtId.value,
+          lab.campaignStory.title + ' illustrated ending',
+          'slime-campaign-ending-art',
+        )
+      : plate(
+          chapterArtId.value,
+          (lab.activeChapter?.title ?? '') + ' illustrated chapter scene',
+          'slime-campaign-chapter-art',
+        )
+  return (
+    chosen ?? {
+      key: 'hero-' + lab.activeTeam,
+      id: heroArtId.value,
+      alt: lab.team.name + ' illustrated campaign poster',
+      testid: null,
+    }
+  )
+})
 function teamName(id: TeamId): string {
   return lab.teams.find((team) => team.id === id)?.name ?? id
+}
+function crewInsignia(id: TeamId): string {
+  return lab.teams.find((team) => team.id === id)?.insignia ?? ''
+}
+function approachCrew(id: string): TeamId {
+  return id === 'cunning' && lab.activeChapter
+    ? lab.activeChapter.foe
+    : lab.activeTeam
+}
+const approachChoices = computed<KrHandChoice[]>(() =>
+  (lab.activeChapter?.choices ?? []).map((choice) => ({
+    id: choice.id,
+    label: choice.label,
+    chip: describeTerms(
+      campaignBattleTerms(
+        lab.campaignSave,
+        lab.activeTeam,
+        choice.terms,
+        lab.campaignFavorIndex,
+      ),
+    ),
+    badge: choice.id === 'conviction' ? 'Conviction' : 'Cunning',
+  })),
+)
+function playApproach(choice: KrHandChoice) {
+  const approach = lab.activeChapter?.choices.find(
+    (option) => option.id === choice.id,
+  )
+  if (approach) lab.startCampaignBattle(approach.id)
 }
 </script>
 
 <style scoped>
-.sc-campaign {
-  display: flex;
-  flex-direction: column;
+.sc-stage.sc-campaign {
+  --campaign-accent: #c5ff59;
+  position: relative;
+  isolation: isolate;
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
   min-width: 0;
   min-height: 0;
   overflow: hidden;
-  container-type: inline-size;
+  container: campaign / inline-size;
   background: #11151f;
   color: #f4f4ec;
 }
-.campaign-hero .campaign-hero-art {
+.sc-campaign .campaign-backdrop {
   position: absolute;
   inset: 0;
   z-index: -2;
-  opacity: 0.86;
 }
-.campaign-hero .campaign-hero-art :deep(img) {
-  object-position: center 42%;
+.sc-campaign .campaign-backdrop :deep(img) {
+  object-position: center 38%;
 }
-.campaign-hero::after {
-  position: absolute;
-  inset: 0;
-  z-index: -1;
-  content: '';
-  pointer-events: none;
-  background: linear-gradient(
-    90deg,
-    #0d1622ec 0%,
-    #0e1727b8 48%,
-    #0d14206b 100%
-  );
-}
-.campaign-hero {
-  position: relative;
-  display: flex;
-  align-items: flex-end;
-  min-height: clamp(12rem, 29cqw, 22rem);
-  overflow: hidden;
-  isolation: isolate;
-  padding: clamp(1rem, 2cqw, 2rem);
-  background: radial-gradient(
-    circle at 78% 36%,
-    #93decb,
-    #26536b 42%,
-    #101b2e 80%
-  );
-}
-.crew-bloodfairies {
-  background: radial-gradient(
-    circle at 75% 35%,
-    #f869aa,
-    #87295b 43%,
-    #1e1135 85%
-  );
-}
-.crew-ironjaw {
-  background: radial-gradient(
-    circle at 75% 35%,
-    #e8b660,
-    #84603e 43%,
-    #152c2d 85%
-  );
-}
-.crew-riot {
-  background: radial-gradient(
-    circle at 75% 35%,
-    #fe8759,
-    #982c39 43%,
-    #2a1429 85%
-  );
-}
-.crew-undertow {
-  background: radial-gradient(
-    circle at 75% 35%,
-    #6ce5b8,
-    #136e74 43%,
-    #101b2b 85%
-  );
-}
-.crew-exchange {
-  background: radial-gradient(
-    circle at 75% 35%,
-    #f2cf80,
-    #8a633c 43%,
-    #241c32 85%
-  );
-}
-.campaign-hero-ink {
-  display: none;
+.campaign-shade {
   position: absolute;
   inset: 0;
   z-index: -1;
   pointer-events: none;
-  opacity: 0.75;
+  background:
+    linear-gradient(0deg, #060a10f2 0%, #060a10a8 40%, transparent 72%),
+    linear-gradient(180deg, #060a10e0 0%, #060a1066 16%, transparent 30%);
 }
-.ink-sun {
-  position: absolute;
-  right: 12%;
-  top: -28%;
-  width: 44%;
-  aspect-ratio: 1;
-  border: 1rem solid #ffffff1d;
-  border-radius: 50%;
-  box-shadow:
-    0 0 0 1.4rem #ffffff0a,
-    0 0 8rem #ffffff1e;
+.sc-campaign.crew-bloodfairies {
+  --campaign-accent: #f869aa;
 }
-.ink-tower {
-  position: absolute;
-  bottom: -12%;
-  right: 16%;
-  height: 85%;
-  width: 22%;
-  transform: skew(-12deg);
-  background: linear-gradient(140deg, #ffffff45, #080d20 60%);
-  clip-path: polygon(24% 0, 79% 9%, 100% 100%, 0 100%);
+.sc-campaign.crew-ironjaw {
+  --campaign-accent: #e8b660;
 }
-.ink-tower-b {
-  right: 0;
-  width: 17%;
-  height: 62%;
-  transform: skew(9deg);
+.sc-campaign.crew-riot {
+  --campaign-accent: #fe8759;
 }
-.ink-figure {
-  position: absolute;
-  width: 28%;
-  height: 77%;
-  right: 16%;
-  bottom: -15%;
-  background: linear-gradient(125deg, #ffffff83, #0c1a33 48%, #090b1a);
-  clip-path: polygon(
-    45% 0,
-    61% 1%,
-    71% 18%,
-    63% 29%,
-    76% 45%,
-    99% 72%,
-    81% 81%,
-    100% 100%,
-    1% 100%,
-    20% 69%,
-    25% 43%,
-    39% 29%,
-    32% 14%
-  );
-  filter: drop-shadow(0 0 1rem #000);
+.sc-campaign.crew-undertow {
+  --campaign-accent: #6ce5b8;
 }
-.campaign-headline {
-  display: grid;
-  align-content: end;
-  gap: 0.48rem;
-  width: min(75%, 38rem);
-  text-shadow: 0 2px 15px #080d1c;
+.sc-campaign.crew-exchange {
+  --campaign-accent: #f2cf80;
 }
-.campaign-overline,
-.campaign-serial {
-  font-size: 0.63rem;
-  font-weight: 900;
-  letter-spacing: 0.14em;
-}
-.campaign-serial {
-  color: #fff5ad;
-}
-.campaign-headline h2 {
-  margin: 0;
-  font-weight: 1000;
-  font-size: clamp(1.8rem, 5cqw, 4.2rem);
-  line-height: 0.91;
-  letter-spacing: -0.045em;
-  text-transform: uppercase;
-}
-.campaign-headline p {
-  max-width: 35rem;
-  margin: 0;
-  font-size: clamp(0.72rem, 1.12cqw, 0.95rem);
-  line-height: 1.36;
-}
-.campaign-principle {
-  display: block;
-  color: #fff1ad;
-  font-size: 0.78rem;
-  font-style: italic;
-}
-.campaign-stamp {
-  position: absolute;
-  top: 0.75rem;
-  right: 0.85rem;
-  display: grid;
-  justify-items: center;
-  gap: 0.06rem;
-  padding: 0.55rem 0.7rem;
-  border: 2px solid #ffffffa8;
-  border-radius: 50%;
-  background: #0a142e80;
-  transform: rotate(9deg);
-}
-.campaign-stamp span,
-.campaign-stamp small {
-  font-size: 0.5rem;
-  letter-spacing: 0.07em;
-}
-.campaign-stamp b {
-  font-size: 1.35rem;
-}
-.campaign-body {
-  display: grid;
-  align-content: start;
-  gap: 1rem;
-  flex: 1;
-  min-height: 0;
-  padding: 0.9rem clamp(0.75rem, 2cqw, 1.4rem);
-  overflow-y: auto;
-}
-.campaign-track {
-  display: grid;
-  grid-template-columns: repeat(5, minmax(0, 1fr));
-  gap: 0.35rem;
-}
-.campaign-step {
-  display: grid;
-  gap: 0.15rem;
-  min-width: 0;
-  padding: 0.55rem;
-  background: #232a36;
-  border: 1px solid #697587;
-  border-bottom: 3px solid #535d71;
-  opacity: 0.7;
-}
-.campaign-step.current {
-  background: #383c28;
-  border-color: #e8f39b;
-  opacity: 1;
-}
-.campaign-step.cleared {
-  background: #18382e;
-  border-color: #70ce9d;
-  opacity: 1;
-}
-.campaign-step span {
-  font-size: 0.6rem;
-  color: #cbd8e1;
-}
-.campaign-step strong {
-  font-size: clamp(0.59rem, 1.1cqw, 0.8rem);
-  line-height: 1.2;
-}
-.campaign-step small {
-  font-size: 0.55rem;
-  letter-spacing: 0.06em;
-}
-.campaign-mission {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(12rem, 0.95fr);
-  gap: 1rem;
-}
-.campaign-briefing h3,
-.campaign-finale h3 {
-  margin: 0.2rem 0 0.55rem;
-  font-size: clamp(1.3rem, 2.3cqw, 2rem);
-  line-height: 1;
-}
-.campaign-briefing p,
-.campaign-finale p {
-  font-size: 0.85rem;
-  line-height: 1.5;
-  margin: 0.35rem 0;
-}
-.campaign-find {
-  margin-top: 0.5rem;
-  padding: 0.55rem 0.8rem;
-  max-width: 100%;
-  text-align: left;
-  border: 1px solid #dceba1;
-  border-radius: 0.4rem;
-  background: #243a39;
-  color: #eefaaf;
-  font-size: 0.7rem;
-  font-weight: 900;
-  letter-spacing: 0.04em;
-}
-.campaign-find:focus-visible {
-  outline: 3px solid #f7e1ac;
-  outline-offset: 2px;
-}
-.campaign-decision {
-  display: grid;
-  gap: 0.45rem;
-  align-content: start;
-}
-.campaign-decision button {
+.campaign-strip {
   display: flex;
   align-items: center;
-  text-align: left;
-  gap: 0.55rem;
-  width: 100%;
-  padding: 0.75rem;
-  color: #f4f4ec;
-  background: linear-gradient(120deg, #313b43, #182130);
-  border: 1px solid #a1c6a2;
-  border-radius: 0.55rem;
-  cursor: pointer;
+  gap: clamp(0.6rem, 2cqw, 1.4rem);
+  padding: clamp(0.5rem, 1.6cqw, 1rem) clamp(0.6rem, 2cqw, 1.4rem);
 }
-.campaign-decision button:hover,
-.campaign-decision button:focus-visible {
-  border-color: #effc9f;
-  background: #3a4444;
-}
-.decision-mark {
-  font-size: 1.4rem;
-  font-weight: 1000;
-  color: #c9d78e;
-}
-.decision-copy {
+.campaign-title {
   display: grid;
-  flex: 1;
-  min-width: 0;
   gap: 0.15rem;
+  min-width: 0;
+  flex: 1 1 auto;
 }
-.decision-copy strong {
-  font-size: 0.8rem;
-}
-.decision-copy small {
-  color: #c7d1d8;
+.campaign-overline {
+  display: block;
+  color: var(--campaign-accent);
   font-size: 0.68rem;
+  font-weight: 900;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
 }
-.decision-arrow {
-  font-size: 1.4rem;
-  color: #d2ed9f;
+.campaign-title h2 {
+  margin: 0;
+  overflow: hidden;
+  font-size: clamp(1.1rem, 2.6cqw, 1.9rem);
+  font-weight: 1000;
+  font-style: italic;
+  line-height: 1;
+  letter-spacing: -0.035em;
+  text-overflow: ellipsis;
+  text-transform: uppercase;
+  white-space: nowrap;
+  text-shadow: 0 2px 15px #080d1c;
+}
+.campaign-track {
+  display: flex;
+  gap: 0.35rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.campaign-step {
+  position: relative;
+  width: clamp(2.4rem, 5cqw, 3.4rem);
+  aspect-ratio: 3 / 4;
+  overflow: hidden;
+  border: 2px solid #ffffff3d;
+  border-radius: 0.45rem;
+  opacity: 0.55;
+  filter: grayscale(0.8);
+}
+.campaign-step.current {
+  border-color: var(--campaign-accent);
+  opacity: 1;
+  filter: none;
+  box-shadow: 0 0 16px
+    color-mix(in srgb, var(--campaign-accent) 55%, transparent);
+}
+.campaign-step.cleared {
+  border-color: #70ce9d;
+  opacity: 0.9;
+  filter: none;
+}
+.campaign-step .campaign-step-art {
+  position: absolute;
+  inset: 0;
+}
+.campaign-step span {
+  position: absolute;
+  inset: auto 0 0;
+  padding: 0.1rem;
+  background: #060a10cc;
+  font-size: 0.55rem;
+  font-weight: 900;
+  text-align: center;
+}
+.campaign-stamp {
+  display: grid;
+  justify-items: center;
+  flex: none;
+  padding: 0.45rem 0.7rem;
+  border: 2px solid #ffffffa8;
+  border-radius: 0.6rem;
+  background: #0a142ecc;
+}
+.campaign-stamp b {
+  font-size: 1.3rem;
+  line-height: 1;
+}
+.campaign-stamp small {
+  font-size: 0.5rem;
+  letter-spacing: 0.12em;
+}
+.campaign-scene {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-rows: minmax(0, 1fr) auto;
+  align-items: end;
+  gap: clamp(0.5rem, 1.5cqw, 1.2rem);
+  min-height: 0;
+  padding: 0 clamp(0.6rem, 2cqw, 1.6rem) clamp(0.6rem, 2cqw, 1.4rem);
+}
+.campaign-panel {
+  align-self: end;
+  max-height: 100%;
+  min-height: 0;
+  max-width: 46rem;
+  padding: clamp(0.85rem, 2.2cqw, 1.6rem);
+  border: 1px solid #ffffff24;
+  border-left: 4px solid var(--campaign-accent);
+  border-radius: 0.9rem;
+  background: #080d15d9;
+  box-shadow: 0 18px 48px #000a;
+  backdrop-filter: blur(6px);
+}
+.campaign-panel h3 {
+  margin: 0.35rem 0 0.6rem;
+  font-size: clamp(1.7rem, 4.6cqw, 3.4rem);
+  font-weight: 1000;
+  font-style: italic;
+  line-height: 0.95;
+  letter-spacing: -0.035em;
+  text-transform: uppercase;
+  text-shadow: 0 3px 24px #000;
+}
+.campaign-lede,
+.campaign-prologue {
+  margin: 0 0 0.8rem;
+  font-size: clamp(0.98rem, 1.6cqw, 1.2rem);
+  line-height: 1.5;
+  color: #e6ecf4;
+}
+.campaign-prologue {
+  color: #fff1ad;
+  font-style: italic;
+}
+.campaign-note {
+  color: #c3d5c2;
+  font-size: 0.78rem;
+}
+.campaign-exchange {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 16rem), 1fr));
+  gap: 0.6rem;
+  margin: 0.4rem 0 0.8rem;
+}
+.campaign-rival-verdict {
+  display: grid;
+  gap: 0.6rem;
+}
+.campaign-voice {
+  display: grid;
+  grid-template-columns: clamp(3.8rem, 9cqw, 5rem) minmax(0, 1fr);
+  align-items: start;
+  gap: 0.7rem;
+  padding: 0.6rem;
+  border: 1px solid #54727a;
+  border-radius: 0.75rem;
+  background: #182b36cc;
+}
+.campaign-voice.player {
+  border-color: #9ab88b;
+  background: #26372fcc;
+}
+.campaign-voice .campaign-voice-portrait {
+  aspect-ratio: 3 / 4;
+  height: auto;
+  border-radius: 0.5rem;
+}
+.campaign-voice small {
+  color: #c9e5d4;
+  font-size: 0.7rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+}
+.campaign-voice p {
+  margin: 0.25rem 0 0;
+  font-size: clamp(0.95rem, 1.5cqw, 1.1rem);
+  line-height: 1.45;
+}
+.campaign-voice .campaign-memory {
+  padding-top: 0.4rem;
+  border-top: 1px solid #ffffff28;
+  color: #e9dca9;
 }
 .campaign-recap {
-  margin-top: 0.6rem;
-  padding: 0.7rem;
   display: grid;
   gap: 0.3rem;
-  background: #202e38;
+  margin-top: 0.8rem;
+  padding: 0.75rem 0.9rem;
   border-left: 3px solid #c1df93;
+  background: #202e38cc;
 }
 .campaign-recap strong {
   color: #cfedab;
-  font-size: 0.66rem;
-  letter-spacing: 0.08em;
-}
-.campaign-recap span {
   font-size: 0.75rem;
+  letter-spacing: 0.1em;
 }
-.campaign-finale {
-  display: grid;
-  gap: 0.5rem;
-  padding: 1rem;
-  background: #293c30;
-  border: 2px solid #c0e69e;
-  border-radius: 0.6rem;
+.campaign-recap p {
+  margin: 0;
+  font-size: 1rem;
+  line-height: 1.45;
 }
-.campaign-finale small {
-  color: #c3d5c2;
-  font-size: 0.7rem;
+.campaign-recap small {
+  color: #ced9d6;
+  font-size: 0.8rem;
 }
-.campaign-disclaimer {
+.campaign-scene.lost .campaign-panel {
+  border-left-color: #ef9ea4;
+}
+.campaign-deck {
+  --tone: #c5ff59;
+  --hand-accent: var(--tone);
+  --hand-accent-2: #c5ff59;
+  --hand-band: #070b12;
+  --hand-band-ink: #f4f4ec;
+  --hand-card-max: 10.5rem;
   display: flex;
-  justify-content: space-between;
-  flex-wrap: wrap;
-  gap: 0.5rem;
-  font-size: 0.61rem;
-  letter-spacing: 0.05em;
-  color: #adb9c8;
+  flex-direction: column;
+  justify-content: flex-end;
+  gap: 0.7rem;
+  min-width: 0;
 }
-@container (max-width: 570px) {
-  .campaign-hero {
-    min-height: 13rem;
-    padding: 0.75rem;
+.campaign-deck.tone-red {
+  --tone: #fe6657;
+}
+.campaign-deck.tone-blue {
+  --tone: #6fc8ff;
+}
+.campaign-deck.tone-purple {
+  --tone: #d38cff;
+}
+.campaign-deck.tone-green {
+  --tone: #c7fa62;
+}
+.campaign-deck.tone-gold {
+  --tone: #f7c968;
+}
+.campaign-favors {
+  display: grid;
+  gap: 0.4rem;
+  min-width: 0;
+}
+.campaign-favor-row {
+  display: flex;
+  gap: 0.45rem;
+  overflow-x: auto;
+  scrollbar-width: thin;
+}
+.campaign-favor {
+  display: flex;
+  align-items: center;
+  flex: none;
+  gap: 0.5rem;
+  max-width: 14rem;
+  min-height: 3.25rem;
+  padding: 0.3rem 0.7rem 0.3rem 0.3rem;
+  border: 2px solid #5a7077;
+  border-radius: 0.6rem;
+  background: #192633d9;
+  color: #f4f4ec;
+  text-align: left;
+}
+.campaign-favor.active {
+  border-color: #f3e2a2;
+  background: #354038e6;
+  box-shadow: 0 0 16px #f3e2a255;
+}
+.campaign-favor:focus-visible {
+  outline: 3px solid #f5efbf;
+  outline-offset: 2px;
+}
+.campaign-favor .campaign-favor-art {
+  flex: 0 0 2.4rem;
+  width: 2.4rem;
+  height: 2.8rem;
+  border-radius: 0.35rem;
+}
+.campaign-favor strong {
+  overflow: hidden;
+  font-size: 0.78rem;
+  line-height: 1.2;
+}
+.campaign-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 0.6rem;
+}
+.campaign-cta {
+  align-self: flex-end;
+  min-height: 3.25rem;
+  padding: 0.8rem 1.4rem;
+  border: 2px solid var(--campaign-accent);
+  border-radius: 0.6rem;
+  background: var(--campaign-accent);
+  color: #121812;
+  font-size: clamp(0.82rem, 1.4cqw, 1.02rem);
+  font-weight: 1000;
+  letter-spacing: 0.1em;
+  box-shadow: 0 0 28px
+    color-mix(in srgb, var(--campaign-accent) 40%, transparent);
+}
+.campaign-cta:hover,
+.campaign-cta:focus-visible {
+  outline: none;
+  box-shadow: 0 0 38px
+    color-mix(in srgb, var(--campaign-accent) 70%, transparent);
+}
+.campaign-cta.campaign-quiet {
+  background: #0b1219d9;
+  color: #f4f4ec;
+  box-shadow: none;
+}
+@container campaign (min-width: 900px) {
+  .campaign-scene {
+    grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr);
+    grid-template-rows: minmax(0, 1fr);
   }
-  .campaign-headline {
-    width: 87%;
-    gap: 0.3rem;
+}
+@container campaign (max-width: 600px) {
+  .campaign-strip {
+    flex-wrap: wrap;
+    row-gap: 0.4rem;
   }
-  .campaign-headline h2 {
-    font-size: clamp(1.35rem, 7cqw, 2.3rem);
+  .campaign-title {
+    flex-basis: calc(100% - 5rem);
   }
-  .campaign-headline p {
-    font-size: 0.7rem;
-  }
-  .campaign-principle {
-    font-size: 0.64rem;
-  }
-  .campaign-stamp {
-    top: 0.35rem;
-    right: 0.35rem;
-    transform: scale(0.7) rotate(9deg);
-    transform-origin: top right;
+  .campaign-track {
+    order: 3;
+    flex: 1 1 100%;
+    justify-content: space-between;
   }
   .campaign-step {
-    padding: 0.35rem 0.2rem;
+    width: auto;
+    flex: 1 1 0;
+    aspect-ratio: auto;
+    height: 2.2rem;
   }
-  .campaign-step strong {
-    font-size: 0.55rem;
-    overflow-wrap: anywhere;
+  .campaign-deck {
+    --hand-card-max: 7rem;
   }
-  .campaign-step small {
-    font-size: 0.46rem;
-  }
-  .campaign-mission {
-    grid-template-columns: minmax(0, 1fr);
-  }
-  .campaign-hero-ink {
-    opacity: 0.35;
+  .campaign-actions .campaign-cta {
+    flex: 1 1 auto;
   }
 }
 </style>

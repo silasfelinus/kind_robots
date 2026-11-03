@@ -306,6 +306,7 @@
       v-if="splashing"
       :ready="court.loaded"
       @done="splashing = false"
+      @chronicle="openChronicleFromSplash"
     />
     <EmperorFortressDawn
       v-if="showDawn && court.lastReport"
@@ -434,6 +435,12 @@ function enter(room: RoomId) {
   stage.value?.scrollTo({ top: 0 })
 }
 
+function openChronicleFromSplash() {
+  splashing.value = false
+  court.closeIntro()
+  enter('chronicle')
+}
+
 function finishIntroduction() {
   const firstAudience =
     run.value?.day === 1 &&
@@ -528,6 +535,28 @@ useHead({ title: 'Emperor of Dust' })
   --eod-gilt: oklch(72% 0.1 78);
   --eod-gilt-dim: color-mix(in oklch, var(--eod-gilt) 45%, transparent);
   --eod-ink: var(--color-base-100);
+}
+
+.eod .eod-hand {
+  --hand-accent: var(--eod-gilt);
+  --hand-accent-2: oklch(55% 0.12 45);
+  --hand-band: oklch(16% 0.025 255);
+  --hand-band-ink: oklch(93% 0.03 85);
+  --hand-text-scale: 1.2;
+}
+.eod-reading-large .eod-hand {
+  --hand-text-scale: 1.35;
+}
+.eod-reading-extra-large .eod-hand {
+  --hand-text-scale: 1.5;
+}
+.eod .eod-hand .krh-title strong,
+.eod .eod-hand .krh-detail strong {
+  font-family: Georgia, ui-serif, serif;
+}
+.eod-font-sans .eod-hand .krh-title strong,
+.eod-font-sans .eod-hand .krh-detail strong {
+  font-family: ui-sans-serif, system-ui, sans-serif;
 }
 
 .eod .eod-display,

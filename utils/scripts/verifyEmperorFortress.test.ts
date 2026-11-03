@@ -5626,6 +5626,138 @@ for (const def of DAYS)
     /clean boots/,
   )
 
+  // Day 4's private warning makes Vane's Day 5 bridge split playable,
+  // not merely a line of flavor without downstream cost.
+  const splitDay4 = answer(
+    onDay(5, 4),
+    'd04-painted-feast',
+    'ask-patron',
+    'warn-fiddler',
+  )
+  assert.ok(splitDay4.flags.includes('d04-pack-split-sown'))
+  const splitVane = DAYS[4]!.audiences.find((a) => a.id === 'd05-toll')!
+  const splitRun = onDay(5, 5, {
+    flags: splitDay4.flags,
+    brass: 40,
+  })
+  const fundFiddler = splitVane.options.find(
+    (option) => option.id === 'fund-fiddler',
+  )!
+  assert.ok(optionVisible(splitRun, fundFiddler))
+  assert.ok(!optionVisible(onDay(5, 5), fundFiddler))
+  assert.match(
+    sceneLines(splitRun, splitVane).map(lineText).join(' '),
+    /Your warning to the fiddler reached both captains/,
+  )
+  const backed = answer(splitRun, 'd05-toll', 'fund-fiddler')
+  assert.equal(backed.brass, 28)
+  assert.ok(backed.flags.includes('d05-fiddler-backed'))
+  assert.ok(backed.affinity.jackalwire < splitRun.affinity.jackalwire)
+  assert.ok(validateRun(JSON.parse(JSON.stringify(backed))))
+
+  // Funding the splinter Pack buys passage, not a loyal army. The same
+  // fiddler returns at Thistledown, asking the crown to feed her camp.
+  const thistleWithFiddler = onDay(5, 10, {
+    flags: backed.flags,
+    brass: 35,
+  })
+  const thistleWithoutFiddler = onDay(5, 10, { brass: 35 })
+  const thistleAudience = DAYS[9]!.audiences.find(
+    (audience) => audience.id === 'd10-thistledown',
+  )!
+  const backedColorsBeat = thistleAudience.beats!.find(
+    (beat) => beat.id === 'colors',
+  )!
+  const grainOption = backedColorsBeat.options.find(
+    (option) => option.id === 'feed-fiddler',
+  )!
+  assert.ok(optionVisible(thistleWithFiddler, grainOption))
+  assert.ok(!optionVisible(thistleWithoutFiddler, grainOption))
+  assert.match(
+    sceneLines(thistleWithFiddler, backedColorsBeat).map(lineText).join(' '),
+    /twelve-brass receipt/,
+  )
+  const bargained = answer(
+    thistleWithFiddler,
+    'd10-thistledown',
+    'ask-colors',
+    'feed-fiddler',
+  )
+  assert.equal(bargained.brass, 15)
+  assert.ok(bargained.flags.includes('d10-fiddler-grain-bargain'))
+  assert.ok(
+    bargained.aid?.['q-d10-freehold-raid']?.some(
+      (aid) => aid.resolve === 'partial',
+    ),
+  )
+  assert.ok(validateRun(JSON.parse(JSON.stringify(bargained))))
+
+  // Returning a bound runner and sheltering a whistleblower must not
+  // collapse to the same "free forecast" outcome three days later.
+  const shelteredDay4 = answer(
+    onDay(5, 4),
+    'd04-silent-crows',
+    'ask-leave',
+    'shelter-runner',
+  )
+  const returnedDay4 = answer(
+    onDay(5, 4),
+    'd04-silent-crows',
+    'ask-leave',
+    'return-runner',
+  )
+  const crowAudience = DAYS[6]!.audiences.find(
+    (a) => a.id === 'd07-crow-warning',
+  )!
+  const riskRunner = crowAudience.options.find(
+    (option) => option.id === 'ask-sheltered-runner',
+  )!
+  const hireRunner = crowAudience.options.find(
+    (option) => option.id === 'ask-returned-runner',
+  )!
+  const shelteredStart = onDay(5, 7, {
+    flags: shelteredDay4.flags,
+    brass: 40,
+  })
+  const returnedStart = onDay(5, 7, {
+    flags: returnedDay4.flags,
+    brass: 40,
+  })
+  assert.ok(optionVisible(shelteredStart, riskRunner))
+  assert.ok(!optionVisible(returnedStart, riskRunner))
+  assert.ok(optionVisible(returnedStart, hireRunner))
+  assert.ok(!optionVisible(shelteredStart, hireRunner))
+  const risked = answer(
+    shelteredStart,
+    'd07-crow-warning',
+    'ask-sheltered-runner',
+  )
+  const commissioned = answer(
+    returnedStart,
+    'd07-crow-warning',
+    'ask-returned-runner',
+  )
+  assert.ok(risked.flags.includes('d07-runner-penalized'))
+  assert.ok(commissioned.flags.includes('d07-runner-commissioned'))
+  assert.ok(risked.flags.includes('crow-forecast-day10'))
+  assert.ok(commissioned.flags.includes('crow-forecast-day10'))
+  assert.equal(risked.brass, 40)
+  assert.equal(commissioned.brass, 20)
+  assert.ok(
+    risked.affinity['storm-crows'] < shelteredStart.affinity['storm-crows'],
+  )
+  assert.ok(
+    commissioned.affinity['storm-crows'] >
+      returnedStart.affinity['storm-crows'],
+  )
+  assert.equal(risked.dues?.find((due) => due.id === 'd07-storm')?.day, 10)
+  assert.equal(
+    commissioned.dues?.find((due) => due.id === 'd07-storm')?.day,
+    10,
+  )
+  assert.ok(validateRun(JSON.parse(JSON.stringify(risked))))
+  assert.ok(validateRun(JSON.parse(JSON.stringify(commissioned))))
+
   // Dominant answers now cost something.
   const brokeVane = onDay(5, 5, { flags: ['feast-armed'], brass: 30 })
   const apology = audienceScene(
@@ -7032,6 +7164,143 @@ for (const def of DAYS)
     ['q-d31-seed-corn', 'd31-seed-in-granary'],
   ] as const)
     assert.ok(questDef(questId)!.rewards.success.flags?.includes(flag), flag)
+}
+
+{
+  // Five-act public record: the Day 4 choice controls the Day 14 Archive,
+  // Day 29 mayoral reckoning, Day 39 congress, Day 49 record and epilogue.
+  const audience = (day: number, id: string) =>
+    DAYS.find((entry) => entry.day === day)!.audiences.find(
+      (entry) => entry.id === id,
+    )!
+  const proceed = (day: number, flags: string[], id: string, option: string) =>
+    chooseAudienceOption(onDay(620, day, { brass: 160, flags }), id, option).run
+  const routes = [
+    {
+      source: 'd04-page-posted',
+      archive: 'copy-tobin',
+      archiveFlag: 'd14-tobin-witnesses',
+      reckoning: 'hearing-hesper',
+      reckoningFlag: 'd29-hesper-hearing',
+      congress: 'enter-hearing',
+      congressFlag: 'd39-hearing-entered',
+      record: 'name-tobin',
+      recordFlag: 'd49-tobin-record',
+      line: /Hesper Lowe/,
+    },
+    {
+      source: 'd04-page-to-mother',
+      archive: 'ask-hesper',
+      archiveFlag: 'd14-hesper-asked',
+      reckoning: 'protect-hesper',
+      reckoningFlag: 'd29-hesper-private',
+      congress: 'protect-record',
+      congressFlag: 'd39-private-record',
+      record: 'leave-hesper-space',
+      recordFlag: 'd49-hesper-private-record',
+      line: /permission/,
+    },
+    {
+      source: 'd04-page-sealed',
+      archive: 'open-crown-seal',
+      archiveFlag: 'd14-page-opened',
+      reckoning: 'audit-seal',
+      reckoningFlag: 'd29-seal-audited',
+      congress: 'enter-audit',
+      congressFlag: 'd39-audit-entered',
+      record: 'print-audit',
+      recordFlag: 'd49-audit-record',
+      line: /seal/,
+    },
+  ] as const
+  for (const route of routes) {
+    const archive = audience(14, 'd14-archive-funds')
+    const initial = onDay(620, 14, { brass: 160, flags: [route.source] })
+    const choice = archive.options.find((entry) => entry.id === route.archive)!
+    assert.ok(optionVisible(initial, choice), route.archive)
+    assert.ok(
+      !optionVisible(onDay(620, 14), choice),
+      route.archive + ' must be earned',
+    )
+    assert.match(
+      sceneLines(initial, archive).map(lineText).join(' '),
+      route.line,
+    )
+    const afterArchive = proceed(
+      14,
+      [route.source],
+      'd14-archive-funds',
+      route.archive,
+    )
+    assert.ok(afterArchive.flags.includes(route.archiveFlag))
+    assert.ok(validateRun(JSON.parse(JSON.stringify(afterArchive))))
+
+    const mayor = proceed(
+      29,
+      afterArchive.flags,
+      'd29-mayors-secret',
+      route.reckoning,
+    )
+    assert.ok(mayor.flags.includes(route.reckoningFlag))
+    const congress = proceed(39, mayor.flags, 'd39-congress', route.congress)
+    assert.ok(congress.flags.includes(route.congressFlag))
+    const record = proceed(49, congress.flags, 'd49-the-record', route.record)
+    assert.ok(record.flags.includes(route.recordFlag))
+    assert.ok(
+      epilogueFor(record, 'open-roads').some(
+        (entry) => entry.subject.id === 'tobin-and-hesper-record',
+      ),
+      route.recordFlag + ' reaches the epilogue',
+    )
+    assert.ok(validateRun(JSON.parse(JSON.stringify(record))))
+  }
+
+  // The runner's two mutually exclusive Day 7 outcomes should not be
+  // interchangeable by Day 39, Day 44 or the last archive entry.
+  const runnerRoutes = [
+    {
+      source: 'd07-runner-penalized',
+      congress: 'redeem-runner',
+      congressFlag: 'd39-runner-freed',
+      testimony: 'hear-freed-runner',
+      testimonyFlag: 'd44-runner-testified',
+      record: 'record-runner',
+    },
+    {
+      source: 'd07-runner-commissioned',
+      congress: 'witness-oath',
+      congressFlag: 'd39-runner-oath',
+      testimony: 'read-runner-oath',
+      testimonyFlag: 'd44-runner-account',
+      record: 'record-commission',
+    },
+  ] as const
+  for (const route of runnerRoutes) {
+    const congressScene = audience(39, 'd39-congress')
+    const option = congressScene.options.find(
+      (entry) => entry.id === route.congress,
+    )!
+    assert.ok(optionVisible(onDay(621, 39, { flags: [route.source] }), option))
+    assert.ok(!optionVisible(onDay(621, 39), option))
+    const congress = proceed(39, [route.source], 'd39-congress', route.congress)
+    assert.ok(congress.flags.includes(route.congressFlag))
+    assert.ok(congress.brass < 160)
+    const witness = proceed(
+      44,
+      congress.flags,
+      'd44-crow-name',
+      route.testimony,
+    )
+    assert.ok(witness.flags.includes(route.testimonyFlag))
+    const record = proceed(49, witness.flags, 'd49-the-record', route.record)
+    assert.ok(record.flags.includes('d49-runner-record'))
+    assert.ok(
+      epilogueFor(record, 'open-roads').some(
+        (entry) => entry.subject.id === 'the-runner-kept-her-name',
+      ),
+    )
+    assert.ok(validateRun(JSON.parse(JSON.stringify(record))))
+  }
 }
 
 console.log('Emperor of Dust fortress contract: ok')

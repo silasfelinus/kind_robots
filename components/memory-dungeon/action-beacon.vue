@@ -13,14 +13,28 @@
 .md-action-beacon {
   position: absolute;
   z-index: 30;
-  top: 5%;
-  left: 5%;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
   display: block;
-  width: clamp(0.9rem, 2.5cqw, 1.65rem);
-  height: clamp(0.9rem, 2.5cqw, 1.65rem);
+  /* Smaller than the first pass so the tile's art still shows around it
+     (Silas, 2026-11-02: "a little too big"). */
+  width: clamp(1.1rem, 4.2cqw, 2.1rem);
+  height: clamp(1.1rem, 4.2cqw, 2.1rem);
   pointer-events: none;
-  perspective: 110px;
-  filter: drop-shadow(0 2px 3px #07120e);
+  perspective: 140px;
+  filter: drop-shadow(0 3px 5px #07120e);
+}
+
+.md-action-beacon::before {
+  content: '';
+  position: absolute;
+  inset: -17%;
+  border: 2px solid #ffe6a97a;
+  border-radius: 50%;
+  background: radial-gradient(circle, #ffe6a953, transparent 65%);
+  box-shadow: 0 0 12px #f5c77e55;
+  animation: md-beacon-aura 2.6s ease-in-out infinite alternate;
 }
 
 .md-action-beacon-gem {
@@ -29,7 +43,7 @@
   width: 100%;
   height: 100%;
   transform-style: preserve-3d;
-  animation: md-beacon-turn 3.2s linear infinite;
+  animation: md-beacon-turn 2.8s linear infinite;
 }
 
 .md-action-beacon-face {
@@ -41,27 +55,38 @@
   border-radius: 35%;
   background: linear-gradient(145deg, #fff1aa, #e4a34b 55%, #815b4e);
   color: #403022;
-  font-size: clamp(0.65rem, 1.65cqw, 1.1rem);
+  font-size: clamp(0.75rem, 2.4cqw, 1.2rem);
   line-height: 1;
   backface-visibility: hidden;
 }
 
 .md-action-beacon-front {
-  transform: translateZ(0.35rem);
+  transform: translateZ(0.25rem);
 }
 
 .md-action-beacon-back {
-  transform: rotateY(180deg) translateZ(0.35rem);
+  transform: rotateY(180deg) translateZ(0.25rem);
 }
 
 .md-action-beacon-left {
   background: #a56c55;
-  transform: rotateY(-90deg) translateZ(0.35rem);
+  transform: rotateY(-90deg) translateZ(0.25rem);
 }
 
 .md-action-beacon-right {
   background: #f6d587;
-  transform: rotateY(90deg) translateZ(0.35rem);
+  transform: rotateY(90deg) translateZ(0.25rem);
+}
+
+@keyframes md-beacon-aura {
+  from {
+    opacity: 0.52;
+    transform: scale(0.85);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1.04);
+  }
 }
 
 @keyframes md-beacon-turn {
@@ -74,6 +99,9 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
+  .md-action-beacon::before {
+    animation: none;
+  }
   .md-action-beacon-gem {
     animation: none;
     transform: rotateX(-18deg) rotateY(-25deg);

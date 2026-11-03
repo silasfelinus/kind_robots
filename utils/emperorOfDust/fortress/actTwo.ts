@@ -2609,7 +2609,7 @@ export const ACT_TWO_DAYS: readonly DayDef[] = [
           {
             id: 'road',
             lines: [
-              '“Mirefen folk, walking away from whatever the Mothers are doing. Pack deserters, since the engine dried. Goats from the far border who won’t say what they’re running from. Forty, fifty a day.”',
+              '“Mirefen folk, walking away from whatever the Mothers are doing. Pack deserters, since the engine dried. Herders from the far border who won’t say what they’re running from. Forty, fifty a day.”',
               '“And since you asked: my people sell the water we won’t give. A brass bit a cup, back gates, after dark. Somebody has to pay for the wells, Majesty. It won’t be the crown.”',
               {
                 who: 'Young Komodo',
@@ -3808,7 +3808,7 @@ export const D34_RUNNER_AT_GATE: AudienceDef = {
   faction: 'storm-crows',
   requires: { flags: ['d34-runner-at-gate'] },
   lines: [
-    'She is on the gate step when the bar comes off. A young stoat in a Conclave sash, soaked through. She has not knocked. She is waiting to be sent for.',
+    'She is on the gate step when the bar comes off. A young courier in a Conclave sash, soaked through. She has not knocked. She is waiting to be sent for.',
     '“Linnet, Majesty. From the Yard. You sent three of us up the Heights on Day Twenty. I’m the one they sent down.”',
     '“Elder Corvane asks a thing. Is the crown buying me out early? Sixty brass. He says it is the same to the Conclave either way.” She wipes the rain off her nose. “It isn’t.”',
     '“Two more years, they say. Or nine. They count it.” Rain runs off the sash onto the step. She does not ask to come in.',
@@ -3817,7 +3817,7 @@ export const D34_RUNNER_AT_GATE: AudienceDef = {
     {
       flags: ['d20-court-runners'],
       lines: [
-        'She is on the gate step when the bar comes off. A young stoat in a Conclave sash, soaked through. She has not knocked. She is waiting to be sent for.',
+        'She is on the gate step when the bar comes off. A young courier in a Conclave sash, soaked through. She has not knocked. She is waiting to be sent for.',
         '“Linnet, Majesty. The clerk’s girl. You sent three of us from your own households on Day Twenty. I’m the one they sent down.”',
         '“Elder Corvane asks a thing. Is the crown buying me out early? Sixty brass. He says it is the same to the Conclave either way.” She wipes the rain off her nose. “It isn’t.”',
         '“Two more years, they say. Or nine. They count it.” Rain runs off the sash onto the step. Her father is at his desk forty yards away. She does not ask for him.',
@@ -3874,7 +3874,7 @@ export const D34_RUNNER_AT_GATE: AudienceDef = {
  * whoever went up, for how long, and what the crown did at the Day 34 gate.
  */
 const D42_FIRST_LINE =
-  'A young stoat in a Conclave sash brings you water in the morning. She stands holding the bowl. Not leaving.'
+  'A young courier in a Conclave sash brings you water in the morning. She stands holding the bowl. Not leaving.'
 const D42_LAST_LINE =
   '“The bond runs seven more years. I’m not asking anything. I wanted the emperor to see one of us. Once.”'
 export const D42_RUNNER_VARIANTS: SceneVariant[] = [

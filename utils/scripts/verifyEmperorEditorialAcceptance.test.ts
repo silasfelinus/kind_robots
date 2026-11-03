@@ -794,10 +794,14 @@ const callbackRun = playCampaign(
         open.some((option) => option.id === choiceId),
       ),
     onAudienceChoice: (day, id, option, run) => {
-      conditionalRouteChoicesMade.push(`Day ${day}: ${id}/${option.id}`)
+      if (conditionalRouteChoices[id] || callbackTargets.includes(id))
+        conditionalRouteChoicesMade.push(`Day ${day}: ${id}/${option.id}`)
       if (run.audiencesHeard.includes(id)) {
         seenAudiences.add(id)
-        if (!conditionalRouteVisited.includes(id))
+        if (
+          callbackTargets.includes(id) &&
+          !conditionalRouteVisited.includes(id)
+        )
           conditionalRouteVisited.push(id)
       }
     },

@@ -53,8 +53,8 @@ interface Trial {
   changedCommands: boolean
 }
 
-// Actual seeded matches ended in seven rounds on average. A modifier
-// that ONLY changes the timeout will often never enter the action loop.
+// Arena matches end by base or flag in about twelve of thirty rounds. A
+// modifier that ONLY changes the timeout will often never enter the action loop.
 for (const crew of TEAMS) {
   for (const pair of CAMPAIGN_CHAPTER_SUPPORT[crew.id]) {
     for (const approach of approaches) {

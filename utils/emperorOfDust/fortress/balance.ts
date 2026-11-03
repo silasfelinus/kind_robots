@@ -227,7 +227,7 @@ export type CampaignObserver = {
     day: number,
     available: readonly TalkDef[],
     run: FortressRun,
-  ) => string | undefined
+  ) => string | null | undefined
   onAudienceScene?: (
     day: number,
     audienceId: string,
@@ -337,8 +337,10 @@ export const playCampaign = (
         .filter((talk) => talk !== undefined)
       const preferred = observer.selectTalk?.(run.day, available, run)
       const selected =
-        available.find((talk) => talk.id === preferred) ??
-        available[(seed + run.day + policy.id.length) % available.length]
+        preferred === null
+          ? undefined
+          : (available.find((talk) => talk.id === preferred) ??
+            available[(seed + run.day + policy.id.length) % available.length])
       if (selected) {
         for (let beat = 0; beat < 8; beat += 1) {
           if ((run.talksHeard ?? []).includes(selected.id)) break

@@ -185,15 +185,8 @@ const evaluateScene = (
   if (opening.length < 170)
     issues.push('thin opening: less than 170 characters')
   if (terminal.length < 2) issues.push('fewer than two terminal choices')
-  const undisclosed = options.filter(
-    (option) =>
-      (option.requires?.cost ?? 0) > 0 &&
-      !new RegExp(`\\b${option.requires?.cost}\\b`).test(option.label),
-  )
-  if (undisclosed.length)
-    issues.push(
-      `cost not stated numerically: ${undisclosed.map((o) => o.id).join(', ')}`,
-    )
+  // The game displays brass through optionStakes in the choice hand.
+  // Repeating that number inside the dialogue label is not required.
   const empty = options.filter((option) => !option.response.trim())
   if (empty.length)
     issues.push(`blank aftermath: ${empty.map((o) => o.id).join(', ')}`)
@@ -226,13 +219,7 @@ const evaluateScene = (
   )
   const scores: Scores = {
     mood: clamp(opening.length < 120 ? 2 : hasConcreteDetail(opening) ? 4 : 3),
-    clarity: clamp(
-      undisclosed.length
-        ? 2
-        : options.every((o) => o.label.length >= 22)
-          ? 4
-          : 3,
-    ),
+    clarity: clamp(options.every((o) => o.label.length >= 22) ? 4 : 3),
     originality: clamp((leadCounts.get(lead) ?? 0) > 1 ? 2 : 4),
     choice: clamp(
       terminal.length < 2

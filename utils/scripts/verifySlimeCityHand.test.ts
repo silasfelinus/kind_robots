@@ -4,12 +4,13 @@ import assert from 'node:assert/strict'
 import { chooseCpuAction } from '../slimeCity/cpu'
 import {
   advance,
-  attack,
+  BASE_HP,
+  flagHome,
+  setStance,
   replayMatch,
   toggleHandDiscard,
   BLACKOUT_MANA_GAIN,
   MANA_CAP,
-  mayAttack,
   BLACKOUT_HAND_SIZE,
   cardById,
   createMatch,
@@ -135,6 +136,8 @@ fixture.units = [
   },
 ]
 fixture.nextId = 902
+// Bases that outlast the hand cycle: raiders would otherwise end it early.
+fixture.bases = { player: 999, enemy: 999 }
 let current = fixture
 for (let round = 2; round <= 9; round++) {
   const held = current.hands.player.slice(2)
@@ -310,55 +313,99 @@ combatFixture.units = [
 combatFixture.cooldowns.enemy = Object.fromEntries(
   deckOf('catgirls').map((c) => [c.id, 999]),
 )
-const peaceful = advance(combatFixture)
-assert.equal(
-  peaceful.units[1]!.hp,
-  9,
-  'Normal Blackout does not auto-attack at end of round',
-)
-assert.equal(
-  mayAttack(combatFixture, combatFixture.units[0]!, combatFixture.units[1]!),
-  true,
-)
-const struck = attack(combatFixture, 401, 402)
-assert.equal(struck.units[1]!.hp, 7)
-assert.equal(struck.units[0]!.attackedRound, 2)
-assert.equal(
-  attack(struck, 401, 402),
-  struck,
-  'One deliberate attack per fighter per round',
-)
-assert.ok(struck.log[0]?.includes('2 damage'))
-assert.equal(
-  attack(combatFixture, 401, 401),
-  combatFixture,
-  'No friendly fire by normal attacks',
-)
-const tooFar = structuredClone(combatFixture)
+// Arena combat (Silas, 2026-11-02): creatures fight on their own at END
+// ROUND (two beats in BLACKOUT); the player only gives battle orders.
+const fought = advance(combatFixture)
+assert.equal(fought.units[1]!.hp, 5, 'Two automatic blows of 2 land')
+assert.equal(fought.units[0]!.hp, 4, 'The defender strikes back each beat')
+const still = (state: MatchState) => {
+  const copy = structuredClone(state)
+  for (const unit of copy.units) {
+    unit.ap = 0
+    unit.maxAp = 0
+  }
+  return copy
+}
+const tooFar = still(combatFixture)
 tooFar.units[1]!.x = 6
-assert.equal(
-  attack(tooFar, 401, 402),
-  tooFar,
-  'Range 1 does not reach two squares',
-)
+assert.equal(advance(tooFar).units[1]!.hp, 9, 'Range 1 does not reach two')
 assert.equal(cardAttackRange(cardById('mau')), 2)
 const range = structuredClone(tooFar)
 range.units[0]!.range = 2
-assert.equal(attack(range, 401, 402).units[1]!.hp, 7)
-const freshlySummoned = structuredClone(combatFixture)
+assert.equal(advance(range).units[1]!.hp, 5, 'Range 2 reaches two squares')
+const freshlySummoned = still(combatFixture)
 freshlySummoned.units[0]!.summonedRound = freshlySummoned.round
 assert.equal(
-  attack(freshlySummoned, 401, 402),
-  freshlySummoned,
-  'Summoning sickness stops same-turn attacks',
+  advance(freshlySummoned).units[1]!.hp,
+  9,
+  'Summoning sickness stops same-round strikes',
 )
+const dug = setStance(combatFixture, 402, 'defend')
+assert.equal(dug, combatFixture, 'You cannot order an enemy creature')
+const ordered = setStance(combatFixture, 401, 'defend')
+assert.equal(ordered.units[0]!.stance, 'defend')
+assert.deepEqual(ordered.commands.at(-1), {
+  t: 'stance',
+  side: 'player',
+  id: 401,
+  stance: 'defend',
+})
+assert.equal(setStance(ordered, 401, 'defend'), ordered, 'No repeat orders')
+const guarded = still(combatFixture)
+guarded.units[1]!.stance = 'defend'
+guarded.units[1]!.armor = 1
 assert.equal(
-  chooseCpuAction({
-    ...observe(combatFixture, 'enemy'),
-    hand: [],
-  })?.t,
-  'attack',
-  'CPU must choose its own deliberate attack',
+  advance(guarded).units[1]!.hp,
+  7,
+  'DEFEND adds armor, but every arena blow still chips 1',
+)
+// The base fills the far-back column; an unopposed attacker batters it.
+const siege = still(combatFixture)
+siege.units = [{ ...siege.units[0]!, x: siege.width - 1, y: 0 }]
+assert.equal(advance(siege).bases.enemy, BASE_HP.blackout - 4)
+// Two flags, one inside each base: step on the enemy flag to grab it.
+const home = flagHome(combatFixture, 'enemy')
+assert.equal(home.x, combatFixture.width - 1)
+assert.equal(flagHome(combatFixture, 'player').x, 0)
+const grab = structuredClone(combatFixture)
+grab.units = [{ ...grab.units[0]!, x: home.x - 1, y: home.y, ap: 1 }]
+const grabbed = advance(grab)
+assert.equal(grabbed.flags.enemy.carrier, 401)
+assert.equal(grabbed.units[0]!.carryingFlag, true)
+// Carry it back to your own base column to win outright.
+const run = structuredClone(combatFixture)
+run.units = [{ ...run.units[0]!, x: 1, y: 3, carryingFlag: true }]
+run.flags.enemy = { x: 1, y: 3, carrier: 401 }
+const ran = advance(run)
+assert.equal(ran.victor, 'player')
+assert.equal(ran.winPath, 'flag')
+// Knock out a carrier and the flag snaps back to its base.
+const caught = structuredClone(combatFixture)
+caught.units[0]!.hp = 1
+caught.units[0]!.carryingFlag = true
+caught.flags.enemy = { x: 4, y: 2, carrier: 401 }
+caught.units[1]!.attack = 3
+caught.units[1]!.range = 3
+const dropped = advance(caught)
+assert.equal(dropped.flags.enemy.carrier, null)
+assert.deepEqual(
+  { x: dropped.flags.enemy.x, y: dropped.flags.enemy.y },
+  flagHome(caught, 'enemy'),
+)
+// Creatures never deploy onto a flag square.
+const onFlag = createMatch('blackout', 'riot', 'catgirls', 104)
+onFlag.mana = 10
+const creature = onFlag.hands.player
+  .map(cardById)
+  .find((c) => c.kind === 'creature')
+if (creature) {
+  const own = flagHome(onFlag, 'player')
+  assert.equal(deploy(onFlag, creature.id, own.x, own.y), onFlag)
+}
+assert.equal(
+  chooseCpuAction({ ...observe(combatFixture, 'enemy'), hand: [] }),
+  null,
+  'The CPU has no manual attacks to make in the arena',
 )
 const replay = createMatch('blackout', 'riot', 'catgirls', 104)
 assert.deepEqual(

@@ -66,14 +66,19 @@ function blocked(view: MatchView, x: number, y: number): boolean {
   )
 }
 
+/** The legacy hidden-army Blackout fixture, the only format with manual moves. */
+function flagRun(view: MatchView): boolean {
+  return view.mode === 'blackout' && !view.auto
+}
+
 function deployZone(view: MatchView, side: Side, x: number): boolean {
-  if (view.mode === 'blackout')
+  if (view.mode !== 'gridiron')
     return side === 'player' ? x <= 1 : x >= view.width - 2
   return side === 'player' ? x === 0 : x === view.width - 1
 }
 
 function trapZone(view: MatchView, x: number): boolean {
-  if (view.mode === 'blackout') return !deployZone(view, other(view.side), x)
+  if (view.mode !== 'gridiron') return !deployZone(view, other(view.side), x)
   return x > 0 && x < view.width - 1
 }
 
@@ -137,8 +142,8 @@ function laneBlocked(view: MatchView, u: ViewFighter): boolean {
 function key(action: CpuAction): string {
   return action.t === 'deploy'
     ? 'd:' + action.card + ':' + action.x + ':' + action.y
-    : action.t === 'attack'
-      ? 'a:' + action.id + ':' + action.target
+    : action.t === 'stance'
+      ? 's:' + action.id + ':' + action.stance
       : 'm:' + action.id + ':' + action.x + ':' + action.y
 }
 
@@ -181,7 +186,8 @@ function firstStep(
 
 /** How urgently an opposing fighter must be answered. */
 function threat(view: MatchView, foe: ViewFighter): number {
-  if (view.mode === 'blackout') {
+  if (view.auto && foe.carryingFlag) return 8
+  if (flagRun(view)) {
     if (foe.carryingFlag) return 6
     return Math.max(0, 3 - dist(foe, view.flag))
   }
@@ -198,12 +204,16 @@ function creatureCell(view: MatchView, foes: ViewFighter[]): Cell | null {
   const open: Cell[] = []
   for (let x = 0; x < view.width; x++)
     for (let y = 0; y < view.height; y++)
-      if (deployZone(view, view.side, x) && !occupant(view, x, y))
+      if (
+        deployZone(view, view.side, x) &&
+        !occupant(view, x, y) &&
+        !view.flagHomes.some((f) => f.x === x && f.y === y)
+      )
         open.push({ x, y })
   if (!open.length) return null
   const tie = (c: Cell) => mix(view.salt, view.round, c.x, c.y) * 0.01
   let score: (c: Cell) => number
-  if (view.mode === 'blackout') {
+  if (flagRun(view)) {
     const carrier = foes.find((f) => f.carryingFlag)
     const target = carrier || view.flag
     score = (c) => dist(c, target) + tie(c)
@@ -239,8 +249,10 @@ function cardCandidates(view: MatchView): Candidate[] {
       const cell = creatureCell(view, foes)
       if (!cell) continue
       let need: number
-      if (view.mode === 'blackout')
-        need = mine.length < 4 ? 3 : mine.length < 6 ? 1 : -2
+      if (view.mode === 'blackout' || view.auto)
+        need =
+          (mine.length < 4 ? 3 : mine.length < 6 ? 1 : -2) +
+          (view.auto && foes.some((f) => threat(view, f) >= 5) ? 1.5 : 0)
       else
         need =
           (foes.some((f) => threat(view, f) >= 3) ? 3 : 0) +
@@ -274,16 +286,15 @@ function cardCandidates(view: MatchView): Candidate[] {
           // Stopping a runner or a carrier is worth more than chip damage.
           if (foe.rooted) value -= 3
           else
-            value +=
-              view.mode === 'blackout'
-                ? foe.carryingFlag
-                  ? 6
-                  : dist(foe, view.flag) <= 2
-                    ? 2
-                    : 0
-                : threat(view, foe) >= 4
-                  ? 2 + threat(view, foe) * 0.3
+            value += flagRun(view)
+              ? foe.carryingFlag
+                ? 6
+                : dist(foe, view.flag) <= 2
+                  ? 2
                   : 0
+              : threat(view, foe) >= 4
+                ? 2 + threat(view, foe) * 0.3
+                : 0
         } else if (card.effect === 'debt') {
           value += (card.debt ?? 1) * 0.8 - view.debt[1] * 0.6
         }
@@ -357,7 +368,7 @@ function cardCandidates(view: MatchView): Candidate[] {
     } else if (card.kind === 'spell' && card.effect === 'boost') {
       for (const u of mine) {
         let value = 0
-        if (view.mode === 'blackout') {
+        if (flagRun(view)) {
           const ap = u.ap ?? 0
           if (u.carryingFlag) value = 6
           else if (flagFree && dist(u, view.flag) > ap)
@@ -403,7 +414,7 @@ function cardCandidates(view: MatchView): Candidate[] {
         trapZone(view, c.x) &&
         !blocked(view, c.x, c.y) &&
         !own.has(c.x + ':' + c.y)
-      if (view.mode === 'blackout') {
+      if (flagRun(view)) {
         // Lay a trap in the *visible* approach to the flag or the carrier's
         // retreat, not at an arbitrary seed cell. All inputs are from observe:
         // hidden identities, enemy trap locations and match seed stay private.
@@ -484,67 +495,6 @@ function bestCard(view: MatchView, tried: Set<string>): CpuAction | null {
   return best.value >= PLAY_THRESHOLD ? best.action : null
 }
 
-/** Shove tactics use only the public board and our own armed traps. */
-function bestShove(view: MatchView, tried: Set<string>): CpuAction | null {
-  if (view.mode !== 'blackout') return null
-  const candidates: Candidate[] = []
-  for (const unit of view.units) {
-    if (
-      unit.side !== view.side ||
-      !unit.keywords?.includes('bulldoze') ||
-      (unit.ap ?? 0) < 1 ||
-      unit.rooted ||
-      unit.carryingFlag
-    )
-      continue
-    for (const enemy of view.units) {
-      if (enemy.side === view.side || dist(unit, enemy) !== 1) continue
-      const landing = {
-        x: 2 * enemy.x - unit.x,
-        y: 2 * enemy.y - unit.y,
-      }
-      if (
-        landing.x < 0 ||
-        landing.y < 0 ||
-        landing.x >= view.width ||
-        landing.y >= view.height ||
-        blocked(view, landing.x, landing.y)
-      )
-        continue
-      const enemyHome = {
-        x: view.side === 'player' ? view.width - 1 : 0,
-        y: enemy.y,
-      }
-      if (
-        enemy.carryingFlag &&
-        dist(landing, enemyHome) < dist(enemy, enemyHome)
-      )
-        continue
-      const trap = view.traps.some(
-        (t) => t.side === view.side && t.x === landing.x && t.y === landing.y,
-      )
-      const value =
-        (enemy.carryingFlag ? 20 : 0) +
-        (dist(landing, view.flag) - dist(enemy, view.flag)) * 3 +
-        (dist(unit, view.flag) > dist(enemy, view.flag) ? 2 : 0) +
-        (trap ? 8 : 0)
-      const action: CpuAction = {
-        t: 'move',
-        id: unit.id,
-        x: enemy.x,
-        y: enemy.y,
-      }
-      if (value > 0 && !tried.has(key(action)))
-        candidates.push({ action, value })
-    }
-  }
-  return (
-    candidates.sort(
-      (a, b) => b.value - a.value || key(a.action).localeCompare(key(b.action)),
-    )[0]?.action ?? null
-  )
-}
-
 function bestMove(view: MatchView, tried: Set<string>): CpuAction | null {
   const mine = view.units
     .filter((u) => u.side === view.side)
@@ -608,36 +558,34 @@ function bestMove(view: MatchView, tried: Set<string>): CpuAction | null {
   return null
 }
 
-function bestAttack(view: MatchView, tried: Set<string>): CpuAction | null {
-  if (view.mode !== 'blackout') return null
-  const mine = view.units.filter((u) => u.side === view.side && u.hp !== null)
-  const enemies = view.units.filter(
-    (u) => u.side !== view.side && u.hp !== null,
+/**
+ * Arena orders: keep one defender home per intruder in our half (one more if
+ * our flag is stolen), closest to our base first; everyone else attacks.
+ */
+function bestStance(view: MatchView, tried: Set<string>): CpuAction | null {
+  const ownBase = view.side === 'player' ? 0 : view.width - 1
+  const mine = view.units.filter((u) => u.side === view.side && !u.carryingFlag)
+  if (!mine.length) return null
+  const foes = view.units.filter((u) => u.side !== view.side)
+  const intruders = foes.filter(
+    (f) => Math.abs(f.x - ownBase) < view.width / 2,
+  ).length
+  const stolen = view.flags[0].carrier !== null ? 1 : 0
+  const want = Math.min(
+    Math.max(0, mine.length - 2),
+    Math.ceil(intruders / 2) + stolen,
   )
-  for (const u of mine) {
-    if (u.attackedRound === view.round) continue
-    if (u.summonedRound === view.round && !u.keywords?.includes('ambush'))
-      continue
-    // A carrier nearing home is a tactical emergency. Prefer stopping it
-    // over a convenient one-HP target, but take lethal hits when safe.
-    const target = enemies
-      .filter((e) => dist(u, e) <= (u.range ?? 1))
-      .sort((a, b) => {
-        const rank = (e: ViewFighter) =>
-          (e.carryingFlag ? 12 : 0) +
-          ((e.hp ?? 99) <= (u.attack ?? 0) ? 4 : 0) +
-          Math.max(0, 3 - dist(e, view.flag)) +
-          1 / Math.max(1, e.hp ?? 99)
-        return rank(b) - rank(a) || a.id - b.id
-      })[0]
-    if (target) {
-      const action: CpuAction = { t: 'attack', id: u.id, target: target.id }
-      if (!tried.has(key(action))) return action
-    }
-    if (view.monster && dist(u, view.monster) <= (u.range ?? 1)) {
-      const action: CpuAction = { t: 'attack', id: u.id, target: -1 }
-      if (!tried.has(key(action))) return action
-    }
+  const ranked = [...mine].sort(
+    (a, b) =>
+      Math.abs(a.x - ownBase) - Math.abs(b.x - ownBase) ||
+      (b.armor ?? 0) - (a.armor ?? 0) ||
+      a.id - b.id,
+  )
+  for (const [index, unit] of ranked.entries()) {
+    const stance = index < want ? 'defend' : 'attack'
+    if (unit.stance === stance) continue
+    const action: CpuAction = { t: 'stance', id: unit.id, stance }
+    if (!tried.has(key(action))) return action
   }
   return null
 }
@@ -648,11 +596,9 @@ export function chooseCpuAction(
   tried: Set<string> = new Set(),
 ): CpuAction | null {
   if (view.victor) return null
-  const attack = bestAttack(view, tried)
-  if (attack) return attack
   const card = bestCard(view, tried)
   if (card) return card
-  if (view.mode === 'blackout')
-    return bestShove(view, tried) ?? bestMove(view, tried)
+  if (view.auto) return bestStance(view, tried)
+  if (view.mode === 'blackout') return bestMove(view, tried)
   return null
 }

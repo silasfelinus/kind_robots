@@ -193,9 +193,12 @@ export function validateSlimeCityBattle(
     } else if (action.t === 'move') {
       if (![action.id, action.x, action.y].every(Number.isSafeInteger))
         throw createError({ statusCode: 400, message: 'Malformed movement.' })
-    } else if (action.t === 'attack') {
-      if (![action.id, action.target].every(Number.isSafeInteger))
-        throw createError({ statusCode: 400, message: 'Malformed attack.' })
+    } else if (action.t === 'stance') {
+      if (
+        !Number.isSafeInteger(action.id) ||
+        (action.stance !== 'attack' && action.stance !== 'defend')
+      )
+        throw createError({ statusCode: 400, message: 'Malformed order.' })
     } else if (action.t === 'reveal') {
       if (!Number.isSafeInteger(action.id))
         throw createError({ statusCode: 400, message: 'Malformed reveal.' })

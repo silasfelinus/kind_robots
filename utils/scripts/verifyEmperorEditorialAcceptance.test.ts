@@ -670,7 +670,7 @@ for (const id of previousGaps) {
     id,
     `${id} must be offered when its authored prerequisites exist`,
   )
-  for (let beat = 0; beat < 8 && !run.talksHeard.includes(id); beat += 1) {
+  for (let beat = 0; beat < 8 && !(run.talksHeard ?? []).includes(id); beat += 1) {
     const scene = talkScene(run, talk)
     assert.ok(scene.lines.length > 0, `${id}: scene needs spoken content`)
     const option = scene.options.find(
@@ -681,7 +681,7 @@ for (const id of previousGaps) {
     assert.ok(chosen.response.trim(), `${id}: answer needs a response`)
     run = chosen.run
   }
-  assert.ok(run.talksHeard.includes(id), `${id}: must finish without dead-end beats`)
+  assert.ok((run.talksHeard ?? []).includes(id), `${id}: must finish without dead-end beats`)
   fixtureCovered.push(id)
 }
 assert.equal(fixtureCovered.length, previousGaps.length)

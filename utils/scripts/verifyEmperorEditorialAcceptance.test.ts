@@ -889,7 +889,9 @@ for (const faction of HOST_FACTIONS) {
             (faction === 'hollow-bell' && id === 'd01-aqueduct') ||
             (faction === 'saltroad' && id === 'd33-both-roads')
           return special
-            ? guided[id]?.find((choice) => open.some((entry) => entry.id === choice))
+            ? guided[id]?.find((choice) =>
+                open.some((entry) => entry.id === choice),
+              )
             : undefined
         },
         shouldAssignQuest: (day, questId) =>
@@ -898,9 +900,7 @@ for (const faction of HOST_FACTIONS) {
             (faction === 'saltroad' && questId === 'q-d33-waystation')
           ),
         selectMarketPurchases: (day, offered, state) =>
-          day === 42 || day === 45
-            ? spendAtMarket(offered, state.brass)
-            : [],
+          day === 42 || day === 45 ? spendAtMarket(offered, state.brass) : [],
         onMarketPurchase: (day, id, state) => {
           market.push(`D${day} ${id} (${state.brass} left)`)
         },
@@ -1244,9 +1244,12 @@ const markdown = [
   '',
   `Rare-audience replay: ${rareTargets.filter((id) => rareReached.has(id)).length}/${rareTargets.length} formerly unvisited throne scenes resolved organically; ${rareRuns.length} complete 50-day attempts (no injected prerequisites, market buys and declined quests are legal engine actions).`,
   '',
-  ...rareRuns.filter((run) => run.reached.length).map((run) =>
-    `- ${run.target}: seed ${run.seed}, ${run.hideout}, ${run.reached.join(', ')}, market purchases ${run.market.length}.`,
-  ),
+  ...rareRuns
+    .filter((run) => run.reached.length)
+    .map(
+      (run) =>
+        `- ${run.target}: seed ${run.seed}, ${run.hideout}, ${run.reached.join(', ')}, market purchases ${run.market.length}.`,
+    ),
   '',
   '## Complete 50-day policy-campaign traces',
   '',

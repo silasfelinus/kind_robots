@@ -397,18 +397,11 @@ for (const quest of quests) {
     )
 }
 
-const personas = POLICIES.filter((policy) =>
-  [
-    'greedy',
-    'random',
-    'spurn-all',
-    'marshal',
-    'reckless',
-    'idle',
-    'patron:moles',
-    'patron:storm-crows',
-    'patron:freeholds',
-  ].includes(policy.id),
+const personas = POLICIES.filter(
+  (policy) =>
+    ['greedy', 'random', 'spurn-all', 'marshal', 'reckless', 'idle'].includes(
+      policy.id,
+    ) || policy.id.startsWith('patron:'),
 )
 const campaignRows: {
   persona: string
@@ -560,7 +553,7 @@ const markdown = [
       `| ${c.persona} | ${c.seed} | ${c.ending} | ${c.hideout} | ${c.audiences} | ${c.talks} | ${c.quests} | ${c.deaths} | ${c.brass} |`,
   ),
   '',
-  '## Unvisited in the 27 seeded campaigns',
+  `## Unvisited in the ${campaignRows.length} seeded campaigns`,
   '',
   `Unvisited audiences (${unvisitedAudiences.length}): ${unvisitedAudiences.join(', ') || 'none'}`,
   '',
@@ -587,7 +580,7 @@ writeFileSync(
   [
     '# Seeded policy full-campaign transcripts',
     '',
-    'Twenty-seven real-engine 50-day simulated playthroughs. Every dawn, chosen audience answer, barracks answer and quest resolution is recorded in order with complete chosen response text. Opening scene beats, alternative options and runtime variant presentation are not captured. These are deterministic policy bots, not independent human readers.',
+    `${campaignRows.length} real-engine 50-day simulated playthroughs. Every dawn, chosen audience answer, barracks answer and quest resolution is recorded in order with complete chosen response text. Opening scene beats, alternative options and runtime variant presentation are not captured. These are deterministic policy bots, not independent human readers.`,
     '',
     ...campaignRows.flatMap((campaign) => [
       `## ${campaign.persona} · seed ${campaign.seed} · ${campaign.ending}`,

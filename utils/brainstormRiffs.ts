@@ -319,7 +319,7 @@ export function buildCoachRequest(input: {
 }): { premise: string; constraints: string; count: number } {
   const flavor =
     BRAINSTORM_RIFF_FLAVORS.find((entry) => entry.id === input.riff.flavor) ??
-    BRAINSTORM_RIFF_FLAVORS[0]
+    BRAINSTORM_RIFF_FLAVORS[0]!
   const stem = stripTrailingEllipsis(cleanRiffText(input.riff.stem, 240))
   const premiseLines = [
     `A group of humans is playing an improv party game: "${cleanRiffText(input.riff.title, 160)}".`,

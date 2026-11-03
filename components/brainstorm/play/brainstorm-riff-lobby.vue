@@ -283,7 +283,7 @@ function deal() {
 
 .bs-flavors {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(9.5rem, 1fr));
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 0.6rem;
 }
 
@@ -313,7 +313,7 @@ function deal() {
 }
 
 .bs-flavor-icon {
-  font-size: 1.8rem;
+  font-size: 1.5rem;
 }
 
 .bs-flavor-blurb {
@@ -452,6 +452,26 @@ function deal() {
   padding-top: 0.3rem;
   font-size: 0.78rem;
   font-weight: 800;
+}
+
+@media (min-width: 768px) {
+  .bs-flavors {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+
+  .bs-flavor-icon {
+    font-size: 1.8rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .bs-flavor {
+    padding: 0.6rem 0.7rem;
+  }
+
+  .bs-flavor-blurb {
+    font-size: 0.72rem;
+  }
 }
 
 @keyframes bs-bob {

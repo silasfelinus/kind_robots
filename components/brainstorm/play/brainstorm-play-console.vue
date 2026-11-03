@@ -14,7 +14,7 @@
           @click="goLobby"
         >
           <span aria-hidden="true">🧠</span>
-          <span class="hidden sm:inline">Brainstorm</span>
+          <span class="sr-only">Brainstorm tables</span>
         </button>
         <div class="join shrink-0">
           <button

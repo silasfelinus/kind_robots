@@ -137,6 +137,7 @@
         >
           {{ store.postError || store.sparkError }}
         </p>
+        <p v-if="stemText" class="bs-dock-stem">{{ stemText }}…</p>
         <div class="bs-dock-row">
           <button
             type="button"
@@ -413,7 +414,7 @@ watch(tableOpen, (open) => {
   --hand-band: var(--color-base-100);
   --hand-band-ink: var(--color-base-content);
   --hand-card-max: 9.5rem;
-  --hand-card-vh: 24;
+  --hand-card-vh: 22vh;
   flex-shrink: 0;
   overflow: clip;
   padding: 0.4rem 0.6rem 0;
@@ -471,7 +472,15 @@ watch(tableOpen, (open) => {
     0 0 0 2px var(--color-accent);
 }
 
+.bs-dock-stem {
+  padding-left: 3.4rem;
+  font-size: 0.8rem;
+  font-weight: 800;
+  color: var(--color-accent);
+}
+
 .bs-input-stem {
+  display: none;
   flex-shrink: 0;
   max-width: 45%;
   overflow: hidden;
@@ -607,6 +616,16 @@ watch(tableOpen, (open) => {
 .bs-cheer-leave-to {
   opacity: 0;
   transform: translateY(10px) scale(0.9);
+}
+
+@media (min-width: 640px) {
+  .bs-dock-stem {
+    display: none;
+  }
+
+  .bs-input-stem {
+    display: inline;
+  }
 }
 
 @media (min-width: 1024px) {

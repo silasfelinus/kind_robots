@@ -233,7 +233,7 @@ export type BrainstormLineGroupByOutputType = {
   createdAt: Date
   updatedAt: Date | null
   riffId: number
-  userId: number
+  userId: number | null
   authorName: string
   text: string
   aiSpark: string | null
@@ -269,7 +269,7 @@ export type BrainstormLineWhereInput = {
   createdAt?: Prisma.DateTimeFilter<"BrainstormLine"> | Date | string
   updatedAt?: Prisma.DateTimeNullableFilter<"BrainstormLine"> | Date | string | null
   riffId?: Prisma.IntFilter<"BrainstormLine"> | number
-  userId?: Prisma.IntFilter<"BrainstormLine"> | number
+  userId?: Prisma.IntNullableFilter<"BrainstormLine"> | number | null
   authorName?: Prisma.StringFilter<"BrainstormLine"> | string
   text?: Prisma.StringFilter<"BrainstormLine"> | string
   aiSpark?: Prisma.StringNullableFilter<"BrainstormLine"> | string | null
@@ -284,7 +284,7 @@ export type BrainstormLineOrderByWithRelationInput = {
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   riffId?: Prisma.SortOrder
-  userId?: Prisma.SortOrder
+  userId?: Prisma.SortOrderInput | Prisma.SortOrder
   authorName?: Prisma.SortOrder
   text?: Prisma.SortOrder
   aiSpark?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -303,7 +303,7 @@ export type BrainstormLineWhereUniqueInput = Prisma.AtLeast<{
   createdAt?: Prisma.DateTimeFilter<"BrainstormLine"> | Date | string
   updatedAt?: Prisma.DateTimeNullableFilter<"BrainstormLine"> | Date | string | null
   riffId?: Prisma.IntFilter<"BrainstormLine"> | number
-  userId?: Prisma.IntFilter<"BrainstormLine"> | number
+  userId?: Prisma.IntNullableFilter<"BrainstormLine"> | number | null
   authorName?: Prisma.StringFilter<"BrainstormLine"> | string
   text?: Prisma.StringFilter<"BrainstormLine"> | string
   aiSpark?: Prisma.StringNullableFilter<"BrainstormLine"> | string | null
@@ -318,7 +318,7 @@ export type BrainstormLineOrderByWithAggregationInput = {
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   riffId?: Prisma.SortOrder
-  userId?: Prisma.SortOrder
+  userId?: Prisma.SortOrderInput | Prisma.SortOrder
   authorName?: Prisma.SortOrder
   text?: Prisma.SortOrder
   aiSpark?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -339,7 +339,7 @@ export type BrainstormLineScalarWhereWithAggregatesInput = {
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"BrainstormLine"> | Date | string
   updatedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"BrainstormLine"> | Date | string | null
   riffId?: Prisma.IntWithAggregatesFilter<"BrainstormLine"> | number
-  userId?: Prisma.IntWithAggregatesFilter<"BrainstormLine"> | number
+  userId?: Prisma.IntNullableWithAggregatesFilter<"BrainstormLine"> | number | null
   authorName?: Prisma.StringWithAggregatesFilter<"BrainstormLine"> | string
   text?: Prisma.StringWithAggregatesFilter<"BrainstormLine"> | string
   aiSpark?: Prisma.StringNullableWithAggregatesFilter<"BrainstormLine"> | string | null
@@ -350,7 +350,7 @@ export type BrainstormLineScalarWhereWithAggregatesInput = {
 export type BrainstormLineCreateInput = {
   createdAt?: Date | string
   updatedAt?: Date | string | null
-  userId: number
+  userId?: number | null
   authorName: string
   text: string
   aiSpark?: string | null
@@ -365,7 +365,7 @@ export type BrainstormLineUncheckedCreateInput = {
   createdAt?: Date | string
   updatedAt?: Date | string | null
   riffId: number
-  userId: number
+  userId?: number | null
   authorName: string
   text: string
   aiSpark?: string | null
@@ -377,7 +377,7 @@ export type BrainstormLineUncheckedCreateInput = {
 export type BrainstormLineUpdateInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  userId?: Prisma.IntFieldUpdateOperationsInput | number
+  userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   authorName?: Prisma.StringFieldUpdateOperationsInput | string
   text?: Prisma.StringFieldUpdateOperationsInput | string
   aiSpark?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -392,7 +392,7 @@ export type BrainstormLineUncheckedUpdateInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   riffId?: Prisma.IntFieldUpdateOperationsInput | number
-  userId?: Prisma.IntFieldUpdateOperationsInput | number
+  userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   authorName?: Prisma.StringFieldUpdateOperationsInput | string
   text?: Prisma.StringFieldUpdateOperationsInput | string
   aiSpark?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -406,7 +406,7 @@ export type BrainstormLineCreateManyInput = {
   createdAt?: Date | string
   updatedAt?: Date | string | null
   riffId: number
-  userId: number
+  userId?: number | null
   authorName: string
   text: string
   aiSpark?: string | null
@@ -417,7 +417,7 @@ export type BrainstormLineCreateManyInput = {
 export type BrainstormLineUpdateManyMutationInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  userId?: Prisma.IntFieldUpdateOperationsInput | number
+  userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   authorName?: Prisma.StringFieldUpdateOperationsInput | string
   text?: Prisma.StringFieldUpdateOperationsInput | string
   aiSpark?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -430,7 +430,7 @@ export type BrainstormLineUncheckedUpdateManyInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   riffId?: Prisma.IntFieldUpdateOperationsInput | number
-  userId?: Prisma.IntFieldUpdateOperationsInput | number
+  userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   authorName?: Prisma.StringFieldUpdateOperationsInput | string
   text?: Prisma.StringFieldUpdateOperationsInput | string
   aiSpark?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -575,7 +575,7 @@ export type BrainstormLineUpdateOneWithoutReactionsNestedInput = {
 export type BrainstormLineCreateWithoutRiffInput = {
   createdAt?: Date | string
   updatedAt?: Date | string | null
-  userId: number
+  userId?: number | null
   authorName: string
   text: string
   aiSpark?: string | null
@@ -588,7 +588,7 @@ export type BrainstormLineUncheckedCreateWithoutRiffInput = {
   id?: number
   createdAt?: Date | string
   updatedAt?: Date | string | null
-  userId: number
+  userId?: number | null
   authorName: string
   text: string
   aiSpark?: string | null
@@ -631,7 +631,7 @@ export type BrainstormLineScalarWhereInput = {
   createdAt?: Prisma.DateTimeFilter<"BrainstormLine"> | Date | string
   updatedAt?: Prisma.DateTimeNullableFilter<"BrainstormLine"> | Date | string | null
   riffId?: Prisma.IntFilter<"BrainstormLine"> | number
-  userId?: Prisma.IntFilter<"BrainstormLine"> | number
+  userId?: Prisma.IntNullableFilter<"BrainstormLine"> | number | null
   authorName?: Prisma.StringFilter<"BrainstormLine"> | string
   text?: Prisma.StringFilter<"BrainstormLine"> | string
   aiSpark?: Prisma.StringNullableFilter<"BrainstormLine"> | string | null
@@ -642,7 +642,7 @@ export type BrainstormLineScalarWhereInput = {
 export type BrainstormLineCreateWithoutReactionsInput = {
   createdAt?: Date | string
   updatedAt?: Date | string | null
-  userId: number
+  userId?: number | null
   authorName: string
   text: string
   aiSpark?: string | null
@@ -656,7 +656,7 @@ export type BrainstormLineUncheckedCreateWithoutReactionsInput = {
   createdAt?: Date | string
   updatedAt?: Date | string | null
   riffId: number
-  userId: number
+  userId?: number | null
   authorName: string
   text: string
   aiSpark?: string | null
@@ -683,7 +683,7 @@ export type BrainstormLineUpdateToOneWithWhereWithoutReactionsInput = {
 export type BrainstormLineUpdateWithoutReactionsInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  userId?: Prisma.IntFieldUpdateOperationsInput | number
+  userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   authorName?: Prisma.StringFieldUpdateOperationsInput | string
   text?: Prisma.StringFieldUpdateOperationsInput | string
   aiSpark?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -697,7 +697,7 @@ export type BrainstormLineUncheckedUpdateWithoutReactionsInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   riffId?: Prisma.IntFieldUpdateOperationsInput | number
-  userId?: Prisma.IntFieldUpdateOperationsInput | number
+  userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   authorName?: Prisma.StringFieldUpdateOperationsInput | string
   text?: Prisma.StringFieldUpdateOperationsInput | string
   aiSpark?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -709,7 +709,7 @@ export type BrainstormLineCreateManyRiffInput = {
   id?: number
   createdAt?: Date | string
   updatedAt?: Date | string | null
-  userId: number
+  userId?: number | null
   authorName: string
   text: string
   aiSpark?: string | null
@@ -720,7 +720,7 @@ export type BrainstormLineCreateManyRiffInput = {
 export type BrainstormLineUpdateWithoutRiffInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  userId?: Prisma.IntFieldUpdateOperationsInput | number
+  userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   authorName?: Prisma.StringFieldUpdateOperationsInput | string
   text?: Prisma.StringFieldUpdateOperationsInput | string
   aiSpark?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -733,7 +733,7 @@ export type BrainstormLineUncheckedUpdateWithoutRiffInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  userId?: Prisma.IntFieldUpdateOperationsInput | number
+  userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   authorName?: Prisma.StringFieldUpdateOperationsInput | string
   text?: Prisma.StringFieldUpdateOperationsInput | string
   aiSpark?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -746,7 +746,7 @@ export type BrainstormLineUncheckedUpdateManyWithoutRiffInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  userId?: Prisma.IntFieldUpdateOperationsInput | number
+  userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   authorName?: Prisma.StringFieldUpdateOperationsInput | string
   text?: Prisma.StringFieldUpdateOperationsInput | string
   aiSpark?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -834,7 +834,7 @@ export type $BrainstormLinePayload<ExtArgs extends runtime.Types.Extensions.Inte
     createdAt: Date
     updatedAt: Date | null
     riffId: number
-    userId: number
+    userId: number | null
     authorName: string
     text: string
     aiSpark: string | null

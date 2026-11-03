@@ -160,20 +160,38 @@ for (const [key, button] of [
   ['ArrowDown', 'down'],
 ] as const)
   assert.equal(SAVE_PLUMBER_KEYS[key], button, `${key} activates ${button}`)
-assert.equal(KEY_MAP.KeyE, undefined, 'other Arcade games keep their own keyboard')
-assert.equal(KEY_MAP.KeyF, undefined, 'other Arcade games keep their own keyboard')
+assert.equal(
+  KEY_MAP.KeyE,
+  undefined,
+  'other Arcade games keep their own keyboard',
+)
+assert.equal(
+  KEY_MAP.KeyF,
+  undefined,
+  'other Arcade games keep their own keyboard',
+)
 for (const [buttonIndex, action] of [
   [0, 'a'],
   [1, 'b'],
   [2, 'x'],
   [3, 'y'],
 ] as const)
-  assert.equal(gamepad([buttonIndex])[action], true, `pad button ${buttonIndex} maps to ${action}`)
+  assert.equal(
+    gamepad([buttonIndex])[action],
+    true,
+    `pad button ${buttonIndex} maps to ${action}`,
+  )
 const cabinet = source('../../components/arcade/arcade-cabinet.vue')
-assert.match(cabinet, /props.slug === 'save-the-plumber' \? SAVE_PLUMBER_KEYS : KEY_MAP/)
-assert.match(cabinet, /props.slug === 'save-the-plumber'[\s\S]*?SAVE_PLUMBER_KEYS[\s\S]*?: KEY_MAP/)
+assert.match(
+  cabinet,
+  /props.slug === 'save-the-plumber' \? SAVE_PLUMBER_KEYS : KEY_MAP/,
+)
+assert.match(
+  cabinet,
+  /props.slug === 'save-the-plumber'[\s\S]*?SAVE_PLUMBER_KEYS[\s\S]*?: KEY_MAP/,
+)
 assert.match(cabinet, /E wrench/)
-assert.match(cabinet, /F special/)
+assert.match(cabinet, /F\s+special/)
 
 const page = source('../../pages/play/save-the-plumber.vue')
 assert.match(page, /control.keyboard/)
@@ -181,7 +199,10 @@ assert.match(page, /control.pad/)
 assert.match(page, /plumber-guide-inner[\s\S]*?overflow-y: auto/)
 assert.doesNotMatch(page, /<b>B<\/b> MENU/, 'B cannot be both menu and sprint')
 const arcadeMeta = source('../arcade/games.ts')
-assert.match(arcadeMeta, /'KEYBOARD  SHIFT SPRINT   E \/ C WRENCH   F \/ V SPECIAL'/)
+assert.match(
+  arcadeMeta,
+  /'KEYBOARD  SHIFT SPRINT   E \/ C WRENCH   F \/ V SPECIAL'/,
+)
 assert.match(arcadeMeta, /'CONTROLLER  A JUMP   B RUN   X WRENCH   Y SPECIAL'/)
 for (const part of [
   'plumber-console',

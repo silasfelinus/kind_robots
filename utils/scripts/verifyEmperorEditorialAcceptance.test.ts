@@ -8,6 +8,7 @@ import { ACT_FOUR_QUESTS } from '../emperorOfDust/fortress/actFour'
 import { ACT_FIVE_QUESTS } from '../emperorOfDust/fortress/actFive'
 import { DAYS, QUEST_TEMPLATES } from '../emperorOfDust/fortress/content'
 import { EPILOGUE, epilogueFor } from '../emperorOfDust/fortress/epilogue'
+import { MOLE_CONCESSIONS } from '../emperorOfDust/fortress/moles'
 import {
   audienceScene,
   audiencesToday,
@@ -573,14 +574,19 @@ const flintSeed = Array.from({ length: 180 }, (_, i) => i + 1).find((seed) =>
   createRun(seed).dayAudiences?.includes('d01-flint-arrives'),
 )
 assert.ok(flintSeed, 'a real Day 1 seed must offer Duchess Flint')
+const rookSeed = Array.from({ length: 180 }, (_, i) => i + 1).find((seed) =>
+  createRun(seed).dayAudiences?.includes('d01-ford-dispute'),
+)
+assert.ok(rookSeed, 'a real Day 1 seed must offer Rook and Saffron')
 const focusedPlans: {
   id: string
   follower: string
   seed: number
   wantedFlags: string[]
+  guidedChoices?: Partial<Record<number, string[]>>
 }[] = [
-  { id: 'rook-ford', follower: 'F001', seed: 17, wantedFlags: ['d10-rook-asked-mercy'] },
-  { id: 'kiyo-pup', follower: 'F003', seed: 41, wantedFlags: ['d10-camp-struck'] },
+  { id: 'rook-ford', follower: 'F001', seed: rookSeed, wantedFlags: ['d10-rook-asked-mercy'], guidedChoices: { 10: ['rook'] } },
+  { id: 'kiyo-pup', follower: 'F003', seed: 41, wantedFlags: ['pack-camp-mapped', 'd10-camp-struck'], guidedChoices: { 1: ['ask-toll'], 10: ['ask-colors'] } },
   { id: 'flint-censured', follower: 'F004', seed: flintSeed, wantedFlags: ['flint-censured'] },
   { id: 'flint-acquitted', follower: 'F004', seed: flintSeed, wantedFlags: ['flint-acquitted'] },
   { id: 'lumen', follower: 'F010', seed: 17, wantedFlags: [] },
@@ -602,17 +608,29 @@ const focusedCampaigns: {
 for (const plan of focusedPlans) {
   const reached: string[] = []
   const chanceChoices: string[] = []
-  const sourcePolicy = POLICIES.find((policy) => policy.id === 'idle')!
+  const sourcePolicy = POLICIES.find(
+    (policy) =>
+      policy.id === (['lumen', 'vesper-romance'].includes(plan.id) ? 'greedy' : 'idle'),
+  )!
   const policy = {
     ...sourcePolicy,
     id: `focused:${plan.id}`,
-    score: (option: AudienceOption) =>
-      plan.wantedFlags.some((flag) => option.effects.flags?.includes(flag))
-        ? 1000
-        : option.effects.recruit?.includes(plan.follower) ||
-            option.effects.recruitable?.includes(plan.follower)
-          ? 500
-          : 0,
+    score: (option: AudienceOption, run: ReturnType<typeof createRun>) => {
+      if (plan.wantedFlags.some((flag) => option.effects.flags?.includes(flag)))
+        return 1000
+      if (plan.guidedChoices?.[run.day]?.includes(option.id)) return 700
+      if (
+        option.effects.recruit?.includes(plan.follower) ||
+        option.effects.recruitable?.includes(plan.follower)
+      )
+        return 500
+      if (
+        plan.id === 'lumen' &&
+        option.effects.flags?.some((flag) => MOLE_CONCESSIONS.includes(flag))
+      )
+        return 400
+      return 0
+    },
   }
   const result = playCampaign(policy, plan.seed, undefined, {
     playTalks: true,

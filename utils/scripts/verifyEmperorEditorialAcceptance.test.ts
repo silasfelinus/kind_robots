@@ -240,6 +240,7 @@ const campaignRows: {
   deaths: number
   brass: number
   checkpoints: string[]
+  timeline: string[]
 }[] = []
 const seenAudiences = new Set<string>()
 const seenTalks = new Set<string>()
@@ -251,29 +252,34 @@ for (const policy of personas) {
     let talks = 0
     let questReports = 0
     const checkpoints: string[] = []
+    const timeline: string[] = []
     const result = playCampaign(
       policy, seed,
       (run) => {
         assert.equal(run.day, day, `${policy.id}/${seed}: sequential dawns`)
         assert.ok(validateRun(run), `${policy.id}/${seed}: serializable dawn`)
+        timeline.push(`DAY ${day} dawn: ${run.brass} brass, ${run.roster.filter((f) => !f.dead && !f.departed).length} at court, ${run.memorials.length} dead, ${run.flags.length} story flags`)
         if ([1, 11, 21, 31, 41, 51].includes(day))
           checkpoints.push(`${day}:${run.brass} brass/${run.roster.filter((f) => !f.dead && !f.departed).length} at court`)
         day += 1
       },
       {
         playTalks: true,
-        onAudienceChoice: (_day, id) => {
+        onAudienceChoice: (sceneDay, id, option) => {
           audiences += 1
           seenAudiences.add(id)
+          timeline.push(`DAY ${sceneDay} court ${id} /${option.id}: ${option.label}; ${clipped(option.response)}`)
         },
-        onTalkChoice: (_day, id) => {
+        onTalkChoice: (talkDay, id, option) => {
           talks += 1
           seenTalks.add(id)
+          timeline.push(`DAY ${talkDay} barracks ${id} /${option.id}: ${option.label}; ${clipped(option.response)}`)
         },
-        onQuestReport: (_day, report) => {
+        onQuestReport: (questDay, report) => {
           questReports += 1
           seenQuests.add(`${report.questId}:${report.tier}`)
           assert.ok(report.text?.length, `${policy.id}/${seed}: quest report has prose`)
+          timeline.push(`DAY ${questDay} dispatch ${report.questId} => ${report.tier}: ${clipped(report.text ?? '')}`)
         },
       },
     )
@@ -281,7 +287,7 @@ for (const policy of personas) {
     campaignRows.push({
       persona: policy.id, seed, ending: result.ending,
       hideout: result.hideout, audiences, talks, quests: questReports,
-      deaths: result.deaths, brass: result.brass, checkpoints,
+      deaths: result.deaths, brass: result.brass, checkpoints, timeline,
     })
   }
 }
@@ -342,6 +348,21 @@ const markdown = [
   'Read every scene and branch for *meaning*, not only rule-based signals; review each quest image and result, all follower voice and absence gates, actual art placement, line-level originality, the consequences of dominant choices, and multiple independent human-style playthroughs. A robot that always chooses mechanically favorable answers is not an independent literary editor. This document does not clear any publication or subjective human gate.',
 ]
 writeFileSync(`${directory}/editorial-screening.md`, markdown.join('\n') + '\n')
+writeFileSync(
+  `${directory}/editorial-campaign-transcripts.md`,
+  [
+    '# Independent full-campaign transcripts',
+    '',
+    'Twenty-seven real-engine 50-day simulated playthroughs with barracks conversations. Every dawn, audience answer, barracks answer and quest resolution is recorded in order. These are deterministic policy bots, not independent human readers.',
+    '',
+    ...campaignRows.flatMap((campaign) => [
+      `## ${campaign.persona} · seed ${campaign.seed} · ${campaign.ending}`,
+      '',
+      ...campaign.timeline,
+      '',
+    ]),
+  ].join('\n') + '\n',
+)
 writeFileSync(`${directory}/editorial-screening.json`, JSON.stringify({
   rubric: 'deterministic proxy; not editorial acceptance',
   counts: {

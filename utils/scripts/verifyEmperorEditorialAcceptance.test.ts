@@ -561,6 +561,25 @@ for (const [flag, expected] of [
   )
 }
 
+const flintTrial = DAYS.find((day) => day.day === 27)?.audiences.find(
+  (audience) => audience.id === 'd27-trial',
+)
+assert.ok(flintTrial, 'Day 27 must present Flint’s trial when recruited')
+for (const id of ['acquit', 'investigate', 'censure']) {
+  const answer = flintTrial.options.find((option) => option.id === id)
+  assert.ok(answer, `Flint trial preserves ${id}`)
+  assert.match(
+    answer.response,
+    /Dunmore|Yard|forty sacks/i,
+    `${id} must acknowledge the people whose food was taken`,
+  )
+}
+assert.doesNotMatch(
+  JSON.stringify(flintTrial),
+  /your tortoise/i,
+  'The court must address Flint by name or role, never by species',
+)
+
 const directory = 'artifacts/emperor'
 mkdirSync(directory, { recursive: true })
 const suspicious = rows.filter(

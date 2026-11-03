@@ -216,11 +216,7 @@ export type CampaignObserver = {
     option: AudienceOption,
     run: FortressRun,
   ) => void
-  onQuestReport?: (
-    day: number,
-    report: QuestReport,
-    run: FortressRun,
-  ) => void
+  onQuestReport?: (day: number, report: QuestReport, run: FortressRun) => void
 }
 
 /**

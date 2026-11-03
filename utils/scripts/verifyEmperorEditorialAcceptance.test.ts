@@ -617,12 +617,11 @@ for (const plan of focusedPlans) {
   const result = playCampaign(policy, plan.seed, undefined, {
     playTalks: true,
     playChanceEvents: true,
-    selectChanceChoice: (_day, id, choices) =>
-      id.startsWith('secret-')
-        ? (choices.includes(id === `secret-${plan.follower}` ? 'welcome' : 'part')
-            ? id === `secret-${plan.follower}` ? 'welcome' : 'part'
-            : undefined)
-        : undefined,
+    selectChanceChoice: (_day, id, choices) => {
+      if (!id.startsWith('secret-')) return undefined
+      const choice = id === `secret-${plan.follower}` ? 'welcome' : 'part'
+      return choices.includes(choice) ? choice : undefined
+    },
     onChanceChoice: (day, eventId, choiceId) => {
       chanceChoices.push(`Day ${day} ${eventId}/${choiceId}`)
     },

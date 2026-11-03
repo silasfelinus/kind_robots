@@ -279,9 +279,24 @@ assert.equal(
 )
 assert.equal(report.archetypes.length, 18)
 assert.ok(report.cardDeploys > 0)
+const founderSideWins = { player: 0, enemy: 0, draw: 0 }
+for (const founder of founderControls.values()) {
+  if (founder.metrics.victor === 'player') founderSideWins.player++
+  else if (founder.metrics.victor === 'enemy') founderSideWins.enemy++
+  else founderSideWins.draw++
+}
+assert.equal(
+  founderSideWins.player + founderSideWins.enemy + founderSideWins.draw,
+  founderControls.size,
+)
+
 const warnings = report.archetypes.flatMap((row) => {
   const issues: string[] = []
   if (row.wins === 0) issues.push('no wins in sample')
+  const deckScore = row.wins + row.draws * 0.5
+  const founderScore = row.founderWins + row.founderDraws * 0.5
+  if (deckScore <= founderScore - 2)
+    issues.push('at least two fewer points than same-seed founder deck')
   if (row.newCardDeploys === 0) issues.push('new cards never played')
   if (row.deadRounds >= 20) issues.push('many no-progress rounds')
   return issues.map((issue) => row.team + '/' + row.name + ': ' + issue)
@@ -291,6 +306,7 @@ console.log(
     JSON.stringify({
       ...report,
       uniqueFounderControls: founderControls.size,
+      founderSideWins,
       warnings,
       averageRounds: report.totalRounds / report.matches,
       averageDeadRounds: report.deadRounds / report.matches,

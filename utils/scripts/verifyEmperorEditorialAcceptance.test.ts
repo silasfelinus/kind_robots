@@ -617,6 +617,7 @@ for (const plan of focusedPlans) {
   const result = playCampaign(policy, plan.seed, undefined, {
     playTalks: true,
     playChanceEvents: true,
+    shouldRecruit: (_day, id) => id === plan.follower,
     selectChanceChoice: (_day, id, choices) => {
       if (!id.startsWith('secret-')) return undefined
       const choice = id === `secret-${plan.follower}` ? 'welcome' : 'part'

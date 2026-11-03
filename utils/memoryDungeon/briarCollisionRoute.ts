@@ -510,6 +510,135 @@ export const BRIAR_COLLISION_ROUTE_SITES = {
       },
     ],
   },
+  '7,5': {
+    title: 'The Umbrella Migration',
+    speaker: 'Vesper, Pip and the umbrella keeper',
+    kind: 'challenge',
+    opening:
+      'A hundred office umbrellas have grown feathered wings and are migrating through a saltwater rainstorm. Each carries the name of a stranded traveler stitched inside its lining. The keeper wants to net the entire flock before the next flood, but Vesper notices that the red umbrellas circle above the only dry footbridge. A child waits beneath the bridge for the umbrella that remembers her father.',
+    artSubject:
+      'Vesper and Pip beneath a storm-dark Briar footbridge as winged office umbrellas circle overhead, one red umbrella carrying a stitched name and a child watching from the dry bank',
+    choices: [
+      {
+        id: 'guide-umbrella-flock',
+        label: 'Follow the red umbrellas and guide the flock to the dry bank',
+        outcome:
+          'Vesper reads the birds’ shadow pattern without taking their owners’ names. The keeper lets the umbrellas settle beside the people who recognize them; the child finds her father’s old coat, but the rescue party must spend a dangerous extra watch in the rain.',
+        flag: 'umbrella-flock-guided',
+        effects: { trust: 2, danger: 1 },
+        artSubject:
+          'Vesper tracing umbrella shadows while Pip shelters a child and the red-winged flock descends onto a safe Briar riverbank',
+      },
+      {
+        id: 'borrow-wolf-whistle',
+        label:
+          'Borrow the wolf patrol’s whistle to call every umbrella down at once',
+        outcome:
+          'The flock lands before the flood reaches the bridge. Pip returns the whistle and records the patrol’s demand for a later escort, while the keeper distributes dry canopies without publishing a list of who sought shelter.',
+        flag: 'umbrella-whistle-debt',
+        effects: { supplies: 2, evidence: 1, danger: 1 },
+        artSubject:
+          'Pip sounding a carved wolf whistle as a swirling flock of feathered umbrellas settles around refugees on a rain-soaked footbridge',
+      },
+    ],
+  },
+  '8,3': {
+    title: 'The Wolf Court of Small Claims',
+    speaker: 'Mara, Pip and the wolf magistrate',
+    kind: 'puzzle',
+    opening:
+      'A courthouse has sprouted from a copy room. Its wolf magistrate is trying to decide who owns the emergency exit: the office that built it, the forest that swallowed it, or the people trapped behind it. Each copied deed changes its date when the tide reaches the printer tray. Mara finds an original stamp on the dry underside of the desk, while Pip knows the ancient rule that paths cannot be owned.',
+    artSubject:
+      'Mara and Pip before a bewildered wolf magistrate in a courthouse grown from a flooded office copy room, drifting deeds and an old seal hidden under a dry desk',
+    choices: [
+      {
+        id: 'prove-forged-exit-deeds',
+        label: 'Compare the tide-stained copies with the original dry seal',
+        outcome:
+          'Mara demonstrates that every claim to own the exit was copied after the flood. The magistrate voids the deeds and opens the stair, but the humiliated clerk sends a patrol to challenge the ruling before the next tide.',
+        flag: 'wolf-court-deeds-voided',
+        effects: { evidence: 2, danger: 1 },
+        artSubject:
+          'Mara presenting a dry original seal beside warped photocopies while a wolf magistrate orders an office stair unlocked',
+      },
+      {
+        id: 'charter-shared-exit',
+        label:
+          'Offer a temporary shared-path charter with an independent witness',
+        outcome:
+          'Pip translates the old right-of-way oath into a one-watch charter. Workers and wolves can both use the exit, and Mara volunteers to audit its first shift; the party gives up a supply crate to keep the passage staffed.',
+        flag: 'wolf-court-shared-charter',
+        effects: { supplies: -1, trust: 2 },
+        artSubject:
+          'Pip and a wolf magistrate signing a temporary passage charter while Mara escorts workers through an open courthouse stair',
+      },
+    ],
+  },
+  '7,4': {
+    title: 'The Stairwell Aquarium',
+    speaker: 'Scylla and Oren Pike',
+    kind: 'challenge',
+    opening:
+      'The office stairwell is now a vertical aquarium. Fish drift past numbered landings while a trapped lift attendant knocks from a pocket of air above the rising tide. Scylla recognizes the fish swimming against the current as a warning of a second surge. Oren has enough rope for one direct ascent or enough broken doors to build a slower floating landing for everyone below.',
+    artSubject:
+      'Scylla and permanently hooded Oren inside a flooded glass stairwell, fish crossing numbered office landings, a lift attendant knocking from an air pocket and floating doors below',
+    choices: [
+      {
+        id: 'rope-the-air-pocket',
+        label: 'Use Oren’s rope to reach the attendant before the next surge',
+        outcome:
+          'Oren anchors the rope through the fish-filled shaft and brings the attendant down alive. The rescue uses the last dry line, so Scylla leaves a tide warning for the workers still waiting below rather than promising an instant second trip.',
+        flag: 'aquarium-attendant-rescued',
+        effects: { supplies: -2, trust: 2 },
+        artSubject:
+          'Hooded Oren hauling a rescued lift attendant down a rope through a luminous flooded office stairwell as Scylla signals the next tide',
+      },
+      {
+        id: 'build-floating-landing',
+        label:
+          'Build a floating landing that can carry the whole waiting group',
+        outcome:
+          'Scylla directs the current while Oren bolts office doors into a raft. The attendant survives until the landing reaches him, and slower evacuees gain a reusable route; the longer work exposes the crew to another dangerous surge.',
+        flag: 'aquarium-floating-landing',
+        effects: { evidence: 1, trust: 1, danger: 2 },
+        artSubject:
+          'Scylla guiding a raft of office doors through an aquarium stairwell while hooded Oren helps frightened workers onto a floating landing',
+      },
+    ],
+  },
+  '8,4': {
+    title: 'The Last Payroll Tide',
+    speaker: 'Mara and the exhausted payroll spirit',
+    kind: 'companion',
+    opening:
+      'A payroll printer spits out pay slips measured in years rather than hours. The exhausted spirit inside it has been paying workers with borrowed seasons, and a janitor has suddenly aged three winters during one night shift. Mara finds a real paper timesheet that survived the flood; the spirit insists it cannot stop printing until every worker has been paid something.',
+    artSubject:
+      'Mara beside a weary glowing payroll-printer spirit in a mossy office, a prematurely aged janitor holding a paper timesheet and pay slips drifting into saltwater',
+    choices: [
+      {
+        id: 'audit-the-borrowed-years',
+        label:
+          'Stop the printer and audit each stolen season against the timesheet',
+        outcome:
+          'Mara proves which hours were actually worked and the spirit returns the stolen winters. The janitor recovers his strength, but wages must be rebuilt from testimony while the party funds a temporary meal station for those still unpaid.',
+        flag: 'payroll-years-restored',
+        effects: { supplies: -1, evidence: 2, trust: 1 },
+        artSubject:
+          'Mara holding a surviving paper timesheet as a glowing payroll spirit returns stolen seasons to a relieved janitor',
+      },
+      {
+        id: 'advance-real-supplies',
+        label:
+          'Offer food and shelter now, then let workers negotiate their own back pay',
+        outcome:
+          'The printer finally sleeps. Workers receive a genuine emergency advance rather than another enchanted promise, and they elect their own pay committee; Oren gives up the party’s remaining spare provisions to make the first night possible.',
+        flag: 'payroll-worker-advance',
+        effects: { supplies: -2, trust: 2 },
+        artSubject:
+          'A sleeping payroll-printer spirit beside a workers’ pay committee as Mara and hooded Oren distribute real provisions in a flooded office',
+      },
+    ],
+  },
 } as const
 
 export type BriarCollisionRouteSite = keyof typeof BRIAR_COLLISION_ROUTE_SITES

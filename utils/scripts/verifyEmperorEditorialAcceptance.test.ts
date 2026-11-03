@@ -8,7 +8,6 @@ import { ACT_FOUR_QUESTS } from '../emperorOfDust/fortress/actFour'
 import { ACT_FIVE_QUESTS } from '../emperorOfDust/fortress/actFive'
 import { DAYS, QUEST_TEMPLATES } from '../emperorOfDust/fortress/content'
 import { EPILOGUE, epilogueFor } from '../emperorOfDust/fortress/epilogue'
-import { HOST_FACTIONS, HOST_HIDEOUT } from '../emperorOfDust/fortress/balance'
 import { itemDef } from '../emperorOfDust/fortress/items'
 import { MOLE_CONCESSIONS } from '../emperorOfDust/fortress/moles'
 import {
@@ -23,7 +22,12 @@ import {
   talkFor,
   talkScene,
 } from '../emperorOfDust/fortress/engine'
-import { POLICIES, playCampaign } from '../emperorOfDust/fortress/balance'
+import {
+  HOST_FACTIONS,
+  HOST_HIDEOUT,
+  POLICIES,
+  playCampaign,
+} from '../emperorOfDust/fortress/balance'
 import { validateRun } from '../emperorOfDust/fortress/saves'
 import { TALKS } from '../emperorOfDust/fortress/talks'
 import type {

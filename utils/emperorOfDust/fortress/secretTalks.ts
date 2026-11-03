@@ -391,7 +391,7 @@ export const SECRET_TALKS: readonly TalkDef[] = [
       {
         id: 'fund-oil',
         label:
-          'Pay for the lamps from the court’s purse. End the private toll.'
+          'Pay for the lamps from the court’s purse. End the private toll.',
         requires: { cost: 10 },
         effects: {
           local: { yard: 1, 'gate-watch': 1 },
@@ -403,14 +403,14 @@ export const SECRET_TALKS: readonly TalkDef[] = [
       {
         id: 'name-the-toll',
         label:
-          'Publish a six-brass passage levy to fund the lamps. Make the sergeant answer for the hidden collections.'
+          'Publish a six-brass passage levy to fund the lamps. Make the sergeant answer for the hidden collections.',
         effects: {
           brass: 6,
           local: { ledger: 2, 'gate-watch': -2 },
           flags: ['tarn-toll-written'],
         },
         response:
-          'Families count six brass onto the ledger. The oil arrives and the sergeant is fined in front of his own watch. Two guards ask for new posts. “It’s in ink now,” Tarn says. “They still have to pay.”'
+          'Families count six brass onto the ledger. The oil arrives and the sergeant is fined in front of his own watch. Two guards ask for new posts. “It’s in ink now,” Tarn says. “They still have to pay.”',
       },
     ],
   },

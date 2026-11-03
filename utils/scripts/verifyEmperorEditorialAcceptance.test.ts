@@ -18,6 +18,7 @@ import {
   postDawnQuests,
   recruit,
   talkFor,
+  talkScene,
 } from '../emperorOfDust/fortress/engine'
 import { POLICIES, playCampaign } from '../emperorOfDust/fortress/balance'
 import { validateRun } from '../emperorOfDust/fortress/saves'
@@ -531,6 +532,161 @@ assert.ok(
 )
 assert.ok(seenQuests.size > 0)
 
+// These paths were missing from the preceding 42-campaign audit, not from
+// the authored census. Drive *real* recruiting and story decisions before
+// treating an unvisited conversation as a dead branch.
+const previousGaps = [
+  'rook-ford',
+  'kiyo-pup',
+  'flint-1',
+  'flint-2',
+  'flint-censured',
+  'flint-acquitted',
+  'flint-light',
+  'flint-papers',
+  'flint-seating',
+  'flint-threat',
+  'flint-sisters',
+  'lumen-1',
+  'lumen-2',
+  'sable-3',
+  'sable-4',
+  'vesper-4',
+  'nettle-1',
+  'nettle-2',
+  'nettle-exile',
+  'tiller-1',
+  'tiller-2',
+  'tiller-exile',
+  'sera-1',
+  'sera-2',
+  'sera-exile',
+  'tarn-1',
+  'tarn-2',
+  'tarn-exile',
+  'odo-1',
+  'odo-2',
+] as const
+assert.equal(previousGaps.length, 30)
+assert.ok(previousGaps.every((id) => TALKS.some((talk) => talk.id === id)))
+const flintSeed = Array.from({ length: 180 }, (_, i) => i + 1).find((seed) =>
+  createRun(seed).dayAudiences?.includes('d01-flint-arrives'),
+)
+assert.ok(flintSeed, 'a real Day 1 seed must offer Duchess Flint')
+const focusedPlans: {
+  id: string
+  follower: string
+  seed: number
+  wantedFlags: string[]
+}[] = [
+  { id: 'rook-ford', follower: 'F001', seed: 17, wantedFlags: ['d10-rook-asked-mercy'] },
+  { id: 'kiyo-pup', follower: 'F003', seed: 41, wantedFlags: ['d10-camp-struck'] },
+  { id: 'flint-censured', follower: 'F004', seed: flintSeed, wantedFlags: ['flint-censured'] },
+  { id: 'flint-acquitted', follower: 'F004', seed: flintSeed, wantedFlags: ['flint-acquitted'] },
+  { id: 'lumen', follower: 'F010', seed: 17, wantedFlags: [] },
+  { id: 'sable-romance', follower: 'F016', seed: 41, wantedFlags: ['romance-sable'] },
+  { id: 'vesper-romance', follower: 'F018', seed: 99, wantedFlags: ['romance-vesper'] },
+  { id: 'nettle', follower: 'F021', seed: 17, wantedFlags: [] },
+  { id: 'tiller', follower: 'F022', seed: 41, wantedFlags: [] },
+  { id: 'sera', follower: 'F023', seed: 99, wantedFlags: [] },
+  { id: 'tarn', follower: 'F024', seed: 17, wantedFlags: [] },
+  { id: 'odo', follower: 'F025', seed: 41, wantedFlags: [] },
+]
+const focusedCampaigns: {
+  id: string
+  seed: number
+  ending: string
+  reached: string[]
+  chanceChoices: string[]
+}[] = []
+for (const plan of focusedPlans) {
+  const reached: string[] = []
+  const chanceChoices: string[] = []
+  const sourcePolicy = POLICIES.find((policy) => policy.id === 'idle')!
+  const policy = {
+    ...sourcePolicy,
+    id: `focused:${plan.id}`,
+    score: (option: AudienceOption) =>
+      plan.wantedFlags.some((flag) => option.effects.flags?.includes(flag))
+        ? 1000
+        : option.effects.recruit?.includes(plan.follower) ||
+            option.effects.recruitable?.includes(plan.follower)
+          ? 500
+          : 0,
+  }
+  const result = playCampaign(policy, plan.seed, undefined, {
+    playTalks: true,
+    playChanceEvents: true,
+    selectChanceChoice: (_day, id, choices) =>
+      id.startsWith('secret-')
+        ? (choices.includes(id === `secret-${plan.follower}` ? 'welcome' : 'part')
+            ? id === `secret-${plan.follower}` ? 'welcome' : 'part'
+            : undefined)
+        : undefined,
+    onChanceChoice: (day, eventId, choiceId) => {
+      chanceChoices.push(`Day ${day} ${eventId}/${choiceId}`)
+    },
+    selectTalk: (_day, available) =>
+      available.find((talk) => talk.follower === plan.follower)?.id ?? null,
+    onTalkChoice: (_day, id, option, run) => {
+      seenTalks.add(id)
+      if (run.talksHeard?.includes(id) && !reached.includes(id))
+        reached.push(id)
+      assert.ok(option.response.trim(), `${id}: chosen response must be narrated`)
+    },
+    onAudienceChoice: (_day, id, option) => {
+      seenAudiences.add(id)
+      assert.ok(option.response.trim(), `${id}: chosen response must be narrated`)
+    },
+  })
+  focusedCampaigns.push({
+    id: plan.id,
+    seed: plan.seed,
+    ending: result.ending,
+    reached,
+    chanceChoices,
+  })
+}
+
+// A separate gate-fixture pass distinguishes a missing policy route from a
+// missing or broken playable conversation. These fixtures inject the *minimum*
+// historical prerequisites and follower presence, and never masquerade as
+// organic recruitment or a complete campaign.
+const fixtureCovered: string[] = []
+for (const id of previousGaps) {
+  const index = TALKS.findIndex((talk) => talk.id === id)
+  const talk = TALKS[index]!
+  let run = createRun(3900 + talk.fromDay)
+  run.day = talk.fromDay
+  run.brass = 500
+  run.roster = [{ id: talk.follower, joinedDay: 1, equipment: {} }]
+  run.flags = [...(talk.requires?.flags ?? [])]
+  const earlier = TALKS.slice(0, index).filter(
+    (entry) => entry.follower === talk.follower && entry.fromDay <= talk.fromDay,
+  )
+  run.talksHeard = earlier.map((entry) => entry.id)
+  run.flags.push(...earlier.map((entry) => `heard:${entry.id}`))
+  assert.equal(
+    talkFor(run, talk.follower)?.id,
+    id,
+    `${id} must be offered when its authored prerequisites exist`,
+  )
+  for (let beat = 0; beat < 8 && !run.talksHeard.includes(id); beat += 1) {
+    const scene = talkScene(run, talk)
+    assert.ok(scene.lines.length > 0, `${id}: scene needs spoken content`)
+    const option = scene.options.find(
+      (entry) => !entry.next && optionBlockers(run, entry).length === 0,
+    ) ?? scene.options.find((entry) => optionBlockers(run, entry).length === 0)
+    assert.ok(option, `${id}: a player needs an available answer`)
+    const chosen = chooseTalkOption(run, id, option.id)
+    assert.ok(chosen.response.trim(), `${id}: answer needs a response`)
+    run = chosen.run
+  }
+  assert.ok(run.talksHeard.includes(id), `${id}: must finish without dead-end beats`)
+  fixtureCovered.push(id)
+}
+assert.equal(fixtureCovered.length, previousGaps.length)
+
 const unvisitedAudiences = DAYS.flatMap((day) =>
   day.audiences
     .filter((scene) => !seenAudiences.has(scene.id))
@@ -760,7 +916,7 @@ const markdown = [
   '',
   `Authored coverage: ${scenes.filter((s) => s.kind === 'audience').length} throne audiences, ${TALKS.length} follower talks, ${quests.length} quest definitions x 5 result tiers = ${quests.length * 5} quest-outcome slots.`,
   `Automated red flags: ${suspicious.length}/${rows.length} assessed rows; these are leads, not defects proven in play.`,
-  `Seeded policy persona campaigns with full played dialogue beats and coverage-directed barracks choices (unheard talks first, one per day): ${campaignRows.length}; all completed 50 days and dawn 51. Visited ${seenAudiences.size} unique audiences, ${seenTalks.size} unique talks, ${seenQuests.size} distinct quest/outcome pairs.`,
+  `Seeded policy persona campaigns with full played dialogue beats and coverage-directed barracks choices (unheard talks first, one per day): ${campaignRows.length}; all completed 50 days and dawn 51. An additional ${focusedCampaigns.length} complete 50-day campaigns pursue specific follower stories with actual chance encounters. Visited ${seenAudiences.size} unique audiences, ${seenTalks.size} unique talks, ${seenQuests.size} distinct quest/outcome pairs.`,
   '',
   '## Complete 50-day policy-campaign traces',
   '',
@@ -775,7 +931,11 @@ const markdown = [
   '',
   `Unvisited audiences (${unvisitedAudiences.length}): ${unvisitedAudiences.join(', ') || 'none'}`,
   '',
-  `Unvisited follower talks (${unvisitedTalks.length}): ${unvisitedTalks.join(', ') || 'none'}`,
+  `Unvisited follower talks after baseline plus focused live-engine campaigns (${unvisitedTalks.length}): ${unvisitedTalks.join(', ') || 'none'}`,
+  '',
+  `Previous gap list: ${previousGaps.length} of ${previousGaps.length} runnable in prerequisite-fixture tests; ${previousGaps.filter((id) => seenTalks.has(id)).length} organically completed in the focused/baseline policy runs. A fixture does not prove recruitment or prior decisions were earned.`,
+  '',
+  ...focusedCampaigns.map((run) => `- ${run.id} (seed ${run.seed}, ${run.ending}): ${run.reached.join(', ') || 'no target talks'}; chance: ${run.chanceChoices.join(', ') || 'none'}`),
   '',
   `Conditional gate fixtures exercised: ${conditionalSceneFixtures.length} of the earlier unvisited audiences (preconditions injected, not organic campaign routes).`,
   '',
@@ -825,11 +985,18 @@ writeFileSync(
         unvisitedAudiences: unvisitedAudiences.length,
         unvisitedTalks: unvisitedTalks.length,
         conditionalGateFixtures: conditionalSceneFixtures.length,
+        focusedCampaigns: focusedCampaigns.length,
+        previouslyUnvisitedTalks: previousGaps.length,
+        previouslyUnvisitedCoveredOrganically: previousGaps.filter((id) => seenTalks.has(id)).length,
+        previouslyUnvisitedCoveredByFixture: fixtureCovered.length,
       },
       rows,
       priorityIds: priority.map((row) => row.id),
       unvisited: { audiences: unvisitedAudiences, talks: unvisitedTalks },
       campaigns: campaignRows,
+      focusedCampaigns,
+      previousGaps,
+      fixtureCovered,
       missingQuestReportTexts,
       seen: {
         audiences: [...seenAudiences].sort(),

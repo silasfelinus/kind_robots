@@ -466,7 +466,7 @@ for (const policy of personas) {
               `${policy.id}/${seed} day ${questDay}: ${report.questId} / ${report.tier}`,
             )
           timeline.push(
-            `DAY ${questDay} dispatch ${report.questId} => ${report.tier}: ${clipped(report.text ?? '')}`,
+            `DAY ${questDay} dispatch ${report.questId} => ${report.tier}: ${full(report.text ?? '')}`,
           )
         },
       },

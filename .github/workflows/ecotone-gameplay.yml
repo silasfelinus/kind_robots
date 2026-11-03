@@ -61,4 +61,5 @@ jobs:
       - run: npx tsx utils/scripts/verifyEcotoneOnboarding.test.ts
       - run: npm run test:ecotone-mysteries
       - run: npm run test:ecotone-companion-continuity
+      - run: npm run test:ecotone-optimal-paths
       - run: npm run test:playbook

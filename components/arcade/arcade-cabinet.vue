@@ -259,6 +259,13 @@
           (nudge too often and it TILTs) · Enter = Start · P pauses · gamepads
           work too
         </p>
+        <p
+          v-else-if="!touchControls && props.slug === 'save-the-plumber'"
+          class="cabinet-hint"
+        >
+          Arrows / WASD move · Space / Up jump · Shift sprint · E wrench ·
+          F special · Down duck / pipe · Enter start · P pause
+        </p>
         <p v-else-if="!touchControls && fourButtons" class="cabinet-hint">
           Arrows or WASD move · Space or Z = A · X or Shift = B · C = X · V = Y
           · Enter = Start · P pauses · gamepads work too
@@ -444,6 +451,7 @@ import {
   KEY_MAP,
   P1_KEYS,
   P2_KEYS,
+  SAVE_PLUMBER_KEYS,
   readFourButtonPad,
   readGhostTrailPad,
   readPinballPad,
@@ -625,7 +633,7 @@ let loop: FixedLoop | null = null
 let resizeObserver: ResizeObserver | null = null
 let wrapObserver: ResizeObserver | null = null
 const input = new ArcadeInput(
-  KEY_MAP,
+  props.slug === 'save-the-plumber' ? SAVE_PLUMBER_KEYS : KEY_MAP,
   props.slug === 'zuzu-ghost-trail'
     ? readGhostTrailPad
     : props.slug === 'kind-pinball' || props.slug === 'zuzu-pinball'
@@ -957,7 +965,13 @@ function releaseAim() {
 
 /** Seat 1's keys: the split board while a twin-stick game plays, else the usual map. */
 function seatOneKeys() {
-  return duo.value ? P1_KEYS : aiming.value ? TWIN_KEYS : KEY_MAP
+  return duo.value
+    ? P1_KEYS
+    : aiming.value
+      ? TWIN_KEYS
+      : props.slug === 'save-the-plumber'
+        ? SAVE_PLUMBER_KEYS
+        : KEY_MAP
 }
 
 /** Let go of every touch control on every seat. */

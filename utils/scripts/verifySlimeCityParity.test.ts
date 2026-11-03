@@ -13,21 +13,32 @@ import {
   deployAs,
   JAM_CAP,
   observe,
+  parityBudget,
   parityCard,
   parityWorth,
+  PARITY_CREW_EDGE,
   PARITY_FREE_KIND,
   PARITY_WORTH,
   replayMatch,
   RULE_VARIANTS,
   TEAMS,
   type MatchState,
+  type ParityMode,
   type ModeId,
 } from '../slimeCity/prototypes'
 import { playHeadless } from '../slimeCity/playtest'
 
 const parity = { parity: true }
+/** Uncalibrated, this round-robin spreads 0.32; calibrated it sits at 0.08. */
+const CREW_SPREAD_LIMIT = 0.12
 
-// --- Normalized cards: free, and every creature on the same budget.
+// --- Normalized cards: free, and every creature on its crew's budget.
+for (const mode of ['blackout', 'bloodrush', 'turf'] as ParityMode[])
+  for (const team of TEAMS)
+    assert.ok(
+      Math.abs(PARITY_CREW_EDGE[mode][team.id]) <= 3,
+      'Crew calibration stays a nudge, not a rewrite',
+    )
 for (const card of CARDS) {
   const p = parityCard(card)
   assert.equal(p.cost, 0, card.id + ' is free')
@@ -38,11 +49,14 @@ for (const card of CARDS) {
   // Rounding to whole stats leaves at most a point either way; only a
   // creature whose keywords alone exceed the budget keeps a 4-point body.
   const worth = parityWorth(p)
+  const budget = parityBudget(card)
   assert.ok(
-    Math.abs(worth - PARITY_WORTH) <= 1 ||
-      (p.hp! + 2 * p.attack! + 2 * (p.armor ?? 0) <= 5 && worth > PARITY_WORTH),
-    card.id + ' on budget: ' + worth,
+    Math.abs(worth - budget) <= 1 ||
+      (p.hp! + 2 * p.attack! + 2 * (p.armor ?? 0) <= 5 && worth > budget),
+    card.id + ' on budget: ' + worth + ' of ' + budget,
   )
+  if (card.team === 'mercenary')
+    assert.equal(budget, PARITY_WORTH, 'Mercenaries take no crew edge')
 }
 const strongest = CARDS.filter((c) => c.kind === 'creature').sort(
   (a, b) =>
@@ -189,6 +203,42 @@ for (const mode of ['blackout', 'bloodrush', 'turf'] as ModeId[]) {
   }
 }
 
+// --- Crew calibration holds: a fixed-seed Blackout round-robin (every crew in
+// both seats) stays close to even. Deterministic, so it guards regressions.
+const crewScore: Record<string, number> = {}
+for (const a of TEAMS)
+  for (const b of TEAMS) {
+    if (a.id === b.id) continue
+    for (const seed of [
+      401, 414, 427, 440, 453, 466, 479, 492, 505, 518, 531, 544,
+    ]) {
+      const { state } = playHeadless(
+        'blackout',
+        a.id,
+        b.id,
+        seed,
+        undefined,
+        parity,
+      )
+      const p =
+        state.victor === 'player' ? 1 : state.victor === 'draw' ? 0.5 : 0
+      crewScore[a.id] = (crewScore[a.id] ?? 0) + p
+      crewScore[b.id] = (crewScore[b.id] ?? 0) + 1 - p
+    }
+  }
+const crewRates = TEAMS.map((t) => crewScore[t.id]! / 120)
+const crewMean = crewRates.reduce((a, b) => a + b, 0) / crewRates.length
+const crewSpread = Math.sqrt(
+  crewRates.reduce((a, r) => a + (r - crewMean) ** 2, 0) /
+    (crewRates.length - 1),
+)
+assert.ok(
+  crewSpread <= CREW_SPREAD_LIMIT,
+  'PARITY crews stay balanced: spread ' + crewSpread.toFixed(3),
+)
+for (const rate of crewRates)
+  assert.ok(rate >= 0.3 && rate <= 0.7, 'No crew runs away: ' + rate)
+
 console.log(
-  'Slime City PARITY: normalized free cards, one play a turn, faction free play, JAM, three formats replay PASS',
+  'Slime City PARITY: normalized free cards, crew-calibrated budgets, one play a turn, faction free play, JAM, three formats replay, balanced crews PASS',
 )

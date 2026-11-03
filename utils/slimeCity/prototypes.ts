@@ -4325,6 +4325,52 @@ function parityExtras(card: Card): number {
   )
 }
 
+/**
+ * Crew calibration (Silas, 2026-11-03: "do it", the crew-balance pass). The
+ * keyword price list cannot see a crew's synergies, so each crew's creatures
+ * get a measured budget offset per format that brings every crew to an even
+ * match in CPU round-robins (utils/scripts/tuneSlimeCityParityCrews.ts):
+ * BLOODRUSH and TURF play differently enough to need their own.
+ */
+export type ParityMode = Exclude<ModeId, 'gridiron'>
+export const PARITY_CREW_EDGE: Record<ParityMode, Record<TeamId, number>> = {
+  blackout: {
+    catgirls: -0.75,
+    bloodfairies: 1.5,
+    ironjaw: -1.5,
+    riot: 0.5,
+    undertow: 1,
+    exchange: -0.5,
+  },
+  bloodrush: {
+    catgirls: -1,
+    bloodfairies: 1.75,
+    ironjaw: -2.25,
+    riot: 0.75,
+    undertow: 1.75,
+    exchange: -1,
+  },
+  turf: {
+    catgirls: 0,
+    bloodfairies: 0,
+    ironjaw: 0,
+    riot: 0,
+    undertow: 0,
+    exchange: 0,
+  },
+}
+
+/** The total a creature is normalized to: the shared budget plus its crew's edge. */
+export function parityBudget(
+  card: Card,
+  mode: ParityMode = 'blackout',
+): number {
+  return (
+    PARITY_WORTH +
+    (card.team === 'mercenary' ? 0 : PARITY_CREW_EDGE[mode][card.team])
+  )
+}
+
 /** A creature's total PARITY worth: stats, keywords, reach and speed. */
 export function parityWorth(card: Card): number {
   return (
@@ -4336,9 +4382,9 @@ export function parityWorth(card: Card): number {
 }
 
 /** The card as PARITY plays it: free, and as strong as every other card. */
-export function parityCard(card: Card): Card {
+export function parityCard(card: Card, mode: ParityMode = 'blackout'): Card {
   if (card.kind === 'creature') {
-    const budget = Math.max(4, PARITY_WORTH - parityExtras(card))
+    const budget = Math.max(4, parityBudget(card, mode) - parityExtras(card))
     const hp = card.hp || 2
     const attack = card.attack || 1
     const armor = card.armor || 0
@@ -4359,19 +4405,23 @@ export function parityCard(card: Card): Card {
       armor: newArmor,
     }
   }
-  const power =
-    card.effect === 'blast'
-      ? 1
-      : card.effect === 'zap' ||
-          card.effect === 'chaos' ||
-          card.effect === 'heal' ||
-          card.kind === 'trap'
-        ? 2
-        : card.power
   const jam =
     card.debt || card.effect === 'debt'
       ? Math.max(1, Math.min(JAM_CAP, card.debt ?? 1))
       : undefined
+  // A jam card spends your play to cancel one of theirs; that is its whole
+  // value, so in PARITY it deals no damage on top.
+  const power =
+    jam !== undefined
+      ? 0
+      : card.effect === 'blast'
+        ? 1
+        : card.effect === 'zap' ||
+            card.effect === 'chaos' ||
+            card.effect === 'heal' ||
+            card.kind === 'trap'
+          ? 2
+          : card.power
   return {
     ...card,
     cost: 0,
@@ -4389,7 +4439,7 @@ export function parityOn(state: {
 
 /** The card as this match plays it. */
 export function playedCard(state: MatchState, card: Card): Card {
-  return parityOn(state) ? parityCard(card) : card
+  return parityOn(state) ? parityCard(card, state.mode as ParityMode) : card
 }
 
 /** PARITY: this card would not use up its side's play this turn. */

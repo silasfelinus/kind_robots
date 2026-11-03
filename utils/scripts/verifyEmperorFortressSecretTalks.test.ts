@@ -68,6 +68,8 @@ let tarn = withFollower('F024', 39)
 assert.equal(talkFor(tarn, 'F024')?.id, 'tarn-1')
 tarn = chooseTalkOption(tarn, 'tarn-1', 'families').run
 tarn.day = 43
+assert.equal(talkFor(tarn, 'F024'), undefined)
+tarn.flags.push('komodo-betrayal')
 assert.equal(talkFor(tarn, 'F024')?.id, 'tarn-2')
 tarn = chooseTalkOption(tarn, 'tarn-2', 'name-the-toll').run
 assert.ok(tarn.flags.includes('heard:tarn-2'))

@@ -13,9 +13,11 @@ import {
   audiencesToday,
   chooseAudienceOption,
   createRun,
+  chooseTalkOption,
   optionBlockers,
   postDawnQuests,
   recruit,
+  talkFor,
 } from '../emperorOfDust/fortress/engine'
 import { POLICIES, playCampaign } from '../emperorOfDust/fortress/balance'
 import { validateRun } from '../emperorOfDust/fortress/saves'
@@ -456,6 +458,8 @@ for (const policy of personas) {
       },
       {
         playTalks: true,
+        selectTalk: (_talkDay, available) =>
+          available.find((talk) => !seenTalks.has(talk.id))?.id,
         onAudienceScene: (sceneDay, id, beatId, lines) => {
           assert.ok(lines.length > 0, `${id} has narrated scene lines`)
           timeline.push(
@@ -668,6 +672,68 @@ for (const fixture of conditionalSceneFixtures) {
   )
 }
 
+// A pre-betrayal gate on Day 41+ is chronologically impossible, even when
+// static flag fixtures make an audience or talk look otherwise correct.
+for (const talk of TALKS) {
+  assert.ok(
+    !(
+      talk.fromDay >= 41 && talk.requires?.notFlags?.includes('komodo-betrayal')
+    ),
+    `${talk.id} opens Day ${talk.fromDay}, after the tower falls, but requires its survival`,
+  )
+}
+
+const tarnAtCourt = {
+  ...createRun(2439),
+  day: 39,
+  flags: [],
+  roster: [{ id: 'F024', joinedDay: 39, equipment: {} }],
+}
+assert.equal(talkFor(tarnAtCourt, 'F024')?.id, 'tarn-1')
+const tarnFirst = chooseTalkOption(tarnAtCourt, 'tarn-1', 'families').run
+assert.ok(tarnFirst.flags.includes('heard:tarn-1'))
+assert.equal(
+  talkFor(tarnFirst, 'F024'),
+  undefined,
+  'Closing a conversation must remove its availability for the rest of that day',
+)
+for (const [answer, consequence] of [
+  ['fund-oil', 'tarn-oil-funded'],
+  ['name-the-toll', 'tarn-toll-written'],
+] as const) {
+  const tarnExile = {
+    ...tarnFirst,
+    day: 43,
+    flags: [...tarnFirst.flags, 'komodo-betrayal'],
+  }
+  assert.equal(
+    talkFor(tarnExile, 'F024')?.id,
+    'tarn-2',
+    'Tarn’s follow-up must be playable after the Day 41 betrayal',
+  )
+  const resolved = chooseTalkOption(tarnExile, 'tarn-2', answer).run
+  assert.ok(resolved.flags.includes(consequence))
+  assert.equal(talkFor(resolved, 'F024'), undefined)
+  assert.equal(talkFor({ ...resolved, day: 46 }, 'F024')?.id, 'tarn-exile')
+}
+
+// The daily barracks limit is reflected in availability, not merely in an
+// error after tapping another follower's apparently open conversation.
+const twoFollowers = {
+  ...createRun(121),
+  day: 2,
+  flags: [],
+  roster: [
+    { id: 'F001', joinedDay: 1, equipment: {} },
+    { id: 'F002', joinedDay: 1, equipment: {} },
+  ],
+}
+assert.ok(talkFor(twoFollowers, 'F001'))
+const spokeToRook = chooseTalkOption(twoFollowers, 'rook-1', 'promise').run
+assert.equal(talkFor(spokeToRook, 'F001'), undefined)
+assert.equal(talkFor(spokeToRook, 'F002'), undefined)
+assert.ok(talkFor({ ...spokeToRook, day: 3 }, 'F002'))
+
 const directory = 'artifacts/emperor'
 mkdirSync(directory, { recursive: true })
 const suspicious = rows.filter(
@@ -694,7 +760,7 @@ const markdown = [
   '',
   `Authored coverage: ${scenes.filter((s) => s.kind === 'audience').length} throne audiences, ${TALKS.length} follower talks, ${quests.length} quest definitions x 5 result tiers = ${quests.length * 5} quest-outcome slots.`,
   `Automated red flags: ${suspicious.length}/${rows.length} assessed rows; these are leads, not defects proven in play.`,
-  `Seeded policy persona campaigns with full played dialogue beats and barracks choices: ${campaignRows.length}; all completed 50 days and dawn 51. Visited ${seenAudiences.size} unique audiences, ${seenTalks.size} unique talks, ${seenQuests.size} distinct quest/outcome pairs.`,
+  `Seeded policy persona campaigns with full played dialogue beats and coverage-directed barracks choices (unheard talks first, one per day): ${campaignRows.length}; all completed 50 days and dawn 51. Visited ${seenAudiences.size} unique audiences, ${seenTalks.size} unique talks, ${seenQuests.size} distinct quest/outcome pairs.`,
   '',
   '## Complete 50-day policy-campaign traces',
   '',
@@ -734,7 +800,7 @@ writeFileSync(
   [
     '# Seeded policy full-campaign transcripts',
     '',
-    `${campaignRows.length} real-engine 50-day simulated playthroughs. Every dawn, full runtime-resolved audience and follower scene beat, chosen answer and quest resolution is recorded in order. A run shows the path actually played, not unchosen alternatives. The one-barracks-conversation-per-day engine limit is preserved. These are deterministic policy bots, not independent human readers.`,
+    `${campaignRows.length} real-engine 50-day simulated playthroughs. Every dawn, full runtime-resolved audience and follower scene beat, chosen answer and quest resolution is recorded in order. A run shows the path actually played, not unchosen alternatives. The harness prefers follower conversations not reached by earlier campaigns, selecting only from those naturally offered by the engine, with one barracks conversation per day. These are deterministic policy bots, not independent human readers.`,
     '',
     ...campaignRows.flatMap((campaign) => [
       `## ${campaign.persona} · seed ${campaign.seed} · ${campaign.ending}`,

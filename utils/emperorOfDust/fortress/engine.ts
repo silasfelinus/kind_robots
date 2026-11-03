@@ -923,6 +923,7 @@ export const talkFor = (
     const open = talkDef(run.talkOpen.id)
     return open?.follower === followerId ? open : undefined
   }
+  if (talkedToday(run)) return undefined
   const status = followerStatus(run, followerId)
   if (status !== 'ready' && status !== 'injured') return undefined
   return TALKS.find(

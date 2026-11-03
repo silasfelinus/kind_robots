@@ -152,8 +152,7 @@ export function restoreEndingGallery(raw: unknown): string[] {
   const known = new Set(ENDINGS.map((ending) => ending.id))
   const seen = new Set<string>()
   return raw.filter((id): id is string => {
-    if (typeof id !== 'string' || !known.has(id) || seen.has(id))
-      return false
+    if (typeof id !== 'string' || !known.has(id) || seen.has(id)) return false
     seen.add(id)
     return true
   })

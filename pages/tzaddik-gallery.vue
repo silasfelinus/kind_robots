@@ -355,8 +355,10 @@ import { resolveTzaddikImageSrc } from '@/utils/tzaddikImage'
 import { gameLinkPreviewMeta } from '@/utils/gameLinkPreview'
 
 useSeoMeta(
-  gameLinkPreviewMeta('tzaddik-gallery', useRuntimeConfig().public.appBaseUrl) ??
-    {},
+  gameLinkPreviewMeta(
+    'tzaddik-gallery',
+    useRuntimeConfig().public.appBaseUrl,
+  ) ?? {},
 )
 
 type TabKey = 'living' | 'memorial' | 'popculture' | 'suggestions' | 'review'

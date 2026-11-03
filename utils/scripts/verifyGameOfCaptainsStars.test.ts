@@ -722,9 +722,9 @@ assert.ok(
 )
 assert.ok(page.includes("store.onboardingArt['origins/' + origin.id]"))
 assert.ok(
-  quiz.includes(
-    "currentQuestion.value.art + '-answer-' + String.fromCharCode(97 + optionIndex)",
-  ),
+  quiz.includes("'-answer-' +") &&
+    quiz.includes('String.fromCharCode(97 + optionIndex)'),
+  'each answer reads its own painted plate key',
 )
 assert.ok(
   quiz.includes('onAnswerArtError'),

@@ -807,7 +807,12 @@ export const HOSHIMORI_NIGHT_BELLROAD_KEYS = [
   '7,4',
   '8,4',
 ] as const
-export const HOSHIMORI_NIGHT_SOUTHERN_KEYS = ['1,7', '2,7', '3,7', '4,7'] as const
+export const HOSHIMORI_NIGHT_SOUTHERN_KEYS = [
+  '1,7',
+  '2,7',
+  '3,7',
+  '4,7',
+] as const
 export const HOSHIMORI_NIGHT_LOWBANK_KEYS = [
   '1,5',
   '2,5',

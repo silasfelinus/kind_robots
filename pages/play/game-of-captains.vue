@@ -4733,6 +4733,11 @@ function toggleAway(id: CrewId) {
 .cap-brief-room:disabled {
   opacity: 0.45;
 }
+.cap-brief-room .cap-pocket-room-art {
+  height: auto;
+  border: 0;
+  border-radius: 0;
+}
 .cap-brief-room small {
   overflow: hidden;
   display: -webkit-box;

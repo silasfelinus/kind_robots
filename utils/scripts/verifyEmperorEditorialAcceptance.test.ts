@@ -199,7 +199,7 @@ for (const quest of quests) {
     rows.push({
       kind: 'quest-outcome',
       id: `${quest.id}:${tier}`,
-      day: quest.days?.[0] ?? Number(quest.id.match(/^q-d(\\d+)/)?.[1] ?? 0),
+      day: quest.days?.[0] ?? Number(quest.id.match(/^q-d([0-9]+)/)?.[1] ?? 0),
       title: `${quest.title} · ${tier}`,
       scores: {
         mood: clamp(!prose ? 1 : hasConcreteDetail(prose) ? 4 : 3),

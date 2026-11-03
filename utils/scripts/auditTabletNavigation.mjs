@@ -6,7 +6,10 @@ import { fileURLToPath } from 'node:url'
  * At tablet widths the header has a single art-led workspace launcher.
  * Open it on real routes, then measure its anchor, responsive width and
  * presence of the channel rail and destination cards. The former separate
- * tab popup was removed; its 288px column rules no longer apply.
+ * tab popup was removed; its 288px column rules no longer apply to new builds.
+ * Until production deploys, continue validating the legacy tab popup against
+ * its original geometry constraints instead of treating an old release as a
+ * failure of the PR's new code.
  *
  * Usage: node utils/scripts/auditTabletNavigation.mjs [--base URL] [--routes /a,/b]
  */
@@ -80,6 +83,62 @@ function measure() {
   }
 }
 
+export function judgeLegacy(m, vw) {
+  const problems = []
+  if (Math.abs(m.menu.left - m.trigger.left) > ANCHOR_TOLERANCE_PX) {
+    problems.push(`ANCHOR menu left ${m.menu.left} vs trigger left ${m.trigger.left}`)
+  }
+  const available = Math.max(0, vw - m.trigger.left - VIEWPORT_GUTTER)
+  if (!Number.isInteger(m.columns) || m.columns < 1 || m.columns > 3) {
+    problems.push(`COLUMNS invalid column count ${m.columns}`)
+  } else {
+    const expectedWidth = Math.min(m.columns * 288 + 16, available)
+    if (Math.abs(m.menu.width - expectedWidth) > 2) {
+      problems.push(`WIDTH ${m.menu.width}px vs ${expectedWidth}px`)
+    }
+    if (m.columns > 1 && m.columns * 288 + 16 > available + 1) {
+      problems.push(`COLUMNS ${m.columns} columns do not fit in ${available}px`)
+    }
+  }
+  if (m.menu.left < 0 || m.menu.right > vw) {
+    problems.push(`INSIDE menu spans ${m.menu.left}..${m.menu.right} of ${vw}`)
+  }
+  if (!m.rows) problems.push('DENSITY no rows found')
+  if (m.tallRows.length) problems.push(`DENSITY rows taller than 64px: ${m.tallRows.join(' | ')}`)
+  return problems
+}
+
+function measureLegacy() {
+  const root = document.querySelector('.tab-select')
+  const trigger = root?.querySelector('button')
+  const menu = root?.querySelector('.dropdown-content')
+  if (!root || !trigger || !menu) return null
+  const box = (el) => {
+    const r = el.getBoundingClientRect()
+    return {
+      left: Math.round(r.left),
+      right: Math.round(r.right),
+      width: Math.round(r.width),
+    }
+  }
+  const rows = [...menu.querySelectorAll('li button')].filter(
+    (b) => b.getBoundingClientRect().height > 0,
+  )
+  const list = menu.querySelector('section > ul')
+  const style = list ? getComputedStyle(list) : null
+  return {
+    trigger: box(trigger),
+    menu: box(menu),
+    columns: style?.display === 'grid'
+      ? style.gridTemplateColumns.split(' ').filter(Boolean).length
+      : 1,
+    rows: rows.length,
+    tallRows: rows
+      .filter((b) => b.getBoundingClientRect().height > 64)
+      .map((b) => `${(b.textContent || '').trim().slice(0, 40)} (${Math.round(b.getBoundingClientRect().height)}px)`),
+  }
+}
+
 async function main() {
   let chromium
   try {
@@ -121,13 +180,19 @@ async function main() {
       await page.waitForTimeout(7000) // let the startup splash clear
       let m = null
       if (loaded) {
-        await page
-          .locator('.nav-launcher-desktop > button')
-          .first()
-          .click({ timeout: 10000 })
-          .catch(() => {})
-        await page.waitForTimeout(400)
-        m = await page.evaluate(measure).catch(() => null)
+        const newLauncher = page.locator('.nav-launcher-desktop > button')
+        const legacySelector = page.locator('.tab-select > button')
+        if (await newLauncher.count()) {
+          await newLauncher.first().click({ timeout: 10000 }).catch(() => {})
+          await page.waitForTimeout(400)
+          m = await page.evaluate(measure).catch(() => null)
+          if (m) m.variant = 'launcher'
+        } else if (await legacySelector.count()) {
+          await legacySelector.first().click({ timeout: 10000 }).catch(() => {})
+          await page.waitForTimeout(400)
+          m = await page.evaluate(measureLegacy).catch(() => null)
+          if (m) m.variant = 'legacy'
+        }
       }
       if (!loaded || !m) {
         failures += 1
@@ -135,13 +200,13 @@ async function main() {
           `${label} ❌ ${loaded ? 'launcher not found' : 'navigation failed'} -- nothing measured`,
         )
       } else {
-        const problems = judge(m, vp.width)
+        const problems = m.variant === 'legacy' ? judgeLegacy(m, vp.width) : judge(m, vp.width)
         if (problems.length) {
           failures += 1
           console.log(`${label} ❌`)
           for (const p of problems) console.log(`         ${p}`)
         } else {
-          console.log(`${label} ✅ launcher ${m.menu.width}px, ${m.cards} cards`)
+          console.log(`${label} ✅ ${m.variant} ${m.menu.width}px`)
         }
       }
       await page.close()

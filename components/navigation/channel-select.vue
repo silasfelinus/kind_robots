@@ -31,7 +31,6 @@
 
       <span class="kr-text-black-sm min-w-0 truncate sm:text-base xl:text-lg">
         {{ activeTab?.label || activeChannel.label }}
-        }}
       </span>
 
       <Icon

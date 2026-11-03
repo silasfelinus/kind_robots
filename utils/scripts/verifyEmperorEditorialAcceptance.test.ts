@@ -55,7 +55,8 @@ const quests: readonly QuestDef[] = [
 ]
 const textOf = (lines: readonly SceneLine[]) =>
   lines.map((line) => (typeof line === 'string' ? line : line.text)).join(' ')
-const clipped = (text: string) => text.replace(/\s+/g, ' ').trim().slice(0, 115)
+const full = (text: string) => text.replace(/\s+/g, ' ').trim()
+const clipped = (text: string) => full(text).slice(0, 115)
 const allChoices = (scene: Segment): AudienceOption[] => [
   ...scene.options,
   ...(scene.beats ?? []).flatMap((beat) => beat.options),
@@ -447,14 +448,14 @@ for (const policy of personas) {
           audiences += 1
           seenAudiences.add(id)
           timeline.push(
-            `DAY ${sceneDay} court ${id} /${option.id}: ${option.label}; ${clipped(option.response)}`,
+            `DAY ${sceneDay} court ${id} /${option.id}: ${option.label}; ${full(option.response)}`,
           )
         },
         onTalkChoice: (talkDay, id, option) => {
           talks += 1
           seenTalks.add(id)
           timeline.push(
-            `DAY ${talkDay} barracks ${id} /${option.id}: ${option.label}; ${clipped(option.response)}`,
+            `DAY ${talkDay} barracks ${id} /${option.id}: ${option.label}; ${full(option.response)}`,
           )
         },
         onQuestReport: (questDay, report) => {
@@ -494,29 +495,43 @@ assert.ok(
 )
 assert.ok(seenQuests.size > 0)
 
+const unvisitedAudiences = DAYS.flatMap((day) =>
+  day.audiences
+    .filter((scene) => !seenAudiences.has(scene.id))
+    .map((scene) => `Day ${day.day}: ${scene.id}`),
+)
+const unvisitedTalks = TALKS.filter((talk) => !seenTalks.has(talk.id)).map(
+  (talk) => `${talk.follower}: ${talk.id}`,
+)
+for (const [subjectId, flag] of [
+  ['rook', 'rook-honest-answer'],
+  ['gate-watch', 'd43-dunmark-absolved'],
+] as const) {
+  assert.ok(
+    EPILOGUE.find((subject) => subject.id === subjectId)?.variants.some(
+      (variant) => variant.when?.flags?.includes(flag),
+    ),
+    `A named ending must remember ${subjectId} / ${flag}`,
+  )
+}
+
 const directory = 'artifacts/emperor'
 mkdirSync(directory, { recursive: true })
-const axisOrder = [
-  'mood',
-  'clarity',
-  'originality',
-  'choice',
-  'consequence',
-] as const
-const small = (row: Row) => axisOrder.map((axis) => row.scores[axis]).join('/')
-const section = (kind: Row['kind']) =>
-  rows
-    .filter((r) => r.kind === kind)
-    .map(
-      (r) =>
-        `| ${r.id} | ${r.day || 'varies'} | ${small(r)} | ${r.issues.length ? r.issues.join('; ').replace(/\\|/g, '/') : 'No automated alert'} |`,
-    )
-    .join('\n')
 const suspicious = rows.filter(
   (row) =>
     Object.values(row.scores).some((score) => score <= 2) ||
     row.issues.length > 0,
 )
+const priority = [...suspicious]
+  .sort(
+    (a, b) =>
+      Math.min(...Object.values(a.scores)) -
+        Math.min(...Object.values(b.scores)) ||
+      b.issues.length - a.issues.length ||
+      a.day - b.day ||
+      a.id.localeCompare(b.id),
+  )
+  .slice(0, 60)
 const markdown = [
   '# Emperor of Dust: complete authored-content editorial screening',
   '',
@@ -526,7 +541,7 @@ const markdown = [
   '',
   `Authored coverage: ${scenes.filter((s) => s.kind === 'audience').length} throne audiences, ${TALKS.length} follower talks, ${quests.length} quest definitions x 5 result tiers = ${quests.length * 5} quest-outcome slots.`,
   `Automated red flags: ${suspicious.length}/${rows.length} assessed rows; these are leads, not defects proven in play.`,
-  `Independent policy persona campaigns with barracks choices: ${campaignRows.length}; all completed 50 days and dawn 51. Visited ${seenAudiences.size} unique audiences, ${seenTalks.size} unique talks, ${seenQuests.size} distinct quest/outcome pairs.`,
+  `Seeded policy persona campaigns with barracks choices: ${campaignRows.length}; all completed 50 days and dawn 51. Visited ${seenAudiences.size} unique audiences, ${seenTalks.size} unique talks, ${seenQuests.size} distinct quest/outcome pairs.`,
   '',
   '## Complete 50-day policy-campaign traces',
   '',
@@ -537,53 +552,22 @@ const markdown = [
       `| ${c.persona} | ${c.seed} | ${c.ending} | ${c.hideout} | ${c.audiences} | ${c.talks} | ${c.quests} | ${c.deaths} | ${c.brass} |`,
   ),
   '',
-  '## Each throne audience (all opening and beat options screened)',
+  '## Unvisited in the 27 seeded campaigns',
   '',
-  '| ID | Day | M/C/O/Ch/Co | Automatic findings |',
-  '| --- | ---: | --- | --- |',
-  section('audience'),
+  `Unvisited audiences (${unvisitedAudiences.length}): ${unvisitedAudiences.join(', ') || 'none'}`,
   '',
-  '## Each audience follow-up beat',
+  `Unvisited follower talks (${unvisitedTalks.length}): ${unvisitedTalks.join(', ') || 'none'}`,
   '',
-  '| ID | Day | M/C/O/Ch/Co | Automatic findings |',
-  '| --- | ---: | --- | --- |',
-  section('audience-beat'),
+  'Not visited does not mean unreachable. Conditional gates, recruitment and random seeds require targeted reachability tests.',
   '',
-  '## Each follower talk (all opening and beat options screened)',
+  '## Top 60 structural review leads',
   '',
-  '| ID | From day | M/C/O/Ch/Co | Automatic findings |',
-  '| --- | ---: | --- | --- |',
-  section('follower'),
+  'The complete row-by-row census and five-axis proxy scores are in editorial-screening.json. This short worklist omits repeated low-value tables.',
   '',
-  '## Each follower follow-up beat',
-  '',
-  '| ID | From day | M/C/O/Ch/Co | Automatic findings |',
-  '| --- | ---: | --- | --- |',
-  section('follower-beat'),
-  '',
-  '## Every defined quest result tier (missing tiers explicitly surfaced)',
-  '',
-  '| Quest outcome | Day | M/C/O/Ch/Co | Automatic findings |',
-  '| --- | ---: | --- | --- |',
-  section('quest-outcome'),
-  '',
-  '## Every flag-driven quest result variant',
-  '',
-  '| Quest outcome variant | Day | M/C/O/Ch/Co | Automatic findings |',
-  '| --- | ---: | --- | --- |',
-  section('quest-outcome-variant'),
-  '',
-  '## Every repeat-outcome variant',
-  '',
-  '| Repeated result | Day | M/C/O/Ch/Co | Automatic findings |',
-  '| --- | ---: | --- | --- |',
-  section('quest-outcome-alt'),
-  '',
-  '## Every epilogue state',
-  '',
-  '| Epilogue state | Day | M/C/O/Ch/Co | Automatic findings |',
-  '| --- | ---: | --- | --- |',
-  section('epilogue-variant'),
+  ...priority.map(
+    (row) =>
+      `- ${row.kind} ${row.id} (day ${row.day}): ${row.issues.join('; ') || 'low rubric signal'}; ${row.evidence}`,
+  ),
   '',
   '## Acceptance still required',
   '',
@@ -593,9 +577,9 @@ writeFileSync(`${directory}/editorial-screening.md`, markdown.join('\n') + '\n')
 writeFileSync(
   `${directory}/editorial-campaign-transcripts.md`,
   [
-    '# Independent full-campaign transcripts',
+    '# Seeded policy full-campaign transcripts',
     '',
-    'Twenty-seven real-engine 50-day simulated playthroughs with barracks conversations. Every dawn, audience answer, barracks answer and quest resolution is recorded in order. These are deterministic policy bots, not independent human readers.',
+    'Twenty-seven real-engine 50-day simulated playthroughs. Every dawn, chosen audience answer, barracks answer and quest resolution is recorded in order with complete chosen response text. Opening scene beats, alternative options and runtime variant presentation are not captured. These are deterministic policy bots, not independent human readers.',
     '',
     ...campaignRows.flatMap((campaign) => [
       `## ${campaign.persona} · seed ${campaign.seed} · ${campaign.ending}`,
@@ -617,8 +601,12 @@ writeFileSync(
         resultSlots: quests.length * 5,
         redFlags: suspicious.length,
         assessedRows: rows.length,
+        unvisitedAudiences: unvisitedAudiences.length,
+        unvisitedTalks: unvisitedTalks.length,
       },
       rows,
+      priorityIds: priority.map((row) => row.id),
+      unvisited: { audiences: unvisitedAudiences, talks: unvisitedTalks },
       campaigns: campaignRows,
       missingQuestReportTexts,
       seen: {
@@ -648,6 +636,8 @@ console.log(
       uniqueAudiencesVisited: seenAudiences.size,
       uniqueTalksVisited: seenTalks.size,
       uniqueQuestOutcomes: seenQuests.size,
+      unvisitedAudiences: unvisitedAudiences.length,
+      unvisitedTalks: unvisitedTalks.length,
       endingFamilies: [...new Set(campaignRows.map((r) => r.ending))].sort(),
       missingQuestReportTexts: [...new Set(missingQuestReportTexts)],
     }),

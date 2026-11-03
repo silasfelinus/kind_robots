@@ -397,6 +397,7 @@
           :class="{
             'cap-episode-scroll': run?.phase === 'expedition',
             'cap-personnel-scroll': !run && selectionScreen !== 'stars',
+            'cap-brief-scroll': run?.phase === 'briefing',
           }"
         >
           <div v-if="!store.loaded" class="cap-placeholder">
@@ -796,342 +797,382 @@
           </template>
 
           <template v-else-if="run.phase === 'briefing'">
-            <section
-              class="cap-redshirt-travel"
-              data-testid="space-couch-travel-prompt"
-            >
-              <strong>{{
-                expeditionComplete
-                  ? 'ARRIVED · EXPEDITION LOGGED'
-                  : 'FIRST, TRAVEL. THEN, QUESTS.'
-              }}</strong>
-              <p>
-                {{
-                  expeditionComplete
-                    ? 'Your crew has returned from the world encounters. You can now staff the primary mission.'
-                    : 'The couch will fold open its miniature redshirt quarters at the destination. You have a captain and three officers to distribute; everyone else is beautifully, disastrously replaceable.'
-                }}
-              </p>
-              <button
-                v-if="!expeditionComplete"
-                class="cap-primary"
-                type="button"
-                data-testid="space-couch-travel"
-                @click="store.travel()"
-              >
-                TRAVEL TO {{ localSystem.name.toUpperCase() }} <span>➜</span>
-              </button>
-              <p v-if="(run.redshirtFallen ?? []).length">
-                Fallen redshirts: {{ run.redshirtFallen?.length }}. Personnel
-                says they have more.
-              </p>
-            </section>
-            <section
-              class="cap-solar-circuit"
-              data-testid="space-couch-solar-circuit"
-              aria-label="Voyage solar-system circuit"
-            >
-              <header class="cap-expedition-head">
-                <strong
-                  >FINITE STAR CIRCUIT · {{ circuit.length }} SOLAR
-                  SYSTEMS</strong
-                >
-                <small
-                  >One territory per chapter · you may revisit familiar
-                  systems</small
-                >
-              </header>
-              <div class="cap-system-nodes">
-                <div
-                  v-for="system in circuit"
-                  :key="system.id"
-                  class="cap-system-node"
-                  :class="{ active: system.id === localSystem.id }"
-                >
-                  <strong>{{ system.name }}</strong>
-                  <small
-                    >{{ system.giant }} Grand Casino ·
-                    {{ system.franchise.name }}</small
-                  >
-                </div>
-              </div>
-              <p class="cap-narrative">
-                <b>{{ localSystem.name }}:</b> {{ localSystem.conflict }} The
-                casino, built across {{ localSystem.giant }}'s living body,
-                contains the local Serendipity bar.
-              </p>
-            </section>
-            <section
-              class="cap-route-board"
-              data-testid="space-couch-route-board"
-              :aria-label="actLabel + ' galaxy navigation'"
-            >
-              <div class="cap-route-heading">
-                <span>{{ actLabel.toUpperCase() }} / LOCAL DISTRICTS</span>
-                <strong>CHOOSE ONE LOCAL CALL</strong>
-              </div>
-              <div class="cap-route-grid">
-                <button
-                  v-for="(call, index) in routeBoard"
-                  :key="call.id"
-                  type="button"
-                  class="cap-route-option"
-                  data-testid="space-couch-route-option"
-                  :class="{ active: mission.id === call.id }"
-                  :aria-pressed="mission.id === call.id"
-                  @click="store.chartMission(call.id)"
-                >
-                  <span class="cap-route-node" aria-hidden="true">
-                    {{ index + 1 }}
-                  </span>
-                  <span class="cap-route-text">
-                    <strong>{{ call.system }}</strong>
-                    <small>{{ call.title }}</small>
-                  </span>
-                  <span class="cap-route-arrow" aria-hidden="true">›</span>
-                </button>
-              </div>
-              <p class="cap-route-memory" data-testid="space-couch-world-echo">
-                {{ routeEcho }}
-              </p>
-            </section>
-            <div class="cap-heading">
-              <span>03</span>
-              <div>
-                <h2>{{ mission.title }}</h2>
-                <p>{{ mission.system }} / DISTRESS CALL</p>
-              </div>
-            </div>
-            <p class="cap-narrative">{{ mission.briefing }}</p>
-            <section class="cap-instinct" data-testid="couch-captain-instinct">
-              <strong>CAPTAIN'S PERSONAL BAD IDEA</strong>
-              <h3>{{ captainInstinct.title }}</h3>
-              <p>{{ captainInstinct.situation }}</p>
-              <p class="cap-instinct-response">{{ captainReply }}</p>
-              <template v-if="captainCanAct">
-                <button
-                  type="button"
-                  class="cap-option"
-                  data-testid="couch-captain-impulse"
-                  :disabled="captainImpulseBlocked"
-                  @click="store.captainAction('impulse')"
-                >
-                  <span
-                    ><b>{{ captainInstinct.impulse }}</b
-                    ><small>+10% mission odds; a personal cost</small></span
-                  >
-                </button>
-                <button
-                  type="button"
-                  class="cap-option"
-                  data-testid="couch-captain-restraint"
-                  @click="store.captainAction('restraint')"
-                >
-                  <span
-                    ><b>{{ captainInstinct.restraint }}</b
-                    ><small>Safer. No tactical bonus.</small></span
-                  >
-                </button>
-              </template>
-              <p v-else class="cap-instinct-response">
-                This chapter's captain decision is recorded.
-              </p>
-            </section>
             <div
-              v-if="briefingCallbacks.length || briefingAboard.length"
-              class="cap-callbacks"
-              data-testid="space-couch-callbacks"
+              class="cap-brief"
+              :data-step="briefingStep"
+              data-testid="space-couch-briefing-deck"
             >
-              <p v-for="callback in briefingCallbacks" :key="callback.flag">
-                <strong
-                  >{{ callback.odds > 0 ? '+' : ''
-                  }}{{ callback.odds }}%</strong
-                >
-                {{ callback.text }}
-              </p>
-              <p v-for="line in briefingAboard" :key="line">
-                <strong>ABOARD</strong> {{ line }}
-              </p>
-            </div>
-            <div class="cap-antagonist">
-              <strong>ANOMALY IN THE SIGNAL</strong>
-              <p>
-                A persistent rival is changing events in ways your crew cannot
-                yet explain.
-              </p>
-              <small>{{ antagonist.title }}</small>
-            </div>
-            <section
-              class="cap-insight"
-              aria-label="Couch pocket rooms and shield"
-            >
-              <strong>Where is the rest of the spaceship?</strong>
-              <small
-                >This long red couch IS the ship. Its invisible bubble keeps the
-                vacuum out. Unfold one temporary room behind the backrest for
-                one supply; a specialty match boosts success odds by 10%.</small
-              >
-              <div class="cap-crew-picker">
+              <nav class="cap-brief-steps" aria-label="Mission preparation">
                 <button
+                  v-for="(step, index) in BRIEFING_STEPS"
+                  :key="step.id"
                   type="button"
-                  class="cap-crew-button"
-                  :class="{ chosen: !run.pocketRoom }"
-                  :aria-pressed="!run.pocketRoom"
-                  @click="store.chooseRoom(null)"
+                  class="cap-brief-step"
+                  :class="{
+                    current: briefingStep === step.id,
+                    done: briefingStepIndex > index,
+                  }"
+                  :disabled="index > 0 && !expeditionComplete"
+                  :aria-current="briefingStep === step.id ? 'step' : undefined"
+                  :data-testid="'space-couch-brief-step-' + step.id"
+                  @click="briefingStep = step.id"
                 >
-                  <span
-                    ><strong>Just the couch</strong
-                    ><small>No room, no supply cost</small></span
-                  >
+                  <b>{{ index + 1 }}</b
+                  ><span>{{ step.label }}</span>
                 </button>
-                <button
-                  v-for="room in POCKET_ROOMS"
-                  :key="room.id"
-                  type="button"
-                  class="cap-crew-button cap-pocket-room-choice"
-                  :class="{ chosen: run.pocketRoom === room.id }"
-                  :aria-pressed="run.pocketRoom === room.id"
-                  :disabled="run.supplies < 1 && run.pocketRoom !== room.id"
-                  @click="store.chooseRoom(room.id)"
-                >
-                  <img
-                    class="cap-pocket-room-art"
-                    :src="pocketRoomPainting(room.id) || COUCH_FALLBACK"
-                    alt=""
-                    @error="onPaintedImageError"
-                  />
-                  <span
-                    ><strong>{{ room.name }}</strong
-                    ><small>{{ room.blurb }}</small></span
+              </nav>
+
+              <div class="cap-brief-body kr-scroll">
+                <template v-if="briefingStep === 'course'">
+                  <section
+                    class="cap-brief-intro"
+                    data-testid="space-couch-travel-prompt"
                   >
-                </button>
-              </div>
-              <button
-                class="cap-option"
-                type="button"
-                data-testid="couch-recharge-shield"
-                :disabled="run.supplies < 1 || (run.shieldCharge ?? 2) >= 3"
-                @click="store.rechargeShield()"
-              >
-                <span
-                  ><b>Recharge invisible force bubble (1 supply)</b
-                  ><small
-                    >Charge {{ run.shieldCharge ?? 2 }}/3. Backup life support
-                    remains safe at zero, but operational odds lose 10%.</small
-                  ></span
-                >↗
-              </button>
-            </section>
-            <section
-              v-if="missionPreview"
-              class="cap-odds"
-              data-testid="captains-odds"
-              aria-live="polite"
-            >
-              <div class="cap-odds-row">
-                <strong>{{ missionPreview.chance }}% successful mission</strong
-                ><span>RETURN: {{ missionPreview.durationDays }} DAYS</span>
-              </div>
-              <p>
-                Expires in {{ missionPreview.expiresInDays }} ship day(s).
-                {{ missionRule.deadline }}
-              </p>
-              <p
-                v-for="requirement in missionPreview.requirements"
-                :key="requirement.skill"
-              >
-                {{ requirement.skill.toUpperCase() }} {{ requirement.total }} /
-                {{ requirement.required }} required
-              </p>
-              <p v-if="missionPreview.specialRoutes.length" class="cap-special">
-                {{ missionPreview.specialRoutes.join(' ') }}
-              </p>
-              <p v-else>{{ missionPreview.commentary }}</p>
-              <p
-                v-for="blocker in missionPreview.blockers"
-                :key="blocker"
-                role="alert"
-              >
-                {{ blocker }}
-              </p>
-            </section>
-            <div class="cap-heading cap-crew-heading">
-              <span>04</span>
-              <div>
-                <h2>Staff the away team</h2>
-                <p>
-                  Assign up to three. Keep at least one officer running the
-                  ship. Sending nobody is a valid remote approach.
-                </p>
-              </div>
-            </div>
-            <div class="cap-crew-picker">
-              <button
-                v-for="member in availableCrew"
-                :key="member.id"
-                class="cap-crew-button"
-                type="button"
-                :class="{ chosen: run.away.includes(member.id) }"
-                :aria-pressed="run.away.includes(member.id)"
-                :disabled="
-                  unavailable(member.id) ||
-                  (!run.away.includes(member.id) && run.away.length >= 3)
-                "
-                :title="member.quote"
-                @click="toggleAway(member.id)"
-              >
-                <span
-                  class="cap-monogram"
-                  :data-portrait-key="crewProfile(member.id).portraitKey"
-                  ><img
-                    v-if="crewVoyagePortrait(member.id)"
-                    :src="crewVoyagePortrait(member.id)!"
-                    alt=""
-                    class="cap-portrait-img"
-                    @error="
-                      onPortraitError(
-                        $event,
-                        crewProfile(member.id).portraitKey,
-                      )
+                    <span class="cap-brief-kicker"
+                      >{{ actLabel.toUpperCase() }} ·
+                      {{ localSystem.name.toUpperCase() }}</span
+                    >
+                    <h2>
+                      {{
+                        expeditionComplete
+                          ? 'Crew home. Pick the call you answer.'
+                          : 'Where does the couch go first?'
+                      }}
+                    </h2>
+                    <p v-if="(run.redshirtFallen ?? []).length">
+                      Fallen redshirts: {{ run.redshirtFallen?.length }}.
+                      Personnel says they have more.
+                    </p>
+                  </section>
+                  <section
+                    class="cap-route-board"
+                    data-testid="space-couch-route-board"
+                    :aria-label="actLabel + ' galaxy navigation'"
+                  >
+                    <div class="cap-brief-routes">
+                      <button
+                        v-for="call in routeBoard"
+                        :key="call.id"
+                        type="button"
+                        class="cap-brief-route"
+                        data-testid="space-couch-route-option"
+                        :class="{ active: mission.id === call.id }"
+                        :aria-pressed="mission.id === call.id"
+                        @click="store.chartMission(call.id)"
+                      >
+                        <img
+                          :src="
+                            paintedVoyageImage(missionArtKey(call.id)) ||
+                            COUCH_FALLBACK
+                          "
+                          alt=""
+                          @error="onPaintedImageError"
+                        />
+                        <span class="cap-brief-route-copy">
+                          <small>{{ call.system }}</small>
+                          <strong>{{ call.title }}</strong>
+                        </span>
+                        <b v-if="mission.id === call.id" class="cap-brief-pin"
+                          >CHARTED</b
+                        >
+                      </button>
+                    </div>
+                    <p
+                      class="cap-route-memory"
+                      data-testid="space-couch-world-echo"
+                    >
+                      {{ routeEcho }}
+                    </p>
+                  </section>
+                  <section
+                    class="cap-solar-circuit"
+                    data-testid="space-couch-solar-circuit"
+                    aria-label="Voyage solar-system circuit"
+                  >
+                    <div class="cap-system-nodes">
+                      <span
+                        v-for="system in circuit"
+                        :key="system.id"
+                        class="cap-system-node"
+                        :class="{ active: system.id === localSystem.id }"
+                        :title="
+                          system.giant +
+                          ' Grand Casino · ' +
+                          system.franchise.name
+                        "
+                        >{{ system.name }}</span
+                      >
+                    </div>
+                  </section>
+                </template>
+
+                <template v-else-if="briefingStep === 'mission'">
+                  <section
+                    class="cap-brief-intro cap-instinct"
+                    data-testid="couch-captain-instinct"
+                  >
+                    <span class="cap-brief-kicker"
+                      >CAPTAIN'S PERSONAL BAD IDEA</span
+                    >
+                    <h2>{{ captainInstinct.title }}</h2>
+                    <p>{{ captainInstinct.situation }}</p>
+                  </section>
+                  <SpaceCouchChoiceHand
+                    v-if="captainCanAct"
+                    class="cap-brief-hand"
+                    :choices="captainChoices"
+                    deal-key="captain-instinct"
+                    testid-prefix="couch-captain"
+                    @play="
+                      (choice) =>
+                        store.captainAction(
+                          choice.id as 'impulse' | 'restraint',
+                        )
                     "
-                  /><template v-else>{{ member.monogram }}</template></span
+                  />
+                  <p v-else class="cap-brief-verdict">{{ captainReply }}</p>
+                  <div
+                    v-if="briefingCallbacks.length || briefingAboard.length"
+                    class="cap-callbacks"
+                    data-testid="space-couch-callbacks"
+                  >
+                    <p
+                      v-for="callback in briefingCallbacks"
+                      :key="callback.flag"
+                    >
+                      <strong
+                        >{{ callback.odds > 0 ? '+' : ''
+                        }}{{ callback.odds }}%</strong
+                      >
+                      {{ callback.text }}
+                    </p>
+                    <p v-for="line in briefingAboard" :key="line">
+                      <strong>ABOARD</strong> {{ line }}
+                    </p>
+                  </div>
+                  <p class="cap-brief-anomaly">
+                    <strong>ANOMALY IN THE SIGNAL</strong> ·
+                    {{ antagonist.title }}
+                  </p>
+                </template>
+
+                <template v-else-if="briefingStep === 'prep'">
+                  <section
+                    class="cap-brief-intro"
+                    aria-label="Couch pocket rooms and shield"
+                  >
+                    <span class="cap-brief-kicker"
+                      >SUPPLIES {{ run.supplies }} · BUBBLE
+                      {{ run.shieldCharge ?? 2 }}/3</span
+                    >
+                    <h2>Unfold a room behind the backrest?</h2>
+                  </section>
+                  <div class="cap-brief-rooms">
+                    <button
+                      type="button"
+                      class="cap-brief-room"
+                      :class="{ chosen: !run.pocketRoom }"
+                      :aria-pressed="!run.pocketRoom"
+                      @click="store.chooseRoom(null)"
+                    >
+                      <img :src="COUCH_FALLBACK" alt="" />
+                      <span
+                        ><strong>Just the couch</strong
+                        ><small>Free</small></span
+                      >
+                    </button>
+                    <button
+                      v-for="room in POCKET_ROOMS"
+                      :key="room.id"
+                      type="button"
+                      class="cap-brief-room cap-pocket-room-choice"
+                      :class="{ chosen: run.pocketRoom === room.id }"
+                      :aria-pressed="run.pocketRoom === room.id"
+                      :disabled="run.supplies < 1 && run.pocketRoom !== room.id"
+                      @click="store.chooseRoom(room.id)"
+                    >
+                      <img
+                        class="cap-pocket-room-art"
+                        :src="pocketRoomPainting(room.id) || COUCH_FALLBACK"
+                        alt=""
+                        @error="onPaintedImageError"
+                      />
+                      <span
+                        ><strong>{{ room.name }}</strong
+                        ><small>1 supply · {{ room.blurb }}</small></span
+                      >
+                    </button>
+                  </div>
+                  <button
+                    class="cap-brief-shield"
+                    type="button"
+                    data-testid="couch-recharge-shield"
+                    :disabled="run.supplies < 1 || (run.shieldCharge ?? 2) >= 3"
+                    @click="store.rechargeShield()"
+                  >
+                    <span class="cap-brief-shield-meter" aria-hidden="true"
+                      ><i
+                        v-for="n in 3"
+                        :key="n"
+                        :class="{ on: n <= (run.shieldCharge ?? 2) }"
+                    /></span>
+                    <span
+                      ><strong>Recharge the force bubble</strong
+                      ><small
+                        >1 supply. An empty bubble costs 10% mission
+                        odds.</small
+                      ></span
+                    >
+                  </button>
+                </template>
+
+                <template v-else>
+                  <section
+                    v-if="missionPreview"
+                    class="cap-brief-odds"
+                    :class="{ ready: missionPreview.eligible }"
+                    data-testid="captains-odds"
+                    aria-live="polite"
+                  >
+                    <strong class="cap-brief-chance"
+                      >{{ missionPreview.chance }}%</strong
+                    >
+                    <span class="cap-brief-odds-copy">
+                      <b
+                        >SUCCESS · BACK IN
+                        {{ missionPreview.durationDays }} DAYS</b
+                      >
+                      <span class="cap-brief-reqs">
+                        <i
+                          v-for="requirement in missionPreview.requirements"
+                          :key="requirement.skill"
+                          :class="{
+                            met: requirement.total >= requirement.required,
+                          }"
+                          >{{ requirement.skill.toUpperCase() }}
+                          {{ requirement.total }}/{{ requirement.required }}</i
+                        >
+                      </span>
+                      <small
+                        v-for="blocker in missionPreview.blockers"
+                        :key="blocker"
+                        role="alert"
+                        >{{ blocker }}</small
+                      >
+                      <small v-if="!missionPreview.blockers.length">{{
+                        missionPreview.specialRoutes.length
+                          ? missionPreview.specialRoutes.join(' ')
+                          : 'Expires in ' +
+                            missionPreview.expiresInDays +
+                            ' ship day(s).'
+                      }}</small>
+                    </span>
+                  </section>
+                  <div class="cap-brief-crew">
+                    <button
+                      v-for="member in availableCrew"
+                      :key="member.id"
+                      class="cap-brief-officer"
+                      type="button"
+                      :class="{ chosen: run.away.includes(member.id) }"
+                      :aria-pressed="run.away.includes(member.id)"
+                      :disabled="
+                        unavailable(member.id) ||
+                        (!run.away.includes(member.id) && run.away.length >= 3)
+                      "
+                      :title="member.quote"
+                      @click="toggleAway(member.id)"
+                    >
+                      <img
+                        v-if="crewVoyagePortrait(member.id)"
+                        :src="crewVoyagePortrait(member.id)!"
+                        alt=""
+                        @error="
+                          onPortraitError(
+                            $event,
+                            crewProfile(member.id).portraitKey,
+                          )
+                        "
+                      />
+                      <span v-else class="cap-brief-officer-mono">{{
+                        member.monogram
+                      }}</span>
+                      <span class="cap-brief-officer-copy"
+                        ><strong>{{ member.name }}</strong
+                        ><small>{{ member.role }}</small></span
+                      >
+                      <b>{{
+                        unavailable(member.id)
+                          ? 'INJURED'
+                          : run.away.includes(member.id)
+                            ? 'AWAY'
+                            : 'ON SHIP'
+                      }}</b>
+                    </button>
+                  </div>
+                  <p class="cap-brief-note">
+                    Up to three go. Sending nobody is a valid remote approach.
+                  </p>
+                </template>
+              </div>
+
+              <footer class="cap-brief-nav">
+                <button
+                  v-if="briefingStepIndex > 0"
+                  type="button"
+                  class="cap-brief-back"
+                  data-testid="space-couch-brief-back"
+                  @click="
+                    briefingStep = BRIEFING_STEPS[briefingStepIndex - 1]!.id
+                  "
                 >
-                <span
-                  ><strong>{{ member.name }}</strong
-                  ><small>{{ member.role }}</small></span
-                ><b>{{ run.away.includes(member.id) ? 'AWAY' : 'SHIP' }}</b>
-              </button>
+                  ←
+                </button>
+                <button
+                  v-if="briefingStep === 'team'"
+                  class="cap-brief-wait"
+                  type="button"
+                  data-testid="captains-wait"
+                  title="Deliberate further. This opportunity may expire."
+                  @click="store.advanceDay()"
+                >
+                  WAIT A DAY
+                </button>
+                <button
+                  v-if="!expeditionComplete"
+                  class="cap-primary"
+                  type="button"
+                  data-testid="space-couch-travel"
+                  @click="store.travel()"
+                >
+                  TRAVEL TO {{ localSystem.name.toUpperCase() }} <span>➜</span>
+                </button>
+                <button
+                  v-else-if="briefingStep === 'team'"
+                  class="cap-primary"
+                  type="button"
+                  data-testid="captains-launch"
+                  :disabled="!missionPreview?.eligible"
+                  @click="store.launch()"
+                >
+                  LAUNCH MISSION <span>➜</span>
+                </button>
+                <button
+                  v-else
+                  class="cap-primary"
+                  type="button"
+                  data-testid="space-couch-brief-next"
+                  @click="
+                    briefingStep = BRIEFING_STEPS[briefingStepIndex + 1]!.id
+                  "
+                >
+                  {{
+                    BRIEFING_STEPS[briefingStepIndex + 1]!.label.toUpperCase()
+                  }}
+                  <span>➜</span>
+                </button>
+              </footer>
             </div>
-            <div class="cap-team-note">
-              AWAY: {{ run.away.length }} / 3
-              <span
-                >{{ run.crew.length - run.away.length }} officers aboard ·
-                captain on couch</span
-              >
-            </div>
-            <button
-              class="cap-primary"
-              type="button"
-              data-testid="captains-launch"
-              :disabled="!missionPreview?.eligible || !expeditionComplete"
-              @click="store.launch()"
-            >
-              LAUNCH MISSION <span>➜</span>
-            </button>
-            <button
-              class="cap-option"
-              type="button"
-              data-testid="captains-wait"
-              @click="store.advanceDay()"
-            >
-              <span
-                ><b>Wait one ship day</b
-                ><small
-                  >Deliberate further. This opportunity may expire.</small
-                ></span
-              >
-              ↗
-            </button>
           </template>
 
           <template v-else-if="run.phase === 'travel'">
@@ -1744,7 +1785,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, ref } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
 import { useGameOfCaptainsStore } from '~/stores/gameOfCaptainsStore'
 import {
   ANTAGONISTS,
@@ -1799,7 +1840,11 @@ import {
   captainInstinctReply,
 } from '~/utils/gameOfCaptains/captainInstincts'
 import { warpArt } from '~/utils/gameOfCaptains/artManifest'
-import { portraitArt, voyageStageArt } from '~/utils/gameOfCaptains/artSlots'
+import {
+  missionArtKey,
+  portraitArt,
+  voyageStageArt,
+} from '~/utils/gameOfCaptains/artSlots'
 import {
   consequenceForRun,
   consequenceAftermath,
@@ -2012,6 +2057,34 @@ const captainCanAct = computed(
 const captainReply = computed(() =>
   run.value ? captainInstinctReply(run.value) : '',
 )
+const captainChoices = computed<KrHandChoice[]>(() => [
+  {
+    id: 'impulse',
+    label: captainInstinct.value.impulse,
+    chip: '+10% odds',
+    hint: 'A personal cost',
+    icon: '⚡',
+    disabled: captainImpulseBlocked.value,
+  },
+  {
+    id: 'restraint',
+    label: captainInstinct.value.restraint,
+    chip: 'Safer',
+    hint: 'No tactical bonus',
+    icon: '🛋',
+  },
+])
+type BriefingStep = 'course' | 'mission' | 'prep' | 'team'
+const BRIEFING_STEPS: { id: BriefingStep; label: string }[] = [
+  { id: 'course', label: 'Course' },
+  { id: 'mission', label: 'Captain' },
+  { id: 'prep', label: 'Ship' },
+  { id: 'team', label: 'Away team' },
+]
+const briefingStep = ref<BriefingStep>('course')
+const briefingStepIndex = computed(() =>
+  BRIEFING_STEPS.findIndex((step) => step.id === briefingStep.value),
+)
 const captainImpulseBlocked = computed(
   () =>
     !!run.value &&
@@ -2127,6 +2200,13 @@ const expeditionComplete = computed(() =>
   (run.value?.expeditionHistory ?? []).some(
     (visit) => visit.chapter === run.value?.chapter,
   ),
+)
+watch(
+  () => [run.value?.chapter, run.value?.phase, expeditionComplete.value],
+  () => {
+    briefingStep.value = expeditionComplete.value ? 'mission' : 'course'
+  },
+  { immediate: true },
 )
 
 const routeEcho = computed(() => (run.value ? worldEcho(run.value) : ''))
@@ -4404,6 +4484,445 @@ function toggleAway(id: CrewId) {
     .cap-personnel-dossier
     > :not(.cap-personnel-hero) {
     grid-column: 2;
+  }
+}
+.cap-scroll.cap-brief-scroll {
+  display: flex;
+  overflow: hidden;
+  padding: clamp(0.5rem, 1vw, 1rem);
+}
+.cap-brief {
+  display: grid;
+  flex: 1;
+  grid-template-rows: auto minmax(0, 1fr) auto;
+  gap: clamp(0.5rem, 1.2cqh, 0.9rem);
+  min-width: 0;
+  min-height: 0;
+  container-type: inline-size;
+}
+.cap-brief-steps {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0.4rem;
+}
+.cap-brief-step {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  gap: 0.45rem;
+  min-height: 2.6rem;
+  padding: 0.35rem 0.55rem;
+  border: 1px solid #5e7c8c;
+  border-radius: 999px;
+  background: #0d1a2c;
+  color: #a7c6d0;
+  font-size: clamp(0.62rem, 2.2cqi, 0.82rem);
+  font-weight: 900;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+.cap-brief-step b {
+  display: grid;
+  flex: 0 0 auto;
+  place-items: center;
+  width: 1.7rem;
+  height: 1.7rem;
+  border: 1px solid currentColor;
+  border-radius: 50%;
+  font:
+    900 0.9rem Georgia,
+    serif;
+}
+.cap-brief-step span {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+.cap-brief-step.done {
+  border-color: #6fc9cf;
+  color: #9de6e8;
+}
+.cap-brief-step.current {
+  border-color: #ffd39d;
+  background: #3a2d2a;
+  color: #ffe2b7;
+  box-shadow: 0 0 18px #ffbd8d33;
+}
+.cap-brief-step.current b {
+  background: #ffd39d;
+  color: #132039;
+}
+.cap-brief-step:disabled {
+  opacity: 0.35;
+}
+.cap-brief-body {
+  display: flex;
+  min-height: 0;
+  flex-direction: column;
+  gap: clamp(0.6rem, 1.6cqh, 1rem);
+  overflow-y: auto;
+  padding: 0.2rem;
+  scrollbar-width: thin;
+}
+.cap-brief-body > * {
+  flex-shrink: 0;
+}
+.cap-brief-intro {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: none;
+}
+.cap-brief-kicker {
+  color: #f4c58b;
+  font-size: clamp(0.62rem, 1.9cqi, 0.8rem);
+  font-weight: 900;
+  letter-spacing: 0.14em;
+}
+.cap-brief-intro h2 {
+  margin: 0.2rem 0 0.3rem;
+  color: #fff1de;
+  font:
+    900 clamp(1.35rem, 4.6cqi, 2.3rem) / 1.08 Georgia,
+    serif;
+  letter-spacing: -0.03em;
+  text-wrap: balance;
+}
+.cap-brief-intro p,
+.cap-brief-verdict {
+  margin: 0;
+  color: #d6e4ea;
+  font-size: clamp(0.85rem, 2.4cqi, 1.05rem);
+  line-height: 1.4;
+}
+.cap-brief-verdict {
+  padding: 0.9rem 1rem;
+  border-left: 3px solid #ffd39d;
+  border-radius: 0.6rem;
+  background: #1a2b40;
+}
+.cap-brief-routes {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 9rem), 1fr));
+  gap: clamp(0.5rem, 1.4cqi, 0.8rem);
+}
+.cap-brief-route,
+.cap-brief-room,
+.cap-brief-officer {
+  position: relative;
+  display: block;
+  min-width: 0;
+  overflow: hidden;
+  padding: 0;
+  border: 2px solid #91b8c055;
+  border-radius: 1rem;
+  background: #172238;
+  color: #f3efea;
+  text-align: left;
+  transition:
+    transform 160ms ease,
+    border-color 160ms ease;
+}
+.cap-brief-route:hover,
+.cap-brief-room:hover:not(:disabled),
+.cap-brief-officer:hover:not(:disabled),
+.cap-brief-route:focus-visible,
+.cap-brief-room:focus-visible,
+.cap-brief-officer:focus-visible {
+  transform: translateY(-3px);
+  border-color: #f7c69a;
+}
+.cap-brief-route.active,
+.cap-brief-room.chosen,
+.cap-brief-officer.chosen {
+  border-color: #ffd3a3;
+  box-shadow: 0 0 22px #ffbd8d55;
+}
+.cap-brief-route img,
+.cap-brief-room img {
+  display: block;
+  width: 100%;
+  aspect-ratio: 16 / 10;
+  object-fit: cover;
+}
+.cap-brief-route-copy,
+.cap-brief-room > span,
+.cap-brief-officer-copy {
+  position: absolute;
+  inset: auto 0 0;
+  display: block;
+  padding: 1.6rem 0.7rem 0.55rem;
+  background: linear-gradient(180deg, transparent, #08121ff2 55%);
+}
+.cap-brief-route-copy small,
+.cap-brief-room small,
+.cap-brief-officer-copy small {
+  display: block;
+  color: #9de6e8;
+  font-size: clamp(0.6rem, 1.8cqi, 0.76rem);
+  font-weight: 800;
+  letter-spacing: 0.05em;
+}
+.cap-brief-route-copy strong,
+.cap-brief-room strong,
+.cap-brief-officer-copy strong {
+  display: block;
+  color: #fff1de;
+  font:
+    900 clamp(0.9rem, 2.6cqi, 1.2rem) / 1.15 Georgia,
+    serif;
+}
+.cap-brief-pin,
+.cap-brief-officer > b {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  padding: 0.2rem 0.5rem;
+  border-radius: 999px;
+  background: #ffd39d;
+  color: #132039;
+  font-size: 0.62rem;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+}
+.cap-brief .cap-route-board,
+.cap-brief .cap-solar-circuit {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: none;
+}
+.cap-brief .cap-route-memory {
+  margin: 0.5rem 0 0;
+  color: #bcd3da;
+  font-size: clamp(0.72rem, 2cqi, 0.88rem);
+}
+.cap-brief .cap-system-nodes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+}
+.cap-brief .cap-system-node {
+  padding: 0.3rem 0.7rem;
+  border: 1px solid #5e7c8c;
+  border-radius: 999px;
+  color: #a7c6d0;
+  font-size: 0.7rem;
+  font-weight: 800;
+}
+.cap-brief .cap-system-node.active {
+  border-color: #ffd39d;
+  color: #ffe2b7;
+}
+.cap-brief-hand {
+  margin: 0;
+}
+.cap-brief .cap-callbacks {
+  margin: 0;
+}
+.cap-brief-anomaly {
+  margin: 0;
+  color: #f1a9a0;
+  font-size: 0.74rem;
+}
+.cap-brief-rooms {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: clamp(0.5rem, 1.4cqi, 0.8rem);
+}
+.cap-brief-room:disabled {
+  opacity: 0.45;
+}
+.cap-brief-room small {
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+}
+.cap-brief-shield {
+  display: flex;
+  align-items: center;
+  gap: 0.9rem;
+  min-height: 3.6rem;
+  padding: 0.7rem 1rem;
+  border: 2px solid #6fc9cf88;
+  border-radius: 1rem;
+  background: linear-gradient(120deg, #11324a, #172238);
+  color: #f3efea;
+  text-align: left;
+}
+.cap-brief-shield:disabled {
+  opacity: 0.5;
+}
+.cap-brief-shield strong,
+.cap-brief-shield small {
+  display: block;
+}
+.cap-brief-shield strong {
+  font-size: clamp(0.85rem, 2.4cqi, 1.05rem);
+}
+.cap-brief-shield small {
+  color: #a7c6d0;
+  font-size: 0.74rem;
+}
+.cap-brief-shield-meter {
+  display: flex;
+  gap: 0.25rem;
+}
+.cap-brief-shield-meter i {
+  width: 0.7rem;
+  height: 1.8rem;
+  border: 1px solid #9de6e8;
+  border-radius: 0.3rem;
+}
+.cap-brief-shield-meter i.on {
+  background: #9de6e8;
+  box-shadow: 0 0 10px #9de6e8aa;
+}
+.cap-brief-odds {
+  display: flex;
+  align-items: center;
+  gap: clamp(0.6rem, 2cqi, 1.2rem);
+  padding: 0.7rem 1rem;
+  border: 2px solid #f1a9a066;
+  border-radius: 1rem;
+  background: #2a1d27;
+}
+.cap-brief-odds.ready {
+  border-color: #6fc9cf88;
+  background: #10283a;
+}
+.cap-brief-chance {
+  color: #ffe2b7;
+  font:
+    900 clamp(2rem, 8cqi, 3.4rem) / 1 Georgia,
+    serif;
+}
+.cap-brief-odds-copy {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+.cap-brief-odds-copy > b {
+  color: #9de6e8;
+  font-size: 0.72rem;
+  letter-spacing: 0.1em;
+}
+.cap-brief-odds-copy small {
+  color: #d6e4ea;
+  font-size: 0.76rem;
+}
+.cap-brief-reqs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem;
+}
+.cap-brief-reqs i {
+  padding: 0.15rem 0.5rem;
+  border: 1px solid #f1a9a0;
+  border-radius: 999px;
+  color: #f1a9a0;
+  font-size: 0.68rem;
+  font-style: normal;
+  font-weight: 900;
+}
+.cap-brief-reqs i.met {
+  border-color: #9de6e8;
+  color: #9de6e8;
+}
+.cap-brief-crew {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 8rem), 1fr));
+  gap: clamp(0.5rem, 1.4cqi, 0.8rem);
+}
+.cap-brief-officer {
+  aspect-ratio: 3 / 4;
+}
+.cap-brief-officer:disabled {
+  opacity: 0.45;
+}
+.cap-brief-officer > img,
+.cap-brief-officer-mono {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center 30%;
+}
+.cap-brief-officer-mono {
+  display: grid;
+  place-items: center;
+  background: linear-gradient(145deg, #3a5068, #1a2638);
+  color: #f7c994;
+  font:
+    900 2.4rem Georgia,
+    serif;
+}
+.cap-brief-officer:not(.chosen) > b {
+  background: #0d1a2ccc;
+  color: #a7c6d0;
+}
+.cap-brief-note {
+  margin: 0;
+  color: #a7c6d0;
+  font-size: 0.76rem;
+}
+.cap-brief-nav {
+  display: flex;
+  align-items: stretch;
+  gap: 0.5rem;
+}
+.cap-brief-nav .cap-primary {
+  flex: 1;
+  min-height: clamp(3rem, 8cqh, 3.8rem);
+  margin: 0;
+  border-radius: 0.9rem;
+  font-size: clamp(0.78rem, 2.4cqi, 0.95rem);
+}
+.cap-brief-back,
+.cap-brief-wait {
+  min-width: 3.2rem;
+  min-height: clamp(3rem, 8cqh, 3.8rem);
+  padding: 0 0.9rem;
+  border: 1px solid #88b2bd;
+  border-radius: 0.9rem;
+  background: #132239;
+  color: #ffdbac;
+  font-size: 0.74rem;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+}
+.cap-brief-back {
+  font-size: 1.2rem;
+}
+.cap-brief-back:hover,
+.cap-brief-wait:hover,
+.cap-brief-back:focus-visible,
+.cap-brief-wait:focus-visible {
+  background: #36556a;
+}
+@container (max-width: 420px) {
+  .cap-brief-step span {
+    display: none;
+  }
+  .cap-brief-step {
+    justify-content: center;
+  }
+  .cap-brief-step.current span {
+    display: inline;
+  }
+  .cap-brief-steps {
+    grid-template-columns: auto auto auto auto;
+    justify-content: start;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .cap-brief-route,
+  .cap-brief-room,
+  .cap-brief-officer {
+    transition: none;
   }
 }
 </style>

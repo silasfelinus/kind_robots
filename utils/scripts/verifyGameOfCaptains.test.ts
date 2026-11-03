@@ -726,6 +726,19 @@ assert.ok(page.includes('POCKET_ROOMS'))
 assert.ok(tab.includes('Space Couch'))
 assert.ok(home.includes('Space Couch'))
 assert.ok(page.includes('data-testid="captains-launch"'))
+assert.ok(
+  page.includes('data-testid="space-couch-briefing-deck"'),
+  'the mission briefing is a stepped deck, not one long form',
+)
+for (const step of ['course', 'mission', 'prep', 'team'])
+  assert.ok(page.includes(`id: '${step}'`), `briefing step ${step}`)
+assert.ok(page.includes('v-if="briefingStep === \'course\'"'))
+assert.ok(page.includes('data-testid="space-couch-brief-next"'))
+assert.ok(
+  page.includes('paintedVoyageImage(missionArtKey(call.id))'),
+  'local calls are art-led cards',
+)
+assert.ok(page.includes('.cap-brief-body > * {'), 'deck cards never squash')
 assert.ok(page.includes('data-testid="captains-choose-crew"'))
 assert.ok(page.includes('data-testid="couch-crew-routes"'))
 assert.ok(page.includes('data-testid="couch-crew-careful"'))

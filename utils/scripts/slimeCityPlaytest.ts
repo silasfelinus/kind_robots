@@ -105,6 +105,7 @@ const results: Record<ModeId, MatchMetrics[]> = {
   blackout: runTournament('blackout', seeds, rules),
   gridiron: runTournament('gridiron', seeds, rules),
   bloodrush: runTournament('bloodrush', seeds, rules),
+  turf: runTournament('turf', seeds, rules),
 }
 
 if (args.includes('--json')) {

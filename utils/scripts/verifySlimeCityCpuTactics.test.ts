@@ -38,6 +38,7 @@ const makeFighter = (
   attackedRound: 0,
   rooted: false,
   stance: 'attack',
+  warded: false,
   ...options,
 })
 

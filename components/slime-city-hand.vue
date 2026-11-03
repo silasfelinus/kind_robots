@@ -79,6 +79,7 @@
           :aria-label="
             card.name + ', ' + card.kind + ', costs ' + card.cost + ' mana'
           "
+          :title="lab.mode === 'turf' ? 'TURF: ' + turfText(card) : undefined"
           @pointerdown="grab($event, card.id)"
           @click="pick(card.id)"
         >
@@ -180,14 +181,14 @@
 import { computed, onBeforeUnmount, ref } from 'vue'
 import { useSlimeCityStore } from '~/stores/slimeCity'
 import { slimeArtId } from '~/utils/slimeCity/artManifest'
-import { cardById } from '~/utils/slimeCity/prototypes'
+import { cardById, turfText } from '~/utils/slimeCity/prototypes'
 
 const lab = useSlimeCityStore()
 /** Painted card back once art round 4 renders; the CSS back until then. */
 const backArt = slimeArtId('ui', 'card-back')
 
-/** BLACKOUT and BLOODRUSH both deal a hand; the lane fixture shows a rack. */
-const arena = computed(() => lab.sight.auto)
+/** BLACKOUT, BLOODRUSH and TURF deal a hand; the lane fixture shows a rack. */
+const arena = computed(() => lab.sight.dealt)
 /** Tossed cards leave the fan and sit on the discard pile until the draw. */
 const cards = computed(() =>
   arena.value

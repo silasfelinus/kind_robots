@@ -110,11 +110,20 @@ assert.ok(artIds.every((id) => Number.isInteger(id) && id > 0))
 for (const team of TEAMS) assert.ok(slimeArtId('crews', team.id))
 for (const district of DISTRICTS)
   assert.ok(slimeArtId('districts', district.id))
-for (const mode of MODES) assert.ok(slimeArtId('boards', mode.id))
-// MEATBALL is retired from play: BLACKOUT is the default tab, BLOODRUSH the other
+for (const mode of MODES)
+  if (mode.id !== 'turf') assert.ok(slimeArtId('boards', mode.id))
+// TURF's own board is queued art (Conductor slime-city/t-023); until it lands it
+// plays on each district's painted Blackout floor, never a blank slot.
+for (const district of DISTRICTS)
+  assert.equal(
+    slimeBoardArtId(district.id, 'turf'),
+    slimeBoardArtId(district.id, 'blackout'),
+  )
+// MEATBALL is retired from play: BLACKOUT is the default tab, then BLOODRUSH
+// and the Go-style TURF.
 assert.deepEqual(
   PLAYER_MODES.map((mode) => mode.id),
-  ['blackout', 'bloodrush'],
+  ['blackout', 'bloodrush', 'turf'],
 )
 // Each district fights on its own floor per mode (round 4), never the shared
 // mode board; an unknown district still falls back to the shared board.

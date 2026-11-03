@@ -14,12 +14,13 @@ import { MERCENARY_CARDS } from './mercenaryCards'
 export type Color = 'red' | 'blue' | 'purple' | 'green' | 'gold'
 export type TeamId =
   'catgirls' | 'bloodfairies' | 'ironjaw' | 'riot' | 'undertow' | 'exchange'
-export type ModeId = 'blackout' | 'gridiron' | 'bloodrush'
+export type ModeId = 'blackout' | 'gridiron' | 'bloodrush' | 'turf'
 export type CardKind = 'creature' | 'spell' | 'trap' | 'equipment'
 export type Side = 'player' | 'enemy'
 export type AttackStyle =
   'claw' | 'arrow' | 'spell' | 'sword' | 'hammer' | 'blast'
-export type WinPath = 'flag' | 'score' | 'rout' | 'time' | 'monster' | 'base'
+export type WinPath =
+  'flag' | 'score' | 'rout' | 'time' | 'monster' | 'base' | 'territory'
 /**
  * Arena orders (Silas, 2026-11-02): creatures fight on their own, so the
  * player's only board decision is whether each one pushes for the enemy base
@@ -156,6 +157,10 @@ export interface Fighter {
   rootedUntil?: number
   /** Arena formats: absent means 'attack'. */
   stance?: Stance
+  /** TURF: its group cannot be captured through this round. */
+  wardedUntil?: number
+  /** TURF: REGEN already spent surviving a capture. */
+  revived?: boolean
 }
 
 /** The neutral giant monster (t-003 monster variant). */
@@ -262,6 +267,12 @@ export interface MatchState {
    * the opposing fighter carrying it, or null while it stands at home.
    */
   flags: Record<Side, ArenaFlag>
+  /** TURF: slime puddles fill a point (a liberty) through round `until`. */
+  puddles: { x: number; y: number; until: number }[]
+  /** TURF: stones each side has captured. */
+  prisoners: Record<Side, number>
+  /** TURF: the last eight positions, for the ko rule. */
+  history: string[]
 }
 
 export interface ArenaFlag {
@@ -298,6 +309,8 @@ export interface ViewFighter {
   rooted: boolean
   /** Public battle orders. */
   stance: Stance
+  /** TURF: its group is warded against capture this round. */
+  warded: boolean
 }
 
 export interface MatchView {
@@ -320,6 +333,14 @@ export interface MatchView {
   flag: { x: number; y: number }
   /** Creatures move and fight on their own; bases and two flags. */
   auto: boolean
+  /** The format deals a five-card hand (arena formats and TURF). */
+  dealt: boolean
+  /** TURF: slime puddles, [own, opponent] prisoners and area score, komi included. */
+  puddles: { x: number; y: number; until: number }[]
+  prisoners: [number, number]
+  turfScore: [number, number]
+  /** TURF: this side already placed its token this round. */
+  turfPlayed: boolean
   /** [own, opponent] base HP. */
   bases: [number, number]
   baseMax: number
@@ -374,6 +395,15 @@ export const MODES: {
     cadence: 'REAL-TIME',
     detail:
       'Same crews, hand, bases and flags as Blackout, but the clock never stops: mana drips in every two ticks, creatures march and fight on every beat, and your hand refills as you play.',
+  },
+  {
+    id: 'turf',
+    title: 'TURF',
+    subtitle: 'Go on the streets · one token a turn',
+    size: '9 × 9',
+    cadence: 'TURN-BASED',
+    detail:
+      'Every card is a token. Each turn place one on an empty point: surround enemy groups to capture them, never fill your own last liberty, and claim the most turf. Each card lands with its own TURF effect.',
   },
 ]
 
@@ -1383,6 +1413,7 @@ export const RUSH_MANA_EVERY = 2
 export const MANA_CAP = 10
 export const DEFAULT_SEED = 4817
 export const ROUND_LIMITS: Record<ModeId, number> = {
+  turf: 45,
   blackout: 30,
   gridiron: 30,
   bloodrush: 150,
@@ -1396,6 +1427,7 @@ export const RUSH_MOVE_EVERY = 2
 export const TRAP_CAP = 1
 /** Formats whose CPU alternates initiative (player, CPU, CPU, player...). */
 export const ALTERNATING_INITIATIVE: Record<ModeId, boolean> = {
+  turf: false,
   blackout: true,
   gridiron: true,
   bloodrush: false,
@@ -1457,34 +1489,43 @@ export const RULE_VARIANTS: {
 export const MOMENTUM_EVERY = 4
 /** Extra rounds (ticks) of sudden death. */
 export const OVERTIME: Record<ModeId, number> = {
+  turf: 0,
   blackout: 4,
   gridiron: 6,
   bloodrush: 30,
 }
 /** Lane rout variant: enemy knockouts needed to win. */
 export const ROUT_TARGET: Record<ModeId, number> = {
+  turf: 0,
   blackout: 0,
   gridiron: 26,
   bloodrush: 18,
 }
 /** The neutral giant monster's stats per format. */
 export const MONSTER_STATS: Record<ModeId, Omit<Monster, 'x' | 'y'>> = {
+  turf: { hp: 20, maxHp: 20, attack: 2, armor: 1 },
   blackout: { hp: 20, maxHp: 20, attack: 2, armor: 1 },
   gridiron: { hp: 36, maxHp: 36, attack: 3, armor: 1 },
   bloodrush: { hp: 30, maxHp: 30, attack: 3, armor: 1 },
 }
 /** Most fighters one side may have on the board at once. */
 export const FIELD_CAP: Record<ModeId, number> = {
+  turf: 81,
   blackout: 7,
   gridiron: 6,
   bloodrush: 7,
 }
 /** Arena formats: HP of the base that fills each side's far-back column. */
 export const BASE_HP: Record<ModeId, number> = {
+  turf: 0,
   blackout: 16,
   gridiron: 0,
   bloodrush: 16,
 }
+/** TURF: points the second player (the CPU) is given for moving second. */
+export const TURF_KOMI = 2.5
+/** TURF: mana each side gains a round; leftovers bank to the cap. */
+export const TURF_MANA_GAIN = 2
 /** Arena formats: an attacker turns on any enemy this close to it. */
 export const AGGRO_RANGE = 2
 /** BLACKOUT: march-and-clash beats resolved at every END ROUND. */
@@ -1498,6 +1539,20 @@ export interface ModeGuide {
 
 /** First-time tester instructions shown beside each board. */
 export const MODE_GUIDES: Record<ModeId, ModeGuide> = {
+  turf: {
+    goal: 'Go on the streets. Each turn place ONE card from your hand on an empty point. Hold more turf than the enemy when both crews pass: your stones plus the empty points only you surround. The enemy gets 2.5 points of komi for moving second.',
+    steps: [
+      'Drag a card onto any empty point (or tap it, then the point). Every card is a token; placing it ends your turn and the enemy answers.',
+      'A group of touching stones lives while it has a liberty, an open point beside it. Fill an enemy group’s last liberty and it is captured.',
+      'You may not fill your own group’s last liberty (unless that captures), and you may not repeat the position you just left (ko).',
+      'Every card lands with its TURF effect: creatures carry their keywords as traits, attack spells slime an enemy liberty, wards protect a group, traps capture whoever lands on them.',
+      'Gain two mana a round and bank leftovers up to ten. PASS when no move helps you: two passes in a row end the game.',
+    ],
+    limits: [
+      'Local prototype: the CPU reads the board like a beginner Go player and never sees your traps.',
+      'Nothing is saved in practice matches.',
+    ],
+  },
   blackout: {
     goal: 'Two bases, two flags. Smash the enemy base (the far-right column) to zero, or have a creature grab the enemy ⚑ flag inside it and carry it back to your own base. After 20 rounds the healthier base wins.',
     steps: [
@@ -1721,6 +1776,7 @@ export function inDeployZone(
   side: Side,
   x: number,
 ): boolean {
+  if (state.mode === 'turf') return true
   if (state.mode !== 'gridiron')
     return side === 'player' ? x <= 1 : x >= state.width - 2
   return side === 'player' ? x === 0 : x === state.width - 1
@@ -1732,6 +1788,7 @@ export function inTrapZone(
   side: Side,
   x: number,
 ): boolean {
+  if (state.mode === 'turf') return true
   if (state.mode !== 'gridiron') return !inDeployZone(state, other(side), x)
   return x > 0 && x < state.width - 1
 }
@@ -1760,6 +1817,14 @@ export function autoBattle(state: {
     state.mode === 'bloodrush' ||
     (state.mode === 'blackout' && !state.rules?.classicFog)
   )
+}
+
+/** Formats that deal a five-card hand from a ten-card deck. */
+export function dealsHands(state: {
+  mode: ModeId
+  rules?: Partial<RuleVariants>
+}): boolean {
+  return state.mode === 'turf' || autoBattle(state)
 }
 
 /** Arena formats: the column a side's base fills. */
@@ -1854,6 +1919,9 @@ function copy(state: MatchState): MatchState {
       player: { ...state.flags.player },
       enemy: { ...state.flags.enemy },
     },
+    puddles: state.puddles.map((p) => ({ ...p })),
+    prisoners: { ...state.prisoners },
+    history: [...state.history],
   }
 }
 
@@ -1874,7 +1942,7 @@ function addDebt(state: MatchState, side: Side, amount: number): void {
     else state.enemyMana = Math.max(0, state.enemyMana - amount)
   } else
     state.debt[side] = Math.min(
-      state.mode === 'blackout' && !state.rules.classicFog ? 6 : DEBT_CAP,
+      dealsHands(state) ? 6 : DEBT_CAP,
       state.debt[side] + amount,
     )
 }
@@ -2036,10 +2104,15 @@ function drawHand(state: MatchState, side: Side): void {
 /** CPU hand decisions use only its own cards and public board state. */
 function chooseCpuDiscards(state: MatchState): void {
   const side: Side = 'enemy'
-  if (!autoBattle(state)) return
+  if (!dealsHands(state)) return
   const availableMana = Math.min(
     MANA_CAP,
-    state.enemyMana + (state.mode === 'bloodrush' ? 1 : BLACKOUT_MANA_GAIN),
+    state.enemyMana +
+      (state.mode === 'bloodrush'
+        ? 1
+        : state.mode === 'turf'
+          ? TURF_MANA_GAIN
+          : BLACKOUT_MANA_GAIN),
   )
   const creatures = state.units.filter((unit) => unit.side === side).length
   const traps = state.traps.filter((trap) => trap.side === side).length
@@ -2082,13 +2155,13 @@ export function createMatch(
     mana:
       mode === 'blackout' && !rules.classicFog
         ? BLACKOUT_MANA_GAIN
-        : mode === 'bloodrush'
+        : mode === 'bloodrush' || mode === 'turf'
           ? 3
           : 1,
     enemyMana:
       mode === 'blackout' && !rules.classicFog
         ? BLACKOUT_MANA_GAIN
-        : mode === 'bloodrush'
+        : mode === 'bloodrush' || mode === 'turf'
           ? 3
           : 1,
     score: [0, 0],
@@ -2135,6 +2208,9 @@ export function createMatch(
         carrier: null,
       },
     },
+    puddles: [],
+    prisoners: { player: 0, enemy: 0 },
+    history: [],
   }
   if (mode === 'blackout' && rules.classicFog) {
     for (const side of ['player', 'enemy'] as Side[]) {
@@ -2148,17 +2224,19 @@ export function createMatch(
         addFighter(state, cardId, side, cells[i]!.x, cells[i]!.y, true),
       )
     }
-  } else if (autoBattle(state)) {
+  } else if (dealsHands(state)) {
     for (const side of ['player', 'enemy'] as Side[]) {
       state.piles[side] = shuffledDeck(state, side)
       drawHand(state, side)
     }
     message(
       state,
-      'Five cards in hand. Smash the enemy base or carry their flag home.',
+      mode === 'turf'
+        ? 'Five cards in hand. Place one token a turn and claim the turf.'
+        : 'Five cards in hand. Smash the enemy base or carry their flag home.',
     )
   }
-  if (state.rules.monster) {
+  if (state.rules.monster && mode !== 'turf') {
     // BLACKOUT: the central square diagonal from the flag. Lanes: a
     // seeded square in the two middle columns and the two middle rows.
     const x =
@@ -2326,6 +2404,14 @@ function applyDeploy(
   x: number,
   y: number,
 ): boolean {
+  if (state.mode === 'turf') {
+    // Captures and the suicide and ko checks run on a draft, so a refused
+    // token leaves the live match untouched (the CPU applies directly).
+    const draft = copy(state)
+    if (!applyTurf(draft, side, cardId, x, y)) return false
+    Object.assign(state, draft)
+    return true
+  }
   const card = CARDS.find((item) => item.id === cardId)
   if (
     !card ||
@@ -2626,7 +2712,7 @@ export function discardAs(
     if (
       draft.victor ||
       side !== 'player' ||
-      !autoBattle(draft) ||
+      !dealsHands(draft) ||
       !draft.hands[side].includes(cardId)
     )
       return false
@@ -2720,6 +2806,15 @@ export function observe(state: MatchState, side: Side): MatchView {
     salt: seededHash(state.seed, side === 'player' ? 101 : 202),
     flag: { ...state.flag },
     auto: autoBattle(state),
+    dealt: dealsHands(state),
+    puddles: state.puddles.map((p) => ({ ...p })),
+    prisoners: [state.prisoners[side], state.prisoners[other(side)]],
+    turfScore: (() => {
+      if (state.mode !== 'turf') return [0, 0] as [number, number]
+      const { score } = turfTerritory(state)
+      return [score[side], score[other(side)]] as [number, number]
+    })(),
+    turfPlayed: state.playedThisRound[side].length > 0,
     bases: [state.bases[side], state.bases[other(side)]],
     baseMax: BASE_HP[state.mode],
     flags: [{ ...state.flags[side] }, { ...state.flags[other(side)] }],
@@ -2752,10 +2847,11 @@ export function observe(state: MatchState, side: Side): MatchView {
           attackedRound: known ? (u.attackedRound ?? 0) : null,
           rooted: isRooted(state, u),
           stance: stanceOf(u),
+          warded: (u.wardedUntil ?? 0) >= state.round,
         }
       }),
     traps: state.traps.filter((t) => t.side === side).map((t) => ({ ...t })),
-    hand: (autoBattle(state)
+    hand: (dealsHands(state)
       ? state.hands[side].map(cardById)
       : deckOf(teamOf(state, side))
     ).filter((card) => cardReady(state, side, card.id)),
@@ -3530,6 +3626,7 @@ export function advance(state: MatchState): MatchState {
   if (state.victor) return state
   const next = copy(state)
   next.commands.push({ t: 'end' })
+  if (next.mode === 'turf') return advanceTurf(next)
   const enemyTurn = () =>
     runCpu(next, 'enemy', (a) =>
       a.t === 'deploy'
@@ -3623,6 +3720,486 @@ export function advance(state: MatchState): MatchState {
     )
   }
   return next
+}
+
+// ---------------------------------------------------------------------------
+// TURF (Silas, 2026-11-03): "a new version of this game, modeled after go.
+// each turn you play a single token, but go rules apply. this needs a
+// modified effect...which theoretically already exists due to the different
+// games." Every card is a token: each turn a side places exactly one card on
+// an empty point (or passes). Groups with no liberties are captured, suicide
+// is illegal, the ko rule forbids repeating the position, and two passes end
+// the game on area score plus komi. Each card keeps its identity through a
+// Go-native TURF effect (turfText) that fires as it lands.
+// ---------------------------------------------------------------------------
+
+type Point = { x: number; y: number }
+
+export function puddleAt(
+  state: Pick<MatchState, 'puddles'>,
+  x: number,
+  y: number,
+): boolean {
+  return state.puddles.some((p) => p.x === x && p.y === y)
+}
+
+function turfBlocked(state: MatchState, x: number, y: number): boolean {
+  return !!unitAt(state, x, y) || puddleAt(state, x, y)
+}
+
+/** The connected same-side stones through this stone. */
+function turfGroup(state: MatchState, stone: Fighter): Fighter[] {
+  const seen = new Set<number>([stone.id])
+  const group = [stone]
+  for (let i = 0; i < group.length; i++) {
+    const at = group[i]!
+    for (const n of neighbors(state, at.x, at.y)) {
+      const next = unitAt(state, n.x, n.y)
+      if (next && next.side === stone.side && !seen.has(next.id)) {
+        seen.add(next.id)
+        group.push(next)
+      }
+    }
+  }
+  return group
+}
+
+/** Empty, unslimed points beside a group. */
+function turfLiberties(state: MatchState, group: Fighter[]): Point[] {
+  const out = new Map<string, Point>()
+  for (const stone of group)
+    for (const n of neighbors(state, stone.x, stone.y))
+      if (!turfBlocked(state, n.x, n.y)) out.set(n.x + ':' + n.y, n)
+  return [...out.values()]
+}
+
+function turfGroups(state: MatchState, side: Side): Fighter[][] {
+  const seen = new Set<number>()
+  const groups: Fighter[][] = []
+  for (const stone of [...state.units].sort((a, b) => a.id - b.id)) {
+    if (stone.side !== side || seen.has(stone.id)) continue
+    const group = turfGroup(state, stone)
+    for (const s of group) seen.add(s.id)
+    groups.push(group)
+  }
+  return groups
+}
+
+function warded(state: MatchState, group: Fighter[]): boolean {
+  return group.some((s) => (s.wardedUntil ?? 0) >= state.round)
+}
+
+/** The position, for the ko rule: stones and puddles only. */
+function turfHash(state: MatchState): string {
+  return [
+    ...state.units.map((u) => u.side.charAt(0) + u.x + ',' + u.y),
+    ...state.puddles.map((p) => 'p' + p.x + ',' + p.y),
+  ]
+    .sort()
+    .join('|')
+}
+
+/**
+ * Remove every `victim` group with no liberties. REGEN stones survive their
+ * first capture; VOLATILE stones take the enemy stones beside them along.
+ * Returns how many enemy stones the capturer took.
+ */
+function turfCapture(state: MatchState, victim: Side, piercing: boolean) {
+  let taken = 0
+  for (const group of turfGroups(state, victim)) {
+    if (turfLiberties(state, group).length) continue
+    if (!piercing && warded(state, group)) continue
+    const blasts: Fighter[] = []
+    for (const stone of group) {
+      if (hasKeyword(stone, 'regen') && !stone.revived) {
+        stone.revived = true
+        message(state, publicName(stone) + ' regenerates and clings on!')
+        continue
+      }
+      stone.hp = 0
+      taken++
+      if (hasKeyword(stone, 'volatile')) blasts.push(stone)
+    }
+    state.units = state.units.filter((u) => u.hp > 0)
+    for (const bomb of blasts) {
+      const caught = state.units.filter(
+        (u) => u.side !== victim && legalNeighbor(u, bomb),
+      )
+      for (const u of caught) {
+        if (warded(state, turfGroup(state, u))) continue
+        u.hp = 0
+        state.prisoners[victim]++
+      }
+      state.stats.explosions++
+      if (caught.length)
+        message(state, publicName(bomb) + ' explodes as it is captured!')
+      state.units = state.units.filter((u) => u.hp > 0)
+    }
+  }
+  state.prisoners[other(victim)] += taken
+  state.stats.knockouts[victim] += taken
+  return taken
+}
+
+const OFFENSIVE: Effect[] = ['zap', 'blast', 'chaos', 'root']
+const WARDING: Effect[] = ['heal', 'armor', 'sharpen', 'grant']
+
+/** What a card does as a TURF token. Shown on the card in TURF. */
+export function turfText(card: Card): string {
+  if (card.kind === 'creature') {
+    const traits = (card.keywords ?? []).map(
+      (k) => KEYWORDS[k].label + ': ' + TURF_KEYWORDS[k],
+    )
+    return [
+      'A stone: it holds its point and counts as your turf.',
+      ...traits,
+    ].join(' ')
+  }
+  if (card.kind === 'trap')
+    return (
+      'Hidden. An enemy stone played on this point is captured at once' +
+      (card.roots ? ', and the point stays slimed for 2 turns' : '') +
+      (card.debt ? '; its crew owes ' + card.debt + ' mana' : '') +
+      '.'
+    )
+  const turns = turfDuration(card, 0)
+  if (card.effect && OFFENSIVE.includes(card.effect))
+    return (
+      'A stone that slimes ' +
+      (card.effect === 'blast' ? 'two liberties' : 'a liberty') +
+      ' of the weakest enemy group beside it for ' +
+      (card.effect === 'chaos' ? '1–3 turns' : turns + ' turns') +
+      '. Slime fills the point and can capture.'
+    )
+  if (card.effect === 'debt')
+    return (
+      'A stone that puts the other crew ' +
+      (card.debt ?? 1) +
+      ' mana in debt as it lands.'
+    )
+  if (card.effect === 'boost')
+    return 'A stone that scrubs the slime off every liberty of its group.'
+  if (card.effect === 'scan')
+    return 'A stone that finds and disarms enemy traps within two points.'
+  const grants = (card.grants ?? []).map((k) => KEYWORDS[k].label)
+  return (
+    'A stone that wards its group: it cannot be captured for ' +
+    turns +
+    ' turns' +
+    (grants.length ? '. It also gains ' + grants.join(', ') : '') +
+    '.'
+  )
+}
+
+/** Keyword traits a creature stone carries in TURF. */
+export const TURF_KEYWORDS: Record<Keyword, string> = {
+  ambush: 'may retake a ko at once.',
+  regen: 'survives its first capture.',
+  swarm: 'counts double in the final count.',
+  leech: 'each stone its landing captures refunds 1 mana.',
+  bulldoze:
+    'shoves one enemy stone beside it a point straight back, if that point is open.',
+  volatile: 'if captured, it explodes and takes the enemy stones beside it.',
+  pierce: 'its landing captures warded groups too.',
+  snare: 'strips the wards off enemy groups beside it.',
+  collect:
+    'each stone its landing captures puts the other crew 1 mana in debt.',
+}
+
+function turfDuration(card: Card, salt: number): number {
+  const power = card.power ?? 2
+  if (card.effect === 'root') return Math.min(3, power + 1)
+  if (card.effect === 'chaos') return 1 + (salt % 3)
+  if (card.effect === 'blast') return 1
+  if (card.effect === 'heal') return Math.max(1, Math.min(3, power))
+  return Math.max(1, Math.min(3, card.effect === 'zap' ? power : 2))
+}
+
+/** Area score: stones (SWARM counts twice) plus empty points only one side borders. */
+export function turfTerritory(state: MatchState): {
+  owner: Record<string, Side | null>
+  score: Record<Side, number>
+} {
+  const owner: Record<string, Side | null> = {}
+  const score: Record<Side, number> = { player: 0, enemy: 0 }
+  for (const u of state.units) score[u.side] += hasKeyword(u, 'swarm') ? 2 : 1
+  const seen = new Set<string>()
+  for (let y = 0; y < state.height; y++)
+    for (let x = 0; x < state.width; x++) {
+      const key = x + ':' + y
+      if (seen.has(key) || unitAt(state, x, y)) continue
+      const region: Point[] = [{ x, y }]
+      seen.add(key)
+      const borders = new Set<Side>()
+      for (let i = 0; i < region.length; i++) {
+        const at = region[i]!
+        for (const n of neighbors(state, at.x, at.y)) {
+          const stone = unitAt(state, n.x, n.y)
+          if (stone) borders.add(stone.side)
+          else if (!seen.has(n.x + ':' + n.y)) {
+            seen.add(n.x + ':' + n.y)
+            region.push(n)
+          }
+        }
+      }
+      const side = borders.size === 1 ? [...borders][0]! : null
+      for (const p of region) owner[p.x + ':' + p.y] = side
+      if (side) score[side] += region.length
+    }
+  score.enemy += TURF_KOMI
+  return { owner, score }
+}
+
+function applyTurf(
+  state: MatchState,
+  side: Side,
+  cardId: string,
+  x: number,
+  y: number,
+): boolean {
+  const card = CARDS.find((item) => item.id === cardId)
+  if (
+    !card ||
+    state.victor ||
+    (card.team !== teamOf(state, side) && card.team !== 'mercenary') ||
+    card.cost > manaOf(state, side) ||
+    !state.hands[side].includes(cardId) ||
+    state.playedThisRound[side].length > 0
+  )
+    return false
+  if (x < 0 || y < 0 || x >= state.width || y >= state.height) return false
+  if (turfBlocked(state, x, y)) return false
+  // Your own traps block a point for you; an enemy's is invisible to you.
+  if (state.traps.some((t) => t.side === side && t.x === x && t.y === y))
+    return false
+  const foe = other(side)
+  let line: string
+  if (card.kind === 'trap') {
+    if (
+      state.traps.filter((t) => t.side === side).length >=
+      trapCapOf(state, side)
+    )
+      return false
+    const trap: Trap = { x, y, side, damage: 0 }
+    if (card.roots) trap.roots = true
+    if (card.debt) trap.debt = card.debt
+    state.traps.push(trap)
+    line =
+      side === 'enemy'
+        ? 'The enemy hides a trap somewhere.'
+        : 'You hide ' + card.name + ' on the turf.'
+  } else {
+    const before = turfHash(state)
+    const stone = addFighter(state, cardId, side, x, y)
+    const sprung = state.traps.findIndex(
+      (t) => t.side === foe && t.x === x && t.y === y,
+    )
+    if (sprung >= 0) {
+      const trap = state.traps.splice(sprung, 1)[0]!
+      state.units = state.units.filter((u) => u.id !== stone.id)
+      state.prisoners[foe]++
+      state.stats.trapsSprung++
+      if (trap.roots) state.puddles.push({ x, y, until: state.round + 2 })
+      if (trap.debt) addDebt(state, side, trap.debt)
+      line =
+        publicName(stone) +
+        ' lands on a hidden trap and is captured on the spot!'
+    } else {
+      const extra = turfLanding(state, stone, card)
+      const captured = turfCapture(state, foe, hasKeyword(stone, 'pierce'))
+      // Suicide is illegal: every group of yours must keep a liberty.
+      if (
+        turfGroups(state, side).some(
+          (g) => !turfLiberties(state, g).length && !warded(state, g),
+        )
+      )
+        return false
+      // Ko (as a small superko): never recreate a recent position.
+      const hash = turfHash(state)
+      if (!hasKeyword(stone, 'ambush') && state.history.includes(hash))
+        return false
+      const last = state.history[state.history.length - 1]
+      state.history = [
+        ...state.history,
+        ...(last === before ? [] : [before]),
+        hash,
+      ].slice(-8)
+      if (captured) {
+        if (hasKeyword(stone, 'leech'))
+          if (side === 'player')
+            state.mana = Math.min(MANA_CAP, state.mana + captured)
+          else state.enemyMana = Math.min(MANA_CAP, state.enemyMana + captured)
+        if (hasKeyword(stone, 'collect'))
+          addDebt(state, foe, Math.min(3, captured))
+      }
+      if (
+        card.kind !== 'creature' &&
+        card.effect &&
+        WARDING.includes(card.effect)
+      ) {
+        const until = state.round + turfDuration(card, 0)
+        for (const s of turfGroup(state, stone))
+          s.wardedUntil = Math.max(s.wardedUntil ?? 0, until)
+      }
+      line =
+        (side === 'enemy' ? 'Enemy ' : '') +
+        card.name +
+        ' lands on ' +
+        String.fromCharCode(65 + x) +
+        (state.height - y) +
+        extra +
+        (captured
+          ? ' · captures ' + captured + (captured === 1 ? ' stone' : ' stones')
+          : '') +
+        '.'
+    }
+  }
+  spend(state, side, card.cost)
+  state.hands[side] = state.hands[side].filter((id) => id !== cardId)
+  state.discards[side].push(cardId)
+  state.playedThisRound[side].push(cardId)
+  state.stats.plays[side][card.kind]++
+  message(state, line)
+  return true
+}
+
+/** A token's own effect as it lands, before captures resolve. */
+function turfLanding(state: MatchState, stone: Fighter, card: Card): string {
+  const foe = other(stone.side)
+  const beside = (s: Fighter) =>
+    neighbors(state, s.x, s.y)
+      .map((n) => unitAt(state, n.x, n.y))
+      .filter((u): u is Fighter => !!u && u.side === foe)
+  if (hasKeyword(stone, 'snare'))
+    for (const enemy of beside(stone))
+      for (const s of turfGroup(state, enemy)) s.wardedUntil = 0
+  if (hasKeyword(stone, 'bulldoze')) {
+    const target = beside(stone)
+      .filter((e) => {
+        const to = { x: 2 * e.x - stone.x, y: 2 * e.y - stone.y }
+        return (
+          to.x >= 0 &&
+          to.y >= 0 &&
+          to.x < state.width &&
+          to.y < state.height &&
+          !turfBlocked(state, to.x, to.y)
+        )
+      })
+      .sort(
+        (a, b) =>
+          turfLiberties(state, turfGroup(state, a)).length -
+            turfLiberties(state, turfGroup(state, b)).length || a.id - b.id,
+      )[0]
+    if (target) {
+      target.x = 2 * target.x - stone.x
+      target.y = 2 * target.y - stone.y
+      state.stats.shoves++
+      return ' and shoves ' + publicName(target)
+    }
+  }
+  if (card.kind === 'creature') return ''
+  if (card.effect && OFFENSIVE.includes(card.effect)) {
+    const groups = beside(stone)
+      .map((e) => turfGroup(state, e))
+      .sort(
+        (a, b) =>
+          turfLiberties(state, a).length - turfLiberties(state, b).length ||
+          a[0]!.id - b[0]!.id,
+      )
+    const target = groups[0]
+    if (!target) return ''
+    const own = (p: Point) =>
+      neighbors(state, p.x, p.y).filter(
+        (n) => unitAt(state, n.x, n.y)?.side === stone.side,
+      ).length
+    const spots = turfLiberties(state, target)
+      .sort((a, b) => own(a) - own(b) || a.y - b.y || a.x - b.x)
+      .slice(0, card.effect === 'blast' ? 2 : 1)
+    const turns = turfDuration(
+      card,
+      seededHash(state.seed, state.round, stone.id),
+    )
+    for (const p of spots)
+      state.puddles.push({ x: p.x, y: p.y, until: state.round + turns })
+    return spots.length ? ' and slimes ' + spots.length + ' liberty' : ''
+  }
+  if (card.effect === 'debt') {
+    addDebt(state, foe, card.debt ?? 1)
+    return ' and squeezes ' + (card.debt ?? 1) + ' mana of debt'
+  }
+  if (card.effect === 'boost') {
+    const libs = new Set<string>()
+    for (const s of turfGroup(state, stone))
+      for (const n of neighbors(state, s.x, s.y)) libs.add(n.x + ':' + n.y)
+    const before = state.puddles.length
+    state.puddles = state.puddles.filter((p) => !libs.has(p.x + ':' + p.y))
+    return before > state.puddles.length ? ' and scrubs the slime away' : ''
+  }
+  if (card.effect === 'scan') {
+    const before = state.traps.length
+    state.traps = state.traps.filter(
+      (t) =>
+        t.side === stone.side ||
+        Math.abs(t.x - stone.x) + Math.abs(t.y - stone.y) > 2,
+    )
+    return before > state.traps.length ? ' and disarms a trap' : ''
+  }
+  if (card.effect === 'grant') {
+    const fresh = (card.grants ?? []).filter((k) => !hasKeyword(stone, k))
+    stone.keywords = [...(stone.keywords ?? []), ...fresh]
+  }
+  return ''
+}
+
+/** TURF round: the CPU answers, two passes end it, slime dries, hands refill. */
+function advanceTurf(next: MatchState): MatchState {
+  const playerPassed = next.playedThisRound.player.length === 0
+  runCpu(next, 'enemy', (a) =>
+    a.t === 'deploy' ? applyDeploy(next, 'enemy', a.card, a.x, a.y) : false,
+  )
+  const enemyPassed = next.playedThisRound.enemy.length === 0
+  if (playerPassed) message(next, 'You pass.')
+  if (enemyPassed) message(next, 'The enemy passes.')
+  if ((playerPassed && enemyPassed) || next.round >= next.maxRounds) {
+    finishTurf(next)
+    return next
+  }
+  next.round++
+  next.puddles = next.puddles.filter((p) => p.until >= next.round)
+  for (const side of ['player', 'enemy'] as Side[]) {
+    const paid = Math.min(TURF_MANA_GAIN, next.debt[side])
+    const gain = TURF_MANA_GAIN - paid
+    if (side === 'player') next.mana = Math.min(MANA_CAP, next.mana + gain)
+    else next.enemyMana = Math.min(MANA_CAP, next.enemyMana + gain)
+    next.debt[side] -= paid
+  }
+  chooseCpuDiscards(next)
+  drawHand(next, 'player')
+  drawHand(next, 'enemy')
+  message(next, 'Round ' + next.round + ' · ' + next.mana + ' mana.')
+  return next
+}
+
+function finishTurf(state: MatchState): void {
+  const { score } = turfTerritory(state)
+  const a = score.player
+  const b = score.enemy
+  finish(state, a === b ? 'draw' : a > b ? 'player' : 'enemy', 'territory')
+  message(
+    state,
+    'The turf is counted: you ' +
+      a +
+      ', enemy ' +
+      b +
+      ' (with ' +
+      TURF_KOMI +
+      ' komi). ' +
+      (a > b
+        ? 'YOU HOLD THE STREETS.'
+        : a < b
+          ? 'THE ENEMY HOLDS THE STREETS.'
+          : 'A DEAD HEAT.'),
+  )
 }
 
 export interface MatchSetup {

@@ -45,10 +45,8 @@
 import { gameLinkPreviewMeta } from '~/utils/gameLinkPreview'
 
 useSeoMeta(
-  gameLinkPreviewMeta(
-    'coloring-page',
-    useRuntimeConfig().public.appBaseUrl,
-  ) ?? {},
+  gameLinkPreviewMeta('coloring-page', useRuntimeConfig().public.appBaseUrl) ??
+    {},
 )
 import { computed } from 'vue'
 import { useRoute } from '#app'

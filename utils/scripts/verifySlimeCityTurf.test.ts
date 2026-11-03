@@ -14,6 +14,7 @@ import {
   turfTerritory,
   turfText,
   TURF_KOMI,
+  TURF_SWARM_WORTH,
   TURF_TRAP_CAP,
   type Fighter,
   type MatchState,
@@ -167,7 +168,7 @@ assert.equal(at(ambushRetake, 1, 1)?.side, 'enemy', 'AMBUSH ignores ko')
 
 // --- TURF effects: every card is a token with a Go-native effect.
 for (const card of CARDS) assert.ok(turfText(card).length > 10, card.id)
-// Attack spells slime an enemy liberty, which can capture.
+// Attack spells slime one enemy liberty, never the last one.
 const zap = cardById('slap')
 const slimeBoard = board(
   [stone('enemy', 0, 0), stone('player', 1, 0)],
@@ -177,7 +178,7 @@ const slimeBoard = board(
 const fizzle = deploy(slimeBoard, zap.id, 3, 3)
 assert.equal(fizzle.puddles.length, 0)
 assert.equal(at(fizzle, 3, 3)?.cardId, zap.id)
-// Beside a one-liberty group: the slime fills its last liberty and captures.
+// Beside a two-liberty group: the slime fills one and leaves it in atari.
 const atari = board(
   [stone('enemy', 0, 0), stone('player', 1, 0), stone('enemy', 1, 1)],
   [zap.id],
@@ -197,6 +198,17 @@ for (let i = 0; i < 4 && !dried.victor; i++)
     hands: { ...dried.hands, enemy: [enemyPlain] },
   })
 assert.equal(dried.puddles.length, 0, 'Slime dries up')
+// Weaker slime (Silas, 2026-11-03): it never fills a group's last liberty,
+// so slime threatens and a stone has to make the capture.
+const lastGasp = board(
+  [stone('enemy', 4, 4), stone('player', 3, 4), stone('player', 5, 4)],
+  [zap.id],
+)
+const gasped = deploy(lastGasp, zap.id, 4, 3)
+assert.ok(at(gasped, 4, 4), 'Slime cannot capture')
+assert.equal(gasped.puddles.length, 0, 'The last liberty stays open')
+const blaster = CARDS.find((c) => c.effect === 'blast')!
+assert.ok(!turfText(blaster).includes('two liberties'), 'Blast slimes one')
 // Wards (Silas, 2026-11-03: "Stronger wards and traps"): a warded group
 // cannot be captured, and its liberties are closed to enemy stones.
 const ward = CARDS.find((c) => c.effect === 'heal')!
@@ -274,8 +286,13 @@ const bomb = board(
 )
 const blown = deploy(bomb, plain, 0, 1)
 assert.equal(at(blown, 0, 0), undefined)
-assert.equal(at(blown, 1, 0), undefined, 'VOLATILE takes its captors along')
-assert.equal(blown.prisoners.enemy, 2)
+assert.equal(
+  at(blown, 0, 1),
+  undefined,
+  'VOLATILE takes the stone that captured it',
+)
+assert.ok(at(blown, 1, 0), 'but not the rest of the surround')
+assert.equal(blown.prisoners.enemy, 1)
 // Traps (Silas, 2026-11-03: "Stronger wards and traps") land as a concealed
 // stone wired with a tripwire: the first enemy stone beside it is captured.
 const trapCard = CARDS.find((c) => c.kind === 'trap' && c.team === 'ironjaw')!
@@ -353,6 +370,13 @@ const { score, owner } = turfTerritory(scored)
 assert.equal(owner['0:0'], 'player', 'A point only you surround is yours')
 assert.equal(score.player, 3)
 assert.equal(score.enemy, 1 + TURF_KOMI)
+// SWARM counts one and a half.
+const swarmed = board(
+  [stone('player', 4, 4, { keywords: ['swarm'] }), stone('enemy', 8, 8)],
+  [],
+)
+assert.equal(turfTerritory(swarmed).score.player, TURF_SWARM_WORTH)
+assert.equal(TURF_SWARM_WORTH, 1.5)
 const passed = advance({ ...scored, enemyMana: 0 })
 assert.equal(passed.victor, 'enemy')
 assert.equal(passed.winPath, 'territory')

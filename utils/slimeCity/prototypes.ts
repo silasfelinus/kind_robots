@@ -1438,6 +1438,8 @@ export const RUSH_COOLDOWN = 4
 export const RUSH_MOVE_EVERY = 2
 /** Most hidden traps one side may have armed at once. */
 export const TRAP_CAP = 1
+/** TURF: what a SWARM stone counts for in the final score. */
+export const TURF_SWARM_WORTH = 1.5
 /** TURF: hidden tripwires each side may keep armed at once. */
 export const TURF_TRAP_CAP = 3
 /** Formats whose CPU alternates initiative (player, CPU, CPU, player...). */
@@ -1567,7 +1569,7 @@ export const MODE_GUIDES: Record<ModeId, ModeGuide> = {
       'Drag a card onto any empty point (or tap it, then the point). Every card is a token; placing it ends your turn and the enemy answers.',
       'A group of touching stones lives while it has a liberty, an open point beside it. Fill an enemy group’s last liberty and it is captured.',
       'You may not fill your own group’s last liberty (unless that captures), and you may not repeat the position you just left (ko).',
-      'Every card lands with its TURF effect: creatures carry their keywords as traits, attack spells slime an enemy liberty, wards make a group uncapturable, wash off its slime and close its liberties to the enemy, and traps land as concealed stones whose tripwire captures the first enemy stone played beside them (three armed at once).',
+      'Every card lands with its TURF effect: creatures carry their keywords as traits, attack spells slime an enemy liberty (never the last one), wards make a group uncapturable, wash off its slime and close its liberties to the enemy, and traps land as concealed stones whose tripwire captures the first enemy stone played beside them (three armed at once).',
       'Gain two mana a round and bank leftovers up to ten. PASS when no move helps you: two passes in a row end the game.',
     ],
     limits: [
@@ -3906,9 +3908,12 @@ function turfCapture(state: MatchState, victim: Side, piercing: boolean) {
     }
     state.units = state.units.filter((u) => u.hp > 0)
     for (const bomb of blasts) {
-      const caught = state.units.filter(
-        (u) => u.side !== victim && legalNeighbor(u, bomb),
-      )
+      // VOLATILE takes the stone that captured it (the newest enemy stone
+      // beside it), not the whole surround.
+      const caught = state.units
+        .filter((u) => u.side !== victim && legalNeighbor(u, bomb))
+        .sort((a, b) => b.id - a.id)
+        .slice(0, 1)
       for (const u of caught) {
         if (warded(state, turfGroup(state, u))) continue
         u.hp = 0
@@ -3953,11 +3958,11 @@ export function turfText(card: Card): string {
   const turns = turfDuration(card, 0)
   if (card.effect && OFFENSIVE.includes(card.effect))
     return (
-      'A stone that slimes ' +
-      (card.effect === 'blast' ? 'two liberties' : 'a liberty') +
-      ' of the weakest enemy group beside it for ' +
-      (card.effect === 'chaos' ? '1–3 turns' : turns + ' turns') +
-      '. Slime fills the point and can capture.'
+      'A stone that slimes a liberty of the weakest enemy group beside it for ' +
+      (card.effect === 'chaos'
+        ? '1–3 turns'
+        : turns + (turns === 1 ? ' turn' : ' turns')) +
+      '. Slime fills the point but never a group’s last liberty: it threatens, a stone captures.'
     )
   if (card.effect === 'debt')
     return (
@@ -3983,11 +3988,11 @@ export function turfText(card: Card): string {
 export const TURF_KEYWORDS: Record<Keyword, string> = {
   ambush: 'may retake a ko at once.',
   regen: 'survives its first capture.',
-  swarm: 'counts double in the final count.',
+  swarm: 'counts one and a half in the final count.',
   leech: 'each stone its landing captures refunds 1 mana.',
   bulldoze:
     'shoves one enemy stone beside it a point straight back, if that point is open.',
-  volatile: 'if captured, it explodes and takes the enemy stones beside it.',
+  volatile: 'if captured, it explodes and takes the stone that captured it.',
   pierce: 'its landing captures warded groups too.',
   snare: 'strips the wards off enemy groups beside it.',
   collect:
@@ -4012,7 +4017,8 @@ export function turfTerritory(state: MatchState): {
 } {
   const owner: Record<string, Side | null> = {}
   const score: Record<Side, number> = { player: 0, enemy: 0 }
-  for (const u of state.units) score[u.side] += hasKeyword(u, 'swarm') ? 2 : 1
+  for (const u of state.units)
+    score[u.side] += hasKeyword(u, 'swarm') ? TURF_SWARM_WORTH : 1
   const seen = new Set<string>()
   for (let y = 0; y < state.height; y++)
     for (let x = 0; x < state.width; x++) {
@@ -4226,9 +4232,13 @@ function turfLanding(state: MatchState, stone: Fighter, card: Card): string {
       neighbors(state, p.x, p.y).filter(
         (n) => unitAt(state, n.x, n.y)?.side === stone.side,
       ).length
-    const spots = turfLiberties(state, target)
+    // Weaker slime (Silas, 2026-11-03: "make slime weaker"): one liberty a
+    // spell, and never a group's last one, so slime threatens but a stone
+    // has to make the capture.
+    const open = turfLiberties(state, target)
+    const spots = open
       .sort((a, b) => own(a) - own(b) || a.y - b.y || a.x - b.x)
-      .slice(0, card.effect === 'blast' ? 2 : 1)
+      .slice(0, Math.min(1, open.length - 1))
     const turns = turfDuration(
       card,
       seededHash(state.seed, state.round, stone.id),

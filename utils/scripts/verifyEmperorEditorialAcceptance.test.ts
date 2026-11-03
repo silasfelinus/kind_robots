@@ -44,7 +44,6 @@ type Row = {
   issues: string[]
   evidence: string
 }
-type Scene = AudienceDef | TalkDef
 type Segment = Pick<AudienceDef, 'id' | 'title' | 'lines' | 'options' | 'beats'>
 const quests: readonly QuestDef[] = [
   ...ACT_ONE_QUESTS,

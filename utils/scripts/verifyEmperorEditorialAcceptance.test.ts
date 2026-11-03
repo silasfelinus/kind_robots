@@ -705,6 +705,15 @@ for (const plan of focusedPlans) {
   })
 }
 
+const organicallyClosed = new Set(
+  focusedCampaigns.flatMap((run) => run.reached),
+)
+assert.deepEqual(
+  previousGaps.filter((id) => !organicallyClosed.has(id)),
+  [],
+  'Every previously missing follower talk must close in a real 50-day policy campaign',
+)
+
 // A separate gate-fixture pass distinguishes a missing policy route from a
 // missing or broken playable conversation. These fixtures inject the *minimum*
 // historical prerequisites and follower presence, and never masquerade as
@@ -1000,7 +1009,7 @@ const markdown = [
   '',
   `Unvisited follower talks after baseline plus focused live-engine campaigns (${unvisitedTalks.length}): ${unvisitedTalks.join(', ') || 'none'}`,
   '',
-  `Previous gap list: ${previousGaps.length} of ${previousGaps.length} runnable in prerequisite-fixture tests; ${previousGaps.filter((id) => seenTalks.has(id)).length} organically completed in the focused/baseline policy runs. A fixture does not prove recruitment or prior decisions were earned.`,
+  `Previous gap list: ${fixtureCovered.length}/${previousGaps.length} pass prerequisite-fixture tests; ${organicallyClosed.size} unique talks closed in focused 50-day runs; ${previousGaps.filter((id) => organicallyClosed.has(id)).length}/${previousGaps.length} formerly missed talks closed organically. A fixture does not prove recruitment or prior decisions were earned.`,
   '',
   ...focusedCampaigns.map(
     (run) =>
@@ -1061,6 +1070,9 @@ writeFileSync(
           seenTalks.has(id),
         ).length,
         previouslyUnvisitedCoveredByFixture: fixtureCovered.length,
+        previouslyUnvisitedClosedOrganically: previousGaps.filter((id) =>
+          organicallyClosed.has(id),
+        ).length,
       },
       rows,
       priorityIds: priority.map((row) => row.id),

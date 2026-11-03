@@ -526,7 +526,16 @@
 
     <SlimeCityHand />
     <div class="sc-battle-bottom">
-      <span
+      <span v-if="lab.sight.parity" data-testid="slime-parity-status"
+        >{{ lab.sight.playSpent ? 'PLAY USED' : '1 PLAY' }} · FREE
+        {{ lab.sight.freeKind?.toUpperCase()
+        }}<template v-if="lab.sight.jammed[0]">
+          · JAMMED ×{{ lab.sight.jammed[0] }}</template
+        ><template v-if="lab.sight.jammed[1]">
+          · ENEMY JAMMED ×{{ lab.sight.jammed[1] }}</template
+        ></span
+      >
+      <span v-else
         >{{ lab.match.mana }} MANA<template v-if="lab.sight.debt[0]">
           · OWES {{ lab.sight.debt[0] }}</template
         ><template v-if="lab.match.overtime"> · SUDDEN DEATH</template
@@ -571,6 +580,7 @@ import {
   cardById,
   flagSquare,
   inDeployZone,
+  playedCard,
   turfTerritory,
   turfText,
   TURF_KOMI,
@@ -595,7 +605,7 @@ function slimeAt(x: number, y: number): boolean {
 }
 const heldCard = computed(() => {
   const id = lab.dragCard ?? lab.selectedCard
-  return id ? cardById(id) : null
+  return id ? playedCard(lab.match, cardById(id)) : null
 })
 const currentMode = computed(
   () => lab.modes.find((mode) => mode.id === lab.mode) || lab.modes[0]!,
@@ -652,7 +662,9 @@ const loseFlags = computed(() =>
 )
 
 const inspectedCard = computed(() =>
-  lab.inspectedUnit?.cardId ? cardById(lab.inspectedUnit.cardId) : null,
+  lab.inspectedUnit?.cardId
+    ? playedCard(lab.match, cardById(lab.inspectedUnit.cardId))
+    : null,
 )
 const inspectedName = computed(() => inspectedCard.value?.name ?? 'Concealed')
 

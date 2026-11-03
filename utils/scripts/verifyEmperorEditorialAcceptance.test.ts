@@ -459,6 +459,8 @@ for (const policy of personas) {
       },
       {
         playTalks: true,
+        selectTalk: (_talkDay, available) =>
+          available.find((talk) => !seenTalks.has(talk.id))?.id,
         onAudienceScene: (sceneDay, id, beatId, lines) => {
           assert.ok(lines.length > 0, `${id} has narrated scene lines`)
           timeline.push(
@@ -757,7 +759,7 @@ const markdown = [
   '',
   `Authored coverage: ${scenes.filter((s) => s.kind === 'audience').length} throne audiences, ${TALKS.length} follower talks, ${quests.length} quest definitions x 5 result tiers = ${quests.length * 5} quest-outcome slots.`,
   `Automated red flags: ${suspicious.length}/${rows.length} assessed rows; these are leads, not defects proven in play.`,
-  `Seeded policy persona campaigns with full played dialogue beats and barracks choices: ${campaignRows.length}; all completed 50 days and dawn 51. Visited ${seenAudiences.size} unique audiences, ${seenTalks.size} unique talks, ${seenQuests.size} distinct quest/outcome pairs.`,
+  `Seeded policy persona campaigns with full played dialogue beats and coverage-directed barracks choices (unheard talks first, one per day): ${campaignRows.length}; all completed 50 days and dawn 51. Visited ${seenAudiences.size} unique audiences, ${seenTalks.size} unique talks, ${seenQuests.size} distinct quest/outcome pairs.`,
   '',
   '## Complete 50-day policy-campaign traces',
   '',
@@ -797,7 +799,7 @@ writeFileSync(
   [
     '# Seeded policy full-campaign transcripts',
     '',
-    `${campaignRows.length} real-engine 50-day simulated playthroughs. Every dawn, full runtime-resolved audience and follower scene beat, chosen answer and quest resolution is recorded in order. A run shows the path actually played, not unchosen alternatives. The one-barracks-conversation-per-day engine limit is preserved. These are deterministic policy bots, not independent human readers.`,
+    `${campaignRows.length} real-engine 50-day simulated playthroughs. Every dawn, full runtime-resolved audience and follower scene beat, chosen answer and quest resolution is recorded in order. A run shows the path actually played, not unchosen alternatives. The harness prefers follower conversations not reached by earlier campaigns, selecting only from those naturally offered by the engine, with one barracks conversation per day. These are deterministic policy bots, not independent human readers.`,
     '',
     ...campaignRows.flatMap((campaign) => [
       `## ${campaign.persona} · seed ${campaign.seed} · ${campaign.ending}`,

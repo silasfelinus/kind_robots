@@ -182,6 +182,12 @@ import {
   type ComicStudioMode,
 } from '@/stores/comicStudioStore'
 import { useUserStore } from '@/stores/userStore'
+import { gameLinkPreviewMeta } from '~/utils/gameLinkPreview'
+
+useSeoMeta(
+  gameLinkPreviewMeta('comic-studio', useRuntimeConfig().public.appBaseUrl) ??
+    {},
+)
 
 const studio = useComicStudioStore()
 const userStore = useUserStore()

@@ -768,11 +768,12 @@ function turfAction(view: MatchView, tried: Set<string>): CpuAction | null {
         else if (card.kind === 'trap')
           value += 0.15 + 0.3 * open + (foes.length ? 0.4 : 0)
         else if (card.effect && TURF_OFFENSIVE.has(card.effect))
+          // Slime never fills a last liberty: it puts a group in atari.
           value += exposed.length
-            ? weakest <= 1
-              ? 3
-              : weakest <= 2
-                ? 1.8
+            ? weakest === 2
+              ? 1.8
+              : weakest <= 1
+                ? 0
                 : 0.4
             : -0.6
         else if (card.effect === 'debt') value += 0.3

@@ -317,16 +317,25 @@ const easternCrossings = ['8,3', '8,4', '7,4', '7,5'] as const
 const easternFlags = new Set<string>()
 const easternOutcomes = new Set<string>()
 const easternRoutes = new Set<string>()
+const volunteerPhoto = EARTH_PHOTOS.find(
+  (photo) => photo.experience === 'e09' && photo.site === '7,3',
+)
+assert.ok(volunteerPhoto)
+assert.equal(volunteerPhoto.title, 'The Volunteer Shift')
+const volunteerEvent = worldEvent('e09', '7,3')
 assert.equal(
-  worldEvent('e09', '7,3')?.title,
-  'The Volunteer Shift',
+  volunteerEvent?.photographId,
+  volunteerPhoto.id,
   'The earned Earth photograph must not be overwritten by route authoring',
 )
-assert.ok(worldEvent('e09', '7,3')?.photographId)
+assert.ok(volunteerEvent.opening.includes(volunteerPhoto.caption))
+assert.deepEqual(
+  volunteerEvent.choices.map((choice) => choice.id),
+  ['challenge', 'hold'],
+)
 for (let bits = 0; bits < 16; bits++) {
   const journal: EarthJournalAction[] = []
-  for (let x = 2; x <= 8; x++)
-    journal.push({ type: 'travel', key: x + ',1' })
+  for (let x = 2; x <= 8; x++) journal.push({ type: 'travel', key: x + ',1' })
   journal.push({ type: 'travel', key: '8,2' })
   journal.push({ type: 'travel', key: '8,3' })
   const chosen: string[] = []
@@ -363,7 +372,11 @@ for (let bits = 0; bits < 16; bits++) {
   assert.equal(
     replayEarthJournal('e09', [
       ...journal,
-      { type: 'choose', key: '7,5', choiceId: worldEvent('e09', '7,5')!.choices[0]!.id },
+      {
+        type: 'choose',
+        key: '7,5',
+        choiceId: worldEvent('e09', '7,5')!.choices[0]!.id,
+      },
     ]),
     null,
     'An eastern crossing cannot be paid twice',

@@ -17,6 +17,7 @@ export interface BriarScene {
   artPrompt: string
   callbacks?: { at: string; choice: string; line: string }[]
   choices: readonly BriarSceneChoice[]
+  autoChoiceId?: string
 }
 
 export const BRIAR_SCENES: Record<string, BriarScene> = {
@@ -106,6 +107,7 @@ export const BRIAR_SCENES: Record<string, BriarScene> = {
   },
   '3,4': {
     title: 'An Unpaid Toll',
+    autoChoiceId: 'help',
     opening:
       'A bell hangs over a dry creek. Beneath it a toll collector has set up a beautiful velvet chair but forgotten the actual bridge. They demand payment for every traveler who crosses the imaginary span.',
     artPrompt:
@@ -202,6 +204,7 @@ export const BRIAR_SCENES: Record<string, BriarScene> = {
   },
   '2,6': {
     title: 'The Moss That Can Count',
+    autoChoiceId: 'trace',
     opening:
       'Three carved shapes climb the stone in a familiar rhythm: leaf, leaf, sun. An old gardener insists that the stones are not a password but the beginning of an argument with the light.',
     artPrompt:

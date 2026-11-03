@@ -6,12 +6,22 @@
           class="hybridizer-bar"
           title="Kind Robots / Experiment 014 — every creature has an impossible cousin."
         >
-          <span class="hybridizer-bar-chip">
+          <span
+            class="hybridizer-bar-chip chip-starters"
+            :title="lab.starterCount + ' starters'"
+          >
             <strong>{{ lab.starterCount }}</strong> starters
           </span>
-          <span class="hybridizer-bar-chip">
+          <span
+            class="hybridizer-bar-chip"
+            :title="
+              (lab.discoveryTotal ?? lab.discoveries.length) +
+              ' shared discoveries'
+            "
+          >
             <strong>{{ lab.discoveryTotal ?? lab.discoveries.length }}</strong>
-            shared discoveries
+            <span class="chip-long">shared discoveries</span
+            ><span class="chip-short">found</span>
           </span>
         </div>
       </header-page-bar>
@@ -573,10 +583,18 @@
         <div v-if="drawer === 'atlas'" class="atlas-summary" role="status">
           <span
             ><strong>{{ lab.discoveryTotal ?? lab.discoveries.length }}</strong>
-            saved discoveries</span
+            saved</span
           >
-          <span>{{ lab.readyTotal }} art-ready</span>
-          <span>{{ lab.renderingTotal }} rendering</span>
+          <span
+            ><strong>{{ lab.readyTotal }}</strong> art-ready</span
+          >
+          <span
+            ><strong>{{ lab.renderingTotal }}</strong> rendering</span
+          >
+          <span class="atlas-shown"
+            >{{ lab.atlasEntries.length }} of
+            {{ lab.atlasFilteredTotal }} shown</span
+          >
         </div>
         <section
           v-if="drawer === 'settings'"
@@ -630,11 +648,6 @@
               {{ option.label }}
             </button>
           </div>
-          <p class="atlas-loaded">
-            {{ lab.atlasEntries.length }} of
-            {{ lab.atlasFilteredTotal }} matching discoveries loaded. Rendering
-            requests are not completed art.
-          </p>
         </template>
         <template v-else-if="drawer !== 'favorites' && drawer !== 'settings'">
           <label class="search-wrap">
@@ -682,7 +695,7 @@
               <span v-else class="option-glyph" aria-hidden="true">{{
                 glyphFor(entry.title, entry.taxonomy)
               }}</span>
-              <strong>{{ entry.title }}</strong>
+              <strong :title="entry.title">{{ entry.title }}</strong>
               <em v-if="lab.artPending(entry)" class="art-pending"
                 >Art queued</em
               >
@@ -692,8 +705,8 @@
               >
                 {{
                   entry.status === 'READY' && lab.imageFor(entry)
-                    ? '✦ ART READY · VIEW / RATE'
-                    : (entry.status || 'STUDY') + ' · VIEW'
+                    ? '✦ ART READY'
+                    : entry.status || 'STUDY'
                 }}
               </small>
               <small v-else>{{
@@ -737,13 +750,6 @@
             {{ lab.atlasLoading ? 'Loading atlas…' : 'Load more discoveries' }}
           </button>
         </div>
-        <p v-if="drawer !== 'settings'" class="drawer-foot">
-          {{
-            drawer === 'favorites'
-              ? 'Tap ♡ again to remove a favorite.'
-              : 'Discoveries are shared. Missing art continues through the art relay while you explore.'
-          }}
-        </p>
       </aside>
     </div>
   </main>
@@ -1087,10 +1093,35 @@ onUnmounted(() => {
   color: var(--color-primary);
 }
 
+.chip-short {
+  display: none;
+}
+
+/*
+  The chips dock into the header's lower row beside the room title, so on a
+  phone the bar is only half the row wide. Collapse the labels before they
+  overflow: a nowrap chip that is wider than the bar spills left, over the
+  room title (Silas, 2026-11-03: "So many layout issues").
+*/
 @container (max-width: 380px) {
   .hybridizer-bar-chip {
     padding: 2px 7px;
     letter-spacing: 0;
+  }
+}
+
+@container (max-width: 300px) {
+  .chip-long {
+    display: none;
+  }
+  .chip-short {
+    display: inline;
+  }
+}
+
+@container (max-width: 200px) {
+  .chip-starters {
+    display: none;
   }
 }
 
@@ -1525,7 +1556,7 @@ onUnmounted(() => {
 .ingredient-drawer {
   position: absolute;
   inset: clamp(8px, 1vw, 16px);
-  background: #221833f7;
+  background: #221833;
   border: 2px solid #c69bbd;
   border-radius: 22px;
   padding: clamp(10px, 1.6vw, 22px);
@@ -1543,6 +1574,7 @@ onUnmounted(() => {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: 10px;
 }
 
 .drawer-head h2 {
@@ -1551,10 +1583,14 @@ onUnmounted(() => {
 }
 
 .drawer-close {
+  flex: 0 0 auto;
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
   border: 1px solid #bd9cca;
   border-radius: 12px;
-  padding: 8px 13px;
-  font-size: 1.25rem;
+  font-size: 1.1rem;
 }
 
 .search-wrap input {
@@ -1596,6 +1632,8 @@ onUnmounted(() => {
   grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
   align-content: start;
   gap: 9px;
+  /* room for the tile hearts and focus rings at the scroll edges */
+  padding: 2px;
 }
 
 .ingredient-option {
@@ -1609,7 +1647,7 @@ onUnmounted(() => {
   gap: 5px;
   border: 1px solid #987db1;
   border-radius: 14px;
-  padding: 8px;
+  padding: 6px 6px 8px;
   background: linear-gradient(155deg, #35425b, #39234e);
 }
 
@@ -1660,10 +1698,14 @@ onUnmounted(() => {
   border-color: #e0ffae;
 }
 
+/* Square art slot that fills the tile, so every card in a row lines up. */
 .ingredient-option img {
-  height: 85px;
   width: 100%;
-  object-fit: contain;
+  height: auto;
+  aspect-ratio: 1;
+  object-fit: cover;
+  border-radius: 9px;
+  background: #fff;
 }
 
 .art-pending {
@@ -1678,18 +1720,31 @@ onUnmounted(() => {
 }
 
 .option-glyph {
-  height: 85px;
+  width: 100%;
+  aspect-ratio: 1;
   display: grid;
   place-items: center;
   font-size: 2.6rem;
 }
 
 .ingredient-option strong {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  overflow: hidden;
+  max-width: 100%;
+  overflow-wrap: anywhere;
   font-size: 0.85rem;
   line-height: 1.12;
 }
 
 .ingredient-option small {
+  max-width: 100%;
+  margin-top: auto;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
   font-size: 0.61rem;
   letter-spacing: 0.08em;
   color: #d8e3a6;
@@ -1699,11 +1754,6 @@ onUnmounted(() => {
   grid-column: 1/-1;
   place-self: center;
   color: #dbcde4;
-}
-
-.drawer-foot {
-  font-size: 0.7rem;
-  color: #cfbcd9;
 }
 
 @keyframes coil-spin {
@@ -1832,6 +1882,30 @@ onUnmounted(() => {
   }
   .ingredient-grid {
     grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 7px;
+  }
+  .ingredient-drawer {
+    inset: 4px;
+    border-radius: 16px;
+    gap: 8px;
+  }
+  .drawer-head .eyebrow {
+    display: none;
+  }
+  .search-wrap input {
+    padding: 8px 10px;
+  }
+  .ingredient-option strong {
+    font-size: 0.74rem;
+  }
+  .ingredient-option small {
+    font-size: 0.55rem;
+    letter-spacing: 0.04em;
+  }
+  .tile-heart {
+    width: 26px;
+    height: 26px;
+    font-size: 1.05rem;
   }
 }
 
@@ -2009,9 +2083,13 @@ onUnmounted(() => {
 .atlas-summary {
   display: flex;
   flex-wrap: wrap;
-  gap: 7px;
-  font-size: 0.76rem;
+  gap: 4px 12px;
+  font-size: 0.72rem;
   font-weight: 800;
+}
+.atlas-shown {
+  margin-left: auto;
+  opacity: 0.75;
 }
 .atlas-summary span,
 .atlas-loaded {

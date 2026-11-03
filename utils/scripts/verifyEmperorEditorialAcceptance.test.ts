@@ -783,7 +783,10 @@ const callbackRun = playCampaign(
   POLICIES.find((policy) => policy.id === 'idle')!,
   17,
   (run) => {
-    assert.ok(validateRun(run), 'conditional-callback route must save at every dawn')
+    assert.ok(
+      validateRun(run),
+      'conditional-callback route must save at every dawn',
+    )
   },
   {
     selectAudienceChoice: (_day, id, open) =>
@@ -794,7 +797,8 @@ const callbackRun = playCampaign(
       conditionalRouteChoicesMade.push(`Day ${day}: ${id}/${option.id}`)
       if (run.audiencesHeard.includes(id)) {
         seenAudiences.add(id)
-        if (!conditionalRouteVisited.includes(id)) conditionalRouteVisited.push(id)
+        if (!conditionalRouteVisited.includes(id))
+          conditionalRouteVisited.push(id)
       }
     },
   },

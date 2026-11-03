@@ -2932,14 +2932,15 @@ export const ACT_THREE_DAYS: readonly DayDef[] = [
               affinity: { moles: 5 },
               flags: ['flint-acquitted'],
             },
-            response: 'Flint bows slowly. Lady Vask does not.',
+            response:
+              'Flint bows slowly. Lady Vask does not. Dunmore looks at the unread ledgers in their black ribbon. He still wants to know who took forty sacks from his ovens.',
           },
           {
             id: 'investigate',
             label: 'Read the ledgers first.',
             effects: {},
             response:
-              '“Good,” says Flint. It is the most she has said all day.',
+              '“Good,” says Flint. Dunmore asks who will feed the Yard while the ledgers are read. Flint has no answer. She opens the first book herself.',
             postsQuests: ['q-d27-flint-evidence'],
           },
           {
@@ -2950,7 +2951,7 @@ export const ACT_THREE_DAYS: readonly DayDef[] = [
               flags: ['flint-censured'],
             },
             response:
-              'Flint takes the censure without a word. Dunmore nods once and leaves before Lady Vask can thank him. The barracks remember it.',
+              'Flint takes the censure without a word. Dunmore nods once. Back at the Yard he pins the charge to the oven door. It explains the law. It does not return forty sacks.',
           },
           {
             id: 'ask-flint',
@@ -3052,7 +3053,7 @@ export const ACT_THREE_DAYS: readonly DayDef[] = [
           {
             id: 'levy',
             lines: [
-              '“Of course it’s the levy,” says Lady Vask. “You took from the Houses to pay for a war, Majesty. The Houses take back what they can. Politics. Your tortoise is only standing where it happens.”',
+              '“Of course it’s the levy,” says Lady Vask. “You took from the Houses to pay for a war, Majesty. The Houses take back what they can. Politics. Duchess Flint stood where we needed someone to blame.”',
               '“Return a third of the levy, and the charge becomes a clerical error. The Houses forgive clerical errors.”',
               'Flint, beside her, says only: “Don’t buy me, Majesty. I’m not for sale. Neither are you.”',
             ],
@@ -3087,7 +3088,7 @@ export const ACT_THREE_DAYS: readonly DayDef[] = [
                   flags: ['flint-acquitted'],
                 },
                 response:
-                  'Flint bows slowly. Lady Vask does not. “Politics,” she says, “will continue.”',
+                  'Flint bows slowly. Lady Vask does not. “Politics,” she says, “will continue.” Dunmore takes the still-unanswered grain account back to the Yard. The levy is safe. The grain is not.',
               },
               {
                 id: 'censure',

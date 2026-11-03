@@ -7,7 +7,16 @@ import { ACT_THREE_QUESTS } from '../emperorOfDust/fortress/actThree'
 import { ACT_FOUR_QUESTS } from '../emperorOfDust/fortress/actFour'
 import { ACT_FIVE_QUESTS } from '../emperorOfDust/fortress/actFive'
 import { DAYS, QUEST_TEMPLATES } from '../emperorOfDust/fortress/content'
-import { EPILOGUE } from '../emperorOfDust/fortress/epilogue'
+import { EPILOGUE, epilogueFor } from '../emperorOfDust/fortress/epilogue'
+import {
+  audienceScene,
+  audiencesToday,
+  chooseAudienceOption,
+  createRun,
+  optionBlockers,
+  postDawnQuests,
+  recruit,
+} from '../emperorOfDust/fortress/engine'
 import { POLICIES, playCampaign } from '../emperorOfDust/fortress/balance'
 import { validateRun } from '../emperorOfDust/fortress/saves'
 import { TALKS } from '../emperorOfDust/fortress/talks'
@@ -57,6 +66,12 @@ const textOf = (lines: readonly SceneLine[]) =>
   lines.map((line) => (typeof line === 'string' ? line : line.text)).join(' ')
 const full = (text: string) => text.replace(/\s+/g, ' ').trim()
 const clipped = (text: string) => full(text).slice(0, 115)
+const voiced = (lines: readonly SceneLine[]) =>
+  lines
+    .map((line) =>
+      typeof line === 'string' ? full(line) : `${line.who}: ${full(line.text)}`,
+    )
+    .join(' | ')
 const allChoices = (scene: Segment): AudienceOption[] => [
   ...scene.options,
   ...(scene.beats ?? []).flatMap((beat) => beat.options),
@@ -421,6 +436,7 @@ for (const policy of personas) {
     let audiences = 0
     let talks = 0
     let questReports = 0
+    const talksByDay = new Map<number, Set<string>>()
     const checkpoints: string[] = []
     const timeline: string[] = []
     const result = playCampaign(
@@ -440,6 +456,26 @@ for (const policy of personas) {
       },
       {
         playTalks: true,
+        onAudienceScene: (sceneDay, id, beatId, lines) => {
+          assert.ok(lines.length > 0, `${id} has narrated scene lines`)
+          timeline.push(
+            `DAY ${sceneDay} court ${id} [${beatId ?? 'opening'}]: ${voiced(lines)}`,
+          )
+        },
+        onTalkScene: (talkDay, id, beatId, lines) => {
+          assert.ok(lines.length > 0, `${id} has narrated talk lines`)
+          const heard = talksByDay.get(talkDay) ?? new Set<string>()
+          heard.add(id)
+          talksByDay.set(talkDay, heard)
+          assert.equal(
+            heard.size,
+            1,
+            `${policy.id}/${seed}: one barracks conversation per day`,
+          )
+          timeline.push(
+            `DAY ${talkDay} barracks ${id} [${beatId ?? 'opening'}]: ${voiced(lines)}`,
+          )
+        },
         onAudienceChoice: (sceneDay, id, option) => {
           audiences += 1
           seenAudiences.add(id)
@@ -511,6 +547,127 @@ for (const [subjectId, flag] of [
   )
 }
 
+for (const [flag, expected] of [
+  ['rook-promise-kept', 'Watch stayed out'],
+  ['rook-promise-bounded', 'caravan came in'],
+  ['rook-promise-broken', 'Watch rode through'],
+] as const) {
+  const run = recruit(
+    { ...createRun(813), recruitable: ['F001'], flags: [flag] },
+    'F001',
+  )
+  const entry = epilogueFor(run, 'open-roads').find(
+    (result) => result.subject.id === 'rook-dry-wash-promise',
+  )
+  assert.ok(entry, `Rook's ${flag} oath must receive an ending`)
+  assert.match(entry.variant.text, new RegExp(expected))
+  assert.ok(
+    !epilogueFor(run, 'long-night').some(
+      (result) => result.subject.id === 'rook-dry-wash-promise',
+    ),
+    `A kingdom at war cannot receive the peacetime dry-wash ending`,
+  )
+}
+
+const flintTrial = DAYS.find((day) => day.day === 27)?.audiences.find(
+  (audience) => audience.id === 'd27-trial',
+)
+assert.ok(flintTrial, 'Day 27 must present Flint’s trial when recruited')
+for (const id of ['acquit', 'investigate', 'censure']) {
+  const answer = flintTrial.options.find((option) => option.id === id)
+  assert.ok(answer, `Flint trial preserves ${id}`)
+  assert.match(
+    answer.response,
+    /Dunmore|Yard|forty sacks/i,
+    `${id} must acknowledge the people whose food was taken`,
+  )
+}
+assert.doesNotMatch(
+  JSON.stringify(flintTrial),
+  /your tortoise/i,
+  'The court must address Flint by name or role, never by species',
+)
+
+type ConditionalSceneFixture = {
+  day: number
+  id: string
+  flags: string[]
+  follower?: string
+}
+const conditionalSceneFixtures: ConditionalSceneFixture[] = [
+  { day: 5, id: 'd05-toll-grudge', flags: ['feast-armed'] },
+  { day: 19, id: 'd19-knotted-bandage', flags: ['d16-informant-spy'] },
+  { day: 27, id: 'd27-trial', flags: [], follower: 'F004' },
+  { day: 27, id: 'd27-fen-count', flags: ['mire-quiet-count'] },
+  { day: 34, id: 'd34-crow-debt', flags: ['crow-debt-called'] },
+  { day: 41, id: 'd41-midnight-gate', flags: ['komodo-asked-to-stay'] },
+  {
+    day: 42,
+    id: 'd42-cage-wagon',
+    flags: ['hideout:wagon-circle', 'pack-camp-mapped'],
+  },
+  {
+    day: 42,
+    id: 'd42-mill-doors',
+    flags: ['hideout:bell-cellars', 'mara-millers-levy'],
+  },
+  {
+    day: 42,
+    id: 'd42-waystation-graves',
+    flags: ['hideout:moving-caravan', 'waystation-abandoned'],
+  },
+  ...[
+    'mole-tunnels',
+    'crow-cave',
+    'bell-cellars',
+    'wagon-circle',
+    'moving-caravan',
+    'freehold-barn',
+    'rail-station',
+  ].map((hideout) => ({
+    day: 46,
+    id: `d46-patience-${hideout}`,
+    flags: [`hideout:${hideout}`, 'host-demand-unpaid'],
+  })),
+]
+assert.equal(conditionalSceneFixtures.length, 16)
+for (const fixture of conditionalSceneFixtures) {
+  const make = (includeRequirements: boolean) => {
+    const run = {
+      ...createRun(fixture.day * 719),
+      day: fixture.day,
+      flags: includeRequirements ? [...fixture.flags] : [],
+      roster:
+        includeRequirements && fixture.follower
+          ? [{ id: fixture.follower, joinedDay: 1, equipment: {} }]
+          : [],
+      board: [],
+      reports: [],
+    }
+    postDawnQuests(run)
+    return run
+  }
+  const without = make(false)
+  assert.ok(
+    !audiencesToday(without).some((scene) => scene.id === fixture.id),
+    `${fixture.id} must not appear before its prerequisites`,
+  )
+  const prepared = make(true)
+  const scene = audiencesToday(prepared).find(
+    (entry) => entry.id === fixture.id,
+  )
+  assert.ok(scene, `${fixture.id} should be offered with its prerequisites`)
+  const answer = audienceScene(prepared, scene).options.find(
+    (option) => !option.next && optionBlockers(prepared, option).length === 0,
+  )
+  assert.ok(answer, `${fixture.id} must have a usable final decision`)
+  const answered = chooseAudienceOption(prepared, fixture.id, answer.id).run
+  assert.ok(
+    answered.audiencesHeard.includes(fixture.id),
+    `${fixture.id} must close through the real audience engine`,
+  )
+}
+
 const directory = 'artifacts/emperor'
 mkdirSync(directory, { recursive: true })
 const suspicious = rows.filter(
@@ -531,13 +688,13 @@ const priority = [...suspicious]
 const markdown = [
   '# Emperor of Dust: complete authored-content editorial screening',
   '',
-  'Generated on 2026-11-02 PT. Five numbers mean mood / clarity / originality / choice / consequence (1–5).',
+  'Updated 2026-11-03 PT. Five numbers mean mood / clarity / originality / choice / consequence (1–5).',
   '',
   '**Status: SCREENED, NOT EDITORIALLY ACCEPTED.** Numeric scores below are deterministic structural proxies, not literary judgments. A score of 4 means a signal was detected, not that a scene is emotionally compelling. All low-scoring or flagged rows need independent close reading and edited re-review before a genuine acceptance claim.',
   '',
   `Authored coverage: ${scenes.filter((s) => s.kind === 'audience').length} throne audiences, ${TALKS.length} follower talks, ${quests.length} quest definitions x 5 result tiers = ${quests.length * 5} quest-outcome slots.`,
   `Automated red flags: ${suspicious.length}/${rows.length} assessed rows; these are leads, not defects proven in play.`,
-  `Seeded policy persona campaigns with barracks choices: ${campaignRows.length}; all completed 50 days and dawn 51. Visited ${seenAudiences.size} unique audiences, ${seenTalks.size} unique talks, ${seenQuests.size} distinct quest/outcome pairs.`,
+  `Seeded policy persona campaigns with full played dialogue beats and barracks choices: ${campaignRows.length}; all completed 50 days and dawn 51. Visited ${seenAudiences.size} unique audiences, ${seenTalks.size} unique talks, ${seenQuests.size} distinct quest/outcome pairs.`,
   '',
   '## Complete 50-day policy-campaign traces',
   '',
@@ -553,6 +710,8 @@ const markdown = [
   `Unvisited audiences (${unvisitedAudiences.length}): ${unvisitedAudiences.join(', ') || 'none'}`,
   '',
   `Unvisited follower talks (${unvisitedTalks.length}): ${unvisitedTalks.join(', ') || 'none'}`,
+  '',
+  `Conditional gate fixtures exercised: ${conditionalSceneFixtures.length} of the earlier unvisited audiences (preconditions injected, not organic campaign routes).`,
   '',
   'Not visited does not mean unreachable. Conditional gates, recruitment and random seeds require targeted reachability tests.',
   '',
@@ -575,7 +734,7 @@ writeFileSync(
   [
     '# Seeded policy full-campaign transcripts',
     '',
-    `${campaignRows.length} real-engine 50-day simulated playthroughs. Every dawn, chosen audience answer, barracks answer and quest resolution is recorded in order with complete chosen response text. Opening scene beats, alternative options and runtime variant presentation are not captured. These are deterministic policy bots, not independent human readers.`,
+    `${campaignRows.length} real-engine 50-day simulated playthroughs. Every dawn, full runtime-resolved audience and follower scene beat, chosen answer and quest resolution is recorded in order. A run shows the path actually played, not unchosen alternatives. The one-barracks-conversation-per-day engine limit is preserved. These are deterministic policy bots, not independent human readers.`,
     '',
     ...campaignRows.flatMap((campaign) => [
       `## ${campaign.persona} · seed ${campaign.seed} · ${campaign.ending}`,
@@ -599,6 +758,7 @@ writeFileSync(
         assessedRows: rows.length,
         unvisitedAudiences: unvisitedAudiences.length,
         unvisitedTalks: unvisitedTalks.length,
+        conditionalGateFixtures: conditionalSceneFixtures.length,
       },
       rows,
       priorityIds: priority.map((row) => row.id),

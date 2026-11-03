@@ -280,11 +280,17 @@ for (const quest of quests) {
       day: quest.days?.[0] ?? Number(quest.id.match(/^q-d([0-9]+)/)?.[1] ?? 0),
       title: `${quest.title} · ${tier}`,
       scores: {
-        mood: clamp(optionalTriumph ? 3 : !prose ? 1 : hasConcreteDetail(prose) ? 4 : 3),
-        clarity: clamp(optionalTriumph ? 3 : !prose ? 1 : quest.summary.length >= 65 ? 4 : 3),
+        mood: clamp(
+          optionalTriumph ? 3 : !prose ? 1 : hasConcreteDetail(prose) ? 4 : 3,
+        ),
+        clarity: clamp(
+          optionalTriumph ? 3 : !prose ? 1 : quest.summary.length >= 65 ? 4 : 3,
+        ),
         originality: clamp(optionalTriumph ? 3 : !prose ? 1 : 3),
         choice: clamp(quest.requirements.length >= 2 ? 4 : 3),
-        consequence: clamp(optionalTriumph ? 3 : !hasEffect ? 2 : variantCount ? 5 : 4),
+        consequence: clamp(
+          optionalTriumph ? 3 : !hasEffect ? 2 : variantCount ? 5 : 4,
+        ),
       },
       issues,
       evidence: `${optionalTriumph ? '[optional tier unused]' : clipped(prose)} | ${quest.danger} danger, ${quest.requirements.length} requirements, ${variantCount} variants`,
@@ -330,9 +336,11 @@ for (const quest of quests) {
   }
 }
 assert.ok(
-  rows.filter((row) => row.kind === 'quest-outcome' && row.id.endsWith(':triumph')).every(
-    (row) => !row.issues.includes('outcome tier has no authored prose'),
-  ),
+  rows
+    .filter(
+      (row) => row.kind === 'quest-outcome' && row.id.endsWith(':triumph'),
+    )
+    .every((row) => !row.issues.includes('outcome tier has no authored prose')),
   'unused optional triumph outcomes are not missing-content defects',
 )
 for (const subject of EPILOGUE) {

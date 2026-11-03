@@ -158,6 +158,26 @@ export const GAME_LINK_PREVIEWS: Record<string, GameLinkPreview> = {
       'A story-driven pinball table with a ringing secret. Free to play in your browser.',
     image: '/zuzu-pinball/last-bell-cover.webp',
   },
+  hybridizer: {
+    title: 'Hybridizer | Kind Robots',
+    description:
+      'Fuse any two creatures and discover their impossible cousin. A free fusion lab in your browser, no account needed to look around.',
+    image: FALLBACK_PREVIEW_IMAGE,
+  },
+  'comic-studio': {
+    title: 'Comic Studio | Kind Robots',
+    description:
+      'Plan a comic series, build panels with friendly robot helpers and share your pages. Try it free in your browser.',
+    image: FALLBACK_PREVIEW_IMAGE,
+    path: '/play/comics/studio',
+  },
+  'challenge-leaderboard': {
+    title: 'Challenge Center Hall of Contenders | Kind Robots',
+    description:
+      'See who is winning the Kind Robots Challenge Center. Browse the championship standings and join the next fight card.',
+    image: FALLBACK_PREVIEW_IMAGE,
+    path: '/play/challenges/leaderboard',
+  },
 }
 
 export function gameLinkPreviewMeta(slug: string, origin: string) {

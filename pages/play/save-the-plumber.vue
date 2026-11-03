@@ -77,7 +77,7 @@
                   {{
                     plumber.chosen ? 'CONTINUE ADVENTURE' : 'START ADVENTURE'
                   }}
-                  <span class="plumber-option-arrow">A</span>
+                  <span class="plumber-option-arrow" aria-hidden="true">›</span>
                 </button>
                 <button
                   type="button"
@@ -342,14 +342,13 @@
       </div>
 
       <footer class="plumber-console-bottom">
-        <span
-          ><span class="plumber-dpad">✚</span>
-          {{
-            screen === 'story' || screen === 'worlds'
-              ? 'CHANGE SCENE'
-              : 'SELECT'
-          }}</span
-        >
+        <span v-if="screen === 'story' || screen === 'worlds'">
+          <span class="plumber-dpad">← →</span> CHANGE SCENE
+        </span>
+        <span v-else-if="screen === 'play' || screen === 'maker'">
+          GAME CONTROLS ACTIVE
+        </span>
+        <span v-else>CLICK / TAP TO SELECT</span>
         <div class="plumber-footer-actions">
           <button
             v-if="screen !== 'title'"
@@ -360,10 +359,10 @@
           >
             <span aria-hidden="true">←</span> TITLE MENU
           </button>
-          <span v-if="screen !== 'play' && screen !== 'maker'">
-            CLICK / TAP TO SELECT
+          <span v-if="screen === 'guide' || screen === 'story' || screen === 'worlds' || screen === 'crew'">ESC BACK</span>
+          <span v-else-if="screen === 'play' || screen === 'maker'">
+            ENTER START · P PAUSE
           </span>
-          <span v-else>ENTER START · P PAUSE</span>
         </div>
       </footer>
     </div>

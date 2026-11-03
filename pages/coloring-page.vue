@@ -42,6 +42,14 @@
 </template>
 
 <script setup lang="ts">
+import { gameLinkPreviewMeta } from '~/utils/gameLinkPreview'
+
+useSeoMeta(
+  gameLinkPreviewMeta(
+    'coloring-page',
+    useRuntimeConfig().public.appBaseUrl,
+  ) ?? {},
+)
 import { computed } from 'vue'
 import { useRoute } from '#app'
 import { COLORING_STYLES } from '@/stores/helpers/styleHelper'

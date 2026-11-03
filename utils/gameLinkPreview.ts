@@ -126,6 +126,32 @@ export const GAME_LINK_PREVIEWS: Record<string, GameLinkPreview> = {
       'A hall of free arcade cabinets with worldwide high scores. No account needed to play.',
     image: '/save-the-plumber/maps/world-3.webp',
   },
+  'music-mentor': {
+    title: 'Music Mentor | Kind Robots',
+    description:
+      'Upload a song for friendly feedback on pitch, timing and dynamics. Your recording stays on your device.',
+    image: FALLBACK_PREVIEW_IMAGE,
+    path: '/music-mentor',
+  },
+  'coloring-page': {
+    title: 'Coloring Page Maker | Kind Robots',
+    description:
+      'Turn any photo or design into printable line art for coloring. Free to try in your browser.',
+    image: FALLBACK_PREVIEW_IMAGE,
+    path: '/coloring-page',
+  },
+  'video-generator': {
+    title: 'Video Studio | Kind Robots',
+    description:
+      'Make short videos and music videos from your ideas with friendly robot helpers. Try it in your browser.',
+    image: FALLBACK_PREVIEW_IMAGE,
+  },
+  'daily-pitches': {
+    title: 'Daily Pitches | Kind Robots',
+    description:
+      'Fresh ideas for new games and robots, pitched every day. Browse the latest pitches free in your browser.',
+    image: FALLBACK_PREVIEW_IMAGE,
+  },
   'zuzu-pinball': {
     title: 'Zuzu Pinball: Last Bell | Kind Robots',
     description:

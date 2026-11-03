@@ -324,6 +324,14 @@
 </template>
 
 <script setup lang="ts">
+import { gameLinkPreviewMeta } from '~/utils/gameLinkPreview'
+
+useSeoMeta(
+  gameLinkPreviewMeta(
+    'daily-pitches',
+    useRuntimeConfig().public.appBaseUrl,
+  ) ?? {},
+)
 import { computed, ref, watch } from 'vue'
 import { useConductorStore } from '@/stores/conductorStore'
 import { useUserStore } from '@/stores/userStore'

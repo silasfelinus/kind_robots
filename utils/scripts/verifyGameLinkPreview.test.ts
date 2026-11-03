@@ -33,6 +33,9 @@ const pageFor: Record<string, string> = {
   'butterfly-gallery': 'pages/butterfly-gallery.vue',
   mandarin: 'pages/play/mandarin/index.vue',
   arcade: 'pages/play/arcade/index.vue',
+  'music-mentor': 'pages/music-mentor.vue',
+  'coloring-page': 'pages/coloring-page.vue',
+  'daily-pitches': 'pages/play/daily-pitches/index.vue',
 }
 for (const slug of Object.keys(GAME_LINK_PREVIEWS)) {
   const file = pageFor[slug] ?? `pages/play/${slug}.vue`

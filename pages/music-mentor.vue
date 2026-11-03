@@ -159,6 +159,14 @@
 </template>
 
 <script setup lang="ts">
+import { gameLinkPreviewMeta } from '~/utils/gameLinkPreview'
+
+useSeoMeta(
+  gameLinkPreviewMeta(
+    'music-mentor',
+    useRuntimeConfig().public.appBaseUrl,
+  ) ?? {},
+)
 import { ref, computed } from 'vue'
 import {
   useMusicMentorStore,

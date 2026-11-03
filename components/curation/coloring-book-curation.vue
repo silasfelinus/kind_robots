@@ -96,13 +96,21 @@
           <div class="grid grid-cols-2 gap-px">
             <figure class="relative min-w-0 bg-base-200">
               <div class="aspect-[17/22] w-full overflow-hidden">
-                <img
+                <a
                   v-if="proposal.colorUrl"
-                  :src="proposal.colorUrl"
-                  :alt="`${proposal.title} color candidate`"
-                  class="size-full object-contain"
-                  loading="lazy"
-                />
+                  :href="proposal.colorUrl"
+                  target="_blank"
+                  rel="noopener"
+                  class="block size-full cursor-zoom-in"
+                  :title="`Open ${proposal.title} color full size`"
+                >
+                  <img
+                    :src="proposal.colorUrl"
+                    :alt="`${proposal.title} color candidate`"
+                    class="size-full object-contain"
+                    loading="lazy"
+                  />
+                </a>
                 <div
                   v-else
                   class="grid size-full place-items-center text-base-content/30"
@@ -122,13 +130,21 @@
 
             <figure class="relative min-w-0 bg-base-200">
               <div class="aspect-[17/22] w-full overflow-hidden">
-                <img
+                <a
                   v-if="bwDisplayUrl(proposal)"
-                  :src="bwDisplayUrl(proposal) || ''"
-                  :alt="`${proposal.title} black and white candidate`"
-                  class="size-full object-contain grayscale"
-                  loading="lazy"
-                />
+                  :href="bwDisplayUrl(proposal) || ''"
+                  target="_blank"
+                  rel="noopener"
+                  class="block size-full cursor-zoom-in"
+                  :title="`Open ${proposal.title} B&W full size`"
+                >
+                  <img
+                    :src="bwDisplayUrl(proposal) || ''"
+                    :alt="`${proposal.title} black and white candidate`"
+                    class="size-full object-contain grayscale"
+                    loading="lazy"
+                  />
+                </a>
                 <div
                   v-else
                   class="grid size-full place-items-center text-base-content/30"
@@ -205,11 +221,60 @@
             </figure>
           </div>
 
-          <label class="kr-form-field">
-            <span class="kr-text-black-xs">Pitch / art prompt</span>
+          <div
+            v-if="userStore.isAdmin"
+            class="space-y-2 rounded-xl border border-primary/30 bg-primary/5 p-3"
+          >
+            <label class="kr-form-field flex flex-col">
+              <span class="kr-text-black-xs">Request a change</span>
+              <span class="kr-text-dim-xs-55">
+                Say what should be different in plain words. It is added to the
+                prompt and a new color render is queued.
+              </span>
+              <textarea
+                v-model="changeRequests[proposal.id]"
+                class="textarea textarea-bordered min-h-20 w-full resize-y rounded-xl text-sm leading-5"
+                maxlength="500"
+                placeholder="e.g. make the figure smaller, with forward limbs enlarged by perspective"
+              />
+            </label>
+            <div class="flex flex-wrap gap-2">
+              <button
+                class="kr-btn-primary"
+                type="button"
+                :disabled="
+                  !changeRequest(proposal.id) ||
+                  store.savingPrompt ||
+                  store.requestingAction
+                "
+                @click="applyChange(proposal.id, true)"
+              >
+                Apply &amp; re-render color
+              </button>
+              <button
+                class="kr-btn"
+                type="button"
+                :disabled="!changeRequest(proposal.id)"
+                @click="applyChange(proposal.id, false)"
+              >
+                Add to prompt only
+              </button>
+            </div>
+          </div>
+
+          <label class="kr-form-field flex flex-col">
+            <span class="kr-text-black-xs">
+              Pitch / art prompt
+              <span
+                v-if="userStore.isAdmin && promptChanged(proposal)"
+                class="badge badge-warning badge-sm ml-1 align-middle"
+              >
+                unsaved
+              </span>
+            </span>
             <textarea
               v-model="drafts[proposal.id]"
-              class="textarea textarea-bordered min-h-28 rounded-xl text-sm leading-5"
+              class="textarea textarea-bordered min-h-40 w-full resize-y rounded-xl text-sm leading-5"
               :readonly="!userStore.isAdmin"
             />
           </label>
@@ -222,6 +287,14 @@
               @click="savePrompt(proposal.id)"
             >
               Save prompt
+            </button>
+            <button
+              v-if="promptChanged(proposal)"
+              class="kr-btn-ghost-xs-plain"
+              type="button"
+              @click="drafts[proposal.id] = proposal.prompt"
+            >
+              Undo edits
             </button>
             <button
               class="kr-btn"
@@ -301,6 +374,7 @@ const hideFinal = ref(false)
 const notice = ref('')
 const error = ref('')
 const drafts = reactive<Record<string, string>>({})
+const changeRequests = reactive<Record<string, string>>({})
 
 const visibleProposals = computed<ColoringBookProposal[]>(() => {
   const query = search.value.trim().toLowerCase()
@@ -359,6 +433,47 @@ function colorCandidatePath(proposal: ColoringBookProposal): string | null {
 function bwCandidatePath(proposal: ColoringBookProposal): string | null {
   if (proposal.accepted.bw || proposal.final.bw) return null
   return productionState(proposal.id)?.bwRenderedPath ?? null
+}
+
+function changeRequest(proposalId: string): string {
+  return (changeRequests[proposalId] || '').replace(/\s+/g, ' ').trim()
+}
+
+function promptWithChange(base: string, change: string): string {
+  return `${base.trim()}\n\nRevision request: ${change}`
+}
+
+async function applyChange(
+  proposalId: string,
+  rerender: boolean,
+): Promise<void> {
+  const change = changeRequest(proposalId)
+  if (!change) return
+  const nextPrompt = promptWithChange(drafts[proposalId] || '', change)
+  if (!rerender) {
+    drafts[proposalId] = nextPrompt
+    changeRequests[proposalId] = ''
+    return
+  }
+  select(proposalId)
+  error.value = ''
+  if (!(await store.savePrompt(nextPrompt))) {
+    if (store.error) error.value = store.error
+    return
+  }
+  changeRequests[proposalId] = ''
+  syncDrafts()
+  const queued = await store.requestColorRender(
+    true,
+    `Change requested from Coloring Book curation: ${change}`,
+  )
+  if (queued) {
+    notice.value =
+      store.message ||
+      'Change saved to the prompt and a new color render queued.'
+  } else if (store.error) {
+    error.value = `Prompt saved, but the render was not queued: ${store.error}`
+  }
 }
 
 function promptChanged(proposal: ColoringBookProposal): boolean {

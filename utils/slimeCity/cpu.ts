@@ -590,12 +590,206 @@ function bestStance(view: MatchView, tried: Set<string>): CpuAction | null {
   return null
 }
 
+// ---------------------------------------------------------------------------
+// TURF CPU: a beginner Go player. It simulates each placement on a light
+// board (captures, suicide), scores the result by nearest-stone influence
+// plus atari pressure, then picks the card whose TURF effect suits the point.
+// ---------------------------------------------------------------------------
+
+type TurfCell = Side | 'slime'
+
+interface TurfGroup {
+  side: Side
+  cells: Cell[]
+  libs: number
+  warded: boolean
+}
+
+function turfGroupsOn(
+  view: MatchView,
+  grid: Map<string, TurfCell>,
+  wards: Set<string>,
+): TurfGroup[] {
+  const seen = new Set<string>()
+  const groups: TurfGroup[] = []
+  for (let y = 0; y < view.height; y++)
+    for (let x = 0; x < view.width; x++) {
+      const side = grid.get(x + ':' + y)
+      if (!side || side === 'slime' || seen.has(x + ':' + y)) continue
+      const cells: Cell[] = [{ x, y }]
+      const libs = new Set<string>()
+      seen.add(x + ':' + y)
+      for (let i = 0; i < cells.length; i++)
+        for (const n of cellsAround(view, cells[i]!)) {
+          const k = n.x + ':' + n.y
+          const at = grid.get(k)
+          if (!at) libs.add(k)
+          else if (at === side && !seen.has(k)) {
+            seen.add(k)
+            cells.push(n)
+          }
+        }
+      groups.push({
+        side,
+        cells,
+        libs: libs.size,
+        warded: cells.some((c) => wards.has(c.x + ':' + c.y)),
+      })
+    }
+  return groups
+}
+
+function turfInfluence(view: MatchView, grid: Map<string, TurfCell>): number {
+  const stones: { x: number; y: number; side: Side }[] = []
+  for (const [k, v] of grid)
+    if (v !== 'slime') {
+      const [x, y] = k.split(':').map(Number) as [number, number]
+      stones.push({ x, y, side: v })
+    }
+  let total = 0
+  for (let y = 0; y < view.height; y++)
+    for (let x = 0; x < view.width; x++) {
+      const at = grid.get(x + ':' + y)
+      if (at && at !== 'slime') {
+        total += at === view.side ? 1 : -1
+        continue
+      }
+      let mine = 99
+      let theirs = 99
+      for (const s of stones) {
+        const d = Math.abs(s.x - x) + Math.abs(s.y - y)
+        if (s.side === view.side) mine = Math.min(mine, d)
+        else theirs = Math.min(theirs, d)
+      }
+      if (mine < theirs && mine <= 4) total += 1
+      else if (theirs < mine && theirs <= 4) total -= 1
+    }
+  return total
+}
+
+function turfEval(
+  view: MatchView,
+  grid: Map<string, TurfCell>,
+  wards: Set<string>,
+): number {
+  let value = turfInfluence(view, grid)
+  for (const g of turfGroupsOn(view, grid, wards)) {
+    if (g.warded) continue
+    if (g.side === view.side) {
+      if (g.libs === 1) value -= 1.6 * g.cells.length
+      else if (g.libs === 2) value -= 0.3 * g.cells.length
+    } else if (g.libs === 1) value += 1.2 * g.cells.length
+    else if (g.libs === 2) value += 0.3 * g.cells.length
+  }
+  return value
+}
+
+/** Place a stone of ours on a copy; null when the move would be suicide. */
+function turfSimulate(
+  view: MatchView,
+  grid: Map<string, TurfCell>,
+  wards: Set<string>,
+  at: Cell,
+): { grid: Map<string, TurfCell>; captured: number } | null {
+  const next = new Map(grid)
+  next.set(at.x + ':' + at.y, view.side)
+  let captured = 0
+  for (const g of turfGroupsOn(view, next, wards))
+    if (g.side !== view.side && g.libs === 0 && !g.warded) {
+      captured += g.cells.length
+      for (const c of g.cells) next.delete(c.x + ':' + c.y)
+    }
+  const mine = turfGroupsOn(view, next, wards).find((g) =>
+    g.cells.some((c) => c.x === at.x && c.y === at.y),
+  )
+  if (!mine || (mine.libs === 0 && !mine.warded)) return null
+  return { grid: next, captured }
+}
+
+const TURF_OFFENSIVE = new Set(['zap', 'blast', 'chaos', 'root'])
+
+function turfAction(view: MatchView, tried: Set<string>): CpuAction | null {
+  if (view.turfPlayed) return null
+  const grid = new Map<string, TurfCell>()
+  const wards = new Set<string>()
+  for (const u of view.units) {
+    grid.set(u.x + ':' + u.y, u.side)
+    if (u.warded) wards.add(u.x + ':' + u.y)
+  }
+  for (const p of view.puddles) grid.set(p.x + ':' + p.y, 'slime')
+  const ownTraps = new Set(view.traps.map((t) => t.x + ':' + t.y))
+  const base = turfEval(view, grid, wards)
+  const groups = turfGroupsOn(view, grid, wards)
+  const groupAt = (c: Cell) =>
+    groups.find((g) => g.cells.some((s) => s.x === c.x && s.y === c.y))
+  const cards = view.hand.filter((c) => c.cost <= view.mana)
+  if (!cards.length) return null
+  const early = view.round < 8
+  const options: Candidate[] = []
+  for (let y = 0; y < view.height; y++)
+    for (let x = 0; x < view.width; x++) {
+      const k = x + ':' + y
+      if (grid.has(k) || ownTraps.has(k)) continue
+      const at = { x, y }
+      const edge =
+        x === 0 || y === 0 || x === view.width - 1 || y === view.height - 1
+      const sim = turfSimulate(view, grid, wards, at)
+      const near = cellsAround(view, at)
+      const foes = near
+        .map((n) => groupAt(n))
+        .filter((g): g is TurfGroup => !!g && g.side !== view.side)
+      const weakest = foes.length ? Math.min(...foes.map((g) => g.libs)) : 9
+      for (const card of cards) {
+        let value: number
+        if (card.kind === 'trap') {
+          if (view.traps.length >= view.trapCap) continue
+          value = 0.5 + (foes.length && weakest <= 2 ? 0.4 : 0)
+        } else {
+          if (!sim) continue
+          value = turfEval(view, sim.grid, wards) - base + sim.captured * 1.5
+          if (early && edge) value -= 0.8
+          if (card.kind === 'creature') value += 0.15
+          else if (card.effect && TURF_OFFENSIVE.has(card.effect))
+            value += foes.length
+              ? weakest <= 1
+                ? 3
+                : weakest <= 2
+                  ? 1.8
+                  : 0.4
+              : -0.6
+          else if (card.effect === 'debt') value += 0.3
+          else if (card.effect === 'boost')
+            value += near.some((n) => grid.get(n.x + ':' + n.y) === 'slime')
+              ? 1
+              : -0.4
+          else if (card.effect === 'scan') value -= 0.2
+          else {
+            const after = turfGroupsOn(view, sim.grid, wards).find((g) =>
+              g.cells.some((c) => c.x === x && c.y === y),
+            )
+            value += after && after.libs <= 2 ? 1.5 : -0.3
+          }
+          value -= card.cost * 0.05
+        }
+        options.push({ action: { t: 'deploy', card: card.id, x, y }, value })
+      }
+    }
+  const best = options
+    .filter((o) => !tried.has(key(o.action)))
+    .sort(
+      (a, b) => b.value - a.value || key(a.action).localeCompare(key(b.action)),
+    )[0]
+  // Pass once nothing gains turf: two passes end the game.
+  return best && best.value > 0.4 ? best.action : null
+}
+
 /** The CPU's next action for the side in view, or null to pass. */
 export function chooseCpuAction(
   view: MatchView,
   tried: Set<string> = new Set(),
 ): CpuAction | null {
   if (view.victor) return null
+  if (view.mode === 'turf') return turfAction(view, tried)
   const card = bestCard(view, tried)
   if (card) return card
   if (view.auto) return bestStance(view, tried)

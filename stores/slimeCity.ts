@@ -26,7 +26,7 @@ import type { SlimeCityStory } from '../utils/slimeCity/storySave'
 import { computed, ref, shallowRef, watch } from 'vue'
 import {
   advance,
-  autoBattle,
+  dealsHands,
   cardById,
   cardReady,
   toggleHandDiscard,
@@ -1072,7 +1072,7 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
   }
 
   function chooseCard(id: string): void {
-    if (autoBattle(match.value) && !match.value.hands.player.includes(id))
+    if (dealsHands(match.value) && !match.value.hands.player.includes(id))
       return
     selectedCard.value = selectedCard.value === id ? null : id
     previewOpen.value = false
@@ -1086,7 +1086,7 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
   function ready(id: string): boolean {
     return (
       cardReady(match.value, 'player', id) &&
-      (!autoBattle(match.value) || match.value.hands.player.includes(id))
+      (!dealsHands(match.value) || match.value.hands.player.includes(id))
     )
   }
 
@@ -1103,6 +1103,7 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
         previewOpen.value = false
         selectedCard.value = null
         settleBout()
+        answerTurf()
       }
       return
     }
@@ -1119,7 +1120,13 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
     selectedCard.value = null
     previewOpen.value = false
     settleBout()
+    answerTurf()
     return true
+  }
+
+  /** TURF: one token a turn, so placing yours hands the move to the CPU. */
+  function answerTurf(): void {
+    if (match.value.mode === 'turf' && !match.value.victor) nextRound()
   }
 
   function unmask(): void {

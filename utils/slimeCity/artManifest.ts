@@ -242,7 +242,10 @@ export function slimeArtId(
  */
 export function slimeBoardArtId(district: string, mode: string): number | null {
   return (
-    slimeArtId('boards', district + '-' + mode) ?? slimeArtId('boards', mode)
+    slimeArtId('boards', district + '-' + mode) ??
+    slimeArtId('boards', mode) ??
+    // TURF fights on the district's Blackout floor until its own board renders.
+    (mode === 'turf' ? slimeBoardArtId(district, 'blackout') : null)
   )
 }
 

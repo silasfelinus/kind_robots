@@ -104,10 +104,10 @@ assert.ok(
 )
 assert.equal(CARDS.length, 300)
 assert.equal(DISTRICTS.length, 7)
-assert.equal(MODES.length, 3)
+assert.equal(MODES.length, 4)
 assert.deepEqual(
   MODES.map((mode) => mode.size),
-  ['10 × 6', '12 × 6', '14 × 6'],
+  ['10 × 6', '12 × 6', '14 × 6', '9 × 9'],
 )
 for (const team of TEAMS) {
   assert.equal(team.creatures.length, 4)
@@ -633,6 +633,7 @@ const kinds: Record<ModeId, Record<string, number>> = {
   blackout: {},
   gridiron: {},
   bloodrush: {},
+  turf: {},
 }
 for (const mode of MODES) {
   const decided = { player: 0, enemy: 0, draw: 0 }

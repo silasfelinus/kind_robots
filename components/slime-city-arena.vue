@@ -1,6 +1,6 @@
 <!-- /components/slime-city-arena.vue -->
 <!--
-  THE ARENA, BLACKOUT AND BLOODRUSH.
+  THE ARENA: BLACKOUT, BLOODRUSH AND TURF.
 
   Silas, 2026-11-02, first impressions: "Combat and movement on the blackout
   board should be automatic. we need custom tokens for all cards on the board.
@@ -15,6 +15,12 @@
   clock, the format), the painted arena with art tokens that glide as the
   crews march, two planted flags inside two base columns, and the hand along
   the bottom. Tapping a token opens its card and its battle orders.
+
+  Silas, 2026-11-03: "a new version of this game, modeled after go. each turn
+  you play a single token, but go rules apply." TURF reuses this stage: the
+  HUD counts turf and prisoners instead of bases, empty points take their
+  owner's tint, slime puddles fill liberties, and a held card shows its TURF
+  effect before it lands.
 -->
 <template>
   <section
@@ -46,7 +52,18 @@
               compact
             />
           </span>
-          <span class="sca-base-text">
+          <span
+            v-if="turf"
+            class="sca-base-text"
+            data-testid="slime-turf-player"
+          >
+            <small>YOUR TURF</small>
+            <span class="sca-meter"
+              ><i :style="{ width: turfPct(lab.sight.turfScore[0]) }"
+            /></span>
+            <b>{{ lab.sight.turfScore[0] }}</b>
+          </span>
+          <span v-else class="sca-base-text">
             <small>YOUR BASE</small>
             <span class="sca-meter"
               ><i :style="{ width: basePct(lab.sight.bases[0]) }"
@@ -54,6 +71,13 @@
             <b>{{ lab.sight.bases[0] }}</b>
           </span>
           <span
+            v-if="turf"
+            class="sca-flag-chip"
+            :title="lab.sight.prisoners[0] + ' enemy stones captured'"
+            >✊ {{ lab.sight.prisoners[0] }} TAKEN</span
+          >
+          <span
+            v-else
             class="sca-flag-chip"
             :class="{ taken: lab.sight.flags[0].carrier !== null }"
             :title="
@@ -105,6 +129,13 @@
           data-testid="slime-base-enemy"
         >
           <span
+            v-if="turf"
+            class="sca-flag-chip"
+            :title="lab.sight.prisoners[1] + ' of your stones captured'"
+            >✊ {{ lab.sight.prisoners[1] }} TAKEN</span
+          >
+          <span
+            v-else
             class="sca-flag-chip"
             :class="{ taken: lab.sight.flags[1].carrier !== null }"
             :title="
@@ -117,7 +148,19 @@
               lab.sight.flags[1].carrier !== null ? 'IN HAND' : 'GUARDED'
             }}</span
           >
-          <span class="sca-base-text">
+          <span
+            v-if="turf"
+            class="sca-base-text"
+            data-testid="slime-turf-enemy"
+            :title="'Includes ' + TURF_KOMI + ' komi for moving second'"
+          >
+            <small>ENEMY TURF</small>
+            <span class="sca-meter"
+              ><i :style="{ width: turfPct(lab.sight.turfScore[1]) }"
+            /></span>
+            <b>{{ lab.sight.turfScore[1] }}</b>
+          </span>
+          <span v-else class="sca-base-text">
             <small>ENEMY BASE</small>
             <span class="sca-meter"
               ><i :style="{ width: basePct(lab.sight.bases[1]) }"
@@ -143,7 +186,7 @@
       <div class="sca-field">
         <div
           class="sc-board sca-board"
-          :class="{ dragging: !!lab.dragCard || !!lab.selectedCard }"
+          :class="{ dragging: !!lab.dragCard || !!lab.selectedCard, turf }"
           :style="{
             gridTemplateColumns:
               'repeat(' + lab.match.width + ', minmax(0, 1fr))',
@@ -168,8 +211,11 @@
             type="button"
             class="sca-tile"
             :class="{
-              'base-mine': cell.x === 0,
-              'base-theirs': cell.x === lab.match.width - 1,
+              'base-mine': !turf && cell.x === 0,
+              'base-theirs': !turf && cell.x === lab.match.width - 1,
+              'turf-mine': territory[cell.x + ':' + cell.y] === 'player',
+              'turf-theirs': territory[cell.x + ':' + cell.y] === 'enemy',
+              star: turf && STAR_POINTS.has(cell.x + ':' + cell.y),
               landing: canLand(cell.x, cell.y),
               lair: monsterHere(cell.x, cell.y),
             }"
@@ -181,16 +227,26 @@
           >
             <span v-if="visibleTrap(cell.x, cell.y)" class="sca-trap">◇</span>
             <span
+              v-if="slimeAt(cell.x, cell.y)"
+              class="sca-slime"
+              data-testid="slime-puddle"
+              aria-hidden="true"
+            />
+            <span
               v-if="monsterHere(cell.x, cell.y)"
               class="sca-monster"
               data-testid="slime-monster"
               ><span>❂</span><small>{{ lab.sight.monster?.hp }}</small></span
             >
           </button>
-          <span class="sca-base-label mine" aria-hidden="true">YOUR BASE</span>
-          <span class="sca-base-label theirs" aria-hidden="true"
-            >ENEMY BASE</span
-          >
+          <template v-if="!turf">
+            <span class="sca-base-label mine" aria-hidden="true"
+              >YOUR BASE</span
+            >
+            <span class="sca-base-label theirs" aria-hidden="true"
+              >ENEMY BASE</span
+            >
+          </template>
           <span
             v-for="(flag, index) in loseFlags"
             :key="'flag-' + index"
@@ -218,6 +274,7 @@
                   carrier: unit.carryingFlag,
                   sealed: !unit.known,
                   rooted: unit.rooted,
+                  warded: unit.warded,
                 },
               ]"
               :style="{ '--x': unit.x, '--y': unit.y }"
@@ -240,16 +297,22 @@
               <span class="sca-face" aria-hidden="true">{{
                 FACES[mood(unit)]
               }}</span>
-              <span v-if="unit.known" class="sca-stance" aria-hidden="true">{{
-                unit.stance === 'defend' ? '🛡' : '⚔'
-              }}</span>
+              <span
+                v-if="unit.known && !turf"
+                class="sca-stance"
+                aria-hidden="true"
+                >{{ unit.stance === 'defend' ? '🛡' : '⚔' }}</span
+              >
               <span
                 v-if="unit.carryingFlag"
                 class="sca-carried"
                 aria-hidden="true"
                 >⚑</span
               >
-              <span v-if="unit.hp !== null" class="sca-hp" aria-hidden="true"
+              <span
+                v-if="unit.hp !== null && !turf"
+                class="sca-hp"
+                aria-hidden="true"
                 ><i
                   :style="{
                     width:
@@ -271,6 +334,19 @@
       </div>
 
       <div
+        v-if="turf && heldCard && !lab.inspectedUnit"
+        class="sca-inspect sca-held"
+        role="status"
+        :aria-label="heldCard.name + ' TURF effect'"
+        data-testid="slime-turf-held"
+      >
+        <div class="sca-inspect-live">
+          <span class="sca-tag">TURF · PLACE ON ANY EMPTY POINT</span>
+          <p class="sca-turf-rule">{{ turfText(heldCard) }}</p>
+        </div>
+        <SlimeCityCard class="sca-inspect-card" :card="heldCard" />
+      </div>
+      <div
         v-if="lab.inspectedUnit"
         class="sca-inspect"
         role="dialog"
@@ -290,7 +366,16 @@
           <span class="sca-tag">{{
             lab.inspectedUnit.side === 'player' ? 'YOUR CREW' : 'ENEMY'
           }}</span>
-          <p v-if="lab.inspectedUnit.hp !== null" class="sca-live-stats">
+          <p v-if="turf && inspectedCard" class="sca-turf-rule">
+            {{ turfText(inspectedCard) }}
+            <template v-if="lab.inspectedUnit.warded">
+              Warded this round.</template
+            >
+          </p>
+          <p
+            v-if="lab.inspectedUnit.hp !== null && !turf"
+            class="sca-live-stats"
+          >
             <span
               ><b>{{ lab.inspectedUnit.hp }}</b
               >/{{ lab.inspectedUnit.maxHp }} HP</span
@@ -306,13 +391,15 @@
               ARMOR</span
             >
           </p>
-          <p v-if="lab.inspectedUnit.carryingFlag" class="sca-callout">
+          <p v-if="lab.inspectedUnit.carryingFlag && !turf" class="sca-callout">
             ⚑ CARRYING
             {{ lab.inspectedUnit.side === 'player' ? 'THE ENEMY' : 'YOUR' }}
             FLAG
           </p>
           <div
-            v-if="lab.inspectedUnit.side === 'player' && !lab.match.victor"
+            v-if="
+              lab.inspectedUnit.side === 'player' && !lab.match.victor && !turf
+            "
             class="sca-orders"
             role="group"
             aria-label="Battle orders"
@@ -336,7 +423,10 @@
               <b>🛡 DEFEND</b><small>Guard your base · +1 armor</small>
             </button>
           </div>
-          <p v-else-if="lab.inspectedUnit.known" class="sca-orders-read">
+          <p
+            v-else-if="lab.inspectedUnit.known && !turf"
+            class="sca-orders-read"
+          >
             {{
               lab.inspectedUnit.stance === 'defend'
                 ? 'Holding its base.'
@@ -359,7 +449,9 @@
       <div v-if="lab.match.victor" class="sc-result sca-result" role="status">
         <strong>{{
           lab.match.victor === 'player'
-            ? 'VICTORY IN THE PIT'
+            ? turf
+              ? 'YOU HOLD THE STREETS'
+              : 'VICTORY IN THE PIT'
             : lab.match.victor === 'draw'
               ? 'MUTUAL DESTRUCTION'
               : 'THE PIT CLAIMS YOU'
@@ -396,7 +488,11 @@
         <ul>
           <li v-for="item in lab.guide.limits" :key="item">{{ item }}</li>
         </ul>
-        <div class="sc-rules" data-testid="slime-rules">
+        <div
+          v-if="lab.variants.length"
+          class="sc-rules"
+          data-testid="slime-rules"
+        >
           <span class="sc-overline">LAB RULE VARIANTS · RESTART SAME SEED</span>
           <div class="sc-rule-list">
             <button
@@ -447,9 +543,12 @@
         class="sca-go"
         :disabled="!!lab.match.victor"
         data-testid="slime-next-round"
+        :title="
+          turf ? 'Pass your turn: two passes in a row end the game' : undefined
+        "
         @click="lab.nextRound()"
       >
-        END ROUND ▶
+        {{ turf ? 'PASS ▶' : 'END ROUND ▶' }}
       </button>
       <button
         v-else
@@ -472,11 +571,32 @@ import {
   cardById,
   flagSquare,
   inDeployZone,
+  turfTerritory,
+  turfText,
+  TURF_KOMI,
   type ViewFighter,
 } from '~/utils/slimeCity/prototypes'
 import { slimeArtId, slimeBoardArtId } from '~/utils/slimeCity/artManifest'
 
 const lab = useSlimeCityStore()
+const turf = computed(() => lab.mode === 'turf')
+/** The Go board's traditional star points on a 9 × 9 board. */
+const STAR_POINTS = new Set(['2:2', '6:2', '4:4', '2:6', '6:6'])
+/** Empty points only one crew surrounds (area scoring), tinted on the board. */
+const territory = computed<Record<string, string | null>>(() =>
+  turf.value ? turfTerritory(lab.match).owner : {},
+)
+function turfPct(score: number): string {
+  const total = lab.match.width * lab.match.height
+  return Math.max(0, Math.min(100, (score / total) * 100)) + '%'
+}
+function slimeAt(x: number, y: number): boolean {
+  return lab.sight.puddles.some((p) => p.x === x && p.y === y)
+}
+const heldCard = computed(() => {
+  const id = lab.dragCard ?? lab.selectedCard
+  return id ? cardById(id) : null
+})
 const currentMode = computed(
   () => lab.modes.find((mode) => mode.id === lab.mode) || lab.modes[0]!,
 )
@@ -494,6 +614,7 @@ const FACES: Record<Mood, string> = {
 }
 function mood(unit: ViewFighter): Mood {
   if (!unit.known) return 'sly'
+  if (unit.warded) return 'guard'
   if (unit.carryingFlag) return 'gleeful'
   const share = (unit.hp ?? 1) / (unit.maxHp || 1)
   if (share <= 0.34 || unit.rooted) return 'dazed'
@@ -527,7 +648,7 @@ function basePct(hp: number): string {
 
 /** Flags draw on their own square unless a carrier holds them. */
 const loseFlags = computed(() =>
-  lab.sight.flags.filter((flag) => flag.carrier === null),
+  turf.value ? [] : lab.sight.flags.filter((flag) => flag.carrier === null),
 )
 
 const inspectedCard = computed(() =>
@@ -542,6 +663,13 @@ const heldCreature = computed(() => {
   return cardById(id).kind === 'creature'
 })
 function canLand(x: number, y: number): boolean {
+  if (turf.value)
+    return (
+      !!heldCard.value &&
+      !slimeAt(x, y) &&
+      !visibleTrap(x, y) &&
+      !lab.sight.units.some((u) => u.x === x && u.y === y)
+    )
   return (
     heldCreature.value &&
     inDeployZone(lab.match, 'player', x) &&
@@ -559,6 +687,13 @@ function visibleTrap(x: number, y: number): boolean {
 }
 function tokenAria(unit: ViewFighter): string {
   if (!unit.cardId) return 'Concealed enemy. Open card.'
+  if (turf.value)
+    return (
+      (unit.side === 'enemy' ? 'Enemy stone, ' : 'Your stone, ') +
+      cardById(unit.cardId).name +
+      (unit.warded ? ', warded' : '') +
+      '. Open card.'
+    )
   return (
     (unit.side === 'enemy' ? 'Enemy ' : '') +
     cardById(unit.cardId).name +
@@ -576,9 +711,21 @@ function cellAria(x: number, y: number): string {
   const flag = lab.sight.flags.findIndex(
     (f) => f.carrier === null && f.x === x && f.y === y,
   )
+  const owner = territory.value[x + ':' + y]
   const parts = [
     'Square ' + (x + 1) + ', ' + (y + 1),
-    x === 0 ? 'your base' : x === lab.match.width - 1 ? 'enemy base' : '',
+    turf.value
+      ? owner === 'player'
+        ? 'your turf'
+        : owner === 'enemy'
+          ? 'enemy turf'
+          : ''
+      : x === 0
+        ? 'your base'
+        : x === lab.match.width - 1
+          ? 'enemy base'
+          : '',
+    slimeAt(x, y) ? 'slimed' : '',
     flag === 0 ? 'your flag' : flag === 1 ? 'enemy flag' : '',
     monsterHere(x, y) ? 'giant monster' : '',
   ]
@@ -593,6 +740,14 @@ const winLine = computed(() => {
     rout: 'One side was routed.',
     time: 'Time ran out: the healthier base wins.',
     monster: 'The giant monster fell.',
+    territory:
+      'The turf was counted: ' +
+      lab.sight.turfScore[0] +
+      ' to ' +
+      lab.sight.turfScore[1] +
+      ' (komi ' +
+      TURF_KOMI +
+      ').',
   }
   return lab.match.winPath ? (how[lab.match.winPath] ?? '') : ''
 })
@@ -646,7 +801,7 @@ watch(
           id: was.id,
           x: was.x,
           y: was.y,
-          text: 'KO',
+          text: next.mode === 'turf' ? 'TAKEN' : 'KO',
           kind: 'ko',
         })
     for (const side of ['player', 'enemy'] as const) {
@@ -995,6 +1150,62 @@ onBeforeUnmount(() => {
   right: -1.35rem;
   color: var(--theirs);
   transform: translateY(-50%);
+}
+
+/* TURF: a Go board — square points, star points, territory tint, slime. */
+.sca-board.turf {
+  background: #2a2216;
+}
+.sca-board.turf .sca-tile {
+  background: #1b140a40;
+  box-shadow: inset 0 0 0 1px #f5d28a33;
+}
+.sca-tile.star::after {
+  content: '';
+  position: absolute;
+  inset: 44%;
+  border-radius: 50%;
+  background: #f5d28a99;
+}
+.sca-tile.turf-mine {
+  background: color-mix(in srgb, var(--mine) 22%, transparent);
+}
+.sca-tile.turf-theirs {
+  background: color-mix(in srgb, var(--theirs) 22%, transparent);
+}
+.sca-slime {
+  position: absolute;
+  inset: 10%;
+  border-radius: 46% 54% 40% 60% / 55% 45% 55% 45%;
+  background: radial-gradient(circle at 35% 30%, #e9ff9c, #7ed321 55%, #2f5d0c);
+  box-shadow:
+    0 0 14px #9cff3a99,
+    inset 0 -3px 6px #1d3a06aa;
+  animation: sca-wobble 1.6s ease-in-out infinite alternate;
+}
+@keyframes sca-wobble {
+  to {
+    border-radius: 58% 42% 52% 48% / 44% 56% 44% 56%;
+    transform: scale(1.05);
+  }
+}
+.sca-token.warded .sca-portrait {
+  box-shadow:
+    0 0 0 3px #8fe7ff,
+    0 0 20px #8fe7ffaa;
+}
+.sca-turf-rule {
+  margin: 0;
+  padding: 0.6rem 0.7rem;
+  border-radius: 0.6rem;
+  border: 1px solid #f5d28a55;
+  background: #2a221688;
+  color: #f8ecd2;
+  font-size: 0.78rem;
+  line-height: 1.45;
+}
+.sca-held {
+  pointer-events: none;
 }
 
 /* Flags and tokens sit on a layer sized to the grid. */
@@ -1588,6 +1799,7 @@ onBeforeUnmount(() => {
   .sca-flag,
   .sca-carried,
   .sca-flag-chip.taken,
+  .sca-slime,
   .sca-pop,
   .sca-base.hit,
   .sca-token.mood-ouch .sca-face {

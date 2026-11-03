@@ -119,6 +119,7 @@ const MARGIN: Record<ModeId, number> = {
   blackout: 4,
   gridiron: 6,
   bloodrush: 6,
+  turf: 6,
 }
 
 export function playHeadless(

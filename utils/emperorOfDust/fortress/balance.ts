@@ -28,6 +28,7 @@ import type {
   KingdomFactionId,
   QuestDef,
   QuestReport,
+  SceneLine,
 } from './types'
 
 export type Policy = {
@@ -204,6 +205,20 @@ export type CampaignResult = {
  */
 export type CampaignObserver = {
   playTalks?: boolean
+  onAudienceScene?: (
+    day: number,
+    audienceId: string,
+    beatId: string | undefined,
+    lines: readonly SceneLine[],
+    run: FortressRun,
+  ) => void
+  onTalkScene?: (
+    day: number,
+    talkId: string,
+    beatId: string | undefined,
+    lines: readonly SceneLine[],
+    run: FortressRun,
+  ) => void
   onAudienceChoice?: (
     day: number,
     audienceId: string,
@@ -248,7 +263,15 @@ export const playCampaign = (
       // A scene can run several beats; follow it until it closes or stalls.
       for (let beat = 0; beat < 8; beat += 1) {
         if (run.audiencesHeard.includes(audience.id)) break
-        const open = audienceScene(run, audience).options.filter(
+        const scene = audienceScene(run, audience)
+        observer?.onAudienceScene?.(
+          run.day,
+          audience.id,
+          scene.beatId,
+          scene.lines,
+          run,
+        )
+        const open = scene.options.filter(
           (option) => optionBlockers(run, option).length === 0,
         )
         const pick = open
@@ -272,7 +295,15 @@ export const playCampaign = (
       if (selected) {
         for (let beat = 0; beat < 8; beat += 1) {
           if ((run.talksHeard ?? []).includes(selected.id)) break
-          const open = talkScene(run, selected).options.filter(
+          const scene = talkScene(run, selected)
+          observer.onTalkScene?.(
+            run.day,
+            selected.id,
+            scene.beatId,
+            scene.lines,
+            run,
+          )
+          const open = scene.options.filter(
             (option) => optionBlockers(run, option).length === 0,
           )
           const pick = open

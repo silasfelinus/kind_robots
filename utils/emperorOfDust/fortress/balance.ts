@@ -229,6 +229,13 @@ export type CampaignObserver = {
     available: readonly TalkDef[],
     run: FortressRun,
   ) => string | null | undefined
+  /** Chooses only among currently legal throne-room answers. */
+  selectAudienceChoice?: (
+    day: number,
+    audienceId: string,
+    available: readonly AudienceOption[],
+    run: FortressRun,
+  ) => string | undefined
   onAudienceScene?: (
     day: number,
     audienceId: string,
@@ -299,16 +306,25 @@ export const playCampaign = (
         const open = scene.options.filter(
           (option) => optionBlockers(run, option).length === 0,
         )
-        const pick = open
-          .map((option, i) => ({
-            option,
-            i,
-            score: policy.score(option, run, seed),
-          }))
-          .sort((a, b) => b.score - a.score || a.i - b.i)[0]
+        const preferred = observer?.selectAudienceChoice?.(
+          run.day,
+          audience.id,
+          open,
+          run,
+        )
+        const selected = open.find((option) => option.id === preferred)
+        const pick =
+          selected ??
+          open
+            .map((option, i) => ({
+              option,
+              i,
+              score: policy.score(option, run, seed),
+            }))
+            .sort((a, b) => b.score - a.score || a.i - b.i)[0]?.option
         if (!pick) break
-        run = chooseAudienceOption(run, audience.id, pick.option.id).run
-        observer?.onAudienceChoice?.(run.day, audience.id, pick.option, run)
+        run = chooseAudienceOption(run, audience.id, pick.id).run
+        observer?.onAudienceChoice?.(run.day, audience.id, pick, run)
       }
     }
     if (observer?.playChanceEvents && run.dailyEvent) {

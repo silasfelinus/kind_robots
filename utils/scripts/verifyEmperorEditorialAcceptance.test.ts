@@ -676,7 +676,9 @@ for (const fixture of conditionalSceneFixtures) {
 // static flag fixtures make an audience or talk look otherwise correct.
 for (const talk of TALKS) {
   assert.ok(
-    !(talk.fromDay >= 41 && talk.requires?.notFlags?.includes('komodo-betrayal')),
+    !(
+      talk.fromDay >= 41 && talk.requires?.notFlags?.includes('komodo-betrayal')
+    ),
     `${talk.id} opens Day ${talk.fromDay}, after the tower falls, but requires its survival`,
   )
 }

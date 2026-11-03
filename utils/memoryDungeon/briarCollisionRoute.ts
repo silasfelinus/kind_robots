@@ -531,7 +531,8 @@ export const BRIAR_COLLISION_ROUTE_SITES = {
       },
       {
         id: 'borrow-wolf-whistle',
-        label: 'Borrow the wolf patrol’s whistle to call every umbrella down at once',
+        label:
+          'Borrow the wolf patrol’s whistle to call every umbrella down at once',
         outcome:
           'The flock lands before the flood reaches the bridge. Pip returns the whistle and records the patrol’s demand for a later escort, while the keeper distributes dry canopies without publishing a list of who sought shelter.',
         flag: 'umbrella-whistle-debt',
@@ -562,7 +563,8 @@ export const BRIAR_COLLISION_ROUTE_SITES = {
       },
       {
         id: 'charter-shared-exit',
-        label: 'Offer a temporary shared-path charter with an independent witness',
+        label:
+          'Offer a temporary shared-path charter with an independent witness',
         outcome:
           'Pip translates the old right-of-way oath into a one-watch charter. Workers and wolves can both use the exit, and Mara volunteers to audit its first shift; the party gives up a supply crate to keep the passage staffed.',
         flag: 'wolf-court-shared-charter',
@@ -593,7 +595,8 @@ export const BRIAR_COLLISION_ROUTE_SITES = {
       },
       {
         id: 'build-floating-landing',
-        label: 'Build a floating landing that can carry the whole waiting group',
+        label:
+          'Build a floating landing that can carry the whole waiting group',
         outcome:
           'Scylla directs the current while Oren bolts office doors into a raft. The attendant survives until the landing reaches him, and slower evacuees gain a reusable route; the longer work exposes the crew to another dangerous surge.',
         flag: 'aquarium-floating-landing',
@@ -614,7 +617,8 @@ export const BRIAR_COLLISION_ROUTE_SITES = {
     choices: [
       {
         id: 'audit-the-borrowed-years',
-        label: 'Stop the printer and audit each stolen season against the timesheet',
+        label:
+          'Stop the printer and audit each stolen season against the timesheet',
         outcome:
           'Mara proves which hours were actually worked and the spirit returns the stolen winters. The janitor recovers his strength, but wages must be rebuilt from testimony while the party funds a temporary meal station for those still unpaid.',
         flag: 'payroll-years-restored',
@@ -624,7 +628,8 @@ export const BRIAR_COLLISION_ROUTE_SITES = {
       },
       {
         id: 'advance-real-supplies',
-        label: 'Offer food and shelter now, then let workers negotiate their own back pay',
+        label:
+          'Offer food and shelter now, then let workers negotiate their own back pay',
         outcome:
           'The printer finally sleeps. Workers receive a genuine emergency advance rather than another enchanted promise, and they elect their own pay committee; Oren gives up the party’s remaining spare provisions to make the first night possible.',
         flag: 'payroll-worker-advance',

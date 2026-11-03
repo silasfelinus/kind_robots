@@ -914,6 +914,7 @@ for (const faction of HOST_FACTIONS) {
           )
             choices.push(`D${day} ${id}/${option.id}`)
           if (rareTargets.includes(id) && state.audiencesHeard.includes(id)) {
+            seenAudiences.add(id)
             rareReached.add(id)
             if (!reached.includes(id)) reached.push(id)
           }
@@ -966,6 +967,7 @@ for (const scenario of [
           )
             choices.push(`D${day} ${id}/${option.id}`)
           if (id === scenario.id && state.audiencesHeard.includes(id)) {
+            seenAudiences.add(id)
             rareReached.add(id)
             reached.push(id)
           }
@@ -1011,6 +1013,11 @@ const unvisitedAudiences = DAYS.flatMap((day) =>
   day.audiences
     .filter((scene) => !seenAudiences.has(scene.id))
     .map((scene) => `Day ${day.day}: ${scene.id}`),
+)
+assert.equal(
+  unvisitedAudiences.length,
+  0,
+  'Every authored throne-room audience must close in a real 50-day campaign',
 )
 const unvisitedTalks = TALKS.filter((talk) => !seenTalks.has(talk.id)).map(
   (talk) => `${talk.follower}: ${talk.id}`,

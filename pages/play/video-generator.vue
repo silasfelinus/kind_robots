@@ -984,6 +984,15 @@ import {
   type VideoPresetId,
 } from '@/utils/videoPresets'
 
+import { gameLinkPreviewMeta } from '~/utils/gameLinkPreview'
+
+useSeoMeta(
+  gameLinkPreviewMeta(
+    'video-generator',
+    useRuntimeConfig().public.appBaseUrl,
+  ) ?? {},
+)
+
 const LOGO_SRC = '/images/kindlogo_new.webp'
 const WINK_PRESET =
   'The feminine kind robot on the right winks one eye and breaks into a warm, playful grin. Subtle head tilt, sparkling eyes, smooth natural motion, charming and friendly. The rest of the logo stays still.'

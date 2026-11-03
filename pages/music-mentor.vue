@@ -31,128 +31,133 @@
           </div>
         </header>
 
-      <div v-if="!isLoggedIn" class="alert alert-warning text-sm" role="alert">
-        You need to be signed in to run an analysis — the coaching step is
-        billed to your account's mana.
-      </div>
-
-      <!-- File -->
-      <section class="space-y-2">
-        <label class="font-semibold">
-          1. Add a recording <span class="text-error">*</span>
-        </label>
-        <input
-          type="file"
-          accept="audio/*,video/*,.mp3,.m4a,.wav,.ogg,.mp4,.mov"
-          class="file-input file-input-bordered w-full"
-          @change="onFileChange"
-        />
-        <p v-if="fileName" class="text-xs text-base-content/65">
-          {{ fileName }} · {{ fileSizeMb }} MB · only the audio track is
-          analyzed
-        </p>
-        <p v-else class="text-xs text-base-content/55">
-          MP3, M4A, WAV, MP4, or MOV · up to {{ MAX_MB }} MB. For video, only
-          the audio track is analyzed.
-        </p>
-      </section>
-
-      <!-- Setlist -->
-      <section class="space-y-2">
-        <label class="font-semibold">
-          2. Add context
-          <span class="text-xs font-normal text-base-content/55">(optional)</span>
-        </label>
-        <textarea
-          v-model="setlist"
-          rows="4"
-          class="textarea textarea-bordered w-full"
-          placeholder="Songs, keys if you know them, and anything you want the mentor to focus on."
-        />
-      </section>
-
-      <!-- Dimensions -->
-      <section class="space-y-2">
-        <label class="font-semibold">3. Choose feedback</label>
-        <div class="flex flex-wrap gap-2">
-          <button
-            v-for="opt in DIMENSIONS"
-            :key="opt.value"
-            type="button"
-            class="kr-btn-plain"
-            :class="selected.includes(opt.value) ? 'btn-accent' : 'btn-outline'"
-            @click="toggle(opt.value)"
-          >
-            {{ opt.label }}
-          </button>
-        </div>
-        <p class="kr-text-faded-xs">
-          All four are selected. Tap any you don't want.
-        </p>
-      </section>
-
-      <!-- Analyze -->
-      <section class="space-y-3">
-        <button
-          type="button"
-          class="btn btn-accent btn-lg w-full"
-          :disabled="!canAnalyze"
-          @click="run"
-        >
-          <span
-            v-if="store.isBusy"
-            class="kr-spinner-sm"
-          />
-          {{ analyzeLabel }}
-        </button>
-
-        <div v-if="store.state.message" class="kr-text-faded-sm text-center">
-          {{ store.state.message }}
-        </div>
-
         <div
-          v-if="store.state.error"
-          class="alert alert-error text-sm"
+          v-if="!isLoggedIn"
+          class="alert alert-warning text-sm"
           role="alert"
         >
-          {{ store.state.error }}
+          You need to be signed in to run an analysis — the coaching step is
+          billed to your account's mana.
         </div>
-      </section>
 
-      <!-- Feedback -->
-      <section v-if="store.state.feedback" class="space-y-2">
-        <h2 class="font-semibold">Mentor feedback</h2>
-        <div
-          class="whitespace-pre-line rounded-2xl border border-base-300 bg-base-200/60 p-4 text-sm leading-relaxed"
-        >
-          {{ store.state.feedback }}
-        </div>
-      </section>
+        <!-- File -->
+        <section class="space-y-2">
+          <label class="font-semibold">
+            1. Add a recording <span class="text-error">*</span>
+          </label>
+          <input
+            type="file"
+            accept="audio/*,video/*,.mp3,.m4a,.wav,.ogg,.mp4,.mov"
+            class="file-input file-input-bordered w-full"
+            @change="onFileChange"
+          />
+          <p v-if="fileName" class="text-xs text-base-content/65">
+            {{ fileName }} · {{ fileSizeMb }} MB · only the audio track is
+            analyzed
+          </p>
+          <p v-else class="text-xs text-base-content/55">
+            MP3, M4A, WAV, MP4, or MOV · up to {{ MAX_MB }} MB. For video, only
+            the audio track is analyzed.
+          </p>
+        </section>
 
-      <!-- Extracted features (transparency) -->
-      <details v-if="store.state.features" class="text-sm">
-        <summary class="cursor-pointer opacity-70">
-          What I measured (the numbers behind the feedback)
-        </summary>
-        <div class="mt-2 grid gap-2 sm:grid-cols-2">
-          <div
-            v-for="row in featureRows"
-            :key="row.label"
-            class="kr-panel-flat flex justify-between gap-3 rounded-lg px-3 py-2"
-          >
-            <span class="opacity-70">{{ row.label }}</span>
-            <span class="font-medium text-right">{{ row.value }}</span>
+        <!-- Setlist -->
+        <section class="space-y-2">
+          <label class="font-semibold">
+            2. Add context
+            <span class="text-xs font-normal text-base-content/55"
+              >(optional)</span
+            >
+          </label>
+          <textarea
+            v-model="setlist"
+            rows="4"
+            class="textarea textarea-bordered w-full"
+            placeholder="Songs, keys if you know them, and anything you want the mentor to focus on."
+          />
+        </section>
+
+        <!-- Dimensions -->
+        <section class="space-y-2">
+          <label class="font-semibold">3. Choose feedback</label>
+          <div class="flex flex-wrap gap-2">
+            <button
+              v-for="opt in DIMENSIONS"
+              :key="opt.value"
+              type="button"
+              class="kr-btn-plain"
+              :class="
+                selected.includes(opt.value) ? 'btn-accent' : 'btn-outline'
+              "
+              @click="toggle(opt.value)"
+            >
+              {{ opt.label }}
+            </button>
           </div>
-        </div>
-        <ul
-          v-if="store.state.features.notes.length"
-          class="mt-3 list-disc space-y-1 pl-5 text-xs opacity-70"
-        >
-          <li v-for="(note, i) in store.state.features.notes" :key="i">
-            {{ note }}
-          </li>
-        </ul>
-      </details>
+          <p class="kr-text-faded-xs">
+            All four are selected. Tap any you don't want.
+          </p>
+        </section>
+
+        <!-- Analyze -->
+        <section class="space-y-3">
+          <button
+            type="button"
+            class="btn btn-accent btn-lg w-full"
+            :disabled="!canAnalyze"
+            @click="run"
+          >
+            <span v-if="store.isBusy" class="kr-spinner-sm" />
+            {{ analyzeLabel }}
+          </button>
+
+          <div v-if="store.state.message" class="kr-text-faded-sm text-center">
+            {{ store.state.message }}
+          </div>
+
+          <div
+            v-if="store.state.error"
+            class="alert alert-error text-sm"
+            role="alert"
+          >
+            {{ store.state.error }}
+          </div>
+        </section>
+
+        <!-- Feedback -->
+        <section v-if="store.state.feedback" class="space-y-2">
+          <h2 class="font-semibold">Mentor feedback</h2>
+          <div
+            class="whitespace-pre-line rounded-2xl border border-base-300 bg-base-200/60 p-4 text-sm leading-relaxed"
+          >
+            {{ store.state.feedback }}
+          </div>
+        </section>
+
+        <!-- Extracted features (transparency) -->
+        <details v-if="store.state.features" class="text-sm">
+          <summary class="cursor-pointer opacity-70">
+            What I measured (the numbers behind the feedback)
+          </summary>
+          <div class="mt-2 grid gap-2 sm:grid-cols-2">
+            <div
+              v-for="row in featureRows"
+              :key="row.label"
+              class="kr-panel-flat flex justify-between gap-3 rounded-lg px-3 py-2"
+            >
+              <span class="opacity-70">{{ row.label }}</span>
+              <span class="font-medium text-right">{{ row.value }}</span>
+            </div>
+          </div>
+          <ul
+            v-if="store.state.features.notes.length"
+            class="mt-3 list-disc space-y-1 pl-5 text-xs opacity-70"
+          >
+            <li v-for="(note, i) in store.state.features.notes" :key="i">
+              {{ note }}
+            </li>
+          </ul>
+        </details>
       </div>
     </div>
   </div>
@@ -165,6 +170,13 @@ import {
   type MentorDimension,
 } from '@/stores/musicMentorStore'
 import { useUserStore } from '@/stores/userStore'
+
+import { gameLinkPreviewMeta } from '~/utils/gameLinkPreview'
+
+useSeoMeta(
+  gameLinkPreviewMeta('music-mentor', useRuntimeConfig().public.appBaseUrl) ??
+    {},
+)
 
 const MAX_MB = 250
 

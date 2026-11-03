@@ -335,6 +335,13 @@ import {
   type PitchBuildStage,
 } from '@/utils/approvedPitchProgress'
 
+import { gameLinkPreviewMeta } from '~/utils/gameLinkPreview'
+
+useSeoMeta(
+  gameLinkPreviewMeta('daily-pitches', useRuntimeConfig().public.appBaseUrl) ??
+    {},
+)
+
 type Filter = 'all' | PitchBuildStage
 const conductor = useConductorStore()
 const user = useUserStore()

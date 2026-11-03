@@ -46,6 +46,13 @@ import { computed } from 'vue'
 import { useRoute } from '#app'
 import { COLORING_STYLES } from '@/stores/helpers/styleHelper'
 
+import { gameLinkPreviewMeta } from '~/utils/gameLinkPreview'
+
+useSeoMeta(
+  gameLinkPreviewMeta('coloring-page', useRuntimeConfig().public.appBaseUrl) ??
+    {},
+)
+
 const route = useRoute()
 
 // Deep link from a gallery image card: /coloring-page?imageId=123 lands here

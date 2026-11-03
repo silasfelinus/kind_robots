@@ -225,7 +225,13 @@
             :aria-label="cellAria(cell.x, cell.y)"
             @click="lab.touchSquare(cell.x, cell.y)"
           >
-            <span v-if="visibleTrap(cell.x, cell.y)" class="sca-trap">◇</span>
+            <span
+              v-if="visibleTrap(cell.x, cell.y)"
+              class="sca-trap"
+              :class="{ wired: turf }"
+              :title="turf ? 'Your tripwire' : undefined"
+              >◇</span
+            >
             <span
               v-if="slimeAt(cell.x, cell.y)"
               class="sca-slime"
@@ -699,7 +705,10 @@ function visibleTrap(x: number, y: number): boolean {
   return lab.sight.traps.some((trap) => trap.x === x && trap.y === y)
 }
 function tokenAria(unit: ViewFighter): string {
-  if (!unit.cardId) return 'Concealed enemy. Open card.'
+  if (!unit.cardId)
+    return turf.value
+      ? 'Concealed enemy stone. It may hide a tripwire.'
+      : 'Concealed enemy. Open card.'
   if (turf.value)
     return (
       (unit.side === 'enemy' ? 'Enemy stone, ' : 'Your stone, ') +
@@ -1125,6 +1134,15 @@ onBeforeUnmount(() => {
   color: #ff98b4;
   font-size: 1rem;
   opacity: 0.75;
+}
+/* TURF: your wired trap stone wears its tripwire as a corner badge. */
+.sca-trap.wired {
+  inset: 1px 2px auto auto;
+  z-index: 3;
+  font-size: 0.75rem;
+  opacity: 1;
+  text-shadow: 0 0 4px #ff3fbf;
+  pointer-events: none;
 }
 .sca-monster {
   position: absolute;

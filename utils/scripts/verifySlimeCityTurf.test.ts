@@ -14,6 +14,7 @@ import {
   turfTerritory,
   turfText,
   TURF_KOMI,
+  TURF_TRAP_CAP,
   type Fighter,
   type MatchState,
   type Side,
@@ -196,13 +197,54 @@ for (let i = 0; i < 4 && !dried.victor; i++)
     hands: { ...dried.hands, enemy: [enemyPlain] },
   })
 assert.equal(dried.puddles.length, 0, 'Slime dries up')
-// Wards: a warded group cannot be captured; PIERCE ignores wards.
+// Wards (Silas, 2026-11-03: "Stronger wards and traps"): a warded group
+// cannot be captured, and its liberties are closed to enemy stones.
 const ward = CARDS.find((c) => c.effect === 'heal')!
 const guarded = board(
   [stone('enemy', 0, 0, { wardedUntil: 99 }), stone('player', 1, 0)],
   [plain],
 )
-assert.ok(at(deploy(guarded, plain, 0, 1), 0, 0), 'Warded stone survives')
+assert.equal(
+  deploy(guarded, plain, 0, 1),
+  guarded,
+  'A warded group’s liberties are a no-go zone',
+)
+assert.ok(at(deploy(guarded, plain, 4, 4), 4, 4), 'Elsewhere is still open')
+// A ward card lands as a stone and wards its own group for three turns.
+const wardCard = CARDS.find(
+  (c) => c.kind === 'equipment' && c.effect === 'armor' && c.team === 'ironjaw',
+)!
+const fenced = deploy(
+  board([stone('player', 3, 3)], [wardCard.id]),
+  wardCard.id,
+  3,
+  4,
+)
+assert.notEqual(fenced.units.length, 1, 'The ward lands as a stone')
+assert.ok(
+  fenced.units.every((u) => (u.wardedUntil ?? 0) >= fenced.round + 2),
+  'The whole group is warded for three turns',
+)
+assert.ok(turfText(wardCard).includes('cannot be played on its liberties'))
+// SNARE may land in a no-go zone to strip the ward.
+const snarer = CARDS.find(
+  (c) =>
+    c.kind === 'creature' &&
+    c.team === 'mercenary' &&
+    (c.keywords ?? []).includes('snare'),
+)
+if (snarer) {
+  const stripped = deploy(
+    board(
+      [stone('enemy', 0, 0, { wardedUntil: 99 }), stone('player', 1, 0)],
+      [snarer.id],
+    ),
+    snarer.id,
+    0,
+    1,
+  )
+  assert.equal(at(stripped, 0, 0), undefined, 'SNARE strips the ward')
+}
 const piercer = CARDS.find(
   (c) =>
     c.kind === 'creature' &&
@@ -234,25 +276,73 @@ const blown = deploy(bomb, plain, 0, 1)
 assert.equal(at(blown, 0, 0), undefined)
 assert.equal(at(blown, 1, 0), undefined, 'VOLATILE takes its captors along')
 assert.equal(blown.prisoners.enemy, 2)
-// Traps: an enemy stone played on a hidden trap is captured at once.
+// Traps (Silas, 2026-11-03: "Stronger wards and traps") land as a concealed
+// stone wired with a tripwire: the first enemy stone beside it is captured.
 const trapCard = CARDS.find((c) => c.kind === 'trap' && c.team === 'ironjaw')!
 const rigged = deploy(board([], [trapCard.id]), trapCard.id, 4, 4)
 assert.equal(rigged.traps.length, 1)
-assert.equal(rigged.units.length, 0, 'A trap is a hidden token, not a stone')
+assert.equal(at(rigged, 4, 4)?.side, 'player', 'A trap lands as a stone')
 assert.equal(
   observe(rigged, 'enemy').traps.length,
   0,
-  'The enemy never sees it',
+  'The enemy never sees the wire',
 )
-const sprung = deployAs(
+const seen = observe(rigged, 'enemy').units.find((u) => u.x === 4 && u.y === 4)!
+assert.equal(seen.known, false, 'and sees only a concealed stone')
+assert.equal(seen.cardId, null)
+const tripped = deployAs(
   { ...rigged, hands: { ...rigged.hands, enemy: [enemyPlain] } },
   'enemy',
   enemyPlain,
   4,
-  4,
+  5,
 )
-assert.equal(at(sprung, 4, 4), undefined)
-assert.equal(sprung.prisoners.player, 1)
+assert.equal(at(tripped, 4, 5), undefined, 'A stone beside the trap is caught')
+assert.equal(tripped.prisoners.player, 1)
+assert.equal(tripped.traps.length, 0, 'The wire is spent')
+assert.ok(at(tripped, 4, 4), 'but the trap stone stays')
+const clear = deployAs(
+  { ...rigged, hands: { ...rigged.hands, enemy: [enemyPlain] } },
+  'enemy',
+  enemyPlain,
+  5,
+  5,
+)
+assert.ok(at(clear, 5, 5), 'A diagonal is safe')
+// A trap stone captured with its group, from out of the wire's reach,
+// takes the wire with it.
+const doomed = board(
+  [stone('player', 0, 1), stone('enemy', 1, 0), stone('enemy', 1, 1)],
+  [trapCard.id],
+  [enemyPlain],
+)
+const cornered = deploy(doomed, trapCard.id, 0, 0)
+assert.equal(cornered.traps.length, 1)
+const swept = deployAs(cornered, 'enemy', enemyPlain, 0, 2)
+assert.equal(at(swept, 0, 0), undefined, 'The trap stone is captured')
+assert.equal(swept.prisoners.enemy, 2)
+assert.equal(swept.traps.length, 0, 'and its wire goes with it')
+// Up to three tripwires may be armed at once in TURF.
+let wired = board([], [trapCard.id])
+for (const [x, y] of [
+  [1, 1],
+  [4, 4],
+  [7, 7],
+  [1, 7],
+]) {
+  wired.hands.player = [trapCard.id]
+  wired.playedThisRound.player = []
+  wired = deploy(wired, trapCard.id, x!, y!)
+}
+assert.equal(wired.traps.length, TURF_TRAP_CAP, 'TURF arms three tripwires')
+assert.equal(wired.units.length, TURF_TRAP_CAP, 'and no fourth trap stone')
+assert.ok(turfText(trapCard).includes('beside it'))
+assert.ok(turfText(trapCard).includes('concealed stone'))
+// A ward washes the slime off its group's liberties.
+const washer = board([stone('player', 3, 3)], [wardCard.id])
+washer.puddles = [{ x: 2, y: 3, until: 99 }]
+const washed = deploy(washer, wardCard.id, 3, 4)
+assert.equal(washed.puddles.length, 0, 'A ward washes its slime away')
 
 // --- Area scoring with komi; two passes end the game.
 const scored = board(

@@ -717,7 +717,6 @@ function turfAction(view: MatchView, tried: Set<string>): CpuAction | null {
     if (u.warded) wards.add(u.x + ':' + u.y)
   }
   for (const p of view.puddles) grid.set(p.x + ':' + p.y, 'slime')
-  const ownTraps = new Set(view.traps.map((t) => t.x + ':' + t.y))
   const base = turfEval(view, grid, wards)
   const groups = turfGroupsOn(view, grid, wards)
   const groupAt = (c: Cell) =>
@@ -735,7 +734,7 @@ function turfAction(view: MatchView, tried: Set<string>): CpuAction | null {
   for (let y = 0; y < view.height; y++)
     for (let x = 0; x < view.width; x++) {
       const k = x + ':' + y
-      if (grid.has(k) || ownTraps.has(k)) continue
+      if (grid.has(k)) continue
       const at = { x, y }
       const edge =
         x === 0 || y === 0 || x === view.width - 1 || y === view.height - 1
@@ -744,39 +743,55 @@ function turfAction(view: MatchView, tried: Set<string>): CpuAction | null {
       const foes = near
         .map((n) => groupAt(n))
         .filter((g): g is TurfGroup => !!g && g.side !== view.side)
-      const weakest = foes.length ? Math.min(...foes.map((g) => g.libs)) : 9
+      // Slime slides off warded groups, so only open ones are targets.
+      const exposed = foes.filter((g) => !g.warded)
+      const weakest = exposed.length
+        ? Math.min(...exposed.map((g) => g.libs))
+        : 9
+      // A warded enemy group closes its liberties to our stones.
+      const noGo = foes.some((g) => g.warded)
+      // Empty points beside a trap stone are where its tripwire can catch.
+      const open = near.filter((c) => !grid.has(c.x + ':' + c.y)).length
       for (const card of cards) {
         let value: number
-        if (card.kind === 'trap') {
-          if (view.traps.length >= view.trapCap) continue
-          value = 0.5 + (foes.length && weakest <= 2 ? 0.4 : 0)
-        } else {
-          if (!sim) continue
-          value = turfEval(view, sim.grid, wards) - base + sim.captured * 1.5
-          if (early && edge) value -= 0.8
-          if (card.kind === 'creature') value += 0.15
-          else if (card.effect && TURF_OFFENSIVE.has(card.effect))
-            value += foes.length
-              ? weakest <= 1
-                ? 3
-                : weakest <= 2
-                  ? 1.8
-                  : 0.4
-              : -0.6
-          else if (card.effect === 'debt') value += 0.3
-          else if (card.effect === 'boost')
-            value += near.some((n) => grid.get(n.x + ':' + n.y) === 'slime')
-              ? 1
-              : -0.4
-          else if (card.effect === 'scan') value -= 0.2
-          else {
-            const after = turfGroupsOn(view, sim.grid, wards).find((g) =>
-              g.cells.some((c) => c.x === x && c.y === y),
-            )
-            value += after && after.libs <= 2 ? 1.5 : -0.3
-          }
-          value -= card.cost * 0.05
+        if (!sim) continue
+        if (card.kind === 'trap' && view.traps.length >= view.trapCap) continue
+        if (
+          noGo &&
+          !(card.keywords ?? []).some((k) => k === 'pierce' || k === 'snare')
+        )
+          continue
+        value = turfEval(view, sim.grid, wards) - base + sim.captured * 1.5
+        if (early && edge) value -= 0.8
+        if (card.kind === 'creature') value += 0.15
+        // A trap stone is a stone plus a tripwire on its open neighbors.
+        else if (card.kind === 'trap')
+          value += 0.15 + 0.3 * open + (foes.length ? 0.4 : 0)
+        else if (card.effect && TURF_OFFENSIVE.has(card.effect))
+          value += exposed.length
+            ? weakest <= 1
+              ? 3
+              : weakest <= 2
+                ? 1.8
+                : 0.4
+            : -0.6
+        else if (card.effect === 'debt') value += 0.3
+        else if (card.effect === 'boost')
+          value += near.some((n) => grid.get(n.x + ':' + n.y) === 'slime')
+            ? 1
+            : -0.4
+        else if (card.effect === 'scan') value -= 0.2
+        else {
+          const after = turfGroupsOn(view, sim.grid, wards).find((g) =>
+            g.cells.some((c) => c.x === x && c.y === y),
+          )
+          // A ward saves a group in trouble and fences off its liberties.
+          value +=
+            (after && after.libs <= 2 ? 1.5 : 0) +
+            0.15 * Math.min(8, after?.libs ?? 0) +
+            (near.some((n) => grid.get(n.x + ':' + n.y) === 'slime') ? 0.8 : 0)
         }
+        value -= card.cost * 0.05
         options.push({ action: { t: 'deploy', card: card.id, x, y }, value })
       }
     }

@@ -129,8 +129,9 @@ export function playHeadless(
   onRound?: (state: MatchState) => void,
   rules: Partial<RuleVariants> = {},
   scenarioTerms?: BoutTerms,
+  playerDeck?: string[],
 ): { state: MatchState; metrics: MatchMetrics } {
-  let state = createMatch(mode, playerTeam, enemyTeam, seed, rules)
+  let state = createMatch(mode, playerTeam, enemyTeam, seed, rules, playerDeck)
   if (scenarioTerms) state = applyTerms(state, scenarioTerms)
   let firstContact: number | null = null
   let deadRounds = 0

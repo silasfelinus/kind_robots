@@ -281,7 +281,7 @@
                 HOW TO PLAY
               </h2>
               <p class="plumber-guide-intro">
-                Pick your controls. Keyboard and gamepad use the same moves.
+                Keyboard and gamepad bindings, side by side.
               </p>
               <div class="plumber-guide-grid">
                 <div

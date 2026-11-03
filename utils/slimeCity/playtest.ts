@@ -2,6 +2,7 @@
 // (conductor slime-city t-016). Both sides are driven by the same CPU from
 // their own redacted views; every match is reproducible from its seed and
 // replays exactly from its command record.
+import { applyTerms, type BoutTerms } from './city'
 import {
   advance,
   autoBattle,
@@ -127,8 +128,10 @@ export function playHeadless(
   seed: number,
   onRound?: (state: MatchState) => void,
   rules: Partial<RuleVariants> = {},
+  scenarioTerms?: BoutTerms,
 ): { state: MatchState; metrics: MatchMetrics } {
   let state = createMatch(mode, playerTeam, enemyTeam, seed, rules)
+  if (scenarioTerms) state = applyTerms(state, scenarioTerms)
   let firstContact: number | null = null
   let deadRounds = 0
   let streak = 0

@@ -30,6 +30,10 @@ const report = {
   playerWins: 0,
   enemyWins: 0,
   draws: 0,
+  founderPlayerWins: 0,
+  founderEnemyWins: 0,
+  founderDraws: 0,
+  changedOutcomesAgainstFounder: 0,
   totalRounds: 0,
   deadRounds: 0,
   noContact: 0,
@@ -61,9 +65,14 @@ const report = {
     newCardDeploys: number
     deadRounds: number
     firstContact: number | null
+    founderWins: number
+    founderDraws: number
+    founderLosses: number
+    changedOutcomes: number
   }>,
 }
 
+const founderControls = new Map<string, ReturnType<typeof playHeadless>>()
 for (const crew of TEAMS) {
   const roster = newCards.filter((c) => c.team === crew.id)
   assert.equal(roster.length, 16)
@@ -117,6 +126,10 @@ for (const crew of TEAMS) {
       newCardDeploys: 0,
       deadRounds: 0,
       firstContact: null as number | null,
+      founderWins: 0,
+      founderDraws: 0,
+      founderLosses: 0,
+      changedOutcomes: 0,
     }
     for (const foe of TEAMS) {
       if (foe.id === crew.id) continue
@@ -153,6 +166,29 @@ for (const crew of TEAMS) {
           deck,
         )
         const { state, metrics } = game
+        // Same faction, opposing founder deck, seating and seed. Reuse the
+        // control across three archetypes so it is not called 180 unique games.
+        const controlKey = [crew.id, foe.id, seed].join(':')
+        let founder = founderControls.get(controlKey)
+        if (!founder) {
+          founder = playHeadless('blackout', crew.id, foe.id, seed)
+          founderControls.set(controlKey, founder)
+        }
+        assert.ok(founder.state.victor, 'Founder baseline must settle')
+        if (founder.metrics.victor === 'player') {
+          report.founderPlayerWins++
+          stats.founderWins++
+        } else if (founder.metrics.victor === 'enemy') {
+          report.founderEnemyWins++
+          stats.founderLosses++
+        } else {
+          report.founderDraws++
+          stats.founderDraws++
+        }
+        if (founder.metrics.victor !== metrics.victor) {
+          report.changedOutcomesAgainstFounder++
+          stats.changedOutcomes++
+        }
         report.matches++
         aggregate.matches++
         assert.ok(state.victor, 'Headless game cannot remain unresolved')
@@ -232,6 +268,11 @@ for (const crew of TEAMS) {
 }
 assert.equal(report.matches, TEAMS.length * 3 * 5 * seeds.length)
 assert.equal(report.completed, 180)
+assert.equal(founderControls.size, TEAMS.length * 5 * seeds.length)
+assert.equal(
+  report.founderPlayerWins + report.founderEnemyWins + report.founderDraws,
+  report.matches,
+)
 assert.equal(
   report.playerWins + report.enemyWins + report.draws,
   report.matches,
@@ -249,6 +290,7 @@ console.log(
   'SLIME_CITY_300_CARD_ADVERSARIAL_REPORT ' +
     JSON.stringify({
       ...report,
+      uniqueFounderControls: founderControls.size,
       warnings,
       averageRounds: report.totalRounds / report.matches,
       averageDeadRounds: report.deadRounds / report.matches,
@@ -259,5 +301,5 @@ console.log(
     }),
 )
 console.log(
-  'Slime City constructed Blackout: 180 seeded complete bouts, 18 legal decks, 18 exact replays, mana and card-conservation invariants PASS',
+  'Slime City constructed Blackout: 180 seeded bouts plus 60 cached founder controls, 18 legal decks, 18 exact replays, conservation PASS',
 )

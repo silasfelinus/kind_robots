@@ -231,7 +231,11 @@ export type CampaignObserver = {
     run: FortressRun,
   ) => string | null | undefined
   /** Deliberately leave an offered dispatch on the board. */
-  shouldAssignQuest?: (day: number, questId: string, run: FortressRun) => boolean
+  shouldAssignQuest?: (
+    day: number,
+    questId: string,
+    run: FortressRun,
+  ) => boolean
   /** Return items from today's actual market stalls, purchased in this order. */
   selectMarketPurchases?: (
     day: number,

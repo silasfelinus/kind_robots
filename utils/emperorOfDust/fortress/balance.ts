@@ -209,6 +209,7 @@ export type CampaignResult = {
  */
 export type CampaignObserver = {
   playTalks?: boolean
+  shouldRecruit?: (day: number, followerId: string, run: FortressRun) => boolean
   /** Opt-in: answer the actual dawn encounter instead of ignoring it. */
   playChanceEvents?: boolean
   selectChanceChoice?: (
@@ -272,6 +273,7 @@ export const playCampaign = (
   while (!isOver(run)) {
     // Everyone who offers is taken on, with another bed bought if needed.
     for (const id of [...run.recruitable]) {
+      if (observer?.shouldRecruit?.(run.day, id, run) === false) continue
       try {
         run = recruit(run, id)
       } catch {

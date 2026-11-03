@@ -2,12 +2,14 @@ import assert from 'node:assert/strict'
 import {
   HOSHIMORI_NIGHT_MAX_EVENTS,
   HOSHIMORI_NIGHT_BELLROAD_KEYS,
+  HOSHIMORI_NIGHT_LOWBANK_KEYS,
   HOSHIMORI_NIGHT_SITES,
   HOSHIMORI_NIGHT_WINDWARD_KEYS,
   advanceHoshimoriNight,
   canMoveHoshimoriNight,
   hoshimoriNightClues,
   hoshimoriNightBellroadAccount,
+  hoshimoriNightLowbankAccount,
   hoshimoriNightCouncil,
   hoshimoriNightWindwardAccount,
   hoshimoriNightOrder,
@@ -35,16 +37,16 @@ import {
 import { readFileSync } from 'node:fs'
 
 assert.deepEqual(validateHoshimoriNight(), [])
-assert.equal(HOSHIMORI_NIGHT_SITES.length, 32)
+assert.equal(HOSHIMORI_NIGHT_SITES.length, 40)
 assert.equal(
   new Set(HOSHIMORI_NIGHT_SITES.map((site) => site.opening)).size,
-  32,
+  40,
 )
 assert.equal(
   new Set(
     HOSHIMORI_NIGHT_SITES.flatMap((site) => site.choices.map((c) => c.outcome)),
   ).size,
-  64,
+  80,
 )
 assert.ok(
   HOSHIMORI_NIGHT_SITES.every((site) =>
@@ -563,6 +565,112 @@ assert.equal(
   8,
   'Three earned Bellroad decisions must produce eight distinct accounts',
 )
+const lowbankAccounts = new Set<string>()
+const lowbankKeys = [...HOSHIMORI_NIGHT_LOWBANK_KEYS]
+assert.equal(lowbankKeys.length, 8)
+assert.equal(new Set(lowbankKeys).size, 8)
+assert.ok(
+  lowbankKeys.every((key) => {
+    const warm = HOSHIMORI_WARM_SITES.find((site) => site.key === key)!
+    const night = HOSHIMORI_NIGHT_SITES.find((site) => site.key === key)!
+    return warm.title !== night.title && warm.opening !== night.opening
+  }),
+)
+const lowbankSnake = ['4,5', '3,5', '2,5', '1,5', '1,6', '2,6', '3,6', '4,6']
+for (let seed = 0; seed < 64; seed++) {
+  const bits = seed % 8
+  let progress = newHoshimoriNightProgress(seed)
+  progress = choose(progress, HOSHIMORI_NIGHT_SITES[0]!.choices[0].id)
+  for (const key of snake) {
+    progress = visit(progress, key)
+    const site = HOSHIMORI_NIGHT_SITES.find((item) => item.key === key)!
+    progress = choose(progress, site.choices[0].id)
+  }
+  assert.deepEqual(
+    reconcileHoshimoriNightEarthChronicle(newEarthChronicle(), progress.choices)
+      .found,
+    ['earth-15'],
+  )
+  for (const key of ['2,4', '3,4', '4,4']) progress = visit(progress, key)
+  assert.equal(
+    canMoveHoshimoriNight(progress, '4,5'),
+    false,
+    'The Lowbank cannot be entered without a Bellroad witness account',
+  )
+  for (const key of ['4,3', '4,2', '4,1']) progress = visit(progress, key)
+  for (const key of ridgeSnake) {
+    progress = visit(progress, key)
+    const site = HOSHIMORI_NIGHT_SITES.find((item) => item.key === key)!
+    progress = choose(progress, site.choices[0].id)
+  }
+  assert.equal(hoshimoriNightLowbankAccount(progress), null)
+  for (const key of bellroadSnake) {
+    progress = visit(progress, key)
+    const site = HOSHIMORI_NIGHT_SITES.find((item) => item.key === key)!
+    progress = choose(progress, site.choices[0].id)
+  }
+  assert.ok(hoshimoriNightBellroadAccount(progress))
+  assert.deepEqual(
+    restoreHoshimoriNight(JSON.parse(JSON.stringify(progress))),
+    progress,
+    'A legacy 32-site save remains valid after Lowbank authoring',
+  )
+  progress = visit(progress, '4,4')
+  assert.equal(canMoveHoshimoriNight(progress, '4,5'), true)
+  for (const key of lowbankSnake) {
+    progress = visit(progress, key)
+    const site = HOSHIMORI_NIGHT_SITES.find((item) => item.key === key)!
+    const index =
+      key === '1,5'
+        ? bits & 1
+        : key === '3,5'
+          ? (bits >> 1) & 1
+          : key === '4,6'
+            ? (bits >> 2) & 1
+            : 0
+    progress = choose(progress, site.choices[index]!.id)
+    assert.strictEqual(
+      advanceHoshimoriNight(progress, {
+        type: 'choose',
+        id: site.choices[1 - index]!.id,
+      }),
+      progress,
+      'A Lowbank outcome cannot be replaced on revisit',
+    )
+  }
+  assert.equal(progress.visited.length, 40)
+  assert.equal(Object.keys(progress.choices).length, 40)
+  const account = hoshimoriNightLowbankAccount(progress)
+  assert.ok(account)
+  lowbankAccounts.add(account)
+  assert.deepEqual(
+    reconcileHoshimoriNightEarthChronicle(newEarthChronicle(), progress.choices)
+      .found,
+    ['earth-15'],
+    'The Lowbank must not unlock the reserved 6,7 Earth photograph',
+  )
+  assert.deepEqual(
+    restoreHoshimoriNight(JSON.parse(JSON.stringify(progress))),
+    progress,
+  )
+  progress = visit(progress, '3,6')
+  progress = visit(progress, '4,6')
+  assert.equal(hoshimoriNightLowbankAccount(progress), account)
+  const forged = JSON.parse(JSON.stringify(progress)) as NightProgress
+  forged.choices['4,6'] =
+    forged.choices['4,6'] === 'night-lowland-road'
+      ? 'night-lowland-veto'
+      : 'night-lowland-road'
+  assert.equal(restoreHoshimoriNight(forged), null)
+  const skipped = JSON.parse(JSON.stringify(progress)) as NightProgress
+  skipped.events.splice(0, 1, { type: 'move', to: '4,5' })
+  assert.equal(restoreHoshimoriNight(skipped), null)
+}
+assert.equal(
+  lowbankAccounts.size,
+  8,
+  'Three earned Lowbank decisions must produce eight distinct flood accounts',
+)
 console.log(
-  'Hoshimori e08: 32 mirrored sites, 96 original + 64 Windward + 64 Bellroad seeded routes, eight council, ridge and Bellroad accounts, save forgery protection OK',
+  'Hoshimori e08: 40 mirrored sites, 96 original + 64 Windward + 64 Bellroad + 64 Lowbank seeded routes, eight council/ridge/Bellroad/Lowbank accounts, save forgery protection OK',
 )

@@ -216,6 +216,21 @@
             <p class="mt-1 text-sm leading-relaxed">{{ night.bellroad }}</p>
           </div>
           <p
+            v-if="night.bellroad && !night.lowbank"
+            class="mt-3 rounded-lg border border-warning/30 bg-warning/10 p-2 text-sm"
+          >
+            The Lowbank flood route requires earned testimony from the Mooncake
+            Queue, kappa ferry and shrine. No family must surrender its home to
+            enter.
+          </p>
+          <div
+            v-if="night.lowbank"
+            class="mt-3 rounded-xl border border-info/40 bg-info/10 p-3"
+          >
+            <h4 class="font-bold">The Lowbank’s earned flood account</h4>
+            <p class="mt-1 text-sm leading-relaxed">{{ night.lowbank }}</p>
+          </div>
+          <p
             v-if="night.notice"
             class="mt-3 text-sm text-warning"
             role="status"
@@ -226,7 +241,7 @@
         <div
           class="shrink-0 border-t border-base-content/10 px-3 py-2 text-xs opacity-75"
         >
-          Thirty-two night sites are playable. Thirty-two more sites and the
+          Forty night sites are playable. Twenty-four more sites and the
           transformed Oven remain unfinished.
         </div>
       </div>

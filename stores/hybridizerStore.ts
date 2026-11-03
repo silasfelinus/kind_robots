@@ -51,7 +51,12 @@ const MAX_STUDY_DEPTH = 4
 const MAX_SHELF = 10000
 const PAGE_SIZE = 120
 
-type AtlasMeta = { total: number; ready: number; rendering: number }
+type AtlasMeta = {
+  total: number
+  ready: number
+  rendering: number
+  filteredTotal: number
+}
 
 function pairKey(a: string, b: string): string {
   return JSON.stringify([a, b].sort())
@@ -83,6 +88,15 @@ export const useHybridizerStore = defineStore('hybridizer', () => {
   const renderingTotal = ref(0)
   const remoteLoaded = ref(0)
   const loadingShared = ref(false)
+  const atlasEntries = ref<HybridizerDiscovery[]>([])
+  const atlasFilteredTotal = ref(0)
+  const atlasLoading = ref(false)
+  const favoriteKeys = ref<string[]>([])
+  const randomStartersOnly = ref(false)
+  const randomizing = ref(false)
+  let atlasRequestSerial = 0
+  let atlasQuery = ''
+  let selectionSerial = 0
   const reusedArtwork = ref(false)
   let sharedRequestSerial = 0
   const versions = ref<HybridizerVersion[]>([])
@@ -106,6 +120,16 @@ export const useHybridizerStore = defineStore('hybridizer', () => {
     resultKey.value ? (byKey.value.get(resultKey.value) ?? null) : null,
   )
   const starterCount = STARTERS.length
+  const atlasCanLoadMore = computed(
+    () => atlasEntries.value.length < atlasFilteredTotal.value,
+  )
+  const favoriteEntries = computed(() =>
+    favoriteKeys.value
+      .map((key) => byKey.value.get(key))
+      .filter(
+        (entry): entry is HybridizerIngredient => !!entry && !!imageFor(entry),
+      ),
+  )
   const canLoadMore = computed(
     () =>
       discoveryTotal.value !== null &&
@@ -114,6 +138,46 @@ export const useHybridizerStore = defineStore('hybridizer', () => {
 
   function scopedStorageKey() {
     return STORAGE_KEY + ':' + (userStore.authenticatedUserId ?? 'guest')
+  }
+
+  function preferencesKey() {
+    return (
+      'kind-robots-hybridizer-preferences-v1:' +
+      (userStore.authenticatedUserId ?? 'guest')
+    )
+  }
+
+  function savePreferences() {
+    if (!import.meta.client) return
+    try {
+      localStorage.setItem(
+        preferencesKey(),
+        JSON.stringify({
+          favorites: favoriteKeys.value,
+          randomStartersOnly: randomStartersOnly.value,
+        }),
+      )
+    } catch {
+      status.value = 'This browser cannot save favorites or settings.'
+    }
+  }
+
+  function setRandomStartersOnly(value: boolean) {
+    randomStartersOnly.value = value
+    savePreferences()
+  }
+
+  function isFavorite(key: string) {
+    return favoriteKeys.value.includes(key)
+  }
+
+  function toggleFavorite(key: string) {
+    const entry = byKey.value.get(key)
+    if (!entry || !imageFor(entry)) return
+    favoriteKeys.value = isFavorite(key)
+      ? favoriteKeys.value.filter((item) => item !== key)
+      : [...favoriteKeys.value, key]
+    savePreferences()
   }
 
   function save() {
@@ -132,6 +196,28 @@ export const useHybridizerStore = defineStore('hybridizer', () => {
 
   function hydrate() {
     if (!import.meta.client) return
+    favoriteKeys.value = []
+    randomStartersOnly.value = false
+    try {
+      const preferences = JSON.parse(
+        localStorage.getItem(preferencesKey()) || '{}',
+      )
+      favoriteKeys.value = Array.isArray(preferences.favorites)
+        ? ([
+            ...new Set(
+              preferences.favorites.filter(
+                (key: unknown) =>
+                  typeof key === 'string' &&
+                  (STARTERS.some((starter) => starter.key === key) ||
+                    /^fusion:[a-f0-9]{64}$/.test(key)),
+              ),
+            ),
+          ].slice(0, 1000) as string[])
+        : []
+      randomStartersOnly.value = preferences.randomStartersOnly === true
+    } catch {
+      favoriteKeys.value = []
+    }
     try {
       // v1 mixed private server data across all accounts. Drop it rather
       // than displaying an earlier account's discoveries to the next user.
@@ -205,6 +291,175 @@ export const useHybridizerStore = defineStore('hybridizer', () => {
       save()
     } finally {
       if (requestId === sharedRequestSerial) loadingShared.value = false
+    }
+  }
+
+  async function loadAtlas(
+    reset = true,
+    filter: 'ALL' | 'READY' | 'IN_PROGRESS' | 'OTHER' = 'ALL',
+    search = '',
+  ) {
+    const signature = filter + ':' + search.trim()
+    if (reset) {
+      atlasEntries.value = []
+      atlasFilteredTotal.value = 0
+      atlasQuery = signature
+    } else if (
+      atlasLoading.value ||
+      !atlasCanLoadMore.value ||
+      signature !== atlasQuery
+    ) {
+      return
+    }
+    const requestId = ++atlasRequestSerial
+    const viewerId = userStore.authenticatedUserId
+    const skip = reset ? 0 : atlasEntries.value.length
+    atlasLoading.value = true
+    try {
+      const params = new URLSearchParams({
+        take: String(PAGE_SIZE),
+        skip: String(skip),
+        status: filter,
+        search: search.trim().slice(0, 100),
+      })
+      const response = await performFetch<HybridizerDiscovery[], AtlasMeta>(
+        '/api/hybridizer/fusions?' + params,
+      )
+      if (
+        requestId !== atlasRequestSerial ||
+        viewerId !== userStore.authenticatedUserId ||
+        signature !== atlasQuery
+      )
+        return
+      if (!response.success || !response.data) {
+        status.value = 'Could not load this gallery page.'
+        return
+      }
+      atlasFilteredTotal.value =
+        response.meta?.filteredTotal ?? response.data.length
+      atlasEntries.value = reset
+        ? response.data
+        : [...atlasEntries.value, ...response.data]
+      const merged = new Map(
+        discoveries.value.map((entry) => [entry.key, entry]),
+      )
+      for (const entry of response.data) merged.set(entry.key, entry)
+      discoveries.value = [...merged.values()].slice(-MAX_SHELF)
+      const images: Record<string, string> = {}
+      for (const entry of response.data) {
+        if (entry.imagePath) images[entry.key] = entry.imagePath
+      }
+      availableArt.value = { ...availableArt.value, ...images }
+    } finally {
+      if (requestId === atlasRequestSerial) atlasLoading.value = false
+    }
+  }
+
+  async function loadFavoriteRecords() {
+    const viewerId = userStore.authenticatedUserId
+    const ids = favoriteKeys.value
+      .filter((key) => key.startsWith('fusion:'))
+      .map((key) => key.slice(7))
+    for (let offset = 0; offset < ids.length; offset += 80) {
+      const params = new URLSearchParams({
+        ids: ids.slice(offset, offset + 80).join(','),
+        take: '100',
+      })
+      const response = await performFetch<HybridizerDiscovery[], AtlasMeta>(
+        '/api/hybridizer/fusions?' + params,
+      )
+      if (viewerId !== userStore.authenticatedUserId) return
+      if (!response.success || !response.data) continue
+      const merged = new Map(
+        discoveries.value.map((entry) => [entry.key, entry]),
+      )
+      for (const entry of response.data) merged.set(entry.key, entry)
+      discoveries.value = [...merged.values()].slice(-MAX_SHELF)
+      const images: Record<string, string> = {}
+      for (const entry of response.data) {
+        if (entry.imagePath) images[entry.key] = entry.imagePath
+      }
+      availableArt.value = { ...availableArt.value, ...images }
+    }
+  }
+
+  async function randomize() {
+    if (working.value || randomizing.value) return
+    const viewerId = userStore.authenticatedUserId
+    randomizing.value = true
+    const selectionId = ++selectionSerial
+    try {
+      if (!STARTERS.some((entry) => imageFor(entry))) await loadArtwork()
+      const starters = STARTERS.filter((entry) => !!imageFor(entry))
+      let hybrids: HybridizerDiscovery[] = []
+      let hybridCount = 0
+      if (!randomStartersOnly.value) {
+        const initial = await performFetch<HybridizerDiscovery[], AtlasMeta>(
+          '/api/hybridizer/fusions?take=1&status=READY&maxDepth=3',
+        )
+        hybridCount = initial.success ? (initial.meta?.filteredTotal ?? 0) : 0
+        if (hybridCount) {
+          const offset = Math.floor(Math.random() * hybridCount)
+          const params = new URLSearchParams({
+            status: 'READY',
+            maxDepth: '3',
+            take: '30',
+            skip: String(Math.max(0, offset - 15)),
+          })
+          const sample = await performFetch<HybridizerDiscovery[], AtlasMeta>(
+            '/api/hybridizer/fusions?' + params,
+          )
+          hybrids =
+            sample.success && sample.data
+              ? sample.data.filter((entry) => !!entry.imagePath)
+              : []
+        }
+      }
+      if (
+        viewerId !== userStore.authenticatedUserId ||
+        selectionId !== selectionSerial ||
+        working.value
+      )
+        return
+      const available = [...starters, ...hybrids]
+      if (available.length < 2) {
+        status.value =
+          'Not enough illustrated ingredients yet. Try again as art arrives.'
+        return
+      }
+      const chooseRandom = (excluded?: string) => {
+        const selectHybrid =
+          hybrids.length > 0 &&
+          Math.random() * (starters.length + hybridCount) >= starters.length
+        const primary = selectHybrid ? hybrids : starters
+        const remaining = primary.filter((entry) => entry.key !== excluded)
+        const pool = remaining.length
+          ? remaining
+          : available.filter((entry) => entry.key !== excluded)
+        return pool[Math.floor(Math.random() * pool.length)]!
+      }
+      const first = chooseRandom()
+      const second = chooseRandom(first.key)
+      const merged = new Map(
+        discoveries.value.map((entry) => [entry.key, entry]),
+      )
+      const images: Record<string, string> = {}
+      for (const entry of hybrids) {
+        merged.set(entry.key, entry)
+        if (entry.imagePath) images[entry.key] = entry.imagePath
+      }
+      discoveries.value = [...merged.values()].slice(-MAX_SHELF)
+      availableArt.value = { ...availableArt.value, ...images }
+      leftKey.value = first.key
+      rightKey.value = second.key
+      resultKey.value = null
+      reusedArtwork.value = false
+      versions.value = []
+      canEditResult.value = false
+      status.value = 'Two illustrated ingredients selected. Ready to fuse!'
+      void showKnownPair()
+    } finally {
+      randomizing.value = false
     }
   }
 
@@ -546,6 +801,7 @@ export const useHybridizerStore = defineStore('hybridizer', () => {
 
   function choose(side: 'left' | 'right', key: string) {
     if (working.value || !byKey.value.has(key)) return
+    selectionSerial += 1
     if (side === 'left') leftKey.value = key
     else rightKey.value = key
     resultKey.value = null
@@ -572,6 +828,7 @@ export const useHybridizerStore = defineStore('hybridizer', () => {
     }
 
     const viewerId = userStore.authenticatedUserId
+    selectionSerial += 1
     working.value = true
     reusedArtwork.value = false
     resultKey.value = null
@@ -655,6 +912,7 @@ export const useHybridizerStore = defineStore('hybridizer', () => {
   function selectAtlasDiscovery(key: string) {
     const entry = discoveries.value.find((item) => item.key === key)
     if (!entry) return
+    selectionSerial += 1
     leftKey.value = entry.sources[0]
     rightKey.value = entry.sources[1]
     resultKey.value = key
@@ -682,6 +940,10 @@ export const useHybridizerStore = defineStore('hybridizer', () => {
     () => {
       if (!import.meta.client) return
       discoveries.value = []
+      atlasEntries.value = []
+      atlasFilteredTotal.value = 0
+      atlasRequestSerial += 1
+      favoriteKeys.value = []
       discoveryTotal.value = null
       remoteLoaded.value = 0
       readyTotal.value = 0
@@ -712,6 +974,20 @@ export const useHybridizerStore = defineStore('hybridizer', () => {
     renderingTotal,
     loadingShared,
     canLoadMore,
+    atlasEntries,
+    atlasFilteredTotal,
+    atlasLoading,
+    atlasCanLoadMore,
+    loadAtlas,
+    favoriteEntries,
+    favoriteKeys,
+    isFavorite,
+    toggleFavorite,
+    loadFavoriteRecords,
+    randomStartersOnly,
+    setRandomStartersOnly,
+    randomizing,
+    randomize,
     reusedArtwork,
     result,
     resultKey,

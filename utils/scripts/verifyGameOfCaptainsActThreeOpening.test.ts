@@ -153,7 +153,14 @@ assert.deepEqual(
 let choicesSeen = 0
 for (let seed = 1; seed <= 12; seed++) {
   const target = ids[(seed - 1) % ids.length]!
-  const { run, steps } = playVoyage('vale', ['pell', 'rue', 'vela'], seed, {
+  // The Gameworld finale only reaches the board with a crew or history that
+  // knows the Gameworld (missionBoard); Mox opens it when the Convoy's Act I
+  // route never visits there.
+  const crew =
+    target === 'gameworld-finale'
+      ? (['mox', 'rue', 'vela'] as const)
+      : (['pell', 'rue', 'vela'] as const)
+  const { run, steps } = playVoyage('vale', [...crew], seed, {
     name: 'act-three-authored-returns',
     order: () => policies[(seed - 1) % 3]!,
     chart: (voyage) => (voyage.chapter === 7 ? target : undefined),

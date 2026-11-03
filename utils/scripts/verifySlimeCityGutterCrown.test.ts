@@ -1,19 +1,16 @@
 import assert from 'node:assert/strict'
 import {
   CARDS,
+  advance,
   TEAMS,
-  canBulldozeInto,
   cardById,
   createMatch,
   deckOf,
   deploy,
   loadoutProblems,
-  move,
-  observe,
   type Fighter,
 } from '../slimeCity/prototypes'
 import { GUTTER_CROWN_WAVE_TWO } from '../slimeCity/gutterCrownWaveTwo'
-import { chooseCpuAction } from '../slimeCity/cpu'
 import {
   RARE_COUNT,
   buyPack,
@@ -143,74 +140,57 @@ const rival = (x: number, y: number): Fighter => ({
   armor: 0,
   keywords: [],
 })
-const shove = createMatch('blackout', 'ironjaw', 'riot', 83)
-shove.round = 3
-shove.units = [ironjaw(3, 2), rival(4, 2)]
-assert.equal(canBulldozeInto(shove, shove.units[0]!, 4, 2), true)
-const cpuShove = createMatch('blackout', 'ironjaw', 'riot', 83)
-cpuShove.round = 3
-cpuShove.units = [{ ...ironjaw(3, 2), attackedRound: 3 }, rival(4, 2)]
-cpuShove.flag = { x: 1, y: 2 }
-cpuShove.mana = 0
-cpuShove.hands.player = []
-assert.deepEqual(
-  chooseCpuAction(observe(cpuShove, 'player')),
-  {
-    t: 'move',
-    id: 100,
-    x: 4,
-    y: 2,
-  },
-  'AI chooses legal shove only from visible tactical facts',
-)
-const pushed = move(shove, 100, 4, 2)
-assert.notEqual(pushed, shove)
-assert.equal(pushed.units.find((u) => u.id === 100)?.x, 4)
-assert.equal(pushed.units.find((u) => u.id === 101)?.x, 5)
-assert.equal(pushed.units.find((u) => u.id === 100)?.ap, 1)
-assert.equal(pushed.stats.shoves, 1)
-assert.deepEqual(
-  move(shove, 100, 4, 2),
-  pushed,
-  'Same shove replays from same state',
-)
+// BULLDOZE in the arena (Silas, 2026-11-02): creatures march on their own, so
+// a bulldozer meeting an enemy head-on shoves it back during END ROUND.
+const arena = (units: Fighter[]) => {
+  const state = createMatch('blackout', 'ironjaw', 'riot', 83)
+  state.round = 3
+  state.units = units
+  state.hands = { player: [], enemy: [] }
+  state.piles = { player: [], enemy: [] }
+  state.discards = { player: [], enemy: [] }
+  state.mana = 0
+  state.enemyMana = 0
+  return state
+}
+const shove = arena([ironjaw(3, 2), rival(4, 2)])
+const pushed = advance(shove)
+assert.ok(pushed.stats.shoves >= 1, 'The bulldozer shoves on its own')
+assert.ok((pushed.units.find((u) => u.id === 100)?.x ?? 0) >= 4)
+assert.deepEqual(advance(shove), pushed, 'Same shove replays from same state')
 assert.deepEqual(shove.units[0], ironjaw(3, 2), 'Pure command processing')
-
-const blocked = createMatch('blackout', 'ironjaw', 'riot', 83)
-blocked.round = 3
-blocked.units = [ironjaw(3, 2), rival(4, 2), { ...rival(5, 2), id: 102 }]
-assert.equal(canBulldozeInto(blocked, blocked.units[0]!, 4, 2), false)
 assert.equal(
-  move(blocked, 100, 4, 2),
-  blocked,
+  advance(arena([ironjaw(3, 2), rival(4, 2), { ...rival(5, 2), id: 102 }]))
+    .stats.shoves,
+  0,
   'No pushes through occupied space',
 )
-const wall = createMatch('blackout', 'ironjaw', 'riot', 83)
-wall.round = 3
-wall.units = [ironjaw(8, 2), rival(9, 2)]
-assert.equal(move(wall, 100, 9, 2), wall, 'No pushes past the edge')
-const ordinary = createMatch('blackout', 'ironjaw', 'riot', 83)
-ordinary.round = 3
-ordinary.units = [{ ...ironjaw(3, 2), keywords: [] }, rival(4, 2)]
-assert.equal(move(ordinary, 100, 4, 2), ordinary, 'BULLDOZE is a real keyword')
-const trapped = createMatch('blackout', 'ironjaw', 'riot', 83)
-trapped.round = 3
-trapped.units = [ironjaw(3, 2), rival(4, 2)]
-trapped.traps = [{ x: 5, y: 2, side: 'player', damage: 1, roots: true }]
-const sprung = move(trapped, 100, 4, 2)
 assert.equal(
-  sprung.stats.trapsSprung,
-  1,
+  advance(arena([ironjaw(8, 2), rival(9, 2)])).stats.shoves,
+  0,
+  'No pushes past the edge',
+)
+assert.equal(
+  advance(arena([{ ...ironjaw(3, 2), keywords: [] }, rival(4, 2)])).stats
+    .shoves,
+  0,
+  'BULLDOZE is a real keyword',
+)
+assert.equal(
+  advance(arena([{ ...ironjaw(3, 2), stance: 'defend' }, rival(4, 2)])).stats
+    .shoves,
+  0,
+  'Defenders hold instead of bulldozing',
+)
+const trapped = arena([ironjaw(3, 2), rival(4, 2)])
+trapped.traps = [{ x: 5, y: 2, side: 'player', damage: 1, roots: true }]
+assert.ok(
+  advance(trapped).stats.trapsSprung >= 1,
   'Enemy shoved onto friendly trap triggers it',
 )
-assert.equal(sprung.units.find((u) => u.id === 101)?.hp, 2)
-const enemyTrap = createMatch('blackout', 'ironjaw', 'riot', 83)
-enemyTrap.round = 3
-enemyTrap.units = [ironjaw(3, 2), rival(4, 2)]
+const enemyTrap = arena([ironjaw(3, 2), rival(4, 2)])
 enemyTrap.traps = [{ x: 4, y: 2, side: 'enemy', damage: 1, roots: true }]
-const sprungOnMover = move(enemyTrap, 100, 4, 2)
-assert.equal(sprungOnMover.stats.trapsSprung, 1)
-assert.equal(sprungOnMover.units.find((u) => u.id === 100)?.hp, 5)
+assert.ok(advance(enemyTrap).stats.trapsSprung >= 1)
 
 let wallet = { ...newProgression(), meat: RARE_COUNT * 100 }
 for (let pack = 0; pack < RARE_COUNT; pack++) {

@@ -17,8 +17,10 @@
   left: 50%;
   transform: translate(-50%, -50%);
   display: block;
-  width: clamp(1.5rem, 6cqw, 3rem);
-  height: clamp(1.5rem, 6cqw, 3rem);
+  /* Smaller than the first pass so the tile's art still shows around it
+     (Silas, 2026-11-02: "a little too big"). */
+  width: clamp(1.1rem, 4.2cqw, 2.1rem);
+  height: clamp(1.1rem, 4.2cqw, 2.1rem);
   pointer-events: none;
   perspective: 140px;
   filter: drop-shadow(0 3px 5px #07120e);
@@ -53,27 +55,27 @@
   border-radius: 35%;
   background: linear-gradient(145deg, #fff1aa, #e4a34b 55%, #815b4e);
   color: #403022;
-  font-size: clamp(1rem, 3.4cqw, 1.75rem);
+  font-size: clamp(0.75rem, 2.4cqw, 1.2rem);
   line-height: 1;
   backface-visibility: hidden;
 }
 
 .md-action-beacon-front {
-  transform: translateZ(0.35rem);
+  transform: translateZ(0.25rem);
 }
 
 .md-action-beacon-back {
-  transform: rotateY(180deg) translateZ(0.35rem);
+  transform: rotateY(180deg) translateZ(0.25rem);
 }
 
 .md-action-beacon-left {
   background: #a56c55;
-  transform: rotateY(-90deg) translateZ(0.35rem);
+  transform: rotateY(-90deg) translateZ(0.25rem);
 }
 
 .md-action-beacon-right {
   background: #f6d587;
-  transform: rotateY(90deg) translateZ(0.35rem);
+  transform: rotateY(90deg) translateZ(0.25rem);
 }
 
 @keyframes md-beacon-aura {

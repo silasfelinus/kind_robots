@@ -5,6 +5,7 @@
 import { applyTerms, type BoutTerms } from './city'
 import {
   advance,
+  autoBattle,
   cpuTurn,
   createMatch,
   TEAMS,
@@ -88,11 +89,21 @@ function boardKey(state: MatchState): string {
   const monster = state.monster
     ? state.monster.x + ',' + state.monster.y + ':' + state.monster.hp
     : ''
-  return JSON.stringify([units, traps, monster, state.score])
+  return JSON.stringify([units, traps, monster, state.score, state.bases])
 }
 
 /** Positive when the player side leads. */
 function lead(state: MatchState): number {
+  if (autoBattle(state)) {
+    const carrier = state.units.find((u) => u.carryingFlag)
+    const flag = carrier ? (carrier.side === 'player' ? 4 : -4) : 0
+    return (
+      state.bases.player -
+      state.bases.enemy +
+      (hp(state, 'player') - hp(state, 'enemy')) * 0.25 +
+      flag
+    )
+  }
   if (state.mode === 'blackout') {
     const carrier = state.units.find((u) => u.carryingFlag)
     const flag = carrier ? (carrier.side === 'player' ? 4 : -4) : 0
@@ -137,11 +148,19 @@ export function playHeadless(
     const knockoutsBefore =
       state.stats.knockouts.player + state.stats.knockouts.enemy
     const monsterHpBefore = state.monster?.hp ?? 0
-    const hpBefore = hp(state, 'player') + hp(state, 'enemy')
+    const hpBefore =
+      hp(state, 'player') +
+      hp(state, 'enemy') +
+      state.bases.player +
+      state.bases.enemy
     state = cpuTurn(state, 'player')
     state = advance(state)
     onRound?.(state)
-    const hpAfter = hp(state, 'player') + hp(state, 'enemy')
+    const hpAfter =
+      hp(state, 'player') +
+      hp(state, 'enemy') +
+      state.bases.player +
+      state.bases.enemy
     const scored = state.score[0] + state.score[1] !== scoreBefore
     const contact =
       scored ||

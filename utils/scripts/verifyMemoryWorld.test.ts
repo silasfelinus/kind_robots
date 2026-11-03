@@ -2442,8 +2442,17 @@ assert.ok(
     actionBeaconSource.includes('translate(-50%, -50%)'),
   'The animated 3D exploration beacon is centered in the map square',
 )
-assert.ok(actionBeaconSource.includes('width: clamp(1.5rem, 6cqw, 3rem)'))
+assert.ok(actionBeaconSource.includes('width: clamp(1.1rem, 4.2cqw, 2.1rem)'))
 assert.ok(actionBeaconSource.includes('prefers-reduced-motion: reduce'))
+assert.ok(
+  !/md-progress-mark[^"]*bg-\[/.test(consoleStage),
+  'Tile progress marks sit on the art with no dark chip (Silas, 2026-11-02)',
+)
+assert.match(
+  consoleStage,
+  /'hand hand'/,
+  'A wide encounter pane gives the story hand its own full-width row',
+)
 
 assert.match(
   consoleStage,

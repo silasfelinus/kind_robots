@@ -14,7 +14,6 @@ import {
   chooseAudienceOption,
   createRun,
   chooseTalkOption,
-  finishDay,
   optionBlockers,
   postDawnQuests,
   recruit,
@@ -708,7 +707,7 @@ for (const [answer, consequence] of [
   assert.equal(
     talkFor(tarnExile, 'F024')?.id,
     'tarn-2',
-    'Tarn’s follow-up must be playable after the Day 40 betrayal',
+    'Tarn’s follow-up must be playable after the Day 41 betrayal',
   )
   const resolved = chooseTalkOption(tarnExile, 'tarn-2', answer).run
   assert.ok(resolved.flags.includes(consequence))

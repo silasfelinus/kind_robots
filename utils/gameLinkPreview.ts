@@ -87,6 +87,18 @@ export const GAME_LINK_PREVIEWS: Record<string, GameLinkPreview> = {
       'Follow a koala through a haunted trail of lantern light. A free arcade cabinet in your browser.',
     image: '/crystal-street/scenes/deck-paranormal-ghost-light.webp',
   },
+  'sliding-tile-gallery': {
+    title: 'Sliding Tile Gallery | Kind Robots',
+    description:
+      'Slide eight painted panes into place to reveal a postcard. A free daily puzzle in your browser, no account needed.',
+    image: FALLBACK_PREVIEW_IMAGE,
+  },
+  brainstorm: {
+    title: 'Brainstorm | Kind Robots',
+    description:
+      'A party game for the whole table: pile on ideas, react to the best ones and watch every line get painted. Free in your browser.',
+    image: FALLBACK_PREVIEW_IMAGE,
+  },
   aquarium: {
     title: 'Cthulhuquarium | Public Tanks | Kind Robots',
     description:

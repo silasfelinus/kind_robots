@@ -176,6 +176,55 @@ assert.equal(at(amb1, 2)!.hp, 6, 'ambush 1 + 2')
 assert.equal(at(amb1, 1)!.struck, true)
 const amb2 = advance(amb1)
 assert.equal(at(amb2, 2)!.hp, 5, 'only once')
+// The arena's published AMBUSH keyword grants a powerful first blow, not
+// an unannounced exception to universal summoning sickness. Verify on both
+// sides, then ensure the unused first-strike bonus survives until next round.
+const freshAmbushers = createMatch('blackout', 'catgirls', 'catgirls', 4817)
+freshAmbushers.units = [
+  fighter({
+    id: 1,
+    side: 'player',
+    cardId: 'lynx',
+    x: 4,
+    y: 0,
+    hp: 9,
+    maxHp: 9,
+    attack: 1,
+    keywords: ['ambush'],
+    summonedRound: 1,
+    ap: 0,
+    maxAp: 0,
+  }),
+  fighter({
+    id: 2,
+    side: 'enemy',
+    cardId: 'lynx',
+    x: 5,
+    y: 0,
+    hp: 9,
+    maxHp: 9,
+    attack: 1,
+    keywords: ['ambush'],
+    summonedRound: 1,
+    ap: 0,
+    maxAp: 0,
+  }),
+]
+freshAmbushers.mana = 0
+freshAmbushers.enemyMana = 0
+freshAmbushers.hands = { player: [], enemy: [] }
+freshAmbushers.piles = { player: [], enemy: [] }
+const summoningTurn = advance(freshAmbushers)
+assert.equal(at(summoningTurn, 1)!.hp, 9)
+assert.equal(at(summoningTurn, 2)!.hp, 9)
+assert.equal(at(summoningTurn, 1)!.struck, false)
+assert.equal(at(summoningTurn, 2)!.struck, false)
+const firstReadyTurn = advance(summoningTurn)
+assert.equal(at(firstReadyTurn, 1)!.hp, 5)
+assert.equal(at(firstReadyTurn, 2)!.hp, 5)
+assert.equal(at(firstReadyTurn, 1)!.struck, true)
+assert.equal(at(firstReadyTurn, 2)!.struck, true)
+
 // Catnip Overdrive rearms a spent ambusher
 const cats = createMatch('gridiron', 'catgirls', 'ironjaw', 4817)
 cats.mana = 9

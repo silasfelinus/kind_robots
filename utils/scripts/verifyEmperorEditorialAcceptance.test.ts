@@ -382,6 +382,13 @@ assert.equal(
   rows.filter((r) => r.kind === 'quest-outcome').length,
   quests.length * 5,
 )
+for (const quest of quests) {
+  for (const tier of ['success', 'partial', 'failure', 'expired'] as const)
+    assert.ok(
+      quest.outcomes[tier]?.trim(),
+      `${quest.id} must tell the player what a ${tier} result means`,
+    )
+}
 
 const personas = POLICIES.filter((policy) =>
   [

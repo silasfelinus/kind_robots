@@ -199,11 +199,14 @@ assert.match(page, /control.pad/)
 assert.match(page, /plumber-guide-inner[\s\S]*?overflow-y: auto/)
 assert.doesNotMatch(page, /<b>B<\/b> MENU/, 'B cannot be both menu and sprint')
 const arcadeMeta = source('../arcade/games.ts')
-assert.match(
-  arcadeMeta,
-  /'KEYBOARD  SHIFT SPRINT   E \/ C WRENCH   F \/ V SPECIAL'/,
+assert.ok(
+  arcadeMeta.includes("'KEYBOARD  SHIFT SPRINT   E / C WRENCH   F / V SPECIAL'"),
+  'keyboard guide reflects the game input',
 )
-assert.match(arcadeMeta, /'CONTROLLER  A JUMP   B RUN   X WRENCH   Y SPECIAL'/)
+assert.ok(
+  arcadeMeta.includes("'CONTROLLER  A JUMP   B RUN   X WRENCH   Y SPECIAL'"),
+  'controller guide reflects the gamepad input',
+)
 for (const part of [
   'plumber-console',
   'plumber-viewport',

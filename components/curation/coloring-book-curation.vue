@@ -80,13 +80,7 @@
       <p class="font-black">No pages match this view.</p>
     </div>
 
-    <div
-      v-else
-      class="grid gap-4"
-      style="
-        grid-template-columns: repeat(auto-fill, minmax(min(540px, 100%), 1fr));
-      "
-    >
+    <div v-else class="grid grid-cols-1 gap-4 xl:grid-cols-2">
       <article
         v-for="proposal in visibleProposals"
         :key="proposal.id"
@@ -189,12 +183,68 @@
               {{ proposal.title }}
             </h2>
             <p
-              v-if="proposal.notes.length"
-              class="kr-text-dim-xs-55 mt-2 line-clamp-2 leading-5"
+              v-if="proposal.concept?.sourceLineage"
+              class="mt-2 text-sm leading-5"
             >
-              {{ proposal.notes.join(' · ') }}
+              <span class="font-black text-secondary">Riffing on:</span>
+              {{ proposal.concept.sourceLineage }}
             </p>
+            <p
+              v-if="proposal.concept?.recast"
+              class="mt-1 text-sm leading-5 text-base-content/80"
+            >
+              <span class="font-black">Recast:</span>
+              {{ proposal.concept.recast }}
+            </p>
+            <div class="mt-2 flex flex-wrap gap-1.5">
+              <span
+                v-for="fact in pageFacts(proposal)"
+                :key="`${proposal.id}:${fact}`"
+                class="badge badge-ghost badge-sm"
+              >
+                {{ fact }}
+              </span>
+            </div>
           </div>
+
+          <details
+            v-if="conceptBrief(proposal).length || proposal.notes.length"
+            class="group rounded-xl border border-base-300 bg-base-200/40"
+          >
+            <summary
+              class="kr-text-black-xs flex cursor-pointer list-none items-center justify-between gap-2 p-3 marker:hidden"
+            >
+              Concept brief &amp; production notes
+              <Icon
+                name="kind-icon:chevron-down"
+                class="kr-icon-4 transition-transform group-open:rotate-180"
+              />
+            </summary>
+            <dl
+              class="space-y-2 border-t border-base-300 p-3 text-sm leading-5"
+            >
+              <div
+                v-for="entry in conceptBrief(proposal)"
+                :key="`${proposal.id}:${entry.label}`"
+              >
+                <dt class="kr-text-dim-xs-55 font-bold">{{ entry.label }}</dt>
+                <dd>{{ entry.value }}</dd>
+              </div>
+              <div v-if="proposal.notes.length">
+                <dt class="kr-text-dim-xs-55 font-bold">Production notes</dt>
+                <dd>
+                  <ul class="list-disc space-y-1 pl-5">
+                    <li
+                      v-for="(note, index) in proposal.notes"
+                      :key="`${proposal.id}:note:${index}`"
+                    >
+                      {{ note }}
+                    </li>
+                  </ul>
+                </dd>
+              </div>
+            </dl>
+          </details>
 
           <div
             v-if="proposal.inspirations.length"
@@ -433,6 +483,42 @@ function colorCandidatePath(proposal: ColoringBookProposal): string | null {
 function bwCandidatePath(proposal: ColoringBookProposal): string | null {
   if (proposal.accepted.bw || proposal.final.bw) return null
   return productionState(proposal.id)?.bwRenderedPath ?? null
+}
+
+function conceptBrief(
+  proposal: ColoringBookProposal,
+): { label: string; value: string }[] {
+  const concept = proposal.concept
+  if (!concept) return []
+  const entries: [string, string | null][] = [
+    ['Framing', concept.framing],
+    ['Visual hook', concept.visualHook],
+    ['Body direction', concept.bodyDirection],
+    ['Horror engine', concept.horrorEngine],
+    ['Camp engine', concept.campEngine],
+    ['Sensuality', concept.sensuality],
+    ['Making it original', concept.originalizationHook],
+  ]
+  return entries
+    .filter((entry): entry is [string, string] => Boolean(entry[1]))
+    .map(([label, value]) => ({ label, value }))
+}
+
+function pageFacts(proposal: ColoringBookProposal): string[] {
+  const facts: string[] = []
+  const queue = proposal.queue
+  if (queue.status) facts.push(`queue: ${queue.status}`)
+  if (queue.revisionCount) facts.push(`${queue.revisionCount} revisions`)
+  if (queue.semanticScore !== null && queue.semanticScore !== undefined) {
+    facts.push(`semantic ${queue.semanticScore}`)
+  }
+  if (queue.renderEngine) facts.push(queue.renderEngine)
+  if (queue.completedAt)
+    facts.push(`rendered ${queue.completedAt.slice(0, 10)}`)
+  if (proposal.inspirations.length) {
+    facts.push(`${proposal.inspirations.length} references`)
+  }
+  return facts
 }
 
 function changeRequest(proposalId: string): string {

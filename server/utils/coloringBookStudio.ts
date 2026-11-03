@@ -1,5 +1,7 @@
+import { parse as parseYaml } from 'yaml'
 import type {
   ColoringBookAsset,
+  ColoringBookConcept,
   ColoringBookCounts,
   ColoringBookPair,
   ColoringBookProposal,
@@ -20,6 +22,7 @@ export const COLORING_BOOK_CONFIG = [
     title: 'Monster Recast',
     ledgerPath: `${COLORING_BOOK_ROOT}/sets/monster-recast/proposals.yaml`,
     promptPath: `${COLORING_BOOK_ROOT}/sets/monster-recast/art-modeler-request.yaml`,
+    conceptPath: `${COLORING_BOOK_ROOT}/sets/monster-recast/homage-concepts.yaml`,
   },
   {
     order: 2,
@@ -43,6 +46,52 @@ export type ColoringBookSourceFiles = {
   queue: string
   ledgers: Record<string, string>
   prompts: Record<string, string>
+  concepts?: Record<string, string>
+}
+
+export function coloringBookConceptPath(
+  config: ColoringBookConfig,
+): string | null {
+  return 'conceptPath' in config ? config.conceptPath : null
+}
+
+function conceptText(value: unknown): string | null {
+  if (typeof value !== 'string') return null
+  const clean = value.replace(/\s+/g, ' ').trim()
+  return clean || null
+}
+
+export function parseColoringBookConcepts(
+  content: string,
+): Record<string, ColoringBookConcept> {
+  const result: Record<string, ColoringBookConcept> = {}
+  if (!content.trim()) return result
+  let data: unknown
+  try {
+    data = parseYaml(content)
+  } catch {
+    return result
+  }
+  const concepts = (data as { concepts?: unknown } | null)?.concepts
+  if (!Array.isArray(concepts)) return result
+  for (const raw of concepts) {
+    if (!raw || typeof raw !== 'object') continue
+    const entry = raw as Record<string, unknown>
+    const id = conceptText(entry.id)
+    if (!id) continue
+    result[id] = {
+      sourceLineage: conceptText(entry.source_lineage),
+      recast: conceptText(entry.recast),
+      bodyDirection: conceptText(entry.body_direction),
+      framing: conceptText(entry.framing),
+      horrorEngine: conceptText(entry.horror_engine),
+      campEngine: conceptText(entry.camp_engine),
+      sensuality: conceptText(entry.sensuality),
+      visualHook: conceptText(entry.visual_hook),
+      originalizationHook: conceptText(entry.originalization_hook),
+    }
+  }
+  return result
 }
 
 type QueueEntry = ColoringBookQueueState & {
@@ -346,7 +395,9 @@ function parseLedger(
   content: string,
   promptContent: string,
   queue: Record<string, QueueEntry>,
+  conceptContent = '',
 ): ColoringBookStudioBook {
+  const concepts = parseColoringBookConcepts(conceptContent)
   const bookSection =
     capture(content, /^book:\s*$([\s\S]*?)(?=^[a-z_]+:|$(?![\s\S]))/m) ?? ''
   const order = yamlNumber(scalar(bookSection, 'order', 2), config.order)
@@ -402,6 +453,7 @@ function parseLedger(
       queue: queueState,
       colorUrl: null,
       bwUrl: null,
+      concept: concepts[id] ?? null,
     }
     const colorPath = selectAssetPath(proposal, 'color')
     const bwPath = selectAssetPath(proposal, 'bw')
@@ -433,6 +485,7 @@ export function buildColoringBookStudioData(
       files.ledgers[config.slug] ?? '',
       files.prompts[config.slug] ?? '',
       queue,
+      files.concepts?.[config.slug] ?? '',
     ),
   ).sort((a, b) => a.order - b.order)
 

@@ -11,7 +11,10 @@ export type ColoringBookStudioOperation =
   | 'finalize-cover'
 
 export type ColoringBookHistoryKind =
-  'revision' | 'semantic-rejection' | 'mechanical-rejection' | 'unverified'
+  | 'revision'
+  | 'semantic-rejection'
+  | 'mechanical-rejection'
+  | 'unverified'
 
 export type ColoringBookAsset = {
   path: string
@@ -134,6 +137,19 @@ export type ColoringBookProposal = {
   colorUrl: string | null
   bwPath?: string | null
   bwUrl: string | null
+  concept?: ColoringBookConcept | null
+}
+
+export type ColoringBookConcept = {
+  sourceLineage: string | null
+  recast: string | null
+  bodyDirection: string | null
+  framing: string | null
+  horrorEngine: string | null
+  campEngine: string | null
+  sensuality: string | null
+  visualHook: string | null
+  originalizationHook: string | null
 }
 
 export type ColoringBookCounts = {

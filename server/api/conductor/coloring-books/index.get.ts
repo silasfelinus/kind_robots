@@ -9,6 +9,7 @@ import {
   buildColoringBookStudioData,
   COLORING_BOOK_CONFIG,
   COLORING_BOOK_QUEUE_PATH,
+  coloringBookConceptPath,
 } from '@/server/utils/coloringBookStudio'
 
 function selectedAssetPath(
@@ -34,17 +35,22 @@ export default defineEventHandler(async (event) => {
 
     const sourcePairs = await Promise.all(
       COLORING_BOOK_CONFIG.map(async (config) => {
-        const [ledger, promptSource] = await Promise.all([
+        const conceptPath = coloringBookConceptPath(config)
+        const [ledger, promptSource, conceptSource] = await Promise.all([
           conductorGet(config.ledgerPath),
           config.promptPath === config.ledgerPath
             ? Promise.resolve(null)
             : conductorGet(config.promptPath),
+          conceptPath
+            ? conductorGet(conceptPath).catch(() => null)
+            : Promise.resolve(null),
         ])
         if (!ledger) throw new Error(`Coloring-book ledger was not found: ${config.ledgerPath}`)
         return {
           config,
           ledger: ledger.content,
           prompt: promptSource?.content ?? ledger.content,
+          concepts: conceptSource?.content ?? '',
         }
       }),
     )
@@ -56,6 +62,9 @@ export default defineEventHandler(async (event) => {
       ),
       prompts: Object.fromEntries(
         sourcePairs.map(({ config, prompt }) => [config.slug, prompt]),
+      ),
+      concepts: Object.fromEntries(
+        sourcePairs.map(({ config, concepts }) => [config.slug, concepts]),
       ),
     })
 

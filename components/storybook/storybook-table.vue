@@ -131,14 +131,18 @@
               v-if="runStore.isOpening"
               class="loading loading-spinner loading-xs"
             />
-            Open this story
+            {{ userStore.isLoggedIn ? 'Open this story' : 'Sign in to open' }}
           </button>
         </div>
       </div>
 
       <div class="mt-2 flex flex-wrap items-center gap-2 text-xs">
         <span class="opacity-75">
-          Story narration currently requires your own OpenAI or Claude API key.
+          {{
+            userStore.isLoggedIn
+              ? 'Story narration currently requires your own OpenAI or Claude API key.'
+              : 'Deal your table freely. Opening a story needs you signed in, and narration uses your own OpenAI or Claude API key.'
+          }}
         </span>
         <server-selector
           v-if="userStore.isLoggedIn"
@@ -149,7 +153,7 @@
           to="/login"
           class="font-bold text-primary underline hover:no-underline"
         >
-          Sign in to add a key →
+          Sign in to open a story →
         </NuxtLink>
       </div>
 
@@ -626,6 +630,11 @@ async function openStory() {
   errorMessage.value = ''
   const hero = board.value.hero[0]
   if (!hero) return
+
+  if (!userStore.isLoggedIn) {
+    errorMessage.value = 'Sign in with the link above to open this story.'
+    return
+  }
 
   // Said here rather than let the server say it: a taskmaster quest with no
   // objective is a story with nothing to serve, and one with no project has no

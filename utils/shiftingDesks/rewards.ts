@@ -136,6 +136,29 @@ export function emptyRewardArchive(): RewardArchive {
   return { version: REWARD_ARCHIVE_VERSION, milestones: {}, runs: [] }
 }
 
+/** A corrupt companion storage key must not erase a valid ongoing game. */
+export function parseSavedJSON(raw: string | null): unknown {
+  if (raw === null) return null
+  try {
+    return JSON.parse(raw) as unknown
+  } catch {
+    return null
+  }
+}
+
+/** Only distinct, authored endings count toward collection milestones. */
+export function restoreEndingGallery(raw: unknown): string[] {
+  if (!Array.isArray(raw)) return []
+  const known = new Set(ENDINGS.map((ending) => ending.id))
+  const seen = new Set<string>()
+  return raw.filter((id): id is string => {
+    if (typeof id !== 'string' || !known.has(id) || seen.has(id))
+      return false
+    seen.add(id)
+    return true
+  })
+}
+
 export function restoreRewardArchive(raw: unknown): RewardArchive {
   if (!raw || typeof raw !== 'object' || Array.isArray(raw))
     return emptyRewardArchive()
@@ -151,10 +174,18 @@ export function restoreRewardArchive(raw: unknown): RewardArchive {
     )
       milestones[id] = date
   }
-  const runs = Array.isArray(value.runs)
-    ? value.runs.filter(isRunReceipt).slice(-REWARD_ARCHIVE_LIMIT)
-    : []
-  return { version: 1, milestones, runs }
+  // Keep the latest instance of a run ID if an older save wrote it twice.
+  const uniqueRuns = new Map<string, RunReceipt>()
+  for (const run of Array.isArray(value.runs) ? value.runs : []) {
+    if (!isRunReceipt(run)) continue
+    uniqueRuns.delete(run.id)
+    uniqueRuns.set(run.id, run)
+  }
+  return {
+    version: 1,
+    milestones,
+    runs: [...uniqueRuns.values()].slice(-REWARD_ARCHIVE_LIMIT),
+  }
 }
 
 function isRunReceipt(value: unknown): value is RunReceipt {
@@ -166,15 +197,27 @@ function isRunReceipt(value: unknown): value is RunReceipt {
     ENDINGS.some((ending) => ending.id === run.endingId) &&
     typeof run.completedAt === 'string' &&
     !Number.isNaN(Date.parse(run.completedAt)) &&
-    typeof run.floors === 'number' &&
-    Number.isFinite(run.floors) &&
-    typeof run.files === 'number' &&
-    Number.isFinite(run.files) &&
-    typeof run.grades?.empathy === 'number' &&
-    typeof run.grades?.obedience === 'number' &&
-    typeof run.grades?.ingenuity === 'number' &&
-    typeof run.grades?.spite === 'number' &&
-    Array.isArray(run.flags)
+    typeof run.jobTitle === 'string' &&
+    typeof run.society === 'string' &&
+    typeof run.mutation === 'string' &&
+    Number.isInteger(run.floors) &&
+    run.floors! >= 0 &&
+    Number.isInteger(run.files) &&
+    run.files! >= 0 &&
+    Number.isInteger(run.employees) &&
+    run.employees! >= 1 &&
+    Number.isInteger(run.forms) &&
+    run.forms! >= 0 &&
+    Number.isInteger(run.successors) &&
+    run.successors! >= 0 &&
+    Number.isFinite(run.grades?.empathy) &&
+    Number.isFinite(run.grades?.obedience) &&
+    Number.isFinite(run.grades?.ingenuity) &&
+    Number.isFinite(run.grades?.spite) &&
+    typeof run.mutationUsed === 'boolean' &&
+    typeof run.societyMet === 'boolean' &&
+    Array.isArray(run.flags) &&
+    run.flags.every((flag) => typeof flag === 'string')
   )
 }
 
@@ -218,6 +261,7 @@ export function recordReward(
 ): RewardArchive {
   if (archive.runs.some((receipt) => receipt.id === run.id)) return archive
   const runs = [...archive.runs, run].slice(-REWARD_ARCHIVE_LIMIT)
+  const distinctEndings = restoreEndingGallery(endings)
   const next: RewardArchive = {
     version: 1,
     milestones: { ...archive.milestones },
@@ -226,7 +270,7 @@ export function recordReward(
   for (const milestone of MILESTONES) {
     if (
       !(milestone.id in next.milestones) &&
-      milestone.value(next, endings) >= milestone.target
+      milestone.value(next, distinctEndings) >= milestone.target
     ) {
       next.milestones[milestone.id] = run.completedAt
     }
@@ -238,12 +282,13 @@ export function migrateFoundEndings(
   archive: RewardArchive,
   endings: string[],
 ): RewardArchive {
-  if (!endings.length) return archive
+  const distinctEndings = restoreEndingGallery(endings)
+  if (!distinctEndings.length) return archive
   const milestones = { ...archive.milestones }
   const earliest = archive.runs[0]?.completedAt
   if (earliest && !milestones['first-ending'])
     milestones['first-ending'] = earliest
-  if (endings.length >= 3 && earliest && !milestones['three-endings'])
+  if (distinctEndings.length >= 3 && earliest && !milestones['three-endings'])
     milestones['three-endings'] = earliest
   return { ...archive, milestones }
 }

@@ -8,7 +8,15 @@ import { ACT_FOUR_QUESTS } from '../emperorOfDust/fortress/actFour'
 import { ACT_FIVE_QUESTS } from '../emperorOfDust/fortress/actFive'
 import { DAYS, QUEST_TEMPLATES } from '../emperorOfDust/fortress/content'
 import { EPILOGUE, epilogueFor } from '../emperorOfDust/fortress/epilogue'
-import { createRun, recruit } from '../emperorOfDust/fortress/engine'
+import {
+  audienceScene,
+  audiencesToday,
+  chooseAudienceOption,
+  createRun,
+  optionBlockers,
+  postDawnQuests,
+  recruit,
+} from '../emperorOfDust/fortress/engine'
 import { POLICIES, playCampaign } from '../emperorOfDust/fortress/balance'
 import { validateRun } from '../emperorOfDust/fortress/saves'
 import { TALKS } from '../emperorOfDust/fortress/talks'
@@ -580,6 +588,86 @@ assert.doesNotMatch(
   'The court must address Flint by name or role, never by species',
 )
 
+type ConditionalSceneFixture = {
+  day: number
+  id: string
+  flags: string[]
+  follower?: string
+}
+const conditionalSceneFixtures: ConditionalSceneFixture[] = [
+  { day: 5, id: 'd05-toll-grudge', flags: ['feast-armed'] },
+  { day: 19, id: 'd19-knotted-bandage', flags: ['d16-informant-spy'] },
+  { day: 27, id: 'd27-trial', flags: [], follower: 'F004' },
+  { day: 27, id: 'd27-fen-count', flags: ['mire-quiet-count'] },
+  { day: 34, id: 'd34-crow-debt', flags: ['crow-debt-called'] },
+  { day: 41, id: 'd41-midnight-gate', flags: ['komodo-asked-to-stay'] },
+  {
+    day: 42,
+    id: 'd42-cage-wagon',
+    flags: ['hideout:wagon-circle', 'pack-camp-mapped'],
+  },
+  {
+    day: 42,
+    id: 'd42-mill-doors',
+    flags: ['hideout:bell-cellars', 'mara-millers-levy'],
+  },
+  {
+    day: 42,
+    id: 'd42-waystation-graves',
+    flags: ['hideout:moving-caravan', 'waystation-abandoned'],
+  },
+  ...[
+    'mole-tunnels',
+    'crow-cave',
+    'bell-cellars',
+    'wagon-circle',
+    'moving-caravan',
+    'freehold-barn',
+    'rail-station',
+  ].map((hideout) => ({
+    day: 46,
+    id: `d46-patience-${hideout}`,
+    flags: [`hideout:${hideout}`, 'host-demand-unpaid'],
+  })),
+]
+assert.equal(conditionalSceneFixtures.length, 16)
+for (const fixture of conditionalSceneFixtures) {
+  const make = (includeRequirements: boolean) => {
+    const run = {
+      ...createRun(fixture.day * 719),
+      day: fixture.day,
+      flags: includeRequirements ? [...fixture.flags] : [],
+      roster:
+        includeRequirements && fixture.follower
+          ? [{ id: fixture.follower, joinedDay: 1, equipment: {} }]
+          : [],
+      board: [],
+      reports: [],
+    }
+    postDawnQuests(run)
+    return run
+  }
+  const without = make(false)
+  assert.ok(
+    !audiencesToday(without).some((scene) => scene.id === fixture.id),
+    `${fixture.id} must not appear before its prerequisites`,
+  )
+  const prepared = make(true)
+  const scene = audiencesToday(prepared).find(
+    (entry) => entry.id === fixture.id,
+  )
+  assert.ok(scene, `${fixture.id} should be offered with its prerequisites`)
+  const answer = audienceScene(prepared, scene).options.find(
+    (option) => !option.next && optionBlockers(prepared, option).length === 0,
+  )
+  assert.ok(answer, `${fixture.id} must have a usable final decision`)
+  const answered = chooseAudienceOption(prepared, fixture.id, answer.id).run
+  assert.ok(
+    answered.audiencesHeard.includes(fixture.id),
+    `${fixture.id} must close through the real audience engine`,
+  )
+}
+
 const directory = 'artifacts/emperor'
 mkdirSync(directory, { recursive: true })
 const suspicious = rows.filter(
@@ -622,6 +710,8 @@ const markdown = [
   `Unvisited audiences (${unvisitedAudiences.length}): ${unvisitedAudiences.join(', ') || 'none'}`,
   '',
   `Unvisited follower talks (${unvisitedTalks.length}): ${unvisitedTalks.join(', ') || 'none'}`,
+  '',
+  `Conditional gate fixtures exercised: ${conditionalSceneFixtures.length} of the earlier unvisited audiences (preconditions injected, not organic campaign routes).`,
   '',
   'Not visited does not mean unreachable. Conditional gates, recruitment and random seeds require targeted reachability tests.',
   '',
@@ -668,6 +758,7 @@ writeFileSync(
         assessedRows: rows.length,
         unvisitedAudiences: unvisitedAudiences.length,
         unvisitedTalks: unvisitedTalks.length,
+        conditionalGateFixtures: conditionalSceneFixtures.length,
       },
       rows,
       priorityIds: priority.map((row) => row.id),

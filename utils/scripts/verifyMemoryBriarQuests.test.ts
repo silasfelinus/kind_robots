@@ -34,6 +34,27 @@ import { BRIAR_SCENES } from '../memoryDungeon/scenes'
 import { newBriarSave, restoreBriarSave } from '../memoryDungeonWorld'
 import { buildMemoryDungeonPlaybook } from '../playbook/memoryDungeon'
 
+// Fast-resolution encounters preserve both legacy decision IDs for old saves,
+ // but new visits apply the authored default without an extra choice panel.
+const quickDiscoveries: Record<string, string> = {
+  '1,5': 'guide',
+  '1,6': 'rescue',
+  '2,6': 'trace',
+  '3,4': 'help',
+  '5,1': 'shelter',
+}
+for (const [key, id] of Object.entries(quickDiscoveries)) {
+  const scene = BRIAR_SCENES[key]
+  assert.ok(scene, `quick discovery ${key} exists`)
+  assert.equal(scene.autoChoiceId, id)
+  const choice = scene.choices.find((entry) => entry.id === id)
+  assert.ok(choice, `quick discovery ${key} has a valid outcome`)
+  assert.equal(choice.cost?.wildflowers ?? 0, 0)
+  assert.equal(choice.cost?.lanterns ?? 0, 0)
+  assert.ok(choice.outcome.length > 20)
+  assert.ok(scene.choices.length >= 2, 'legacy choices remain restorable')
+}
+
 // World One's eight side quests (kind_robots #4136: eight side quests per
 // realm). Each thread is taken by real Briar and House choices, can be closed
 // by a different choice, and is read from decisions the save already keeps.

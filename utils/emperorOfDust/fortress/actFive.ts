@@ -163,6 +163,8 @@ export const ACT_FIVE_QUESTS: readonly QuestDef[] = [
     outcomes: {
       success:
         'Every support holds beneath the burrow roof. Granny Umber strikes the newest brace with her walking stick and listens for the answer. She opens the inner gate, but keeps the keys.',
+      partial:
+        'The first brace holds, but only the east gallery opens. Families carry bedding through a crawlspace. Granny Umber accepts the timber and keeps the inner gate locked until the second shift.',
       failure:
         'One brace snaps and half a passage fills with dust. The families reach the deeper gallery unharmed, carrying their bedding through ankle-high rubble. Granny Umber asks for timber before she asks for thanks.',
       expired:
@@ -195,7 +197,9 @@ export const ACT_FIVE_QUESTS: readonly QuestDef[] = [
     expired: { affinity: { 'storm-crows': -10 } },
     outcomes: {
       success:
-        'Three nights on the ledges. On the third, a line of lanterns went up the Abbey road. None came down.',
+        'The sentries keep the ledge through one hard night. At dawn a line of lanterns climbs the Abbey road. None comes back down. Corvane copies the times for the court and keeps the original.',
+      partial:
+        'One movement on the Abbey road is recorded before the fog takes the ledges. Corvane lets the court keep a copy of the sighting. His sentries stay on the cliff, waiting for the rest.',
       failure:
         'Two watchers miss the change of lanterns on the Abbey road. Corvane’s sentries record it in their night ledger and deliver a copy to the court. They keep the original.',
       expired:
@@ -228,7 +232,9 @@ export const ACT_FIVE_QUESTS: readonly QuestDef[] = [
     expired: { affinity: { 'hollow-bell': -10 } },
     outcomes: {
       success:
-        'The aqueduct runs. Mara Reedbell rings the chapel bell once, quietly. For the court.',
+        'The patched channel carries water to the last houses before sunrise. Mara Reedbell checks the far taps herself. Then she rings the chapel bell once, quietly. The people in the cellars hear it.',
+      partial:
+        'Water runs into the near wards before the patch begins to leak. The far houses still carry jars up the chapel steps. Mara thanks the crew in public and asks for another shift in private.',
       failure:
         'The aqueduct loses water through a broken joint near the chapel. Mara Reedbell orders the public taps shut between bells. By afternoon a row of empty jars stands against the town hall.',
       expired:
@@ -261,7 +267,9 @@ export const ACT_FIVE_QUESTS: readonly QuestDef[] = [
     expired: { affinity: { jackalwire: -10 } },
     outcomes: {
       success:
-        'Every wagon rolls. Vane paints a small crown on the axle of his own.',
+        'Every painted wagon leaves the circle on its own wheels. Vane checks the last axle with his foot, then paints a small crown on his own. He tells the court it is a bill of thanks, not a surrender.',
+      partial:
+        'The front wagons roll. The rest sit on stones with their axles laid beside them. Vane paints working wheels blue and broken ones red. The crown's bedding is in a red wagon.',
       failure:
         'The Pack gets half its wagons moving. Vane paints a number on each stalled axle and sets the repair bill beneath the crown’s borrowed flag. He can still count what he is owed.',
       expired:
@@ -295,7 +303,9 @@ export const ACT_FIVE_QUESTS: readonly QuestDef[] = [
     expired: { affinity: { saltroad: -10 } },
     outcomes: {
       success:
-        'The caravan made the salt flats by dawn. Not a wheel lost. Not a guest.',
+        'The caravan crosses the salt flats before sunrise. No wheel breaks and no guest goes missing. Oriel counts the drivers twice, then returns the roster to the crown with every name still on it.',
+      partial:
+        'Most of the wagons reach the flats. A medicine cart loses its axle and arrives after sunrise with Oriel walking beside the patients. She writes down who stayed with it. Her tally leaves no room for applause.',
       failure:
         'The caravan limps into the salt flats missing two wagons. Oriel Saltmarsh sets out two empty harnesses in front of the paymaster and asks which account covers the drivers who were hired to bring them home.',
       expired:
@@ -328,7 +338,9 @@ export const ACT_FIVE_QUESTS: readonly QuestDef[] = [
     expired: { affinity: { freeholds: -10 } },
     outcomes: {
       success:
-        'The field is in. Hester hands every reaper a warm egg, like pinning on a medal.',
+        'The last sheaves come in before the riders find the field. Hester counts enough grain to see the families through winter. She hands every reaper a warm egg and saves the largest for her sister.',
+      partial:
+        'Hester gets the seed grain under cover. The outer field burns before the reapers reach it. She has saved spring and lost part of winter. At supper her sister cuts the loaves thinner.',
       failure:
         'Half the harvest is lost before the sheaves are stacked. Hester keeps the remaining sacks under guard. Her sister counts how many households they can feed, then stops when she reaches winter.',
       expired:
@@ -362,7 +374,9 @@ export const ACT_FIVE_QUESTS: readonly QuestDef[] = [
     expired: { affinity: { rustline: -10 } },
     outcomes: {
       success:
-        'The engine is stripped to the bolts. Jinx keeps the shiny ones.',
+        'The abandoned engine is stripped to its bolts before the other salvagers arrive. Jinx keeps the clean gears and lays the usable copper on the station floor. The winch can turn again.',
+      partial:
+        'Jinx brings the engine's gears home, but the copper is gone. The station's winch turns again. Its lamps stay dark. Jinx hands the crown a grease-black bolt instead of the payment they had hoped for.',
       failure:
         'Jinx finds the salvage engine stripped of its copper and good bolts. Only a broken brass nameplate remains. They hold it up to the sun and say the crown can have that much for free.',
       expired:
@@ -391,7 +405,9 @@ export const ACT_FIVE_QUESTS: readonly QuestDef[] = [
     expired: { local: { yard: -3 } },
     outcomes: {
       success:
-        'Roots, a snared hare, somebody’s abandoned flour. Tonight nobody is hungry.',
+        'The foragers find roots, a snared hare, and flour left in an empty cart. Dunmore makes a meal that reaches the last person at the fire. The watch gets the same bowl as the children.',
+      partial:
+        'The party brings back roots and one sack of grain found in an empty shed. It feeds the guards, not everyone waiting in the dark. Dunmore tears the last ration chit in half and calls it supper.',
       failure:
         'The party comes back carrying dry roots and one cracked cooking pot. The last bread is gone before the evening fire. Dunmore measures tomorrow’s portions with a string.',
       expired:
@@ -509,6 +525,8 @@ export const ACT_FIVE_QUESTS: readonly QuestDef[] = [
         'The clapper lay in the Mirefen’s deepest pool, in prayer cloth older than the Abbey. The Mire Mothers kept it there on purpose. They gave it up on purpose. Older treasures lay beside it. Those came home too.',
       success:
         'The clapper lay in the Mirefen’s deepest pool, in prayer cloth older than the Abbey. It is heavy. It hums when nobody touches it.',
+      partial:
+        'The party brings back the prayer cloth and an empty bronze cradle, not the clapper. Reedlight says the pool has moved. Vellum records the loss without naming a thief. The bell keeper keeps the ropes ready.',
       failure:
         'The recovery party returns with empty cloth and river mud in its boots. Sister Reedlight says the old pool has changed its banks. The throne must decide whether the bell can ring without its heart.',
       expired:

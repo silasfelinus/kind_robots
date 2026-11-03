@@ -1023,6 +1023,18 @@ export const ANIMATION_EFFECTS = [
     generationSafe: true,
     preferredSurface: 'fullscreen',
   },
+  {
+    id: 'teacup-steam-curls',
+    label: 'Teacup Steam Curls',
+    reveal: 'Three quiet teacups send slow curls of steam into the evening',
+    icon: 'kind-icon:sparkle',
+    tooltip:
+      'Warm steam curls up from three teacups on a table ☕ hover to part the steam, click to blow a puff that slowly settles',
+    color: '#f4c9a8',
+    releasedAt: '2026-11-03T14:00:00Z',
+    generationSafe: true,
+    preferredSurface: 'fullscreen',
+  },
 ] as const satisfies readonly AnimationEffectDefinition[]
 
 export type AnimationEffectId = (typeof ANIMATION_EFFECTS)[number]['id']

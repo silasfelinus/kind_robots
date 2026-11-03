@@ -17,27 +17,25 @@
 
   No touch-action and no :active lift, for the same iOS reasons documented in
   workspace-hand.vue.
+
+  Silas, 2026-11-02: "let the user manually drop cards into the discard pile,
+  instead of that keep/discard button … make it simple." So cards DRAG: onto
+  the board to play them, onto the DISCARD pile to cycle them at the next draw.
+  Tap still works everywhere: tap a card, then a square or the pile; tap the
+  pile alone to take the last tossed card back.
 -->
 <template>
   <div
     class="sch"
     :class="'tone-' + lab.team.color"
     data-testid="slime-hand"
-    :aria-label="
-      lab.mode === 'blackout' ? 'Your five-card hand' : 'Arcade card rack'
-    "
+    :aria-label="arena ? 'Your five-card hand' : 'Arcade card rack'"
   >
     <div
-      v-if="lab.mode === 'blackout'"
+      v-if="arena"
       class="sch-pile"
       data-testid="slime-deck-count"
-      :title="
-        'Draw pile ' +
-        lab.match.piles.player.length +
-        ' · discard ' +
-        lab.match.discards.player.length +
-        ' · keep or choose discards at END ROUND'
-      "
+      :title="'Draw pile ' + lab.match.piles.player.length"
     >
       <span class="sch-back sch-back-stack" aria-hidden="true"
         ><SlimeCityArtwork
@@ -73,7 +71,7 @@
             unavailable: card.cost > lab.match.mana || !lab.ready(card.id),
             spent: !lab.ready(card.id),
             'is-flipping': flipping === card.id,
-            'marked-discard': lab.match.markedDiscards.player.includes(card.id),
+            lifted: drag?.id === card.id,
           }"
           :style="fanStyle(index)"
           :data-testid="'slime-card-' + card.id"
@@ -81,6 +79,7 @@
           :aria-label="
             card.name + ', ' + card.kind + ', costs ' + card.cost + ' mana'
           "
+          @pointerdown="grab($event, card.id)"
           @click="pick(card.id)"
         >
           <span class="sch-flip">
@@ -124,33 +123,28 @@
           </span>
         </button>
       </TransitionGroup>
-      <div v-if="lab.mode === 'blackout'" class="sch-cycle-row">
-        <button
-          v-for="card in cards"
-          :key="'cycle-' + card.id"
-          type="button"
-          class="sch-cycle"
-          :class="{ active: lab.match.markedDiscards.player.includes(card.id) }"
-          :aria-pressed="lab.match.markedDiscards.player.includes(card.id)"
-          :aria-label="'Discard ' + card.name + ' at the end of this round'"
-          :data-testid="'slime-discard-' + card.id"
-          @click.stop="lab.markHandDiscard(card.id)"
-        >
-          {{
-            lab.match.markedDiscards.player.includes(card.id)
-              ? 'REDRAW ↻'
-              : 'KEEP'
-          }}
-        </button>
-      </div>
     </div>
 
-    <div
-      v-if="lab.mode === 'blackout'"
+    <button
+      v-if="arena"
+      type="button"
       class="sch-pile sch-discard"
-      :title="lab.match.discards.player.length + ' in the discard pile'"
+      :class="{ hot: drag?.over === 'discard', armed: !!lab.selectedCard }"
+      data-drop="discard"
+      data-testid="slime-discard-pile"
+      :aria-label="discardLabel"
+      :title="discardLabel"
+      @click="tapDiscard"
     >
-      <span class="sch-back" aria-hidden="true"
+      <span v-if="tossed" class="sch-tossed" aria-hidden="true"
+        ><SlimeCityArtwork
+          :image-id="slimeArtId('cards', tossed.id)"
+          alt=""
+          :fallback="tossed.symbol"
+          compact
+        /><i>↩</i></span
+      >
+      <span v-else class="sch-back" aria-hidden="true"
         ><SlimeCityArtwork
           v-if="backArt"
           class="sch-back-art"
@@ -158,9 +152,27 @@
           alt=""
           compact
       /></span>
-      <b>{{ lab.match.discards.player.length }}</b>
-      <small>DISCARD</small>
-    </div>
+      <b>{{ lab.match.markedDiscards.player.length || '' }}</b>
+      <small>{{ tossed ? 'TAP TO UNDO' : 'DISCARD' }}</small>
+    </button>
+
+    <Teleport to="body">
+      <div
+        v-if="drag && dragged"
+        class="sch-ghost"
+        :class="'tone-' + lab.team.color"
+        :style="{ left: drag.x + 'px', top: drag.y + 'px' }"
+        aria-hidden="true"
+      >
+        <SlimeCityArtwork
+          :image-id="slimeArtId('cards', dragged.id)"
+          alt=""
+          :fallback="dragged.symbol"
+          compact
+        />
+        <b>{{ dragged.cost }}</b>
+      </div>
+    </Teleport>
   </div>
 </template>
 
@@ -168,12 +180,100 @@
 import { computed, onBeforeUnmount, ref } from 'vue'
 import { useSlimeCityStore } from '~/stores/slimeCity'
 import { slimeArtId } from '~/utils/slimeCity/artManifest'
+import { cardById } from '~/utils/slimeCity/prototypes'
 
 const lab = useSlimeCityStore()
 /** Painted card back once art round 4 renders; the CSS back until then. */
 const backArt = slimeArtId('ui', 'card-back')
 
-const cards = computed(() => (lab.mode === 'blackout' ? lab.hand : lab.cards))
+/** BLACKOUT and BLOODRUSH both deal a hand; the lane fixture shows a rack. */
+const arena = computed(() => lab.sight.auto)
+/** Tossed cards leave the fan and sit on the discard pile until the draw. */
+const cards = computed(() =>
+  arena.value
+    ? lab.hand.filter((c) => !lab.match.markedDiscards.player.includes(c.id))
+    : lab.cards,
+)
+const tossed = computed(() => {
+  const id = lab.match.markedDiscards.player.at(-1)
+  return id ? cardById(id) : null
+})
+const discardLabel = computed(() =>
+  lab.selectedCard
+    ? 'Discard the selected card'
+    : tossed.value
+      ? 'Take ' + tossed.value.name + ' back'
+      : 'Drag a card here to replace it at the next draw',
+)
+function tapDiscard(): void {
+  if (lab.selectedCard) lab.markHandDiscard(lab.selectedCard)
+  else lab.undoDiscard()
+}
+
+/** Pointer drag: onto a board square or token to play, onto the pile to toss. */
+const drag = ref<{
+  id: string
+  x: number
+  y: number
+  over: 'discard' | 'board' | null
+} | null>(null)
+const dragged = computed(() => (drag.value ? cardById(drag.value.id) : null))
+let pressed: { id: string; x: number; y: number; pointer: number } | null = null
+let swallowClick = false
+
+type Drop = { kind: 'discard' } | { kind: 'board'; x: number; y: number }
+function dropAt(x: number, y: number): Drop | null {
+  const el = document
+    .elementFromPoint(x, y)
+    ?.closest<HTMLElement>('[data-drop], [data-drop-x]')
+  if (!el) return null
+  if (el.dataset.drop === 'discard') return { kind: 'discard' }
+  return {
+    kind: 'board',
+    x: Number(el.dataset.dropX),
+    y: Number(el.dataset.dropY),
+  }
+}
+function grab(event: PointerEvent, id: string): void {
+  if (!arena.value || event.button !== 0 || lab.match.victor) return
+  pressed = { id, x: event.clientX, y: event.clientY, pointer: event.pointerId }
+  window.addEventListener('pointermove', follow)
+  window.addEventListener('pointerup', release)
+  window.addEventListener('pointercancel', abandon)
+}
+function follow(event: PointerEvent): void {
+  if (!pressed || event.pointerId !== pressed.pointer) return
+  if (
+    !drag.value &&
+    Math.hypot(event.clientX - pressed.x, event.clientY - pressed.y) < 10
+  )
+    return
+  if (!drag.value) lab.dragCard = pressed.id
+  drag.value = {
+    id: pressed.id,
+    x: event.clientX,
+    y: event.clientY,
+    over: dropAt(event.clientX, event.clientY)?.kind ?? null,
+  }
+}
+function release(event: PointerEvent): void {
+  if (pressed && event.pointerId === pressed.pointer && drag.value) {
+    const id = pressed.id
+    const target = dropAt(event.clientX, event.clientY)
+    if (target?.kind === 'discard') lab.markHandDiscard(id)
+    else if (target?.kind === 'board') lab.dropCard(id, target.x, target.y)
+    swallowClick = true
+  }
+  abandon()
+}
+function abandon(): void {
+  pressed = null
+  drag.value = null
+  lab.dragCard = null
+  window.removeEventListener('pointermove', follow)
+  window.removeEventListener('pointerup', release)
+  window.removeEventListener('pointercancel', abandon)
+}
 
 /** Fan the hand like held cards: a gentle arc, centre card highest. */
 function fanStyle(index: number): Record<string, string> {
@@ -197,6 +297,10 @@ const flipping = ref('')
 let flipTimer: ReturnType<typeof setTimeout> | null = null
 
 function pick(id: string): void {
+  if (swallowClick) {
+    swallowClick = false
+    return
+  }
   const choosing = lab.selectedCard !== id
   lab.chooseCard(id)
   if (!choosing) return
@@ -209,6 +313,7 @@ function pick(id: string): void {
 
 onBeforeUnmount(() => {
   if (flipTimer) clearTimeout(flipTimer)
+  abandon()
 })
 
 function sparkleStyle(n: number): Record<string, string> {
@@ -603,9 +708,6 @@ function sparkleStyle(n: number): Record<string, string> {
     justify-content: flex-start;
     padding: 0 0.5rem;
   }
-  .sch-discard {
-    display: none;
-  }
   .sch-mana b {
     width: 2rem;
     height: 2rem;
@@ -630,30 +732,71 @@ function sparkleStyle(n: number): Record<string, string> {
     opacity: 0;
   }
 }
-.sch-cycle-row {
-  pointer-events: auto;
-  display: flex;
-  justify-content: center;
-  gap: 0.45rem;
-  padding: 0.15rem 0.4rem 0.45rem;
+.sch-card.lifted {
+  opacity: 0.25;
 }
-.sch-cycle {
-  border: 1px solid currentColor;
-  border-radius: 999px;
-  min-width: 0;
-  flex: 1;
-  max-width: 7.5rem;
-  padding: 0.22rem 0.3rem;
-  font-size: 0.65rem;
-  font-weight: 800;
-  opacity: 0.65;
+.sch-discard {
+  padding: 0.2rem;
+  border-radius: 0.6rem;
+  border: 2px dashed transparent;
+  transition:
+    border-color 0.15s,
+    transform 0.15s;
 }
-.sch-cycle.active {
-  background: #fcce5e;
-  color: #20141c;
-  opacity: 1;
+.sch-discard.armed,
+.sch-discard.hot {
+  border-color: #ffd34d;
+  transform: scale(1.08);
+  box-shadow: 0 0 22px #ffd34d55;
 }
-.sch-card.marked-discard {
-  filter: saturate(0.5);
+.sch-tossed {
+  position: relative;
+  display: block;
+  overflow: hidden;
+  width: calc(var(--card-w) * 0.62);
+  aspect-ratio: 2 / 3;
+  border-radius: 0.4rem;
+  border: 2px solid #ffd34d;
+  transform: rotate(7deg);
+  filter: saturate(0.6) brightness(0.8);
+}
+.sch-tossed i {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  color: #fff;
+  font-size: 1.3rem;
+  font-style: normal;
+  text-shadow: 0 1px 4px #000;
+}
+.sch-ghost {
+  position: fixed;
+  z-index: 1000;
+  width: 5.5rem;
+  aspect-ratio: 2 / 3;
+  overflow: hidden;
+  border-radius: 0.55rem;
+  border: 2px solid #f8ffad;
+  translate: -50% -60%;
+  rotate: -6deg;
+  pointer-events: none;
+  box-shadow:
+    0 18px 30px #000c,
+    0 0 26px #c5ff5988;
+}
+.sch-ghost b {
+  position: absolute;
+  top: 0.25rem;
+  left: 0.25rem;
+  display: grid;
+  place-items: center;
+  width: 1.45rem;
+  height: 1.45rem;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%, #f2ffb8, #8bd136 60%, #3d6a12);
+  color: #10200a;
+  font-size: 0.78rem;
+  font-weight: 1000;
 }
 </style>

@@ -1135,6 +1135,7 @@ assert.equal(lab.route?.to, 'undertow')
 lab.walk()
 assert.equal(lab.city.location, 'undertow')
 assert.equal(lab.city.pendingStreet, 'The Long Drain')
+assert.equal(lab.cityScene, 'street', 'A street story takes over the stage')
 assert.equal(lab.districtId, 'crown', 'Destination remains selected en route')
 lab.walk()
 assert.equal(
@@ -1145,6 +1146,11 @@ assert.equal(
 lab.chooseStreet(STREET_STORIES['The Long Drain']!.choices[0].id)
 assert.equal(streetStory(lab.city), null)
 assert.equal(lab.districtId, 'crown', 'Choice preserves onward destination')
+assert.equal(
+  lab.cityScene,
+  'map',
+  'Mid-route, a settled story returns to the map',
+)
 assert.equal(lab.route?.to, 'crown')
 lab.walk()
 assert.equal(lab.city.location, 'crown')
@@ -1152,6 +1158,13 @@ assert.equal(lab.city.pendingStreet, 'Ledger Sewer')
 lab.chooseStreet(STREET_STORIES['Ledger Sewer']!.choices[1].id)
 assert.equal(lab.city.location, 'crown')
 assert.equal(lab.routeSteps.length, 0)
+assert.equal(lab.cityScene, 'district', 'Arriving opens the district scene')
+lab.showCityMap()
+assert.equal(lab.cityScene, 'map')
+lab.enterCity()
+assert.equal(lab.cityScene, 'district')
+lab.showCity()
+assert.equal(lab.cityScene, 'map', 'The CITY tab backs out to the map')
 lab.showCards()
 assert.equal(lab.view, 'cards')
 lab.showCity()
@@ -1354,6 +1367,15 @@ assert.equal(
 )
 lab.showCampaign()
 assert.equal(lab.view, 'campaign')
+assert.equal(
+  lab.campaignScreen,
+  'aftermath',
+  'A settled chapter returns to its aftermath scene first',
+)
+lab.continueCampaign()
+assert.equal(lab.campaignScreen, 'chapter')
+lab.showCampaignAftermath()
+assert.equal(lab.campaignScreen, 'aftermath')
 assert.equal(lab.campaignSave.catgirls.wins, 0)
 lab.chooseTeam('catgirls')
 assert.equal(
@@ -1369,15 +1391,26 @@ lab.findCampaignBattle()
 assert.equal(lab.view, 'city')
 assert.equal(lab.districtId, 'undertow')
 assert.equal(lab.routeSteps.length, 1)
+assert.equal(
+  lab.cityScene,
+  'map',
+  'Across town, following the story shows the lit route on the map',
+)
 lab.startCampaignBattle('conviction')
 assert.equal(lab.view, 'city', 'Cannot launch mission while across town')
 lab.walk()
 assert.equal(lab.city.location, 'undertow')
 assert.equal(lab.city.pendingStreet, 'The Long Drain')
+assert.equal(lab.cityScene, 'street')
 lab.startCampaignBattle('conviction')
 assert.equal(lab.view, 'city', 'Unresolved street encounter blocks mission')
 lab.chooseStreet(STREET_STORIES['The Long Drain']!.choices[0].id)
 assert.equal(lab.campaignAtDestination, true)
+assert.equal(
+  lab.cityScene,
+  'story',
+  'Arriving opens the story mission as its own full-stage scene',
+)
 lab.startCampaignBattle('cunning')
 assert.equal(lab.view, 'arena')
 assert.equal(lab.match.foeId, 'undertow')
@@ -1404,6 +1437,7 @@ lab.chooseTeam('catgirls')
 lab.findCampaignBattle()
 assert.equal(lab.view, 'city')
 assert.equal(lab.crisisEvent?.id, 'broadcast')
+assert.equal(lab.cityScene, 'crisis', 'The crisis takes the stage first')
 assert.equal(lab.campaignAtDestination, false)
 lab.startCampaignBattle('conviction')
 assert.equal(lab.view, 'city', 'City crisis blocks the mission button')

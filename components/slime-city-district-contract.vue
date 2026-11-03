@@ -52,17 +52,19 @@ const lab = useSlimeCityStore()
 <style scoped>
 .district-contract {
   display: grid;
-  grid-template-columns: minmax(7rem, 0.8fr) minmax(0, 1.5fr);
-  gap: 0.75rem;
-  margin-top: 0.65rem;
+  grid-template-columns: minmax(9rem, 0.8fr) minmax(0, 1.5fr);
+  gap: 1rem;
   border: 1px solid #b8ff7880;
-  border-radius: 0.7rem;
-  background: #0e1728;
+  border-radius: 0.9rem;
+  background: #0b1424e6;
+  box-shadow: 0 18px 48px #000a;
+  backdrop-filter: blur(6px);
   overflow: hidden;
+  container-type: inline-size;
 }
 .contract-poster {
-  min-height: 9rem;
-  padding: 0.75rem;
+  min-height: 14rem;
+  padding: 1rem;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
@@ -79,16 +81,19 @@ const lab = useSlimeCityStore()
 }
 .contract-poster span,
 .contract-kicker {
-  font-size: 0.6rem;
+  font-size: 0.7rem;
   font-weight: 800;
-  letter-spacing: 0.13em;
+  letter-spacing: 0.18em;
 }
 .contract-poster strong {
-  font-size: clamp(1rem, 3cqw, 1.75rem);
+  font-size: clamp(1.5rem, 5cqw, 2.8rem);
+  font-style: italic;
+  font-weight: 1000;
   line-height: 0.94;
+  text-transform: uppercase;
 }
 .contract-poster small {
-  font-size: 0.65rem;
+  font-size: 0.75rem;
 }
 .contract-chimera {
   background: radial-gradient(circle at 70% 20%, #e878b1, #4c225a 55%, #121529);
@@ -110,22 +115,23 @@ const lab = useSlimeCityStore()
 }
 .contract-info {
   display: grid;
-  gap: 0.5rem;
+  gap: 0.75rem;
   align-content: center;
   min-width: 0;
-  padding: 0.75rem 0.75rem 0.75rem 0;
+  padding: 1rem 1rem 1rem 0;
 }
 .contract-info p {
   margin: 0;
-  font-size: 0.73rem;
-  line-height: 1.4;
+  font-size: clamp(0.95rem, 2cqw, 1.15rem);
+  line-height: 1.5;
   color: #eee6f4;
 }
 .contract-info .contract-kicker {
   color: #d1fa8b;
+  font-size: 0.7rem;
 }
 .contract-info small {
-  font-size: 0.62rem;
+  font-size: 0.72rem;
   color: #aebdcc;
 }
 .contract-actions {
@@ -133,37 +139,46 @@ const lab = useSlimeCityStore()
   align-items: center;
   justify-content: space-between;
   flex-wrap: wrap;
-  gap: 0.5rem;
+  gap: 0.75rem;
 }
 .contract-actions span {
-  font-size: 0.6rem;
+  font-size: 0.75rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
   color: #c4ec91;
 }
 .contract-actions strong {
   color: #d1fa8b;
-  font-size: 0.7rem;
+  font-size: 0.9rem;
 }
 .contract-actions button {
-  padding: 0.5rem 0.65rem;
+  min-height: 3.25rem;
+  padding: 0.8rem 1.5rem;
   color: #122221;
   background: #d1fa8b;
   border: 0;
-  border-radius: 0.3rem;
-  font-weight: 900;
-  font-size: 0.7rem;
+  border-radius: 0.6rem;
+  font-weight: 1000;
+  font-size: clamp(0.85rem, 2cqw, 1.05rem);
+  letter-spacing: 0.1em;
+  box-shadow: 0 0 28px #c5ff5955;
 }
 .contract-actions button:disabled {
   opacity: 0.5;
 }
-@media (max-width: 660px) {
+@container (max-width: 560px) {
   .district-contract {
     grid-template-columns: 1fr;
+    gap: 0.5rem;
   }
   .contract-info {
-    padding: 0 0.75rem 0.75rem;
+    padding: 0 0.9rem 0.9rem;
   }
   .contract-poster {
-    min-height: 6rem;
+    min-height: 7rem;
+  }
+  .contract-actions button {
+    flex: 1 1 auto;
   }
 }
 </style>

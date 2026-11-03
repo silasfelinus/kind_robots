@@ -152,7 +152,7 @@ for (let seed = 1; seed <= 12; seed++) {
     finale: 'protect',
   })
   assert.equal(run.phase, 'ending', 'newly authored route cannot softlock')
-  assert.equal(run.consequenceHistory?.length, 4)
+  assert.equal(run.consequenceHistory?.length, 5)
   assert.deepEqual(
     run.consequenceHistory
       ?.filter((record) => record.chapter <= 3)
@@ -165,8 +165,8 @@ for (let seed = 1; seed <= 12; seed++) {
 }
 assert.equal(
   visits,
-  48,
-  'three first-act cases and the Act II Concord case per voyage',
+  60,
+  'three first-act cases, the Act II Concord case and one Act III case per voyage',
 )
 const page = readFileSync(
   new URL('../../pages/play/game-of-captains.vue', import.meta.url),

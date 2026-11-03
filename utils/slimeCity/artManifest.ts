@@ -214,6 +214,15 @@ export const SLIME_CITY_ART = {
   ui: {
     'card-back': 260371,
   },
+  /**
+   * Board tokens: one painted reaction-face portrait per creature and mood,
+   * keyed '<cardId>/<mood>' (fierce, guard, hurt), from Conductor
+   * projects/slime-city/art/BOARD-TOKENS-ROUND-6.yaml.
+   * Silas, 2026-11-02: "we need custom tokens for all cards on the board.
+   * Images with reaction faces would probably work." Until a creature's
+   * portraits render, its token uses the card art with a reaction badge.
+   */
+  tokens: {} as Readonly<Record<string, number>>,
 } as const
 
 export type SlimeCityArtGroup = keyof typeof SLIME_CITY_ART

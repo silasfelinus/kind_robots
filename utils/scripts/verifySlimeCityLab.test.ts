@@ -9,6 +9,10 @@ import {
   advance,
   ALTERNATING_INITIATIVE,
   cardById,
+  BASE_HP,
+  BLACKOUT_HAND_SIZE,
+  flagHome,
+  flagSquare,
   cardReady,
   CARDS,
   cpuTurn,
@@ -567,26 +571,44 @@ const tick1 = advance(beat)
 const tick2 = advance({ ...tick1, enemyMana: 0 })
 assert.equal(RUSH_MOVE_EVERY, 2)
 assert.equal(at(tick1, 1).x, 3, 'Odd tick: no step')
-assert.equal(at(tick2, 1).x, 4, 'Beat tick: step')
+assert.ok(at(tick2, 1).x > 3, 'Beat tick: the arena marches')
+// BLOODRUSH shares the arena: bases, two flags, a five-card hand.
+assert.equal(rush.hands.player.length, BLACKOUT_HAND_SIZE)
+assert.equal(rush.bases.enemy, BASE_HP.bloodrush)
+assert.equal(flagHome(rush, 'enemy').x, rush.width - 1)
 const rest = createMatch('bloodrush', 'catgirls', 'ironjaw', 4817)
+rest.mana = 10
+const restCard = rest.hands.player
+  .map(cardById)
+  .find((c) => c.kind === 'creature')!
 const restOpen = [0, 1, 2, 3, 4, 5].find(
-  (y) => !rest.units.some((u) => u.x === 0 && u.y === y),
+  (y) =>
+    !rest.units.some((u) => u.x === 0 && u.y === y) && !flagSquare(rest, 0, y),
 )!
-const rested = deploy(rest, 'lynx', 0, restOpen)
+const rested = deploy(rest, restCard.id, 0, restOpen)
+assert.notEqual(rested, rest, 'Hand cards deploy in BLOODRUSH')
+assert.equal(rested.hands.player.includes(restCard.id), false)
 let wait = rested
 for (let i = 0; i < RUSH_COOLDOWN; i++) {
-  assert.equal(cardReady(wait, 'player', 'lynx'), false)
+  assert.equal(cardReady(wait, 'player', restCard.id), false)
   wait = advance(wait)
 }
-assert.equal(cardReady(wait, 'player', 'lynx'), true, 'Card rests 4 ticks')
+assert.equal(cardReady(wait, 'player', restCard.id), true, 'Card rests 4 ticks')
 
 // Between-tick deploys: commands interleaved with ticks replay exactly
 let live = createMatch('bloodrush', 'riot', 'undertow', 777)
 const lanes = [0, 1, 2, 3, 4, 5]
 for (let t = 0; t < 40 && !live.victor; t++) {
   if (t % 3 === 0) {
-    const y = lanes.find((l) => !live.units.some((u) => u.x === 0 && u.y === l))
-    if (y !== undefined) live = deploy(live, 'rat', 0, y)
+    const y = lanes.find(
+      (l) =>
+        !live.units.some((u) => u.x === 0 && u.y === l) &&
+        !flagSquare(live, 0, l),
+    )
+    const card = live.hands.player
+      .map(cardById)
+      .find((c) => c.kind === 'creature')
+    if (y !== undefined && card) live = deploy(live, card.id, 0, y)
   }
   live = advance(live)
 }
@@ -649,7 +671,7 @@ for (const mode of MODES) {
   for (const kind of ['creature', 'spell', 'trap', 'equipment'])
     assert.ok(kinds[mode.id][kind]! > 0, mode.id + ' CPU plays ' + kind)
 }
-// The CPU pursues the win paths: flag runs in BLACKOUT, breakthroughs in lanes
+// The CPU pursues the win paths: bases and flags in the arena, lane scores
 const paths: Record<string, number> = {}
 for (const seed of [1, 2, 3, 4, 5, 6]) {
   for (const mode of ['blackout', 'gridiron', 'bloodrush'] as ModeId[]) {
@@ -661,9 +683,11 @@ for (const seed of [1, 2, 3, 4, 5, 6]) {
       paths[mode + ':scored'] = (paths[mode + ':scored'] || 0) + 1
   }
 }
-assert.ok(paths['blackout:flag']! > 0, 'CPU wins BLACKOUT by flag runs')
+const decisive = (mode: ModeId) =>
+  (paths[mode + ':base'] ?? 0) + (paths[mode + ':flag'] ?? 0)
+assert.ok(decisive('blackout') > 0, 'CPU breaks bases or runs flags')
+assert.ok(decisive('bloodrush') > 0, 'BLOODRUSH ends at a base or a flag')
 assert.ok(paths['gridiron:scored']! > 0, 'CPU scores in MEATBALL')
-assert.ok(paths['bloodrush:scored']! > 0, 'CPU scores in BLOODRUSH')
 
 // The CPU's BLACKOUT moves never exceed AP (Undertow and Meat Exchange have
 // no AP cards), whichever side it plays; advance() runs the same chooser.
@@ -770,15 +794,28 @@ const page = readFileSync(
   new URL('../../pages/admin/slime-city.vue', import.meta.url),
   'utf8',
 )
-assert.match(page, /data-testid="slime-guide"/)
-assert.match(page, /lab\.guide\.steps/)
-assert.match(page, /lab\.guide\.limits/)
-assert.match(page, /lab\.sight/, 'Board renders the redacted view')
+// Silas 2026-11-02: the arena is its own console screen (HUD, board, tokens,
+// hand), mounted by the page; no sidebar of controls beside the board.
+const arenaUi = readFileSync(
+  new URL('../../components/slime-city-arena.vue', import.meta.url),
+  'utf8',
+)
+assert.match(page, /<SlimeCityArena v-else-if="lab\.view === 'arena'" \/>/)
+assert.doesNotMatch(page, /class="sc-controls"/, 'No arena sidebar')
+assert.match(arenaUi, /data-testid="slime-guide"/)
+assert.match(arenaUi, /lab\.guide\.steps/)
+assert.match(arenaUi, /lab\.guide\.limits/)
+assert.match(arenaUi, /lab\.sight/, 'Board renders the redacted view')
 // Silas 2026-11-01: the hand is a real card hand along the bottom of the
 // arena (workspace-hand style), and the painted board shows through the grid.
-assert.match(page, /<SlimeCityHand \/>\s*<div class="sc-battle-bottom">/)
+assert.match(arenaUi, /<SlimeCityHand \/>\s*<div class="sc-battle-bottom">/)
 assert.doesNotMatch(page, /class="sc-hand-card"/, 'No sidebar card list')
-assert.match(page, /class="sc-board-floor"/)
+assert.match(arenaUi, /class="sc-board-floor"/)
+// Tokens open their card and carry the battle orders; flags and bases show.
+assert.match(arenaUi, /data-testid="slime-unit-card"/)
+assert.match(arenaUi, /data-testid="slime-stance-defend"/)
+assert.match(arenaUi, /slime-flag-enemy/)
+assert.match(arenaUi, /data-testid="slime-base-enemy"/)
 const handUi = readFileSync(
   new URL('../../components/slime-city-hand.vue', import.meta.url),
   'utf8',

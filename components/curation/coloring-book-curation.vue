@@ -1,5 +1,5 @@
 <template>
-  <section class="space-y-4">
+  <section class="@container space-y-4">
     <div class="kr-panel flex flex-wrap items-end gap-3 p-4">
       <label class="kr-form-field min-w-60">
         <span class="kr-text-dim-xs-55 font-bold">Book</span>
@@ -80,7 +80,7 @@
       <p class="font-black">No pages match this view.</p>
     </div>
 
-    <div v-else class="grid grid-cols-1 gap-4 xl:grid-cols-2">
+    <div v-else class="grid grid-cols-1 gap-4 @5xl:grid-cols-2">
       <article
         v-for="proposal in visibleProposals"
         :key="proposal.id"

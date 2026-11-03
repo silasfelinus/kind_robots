@@ -296,7 +296,7 @@ export const ARCADE_GAMES: ArcadeGameMeta[] = [
     title: 'Burrow Buddy',
     riffsOn: 'Dig Dug',
     blurb:
-      'Tunnel through a garden in layers of soil. Puff bubbles at grumpy grubs until they swell up and float gently away, or dig under a turnip and drop it on a whole group for a bonus. Grubs drift through the soil as ghosts when they get bored, beetles breathe fire from the second garden, and two turnips bring out a veggie bonus.',
+      'Tunnel through a garden in layers of soil. Puff bubbles at grumpy grubs until they swell up and float gently away, or dig under a turnip and drop it on a whole group for a bonus. Grubs drift through the soil as ghosts when they get bored, beetles breathe fire from the second garden, and two turnips bring out a veggie bonus that grows richer the deeper you dig.',
     howTo: [
       'ARROWS  DIG',
       'A  PUFF BUBBLES',

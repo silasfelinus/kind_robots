@@ -67,7 +67,8 @@ const CRUSH_BONUS = [0, 1000, 2500, 4000, 6000, 8000, 10_000, 12_000]
 
 export const BURROW_CURVES = {
   grubs: { start: 3, step: 1, limit: 5 },
-  beetles: { start: 0, step: 0.5, limit: 3 },
+  /** First beetle in garden 2 (the blurb's promise), then one more every two gardens. */
+  beetles: { start: 0.5, step: 0.5, limit: 3 },
   /** Enemy speed in tiles per tick. */
   speed: { start: 1 / 22, step: 1 / 300, limit: 1 / 12 },
   /** Ticks before a grub gets bored and ghosts through the soil. */
@@ -606,6 +607,85 @@ const CARROT_SPRITE = pixelSprite(
     q: RAMPS.rust[1],
   },
 )
+
+const veggieSprite = (
+  rows: string[],
+  leaf: string,
+  body: [string, string, string, string],
+) =>
+  pixelSprite(rows, {
+    l: RAMPS.leaf[2],
+    L: leaf,
+    d: RAMPS.leaf[1],
+    h: body[0],
+    O: body[1],
+    o: body[2],
+    q: body[3],
+  })
+
+const ROUND_VEGGIE = [
+  '....d....',
+  '..lLdLl..',
+  '...LdL...',
+  '.hOOOOOo.',
+  'hOOOOOOOo',
+  'hOOOOOOoq',
+  'OOOOOOOoq',
+  '.OOOOOoq.',
+  '..oooqq..',
+]
+
+/** The veggie ladder: a richer prize every few gardens, so dropping turnips keeps paying. */
+export const VEGGIE_LADDER = [
+  { from: 1, name: 'CARROT', points: 400 },
+  { from: 3, name: 'RADISH', points: 1000 },
+  { from: 5, name: 'PEA POD', points: 2000 },
+  { from: 8, name: 'PUMPKIN', points: 4000 },
+  { from: 11, name: 'GOLDEN BEET', points: 8000 },
+] as const
+
+export const veggieForGarden = (garden: number) => {
+  let rung: (typeof VEGGIE_LADDER)[number] = VEGGIE_LADDER[0]
+  for (const r of VEGGIE_LADDER) if (garden >= r.from) rung = r
+  return rung
+}
+
+const VEGGIE_SPRITES = [
+  CARROT_SPRITE,
+  veggieSprite(
+    [
+      '.l..L..l.',
+      '..lLLLl..',
+      '...dLd...',
+      '..hOOOo..',
+      '..OOOOo..',
+      '..hOOoq..',
+      '...OOo...',
+      '....o....',
+      '....q....',
+    ],
+    RAMPS.leaf[3],
+    [RAMPS.pink[3], RAMPS.pink[2], RAMPS.pink[1], RAMPS.pink[0]],
+  ),
+  veggieSprite(ROUND_VEGGIE, RAMPS.leaf[3], [
+    RAMPS.leaf[4],
+    RAMPS.leaf[3],
+    RAMPS.leaf[2],
+    RAMPS.leaf[1],
+  ]),
+  veggieSprite(ROUND_VEGGIE, RAMPS.leaf[3], [
+    RAMPS.rust[4],
+    RAMPS.rust[3],
+    RAMPS.rust[2],
+    RAMPS.rust[1],
+  ]),
+  veggieSprite(ROUND_VEGGIE, RAMPS.gold[3], [
+    RAMPS.gold[4],
+    RAMPS.gold[3],
+    RAMPS.gold[2],
+    RAMPS.gold[1],
+  ]),
+]
 
 const BUBBLE_SPRITES = [
   pixelSprite(
@@ -1332,7 +1412,7 @@ class BurrowBuddy implements ArcadeGameInstance {
     if (this.dropped === 2) {
       this.veggie = { ticks: 600 }
       this.banner = {
-        text: 'VEGGIE BONUS!',
+        text: `${veggieForGarden(this.level).name} BONUS!`,
         sub: 'GRAB IT IN THE MIDDLE',
         ticks: 90,
       }
@@ -1348,7 +1428,7 @@ class BurrowBuddy implements ArcadeGameInstance {
     const p = this.playerTile()
     if (p.tx === START.tx && p.ty === START.ty) {
       const c = centre(START.tx, START.ty)
-      this.addScore(Math.min(8000, 400 * this.level), c.x, c.y - 12)
+      this.addScore(veggieForGarden(this.level).points, c.x, c.y - 12)
       this.fx.burst(c.x, c.y, this.fxRng, {
         count: 14,
         colours: [RAMPS.gold[4], RAMPS.rust[3], RAMPS.leaf[3]],
@@ -1735,7 +1815,7 @@ class BurrowBuddy implements ArcadeGameInstance {
     dropShadow(g, c.x, c.y + 6, 4, 1.2)
     drawSprite(
       g,
-      CARROT_SPRITE,
+      VEGGIE_SPRITES[VEGGIE_LADDER.indexOf(veggieForGarden(this.level))]!,
       c.x,
       c.y + Math.round(Math.sin(this.tick / 10)),
     )

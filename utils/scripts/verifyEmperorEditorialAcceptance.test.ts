@@ -585,13 +585,45 @@ const focusedPlans: {
   wantedFlags: string[]
   guidedChoices?: Partial<Record<number, string[]>>
 }[] = [
-  { id: 'rook-ford', follower: 'F001', seed: rookSeed, wantedFlags: ['d10-rook-asked-mercy'], guidedChoices: { 10: ['rook'] } },
-  { id: 'kiyo-pup', follower: 'F003', seed: 41, wantedFlags: ['pack-camp-mapped', 'd10-camp-struck'], guidedChoices: { 1: ['ask-toll'], 10: ['ask-colors'] } },
-  { id: 'flint-censured', follower: 'F004', seed: flintSeed, wantedFlags: ['flint-censured'] },
-  { id: 'flint-acquitted', follower: 'F004', seed: flintSeed, wantedFlags: ['flint-acquitted'] },
+  {
+    id: 'rook-ford',
+    follower: 'F001',
+    seed: rookSeed,
+    wantedFlags: ['d10-rook-asked-mercy'],
+    guidedChoices: { 10: ['rook'] },
+  },
+  {
+    id: 'kiyo-pup',
+    follower: 'F003',
+    seed: 41,
+    wantedFlags: ['pack-camp-mapped', 'd10-camp-struck'],
+    guidedChoices: { 1: ['ask-toll'], 10: ['ask-colors'] },
+  },
+  {
+    id: 'flint-censured',
+    follower: 'F004',
+    seed: flintSeed,
+    wantedFlags: ['flint-censured'],
+  },
+  {
+    id: 'flint-acquitted',
+    follower: 'F004',
+    seed: flintSeed,
+    wantedFlags: ['flint-acquitted'],
+  },
   { id: 'lumen', follower: 'F010', seed: 17, wantedFlags: [] },
-  { id: 'sable-romance', follower: 'F016', seed: 41, wantedFlags: ['romance-sable'] },
-  { id: 'vesper-romance', follower: 'F018', seed: 99, wantedFlags: ['romance-vesper'] },
+  {
+    id: 'sable-romance',
+    follower: 'F016',
+    seed: 41,
+    wantedFlags: ['romance-sable'],
+  },
+  {
+    id: 'vesper-romance',
+    follower: 'F018',
+    seed: 99,
+    wantedFlags: ['romance-vesper'],
+  },
   { id: 'nettle', follower: 'F021', seed: 17, wantedFlags: [] },
   { id: 'tiller', follower: 'F022', seed: 41, wantedFlags: [] },
   { id: 'sera', follower: 'F023', seed: 99, wantedFlags: [] },
@@ -610,7 +642,8 @@ for (const plan of focusedPlans) {
   const chanceChoices: string[] = []
   const sourcePolicy = POLICIES.find(
     (policy) =>
-      policy.id === (['lumen', 'vesper-romance'].includes(plan.id) ? 'greedy' : 'idle'),
+      policy.id ===
+      (['lumen', 'vesper-romance'].includes(plan.id) ? 'greedy' : 'idle'),
   )!
   const policy = {
     ...sourcePolicy,
@@ -650,11 +683,17 @@ for (const plan of focusedPlans) {
       seenTalks.add(id)
       if (run.talksHeard?.includes(id) && !reached.includes(id))
         reached.push(id)
-      assert.ok(option.response.trim(), `${id}: chosen response must be narrated`)
+      assert.ok(
+        option.response.trim(),
+        `${id}: chosen response must be narrated`,
+      )
     },
     onAudienceChoice: (_day, id, option) => {
       seenAudiences.add(id)
-      assert.ok(option.response.trim(), `${id}: chosen response must be narrated`)
+      assert.ok(
+        option.response.trim(),
+        `${id}: chosen response must be narrated`,
+      )
     },
   })
   focusedCampaigns.push({
@@ -680,7 +719,8 @@ for (const id of previousGaps) {
   run.roster = [{ id: talk.follower, joinedDay: 1, equipment: {} }]
   run.flags = [...(talk.requires?.flags ?? [])]
   const earlier = TALKS.slice(0, index).filter(
-    (entry) => entry.follower === talk.follower && entry.fromDay <= talk.fromDay,
+    (entry) =>
+      entry.follower === talk.follower && entry.fromDay <= talk.fromDay,
   )
   run.talksHeard = earlier.map((entry) => entry.id)
   run.flags.push(...earlier.map((entry) => `heard:${entry.id}`))
@@ -689,18 +729,27 @@ for (const id of previousGaps) {
     id,
     `${id} must be offered when its authored prerequisites exist`,
   )
-  for (let beat = 0; beat < 8 && !(run.talksHeard ?? []).includes(id); beat += 1) {
+  for (
+    let beat = 0;
+    beat < 8 && !(run.talksHeard ?? []).includes(id);
+    beat += 1
+  ) {
     const scene = talkScene(run, talk)
     assert.ok(scene.lines.length > 0, `${id}: scene needs spoken content`)
-    const option = scene.options.find(
-      (entry) => !entry.next && optionBlockers(run, entry).length === 0,
-    ) ?? scene.options.find((entry) => optionBlockers(run, entry).length === 0)
+    const option =
+      scene.options.find(
+        (entry) => !entry.next && optionBlockers(run, entry).length === 0,
+      ) ??
+      scene.options.find((entry) => optionBlockers(run, entry).length === 0)
     assert.ok(option, `${id}: a player needs an available answer`)
     const chosen = chooseTalkOption(run, id, option.id)
     assert.ok(chosen.response.trim(), `${id}: answer needs a response`)
     run = chosen.run
   }
-  assert.ok((run.talksHeard ?? []).includes(id), `${id}: must finish without dead-end beats`)
+  assert.ok(
+    (run.talksHeard ?? []).includes(id),
+    `${id}: must finish without dead-end beats`,
+  )
   fixtureCovered.push(id)
 }
 assert.equal(fixtureCovered.length, previousGaps.length)
@@ -953,7 +1002,10 @@ const markdown = [
   '',
   `Previous gap list: ${previousGaps.length} of ${previousGaps.length} runnable in prerequisite-fixture tests; ${previousGaps.filter((id) => seenTalks.has(id)).length} organically completed in the focused/baseline policy runs. A fixture does not prove recruitment or prior decisions were earned.`,
   '',
-  ...focusedCampaigns.map((run) => `- ${run.id} (seed ${run.seed}, ${run.ending}): ${run.reached.join(', ') || 'no target talks'}; chance: ${run.chanceChoices.join(', ') || 'none'}`),
+  ...focusedCampaigns.map(
+    (run) =>
+      `- ${run.id} (seed ${run.seed}, ${run.ending}): ${run.reached.join(', ') || 'no target talks'}; chance: ${run.chanceChoices.join(', ') || 'none'}`,
+  ),
   '',
   `Conditional gate fixtures exercised: ${conditionalSceneFixtures.length} of the earlier unvisited audiences (preconditions injected, not organic campaign routes).`,
   '',
@@ -1005,7 +1057,9 @@ writeFileSync(
         conditionalGateFixtures: conditionalSceneFixtures.length,
         focusedCampaigns: focusedCampaigns.length,
         previouslyUnvisitedTalks: previousGaps.length,
-        previouslyUnvisitedCoveredOrganically: previousGaps.filter((id) => seenTalks.has(id)).length,
+        previouslyUnvisitedCoveredOrganically: previousGaps.filter((id) =>
+          seenTalks.has(id),
+        ).length,
         previouslyUnvisitedCoveredByFixture: fixtureCovered.length,
       },
       rows,

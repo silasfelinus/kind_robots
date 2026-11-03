@@ -764,7 +764,7 @@ export const ACT_FOUR_DAYS: readonly DayDef[] = [
           },
         ],
         lines: [
-          'Dunmark comes up the carpet buckling his dented gorget. A Freehold rider limps at his elbow, a young ewe, a broken arrow shaft tied off in her arm. Nobody offers her a chair. She would not take one.',
+          'Dunmark comes up the carpet buckling his dented gorget. A Freehold rider limps at his elbow, her coat torn, a broken arrow shaft tied off in her arm. Nobody offers her a chair. She would not take one.',
           '“The Ford is under arrows, Majesty. The Freeholds are asking for the Gate Watch by name.”',
           {
             who: 'A Freehold rider',
@@ -2017,7 +2017,7 @@ export const ACT_FOUR_DAYS: readonly DayDef[] = [
         faction: 'freeholds',
         requires: { flags: ['ford-lost'] },
         lines: [
-          'The Freehold militia has camped in the outer court since the Ford fell. Their sergeant, an old ram with a bandaged eye, brings his company up the carpet. Smoke, wet wool, wounds that need cleaning.',
+          'The Freehold militia has camped in the outer court since the Ford fell. Their sergeant, an old veteran with a bandaged eye, brings his company up the carpet. Smoke, wet wool, wounds that need cleaning.',
           '“We lost the Ford, Majesty. Thirty-one of us came back. Two days on the Yard’s bread, and the Foreman has started counting it at us.”',
           '“Arm us and we’ll go take it back. Or we go home, what’s left of it. Or we stay, and the Yard keeps counting.”',
           {
@@ -2072,7 +2072,7 @@ export const ACT_FOUR_DAYS: readonly DayDef[] = [
               flags: ['d34-militia-on-gate'],
             },
             response:
-              'The sergeant salutes with the hand that still works. That night there are rams on the gate. Foreman Ash counts thirty-one more bowls and says nothing about it, loudly.',
+              'The sergeant salutes with the hand that still works. That night the Freehold militia stands the gate. Foreman Ash counts thirty-one more bowls and says nothing about it, loudly.',
           },
           {
             id: 'water-first',
@@ -3859,7 +3859,7 @@ export const ACT_FOUR_DAYS: readonly DayDef[] = [
             lines: [
               '“Oriel Saltmarsh’s factor holds three of the crown’s notes, and a fourth that is, technically, mine. A caravan master on the salt flats owes the court eleven barrels of lamp oil. That sort of thing.”',
               'He says it lightly. He does not open the ledger. In forty days you have never heard him quote a number without opening the ledger first.',
-              '“The roads are quiet tonight. I made sure. I will be back before anyone misses me. If they do, say I went to count barrels. Nobody follows a lizard who is counting barrels.”',
+              '“The roads are quiet tonight. I made sure. I will be back before anyone misses me. If they do, say I went to count barrels. Nobody follows a courtier who is counting barrels.”',
             ],
             options: [
               {

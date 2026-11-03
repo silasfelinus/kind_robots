@@ -195,8 +195,7 @@ const badReceipts: unknown[] = [
   { ...latestReceipt, societyMet: 'yes' },
 ]
 assert.deepEqual(
-  restoreRewardArchive({ version: 1, milestones: {}, runs: badReceipts })
-    .runs,
+  restoreRewardArchive({ version: 1, milestones: {}, runs: badReceipts }).runs,
   [],
   'malformed receipt fields cannot poison a saved dossier',
 )

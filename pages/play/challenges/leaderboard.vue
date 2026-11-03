@@ -290,12 +290,7 @@
 import { gameLinkPreviewMeta } from '~/utils/gameLinkPreview'
 
 type ChallengeType =
-  | ''
-  | 'ART'
-  | 'TEXT'
-  | 'CHARACTER'
-  | 'SCENARIO'
-  | 'REASONING'
+  '' | 'ART' | 'TEXT' | 'CHARACTER' | 'SCENARIO' | 'REASONING'
 type Facet = 'contender' | 'kind' | 'provider' | 'model' | 'generator'
 
 useSeoMeta(

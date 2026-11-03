@@ -799,8 +799,10 @@ assert.equal(
   'Arcade belongs in Play tabs, not as a duplicate fixed header button.',
 )
 assert.ok(
-  workspaceHeaderSource.includes('resolvedTabs.length'),
-  'Play must retain the shared desktop tab picker.',
+  workspaceHeaderSource.includes('nav-launcher-desktop') &&
+    workspaceHeaderSource.includes('<channel-select') &&
+    !workspaceHeaderSource.includes('<tab-select'),
+  'Play must retain the illustrated workspace launcher without duplicating the tab picker.',
 )
 
 assert.equal(tutorialPageKey('play', 'arcade'), 'play/arcade')

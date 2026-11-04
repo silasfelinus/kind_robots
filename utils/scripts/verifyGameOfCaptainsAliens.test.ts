@@ -139,11 +139,7 @@ for (const species of zodiacSpecies) {
         species.name + ' needs a distinct ' + outcome + ' result',
       )
       authoredLines.add(text)
-      const report = resolveAlienSighting(
-        empty,
-        { ...sighting, mood },
-        choice,
-      )
+      const report = resolveAlienSighting(empty, { ...sighting, mood }, choice)
       assert.ok(report.text.includes(text))
       assert.equal(report.recorded, outcome !== 'retreat')
     }

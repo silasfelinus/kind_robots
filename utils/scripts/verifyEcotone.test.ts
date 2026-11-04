@@ -61,6 +61,7 @@ import {
   checkBonus,
   chooseBeat,
   chooseCrossroads,
+  crossroadsNewcomer,
   chooseEvent,
   chooseFork,
   chooseSubstanceMoment,
@@ -793,7 +794,7 @@ for (const event of EVENTS) {
     `${event.id}: then meet them, or go alone`,
   )
   assert.equal(route[route.length - 1]?.kind, 'finale')
-  assert.equal(route.filter((s) => s.kind === 'crossroads').length, 1)
+  assert.equal(route.filter((s) => s.kind === 'crossroads').length, 3)
   assert.ok(route.filter((s) => s.kind === 'fork').length >= 3)
 }
 assert.deepEqual(
@@ -922,12 +923,68 @@ const fair: Plan = {
   accept: true,
   follow: false,
 }
+
+// t-022: every companion can be the final follower from every opening lens, on every route.
+for (const event of ['green-ribbon', 'kinetic', 'quiet'] as EventId[]) {
+  for (const lens of [
+    'sober',
+    'tipsy',
+    'stoned',
+    'tripping_balls',
+  ] as LensId[]) {
+    for (const target of COMPANIONS.map((c) => c.id)) {
+      const run = (): RunState => {
+        let state = advance(chooseEvent(createRun(77, 'reporter'), event))
+        let guard = 0
+        while (state.phase !== 'end') {
+          assert.ok((guard += 1) < 120, 'runs finish')
+          if (state.phase === 'fork') {
+            state = chooseFork(state, state.offered[0]!)
+          } else if (state.phase === 'crossroads') {
+            const newcomer = crossroadsNewcomer(state)
+            state = advance(chooseCrossroads(state, newcomer === target))
+          } else {
+            const card = findCard(state.card)!
+            const choice =
+              openingLensChoices(card).find((c) => c.lens === lens) ??
+              card.choices.find((c) => c.meet === true) ??
+              card.choices.find((c) => !c.locked && !c.requiresFlag)
+            state = advance(chooseBeat(state, choice?.id ?? ''))
+          }
+        }
+        return state
+      }
+      const done = run()
+      assert.equal(
+        done.meetingOrder.length >= 3,
+        true,
+        `${event}/${lens}: met the others`,
+      )
+      assert.equal(
+        done.activeLead,
+        target,
+        `${event}/${lens}: final follower is ${target}`,
+      )
+      assert.equal(new Set(done.meetingOrder).size, done.meetingOrder.length)
+      assert.deepEqual(
+        done,
+        run(),
+        `${event}/${lens}/${target}: same seed, same run`,
+      )
+      assert.equal(
+        done.openingState,
+        lens,
+        `${event}/${lens}: opening lens persists`,
+      )
+    }
+  }
+}
 const first = play(2026, fair)
 assert.deepEqual(first, play(2026, fair), 'same seed and choices, same run')
 assert.equal(first.prospect, 'kit', 'the acro lawn leads to Kit')
 assert.equal(first.activeLead, 'kit')
 assert.equal(first.openingState, 'stoned', 'the opening lens stays all run')
-assert.equal(first.meetingOrder.length, 2)
+assert.equal(first.meetingOrder.length, 4, 'all four companions are met')
 assert.equal(first.ending, computeEnding(first).id)
 assert.match(first.ending ?? '', /^kit\.stoned\.(hope|dark)$/)
 assert.equal(new Set(first.played).size, first.played.length, 'no repeats')
@@ -953,7 +1010,7 @@ assert.equal(racer.prospect, 'cedar', 'pit row leads to Cedar')
 for (const id of ['KN-4', 'KN-7', 'KN-5', 'KN-8', 'KN-6'])
   assert.ok(racer.played.includes(id), `every race run reaches ${id}`)
 assert.notEqual(racer.activeLead, 'cedar', 'following changes the guide')
-assert.equal(racer.followHistory.length, 2)
+assert.equal(racer.followHistory.length, 4)
 assert.equal(play(3, { ...race, area: 1 }).prospect, 'mara')
 
 // Newly authored lenses survive their opening, route and ending without a forced moral fate.
@@ -1554,7 +1611,10 @@ assert.equal(trail.prospect, null, 'the deer trail leads to nobody')
 assert.ok(!trail.played.includes('QW-3'), 'no one to meet, so no meeting')
 assert.ok(trail.played.includes('QW-4') && trail.played.includes('QW-5'))
 assert.match(trail.ending ?? '', /^ecotopia\.sober\.(hope|dark)$/)
-assert.ok(trail.meetingOrder.length === 1, 'a loner still meets a newcomer')
+assert.ok(
+  trail.meetingOrder.length === 3,
+  'a loner still meets three newcomers',
+)
 const marshRun = play(22, {
   event: 'quiet',
   area: 0,

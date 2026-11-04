@@ -16,6 +16,7 @@ import {
   resolveCollectorIncident,
 } from '../gameOfCaptains/alienMilestones'
 import { ALIEN_SPECIES_STORIES } from '../gameOfCaptains/alienSpeciesStories'
+import { ALIEN_CHOICE_STORIES } from '../gameOfCaptains/alienChoiceStories'
 import { endingFamilyTitle } from '../gameOfCaptains/artSlots'
 
 type Player = {
@@ -165,8 +166,11 @@ function encounter(
               : 'retreat'
     ]
   assert.ok(
-    outcome.text.startsWith(expected),
-    sighting.species.name + ': personalized outcome, no generic contradiction',
+    outcome.text.startsWith(
+      ALIEN_CHOICE_STORIES[sighting.species.id]?.[sighting.mood]?.[choice] ??
+        expected,
+    ),
+    sighting.species.name + ': chosen action leads to its own original response',
   )
   stats.attempts++
   stats.sceneWords.push(sighting.scene.trim().split(/\s+/).length)

@@ -5,6 +5,7 @@ on:
     paths:
       - 'utils/gameOfCaptains/**'
       - 'utils/scripts/verifyGameOfCaptainsTraces.test.ts'
+      - 'utils/scripts/verifySpaceCouchFunPlaytests.test.ts'
       - 'utils/scripts/spaceCouchTraceHarness.ts'
       - 'utils/scripts/verifyGameOfCaptainsEpisode.test.ts'
       - '.github/workflows/space-couch-adversarial.yml'
@@ -31,3 +32,5 @@ jobs:
           CYPRESS_INSTALL_BINARY: '0'
       - name: Run full seeded voyage and ending matrix
         run: npm run test:game-of-captains:traces
+      - name: Run five playtest personas and 101-species collector arcs
+        run: npx tsx utils/scripts/verifySpaceCouchFunPlaytests.test.ts

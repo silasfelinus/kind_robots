@@ -1160,7 +1160,8 @@ export function restoreHouseProgress(input: unknown): HouseProgress | null {
     shortcuts,
     (from, to) =>
       (to !== 'HD-33' || (from === 'HD-32' && v.wardenPassed === true)) &&
-      (to !== 'HD-35' || (v.wardenPassed === true && visited.includes('HD-32'))) &&
+      (to !== 'HD-35' ||
+        (v.wardenPassed === true && visited.includes('HD-32'))) &&
       (to !== 'HD-36' || (from === 'HD-35' && exitEarned)),
   )
   const visitedSet = new Set<string>(visitedRooms)

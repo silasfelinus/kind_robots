@@ -2044,6 +2044,37 @@ assert.ok(sableLoss <= plainLoss, 'Immaculate Apology softens failures')
   )
 }
 
+// Day 8's three market outcomes earn distinct paid Day 10 evacuation routes.
+{
+  const audience = DAYS.find((day) => day.day === 10)!.audiences.find(
+    (entry) => entry.id === 'd10-thistledown',
+  )!
+  const routes = [
+    ['d08-blankets-restored', 'restored-market-guides', 10, 'd10-restored-stall-guides'],
+    ['d08-blankets-leased', 'leased-market-guides', 15, 'd10-leased-stall-guides'],
+    ['d08-blankets-evicted', 'evicted-market-guides', 20, 'd10-evicted-stall-guides'],
+  ] as const
+  const choices = routes.map(([, id]) => audience.options.find((o) => o.id === id)!)
+  const unearned = onDay(810, 10, { brass: 100 })
+  assert.ok(choices.every((choice) => !optionVisible(unearned, choice)))
+  for (const [flag, optionId, cost, paidFlag] of routes) {
+    const ready = onDay(810, 10, { brass: 100, flags: ['market-charter', flag] })
+    assert.deepEqual(
+      choices.filter((choice) => optionVisible(ready, choice)).map((choice) => choice.id),
+      [optionId],
+      'only the earned market path appears',
+    )
+    const resolved = chooseAudienceOption(ready, audience.id, optionId).run
+    assert.equal(resolved.brass, 100 - cost)
+    assert.ok(resolved.flags.includes(paidFlag))
+    assert.ok(
+      resolved.aid?.['q-d10-freehold-raid']?.some((aid) => aid.bonus === 2 && aid.stat === 'wits'),
+      'the paid sellers actually help the Thistledown expedition',
+    )
+    assert.ok(validateRun(JSON.parse(JSON.stringify(resolved))))
+  }
+}
+
 // --- recruitment routes in Act I ----------------------------------------------
 const recruits = (
   day: number,

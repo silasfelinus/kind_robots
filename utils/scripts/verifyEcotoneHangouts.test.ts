@@ -17,6 +17,7 @@ import {
   COMPANION_HANGOUTS,
   COMPANION_HANGOUT_CALLBACKS,
   earnedCompanionHangoutCallbacks,
+  companionBondCounts,
 } from '../ecotone/companionHangouts'
 import { ecotoneArtSlots, cardArtKey, outcomeArtKey } from '../ecotone/artSlots'
 import { ROUTES } from '../ecotone/story'
@@ -74,11 +75,7 @@ for (const newcomer of ids) {
 
   // A random fork never deals a private scene as if consent or a relationship
   // could be awarded by a white-rabbit draw.
-  const plain = ready(
-    13,
-    ids.find((id) => id !== newcomer)!,
-    newcomer,
-  )
+  const plain = ready(13, ids.find((id) => id !== newcomer)!, newcomer)
   assert.equal(
     encounterEligible({ ...card, requiresInvitation: true }, plain),
     false,
@@ -165,4 +162,43 @@ assert.match(board, /Companion interlude/)
 assert.match(board, /earnedCompanionHangoutCallbacks/)
 assert.match(board, /\{\{ callback \}\}/)
 assert.deepEqual(earnedCompanionHangoutCallbacks(['started_alone']), [])
+// Later invitees (a third guide) get their own scene too.
+for (let seed = 1; seed <= 40; seed += 1) {
+  const [a, b, c, d] = ids as [
+    CompanionId,
+    CompanionId,
+    CompanionId,
+    CompanionId,
+  ]
+  const third: RunState = {
+    ...ready(seed, a, c),
+    meetingOrder: [a, b],
+    travelCompanions: [b],
+    newcomerOrder: [c, d],
+    played: [COMPANION_HANGOUTS[b].id],
+    day: 3,
+  }
+  const scene = advance(chooseCrossroads(third, 'together'))
+  assert.deepEqual(travelParty(scene), [a, b, c])
+  assert.equal(scene.card, COMPANION_HANGOUTS[c].id, 'third guide gets a scene')
+}
+
+// Bond counts derive from flags only and ignore repeats and unknown flags.
+assert.deepEqual(
+  companionBondCounts([
+    'bond_kit_repair',
+    'bond_kit_repair',
+    'bond_kit_space',
+    'bond_mara_space',
+    'started_alone',
+  ]),
+  { kit: 2, juniper: 0, cedar: 0, mara: 1 },
+)
+assert.deepEqual(companionBondCounts([]), {
+  kit: 0,
+  juniper: 0,
+  cedar: 0,
+  mara: 0,
+})
+
 console.log('Ecotone personal companion interlude tests passed')

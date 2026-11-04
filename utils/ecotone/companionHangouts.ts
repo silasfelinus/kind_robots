@@ -271,6 +271,29 @@ export const COMPANION_HANGOUT_CALLBACKS: Record<string, string> = {
     'Mara invites you to the studio sometimes, with no client crisis and no explanation beyond putting a second cup on the table.',
 }
 
+/**
+ * Derived bond summary: how many distinct earned hangout memories each guide
+ * has. Computed from existing flags, so no saved-game field changes and old
+ * saves read as zero. A failed roll still counts as a bond; it is a shared
+ * memory, not a penalty.
+ */
+export function companionBondCounts(
+  flags: readonly string[],
+): Record<CompanionId, number> {
+  const counts: Record<CompanionId, number> = {
+    kit: 0,
+    juniper: 0,
+    cedar: 0,
+    mara: 0,
+  }
+  for (const flag of new Set(flags)) {
+    if (!Object.hasOwn(COMPANION_HANGOUT_CALLBACKS, flag)) continue
+    const who = flag.split('_')[1] as CompanionId
+    if (who in counts) counts[who] += 1
+  }
+  return counts
+}
+
 export function earnedCompanionHangoutCallbacks(
   flags: readonly string[],
 ): string[] {

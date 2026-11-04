@@ -3377,6 +3377,69 @@ export const ACT_ONE_LATE_DAYS: readonly DayDef[] = [
             response:
               'The rider finds the seller beside the road, sleeping under her cart. She takes your brass and loads the first family. “This is work,” she says. “It is not forgiveness.”',
           },
+          {
+            id: 'bread-carts',
+            label: 'Spend ten brass to send the paid flour carts east with evacuation teams.',
+            requires: { flags: ['d07-rations-bought'], cost: 10 },
+            effects: {
+              affinity: { freeholds: 5 },
+              local: { yard: -2 },
+              flags: ['d10-bread-carts-sent'],
+              questAid: [
+                {
+                  questId: 'q-d10-freehold-raid',
+                  label: 'The Yard flour carts carry families along the back road',
+                  bonus: 2,
+                  stat: 'wits',
+                },
+              ],
+            },
+            response:
+              'Dunmore sends the wagons with covered bread and a driver who knows the Ford. There is less for the fortress supper. The rider takes the reins and does not wait for a blessing.',
+          },
+          {
+            id: 'house-wagons',
+            label: 'Make Lady Vask honor the grain writ. Send her wagons to Thistledown.',
+            requires: { flags: ['d07-ration-writ'] },
+            effects: {
+              affinity: { freeholds: 5 },
+              local: { 'old-houses': -3, 'gate-watch': 1 },
+              flags: ['d10-house-wagons-ordered'],
+              questAid: [
+                {
+                  questId: 'q-d10-freehold-raid',
+                  label: 'The Old Houses grain wagons open a path for refugees',
+                  bonus: 2,
+                  stat: 'wits',
+                },
+              ],
+            },
+            response:
+              'Vask reads the writ aloud. She owns the council chair. The crown still owns the order. Her wagons roll east and her cousins spend the afternoon writing down exactly what the emperor has taken.',
+          },
+          {
+            id: 'watch-rations',
+            label: 'Take the Watch’s field bread for the road. The gate can eat late.',
+            requires: {
+              flags: ['d05-bread-rationed'],
+              notFlags: ['d07-rations-bought', 'd07-ration-writ'],
+            },
+            effects: {
+              affinity: { freeholds: 3 },
+              local: { 'gate-watch': -3, yard: 1 },
+              flags: ['d10-watch-rations-diverted'],
+              questAid: [
+                {
+                  questId: 'q-d10-freehold-raid',
+                  label: 'Diverted Watch field bread keeps the rescue teams moving',
+                  bonus: 1,
+                  stat: 'wits',
+                },
+              ],
+            },
+            response:
+              'The sergeant empties the field chests one loaf at a time. The rescue teams ride with bread. The sentries on the walls get broth tonight and a story they will repeat at the next oath.',
+          },
         ],
         beats: [
           {

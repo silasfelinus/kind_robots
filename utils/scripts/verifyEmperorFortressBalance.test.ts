@@ -94,9 +94,10 @@ for (const r of report) {
 // Unfunded beds remain unavailable; a patron cannot borrow their way past the
 // recruitment gate. Some courts instead keep their funds and turn people away.
 const borrowingCourts = careful.filter((r) => r.loans > 0)
+const loanSummary = careful.map((r) => `${r.policy}=${r.loans}`).join(', ')
 assert.ok(
   borrowingCourts.length >= careful.length * 0.5,
-  `at least half of careful courts still borrow with expensive beds (${borrowingCourts.length}/${careful.length}: ${careful.map((r) => `${r.policy}=${r.loans}`).join(', ')})`,
+  `at least half of careful courts still borrow with expensive beds (${borrowingCourts.length}/${careful.length}: ${loanSummary})`,
 )
 assert.ok(
   careful.some((r) => r.brassMin <= 20),

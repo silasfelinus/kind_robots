@@ -137,6 +137,13 @@ const proposal: ColoringBookProposal = {
     completedAt: null,
     renderEngine: null,
     revisionCount: 0,
+    renderSettings: {
+      engine: null,
+      checkpoint: null,
+      lora: null,
+      loraStrength: null,
+    },
+    acceptedHistory: [],
   },
   colorPath: 'approved/kr-001-color.webp',
   colorUrl: null,
@@ -206,8 +213,11 @@ assert.equal(reconciled.books[0]?.finalPairCount, 1)
 assert.equal(reconciled.allSourceReady, true)
 assert.equal(reconciled.allPackageReady, false)
 
+// Silas, 2026-11-04 PT: the "Production controls & diagnostics" drawer under
+// the curation cards is "totally unnecessary". The page is curation only; the
+// package/cover panels stay as components for a future packaging surface.
 const page = readFileSync('components/coloring/coloring-book-page.vue', 'utf8')
-assert.match(page, /<coloring-book-package-readiness\s*\/>/)
-assert.match(page, /<coloring-book-cover-studio\s*\/>/)
+assert.match(page, /<CurationColoringBookCuration\s*\/>/)
+assert.doesNotMatch(page, /Production controls/)
 
 console.log('Coloring Book package contract passed.')

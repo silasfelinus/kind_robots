@@ -1,11 +1,13 @@
 import { parse as parseYaml } from 'yaml'
 import type {
+  ColoringBookAcceptedVersion,
   ColoringBookAsset,
   ColoringBookConcept,
   ColoringBookCounts,
   ColoringBookPair,
   ColoringBookProposal,
   ColoringBookQueueState,
+  ColoringBookRenderSettings,
   ColoringBookStudioBook,
   ColoringBookStudioData,
 } from '~/types/coloringBookStudio'
@@ -30,6 +32,10 @@ export const COLORING_BOOK_CONFIG = [
     title: 'Hollywood Recast',
     ledgerPath: `${COLORING_BOOK_ROOT}/sets/hollywood-recast/proposals.yaml`,
     promptPath: `${COLORING_BOOK_ROOT}/sets/hollywood-recast/proposals.yaml`,
+    // Created on first save from the studio. Hollywood Recast shipped without
+    // a riff/recast brief per page, which is how the gender-recast hook went
+    // missing from its art (Silas, 2026-11-04 PT).
+    conceptPath: `${COLORING_BOOK_ROOT}/sets/hollywood-recast/homage-concepts.yaml`,
   },
   {
     order: 3,
@@ -37,6 +43,7 @@ export const COLORING_BOOK_CONFIG = [
     title: 'Kind Robots',
     ledgerPath: `${COLORING_BOOK_ROOT}/sets/kind-robots/proposals.yaml`,
     promptPath: `${COLORING_BOOK_ROOT}/sets/kind-robots/proposals.yaml`,
+    conceptPath: `${COLORING_BOOK_ROOT}/sets/kind-robots/homage-concepts.yaml`,
   },
 ] as const
 
@@ -49,10 +56,8 @@ export type ColoringBookSourceFiles = {
   concepts?: Record<string, string>
 }
 
-export function coloringBookConceptPath(
-  config: ColoringBookConfig,
-): string | null {
-  return 'conceptPath' in config ? config.conceptPath : null
+export function coloringBookConceptPath(config: ColoringBookConfig): string {
+  return config.conceptPath
 }
 
 function conceptText(value: unknown): string | null {
@@ -98,11 +103,7 @@ type QueueEntry = ColoringBookQueueState & {
   sourceRef: string | null
 }
 
-function capture(
-  text: string,
-  pattern: RegExp,
-  group = 1,
-): string | undefined {
+function capture(text: string, pattern: RegExp, group = 1): string | undefined {
   return pattern.exec(text)?.[group]
 }
 
@@ -163,8 +164,7 @@ function promptFromProposalBlock(block: string): {
   text: string
   ref: string | null
 } {
-  const inlinePattern =
-    /^  prompt:\s*\{text:\s*(.*?),\s*ref:\s*(.*?)\}\s*$/m
+  const inlinePattern = /^  prompt:\s*\{text:\s*(.*?),\s*ref:\s*(.*?)\}\s*$/m
   const inlineText = capture(block, inlinePattern, 1)
   if (inlineText !== undefined) {
     return {
@@ -220,14 +220,18 @@ function parsePair(block: string, key: 'accepted' | 'final'): ColoringBookPair {
 
 function rawAssetUrl(path: string, bookSlug: string): string | null {
   const clean = path.trim()
-  if (!clean || clean.includes(':') || clean.startsWith('user-attachment')) return null
+  if (!clean || clean.includes(':') || clean.startsWith('user-attachment'))
+    return null
   const repoPath = clean.startsWith('projects/')
     ? clean
     : `${COLORING_BOOK_ROOT}/sets/${bookSlug}/${clean.replace(/^\.\//, '')}`
   return `https://raw.githubusercontent.com/${COLORING_BOOK_REPO}/${COLORING_BOOK_REF}/${repoPath}`
 }
 
-function parseInspirations(block: string, bookSlug: string): ColoringBookAsset[] {
+function parseInspirations(
+  block: string,
+  bookSlug: string,
+): ColoringBookAsset[] {
   const section = capture(
     block,
     /^  inspirations:\s*(?:\[\])?\s*$([\s\S]*?)(?=^  accepted:|$(?![\s\S]))/m,
@@ -250,7 +254,10 @@ function parseInspirations(block: string, bookSlug: string): ColoringBookAsset[]
     const path = yamlValue(capture(entry, /^  - path:\s*(.*?)\s*$/m)) ?? ''
     const kind =
       yamlValue(capture(entry, /^    kind:\s*(.*?)\s*$/m)) ?? 'inspiration'
-    if (path && !assets.some((asset) => asset.path === path && asset.kind === kind)) {
+    if (
+      path &&
+      !assets.some((asset) => asset.path === path && asset.kind === kind)
+    ) {
       assets.push({ path, kind, url: rawAssetUrl(path, bookSlug) })
     }
   }
@@ -308,12 +315,14 @@ function parseQueue(content: string): Record<string, QueueEntry> {
         /^    studio_revision_history:\s*$([\s\S]*?)(?=^    [a-z_]+:|$(?![\s\S]))/m,
       )
       const artImageId = scalar(block, 'art_image_id', 4)
+      const loraStrength = scalar(block, 'lora_strength', 4)
       const semanticScore = scalar(block, 'semantic_score', 4)
       result[`${bookSlug}:${id}`] = {
         status: scalar(block, 'status', 4) ?? 'unknown',
         imagePath: scalar(block, 'image_path', 4),
         renderedPath: scalar(block, 'rendered_path', 4),
-        artImageId: artImageId === null ? null : yamlNumber(artImageId, 0) || null,
+        artImageId:
+          artImageId === null ? null : yamlNumber(artImageId, 0) || null,
         semanticScore:
           semanticScore === null ? null : yamlNumber(semanticScore, 0),
         semanticVerdict: scalar(block, 'semantic_verdict', 4),
@@ -325,12 +334,50 @@ function parseQueue(content: string): Record<string, QueueEntry> {
         revisionCount: revisionSection
           ? [...revisionSection.matchAll(/requested_at:/g)].length
           : 0,
+        renderSettings: {
+          engine: scalar(block, 'engine', 4),
+          checkpoint: scalar(block, 'checkpoint', 4),
+          lora: scalar(block, 'lora', 4),
+          loraStrength:
+            loraStrength === null ? null : yamlNumber(loraStrength, 1),
+        },
+        acceptedHistory: parseAcceptedHistory(block),
         sourceRef: scalar(block, 'source_ref', 4),
       }
     }
   }
 
   return result
+}
+
+function parseAcceptedHistory(block: string): ColoringBookAcceptedVersion[] {
+  const section = capture(
+    block,
+    /^ {4}accepted_history:\s*$([\s\S]*?)(?=^ {4}[a-z_]+:|$(?![\s\S]))/m,
+  )
+  if (!section) return []
+  return section
+    .split(/(?=^ {4}- )/m)
+    .filter((entry) => entry.startsWith('    - '))
+    .map((entry): ColoringBookAcceptedVersion => {
+      const field = (key: string) =>
+        yamlValue(
+          capture(
+            entry,
+            new RegExp(`^ {4}(?:- | {2})${key}:\\s*(.*?)\\s*$`, 'm'),
+          ),
+        )
+      return {
+        variant: field('variant') === 'bw' ? 'bw' : 'color',
+        path: field('path') ?? '',
+        replacedAt: field('replaced_at'),
+      }
+    })
+    .filter((entry) => Boolean(entry.path))
+}
+
+function emptyRenderSettings(): ColoringBookRenderSettings {
+  return { engine: null, checkpoint: null, lora: null, loraStrength: null }
 }
 
 function emptyQueueState(): ColoringBookQueueState {
@@ -346,6 +393,8 @@ function emptyQueueState(): ColoringBookQueueState {
     completedAt: null,
     renderEngine: null,
     revisionCount: 0,
+    renderSettings: emptyRenderSettings(),
+    acceptedHistory: [],
   }
 }
 
@@ -372,14 +421,19 @@ function countsFor(proposals: ColoringBookProposal[]): ColoringBookCounts {
   return {
     total: proposals.length,
     prompts: proposals.filter((proposal) => proposal.prompt.trim()).length,
-    pending: proposals.filter((proposal) => proposal.queue.status === 'pending').length,
-    rendered: proposals.filter((proposal) => Boolean(proposal.queue.renderedPath)).length,
-    acceptedColor: proposals.filter((proposal) => Boolean(proposal.accepted.color)).length,
-    acceptedPairs: proposals.filter(
-      (proposal) => Boolean(proposal.accepted.color && proposal.accepted.bw),
+    pending: proposals.filter((proposal) => proposal.queue.status === 'pending')
+      .length,
+    rendered: proposals.filter((proposal) =>
+      Boolean(proposal.queue.renderedPath),
     ).length,
-    finalPairs: proposals.filter(
-      (proposal) => Boolean(proposal.final.color && proposal.final.bw),
+    acceptedColor: proposals.filter((proposal) =>
+      Boolean(proposal.accepted.color),
+    ).length,
+    acceptedPairs: proposals.filter((proposal) =>
+      Boolean(proposal.accepted.color && proposal.accepted.bw),
+    ).length,
+    finalPairs: proposals.filter((proposal) =>
+      Boolean(proposal.final.color && proposal.final.bw),
     ).length,
     needsReview: proposals.filter(
       (proposal) => proposal.queue.status === 'needs_review',
@@ -407,7 +461,8 @@ function parseLedger(
     scalar(bookSection, 'target_proposals', 2),
     36,
   )
-  const coverIsSeparate = scalar(bookSection, 'cover_is_separate', 2) !== 'false'
+  const coverIsSeparate =
+    scalar(bookSection, 'cover_is_separate', 2) !== 'false'
   const status = scalar(bookSection, 'status', 2) ?? 'unknown'
   const monsterPrompts =
     slug === 'monster-recast' ? parseMonsterPromptMap(promptContent) : {}
@@ -417,7 +472,10 @@ function parseLedger(
     .filter((block) => block.startsWith('- slot:'))
 
   const proposals = proposalBlocks.map((block): ColoringBookProposal => {
-    const slot = yamlNumber(yamlValue(capture(block, /^- slot:\s*(.*?)\s*$/m)), 0)
+    const slot = yamlNumber(
+      yamlValue(capture(block, /^- slot:\s*(.*?)\s*$/m)),
+      0,
+    )
     const id = scalar(block, 'id', 2) ?? `${slug}-${slot}`
     const promptData = promptFromProposalBlock(block)
     const queueEntry = queue[`${slug}:${id}`]
@@ -434,6 +492,8 @@ function parseLedger(
           completedAt: queueEntry.completedAt,
           renderEngine: queueEntry.renderEngine,
           revisionCount: queueEntry.revisionCount,
+          renderSettings: queueEntry.renderSettings,
+          acceptedHistory: queueEntry.acceptedHistory,
         }
       : emptyQueueState()
     const inspirations = parseInspirations(block, slug)
@@ -534,7 +594,8 @@ export function replaceColoringBookPrompt(
     const end = next < 0 ? content.length : start + 1 + next
     const block = content.slice(start, end)
     const promptMatch = /^      prompt:.*$/m.exec(block)
-    if (!promptMatch) throw new Error(`Prompt field not found for ${proposalId}.`)
+    if (!promptMatch)
+      throw new Error(`Prompt field not found for ${proposalId}.`)
     const promptStart = start + (promptMatch?.index ?? 0)
     const promptLineLength = promptMatch?.[0]?.length ?? 0
     const afterPromptLine = promptStart + promptLineLength
@@ -580,7 +641,9 @@ export function replaceColoringBookPrompt(
   return `${content.slice(0, promptStart)}${replacement}\n${content.slice(promptEnd)}`
 }
 
-export function coloringBookConfig(bookSlug: string): ColoringBookConfig | null {
+export function coloringBookConfig(
+  bookSlug: string,
+): ColoringBookConfig | null {
   return COLORING_BOOK_CONFIG.find((config) => config.slug === bookSlug) ?? null
 }
 
@@ -594,4 +657,137 @@ export function proposalBelongsToBook(
   if (bookSlug === 'hollywood-recast') return /^hwr-\d{3}$/.test(proposalId)
   if (bookSlug === 'kind-robots') return /^kr-\d{3}$/.test(proposalId)
   return false
+}
+
+export type ColoringBookConceptFields = {
+  sourceLineage: string
+  recast: string
+}
+
+const CONCEPT_FIELD_KEYS: [keyof ColoringBookConceptFields, string][] = [
+  ['sourceLineage', 'source_lineage'],
+  ['recast', 'recast'],
+]
+
+function conceptScalar(value: string): string {
+  const clean = value.replace(/\r/g, '').replace(/\s+/g, ' ').trim()
+  return clean ? JSON.stringify(clean) : 'null'
+}
+
+/**
+ * Set one page's `source_lineage` ("Riffing on") and `recast` in a set's
+ * homage-concepts.yaml, editing text in place so every other concept, comment
+ * and folded scalar stays byte-for-byte. Creates the page's block, or the whole
+ * file, when it does not exist yet (Hollywood Recast and Kind Robots shipped
+ * without one).
+ */
+export function upsertColoringBookConcept(
+  content: string,
+  bookSlug: string,
+  proposalId: string,
+  fields: ColoringBookConceptFields,
+  workingTitle: string,
+): string {
+  const lines = (content.trim() ? content : '').replace(/\r/g, '').split('\n')
+  if (!lines.some((line) => /^concepts:\s*(?:\[\])?\s*$/.test(line))) {
+    const header = lines.join('\n').trim()
+    const base = header
+      ? `${header}\n\nconcepts:`
+      : [
+          `set: ${bookSlug}`,
+          'version: 1',
+          'status: concept-pool',
+          '# Per-page riff brief edited from the Kind Robots coloring studio.',
+          '',
+          'concepts:',
+        ].join('\n')
+    return upsertColoringBookConcept(
+      `${base}\n`,
+      bookSlug,
+      proposalId,
+      fields,
+      workingTitle,
+    )
+  }
+
+  const conceptsIndex = lines.findIndex((line) => /^concepts:/.test(line))
+  if (/\[\]\s*$/.test(lines[conceptsIndex] ?? ''))
+    lines[conceptsIndex] = 'concepts:'
+  let sectionEnd = lines.length
+  for (let index = conceptsIndex + 1; index < lines.length; index += 1) {
+    if (/^[A-Za-z_][\w-]*:/.test(lines[index] ?? '')) {
+      sectionEnd = index
+      break
+    }
+  }
+
+  const idPattern = new RegExp(
+    `^  - id:\\s*["']?${escapeRegExp(proposalId)}["']?\\s*$`,
+  )
+  const blockStart = lines.findIndex(
+    (line, index) =>
+      index > conceptsIndex && index < sectionEnd && idPattern.test(line),
+  )
+
+  if (blockStart < 0) {
+    let insertAt = sectionEnd
+    while (
+      insertAt - 1 > conceptsIndex &&
+      !(lines[insertAt - 1] ?? '').trim()
+    ) {
+      insertAt -= 1
+    }
+    const block = [
+      ...(insertAt - 1 > conceptsIndex ? [''] : []),
+      `  - id: ${proposalId}`,
+      `    working_title: ${conceptScalar(workingTitle)}`,
+      ...CONCEPT_FIELD_KEYS.map(
+        ([field, key]) => `    ${key}: ${conceptScalar(fields[field])}`,
+      ),
+    ]
+    lines.splice(insertAt, 0, ...block)
+    return `${lines.join('\n').replace(/\n*$/, '')}\n`
+  }
+
+  let blockEnd = sectionEnd
+  for (let index = blockStart + 1; index < sectionEnd; index += 1) {
+    if (/^ {2}- /.test(lines[index] ?? '')) {
+      blockEnd = index
+      break
+    }
+  }
+
+  for (const [field, key] of CONCEPT_FIELD_KEYS) {
+    const replacement = `    ${key}: ${conceptScalar(fields[field])}`
+    const keyPattern = new RegExp(`^    ${key}:`)
+    const at = lines.findIndex(
+      (line, index) =>
+        index > blockStart && index < blockEnd && keyPattern.test(line),
+    )
+    if (at >= 0) {
+      let end = at + 1
+      while (
+        end < blockEnd &&
+        ((lines[end] ?? '').startsWith('      ') ||
+          (!(lines[end] ?? '').trim() &&
+            (lines[end + 1] ?? '').startsWith('      ')))
+      ) {
+        end += 1
+      }
+      lines.splice(at, end - at, replacement)
+      blockEnd -= end - at - 1
+    } else {
+      const titleAt = lines.findIndex(
+        (line, index) =>
+          index > blockStart &&
+          index < blockEnd &&
+          /^ {4}working_title:/.test(line),
+      )
+      const insertAt = (titleAt >= 0 ? titleAt : blockStart) + 1
+      lines.splice(insertAt, 0, replacement)
+      blockEnd += 1
+    }
+  }
+
+  return `${lines.join('\n').replace(/\n*$/, '')}\n`
 }

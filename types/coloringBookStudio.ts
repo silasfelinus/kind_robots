@@ -62,6 +62,64 @@ export type ColoringBookQueueState = {
   completedAt: string | null
   renderEngine: string | null
   revisionCount: number
+  renderSettings: ColoringBookRenderSettings
+  acceptedHistory: ColoringBookAcceptedVersion[]
+}
+
+/** Per-page engine/checkpoint/LoRA persisted on the color-art-jobs.yaml entry. */
+export type ColoringBookRenderSettings = {
+  engine: string | null
+  checkpoint: string | null
+  lora: string | null
+  loraStrength: number | null
+}
+
+/** A master that adoption replaced; kept so a revert stays one click away. */
+export type ColoringBookAcceptedVersion = {
+  variant: ColoringBookVariant
+  path: string
+  replacedAt: string | null
+}
+
+export type ColoringBookRenderEngine =
+  'krea2' | 'flux2-klein' | 'flux' | 'sdxl-checkpoint'
+
+export type ColoringBookRenderSettingsRequest = {
+  engine: ColoringBookRenderEngine
+  checkpointId?: number | null
+  loraId?: number | null
+  loraStrength?: number | null
+}
+
+export type ColoringBookModelOption = {
+  id: number
+  label: string
+  path: string
+  generation: string | null
+  supportedServer: string
+  engines: ColoringBookRenderEngine[]
+}
+
+export type ColoringBookRenderOptions = {
+  engines: { value: ColoringBookRenderEngine; label: string; hint: string }[]
+  checkpoints: ColoringBookModelOption[]
+  loras: ColoringBookModelOption[]
+}
+
+export type ColoringBookConceptUpdate = {
+  bookSlug: string
+  proposalId: string
+  sourceLineage: string
+  recast: string
+}
+
+export type ColoringBookUploadRequest = {
+  bookSlug: string
+  proposalId: string
+  variant: ColoringBookVariant
+  /** data:image/(png|jpeg|webp);base64,... */
+  dataUrl: string
+  fileName?: string
 }
 
 export type ColoringBookProductionState = {
@@ -203,4 +261,5 @@ export type ColoringBookRenderRequest = {
   sourcePath?: string
   force?: boolean
   note?: string
+  renderSettings?: ColoringBookRenderSettingsRequest
 }

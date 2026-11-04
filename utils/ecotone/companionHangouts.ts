@@ -294,6 +294,17 @@ export function companionBondCounts(
   return counts
 }
 
+/**
+ * Derived bond tier from a guide's shared-memory count (see
+ * companionBondCounts). Pure display wording; no saved-game change.
+ */
+export function companionBondTier(count: number): string {
+  if (count >= 4) return 'Chosen family'
+  if (count >= 2) return 'Close friend'
+  if (count >= 1) return 'New friend'
+  return 'Not yet close'
+}
+
 export function earnedCompanionHangoutCallbacks(
   flags: readonly string[],
 ): string[] {

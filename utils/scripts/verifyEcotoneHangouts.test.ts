@@ -18,6 +18,7 @@ import {
   COMPANION_HANGOUT_CALLBACKS,
   earnedCompanionHangoutCallbacks,
   companionBondCounts,
+  companionBondTier,
 } from '../ecotone/companionHangouts'
 import { ecotoneArtSlots, cardArtKey, outcomeArtKey } from '../ecotone/artSlots'
 import { ROUTES } from '../ecotone/story'
@@ -204,6 +205,11 @@ assert.deepEqual(companionBondCounts([]), {
   cedar: 0,
   mara: 0,
 })
+
+assert.equal(companionBondTier(0), 'Not yet close')
+assert.equal(companionBondTier(1), 'New friend')
+assert.equal(companionBondTier(3), 'Close friend')
+assert.equal(companionBondTier(4), 'Chosen family')
 
 console.log('Ecotone personal companion interlude tests passed')
 

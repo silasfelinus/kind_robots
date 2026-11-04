@@ -2,6 +2,7 @@
 // each turn you play a single token, but go rules apply." Captures, suicide,
 // ko, one token a turn, every card's TURF effect, area scoring and replay.
 import assert from 'node:assert/strict'
+import { readFileSync } from 'node:fs'
 import {
   advance,
   cardById,
@@ -13,6 +14,7 @@ import {
   replayMatch,
   turfTerritory,
   turfText,
+  TURF_FX_KEEP,
   TURF_KOMI,
   TURF_PARITY_INTEREST,
   TURF_SWARM_WORTH,
@@ -552,6 +554,73 @@ assert.equal(TURF_SWARM_WORTH, 1.5)
 const passed = advance({ ...scored, enemyMana: 0 })
 assert.equal(passed.victor, 'enemy')
 assert.equal(passed.winPath, 'territory')
+
+// --- Board events for the arena (Silas, 2026-11-04: Turf visuals): every
+// capture, explosion, crush, pounce, tripwire, slime, ward, wash, shove and
+// cling-on is recorded where it happened, in order, for both sides to see.
+const kindsOf = (st: MatchState) => (st.turfFx ?? []).map((f) => f.kind)
+assert.ok(kindsOf(slimed).includes('slime'), 'Slime is recorded')
+assert.deepEqual(kindsOf(clung), ['cling'], 'REGEN clinging on is recorded')
+assert.deepEqual(
+  kindsOf(blown),
+  ['capture', 'boom', 'capture'],
+  'A VOLATILE capture records the capture, the blast and its captor',
+)
+assert.equal(blown.turfFx![0]!.side, 'player', 'The capturer owns the event')
+assert.equal(blown.turfFx![2]!.side, 'enemy')
+assert.deepEqual(kindsOf(tripped), ['trip'])
+assert.deepEqual(
+  { x: tripped.turfFx![0]!.x, y: tripped.turfFx![0]!.y },
+  { x: 4, y: 5 },
+  'The tripwire fires where the stone was played',
+)
+assert.ok(kindsOf(washed).includes('ward') && kindsOf(washed).includes('wash'))
+assert.deepEqual(kindsOf(crushed), ['crush'])
+assert.deepEqual(kindsOf(prey), ['pounce'])
+const slide = shoved.turfFx!.find((f) => f.kind === 'shove')!
+assert.deepEqual(
+  [slide.from, { x: slide.x, y: slide.y }],
+  [
+    { x: 3, y: 4 },
+    { x: 4, y: 4 },
+  ],
+)
+// Sequence numbers only grow, the list stays capped, and both sides see it.
+let busy = board([], [])
+for (let i = 0; i < TURF_FX_KEEP + 5; i++) {
+  busy.hands.player = [zap.id]
+  busy.playedThisRound.player = []
+  busy.mana = 10
+  busy.units = [stone('enemy', 4, 4)]
+  busy.puddles = []
+  busy.history = []
+  const next = deploy(busy, zap.id, 4, 3)
+  assert.notEqual(next, busy)
+  busy = next
+}
+assert.equal(busy.turfFx!.length, TURF_FX_KEEP)
+const seqs = busy.turfFx!.map((f) => f.seq)
+assert.ok(seqs.every((q, i) => i === 0 || q > seqs[i - 1]!))
+assert.deepEqual(observe(busy, 'enemy').turfFx, busy.turfFx)
+assert.deepEqual(createMatch('turf', 'riot', 'undertow', 3).turfFx, [])
+// The arena plays each event kind with its own animation and label, and
+// falls back to a plain fade for reduced motion.
+const arena = readFileSync('components/slime-city-arena.vue', 'utf8')
+assert.match(arena, /v-for="fx in fxs"/)
+assert.match(arena, /'slime-fx-' \+ fx\.kind/)
+for (const kind of [
+  'boom',
+  'crush',
+  'pounce',
+  'trip',
+  'slime',
+  'ward',
+  'wash',
+  'cling',
+  'shove',
+])
+  assert.match(arena, new RegExp('\\.sca-fx\\.' + kind + ' i'), kind)
+assert.match(arena, /animation-name: sca-fx-fade/)
 
 // --- Whole CPU games end, replay exactly, and capture stones.
 let captures = 0

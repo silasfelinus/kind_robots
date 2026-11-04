@@ -336,6 +336,22 @@
             aria-hidden="true"
             >{{ pop.text }}</span
           >
+          <span
+            v-for="fx in fxs"
+            :key="fx.key"
+            class="sca-fx"
+            :class="[fx.kind, fx.side === 'player' ? 'mine' : 'theirs']"
+            :style="{
+              '--x': fx.x,
+              '--y': fx.y,
+              '--dx': fx.dx,
+              '--dy': fx.dy,
+              '--delay': fx.delay + 'ms',
+            }"
+            :data-testid="'slime-fx-' + fx.kind"
+            aria-hidden="true"
+            ><i /><b>{{ fx.label }}</b></span
+          >
         </div>
       </div>
 
@@ -593,6 +609,8 @@ import {
   turfTerritory,
   turfText,
   TURF_KOMI,
+  type TurfFx,
+  type TurfFxKind,
   type ViewFighter,
 } from '~/utils/slimeCity/prototypes'
 import { slimeArtId, slimeBoardArtId } from '~/utils/slimeCity/artManifest'
@@ -786,6 +804,43 @@ interface Pop {
   kind: 'hurt' | 'heal' | 'ko' | 'base'
 }
 const pops = ref<Pop[]>([])
+/**
+ * TURF board events (Silas, 2026-11-04: "Do it 1", the Turf visuals pass):
+ * every capture, explosion, crush, pounce, tripwire, slime, ward, wash, shove
+ * and cling-on plays its own animation on its point, in the order it happened.
+ */
+interface Fx {
+  key: number
+  kind: TurfFxKind
+  side: 'player' | 'enemy'
+  x: number
+  y: number
+  dx: number
+  dy: number
+  delay: number
+  label: string
+}
+const FX_STEP_MS = 140
+const FX_LIFE_MS = 1300
+const fxs = ref<Fx[]>([])
+function fxLabel(fx: TurfFx): string {
+  const mine = fx.side === 'player'
+  return {
+    capture: mine ? 'TAKEN' : 'LOST',
+    boom: 'BOOM',
+    crush: 'CRUSHED',
+    pounce: 'POUNCE',
+    trip: 'TRIPWIRE',
+    slime: 'SLIMED',
+    ward: 'WARDED',
+    wash: 'WASHED',
+    shove: 'SHOVED',
+    cling: 'CLINGS ON',
+  }[fx.kind]
+}
+function lastSeq(list: TurfFx[] | undefined): number {
+  return list?.length ? list[list.length - 1]!.seq : 0
+}
 const hitBase = ref<'player' | 'enemy' | null>(null)
 let popKey = 0
 const timers = new Set<ReturnType<typeof setTimeout>>()
@@ -800,6 +855,39 @@ watch(
   () => lab.match,
   (next, prev) => {
     if (!prev || next.seed !== prev.seed || next.commands.length === 0) return
+    if (next.mode === 'turf') {
+      const seen = lastSeq(prev.turfFx)
+      const events = (next.turfFx ?? []).filter((f) => f.seq > seen)
+      if (!events.length) return
+      // A burst of one kind (a group captured at once) names it once; every
+      // point still gets its ring.
+      const named = new Set<TurfFxKind>()
+      const nameOnce = (f: TurfFx): string => {
+        if (named.has(f.kind)) return ''
+        named.add(f.kind)
+        return fxLabel(f)
+      }
+      const played: Fx[] = events.map((f, i) => ({
+        key: ++popKey,
+        kind: f.kind,
+        side: f.side,
+        x: f.x,
+        y: f.y,
+        dx: f.from ? f.x - f.from.x : 0,
+        dy: f.from ? f.y - f.from.y : 0,
+        delay: i * FX_STEP_MS,
+        label: nameOnce(f),
+      }))
+      fxs.value = [...fxs.value, ...played]
+      const keys = new Set(played.map((f) => f.key))
+      later(
+        () => {
+          fxs.value = fxs.value.filter((f) => !keys.has(f.key))
+        },
+        FX_LIFE_MS + played.length * FX_STEP_MS,
+      )
+      return
+    }
     const fresh: Pop[] = []
     const before = new Map(prev.units.map((u) => [u.id, u]))
     const seen = new Set<number>()
@@ -825,7 +913,7 @@ watch(
           id: was.id,
           x: was.x,
           y: was.y,
-          text: next.mode === 'turf' ? 'TAKEN' : 'KO',
+          text: 'KO',
           kind: 'ko',
         })
     for (const side of ['player', 'enemy'] as const) {
@@ -1740,6 +1828,261 @@ onBeforeUnmount(() => {
     translate: 3px 0;
   }
 }
+/* ---- TURF board events: one animation per kind ---- */
+.sca-fx {
+  --c: var(--mine);
+  position: absolute;
+  z-index: 5;
+  left: calc(var(--x) / var(--w) * 100%);
+  top: calc(var(--y) / var(--h) * 100%);
+  width: calc(100% / var(--w));
+  height: calc(100% / var(--h));
+  display: grid;
+  place-items: center;
+  pointer-events: none;
+}
+.sca-fx.theirs {
+  --c: var(--theirs);
+}
+.sca-fx i {
+  position: absolute;
+  inset: 8%;
+  border: 3px solid var(--c);
+  border-radius: 50%;
+  opacity: 0;
+  animation: sca-fx-ring 0.9s ease-out var(--delay) forwards;
+}
+.sca-fx b {
+  position: relative;
+  color: var(--c);
+  font-size: clamp(0.42rem, min(2.6cqh, 2.1cqw), 0.95rem);
+  font-weight: 1000;
+  letter-spacing: 0.06em;
+  white-space: nowrap;
+  text-shadow:
+    0 2px 0 #000,
+    0 0 8px #000;
+  opacity: 0;
+  animation: sca-fx-label 1.2s ease-out var(--delay) forwards;
+}
+/* Captures read as yours (cyan) or lost (red) by who took them. */
+.sca-fx.boom {
+  --c: #ffae42;
+}
+.sca-fx.boom i {
+  border: 0;
+  background: radial-gradient(circle, #fff6 0 15%, #ff8a2a 35%, #ff3d2a00 70%);
+  animation-name: sca-fx-boom;
+}
+.sca-fx.crush i {
+  border-radius: 18%;
+  border-width: 4px;
+  animation-name: sca-fx-crush;
+}
+.sca-fx.pounce {
+  --c: #ff9be1;
+}
+.sca-fx.pounce i {
+  border: 0;
+  border-radius: 0;
+  background: repeating-linear-gradient(
+    -55deg,
+    transparent 0 18%,
+    var(--c) 18% 24%
+  );
+  animation-name: sca-fx-claw;
+}
+.sca-fx.trip {
+  --c: #ff4fd8;
+}
+.sca-fx.trip i {
+  border-style: dashed;
+  animation-name: sca-fx-zap;
+}
+.sca-fx.slime {
+  --c: #8dff5a;
+}
+.sca-fx.slime i {
+  border: 0;
+  background: radial-gradient(circle, #8dff5a88, #8dff5a00 70%);
+  animation-name: sca-fx-ripple;
+}
+.sca-fx.ward {
+  --c: var(--gold);
+}
+.sca-fx.ward i {
+  border-radius: 30%;
+  animation-name: sca-fx-shield;
+}
+.sca-fx.wash {
+  --c: #bff3ff;
+}
+.sca-fx.wash i {
+  border-style: dotted;
+}
+.sca-fx.cling {
+  --c: #8aff9a;
+}
+.sca-fx.cling i {
+  animation-name: sca-fx-beat;
+}
+/* A shoved stone's ghost slides from where it stood. */
+.sca-fx.shove i {
+  border-style: solid;
+  animation-name: sca-fx-slide;
+}
+@keyframes sca-fx-ring {
+  from {
+    opacity: 1;
+    transform: scale(0.4);
+  }
+  to {
+    opacity: 0;
+    transform: scale(1.6);
+  }
+}
+@keyframes sca-fx-label {
+  0% {
+    opacity: 0;
+    transform: translateY(0.3rem) scale(0.8);
+  }
+  15% {
+    opacity: 1;
+    transform: translateY(0) scale(1.15);
+  }
+  70% {
+    opacity: 1;
+    transform: translateY(-0.6rem) scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-1.1rem) scale(1);
+  }
+}
+@keyframes sca-fx-boom {
+  0% {
+    opacity: 1;
+    transform: scale(0.3);
+  }
+  40% {
+    opacity: 1;
+    transform: scale(2.2);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(2.6);
+  }
+}
+@keyframes sca-fx-crush {
+  0% {
+    opacity: 1;
+    transform: scale(1.7);
+  }
+  35% {
+    opacity: 1;
+    transform: scale(0.85) translateX(-6%);
+  }
+  50% {
+    transform: scale(0.85) translateX(6%);
+  }
+  65% {
+    transform: scale(0.85) translateX(-3%);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(0.85);
+  }
+}
+@keyframes sca-fx-claw {
+  0% {
+    opacity: 1;
+    clip-path: inset(0 100% 0 0);
+  }
+  45% {
+    opacity: 1;
+    clip-path: inset(0 0 0 0);
+  }
+  100% {
+    opacity: 0;
+    clip-path: inset(0 0 0 0);
+  }
+}
+@keyframes sca-fx-zap {
+  0%,
+  30%,
+  60% {
+    opacity: 1;
+    transform: scale(1.1) rotate(0deg);
+  }
+  15%,
+  45% {
+    opacity: 0.2;
+    transform: scale(1.3) rotate(20deg);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(1.6) rotate(45deg);
+  }
+}
+@keyframes sca-fx-ripple {
+  from {
+    opacity: 1;
+    transform: scale(0.2);
+  }
+  to {
+    opacity: 0;
+    transform: scale(1.5);
+  }
+}
+@keyframes sca-fx-shield {
+  0% {
+    opacity: 0;
+    transform: scale(1.5);
+  }
+  35% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(1);
+  }
+}
+@keyframes sca-fx-beat {
+  0%,
+  40% {
+    opacity: 1;
+    transform: scale(0.8);
+  }
+  20%,
+  60% {
+    opacity: 1;
+    transform: scale(1.15);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(1);
+  }
+}
+@keyframes sca-fx-slide {
+  from {
+    opacity: 1;
+    transform: translate(calc(var(--dx) * -125%), calc(var(--dy) * -125%));
+  }
+  to {
+    opacity: 0;
+    transform: translate(0, 0);
+  }
+}
+@keyframes sca-fx-fade {
+  0%,
+  80% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}
 @keyframes sca-rise {
   from {
     opacity: 1;
@@ -1824,6 +2167,12 @@ onBeforeUnmount(() => {
   }
 }
 @media (prefers-reduced-motion: reduce) {
+  .sca-fx i {
+    display: none;
+  }
+  .sca-fx b {
+    animation-name: sca-fx-fade;
+  }
   .sca-token,
   .sca-meter i,
   .sca-hp i {

@@ -175,6 +175,33 @@ export interface Monster {
   armor: number
 }
 
+/**
+ * TURF board events (Silas, 2026-11-04: animate captures, crushes, pounces and
+ * tripwires). `side` is the side that made it happen; `from` is where a shoved
+ * stone started.
+ */
+export type TurfFxKind =
+  | 'capture'
+  | 'boom'
+  | 'crush'
+  | 'pounce'
+  | 'trip'
+  | 'slime'
+  | 'ward'
+  | 'wash'
+  | 'shove'
+  | 'cling'
+export interface TurfFx {
+  seq: number
+  kind: TurfFxKind
+  x: number
+  y: number
+  side: Side
+  from?: { x: number; y: number }
+}
+/** TURF: board events kept for the arena (it plays the ones it has not seen). */
+export const TURF_FX_KEEP = 32
+
 export interface Trap {
   x: number
   y: number
@@ -271,6 +298,8 @@ export interface MatchState {
   flags: Record<Side, ArenaFlag>
   /** TURF: slime puddles fill a point (a liberty) through round `until`. */
   puddles: { x: number; y: number; until: number }[]
+  /** TURF: what just happened on the board, for the arena to animate. */
+  turfFx?: TurfFx[]
   /** TURF: stones each side has captured. */
   prisoners: Record<Side, number>
   /** TURF: the last eight positions, for the ko rule. */
@@ -343,6 +372,8 @@ export interface MatchView {
   dealt: boolean
   /** TURF: slime puddles, [own, opponent] prisoners and area score, komi included. */
   puddles: { x: number; y: number; until: number }[]
+  /** TURF: the latest board events, oldest first (public: each one is seen). */
+  turfFx: TurfFx[]
   prisoners: [number, number]
   turfScore: [number, number]
   /** TURF: this side already placed its token this round. */
@@ -1952,6 +1983,7 @@ function copy(state: MatchState): MatchState {
       enemy: { ...state.flags.enemy },
     },
     puddles: state.puddles.map((p) => ({ ...p })),
+    turfFx: (state.turfFx ?? []).map((f) => ({ ...f })),
     prisoners: { ...state.prisoners },
     history: [...state.history],
     jammed: { ...state.jammed },
@@ -2264,6 +2296,7 @@ export function createMatch(
       },
     },
     puddles: [],
+    turfFx: [],
     prisoners: { player: 0, enemy: 0 },
     history: [],
     jammed: { player: 0, enemy: 0 },
@@ -2878,6 +2911,7 @@ export function observe(state: MatchState, side: Side): MatchView {
     auto: autoBattle(state),
     dealt: dealsHands(state),
     puddles: state.puddles.map((p) => ({ ...p })),
+    turfFx: (state.turfFx ?? []).map((f) => ({ ...f })),
     prisoners: [state.prisoners[side], state.prisoners[other(side)]],
     turfScore: (() => {
       if (state.mode !== 'turf') return [0, 0] as [number, number]
@@ -3908,10 +3942,12 @@ function turfCapture(state: MatchState, victim: Side, piercing: boolean) {
       if (hasKeyword(stone, 'regen') && !stone.revived) {
         stone.revived = true
         message(state, publicName(stone) + ' regenerates and clings on!')
+        turfFx(state, 'cling', stone, victim)
         continue
       }
       stone.hp = 0
       taken++
+      turfFx(state, 'capture', stone, other(victim))
       if (hasKeyword(stone, 'volatile')) blasts.push(stone)
     }
     state.units = state.units.filter((u) => u.hp > 0)
@@ -3922,10 +3958,12 @@ function turfCapture(state: MatchState, victim: Side, piercing: boolean) {
         .filter((u) => u.side !== victim && legalNeighbor(u, bomb))
         .sort((a, b) => b.id - a.id)
         .slice(0, 1)
+      turfFx(state, 'boom', bomb, victim)
       for (const u of caught) {
         if (warded(state, turfGroup(state, u))) continue
         u.hp = 0
         state.prisoners[victim]++
+        turfFx(state, 'capture', u, victim)
       }
       state.stats.explosions++
       if (caught.length)
@@ -3943,6 +3981,20 @@ function turfCapture(state: MatchState, victim: Side, piercing: boolean) {
 }
 
 const OFFENSIVE: Effect[] = ['zap', 'blast', 'chaos', 'root']
+
+/** Record a TURF board event for the arena to animate. */
+function turfFx(
+  state: MatchState,
+  kind: TurfFxKind,
+  at: { x: number; y: number },
+  side: Side,
+  from?: { x: number; y: number },
+): void {
+  const list = state.turfFx ?? (state.turfFx = [])
+  const seq = (list[list.length - 1]?.seq ?? 0) + 1
+  list.push({ seq, kind, x: at.x, y: at.y, side, ...(from ? { from } : {}) })
+  if (list.length > TURF_FX_KEEP) list.splice(0, list.length - TURF_FX_KEEP)
+}
 
 /** TURF: does this card slime as it lands? Under PARITY there is no mana to
  * squeeze, so debt spells slime a liberty instead. */
@@ -4143,6 +4195,7 @@ function applyTurf(
   if (sprung >= 0) {
     const trap = state.traps.splice(sprung, 1)[0]!
     state.units = state.units.filter((u) => u.id !== stone.id)
+    turfFx(state, 'trip', stone, foe, trap)
     state.prisoners[foe]++
     state.stats.trapsSprung++
     if (trap.debt) addDebt(state, side, trap.debt)
@@ -4190,7 +4243,10 @@ function applyTurf(
         s.wardedUntil = Math.max(s.wardedUntil ?? 0, until)
         for (const n of neighbors(state, s.x, s.y)) libs.add(n.x + ':' + n.y)
       }
+      turfFx(state, 'ward', stone, side)
       // A ward washes the slime off its group's liberties.
+      for (const p of state.puddles)
+        if (libs.has(p.x + ':' + p.y)) turfFx(state, 'wash', p, side)
       state.puddles = state.puddles.filter((p) => !libs.has(p.x + ':' + p.y))
     }
     if (wiring) {
@@ -4248,6 +4304,7 @@ function turfPounce(state: MatchState, stone: Fighter): string {
   if (!prey.length) return ''
   const ids = new Set(prey.map((u) => u.id))
   state.units = state.units.filter((u) => !ids.has(u.id))
+  for (const u of prey) turfFx(state, 'pounce', u, stone.side, stone)
   state.prisoners[stone.side] += prey.length
   state.stats.knockouts[other(stone.side)] += prey.length
   return ' and pounces on ' + prey.map(publicName).join(' and ')
@@ -4297,6 +4354,7 @@ function turfEffect(state: MatchState, stone: Fighter, card: Card): string {
       .sort((a, b) => a.id - b.id)[0]
     if (crushed) {
       state.units = state.units.filter((u) => u.id !== crushed.id)
+      turfFx(state, 'crush', crushed, stone.side, stone)
       state.prisoners[stone.side]++
       state.stats.knockouts[foe]++
       state.stats.shoves++
@@ -4310,9 +4368,11 @@ function turfEffect(state: MatchState, stone: Fighter, card: Card): string {
             turfLiberties(state, turfGroup(state, b)).length || a.id - b.id,
       )[0]
     if (target) {
+      const from = { x: target.x, y: target.y }
       target.x = 2 * target.x - stone.x
       target.y = 2 * target.y - stone.y
       state.stats.shoves++
+      turfFx(state, 'shove', target, stone.side, from)
       return ' and shoves ' + publicName(target)
     }
   }
@@ -4344,8 +4404,10 @@ function turfEffect(state: MatchState, stone: Fighter, card: Card): string {
       card,
       seededHash(state.seed, state.round, stone.id),
     )
-    for (const p of spots)
+    for (const p of spots) {
       state.puddles.push({ x: p.x, y: p.y, until: state.round + turns })
+      turfFx(state, 'slime', p, stone.side)
+    }
     return spots.length ? ' and slimes ' + spots.length + ' liberty' : ''
   }
   if (card.effect === 'debt') {
@@ -4357,6 +4419,8 @@ function turfEffect(state: MatchState, stone: Fighter, card: Card): string {
     for (const s of turfGroup(state, stone))
       for (const n of neighbors(state, s.x, s.y)) libs.add(n.x + ':' + n.y)
     const before = state.puddles.length
+    for (const p of state.puddles)
+      if (libs.has(p.x + ':' + p.y)) turfFx(state, 'wash', p, stone.side)
     state.puddles = state.puddles.filter((p) => !libs.has(p.x + ':' + p.y))
     return before > state.puddles.length ? ' and scrubs the slime away' : ''
   }

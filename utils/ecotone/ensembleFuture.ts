@@ -1,4 +1,4 @@
-import type { CompanionId, Fate } from './content'
+import type { Fate } from './content'
 import type { RunState } from './engine'
 import { travelParty } from './engine'
 
@@ -35,9 +35,36 @@ const PAIR_FUTURES: Record<string, Record<Fate, string>> = {
   },
 }
 
+/**
+ * Futures for larger traveling crews. A crew of three or four only exists when
+ * the player explicitly invited each guide along at separate crossroads.
+ */
+const CREW_FUTURES: Record<string, Record<Fate, string>> = {
+  'cedar|juniper|kit': {
+    hope: "The three of them turn the old loading shed into a shared yard: Cedar's repairable sensors on the creek, Juniper's planting calendar on the wall, Kit's machines rolling out for the yearly pageant. Meetings run long because everyone is allowed to object. The warning radios work, the grove stays open, and the apprentices know how to fix all of it.",
+    dark: 'A sponsor offers the yard a roof, a logo and a gag clause. They argue for three nights and turn it down, which costs them the season. The sensors go quiet, the grove stays closed to crowds, and the machines stay in the shed. Nobody calls it a win, and nobody leaves.',
+  },
+  'cedar|juniper|mara': {
+    hope: 'Mara paints the creek-gauge stations so people actually read them. Juniper writes the data agreement in plain language and Cedar makes sure anyone can audit it. Visitors come for the murals and leave knowing who owns the warnings. The three of them keep a standing Thursday dinner and refuse to take minutes.',
+    dark: "The valley's data is sold anyway, with Mara's murals as the friendly face. The three publish a joint statement with all their names and no sponsor logos. It reaches fewer people than the brochure did. They keep the dinner, and they keep the statement posted.",
+  },
+  'cedar|kit|mara': {
+    hope: 'Kit builds, Cedar makes it repairable, Mara makes it unmistakably theirs. The workshop pays everyone on the same scale and publishes its plans beside its posters. Other towns copy the posters first, then the plans, then the pay scale. The three of them are mildly annoyed at how well this works.',
+    dark: 'A platform signs the show and quietly files patents on the parts. The three build a second, smaller machine in a borrowed barn and give the drawings away. It never tours. It is mended and reused in a dozen places nobody advertises, and that is the whole point.',
+  },
+  'juniper|kit|mara': {
+    hope: "The forest festival belongs to the people who set it up: Kit's parade floats, Mara's trail art, Juniper's promise that the grove never gets a locked gate. Ticket money pays the caretakers first. By the tenth year, the children who watched it from the fence are running the stage crew.",
+    dark: 'The festival grows large enough to attract a promoter who wants exclusive rights to the grove. The three refuse and lose the permit. They hold a small unlicensed gathering anyway, on the public path, with paper lanterns. Eleven people come. It is the best night of the year.',
+  },
+  'cedar|juniper|kit|mara': {
+    hope: "Four people who disagree about nearly everything open one shared house at the edge of the county: a workshop, a studio, a seed library and a repair bench with an honest ledger. Nobody is anybody's lead. People arrive for one reason and stay for three. The weekend you spent with them turned out to be the first of a long, loud, loving run of them.",
+    dark: 'The county never makes room for them. The four of them hold together anyway, trading couches, tools and letters, meeting wherever the bus lets them off. The house they dreamed of stays a drawing on a napkin. The family does not. You are on the napkin, too.',
+  },
+}
+
 export function ensembleFuture(state: RunState, fate: Fate): string | null {
   const party = travelParty(state)
   if (party.length < 2) return null
-  const pair = [...party].sort() as CompanionId[]
-  return PAIR_FUTURES[pair.join('|')]?.[fate] ?? null
+  const key = [...party].sort().join('|')
+  return (PAIR_FUTURES[key] ?? CREW_FUTURES[key])?.[fate] ?? null
 }

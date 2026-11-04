@@ -205,6 +205,36 @@ const juniperQuest = QUEST_CARDS.find((card) => card.id === 'WH-012')!
 assert.equal(encounterEligible(juniperQuest, mixed), true)
 assert.equal(encounterEligible(juniperQuest, movedOn), false)
 
+// Larger crews: every three-guide combination and the full four have a distinct
+// hopeful and dark shared future; unknown sets stay silent.
+{
+  const base = {
+    ...createRun(3, 'reporter'),
+    activeLead: guides[0]!,
+    meetingOrder: [...guides],
+  }
+  const futures = new Set<string>()
+  const sets: (typeof guides)[number][][] = [guides.slice()]
+  for (let skip = 0; skip < guides.length; skip += 1) {
+    sets.push(guides.filter((_, i) => i !== skip))
+  }
+  for (const crew of sets) {
+    const run = {
+      ...base,
+      activeLead: crew[0]!,
+      travelCompanions: crew.slice(1),
+    }
+    assert.deepEqual(travelParty(run), crew)
+    for (const fate of ['hope', 'dark'] as const) {
+      const text = ensembleFuture(run, fate)
+      assert.ok((text?.length ?? 0) > 100, `crew ${crew.join('+')} ${fate}`)
+      assert.ok(!futures.has(text!), 'crew futures are distinct')
+      futures.add(text!)
+    }
+  }
+  assert.equal(futures.size, 10)
+}
+
 const board = readFileSync('components/ecotone-board.vue', 'utf8')
 assert.match(board, /id: 'together'/)
 assert.match(board, /game\.crossroads\('together'\)/)

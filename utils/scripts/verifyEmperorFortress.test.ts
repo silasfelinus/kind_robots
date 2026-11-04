@@ -2103,6 +2103,117 @@ assert.ok(sableLoss <= plainLoss, 'Immaculate Apology softens failures')
   }
 }
 
+// Rationing the Yard on Day 5 becomes a real Day 7 grain-and-council bargain.
+{
+  const start = onDay(705, 5, { brass: 80 })
+  const direct = chooseAudienceOption(start, 'd05-flour', 'ration').run
+  assert.ok(direct.flags.includes('d05-bread-rationed'))
+  assert.equal(direct.local.yard, start.local.yard - 3)
+  const questioned = chooseAudienceOption(start, 'd05-flour', 'ask-short').run
+  const probed = chooseAudienceOption(questioned, 'd05-flour', 'ration').run
+  assert.ok(probed.flags.includes('d05-bread-rationed'))
+  const id = 'd07-old-houses'
+  const audience = DAYS.find((entry) => entry.day === 7)!.audiences.find(
+    (entry) => entry.id === id,
+  )!
+  const probe = audience.options.find((option) => option.id === 'ask-bread')!
+  assert.ok(!optionVisible(onDay(705, 7), probe))
+  const hungry = onDay(705, 7, {
+    brass: 50,
+    flags: ['d05-bread-rationed'],
+  })
+  assert.ok(optionVisible(hungry, probe))
+  assert.match(
+    sceneLines(hungry, audience).map(lineText).join(' '),
+    /The Yard has cut its loaves in half/,
+  )
+  const opened = chooseAudienceOption(hungry, id, 'ask-bread').run
+  assert.equal(opened.audienceBeats?.[id], 'bread-debt')
+  assert.equal(audienceScene(opened, audience).beatId, 'bread-debt')
+  const paid = chooseAudienceOption(opened, id, 'buy-rations').run
+  assert.equal(paid.brass, 35)
+  assert.ok(paid.flags.includes('d07-rations-bought'))
+  const pledged = chooseAudienceOption(opened, id, 'seat-for-grain').run
+  assert.equal(pledged.brass, 50)
+  assert.ok(pledged.flags.includes('old-houses-council-seat'))
+  assert.ok(pledged.flags.includes('d07-ration-writ'))
+  assert.equal(pledged.local.lamplight, hungry.local.lamplight - 2)
+  const withheld = chooseAudienceOption(opened, id, 'keep-ration').run
+  assert.ok(withheld.flags.includes('d07-rations-continued'))
+  assert.equal(withheld.local.yard, hungry.local.yard - 2)
+  for (const outcome of [paid, pledged, withheld])
+    assert.ok(validateRun(JSON.parse(JSON.stringify(outcome))))
+  assert.ok(
+    optionBlockers(
+      onDay(705, 7, { brass: 14, flags: ['d05-bread-rationed'] }),
+      audience
+        .beats!.find((beat) => beat.id === 'bread-debt')!
+        .options.find((option) => option.id === 'buy-rations')!,
+    ).length > 0,
+    'buying the bread must actually cost fifteen brass',
+  )
+}
+
+// Three earned Day 7 food paths change the Day 10 Thistledown evacuation.
+{
+  const audience = DAYS.find((day) => day.day === 10)!.audiences.find(
+    (entry) => entry.id === 'd10-thistledown',
+  )!
+  const routes = [
+    ['d07-rations-bought', 'bread-carts', 10, 2, 'd10-bread-carts-sent'],
+    ['d07-ration-writ', 'house-wagons', 0, 2, 'd10-house-wagons-ordered'],
+    [
+      'd07-rations-continued',
+      'watch-rations',
+      0,
+      1,
+      'd10-watch-rations-diverted',
+    ],
+  ] as const
+  const routeChoices = routes.map(([, id]) =>
+    audience.options.find((entry) => entry.id === id)!,
+  )
+  const unaware = onDay(710, 10, { brass: 100 })
+  assert.ok(routeChoices.every((option) => !optionVisible(unaware, option)))
+  for (const [flag, optionId, cost, bonus, rewardFlag] of routes) {
+    const earned = onDay(710, 10, {
+      brass: 100,
+      flags: ['d05-bread-rationed', flag],
+    })
+    assert.deepEqual(
+      routeChoices
+        .filter((option) => optionVisible(earned, option))
+        .map((option) => option.id),
+      [optionId],
+    )
+    const played = chooseAudienceOption(earned, audience.id, optionId).run
+    assert.equal(played.brass, 100 - cost)
+    assert.ok(played.flags.includes(rewardFlag))
+    assert.ok(
+      played.aid?.['q-d10-freehold-raid']?.some(
+        (entry) => entry.bonus === bonus && entry.stat === 'wits',
+      ),
+      'the earned food route grants actual quest aid',
+    )
+    assert.ok(validateRun(JSON.parse(JSON.stringify(played))))
+  }
+  const ignored = onDay(710, 10, {
+    brass: 100,
+    flags: ['d05-bread-rationed'],
+  })
+  assert.ok(optionVisible(ignored, routeChoices[2]!))
+  assert.ok(
+    !optionVisible(
+      onDay(710, 10, {
+        brass: 100,
+        flags: ['d05-bread-rationed', 'd07-rations-bought'],
+      }),
+      routeChoices[2]!,
+    ),
+    'a court that bought grain is not also offered the hungry Watch route',
+  )
+}
+
 // --- recruitment routes in Act I ----------------------------------------------
 const recruits = (
   day: number,

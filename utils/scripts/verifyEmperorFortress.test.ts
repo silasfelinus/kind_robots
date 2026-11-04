@@ -7321,8 +7321,10 @@ for (const def of DAYS)
       `two-witness congress requires ${flag}`,
     )
   assert.ok(
-    optionBlockers(onDay(622, 39, { flags: bothGates, brass: 29 }), twoWitnesses)
-      .length > 0,
+    optionBlockers(
+      onDay(622, 39, { flags: bothGates, brass: 29 }),
+      twoWitnesses,
+    ).length > 0,
     'both witnesses cost 30 real brass',
   )
   const congressScene = audience(39, 'd39-congress')
@@ -7404,7 +7406,9 @@ for (const def of DAYS)
   // The Day 1 random Pip appointment must not repeat the job interview
   // when the same person presents Tobin Lowe's missing page on Day 4.
   const first = onDay(17, 1)
-  assert.ok(audiencesToday(first).some((scene) => scene.id === 'd01-pip-arrives'))
+  assert.ok(
+    audiencesToday(first).some((scene) => scene.id === 'd01-pip-arrives'),
+  )
   const employed = chooseAudienceOption(first, 'd01-pip-arrives', 'appoint').run
   assert.ok(employed.flags.includes('d01-pip-on-staff'))
   const dayFour = onDay(17, 4, {
@@ -7415,7 +7419,10 @@ for (const def of DAYS)
   const letter = audiencesToday(dayFour).find(
     (scene) => scene.id === 'd04-letter-from-bell',
   )!
-  assert.match(sceneLines(dayFour, letter).map(lineText).join(' '), /Archive desk/)
+  assert.match(
+    sceneLines(dayFour, letter).map(lineText).join(' '),
+    /Archive desk/,
+  )
   for (const id of ['welcome', 'turn-away']) {
     const option = letter.options.find((entry) => entry.id === id)!
     assert.ok(!optionVisible(dayFour, option), `no second ${id} for Pip`)

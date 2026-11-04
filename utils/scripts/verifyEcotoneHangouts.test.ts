@@ -19,6 +19,7 @@ import {
   earnedCompanionHangoutCallbacks,
   companionBondCounts,
   companionBondTier,
+  chosenFamilyCoda,
 } from '../ecotone/companionHangouts'
 import { ecotoneArtSlots, cardArtKey, outcomeArtKey } from '../ecotone/artSlots'
 import { ROUTES } from '../ecotone/story'
@@ -234,3 +235,19 @@ for (const host of ids) {
     }
   }
 }
+
+{
+  const nameOf = (id: CompanionId) => id.toUpperCase()
+  const keys = Object.keys(COMPANION_HANGOUT_CALLBACKS)
+  const forGuide = (id: string) =>
+    keys.filter((k) => k.split('_')[1] === id).slice(0, 2)
+  assert.equal(chosenFamilyCoda([], nameOf), null)
+  assert.equal(chosenFamilyCoda(forGuide('kit'), nameOf), null)
+  const two = chosenFamilyCoda(
+    [...forGuide('kit'), ...forGuide('mara')],
+    nameOf,
+  )
+  assert.ok(two?.includes('KIT and MARA'))
+  assert.ok(!/jealous|rival|win/i.test(two ?? ''))
+}
+console.log('Chosen-family coda tests passed')

@@ -1194,6 +1194,13 @@
             <p class="font-serif text-sm italic text-white/75">
               {{ companion.line }}
             </p>
+            <p
+              v-if="bondCount(companion.id) > 0"
+              class="text-xs font-semibold text-[#d9b877]"
+              :data-testid="`bond-count-${companion.id}`"
+            >
+              {{ bondLabel(companion.id) }}
+            </p>
             <p class="mt-auto text-xs text-white/60">
               First met at {{ companion.meetAt }}. Helps with
               {{ skillLabel(LEAD_BONUS[companion.id]) }} (+1).
@@ -1905,7 +1912,10 @@ import {
 } from '~/utils/ecotone/story'
 import { earnedQuestCallbacks } from '~/utils/ecotone/finaleExpansion'
 import { ensembleFuture } from '~/utils/ecotone/ensembleFuture'
-import { earnedCompanionHangoutCallbacks } from '~/utils/ecotone/companionHangouts'
+import {
+  companionBondCounts,
+  earnedCompanionHangoutCallbacks,
+} from '~/utils/ecotone/companionHangouts'
 import {
   DEFAULT_ECOTONE_ART_STYLE,
   ECOTONE_ART_STYLES,
@@ -2407,6 +2417,15 @@ function effectChips(effects: Effects) {
   if (effects.evidence) chips.push('Evidence logged')
   if (effects.flag) chips.push('Remembered')
   return chips
+}
+
+function bondCount(id: CompanionId) {
+  return game.run ? companionBondCounts(game.run.flags)[id] : 0
+}
+
+function bondLabel(id: CompanionId) {
+  const n = bondCount(id)
+  return n === 1 ? '1 shared memory' : `${n} shared memories`
 }
 
 function guideStatus(id: CompanionId) {

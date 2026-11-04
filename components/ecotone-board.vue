@@ -1963,7 +1963,13 @@ import {
 } from '~/utils/ecotone/mysteries'
 
 type Tab =
-  'road' | 'guides' | 'county' | 'journal' | 'endings' | 'cases' | 'settings'
+  | 'road'
+  | 'guides'
+  | 'county'
+  | 'journal'
+  | 'endings'
+  | 'cases'
+  | 'settings'
 
 const game = useEcotoneStore()
 const tab = ref<Tab>('road')

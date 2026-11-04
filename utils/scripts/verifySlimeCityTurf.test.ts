@@ -14,6 +14,7 @@ import {
   turfTerritory,
   turfText,
   TURF_KOMI,
+  TURF_PARITY_INTEREST,
   TURF_SWARM_WORTH,
   TURF_TRAP_CAP,
   type Fighter,
@@ -404,6 +405,63 @@ const guardedLone = deploy(
 )
 assert.ok(at(guardedLone, 0, 4), 'Nor a warded stone')
 assert.ok(turfText(dozer).includes('crushed'))
+// Under PARITY every card is free, so BULLDOZE crushes only into the edge or
+// a stone already on its last liberty.
+const parity = { parity: true }
+const pinned = [stone('enemy', 4, 4), stone('player', 5, 4)]
+assert.equal(
+  at(deploy(board([...pinned], [dozer.id]), dozer.id, 3, 4), 4, 4),
+  undefined,
+  'Normal TURF crushes into a stone',
+)
+assert.ok(
+  at(
+    deploy(
+      board([...pinned], [dozer.id], [], 'ironjaw', parity),
+      dozer.id,
+      3,
+      4,
+    ),
+    4,
+    4,
+  ),
+  'PARITY does not crush a stone with liberties left',
+)
+assert.equal(
+  at(
+    deploy(
+      board(
+        [...pinned, stone('player', 4, 3)],
+        [dozer.id],
+        [],
+        'ironjaw',
+        parity,
+      ),
+      dozer.id,
+      3,
+      4,
+    ),
+    4,
+    4,
+  ),
+  undefined,
+  'PARITY crushes a stone on its last liberty',
+)
+assert.equal(
+  at(
+    deploy(
+      board([stone('enemy', 0, 4)], [dozer.id], [], 'ironjaw', parity),
+      dozer.id,
+      1,
+      4,
+    ),
+    0,
+    4,
+  ),
+  undefined,
+  'PARITY crushes into the edge',
+)
+assert.ok(turfText(dozer, true).includes('edge'))
 // AMBUSH pounces on a lone edge stone it leaves in atari.
 const stalker = CARDS.find(
   (c) =>
@@ -465,7 +523,8 @@ const banked = board(
   'exchange',
   { parity: true },
 )
-assert.equal(turfTerritory(banked).score.player, TURF_SWARM_WORTH)
+assert.equal(turfTerritory(banked).score.player, TURF_PARITY_INTEREST)
+assert.equal(TURF_PARITY_INTEREST, 2)
 assert.equal(
   turfTerritory({ ...banked, rules: { ...banked.rules, parity: false } }).score
     .player,

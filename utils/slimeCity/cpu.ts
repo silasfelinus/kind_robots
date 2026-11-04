@@ -796,6 +796,13 @@ function turfAction(view: MatchView, tried: Set<string>): CpuAction | null {
               if (!g || g.side === view.side || g.warded || g.cells.length > 1)
                 return false
               const to = { x: 2 * n.x - x, y: 2 * n.y - y }
+              // Under PARITY: the edge behind, or a stone on its last liberty
+              // (it had two before our stone lands).
+              if (view.parity)
+                return (
+                  !inTurf(view, to) ||
+                  (grid.has(to.x + ':' + to.y) && g.libs <= 2)
+                )
               return !inTurf(view, to) || grid.has(to.x + ':' + to.y)
             })
           )

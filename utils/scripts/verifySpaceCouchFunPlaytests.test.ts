@@ -170,7 +170,8 @@ function encounter(
       ALIEN_CHOICE_STORIES[sighting.species.id]?.[sighting.mood]?.[choice] ??
         expected,
     ),
-    sighting.species.name + ': chosen action leads to its own original response',
+    sighting.species.name +
+      ': chosen action leads to its own original response',
   )
   stats.attempts++
   stats.sceneWords.push(sighting.scene.trim().split(/\s+/).length)

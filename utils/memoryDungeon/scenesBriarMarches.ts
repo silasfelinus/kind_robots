@@ -3,6 +3,7 @@ import type { BriarScene } from './scenes'
 export const BRIAR_MARCHES_FIRST_BATCH: Record<string, BriarScene> = {
   '1,5': {
     title: "A Sleepwalker's Warning",
+    autoChoiceId: 'guide',
     opening:
       'An elder walks the lane asleep with a lit candle balanced on one palm. Behind them a shadow wearing their childhood face repeats every footstep half a beat late. Their bare feet are taking them toward the flooded ditch, though the shadow is carefully avoiding it.',
     artPrompt:
@@ -24,6 +25,7 @@ export const BRIAR_MARCHES_FIRST_BATCH: Record<string, BriarScene> = {
   },
   '1,6': {
     title: 'Hair-Ladder Loft',
+    autoChoiceId: 'rescue',
     opening:
       'From a cramped watchtower window hangs a magnificent rope of braided hair. Its owner, a stubborn old tower keeper, shouts that the ladder was meant for rescuers, not thieves, while a pair of traveling merchants argue over who gets to sell it.',
     artPrompt:

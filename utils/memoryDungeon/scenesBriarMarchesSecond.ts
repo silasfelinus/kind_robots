@@ -155,6 +155,7 @@ export const BRIAR_MARCHES_SECOND_BATCH: Record<string, BriarScene> = {
   },
   '5,1': {
     title: 'Honeymoon Gutter',
+    autoChoiceId: 'shelter',
     opening:
       "Two newlyweds hide beneath a bridge wearing each other's wedding clothes, determined to confuse the law. A registrar has declared that one of them must transform into a beast before their marriage can be recognized. Neither knows which, and they intend to stay stubbornly human through the ceremony.",
     artPrompt:

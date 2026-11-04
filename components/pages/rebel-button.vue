@@ -84,6 +84,12 @@
               :style="{ left: `${n * 18}%` }"
               aria-hidden="true"
             ></div>
+            <rebel-encounter
+              v-if="rebelStore.activeEncounter"
+              :kind="rebelStore.activeEncounter"
+              :seed="rebelStore.seed"
+              @done="rebelStore.resolveEncounter"
+            />
           </div>
           <div v-if="state.pressed" class="text-center">
             <button

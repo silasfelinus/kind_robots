@@ -305,6 +305,29 @@ export function companionBondTier(count: number): string {
   return 'Not yet close'
 }
 
+/**
+ * Derived finale coda: when two or more guides have each become at least a
+ * close friend, the weekend ends with a found-family epilogue. Romance is
+ * optional and never implied; nobody is ranked against anybody. Derived from
+ * flags, so no saved-game change and old saves simply return null.
+ */
+export function chosenFamilyCoda(
+  flags: readonly string[],
+  nameOf: (id: CompanionId) => string,
+): string | null {
+  const counts = companionBondCounts(flags)
+  const close = (Object.keys(counts) as CompanionId[]).filter(
+    (id) => counts[id] >= 2,
+  )
+  if (close.length < 2) return null
+  const names = close.map(nameOf)
+  const list =
+    names.length === 2
+      ? `${names[0]} and ${names[1]}`
+      : `${names.slice(0, -1).join(', ')} and ${names.at(-1)}`
+  return `Months later the county still has a table with room at it for ${list}, and for you. Nobody keeps score. Whatever each friendship is, it is held open-handed, and the group chat has never once been quiet.`
+}
+
 export function earnedCompanionHangoutCallbacks(
   flags: readonly string[],
 ): string[] {

@@ -594,6 +594,13 @@
                       {{ callback }}
                     </p>
                     <p
+                      v-if="familyCoda"
+                      data-testid="chosen-family-coda"
+                      class="border-l-2 border-[#8fb8b0] pl-3 font-serif text-sm italic leading-relaxed"
+                    >
+                      {{ familyCoda }}
+                    </p>
+                    <p
                       v-for="(callback, index) in questCallbacks"
                       :key="`quest-callback-${index}`"
                       class="border-l-2 border-[#d6a962] pl-3 font-serif text-sm italic leading-relaxed"
@@ -1916,6 +1923,7 @@ import {
   companionBondCounts,
   companionBondTier,
   earnedCompanionHangoutCallbacks,
+  chosenFamilyCoda,
 } from '~/utils/ecotone/companionHangouts'
 import {
   DEFAULT_ECOTONE_ART_STYLE,
@@ -2279,6 +2287,14 @@ const questCallbacks = computed(() => {
 })
 const hangoutCallbacks = computed(() =>
   game.run ? earnedCompanionHangoutCallbacks(game.run.flags) : [],
+)
+const familyCoda = computed(() =>
+  game.run
+    ? chosenFamilyCoda(
+        game.run.flags,
+        (id) => COMPANIONS.find((c) => c.id === id)?.name ?? id,
+      )
+    : null,
 )
 const sharedFuture = computed(() =>
   game.run && game.ending ? ensembleFuture(game.run, game.ending.fate) : null,

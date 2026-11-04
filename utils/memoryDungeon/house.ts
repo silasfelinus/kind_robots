@@ -1083,6 +1083,7 @@ export function houseExits(
   return [...new Set(exits)].filter(
     (exit) =>
       !(exit === 'HD-33' && roomId === 'HD-32' && !progress.wardenPassed) &&
+      !(exit === 'HD-35' && !progress.wardenPassed) &&
       !(exit === 'HD-36' && roomId === 'HD-35' && progress.ending === null),
   )
 }
@@ -1159,6 +1160,7 @@ export function restoreHouseProgress(input: unknown): HouseProgress | null {
     shortcuts,
     (from, to) =>
       (to !== 'HD-33' || (from === 'HD-32' && v.wardenPassed === true)) &&
+      (to !== 'HD-35' || (v.wardenPassed === true && visited.includes('HD-32'))) &&
       (to !== 'HD-36' || (from === 'HD-35' && exitEarned)),
   )
   const visitedSet = new Set<string>(visitedRooms)

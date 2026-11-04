@@ -1,10 +1,6 @@
 import assert from 'node:assert/strict'
 import { playVoyage, type Driver } from './spaceCouchTraceHarness'
-import {
-  type CaptainId,
-  type CrewId,
-  type VoyageRun,
-} from '../gameOfCaptains/rules'
+import type { CaptainId, CrewId, VoyageRun } from '../gameOfCaptains/rules'
 import {
   ALIEN_CHOICES,
   emptyAlienGuide,

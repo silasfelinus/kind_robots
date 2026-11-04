@@ -1,8 +1,5 @@
 import assert from 'node:assert/strict'
-import {
-  playVoyage,
-  type Driver,
-} from './spaceCouchTraceHarness'
+import { playVoyage, type Driver } from './spaceCouchTraceHarness'
 import {
   type CaptainId,
   type CrewId,
@@ -143,29 +140,34 @@ function encounter(
   assert.equal(run.phase, 'expedition')
   assert.ok(maySeeAlien(run, guide))
   const sighting = nextAlienSighting(run, guide)!
-  const choice = chooseContact(style === 'oracle' ? 'none' : style, sighting, stats.attempts)
+  const choice = chooseContact(
+    style === 'oracle' ? 'none' : style,
+    sighting,
+    stats.attempts,
+  )
   const outcome = resolveAlienSighting(guide, sighting, choice)
   const story = ALIEN_SPECIES_STORIES[sighting.species.id]
   assert.ok(story, sighting.species.id + ' must have an authored encounter')
-  const expected = story.outcomes[
-    sighting.mood === 'wary'
-      ? choice === 'observe'
-        ? 'bond'
-        : choice === 'approach'
-          ? 'retreat'
-          : 'chaos'
-      : sighting.mood === 'playful'
-        ? choice === 'approach'
-          ? 'bond'
-          : choice === 'observe'
-            ? 'chaos'
-            : 'retreat'
-        : choice === 'improvise'
+  const expected =
+    story.outcomes[
+      sighting.mood === 'wary'
+        ? choice === 'observe'
           ? 'bond'
           : choice === 'approach'
-            ? 'chaos'
-            : 'retreat'
-  ]
+            ? 'retreat'
+            : 'chaos'
+        : sighting.mood === 'playful'
+          ? choice === 'approach'
+            ? 'bond'
+            : choice === 'observe'
+              ? 'chaos'
+              : 'retreat'
+          : choice === 'improvise'
+            ? 'bond'
+            : choice === 'approach'
+              ? 'chaos'
+              : 'retreat'
+    ]
   assert.ok(
     outcome.text.startsWith(expected),
     sighting.species.name + ': personalized outcome, no generic contradiction',
@@ -215,11 +217,18 @@ for (const player of PLAYERS) {
     const seed = 47011 + i * 123
     const trace = playVoyage(captain, crew, seed, player.driver, {
       onStep: (label, before, after) => {
-        if (label === 'arrive' && after.phase === 'expedition' && player.contact !== 'none' && maySeeAlien(after, guide)) {
+        if (
+          label === 'arrive' &&
+          after.phase === 'expedition' &&
+          player.contact !== 'none' &&
+          maySeeAlien(after, guide)
+        ) {
           const sighting = nextAlienSighting(after, guide)!
           uniqueIncidents.add(sighting.species.id)
           if (sample.length < 2)
-            sample.push(sighting.species.name + ': ' + sighting.scene.slice(0, 185))
+            sample.push(
+              sighting.species.name + ': ' + sighting.scene.slice(0, 185),
+            )
           guide = encounter(after, guide, player.contact, stats)
         }
         if (before.phase === 'decision' && sample.length < 3)
@@ -236,14 +245,22 @@ for (const player of PLAYERS) {
   assert.equal(stepsPerVoyage.length, 5)
   if (player.contact !== 'none') assert.ok(stats.attempts >= 25)
   console.log(
-    'SPACE COUCH FUN PILOT ' + player.name + ': ' +
+    'SPACE COUCH FUN PILOT ' +
+      player.name +
+      ': ' +
       '5 complete voyages, ' +
-      stepsPerVoyage.join('/') + ' steps, ' +
-      endings.size + ' ending families, ' +
-      stats.attempts + ' optional alien contacts, ' +
-      uniqueIncidents.size + ' unique creatures, ' +
-      depleted + '/5 empty holds, ' +
-      casualties + ' fallen redshirts',
+      stepsPerVoyage.join('/') +
+      ' steps, ' +
+      endings.size +
+      ' ending families, ' +
+      stats.attempts +
+      ' optional alien contacts, ' +
+      uniqueIncidents.size +
+      ' unique creatures, ' +
+      depleted +
+      '/5 empty holds, ' +
+      casualties +
+      ' fallen redshirts',
   )
   for (const line of sample) console.log('  STORY SNAPSHOT: ' + line)
 }
@@ -262,7 +279,11 @@ for (const strategy of ['greet', 'cycle', 'oracle'] as const) {
     playVoyage(captain, crew, seed, driver, {
       inspectEvery: false,
       onStep: (label, _before, after) => {
-        if (label === 'arrive' && after.phase === 'expedition' && maySeeAlien(after, guide))
+        if (
+          label === 'arrive' &&
+          after.phase === 'expedition' &&
+          maySeeAlien(after, guide)
+        )
           guide = encounter(after, guide, strategy, stats)
       },
     })
@@ -275,16 +296,28 @@ for (const strategy of ['greet', 'cycle', 'oracle'] as const) {
       stats.sceneWords.length,
   )
   console.log(
-    'SPACE COUCH COLLECTOR ' + strategy + ': ' +
-      voyages + ' actual complete voyages, ' +
-      stats.attempts + ' meetings, ' +
-      stats.recorded + ' captures, ' +
-      stats.friends + ' friendships, ' +
-      stats.chaos + ' chaos, ' +
-      stats.retreats + ' escaped, ' +
-      avgWords + ' average scene words, ' +
-      stats.milestones.length + ' collector events',
+    'SPACE COUCH COLLECTOR ' +
+      strategy +
+      ': ' +
+      voyages +
+      ' actual complete voyages, ' +
+      stats.attempts +
+      ' meetings, ' +
+      stats.recorded +
+      ' captures, ' +
+      stats.friends +
+      ' friendships, ' +
+      stats.chaos +
+      ' chaos, ' +
+      stats.retreats +
+      ' escaped, ' +
+      avgWords +
+      ' average scene words, ' +
+      stats.milestones.length +
+      ' collector events',
   )
 }
 
-console.log('Space Couch independent fun playtests: five player styles, 25 full voyages plus complete collector arcs OK')
+console.log(
+  'Space Couch independent fun playtests: five player styles, 25 full voyages plus complete collector arcs OK',
+)

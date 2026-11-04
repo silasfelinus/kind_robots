@@ -2138,6 +2138,22 @@ export const ACT_ONE_DAYS: readonly DayDef[] = [
         speaker: 'Pip Thread, archivist of Hollow Bell',
         npc: 'F005',
         faction: 'hollow-bell',
+        variants: [
+          {
+            flags: ['d01-pip-on-staff'],
+            lines: [
+              'Pip comes from the Archive desk you gave them on the first morning. A letter lies flat between two ledgers. Their spectacles are still mended with thread.',
+              '“You gave me a place to work. I found what was missing from the Hollow Bell register. I wrote to myself because nobody there will answer my letters.”',
+              '“It is a boy’s name, Majesty. Not a new petition for wages. I can show you the page they changed.”',
+              'Pip has ink on both hands. They keep the letter on the rail until you look at it.',
+              {
+                who: 'Young Komodo',
+                npc: 'young-komodo',
+                text: 'An archivist already in your service can still do a town harm, Majesty. So can a missing boy. Ask to see the evidence.',
+              },
+            ],
+          },
+        ],
         lines: [
           'Pip Thread comes up the carpet in a coat too heavy for the weather, holding a letter in both hands like evidence. Their spectacles are mended with thread. They stop at the petitioners’ line, check it, and stop again.',
           '“I brought a letter from the Hollow Bell archive. Nobody sent it. I mean, I sent it. I am delivering it. I am Pip Thread. I also wrote it.”',
@@ -2159,9 +2175,17 @@ export const ACT_ONE_DAYS: readonly DayDef[] = [
             next: 'page',
           },
           {
+            id: 'file-at-court',
+            label: 'File Pip’s evidence at the desk they already hold.',
+            requires: { flags: ['d01-pip-on-staff'] },
+            effects: { local: { lamplight: 1 } },
+            response:
+              'Pip puts the letter beside the ledger you gave them on the first morning. “The first file was about the boy,” they say. “This one is about who erased him.”',
+          },
+          {
             id: 'welcome',
             label: 'Welcome Pip to the court and pay their passage.',
-            requires: { cost: 15 },
+            requires: { cost: 15, notFlags: ['d01-pip-on-staff'] },
             effects: { recruit: ['F005'], local: { lamplight: 2 } },
             response:
               'Pip bows too low and drops the letter. “I’ll start a file on myself.”',
@@ -2169,6 +2193,7 @@ export const ACT_ONE_DAYS: readonly DayDef[] = [
           {
             id: 'turn-away',
             label: 'Send Pip home. Hollow Bell needs its archivist.',
+            requires: { notFlags: ['d01-pip-on-staff'] },
             effects: {
               affinity: { 'hollow-bell': 3 },
               local: { lamplight: -2 },
@@ -2215,7 +2240,7 @@ export const ACT_ONE_DAYS: readonly DayDef[] = [
                 id: 'welcome',
                 label:
                   'Take Pip in. The question comes with them. The tower will carry it.',
-                requires: { cost: 15 },
+                requires: { cost: 15, notFlags: ['d01-pip-on-staff'] },
                 effects: { recruit: ['F005'], local: { lamplight: 2 } },
                 response:
                   'Pip bows too low, drops the letter, and holds it out to you. “Then this belongs in your archive. I will start a file on myself. And one on page two hundred and eight.”',
@@ -2224,6 +2249,7 @@ export const ACT_ONE_DAYS: readonly DayDef[] = [
                 id: 'turn-away',
                 label:
                   'Send Pip home. If Hollow Bell has a missing page, Hollow Bell must answer for it.',
+                requires: { notFlags: ['d01-pip-on-staff'] },
                 effects: {
                   affinity: { 'hollow-bell': 3 },
                   local: { lamplight: -2 },
@@ -2289,6 +2315,20 @@ export const ACT_ONE_DAYS: readonly DayDef[] = [
           },
           {
             id: 'decide',
+            variants: [
+              {
+                flags: ['d01-pip-on-staff'],
+                lines: [
+                  'Pip waits beside their Archive desk. They hold the copied register page in both hands.',
+                  '“I had a job when I came in, Majesty. I still have it. This is Tobin Lowe’s page. The next thing is what we do with it.”',
+                  {
+                    who: 'Young Komodo',
+                    npc: 'young-komodo',
+                    text: 'Whatever you decide about the record, Hollow Bell will say the Archive decided it. Their clerk is already on the way.',
+                  },
+                ],
+              },
+            ],
             lines: [
               'Pip has not moved from the line on the carpet. They hold the empty letter in both hands.',
               '“That was the page. This is the petition. The tower’s records, if you’ll have me. I will work in the coldest room. I don’t need to be talked to.”',
@@ -2300,9 +2340,30 @@ export const ACT_ONE_DAYS: readonly DayDef[] = [
             ],
             options: [
               {
+                id: 'fund-inquiry',
+                label:
+                  'Pay fifteen brass for independent scribes to investigate Tobin’s erased page.',
+                requires: { flags: ['d01-pip-on-staff'], cost: 15 },
+                effects: {
+                  local: { lamplight: 2 },
+                  flags: ['d04-pip-inquiry-funded'],
+                },
+                response:
+                  'Pip hires two scribes who never worked for Mara Reedbell. Hesper’s copy stays on the desk. The scribes begin with the binding thread and the clerk who bought it.',
+              },
+              {
+                id: 'file-at-court',
+                label:
+                  'Keep Pip at their desk and file Tobin’s missing page without spending brass.',
+                requires: { flags: ['d01-pip-on-staff'] },
+                effects: {},
+                response:
+                  'Pip writes Hesper Lowe’s name on a fresh folder, then Tobin’s. “The file is safe,” they say. “The witnesses cost more than we have paid.”',
+              },
+              {
                 id: 'welcome',
                 label: 'Welcome Pip to the court, and pay their passage.',
-                requires: { cost: 15 },
+                requires: { cost: 15, notFlags: ['d01-pip-on-staff'] },
                 effects: { recruit: ['F005'], local: { lamplight: 2 } },
                 response:
                   'Pip bows too low and drops the letter. “I’ll start a file on myself.” Then, quieter: “And one on Tobin.”',
@@ -2311,6 +2372,7 @@ export const ACT_ONE_DAYS: readonly DayDef[] = [
                 id: 'turn-away',
                 label:
                   'Send Pip home. The page is the tower’s now. The archivist is Hollow Bell’s.',
+                requires: { notFlags: ['d01-pip-on-staff'] },
                 effects: {
                   affinity: { 'hollow-bell': 3 },
                   local: { lamplight: -2 },

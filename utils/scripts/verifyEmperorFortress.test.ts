@@ -234,6 +234,7 @@ import type {
 import {
   COURT_ONBOARDING_FLAG,
   COURT_RECRUITMENT_IDS,
+  FIRST_BELL_AUDIENCES,
   RANDOM_ARRIVALS,
   RIVAL_ARGUMENTS,
   FIRST_BELL_RIVAL_BARGAIN,
@@ -4134,7 +4135,10 @@ for (const def of DAYS)
   // Day 41 buyer or (t-040) on an answer given on an earlier day.
   const answeredBy = new Map<string, number>()
   for (const def of DAYS)
-    for (const audience of def.audiences)
+    for (const audience of [
+      ...def.audiences,
+      ...(def.day === 1 ? FIRST_BELL_AUDIENCES : []),
+    ])
       for (const option of [
         ...audience.options,
         ...(audience.beats ?? []).flatMap((beat) => beat.options),
@@ -7301,6 +7305,173 @@ for (const def of DAYS)
     )
     assert.ok(validateRun(JSON.parse(JSON.stringify(record))))
   }
+  // Independently reviewed: Hesper's public hearing and the runner's
+  // reparations were on the same Day 39 menu. The ruler can pay for both,
+  // but not unless both Day 4/7 threads reached their earned gates.
+  const twoWitnesses = audience(39, 'd39-congress').options.find(
+    (option) => option.id === 'hear-both',
+  )!
+  const bothGates = ['d29-hesper-hearing', 'd07-runner-penalized']
+  for (const flag of bothGates)
+    assert.ok(
+      !optionVisible(
+        onDay(622, 39, { flags: bothGates.filter((value) => value !== flag) }),
+        twoWitnesses,
+      ),
+      `two-witness congress requires ${flag}`,
+    )
+  assert.ok(
+    optionBlockers(
+      onDay(622, 39, { flags: bothGates, brass: 29 }),
+      twoWitnesses,
+    ).length > 0,
+    'both witnesses cost 30 real brass',
+  )
+  const congressScene = audience(39, 'd39-congress')
+  const dualOpening = sceneLines(
+    onDay(622, 39, { flags: bothGates }),
+    congressScene,
+  )
+    .map(lineText)
+    .join(' ')
+  assert.match(dualOpening, /Hesper Lowe/)
+  assert.match(dualOpening, /runner/)
+  const bothHeard = proceed(39, bothGates, 'd39-congress', 'hear-both')
+  for (const flag of [
+    'd39-two-witnesses',
+    'd39-hearing-entered',
+    'd39-runner-freed',
+  ])
+    assert.ok(bothHeard.flags.includes(flag), `congress sets ${flag}`)
+  assert.equal(bothHeard.brass, 130)
+  const runnerSpoke = proceed(
+    44,
+    bothHeard.flags,
+    'd44-crow-name',
+    'hear-freed-runner',
+  )
+  assert.ok(runnerSpoke.flags.includes('d44-runner-testified'))
+  const recordScene = audience(49, 'd49-the-record')
+  const recordOpening = sceneLines(
+    onDay(622, 49, { flags: runnerSpoke.flags }),
+    recordScene,
+  )
+    .map(lineText)
+    .join(' ')
+  assert.match(recordOpening, /two sealed accounts/i)
+  const bothRecordOption = recordScene.options.find(
+    (option) => option.id === 'record-both-witnesses',
+  )!
+  assert.ok(!optionVisible(onDay(622, 49), bothRecordOption))
+  assert.ok(
+    optionBlockers(
+      onDay(622, 49, { flags: runnerSpoke.flags, brass: 11 }),
+      bothRecordOption,
+    ).length > 0,
+    'separate records cost twelve real brass',
+  )
+  const bothRecorded = proceed(
+    49,
+    runnerSpoke.flags,
+    'd49-the-record',
+    'record-both-witnesses',
+  )
+  assert.equal(bothRecorded.brass, 148)
+  for (const flag of [
+    'd49-tobin-record',
+    'd49-runner-record',
+    'd49-two-witness-record',
+  ])
+    assert.ok(bothRecorded.flags.includes(flag), `archive keeps ${flag}`)
+  const entries = epilogueFor(bothRecorded, 'open-roads')
+  const tobin = entries.find(
+    (entry) => entry.subject.id === 'tobin-and-hesper-record',
+  )
+  const runner = entries.find(
+    (entry) => entry.subject.id === 'the-runner-kept-her-name',
+  )
+  assert.match(tobin?.variant.text ?? '', /Hesper/)
+  assert.match(runner?.variant.text ?? '', /runner/i)
+  assert.match(tobin?.variant.text ?? '', /separate/)
+  assert.ok(
+    epilogueFor(bothRecorded, 'long-night').some(
+      (entry) => entry.subject.id === 'the-runner-kept-her-name',
+    ),
+    'a failed finale does not erase either witness',
+  )
+  assert.ok(validateRun(JSON.parse(JSON.stringify(bothRecorded))))
+}
+
+{
+  // The Day 1 random Pip appointment must not repeat the job interview
+  // when the same person presents Tobin Lowe's missing page on Day 4.
+  const first = createUnrecruitedRun(17)
+  assert.ok(
+    audiencesToday(first).some((scene) => scene.id === 'd01-pip-arrives'),
+    'seed 17: the actual empty-roster onboarding offers Pip',
+  )
+  const employed = chooseAudienceOption(first, 'd01-pip-arrives', 'appoint').run
+  assert.ok(employed.flags.includes('d01-pip-on-staff'))
+  const dayFour = onDay(17, 4, {
+    flags: employed.flags,
+    roster: employed.roster,
+    brass: 160,
+  })
+  const letter = audiencesToday(dayFour).find(
+    (scene) => scene.id === 'd04-letter-from-bell',
+  )!
+  assert.match(
+    sceneLines(dayFour, letter).map(lineText).join(' '),
+    /Archive desk/,
+  )
+  for (const id of ['welcome', 'turn-away']) {
+    const option = letter.options.find((entry) => entry.id === id)!
+    assert.ok(!optionVisible(dayFour, option), `no second ${id} for Pip`)
+  }
+  const initial = chooseAudienceOption(dayFour, letter.id, 'ask-page').run
+  const recalled = chooseAudienceOption(initial, letter.id, 'recall').run
+  const posted = chooseAudienceOption(recalled, letter.id, 'post-page').run
+  assert.ok(posted.flags.includes('d04-page-posted'))
+  const filing = chooseAudienceOption(posted, letter.id, 'file-at-court').run
+  assert.equal(filing.brass, 160, 'filing alone is free')
+  const fundedOption = letter
+    .beats!.find((beat) => beat.id === 'decide')!
+    .options.find((option) => option.id === 'fund-inquiry')!
+  assert.ok(
+    optionBlockers({ ...posted, brass: 14 }, fundedOption).length > 0,
+    'independent witnesses cost fifteen brass',
+  )
+  const funded = chooseAudienceOption(posted, letter.id, 'fund-inquiry').run
+  assert.equal(funded.brass, 145)
+  assert.ok(funded.flags.includes('d04-pip-inquiry-funded'))
+  assert.equal(
+    funded.roster.filter((follower) => follower.id === 'F005').length,
+    1,
+  )
+  assert.ok(validateRun(JSON.parse(JSON.stringify(funded))))
+  assert.equal(
+    filing.roster.filter((follower) => follower.id === 'F005').length,
+    1,
+  )
+  assert.ok(filing.audiencesHeard.includes(letter.id))
+  assert.ok(validateRun(JSON.parse(JSON.stringify(filing))))
+  const newApplicant = onDay(18, 4)
+  assert.match(
+    sceneLines(
+      newApplicant,
+      audiencesToday(newApplicant).find((entry) => entry.id === letter.id)!,
+    )
+      .map(lineText)
+      .join(' '),
+    /I am Pip Thread/,
+  )
+  assert.ok(
+    optionVisible(
+      newApplicant,
+      letter.options.find((entry) => entry.id === 'welcome')!,
+    ),
+    'later Pip recruitment remains possible when Day 1 chose another visitor',
+  )
 }
 
 {

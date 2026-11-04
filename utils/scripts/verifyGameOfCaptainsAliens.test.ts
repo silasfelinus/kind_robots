@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict'
 import { readFileSync } from 'node:fs'
 import { ALIEN_SPECIES } from '../gameOfCaptains/alienSpecies'
+import { ALIEN_SPECIES_STORIES } from '../gameOfCaptains/alienSpeciesStories'
 import {
   ALIEN_CHOICES,
   ALIEN_MILESTONES,
@@ -104,6 +105,60 @@ assert.equal(
 )
 assert.match(first.scene, /couch|bubble/i)
 assert.equal(first.mood, nextAlienSighting(run, empty)!.mood)
+
+const zodiacSpecies = ALIEN_SPECIES.filter(
+  (species) => species.category === 'zodiac',
+)
+assert.deepEqual(
+  Object.keys(ALIEN_SPECIES_STORIES).sort(),
+  zodiacSpecies.map((species) => species.id).sort(),
+  'every horoscope creature gets its own authored encounter',
+)
+const authoredLines = new Set<string>()
+for (const species of zodiacSpecies) {
+  const story = ALIEN_SPECIES_STORIES[species.id]!
+  assert.ok(story.incident.length >= 110, species.name + ' needs a real scene')
+  authoredLines.add(story.incident)
+  const onlyThisSpeciesMissing = {
+    ...empty,
+    discovered: ALIEN_SPECIES.filter((alien) => alien.id !== species.id).map(
+      (alien) => alien.id,
+    ),
+  }
+  const sighting = nextAlienSighting(run, onlyThisSpeciesMissing)!
+  assert.equal(sighting.species.id, species.id)
+  assert.ok(sighting.scene.includes(story.incident))
+  for (const mood of moods) {
+    for (const outcome of outcomes) {
+      const choice = ALIEN_CHOICES.find(
+        (item) => alienOutcome(mood, item.id) === outcome,
+      )!.id
+      const text = story.outcomes[outcome]
+      assert.ok(
+        text.length >= 80,
+        species.name + ' needs a distinct ' + outcome + ' result',
+      )
+      authoredLines.add(text)
+      const report = resolveAlienSighting(
+        empty,
+        { ...sighting, mood },
+        choice,
+      )
+      assert.ok(report.text.includes(text))
+      assert.equal(report.recorded, outcome !== 'retreat')
+    }
+  }
+}
+assert.equal(
+  authoredLines.size,
+  zodiacSpecies.length * 4,
+  'the twelve contact situations and 36 aftermaths must not repeat',
+)
+assert.equal(
+  ALIEN_SPECIES_STORIES[ALIEN_SPECIES.find((s) => s.category === 'hybrid')!.id],
+  undefined,
+  'unwritten categories keep their established fallback outcomes',
+)
 
 const choiceFor = (
   mood: typeof first.mood,

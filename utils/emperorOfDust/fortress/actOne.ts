@@ -2341,7 +2341,8 @@ export const ACT_ONE_DAYS: readonly DayDef[] = [
             options: [
               {
                 id: 'file-at-court',
-                label: 'Keep Pip at their desk and open a formal inquiry into Tobin’s missing page.',
+                label:
+                  'Keep Pip at their desk and open a formal inquiry into Tobin’s missing page.',
                 requires: { flags: ['d01-pip-on-staff'] },
                 effects: { local: { lamplight: 2 } },
                 response:

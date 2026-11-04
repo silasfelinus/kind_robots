@@ -2001,6 +2001,108 @@ for (let seed = 1; seed <= 200; seed += 1) {
 }
 assert.ok(sableLoss <= plainLoss, 'Immaculate Apology softens failures')
 
+// A signed market charter has consequences for the Freehold blanket sellers.
+{
+  const id = 'd08-blanket-evictions'
+  const hasScene = (run: FortressRun) =>
+    audiencesToday(run).some((audience) => audience.id === id)
+  assert.ok(!hasScene(onDay(806, 8)), 'no charter means no eviction hearing')
+  assert.ok(
+    !hasScene(
+      onDay(806, 8, {
+        flags: ['market-charter', 'd06-blanket-stalls'],
+      }),
+    ),
+    'the Day 6 blanket exemption prevents eviction',
+  )
+  const charter = onDay(806, 8, {
+    flags: ['market-charter'],
+    brass: 40,
+  })
+  assert.ok(
+    hasScene(charter),
+    'the unamended charter calls the seller to court',
+  )
+  const hearing = audiencesToday(charter).find((a) => a.id === id)!
+  const heard = chooseAudienceOption(charter, id, 'ask-rent').run
+  assert.equal(heard.audienceBeats?.[id], 'rent')
+  assert.equal(audienceScene(heard, hearing).beatId, 'rent')
+  const week = chooseAudienceOption(heard, id, 'lease-week').run
+  assert.equal(week.brass, 28)
+  assert.ok(week.flags.includes('d08-blankets-leased'))
+  const restored = chooseAudienceOption(charter, id, 'buy-back').run
+  assert.equal(restored.brass, 22)
+  assert.ok(restored.flags.includes('d08-blankets-restored'))
+  assert.ok(validateRun(JSON.parse(JSON.stringify(restored))))
+  const enforced = chooseAudienceOption(charter, id, 'enforce-charter').run
+  assert.equal(enforced.brass, 32)
+  assert.ok(enforced.flags.includes('d08-blankets-evicted'))
+  assert.equal(chooseAudienceOption(heard, id, 'enforce-charter').run.brass, 32)
+  assert.equal(enforced.local.ledger, charter.local.ledger + 2)
+  assert.ok(
+    optionBlockers(
+      onDay(806, 8, { flags: ['market-charter'], brass: 11 }),
+      hearing.options.find((o) => o.id === 'buy-back')!,
+    ).length > 0,
+    'the full restitution has a real affordability gate',
+  )
+}
+
+// Day 8's three market outcomes earn distinct paid Day 10 evacuation routes.
+{
+  const audience = DAYS.find((day) => day.day === 10)!.audiences.find(
+    (entry) => entry.id === 'd10-thistledown',
+  )!
+  const routes = [
+    [
+      'd08-blankets-restored',
+      'restored-market-guides',
+      10,
+      'd10-restored-stall-guides',
+    ],
+    [
+      'd08-blankets-leased',
+      'leased-market-guides',
+      15,
+      'd10-leased-stall-guides',
+    ],
+    [
+      'd08-blankets-evicted',
+      'evicted-market-guides',
+      20,
+      'd10-evicted-stall-guides',
+    ],
+  ] as const
+  const choices = routes.map(([, id]) =>
+    audience.options.find((o) => o.id === id)!,
+  )
+  const unearned = onDay(810, 10, { brass: 100 })
+  assert.ok(choices.every((choice) => !optionVisible(unearned, choice)))
+  for (const [flag, optionId, cost, paidFlag] of routes) {
+    const ready = onDay(810, 10, {
+      brass: 100,
+      flags: ['market-charter', flag],
+    })
+    assert.deepEqual(
+      choices
+        .filter((choice) => optionVisible(ready, choice))
+        .map((choice) => choice.id),
+      [optionId],
+      'only the earned market path appears',
+    )
+    const resolved = chooseAudienceOption(ready, audience.id, optionId).run
+    assert.equal(resolved.brass, 100 - cost)
+    assert.ok(resolved.flags.includes(paidFlag))
+    assert.ok(
+      resolved.aid?.['q-d10-freehold-raid']?.some(
+        (aid) => aid.bonus === 2 && aid.stat === 'wits',
+      ),
+      'the paid sellers actually help the Thistledown expedition',
+    )
+    assert.ok(validateRun(JSON.parse(JSON.stringify(resolved))))
+  }
+}
+
 // --- recruitment routes in Act I ----------------------------------------------
 const recruits = (
   day: number,

@@ -93,9 +93,11 @@ for (const r of report) {
 // A bed now costs at least 100 brass per recruit instead of 40 for three.
 // Unfunded beds remain unavailable; a patron cannot borrow their way past the
 // recruitment gate. Some courts instead keep their funds and turn people away.
+const borrowingCourts = careful.filter((r) => r.loans > 0)
+const loanSummary = careful.map((r) => `${r.policy}=${r.loans}`).join(', ')
 assert.ok(
-  careful.filter((r) => r.loans > 0).length >= careful.length * 0.5,
-  'at least half of careful courts still borrow with expensive beds',
+  borrowingCourts.length >= careful.length * 0.5,
+  `at least half of careful courts still borrow with expensive beds (${borrowingCourts.length}/${careful.length}: ${loanSummary})`,
 )
 assert.ok(
   careful.some((r) => r.brassMin <= 20),

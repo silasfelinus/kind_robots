@@ -1083,19 +1083,23 @@ export const ACT_ONE_LATE_DAYS: readonly DayDef[] = [
           },
           {
             id: 'charter',
-            label: 'Grant the Ledger a market charter.',
+            label:
+              'Sign the Ledger’s equal stall fees, even for the blanket sellers.',
             effects: {
               brass: 10,
               local: { ledger: 4, yard: -1 },
               flags: ['market-charter'],
             },
-            response: 'The factor produces a charter. It is already drafted.',
+            response:
+              'Tallow stamps the charter. The egg-seller reads the fee column, then counts three buttons and a piece of twine from her apron pocket. The ink is dry before she finishes.',
           },
           {
             id: 'yard-first',
-            label: 'Give the Yard first pick of every stall.',
+            label:
+              'Give the Yard first pick, pushing the blanket sellers to the margins.',
             effects: { local: { yard: 3, ledger: -2 } },
-            response: 'The factor writes that down too. Different ink.',
+            response:
+              'Tallow changes the order of the pitches. The Yard’s cousins take the stalls under the awning. Four women fold their blankets and carry them toward the midden.',
           },
           {
             id: 'archive-rules',
@@ -2035,6 +2039,119 @@ export const ACT_ONE_LATE_DAYS: readonly DayDef[] = [
                 response:
                   '“Of course. The road is so dangerous for little ones.” Her novice, Brother Teodor, does not follow her out.',
                 postsQuests: ['q-d08-escort-to-bell'],
+              },
+            ],
+          },
+        ],
+      },
+      {
+        id: 'd08-blanket-evictions',
+        title: 'The Price of a Blanket',
+        speaker: 'Factor Marisol Tallow and a Freehold egg-seller',
+        npc: 'marisol-tallow',
+        faction: 'ledger',
+        requires: {
+          flags: ['market-charter'],
+          notFlags: ['d06-blanket-stalls'],
+        },
+        lines: [
+          'The egg-seller from the market has brought an empty basket. Factor Tallow carries the charter you signed two days ago, its seal still clean. The woman sets the basket between them.',
+          '“Three of us were sent away,” the seller says. “The fourth put her blankets on the road. She is paying a guard to keep carts from crushing her eggs.”',
+          '“An exemption would not survive an audit,” Tallow says. “You granted the same fee to every stall. The Ledger collected it.”',
+          '“You did not ask whether we had brass,” the seller says. She turns the basket upside down. Nothing falls out.',
+          {
+            who: 'Young Komodo',
+            npc: 'young-komodo',
+            text: 'The charter has your seal. You can break your own rule, Majesty. You cannot make the people who obeyed it forget.',
+          },
+        ],
+        options: [
+          {
+            id: 'ask-rent',
+            label: 'Ask Tallow who now owns the empty pitches.',
+            effects: {},
+            response:
+              'Tallow opens the charter to its last leaf. “The Ledger held them against unpaid fees. My cousins rented two by dawn.” The egg-seller turns the basket upright.',
+            next: 'rent',
+          },
+          {
+            id: 'buy-back',
+            label:
+              'Pay eighteen brass to restore the sellers’ pitches under the crown.',
+            requires: { cost: 18 },
+            effects: {
+              affinity: { freeholds: 7 },
+              local: { ledger: -3, yard: 1 },
+              flags: ['d08-blankets-restored'],
+            },
+            response:
+              'The factor counts eighteen discs twice. The egg-seller takes back her patch of ground. The Yard cousin who had rented it asks who will repay his deposit. You have no answer for him.',
+          },
+          {
+            id: 'enforce-charter',
+            label:
+              'Pay eight brass to have the Watch enforce the fees and clear the stalls.',
+            effects: {
+              brass: -8,
+              affinity: { freeholds: -6 },
+              local: { ledger: 2, yard: -2 },
+              flags: ['d08-blankets-evicted'],
+            },
+            response:
+              'Tallow stamps the final notice. Eight brass goes to the Watch for moving the stalls. The seller puts her empty basket over her arm and asks which road the guards will leave her on.',
+          },
+        ],
+        beats: [
+          {
+            id: 'rent',
+            lines: [
+              '“The lease is legal,” Tallow says. “The cousins paid the fees before dawn. I did not invent the law that lets them move faster than a woman with four eggs.”',
+              '“Give us a week,” the seller says. “Not charity. A week to earn the fee without selling our blankets.”',
+              {
+                who: 'Young Komodo',
+                npc: 'young-komodo',
+                text: 'An exception is a debt written sideways. Somebody still pays it. Decide whose name is on the account.',
+              },
+            ],
+            options: [
+              {
+                id: 'lease-week',
+                label:
+                  'Pay twelve brass for one week’s rent. The sellers keep a debt.',
+                requires: { cost: 12 },
+                effects: {
+                  affinity: { freeholds: 4 },
+                  local: { ledger: -1, yard: -1 },
+                  flags: ['d08-blankets-leased'],
+                },
+                response:
+                  'The factor writes seven dates beside four names. The sellers take their places back until the last date. One keeps her receipt wrapped around an egg so she will not lose it.',
+              },
+              {
+                id: 'buy-back',
+                label:
+                  'Pay eighteen brass. Return the pitches without a clock running.',
+                requires: { cost: 18 },
+                effects: {
+                  affinity: { freeholds: 7 },
+                  local: { ledger: -3, yard: 1 },
+                  flags: ['d08-blankets-restored'],
+                },
+                response:
+                  'The factor counts eighteen discs twice. The seller takes the basket back to the market. The Yard cousin asks who will repay the deposit he paid under your law.',
+              },
+              {
+                id: 'enforce-charter',
+                label:
+                  'Pay eight brass for the Watch to carry out the legal removals.',
+                effects: {
+                  brass: -8,
+                  affinity: { freeholds: -6 },
+                  local: { ledger: 2, yard: -2 },
+                  flags: ['d08-blankets-evicted'],
+                },
+                response:
+                  'Tallow stamps the notice. The Watch takes its eight-brass fee and carries the blankets to the gate. The seller asks where she is allowed to put them next.',
               },
             ],
           },
@@ -3108,6 +3225,72 @@ export const ACT_ONE_LATE_DAYS: readonly DayDef[] = [
             response:
               'She takes the broken pitchfork tine from her belt. “Green cart. Four children. I remember.”',
             next: 'coldbrook-road',
+          },
+          {
+            id: 'restored-market-guides',
+            label:
+              'Pay ten brass for the restored blanket sellers to guide families out of Thistledown.',
+            requires: { flags: ['d08-blankets-restored'], cost: 10 },
+            effects: {
+              affinity: { freeholds: 5 },
+              local: { yard: -1 },
+              flags: ['d10-restored-stall-guides'],
+              questAid: [
+                {
+                  questId: 'q-d10-freehold-raid',
+                  label:
+                    'The restored Freehold stallholders know the safe cart tracks',
+                  bonus: 2,
+                  stat: 'wits',
+                },
+              ],
+            },
+            response:
+              'The egg-seller brings three carts and a map drawn on sackcloth. The Yard gives up a porter to haul the children. She says she will count every cart that comes home.',
+          },
+          {
+            id: 'leased-market-guides',
+            label:
+              'Pay fifteen brass to cover the sellers’ rent while they guide the refugees.',
+            requires: { flags: ['d08-blankets-leased'], cost: 15 },
+            effects: {
+              affinity: { freeholds: 4 },
+              local: { ledger: -1 },
+              flags: ['d10-leased-stall-guides'],
+              questAid: [
+                {
+                  questId: 'q-d10-freehold-raid',
+                  label:
+                    'The leased stallholders carry families out along their cart road',
+                  bonus: 2,
+                  stat: 'wits',
+                },
+              ],
+            },
+            response:
+              'Tallow demands the rent in advance. The egg-seller takes the receipt and leaves her goods covered on the stall. The carts go east with their week already spent.',
+          },
+          {
+            id: 'evicted-market-guides',
+            label:
+              'Pay twenty brass to find the evicted sellers and hire their carts for Thistledown.',
+            requires: { flags: ['d08-blankets-evicted'], cost: 20 },
+            effects: {
+              affinity: { freeholds: 5 },
+              local: { ledger: -3 },
+              flags: ['d10-evicted-stall-guides'],
+              questAid: [
+                {
+                  questId: 'q-d10-freehold-raid',
+                  label:
+                    'The displaced Freehold sellers return to guide evacuation carts',
+                  bonus: 2,
+                  stat: 'wits',
+                },
+              ],
+            },
+            response:
+              'The rider finds the seller beside the road, sleeping under her cart. She takes your brass and loads the first family. “This is work,” she says. “It is not forgiveness.”',
           },
         ],
         beats: [

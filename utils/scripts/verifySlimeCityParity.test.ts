@@ -15,6 +15,7 @@ import {
   observe,
   parityBudget,
   parityCard,
+  parityDither,
   parityWorth,
   PARITY_CREW_EDGE,
   PARITY_FREE_KIND,
@@ -29,7 +30,7 @@ import {
 import { playHeadless } from '../slimeCity/playtest'
 
 const parity = { parity: true }
-/** Uncalibrated, this round-robin spreads 0.32; calibrated it sits at 0.08. */
+/** Uncalibrated, these round-robins spread over 0.3; calibrated they sit near 0.1. */
 const CREW_SPREAD_LIMIT = 0.12
 
 // --- Normalized cards: free, and every creature on its crew's budget.
@@ -214,42 +215,51 @@ for (const mode of ['blackout', 'bloodrush', 'turf'] as ModeId[]) {
   }
 }
 
-// --- Crew calibration holds: a fixed-seed Blackout round-robin (every crew in
-// both seats) stays close to even. Deterministic, so it guards regressions.
-const crewScore: Record<string, number> = {}
-for (const a of TEAMS)
-  for (const b of TEAMS) {
-    if (a.id === b.id) continue
-    for (const seed of [
-      401, 414, 427, 440, 453, 466, 479, 492, 505, 518, 531, 544,
-    ]) {
-      const { state } = playHeadless(
-        'blackout',
-        a.id,
-        b.id,
-        seed,
-        undefined,
-        parity,
-      )
-      const p =
-        state.victor === 'player' ? 1 : state.victor === 'draw' ? 0.5 : 0
-      crewScore[a.id] = (crewScore[a.id] ?? 0) + p
-      crewScore[b.id] = (crewScore[b.id] ?? 0) + 1 - p
+// --- Crew calibration holds: fixed-seed Blackout and Bloodrush round-robins
+// (every crew in both seats) stay close to even. Deterministic, so they guard
+// regressions. On these seeds Blackout reads 0.102 and Bloodrush 0.080.
+for (const mode of ['blackout', 'bloodrush'] as const) {
+  const crewScore: Record<string, number> = {}
+  for (const a of TEAMS)
+    for (const b of TEAMS) {
+      if (a.id === b.id) continue
+      for (const seed of [
+        401, 414, 427, 440, 453, 466, 479, 492, 505, 518, 531, 544,
+      ]) {
+        const { state } = playHeadless(
+          mode,
+          a.id,
+          b.id,
+          seed,
+          undefined,
+          parity,
+        )
+        const p =
+          state.victor === 'player' ? 1 : state.victor === 'draw' ? 0.5 : 0
+        crewScore[a.id] = (crewScore[a.id] ?? 0) + p
+        crewScore[b.id] = (crewScore[b.id] ?? 0) + 1 - p
+      }
     }
-  }
-const crewRates = TEAMS.map((t) => crewScore[t.id]! / 120)
-const crewMean = crewRates.reduce((a, b) => a + b, 0) / crewRates.length
-const crewSpread = Math.sqrt(
-  crewRates.reduce((a, r) => a + (r - crewMean) ** 2, 0) /
-    (crewRates.length - 1),
-)
-assert.ok(
-  crewSpread <= CREW_SPREAD_LIMIT,
-  'PARITY crews stay balanced: spread ' + crewSpread.toFixed(3),
-)
-for (const rate of crewRates)
-  assert.ok(rate >= 0.3 && rate <= 0.7, 'No crew runs away: ' + rate)
+  const crewRates = TEAMS.map((t) => crewScore[t.id]! / 120)
+  const crewMean = crewRates.reduce((a, b) => a + b, 0) / crewRates.length
+  const crewSpread = Math.sqrt(
+    crewRates.reduce((a, r) => a + (r - crewMean) ** 2, 0) /
+      (crewRates.length - 1),
+  )
+  assert.ok(
+    crewSpread <= CREW_SPREAD_LIMIT,
+    mode + ' PARITY crews stay balanced: spread ' + crewSpread.toFixed(3),
+  )
+  for (const rate of crewRates)
+    assert.ok(rate >= 0.3 && rate <= 0.7, mode + ': no crew runs away: ' + rate)
+}
+// Dithered rounding: a card's offset is fixed and in [0, 1).
+for (const card of CARDS) {
+  const u = parityDither(card.id)
+  assert.ok(u >= 0 && u < 1)
+  assert.equal(u, parityDither(card.id))
+}
 
 console.log(
-  'Slime City PARITY: normalized free cards, crew-calibrated budgets, one play a turn, faction free play, JAM, three formats replay, balanced crews PASS',
+  'Slime City PARITY: normalized free cards, crew-calibrated budgets, one play a turn, faction free play, JAM, three formats replay, balanced Blackout and Bloodrush crews PASS',
 )

@@ -4459,21 +4459,23 @@ function parityExtras(card: Card): number {
  */
 export type ParityMode = Exclude<ModeId, 'gridiron'>
 export const PARITY_CREW_EDGE: Record<ParityMode, Record<TeamId, number>> = {
+  // Re-tuned 2026-11-04 with dithered rounding, picked on 48 held-out seeds
+  // (1,440 games): Blackout spread 0.079, Bloodrush 0.037.
   blackout: {
     catgirls: -0.75,
     bloodfairies: 1.5,
-    ironjaw: -1.5,
+    ironjaw: -1.625,
     riot: 0.5,
-    undertow: 1,
-    exchange: -0.5,
+    undertow: 1.375,
+    exchange: -0.625,
   },
   bloodrush: {
-    catgirls: -1,
-    bloodfairies: 1.75,
-    ironjaw: -2.25,
-    riot: 0.75,
-    undertow: 1.75,
-    exchange: -1,
+    catgirls: -0.75,
+    bloodfairies: 1.375,
+    ironjaw: -2,
+    riot: 0.625,
+    undertow: 1.5,
+    exchange: -1.25,
   },
   // TURF never fights with stats (a stone is a stone), so a creature budget
   // cannot move its crews; its balance needs a Go lever, not this one.

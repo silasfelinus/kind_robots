@@ -982,9 +982,9 @@ export const ACT_ONE_LATE_DAYS: readonly DayDef[] = [
                 id: 'ration',
                 label: 'Ration the bread. Leave the granary closed.',
                 effects: {
-              local: { yard: -3, 'old-houses': 1 },
-              flags: ['d05-bread-rationed'],
-            },
+                  local: { yard: -3, 'old-houses': 1 },
+                  flags: ['d05-bread-rationed'],
+                },
                 response:
                   'Ash goes down the stairs without a word. By supper the whole Yard knows how many sacks sit behind the Old Houses’ doors, and the name of the old man sleeping on them.',
               },
@@ -1744,7 +1744,8 @@ export const ACT_ONE_LATE_DAYS: readonly DayDef[] = [
             options: [
               {
                 id: 'buy-rations',
-                label: 'Pay fifteen brass for the grain. Keep the council independent.',
+                label:
+                  'Pay fifteen brass for the grain. Keep the council independent.',
                 requires: { cost: 15 },
                 effects: {
                   local: { yard: 2, 'old-houses': -1 },
@@ -1755,9 +1756,15 @@ export const ACT_ONE_LATE_DAYS: readonly DayDef[] = [
               },
               {
                 id: 'seat-for-grain',
-                label: 'Trade a council seat for the flour. Every future ration goes through her.',
+                label:
+                  'Trade a council seat for the flour. Every future ration goes through her.',
                 effects: {
-                  local: { yard: 1, 'old-houses': 2, lamplight: -2, 'gate-watch': -1 },
+                  local: {
+                    yard: 1,
+                    'old-houses': 2,
+                    lamplight: -2,
+                    'gate-watch': -1,
+                  },
                   flags: ['old-houses-council-seat', 'd07-ration-writ'],
                 },
                 response:
@@ -1765,7 +1772,8 @@ export const ACT_ONE_LATE_DAYS: readonly DayDef[] = [
               },
               {
                 id: 'keep-ration',
-                label: 'Keep rationing. A hungry treasury cannot buy another promise.',
+                label:
+                  'Keep rationing. A hungry treasury cannot buy another promise.',
                 effects: {
                   local: { yard: -2, 'old-houses': 1 },
                   flags: ['d07-rations-continued'],
@@ -3379,7 +3387,8 @@ export const ACT_ONE_LATE_DAYS: readonly DayDef[] = [
           },
           {
             id: 'bread-carts',
-            label: 'Spend ten brass to send the paid flour carts east with evacuation teams.',
+            label:
+              'Spend ten brass to send the paid flour carts east with evacuation teams.',
             requires: { flags: ['d07-rations-bought'], cost: 10 },
             effects: {
               affinity: { freeholds: 5 },
@@ -3388,7 +3397,8 @@ export const ACT_ONE_LATE_DAYS: readonly DayDef[] = [
               questAid: [
                 {
                   questId: 'q-d10-freehold-raid',
-                  label: 'The Yard flour carts carry families along the back road',
+                  label:
+                    'The Yard flour carts carry families along the back road',
                   bonus: 2,
                   stat: 'wits',
                 },
@@ -3399,7 +3409,8 @@ export const ACT_ONE_LATE_DAYS: readonly DayDef[] = [
           },
           {
             id: 'house-wagons',
-            label: 'Make Lady Vask honor the grain writ. Send her wagons to Thistledown.',
+            label:
+              'Make Lady Vask honor the grain writ. Send her wagons to Thistledown.',
             requires: { flags: ['d07-ration-writ'] },
             effects: {
               affinity: { freeholds: 5 },
@@ -3419,7 +3430,8 @@ export const ACT_ONE_LATE_DAYS: readonly DayDef[] = [
           },
           {
             id: 'watch-rations',
-            label: 'Take the Watch’s field bread for the road. The gate can eat late.',
+            label:
+              'Take the Watch’s field bread for the road. The gate can eat late.',
             requires: {
               flags: ['d05-bread-rationed'],
               notFlags: ['d07-rations-bought', 'd07-ration-writ'],
@@ -3431,7 +3443,8 @@ export const ACT_ONE_LATE_DAYS: readonly DayDef[] = [
               questAid: [
                 {
                   questId: 'q-d10-freehold-raid',
-                  label: 'Diverted Watch field bread keeps the rescue teams moving',
+                  label:
+                    'Diverted Watch field bread keeps the rescue teams moving',
                   bonus: 1,
                   stat: 'wits',
                 },

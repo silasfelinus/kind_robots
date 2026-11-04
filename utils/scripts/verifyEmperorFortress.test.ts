@@ -7433,6 +7433,19 @@ for (const def of DAYS)
   const posted = chooseAudienceOption(recalled, letter.id, 'post-page').run
   assert.ok(posted.flags.includes('d04-page-posted'))
   const filing = chooseAudienceOption(posted, letter.id, 'file-at-court').run
+  assert.equal(filing.brass, 160, 'filing alone is free')
+  const fundedOption = letter.beats!
+    .find((beat) => beat.id === 'decide')!
+    .options.find((option) => option.id === 'fund-inquiry')!
+  assert.ok(
+    optionBlockers({ ...posted, brass: 14 }, fundedOption).length > 0,
+    'independent witnesses cost fifteen brass',
+  )
+  const funded = chooseAudienceOption(posted, letter.id, 'fund-inquiry').run
+  assert.equal(funded.brass, 145)
+  assert.ok(funded.flags.includes('d04-pip-inquiry-funded'))
+  assert.equal(funded.roster.filter((follower) => follower.id === 'F005').length, 1)
+  assert.ok(validateRun(JSON.parse(JSON.stringify(funded))))
   assert.equal(
     filing.roster.filter((follower) => follower.id === 'F005').length,
     1,

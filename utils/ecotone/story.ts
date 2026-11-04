@@ -1641,6 +1641,7 @@ export const ROUTES: Record<EventId, RouteStep[]> = {
       pools: [1, 4],
       scene: 'plaza',
     },
+    { kind: 'crossroads', day: 1 },
     { kind: 'beat', id: 'GR-4', day: 2 },
     {
       kind: 'fork',
@@ -1657,6 +1658,7 @@ export const ROUTES: Record<EventId, RouteStep[]> = {
       pools: [3],
       scene: 'bay',
     },
+    { kind: 'crossroads', day: 3 },
     { kind: 'beat', id: 'GR-5', day: 3 },
     { kind: 'finale', day: 3 },
   ],
@@ -1671,6 +1673,7 @@ export const ROUTES: Record<EventId, RouteStep[]> = {
       pools: [1],
       scene: 'marsh',
     },
+    { kind: 'crossroads', day: 1 },
     { kind: 'beat', id: 'QW-4', day: 2 },
     {
       kind: 'fork',
@@ -1687,6 +1690,7 @@ export const ROUTES: Record<EventId, RouteStep[]> = {
       pools: [3],
       scene: 'bay',
     },
+    { kind: 'crossroads', day: 3 },
     { kind: 'beat', id: 'QW-5', day: 3 },
     { kind: 'finale', day: 3 },
   ],
@@ -1706,6 +1710,7 @@ export const ROUTES: Record<EventId, RouteStep[]> = {
       pools: [3, 6],
       scene: 'bay',
     },
+    { kind: 'crossroads', day: 2 },
     { kind: 'beat', id: 'KN-5', day: 3 },
     { kind: 'beat', id: 'KN-8', day: 3 },
     { kind: 'beat', id: 'KN-6', day: 4 },
@@ -1717,6 +1722,7 @@ export const ROUTES: Record<EventId, RouteStep[]> = {
       pools: [2, 5],
       scene: 'beach',
     },
+    { kind: 'crossroads', day: 5 },
     {
       kind: 'fork',
       day: 6,

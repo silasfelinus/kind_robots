@@ -30,9 +30,8 @@ let reducedMotion = false
 let flourish = 0
 let lastKickTs = 0
 let pointerX = -1
-let pointerY = -1
 
-// Deterministic 0..1 value per flake and channel.
+// Deterministic 0..1 value per pin and channel.
 function seeded(i: number, channel: number): number {
   const v = Math.sin(i * 127.1 + channel * 311.7) * 43758.5453
   return v - Math.floor(v)
@@ -52,7 +51,6 @@ function handlePointerMove(event: PointerEvent): void {
   if (reducedMotion) return
   const point = canvasPoint(event)
   pointerX = point ? point.x : -1
-  pointerY = point ? point.y : -1
 }
 
 function handlePointerDown(event: PointerEvent): void {
@@ -163,7 +161,6 @@ function handleMotionChange(event: MediaQueryListEvent): void {
   reducedMotion = event.matches
   flourish = 0
   pointerX = -1
-  pointerY = -1
   if (reducedMotion) {
     if (animationFrameId !== null) window.cancelAnimationFrame(animationFrameId)
     animationFrameId = null

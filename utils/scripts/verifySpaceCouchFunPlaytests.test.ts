@@ -171,7 +171,7 @@ function encounter(
     sighting.species.name + ': personalized outcome, no generic contradiction',
   )
   stats.attempts++
-  stats.sceneWords.push(sighting.scene.trim().split(/\\s+/).length)
+  stats.sceneWords.push(sighting.scene.trim().split(/\s+/).length)
   if (outcome.recorded) stats.recorded++
   const result = outcome.guide.lastContact?.outcome
   if (result === 'bond') stats.friends++

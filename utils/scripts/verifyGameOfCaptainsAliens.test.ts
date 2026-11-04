@@ -69,8 +69,9 @@ for (const choice of ALIEN_CHOICES) {
   )
 }
 const observed = alienEvidence(first.species.category, first.mood)
-assert.ok(first.scene.includes(observed.incident))
-assert.ok(first.scene.includes(observed.evidence))
+const firstPersonal = ALIEN_SPECIES_STORIES[first.species.id]
+assert.ok(first.scene.includes(firstPersonal?.incident ?? observed.incident))
+assert.ok(first.scene.includes(firstPersonal?.evidence[first.mood] ?? observed.evidence))
 assert.ok(first.scene.includes(first.species.fieldNote))
 const allScenes = new Set<string>()
 for (const category of [
@@ -128,7 +129,11 @@ for (const species of zodiacSpecies) {
   const sighting = nextAlienSighting(run, onlyThisSpeciesMissing)!
   assert.equal(sighting.species.id, species.id)
   assert.ok(sighting.scene.includes(story.incident))
+  assert.ok(sighting.scene.includes(story.evidence[sighting.mood]))
   for (const mood of moods) {
+    const clue = story.evidence[mood]
+    assert.ok(clue.length >= 80, species.name + ' needs a readable cue')
+    authoredLines.add(clue)
     for (const outcome of outcomes) {
       const choice = ALIEN_CHOICES.find(
         (item) => alienOutcome(mood, item.id) === outcome,
@@ -147,8 +152,8 @@ for (const species of zodiacSpecies) {
 }
 assert.equal(
   authoredLines.size,
-  zodiacSpecies.length * 4,
-  'the twelve contact situations and 36 aftermaths must not repeat',
+  zodiacSpecies.length * 7,
+  'the 12 incidents, 36 cues and 36 aftermaths must not repeat',
 )
 assert.equal(
   ALIEN_SPECIES_STORIES[ALIEN_SPECIES.find((s) => s.category === 'hybrid')!.id],
@@ -195,7 +200,9 @@ assert.match(
   /It chose to stay/,
 )
 assert.ok(
-  alienObservation(friend.guide.fieldReports![0]!).includes(observed.evidence),
+  alienObservation(friend.guide.fieldReports![0]!).includes(
+    firstPersonal?.evidence[first.mood] ?? observed.evidence,
+  ),
 )
 assert.equal(fleeing.guide.lastContact?.outcome, 'retreat')
 const restoredGuide = normalizeAlienGuide(

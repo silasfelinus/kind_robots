@@ -1035,6 +1035,18 @@ export const ANIMATION_EFFECTS = [
     generationSafe: true,
     preferredSurface: 'fullscreen',
   },
+  {
+    id: 'music-box-comb',
+    label: 'Music Box Comb',
+    reveal: 'A brass cylinder turns pins past a comb of tiny tuned tines',
+    icon: 'kind-icon:sparkle',
+    tooltip:
+      'A music box cylinder scrolls glowing pins past a steel comb 🎵 hover to warm nearby tines, click for a glissando flourish',
+    color: '#f2d38a',
+    releasedAt: '2026-11-04T14:00:00Z',
+    generationSafe: true,
+    preferredSurface: 'fullscreen',
+  },
 ] as const satisfies readonly AnimationEffectDefinition[]
 
 export type AnimationEffectId = (typeof ANIMATION_EFFECTS)[number]['id']

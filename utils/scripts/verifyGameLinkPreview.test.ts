@@ -39,6 +39,7 @@ const pageFor: Record<string, string> = {
   'comic-studio': 'pages/play/comics/studio.vue',
   'challenge-leaderboard': 'pages/play/challenges/leaderboard.vue',
   'tzaddik-gallery': 'pages/tzaddik-gallery.vue',
+  'art-archive': 'pages/art-archive.vue',
 }
 for (const slug of Object.keys(GAME_LINK_PREVIEWS)) {
   const file = pageFor[slug] ?? `pages/play/${slug}.vue`

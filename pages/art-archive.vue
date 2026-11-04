@@ -707,6 +707,12 @@
 import { computed, onMounted, onUnmounted, ref } from 'vue'
 import { useArtArchiveStore } from '@/stores/artArchiveStore'
 import { useUserStore } from '@/stores/userStore'
+import { gameLinkPreviewMeta } from '@/utils/gameLinkPreview'
+
+useSeoMeta(
+  gameLinkPreviewMeta('art-archive', useRuntimeConfig().public.appBaseUrl) ??
+    {},
+)
 
 const archive = useArtArchiveStore()
 const userStore = useUserStore()

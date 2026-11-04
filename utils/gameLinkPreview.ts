@@ -178,6 +178,13 @@ export const GAME_LINK_PREVIEWS: Record<string, GameLinkPreview> = {
     image: FALLBACK_PREVIEW_IMAGE,
     path: '/tzaddik-gallery',
   },
+  'art-archive': {
+    title: 'Art Archive | Kind Robots',
+    description:
+      'Keep, rate and sort the pictures you make with Kind Robots in one tidy gallery. Open it in your browser and start collecting.',
+    image: FALLBACK_PREVIEW_IMAGE,
+    path: '/art-archive',
+  },
   'challenge-leaderboard': {
     title: 'Challenge Center Hall of Contenders | Kind Robots',
     description:

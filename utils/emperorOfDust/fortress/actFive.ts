@@ -5049,6 +5049,15 @@ export const ACT_FIVE_DAYS: readonly DayDef[] = [
         faction: 'lamplight',
         variants: [
           {
+            flags: ['d39-two-witnesses', 'd44-runner-testified'],
+            lines: [
+              'Vellum sets two sealed accounts beside the Archive’s book. Hesper Lowe’s missing-child testimony is on one sheet. The freed runner’s statement about the Abbey carts is on the other.',
+              '“Two women spoke where the banners could hear, Majesty. The crown paid to make the room listen. That is not the same as answering either of them.”',
+              'He turns to the last emperor’s entry: Kept the tower. Nothing about the people who went missing inside its walls or the years taken on the road.',
+              '“There is room for both names. There is a price for copies that cannot be locked away. What goes under yours?”',
+            ],
+          },
+          {
             flags: ['d39-hearing-entered'],
             lines: [
               'Vellum sits by the coals with the Archive’s record on his knees. Hesper Lowe’s testimony lies inside the front cover, under the seal of the congress.',
@@ -5095,6 +5104,26 @@ export const ACT_FIVE_DAYS: readonly DayDef[] = [
             },
             response:
               'Vellum writes Tobin first. Then Hesper. Then Mara. He leaves the crown’s name at the bottom, where it will have to answer for the first three.',
+          },
+          {
+            id: 'record-both-witnesses',
+            label:
+              'Buy separate witnessed copies for Hesper’s testimony and the freed runner’s account. Twelve brass, two public records.',
+            requires: {
+              flags: ['d39-hearing-entered', 'd44-runner-testified'],
+              cost: 12,
+            },
+            effects: {
+              affinity: { 'hollow-bell': -5, 'storm-crows': -5 },
+              local: { lamplight: 3, ledger: -1 },
+              flags: [
+                'd49-tobin-record',
+                'd49-runner-record',
+                'd49-two-witness-record',
+              ],
+            },
+            response:
+              'Vellum binds Hesper’s testimony and the runner’s signed account on separate pages. Twelve brass buys copies for Hollow Bell and the high paths. The crown’s name goes beneath both.',
           },
           {
             id: 'leave-hesper-space',

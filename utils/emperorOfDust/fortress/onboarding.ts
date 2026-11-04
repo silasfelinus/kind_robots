@@ -133,6 +133,7 @@ export const FIRST_BELL_AUDIENCES: readonly AudienceDef[] = [
           recruit: ['F005'],
           local: { lamplight: 1 },
           affinity: { 'hollow-bell': -1 },
+          flags: ['d01-pip-on-staff'],
         },
         response:
           'Pip opens the oldest ledger. “I remember this page,” they say. “It was not here yesterday.”',

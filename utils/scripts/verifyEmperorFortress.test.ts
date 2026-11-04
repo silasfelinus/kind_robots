@@ -2035,8 +2035,9 @@ assert.ok(sableLoss <= plainLoss, 'Immaculate Apology softens failures')
   assert.ok(restored.flags.includes('d08-blankets-restored'))
   assert.ok(validateRun(JSON.parse(JSON.stringify(restored))))
   const enforced = chooseAudienceOption(charter, id, 'enforce-charter').run
-  assert.equal(enforced.brass, 40)
+  assert.equal(enforced.brass, 32)
   assert.ok(enforced.flags.includes('d08-blankets-evicted'))
+  assert.equal(chooseAudienceOption(heard, id, 'enforce-charter').run.brass, 32)
   assert.equal(enforced.local.ledger, charter.local.ledger + 2)
   assert.ok(
     optionBlockers(

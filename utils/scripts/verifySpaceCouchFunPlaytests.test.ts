@@ -1,0 +1,319 @@
+import assert from 'node:assert/strict'
+import { playVoyage, type Driver } from './spaceCouchTraceHarness'
+import type { CaptainId, CrewId, VoyageRun } from '../gameOfCaptains/rules'
+import {
+  ALIEN_CHOICES,
+  emptyAlienGuide,
+  maySeeAlien,
+  nextAlienSighting,
+  resolveAlienSighting,
+  type AlienChoice,
+  type AlienGuide,
+  type AlienSighting,
+} from '../gameOfCaptains/alienFieldGuide'
+import {
+  nextCollectorIncident,
+  resolveCollectorIncident,
+} from '../gameOfCaptains/alienMilestones'
+import { ALIEN_SPECIES_STORIES } from '../gameOfCaptains/alienSpeciesStories'
+import { endingFamilyTitle } from '../gameOfCaptains/artSlots'
+
+type Player = {
+  name: string
+  driver: Driver
+  contact: 'none' | 'greet' | 'observe' | 'improvise' | 'cycle'
+}
+
+const PLAYERS: Player[] = [
+  {
+    name: 'curious completionist',
+    driver: {
+      name: 'curious-completionist',
+      order: (run) => (run.chapter % 3 === 0 ? 'observe' : 'aid'),
+      episode: (run) => (run.chapter % 2 ? 'ask' : 'document'),
+      authoredChoices: true,
+      sideQuests: true,
+      resupply: () => true,
+      trio: () => 0,
+      romance: (_run, choices) => choices[0] ?? null,
+      finale: 'protect',
+    },
+    contact: 'cycle',
+  },
+  {
+    name: 'impatient skipper',
+    driver: {
+      name: 'impatient-skipper',
+      order: (run) => (run.chapter % 3 === 0 ? 'miss' : 'aid'),
+      episode: () => 'ask',
+      sideQuests: false,
+      trio: () => null,
+      finale: 'protect',
+    },
+    contact: 'none',
+  },
+  {
+    name: 'chaos captain',
+    driver: {
+      name: 'chaos-captain',
+      order: () => 'intervene',
+      episode: () => 'override',
+      redshirtsFirst: true,
+      authoredChoices: true,
+      finale: 'compromise',
+    },
+    contact: 'improvise',
+  },
+  {
+    name: 'cautious observer',
+    driver: {
+      name: 'cautious-observer',
+      order: () => 'observe',
+      episode: () => 'document',
+      sideQuests: false,
+      finale: 'compromise',
+    },
+    contact: 'observe',
+  },
+  {
+    name: 'reckless helper',
+    driver: {
+      name: 'reckless-helper',
+      order: () => 'aid',
+      episode: () => 'ask',
+      redshirtsFirst: true,
+      resupply: () => true,
+      finale: 'protect',
+    },
+    contact: 'greet',
+  },
+]
+
+const CAPTAINS: CaptainId[] = ['fluke', 'vale', 'solace', 'rex', 'quill']
+const PARTIES: CrewId[][] = [
+  ['pell', 'mox', 'rue'],
+  ['vela', 'taal', 'omi'],
+  ['sora', 'kivo', 'tess'],
+  ['brin', 'jex', 'fen'],
+  ['rue', 'vela', 'mox'],
+]
+
+const chooseContact = (
+  style: Player['contact'],
+  sighting: AlienSighting,
+  index: number,
+): AlienChoice =>
+  style === 'greet'
+    ? 'approach'
+    : style === 'observe'
+      ? 'observe'
+      : style === 'improvise'
+        ? 'improvise'
+        : style === 'cycle'
+          ? ALIEN_CHOICES[index % ALIEN_CHOICES.length]!.id
+          : sighting.mood === 'wary'
+            ? 'observe'
+            : sighting.mood === 'playful'
+              ? 'approach'
+              : 'improvise'
+
+type ContactStats = {
+  attempts: number
+  recorded: number
+  friends: number
+  chaos: number
+  retreats: number
+  milestones: number[]
+  sceneWords: number[]
+}
+
+function encounter(
+  run: VoyageRun,
+  guide: AlienGuide,
+  style: Player['contact'] | 'oracle',
+  stats: ContactStats,
+): AlienGuide {
+  assert.equal(run.phase, 'expedition')
+  assert.ok(maySeeAlien(run, guide))
+  const sighting = nextAlienSighting(run, guide)!
+  const choice = chooseContact(
+    style === 'oracle' ? 'none' : style,
+    sighting,
+    stats.attempts,
+  )
+  const outcome = resolveAlienSighting(guide, sighting, choice)
+  const story = ALIEN_SPECIES_STORIES[sighting.species.id]
+  assert.ok(story, sighting.species.id + ' must have an authored encounter')
+  const expected =
+    story.outcomes[
+      sighting.mood === 'wary'
+        ? choice === 'observe'
+          ? 'bond'
+          : choice === 'approach'
+            ? 'retreat'
+            : 'chaos'
+        : sighting.mood === 'playful'
+          ? choice === 'approach'
+            ? 'bond'
+            : choice === 'observe'
+              ? 'chaos'
+              : 'retreat'
+          : choice === 'improvise'
+            ? 'bond'
+            : choice === 'approach'
+              ? 'chaos'
+              : 'retreat'
+    ]
+  assert.ok(
+    outcome.text.startsWith(expected),
+    sighting.species.name + ': personalized outcome, no generic contradiction',
+  )
+  stats.attempts++
+  stats.sceneWords.push(sighting.scene.trim().split(/\s+/).length)
+  if (outcome.recorded) stats.recorded++
+  const result = outcome.guide.lastContact?.outcome
+  if (result === 'bond') stats.friends++
+  if (result === 'chaos') stats.chaos++
+  if (result === 'retreat') stats.retreats++
+  let next = outcome.guide
+  const milestone = nextCollectorIncident(next)
+  if (milestone) {
+    const result = resolveCollectorIncident(next, milestone.at, 'b')
+    assert.ok(result)
+    next = result.guide
+    stats.milestones.push(milestone.at)
+  }
+  return next
+}
+
+const blankStats = (): ContactStats => ({
+  attempts: 0,
+  recorded: 0,
+  friends: 0,
+  chaos: 0,
+  retreats: 0,
+  milestones: [],
+  sceneWords: [],
+})
+
+// Real complete voyages. The optional alien overlay is invoked at the same
+// expedition-phase point as the Store's 'look for alien' button.
+for (const player of PLAYERS) {
+  const endings = new Map<string, number>()
+  const stepsPerVoyage: number[] = []
+  const uniqueIncidents = new Set<string>()
+  const sample: string[] = []
+  const stats = blankStats()
+  let guide = emptyAlienGuide()
+  let depleted = 0
+  let casualties = 0
+  for (let i = 0; i < 5; i++) {
+    const captain = CAPTAINS[i]!
+    const crew = PARTIES[i]!
+    const seed = 47011 + i * 123
+    const trace = playVoyage(captain, crew, seed, player.driver, {
+      onStep: (label, before, after) => {
+        if (
+          label === 'arrive' &&
+          after.phase === 'expedition' &&
+          player.contact !== 'none' &&
+          maySeeAlien(after, guide)
+        ) {
+          const sighting = nextAlienSighting(after, guide)!
+          uniqueIncidents.add(sighting.species.id)
+          if (sample.length < 2)
+            sample.push(
+              sighting.species.name + ': ' + sighting.scene.slice(0, 185),
+            )
+          guide = encounter(after, guide, player.contact, stats)
+        }
+        if (before.phase === 'decision' && sample.length < 3)
+          sample.push('Decision ' + label + ': ' + after.scene.slice(0, 185))
+      },
+    })
+    assert.equal(trace.run.phase, 'ending')
+    const family = endingFamilyTitle(trace.run.ending!)
+    endings.set(family, (endings.get(family) ?? 0) + 1)
+    stepsPerVoyage.push(trace.steps.length)
+    if (trace.run.supplies === 0) depleted++
+    casualties += trace.run.redshirtFallen?.length ?? 0
+  }
+  assert.equal(stepsPerVoyage.length, 5)
+  if (player.contact !== 'none') assert.ok(stats.attempts >= 25)
+  console.log(
+    'SPACE COUCH FUN PILOT ' +
+      player.name +
+      ': ' +
+      '5 complete voyages, ' +
+      stepsPerVoyage.join('/') +
+      ' steps, ' +
+      endings.size +
+      ' ending families, ' +
+      stats.attempts +
+      ' optional alien contacts, ' +
+      uniqueIncidents.size +
+      ' unique creatures, ' +
+      depleted +
+      '/5 empty holds, ' +
+      casualties +
+      ' fallen redshirts',
+  )
+  for (const line of sample) console.log('  STORY SNAPSHOT: ' + line)
+}
+
+// Companion collector playthroughs continue across complete voyages. The
+// oracle is a theoretical upper bound, not something the visible UI reveals.
+for (const strategy of ['greet', 'cycle', 'oracle'] as const) {
+  const stats = blankStats()
+  let guide = emptyAlienGuide()
+  let voyages = 0
+  for (; voyages < 40 && guide.discovered.length < 101; voyages++) {
+    const seed = 73001 + voyages * 17
+    const captain = CAPTAINS[voyages % CAPTAINS.length]!
+    const crew = PARTIES[voyages % PARTIES.length]!
+    const driver = PLAYERS[0]!.driver
+    playVoyage(captain, crew, seed, driver, {
+      inspectEvery: false,
+      onStep: (label, _before, after) => {
+        if (
+          label === 'arrive' &&
+          after.phase === 'expedition' &&
+          maySeeAlien(after, guide)
+        )
+          guide = encounter(after, guide, strategy, stats)
+      },
+    })
+  }
+  assert.equal(guide.discovered.length, 101, strategy + ': all 101 reachable')
+  assert.deepEqual(stats.milestones, [5, 12, 25, 50, 75, 100])
+  assert.equal(stats.attempts, stats.friends + stats.chaos + stats.retreats)
+  const avgWords = Math.round(
+    stats.sceneWords.reduce((sum, words) => sum + words, 0) /
+      stats.sceneWords.length,
+  )
+  console.log(
+    'SPACE COUCH COLLECTOR ' +
+      strategy +
+      ': ' +
+      voyages +
+      ' actual complete voyages, ' +
+      stats.attempts +
+      ' meetings, ' +
+      stats.recorded +
+      ' captures, ' +
+      stats.friends +
+      ' friendships, ' +
+      stats.chaos +
+      ' chaos, ' +
+      stats.retreats +
+      ' escaped, ' +
+      avgWords +
+      ' average scene words, ' +
+      stats.milestones.length +
+      ' collector events',
+  )
+}
+
+console.log(
+  'Space Couch independent fun playtests: five player styles, 25 full voyages plus complete collector arcs OK',
+)

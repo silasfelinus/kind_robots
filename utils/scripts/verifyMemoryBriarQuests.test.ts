@@ -67,7 +67,11 @@ for (const [roomId, choiceId] of Object.entries({
   assert.equal(room.autoChoiceId, choiceId)
   const choice = room.choices.find((entry) => entry.id === choiceId)
   assert.ok(choice)
-  assert.equal(choice.gain, undefined, 'automatic lore must not grant repeatable rewards')
+  assert.equal(
+    choice.gain,
+    undefined,
+    'automatic lore must not grant repeatable rewards',
+  )
   assert.ok(choice.outcome.length > 20)
   assert.ok(room.choices.length >= 2, 'old save choice IDs remain valid')
 }

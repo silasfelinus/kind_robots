@@ -122,6 +122,14 @@ assert.match(store, /testCustomDeck\(\)/)
 assert.match(ui, /data-testid="slime-deck-workbench"/)
 assert.match(ui, /data-testid="slime-deck-practice"/)
 assert.doesNotMatch(store, /localStorage|sessionStorage/)
+// Card unlocks (Silas, 2026-11-04): every card is open by default; TRICKLE
+// brings back founders-then-packs, and only TRICKLE is enforced server-side.
+assert.match(service, /unlockModeOf\(\{ unlocks \}\) === 'trickle'/)
+assert.match(store, /unlockMode\.value === 'all' \|\|/)
+assert.match(store, /function setUnlockMode/)
+assert.match(ui, /data-testid="slime-unlock-all"/)
+assert.match(ui, /data-testid="slime-unlock-trickle"/)
+assert.match(ui, /data-testid="slime-pack-open"/)
 console.log(
-  'Slime City deck workbench: six legal edited decks, seeded practice, account ownership, all guaranteed packs PASS',
+  'Slime City deck workbench: six legal edited decks, seeded practice, account ownership, ALL CARDS or TRICKLE unlocks, all guaranteed packs PASS',
 )

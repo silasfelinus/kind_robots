@@ -458,7 +458,12 @@
             >
               {{ lab.progressError }}
             </p>
-            <div class="sc-reward-columns">
+            <!-- Packs only matter in TRICKLE (Silas, 2026-11-04: "hide the pack
+                 shop in all cards mode"). -->
+            <div
+              class="sc-reward-columns"
+              :class="{ 'is-single': lab.unlockMode !== 'trickle' }"
+            >
               <div class="sc-reward-panel">
                 <span class="sc-overline">THE PIT PAYS</span>
                 <strong>VS CPU BOUNTIES</strong>
@@ -483,8 +488,18 @@
                 <small aria-live="polite">{{
                   lab.progressError || lab.progress.lastReward
                 }}</small>
+                <small
+                  v-if="lab.unlockMode !== 'trickle'"
+                  data-testid="slime-pack-open"
+                  >Every card is open in your Armory. Switch it to TRICKLE to
+                  unlock cards from Meat packs instead.</small
+                >
               </div>
-              <div class="sc-reward-panel sc-shop-panel">
+              <div
+                v-if="lab.unlockMode === 'trickle'"
+                class="sc-reward-panel sc-shop-panel"
+                data-testid="slime-pack-shop"
+              >
                 <span class="sc-overline">THE PACK SHOP</span>
                 <strong>STREET PACK</strong>
                 <div class="sc-pack-art" aria-hidden="true">
@@ -499,13 +514,6 @@
                 <p>
                   COLLECTION {{ lab.progress.cards.length }}/60 ·
                   {{ lab.progress.opened }} PACKS OPENED
-                </p>
-                <p
-                  v-if="lab.unlockMode === 'all'"
-                  data-testid="slime-pack-open"
-                >
-                  Every card is already open in your Armory. Switch it to
-                  TRICKLE to play with only what your packs unlock.
                 </p>
                 <button
                   type="button"
@@ -522,7 +530,9 @@
               </div>
             </div>
             <div
-              v-if="lab.progress.lastPack.length"
+              v-if="
+                lab.unlockMode === 'trickle' && lab.progress.lastPack.length
+              "
               class="sc-reward-panel"
               data-testid="slime-pack-reveal"
             >
@@ -1555,6 +1565,9 @@ onUnmounted(() => {
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
   gap: 0.7rem;
+}
+.sc-reward-columns.is-single {
+  grid-template-columns: minmax(0, 1fr);
 }
 .sc-reward-panel {
   display: grid;

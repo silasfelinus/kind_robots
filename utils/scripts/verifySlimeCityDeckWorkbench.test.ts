@@ -130,6 +130,16 @@ assert.match(store, /function setUnlockMode/)
 assert.match(ui, /data-testid="slime-unlock-all"/)
 assert.match(ui, /data-testid="slime-unlock-trickle"/)
 assert.match(ui, /data-testid="slime-pack-open"/)
+// ALL CARDS hides the pack shop and the last-pack reveal; TRICKLE shows them.
+assert.match(
+  ui,
+  /v-if="lab\.unlockMode === 'trickle'"\s+class="sc-reward-panel sc-shop-panel"/,
+)
+assert.match(
+  ui,
+  /v-if="\s*lab\.unlockMode === 'trickle' && lab\.progress\.lastPack\.length\s*"/,
+)
+assert.match(store, /unlockMode\.value !== 'trickle' \|\|\s+!packAffordable/)
 console.log(
   'Slime City deck workbench: six legal edited decks, seeded practice, account ownership, ALL CARDS or TRICKLE unlocks, all guaranteed packs PASS',
 )

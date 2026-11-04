@@ -1107,6 +1107,12 @@ export const ECOTONE_ART: string[] = [
   'encounters/fickle-hill',
   'encounters/anchor-stores',
   'encounters/behind-the-mall',
+  'encounters/friends-who-arent-here',
+  'encounters/gr-4-path-behind-the-stage',
+  'encounters/gr-5-closing-bonfire',
+  'encounters/kn-4-conscripted',
+  'encounters/kn-5-the-bay-crossing',
+  'encounters/kn-6-the-ferndale-finish',
 ]
 
 export function artUrl(asset?: string): string | null {

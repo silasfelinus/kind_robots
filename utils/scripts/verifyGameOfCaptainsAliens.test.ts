@@ -113,7 +113,10 @@ assert.equal(
   18,
   'different ecology and emotions require different authored clues',
 )
-assert.ok(first.scene.length >= 150, 'the scene keeps its specific dramatic stakes')
+assert.ok(
+  first.scene.length >= 150,
+  'the scene keeps its specific dramatic stakes',
+)
 assert.equal(first.mood, nextAlienSighting(run, empty)!.mood)
 
 assert.deepEqual(
@@ -137,7 +140,10 @@ for (const species of ALIEN_SPECIES) {
   assert.equal(sighting.species.id, species.id)
   assert.ok(sighting.scene.includes(story.incident))
   assert.ok(sighting.scene.includes(story.evidence[sighting.mood]))
-  assert.equal(sighting.scene, `${story.incident} ${story.evidence[sighting.mood]}`)
+  assert.equal(
+    sighting.scene,
+    `${story.incident} ${story.evidence[sighting.mood]}`,
+  )
   sceneWords.push(sighting.scene.trim().split(/\s+/).length)
   for (const mood of moods) {
     const clue = story.evidence[mood]
@@ -198,7 +204,11 @@ for (const [id, moodStories] of Object.entries(ALIEN_CHOICE_STORIES)) {
   }
 }
 assert.equal(actionProse.size, 54)
-console.log('Space Couch alien scene budget: ' + averageSceneWords + ' average words and 54 causal branches')
+console.log(
+  'Space Couch alien scene budget: ' +
+    averageSceneWords +
+    ' average words and 54 causal branches',
+)
 
 const choiceFor = (
   mood: typeof first.mood,

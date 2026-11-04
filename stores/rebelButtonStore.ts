@@ -2,6 +2,8 @@
 import { defineStore } from 'pinia'
 import { computed, ref } from 'vue'
 import { rebelStageFor } from '~/utils/rebelButtonStage'
+import { rebelEncounterFor } from '~/utils/rebelEncounters'
+import type { RebelEncounterKind } from '~/utils/rebelEncounters'
 
 const TOP_SCORE_KEY = 'topScore'
 
@@ -21,6 +23,18 @@ export const useRebelButtonStore = defineStore('rebelButton', () => {
   const pressCount = ref(0)
   const topScore = ref(0)
   const seed = ref(newSeed())
+
+  const resolvedEncounters = ref<RebelEncounterKind[]>([])
+
+  const activeEncounter = computed<RebelEncounterKind | null>(() => {
+    const kind = rebelEncounterFor(pressCount.value, seed.value)
+    return kind && !resolvedEncounters.value.includes(kind) ? kind : null
+  })
+
+  function resolveEncounter() {
+    const kind = activeEncounter.value
+    if (kind) resolvedEncounters.value.push(kind)
+  }
 
   const stage = computed(() => rebelStageFor(pressCount.value, seed.value))
 
@@ -47,6 +61,7 @@ export const useRebelButtonStore = defineStore('rebelButton', () => {
     pressCount.value = 0
     topScore.value = 0
     seed.value = newSeed()
+    resolvedEncounters.value = []
     try {
       localStorage.removeItem(TOP_SCORE_KEY)
     } catch {
@@ -59,6 +74,8 @@ export const useRebelButtonStore = defineStore('rebelButton', () => {
     topScore,
     seed,
     stage,
+    activeEncounter,
+    resolveEncounter,
     loadTopScore,
     saveTopScore,
     press,

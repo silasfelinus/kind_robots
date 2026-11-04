@@ -196,6 +196,7 @@ export type ColoringBookProposal = {
 }
 
 export type ColoringBookConcept = {
+  workingTitle: string | null
   sourceLineage: string | null
   recast: string | null
   bodyDirection: string | null

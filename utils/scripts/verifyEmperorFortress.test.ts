@@ -2214,6 +2214,87 @@ assert.ok(sableLoss <= plainLoss, 'Immaculate Apology softens failures')
   )
 }
 
+// A shared Day 7 council must face the Day 10 Watch oath together.
+{
+  const council = DAYS.find((day) => day.day === 7)!.audiences.find(
+    (entry) => entry.id === 'd07-old-houses',
+  )!
+  const pledged = chooseAudienceOption(
+    onDay(710, 7),
+    council.id,
+    'seat-for-all',
+  ).run
+  assert.ok(pledged.flags.includes('open-council'))
+  const investigated = chooseAudienceOption(
+    onDay(710, 7),
+    council.id,
+    'ask-chair',
+  ).run
+  const afterChair = chooseAudienceOption(
+    investigated,
+    council.id,
+    'seat-for-all',
+  ).run
+  assert.ok(afterChair.flags.includes('open-council'))
+  const oath = DAYS.find((day) => day.day === 10)!.audiences.find(
+    (entry) => entry.id === 'd10-oath',
+  )!
+  const probe = oath.options.find((option) => option.id === 'ask-council')!
+  const noCouncil = onDay(710, 10)
+  assert.ok(!optionVisible(noCouncil, probe))
+  assert.ok(
+    !optionVisible(
+      onDay(710, 10, { flags: ['old-houses-council-seat'] }),
+      probe,
+    ),
+    'a council seat for the Houses alone is not a shared council',
+  )
+  const shared = onDay(710, 10, { brass: 50, flags: ['open-council'] })
+  assert.ok(optionVisible(shared, probe))
+  assert.match(
+    sceneLines(shared, oath).map(lineText).join(' '),
+    /two new council chairs/,
+  )
+  const heard = chooseAudienceOption(shared, oath.id, 'ask-council').run
+  assert.equal(heard.audienceBeats?.[oath.id], 'council-oath')
+  assert.equal(audienceScene(heard, oath).beatId, 'council-oath')
+  const outcomes = oath.beats!.find(
+    (beat) => beat.id === 'council-oath',
+  )!.options
+  assert.deepEqual(
+    outcomes.map((option) => option.id),
+    ['shared-relief', 'shared-account', 'house-veto'],
+  )
+  assert.ok(
+    optionBlockers(
+      onDay(710, 10, { brass: 11, flags: ['open-council'] }),
+      outcomes[0]!,
+    ).length > 0,
+    'the shared relief costs actual treasury brass',
+  )
+  const relief = chooseAudienceOption(heard, oath.id, 'shared-relief').run
+  assert.equal(relief.brass, 38)
+  assert.equal(relief.local.yard, shared.local.yard - 2)
+  assert.equal(relief.local['old-houses'], shared.local['old-houses'] - 2)
+  assert.ok(relief.flags.includes('d10-open-council-relief'))
+  assert.ok(
+    relief.aid?.['q-d10-freehold-raid']?.some(
+      (aid) => aid.bonus === 2 && aid.stat === 'wits',
+    ),
+    'the joint relief actually improves the Thistledown dispatch',
+  )
+  const account = chooseAudienceOption(heard, oath.id, 'shared-account').run
+  assert.ok(account.flags.includes('d10-open-council-account'))
+  assert.equal(account.local['gate-watch'], shared.local['gate-watch'] + 3)
+  assert.equal(account.local['old-houses'], shared.local['old-houses'] - 3)
+  const veto = chooseAudienceOption(heard, oath.id, 'house-veto').run
+  assert.ok(veto.flags.includes('d10-open-council-veto'))
+  assert.equal(veto.local.yard, shared.local.yard - 3)
+  assert.equal(veto.affinity.freeholds, shared.affinity.freeholds - 5)
+  for (const outcome of [relief, account, veto])
+    assert.ok(validateRun(JSON.parse(JSON.stringify(outcome))))
+}
+
 // --- recruitment routes in Act I ----------------------------------------------
 const recruits = (
   day: number,

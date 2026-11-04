@@ -2146,9 +2146,9 @@ assert.ok(sableLoss <= plainLoss, 'Immaculate Apology softens failures')
   assert.ok(
     optionBlockers(
       onDay(705, 7, { brass: 14, flags: ['d05-bread-rationed'] }),
-      audience.beats!.find((beat) => beat.id === 'bread-debt')!.options.find(
-        (option) => option.id === 'buy-rations',
-      )!,
+      audience
+        .beats!.find((beat) => beat.id === 'bread-debt')!
+        .options.find((option) => option.id === 'buy-rations')!,
     ).length > 0,
     'buying the bread must actually cost fifteen brass',
   )
@@ -2162,7 +2162,13 @@ assert.ok(sableLoss <= plainLoss, 'Immaculate Apology softens failures')
   const routes = [
     ['d07-rations-bought', 'bread-carts', 10, 2, 'd10-bread-carts-sent'],
     ['d07-ration-writ', 'house-wagons', 0, 2, 'd10-house-wagons-ordered'],
-    ['d07-rations-continued', 'watch-rations', 0, 1, 'd10-watch-rations-diverted'],
+    [
+      'd07-rations-continued',
+      'watch-rations',
+      0,
+      1,
+      'd10-watch-rations-diverted',
+    ],
   ] as const
   const routeChoices = routes.map(([, id]) =>
     audience.options.find((entry) => entry.id === id)!,

@@ -75,7 +75,11 @@ for (const newcomer of ids) {
 
   // A random fork never deals a private scene as if consent or a relationship
   // could be awarded by a white-rabbit draw.
-  const plain = ready(13, ids.find((id) => id !== newcomer)!, newcomer)
+  const plain = ready(
+    13,
+    ids.find((id) => id !== newcomer)!,
+    newcomer,
+  )
   assert.equal(
     encounterEligible({ ...card, requiresInvitation: true }, plain),
     false,

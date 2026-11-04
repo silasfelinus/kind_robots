@@ -508,11 +508,14 @@
                 </div>
                 <p>
                   Three NEW cards. Exactly one rare, plus two common/uncommon.
-                  No duplicates. Random from the 60-card unowned pool, until
-                  sold out.
+                  No duplicates. Random from the cards you do not own yet, until
+                  all {{ lab.collectionSize }} are collected.
                 </p>
                 <p>
-                  COLLECTION {{ lab.progress.cards.length }}/60 ·
+                  COLLECTION {{ lab.progress.cards.length }}/{{
+                    lab.collectionSize
+                  }}
+                  ·
                   {{ lab.progress.opened }} PACKS OPENED
                 </p>
                 <button
@@ -1825,9 +1828,17 @@ onUnmounted(() => {
   }
   .sc-deck-actions {
     flex: 1 1 100%;
+    flex-wrap: wrap;
   }
   .sc-deck-actions button {
     flex: 1;
+  }
+  /* The unlock switch takes its own row on phones. */
+  .sc-deck-actions .sc-unlocks {
+    flex: 1 1 100%;
+  }
+  .sc-deck-status .sc-overline {
+    white-space: normal;
   }
 }
 </style>

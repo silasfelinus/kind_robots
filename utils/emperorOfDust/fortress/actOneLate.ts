@@ -2041,6 +2041,112 @@ export const ACT_ONE_LATE_DAYS: readonly DayDef[] = [
         ],
       },
       {
+        id: 'd08-blanket-evictions',
+        title: 'The Price of a Blanket',
+        speaker: 'Factor Marisol Tallow and a Freehold egg-seller',
+        npc: 'marisol-tallow',
+        faction: 'ledger',
+        requires: {
+          flags: ['market-charter'],
+          notFlags: ['d06-blanket-stalls'],
+        },
+        lines: [
+          'The egg-seller from the market has brought an empty basket. Factor Tallow carries the charter you signed two days ago, its seal still clean. The woman sets the basket between them.',
+          '“Three of us were sent away,” the seller says. “The fourth put her blankets on the road. She is paying a guard to keep carts from crushing her eggs.”',
+          '“An exemption would not survive an audit,” Tallow says. “You granted the same fee to every stall. The Ledger collected it.”',
+          '“You did not ask whether we had brass,” the seller says. She turns the basket upside down. Nothing falls out.',
+          {
+            who: 'Young Komodo',
+            npc: 'young-komodo',
+            text: 'The charter has your seal. You can break your own rule, Majesty. You cannot make the people who obeyed it forget.',
+          },
+        ],
+        options: [
+          {
+            id: 'ask-rent',
+            label: 'Ask Tallow who now owns the empty pitches.',
+            effects: {},
+            response:
+              'Tallow opens the charter to its last leaf. “The Ledger held them against unpaid fees. My cousins rented two by dawn.” The egg-seller turns the basket upright.',
+            next: 'rent',
+          },
+          {
+            id: 'buy-back',
+            label: 'Pay eighteen brass to restore the sellers’ pitches under the crown.',
+            requires: { cost: 18 },
+            effects: {
+              affinity: { freeholds: 7 },
+              local: { ledger: -3, yard: 1 },
+              flags: ['d08-blankets-restored'],
+            },
+            response:
+              'The factor counts eighteen discs twice. The egg-seller takes back her patch of ground. The Yard cousin who had rented it asks who will repay his deposit. You have no answer for him.',
+          },
+          {
+            id: 'enforce-charter',
+            label: 'Enforce the fees. The crown cannot promise rules and ignore them.',
+            effects: {
+              affinity: { freeholds: -6 },
+              local: { ledger: 2, yard: -2 },
+              flags: ['d08-blankets-evicted'],
+            },
+            response:
+              'Tallow stamps the final notice. The seller puts the empty basket over her arm. At the door she asks where the guards will move her this time. No one offers a road.',
+          },
+        ],
+        beats: [
+          {
+            id: 'rent',
+            lines: [
+              '“The lease is legal,” Tallow says. “The cousins paid the fees before dawn. I did not invent the law that lets them move faster than a woman with four eggs.”',
+              '“Give us a week,” the seller says. “Not charity. A week to earn the fee without selling our blankets.”',
+              {
+                who: 'Young Komodo',
+                npc: 'young-komodo',
+                text: 'An exception is a debt written sideways. Somebody still pays it. Decide whose name is on the account.',
+              },
+            ],
+            options: [
+              {
+                id: 'lease-week',
+                label: 'Pay twelve brass for one week’s rent. The sellers keep a debt.',
+                requires: { cost: 12 },
+                effects: {
+                  affinity: { freeholds: 4 },
+                  local: { ledger: -1, yard: -1 },
+                  flags: ['d08-blankets-leased'],
+                },
+                response:
+                  'The factor writes seven dates beside four names. The sellers take their places back until the last date. One keeps her receipt wrapped around an egg so she will not lose it.',
+              },
+              {
+                id: 'buy-back',
+                label: 'Pay eighteen brass. Return the pitches without a clock running.',
+                requires: { cost: 18 },
+                effects: {
+                  affinity: { freeholds: 7 },
+                  local: { ledger: -3, yard: 1 },
+                  flags: ['d08-blankets-restored'],
+                },
+                response:
+                  'The factor counts eighteen discs twice. The seller takes the basket back to the market. The Yard cousin asks who will repay the deposit he paid under your law.',
+              },
+              {
+                id: 'enforce-charter',
+                label: 'Let the leases stand. The law did what the crown asked.',
+                effects: {
+                  affinity: { freeholds: -6 },
+                  local: { ledger: 2, yard: -2 },
+                  flags: ['d08-blankets-evicted'],
+                },
+                response:
+                  'Tallow stamps the notice. The seller takes her empty basket to the gate. A Watch guard asks her not to leave it there.',
+              },
+            ],
+          },
+        ],
+      },
+      {
         id: 'd08-ledger-loan',
         title: 'An Offer of Credit',
         speaker: 'Factor Marisol Tallow of the Ledger',

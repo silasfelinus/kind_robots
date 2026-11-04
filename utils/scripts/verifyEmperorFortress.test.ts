@@ -7434,8 +7434,8 @@ for (const def of DAYS)
   assert.ok(posted.flags.includes('d04-page-posted'))
   const filing = chooseAudienceOption(posted, letter.id, 'file-at-court').run
   assert.equal(filing.brass, 160, 'filing alone is free')
-  const fundedOption = letter.beats!
-    .find((beat) => beat.id === 'decide')!
+  const fundedOption = letter
+    .beats!.find((beat) => beat.id === 'decide')!
     .options.find((option) => option.id === 'fund-inquiry')!
   assert.ok(
     optionBlockers({ ...posted, brass: 14 }, fundedOption).length > 0,

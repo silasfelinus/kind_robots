@@ -1067,10 +1067,11 @@ export function houseExits(
     )
     .map((room) => room.id)
   const exits = [...new Set([...forward, ...backtrack])]
-  if (roomId === 'HD-06' && progress.decisions['HD-06'] === 'route')
-    exits.push('HD-18')
-  if (roomId === 'HD-18' && progress.decisions['HD-06'] === 'route')
-    exits.push('HD-06')
+  const orenRouteOpen =
+    progress.decisions['HD-06'] === 'route' &&
+    progress.visited.includes('HD-18')
+  if (orenRouteOpen && roomId === 'HD-06') exits.push('HD-18')
+  if (orenRouteOpen && roomId === 'HD-18') exits.push('HD-06')
   if (roomId === 'HD-10' && progress.decisions['HD-10'] === 'manifest')
     exits.push('HD-25')
   if (roomId === 'HD-25' && progress.decisions['HD-10'] === 'manifest')
@@ -1126,7 +1127,7 @@ export function restoreHouseProgress(input: unknown): HouseProgress | null {
   const savedDecisions =
     v.decisions && typeof v.decisions === 'object' ? v.decisions : {}
   const shortcuts: Record<string, readonly HouseRoomId[]> = {}
-  if (savedDecisions['HD-06'] === 'route') {
+  if (savedDecisions['HD-06'] === 'route' && visited.includes('HD-18')) {
     shortcuts['HD-06'] = ['HD-18']
     shortcuts['HD-18'] = ['HD-06']
   }

@@ -89,6 +89,8 @@ assert.ok(!houseExits('HD-18', houseShortcut).includes('HD-06'))
 houseShortcut.decisions['HD-06'] = 'stock'
 assert.ok(!houseExits('HD-06', houseShortcut).includes('HD-18'))
 houseShortcut.decisions['HD-06'] = 'route'
+assert.ok(!houseExits('HD-06', houseShortcut).includes('HD-18'))
+houseShortcut.visited.push('HD-18')
 assert.ok(houseExits('HD-06', houseShortcut).includes('HD-18'))
 assert.ok(houseExits('HD-18', houseShortcut).includes('HD-06'))
 const restoredShortcut = restoreHouseProgress({

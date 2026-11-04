@@ -2,7 +2,6 @@ import assert from 'node:assert/strict'
 import { existsSync, readFileSync, readdirSync } from 'node:fs'
 import { ACT_ONE_DAYS, ACT_ONE_QUESTS } from '../emperorOfDust/fortress/actOne'
 import { ACT_ONE_LATE_QUESTS } from '../emperorOfDust/fortress/actOneLate'
-import { FIRST_BELL_AUDIENCES } from '../emperorOfDust/fortress/onboarding'
 import { ACT_TWO_QUESTS } from '../emperorOfDust/fortress/actTwo'
 import { ACT_THREE_QUESTS } from '../emperorOfDust/fortress/actThree'
 import { ACT_FOUR_QUESTS } from '../emperorOfDust/fortress/actFour'
@@ -235,6 +234,7 @@ import type {
 import {
   COURT_ONBOARDING_FLAG,
   COURT_RECRUITMENT_IDS,
+  FIRST_BELL_AUDIENCES,
   RANDOM_ARRIVALS,
   RIVAL_ARGUMENTS,
   FIRST_BELL_RIVAL_BARGAIN,

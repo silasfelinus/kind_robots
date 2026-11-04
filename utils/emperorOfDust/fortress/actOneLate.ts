@@ -2090,14 +2090,15 @@ export const ACT_ONE_LATE_DAYS: readonly DayDef[] = [
           {
             id: 'enforce-charter',
             label:
-              'Enforce the fees. The crown cannot promise rules and ignore them.',
+              'Pay eight brass to have the Watch enforce the fees and clear the stalls.',
             effects: {
+              brass: -8,
               affinity: { freeholds: -6 },
               local: { ledger: 2, yard: -2 },
               flags: ['d08-blankets-evicted'],
             },
             response:
-              'Tallow stamps the final notice. The seller puts the empty basket over her arm. At the door she asks where the guards will move her this time. No one offers a road.',
+              'Tallow stamps the final notice. Eight brass goes to the Watch for moving the stalls. The seller puts her empty basket over her arm and asks which road the guards will leave her on.',
           },
         ],
         beats: [
@@ -2142,14 +2143,15 @@ export const ACT_ONE_LATE_DAYS: readonly DayDef[] = [
               {
                 id: 'enforce-charter',
                 label:
-                  'Let the leases stand. The law did what the crown asked.',
+                  'Pay eight brass for the Watch to carry out the legal removals.',
                 effects: {
+                  brass: -8,
                   affinity: { freeholds: -6 },
                   local: { ledger: 2, yard: -2 },
                   flags: ['d08-blankets-evicted'],
                 },
                 response:
-                  'Tallow stamps the notice. The seller takes her empty basket to the gate. A Watch guard asks her not to leave it there.',
+                  'Tallow stamps the notice. The Watch takes its eight-brass fee and carries the blankets to the gate. The seller asks where she is allowed to put them next.',
               },
             ],
           },

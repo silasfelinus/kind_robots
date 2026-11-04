@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict'
 import {
   HOUSE_ENTRY,
+  HOUSE_ROOMS,
   houseExits,
   newHouseProgress,
   restoreHouseProgress,
@@ -42,7 +43,7 @@ assert.equal(forged!.chimeClaimed, false)
 const legitimate = restoreHouseProgress({
   ...resolved,
   current: 'HD-35',
-  visited: [...resolved.visited, 'HD-33', 'HD-35'],
+  visited: Object.keys(HOUSE_ROOMS) as HouseRoomId[],
   decisions: { ...resolved.decisions, 'HD-35': 'renew' },
   ending: 'renew',
 })

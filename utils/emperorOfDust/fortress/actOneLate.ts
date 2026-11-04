@@ -906,7 +906,10 @@ export const ACT_ONE_LATE_DAYS: readonly DayDef[] = [
           {
             id: 'ration',
             label: 'Ration the bread until the next caravan.',
-            effects: { local: { yard: -3, 'old-houses': 1 } },
+            effects: {
+              local: { yard: -3, 'old-houses': 1 },
+              flags: ['d05-bread-rationed'],
+            },
             response: 'The foreman says nothing. That is worse.',
           },
           {
@@ -978,7 +981,10 @@ export const ACT_ONE_LATE_DAYS: readonly DayDef[] = [
               {
                 id: 'ration',
                 label: 'Ration the bread. Leave the granary closed.',
-                effects: { local: { yard: -3, 'old-houses': 1 } },
+                effects: {
+              local: { yard: -3, 'old-houses': 1 },
+              flags: ['d05-bread-rationed'],
+            },
                 response:
                   'Ash goes down the stairs without a word. By supper the whole Yard knows how many sacks sit behind the Old Houses’ doors, and the name of the old man sleeping on them.',
               },
@@ -1643,6 +1649,26 @@ export const ACT_ONE_LATE_DAYS: readonly DayDef[] = [
         speaker: 'Lady Ottoline Vask of the Old Houses',
         npc: 'ottoline-vask',
         faction: 'old-houses',
+        variants: [
+          {
+            flags: ['d05-bread-rationed'],
+            lines: [
+              'Lady Ottoline Vask enters with a covered bread basket and her own velvet cushion. In the gallery, six of the Old Houses stand beside the railing. The basket is sealed with a house ring.',
+              '“The Yard has cut its loaves in half,” she says. “My steward has flour. My council has no chair. You see why I brought both.”',
+              {
+                who: 'Foreman Dunmore Ash',
+                npc: 'dunmore-ash',
+                text: '“The cooks have been weighing each child’s heel of bread. The granary sits up the hill. The ovens sit down here.”',
+              },
+              {
+                who: 'Young Komodo',
+                npc: 'young-komodo',
+                text: 'A starving kitchen is an expensive witness, Majesty. She knows it. You knew there was grain when you chose the ration.',
+              },
+              '“A seat on the council,” Vask says. “One chair. We brought our own cushion.”',
+            ],
+          },
+        ],
         lines: [
           'Lady Ottoline Vask comes up the carpet in a high-collared coat the color of wet ink. Heirloom rings click on her wingtips. Six of the Old Houses line the gallery rail like a jury.',
           'The Old Houses backed this throne when it was a heap of salvage, Majesty. Our brass bought your first walls. Our sons stand in your Watch.',
@@ -1655,6 +1681,15 @@ export const ACT_ONE_LATE_DAYS: readonly DayDef[] = [
           '“Young Komodo,” says Lady Vask. “How kind of you to remember me.” She does not say from where.',
         ],
         options: [
+          {
+            id: 'ask-bread',
+            label: 'Ask Lady Vask who eats while the Yard is rationing bread.',
+            requires: { flags: ['d05-bread-rationed'] },
+            effects: {},
+            response:
+              'Vask lifts the cloth. There is one heel of bread inside. “One can feed a house,” she says. “Or prove it never meant to.”',
+            next: 'bread-debt',
+          },
           {
             id: 'ask-chair',
             label: 'Ask what the Old Houses would do with their chair.',
@@ -1690,6 +1725,56 @@ export const ACT_ONE_LATE_DAYS: readonly DayDef[] = [
           },
         ],
         beats: [
+          {
+            id: 'bread-debt',
+            lines: [
+              'Lady Vask opens the basket. Beneath the single heel lies a warehouse key. “Bellam will sell the crown flour for fifteen brass. He will not give it. The Houses remember what happened the last time an emperor called that a donation.”',
+              {
+                who: 'Foreman Dunmore Ash',
+                npc: 'dunmore-ash',
+                text: '“Fifteen buys enough for the week. I will sign for every sack. The children can have supper without a tally.”',
+              },
+              '“Or grant the Houses our seat,” Vask says. “The flour comes without a coin. Every ration order after this one comes through our council chair.”',
+              {
+                who: 'Young Komodo',
+                npc: 'young-komodo',
+                text: 'She has put a price on both doors, Majesty. You can leave them shut. The hungry cannot.',
+              },
+            ],
+            options: [
+              {
+                id: 'buy-rations',
+                label: 'Pay fifteen brass for the grain. Keep the council independent.',
+                requires: { cost: 15 },
+                effects: {
+                  local: { yard: 2, 'old-houses': -1 },
+                  flags: ['d07-rations-bought'],
+                },
+                response:
+                  'The warehouse key changes hands. Dunmore carries the first sack himself. Lady Vask keeps her cushion and leaves without taking a seat.',
+              },
+              {
+                id: 'seat-for-grain',
+                label: 'Trade a council seat for the flour. Every future ration goes through her.',
+                effects: {
+                  local: { yard: 1, 'old-houses': 2, lamplight: -2, 'gate-watch': -1 },
+                  flags: ['old-houses-council-seat', 'd07-ration-writ'],
+                },
+                response:
+                  'Vask gives Dunmore the key. He does not thank her. The new council chair arrives before the flour does, with an old family seal fixed beneath its cushion.',
+              },
+              {
+                id: 'keep-ration',
+                label: 'Keep rationing. A hungry treasury cannot buy another promise.',
+                effects: {
+                  local: { yard: -2, 'old-houses': 1 },
+                  flags: ['d07-rations-continued'],
+                },
+                response:
+                  'Dunmore puts the heel back beneath the cloth. By evening the Yard serves a bowl of broth and no bread. Vask takes both basket and cushion home.',
+              },
+            ],
+          },
           {
             id: 'chair',
             lines: [

@@ -4459,21 +4459,23 @@ function parityExtras(card: Card): number {
  */
 export type ParityMode = Exclude<ModeId, 'gridiron'>
 export const PARITY_CREW_EDGE: Record<ParityMode, Record<TeamId, number>> = {
+  // Re-tuned 2026-11-04 with dithered rounding, picked on 48 held-out seeds
+  // (1,440 games): Blackout spread 0.079, Bloodrush 0.037.
   blackout: {
     catgirls: -0.75,
     bloodfairies: 1.5,
-    ironjaw: -1.5,
+    ironjaw: -1.625,
     riot: 0.5,
-    undertow: 1,
-    exchange: -0.5,
+    undertow: 1.375,
+    exchange: -0.625,
   },
   bloodrush: {
-    catgirls: -1,
-    bloodfairies: 1.75,
-    ironjaw: -2.25,
-    riot: 0.75,
-    undertow: 1.75,
-    exchange: -1,
+    catgirls: -0.75,
+    bloodfairies: 1.375,
+    ironjaw: -2,
+    riot: 0.625,
+    undertow: 1.5,
+    exchange: -1.25,
   },
   // TURF never fights with stats (a stone is a stone), so a creature budget
   // cannot move its crews; its balance needs a Go lever, not this one.
@@ -4508,6 +4510,14 @@ export function parityWorth(card: Card): number {
   )
 }
 
+/** A card's fixed rounding offset in [0, 1), from its id. */
+export function parityDither(id: string): number {
+  let h = 2166136261
+  for (let i = 0; i < id.length; i++)
+    h = Math.imul(h ^ id.charCodeAt(i), 16777619)
+  return ((h >>> 0) % 1000) / 1000
+}
+
 /** The card as PARITY plays it: free, and as strong as every other card. */
 export function parityCard(card: Card, mode: ParityMode = 'blackout'): Card {
   if (card.kind === 'creature') {
@@ -4523,7 +4533,13 @@ export function parityCard(card: Card, mode: ParityMode = 'blackout'): Card {
       else if (newAttack > 1) newAttack--
       else break
     }
-    const newHp = Math.max(1, Math.round(budget - 2 * newAttack - 2 * newArmor))
+    // Dithered rounding: each card rounds by its own fixed offset, so a crew's
+    // average body tracks a fractional budget instead of jumping a whole
+    // point at once (the rounding cliff that stalled crew calibration).
+    const newHp = Math.max(
+      1,
+      Math.floor(budget - 2 * newAttack - 2 * newArmor + parityDither(card.id)),
+    )
     return {
       ...card,
       cost: 0,

@@ -70,9 +70,10 @@ for (let i = 0; i <= iterations; i++) {
     // so step in quarter points, at most half a point a round, and shrink the
     // step as the rounds go on so the fit settles instead of oscillating.
     const damp = 1 / (1 + i / 4)
+    // Dithered rounding makes eighth points meaningful.
     const step = Math.max(
       -0.5,
-      Math.min(0.5, Math.round(gap * 3 * damp * 4) / 4),
+      Math.min(0.5, Math.round(gap * 3 * damp * 8) / 8),
     )
     edges[team.id] = edges[team.id] + step
   }

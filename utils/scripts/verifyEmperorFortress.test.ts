@@ -7444,7 +7444,10 @@ for (const def of DAYS)
   const funded = chooseAudienceOption(posted, letter.id, 'fund-inquiry').run
   assert.equal(funded.brass, 145)
   assert.ok(funded.flags.includes('d04-pip-inquiry-funded'))
-  assert.equal(funded.roster.filter((follower) => follower.id === 'F005').length, 1)
+  assert.equal(
+    funded.roster.filter((follower) => follower.id === 'F005').length,
+    1,
+  )
   assert.ok(validateRun(JSON.parse(JSON.stringify(funded))))
   assert.equal(
     filing.roster.filter((follower) => follower.id === 'F005').length,

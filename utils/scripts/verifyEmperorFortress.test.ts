@@ -2,6 +2,7 @@ import assert from 'node:assert/strict'
 import { existsSync, readFileSync, readdirSync } from 'node:fs'
 import { ACT_ONE_DAYS, ACT_ONE_QUESTS } from '../emperorOfDust/fortress/actOne'
 import { ACT_ONE_LATE_QUESTS } from '../emperorOfDust/fortress/actOneLate'
+import { FIRST_BELL_AUDIENCES } from '../emperorOfDust/fortress/onboarding'
 import { ACT_TWO_QUESTS } from '../emperorOfDust/fortress/actTwo'
 import { ACT_THREE_QUESTS } from '../emperorOfDust/fortress/actThree'
 import { ACT_FOUR_QUESTS } from '../emperorOfDust/fortress/actFour'
@@ -4134,7 +4135,10 @@ for (const def of DAYS)
   // Day 41 buyer or (t-040) on an answer given on an earlier day.
   const answeredBy = new Map<string, number>()
   for (const def of DAYS)
-    for (const audience of def.audiences)
+    for (const audience of [
+      ...def.audiences,
+      ...(def.day === 1 ? FIRST_BELL_AUDIENCES : []),
+    ])
       for (const option of [
         ...audience.options,
         ...(audience.beats ?? []).flatMap((beat) => beat.options),

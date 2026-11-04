@@ -520,8 +520,9 @@ export function resolveAlienSighting(
     ].slice(-101),
   }
   const species = sighting.species
+  const personal = ALIEN_SPECIES_STORIES[species.id]
   const reaction =
-    ALIEN_SPECIES_STORIES[species.id]?.outcomes[outcome] ??
+    personal?.outcomes[outcome] ??
     ALIEN_REACTIONS[species.category][
       outcome === 'bond' ? 'befriend' : outcome === 'retreat' ? 'flee' : 'chaos'
     ]
@@ -548,6 +549,7 @@ export function resolveAlienSighting(
       bond: 'The ridiculous distraction becomes an unexpected rescue. It relaxes, and chooses to trust the crew.',
     },
   }
-  const text = `${moodReactions[sighting.mood][outcome]} ${reaction} ${species.name}: ${outcome === 'retreat' ? 'It may be encountered again on another voyage.' : outcome === 'bond' ? 'A new friend has been recorded in the scrapbook.' : 'An extraordinarily messy field record is saved.'}`
+  const introduction = personal ? '' : moodReactions[sighting.mood][outcome] + ' '
+  const text = `${introduction}${reaction} ${species.name}: ${outcome === 'retreat' ? 'It may be encountered again on another voyage.' : outcome === 'bond' ? 'A new friend has been recorded in the scrapbook.' : 'An extraordinarily messy field record is saved.'}`
   return { guide: next, recorded: recorded && !alreadyKnown, text }
 }

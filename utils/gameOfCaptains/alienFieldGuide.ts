@@ -350,7 +350,9 @@ export const alienObservation = (contact: AlienContact): string => {
   const species = ALIEN_BY_ID.get(contact.speciesId)
   if (!species) return ''
   const action = ALIEN_CHOICES.find((choice) => choice.id === contact.choice)
-  const evidence = SCENE_CLUES[species.category][contact.mood].evidence
+  const evidence =
+    ALIEN_SPECIES_STORIES[species.id]?.evidence[contact.mood] ??
+    SCENE_CLUES[species.category][contact.mood].evidence
   const result =
     contact.outcome === 'bond'
       ? 'It chose to stay.'
@@ -416,7 +418,7 @@ export function nextAlienSighting(
         : 'The creature watches the couch cautiously; apparently a previous visitor warned it about awkward tourists.'
     : ''
   const scene =
-    `From the red couch, the crew spots ${species.name} near ${species.habitat}: ${species.appearance}. ${setting.incident} ${personal ? personal.incident + ' ' : ''}${setting.evidence} The old field guide adds only: "${species.fieldNote}." ${callback}`.trim()
+    `From the red couch, the crew spots ${species.name} near ${species.habitat}: ${species.appearance}. ${personal?.incident ?? setting.incident} ${personal?.evidence[mood] ?? setting.evidence} The old field guide adds only: "${species.fieldNote}." ${callback}`.trim()
   return {
     species,
     seed: run.seed,

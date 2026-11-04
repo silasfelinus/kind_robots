@@ -55,6 +55,26 @@ for (const [key, id] of Object.entries(quickDiscoveries)) {
   assert.ok(scene.choices.length >= 2, 'legacy choices remain restorable')
 }
 
+// Quiet House rooms resolve as discoveries, not extra two-button encounters.
+// Legacy saved decisions and all high-stakes rooms retain their original IDs.
+for (const [roomId, choiceId] of Object.entries({
+  'HD-02': 'weather',
+  'HD-07': 'count',
+  'HD-21': 'archive',
+})) {
+  const room = HOUSE_ROOMS[roomId]!
+  assert.equal(room.kind, 'lore')
+  assert.equal(room.autoChoiceId, choiceId)
+  const choice = room.choices.find((entry) => entry.id === choiceId)
+  assert.ok(choice)
+  assert.equal(choice.gain, undefined, 'automatic lore must not grant repeatable rewards')
+  assert.ok(choice.outcome.length > 20)
+  assert.ok(room.choices.length >= 2, 'old save choice IDs remain valid')
+}
+for (const room of Object.values(HOUSE_ROOMS)) {
+  if (room.kind !== 'lore') assert.equal(room.autoChoiceId, undefined)
+}
+
 // World One's eight side quests (kind_robots #4136: eight side quests per
 // realm). Each thread is taken by real Briar and House choices, can be closed
 // by a different choice, and is read from decisions the save already keeps.

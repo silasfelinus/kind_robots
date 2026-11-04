@@ -2258,7 +2258,9 @@ assert.ok(sableLoss <= plainLoss, 'Immaculate Apology softens failures')
   const heard = chooseAudienceOption(shared, oath.id, 'ask-council').run
   assert.equal(heard.audienceBeats?.[oath.id], 'council-oath')
   assert.equal(audienceScene(heard, oath).beatId, 'council-oath')
-  const outcomes = oath.beats!.find((beat) => beat.id === 'council-oath')!.options
+  const outcomes = oath.beats!.find(
+    (beat) => beat.id === 'council-oath',
+  )!.options
   assert.deepEqual(
     outcomes.map((option) => option.id),
     ['shared-relief', 'shared-account', 'house-veto'],

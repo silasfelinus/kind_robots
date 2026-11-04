@@ -3253,6 +3253,14 @@ export const ACT_FOUR_DAYS: readonly DayDef[] = [
             ],
           },
           {
+            flags: ['d29-hesper-hearing', 'd07-runner-penalized'],
+            lines: [
+              'Vellum lays Hesper Lowe’s testimony beside the Conclave’s bond book. A copy of the missing register sits between them.',
+              'Oriel turns to the gallery. “A mother asked to be heard. A runner gave us the storm’s hour, and the elders took two years from her for speaking. Whose chair do we leave empty?”',
+              'Corvane opens his ledger. Young Komodo checks the seating chart without looking up. The Abbess folds her hands.',
+            ],
+          },
+          {
             flags: ['d29-hesper-hearing'],
             lines: [
               'Before the congress sits, Vellum lays the public testimony from Hesper Lowe and Mara Reedbell on the table. The seal is still damp.',
@@ -3290,6 +3298,30 @@ export const ACT_FOUR_DAYS: readonly DayDef[] = [
             },
             response:
               'Vellum reads the testimony without adding a single word. Mara stays seated. The Abbess offers her a glass of water. She does not drink it.',
+          },
+          {
+            id: 'hear-both',
+            label:
+              'Enter Hesper’s testimony and buy back the runner’s stolen years. Thirty brass for both witnesses.',
+            requires: {
+              flags: ['d29-hesper-hearing', 'd07-runner-penalized'],
+              cost: 30,
+            },
+            effects: {
+              affinity: {
+                'hollow-bell': -7,
+                abbey: -5,
+                'storm-crows': -7,
+              },
+              local: { yard: -2, lamplight: 3, 'old-houses': -1 },
+              flags: [
+                'd39-hearing-entered',
+                'd39-runner-freed',
+                'd39-two-witnesses',
+              ],
+            },
+            response:
+              'Vellum reads Hesper’s testimony to the table. Ten brass hires witnesses; Corvane takes twenty more and tears two years from the runner’s bond. She folds the scrap in her coat while Mara asks Vellum to put the testimony away.',
           },
           {
             id: 'protect-record',

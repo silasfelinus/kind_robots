@@ -6,6 +6,13 @@ import { laterLocalEncounter } from './expeditionLaterLocal'
 import { REDSHIRT_BY_ID, nextRedshirt, starterRedshirts } from './redshirts'
 import type { ActOneRouteId } from './actOne'
 import { VOYAGE_BOARDS } from './voyageMap'
+import {
+  ARRIVAL_LINES,
+  CLEAN_SWEEP_LINES,
+  RETURN_LINES,
+  TRAVEL_LINES,
+  transitLine,
+} from './transitLines'
 
 export type ExpeditionResult = {
   encounterId: string
@@ -133,8 +140,7 @@ export function startWorldTravel(run: VoyageRun): VoyageRun {
     redshirtRoster: run.redshirtRoster ?? starterRedshirts(run.seed),
     redshirtFallen: run.redshirtFallen ?? [],
     expeditionHistory: run.expeditionHistory ?? [],
-    scene:
-      'The long red couch sails toward its next world. Behind the backrest, a miniature barracks unfolds like the galaxy’s least reassuring advent calendar. The force bubble remains invisible and irreplaceable.',
+    scene: transitLine(TRAVEL_LINES, 'travel', run.seed, run.chapter - 1),
   }
 }
 export function arriveAtWorld(run: VoyageRun): VoyageRun {
@@ -153,8 +159,7 @@ export function arriveAtWorld(run: VoyageRun): VoyageRun {
       encounterIds,
       results: [],
     },
-    scene:
-      'Touchdown is relative. The red couch remains suspended above the pavement in its transparent force bubble. Local authorities demand to know whether it is a vehicle, a sofa, or an extremely small republic.',
+    scene: transitLine(ARRIVAL_LINES, 'arrival', run.seed, run.chapter - 1),
   }
 }
 export function recruitedOriginals(run: VoyageRun): number {
@@ -305,6 +310,12 @@ export function deployExpedition(
     log: [...run.log, `Expedition ${run.chapter} / ${enc.title}: ${message}`],
   }
 }
+function memorialLine(fallen: number): string {
+  if (fallen <= 0) return ''
+  return fallen === 1
+    ? ' One red uniform now hangs in the miniature memorial corridor, attached to an actual name.'
+    : ` ${fallen} red uniforms now hang in the miniature memorial corridor, each one attached to an actual name.`
+}
 export function leaveExpedition(run: VoyageRun): VoyageRun {
   const visit = run.expeditionVisit
   if (run.phase !== 'expedition' || !visit) return run
@@ -322,13 +333,13 @@ export function leaveExpedition(run: VoyageRun): VoyageRun {
   )
   const report = skipped.length
     ? `Minor matters left behind: ${skipped.map((x) => x.title).join('; ')}.`
-    : 'Every crisis answered. Nobody believes the paperwork.'
+    : transitLine(CLEAN_SWEEP_LINES, 'sweep', run.seed, run.chapter - 1)
   return {
     ...run,
     phase: 'briefing',
     expeditionHistory: [...(run.expeditionHistory ?? []), visit],
     expeditionVisit: null,
-    scene: `The expedition returns to the couch. ${report} ${run.redshirtFallen?.length ?? 0} red uniforms now hang in the miniature memorial corridor, each one attached to an actual name.`,
+    scene: `${transitLine(RETURN_LINES, 'return', run.seed, run.chapter - 1)} ${report}${memorialLine(run.redshirtFallen?.length ?? 0)}`,
     log: [
       ...run.log,
       'Expedition finished at ' + visit.missionId + '. ' + report,

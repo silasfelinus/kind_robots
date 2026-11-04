@@ -826,12 +826,30 @@ export function visitCasinoVenue(
       : venue === 'bar'
         ? afterHoursIncident(run.seed, run.chapter, system)
         : casinoIncident(run.seed, run.chapter, system).description
-  const reaction =
-    choice === 'ask'
-      ? `${system.giant} was asked directly; the host's response is entered into the decision, rather than assumed.`
-      : choice === 'document'
-        ? `The evidence is filed publicly so the blue hosts and local workers can challenge the terms.`
-        : `The captain intervenes without a full agreement. Some workers cheer; ${system.giant} asks who decided this was help.`
+  // The same order can come up several times a voyage; walk a short pool
+  // of reactions by visit so the player is not told the same thing twice.
+  const visit = state.choices.filter((item) => item.choice === choice).length
+  const reactions = {
+    ask: [
+      `${system.giant} was asked directly; the host's response is entered into the decision, rather than assumed.`,
+      `${system.giant} is asked first, out loud, in front of witnesses. The answer is slower than anyone would like and goes into the record as given.`,
+      `The crew waits for ${system.giant} to answer before touching anything. The wait is long, warm and very bright.`,
+      `${system.giant} is consulted, and says so on the casino's public channel, which is the closest a star comes to signing.`,
+    ],
+    document: [
+      `The evidence is filed publicly so the blue hosts and local workers can challenge the terms.`,
+      `Everything is written down and posted where the croupiers can read it on their break. Two of them already have corrections.`,
+      `The crew files the findings with the house, the workers and a passing auditor, so that no one party gets to lose them.`,
+      `The record goes up on the casino's own departures board, between a cruise liner and a funeral barge. It is read more than either.`,
+    ],
+    override: [
+      `The captain intervenes without a full agreement. Some workers cheer; ${system.giant} asks who decided this was help.`,
+      `The couch acts before the paperwork does. The floor staff applaud, and ${system.giant} opens a file with the couch's name on it.`,
+      `The captain does it anyway. It works, mostly, and ${system.giant} dims by a polite fraction to show it noticed.`,
+      `The crew steps in without waiting to be asked. Nobody is hurt; several people are offended; ${system.giant} keeps the receipt.`,
+    ],
+  }[choice]
+  const reaction = reactions[visit % reactions.length]!
   if (venue === 'casino' || stage >= 2) completed.push(key)
   const nextStage = venue === 'bar' && stage < 3 ? stage + 1 : stage
   const scene = `${narrative} ${reaction}`

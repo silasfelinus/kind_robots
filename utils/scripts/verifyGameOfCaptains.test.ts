@@ -123,6 +123,7 @@ import {
 } from '../gameOfCaptains/baseEndingCaptains'
 import {
   MISSION_RESULTS,
+  MISSION_SUCCESS,
   RESULT_TEXT,
   missionResultText,
 } from '../gameOfCaptains/missionResults'
@@ -216,8 +217,23 @@ assert.deepEqual(
   Object.keys(MISSION_RESULTS).sort(),
   MISSIONS.map((m) => m.id).sort(),
 )
-for (const mission of MISSIONS)
-  assert.equal(missionResultText(mission.id, 'success'), RESULT_TEXT.success)
+// A plain success reads the call's own line too (2026-11-04 PT editorial pass).
+assert.deepEqual(
+  Object.keys(MISSION_SUCCESS).sort(),
+  MISSIONS.map((m) => m.id).sort(),
+)
+const successLines = MISSIONS.map((mission) => {
+  const line = missionResultText(mission.id, 'success')
+  assert.equal(line, MISSION_SUCCESS[mission.id])
+  assert.notEqual(line, RESULT_TEXT.success)
+  assert.ok(line.length > 100, `${mission.id} success`)
+  return line
+})
+assert.equal(
+  new Set([...gradedLines, ...successLines]).size,
+  120,
+  'one hundred and twenty distinct returns',
+)
 const graded = new Set<string>()
 for (const captain of CAPTAINS) {
   for (const seed of [1, 2, 2026, 404, 777]) {

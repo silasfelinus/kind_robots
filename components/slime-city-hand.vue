@@ -79,7 +79,11 @@
           :aria-label="
             card.name + ', ' + card.kind + ', costs ' + card.cost + ' mana'
           "
-          :title="lab.mode === 'turf' ? 'TURF: ' + turfText(card) : undefined"
+          :title="
+            lab.mode === 'turf'
+              ? 'TURF: ' + turfText(card, lab.sight.parity)
+              : undefined
+          "
           @pointerdown="grab($event, card.id)"
           @click="pick(card.id)"
         >

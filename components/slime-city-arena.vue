@@ -348,7 +348,9 @@
       >
         <div class="sca-inspect-live">
           <span class="sca-tag">TURF · PLACE ON ANY EMPTY POINT</span>
-          <p class="sca-turf-rule">{{ turfText(heldCard) }}</p>
+          <p class="sca-turf-rule">
+            {{ turfText(heldCard, lab.sight.parity) }}
+          </p>
         </div>
         <SlimeCityCard class="sca-inspect-card" :card="heldCard" />
       </div>
@@ -373,7 +375,7 @@
             lab.inspectedUnit.side === 'player' ? 'YOUR CREW' : 'ENEMY'
           }}</span>
           <p v-if="turf && inspectedCard" class="sca-turf-rule">
-            {{ turfText(inspectedCard) }}
+            {{ turfText(inspectedCard, lab.sight.parity) }}
             <template v-if="lab.inspectedUnit.warded">
               Warded this round.</template
             >

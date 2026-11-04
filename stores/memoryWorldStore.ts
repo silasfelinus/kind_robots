@@ -2041,8 +2041,15 @@ export const useMemoryWorldStore = defineStore('memoryWorld', () => {
     house.current = next as typeof house.current
     if (!house.visited.includes(house.current))
       house.visited.push(house.current)
-    state.value.status =
-      HOUSE_ROOMS[house.current]?.opening ?? 'The house shifts.'
+    const room = HOUSE_ROOMS[house.current]
+    state.value.status = room?.opening ?? 'The house shifts.'
+    if (room?.autoChoiceId && !house.decisions[house.current]) {
+      const choice = room.choices.find((entry) => entry.id === room.autoChoiceId)
+      if (choice && !choice.gain && room.kind === 'lore') {
+        house.decisions[house.current] = choice.id
+        state.value.status = `${room.opening} ${choice.outcome}`
+      }
+    }
     persist()
   }
 

@@ -148,7 +148,8 @@ for (const species of ALIEN_SPECIES) {
       const report = resolveAlienSighting(empty, { ...sighting, mood }, choice)
       assert.ok(
         report.text.startsWith(text),
-        species.name + ' must lead with its bespoke outcome, not a repeated reaction',
+        species.name +
+          ' must lead with its bespoke outcome, not a repeated reaction',
       )
       assert.equal(report.recorded, outcome !== 'retreat')
     }

@@ -71,7 +71,11 @@ for (const choice of ALIEN_CHOICES) {
 const observed = alienEvidence(first.species.category, first.mood)
 const firstPersonal = ALIEN_SPECIES_STORIES[first.species.id]
 assert.ok(first.scene.includes(firstPersonal?.incident ?? observed.incident))
-assert.ok(first.scene.includes(firstPersonal?.evidence[first.mood] ?? observed.evidence))
+assert.ok(
+  first.scene.includes(
+    firstPersonal?.evidence[first.mood] ?? observed.evidence,
+  ),
+)
 assert.ok(first.scene.includes(first.species.fieldNote))
 const allScenes = new Set<string>()
 for (const category of [

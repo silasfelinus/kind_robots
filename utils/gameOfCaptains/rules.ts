@@ -51,6 +51,12 @@ import { starterRedshirts, REDSHIRT_BY_ID } from './redshirts'
 import type { ExpeditionVisit } from './expedition'
 import { validStarAssessment, type StarAssessment } from './starSigns'
 import { CAPTAIN_ORIGINS, type CaptainOriginId } from './captainOrigins'
+import {
+  DETOUR_LINES,
+  LAUNCH_LINES,
+  ROUTE_MEMORY_LINES,
+  transitLine,
+} from './transitLines'
 import { validCloneProgram, type CloneProgram } from './cloneSaga'
 import {
   validConsequenceHistory,
@@ -373,6 +379,7 @@ export type MissionReport = {
   names: string
   text: string
 }
+export type EndingSection = { label: string; lines: string[] }
 export type VoyageRun = {
   version: 1
   seed: number
@@ -436,6 +443,11 @@ export type VoyageRun = {
   nemesisPressure?: number
   /** The nemesis's own ending, `<nemesis>-<undone|bargained|unfinished>`. */
   nemesisEnding?: string | null
+  /**
+   * The final log split into labelled parts for the ending screen. The same
+   * text as `scene`, so older saves without it still read in full.
+   */
+  endingSections?: EndingSection[]
   antagonist: number
   supplies: number
   trust: number
@@ -841,7 +853,7 @@ export function launchMission(run: VoyageRun): VoyageRun {
       roll: missionRoll(run.seed, mission.id, day, run.away),
       routes: preview.specialRoutes,
     },
-    scene: `The long red couch glides toward ${mission.system}, its invisible force bubble keeping everybody breathing. ${run.pocketRoom ? 'A ' + POCKET_ROOMS.find((room) => room.id === run.pocketRoom)?.name + ' unfolds behind the backrest for one supply.' : 'No pocket room is deployed.'} Expected return: ship day ${day + preview.durationDays}. Mission odds: ${preview.chance}%.`,
+    scene: `${transitLine(LAUNCH_LINES, 'launch', run.seed, run.chapter - 1)(mission.system)} ${run.pocketRoom ? 'A ' + POCKET_ROOMS.find((room) => room.id === run.pocketRoom)?.name + ' unfolds behind the backrest for one supply. ' : ''}Expected return: ship day ${day + preview.durationDays}. Mission odds: ${preview.chance}%.`,
     log: [
       ...run.log,
       `Day ${day}: ${mission.title} departed with ${preview.chance}% success estimate, return day ${day + preview.durationDays}.`,
@@ -1034,7 +1046,7 @@ export function beginCrewDetour(run: VoyageRun, crewId: CrewId): VoyageRun {
     ...run,
     phase: 'crew-quest',
     detour: { crewId, step },
-    scene: `The couch diverts to ${destination.system} for ${CREW.find((officer) => officer.id === crewId)!.name}. The invisible force bubble is holding, but the universe refuses to sign a waiver.${callback}`,
+    scene: `The couch diverts to ${destination.system} for ${CREW.find((officer) => officer.id === crewId)!.name}. ${transitLine(DETOUR_LINES, 'detour', run.seed, run.journeyHistory?.length ?? 0)}${callback}`,
   }
 }
 
@@ -1255,7 +1267,7 @@ export function nextDestination(run: VoyageRun): VoyageRun {
     pocketRoom: null,
     report: null,
     supplies: run.supplies + (opening?.supplies ?? 0),
-    scene: `${opening ? opening.text + ' ' : ''}A new star flickers above ${chapterSystem(run.seed, run.chapter + 1).name}. ${worldEcho(run)} ${followup ? 'INCOMING FOLLOW-UP: ' + followup.callback + ' ' : ''}${actThreeEcho ? 'LAST COMMAND CONSEQUENCE: ' + actThreeEcho.callback + ' ' : ''}The available local routes reflect what the captain already did.`,
+    scene: `${opening ? opening.text + ' ' : ''}A new star flickers above ${chapterSystem(run.seed, run.chapter + 1).name}. ${worldEcho(run)} ${followup ? 'INCOMING FOLLOW-UP: ' + followup.callback + ' ' : ''}${actThreeEcho ? 'LAST COMMAND CONSEQUENCE: ' + actThreeEcho.callback + ' ' : ''}${transitLine(ROUTE_MEMORY_LINES, 'routes', run.seed, run.chapter - 1)}`,
     log: [
       ...run.log,
       ...(opening
@@ -1388,12 +1400,54 @@ export function finishVoyage(
     )
     .join(' ')
   const scene = `${verdict}${captainLine} ${nemesisEnding.title}: ${nemesisEnding.text} ${remembrance} ${journeys.join(' ')} ${civic} ${expeditionSecrets} ${redshirts} ${captainChoices}`
+  const civicLines = (run.missionHistory ?? []).flatMap((event) => {
+    const detail =
+      event.policy === 'missed'
+        ? `No one answered the call at ${event.system}.`
+        : VOYAGE_CONSEQUENCES[event.missionId]?.[event.policy]?.text
+    return detail ? [`${event.system}: ${detail}`] : []
+  })
+  const fallenLines = (run.redshirtFallen ?? []).map(
+    (loss) =>
+      `${REDSHIRT_BY_ID[loss.id]?.name ?? loss.id}, lost at ${MISSIONS.find((m) => m.id === loss.missionId)?.system ?? loss.missionId}.`,
+  )
+  const endingSections: EndingSection[] = [
+    { label: 'The verdict', lines: [`${verdict}${captainLine}`] },
+    {
+      label: antagonistFor(run).name,
+      lines: [nemesisEnding.text],
+    },
+    { label: 'The captain', lines: [remembrance, captainChoices] },
+    { label: 'The crew', lines: journeys },
+    { label: 'The worlds you answered', lines: civicLines },
+    {
+      label: 'Found off the map',
+      lines: expeditionSecrets ? [expeditionSecrets] : [],
+    },
+    {
+      label: 'Remembered by name',
+      lines: fallenLines.length
+        ? [
+            ...fallenLines,
+            fallenLines.length === 1
+              ? 'Their bright red uniform hangs in the memorial corridor.'
+              : 'Their bright red uniforms hang side by side in the memorial corridor.',
+          ]
+        : [],
+    },
+  ]
+    .map((section) => ({
+      ...section,
+      lines: section.lines.map((line) => line.trim()).filter(Boolean),
+    }))
+    .filter((section) => section.lines.length)
   return {
     ...run,
     phase: 'ending',
     scene,
     ending,
     nemesisEnding: nemesisEndingId(nemesisId, variant),
+    endingSections,
     log: [
       ...run.log,
       `Final captain's log: ${ending}. ${captain.voice} ${scene}`,
@@ -1450,6 +1504,15 @@ export function restoreVoyage(raw: unknown): VoyageRun | null {
         ))) ||
     (data.consequenceEnding !== undefined &&
       typeof data.consequenceEnding !== 'string') ||
+    (data.endingSections !== undefined &&
+      (!Array.isArray(data.endingSections) ||
+        data.endingSections.some(
+          (section) =>
+            !section ||
+            typeof section.label !== 'string' ||
+            !Array.isArray(section.lines) ||
+            section.lines.some((line) => typeof line !== 'string'),
+        ))) ||
     (data.captainInstincts !== undefined &&
       (!Array.isArray(data.captainInstincts) ||
         data.captainInstincts.some(

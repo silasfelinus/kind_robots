@@ -27,6 +27,7 @@ import {
 } from './solarCircuit'
 import { nemesisMove } from './voyageMap'
 import { planetReprise } from './planetReprises'
+import { PLOT_TABLE_LINES, transitLine } from './transitLines'
 
 export type EpisodeDeck =
   'planet' | 'casino' | 'serendipity' | 'constellation' | 'nemesis'
@@ -652,7 +653,7 @@ export function dispatchEpisodeBatch(
   return {
     ...next,
     day: departure,
-    scene: `THE QUEST BOARD RETURNS. ${assignments.length} cards resolved in one round on ship day ${departure}. The solar-system story cards are now on the table.`,
+    scene: `THE QUEST BOARD RETURNS. ${assignments.length} cards resolved in one round on ship day ${departure}. ${transitLine(PLOT_TABLE_LINES, 'plot-table', run.seed, run.chapter - 1)}`,
   }
 }
 /** The four permanent command seats run solar-system plot cards, not the redshirt corps. */
@@ -733,7 +734,7 @@ export function drawEpisodeDeck(
     .join(' and ')
   const connection = episodePlotConnection(run, deck, cast)
   const rapport = episodeDuoExperience(run, cast)
-  const fieldReport = `${names} ${successful ? 'secure' : 'complicate'} the ${skill} objective in one round (${chance}% forecast).${connection ? ' ' + connection : ''}${rapport ? ' This team has ' + rapport + ' earlier successful shared mission(s).' : ''}`
+  const fieldReport = `${names} ${successful ? 'secure' : 'complicate'} the ${skill} objective in one round (${chance}% forecast).${connection ? ' ' + connection : ''}${rapport ? ' ' + (rapport === 1 ? 'This team has worked together successfully once before.' : 'This team has ' + rapport + ' successful missions together behind it.') : ''}`
   const venue =
     deck === 'casino' ? 'casino' : deck === 'serendipity' ? 'bar' : null
   const outcome = card.outcomes?.[choice]

@@ -1739,12 +1739,32 @@
                 </p>
               </div>
             </div>
-            <p class="cap-narrative">{{ run.scene }}</p>
-            <SpaceCouchTrioInterlude />
-            <div class="cap-log">
-              <strong>RECORDED CAPTAIN’S LOG</strong>
-              <p v-for="(line, index) in run.log" :key="index">{{ line }}</p>
+            <div
+              v-if="run.endingSections?.length"
+              class="cap-ending-sections"
+              data-testid="space-couch-ending-sections"
+            >
+              <section
+                v-for="section in run.endingSections"
+                :key="section.label"
+                class="cap-ending-section"
+              >
+                <h3>{{ section.label }}</h3>
+                <p v-for="(line, index) in section.lines" :key="index">
+                  {{ line }}
+                </p>
+              </section>
             </div>
+            <p v-else class="cap-narrative">{{ run.scene }}</p>
+            <SpaceCouchTrioInterlude />
+            <details class="cap-log" data-testid="space-couch-ending-log">
+              <summary>
+                <strong
+                  >RECORDED CAPTAIN’S LOG · {{ run.log.length }} ENTRIES</strong
+                >
+              </summary>
+              <p v-for="(line, index) in run.log" :key="index">{{ line }}</p>
+            </details>
             <PlaybookRunReview
               game="game-of-captains"
               :run="run"
@@ -4203,6 +4223,31 @@ function toggleAway(id: CrewId) {
   margin: 0.6rem 0;
   line-height: 1.6;
   color: #c4d3db;
+}
+.cap-log summary {
+  cursor: pointer;
+  min-height: 2.75rem;
+  display: flex;
+  align-items: center;
+}
+.cap-ending-sections {
+  display: grid;
+  gap: 0.9rem;
+  margin: 1.1rem 0.1rem;
+}
+.cap-ending-section h3 {
+  margin: 0 0 0.35rem;
+  color: #f5cba2;
+  font-size: 0.7rem;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+}
+.cap-ending-section p {
+  margin: 0 0 0.45rem;
+  font-family: Georgia, serif;
+  font-size: clamp(0.87rem, 1.04vw, 1rem);
+  line-height: 1.7;
+  color: #f0e8de;
 }
 .cap-footer {
   border-top: 1px solid #86b1c34d;

@@ -262,8 +262,77 @@ export const MISSION_RESULTS: Readonly<Record<string, Graded>> = {
   },
 }
 
+/**
+ * A plain success, per call. Plain success is the most common grade, and the
+ * 2026-11-04 PT editorial playtest found the one shared success line was the
+ * single most-read result sentence in the game, read about twice a voyage.
+ * Each call now closes its ordinary win in its own words: the job done,
+ * without the flawless grade's bonus or the costly grade's bill.
+ */
+export const MISSION_SUCCESS: Readonly<Record<string, string>> = {
+  refugees:
+    'The away team got the stamp signed and the life-support unit bolted into the second ship. Both transports breathe. The treaty office has asked, politely, that the couch not make a habit of this.',
+  archive:
+    'The readers are out, every one with a library card stamped “evacuated, in good standing.” The Archive has not forgiven the interruption, and has said so in a footnote.',
+  bar: 'The patron stayed on the ceiling and the creditor went home with his warrant unserved. Vox wiped the same glass for an hour afterwards, which is how Vox says thank you.',
+  ashdock:
+    'The invoices were withdrawn and the six names stayed sealed. The crane still clocks the workers in every morning. Nobody has the heart to tell it, and nobody needs to.',
+  windglass:
+    'The away team followed the buoy to the pings and brought the survivors water. The buoy kept its distance the whole way back, which the crew has chosen to read as respect.',
+  nacre:
+    'The three objections were counted, the thermostat neighborhood was counted, and the peace still passed. The brass bowl ran slightly warmer than before. Nobody has asked why.',
+  haleth:
+    'The fever is treated and the lien is suspended pending review, which in Haleth is a kind of victory. The clinic sent the couch a satisfaction survey about the patients it no longer owns.',
+  gameworld:
+    'The floors stopped and the patients went back to their wards. The Showrunner described the episode as “a soft finish” and promised the audience a stronger season.',
+  rootborne:
+    'The orchard is breathing again and the village dreams privately. The sapling in the clay pot has put out one new leaf, in the direction of the couch.',
+  'concord-intake':
+    'Form 9-C is complete, the index is corrected, and the clerk is a person again in time for lunch. The couch has been admitted as furniture, which it accepts.',
+  'courtesy-reactor':
+    'The reactor is running and neither parliament was seen to accept help from the other. Both have sent thank-you notes, addressed to each other, care of the couch.',
+  'sesh-backups':
+    'The four hundred backups were reclassified as essential and kept. The buyer has scheduled a review of the reclassification, which the backups will attend in person, all of them.',
+  'serendipity-tab':
+    'The tab is settled and booth six is quietly covered. The bar’s lighting has gone back to a shade Vox describes as “normal for us.”',
+  'insult-compiler':
+    'The translation was corrected before the vows and the fishing treaty went ahead without a wedding. Both parliaments kept the cake. The armrest translator has been asked to sit this one out.',
+  warranty:
+    'Cushla approved the dockworkers’ suits as indoor use and mended the couch’s seam on her own time. She has logged it as “goodwill,” a category she had to invent.',
+  hoa: 'The fines were struck off on a technicality and the sanctuary keeps its roofs. The association has formed a subcommittee to look into the technicality.',
+  'season-two':
+    'The waivers on floors four to seven were torn up on air. The Showrunner has called the episode “divisive” and moved it to a later time slot.',
+  'committee-end':
+    'The committee approved an evacuation at its twelfth meeting and both hulls cleared the flare. The minutes record the decision as unanimous, which it was, eventually.',
+  'gig-orchard':
+    'The growers are employees again, the trees no longer surge, and Breathr has quietly removed the star ratings from the app. The jars are still recyclable.',
+  overdue:
+    'The fines are waived for the planet that owed the most, and the repossession of knowledge has been paused. Everybody remembers how to make tea. The Archive is reviewing its policy.',
+  merger:
+    'The excluded neighborhood was counted and the merger stalled. Slide forty remains in the deck, marked “for discussion,” which in Nacre is a polite word for buried.',
+  'jump-gate-permit':
+    'The consultation was done, the list was heard, and the permit was granted. The office stamped it with a mild expression the crew will be thinking about for some time.',
+  'serendipity-last-call':
+    'Everyone rescued found a seat or a stool or a patch of ceiling. Serendipity kept its neutrality by a whisker, and Vox called last orders at the usual time.',
+  'gameworld-finale':
+    'The signatures were collected and the twelfth floor shut down before the final round. The last contestants walked out of the studio by the front door, which had always been there.',
+  'cushion-recall':
+    'The recall order was withdrawn for the couch, and the dockworkers kept their jobs. Ashdock filed the whole matter under “product feedback.”',
+  'twins-summit':
+    'The summit sat on the couch, decided in a day, and stood up having slighted nobody in particular. The seating plan has been entered into both planets’ histories.',
+  'foundry-strike':
+    'The machines were recognised and went back to work under contract. The bubble generator withdrew its notice and asked that its letter be kept on file, just in case.',
+  inquiry:
+    'The captain testified, the chair read the log a third time, and the couch was cleared to fly. The report runs to one page, which in an inquiry is a compliment.',
+  'windglass-exodus':
+    'The map stayed sealed and the families arrived where they meant to. The buoy walked them the last stretch. The couch has been asked not to visit, and has agreed.',
+  'deposit-copy':
+    'The crew’s account was shelved beside the nemesis’s bound edition, spine to spine. Readers can now choose which one to believe, which is what the Archive is for.',
+}
+
 /** The return text for a call at this grade: its own line, or the shared one. */
 export function missionResultText(missionId: string, grade: Result): string {
-  if (grade === 'success') return RESULT_TEXT.success
+  if (grade === 'success')
+    return MISSION_SUCCESS[missionId] ?? RESULT_TEXT.success
   return MISSION_RESULTS[missionId]?.[grade] ?? RESULT_TEXT[grade]
 }

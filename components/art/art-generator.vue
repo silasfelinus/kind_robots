@@ -22,7 +22,17 @@
           </div>
 
           <div class="flex w-full shrink-0 flex-col gap-2 lg:w-80">
+            <NuxtLink
+              v-if="!canAfford && !(artStore.isGenerating || submittingBatch)"
+              to="/wallet"
+              data-testid="art-top-up-link"
+              class="kr-text-black-base btn btn-primary min-h-12 w-full rounded-2xl"
+            >
+              <Icon name="kind-icon:sparkles" class="kr-icon-5" />
+              Out of mana, top up
+            </NuxtLink>
             <button
+              v-else
               type="button"
               class="kr-text-black-base btn btn-primary min-h-12 w-full rounded-2xl"
               :class="canGenerate ? 'shadow-lg shadow-primary/25' : ''"
@@ -38,7 +48,7 @@
               </span>
               <span v-else class="flex items-center gap-2">
                 <Icon name="kind-icon:sparkles" class="kr-icon-5" />
-                {{ canAfford ? generateButtonLabel : 'Out of mana, top up' }}
+                {{ generateButtonLabel }}
               </span>
             </button>
 

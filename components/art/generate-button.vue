@@ -40,7 +40,19 @@
         </select>
       </label>
 
+      <NuxtLink
+        v-if="!canAfford && !artStore.isGenerating"
+        to="/wallet"
+        data-testid="art-top-up-link"
+        class="btn btn-primary w-full rounded-2xl font-black sm:w-auto sm:min-w-48"
+        :class="props.compact ? 'btn-sm text-sm' : 'min-h-14 text-base'"
+      >
+        <icon name="kind-icon:sparkles" class="kr-icon-5" />
+        Out of mana, top up
+      </NuxtLink>
+
       <button
+        v-else
         class="btn w-full rounded-2xl font-black transition-all duration-200 sm:w-auto sm:min-w-48"
         :class="[
           artStore.isGenerating
@@ -61,7 +73,7 @@
 
         <span v-else class="flex items-center gap-2">
           <icon :name="icon" class="kr-icon-5" />
-          {{ canAfford ? label : 'Out of mana, top up' }}
+          {{ label }}
         </span>
       </button>
     </div>

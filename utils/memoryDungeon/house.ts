@@ -197,7 +197,7 @@ export const HOUSE_ROOMS: Record<string, HouseRoom> = {
         id: 'route',
         label: "Follow Oren's accurately labelled return path",
         outcome:
-          'You memorize a safe shortcut back to the porch. Oren corrects your spelling without removing his hood.',
+          'You mark a sheltered route between the broom closet and Quiet Bedchamber. Oren insists the return arrows point both ways.',
       },
       {
         id: 'stock',
@@ -1067,6 +1067,11 @@ export function houseExits(
     )
     .map((room) => room.id)
   const exits = [...new Set([...forward, ...backtrack])]
+  const orenRouteOpen =
+    progress.decisions['HD-06'] === 'route' &&
+    progress.visited.includes('HD-18')
+  if (orenRouteOpen && roomId === 'HD-06') exits.push('HD-18')
+  if (orenRouteOpen && roomId === 'HD-18') exits.push('HD-06')
   if (roomId === 'HD-10' && progress.decisions['HD-10'] === 'manifest')
     exits.push('HD-25')
   if (roomId === 'HD-25' && progress.decisions['HD-10'] === 'manifest')
@@ -1122,6 +1127,10 @@ export function restoreHouseProgress(input: unknown): HouseProgress | null {
   const savedDecisions =
     v.decisions && typeof v.decisions === 'object' ? v.decisions : {}
   const shortcuts: Record<string, readonly HouseRoomId[]> = {}
+  if (savedDecisions['HD-06'] === 'route' && visited.includes('HD-18')) {
+    shortcuts['HD-06'] = ['HD-18']
+    shortcuts['HD-18'] = ['HD-06']
+  }
   if (savedDecisions['HD-10'] === 'manifest') shortcuts['HD-10'] = ['HD-25']
   if (savedDecisions['HD-26'] === 'testify') shortcuts['HD-26'] = ['HD-34']
   // Defeat recovery intentionally moves a House combatant to the quiet

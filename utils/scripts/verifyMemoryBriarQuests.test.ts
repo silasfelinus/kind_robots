@@ -9,7 +9,9 @@ import {
 } from '../memoryDungeon/briarQuests'
 import {
   HOUSE_ROOMS,
+  houseExits,
   newHouseProgress,
+  restoreHouseProgress,
   type HouseRoomId,
 } from '../memoryDungeon/house'
 import {
@@ -78,6 +80,28 @@ for (const [roomId, choiceId] of Object.entries({
 for (const room of Object.values(HOUSE_ROOMS)) {
   if (room.kind !== 'lore') assert.equal(room.autoChoiceId, undefined)
 }
+
+// Oren's broom-closet route is an earned, bidirectional shortcut, not
+// a free teleport or a narrative-only promise. Saves can resume on the far end.
+const houseShortcut = newHouseProgress()
+assert.ok(!houseExits('HD-06', houseShortcut).includes('HD-18'))
+assert.ok(!houseExits('HD-18', houseShortcut).includes('HD-06'))
+houseShortcut.decisions['HD-06'] = 'stock'
+assert.ok(!houseExits('HD-06', houseShortcut).includes('HD-18'))
+houseShortcut.decisions['HD-06'] = 'route'
+assert.ok(!houseExits('HD-06', houseShortcut).includes('HD-18'))
+houseShortcut.visited.push('HD-18')
+assert.ok(houseExits('HD-06', houseShortcut).includes('HD-18'))
+assert.ok(houseExits('HD-18', houseShortcut).includes('HD-06'))
+const restoredShortcut = restoreHouseProgress({
+  ...houseShortcut,
+  current: 'HD-18',
+  visited: ['HD-01', 'HD-02', 'HD-03', 'HD-04', 'HD-05', 'HD-06', 'HD-18'],
+})
+assert.ok(restoredShortcut, 'earned shortcut remains save-restorable')
+assert.equal(restoredShortcut.current, 'HD-18')
+assert.equal(restoredShortcut.decisions['HD-06'], 'route')
+assert.ok(houseExits('HD-18', restoredShortcut).includes('HD-06'))
 
 // World One's eight side quests (kind_robots #4136: eight side quests per
 // realm). Each thread is taken by real Briar and House choices, can be closed

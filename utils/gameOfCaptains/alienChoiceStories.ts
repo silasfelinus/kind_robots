@@ -1,3 +1,10 @@
+import { ZODIAC_CAUSAL_ALIENS } from './alienZodiacCausal'
+import { HYBRID_CAUSAL_ALIENS } from './alienHybridCausal'
+import { COSMIC_CAUSAL_ALIENS } from './alienCosmicCausal'
+import { SOCIAL_CAUSAL_ALIENS } from './alienSocialCausal'
+import { ECOLOGY_CAUSAL_ALIENS } from './alienEcologyCausal'
+import { LEGENDARY_CAUSAL_ALIENS_A } from './alienLegendaryCausalA'
+import { LEGENDARY_CAUSAL_ALIENS_B } from './alienLegendaryCausalB'
 import type { AlienChoice, AlienMood } from './alienFieldGuide'
 
 // Each line narrates what the player actually did before the creature responds.
@@ -161,4 +168,11 @@ export const ALIEN_CHOICE_STORIES: Readonly<
         "You unfold the sofa's hidden pocket room beneath the nursery as a ridiculous emergency foundation. The children stay asleep while the Upholsterer stitches a replacement beam and teaches the couch a durable new seam.",
     },
   },
+  ...ZODIAC_CAUSAL_ALIENS,
+  ...HYBRID_CAUSAL_ALIENS,
+  ...COSMIC_CAUSAL_ALIENS,
+  ...SOCIAL_CAUSAL_ALIENS,
+  ...ECOLOGY_CAUSAL_ALIENS,
+  ...LEGENDARY_CAUSAL_ALIENS_A,
+  ...LEGENDARY_CAUSAL_ALIENS_B,
 }

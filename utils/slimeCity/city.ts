@@ -1284,6 +1284,19 @@ export function applyTerms(match: MatchState, terms: BoutTerms): MatchState {
     )
     next.units = next.units.filter((u) => !drop.has(u.id))
   }
+  // TURF has no hit points, armor or fighters to remove, and a trap is a
+  // stone: those terms become points at the count instead (a rival trap is a
+  // point for the rival). Mana and round terms apply as they are.
+  if (next.mode === 'turf') {
+    next.scenarioBonus.turfPoints =
+      (next.scenarioBonus.turfPoints ?? 0) +
+      (terms.playerHp ?? 0) +
+      (terms.fewerRivals ?? 0) -
+      (terms.enemyArmor ?? 0) -
+      (terms.rivalTrap ? 1 : 0)
+    next.log = ['District terms applied.', ...next.log]
+    return next
+  }
   if (terms.rivalTrap) {
     const x = Math.floor(next.width / 2)
     const y = Math.floor(next.height / 2)

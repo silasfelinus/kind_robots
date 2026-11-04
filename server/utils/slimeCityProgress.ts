@@ -335,6 +335,12 @@ export async function saveSlimeCityStory(
         ? { decks: proposed.decks ?? current.decks }
         : {}),
       ...(unlocks ? { unlocks } : {}),
+      ...((proposed.storyMode ?? current.storyMode)
+        ? { storyMode: proposed.storyMode ?? current.storyMode }
+        : {}),
+      ...((proposed.storyParity ?? current.storyParity) !== undefined
+        ? { storyParity: proposed.storyParity ?? current.storyParity }
+        : {}),
     }
     const raw =
       row.data && typeof row.data === 'object' && !Array.isArray(row.data)

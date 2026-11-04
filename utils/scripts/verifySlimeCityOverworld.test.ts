@@ -1213,6 +1213,23 @@ assert.equal(
   BLACKOUT_HAND_SIZE,
   'New Blackout deals five cards',
 )
+// Story bouts through TURF and PARITY (Silas, 2026-11-04): the same rival,
+// played as TURF with PARITY rules; district terms become points at the count.
+lab.setStoryFormat({ mode: 'turf', parity: true })
+assert.equal(lab.storyMode, 'turf')
+assert.equal(lab.storyParity, true)
+assert.match(lab.storyBoutLabel('blackout'), /PARITY$/)
+lab.fightRival()
+assert.equal(lab.view, 'arena')
+assert.equal(lab.mode, 'turf', 'The rival bout plays as TURF')
+assert.equal(lab.match.mode, 'turf')
+assert.equal(lab.match.rules.parity, true, 'with PARITY rules')
+assert.equal(lab.match.foeId, 'catgirls', 'against the same rival')
+assert.equal(typeof lab.match.scenarioBonus?.turfPoints, 'number')
+lab.setStoryFormat({ mode: 'written', parity: false })
+lab.fightRival()
+assert.equal(lab.mode, 'blackout', 'As written again')
+assert.equal(lab.match.rules.parity, false)
 assert.ok(
   lab.match.units
     .filter((u) => u.side === 'player')

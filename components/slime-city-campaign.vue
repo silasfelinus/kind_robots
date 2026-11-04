@@ -56,6 +56,44 @@
         </li>
       </ol>
       <div
+        class="campaign-format"
+        role="group"
+        aria-label="Story bout format"
+        data-testid="slime-story-format"
+      >
+        <button
+          type="button"
+          :aria-pressed="lab.storyMode === 'written'"
+          :disabled="lab.storySaving"
+          title="Each bout in the format its story was written for."
+          data-testid="slime-story-written"
+          @click="lab.setStoryFormat({ mode: 'written' })"
+        >
+          AS WRITTEN
+        </button>
+        <button
+          type="button"
+          :aria-pressed="lab.storyMode === 'turf'"
+          :disabled="lab.storySaving"
+          title="Every story bout as TURF; district terms become points at the count."
+          data-testid="slime-story-turf"
+          @click="lab.setStoryFormat({ mode: 'turf' })"
+        >
+          TURF
+        </button>
+        <button
+          type="button"
+          class="campaign-parity"
+          :aria-pressed="lab.storyParity"
+          :disabled="lab.storySaving"
+          title="PARITY: one card a turn, every card as good as every other."
+          data-testid="slime-story-parity"
+          @click="lab.setStoryFormat({ parity: !lab.storyParity })"
+        >
+          PARITY
+        </button>
+      </div>
+      <div
         class="campaign-stamp"
         :title="
           lab.campaignState.losses +
@@ -578,6 +616,34 @@ function playApproach(choice: KrHandChoice) {
   font-weight: 900;
   text-align: center;
 }
+.campaign-format {
+  display: flex;
+  flex: none;
+  gap: 0.25rem;
+}
+.campaign-format button {
+  padding: 0.35rem 0.5rem;
+  border: 1px solid #ffffff55;
+  border-radius: 0.4rem;
+  background: #0a142ecc;
+  color: #d8e2f2;
+  font-size: 0.56rem;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  white-space: nowrap;
+}
+.campaign-format button[aria-pressed='true'] {
+  border-color: #ffffff;
+  background: #f4f7ff;
+  color: #0a142e;
+}
+.campaign-format .campaign-parity[aria-pressed='true'] {
+  border-color: #c5ff59;
+  background: #c5ff59;
+}
+.campaign-format button:disabled {
+  opacity: 0.5;
+}
 .campaign-stamp {
   display: grid;
   justify-items: center;
@@ -834,6 +900,13 @@ function playApproach(choice: KrHandChoice) {
     order: 3;
     flex: 1 1 100%;
     justify-content: space-between;
+  }
+  .campaign-format {
+    order: 4;
+    flex: 1 1 100%;
+  }
+  .campaign-format button {
+    flex: 1;
   }
   .campaign-step {
     width: auto;

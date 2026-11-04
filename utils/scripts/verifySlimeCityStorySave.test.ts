@@ -21,6 +21,14 @@ assert.equal(validSlimeCityStory({ ...base, unlocks: 'trickle' }), true)
 assert.equal(validSlimeCityStory({ ...base, unlocks: 'all' }), true)
 assert.equal(validSlimeCityStory({ ...base, unlocks: 'everything' }), false)
 assert.equal(unlockModeOf({ unlocks: 'trickle' }), 'trickle')
+// Story bouts: as written or TURF, with or without PARITY.
+assert.equal(
+  validSlimeCityStory({ ...base, storyMode: 'turf', storyParity: true }),
+  true,
+)
+assert.equal(validSlimeCityStory({ ...base, storyMode: 'written' }), true)
+assert.equal(validSlimeCityStory({ ...base, storyMode: 'chess' }), false)
+assert.equal(validSlimeCityStory({ ...base, storyParity: 'yes' }), false)
 assert.equal(base.revision, 0)
 assert.deepEqual(storyFromAccount({}), base)
 const city = createCity()

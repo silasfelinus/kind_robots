@@ -1,106 +1,63 @@
 <!-- /components/coloring/coloring-book-version-strip.vue -->
-<!-- Every color or B&W image a page has had, with one-click revert and upload
-     (Silas, 2026-11-04 PT: "let me revert to previous versions for color or bw,
-     or uploading a new version"). -->
+<!-- Compact thumbnail row under a page image: every color or B&W version the
+     page has had, plus upload. Picking a thumb previews it in the card's main
+     image, where "Use this" lives (Silas, 2026-11-04 PT: revert/upload, and keep
+     each page to one phone screen). -->
 <template>
-  <div class="space-y-2">
-    <div class="flex items-center justify-between gap-2">
-      <p class="kr-text-black-xs">
-        {{ variant === 'bw' ? 'B&W' : 'Color' }} versions
-        <span class="kr-text-dim-xs-55 font-normal">
-          · {{ versions.length }}
-        </span>
-      </p>
-      <label
-        v-if="canUpload"
-        class="kr-btn-ghost-xs-plain cursor-pointer gap-1"
-        :class="{ 'pointer-events-none opacity-50': store.uploading }"
-      >
-        <span v-if="store.uploading" class="kr-spinner-xs" />
-        <Icon v-else name="kind-icon:upload" class="kr-icon-4" />
-        Upload {{ variant === 'bw' ? 'B&W' : 'color' }}
-        <input
-          type="file"
-          accept="image/png,image/jpeg,image/webp"
-          class="hidden"
-          @change="upload"
-        />
-      </label>
-    </div>
-
-    <div v-if="versions.length" class="flex gap-2 overflow-x-auto pb-1">
-      <button
-        v-for="version in versions"
-        :key="version.path"
-        type="button"
-        class="relative w-16 shrink-0 overflow-hidden rounded-lg border-2 bg-base-200 transition"
-        :class="
-          version.path === picked
-            ? 'border-primary'
-            : version.current
-              ? 'border-success'
-              : 'border-transparent hover:border-base-300'
-        "
-        :title="`${version.label}${version.detail ? ` · ${version.detail}` : ''}\n${version.path}`"
-        @click="picked = picked === version.path ? '' : version.path"
-      >
-        <img
-          :src="version.url"
-          :alt="`${version.label} ${variant} version`"
-          class="aspect-[17/22] w-full object-cover"
-          :class="variant === 'bw' ? 'grayscale' : ''"
-          loading="lazy"
-        />
-        <span
-          class="absolute inset-x-0 bottom-0 truncate bg-base-100/90 px-1 text-[9px] font-bold leading-4"
-        >
-          {{ version.current ? 'Current' : version.label }}
-        </span>
-      </button>
-    </div>
-    <p v-else class="kr-text-dim-xs-55">No earlier versions recorded.</p>
-
-    <div
-      v-if="pickedVersion"
-      class="flex flex-wrap items-center gap-2 rounded-xl bg-base-200/60 p-2 text-xs"
+  <div class="flex items-center gap-1 overflow-x-auto px-1 py-1">
+    <button
+      v-for="version in versions"
+      :key="version.path"
+      type="button"
+      class="relative h-11 w-9 shrink-0 overflow-hidden rounded-md border-2 bg-base-200"
+      :class="
+        version.path === picked
+          ? 'border-primary'
+          : version.current
+            ? 'border-success'
+            : 'border-transparent'
+      "
+      :title="`${version.current ? 'Current' : version.label}${version.detail ? ` · ${version.detail}` : ''}`"
+      :aria-label="`Preview ${version.label} ${variant === 'bw' ? 'B&W' : 'color'} version`"
+      @click="pick(version)"
     >
-      <span class="min-w-0 flex-1 truncate">
-        <span class="font-black">{{ pickedVersion.label }}</span>
-        <span v-if="pickedVersion.detail"> · {{ pickedVersion.detail }}</span>
-      </span>
-      <a
-        :href="pickedVersion.url"
-        target="_blank"
-        rel="noopener"
-        class="kr-btn-ghost-xs-plain"
-      >
-        Full size
-      </a>
-      <button
-        v-if="!pickedVersion.current"
-        type="button"
-        class="btn btn-success btn-sm rounded-xl"
-        :disabled="store.requestingAction || blocked"
-        :title="
-          blocked ? 'Accept a color version before choosing a B&W one.' : ''
-        "
-        @click="adopt(pickedVersion.path)"
-      >
-        Use this version
-      </button>
-      <span v-else class="badge badge-success badge-sm">In use</span>
-    </div>
+      <img
+        :src="version.url"
+        alt=""
+        class="size-full object-cover"
+        :class="variant === 'bw' ? 'grayscale' : ''"
+        loading="lazy"
+      />
+    </button>
+    <label
+      v-if="canUpload"
+      class="grid h-11 w-9 shrink-0 cursor-pointer place-items-center rounded-md border-2 border-dashed border-base-300 text-base-content/60"
+      :class="{ 'pointer-events-none opacity-50': store.uploading }"
+      :title="`Upload a ${variant === 'bw' ? 'B&W' : 'color'} version`"
+    >
+      <span v-if="store.uploading" class="kr-spinner-xs" />
+      <Icon v-else name="kind-icon:upload" class="kr-icon-4" />
+      <input
+        type="file"
+        accept="image/png,image/jpeg,image/webp"
+        class="hidden"
+        @change="upload"
+      />
+    </label>
   </div>
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed } from 'vue'
 import type {
   ColoringBookProductionState,
   ColoringBookProposal,
   ColoringBookVariant,
 } from '~/types/coloringBookStudio'
-import { coloringBookVersions } from '@/utils/coloringBookVersions'
+import {
+  coloringBookVersions,
+  type ColoringBookVersion,
+} from '@/utils/coloringBookVersions'
 import { useColoringBookStudioStore } from '@/stores/coloringBookStudioStore'
 
 const props = defineProps<{
@@ -109,15 +66,17 @@ const props = defineProps<{
   production: ColoringBookProductionState | null
   variant: ColoringBookVariant
   canUpload: boolean
+  /** Path of the version previewed in the main image, if any. */
+  picked: string | null
 }>()
 
 const emit = defineEmits<{
+  pick: [version: ColoringBookVersion | null]
   done: [message: string]
   failed: [message: string]
 }>()
 
 const store = useColoringBookStudioStore()
-const picked = ref('')
 
 const versions = computed(() =>
   coloringBookVersions(
@@ -127,35 +86,12 @@ const versions = computed(() =>
     props.variant,
   ),
 )
-const pickedVersion = computed(
-  () => versions.value.find((version) => version.path === picked.value) ?? null,
-)
-// Adoption traces B&W from the accepted color; Conductor refuses it otherwise.
-const blocked = computed(
-  () => props.variant === 'bw' && !props.proposal.accepted.color,
-)
 
-async function adopt(path: string): Promise<void> {
-  store.selectProposal(props.proposal.id)
-  const label = props.variant === 'bw' ? 'B&W' : 'color'
-  if (
-    await store.adoptVersion(
-      props.variant,
-      path,
-      `Reverted ${label} to ${path} from Coloring Book curation`,
-    )
-  ) {
-    picked.value = ''
-    emit(
-      'done',
-      `${props.proposal.id} will switch to that ${label} version on Conductor's next studio run.` +
-        (props.variant === 'color' && props.proposal.accepted.bw
-          ? ' Its B&W page goes back to "needs B&W" so it can match.'
-          : ''),
-    )
-  } else if (store.error) {
-    emit('failed', store.error)
-  }
+function pick(version: ColoringBookVersion): void {
+  emit(
+    'pick',
+    version.path === props.picked || version.current ? null : version,
+  )
 }
 
 function readFile(file: File): Promise<string> {
@@ -174,10 +110,6 @@ async function upload(event: Event): Promise<void> {
   if (!file) return
   if (file.size > 12 * 1024 * 1024) {
     emit('failed', 'Images must be 12 MB or smaller.')
-    return
-  }
-  if (props.variant === 'bw' && blocked.value) {
-    emit('failed', 'Accept a color version before uploading a B&W page.')
     return
   }
   store.selectProposal(props.proposal.id)

@@ -85,6 +85,7 @@ export function parseColoringBookConcepts(
     const id = conceptText(entry.id)
     if (!id) continue
     result[id] = {
+      workingTitle: conceptText(entry.working_title),
       sourceLineage: conceptText(entry.source_lineage),
       recast: conceptText(entry.recast),
       bodyDirection: conceptText(entry.body_direction),
@@ -502,7 +503,9 @@ function parseLedger(
     const proposal: ColoringBookProposal = {
       slot,
       id,
-      title: scalar(block, 'title', 2) ?? id,
+      // Ledger titles are null for many Monster Recast pages; the concept's
+      // working title is the real name ("Half Possessed", not "mr-027").
+      title: scalar(block, 'title', 2) ?? concepts[id]?.workingTitle ?? id,
       prompt: monsterPrompts[id] || promptData.text,
       promptRef: queueEntry?.sourceRef || promptData.ref,
       promptSourcePath: config.promptPath,

@@ -2,6 +2,7 @@ import assert from 'node:assert/strict'
 import { readFileSync } from 'node:fs'
 import { ALIEN_SPECIES } from '../gameOfCaptains/alienSpecies'
 import { ALIEN_SPECIES_STORIES } from '../gameOfCaptains/alienSpeciesStories'
+import { ALIEN_CHOICE_STORIES } from '../gameOfCaptains/alienChoiceStories'
 import {
   ALIEN_CHOICES,
   ALIEN_MILESTONES,
@@ -76,7 +77,11 @@ assert.ok(
     firstPersonal?.evidence[first.mood] ?? observed.evidence,
   ),
 )
-assert.ok(first.scene.includes(first.species.fieldNote))
+assert.equal(
+  first.scene,
+  `${firstPersonal!.incident} ${firstPersonal!.evidence[first.mood]}`,
+  'show the conflict and readable clue, not a redundant field-guide recitation',
+)
 const allScenes = new Set<string>()
 for (const category of [
   'zodiac',
@@ -117,6 +122,7 @@ assert.deepEqual(
   'all 101 creatures must have original species-specific encounters',
 )
 const authoredLines = new Set<string>()
+const sceneWords: number[] = []
 for (const species of ALIEN_SPECIES) {
   const story = ALIEN_SPECIES_STORIES[species.id]!
   assert.ok(story.incident.length >= 110, species.name + ' needs a real scene')
@@ -131,6 +137,8 @@ for (const species of ALIEN_SPECIES) {
   assert.equal(sighting.species.id, species.id)
   assert.ok(sighting.scene.includes(story.incident))
   assert.ok(sighting.scene.includes(story.evidence[sighting.mood]))
+  assert.equal(sighting.scene, `${story.incident} ${story.evidence[sighting.mood]}`)
+  sceneWords.push(sighting.scene.trim().split(/\s+/).length)
   for (const mood of moods) {
     const clue = story.evidence[mood]
     assert.ok(clue.length >= 80, species.name + ' needs a readable cue')
@@ -146,10 +154,10 @@ for (const species of ALIEN_SPECIES) {
       )
       authoredLines.add(text)
       const report = resolveAlienSighting(empty, { ...sighting, mood }, choice)
+      const actionStory = ALIEN_CHOICE_STORIES[species.id]?.[mood]?.[choice]
       assert.ok(
-        report.text.startsWith(text),
-        species.name +
-          ' must lead with its bespoke outcome, not a repeated reaction',
+        report.text.startsWith(actionStory ?? text),
+        species.name + ' must lead with its authored cause and consequence',
       )
       assert.equal(report.recorded, outcome !== 'retreat')
     }
@@ -160,6 +168,37 @@ assert.equal(
   101 * 7,
   '101 incidents, 303 mood cues and 303 aftermaths must be unique',
 )
+
+const averageSceneWords = Math.round(
+  sceneWords.reduce((total, count) => total + count, 0) / sceneWords.length,
+)
+assert.ok(
+  averageSceneWords <= 80,
+  'alien scene setup must stay within a readable budget: ' +
+    averageSceneWords +
+    ' average words',
+)
+assert.equal(
+  Object.keys(ALIEN_CHOICE_STORIES).length,
+  6,
+  'one complete nine-way encounter from each alien family',
+)
+const actionProse = new Set<string>()
+for (const [id, moodStories] of Object.entries(ALIEN_CHOICE_STORIES)) {
+  assert.ok(ALIEN_SPECIES.some((species) => species.id === id))
+  for (const mood of moods) {
+    const outcomeStories = moodStories[mood]
+    for (const choice of ALIEN_CHOICES) {
+      const prose = outcomeStories[choice.id]
+      assert.ok(prose.length >= 125, id + ' must explain each interaction')
+      assert.match(prose, /^You /, id + ' must credit the chosen action')
+      assert.ok(!actionProse.has(prose), id + ' repeated an authored reaction')
+      actionProse.add(prose)
+    }
+  }
+}
+assert.equal(actionProse.size, 54)
+console.log('Space Couch alien scene budget: ' + averageSceneWords + ' average words and 54 causal branches')
 
 const choiceFor = (
   mood: typeof first.mood,
@@ -220,7 +259,10 @@ assert.deepEqual(
   undefined,
 )
 const followup = nextAlienSighting({ ...run, chapter: 3 }, friend.guide)!
-assert.match(followup.scene, /previous new friend/)
+assert.ok(
+  !followup.scene.includes('A previous new friend'),
+  'prior reports appear in the scrapbook, not every new intro',
+)
 assert.notEqual(followup.species.id, first.species.id)
 
 assert.deepEqual(

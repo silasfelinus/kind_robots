@@ -1,4 +1,5 @@
 import { ALIEN_BY_ID, ALIEN_SPECIES, type AlienSpecies } from './alienSpecies'
+import { ALIEN_SPECIES_STORIES } from './alienSpeciesStories'
 import type { VoyageRun } from './rules'
 
 export type AlienChoice = 'approach' | 'observe' | 'improvise'
@@ -405,6 +406,7 @@ export function nextAlienSighting(
   if (!species) return null
   const mood = ALIEN_MOODS[hash(visitKey(run) + ':mood:' + species.id) % 3]!
   const setting = SCENE_CLUES[species.category][mood]
+  const personal = ALIEN_SPECIES_STORIES[species.id]
   const history = guide.lastContact
   const callback = history
     ? history.outcome === 'chaos'
@@ -414,7 +416,7 @@ export function nextAlienSighting(
         : 'The creature watches the couch cautiously; apparently a previous visitor warned it about awkward tourists.'
     : ''
   const scene =
-    `From the red couch, the crew spots ${species.name} near ${species.habitat}: ${species.appearance}. ${setting.incident} ${setting.evidence} The old field guide adds only: "${species.fieldNote}." ${callback}`.trim()
+    `From the red couch, the crew spots ${species.name} near ${species.habitat}: ${species.appearance}. ${setting.incident} ${personal ? personal.incident + ' ' : ''}${setting.evidence} The old field guide adds only: "${species.fieldNote}." ${callback}`.trim()
   return {
     species,
     seed: run.seed,
@@ -517,6 +519,7 @@ export function resolveAlienSighting(
   }
   const species = sighting.species
   const reaction =
+    ALIEN_SPECIES_STORIES[species.id]?.outcomes[outcome] ??
     ALIEN_REACTIONS[species.category][
       outcome === 'bond' ? 'befriend' : outcome === 'retreat' ? 'flee' : 'chaos'
     ]

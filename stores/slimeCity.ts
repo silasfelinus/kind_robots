@@ -209,7 +209,14 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
     }
   }
   async function purchasePack(): Promise<void> {
-    if (!correctAccount() || !packAffordable.value || progressBusy.value) return
+    // The pack shop only opens in TRICKLE; ALL CARDS has nothing to unlock.
+    if (
+      !correctAccount() ||
+      unlockMode.value !== 'trickle' ||
+      !packAffordable.value ||
+      progressBusy.value
+    )
+      return
     progressBusy.value = true
     progressError.value = ''
     try {

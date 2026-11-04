@@ -2001,6 +2001,49 @@ for (let seed = 1; seed <= 200; seed += 1) {
 }
 assert.ok(sableLoss <= plainLoss, 'Immaculate Apology softens failures')
 
+// A signed market charter has consequences for the Freehold blanket sellers.
+{
+  const id = 'd08-blanket-evictions'
+  const hasScene = (run: FortressRun) =>
+    audiencesToday(run).some((audience) => audience.id === id)
+  assert.ok(!hasScene(onDay(806, 8)), 'no charter means no eviction hearing')
+  assert.ok(
+    !hasScene(
+      onDay(806, 8, {
+        flags: ['market-charter', 'd06-blanket-stalls'],
+      }),
+    ),
+    'the Day 6 blanket exemption prevents eviction',
+  )
+  const charter = onDay(806, 8, {
+    flags: ['market-charter'],
+    brass: 40,
+  })
+  assert.ok(hasScene(charter), 'the unamended charter calls the seller to court')
+  const hearing = audiencesToday(charter).find((a) => a.id === id)!
+  const heard = chooseAudienceOption(charter, id, 'ask-rent').run
+  assert.equal(heard.audienceBeats?.[id], 'rent')
+  assert.equal(audienceScene(heard, hearing).beatId, 'rent')
+  const week = chooseAudienceOption(heard, id, 'lease-week').run
+  assert.equal(week.brass, 28)
+  assert.ok(week.flags.includes('d08-blankets-leased'))
+  const restored = chooseAudienceOption(charter, id, 'buy-back').run
+  assert.equal(restored.brass, 22)
+  assert.ok(restored.flags.includes('d08-blankets-restored'))
+  assert.ok(validateRun(JSON.parse(JSON.stringify(restored))))
+  const enforced = chooseAudienceOption(charter, id, 'enforce-charter').run
+  assert.equal(enforced.brass, 40)
+  assert.ok(enforced.flags.includes('d08-blankets-evicted'))
+  assert.equal(enforced.local.ledger, charter.local.ledger + 2)
+  assert.ok(
+    optionBlockers(
+      onDay(806, 8, { flags: ['market-charter'], brass: 11 }),
+      hearing.options.find((o) => o.id === 'buy-back')!,
+    ).length > 0,
+    'the full restitution has a real affordability gate',
+  )
+}
+
 // --- recruitment routes in Act I ----------------------------------------------
 const recruits = (
   day: number,

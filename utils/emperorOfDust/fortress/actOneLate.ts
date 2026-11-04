@@ -1083,19 +1083,21 @@ export const ACT_ONE_LATE_DAYS: readonly DayDef[] = [
           },
           {
             id: 'charter',
-            label: 'Grant the Ledger a market charter.',
+            label: 'Sign the Ledger’s equal stall fees, even for the blanket sellers.',
             effects: {
               brass: 10,
               local: { ledger: 4, yard: -1 },
               flags: ['market-charter'],
             },
-            response: 'The factor produces a charter. It is already drafted.',
+            response:
+              'Tallow stamps the charter. The egg-seller reads the fee column, then counts three buttons and a piece of twine from her apron pocket. The ink is dry before she finishes.',
           },
           {
             id: 'yard-first',
-            label: 'Give the Yard first pick of every stall.',
+            label: 'Give the Yard first pick, pushing the blanket sellers to the margins.',
             effects: { local: { yard: 3, ledger: -2 } },
-            response: 'The factor writes that down too. Different ink.',
+            response:
+              'Tallow changes the order of the pitches. The Yard’s cousins take the stalls under the awning. Four women fold their blankets and carry them toward the midden.',
           },
           {
             id: 'archive-rules',

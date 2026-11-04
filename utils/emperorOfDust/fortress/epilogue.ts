@@ -2201,6 +2201,10 @@ const ENDGAME: EpilogueSubject[] = afterTheWar([
         text: 'Vellum’s last copy of Hesper Lowe’s testimony goes east with the scattered court. The pages tear along the staples. Tobin’s name remains legible.',
       },
       {
+        when: { flags: ['d49-two-witness-record'] },
+        text: 'The first copy goes to Hollow Bell with Tobin Lowe’s name restored to the register. The second travels the high paths with the freed runner’s signed account. Hesper asks that the two pages stay separate. Neither witness wants to become another emperor’s story.',
+      },
+      {
         when: { flags: ['d49-tobin-record'] },
         text: 'Hesper’s testimony is read in Hollow Bell each year, beside Mara’s signature. A boy named Tobin is written back into the register. Hesper asks that the Archive leave room for the children who have not come home.',
       },
@@ -2222,6 +2226,10 @@ const ENDGAME: EpilogueSubject[] = afterTheWar([
         when: { endings: ['long-night'], flags: ['d49-runner-record'] },
         mood: 'sad',
         text: 'The runner carries her signed account through the hills after the tower falls. The Conclave seal gets wet. Her name does not.',
+      },
+      {
+        when: { flags: ['d49-two-witness-record'] },
+        text: 'The runner teaches the children of the high paths to read every bond before they sign it. Beside her own account she keeps a copy of Hesper Lowe’s testimony, sent with the mother’s permission. She does not ask her students to forgive the Conclave or the crown.',
       },
       {
         when: { flags: ['d49-runner-record', 'd39-runner-freed'] },

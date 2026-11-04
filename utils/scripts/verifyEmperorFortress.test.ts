@@ -7405,12 +7405,11 @@ for (const def of DAYS)
 {
   // The Day 1 random Pip appointment must not repeat the job interview
   // when the same person presents Tobin Lowe's missing page on Day 4.
-  const first = Array.from({ length: 180 }, (_, index) =>
-    onDay(index + 1, 1),
-  ).find((run) =>
-    audiencesToday(run).some((scene) => scene.id === 'd01-pip-arrives'),
+  const first = createUnrecruitedRun(17)
+  assert.ok(
+    audiencesToday(first).some((scene) => scene.id === 'd01-pip-arrives'),
+    'seed 17: the actual empty-roster onboarding offers Pip',
   )
-  assert.ok(first, 'one actual First Bell seed must offer Pip')
   const employed = chooseAudienceOption(first, 'd01-pip-arrives', 'appoint').run
   assert.ok(employed.flags.includes('d01-pip-on-staff'))
   const dayFour = onDay(17, 4, {

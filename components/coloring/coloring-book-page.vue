@@ -8,44 +8,7 @@
     wide
   >
     <template #interactive>
-      <div class="flex flex-col gap-5">
-        <CurationColoringBookCuration />
-
-        <details
-          class="group rounded-3xl border border-base-300 bg-base-100 shadow-sm"
-        >
-          <summary
-            class="flex cursor-pointer list-none flex-wrap items-center justify-between gap-3 p-4 marker:hidden"
-          >
-            <div>
-              <h3 class="kr-text-black-lg flex items-center gap-2">
-                <Icon name="kind-icon:activity" class="kr-icon-primary-5" />
-                Production controls & diagnostics
-              </h3>
-              <p class="mt-1 text-sm text-base-content/55">
-                Readiness, packaging, covers, queue actions, history, and the
-                full ledger inspector.
-              </p>
-            </div>
-            <span
-              class="badge badge-outline rounded-2xl group-open:badge-primary"
-            >
-              Secondary tools
-            </span>
-          </summary>
-
-          <div class="flex flex-col gap-5 border-t border-base-300 p-4">
-            <coloring-book-readiness />
-            <coloring-book-package-readiness />
-            <coloring-book-cover-studio />
-            <div id="coloring-production-actions">
-              <coloring-book-production-toolbar />
-            </div>
-            <coloring-book-production-history />
-            <coloring-book-studio />
-          </div>
-        </details>
-      </div>
+      <CurationColoringBookCuration />
     </template>
   </project-front-page>
 </template>

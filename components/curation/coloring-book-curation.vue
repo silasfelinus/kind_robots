@@ -182,20 +182,76 @@
             <h2 class="kr-text-black-xl mt-1 leading-tight">
               {{ proposal.title }}
             </h2>
-            <p
-              v-if="proposal.concept?.sourceLineage"
-              class="mt-2 text-sm leading-5"
+            <div
+              v-if="userStore.isAdmin && conceptEdits[proposal.id]"
+              class="mt-2 space-y-2 rounded-xl border border-secondary/30 bg-secondary/5 p-3"
             >
-              <span class="font-black text-secondary">Riffing on:</span>
-              {{ proposal.concept.sourceLineage }}
-            </p>
-            <p
-              v-if="proposal.concept?.recast"
-              class="mt-1 text-sm leading-5 text-base-content/80"
-            >
-              <span class="font-black">Recast:</span>
-              {{ proposal.concept.recast }}
-            </p>
+              <label class="kr-form-field flex flex-col">
+                <span class="kr-text-black-xs text-secondary">Riffing on</span>
+                <input
+                  v-model="conceptEdits[proposal.id]!.sourceLineage"
+                  class="kr-input-sm"
+                  maxlength="600"
+                  placeholder="the iconic scene, e.g. the subway-grate breeze from The Seven Year Itch"
+                />
+              </label>
+              <label class="kr-form-field flex flex-col">
+                <span class="kr-text-black-xs">Recast</span>
+                <textarea
+                  v-model="conceptEdits[proposal.id]!.recast"
+                  class="textarea textarea-bordered min-h-16 w-full resize-y rounded-xl text-sm leading-5"
+                  maxlength="600"
+                  placeholder="who takes the role, e.g. a jolly, hairy Scotsman in a kilt"
+                />
+              </label>
+              <div class="flex flex-wrap gap-2">
+                <button
+                  class="kr-btn-primary"
+                  type="button"
+                  :disabled="store.savingConcept || !conceptDirty(proposal)"
+                  @click="saveConcept(proposal.id)"
+                >
+                  <span v-if="store.savingConcept" class="kr-spinner-xs" />
+                  Save riff &amp; recast
+                </button>
+                <button
+                  class="kr-btn-ghost-xs-plain"
+                  type="button"
+                  @click="conceptEdits[proposal.id] = null"
+                >
+                  Cancel
+                </button>
+              </div>
+            </div>
+            <template v-else>
+              <p
+                v-if="proposal.concept?.sourceLineage"
+                class="mt-2 text-sm leading-5"
+              >
+                <span class="font-black text-secondary">Riffing on:</span>
+                {{ proposal.concept.sourceLineage }}
+              </p>
+              <p
+                v-if="proposal.concept?.recast"
+                class="mt-1 text-sm leading-5 text-base-content/80"
+              >
+                <span class="font-black">Recast:</span>
+                {{ proposal.concept.recast }}
+              </p>
+              <button
+                v-if="userStore.isAdmin"
+                type="button"
+                class="kr-btn-ghost-xs-plain mt-1 gap-1"
+                @click="editConcept(proposal)"
+              >
+                <Icon name="kind-icon:pencil" class="kr-icon-4" />
+                {{
+                  proposal.concept?.sourceLineage || proposal.concept?.recast
+                    ? 'Edit riff & recast'
+                    : 'Add what this page riffs on and who is recast'
+                }}
+              </button>
+            </template>
             <div class="mt-2 flex flex-wrap gap-1.5">
               <span
                 v-for="fact in pageFacts(proposal)"
@@ -247,11 +303,30 @@
           </details>
 
           <div
-            v-if="proposal.inspirations.length"
+            v-if="userStore.isAdmin"
+            class="space-y-3 rounded-xl border border-base-300 bg-base-200/30 p-3"
+          >
+            <coloring-book-version-strip
+              v-for="variant in variants"
+              :key="`${proposal.id}:${variant}`"
+              :book-slug="store.selectedBookSlug"
+              :proposal="proposal"
+              :production="productionState(proposal.id)"
+              :variant="variant"
+              :can-upload="
+                variant === 'color' || Boolean(proposal.accepted.color)
+              "
+              @done="onVersionDone"
+              @failed="error = $event"
+            />
+          </div>
+
+          <div
+            v-if="referenceAssets(proposal).length"
             class="flex gap-2 overflow-x-auto pb-1"
           >
             <figure
-              v-for="asset in proposal.inspirations"
+              v-for="asset in referenceAssets(proposal)"
               :key="`${proposal.id}:${asset.path}`"
               class="w-16 shrink-0"
             >
@@ -279,7 +354,8 @@
               <span class="kr-text-black-xs">Request a change</span>
               <span class="kr-text-dim-xs-55">
                 Say what should be different in plain words. It is added to the
-                prompt and a new color render is queued.
+                prompt and a new color render is queued with the settings below
+                (they also apply to New color).
               </span>
               <textarea
                 v-model="changeRequests[proposal.id]"
@@ -288,6 +364,12 @@
                 placeholder="e.g. make the figure smaller, with forward limbs enlarged by perspective"
               />
             </label>
+            <coloring-book-render-settings
+              v-if="renderSettings[proposal.id]"
+              v-model="renderSettings[proposal.id]!"
+              :options="store.renderOptions"
+              :current="proposal.queue.renderSettings"
+            />
             <div class="flex flex-wrap gap-2">
               <button
                 class="kr-btn-primary"
@@ -409,10 +491,13 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, reactive, ref } from 'vue'
+import { computed, onMounted, reactive, ref, watch } from 'vue'
 import type {
+  ColoringBookAsset,
   ColoringBookProductionState,
   ColoringBookProposal,
+  ColoringBookRenderSettingsRequest,
+  ColoringBookVariant,
 } from '~/types/coloringBookStudio'
 import { useColoringBookStudioStore } from '@/stores/coloringBookStudioStore'
 import { useUserStore } from '@/stores/userStore'
@@ -425,6 +510,13 @@ const notice = ref('')
 const error = ref('')
 const drafts = reactive<Record<string, string>>({})
 const changeRequests = reactive<Record<string, string>>({})
+const conceptEdits = reactive<
+  Record<string, { sourceLineage: string; recast: string } | null>
+>({})
+const renderSettings = reactive<
+  Record<string, ColoringBookRenderSettingsRequest>
+>({})
+const variants: ColoringBookVariant[] = ['color', 'bw']
 
 const visibleProposals = computed<ColoringBookProposal[]>(() => {
   const query = search.value.trim().toLowerCase()
@@ -442,7 +534,10 @@ const visibleProposals = computed<ColoringBookProposal[]>(() => {
 onMounted(async () => {
   await userStore.initialize()
   await refresh()
+  if (userStore.isAdmin) await store.fetchRenderOptions()
 })
+
+watch(() => store.renderOptions, syncSettings)
 
 async function refresh(): Promise<void> {
   error.value = ''
@@ -457,6 +552,92 @@ function syncDrafts(): void {
       drafts[proposal.id] = proposal.prompt
     }
   }
+  syncSettings()
+}
+
+function initialSettings(
+  proposal: ColoringBookProposal,
+): ColoringBookRenderSettingsRequest {
+  const current = proposal.queue.renderSettings
+  const options = store.renderOptions
+  const engine =
+    options?.engines.find((option) => option.value === current.engine)?.value ??
+    'krea2'
+  return {
+    engine,
+    checkpointId:
+      options?.checkpoints.find((option) => option.path === current.checkpoint)
+        ?.id ?? null,
+    loraId:
+      options?.loras.find((option) => option.path === current.lora)?.id ?? null,
+    loraStrength: current.loraStrength ?? 1,
+  }
+}
+
+function syncSettings(): void {
+  for (const book of store.books) {
+    for (const proposal of book.proposals) {
+      renderSettings[proposal.id] = initialSettings(proposal)
+    }
+  }
+}
+
+/** Settings to send with a color render, or undefined when unchanged. */
+function settingsForRender(
+  proposal: ColoringBookProposal,
+): ColoringBookRenderSettingsRequest | undefined | null {
+  const chosen = renderSettings[proposal.id]
+  if (!chosen || !store.renderOptions) return undefined
+  if (JSON.stringify(chosen) === JSON.stringify(initialSettings(proposal))) {
+    return undefined
+  }
+  if (chosen.engine === 'sdxl-checkpoint' && !chosen.checkpointId) {
+    error.value = 'Pick a checkpoint for the SDXL / Illustrious engine first.'
+    return null
+  }
+  return { ...chosen }
+}
+
+function referenceAssets(proposal: ColoringBookProposal): ColoringBookAsset[] {
+  return proposal.inspirations.filter(
+    (asset) => !/color|\bbw\b|b&w/i.test(asset.kind),
+  )
+}
+
+function editConcept(proposal: ColoringBookProposal): void {
+  conceptEdits[proposal.id] = {
+    sourceLineage: proposal.concept?.sourceLineage ?? '',
+    recast: proposal.concept?.recast ?? '',
+  }
+}
+
+function conceptDirty(proposal: ColoringBookProposal): boolean {
+  const edit = conceptEdits[proposal.id]
+  if (!edit) return false
+  return (
+    edit.sourceLineage.trim() !== (proposal.concept?.sourceLineage ?? '') ||
+    edit.recast.trim() !== (proposal.concept?.recast ?? '')
+  )
+}
+
+async function saveConcept(proposalId: string): Promise<void> {
+  const edit = conceptEdits[proposalId]
+  if (!edit) return
+  select(proposalId)
+  if (await store.saveConcept(edit.sourceLineage, edit.recast)) {
+    conceptEdits[proposalId] = null
+    notice.value =
+      store.message ||
+      'Saved. Add the recast to the prompt too if the art should change.'
+    syncDrafts()
+  } else if (store.error) {
+    error.value = store.error
+  }
+}
+
+function onVersionDone(message: string): void {
+  notice.value = message
+  syncDrafts()
 }
 
 function eventValue(event: Event): string {
@@ -543,6 +724,9 @@ async function applyChange(
   }
   select(proposalId)
   error.value = ''
+  const proposal = store.selectedProposal
+  const settings = proposal ? settingsForRender(proposal) : undefined
+  if (settings === null) return
   if (!(await store.savePrompt(nextPrompt))) {
     if (store.error) error.value = store.error
     return
@@ -552,6 +736,7 @@ async function applyChange(
   const queued = await store.requestColorRender(
     true,
     `Change requested from Coloring Book curation: ${change}`,
+    settings,
   )
   if (queued) {
     notice.value =
@@ -626,11 +811,16 @@ async function render(
   variant: 'color' | 'bw',
 ): Promise<void> {
   select(proposalId)
+  const proposal = store.selectedProposal
+  const settings =
+    variant === 'color' && proposal ? settingsForRender(proposal) : undefined
+  if (settings === null) return
   const ok =
     variant === 'color'
       ? await store.requestColorRender(
           true,
           'Requested from Coloring Book curation',
+          settings,
         )
       : await store.requestBw(true, 'Requested from Coloring Book curation')
   if (ok) {

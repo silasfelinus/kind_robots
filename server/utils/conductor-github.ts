@@ -55,7 +55,7 @@ export async function conductorGet(
 
 export async function conductorPut(
   path: string,
-  content: string,
+  content: string | Buffer,
   message: string,
   existingSha?: string,
 ): Promise<void> {

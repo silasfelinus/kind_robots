@@ -36,6 +36,13 @@ function proposal(
       completedAt: null,
       renderEngine: null,
       revisionCount: 0,
+      renderSettings: {
+        engine: null,
+        checkpoint: null,
+        lora: null,
+        loraStrength: null,
+      },
+      acceptedHistory: [],
     },
     colorPath: null,
     colorUrl: null,
@@ -149,10 +156,7 @@ const blocked = proposal('kr-007', {
     semanticGateError: 'Reviewer unavailable',
   },
 })
-assert.equal(
-  proposalReadiness('kind-robots', blocked, null).key,
-  'blocked',
-)
+assert.equal(proposalReadiness('kind-robots', blocked, null).key, 'blocked')
 
 const book: ColoringBookStudioBook = {
   order: 3,

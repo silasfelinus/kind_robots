@@ -3,10 +3,17 @@ name: Coloring Book Production Contract
 on:
   pull_request:
     paths:
-      - 'components/coloring/coloring-book-readiness.vue'
-      - 'components/coloring/coloring-book-package-readiness.vue'
-      - 'components/coloring/coloring-book-cover-studio.vue'
       - 'components/coloring/coloring-book-page.vue'
+      - 'components/coloring/coloring-book-version-strip.vue'
+      - 'components/coloring/coloring-book-render-settings.vue'
+      - 'components/curation/coloring-book-curation.vue'
+      - 'server/api/conductor/coloring-books/**'
+      - 'server/utils/coloringBookStudio.ts'
+      - 'server/utils/coloringBookEvents.ts'
+      - 'server/utils/coloringBookRenderOptions.ts'
+      - 'utils/coloringBookVersions.ts'
+      - 'utils/scripts/verifyColoringBookCuration.ts'
+      - 'types/coloringBookStudio.ts'
       - 'server/api/conductor/coloring-books/package.get.ts'
       - 'server/utils/coloringBookPackage.ts'
       - 'stores/coloringBookStudioStore.ts'
@@ -45,3 +52,6 @@ jobs:
 
       - name: Verify print-package readiness
         run: npx tsx utils/scripts/verifyColoringBookPackage.ts
+
+      - name: Verify curation riff/recast edits and version revert
+        run: npx tsx utils/scripts/verifyColoringBookCuration.ts

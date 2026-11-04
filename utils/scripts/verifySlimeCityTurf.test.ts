@@ -19,6 +19,7 @@ import {
   type Fighter,
   type MatchState,
   type Side,
+  type TeamId,
 } from '../slimeCity/prototypes'
 import { playHeadless } from '../slimeCity/playtest'
 
@@ -44,8 +45,20 @@ function stone(side: Side, x: number, y: number, extra: Partial<Fighter> = {}) {
 }
 
 /** An ironjaw-vs-catgirls TURF board with a chosen hand and stones. */
-function board(units: Fighter[], hand: string[], enemyHand: string[] = []) {
-  const state = createMatch('turf', 'ironjaw', 'catgirls', 4242)
+function board(
+  units: Fighter[],
+  hand: string[],
+  enemyHand: string[] = [],
+  team: TeamId = 'ironjaw',
+  rules?: { parity: boolean },
+) {
+  const state = createMatch(
+    'turf',
+    team,
+    team === 'catgirls' ? 'ironjaw' : 'catgirls',
+    4242,
+    rules,
+  )
   state.units = units
   state.hands = { player: [...hand], enemy: [...enemyHand] }
   state.piles = { player: [], enemy: [] }
@@ -360,6 +373,106 @@ const washer = board([stone('player', 3, 3)], [wardCard.id])
 washer.puddles = [{ x: 2, y: 3, until: 99 }]
 const washed = deploy(washer, wardCard.id, 3, 4)
 assert.equal(washed.puddles.length, 0, 'A ward washes its slime away')
+
+// Crew traits (Silas, 2026-11-04: "keep improving parity").
+// BULLDOZE crushes a lone stone with nowhere to go; otherwise it shoves.
+const dozer = CARDS.find(
+  (c) => c.team === 'ironjaw' && (c.keywords ?? []).includes('bulldoze'),
+)!
+const crushed = deploy(
+  board([stone('enemy', 0, 4)], [dozer.id]),
+  dozer.id,
+  1,
+  4,
+)
+assert.equal(at(crushed, 0, 4), undefined, 'BULLDOZE crushes into the edge')
+assert.equal(crushed.prisoners.player, 1)
+const shoved = deploy(board([stone('enemy', 3, 4)], [dozer.id]), dozer.id, 2, 4)
+assert.equal(at(shoved, 4, 4)?.side, 'enemy', 'and shoves into open turf')
+const braced = deploy(
+  board([stone('enemy', 0, 4), stone('enemy', 0, 5)], [dozer.id]),
+  dozer.id,
+  1,
+  4,
+)
+assert.ok(at(braced, 0, 4), 'A connected group cannot be crushed')
+const guardedLone = deploy(
+  board([stone('enemy', 0, 4, { wardedUntil: 99 })], [dozer.id]),
+  dozer.id,
+  2,
+  2,
+)
+assert.ok(at(guardedLone, 0, 4), 'Nor a warded stone')
+assert.ok(turfText(dozer).includes('crushed'))
+// AMBUSH pounces on a lone edge stone it leaves in atari.
+const stalker = CARDS.find(
+  (c) =>
+    c.team === 'catgirls' &&
+    c.kind === 'creature' &&
+    (c.keywords ?? []).includes('ambush'),
+)!
+const prey = deploy(
+  board(
+    [stone('enemy', 0, 4), stone('player', 0, 3)],
+    [stalker.id],
+    [],
+    'catgirls',
+  ),
+  stalker.id,
+  1,
+  4,
+)
+assert.equal(at(prey, 0, 4), undefined, 'AMBUSH pounces on the edge')
+assert.equal(prey.prisoners.player, 1)
+const open = deploy(
+  board(
+    [stone('enemy', 4, 4), stone('player', 3, 4), stone('player', 4, 3)],
+    [stalker.id],
+    [],
+    'catgirls',
+  ),
+  stalker.id,
+  5,
+  4,
+)
+assert.ok(at(open, 4, 4), 'but not in the open')
+assert.ok(turfText(stalker).includes('pounces'))
+// PARITY has no mana: debt spells slime a liberty and COLLECT earns interest.
+const squeeze = CARDS.find((c) => c.team === 'exchange' && c.effect === 'debt')!
+const collector = CARDS.find(
+  (c) => c.team === 'exchange' && (c.keywords ?? []).includes('collect'),
+)!
+const squeezed = deploy(
+  board([stone('enemy', 4, 4)], [squeeze.id], [], 'exchange', { parity: true }),
+  squeeze.id,
+  4,
+  3,
+)
+assert.equal(squeezed.puddles.length, 1, 'PARITY debt slimes a liberty')
+const unsqueezed = deploy(
+  board([stone('enemy', 4, 4)], [squeeze.id], [], 'exchange'),
+  squeeze.id,
+  4,
+  3,
+)
+assert.equal(unsqueezed.puddles.length, 0, 'Normal TURF debt stays mana debt')
+assert.ok(turfText(squeeze, true).includes('slimes'))
+assert.ok(turfText(squeeze).includes('debt'))
+const banked = board(
+  [stone('player', 4, 4, { keywords: ['collect'] }), stone('enemy', 8, 8)],
+  [],
+  [],
+  'exchange',
+  { parity: true },
+)
+assert.equal(turfTerritory(banked).score.player, TURF_SWARM_WORTH)
+assert.equal(
+  turfTerritory({ ...banked, rules: { ...banked.rules, parity: false } }).score
+    .player,
+  1,
+  'Interest is a PARITY rule',
+)
+assert.ok(turfText(collector, true).includes('interest'))
 
 // --- Area scoring with komi; two passes end the game.
 const scored = board(

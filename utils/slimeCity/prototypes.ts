@@ -1440,6 +1440,9 @@ export const RUSH_MOVE_EVERY = 2
 export const TRAP_CAP = 1
 /** TURF: what a SWARM stone counts for in the final score. */
 export const TURF_SWARM_WORTH = 1.5
+/** TURF under PARITY: COLLECT has no mana to take, so it earns interest. */
+export const TURF_PARITY_COLLECT =
+  'earns interest: counts one and a half in the final count (PARITY has no mana to collect).'
 /** TURF: hidden tripwires each side may keep armed at once. */
 export const TURF_TRAP_CAP = 3
 /** Formats whose CPU alternates initiative (player, CPU, CPU, player...). */
@@ -3935,13 +3938,35 @@ function turfCapture(state: MatchState, victim: Side, piercing: boolean) {
 }
 
 const OFFENSIVE: Effect[] = ['zap', 'blast', 'chaos', 'root']
+
+/** TURF: does this card slime as it lands? Under PARITY there is no mana to
+ * squeeze, so debt spells slime a liberty instead. */
+export function turfSlimes(card: Card, parity: boolean): boolean {
+  return (
+    !!card.effect &&
+    card.kind !== 'creature' &&
+    (OFFENSIVE.includes(card.effect) || (parity && card.effect === 'debt'))
+  )
+}
+
+function onEdge(state: MatchState, p: Point): boolean {
+  return (
+    p.x === 0 ||
+    p.y === 0 ||
+    p.x === state.width - 1 ||
+    p.y === state.height - 1
+  )
+}
 const WARDING: Effect[] = ['heal', 'armor', 'sharpen', 'grant']
 
 /** What a card does as a TURF token. Shown on the card in TURF. */
-export function turfText(card: Card): string {
+export function turfText(card: Card, parity = false): string {
   if (card.kind === 'creature') {
     const traits = (card.keywords ?? []).map(
-      (k) => KEYWORDS[k].label + ': ' + TURF_KEYWORDS[k],
+      (k) =>
+        KEYWORDS[k].label +
+        ': ' +
+        (parity && k === 'collect' ? TURF_PARITY_COLLECT : TURF_KEYWORDS[k]),
     )
     return [
       'A stone: it holds its point and counts as your turf.',
@@ -3956,7 +3981,7 @@ export function turfText(card: Card): string {
       '.'
     )
   const turns = turfDuration(card, 0)
-  if (card.effect && OFFENSIVE.includes(card.effect))
+  if (card.effect && turfSlimes(card, parity))
     return (
       'A stone that slimes a liberty of the weakest enemy group beside it for ' +
       (card.effect === 'chaos'
@@ -3986,12 +4011,13 @@ export function turfText(card: Card): string {
 
 /** Keyword traits a creature stone carries in TURF. */
 export const TURF_KEYWORDS: Record<Keyword, string> = {
-  ambush: 'may retake a ko at once.',
+  ambush:
+    'pounces: as it lands, it captures a lone enemy stone beside it on the board’s edge that is left in atari; it may also retake a ko at once.',
   regen: 'survives its first capture.',
   swarm: 'counts one and a half in the final count.',
   leech: 'each stone its landing captures refunds 1 mana.',
   bulldoze:
-    'shoves one enemy stone beside it a point straight back, if that point is open.',
+    'shoves one enemy stone beside it a point straight back; a lone stone with nowhere to go (edge, stone or slime behind it) is crushed and captured.',
   volatile: 'if captured, it explodes and takes the stone that captured it.',
   pierce: 'its landing captures warded groups too.',
   snare: 'strips the wards off enemy groups beside it.',
@@ -4017,8 +4043,13 @@ export function turfTerritory(state: MatchState): {
 } {
   const owner: Record<string, Side | null> = {}
   const score: Record<Side, number> = { player: 0, enemy: 0 }
+  // PARITY has no mana to collect, so COLLECT stones earn interest instead.
+  const interest = parityOn(state)
   for (const u of state.units)
-    score[u.side] += hasKeyword(u, 'swarm') ? TURF_SWARM_WORTH : 1
+    score[u.side] +=
+      hasKeyword(u, 'swarm') || (interest && hasKeyword(u, 'collect'))
+        ? TURF_SWARM_WORTH
+        : 1
   const seen = new Set<string>()
   for (let y = 0; y < state.height; y++)
     for (let x = 0; x < state.width; x++) {
@@ -4183,6 +4214,35 @@ function applyTurf(
 
 /** A token's own effect as it lands, before captures resolve. */
 function turfLanding(state: MatchState, stone: Fighter, card: Card): string {
+  return turfPounce(state, stone) + turfEffect(state, stone, card)
+}
+
+/**
+ * AMBUSH (Silas, 2026-11-04: "keep improving parity"): the stone pounces on a
+ * lone enemy stone beside it on the board's edge that it leaves in atari.
+ */
+function turfPounce(state: MatchState, stone: Fighter): string {
+  if (!hasKeyword(stone, 'ambush')) return ''
+  const prey = neighbors(state, stone.x, stone.y)
+    .map((n) => unitAt(state, n.x, n.y))
+    .filter(
+      (u): u is Fighter =>
+        !!u &&
+        u.side !== stone.side &&
+        onEdge(state, u) &&
+        turfGroup(state, u).length === 1 &&
+        !warded(state, [u]) &&
+        turfLiberties(state, [u]).length === 1,
+    )
+  if (!prey.length) return ''
+  const ids = new Set(prey.map((u) => u.id))
+  state.units = state.units.filter((u) => !ids.has(u.id))
+  state.prisoners[stone.side] += prey.length
+  state.stats.knockouts[other(stone.side)] += prey.length
+  return ' and pounces on ' + prey.map(publicName).join(' and ')
+}
+
+function turfEffect(state: MatchState, stone: Fighter, card: Card): string {
   const foe = other(stone.side)
   const beside = (s: Fighter) =>
     neighbors(state, s.x, s.y)
@@ -4192,17 +4252,32 @@ function turfLanding(state: MatchState, stone: Fighter, card: Card): string {
     for (const enemy of beside(stone))
       for (const s of turfGroup(state, enemy)) s.wardedUntil = 0
   if (hasKeyword(stone, 'bulldoze')) {
+    const stuck = (e: Fighter) => {
+      const to = { x: 2 * e.x - stone.x, y: 2 * e.y - stone.y }
+      return (
+        to.x < 0 ||
+        to.y < 0 ||
+        to.x >= state.width ||
+        to.y >= state.height ||
+        turfBlocked(state, to.x, to.y)
+      )
+    }
+    // A lone stone with nowhere to go is crushed (Silas, 2026-11-04).
+    const crushed = beside(stone)
+      .filter(
+        (e) =>
+          stuck(e) && turfGroup(state, e).length === 1 && !warded(state, [e]),
+      )
+      .sort((a, b) => a.id - b.id)[0]
+    if (crushed) {
+      state.units = state.units.filter((u) => u.id !== crushed.id)
+      state.prisoners[stone.side]++
+      state.stats.knockouts[foe]++
+      state.stats.shoves++
+      return ' and crushes ' + publicName(crushed)
+    }
     const target = beside(stone)
-      .filter((e) => {
-        const to = { x: 2 * e.x - stone.x, y: 2 * e.y - stone.y }
-        return (
-          to.x >= 0 &&
-          to.y >= 0 &&
-          to.x < state.width &&
-          to.y < state.height &&
-          !turfBlocked(state, to.x, to.y)
-        )
-      })
+      .filter((e) => !stuck(e))
       .sort(
         (a, b) =>
           turfLiberties(state, turfGroup(state, a)).length -
@@ -4216,7 +4291,7 @@ function turfLanding(state: MatchState, stone: Fighter, card: Card): string {
     }
   }
   if (card.kind === 'creature') return ''
-  if (card.effect && OFFENSIVE.includes(card.effect)) {
+  if (turfSlimes(card, parityOn(state))) {
     // Slime slides off a warded group.
     const groups = beside(stone)
       .map((e) => turfGroup(state, e))

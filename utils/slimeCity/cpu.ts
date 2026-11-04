@@ -708,6 +708,16 @@ function turfSimulate(
 
 const TURF_OFFENSIVE = new Set(['zap', 'blast', 'chaos', 'root'])
 
+function inTurf(view: MatchView, c: Cell): boolean {
+  return c.x >= 0 && c.y >= 0 && c.x < view.width && c.y < view.height
+}
+
+function onTurfEdge(view: MatchView, c: Cell): boolean {
+  return (
+    c.x === 0 || c.y === 0 || c.x === view.width - 1 || c.y === view.height - 1
+  )
+}
+
 function turfAction(view: MatchView, tried: Set<string>): CpuAction | null {
   if (view.turfPlayed) return null
   const grid = new Map<string, TurfCell>()
@@ -763,11 +773,42 @@ function turfAction(view: MatchView, tried: Set<string>): CpuAction | null {
           continue
         value = turfEval(view, sim.grid, wards) - base + sim.captured * 1.5
         if (early && edge) value -= 0.8
-        if (card.kind === 'creature') value += 0.15
+        if (card.kind === 'creature') {
+          value += 0.15
+          const traits = card.keywords ?? []
+          // AMBUSH pounces on a lone edge stone it leaves in atari.
+          if (traits.includes('ambush'))
+            for (const g of turfGroupsOn(view, sim.grid, wards))
+              if (
+                g.side !== view.side &&
+                !g.warded &&
+                g.libs === 1 &&
+                g.cells.length === 1 &&
+                onTurfEdge(view, g.cells[0]!) &&
+                Math.abs(g.cells[0]!.x - x) + Math.abs(g.cells[0]!.y - y) === 1
+              )
+                value += 1.5
+          // BULLDOZE crushes a lone stone it shoves into a wall or stone.
+          if (
+            traits.includes('bulldoze') &&
+            near.some((n) => {
+              const g = groupAt(n)
+              if (!g || g.side === view.side || g.warded || g.cells.length > 1)
+                return false
+              const to = { x: 2 * n.x - x, y: 2 * n.y - y }
+              return !inTurf(view, to) || grid.has(to.x + ':' + to.y)
+            })
+          )
+            value += 1.5
+        }
         // A trap stone is a stone plus a tripwire on its open neighbors.
         else if (card.kind === 'trap')
           value += 0.15 + 0.3 * open + (foes.length ? 0.4 : 0)
-        else if (card.effect && TURF_OFFENSIVE.has(card.effect))
+        else if (
+          card.effect &&
+          (TURF_OFFENSIVE.has(card.effect) ||
+            (view.parity && card.effect === 'debt'))
+        )
           // Slime never fills a last liberty: it puts a group in atari.
           value += exposed.length
             ? weakest === 2

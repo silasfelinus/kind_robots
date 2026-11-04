@@ -3,9 +3,6 @@ name: Coloring Book Production Contract
 on:
   pull_request:
     paths:
-      - 'components/coloring/coloring-book-readiness.vue'
-      - 'components/coloring/coloring-book-package-readiness.vue'
-      - 'components/coloring/coloring-book-cover-studio.vue'
       - 'components/coloring/coloring-book-page.vue'
       - 'components/coloring/coloring-book-version-strip.vue'
       - 'components/coloring/coloring-book-render-settings.vue'

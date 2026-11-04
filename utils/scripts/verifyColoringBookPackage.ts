@@ -215,7 +215,7 @@ assert.equal(reconciled.allPackageReady, false)
 
 // Silas, 2026-11-04 PT: the "Production controls & diagnostics" drawer under
 // the curation cards is "totally unnecessary". The page is curation only; the
-// package/cover panels stay as components for a future packaging surface.
+// eight diagnostics components it mounted were deleted as unreachable.
 const page = readFileSync('components/coloring/coloring-book-page.vue', 'utf8')
 assert.match(page, /<CurationColoringBookCuration\s*\/>/)
 assert.doesNotMatch(page, /Production controls/)

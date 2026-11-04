@@ -2340,13 +2340,25 @@ export const ACT_ONE_DAYS: readonly DayDef[] = [
             ],
             options: [
               {
+                id: 'fund-inquiry',
+                label:
+                  'Pay fifteen brass for independent scribes to investigate Tobin’s erased page.',
+                requires: { flags: ['d01-pip-on-staff'], cost: 15 },
+                effects: {
+                  local: { lamplight: 2 },
+                  flags: ['d04-pip-inquiry-funded'],
+                },
+                response:
+                  'Pip hires two scribes who never worked for Mara Reedbell. Hesper’s copy stays on the desk. The scribes begin with the binding thread and the clerk who bought it.',
+              },
+              {
                 id: 'file-at-court',
                 label:
-                  'Keep Pip at their desk and open a formal inquiry into Tobin’s missing page.',
+                  'Keep Pip at their desk and file Tobin’s missing page without spending brass.',
                 requires: { flags: ['d01-pip-on-staff'] },
-                effects: { local: { lamplight: 2 } },
+                effects: {},
                 response:
-                  'Pip writes Hesper Lowe’s name on the new file. Below it they write Tobin. They leave a space for the name of whoever changed the old page.',
+                  'Pip writes Hesper Lowe’s name on a fresh folder, then Tobin’s. “The file is safe,” they say. “The witnesses cost more than we have paid.”',
               },
               {
                 id: 'welcome',

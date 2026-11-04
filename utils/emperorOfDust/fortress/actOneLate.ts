@@ -1083,7 +1083,8 @@ export const ACT_ONE_LATE_DAYS: readonly DayDef[] = [
           },
           {
             id: 'charter',
-            label: 'Sign the Ledger’s equal stall fees, even for the blanket sellers.',
+            label:
+              'Sign the Ledger’s equal stall fees, even for the blanket sellers.',
             effects: {
               brass: 10,
               local: { ledger: 4, yard: -1 },
@@ -1094,7 +1095,8 @@ export const ACT_ONE_LATE_DAYS: readonly DayDef[] = [
           },
           {
             id: 'yard-first',
-            label: 'Give the Yard first pick, pushing the blanket sellers to the margins.',
+            label:
+              'Give the Yard first pick, pushing the blanket sellers to the margins.',
             effects: { local: { yard: 3, ledger: -2 } },
             response:
               'Tallow changes the order of the pitches. The Yard’s cousins take the stalls under the awning. Four women fold their blankets and carry them toward the midden.',
@@ -2074,7 +2076,8 @@ export const ACT_ONE_LATE_DAYS: readonly DayDef[] = [
           },
           {
             id: 'buy-back',
-            label: 'Pay eighteen brass to restore the sellers’ pitches under the crown.',
+            label:
+              'Pay eighteen brass to restore the sellers’ pitches under the crown.',
             requires: { cost: 18 },
             effects: {
               affinity: { freeholds: 7 },
@@ -2086,7 +2089,8 @@ export const ACT_ONE_LATE_DAYS: readonly DayDef[] = [
           },
           {
             id: 'enforce-charter',
-            label: 'Enforce the fees. The crown cannot promise rules and ignore them.',
+            label:
+              'Enforce the fees. The crown cannot promise rules and ignore them.',
             effects: {
               affinity: { freeholds: -6 },
               local: { ledger: 2, yard: -2 },
@@ -2111,7 +2115,8 @@ export const ACT_ONE_LATE_DAYS: readonly DayDef[] = [
             options: [
               {
                 id: 'lease-week',
-                label: 'Pay twelve brass for one week’s rent. The sellers keep a debt.',
+                label:
+                  'Pay twelve brass for one week’s rent. The sellers keep a debt.',
                 requires: { cost: 12 },
                 effects: {
                   affinity: { freeholds: 4 },
@@ -2123,7 +2128,8 @@ export const ACT_ONE_LATE_DAYS: readonly DayDef[] = [
               },
               {
                 id: 'buy-back',
-                label: 'Pay eighteen brass. Return the pitches without a clock running.',
+                label:
+                  'Pay eighteen brass. Return the pitches without a clock running.',
                 requires: { cost: 18 },
                 effects: {
                   affinity: { freeholds: 7 },
@@ -2135,7 +2141,8 @@ export const ACT_ONE_LATE_DAYS: readonly DayDef[] = [
               },
               {
                 id: 'enforce-charter',
-                label: 'Let the leases stand. The law did what the crown asked.',
+                label:
+                  'Let the leases stand. The law did what the crown asked.',
                 effects: {
                   affinity: { freeholds: -6 },
                   local: { ledger: 2, yard: -2 },
@@ -3219,7 +3226,8 @@ export const ACT_ONE_LATE_DAYS: readonly DayDef[] = [
           },
           {
             id: 'restored-market-guides',
-            label: 'Pay ten brass for the restored blanket sellers to guide families out of Thistledown.',
+            label:
+              'Pay ten brass for the restored blanket sellers to guide families out of Thistledown.',
             requires: { flags: ['d08-blankets-restored'], cost: 10 },
             effects: {
               affinity: { freeholds: 5 },
@@ -3228,7 +3236,8 @@ export const ACT_ONE_LATE_DAYS: readonly DayDef[] = [
               questAid: [
                 {
                   questId: 'q-d10-freehold-raid',
-                  label: 'The restored Freehold stallholders know the safe cart tracks',
+                  label:
+                    'The restored Freehold stallholders know the safe cart tracks',
                   bonus: 2,
                   stat: 'wits',
                 },
@@ -3239,7 +3248,8 @@ export const ACT_ONE_LATE_DAYS: readonly DayDef[] = [
           },
           {
             id: 'leased-market-guides',
-            label: 'Pay fifteen brass to cover the sellers’ rent while they guide the refugees.',
+            label:
+              'Pay fifteen brass to cover the sellers’ rent while they guide the refugees.',
             requires: { flags: ['d08-blankets-leased'], cost: 15 },
             effects: {
               affinity: { freeholds: 4 },
@@ -3248,7 +3258,8 @@ export const ACT_ONE_LATE_DAYS: readonly DayDef[] = [
               questAid: [
                 {
                   questId: 'q-d10-freehold-raid',
-                  label: 'The leased stallholders carry families out along their cart road',
+                  label:
+                    'The leased stallholders carry families out along their cart road',
                   bonus: 2,
                   stat: 'wits',
                 },
@@ -3259,7 +3270,8 @@ export const ACT_ONE_LATE_DAYS: readonly DayDef[] = [
           },
           {
             id: 'evicted-market-guides',
-            label: 'Pay twenty brass to find the evicted sellers and hire their carts for Thistledown.',
+            label:
+              'Pay twenty brass to find the evicted sellers and hire their carts for Thistledown.',
             requires: { flags: ['d08-blankets-evicted'], cost: 20 },
             effects: {
               affinity: { freeholds: 5 },
@@ -3268,7 +3280,8 @@ export const ACT_ONE_LATE_DAYS: readonly DayDef[] = [
               questAid: [
                 {
                   questId: 'q-d10-freehold-raid',
-                  label: 'The displaced Freehold sellers return to guide evacuation carts',
+                  label:
+                    'The displaced Freehold sellers return to guide evacuation carts',
                   bonus: 2,
                   stat: 'wits',
                 },

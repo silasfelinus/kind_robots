@@ -22,7 +22,11 @@ import {
 } from '../utils/slimeCity/campaign'
 import { campaignConversationFor } from '../utils/slimeCity/campaignDialogue'
 import { campaignAftermathFor } from '../utils/slimeCity/campaignAftermath'
-import type { SlimeCityStory } from '../utils/slimeCity/storySave'
+import {
+  unlockModeOf,
+  type SlimeCityStory,
+  type UnlockMode,
+} from '../utils/slimeCity/storySave'
 import { computed, ref, shallowRef, watch } from 'vue'
 import {
   advance,
@@ -266,6 +270,7 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
   const lastContract = ref<DistrictId | null>(null)
   const campaignSave = ref(createCampaignSave())
   const savedDecks = ref<Partial<Record<TeamId, string[]>>>({})
+  const unlockMode = ref<UnlockMode>('all')
   const replacingCard = ref<string | null>(null)
   const deckMessage = ref('')
   const storyLoaded = ref(false)
@@ -295,6 +300,7 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
     city.value = createCity()
     campaignSave.value = createCampaignSave()
     savedDecks.value = {}
+    unlockMode.value = 'all'
     replacingCard.value = null
     districtId.value = 'pitworks'
     cityScreen.value = 'map'
@@ -310,6 +316,7 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
       districtId.value = response.data.city.location
       campaignSave.value = response.data.campaigns
       savedDecks.value = response.data.decks ?? {}
+      unlockMode.value = unlockModeOf(response.data)
       storyRevision.value = response.data.revision
       storyAccount.value = userId
       storyLoaded.value = true
@@ -332,6 +339,7 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
           city: city.value,
           campaigns: campaignSave.value,
           decks: savedDecks.value,
+          unlocks: unlockMode.value,
         }
         try {
           const result = await performFetch<SlimeCityStory>(
@@ -488,7 +496,36 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
     )
   }
   function isCardUnlocked(id: string): boolean {
-    return isFounderCard(id) || progress.value.cards.includes(id)
+    return (
+      unlockMode.value === 'all' ||
+      isFounderCard(id) ||
+      progress.value.cards.includes(id)
+    )
+  }
+  /** Open every card, or trickle them out through packs (the old way). */
+  function setUnlockMode(next: UnlockMode): void {
+    if (!storyLoaded.value || storySaving.value || next === unlockMode.value)
+      return
+    unlockMode.value = next
+    replacingCard.value = null
+    if (next === 'trickle') {
+      // Decks built from cards you have not unlocked go back to the founders.
+      const kept: Partial<Record<TeamId, string[]>> = {}
+      let reset = 0
+      for (const [team, deck] of Object.entries(savedDecks.value))
+        if (deck?.every((id) => isCardUnlocked(id))) kept[team as TeamId] = deck
+        else reset++
+      savedDecks.value = kept
+      deckMessage.value =
+        'TRICKLE: starters now, more cards from Meat packs.' +
+        (reset
+          ? ' ' +
+            reset +
+            (reset === 1 ? ' deck' : ' decks') +
+            ' with locked cards went back to the founders.'
+          : '')
+    } else deckMessage.value = 'ALL CARDS: every card is open for your decks.'
+    persistStory()
   }
   function selectDeckCard(id: string): void {
     if (!storyLoaded.value || !progressLoaded.value || storySaving.value) {
@@ -1242,6 +1279,8 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
     selectDeckCard,
     restoreFounderDeck,
     testCustomDeck,
+    unlockMode,
+    setUnlockMode,
     storyLoaded,
     storySaving,
     storyError,

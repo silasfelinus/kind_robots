@@ -4,6 +4,7 @@ import {
   accountWithStory,
   newSlimeCityStory,
   storyFromAccount,
+  unlockModeOf,
   validSlimeCityStory,
 } from '../slimeCity/storySave'
 import { createCity, travel } from '../slimeCity/city'
@@ -14,6 +15,12 @@ import {
 
 const base = newSlimeCityStory()
 assert.equal(validSlimeCityStory(base), true)
+// Card unlocks: omitted means every card is open; TRICKLE is opt-in.
+assert.equal(unlockModeOf(base), 'all')
+assert.equal(validSlimeCityStory({ ...base, unlocks: 'trickle' }), true)
+assert.equal(validSlimeCityStory({ ...base, unlocks: 'all' }), true)
+assert.equal(validSlimeCityStory({ ...base, unlocks: 'everything' }), false)
+assert.equal(unlockModeOf({ unlocks: 'trickle' }), 'trickle')
 assert.equal(base.revision, 0)
 assert.deepEqual(storyFromAccount({}), base)
 const city = createCity()

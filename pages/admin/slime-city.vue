@@ -301,10 +301,14 @@
             <div class="sc-deck-status">
               <span class="sc-overline"
                 >ARMORY · {{ lab.team.name }} ·
-                {{ lab.progress.cards.length }}/{{
-                  lab.collectionSize
-                }}
-                COLLECTED</span
+                <template v-if="lab.unlockMode === 'all'"
+                  >ALL {{ lab.collectionSize }} CARDS OPEN</template
+                ><template v-else
+                  >{{ lab.progress.cards.length }}/{{
+                    lab.collectionSize
+                  }}
+                  COLLECTED</template
+                ></span
               >
               <p aria-live="polite">
                 {{
@@ -323,6 +327,33 @@
               }}</small>
             </div>
             <div class="sc-deck-actions">
+              <div
+                class="sc-unlocks"
+                role="group"
+                aria-label="Card unlocks"
+                data-testid="slime-unlock-mode"
+              >
+                <button
+                  type="button"
+                  :aria-pressed="lab.unlockMode === 'all'"
+                  :disabled="!lab.storyLoaded || lab.storySaving"
+                  title="Every card is open for your decks."
+                  data-testid="slime-unlock-all"
+                  @click="lab.setUnlockMode('all')"
+                >
+                  ALL CARDS
+                </button>
+                <button
+                  type="button"
+                  :aria-pressed="lab.unlockMode === 'trickle'"
+                  :disabled="!lab.storyLoaded || lab.storySaving"
+                  title="Start with your crew's founders and unlock the rest from Meat packs."
+                  data-testid="slime-unlock-trickle"
+                  @click="lab.setUnlockMode('trickle')"
+                >
+                  TRICKLE
+                </button>
+              </div>
               <button
                 type="button"
                 data-testid="slime-deck-restore"
@@ -469,6 +500,13 @@
                   COLLECTION {{ lab.progress.cards.length }}/60 ·
                   {{ lab.progress.opened }} PACKS OPENED
                 </p>
+                <p
+                  v-if="lab.unlockMode === 'all'"
+                  data-testid="slime-pack-open"
+                >
+                  Every card is already open in your Armory. Switch it to
+                  TRICKLE to play with only what your packs unlock.
+                </p>
                 <button
                   type="button"
                   data-testid="slime-buy-pack"
@@ -610,10 +648,13 @@ function teamName(id: string): string {
 const swapSource = computed(() =>
   lab.cards.find((card) => card.id === lab.replacingCard),
 )
-function deckState(card: Card): 'deck' | 'owned' | 'starter' | 'locked' {
+function deckState(
+  card: Card,
+): 'deck' | 'owned' | 'starter' | 'open' | 'locked' {
   if (lab.currentDeck.includes(card.id)) return 'deck'
   if (lab.progress.cards.includes(card.id)) return 'owned'
-  return lab.isFounderCard(card.id) ? 'starter' : 'locked'
+  if (lab.isFounderCard(card.id)) return 'starter'
+  return lab.unlockMode === 'all' ? 'open' : 'locked'
 }
 function deckLabel(card: Card): string {
   if (lab.replacingCard === card.id) return 'SWAPPING OUT'
@@ -622,6 +663,7 @@ function deckLabel(card: Card): string {
     deck: 'IN DECK',
     owned: 'OWNED',
     starter: 'STARTER',
+    open: 'OPEN',
     locked: 'LOCKED',
   }[deckState(card)]
 }
@@ -1742,6 +1784,23 @@ onUnmounted(() => {
 }
 .sc-deck-actions button:disabled {
   opacity: 0.5;
+}
+/* Card unlocks: ALL CARDS (default) or TRICKLE, one segmented switch. */
+.sc-unlocks {
+  display: flex;
+  border: 1px solid #b8d6bd66;
+  border-radius: 0.4rem;
+  overflow: hidden;
+}
+.sc-deck-actions .sc-unlocks button {
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  color: #b8d6bd;
+}
+.sc-deck-actions .sc-unlocks button[aria-pressed='true'] {
+  background: #e9f6ee;
+  color: #142016;
 }
 @container (max-width: 600px) {
   .sc-deck-workbench {

@@ -22,6 +22,22 @@ export interface SlimeCityStory {
   campaigns: CampaignSave
   /** Saved practice decks; omitted for older saves. */
   decks?: Partial<Record<TeamId, string[]>>
+  /**
+   * Card unlocks (Silas, 2026-11-04: "we start with all card unlocked as a
+   * default mode, but then they can try a mode where it gets trickled out").
+   * Omitted means 'all'.
+   */
+  unlocks?: UnlockMode
+}
+
+/** 'all': every card is open. 'trickle': starters, then cards from packs. */
+export type UnlockMode = 'all' | 'trickle'
+export const UNLOCK_MODES: readonly UnlockMode[] = ['all', 'trickle']
+
+export function unlockModeOf(
+  story: Pick<SlimeCityStory, 'unlocks'>,
+): UnlockMode {
+  return story.unlocks ?? 'all'
 }
 
 export function newSlimeCityStory(): SlimeCityStory {
@@ -97,6 +113,11 @@ export function validSlimeCityStory(raw: unknown): raw is SlimeCityStory {
     !number(raw.revision, 0, 1000000000) ||
     !record(raw.city) ||
     !record(raw.campaigns)
+  )
+    return false
+  if (
+    raw.unlocks !== undefined &&
+    !UNLOCK_MODES.includes(raw.unlocks as UnlockMode)
   )
     return false
   if (raw.decks !== undefined) {

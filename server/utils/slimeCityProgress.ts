@@ -6,6 +6,7 @@ import type { Prisma } from '~/prisma/generated/prisma/client'
 import {
   accountWithStory,
   storyFromAccount,
+  unlockModeOf,
   validSlimeCityStory,
   type SlimeCityStory,
 } from '~/utils/slimeCity/storySave'
@@ -309,7 +310,10 @@ export async function saveSlimeCityStory(
       TEAMS.flatMap((team) => [...team.creatures, ...team.special]),
     )
     const ownedCards = new Set(restoreProgression(row.data).cards)
-    for (const deck of Object.values(proposed.decks ?? {})) {
+    const unlocks = proposed.unlocks ?? current.unlocks
+    // Every card is open by default; only TRICKLE gates decks on ownership.
+    const gated = unlockModeOf({ unlocks }) === 'trickle'
+    for (const deck of gated ? Object.values(proposed.decks ?? {}) : []) {
       if (deck?.some((id) => !founderCards.has(id) && !ownedCards.has(id)))
         throw createError({
           statusCode: 403,
@@ -330,6 +334,7 @@ export async function saveSlimeCityStory(
       ...((proposed.decks ?? current.decks)
         ? { decks: proposed.decks ?? current.decks }
         : {}),
+      ...(unlocks ? { unlocks } : {}),
     }
     const raw =
       row.data && typeof row.data === 'object' && !Array.isArray(row.data)

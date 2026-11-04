@@ -1440,9 +1440,14 @@ export const RUSH_MOVE_EVERY = 2
 export const TRAP_CAP = 1
 /** TURF: what a SWARM stone counts for in the final score. */
 export const TURF_SWARM_WORTH = 1.5
+/** TURF under PARITY: what a COLLECT stone counts for (interest). */
+export const TURF_PARITY_INTEREST = 2
 /** TURF under PARITY: COLLECT has no mana to take, so it earns interest. */
 export const TURF_PARITY_COLLECT =
-  'earns interest: counts one and a half in the final count (PARITY has no mana to collect).'
+  'earns interest: counts double in the final count (PARITY has no mana to collect).'
+/** TURF under PARITY: BULLDOZE's crush is narrower, since every card is free. */
+export const TURF_PARITY_BULLDOZE =
+  'shoves one enemy stone beside it a point straight back; a lone stone shoved into the board’s edge, or one already on its last liberty, is crushed and captured.'
 /** TURF: hidden tripwires each side may keep armed at once. */
 export const TURF_TRAP_CAP = 3
 /** Formats whose CPU alternates initiative (player, CPU, CPU, player...). */
@@ -3966,7 +3971,11 @@ export function turfText(card: Card, parity = false): string {
       (k) =>
         KEYWORDS[k].label +
         ': ' +
-        (parity && k === 'collect' ? TURF_PARITY_COLLECT : TURF_KEYWORDS[k]),
+        (parity && k === 'collect'
+          ? TURF_PARITY_COLLECT
+          : parity && k === 'bulldoze'
+            ? TURF_PARITY_BULLDOZE
+            : TURF_KEYWORDS[k]),
     )
     return [
       'A stone: it holds its point and counts as your turf.',
@@ -4047,9 +4056,11 @@ export function turfTerritory(state: MatchState): {
   const interest = parityOn(state)
   for (const u of state.units)
     score[u.side] +=
-      hasKeyword(u, 'swarm') || (interest && hasKeyword(u, 'collect'))
-        ? TURF_SWARM_WORTH
-        : 1
+      interest && hasKeyword(u, 'collect')
+        ? TURF_PARITY_INTEREST
+        : hasKeyword(u, 'swarm')
+          ? TURF_SWARM_WORTH
+          : 1
   const seen = new Set<string>()
   for (let y = 0; y < state.height; y++)
     for (let x = 0; x < state.width; x++) {
@@ -4262,11 +4273,26 @@ function turfEffect(state: MatchState, stone: Fighter, card: Card): string {
         turfBlocked(state, to.x, to.y)
       )
     }
-    // A lone stone with nowhere to go is crushed (Silas, 2026-11-04).
+    // A lone stone with nowhere to go is crushed (Silas, 2026-11-04). Under
+    // PARITY every Ironjaw card is free, so the crush needs the edge behind
+    // the stone or a stone already on its last liberty.
+    const crushableUnderParity = (
+      s: MatchState,
+      by: Fighter,
+      e: Fighter,
+    ): boolean => {
+      const to = { x: 2 * e.x - by.x, y: 2 * e.y - by.y }
+      const offBoard =
+        to.x < 0 || to.y < 0 || to.x >= s.width || to.y >= s.height
+      return offBoard || turfLiberties(s, [e]).length <= 1
+    }
     const crushed = beside(stone)
       .filter(
         (e) =>
-          stuck(e) && turfGroup(state, e).length === 1 && !warded(state, [e]),
+          stuck(e) &&
+          turfGroup(state, e).length === 1 &&
+          !warded(state, [e]) &&
+          (!parityOn(state) || crushableUnderParity(state, stone, e)),
       )
       .sort((a, b) => a.id - b.id)[0]
     if (crushed) {

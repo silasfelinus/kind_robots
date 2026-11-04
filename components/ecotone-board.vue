@@ -1914,6 +1914,7 @@ import { earnedQuestCallbacks } from '~/utils/ecotone/finaleExpansion'
 import { ensembleFuture } from '~/utils/ecotone/ensembleFuture'
 import {
   companionBondCounts,
+  companionBondTier,
   earnedCompanionHangoutCallbacks,
 } from '~/utils/ecotone/companionHangouts'
 import {
@@ -2425,7 +2426,8 @@ function bondCount(id: CompanionId) {
 
 function bondLabel(id: CompanionId) {
   const n = bondCount(id)
-  return n === 1 ? '1 shared memory' : `${n} shared memories`
+  const memories = n === 1 ? '1 shared memory' : `${n} shared memories`
+  return `${companionBondTier(n)} · ${memories}`
 }
 
 function guideStatus(id: CompanionId) {

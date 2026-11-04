@@ -40,6 +40,8 @@ export interface HouseRoom {
   imagePath: string
   exits: readonly HouseRoomId[]
   choices: readonly HouseChoice[]
+  /** Lore-only discovery resolved on first entry; prior saved decisions remain valid. */
+  autoChoiceId?: string
 }
 export interface HouseProgress {
   current: HouseRoomId
@@ -80,6 +82,7 @@ export const HOUSE_ROOMS: Record<string, HouseRoom> = {
   },
   'HD-02': {
     id: 'HD-02',
+    autoChoiceId: 'weather',
     title: 'Umbrella Stand',
     kind: 'lore',
     opening:
@@ -206,6 +209,7 @@ export const HOUSE_ROOMS: Record<string, HouseRoom> = {
   },
   'HD-07': {
     id: 'HD-07',
+    autoChoiceId: 'count',
     title: 'Family Portrait Hall',
     kind: 'lore',
     opening:
@@ -570,6 +574,7 @@ export const HOUSE_ROOMS: Record<string, HouseRoom> = {
   },
   'HD-21': {
     id: 'HD-21',
+    autoChoiceId: 'archive',
     title: 'Parlor of Embarrassments',
     kind: 'lore',
     opening:

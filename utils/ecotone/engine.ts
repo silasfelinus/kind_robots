@@ -1093,7 +1093,7 @@ export function advance(state: RunState): RunState {
   // traveling gets an optional scene of their own, so nobody is only ever a
   // supporting character. Each scene plays once per run.
   const invitation = state.followHistory.at(-1)
-  if (invitation?.choice === 'together' && invitation.from) {
+  if (invitation?.choice === 'together' && invitation.from && invitation.to) {
     const newcomerCard = COMPANION_HANGOUTS[invitation.to]
     const hostCard = COMPANION_HANGOUTS[invitation.from]
     if (

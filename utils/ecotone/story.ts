@@ -306,6 +306,7 @@ export const BEATS: EncounterCard[] = [
     place: 'Behind the main stage, into the redwoods',
     title: 'The Path Behind the Stage',
     scene: 'grove',
+    art: 'encounters/gr-4-path-behind-the-stage',
     body: [
       'Saturday morning the fair is asleep in its tents. Behind the main stage a path you are sure wasn’t there yesterday runs straight into the redwoods, marked with green ribbons at exactly the height of your eyes.',
       'A mile in, the forest starts repeating itself: the same fallen log, the same fern curled like a question mark, the same banana slug crossing the same root. On the third pass, the slug is wearing a tiny racing helmet.',
@@ -386,7 +387,7 @@ export const BEATS: EncounterCard[] = [
     place: 'The Green Ribbon Fair, the last night',
     title: 'The Closing Bonfire',
     scene: 'meadow',
-    art: 'scenes/prologue-meadow',
+    art: 'encounters/gr-5-closing-bonfire',
     body: [
       'On the last night the fair burns a wicker redwood in the meadow, and everyone still standing comes to watch. The moss puppet takes a bow. Growers trade seeds and promises. Two tables face each other across the fire: one wants a public-access forest, the other proposes private habitat restoration with fewer visitors. People you like are volunteering at both.',
       'In the smoke over the fire you can see the county, the way you can see faces in clouds. It is changing shape, waiting to see what you do.',
@@ -1212,6 +1213,7 @@ export const BEATS: EncounterCard[] = [
     place: 'Arcata Plaza, an hour before the noon whistle',
     title: 'Conscripted',
     scene: 'plaza',
+    art: 'encounters/kn-4-conscripted',
     body: [
       'The Banana Slug Express, a twelve-foot yellow slug on bicycle wheels, is missing its pilot. Dot sprained her ankle on last night’s dance floor and is sitting on a cooler with a bag of frozen peas, pointing a crutch at you. “You,” she says. “You’ve got legs. The whistle blows at noon.”',
       'The crew captain hands you a helmet with antennae on it. Ahead are the road out of town, the Manila dunes, Humboldt Bay and the Eel River. A sculpture keeps racing as long as somebody keeps it moving, and somebody, apparently, is you.',
@@ -1287,6 +1289,7 @@ export const BEATS: EncounterCard[] = [
     place: 'Humboldt Bay, from the Eureka waterfront',
     title: 'The Bay Crossing',
     scene: 'bay',
+    art: 'encounters/kn-5-the-bay-crossing',
     body: [
       'Sunday’s water entry is at a boat ramp on the Eureka waterfront when the tide turns, and the whole waterfront comes to watch. The sculptures go down the ramp one at a time. The slug floats, which is the first miracle. The second is that it moves: a yellow lump paddle-wheeling across Humboldt Bay between the Snerfmobile, its otters rafted paw to paw, and Fogbreather, steaming. Spectator boats honk. Real seals take a professional interest in the fake otters.',
       'Halfway across, the fog comes down and the other sculptures go quiet. In the gray a bell buoy is ringing. Somewhere in the slug’s hull, something has started, very gently, to gurgle.',
@@ -1377,7 +1380,7 @@ export const BEATS: EncounterCard[] = [
     place: 'The Eel River and Ferndale',
     title: 'The Ferndale Finish',
     scene: 'rivermouth',
-    art: 'chapters/southern-humboldt-older-roads',
+    art: 'encounters/kn-6-the-ferndale-finish',
     body: [
       'Day three starts at Crab Park, at the mouth of the Eel River. The sculptures go into the water one last time and paddle up the river to Fernbridge, then roll down the road into Ferndale: Victorian gingerbread houses and a Main Street full of cheering people. The finish line is in sight.',
       'On the hill above town the old cemetery is very quiet. Someone in a black frock coat stands among the headstones, waving a racing flag. And just behind you, the Snerfmobile has lost a wheel in the river, and its otters are rafted up in the shallows, waving.',

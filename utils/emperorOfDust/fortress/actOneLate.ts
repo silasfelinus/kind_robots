@@ -2896,6 +2896,26 @@ export const ACT_ONE_LATE_DAYS: readonly DayDef[] = [
         speaker: 'Captain Ferro Dunmark of the Gate Watch',
         npc: 'ferro-dunmark',
         faction: 'gate-watch',
+        variants: [
+          {
+            flags: ['open-council'],
+            lines: [
+              'Noon. Sixty Gate Watch sentries stand below the balcony. Smoke rises over Thistledown. Beside the crown, two new council chairs face the yard: Lady Vask in one, Foreman Ash in the other. Ash has left flour on the armrest.',
+              'Captain Ferro Dunmark climbs the stairs alone. He studies the chairs. “The Watch is ready to swear, Majesty. Are we swearing to the crown, or to everybody who now gets a vote?”',
+              {
+                who: 'Foreman Dunmore Ash',
+                npc: 'dunmore-ash',
+                text: '“My kitchens patch the Watch after they come home. Nobody asked us who sent them out.”',
+              },
+              {
+                who: 'Young Komodo',
+                npc: 'young-komodo',
+                text: 'Two chairs make more witnesses, Your Majesty. They do not make an order easier.',
+              },
+              'The young sentries wait with their hands on their belts. One of them keeps looking toward the smoke.',
+            ],
+          },
+        ],
         lines: [
           'Noon. The whole Gate Watch stands in the parade yard below the balcony. Sixty, in dented gorgets and patched tabards. The young ones too straight. The old ones leaning on their spears. East, past the walls, a thin line of smoke stands up where Thistledown should be.',
           'Captain Ferro Dunmark climbs to the balcony alone. Broad-shouldered, a scar across his cheek and one torn ear. He salutes the way a door closes.',
@@ -2908,6 +2928,15 @@ export const ACT_ONE_LATE_DAYS: readonly DayDef[] = [
           },
         ],
         options: [
+          {
+            id: 'ask-council',
+            label: 'Ask the two new councilors what the Watch must be owed.',
+            requires: { flags: ['open-council'] },
+            effects: {},
+            response:
+              'Lady Vask sits straighter. Ash does not get up. “The chairs did not come with an oath,” Dunmark says.',
+            next: 'council-oath',
+          },
           {
             id: 'ask-last-oath',
             label: 'Ask Dunmark what the last emperor swore to them.',
@@ -2959,6 +2988,62 @@ export const ACT_ONE_LATE_DAYS: readonly DayDef[] = [
           },
         ],
         beats: [
+          {
+            id: 'council-oath',
+            lines: [
+              'Foreman Ash has brought a list of the kitchen hands who bandage the Watch. He lays it flat on the rail beside a tray of brass clasps. “A guard leaves with a spear. Comes back with an empty sleeve. My people mend what they can.”',
+              'Lady Vask places a finger on the page. “A council seat is a responsibility. Let the Houses keep the gate while the Watch rides. That is a promise we can count.”',
+              'Dunmark points to the smoke beyond the wall. “Thistledown needs riders now. My sentries need a gate behind them. A council can choose which part of that promise it intends to pay.”',
+              {
+                who: 'Young Komodo',
+                npc: 'young-komodo',
+                text: 'You gave them both a chair, Your Majesty. The oath will tell them whether either chair is worth sitting in.',
+              },
+            ],
+            options: [
+              {
+                id: 'shared-relief',
+                label: 'Pay twelve brass for the Yard to provision a relief patrol. The Houses hold the gate.',
+                requires: { cost: 12 },
+                effects: {
+                  local: { yard: -2, 'old-houses': -2, 'gate-watch': 2 },
+                  affinity: { freeholds: 4 },
+                  flags: ['d10-open-council-relief'],
+                  questAid: [
+                    {
+                      questId: 'q-d10-freehold-raid',
+                      label: 'The shared council provisions a Watch relief patrol',
+                      bonus: 2,
+                      stat: 'wits',
+                    },
+                  ],
+                },
+                response:
+                  'Ash gives up the kitchen stores. Vask orders her guards to the west gate and counts every spear that leaves. Dunmark takes the eastern road with a smaller patrol. Neither councilor applauds.',
+              },
+              {
+                id: 'shared-account',
+                label: 'Order the Watch to answer at the next council for every life spent.',
+                effects: {
+                  local: { 'gate-watch': 3, yard: 2, 'old-houses': -3 },
+                  flags: ['d10-open-council-account'],
+                },
+                response:
+                  'Dunmark asks for a chair of his own at the next meeting. Ash moves his over. Vask watches the Watch captain make a list, then quietly asks who keeps the minutes.',
+              },
+              {
+                id: 'house-veto',
+                label: 'Let Vask keep the Watch inside the walls until the Houses agree to release it.',
+                effects: {
+                  local: { 'old-houses': 3, yard: -3, 'gate-watch': -2 },
+                  affinity: { freeholds: -5 },
+                  flags: ['d10-open-council-veto'],
+                },
+                response:
+                  'Vask puts her seal beside the gate roster. Ash takes back his list of wounded cooks. Outside, the youngest sentry says Thistledown once and gets no answer.',
+              },
+            ],
+          },
           {
             id: 'last-oath',
             // t-035: Day 7's chair is in the gallery when the Watch swears.

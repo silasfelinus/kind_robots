@@ -3217,6 +3217,66 @@ export const ACT_ONE_LATE_DAYS: readonly DayDef[] = [
               'She takes the broken pitchfork tine from her belt. “Green cart. Four children. I remember.”',
             next: 'coldbrook-road',
           },
+          {
+            id: 'restored-market-guides',
+            label: 'Pay ten brass for the restored blanket sellers to guide families out of Thistledown.',
+            requires: { flags: ['d08-blankets-restored'], cost: 10 },
+            effects: {
+              affinity: { freeholds: 5 },
+              local: { yard: -1 },
+              flags: ['d10-restored-stall-guides'],
+              questAid: [
+                {
+                  questId: 'q-d10-freehold-raid',
+                  label: 'The restored Freehold stallholders know the safe cart tracks',
+                  bonus: 2,
+                  stat: 'wits',
+                },
+              ],
+            },
+            response:
+              'The egg-seller brings three carts and a map drawn on sackcloth. The Yard gives up a porter to haul the children. She says she will count every cart that comes home.',
+          },
+          {
+            id: 'leased-market-guides',
+            label: 'Pay fifteen brass to cover the sellers’ rent while they guide the refugees.',
+            requires: { flags: ['d08-blankets-leased'], cost: 15 },
+            effects: {
+              affinity: { freeholds: 4 },
+              local: { ledger: -1 },
+              flags: ['d10-leased-stall-guides'],
+              questAid: [
+                {
+                  questId: 'q-d10-freehold-raid',
+                  label: 'The leased stallholders carry families out along their cart road',
+                  bonus: 2,
+                  stat: 'wits',
+                },
+              ],
+            },
+            response:
+              'Tallow demands the rent in advance. The egg-seller takes the receipt and leaves her goods covered on the stall. The carts go east with their week already spent.',
+          },
+          {
+            id: 'evicted-market-guides',
+            label: 'Pay twenty brass to find the evicted sellers and hire their carts for Thistledown.',
+            requires: { flags: ['d08-blankets-evicted'], cost: 20 },
+            effects: {
+              affinity: { freeholds: 5 },
+              local: { ledger: -3 },
+              flags: ['d10-evicted-stall-guides'],
+              questAid: [
+                {
+                  questId: 'q-d10-freehold-raid',
+                  label: 'The displaced Freehold sellers return to guide evacuation carts',
+                  bonus: 2,
+                  stat: 'wits',
+                },
+              ],
+            },
+            response:
+              'The rider finds the seller beside the road, sleeping under her cart. She takes your brass and loads the first family. “This is work,” she says. “It is not forgiveness.”',
+          },
         ],
         beats: [
           {

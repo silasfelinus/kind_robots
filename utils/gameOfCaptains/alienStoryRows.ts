@@ -15,7 +15,16 @@ export function indexAlienStoryRows(
   rows: readonly AlienStoryRow[],
 ): Record<string, AlienSpeciesStory> {
   const stories: Record<string, AlienSpeciesStory> = {}
-  for (const [id, incident, wary, playful, protective, retreat, chaos, bond] of rows) {
+  for (const [
+    id,
+    incident,
+    wary,
+    playful,
+    protective,
+    retreat,
+    chaos,
+    bond,
+  ] of rows) {
     if (stories[id]) throw new Error('Duplicate alien story: ' + id)
     stories[id] = {
       incident,

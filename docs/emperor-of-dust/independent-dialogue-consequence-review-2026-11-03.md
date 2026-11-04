@@ -1,0 +1,53 @@
+# Emperor of Dust: independent dialogue and consequence review
+
+**Reviewed:** 2026-11-03 PT. **Scope:** current 50-day, five-act campaign, authored audience scenes, linked flags, epilogue outcomes, and the independent seeded full-playthrough transcript artifact (GitHub Actions artifact `13276114015`, including 42 policy runs, focused follower runs and the rare-audience routes).
+
+**Verdict:** **Two concrete defects repaired in this PR; the five-act material is strong enough for targeted human playtesting but is not independently editorially accepted in full.** This is a human-style close read of representative turning points across all five acts and their alternative paths. It is not a claim that 1,540 mechanically screened rows or every quest variant have received a human copyedit. The existing numeric screening rubric is a structural proxy, *not* an editor's verdict. This report records observations, specific scenes and real consequences separately from mechanical reachability.
+
+## Editorial judgment
+
+The strongest writing makes a physical object carry the moral decision: Mara's ledger, the Storm Crow's bond book, Dunmore's ladle, Hester's egg basket, Vellum's dry pen. The better choices ask whose hands will pay for the ruler's conviction and name the cost before it is collected. The Abbess is more threatening when she is kind; Komodo is more credible when he checks a price than when he is ominous.
+
+The main remaining editorial risk is **choice compression**: a single terminal audience choice can accidentally make two independent pledges mutually exclusive. More scripted encounters are not necessarily the cure; preserving a meaningful decision across 40 days is. The audience and follower coverage regression proves scenes can close, not that different options produce distinct emotional histories.
+
+### Five-act close read
+
+| Act | Primary scenes and reviewer score (mood / clarity / originality / choice / consequence, 1–5) | Reader/playtest finding |
+| --- | --- | --- |
+| I | `d01-aqueduct` (4/5/4/4/4), `d04-letter-from-bell` (4/4/5/4/4) | Mara's offer to let the crown take public blame is excellent. The missing register turns administration into a personal crime. **Defect:** seeded Pip recruitment on Day 1 was followed by a Day 4 speech introducing them as a first-time applicant. See Fix B. |
+| II | `d11-rainmaker` (4/4/5/5/5), `d14-archive-funds` (4/4/4/5/5), `d20-covenant-due` (5/4/4/5/5) | The covenant's apparent help and delayed demand for bonded runners is a convincing bargain. The archive sequence distinguishes a mother's control of her son's name from the crown's desire for leverage. Preserve this distinction at the congress. |
+| III | `d25-the-abbess` (5/4/4/4/4), `d27-trial` (5/5/4/5/5), `d29-mayors-secret` (4/4/5/5/5) | Abbess feeding hungry people while refusing accountability is stronger than a villain declaration. Flint's acquittal, inquiry and censure acknowledge the forty sacks taken from Dunmore's ovens. A mother's consent remains a separate gate, not something obtained by buying an Archive service. |
+| IV | `d33-both-roads` (4/5/4/5/4), `d39-congress` (4/4/5/3/2 before repair) | Hester correcting the assertion that forty Saltroad families outweigh ninety at Thistledown exposes the political argument cleanly. **Defect:** Day 39 forced Hesper's public testimony *or* redemption of the Storm Crow runner, even if both claims had been earned. See Fix A. |
+| V | `d41-roll-call` (5/4/4/5/4), `d42-terms-*` / `d46-patience-*` (4/4/4/5/5), `d49-the-record` (5/4/5/3/2 before repair), `d50-if-you-find-him` (5/4/4/5/5) | Dunmore's unreturned cooks and the hosts' unpaid debts make the fall tangible. Seven host confrontations have been verified after genuine missed quests and exhausted brass. Vellum's archive restores moral agency, *except* the old options forced both witnesses into a single winner's slot. The Day 50 order for Komodo allows both lawful accountability and the difficult choice to let him act, without resolving Hollow Bell's later fate. |
+
+Scores above are provisional *editorial assessments of the named scenes*, not generated quantitative grades of entire acts. They indicate where a second independent reader should concentrate, not a pass/fail threshold.
+
+## Fix A: both people may be heard, but the ruler pays
+
+**Observed:** `d04-letter-from-bell` → `d14-archive-funds` → `d29-mayors-secret` enables `d39-congress/enter-hearing`. A separate `d04-silent-crows` → `d07-crow-warning` path enables `d39-congress/redeem-runner`. Both are terminal answers to the same Day 39 audience: the player could never deliver on both even when their histories and evidence were independent. Day 49's `name-tobin` and `record-runner` were likewise mutually exclusive. These were **genuine continuation defects**, not simply missing bot coverage.
+
+**Repair:** an explicitly gated `hear-both` answer requires *both* earlier events and **30 brass** at Congress. Ten pays for witnesses; twenty buys back the runner's additional two years. It also costs Hollow Bell, Abbey, Storm Crow, Yard and Old House support. If the ruler chooses it, both existing continuity flags are earned; neither single-story route is deleted or weakened. After Day 44 runner testimony, Day 49 offers `record-both-witnesses`: **another 12 brass**, political losses with both factions, two separately copied records, and a joint archive flag. Both independent epilogue subjects then carry a distinct linked variant. Their stories do not merge into a single crown narrative. Existing flags, legacy saves and the other Day 39/49 choices continue to work.
+
+**Reviewer concern:** the combined path is costly and depends on *earning* Hesper's public-hearing consent and the runner's earlier penalized bond. A player who protected Hesper's **private** account must not be offered the public hearing, even if they have enough money; privacy is a real choice, not a penalty to buy off.
+
+**Verification:** focused live-engine audience transitions test both earned flag gates, unaffordable 29- and 11-brass cases, the 30/12-brass reductions, separate continuation flags, Day 44 testimony, Day 49 variant, two distinct epilogue entries, the Long Night variant, and save validation. The focused tests use state fixtures to isolate the dependency; they do **not** purport to be a newly completed organic 50-day dual-witness campaign.
+
+## Fix B: Pip is not hired twice
+
+**Observed:** a real seeded `greedy / seed 17` campaign appointed Pip from `d01-pip-arrives`; on Day 4 the transcript nevertheless had Pip announce their name and ask to work for the tower. The options still included paying a passage or sending the court's already-employed archivist home. It was an obvious chronology and agency break on an otherwise strong story thread.
+
+**Repair:** the Day 1 appointment now writes `d01-pip-on-staff`. Day 4's opening and final beat acknowledge that Pip already has an Archive desk, while preserving the altered-register evidence, the player's choices to publish/seal/return the page, and the choice to file the resulting inquiry. Repeat recruitment and dismissal options are gated off on this route. A player who did **not** recruit Pip on Day 1 still sees the original visitor's petition and can hire or turn them away on Day 4. Save structure and story IDs are unchanged.
+
+**Compatibility note:** this explicitly guards newly played Day 1 appointment routes. A legacy saved game that recruited Pip through the *old* Day 1 code but did not carry the newly added staff flag may still read the old Day 4 introduction. Its save remains valid, but a follow-up contextual migration or roster-aware scene variant is warranted before calling backward-compatibility dialogue flawless.
+
+## Further editor's passes, ordered by player cost
+
+1. **Read alternative responses, not just all scene openings.** The prior structural screen reported 593 leads among 1,540 rows, including repeated mechanics, short quest results, and flags without literal prose readers. A terse outcome such as the abandoned Freehold line can be excellent; an identical outcome for morally opposite choices may not. Mark each as accepted deliberate brevity, concrete defect, or state-only flag before changing it.
+2. **Audit early-appointment reintroductions for every named recruit.** Pip was confirmed from a played transcript. Other characters can similarly appear in authored later audiences or talks; verify chronology against who actually joined and whether a departure was possible.
+3. **Cross-check consent and survival in epilogues.** Hesper's sealed statement must stay private; the runner's commissioned oath is not the same as her freed testimony; a follower who left with Komodo cannot also deliver a court farewell. Each supported ending should keep those distinctions in the final prose.
+4. **Run an independent first-to-last dual-witness campaign** using legitimate player choices on Days 4, 7, 14, 29, 39, 44 and 49, then review its story cadence. The focused engine gates are in place, but an unsteered policy bot may still miss the entire expensive chain.
+5. **Illustration acceptance is a separate lane.** This pass reviewed narrative and branching code plus playable traces, not final rendered artworks or their placement. Queued ArtJobs are not proof of delivered illustrations.
+
+## Acceptance boundary
+
+Mechanically the previous audit reached **120/120 authored throne audiences** and **125/125 follower conversations** through legitimate engine play, and the original role-first prose, balance, save, quest and contract suites are retained. This review identifies **two real narrative/choice defects**, implements corrections, and adds regression tests. It is **not** a declaration that every authored line, visual, or complete human run has passed editorial acceptance. The master acceptance issue remains open until the remaining independent reading, artwork verification and human playtest decisions are complete.

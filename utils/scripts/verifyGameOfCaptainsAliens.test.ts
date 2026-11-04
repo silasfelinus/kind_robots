@@ -111,16 +111,13 @@ assert.equal(
 assert.match(first.scene, /couch|bubble/i)
 assert.equal(first.mood, nextAlienSighting(run, empty)!.mood)
 
-const zodiacSpecies = ALIEN_SPECIES.filter(
-  (species) => species.category === 'zodiac',
-)
 assert.deepEqual(
   Object.keys(ALIEN_SPECIES_STORIES).sort(),
-  zodiacSpecies.map((species) => species.id).sort(),
-  'every horoscope creature gets its own authored encounter',
+  ALIEN_SPECIES.map((species) => species.id).sort(),
+  'all 101 creatures must have original species-specific encounters',
 )
 const authoredLines = new Set<string>()
-for (const species of zodiacSpecies) {
+for (const species of ALIEN_SPECIES) {
   const story = ALIEN_SPECIES_STORIES[species.id]!
   assert.ok(story.incident.length >= 110, species.name + ' needs a real scene')
   authoredLines.add(story.incident)
@@ -156,13 +153,8 @@ for (const species of zodiacSpecies) {
 }
 assert.equal(
   authoredLines.size,
-  zodiacSpecies.length * 7,
-  'the 12 incidents, 36 cues and 36 aftermaths must not repeat',
-)
-assert.equal(
-  ALIEN_SPECIES_STORIES[ALIEN_SPECIES.find((s) => s.category === 'hybrid')!.id],
-  undefined,
-  'unwritten categories keep their established fallback outcomes',
+  101 * 7,
+  '101 incidents, 303 mood cues and 303 aftermaths must be unique',
 )
 
 const choiceFor = (

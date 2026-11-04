@@ -1,3 +1,9 @@
+import { HYBRID_ALIEN_STORIES } from './alienHybridStories'
+import { COSMIC_ALIEN_STORIES } from './alienCosmicStories'
+import { SOCIAL_ALIEN_STORIES } from './alienSocialStories'
+import { ECOLOGY_ALIEN_STORIES } from './alienEcologyStories'
+import { LEGENDARY_ALIEN_STORIES } from './alienLegendaryStories'
+
 export type AlienSpeciesStory = {
   incident: string
   evidence: Record<'wary' | 'playful' | 'protective', string>
@@ -223,4 +229,9 @@ export const ALIEN_SPECIES_STORIES: Readonly<
       bond: 'The crew waits for a quiet moment and asks the koi for a single gentle tide. The wells refill, the square stays standing, and the fish leave a pearl filled with the sound of rain.',
     },
   },
+  ...HYBRID_ALIEN_STORIES,
+  ...COSMIC_ALIEN_STORIES,
+  ...SOCIAL_ALIEN_STORIES,
+  ...ECOLOGY_ALIEN_STORIES,
+  ...LEGENDARY_ALIEN_STORIES,
 }

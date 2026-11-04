@@ -3003,7 +3003,8 @@ export const ACT_ONE_LATE_DAYS: readonly DayDef[] = [
             options: [
               {
                 id: 'shared-relief',
-                label: 'Pay twelve brass for the Yard to provision a relief patrol. The Houses hold the gate.',
+                label:
+                  'Pay twelve brass for the Yard to provision a relief patrol. The Houses hold the gate.',
                 requires: { cost: 12 },
                 effects: {
                   local: { yard: -2, 'old-houses': -2, 'gate-watch': 2 },
@@ -3012,7 +3013,8 @@ export const ACT_ONE_LATE_DAYS: readonly DayDef[] = [
                   questAid: [
                     {
                       questId: 'q-d10-freehold-raid',
-                      label: 'The shared council provisions a Watch relief patrol',
+                      label:
+                        'The shared council provisions a Watch relief patrol',
                       bonus: 2,
                       stat: 'wits',
                     },
@@ -3023,7 +3025,8 @@ export const ACT_ONE_LATE_DAYS: readonly DayDef[] = [
               },
               {
                 id: 'shared-account',
-                label: 'Order the Watch to answer at the next council for every life spent.',
+                label:
+                  'Order the Watch to answer at the next council for every life spent.',
                 effects: {
                   local: { 'gate-watch': 3, yard: 2, 'old-houses': -3 },
                   flags: ['d10-open-council-account'],
@@ -3033,7 +3036,8 @@ export const ACT_ONE_LATE_DAYS: readonly DayDef[] = [
               },
               {
                 id: 'house-veto',
-                label: 'Let Vask keep the Watch inside the walls until the Houses agree to release it.',
+                label:
+                  'Let Vask keep the Watch inside the walls until the Houses agree to release it.',
                 effects: {
                   local: { 'old-houses': 3, yard: -3, 'gate-watch': -2 },
                   affinity: { freeholds: -5 },

@@ -75,11 +75,7 @@ for (const newcomer of ids) {
 
   // A random fork never deals a private scene as if consent or a relationship
   // could be awarded by a white-rabbit draw.
-  const plain = ready(
-    13,
-    ids.find((id) => id !== newcomer)!,
-    newcomer,
-  )
+  const plain = ready(13, ids.find((id) => id !== newcomer)!, newcomer)
   assert.equal(
     encounterEligible({ ...card, requiresInvitation: true }, plain),
     false,
@@ -206,3 +202,25 @@ assert.deepEqual(companionBondCounts([]), {
 })
 
 console.log('Ecotone personal companion interlude tests passed')
+
+// The guide who was already traveling gets their own scene after the
+// invitee's, once per run, and then the route moves on.
+for (const host of ids) {
+  for (const guest of ids.filter((id) => id !== host)) {
+    const first = advance(chooseCrossroads(ready(7, host, guest), 'together'))
+    assert.equal(first.card, COMPANION_HANGOUTS[guest].id)
+    const resolved = advance(
+      chooseBeat(first, COMPANION_HANGOUTS[guest].choices.at(-1)!.id),
+    )
+    const hostScene = COMPANION_HANGOUTS[host]
+    if (resolved.card === hostScene.id) {
+      assert.equal(resolved.phase, 'beat')
+      const done = advance(chooseBeat(resolved, hostScene.choices[0]!.id))
+      assert.notEqual(done.card, hostScene.id, 'host scene does not loop')
+      assert.notEqual(done.card, COMPANION_HANGOUTS[guest].id)
+      assert.deepEqual(restoreRun(JSON.parse(JSON.stringify(done))), done)
+    } else {
+      assert.fail(`${host} should get a scene after ${guest}`)
+    }
+  }
+}

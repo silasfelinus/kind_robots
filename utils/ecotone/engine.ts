@@ -1089,6 +1089,29 @@ export function advance(state: RunState): RunState {
       }
     }
   }
+  // After the invited guide's private scene, the guide who was already
+  // traveling gets an optional scene of their own, so nobody is only ever a
+  // supporting character. Each scene plays once per run.
+  const invitation = state.followHistory.at(-1)
+  if (invitation?.choice === 'together' && invitation.from) {
+    const newcomerCard = COMPANION_HANGOUTS[invitation.to]
+    const hostCard = COMPANION_HANGOUTS[invitation.from]
+    if (
+      newcomerCard &&
+      hostCard &&
+      state.pending.entry.source === newcomerCard.id &&
+      travelParty(state).includes(invitation.from) &&
+      !state.played.includes(hostCard.id)
+    ) {
+      return {
+        ...state,
+        pending: null,
+        phase: 'beat',
+        card: hostCard.id,
+        offered: [],
+      }
+    }
+  }
   return enterStep({ ...state, pending: null }, state.pending.nextStep)
 }
 

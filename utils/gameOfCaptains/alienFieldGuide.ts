@@ -549,7 +549,9 @@ export function resolveAlienSighting(
       bond: 'The ridiculous distraction becomes an unexpected rescue. It relaxes, and chooses to trust the crew.',
     },
   }
-  const introduction = personal ? '' : moodReactions[sighting.mood][outcome] + ' '
+  const introduction = personal
+    ? ''
+    : moodReactions[sighting.mood][outcome] + ' '
   const text = `${introduction}${reaction} ${species.name}: ${outcome === 'retreat' ? 'It may be encountered again on another voyage.' : outcome === 'bond' ? 'A new friend has been recorded in the scrapbook.' : 'An extraordinarily messy field record is saved.'}`
   return { guide: next, recorded: recorded && !alreadyKnown, text }
 }

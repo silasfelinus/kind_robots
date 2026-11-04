@@ -3,7 +3,7 @@ title: 'Kind Robots'
 room: 'Exhibition Hall'
 subtitle: 'Play · Create · Discover'
 tabMessage: 'Games, illustrated worlds and recent creations, all a click away.'
-description: Explore the Kind Robots gallery of games, art, stories and creative experiments.
+description: Play original browser games, read illustrated stories and explore a robot-made art gallery. Start with the Arcade, Space Couch or Terrors on Crystal Street.
 image: splash/robots.png
 icon: kind-icon:home
 tooltip: Hi! I'm Silas, human programmer for Kind Robots!

@@ -1,7 +1,9 @@
 // Picnic Panic: the City Plaza one-shot. Civilians are board markers the
 // squad evacuates (1 AP from an adjacent tile) while Foreman Thumpkin's
-// Warren Wreckers surface beside them. Scenes are pure functions of the
-// battle's fired-trigger history, so saves replay them exactly once.
+// Warren Wreckers surface beside them. Two more shifts tunnel in on the
+// stage's timed waves (rounds 3 and 5), each whistled up a full round early.
+// Scenes are pure functions of the battle's fired-trigger history, so saves
+// replay them exactly once.
 import type { StoryLine } from './firstBellStory'
 import { aliasFor, recordTrigger, type TrainingState } from './training'
 
@@ -18,6 +20,8 @@ export const PICNIC_TRIGGERS = [
   'picnic:first-emergence',
   'picnic:civilian-lost',
   'picnic:all-rescued',
+  'picnic:shift-change',
+  'picnic:overtime',
   'picnic:victory',
   'picnic:defeat',
 ] as const
@@ -38,10 +42,19 @@ export function picnicCounts(state: TrainingState) {
   }
 }
 
+const MOLEHILLS = ['one fresh molehill', 'two fresh molehills']
+/** "two fresh molehills" for the given shift, from the authored waves. */
+function molehills(state: TrainingState, shift: 'first' | 'last') {
+  const waves = state.rules?.waves ?? []
+  const wave = shift === 'first' ? waves[0] : waves[waves.length - 1]
+  const count = wave?.spawns.length ?? 0
+  return MOLEHILLS[count - 1] ?? 'three fresh molehills'
+}
+
 function sceneFor(state: TrainingState, id: string): OneShotScene {
   const lead = state.units.find((u) => u.team === 'squad')
   const leadName = lead ? aliasFor(lead).toUpperCase() : 'SQUAD LEAD'
-  const { rescued, lost, total } = picnicCounts(state)
+  const { rescued, lost, waiting, total } = picnicCounts(state)
   if (id === 'picnic:opening')
     return {
       id,
@@ -118,7 +131,54 @@ function sceneFor(state: TrainingState, id: string): OneShotScene {
         ),
       ],
     }
+  if (id === 'picnic:shift-change')
+    return {
+      id,
+      kicker: 'TRIGGERED · SHIFT WHISTLE',
+      title: 'Second Shift Reports to the Lawn',
+      lines: [
+        line(
+          'NARRATOR',
+          'A whistle shrieks from under the fountain, and the grass sprouts ' +
+            molehills(state, 'first') +
+            ', politely flagged with tiny orange cones.',
+        ),
+        line(
+          'FOREMAN THUMPKIN',
+          'Shift change! First shift, take your mandated carrot break. Second shift, mind the blankets.',
+        ),
+        line(
+          leadName,
+          waiting
+            ? 'Those molehills open next round. Plant a boot on one and nobody comes up through it, or walk the families clear first.'
+            : 'The lawn is empty now. Plant a boot on a molehill or let them climb up into our crossfire.',
+        ),
+      ],
+    }
+  if (id === 'picnic:overtime')
+    return {
+      id,
+      kicker: 'TRIGGERED · OVERTIME',
+      title: 'Time and a Half',
+      lines: [
+        line(
+          'NARRATOR',
+          'Thumpkin consults a laminated schedule, sighs, and stamps it. The turf sprouts ' +
+            molehills(state, 'last') +
+            ', cones and all.',
+        ),
+        line(
+          'FOREMAN THUMPKIN',
+          'Overtime shift, and it is the last one. Overtime is time and a half, and the budget is exactly one half.',
+        ),
+        line(
+          leadName,
+          'Last wave, everybody. Hold the molehills, clear the lawn, and the picnic survives.',
+        ),
+      ],
+    }
   const won = id === 'picnic:victory'
+  const squadDown = !state.units.some((u) => u.team === 'squad' && u.hp > 0)
   return {
     id,
     kicker: won ? 'FINALE · PLAZA SECURED' : 'FINALE · THE PICNIC IS LOST',
@@ -128,7 +188,11 @@ function sceneFor(state: TrainingState, id: string): OneShotScene {
         'NARRATOR',
         won
           ? 'The last hard hat rolls to a stop on the grass. Foreman Thumpkin files a grievance against gravity.'
-          : 'The plaza lawn sags into a maze of fresh tunnels. Somewhere below, the brass band is still playing.',
+          : lost === total
+            ? 'The plaza lawn sags into a maze of fresh tunnels. Somewhere below, the brass band is still playing.'
+            : squadDown
+              ? 'The squad is carried off the lawn on borrowed picnic blankets. A Warren Wrecker plants a survey flag in the potato salad.'
+              : 'The city closes the plaza before the last Wrecker is caught. Thumpkin’s crew strings survey tape around the bandstand.',
       ),
       line(
         'FIELD REPORT',
@@ -147,7 +211,9 @@ function sceneFor(state: TrainingState, id: string): OneShotScene {
           ? lost
             ? 'Fine. The relocated guests will be returned, with souvenir hard hats.'
             : 'Not one blanket relocated. The union will want to know how you did that.'
-          : 'We come back tomorrow with shovels, and we bring everyone home.',
+          : lost
+            ? 'We come back tomorrow with shovels, and we bring everyone home.'
+            : 'The families are safe. The lawn belongs to the Wreckers for today. We come back tomorrow with shovels.',
       ),
     ],
   }

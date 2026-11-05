@@ -201,7 +201,8 @@ export const STAGE_PRESETS: StageDraft[] = [
     title: 'Picnic Panic',
     encounter: 'warren-wreckers',
     venue: 'Comet City plaza',
-    objective: 'Protect the picnic when burrowing bunny men surface.',
+    objective:
+      'Walk the families clear and stop every Warren Wrecker shift, including the two that tunnel in on rounds 3 and 5.',
     map: {
       width: 9,
       height: 6,
@@ -227,6 +228,26 @@ export const STAGE_PRESETS: StageDraft[] = [
       },
       { id: 'band', name: 'The brass band’s tuba player', x: 5, y: 5 },
       { id: 'twins', name: 'The Abara twins and their kite', x: 5, y: 3 },
+    ],
+    // Encounter timing: the second shift and the overtime shift. Each
+    // molehill is whistled up a full round early and caves in under a boot.
+    waves: [
+      {
+        round: 3,
+        crew: 'warren-wreckers',
+        spawns: [
+          { x: 6, y: 0 },
+          { x: 8, y: 5 },
+        ],
+      },
+      {
+        round: 5,
+        crew: 'warren-wreckers',
+        spawns: [
+          { x: 2, y: 0 },
+          { x: 8, y: 1 },
+        ],
+      },
     ],
   },
   {

@@ -169,6 +169,23 @@ export const SCRAPBOOK_MOMENTS: readonly ScrapbookMoment[] = [
     art: 'incidents/broadcast',
   },
   {
+    id: 'picnic:shift-change',
+    mode: 'oneshot',
+    chapter: 'Picnic Panic',
+    title: 'Second Shift Reports to the Lawn',
+    caption:
+      'Thumpkin whistled up a second shift, and the molehills arrived a round ahead of the bunnies.',
+    art: 'incidents/garden',
+  },
+  {
+    id: 'picnic:overtime',
+    mode: 'oneshot',
+    chapter: 'Picnic Panic',
+    title: 'Time and a Half',
+    caption: 'The overtime shift tunneled in on schedule, cones and all.',
+    art: 'districts/waterfront-market',
+  },
+  {
     id: 'picnic:victory',
     mode: 'oneshot',
     chapter: 'Picnic Panic',

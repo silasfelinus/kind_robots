@@ -16,6 +16,7 @@ on:
       - 'utils/scripts/verifyEveryVillainSaves.test.ts'
       - 'utils/scripts/verifyEveryVillainLackeys.test.ts'
       - 'utils/scripts/verifyEveryVillainPicnic.test.ts'
+      - 'utils/scripts/verifyEveryVillainHenchmen.test.ts'
       - 'utils/scripts/verifyEveryVillainFrontMenu.test.ts'
       - 'utils/scripts/verifyEveryVillainScores.test.ts'
       - 'utils/scripts/verifyEveryVillainStageRules.test.ts'
@@ -58,6 +59,8 @@ jobs:
         run: npx tsx utils/scripts/verifyEveryVillainLackeys.test.ts
       - name: Picnic Panic civilians and one-shot scenes
         run: npx tsx utils/scripts/verifyEveryVillainPicnic.test.ts
+      - name: One-hit henchmen and seeded Picnic Panic playtest
+        run: npx tsx utils/scripts/verifyEveryVillainHenchmen.test.ts
       - name: Front menu, settings, scrapbook and threat preview
         run: npx tsx utils/scripts/verifyEveryVillainFrontMenu.test.ts
       - name: Completed mission scoring and earned scrapbook medals

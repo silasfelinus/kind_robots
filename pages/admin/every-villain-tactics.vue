@@ -179,6 +179,9 @@
                     "
                     class="evt-standee"
                     :class="{
+                      'evt-one-hit': !!henchmanTell(
+                        displayUnitAt(store.state, cell)!,
+                      ),
                       'evt-friendly':
                         displayUnitAt(store.state, cell)?.team === 'squad',
                       'evt-rival':
@@ -201,11 +204,16 @@
                       <span class="evt-crest" aria-hidden="true">{{
                         displayUnitAt(store.state, cell)?.lieutenantName
                           ? '◆'
-                          : displayUnitAt(store.state, cell)?.henchmanType ===
-                              'burrow'
-                            ? '♢'
-                            : '✦'
+                          : (henchmanTell(displayUnitAt(store.state, cell)!)
+                              ?.crest ?? '✦')
                       }}</span>
+                      <span
+                        v-if="henchmanTell(displayUnitAt(store.state, cell)!)"
+                        class="evt-one-hit-tag"
+                        data-testid="tactics-one-hit"
+                        aria-hidden="true"
+                        >1 HIT</span
+                      >
                       <span class="evt-initials">{{
                         initials(displayUnitAt(store.state, cell)!)
                       }}</span>
@@ -1450,6 +1458,7 @@ import {
   actorAt,
   displayUnitAt,
   aliasFor,
+  henchmanTell,
   personFor,
   type Cell,
   type Unit,
@@ -1804,8 +1813,18 @@ function baseCellDescription(cell: Cell) {
       (cell.y + 1) +
       '. Occupy to block emergence.'
     )
-  if (unit)
-    return unitName(unit) + ', ' + unit.team + ', ' + unit.hp + ' health'
+  if (unit) {
+    const tell = henchmanTell(unit)
+    return (
+      unitName(unit) +
+      ', ' +
+      unit.team +
+      ', ' +
+      unit.hp +
+      ' health' +
+      (tell ? '. One-hit ' + tell.label.toLowerCase() + ': ' + tell.tell : '')
+    )
+  }
   const exposed = store.threatAt(cell)
   if (exposed)
     return (
@@ -2591,6 +2610,22 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKey))
   left: 4%;
   color: #ffe8ab;
   font-size: clamp(0.4rem, 0.7cqw, 0.8rem);
+}
+.evt-one-hit-tag {
+  position: absolute;
+  top: 0;
+  right: 4%;
+  padding: 0 2px;
+  border-radius: 2px;
+  background: #ffd36e;
+  color: #3a1d08;
+  font-size: clamp(0.3rem, 0.55cqw, 0.55rem);
+  font-weight: 900;
+  letter-spacing: 0.04em;
+  line-height: 1.3;
+}
+.evt-standee.evt-one-hit .evt-card-label {
+  border-style: dashed;
 }
 .evt-initials {
   font-family: Impact, 'Arial Narrow', sans-serif;

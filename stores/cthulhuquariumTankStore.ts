@@ -1086,6 +1086,7 @@ export const useCthulhuquariumTankStore = defineStore(
     const storyShowing = computed(
       () =>
         !!story.activeBeat.value &&
+        !story.guideOpen.value &&
         !useIntroStore().isOpen &&
         !revealedUnlock.value &&
         !bestiaryJustCompleted.value &&

@@ -54,7 +54,22 @@ assert.match(
   /function selectPanel\(panel: AquariumPanel\) \{[\s\S]*?activePanel\.value === panel[\s\S]*?closePanel\(\)/,
   'selecting an active room toggles back to the tank',
 )
-assert.match(game, /function openFishMarket\(\) \{\s*openPanel\('shop'\)/)
+assert.match(
+  game,
+  /<page-help label="How to tend the tank" @open="tankStore\.openGuide\(\)" \/>/,
+  'the system bar "?" opens the illustrated tutorial',
+)
+assert.match(game, /<cthulhuquarium-guide \/>/, 'the tutorial deck is mounted')
+assert.match(
+  game,
+  /class="cq-controller"[\s\S]*?class="cq-action cq-action-clean"[\s\S]*?class="cq-action cq-action-feed"/,
+  'Feed and Clean are the controller deck primary actions',
+)
+assert.match(
+  game,
+  /\.cq-room-layer \{[^}]*grid-area: tank/,
+  'rooms open over the tank, never over the controller',
+)
 assert.match(game, /\.cq-room-shade \{[\s\S]*?position: absolute/)
 assert.match(
   game,
@@ -113,5 +128,34 @@ for (const asset of [
     `missing intro cinematic art: ${asset}`,
   )
 }
+
+const play = readFileSync(
+  'components/cthulhuquarium/cthulhuquarium-play.vue',
+  'utf8',
+)
+assert.match(
+  play,
+  /<shell-console-theme theme="cthulhuquarium" \/>/,
+  'the whole shell wears the aquarium console skin',
+)
+const css = readFileSync('assets/css/tailwind.css', 'utf8')
+assert.match(css, /name: 'cthulhuquarium';/, 'the console theme is defined')
+const guide = readFileSync(
+  'components/cthulhuquarium/cthulhuquarium-guide.vue',
+  'utf8',
+)
+assert.match(guide, /role="dialog"/)
+assert.match(guide, /aria-modal="true"/)
+assert.match(
+  guide,
+  /data-theme="cthulhuquarium"/,
+  'teleported tutorial keeps the skin',
+)
+const story = readFileSync('stores/helpers/cthulhuquariumStory.ts', 'utf8')
+assert.match(
+  story,
+  /scene\.id === 'intro' && !guideSeen\.value\) guideOpen\.value = true/,
+  'the tutorial follows the welcome for a new player',
+)
 
 console.log('Aquarium bounded console shell contract passed.')

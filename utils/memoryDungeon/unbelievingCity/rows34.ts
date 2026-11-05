@@ -212,7 +212,7 @@ export const UNBELIEVING_CITY_ROWS_3_4: readonly MorrowShiftSite[] = [
         id: 'notice',
         label: 'Check one pocket for a name',
         outcome:
-          'A navy anorak with a hospital name badge, ‘P. Mensah, Ward 3’, and a half-eaten roll of mints. Morrow copies the name down for Mara’s roll call and takes nothing. Deepa hands him a dry scarf from the old lost-property pile anyway.',
+          'A navy anorak with a hospital name badge, ‘P. Haddad, Ward 3’, and a half-eaten roll of mints. Morrow copies the name down for Mara’s roll call and takes nothing. Deepa hands him a dry scarf from the old lost-property pile anyway.',
         effects: { evidence: 1, supplies: 1 },
         artSubject:
           'Close view of a hand in a grey cardigan sleeve holding a hospital name badge drawn from a navy anorak pocket, a small notebook open beside it; radiator glow.',
@@ -511,7 +511,7 @@ export const UNBELIEVING_CITY_ROWS_3_4: readonly MorrowShiftSite[] = [
         id: 'last-train',
         label: 'The 9:45. Wait as long as you can, then decide',
         outcome:
-          'They wait on the platform benches while the gold starts again at half past. The 9:45 leaves in it, empty, and Morrow keeps them off. The next dry gap gets them on a slow train at ten, cold and late and all there.',
+          'They wait on the platform benches while the gold starts again at half past. The 9:45 leaves in it, empty, and Morrow keeps them off. The next dry gap gets them on the 9:55 stopping train, cold and late and all there.',
         effects: { supplies: -1, danger: 1 },
         artSubject:
           'A bus mechanic, four students and an androgynous adult in a grey cardigan huddled on a platform bench watching an empty train leave through golden rain; emergency lights along the platform edge.',
@@ -614,7 +614,7 @@ export const UNBELIEVING_CITY_ROWS_3_4: readonly MorrowShiftSite[] = [
     choices: [
       {
         id: 'notice',
-        label: 'Carry the ordinary cups to the queue for the phone',
+        label: 'Carry tea down to the queue for the phone',
         outcome:
           'The tea is real and hot and tastes like tea. Morrow carries a tray of it to the queue for the one working payphone, and nobody asks where it came from. He leaves the absent students’ cups where they are, still full, in case.',
         effects: { supplies: 2 },

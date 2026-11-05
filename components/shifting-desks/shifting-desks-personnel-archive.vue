@@ -130,7 +130,11 @@
               <div
                 v-if="!earned(milestone.id)"
                 class="h-1.5 w-full overflow-hidden rounded-full bg-base-content/20"
-                :aria-label="`${progress(milestone)} of ${milestone.target}`"
+                role="progressbar"
+                :aria-label="`${milestone.title} progress`"
+                aria-valuemin="0"
+                :aria-valuemax="milestone.target"
+                :aria-valuenow="progress(milestone)"
               >
                 <div
                   class="h-full bg-warning"
@@ -254,7 +258,11 @@
                   <div
                     v-if="!filed(milestone.id)"
                     class="h-2 w-full overflow-hidden rounded-full bg-base-content/20"
-                    :aria-label="`${progress(milestone)} of ${milestone.target}`"
+                    role="progressbar"
+                    :aria-label="`${milestone.title} progress`"
+                    aria-valuemin="0"
+                    :aria-valuemax="milestone.target"
+                    :aria-valuenow="progress(milestone)"
                   >
                     <div
                       class="h-full bg-warning"
@@ -375,19 +383,19 @@
             >
               <div class="relative overflow-hidden">
                 <shifting-desks-art
+                  v-if="hasEnding(ending.id)"
                   frame="aspect-[3/4]"
                   :src="stationArt('endings', ending.id)"
-                  :prompt="
-                    hasEnding(ending.id) ? ending.epilogue.art_prompt : ''
-                  "
+                  :prompt="ending.epilogue.art_prompt"
                   :show-brief="false"
-                  :alt="hasEnding(ending.id) ? ending.title : ''"
+                  :alt="ending.title"
                   fallback-icon="kind-icon:folder"
                 />
                 <div
-                  v-if="!hasEnding(ending.id)"
-                  class="absolute inset-0 grid place-items-center bg-base-content/85"
+                  v-else
+                  class="grid aspect-[3/4] place-items-center bg-base-content/85"
                   aria-hidden="true"
+                  data-testid="locked-ending-slot"
                 >
                   <icon name="kind-icon:lock" class="size-9 text-base-100" />
                 </div>

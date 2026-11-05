@@ -170,7 +170,12 @@ import {
   stationArt,
   type RunState,
 } from '~/utils/shiftingDesks/rules'
-import { MILESTONES, type RunReceipt } from '~/utils/shiftingDesks/rewards'
+import {
+  MILESTONES,
+  receiptFor,
+  sameCompletion,
+  type RunReceipt,
+} from '~/utils/shiftingDesks/rewards'
 
 const props = defineProps<{ receipt: RunReceipt; run?: RunState | null }>()
 const store = useShiftingDesksStore()
@@ -179,9 +184,8 @@ const ending = computed(() =>
 )
 const matchingRun = computed(() => {
   const run = props.run
-  return run && run.seed + ':' + props.receipt.endingId === props.receipt.id
-    ? run
-    : null
+  const probe = run ? receiptFor(run, props.receipt.completedAt) : null
+  return run && probe && sameCompletion(props.receipt, probe) ? run : null
 })
 const filedDate = computed(() =>
   new Date(props.receipt.completedAt).toLocaleString(),

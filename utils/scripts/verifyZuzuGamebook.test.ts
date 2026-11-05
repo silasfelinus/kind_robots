@@ -25,11 +25,27 @@ import {
   type PlaytestMove,
 } from '../zuzuGamebook/adversarial'
 import { journal } from '../zuzuGamebook/journal'
+import {
+  decodeSaveCode,
+  encodeSaveCode,
+  SAVE_CODE_PREFIX,
+} from '../zuzuGamebook/saveCode'
+import {
+  choiceTerms,
+  itemInfo,
+  ITEM_INFO,
+  moveTerms,
+} from '../zuzuGamebook/terms'
 import { emphasis } from '../zuzuGamebook/prose'
 import { CH } from '../zuzuGamebook/sections'
 import {
   actOpening,
   BOOK,
+  checkChance,
+  checkModifier,
+  combatEntry,
+  LOG_ROUNDS,
+  moveCheck,
   scene,
   startRun,
   takeChoice,
@@ -45,6 +61,7 @@ import {
   fightCue,
   type Run,
   type BattleAction,
+  type CombatRound,
 } from '../zuzuGamebook/adventure'
 
 const ids = Object.keys(BOOK)
@@ -1970,6 +1987,364 @@ assert.equal(
   'both stage images fall back',
 )
 assert.match(page, /:src="shownPlate\(entry\.art\)"/)
+
+// t-008 UI polish: the odds a card shows are the engine's own, every fight
+// keeps a readable per-round log, items say what they do, and a journey can be
+// carried as a save code. None of it touches the dice or the golden routes.
+{
+  // 2d6 odds out of 36 throws.
+  assert.equal(checkChance(0, 7), 58)
+  assert.equal(checkChance(0, 2), 100)
+  assert.equal(checkChance(0, 13), 0)
+  assert.equal(checkChance(2, 9), 58)
+  assert.equal(checkChance(-2, 12), 0)
+  assert.equal(checkChance(4, 6), 100)
+
+  // A checked choice rolls with exactly the modifier its card quotes.
+  const bonusSpots = Object.values(BOOK).flatMap((node) =>
+    (node.choices ?? [])
+      .filter((choice) => choice.check?.bonus)
+      .map((choice) => ({ node, choice })),
+  )
+  assert.ok(bonusSpots.length > 10, 'knowledge bonuses exist to quote')
+  let quotedRolls = 0
+  for (const { node, choice } of bonusSpots) {
+    const check = choice.check!
+    const knowing: Run = {
+      ...startRun(41),
+      sceneId: node.id,
+      items: ['water', 'bandage', 'apple', 'flint'],
+      flags: [check.bonus!.flag],
+    }
+    const plain: Run = { ...knowing, flags: [] }
+    const quoted = checkModifier(knowing, check)
+    assert.equal(
+      quoted.bonus,
+      check.bonus!.unless === check.bonus!.flag ? 0 : check.bonus!.amount,
+    )
+    assert.equal(checkModifier(plain, check).bonus, 0)
+    if (lockReason(knowing, choice)) continue
+    if (!visibleChoices(knowing, node).includes(choice)) continue
+    const rolled = takeChoice(knowing, choice.id).lastRoll
+    quotedRolls++
+    assert.ok(rolled, node.id + '/' + choice.id + ' rolls')
+    assert.equal(rolled.modifier, quoted.modifier, node.id + '/' + choice.id)
+    assert.equal(rolled.target, check.target)
+    const card = choiceTerms(knowing, choice)
+    assert.ok(
+      card.chip.includes(
+        ['Steel', 'Sense', 'Shadow', 'Mercy'][
+          ['steel', 'sense', 'shadow', 'mercy'].indexOf(check.attribute)
+        ] +
+          ' ' +
+          check.target +
+          '+ · ' +
+          checkChance(quoted.modifier, check.target) +
+          '%',
+      ),
+      node.id + '/' + choice.id + ' card quotes its odds: ' + card.chip,
+    )
+    if (quoted.bonus)
+      assert.match(card.details[0]!, /for what you know/, 'bonus is named')
+  }
+  assert.ok(
+    quotedRolls > 10,
+    'card odds checked against ' + quotedRolls + ' rolls',
+  )
+
+  // Costs, items and healing read on the card, without repeating a label note.
+  const terms = (
+    sceneId: string,
+    choiceId: string,
+    patch: Partial<Run> = {},
+  ) => {
+    const node = scene(sceneId)
+    const choice = node.choices!.find((entry) => entry.id === choiceId)!
+    const note = /\(([^()]+)\)\s*$/.exec(choice.label)?.[1] ?? ''
+    return choiceTerms({ ...startRun(3), sceneId, ...patch }, choice, note)
+  }
+  assert.deepEqual(
+    terms('rescue', 'seal').chip,
+    [],
+    '(2 Resolve) is not doubled',
+  )
+  assert.match(terms('rescue', 'seal').details.join(' '), /Costs 2 Resolve/)
+  assert.deepEqual(terms('a4-canyon-floor', 'carry').chip, ['1 Resolve'])
+  assert.ok(
+    !terms('a1-bad-ground', 'ridge').chip.some((part) => /bandage/.test(part)),
+    '(Spend bandage) is not doubled',
+  )
+  assert.deepEqual(terms('cold-camp', 'fire').chip, ['Needs flint', '+3 HP'])
+  assert.match(terms('cold-camp', 'fire').details.join(' '), /you keep it/)
+  assert.deepEqual(terms('the-crossing', 'approach').chip, ['Uses water'])
+  assert.match(
+    terms('the-crossing', 'approach').details.join(' '),
+    /Uses up your canteen of water/,
+  )
+  assert.deepEqual(terms('apple-tree', 'take').chip, ['Gain apple'])
+  assert.match(
+    terms('apple-tree', 'take', {
+      items: ['water', 'bandage', 'apple', 'flint', 'water'],
+    }).details.join(' '),
+    /pack is full/,
+  )
+
+  // Every item the book gives, takes or asks for explains itself on the sheet.
+  const bookItems = new Set(startRun(1).items)
+  for (const node of Object.values(BOOK)) {
+    if (node.effects?.gain) bookItems.add(node.effects.gain)
+    for (const choice of node.choices ?? [])
+      for (const item of [choice.gain, choice.spend, choice.requires])
+        if (item) bookItems.add(item)
+  }
+  assert.deepEqual([...bookItems].sort(), Object.keys(ITEM_INFO).sort())
+  for (const [item, info] of Object.entries(ITEM_INFO)) {
+    assert.ok(info.name && info.use.length > 20 && info.spent.length > 20, item)
+    const spentBy = Object.values(BOOK).some((node) =>
+      (node.choices ?? []).some((choice) => choice.spend === item),
+    )
+    const keptBy = Object.values(BOOK).some((node) =>
+      (node.choices ?? []).some(
+        (choice) => choice.requires === item && choice.spend !== item,
+      ),
+    )
+    assert.equal(
+      /^Kept/.test(info.spent),
+      keptBy,
+      item + ': kept-or-spent line',
+    )
+    assert.ok(spentBy || keptBy, item + ' is used somewhere')
+  }
+  assert.equal(itemInfo('silver-key').name, 'Silver key', 'unknown items read')
+
+  // Combat move cards quote this round's real roll.
+  const atCroc: Run = { ...coyote, health: 12, resolve: 4 }
+  const croc = scene(atCroc.sceneId).battle!
+  for (const action of actions) {
+    const check = moveCheck(atCroc, action)!
+    const card = moveTerms(atCroc, action)!
+    assert.ok(
+      card.chip.endsWith(
+        check.target + '+ · ' + checkChance(check.modifier, check.target) + '%',
+      ),
+      action + ': ' + card.chip,
+    )
+    const swung = fight(atCroc, action)
+    assert.equal(swung.lastRoll?.modifier, check.modifier, action)
+    assert.equal(swung.lastRoll?.target, check.target, action)
+  }
+  assert.equal(moveCheck(atCroc, 'guard')!.target, 8)
+  const opened: Run = {
+    ...atCroc,
+    battle: { ...atCroc.battle!, exposed: true },
+  }
+  assert.equal(
+    moveCheck(opened, 'strike')!.target,
+    moveCheck(atCroc, 'strike')!.target - 2,
+    'an open foe is easier to hit, and the card says so',
+  )
+  assert.match(moveTerms(atCroc, 'quiet-draw')!.chip, /^2 Resolve · Steel/)
+  assert.match(
+    moveTerms(atCroc, 'strike')!.hint,
+    new RegExp('take ' + croc.attack),
+  )
+  assert.equal(moveCheck(startRun(1), 'strike'), null, 'no fight, no card')
+
+  // Each round is logged: the move, dice, damage both ways and HP left.
+  let logged: Run = atCroc
+  for (const action of ['feint', 'strike', 'guard'] as const) {
+    const before = logged
+    logged = fight(logged, action)
+    if (!logged.battle) break
+    const rounds = logged.battle.rounds!
+    const round = rounds[rounds.length - 1]!
+    assert.equal(rounds.length, (before.battle!.rounds?.length ?? 0) + 1)
+    assert.equal(round.turn, before.battle!.turn)
+    assert.equal(round.action, action)
+    assert.deepEqual(round.dice, logged.lastRoll!.dice)
+    assert.equal(round.total, logged.lastRoll!.total)
+    assert.equal(round.dealt, before.battle!.hp - logged.battle.hp)
+    assert.equal(round.taken, before.health - logged.health)
+    assert.equal(round.foeHp, logged.battle.hp)
+    assert.equal(round.health, logged.health)
+    assert.equal(round.opened, logged.battle.exposed)
+  }
+  // A long fight keeps only its latest rounds.
+  let stalled: Run = { ...atCroc, health: 12 }
+  for (let i = 0; i < 30 && stalled.battle; i++)
+    stalled = fight(stalled, 'guard')
+  if (stalled.battle) {
+    assert.equal(stalled.battle.rounds!.length, LOG_ROUNDS)
+    assert.equal(
+      stalled.battle.rounds![LOG_ROUNDS - 1]!.turn,
+      stalled.battle.turn - 1,
+    )
+  } else {
+    assert.equal(stalled.lastFight?.won, false, 'guarding forever loses')
+    assert.equal(stalled.lastFight!.rounds.length, LOG_ROUNDS)
+  }
+
+  // A plain-words entry a playtester can read on a phone.
+  const sample: CombatRound = {
+    turn: 2,
+    action: 'feint',
+    dice: [4, 3],
+    modifier: 1,
+    target: 9,
+    total: 8,
+    success: false,
+    dealt: 0,
+    taken: 3,
+    foeHp: 5,
+    health: 9,
+    opened: false,
+  }
+  assert.deepEqual(combatEntry(sample, 'River Croc', 8), {
+    head: 'Round 2 · Feint: 4 + 3 + 1 = 8 vs 9, missed.',
+    tail: 'Zuzu takes 3. Zuzu 9/12 HP · River Croc 5/8 HP.',
+    text: 'Round 2 · Feint: 4 + 3 + 1 = 8 vs 9, missed. Zuzu takes 3. Zuzu 9/12 HP · River Croc 5/8 HP.',
+  })
+  assert.equal(
+    combatEntry(
+      {
+        ...sample,
+        action: 'quiet-draw',
+        modifier: -1,
+        total: 6,
+        target: 6,
+        success: true,
+        dealt: 5,
+        taken: 0,
+        foeHp: 0,
+      },
+      'River Croc',
+      8,
+    ).text,
+    'Round 2 · Quiet Draw: 4 + 3 - 1 = 6 vs 6, hit for 5. River Croc is beaten. Zuzu 9/12 HP · River Croc 0/8 HP.',
+  )
+  assert.match(
+    combatEntry(
+      { ...sample, action: 'guard', success: true, taken: 0, opened: true },
+      'Hask',
+      9,
+    ).head,
+    /Guard: .*, held, the foe is open\.$/,
+  )
+  assert.match(
+    combatEntry({ ...sample, health: 0 }, 'Hask', 9).tail,
+    /Zuzu falls\.$/,
+  )
+
+  // The page after a fight carries its report until the next choice.
+  let won: Run | null = null
+  for (let seed = 1; seed <= 200 && !won; seed++) {
+    let run: Run = { ...atCroc, seed }
+    for (let i = 0; i < 20 && run.battle; i++)
+      run = fight(run, run.resolve >= 2 ? 'quiet-draw' : 'strike')
+    if (run.lastFight?.won) won = run
+  }
+  assert.ok(won, 'some seeded fight is won')
+  const winner: Run = won
+  assert.equal(won.sceneId, croc.win)
+  assert.equal(won.lastFight!.foe, croc.name)
+  assert.equal(won.lastFight!.foeMax, croc.hp)
+  assert.equal(
+    won.lastFight!.rounds[won.lastFight!.rounds.length - 1]!.foeHp,
+    0,
+  )
+  assert.ok(isSavedRun(JSON.parse(JSON.stringify(won))), 'a fight report saves')
+  const movedOn = visibleChoices(winner, scene(winner.sceneId)).find(
+    (choice) => !lockReason(winner, choice) && !choice.check,
+  )
+  assert.ok(movedOn, 'the page after the fight offers a way on')
+  assert.equal(takeChoice(winner, movedOn.id).lastFight, null)
+  let lost: Run = { ...atCroc, health: 1 }
+  for (let i = 0; i < 20 && lost.battle; i++) lost = fight(lost, 'strike')
+  if (lost.lastFight && !lost.lastFight.won) {
+    assert.equal(lost.sceneId, croc.lose)
+    assert.equal(
+      lost.lastFight.rounds[lost.lastFight.rounds.length - 1]!.health,
+      0,
+    )
+  }
+  // Story choices never invent a report: an older save has none to clear.
+  assert.equal('lastFight' in takeChoice(initial, 'approach'), false)
+
+  // Saves from before the combat log still load and fight on.
+  const oldFight = JSON.parse(JSON.stringify(atCroc)) as Run
+  delete oldFight.battle!.rounds
+  assert.ok(isSavedRun(oldFight), 'a mid-fight save without a log loads')
+  assert.equal(fight(oldFight, 'strike').battle?.rounds?.length ?? 1, 1)
+  assert.equal(
+    isSavedRun({ ...atCroc, battle: { ...atCroc.battle!, rounds: 'x' } }),
+    false,
+  )
+  assert.equal(
+    isSavedRun({
+      ...atCroc,
+      battle: { ...atCroc.battle!, rounds: [{ turn: 1 }] },
+    }),
+    false,
+  )
+  assert.equal(isSavedRun({ ...winner, lastFight: { foe: 3 } }), false)
+  assert.ok(isSavedRun({ ...initial, lastFight: null }))
+
+  // A save code carries a journey to another device, and refuses anything else.
+  for (const journey of [initial, atCroc, winner, offered]) {
+    const code = encodeSaveCode(journey)
+    assert.ok(code.startsWith(SAVE_CODE_PREFIX) && /^[\w.-]+$/.test(code))
+    assert.deepEqual(decodeSaveCode(code), journey)
+    assert.deepEqual(
+      decodeSaveCode('  ' + code.replace(/(.{40})/g, '$1\n') + '\n'),
+      journey,
+      'a code wrapped by a chat app still loads',
+    )
+  }
+  const legacyCode = encodeSaveCode(legacySave as unknown as Run)
+  assert.deepEqual(decodeSaveCode(legacyCode)?.pendingLoot, [])
+  const accented: Run = { ...initial, flags: ['learned:café-bell'] }
+  assert.deepEqual(decodeSaveCode(encodeSaveCode(accented)), accented)
+  const good1 = encodeSaveCode(initial)
+  for (const bad of [
+    '',
+    'hello',
+    good1.slice(0, -6),
+    good1.replace(SAVE_CODE_PREFIX, 'ZUZU2.'),
+    SAVE_CODE_PREFIX + '!!!!',
+    SAVE_CODE_PREFIX + 'e30',
+    encodeSaveCode({ ...initial, health: 500 }),
+    encodeSaveCode({ ...initial, sceneId: 'nowhere' }),
+    encodeSaveCode({
+      ...initial,
+      attributes: { ...initial.attributes, steel: 9 },
+    }),
+    encodeSaveCode({ ...initial, visited: [] }),
+    SAVE_CODE_PREFIX + 'A'.repeat(70000),
+  ])
+    assert.equal(decodeSaveCode(bad), null, 'refused: ' + bad.slice(0, 30))
+
+  // The reader wires all of it in (markup-level guards).
+  const store = readFileSync(
+    join(process.cwd(), 'stores/zuzuGamebookStore.ts'),
+    'utf8',
+  )
+  assert.match(store, /savedAt\.value = Date\.now\(\)/, 'a save marks the time')
+  assert.match(store, /saveFailed\.value = true/, 'blocked storage is told')
+  assert.match(store, /const next = decodeSaveCode\(code\)/)
+  assert.match(store, /recoverable\.value = run\.value\s+run\.value = next/)
+  assert.match(page, /data-testid="zuzu-gamebook-saved"/)
+  assert.match(page, /data-testid="zuzu-gamebook-save-code"/)
+  assert.match(page, /store\.importCode\(importText\.value\)/)
+  assert.match(page, /store\.exportCode\(\)/)
+  assert.match(page, /data-testid="zuzu-gamebook-combat-log"/)
+  assert.match(page, /data-testid="zuzu-gamebook-fight-report"/)
+  assert.match(page, /aria-live="polite">\s*\{\{ battleLog\[0\]!\.text \}\}/)
+  assert.match(page, /const terms = choiceTerms\(store\.run, choice, note\)/)
+  assert.match(page, /const terms = moveTerms\(store\.run, move\.action\)/)
+  assert.match(page, /\{\{ itemInfo\(item\)\.use \}\}/)
+  assert.match(page, /\{\{ itemInfo\(item\)\.spent \}\}/)
+  assert.doesNotMatch(page, /\(planned\)/, 'the sheet promises only real arts')
+}
 
 console.log(
   'Zuzu gamebook contract: ' +

@@ -35,6 +35,18 @@
               <span class="opacity-40"> · </span>
               <span class="text-info">✦ {{ store.run.resolve }}/4</span>
             </span>
+            <span
+              :key="store.savedAt ?? 'unsaved'"
+              class="zuzu-saved inline-flex items-center gap-1 text-xs font-bold"
+              :class="store.saveFailed ? 'text-error' : 'text-success'"
+              :title="saveTitle"
+              data-testid="zuzu-gamebook-saved"
+            >
+              <span aria-hidden="true">{{ store.saveFailed ? '!' : '✓' }}</span>
+              <span class="sr-only @3xl:not-sr-only">{{
+                store.saveFailed ? 'Not saved' : 'Saved'
+              }}</span>
+            </span>
             <button
               type="button"
               class="btn btn-sm"
@@ -165,6 +177,68 @@
                 >
                   Restore previous journey
                 </button>
+                <section
+                  class="rounded-xl border border-base-content/15 bg-base-300 p-3"
+                  aria-labelledby="zuzu-save-code-heading"
+                  data-testid="zuzu-gamebook-save-code"
+                >
+                  <h3
+                    id="zuzu-save-code-heading"
+                    class="font-serif text-lg font-bold"
+                  >
+                    Carry this journey
+                  </h3>
+                  <p class="mt-1 text-xs opacity-75">
+                    {{
+                      store.saveFailed
+                        ? 'This browser is not keeping your journey.'
+                        : 'Your journey saves on this device after every move.'
+                    }}
+                    To keep it safe or play on another device, copy its save
+                    code and load it there.
+                  </p>
+                  <button
+                    type="button"
+                    class="btn btn-outline btn-sm mt-2 w-full"
+                    @click="copyCode"
+                  >
+                    Copy save code
+                  </button>
+                  <textarea
+                    v-if="shownCode"
+                    readonly
+                    rows="3"
+                    class="textarea textarea-bordered mt-2 w-full break-all font-mono text-[10px] leading-tight"
+                    aria-label="Your save code"
+                    :value="shownCode"
+                    @focus="selectAll"
+                  />
+                  <label
+                    class="mt-3 block text-xs font-bold"
+                    for="zuzu-import-code"
+                    >Load a journey from a save code</label
+                  >
+                  <textarea
+                    id="zuzu-import-code"
+                    v-model="importText"
+                    rows="2"
+                    class="textarea textarea-bordered mt-1 w-full break-all font-mono text-[10px] leading-tight"
+                    placeholder="ZUZU1.…"
+                    spellcheck="false"
+                    autocomplete="off"
+                  />
+                  <button
+                    type="button"
+                    class="btn btn-warning btn-sm mt-2 w-full"
+                    :disabled="!importText.trim()"
+                    @click="loadCode"
+                  >
+                    Load journey
+                  </button>
+                  <p v-if="codeNote" class="mt-2 text-xs" role="status">
+                    {{ codeNote }}
+                  </p>
+                </section>
               </div>
             </section>
             <div class="min-w-0 space-y-4">
@@ -365,10 +439,46 @@
                         >{{ die }}</span
                       >
                       <span class="ml-2 text-sm opacity-70"
-                        >+ {{ store.run.lastRoll.modifier }}</span
+                        >{{ store.run.lastRoll.modifier < 0 ? '−' : '+' }}
+                        {{ Math.abs(store.run.lastRoll.modifier) }}</span
                       >
                     </div>
                   </div>
+                </section>
+                <section
+                  v-if="fightReport"
+                  class="mt-4 rounded-xl border bg-base-300/60 p-3"
+                  :class="
+                    fightReport.won ? 'border-success/40' : 'border-error/40'
+                  "
+                  data-testid="zuzu-gamebook-fight-report"
+                >
+                  <p
+                    class="text-xs font-black uppercase tracking-[.2em]"
+                    :class="fightReport.won ? 'text-success' : 'text-error'"
+                  >
+                    {{ fightReport.won ? 'Fight won' : 'Fight lost' }} ·
+                    {{ fightReport.foe }} · {{ fightReport.fought }}
+                    {{ fightReport.fought === 1 ? 'round' : 'rounds' }}
+                  </p>
+                  <details class="mt-1 text-sm">
+                    <summary class="cursor-pointer opacity-80">
+                      Read the combat log
+                    </summary>
+                    <ol class="mt-2 space-y-1.5">
+                      <li
+                        v-for="entry in fightReport.entries"
+                        :key="entry.turn"
+                        class="rounded-lg border-l-4 bg-base-200/70 px-3 py-1.5"
+                        :class="
+                          entry.landed ? 'border-success' : 'border-error'
+                        "
+                      >
+                        <p class="font-semibold">{{ entry.head }}</p>
+                        <p class="text-xs opacity-80">{{ entry.tail }}</p>
+                      </li>
+                    </ol>
+                  </details>
                 </section>
               </div>
               <div class="min-w-0">
@@ -382,8 +492,12 @@
                     Your pack is full
                   </h3>
                   <p class="mt-2 text-sm">
-                    You found <strong>{{ store.run.pendingLoot[0] }}</strong
-                    >. Replace one carried item or leave this find behind.
+                    You found
+                    <strong>{{
+                      itemInfo(store.run.pendingLoot[0]!).name
+                    }}</strong
+                    >: {{ itemInfo(store.run.pendingLoot[0]!).use }} Replace one
+                    carried item or leave this find behind.
                   </p>
                   <p
                     v-if="store.run.pendingLoot.length > 1"
@@ -400,14 +514,15 @@
                       class="btn btn-outline btn-sm justify-start"
                       @click="store.claimLoot(index)"
                     >
-                      Replace {{ item }}
+                      Replace {{ itemInfo(item).name }}
                     </button>
                     <button
                       type="button"
                       class="btn btn-ghost btn-sm justify-start"
                       @click="store.claimLoot(null)"
                     >
-                      Leave {{ store.run.pendingLoot[0] }} behind
+                      Leave {{ itemInfo(store.run.pendingLoot[0]!).name }}
+                      behind
                     </button>
                   </div>
                 </section>
@@ -438,12 +553,55 @@
                     :max="current.battle.hp"
                     aria-label="Enemy health"
                   />
-                  <p class="mt-3 text-sm opacity-80" aria-live="polite">
+                  <div
+                    v-if="battleLog.length"
+                    class="mt-3"
+                    data-testid="zuzu-gamebook-combat-log"
+                  >
+                    <p class="sr-only" aria-live="polite">
+                      {{ battleLog[0]!.text }}
+                    </p>
+                    <ol
+                      class="space-y-1.5 text-sm"
+                      aria-label="Combat log, newest round first"
+                    >
+                      <li
+                        v-for="(entry, index) in battleLog.slice(0, 3)"
+                        :key="entry.turn"
+                        class="rounded-lg border-l-4 bg-base-200/70 px-3 py-1.5"
+                        :class="[
+                          entry.landed ? 'border-success' : 'border-error',
+                          index ? 'opacity-70' : '',
+                        ]"
+                      >
+                        <p class="font-semibold">{{ entry.head }}</p>
+                        <p class="text-xs opacity-80">{{ entry.tail }}</p>
+                      </li>
+                    </ol>
+                    <details v-if="battleLog.length > 3" class="mt-1 text-xs">
+                      <summary class="cursor-pointer opacity-70">
+                        Earlier rounds ({{ battleLog.length - 3 }})
+                      </summary>
+                      <ol class="mt-1 space-y-1">
+                        <li
+                          v-for="entry in battleLog.slice(3)"
+                          :key="entry.turn"
+                          class="rounded-lg bg-base-200/70 px-3 py-1"
+                        >
+                          {{ entry.text }}
+                        </li>
+                      </ol>
+                    </details>
+                  </div>
+                  <p v-else class="mt-3 text-sm opacity-80" aria-live="polite">
                     {{ store.run.battle.log }}
                   </p>
                   <p class="mt-3 text-sm font-semibold text-warning">
-                    The foe circles and prepares to strike. Choose your
-                    approach.
+                    {{
+                      store.run.battle.exposed
+                        ? 'The foe is open: an attack needs 2 less this round.'
+                        : 'The foe circles and prepares to strike. Choose your approach.'
+                    }}
                   </p>
                   <KrChoiceHand
                     class="zuzu-hand mt-2"
@@ -538,6 +696,10 @@
               </p>
             </div>
           </div>
+          <p class="mt-2 text-xs opacity-65">
+            Health falls in fights and hard places; at 0 a fight is lost.
+            Resolve pays for special arts.
+          </p>
           <h3
             class="mt-6 text-xs font-bold uppercase tracking-[.22em] opacity-60"
           >
@@ -556,16 +718,21 @@
           <h3
             class="mt-6 text-xs font-bold uppercase tracking-[.22em] opacity-60"
           >
-            Equipment and pack
+            Equipment and pack · {{ store.run.items.length }}/5
           </h3>
           <p class="mt-2 text-xs opacity-70">Kasa · Poncho · Katana (worn)</p>
           <ul class="mt-3 space-y-2 text-sm">
             <li
               v-for="(item, i) of store.run.items"
               :key="item + i"
-              class="rounded-md border border-base-content/15 p-2 capitalize"
+              class="rounded-md border border-base-content/15 p-2"
+              data-testid="zuzu-gamebook-item"
             >
-              ◆ {{ item }}
+              <p class="font-semibold">◆ {{ itemInfo(item).name }}</p>
+              <p class="mt-0.5 text-xs opacity-75">{{ itemInfo(item).use }}</p>
+              <p class="mt-0.5 text-xs opacity-60">
+                {{ itemInfo(item).spent }}
+              </p>
             </li>
             <li
               v-for="slot in Math.max(0, 5 - store.run.items.length)"
@@ -582,10 +749,16 @@
           </h3>
           <ul class="mt-2 space-y-2 text-sm">
             <li>
-              <strong>Still Wind</strong> · +2 to a Sense/Shadow check (planned)
+              <strong>Quiet Draw</strong> · 2 Resolve · in a fight, a Steel roll
+              that cuts for 5 damage
             </li>
-            <li><strong>Quiet Draw</strong> · powerful strike, 2 Resolve</li>
-            <li><strong>Last Kindness</strong> · protect an ally (planned)</li>
+            <li>
+              <strong>Last Kindness</strong> · 2 Resolve · spend yourself to
+              carry someone through, where the page offers it
+            </li>
+            <li class="opacity-60">
+              <strong>Still Wind</strong> · not yet learned on this road
+            </li>
           </ul>
           <h3
             class="mt-6 text-xs font-bold uppercase tracking-[.22em] opacity-60"
@@ -628,8 +801,10 @@
 import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import {
   actOpening,
+  combatEntry,
   scene,
   type BattleAction,
+  type CombatRound,
   ENDING_IDS,
   fightCue,
   lockReason,
@@ -644,6 +819,7 @@ import {
 } from '~/utils/zuzuGamebook/art'
 import { journal } from '~/utils/zuzuGamebook/journal'
 import { emphasis } from '~/utils/zuzuGamebook/prose'
+import { choiceTerms, itemInfo, moveTerms } from '~/utils/zuzuGamebook/terms'
 import type { Attribute, Choice } from '~/utils/zuzuGamebook/types'
 import { useZuzuGamebookStore } from '~/stores/zuzuGamebookStore'
 import type { KrHandChoice } from '~/components/narrative/kr-choice-hand.vue'
@@ -761,16 +937,60 @@ const moves: {
   },
 ]
 const moveCards = computed<KrHandChoice[]>(() =>
-  moves.map((move, index) => ({
-    id: move.action,
-    label: move.label,
-    chip: move.cost,
-    shortcut: String(index + 1),
-    hint: move.help,
-    icon: move.icon,
-    disabled: move.action === 'quiet-draw' && store.run.resolve < 2,
-  })),
+  moves.map((move, index) => {
+    // The card reads this round's roll, odds and stakes; the static line is the fallback.
+    const terms = moveTerms(store.run, move.action)
+    const disabled = move.action === 'quiet-draw' && store.run.resolve < 2
+    return {
+      id: move.action,
+      label: move.label,
+      chip: terms?.chip ?? move.cost,
+      shortcut: String(index + 1),
+      hint: disabled ? 'Needs 2 Resolve' : (terms?.hint ?? move.help),
+      details: terms?.details,
+      icon: move.icon,
+      disabled,
+    }
+  }),
 )
+
+// The combat log, newest round first: who struck, the dice, the damage and the HP left.
+type LogEntry = {
+  turn: number
+  landed: boolean
+  head: string
+  tail: string
+  text: string
+}
+function logEntries(
+  rounds: CombatRound[] | undefined,
+  foe: string,
+  foeMax: number,
+): LogEntry[] {
+  return [...(rounds ?? [])].reverse().map((round) => ({
+    turn: round.turn,
+    landed: round.success,
+    ...combatEntry(round, foe, foeMax),
+  }))
+}
+const battleLog = computed(() =>
+  current.value.battle && store.run.battle
+    ? logEntries(
+        store.run.battle.rounds,
+        current.value.battle.name,
+        current.value.battle.hp,
+      )
+    : [],
+)
+const fightReport = computed(() => {
+  const report = store.run.lastFight
+  if (!report || !report.rounds.length) return null
+  return {
+    ...report,
+    fought: report.rounds[report.rounds.length - 1]!.turn,
+    entries: logEntries(report.rounds, report.foe, report.foeMax),
+  }
+})
 function playMove(card: KrHandChoice) {
   const move = moves.find((entry) => entry.action === card.id)
   if (move && moveCards.value.includes(card)) store.battle(move.action)
@@ -805,16 +1025,15 @@ const handChoices = computed<KrHandChoice[]>(() =>
     const check = choice.check
     const locked = lockReason(store.run, choice)
     const risk = locked ? null : fightCue(store.run, choice)
-    const details = [
-      ...(check
-        ? [`Roll 2d6 + ${check.attribute} against ${check.target}`]
-        : []),
-      ...(risk?.details ?? []),
-    ]
+    // Dice odds, Resolve, items and healing read on the card itself, not only in its caption.
+    const terms = choiceTerms(store.run, choice, note)
+    const details = [...terms.details, ...(risk?.details ?? [])]
     return {
       id: choice.id,
       label: title,
-      chip: [note, risk?.chip].filter(Boolean).join(' · ') || undefined,
+      chip:
+        [note, ...terms.chip, risk?.chip].filter(Boolean).join(' · ') ||
+        undefined,
       shortcut: index < 9 ? String(index + 1) : undefined,
       hint: locked ?? risk?.hint,
       details: details.length ? details : undefined,
@@ -852,6 +1071,50 @@ function recover() {
     )
   )
     store.recover()
+}
+const saveTitle = computed(() =>
+  store.saveFailed
+    ? 'This browser is not keeping your journey. Copy a save code from the Ledger to keep it.'
+    : store.savedAt
+      ? 'Journey saved on this device at ' +
+        new Date(store.savedAt).toLocaleTimeString([], {
+          hour: '2-digit',
+          minute: '2-digit',
+        })
+      : 'Journey not saved yet',
+)
+const shownCode = ref('')
+const importText = ref('')
+const codeNote = ref('')
+async function copyCode() {
+  const code = store.exportCode()
+  shownCode.value = code
+  try {
+    await navigator.clipboard.writeText(code)
+    codeNote.value =
+      'Copied. On the other device, open the Ledger and paste it under Load a journey.'
+  } catch {
+    codeNote.value = 'Select the code above and copy it.'
+  }
+}
+function selectAll(event: FocusEvent) {
+  ;(event.target as HTMLTextAreaElement | null)?.select()
+}
+function loadCode() {
+  if (
+    !window.confirm(
+      'Load the journey in this code? Your current journey will be kept in the recovery slot.',
+    )
+  )
+    return
+  if (store.importCode(importText.value)) {
+    importText.value = ''
+    shownCode.value = ''
+    codeNote.value = ''
+    ledgerOpen.value = false
+  } else
+    codeNote.value =
+      'That code is not a journey this book can read. Check that it was copied whole.'
 }
 const pane = ref<HTMLElement | null>(null)
 const heading = ref<HTMLElement | null>(null)
@@ -946,8 +1209,27 @@ useHead({ title: 'Zuzu: Koala Assassin · The Bell That Never Rang' })
     opacity: 1;
   }
 }
+/* Each save remounts the mark, which glows once and settles. */
+.zuzu-saved {
+  animation: zuzu-saved 1.2s ease-out both;
+}
+@keyframes zuzu-saved {
+  0% {
+    opacity: 0.2;
+    transform: scale(0.8);
+  }
+  30% {
+    opacity: 1;
+    transform: scale(1.15);
+  }
+  100% {
+    opacity: 0.85;
+    transform: scale(1);
+  }
+}
 @media (prefers-reduced-motion: reduce) {
-  .zuzu-die {
+  .zuzu-die,
+  .zuzu-saved {
     animation: none;
   }
 }

@@ -21,7 +21,7 @@ const plans: Plan[] = [
     choices: {
       'd07-old-houses': ['ask-chair', 'seat-for-all'],
       'd10-oath': ['ask-council', 'shared-relief'],
-      'd39-congress': ['reopen-day10', 'honor-relief'],
+      'd39-congress': ['reopen-relief-oath', 'honor-relief'],
       'd47-watch-writ': ['renew-relief-charter'],
     },
     targets: [
@@ -37,7 +37,7 @@ const plans: Plan[] = [
     choices: {
       'd07-old-houses': ['ask-chair', 'seat-for-all'],
       'd10-oath': ['ask-council', 'shared-account'],
-      'd39-congress': ['reopen-day10', 'publish-watch-roll'],
+      'd39-congress': ['reopen-account-oath', 'publish-watch-roll'],
       'd47-watch-writ': ['bind-watch-roll'],
     },
     targets: [
@@ -53,7 +53,7 @@ const plans: Plan[] = [
     choices: {
       'd07-old-houses': ['ask-chair', 'seat-for-all'],
       'd10-oath': ['ask-council', 'house-veto'],
-      'd39-congress': ['reopen-day10', 'break-house-veto'],
+      'd39-congress': ['reopen-veto-oath', 'break-house-veto'],
       'd47-watch-writ': ['village-captains'],
     },
     targets: [

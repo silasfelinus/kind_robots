@@ -8,7 +8,7 @@ const BRAM =
   'a lanky, irreverent court musician with an eel-grey tail and a drumstick tucked behind one ear'
 const OREN =
   'a very tall, broad headsman whose whole head is covered by a rough brown cloth hood with two eyeholes, a heavy axe at his side and a long dark eel-grey tail'
-const OTTILIE =
+const WENNA =
   'a lean middle-aged tidal scholar with ink-stained fingers, a brass loupe on a cord and a silver-scaled tail'
 
 export const SCYLLAS_SHORE_ROWS_5_6: readonly MorrowShiftSite[] = [
@@ -73,11 +73,11 @@ export const SCYLLAS_SHORE_ROWS_5_6: readonly MorrowShiftSite[] = [
     echoes: [
       {
         flag: 'e05:4,2:care',
-        text: 'Char has heard about the councilor’s petition and the princess who signed it in plain sight. There is a fourth letter now, to the councilor. She doesn’t explain it.',
+        text: 'Char has heard about Councilor Salter’s petition and the princess who signed it in plain sight. There is a fourth letter now, to the councilor. She doesn’t explain it.',
       },
       {
         flag: 'e05:4,2:risk',
-        text: 'Char has heard her own name is on the councilor’s petition. ‘Funny,’ she says, not looking up. ‘I don’t remember signing anything.’ The spelling check goes cooler for it.',
+        text: 'Char has heard her own name is on Councilor Salter’s petition. ‘Funny,’ she says, not looking up. ‘I don’t remember signing anything.’ The spelling check goes cooler for it.',
       },
     ],
   },
@@ -347,7 +347,7 @@ export const SCYLLAS_SHORE_ROWS_5_6: readonly MorrowShiftSite[] = [
         id: 'care',
         label: 'Study the still scallop dial',
         outcome:
-          'Still now, but marked to wake at dawn and run hard and short toward the hidden gate for less than an hour. Scylla traces the hour onto her palm. It is the hour she remembers. That is either a comfort or the worst thing she has learned all day.',
+          'Still now, but marked to wake each dawn and run hard toward the hidden gate for less than an hour. Scylla counts forward to the third night and traces that dawn’s hour onto her palm. It is the hour she remembers. That is either a comfort or the worst thing she has learned all day.',
         effects: { evidence: 2 },
         artSubject: `${SCYLLA} bent over a still glass dial whose sleeping pearl has begun to glow at one edge, tracing a line on her own palm with a fingertip.`,
       },
@@ -439,27 +439,27 @@ export const SCYLLAS_SHORE_ROWS_5_6: readonly MorrowShiftSite[] = [
     key: '6,6',
     place: 'Tomorrow Dials',
     title: 'A Tide Not Yet Born',
-    speaker: 'Ottilie Brack',
+    speaker: 'Wenna Brack',
     kind: 'memory',
     opening:
-      'The great dials show tomorrow, and Ottilie Brack, the tidal scholar, has been frowning at one of them since breakfast. At its edge the glass is folded, as if a sea very far off were pushing back. ‘That isn’t a tide,’ she says. ‘It’s a scar. Something hasn’t happened yet, and the water already flinches.’ She glances at Scylla, who has gone very still.',
-    artSubject: `A vaulted underwater tide observatory of great round glass dials swirling with green-gold currents set in brass, one dial’s edge creased like folded glass; ${OTTILIE} frowns at the crease through her loupe while ${SCYLLA} goes very still beside her.`,
+      'The great dials show tomorrow, and Wenna Brack, the tidal scholar, has been frowning at one of them since breakfast. At its edge the glass is folded, as if a sea very far off were pushing back. ‘That isn’t a tide,’ she says. ‘It’s a scar. Something hasn’t happened yet, and the water already flinches.’ She glances at Scylla, who has gone very still.',
+    artSubject: `A vaulted underwater tide observatory of great round glass dials swirling with green-gold currents set in brass, one dial’s edge creased like folded glass; ${WENNA} frowns at the crease through her loupe while ${SCYLLA} goes very still beside her.`,
     choices: [
       {
         id: 'care',
-        label: 'Tell Ottilie what you remember of the tide gate',
+        label: 'Tell Wenna what you remember of the tide gate',
         outcome:
-          'Ottilie listens like a scientist: no gasps, many questions, three pages of notes. She believes the data. She believes Scylla, which is rarer. ‘I’ll have to record this,’ she says, apologetic, ‘and records get read.’ The court now has one more document about the princesses.',
+          'Wenna listens like a scientist: no gasps, many questions, three pages of notes. She believes the data. She believes Scylla, which is rarer. ‘I’ll have to record this,’ she says, apologetic, ‘and records get read.’ The court now has one more document about the princesses.',
         effects: { evidence: 2, trust: 1, danger: 1 },
-        artSubject: `${OTTILIE} writing quickly in a notebook by the creased dial, loupe pushed up on her forehead, as ${SCYLLA} talks with her hands, describing a gate and a flood; no legible writing.`,
+        artSubject: `${WENNA} writing quickly in a notebook by the creased dial, loupe pushed up on her forehead, as ${SCYLLA} talks with her hands, describing a gate and a flood; no legible writing.`,
       },
       {
         id: 'risk',
         label: 'Nudge the dials yourself while she isn’t looking',
         outcome:
-          'One turn of a brass screw and the fold smooths out; the dial shows a calm tomorrow. Ottilie looks back, blinks, and spends the next hour rechecking instruments she built herself, quietly, as if she has started to doubt her own eyes.',
+          'One turn of a brass screw and the fold smooths out; the dial shows a calm tomorrow. Wenna looks back, blinks, and spends the next hour rechecking instruments she built herself, quietly, as if she has started to doubt her own eyes.',
         effects: { danger: -2, trust: -1, evidence: -1 },
-        artSubject: `${SCYLLA} turning a small brass screw at the rim of a glass dial while ${OTTILIE}, in the background, has her back turned over a desk of instruments.`,
+        artSubject: `${SCYLLA} turning a small brass screw at the rim of a glass dial while ${WENNA}, in the background, has her back turned over a desk of instruments.`,
       },
     ],
     echoes: [
@@ -546,11 +546,11 @@ export const SCYLLAS_SHORE_ROWS_5_6: readonly MorrowShiftSite[] = [
     echoes: [
       {
         flag: 'e05:6,6:care',
-        text: 'Ottilie believed her. In the late glass, for one breath, Scylla looks like someone who has been believed.',
+        text: 'Wenna believed her. In the late glass, for one breath, Scylla looks like someone who has been believed.',
       },
       {
         flag: 'e05:6,6:risk',
-        text: 'Behind her in the glass, a breath late, Ottilie is still rechecking the dial Scylla nudged. The mirror lets Scylla watch it twice.',
+        text: 'Behind her in the glass, a breath late, Wenna is still rechecking the dial Scylla nudged. The mirror lets Scylla watch it twice.',
       },
     ],
   },

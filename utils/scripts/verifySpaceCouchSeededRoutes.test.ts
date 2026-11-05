@@ -122,4 +122,13 @@ console.log(
     ' distinct missions; every chapter diversified, manual override and save restore OK',
 )
 
-assert.equal(destinationFollowup({ ...startVoyage('fluke', ['tess', 'kivo', 'fen'], 123), chapter: 9, worldFlags: ['windglass-hidden'] }, 'windglass-exodus') !== null, true)
+const windglass = {
+  ...startVoyage('fluke', ['tess', 'kivo', 'fen'], 123),
+  chapter: 9,
+  worldFlags: ['windglass-hidden'],
+}
+assert.ok(destinationFollowup(windglass, 'windglass-exodus'))
+assert.equal(
+  destinationFollowup({ ...windglass, worldFlags: [] }, 'windglass-exodus'),
+  null,
+)

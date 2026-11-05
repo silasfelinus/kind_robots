@@ -1356,7 +1356,9 @@ const resumed = nextDestination(
 )
 assert.equal(resumed.chapter, 4)
 assert.ok(
-  missionBoard(resumed).some((mission) => mission.id === missionFor(resumed).id),
+  missionBoard(resumed).some(
+    (mission) => mission.id === missionFor(resumed).id,
+  ),
   'legacy saves receive an eligible default rather than an invalid fixed call',
 )
 assert.ok(page.includes('data-testid="space-couch-callbacks"'))
@@ -1503,6 +1505,9 @@ function standingOrders(
   policy: 'aid' | 'observe' | 'intervene',
 ) {
   for (;;) {
+    // This baseline intentionally stays on the first offered call to test
+    // a bystander's *chosen* uneventful itinerary, not the random autochart.
+    run = chooseMission(run, VOYAGE_BOARDS[run.chapter - 1]![0]!)
     run = launchMission(staffed(run))
     while (run.phase === 'transit') run = advanceVoyageDay(run)
     run = nextDestination(decidePolicy(run, policy))

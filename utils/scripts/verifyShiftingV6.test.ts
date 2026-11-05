@@ -319,6 +319,49 @@ assert.match(
   /gatepost carvings, the messenger's waystone, the negotiator's own admission/,
   'the evidence intent names each card that can open it',
 )
+assert.doesNotMatch(
+  trialChoice('verge', 'evidence').success,
+  /promise/,
+  'carvings, a waystone or an admission can open the route, so the success assumes no promise',
+)
+
+// Final voice audit: a stock phrase may be a refrain across the deck, but not
+// a tic inside one land, where a single run reads three of its cards.
+const STOCK_PHRASES: Array<[RegExp, number, string]> = [
+  [/road ahead/gi, 5, 'the road-ahead refrain'],
+  [/without a word/gi, 4, '"without a word"'],
+  [
+    /\bpress(es)?\b[^.]{0,50}\b(into your (hand|hands|palm)|on you)\b/gi,
+    4,
+    'a gift pressed into your hand',
+  ],
+]
+for (const land of JOURNEY_WORLD.lands) {
+  const trial = trialForLand(land.id)!
+  const prose = [
+    ...landCards(land.id).flatMap((card) => [
+      card.flavor,
+      ...card.choices.flatMap((choice) => [
+        choice.label,
+        choice.intent,
+        choice.risk,
+        choice.success.text,
+        choice.failure?.text ?? '',
+      ]),
+    ]),
+    trial.flavor,
+    ...trial.choices.flatMap((choice) => [
+      choice.label,
+      choice.intent,
+      choice.success,
+      choice.failure,
+    ]),
+  ].join('\n')
+  for (const [pattern, cap, name] of STOCK_PHRASES) {
+    const count = prose.match(pattern)?.length ?? 0
+    assert.ok(count <= cap, `${land.id}: ${name} ${count} times, cap ${cap}`)
+  }
+}
 
 const choices = V6_CARDS.flatMap((card) => card.choices)
 const certainCards = V6_CARDS.filter((card) =>

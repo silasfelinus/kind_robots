@@ -322,7 +322,7 @@
             "target": 10
           },
           "success": {
-            "text": "The skid holds, scraping a long groove into the road as the wagon lurches away. The grandmother presses a small jar of honey into your hands. Behind you, the farmer counts his fence rails and swears.",
+            "text": "The skid holds, scraping a long groove into the road as the wagon lurches away. The grandmother leans out over the tailboard and hands you a small jar of honey. Behind you, the farmer counts his fence rails and swears.",
             "hp_delta": 0,
             "provisions_delta": 1,
             "add_flags": ["the-three-wheeled-wagon-skid"],
@@ -979,7 +979,7 @@
             "target": 9
           },
           "success": {
-            "text": "Under the trough you find a pebble tally scratched into the stone, with an arrow toward the refuge road. The mother says her daughter counted days that way. You follow the arrow with your eyes, and the road ahead no longer looks the same.",
+            "text": "Under the trough you find a pebble tally scratched into the stone, with an arrow toward the refuge road. The mother says her daughter counted days that way. You follow the arrow with your eyes, and the way you meant to go turns to follow it.",
             "hp_delta": 0,
             "provisions_delta": 0,
             "add_flags": ["a-ribbon-on-the-windlass-tally"],
@@ -1109,7 +1109,7 @@
           "cost": null,
           "roll": null,
           "success": {
-            "text": "You point to the boy. The sister takes back the bread, then presses the confiscated crust into your hand as payment for keeping order. The family gathers its blankets and goes outside. The bread is still warm. The boy's mother keeps her eyes on the door rather than on you.",
+            "text": "You point to the boy. The sister takes back the bread, then pays you for keeping order with the confiscated crust. The family gathers its blankets and goes outside. The bread is still warm. The boy's mother keeps her eyes on the door rather than on you.",
             "hp_delta": 0,
             "provisions_delta": 1,
             "add_flags": [
@@ -1657,7 +1657,7 @@
             "target": 9
           },
           "success": {
-            "text": "The raft slides past the empty watch post in the gray light. By noon there is flour in every pot on the landing, and the young woman leaves a warm loaf at your feet and shows you the smugglers' path, which changes your road ahead.",
+            "text": "The raft slides past the empty watch post in the gray light. By noon there is flour in every pot on the landing, and the young woman leaves a warm loaf at your feet and shows you the smugglers' path, which runs where your map does not.",
             "hp_delta": 0,
             "provisions_delta": 1,
             "add_flags": ["the-smugglers-mirror-signaled", "deed-owed-favor"],
@@ -1813,7 +1813,7 @@
             "target": 9
           },
           "success": {
-            "text": "Most of them have river flux, not fever, and willow bark and boiled water will see them through. The barge captain cuts down the yellow rag herself and presses a jar of honey into your hands.",
+            "text": "Most of them have river flux, not fever, and willow bark and boiled water will see them through. The barge captain cuts down the yellow rag herself and hands a jar of honey down from the deck.",
             "hp_delta": 0,
             "provisions_delta": 1,
             "add_flags": ["a-barge-flying-yellow-treated", "deed-owed-favor"],
@@ -3993,7 +3993,7 @@
             "target": 9
           },
           "success": {
-            "text": "She unwraps her hand to show you the brand the company gave her for weighing fair once. Then she draws you the back trail the ore wagons use, and the road ahead looks different than it did this morning.",
+            "text": "She unwraps her hand to show you the brand the company gave her for weighing fair once. Then she draws you the back trail the ore wagons use, and the route you set out on this morning is not the one you will take.",
             "hp_delta": 0,
             "provisions_delta": 0,
             "add_flags": [
@@ -4045,7 +4045,7 @@
             }
           },
           "failure": {
-            "text": "The pole snaps and the cart slams back into the sand. The flood knocks you flat while you are still hauling, and you crawl out bruised as the cart rolls away and the water cuts a new channel across the road ahead.",
+            "text": "The pole snaps and the cart slams back into the sand. The flood knocks you flat while you are still hauling, and you crawl out bruised as the cart rolls away and the water cuts a new channel across the trail you meant to take.",
             "hp_delta": -2,
             "provisions_delta": 0,
             "add_flags": ["the-cart-in-the-dry-wash-swept"],
@@ -4105,7 +4105,7 @@
             "target": 9
           },
           "success": {
-            "text": "The foam is slow and the clouds are farther off than they look, so you have an hour. You splint the axle with a tent pole, and the family rolls out on a side trail you would never have noticed, which changes the road ahead for you too.",
+            "text": "The foam is slow and the clouds are farther off than they look, so you have an hour. You splint the axle with a tent pole, and the family rolls out on a side trail you would never have noticed, and you follow them onto it.",
             "hp_delta": 0,
             "provisions_delta": 0,
             "add_flags": ["the-cart-in-the-dry-wash-splinted"],
@@ -4146,7 +4146,7 @@
             "target": 8
           },
           "success": {
-            "text": "By evening five cairns stand again, plain enough for anyone to follow. Tamsin gathers her children and walks off without a word, and you do not know where she will find tomorrow's food.",
+            "text": "By evening five cairns stand again, plain enough for anyone to follow. Tamsin gathers her children and walks off without looking back, and you do not know where she will find tomorrow's food.",
             "hp_delta": 0,
             "provisions_delta": 0,
             "add_flags": ["five-fallen-cairns-rebuilt"],
@@ -4336,7 +4336,7 @@
             "target": 10
           },
           "success": {
-            "text": "He rides for no one now. The caravans that vanish on this road were never robbed, he says: the warden's escorts turned them back at the bridge and are holding them there, alive. Before he sleeps he scratches you the raiders' way around the bridge, and the road ahead shifts with it.",
+            "text": "He rides for no one now. The caravans that vanish on this road were never robbed, he says: the warden's escorts turned them back at the bridge and are holding them there, alive. Before he sleeps he scratches you the raiders' way around the bridge, and your route swings wide of the span.",
             "hp_delta": 0,
             "provisions_delta": 0,
             "add_flags": ["the-raider-beneath-the-arch-kept-not-dead"],
@@ -4377,7 +4377,7 @@
             "target": 10
           },
           "success": {
-            "text": "He touches his hat and takes the north fork at a trot. When he is gone the mother squeezes your hands, and her son shows you the side canyon they meant to take, so your road ahead changes with theirs. The writ will find them somewhere, but not today.",
+            "text": "He touches his hat and takes the north fork at a trot. When he is gone the mother squeezes your hands, and her son shows you the side canyon they meant to take, so your route turns with theirs. The writ will find them somewhere, but not today.",
             "hp_delta": 0,
             "provisions_delta": 0,
             "add_flags": ["the-writ-and-the-runaways-misdirected"],
@@ -4839,7 +4839,7 @@
           },
           "roll": null,
           "success": {
-            "text": "The recruiter weighs your sack, shrugs, and hands over the indenture. The drifter stares at you as if you might be a trick, and by morning he is gone, free of the paper and without a word of thanks.",
+            "text": "The recruiter weighs your sack, shrugs, and hands over the indenture. The drifter stares at you as if you might be a trick, and by morning he is gone, free of the paper, without once saying thank you.",
             "hp_delta": 0,
             "provisions_delta": 0,
             "add_flags": ["dice-for-an-indenture-bought-out"],
@@ -6585,7 +6585,7 @@
             "target": 10
           },
           "success": {
-            "text": "You work along the walls as fast as your hands will go, and by the time the mother comes back with two wet children, every arrow points true. Tracing the turned tunnels, you learn the road ahead has shifted too.",
+            "text": "You work along the walls as fast as your hands will go, and by the time the mother comes back with two wet children, every arrow points true. Tracing the turned tunnels, you learn your own way down has shifted with them.",
             "hp_delta": 0,
             "provisions_delta": 0,
             "add_flags": ["arrows-in-childrens-chalk-redrew"],
@@ -6703,7 +6703,7 @@
             "target": 10
           },
           "success": {
-            "text": "The quill twitches toward the left-hand tunnel and away again, and you have it. You leave without paying, and the road ahead rearranges itself in your head. You are never quite sure whether you stole the way or she let you.",
+            "text": "The quill twitches toward the left-hand tunnel and away again, and you have it. You leave without paying, and the tunnels rearrange themselves in your head. You are never quite sure whether you stole the way or she let you.",
             "hp_delta": 0,
             "provisions_delta": 0,
             "add_flags": ["the-bone-compass-stolen-reading"],
@@ -6800,7 +6800,7 @@
             "target": 10
           },
           "success": {
-            "text": "Two hours of turns, and he is tired enough to leave the grain at the crossroads for whoever needs it and climb out. The families come out after he is gone and press a handful of his grain on you. Nobody is counted, and nobody is sent back.",
+            "text": "Two hours of turns, and he is tired enough to leave the grain at the crossroads for whoever needs it and climb out. The families come out after he is gone and share a handful of his grain with you. Nobody is counted, and nobody is sent back.",
             "hp_delta": 0,
             "provisions_delta": 1,
             "add_flags": ["the-surveyors-tally-book-led-astray"],
@@ -7230,7 +7230,7 @@
           },
           "roll": null,
           "success": {
-            "text": "You leave bread and a waterskin on a flat black stone for whoever comes next and strap the loom across your pack. The weaver says nothing all the way to the camp. At the gate he touches the frame and goes in without a word of thanks.",
+            "text": "You leave bread and a waterskin on a flat black stone for whoever comes next and strap the loom across your pack. The weaver says nothing all the way to the camp. At the gate he touches the frame once, as if to be sure of it, and goes in.",
             "hp_delta": 0,
             "provisions_delta": 0,
             "add_flags": ["the-handcart-and-the-loom-carried"],
@@ -7349,7 +7349,7 @@
             "target": 9
           },
           "success": {
-            "text": "He was ordered to burn a hamlet that hid no one, he says, and he could not. He tells you of a buried pilgrim track that skirts the next lava field, and the road ahead rearranges itself in your head. You leave him there because he asks you to.",
+            "text": "He was ordered to burn a hamlet that hid no one, he says, and he could not. He tells you of a buried pilgrim track that skirts the next lava field, and your way to the threshold redraws itself around it. You leave him there because he asks you to.",
             "hp_delta": 0,
             "provisions_delta": 0,
             "add_flags": [
@@ -7516,7 +7516,7 @@
             "target": 10
           },
           "success": {
-            "text": "You find a shoulder of deep, soft ash and coax the mule onto it a step at a time. It limps, but it walks. By nightfall the peddler has reached the camp with her panniers, and she presses a twist of salted meat on you.",
+            "text": "You find a shoulder of deep, soft ash and coax the mule onto it a step at a time. It limps, but it walks. By nightfall the peddler has reached the camp with her panniers, and she shares her salted meat with you at the fire.",
             "hp_delta": 0,
             "provisions_delta": 1,
             "add_flags": ["the-mule-on-the-glass-walked-out"],
@@ -7842,7 +7842,7 @@
           "cost": null,
           "roll": null,
           "success": {
-            "text": "The raider lives and, weak and wary, draws the path across the ash flats on the commander's map; reading over her shoulder, you see the road ahead reorder itself. The sentry dies at dusk. His mother does not know you had a hand in it, and you do not tell her.",
+            "text": "The raider lives and, weak and wary, draws the path across the ash flats on the commander's map; reading over her shoulder, you see your own route change with it. The sentry dies at dusk. His mother does not know you had a hand in it, and you do not tell her.",
             "hp_delta": 0,
             "provisions_delta": 0,
             "add_flags": [
@@ -7869,7 +7869,7 @@
             "target": 11
           },
           "success": {
-            "text": "You sponge two burning foreheads until your arms shake. By dawn both fevers have broken, barely, and the surgeon presses a parcel of broth biscuits into your hands as if paying for a trick she means to learn.",
+            "text": "You sponge two burning foreheads until your arms shake. By dawn both fevers have broken, barely, and the surgeon pays you a parcel of broth biscuits, as if for a trick she means to learn.",
             "hp_delta": 0,
             "provisions_delta": 1,
             "add_flags": ["two-cots-one-draught-both-lived"],
@@ -7992,7 +7992,7 @@
             "target": 9
           },
           "success": {
-            "text": "He answers without a pause, and a woman in the crowd says she has seen those children at the refugee fires. It does not save him from the irons, but it saves him from the rope, and at dusk his eldest finds you and presses a heel of bread into your hand.",
+            "text": "He answers without a pause, and a woman in the crowd says she has seen those children at the refugee fires. It does not save him from the irons, but it saves him from the rope, and at dusk his eldest finds you and brings you the heel of the family's loaf.",
             "hp_delta": 0,
             "provisions_delta": 1,
             "add_flags": ["the-stockade-at-dawn-story-held"],
@@ -8230,7 +8230,7 @@
           },
           "roll": null,
           "success": {
-            "text": "They take your food and split it before handing over the boots. The sister takes them without a word and walks off toward the refugee fires. Later you hear the soldiers dicing again, for something else of his.",
+            "text": "They take your food and split it before handing over the boots. The sister tucks them under her arm and walks off toward the refugee fires. Later you hear the soldiers dicing again, for something else of his.",
             "hp_delta": 0,
             "provisions_delta": 0,
             "add_flags": ["the-dead-sentrys-boots-bought-boots"],
@@ -8693,7 +8693,7 @@
             "target": 8
           },
           "success": {
-            "text": "He hears the old words in your voice and believes you, as he would believe no one else. He gives you the post's iron key and shows you the sentry stair inside the wall, which runs past the gate to ground no map shows, and the road ahead changes.",
+            "text": "He hears the old words in your voice and believes you, as he would believe no one else. He gives you the post's iron key and shows you the sentry stair inside the wall, which runs past the gate to ground no map shows, and your way turns to follow it.",
             "hp_delta": 0,
             "provisions_delta": 0,
             "add_flags": [
@@ -8825,7 +8825,7 @@
             "target": 7
           },
           "success": {
-            "text": "The old way is where you hoped: a buried ledge along the wall, marked with the worn signs you learned to read. You lead the family past the gate without paying anyone, and at the far end the father presses a twist of dried fish into your hand.",
+            "text": "The old way is where you hoped: a buried ledge along the wall, marked with the worn signs you learned to read. You lead the family past the gate without paying anyone, and at the far end the father pays you the only way he can, with a strip of dried fish.",
             "hp_delta": 0,
             "provisions_delta": 1,
             "add_flags": ["the-smugglers-side-door-old-way"],
@@ -8944,7 +8944,7 @@
           "target": 9
         },
         "success": {
-          "text": "A boy comes out with his hands up and the farmer's rations in his shirt. His family camps in a dry gully, and he shows you the path they took, a way the road ahead had kept hidden.",
+          "text": "A boy comes out with his hands up and the farmer's rations in his shirt. His family camps in a dry gully, and he shows you the path they took, a track no map of the Homestead has ever marked.",
           "hp_delta": 0,
           "provisions_delta": 0,
           "add_flags": ["farm-thief-pardoned", "deed-knows-old-roads"],
@@ -9480,7 +9480,7 @@
           "target": 9
         },
         "success": {
-          "text": "The ford is still there, braided and shallow. You carry the youngest across on your back while the ferryman watches from his raft, and on the far side the road ahead runs somewhere new.",
+          "text": "The ford is still there, braided and shallow. You carry the youngest across on your back while the ferryman watches from his raft, and on the far side a new road opens along the bank.",
           "hp_delta": 0,
           "provisions_delta": 0,
           "add_flags": ["lanterns-on-the-raft-old-ford"],
@@ -9785,7 +9785,7 @@
         "cost": null,
         "roll": null,
         "success": {
-          "text": "He grumbles but comes, and from the high bank at dusk you watch the channel fill where his next stake would have stood. From up here you can see the new channels, and the road ahead will have to bend around them.",
+          "text": "He grumbles but comes, and from the high bank at dusk you watch the channel fill where his next stake would have stood. From up here you can see the new channels, and your own route will have to bend around them.",
           "hp_delta": 0,
           "provisions_delta": 0,
           "add_flags": [
@@ -10158,7 +10158,7 @@
           "target": 9
         },
         "success": {
-          "text": "She climbs down and tells you she once rode escort for the Canyon Warden, until she was ordered to turn sick travelers back into a storm. Then she lifts the rope and sends you by the escorts' trail, and the road ahead changes.",
+          "text": "She climbs down and tells you she once rode escort for the Canyon Warden, until she was ordered to turn sick travelers back into a storm. Then she lifts the rope and sends you by the escorts' trail, which no traveler's map shows.",
           "hp_delta": 0,
           "provisions_delta": 0,
           "add_flags": ["the-toll-without-a-keeper-4-success"],
@@ -10215,7 +10215,7 @@
           "target": 10
         },
         "success": {
-          "text": "You copy three routes before the last map curls black, and one of them shows a trail the others all left out. She watches you work and does not stop you, and the road ahead looks different now.",
+          "text": "You copy three routes before the last map curls black, and one of them shows a trail the others all left out. She watches you work and does not stop you, and your own route redraws itself on the page.",
           "hp_delta": 0,
           "provisions_delta": 0,
           "add_flags": ["the-map-in-ashes-3-success", "deed-knows-old-roads"],
@@ -10643,7 +10643,7 @@
           "target": 10
         },
         "success": {
-          "text": "The sheet cracks, then splits, and the courier tumbles through in a cloud of grit. He hugs you, letter and all, and tells you which tunnels ahead the thunder has already ruined. The road ahead reorders itself around them.",
+          "text": "The sheet cracks, then splits, and the courier tumbles through in a cloud of grit. He hugs you, letter and all, and tells you which tunnels ahead the thunder has already ruined. Your way through the dark reorders itself around them.",
           "hp_delta": 0,
           "provisions_delta": 0,
           "add_flags": ["voices-across-the-rock-broke-through"],
@@ -10869,7 +10869,7 @@
           "target": 10
         },
         "success": {
-          "text": "You find them two miles out, lost in a gully, and they refill your waterskin from theirs. They lead you back by a sheltered wash the ranger never knew, and the road ahead looks different from its far end. The ranger grips your arm and says she owes you.",
+          "text": "You find them two miles out, lost in a gully, and they refill your waterskin from theirs. They lead you back by a sheltered wash the ranger never knew, and from its far end the land lies differently than her map shows. The ranger grips your arm and says she owes you.",
           "hp_delta": 0,
           "provisions_delta": 1,
           "add_flags": [

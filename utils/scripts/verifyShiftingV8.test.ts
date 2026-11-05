@@ -359,3 +359,20 @@ assert.ok(
     old.find((row) => row.policy === 'safe')!.complete,
   'prepared scouting should not hurt cautious survival overall',
 )
+
+// The shared V7/V8 routes sit beside authored second-person trial prose, so
+// their intents speak in the story's voice. The board shows the odds, the
+// skill, the cost and any lock next to them (verifyShiftingBoard pins that).
+const SHARED_ROUTES = ['witness', 'scout', 'tribute', 'coerce', 'solidarity']
+for (const land of JOURNEY_WORLD.lands)
+  for (const trial of [trialForLandV7(land.id)!, trialForLandV8(land.id)!])
+    for (const choice of trial.choices.filter((entry) =>
+      SHARED_ROUTES.includes(entry.id),
+    )) {
+      assert.match(choice.intent, /\byou\b/i, `${land.id}/${choice.id}`)
+      assert.doesNotMatch(
+        choice.intent,
+        /\b(check|requires?|HP|health|marks?|provisions?|steel|wits|awareness|bearing)\b/i,
+        `${land.id}/${choice.id}: the intent reads as story, not rules text`,
+      )
+    }

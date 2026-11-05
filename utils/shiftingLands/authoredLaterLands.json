@@ -136,7 +136,7 @@
             "target": 8
           },
           "success": {
-            "text": "You set your heels in the mud and hold. One by one the family steps across, the youngest clutching a lantern from the rail. Someone presses a packet of river cakes into your hand without a word.",
+            "text": "You set your heels in the mud and hold. One by one the family steps across, the youngest clutching a lantern from the rail. Someone tucks a packet of river cakes into your coat before you can refuse it.",
             "hp_delta": 0,
             "provisions_delta": 1,
             "add_flags": ["lanterns-on-the-raft-1-success"],
@@ -1036,7 +1036,7 @@
             "target": 9
           },
           "success": {
-            "text": "From what the travelers leave unsaid, you understand the missing one left by choice. The host fills a bowl for you without a word and, as the fire burns down, quietly names the safer road.",
+            "text": "From what the travelers leave unsaid, you understand the missing one left by choice. The host fills a bowl for you and asks nothing, and, as the fire burns down, quietly names the safer road.",
             "hp_delta": 0,
             "provisions_delta": 1,
             "add_flags": ["one-place-by-the-fire-1-success"],
@@ -1156,7 +1156,7 @@
             "target": 10
           },
           "success": {
-            "text": "Near midnight you catch a thief creeping toward the supply packs and send him running. The sentry wakes, hears what happened, calls the debt paid, and presses a share of the saved food on you.",
+            "text": "Near midnight you catch a thief creeping toward the supply packs and send him running. The sentry wakes, hears what happened, calls the debt paid, and insists you take a share of the saved food.",
             "hp_delta": 0,
             "provisions_delta": 1,
             "add_flags": ["the-night-watch-debt-1-success"],
@@ -1336,7 +1336,7 @@
             "target": 8
           },
           "success": {
-            "text": "You get the chest into the dry without cracking a single vial. The healer presses a roll of bandage and a heel of bread into your hands, and sketches the dry passage on the back of a label.",
+            "text": "You get the chest into the dry without cracking a single vial. The healer packs a roll of bandage and a heel of bread into your satchel, and sketches the dry passage on the back of a label.",
             "hp_delta": 0,
             "provisions_delta": 1,
             "add_flags": ["shelter-for-the-storm-1-success"],

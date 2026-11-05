@@ -273,7 +273,7 @@ export function trialForLandV7(landId: string): AuthoredTrial | null {
       id: 'witness',
       label: witness.label,
       intent:
-        'Call on people you helped or truths you defended. Requires two mercy and/or honesty marks in total, earned in encounters; costs no provisions.',
+        'Call the people you helped and the truths you stood by to stand beside you. They come because of what you did on the road, and they ask nothing from your pack.',
       skill: 'bearing',
       target: landId === 'verge' ? 12 : 11,
       cost: 0,
@@ -285,7 +285,7 @@ export function trialForLandV7(landId: string): AuthoredTrial | null {
       id: 'scout',
       label: scout.label,
       intent:
-        'Use the pattern learned by spending one health to study this specific trial first.',
+        'Take the way you found while you studied this place. You already paid for it in strength; now you only have to walk it.',
       skill: 'awareness',
       target: landId === 'verge' ? 12 : 10,
       cost: 0,
@@ -299,7 +299,7 @@ export function trialForLandV7(landId: string): AuthoredTrial | null {
       id: 'tribute',
       label: dark.tribute.label,
       intent:
-        'Spend 1 provision to buy priority while other people bear the consequences. Easy Wits check; your bargain becomes part of your story.',
+        'Pay a ration to go first while people with less wait and bear the cost. It is the easier bargain, and the road will remember that you made it.',
       skill: 'wits',
       target: landId === 'verge' ? 11 : 10,
       cost: 1,
@@ -311,7 +311,7 @@ export function trialForLandV7(landId: string): AuthoredTrial | null {
       id: 'coerce',
       label: dark.coerce.label,
       intent:
-        'Shift the danger onto another traveler. An easier Steel check at no material cost; your cruelty will be remembered.',
+        'Push the danger onto a traveler who cannot refuse you. It costs you nothing you carry, and someone will remember that it was you.',
       skill: 'steel',
       target: landId === 'verge' ? 12 : 11,
       cost: 0,
@@ -323,7 +323,7 @@ export function trialForLandV7(landId: string): AuthoredTrial | null {
       id: 'solidarity',
       label: solidarity.label,
       intent:
-        'Requires four mercy and two honesty marks from real encounters. Organize those you protected for a hard-won collective route.',
+        'Gather everyone you protected and walk in together. Only a road of real mercy and honest words brings this many people to your side.',
       skill: 'bearing',
       target: landId === 'verge' ? 11 : 10,
       cost: 0,

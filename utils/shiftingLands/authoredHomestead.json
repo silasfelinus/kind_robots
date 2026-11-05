@@ -315,7 +315,7 @@
             "target": 7
           },
           "success": {
-            "text": "The knot bites and holds under the full weight. Soon the line runs as smoothly as a hummed tune, and the keeper presses a twist of dried meat into your hand.",
+            "text": "The knot bites and holds under the full weight. Soon the line runs as smoothly as a hummed tune, and the keeper tosses you a strip of dried meat for your trouble.",
             "hp_delta": 0,
             "provisions_delta": 1,
             "add_flags": ["well-line-repaired"],
@@ -717,7 +717,7 @@
             "map_effect": "none"
           },
           "failure": {
-            "text": "He calls the question impertinent, walks you out of the gate, and points you down the wrong lane. By the time you realize it, you have walked miles on sore feet, and the road ahead runs somewhere new.",
+            "text": "He calls the question impertinent, walks you out of the gate, and points you down the wrong lane. By the time you realize it, you have walked miles on sore feet, down a road you never meant to take.",
             "hp_delta": -1,
             "provisions_delta": 0,
             "add_flags": ["bell-caretaker-hostile"],

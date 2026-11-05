@@ -683,7 +683,7 @@
             "map_effect": "none"
           },
           "failure": {
-            "text": "The stone slips before the brace takes the weight. It slams your back against the wall and buries the easy road under rubble, and you crawl free, hurting with every breath.",
+            "text": "The stone slips before the brace takes the weight. It slams your back against the wall, and you crawl out from under the rubble hurting with every breath.",
             "hp_delta": -2,
             "provisions_delta": 0,
             "add_flags": ["hammer-under-the-stone-1-failure"],
@@ -701,7 +701,7 @@
             "target": 10
           },
           "success": {
-            "text": "The chisel marks are neat and purposeful, and they point toward a side tunnel no map shows. Whoever reopened this quarry did it on purpose, and did it quietly.",
+            "text": "The chisel marks are neat and unhurried, and they run toward a side tunnel no map shows. Someone reopened this quarry on purpose, and has paid to keep it quiet.",
             "hp_delta": 0,
             "provisions_delta": 0,
             "add_flags": ["hammer-under-the-stone-2-success"],
@@ -743,7 +743,7 @@
             "map_effect": "none"
           },
           "failure": {
-            "text": "He raises a hand, and guards step out of the dark. You get away through a rain of falling stone, but it batters you all the way to daylight.",
+            "text": "He raises a hand, and guards step out of the dark. You run for daylight under a hail of thrown stones, and more than one of them finds you.",
             "hp_delta": -2,
             "provisions_delta": 0,
             "add_flags": ["the-empty-pay-cart-1-failure"],
@@ -781,7 +781,7 @@
       "id": "the-glass-vein",
       "locationId": "quarry",
       "title": "The Glass Vein",
-      "flavor": "A collector works alone at a vein of black glass that sings when it is struck. She knows the stuff can cut so cleanly that it does not bleed at first. She needs a steady hand to free one fragment for the road, and a strong back to carry the tray she has already filled.",
+      "flavor": "A collector works alone at a vein of black glass that sings when it is struck. She warns you it cuts so cleanly that the wound does not bleed at first. She needs a steady hand to free one fragment for the road, and a strong back to carry the tray she has already filled.",
       "weight": 2,
       "art": null,
       "choices": [
@@ -888,7 +888,7 @@
             "map_effect": "recorded-prospective-shift"
           },
           "failure": {
-            "text": "A loose slab tips you toward the ravine. The rope catches you, but it tears through your hands as you drop, and you haul yourself back up bleeding.",
+            "text": "A loose slab tips you toward the ravine. You catch the lip of the ledge as you drop, and the rock tears your palms open before you haul yourself back up, bleeding.",
             "hp_delta": -2,
             "provisions_delta": 0,
             "add_flags": ["the-watchful-overhang-2-failure"],
@@ -961,7 +961,7 @@
       "id": "the-toll-without-a-keeper",
       "locationId": "canyon-trail",
       "title": "The Toll Without a Keeper",
-      "flavor": "A toll rope hangs across the canyon trail above a wooden box, and no one stands guard. The enforcer watches from the rocks overhead, waiting to see who will pay into an unattended box. Her spear has been deliberately blunted, as if she hopes never to use it.",
+      "flavor": "A toll rope hangs across the canyon trail above a wooden box, and no one stands beside it to collect. An enforcer watches from the rocks overhead, waiting to see who will pay a toll that no one has the right to charge. Her spear has been deliberately blunted, as if she hopes never to use it.",
       "weight": 2,
       "art": null,
       "choices": [
@@ -983,7 +983,7 @@
             "map_effect": "none"
           },
           "failure": {
-            "text": "Her partner comes at you from behind rocks you never thought to check. You get clear, but you are bruised and driven back down the trail.",
+            "text": "Her partner comes at you from behind rocks you never thought to check. You get clear, but only by giving ground, and you go back down the trail bruised.",
             "hp_delta": -2,
             "provisions_delta": 0,
             "add_flags": ["the-toll-without-a-keeper-1-failure"],
@@ -1096,7 +1096,7 @@
             "target": 9
           },
           "success": {
-            "text": "You lift the fragment out whole and blow the sparks from its edge. Beside the notch, someone has crossed out one canyon path's name and written another: it was mislabeled on purpose.",
+            "text": "You lift the fragment out whole and blow the sparks from its edge. Beside the notch, someone has crossed out the trail's true name and inked a false one over it. The map was wrong on purpose.",
             "hp_delta": 0,
             "provisions_delta": 0,
             "add_flags": ["the-map-in-ashes-1-success"],
@@ -1163,7 +1163,7 @@
             "map_effect": "none"
           },
           "failure": {
-            "text": "Exhaustion blurs the dark into shapes. You fight to stay on your feet, and while you do, thieves slip in and carry off the camp's food, your own with it.",
+            "text": "Exhaustion blurs the dark into shapes. You fight to stay on your feet, and while you do, thieves slip past you and carry off the camp's food, a share of yours with it.",
             "hp_delta": -1,
             "provisions_delta": -1,
             "add_flags": ["the-night-watch-debt-1-failure"],

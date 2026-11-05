@@ -128,6 +128,73 @@ assert.match(
   'the betrayal must acknowledge the hungry people at the landing',
 )
 
+const tablelands = JOURNEY_WORLD.lands.find((land) => land.id === 'tablelands')!
+const tablelandsIds = new Set(tablelands.locations.map((place) => place.id))
+const tablelandsCards = V6_CARDS.filter((card) =>
+  tablelandsIds.has(card.locationId),
+)
+assert.equal(
+  tablelandsCards.length,
+  24,
+  'the Tablelands have eight cards per location',
+)
+const tablelandsChoice = (cardId: string, choiceId: string) =>
+  tablelandsCards
+    .find((card) => card.id === cardId)!
+    .choices.find((choice) => choice.id === choiceId)!
+for (const card of tablelandsCards) {
+  assert.ok(card.flavor.length >= 130, `${card.id}: keep the scene specific`)
+  for (const choice of card.choices) {
+    assert.ok(choice.risk.length >= 20, `${card.id}: keep the risk legible`)
+    assert.ok(
+      choice.success.text.length >= 80,
+      `${card.id}: keep the consequence authored`,
+    )
+    if (choice.failure)
+      assert.ok(
+        choice.failure.text.length >= 80,
+        `${card.id}: keep the failure consequential`,
+      )
+    for (const effect of [choice.success, choice.failure])
+      if (effect && effect.map_effect === 'none')
+        assert.doesNotMatch(
+          effect.text,
+          /road ahead (changes|shifts|bends|runs|looks)|buries the easy road/,
+          `${card.id}/${choice.id}: prose must not promise a map shift the state never records`,
+        )
+  }
+}
+assert.match(
+  tablelandsCards.find((card) => card.id === 'six-tally-sticks')!.flavor,
+  /lay it against the foreman's/,
+  "Pell's stick is compared with the foreman's half, not her own",
+)
+assert.match(
+  tablelandsChoice('the-banner-in-the-wind', 'ask-why-the-rider-left').success
+    .text,
+  /^You say aloud/,
+  'deed-told-truth is earned by what the player says',
+)
+assert.equal(
+  tablelandsChoice(
+    'the-raider-beneath-the-arch',
+    'ask-about-the-missing-caravans',
+  ).label,
+  'Ask who he really rides for',
+  'the label matches what the intent and the answer are about',
+)
+assert.match(
+  tablelandsChoice('the-bell-in-the-sealed-adit', 'call-in-what-you-are-owed')
+    .success.text,
+  /Five of the six/,
+  'calling in help visibly saves more cutters than digging alone',
+)
+assert.doesNotMatch(
+  trialForLand('tablelands')!.flavor,
+  /you know that/,
+  'the trial does not assume clues the player may never have found',
+)
+
 const choices = V6_CARDS.flatMap((card) => card.choices)
 const certainCards = V6_CARDS.filter((card) =>
   card.choices.some((choice) => !choice.roll),

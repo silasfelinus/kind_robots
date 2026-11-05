@@ -29,7 +29,15 @@ const CONTENT_TYPES: Record<string, string> = {
 }
 
 const DEFAULT_MEDIA_ORIGIN = 'https://media.acrocatranch.com'
-const REMOTE_FALLBACK_PREFIXES = ['academy/', 'dashboard-tabs/academy/']
+// ruler-hooked/: the game's whole rendered library (fish, cast, rulers, region
+// layers, cards, rewards, endings -- 126+ files) lives on the media origin, so
+// without this every /images/ruler-hooked/* request 404'd and the game drew its
+// placeholder gradients over nothing.
+const REMOTE_FALLBACK_PREFIXES = [
+  'academy/',
+  'dashboard-tabs/academy/',
+  'ruler-hooked/',
+]
 const REMOTE_FALLBACK_TIMEOUT_MS = 15_000
 
 function remoteFallbackUrl(relativePath: string): string | null {

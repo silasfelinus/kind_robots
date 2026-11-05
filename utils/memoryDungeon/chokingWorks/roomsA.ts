@@ -81,12 +81,12 @@ export const CHOKING_ROOMS_A: readonly ChokingRoomContent[] = [
     kind: 'lore',
     speaker: 'Scylla',
     opening:
-      'The crew’s shift slate still hangs where the tunnel forks, but it has been rewritten overnight in a clerk’s tidy chalk. Dace. Ottery. Marl D., Tuesdays. Where Cal D. was struck through, the stone has been scrubbed grey, as if no name was ever there. At the foot the old paint now reads LANDWARD SLUICE: NEVER OPENED. And down the margin, forty-one times, in Char’s crooked hand, the same small word: why?',
+      'The crew’s shift slate still hangs where the tunnel forks, but it has been rewritten overnight in a clerk’s tidy chalk. Dace. Ottery. Marl D., Tuesdays. Where Fenn D. was struck through, the stone has been scrubbed grey, as if no name was ever there. At the foot the old paint now reads LANDWARD SLUICE: NEVER OPENED. And down the margin, forty-one times, in Char’s crooked hand, the same small word: why?',
     artSubject: `A slab of black slate on a brick wall where an underwater tunnel forks, its chalk ruling redone in neat even lines, one row scrubbed to a pale grey smear, a long column of identical tiny chalk marks down its margin, ${SCYLLA} staring at it by lantern light while ${CHAR} hovers behind with her fists clenched`,
     echoes: [
       {
         flag: 'GT-02:copy-slate',
-        text: 'Scylla copied this slate into her sleeve-book last time. She opens it now. Her copy has Cal’s line struck through, not scrubbed out. One of them is lying, and it isn’t her pencil.',
+        text: 'Scylla copied this slate into her sleeve-book last time. She opens it now. Her copy has Fenn’s line struck through, not scrubbed out. One of them is lying, and it isn’t her pencil.',
       },
       {
         flag: 'GT-02:ask-why',
@@ -175,7 +175,7 @@ export const CHOKING_ROOMS_A: readonly ChokingRoomContent[] = [
     kind: 'lore',
     speaker: 'Scylla',
     opening:
-      'The crew bench is still at the bend, the kettle still steaming on its coil, but there are six mugs now on six nails, and one hangs upside down. Along the bench’s back rail a name has been scraped off with a blade: three letters, the last one an L. Someone has scratched a tiny mark beside the gouge, and someone else a second. The pump log hangs where it always has, thicker than it should be, its margin full.',
+      'The crew bench is still at the bend, the kettle still steaming on its coil, but there are six mugs now on six nails, and one hangs upside down. Along the bench’s back rail a name has been scraped off with a blade: four letters, the last one an N. Someone has scratched a tiny mark beside the gouge, and someone else a second. The pump log hangs where it always has, thicker than it should be, its margin full.',
     artSubject:
       'A rough wooden bench beside warm pipes at a bend in an underwater brick tunnel, its back rail gouged where carved letters were scraped away, two small scratch marks beside the gouge, a battered kettle steaming on a coil, six mismatched mugs on six nails with one hanging upside down, a thick ledger on a cord, a crew lamp glowing',
     autoChoiceId: 'read-log',
@@ -255,11 +255,11 @@ export const CHOKING_ROOMS_A: readonly ChokingRoomContent[] = [
   },
   {
     id: 'CW-06',
-    title: 'Letters From Cal',
+    title: 'Letters From Fenn',
     kind: 'treasure',
     speaker: 'Scylla',
     opening:
-      'The crew lockers are still cut into the rock, but the burnt name on the end door has been sanded down to pale wood, and a fresh brass tag says VACANT. The fish-hook latch has been bent straight. Inside hang the oilskin hood and the tin whistle, and on the shelf lies a bundle of letters in net-twine, more than before. They are addressed from Cal now, in a clerk’s round hand. The top one begins: Dear Tibby, I am well and I do not wish to come home.',
+      'The crew lockers are still cut into the rock, but the burnt name on the end door has been sanded down to pale wood, and a fresh brass tag says VACANT. The fish-hook latch has been bent straight. Inside hang the oilskin hood and the tin whistle, and on the shelf lies a bundle of letters in net-twine, more than before. They are addressed from Fenn now, in a clerk’s round hand. The top one begins: Dear Tibby, I am well and I do not wish to come home.',
     artSubject: `A row of driftwood locker doors in a rock wall, the last one standing open with its burnt name sanded away and a small new brass tag in its place, an oilskin hood and a tin whistle hanging inside, a thick bundle of identical letters tied with net twine on the shelf, ${SCYLLA} holding a straightened fish-hook latch, ${CHAR} behind her rigid with fury`,
     echoes: [
       {
@@ -268,11 +268,11 @@ export const CHOKING_ROOMS_A: readonly ChokingRoomContent[] = [
       },
       {
         flag: 'GT-06:oilskin',
-        text: 'Scylla wore Cal’s hood through the filter halls last time. It hangs on its peg again, dry and folded, as if it never left.',
+        text: 'Scylla wore Fenn’s hood through the filter halls last time. It hangs on its peg again, dry and folded, as if it never left.',
       },
       {
         flag: 'GT-06:close',
-        text: 'Last time Char touched Cal’s burnt name for luck, and they hooked the latch closed. The name is gone. Char’s fingers find the place anyway.',
+        text: 'Last time Char touched Fenn’s burnt name for luck, and they hooked the latch closed. The name is gone. Char’s fingers find the place anyway.',
       },
       {
         flag: 'entry:pulled',
@@ -300,7 +300,7 @@ export const CHOKING_ROOMS_A: readonly ChokingRoomContent[] = [
         id: 'mend-latch',
         label: 'Let Char bend the fish-hook back into a latch',
         outcome:
-          'Char works the hook between her fingers until it curls, then threads it back through its ring: closed, not locked, the way you close something for someone who might be back. Then she scratches CAL into the sanded wood with its point, deep. ‘There,’ she says. ‘Sand that.’',
+          'Char works the hook between her fingers until it curls, then threads it back through its ring: closed, not locked, the way you close something for someone who might be back. Then she scratches FENN into the sanded wood with its point, deep. ‘There,’ she says. ‘Sand that.’',
         gain: { trust: 1, danger: 1 },
         artSubject: `${CHAR} scratching letters deep into a sanded pale locker door with the point of a bent fish-hook, ${SCYLLA} beside her holding up ${SULK} to give her light`,
       },
@@ -512,7 +512,7 @@ export const CHOKING_ROOMS_A: readonly ChokingRoomContent[] = [
         outcome:
           'It comes out with an adult’s certainty, and the vault swallows it. Char unhooks one tag and holds it up. Under REFUSED, in the clerk’s hand: per the elder princess. ‘You see?’ she says. ‘They don’t even need you to mean it.’ They move on fast after that.',
         gain: { danger: -1, trust: -1 },
-        artSubject: `${CHAR} holding a single oilcloth tag up toward ${SCYLLA}, whose hand is half raised, the wall of retired valve wheels and a sagging string of tags behind them`,
+        artSubject: `${CHAR} holding a single oilcloth tag up toward ${SCYLLA} as she half raises one hand, the wall of retired valve wheels and a sagging string of tags behind them`,
       },
     ],
   },
@@ -736,7 +736,7 @@ export const CHOKING_ROOMS_A: readonly ChokingRoomContent[] = [
         outcome:
           'He writes it to the minute, then holds the pen up and watches the ink dry. It stays. ‘Good,’ he says. ‘The court cannot correct a tide it doesn’t know about. Yet.’ Char watched Scylla’s face as she gave it. She doesn’t ask. The junction is a little colder.',
         gain: { evidence: 2, trust: -1 },
-        artSubject: `${OREN} with his pen held over a fresh line in a ledger, the eyeholes of his hood turned toward ${SCYLLA}, ${CHAR} beside him also watching her sister, a crew lamp above them`,
+        artSubject: `${OREN} with his pen held over a fresh line in a ledger, the eyeholes of his hood turned toward ${SCYLLA} while ${CHAR} beside him also watches her sister, a crew lamp above them`,
       },
       {
         id: 'count-with-him',

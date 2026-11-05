@@ -5,7 +5,7 @@ import type { WorksRoomContent } from './types'
  * crew’s back ways, the Warden (Maud Weir, who gives her own name at GT-32)
  * and the Breathing Heart. Char is with Scylla throughout; Oren stays at his
  * tally post (GT-15). The landward sluice has been shut by crown order for
- * four years, since Cal Dunlin went up it; the crew’s 41 requests to reopen
+ * four years, since Fenn Dunlin went up it; the crew’s 41 requests to reopen
  * it were all refused.
  */
 const SCYLLA =
@@ -258,12 +258,12 @@ export const WORKS_ROOMS_B: readonly WorksRoomContent[] = [
     kind: 'lore',
     speaker: 'Scylla',
     opening:
-      'At the foot of the landward channel the crew keep a rack of sealed jars, each with a letter inside and an address scratched on the lid: To Cal. To my sister, cove town. To whoever finds this, please tell my mother. Once, the landward tide carried a jar up every morning. Since the sluice was shut, four years of them have waited here, row on row, for a road that isn’t open.',
+      'At the foot of the landward channel the crew keep a rack of sealed jars, each with a letter inside and an address scratched on the lid: To Fenn. To my sister, cove town. To whoever finds this, please tell my mother. Once, the landward tide carried a jar up every morning. Since the sluice was shut, four years of them have waited here, row on row, for a road that isn’t open.',
     artSubject: `Tall wooden racks at the mouth of a dark tunnel underwater, packed with hundreds of small sealed glass jars, each holding a rolled letter, lids scratched with marks; ${SCYLLA} lifts one jar to the light of ${SULK}; ${CHAR} reads the lids along a shelf`,
     echoes: [
       {
         flag: 'e05:7,7:care',
-        text: 'Tansy’s oilcloth letter to Cal is in Scylla’s satchel. On the rack there is a whole shelf for him already, and room on the end.',
+        text: 'Tansy’s oilcloth letter to Fenn is in Scylla’s satchel. On the rack there is a whole shelf for him already, and room on the end.',
       },
       {
         flag: 'e05:7,7:risk',
@@ -279,7 +279,7 @@ export const WORKS_ROOMS_B: readonly WorksRoomContent[] = [
         id: 'read-lids',
         label: 'Read the lids, shelf by shelf',
         outcome:
-          'Cal has eleven jars, mostly in his mother’s writing, with Tibby’s drawings crowding the margins. There are jars for weddings, jars for funerals, one jar just labelled SORRY. The newest is from this week, in a hand Scylla knows: To us, later. C. Char takes it off the shelf and puts it on a higher one, out of Scylla’s reach, without a word.',
+          'Fenn has eleven jars, mostly in his mother’s writing, with Tibby’s drawings crowding the margins. There are jars for weddings, jars for funerals, one jar just labelled SORRY. The newest is from this week, in a hand Scylla knows: To us, later. C. Char takes it off the shelf and puts it on a higher one, out of Scylla’s reach, without a word.',
         gain: { evidence: 1 },
         artSubject: `${CHAR} reaching up to place one small sealed jar on a high rack shelf, ${SCYLLA} below her holding another jar and reading its scratched lid`,
       },
@@ -577,7 +577,7 @@ export const WORKS_ROOMS_B: readonly WorksRoomContent[] = [
         id: 'show-evidence',
         label: 'Lay out what you’ve learned about the shut sluice',
         outcome:
-          'Scylla sets it out the way Oren would, counted twice: Cal’s struck name, forty-one refusals in one clerk’s hand, rooms called STORES with people in them, four years of jars that never went up, and a wheel kept on a wall instead of thrown away. ‘You didn’t keep it for nothing,’ she says. Maud puts the knitting down. ‘Fifty years,’ she says, ‘and nobody upstairs ever counted us before.’',
+          'Scylla sets it out the way Oren would, counted twice: Fenn’s struck name, forty-one refusals in one clerk’s hand, rooms called STORES with people in them, four years of jars that never went up, and a wheel kept on a wall instead of thrown away. ‘You didn’t keep it for nothing,’ she says. Maud puts the knitting down. ‘Fifty years,’ she says, ‘and nobody upstairs ever counted us before.’',
         gain: { evidence: 1, trust: 1 },
         requires: { evidence: 4 },
         lockedHint: 'Needs more evidence (4)',
@@ -603,7 +603,7 @@ export const WORKS_ROOMS_B: readonly WorksRoomContent[] = [
     kind: 'treasure',
     speaker: 'Maud Weir',
     opening:
-      'Behind the Warden’s kitchen is the key room: every key in the works on a peg, each tagged in the crew’s square hand, a crate of brine shrimp, the only chart of the tunnels ever drawn, and a basket of grey wool socks, folded in pairs. ‘One pair for everyone who went up my landward way,’ Maud says. ‘Cal had the last. I’ve gone on knitting. Take one thing. I’m writing it down.’',
+      'Behind the Warden’s kitchen is the key room: every key in the works on a peg, each tagged in the crew’s square hand, a crate of brine shrimp, the only chart of the tunnels ever drawn, and a basket of grey wool socks, folded in pairs. ‘One pair for everyone who went up my landward way,’ Maud says. ‘Fenn had the last. I’ve gone on knitting. Take one thing. I’m writing it down.’',
     artSubject: `A small rock-cut room lined with pegs of tagged bronze keys of every size, a crate of brine shrimp, a rolled chart on a shelf and a wicker basket full of folded grey knitted socks; ${MAUD} stands in the doorway with a pencil; ${SCYLLA} and ${CHAR} look around in wonder`,
     echoes: [
       {
@@ -659,7 +659,7 @@ export const WORKS_ROOMS_B: readonly WorksRoomContent[] = [
     echoes: [
       {
         flag: 'GT-06:letters',
-        text: 'The unsent letters in Cal’s locker were written after that red line. Every one of them is a line this book never got.',
+        text: 'The unsent letters in Fenn’s locker were written after that red line. Every one of them is a line this book never got.',
       },
       {
         flag: 'e05:8,4:care',
@@ -732,7 +732,7 @@ export const WORKS_ROOMS_B: readonly WorksRoomContent[] = [
       },
       {
         flag: 'e05:7,7:care',
-        text: 'Tansy’s letter to Cal is in her satchel. Four years of jars are racked at the foot of that channel. They could go up on the next tide.',
+        text: 'Tansy’s letter to Fenn is in her satchel. Four years of jars are racked at the foot of that channel. They could go up on the next tide.',
       },
       {
         flag: 'e05:7,7:risk',
@@ -745,7 +745,7 @@ export const WORKS_ROOMS_B: readonly WorksRoomContent[] = [
         label:
           'Open the landward sluice and leave it open, for anyone who wants the road',
         outcome:
-          'She turns the key, then the wheel, until the chain drops and the Heart breathes out landward with its whole chest for the first time in four years. The road is open: for the Dunlins, the crew, the jars, Cal coming home, two sisters or none. Every dial upstairs will swing toward it by breakfast. The crown must decide what kind of crown shuts it twice, and Maud will be the one asked.',
+          'She turns the key, then the wheel, until the chain drops and the Heart breathes out landward with its whole chest for the first time in four years. The road is open: for the Dunlins, the crew, the jars, Fenn coming home, two sisters or none. Every dial upstairs will swing toward it by breakfast. The crown must decide what kind of crown shuts it twice, and Maud will be the one asked.',
         gain: { trust: 2, danger: 2 },
         artSubject: `${SCYLLA} hauling a great bronze wheel round as a chain falls from the seventh sluice and a vast current pours away down it, ${CHAR} and ${MAUD} braced against the rush beside her`,
       },

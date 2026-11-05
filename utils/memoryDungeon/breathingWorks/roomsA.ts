@@ -71,7 +71,7 @@ export const WORKS_ROOMS_A: readonly WorksRoomContent[] = [
     kind: 'lore',
     speaker: 'Scylla',
     opening:
-      'Where the tunnel forks, the night crew keep their shift slate: a board of black stone ruled in chalk, keepers’ names down the side and hours across. Dace. Ottery. Marl D., Tuesdays. One name was struck through four years ago: Cal D. At the foot, in old paint nobody has dared chalk over: LANDWARD SLUICE SHUT BY ORDER. Beside it, small and fresh, in a hand Scylla has known all her life: why?',
+      'Where the tunnel forks, the night crew keep their shift slate: a board of black stone ruled in chalk, keepers’ names down the side and hours across. Dace. Ottery. Marl D., Tuesdays. One name was struck through four years ago: Fenn D. At the foot, in old paint nobody has dared chalk over: LANDWARD SLUICE SHUT BY ORDER. Beside it, small and fresh, in a hand Scylla has known all her life: why?',
     artSubject: `A slab of black slate fixed to a brick wall where an underwater tunnel forks, ruled in faded chalk lines with one row struck through, a band of old painted lettering at its foot, ${SCYLLA} reading it by lantern light while ${CHAR} hovers behind, studying her own fingernails`,
     echoes: [
       {
@@ -84,7 +84,7 @@ export const WORKS_ROOMS_A: readonly WorksRoomContent[] = [
         id: 'copy-slate',
         label: 'Copy the slate into your sleeve-book',
         outcome:
-          'Names, hours, the struck line, the old paint and its date: four years ago, the month after Cal’s name was crossed out. Char reads over her shoulder. ‘You’re making a record of the people who keep the palace breathing,’ she says. ‘Do they know?’ They don’t. Scylla writes that down too.',
+          'Names, hours, the struck line, the old paint and its date: four years ago, the month after Fenn’s name was crossed out. Char reads over her shoulder. ‘You’re making a record of the people who keep the palace breathing,’ she says. ‘Do they know?’ They don’t. Scylla writes that down too.',
         gain: { evidence: 1 },
         artSubject: `${SCYLLA} copying from a chalk-ruled slate into a tiny sleeve-book with a stub of pencil, ${CHAR} leaning over her shoulder, lantern light on both their faces`,
       },
@@ -195,7 +195,7 @@ export const WORKS_ROOMS_A: readonly WorksRoomContent[] = [
   },
   {
     id: 'GT-06',
-    title: 'Cal’s Locker',
+    title: 'Fenn’s Locker',
     kind: 'treasure',
     speaker: 'Scylla',
     opening:
@@ -204,7 +204,7 @@ export const WORKS_ROOMS_A: readonly WorksRoomContent[] = [
     echoes: [
       {
         flag: 'e05:7,7:care',
-        text: 'Tansy’s oilcloth letter to Cal is in Scylla’s satchel. His locker is the first place down here that feels as if it has been waiting for it.',
+        text: 'Tansy’s oilcloth letter to Fenn is in Scylla’s satchel. His locker is the first place down here that feels as if it has been waiting for it.',
       },
       {
         flag: 'e05:7,7:risk',
@@ -216,7 +216,7 @@ export const WORKS_ROOMS_A: readonly WorksRoomContent[] = [
         id: 'oilskin',
         label: 'Borrow the oilskin hood; the filter halls are next',
         outcome:
-          'It smells of tar and somebody else’s home. It fits her badly and would fit Char worse. Scylla tells herself she will bring it back, and then hears how that sounds from a girl a few nights from the road. She pulls the hood up anyway. The filters are cold, and Cal, she suspects, would not mind.',
+          'It smells of tar and somebody else’s home. It fits her badly and would fit Char worse. Scylla tells herself she will bring it back, and then hears how that sounds from a girl a few nights from the road. She pulls the hood up anyway. The filters are cold, and Fenn, she suspects, would not mind.',
         gain: { danger: -1 },
         artSubject: `${SCYLLA} pulling a too-large oilskin hood over her pearl circlet in front of an open driftwood locker, ${CHAR} watching with her head tilted`,
       },
@@ -224,7 +224,7 @@ export const WORKS_ROOMS_A: readonly WorksRoomContent[] = [
         id: 'letters',
         label: 'Untie the bundle and read the top letter',
         outcome:
-          'They aren’t from Cal. They are to him, from home, never sent, because since the sluice shut nobody has found a way to send anything up. Tibby lost a tooth. Come home or don’t, but write. Scylla ties the twine back exactly. Char has watched her read it, and doesn’t say what she thinks of that.',
+          'They aren’t from Fenn. They are to him, from home, never sent, because since the sluice shut nobody has found a way to send anything up. Tibby lost a tooth. Come home or don’t, but write. Scylla ties the twine back exactly. Char has watched her read it, and doesn’t say what she thinks of that.',
         gain: { evidence: 2, trust: -1 },
         artSubject: `${SCYLLA} holding an unfolded oilcloth letter by lantern light beside an open locker, loose net twine across her wrist, ${CHAR} at the edge of the light, face turned half away`,
       },

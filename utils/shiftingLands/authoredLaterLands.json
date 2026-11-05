@@ -1876,7 +1876,7 @@
             "target": 11
           },
           "success": {
-            "text": "You scrape packed ash from the valve and the horn finds its voice. The ranger sounds the warning, one long low note across the border, and waves you through the barrier.",
+            "text": "You scrape packed ash from the valve and the horn finds its voice. The ranger sounds the all-clear, one long low note across the border, and waves you through the barrier.",
             "hp_delta": 0,
             "provisions_delta": 0,
             "add_flags": ["ashes-at-the-border-1-success"],
@@ -1921,7 +1921,7 @@
       "id": "the-last-watchfire",
       "locationId": "fortified-camp",
       "title": "The Last Watchfire",
-      "flavor": "The camp's last watchfire burns low beside a stack of good dry wood. Its commander says the guards refuse to light a second flame while refugees are still lost outside the barricade. Her sabre rests untouched beside the gate, and no one has offered to go out into the dark.",
+      "flavor": "The camp's last watchfire burns low beside a stack of good dry wood. Its commander says the guards will not light a second flame while refugees are still lost outside the barricade, because a beacon would guide raiders in as well. Her sabre rests untouched beside the gate, and no one has offered to go out into the dark.",
       "weight": 2,
       "art": null,
       "choices": [
@@ -2021,7 +2021,7 @@
             "target": 10
           },
           "success": {
-            "text": "You remind the guards there are clean supplies on the wagon behind them. They lower the crowbar and carry bandages to the wounded instead of breaking down the door.",
+            "text": "You remind the guards that the half-unloaded wagon behind them holds bolts of clean linen. They lower the crowbar and tear bandages for the wounded instead of breaking down the door.",
             "hp_delta": 0,
             "provisions_delta": 0,
             "add_flags": ["the-closed-infirmary-2-success"],
@@ -2208,7 +2208,7 @@
             "map_effect": "none"
           },
           "failure": {
-            "text": "The search turns up only old tracks, half buried in ash. The delay eats into your stores, and at the roadside you share your last meal with the messenger.",
+            "text": "The search turns up only old tracks, half buried in ash. The delay eats into your stores, and at the roadside you share a day's food with the messenger.",
             "hp_delta": 0,
             "provisions_delta": -1,
             "add_flags": ["a-promise-kept-2-failure"],
@@ -2236,7 +2236,7 @@
             "target": 12
           },
           "success": {
-            "text": "You decline, and she lets you. Following the old wall, you find a gap in the stones around her seal, unbound and unwatched, and you walk through it owing no one.",
+            "text": "You decline, and she lets you. Following the old wall, you find a gap in the stones well away from her gate, unbound and unwatched, and you walk through it owing no one.",
             "hp_delta": 0,
             "provisions_delta": 0,
             "add_flags": ["the-price-of-silence-1-success"],

@@ -5,13 +5,13 @@
     {
       "landId": "homestead",
       "title": "The Abbess's Open Door",
-      "flavor": "The mission doors open before you can knock. The Abbess stands beneath the carved lintel, holding out a loaf of warm bread, while the corridor behind her stays locked. You have heard too many stories that do not match for kindness alone to explain the empty beds. She is still smiling, and the bread is still warm.",
+      "flavor": "The mission doors open before you can knock. The Abbess stands beneath the carved lintel, holding out a loaf of warm bread, while her guards keep the corridor behind her barred. You have heard too many stories that do not match, and kindness alone cannot explain the empty beds in the children's dormitory. She is still smiling, and the bread is still warm.",
       "art": null,
       "choices": [
         {
           "id": "confront",
           "label": "Stand between her and the dormitory",
-          "intent": "Face down the convent guards without harming anyone who came here for shelter.",
+          "intent": "Face down the mission guards without harming anyone who came here for shelter.",
           "skill": "steel",
           "target": 11,
           "cost": 0,
@@ -21,7 +21,7 @@
         },
         {
           "id": "parley",
-          "label": "Demand sanctuary before witnesses",
+          "label": "Demand an accounting before witnesses",
           "intent": "Share your bread with the townsfolk at the gate and ask them to stand witness.",
           "skill": "bearing",
           "target": 9,
@@ -54,7 +54,7 @@
     {
       "landId": "dustwater",
       "title": "The Crossing Gate",
-      "flavor": "A flood gate hangs above the crossing on chains crusted with years of river salt. Its keeper holds both the winch for the safe channel and the toll book, and insists no one crosses while the current is changing. Beyond the dam you can hear trapped boats knocking together, and the gate's mechanism has begun to shudder.",
+      "flavor": "A flood gate hangs above the crossing on chains crusted with years of river salt. Its keeper holds the toll book and the winch for the one channel the book calls safe, and insists no one crosses while the current is changing. Beyond the dam you can hear trapped boats knocking together, and the jammed mechanism has begun to shudder.",
       "art": null,
       "choices": [
         {
@@ -65,7 +65,7 @@
           "target": 10,
           "cost": 0,
           "requiredAnyFlags": [],
-          "success": "You brace against the wheel and haul until the gate grinds upward, just before a chain gives. The boats spill through, and their travelers reach the far bank safely.",
+          "success": "You brace against the counterweight and haul until the gate grinds upward, just before a chain gives. The boats spill through, and their travelers reach the far bank safely.",
           "failure": "The counterweight snaps back and throws you against the flooded stone. You crawl out of the water bruised and gasping, and have to fall back to recover your strength."
         },
         {
@@ -192,7 +192,7 @@
     {
       "landId": "verge",
       "title": "Beyond the Verge",
-      "flavor": "At the final threshold, a silent negotiator holds a stone key against a door without hinges. Every traveler who reaches it is offered an easy passage in exchange for obedience and silence. Behind you, the road is crowded with the promises you chose to keep, and the door waits for your answer.",
+      "flavor": "At the final threshold, a silent negotiator holds a stone key against a sealed door without hinges. Every traveler who reaches it is offered an easy passage in exchange for obedience and silence. Behind you lies every promise you kept or broke on the road, and the door waits for your answer.",
       "art": null,
       "choices": [
         {
@@ -220,7 +220,7 @@
         {
           "id": "evidence",
           "label": "Read the unbroken promise",
-          "intent": "Use what earlier witnesses on this road showed you to find the gate's forgotten lawful exception.",
+          "intent": "Use whatever you found on this road (the gatepost carvings, the messenger's waystone, the negotiator's own admission) to find the gate's forgotten lawful exception.",
           "skill": "insight",
           "target": 10,
           "cost": 0,

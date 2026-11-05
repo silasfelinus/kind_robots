@@ -30,7 +30,7 @@ const WITNESS_SCENES: Record<
   dustwater: {
     label: 'Let the travelers testify together',
     success:
-      'The rescued boat crews name what each person was charged, then refuse to cross separately. The keeper faces a line of witnesses instead of one traveler and opens the gate to all of them.',
+      'The stranded boat crews name what each person was charged, then refuse to cross separately. The keeper faces a line of witnesses instead of one traveler and opens the gate to all of them.',
     failure:
       'The keeper demands a receipt for every story. You argue until the river rises and return to the bank exhausted; the crews remain ready to try again.',
   },
@@ -114,7 +114,7 @@ const DARK_SCENES: Record<
 > = {
   homestead: {
     tribute: {
-      label: "Buy the Abbess's silence",
+      label: 'Bribe the record keeper for the key',
       success:
         'You pass a ration to the keeper of the records. He hands you the dormitory key and erases your name, but the other locked doors remain locked.',
       failure:

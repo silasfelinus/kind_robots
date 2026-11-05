@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict'
 import {
   chooseMission,
+  destinationFollowup,
   missionBoard,
   restoreVoyage,
   seededMission,
@@ -26,6 +27,8 @@ const byChapter = Array.from(
 )
 const routes = new Set<string>()
 const chosenCounts = new Map<string, number>()
+let threadOpportunities = 0
+let chosenFollowups = 0
 
 const driver: Driver = {
   name: 'default-route-diversity',
@@ -80,6 +83,11 @@ for (let index = 0; index < 42; index++) {
         )
       }
       currentRoute.push(after.missionId!)
+      const relevant = visible.filter((id) => destinationFollowup(after, id))
+      if (relevant.length) {
+        threadOpportunities++
+        if (relevant.includes(after.missionId!)) chosenFollowups++
+      }
       byChapter[after.chapter]!.add(after.missionId!)
       chosenCounts.set(
         after.missionId!,
@@ -104,6 +112,8 @@ assert.ok(
   chosenCounts.size >= 18,
   'destination selection should expose the full circuit',
 )
+assert.ok(threadOpportunities >= 4, 'there must be follow-up opportunities')
+assert.ok(chosenFollowups * 2 >= threadOpportunities, 'prefer earned follow-ups')
 console.log(
   'Space Couch default routes: ' +
     routes.size +

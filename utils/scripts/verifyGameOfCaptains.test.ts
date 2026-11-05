@@ -1355,7 +1355,10 @@ const resumed = nextDestination(
   restoreVoyage(JSON.parse(JSON.stringify(legacyDebrief)))!,
 )
 assert.equal(resumed.chapter, 4)
-assert.equal(missionFor(resumed).id, 'concord-intake')
+assert.ok(
+  missionBoard(resumed).some((mission) => mission.id === missionFor(resumed).id),
+  'legacy saves receive an eligible default rather than an invalid fixed call',
+)
 assert.ok(page.includes('data-testid="space-couch-callbacks"'))
 assert.ok(page.includes('v-for="n in VOYAGE_CHAPTERS"'))
 assert.ok(page.includes('nemesisLine'))

@@ -198,10 +198,11 @@ import { onMounted } from 'vue'
 import { useMemorySublevelStore } from '~/stores/memorySublevelStore'
 import { useMemoryDrownedArchiveStore } from '~/stores/memoryDrownedArchiveStore'
 import { useMemoryBreathingWorksStore } from '~/stores/memoryBreathingWorksStore'
+import { useMemoryChokingWorksStore } from '~/stores/memoryChokingWorksStore'
 import type { DungeonKind } from '~/utils/memoryDungeon/authoredDungeon/types'
 
 const props = withDefaults(
-  defineProps<{ dungeon?: 'sublevel' | 'drowned' | 'works' }>(),
+  defineProps<{ dungeon?: 'sublevel' | 'drowned' | 'works' | 'choking' }>(),
   { dungeon: 'sublevel' },
 )
 const emit = defineEmits<{ leave: [] }>()
@@ -210,7 +211,9 @@ const sub =
     ? useMemoryDrownedArchiveStore()
     : props.dungeon === 'works'
       ? useMemoryBreathingWorksStore()
-      : useMemorySublevelStore()
+      : props.dungeon === 'choking'
+        ? useMemoryChokingWorksStore()
+        : useMemorySublevelStore()
 
 function symbolFor(kind: DungeonKind): string {
   return {

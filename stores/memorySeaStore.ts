@@ -61,9 +61,12 @@ export const useMemorySeaStore = defineStore('memorySea', () => {
   const position = computed(() => save.value.positions[active.value])
   const current = computed(() => worldEvent(active.value, position.value))
   const earth = useMemoryEarthStore()
-  /** Scylla remembers how the e04 tide gate went; e05 sites echo it. */
+  /** Each world's own choices, read by its dungeon. */
   const e05Choices = computed(() => records.value.e05.choices)
   const e05Flags = computed(() => records.value.e05.flags)
+  const e06Choices = computed(() => records.value.e06.choices)
+  const e06Flags = computed(() => records.value.e06.flags)
+  /** Scylla remembers how the e04 tide gate went; e05 sites echo it. */
   const echoFlags = computed<readonly string[]>(() => [
     ...progress.value.flags,
     ...earth.e04Flags,
@@ -261,6 +264,8 @@ export const useMemorySeaStore = defineStore('memorySea', () => {
     opening,
     e05Choices,
     e05Flags,
+    e06Choices,
+    e06Flags,
     charFate,
     chosen,
     readyToLeave,

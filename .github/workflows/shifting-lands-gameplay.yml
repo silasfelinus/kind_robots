@@ -30,6 +30,8 @@ on:
       - 'utils/scripts/verifyShiftingV8.test.ts'
       - 'utils/scripts/verifyShiftingFollowerEchoesV8.test.ts'
       - 'utils/scripts/verifyShiftingFollowerRecruitmentV9.test.ts'
+      - 'utils/scripts/verifyShiftingSpentDeeds.test.ts'
+      - 'utils/playbook/shiftingLands.ts'
       - 'components/shifting-lands-scene-image.vue'
       - 'utils/scripts/importShiftingLandsWorld.mjs'
       - '.github/workflows/shifting-lands-gameplay.yml'
@@ -62,6 +64,7 @@ jobs:
       - run: npx tsx utils/scripts/verifyShiftingCharacterRail.test.ts
       - run: npx tsx utils/scripts/verifyShiftingSceneArt.test.ts
       - run: npx tsx utils/scripts/verifyShiftingV6.test.ts
+      - run: npx tsx utils/scripts/verifyShiftingSpentDeeds.test.ts
       - run: npx tsx utils/scripts/shiftingLandsV6BalanceReport.ts 300
       - run: npx tsx utils/scripts/verifyShiftingV7.test.ts 300
       - run: npx tsx utils/scripts/verifyShiftingV8.test.ts 300

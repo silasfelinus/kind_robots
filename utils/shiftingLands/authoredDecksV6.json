@@ -5477,7 +5477,7 @@
             }
           },
           "failure": {
-            "text": "The draught is not enough, and you burn through most of your herbs trying. The carter lives, but only just, and you come away from the long night hollow-eyed and spent.",
+            "text": "The draught is not enough, and you burn through the last of your herbs trying. The carter lives, but only just, and you come away from the long night hollow-eyed and spent.",
             "hp_delta": -1,
             "provisions_delta": 0,
             "add_flags": ["no-fever-past-the-rope-herbs-spent"],
@@ -7893,7 +7893,7 @@
           "id": "open-your-own-medicine",
           "label": "Open your own medicine pouch",
           "intent": "Give the surgeon the fever herbs you have carried on the road so both can be treated.",
-          "risk": "Most of what you carried for yourself goes into this dose.",
+          "risk": "Everything you carried for yourself goes into this dose.",
           "requires": {
             "anyFlags": ["deed-carries-medicine"]
           },
@@ -7902,7 +7902,7 @@
           },
           "roll": null,
           "success": {
-            "text": "The surgeon steeps your herbs into a second dose, bitter and green, and both cots have their chance. By morning both patients are sitting up. Your pouch is nearly empty now, and the surgeon has nothing to give you in return but a nod.",
+            "text": "The surgeon steeps your herbs into a second dose, bitter and green, and both cots have their chance. By morning both patients are sitting up. Your pouch is empty now, and the surgeon has nothing to give you in return but a nod.",
             "hp_delta": 0,
             "provisions_delta": 0,
             "add_flags": ["two-cots-one-draught-shared-herbs"],

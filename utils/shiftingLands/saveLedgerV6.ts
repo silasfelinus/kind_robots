@@ -7,9 +7,12 @@ import {
 } from './authoredBosses'
 import {
   DECK_V6,
+  adoptSpentDeeds,
   newJourneyV6,
+  spentDeedsFromSave,
   stepJourneyV6,
   v6SheetSource,
+  withSpentDeedsFrom,
   type ActionV6,
   type JourneyStateV6,
 } from './deckV6'
@@ -204,10 +207,12 @@ export function restoreJourneyLedgerV6(value: unknown): JourneyLedgerV6 | null {
     !saved.current
   )
     return null
+  const spentDeedsFrom = spentDeedsFromSave(saved.current)
+  if (spentDeedsFrom === null) return null
   try {
     if (JSON.stringify(value).length > MAX_SAVE_SIZE) return null
     let step: Step = {
-      current: newJourneyV6(saved.seed),
+      current: withSpentDeedsFrom(newJourneyV6(saved.seed), spentDeedsFrom),
       usedRewards: [],
       trialResults: [],
     }
@@ -231,6 +236,7 @@ export function restoreJourneyLedgerV6(value: unknown): JourneyLedgerV6 | null {
       ...newJourneyLedgerV6(saved.seed),
       actions: saved.actions.map((action) => ({ ...action })),
       ...step,
+      current: adoptSpentDeeds(step.current),
     }
   } catch {
     return null

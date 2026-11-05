@@ -45,6 +45,8 @@ import {
 import {
   activeV6Card,
   choiceLock,
+  choiceSpends,
+  SPENDABLE_DEEDS,
   v6Card,
   SHIFTING_LANDS_LIVE_TEXT,
   type V6Choice,
@@ -145,6 +147,22 @@ export const useShiftingLandsJourneyStore = defineStore(
       ledger.value.version === 9
         ? choiceLock(ledger.value.current, choice)
         : null
+    // t-049: what a deed-gated route uses up, shown beside its other costs.
+    const spendsFor = (choice: V6Choice): string[] => {
+      const run = ledger.value
+      const card =
+        run.version === 6 ||
+        run.version === 7 ||
+        run.version === 8 ||
+        run.version === 9
+          ? activeV6Card(run.current)
+          : null
+      return card
+        ? choiceSpends(card.id, choice).map(
+            (flag) => SPENDABLE_DEEDS[flag]!.price,
+          )
+        : []
+    }
     const marks = computed(() =>
       ledger.value.version === 6 ||
       ledger.value.version === 7 ||
@@ -568,6 +586,7 @@ export const useShiftingLandsJourneyStore = defineStore(
       session,
       findCard,
       lockFor,
+      spendsFor,
       marks,
       ending,
       state,

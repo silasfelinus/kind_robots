@@ -9,10 +9,18 @@
     </header>
 
     <p v-if="quiz.loading" role="status">Preparing the next question…</p>
-    <div v-else-if="quiz.error && !quiz.question" class="rh-quiz__message" role="alert">
+    <div
+      v-else-if="quiz.error && !quiz.question"
+      class="rh-quiz__message"
+      role="alert"
+    >
       <p>{{ quiz.error }}</p>
       <div class="rh-actions">
-        <button class="rh-btn rh-btn--gold" type="button" @click="quiz.retryLoading()">
+        <button
+          class="rh-btn rh-btn--gold"
+          type="button"
+          @click="quiz.retryLoading()"
+        >
           Retry
         </button>
         <button class="rh-btn" type="button" @click="quiz.setMode('classic')">
@@ -22,7 +30,10 @@
     </div>
 
     <template v-else-if="quiz.question">
-      <div v-if="quiz.introduction && quiz.currentMandarinCard" class="rh-quiz__lesson">
+      <div
+        v-if="quiz.introduction && quiz.currentMandarinCard"
+        class="rh-quiz__lesson"
+      >
         <MandarinCardArt
           class="rh-quiz__art"
           :card-key="quiz.currentMandarinCard.key"
@@ -38,12 +49,22 @@
           <p v-if="quiz.currentMandarinCard.history" class="rh-quiz__detail">
             {{ quiz.currentMandarinCard.history }}
           </p>
-          <p v-else-if="quiz.currentMandarinCard.components.length" class="rh-quiz__detail">
+          <p
+            v-else-if="quiz.currentMandarinCard.components.length"
+            class="rh-quiz__detail"
+          >
             Parts:
-            {{ quiz.currentMandarinCard.components.slice(0, 3).map((part) => part.glyph + ' ' + part.label).join(' · ') }}
+            {{
+              quiz.currentMandarinCard.components
+                .slice(0, 3)
+                .map((part) => part.glyph + ' ' + part.label)
+                .join(' · ')
+            }}
           </p>
           <div class="rh-actions">
-            <button type="button" class="rh-btn" @click="speak">🔊 Hear it</button>
+            <button type="button" class="rh-btn" @click="speak">
+              🔊 Hear it
+            </button>
             <button
               type="button"
               class="rh-btn rh-btn--gold"
@@ -57,14 +78,21 @@
 
       <div v-else-if="quiz.feedback" class="rh-quiz__message" role="status">
         <p>{{ quiz.feedback }}</p>
-        <button type="button" class="rh-btn rh-btn--gold" @click="quiz.nextQuestion()">
+        <button
+          type="button"
+          class="rh-btn rh-btn--gold"
+          @click="quiz.nextQuestion()"
+        >
           Another question
         </button>
       </div>
 
       <div v-else class="rh-quiz__challenge">
         <p class="rh-quiz__prompt">{{ quiz.question.prompt }}</p>
-        <div class="rh-quiz__symbol" :class="{ 'is-flag': quiz.question.module === 'flags' }">
+        <div
+          class="rh-quiz__symbol"
+          :class="{ 'is-flag': quiz.question.module === 'flags' }"
+        >
           {{ quiz.question.hero }}
           <button
             v-if="quiz.question.module === 'mandarin'"
@@ -72,7 +100,9 @@
             class="rh-quiz__sound"
             aria-label="Hear Mandarin pronunciation"
             @click="speak"
-          >🔊</button>
+          >
+            🔊
+          </button>
         </div>
         <KrChoiceHand
           :choices="hand"
@@ -82,7 +112,8 @@
           @play="pick"
         />
         <p class="rh-quiz__note">
-          Choose correctly to land this fish. A mistake brings another question, not a lost catch.
+          Choose correctly to land this fish. A mistake brings another question,
+          not a lost catch.
         </p>
       </div>
     </template>
@@ -100,7 +131,13 @@ const tutor = useMandarinTutorStore()
 
 const moduleLabel = computed(() => {
   const module = quiz.question?.module
-  return module === 'flags' ? 'Flags' : module === 'capitals' ? 'Capitals' : module === 'mandarin' ? 'Mandarin' : 'Quiz'
+  return module === 'flags'
+    ? 'Flags'
+    : module === 'capitals'
+      ? 'Capitals'
+      : module === 'mandarin'
+        ? 'Mandarin'
+        : 'Quiz'
 })
 const hand = computed(() =>
   (quiz.question?.options ?? []).map((option) => ({
@@ -116,7 +153,10 @@ function speak() {
   if (quiz.currentMandarinCard) void tutor.speak(quiz.currentMandarinCard)
 }
 onMounted(() => void quiz.nextQuestion())
-watch(() => props.encounter.fishSlug, () => void quiz.nextQuestion())
+watch(
+  () => props.encounter.fishSlug,
+  () => void quiz.nextQuestion(),
+)
 </script>
 
 <style scoped>
@@ -165,7 +205,9 @@ watch(() => props.encounter.fishSlug, () => void quiz.nextQuestion())
   line-height: 1.15;
   color: var(--rh-plum);
 }
-.rh-quiz__symbol.is-flag { font-size: clamp(2.5rem, 10cqi, 4.5rem); }
+.rh-quiz__symbol.is-flag {
+  font-size: clamp(2.5rem, 10cqi, 4.5rem);
+}
 .rh-quiz__sound {
   margin-left: 0.4rem;
   font-size: 1.2rem;
@@ -173,7 +215,11 @@ watch(() => props.encounter.fishSlug, () => void quiz.nextQuestion())
   border: 1px solid currentColor;
   border-radius: 0.5rem;
 }
-.rh-quiz__note { font-size: 0.71rem; opacity: 0.8; text-align: center; }
+.rh-quiz__note {
+  font-size: 0.71rem;
+  opacity: 0.8;
+  text-align: center;
+}
 .rh-quiz__lesson {
   display: grid;
   grid-template-columns: minmax(6rem, 36%) minmax(0, 1fr);
@@ -185,14 +231,36 @@ watch(() => props.encounter.fishSlug, () => void quiz.nextQuestion())
   min-height: 10rem;
   border-radius: 0.7rem;
 }
-.rh-quiz__lesson-copy { display: grid; align-content: start; gap: 0.3rem; }
-.rh-quiz__lesson-copy h3 { font-size: 2rem; font-weight: 800; line-height: 1.1; }
-.rh-quiz__pinyin { font-weight: 800; }
-.rh-quiz__detail { font-size: 0.74rem; line-height: 1.25; }
-.rh-quiz__message { display: grid; gap: 0.7rem; }
+.rh-quiz__lesson-copy {
+  display: grid;
+  align-content: start;
+  gap: 0.3rem;
+}
+.rh-quiz__lesson-copy h3 {
+  font-size: 2rem;
+  font-weight: 800;
+  line-height: 1.1;
+}
+.rh-quiz__pinyin {
+  font-weight: 800;
+}
+.rh-quiz__detail {
+  font-size: 0.74rem;
+  line-height: 1.25;
+}
+.rh-quiz__message {
+  display: grid;
+  gap: 0.7rem;
+}
 @container rhconsole (max-width: 599px) {
-  .rh-quiz { max-height: 48vh; }
-  .rh-quiz__lesson { grid-template-columns: 1fr 1.5fr; }
-  .rh-quiz__art { min-height: 7rem; }
+  .rh-quiz {
+    max-height: 48vh;
+  }
+  .rh-quiz__lesson {
+    grid-template-columns: 1fr 1.5fr;
+  }
+  .rh-quiz__art {
+    min-height: 7rem;
+  }
 }
 </style>

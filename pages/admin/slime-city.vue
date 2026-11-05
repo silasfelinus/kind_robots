@@ -59,6 +59,14 @@
             </button>
             <button
               type="button"
+              :class="{ active: lab.view === 'alleys' }"
+              data-testid="slime-alleys-tab"
+              @click="lab.view = 'alleys'"
+            >
+              ALLEYS
+            </button>
+            <button
+              type="button"
               :class="{ active: lab.view === 'campaign' }"
               data-testid="slime-campaign-tab"
               @click="lab.showCampaign()"
@@ -272,6 +280,7 @@
 
         <SlimeCityCampaign v-else-if="lab.view === 'campaign'" />
         <SlimeCityArena v-else-if="lab.view === 'arena'" />
+        <SlimeCityAlleys v-else-if="lab.view === 'alleys'" />
 
         <section
           v-else-if="lab.view === 'cards'"

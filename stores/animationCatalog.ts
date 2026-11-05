@@ -1047,6 +1047,19 @@ export const ANIMATION_EFFECTS = [
     generationSafe: true,
     preferredSurface: 'fullscreen',
   },
+  {
+    id: 'spinning-top-wobble',
+    label: 'Spinning Top Wobble',
+    reveal:
+      'Painted wooden tops spin steady, then wobble and get flicked again',
+    icon: 'kind-icon:sparkle',
+    tooltip:
+      'Painted tops spin on a wooden table, wobble as they slow 🪀 hover to light the nearest top, click to flick them all faster',
+    color: '#e0875a',
+    releasedAt: '2026-11-05T14:00:00Z',
+    generationSafe: true,
+    preferredSurface: 'fullscreen',
+  },
 ] as const satisfies readonly AnimationEffectDefinition[]
 
 export type AnimationEffectId = (typeof ANIMATION_EFFECTS)[number]['id']

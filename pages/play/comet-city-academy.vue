@@ -562,6 +562,14 @@
                   class="cca-novel-night-card"
                 >
                   <h3>{{ incident.title }}</h3>
+                  <p
+                    v-for="offer in offerCards(incident.id)"
+                    :key="'novel-offer-' + offer.asker"
+                    class="cca-novel-offer"
+                    data-testid="academy-novel-offer"
+                  >
+                    {{ offer.asker }}: “{{ offer.plea }}” · {{ offer.urgency }}
+                  </p>
                   <p>{{ incident.briefing }}</p>
                   <template v-if="run.day === 3">
                     <button
@@ -805,7 +813,12 @@
                       <b>{{ incident.title }}</b>
                       <small
                         >{{ incident.site }} · RISK
-                        {{ incident.risk }}/06</small
+                        {{ incident.risk }}/06<template
+                          v-for="offer in offerCards(incident.id)"
+                          :key="'urgency-' + offer.asker"
+                        >
+                          · {{ offer.urgency }}</template
+                        ></small
                       >
                       <small
                         v-if="teamFor(incident.id).length"
@@ -866,6 +879,36 @@
                         : incident.briefing
                     }}
                   </p>
+                  <div
+                    v-for="offer in offerCards(incident.id)"
+                    :key="'offer-' + offer.asker"
+                    class="cca-offer"
+                    data-testid="academy-mission-offer"
+                  >
+                    <strong>WHO'S ASKING</strong>
+                    <span>{{ offer.asker }}: “{{ offer.plea }}”</span>
+                    <span data-testid="academy-offer-urgency"
+                      >URGENCY · {{ offer.urgency }} ·
+                      {{ offer.deadline }}</span
+                    >
+                    <span>FACTION · {{ offer.faction }}</span>
+                    <span data-testid="academy-offer-interference"
+                      >MAY INTERFERE · {{ offer.interference }}</span
+                    >
+                    <span
+                      v-if="offer.secretKnown"
+                      class="cca-offer-secret"
+                      data-testid="academy-offer-secret-known"
+                      >SECRET KNOWN · {{ offer.secretKnown }}</span
+                    >
+                    <span
+                      v-else-if="offer.secretHint"
+                      class="cca-offer-secret"
+                      data-testid="academy-offer-secret-hint"
+                      >DISTRICT SECRET WITHIN REACH ·
+                      {{ offer.secretHint }}</span
+                    >
+                  </div>
                   <p
                     v-if="districtMemory(run, incident.id)"
                     class="cca-district-memory"
@@ -1317,7 +1360,8 @@
             >
               <strong>AFTER-ACTION REPORT</strong>
               <span v-for="report in run.reports" :key="report.caseId"
-                >{{ report.title }} · {{ report.grade.toUpperCase() }}</span
+                >{{ report.title }} ·
+                {{ missionResult(report).toUpperCase() }}</span
               >
             </div>
             <KrChoiceHand
@@ -1351,9 +1395,11 @@
             >
               <div>
                 <strong>{{ report.title }}</strong
-                ><span :class="'cca-grade-' + report.grade">{{
-                  report.grade
-                }}</span>
+                ><span
+                  :class="'cca-grade-' + missionResult(report)"
+                  data-testid="academy-report-result"
+                  >{{ missionResult(report) }}</span
+                >
               </div>
               <small>{{ report.names }}</small>
               <p>{{ report.text }}</p>
@@ -1505,6 +1551,7 @@ import { campaignVillain } from '~/utils/cometAcademy/campaign'
 import { useCometAcademyStore } from '~/stores/cometAcademyStore'
 import { realNightCase } from '~/utils/cometAcademy/nightCases'
 import { expandedMissionFor } from '~/utils/cometAcademy/expandedNightCases'
+import { missionResult } from '~/utils/cometAcademy/missionOffers'
 import {
   PATROL_ZONES,
   type PatrolZoneId,
@@ -1546,6 +1593,7 @@ import {
   encounterFor,
   dispatchChance,
   districtMemory,
+  missionOfferCard,
   playerPowerCallback,
   recoveringFollower,
   rosterConflicts,
@@ -2026,6 +2074,13 @@ useSeoMeta(
   ) ?? {},
 )
 useHead({ title: 'Prom of Doom | Capes & Tassels | Kind Robots' })
+
+/** Zero or one offer card, so the template binds it once without a
+ * non-null assertion. */
+function offerCards(caseId: string) {
+  const card = run.value ? missionOfferCard(run.value, caseId) : null
+  return card ? [card] : []
+}
 
 function teamFor(caseId: string): StudentId[] {
   return (
@@ -3206,6 +3261,26 @@ function toggleStudent(caseId: string, id: StudentId): void {
   padding-left: 0.55rem;
   color: #b5cddc;
   font-size: 0.7rem;
+}
+.cca-incident .cca-offer {
+  display: grid;
+  gap: 0.2rem;
+  border-left: 2px solid #f6c89e;
+  padding-left: 0.55rem;
+  color: #d9d2e6;
+  font-size: 0.7rem;
+}
+.cca-offer strong {
+  color: #f6c89e;
+  font-size: 0.6rem;
+  letter-spacing: 0.1em;
+}
+.cca-offer .cca-offer-secret {
+  color: #9fe3b8;
+}
+.cca-novel-offer {
+  color: #f6c89e;
+  font-size: 0.8rem;
 }
 .cca-district-memory strong {
   display: block;

@@ -135,7 +135,9 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
     if (!net.value) throw new Error('Account services are unavailable.')
     return net.value.fetcher<T>(url, options)
   }
-  const view = ref<'city' | 'arena' | 'cards' | 'campaign' | 'rewards'>('city')
+  const view = ref<
+    'city' | 'arena' | 'alleys' | 'cards' | 'campaign' | 'rewards'
+  >('city')
   const activeTeam = ref<TeamId>('catgirls')
   const enemyTeam = ref<TeamId>('bloodfairies')
   const mode = ref<ModeId>('blackout')

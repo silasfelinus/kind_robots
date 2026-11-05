@@ -462,7 +462,7 @@ for (const seed of SEEDS) {
       Object.values(run.injuries ?? {}).some((until) => (until ?? 0) > run.day)
     )
       injuredSomewhere++
-    if (run.log.at(-1)?.includes('— failed') || run.danger > 6)
+    if (/— (failed|refused)$/.test(run.log.at(-1) ?? '') || run.danger > 6)
       unstaffedSomewhere++
   }
   assert.equal(run.day, 29)

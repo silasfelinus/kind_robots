@@ -29,6 +29,7 @@ const STORY_FILES = [
   'market.ts',
   'talks.ts',
   'secretTalks.ts',
+  'talkEchoes.ts',
   'epilogue.ts',
   'betrayal.ts',
   'briefings.ts',

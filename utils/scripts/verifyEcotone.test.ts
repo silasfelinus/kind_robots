@@ -12,6 +12,7 @@ import './verifyEcotoneEditorial.test'
 import './verifyEcotoneOnboarding.test'
 import './verifyEcotoneEnsemble.test'
 import './verifyEcotoneHangouts.test'
+import './verifyEcotoneCompanionTime.test'
 import './verifyEcotoneAtlas.test'
 import './verifyEcotoneArtPrompts.test'
 import { ART_REVIEW_ROUNDS } from '../ecotone/artReview'
@@ -1502,7 +1503,11 @@ for (let index = 0; index < 8400; index += 1) {
   assert.equal(new Set(run.played).size, run.played.length)
   assert.equal(new Set(run.meetingOrder).size, run.meetingOrder.length)
   assert.ok(run.meetingOrder.every((id) => COMPANIONS.some((c) => c.id === id)))
-  assert.ok(run.log.length >= 6 && run.log.length <= 22, 'bounded narrative')
+  // 22 story decisions, plus at most one optional free hour per met guide.
+  assert.ok(
+    run.log.length >= 6 && run.log.length <= 22 + COMPANIONS.length,
+    'bounded narrative',
+  )
   minDecisions = Math.min(minDecisions, run.log.length)
   maxDecisions = Math.max(maxDecisions, run.log.length)
   for (const entry of run.log) {

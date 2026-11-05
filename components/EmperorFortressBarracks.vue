@@ -356,6 +356,7 @@ import {
   LOCAL_FACTION_DEFS,
 } from '~/utils/emperorOfDust/fortress/factions'
 import { illustration } from '~/utils/emperorOfDust/fortress/castArt'
+import { barracksLine } from '~/utils/emperorOfDust/fortress/talkEchoes'
 import { departedFollowers } from '~/utils/emperorOfDust/fortress/betrayal'
 import { followerDef, itemDef } from '~/utils/emperorOfDust/fortress/followers'
 import { howLearned } from '~/utils/emperorOfDust/fortress/codex'
@@ -430,11 +431,13 @@ const art = computed(() =>
       )
     : undefined,
 )
-/** One line of barracks chatter per day, for followers who have some. */
-const talkLine = computed(() => {
-  const talk = def.value?.talk
-  return talk?.length ? talk[props.run.day % talk.length] : ''
-})
+/**
+ * One line a day: the follower remembering their newest barracks answer
+ * (t-051), or their chatter, for followers who have some.
+ */
+const talkLine = computed(() =>
+  def.value ? barracksLine(props.run, def.value.id, def.value.talk) : '',
+)
 // --- talks: one conversation a day, played like an audience scene ---------
 const talking = ref(false)
 const talkReply = ref('')

@@ -55,7 +55,7 @@ export const TALKS: readonly TalkDef[] = [
         label: 'Ask what Rook would do if they found her on the wrong side.',
         effects: {},
         response:
-          'Rook is quiet a long time. Below, someone in the Yard sings badly.',
+          'Rook works a splinter out of the roof edge with one claw until it comes free. Below, someone in the Yard sings badly.',
         next: 'wrong-side',
       },
       {
@@ -144,7 +144,7 @@ export const TALKS: readonly TalkDef[] = [
             effects: {
               affinity: { jackalwire: 5 },
               local: { 'gate-watch': -1 },
-              flags: ['rook-promise-kept'],
+              flags: ['rook-promise-kept', 'rook-promise-heard'],
             },
             response:
               '“Then I owe you a winter.” The Watch hears within the week. The sergeant who keeps the raider map pins a white rag over the dry wash.',
@@ -167,7 +167,7 @@ export const TALKS: readonly TalkDef[] = [
               flags: ['rook-promise-broken'],
             },
             response:
-              'Rook doesn’t argue. They ride south alone and come back two days later with a fresh nick in one ear. They sit at the far end of the barracks table for a long time after.',
+              'Rook doesn’t argue. They ride south alone and come back two days later with a fresh nick in one ear. They sit at the far end of the barracks table every night that week.',
           },
         ],
       },
@@ -357,7 +357,7 @@ export const TALKS: readonly TalkDef[] = [
         label:
           'Tell Rook you have already lost one friend to that road. Not them too.',
         requires: { flags: ['romance-rook-sealed'] },
-        effects: { flags: ['rook-stays-close'] },
+        effects: { flags: ['rook-stays-close', 'rook-kept-from-road'] },
         response:
           'Rook looks at you across the fire. Then they come round it and sit against your shoulder, like on the roof. The drawing stays till the rain takes it.',
       },
@@ -374,14 +374,14 @@ export const TALKS: readonly TalkDef[] = [
           {
             id: 'send',
             label: 'Send them anyway. Somebody should ask him why.',
-            effects: { flags: ['rook-hunts-komodo'] },
+            effects: { flags: ['rook-hunts-komodo', 'rook-sent-to-ask'] },
             response:
               '“Somebody,” Rook says. Gone before light. By your bedroll: a cold cup of tea, and a stick drawing of a rider in the dirt. Long ears. Facing north.',
           },
           {
             id: 'together',
             label: 'Then stay. You will ask him together, at the end.',
-            effects: { flags: ['rook-stays-close'] },
+            effects: { flags: ['rook-stays-close', 'rook-asks-together'] },
             response:
               '“Together.” Rook rubs out the last print with their heel.',
           },
@@ -775,7 +775,7 @@ export const TALKS: readonly TalkDef[] = [
         label:
           'Tell her the truth, and that you were afraid to, because of the workshop at midnight.',
         requires: { flags: ['romance-saffron'] },
-        effects: { flags: ['saffron-told-sabotage'] },
+        effects: { flags: ['saffron-told-sabotage', 'saffron-told-midnight'] },
         response:
           '“Don’t,” Saffron says. “Don’t put the workshop in this.” She sits. Her paw shakes on the pin.',
         next: 'truth',
@@ -785,7 +785,7 @@ export const TALKS: readonly TalkDef[] = [
         label: 'Tell her no. The crown had nothing to do with it.',
         effects: { flags: ['saffron-lied-to'] },
         response:
-          'Saffron looks at you a long time. “All right.” The pin goes in her apron pocket. She believes you, or decides to. You can’t tell which. Neither can she.',
+          'Saffron turns the pin over twice, the way she checks a weld. “All right.” The pin goes in her apron pocket. She believes you, or decides to. You can’t tell which. Neither can she.',
       },
     ],
     beats: [
@@ -1011,7 +1011,7 @@ export const TALKS: readonly TalkDef[] = [
             id: 'choose-rook',
             label: 'Tell her it is Rook.',
             effects: {
-              flags: ['saffron-friendship'],
+              flags: ['saffron-friendship', 'saffron-made-way'],
               clearFlags: ['romance-saffron'],
             },
             response:
@@ -1147,7 +1147,7 @@ export const TALKS: readonly TalkDef[] = [
         label:
           'Tell her you once had that badge reported to the Watch. You won’t spend it now.',
         requires: { flags: ['saffron-badge-reported'] },
-        effects: { flags: ['saffron-pack-refused'] },
+        effects: { flags: ['saffron-pack-refused', 'saffron-wrench-given'] },
         response:
           'Saffron laughs. First time in a week. “That’s the worst apology I ever heard.” She sends the scout away with a wrench for his captain. Their wrench. She’s had it twenty years.',
       },
@@ -1329,7 +1329,7 @@ export const TALKS: readonly TalkDef[] = [
         label:
           'Ask first after the tea seedlings and the child with the thimble.',
         requires: { flags: ['kiyo-tea-garden'] },
-        effects: {},
+        effects: { flags: ['kiyo-seedlings-asked'] },
         response:
           'Kiyo almost smiles. “Two still alive. The child with the thimble is the only one who can keep them so. My boy follows her about like a duckling.” Then the last echo of the bell is gone. So is the smile.',
         next: 'bells',
@@ -1666,7 +1666,7 @@ export const TALKS: readonly TalkDef[] = [
       {
         id: 'stay',
         label: 'Put the crown on the table. Stay until the kettle cools.',
-        effects: { flags: ['kiyo-friendship'] },
+        effects: { flags: ['kiyo-friendship', 'kiyo-cup-stayed'] },
         response:
           'Kiyo tells you how to mend a torn sail. You admit you cannot thread a needle. “That,” she says, “explains the state of your banners.” The tea cools. You pour another cup.',
       },
@@ -1674,7 +1674,7 @@ export const TALKS: readonly TalkDef[] = [
         id: 'friends',
         label:
           'Ask whether you can be friends when the doors of the court are shut.',
-        effects: { flags: ['kiyo-friendship'] },
+        effects: { flags: ['kiyo-friendship', 'kiyo-cup-friends'] },
         response:
           '“We can try,” she says. “But I will still argue with you in front of the Watch.” She pours the second cup. “Especially in front of the Watch.”',
       },
@@ -1682,7 +1682,7 @@ export const TALKS: readonly TalkDef[] = [
         id: 'respect',
         label:
           'Leave the cup warm. Tell her she never has to make room for the throne here.',
-        effects: { flags: ['kiyo-friendship'] },
+        effects: { flags: ['kiyo-friendship', 'kiyo-cup-only-yourself'] },
         response:
           'At breakfast there is a folded note beside your plate: “Come back when you are only yourself.” It is signed Kiyo, and beneath that, in a child’s uneven hand, “Zuzu.”',
       },
@@ -1855,7 +1855,7 @@ export const TALKS: readonly TalkDef[] = [
         label:
           'Promise her first: the crown will not answer Lady Vask with a threat, any more than Flint would.',
         requires: { flags: ['flint-no-threats'] },
-        effects: {},
+        effects: { flags: ['flint-vask-promise'] },
         response: '“Thank you,” says Flint. “I was going to ask.”',
         next: 'want',
       },
@@ -1880,7 +1880,7 @@ export const TALKS: readonly TalkDef[] = [
           flags: ['flint-made-duchess'],
         },
         response:
-          'Flint looks at the seal a long time. “A lie made true is still a lie that worked.” She takes the patent and folds it under her shawl. The next time Lady Vask says “Duchess” across the hall, it is nearly a hiss.',
+          'Flint reads the seal the way she reads names: slowly, every letter. “A lie made true is still a lie that worked.” She takes the patent and folds it under her shawl. The next time Lady Vask says “Duchess” across the hall, it is nearly a hiss.',
       },
     ],
     beats: [
@@ -1950,7 +1950,7 @@ export const TALKS: readonly TalkDef[] = [
           flags: ['flint-apology-public'],
         },
         response:
-          'Halfway through, in front of the Old Houses, Flint gets up out of her chair. It takes a long time. She comes and stands at your shoulder. “That will do,” she says quietly. “Now they have heard it.” Lady Vask leaves before the end.',
+          'Halfway through, in front of the Old Houses, Flint gets up out of her chair. She does not hurry. The hall waits for her. She comes and stands at your shoulder. “That will do,” she says quietly. “Now they have heard it.” Lady Vask leaves before the end.',
       },
       {
         id: 'repay',
@@ -2142,7 +2142,7 @@ export const TALKS: readonly TalkDef[] = [
           flags: ['flint-moved-moles'],
         },
         response:
-          'Flint redraws the squares herself. Komodo looks at the new plan a long time. “Bold,” he says. Lady Vask sends a note asking if the draught by the door can be fixed. It can’t.',
+          'Flint redraws the squares herself. Komodo turns the new plan to the lamp and reads every square. “Bold,” he says. Lady Vask sends a note asking if the draught by the door can be fixed. It can’t.',
       },
       {
         id: 'leave',
@@ -2174,7 +2174,7 @@ export const TALKS: readonly TalkDef[] = [
         label: 'Ask her to carry it. Just this once. They will listen to her.',
         effects: { flags: ['flint-carried-threat'] },
         response:
-          'Flint is quiet a long time. Then she stands, slowly, and goes. The camp surrenders. Nobody burns. She doesn’t sit on the floor again.',
+          'Flint folds her paws on the letter and says nothing until the fire has burned down a hand’s width. Then she stands, slowly, and goes. The camp surrenders. Nobody burns. She doesn’t sit on the floor again.',
       },
       {
         id: 'other',
@@ -2188,7 +2188,7 @@ export const TALKS: readonly TalkDef[] = [
         id: 'word',
         label: 'Keep your word. Her voice carries no threats. Not even now.',
         requires: { flags: ['flint-no-threats'] },
-        effects: { flags: ['flint-threat-refused'] },
+        effects: { flags: ['flint-threat-refused', 'flint-word-kept'] },
         response:
           'Flint hands the letter back unopened. A host rider takes it. He comes back with an arrow in his saddle. On the new moon there is smoke below the ridge. Flint watches it with you. She says thank you, and means it, and it costs her.',
       },
@@ -2625,7 +2625,10 @@ export const TALKS: readonly TalkDef[] = [
         label:
           'Remind them you told them once you might bend a page. This is the page.',
         requires: { flags: ['pip-record-bent'] },
-        effects: { local: { lamplight: -1 }, flags: ['pip-forged-roster'] },
+        effects: {
+          local: { lamplight: -1 },
+          flags: ['pip-forged-roster', 'pip-scrap-kept'],
+        },
         response:
           '“You did say.” Pip writes the line. Perfect. They do not burn the scrap. They keep it with your answer from the first week, folded together.',
       },
@@ -3437,7 +3440,7 @@ export const TALKS: readonly TalkDef[] = [
         label:
           'Ask whether the bread stencilled LEVIED is eaten at both tables alike.',
         requires: { flags: ['d05-millers-flour'] },
-        effects: {},
+        effects: { flags: ['bram-levied-asked'] },
         response:
           '“Every loaf. Every loaf carries the crown’s order on its belly, so the Yard knows whom to thank.” He looks at you levelly. “Bread remembers. Nobody tells emperors that.”',
         next: 'riot',
@@ -3962,7 +3965,7 @@ export const TALKS: readonly TalkDef[] = [
           flags: ['tamsin-knots-cut'],
         },
         response:
-          'It takes an hour. She cuts every knot herself. You sign the sash in barracks ink. Three days later a Conclave messenger lands on the sill, looks at Tamsin a long time, and leaves. She sleeps on a bunk that night.',
+          'It takes an hour. She cuts every knot herself. You sign the sash in barracks ink. Three days later a Conclave messenger lands on the sill, counts the cut knots on the floor, and leaves. She sleeps on a bunk that night.',
       },
       {
         id: 'refuse',
@@ -4171,7 +4174,7 @@ export const TALKS: readonly TalkDef[] = [
               flags: ['tamsin-raid-forbidden'],
             },
             response:
-              'Tamsin looks at you a long time. “Quietly,” she says. She puts the rope away. She ties a new knot in the old sash, and wears it again.',
+              'Tamsin winds the rope round her wrist, then unwinds it. “Quietly,” she says. She puts the rope away. She ties a new knot in the old sash, and wears it again.',
           },
         ],
       },
@@ -4299,7 +4302,7 @@ export const TALKS: readonly TalkDef[] = [
           flags: ['tamsin-spy-returned'],
         },
         response:
-          'Tamsin walks her to the gate. Gives her a knife, hilt first. “For the knots. When you’re ready.” The girl takes it. She doesn’t look back.',
+          'Tamsin walks her to the gate. Gives her a knife, hilt first. “For the knots. When you’re ready.” The girl takes it and runs the ridge path north, low and quick, the way Tamsin taught her.',
       },
     ],
   },
@@ -4334,7 +4337,9 @@ export const TALKS: readonly TalkDef[] = [
         label:
           'Ask her to carry for the children she taught to climb. They need those allies.',
         requires: { flags: ['tamsin-taught-climbing'] },
-        effects: { flags: ['tamsin-runs-again'] },
+        effects: {
+          flags: ['tamsin-runs-again', 'tamsin-carried-for-children'],
+        },
         response:
           '“That’s a dirty way to ask.” She goes anyway. Two of the Yard children who came over the east wall the night the tower fell watch her go from the same beam.',
       },
@@ -4476,7 +4481,7 @@ export const TALKS: readonly TalkDef[] = [
           flags: ['talk-teodor-letters', 'teodor-turned'],
         },
         response:
-          'Teodor looks at the pen a long time. Then he picks it up. You dictate. He writes it in his own round hand, every word, and seals it with her bell. His paw does not shake. You wish it would.',
+          'Teodor wipes his paws on his apron twice before he touches the pen. Then he picks it up. You dictate. He writes it in his own round hand, every word, and seals it with her bell. His paw does not shake. You wish it would.',
       },
     ],
     beats: [
@@ -4892,7 +4897,7 @@ export const TALKS: readonly TalkDef[] = [
         label:
           'Ask whether it hums on the same note as the glass feathers. The Hollow Bell’s note.',
         requires: { flags: ['glass-feathers-studied'] },
-        effects: {},
+        effects: { flags: ['pell-under-note'] },
         response:
           'Pell taps it with a claw. Listens. “No. Lower. Like something under the Bell’s note, holding it up.”',
         next: 'where',
@@ -5330,7 +5335,7 @@ export const TALKS: readonly TalkDef[] = [
           flags: ['isolde-jars-returned'],
         },
         response:
-          'The riders go out with jars wrapped in wool. Most villages bury them. One mother opens hers and holds what is inside a long time. The Mothers send no word. That is how you know they counted.',
+          'The riders go out with jars wrapped in wool. Most villages bury them. One mother opens hers and holds what is inside until the lamps are lit. The Mothers send no word. That is how you know they counted.',
       },
       {
         id: 'burn',
@@ -5633,7 +5638,7 @@ export const TALKS: readonly TalkDef[] = [
         label: 'Stay. Inside. Through the night.',
         effects: { flags: ['sable-fever-shared'] },
         response:
-          'You stay. They sit on the floor against the bed and you sit beside them. Some hours they talk about the Verge. Some hours they hold your wrist hard enough to bruise. At dawn it breaks. They look at the marks on your wrist a long time. “You stayed.”',
+          'You stay. They sit on the floor against the bed and you sit beside them. Some hours they talk about the Verge. Some hours they hold your wrist hard enough to bruise. At dawn it breaks. They turn your wrist to the window and read the marks like a letter of credit. “You stayed.”',
       },
       {
         id: 'lock',
@@ -5730,7 +5735,7 @@ export const TALKS: readonly TalkDef[] = [
           'Tell them you love them, and the choice is theirs. You will not make it for them.',
         effects: { flags: ['romance-sable-sealed', 'sable-chose-to-stay'] },
         response:
-          'Sable is quiet a long time. Then they laugh. “Crueller than asking. Now I have to choose you myself.” They burn the white letter in the lamp. They leave the gloves on the sill all evening.',
+          'Sable smooths one glove, finger by finger. Then they laugh. “Crueller than asking. Now I have to choose you myself.” They burn the white letter in the lamp. They leave the gloves on the sill all evening.',
       },
       {
         id: 'promise',
@@ -5792,7 +5797,7 @@ export const TALKS: readonly TalkDef[] = [
             id: 'nera',
             label: 'Nera. Tell them the truth.',
             effects: {
-              flags: ['sable-friendship'],
+              flags: ['sable-friendship', 'sable-made-way'],
               clearFlags: ['romance-sable'],
             },
             response:
@@ -5869,7 +5874,8 @@ export const TALKS: readonly TalkDef[] = [
           'Tell him the Watch struck the Pack’s home camp to turn the raiders from Thistledown.',
         requires: { flags: ['d10-camp-struck'] },
         effects: {},
-        response: 'Cobb is quiet a long time.',
+        response:
+          'Cobb sets the fork against the wall, tines up, and doesn’t pick it up again.',
         next: 'struck',
       },
       {
@@ -6023,7 +6029,7 @@ export const TALKS: readonly TalkDef[] = [
         requires: { flags: ['talk-saffron-insignia'] },
         effects: { affinity: { freeholds: 5 }, flags: ['cobb-told-badge'] },
         response:
-          'Cobb looks at you a long time. “Why’d you tell me that?” You have no answer. He doesn’t go back to the table. Neither does Saffron, once she hears who told.',
+          'Cobb scrapes his boot on the step until the mud is off it, and then some. “Why’d you tell me that?” You have no answer. He doesn’t go back to the table. Neither does Saffron, once she hears who told.',
       },
     ],
     beats: [
@@ -6401,7 +6407,7 @@ export const TALKS: readonly TalkDef[] = [
             id: 'ink',
             label: 'Ink. Tell her the truth.',
             effects: {
-              flags: ['vesper-friendship'],
+              flags: ['vesper-friendship', 'vesper-made-way'],
               clearFlags: ['romance-vesper'],
             },
             response:
@@ -6472,7 +6478,7 @@ export const TALKS: readonly TalkDef[] = [
           'Give the Archive its copy. The record should outlive the crown.',
         effects: { local: { lamplight: 2 }, flags: ['hollin-road-archived'] },
         response:
-          'Keeper Vellum takes a quarter of an hour to unroll it. He looks at the red line a long time. Then he rolls it up and puts it in the lowest vault.',
+          'Keeper Vellum takes a quarter of an hour to unroll it. He follows the red line from end to end with one claw. Then he rolls it up and puts it in the lowest vault.',
       },
       {
         id: 'leave',
@@ -6557,7 +6563,7 @@ export const TALKS: readonly TalkDef[] = [
           'Tell him to burn his notes. Komodo is the crown’s friend. A habit is not a crime.',
         effects: { flags: ['hollin-told-burn'] },
         response:
-          'Hollin looks at you a long time. Then he takes the notes to the brazier. He does not burn the page. You don’t ask. He doesn’t offer.',
+          'Hollin blinks once, slowly, the way he does at a map that won’t agree with itself. Then he takes the notes to the brazier. He does not burn the page. You don’t ask. He doesn’t offer.',
       },
       {
         id: 'vault',

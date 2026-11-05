@@ -30,6 +30,7 @@ import {
 } from '../emperorOfDust/fortress/balance'
 import { validateRun } from '../emperorOfDust/fortress/saves'
 import { TALKS } from '../emperorOfDust/fortress/talks'
+import { TALK_ECHOES } from '../emperorOfDust/fortress/talkEchoes'
 import type {
   AudienceOption,
   AudienceDef,
@@ -156,6 +157,8 @@ for (const talk of TALKS) {
 for (const subject of EPILOGUE)
   for (const variant of subject.variants)
     readGate(variant.when, `epilogue:${subject.id}`)
+// A follower's barracks line remembers their answers (t-051).
+for (const echo of TALK_ECHOES) readGate(echo, `echo:${echo.follower}`)
 for (const quest of quests)
   for (const group of Object.values(quest.outcomeVariants ?? {}))
     for (const variant of group ?? []) readGate(variant, `quest:${quest.id}`)

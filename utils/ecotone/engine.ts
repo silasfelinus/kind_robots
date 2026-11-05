@@ -28,6 +28,7 @@ import {
 } from './story'
 import type { GatedEncounter } from './questExpansion'
 import { COMPANION_HANGOUTS } from './companionHangouts'
+import { COMPANION_TIME } from './companionTime'
 import { REVISED_COMPANION_SIGNATURES } from './journeySignatures'
 import { FUTURES, SIGNATURES, LENS_CODAS } from './story'
 import {
@@ -418,7 +419,7 @@ export function encounterEligible(
   state: RunState,
 ): boolean {
   if (state.played.includes(card.id)) return false
-  if (card.requiresInvitation) return false
+  if (card.requiresInvitation || card.digressionOnly) return false
   if (card.requiresLead && !travelParty(state).includes(card.requiresLead))
     return false
   if (card.requiresLens) {
@@ -535,6 +536,36 @@ function reunionBefore(state: RunState, route: RouteStep[], index: number) {
   if (index < 1 || route[index]?.kind === 'crossroads') return false
   const last = route.map((step) => step.kind).lastIndexOf('crossroads')
   return last >= 0 && index > last && Boolean(declinedGuideReunion(state))
+}
+
+/**
+ * A free hour with a met guide (companionTime.ts, weird-humboldt t-045). At
+ * the end of each day, and before the finale, a guide the player has met
+ * offers one, once per run, in meeting order. It uses the same digression
+ * slot as mystery interludes, so ROUTES indices and version-4 saves stay
+ * stable. One free hour per evening; a guide whose private interlude was just
+ * played waits for a later evening rather than taking the stage twice in a
+ * row. The finale slot is everyone's last chance, so nobody met is skipped.
+ */
+export function companionTimeBefore(
+  state: RunState,
+  route: RouteStep[],
+  index: number,
+): string | null {
+  const step = route[index]
+  const previous = route[index - 1]
+  if (index < 1 || !step || !previous) return null
+  const finale = step.kind === 'finale'
+  if (!finale && step.day === previous.day) return null
+  const recent = state.log.slice(-2).map((entry) => entry.source)
+  if (!finale && recent.at(-1)?.startsWith('CT-')) return null
+  for (const id of state.meetingOrder) {
+    const card = COMPANION_TIME[id]
+    if (!card || state.played.includes(card.id)) continue
+    if (!finale && recent.includes(COMPANION_HANGOUTS[id].id)) continue
+    return card.id
+  }
+  return null
 }
 
 export type Ending = {
@@ -710,6 +741,17 @@ export function enterStep(state: RunState, index: number): RunState {
     // A declined first guide's second chance uses the same digression slot.
     if (reunionBefore(base, route, i))
       return { ...base, step: i - 1, phase: 'crossroads' }
+    // So does a free hour with a guide the player has met. It belongs to the
+    // evening that is ending, so the new day has not started yet.
+    const freeHour = companionTimeBefore(state, route, i)
+    if (freeHour)
+      return {
+        ...state,
+        step: i - 1,
+        phase: 'beat',
+        card: freeHour,
+        offered: [],
+      }
     if (step.kind === 'beat') {
       if (step.ifProspect && !base.prospect) continue
       return { ...base, phase: 'beat', card: step.id }

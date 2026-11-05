@@ -262,6 +262,12 @@ export type ColoringBookCoverPromptUpdate = {
  */
 export type ColoringBookBwSource = 'color' | 'version' | 'prompt'
 
+/**
+ * Where a new color comes from: the page prompt (`prompt`, the default) or one
+ * B&W or color file from the page's history (`version`, with `sourcePath`).
+ */
+export type ColoringBookColorSource = 'prompt' | 'version'
+
 export type ColoringBookRenderRequest = {
   operation?: ColoringBookStudioOperation
   bookSlug: string
@@ -269,6 +275,8 @@ export type ColoringBookRenderRequest = {
   sourcePath?: string
   /** generate-bw only. */
   bwSource?: ColoringBookBwSource
+  /** generate-color-proposals only. */
+  colorSource?: ColoringBookColorSource
   force?: boolean
   note?: string
   renderSettings?: ColoringBookRenderSettingsRequest

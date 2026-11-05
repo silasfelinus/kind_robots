@@ -192,7 +192,10 @@
         Add what this page riffs on and who is recast
       </button>
 
-      <div v-if="isAdmin" class="flex flex-wrap gap-1.5">
+      <div
+        v-if="isAdmin && (colorCandidatePath || bwCandidatePath || canFinalize)"
+        class="flex flex-wrap gap-1.5"
+      >
         <button
           v-if="colorCandidatePath"
           class="btn btn-success btn-sm rounded-xl"
@@ -220,10 +223,28 @@
         >
           Finalize pair
         </button>
+      </div>
+
+      <div v-if="isAdmin" class="join w-full">
+        <select
+          v-model="colorSource"
+          class="join-item select select-bordered select-sm min-w-0 flex-1 rounded-l-xl"
+          aria-label="New color starts from"
+          title="What the new color is made from"
+        >
+          <option
+            v-for="option in colorSourceOptions"
+            :key="option.value"
+            :value="option.value"
+            :disabled="option.disabled"
+          >
+            {{ option.label }}
+          </option>
+        </select>
         <button
-          class="btn btn-sm rounded-xl"
+          class="join-item btn btn-sm rounded-r-xl"
           type="button"
-          :disabled="store.requestingAction"
+          :disabled="store.requestingAction || !colorSourceReady"
           @click="renderColor"
         >
           New color
@@ -388,8 +409,9 @@ import type {
 } from '~/types/coloringBookStudio'
 import {
   coloringBookBwRequest,
+  coloringBookColorRequest,
   shownVersionPath,
-  type ColoringBookBwChoice,
+  type ColoringBookSourceChoice,
   type ColoringBookVersion,
 } from '@/utils/coloringBookVersions'
 import { useColoringBookStudioStore } from '@/stores/coloringBookStudioStore'
@@ -493,32 +515,53 @@ function shownPath(variant: ColoringBookVariant): string | null {
   )
 }
 
-const bwSource = ref<ColoringBookBwChoice>('shown-color')
+type SourceOption = {
+  value: ColoringBookSourceChoice
+  label: string
+  disabled: boolean
+}
 
-const bwSourceOptions = computed<
-  { value: ColoringBookBwChoice; label: string; disabled: boolean }[]
->(() => [
-  {
-    value: 'shown-color',
-    label: picked.color
-      ? `From selected color (${picked.color.label})`
-      : 'From shown color',
-    disabled: !shownPath('color'),
-  },
-  {
-    value: 'shown-bw',
-    label: picked.bw
-      ? `From selected B&W (${picked.bw.label})`
-      : 'From shown B&W',
-    disabled: !shownPath('bw'),
-  },
-  { value: 'prompt', label: 'Fresh from prompt', disabled: false },
-])
+function sourceOptions(promptLabel: string): SourceOption[] {
+  return [
+    {
+      value: 'shown-color',
+      label: picked.color
+        ? `From selected color (${picked.color.label})`
+        : 'From shown color',
+      disabled: !shownPath('color'),
+    },
+    {
+      value: 'shown-bw',
+      label: picked.bw
+        ? `From selected B&W (${picked.bw.label})`
+        : 'From shown B&W',
+      disabled: !shownPath('bw'),
+    },
+    { value: 'prompt', label: promptLabel, disabled: false },
+  ]
+}
 
-const bwSourceReady = computed(
-  () =>
-    !bwSourceOptions.value.find((option) => option.value === bwSource.value)
-      ?.disabled,
+function sourceReady(
+  options: SourceOption[],
+  choice: ColoringBookSourceChoice,
+) {
+  return !options.find((option) => option.value === choice)?.disabled
+}
+
+const colorSource = ref<ColoringBookSourceChoice>('prompt')
+const colorSourceOptions = computed(() => sourceOptions('From prompt'))
+const colorSourceReady = computed(() =>
+  sourceReady(colorSourceOptions.value, colorSource.value),
+)
+watch(colorSourceReady, (ready) => {
+  if (!ready) colorSource.value = 'prompt'
+})
+
+const bwSource = ref<ColoringBookSourceChoice>('shown-color')
+const bwSourceOptions = computed(() => sourceOptions('Fresh from prompt'))
+
+const bwSourceReady = computed(() =>
+  sourceReady(bwSourceOptions.value, bwSource.value),
 )
 
 watch(
@@ -734,15 +777,31 @@ async function applyChange(rerender: boolean): Promise<void> {
 }
 
 async function renderColor(): Promise<void> {
-  const renderSettings = settingsForRender()
+  const request = coloringBookColorRequest(
+    colorSource.value,
+    props.bookSlug,
+    props.proposal,
+    props.production,
+    { color: picked.color?.path, bw: picked.bw?.path },
+  )
+  if (!request) {
+    emit('error', 'There is no image to make that color from yet.')
+    return
+  }
+  const renderSettings =
+    request.source === 'prompt' ? settingsForRender() : undefined
   if (renderSettings === null) return
   select()
+  const from =
+    request.source === 'prompt' ? 'from the prompt' : `from ${request.path}`
   const ok = await store.requestColorRender(
     true,
-    'Requested from Coloring Book curation',
+    `Color requested ${from} from Coloring Book curation`,
     renderSettings,
+    request.source,
+    request.path,
   )
-  await report(ok, 'color render requested.')
+  await report(ok, `Color render requested ${from}.`)
 }
 
 async function renderBw(): Promise<void> {

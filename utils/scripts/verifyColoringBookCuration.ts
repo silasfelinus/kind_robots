@@ -13,6 +13,7 @@ import {
 } from '@/server/utils/coloringBookStudio'
 import {
   coloringBookBwRequest,
+  coloringBookColorRequest,
   coloringBookVersions,
   shownVersionPath,
 } from '@/utils/coloringBookVersions'
@@ -279,6 +280,29 @@ assert.deepEqual(bwFrom('prompt', { color: 'approved/x.webp' }), {
 assert.equal(
   shownVersionPath('monster-recast', page, production, 'color', null),
   'approved/perfect-woman-color.webp',
+)
+
+// --- new color source --------------------------------------------------
+
+const colorFrom = (
+  choice: Parameters<typeof coloringBookColorRequest>[0],
+  picked: { color?: string; bw?: string } = {},
+) =>
+  coloringBookColorRequest(choice, 'monster-recast', page, production, picked)
+
+assert.deepEqual(colorFrom('prompt'), { source: 'prompt', path: '' })
+assert.deepEqual(
+  colorFrom('shown-bw', {
+    bw: 'projects/coloring-book/sets/monster-recast/approved/perfect-woman-bw.webp',
+  }),
+  { source: 'version', path: 'approved/perfect-woman-bw.webp' },
+  'a previewed B&W is colored from its set-relative path',
+)
+assert.equal(colorFrom('shown-bw'), null, 'no B&W to color from yet')
+assert.deepEqual(
+  colorFrom('shown-color'),
+  { source: 'version', path: 'approved/perfect-woman-color.webp' },
+  'a color source is always a version, even the accepted master',
 )
 
 console.log('coloring book curation contract: ok')

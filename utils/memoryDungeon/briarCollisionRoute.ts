@@ -9,7 +9,7 @@ export const BRIAR_COLLISION_ROUTE_SITES = {
     speaker: 'Rowan, Pip and Mara',
     kind: 'companion',
     opening:
-      'A reception bell rings from a desk rooted in the old wolf road. Mara has counted nine people trapped on the office floors, but the brass visitor book insists there are ten. Rowan spots a muddy pawprint beside an empty signature line; Pip recognizes the mark as a wolf courier's, but leaves the decision about confronting its owner to Rowan. The missing person may have escaped, or the building may be counting a wolf as staff.',
+      'A reception bell rings from a desk rooted in the old wolf road. Mara has counted nine people trapped on the office floors, but the brass visitor book insists there are ten. Rowan spots a muddy pawprint beside an empty signature line; Pip recognizes the mark as a wolf courier mark, but leaves the decision about confronting its owner to Rowan. The missing person may have escaped, or the building may be counting a wolf as staff.',
     artSubject:
       'Pip and Mara at a fluorescent reception desk grown from thorny Briar roots, a brass bell, muddy wolf pawprint and ten spaces in an open visitor ledger',
     choices: [

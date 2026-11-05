@@ -965,7 +965,7 @@ export function advanceVoyageDay(run: VoyageRun): VoyageRun {
     scene,
     log: [
       ...run.log,
-      `Day ${day}: ${missionFor(run).title} returned as ${grade} (${chance}% forecast, roll ${roll}). ${injury ? `${CREW.find((c) => c.id === injury)?.name} injured until day ${day + 2}.` : ''}${MISSION_RETURN_SUPPLIES[grade] > 0 ? `Grateful locals load ${MISSION_RETURN_SUPPLIES[grade] === 1 ? 'one supply crate' : MISSION_RETURN_SUPPLIES[grade] + ' supply crates'} onto the couch.` : ''}`,
+      `Day ${day}: ${missionFor(run).title} returned as ${grade} (${chance}% forecast, roll ${roll}). ${injury ? `${CREW.find((c) => c.id === injury)?.name} injured until day ${day + 2}.` : ''}${MISSION_RETURN_SUPPLIES[grade] > 0 ? `${injury ? ' ' : ''}Grateful locals load ${MISSION_RETURN_SUPPLIES[grade] === 1 ? 'one supply crate' : MISSION_RETURN_SUPPLIES[grade] + ' supply crates'} onto the couch.` : ''}`,
     ],
   }
 }

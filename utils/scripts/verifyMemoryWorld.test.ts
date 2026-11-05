@@ -121,16 +121,18 @@ assert.deepEqual(
 const umbrellaRoom = HOUSE_ROOMS['HD-02']!
 const umbrellaChoices = umbrellaRoom.choices
 try {
-  umbrellaRoom.choices = umbrellaChoices.filter(
-    (choice) => choice.id === umbrellaRoom.autoChoiceId,
-  )
+  Object.assign(umbrellaRoom, {
+    choices: umbrellaChoices.filter(
+      (choice) => choice.id === umbrellaRoom.autoChoiceId,
+    ),
+  })
   assert.deepEqual(validateHouseRooms(), [])
   umbrellaRoom.autoChoiceId = 'missing-choice'
   assert.ok(
     validateHouseRooms().includes('Invalid automatic lore choice at HD-02'),
   )
 } finally {
-  umbrellaRoom.choices = umbrellaChoices
+  Object.assign(umbrellaRoom, { choices: umbrellaChoices })
   umbrellaRoom.autoChoiceId = 'weather'
 }
 assert.deepEqual(validateHouseRooms(), [])

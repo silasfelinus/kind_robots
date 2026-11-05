@@ -215,7 +215,7 @@ const SOLIDARITY_SCENES: Record<
   tablelands: {
     label: 'Stand with the whole caravan',
     success:
-      'The travelers join hands at the bridge and demand one crossing for all. The warden must give way or reveal the cruelty of the order.',
+      'The travelers join hands at the bridge and demand one crossing for all. Before so many witnesses the warden will not order the escorts to drive them back, and the bar comes up.',
     failure:
       'The warden holds the span, and you shoulder the wounded back through the rain without abandoning anyone.',
   },

@@ -100,7 +100,7 @@
     {
       "landId": "tablelands",
       "title": "The Canyon Warden",
-      "flavor": "Where two canyon roads meet, a masked warden stands before the last bridge. Watchfires burn behind stone parapets, and a storm is rising to hide the narrow path. The warden says the crossing stays closed until every traveler can be accounted for, and you know that not all of the missing are dead.",
+      "flavor": "Where two canyon roads meet, a masked warden stands before the last bridge. Watchfires burn behind stone parapets, and a storm is rising to hide the narrow path. The warden says the crossing stays closed until every traveler can be accounted for, and somewhere behind those fires, people the road has given up for dead may still be alive.",
       "art": null,
       "choices": [
         {
@@ -112,7 +112,7 @@
           "cost": 0,
           "requiredAnyFlags": [],
           "success": "You disarm the escorts one by one and force an opening through the barricade without bringing down the bridge. The caravan crosses behind you in the rain.",
-          "failure": "A shield wall closes and drives you back down the rocky approach. You come away bruised and turned back, with the bridge still shut behind them."
+          "failure": "A shield wall closes and drives you back down the rocky approach. You come away bruised and turned back, with the bridge still shut behind their shields."
         },
         {
           "id": "parley",
@@ -123,7 +123,7 @@
           "cost": 1,
           "requiredAnyFlags": [],
           "success": "The warden breaks the bread you offered, accepts your vow, and posts two scouts to guide the weakest travelers across the bridge before the storm closes in.",
-          "failure": "The warden takes the food you offered but asks more assurance than any oath you can give. The talk drags on until you are exhausted, and you retreat with nothing."
+          "failure": "The warden takes the food you offered but asks for more assurance than any oath can give. The talk drags on until you are exhausted, and you retreat with nothing."
         },
         {
           "id": "evidence",

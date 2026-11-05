@@ -3379,7 +3379,7 @@
       "id": "six-tally-sticks",
       "locationId": "quarry",
       "title": "Six Tally Sticks",
-      "flavor": "Six split tally sticks hang from a nail outside the foreman's shed, one for each debtor still cutting stone. A young marmot named Pell holds the matching half of hers and asks you to lay it against his. Hers has nine notches. His has fourteen, and the foreman is watching from the doorway with his arms folded.",
+      "flavor": "Six split tally sticks hang from a nail outside the foreman's shed, one for each debtor still cutting stone. A young marmot named Pell holds her own half and asks you to lay it against the foreman's. Hers has nine notches. His has fourteen, and the foreman is watching from the doorway with his arms folded.",
       "weight": 3,
       "art": null,
       "choices": [
@@ -3594,7 +3594,7 @@
             }
           },
           "failure": {
-            "text": "Water has risen in the old adit, and you wade through it, cold enough to make you stagger. You bring the crew back to the ledge exhausted, and one by one they light their lamps again.",
+            "text": "Water has risen in the old adit, cold enough to make you stagger, and you have to turn back. You lead the crew out onto the ledge exhausted, and one by one they light their lamps again.",
             "hp_delta": -1,
             "provisions_delta": 0,
             "add_flags": ["four-lamps-on-the-ledge-adit-flooded"],
@@ -3763,7 +3763,7 @@
             "target": 10
           },
           "success": {
-            "text": "Your hands find a gap at last, and two thin arms reach through it. Four cutters crawl out into the daylight, and the eldest tells you they ate their candles to last. The clerk crosses out four names without a word.",
+            "text": "Your hands find a gap at last, and two thin arms reach through it. Four of the six cutters crawl out into the daylight, and the eldest tells you they ate their candles to last. The clerk crosses out four names without a word.",
             "hp_delta": 0,
             "provisions_delta": 0,
             "add_flags": ["the-bell-in-the-sealed-adit-dug-out"],
@@ -3856,7 +3856,7 @@
             "target": 8
           },
           "success": {
-            "text": "By noon a dozen hands are passing stone down a line, setting props as they go. Five cutters come out alive and the hill holds. Whoever owed you owes you nothing now, and seems glad of it.",
+            "text": "By noon a dozen hands are passing stone down a line, setting props as they go. Five of the six cutters come out alive, and the hill holds. Whoever owed you owes you nothing now, and seems glad of it.",
             "hp_delta": 0,
             "provisions_delta": 0,
             "add_flags": ["the-bell-in-the-sealed-adit-crew-called"],
@@ -3889,7 +3889,7 @@
         {
           "id": "call-out-the-light-sack",
           "label": "Call out the light sack",
-          "intent": "Weigh the woman's sack against your own known weight and say the number out loud.",
+          "intent": "Weigh the woman's sack against flour you measured yourself, and say the shortfall out loud.",
           "risk": "The storekeeper takes the blame for the company's thumb.",
           "requires": null,
           "cost": null,
@@ -3935,7 +3935,7 @@
             "target": 10
           },
           "success": {
-            "text": "You file by touch until both weights balance your own. Nobody will know why the sacks got heavier, and the storekeeper, finding iron filings on the counter at dawn, sweeps them up and says nothing.",
+            "text": "You file by touch, testing against a scoop you measured in daylight, until both weights tell the truth. Nobody will know why the sacks got heavier, and the storekeeper, finding iron filings on the counter at dawn, sweeps them up and says nothing.",
             "hp_delta": 0,
             "provisions_delta": 0,
             "add_flags": ["the-company-store-scales-filed"],
@@ -4325,7 +4325,7 @@
         },
         {
           "id": "ask-about-the-missing-caravans",
-          "label": "Ask about the missing caravans",
+          "label": "Ask who he really rides for",
           "intent": "Shelter beside him and work out, between thunderclaps, who he really rides for.",
           "risk": "A clever thief will sell you a story for a dry place.",
           "requires": null,
@@ -4336,7 +4336,7 @@
             "target": 10
           },
           "success": {
-            "text": "He rides for no one, and the travelers he meant to rob were turned back at the warden's bridge and kept there, not dead. Before he sleeps he scratches you the raiders' way around the bridge, and the road ahead shifts with it.",
+            "text": "He rides for no one now. The caravans that vanish on this road were never robbed, he says: the warden's escorts turned them back at the bridge and are holding them there, alive. Before he sleeps he scratches you the raiders' way around the bridge, and the road ahead shifts with it.",
             "hp_delta": 0,
             "provisions_delta": 0,
             "add_flags": ["the-raider-beneath-the-arch-kept-not-dead"],
@@ -4475,7 +4475,7 @@
             "target": 11
           },
           "success": {
-            "text": "He knows you, all right, and his eyes go to your hands and stay there. One writ is not worth a fight with someone the wardens could not hold, and he rides back the way he came. The runaways do not wait to thank you.",
+            "text": "He knows you, all right, and his eyes go to your hands and stay there. One writ is not worth a fight with a stranger the wardens have hunted this far and never caught, and he rides back the way he came. The runaways do not wait to thank you.",
             "hp_delta": 0,
             "provisions_delta": 0,
             "add_flags": ["the-writ-and-the-runaways-bluffed"],
@@ -4629,7 +4629,7 @@
       "id": "one-pot-seven-bowls",
       "locationId": "canyon-camp",
       "title": "One Pot, Seven Bowls",
-      "flavor": "The camp cook ladles bean stew from one black pot into seven bowls lined up on a flat rock, and there is not enough to fill seven. Two more travelers have just come in out of the storm, a quarry widow and her small son. The cook looks at you, because you are the newest face at the fire, and someone has to go without.",
+      "flavor": "The camp cook ladles bean stew from one black pot into seven bowls lined up on a flat rock, and there is barely enough to fill those. Then two more travelers come in out of the storm, a quarry widow and her small son. The cook looks at you, because you are the newest face at the fire, and someone has to go without.",
       "weight": 3,
       "art": null,
       "choices": [
@@ -4752,7 +4752,7 @@
       "id": "dice-for-an-indenture",
       "locationId": "canyon-camp",
       "title": "Dice for an Indenture",
-      "flavor": "A labor recruiter rolls three bone dice by the fire, and the stake in front of him is a signed indenture. A drifter barely grown has bet himself into five years at the quarry and lost it twice already. The recruiter offers to let you play for the paper, if you have something worth putting up.",
+      "flavor": "A labor recruiter rolls three bone dice by the fire, and the stake in front of him is a signed indenture. A drifter barely grown has gambled himself into five years at the quarry, and the paper lies there with his mark on it. The recruiter offers to let you play for the paper, if you have something worth putting up.",
       "weight": 2,
       "art": null,
       "choices": [
@@ -5215,7 +5215,7 @@
             "target": 9
           },
           "success": {
-            "text": "They throw the white stones and the black stones together into the fire, then climb as one, carrying the old ones between them. It is a hard, wet night, but at dawn everyone is still there to count.",
+            "text": "They sweep the white stones and the black into one heap, then climb as one, carrying the oldest travelers between them. It is a hard, wet night, but at dawn everyone is still there to count.",
             "hp_delta": 0,
             "provisions_delta": 0,
             "add_flags": ["two-piles-of-voting-stones-held-together"],
@@ -9958,7 +9958,7 @@
           }
         },
         "failure": {
-          "text": "He screams before you can stop him, and his guards come running. You fight your way out bruised and battered, with his hatred following you up the road.",
+          "text": "He screams before you can stop him, and his guards come running. You fight your way clear of them, bruised, with his curses following you up the road.",
           "hp_delta": -1,
           "provisions_delta": 0,
           "add_flags": ["the-empty-pay-cart-4-failure"],
@@ -9974,7 +9974,7 @@
         "id": "pull-her-back-from-the-seam",
         "label": "Pull her back from the seam",
         "intent": "The singing has changed pitch, so drag her away before the vein lets go.",
-        "risk": "If you are wrong, you have cost her a day's work.",
+        "risk": "Her day's cutting is lost either way; if you are slow, the glass finds you too.",
         "requires": null,
         "cost": null,
         "roll": {
@@ -10032,7 +10032,7 @@
         "id": "ask-why-the-wall-is-moving",
         "label": "Ask why the wall is moving",
         "intent": "Ask the scout what she thinks is shaking a wall no weather can explain.",
-        "risk": "Some answers make the road ahead harder.",
+        "risk": "Every minute spent asking is a minute spent under the shelf.",
         "requires": null,
         "cost": null,
         "roll": {
@@ -10052,7 +10052,7 @@
           "marks": {}
         },
         "failure": {
-          "text": "She looks at you as if you had asked why water is wet, and goes back to watching. You spend the hour craning up at the shelf, and come away tired and no wiser.",
+          "text": "She looks at you as if you had asked why stones fall, and goes back to watching. You spend the hour craning up at the shelf, and come away tired and no wiser.",
           "hp_delta": -1,
           "provisions_delta": 0,
           "add_flags": ["the-watchful-overhang-4-failure"],
@@ -10075,7 +10075,7 @@
           "target": 9
         },
         "success": {
-          "text": "The rider was carrying debtors' writs, the captain admits, and hated the work. The banner marks the old courier road she took. The captain shows it to you, and the road ahead bends that way too.",
+          "text": "You say aloud what the captain will not: a rider who ties a banner wants to be followed, not mourned. She admits her rider was carrying debtors' writs and hated the work, then shows you the old courier road the banner marks, and the road ahead bends that way too.",
           "hp_delta": 0,
           "provisions_delta": 0,
           "add_flags": ["the-banner-in-the-wind-3-success", "deed-told-truth"],

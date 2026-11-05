@@ -128,6 +128,37 @@ for (const crew of crews)
     crew.team + ' runs away at ' + crew.scorePercent + '%',
   )
 
+// BLOODRUSH crew guard (t-025, 2026-11-05 PT). The timed lane needs its own
+// lever (BLOODRUSH_CREW_HP, dithered per-crew HP offsets): held-out spread
+// 0.191 -> 0.064 and 0.169 -> 0.068. These ten seeds read 0.079 (crews
+// 43-65%; the uncalibrated lane read 0.165 with Riot at 25%).
+{
+  const rush = runTournament('bloodrush', seeds)
+  assert.equal(rush.length, 300)
+  const score: Record<string, number> = {}
+  for (const bout of rush) {
+    const p = bout.victor === 'player' ? 1 : bout.victor === 'draw' ? 0.5 : 0
+    score[bout.playerTeam] = (score[bout.playerTeam] ?? 0) + p
+    score[bout.enemyTeam] = (score[bout.enemyTeam] ?? 0) + 1 - p
+  }
+  const rushRates = teamIds.map((id) => score[id]! / 100)
+  const rushMean = rushRates.reduce((x, y) => x + y, 0) / rushRates.length
+  const rushSpread = Math.sqrt(
+    rushRates.reduce((x, r) => x + (r - rushMean) ** 2, 0) /
+      (rushRates.length - 1),
+  )
+  assert.ok(
+    rushSpread <= 0.12,
+    'BLOODRUSH crews stay balanced: spread ' + rushSpread.toFixed(3),
+  )
+  teamIds.forEach((id, i) =>
+    assert.ok(
+      rushRates[i]! >= 0.3 && rushRates[i]! <= 0.7,
+      'BLOODRUSH: ' + id + ' runs away at ' + rushRates[i]!.toFixed(2),
+    ),
+  )
+}
+
 const warnings = [...summary.warnings]
 for (const crew of crews) {
   if (crew.scorePercent < 30 || crew.scorePercent > 70)

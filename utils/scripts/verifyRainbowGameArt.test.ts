@@ -33,6 +33,7 @@ import {
   rainbowStageCard,
   rainbowStageStrip,
   rainbowSuperCutin,
+  setRainbowLook,
 } from '../arcade/games/rainbowGameArt'
 import { PINKWAKE } from '../arcade/games/rainbowPinkwake'
 import { MOONJELLY } from '../arcade/games/rainbowMoonjelly'
@@ -40,6 +41,8 @@ import { MOONJELLY } from '../arcade/games/rainbowMoonjelly'
 // Silas, 2026-10-14 PT: "upgrade ship art, and get the pilot portraits for the interstitial talking
 // moments." Painted ships and comms portraits are optional decoration: the vector hull stands in until a
 // sprite loads, and the fair 6px core marker always draws on top of whichever picture is showing.
+// These checks pin the Classic look; verifyRainbowFeverDream covers Fever Dream, the default.
+setRainbowLook('classic', false)
 
 const publicFile = (src: string) =>
   new URL(`../../public${src}`, import.meta.url)

@@ -284,6 +284,7 @@ import {
 } from '~/utils/arcade/games/rainbowPilots'
 import {
   loadRainbowLook,
+  RAINBOW_DEFAULT_LOOK,
   rainbowHeroArt,
   rainbowPortrait,
   rainbowStageCard,
@@ -307,7 +308,7 @@ function replayOpening() {
   opening.value?.play()
 }
 // Classic or Fever Dream: the cabinet reads the look every frame, so switching mid-flight just repaints.
-const look = ref<RainbowLook>('classic')
+const look = ref<RainbowLook>(RAINBOW_DEFAULT_LOOK)
 onMounted(() => {
   look.value = loadRainbowLook()
 })

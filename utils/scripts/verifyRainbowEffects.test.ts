@@ -10,6 +10,7 @@ import {
   drawRainbowShot,
   type RainbowShotLook,
 } from '../arcade/games/rainbowShotLooks'
+import { setRainbowLook } from '../arcade/games/rainbowGameArt'
 import { emptyInput } from '../arcade/types'
 
 // Conductor rainbow t-011: explosions as sparks within a budget (a boss's larger, with a shockwave), calm
@@ -154,9 +155,11 @@ assert.ok(
   }
 }
 
-// Calm motion slows the scenery: the farthest mote plane's first mote, 100 frames in.
+// Calm motion slows the scenery: the farthest mote plane's first mote, 100 frames in. Classic draws the
+// motes; Fever Dream's sky takes the same drift factor (verifyRainbowFeverDream).
 for (const stillCamera of [false, true]) {
   const game = create(true, stillCamera)
+  setRainbowLook('classic', false)
   for (let i = 0; i < 100; i++) game.update(emptyInput())
   const { g, calls } = recorder()
   game.render(g)

@@ -29,9 +29,15 @@ import { emptyInput } from '../arcade/types'
 const publicFile = (src: string) =>
   new URL(`../../public${src}`, import.meta.url)
 
-// Classic is the default, and its paths never change.
-assert.equal(RAINBOW_DEFAULT_LOOK, 'classic')
-assert.equal(rainbowLook(), 'classic')
+// Fever Dream is the default (Silas, 2026-11-05 PT: "Yes, fever dream should be default."), and Classic's
+// paths never change.
+assert.equal(RAINBOW_DEFAULT_LOOK, 'fever')
+assert.equal(rainbowLook(), 'fever')
+assert.equal(
+  rainbowShipSprite(0),
+  '/rainbow-princess-art/doodle/ships/petal-wing.webp',
+)
+setRainbowLook('classic', false)
 assert.equal(
   rainbowShipSprite(0),
   '/rainbow-princess-art/ships/petal-wing.webp',
@@ -135,15 +141,19 @@ Object.defineProperty(globalThis, 'localStorage', {
   value: fakeStorage,
   configurable: true,
 })
-setRainbowLook('fever')
-assert.equal(saved.get(RAINBOW_LOOK_STORAGE_KEY), 'fever')
-setRainbowLook('classic', false)
-assert.equal(loadRainbowLook(), 'fever', 'the remembered look comes back')
-saved.set(RAINBOW_LOOK_STORAGE_KEY, 'glitter')
+setRainbowLook('classic')
+assert.equal(saved.get(RAINBOW_LOOK_STORAGE_KEY), 'classic')
+setRainbowLook('fever', false)
 assert.equal(
   loadRainbowLook(),
   'classic',
-  'unknown values fall back to classic',
+  'a visitor who chose Classic keeps it',
+)
+saved.set(RAINBOW_LOOK_STORAGE_KEY, 'glitter')
+assert.equal(
+  loadRainbowLook(),
+  'fever',
+  'unknown values fall back to the default',
 )
 Object.defineProperty(globalThis, 'localStorage', {
   get() {
@@ -151,9 +161,9 @@ Object.defineProperty(globalThis, 'localStorage', {
   },
   configurable: true,
 })
-assert.equal(loadRainbowLook(), 'classic', 'blocked storage still loads')
-setRainbowLook('fever')
-assert.equal(rainbowLook(), 'fever', 'blocked storage still switches')
+assert.equal(loadRainbowLook(), 'fever', 'blocked storage still loads')
+setRainbowLook('classic')
+assert.equal(rainbowLook(), 'classic', 'blocked storage still switches')
 if (realStorage) Object.defineProperty(globalThis, 'localStorage', realStorage)
 else delete (globalThis as { localStorage?: unknown }).localStorage
 setRainbowLook('classic', false)
@@ -251,7 +261,9 @@ assert.ok(actsPainted.size >= 8, `Fever Dream painted ${actsPainted.size} Acts`)
 // The fever sky really replaces the classic one.
 {
   const game = make()
+  assert.equal(rainbowLook(), 'fever', 'a fresh cabinet opens in Fever Dream')
   for (let i = 0; i < 300; i++) game.update(emptyInput())
+  setRainbowLook('classic', false)
   const classic = recorder()
   game.render(classic.g)
   setRainbowLook('fever', false)

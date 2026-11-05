@@ -13,7 +13,10 @@
     >
       <span>AFTER HOURS</span>
       <strong>{{ lab.contractPlan.title }}</strong>
-      <small>BLACKOUT / {{ lab.contractPlan.opponent }}</small>
+      <small
+        >{{ lab.storyBoutLabel('blackout') }} /
+        {{ lab.contractPlan.opponent }}</small
+      >
     </div>
     <div class="contract-info">
       <p class="contract-kicker">

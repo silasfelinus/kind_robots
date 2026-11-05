@@ -25,6 +25,7 @@ import {
   type TeamId,
 } from '../slimeCity/prototypes'
 import { playHeadless } from '../slimeCity/playtest'
+import { applyTerms } from '../slimeCity/city'
 
 let nextId = 500
 function stone(side: Side, x: number, y: number, extra: Partial<Fighter> = {}) {
@@ -621,6 +622,32 @@ for (const kind of [
 ])
   assert.match(arena, new RegExp('\\.sca-fx\\.' + kind + ' i'), kind)
 assert.match(arena, /animation-name: sca-fx-fade/)
+
+// --- Story terms in TURF (Silas, 2026-11-04: story mode through Turf): hit
+// points, armor, fewer rivals and a rival trap become points at the count;
+// mana and rounds apply as they are; no stoneless trap is planted.
+const storyBoard = createMatch('turf', 'ironjaw', 'catgirls', 77)
+const termed = applyTerms(storyBoard, {
+  playerHp: 2,
+  fewerRivals: 1,
+  enemyArmor: 1,
+  rivalTrap: true,
+  playerMana: 2,
+  rounds: 2,
+})
+assert.equal(termed.scenarioBonus?.turfPoints, 1)
+assert.equal(termed.traps.length, 0, 'No stoneless trap in TURF')
+assert.equal(termed.mana, storyBoard.mana + 2)
+assert.equal(termed.maxRounds, storyBoard.maxRounds + 2)
+assert.equal(
+  turfTerritory(termed).score.player,
+  turfTerritory(storyBoard).score.player + 1,
+)
+const rivalLeads = applyTerms(storyBoard, { enemyArmor: 2 })
+assert.equal(
+  turfTerritory(rivalLeads).score.enemy,
+  turfTerritory(storyBoard).score.enemy + 2,
+)
 
 // --- Whole CPU games end, replay exactly, and capture stones.
 let captures = 0

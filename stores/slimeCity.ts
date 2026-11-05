@@ -25,6 +25,7 @@ import { campaignAftermathFor } from '../utils/slimeCity/campaignAftermath'
 import {
   unlockModeOf,
   type SlimeCityStory,
+  type StoryMode,
   type UnlockMode,
 } from '../utils/slimeCity/storySave'
 import { computed, ref, shallowRef, watch } from 'vue'
@@ -278,6 +279,9 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
   const campaignSave = ref(createCampaignSave())
   const savedDecks = ref<Partial<Record<TeamId, string[]>>>({})
   const unlockMode = ref<UnlockMode>('all')
+  /** Story bouts: as written or all TURF, with or without PARITY. */
+  const storyMode = ref<StoryMode>('written')
+  const storyParity = ref(false)
   const replacingCard = ref<string | null>(null)
   const deckMessage = ref('')
   const storyLoaded = ref(false)
@@ -308,6 +312,8 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
     campaignSave.value = createCampaignSave()
     savedDecks.value = {}
     unlockMode.value = 'all'
+    storyMode.value = 'written'
+    storyParity.value = false
     replacingCard.value = null
     districtId.value = 'pitworks'
     cityScreen.value = 'map'
@@ -324,6 +330,8 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
       campaignSave.value = response.data.campaigns
       savedDecks.value = response.data.decks ?? {}
       unlockMode.value = unlockModeOf(response.data)
+      storyMode.value = response.data.storyMode ?? 'written'
+      storyParity.value = response.data.storyParity ?? false
       storyRevision.value = response.data.revision
       storyAccount.value = userId
       storyLoaded.value = true
@@ -347,6 +355,8 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
           campaigns: campaignSave.value,
           decks: savedDecks.value,
           unlocks: unlockMode.value,
+          storyMode: storyMode.value,
+          storyParity: storyParity.value,
         }
         try {
           const result = await performFetch<SlimeCityStory>(
@@ -936,6 +946,28 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
     cityScreen.value = 'district'
   }
 
+  /** The format and rules a story bout written for `written` plays in. */
+  function storyBout(written: ModeId): { mode: ModeId; rules: RuleVariants } {
+    return {
+      mode: storyMode.value === 'turf' ? 'turf' : written,
+      rules: { ...DEFAULT_RULES, parity: storyParity.value },
+    }
+  }
+  /** "TURF · PARITY": the format a story bout written for `written` plays. */
+  function storyBoutLabel(written: ModeId): string {
+    const format = storyBout(written)
+    const title =
+      PLAYER_MODES.find((m) => m.id === format.mode)?.title ?? format.mode
+    return format.rules.parity ? title + ' · PARITY' : title
+  }
+  /** Play story bouts as written or as TURF, and with or without PARITY. */
+  function setStoryFormat(next: { mode?: StoryMode; parity?: boolean }): void {
+    if (!storyEditable()) return
+    if (next.mode) storyMode.value = next.mode
+    if (next.parity !== undefined) storyParity.value = next.parity
+    persistStory()
+  }
+
   /** Fight this district's rival on its format, with your decision's terms. */
   function fightRival(): void {
     if (!storyEditable()) return
@@ -943,10 +975,12 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
     if (!here.value || boutBlocked(city.value, id)) return
     const rival = CITY_PLAN[id].rival
     stop()
-    mode.value = rival.mode
+    const format = storyBout(rival.mode)
+    mode.value = format.mode
+    rules.value = format.rules
     seed.value = rollSeed()
     const fresh = createMatch(
-      rival.mode,
+      format.mode,
       activeTeam.value,
       rival.team,
       seed.value,
@@ -960,7 +994,7 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
     contractBout.value = null
     lastContract.value = null
     view.value = 'arena'
-    if (!guideSeen.has(rival.mode)) openGuide()
+    if (!guideSeen.has(format.mode)) openGuide()
   }
 
   function fightContract(): void {
@@ -968,12 +1002,14 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
     const id = districtId.value
     if (contractBlocked(city.value, id)) return
     stop()
-    mode.value = 'blackout'
+    const format = storyBout('blackout')
+    mode.value = format.mode
+    rules.value = format.rules
     seed.value = rollSeed()
     const contract = CITY_CONTRACTS[id]
     match.value = applyTerms(
       createMatch(
-        'blackout',
+        format.mode,
         activeTeam.value,
         contract.team,
         seed.value,
@@ -989,7 +1025,7 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
     contractBout.value = id
     lastContract.value = null
     view.value = 'arena'
-    if (!guideSeen.has('blackout')) openGuide()
+    if (!guideSeen.has(format.mode)) openGuide()
   }
   function startCampaignBattle(choiceId: CampaignApproach): void {
     if (!storyEditable()) return
@@ -1004,12 +1040,13 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
     const choice = chapter?.choices.find((option) => option.id === choiceId)
     if (!chapter || !choice) return
     stop()
-    mode.value = 'blackout'
-    rules.value = { ...DEFAULT_RULES }
+    const format = storyBout('blackout')
+    mode.value = format.mode
+    rules.value = format.rules
     enemyTeam.value = chapter.foe
     seed.value = rollSeed()
     match.value = applyTerms(
-      createMatch('blackout', teamId, chapter.foe, seed.value, rules.value),
+      createMatch(format.mode, teamId, chapter.foe, seed.value, rules.value),
       campaignBattleTerms(
         campaignSave.value,
         teamId,
@@ -1034,7 +1071,7 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
     }
     lastCampaign.value = null
     view.value = 'arena'
-    if (!guideSeen.has('blackout')) openGuide()
+    if (!guideSeen.has(format.mode)) openGuide()
   }
 
   async function finishCpuBattle(id: string, commands: unknown): Promise<void> {
@@ -1288,6 +1325,11 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
     testCustomDeck,
     unlockMode,
     setUnlockMode,
+    storyMode,
+    storyParity,
+    storyBout,
+    storyBoutLabel,
+    setStoryFormat,
     storyLoaded,
     storySaving,
     storyError,

@@ -260,7 +260,13 @@ export interface MatchState {
   units: Fighter[]
   traps: Trap[]
   /** Optional authored scenario bonuses, applied to fighters deployed later. */
-  scenarioBonus?: { playerHp: number; enemyArmor: number; fewerRivals: number }
+  scenarioBonus?: {
+    playerHp: number
+    enemyArmor: number
+    fewerRivals: number
+    /** TURF: story terms as points at the count (+ yours, - the rival's). */
+    turfPoints?: number
+  }
   flag: { x: number; y: number }
   rules: RuleVariants
   /** Present only with the monster variant, until it falls. */
@@ -4137,6 +4143,10 @@ export function turfTerritory(state: MatchState): {
       if (side) score[side] += region.length
     }
   score.enemy += TURF_KOMI
+  // Story terms in TURF (Silas, 2026-11-04: story mode through Turf).
+  const terms = state.scenarioBonus?.turfPoints ?? 0
+  if (terms > 0) score.player += terms
+  else if (terms < 0) score.enemy -= terms
   return { owner, score }
 }
 

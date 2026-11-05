@@ -28,7 +28,18 @@ export interface SlimeCityStory {
    * Omitted means 'all'.
    */
   unlocks?: UnlockMode
+  /**
+   * Story bouts (Silas, 2026-11-04: story mode through PARITY or Turf): play
+   * each bout in its written format, or every bout as TURF; and with PARITY
+   * rules or not. Omitted means as written, without PARITY.
+   */
+  storyMode?: StoryMode
+  storyParity?: boolean
 }
+
+/** 'written': each bout's own format. 'turf': every story bout is TURF. */
+export type StoryMode = 'written' | 'turf'
+export const STORY_MODES: readonly StoryMode[] = ['written', 'turf']
 
 /** 'all': every card is open. 'trickle': starters, then cards from packs. */
 export type UnlockMode = 'all' | 'trickle'
@@ -119,6 +130,13 @@ export function validSlimeCityStory(raw: unknown): raw is SlimeCityStory {
     raw.unlocks !== undefined &&
     !UNLOCK_MODES.includes(raw.unlocks as UnlockMode)
   )
+    return false
+  if (
+    raw.storyMode !== undefined &&
+    !STORY_MODES.includes(raw.storyMode as StoryMode)
+  )
+    return false
+  if (raw.storyParity !== undefined && typeof raw.storyParity !== 'boolean')
     return false
   if (raw.decks !== undefined) {
     if (!record(raw.decks)) return false

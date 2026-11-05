@@ -216,7 +216,7 @@
             <small
               >{{ lab.plan.rival.title }} ·
               {{ teamName(lab.plan.rival.team) }} ·
-              {{ modeTitle(lab.plan.rival.mode) }}</small
+              {{ lab.storyBoutLabel(lab.plan.rival.mode) }}</small
             >
             <strong>{{ lab.plan.rival.name }}</strong>
             <em>“{{ lab.plan.rival.taunt }}”</em>
@@ -298,9 +298,6 @@ const CHOICE_ICONS = ['✦', '⚑', '✷']
 
 function teamName(id: string): string {
   return lab.teams.find((t) => t.id === id)?.name ?? id
-}
-function modeTitle(id: string): string {
-  return lab.modes.find((m) => m.id === id)?.title ?? id
 }
 function districtName(id: string | null | undefined): string {
   return lab.districts.find((d) => d.id === id)?.name ?? ''

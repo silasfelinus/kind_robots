@@ -240,6 +240,7 @@ export const BRIAR_MARCHES_FINAL_BATCH: Record<string, BriarScene> = {
   },
   '4,7': {
     title: 'Stolen Laughter',
+    autoChoiceId: 'listen',
     opening:
       'A town full of mourners laughs at funerals. It is not cruelty: a former keeper sold the cemetery every tear to pay for new graves, and a family who tries to weep receives a bill. The mourners ask whether joy is also a kind of theft.',
     artPrompt:
@@ -303,6 +304,7 @@ export const BRIAR_MARCHES_FINAL_BATCH: Record<string, BriarScene> = {
   },
   '3,8': {
     title: 'Fallow Field',
+    autoChoiceId: 'plant',
     opening:
       'The field has no crops, yet bootprints cross it in the orderly pattern of a wedding procession. The prints are fresh after rain and old before sunrise. A tin flower lies beneath the grass, still smelling of candlewax.',
     artPrompt:

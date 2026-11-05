@@ -1097,6 +1097,19 @@ for (const key of sceneCoordinates) {
   assert.equal(new Set(scene.choices.map((option) => option.id)).size, 2)
 }
 
+// Quiet sites resolve automatically, while both historical decision IDs stay
+// available for restored saves and Chronicle callbacks.
+for (const [key, autoId] of [
+  ['4,7', 'listen'],
+  ['3,8', 'plant'],
+] as const) {
+  const scene = BRIAR_SCENES[key]!
+  assert.equal(scene.autoChoiceId, autoId)
+  assert.equal(scene.choices.length, 2)
+  assert.ok(scene.choices.some((choice) => choice.id === autoId))
+  assert.ok(scene.choices.every((choice) => !choice.cost && !choice.gain))
+}
+
 assert.equal(
   BRIAR_SCENES['4,4']?.choices.length,
   2,

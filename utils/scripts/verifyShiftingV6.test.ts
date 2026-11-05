@@ -19,6 +19,7 @@ import {
   type JourneyLedgerV6,
 } from '../shiftingLands/saveLedgerV6'
 import { trialForLand, canChooseTrial } from '../shiftingLands/authoredBosses'
+import { trialForLandV7 } from '../shiftingLands/trialRulesV7'
 import { JOURNEY_WORLD, reachableLocations } from '../shiftingLands/journey'
 import { AUTHORED_PACK } from '../shiftingLands/authoredJourney'
 import { LATER_LAND_PACK } from '../shiftingLands/authoredFiveLands'
@@ -40,34 +41,65 @@ for (const land of JOURNEY_WORLD.lands) {
 }
 assert.equal(V6_CARDS.length, 120)
 
-const homesteadIds = new Set(JOURNEY_WORLD.lands[0]!.locations.map((p) => p.id))
-const homesteadCards = V6_CARDS.filter((card) =>
-  homesteadIds.has(card.locationId),
-)
-assert.equal(homesteadCards.length, 24, 'both Homestead deck generations')
-assert.ok(
-  homesteadCards.filter((card) => /\b(you|your)\b/i.test(card.flavor)).length >=
-    12,
-  'the reader remains directly addressed in the Homestead',
-)
-for (const card of homesteadCards) {
-  for (const choice of card.choices) {
-    assert.ok(choice.risk.length >= 20, `${card.id}: risk stays readable`)
-    assert.ok(
-      choice.success.text.length >= 40,
-      `${card.id}: success is authored`,
-    )
-    if (choice.failure)
+// Every land holds the same editorial floor, and no outcome that leaves the
+// map alone may promise a shifted road. Each land keeps its own pins below.
+const MAP_SHIFT_PROMISE =
+  /\b(road|way|route|path|tunnels) ahead( of you)?( now| will have to)? (changes|has changed|shifts|has shifted|bends?|turns|runs|looks|reorders?|rearranges|redraws|opens|is not|no longer)|\bahead (changes|shifts|bends|reorders|rearranges)|changes (your|the) road ahead|across the road ahead|buries the easy road/
+const landCards = (landId: string) => {
+  const ids = new Set(
+    JOURNEY_WORLD.lands
+      .find((land) => land.id === landId)!
+      .locations.map((place) => place.id),
+  )
+  return V6_CARDS.filter((card) => ids.has(card.locationId))
+}
+const v6Card = (cardId: string) => V6_CARDS.find((card) => card.id === cardId)!
+const v6Choice = (cardId: string, choiceId: string) =>
+  v6Card(cardId).choices.find((choice) => choice.id === choiceId)!
+const trialChoice = (landId: string, choiceId: string) =>
+  trialForLand(landId)!.choices.find((choice) => choice.id === choiceId)!
+const v7Choice = (landId: string, choiceId: string) =>
+  trialForLandV7(landId)!.choices.find((choice) => choice.id === choiceId)!
+for (const land of JOURNEY_WORLD.lands) {
+  const cards = landCards(land.id)
+  assert.equal(cards.length, 24, `${land.id} has eight cards per location`)
+  for (const card of cards) {
+    assert.ok(card.flavor.length >= 130, `${card.id}: keep the scene specific`)
+    for (const choice of card.choices) {
+      assert.ok(choice.risk.length >= 20, `${card.id}: keep the risk legible`)
       assert.ok(
-        choice.failure.text.length >= 40,
-        `${card.id}: failure is authored`,
+        choice.success.text.length >= 80,
+        `${card.id}: keep the consequence authored`,
       )
+      if (choice.failure)
+        assert.ok(
+          choice.failure.text.length >= 80,
+          `${card.id}: keep the failure consequential`,
+        )
+      for (const effect of [choice.success, choice.failure])
+        if (effect && effect.map_effect === 'none')
+          assert.doesNotMatch(
+            effect.text,
+            MAP_SHIFT_PROMISE,
+            `${card.id}/${choice.id}: prose must not promise a map shift the state never records`,
+          )
+    }
   }
 }
 assert.match(
-  homesteadCards
-    .find((card) => card.id === 'the-last-seed')!
-    .choices.find((choice) => choice.id === 'shield-shoot')!.success.text,
+  v6Choice('the-cooling-stones', 'mark-the-unsafe-seam').success.text,
+  MAP_SHIFT_PROMISE,
+  'the map-shift detector still recognizes a recorded shift',
+)
+
+// Homestead
+assert.ok(
+  landCards('homestead').filter((card) => /\b(you|your)\b/i.test(card.flavor))
+    .length >= 12,
+  'the reader remains directly addressed in the Homestead',
+)
+assert.match(
+  v6Choice('the-last-seed', 'shield-shoot').success.text,
   /food she had saved for planting week/,
   'seed sacrifice has a visible cost rather than an arbitrary treasure find',
 )
@@ -78,54 +110,214 @@ assert.match(
   /three cups of broth/,
   'the Three Cups prose names its visible, countable props',
 )
-
-const dustwater = JOURNEY_WORLD.lands.find((land) => land.id === 'dustwater')!
-const dustwaterIds = new Set(dustwater.locations.map((location) => location.id))
-const dustwaterCards = V6_CARDS.filter((card) =>
-  dustwaterIds.has(card.locationId),
+assert.match(
+  trialForLand('homestead')!.flavor,
+  /her guards keep the corridor behind her barred/,
+  'the guards and the bar the confront route breaks are in the scene',
+)
+assert.match(
+  trialForLand('homestead')!.flavor,
+  /children's dormitory/,
+  'the dormitory and the missing children are set up before a route names them',
 )
 assert.equal(
-  dustwaterCards.length,
-  24,
-  'Dustwater has eight cards per location',
+  trialChoice('homestead', 'parley').label,
+  'Demand an accounting before witnesses',
+  'the label matches the accounting the success delivers',
 )
-for (const card of dustwaterCards) {
-  assert.ok(card.flavor.length >= 130, `${card.id}: keep the scene specific`)
-  for (const choice of card.choices) {
-    assert.ok(choice.risk.length >= 20, `${card.id}: keep the risk legible`)
-    assert.ok(
-      choice.success.text.length >= 80,
-      `${card.id}: keep the consequence authored`,
-    )
-    if (choice.failure)
-      assert.ok(
-        choice.failure.text.length >= 80,
-        `${card.id}: keep the failure consequential`,
-      )
-  }
-}
 assert.match(
-  dustwaterCards
-    .find((card) => card.id === 'one-too-many-aboard')!
-    .choices.find((choice) => choice.id === 'question-the-pilots-count')!
-    .success.text,
+  v7Choice('homestead', 'tribute').label,
+  /record keeper/,
+  'the bribe label names who takes the ration',
+)
+
+// Dustwater
+assert.match(
+  v6Choice('one-too-many-aboard', 'question-the-pilots-count').success.text,
   /eleventh seat the hull can carry/,
   'the pilot reveal must explain why eleven can safely cross',
 )
 assert.match(
-  dustwaterCards
-    .find((card) => card.id === 'a-dam-of-broken-wagons')!
-    .choices.find((choice) => choice.id === 'break-the-dam-open')!.success.text,
+  v6Choice('a-dam-of-broken-wagons', 'break-the-dam-open').success.text,
   /squatters' children/,
   'returning water downstream must acknowledge who loses their pond',
 )
 assert.match(
-  dustwaterCards
-    .find((card) => card.id === 'the-smugglers-mirror')!
-    .choices.find((choice) => choice.id === 'sell-the-plan-to-the-toll-men')!
-    .success.text,
+  v6Choice('the-smugglers-mirror', 'sell-the-plan-to-the-toll-men').success
+    .text,
   /landing's ovens stay cold/,
   'the betrayal must acknowledge the hungry people at the landing',
+)
+assert.match(
+  trialForLand('dustwater')!.flavor,
+  /jammed mechanism/,
+  'the jam the confront label names is in the scene',
+)
+assert.match(
+  trialForLand('dustwater')!.flavor,
+  /the one channel the book calls safe/,
+  'the keeper admits only one safe channel, so a hidden one can be proved',
+)
+assert.doesNotMatch(
+  v7Choice('dustwater', 'witness').success,
+  /rescued boat crews/,
+  'the crews are still stranded when they testify',
+)
+
+// Tablelands
+assert.match(
+  v6Card('six-tally-sticks').flavor,
+  /lay it against the foreman's/,
+  "Pell's stick is compared with the foreman's half, not her own",
+)
+assert.match(
+  v6Choice('the-banner-in-the-wind', 'ask-why-the-rider-left').success.text,
+  /^You say aloud/,
+  'deed-told-truth is earned by what the player says',
+)
+assert.equal(
+  v6Choice('the-raider-beneath-the-arch', 'ask-about-the-missing-caravans')
+    .label,
+  'Ask who he really rides for',
+  'the label matches what the intent and the answer are about',
+)
+assert.match(
+  v6Choice('the-bell-in-the-sealed-adit', 'call-in-what-you-are-owed').success
+    .text,
+  /Five of the six/,
+  'calling in help visibly saves more cutters than digging alone',
+)
+assert.doesNotMatch(
+  trialForLand('tablelands')!.flavor,
+  /you know that/,
+  'the trial does not assume clues the player may never have found',
+)
+
+// Deep Cave
+for (const card of landCards('cave'))
+  for (const choice of card.choices)
+    for (const effect of [choice.success, choice.failure])
+      if (effect && effect.map_effect === 'none')
+        assert.doesNotMatch(
+          effect.text,
+          /(road|way|tunnels) ahead/,
+          `${card.id}/${choice.id}: no unshifted cave outcome talks about the way ahead`,
+        )
+assert.match(
+  v6Card('feathers-in-the-draft').flavor,
+  /who you are and what you want below/,
+  'the storm-reader asks the question the first choice answers',
+)
+assert.match(
+  v6Card('the-third-shadow').flavor,
+  /what her brother owes/,
+  "the brother's debt is set up before a choice offers to pay it",
+)
+assert.match(
+  v6Choice('no-fever-past-the-rope', 'brew-a-fever-draught').failure!.text,
+  /most of your herbs/,
+  'deed-carries-medicine survives the failure, so the herbs are not all gone',
+)
+for (const [cardId, choiceId, owed] of [
+  [
+    'the-red-vial',
+    'brew-him-a-sleeping-draught',
+    /swears he will pay the rest/,
+  ],
+  [
+    'the-fortieth-stone',
+    'open-the-old-wind-shaft',
+    /owes you her child's life/,
+  ],
+  ['the-creditors-ledger', 'broker-new-terms', /owes you more than wool/],
+] as const)
+  assert.match(
+    v6Choice(cardId, choiceId).success.text,
+    owed,
+    `${cardId}: deed-owed-favor is spoken by someone who owes it`,
+  )
+assert.match(
+  v6Choice('salt-for-the-burial', 'feed-the-children-quietly').success.text,
+  /the little ones/,
+  'the eldest of three children does not thank you for "both"',
+)
+assert.doesNotMatch(
+  v6Choice('the-surveyors-tally-book', 'let-the-families-decide').success.text,
+  /twenty stay hidden/,
+  'sixty-one people are not split into forty and twenty',
+)
+assert.match(
+  trialForLand('cave')!.flavor,
+  /chalk circle/,
+  'the circle the confront route breaks is in the scene',
+)
+assert.doesNotMatch(
+  trialChoice('cave', 'evidence').intent,
+  /in the hollow and at the crossroads/,
+  'evidence opens on any one clue, so the intent does not assume both',
+)
+assert.match(
+  v7Choice('cave', 'solidarity').success,
+  /outside the candle ring/,
+  'the solidarity scene names who the court ignored',
+)
+
+// Verge
+assert.match(
+  v6Choice('ashes-at-the-border', 'repair-the-signal-horn').success.text,
+  /sounds the all-clear/,
+  'the horn sounds the all-clear the intent promised',
+)
+assert.match(
+  v6Card('the-last-watchfire').flavor,
+  /guide raiders in/,
+  'the reason nobody lights the beacon is set up before a choice lights it',
+)
+assert.doesNotMatch(
+  v6Choice('the-closed-infirmary', 'calm-the-waiting-guards').success.text,
+  /clean supplies on the wagon/,
+  'the only bandages are inside, so the wagon cannot already hold them',
+)
+assert.match(
+  v6Card('the-deserters-cage').flavor,
+  /lone patrol rider/,
+  'every outcome follows one rider, so the flavor shows one',
+)
+assert.match(
+  v6Choice('two-cots-one-draught', 'open-your-own-medicine').success.text,
+  /nearly empty/,
+  'deed-carries-medicine survives the dose, so the pouch is not empty',
+)
+assert.doesNotMatch(
+  v6Choice('the-creditors-tally-sticks', 'sign-over-a-debt-owed-you').risk,
+  /owed nothing/,
+  'deed-owed-favor survives the trade, so the risk does not promise otherwise',
+)
+assert.doesNotMatch(
+  v6Choice('a-promise-kept', 'help-search-for-its-owner').failure!.text,
+  /your last meal/,
+  'one lost provision is a day of food, not the last of it',
+)
+assert.match(
+  v6Choice('the-smugglers-side-door', 'pay-for-the-family-instead').success
+    .text,
+  /three days' food lighter/,
+  'the three-provision price is named, not "almost nothing left"',
+)
+assert.match(
+  trialForLand('verge')!.flavor,
+  /sealed door/,
+  'the seal the confront route cuts is in the scene',
+)
+assert.doesNotMatch(
+  trialForLand('verge')!.flavor,
+  /promises you chose to keep/,
+  'the finale does not assume a merciful road',
+)
+assert.match(
+  trialChoice('verge', 'evidence').intent,
+  /gatepost carvings, the messenger's waystone, the negotiator's own admission/,
+  'the evidence intent names each card that can open it',
 )
 
 const choices = V6_CARDS.flatMap((card) => card.choices)

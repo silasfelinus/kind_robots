@@ -30,7 +30,7 @@ const WITNESS_SCENES: Record<
   dustwater: {
     label: 'Let the travelers testify together',
     success:
-      'The rescued boat crews name what each person was charged, then refuse to cross separately. The keeper faces a line of witnesses instead of one traveler and opens the gate to all of them.',
+      'The stranded boat crews name what each person was charged, then refuse to cross separately. The keeper faces a line of witnesses instead of one traveler and opens the gate to all of them.',
     failure:
       'The keeper demands a receipt for every story. You argue until the river rises and return to the bank exhausted; the crews remain ready to try again.',
   },
@@ -46,7 +46,7 @@ const WITNESS_SCENES: Record<
     success:
       'You recount the people who kept faith with one another aboveground. The court must weigh that witness against its old binding, and the guardian is released on a promise the judges must also keep.',
     failure:
-      'The court calls kindness an unreliable witness. You refuse to abandon the guardian but the circle throws you back, shaking and sore.',
+      'The court calls kindness an unreliable witness. You refuse to abandon the guardian, but the circle throws you back, shaking and sore.',
   },
   verge: {
     label: 'Carry the names of those who trusted you',
@@ -114,7 +114,7 @@ const DARK_SCENES: Record<
 > = {
   homestead: {
     tribute: {
-      label: "Buy the Abbess's silence",
+      label: 'Bribe the record keeper for the key',
       success:
         'You pass a ration to the keeper of the records. He hands you the dormitory key and erases your name, but the other locked doors remain locked.',
       failure:
@@ -215,14 +215,14 @@ const SOLIDARITY_SCENES: Record<
   tablelands: {
     label: 'Stand with the whole caravan',
     success:
-      'The travelers join hands at the bridge and demand one crossing for all. The warden must give way or reveal the cruelty of the order.',
+      'The travelers join hands at the bridge and demand one crossing for all. Before so many witnesses the warden will not order the escorts to drive them back, and the bar comes up.',
     failure:
       'The warden holds the span, and you shoulder the wounded back through the rain without abandoning anyone.',
   },
   cave: {
     label: 'Call the witnesses the court ignored',
     success:
-      'Every voice the court excluded speaks in turn. The judgment is rewritten in public, and the guardian walks out among them.',
+      'The miners, refugees and debtors the court kept outside the candle ring come forward and speak in turn. No clerk can strike so many voices from the record; the judgment is rewritten in public, and the guardian walks out among them.',
     failure:
       'The court seals its ears, but the witnesses carry the account away and keep one another safe from reprisal.',
   },

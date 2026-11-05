@@ -1,6 +1,7 @@
 import { REAL_NIGHT_CASES } from './nightCases'
 import { expandedMissionFor, EXPANDED_MISSIONS } from './expandedNightCases'
 import type { Grade } from './rules'
+import type { MorningGrade } from './earlyNightMornings'
 
 export type CaseThread = 'academy' | 'transit' | 'harbor' | 'civic'
 export type CaseMemory = {
@@ -89,6 +90,83 @@ export function caseTrustModifier(
     )
   }, 0)
   return Math.max(-2, Math.min(2, score))
+}
+
+/** How each district's witnesses speak about the last call they saw. The
+ * lines describe attitude only; any change to the odds is stated separately
+ * and comes from caseTrustModifier. */
+export const DISTRICT_WITNESSES: Record<
+  CaseThread,
+  Record<MorningGrade, string>
+> = {
+  academy: {
+    honors:
+      'Night custodians still talk about {case} and ask after your team by name.',
+    pass: 'Academy staff remember {case} as a job done well enough, and say so without fuss.',
+    partial:
+      'Students still argue over {case}; some want to help, others want proof you finish what you start.',
+    failed:
+      'The campus remembers how {case} went wrong, and staff hesitate before trusting another student response.',
+    refused:
+      'Nobody on campus has forgotten that {case} went unanswered, and the witnesses stay behind closed doors.',
+  },
+  transit: {
+    honors:
+      'Rail workers who saw {case} still wave when a cape passes the service gates.',
+    pass: 'Transit crews remember {case} and keep the academy channel open on their radios.',
+    partial:
+      'Commuters remember {case} as half a rescue, and they want to see the next one finished.',
+    failed:
+      'Rail workers still blame the academy for {case} and keep their gates locked until asked twice.',
+    refused:
+      'The station noticeboard still shows the unanswered call to {case}, and transit crews have stopped expecting capes.',
+  },
+  harbor: {
+    honors: 'Dockworkers remember {case} and retell it at every shift change.',
+    pass: 'Harbor families remember {case} and leave a lantern burning at the slip.',
+    partial:
+      'Harbor families remember what {case} cost; they keep their children indoors and their questions ready.',
+    failed:
+      'The docks remember {case} going under, and pier crews watch every cape from a distance.',
+    refused:
+      'Harbor families remember the night {case} went unanswered, and the pier gates stay chained.',
+  },
+  civic: {
+    honors:
+      'Clerks and medics who watched {case} still cite it as proof that students can be trusted.',
+    pass: 'City staff remember {case} and answer academy questions, if a little carefully.',
+    partial:
+      'Witnesses from {case} still argue about what went wrong; about half of them will talk.',
+    failed:
+      'The city remembers {case} ending badly, and officials ask for paperwork before they open a door.',
+    refused:
+      'Civic workers remember that nobody came to {case}, and they want to know why they should talk now.',
+  },
+}
+
+/** The most recent other call in the same district during the previous five
+ * nights: the same window caseTrustModifier reads. */
+export function districtRecordFor(
+  history: readonly CaseMemory[] | undefined,
+  day: number,
+  caseId: string,
+): CaseMemory | null {
+  const thread = caseThread(caseId)
+  if (!thread) return null
+  const candidates = (history ?? []).filter(
+    (record) =>
+      record.day < day &&
+      day - record.day <= 5 &&
+      record.caseId !== caseId &&
+      caseThread(record.caseId) === thread,
+  )
+  if (!candidates.length) return null
+  return [...candidates].sort(
+    (a, b) =>
+      b.day - a.day ||
+      Number(b.unanswered) - Number(a.unanswered) ||
+      a.caseId.localeCompare(b.caseId),
+  )[0]!
 }
 
 export function validCaseHistory(

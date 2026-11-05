@@ -1,4 +1,4 @@
-import { createLoggedInTestUser } from '../../support/api-auth'
+import { adminHeaders, getApiEnv } from '../../support/api-auth'
 /* eslint-disable @typescript-eslint/no-unused-expressions */
 // cypress/e2e/api/users.cy.ts
 
@@ -42,6 +42,25 @@ describe('User Management API Tests', () => {
     createdUserToken = token
   }
 
+  // Belt-and-braces: the 'Delete User by ID' test at the end is the happy-path
+  // cleanup, but it never runs if an earlier test fails. Queue an admin DELETE
+  // for the after:run sweep the moment the user exists (404 = already gone).
+  const registerAfterRunCleanup = () =>
+    getApiEnv().then(({ apiBase, adminToken }) => {
+      expect(createdUserId, 'created user id').to.be.a('number')
+      return cy.task(
+        'cypressCleanup:register',
+        {
+          label: `users.cy.ts user ${createdUserId}`,
+          method: 'DELETE',
+          url: `${apiBase}/users/${createdUserId}`,
+          headers: adminHeaders(adminToken),
+          expectedStatuses: [200, 202, 204, 404],
+        },
+        { log: false },
+      )
+    })
+
   before(() => {
     cy.env(['BASE_URL', 'AUTH_URL', 'API_KEY']).then((env) => {
       const rawBaseUrl = String(env.BASE_URL || `${testBaseUrl}/api/users`)
@@ -57,8 +76,15 @@ describe('User Management API Tests', () => {
     })
 
     cy.then(() => {
-      uniqueUsername = `testuser${Date.now()}`
-      const userEmail = `${uniqueUsername}@kindrobots.org`
+      // Keep every identity this spec creates inside the `cypress-` namespace
+      // (username AND email) so the server orphan sweep
+      // (POST /api/users/cypress-cleanup) can always find it -- even after the
+      // rename test below changes the username. The old `testuser<ts>` /
+      // `updateduser<ts>` names were invisible to that sweep, so any failure
+      // between register and the final delete test leaked a real account into
+      // the public user directory on kindrobots.org.
+      uniqueUsername = `cypress-user-users-${Date.now()}`
+      const userEmail = `${uniqueUsername}@example.com`
 
       cy.request({
         method: 'POST',
@@ -98,6 +124,7 @@ describe('User Management API Tests', () => {
 
           expect(createdUserId).to.be.a('number')
         })
+        .then(() => registerAfterRunCleanup())
         .then(() => {
           return login(uniqueUsername).then((res) => {
             expect(
@@ -172,7 +199,7 @@ describe('User Management API Tests', () => {
     it('Attempt to Update User by ID without Authentication (expect 403)', () => {
       expect(createdUserId).to.exist
 
-      const newUsername = `unauthorizeduser${Date.now()}`
+      const newUsername = `cypress-user-unauthorized-${Date.now()}`
 
       cy.request({
         method: 'PATCH',
@@ -197,7 +224,7 @@ describe('User Management API Tests', () => {
       expect(createdUserId).to.exist
       expect(createdUserToken).to.be.a('string').and.not.be.empty
 
-      const newUsername = `updateduser${Date.now()}`
+      const newUsername = `cypress-user-renamed-${Date.now()}`
 
       cy.request({
         method: 'PATCH',

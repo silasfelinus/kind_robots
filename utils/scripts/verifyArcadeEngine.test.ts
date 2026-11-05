@@ -729,7 +729,10 @@ function scriptedInput(tick: number): InputFrame {
   assert.equal(initialsFromUsername(null), null)
 }
 
-/** Every listed cabinet is a classic Canvas 2D game. */
+/** 3D-only cabinets, each verified by its own dedicated suites. */
+const WEBGL_ONLY_CABINETS: readonly string[] = ['zuzu-pinball']
+
+/** Every listed cabinet with a Canvas path is a classic Canvas 2D game. */
 function canvasGame(
   instance: ArcadePlayableInstance,
   slug: string,
@@ -743,7 +746,20 @@ async function runGames() {
   const quiet = { play: () => {} }
   // Every Canvas cabinet, and the WebGL one's Canvas fallback.
   overrideWebGLSupport(false)
-  for (const meta of ARCADE_GAMES.map((m) => m.fallback ?? m)) {
+  // A WebGL cabinet with no Canvas fallback is a deliberate 3D-only build with
+  // its own suites (zuzu-pinball: test:zuzu-pinball*). Name each one here so a
+  // new 3D-only cabinet cannot slip out of this 2D sweep unnoticed.
+  const webglOnly = ARCADE_GAMES.filter(
+    (m) => m.renderMode === 'webgl' && !m.fallback,
+  ).map((m) => m.slug)
+  assert.deepEqual(
+    webglOnly,
+    [...WEBGL_ONLY_CABINETS],
+    'every WebGL-only cabinet is declared in WEBGL_ONLY_CABINETS',
+  )
+  for (const meta of ARCADE_GAMES.map((m) => m.fallback ?? m).filter(
+    (m) => !WEBGL_ONLY_CABINETS.includes(m.slug),
+  )) {
     const mod = await loadArcadeGame(meta.slug)
 
     const demo = canvasGame(
@@ -2056,9 +2072,14 @@ async function runPinball3d() {
   const hall = ARCADE_GAMES.find((game) => game.slug === 'kind-pinball')!
   assert.equal(hall.renderMode, 'webgl', 'the hall plays the 3D table')
   assert.equal(findArcadeGame('kind-pinball'), hall)
+  // Silas listed Zuzu Pinball as a playable cabinet on 2026-10-26 (e66eb330),
+  // moving it out of PREVIEW_GAMES; it stays a WebGL-only table.
+  const zuzuPinball = ARCADE_GAMES.find((game) => game.slug === 'zuzu-pinball')
+  assert.ok(zuzuPinball, 'Zuzu Pinball is a listed cabinet')
+  assert.equal(zuzuPinball.renderMode, 'webgl', 'Zuzu Pinball is the 3D table')
   assert.ok(
-    PREVIEW_GAMES.some((game) => game.slug === 'zuzu-pinball'),
-    'the private Zuzu pinball preview must remain registered',
+    !PREVIEW_GAMES.some((game) => game.slug === 'zuzu-pinball'),
+    'Zuzu Pinball is not also registered as a private preview',
   )
   for (const preview of PREVIEW_GAMES) {
     assert.ok(

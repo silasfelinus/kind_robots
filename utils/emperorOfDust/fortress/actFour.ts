@@ -3287,6 +3287,36 @@ export const ACT_FOUR_DAYS: readonly DayDef[] = [
         ],
         options: [
           {
+            id: 'reopen-relief-oath',
+            label:
+              'Ask congress to revisit the relief riders from the Thistledown oath.',
+            requires: { flags: ['d10-open-council-relief'] },
+            effects: {},
+            response:
+              'Dunmark sets the old gate roster beside Komodo’s seating chart. The room remembers where the Watch was sent, and where it was kept.',
+            next: 'old-oath',
+          },
+          {
+            id: 'reopen-account-oath',
+            label:
+              'Ask congress to revisit the public Watch accounting from the Thistledown oath.',
+            requires: { flags: ['d10-open-council-account'] },
+            effects: {},
+            response:
+              'Dunmark sets the old gate roster beside Komodo’s seating chart. The room remembers where the Watch was sent, and where it was kept.',
+            next: 'old-oath',
+          },
+          {
+            id: 'reopen-veto-oath',
+            label:
+              'Ask congress to revisit the Houses’ gate veto from the Thistledown oath.',
+            requires: { flags: ['d10-open-council-veto'] },
+            effects: {},
+            response:
+              'Dunmark sets the old gate roster beside Komodo’s seating chart. The room remembers where the Watch was sent, and where it was kept.',
+            next: 'old-oath',
+          },
+          {
             id: 'enter-hearing',
             label:
               'Enter Hesper and Mara’s testimony into the congress record. Lose Hollow Bell’s trust before the war.',
@@ -3470,6 +3500,84 @@ export const ACT_FOUR_DAYS: readonly DayDef[] = [
           },
         ],
         beats: [
+          {
+            id: 'old-oath',
+            lines: [
+              'Dunmark unrolls the Day Ten duty sheet. Its ink is yellow where bread grease reached it. “We swore an oath while Thistledown burned. Someone paid for it. The table ought to know who.”',
+              {
+                who: 'Foreman Dunmore Ash',
+                npc: 'dunmore-ash',
+                text: 'The kitchens kept receipts. A guard’s supper does not disappear because the throne changes its mind.',
+              },
+              {
+                who: 'Lady Ottoline Vask',
+                npc: 'ottoline-vask',
+                text: 'My House gave the council a chair. I was promised the seat came with a say in what the Watch may do.',
+              },
+              'Oriel puts three empty columns on the congress ledger: riders, witnesses, and gates. None can be filled without telling the other two what was lost.',
+            ],
+            options: [
+              {
+                id: 'honor-relief',
+                label:
+                  'Pay fifteen brass to honor the old relief patrol and give village witnesses a seat at the next muster.',
+                requires: {
+                  flags: ['d10-open-council-relief'],
+                  cost: 15,
+                },
+                effects: {
+                  affinity: { freeholds: 5, saltroad: 2 },
+                  local: { yard: -2, 'old-houses': -2, lamplight: 1 },
+                  flags: ['d39-relief-charter'],
+                },
+                response:
+                  'Ash identifies the flour sacks he gave up. Dunmark reads the patrol roll. Vask signs only after Oriel adds a blank place for the village that paid with its granary. The council will owe that place an answer in the next war.',
+              },
+              {
+                id: 'publish-watch-roll',
+                label:
+                  'Spend ten brass to copy the Watch casualty roll for every village council.',
+                requires: {
+                  flags: ['d10-open-council-account'],
+                  cost: 10,
+                },
+                effects: {
+                  affinity: { freeholds: 3 },
+                  local: { lamplight: 3, 'gate-watch': -2, yard: 1 },
+                  flags: ['d39-watch-roll-published'],
+                },
+                response:
+                  'Dunmark reads every name before the Archive makes copies. Ash demands a column for who issued each order. Komodo writes his own name at the bottom, too small to be a signature.',
+              },
+              {
+                id: 'break-house-veto',
+                label:
+                  'Pay twenty brass to buy out the Houses’ gate veto and return patrol decisions to elected village councils.',
+                requires: {
+                  flags: ['d10-open-council-veto'],
+                  cost: 20,
+                },
+                effects: {
+                  affinity: { freeholds: 6 },
+                  local: { 'old-houses': -4, 'gate-watch': -1, yard: 1 },
+                  flags: ['d39-house-veto-revoked'],
+                },
+                response:
+                  'Vask names her price in front of everyone. The brass leaves the treasury; her seal leaves the roster. Oriel asks the villages to choose the next guard captains. Thistledown’s chair stays empty until its reeve can come.',
+              },
+              {
+                id: 'leave-old-oath',
+                label:
+                  'Refuse to reopen the Watch oath. Leave the old roster on the table.',
+                effects: {
+                  local: { 'gate-watch': -1, lamplight: -1 },
+                  flags: ['d39-watch-debt-unanswered'],
+                },
+                response:
+                  'Dunmark folds the roster once, along the old crease. Ash takes his receipts home. Vask retrieves her seal. The blank columns stay on Oriel’s ledger; no faction offers to fill them.',
+              },
+            ],
+          },
           {
             id: 'seating',
             speaker: 'Young Komodo',

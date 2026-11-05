@@ -8,6 +8,7 @@ import {
   takeChoice,
   visibleChoices,
   type BattleAction,
+  type Choice,
   type Run,
 } from './adventure'
 
@@ -263,6 +264,207 @@ export function findEndingWitness(
   }
   return null
 }
+
+const TWO_DICE_AT_LEAST = Array.from({ length: 14 }, (_, need) => {
+  let ways = 0
+  for (let a = 1; a <= 6; a++)
+    for (let b = 1; b <= 6; b++) if (a + b >= need) ways++
+  return ways / 36
+})
+const atLeast = (need: number) =>
+  need <= 2 ? 1 : need > 12 ? 0 : TWO_DICE_AT_LEAST[need]!
+
+const winChanceMemo = new Map<string, number>()
+
+/**
+ * Exact chance that best play wins the fight at `sceneId`, mirroring `fight()` move for move. A move that can
+ * leave the fight exactly as it was (a parry while the foe is already exposed) is worth its other result.
+ */
+export function bestWinChance(
+  sceneId: string,
+  attributes: Run['attributes'],
+  health: number,
+  resolve: number,
+): number {
+  const foe = BOOK[sceneId]?.battle
+  if (!foe) throw new Error('No fight at ' + sceneId)
+  const solve = (
+    hp: number,
+    foeHp: number,
+    exposed: boolean,
+    power: number,
+  ): number => {
+    if (hp <= 0) return 0
+    if (foeHp <= 0) return 1
+    const key = [
+      sceneId,
+      attributes.steel,
+      attributes.sense,
+      attributes.shadow,
+      hp,
+      foeHp,
+      exposed,
+      power,
+    ].join('|')
+    const known = winChanceMemo.get(key)
+    if (known !== undefined) return known
+    let best = 0
+    for (const action of FIGHT_ACTIONS) {
+      if (action === 'quiet-draw' && power < 2) continue
+      const modifier =
+        action === 'feint'
+          ? attributes.shadow
+          : action === 'guard'
+            ? attributes.sense
+            : attributes.steel
+      const target = action === 'guard' ? 8 : 7 + foe.guard - (exposed ? 2 : 0)
+      const chance = atLeast(target - modifier)
+      const nextPower = power - (action === 'quiet-draw' ? 2 : 0)
+      const outcome = (success: boolean): number | 'unchanged' => {
+        const damage =
+          action === 'guard' || !success ? 0 : action === 'quiet-draw' ? 5 : 3
+        const nextFoe = Math.max(0, foeHp - damage)
+        const incoming =
+          nextFoe === 0 || (action === 'guard' && success)
+            ? 0
+            : action === 'guard'
+              ? 1
+              : Math.max(
+                  1,
+                  foe.attack - (success && action === 'feint' ? 2 : 0),
+                )
+        const nextHp = Math.max(0, hp - incoming)
+        const nextExposed =
+          (action === 'feint' || action === 'guard') && success
+        if (!nextHp) return 0
+        if (!nextFoe) return 1
+        if (
+          nextHp === hp &&
+          nextFoe === foeHp &&
+          nextExposed === exposed &&
+          nextPower === power
+        )
+          return 'unchanged'
+        return solve(nextHp, nextFoe, nextExposed, nextPower)
+      }
+      const hit = outcome(true)
+      const miss = outcome(false)
+      const value =
+        hit === 'unchanged'
+          ? chance < 1
+            ? (miss as number)
+            : 0
+          : miss === 'unchanged'
+            ? chance > 0
+              ? hit
+              : 0
+            : chance * hit + (1 - chance) * miss
+      if (value > best) best = value
+    }
+    winChanceMemo.set(key, best)
+    return best
+  }
+  return solve(health, foe.hp, false, resolve)
+}
+
+export type FightOpened = {
+  sceneId: string
+  health: number
+  resolve: number
+  winChance: number
+}
+
+/**
+ * Every fight a choice can open, on each roll result and through scenes that leave only one way on,
+ * with Zuzu's health, Resolve and attributes as the reducer would set them at the first blow.
+ */
+export function fightsOpenedBy(run: Run, choice: Choice): FightOpened[] {
+  const taken = (state: Run, next: Choice): Run => {
+    const items = [...state.items]
+    if (next.spend && items.includes(next.spend))
+      items.splice(items.indexOf(next.spend), 1)
+    return {
+      ...state,
+      items,
+      resolve: state.resolve - (next.cost ?? 0),
+      health: Math.min(12, state.health + (next.heal ?? 0)),
+      flags: [
+        ...new Set([
+          ...state.flags,
+          ...[next.flag, ...(next.flags ?? [])].filter(
+            (flag): flag is string => !!flag,
+          ),
+        ]),
+      ],
+    }
+  }
+  const entered = (state: Run, sceneId: string): Run => {
+    const effects = BOOK[sceneId]?.effects
+    if (!effects) return state
+    const attributes = { ...state.attributes }
+    if (effects.attr)
+      attributes[effects.attr.attribute] = Math.max(
+        -2,
+        Math.min(4, attributes[effects.attr.attribute] + effects.attr.amount),
+      )
+    let health = state.health
+    if (effects.heal) health = Math.min(12, health + effects.heal)
+    if (effects.hurt) health = Math.max(1, health - effects.hurt)
+    return {
+      ...state,
+      attributes,
+      health,
+      resolve: Math.max(0, Math.min(4, state.resolve + (effects.resolve ?? 0))),
+      flags: [
+        ...new Set([
+          ...state.flags,
+          ...[effects.flag, ...(effects.flags ?? [])].filter(
+            (flag): flag is string => !!flag,
+          ),
+        ]),
+      ],
+    }
+  }
+  const opened: FightOpened[] = []
+  const destinations = choice.check
+    ? [choice.check.success, choice.check.failure]
+    : [choice.to]
+  for (const destination of destinations) {
+    let sceneId = destination
+    let state = taken(run, choice)
+    for (let hops = 0; hops < 6; hops++) {
+      state = entered(state, sceneId)
+      const node = BOOK[sceneId]
+      if (!node || node.ending) break
+      if (node.battle) {
+        opened.push({
+          sceneId,
+          health: state.health,
+          resolve: state.resolve,
+          winChance: bestWinChance(
+            sceneId,
+            state.attributes,
+            state.health,
+            state.resolve,
+          ),
+        })
+        break
+      }
+      const open = visibleChoices(state, node).filter(
+        (next) => !lockReason(state, next),
+      )
+      const only = open.length === 1 ? open[0]! : null
+      if (!only || only.check) break
+      state = taken(state, only)
+      sceneId = only.to
+    }
+  }
+  return opened
+}
+
+/** The fights a choice can open that best play cannot win (empty when the choice never forces one). */
+export const hopelessFights = (run: Run, choice: Choice): FightOpened[] =>
+  fightsOpenedBy(run, choice).filter((opened) => opened.winChance === 0)
 
 export type CombatPolicy =
   'strike' | 'quiet-draw' | 'feint-strike' | 'guard-strike'

@@ -25,6 +25,7 @@ import {
   type TeamId,
 } from '../slimeCity/prototypes'
 import { playHeadless } from '../slimeCity/playtest'
+import { chooseCpuAction } from '../slimeCity/cpu'
 import { applyTerms } from '../slimeCity/city'
 
 let nextId = 500
@@ -556,6 +557,34 @@ const passed = advance({ ...scored, enemyMana: 0 })
 assert.equal(passed.victor, 'enemy')
 assert.equal(passed.winPath, 'territory')
 
+// --- The CPU passes on a settled board (t-024): it counts the board the way
+// the engine scores it and stops once no stone gains area, so games end on
+// two passes instead of the round clock. Double walls: Ironjaw holds columns
+// 0-3, the Catgirls 4-8; every empty point is already decided.
+const walls = (skip?: string) =>
+  [2, 3, 4, 5].flatMap((x) =>
+    Array.from({ length: 9 }, (_, y) => y)
+      .filter((y) => x + ':' + y !== skip)
+      .map((y) => stone(x < 4 ? 'player' : 'enemy', x, y)),
+  )
+const settled = board(walls(), [plain, plain, plain], [enemyPlain, enemyPlain])
+assert.equal(
+  chooseCpuAction(observe(settled, 'player')),
+  null,
+  'Nothing gains area on a settled board: the CPU passes',
+)
+assert.equal(chooseCpuAction(observe(settled, 'enemy')), null)
+const bothPass = advance(settled)
+assert.equal(bothPass.victor, 'enemy', 'Two passes end it on the count')
+assert.ok(bothPass.round < bothPass.maxRounds, 'Ended on passes, not the clock')
+// One open neutral point (dame) in the wall is still worth a stone.
+const dame = board(walls('3:4'), [plain, plain, plain], [enemyPlain])
+assert.deepEqual(
+  chooseCpuAction(observe(dame, 'player')),
+  { t: 'deploy', card: plain, x: 3, y: 4 },
+  'The CPU fills the last neutral point before it passes',
+)
+
 // --- Board events for the arena (Silas, 2026-11-04: Turf visuals): every
 // capture, explosion, crush, pounce, tripwire, slime, ward, wash, shove and
 // cling-on is recorded where it happened, in order, for both sides to see.
@@ -667,6 +696,12 @@ for (const [i, seed] of [3, 19, 77].entries()) {
     state,
   )
   captures += state.prisoners.player + state.prisoners.enemy
+  // t-024: the CPUs pass once nothing gains area, so a whole game ends on
+  // two passes well before the safety clock.
+  assert.ok(
+    state.round < state.maxRounds,
+    'CPU game ' + seed + ' ends on passes, not the clock (' + state.round + ')',
+  )
 }
 assert.ok(captures > 0, 'CPU games include captures')
 assert.ok(cardById(plain))

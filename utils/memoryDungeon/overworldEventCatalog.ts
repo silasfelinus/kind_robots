@@ -18,6 +18,9 @@ import {
 } from './earthCollisionRoute'
 import earthCollision from './earthCollision.json'
 import recipes from './overworldEventRecipes.json'
+import { MORROW_SHIFT_BY_KEY, type MorrowShiftSite } from './morrowShift'
+import { UNBELIEVING_CITY_BY_KEY } from './unbelievingCity'
+import { SCYLLAS_SHORE_BY_KEY } from './scyllasShore'
 import { BRIAR_SITES } from '../memoryDungeonWorld'
 
 export type OverworldKind =
@@ -62,6 +65,12 @@ export interface OverworldEvent {
   photographId?: string
   memoryFragment?: string
   originalSite?: string
+  /** Stable shared-geography label (authored worlds only). */
+  place?: string
+  /** Resolves with its single choice on first arrival. */
+  instant?: true
+  /** Lines appended to the opening when the player holds the flag. */
+  echoes?: readonly { flag: string; text: string }[]
   source: 'existing-playable' | 'new-authoring'
 }
 export interface OverworldEventProgress {
@@ -159,6 +168,18 @@ function effects(
   if (kind === 'puzzle')
     return careful ? { evidence: 1 } : { supplies: -1, danger: -1 }
   return careful ? { trust: 1, evidence: 1 } : { evidence: 1, danger: 1 }
+}
+
+/**
+ * Hand-written worlds that replace their recipe sites. A site with no
+ * choices keeps the generated ones (Chronicle photographs, e04's tide gate).
+ */
+const AUTHORED_WORLDS: Readonly<
+  Record<string, ReadonlyMap<string, MorrowShiftSite>>
+> = {
+  e03: MORROW_SHIFT_BY_KEY,
+  e04: UNBELIEVING_CITY_BY_KEY,
+  e05: SCYLLAS_SHORE_BY_KEY,
 }
 
 function generated(
@@ -387,6 +408,56 @@ function generated(
       ),
     }))
   }
+  const shift = AUTHORED_WORLDS[world.id]?.get(key)
+  if (shift) {
+    const shiftChoices: OverworldChoice[] = shift.choices.length
+      ? shift.choices.map((choice, index) => ({
+          id: choice.id,
+          label: choice.label,
+          outcome: choice.outcome,
+          flag: world.id + ':' + key + ':' + choice.id,
+          effects: { ...choice.effects },
+          art: art(
+            world.id,
+            key,
+            choice.artSubject,
+            'choice-' + (index + 1) + ': ' + choice.label,
+            world.visual,
+          ),
+        }))
+      : choices
+    return {
+      id: world.id + ':' + key,
+      experience: world.id,
+      key,
+      title: shift.title,
+      opening: photo
+        ? shift.opening + ' A dated Earth photograph surfaces: ' + photo.caption
+        : shift.opening,
+      speaker: shift.speaker,
+      kind: photo ? 'memory' : shift.kind,
+      sceneArt: art(
+        world.id,
+        key,
+        shift.artSubject,
+        'establishing-scene',
+        world.visual,
+      ),
+      portrait: art(
+        world.id,
+        key,
+        shift.speaker,
+        'speaking-portrait',
+        world.visual,
+      ),
+      choices: shiftChoices,
+      ...(photo ? { photographId: photo.id } : {}),
+      place: shift.place,
+      ...(shift.instant && !photo ? { instant: true as const } : {}),
+      ...(shift.echoes?.length ? { echoes: shift.echoes } : {}),
+      source: 'new-authoring',
+    }
+  }
   return {
     id: world.id + ':' + key,
     experience: world.id,
@@ -567,6 +638,16 @@ export function worldEvent(
 ): OverworldEvent | null {
   return index.get(experience)?.get(key) ?? null
 }
+/** Opening text plus any echoes of choices the player already made. */
+export function eventOpening(
+  event: OverworldEvent,
+  flags: readonly string[],
+): string {
+  const lines = (event.echoes ?? [])
+    .filter((echo) => flags.includes(echo.flag))
+    .map((echo) => echo.text)
+  return [event.opening, ...lines].join(' ')
+}
 export function eventNeighbors(key: string): string[] {
   const match = /^([1-8]),([1-8])$/.exec(key)
   if (!match) return []
@@ -618,11 +699,17 @@ export function chooseOverworldEvent(
   const event = worldEvent(progress.experience, key)
   if (!event || !progress.revealed.includes(key) || progress.choices[key])
     return progress
-  const choice = event.choices.find((option) => option.id === choiceId)
+  // A template-era answer (care/risk) at a site now authored as an instant
+  // discovery replays as that discovery instead of being dropped.
+  const choice =
+    event.choices.find((option) => option.id === choiceId) ??
+    (event.instant && (choiceId === 'care' || choiceId === 'risk')
+      ? event.choices[0]
+      : undefined)
   if (!choice) return progress
   return {
     ...progress,
-    choices: { ...progress.choices, [key]: choiceId },
+    choices: { ...progress.choices, [key]: choice.id },
     flags: [...progress.flags, choice.flag],
     supplies: progress.supplies + (choice.effects.supplies ?? 0),
     trust: progress.trust + (choice.effects.trust ?? 0),
@@ -684,7 +771,8 @@ export function validateOverworldEventCatalog(): string[] {
       if (
         !event.title.trim() ||
         !event.opening.trim() ||
-        event.choices.length < 2
+        event.choices.length < (event.instant ? 1 : 2) ||
+        (event.instant && event.choices.length !== 1)
       )
         problems.push(event.id + ': incomplete narrative')
       if (

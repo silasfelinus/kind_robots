@@ -12,10 +12,15 @@
       v-else-if="seaMode"
       @leave="((seaMode = false), (earthMode = true))"
     />
+    <memory-dungeon-sublevel
+      v-else-if="sublevelMode"
+      @leave="((sublevelMode = false), (earthMode = true))"
+    />
     <memory-dungeon-earth
       v-else-if="earthMode"
       @leave="earthMode = false"
       @sea="((seaMode = true), (earthMode = false))"
+      @sublevel="((sublevelMode = true), (earthMode = false))"
     />
     <memory-dungeon-briar-collision
       v-else-if="collisionMode"
@@ -465,6 +470,7 @@ import { useMemoryStore } from '@/stores/memoryStore'
 import MemoryDungeonOverworld from '@/components/pages/memory-dungeon-overworld.vue'
 import MemoryDungeonEarth from '@/components/pages/memory-dungeon-earth.vue'
 import MemoryDungeonSea from '@/components/pages/memory-dungeon-sea.vue'
+import MemoryDungeonSublevel from '@/components/pages/memory-dungeon-sublevel.vue'
 import MemoryDungeonLauncher from '@/components/pages/memory-dungeon-launcher.vue'
 import MemoryDungeonDeckSelector from '~/components/memory-dungeon/deck-selector.vue'
 import { useMemoryWorldStore } from '~/stores/memoryWorldStore'
@@ -491,6 +497,7 @@ const world = useMemoryWorldStore()
 const worldMode = ref(false)
 const earthMode = ref(false)
 const seaMode = ref(false)
+const sublevelMode = ref(false)
 const hoshimoriMode = ref(false)
 const hoshimoriNightMode = ref(false)
 const collisionMode = ref(false)

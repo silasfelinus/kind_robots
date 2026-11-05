@@ -683,7 +683,7 @@
             "map_effect": "none"
           },
           "failure": {
-            "text": "The stone slips before the brace takes the weight. It slams your back against the wall and buries the easy road under rubble, and you crawl free, hurting with every breath.",
+            "text": "The stone slips before the brace takes the weight. It slams your back against the wall, and you crawl out from under the rubble hurting with every breath.",
             "hp_delta": -2,
             "provisions_delta": 0,
             "add_flags": ["hammer-under-the-stone-1-failure"],
@@ -701,7 +701,7 @@
             "target": 10
           },
           "success": {
-            "text": "The chisel marks are neat and purposeful, and they point toward a side tunnel no map shows. Whoever reopened this quarry did it on purpose, and did it quietly.",
+            "text": "The chisel marks are neat and unhurried, and they run toward a side tunnel no map shows. Someone reopened this quarry on purpose, and has paid to keep it quiet.",
             "hp_delta": 0,
             "provisions_delta": 0,
             "add_flags": ["hammer-under-the-stone-2-success"],
@@ -743,7 +743,7 @@
             "map_effect": "none"
           },
           "failure": {
-            "text": "He raises a hand, and guards step out of the dark. You get away through a rain of falling stone, but it batters you all the way to daylight.",
+            "text": "He raises a hand, and guards step out of the dark. You run for daylight under a hail of thrown stones, and more than one of them finds you.",
             "hp_delta": -2,
             "provisions_delta": 0,
             "add_flags": ["the-empty-pay-cart-1-failure"],
@@ -781,7 +781,7 @@
       "id": "the-glass-vein",
       "locationId": "quarry",
       "title": "The Glass Vein",
-      "flavor": "A collector works alone at a vein of black glass that sings when it is struck. She knows the stuff can cut so cleanly that it does not bleed at first. She needs a steady hand to free one fragment for the road, and a strong back to carry the tray she has already filled.",
+      "flavor": "A collector works alone at a vein of black glass that sings when it is struck. She warns you it cuts so cleanly that the wound does not bleed at first. She needs a steady hand to free one fragment for the road, and a strong back to carry the tray she has already filled.",
       "weight": 2,
       "art": null,
       "choices": [
@@ -888,7 +888,7 @@
             "map_effect": "recorded-prospective-shift"
           },
           "failure": {
-            "text": "A loose slab tips you toward the ravine. The rope catches you, but it tears through your hands as you drop, and you haul yourself back up bleeding.",
+            "text": "A loose slab tips you toward the ravine. You catch the lip of the ledge as you drop, and the rock tears your palms open before you haul yourself back up, bleeding.",
             "hp_delta": -2,
             "provisions_delta": 0,
             "add_flags": ["the-watchful-overhang-2-failure"],
@@ -961,7 +961,7 @@
       "id": "the-toll-without-a-keeper",
       "locationId": "canyon-trail",
       "title": "The Toll Without a Keeper",
-      "flavor": "A toll rope hangs across the canyon trail above a wooden box, and no one stands guard. The enforcer watches from the rocks overhead, waiting to see who will pay into an unattended box. Her spear has been deliberately blunted, as if she hopes never to use it.",
+      "flavor": "A toll rope hangs across the canyon trail above a wooden box, and no one stands beside it to collect. An enforcer watches from the rocks overhead, waiting to see who will pay a toll that no one has the right to charge. Her spear has been deliberately blunted, as if she hopes never to use it.",
       "weight": 2,
       "art": null,
       "choices": [
@@ -983,7 +983,7 @@
             "map_effect": "none"
           },
           "failure": {
-            "text": "Her partner comes at you from behind rocks you never thought to check. You get clear, but you are bruised and driven back down the trail.",
+            "text": "Her partner comes at you from behind rocks you never thought to check. You get clear, but only by giving ground, and you go back down the trail bruised.",
             "hp_delta": -2,
             "provisions_delta": 0,
             "add_flags": ["the-toll-without-a-keeper-1-failure"],
@@ -1096,7 +1096,7 @@
             "target": 9
           },
           "success": {
-            "text": "You lift the fragment out whole and blow the sparks from its edge. Beside the notch, someone has crossed out one canyon path's name and written another: it was mislabeled on purpose.",
+            "text": "You lift the fragment out whole and blow the sparks from its edge. Beside the notch, someone has crossed out the trail's true name and inked a false one over it. The map was wrong on purpose.",
             "hp_delta": 0,
             "provisions_delta": 0,
             "add_flags": ["the-map-in-ashes-1-success"],
@@ -1163,7 +1163,7 @@
             "map_effect": "none"
           },
           "failure": {
-            "text": "Exhaustion blurs the dark into shapes. You fight to stay on your feet, and while you do, thieves slip in and carry off the camp's food, your own with it.",
+            "text": "Exhaustion blurs the dark into shapes. You fight to stay on your feet, and while you do, thieves slip past you and carry off the camp's food, a share of yours with it.",
             "hp_delta": -1,
             "provisions_delta": -1,
             "add_flags": ["the-night-watch-debt-1-failure"],
@@ -1201,7 +1201,7 @@
       "id": "feathers-in-the-draft",
       "locationId": "cave-mouth",
       "title": "Feathers in the Draft",
-      "flavor": "At the cave mouth, a crow storm-reader pins paper charms into the wind, and not one tears loose. A cold draft keeps returning from the wrong direction, carrying black feathers that never settle. She says the cavern remembers spoken bargains better than faces, and she will not let you pass until you have answered her.",
+      "flavor": "At the cave mouth, a crow storm-reader pins paper charms into the wind, and not one tears loose. A cold draft keeps returning from the wrong direction, carrying black feathers that never settle. She says the cavern remembers spoken bargains better than faces, and she will not let you pass until you tell her, aloud, who you are and what you want below.",
       "weight": 2,
       "art": null,
       "choices": [
@@ -1261,7 +1261,7 @@
       "id": "the-third-shadow",
       "locationId": "cave-mouth",
       "title": "The Third Shadow",
-      "flavor": "A guide offers to lead you underground, but three shadows stretch behind her from only two lanterns. She insists the third belongs to a traveler who turned back this morning. At the entrance, a line of marker stones has been moved since sunrise, and she will not look at it.",
+      "flavor": "A guide offers to lead you underground, but three shadows stretch behind her from only two lanterns. She insists the third belongs to a traveler who turned back this morning. At the entrance, a line of marker stones has been moved since sunrise, and she will not look at it. Twice she starts to tell you what her brother owes, and twice she stops.",
       "weight": 2,
       "art": null,
       "choices": [
@@ -1276,7 +1276,7 @@
             "target": 10
           },
           "success": {
-            "text": "You trace the angle back to a shuttered lamp in a crevice, where two trappers crouch waiting. Named aloud, they slip away without a fight, and the guide's face goes grey with shame.",
+            "text": "You trace the angle back to a shuttered lamp in a crevice, where two trappers crouch waiting. Once you call out their hiding place, they slip away without a fight, and the guide's face goes grey with shame.",
             "hp_delta": 0,
             "provisions_delta": 0,
             "add_flags": ["the-third-shadow-1-success"],
@@ -1308,7 +1308,7 @@
             "map_effect": "none"
           },
           "failure": {
-            "text": "Her accomplices step out and block the gate. You fight your way free, bruised from the scuffle, but your food sack stays behind in their hands.",
+            "text": "Her accomplices step out and block the way back to daylight. You fight your way free, bruised from the scuffle, but your food sack stays behind in their hands.",
             "hp_delta": -1,
             "provisions_delta": -1,
             "add_flags": ["the-third-shadow-2-failure"],
@@ -1396,7 +1396,7 @@
             "target": 10
           },
           "success": {
-            "text": "You notice a fresh tear in the pouch that matches a tear in one miner's sleeve. The adjudicator divides the salt by what you found, and the guilty miner pays without arguing.",
+            "text": "You notice a fresh tear in the pouch that matches a tear in one miner's sleeve. The adjudicator awards the pouch to the other miner, and the one with the torn sleeve pays the court's fine without arguing.",
             "hp_delta": 0,
             "provisions_delta": 0,
             "add_flags": ["the-candle-court-1-success"],
@@ -1428,7 +1428,7 @@
             "map_effect": "none"
           },
           "failure": {
-            "text": "Neither miner will budge, and the hearing drags through the night. By the time the candles gutter, you have shared most of your food with the hungry court just to keep tempers cool.",
+            "text": "Neither miner will budge, and the hearing drags through the night. By the time the candles gutter, you have shared a day's food with the hungry court just to keep tempers cool.",
             "hp_delta": 0,
             "provisions_delta": -1,
             "add_flags": ["the-candle-court-2-failure"],
@@ -1488,7 +1488,7 @@
             "map_effect": "none"
           },
           "failure": {
-            "text": "You take too long. Dust floods the chalked passage and you back out coughing, your throat raw and your chest aching for the next mile.",
+            "text": "You take too long. Dust floods the doorway and you back out coughing, your throat raw and your chest aching for the next mile.",
             "hp_delta": -1,
             "provisions_delta": 0,
             "add_flags": ["salt-on-the-threshold-2-failure"],
@@ -1608,7 +1608,7 @@
             "map_effect": "none"
           },
           "failure": {
-            "text": "Her apprentice refuses to go. You choose alone, second-guess every turn, and give a night's sleep to the maze before you trust your footing, coming out hollow with exhaustion.",
+            "text": "Her novice refuses to go. You choose alone, second-guess every turn, and give a night's sleep to the maze before you trust your footing, coming out hollow with exhaustion.",
             "hp_delta": -1,
             "provisions_delta": 0,
             "add_flags": ["three-doors-no-hinges-2-failure"],
@@ -1876,7 +1876,7 @@
             "target": 11
           },
           "success": {
-            "text": "You scrape packed ash from the valve and the horn finds its voice. The ranger sounds the warning, one long low note across the border, and waves you through the barrier.",
+            "text": "You scrape packed ash from the valve and the horn finds its voice. The ranger sounds the all-clear, one long low note across the border, and waves you through the barrier.",
             "hp_delta": 0,
             "provisions_delta": 0,
             "add_flags": ["ashes-at-the-border-1-success"],
@@ -1921,7 +1921,7 @@
       "id": "the-last-watchfire",
       "locationId": "fortified-camp",
       "title": "The Last Watchfire",
-      "flavor": "The camp's last watchfire burns low beside a stack of good dry wood. Its commander says the guards refuse to light a second flame while refugees are still lost outside the barricade. Her sabre rests untouched beside the gate, and no one has offered to go out into the dark.",
+      "flavor": "The camp's last watchfire burns low beside a stack of good dry wood. Its commander says the guards will not light a second flame while refugees are still lost outside the barricade, because a beacon would guide raiders in as well. Her sabre rests untouched beside the gate, and no one has offered to go out into the dark.",
       "weight": 2,
       "art": null,
       "choices": [
@@ -2021,7 +2021,7 @@
             "target": 10
           },
           "success": {
-            "text": "You remind the guards there are clean supplies on the wagon behind them. They lower the crowbar and carry bandages to the wounded instead of breaking down the door.",
+            "text": "You remind the guards that the half-unloaded wagon behind them holds bolts of clean linen. They lower the crowbar and tear bandages for the wounded instead of breaking down the door.",
             "hp_delta": 0,
             "provisions_delta": 0,
             "add_flags": ["the-closed-infirmary-2-success"],
@@ -2208,7 +2208,7 @@
             "map_effect": "none"
           },
           "failure": {
-            "text": "The search turns up only old tracks, half buried in ash. The delay eats into your stores, and at the roadside you share your last meal with the messenger.",
+            "text": "The search turns up only old tracks, half buried in ash. The delay eats into your stores, and at the roadside you share a day's food with the messenger.",
             "hp_delta": 0,
             "provisions_delta": -1,
             "add_flags": ["a-promise-kept-2-failure"],
@@ -2236,7 +2236,7 @@
             "target": 12
           },
           "success": {
-            "text": "You decline, and she lets you. Following the old wall, you find a gap in the stones around her seal, unbound and unwatched, and you walk through it owing no one.",
+            "text": "You decline, and she lets you. Following the old wall, you find a gap in the stones well away from her gate, unbound and unwatched, and you walk through it owing no one.",
             "hp_delta": 0,
             "provisions_delta": 0,
             "add_flags": ["the-price-of-silence-1-success"],

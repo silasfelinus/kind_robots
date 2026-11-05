@@ -59,6 +59,20 @@ export function startRun(seed: number): Run {
   }
 }
 
+/**
+ * The act this section opens, or null mid-act (t-007 pacing). An act opens on the first section of the book and
+ * wherever the section before it sat in another act; endings stand outside the acts. The reader sets it above the
+ * section title, so an act turn is a beat on every screen, not only where the toolbar has room for the chapter.
+ */
+export function actOpening(
+  run: Pick<Run, 'sceneId' | 'visited'>,
+): string | null {
+  const here = BOOK[run.sceneId]
+  if (!here || here.ending) return null
+  const before = BOOK[run.visited[run.visited.length - 2] ?? '']
+  return before?.chapter === here.chapter ? null : here.chapter
+}
+
 /** Honor: deeds recorded as `honor:*` flags (BOOK-ONE-OUTLINE.md §2). */
 export function honor(run: Run): number {
   return run.flags.filter((flag) => flag.startsWith('honor:')).length
@@ -96,6 +110,138 @@ export function visibleChoices(run: Run, node: Scene): Choice[] {
   return (node.choices ?? []).filter(
     (choice) => !choice.unless || !run.flags.includes(choice.unless),
   )
+}
+
+function outcomesOf(choice: Choice): string[] {
+  return choice.check
+    ? [choice.check.success, choice.check.failure]
+    : [choice.to]
+}
+
+function withFlags(flags: string[], more: (string | undefined)[]): string[] {
+  const next = [...flags]
+  addFlags(next, more)
+  return next
+}
+
+const sceneFlags = (node: Scene) => [
+  node.effects?.flag,
+  ...(node.effects?.flags ?? []),
+]
+const choiceFlags = (choice: Choice) => [choice.flag, ...(choice.flags ?? [])]
+
+/** The fight a destination opens, following scenes that offer only one way on. */
+function fightFrom(
+  id: string,
+  flags: string[],
+  health: number,
+  hops = 0,
+): { sceneId: string; flags: string[]; health: number } | null {
+  const node = BOOK[id]
+  if (!node) return null
+  const after = withFlags(flags, sceneFlags(node))
+  const hurt = Math.max(1, health - (node.effects?.hurt ?? 0))
+  const healed = Math.min(MAX_HEALTH, hurt + (node.effects?.heal ?? 0))
+  if (node.battle) return { sceneId: id, flags: after, health: healed }
+  const only = node.choices?.length === 1 ? node.choices[0] : null
+  if (node.ending || hops >= 3 || !only || only.check) return null
+  return fightFrom(
+    only.to,
+    withFlags(after, choiceFlags(only)),
+    healed,
+    hops + 1,
+  )
+}
+
+/** Every way on from here, for this journal, reaches an ending within a few pages. */
+function endsJourney(run: Run, id: string, depth = 0): boolean {
+  const node = BOOK[id]
+  if (!node) return false
+  if (node.ending) return true
+  if (depth >= 4 || node.battle) return false
+  const here = { ...run, flags: withFlags(run.flags, sceneFlags(node)) }
+  const open = visibleChoices(here, node).filter(
+    (choice) => !lockReason(here, choice),
+  )
+  return (
+    open.length > 0 &&
+    open.every((choice) =>
+      outcomesOf(choice).every((to) =>
+        endsJourney(
+          { ...here, flags: withFlags(here.flags, choiceFlags(choice)) },
+          to,
+          depth + 1,
+        ),
+      ),
+    )
+  )
+}
+
+export type FightAhead = {
+  sceneId: string
+  foe: string
+  /** Whether every outcome of the choice starts the fight, or only one roll result. */
+  when: 'always' | 'failure' | 'success'
+  /** For the journal as it will stand, a lost fight leaves no way on but an ending. */
+  deadly: boolean
+  /** Zuzu would start the fight within two of the foe's blows of falling. */
+  wounded: boolean
+  health: number
+}
+
+/** The fight a choice leads into, read from the authored book and the run as it stands. */
+export function fightAhead(run: Run, choice: Choice): FightAhead | null {
+  const flags = withFlags(run.flags, choiceFlags(choice))
+  const health = Math.min(MAX_HEALTH, run.health + (choice.heal ?? 0))
+  const found = outcomesOf(choice).map((to) => fightFrom(to, flags, health))
+  const fights = found.flatMap((entry) => {
+    const foe = entry ? BOOK[entry.sceneId]?.battle : undefined
+    return entry && foe ? [{ ...entry, foe }] : []
+  })
+  const first = fights[0]
+  if (!first) return null
+  const when: FightAhead['when'] =
+    fights.length === found.length ? 'always' : found[0] ? 'success' : 'failure'
+  const lowest = Math.min(...fights.map((entry) => entry.health))
+  return {
+    sceneId: first.sceneId,
+    foe: [...new Set(fights.map((entry) => entry.foe.name))].join(' or '),
+    when,
+    deadly: fights.some((entry) =>
+      endsJourney({ ...run, flags: entry.flags }, entry.foe.lose),
+    ),
+    wounded: fights.some((entry) => entry.health <= entry.foe.attack * 2),
+    health: lowest,
+  }
+}
+
+/** One-screen risk cue for a choice card: a chip under the title, a visible line and a longer caption. */
+export function fightCue(
+  run: Run,
+  choice: Choice,
+): { chip: string; hint?: string; details: string[] } | null {
+  const ahead = fightAhead(run, choice)
+  if (!ahead) return null
+  const lead =
+    ahead.when === 'always'
+      ? 'Leads to a fight: ' + ahead.foe + '.'
+      : 'A ' +
+        (ahead.when === 'failure' ? 'failed' : 'successful') +
+        ' roll leads to a fight: ' +
+        ahead.foe +
+        '.'
+  const stakes = ahead.deadly
+    ? 'Losing that fight ends the journey.'
+    : 'Losing that fight costs you, but the journey goes on.'
+  const hint = ahead.wounded
+    ? 'Wounded, ' +
+      ahead.health +
+      ' HP' +
+      (ahead.deadly ? ': losing ends the journey' : '')
+    : ahead.deadly && ahead.when === 'always'
+      ? 'Losing ends the journey'
+      : undefined
+  return { chip: 'Fight', hint, details: [lead, stakes] }
 }
 
 function roll(seed: number): { seed: number; dice: [number, number] } {

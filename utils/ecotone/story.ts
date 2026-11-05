@@ -24,6 +24,10 @@ export type EventInfo = {
   /** Spoiler-free possibilities shown before the player chooses a route. */
   arrival: string
   possibilities: string
+  /** Route preview: what this route feels like to play. No names, no offers. */
+  feel: string
+  /** Route preview: what is at stake, true to what this route can reach. */
+  stakes: string
   pick: string
   scene: SceneKind
   art: string
@@ -47,6 +51,9 @@ export const EVENTS: EventInfo[] = [
     arrival: 'Follow the green flyer to a meadow at the edge of the redwoods.',
     possibilities:
       'You might try the circus, follow an unfamiliar rhythm, or stumble into something stranger than the fair advertised.',
+    feel: 'Circus tricks, drum circles and a forest that seems to answer back. Weird, warm and mostly gentle.',
+    stakes:
+      'By the closing bonfire the forest edge is up for grabs, and people you like are on both sides.',
     pick: 'You follow the green flyer out of town, to a meadow where the redwoods begin.',
     scene: 'meadow',
     art: 'scenes/prologue-meadow',
@@ -67,6 +74,9 @@ export const EVENTS: EventInfo[] = [
       'Stay near the Plaza as racing crews arrive, argue over repairs, and make room for one more set of hands.',
     possibilities:
       'You might help a team, find yourself in the race, or uncover the trouble behind the spectacle.',
+    feel: 'Costumed crews, pedal-powered sculptures, sand, mud and cold water. Loud, silly and a little haunted.',
+    stakes:
+      'A crew that suddenly needs you, and the longest road: a hopeful future asks more of you here than anywhere else.',
     pick: 'You stay on the Plaza. The race starts at noon tomorrow, and the sculptures are already rolling in, with costumes and people who trained all year to be ridiculous.',
     scene: 'plaza',
     art: 'chapters/the-impossible-festival',
@@ -87,6 +97,9 @@ export const EVENTS: EventInfo[] = [
       'Leave the noisy Plaza and walk toward the marsh, where waterbirds are already awake.',
     possibilities:
       'You might follow tracks, visit the zoo, or learn why the quiet places have been changing.',
+    feel: 'Birds, elk, a bench by the water and long walks with nobody to impress. Slow, odd and peaceful.',
+    stakes:
+      'What the quiet places become when nobody is watching. Finish on your own and the animals you put first shape the ending.',
     pick: 'You leave both flyers on the pole and walk the other way, toward the water and the birds.',
     scene: 'marsh',
     art: 'encounters/arcata-marsh',
@@ -108,8 +121,22 @@ export const EVENT_CHOICE = {
   body: [
     'Two flyers share a telephone pole on the Arcata Plaza. One smells of damp forest. The other shows a giant pedal-powered slug.',
     'A white rabbit in a racing helmet checks its watch. “Late, late. The fog won’t wait.” Then it vanishes into the crowd.',
-    'The marsh is a short walk away. You could leave both flyers behind. Nobody expects you anywhere.',
+    'Or leave both flyers on the pole. The marsh is a short walk away, and nobody expects you anywhere.',
   ],
+  /** What the player is choosing, said plainly before the route cards. */
+  choosing:
+    'Pick where to start. Your route sets the places, the first faces and how many days you’re out. What you do along the way decides the Humboldt you come home to, and every route can end in hope.',
+}
+
+/** Title-screen pitch: all three routes, no names, no offers. */
+export const ECOTONE_TAGLINE =
+  'A forest fair, a sculpture race or a quiet walk by the marsh. A few strange days in Humboldt County, strangers worth following (or nobody), and the county’s possible futures bleeding through the fog.'
+
+/** A route's length as the player will live it, e.g. "3 days · Fri–Sun". */
+export function routeLength(event: EventInfo): string {
+  const first = event.days[0]?.slice(0, 3) ?? ''
+  const last = event.days[event.days.length - 1]?.slice(0, 3) ?? ''
+  return `${event.days.length} days · ${first}–${last}`
 }
 
 const MEET_CHOICES: Choice[] = [

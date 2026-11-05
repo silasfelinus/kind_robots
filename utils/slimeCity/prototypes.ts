@@ -700,7 +700,7 @@ export const CARDS: Card[] = [
     cost: 4,
     hp: 5,
     attack: 2,
-    armor: 2,
+    armor: 1, // t-021 founder balance: was 2 (Catgirls 63% → 56%)
     ap: 2,
     keywords: ['ambush', 'regen'],
     signature: true,
@@ -794,7 +794,7 @@ export const CARDS: Card[] = [
     kind: 'creature',
     team: 'bloodfairies',
     cost: 1,
-    hp: 2,
+    hp: 3, // t-021 founder balance: was 2 (Bloodfairies 34% → 47%)
     attack: 1,
     armor: 0,
     ap: 2,
@@ -919,7 +919,7 @@ export const CARDS: Card[] = [
     cost: 2,
     hp: 3,
     attack: 2,
-    armor: 0,
+    armor: 1, // t-021 founder balance: was 0 (Ironjaw 41% → 46%)
     ap: 1,
     text: 'Fixes the line and sets the opposition on fire, a little.',
     symbol: '⚒',
@@ -1299,7 +1299,7 @@ export const CARDS: Card[] = [
     cost: 3,
     hp: 4,
     attack: 2,
-    armor: 1,
+    armor: 0, // t-021 founder balance: was 1 (Exchange 71% → 59%)
     ap: 1,
     keywords: ['collect'],
     text: 'Premium collections agent. Accepts payment in mana or teeth.',
@@ -1463,7 +1463,9 @@ export const RUSH_MANA_EVERY = 2
 export const MANA_CAP = 10
 export const DEFAULT_SEED = 4817
 export const ROUND_LIMITS: Record<ModeId, number> = {
-  turf: 45,
+  // A safety clock, not the usual ending: 9 x 9 TURF with slime, traps and
+  // pounces runs about 57 rounds before both CPUs pass (t-024 sweep).
+  turf: 70,
   blackout: 30,
   gridiron: 30,
   bloodrush: 150,

@@ -791,19 +791,31 @@ export function configurePocketRoom(
   if (room && run.supplies < 1) return run
   return { ...run, pocketRoom: room }
 }
+export const COUCH_SHIELD_FULL = 3
+/** One supply refills the whole force bubble, so it is upkeep every few calls, not every call. */
 export function rechargeCouchShield(run: VoyageRun): VoyageRun {
   if (
     run.phase !== 'briefing' ||
     run.supplies < 1 ||
-    (run.shieldCharge ?? 2) >= 3
+    (run.shieldCharge ?? 2) >= COUCH_SHIELD_FULL
   )
     return run
   return {
     ...run,
     supplies: run.supplies - 1,
-    shieldCharge: (run.shieldCharge ?? 2) + 1,
-    log: [...run.log, 'Recharged the couch force bubble for one supply.'],
+    shieldCharge: COUCH_SHIELD_FULL,
+    log: [
+      ...run.log,
+      'Recharged the couch force bubble to full for one supply.',
+    ],
   }
+}
+/** A mission's return moves the hold both ways: good outcomes bring crates home. */
+export const MISSION_RETURN_SUPPLIES: Record<Result, number> = {
+  flawless: 2,
+  success: 1,
+  costly: -1,
+  disaster: -2,
 }
 /** The displayed chance and the eventual return roll share one immutable preview. */
 export function previewMission(run: VoyageRun): MissionPreview {
@@ -970,14 +982,11 @@ export function advanceVoyageDay(run: VoyageRun): VoyageRun {
     injuredUntil,
     trust:
       run.trust + (grade === 'flawless' ? 1 : grade === 'disaster' ? -1 : 0),
-    supplies: Math.max(
-      0,
-      run.supplies - (grade === 'disaster' ? 2 : grade === 'costly' ? 1 : 0),
-    ),
+    supplies: Math.max(0, run.supplies + MISSION_RETURN_SUPPLIES[grade]),
     scene,
     log: [
       ...run.log,
-      `Day ${day}: ${missionFor(run).title} returned as ${grade} (${chance}% forecast, roll ${roll}). ${injury ? `${CREW.find((c) => c.id === injury)?.name} injured until day ${day + 2}.` : ''}`,
+      `Day ${day}: ${missionFor(run).title} returned as ${grade} (${chance}% forecast, roll ${roll}). ${injury ? `${CREW.find((c) => c.id === injury)?.name} injured until day ${day + 2}.` : ''}${MISSION_RETURN_SUPPLIES[grade] > 0 ? `${injury ? ' ' : ''}Grateful locals load ${MISSION_RETURN_SUPPLIES[grade] === 1 ? 'one supply crate' : MISSION_RETURN_SUPPLIES[grade] + ' supply crates'} onto the couch.` : ''}`,
     ],
   }
 }

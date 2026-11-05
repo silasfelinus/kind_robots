@@ -9,10 +9,18 @@ import {
   naturalEndingSaves,
 } from '../../utils/shiftingDesks/endingSaves'
 import { ENDINGS } from '../../utils/shiftingDesks/rules'
+import {
+  ENDING_COMMENDATIONS,
+  emptyRewardArchive,
+  ordinal,
+  receiptFor,
+  recordReward,
+} from '../../utils/shiftingDesks/rewards'
 
 const SAVE_KEY = 'shifting-desks-run-v1'
 const ENVELOPE_KEY = 'shifting-desks-envelope-opened-v1'
 const ENDINGS_KEY = 'shifting-desks-endings-v1'
+const REWARD_KEY = 'shifting-desks-rewards-v1'
 const PAGE = '/play/shifting-desks'
 
 const viewports = [
@@ -53,6 +61,17 @@ function assertEpilogue(save: EndingSave): void {
         expect(text, `not ${other.id}`).not.to.include(
           squash(other.epilogue.title),
         )
+  })
+  // The reward panel grows with its content, so its archive button is never
+  // clipped by the panel at any screen width (t-046).
+  cy.get('[aria-label="Your ending reward"]').should(($panel) => {
+    const panel = $panel[0]!.getBoundingClientRect()
+    const button = $panel.find('button')[0]?.getBoundingClientRect()
+    expect(button, 'archive button').to.exist
+    expect(button!.top, 'archive button top').to.be.at.least(panel.top - 1)
+    expect(button!.bottom, 'archive button bottom').to.be.at.most(
+      panel.bottom + 1,
+    )
   })
   cy.window().should((win) => {
     expect(
@@ -102,6 +121,38 @@ describe('Shifting Desks endings from naturally reached saves', () => {
           assertEpilogue(save)
         })
       }
+    })
+  }
+
+  // A repeat completion presents its ending's own commendation, counted,
+  // instead of replaying the first-ending award (t-046).
+  for (const save of saves) {
+    it(`${save.ending}: a repeat completion gets its own commendation`, () => {
+      const receipt = receiptFor(save.run, '2026-11-01T12:00:00Z')!
+      const earlier = recordReward(
+        emptyRewardArchive(),
+        { ...receipt, id: receipt.id + '-earlier' },
+        [save.ending],
+      )
+      const commendation = ENDING_COMMENDATIONS[save.ending]!
+      cy.viewport(390, 844)
+      cy.visit(PAGE, {
+        onBeforeLoad: (win) => {
+          seedBrowser(win, save)
+          win.localStorage.setItem(REWARD_KEY, JSON.stringify(earlier))
+          win.localStorage.setItem(ENDINGS_KEY, JSON.stringify([save.ending]))
+        },
+      })
+      openPersonnelFile()
+      cy.get('[aria-label="Your ending reward"]').should(($panel) => {
+        const text = squash($panel[0]?.textContent)
+        expect(text).to.include(commendation.title)
+        expect(text).to.include(
+          squash(commendation.repeat.replace('{nth}', ordinal(2))),
+        )
+        expect(text).not.to.include('A Permanent Position')
+      })
+      assertEpilogue(save)
     })
   }
 

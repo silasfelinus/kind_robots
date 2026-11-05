@@ -229,6 +229,14 @@
         <p v-if="lab.here && lab.blocked" class="scs-gate">
           {{ lab.blocked }}
         </p>
+        <p
+          v-if="lab.here && lab.campaignLegacy"
+          class="scs-terms"
+          data-testid="slime-rival-legacy"
+        >
+          CREW LEGACY · {{ lab.campaignLegacy.echo.title }} ·
+          {{ describeTerms(lab.campaignLegacy.echo.terms) }}
+        </p>
       </article>
       <div class="scs-deck">
         <KrChoiceHand

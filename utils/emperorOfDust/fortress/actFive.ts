@@ -4178,6 +4178,45 @@ export const ACT_FIVE_DAYS: readonly DayDef[] = [
         ],
         options: [
           {
+            id: 'renew-relief-charter',
+            label:
+              'Pay ten brass to keep village witnesses on every Watch relief patrol. Refuse unsupervised road searches.',
+            requires: { flags: ['d39-relief-charter'], cost: 10 },
+            effects: {
+              affinity: { freeholds: 4, saltroad: 2 },
+              local: { 'gate-watch': -2, yard: 1, 'old-houses': -1 },
+              flags: ['watch-writ-refused', 'd47-relief-charter-renewed'],
+            },
+            response:
+              'Dunmark unfolds the Day Ten ration list. “Ash fed those riders. Vask held their gate. The villages lost their grain.” He crosses out the unwitnessed search clause and leaves a place for a Freehold signer on every patrol order. The ten brass buys the first dispatch book.',
+          },
+          {
+            id: 'bind-watch-roll',
+            label:
+              'Bind the public casualty roll into law. No Watch detention without a witness who can read the names.',
+            requires: { flags: ['d39-watch-roll-published'] },
+            effects: {
+              affinity: { freeholds: 3 },
+              local: { 'gate-watch': -3, lamplight: 2, yard: 1 },
+              flags: ['watch-writ-refused', 'd47-watch-roll-law'],
+            },
+            response:
+              'Dunmark turns the roll to Day Ten. He can still see where Ash smeared the ink reading the injured names. The Archive clerk adds a witness column beside every proposed arrest. “A captain can still be wrong,” Dunmark says. “Now there will be someone to tell us.”',
+          },
+          {
+            id: 'village-captains',
+            label:
+              'Let village councils appoint their own road captains. The Old Houses lose their old gate veto.',
+            requires: { flags: ['d39-house-veto-revoked'] },
+            effects: {
+              affinity: { freeholds: 5, saltroad: 2 },
+              local: { 'old-houses': -3, 'gate-watch': -2, yard: 1 },
+              flags: ['watch-writ-refused', 'd47-village-captains'],
+            },
+            response:
+              'Vask asks where her old seal went. Oriel answers that the crown bought it back at congress. Dunmark carries the first blank commission to Thistledown and asks its reeve who should guard the bridge. The Houses call this theft. The village calls it a road.',
+          },
+          {
             id: 'paid-volunteers-record',
             label:
               'Read the names of the volunteers you sent to the Ford. Refuse the new writ until every death has a witness.',

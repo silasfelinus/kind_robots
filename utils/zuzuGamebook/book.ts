@@ -266,7 +266,7 @@ const scenes: Scene[] = [
     CH.II,
     'Hollow Bell',
     'hollow-bell',
-    'Hollow Bell is burning down to nothing. Smoke rolls between the timber fronts; the arch sign over the street hangs by one chain. The dead lie where they fell. You take off your wide hat. Somewhere close, something small moves beneath a burned boardwalk, and a wall of old paper notices flutters in the hot wind.',
+    'The road brings you in under a timber arch at last. Its sign hangs by one chain: HOLLOW BELL. The town is burning down to nothing. Smoke rolls between the timber fronts, and the dead lie where they fell. You take off your wide hat. Somewhere close, something small moves beneath a burned boardwalk, and a wall of old paper notices flutters in the hot wind.',
     {
       choices: [
         {
@@ -986,7 +986,7 @@ const scenes: Scene[] = [
     CH.VI,
     'The Wall of Names',
     'posters-boardwalk',
-    'You reach the outskirts of Dustwater at dusk. A notice is nailed to a post. Then several. Then the boardwalk walls are papered with them, layer on layer: missing children, dozens, drawn by grieving hands. Lantern light moves over their faces. On notice after notice, the same four words: last seen, mission road.',
+    'The road from the mission runs a full day through the heat and brings you into Dustwater at dusk: one street of false fronts, lamps coming on, the first town in a week with water to sell. A notice is nailed to a post at the edge of town. Then several. Then the boardwalk walls are papered with them, layer on layer: missing children, dozens, drawn by grieving hands. Lantern light moves over their faces. On notice after notice, the same four words: last seen, mission road.',
     {
       choices: [
         {
@@ -1110,7 +1110,7 @@ const scenes: Scene[] = [
     CH.VIII,
     'An Empty House',
     'refectory',
-    'The mission seems empty. In the refectory supper is still on the table; a small bowl lies overturned and a spoon is on the floor. Upstairs, a voice is chanting. The air tastes of candle smoke and something like lightning.',
+    'You drop from the wall into the swept yard and crouch there, listening. No lantern comes to the door; no kind voice asks your business. The mission seems empty. In the refectory supper is still on the table; a small bowl lies overturned and a spoon is on the floor. Upstairs, a voice is chanting. The air tastes of candle smoke and something like lightning.',
     {
       choices: [
         {

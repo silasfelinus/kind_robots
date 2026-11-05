@@ -228,8 +228,14 @@ export async function resolveMemoryDungeonDeck(
     if (
       linkedArt &&
       isEligibleDungeonArt(linkedArt, includeMature, matureAllowed, viewerId)
-    )
-      eligibleRecords.push(record)
+    ) {
+      // The entity may have no usable primary path even when its linked
+      // ArtImage is valid. Use the resolved image, not the empty entity URL.
+      eligibleRecords.push({
+        ...record,
+        imagePath: imageUrlForDeck(linkedArt) || imageUrlForDeck(record),
+      })
+    }
   }
   const paths = uniqueDeckPaths(eligibleRecords.map(imageUrlForDeck))
   return loadDungeonImagePaths(unseenDeckPaths(paths, previouslyUsed), needed)

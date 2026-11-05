@@ -77,7 +77,8 @@ for (let n = 1; n <= 12; n++) {
   for (const event of events) {
     assert.ok(event.opening.length > 60)
     assert.ok(event.title.length > 3)
-    assert.ok(event.choices.length >= 2)
+    assert.ok(event.choices.length >= (event.instant ? 1 : 2))
+    if (event.instant) assert.equal(event.choices.length, 1)
     for (const choice of event.choices) {
       assert.ok(choice.outcome.length > 35)
       assert.notEqual(choice.flag, '')

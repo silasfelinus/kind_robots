@@ -3,8 +3,9 @@ import { CH, s } from '../sections'
 
 /**
  * Act VIII · The Dark (conductor projects/zuzu-gamebook/BOOK-ONE-OUTLINE.md §5; Book One ch. 8). Entry
- * `mission-night`; exits `rescue`, `rescue-quiet`, `last-breath` (via the shipped fights), the shipped endings,
- * and `ending-bargain` / `ending-ashes`.
+ * `mission-night`, or straight from Act V through a bridge (`a8-under-the-wall`, `a8-behind-the-altar`); exits
+ * `rescue`, `rescue-quiet`, `last-breath` (via the shipped fights), the shipped endings, and `ending-bargain` /
+ * `ending-ashes`.
  *
  * The altar is under the house (Act V's locked-door stair), so the shipped "upstairs" chant leads down. Approaches
  * from `mission-night`: alone (`a8-stair`), with Wren (`wren-ally`), the coyote (`ally-coyote`), Hollis's band
@@ -13,6 +14,10 @@ import { CH, s } from '../sections'
  * cells may be empty after). The thing speaks aloud after the Abbess falls (`a8-voice`) or when she stabs Zuzu
  * (`stabbed/fight` -> `a8-voice-wound`). The sister's dagger (`last-breath` -> `sister-saves`) is untouched.
  *
+ * No nuns or Abbess fight is ever the only way on (conductor zuzu-gamebook t-013): with the sister freed Zuzu can run
+ * with both children (`ending-hunted`); alone he can give ground to the stair (`a8-give-ground`), bind the wound with
+ * his bandage and go back down, or leave and carry word (`ending-warning`).
+ *
  * Flags for later acts: `children-freed`, `clapper`, `honor:refused-the-dark`, `taint:killed-the-abbess`,
  * `sister-free`, `mob-held` / `honor:held-the-mob` (the mob stilled at the gate), `met:kit`; deeds
  * `honor:the-others-first`, `honor:spared-the-abbess`, `honor:let-her-run`, `honor:returned-the-gun`,
@@ -20,6 +25,41 @@ import { CH, s } from '../sections'
  */
 export const ACT_VIII: Act = {
   scenes: [
+    // Early arrivals (t-007 pacing): three Act V choices reach the altar without Dustwater or the night road. Each
+    // lands on a bridge that lets the night fall before `cellar`, so the jump reads as Act VIII opening rather than
+    // a page cut from the mission's welcome straight to the ritual.
+    s(
+      'a8-under-the-wall',
+      CH.VIII,
+      'Under the Wall',
+      'bell-tower',
+      'You walk on until the bell tower drops behind the hill, then leave the road and come back through the thorn on your belly. Low on the east side, where the ground falls away, a drain is cut through the adobe for rains that never come, wide enough for a koala who does not mind the dark. You do not go in yet. You lie in the scrub while the shadow of the wall crawls out across the plain, and the tower goes black against the stars, and the windows go dark one by one. Near midnight the ground under your belly begins to hum. Someone below the house is chanting.',
+      {
+        choices: [
+          {
+            id: 'in',
+            label: 'Crawl through the drain toward the chanting.',
+            to: 'cellar',
+          },
+        ],
+      },
+    ),
+    s(
+      'a8-behind-the-altar',
+      CH.VIII,
+      'Behind the Altar',
+      'candle-wax',
+      "You fold yourself into the dark behind the altar, between the candle stubs and the wall that is not a wall, and its cold breathes on the back of your neck. The footsteps come down. Two nuns, then a third with a taper, and between them, carried the way you would carry sleeping children to bed, the two you brought here. The sister's eyes are shut. Her fist is not. They lay them on the stone and tie them with the coiled rope, gently, talking about the weather. The taper goes from wick to wick until the black candles are all alight. Two nuns go back up. The third kneels and begins to chant, and behind you the dark leans closer to listen.",
+      {
+        choices: [
+          {
+            id: 'wait',
+            label: 'Wait until the chant takes hold, then step into the light.',
+            to: 'cellar',
+          },
+        ],
+      },
+    ),
     // Approach: alone (mission-night/upstairs). The altar is under the house (Act V); the dilemma: cells or altar.
     s(
       'a8-stair',
@@ -755,7 +795,16 @@ export const ACT_VIII: Act = {
       'You lower the sword and take one step back, then another. The Abbess watches your paws, not your face. Then, with a small nod, as if you had learned a lesson well, she cuts the sister\'s ropes with one neat stroke and pushes her off the altar toward you. "There," she says. "I am not a liar. The girl lives. The little one was always spoken for." The sister lands on her knees, and before you can reach her she is up again with a fallen dagger in both bandaged hands, and she is not running to you. She is running back.',
       {
         effects: { flag: 'sister-free' },
-        choices: [{ id: 'after', label: 'Go after her.', to: 'abbess' }],
+        choices: [
+          { id: 'after', label: 'Go after her.', to: 'abbess' },
+          {
+            id: 'run',
+            label:
+              'Catch her before she reaches the Abbess, snatch the little one off the stone, and run for the stair.',
+            to: 'ending-hunted',
+            flag: 'breach-left-open',
+          },
+        ],
       },
     ),
     s(
@@ -791,6 +840,13 @@ export const ACT_VIII: Act = {
             },
           },
           { id: 'step', label: 'Step toward her anyway.', to: 'nuns-attack' },
+          {
+            id: 'leave',
+            label:
+              'Do as she says. Back out of the cellar, and carry word of this house down the road.',
+            to: 'ending-warning',
+            flag: 'deed:left-the-altar',
+          },
         ],
       },
     ),
@@ -802,7 +858,15 @@ export const ACT_VIII: Act = {
       "You ask her one thing, with your eyes only, and she answers it, because nobody has asked her anything in forty years. She tells you about the first child. She tells you it was a dry year. She is still telling you when the sister's wrist slips the rope and the girl drives her heel into the old otter's knee, and the knife skids away across the altar stone. The Abbess does not cry out. She straightens, slowly, with a second dagger already in her paw from somewhere in her sleeve, and looks at you with something close to respect.",
       {
         effects: { flag: 'sister-free' },
-        choices: [{ id: 'face', label: 'Face her.', to: 'abbess' }],
+        choices: [
+          { id: 'face', label: 'Face her.', to: 'abbess' },
+          {
+            id: 'run',
+            label: 'Pull both children off the altar and run for the stair.',
+            to: 'ending-hunted',
+            flag: 'breach-left-open',
+          },
+        ],
       },
     ),
     s(
@@ -937,6 +1001,39 @@ export const ACT_VIII: Act = {
         ],
       },
     ),
+    // Alone and wounded, the sister still bound: the stair is the costly way out of a fight he cannot win.
+    s(
+      'a8-give-ground',
+      CH.VIII,
+      'The Bottom Stair',
+      'zuzu-bandage',
+      'You give ground until your heel finds the bottom stair, and there you stop, with the wall at your back and the sword held low because you cannot hold it any higher. She does not follow. She will not leave the altar while the dark is open behind it, and she lets you see that she knows you know it. Above you are the refectory, the night, and the long road east. Below you the candles lean toward the fold in the air, the toddler sleeps on the stone, and his sister has stopped fighting her ropes to watch which way you go. Your blood is warm on the step.',
+      {
+        choices: [
+          {
+            id: 'bind',
+            label:
+              'Bind the wound with your bandage, then go back down to her.',
+            to: 'abbess',
+            requires: 'bandage',
+            spend: 'bandage',
+            heal: 2,
+          },
+          {
+            id: 'back',
+            label: 'Go back down to her as you are.',
+            to: 'abbess',
+          },
+          {
+            id: 'out',
+            label:
+              'Climb out into the night, and carry word of this house down the road.',
+            to: 'ending-warning',
+            flag: 'deed:left-the-altar',
+          },
+        ],
+      },
+    ),
     // The thing speaks aloud (stabbed/fight, before the Abbess fight).
     s(
       'a8-voice-wound',
@@ -975,6 +1072,14 @@ export const ACT_VIII: Act = {
             to: 'a8-wounded-flight',
             needs: 'sister-free',
             hint: 'The sister is still bound; there is no one to carry her brother.',
+            flag: 'honor:refused-the-dark',
+          },
+          {
+            id: 'give-ground',
+            label:
+              'Refuse it, and give ground to the cellar stair before you fall.',
+            to: 'a8-give-ground',
+            unless: 'sister-free',
             flag: 'honor:refused-the-dark',
           },
         ],
@@ -1082,6 +1187,30 @@ export const ACT_VIII: Act = {
         needs: 'feather',
         hint: 'You have only your own eyes.',
       },
+      {
+        id: 'a8-leave',
+        label:
+          'Back out of the candlelight unseen, and carry word of this house down the road.',
+        to: 'ending-warning',
+        flag: 'deed:left-the-altar',
+      },
+    ],
+    'abbess-strikes': [
+      {
+        id: 'a8-stair',
+        label: 'Do not turn. Throw yourself toward the cellar stair.',
+        to: 'a8-give-ground',
+        unless: 'sister-free',
+      },
+      {
+        id: 'a8-run',
+        label:
+          'Shout for the sister to take her brother, and run for the stair with them.',
+        to: 'ending-hunted',
+        needs: 'sister-free',
+        hint: 'The sister is still bound; there is no one to carry her brother.',
+        flag: 'breach-left-open',
+      },
     ],
   },
   reroute: {
@@ -1089,5 +1218,8 @@ export const ACT_VIII: Act = {
     'mission-night/passage#success': 'a8-crypt',
     'mission-night/passage#failure': 'a8-crypt-lamp',
     'stabbed/fight': 'a8-voice-wound',
+    'mission/investigate#success': 'a8-under-the-wall',
+    'crypt-glimpse/confront': 'a8-behind-the-altar',
+    'a5-crypt-wren/hide': 'a8-behind-the-altar',
   },
 }

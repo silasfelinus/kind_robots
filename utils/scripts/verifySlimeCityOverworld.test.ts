@@ -21,6 +21,8 @@ import {
   campaignChapter,
   campaignEchoFor,
   campaignFavorsFor,
+  campaignLegacyFor,
+  campaignLegacyTerms,
   CAMPAIGN_ECHOES,
   campaignEnding,
   createCampaignSave,
@@ -31,6 +33,7 @@ import {
 
 import {
   applyTerms,
+  type BoutTerms,
   boutBlocked,
   boutTerms,
   CITY_PLAN,
@@ -94,13 +97,21 @@ const artIds = [
   ...Object.values(SLIME_CITY_ART.ui),
   ...Object.values(SLIME_CITY_ART.story),
   ...Object.values(SLIME_CITY_ART.attacks),
+  ...Object.values(SLIME_CITY_ART.tokens),
 ]
 assert.equal(
   SLIME_CITY_ART_COUNT,
-  185,
-  'Round one (52), round four (15), plus the 2026-11-02 curation: 37 cards, 77 story plates, 4 attack icons',
+  233,
+  'Round one (52), round four (15), the 2026-11-02 curation (37 cards, 77 story plates, 4 attack icons) and 48 board-token portraits',
 )
-assert.equal(artIds.length, 185)
+assert.equal(artIds.length, 233)
+// Board tokens (t-022): every key is '<creature card>/<fierce|guard|hurt>'.
+for (const key of Object.keys(SLIME_CITY_ART.tokens)) {
+  const [cardId, pose] = key.split('/')
+  const card = CARDS.find((c) => c.id === cardId)
+  assert.ok(card && card.kind === 'creature', key + ' names a creature card')
+  assert.ok(['fierce', 'guard', 'hurt'].includes(pose!), key + ' is a mood')
+}
 assert.equal(
   new Set(artIds).size,
   artIds.length,
@@ -896,6 +907,38 @@ for (const team of TEAMS) {
   assert.equal(campaignFavorsFor(finished, team.id).length, 5)
   assert.equal(campaignEchoFor(finished, team.id), null)
   assert.deepEqual(campaignBattleTerms(finished, team.id, {}), {})
+  // Crew legacy (t-009): a finished campaign's favors, the finale's fifth by
+  // default, carry into district rival and contract bouts. A campaign in
+  // progress keeps them for story fights only.
+  const finishedFavors = campaignFavorsFor(finished, team.id)
+  assert.equal(campaignLegacyFor(saved, team.id), null)
+  assert.deepEqual(
+    campaignLegacyTerms(saved, team.id, openingTerms),
+    openingTerms,
+  )
+  assert.deepEqual(campaignLegacyFor(finished, team.id), finishedFavors[4])
+  assert.deepEqual(campaignLegacyFor(finished, team.id, 0), finishedFavors[0])
+  assert.deepEqual(campaignLegacyFor(finished, team.id, 99), finishedFavors[4])
+  const finale = finishedFavors[4]!.echo.terms
+  const legacy = campaignLegacyTerms(finished, team.id, openingTerms)
+  for (const key of [
+    'playerMana',
+    'enemyMana',
+    'playerHp',
+    'enemyArmor',
+    'fewerRivals',
+    'rounds',
+  ] as const)
+    assert.equal(
+      legacy[key] ?? 0,
+      ((openingTerms as BoutTerms)[key] ?? 0) + (finale[key] ?? 0),
+      team.id + ' legacy ' + key + ' stacks on city terms',
+    )
+  assert.notDeepEqual(
+    legacy,
+    openingTerms,
+    team.id + "'s finale favor changes a city bout",
+  )
 }
 console.log(
   'Slime City ally dossier: 6 crews, four previous favors, bounded combat PASS',
@@ -1273,6 +1316,81 @@ if (lab.match.victor === 'enemy') assert.equal(lab.city.contracts.length, 0)
 lab.showCity()
 lab.resetCity()
 assert.equal(lab.city.contracts.length, 0)
+
+// Crew legacy in the store (t-009): once the active crew's campaign is won,
+// district rival and contract bouts carry its chosen favor.
+{
+  const team = lab.activeTeam
+  let won = createCampaignSave()
+  FACTION_CAMPAIGNS[team].chapters.forEach((chapter, index) => {
+    won = resolveCampaignBattle(
+      won,
+      team,
+      index,
+      chapter.foe,
+      'conviction',
+      'player',
+    )
+  })
+  const before = lab.campaignSave
+  lab.campaignSave = won
+  assert.equal(lab.campaignLegacy?.chapterIndex, 4, 'The finale favor leads')
+  lab.selectCampaignFavor(1)
+  assert.equal(
+    lab.campaignLegacy?.chapterIndex,
+    1,
+    'A finished campaign still picks its favor',
+  )
+  lab.visit('chimera')
+  lab.walk()
+  lab.chooseStreet('splice-smuggle')
+  lab.choose('chimera-serum')
+  lab.fightRival()
+  assert.equal(lab.view, 'arena')
+  const expected = applyTerms(
+    createMatch(
+      lab.match.mode,
+      team,
+      lab.match.foeId,
+      lab.match.seed,
+      lab.match.rules,
+    ),
+    campaignLegacyTerms(won, team, boutTerms(lab.city, 'chimera'), 1),
+  )
+  const baseline = applyTerms(
+    createMatch(
+      lab.match.mode,
+      team,
+      lab.match.foeId,
+      lab.match.seed,
+      lab.match.rules,
+    ),
+    boutTerms(lab.city, 'chimera'),
+  )
+  assert.equal(lab.match.mana, expected.mana, 'Rival bout carries the legacy')
+  assert.equal(lab.match.enemyMana, expected.enemyMana)
+  assert.equal(lab.match.maxRounds, expected.maxRounds)
+  assert.deepEqual(lab.match.scenarioBonus, expected.scenarioBonus)
+  assert.notDeepEqual(
+    [
+      expected.mana,
+      expected.enemyMana,
+      expected.maxRounds,
+      expected.scenarioBonus,
+    ],
+    [
+      baseline.mana,
+      baseline.enemyMana,
+      baseline.maxRounds,
+      baseline.scenarioBonus,
+    ],
+    'and the favor really changes the bout',
+  )
+  lab.closeGuide()
+  lab.showCity()
+  lab.resetCity()
+  lab.campaignSave = before
+}
 
 // Citywide pressure is earned at two, four and six victories. Each choice is
 // a single-use seeded-independent story beat that affects later real fights.

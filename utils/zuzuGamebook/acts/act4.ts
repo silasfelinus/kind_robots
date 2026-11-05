@@ -341,6 +341,30 @@ export const ACT_IV: Act = {
             requires: 'bandage',
             spend: 'bandage',
           },
+          {
+            id: 'scatter',
+            label:
+              'Throw down your bedroll and food bag, and run for the rocks with the children.',
+            to: 'a4-well-scatter',
+          },
+        ],
+      },
+    ),
+    // Wounded, dry and untrusted, Zuzu can still buy his way out of five jackals with everything but the pack.
+    s(
+      'a4-well-scatter',
+      CH.IV,
+      'Into the Rocks',
+      'dry-well',
+      'You fling the bedroll at the nearest jackal and the food bag after it, and the bag splits as it lands: dried meat, the cookpot, the coin you sewed into the lining. Hungry things cannot help themselves. While the band scrambles in the dust you have the toddler under one arm and the sister by the wrist, and you are up into the rocks where a grown jackal has to turn sideways to follow. Nobody follows. Hollis does not even shout. She only watches you go, and you know she will remember the way you ran.',
+      {
+        effects: { flag: 'a4-stripped', resolve: -1 },
+        choices: [
+          {
+            id: 'on',
+            label: 'Keep to the long dry way round.',
+            to: 'a4-wide-berth',
+          },
         ],
       },
     ),

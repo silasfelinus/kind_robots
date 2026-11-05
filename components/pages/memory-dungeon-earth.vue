@@ -31,6 +31,19 @@
             Changed city
           </button>
           <button
+            v-if="
+              earth.active === 'e03' &&
+              earth.position === '6,2' &&
+              earth.e03Choices['6,2']
+            "
+            type="button"
+            class="btn btn-sm btn-soft btn-accent"
+            data-testid="memory-enter-sublevel"
+            @click="emit('sublevel')"
+          >
+            Enter Sublevel B
+          </button>
+          <button
             v-if="earth.active === 'e04' && earth.completed"
             type="button"
             class="btn btn-sm btn-soft btn-secondary"
@@ -160,8 +173,8 @@
               <p
                 class="mb-1 text-[10px] font-black uppercase tracking-[.17em] text-[#eac08c]"
               >
-                {{ earth.current.kind }} · {{ earth.current.speaker }} ·
-                {{ earth.position }}
+                {{ earth.current.place ?? earth.current.kind }} ·
+                {{ earth.current.speaker }} · {{ earth.position }}
               </p>
               <h3 class="text-lg font-black leading-snug sm:text-2xl">
                 {{ earth.current.title }}
@@ -169,7 +182,7 @@
               <p
                 class="mt-2 max-h-28 overflow-auto text-xs leading-relaxed sm:text-sm"
               >
-                {{ earth.current.opening }}
+                {{ earth.opening }}
               </p>
             </div>
             <span
@@ -267,10 +280,12 @@
 <script setup lang="ts">
 import { onMounted } from 'vue'
 import { useMemoryEarthStore } from '~/stores/memoryEarthStore'
+import { useMemorySublevelStore } from '~/stores/memorySublevelStore'
 import type { OverworldKind } from '~/utils/memoryDungeon/overworldEventCatalog'
 
-const emit = defineEmits<{ leave: []; sea: [] }>()
+const emit = defineEmits<{ leave: []; sea: []; sublevel: [] }>()
 const earth = useMemoryEarthStore()
+const sublevel = useMemorySublevelStore()
 
 function symbolFor(kind: OverworldKind): string {
   return {
@@ -298,7 +313,10 @@ function tileClass(tile: {
   return 'border-[#3c5361] bg-[#1b2b36] text-[#516575]'
 }
 
-onMounted(() => earth.hydrate())
+onMounted(() => {
+  earth.hydrate()
+  sublevel.hydrate()
+})
 </script>
 
 <style scoped>

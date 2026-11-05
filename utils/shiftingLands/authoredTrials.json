@@ -5,13 +5,13 @@
     {
       "landId": "homestead",
       "title": "The Abbess's Open Door",
-      "flavor": "The mission doors open before you can knock. The Abbess stands beneath the carved lintel, holding out a loaf of warm bread, while the corridor behind her stays locked. You have heard too many stories that do not match for kindness alone to explain the empty beds. She is still smiling, and the bread is still warm.",
+      "flavor": "The mission doors open before you can knock. The Abbess stands beneath the carved lintel, holding out a loaf of warm bread, while her guards keep the corridor behind her barred. You have heard too many stories that do not match, and kindness alone cannot explain the empty beds in the children's dormitory. She is still smiling, and the bread is still warm.",
       "art": null,
       "choices": [
         {
           "id": "confront",
           "label": "Stand between her and the dormitory",
-          "intent": "Face down the convent guards without harming anyone who came here for shelter.",
+          "intent": "Face down the mission guards without harming anyone who came here for shelter.",
           "skill": "steel",
           "target": 11,
           "cost": 0,
@@ -21,7 +21,7 @@
         },
         {
           "id": "parley",
-          "label": "Demand sanctuary before witnesses",
+          "label": "Demand an accounting before witnesses",
           "intent": "Share your bread with the townsfolk at the gate and ask them to stand witness.",
           "skill": "bearing",
           "target": 9,
@@ -54,7 +54,7 @@
     {
       "landId": "dustwater",
       "title": "The Crossing Gate",
-      "flavor": "A flood gate hangs above the crossing on chains crusted with years of river salt. Its keeper holds both the winch for the safe channel and the toll book, and insists no one crosses while the current is changing. Beyond the dam you can hear trapped boats knocking together, and the gate's mechanism has begun to shudder.",
+      "flavor": "A flood gate hangs above the crossing on chains crusted with years of river salt. Its keeper holds the toll book and the winch for the one channel the book calls safe, and insists no one crosses while the current is changing. Beyond the dam you can hear trapped boats knocking together, and the jammed mechanism has begun to shudder.",
       "art": null,
       "choices": [
         {
@@ -65,7 +65,7 @@
           "target": 10,
           "cost": 0,
           "requiredAnyFlags": [],
-          "success": "You brace against the wheel and haul until the gate grinds upward, just before a chain gives. The boats spill through, and their travelers reach the far bank safely.",
+          "success": "You brace against the counterweight and haul until the gate grinds upward, just before a chain gives. The boats spill through, and their travelers reach the far bank safely.",
           "failure": "The counterweight snaps back and throws you against the flooded stone. You crawl out of the water bruised and gasping, and have to fall back to recover your strength."
         },
         {
@@ -100,7 +100,7 @@
     {
       "landId": "tablelands",
       "title": "The Canyon Warden",
-      "flavor": "Where two canyon roads meet, a masked warden stands before the last bridge. Watchfires burn behind stone parapets, and a storm is rising to hide the narrow path. The warden says the crossing stays closed until every traveler can be accounted for, and you know that not all of the missing are dead.",
+      "flavor": "Where two canyon roads meet, a masked warden stands before the last bridge. Watchfires burn behind stone parapets, and a storm is rising to hide the narrow path. The warden says the crossing stays closed until every traveler can be accounted for, and somewhere behind those fires, people the road has given up for dead may still be alive.",
       "art": null,
       "choices": [
         {
@@ -112,7 +112,7 @@
           "cost": 0,
           "requiredAnyFlags": [],
           "success": "You disarm the escorts one by one and force an opening through the barricade without bringing down the bridge. The caravan crosses behind you in the rain.",
-          "failure": "A shield wall closes and drives you back down the rocky approach. You come away bruised and turned back, with the bridge still shut behind them."
+          "failure": "A shield wall closes and drives you back down the rocky approach. You come away bruised and turned back, with the bridge still shut behind their shields."
         },
         {
           "id": "parley",
@@ -123,7 +123,7 @@
           "cost": 1,
           "requiredAnyFlags": [],
           "success": "The warden breaks the bread you offered, accepts your vow, and posts two scouts to guide the weakest travelers across the bridge before the storm closes in.",
-          "failure": "The warden takes the food you offered but asks more assurance than any oath you can give. The talk drags on until you are exhausted, and you retreat with nothing."
+          "failure": "The warden takes the food you offered but asks for more assurance than any oath can give. The talk drags on until you are exhausted, and you retreat with nothing."
         },
         {
           "id": "evidence",
@@ -146,7 +146,7 @@
     {
       "landId": "cave",
       "title": "The Deep-Cave Judgement",
-      "flavor": "A ring of blue candle flames surrounds a stone court deep in the cave. The Storm-Crow adjudicators wait in silence while a bound guardian trembles on the threshold, and every entrance bears a different version of his oath. The court will not let you leave until it accepts one account as true, and his fate rides on which.",
+      "flavor": "A ring of blue candle flames surrounds a stone court deep in the cave. The Storm-Crow adjudicators wait in silence while a bound guardian trembles inside a chalk circle on the threshold, and every entrance bears a different version of his oath. The court will not let you leave until it accepts one account as true, and his fate rides on which account it chooses.",
       "art": null,
       "choices": [
         {
@@ -174,7 +174,7 @@
         {
           "id": "evidence",
           "label": "Expose the false oath",
-          "intent": "Set the evidence you gathered in the hollow and at the crossroads against the oath's wording.",
+          "intent": "Set what you have learned on this road against the exact wording of his oath.",
           "skill": "insight",
           "target": 9,
           "cost": 0,
@@ -192,7 +192,7 @@
     {
       "landId": "verge",
       "title": "Beyond the Verge",
-      "flavor": "At the final threshold, a silent negotiator holds a stone key against a door without hinges. Every traveler who reaches it is offered an easy passage in exchange for obedience and silence. Behind you, the road is crowded with the promises you chose to keep, and the door waits for your answer.",
+      "flavor": "At the final threshold, a silent negotiator holds a stone key against a sealed door without hinges. Every traveler who reaches it is offered an easy passage in exchange for obedience and silence. Behind you lies every promise you kept or broke on the road, and the door waits for your answer.",
       "art": null,
       "choices": [
         {
@@ -220,7 +220,7 @@
         {
           "id": "evidence",
           "label": "Read the unbroken promise",
-          "intent": "Use what earlier witnesses on this road showed you to find the gate's forgotten lawful exception.",
+          "intent": "Use whatever you found on this road (the gatepost carvings, the messenger's waystone, the negotiator's own admission) to find the gate's forgotten lawful exception.",
           "skill": "insight",
           "target": 10,
           "cost": 0,

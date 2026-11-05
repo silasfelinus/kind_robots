@@ -82,13 +82,19 @@
           >
             <div class="flex items-center justify-between text-xs opacity-70">
               <span>#{{ String(index + 1).padStart(3, '0') }}</span>
-              <span>{{ known(alien.id) ? '✦ FOUND' : '◇ ???' }}</span>
+              <span>{{
+                known(alien.id)
+                  ? '✦ FOUND'
+                  : escaped(alien.id)
+                    ? '↺ ESCAPED'
+                    : '◇ ???'
+              }}</span>
             </div>
             <span class="my-2 self-center text-4xl" aria-hidden="true">{{
               known(alien.id) ? '✳' : '◌'
             }}</span>
             <strong class="line-clamp-2 text-sm">{{
-              known(alien.id) ? alien.name : 'UNIDENTIFIED'
+              known(alien.id) || escaped(alien.id) ? alien.name : 'UNIDENTIFIED'
             }}</strong>
           </button>
         </div>
@@ -126,7 +132,9 @@
           {{ selected.category }} · {{ selected.rarity }}
         </p>
         <h3 class="my-2 text-2xl font-black">
-          {{ known(selected.id) ? selected.name : '???' }}
+          {{
+            known(selected.id) || escaped(selected.id) ? selected.name : '???'
+          }}
         </h3>
         <template v-if="known(selected.id)">
           <p class="my-2 text-lg">{{ selected.fieldNote }}.</p>
@@ -152,10 +160,15 @@
           </p>
         </template>
         <template v-else>
-          <p class="my-3 text-base">{{ alienHint(selected) }}</p>
+          <p
+            class="my-3 text-base"
+            data-testid="space-couch-alien-scrapbook-hint"
+          >
+            {{ alienHint(selected, guide) }}
+          </p>
           <p class="text-sm opacity-70">
             Each solar-system visit offers three choices. Two may record an
-            alien; a runaway can return on a later trip.
+            alien; a runaway always circles back on a later stop.
           </p>
         </template>
       </section>
@@ -169,6 +182,7 @@ import { ALIEN_SPECIES } from '~/utils/gameOfCaptains/alienSpecies'
 import {
   alienHint,
   alienObservation,
+  isAlienRunaway,
   type AlienGuide,
 } from '~/utils/gameOfCaptains/alienFieldGuide'
 
@@ -187,6 +201,7 @@ const selected = computed(
     ALIEN_SPECIES[0]!,
 )
 const known = (id: string): boolean => props.guide.discovered.includes(id)
+const escaped = (id: string): boolean => isAlienRunaway(props.guide, id)
 const selectedFieldReport = computed(() => {
   const report = props.guide.fieldReports?.findLast(
     (entry) => entry.speciesId === selected.value.id,

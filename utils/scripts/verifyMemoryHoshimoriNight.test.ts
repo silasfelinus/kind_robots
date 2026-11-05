@@ -56,7 +56,7 @@ assert.ok(
 )
 assert.equal(
   MEMORY_REALITY_EXPERIENCES.find((item) => item.id === 'e08')?.viewpoint,
-  'scylla',
+  'vesper',
 )
 assert.equal(
   MEMORY_REALITY_EXPERIENCES.find((item) => item.id === 'e08')?.title,

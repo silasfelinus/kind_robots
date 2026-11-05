@@ -51,9 +51,7 @@ for (let index = 0; index < 42; index++) {
     onStep(label, before, after) {
       if (label !== 'next' || after.phase !== 'briefing') return
       assert.equal(before.phase, 'debrief')
-      const visible: string[] = missionBoard(after).map(
-        (mission) => mission.id,
-      )
+      const visible: string[] = missionBoard(after).map((mission) => mission.id)
       assert.ok(
         visible.includes(after.missionId!),
         'autochart must be on the real board',

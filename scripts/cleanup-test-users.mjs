@@ -35,8 +35,9 @@ const limit =
 // Usernames produced by the cypress suites:
 //   cypress-user-<ts>-<rand>          (createFreshLoggedInTestUser)
 //   cypress-primary|second|third-<id> (per-run seed users)
-//   testuser<ts>                      (users.cy.ts registration spec)
-const testUserPattern = /^(cypress-(user|primary|second|third)-|testuser\d+$)/i
+//   testuser<ts> / updateduser<ts>    (legacy users.cy.ts names, pre-2026-11)
+const testUserPattern =
+  /^(cypress-(user|primary|second|third)-|testuser\d+$|updateduser\d{13}$)/i
 
 // Never touch admins or low-id system accounts (id 10 is the default owner
 // for orphaned content) no matter what their username looks like.

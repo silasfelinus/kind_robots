@@ -116,6 +116,26 @@ assert.deepEqual(
   [],
   'All 36 House locations are authored and reachable',
 )
+// A one-beat lore discovery must not require a second fake decision.
+// Keep historical choice records intact in the authored room catalog.
+const umbrellaRoom = HOUSE_ROOMS['HD-02']!
+const umbrellaChoices = umbrellaRoom.choices
+try {
+  Object.assign(umbrellaRoom, {
+    choices: umbrellaChoices.filter(
+      (choice) => choice.id === umbrellaRoom.autoChoiceId,
+    ),
+  })
+  assert.deepEqual(validateHouseRooms(), [])
+  umbrellaRoom.autoChoiceId = 'missing-choice'
+  assert.ok(
+    validateHouseRooms().includes('Invalid automatic lore choice at HD-02'),
+  )
+} finally {
+  Object.assign(umbrellaRoom, { choices: umbrellaChoices })
+  umbrellaRoom.autoChoiceId = 'weather'
+}
+assert.deepEqual(validateHouseRooms(), [])
 assert.equal(Object.keys(HOUSE_ROOMS).length, 36)
 assert.deepEqual(
   HOUSE_ROOMS['HD-35']!.choices.map((choice) => choice.id),
@@ -1095,6 +1115,19 @@ for (const key of sceneCoordinates) {
   assert.ok(scene.artPrompt.length > 40, `Scene ${key} has an art brief`)
   assert.equal(scene.choices.length, 2, `Scene ${key} has two decisions`)
   assert.equal(new Set(scene.choices.map((option) => option.id)).size, 2)
+}
+
+// Quiet sites resolve automatically, while both historical decision IDs stay
+// available for restored saves and Chronicle callbacks.
+for (const [key, autoId] of [
+  ['4,7', 'listen'],
+  ['3,8', 'plant'],
+] as const) {
+  const scene = BRIAR_SCENES[key]!
+  assert.equal(scene.autoChoiceId, autoId)
+  assert.equal(scene.choices.length, 2)
+  assert.ok(scene.choices.some((choice) => choice.id === autoId))
+  assert.ok(scene.choices.every((choice) => !choice.cost && !choice.gain))
 }
 
 assert.equal(

@@ -82,9 +82,14 @@ export function seaNarrative(
   campaign: MemoryCampaignProgress,
   choices: Readonly<Record<string, string>> = {},
 ): string {
-  const original = SEA_KEY_SCENES[reality][site] ?? ''
+  // Hand-written e05 sites carry their own scene; keep only the
+  // campaign-dependent lines (which tide-gate outcome Scylla remembers).
+  const original =
+    reality === 'e05' ? '' : (SEA_KEY_SCENES[reality][site] ?? '')
   if (site === '1,1')
-    return [scyllaOpeningForMemory(campaign, reality), original].join(' ')
+    return [scyllaOpeningForMemory(campaign, reality), original]
+      .filter(Boolean)
+      .join(' ')
   if (reality === 'e05' && site === '8,8') {
     const fate = memoryCharFate(campaign)
     const past =
@@ -93,7 +98,7 @@ export function seaNarrative(
         : fate === 'alive'
           ? 'Scylla left an older Char alive in the present, but the people harmed by the tide gate have not vanished.'
           : 'The original tide-gate outcome is unresolved; Scylla cannot claim a rescue or a death she has not witnessed.'
-    return original + ' ' + past
+    return [original, past].filter(Boolean).join(' ')
   }
   if (reality === 'e06' && (site === '2,2' || site === '8,8')) {
     const chosen = MEMORY_SCYLLA_DEPARTURE_CHOICES.find(

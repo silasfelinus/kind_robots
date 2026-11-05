@@ -3379,7 +3379,7 @@
       "id": "six-tally-sticks",
       "locationId": "quarry",
       "title": "Six Tally Sticks",
-      "flavor": "Six split tally sticks hang from a nail outside the foreman's shed, one for each debtor still cutting stone. A young marmot named Pell holds the matching half of hers and asks you to lay it against his. Hers has nine notches. His has fourteen, and the foreman is watching from the doorway with his arms folded.",
+      "flavor": "Six split tally sticks hang from a nail outside the foreman's shed, one for each debtor still cutting stone. A young marmot named Pell holds her own half and asks you to lay it against the foreman's. Hers has nine notches. His has fourteen, and the foreman is watching from the doorway with his arms folded.",
       "weight": 3,
       "art": null,
       "choices": [
@@ -3594,7 +3594,7 @@
             }
           },
           "failure": {
-            "text": "Water has risen in the old adit, and you wade through it, cold enough to make you stagger. You bring the crew back to the ledge exhausted, and one by one they light their lamps again.",
+            "text": "Water has risen in the old adit, cold enough to make you stagger, and you have to turn back. You lead the crew out onto the ledge exhausted, and one by one they light their lamps again.",
             "hp_delta": -1,
             "provisions_delta": 0,
             "add_flags": ["four-lamps-on-the-ledge-adit-flooded"],
@@ -3763,7 +3763,7 @@
             "target": 10
           },
           "success": {
-            "text": "Your hands find a gap at last, and two thin arms reach through it. Four cutters crawl out into the daylight, and the eldest tells you they ate their candles to last. The clerk crosses out four names without a word.",
+            "text": "Your hands find a gap at last, and two thin arms reach through it. Four of the six cutters crawl out into the daylight, and the eldest tells you they ate their candles to last. The clerk crosses out four names without a word.",
             "hp_delta": 0,
             "provisions_delta": 0,
             "add_flags": ["the-bell-in-the-sealed-adit-dug-out"],
@@ -3856,7 +3856,7 @@
             "target": 8
           },
           "success": {
-            "text": "By noon a dozen hands are passing stone down a line, setting props as they go. Five cutters come out alive and the hill holds. Whoever owed you owes you nothing now, and seems glad of it.",
+            "text": "By noon a dozen hands are passing stone down a line, setting props as they go. Five of the six cutters come out alive, and the hill holds. Whoever owed you owes you nothing now, and seems glad of it.",
             "hp_delta": 0,
             "provisions_delta": 0,
             "add_flags": ["the-bell-in-the-sealed-adit-crew-called"],
@@ -3889,7 +3889,7 @@
         {
           "id": "call-out-the-light-sack",
           "label": "Call out the light sack",
-          "intent": "Weigh the woman's sack against your own known weight and say the number out loud.",
+          "intent": "Weigh the woman's sack against flour you measured yourself, and say the shortfall out loud.",
           "risk": "The storekeeper takes the blame for the company's thumb.",
           "requires": null,
           "cost": null,
@@ -3935,7 +3935,7 @@
             "target": 10
           },
           "success": {
-            "text": "You file by touch until both weights balance your own. Nobody will know why the sacks got heavier, and the storekeeper, finding iron filings on the counter at dawn, sweeps them up and says nothing.",
+            "text": "You file by touch, testing against a scoop you measured in daylight, until both weights tell the truth. Nobody will know why the sacks got heavier, and the storekeeper, finding iron filings on the counter at dawn, sweeps them up and says nothing.",
             "hp_delta": 0,
             "provisions_delta": 0,
             "add_flags": ["the-company-store-scales-filed"],
@@ -4325,7 +4325,7 @@
         },
         {
           "id": "ask-about-the-missing-caravans",
-          "label": "Ask about the missing caravans",
+          "label": "Ask who he really rides for",
           "intent": "Shelter beside him and work out, between thunderclaps, who he really rides for.",
           "risk": "A clever thief will sell you a story for a dry place.",
           "requires": null,
@@ -4336,7 +4336,7 @@
             "target": 10
           },
           "success": {
-            "text": "He rides for no one, and the travelers he meant to rob were turned back at the warden's bridge and kept there, not dead. Before he sleeps he scratches you the raiders' way around the bridge, and the road ahead shifts with it.",
+            "text": "He rides for no one now. The caravans that vanish on this road were never robbed, he says: the warden's escorts turned them back at the bridge and are holding them there, alive. Before he sleeps he scratches you the raiders' way around the bridge, and the road ahead shifts with it.",
             "hp_delta": 0,
             "provisions_delta": 0,
             "add_flags": ["the-raider-beneath-the-arch-kept-not-dead"],
@@ -4475,7 +4475,7 @@
             "target": 11
           },
           "success": {
-            "text": "He knows you, all right, and his eyes go to your hands and stay there. One writ is not worth a fight with someone the wardens could not hold, and he rides back the way he came. The runaways do not wait to thank you.",
+            "text": "He knows you, all right, and his eyes go to your hands and stay there. One writ is not worth a fight with a stranger the wardens have hunted this far and never caught, and he rides back the way he came. The runaways do not wait to thank you.",
             "hp_delta": 0,
             "provisions_delta": 0,
             "add_flags": ["the-writ-and-the-runaways-bluffed"],
@@ -4629,7 +4629,7 @@
       "id": "one-pot-seven-bowls",
       "locationId": "canyon-camp",
       "title": "One Pot, Seven Bowls",
-      "flavor": "The camp cook ladles bean stew from one black pot into seven bowls lined up on a flat rock, and there is not enough to fill seven. Two more travelers have just come in out of the storm, a quarry widow and her small son. The cook looks at you, because you are the newest face at the fire, and someone has to go without.",
+      "flavor": "The camp cook ladles bean stew from one black pot into seven bowls lined up on a flat rock, and there is barely enough to fill those. Then two more travelers come in out of the storm, a quarry widow and her small son. The cook looks at you, because you are the newest face at the fire, and someone has to go without.",
       "weight": 3,
       "art": null,
       "choices": [
@@ -4752,7 +4752,7 @@
       "id": "dice-for-an-indenture",
       "locationId": "canyon-camp",
       "title": "Dice for an Indenture",
-      "flavor": "A labor recruiter rolls three bone dice by the fire, and the stake in front of him is a signed indenture. A drifter barely grown has bet himself into five years at the quarry and lost it twice already. The recruiter offers to let you play for the paper, if you have something worth putting up.",
+      "flavor": "A labor recruiter rolls three bone dice by the fire, and the stake in front of him is a signed indenture. A drifter barely grown has gambled himself into five years at the quarry, and the paper lies there with his mark on it. The recruiter offers to let you play for the paper, if you have something worth putting up.",
       "weight": 2,
       "art": null,
       "choices": [
@@ -5215,7 +5215,7 @@
             "target": 9
           },
           "success": {
-            "text": "They throw the white stones and the black stones together into the fire, then climb as one, carrying the old ones between them. It is a hard, wet night, but at dawn everyone is still there to count.",
+            "text": "They sweep the white stones and the black into one heap, then climb as one, carrying the oldest travelers between them. It is a hard, wet night, but at dawn everyone is still there to count.",
             "hp_delta": 0,
             "provisions_delta": 0,
             "add_flags": ["two-piles-of-voting-stones-held-together"],
@@ -5242,7 +5242,7 @@
       "id": "the-fortieth-stone",
       "locationId": "cave-mouth",
       "title": "The Fortieth Stone",
-      "flavor": "A crow-witch sits cross-legged at the cave mouth with a clay bowl in her lap and one river stone in her hand. Thirty-nine stones already lie in the bowl, one for each breath the air below can carry, she says. Behind you, a young mother shields her baby from the sleet, and the witch's eyes move from her to you.",
+      "flavor": "A crow-witch sits cross-legged at the cave mouth with a clay bowl in her lap and one river stone in her hand. Thirty-nine stones already lie in the bowl, one for every sleeper below; the air down there carries forty breaths and no more, she says. Behind you, a young mother shields her baby from the sleet, and the witch's eyes move from her to you.",
       "weight": 2,
       "art": null,
       "choices": [
@@ -5291,7 +5291,7 @@
             }
           },
           "failure": {
-            "text": "She hears the doubt and closes her hand around the last stone. The mother goes in; you do not. You shelter in a crack in the ridge until the hail passes and come in at dawn, stiff, soaked and hungry.",
+            "text": "She hears the doubt and closes her hand around the last stone. The mother goes in; you do not. You shelter in a crack in the ridge until the sleet passes and come in at dawn, stiff, soaked and hungry.",
             "hp_delta": -1,
             "provisions_delta": -1,
             "add_flags": ["the-fortieth-stone-turned-away"],
@@ -5325,7 +5325,7 @@
             }
           },
           "failure": {
-            "text": "Her stick cracks across your shins, and two crow-folk from inside haul you back out into the sleet, your shins bruised. When they let you in at dawn, every face at the fire already knows what you tried.",
+            "text": "Her stick cracks across your shins, and two crow-folk from inside haul you back out into the sleet to limp and shiver until morning. When they let you in at dawn, every face at the fire already knows what you tried.",
             "hp_delta": -1,
             "provisions_delta": 0,
             "add_flags": [
@@ -5353,7 +5353,7 @@
             "target": 9
           },
           "success": {
-            "text": "The shaft breathes cold, clean air, just as the old ways promised. You hand the baby down rung by rung, and the witch, hearing of it, sets a second bowl beside the first. The tunnels ahead open in a different order than the ones you planned on.",
+            "text": "The shaft breathes cold, clean air, just as the old ways promised. You hand the baby down rung by rung, the mother swears she owes you her child's life, and the witch, hearing of it, sets a second bowl beside the first. The tunnels ahead open in a different order than the ones you planned on.",
             "hp_delta": 0,
             "provisions_delta": 0,
             "add_flags": ["the-fortieth-stone-opened-shaft", "deed-owed-favor"],
@@ -5477,7 +5477,7 @@
             }
           },
           "failure": {
-            "text": "The draught is not enough, and you burn through the last of your herbs trying. The carter lives, but only just, and you come away from the long night hollow-eyed and spent.",
+            "text": "The draught is not enough, and you burn through most of your herbs trying. The carter lives, but only just, and you come away from the long night hollow-eyed and spent.",
             "hp_delta": -1,
             "provisions_delta": 0,
             "add_flags": ["no-fever-past-the-rope-herbs-spent"],
@@ -5565,7 +5565,7 @@
             "target": 10
           },
           "success": {
-            "text": "It was her mother's, she says, and the pattern on the beam was her mother's too. She cuts one finished length of cloth free, leaves the frame to the hail, and hurries the boys inside. She does not speak to you again.",
+            "text": "The loom was her mother's, she says, but the pattern lives in her own hands now, and hands can build another frame. She cuts one finished length of cloth free, leaves the frame to the hail, and hurries the boys inside. She does not speak to you again.",
             "hp_delta": 0,
             "provisions_delta": 0,
             "add_flags": ["a-loom-too-wide-left-loom"],
@@ -5696,7 +5696,7 @@
             "target": 10
           },
           "success": {
-            "text": "It takes half the night. The Hallorans will send him wool from their first flock, and he will not go to the county sheriff. He writes the terms in his ledger and asks you to sign as witness.",
+            "text": "It takes half the night. The Hallorans will send him wool from their first flock, and he will not go to the county sheriff. He writes the terms in his ledger and asks you to sign as witness, and old Halloran tells you his family owes you more than wool.",
             "hp_delta": 0,
             "provisions_delta": 0,
             "add_flags": ["the-creditors-ledger-brokered", "deed-owed-favor"],
@@ -5836,7 +5836,7 @@
             "target": 9
           },
           "success": {
-            "text": "It takes a long time. Then the mule leans its head into your chest and walks in beside you, and the packer, wiping his face, presses a fist of dried apples on you. It has never done that for anyone but his dead wife, he says.",
+            "text": "It takes a long time. Then the mule leans its head into your chest and walks in beside you, and the packer, wiping his face, presses a fist of dried apples on you. The mule has never done that for anyone but his dead wife, he says.",
             "hp_delta": 0,
             "provisions_delta": 1,
             "add_flags": ["the-mule-that-fears-the-dark-calmed"],
@@ -5866,7 +5866,7 @@
           "cost": null,
           "roll": null,
           "success": {
-            "text": "You cut the straps and haul the sacks in, two trips each. The mule bolts down the ridge into the hail and does not come back. The families below eat, and the packer sits apart from the fire and will not look at you.",
+            "text": "You cut the straps, and you and the packer haul a sack in apiece. The mule bolts down the ridge into the hail and does not come back. The families below eat, and the packer sits apart from the fire and will not look at you.",
             "hp_delta": 0,
             "provisions_delta": 0,
             "add_flags": ["the-mule-that-fears-the-dark-mule-lost"],
@@ -6144,7 +6144,7 @@
       "id": "the-name-jar",
       "locationId": "stone-hollow",
       "title": "The Name Jar",
-      "flavor": "A crow-witch sits on a salt barrel beside a clay jar sealed with wax, and a line of refugees waits before her. For one name spoken into the jar, she gives a wool blanket; the name goes in, and the speaker never remembers it again. The old man ahead of you is trying to choose between his brother and his first daughter.",
+      "flavor": "A crow-witch sits on a salt barrel beside a clay jar sealed with wax, and a line of refugees waits before her. For one name spoken into the jar, she gives a wool blanket; the name goes in, and the speaker never remembers it again. The old man ahead of you is trying to choose between his brother's name and his first daughter's.",
       "weight": 2,
       "art": null,
       "choices": [
@@ -6216,7 +6216,7 @@
             "target": 10
           },
           "success": {
-            "text": "The dead buried without names cannot find their way down to the deep water, she says, so she lends them borrowed ones. She is not cruel, only tired. She hands the old man a blanket for nothing, just once, and asks you to keep her secret.",
+            "text": "The dead buried without names cannot find their way down to the deep water, she says, so she lends them borrowed ones. She is not cruel, only tired. She hands the old man a blanket for nothing, just once, shows you the burial road the nameless dead are carried down, and asks you to keep her secret.",
             "hp_delta": 0,
             "provisions_delta": 0,
             "add_flags": [
@@ -6412,7 +6412,7 @@
           },
           "roll": null,
           "success": {
-            "text": "The children eat with their eyes on their father. He finishes the line of salt and never knows how close it came. When you leave, the eldest girl follows you to the passage and thanks you for both of them.",
+            "text": "The children eat with their eyes on their father. He finishes the line of salt and never knows how close it came. When you leave, the eldest girl follows you to the passage and thanks you for the little ones, too.",
             "hp_delta": 0,
             "provisions_delta": 0,
             "add_flags": [
@@ -6470,7 +6470,7 @@
             "target": 10
           },
           "success": {
-            "text": "Behind the burial niche, a vein of grey salt runs through the wall. You and the miner scrape enough to cover her together, and his pouch goes back on his belt still full. He shows you the other seams his people know.",
+            "text": "Behind the burial niche, a vein of grey salt runs through the wall. You and the miner scrape enough to cover her together, and his pouch goes back on his belt still full. He shows you the other seams his people know, and the old tunnels they take to reach them.",
             "hp_delta": 0,
             "provisions_delta": 0,
             "add_flags": [
@@ -6679,7 +6679,7 @@
           },
           "roll": null,
           "success": {
-            "text": "The needle spins wildly, then points straight at you and stays there. The witch frowns, then laughs, and tells you the way anyway, and an old miners' road no tremor has ever moved. The road ahead is not the one you expected.",
+            "text": "The needle spins wildly, then points straight at you and stays there. The witch frowns, then laughs, and tells you the way anyway: an old miners' road no tremor has ever moved. The road ahead is not the one you expected.",
             "hp_delta": 0,
             "provisions_delta": 0,
             "add_flags": ["the-bone-compass-fed-blood", "deed-knows-old-roads"],
@@ -6837,7 +6837,7 @@
             "target": 10
           },
           "success": {
-            "text": "They argue in whispers for an hour. In the end forty come out to be counted and twenty stay hidden, and the counted carry grain back to the hidden. Nobody likes the arrangement, but everyone eats tonight.",
+            "text": "They argue in whispers for an hour. In the end forty come out to be counted and the rest stay hidden, and the counted carry grain back to the hidden. Nobody likes the arrangement, but everyone eats tonight.",
             "hp_delta": 0,
             "provisions_delta": 0,
             "add_flags": [
@@ -7271,7 +7271,7 @@
       "id": "the-deserters-cage",
       "locationId": "obsidian-road",
       "title": "The Deserter's Cage",
-      "flavor": "An iron cage hangs from a post beside the road, and inside it a young deserter squints against the heat rising off the stones. The key hangs on a nail just beyond his reach, under a painted board that forbids anyone to give him water. Dust from a mounted patrol is rising on the road behind you.",
+      "flavor": "An iron cage hangs from a post beside the road, and inside it a young deserter squints against the heat rising off the stones. The key hangs on a nail just beyond his reach, under a painted board that forbids anyone to give him water. Dust from a lone patrol rider is rising on the road behind you.",
       "weight": 2,
       "art": null,
       "choices": [
@@ -7547,7 +7547,7 @@
           },
           "roll": null,
           "success": {
-            "text": "She takes your offer because she has no other, and you shoulder a pannier of lamp oil, needles, and dried apricots. Before you are out of earshot you hear the mule cry out, then her knife, then nothing.",
+            "text": "She takes your offer because she has no other, and you shoulder a pannier of lamp oil, needles, and dried apricots. Before you are out of earshot you hear the mule cry out once, and then nothing: she has done with her own knife what you would not.",
             "hp_delta": 0,
             "provisions_delta": 2,
             "add_flags": ["the-mule-on-the-glass-bought-goods"],
@@ -7580,7 +7580,7 @@
           },
           "roll": null,
           "success": {
-            "text": "An old couple has been waiting on the roof for three days, too frightened of the glass to come down. You share a meal with them, help them down, and point them toward the camp. They have nothing to give you, and the long fork costs you the afternoon.",
+            "text": "An old couple has been waiting on the roof for three days, too frightened of the glass to come down. You share a meal with them, help them down, and point them toward the camp. They have nothing to give you, and the long fork costs you the rest of the day.",
             "hp_delta": 0,
             "provisions_delta": 0,
             "add_flags": [
@@ -7662,7 +7662,7 @@
       "id": "the-short-ration-line",
       "locationId": "fortified-camp",
       "title": "The Short Ration Line",
-      "flavor": "At dawn the quartermaster ladles porridge from one black kettle into a line of refugees three times longer than the pot. The ledger on his table says there should be enough. A family at the very end of the line has already started to turn away, and a guard is shoving a man who came back for a second bowl.",
+      "flavor": "At dawn the quartermaster ladles porridge from one black kettle into a line of refugees three times longer than the pot can feed. The ledger on his table says there should be enough. A family at the very end of the line has already started to turn away, and a guard is shoving a man who came back for a second bowl.",
       "weight": 3,
       "art": null,
       "choices": [
@@ -7893,7 +7893,7 @@
           "id": "open-your-own-medicine",
           "label": "Open your own medicine pouch",
           "intent": "Give the surgeon the fever herbs you have carried on the road so both can be treated.",
-          "risk": "Once those herbs are gone, you have nothing for yourself.",
+          "risk": "Most of what you carried for yourself goes into this dose.",
           "requires": {
             "anyFlags": ["deed-carries-medicine"]
           },
@@ -7902,7 +7902,7 @@
           },
           "roll": null,
           "success": {
-            "text": "The surgeon steeps your herbs into a second dose, bitter and green, and both cots have their chance. By morning both patients are sitting up. Your pouch is empty now, and the surgeon has nothing to give you in return but a nod.",
+            "text": "The surgeon steeps your herbs into a second dose, bitter and green, and both cots have their chance. By morning both patients are sitting up. Your pouch is nearly empty now, and the surgeon has nothing to give you in return but a nod.",
             "hp_delta": 0,
             "provisions_delta": 0,
             "add_flags": ["two-cots-one-draught-shared-herbs"],
@@ -7992,7 +7992,7 @@
             "target": 9
           },
           "success": {
-            "text": "He answers without a pause, and a woman in the crowd says she has seen those children at the refugee fires. It does not save him from the irons, but it saves him from the rope, and at dusk his eldest finds you and shares a heel of bread from the refugee fires.",
+            "text": "He answers without a pause, and a woman in the crowd says she has seen those children at the refugee fires. It does not save him from the irons, but it saves him from the rope, and at dusk his eldest finds you and presses a heel of bread into your hand.",
             "hp_delta": 0,
             "provisions_delta": 1,
             "add_flags": ["the-stockade-at-dawn-story-held"],
@@ -8199,7 +8199,7 @@
             "target": 9
           },
           "success": {
-            "text": "The dicing stops. The youngest soldier picks up the boots and takes them to the sister himself, and the others do not stop him. Nobody in the armory speaks to you again for the rest of the night.",
+            "text": "The dicing stops. The youngest soldier picks up the boots and takes them to the sister himself, and the others do not stop him. None of the three speaks to you again for the rest of the night.",
             "hp_delta": 0,
             "provisions_delta": 0,
             "add_flags": ["the-dead-sentrys-boots-shamed-them"],
@@ -8413,14 +8413,14 @@
           "id": "sign-over-a-debt-owed-you",
           "label": "Sign over a debt owed you",
           "intent": "Someone on the road owes you; offer that debt to the creditor in place of theirs.",
-          "risk": "You will reach the end of the road owed nothing.",
+          "risk": "The debt you sign away will be hers to collect, not yours.",
           "requires": {
             "anyFlags": ["deed-owed-favor"]
           },
           "cost": null,
           "roll": null,
           "success": {
-            "text": "The creditor knows the name you give and likes the terms better. She breaks the family's tally stick across her knee and notches a fresh one for your debtor instead. Whatever was owed to you is hers to collect now.",
+            "text": "The creditor knows the name you give and likes the terms better. She breaks the family's tally stick across her knee and notches a fresh one for your debtor instead. Whatever that traveler owed you is hers to collect now.",
             "hp_delta": 0,
             "provisions_delta": 0,
             "add_flags": ["the-creditors-tally-sticks-traded-favor"],
@@ -8722,7 +8722,7 @@
       "id": "the-smugglers-side-door",
       "locationId": "last-threshold",
       "title": "The Smuggler's Side Door",
-      "flavor": "Far from the negotiator's gate, a smuggler keeps a narrow side door in the threshold wall and lets people through it for food. Her price buys one passage, not two. A refugee family with three children sits beside the door with nothing to pay, watching each person who can.",
+      "flavor": "Far from the negotiator's gate, a smuggler keeps a narrow side door in the threshold wall and lets people through it for food. Her price is steep, and what you carry will buy one passage through, not two. A refugee family with three children sits beside the door with nothing to pay, watching each person who can.",
       "weight": 2,
       "art": null,
       "choices": [
@@ -8762,7 +8762,7 @@
           },
           "roll": null,
           "success": {
-            "text": "The smuggler counts the food twice and lets them through, the children ducking under her arm. The mother looks back from the dark of the passage as if to memorize you. Then the door closes, and you turn toward the main gate with almost nothing left.",
+            "text": "The smuggler counts the food twice and lets them through, the children ducking under her arm. The mother looks back from the dark of the passage as if to memorize you. Then the door closes, and you turn toward the main gate three days' food lighter.",
             "hp_delta": 0,
             "provisions_delta": 0,
             "add_flags": [
@@ -9958,7 +9958,7 @@
           }
         },
         "failure": {
-          "text": "He screams before you can stop him, and his guards come running. You fight your way out bruised and battered, with his hatred following you up the road.",
+          "text": "He screams before you can stop him, and his guards come running. You fight your way clear of them, bruised, with his curses following you up the road.",
           "hp_delta": -1,
           "provisions_delta": 0,
           "add_flags": ["the-empty-pay-cart-4-failure"],
@@ -9974,7 +9974,7 @@
         "id": "pull-her-back-from-the-seam",
         "label": "Pull her back from the seam",
         "intent": "The singing has changed pitch, so drag her away before the vein lets go.",
-        "risk": "If you are wrong, you have cost her a day's work.",
+        "risk": "Her day's cutting is lost either way; if you are slow, the glass finds you too.",
         "requires": null,
         "cost": null,
         "roll": {
@@ -10032,7 +10032,7 @@
         "id": "ask-why-the-wall-is-moving",
         "label": "Ask why the wall is moving",
         "intent": "Ask the scout what she thinks is shaking a wall no weather can explain.",
-        "risk": "Some answers make the road ahead harder.",
+        "risk": "Every minute spent asking is a minute spent under the shelf.",
         "requires": null,
         "cost": null,
         "roll": {
@@ -10052,7 +10052,7 @@
           "marks": {}
         },
         "failure": {
-          "text": "She looks at you as if you had asked why water is wet, and goes back to watching. You spend the hour craning up at the shelf, and come away tired and no wiser.",
+          "text": "She looks at you as if you had asked why stones fall, and goes back to watching. You spend the hour craning up at the shelf, and come away tired and no wiser.",
           "hp_delta": -1,
           "provisions_delta": 0,
           "add_flags": ["the-watchful-overhang-4-failure"],
@@ -10075,7 +10075,7 @@
           "target": 9
         },
         "success": {
-          "text": "The rider was carrying debtors' writs, the captain admits, and hated the work. The banner marks the old courier road she took. The captain shows it to you, and the road ahead bends that way too.",
+          "text": "You say aloud what the captain will not: a rider who ties a banner wants to be followed, not mourned. She admits her rider was carrying debtors' writs and hated the work, then shows you the old courier road the banner marks, and the road ahead bends that way too.",
           "hp_delta": 0,
           "provisions_delta": 0,
           "add_flags": ["the-banner-in-the-wind-3-success", "deed-told-truth"],
@@ -10353,8 +10353,8 @@
       {
         "id": "pay-her-brothers-debt",
         "label": "Pay her brother's debt",
-        "intent": "Offer the trappers your food to clear her brother's debt, so the trap can end.",
-        "risk": "The trappers may take the food and want more.",
+        "intent": "Offer your food to whoever holds her brother's debt, so the trap can end.",
+        "risk": "Whoever holds the debt may take the food and want more.",
         "requires": null,
         "cost": {
           "provisions": -2
@@ -10477,7 +10477,7 @@
         },
         "roll": null,
         "success": {
-          "text": "The adjudicator accepts the trade. Both miners take a pouch and both leave believing they were right. The truth stays buried in the hollow, and your pack is lighter by two days of food.",
+          "text": "The adjudicator accepts the trade and measures a second pouch from the court's own store. Both miners leave with salt, and both leave believing they were right. The truth stays buried in the hollow, and your pack is lighter by two days of food.",
           "hp_delta": 0,
           "provisions_delta": 0,
           "add_flags": ["the-candle-court-paid-salt"],
@@ -10525,7 +10525,7 @@
           "target": 9
         },
         "success": {
-          "text": "Her numbers are good, but her dates are wrong; the shift is a day off, not an hour. She swears, laughs, and hands you the slate to carry to the miners on the far side, who will need it.",
+          "text": "Her readings are good, but her reckoning of time is off: the shift is a day away, not an hour. She swears, laughs, and hands you the slate to carry to the miners on the far side, who will need it.",
           "hp_delta": 0,
           "provisions_delta": 0,
           "add_flags": [
@@ -10700,7 +10700,7 @@
           "target": 8
         },
         "success": {
-          "text": "He drinks it and sleeps for the first time in days, the vial cradled in both hands. When he wakes, his hands are steady. He gives you the only thing he has, a strip of jerky, and makes you take it.",
+          "text": "He drinks it and sleeps for the first time in days, the vial cradled in both hands. When he wakes, his hands are steady. He gives you the only thing he has, a strip of jerky, makes you take it, and swears he will pay the rest if your roads ever cross again.",
           "hp_delta": 0,
           "provisions_delta": 1,
           "add_flags": ["the-red-vial-gave-sleep", "deed-owed-favor"],
@@ -11081,7 +11081,7 @@
         "cost": null,
         "roll": null,
         "success": {
-          "text": "The archivist sets the key in your palm and folds your fingers over it. As you walk on, the landmarks she described never appear; the road ahead bends a different way than her carvings showed. The key is heavier than stone should be.",
+          "text": "The archivist sets the key in your palm and folds your fingers over it. As you walk on, the road ahead bends a different way than her carvings showed, past landmarks no one ever carved. The key is heavier than stone should be.",
           "hp_delta": 0,
           "provisions_delta": 0,
           "add_flags": ["the-key-with-no-door-key-taken"],

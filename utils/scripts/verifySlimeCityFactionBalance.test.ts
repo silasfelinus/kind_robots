@@ -104,6 +104,30 @@ const crews = summary.crews.map((crew) => {
   }
 })
 
+// Founder balance guard (t-021, 2026-11-05 PT). Four founder stat changes
+// (Broker armor 1->0, Chimera armor 2->1, Pogo HP 2->3, Welder armor 0->1)
+// took the held-out spread from 0.142-0.149 to 0.046-0.058 (60 seeds x 30
+// pairings, two independent seed sets; every crew 44-58%). These ten seeds
+// read 0.083 (crews 42-65%; the old stats read 0.155, Bloodfairies 30%,
+// Exchange 70%). Ten seeds is about +/-0.05 of noise per crew, so this
+// catches a runaway crew, not a few points of drift; re-measure on held-out
+// seeds before moving a limit.
+const SPREAD_LIMIT = 0.11
+const rates = crews.map((crew) => crew.scorePercent / 100)
+const meanRate = rates.reduce((x, y) => x + y, 0) / rates.length
+const spread = Math.sqrt(
+  rates.reduce((x, r) => x + (r - meanRate) ** 2, 0) / (rates.length - 1),
+)
+assert.ok(
+  spread <= SPREAD_LIMIT,
+  'Founder crews stay balanced: spread ' + spread.toFixed(3),
+)
+for (const crew of crews)
+  assert.ok(
+    crew.scorePercent >= 35 && crew.scorePercent <= 70,
+    crew.team + ' runs away at ' + crew.scorePercent + '%',
+  )
+
 const warnings = [...summary.warnings]
 for (const crew of crews) {
   if (crew.scorePercent < 30 || crew.scorePercent > 70)

@@ -310,6 +310,7 @@
                 @click="store.heal(student.id)"
               >
                 Treat {{ student.name }} before night patrol ↗
+                <small>Back tonight, but only with a healthy partner</small>
               </button>
               <button
                 v-for="student in visitableStudents"
@@ -865,6 +866,14 @@
                         : incident.briefing
                     }}
                   </p>
+                  <p
+                    v-if="districtMemory(run, incident.id)"
+                    class="cca-district-memory"
+                    data-testid="academy-district-memory"
+                  >
+                    <strong>DISTRICT MEMORY</strong>
+                    {{ districtMemory(run, incident.id) }}
+                  </p>
                   <div
                     v-if="run.patrolOpening === 1 && run.day === 3"
                     class="cca-report-mini"
@@ -918,6 +927,23 @@
                     class="cca-mission-tactics"
                     data-testid="academy-mission-tactics"
                   >
+                    <p
+                      v-if="playerPowerCallback(run, incident.id)"
+                      class="cca-district-memory"
+                      data-testid="academy-power-callback"
+                    >
+                      <strong
+                        >YOUR POWER ·
+                        {{
+                          playerPowerCallback(
+                            run,
+                            incident.id,
+                          )!.stat.toUpperCase()
+                        }}</strong
+                      >
+                      {{ playerPowerCallback(run, incident.id)!.line }}
+                      {{ playerPowerCallback(run, incident.id)!.odds }}
+                    </p>
                     <strong>YOUR DECISION · HOW DO YOU INTERVENE?</strong>
                     <p>
                       Saving lives first offers better odds. Investigating the
@@ -1049,6 +1075,11 @@
                           class="cca-hand-state"
                           >UNAVAILABLE</span
                         >
+                        <span
+                          v-else-if="recoveringFollower(run, student.id)"
+                          class="cca-hand-state"
+                          >RECOVERING · NEEDS A PARTNER</span
+                        >
                       </button>
                     </div>
                     <div class="cca-team-slots" aria-label="Assigned heroes">
@@ -1103,6 +1134,24 @@
                         : 'CHOOSE HEROES TO SEE ODDS'
                     }}</strong>
                   </div>
+                  <p
+                    v-for="conflict in rosterConflicts(
+                      run,
+                      incident.id,
+                      teamFor(incident.id),
+                    )"
+                    :key="'recovering-' + conflict.id"
+                    class="cca-district-memory"
+                    data-testid="academy-roster-conflict"
+                  >
+                    <strong
+                      >RECOVERING ·
+                      {{
+                        conflict.partner ? 'COVERED' : '-1 TO THIS CALL'
+                      }}</strong
+                    >
+                    {{ conflict.card }}
+                  </p>
                   <p class="cca-odds-note">
                     Estimated chance of at least a partial success. Complete
                     success is harder; injuries and city standing can change the
@@ -1496,6 +1545,10 @@ import {
   socialContextFor,
   encounterFor,
   dispatchChance,
+  districtMemory,
+  playerPowerCallback,
+  recoveringFollower,
+  rosterConflicts,
   knownContacts,
   nightPatrolBeat,
   patrolOptionsFor,
@@ -3146,6 +3199,18 @@ function toggleStudent(caseId: string, id: StudentId): void {
   color: #93c9d0;
   font-weight: 800;
   font-size: 0.58rem;
+  letter-spacing: 0.1em;
+}
+.cca-incident .cca-district-memory {
+  border-left: 2px solid #93c9d0;
+  padding-left: 0.55rem;
+  color: #b5cddc;
+  font-size: 0.7rem;
+}
+.cca-district-memory strong {
+  display: block;
+  color: #f6c89e;
+  font-size: 0.6rem;
   letter-spacing: 0.1em;
 }
 .cca-incident p,

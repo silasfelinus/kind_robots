@@ -219,7 +219,7 @@ const make = () =>
   })
 const painted = make()
 const plain = make()
-const actsPainted = new Set<number>()
+const actsPainted = new Set<string>()
 let renders = 0
 for (let frame = 0; frame < 400000 && !plain.over; frame++) {
   painted.update(emptyInput())

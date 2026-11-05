@@ -10,7 +10,7 @@
 //
 // Writes utils/cthulhuquariumCanon.generated.ts and
 // utils/cthulhuquariumArtPrompts.generated.ts, and copies built art into
-// assets/images/cthulhuquarium/{sprites,portraits,backgrounds,plates}/.
+// assets/images/cthulhuquarium/{sprites,portraits,backgrounds,plates,clips,ui}/.
 
 import {
   copyFileSync,
@@ -18,6 +18,7 @@ import {
   mkdirSync,
   readdirSync,
   readFileSync,
+  unlinkSync,
   writeFileSync,
 } from 'node:fs'
 import { execFileSync } from 'node:child_process'
@@ -319,16 +320,31 @@ export const CTHULHUQUARIUM_SCENE_IDS: string[] = ${JSON.stringify(Object.keys(o
 )
 
 const assetRoot = join(repoRoot, 'assets', 'images', 'cthulhuquarium')
-function copyBuilt(fromDir, toDir, rename = (name) => name) {
+function copyBuilt(
+  fromDir,
+  toDir,
+  rename = (name) => name,
+  { mirror = false } = {},
+) {
   const src = join(canon, fromDir)
   if (!existsSync(src)) return 0
   mkdirSync(join(assetRoot, toDir), { recursive: true })
   let count = 0
-  for (const name of readdirSync(src).filter((file) =>
-    file.endsWith('.webp'),
-  )) {
+  const names = readdirSync(src).filter((file) => file.endsWith('.webp'))
+  for (const name of names) {
     copyFileSync(join(src, name), join(assetRoot, toDir, rename(name)))
     count++
+  }
+  // Mirrored folders drop what the canon dropped: a fish clip is deleted in the
+  // canon when its sprite is re-rendered (t-099), and an old clip of the old
+  // creature must not keep playing next to the new sprite.
+  if (mirror) {
+    const keep = new Set(names.map(rename))
+    for (const name of readdirSync(join(assetRoot, toDir))) {
+      if (name.endsWith('.webp') && !keep.has(name)) {
+        unlinkSync(join(assetRoot, toDir, name))
+      }
+    }
   }
   return count
 }
@@ -339,7 +355,8 @@ const copied = {
   backgrounds: copyBuilt('backgrounds/built', 'backgrounds'),
   plates: copyBuilt('story/built', 'plates'),
   videos: copyBuilt('videos/built', 'videos'),
-  clips: copyBuilt('clips', 'clips'),
+  clips: copyBuilt('clips', 'clips', undefined, { mirror: true }),
+  ui: copyBuilt('ui/built', 'ui'),
 }
 for (const who of ['charlotte-fishmonger', 'wilbur-stint']) {
   const hero = join(canon, 'characters', 'portraits', 'hero', `${who}.webp`)

@@ -1190,10 +1190,10 @@ unionVoyage = play(unionVoyage, 'ashdock', 'aid')
 unionVoyage = play(nextDestination(unionVoyage), 'nacre', 'aid')
 unionVoyage = play(nextDestination(unionVoyage), 'gameworld', 'aid')
 unionVoyage = nextDestination(unionVoyage)
+assert.ok(unionVoyage.scene.startsWith('ACT II'))
 unionVoyage = chooseMission(unionVoyage, 'concord-intake')
 assert.equal(unionVoyage.phase, 'briefing')
 assert.equal(unionVoyage.chapter, 4)
-assert.ok(unionVoyage.scene.startsWith('ACT II'))
 assert.equal(missionFor(unionVoyage).id, 'concord-intake')
 assert.deepEqual(
   restoreVoyage(JSON.parse(JSON.stringify(unionVoyage))),

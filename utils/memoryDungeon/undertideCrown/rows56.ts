@@ -384,7 +384,7 @@ export const UNDERTIDE_CROWN_ROWS_5_6: readonly MorrowShiftSite[] = [
         id: 'notice',
         label: 'Put your back to the frame',
         outcome:
-          'The court’s scratches slide along the coral to meet Scylla’s head, however she stands. She crouches; they follow her down. Then Char, swimming past, cuts a new mark a finger above her with a shell. That one stays where it is put.',
+          'The court’s scratches slide along the coral to meet Scylla’s head, however she stands. She crouches; they follow her down. Then Char, swimming past, cuts a new mark a finger above her with a shell. That one stays where it is put. Beside it run eleven tally scratches in Char’s hand, one per repeated morning, and a twelfth in Scylla’s own.',
         effects: { trust: 1, evidence: 1 },
         artSubject: `${SCYLLA} crouching against a doorframe as neat scratches creep down the coral to follow her head, while ${CHAR} swims past and cuts a rough mark above her with a shell.`,
       },
@@ -403,7 +403,7 @@ export const UNDERTIDE_CROWN_ROWS_5_6: readonly MorrowShiftSite[] = [
     speaker: 'Scylla',
     kind: 'memory',
     opening:
-      'Wenna Brack’s workbench has been cleared of her notebooks and stacked with blank official ledgers, to be filled in with the approved tides. But something has drifted into the one drawer the clerks forgot: a photograph in a clear sleeve. Scylla knows Earth when she sees it: daylight through a lab window, a notebook full of patient questions, and someone drawing the machine instead of writing the answer.',
+      'Wenna Brack’s workbench has been cleared of her notebooks, sent to the corrections desk, and stacked with blank official ledgers, for the approved tides. But something has drifted into the one drawer the clerks forgot: a photograph in a clear sleeve. Scylla knows Earth when she sees it: daylight through a lab window, a notebook full of patient questions, and someone drawing the machine instead of writing the answer.',
     artSubject: `A scholar's workbench in a green-lit underwater observatory, piles of identical blank ledgers where notebooks used to be, one small drawer pulled open; ${SCYLLA} lifts a photograph in a clear plastic sleeve, its image turned away from the viewer; ${STYLE}.`,
     choices: [],
     echoes: [
@@ -515,7 +515,7 @@ export const UNDERTIDE_CROWN_ROWS_5_6: readonly MorrowShiftSite[] = [
         id: 'care',
         label: 'Tell him it’s Char’s to decide, and send for her',
         outcome:
-          'Oren nods, as if that was the answer he had counted on. A page goes for Char. The clerk arrives first and is made to wait, with great courtesy, by a very large hooded man. Char comes in out of breath, looks at both books, and chooses without asking anyone.',
+          'Oren nods, as if that was the answer he had counted on. Kip the lamp-boy goes for Char. The clerk arrives first and is made to wait, with great courtesy, by a very large hooded man. Char comes in out of breath, looks at both books, and chooses without asking anyone.',
         effects: { trust: 2, danger: 1 },
         artSubject: `${CHAR} bursting in breathless to a brass desk, one hand flat on a ledger, while ${OREN} courteously blocks a waiting grey-robed clerk and ${SCYLLA} steps back.`,
       },
@@ -563,7 +563,7 @@ export const UNDERTIDE_CROWN_ROWS_5_6: readonly MorrowShiftSite[] = [
     speaker: 'Wenna Brack',
     kind: 'memory',
     opening:
-      'The great dials no longer show tomorrow. They show what Scylla did: every decision she has made, drawn as currents across one vast chart of glass, each running out to what it cost. Wenna Brack stands at it with a glass-plane in her hand and a clerk at her elbow. ‘They want one line certified,’ she says. ‘The rest come off by evening. Highness, tell me which of these are yours.’',
+      'The great dials no longer show tomorrow. They show what Scylla did: every decision she has made, drawn as currents across one vast chart of glass, each running out to what it cost. Wenna Brack stands at it with a glass-plane in her hand and a clerk from the corrections desk at her elbow. ‘They want one line certified,’ she says. ‘The rest come off by evening. Highness, tell me which of these are yours.’',
     artSubject: `A vaulted observatory whose great glass dials have fused into one vast chart of branching glowing currents, each ending in a small faint scene; ${WENNA} holds a glass-plane, a grey-robed clerk at her elbow, while ${SCYLLA} stares up at the lines; ${STYLE}.`,
     choices: [
       {

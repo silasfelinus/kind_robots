@@ -209,7 +209,7 @@ export const UNDERTIDE_CROWN_ROWS_3_4: readonly MorrowShiftSite[] = [
     speaker: 'Tamsin Rook',
     kind: 'puzzle',
     opening:
-      'The Reef Stair has become three identical flights down from the landing; Tamsin has looped the hatchlings round them all night. ‘Two are the stair as the Register recorded it,’ she says, ‘and its record hasn’t changed since the decree. One is the stair as it is. The night after the decree, Char kicked a step on the real one and chipped it.’ The left flight’s fourth step is chipped. The middle and right flights are flawless.',
+      'The Reef Stair has become three identical flights down from the landing; Tamsin has walked the hatchlings round them all night. ‘Two are the stair as the Register recorded it,’ she says, ‘and its record hasn’t changed since the decree. One is the stair as it is. The night after the decree, Char kicked a step on the real one and chipped it.’ Only the left flight has a chipped step; the other two are flawless.',
     artSubject: `Three identical flights of living coral stairs descending side by side from one landing into blue haze, the left flight with one chipped step; ${TAMSIN}, cradles sleeping hatchlings in her shawl; ${SCYLLA}, studies the steps, chin in hand; ${STYLE}.`,
     choices: [
       {
@@ -593,14 +593,14 @@ export const UNDERTIDE_CROWN_ROWS_3_4: readonly MorrowShiftSite[] = [
     speaker: 'Char',
     kind: 'memory',
     opening:
-      'Char sits on the packing bench with her list, which is not her list any more. In a clerk’s loops it reads: 1. Gratitude. 2. The ball. 3. Stay. She has written her own over it so often the paper has gone soft as felt, and every morning it is theirs again. Now she writes on her forearm, in ink. ‘Don’t you dare remember it for me,’ she says. ‘Just read it back, so I know I’m not mad.’',
+      'Char sits on the packing bench with her list, which is not her list any more. In a clerk’s loops it reads: 1. Gratitude. 2. The ball. 3. Stay. She has overwritten it until the paper is felt, and every morning it is theirs again. Now she writes on her forearm, under a row of tally marks, one per morning come back. ‘Don’t you dare remember it for me,’ she says. ‘Just read it back, so I know I’m not mad.’',
     artSubject: `A worn packing bench in a vault of endlessly repeating shelves; ${CHAR}, sits with a sleeve pushed up and ink lines down her forearm, a soft overwritten sheet of paper on her knee, glaring up at ${SCYLLA}; ${STYLE}.`,
     choices: [
       {
         id: 'care',
         label: 'Read her arm back to her, word for word',
         outcome:
-          '‘One. Boots. Two. Scylla’s comb. Three. Nobody decides for me: not them, not you.’ Scylla reads it exactly and adds nothing. Char lets go of a breath she has held since the stair. ‘Good,’ she says. ‘Again tomorrow.’',
+          '‘One. Boots. Two. Scylla’s comb. Three. Nobody decides for me: not them, not you.’ Scylla reads it exactly and adds nothing. Char lets go of a breath she has held since the stair, and adds a tally mark. ‘Good,’ she says. ‘Again tomorrow.’',
         effects: { trust: 1, evidence: 1 },
         artSubject:
           'A young aquamarine mermaid reading carefully from the inked forearm of her violet-scaled twin in black lace, who listens with eyes closed and jaw set, lamplit vault behind.',
@@ -654,7 +654,7 @@ export const UNDERTIDE_CROWN_ROWS_3_4: readonly MorrowShiftSite[] = [
     speaker: 'Ismay Coble',
     kind: 'memory',
     opening:
-      'Ismay Coble has brought a departure oath out of the court’s own drawer: two lines, both signed, Scylla’s and Char’s, in hands that are almost theirs. ‘The Register drew it up for the official history,’ she says, very low. ‘I was told to file it. I have not filed it yet.’ Her good ink has been confiscated; she writes with soot now. ‘Somebody has signed your sister for her.’',
+      'Ismay Coble has brought a departure oath out of the corrections desk’s drawer: two lines, both signed, Scylla’s and Char’s, in hands that are almost theirs. ‘Drawn up for the official history, and nobody’s name on the drawing,’ she says, very low. ‘I was told to file it. I have not filed it yet.’ Her good ink has been confiscated; she writes with soot now. ‘Somebody has signed your sister for her.’',
     artSubject: `A narrow record niche whose scroll pigeonholes repeat into darkness; a thin grey-haired archivist with soot-blackened fingers holds out a sheet with two signed lines; ${SCYLLA}, stares at the second signature; ${STYLE}.`,
     choices: [
       {

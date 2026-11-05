@@ -472,7 +472,7 @@ export const UNDERTIDE_CROWN_ROWS_7_8: readonly MorrowShiftSite[] = [
     speaker: 'Scylla',
     kind: 'challenge',
     opening:
-      'The throat of rock is a loop now. Each time the bronze tide clock strikes, a hollow bell note, Scylla is back at its mouth: the same weed in her hair, the hand forty strokes from slack. Third time. Fourth. Only one thing changes from loop to loop: a few more streamers of weed lie the other way, toward open water, as if the sea were keeping its own count and showing her.',
+      'The throat of rock is a loop now. Each time the bronze tide clock strikes, a hollow bell note, Scylla is back at its mouth, the hand forty strokes from slack. Beside the clock, Char has scratched tallies: eleven. Only one thing changes from loop to loop: a few more streamers of weed lie the other way, toward open water, as if the sea were keeping its own count and showing her.',
     artSubject:
       'A narrow throat of dark rock in the sea where most weed streamers drag one way but a few lie the opposite way toward open water, an old green-bronze tide clock set into the wall mid-strike; Scylla, a young mermaid princess with a pearl circlet, pale aquamarine scales and an older, worried gaze, at the mouth of the passage with faint ghostly afterimages of herself at the same spot; same mermaid palace distorted by impossible tides, confiscated choices and duplicate royal portraits.',
     choices: [
@@ -575,7 +575,7 @@ export const UNDERTIDE_CROWN_ROWS_7_8: readonly MorrowShiftSite[] = [
     speaker: 'Char',
     kind: 'companion',
     opening:
-      'Char is scrubbing the grotto wall with her bare palms. Her escape plan is still there, corrected in neat court chalk: every arrow reversed, ME relabelled THE YOUNGER PRINCESS, FOLLOWED, YOU, LATE now THE ELDER PRINCESS, WHO DECIDED. ‘They’ve written you choosing for me,’ Char says, not turning, ‘in your handwriting. Is that what you remember? Don’t answer. Help or don’t.’',
+      'Char is scrubbing the grotto wall with her bare palms. Her escape plan is still there, fixed by the court’s corrections desk, which signs nothing: every arrow reversed, ME relabelled THE YOUNGER PRINCESS, FOLLOWED, YOU, LATE now THE ELDER PRINCESS, WHO DECIDED. ‘They’ve written you choosing for me,’ Char says, not turning, ‘in your handwriting. Is that what you remember? Don’t answer. Help or don’t.’',
     artSubject:
       'A shadowy grotto wall covered in a chalk escape diagram half overwritten in neat, different chalk with reversed arrows and formal labels; Char, her identical twin with dark violet scales, black lace and a furious scowl, scrubbing at it with her bare palms; Scylla, a young mermaid princess with a pearl circlet, pale aquamarine scales and an older, worried gaze, behind her with a stick of chalk; same mermaid palace distorted by impossible tides, confiscated choices and duplicate royal portraits.',
     choices: [
@@ -663,9 +663,9 @@ export const UNDERTIDE_CROWN_ROWS_7_8: readonly MorrowShiftSite[] = [
     speaker: 'Char',
     kind: 'memory',
     opening:
-      'The landward gate is hung with witness bells, hundreds, each cast with a name; all toll when the court reads its one official history: one sister decided, one followed. Councilor Salter holds out a blank ledger: both accounts side by side, contradicting, public forever, every grief included. Oren holds a lock and seal: nobody compels either sister again, and the court’s version stands until others disprove it. Char looks up. ‘Whatever we pick, nobody tells it for me.’',
+      'Hundreds of witness bells hang on the landward gate, each cast with a name; all toll when the court reads its one history: one sister decided, one followed. On the bars are eleven tallies in Char’s hand, a twelfth in Scylla’s. Salter offers a blank ledger: both accounts, contradicting, public forever, grief and all. Oren holds a seal: nobody compels either sister again, and the court’s version stands until others disprove it. Char looks up. ‘Whatever we pick, nobody tells it for me.’',
     artSubject:
-      'A massive weed-furred green-bronze sea gate hung from top to bottom with hundreds of small bronze bells, each cast with a face, all swinging in unison; a reform councilor holding out an open blank ledger, the hooded headsman Oren Pike holding a heavy lock and wax seal; Char, her identical twin with dark violet scales, black lace and a defiant, furious look, glaring up at the bells beside Scylla, a young mermaid princess with a pearl circlet, pale aquamarine scales and an older, worried gaze; the ancient anchor looming behind; same mermaid palace distorted by impossible tides, confiscated choices and duplicate royal portraits.',
+      'A massive weed-furred green-bronze sea gate hung from top to bottom with hundreds of small bronze bells, each cast with a face, all swinging in unison; a reform councilor holding out an open blank ledger, the hooded headsman Oren Pike holding a heavy lock and wax seal; Char, her identical twin with dark violet scales, black lace and a defiant, furious look, glaring up at the bells beside Scylla, a young mermaid princess with a pearl circlet, pale aquamarine scales and an older, worried gaze; twelve tally marks scratched on one bronze bar, the ancient anchor looming behind; same mermaid palace distorted by impossible tides, confiscated choices and duplicate royal portraits.',
     choices: [],
     echoes: [
       {

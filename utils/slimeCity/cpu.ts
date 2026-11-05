@@ -768,7 +768,55 @@ function turfArea(
  */
 const TURF_ENDGAME = 0.3
 
+/**
+ * A one-step ladder read (t-026): after our stone, a group on two liberties
+ * is chased if the enemy can take either liberty and leave it no escape (our
+ * reply on the other point still leaves one liberty or fewer). Most TURF
+ * stones that died were already in that position when the atari came.
+ */
+function turfChased(
+  view: MatchView,
+  grid: Map<string, TurfCell>,
+  wards: Set<string>,
+  at: Cell,
+): boolean {
+  const mine = turfGroupsOn(view, grid, wards).find((g) =>
+    g.cells.some((c) => c.x === at.x && c.y === at.y),
+  )
+  if (!mine || mine.warded || mine.libs !== 2) return false
+  const libs = new Set<string>()
+  for (const c of mine.cells)
+    for (const n of cellsAround(view, c))
+      if (!grid.has(n.x + ':' + n.y)) libs.add(n.x + ':' + n.y)
+  const them: Side = view.side === 'player' ? 'enemy' : 'player'
+  for (const take of libs) {
+    const other = [...libs].find((k) => k !== take)
+    if (!other) continue
+    const chased = new Map(grid)
+    chased.set(take, them)
+    // Their stone must itself survive (else it is not a real atari).
+    const theirs = turfGroupsOn(view, chased, wards).find((g) =>
+      g.cells.some((c) => c.x + ':' + c.y === take),
+    )
+    if (!theirs || theirs.libs === 0) continue
+    const [ox, oy] = other.split(':').map(Number) as [number, number]
+    const escaped = turfSimulate(view, chased, wards, { x: ox, y: oy })
+    if (!escaped) return true
+    const run = turfGroupsOn(view, escaped.grid, wards).find((g) =>
+      g.cells.some((c) => c.x === ox && c.y === oy),
+    )
+    if (escaped.captured === 0 && (run?.libs ?? 0) <= 1) return true
+  }
+  return false
+}
+
 const TURF_OFFENSIVE = new Set(['zap', 'blast', 'chaos', 'root'])
+/** Liberties after the move that count as a real atari escape (t-026). */
+const TURF_ESCAPE_LIBS = 3
+/** What an escaped stone is worth, on top of lifting the atari penalty. */
+const TURF_ESCAPE_WORTH = 2.2
+/** What a stone the enemy can chase down costs, per stone in its group. */
+const TURF_CHASED_COST = 1.6
 
 function inTurf(view: MatchView, c: Cell): boolean {
   return c.x >= 0 && c.y >= 0 && c.x < view.width && c.y < view.height
@@ -834,6 +882,43 @@ function turfAction(view: MatchView, tried: Set<string>): CpuAction | null {
       const noGo = foes.some((g) => g.warded)
       // Empty points beside a trap stone are where its tripwire can catch.
       const open = near.filter((c) => !grid.has(c.x + ':' + c.y)).length
+      // Atari escape (t-026): 163 of 183 stones the CPU lost in a 12-game
+      // sample sat in atari at the start of its turn while it played
+      // elsewhere, and most could have escaped. Saving a stone was worth only
+      // the 1.6 atari penalty, so nearly any move outranked it. A stone on a
+      // threatened group's last liberty that leaves it three liberties is a
+      // real escape; two liberties is often a ladder, so it earns less.
+      let escape = 0
+      if (sim) {
+        const threatened = groups.filter(
+          (g) =>
+            g.side === view.side &&
+            !g.warded &&
+            g.libs === 1 &&
+            g.cells.some((c) => near.some((n) => n.x === c.x && n.y === c.y)),
+        )
+        if (threatened.length) {
+          const size = threatened.reduce((n, g) => n + g.cells.length, 0)
+          const libs =
+            turfGroupsOn(view, sim.grid, wards).find((g) =>
+              g.cells.some((c) => c.x === x && c.y === y),
+            )?.libs ?? 0
+          escape =
+            libs >= TURF_ESCAPE_LIBS
+              ? TURF_ESCAPE_WORTH * size + 0.8
+              : libs === 2
+                ? 0.6 * size
+                : 0
+        }
+      }
+      // A stone the enemy can chase down costs what it would lose.
+      let chasedCost = 0
+      if (sim && sim.captured === 0 && turfChased(view, sim.grid, wards, at)) {
+        const run = turfGroupsOn(view, sim.grid, wards).find((g) =>
+          g.cells.some((c) => c.x === x && c.y === y),
+        )
+        chasedCost = TURF_CHASED_COST * (run?.cells.length ?? 1)
+      }
       // Exact endgame gain: area after the stone (captures included) minus
       // now, and whether the stone survives (two liberties, a ward or a
       // capture).
@@ -937,6 +1022,7 @@ function turfAction(view: MatchView, tried: Set<string>): CpuAction | null {
         }
         value -= card.cost * 0.05
         if (endgame) value += 0.5 * Math.max(-4, Math.min(6, gain))
+        value += escape - chasedCost
         options.push({ action: { t: 'deploy', card: card.id, x, y }, value })
       }
     }

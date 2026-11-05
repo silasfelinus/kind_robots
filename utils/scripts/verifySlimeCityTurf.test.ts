@@ -585,6 +585,29 @@ assert.deepEqual(
   'The CPU fills the last neutral point before it passes',
 )
 
+// --- Atari escapes (t-026, a guard: the old CPU passed this too; the
+// measured gain is the sweep in the PR). On a settled board, a group in atari with a
+// clean escape is saved. Inside the Catgirls' walls, Ironjaw's pair at 7,4
+// and 7,5 has one liberty (7,6); playing there leaves three liberties.
+const threatened = board(
+  [
+    ...walls(),
+    stone('player', 7, 4),
+    stone('player', 7, 5),
+    stone('enemy', 6, 4),
+    stone('enemy', 8, 4),
+    stone('enemy', 7, 3),
+    stone('enemy', 6, 5),
+    stone('enemy', 8, 5),
+  ],
+  [plain, plain, plain],
+)
+assert.deepEqual(
+  chooseCpuAction(observe(threatened, 'player')),
+  { t: 'deploy', card: plain, x: 7, y: 6 },
+  'The CPU extends a group out of atari',
+)
+
 // --- Board events for the arena (Silas, 2026-11-04: Turf visuals): every
 // capture, explosion, crush, pounce, tripwire, slime, ward, wash, shove and
 // cling-on is recorded where it happened, in order, for both sides to see.

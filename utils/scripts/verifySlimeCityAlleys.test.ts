@@ -194,10 +194,13 @@ assert.equal(sprung.traps.length, 0)
 assert.ok(unitAt(sprung, 'player', 3)!.rootedAt !== null, 'Scent Mine roots it')
 assert.ok(sprung.log.some((l) => l.kind === 'trap'))
 
-// --- Going second: the enemy's first turn starts one mana crystal up.
+// --- Going second: two extra mana on the enemy's first turn, once.
 const second = endTurn(fresh, 'player')
 assert.equal(second.active, 'enemy')
-assert.equal(second.maxMana.enemy, 2, "the second seat's coin")
+assert.equal(second.maxMana.enemy, 1, 'the coin is not a crystal')
+assert.equal(second.mana.enemy, 3, "the second seat's coin")
+const third = endTurn(endTurn(second, 'enemy'), 'player')
+assert.equal(third.mana.enemy, 2, 'only on the first turn')
 
 // --- Whole CPU games: every crew pairing ends, replays exactly, and fights.
 let bossHits = 0
@@ -227,6 +230,40 @@ assert.ok(bossHits / games > 4, 'bosses take hits')
 assert.ok(deaths / games > 4, 'creatures trade in the alleys')
 assert.ok(firstSeat / games < 0.65, 'the first seat does not run away')
 assert.ok(teamById('ironjaw'))
+
+// --- Crew balance guard: a fixed ten-seed round-robin (300 games). The
+// calibrated crews read 0.03-0.04 on held-out seeds; uncalibrated, Ironjaw won
+// 90% and Bloodfairies 18% (spread 0.24). Ten seeds is about +/-0.05 a crew.
+{
+  const score: Record<string, number> = {}
+  const tenSeeds = [37, 89, 101, 137, 173, 211, 251, 307, 349, 397]
+  for (const a of TEAMS)
+    for (const b of TEAMS) {
+      if (a.id === b.id) continue
+      for (const seed of tenSeeds) {
+        let s = createAlleys(a.id, b.id, seed)
+        for (let i = 0; i < 200 && !s.victor; i++) s = alleyCpuTurn(s, s.active)
+        const p = s.victor === 'player' ? 1 : s.victor === 'draw' ? 0.5 : 0
+        score[a.id] = (score[a.id] ?? 0) + p
+        score[b.id] = (score[b.id] ?? 0) + 1 - p
+      }
+    }
+  const rates = TEAMS.map((t) => score[t.id]! / 100)
+  const mean = rates.reduce((x, y) => x + y, 0) / rates.length
+  const spread = Math.sqrt(
+    rates.reduce((x, r) => x + (r - mean) ** 2, 0) / (rates.length - 1),
+  )
+  assert.ok(
+    spread <= 0.12,
+    'FIVE ALLEYS crews stay balanced: ' + spread.toFixed(3),
+  )
+  TEAMS.forEach((t, i) =>
+    assert.ok(
+      rates[i]! >= 0.3 && rates[i]! <= 0.7,
+      'FIVE ALLEYS: ' + t.id + ' runs away at ' + rates[i]!.toFixed(2),
+    ),
+  )
+}
 
 console.log(
   'Slime City FIVE ALLEYS: 20-card decks, alley rule, chosen attacks, reach, trample, ambush, traps, coin, ' +

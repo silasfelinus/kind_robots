@@ -20,8 +20,15 @@ const plans: Plan[] = [
     choices: {
       'd07-old-houses': ['ask-chair', 'seat-for-all'],
       'd10-oath': ['ask-council', 'shared-relief'],
+      'd39-congress': ['reopen-day10', 'honor-relief'],
+      'd47-watch-writ': ['renew-relief-charter'],
     },
-    targets: ['d07-old-houses/seat-for-all', 'd10-oath/shared-relief'],
+    targets: [
+      'd07-old-houses/seat-for-all',
+      'd10-oath/shared-relief',
+      'd39-congress/honor-relief',
+      'd47-watch-writ/renew-relief-charter',
+    ],
   },
   {
     id: 'joint-accountability',
@@ -29,8 +36,15 @@ const plans: Plan[] = [
     choices: {
       'd07-old-houses': ['ask-chair', 'seat-for-all'],
       'd10-oath': ['ask-council', 'shared-account'],
+      'd39-congress': ['reopen-day10', 'publish-watch-roll'],
+      'd47-watch-writ': ['bind-watch-roll'],
     },
-    targets: ['d07-old-houses/seat-for-all', 'd10-oath/shared-account'],
+    targets: [
+      'd07-old-houses/seat-for-all',
+      'd10-oath/shared-account',
+      'd39-congress/publish-watch-roll',
+      'd47-watch-writ/bind-watch-roll',
+    ],
   },
   {
     id: 'joint-house-veto',
@@ -38,8 +52,15 @@ const plans: Plan[] = [
     choices: {
       'd07-old-houses': ['ask-chair', 'seat-for-all'],
       'd10-oath': ['ask-council', 'house-veto'],
+      'd39-congress': ['reopen-day10', 'break-house-veto'],
+      'd47-watch-writ': ['village-captains'],
     },
-    targets: ['d07-old-houses/seat-for-all', 'd10-oath/house-veto'],
+    targets: [
+      'd07-old-houses/seat-for-all',
+      'd10-oath/house-veto',
+      'd39-congress/break-house-veto',
+      'd47-watch-writ/village-captains',
+    ],
   },
   {
     id: 'rations-bought',
@@ -180,6 +201,8 @@ for (const plan of plans) {
       quests: 0,
     }))
     const snapshots: string[] = []
+    let lethalDispatches = 0
+    let lethalPartialOrFailure = 0
     const questAid: string[] = []
     let dawns = 0
     const result = playCampaign(
@@ -252,6 +275,11 @@ for (const plan of plans) {
             tier: report.tier,
             text: report.text ?? '',
           })
+          if (questDef(report.questId)?.lethal) {
+            lethalDispatches += 1
+            if (report.tier === 'partial' || report.tier === 'failure')
+              lethalPartialOrFailure += 1
+          }
           assert.ok(
             report.text?.trim(),
             plan.id + '/' + seed + ': quest outcome requires prose',
@@ -298,6 +326,8 @@ for (const plan of plans) {
           deaths: result.deaths,
           quests: dispatches.length,
           talks: barracks.length,
+          lethalDispatches,
+          lethalPartialOrFailure,
           reached: plan.targets.length - missingTargets.length,
           missingTargets,
         }),
@@ -318,6 +348,8 @@ for (const plan of plans) {
       barracks,
       actCounts,
       questAid,
+      lethalDispatches,
+      lethalPartialOrFailure,
       missingTargets,
       snapshots,
     })

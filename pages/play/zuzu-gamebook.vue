@@ -222,9 +222,10 @@
                     class="overflow-hidden rounded-xl border border-base-content/15 bg-base-300"
                   >
                     <img
-                      :src="entry.art"
+                      :src="shownPlate(entry.art)"
                       :alt="entry.title"
                       class="aspect-video w-full object-cover"
+                      @error="plateFailed(entry.art)"
                     />
                     <p class="p-2 text-xs font-bold">{{ entry.title }}</p>
                   </li>
@@ -262,6 +263,7 @@
                 class="absolute inset-0 hidden size-full scale-110 object-cover opacity-90 blur-2xl brightness-75 md:block"
                 alt=""
                 aria-hidden="true"
+                @error="plateFailed(platePath(art))"
               />
               <div
                 class="relative size-full overflow-hidden md:shadow-2xl md:ring-1 md:ring-black/50"
@@ -274,6 +276,7 @@
                   :alt="art.alt"
                   :width="PLATE_SIZE[shape].width"
                   :height="PLATE_SIZE[shape].height"
+                  @error="plateFailed(platePath(art))"
                 />
               </div>
             </figure>
@@ -287,6 +290,13 @@
               "
             >
               <div>
+                <p
+                  v-if="opening"
+                  class="mb-2 font-serif text-sm font-black uppercase tracking-[.32em] text-warning"
+                  data-testid="zuzu-gamebook-act-opening"
+                >
+                  Act {{ opening }}
+                </p>
                 <p class="text-xs uppercase tracking-[.28em] text-warning">
                   Section
                   {{ String(store.run.visited.length).padStart(3, '0') }}
@@ -617,6 +627,7 @@
 <script setup lang="ts">
 import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import {
+  actOpening,
   scene,
   type BattleAction,
   ENDING_IDS,
@@ -625,6 +636,7 @@ import {
   visibleChoices,
 } from '~/utils/zuzuGamebook/adventure'
 import {
+  FALLBACK_PLATE,
   PLATE_SIZE,
   plateLayout,
   platePath,
@@ -640,7 +652,21 @@ const store = useZuzuGamebookStore()
 const showSheet = ref(false)
 const ledgerOpen = ref(false)
 const current = computed(() => scene(store.run.sceneId))
-const art = computed(() => sectionPlate(current.value))
+// t-007: a plate whose file fails to load (a missing render, a partial deploy)
+// gives way once to the stand-in road plate instead of a broken-image box.
+const brokenPlates = ref<string[]>([])
+function plateFailed(src: string) {
+  if (src !== platePath(FALLBACK_PLATE) && !brokenPlates.value.includes(src))
+    brokenPlates.value.push(src)
+}
+function shownPlate(src: string): string {
+  return brokenPlates.value.includes(src) ? platePath(FALLBACK_PLATE) : src
+}
+const art = computed(() => {
+  const own = sectionPlate(current.value)
+  return brokenPlates.value.includes(platePath(own)) ? FALLBACK_PLATE : own
+})
+const opening = computed(() => actOpening(store.run))
 const shape = computed(() => art.value.shape ?? 'wide')
 // Silas, 2026-10-11: "Just keep a single horizontal view above or portrait to the right ... It should be one clean
 // page of display." Phones stack the plate above the text; from lg up the section fits the pane, the plate fills

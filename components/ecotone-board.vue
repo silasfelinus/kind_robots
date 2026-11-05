@@ -126,16 +126,14 @@
               Weird Humboldt · Work in progress
             </p>
             <h2
-              class="mt-2 font-serif text-5xl font-black uppercase leading-[.92] drop-shadow @xl:text-7xl"
+              class="mt-2 font-serif text-5xl font-black uppercase leading-[.92] drop-shadow @xl:text-6xl @5xl:text-7xl"
             >
               Ecotone
             </h2>
             <p
               class="mt-3 max-w-md border-t border-[#d9b877]/60 pt-3 font-serif text-base text-[#f3e6c8]/90 @xl:text-lg"
             >
-              A festival, a race and the strange days after in Humboldt County.
-              Four strangers worth following, or nobody at all. Futures for the
-              county bleeding through the fog.
+              {{ ECOTONE_TAGLINE }}
             </p>
           </div>
           <div class="flex min-h-0 flex-1 flex-col gap-2">
@@ -143,6 +141,13 @@
               class="shrink-0 text-xs font-bold uppercase tracking-[.25em] text-[#8fb8b0]"
             >
               Who are you this weekend?
+            </p>
+            <p
+              class="shrink-0 text-xs text-[#f3e6c8]/75"
+              data-testid="ecotone-identity-note"
+            >
+              Name, look and disposition are just for you and never change the
+              dice. What you do around here sets your skills and one perk.
             </p>
             <div class="kr-scroll -mx-1 space-y-3 px-1">
               <label class="block text-sm font-semibold">
@@ -159,8 +164,8 @@
               <div>
                 <p class="eco-label mb-2">Choose your look</p>
                 <p class="mb-2 text-xs text-[#f3e6c8]/70">
-                  Twelve faces, one weekend. Swipe sideways to explore the whole
-                  cast.
+                  Twelve faces, or upload your own. Swipe sideways to see them
+                  all.
                 </p>
                 <div
                   class="flex snap-x snap-mandatory gap-2 overflow-x-auto pb-3"
@@ -780,6 +785,46 @@
                     >
                       {{ aside }}
                     </p>
+                    <div
+                      v-if="game.run.phase === 'event'"
+                      class="flex flex-col gap-2"
+                      data-testid="ecotone-route-previews"
+                    >
+                      <p class="text-sm font-semibold leading-snug">
+                        {{ EVENT_CHOICE.choosing }}
+                      </p>
+                      <dl class="grid gap-2 @3xl:grid-cols-3 @4xl:grid-cols-1">
+                        <div
+                          v-for="route in EVENTS"
+                          :key="route.id"
+                          class="rounded-xl border border-[#c9a96e]/30 bg-black/30 p-2.5"
+                          :data-testid="`ecotone-route-preview-${route.id}`"
+                        >
+                          <dt
+                            class="flex flex-wrap items-baseline justify-between gap-x-2"
+                          >
+                            <span class="font-serif text-base font-black">{{
+                              route.name
+                            }}</span>
+                            <span
+                              class="text-[11px] font-bold uppercase tracking-wider text-[#8fb8b0]"
+                              >{{ routeLength(route) }}</span
+                            >
+                          </dt>
+                          <dd
+                            class="mt-1 text-sm leading-snug text-[#f3e6c8]/85"
+                          >
+                            {{ route.feel }}
+                          </dd>
+                          <dd class="mt-1 text-sm leading-snug">
+                            <span class="font-bold text-[#d9b877]"
+                              >At stake:</span
+                            >
+                            {{ route.stakes }}
+                          </dd>
+                        </div>
+                      </dl>
+                    </div>
                   </div>
                   <p
                     v-if="stage.panelFooter"
@@ -1912,12 +1957,14 @@ import {
   type Roll,
 } from '~/utils/ecotone/engine'
 import {
+  ECOTONE_TAGLINE,
   EVENTS,
   EVENT_CHOICE,
   FORK_PROMPT,
   FUTURES,
   LENS_CODAS,
   SIGNATURES,
+  routeLength,
 } from '~/utils/ecotone/story'
 import { earnedQuestCallbacks } from '~/utils/ecotone/finaleExpansion'
 import { ensembleFuture } from '~/utils/ecotone/ensembleFuture'
@@ -2384,6 +2431,16 @@ function start() {
 }
 
 function restart() {
+  // A journey in progress can't be undone once abandoned, so ask first.
+  if (
+    game.run &&
+    game.run.phase !== 'end' &&
+    game.run.log.length > 0 &&
+    !window.confirm(
+      'Leave this journey and start over? Earned endings and manual saves stay.',
+    )
+  )
+    return
   game.abandon()
   tab.value = 'road'
 }
@@ -2514,7 +2571,7 @@ const stage = computed<Stage>(() => {
     meet: null,
     panelKicker: 'The weekend begins',
     panelFooter: '',
-    question: 'Choose your weekend',
+    question: 'Pick your route',
     body: EVENT_CHOICE.body,
     lensLine: '',
     asides: [],
@@ -2789,13 +2846,15 @@ const options = computed<Option[]>(() => {
   const run = game.run
   if (!run) return []
   if (run.phase === 'event') {
+    // The full preview (feel and stakes) sits in the story panel above the
+    // hand, so touch players read it before a single tap commits them; the
+    // hover line stays short enough not to clip.
     return EVENTS.map((event) => ({
       id: event.id,
       label: event.name,
-      hint: `${event.kind}. ${event.blurb}`,
-      chip: `${event.days.length} days`,
+      hint: event.kind,
+      chip: routeLength(event),
       chipTitle: 'Choose this route',
-      preview: event.arrival,
       possibilities: event.possibilities,
       thumb: { scene: event.scene, art: event.art },
       act: () => game.pickEvent(event.id),

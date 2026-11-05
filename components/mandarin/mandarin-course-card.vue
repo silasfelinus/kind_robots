@@ -261,9 +261,9 @@
 
         <p v-if="family.drifted" class="kr-text-faded-xs mt-2 leading-relaxed">
           These characters use the same phonetic component, but their current
-          syllables differ ({{ family.readings.join(', ') }}). A shared component
-          can preserve an older sound relationship; modern readings alone do
-          not establish when or how a pronunciation changed.
+          syllables differ ({{ family.readings.join(', ') }}). A shared
+          component can preserve an older sound relationship; modern readings
+          alone do not establish when or how a pronunciation changed.
         </p>
 
         <div

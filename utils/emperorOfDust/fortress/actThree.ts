@@ -238,6 +238,15 @@ export const ACT_THREE_QUESTS: readonly QuestDef[] = [
     ],
     danger: 'mid',
     tags: ['tracking'],
+    // t-048: the Ford dead were parents walking home from this road.
+    aid: [
+      {
+        flags: ['ford-bodies-identified'],
+        label: 'The Ford dead’s tokens: the road the visiting parents walked',
+        bonus: 1,
+        stat: 'wits',
+      },
+    ],
     rewards: {
       success: {
         local: { lamplight: 2 },
@@ -384,10 +393,12 @@ export const ACT_THREE_QUESTS: readonly QuestDef[] = [
         local: { yard: 3 },
         affinity: { 'black-verge': 5 },
         flags: ['verge-cure-tested'],
+        schedule: ['d28-snow-bread'],
       },
       failure: {
         local: { yard: -3 },
         flags: ['verge-cure-tainted'],
+        schedule: ['d28-north-gate'],
       },
     },
     expired: { local: { yard: -2 } },
@@ -449,6 +460,10 @@ export const ACT_THREE_QUESTS: readonly QuestDef[] = [
           text: 'The line held at the Freehold fence posts. Hester’s people stood behind the Watch with pitchforks and did not run. Dunmark brought every rider home.',
         },
         {
+          flags: ['d30-roads-bought-back'],
+          text: 'The line held at the salt wagons, chained nose to tail across the Ford road. The drovers came up by side tracks nobody charged them to read any more. Two oxen lost, no drivers. Oriel sent the bill anyway, with the Ledger’s line struck through.',
+        },
+        {
           flags: ['sheltered-saltroad'],
           text: 'The line held at the salt wagons, chained nose to tail across the Ford road. The Saltroad lost two oxen and no drivers. Oriel sent the bill anyway.',
         },
@@ -481,6 +496,16 @@ export const ACT_THREE_QUESTS: readonly QuestDef[] = [
     ],
     danger: 'low',
     tags: ['records', 'tracking'],
+    // t-048: the brown ink on every answer is the ink Pip copied on Day 24.
+    aid: [
+      {
+        flags: ['d24-two-hands-copied'],
+        label:
+          'Pip’s two columns in the Archive book: the brown ink, known on sight',
+        bonus: 1,
+        stat: 'wits',
+      },
+    ],
     rewards: {
       triumph: {
         local: { lamplight: 3, yard: 1 },
@@ -555,6 +580,7 @@ const D28_RETURNED_LETTERS: AudienceDef = {
         affinity: { abbey: 5 },
         local: { lamplight: -2 },
         flags: ['d28-letters-to-abbey'],
+        schedule: ['d28-abbey-letter'],
       },
       response:
         'A sister in grey collects the sack before supper and thanks the court for its care. She lifts it alone. It took two clerks to carry it in.',
@@ -566,6 +592,7 @@ const D28_RETURNED_LETTERS: AudienceDef = {
       effects: {
         local: { lamplight: 2, yard: -1 },
         flags: ['d28-letters-vaulted'],
+        schedule: ['d28-vault-hour'],
       },
       response:
         'The sack goes into the vault under Vellum’s lamp. In the market a woman asks a clerk whether the post came. He says no. He has been told to say no.',
@@ -575,7 +602,11 @@ const D28_RETURNED_LETTERS: AudienceDef = {
       label:
         'Ask whether the Archive’s copied maps show where the Abbey post really goes.',
       requires: { flags: ['maps-copied'] },
-      effects: { local: { lamplight: 1 }, flags: ['d28-post-track-mapped'] },
+      effects: {
+        local: { lamplight: 1 },
+        flags: ['d28-post-track-mapped'],
+        schedule: ['d28-back-gate'],
+      },
       response:
         'Vellum unrolls the old copy across the dais steps. The post-house is marked. So is a second track beyond it, uphill, that the Abbey’s own map leaves off. Vellum puts one claw on it and does not move it.',
     },
@@ -610,6 +641,7 @@ const D28_RETURNED_LETTERS: AudienceDef = {
             affinity: { abbey: 5 },
             local: { lamplight: -2 },
             flags: ['d28-letters-to-abbey'],
+            schedule: ['d28-abbey-letter'],
           },
           response:
             'The Abbess answers by return, warmly. The hand is Sister Ondine’s, who has lovely penmanship and is very tired. The Abbess will see that she rests. The sack does not come back.',
@@ -620,6 +652,7 @@ const D28_RETURNED_LETTERS: AudienceDef = {
           effects: {
             local: { lamplight: 2, yard: -1 },
             flags: ['d28-letters-vaulted'],
+            schedule: ['d28-vault-hour'],
           },
           response:
             'Vellum folds Mattie’s letter along its old creases and puts it back. He locks the vault himself. He keeps the key on its own ring after that.',
@@ -982,6 +1015,7 @@ export const ACT_THREE_DAYS: readonly DayDef[] = [
                   affinity: { moles: 5, 'mire-mothers': -5 },
                   local: { 'gate-watch': -1 },
                   flags: ['d21-weir-shared'],
+                  schedule: ['d21-weir-night'],
                 },
                 response:
                   'The Mothers agree in a letter written on reed paper. One night in seven the water goes down the old channel and the galleries breathe. The Watch on the bank hears singing under the water. Nobody writes that down.',
@@ -1232,9 +1266,10 @@ export const ACT_THREE_DAYS: readonly DayDef[] = [
                   affinity: { abbey: -5 },
                   local: { lamplight: 1 },
                   flags: ['d22-tokens-asked'],
+                  schedule: ['d22-abbey-answer'],
                 },
                 response:
-                  'The answer comes in two days, by a sister on foot: three parents who visited in the spring, sent home with bread. One asked to stay the night with her son and was told no. Parents do not stay. The sister cries reading it out.',
+                  'The letter goes down the mission road with a Watch runner before noon. Lady Vask watches it leave. “The Abbey answers everyone, Majesty,” she says. “Eventually.”',
               },
               {
                 id: 'bury-tokens',
@@ -1243,6 +1278,7 @@ export const ACT_THREE_DAYS: readonly DayDef[] = [
                 effects: {
                   local: { yard: 1, lamplight: -1 },
                   flags: ['d22-tokens-buried'],
+                  schedule: ['d22-ford-graves'],
                 },
                 response:
                   'They are buried above the Ford, tokens on their chests. The Yard sends bread. A decent thing. Komodo arranges it. He looks easier than he has all week.',
@@ -1363,6 +1399,7 @@ export const ACT_THREE_DAYS: readonly DayDef[] = [
               local: { ledger: 3 },
               affinity: { freeholds: -5 },
               flags: ['rail-route-licensed'],
+              schedule: ['d23-rail-statement'],
             },
             response:
               'Factor Tallow produces a license. She had already drafted it.',
@@ -1438,6 +1475,7 @@ export const ACT_THREE_DAYS: readonly DayDef[] = [
                   affinity: { freeholds: -5 },
                   local: { ledger: 1, lamplight: 2 },
                   flags: ['d23-manifests-copied'],
+                  schedule: ['d23-manifest-copies'],
                 },
                 response:
                   'Factor Tallow agrees fast. She expected worse. From tomorrow, Freehold medicine costs a fifth more. Every jar riding north to the Mission is written down twice, by clerks paid not to wonder.',
@@ -1451,6 +1489,7 @@ export const ACT_THREE_DAYS: readonly DayDef[] = [
                   local: { ledger: 3 },
                   affinity: { freeholds: -5 },
                   flags: ['rail-route-licensed'],
+                  schedule: ['d23-rail-statement'],
                 },
                 response:
                   'Factor Tallow produces a license, already drafted. The Mission’s twelve jars are on it, taxed at a fifth. All legal.',
@@ -1507,7 +1546,7 @@ export const ACT_THREE_DAYS: readonly DayDef[] = [
               flags: ['d23-tam-visited'],
             },
             response:
-              'Tam comes back at dusk, full of bread, with a slate of letters in his own hand. His guard, a steady veteran guard, says the lessons were lessons. One door stayed locked. The sisters called it the fever ward. He heard coughing behind it.',
+              'Tam comes back at dusk, full of bread, with a slate of letters in his own hand. His guard, an old Watch hand, says the lessons were lessons. One door stayed locked. The sisters called it the fever ward. He heard coughing behind it.',
           },
           {
             id: 'keep-bread',
@@ -1640,6 +1679,7 @@ export const ACT_THREE_DAYS: readonly DayDef[] = [
                   affinity: { abbey: -5, freeholds: 5 },
                   local: { 'gate-watch': -1 },
                   flags: ['d23-coldbrooks-in-keep'],
+                  schedule: ['d23-keep-syrup'],
                 },
                 response:
                   'Wenna carries the baby up the keep stairs. Teodor carries Tam. In the morning Sister Marrow is at the keep gate with a jar of fever syrup for the baby. She leaves it with the Watch and goes.',
@@ -2143,6 +2183,7 @@ export const ACT_THREE_DAYS: readonly DayDef[] = [
             effects: {
               affinity: { abbey: -15, freeholds: 5 },
               flags: ['abbess-questioned', 'abbess-warned'],
+              schedule: ['d25-fever-window'],
             },
             response:
               'The Abbess does not smile. “Because he has the fever, and his mother would carry him home, and he would die on her road. I have buried children who went home too soon, Your Majesty. You have not.”',
@@ -2166,6 +2207,7 @@ export const ACT_THREE_DAYS: readonly DayDef[] = [
             effects: {
               affinity: { abbey: -5 },
               flags: ['d25-wenna-named'],
+              schedule: ['d25-wenna-hour'],
             },
             response:
               'The Abbess’s face eases. “She comes to us every week now. Sits with them an hour. Since she stopped shouting we have never once turned her away.” She says it to the whole hall.',
@@ -2247,6 +2289,7 @@ export const ACT_THREE_DAYS: readonly DayDef[] = [
                   affinity: { abbey: -5 },
                   local: { lamplight: 1 },
                   flags: ['d25-hill-plans-kept'],
+                  schedule: ['d25-plans-lock'],
                 },
                 response:
                   '“Of course,” says the Abbess. “Read them often. Paper keeps better when someone reads it.” That week the Archive’s night porter is offered a better post in the Abbey kitchens. He declines. He tells Vellum. Vellum changes the lock.',
@@ -2617,6 +2660,35 @@ export const ACT_THREE_DAYS: readonly DayDef[] = [
             text: 'If they neither sell nor ransom what they take, Your Majesty, somebody is collecting it. I would want to know who before I burned the road there.',
           },
         ],
+        // t-048: Vane remembers what the Day 21 alliance cost him.
+        variants: [
+          {
+            flags: ['d21-tincture-debt-called'],
+            lines: [
+              'Vane does not swagger in today. Bandaged forearm. Two wagons fewer than last week. The look of a raider offended professionally.',
+              'The dry-well raiders take people, Majesty. Not goats. Even raiders have rules. A goat you sell back. A person you ransom. These do neither.',
+              'You called in the tincture, so here is the Pack, paying. Help us clear them out. I’ll ride in front. You stand at the back and look like a creditor.',
+              {
+                who: 'Young Komodo',
+                npc: 'young-komodo',
+                text: 'If they neither sell nor ransom what they take, Your Majesty, somebody is collecting it. I would want to know who before I burned the road there.',
+              },
+            ],
+          },
+          {
+            flags: ['d21-pack-threatened'],
+            lines: [
+              'Vane does not swagger in today. Bandaged forearm. Two wagons fewer than last week. The look of a raider offended professionally.',
+              'The dry-well raiders take people, Majesty. Not goats. Even raiders have rules. A goat you sell back. A person you ransom. These do neither.',
+              'You know where my camp sleeps, Majesty, so you know I’m not lying about the empty bedrolls. Help the Pack clear them out. I’ll ride in front. You stand at the back and look imperial.',
+              {
+                who: 'Young Komodo',
+                npc: 'young-komodo',
+                text: 'If they neither sell nor ransom what they take, Your Majesty, somebody is collecting it. I would want to know who before I burned the road there.',
+              },
+            ],
+          },
+        ],
         options: [
           {
             id: 'help',
@@ -2747,6 +2819,7 @@ export const ACT_THREE_DAYS: readonly DayDef[] = [
             effects: {
               affinity: { moles: 5 },
               flags: ['mole-half-truce'],
+              schedule: ['d26-half-water'],
             },
             response:
               '“Half a wall,” says Keel, “is a good way to get wet.” They leave.',
@@ -2815,6 +2888,7 @@ export const ACT_THREE_DAYS: readonly DayDef[] = [
                 effects: {
                   affinity: { moles: 5 },
                   flags: ['mole-half-truce'],
+                  schedule: ['d26-half-water'],
                 },
                 response:
                   '“Half a wall,” says Keel, “is a good way to get wet.” They roll up the map, brick tunnel and all.',
@@ -2863,6 +2937,7 @@ export const ACT_THREE_DAYS: readonly DayDef[] = [
                 effects: {
                   affinity: { moles: 5 },
                   flags: ['mole-half-truce'],
+                  schedule: ['d26-half-water'],
                 },
                 response:
                   '“Half an apology,” says Keel, “to go with half a wall.” They leave with the map.',
@@ -2898,6 +2973,17 @@ export const ACT_THREE_DAYS: readonly DayDef[] = [
     ],
     komodo:
       'Flint would be boiled before she confessed to a thing she did not do, Your Majesty. Grain at three times the price is not charity. Somebody profited. Not Flint.',
+    // t-048: what the court said about Komodo's census on Day 25.
+    komodoVariants: [
+      {
+        flags: ['d25-komodo-census-noted'],
+        text: 'Flint would be boiled before she confessed to a thing she did not do, Your Majesty. Somebody profited from that grain. Not Flint. And the Archive wrote down my number two days ago. I misremembered it. I would like the page corrected before anyone quotes it.',
+      },
+      {
+        flags: ['d25-komodo-trusted'],
+        text: 'Flint would be boiled before she confessed to a thing she did not do, Your Majesty. Somebody profited from that grain. Not Flint. The Abbess sent me a note this morning, thanking the crown for its kind words about me. She has never written to me before. I find I would rather she had not.',
+      },
+    ],
     quests: [],
     audiences: [
       {
@@ -3003,6 +3089,7 @@ export const ACT_THREE_DAYS: readonly DayDef[] = [
                   affinity: { moles: 5 },
                   local: { 'old-houses': -3, yard: 1 },
                   flags: ['d27-flint-ration-known'],
+                  schedule: ['d27-flint-latch'],
                 },
                 response:
                   'The back of the hall cheers. Dunmore does not. “Then the crown honours what it took from my kitchen,” he says, and goes. Flint closes her eyes. “Now they know I was looking.” That night Captain Dunmark moves her bed beside the Watch, unasked.',
@@ -3014,6 +3101,7 @@ export const ACT_THREE_DAYS: readonly DayDef[] = [
                 effects: {
                   local: { 'old-houses': 2, lamplight: -2 },
                   flags: ['d27-grain-buried'],
+                  schedule: ['d27-forty-sacks'],
                 },
                 response:
                   'Lady Vask accepts smoothly. She came ready to. Flint walks free. At the door she stops, back to you. “You bought my freedom with their silence, Majesty. I’ll try to be worth it.”',
@@ -3066,6 +3154,7 @@ export const ACT_THREE_DAYS: readonly DayDef[] = [
                 effects: {
                   local: { 'old-houses': 3, yard: -2 },
                   flags: ['d27-levy-refunded'],
+                  schedule: ['d27-thin-bread'],
                 },
                 response:
                   'The charge is withdrawn before the brass is counted. Flint walks free without thanks. The Yard paid for this war in bread long before the Houses paid in brass. It hears by supper.',
@@ -3130,6 +3219,7 @@ export const ACT_THREE_DAYS: readonly DayDef[] = [
             effects: {
               affinity: { 'mire-mothers': 10, abbey: -5 },
               flags: ['d27-fen-watch'],
+              schedule: ['d27-fen-lights'],
             },
             response:
               'Sister Reedlight bows. That night a line of small gold lights crosses the marsh to the edge of the Abbey’s land. They wait there until dawn, unblinking.',
@@ -3142,6 +3232,7 @@ export const ACT_THREE_DAYS: readonly DayDef[] = [
               affinity: { 'mire-mothers': -5 },
               local: { lamplight: 1 },
               flags: ['d27-fen-refused'],
+              schedule: ['d27-fen-unasked'],
             },
             response:
               'Sister Reedlight smiles. “The crown is careful. The Abbey is counting on it.” Her lantern does not flicker on the way out.',
@@ -3175,6 +3266,7 @@ export const ACT_THREE_DAYS: readonly DayDef[] = [
                   affinity: { 'mire-mothers': 10, abbey: -5 },
                   local: { 'old-houses': -1 },
                   flags: ['d27-name-in-fen-book', 'd27-fen-watch'],
+                  schedule: ['d27-fen-lights'],
                 },
                 response:
                   'She opens a book bound in something green and soft. You write your name. The ink is warm. All day every candle in the fortress leans toward the throne. That night the gold lights cross the marsh.',
@@ -3185,6 +3277,7 @@ export const ACT_THREE_DAYS: readonly DayDef[] = [
                 effects: {
                   affinity: { 'mire-mothers': 5, abbey: -5 },
                   flags: ['d27-false-name-given', 'd27-fen-watch'],
+                  schedule: ['d27-fen-lights'],
                 },
                 response:
                   'Sister Reedlight watches you write and closes the book. “Thank you,” she says, “whoever you are.” The gold lights cross the marsh that night anyway. The fen is patient.',
@@ -3196,6 +3289,7 @@ export const ACT_THREE_DAYS: readonly DayDef[] = [
                   affinity: { 'mire-mothers': -5 },
                   local: { lamplight: 1 },
                   flags: ['d27-fen-refused'],
+                  schedule: ['d27-fen-unasked'],
                 },
                 response:
                   '“The crown is careful,” she says. “The Abbey is counting on it.” She leaves with her lantern. The hall is colder than the weather explains.',
@@ -3328,6 +3422,7 @@ export const ACT_THREE_DAYS: readonly DayDef[] = [
                   affinity: { 'black-verge': 5 },
                   local: { yard: 2 },
                   flags: ['d28-charms-bought'],
+                  schedule: ['d28-verge-receipt'],
                 },
                 response:
                   'The envoy takes the purse between two gloved fingers. “Brass. How local.” By morning the rot stops. The cooks say the grain is cold in the hand. Always. Even from the oven.',
@@ -3952,6 +4047,7 @@ export const ACT_THREE_DAYS: readonly DayDef[] = [
                   affinity: { 'hollow-bell': -5 },
                   local: { lamplight: 2 },
                   flags: ['d29-page-sealed'],
+                  schedule: ['d29-seal-moved'],
                 },
                 response:
                   'Keeper Vellum seals the page with his ring and locks it in a drawer. He wears the key. Mara goes home still mayor, not forgiven. Komodo is charming at supper. Twice, lightly, he asks where the Archive keeps its keys.',
@@ -4030,6 +4126,13 @@ export const ACT_THREE_DAYS: readonly DayDef[] = [
     ],
     komodo:
       'No one has signed anything, Your Majesty. Tomorrow some banners on the map will be smaller. Some gone. Choose who shelters under the crown tonight.',
+    // t-048: the Keeper asked who else knew the page had come.
+    komodoVariants: [
+      {
+        flags: ['d29-runner-question'],
+        text: 'No one has signed anything, Your Majesty. Tomorrow some banners on the map will be smaller. Some gone. My runner has gone too, to his mother in the Freeholds before the roads close. The Keeper may stop wondering about him. Choose who shelters under the crown tonight.',
+      },
+    ],
     quests: ['q-d30-hold-the-line'],
     audiences: [
       {
@@ -4039,6 +4142,13 @@ export const ACT_THREE_DAYS: readonly DayDef[] = [
         faction: 'saltroad',
         lines: termsOpening(DUNMARK_GATE),
         variants: [
+          {
+            // t-048: the Pack's friendly raid succeeded.
+            flags: ['dry-well-cleared'],
+            lines: termsOpening(
+              'The dry well is clear, Majesty, and the Pack is singing about it in three camps. Good. It changes nothing tonight. The fortress can shelter one of them properly. Not two. The rest fend for themselves.',
+            ),
+          },
           {
             flags: ['d26-dry-well-followed'],
             lines: termsOpening(
@@ -4239,6 +4349,18 @@ export const ACT_THREE_DAYS: readonly DayDef[] = [
                     line: '“The Abbess heard the crown will feed its own orphans. She sends the wagons anyway. In case somehow runs out.”',
                   },
                   {
+                    flag: 'coldbrook-visit',
+                    line: '“Your people came up the road to see the Coldbrook children. They saw two. The youngest has come up out of the ward since. He can ride the first wagon with them.”',
+                  },
+                  {
+                    flag: 'd24-coldbrooks-demanded',
+                    line: '“The crown wrote that the Coldbrook children may go home. Their mother has not sent for them. We keep their places on the wagon, and we keep asking her.”',
+                  },
+                  {
+                    flag: 'bell-abbey-ledger',
+                    line: '“The Abbess heard your Archive read Hollow Bell’s ledger aloud. The water was a gift, she says. She would give it again. She is giving it now.”',
+                  },
+                  {
                     flag: 'abbess-questioned',
                     line: '“The Abbess has not forgotten your questions. She says she is glad of them. Ask them again on the wagons, if you like.”',
                   },
@@ -4255,6 +4377,18 @@ export const ACT_THREE_DAYS: readonly DayDef[] = [
                   {
                     flag: 'd24-form-letter-told',
                     line: 'Bett Ormond sleeps at the mission-road well now. The sisters bring her soup. She takes it. Ask her how often she’s seen Dov’s face.',
+                  },
+                  {
+                    flag: 'd28-empty-houses',
+                    line: 'Your riders found five houses empty on the mission road, Majesty. Doors on the latch. One was Nell Barrow’s. She told me in spring she was going up to see her girl.',
+                  },
+                  {
+                    flag: 'd28-letters-delivered',
+                    line: 'Your riders carried the mothers’ letters back down the mission road, Majesty. Every answer says the child is well. Ask those mothers how often they’ve seen a face.',
+                  },
+                  {
+                    flag: 'd28-letters-lost',
+                    line: 'This court let two sisters walk off with a sack of mothers’ letters, Majesty. Kindly, I hear. Ask Sister Marrow what was in it.',
                   },
                 ],
               ],
@@ -4357,6 +4491,183 @@ export const ACT_THREE_DUES: readonly DueDef[] = [
     hidden: true,
     line: 'The Abbey’s wagons came back down the mission road at dawn. Forty-one children of the three peoples, fed, in new boots. Sixty went up. Sister Marrow says the rest are still at lessons. Hester Plowright has the names of the nineteen.',
     effects: { affinity: { freeholds: -5 } },
+  },
+  // t-048: Act III answers that come back at a later dawn, unannounced.
+  {
+    id: 'd21-weir-night',
+    title: 'The weir goes down',
+    inDays: 3,
+    hidden: true,
+    when: { flags: ['d21-weir-shared'] },
+    line: 'The Mothers lowered the weir at moonrise, as agreed, and the north galleries breathed until dawn. This time the Watch on the bank wrote it down: singing under the water, one voice, counting. It stopped at forty-one. Coal Harrow sent the Watch a pot of tea for its trouble.',
+  },
+  {
+    id: 'd22-abbey-answer',
+    title: 'The Abbey’s answer',
+    inDays: 2,
+    hidden: true,
+    when: { flags: ['d22-tokens-asked'] },
+    line: 'The Abbey’s answer came by a sister on foot. The three at the Ford were parents who visited in the spring and were sent home with bread. One asked to stay the night with her son and was told no. Parents do not stay. The sister cried reading it out. She did not say where the three went after.',
+  },
+  {
+    id: 'd22-ford-graves',
+    title: 'Poppies above the Ford',
+    inDays: 3,
+    hidden: true,
+    when: { flags: ['d22-tokens-buried'] },
+    line: 'Field poppies on the three graves above the Ford. Nobody from the Yard left them. The ferry boy saw a sister in grey stand there at dusk a long time, hands folded. He did not see her kneel. He did not see anyone else.',
+  },
+  {
+    id: 'd23-rail-statement',
+    title: 'The rail line’s first statement',
+    inDays: 3,
+    hidden: true,
+    when: { flags: ['rail-route-licensed'] },
+    line: 'The Ledger sent up the rail line’s first statement, every jar entered and taxed. Freehold tincture. Lamp glass. Twelve jars of syrup to the Mission kitchen every third night, the toll paid early, in Abbey silver. In the margin, in Factor Tallow’s hand: our most punctual customer.',
+  },
+  {
+    id: 'd23-manifest-copies',
+    title: 'The Archive’s manifests',
+    inDays: 4,
+    hidden: true,
+    when: { flags: ['d23-manifests-copied'] },
+    line: 'The first bundle of copied manifests reached the Archive. Tincture, lamp glass, bandages. Twelve jars to the Mission kitchen on the first night. Eighteen on the next. The copying clerk wrote “fever season?” in the margin and underlined the question mark. Nobody in the Yard is coughing.',
+  },
+  {
+    id: 'd23-keep-syrup',
+    title: 'Syrup at the keep gate',
+    inDays: 1,
+    hidden: true,
+    when: { flags: ['d23-coldbrooks-in-keep'] },
+    line: 'The Watch surgeon tasted Sister Marrow’s syrup before the baby had any. Honey, poppy, willow bark. Nothing else. The fever broke by night. Wenna asked the Watch to thank the sister for her. Then she asked them not to let the sister in.',
+  },
+  {
+    id: 'd25-fever-window',
+    title: 'A face at the window',
+    inDays: 2,
+    hidden: true,
+    when: { flags: ['abbess-warned'] },
+    line: 'A sister walked down at dawn and fetched Wenna Coldbrook up the mission road. At noon the youngest was held up to the fever-ward window, wrapped to the eyes. He waved. Wenna came home and told the Yard he waved. She told it all evening, to anyone who would listen.',
+  },
+  {
+    id: 'd25-wenna-hour',
+    title: 'Wenna’s hour',
+    inDays: 3,
+    hidden: true,
+    when: { flags: ['d25-wenna-named'] },
+    line: 'Word reached the Yard that the crown had named Wenna Coldbrook to the Abbess. Wenna went up the mission road for her hour as usual. The sisters gave her a chair by the fire and a second hour. She came home grateful, and could not say why that frightened her.',
+  },
+  {
+    id: 'd25-plans-lock',
+    title: 'The Archive’s new lock',
+    inDays: 2,
+    hidden: true,
+    when: { flags: ['d25-hill-plans-kept'] },
+    line: 'Keeper Vellum found the Archive’s new lock scratched around the keyhole. Not opened. The hill plans lay where he had left them. He moved them anyway, and told only the throne where.',
+  },
+  {
+    id: 'd26-half-water',
+    title: 'Half the water',
+    inDays: 3,
+    hidden: true,
+    when: { flags: ['mole-half-truce'] },
+    line: 'The burrows’ half of the water came down the old channel at dawn. Keel Understone’s crew chalked its level on the Ford pier, and beside it the level the cells had asked for. The gap is the width of a paw. Every burrow runner who passes touches it.',
+  },
+  {
+    id: 'd27-flint-latch',
+    title: 'A hand on the latch',
+    inDays: 1,
+    hidden: true,
+    when: { flags: ['d27-flint-ration-known'] },
+    line: 'In the night someone tried the latch of Duchess Flint’s room. The Watch sergeant on the bench beside her door called out. Footsteps went away down the stair, unhurried, in good shoes. Flint says she slept through it. Nobody believes her.',
+  },
+  {
+    id: 'd27-forty-sacks',
+    title: 'Forty sacks',
+    inDays: 2,
+    hidden: true,
+    when: { flags: ['d27-grain-buried'] },
+    line: 'An Old House cart left forty sacks of grain at the Yard gate before dawn. No seal, no note. Dunmore counted them twice. Forty. He fed them to the ovens and asked nobody who to thank. He did not have to.',
+  },
+  {
+    id: 'd27-thin-bread',
+    title: 'A thinner loaf',
+    inDays: 1,
+    hidden: true,
+    when: { flags: ['d27-levy-refunded'] },
+    line: 'The Yard’s loaves came out of the oven a finger thinner. Dunmore did not bring it to the throne. He chalked the refund on the oven door beside the old charge, once in brass and once in loaves.',
+  },
+  {
+    id: 'd27-fen-lights',
+    title: 'What the fen showed',
+    inDays: 2,
+    hidden: true,
+    when: { flags: ['d27-fen-watch'] },
+    line: 'The gold lights came back across the marsh at dawn. A reed-cutter brought Sister Reedlight’s word. At the third hour a lamp moved under the mission road, slow, toward the Abbey’s hill. It stopped there and went out. The fen does not say who carried it. It says it will keep watching.',
+  },
+  {
+    id: 'd27-fen-unasked',
+    title: 'The fen watches anyway',
+    inDays: 2,
+    hidden: true,
+    when: { flags: ['d27-fen-refused'] },
+    line: 'The gold lights crossed the marsh that night anyway, to the edge of the Abbey’s land, and waited there until dawn. Nobody asked them to. The reed-cutters say the fen watches what it likes. It only offered to tell you.',
+  },
+  {
+    id: 'd28-verge-receipt',
+    title: 'A receipt in plum ink',
+    inDays: 2,
+    hidden: true,
+    when: { flags: ['d28-charms-bought'] },
+    line: 'A Verge rider left a receipt on the gate at dawn. Twenty-five brass, in a beautiful hand. Under the sum: Paid in full. The Court thanks the crown for the warmth. The cooks still knead in gloves.',
+  },
+  {
+    id: 'd28-abbey-letter',
+    title: 'A letter at the post-house',
+    inDays: 3,
+    hidden: true,
+    when: { flags: ['d28-letters-to-abbey'] },
+    line: 'A woman came to the mission-road post-house and asked whether anything had come from her girl. This time something had. New paper, a fine hand, the Abbey’s wax. The child is well. She asked the clerk to read it twice. It said the same thing twice.',
+  },
+  {
+    id: 'd28-vault-hour',
+    title: 'An hour in the vault',
+    inDays: 2,
+    hidden: true,
+    when: { flags: ['d28-letters-vaulted'] },
+    line: 'The market woman came back to the post-house. The clerk said no again. That afternoon Keeper Vellum went down to the vault and sat with the sack for an hour. Then he sent the throne one line: how much more does the crown need to know?',
+  },
+  {
+    id: 'd28-back-gate',
+    title: 'The second track',
+    inDays: 2,
+    hidden: true,
+    when: { flags: ['d28-post-track-mapped'] },
+    line: 'A Watch rider walked the second track on Vellum’s old map. It climbs behind the post-house to a cart gate in the Abbey’s back wall. The hinges are fresh-greased. Nothing came through it while he watched. He watched until dark.',
+  },
+  {
+    id: 'd28-snow-bread',
+    title: 'Snow-bread',
+    inDays: 2,
+    hidden: true,
+    when: { flags: ['verge-cure-tested'] },
+    line: 'The tested grain has fed the Yard two days. Nobody is sick. The bread comes out of the oven cold whatever the cooks do. The Yard’s children call it snow-bread and ask for more. Dunmore eats his standing at the oven door, where it is warmest.',
+  },
+  {
+    id: 'd28-north-gate',
+    title: 'The north gate again',
+    inDays: 2,
+    hidden: true,
+    when: { flags: ['verge-cure-tainted'] },
+    line: 'One of the charm testers walked to the north gate again in the night and stood facing the Verge. The Watch brought them in under a blanket. By morning they were warm. They asked who had been calling them. Nobody else heard a thing.',
+  },
+  {
+    id: 'd29-seal-moved',
+    title: 'The Keeper’s seal',
+    inDays: 2,
+    hidden: true,
+    when: { flags: ['d29-page-sealed'] },
+    line: 'Keeper Vellum opened his drawer at dawn. The page was there, as he left it. His seal on it had been lifted and pressed again, a hair to the left. He wears the key. He has not taken it off since.',
   },
 ]
 

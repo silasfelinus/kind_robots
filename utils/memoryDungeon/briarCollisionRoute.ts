@@ -223,32 +223,32 @@ export const BRIAR_COLLISION_ROUTE_SITES = {
   },
   '6,2': {
     title: 'The Rootbound Server Room',
-    speaker: 'Pip and the House caretaker',
+    speaker: 'Rowan, Pip and the House caretaker',
     kind: 'dungeon',
     opening:
       'A basement server room has grown around the House’s oldest root. Its cooling fans whisper the names of everyone who has ever asked for shelter. The caretaker offers to turn the machines off, but the same circuit powers the dry stair used by refugees. Three cables bear matching root marks; only one leads to the name archive.',
     artSubject:
-      'Pip and an elderly House caretaker inside a flooded rootbound server room, three marked cables, glowing name archive and emergency stair lights',
+      'Rowan examining three marked cables with Pip and an elderly House caretaker in a flooded rootbound server room, glowing name archive and emergency stair lights',
     choices: [
       {
         id: 'isolate-the-name-archive',
         label: 'Trace the marked cables and isolate the name archive',
         outcome:
-          'Pip disconnects the archive without killing the stair lights. The caretaker can no longer summon refugees by name, but the building loses its automatic head count and needs volunteers on watch.',
+          'Pip identifies the old courier root mark, and Rowan traces the live circuit before disconnecting the name archive without killing the stair lights. The caretaker can no longer summon refugees by name, but the building loses its automatic head count and needs volunteers on watch.',
         flag: 'server-archive-isolated',
         effects: { evidence: 2, supplies: -1 },
         artSubject:
-          'Pip disconnecting a root-marked archive cable while the refugee stair lights remain lit in a flooded server room',
+          'Rowan disconnecting the root-marked archive cable while Pip checks the refugee stair lights in a flooded server room',
       },
       {
         id: 'guard-the-live-circuit',
         label: 'Keep the emergency stair powered and appoint human watchers',
         outcome:
-          'The caretaker agrees to stop consulting the names while Mara posts volunteers at the stair. The archive remains a risk to be resolved later; the refugees keep a working escape route tonight.',
+          'Rowan refuses to trade the refugees\' escape route for a quick victory and asks Mara to organize a human watch. The caretaker agrees to stop consulting the names. The archive remains a risk to be resolved later; the refugees keep a working escape route tonight.',
         flag: 'server-stair-guarded',
         effects: { trust: 2, danger: 1 },
         artSubject:
-          'Mara and Pip organizing volunteer stair watchers beside a glowing rootbound server rack and a lit emergency exit',
+          'Rowan and Mara organizing volunteer stair watchers while Pip checks the glowing rootbound server rack beside a lit emergency exit',
       },
     ],
   },

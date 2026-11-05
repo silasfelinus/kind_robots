@@ -706,6 +706,68 @@ function turfSimulate(
   return { grid: next, captured }
 }
 
+/**
+ * The engine's area count on a light board: stones plus the empty points
+ * (slime counts as empty) bordered by one side only. Returns ours minus
+ * theirs, how many empty points are already decided (single-border), and
+ * each empty point's owner.
+ */
+function turfArea(
+  view: MatchView,
+  grid: Map<string, TurfCell>,
+): {
+  margin: number
+  empty: number
+  decided: number
+  owner: Map<string, Side | null>
+} {
+  let margin = 0
+  let empty = 0
+  let decided = 0
+  const owner = new Map<string, Side | null>()
+  const stoneAt = (k: string) => {
+    const v = grid.get(k)
+    return v && v !== 'slime' ? v : null
+  }
+  for (let y = 0; y < view.height; y++)
+    for (let x = 0; x < view.width; x++) {
+      const k = x + ':' + y
+      const side = stoneAt(k)
+      if (side) {
+        margin += side === view.side ? 1 : -1
+        continue
+      }
+      if (owner.has(k)) continue
+      const region: Cell[] = [{ x, y }]
+      owner.set(k, null)
+      const borders = new Set<Side>()
+      for (let i = 0; i < region.length; i++)
+        for (const n of cellsAround(view, region[i]!)) {
+          const nk = n.x + ':' + n.y
+          const s = stoneAt(nk)
+          if (s) borders.add(s)
+          else if (!owner.has(nk)) {
+            owner.set(nk, null)
+            region.push(n)
+          }
+        }
+      const side1 = borders.size === 1 ? [...borders][0]! : null
+      for (const c of region) owner.set(c.x + ':' + c.y, side1)
+      empty += region.length
+      if (side1) {
+        decided += region.length
+        margin += side1 === view.side ? region.length : -region.length
+      }
+    }
+  return { margin, empty, decided, owner }
+}
+
+/**
+ * Share of the empty board already decided before the CPU counts exactly
+ * (t-024: 0.3 ended 104 of 108 sweep games on passes; 0.55 ended 87).
+ */
+const TURF_ENDGAME = 0.3
+
 const TURF_OFFENSIVE = new Set(['zap', 'blast', 'chaos', 'root'])
 
 function inTurf(view: MatchView, c: Cell): boolean {
@@ -729,6 +791,16 @@ function turfAction(view: MatchView, tried: Set<string>): CpuAction | null {
   for (const p of view.puddles) grid.set(p.x + ':' + p.y, 'slime')
   const base = turfEval(view, grid, wards)
   const groups = turfGroupsOn(view, grid, wards)
+  // Endgame (t-024): once most empty points are decided, the CPU counts the
+  // board the way the engine scores it and only plays moves that gain real
+  // area without throwing a stone away; otherwise it passes, so games end on
+  // two passes instead of the round clock.
+  const area = turfArea(view, grid)
+  // The opening board is one open region, so the count only means something
+  // once a quarter of the points hold stones.
+  const endgame =
+    view.units.length * 4 >= view.width * view.height &&
+    (area.empty === 0 || area.decided / area.empty >= TURF_ENDGAME)
   const groupAt = (c: Cell) =>
     groups.find((g) => g.cells.some((s) => s.x === c.x && s.y === c.y))
   // PARITY: once the turn's play is spent, only the crew's free kind is left,
@@ -762,9 +834,32 @@ function turfAction(view: MatchView, tried: Set<string>): CpuAction | null {
       const noGo = foes.some((g) => g.warded)
       // Empty points beside a trap stone are where its tripwire can catch.
       const open = near.filter((c) => !grid.has(c.x + ':' + c.y)).length
+      // Exact endgame gain: area after the stone (captures included) minus
+      // now, and whether the stone survives (two liberties, a ward or a
+      // capture).
+      let gain = 0
+      let worthIt = true
+      if (endgame && sim) {
+        gain = turfArea(view, sim.grid).margin - area.margin
+        const after = turfGroupsOn(view, sim.grid, wards).find((g) =>
+          g.cells.some((c) => c.x === x && c.y === y),
+        )
+        const safe =
+          sim.captured > 0 || !!after?.warded || (after?.libs ?? 0) >= 2
+        // A one-move reader cannot make a group live inside settled enemy
+        // turf, so an endgame invasion only feeds the enemy prisoners.
+        const owner = area.owner.get(k)
+        const invasion = !!owner && owner !== view.side && sim.captured === 0
+        // Rescuing a group in atari is worth a stone even at no area gain.
+        const rescues = near.some((n) => {
+          const g = groupAt(n)
+          return g && g.side === view.side && g.libs === 1 && !g.warded
+        })
+        worthIt = safe && !invasion && (gain > 0 || sim.captured > 0 || rescues)
+      }
       for (const card of cards) {
         let value: number
-        if (!sim) continue
+        if (!sim || !worthIt) continue
         if (card.kind === 'trap' && view.traps.length >= view.trapCap) continue
         if (
           noGo &&
@@ -841,6 +936,7 @@ function turfAction(view: MatchView, tried: Set<string>): CpuAction | null {
             (near.some((n) => grid.get(n.x + ':' + n.y) === 'slime') ? 0.8 : 0)
         }
         value -= card.cost * 0.05
+        if (endgame) value += 0.5 * Math.max(-4, Math.min(6, gain))
         options.push({ action: { t: 'deploy', card: card.id, x, y }, value })
       }
     }
@@ -849,8 +945,9 @@ function turfAction(view: MatchView, tried: Set<string>): CpuAction | null {
     .sort(
       (a, b) => b.value - a.value || key(a.action).localeCompare(key(b.action)),
     )[0]
-  // Pass once nothing gains turf: two passes end the game.
-  return best && best.value > 0.4 ? best.action : null
+  // Pass once nothing gains turf: two passes end the game. In the endgame
+  // every surviving option already gains real area (or saves a group).
+  return best && (endgame || best.value > 0.4) ? best.action : null
 }
 
 /** The CPU's next action for the side in view, or null to pass. */

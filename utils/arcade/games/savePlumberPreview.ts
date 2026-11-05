@@ -1222,6 +1222,9 @@ export class PlumberRun implements ArcadeGameInstance {
     this.hero = { x: this.checkpoint.x, y: this.checkpoint.y, vx: 0, vy: 0 }
     this.ground = false
     this.riding = null
+    // A jump pressed as she fell (or as the last stage ended) is not replayed here.
+    this.jumpBuffer = 0
+    this.grace = 0
     this.hearts = HEARTS
     this.airPressure = AIR_PRESSURE_CAPACITY
     this.airDockActive = false
@@ -1607,8 +1610,13 @@ export class PlumberRun implements ArcadeGameInstance {
         this.locked = true
         for (let row = 1; row < this.groundRow; row++)
           this.setSolid(this.stage.gate, row, SOLID_BLOCK)
-        // The arena is the boss's: strays that rolled or wandered in are cleared.
-        for (const foe of this.foes) if (foe.x > gateX) foe.state = 'gone'
+        // The arena is the boss's: strays that rolled or wandered in are cleared,
+        // dropping any lantern step or stolen tokens they held.
+        for (const foe of this.foes)
+          if (foe.x > gateX) {
+            this.release(foe)
+            foe.state = 'gone'
+          }
         if (this.boss) this.boss.state = 'walk'
         this.sound.play('extra')
       }
@@ -1792,7 +1800,7 @@ export class PlumberRun implements ArcadeGameInstance {
       if (this.solidAt(col, row) === SOLID_CRATE) {
         this.setSolid(col, row, 0)
         this.score += 70
-        this.tokens++
+        this.gainTokens(1)
       }
     }
     this.sound.play('boom')
@@ -1810,7 +1818,7 @@ export class PlumberRun implements ArcadeGameInstance {
       if (this.solidAt(col, row) === SOLID_CRATE) {
         this.setSolid(col, row, 0)
         this.score += 70
-        this.tokens++
+        this.gainTokens(1)
         this.sound.play('pop')
       }
   }
@@ -2066,7 +2074,7 @@ export class PlumberRun implements ArcadeGameInstance {
             continue
           }
           this.score += 70
-          this.tokens++
+          this.gainTokens(1)
         }
     const boss = this.boss
     if (
@@ -2167,7 +2175,7 @@ export class PlumberRun implements ArcadeGameInstance {
       if (s === SOLID_CRATE) {
         this.setSolid(col, row, 0)
         this.score += 70
-        this.tokens++
+        this.gainTokens(1)
         gust.life = 0
       } else if (isWall(s)) gust.life = 0
       for (const foe of this.foes) {
@@ -2178,8 +2186,13 @@ export class PlumberRun implements ArcadeGameInstance {
         this.strikeFoe(foe)
         gust.life = 0
       }
+      // Only a gust that reaches the valve turns it, not one passing a floor above or below.
       for (const valve of this.valves)
-        if (!valve.open && Math.abs(valve.x - gust.x) < 14) {
+        if (
+          !valve.open &&
+          Math.abs(valve.x - gust.x) < 14 &&
+          Math.abs(valve.y - 8 - gust.y) < 20
+        ) {
           valve.open = true
           this.score += 200
           for (let i = 0; i < this.solid.length; i++)
@@ -2234,7 +2247,7 @@ export class PlumberRun implements ArcadeGameInstance {
       if (!done && s === SOLID_CRATE) {
         this.setSolid(col, row, 0)
         this.score += 70
-        this.tokens++
+        this.gainTokens(1)
         done = true
       } else if (!done && (isWall(s) || s === SOLID_LEDGE)) {
         const restRow = row - 1
@@ -2260,13 +2273,21 @@ export class PlumberRun implements ArcadeGameInstance {
       if (token.y < hero.y - 10 || token.y > hero.y + TALL + 8) continue
       token.taken = true
       this.score += 50
-      this.tokens++
-      if (this.tokens >= 100) {
-        this.tokens -= 100
-        this.lives++
-        this.sound.play('level')
-      } else this.sound.play('pickup')
+      if (!this.gainTokens(1)) this.sound.play('pickup')
     }
+  }
+
+  /**
+   * Every hundred tokens is a life, whether picked up, smashed out of a crate
+   * or won back from a thief.
+   */
+  private gainTokens(count: number): boolean {
+    this.tokens += count
+    if (this.tokens < 100) return false
+    this.lives += Math.floor(this.tokens / 100)
+    this.tokens %= 100
+    this.sound.play('level')
+    return true
   }
 
   private kick(foe: Foe, dir: number) {
@@ -2282,11 +2303,24 @@ export class PlumberRun implements ArcadeGameInstance {
     foe.fade = 30
     foe.flipped = flipped
     this.score += points + (foe.giant ? 200 : 0)
+    this.release(foe)
+    this.sound.play('pop')
+  }
+
+  /**
+   * A foe leaving play lets go of what it held: a flattened lantern's step goes
+   * with it (no invisible floor left behind) and a thief drops its tokens.
+   */
+  private release(foe: Foe) {
+    if (foe.pad) {
+      this.platforms = this.platforms.filter((p) => p !== foe.pad)
+      if (this.riding === foe.pad) this.riding = null
+      foe.pad = null
+    }
     if (foe.carry) {
-      this.tokens += foe.carry
+      this.gainTokens(foe.carry)
       foe.carry = 0
     }
-    this.sound.play('pop')
   }
 
   private flatten(foe: Foe) {
@@ -2346,9 +2380,18 @@ export class PlumberRun implements ArcadeGameInstance {
   private moveFoe(foe: Foe) {
     const hero = this.hero
     if (foe.glide) {
-      if (hero.x > foe.x - 400) foe.x -= 1.3
+      if (foe.carry) {
+        // A glider that stole tokens patrols its line from edge to edge, back
+        // over the spot it struck, until she catches it.
+        const right = this.stage.cols * TILE - TILE
+        foe.x = Math.max(TILE, Math.min(right, foe.x + foe.dir * 1.3))
+        if (foe.x <= TILE) foe.dir = 1
+        else if (foe.x >= right) foe.dir = -1
+      } else {
+        if (hero.x > foe.x - 400) foe.x -= 1.3
+        foe.dir = -1
+      }
       foe.y = foe.homeY + Math.sin(this.tick / 9) * 1.5
-      foe.dir = -1
       return
     }
     switch (foe.kind) {
@@ -2401,6 +2444,9 @@ export class PlumberRun implements ArcadeGameInstance {
         else if (Math.abs(foe.x - foe.homeX) > 120)
           foe.dir = foe.x < foe.homeX ? 1 : -1
         foe.x += foe.dir * speed
+        // A fleeing thief is cornered at the stage's edge, never lost off it.
+        if (foe.carry)
+          foe.x = Math.max(TILE, Math.min(this.stage.cols * TILE - TILE, foe.x))
         const rest = foe.homeY + Math.sin(this.tick / 20 + foe.homeX) * 6
         foe.y += Math.max(-1.6, Math.min(1.6, rest - foe.y))
         const dx = hero.x - foe.x
@@ -2419,9 +2465,7 @@ export class PlumberRun implements ArcadeGameInstance {
         if (foe.state === 'flat') {
           if (--foe.timer <= 0) {
             foe.state = 'walk'
-            this.platforms = this.platforms.filter((p) => p !== foe.pad)
-            if (this.riding === foe.pad) this.riding = null
-            foe.pad = null
+            this.release(foe)
           }
           return
         }

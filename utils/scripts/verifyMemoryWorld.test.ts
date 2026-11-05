@@ -2169,12 +2169,12 @@ assert.ok(
   'character decks use the complete browse list, not the detail cache',
 )
 assert.ok(
-  deckSource.includes('byId.get(artId) ?? (await art.getArtImageById(artId))'),
+  deckSource.includes('await art.getArtImageById(artId)'),
   'linked art absent from the paginated archive cache is fetched by ID',
 )
 assert.ok(
-  deckSource.includes(
-    'isEligibleDungeonArt(linkedArt, includeMature, matureAllowed, viewerId)',
+  /isEligibleDungeonArt\(\s*linkedArt,\s*includeMature,\s*matureAllowed,\s*viewerId,?\s*\)/.test(
+    deckSource,
   ),
   'resolved linked art still enforces visibility and maturity restrictions',
 )

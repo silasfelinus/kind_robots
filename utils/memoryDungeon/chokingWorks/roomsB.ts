@@ -56,7 +56,7 @@ export const CHOKING_ROOMS_B: readonly ChokingRoomContent[] = [
     kind: 'hazard',
     speaker: 'Char',
     opening:
-      'The Gauge Shaft still drops through its pipe, rungs down one side, a gauge at every landing, but every needle points at the same number and the push comes when it likes. Char’s chalk skulls are on the rungs again, more than she ever drew, and every one has turned to grin up the pipe, the wrong way. Char looks at them a long time. ‘Those aren’t mine. Mine look down. Mine are where I held on.’ She takes out her own chalk.',
+      'The Gauge Shaft still drops through its pipe, rungs down one side, a gauge at every landing, but every needle points at the same number and the push comes when it likes. Char’s chalk skulls are on the rungs again, more than she ever drew, and every one has turned to grin up the pipe, the wrong way. Char looks at them a long time. ‘Those aren’t mine. Mine don’t grin. Mine are where I held on.’ She takes out her own chalk.',
     artSubject: `Looking down a narrow vertical bronze pipe underwater, a ladder of rungs marked with dozens of small chalk skulls all grinning upward, every pressure gauge needle stuck at the same mark; ${CHAR} three rungs down with a stub of chalk in her fist glaring at the skulls; ${SCYLLA} braced at the top`,
     echoes: [
       {
@@ -212,7 +212,7 @@ export const CHOKING_ROOMS_B: readonly ChokingRoomContent[] = [
     kind: 'hazard',
     speaker: 'Scylla',
     opening:
-      'The silt trap is darker than it was, and the silt is not all sand: pressed into it lie ribbons, seals and flakes of letter, swallowed upstairs and settled here. The guide rope still sags along the wall. Halfway along it, standing upright as if someone were in it, is Cal’s boot. The name burnt into its heel has been scraped off, and a court tag tied through the laces reads: LOST. NOT TO BE SOUGHT.',
+      'The silt trap is darker than it was, and the silt is not all sand: pressed into it lie ribbons, seals and flakes of letter, swallowed upstairs and settled here. The guide rope still sags along the wall. Halfway along it, standing upright as if someone were in it, is Fenn’s boot. The name burnt into its heel has been scraped off, and a court tag tied through the laces reads: LOST. NOT TO BE SOUGHT.',
     artSubject: `A long low pitch-dark underwater gallery floored with pale silt flecked with ribbons, wax seals and scraps of paper, a guide rope sagging along one wall, a single old crew boot standing upright on the silt with a paper tag tied to its laces; ${SCYLLA} and ${CHAR} hover above the floor in the faint glow of ${SULK}`,
     echoes: [
       {
@@ -225,11 +225,15 @@ export const CHOKING_ROOMS_B: readonly ChokingRoomContent[] = [
       },
       {
         flag: 'e06:4,4:care',
-        text: 'Oren still has Cal under missing, counted twice, with two names signed beneath. The court’s tag says otherwise, and has no signature at all.',
+        text: 'Oren still has Fenn under missing, counted twice, with two names signed beneath. The court’s tag says otherwise, and has no signature at all.',
       },
       {
         flag: 'e06:4,4:risk',
         text: 'Scylla gave the court Oren’s missing column. This, it seems, is where the missing are filed.',
+      },
+      {
+        flag: 'CW-13:glow',
+        text: 'The rope across the cistern ledge was cut and retied to loop back on itself. Somebody down here has one trick, and likes it.',
       },
     ],
     choices: [
@@ -273,11 +277,11 @@ export const CHOKING_ROOMS_B: readonly ChokingRoomContent[] = [
       },
       {
         flag: 'CW-18:open-hatch',
-        text: 'Above them the hatch they forced stands open, and the works is busy pretending it hasn’t noticed.',
+        text: 'Above them the hatch they forced stands open, its bent bar at the foot of the stair. The court has certainly heard. Here it has left them a second door, to see what they do.',
       },
       {
         flag: 'CW-18:leave-shut',
-        text: 'She left the court’s hatch bolted above. Here the court has left her a second thing to leave alone.',
+        text: 'Above, Scylla let go of the barred hatch first. Here the court has left her a second thing to let go of.',
       },
     ],
     choices: [
@@ -306,7 +310,7 @@ export const CHOKING_ROOMS_B: readonly ChokingRoomContent[] = [
     kind: 'lore',
     speaker: 'Scylla',
     opening:
-      'The jar rack is fuller than four years can account for. The court files here now: every letter the Throat swallows comes down sealed in a jar, its lid scratched in one neat hand: TO NOBODY. The crew’s old jars are still on the bottom shelves. Cal’s have been moved up to a shelf of their own and re-addressed FROM CAL, as if he wrote home after all. Char’s little jar is still on the high shelf. Its lid now reads: To us, never.',
+      'The jar rack is fuller than four years can account for. The court files here now: every letter the Throat swallows comes down sealed in a jar, its lid scratched in one neat hand: TO NOBODY. The crew’s old jars are still on the bottom shelves. Fenn’s have been moved up to a shelf of their own and re-addressed FROM FENN, as if he wrote home after all. Char’s little jar is still on the high shelf. Its lid now reads: To us, never.',
     artSubject: `Tall wooden racks at the mouth of a dark tunnel underwater, crammed with hundreds of small sealed glass jars, every lid scratched with the same neat words, one high shelf set apart; ${SCYLLA} lifts a jar to the light of ${SULK}; ${CHAR} glares up at a single small jar on the topmost shelf`,
     echoes: [
       {
@@ -322,6 +326,14 @@ export const CHOKING_ROOMS_B: readonly ChokingRoomContent[] = [
         text: 'In Scylla’s satchel are the two letters she pulled off the Throat’s grate. They would have ended here, in a jar, re-addressed.',
       },
       {
+        flag: 'CW-06:take-letters',
+        text: 'The bundle from Fenn’s locker is in Scylla’s satchel already, and heavier than paper should be. The jars marked FROM FENN begin the same way: I am well and I do not wish to come home.',
+      },
+      {
+        flag: 'CW-06:mend-latch',
+        text: 'Char scratched FENN into his sanded locker door. She looks at the lids marked FROM FENN as if she would like to scratch something into them too.',
+      },
+      {
         flag: 'e05:7,7:care',
         text: 'Tansy’s oilcloth letter is still in Scylla’s satchel, undelivered. An empty jar on the Dunlin shelf is exactly its size, and already labelled.',
       },
@@ -329,9 +341,9 @@ export const CHOKING_ROOMS_B: readonly ChokingRoomContent[] = [
     choices: [
       {
         id: 'read-lids',
-        label: 'Open one of the jars marked FROM CAL',
+        label: 'Open one of the jars marked FROM FENN',
         outcome:
-          'The letter inside is in the court’s hand and signed Cal: he is well, he is happy on land, he asks that nobody look for him or open anything on his account. Scylla has seen letters to Cal from home, Tibby’s drawings crowding the margins. This one has no margins at all. She keeps it. It is the most careful lie she has ever held.',
+          'The letter inside is in the court’s hand and signed Fenn: he is well, he is happy on land, he asks that nobody look for him or open anything on his account. Scylla has seen letters to Fenn from home, Tibby’s drawings crowding the margins. This one has no margins at all. She keeps it. It is the most careful lie she has ever held.',
         gain: { evidence: 1 },
         artSubject: `${SCYLLA} reading a neatly written letter unrolled from a glass jar, its page perfectly blank at the edges, ${CHAR} reading over her shoulder with narrowed eyes, racks of jars behind them`,
       },
@@ -478,7 +490,7 @@ export const CHOKING_ROOMS_B: readonly ChokingRoomContent[] = [
       },
       {
         flag: 'CW-12:note',
-        text: 'The note Scylla left in the galley has found its way here, pinned to the rota. A clerk has corrected it. Someone else has drawn a skull on the correction.',
+        text: 'The note the sisters left under the porridge pot has found its way here, pinned to the rota and corrected in red. Char’s name, written in full, every letter, has not been touched.',
       },
     ],
     choices: [
@@ -494,7 +506,7 @@ export const CHOKING_ROOMS_B: readonly ChokingRoomContent[] = [
         id: 'search',
         label: 'Let Char rest, and look closely at REQUEST 42',
         outcome:
-          'The names on REQUEST 42 are going. But behind each scraped name the crew have pressed a thumb into the slate, a small greasy oval the clerk didn’t think to count. Eleven thumbprints. Scylla counts them twice, like Oren. Char swings out of her hammock and adds a twelfth, her own, with a chalk skull beside it, pointing down.',
+          'The names on REQUEST 42 are going. But behind each scraped name the crew have pressed a thumb into the slate, a small greasy oval the clerk didn’t think to count. Eleven thumbprints. Scylla counts them twice, like Oren. Char swings out of her hammock and adds a twelfth, her own, with a chalk skull beside it.',
         gain: { evidence: 1 },
         artSubject: `${SCYLLA} tracing a row of small thumbprints pressed into a slate behind an oilcloth slip with scraped-off signatures, ${CHAR} pressing her own thumb beside them`,
       },
@@ -693,7 +705,7 @@ export const CHOKING_ROOMS_B: readonly ChokingRoomContent[] = [
         id: 'show-evidence',
         label: 'Lay out what you’ve gathered on the Book itself',
         outcome:
-          'Scylla sets it out on the open page, where the pen must go round it: Cal’s boot with its name scraped off, the court’s tag, refusals that breed, names unsigned, bells that toll before anyone testifies. The red pen cannot write over a boot. Maud lays her hand flat beside it. ‘Nobody upstairs ever counted us,’ she says. ‘They only counted what to leave out.’',
+          'Scylla sets it out on the open page, where the pen must go round it: Fenn’s boot with its name scraped off, the court’s tag, refusals that breed, names unsigned, bells that toll before anyone testifies. The red pen cannot write over a boot. Maud lays her hand flat beside it. ‘Nobody upstairs ever counted us,’ she says. ‘They only counted what to leave out.’',
         gain: { evidence: 1, trust: 1 },
         requires: { evidence: 4 },
         lockedHint: 'Needs more evidence (4)',
@@ -740,7 +752,7 @@ export const CHOKING_ROOMS_B: readonly ChokingRoomContent[] = [
       },
       {
         flag: 'CW-32:show-evidence',
-        text: 'Cal’s boot sits on the kitchen table where Maud put it, and she keeps glancing at it like a crew hand back from a long shift.',
+        text: 'Fenn’s boot sits on the kitchen table where Maud put it, and she keeps glancing at it like a crew hand back from a long shift.',
       },
       {
         flag: 'CW-32:char-speaks',
@@ -782,7 +794,7 @@ export const CHOKING_ROOMS_B: readonly ChokingRoomContent[] = [
     kind: 'secret',
     speaker: 'Scylla',
     opening:
-      'The Landward Book lies open on the shelf above the socks, and the red is spreading. SHUT BY ORDER, written under Cal, has crept backward up the page into the years before: through the cook, through the two brothers, line by line, a slow red tide. Each name it reaches becomes the same three words. Decades back, their mother’s line is still dark ink: ‘A princess, alone, a pack for one. Sat at the landward sluice till the tide turned.’ The red is two lines above it.',
+      'The Landward Book lies open on the shelf above the socks, and the red is spreading. SHUT BY ORDER, written under Fenn, has crept backward up the page into the years before: through the cook, through the two brothers, line by line, a slow red tide. Each name it reaches becomes the same three words. Decades back, their mother’s line is still dark ink: ‘A princess, alone, a pack for one. Sat at the landward sluice till the tide turned.’ The red is two lines above it.',
     artSubject: `A worn ledger open on a rock shelf by lantern light, its columns of names being overrun line by line by spreading red ink, one older line near the bottom still dark with a small inked crown beside it; ${SCYLLA} rests one finger just below the red; ${CHAR} leans in beside her`,
     echoes: [
       {
@@ -799,11 +811,11 @@ export const CHOKING_ROOMS_B: readonly ChokingRoomContent[] = [
       },
       {
         flag: 'GT-35:open-road',
-        text: 'On the last clean line under Cal, in Maud’s pencil: ‘The road opened, by a princess.’ Through it, in red: NEVER HAPPENED.',
+        text: 'On the last clean line under Fenn, in Maud’s pencil: ‘The road opened, by a princess.’ Through it, in red: NEVER HAPPENED.',
       },
       {
         flag: 'GT-35:keep-secret',
-        text: 'Two names sit just under Cal’s in Maud’s pencil, ‘by their hour’. The court found them anyway. They are the next two lines the red will reach.',
+        text: 'Two names sit just under Fenn’s in Maud’s pencil, ‘by their hour’. The court found them anyway. They are the next two lines the red will reach.',
       },
       {
         flag: 'GT-35:give-key',
@@ -906,7 +918,7 @@ export const CHOKING_ROOMS_B: readonly ChokingRoomContent[] = [
         label:
           'Chain the landward sluice from inside, so nobody can ever hunt those who left',
         outcome:
-          'Scylla winds the chain back on from the inside, twice, locks it with the master key and snaps the key’s bow off in the lock. Now no clerk, no guard, no court can come up that road after Cal, or after anyone who ever went up it. Nobody else will go up it either. Maud watches the bronze bow drift to the floor and says nothing, which down here is a whole sentence.',
+          'Scylla winds the chain back on from the inside, twice, locks it with the master key and snaps the key’s bow off in the lock. Now no clerk, no guard, no court can come up that road after Fenn, or after anyone who ever went up it. Nobody else will go up it either. Maud watches the bronze bow drift to the floor and says nothing, which down here is a whole sentence.',
         gain: { danger: -2, trust: 1, evidence: -1 },
         artSubject: `${SCYLLA} snapping the bow off a heavy bronze key in a padlock on a doubled chain across the seventh sluice, ${CHAR} and ${MAUD} watching in silence, the swollen pump straining behind them`,
       },
@@ -936,7 +948,7 @@ export const CHOKING_ROOMS_B: readonly ChokingRoomContent[] = [
       },
       {
         flag: 'CW-35:seal-the-road',
-        text: 'Behind them the seventh sluice is chained from the inside, its key snapped in the lock. Nobody will hunt Cal up that road now. Nobody will follow him either.',
+        text: 'Behind them the seventh sluice is chained from the inside, its key snapped in the lock. Nobody will hunt Fenn up that road now. Nobody will follow him either.',
       },
       {
         flag: 'CW-35:char-holds-key',

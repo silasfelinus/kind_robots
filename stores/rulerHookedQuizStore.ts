@@ -21,7 +21,11 @@ export const useRulerHookedQuizStore = defineStore('rulerHookedQuiz', () => {
   const fishing = useRulerHookedStore()
   const tutor = useMandarinTutorStore()
   const mode = ref<FishingMode>('classic')
-  const modules = ref<ModuleToggles>({ flags: true, capitals: true, mandarin: false })
+  const modules = ref<ModuleToggles>({
+    flags: true,
+    capitals: true,
+    mandarin: false,
+  })
   const correct = ref<Progress>({ flags: 0, capitals: 0, mandarin: 0 })
   const question = ref<FishingQuizQuestion | null>(null)
   const introduction = ref(false)
@@ -35,22 +39,31 @@ export const useRulerHookedQuizStore = defineStore('rulerHookedQuiz', () => {
   let initialized = false
   let catalogAttempted = false
 
-  const enabled = computed(() => MODULES.filter((module) => modules.value[module]))
+  const enabled = computed(() =>
+    MODULES.filter((module) => modules.value[module]),
+  )
   const currentMandarinCard = computed(() =>
     question.value?.cardKey
-      ? tutor.cards.find((card) => card.key === question.value?.cardKey) ?? null
+      ? (tutor.cards.find((card) => card.key === question.value?.cardKey) ??
+        null)
       : null,
   )
   const currentArt = computed(() => {
     const key = question.value?.cardKey
-    return key ? tutor.canonicalArtUrls[key] || tutor.illustrationUrl(key) || '' : ''
+    return key
+      ? tutor.canonicalArtUrls[key] || tutor.illustrationUrl(key) || ''
+      : ''
   })
 
   function saveSettings() {
     if (!import.meta.client) return
     localStorage.setItem(
       SETTINGS_KEY,
-      JSON.stringify({ mode: mode.value, modules: modules.value, correct: correct.value }),
+      JSON.stringify({
+        mode: mode.value,
+        modules: modules.value,
+        correct: correct.value,
+      }),
     )
   }
 
@@ -65,16 +78,22 @@ export const useRulerHookedQuizStore = defineStore('rulerHookedQuiz', () => {
         modules?: Partial<ModuleToggles>
         correct?: Partial<Progress>
       }
-      if (parsed.mode === 'quiz' || parsed.mode === 'classic') mode.value = parsed.mode
+      if (parsed.mode === 'quiz' || parsed.mode === 'classic')
+        mode.value = parsed.mode
       if (parsed.modules) {
         for (const module of MODULES) {
-          if (typeof parsed.modules[module] === 'boolean') modules.value[module] = parsed.modules[module]
+          if (typeof parsed.modules[module] === 'boolean')
+            modules.value[module] = parsed.modules[module]
         }
       }
       if (parsed.correct) {
         for (const module of MODULES) {
           const value = parsed.correct[module]
-          if (typeof value === 'number' && Number.isFinite(value) && value >= 0) {
+          if (
+            typeof value === 'number' &&
+            Number.isFinite(value) &&
+            value >= 0
+          ) {
             correct.value[module] = Math.floor(value)
           }
         }
@@ -110,7 +129,9 @@ export const useRulerHookedQuizStore = defineStore('rulerHookedQuiz', () => {
     catalogAttempted = true
     await tutor.initialize()
     if (!tutor.cards.length) {
-      error.value = tutor.error || 'Mandarin lessons are unavailable. Retry or choose Classic.'
+      error.value =
+        tutor.error ||
+        'Mandarin lessons are unavailable. Retry or choose Classic.'
       return
     }
     const keys = tutor.cards
@@ -121,7 +142,8 @@ export const useRulerHookedQuizStore = defineStore('rulerHookedQuiz', () => {
       const response = await performFetch<{
         cards?: Record<string, CardProgress>
       }>(
-        '/api/mandarin/study/progress?cardKeys=' + encodeURIComponent(keys.join(',')),
+        '/api/mandarin/study/progress?cardKeys=' +
+          encodeURIComponent(keys.join(',')),
         {},
         1,
         15000,
@@ -148,22 +170,37 @@ export const useRulerHookedQuizStore = defineStore('rulerHookedQuiz', () => {
       const selected = choices[Math.floor(Math.random() * choices.length)]!
       if (selected === 'mandarin') {
         await loadMandarin()
-        const card = mandarinFrontier(tutor.cards, tracked.value, lastId.value?.replace(/^mandarin:/, '') ?? null, correct.value.mandarin)
+        const card = mandarinFrontier(
+          tutor.cards,
+          tracked.value,
+          lastId.value?.replace(/^mandarin:/, '') ?? null,
+          correct.value.mandarin,
+        )
         if (!card) {
           const backup = available.find((module) => module !== 'mandarin')
           if (!backup) {
-            error.value = 'No Mandarin words loaded. Choose Retry or switch to Classic in Settings.'
+            error.value =
+              'No Mandarin words loaded. Choose Retry or switch to Classic in Settings.'
             return
           }
-          question.value = geographyQuestion(backup, correct.value[backup], lastId.value)
+          question.value = geographyQuestion(
+            backup,
+            correct.value[backup],
+            lastId.value,
+          )
         } else {
           question.value = mandarinQuestion(card, tutor.cards)
           introduction.value =
-            !tutor.lessonIsComplete(card.key) && (tracked.value[card.key]?.repetitions ?? 0) === 0
+            !tutor.lessonIsComplete(card.key) &&
+            (tracked.value[card.key]?.repetitions ?? 0) === 0
           void tutor.probeCanonicalIllustration(card.key)
         }
       } else {
-        question.value = geographyQuestion(selected, correct.value[selected], lastId.value)
+        question.value = geographyQuestion(
+          selected,
+          correct.value[selected],
+          lastId.value,
+        )
       }
       lastId.value = question.value?.id ?? null
       lastModule.value = question.value?.module ?? null
@@ -183,12 +220,20 @@ export const useRulerHookedQuizStore = defineStore('rulerHookedQuiz', () => {
 
   function answer(id: string): boolean {
     const active = question.value
-    if (!active || introduction.value || feedback.value || !fishing.activeFishing) return false
+    if (
+      !active ||
+      introduction.value ||
+      feedback.value ||
+      !fishing.activeFishing
+    )
+      return false
     const succeeded = id === active.correctId
     if (active.module === 'mandarin' && active.cardKey) {
       tutor.rateCard(active.cardKey, succeeded ? 'good' : 'again')
       tracked.value[active.cardKey] = {
-        repetitions: succeeded ? (tracked.value[active.cardKey]?.repetitions ?? 0) + 1 : 0,
+        repetitions: succeeded
+          ? (tracked.value[active.cardKey]?.repetitions ?? 0) + 1
+          : 0,
         dueAt: succeeded
           ? new Date(Date.now() + 86400000).toISOString()
           : new Date(0).toISOString(),
@@ -201,7 +246,10 @@ export const useRulerHookedQuizStore = defineStore('rulerHookedQuiz', () => {
       fishing.landQuizFish()
       return true
     }
-    feedback.value = 'Not quite. ' + active.explanation + ' Another question can still land this fish.'
+    feedback.value =
+      'Not quite. ' +
+      active.explanation +
+      ' Another question can still land this fish.'
     return false
   }
 
@@ -212,9 +260,25 @@ export const useRulerHookedQuizStore = defineStore('rulerHookedQuiz', () => {
   }
 
   return {
-    mode, modules, correct, enabled, question, introduction, feedback,
-    loading, error, mandarinSynced, currentMandarinCard, currentArt,
-    initialize, setMode, toggleModule, nextQuestion, finishIntroduction,
-    answer, retryLoading, resetQuestion,
+    mode,
+    modules,
+    correct,
+    enabled,
+    question,
+    introduction,
+    feedback,
+    loading,
+    error,
+    mandarinSynced,
+    currentMandarinCard,
+    currentArt,
+    initialize,
+    setMode,
+    toggleModule,
+    nextQuestion,
+    finishIntroduction,
+    answer,
+    retryLoading,
+    resetQuestion,
   }
 })

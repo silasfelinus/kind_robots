@@ -33,6 +33,7 @@ import {
   chooseTrioStep,
   restoreTrioAdventure,
   trioEpilogue,
+  trioKey,
   type TrioEndingIndex,
 } from '~/utils/gameOfCaptains/trioAdventures'
 import {
@@ -223,6 +224,11 @@ export const useGameOfCaptainsStore = defineStore('gameOfCaptains', () => {
     collectorReport.value = null
     alienArtwork.value = {}
     alienArtLoaded.value = false
+    onboardingArt.value = {}
+    onboardingArtLoaded.value = false
+    trioArtwork.value = {}
+    loadedTrioArtwork.value = {}
+    pendingTrioArtwork.value = {}
     const id = userStore.authenticatedUserId
     writer = null
     queuedSignature = ''
@@ -288,6 +294,8 @@ export const useGameOfCaptainsStore = defineStore('gameOfCaptains', () => {
       if (!loaded.value) return
       void syncAlienGuideAccount()
       void loadAlienArtwork()
+      void loadOnboardingArt()
+      if (run.value) void loadTrioArtwork(trioKey(run.value.crew))
     },
   )
   const alienGuide = ref<AlienGuide>(emptyAlienGuide())
@@ -425,34 +433,36 @@ export const useGameOfCaptainsStore = defineStore('gameOfCaptains', () => {
       pendingTrioArtwork.value[trio]
     )
       return
+    const epoch = accountEpoch
     pendingTrioArtwork.value[trio] = true
     try {
       const response = await performFetch<Record<string, string>>(
         '/api/game-of-captains/trio-art?trio=' + encodeURIComponent(trio),
       )
-      if (response.success && response.data) {
+      if (epoch === accountEpoch && response.success && response.data) {
         trioArtwork.value = { ...trioArtwork.value, ...response.data }
         loadedTrioArtwork.value[trio] = true
       }
     } catch {
       // Portrait fallbacks remain available. A failed request may retry.
     } finally {
-      pendingTrioArtwork.value[trio] = false
+      if (epoch === accountEpoch) pendingTrioArtwork.value[trio] = false
     }
   }
   async function loadOnboardingArt() {
     if (onboardingArtLoaded.value) return
+    const epoch = accountEpoch
     try {
       const response = await performFetch<Record<string, string>>(
         '/api/game-of-captains/onboarding-art',
       )
-      if (response.success && response.data) {
+      if (epoch === accountEpoch && response.success && response.data) {
         onboardingArt.value = response.data
       }
     } catch {
-      onboardingArt.value = {}
+      if (epoch === accountEpoch) onboardingArt.value = {}
     } finally {
-      onboardingArtLoaded.value = true
+      if (epoch === accountEpoch) onboardingArtLoaded.value = true
     }
   }
   const preferences = ref<CouchPreferences>({

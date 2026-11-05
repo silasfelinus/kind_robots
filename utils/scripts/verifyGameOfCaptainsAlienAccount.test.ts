@@ -157,6 +157,17 @@ for (const overlay of [
 }
 assert.match(accountSwitch, /alienArtwork\.value = \{\}/)
 assert.match(accountSwitch, /alienArtLoaded\.value = false/)
+for (const reset of [
+  'trioArtwork.value = {}',
+  'loadedTrioArtwork.value = {}',
+  'pendingTrioArtwork.value = {}',
+  'onboardingArt.value = {}',
+  'onboardingArtLoaded.value = false',
+])
+  assert.ok(
+    accountSwitch.includes(reset),
+    'art cache cannot carry private images into the next account: ' + reset,
+  )
 assert.match(store, /void loadAlienArtwork\(\)/)
 assert.match(store, /alienSyncStatus\.value !== 'loading'/)
 assert.match(
@@ -182,6 +193,22 @@ assert.match(
   /epoch === accountEpoch && response\.success/,
   'an older account response cannot repopulate a new player art cache',
 )
+
+for (const [start, end, label] of [
+  [
+    'async function loadTrioArtwork(',
+    'async function loadOnboardingArt()',
+    'trio',
+  ],
+  ['async function loadOnboardingArt()', 'const preferences', 'onboarding'],
+] as const) {
+  const loader = store.slice(store.indexOf(start), store.indexOf(end))
+  assert.match(loader, /const epoch = accountEpoch/, label)
+  assert.match(loader, /epoch === accountEpoch && response\.success/, label)
+  assert.match(loader, /if \(epoch === accountEpoch\)/, label)
+}
+assert.match(store, /void loadOnboardingArt\(\)/)
+assert.match(store, /void loadTrioArtwork\(trioKey\(run\.value\.crew\)\)/)
 
 assert.match(scrapbook, /space-couch-alien-sync-status/)
 assert.match(scrapbook, /space-couch-alien-retry-sync/)

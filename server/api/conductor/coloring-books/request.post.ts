@@ -1,6 +1,7 @@
 import { createError, defineEventHandler, readBody } from 'h3'
 import type {
   ColoringBookBwSource,
+  ColoringBookColorSource,
   ColoringBookRenderRequest,
   ColoringBookStudioOperation,
 } from '~/types/coloringBookStudio'
@@ -89,11 +90,33 @@ function normalizeOperation(value: unknown): ColoringBookStudioOperation {
   return operation as ColoringBookStudioOperation
 }
 
+function normalizeColorSource(
+  value: unknown,
+  operation: ColoringBookStudioOperation,
+): ColoringBookColorSource | null {
+  if (value === undefined || value === null || value === '') return null
+  if (operation !== 'generate-color-proposals') {
+    throw createError({
+      statusCode: 400,
+      message: 'A color source applies only to color generation.',
+    })
+  }
+  const source = compact(String(value)).toLowerCase()
+  if (source !== 'prompt' && source !== 'version') {
+    throw createError({
+      statusCode: 400,
+      message: 'Color source must be prompt or version.',
+    })
+  }
+  return source
+}
+
 function normalizeSourcePath(
   value: unknown,
   bookSlug: string,
   operation: ColoringBookStudioOperation,
   bwSource: ColoringBookBwSource | null,
+  colorSource: ColoringBookColorSource | null,
 ): string | null {
   const raw = String(value || '')
     .trim()
@@ -103,11 +126,14 @@ function normalizeSourcePath(
     operation === 'accept-color' ||
     operation === 'accept-bw' ||
     operation === 'accept-cover'
-  if (!acceptance && !(operation === 'generate-bw' && bwSource === 'version')) {
+  const fromVersion =
+    (operation === 'generate-bw' && bwSource === 'version') ||
+    (operation === 'generate-color-proposals' && colorSource === 'version')
+  if (!acceptance && !fromVersion) {
     throw createError({
       statusCode: 400,
       message:
-        'Existing asset paths are supported only for acceptance, or a B&W made from a selected version.',
+        'Existing asset paths are supported only for acceptance, or a B&W or color made from a selected version.',
     })
   }
 
@@ -170,16 +196,18 @@ export default defineEventHandler(async (event) => {
     }
 
     const bwSource = normalizeBwSource(body?.bwSource, operation)
+    const colorSource = normalizeColorSource(body?.colorSource, operation)
     const sourcePath = normalizeSourcePath(
       body?.sourcePath,
       bookSlug,
       operation,
       bwSource,
+      colorSource,
     )
-    if (bwSource === 'version' && !sourcePath) {
+    if ((bwSource === 'version' || colorSource === 'version') && !sourcePath) {
       throw createError({
         statusCode: 400,
-        message: 'Choose which color or B&W version the new B&W starts from.',
+        message: 'Choose which color or B&W version to start from.',
       })
     }
     if (
@@ -194,7 +222,12 @@ export default defineEventHandler(async (event) => {
           'Forced revisions are supported only for color, B&W, and cover generation.',
       })
     }
-    if (force && sourcePath && operation !== 'generate-bw') {
+    if (
+      force &&
+      sourcePath &&
+      operation !== 'generate-bw' &&
+      operation !== 'generate-color-proposals'
+    ) {
       throw createError({
         statusCode: 400,
         message:
@@ -229,6 +262,7 @@ export default defineEventHandler(async (event) => {
       proposalId: coverOperation ? undefined : proposalId,
       sourcePath,
       bwSource,
+      colorSource,
       force,
       note: note || defaultNote,
       renderSettings,
@@ -244,6 +278,7 @@ export default defineEventHandler(async (event) => {
         proposalId: coverOperation ? undefined : proposalId,
         sourcePath,
         bwSource,
+        colorSource,
         force,
         renderSettings,
         eventPath: path,

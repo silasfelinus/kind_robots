@@ -1,5 +1,6 @@
 import type {
   ColoringBookBwSource,
+  ColoringBookColorSource,
   ColoringBookProductionState,
   ColoringBookProposal,
   ColoringBookVariant,
@@ -106,8 +107,8 @@ export function coloringBookVersions(
   return versions
 }
 
-/** What a new B&W is made from, as the page card offers it. */
-export type ColoringBookBwChoice = 'shown-color' | 'shown-bw' | 'prompt'
+/** What a new B&W or color is made from, as the page card offers it. */
+export type ColoringBookSourceChoice = 'shown-color' | 'shown-bw' | 'prompt'
 
 /** The file the card shows for a variant: a previewed version, else the current one. */
 export function shownVersionPath(
@@ -132,7 +133,7 @@ export function shownVersionPath(
  * file goes as a `version`. Null when that variant has nothing to start from.
  */
 export function coloringBookBwRequest(
-  choice: ColoringBookBwChoice,
+  choice: ColoringBookSourceChoice,
   bookSlug: string,
   proposal: ColoringBookProposal,
   production: ColoringBookProductionState | null,
@@ -157,4 +158,28 @@ export function coloringBookBwRequest(
     return { source: 'color', path: '' }
   }
   return { source: 'version', path }
+}
+
+/**
+ * Turn the card's color choice into a generate-color-proposals request (Silas,
+ * 2026-11-05 PT: "Can we make a color from a black and white?"). `prompt`
+ * renders from the page prompt; a shown B&W or color goes as a `version`.
+ */
+export function coloringBookColorRequest(
+  choice: ColoringBookSourceChoice,
+  bookSlug: string,
+  proposal: ColoringBookProposal,
+  production: ColoringBookProductionState | null,
+  picked: Partial<Record<ColoringBookVariant, string | null>>,
+): { source: ColoringBookColorSource; path: string } | null {
+  if (choice === 'prompt') return { source: 'prompt', path: '' }
+  const variant: ColoringBookVariant = choice === 'shown-bw' ? 'bw' : 'color'
+  const path = shownVersionPath(
+    bookSlug,
+    proposal,
+    production,
+    variant,
+    picked[variant],
+  )
+  return path ? { source: 'version', path } : null
 }

@@ -65,6 +65,7 @@ export const useMemorySeaStore = defineStore('memorySea', () => {
   const echoFlags = computed<readonly string[]>(() => [
     ...progress.value.flags,
     ...earth.e04Flags,
+    ...(active.value === 'e06' ? records.value.e05.flags : []),
   ])
   const opening = computed(() =>
     [

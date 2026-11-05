@@ -45,51 +45,14 @@ export function seaRealityReady(
     : MEMORY_PAIR_ENDINGS.e06.some((option) => option.id === ending)
 }
 
-const SEA_KEY_SCENES: Record<SeaReality, Record<string, string>> = {
-  e05: {
-    '1,1':
-      'Pearl Stair. The staircase is precisely as Scylla remembers. Char calls from above, younger than the last voice Scylla heard. Today is three days before their planned flight to land.',
-    '2,2':
-      'In the Council Gallery, a royal portrait shows both sisters smiling. Char asks why Scylla keeps looking for a crack in the paint.',
-    '4,3':
-      'Oren Pike has counted every ration and rescue rope. He is hooded, axe at his side, and refuses to file a plan until both princesses approve it.',
-    '6,4':
-      'The court’s archivist wants the twins to sign a departure oath. An oath can be kept for a lifetime, even when the person who signed it has not lived that lifetime yet.',
-    '7,7':
-      'Char discovers the secret shoreward route. She wants to be brave, not saved without being asked. Scylla has to tell the difference.',
-    '8,8':
-      'At the gate, the tide pauses before the sisters. Char demands to know whether Scylla will choose for her or stand beside her while she chooses.',
-  },
-  e06: {
-    '1,1':
-      'Pearl Stair now doubles back on itself. The court has recorded two conflicting versions of the same morning, and threatens to confiscate whichever is inconvenient.',
-    '2,2':
-      'The twins are summoned before a gallery of portraits that insist Char has always obeyed. Char points out every moment she did not.',
-    '4,3':
-      'Oren has found the only physical route between two contradictory corridors. His manifest includes who was stranded, who was rescued and who is still missing.',
-    '6,4':
-      'The court offers security in exchange for an official history that erases someone else’s cost. Oren refuses to call an erased debt settled.',
-    '7,7':
-      'Char approaches the second departure on her own terms. Even a future that once killed her cannot make her merely Scylla’s second chance.',
-    '8,8':
-      'The witness bells toll twice. The sisters must decide whether the court may publish two painful, contradictory histories, or whether their memories remain protected from compulsion.',
-  },
-}
-
 export function seaNarrative(
   reality: SeaReality,
   site: string,
   campaign: MemoryCampaignProgress,
   choices: Readonly<Record<string, string>> = {},
 ): string {
-  // Hand-written e05 sites carry their own scene; keep only the
-  // campaign-dependent lines (which tide-gate outcome Scylla remembers).
-  const original =
-    reality === 'e05' ? '' : (SEA_KEY_SCENES[reality][site] ?? '')
-  if (site === '1,1')
-    return [scyllaOpeningForMemory(campaign, reality), original]
-      .filter(Boolean)
-      .join(' ')
+  // Sites are hand-written; only campaign-dependent lines are added here.
+  if (site === '1,1') return scyllaOpeningForMemory(campaign, reality)
   if (reality === 'e05' && site === '8,8') {
     const fate = memoryCharFate(campaign)
     const past =
@@ -98,14 +61,13 @@ export function seaNarrative(
         : fate === 'alive'
           ? 'Scylla left an older Char alive in the present, but the people harmed by the tide gate have not vanished.'
           : 'The original tide-gate outcome is unresolved; Scylla cannot claim a rescue or a death she has not witnessed.'
-    return [original, past].filter(Boolean).join(' ')
+    return past
   }
   if (reality === 'e06' && (site === '2,2' || site === '8,8')) {
     const chosen = MEMORY_SCYLLA_DEPARTURE_CHOICES.find(
       (option) => option.id === campaign.scyllaDeparture,
     )
     return [
-      original,
       chosen?.futureConsequence ?? '',
       site === '8,8'
         ? (MEMORY_CHAR_AGENCY_CHOICES.find(
@@ -119,7 +81,7 @@ export function seaNarrative(
       .filter(Boolean)
       .join(' ')
   }
-  return original
+  return ''
 }
 
 export function seaActCoverage(): string[] {

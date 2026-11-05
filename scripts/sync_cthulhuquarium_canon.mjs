@@ -320,7 +320,12 @@ export const CTHULHUQUARIUM_SCENE_IDS: string[] = ${JSON.stringify(Object.keys(o
 )
 
 const assetRoot = join(repoRoot, 'assets', 'images', 'cthulhuquarium')
-function copyBuilt(fromDir, toDir, rename = (name) => name, { mirror = false } = {}) {
+function copyBuilt(
+  fromDir,
+  toDir,
+  rename = (name) => name,
+  { mirror = false } = {},
+) {
   const src = join(canon, fromDir)
   if (!existsSync(src)) return 0
   mkdirSync(join(assetRoot, toDir), { recursive: true })

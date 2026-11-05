@@ -496,10 +496,45 @@ export function drawFork(state: RunState, index: number): string[] {
   return offered
 }
 
-export function crossroadsNewcomer(state: RunState): CompanionId | null {
+function unmetNewcomer(state: RunState): CompanionId | null {
   return (
     state.newcomerOrder.find((id) => !state.meetingOrder.includes(id)) ?? null
   )
+}
+
+/**
+ * The opening guide a player turned down, while that first "no" is still the
+ * only answer they have given. Declining an introduction must not lock that
+ * companion's personal ending (COMPANION-OPTIMAL-PATHS.md, rule 4), so they
+ * cross the player's path once more after the last regular crossroads.
+ */
+export function declinedGuideReunion(state: RunState): CompanionId | null {
+  if (state.followHistory[0]?.choice !== 'go-alone') return null
+  const declined = state.meetingOrder[0]
+  if (!declined || travelParty(state).includes(declined)) return null
+  if (unmetNewcomer(state)) return null
+  const answered = ['followed_', 'stayed_at_', 'traveled_together_'].some(
+    (prefix) => state.flags.includes(prefix + declined),
+  )
+  return answered ? null : declined
+}
+
+export function crossroadsNewcomer(state: RunState): CompanionId | null {
+  return (
+    unmetNewcomer(state) ??
+    (state.phase === 'crossroads' ? declinedGuideReunion(state) : null)
+  )
+}
+
+export function isCrossroadsReunion(state: RunState): boolean {
+  const newcomer = crossroadsNewcomer(state)
+  return Boolean(newcomer && state.meetingOrder.includes(newcomer))
+}
+
+function reunionBefore(state: RunState, route: RouteStep[], index: number) {
+  if (index < 1 || route[index]?.kind === 'crossroads') return false
+  const last = route.map((step) => step.kind).lastIndexOf('crossroads')
+  return last >= 0 && index > last && Boolean(declinedGuideReunion(state))
 }
 
 export type Ending = {
@@ -672,6 +707,9 @@ export function enterStep(state: RunState, index: number): RunState {
     const interlude = mysteryInterlude(base, route, i)
     if (interlude)
       return { ...base, step: i - 1, phase: 'beat', card: interlude }
+    // A declined first guide's second chance uses the same digression slot.
+    if (reunionBefore(base, route, i))
+      return { ...base, step: i - 1, phase: 'crossroads' }
     if (step.kind === 'beat') {
       if (step.ifProspect && !base.prospect) continue
       return { ...base, phase: 'beat', card: step.id }
@@ -694,7 +732,7 @@ export function enterStep(state: RunState, index: number): RunState {
               base.seed,
             ),
           }
-      if (crossroadsNewcomer(seeded)) return { ...seeded, phase: 'crossroads' }
+      if (unmetNewcomer(seeded)) return { ...seeded, phase: 'crossroads' }
       continue
     }
     const ended: RunState = { ...base, phase: 'end' }
@@ -997,10 +1035,10 @@ export function chooseCrossroads(
   const companion = COMPANIONS.find((c) => c.id === newcomer)
   const previous = COMPANIONS.find((c) => c.id === state.activeLead)
   const name = companion?.name ?? 'the newcomer'
-  const met: RunState = {
-    ...state,
-    meetingOrder: [...state.meetingOrder, newcomer],
-  }
+  const reunion = state.meetingOrder.includes(newcomer)
+  const met: RunState = reunion
+    ? state
+    : { ...state, meetingOrder: [...state.meetingOrder, newcomer] }
   const next: RunState =
     decision === 'follow'
       ? {
@@ -1048,13 +1086,17 @@ export function chooseCrossroads(
       : decision === 'follow'
         ? previous
           ? `${previous.name} nods, a little stung, and heads off after their own piece of the mystery. ${name} is already walking.`
-          : `${name} grins like they knew you would. You have a guide now.`
-        : `${name} takes it in stride and goes their own way. Their trail and yours will cross again before this is over.`
+          : reunion
+            ? `${name} does not ask you to explain the first answer. The invitation was real then and it is real now. You have a guide for the last stretch.`
+            : `${name} grins like they knew you would. You have a guide now.`
+        : reunion
+          ? `${name} takes the second no as kindly as the first. Your trails part here without hard feelings, and the rest of the weekend is yours to finish.`
+          : `${name} takes it in stride and goes their own way. Their trail and yours will cross again before this is over.`
   return record(
     next,
     {
       source: 'CROSSROADS',
-      title: `Crossroads: ${name}`,
+      title: reunion ? `Crossroads again: ${name}` : `Crossroads: ${name}`,
       choice: selection,
       roll: null,
       text,

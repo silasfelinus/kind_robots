@@ -331,6 +331,26 @@ export const CROSSROADS: Record<CompanionId, string[]> = {
   ],
 }
 
+/** A second meeting with the guide the player turned down at the opening. */
+export const CROSSROADS_REUNION: Record<CompanionId, string[]> = {
+  mara: [
+    'Mara is on the sidewalk taping a hand-lettered sign into a window: NO PHOTOS OF UNFINISHED WORK. She recognizes you from the start of the weekend and does not pretend otherwise.',
+    '“You said no once. That was allowed,” she says. “I still need someone who writes things down. The offer is good until I finish this roll of tape.”',
+  ],
+  kit: [
+    'Kit’s sea serpent is parked crooked on a side street, one wheel off again. She spots you over the handlebars and laughs at the face that turned her down at the start of the weekend.',
+    '“The machine is still ticking in somebody else’s rhythm,” she says. “No hard feelings about before. There’s room on the back if you want it now.”',
+  ],
+  juniper: [
+    'Juniper is waiting where the trail meets the road, as if the forest told her which way you would walk. Maybe it did. She does not mention that you went on without her the first time.',
+    '“The hard question is still unasked,” she says. “Company is still welcome, if the company can still keep a secret.”',
+  ],
+  cedar: [
+    'Cedar’s pickup idles on the shoulder with the CB turned up and the passenger door already open. He waves a thermos at you like your first conversation of the weekend never really ended.',
+    '“Turned me down once. That’s fair, lots of folks do,” he says. “Transmitter’s still out there. Seat’s still empty.”',
+  ],
+}
+
 const AUTHORED_ENCOUNTERS: EncounterCard[] = [
   ...QUEST_CARDS,
   {

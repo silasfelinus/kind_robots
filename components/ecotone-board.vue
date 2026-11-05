@@ -1885,6 +1885,7 @@ import {
   CHAPTERS,
   COMPANIONS,
   CROSSROADS,
+  CROSSROADS_REUNION,
   ENDING_LENSES,
   LENSES,
   SKILLS,
@@ -1907,6 +1908,7 @@ import {
   currentStep,
   dayName,
   fillText,
+  isCrossroadsReunion,
   type Roll,
 } from '~/utils/ecotone/engine'
 import {
@@ -2529,22 +2531,28 @@ const stage = computed<Stage>(() => {
       })),
       { id: n.id, name: n.name },
     ]
+    const reunion = isCrossroadsReunion(run)
     return {
       ...fallback,
       scene: 'bay',
       art: n.art,
       alt: `${n.name}, ${n.role}`,
       portrait: true,
-      kicker: 'Companion encounter',
-      title: 'Someone worth following',
-      subtitle: `${n.name} crosses your path`,
+      kicker: reunion ? 'A second chance' : 'Companion encounter',
+      title: reunion
+        ? 'The invitation still stands'
+        : 'Someone worth following',
+      subtitle: reunion
+        ? `${n.name} crosses your path again`
+        : `${n.name} crosses your path`,
       place: eventInfo.value?.name ?? '',
       meet: { name: n.name, role: n.role, line: n.line },
       panelKicker: 'A crossroads, not a character select',
-      panelFooter:
-        'All three answers are valid; nobody owes you their company.',
+      panelFooter: game.lead
+        ? 'All three answers are valid; nobody owes you their company.'
+        : 'Both answers are valid; nobody owes you their company.',
       question: 'Who walks with you?',
-      body: CROSSROADS[n.id],
+      body: reunion ? CROSSROADS_REUNION[n.id] : CROSSROADS[n.id],
       emblem,
     }
   }

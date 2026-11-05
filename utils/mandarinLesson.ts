@@ -413,14 +413,22 @@ export function characterReadingInCard(
 }
 
 /** Characters actually assigned this phonetic in a particular card. */
-export function phoneticCharacters(card: MandarinCard, phonetic: string): string[] {
+export function phoneticCharacters(
+  card: MandarinCard,
+  phonetic: string,
+): string[] {
   const characters = cardCharacters(card.simplified)
-  return [...new Set(
-    card.components
-      .filter((component) => component.role === 'phonetic' && component.glyph === phonetic)
-      .map((component) => componentCharacter(component, characters))
-      .filter(Boolean),
-  )]
+  return [
+    ...new Set(
+      card.components
+        .filter(
+          (component) =>
+            component.role === 'phonetic' && component.glyph === phonetic,
+        )
+        .map((component) => componentCharacter(component, characters))
+        .filter(Boolean),
+    ),
+  ]
 }
 
 function relative(card: MandarinCard): MandarinLessonRelative {
@@ -506,14 +514,18 @@ function soundFamiliesFor(
       .filter((candidate) => candidate.key !== card.key)
       .sort(
         (a, b) =>
-          cardCharacters(a.simplified).length - cardCharacters(b.simplified).length,
+          cardCharacters(a.simplified).length -
+          cardCharacters(b.simplified).length,
       )
 
     const members: MandarinLessonRelative[] = []
     const readings = [startingReading]
     const seenCharacters = new Set([character])
     for (const candidate of candidates) {
-      for (const candidateCharacter of phoneticCharacters(candidate, phonetic)) {
+      for (const candidateCharacter of phoneticCharacters(
+        candidate,
+        phonetic,
+      )) {
         if (seenCharacters.has(candidateCharacter)) continue
         const reading = characterReadingInCard(candidate, candidateCharacter)
         if (!reading) continue

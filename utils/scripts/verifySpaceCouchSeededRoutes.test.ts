@@ -121,3 +121,5 @@ console.log(
     chosenCounts.size +
     ' distinct missions; every chapter diversified, manual override and save restore OK',
 )
+
+assert.equal(destinationFollowup({ ...startVoyage('fluke', ['tess', 'kivo', 'fen'], 123), chapter: 9, worldFlags: ['windglass-hidden'] }, 'windglass-exodus') !== null, true)

@@ -1672,8 +1672,9 @@ function charted(
   let run = startVoyage(captain, crew, seed)
   for (const step of plan) {
     if (run.phase !== 'briefing') return null
-    if (step.at && missionFor(run).id !== step.at) {
-      const charted = chooseMission(run, step.at)
+    const destination = step.at ?? VOYAGE_BOARDS[run.chapter - 1]?.[0]
+    if (destination && missionFor(run).id !== destination) {
+      const charted = chooseMission(run, destination)
       if (charted === run) return null
       run = charted
     }

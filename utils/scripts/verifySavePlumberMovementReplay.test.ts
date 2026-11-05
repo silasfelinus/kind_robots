@@ -25,7 +25,6 @@ import { emptyInput, type InputFrame } from '../arcade/types'
 
 const VIEW_W = 480
 const VIEW_H = 270
-const JUMP_VY = -8.6
 const WALLS = new Set([
   SOLID_GROUND,
   SOLID_ICE,

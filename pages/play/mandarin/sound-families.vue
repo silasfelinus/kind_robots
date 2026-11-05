@@ -12,12 +12,12 @@
         <p class="kr-text-eyebrow-bold">Sound-family index</p>
         <p class="mt-1 text-3xl font-black sm:text-4xl">One sound clue, many characters</p>
         <p class="kr-text-faded-sm mt-2 max-w-3xl leading-relaxed">
-          These families come only from phonetic relationships asserted by the pinned character source. Modern readings are shown side by side, including families whose sounds drifted apart over time.
+          These families group distinct characters by their documented phonetic component. Their current syllables appear side by side; different modern readings alone do not date a sound change.
         </p>
         <div class="mt-3 flex flex-wrap gap-2">
           <span class="kr-badge-primary-sm">{{ families.length }} families</span>
-          <span class="kr-badge-ghost-sm">{{ memberCount }} catalog cards</span>
-          <span class="kr-badge-warning-sm">{{ driftedCount }} drifted</span>
+          <span class="kr-badge-ghost-sm">{{ memberCount }} character examples</span>
+          <span class="kr-badge-warning-sm">{{ driftedCount }} with varied readings</span>
         </div>
       </header>
 
@@ -44,12 +44,12 @@
                 <p class="kr-text-faded-xs">{{ family.readings.join(' · ') }}</p>
               </div>
             </div>
-            <span v-if="family.drifted" class="kr-badge-warning-sm">readings drifted</span>
-            <span v-else class="kr-badge-success-sm">reading stayed close</span>
+            <span v-if="family.drifted" class="kr-badge-warning-sm">modern readings differ</span>
+            <span v-else class="kr-badge-success-sm">same toneless reading</span>
           </div>
 
           <p v-if="family.drifted" class="kr-text-faded-xs mt-2 leading-relaxed">
-            The shared component records a historical sound relationship, not a promise that every modern member still sounds alike.
+            These distinct characters share a phonetic clue, but their current syllables differ. That is not, by itself, proof of when or how pronunciations changed.
           </p>
 
           <div class="mt-3 grid gap-2 grid-cols-[repeat(auto-fit,minmax(min(100%,12rem),1fr))]">

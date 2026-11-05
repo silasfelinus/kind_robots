@@ -1463,7 +1463,9 @@ export const RUSH_MANA_EVERY = 2
 export const MANA_CAP = 10
 export const DEFAULT_SEED = 4817
 export const ROUND_LIMITS: Record<ModeId, number> = {
-  turf: 45,
+  // A safety clock, not the usual ending: 9 x 9 TURF with slime, traps and
+  // pounces runs about 57 rounds before both CPUs pass (t-024 sweep).
+  turf: 70,
   blackout: 30,
   gridiron: 30,
   bloodrush: 150,

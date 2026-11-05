@@ -18,6 +18,17 @@
         </span>
         <div class="md-bar-actions">
           <button
+            v-if="
+              night.progress.current === '4,3' && night.progress.choices['4,3']
+            "
+            type="button"
+            class="btn btn-sm btn-soft btn-error"
+            data-testid="memory-enter-furnace"
+            @click="emit('furnace')"
+          >
+            Enter the Furnace of Names
+          </button>
+          <button
             type="button"
             class="btn btn-sm btn-ghost"
             @click="night.restart()"
@@ -254,7 +265,7 @@ import { computed, onMounted, ref } from 'vue'
 import { useMemoryHoshimoriNightStore } from '~/stores/memoryHoshimoriNightStore'
 import { HOSHIMORI_NIGHT_SITES } from '~/utils/memoryDungeon/hoshimoriNight'
 
-const emit = defineEmits<{ leave: [] }>()
+const emit = defineEmits<{ leave: []; furnace: [] }>()
 const night = useMemoryHoshimoriNightStore()
 const tiles = Array.from(
   { length: 64 },

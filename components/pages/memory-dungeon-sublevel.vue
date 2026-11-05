@@ -199,10 +199,13 @@ import { useMemorySublevelStore } from '~/stores/memorySublevelStore'
 import { useMemoryDrownedArchiveStore } from '~/stores/memoryDrownedArchiveStore'
 import { useMemoryBreathingWorksStore } from '~/stores/memoryBreathingWorksStore'
 import { useMemoryChokingWorksStore } from '~/stores/memoryChokingWorksStore'
+import { useMemoryFurnaceOfNamesStore } from '~/stores/memoryFurnaceOfNamesStore'
 import type { DungeonKind } from '~/utils/memoryDungeon/authoredDungeon/types'
 
 const props = withDefaults(
-  defineProps<{ dungeon?: 'sublevel' | 'drowned' | 'works' | 'choking' }>(),
+  defineProps<{
+    dungeon?: 'sublevel' | 'drowned' | 'works' | 'choking' | 'furnace'
+  }>(),
   { dungeon: 'sublevel' },
 )
 const emit = defineEmits<{ leave: [] }>()
@@ -213,7 +216,9 @@ const sub =
       ? useMemoryBreathingWorksStore()
       : props.dungeon === 'choking'
         ? useMemoryChokingWorksStore()
-        : useMemorySublevelStore()
+        : props.dungeon === 'furnace'
+          ? useMemoryFurnaceOfNamesStore()
+          : useMemorySublevelStore()
 
 function symbolFor(kind: DungeonKind): string {
   return {

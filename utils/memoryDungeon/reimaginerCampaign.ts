@@ -5,8 +5,15 @@
  * memoryDungeonWorld.ts; these IDs identify *experience variants* instead.
  */
 export type MemoryConceptId = 'briar' | 'hearth' | 'crown' | 'city'
+/**
+ * The Earth data researcher who traded lives with Morrow: World One/Two's
+ * main character and the e09 finale lead (Silas, 2026-11-05 PT: "He needs
+ * an androgynous name, but he is named"). He/him. Change the name here only.
+ * Pip is a separate goblin courier NPC, not a protagonist.
+ */
+export const MEMORY_RESEARCHER_NAME = 'Rowan'
 export type RealityPerspective =
-  'earth-protagonist' | 'pip' | 'morrow' | 'scylla' | 'char' | 'vesper'
+  'researcher' | 'morrow' | 'scylla' | 'char' | 'vesper'
 export type RealityOntology =
   | 'storybook'
   | 'mundane'
@@ -129,7 +136,7 @@ export const MEMORY_REALITY_EXPERIENCES: readonly RealityExperience[] = [
     'e01',
     'briar',
     'Briar Marches',
-    'pip',
+    'researcher',
     'storybook',
     'original',
     ['meaning', 'cast', 'visual-language'],
@@ -141,7 +148,7 @@ export const MEMORY_REALITY_EXPERIENCES: readonly RealityExperience[] = [
     'e02',
     'briar',
     'Briar Understory',
-    'pip',
+    'researcher',
     'storybook',
     'dark-reflection',
     ['meaning', 'mechanics', 'traversal', 'cast', 'visual-language'],
@@ -225,7 +232,7 @@ export const MEMORY_REALITY_EXPERIENCES: readonly RealityExperience[] = [
     'e09',
     'briar',
     'Briar: The Forest Between Floors',
-    'pip',
+    'researcher',
     'hybrid',
     'remembrance',
     ['meaning', 'mechanics', 'traversal', 'cast', 'visual-language'],
@@ -1117,7 +1124,7 @@ export const MEMORY_FINALE_PHASES: readonly FinaleRealityPhase[] = [
   {
     id: 'ordinary-earth',
     ontology: 'mundane',
-    perspective: 'earth-protagonist',
+    perspective: 'researcher',
     terrain: 'Research district',
     playableCrisis:
       'Protect the people whose lives were traded without consent',
@@ -1133,7 +1140,7 @@ export const MEMORY_FINALE_PHASES: readonly FinaleRealityPhase[] = [
   {
     id: 'remembered-briar',
     ontology: 'storybook',
-    perspective: 'earth-protagonist',
+    perspective: 'researcher',
     terrain: 'House and wolf road in a revised forest',
     playableCrisis:
       'Reconcile former protectors and their witnesses without erasing testimony',
@@ -1157,7 +1164,7 @@ export const MEMORY_FINALE_PHASES: readonly FinaleRealityPhase[] = [
   {
     id: 'unwritten-synthesis',
     ontology: 'hybrid',
-    perspective: 'earth-protagonist',
+    perspective: 'researcher',
     terrain: 'Unwritten Country and the Last Door',
     playableCrisis:
       'Build a defensible future using verified history and freely given promises',

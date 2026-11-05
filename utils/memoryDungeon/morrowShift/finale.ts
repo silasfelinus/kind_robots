@@ -47,7 +47,7 @@ export const MORROW_SHIFT_FINALE: MorrowShiftSite = {
     },
     {
       flag: 'e03:3,3:care',
-      text: 'Jun’s letter is still sealed. Whatever the researcher meant to say, it is still theirs to say.',
+      text: 'Jun’s letter is still sealed. Whatever Rowan meant to say, it is still his to say.',
     },
     {
       flag: 'e03:3,3:risk',

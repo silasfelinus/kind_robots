@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict'
+import { readFileSync } from 'node:fs'
 import {
   chooseMission,
   destinationFollowup,
@@ -142,3 +143,10 @@ for (const [missionId, flag] of sequelFlags) {
   assert.ok(destinationFollowup({ ...windglass, worldFlags: [flag] }, missionId))
   assert.equal(destinationFollowup(windglass, missionId), null)
 }
+const starChart = readFileSync(
+  new URL('../../pages/play/game-of-captains.vue', import.meta.url),
+  'utf8',
+)
+assert.match(starChart, /class="cap-brief-thread"/)
+assert.match(starChart, /space-couch-destination-thread/)
+assert.match(starChart, /destinationFollowup\(run, call\.id\)/)

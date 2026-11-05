@@ -12,6 +12,7 @@ import assert from 'node:assert/strict'
 import {
   buildMandarinLesson,
   buildMandarinLessonIndex,
+  characterReadingInCard,
   describeContribution,
   isTeachingRole,
   describeSyllables,
@@ -20,6 +21,7 @@ import {
   splitPinyinSyllable,
   tonelessPinyin,
 } from '../mandarinLesson.js'
+import { buildMandarinSoundFamilies } from '../mandarinSoundFamilies.js'
 import type {
   MandarinCard,
   MandarinComponent,
@@ -444,6 +446,81 @@ console.log(
 console.log(
   '✅ sound families: a family with no other members is omitted rather than shown empty',
 )
+
+// --- compound words are not extra sound families --------------------------
+
+{
+  // The reported screen grouped 没有, 还有, 有些, 有名, etc. under 月 and
+  // compared meiyou, haiyou, youxie, youming as if those were readings of 有.
+  const you = card({
+    simplified: '有',
+    pinyin: 'yǒu',
+    components: [component('月', 'phonetic', '有')],
+  })
+  const noHave = card({
+    simplified: '没有',
+    pinyin: 'méi yǒu',
+    components: [component('月', 'phonetic', '有')],
+  })
+  const famous = card({
+    simplified: '有名',
+    pinyin: 'yǒu míng',
+    components: [component('月', 'phonetic', '有')],
+  })
+  assert.equal(characterReadingInCard(noHave, '有'), 'you')
+  assert.equal(characterReadingInCard(famous, '有'), 'you')
+  assert.equal(characterReadingInCard(famous, '名'), 'ming')
+
+  const familyOnlyCompounds = buildMandarinLesson(
+    you,
+    buildMandarinLessonIndex([you, noHave, famous]),
+  )
+  assert.deepEqual(
+    familyOnlyCompounds.soundFamilies,
+    [],
+    'three words with the same 有 are NOT three characters in a phonetic series',
+  )
+  assert.deepEqual(
+    buildMandarinSoundFamilies([you, noHave, famous]),
+    [],
+    'the standalone sound-family browser must also suppress compound-only families',
+  )
+
+  // Synthetic second distinct character to isolate the syllable comparison:
+  // it must compare you/peng, never meiyou or youming.
+  const friend = card({
+    simplified: '朋',
+    pinyin: 'péng',
+    components: [component('月', 'phonetic', '朋')],
+  })
+  const index = buildMandarinLessonIndex([noHave, famous, you, friend])
+  const family = buildMandarinLesson(noHave, index).soundFamilies[0]
+  assert.deepEqual(family?.readings, ['you', 'peng'])
+  assert.deepEqual(
+    family?.members.map((member) => member.simplified),
+    ['朋'],
+    'only a different character, not an extra compound with 有, earns a slot',
+  )
+  const browserFamily = buildMandarinSoundFamilies([
+    noHave,
+    famous,
+    you,
+    friend,
+  ])
+  assert.deepEqual(browserFamily[0]?.readings, ['you', 'peng'])
+  assert.equal(browserFamily[0]?.members.length, 2)
+
+  // A concatenated pinyin string is unaligned; make no historical claim.
+  assert.equal(
+    characterReadingInCard(
+      card({ simplified: '没有', pinyin: 'méiyǒu' }),
+      '有',
+    ),
+    null,
+  )
+}
+
+console.log('✅ compound words do not manufacture pronunciation drift')
 
 // --- homophones ------------------------------------------------------------
 

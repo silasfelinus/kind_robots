@@ -95,11 +95,29 @@ function normalizedEtymology(
   }
 }
 
+// Source-specific correction: the 月-shaped element in 有 represents 肉 (flesh),
+// NOT 月 (moon) as a phonetic. Historical 又 (now written 𠂇) is the sound element.
+// This corrects a misleading phonetic series in the pinned character dictionary.
+// See https://en.wiktionary.org/wiki/有 (Etymology); early interpretations vary.
+const YOU_CORRECTION_SOURCE = 'Etymology correction for 有: https://en.wiktionary.org/wiki/有'
+
+function etymologyFor(entry: MandarinCharacterDataEntry): MandarinCharacterDataEtymology | null {
+  if (entry.character === '有') {
+    return {
+      type: 'pictophonetic',
+      phonetic: '又',
+      semantic: '月',
+      hint: 'meat/flesh (肉, written in the 月-shaped form)',
+    }
+  }
+  return normalizedEtymology(entry.etymology)
+}
+
 function formationFor(
   entry: MandarinCharacterDataEntry | undefined,
 ): MandarinFormation | null {
   const character = cleanText(entry?.character)
-  const etymology = normalizedEtymology(entry?.etymology)
+  const etymology = entry ? etymologyFor(entry) : null
   if (!character || !etymology?.type) return null
   return {
     character,
@@ -154,7 +172,8 @@ function roleComponents(
   const character = cleanText(entry.character)
   const decomposition = cleanText(entry.decomposition)
   const radical = cleanText(entry.radical)
-  const etymology = normalizedEtymology(entry.etymology)
+  const etymology = etymologyFor(entry)
+  const etymologySource = character === '有' ? YOU_CORRECTION_SOURCE : SOURCE_NOTE
   const components: MandarinComponent[] = []
 
   const addComponent = (component: MandarinComponent) => {
@@ -178,7 +197,7 @@ function roleComponents(
         character,
         label: `${character} meaning clue`,
         ...(etymology.hint ? { meaning: etymology.hint } : {}),
-        note: `The source explicitly identifies this as the semantic element. ${SOURCE_NOTE}.`,
+        note: `This is the semantic element. ${etymologySource}.`,
       })
     }
     if (etymology.phonetic) {
@@ -187,7 +206,7 @@ function roleComponents(
         role: 'phonetic',
         character,
         label: `${character} sound clue`,
-        note: `The source explicitly identifies this as the phonetic element; it is not being treated as a second literal definition. ${SOURCE_NOTE}.`,
+        note: `This is the phonetic element, not a second literal definition. ${etymologySource}.`,
       })
     }
   }
@@ -269,7 +288,8 @@ function roleComponents(
 function historyFor(entry: MandarinCharacterDataEntry): string {
   const character = cleanText(entry.character)
   const decomposition = cleanText(entry.decomposition)
-  const etymology = normalizedEtymology(entry.etymology)
+  const etymology = etymologyFor(entry)
+  const etymologySource = character === '有' ? YOU_CORRECTION_SOURCE : SOURCE_NOTE
 
   if (etymology?.type === 'pictophonetic') {
     const roles: string[] = []
@@ -286,7 +306,7 @@ function historyFor(entry: MandarinCharacterDataEntry): string {
     const detail = roles.length
       ? roles.join('; ')
       : 'the source classifies the formation as pictophonetic'
-    return `${character}: ${detail}. Source formation analysis: ${SOURCE_NOTE}.`
+    return `${character}: ${detail}. Formation analysis: ${etymologySource}.`
   }
 
   if (etymology?.type === 'pictographic') {

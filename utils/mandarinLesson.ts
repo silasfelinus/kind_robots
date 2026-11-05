@@ -165,9 +165,8 @@ export type MandarinSoundFamily = {
   /** Distinct toneless readings across the family, in first-seen order. */
   readings: string[]
   /**
-   * True when the family's members no longer share one reading (说 shuō / 税 shuì).
-   * Drift is the interesting case, not an error -- the sound component records how the
-   * character sounded when it was coined, not how it sounds now.
+   * True when the phonetic-bearing characters have different modern toneless syllables.
+   * This is not proof of a historical sound change by itself.
    */
   drifted: boolean
 }
@@ -393,6 +392,45 @@ export function componentCharacter(
   return ''
 }
 
+/**
+ * Read a particular Hanzi within a word, not the pronunciation of the whole word.
+ * Only use syllable-aligned entries: without one syllable per Hanzi there is no
+ * trustworthy way to attribute a reading. Third-tone sandhi does not affect this
+ * lexical, toneless comparison.
+ */
+export function characterReadingInCard(
+  card: MandarinCard,
+  character: string,
+): string | null {
+  const written = [...card.simplified].filter(isHanCharacter)
+  const spoken = parsePinyinToneTargets(card.pinyin)
+  if (!written.length || written.length !== spoken.length) return null
+
+  const readings = written.flatMap((glyph, index) =>
+    glyph === character ? [tonelessPinyin(spoken[index]!.syllable)] : [],
+  )
+  return readings.length && new Set(readings).size === 1 ? readings[0]! : null
+}
+
+/** Characters actually assigned this phonetic in a particular card. */
+export function phoneticCharacters(
+  card: MandarinCard,
+  phonetic: string,
+): string[] {
+  const characters = cardCharacters(card.simplified)
+  return [
+    ...new Set(
+      card.components
+        .filter(
+          (component) =>
+            component.role === 'phonetic' && component.glyph === phonetic,
+        )
+        .map((component) => componentCharacter(component, characters))
+        .filter(Boolean),
+    ),
+  ]
+}
+
 function relative(card: MandarinCard): MandarinLessonRelative {
   return {
     key: card.key,
@@ -461,27 +499,50 @@ function soundFamiliesFor(
     if (component.role !== 'phonetic') continue
     const phonetic = component.glyph
     const character = componentCharacter(component, characters)
+    if (!character) continue
     const dedupeKey = `${character}:${phonetic}`
     if (seen.has(dedupeKey)) continue
     seen.add(dedupeKey)
 
-    const members = (index.phoneticToCards.get(phonetic) ?? [])
+    const startingReading = characterReadingInCard(card, character)
+    if (!startingReading) continue
+
+    // One representative card per DISTINCT phonetic-bearing character. Multiple
+    // compounds containing 有 are vocabulary relatives, not a new sound series.
+    // Prefer a single-character entry over a compound when both exist.
+    const candidates = [...(index.phoneticToCards.get(phonetic) ?? [])]
       .filter((candidate) => candidate.key !== card.key)
-      .slice(0, MAX_FAMILY_MEMBERS)
-      .map(relative)
+      .sort(
+        (a, b) =>
+          cardCharacters(a.simplified).length -
+          cardCharacters(b.simplified).length,
+      )
 
-    // A "family" of one teaches nothing -- it is just this card again.
-    if (!members.length) continue
-
-    const readings: string[] = []
-    for (const member of [relative(card), ...members]) {
-      const reading = homophoneKey(member.pinyin)
-      if (reading && !readings.includes(reading)) readings.push(reading)
+    const members: MandarinLessonRelative[] = []
+    const readings = [startingReading]
+    const seenCharacters = new Set([character])
+    for (const candidate of candidates) {
+      for (const candidateCharacter of phoneticCharacters(
+        candidate,
+        phonetic,
+      )) {
+        if (seenCharacters.has(candidateCharacter)) continue
+        const reading = characterReadingInCard(candidate, candidateCharacter)
+        if (!reading) continue
+        seenCharacters.add(candidateCharacter)
+        members.push(relative(candidate))
+        if (!readings.includes(reading)) readings.push(reading)
+        break
+      }
+      if (members.length >= MAX_FAMILY_MEMBERS) break
     }
+
+    // No other distinct character: this is vocabulary repetition, not a family.
+    if (!members.length) continue
 
     families.push({
       phonetic,
-      character: character || card.simplified,
+      character,
       members,
       readings,
       drifted: readings.length > 1,

@@ -22,10 +22,10 @@ the teaching layer is testable by `npm run test:mandarin-lesson`. It produces:
 - **component roles** rendered as complete sentences that say what each piece _does_ and,
   equally, what it does _not_ claim;
 - **the phonetic series** — other catalog cards built on the same sound component. 青
-  gathers 请/清/情/晴; 兑 gathers 说 shuō and 税 shuì. A family whose readings have drifted
-  apart is flagged as `drifted` rather than hidden, because the drift is the history
-  showing through: the sound component records how a character sounded when it was
-  coined, not how it sounds now;
+  gathers 请/清/情/晴; 兑 gathers 说 shuō and 税 shuì. A family of distinct characters whose modern syllables differ is flagged as
+  `drifted` for compatibility, but the UI says _modern readings differ_, since
+  a modern comparison cannot date or establish historical sound change. Words
+  reusing the same character never count as distinct phonetic-family members;
 - **homophone groups**, split into identical-reading and same-syllable-different-tone, and
   kept structurally separate from the sound families. A shared modern reading is a
   coincidence of pronunciation, never evidence that two characters are related, and the

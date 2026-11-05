@@ -355,6 +355,70 @@ for (const plan of plans) {
     })
   }
 }
+
+/**
+ * Risk diagnosis uses many seeds, not the two fixed editorial seeds.
+ * Observe actual dispatched lethal quests separately from unstaffed,
+ * expired notices; never invent wounds or change the danger tables.
+ */
+const riskSweep: {
+  policy: string
+  runs: number
+  deaths: number
+  noLosses: number
+  lethalDispatches: number
+  dangerousResults: number
+  deathsOnGuidedSeeds: number
+  endings: Record<string, number>
+}[] = []
+for (const policyId of ['greedy', 'random', 'marshal', 'reckless']) {
+  const policy = POLICIES.find((entry) => entry.id === policyId)!
+  const tally = {
+    policy: policyId,
+    runs: 40,
+    deaths: 0,
+    noLosses: 0,
+    lethalDispatches: 0,
+    dangerousResults: 0,
+    deathsOnGuidedSeeds: 0,
+    endings: {} as Record<string, number>,
+  }
+  for (let seed = 1; seed <= 40; seed += 1) {
+    let completedDays = 0
+    const result = playCampaign(
+      policy,
+      seed,
+      (run) => {
+        completedDays += 1
+        assert.ok(validateRun(run), policyId + '/' + seed + ': risk sweep save')
+      },
+      {
+        playTalks: true,
+        playChanceEvents: true,
+        onQuestReport: (_day, report) => {
+          if (!questDef(report.questId)?.lethal || report.tier === 'expired')
+            return
+          tally.lethalDispatches += 1
+          if (report.tier === 'failure' || report.tier === 'partial')
+            tally.dangerousResults += 1
+        },
+      },
+    )
+    assert.equal(completedDays, 51, policyId + '/' + seed + ': fifty days')
+    tally.deaths += result.deaths
+    if (!result.deaths) tally.noLosses += 1
+    if ([17, 41].includes(seed)) tally.deathsOnGuidedSeeds += result.deaths
+    tally.endings[result.ending] = (tally.endings[result.ending] ?? 0) + 1
+  }
+  riskSweep.push(tally)
+}
+assert.ok(riskSweep.every((entry) => entry.lethalDispatches > 0))
+assert.ok(
+  riskSweep.find((entry) => entry.policy === 'reckless')!.deaths > 0,
+  'reckless campaigns must expose real follower death risk',
+)
+console.log('EMPEROR_RISK_AUDIT ' + JSON.stringify(riskSweep))
+
 mkdirSync('artifacts/emperor', { recursive: true })
 writeFileSync(
   'artifacts/emperor/editorial-guided-campaigns.json',
@@ -364,6 +428,7 @@ writeFileSync(
         'Real five-act engine, nine guided choice families times two seeds, ' +
         'no invented flags, followers, budgets or quest results',
       campaigns,
+      riskSweep,
       failures,
     },
     null,

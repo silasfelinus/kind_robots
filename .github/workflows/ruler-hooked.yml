@@ -5,6 +5,7 @@ on:
     paths:
       - 'utils/rulerHooked/**'
       - 'stores/rulerHookedStore.ts'
+      - 'stores/rulerHookedQuizStore.ts'
       - 'components/ruler-hooked/**'
       - 'components/conductor/ruler-hooked-page.vue'
       - '.github/workflows/ruler-hooked.yml'
@@ -31,6 +32,8 @@ jobs:
         run: npx tsx utils/rulerHooked/encounter.selftest.ts
       - name: Simplified fishing self-test
         run: npx tsx utils/rulerHooked/simpleFishing.selftest.ts
+      - name: Quiz-to-catch modules and Mandarin progression self-test
+        run: npm run test:ruler-hooked-quiz
       - name: First-person console and coronation contract
         run: node utils/rulerHooked/consolePOV.selftest.mjs
       - name: Core engine self-test

@@ -34,10 +34,10 @@ export const SCYLLAS_SHORE_ROWS_7_8: readonly MorrowShiftSite[] = [
     key: '2,7',
     place: 'Harbour Slate',
     title: 'Which Boat Is Da’s?',
-    speaker: 'Pell Dunlin',
+    speaker: 'Tibby Dunlin',
     kind: 'puzzle',
     opening:
-      'Pell Dunlin, seven and gap-toothed, wants to wave her father off, but she can’t read the harbour slate. ‘Da says his boat’s never logged twice. And it never goes out empty, ’cause empty boats get searched.’ The slate reads: COCKLE, kelp bales, bell three, logged twice. DABCHICK, empty, bell five, logged once. SPRAT, lamp oil, bell six, logged once.',
+      'Tibby Dunlin, seven and gap-toothed, wants to wave her father off, but she can’t read the harbour slate. ‘Da says his boat’s never logged twice. And it never goes out empty, ’cause empty boats get searched.’ The slate reads: COCKLE, kelp bales, bell three, logged twice. DABCHICK, empty, bell five, logged once. SPRAT, lamp oil, bell six, logged once.',
     artSubject:
       'A big chalked harbour slate on a barnacled post at an underwater jetty, kelp barges and small boats moored along it in green-blue light; a gap-toothed little mer-girl tugs at the hand of Scylla, a young mermaid princess with a pearl circlet, pale aquamarine scales and an older, worried gaze, who studies the slate; luminous underwater royal childhood style.',
     choices: [
@@ -45,7 +45,7 @@ export const SCYLLAS_SHORE_ROWS_7_8: readonly MorrowShiftSite[] = [
         id: 'care',
         label: 'Point her to the Dabchick, the empty boat at bell five',
         outcome:
-          'They wave the Dabchick off until it’s gone. A guard on the harbour wall watches a princess and a dock child wave goodbye to an empty boat, and makes a note. Pell’s da, it turns out, was on the Sprat.',
+          'They wave the Dabchick off until it’s gone. A guard on the harbour wall watches a princess and a dock child wave goodbye to an empty boat, and makes a note. Tibby’s da, it turns out, was on the Sprat.',
         effects: { danger: 1 },
         artSubject:
           'A princess and a small mer-girl waving at an empty little boat drifting away from the jetty, while a bored guard on the harbour wall behind them raises an eyebrow.',
@@ -54,7 +54,7 @@ export const SCYLLAS_SHORE_ROWS_7_8: readonly MorrowShiftSite[] = [
         id: 'risk',
         label: 'Point her to the Sprat, the lamp-oil boat at bell six',
         outcome:
-          'At bell six the Sprat slips out, riding low for a boat of lamp oil, and a big hand waves from the stern. Pell is radiant. Scylla notes how heavy that boat sits, and what else a boat nobody bothers to search might carry.',
+          'At bell six the Sprat slips out, riding low for a boat of lamp oil, and a big hand waves from the stern. Tibby is radiant. Scylla notes how heavy that boat sits, and what else a boat nobody bothers to search might carry.',
         effects: { evidence: 2, trust: 1 },
         artSubject:
           'A small boat riding low in the water as it pulls away from the jetty light, a big hand waving from its stern, a delighted gap-toothed mer-girl waving back beside a thoughtful young princess.',
@@ -63,7 +63,7 @@ export const SCYLLAS_SHORE_ROWS_7_8: readonly MorrowShiftSite[] = [
         id: 'cockle',
         label: 'Point her to the Cockle, the kelp boat at bell three',
         outcome:
-          'The Cockle’s crew wave back, politely mystified. Pell’s lip wobbles; the boat she wanted is already past the jetty light. Scylla promises she’ll know next time, and isn’t sure there will be one.',
+          'The Cockle’s crew wave back, politely mystified. Tibby’s lip wobbles; the boat she wanted is already past the jetty light. Scylla promises she’ll know next time, and isn’t sure there will be one.',
         effects: { trust: -1 },
         artSubject:
           'A kelp-laden barge crew waving back in confusion at a little mer-girl whose lip is wobbling, a young princess crouched beside her looking stricken.',
@@ -86,7 +86,7 @@ export const SCYLLAS_SHORE_ROWS_7_8: readonly MorrowShiftSite[] = [
         id: 'notice',
         label: 'Tell the children what the bus ticket is for',
         outcome:
-          '‘It lets you ride in a box on wheels, in the rain, with strangers, and nobody talks.’ The children are horrified and delighted. Scylla doesn’t tell them she misses it. Pell solemnly declares the ticket hers.',
+          '‘It lets you ride in a box on wheels, in the rain, with strangers, and nobody talks.’ The children are horrified and delighted. Scylla doesn’t tell them she misses it. Tibby solemnly declares the ticket hers.',
         effects: { trust: 1 },
         artSubject:
           'Mer-children recoiling in delighted horror around a young princess who is miming holding a bus rail, a small paper ticket pinched between her fingers.',
@@ -96,7 +96,7 @@ export const SCYLLAS_SHORE_ROWS_7_8: readonly MorrowShiftSite[] = [
   {
     key: '4,7',
     place: 'Rope Locker',
-    title: 'The Glimmer Eel',
+    title: 'Eel in the Rope Locker',
     speaker: 'Scylla',
     kind: 'monster',
     opening:
@@ -132,7 +132,7 @@ export const SCYLLAS_SHORE_ROWS_7_8: readonly MorrowShiftSite[] = [
     speaker: 'The night crew',
     kind: 'memory',
     opening:
-      'The night crew eat supper on the long bench under the jetty lamps, and make room for a princess without fuss, which is how Scylla knows Char has sat here before. Talk turns to the councilor’s petition, the one letting princesses choose whom to marry and where to go. A cook with a burn-scarred hand asks, friendly as anything, whether it says a word about jetty folk.',
+      'The night crew eat supper on the long bench under the jetty lamps, and make room for a princess without fuss, which is how Scylla knows Char has sat here before. Talk turns to Councilor Salter’s petition, the one letting princesses choose whom to marry and where to go. A cook with a burn-scarred hand asks, friendly as anything, whether it says a word about jetty folk.',
     artSubject:
       'A long wooden bench under swaying lamp-jellies on an underwater jetty, tired mer-workers sharing bowls of kelp stew, a cook with a scarred hand leaning toward Scylla, a young mermaid princess with a pearl circlet, pale aquamarine scales and an older, worried gaze, squeezed in among them; warm, luminous underwater royal childhood style.',
     choices: [
@@ -221,7 +221,7 @@ export const SCYLLAS_SHORE_ROWS_7_8: readonly MorrowShiftSite[] = [
     speaker: 'Marl Dunlin',
     kind: 'memory',
     opening:
-      'Under the jetty, among crates the palace rolls call stores, live the Dunlins: Marl, Tansy, Pell, and one bunk kept made for Fenn, who went landward four years ago and writes when drift allows. ‘Your sister’s been asking how the letters go up,’ Marl says. ‘I told her find out herself, if she wants it that much.’ He turns his cap in his hands. ‘If either of you ever gets up there, Highness. Fenn.’',
+      'Under the jetty, among crates the palace rolls call stores, live the Dunlins: Marl, Tansy, Tibby, and one bunk kept made for Fenn, who went landward four years ago and writes when drift allows. ‘Your sister’s been asking how the letters go up,’ Marl says. ‘I told her find out herself, if she wants it that much.’ He turns his cap in his hands. ‘If either of you ever gets up there, Highness. Fenn.’',
     artSubject:
       'A snug family home built among stacked crates beneath an underwater jetty, hammocks, a shell stove and one neatly made empty bunk with a folded blanket; a big mer-dockhand turns his cap in his hands, his wife and small gap-toothed daughter beside him, facing Scylla, a young mermaid princess with a pearl circlet, pale aquamarine scales and an older, worried gaze; warm lamplight, luminous underwater royal childhood style.',
     choices: [
@@ -229,7 +229,7 @@ export const SCYLLAS_SHORE_ROWS_7_8: readonly MorrowShiftSite[] = [
         id: 'care',
         label: 'Promise to carry their message landward to Fenn',
         outcome:
-          'Tansy writes it on oilcloth: we’re well, Pell lost a tooth, come home or don’t but write. Scylla folds it into her satchel. It weighs nothing. It is the heaviest thing she owns, because the only way to keep that promise is to go.',
+          'Tansy writes it on oilcloth: we’re well, Tibby lost a tooth, come home or don’t but write. Scylla folds it into her satchel. It weighs nothing. It is the heaviest thing she owns, because the only way to keep that promise is to go.',
         effects: { trust: 2, danger: 1 },
         artSubject:
           'A net-mender’s hands pressing a folded oilcloth letter into a young princess’s hands, the made empty bunk behind them.',
@@ -251,7 +251,7 @@ export const SCYLLAS_SHORE_ROWS_7_8: readonly MorrowShiftSite[] = [
       },
       {
         flag: 'e04:char-alive-commuters-stranded',
-        text: 'Pell has the stillness of a child told to wait. Scylla has seen faces at a train window wait just like that, and sealed a gate on them so her sister would live.',
+        text: 'Tibby has the stillness of a child told to wait. Scylla has seen faces at a train window wait just like that, and sealed a gate on them so her sister would live.',
       },
       {
         flag: 'e04:char-alive-district-at-risk',
@@ -269,7 +269,7 @@ export const SCYLLAS_SHORE_ROWS_7_8: readonly MorrowShiftSite[] = [
     opening:
       'At the end of the jetty hangs a tide-worn mirror the workers tilt to flash the surface when a boat is coming up. Scylla catches herself in it: pearl circlet, young cheeks, Char’s face in paler colours. Only the eyes are wrong. They belong to a woman who has held a chain in a flooding fountain, and they look out of this girl as if apologising for the intrusion.',
     artSubject:
-      'A large tide-worn mirror on a swivel at the very end of an underwater jetty, its silver pitted and clouded, reflecting Scylla, a young mermaid princess with a pearl circlet, pale aquamarine scales and an older, worried gaze, whose reflected eyes look far older than her face; faint moonlight slanting down from the surface far above; luminous, slightly uncanny underwater style.',
+      'A large tide-worn mirror on a swivel at the very end of an underwater jetty, its silver pitted and clouded, reflecting Scylla, a young mermaid princess with a pearl circlet, pale aquamarine scales and an older, worried gaze, whose reflected eyes look far older than her face; the dark water above lit only by faint surface glimmer; luminous, slightly uncanny underwater style.',
     choices: [
       {
         id: 'notice',
@@ -349,7 +349,7 @@ export const SCYLLAS_SHORE_ROWS_7_8: readonly MorrowShiftSite[] = [
         id: 'risk',
         label: 'Press the skull; it’s Char’s mark',
         outcome:
-          'The skull shell squirts a cloud of squid ink straight into her face. Under the note, smaller, Char has written I KNEW IT. Scylla spends a while blinking ink out of her eyes and trying to stay cross.',
+          'No bell. Instead the skull shell squirts squid ink straight into her face. Under the note, smaller, Char has written I KNEW IT. Scylla spends a while blinking ink out of her eyes and trying to stay cross.',
         effects: { supplies: -1 },
         artSubject:
           'A young princess recoiling from a burst of black squid ink out of a skull-scratched shell, her face streaked, the note fluttering on the bars.',
@@ -374,7 +374,7 @@ export const SCYLLAS_SHORE_ROWS_7_8: readonly MorrowShiftSite[] = [
     opening:
       'Halfway down the passage, Oren Pike sits on an upturned crate, hood on, axe across his knees, ledger open. Of course he knows. ‘Two princesses, one passage, no permission,’ he says. ‘I have counted it three times and it does not improve.’ Then he turns the ledger round. He has already worked out what they would need, to the ounce, and filed it under PREPOSTEROUS, PROVISIONED.',
     artSubject:
-      'A narrow sea passage lit by one lantern, where Oren Pike, a very tall broad figure whose whole head is covered by a rough brown cloth executioner hood with two eyeholes, a heavy axe across his knees and a leather apron of pouches, sits on an upturned crate holding out an open ledger; Scylla, a young mermaid princess with a pearl circlet, pale aquamarine scales and an older, worried gaze, hovers before him; luminous underwater royal childhood style, gentle and wry.',
+      'A narrow sea passage lit by one lantern, where Oren Pike, a very tall broad merman with an eel-grey tail, his whole head covered by a rough brown cloth executioner hood with two eyeholes, a heavy axe across his knees and a leather apron of pouches, sits on an upturned crate holding out an open ledger; Scylla, a young mermaid princess with a pearl circlet, pale aquamarine scales and an older, worried gaze, hovers before him; luminous underwater royal childhood style, gentle and wry.',
     choices: [
       {
         id: 'care',
@@ -439,7 +439,7 @@ export const SCYLLAS_SHORE_ROWS_7_8: readonly MorrowShiftSite[] = [
     echoes: [
       {
         flag: 'e05:6,6:care',
-        text: 'Ottilie Brack has been here since Scylla told her about the gate: fresh chalk beside the clock reads CHECK AGAINST WATER, NOT BRONZE, underlined twice.',
+        text: 'Wenna Brack has been here since Scylla told her about the gate: fresh chalk beside the clock reads CHECK AGAINST WATER, NOT BRONZE, underlined twice.',
       },
       {
         flag: 'e05:6,6:risk',
@@ -503,7 +503,7 @@ export const SCYLLAS_SHORE_ROWS_7_8: readonly MorrowShiftSite[] = [
     speaker: 'Char',
     kind: 'companion',
     opening:
-      'In a grotto beside the gate Char has chalked the whole escape on the wall: the arch, the anchor, the gate at slack, the cove, a stick figure in boots labelled ME and another labelled YOU, LATE. She doesn’t turn round. ‘Don’t manage it. Just look.’ It’s a good plan, nearly the one Scylla remembers. One line is wrong: Char has timed the gate by the palace clocks, which run late out here.',
+      'In a grotto beside the gate Char has chalked the whole escape on the wall: the arch, the anchor, the gate at the dawn tide, the cove, a stick figure in boots labelled ME and another labelled YOU, LATE. She doesn’t turn round. ‘Don’t manage it. Just look.’ It’s a good plan, nearly the one Scylla remembers. One line is wrong: Char has timed the gate by the palace clocks, which run late out here.',
     artSubject:
       'A shadowy grotto wall covered in a big chalk diagram of an escape route with arrows, an anchor, a gate and two stick figures in boots; Char, her identical twin with dark violet scales, black lace and a sardonic grin, chalk in hand with her back half-turned, and Scylla, a young mermaid princess with a pearl circlet, pale aquamarine scales and an older, worried gaze, studying the wall; luminous underwater royal childhood style.',
     choices: [
@@ -530,23 +530,23 @@ export const SCYLLAS_SHORE_ROWS_7_8: readonly MorrowShiftSite[] = [
   {
     key: '7,8',
     place: 'Moonlit Seam',
-    title: 'A Ribbon of Moon',
+    title: 'A Ribbon of Light',
     speaker: 'Scylla',
     kind: 'memory',
     instant: true,
     opening:
-      'Through a crack in the rock beside the gate a ribbon of moonlight comes down into the sea, and with it the smell of land: wet stone, woodsmoke, something frying. The first time, Scylla didn’t know what frying was. Now she knows bread, and queues, and buses that never come, and how kind strangers can be at counters, and what it costs to get there.',
+      'Through a crack in the rock beside the gate, under a moon worn down to nothing, a ribbon of starlight comes down into the sea, and with it the smell of land: wet stone, woodsmoke, something frying. The first time, Scylla didn’t know what frying was. Now she knows bread, and queues, and buses that never come, and how kind strangers can be at counters, and what it costs to get there.',
     artSubject:
-      'A single narrow ribbon of silver moonlight falling through a crack in cave rock into dark water, motes drifting in it; Scylla, a young mermaid princess with a pearl circlet, pale aquamarine scales and an older, worried gaze, floating beneath it with her face tipped up and eyes closed; luminous, aching underwater style.',
+      'A single narrow ribbon of pale starlight falling through a crack in cave rock into dark water, motes drifting in it; Scylla, a young mermaid princess with a pearl circlet, pale aquamarine scales and an older, worried gaze, floating beneath it with her face tipped up and eyes closed; luminous, aching underwater style.',
     choices: [
       {
         id: 'notice',
-        label: 'Hold your hand in the moonlight',
+        label: 'Hold your hand in the starlight',
         outcome:
           'It is colder than she remembers, and no warmer than the water. Scylla holds her hand in it until her fingers ache, as if land could be held to its word. Behind her, Char is whistling the farewell song, badly, on purpose.',
         effects: { evidence: 1 },
         artSubject:
-          'A young mermaid’s open hand held up into a narrow shaft of moonlight in dark water, her sister a dim violet shape in the background.',
+          'A young mermaid’s open hand held up into a narrow shaft of starlight in dark water, her sister a dim violet shape in the background.',
       },
     ],
   },
@@ -557,9 +557,9 @@ export const SCYLLAS_SHORE_ROWS_7_8: readonly MorrowShiftSite[] = [
     speaker: 'Char',
     kind: 'memory',
     opening:
-      'The gate is green bronze, older than the palace, and through its bars the moon lies on the water like a road. Char holds both pairs of boots by their laces. ‘Out there, land. Back there, Mother, the court, the jetty, everyone who’d pay for us.’ And Scylla’s three-day secret, which would give Char the truth and cost her the not-knowing. ‘So, Scyl. Choosing for me, or standing with me while I choose?’',
+      'Through the gate’s old bronze bars, the far lamps of the shore lie on the dark water like a road; the tide runs landward at dawn. Char holds both pairs of boots by the laces. ‘Out there, land. Back there, Mother, the jetty, tomorrow’s ball with two empty chairs, everyone who’d pay for us.’ And Scylla’s secret, which would give Char the truth and cost her the not-knowing. ‘So, Scyl. Choosing for me, or standing with me while I choose?’',
     artSubject:
-      'A massive weed-furred green-bronze gate in a sea cave, moonlight pouring through its bars across the water like a silver road toward a distant shore; Char, her identical twin with dark violet scales, black lace and a sardonic grin, holds two pairs of small leather boots dangling by their laces, waiting; Scylla, a young mermaid princess with a pearl circlet, pale aquamarine scales and an older, worried gaze, faces her; the ancient anchor looms behind; luminous underwater royal childhood style, the tide paused.',
+      'A massive weed-furred green-bronze gate in a sea cave, on a moonless night, the far lamps of a distant shore glimmering through its bars across the water like a road; Char, her identical twin with dark violet scales, black lace and a sardonic grin, holds two pairs of small leather boots dangling by their laces, waiting; Scylla, a young mermaid princess with a pearl circlet, pale aquamarine scales and an older, worried gaze, faces her; the ancient anchor looms behind; luminous underwater royal childhood style, the tide paused.',
     choices: [],
     echoes: [
       {

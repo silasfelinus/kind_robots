@@ -374,9 +374,9 @@ export const SCYLLAS_SHORE_ROWS_5_6: readonly MorrowShiftSite[] = [
     place: 'Intake Grate',
     title: 'The Glass Throat',
     speaker: 'Scylla',
-    kind: 'challenge',
+    kind: 'dungeon',
     opening:
-      'The observatory drinks the sea through an intake shaft the scholars call the glass throat; its draw is what turns the dials. Pinned against the grate is a nursery hermit crab in a borrowed thimble, too small to swim free. Scylla’s older mind knows exactly how to cross a current like this. Her younger fins, it turns out, have not been told.',
+      'The observatory drinks the sea through an intake shaft the scholars call the glass throat; its draw is what turns the dials. Pinned against the grate is a nursery hermit crab in a borrowed thimble, too small to swim free. Scylla’s older mind knows exactly how to cross a current like this. Her younger fins, it turns out, have not been told. Below the grate the shaft drops into the palace’s old service tunnels, where the whole sea-works breathes.',
     artSubject: `A dim, green-lit shaft in an underwater observatory where a great round glass-and-brass intake grate drags a visible streaming current; a tiny hermit crab in a silver thimble is pinned against the bars as ${SCYLLA} braces one hand on a brass rail and reaches against the pull.`,
     choices: [
       {

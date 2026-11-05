@@ -255,11 +255,20 @@ export type ColoringBookCoverPromptUpdate = {
   prompt: string
 }
 
+/**
+ * Where a new B&W comes from: the accepted color master (`color`, the default),
+ * one specific color or B&W file from the page's history (`version`, with
+ * `sourcePath`), or a fresh line-art render of the page prompt (`prompt`).
+ */
+export type ColoringBookBwSource = 'color' | 'version' | 'prompt'
+
 export type ColoringBookRenderRequest = {
   operation?: ColoringBookStudioOperation
   bookSlug: string
   proposalId?: string
   sourcePath?: string
+  /** generate-bw only. */
+  bwSource?: ColoringBookBwSource
   force?: boolean
   note?: string
   renderSettings?: ColoringBookRenderSettingsRequest

@@ -224,16 +224,33 @@
           class="btn btn-sm rounded-xl"
           type="button"
           :disabled="store.requestingAction"
-          @click="render('color')"
+          @click="renderColor"
         >
           New color
         </button>
+      </div>
+
+      <div v-if="isAdmin" class="join w-full">
+        <select
+          v-model="bwSource"
+          class="join-item select select-bordered select-sm min-w-0 flex-1 rounded-l-xl"
+          aria-label="New B&W starts from"
+          title="What the new B&W is made from"
+        >
+          <option
+            v-for="option in bwSourceOptions"
+            :key="option.value"
+            :value="option.value"
+            :disabled="option.disabled"
+          >
+            {{ option.label }}
+          </option>
+        </select>
         <button
-          v-if="proposal.accepted.color"
-          class="btn btn-sm rounded-xl"
+          class="join-item btn btn-sm rounded-r-xl"
           type="button"
-          :disabled="store.requestingAction"
-          @click="render('bw')"
+          :disabled="store.requestingAction || !bwSourceReady"
+          @click="renderBw"
         >
           New B&amp;W
         </button>
@@ -369,7 +386,12 @@ import type {
   ColoringBookRenderSettingsRequest,
   ColoringBookVariant,
 } from '~/types/coloringBookStudio'
-import type { ColoringBookVersion } from '@/utils/coloringBookVersions'
+import {
+  coloringBookBwRequest,
+  shownVersionPath,
+  type ColoringBookBwChoice,
+  type ColoringBookVersion,
+} from '@/utils/coloringBookVersions'
 import { useColoringBookStudioStore } from '@/stores/coloringBookStudioStore'
 
 type Panel = 'change' | 'prompt' | 'render' | 'brief'
@@ -460,6 +482,62 @@ const bwCandidatePath = computed(() =>
     ? null
     : (props.production?.bwRenderedPath ?? null),
 )
+
+function shownPath(variant: ColoringBookVariant): string | null {
+  return shownVersionPath(
+    props.bookSlug,
+    props.proposal,
+    props.production,
+    variant,
+    picked[variant]?.path,
+  )
+}
+
+const bwSource = ref<ColoringBookBwChoice>('shown-color')
+
+const bwSourceOptions = computed<
+  { value: ColoringBookBwChoice; label: string; disabled: boolean }[]
+>(() => [
+  {
+    value: 'shown-color',
+    label: picked.color
+      ? `From selected color (${picked.color.label})`
+      : 'From shown color',
+    disabled: !shownPath('color'),
+  },
+  {
+    value: 'shown-bw',
+    label: picked.bw
+      ? `From selected B&W (${picked.bw.label})`
+      : 'From shown B&W',
+    disabled: !shownPath('bw'),
+  },
+  { value: 'prompt', label: 'Fresh from prompt', disabled: false },
+])
+
+const bwSourceReady = computed(
+  () =>
+    !bwSourceOptions.value.find((option) => option.value === bwSource.value)
+      ?.disabled,
+)
+
+watch(
+  () => [picked.color?.path, picked.bw?.path] as const,
+  ([color, bw], [oldColor, oldBw]) => {
+    if (bw && bw !== oldBw) bwSource.value = 'shown-bw'
+    else if (color && color !== oldColor) bwSource.value = 'shown-color'
+  },
+)
+watch(
+  bwSourceReady,
+  (ready) => {
+    if (!ready && bwSource.value !== 'prompt') {
+      bwSource.value = shownPath('color') ? 'shown-color' : 'prompt'
+    }
+  },
+  { immediate: true },
+)
+
 const canFinalize = computed(
   () =>
     Boolean(props.proposal.accepted.color && props.proposal.accepted.bw) &&
@@ -655,16 +733,44 @@ async function applyChange(rerender: boolean): Promise<void> {
   }
 }
 
-async function render(variant: ColoringBookVariant): Promise<void> {
-  const renderSettings = variant === 'color' ? settingsForRender() : undefined
+async function renderColor(): Promise<void> {
+  const renderSettings = settingsForRender()
   if (renderSettings === null) return
   select()
-  const note = 'Requested from Coloring Book curation'
-  const ok =
-    variant === 'color'
-      ? await store.requestColorRender(true, note, renderSettings)
-      : await store.requestBw(true, note)
-  await report(ok, `${variantLabel(variant)} render requested.`)
+  const ok = await store.requestColorRender(
+    true,
+    'Requested from Coloring Book curation',
+    renderSettings,
+  )
+  await report(ok, 'color render requested.')
+}
+
+async function renderBw(): Promise<void> {
+  const request = coloringBookBwRequest(
+    bwSource.value,
+    props.bookSlug,
+    props.proposal,
+    props.production,
+    { color: picked.color?.path, bw: picked.bw?.path },
+  )
+  if (!request) {
+    emit('error', 'There is no image to make that B&W from yet.')
+    return
+  }
+  select()
+  const from =
+    request.source === 'prompt'
+      ? 'fresh from the prompt'
+      : request.source === 'color'
+        ? 'from the accepted color'
+        : `from ${request.path}`
+  const ok = await store.requestBw(
+    true,
+    `B&W requested ${from} from Coloring Book curation`,
+    request.source,
+    request.path,
+  )
+  await report(ok, `B&W render requested ${from}.`)
 }
 
 async function run(

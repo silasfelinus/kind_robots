@@ -2,6 +2,7 @@ import { computed, ref } from 'vue'
 import { defineStore } from 'pinia'
 import type { ColoringBookPackageData } from '~/types/coloringBookPackage'
 import type {
+  ColoringBookBwSource,
   ColoringBookConceptUpdate,
   ColoringBookCoverPromptUpdate,
   ColoringBookCoverState,
@@ -253,6 +254,7 @@ export const useColoringBookStudioStore = defineStore(
         force?: boolean
         note?: string
         sourcePath?: string
+        bwSource?: ColoringBookBwSource
         renderSettings?: ColoringBookRenderSettingsRequest
       } = {},
     ): Promise<boolean> {
@@ -271,6 +273,7 @@ export const useColoringBookStudioStore = defineStore(
           bookSlug: book.slug,
           proposalId: coverOperation ? undefined : proposal?.id,
           sourcePath: options.sourcePath || undefined,
+          bwSource: options.bwSource,
           force: options.force === true,
           note: options.note || '',
           renderSettings: options.renderSettings,
@@ -399,8 +402,23 @@ export const useColoringBookStudioStore = defineStore(
       return requestProductionAction('accept-color', { note, sourcePath })
     }
 
-    function requestBw(force = false, note = ''): Promise<boolean> {
-      return requestProductionAction('generate-bw', { force, note })
+    /**
+     * Queue a new B&W. `color` converts the accepted color master; `version`
+     * converts `sourcePath` (any color or B&W file of this page); `prompt`
+     * renders fresh line art from the page prompt.
+     */
+    function requestBw(
+      force = false,
+      note = '',
+      bwSource: ColoringBookBwSource = 'color',
+      sourcePath = '',
+    ): Promise<boolean> {
+      return requestProductionAction('generate-bw', {
+        force,
+        note,
+        bwSource,
+        sourcePath: bwSource === 'version' ? sourcePath : undefined,
+      })
     }
 
     function acceptBw(note = '', sourcePath = ''): Promise<boolean> {

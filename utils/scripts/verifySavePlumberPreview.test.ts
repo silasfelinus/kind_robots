@@ -34,7 +34,7 @@ assert.match(page, /plumber-viewport/)
 assert.match(page, /plumber-motion-video/)
 assert.match(
   page,
-  /type Screen = 'title' \| 'story' \| 'worlds' \| 'crew' \| 'guide' \| 'play'/,
+  /type Screen = 'title' \| 'story' \| 'worlds' \| 'crew' \| 'guide' \| 'maker' \| 'play'/,
 )
 assert.match(page, /prefers-reduced-motion: reduce/)
 assert.doesNotMatch(page, /PlumberTitleScene|href="#plumber-/)

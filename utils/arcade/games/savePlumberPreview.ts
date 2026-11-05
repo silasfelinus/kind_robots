@@ -1636,7 +1636,9 @@ export class PlumberRun implements ArcadeGameInstance {
   /**
    * Duck: slide on the ground (staying down under a low ceiling), drop fast in
    * the air. In Endless that is B; in the campaign it is Down, or B with no
-   * direction held (B with a direction runs).
+   * direction held (B with a direction runs). Under a low ceiling she stays
+   * crouched even off the ground, so a jump or a hit there never stands her up
+   * inside the tile above.
    */
   private updateDuck(keys: InputFrame, move: number) {
     const hero = this.hero
@@ -1646,7 +1648,7 @@ export class PlumberRun implements ArcadeGameInstance {
       : down || (keys.held.b === true && !move)
     this.duckHeld = want
     if (!this.ground) {
-      this.ducking = false
+      if (this.headroom()) this.ducking = false
       const drop = this.runnerOn ? keys.held.b === true : down
       if (drop && hero.vy > -2) hero.vy = Math.max(hero.vy, 6)
       return

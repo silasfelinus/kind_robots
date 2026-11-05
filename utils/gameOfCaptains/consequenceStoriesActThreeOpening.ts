@@ -134,7 +134,12 @@ export const ACT_THREE_OPENING_CASES = {
           narrative:
             'Vox and the station hold a negotiation at separate ends of the bar, using the jukebox as interpreter. Serendipity agrees to a quiet departure corridor and Vox secures passage vouchers that never reveal a guest’s identity. Not everyone stays. Not everyone is happy. At dawn the gravity returns to normal and the first departing traveler leaves a handwritten review: SERVICE EXCELLENT, OUTCOME UNCERTAIN.',
           flags: ['lastcall-voluntary-exits', 'lastcall-neutrality-negotiated'],
-          delta: { treaty_trust: 2, sanctuary_trust: 1, crew_trust: 1 },
+          delta: {
+            treaty_trust: 2,
+            sanctuary_trust: 1,
+            crew_trust: 1,
+            antagonist_pressure: 1,
+          },
           callback:
             'The departure corridor remains open to people who choose it. Serendipity insists that a neutral bar is still allowed to help a person find the door without pointing a pursuer toward it.',
         },

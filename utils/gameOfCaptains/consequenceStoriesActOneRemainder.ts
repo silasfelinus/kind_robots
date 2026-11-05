@@ -142,7 +142,12 @@ export const ACT_ONE_UNPAINTED_CASES = {
           narrative:
             'The reef’s oldest coral records every discharge as a ring of sickly yellow stone. Scientists submit that history alongside the patent, proving the filtration plant costs more lives than it saves. The court freezes the lien program and orders emergency treatment while it investigates. The reef politely requests a lawyer of its own.',
           flags: ['haleth-reef-evidence', 'haleth-liens-frozen'],
-          delta: { treaty_trust: 3, medical_knowledge: 1, crew_trust: 1 },
+          delta: {
+            treaty_trust: 3,
+            medical_knowledge: 1,
+            crew_trust: 1,
+            antagonist_pressure: 1,
+          },
           callback:
             'The reef has won standing to testify. The patent firm is appealing on the grounds that coral has no pockets.',
         },
@@ -246,7 +251,12 @@ export const ACT_ONE_UNPAINTED_CASES = {
             'rootborne-surveillance-proven',
             'rootborne-breathing-preserved',
           ],
-          delta: { treaty_trust: 3, medical_knowledge: 1, crew_trust: 1 },
+          delta: {
+            treaty_trust: 3,
+            medical_knowledge: 1,
+            crew_trust: 1,
+            antagonist_pressure: 1,
+          },
           callback:
             'The Ministry has stopped shipping dreams off-world. Its lawyers now argue that nightmares are government property.',
         },

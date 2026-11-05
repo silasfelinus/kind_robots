@@ -44,6 +44,7 @@ on:
       - 'utils/scripts/verifyGameOfCaptainsCharacters.test.ts'
       - 'utils/scripts/verifyGameOfCaptainsTraces.test.ts'
       - 'utils/scripts/spaceCouchTraceHarness.ts'
+      - 'utils/scripts/verifySpaceCouchRedTeam.test.ts'
       - 'utils/scripts/fixtures/spaceCouchSaves-2026-10-29.json'
       - '.github/workflows/playbook-slices-gameplay.yml'
   workflow_dispatch:

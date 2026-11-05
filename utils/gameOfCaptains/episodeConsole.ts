@@ -21,6 +21,7 @@ import {
   chapterSystem,
   newVenueProgress,
   casinoIncident,
+  casinoIncidentSetup,
   afterHoursIncident,
   visitCasinoVenue,
   type CasinoChoice,
@@ -460,7 +461,7 @@ export function episodeCard(run: VoyageRun, deck: EpisodeDeck) {
     return {
       id: 'casino-' + system.id + '-' + run.chapter,
       title: incident.title,
-      setup: incident.description,
+      setup: casinoIncidentSetup(run.seed, run.chapter, system),
       link: system.casinoName + ' on the living blue giant ' + system.giant,
       outcomes: null,
     }
@@ -508,11 +509,38 @@ export function episodeCard(run: VoyageRun, deck: EpisodeDeck) {
     title: 'This Week’s Special Guest: ' + nemesis.name,
     setup: nemesisMove(nemesis, run.chapter),
     link: 'The principal enemy returns. Their previous decisions still count.',
-    outcomes: {
-      ask: 'Offer terms. The adversary must answer on the record.',
-      document: 'Publish the interference pattern to an independent tribunal.',
-      override: 'Disrupt the enemy’s operation before their witnesses arrive.',
-    },
+    outcomes: nemesisOutcomes(nemesis.name, run.chapter),
+  }
+}
+/**
+ * The nemesis card comes up on chapters 2, 4, 6 and 8. Each visit escalates
+ * in its own words, so a player who always files evidence (or always
+ * charges) is not shown the same sentence four times in one voyage.
+ */
+function nemesisOutcomes(
+  name: string,
+  chapter: number,
+): Record<EpisodeChoice, string> {
+  const visit = Math.min(3, Math.max(0, Math.floor(chapter / 2) - 1))
+  return {
+    ask: [
+      'Offer terms. The adversary must answer on the record.',
+      `Offer terms again, in writing this time. ${name} replies within the hour, which is itself a kind of answer.`,
+      `Offer terms in front of witnesses. ${name} counters with a list of conditions, one of which is reasonable.`,
+      `Offer terms one last time. ${name} agrees to a meeting, if not yet a peace, and both sides bring a notary.`,
+    ][visit]!,
+    document: [
+      'Publish the interference pattern to an independent tribunal.',
+      `Publish the new interference to the same tribunal, which opens a second binder with ${name} on the spine.`,
+      `File the pattern with three tribunals at once. ${name} cannot lose every copy, though it is seen trying.`,
+      `Publish the full record, every move since the first world. The tribunal clears its afternoon for ${name}.`,
+    ][visit]!,
+    override: [
+      'Disrupt the enemy’s operation before their witnesses arrive.',
+      `Break up the operation mid-sentence. It works, and ${name} enters the couch in its ledger as a recurring expense.`,
+      `Charge the operation directly. ${name} retreats, takes notes, and is clearly planning to bring the notes back.`,
+      `Shut the operation down by force. The danger stops; ${name} tells everyone who will listen that the couch started it.`,
+    ][visit]!,
   }
 }
 export function observedRedshirt(run: VoyageRun, id: string): boolean {
@@ -619,10 +647,18 @@ export function dispatchEpisodeBatch(
       lead === 'captain'
         ? 'The captain'
         : (CREW_PROFILES.find((person) => person.id === lead)?.name ?? lead)
+    // deployExpedition writes its prose before this roll exists, so a
+    // command seat can read as triumphant on a failed card or out of its
+    // depth on a passed one. The roll decides which story is told.
+    const secretTail = last.secret
+      ? ' SECRET DETOUR: ' + encounter.secretResult
+      : ''
     const coherentOutcome =
-      !successful && !last.casualty && !REDSHIRT_BY_ID[lead]
-        ? `${leadName} tries ${encounter.title}, but the ${encounter.skill} objective slips away. ${encounter.redshirtResult}${last.secret ? ' SECRET DETOUR: ' + encounter.secretResult : ''}`
-        : last.outcome
+      last.casualty || REDSHIRT_BY_ID[lead]
+        ? last.outcome
+        : successful
+          ? `${leadName} handles ${encounter.title}. ${lead === 'captain' ? encounter.commandResult : encounter.commandResult.replace(/^The captain /, 'The officer ')}${secretTail}`
+          : `${leadName} tries ${encounter.title}, but the ${encounter.skill} objective slips away. ${encounter.redshirtResult}${secretTail}`
     const result = {
       ...last,
       chance: forecast,
@@ -645,7 +681,8 @@ export function dispatchEpisodeBatch(
       },
       scene: result.outcome,
       log: [
-        ...candidate.log,
+        ...candidate.log.slice(0, -1),
+        `Expedition ${run.chapter} / ${encounter.title}: ${coherentOutcome}`,
         `Ship day ${departure}: ${encounter.title} ${successful ? 'passed' : 'failed'} (${forecast}% forecast, ${durationDays} round contract).`,
       ],
     }
@@ -697,8 +734,18 @@ export function episodePlotOdds(
       command[0]! * 13 +
       (command[1] ? 8 + command[1] * 5 : 0) +
       (connected ? 12 : 0) +
-      rapport * 5,
+      rapport * 5 -
+      (deck === 'nemesis' ? nemesisFilePenalty(run) : 0),
   )
+}
+/**
+ * Overrides, bold detours and slow audits all add to the nemesis's file on
+ * the couch (`nemesisPressure`). Each open grievance makes the nemesis card
+ * two points harder, up to sixteen, so the pressure the choices promise is
+ * pressure the crew actually feels.
+ */
+export function nemesisFilePenalty(run: VoyageRun): number {
+  return Math.min(16, Math.max(0, run.nemesisPressure ?? 0) * 2)
 }
 export function drawEpisodeDeck(
   run: VoyageRun,
@@ -725,16 +772,26 @@ export function drawEpisodeDeck(
     ) %
       100 <
     chance
-  const names = cast
+  const named = cast
     .map((id) =>
       id === 'captain'
         ? 'the captain'
         : CREW_PROFILES.find((p) => p.id === id)!.name,
     )
     .join(' and ')
+  const names = named.charAt(0).toUpperCase() + named.slice(1)
   const connection = episodePlotConnection(run, deck, cast)
   const rapport = episodeDuoExperience(run, cast)
-  const fieldReport = `${names} ${successful ? 'secure' : 'complicate'} the ${skill} objective in one round (${chance}% forecast).${connection ? ' ' + connection : ''}${rapport ? ' ' + (rapport === 1 ? 'This team has worked together successfully once before.' : 'This team has ' + rapport + ' successful missions together behind it.') : ''}`
+  const pressure = Math.max(0, run.nemesisPressure ?? 0)
+  const file =
+    deck === 'nemesis' && pressure
+      ? ` ${antagonistFor(run).name} keeps a file on the couch: ${pressure === 1 ? 'one open grievance' : pressure + ' open grievances'}, already counted in the forecast.`
+      : ''
+  const fieldReport = `${
+    successful
+      ? `${names} ${cast.length > 1 ? 'secure' : 'secures'} the ${skill} objective in one round (${chance}% forecast).`
+      : `The ${skill} objective stays open after one round (${chance}% forecast).`
+  }${file}${connection ? ' ' + connection : ''}${rapport ? ' ' + (rapport === 1 ? 'This team has worked together successfully once before.' : 'This team has ' + rapport + ' successful missions together behind it.') : ''}`
   const venue =
     deck === 'casino' ? 'casino' : deck === 'serendipity' ? 'bar' : null
   const outcome = card.outcomes?.[choice]
@@ -791,13 +848,16 @@ export function drawEpisodeDeck(
         changed.reputation + (successful && choice === 'document' ? 1 : 0),
       supplies:
         changed.supplies + (successful && choice === 'override' ? 1 : 0),
-      nemesisPressure:
+      // A grievance count never goes below zero, however many are settled.
+      nemesisPressure: Math.max(
+        0,
         (changed.nemesisPressure ?? 0) +
-        (deck === 'nemesis'
-          ? successful && choice !== 'override'
-            ? -1
-            : 2
-          : 0),
+          (deck === 'nemesis'
+            ? successful && choice !== 'override'
+              ? -1
+              : 2
+            : 0),
+      ),
     }
   }
   const record: EpisodeDraw = {

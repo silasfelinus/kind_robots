@@ -132,3 +132,13 @@ assert.equal(
   destinationFollowup({ ...windglass, worldFlags: [] }, 'windglass-exodus'),
   null,
 )
+const sequelFlags = [
+  ['cushion-recall', 'ashdock-protected'],
+  ['foundry-strike', 'sesh-ferried'],
+  ['serendipity-last-call', 'serendipity-neutral'],
+  ['twins-summit', 'courtesy-simultaneous'],
+] as const
+for (const [missionId, flag] of sequelFlags) {
+  assert.ok(destinationFollowup({ ...windglass, worldFlags: [flag] }, missionId))
+  assert.equal(destinationFollowup(windglass, missionId), null)
+}

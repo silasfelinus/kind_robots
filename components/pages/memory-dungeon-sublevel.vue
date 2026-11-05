@@ -146,7 +146,7 @@
               {{ sub.room.title }}
             </h3>
             <p
-              class="kr-scroll mt-2 max-h-28 min-h-0 flex-1 overflow-auto text-xs leading-relaxed sm:text-sm"
+              class="mt-2 max-h-28 min-h-0 flex-1 overflow-auto text-xs leading-relaxed sm:text-sm"
               data-testid="memory-sublevel-opening"
             >
               {{ sub.opening }}

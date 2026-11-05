@@ -13,9 +13,9 @@ export const MORROW_SHIFT_FINALE: MorrowShiftSite = {
   speaker: 'Morrow',
   kind: 'memory',
   opening:
-    'At closing time the floodlights hum over a dry fountain. Morrow has carried one Briar working all month, folded small: the words that once opened a door between his life and someone else’s. Nothing on Earth has answered a spell yet. Nothing has forbidden one either.',
+    'The floodlights end a few steps short of the drained fountain, where Tilly drew the mouth. Morrow has carried one Briar working all month, folded small: the words that once opened a door between his life and someone else’s. Nothing on Earth has answered a spell yet. Nothing has forbidden one either.',
   artSubject:
-    'An androgynous adult in their thirties with short dark hair and a grey cardigan stands alone at a dry stone fountain under humming park floodlights in light rain, one hand half-raised, breath visible.',
+    'An androgynous adult in their thirties with short dark hair and a grey cardigan stands alone at a drained stone fountain just beyond the edge of the park floodlights in light rain, one hand half-raised, breath visible.',
   choices: [
     {
       id: 'care',

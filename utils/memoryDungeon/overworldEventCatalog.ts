@@ -757,7 +757,8 @@ export function validateOverworldEventCatalog(): string[] {
       if (
         !event.title.trim() ||
         !event.opening.trim() ||
-        event.choices.length < 2
+        event.choices.length < (event.instant ? 1 : 2) ||
+        (event.instant && event.choices.length !== 1)
       )
         problems.push(event.id + ': incomplete narrative')
       if (

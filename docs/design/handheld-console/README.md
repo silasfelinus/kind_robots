@@ -4,9 +4,9 @@
 
 These four 1600 × 900 SVG screens are intentionally art-first. They do not import live economy values, fake a playable feature, or replace existing delivered ArtJobs. They provide a pixel-specific composition for implementation and visual review.
 
-| Game | Default play stage | Active interruption |
-| --- | --- | --- |
-| Cthulhuquarium | [Live eldritch tank](./cthulhuquarium-tank.svg) | [Feeding](./cthulhuquarium-feed.svg) |
+| Game                | Default play stage                                     | Active interruption                           |
+| ------------------- | ------------------------------------------------------ | --------------------------------------------- |
+| Cthulhuquarium      | [Live eldritch tank](./cthulhuquarium-tank.svg)        | [Feeding](./cthulhuquarium-feed.svg)          |
 | The Ruler Is Hooked | [Lake and fishing tension](./ruler-hooked-fishing.svg) | [Royal petition](./ruler-hooked-petition.svg) |
 
 Open [preview.html](./preview.html) locally for an interactive full-window comparison. Switch titles and states without scrolling. GitHub can also preview each SVG directly.

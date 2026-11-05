@@ -120,6 +120,18 @@ import {
   type CaseMemory,
 } from './caseMemory'
 import {
+  DISTRICT_SECRETS,
+  FACTION_LABELS,
+  UNANSWERED_NAMES,
+  URGENCY_LABELS,
+  exposedSecretFor,
+  missionOfferFor,
+  missionResult,
+  validDistrictSecrets,
+  type DistrictSecret,
+  type DistrictSecretMemory,
+} from './missionOffers'
+import {
   CAMPAIGN_ANCHORS,
   campaignAnchor,
   campaignVillain,
@@ -603,6 +615,9 @@ export type AcademyRun = {
   missionClues?: string[]
   /** Verified district outcomes; a player's older run may not have this ledger. */
   caseHistory?: CaseMemory[]
+  /** District secrets uncovered by personally led investigations. Absent
+   * until the first one is found, so older saves are unchanged. */
+  districtSecrets?: DistrictSecretMemory[]
   /** Marks the new solo-rookie prologue; old saved campaigns retain their boards. */
   patrolOpening?: 1
   /** Optional, saved night-neighborhood activity. Disabled for older campaign saves. */
@@ -1780,10 +1795,78 @@ export function dispatchModifier(
     run.playerCaseId === incident.id &&
     run.missionApproach === 'investigate'
       ? caseTrustModifier(run.caseHistory, run.day, incident.id)
-      : 0) -
+      : 0) +
+    districtSecretModifier(run, incident.id) -
     rosterConflictPenalty(run, incident.id, students) -
     villainInterference(run, incident)
   )
+}
+
+/** A district secret uncovered on an earlier night exposes its faction: on
+ * that district's later calls where the same faction would interfere, any
+ * team the player sends gains +1. */
+export function districtSecretModifier(run: AcademyRun, caseId: string) {
+  return run.flowVersion === 3 &&
+    exposedSecretFor(run.districtSecrets, run.day, caseId)
+    ? 1
+    : 0
+}
+
+/** The district secret a personally led investigation would uncover tonight
+ * if it succeeds (pass or honors): it needs an earlier casebook clue from the
+ * same district, and that district's secret must still be hidden. */
+export function districtSecretWithin(
+  run: AcademyRun,
+  caseId: string,
+): DistrictSecret | null {
+  const thread = caseThread(caseId)
+  if (
+    run.flowVersion !== 3 ||
+    !thread ||
+    !expandedMissionFor(caseId) ||
+    (run.districtSecrets ?? []).some((memory) => memory.thread === thread) ||
+    !(run.missionClues ?? []).some(
+      (id) => id !== caseId && caseThread(id) === thread,
+    )
+  )
+    return null
+  return DISTRICT_SECRETS[thread]
+}
+
+export type MissionOfferCard = {
+  asker: string
+  plea: string
+  urgency: string
+  deadline: string
+  faction: string
+  interference: string
+  /** The exposed interference, once the district secret is known (+1). */
+  secretKnown: string | null
+  /** Shown when a successful personal investigation would uncover it. */
+  secretHint: string | null
+}
+
+/** What the dispatch board shows for a call in the thirty-day term. */
+export function missionOfferCard(
+  run: AcademyRun,
+  caseId: string,
+): MissionOfferCard | null {
+  const offer = missionOfferFor(caseId)
+  if (run.flowVersion !== 3 || !offer) return null
+  const exposed = exposedSecretFor(run.districtSecrets, run.day, caseId)
+  return {
+    asker: offer.asker,
+    plea: offer.plea,
+    urgency: URGENCY_LABELS[offer.urgency],
+    deadline: offer.deadline,
+    faction: FACTION_LABELS[offer.faction],
+    interference: `${offer.interferer} will try to ${offer.interference}.`,
+    secretKnown: exposed ? `${exposed.title} (+1): ${offer.exposed}` : null,
+    secretHint:
+      !exposed && districtSecretWithin(run, caseId)
+        ? 'Your casebook already holds a clue from this district. Lead the investigation yourself and earn a pass or better to uncover its secret.'
+        : null,
+  }
 }
 
 /** Days 5-7 of a thirty-day run: the seeded mastermind jams one power field
@@ -1907,6 +1990,7 @@ export function resolveDispatch(run: AcademyRun): AcademyRun {
   let danger = run.danger
   const injuries = { ...(run.injuries ?? {}) }
   const missionClues = [...(run.missionClues ?? [])]
+  const districtSecrets = [...(run.districtSecrets ?? [])]
   const reports = incidentsFor(run).map((incident) => {
     const assignment =
       run.assignments.find((entry) => entry.caseId === incident.id) ??
@@ -1918,7 +2002,7 @@ export function resolveDispatch(run: AcademyRun): AcademyRun {
       return {
         caseId: incident.id,
         title: incident.title,
-        names: 'No team dispatched',
+        names: UNANSWERED_NAMES,
         grade: 'failed' as Grade,
         text:
           [2, 3].includes(run.flowVersion ?? 0) && run.day > 2
@@ -2047,6 +2131,19 @@ export function resolveDispatch(run: AcademyRun): AcademyRun {
     if (foundClue && !missionClues.includes(incident.id))
       missionClues.push(incident.id)
     const secret = succeeded ? missionSecretFor(run, incident.id) : null
+    const hiddenDistrictSecret =
+      personallyLed &&
+      approach === 'investigate' &&
+      (grade === 'honors' || grade === 'pass')
+        ? districtSecretWithin(run, incident.id)
+        : null
+    if (hiddenDistrictSecret)
+      districtSecrets.push({
+        thread: hiddenDistrictSecret.thread,
+        day: run.day,
+        caseId: incident.id,
+      })
+    const exposed = exposedSecretFor(run.districtSecrets, run.day, incident.id)
     const tacticalText =
       expanded && personallyLed
         ? approach === 'investigate'
@@ -2094,6 +2191,13 @@ export function resolveDispatch(run: AcademyRun): AcademyRun {
         : []),
       tacticalText,
       secret ? `POWER SECRET: ${secret}` : '',
+      hiddenDistrictSecret
+        ? `DISTRICT SECRET · ${hiddenDistrictSecret.title.toUpperCase()}: ${hiddenDistrictSecret.reveal} Later calls in this district where the same people interfere now start with +1.`
+        : '',
+      exposed && run.flowVersion === 3
+        ? // A played tactical fight replaces the roll, so no roll bonus.
+          `SECRET KNOWN · ${exposed.title.toUpperCase()}${playedBattle ? '' : ' (+1)'}: ${missionOfferFor(incident.id)?.exposed ?? ''}`
+        : '',
       special ? `SPECIAL ROUTE: ${special.label}. ${special.result}` : '',
     ]
       .filter(Boolean)
@@ -2195,6 +2299,7 @@ export function resolveDispatch(run: AcademyRun): AcademyRun {
           nightPatrol: null,
           missionApproach: null,
           missionClues,
+          ...(districtSecrets.length ? { districtSecrets } : {}),
           caseHistory: recordCaseNight(run.caseHistory ?? [], run.day, reports),
           tacticalBattle: null,
           tacticalResult: null,
@@ -2224,7 +2329,8 @@ export function resolveDispatch(run: AcademyRun): AcademyRun {
     log: [
       ...run.log,
       ...reports.map(
-        (report) => `Day ${run.day}: ${report.title} — ${report.grade}`,
+        (report) =>
+          `Day ${run.day}: ${report.title} — ${missionResult(report)}`,
       ),
     ],
   }
@@ -2431,7 +2537,7 @@ export function nextSchoolDay(run: AcademyRun): AcademyRun {
     nightCaseMorning(
       report.caseId,
       report.grade,
-      report.names === 'No team dispatched',
+      report.names === UNANSWERED_NAMES,
     )
   const lastPatrol = run.patrolHistory?.at(-1)
   const madeNeighborhoodCall = lastPatrol?.day === run.day
@@ -2469,7 +2575,7 @@ export function nextSchoolDay(run: AcademyRun): AcademyRun {
     scene: storyMorning
       ? `The next bell rings. ${storyMorning}`
       : morningMemory
-        ? `The next bell rings. ${morningMemory} Last night, the outcome was recorded as ${morningReport!.names === 'No team dispatched' ? 'unanswered' : morningReport!.grade}.`
+        ? `The next bell rings. ${morningMemory} Last night, the outcome was recorded as ${morningReport!.names === UNANSWERED_NAMES ? 'unanswered' : morningReport!.grade}.`
         : run.patrolHistory?.at(-1)?.day === run.day
           ? `The next bell rings. Your overnight decision has become a morning argument: ${run.reports.find((report) => report.caseId.startsWith('patrol-'))?.text ?? 'The neighborhood remembers who came.'}`
           : run.missionClues?.length &&
@@ -2715,6 +2821,15 @@ export function restoreAcademy(raw: unknown): AcademyRun | null {
           data.caseHistory,
           data.day ?? 0,
           data.phase ?? '',
+        ))) ||
+    (data.districtSecrets !== undefined &&
+      (data.flowVersion !== 3 ||
+        !validDistrictSecrets(data.districtSecrets, data.day ?? 0, (id) =>
+          Boolean(expandedMissionFor(id)),
+        ) ||
+        !Array.isArray(data.missionClues) ||
+        data.districtSecrets.some(
+          (memory) => !data.missionClues!.includes(memory.caseId),
         ))) ||
     (data.missionClues !== undefined &&
       (!Array.isArray(data.missionClues) ||

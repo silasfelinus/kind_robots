@@ -7271,7 +7271,7 @@
       "id": "the-deserters-cage",
       "locationId": "obsidian-road",
       "title": "The Deserter's Cage",
-      "flavor": "An iron cage hangs from a post beside the road, and inside it a young deserter squints against the heat rising off the stones. The key hangs on a nail just beyond his reach, under a painted board that forbids anyone to give him water. Dust from a mounted patrol is rising on the road behind you.",
+      "flavor": "An iron cage hangs from a post beside the road, and inside it a young deserter squints against the heat rising off the stones. The key hangs on a nail just beyond his reach, under a painted board that forbids anyone to give him water. Dust from a lone patrol rider is rising on the road behind you.",
       "weight": 2,
       "art": null,
       "choices": [
@@ -7547,7 +7547,7 @@
           },
           "roll": null,
           "success": {
-            "text": "She takes your offer because she has no other, and you shoulder a pannier of lamp oil, needles, and dried apricots. Before you are out of earshot you hear the mule cry out, then her knife, then nothing.",
+            "text": "She takes your offer because she has no other, and you shoulder a pannier of lamp oil, needles, and dried apricots. Before you are out of earshot you hear the mule cry out once, and then nothing: she has done with her own knife what you would not.",
             "hp_delta": 0,
             "provisions_delta": 2,
             "add_flags": ["the-mule-on-the-glass-bought-goods"],
@@ -7580,7 +7580,7 @@
           },
           "roll": null,
           "success": {
-            "text": "An old couple has been waiting on the roof for three days, too frightened of the glass to come down. You share a meal with them, help them down, and point them toward the camp. They have nothing to give you, and the long fork costs you the afternoon.",
+            "text": "An old couple has been waiting on the roof for three days, too frightened of the glass to come down. You share a meal with them, help them down, and point them toward the camp. They have nothing to give you, and the long fork costs you the rest of the day.",
             "hp_delta": 0,
             "provisions_delta": 0,
             "add_flags": [
@@ -7662,7 +7662,7 @@
       "id": "the-short-ration-line",
       "locationId": "fortified-camp",
       "title": "The Short Ration Line",
-      "flavor": "At dawn the quartermaster ladles porridge from one black kettle into a line of refugees three times longer than the pot. The ledger on his table says there should be enough. A family at the very end of the line has already started to turn away, and a guard is shoving a man who came back for a second bowl.",
+      "flavor": "At dawn the quartermaster ladles porridge from one black kettle into a line of refugees three times longer than the pot can feed. The ledger on his table says there should be enough. A family at the very end of the line has already started to turn away, and a guard is shoving a man who came back for a second bowl.",
       "weight": 3,
       "art": null,
       "choices": [
@@ -7893,7 +7893,7 @@
           "id": "open-your-own-medicine",
           "label": "Open your own medicine pouch",
           "intent": "Give the surgeon the fever herbs you have carried on the road so both can be treated.",
-          "risk": "Once those herbs are gone, you have nothing for yourself.",
+          "risk": "Most of what you carried for yourself goes into this dose.",
           "requires": {
             "anyFlags": ["deed-carries-medicine"]
           },
@@ -7902,7 +7902,7 @@
           },
           "roll": null,
           "success": {
-            "text": "The surgeon steeps your herbs into a second dose, bitter and green, and both cots have their chance. By morning both patients are sitting up. Your pouch is empty now, and the surgeon has nothing to give you in return but a nod.",
+            "text": "The surgeon steeps your herbs into a second dose, bitter and green, and both cots have their chance. By morning both patients are sitting up. Your pouch is nearly empty now, and the surgeon has nothing to give you in return but a nod.",
             "hp_delta": 0,
             "provisions_delta": 0,
             "add_flags": ["two-cots-one-draught-shared-herbs"],
@@ -7992,7 +7992,7 @@
             "target": 9
           },
           "success": {
-            "text": "He answers without a pause, and a woman in the crowd says she has seen those children at the refugee fires. It does not save him from the irons, but it saves him from the rope, and at dusk his eldest finds you and shares a heel of bread from the refugee fires.",
+            "text": "He answers without a pause, and a woman in the crowd says she has seen those children at the refugee fires. It does not save him from the irons, but it saves him from the rope, and at dusk his eldest finds you and presses a heel of bread into your hand.",
             "hp_delta": 0,
             "provisions_delta": 1,
             "add_flags": ["the-stockade-at-dawn-story-held"],
@@ -8199,7 +8199,7 @@
             "target": 9
           },
           "success": {
-            "text": "The dicing stops. The youngest soldier picks up the boots and takes them to the sister himself, and the others do not stop him. Nobody in the armory speaks to you again for the rest of the night.",
+            "text": "The dicing stops. The youngest soldier picks up the boots and takes them to the sister himself, and the others do not stop him. None of the three speaks to you again for the rest of the night.",
             "hp_delta": 0,
             "provisions_delta": 0,
             "add_flags": ["the-dead-sentrys-boots-shamed-them"],
@@ -8413,14 +8413,14 @@
           "id": "sign-over-a-debt-owed-you",
           "label": "Sign over a debt owed you",
           "intent": "Someone on the road owes you; offer that debt to the creditor in place of theirs.",
-          "risk": "You will reach the end of the road owed nothing.",
+          "risk": "The debt you sign away will be hers to collect, not yours.",
           "requires": {
             "anyFlags": ["deed-owed-favor"]
           },
           "cost": null,
           "roll": null,
           "success": {
-            "text": "The creditor knows the name you give and likes the terms better. She breaks the family's tally stick across her knee and notches a fresh one for your debtor instead. Whatever was owed to you is hers to collect now.",
+            "text": "The creditor knows the name you give and likes the terms better. She breaks the family's tally stick across her knee and notches a fresh one for your debtor instead. Whatever that traveler owed you is hers to collect now.",
             "hp_delta": 0,
             "provisions_delta": 0,
             "add_flags": ["the-creditors-tally-sticks-traded-favor"],
@@ -8722,7 +8722,7 @@
       "id": "the-smugglers-side-door",
       "locationId": "last-threshold",
       "title": "The Smuggler's Side Door",
-      "flavor": "Far from the negotiator's gate, a smuggler keeps a narrow side door in the threshold wall and lets people through it for food. Her price buys one passage, not two. A refugee family with three children sits beside the door with nothing to pay, watching each person who can.",
+      "flavor": "Far from the negotiator's gate, a smuggler keeps a narrow side door in the threshold wall and lets people through it for food. Her price is steep, and what you carry will buy one passage through, not two. A refugee family with three children sits beside the door with nothing to pay, watching each person who can.",
       "weight": 2,
       "art": null,
       "choices": [
@@ -8762,7 +8762,7 @@
           },
           "roll": null,
           "success": {
-            "text": "The smuggler counts the food twice and lets them through, the children ducking under her arm. The mother looks back from the dark of the passage as if to memorize you. Then the door closes, and you turn toward the main gate with almost nothing left.",
+            "text": "The smuggler counts the food twice and lets them through, the children ducking under her arm. The mother looks back from the dark of the passage as if to memorize you. Then the door closes, and you turn toward the main gate three days' food lighter.",
             "hp_delta": 0,
             "provisions_delta": 0,
             "add_flags": [
@@ -11081,7 +11081,7 @@
         "cost": null,
         "roll": null,
         "success": {
-          "text": "The archivist sets the key in your palm and folds your fingers over it. As you walk on, the landmarks she described never appear; the road ahead bends a different way than her carvings showed. The key is heavier than stone should be.",
+          "text": "The archivist sets the key in your palm and folds your fingers over it. As you walk on, the road ahead bends a different way than her carvings showed, past landmarks no one ever carved. The key is heavier than stone should be.",
           "hp_delta": 0,
           "provisions_delta": 0,
           "add_flags": ["the-key-with-no-door-key-taken"],

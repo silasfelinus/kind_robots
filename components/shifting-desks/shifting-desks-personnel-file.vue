@@ -33,7 +33,7 @@
       <span class="file-stamp" aria-hidden="true">{{ verdict.stamp }}</span>
       <div
         v-if="epilogue"
-        class="flex h-52 shrink-0 gap-3 overflow-hidden rounded-xl border-2 border-stone-900 bg-stone-900 text-amber-50 sm:h-56 print:h-56"
+        class="flex min-h-52 shrink-0 gap-3 overflow-hidden rounded-xl border-2 border-stone-900 bg-stone-900 text-amber-50 sm:min-h-56 print:min-h-56"
         aria-label="Your ending reward"
       >
         <shifting-desks-art
@@ -71,20 +71,24 @@
             />
             <div class="min-w-0">
               <p
-                v-if="store.newlyEarnedMilestones.length"
-                class="font-mono text-[9px] font-black uppercase tracking-widest text-amber-300"
+                class="font-mono text-[9px] uppercase"
+                :class="
+                  ceremonyAward.kind === 'previous'
+                    ? 'text-amber-200'
+                    : 'font-black tracking-widest text-amber-300'
+                "
                 role="status"
               >
-                {{ store.newlyEarnedMilestones.length }} new distinction{{
-                  store.newlyEarnedMilestones.length === 1 ? '' : 's'
-                }}
-                earned
+                {{ ceremonyAward.status }}
               </p>
-              <p v-else class="font-mono text-[9px] uppercase text-amber-200">
-                Previously filed distinction
-              </p>
-              <p class="truncate text-xs font-black">
+              <p class="text-xs font-black">
                 {{ ceremonyAward.title }}
+              </p>
+              <p
+                v-if="ceremonyAward.line"
+                class="text-[11px] italic leading-snug text-amber-50/90"
+              >
+                {{ ceremonyAward.line }}
               </p>
             </div>
           </div>
@@ -365,7 +369,11 @@ import {
   START_GRADES,
 } from '~/utils/shiftingDesks/rules'
 import { useShiftingDesksStore } from '~/stores/shiftingDesksStore'
-import { MILESTONES, filedReceiptFor } from '~/utils/shiftingDesks/rewards'
+import {
+  MILESTONES,
+  ceremonyAwardFor,
+  filedReceiptFor,
+} from '~/utils/shiftingDesks/rewards'
 import {
   dailyDateOf,
   dailyLabel,
@@ -391,11 +399,13 @@ const filesHandled = computed(
       (e) => e.cardId !== 'dossier' && e.cardId !== RESTRUCTURING_CARD,
     ).length ?? 0,
 )
-const ceremonyAward = computed(
-  () =>
-    MILESTONES.find((m) => store.newlyEarnedMilestones.includes(m.id)) ??
-    MILESTONES.find((m) => !!store.rewardArchive.milestones[m.id]) ??
-    null,
+const ceremonyAward = computed(() =>
+  ceremonyAwardFor(
+    store.rewardArchive,
+    epilogue.value?.id,
+    filedReceipt.value?.id,
+    store.newlyEarnedMilestones,
+  ),
 )
 const nextMilestone = computed(
   () =>

@@ -18,19 +18,24 @@ import {
   rankedGrades,
 } from '../shiftingDesks/rules'
 import { dailySeed } from '../shiftingDesks/daily'
+import { naturalEndingSaves } from '../shiftingDesks/endingSaves'
 import {
+  ENDING_COMMENDATIONS,
   MILESTONES,
   REWARD_ARCHIVE_LIMIT,
+  ceremonyAwardFor,
   emptyRewardArchive,
   filedReceiptFor,
   migrateFoundEndings,
   newMilestonesForRun,
+  ordinal,
   parseSavedJSON,
   receiptFor,
   recordReward,
   restoreEndingGallery,
   restoreRewardArchive,
   runFingerprint,
+  type RewardArchive,
   type RunReceipt,
 } from '../shiftingDesks/rewards'
 
@@ -77,6 +82,8 @@ let totalDeaths = 0
 let totalDecisions = 0
 const rewardRuns = 600
 const rewardEndings = new Set<string>()
+const ceremonyTitles = new Set<string>()
+let repeatCeremonies = 0
 for (let i = 0; i < rewardRuns; i++) {
   const policy = POLICIES[i % POLICIES.length]!
   const jobId = JOB_TITLES[i % JOB_TITLES.length]!.id
@@ -138,6 +145,43 @@ for (let i = 0; i < rewardRuns; i++) {
     )
     assert.ok(updated.milestones[id], seed + ': award did not persist')
   }
+  // The Personnel File's ceremony: a new award when one was earned, else
+  // this ending's own commendation, counted from this completion's filing.
+  const ceremony = ceremonyAwardFor(updated, end.id, receipt.id, awardIds)
+  assert.ok(ceremony, seed + ': a finished run always gets a ceremony')
+  const filedSoFar = updated.runs.filter((r) => r.endingId === end.id)
+  const filing = filedSoFar.findIndex((r) => r.id === receipt.id) + 1
+  assert.ok(filing >= 1, seed + ': the ceremony counts a filed receipt')
+  if (awardIds.length) {
+    assert.equal(ceremony.kind, 'milestone')
+    assert.equal(
+      ceremony.title,
+      MILESTONES.find((m) => awardIds.includes(m.id))!.title,
+    )
+  } else {
+    assert.equal(
+      ceremony.kind,
+      filing === 1 ? 'ending-first' : 'ending-repeat',
+      seed + ': a completion without a new award gets its ending commendation',
+    )
+    assert.equal(ceremony.title, ENDING_COMMENDATIONS[end.id]!.title)
+    assert.equal(ceremony.filings, filing)
+    if (filing > 1) {
+      assert.match(ceremony.line, new RegExp('\\b' + ordinal(filing) + '\\b'))
+      repeatCeremonies++
+    }
+    assert.deepEqual(
+      ceremonyAwardFor(updated, end.id, receipt.id, []),
+      ceremony,
+      seed + ': a reload must not change or escalate the ceremony',
+    )
+  }
+  assert.notEqual(
+    ceremony.kind === 'milestone' ? '' : ceremony.title,
+    'A Permanent Position',
+    seed + ': a repeat run must not replay the first-ending award',
+  )
+  ceremonyTitles.add(ceremony.title)
   const duplicate = recordReward(updated, receipt, [...discovered])
   assert.strictEqual(
     duplicate,
@@ -160,6 +204,14 @@ for (let i = 0; i < rewardRuns; i++) {
   totalDecisions += run.log.length
 }
 assert.ok(receipts > 0)
+assert.ok(
+  repeatCeremonies > rewardRuns / 2,
+  'most of the 600 reward runs are repeats and get a counted commendation',
+)
+assert.ok(
+  ceremonyTitles.size >= rewardEndings.size,
+  'repeat runs to different endings present different ceremonies',
+)
 assert.equal(archive.runs.length, REWARD_ARCHIVE_LIMIT)
 assert.ok(archive.milestones['first-ending'])
 assert.ok(archive.milestones['test-report'])
@@ -379,6 +431,171 @@ for (const component of [
     component + ' must match receipts through rewards.ts, not a rebuilt ID',
   )
 
+// Repeat ceremonies (t-046): every authored ending files its own commendation,
+// so the Personnel File stops replaying "A Permanent Position" on every run
+// after the first. Funny, distinct, and counted per ending.
+assert.deepEqual(
+  Object.keys(ENDING_COMMENDATIONS).sort(),
+  ENDINGS.map((ending) => ending.id).sort(),
+  'every ending, and only an authored ending, has a commendation',
+)
+const commendations = Object.values(ENDING_COMMENDATIONS)
+const milestoneTitles = new Set(MILESTONES.map((m) => m.title))
+for (const field of ['title', 'first', 'repeat'] as const)
+  assert.equal(
+    new Set(commendations.map((c) => c[field])).size,
+    ENDINGS.length,
+    'commendation ' + field + 's are all different',
+  )
+for (const [id, c] of Object.entries(ENDING_COMMENDATIONS)) {
+  assert.ok(!milestoneTitles.has(c.title), id + ': not a milestone title')
+  assert.equal(c.repeat.split('{nth}').length, 2, id + ': one {nth} slot')
+  assert.ok(!c.first.includes('{nth}'), id + ': first filing has no count')
+  assert.ok(c.first.length <= 110 && c.repeat.length <= 130, id + ': fits')
+  const icon = c.icon.replace(/^kind-icon:/, '')
+  assert.ok(
+    readFileSync(
+      fileURLToPath(
+        new URL('../../assets/icons/' + icon + '.svg', import.meta.url),
+      ),
+      'utf8',
+    ).includes('<svg'),
+    id + ': icon ' + c.icon + ' exists',
+  )
+}
+assert.deepEqual(
+  [1, 2, 3, 4, 11, 12, 13, 21, 22, 23, 101, 111, 112].map(ordinal),
+  [
+    '1st',
+    '2nd',
+    '3rd',
+    '4th',
+    '11th',
+    '12th',
+    '13th',
+    '21st',
+    '22nd',
+    '23rd',
+    '101st',
+    '111th',
+    '112th',
+  ],
+)
+
+// Each naturally reached ending (the saves the browser contract loads) filed
+// three times, the way the store files it: on load, without announcing.
+const endingSaveList = naturalEndingSaves()
+assert.equal(endingSaveList.length, ENDINGS.length, 'a save for every ending')
+for (const save of endingSaveList) {
+  const receipt = receiptFor(save.run, '2026-11-05T12:00:00Z')
+  assert.ok(receipt, save.ending + ': save files a receipt')
+  const commendation = ENDING_COMMENDATIONS[save.ending]!
+  let ledger: RewardArchive = emptyRewardArchive()
+  const priorLines: string[] = []
+  for (let filing = 1; filing <= 3; filing++) {
+    const completion: RunReceipt =
+      filing === 3
+        ? receipt
+        : { ...receipt, id: receipt.id + '-earlier-' + filing }
+    const before = ledger
+    ledger = recordReward(before, completion, [save.ending])
+    const awards = newMilestonesForRun(before, ledger, completion.id)
+    if (filing > 1)
+      assert.deepEqual(
+        awards,
+        [],
+        save.ending + ': a repeat earns no new award',
+      )
+    const shown = ceremonyAwardFor(ledger, save.ending, completion.id, awards)!
+    if (filing === 1) {
+      assert.equal(shown.kind, 'milestone', save.ending + ': first clear')
+      assert.equal(shown.title, 'A Permanent Position')
+      const reloaded = ceremonyAwardFor(ledger, save.ending, completion.id, [])!
+      assert.equal(reloaded.kind, 'ending-first')
+      assert.equal(reloaded.line, commendation.first)
+    } else {
+      assert.equal(
+        shown.kind,
+        'ending-repeat',
+        save.ending + ' filing ' + filing,
+      )
+      assert.equal(shown.title, commendation.title)
+      assert.equal(shown.icon, commendation.icon)
+      assert.equal(shown.filings, filing)
+      assert.equal(
+        shown.line,
+        commendation.repeat.replace('{nth}', ordinal(filing)),
+      )
+      assert.match(shown.status, new RegExp(ordinal(filing)))
+      assert.ok(!priorLines.includes(shown.line), 'each repeat reads anew')
+      priorLines.push(shown.line)
+    }
+  }
+  // The Personnel File looks the run up through filedReceiptFor; that is the
+  // receipt the ceremony counts, and an earlier filing keeps its own count.
+  assert.equal(filedReceiptFor(ledger, save.run)?.id, receipt.id)
+  assert.equal(
+    ceremonyAwardFor(ledger, save.ending, receipt.id + '-earlier-2', [])!
+      .filings,
+    2,
+    save.ending + ': an older dossier keeps its own place in the count',
+  )
+}
+// Another ending's history never inflates this ending's count, and an
+// unknown ending falls back to the archive's earliest distinction.
+const [endA, endB] = endingSaveList as [
+  (typeof endingSaveList)[number],
+  (typeof endingSaveList)[number],
+]
+const receiptA = receiptFor(endA.run, '2026-11-05T12:00:00Z')!
+const receiptB = receiptFor(endB.run, '2026-11-05T12:00:00Z')!
+let mixed = recordReward(emptyRewardArchive(), receiptA, [endA.ending])
+mixed = recordReward(mixed, { ...receiptA, id: receiptA.id + '-again' }, [
+  endA.ending,
+])
+mixed = recordReward(mixed, receiptB, [endA.ending, endB.ending])
+const mixedCeremony = ceremonyAwardFor(mixed, endB.ending, receiptB.id, [])!
+assert.equal(mixedCeremony.kind, 'ending-first')
+assert.equal(mixedCeremony.title, ENDING_COMMENDATIONS[endB.ending]!.title)
+assert.equal(ceremonyAwardFor(emptyRewardArchive(), null, null, []), null)
+assert.equal(
+  ceremonyAwardFor(mixed, 'not-an-ending', null, [])?.kind,
+  'previous',
+)
+
+// The ending reward panel grows with its content. At 390px a fixed h-52
+// already squeezed the "Next:" milestone line to zero height, and the
+// commendation line would push the archive button out of the panel.
+const fileView = source(
+  '../../components/shifting-desks/shifting-desks-personnel-file.vue',
+)
+const panelAt = fileView.indexOf('aria-label="Your ending reward"')
+const panelOpen = fileView.slice(fileView.lastIndexOf('<div', panelAt), panelAt)
+const panel = fileView.slice(
+  panelAt,
+  fileView.indexOf('aria-label="Personnel file sections"'),
+)
+assert.match(panelOpen, /\bmin-h-52\b/)
+assert.doesNotMatch(
+  panelOpen,
+  /(?:^|[\s"])(?:[a-z]+:)?h-(?:\d+|\[[^\]]+\])(?=[\s"])/,
+  'the reward panel must not fix its height and clip the archive button',
+)
+assert.doesNotMatch(panelOpen, /max-h-/)
+assert.match(panel, /@click="emit\('archive'\)"/, 'archive button in panel')
+assert.match(panel, /ceremonyAward\.line/, 'the commendation is shown')
+assert.doesNotMatch(
+  panel,
+  /truncate[^>]*>\s*\{\{\s*ceremonyAward/,
+  'the award title and line wrap instead of truncating',
+)
+assert.match(fileView, /ceremonyAwardFor\(/)
+assert.doesNotMatch(
+  fileView,
+  /MILESTONES\.find\(\(m\) => !!store\.rewardArchive\.milestones/,
+  'the ceremony no longer falls back to the oldest award on every repeat',
+)
+
 const summary = {
   seededCampaigns: attempts,
   adversarialStrategies: ATTACKS.length,
@@ -389,6 +606,8 @@ const summary = {
   endingsAuthored: ENDINGS.length,
   unreachedEndings: unreachable,
   rewardEndingsReached: rewardEndings.size,
+  repeatCeremonies,
+  distinctCeremonies: ceremonyTitles.size,
   receiptsVerified: receipts,
   archiveSize: archive.runs.length,
   awardsEarned: Object.keys(archive.milestones).length,

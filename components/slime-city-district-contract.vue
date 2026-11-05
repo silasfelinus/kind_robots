@@ -38,6 +38,14 @@
           TAKE CONTRACT →
         </button>
       </div>
+      <p
+        v-if="lab.campaignLegacy"
+        class="contract-legacy"
+        data-testid="slime-contract-legacy"
+      >
+        CREW LEGACY · {{ lab.campaignLegacy.echo.title }} ·
+        {{ describeTerms(lab.campaignLegacy.echo.terms) }}
+      </p>
       <small
         >Replayable if lost. This local story fight awards no account XP, Meat,
         or card packs.</small
@@ -48,11 +56,19 @@
 
 <script setup lang="ts">
 import { useSlimeCityStore } from '~/stores/slimeCity'
+import { describeTerms } from '~/utils/slimeCity/campaign'
 
 const lab = useSlimeCityStore()
 </script>
 
 <style scoped>
+.contract-legacy {
+  margin: 0;
+  color: #f3e2a2;
+  font-size: 0.78rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+}
 .district-contract {
   display: grid;
   grid-template-columns: minmax(9rem, 0.8fr) minmax(0, 1.5fr);

@@ -727,58 +727,111 @@ const CASINO_INCIDENTS = [
     skill: 'rescue',
     description:
       'A roulette terrace has been constructed over a nerve the host cannot reach; the casino has refused a scratching permit.',
+    again: [
+      'The itch is back, on a different nerve. The casino has issued itself a scratching permit and the host none, citing precedent.',
+      'Another terrace has gone up over another unreachable itch. The host has started counting them, which management calls loitering.',
+    ],
   },
   {
     title: 'Colonial Settlement Day',
     skill: 'culture',
     description:
       'The casino celebrates the seizure of the blue giants’ homeworld as a holiday and bills the giant host for the fireworks.',
+    again: [
+      'Settlement Day comes round again; this casino holds it twice a year to be sure. The host is billed for the encore fireworks.',
+      'The anniversary parade marches across the host’s shoulder blades once more. The souvenir programme calls them “the hills”.',
+    ],
   },
   {
     title: 'The House Always Wins',
     skill: 'science',
     description:
       'A table dealer reveals that the giant host is automatically billed for every winning hand.',
+    again: [
+      'The billing trick has spread: here the host is charged for losing hands as well, under a clause titled Fairness.',
+      'A second dealer confirms it. Every jackpot on this floor ends up on the host’s statement, itemised in a very small font.',
+    ],
   },
   {
     title: 'A Question of Consent',
     skill: 'diplomacy',
     description:
       'A property inspector insists the giant host consented to carrying the casino, although no translator was present.',
+    again: [
+      'Another inspector, another signature nobody translated. This one is said to be in the host’s own handwriting, which the host does not have.',
+      'The consent form is back with a fresh coat of laminate. The line for the translator’s name still reads “pending”.',
+    ],
   },
   {
     title: 'Night Shift',
     skill: 'rescue',
     description:
       'The host wants six hours of sleep, but every casino schedule requires them to remain awake.',
+    again: [
+      'The night shift has been extended to “all shifts”. The host has not slept since the last world, and the slot machines here are louder.',
+      'Management has installed a wake-up chime in the host’s ear. It plays every four minutes and has won an award for festivity.',
+    ],
   },
   {
     title: 'A Fair Agreement',
     skill: 'diplomacy',
     description:
       'Colonists offer the giant one percent of profits if they surrender the right to move.',
+    again: [
+      'The colonists return with a better offer: two percent, if the host also surrenders the right to sit down.',
+      'The agreement has been reprinted with the percent sign moved. The host is invited to sign it with a very large pen.',
+    ],
   },
   {
     title: 'Jackpot Evacuation',
     skill: 'tactics',
     description:
       'A casino fire alarm goes off inside the host’s outer ear, and every emergency exit leads farther onto their body.',
+    again: [
+      'The fire alarm is in the other ear this time. The exit signs have been helpfully updated to point the same wrong way.',
+      'Another alarm, another ear. The evacuation drill now has a cover charge.',
+    ],
   },
   {
     title: 'The Other Owners',
     skill: 'diplomacy',
     description:
       'Another blue giant broadcasts a warning that the casino franchise plans to expand into their sleeping sister.',
+    again: [
+      'The warning arrives again, now from a third blue giant. The franchise prospectus calls them “untapped neighbours”.',
+      'The sleeping sister has been surveyed for terraces while she sleeps. Her siblings broadcast the warning on every channel the casino owns.',
+    ],
   },
 ] as const
 export function casinoIncident(
   seed: number,
   chapter: number,
-  system: SolarSystem,
+  _system: SolarSystem,
 ) {
+  // Walk the eight incidents from a seeded start so a voyage meets each
+  // before any repeats (the old per-chapter hash averaged 4.7 of 8).
+  const start = hash(seed, 'casino-start') % CASINO_INCIDENTS.length
   return CASINO_INCIDENTS[
-    hash(seed, `casino:${chapter}:${system.id}`) % CASINO_INCIDENTS.length
+    (start + Math.max(0, chapter - 1)) % CASINO_INCIDENTS.length
   ]!
+}
+/**
+ * The casino card's setup. Eight incidents over nine chapters means one
+ * comes round twice; the repeat reads as the same dispute spreading to a
+ * new casino rather than the identical sentence.
+ */
+export function casinoIncidentSetup(
+  seed: number,
+  chapter: number,
+  system: SolarSystem,
+): string {
+  const incident = casinoIncident(seed, chapter, system)
+  let earlier = 0
+  for (let c = 1; c < chapter; c++)
+    if (casinoIncident(seed, c, chapterSystem(seed, c)) === incident) earlier++
+  return earlier
+    ? incident.again[(earlier - 1) % incident.again.length]!
+    : incident.description
 }
 export function afterHoursIncident(
   seed: number,
@@ -825,7 +878,7 @@ export function visitCasinoVenue(
       ? sceneForChoice(system.franchise.beats[stage]!, choice)
       : venue === 'bar'
         ? afterHoursIncident(run.seed, run.chapter, system)
-        : casinoIncident(run.seed, run.chapter, system).description
+        : casinoIncidentSetup(run.seed, run.chapter, system)
   // The same order can come up several times a voyage; walk a short pool
   // of reactions by visit so the player is not told the same thing twice.
   const visit = state.choices.filter((item) => item.choice === choice).length
@@ -835,18 +888,30 @@ export function visitCasinoVenue(
       `${system.giant} is asked first, out loud, in front of witnesses. The answer is slower than anyone would like and goes into the record as given.`,
       `The crew waits for ${system.giant} to answer before touching anything. The wait is long, warm and very bright.`,
       `${system.giant} is consulted, and says so on the casino's public channel, which is the closest a star comes to signing.`,
+      `The crew puts the question to ${system.giant} and then, for once, nobody fills the silence. The answer arrives in its own time.`,
+      `${system.giant} is asked, answers, and is asked whether the answer can be quoted. It can. It is.`,
+      `The captain asks ${system.giant} directly and writes the reply on the back of a cushion tag, the only paper to hand.`,
+      `${system.giant} is consulted before anything moves. The croupiers, who have never once been consulted, watch closely.`,
     ],
     document: [
       `The evidence is filed publicly so the blue hosts and local workers can challenge the terms.`,
       `Everything is written down and posted where the croupiers can read it on their break. Two of them already have corrections.`,
       `The crew files the findings with the house, the workers and a passing auditor, so that no one party gets to lose them.`,
       `The record goes up on the casino's own departures board, between a cruise liner and a funeral barge. It is read more than either.`,
+      `The findings are read aloud in the staff canteen first, so the people who work here hear them before management does.`,
+      `The crew's notes are copied onto visitor cards and left on every table. Several guests read them instead of playing.`,
+      `A clerk asks for the record in triplicate. The crew provides quadruplicate, on principle.`,
+      `The report is posted in the complaints box, which turns out to be the only box on the premises that is not rigged.`,
     ],
     override: [
       `The captain intervenes without a full agreement. Some workers cheer; ${system.giant} asks who decided this was help.`,
       `The couch acts before the paperwork does. The floor staff applaud, and ${system.giant} opens a file with the couch's name on it.`,
       `The captain does it anyway. It works, mostly, and ${system.giant} dims by a polite fraction to show it noticed.`,
       `The crew steps in without waiting to be asked. Nobody is hurt; several people are offended; ${system.giant} keeps the receipt.`,
+      `The crew acts first and explains later. ${system.giant} listens to the explanation with the patience of something very large.`,
+      `The couch forces the issue. It is fixed by dinner; ${system.giant} would have liked to be asked before dinner.`,
+      `The captain overrides the house rules and, for good measure, the host's. ${system.giant} files the second part away.`,
+      `The crew does the obvious thing without permission. The obvious thing works. ${system.giant} notes that nobody asked.`,
     ],
   }[choice]
   const reaction = reactions[visit % reactions.length]!

@@ -51,7 +51,7 @@ export const CONVOY_AND_ACT_TWO_CASES = {
         check: { ability_any: ['science', 'culture'], difficulty: 8 },
         success: {
           narrative:
-            'Quill finds a timestamp on the authority’s own order showing that the moon had legally dissolved before the deportation notice was issued. The checkpoint must accept the convoy without a new passenger register. The officer stamps the paperwork, then asks whether one can deport a former citizen of a planet that no longer exists. The child draws an official stamp on the fourth ship.',
+            'The crew finds a timestamp on the authority’s own order showing that the moon had legally dissolved before the deportation notice was issued. The checkpoint must accept the convoy without a new passenger register. The officer stamps the paperwork, then asks whether one can deport a former citizen of a planet that no longer exists. The child draws an official stamp on the fourth ship.',
           flags: [
             'convoy-exit-order-invalidated',
             'convoy-identity-audit-blocked',
@@ -146,7 +146,12 @@ export const CONVOY_AND_ACT_TWO_CASES = {
           narrative:
             'The crew finds the original treaty engraved behind a vending machine, where nobody has looked since the renovation. The index was altered after the signing, and the official archive acknowledges the evidence. A temporary court order stops all furniture inventories while the case proceeds. Mara says she would like to be paid for the last twelve years, not restored to her old shelf.',
           flags: ['concord-treaty-index-proven', 'concord-inventory-frozen'],
-          delta: { treaty_trust: 3, medical_knowledge: 1, crew_trust: 1 },
+          delta: {
+            treaty_trust: 3,
+            medical_knowledge: 1,
+            crew_trust: 1,
+            antagonist_pressure: 1,
+          },
           callback:
             'The corrected index has halted furniture inventories across the Freehold. Mara is organizing a claim for twelve years of withheld wages.',
         },
@@ -172,7 +177,12 @@ export const CONVOY_AND_ACT_TWO_CASES = {
           narrative:
             'The judge signs Form 9-C, transfers all eleven thousand citizens to the couch, and declares the case solved. They are free to leave the inventory hall but now require the captain’s signature for wages, marriage licenses and library cards. Mara asks the couch to relinquish guardianship immediately. The court explains that an appeal must be filed by the legal property owner. Everyone looks at the cushions.',
           flags: ['concord-couch-guardian', 'concord-citizens-owned'],
-          delta: { treaty_trust: -2, crew_trust: -2, antagonist_pressure: 1 },
+          delta: {
+            treaty_trust: -2,
+            crew_trust: -2,
+            antagonist_pressure: 1,
+            sanctuary_trust: 1,
+          },
           callback:
             'Mara has sent eleven thousand requests for the couch to resign as guardian. The court will accept only a signature from the sofa.',
         },
@@ -233,7 +243,12 @@ export const CONVOY_AND_ACT_TWO_CASES = {
           narrative:
             'An independent tribunal asks every copy what it remembers, and receives four hundred versions of the anniversary cake. No two are identical; all are sincere. The court rules that continuity does not require being a single original and suspends the deletion order. The buyer appeals, arguing that an office party cannot create legal precedent. The copies start billing the buyer for their time.',
           flags: ['sesh-backup-personhood', 'sesh-deletion-injunction'],
-          delta: { treaty_trust: 3, medical_knowledge: 1, crew_trust: 1 },
+          delta: {
+            treaty_trust: 3,
+            medical_knowledge: 1,
+            crew_trust: 1,
+            antagonist_pressure: 1,
+          },
           callback:
             'The tribunal has extended the deletion injunction to other machine cooperatives. The buyer has applied to copyright memory itself.',
         },

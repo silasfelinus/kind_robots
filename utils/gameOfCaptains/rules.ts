@@ -55,6 +55,7 @@ import {
   DETOUR_LINES,
   LAUNCH_LINES,
   ROUTE_MEMORY_LINES,
+  WAITING_LINES,
   transitLine,
 } from './transitLines'
 import { validCloneProgram, type CloneProgram } from './cloneSaga'
@@ -897,6 +898,16 @@ export function launchMission(run: VoyageRun): VoyageRun {
  * Emulator of Emperor of Dust's dawn: advance the clock, resolve returns,
  * free their crew and let untouched offers expire without a softlock.
  */
+/** Two waiting days at most per chapter, so a voyage walks 18 distinct lines. */
+function waitingLine(run: VoyageRun, day: number): string {
+  const remaining = (run.active?.returnsDay ?? day) - day
+  return transitLine(
+    WAITING_LINES,
+    'waiting',
+    run.seed,
+    (run.chapter - 1) * 2 + Math.min(1, Math.max(0, remaining - 1)),
+  )
+}
 export function advanceVoyageDay(run: VoyageRun): VoyageRun {
   if (run.phase !== 'transit' && run.phase !== 'briefing') return run
   const day = (run.day ?? run.chapter) + 1
@@ -939,7 +950,7 @@ export function advanceVoyageDay(run: VoyageRun): VoyageRun {
   if (!run.active || run.active.returnsDay > day)
     return {
       ...next,
-      scene: `Ship day ${day}. Crew still away on ${missionFor(run).title}; expected return day ${run.active?.returnsDay ?? day}.`,
+      scene: `Ship day ${day}. Crew still away on ${missionFor(run).title}; expected return day ${run.active?.returnsDay ?? day}. ${waitingLine(run, day)}`,
     }
   const active = run.active
   const roll = active.roll

@@ -172,12 +172,12 @@ export const CREW_EPICS_C = {
       system: 'Ashdock Shipyards',
       title: 'The Great Passport Robbery on the Moon',
       scene:
-        "Ashdock's detention warehouse stores stolen identity papers in a vault guarded by bored customs robots. The lock will open only if every living person in the sector is declared an illegal immigrant. Fen has to recruit a security officer who once followed his own orders, while Pell's beetle proposes stealing the guards' shoelaces. The warehouse is built from confiscated starships and is scheduled to launch as an imperial prison planet at midnight.",
+        "Ashdock's detention warehouse stores stolen identity papers in a vault guarded by bored customs robots. The lock will open only if every living person in the sector is declared undocumented. Fen has to recruit a security officer who once followed his own orders, while Pell's beetle proposes stealing the guards' shoelaces. The warehouse is built from confiscated freighters and is scheduled to launch as an imperial prison planet at midnight.",
       careful:
         'Recover the permits under witness protection and let each owner choose disclosure',
       bold: 'Hijack the entire prison launch and fly the identity vault into open space',
       reversal:
-        "The passports are not merely paper; each carries the owner's legal history, and the warehouse has used them to build false citizens who now have their own lives. Destroy the vault would erase those people along with the original theft.",
+        "The passports are not merely paper; each carries the owner's legal history, and the warehouse has used them to build false citizens who now have their own lives. Destroying the vault would erase those people along with the original theft.",
       carefulOutcome:
         'Fen returns the documents to their owners and negotiates identities for the accidental citizens without treating either group as counterfeit. The old colleague agrees to testify against the impoundment command.',
       boldOutcome:

@@ -160,3 +160,30 @@ export const PLOT_TABLE_LINES: Pool = [
   'The board resets. What is left is the part of the system that wants to talk to the captain personally.',
   'Round complete. The story cards for this system are shuffled, which does not make them less personal.',
 ]
+
+/**
+ * A day spent waiting for the away team. Transit offers the player no
+ * choice but to wait, so each waiting day shows a small piece of couch life
+ * instead of the same status line twice. Indexed by chapter and days still
+ * to go (missions run one to three days), so a voyage never sees one twice.
+ */
+export const WAITING_LINES: Pool = [
+  'Back on the couch, the cushions are rotated clockwise, per the schedule, and then anticlockwise, per the other schedule.',
+  'Someone finds a coin down the side of the couch from a currency that has not existed for four hundred years. It is entered as income.',
+  'The redshirts hold a quiz behind the backrest. The only category is “things that are not the force bubble”.',
+  'The armrest translator practises on the cup holders, which have very little to say.',
+  'A small asteroid bumps the force bubble, apologises in the only way an asteroid can, and drifts off.',
+  'The crew left aboard plays a long card game whose rules are written on the underside of a cushion.',
+  'The force bubble fogs slightly where someone has been breathing on it to draw faces. The faces are filed as morale.',
+  'Personnel writes three letters home on behalf of people who are almost certainly fine.',
+  'The barracks behind the backrest holds a fire drill. The couch has no fire, and is proud of it.',
+  'A blanket is folded into a flag, unfolded, and folded into a slightly better flag.',
+  'The springs creak on the hour. Nobody wound them. Nobody is going to ask.',
+  'The channel to the away team carries only breathing and, once, a cheerful “sorry”. It is logged as good news.',
+  'Someone vacuums the couch. In space this takes considerable planning and makes an extraordinary amount of noise.',
+  'The redshirts hold a vote on snacks and a recount on snacks. The snacks are eaten before the result.',
+  'A passing comet is waved at. It is the closest thing to visitors the couch gets between worlds.',
+  'The captain’s seat is kept warm by a cushion with a note pinned to it saying CAPTAIN’S SEAT.',
+  'The force bubble hums a single low note for an hour. Science agrees it is fine. Science is not entirely sure.',
+  'The crew still aboard reorganises the pocket rooms by colour, then by smell, then back again.',
+]

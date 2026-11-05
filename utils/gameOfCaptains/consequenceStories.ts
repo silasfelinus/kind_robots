@@ -1,5 +1,5 @@
 import { CAPTAIN_STATS, CREW_PROFILES, type Skill } from './crewAssignments'
-import type { PolicyId, VoyageRun } from './rules'
+import type { CrewId, PolicyId, VoyageRun } from './rules'
 import { ACT_ONE_EXPANDED_CONSEQUENCES } from './consequenceStoriesActOneExpansion'
 import { ACT_ONE_UNPAINTED_CASES } from './consequenceStoriesActOneRemainder'
 import { CONVOY_AND_ACT_TWO_CASES } from './consequenceStoriesConvoyAndActTwo'
@@ -63,7 +63,7 @@ export const CONSEQUENCE_STORIES: Record<string, ConsequenceEpisode> = {
     title: 'The Weight of a Name',
     system: 'Serendipity Space Bar',
     opening:
-      "The bar has tilted its gravity sideways. A shaken refugee witness is standing against a wall that now works as a floor; patrons pretend this is ordinary enough to justify a second drink. Barkeep Vox has paid for the witness's room in the bar's own name. The witness holds proof that a powerful convoy falsified a mass-evacuation order, but the data packet includes the coordinates of families still in hiding. A creditor's courier offers the ship a safe warp lane in exchange for the name. Serendipity plays a slow bass note through its ventilation grilles whenever anyone uses the word 'property'.",
+      "The bar has tilted its gravity sideways. A shaken refugee witness is standing against a wall that now works as a floor; patrons pretend this is ordinary enough to justify a second drink. Barkeep Vox has paid for the witness's room in the bar's own name. The witness holds proof that a powerful convoy falsified a mass-evacuation order, but the data packet includes the coordinates of families still in hiding. A creditor's courier offers the couch a safe lane through the blockade in exchange for the name. Serendipity plays a slow bass note through its ventilation grilles whenever anyone uses the word 'property'.",
     conflict:
       'A witness can stop further deportations. Who gets to decide whether their testimony makes them visible, and who will bear the cost of hiding them?',
     choices: [
@@ -131,7 +131,7 @@ export const CONSEQUENCE_STORIES: Record<string, ConsequenceEpisode> = {
           ],
           delta: {
             treaty_trust: 2,
-            antagonist_pressure: 0,
+            antagonist_pressure: 1,
             crew_trust: 2,
           },
           callback:
@@ -167,7 +167,7 @@ export const CONSEQUENCE_STORIES: Record<string, ConsequenceEpisode> = {
         },
         success: {
           narrative:
-            "The creditor hands over genuine evacuation orders and enough parts to restore the ship's warp coil. Armed debt marshals lead the witness down the docking tube. Pell fixes the engine and then refuses to attend the victory drink. The convoy fraud becomes public, but the person who proved it is now a bargaining chip in someone else's hangar.",
+            "The creditor hands over genuine evacuation orders and enough brass springs to restore the couch's tired drive. Armed debt marshals lead the witness down the docking tube. Pell fixes the springs and then refuses to attend the victory drink. The convoy fraud becomes public, but the person who proved it is now a bargaining chip in someone else's hangar.",
           flags: [
             'witness_traded_for_evidence',
             'convoy_fraud_exposed',
@@ -205,7 +205,7 @@ export const CONSEQUENCE_STORIES: Record<string, ConsequenceEpisode> = {
     title: 'The Last Copy',
     system: 'Tellurian Archive',
     opening:
-      "The Tellurian library is a living planet. Its long memory grows in columns of dark glass beneath a red-white star. A flare warning gives its surface residents one orbit to decide what must be saved. The library agrees to risk its own memory, but cannot claim the same consent for the people who have worked inside it for generations. Its preservation machine will transfer the catalog into the starship only if the captain signs a license containing every reader's private histories and an uncontacted planet's location.",
+      "The Tellurian library is a living planet. Its long memory grows in columns of dark glass beneath a red-white star. A flare warning gives its surface residents one orbit to decide what must be saved. The library agrees to risk its own memory, but cannot claim the same consent for the people who have worked inside it for generations. Its preservation machine will transfer the catalog into the couch's pocket rooms only if the captain signs a license containing every reader's private histories and an uncontacted planet's location.",
     conflict:
       'Whose survival counts as preservation: the people, the living archive, or the right to keep a memory from being copied?',
     choices: [
@@ -254,10 +254,10 @@ export const CONSEQUENCE_STORIES: Record<string, ConsequenceEpisode> = {
       },
       {
         id: 'copy-all',
-        label: "Copy the catalog through the ship's wideband memory array",
+        label: "Copy the catalog into the couch's pocket-room memory array",
         approach:
           "Save knowledge by breaching private records and the library's autonomy",
-        cost: "Every copied record includes intimate data; the storage array will occupy the ship's medical reserve.",
+        cost: "Every copied record includes intimate data; the storage array will occupy the couch's medical reserve.",
         policy: 'intervene',
         check: {
           ability_any: ['science', 'luck'],
@@ -265,7 +265,7 @@ export const CONSEQUENCE_STORIES: Record<string, ConsequenceEpisode> = {
         },
         success: {
           narrative:
-            "Mox-9 captures the archive and its hidden private collections before the flare. The glass towers burn empty as the copied library wakes inside the ship's navigation compartment. It immediately asks how to delete the parts copied without permission. The crew now possesses the coordinates of a civilization that has never been contacted.",
+            "Mox-9 captures the archive and its hidden private collections before the flare. The glass towers burn empty as the copied library wakes up behind the couch's backrest. It immediately asks how to delete the parts copied without permission. The crew now possesses the coordinates of a civilization that has never been contacted.",
           flags: [
             'archive_records_copied',
             'library_voice_split',
@@ -281,7 +281,7 @@ export const CONSEQUENCE_STORIES: Record<string, ConsequenceEpisode> = {
         },
         failure: {
           narrative:
-            "The memory upload combines thousands of unrelated private histories into one unstable voice. It recites secrets through the bridge speakers while the starship's medical reserve powers down. Mox-9 must purge half the stolen data to restore life support, and the library's final image vanishes mid-sentence.",
+            "The memory upload combines thousands of unrelated private histories into one unstable voice. It recites secrets through the armrest speakers while the couch's medical reserve powers down. Mox-9 must purge half the stolen data to restore life support, and the library's final image vanishes mid-sentence.",
           flags: [
             'archive_memory_scrambled',
             'medical_reserve_offline',
@@ -321,13 +321,14 @@ export const CONSEQUENCE_STORIES: Record<string, ConsequenceEpisode> = {
             crew_trust: 3,
             treaty_trust: 2,
             medical_knowledge: 1,
+            antagonist_pressure: 1,
           },
           callback:
             'Act III: the surviving archivists can negotiate an equal partnership rather than a salvage license.',
         },
         failure: {
           narrative:
-            'The archive grants permission for a smaller list, but a fraction of its readers cannot reach the vote. The starship leaves with a few authorized treatments and the knowledge that the latecomers may be trapped behind sealed glass. The captain cannot honestly claim either total rescue or total respect for consent.',
+            'The archive grants permission for a smaller list, but a fraction of its readers cannot reach the vote. The couch leaves with a few authorized treatments and the knowledge that the latecomers may be trapped behind sealed glass. The captain cannot honestly claim either total rescue or total respect for consent.',
           flags: [
             'partial_archive_saved',
             'consent_process_incomplete',
@@ -349,7 +350,7 @@ export const CONSEQUENCE_STORIES: Record<string, ConsequenceEpisode> = {
     title: 'The Courtesy War',
     system: 'Kestrel Twin Isles',
     opening:
-      "Two inhabited moons orbit the same ocean planet. Their governments are polite, prosperous and engaged in a war conducted almost entirely through blockades and infrastructure sabotage. Each asks the starship for a portable fusion medical reactor, claiming its hospitals have the greater need. The third, independent floating clinic treating people from both moons has a failing filter and no warship to protect it. The reactor's spare coolant is also a crucial ingredient in both militaries' new engines.",
+      "Two inhabited moons orbit the same ocean planet. Their governments are polite, prosperous and engaged in a war conducted almost entirely through blockades and infrastructure sabotage. Each asks the couch for a portable fusion medical reactor, claiming its hospitals have the greater need. The third, independent floating clinic treating people from both moons has a failing filter and no warship to protect it. The reactor's spare coolant is also a crucial ingredient in both militaries' new engines.",
     conflict:
       'Should the ship sell technology to governments, distribute it and hope for restraint, or equip a clinic both sides say is illegitimate?',
     choices: [
@@ -451,7 +452,7 @@ export const CONSEQUENCE_STORIES: Record<string, ConsequenceEpisode> = {
         },
         success: {
           narrative:
-            "One moon's hospitals light up and its officials deliver warp components to the ship. The rival moon calls the captain an arms dealer. Vela examines the evacuation permits: they allow children out but exclude adults listed as political agitators. Captain Vale must decide whether to use the safe corridor now or renegotiate and risk losing it.",
+            "One moon's hospitals light up and its officials deliver replacement drive springs to the couch. The rival moon calls the captain an arms dealer. Vela examines the evacuation permits: they allow children out but exclude adults listed as political agitators. The captain must decide whether to use the safe corridor now or renegotiate and risk losing it.",
           flags: [
             'exclusive_relief_contract',
             'partisan_winner',
@@ -468,7 +469,7 @@ export const CONSEQUENCE_STORIES: Record<string, ConsequenceEpisode> = {
         },
         failure: {
           narrative:
-            "The favored government accepts the reactor and then closes the promised evacuation corridor. The ship's new warp coil is held at customs while rival-warzone families remain at the docking gate. Pell suggests stealing back the parts; Rue argues that another breach will punish the civilians whose names remain on the manifest.",
+            "The favored government accepts the reactor and then closes the promised evacuation corridor. The couch's new drive springs are held at customs while rival-warzone families remain at the docking gate. Pell suggests stealing back the parts; Rue argues that another breach will punish the civilians whose names remain on the manifest.",
           flags: [
             'exclusive_contract_breached',
             'corridor_closed',
@@ -504,7 +505,7 @@ export const CONSEQUENCE_ENDINGS: readonly ConsequenceEnding[] = [
     title: 'The Last Right to Forget',
     requires_all: ['sealed_testimony', 'archive_records_copied'],
     narrative:
-      "The copied library gets the starship through the last jump, then asks for its stolen private memories to be deleted. Mox-9 warns that erasure will take one untested medical cure with them. The Serendipity witness reminds the captain that the right to withdraw mattered even when it delayed justice. At the galley table the captain turns the copper deletion key. The archive's borrowed voice falls silent. A grieving researcher is furious. Vela says that anger is permitted, too. The crew goes home with a smaller, freely given catalog.",
+      "The copied library gets the couch through the last jump, then asks for its stolen private memories to be deleted. Mox-9 warns that erasure will take one untested medical cure with them. The Serendipity witness reminds the captain that the right to withdraw mattered even when it delayed justice. On the middle cushion the captain turns the copper deletion key. The archive's borrowed voice falls silent. A grieving researcher is furious. Vela says that anger is permitted, too. The crew goes home with a smaller, freely given catalog.",
     cost: 'Unapproved personal records are gone and the copied library can rest, but an untested cure and several hidden star routes disappear permanently. The ship must tell the living what it gave up.',
   },
   {
@@ -603,6 +604,65 @@ export function consequenceForRun(run: VoyageRun): ConsequenceEpisode | null {
   return episode
 }
 
+const OFFICER_SHORT_NAMES = CREW_PROFILES.map((officer) => ({
+  id: officer.id,
+  short: officer.name.replace(/^(Bosun|Dr\.) /, '').split(' ')[0]!,
+}))
+const OFFICER_MENTION = new RegExp(
+  '(?:Dr\\. )?\\b(' +
+    OFFICER_SHORT_NAMES.map((o) => o.short.replace('-', '\\-')).join('|') +
+    ')\\b',
+  'g',
+)
+
+/**
+ * The first authored cases name the officer who carries a scene (Vela
+ * evacuates, Mox-9 audits, Pell welds). With twelve officers and three
+ * seats, that officer is usually not aboard. A named officer who is not on
+ * the couch is played by the aboard officer best suited to the check, so the
+ * scene credits someone who is actually there. Text-only: flags, ids and
+ * deltas are unchanged.
+ */
+export function castConsequenceText(
+  run: Pick<VoyageRun, 'crew' | 'away'>,
+  skills: readonly Skill[],
+  texts: string[],
+): string[] {
+  const byShort = new Map(OFFICER_SHORT_NAMES.map((o) => [o.short, o.id]))
+  const named: string[] = []
+  for (const text of texts)
+    for (const match of text.matchAll(OFFICER_MENTION)) {
+      const id = byShort.get(match[1]!)!
+      if (!named.includes(id)) named.push(id)
+    }
+  const absent = named.filter((id) => !run.crew.includes(id as CrewId))
+  if (!absent.length) return texts
+  const best = (id: CrewId) =>
+    Math.max(
+      ...skills.map(
+        (skill) => CREW_PROFILES.find((p) => p.id === id)!.stats[skill],
+      ),
+    )
+  const onMission = [...(run.away.length ? run.away : run.crew)].sort(
+    (a, b) => best(b) - best(a),
+  )
+  const pool = [...new Set([...onMission, ...run.crew])].filter(
+    (id) => !named.includes(id),
+  )
+  const standIn = new Map<string, string>()
+  for (const id of absent) {
+    const next = pool.shift()
+    if (next)
+      standIn.set(id, OFFICER_SHORT_NAMES.find((o) => o.id === next)!.short)
+  }
+  return texts.map((text) =>
+    text.replace(OFFICER_MENTION, (whole, short: string) => {
+      const replacement = standIn.get(byShort.get(short)!)
+      return replacement ?? whole
+    }),
+  )
+}
+
 function seededDie(seed: number, key: string): number {
   let value = seed >>> 0
   for (const char of key)
@@ -628,7 +688,13 @@ export function resolveConsequence(
   )
   const roll = seededDie(run.seed, `${run.chapter}:${episode.id}:${choice.id}`)
   const succeeded = expertise + roll >= choice.check.difficulty
-  const outcome = succeeded ? choice.success : choice.failure
+  const authored = succeeded ? choice.success : choice.failure
+  const [narrative, callback] = castConsequenceText(
+    run,
+    choice.check.ability_any,
+    [authored.narrative, authored.callback],
+  )
+  const outcome = { ...authored, narrative: narrative!, callback: callback! }
   const artKey = `consequences/${episode.id}-${choice.id}-${succeeded ? 'success' : 'failure'}`
   const record: ConsequenceRecord = {
     episodeId: episode.id,

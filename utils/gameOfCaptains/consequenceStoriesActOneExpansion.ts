@@ -49,7 +49,12 @@ export const ACT_ONE_EXPANDED_CONSEQUENCES = {
           narrative:
             'The crane recites its complete shift history in the voice of a disappointed foreman, including the hour the oxygen pipes failed. A judge accepts the machine record without demanding a single relative’s name. The contractor appeals on the grounds that cranes are incapable of remembering anything emotionally important. The crane asks for a union card.',
           flags: ['ashdock-crane-witness', 'ashdock-anonymous-inquest'],
-          delta: { treaty_trust: 2, medical_knowledge: 1, crew_trust: 1 },
+          delta: {
+            treaty_trust: 2,
+            medical_knowledge: 1,
+            crew_trust: 1,
+            antagonist_pressure: 1,
+          },
           callback:
             'The crane has testified at a second hearing. The contractor now contests its right to unionize without unpaid overtime.',
         },
@@ -138,7 +143,11 @@ export const ACT_ONE_EXPANDED_CONSEQUENCES = {
           narrative:
             'Mox-9’s borrowed sensor proves the assembly subtracts precisely 340 people whenever the bowl is cold. The hearing must be reopened, but the court refuses to reveal the neighborhood’s location. The judge asks who should pay for the malfunction. The thermometer says it was only following instructions.',
           flags: ['nacre-heat-audit', 'nacre-referendum-stayed'],
-          delta: { treaty_trust: 3, medical_knowledge: 1 },
+          delta: {
+            treaty_trust: 3,
+            medical_knowledge: 1,
+            antagonist_pressure: 1,
+          },
           callback:
             'The audit is admissible on other occupied worlds. Nacre’s council is still arguing that subtraction is a local tradition.',
         },
@@ -230,7 +239,12 @@ export const ACT_ONE_EXPANDED_CONSEQUENCES = {
             'gameworld-union-clause-upheld',
             'gameworld-organizers-protected',
           ],
-          delta: { treaty_trust: 3, crew_trust: 1, antagonist_pressure: -1 },
+          delta: {
+            treaty_trust: 3,
+            crew_trust: 1,
+            antagonist_pressure: -1,
+            ship_fuel: -1,
+          },
           callback:
             'Off-world contestants are citing the anonymous broadcast in their own petitions. The Showrunner has banned the number nine.',
         },
@@ -258,7 +272,12 @@ export const ACT_ONE_EXPANDED_CONSEQUENCES = {
             'gameworld-broadcast-destroyed',
             'gameworld-contestants-exposed',
           ],
-          delta: { crew_trust: -1, antagonist_pressure: 3, ship_fuel: -1 },
+          delta: {
+            crew_trust: -1,
+            antagonist_pressure: 3,
+            ship_fuel: -1,
+            sanctuary_trust: 1,
+          },
           callback:
             'The game has ended on this planet, but the Showrunner is selling footage of the escape without the survivors’ consent.',
         },

@@ -28,6 +28,19 @@
             Enter the Breathing Works
           </button>
           <button
+            v-if="
+              sea.active === 'e06' &&
+              sea.position === '4,6' &&
+              sea.e06Choices['4,6']
+            "
+            type="button"
+            class="btn btn-sm btn-soft btn-error"
+            data-testid="memory-enter-choking"
+            @click="emit('choking')"
+          >
+            Enter the Choking Works
+          </button>
+          <button
             v-if="sea.e06Unlocked && sea.active === 'e06'"
             type="button"
             class="btn btn-sm btn-ghost"
@@ -275,7 +288,7 @@ import { onMounted } from 'vue'
 import { useMemorySeaStore } from '~/stores/memorySeaStore'
 import type { OverworldKind } from '~/utils/memoryDungeon/overworldEventCatalog'
 
-const emit = defineEmits<{ leave: []; works: [] }>()
+const emit = defineEmits<{ leave: []; works: []; choking: [] }>()
 const sea = useMemorySeaStore()
 
 function symbolFor(kind: OverworldKind): string {

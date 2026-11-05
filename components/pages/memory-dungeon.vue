@@ -12,10 +12,16 @@
       v-else-if="seaMode"
       @leave="((seaMode = false), (earthMode = true))"
       @works="((worksMode = true), (seaMode = false))"
+      @choking="((chokingMode = true), (seaMode = false))"
     />
     <memory-dungeon-sublevel
       v-else-if="sublevelMode"
       @leave="((sublevelMode = false), (earthMode = true))"
+    />
+    <memory-dungeon-sublevel
+      v-else-if="chokingMode"
+      dungeon="choking"
+      @leave="((chokingMode = false), (seaMode = true))"
     />
     <memory-dungeon-sublevel
       v-else-if="worksMode"
@@ -512,6 +518,7 @@ const seaMode = ref(false)
 const sublevelMode = ref(false)
 const drownedMode = ref(false)
 const worksMode = ref(false)
+const chokingMode = ref(false)
 const hoshimoriMode = ref(false)
 const hoshimoriNightMode = ref(false)
 const collisionMode = ref(false)

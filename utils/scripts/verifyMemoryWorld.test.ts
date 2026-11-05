@@ -116,6 +116,26 @@ assert.deepEqual(
   [],
   'All 36 House locations are authored and reachable',
 )
+// A one-beat lore discovery must not require a second fake decision.
+// Keep historical choice records intact in the authored room catalog.
+const umbrellaRoom = HOUSE_ROOMS['HD-02']!
+const umbrellaChoices = umbrellaRoom.choices
+try {
+  Object.assign(umbrellaRoom, {
+    choices: umbrellaChoices.filter(
+      (choice) => choice.id === umbrellaRoom.autoChoiceId,
+    ),
+  })
+  assert.deepEqual(validateHouseRooms(), [])
+  umbrellaRoom.autoChoiceId = 'missing-choice'
+  assert.ok(
+    validateHouseRooms().includes('Invalid automatic lore choice at HD-02'),
+  )
+} finally {
+  Object.assign(umbrellaRoom, { choices: umbrellaChoices })
+  umbrellaRoom.autoChoiceId = 'weather'
+}
+assert.deepEqual(validateHouseRooms(), [])
 assert.equal(Object.keys(HOUSE_ROOMS).length, 36)
 assert.deepEqual(
   HOUSE_ROOMS['HD-35']!.choices.map((choice) => choice.id),

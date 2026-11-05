@@ -19,6 +19,7 @@ import {
   type JourneyLedgerV6,
 } from '../shiftingLands/saveLedgerV6'
 import { trialForLand, canChooseTrial } from '../shiftingLands/authoredBosses'
+import { trialForLandV7 } from '../shiftingLands/trialRulesV7'
 import { JOURNEY_WORLD, reachableLocations } from '../shiftingLands/journey'
 import { AUTHORED_PACK } from '../shiftingLands/authoredJourney'
 import { LATER_LAND_PACK } from '../shiftingLands/authoredFiveLands'
@@ -193,6 +194,98 @@ assert.doesNotMatch(
   trialForLand('tablelands')!.flavor,
   /you know that/,
   'the trial does not assume clues the player may never have found',
+)
+
+const cave = JOURNEY_WORLD.lands.find((land) => land.id === 'cave')!
+const caveIds = new Set(cave.locations.map((place) => place.id))
+const caveCards = V6_CARDS.filter((card) => caveIds.has(card.locationId))
+assert.equal(caveCards.length, 24, 'the Deep Cave has eight cards per location')
+const caveCard = (cardId: string) =>
+  caveCards.find((card) => card.id === cardId)!
+const caveChoice = (cardId: string, choiceId: string) =>
+  caveCard(cardId).choices.find((choice) => choice.id === choiceId)!
+for (const card of caveCards) {
+  assert.ok(card.flavor.length >= 130, `${card.id}: keep the scene specific`)
+  for (const choice of card.choices) {
+    assert.ok(choice.risk.length >= 20, `${card.id}: keep the risk legible`)
+    assert.ok(
+      choice.success.text.length >= 80,
+      `${card.id}: keep the consequence authored`,
+    )
+    if (choice.failure)
+      assert.ok(
+        choice.failure.text.length >= 80,
+        `${card.id}: keep the failure consequential`,
+      )
+    for (const effect of [choice.success, choice.failure])
+      if (effect && effect.map_effect === 'none')
+        assert.doesNotMatch(
+          effect.text,
+          /(road|way|tunnels) ahead|ahead (changes|shifts|bends|reorders|rearranges)/,
+          `${card.id}/${choice.id}: prose must not promise a map shift the state never records`,
+        )
+  }
+}
+assert.match(
+  caveCard('feathers-in-the-draft').flavor,
+  /who you are and what you want below/,
+  'the storm-reader asks the question the first choice answers',
+)
+assert.match(
+  caveCard('the-third-shadow').flavor,
+  /what her brother owes/,
+  "the brother's debt is set up before a choice offers to pay it",
+)
+assert.match(
+  caveChoice('no-fever-past-the-rope', 'brew-a-fever-draught').failure!.text,
+  /most of your herbs/,
+  'deed-carries-medicine survives the failure, so the herbs are not all gone',
+)
+for (const [cardId, choiceId, owed] of [
+  [
+    'the-red-vial',
+    'brew-him-a-sleeping-draught',
+    /swears he will pay the rest/,
+  ],
+  [
+    'the-fortieth-stone',
+    'open-the-old-wind-shaft',
+    /owes you her child's life/,
+  ],
+  ['the-creditors-ledger', 'broker-new-terms', /owes you more than wool/],
+] as const)
+  assert.match(
+    caveChoice(cardId, choiceId).success.text,
+    owed,
+    `${cardId}: deed-owed-favor is spoken by someone who owes it`,
+  )
+assert.match(
+  caveChoice('salt-for-the-burial', 'feed-the-children-quietly').success.text,
+  /the little ones/,
+  'the eldest of three children does not thank you for "both"',
+)
+assert.doesNotMatch(
+  caveChoice('the-surveyors-tally-book', 'let-the-families-decide').success
+    .text,
+  /twenty stay hidden/,
+  'sixty-one people are not split into forty and twenty',
+)
+assert.match(
+  trialForLand('cave')!.flavor,
+  /chalk circle/,
+  'the circle the confront route breaks is in the scene',
+)
+assert.doesNotMatch(
+  trialForLand('cave')!.choices.find((choice) => choice.id === 'evidence')!
+    .intent,
+  /in the hollow and at the crossroads/,
+  'evidence opens on any one clue, so the intent does not assume both',
+)
+assert.match(
+  trialForLandV7('cave')!.choices.find((choice) => choice.id === 'solidarity')!
+    .success,
+  /outside the candle ring/,
+  'the solidarity scene names who the court ignored',
 )
 
 const choices = V6_CARDS.flatMap((card) => card.choices)

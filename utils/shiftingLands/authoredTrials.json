@@ -146,7 +146,7 @@
     {
       "landId": "cave",
       "title": "The Deep-Cave Judgement",
-      "flavor": "A ring of blue candle flames surrounds a stone court deep in the cave. The Storm-Crow adjudicators wait in silence while a bound guardian trembles on the threshold, and every entrance bears a different version of his oath. The court will not let you leave until it accepts one account as true, and his fate rides on which.",
+      "flavor": "A ring of blue candle flames surrounds a stone court deep in the cave. The Storm-Crow adjudicators wait in silence while a bound guardian trembles inside a chalk circle on the threshold, and every entrance bears a different version of his oath. The court will not let you leave until it accepts one account as true, and his fate rides on which account it chooses.",
       "art": null,
       "choices": [
         {
@@ -174,7 +174,7 @@
         {
           "id": "evidence",
           "label": "Expose the false oath",
-          "intent": "Set the evidence you gathered in the hollow and at the crossroads against the oath's wording.",
+          "intent": "Set what you have learned on this road against the exact wording of his oath.",
           "skill": "insight",
           "target": 9,
           "cost": 0,

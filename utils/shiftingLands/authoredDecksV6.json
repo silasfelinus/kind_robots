@@ -5242,7 +5242,7 @@
       "id": "the-fortieth-stone",
       "locationId": "cave-mouth",
       "title": "The Fortieth Stone",
-      "flavor": "A crow-witch sits cross-legged at the cave mouth with a clay bowl in her lap and one river stone in her hand. Thirty-nine stones already lie in the bowl, one for each breath the air below can carry, she says. Behind you, a young mother shields her baby from the sleet, and the witch's eyes move from her to you.",
+      "flavor": "A crow-witch sits cross-legged at the cave mouth with a clay bowl in her lap and one river stone in her hand. Thirty-nine stones already lie in the bowl, one for every sleeper below; the air down there carries forty breaths and no more, she says. Behind you, a young mother shields her baby from the sleet, and the witch's eyes move from her to you.",
       "weight": 2,
       "art": null,
       "choices": [
@@ -5291,7 +5291,7 @@
             }
           },
           "failure": {
-            "text": "She hears the doubt and closes her hand around the last stone. The mother goes in; you do not. You shelter in a crack in the ridge until the hail passes and come in at dawn, stiff, soaked and hungry.",
+            "text": "She hears the doubt and closes her hand around the last stone. The mother goes in; you do not. You shelter in a crack in the ridge until the sleet passes and come in at dawn, stiff, soaked and hungry.",
             "hp_delta": -1,
             "provisions_delta": -1,
             "add_flags": ["the-fortieth-stone-turned-away"],
@@ -5325,7 +5325,7 @@
             }
           },
           "failure": {
-            "text": "Her stick cracks across your shins, and two crow-folk from inside haul you back out into the sleet, your shins bruised. When they let you in at dawn, every face at the fire already knows what you tried.",
+            "text": "Her stick cracks across your shins, and two crow-folk from inside haul you back out into the sleet to limp and shiver until morning. When they let you in at dawn, every face at the fire already knows what you tried.",
             "hp_delta": -1,
             "provisions_delta": 0,
             "add_flags": [
@@ -5353,7 +5353,7 @@
             "target": 9
           },
           "success": {
-            "text": "The shaft breathes cold, clean air, just as the old ways promised. You hand the baby down rung by rung, and the witch, hearing of it, sets a second bowl beside the first. The tunnels ahead open in a different order than the ones you planned on.",
+            "text": "The shaft breathes cold, clean air, just as the old ways promised. You hand the baby down rung by rung, the mother swears she owes you her child's life, and the witch, hearing of it, sets a second bowl beside the first. The tunnels ahead open in a different order than the ones you planned on.",
             "hp_delta": 0,
             "provisions_delta": 0,
             "add_flags": ["the-fortieth-stone-opened-shaft", "deed-owed-favor"],
@@ -5477,7 +5477,7 @@
             }
           },
           "failure": {
-            "text": "The draught is not enough, and you burn through the last of your herbs trying. The carter lives, but only just, and you come away from the long night hollow-eyed and spent.",
+            "text": "The draught is not enough, and you burn through most of your herbs trying. The carter lives, but only just, and you come away from the long night hollow-eyed and spent.",
             "hp_delta": -1,
             "provisions_delta": 0,
             "add_flags": ["no-fever-past-the-rope-herbs-spent"],
@@ -5565,7 +5565,7 @@
             "target": 10
           },
           "success": {
-            "text": "It was her mother's, she says, and the pattern on the beam was her mother's too. She cuts one finished length of cloth free, leaves the frame to the hail, and hurries the boys inside. She does not speak to you again.",
+            "text": "The loom was her mother's, she says, but the pattern lives in her own hands now, and hands can build another frame. She cuts one finished length of cloth free, leaves the frame to the hail, and hurries the boys inside. She does not speak to you again.",
             "hp_delta": 0,
             "provisions_delta": 0,
             "add_flags": ["a-loom-too-wide-left-loom"],
@@ -5696,7 +5696,7 @@
             "target": 10
           },
           "success": {
-            "text": "It takes half the night. The Hallorans will send him wool from their first flock, and he will not go to the county sheriff. He writes the terms in his ledger and asks you to sign as witness.",
+            "text": "It takes half the night. The Hallorans will send him wool from their first flock, and he will not go to the county sheriff. He writes the terms in his ledger and asks you to sign as witness, and old Halloran tells you his family owes you more than wool.",
             "hp_delta": 0,
             "provisions_delta": 0,
             "add_flags": ["the-creditors-ledger-brokered", "deed-owed-favor"],
@@ -5836,7 +5836,7 @@
             "target": 9
           },
           "success": {
-            "text": "It takes a long time. Then the mule leans its head into your chest and walks in beside you, and the packer, wiping his face, presses a fist of dried apples on you. It has never done that for anyone but his dead wife, he says.",
+            "text": "It takes a long time. Then the mule leans its head into your chest and walks in beside you, and the packer, wiping his face, presses a fist of dried apples on you. The mule has never done that for anyone but his dead wife, he says.",
             "hp_delta": 0,
             "provisions_delta": 1,
             "add_flags": ["the-mule-that-fears-the-dark-calmed"],
@@ -5866,7 +5866,7 @@
           "cost": null,
           "roll": null,
           "success": {
-            "text": "You cut the straps and haul the sacks in, two trips each. The mule bolts down the ridge into the hail and does not come back. The families below eat, and the packer sits apart from the fire and will not look at you.",
+            "text": "You cut the straps, and you and the packer haul a sack in apiece. The mule bolts down the ridge into the hail and does not come back. The families below eat, and the packer sits apart from the fire and will not look at you.",
             "hp_delta": 0,
             "provisions_delta": 0,
             "add_flags": ["the-mule-that-fears-the-dark-mule-lost"],
@@ -6144,7 +6144,7 @@
       "id": "the-name-jar",
       "locationId": "stone-hollow",
       "title": "The Name Jar",
-      "flavor": "A crow-witch sits on a salt barrel beside a clay jar sealed with wax, and a line of refugees waits before her. For one name spoken into the jar, she gives a wool blanket; the name goes in, and the speaker never remembers it again. The old man ahead of you is trying to choose between his brother and his first daughter.",
+      "flavor": "A crow-witch sits on a salt barrel beside a clay jar sealed with wax, and a line of refugees waits before her. For one name spoken into the jar, she gives a wool blanket; the name goes in, and the speaker never remembers it again. The old man ahead of you is trying to choose between his brother's name and his first daughter's.",
       "weight": 2,
       "art": null,
       "choices": [
@@ -6216,7 +6216,7 @@
             "target": 10
           },
           "success": {
-            "text": "The dead buried without names cannot find their way down to the deep water, she says, so she lends them borrowed ones. She is not cruel, only tired. She hands the old man a blanket for nothing, just once, and asks you to keep her secret.",
+            "text": "The dead buried without names cannot find their way down to the deep water, she says, so she lends them borrowed ones. She is not cruel, only tired. She hands the old man a blanket for nothing, just once, shows you the burial road the nameless dead are carried down, and asks you to keep her secret.",
             "hp_delta": 0,
             "provisions_delta": 0,
             "add_flags": [
@@ -6412,7 +6412,7 @@
           },
           "roll": null,
           "success": {
-            "text": "The children eat with their eyes on their father. He finishes the line of salt and never knows how close it came. When you leave, the eldest girl follows you to the passage and thanks you for both of them.",
+            "text": "The children eat with their eyes on their father. He finishes the line of salt and never knows how close it came. When you leave, the eldest girl follows you to the passage and thanks you for the little ones, too.",
             "hp_delta": 0,
             "provisions_delta": 0,
             "add_flags": [
@@ -6470,7 +6470,7 @@
             "target": 10
           },
           "success": {
-            "text": "Behind the burial niche, a vein of grey salt runs through the wall. You and the miner scrape enough to cover her together, and his pouch goes back on his belt still full. He shows you the other seams his people know.",
+            "text": "Behind the burial niche, a vein of grey salt runs through the wall. You and the miner scrape enough to cover her together, and his pouch goes back on his belt still full. He shows you the other seams his people know, and the old tunnels they take to reach them.",
             "hp_delta": 0,
             "provisions_delta": 0,
             "add_flags": [
@@ -6679,7 +6679,7 @@
           },
           "roll": null,
           "success": {
-            "text": "The needle spins wildly, then points straight at you and stays there. The witch frowns, then laughs, and tells you the way anyway, and an old miners' road no tremor has ever moved. The road ahead is not the one you expected.",
+            "text": "The needle spins wildly, then points straight at you and stays there. The witch frowns, then laughs, and tells you the way anyway: an old miners' road no tremor has ever moved. The road ahead is not the one you expected.",
             "hp_delta": 0,
             "provisions_delta": 0,
             "add_flags": ["the-bone-compass-fed-blood", "deed-knows-old-roads"],
@@ -6837,7 +6837,7 @@
             "target": 10
           },
           "success": {
-            "text": "They argue in whispers for an hour. In the end forty come out to be counted and twenty stay hidden, and the counted carry grain back to the hidden. Nobody likes the arrangement, but everyone eats tonight.",
+            "text": "They argue in whispers for an hour. In the end forty come out to be counted and the rest stay hidden, and the counted carry grain back to the hidden. Nobody likes the arrangement, but everyone eats tonight.",
             "hp_delta": 0,
             "provisions_delta": 0,
             "add_flags": [
@@ -10353,8 +10353,8 @@
       {
         "id": "pay-her-brothers-debt",
         "label": "Pay her brother's debt",
-        "intent": "Offer the trappers your food to clear her brother's debt, so the trap can end.",
-        "risk": "The trappers may take the food and want more.",
+        "intent": "Offer your food to whoever holds her brother's debt, so the trap can end.",
+        "risk": "Whoever holds the debt may take the food and want more.",
         "requires": null,
         "cost": {
           "provisions": -2
@@ -10477,7 +10477,7 @@
         },
         "roll": null,
         "success": {
-          "text": "The adjudicator accepts the trade. Both miners take a pouch and both leave believing they were right. The truth stays buried in the hollow, and your pack is lighter by two days of food.",
+          "text": "The adjudicator accepts the trade and measures a second pouch from the court's own store. Both miners leave with salt, and both leave believing they were right. The truth stays buried in the hollow, and your pack is lighter by two days of food.",
           "hp_delta": 0,
           "provisions_delta": 0,
           "add_flags": ["the-candle-court-paid-salt"],
@@ -10525,7 +10525,7 @@
           "target": 9
         },
         "success": {
-          "text": "Her numbers are good, but her dates are wrong; the shift is a day off, not an hour. She swears, laughs, and hands you the slate to carry to the miners on the far side, who will need it.",
+          "text": "Her readings are good, but her reckoning of time is off: the shift is a day away, not an hour. She swears, laughs, and hands you the slate to carry to the miners on the far side, who will need it.",
           "hp_delta": 0,
           "provisions_delta": 0,
           "add_flags": [
@@ -10700,7 +10700,7 @@
           "target": 8
         },
         "success": {
-          "text": "He drinks it and sleeps for the first time in days, the vial cradled in both hands. When he wakes, his hands are steady. He gives you the only thing he has, a strip of jerky, and makes you take it.",
+          "text": "He drinks it and sleeps for the first time in days, the vial cradled in both hands. When he wakes, his hands are steady. He gives you the only thing he has, a strip of jerky, makes you take it, and swears he will pay the rest if your roads ever cross again.",
           "hp_delta": 0,
           "provisions_delta": 1,
           "add_flags": ["the-red-vial-gave-sleep", "deed-owed-favor"],

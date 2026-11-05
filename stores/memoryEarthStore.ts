@@ -1,6 +1,7 @@
 import { computed, ref, watch } from 'vue'
 import { defineStore } from 'pinia'
 import { useMemoryWorldStore } from './memoryWorldStore'
+import type { SublevelEnding } from '~/utils/memoryDungeon/sublevelB'
 import {
   chooseOverworldEvent,
   eventNeighbors,
@@ -64,8 +65,26 @@ export const useMemoryEarthStore = defineStore('memoryEarth', () => {
   /** e03 answers and flags, whichever reality is active (Sublevel B reads them). */
   const e03Choices = computed(() => save.value.records.e03.choices)
   const e03Flags = computed(() => save.value.records.e03.flags)
+  /**
+   * e04 revisits e03's places, so its openings also answer to what Morrow
+   * did there in e03 and to how he left Sublevel B.
+   */
+  /** Reported by the Sublevel B store, which owns that save. */
+  const sublevelEnding = ref<SublevelEnding | null>(null)
+  function recordSublevelEnding(ending: SublevelEnding | null): void {
+    sublevelEnding.value = ending
+  }
+  const echoFlags = computed<readonly string[]>(() => {
+    if (active.value !== 'e04') return progress.value.flags
+    const ending = sublevelEnding.value
+    return [
+      ...progress.value.flags,
+      ...save.value.records.e03.flags,
+      ...(ending ? ['SB-35:' + ending] : []),
+    ]
+  })
   const opening = computed(() =>
-    current.value ? eventOpening(current.value, progress.value.flags) : '',
+    current.value ? eventOpening(current.value, echoFlags.value) : '',
   )
   const chosen = computed(() =>
     current.value?.choices.find(
@@ -311,6 +330,8 @@ export const useMemoryEarthStore = defineStore('memoryEarth', () => {
     position,
     current,
     opening,
+    sublevelEnding,
+    recordSublevelEnding,
     e03Choices,
     e03Flags,
     chosen,

@@ -18,7 +18,8 @@ import {
 } from './earthCollisionRoute'
 import earthCollision from './earthCollision.json'
 import recipes from './overworldEventRecipes.json'
-import { MORROW_SHIFT_BY_KEY } from './morrowShift'
+import { MORROW_SHIFT_BY_KEY, type MorrowShiftSite } from './morrowShift'
+import { UNBELIEVING_CITY_BY_KEY } from './unbelievingCity'
 import { BRIAR_SITES } from '../memoryDungeonWorld'
 
 export type OverworldKind =
@@ -166,6 +167,17 @@ function effects(
   if (kind === 'puzzle')
     return careful ? { evidence: 1 } : { supplies: -1, danger: -1 }
   return careful ? { trust: 1, evidence: 1 } : { evidence: 1, danger: 1 }
+}
+
+/**
+ * Hand-written worlds that replace their recipe sites. A site with no
+ * choices keeps the generated ones (Chronicle photographs, e04's tide gate).
+ */
+const AUTHORED_WORLDS: Readonly<
+  Record<string, ReadonlyMap<string, MorrowShiftSite>>
+> = {
+  e03: MORROW_SHIFT_BY_KEY,
+  e04: UNBELIEVING_CITY_BY_KEY,
 }
 
 function generated(
@@ -394,7 +406,7 @@ function generated(
       ),
     }))
   }
-  const shift = world.id === 'e03' ? MORROW_SHIFT_BY_KEY.get(key) : undefined
+  const shift = AUTHORED_WORLDS[world.id]?.get(key)
   if (shift) {
     const shiftChoices: OverworldChoice[] = shift.choices.length
       ? shift.choices.map((choice, index) => ({

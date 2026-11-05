@@ -99,8 +99,12 @@
     </svg>
 
     <div class="rh-lake__dock">
+      <RulerHookedQuizEncounter
+        v-if="store.activeFishing && quiz.mode === 'quiz'"
+        :encounter="store.activeFishing"
+      />
       <RulerHookedFishingEncounter
-        v-if="store.activeFishing"
+        v-else-if="store.activeFishing"
         :encounter="store.activeFishing"
         @stop="store.fishingStop($event)"
         @tap="store.reelFishing('TAP')"
@@ -222,6 +226,7 @@
 
 <script setup lang="ts">
 import { useRulerHookedStore } from '~/stores/rulerHookedStore'
+import { useRulerHookedQuizStore } from '~/stores/rulerHookedQuizStore'
 import {
   fishCandidates,
   lakeBackdropCandidates,
@@ -230,6 +235,7 @@ import type { ConsoleScreen } from '~/utils/rulerHooked/tutorial'
 
 const emit = defineEmits<{ navigate: [screen: ConsoleScreen] }>()
 const store = useRulerHookedStore()
+const quiz = useRulerHookedQuizStore()
 
 const time = computed(() => store.timeOfDay)
 const backdrop = computed(() => lakeBackdropCandidates(store.save, time.value))

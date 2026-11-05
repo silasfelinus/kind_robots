@@ -367,8 +367,8 @@ if (unauthored) {
 const paintedKeys = Object.keys(COUCH_TRIO_ART_IDS)
 assert.equal(
   paintedKeys.length,
-  1073,
-  'only completed, curated trio paintings are registered (2026-11-02: +275 from packs 4-7)',
+  1100,
+  'all 220 parties have three steps and two endings backed by DONE ArtImages',
 )
 assert.equal(
   new Set(Object.values(COUCH_TRIO_ART_IDS)).size,
@@ -392,6 +392,24 @@ assert.equal(
   220,
   'finished art now reaches 220 of 220 authored parties',
 )
+for (const adventure of TRIO_ADVENTURES) {
+  const party = trioKey(adventure.crew)
+  for (const beat of [1, 2, 3, 'a', 'b'] as const) {
+    const key = trioArtKey(party, beat)
+    assert.ok(
+      Number.isInteger(COUCH_TRIO_ART_IDS[key]),
+      `${party}: missing completed painting for ${key}`,
+    )
+  }
+}
+const redoArt = {
+  'trios/brin-kivo-tess-ending-a': 262157,
+  'trios/mox-sora-taal-ending-b': 262173,
+  'trios/kivo-omi-taal-step-1': 262183,
+}
+for (const [key, imageId] of Object.entries(redoArt))
+  assert.equal(COUCH_TRIO_ART_IDS[key], imageId, key)
+
 const trioRoute = fromRoot('server/api/game-of-captains/trio-art.get.ts')
 const trioComponent = fromRoot(
   'components/game-of-captains/space-couch-trio-interlude.vue',

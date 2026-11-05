@@ -176,6 +176,7 @@
     "test:memory-dungeon-minefield": "tsx utils/scripts/verifyMemoryDungeonMinefield.test.ts",
     "test:memory-dungeon-rooms": "tsx utils/scripts/verifyMemoryDungeonRooms.test.ts",
     "test:memory-world-one-playtest": "node utils/scripts/verifyMemoryWorldOnePlaytest.test.mjs",
+    "test:memory-dark-realm-playtest": "node utils/scripts/verifyMemoryDarkRealmPlaytest.test.mjs",
     "test:playbook": "tsx utils/scripts/verifyPlaybook.test.ts",
     "test:playbook-run-review": "tsx utils/scripts/verifyPlaybookRunReview.test.ts",
     "test:playbook-kit": "tsx utils/scripts/verifyPlaybookKit.test.ts",

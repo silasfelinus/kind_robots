@@ -12,6 +12,8 @@ on:
       - 'utils/memoryDungeonWaves.ts'
       - 'utils/scripts/verifyMemoryWorldBrowser.browser.test.mjs'
       - 'utils/scripts/verifyMemoryWorldOnePlaytest.test.mjs'
+      - 'utils/scripts/verifyMemoryDarkRealmPlaytest.test.mjs'
+      - 'utils/scripts/memoryWorldPlaytestKit.mjs'
       - '.github/workflows/memory-world-browser.yml'
   workflow_dispatch:
 
@@ -40,6 +42,11 @@ jobs:
       # About three minutes: 20 seeded personas, ~37k store actions, ~2.4k reloads.
       - name: Adversarially play World One through the real store
         run: node utils/scripts/verifyMemoryWorldOnePlaytest.test.mjs
+
+      # About a minute: 36 seeded runs through Dark Briar and the mirrored
+      # House, ~19k store actions, ~1.7k reloads, every last save rescued.
+      - name: Adversarially play Dark Briar and the mirrored House
+        run: node utils/scripts/verifyMemoryDarkRealmPlaytest.test.mjs
 
       - name: Install headless Chromium
         run: npx playwright install --with-deps chromium

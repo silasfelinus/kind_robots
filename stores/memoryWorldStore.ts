@@ -966,6 +966,7 @@ export const useMemoryWorldStore = defineStore('memoryWorld', () => {
       campaign.value = completeMemoryExperience(campaign.value, 'e02')
     if (activeReality.value === 'e02' && !canEnterDarkBriar.value)
       activeReality.value = 'e01'
+    settleInterruptedDarkBout()
 
     persist()
     persistReality()
@@ -1143,6 +1144,10 @@ export const useMemoryWorldStore = defineStore('memoryWorld', () => {
       }
       if (activeReality.value === 'e02' && !canEnterDarkBriar.value) {
         activeReality.value = 'e01'
+      }
+      if (settleInterruptedDarkBout()) {
+        persist()
+        recoveredDarkTurn = true
       }
     }
     if (recoveredDarkTurn) persistReality()
@@ -1541,6 +1546,22 @@ export const useMemoryWorldStore = defineStore('memoryWorld', () => {
     loading.value = false
     persist()
     persistReality()
+  }
+
+  /** A lost bout settled on reload (recoverBriarCombatDefeat) cannot see the
+   * Dark Briar save, so it lands on the map. Return the traveller to where the
+   * bout began and retire its return point. */
+  function settleInterruptedDarkBout(): boolean {
+    if (dark.value.duelReturn === null || darkDuelActive.value) return false
+    if (
+      dark.value.duelReturn === 'house' &&
+      state.value.room === 'map' &&
+      state.value.house
+    )
+      state.value.room = 'house'
+    dark.value.duelReturn = null
+    dark.value.status = state.value.status
+    return true
   }
 
   function finishDarkDuel(duel: DarkBriarDuel): void {

@@ -105,6 +105,54 @@ assert.equal(
   true,
   'scouting opens the mapped alternate route only for that land',
 )
+
+// Trial journal: every attempt is written down, failures included, under the
+// label the player chose. bosses[].approach stays the coarse V5 field
+// (confront = challenge, everything else = parley) because saved runs replay
+// against it; the real route lives in trialResults[].choiceId.
+const atTrial = (rngState: number): JourneyLedgerV7 => ({
+  ...newJourneyLedgerV7(89),
+  current: {
+    ...unearned,
+    journey: { ...unearned.journey, rngState, hp: 6, provisions: 3 },
+  },
+})
+const attempt = (choiceId: string, success: boolean) => {
+  for (let rng = 1; rng < 500; rng++) {
+    const before = atTrial(rng)
+    const after = stepJourneyLedgerV7(before, { type: 'TRIAL', choiceId })
+    if (after.trialResults.at(-1)?.roll.success === success)
+      return { before, after }
+  }
+  throw new Error(`no ${choiceId} ${success ? 'success' : 'failure'} seed`)
+}
+const failed = attempt('confront', false)
+const failedEntries = failed.after.current.journey.journal.slice(
+  failed.before.current.journey.journal.length,
+)
+assert.equal(failed.after.current.journey.phase, 'boss')
+assert.equal(failedEntries.length, 1, 'a failed check writes one entry')
+assert.equal(failedEntries[0]!.kind, 'boss')
+assert.ok(
+  failedEntries[0]!.text.includes(
+    homesteadTrial.choices.find((choice) => choice.id === 'confront')!.label,
+  ) &&
+    failedEntries[0]!.text.endsWith(failed.after.trialResults[0]!.resultText),
+  'the failed attempt is journaled with its label and its failure prose',
+)
+const bought = attempt('tribute', true)
+const tribute = homesteadTrial.choices.find(
+  (choice) => choice.id === 'tribute',
+)!
+assert.ok(
+  bought.after.current.journey.journal.some(
+    (entry) => entry.kind === 'boss' && entry.text.includes(tribute.label),
+  ),
+  'the journal names the bribe, not a generic parley',
+)
+assert.equal(bought.after.trialResults.at(-1)!.choiceId, 'tribute')
+assert.equal(bought.after.current.journey.bosses.at(-1)!.approach, 'parley')
+assert.equal(bought.after.current.marks.cunning, unearned.marks.cunning + 1)
 assert.equal(
   trialForLandV7('verge')!.choices.find((choice) => choice.id === 'witness')!
     .target,

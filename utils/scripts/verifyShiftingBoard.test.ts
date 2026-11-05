@@ -131,6 +131,12 @@ assert.match(store, /if \(savedV6 !== null\) \{/)
 assert.match(store, /if \(savedV3 !== null\) \{/)
 assert.match(board, /game\.prepareTrial\(\)/)
 assert.match(board, /trialSuccessPercent\(choice\)/)
+// Trial intents are story prose, so the odds, skill, cost and locks they
+// used to spell out must stay visible beside them.
+assert.match(board, /readCheck\(choice\.skill, choice\.target\)\.explain/)
+assert.match(board, /choice\.cost \? `\$\{choice\.cost\} provision` : ''/)
+assert.match(board, /scout: 'Scout this gate first, spending 1 HP'/)
+assert.match(board, /solidarity: 'Requires 4 mercy and 2 honesty marks'/)
 assert.match(board, /Requires two earned mercy or honesty marks/)
 assert.match(board, /game\.findCard\(/)
 assert.match(store, /v6Card\(id\) \?\? findFiveLandCard\(id\)/)

@@ -219,7 +219,7 @@
         },
         {
           "id": "evidence",
-          "label": "Read the unbroken promise",
+          "label": "Read the gate's forgotten law",
           "intent": "Use whatever you found on this road (the gatepost carvings, the messenger's waystone, the negotiator's own admission) to find the gate's forgotten lawful exception.",
           "skill": "insight",
           "target": 10,
@@ -229,7 +229,7 @@
             "a-promise-kept-2-success",
             "the-price-of-silence-2-success"
           ],
-          "success": "Low on the doorframe you find an old sign: passage for those who carry another's unbroken promise. The negotiator reads it too, and steps aside without a word.",
+          "success": "Low on the doorframe you find the clause the gate was built to forget: passage for any traveler who can read the law aloud. You read it aloud, every word, and the negotiator lowers the key.",
           "failure": "The inscription is too worn to trust. You follow its false passage anyway and find yourself cut off from the safe road, the door farther away than before."
         }
       ],

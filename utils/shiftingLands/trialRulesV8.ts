@@ -15,21 +15,21 @@ export function trialForLandV8(landId: string) {
         ...choice,
         target: verge ? 10 : 9,
         intent:
-          'Spend 1 HP preparing to find a genuinely safer route. An earned scouting plan uses Awareness and improves your odds without harming travelers.',
+          'Take the safer way you found while scouting, paid for in your own strength. You know where to step now, and no traveler pays for your crossing.',
       }
     if (choice.id === 'witness')
       return {
         ...choice,
         target: verge ? 11 : 10,
         intent:
-          'Your two or more earned mercy/honesty deeds now bring credible witnesses who improve your chance at an unbought passage.',
+          'The people you helped have come to speak for you. With witnesses who know your deeds at your back, the way opens more easily, and nobody is paid off.',
       }
     if (choice.id === 'solidarity')
       return {
         ...choice,
         target: verge ? 10 : 9,
         intent:
-          'Four mercy and two honesty marks earn a united community approach. Harder to unlock than coercion, safer once the people stand together.',
+          'Everyone you protected stands at your side. It was harder to earn than a threat, and it holds steadier once they stand together.',
       }
     return { ...choice }
   })

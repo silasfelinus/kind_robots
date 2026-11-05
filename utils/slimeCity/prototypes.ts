@@ -4684,7 +4684,46 @@ export function parityOn(state: {
 
 /** The card as this match plays it. */
 export function playedCard(state: MatchState, card: Card): Card {
-  return parityOn(state) ? parityCard(card, state.mode as ParityMode) : card
+  if (parityOn(state)) return parityCard(card, state.mode as ParityMode)
+  return state.mode === 'bloodrush' ? rushCard(card) : card
+}
+
+/**
+ * BLOODRUSH crew calibration (t-025, 2026-11-05 PT). The timed lane plays so
+ * differently from BLACKOUT that the founder stats tuned for BLACKOUT (t-021)
+ * left it skewed (Catgirls 75%, Riot 27% on held-out seeds). Card stats cannot
+ * move without undoing that pass, so each crew's own creatures get a
+ * BLOODRUSH-only HP offset, shown on the card face like PARITY's budgets.
+ * Mercenaries are unchanged. Tuned on held-out seeds; see the faction-balance
+ * test for the measured spread.
+ */
+export const BLOODRUSH_CREW_HP: Record<TeamId, number> = {
+  // Two 40-seed held-out sets (2,400 games each): spread 0.191 -> 0.064 and
+  // 0.169 -> 0.068, every crew 40-60%. On the founder decks this dithers to
+  // Chimera 5 -> 4 HP, Kaboom and Bomber 4 -> 5, Repo 2 -> 3.
+  catgirls: -0.25,
+  bloodfairies: 0,
+  ironjaw: 0,
+  riot: 0.25,
+  undertow: 0,
+  exchange: 0.25,
+}
+
+/**
+ * A whole HP is too blunt for the lane (one point swung Catgirls 75% -> 15%),
+ * so offsets are fractional and dithered: an offset of 0.5 gives a fixed half
+ * of the crew's creature cards +1 HP, chosen by a hash of the card id.
+ */
+function rushCard(card: Card): Card {
+  if (card.kind !== 'creature' || card.team === 'mercenary') return card
+  const offset = BLOODRUSH_CREW_HP[card.team as TeamId] ?? 0
+  if (!offset) return card
+  let hash = 2166136261
+  for (let i = 0; i < card.id.length; i++)
+    hash = Math.imul(hash ^ card.id.charCodeAt(i), 16777619)
+  const dither = (hash >>> 0) / 4294967296
+  const shift = Math.floor(offset + dither)
+  return shift ? { ...card, hp: Math.max(1, (card.hp || 2) + shift) } : card
 }
 
 /** PARITY: this card would not use up its side's play this turn. */

@@ -636,8 +636,7 @@ for (const trace of ENDING_TRACES)
       name: trace.title,
       order: (run) => trace.plan[run.chapter - 1]?.order ?? 'aid',
       chart: (run) =>
-        trace.plan[run.chapter - 1]?.at ??
-        VOYAGE_BOARDS[run.chapter - 1]?.[0],
+        trace.plan[run.chapter - 1]?.at ?? VOYAGE_BOARDS[run.chapter - 1]?.[0],
       errand: (run) => {
         const errand = trace.plan[run.chapter - 1]?.errand
         return errand ? [...errand] : null

@@ -394,7 +394,7 @@ export const ACT_ONE_LATE_QUESTS: readonly QuestDef[] = [
         },
         {
           flags: ['d10-open-council-account', 'd09-farmers-fed'],
-          text: 'Thistledown holds, but the granary burns. Hill farmers stand with the court expedition because the crown sent them grain before the storm. Dunmark returns with two lists: who went and who came back. Ash reads both aloud at the new council table while Vask waits for the record to close.',
+          text: 'Thistledown holds, but the granary burns. Hill farmers stand with the court expedition because the crown sent them grain before the storm. Dunmark returns with two lists of names: who went and who came back. Ash reads both aloud at the new council table while Vask waits for the record to close.',
         },
         {
           flags: ['d10-open-council-veto', 'd09-farmers-fed'],

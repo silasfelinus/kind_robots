@@ -370,7 +370,8 @@ export const ACT_ONE_LATE_QUESTS: readonly QuestDef[] = [
     outcomes: {
       triumph:
         'The defenders hold the gate until the grain carts are safe. At dawn a farmer sets a splintered crossbow on the tower steps, returned for repair. They have begun calling it the crown’s road.',
-      success: 'Thistledown held. Its granary did not.',
+      success:
+        'Thistledown keeps its roofs and loses the winter grain. The reeve sends a soot-blackened storehouse key and asks for seed before the frost. Nobody at court can tell her how much remains in the pantry.',
       partial:
         'The raiders leave with half the winter stores and none of the village banners. Thistledown’s reeve sends the crown a list of what was taken, written on the back of a funeral notice.',
       failure:
@@ -387,6 +388,30 @@ export const ACT_ONE_LATE_QUESTS: readonly QuestDef[] = [
         },
       ],
       success: [
+        {
+          flags: ['d10-open-council-relief', 'd09-farmers-fed'],
+          text: 'Thistledown keeps its roofs and loses the grain. Dunmark arrives with the council relief patrol and the Yard bread. Hill farmers stand beside the Watch because the crown fed them first. Vask holds the fortress gate, then sends the crown a bill for every guard who stayed.',
+        },
+        {
+          flags: ['d10-open-council-account', 'd09-farmers-fed'],
+          text: 'Thistledown holds, but the granary burns. Hill farmers stand with the court expedition because the crown sent them grain before the storm. Dunmark returns with two lists: who went and who came back. Ash reads both aloud at the new council table while Vask waits for the record to close.',
+        },
+        {
+          flags: ['d10-open-council-veto', 'd09-farmers-fed'],
+          text: 'Thistledown keeps its roofs but loses the granary. Vask keeps the Watch behind the fortress gate. The court expedition fights beside the hill farmers who came because you fed them. At dusk a village runner leaves a burned door latch on Vask’s chair.',
+        },
+        {
+          flags: ['d10-open-council-relief'],
+          text: 'Thistledown keeps its roofs and loses the grain. Dunmark gets there with the council relief patrol and the Yard bread. Ash has less flour to serve tonight. Vask has held the fortress gate and sends a bill for every borrowed guard before the patrol is home.',
+        },
+        {
+          flags: ['d10-open-council-account'],
+          text: 'Thistledown keeps its roofs and loses the granary. Dunmark returns with a list of everyone who rode and everyone who came back. Ash reads the names at the council table. Vask asks whether the oath also requires a list of who gave the order.',
+        },
+        {
+          flags: ['d10-open-council-veto'],
+          text: 'Thistledown holds, but the winter grain is gone. Vask kept the Watch behind her sealed gate while the expedition fought without it. The village reeve sends the crown a broken spear. No note. The Houses know where it was found.',
+        },
         {
           flags: ['d09-farmers-fed'],
           text: 'Thistledown held. Its granary did not. Hill farmers came down to stand in the door anyway. “Your grain came up our road under a flour-sack flag. We owed it.”',

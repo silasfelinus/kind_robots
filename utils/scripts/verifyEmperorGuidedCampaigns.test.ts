@@ -3,6 +3,7 @@ import assert from 'node:assert/strict'
 import { mkdirSync, writeFileSync } from 'node:fs'
 import { POLICIES, playCampaign } from '../emperorOfDust/fortress/balance'
 import { questDef } from '../emperorOfDust/fortress/content'
+import { EPILOGUE } from '../emperorOfDust/fortress/epilogue'
 import { questOutcomeText } from '../emperorOfDust/fortress/engine'
 import { validateRun } from '../emperorOfDust/fortress/saves'
 import type { SceneLine } from '../emperorOfDust/fortress/types'
@@ -171,6 +172,19 @@ for (const [flag, marker] of [
   assert.match(combined, /Hill farmers|hill farmers/)
   assert.match(combined, new RegExp(marker))
 }
+const watchEpilogue = EPILOGUE.find((subject) => subject.id === 'gate-watch')!
+for (const [flag, marker] of [
+  ['d47-relief-charter-renewed', /Ash|Thistledown/],
+  ['d47-watch-roll-law', /public Watch roll|names/],
+  ['d47-village-captains', /elected captain/],
+] as const) {
+  const entry = watchEpilogue.variants.find((variant) =>
+    variant.when?.flags?.includes(flag),
+  )
+  assert.ok(entry, flag + ': the Watch epilogue remembers the earned covenant')
+  assert.match(entry.text, marker)
+}
+
 const campaigns: Record<string, unknown>[] = []
 const failures: string[] = []
 for (const plan of plans) {

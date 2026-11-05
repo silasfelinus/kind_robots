@@ -61,6 +61,9 @@ export const useMemoryEarthStore = defineStore('memoryEarth', () => {
   const progress = computed(() => save.value.records[active.value])
   const position = computed(() => save.value.positions[active.value])
   const current = computed(() => worldEvent(active.value, position.value))
+  /** e03 answers and flags, whichever reality is active (Sublevel B reads them). */
+  const e03Choices = computed(() => save.value.records.e03.choices)
+  const e03Flags = computed(() => save.value.records.e03.flags)
   const opening = computed(() =>
     current.value ? eventOpening(current.value, progress.value.flags) : '',
   )
@@ -308,6 +311,8 @@ export const useMemoryEarthStore = defineStore('memoryEarth', () => {
     position,
     current,
     opening,
+    e03Choices,
+    e03Flags,
     chosen,
     tiles,
     photographs,

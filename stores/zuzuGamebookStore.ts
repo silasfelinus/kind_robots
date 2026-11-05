@@ -13,6 +13,7 @@ import {
   type Run,
   type BattleAction,
 } from '~/utils/zuzuGamebook/adventure'
+import { decodeSaveCode, encodeSaveCode } from '~/utils/zuzuGamebook/saveCode'
 import { useAchievementStore } from './achievementStore'
 import { loadPlaybookLiveText } from './utils/playbookLiveText'
 
@@ -26,6 +27,9 @@ export const useZuzuGamebookStore = defineStore('zuzuGamebook', () => {
   const recoverable = ref<Run | null>(null)
   const loaded = ref(false)
   const rollSerial = ref(0)
+  /** When this browser last kept the journey (the reader's "Saved" mark), or null when storage refused it. */
+  const savedAt = ref<number | null>(null)
+  const saveFailed = ref(false)
 
   function save() {
     try {
@@ -34,8 +38,11 @@ export const useZuzuGamebookStore = defineStore('zuzuGamebook', () => {
       if (recoverable.value)
         localStorage.setItem(RECOVERY_KEY, JSON.stringify(recoverable.value))
       else localStorage.removeItem(RECOVERY_KEY)
+      savedAt.value = Date.now()
+      saveFailed.value = false
     } catch {
-      // The game remains playable without browser storage.
+      // The game remains playable without browser storage; the reader says so.
+      saveFailed.value = true
     }
   }
 
@@ -152,17 +159,39 @@ export const useZuzuGamebookStore = defineStore('zuzuGamebook', () => {
     save()
   }
 
+  /** The journey as a code to carry to another browser or device. */
+  function exportCode(): string {
+    return encodeSaveCode(run.value)
+  }
+
+  /** Load a journey from a code; the journey it replaces waits in the recovery slot. */
+  function importCode(code: string): boolean {
+    if (!loaded.value) return false
+    const next = decodeSaveCode(code)
+    if (!next) return false
+    recoverable.value = run.value
+    run.value = next
+    rollSerial.value++
+    rememberEnding()
+    save()
+    return true
+  }
+
   return {
     run,
     discovered,
     recoverable,
     loaded,
     rollSerial,
+    savedAt,
+    saveFailed,
     load,
     choose,
     battle,
     claimLoot,
     restart,
     recover,
+    exportCode,
+    importCode,
   }
 })

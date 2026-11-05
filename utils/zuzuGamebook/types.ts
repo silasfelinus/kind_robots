@@ -67,7 +67,40 @@ export type Roll = {
   success: boolean
   label: string
 }
-export type Battle = { hp: number; exposed: boolean; turn: number; log: string }
+export type CombatMove = 'strike' | 'guard' | 'feint' | 'quiet-draw'
+/** One exchange of blows, kept so the reader can show who struck, the dice, the damage and the HP left. */
+export type CombatRound = {
+  turn: number
+  action: CombatMove
+  dice: [number, number]
+  modifier: number
+  target: number
+  total: number
+  success: boolean
+  /** Damage Zuzu dealt and took this round. */
+  dealt: number
+  taken: number
+  /** Health left on both sides after the round. */
+  foeHp: number
+  health: number
+  /** The foe is open for the next round (a held guard or a landed feint). */
+  opened: boolean
+}
+export type Battle = {
+  hp: number
+  exposed: boolean
+  turn: number
+  log: string
+  /** The latest rounds, oldest first (absent in saves made before the combat log). */
+  rounds?: CombatRound[]
+}
+/** How the last fight ended, shown on the page it led to until Zuzu moves on. */
+export type FightReport = {
+  foe: string
+  foeMax: number
+  won: boolean
+  rounds: CombatRound[]
+}
 export type Run = {
   version: 1
   sceneId: string
@@ -84,6 +117,8 @@ export type Run = {
   endings: string[]
   battle: Battle | null
   lastRoll: Roll | null
+  /** The fight that just ended, until the next choice (absent in older saves). */
+  lastFight?: FightReport | null
 }
 
 /**

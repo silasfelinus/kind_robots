@@ -1,11 +1,23 @@
 import { BOOK } from './book'
 import { editChoices, joinBody, liveTextStore } from '../playbook/textOverlay'
-import type { Attribute, Choice, Roll, Run, Scene, SceneEffects } from './types'
+import type {
+  Attribute,
+  Choice,
+  CombatMove,
+  CombatRound,
+  Roll,
+  Run,
+  Scene,
+  SceneEffects,
+} from './types'
 
 export type {
   Attribute,
   Battle,
   Choice,
+  CombatMove,
+  CombatRound,
+  FightReport,
   Roll,
   Run,
   Scene,
@@ -13,11 +25,13 @@ export type {
 } from './types'
 export { BOOK, SCENE_ORDER } from './book'
 
-const MAX_HEALTH = 12
+export const MAX_HEALTH = 12
 const ATTR_MIN = -2
 const ATTR_MAX = 4
-const MAX_RESOLVE = 4
-const SLOTS = 5
+export const MAX_RESOLVE = 4
+export const SLOTS = 5
+/** Rounds of a fight the combat log keeps; older ones scroll off so saves stay small. */
+export const LOG_ROUNDS = 12
 
 export const ENDING_IDS: string[] = Object.values(BOOK)
   .filter((node) => !!node.ending)
@@ -256,6 +270,28 @@ function roll(seed: number): { seed: number; dice: [number, number] } {
   return { seed: x >>> 0, dice }
 }
 
+/** Zuzu's modifier on a check: the attribute plus any knowledge bonus still standing. */
+export function checkModifier(
+  run: Pick<Run, 'attributes' | 'flags'>,
+  check: NonNullable<Choice['check']>,
+): { modifier: number; bonus: number } {
+  const bonus =
+    check.bonus &&
+    run.flags.includes(check.bonus.flag) &&
+    (!check.bonus.unless || !run.flags.includes(check.bonus.unless))
+      ? check.bonus.amount
+      : 0
+  return { modifier: run.attributes[check.attribute] + bonus, bonus }
+}
+
+/** The chance that 2d6 + modifier meets the target, out of 36 throws, as a whole percent. */
+export function checkChance(modifier: number, target: number): number {
+  let hits = 0
+  for (let a = 1; a <= 6; a++)
+    for (let b = 1; b <= 6; b++) if (a + b + modifier >= target) hits++
+  return Math.round((hits * 100) / 36)
+}
+
 function queueLoot(run: Run, item: string): void {
   if (run.items.length < SLOTS && !run.pendingLoot.length) run.items.push(item)
   else run.pendingLoot.push(item)
@@ -331,20 +367,15 @@ export function takeChoice(run: Run, id: string): Run {
     health: Math.min(MAX_HEALTH, run.health + (choice.heal ?? 0)),
     lastRoll: null,
   }
+  // The last fight's report stays on the page it led to, then clears.
+  if (next.lastFight !== undefined) next.lastFight = null
   if (choice.spend) next.items.splice(next.items.indexOf(choice.spend), 1)
   if (choice.gain) queueLoot(next, choice.gain)
   addFlags(next.flags, [choice.flag, ...(choice.flags ?? [])])
   let target = choice.to
   if (choice.check) {
     const result = roll(run.seed)
-    const bonus =
-      choice.check.bonus &&
-      run.flags.includes(choice.check.bonus.flag) &&
-      (!choice.check.bonus.unless ||
-        !run.flags.includes(choice.check.bonus.unless))
-        ? choice.check.bonus.amount
-        : 0
-    const modifier = run.attributes[choice.check.attribute] + bonus
+    const { modifier } = checkModifier(run, choice.check)
     const total = result.dice[0] + result.dice[1] + modifier
     const lastRoll: Roll = {
       dice: result.dice,
@@ -379,26 +410,36 @@ export function resolveLoot(run: Run, replacementIndex: number | null): Run {
   return { ...run, items, pendingLoot: pending.slice(1) }
 }
 
-export type BattleAction = 'strike' | 'guard' | 'feint' | 'quiet-draw'
+export type BattleAction = CombatMove
+
+/** The roll a combat move makes this round: which attribute, Zuzu's modifier and the number to meet. */
+export function moveCheck(
+  run: Run,
+  action: BattleAction,
+): { attribute: Attribute; modifier: number; target: number } | null {
+  const enemy = scene(run.sceneId).battle
+  if (!enemy || !run.battle) return null
+  const attribute: Attribute =
+    action === 'feint' ? 'shadow' : action === 'guard' ? 'sense' : 'steel'
+  const target =
+    action === 'guard' ? 8 : 7 + enemy.guard - (run.battle.exposed ? 2 : 0)
+  return { attribute, modifier: run.attributes[attribute], target }
+}
+
 export function fight(run: Run, action: BattleAction): Run {
   const enemy = scene(run.sceneId).battle
   const battle = run.battle
+  const check = moveCheck(run, action)
   if (
     !enemy ||
     !battle ||
+    !check ||
     run.pendingLoot?.length ||
     (action === 'quiet-draw' && run.resolve < 2)
   )
     return run
   const result = roll(run.seed)
-  const modifier =
-    action === 'feint'
-      ? run.attributes.shadow
-      : action === 'guard'
-        ? run.attributes.sense
-        : run.attributes.steel
-  const target =
-    action === 'guard' ? 8 : 7 + enemy.guard - (battle.exposed ? 2 : 0)
+  const { modifier, target } = check
   const total = result.dice[0] + result.dice[1] + modifier
   const success = total >= target
   const damage =
@@ -421,6 +462,22 @@ export function fight(run: Run, action: BattleAction): Run {
           ? 1
           : Math.max(1, enemy.attack - (success && action === 'feint' ? 2 : 0))
   const health = Math.max(0, run.health - incoming)
+  const exposed = (action === 'feint' || action === 'guard') && success
+  const round: CombatRound = {
+    turn: battle.turn,
+    action,
+    dice: result.dice,
+    modifier,
+    target,
+    total,
+    success,
+    dealt: damage,
+    taken: incoming,
+    foeHp: enemyHp,
+    health,
+    opened: exposed,
+  }
+  const rounds = [...(battle.rounds ?? []), round].slice(-LOG_ROUNDS)
   const next: Run = {
     ...run,
     health,
@@ -436,7 +493,7 @@ export function fight(run: Run, action: BattleAction): Run {
     },
     battle: {
       hp: enemyHp,
-      exposed: (action === 'feint' || action === 'guard') && success,
+      exposed,
       turn: battle.turn + 1,
       log:
         (action === 'guard'
@@ -449,12 +506,110 @@ export function fight(run: Run, action: BattleAction): Run {
         (incoming
           ? ' You suffer ' + incoming + ' damage.'
           : ' You avoid the counterblow.'),
+      rounds,
     },
   }
-  if (!health) return enter(next, enemy.lose)
-  if (!enemyHp) return enter(next, enemy.win)
-  return next
+  if (health && enemyHp) return next
+  // The fight is over: the page it leads to carries its report until Zuzu moves on.
+  const after = enter(next, health ? enemy.win : enemy.lose)
+  return {
+    ...after,
+    lastFight: { foe: enemy.name, foeMax: enemy.hp, won: !!health, rounds },
+  }
 }
+
+const MOVE_NAMES: Record<BattleAction, string> = {
+  strike: 'Strike',
+  guard: 'Guard',
+  feint: 'Feint',
+  'quiet-draw': 'Quiet Draw',
+}
+
+const signed = (n: number) => (n < 0 ? ' - ' + -n : ' + ' + n)
+
+/**
+ * One combat-log entry in plain words, short enough for a phone: the move and its dice on the first line, what
+ * it cost each side and the health left on the second. `text` reads both for a screen reader.
+ */
+export function combatEntry(
+  round: CombatRound,
+  foe: string,
+  foeMax: number,
+): { head: string; tail: string; text: string } {
+  const result =
+    round.action === 'guard'
+      ? round.success
+        ? 'held, the foe is open'
+        : 'slipped'
+      : round.success
+        ? 'hit for ' + round.dealt + (round.opened ? ', the foe is open' : '')
+        : 'missed'
+  const head =
+    'Round ' +
+    round.turn +
+    ' · ' +
+    MOVE_NAMES[round.action] +
+    ': ' +
+    round.dice[0] +
+    ' + ' +
+    round.dice[1] +
+    signed(round.modifier) +
+    ' = ' +
+    round.total +
+    ' vs ' +
+    round.target +
+    ', ' +
+    result +
+    '.'
+  const blow =
+    round.foeHp === 0
+      ? foe + ' is beaten.'
+      : round.taken
+        ? 'Zuzu takes ' + round.taken + '.'
+        : 'Zuzu takes no wound.'
+  const tail =
+    blow +
+    ' Zuzu ' +
+    round.health +
+    '/' +
+    MAX_HEALTH +
+    ' HP · ' +
+    foe +
+    ' ' +
+    round.foeHp +
+    '/' +
+    foeMax +
+    ' HP.' +
+    (round.health === 0 ? ' Zuzu falls.' : '')
+  return { head, tail, text: head + ' ' + tail }
+}
+
+const ROUND_NUMBERS = [
+  'turn',
+  'modifier',
+  'target',
+  'total',
+  'dealt',
+  'taken',
+  'foeHp',
+  'health',
+] as const
+function isRound(value: unknown): value is CombatRound {
+  if (!value || typeof value !== 'object') return false
+  const r = value as Partial<CombatRound>
+  return (
+    typeof r.action === 'string' &&
+    r.action in MOVE_NAMES &&
+    Array.isArray(r.dice) &&
+    r.dice.length === 2 &&
+    r.dice.every((die) => Number.isInteger(die)) &&
+    ROUND_NUMBERS.every((key) => Number.isFinite(r[key])) &&
+    typeof r.success === 'boolean' &&
+    typeof r.opened === 'boolean'
+  )
+}
+const isRoundList = (value: unknown): boolean =>
+  Array.isArray(value) && value.length <= LOG_ROUNDS && value.every(isRound)
 
 export function isSavedRun(value: unknown): value is Run {
   if (!value || typeof value !== 'object') return false
@@ -493,7 +648,15 @@ export function isSavedRun(value: unknown): value is Run {
         !!BOOK[s.sceneId]?.battle &&
         typeof s.battle.hp === 'number' &&
         Number.isFinite(s.battle.hp) &&
-        s.battle.hp >= 0)) &&
+        s.battle.hp >= 0 &&
+        (s.battle.rounds === undefined || isRoundList(s.battle.rounds)))) &&
+    (s.lastFight === undefined ||
+      s.lastFight === null ||
+      (typeof s.lastFight === 'object' &&
+        typeof s.lastFight.foe === 'string' &&
+        Number.isFinite(s.lastFight.foeMax) &&
+        typeof s.lastFight.won === 'boolean' &&
+        isRoundList(s.lastFight.rounds))) &&
     (s.lastRoll === null ||
       (!!s.lastRoll &&
         Array.isArray(s.lastRoll.dice) &&

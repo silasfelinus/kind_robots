@@ -161,9 +161,10 @@ for (const species of ALIEN_SPECIES) {
       authoredLines.add(text)
       const report = resolveAlienSighting(empty, { ...sighting, mood }, choice)
       const actionStory = ALIEN_CHOICE_STORIES[species.id]?.[mood]?.[choice]
+      assert.ok(actionStory, species.name + ' has no mood/action-specific story')
       assert.ok(
-        report.text.startsWith(actionStory ?? text),
-        species.name + ' must lead with its authored cause and consequence',
+        report.text.startsWith(actionStory),
+        species.name + ' must lead with the actual selected action and reaction',
       )
       assert.equal(report.recorded, outcome !== 'retreat')
     }
@@ -184,10 +185,10 @@ assert.ok(
     averageSceneWords +
     ' average words',
 )
-assert.equal(
-  Object.keys(ALIEN_CHOICE_STORIES).length,
-  6,
-  'one complete nine-way encounter from each alien family',
+assert.deepEqual(
+  Object.keys(ALIEN_CHOICE_STORIES).sort(),
+  ALIEN_SPECIES.map((species) => species.id).sort(),
+  'all 101 aliens must have nine mood-by-action results, no category fallback',
 )
 const actionProse = new Set<string>()
 for (const [id, moodStories] of Object.entries(ALIEN_CHOICE_STORIES)) {
@@ -203,11 +204,11 @@ for (const [id, moodStories] of Object.entries(ALIEN_CHOICE_STORIES)) {
     }
   }
 }
-assert.equal(actionProse.size, 54)
+assert.equal(actionProse.size, 101 * 3 * 3)
 console.log(
   'Space Couch alien scene budget: ' +
     averageSceneWords +
-    ' average words and 54 causal branches',
+    ' average words and 909 causal branches',
 )
 
 const choiceFor = (

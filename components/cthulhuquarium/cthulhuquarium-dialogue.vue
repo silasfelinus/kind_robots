@@ -247,8 +247,8 @@ const handover = computed(() =>
 const handoverUrl = computed(() => backgroundArt(handover.value?.key))
 
 const AWAIT_HINTS: Record<string, string> = {
-  unlock: 'Choose a free creature in the shop below.',
-  feed: 'Press Feed hungriest.',
+  unlock: 'Open the Fish market and choose a free creature.',
+  feed: 'Press Feed.',
   clean: 'Press Clean.',
 }
 const awaitHint = computed(() =>

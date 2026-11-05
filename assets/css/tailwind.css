@@ -274,6 +274,54 @@
 }
 
 /*
+ * ── CTHULHUQUARIUM — the curiosity-shop tank console ──────────────────
+ *
+ * Applied to the whole shell while /play/aquarium is mounted, via
+ * `<shell-console-theme theme="cthulhuquarium">`. Silas, 2026-11-05: the tank
+ * "still feels like a webapp rather than a shepherded AAA console handheld
+ * experience." An abyssal handheld: deep-water ink, sea-glass glow for the
+ * main action, brass for coins and prices, an eldritch violet for the strange.
+ */
+@plugin "daisyui/theme" {
+  name: 'cthulhuquarium';
+  default: false;
+  prefersdark: false;
+  color-scheme: dark;
+
+  --color-base-100: oklch(22% 0.035 222); /* console glass */
+  --color-base-200: oklch(16.5% 0.03 225); /* the deep ground */
+  --color-base-300: oklch(31% 0.04 215); /* bezels and wells */
+  --color-base-content: oklch(94% 0.02 190);
+
+  --color-primary: oklch(82% 0.13 182); /* sea-glass glow */
+  --color-primary-content: oklch(19% 0.04 205);
+  --color-secondary: oklch(80% 0.12 78); /* curiosity-shop brass */
+  --color-secondary-content: oklch(20% 0.04 70);
+  --color-accent: oklch(72% 0.14 305); /* eldritch violet */
+  --color-accent-content: oklch(17% 0.04 305);
+  --color-neutral: oklch(27% 0.035 220);
+  --color-neutral-content: oklch(94% 0.02 190);
+
+  --color-info: oklch(78% 0.1 220);
+  --color-info-content: oklch(18% 0.03 230);
+  --color-success: oklch(80% 0.15 155);
+  --color-success-content: oklch(19% 0.04 155);
+  --color-warning: oklch(85% 0.15 85);
+  --color-warning-content: oklch(20% 0.04 85);
+  --color-error: oklch(66% 0.19 25);
+  --color-error-content: oklch(97% 0.01 25);
+
+  --radius-selector: 0.6rem;
+  --radius-field: 0.75rem;
+  --radius-box: 1rem;
+  --size-selector: 0.25rem;
+  --size-field: 0.25rem;
+  --border: 1px;
+  --depth: 1;
+  --noise: 0;
+}
+
+/*
  * ── BRAINSTORM — the riff-board handheld ──────────────────────────────
  *
  * Applied to the whole shell while /play/brainstorm is mounted, via

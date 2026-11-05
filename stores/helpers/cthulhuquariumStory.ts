@@ -42,6 +42,7 @@ export interface SpokenBark {
 const BARK_COOLDOWN_MS = 45_000
 const BARK_SHOW_MS = 7_000
 const SOUND_KEY = 'cthulhuquarium:sound'
+const GUIDE_KEY = 'cthulhuquarium:guide-seen'
 
 function hashString(text: string): number {
   let hash = 0
@@ -58,6 +59,8 @@ export function useCthulhuquariumStory() {
   const storyError = ref('')
   const spokenBark = ref<SpokenBark | null>(null)
   const soundOn = ref(false)
+  const guideOpen = ref(false)
+  const guideSeen = ref(true)
   let lastBarkAt = 0
   let barkTimer: ReturnType<typeof setTimeout> | null = null
 
@@ -109,6 +112,7 @@ export function useCthulhuquariumStory() {
     if (!res.success || !res.data) return
     state.value = res.data
     loadSoundPreference()
+    loadGuidePreference()
     queueScene('intro')
     if (queue.value[0] === 'intro' && beatIndex.value === 0) {
       const beats = CTHULHUQUARIUM_SCENES.intro?.beats ?? []
@@ -121,6 +125,7 @@ export function useCthulhuquariumStory() {
       if (resume >= beats.length) await finishScene()
       else beatIndex.value = resume
     }
+    if (!queue.value.length && !guideSeen.value) guideOpen.value = true
   }
 
   /**
@@ -163,6 +168,7 @@ export function useCthulhuquariumStory() {
       body: JSON.stringify({ scenes: ids }),
     })
     if (res.success && res.data) state.value = res.data
+    if (scene.id === 'intro' && !guideSeen.value) guideOpen.value = true
   }
 
   // Existing players can revisit the cinematic opening without resetting
@@ -260,6 +266,31 @@ export function useCthulhuquariumStory() {
     }
   }
 
+  /** The illustrated how-to deck: shown once after the opening, then on request. */
+  function loadGuidePreference(): void {
+    if (!import.meta.client) return
+    try {
+      guideSeen.value = localStorage.getItem(GUIDE_KEY) === 'seen'
+    } catch {
+      guideSeen.value = true
+    }
+  }
+
+  function openGuide(): void {
+    guideOpen.value = true
+  }
+
+  function closeGuide(): void {
+    guideOpen.value = false
+    guideSeen.value = true
+    if (!import.meta.client) return
+    try {
+      localStorage.setItem(GUIDE_KEY, 'seen')
+    } catch {
+      // Without storage the guide simply offers itself again next visit.
+    }
+  }
+
   async function chooseBackground(key: string): Promise<boolean> {
     if (key === backgroundKey.value) return true
     backgroundSaving.value = true
@@ -306,5 +337,8 @@ export function useCthulhuquariumStory() {
     soundOn,
     loadSoundPreference,
     setSound,
+    guideOpen,
+    openGuide,
+    closeGuide,
   }
 }

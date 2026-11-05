@@ -3,9 +3,13 @@
      (including the shared guest account, which must never own a tank) gets
      the shop window. -->
 <template>
+  <shell-console-theme theme="cthulhuquarium" />
   <ClientOnly>
     <cthulhuquarium-game v-if="userStore.isLoggedIn" />
-    <div v-else class="kr-container flex max-w-5xl flex-col gap-3">
+    <div
+      v-else
+      class="kr-container kr-scroll flex min-h-0 max-w-6xl flex-1 flex-col gap-3 py-2"
+    >
       <cthulhuquarium-shop-window />
     </div>
   </ClientOnly>

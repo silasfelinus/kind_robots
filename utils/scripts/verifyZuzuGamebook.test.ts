@@ -35,6 +35,8 @@ import {
   honor,
   taint,
   ENDING_IDS,
+  fightAhead,
+  fightCue,
   type Run,
   type BattleAction,
 } from '../zuzuGamebook/adventure'
@@ -1066,6 +1068,181 @@ console.log(
     ', sister freed, retreat and return validated',
 )
 
+// t-013 forced-fight audit: no choice walks Zuzu into a fight unannounced.
+// Every choice whose outcome is a battle carries a cue, and the cue says
+// whether a loss ends the journey for the journal as it will stand.
+for (const node of Object.values(BOOK)) {
+  for (const choice of node.choices ?? []) {
+    const outcomes = choice.check
+      ? [choice.check.success, choice.check.failure]
+      : [choice.to]
+    if (!outcomes.some((id) => BOOK[id]?.battle)) continue
+    const cue = fightCue({ ...startRun(1), sceneId: node.id }, choice)
+    assert.ok(cue, node.id + '/' + choice.id + ' starts a fight without a cue')
+    assert.equal(cue.chip, 'Fight')
+  }
+}
+const cueAt = (sceneId: string, choiceId: string, patch: Partial<Run> = {}) => {
+  const run: Run = { ...startRun(1), sceneId, ...patch }
+  const choice = scene(sceneId).choices?.find((entry) => entry.id === choiceId)
+  assert.ok(choice, sceneId + '/' + choiceId)
+  return { ahead: fightAhead(run, choice), cue: fightCue(run, choice) }
+}
+assert.equal(cueAt('a4-well-toll', 'pay').cue, null, 'no fight, no cue')
+assert.equal(cueAt('a4-hollis-why', 'around').ahead, null)
+// The cellar's real choice: freeing the sister first is what keeps a lost
+// fight from being the end. The cards must say so before the player commits.
+const cutFirst = cueAt('cellar', 'cut')
+const charge = cueAt('cellar', 'charge')
+const slip = cueAt('cellar', 'slip')
+assert.equal(cutFirst.ahead?.foe, 'The Otter Nuns')
+assert.equal(cutFirst.ahead?.deadly, false, 'a freed sister saves a lost fight')
+assert.equal(charge.ahead?.deadly, true)
+assert.equal(slip.ahead?.when, 'failure')
+assert.equal(slip.ahead?.deadly, true)
+assert.equal(charge.cue?.hint, 'Losing ends the journey')
+assert.equal(
+  cutFirst.cue?.hint,
+  undefined,
+  'a healthy, backed Zuzu sees no alarm',
+)
+assert.deepEqual(cutFirst.cue?.details, [
+  'Leads to a fight: The Otter Nuns.',
+  'Losing that fight costs you, but the journey goes on.',
+])
+assert.deepEqual(slip.cue?.details, [
+  'A failed roll leads to a fight: The Otter Nuns.',
+  'Losing that fight ends the journey.',
+])
+for (const health of [1, 3, 4]) {
+  const hurt = cueAt('cellar', 'charge', { health })
+  assert.equal(hurt.ahead?.wounded, true)
+  assert.equal(
+    hurt.cue?.hint,
+    'Wounded, ' + health + ' HP: losing ends the journey',
+  )
+  assert.equal(
+    cueAt('cellar', 'cut', { health }).cue?.hint,
+    'Wounded, ' + health + ' HP',
+  )
+}
+assert.equal(cueAt('cellar', 'charge', { health: 5 }).ahead?.wounded, false)
+// Unannounced Act VI brawl: Hask's loss is survivable, and the card says so.
+for (const sceneId of ['a6-vane', 'a6-vane-why', 'a6-vane-refuses']) {
+  const hask = cueAt(sceneId, 'expose')
+  assert.equal(hask.ahead?.foe, 'Hask, the water guard')
+  assert.equal(hask.ahead?.deadly, false)
+  assert.equal(hask.cue?.chip, 'Fight')
+}
+// Act I: the crocodile kills; its cue is honest at full health and when hurt.
+assert.equal(cueAt('a1-terrain', 'open').cue?.hint, 'Losing ends the journey')
+assert.equal(cueAt('a1-terrain', 'open').ahead?.wounded, false)
+assert.equal(cueAt('a1-terrain', 'stones').ahead?.when, 'success')
+assert.equal(cueAt('a1-bad-ground', 'up', { health: 6 }).ahead?.wounded, true)
+// Scene damage on the way in counts: the bone bowl's 1-HP sting is projected.
+assert.equal(cueAt('a1-bowl-bones', 'lay', { health: 3 }).ahead?.health, 2)
+// The wounded bargain: the same refusal is final alone, survivable with the sister.
+assert.equal(
+  cueAt('a8-voice-wound', 'refuse', { health: 2 }).ahead?.deadly,
+  true,
+)
+assert.equal(
+  cueAt('a8-voice-wound', 'refuse', { health: 2, flags: ['sister-free'] }).ahead
+    ?.deadly,
+  false,
+)
+const realRefusal = scene('a8-voice-wound').choices?.find(
+  (choice) => choice.id === 'refuse',
+)
+assert.ok(realRefusal)
+const realRefusalCue = fightAhead(woundedAbbess, realRefusal)
+assert.equal(realRefusalCue?.foe, 'The Abbess')
+assert.equal(realRefusalCue?.deadly, false, 'the real witness freed the sister')
+assert.equal(realRefusalCue?.health, woundedAbbess.health)
+assert.equal(realRefusalCue?.wounded, woundedAbbess.health <= 6)
+
+// Seeded journeys hold the cues to account: every fight a choice starts was
+// announced, a loss marked survivable never lands on an ending, and a loss
+// marked final reaches one within a few pages.
+let cueRng = 20261105
+const cueRand = (n: number) => {
+  cueRng = (cueRng * 1103515245 + 12345) >>> 0
+  return (cueRng >>> 16) % n
+}
+let cuedFights = 0
+let woundedEntries = 0
+let finalLosses = 0
+let survivedLosses = 0
+for (let walk = 0; walk < 1500; walk++) {
+  let run = startRun(walk * 104729 + 7)
+  let pending: { deadly: boolean; lose: string } | null = null
+  let sinceLoss = -1
+  for (let step = 0; step < 220 && !scene(run.sceneId).ending; step++) {
+    if (run.pendingLoot.length) {
+      run = resolveLoot(run, null)
+      continue
+    }
+    if (run.battle) {
+      const lose = scene(run.sceneId).battle!.lose
+      run = fight(
+        run,
+        run.resolve >= 2
+          ? 'quiet-draw'
+          : run.battle.exposed
+            ? 'strike'
+            : 'feint',
+      )
+      if (run.sceneId === lose && pending) {
+        if (pending.deadly) {
+          finalLosses++
+          sinceLoss = 0
+        } else {
+          survivedLosses++
+          assert.ok(
+            !scene(lose).ending,
+            lose + ': a survivable loss ended the book',
+          )
+        }
+      }
+      continue
+    }
+    if (sinceLoss >= 0 && ++sinceLoss > 5)
+      assert.fail('a loss marked final did not end the journey: ' + run.sceneId)
+    const open = visibleChoices(run, scene(run.sceneId)).filter(
+      (choice) => !lockReason(run, choice),
+    )
+    assert.ok(open.length, 'stalled at ' + run.sceneId)
+    const choice = open[cueRand(open.length)]!
+    const ahead = fightAhead(run, choice)
+    run = takeChoice(run, choice.id)
+    const foe = scene(run.sceneId).battle
+    if (!foe) continue
+    assert.ok(ahead, 'unannounced fight at ' + run.sceneId)
+    assert.ok(ahead.foe.includes(foe.name))
+    cuedFights++
+    if (run.health <= foe.attack * 2) {
+      woundedEntries++
+      assert.ok(ahead.wounded, run.sceneId + ': wounded entry not flagged')
+    }
+    pending =
+      ahead.foe === foe.name ? { deadly: ahead.deadly, lose: foe.lose } : null
+  }
+  if (sinceLoss >= 0) assert.ok(scene(run.sceneId).ending)
+}
+assert.ok(cuedFights > 500 && woundedEntries > 20 && finalLosses > 20)
+assert.ok(survivedLosses > 0)
+console.log(
+  'Gamebook fight cues: ' +
+    cuedFights +
+    ' seeded fights announced, ' +
+    woundedEntries +
+    ' wounded entries flagged, ' +
+    finalLosses +
+    ' final and ' +
+    survivedLosses +
+    ' survivable losses matched their cue',
+)
+
 // Golden journeys must remain replayable without the search solver, including
 // rare moral endings and failures. Changes to choices, dice or consequences
 // require explicit editorial review and deliberate fixture refresh.
@@ -1362,6 +1539,12 @@ assert.ok(
   page.includes('store.recoverable'),
   'restore journey action is visible',
 )
+assert.match(
+  page,
+  /const risk = locked \? null : fightCue\(store\.run, choice\)/,
+  'open choice cards carry the fight cue',
+)
+assert.match(page, /hint: locked \?\? risk\?\.hint/)
 
 console.log(
   'Zuzu gamebook contract: ' +

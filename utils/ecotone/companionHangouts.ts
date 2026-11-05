@@ -1,4 +1,5 @@
 import type { CompanionId, EncounterCard } from './content'
+import { COMPANION_TIME_FLAGS } from './companionTime'
 
 /**
  * Optional person-specific interludes after inviting a second guide to
@@ -272,10 +273,11 @@ export const COMPANION_HANGOUT_CALLBACKS: Record<string, string> = {
 }
 
 /**
- * Derived bond summary: how many distinct earned hangout memories each guide
- * has. Computed from existing flags, so no saved-game field changes and old
- * saves read as zero. A failed roll still counts as a bond; it is a shared
- * memory, not a penalty.
+ * Derived bond summary: how many distinct earned memories each guide has, from
+ * private interludes and free hours spent together (companionTime.ts).
+ * Computed from existing flags, so no saved-game field changes and old saves
+ * read as zero. A failed roll still counts as a bond; it is a shared memory,
+ * not a penalty. Declining a free hour leaves no flag and counts nothing.
  */
 export function companionBondCounts(
   flags: readonly string[],
@@ -287,9 +289,12 @@ export function companionBondCounts(
     mara: 0,
   }
   for (const flag of new Set(flags)) {
-    if (!Object.hasOwn(COMPANION_HANGOUT_CALLBACKS, flag)) continue
-    const who = flag.split('_')[1] as CompanionId
-    if (who in counts) counts[who] += 1
+    const who = Object.hasOwn(COMPANION_HANGOUT_CALLBACKS, flag)
+      ? (flag.split('_')[1] as CompanionId)
+      : Object.hasOwn(COMPANION_TIME_FLAGS, flag)
+        ? COMPANION_TIME_FLAGS[flag]!
+        : null
+    if (who && who in counts) counts[who] += 1
   }
   return counts
 }

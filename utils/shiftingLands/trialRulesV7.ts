@@ -46,7 +46,7 @@ const WITNESS_SCENES: Record<
     success:
       'You recount the people who kept faith with one another aboveground. The court must weigh that witness against its old binding, and the guardian is released on a promise the judges must also keep.',
     failure:
-      'The court calls kindness an unreliable witness. You refuse to abandon the guardian but the circle throws you back, shaking and sore.',
+      'The court calls kindness an unreliable witness. You refuse to abandon the guardian, but the circle throws you back, shaking and sore.',
   },
   verge: {
     label: 'Carry the names of those who trusted you',
@@ -222,7 +222,7 @@ const SOLIDARITY_SCENES: Record<
   cave: {
     label: 'Call the witnesses the court ignored',
     success:
-      'Every voice the court excluded speaks in turn. The judgment is rewritten in public, and the guardian walks out among them.',
+      'The miners, refugees and debtors the court kept outside the candle ring come forward and speak in turn. No clerk can strike so many voices from the record; the judgment is rewritten in public, and the guardian walks out among them.',
     failure:
       'The court seals its ears, but the witnesses carry the account away and keep one another safe from reprisal.',
   },

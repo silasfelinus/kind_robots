@@ -1201,7 +1201,7 @@
       "id": "feathers-in-the-draft",
       "locationId": "cave-mouth",
       "title": "Feathers in the Draft",
-      "flavor": "At the cave mouth, a crow storm-reader pins paper charms into the wind, and not one tears loose. A cold draft keeps returning from the wrong direction, carrying black feathers that never settle. She says the cavern remembers spoken bargains better than faces, and she will not let you pass until you have answered her.",
+      "flavor": "At the cave mouth, a crow storm-reader pins paper charms into the wind, and not one tears loose. A cold draft keeps returning from the wrong direction, carrying black feathers that never settle. She says the cavern remembers spoken bargains better than faces, and she will not let you pass until you tell her, aloud, who you are and what you want below.",
       "weight": 2,
       "art": null,
       "choices": [
@@ -1261,7 +1261,7 @@
       "id": "the-third-shadow",
       "locationId": "cave-mouth",
       "title": "The Third Shadow",
-      "flavor": "A guide offers to lead you underground, but three shadows stretch behind her from only two lanterns. She insists the third belongs to a traveler who turned back this morning. At the entrance, a line of marker stones has been moved since sunrise, and she will not look at it.",
+      "flavor": "A guide offers to lead you underground, but three shadows stretch behind her from only two lanterns. She insists the third belongs to a traveler who turned back this morning. At the entrance, a line of marker stones has been moved since sunrise, and she will not look at it. Twice she starts to tell you what her brother owes, and twice she stops.",
       "weight": 2,
       "art": null,
       "choices": [
@@ -1276,7 +1276,7 @@
             "target": 10
           },
           "success": {
-            "text": "You trace the angle back to a shuttered lamp in a crevice, where two trappers crouch waiting. Named aloud, they slip away without a fight, and the guide's face goes grey with shame.",
+            "text": "You trace the angle back to a shuttered lamp in a crevice, where two trappers crouch waiting. Once you call out their hiding place, they slip away without a fight, and the guide's face goes grey with shame.",
             "hp_delta": 0,
             "provisions_delta": 0,
             "add_flags": ["the-third-shadow-1-success"],
@@ -1308,7 +1308,7 @@
             "map_effect": "none"
           },
           "failure": {
-            "text": "Her accomplices step out and block the gate. You fight your way free, bruised from the scuffle, but your food sack stays behind in their hands.",
+            "text": "Her accomplices step out and block the way back to daylight. You fight your way free, bruised from the scuffle, but your food sack stays behind in their hands.",
             "hp_delta": -1,
             "provisions_delta": -1,
             "add_flags": ["the-third-shadow-2-failure"],
@@ -1396,7 +1396,7 @@
             "target": 10
           },
           "success": {
-            "text": "You notice a fresh tear in the pouch that matches a tear in one miner's sleeve. The adjudicator divides the salt by what you found, and the guilty miner pays without arguing.",
+            "text": "You notice a fresh tear in the pouch that matches a tear in one miner's sleeve. The adjudicator awards the pouch to the other miner, and the one with the torn sleeve pays the court's fine without arguing.",
             "hp_delta": 0,
             "provisions_delta": 0,
             "add_flags": ["the-candle-court-1-success"],
@@ -1428,7 +1428,7 @@
             "map_effect": "none"
           },
           "failure": {
-            "text": "Neither miner will budge, and the hearing drags through the night. By the time the candles gutter, you have shared most of your food with the hungry court just to keep tempers cool.",
+            "text": "Neither miner will budge, and the hearing drags through the night. By the time the candles gutter, you have shared a day's food with the hungry court just to keep tempers cool.",
             "hp_delta": 0,
             "provisions_delta": -1,
             "add_flags": ["the-candle-court-2-failure"],
@@ -1488,7 +1488,7 @@
             "map_effect": "none"
           },
           "failure": {
-            "text": "You take too long. Dust floods the chalked passage and you back out coughing, your throat raw and your chest aching for the next mile.",
+            "text": "You take too long. Dust floods the doorway and you back out coughing, your throat raw and your chest aching for the next mile.",
             "hp_delta": -1,
             "provisions_delta": 0,
             "add_flags": ["salt-on-the-threshold-2-failure"],
@@ -1608,7 +1608,7 @@
             "map_effect": "none"
           },
           "failure": {
-            "text": "Her apprentice refuses to go. You choose alone, second-guess every turn, and give a night's sleep to the maze before you trust your footing, coming out hollow with exhaustion.",
+            "text": "Her novice refuses to go. You choose alone, second-guess every turn, and give a night's sleep to the maze before you trust your footing, coming out hollow with exhaustion.",
             "hp_delta": -1,
             "provisions_delta": 0,
             "add_flags": ["three-doors-no-hinges-2-failure"],

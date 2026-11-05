@@ -224,11 +224,11 @@ for (const part of [
   assert.ok(page.includes(part), `console experience includes ${part}`)
 assert.match(
   page,
-  /type Screen = 'title' \\| 'story' \\| 'worlds' \\| 'crew' \\| 'guide' \\| 'maker' \\| 'play'/,
+  /type Screen = 'title' \| 'story' \| 'worlds' \| 'crew' \| 'guide' \| 'maker' \| 'play'/,
 )
 assert.doesNotMatch(
   page,
-  /PlumberTitleScene|<ConsoleTabs|href="#plumber-|!user\\.isAdmin/,
+  /PlumberTitleScene|<ConsoleTabs|href="#plumber-|!user\.isAdmin/,
   'the Play route is a role-neutral console without retired title or scroll tabs',
 )
 assert.match(page, /prefers-reduced-motion: reduce/)
@@ -248,12 +248,12 @@ for (let world = 1; world <= 8; world++) {
   }
 }
 assert.ok(
-  !/localStorage|\\$fetch/.test(page),
+  !/localStorage|\$fetch/.test(page),
   'the page leaves storage and APIs to stores',
 )
 assert.match(
   source('../../stores/savePlumberStore.ts'),
-  /readPlumberSave\\(arcade\\.saveFor\\(PLUMBER_SLUG\\)\\)/,
+  /readPlumberSave\(arcade\.saveFor\(PLUMBER_SLUG\)\)/,
   'the page stars the heroine chosen in the cabinet',
 )
 

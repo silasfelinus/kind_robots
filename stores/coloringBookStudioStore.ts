@@ -3,6 +3,7 @@ import { defineStore } from 'pinia'
 import type { ColoringBookPackageData } from '~/types/coloringBookPackage'
 import type {
   ColoringBookBwSource,
+  ColoringBookColorSource,
   ColoringBookConceptUpdate,
   ColoringBookCoverPromptUpdate,
   ColoringBookCoverState,
@@ -255,6 +256,7 @@ export const useColoringBookStudioStore = defineStore(
         note?: string
         sourcePath?: string
         bwSource?: ColoringBookBwSource
+        colorSource?: ColoringBookColorSource
         renderSettings?: ColoringBookRenderSettingsRequest
       } = {},
     ): Promise<boolean> {
@@ -274,6 +276,7 @@ export const useColoringBookStudioStore = defineStore(
           proposalId: coverOperation ? undefined : proposal?.id,
           sourcePath: options.sourcePath || undefined,
           bwSource: options.bwSource,
+          colorSource: options.colorSource,
           force: options.force === true,
           note: options.note || '',
           renderSettings: options.renderSettings,
@@ -297,15 +300,24 @@ export const useColoringBookStudioStore = defineStore(
       }
     }
 
+    /**
+     * Queue a new color. `prompt` renders from the page prompt; `version`
+     * colors `sourcePath` (any B&W or color file of this page).
+     */
     function requestColorRender(
       force = false,
       note = '',
       renderSettings?: ColoringBookRenderSettingsRequest,
+      colorSource: ColoringBookColorSource = 'prompt',
+      sourcePath = '',
     ): Promise<boolean> {
+      const fromVersion = colorSource === 'version'
       return requestProductionAction('generate-color-proposals', {
         force,
         note,
         renderSettings,
+        colorSource: fromVersion ? 'version' : undefined,
+        sourcePath: fromVersion ? sourcePath : undefined,
       })
     }
 

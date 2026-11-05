@@ -249,6 +249,18 @@ export const useRulerHookedStore = defineStore('rulerHooked', () => {
     advanceFishing(applySimpleReel(activeFishing.value, action))
   }
 
+  /** A correctly answered learning challenge lands the selected fish through the
+   * same turn/reward/quest transition as the classic reeling minigame. */
+  function landQuizFish() {
+    if (!activeFishing.value || !save.value) return
+    advanceFishing({
+      ...activeFishing.value,
+      stage: 'LANDED',
+      progress: 100,
+      cue: 'Knowledge hooked it. The fish is yours!',
+    })
+  }
+
   function advanceFishing(nextEncounter: SimpleFishingEncounter) {
     if (!save.value) return
     activeFishing.value = nextEncounter
@@ -430,6 +442,7 @@ export const useRulerHookedStore = defineStore('rulerHooked', () => {
     startFishing,
     fishingStop,
     reelFishing,
+    landQuizFish,
     choose,
     acceptEnding,
     declineEnding,

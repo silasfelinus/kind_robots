@@ -365,7 +365,7 @@ import {
   START_GRADES,
 } from '~/utils/shiftingDesks/rules'
 import { useShiftingDesksStore } from '~/stores/shiftingDesksStore'
-import { MILESTONES } from '~/utils/shiftingDesks/rewards'
+import { MILESTONES, filedReceiptFor } from '~/utils/shiftingDesks/rewards'
 import {
   dailyDateOf,
   dailyLabel,
@@ -419,11 +419,8 @@ const nextMilestoneProgress = computed(() =>
 const deeperLevel = computed(() => DEPARTMENTS.length)
 const BOTTOM_FLOOR = 5
 const epilogue = computed(() => (run.value ? endingFor(run.value) : null))
-const filedReceipt = computed(
-  () =>
-    store.rewardArchive.runs.find(
-      (receipt) => receipt.id === `${run.value?.seed}:${epilogue.value?.id}`,
-    ) ?? null,
+const filedReceipt = computed(() =>
+  filedReceiptFor(store.rewardArchive, run.value),
 )
 const epilogueLines = computed(() =>
   run.value && epilogue.value ? endingLines(run.value, epilogue.value) : [],

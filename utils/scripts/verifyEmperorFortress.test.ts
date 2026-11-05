@@ -182,6 +182,7 @@ import {
 import { ACT_END_DAWNS, REGIONS } from '../emperorOfDust/fortress/factions'
 import { EPILOGUE, epilogueFor } from '../emperorOfDust/fortress/epilogue'
 import { TALKS } from '../emperorOfDust/fortress/talks'
+import { TALK_ECHOES, barracksLine } from '../emperorOfDust/fortress/talkEchoes'
 import { TIP_INSET, tipShift } from '../emperorOfDust/fortress/tipFit'
 import { NPCS, npcDef, reactionMood } from '../emperorOfDust/fortress/npcs'
 import { CAST_ART, castArtUrl } from '../emperorOfDust/fortress/castArt'
@@ -1419,6 +1420,222 @@ assert.ok(sceneCount >= 3, 'the court holds scenes, not only petitions')
     },
   ]
   assert.equal(talkFor(away, 'F003'), undefined)
+}
+
+// --- barracks voices and echoes (t-051) -------------------------------------
+{
+  // Every follower, starters and hidden wanderers alike, has barracks talks.
+  for (const def of FOLLOWERS)
+    assert.ok(
+      TALKS.some((talk) => talk.follower === def.id),
+      `${def.id} ${def.name} has barracks dialogue`,
+    )
+
+  // Each answer is its own consequence: no two answers offered together
+  // share the same effects and the same next beat, so no branch is only a
+  // rewording of another.
+  for (const talk of TALKS)
+    for (const [where, options] of [
+      ['opening', talk.options] as const,
+      ...(talk.beats ?? []).map((beat) => [beat.id, beat.options] as const),
+    ]) {
+      const seen = new Map<string, string>()
+      for (const option of options) {
+        const key = JSON.stringify({
+          effects: option.effects,
+          next: option.next ?? null,
+        })
+        assert.ok(
+          !seen.has(key),
+          `${talk.id}/${where}: ${option.id} has the same consequence as ${seen.get(key)}`,
+        )
+        seen.set(key, option.id)
+      }
+    }
+  // Across a talk's beats too: a closing answer may be re-offered in a later
+  // beat under its own id, but two differently named closing answers never
+  // land on the same outcome by different roads.
+  for (const talk of TALKS) {
+    const closing = new Map<string, string>()
+    for (const option of [
+      ...talk.options,
+      ...(talk.beats ?? []).flatMap((beat) => beat.options),
+    ]) {
+      if (option.next) continue
+      const key = JSON.stringify({
+        cost: option.requires?.cost ?? 0,
+        effects: option.effects,
+      })
+      const other = closing.get(key)
+      assert.ok(
+        other === undefined || other === option.id,
+        `${talk.id}: ${option.id} closes exactly as ${other} does`,
+      )
+      closing.set(key, option.id)
+    }
+  }
+
+  // No barracks flag is set but never read. A flag counts as read when some
+  // authored gate anywhere in the fortress names it: a talk or audience
+  // requirement, a scene, briefing or quest-outcome variant, an epilogue
+  // condition, a trait reveal or a barracks echo. Flags under an Effects
+  // value (effects, quest rewards, purchases) are writes, not reads.
+  const WRITES = new Set([
+    'effects',
+    'onBuy',
+    'triumph',
+    'success',
+    'partial',
+    'failure',
+    'expired',
+    'acceptEffects',
+    'bargainEffects',
+  ])
+  const flagReads = new Set<string>()
+  const walked = new WeakSet<object>()
+  const walk = (value: unknown, parentKey: string) => {
+    if (!value || typeof value !== 'object' || walked.has(value)) return
+    walked.add(value)
+    if (Array.isArray(value)) {
+      for (const entry of value) walk(entry, `${parentKey}[]`)
+      return
+    }
+    for (const [key, entry] of Object.entries(value)) {
+      if (key === 'revealFlag' && typeof entry === 'string')
+        flagReads.add(entry)
+      const gateKey =
+        key === 'notFlags' ||
+        key === 'anyFlags' ||
+        (key === 'flags' && !WRITES.has(parentKey))
+      if (gateKey && Array.isArray(entry))
+        for (const flag of entry)
+          if (typeof flag === 'string') flagReads.add(flag)
+      walk(entry, key)
+    }
+  }
+  const fortressDir = new URL('../emperorOfDust/fortress/', import.meta.url)
+  for (const file of readdirSync(fortressDir).filter((name) =>
+    name.endsWith('.ts'),
+  ))
+    for (const [name, value] of Object.entries(
+      (await import(new URL(file, fortressDir).href)) as Record<
+        string,
+        unknown
+      >,
+    ))
+      walk(value, name)
+  const talkFlags = new Map<string, string>()
+  for (const talk of TALKS)
+    for (const option of [
+      ...talk.options,
+      ...(talk.beats ?? []).flatMap((beat) => beat.options),
+    ])
+      for (const flag of option.effects.flags ?? [])
+        talkFlags.set(flag, `${talk.id}/${option.id}`)
+  const unread = [...talkFlags].filter(([flag]) => !flagReads.has(flag))
+  assert.deepEqual(
+    unread,
+    [],
+    `barracks flags set but never read: ${unread
+      .map(([flag, where]) => `${flag} (${where})`)
+      .join(', ')}`,
+  )
+
+  // Echoes: each is keyed to a decision a talk can actually make, belongs to
+  // that talk's follower, and names nobody who may be absent.
+  const owner = new Map<string, string>()
+  for (const talk of TALKS)
+    for (const option of [
+      ...talk.options,
+      ...(talk.beats ?? []).flatMap((beat) => beat.options),
+    ])
+      for (const flag of option.effects.flags ?? [])
+        owner.set(flag, talk.follower)
+  const echoNames = FOLLOWERS.map((def) => ({
+    id: def.id,
+    pattern: new RegExp(
+      `\\b${def.name.replace(/^(Duchess|Brother) /, '').split(' ')[0]}\\b`,
+    ),
+  }))
+  const texts = new Set<string>()
+  for (const echo of TALK_ECHOES) {
+    assert.ok(echo.flags?.length, `${echo.text}: an echo is keyed`)
+    for (const flag of echo.flags ?? [])
+      assert.equal(
+        owner.get(flag),
+        echo.follower,
+        `${echo.follower} echo reads ${flag}, set in their own talks`,
+      )
+    assert.ok(!texts.has(echo.text), `echo repeated: ${echo.text}`)
+    texts.add(echo.text)
+    assert.ok(!/[“”]/.test(echo.text), `${echo.text}: the barracks adds quotes`)
+    for (const name of echoNames)
+      if (name.id !== echo.follower)
+        assert.doesNotMatch(
+          echo.text,
+          name.pattern,
+          `${echo.follower} echo names ${name.id}, who may be absent`,
+        )
+  }
+  // Every follower with a choice to remember has a line to say about it.
+  for (const def of FOLLOWERS)
+    if ([...owner.values()].includes(def.id))
+      assert.ok(
+        TALK_ECHOES.some((echo) => echo.follower === def.id),
+        `${def.id} remembers something in the barracks`,
+      )
+
+  // The barracks shows the newest decision; daily chatter still gets its days.
+  const flags = ['rook-old-saddle', 'rook-cistern-kept']
+  assert.match(barracksLine({ day: 18, flags }, 'F001'), /tongue split/)
+  assert.match(
+    barracksLine({ day: 18, flags: [...flags].reverse() }, 'F001'),
+    /girth/,
+  )
+  assert.equal(barracksLine({ day: 18, flags: [] }, 'F001'), '')
+  const chatter = followerDef('F003')!.talk!
+  assert.equal(
+    barracksLine({ day: 5, flags: ['kiyo-tea-for-all'] }, 'F003', chatter),
+    chatter[5 % chatter.length],
+    'odd days keep the chatter',
+  )
+  assert.match(
+    barracksLine({ day: 6, flags: ['kiyo-tea-for-all'] }, 'F003', chatter),
+    /tea ran out/,
+    'even days remember the answer',
+  )
+  // Within one answer, the most specific echo wins.
+  assert.match(
+    barracksLine({ day: 30, flags: ['rook-stays-close'] }, 'F001'),
+    /Back to the north/,
+  )
+  assert.match(
+    barracksLine(
+      { day: 30, flags: ['rook-stays-close', 'rook-kept-from-road'] },
+      'F001',
+    ),
+    /the second/,
+  )
+  // Played through the engine: two answers to one talk, two different lines.
+  let shop = onDay(1, 3)
+  const asked = chooseTalkOption(shop, 'saffron-1', 'ask-badge').run
+  const kept = chooseTalkOption(asked, 'saffron-1', 'keep-secret').run
+  shop = chooseTalkOption(shop, 'saffron-1', 'leave-it').run
+  assert.match(barracksLine({ ...shop, day: 4 }, 'F002'), /never asked/)
+  assert.match(barracksLine({ ...kept, day: 4 }, 'F002'), /the hinge/)
+
+  // The stock beat "a long time" (and a walk-off that doesn't look back) is
+  // no longer every follower's reaction: at most one voice keeps each.
+  for (const phrase of ['a long time', 'doesn’t look back']) {
+    const users = new Set(
+      TALKS.filter((talk) =>
+        JSON.stringify([talk.lines, talk.options, talk.beats ?? []]).includes(
+          phrase,
+        ),
+      ).map((talk) => talk.follower),
+    )
+    assert.ok(users.size <= 1, `${phrase}: ${[...users].join(', ')}`)
+  }
 }
 
 // --- talk pacing (t-042) -----------------------------------------------------

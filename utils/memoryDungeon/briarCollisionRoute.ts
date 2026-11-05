@@ -21,13 +21,13 @@ export const BRIAR_COLLISION_ROUTE_SITES = {
         flag: 'reception-private-count',
         effects: { evidence: 1, trust: 1 },
         artSubject:
-          'Rowan and Mara quietly count willing workers while Pip identifies a wolf courier's pawprint on the reception ledger',
+          'Rowan and Mara quietly count willing workers while Pip identifies a wolf courier pawprint on the reception ledger',
       },
       {
         id: 'ring-for-the-tenth',
         label: 'Ring the bell and confront whoever answers as number ten',
         outcome:
-          'The wolf clerk arrives wearing a stolen staff badge. Rowan challenges the forged identity using Pip's knowledge of wolf badges, but the alarm draws a second patrol. Mara gets a clear description at the price of a dangerous head start.',
+          'The wolf clerk arrives wearing a stolen staff badge. Rowan challenges the forged identity using Pip’s knowledge of wolf badges, but the alarm draws a second patrol. Mara gets a clear description at the price of a dangerous head start.',
         flag: 'reception-wolf-exposed',
         effects: { evidence: 2, danger: 1 },
         artSubject:

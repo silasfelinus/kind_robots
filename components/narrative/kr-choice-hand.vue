@@ -27,6 +27,12 @@
   deal in or play out. Kept 3D at rest, the browser paints a lifted card as
   a scaled bitmap and its text goes blurry (Silas, 2026-11-02).
 
+  The same blur came back from the lift's own scale(): a GPU compositor
+  can stretch the card's resting bitmap instead of redrawing it (Ecotone,
+  2026-11-05). So each card is drawn at its lifted size (zoom on its face,
+  which also enlarges a game's own art and text) and shrunk while it rests;
+  the lifted card's transform has no scale at all and its text stays crisp.
+
   No touch-action and no :active lift, for the iOS reasons documented in
   workspace-hand.vue.
 -->
@@ -297,7 +303,9 @@ function fanStyle(index: number): Record<string, string> {
   const offset = index - (n - 1) / 2
   const spread = n <= 3 ? 5 : n <= 5 ? 4 : 2.5
   return {
-    '--rot': (offset * spread).toFixed(2) + 'deg',
+    // Not --rot itself: an inline --rot would outrank the lifted card's
+    // --rot: 0deg and leave it tilted (and its text resampled).
+    '--fan-rot': (offset * spread).toFixed(2) + 'deg',
     '--drop':
       (Math.abs(offset) ** 2 * (n <= 5 ? 0.22 : 0.06)).toFixed(3) + 'rem',
     '--i': String(index),
@@ -438,9 +446,13 @@ function sparkleStyle(n: number): Record<string, string> {
   height: calc(var(--card-h) - var(--peek));
   padding: 0.35rem 1rem calc(var(--card-w) * 0.16 * (1 - var(--tuck)));
 }
+/* --k: how much larger than it looks at rest each card is drawn; see the
+   header note on blur. 1 where zoom is unsupported (the old scaled lift). */
 .krh-card {
+  --k: 1;
+  --rot: var(--fan-rot, 0deg);
   --lift: 0rem;
-  --scale: 1;
+  --scale: calc(1 / var(--k));
   position: relative;
   flex: none;
   width: var(--card-w);
@@ -464,9 +476,25 @@ function sparkleStyle(n: number): Record<string, string> {
 .krh-card:focus-visible,
 .krh-card.is-focused:not(:disabled) {
   --lift: calc(var(--peek) + 0.6rem);
-  --scale: var(--focus-scale);
+  --scale: calc(var(--focus-scale) / var(--k));
   --rot: 0deg;
   z-index: 10;
+}
+@supports (zoom: 1) {
+  /* Drawn at the lifted size, then pulled back by the negative margins so
+     the fan's spacing and each card's pivot (50% 120%) are unchanged. */
+  .krh-card {
+    --k: var(--focus-scale);
+    width: calc(var(--card-w) * var(--k));
+    margin-inline: calc(
+      var(--card-w) * (var(--overlap, 0) - (var(--k) - 1) / 2)
+    );
+    margin-top: calc(var(--card-h) * -1.2 * (var(--k) - 1));
+  }
+  .krh-flip,
+  .krh-sparkles {
+    zoom: var(--k);
+  }
 }
 .krh-card:focus-visible {
   outline: none;
@@ -481,7 +509,7 @@ function sparkleStyle(n: number): Record<string, string> {
 }
 .krh-card.is-playing {
   --lift: calc(var(--peek) + 7rem);
-  --scale: 0.7;
+  --scale: calc(0.7 / var(--k));
   --rot: 0deg;
   z-index: 11;
   opacity: 0;
@@ -694,7 +722,7 @@ function sparkleStyle(n: number): Record<string, string> {
 }
 .krh-deal-enter-from {
   opacity: 0;
-  transform: translate(0, 4rem) rotate(-12deg) scale(0.7);
+  transform: translate(0, 4rem) rotate(-12deg) scale(calc(0.7 / var(--k)));
 }
 @keyframes krh-deal-flip {
   from {

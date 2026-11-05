@@ -195,7 +195,11 @@ assert.match(
 )
 
 for (const [start, end, label] of [
-  ['async function loadTrioArtwork(', 'async function loadOnboardingArt()', 'trio'],
+  [
+    'async function loadTrioArtwork(',
+    'async function loadOnboardingArt()',
+    'trio',
+  ],
   ['async function loadOnboardingArt()', 'const preferences', 'onboarding'],
 ] as const) {
   const loader = store.slice(store.indexOf(start), store.indexOf(end))

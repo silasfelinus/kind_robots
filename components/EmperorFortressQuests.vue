@@ -153,33 +153,8 @@
         class="kr-pane kr-panel @container"
         :class="mobilePane === 'details' ? 'flex' : 'hidden @4xl:flex'"
       >
-        <div
-          class="flex shrink-0 items-center justify-between gap-2 border-b border-warning/30 bg-base-100 p-2"
-        >
-          <button
-            type="button"
-            class="btn btn-xs"
-            :class="detailStep === 'briefing' ? 'btn-warning' : 'btn-outline'"
-            :aria-current="detailStep === 'briefing' ? 'step' : undefined"
-            @click="detailStep = 'briefing'"
-          >
-            1 · Mission briefing
-          </button>
-          <button
-            type="button"
-            class="btn btn-xs"
-            :class="detailStep === 'assignment' ? 'btn-warning' : 'btn-outline'"
-            :aria-current="detailStep === 'assignment' ? 'step' : undefined"
-            @click="detailStep = 'assignment'"
-          >
-            2 · Assign party
-          </button>
-        </div>
-        <div
-          :key="selectedId + ':' + detailStep"
-          class="kr-pane-scroll space-y-2 px-3 py-2"
-        >
-          <div v-if="detailStep === 'briefing'" class="space-y-3">
+        <div :key="selectedId ?? ''" class="kr-pane-scroll space-y-2 px-3 py-2">
+          <div class="space-y-3" data-testid="eod-quest-briefing">
             <div
               class="grid min-w-0 gap-3 @md:grid-cols-[minmax(0,0.8fr)_minmax(0,1.2fr)]"
             >
@@ -187,7 +162,7 @@
                 :quest-id="selected.id"
                 :region="selected.region"
                 :label="selected.title"
-                class="aspect-[16/10] max-h-52 w-full rounded-lg object-cover @md:aspect-[4/5]"
+                class="aspect-[16/10] max-h-44 w-full rounded-lg object-cover @md:aspect-[4/3]"
               />
               <div class="min-w-0 space-y-2">
                 <p
@@ -284,14 +259,10 @@
               </p>
             </div>
           </div>
-          <div v-else class="space-y-3">
-            <h3 class="font-serif text-lg font-bold text-warning">
-              {{ selected.title }}
-            </h3>
-            <p class="text-xs opacity-75">
-              {{ partyLabel(selected) }} · {{ days(selected.durationDays) }} ·
-              {{ dangerLine(selected) }}
-            </p>
+          <div
+            class="space-y-3 border-t border-warning/20 pt-3"
+            data-testid="eod-quest-assignment"
+          >
             <div>
               <p
                 class="text-[10px] font-semibold uppercase tracking-[0.2em] opacity-75"
@@ -539,32 +510,15 @@
           class="flex shrink-0 flex-wrap items-center gap-2 border-t border-warning/30 bg-base-100 p-2"
         >
           <button
-            v-if="detailStep === 'briefing'"
             type="button"
             class="btn btn-warning btn-sm"
-            @click="detailStep = 'assignment'"
+            :disabled="!canSend"
+            @click="send"
           >
-            Assign followers <span aria-hidden="true">▸</span>
+            Send {{ party.length || '' }} follower{{
+              party.length === 1 ? '' : 's'
+            }}
           </button>
-          <template v-else>
-            <button
-              type="button"
-              class="btn btn-outline btn-sm"
-              @click="detailStep = 'briefing'"
-            >
-              ◂ Briefing
-            </button>
-            <button
-              type="button"
-              class="btn btn-warning btn-sm"
-              :disabled="!canSend"
-              @click="send"
-            >
-              Send {{ party.length || '' }} follower{{
-                party.length === 1 ? '' : 's'
-              }}
-            </button>
-          </template>
           <EmperorFortressFinish :run="run" class="ml-auto" />
           <p
             v-if="error"
@@ -635,7 +589,6 @@ const slotArt = (id: string) => followerPortrait(id)
 const hourglass = ref(false)
 const error = ref('')
 const mobilePane = ref<'board' | 'details'>('board')
-const detailStep = ref<'briefing' | 'assignment'>('briefing')
 
 const board = computed(() =>
   props.run.board
@@ -749,7 +702,6 @@ function select(id: string) {
   hourglass.value = false
   error.value = ''
   mobilePane.value = 'details'
-  detailStep.value = 'briefing'
 }
 
 function toggle(id: string) {
@@ -770,7 +722,6 @@ function send() {
     court.assign(selectedId.value, party.value, hourglass.value)
     party.value = []
     hourglass.value = false
-    detailStep.value = 'briefing'
     selectedId.value = board.value[0]?.questId ?? null
   } catch (cause) {
     error.value = cause instanceof Error ? cause.message : 'That did not work.'

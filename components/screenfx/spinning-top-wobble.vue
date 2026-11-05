@@ -157,15 +157,7 @@ function drawScene(seconds: number): void {
     context.strokeStyle = `rgba(255, 245, 220, ${0.1 + spin * 0.25 + hover * 0.3})`
     context.lineWidth = 1.5
     context.beginPath()
-    context.ellipse(
-      0,
-      -bodyH * 0.55,
-      bodyW * 1.1,
-      bodyW * 0.22,
-      0,
-      0,
-      TWO_PI,
-    )
+    context.ellipse(0, -bodyH * 0.55, bodyW * 1.1, bodyW * 0.22, 0, 0, TWO_PI)
     context.stroke()
     context.restore()
   }

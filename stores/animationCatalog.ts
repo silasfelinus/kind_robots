@@ -1050,7 +1050,8 @@ export const ANIMATION_EFFECTS = [
   {
     id: 'spinning-top-wobble',
     label: 'Spinning Top Wobble',
-    reveal: 'Painted wooden tops spin steady, then wobble and get flicked again',
+    reveal:
+      'Painted wooden tops spin steady, then wobble and get flicked again',
     icon: 'kind-icon:sparkle',
     tooltip:
       'Painted tops spin on a wooden table, wobble as they slow 🪀 hover to light the nearest top, click to flick them all faster',

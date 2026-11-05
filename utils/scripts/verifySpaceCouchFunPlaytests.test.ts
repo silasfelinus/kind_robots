@@ -126,6 +126,10 @@ type ContactStats = {
   retreats: number
   milestones: number[]
   sceneWords: number[]
+  escapes: number
+  returns: number
+  longestWait: number
+  escapedAt: Map<string, number>
 }
 
 function encounter(
@@ -173,10 +177,28 @@ function encounter(
     sighting.species.name +
       ': chosen action leads to its own original response',
   )
+  const fledAt = stats.escapedAt.get(sighting.species.id)
+  assert.equal(
+    sighting.returning === true,
+    fledAt !== undefined,
+    sighting.species.name + ': near-miss callback only for an escaped alien',
+  )
+  if (fledAt !== undefined) {
+    stats.returns++
+    stats.longestWait = Math.max(stats.longestWait, stats.attempts - fledAt)
+    assert.ok(sighting.scene.startsWith('Second chance: the '))
+  }
   stats.attempts++
   stats.sceneWords.push(sighting.scene.trim().split(/\s+/).length)
   if (outcome.recorded) stats.recorded++
   const result = outcome.guide.lastContact?.outcome
+  if (fledAt !== undefined) {
+    assert.ok(outcome.recorded, 'a second chance always files a record')
+    stats.escapedAt.delete(sighting.species.id)
+  } else if (result === 'retreat') {
+    stats.escapes++
+    stats.escapedAt.set(sighting.species.id, stats.attempts)
+  }
   if (result === 'bond') stats.friends++
   if (result === 'chaos') stats.chaos++
   if (result === 'retreat') stats.retreats++
@@ -199,6 +221,10 @@ const blankStats = (): ContactStats => ({
   retreats: 0,
   milestones: [],
   sceneWords: [],
+  escapes: 0,
+  returns: 0,
+  longestWait: 0,
+  escapedAt: new Map(),
 })
 
 // Real complete voyages. The optional alien overlay is invoked at the same
@@ -292,6 +318,24 @@ for (const strategy of ['greet', 'cycle', 'oracle'] as const) {
   assert.equal(guide.discovered.length, 101, strategy + ': all 101 reachable')
   assert.deepEqual(stats.milestones, [5, 12, 25, 50, 75, 100])
   assert.equal(stats.attempts, stats.friends + stats.chaos + stats.retreats)
+  assert.equal(stats.escapedAt.size, 0, strategy + ': every runaway came back')
+  assert.equal(
+    stats.returns,
+    stats.escapes,
+    strategy + ': each first escape gets exactly one second chance',
+  )
+  assert.ok(
+    stats.longestWait <= 10,
+    strategy +
+      ': a runaway returns within about one voyage of stops, saw ' +
+      stats.longestWait,
+  )
+  assert.ok(
+    voyages <= 18,
+    strategy +
+      ': merciful second chances keep the full collection within 18 voyages, saw ' +
+      voyages,
+  )
   const avgWords = Math.round(
     stats.sceneWords.reduce((sum, words) => sum + words, 0) /
       stats.sceneWords.length,
@@ -312,6 +356,10 @@ for (const strategy of ['greet', 'cycle', 'oracle'] as const) {
       ' chaos, ' +
       stats.retreats +
       ' escaped, ' +
+      stats.returns +
+      ' near-miss returns (longest wait ' +
+      stats.longestWait +
+      ' sightings), ' +
       avgWords +
       ' average scene words, ' +
       stats.milestones.length +

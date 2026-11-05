@@ -7,13 +7,17 @@ import {
   ALIEN_CHOICES,
   ALIEN_MILESTONES,
   alienEvidence,
+  alienHint,
   alienObservation,
   alienOutcome,
+  alienRunawayCallback,
   emptyAlienGuide,
+  isAlienRunaway,
   normalizeAlienGuide,
   maySeeAlien,
   nextAlienSighting,
   resolveAlienSighting,
+  type AlienSighting,
 } from '../gameOfCaptains/alienFieldGuide'
 import {
   COLLECTOR_INCIDENTS,
@@ -280,6 +284,104 @@ assert.ok(
 )
 assert.notEqual(followup.species.id, first.species.id)
 
+// Near-miss mercy: the escape text promises a second chance, so an escaped
+// species must actually return, acknowledge what the crew tried, and show as
+// a named near miss in the scrapbook until it is recorded.
+const fledWith = {
+  approach: 'peaceful hello',
+  observe: 'quiet watching',
+  improvise: 'ridiculous stunt',
+}[choiceFor(first.mood, 'retreat')]
+assert.equal(isAlienRunaway(fleeing.guide, first.species.id), true)
+assert.equal(isAlienRunaway(friend.guide, first.species.id), false)
+assert.match(fleeing.text, /circle back for a second chance on a later stop/)
+assert.equal(
+  alienHint(first.species, fleeing.guide),
+  'Near miss: it fled your ' +
+    fledWith +
+    ', but it is still following the couch. It will circle back on a later stop, and this time even a getaway leaves a blurry record.',
+)
+assert.doesNotMatch(alienHint(first.species), /Near miss/)
+let chase = fleeing.guide
+let comeback: AlienSighting | null = null
+for (let chapter = 3; chapter <= 9; chapter++) {
+  const sighting = nextAlienSighting({ ...run, chapter }, chase)!
+  if (sighting.species.id === first.species.id) {
+    comeback = sighting
+    break
+  }
+  assert.equal(sighting.returning, undefined, 'only runaways are callbacks')
+  chase = resolveAlienSighting(
+    chase,
+    sighting,
+    choiceFor(sighting.mood, 'chaos'),
+  ).guide
+}
+assert.ok(comeback, 'an escaped alien returns within the same voyage')
+assert.equal(comeback.returning, true)
+assert.ok(comeback.chapter <= 5, 'the second chance arrives within 3 stops')
+assert.ok(
+  comeback.scene.startsWith(
+    'Second chance: the ' +
+      first.species.name +
+      ' that fled your ' +
+      fledWith +
+      ' is back.',
+  ),
+)
+assert.ok(
+  comeback.scene.includes(ALIEN_SPECIES_STORIES[first.species.id]!.incident),
+)
+let longestCallback = 0
+for (const species of ALIEN_SPECIES) {
+  for (const choice of ALIEN_CHOICES) {
+    const callback = alienRunawayCallback(
+      {
+        ...emptyAlienGuide(),
+        contacts: { [species.id]: 'retreat' },
+        fieldReports: [
+          {
+            speciesId: species.id,
+            mood: 'wary',
+            outcome: 'retreat',
+            choice: choice.id,
+          },
+        ],
+      },
+      species,
+    )
+    assert.ok(callback.includes(species.name))
+    longestCallback = Math.max(longestCallback, callback.split(/\s+/).length)
+  }
+}
+assert.ok(
+  longestCallback <= 24,
+  'the near-miss callback stays a short preface: ' + longestCallback,
+)
+const boltedAgain = resolveAlienSighting(
+  chase,
+  comeback,
+  choiceFor(comeback.mood, 'retreat'),
+)
+assert.equal(boltedAgain.recorded, true, 'a second getaway is still recorded')
+assert.ok(boltedAgain.guide.discovered.includes(first.species.id))
+assert.ok(!boltedAgain.guide.friends.includes(first.species.id))
+assert.match(boltedAgain.text, /blurry photo/)
+assert.equal(isAlienRunaway(boltedAgain.guide, first.species.id), false)
+const caught = resolveAlienSighting(
+  chase,
+  comeback,
+  choiceFor(comeback.mood, 'bond'),
+)
+assert.equal(caught.recorded, true)
+assert.equal(isAlienRunaway(caught.guide, first.species.id), false)
+assert.doesNotMatch(alienHint(first.species, caught.guide), /Near miss/)
+assert.equal(
+  nextAlienSighting({ ...run, chapter: comeback.chapter + 1 }, caught.guide)
+    ?.returning,
+  undefined,
+)
+
 assert.deepEqual(
   normalizeAlienGuide({
     discovered: [first.species.id, first.species.id, 'not-a-species'],
@@ -426,6 +528,8 @@ assert.match(encounter, /v-for="choice in ALIEN_CHOICES"/)
 assert.match(encounter, /space-couch-alien-emotional-cue/)
 assert.match(encounter, /space-couch-alien-prior-field-note/)
 assert.match(scrapbook, /space-couch-alien-scrapbook-field-note/)
+assert.match(scrapbook, /alienHint\(selected, guide\)/)
+assert.match(scrapbook, /isAlienRunaway\(props\.guide, id\)/)
 assert.match(scrapbook, /v-for="\(alien, index\) in ALIEN_SPECIES"/)
 assert.match(store, /game-of-captains-alien-scrapbook-v1/)
 assert.match(store, /normalizeAlienGuide/)

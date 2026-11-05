@@ -158,7 +158,7 @@ for (const incident of COMPLETE_NIGHT_DECK) {
     ...authored.consequences,
     refused: authored.refused,
   }
-  const mornings = MISSION_RESULTS.map((result) =>
+  const mornings: string[] = MISSION_RESULTS.map((result): string =>
     nightCaseMorning(
       incident.id,
       result === 'refused' ? 'failed' : result,

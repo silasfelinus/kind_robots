@@ -3287,19 +3287,33 @@ export const ACT_FOUR_DAYS: readonly DayDef[] = [
         ],
         options: [
           {
-            id: 'reopen-day10',
+            id: 'reopen-relief-oath',
             label:
-              'Ask the congress to revisit the oath sworn over Thistledown.',
-            requires: {
-              anyFlags: [
-                'd10-open-council-relief',
-                'd10-open-council-account',
-                'd10-open-council-veto',
-              ],
-            },
+              'Ask congress to revisit the relief riders from the Thistledown oath.',
+            requires: { flags: ['d10-open-council-relief'] },
             effects: {},
             response:
-              'Dunmark sets the old gate roster beside Komodo’s new seating chart. The room remembers where the Watch was sent, and where it was kept.',
+              'Dunmark sets the old gate roster beside Komodo’s seating chart. The room remembers where the Watch was sent, and where it was kept.',
+            next: 'old-oath',
+          },
+          {
+            id: 'reopen-account-oath',
+            label:
+              'Ask congress to revisit the public Watch accounting from the Thistledown oath.',
+            requires: { flags: ['d10-open-council-account'] },
+            effects: {},
+            response:
+              'Dunmark sets the old gate roster beside Komodo’s seating chart. The room remembers where the Watch was sent, and where it was kept.',
+            next: 'old-oath',
+          },
+          {
+            id: 'reopen-veto-oath',
+            label:
+              'Ask congress to revisit the Houses’ gate veto from the Thistledown oath.',
+            requires: { flags: ['d10-open-council-veto'] },
+            effects: {},
+            response:
+              'Dunmark sets the old gate roster beside Komodo’s seating chart. The room remembers where the Watch was sent, and where it was kept.',
             next: 'old-oath',
           },
           {

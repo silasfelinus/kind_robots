@@ -280,10 +280,12 @@
 <script setup lang="ts">
 import { onMounted } from 'vue'
 import { useMemoryEarthStore } from '~/stores/memoryEarthStore'
+import { useMemorySublevelStore } from '~/stores/memorySublevelStore'
 import type { OverworldKind } from '~/utils/memoryDungeon/overworldEventCatalog'
 
 const emit = defineEmits<{ leave: []; sea: []; sublevel: [] }>()
 const earth = useMemoryEarthStore()
+const sublevel = useMemorySublevelStore()
 
 function symbolFor(kind: OverworldKind): string {
   return {
@@ -311,7 +313,10 @@ function tileClass(tile: {
   return 'border-[#3c5361] bg-[#1b2b36] text-[#516575]'
 }
 
-onMounted(() => earth.hydrate())
+onMounted(() => {
+  earth.hydrate()
+  sublevel.hydrate()
+})
 </script>
 
 <style scoped>

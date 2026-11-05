@@ -1,7 +1,7 @@
 import { computed, ref, watch } from 'vue'
 import { defineStore } from 'pinia'
 import { useMemoryWorldStore } from './memoryWorldStore'
-import { useMemorySublevelStore } from './memorySublevelStore'
+import type { SublevelEnding } from '~/utils/memoryDungeon/sublevelB'
 import {
   chooseOverworldEvent,
   eventNeighbors,
@@ -69,9 +69,14 @@ export const useMemoryEarthStore = defineStore('memoryEarth', () => {
    * e04 revisits e03's places, so its openings also answer to what Morrow
    * did there in e03 and to how he left Sublevel B.
    */
-  const echoFlags = computed(() => {
+  /** Reported by the Sublevel B store, which owns that save. */
+  const sublevelEnding = ref<SublevelEnding | null>(null)
+  function recordSublevelEnding(ending: SublevelEnding | null): void {
+    sublevelEnding.value = ending
+  }
+  const echoFlags = computed<readonly string[]>(() => {
     if (active.value !== 'e04') return progress.value.flags
-    const ending = useMemorySublevelStore().progress.ending
+    const ending = sublevelEnding.value
     return [
       ...progress.value.flags,
       ...save.value.records.e03.flags,
@@ -209,7 +214,6 @@ export const useMemoryEarthStore = defineStore('memoryEarth', () => {
     for (const reality of EARTH_REALITIES)
       if (world.campaign.completed.includes(reality))
         world.syncMorrowEarthAchievements(reality, save.value.journals[reality])
-    useMemorySublevelStore().hydrate()
   }
 
   watch(
@@ -326,6 +330,8 @@ export const useMemoryEarthStore = defineStore('memoryEarth', () => {
     position,
     current,
     opening,
+    sublevelEnding,
+    recordSublevelEnding,
     e03Choices,
     e03Flags,
     chosen,

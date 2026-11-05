@@ -108,6 +108,7 @@ export const useMemorySublevelStore = defineStore('memorySublevel', () => {
         raw ? JSON.parse(raw) : null,
         entry.value,
       )
+      earth.recordSublevelEnding(save.value.ending)
     } catch {
       save.value = newSublevelProgress(entry.value)
       notice.value = 'A damaged Sublevel B save was ignored.'
@@ -136,6 +137,7 @@ export const useMemorySublevelStore = defineStore('memorySublevel', () => {
       return
     }
     save.value = next
+    earth.recordSublevelEnding(next.ending)
     notice.value = choice?.outcome ?? ''
     persist()
   }

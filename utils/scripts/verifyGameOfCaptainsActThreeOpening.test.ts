@@ -163,7 +163,12 @@ for (let seed = 1; seed <= 12; seed++) {
   const { run, steps } = playVoyage('vale', [...crew], seed, {
     name: 'act-three-authored-returns',
     order: () => policies[(seed - 1) % 3]!,
-    chart: (voyage) => (voyage.chapter === 7 ? target : undefined),
+    chart: (voyage) =>
+      voyage.chapter === 3
+        ? 'bar'
+        : voyage.chapter === 7
+          ? target
+          : VOYAGE_BOARDS[voyage.chapter - 1]?.[0],
     authoredChoices: true,
     sideQuests: false,
     errand: () => null,

@@ -209,7 +209,7 @@ for (let seed = 1; seed <= 12; seed++) {
             ? 'bar'
             : voyage.chapter === 4
               ? targetActTwo
-              : undefined,
+              : VOYAGE_BOARDS[voyage.chapter - 1]?.[0],
     authoredChoices: true,
     sideQuests: false,
     errand: () => null,

@@ -620,6 +620,27 @@ export function missionBoard(run: VoyageRun): Mission[] {
     .map((id) => MISSIONS.find((mission) => mission.id === id)!)
 }
 
+/**
+ * The couch provisionally selects an eligible call, not the same first card
+ * in every chapter. Route commitments, crew and the seed all matter. The player
+ * may still chart any other call on the visible mission board before travel.
+ * Historical saves retain the missionId they already stored.
+ */
+export function seededMission(run: VoyageRun): string {
+  const fallback = VOYAGE_BOARDS[run.chapter - 1]?.[0] ?? 'refugees'
+  if (run.chapter === 1) return fallback
+  const available = missionBoard(run)
+  if (!available.length) return fallback
+  const history = (run.missionHistory ?? [])
+    .map((record) => record.missionId)
+    .join(',')
+  const roll = hash(
+    run.seed,
+    `chart:${run.chapter}:${run.captain}:${run.crew.join(',')}:${history}`,
+  )
+  return available[roll % available.length]!.id
+}
+
 export function chooseMission(run: VoyageRun, id: string): VoyageRun {
   if (
     run.phase !== 'briefing' ||
@@ -1264,7 +1285,7 @@ export function nextDestination(run: VoyageRun): VoyageRun {
             supplies: ACT_THREE_RESUPPLY,
           }
         : null
-  return {
+  const nextRun: VoyageRun = {
     ...run,
     phase: 'briefing',
     chapter: run.chapter + 1,
@@ -1287,6 +1308,13 @@ export function nextDestination(run: VoyageRun): VoyageRun {
         ? ['Last command consequence: ' + actThreeEcho.callback]
         : []),
     ],
+  }
+  const chosenId = seededMission(nextRun)
+  const chosen = MISSIONS.find((mission) => mission.id === chosenId)!
+  return {
+    ...nextRun,
+    missionId: chosenId,
+    scene: `${nextRun.scene} The couch provisionally charts ${chosen.system} next. The rest of this chapter's calls remain open on the mission board.`,
   }
 }
 export function finishVoyage(

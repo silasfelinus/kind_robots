@@ -98,7 +98,7 @@ for (let seed = 1; seed <= 12; seed++) {
     chart: (run) =>
       VOYAGE_BOARDS[run.chapter - 1]?.find(
         (id) => id === 'archive' || id === 'bar',
-      ),
+      ) ?? VOYAGE_BOARDS[run.chapter - 1]?.[0],
     authoredChoices: true,
     sideQuests: false,
     errand: () => null,

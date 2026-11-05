@@ -242,6 +242,9 @@ for (const captain of CAPTAINS) {
     for (let chapter = 1; chapter <= VOYAGE_CHAPTERS; chapter++) {
       assert.equal(run.phase, 'briefing')
       assert.equal(run.chapter, chapter)
+      // This is the legacy first-card fixture. Pin it through the same
+      // player chart control; default-route diversity has its own test.
+      if (chapter > 1) run = chooseMission(run, VOYAGE_BOARDS[chapter - 1]![0]!)
       assert.ok(missionFor(run).title)
       assert.equal(antagonistFor(run).id, antagonist.id)
       const today = run.day ?? run.chapter
@@ -1187,9 +1190,10 @@ unionVoyage = play(unionVoyage, 'ashdock', 'aid')
 unionVoyage = play(nextDestination(unionVoyage), 'nacre', 'aid')
 unionVoyage = play(nextDestination(unionVoyage), 'gameworld', 'aid')
 unionVoyage = nextDestination(unionVoyage)
+assert.ok(unionVoyage.scene.startsWith('ACT II'))
+unionVoyage = chooseMission(unionVoyage, 'concord-intake')
 assert.equal(unionVoyage.phase, 'briefing')
 assert.equal(unionVoyage.chapter, 4)
-assert.ok(unionVoyage.scene.startsWith('ACT II'))
 assert.equal(missionFor(unionVoyage).id, 'concord-intake')
 assert.deepEqual(
   restoreVoyage(JSON.parse(JSON.stringify(unionVoyage))),
@@ -1351,7 +1355,12 @@ const resumed = nextDestination(
   restoreVoyage(JSON.parse(JSON.stringify(legacyDebrief)))!,
 )
 assert.equal(resumed.chapter, 4)
-assert.equal(missionFor(resumed).id, 'concord-intake')
+assert.ok(
+  missionBoard(resumed).some(
+    (mission) => mission.id === missionFor(resumed).id,
+  ),
+  'legacy saves receive an eligible default rather than an invalid fixed call',
+)
 assert.ok(page.includes('data-testid="space-couch-callbacks"'))
 assert.ok(page.includes('v-for="n in VOYAGE_CHAPTERS"'))
 assert.ok(page.includes('nemesisLine'))
@@ -1496,6 +1505,9 @@ function standingOrders(
   policy: 'aid' | 'observe' | 'intervene',
 ) {
   for (;;) {
+    // This baseline intentionally stays on the first offered call to test
+    // a bystander's *chosen* uneventful itinerary, not the random autochart.
+    run = chooseMission(run, VOYAGE_BOARDS[run.chapter - 1]![0]!)
     run = launchMission(staffed(run))
     while (run.phase === 'transit') run = advanceVoyageDay(run)
     run = nextDestination(decidePolicy(run, policy))
@@ -1660,8 +1672,9 @@ function charted(
   let run = startVoyage(captain, crew, seed)
   for (const step of plan) {
     if (run.phase !== 'briefing') return null
-    if (step.at && missionFor(run).id !== step.at) {
-      const charted = chooseMission(run, step.at)
+    const destination = step.at ?? VOYAGE_BOARDS[run.chapter - 1]?.[0]
+    if (destination && missionFor(run).id !== destination) {
+      const charted = chooseMission(run, destination)
       if (charted === run) return null
       run = charted
     }

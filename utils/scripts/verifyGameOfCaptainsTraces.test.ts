@@ -23,6 +23,7 @@ import {
   type VoyageRun,
 } from '../gameOfCaptains/rules'
 import { GALACTIC_ENDINGS } from '../gameOfCaptains/galacticEndings'
+import { VOYAGE_BOARDS } from '../gameOfCaptains/voyageMap'
 import {
   UNCLAIMED_ENDINGS,
   UNCLAIMED_ENDING_CAPTAINS,
@@ -634,7 +635,8 @@ for (const trace of ENDING_TRACES)
     const driver: Driver = {
       name: trace.title,
       order: (run) => trace.plan[run.chapter - 1]?.order ?? 'aid',
-      chart: (run) => trace.plan[run.chapter - 1]?.at,
+      chart: (run) =>
+        trace.plan[run.chapter - 1]?.at ?? VOYAGE_BOARDS[run.chapter - 1]?.[0],
       errand: (run) => {
         const errand = trace.plan[run.chapter - 1]?.errand
         return errand ? [...errand] : null

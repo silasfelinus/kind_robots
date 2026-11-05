@@ -143,7 +143,7 @@ for (let seed = 1; seed <= 12; seed++) {
     chart: (voyage) =>
       destinations.find((id) =>
         VOYAGE_BOARDS[voyage.chapter - 1]?.includes(id),
-      ),
+      ) ?? VOYAGE_BOARDS[voyage.chapter - 1]?.[0],
     authoredChoices: true,
     sideQuests: false,
     errand: () => null,

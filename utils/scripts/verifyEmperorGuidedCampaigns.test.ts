@@ -424,6 +424,13 @@ for (const policyId of ['greedy', 'random', 'marshal', 'reckless']) {
     if ([17, 41].includes(seed)) tally.deathsOnGuidedSeeds += result.deaths
     tally.endings[result.ending] = (tally.endings[result.ending] ?? 0) + 1
   }
+  // Day 41 is the second guided seed, outside the 1..40 risk baseline.
+  // Count it separately without changing the 40-seed comparison denominator.
+  const secondGuidedSeed = playCampaign(policy, 41, undefined, {
+    playTalks: true,
+    playChanceEvents: true,
+  })
+  tally.deathsOnGuidedSeeds += secondGuidedSeed.deaths
   riskSweep.push(tally)
 }
 assert.ok(riskSweep.every((entry) => entry.lethalDispatches > 0))

@@ -244,8 +244,7 @@ for (const captain of CAPTAINS) {
       assert.equal(run.chapter, chapter)
       // This is the legacy first-card fixture. Pin it through the same
       // player chart control; default-route diversity has its own test.
-      if (chapter > 1)
-        run = chooseMission(run, VOYAGE_BOARDS[chapter - 1]![0]!)
+      if (chapter > 1) run = chooseMission(run, VOYAGE_BOARDS[chapter - 1]![0]!)
       assert.ok(missionFor(run).title)
       assert.equal(antagonistFor(run).id, antagonist.id)
       const today = run.day ?? run.chapter

@@ -31,6 +31,19 @@
             Changed city
           </button>
           <button
+            v-if="
+              earth.active === 'e03' &&
+              earth.position === '6,2' &&
+              earth.e03Choices['6,2']
+            "
+            type="button"
+            class="btn btn-sm btn-soft btn-accent"
+            data-testid="memory-enter-sublevel"
+            @click="emit('sublevel')"
+          >
+            Enter Sublevel B
+          </button>
+          <button
             v-if="earth.active === 'e04' && earth.completed"
             type="button"
             class="btn btn-sm btn-soft btn-secondary"
@@ -269,7 +282,7 @@ import { onMounted } from 'vue'
 import { useMemoryEarthStore } from '~/stores/memoryEarthStore'
 import type { OverworldKind } from '~/utils/memoryDungeon/overworldEventCatalog'
 
-const emit = defineEmits<{ leave: []; sea: [] }>()
+const emit = defineEmits<{ leave: []; sea: []; sublevel: [] }>()
 const earth = useMemoryEarthStore()
 
 function symbolFor(kind: OverworldKind): string {

@@ -22,9 +22,16 @@ for (const module of ['flags', 'capitals'] as const) {
   assert.equal(new Set(first.options.map((option) => option.id)).size, 4)
   assert.ok(first.options.some((option) => option.id === first.correctId))
   const next = geographyQuestion(module, 9, first.id, () => 0)
-  assert.notEqual(next.id, first.id, 'repeated questions rotate when alternatives exist')
+  assert.notEqual(
+    next.id,
+    first.id,
+    'repeated questions rotate when alternatives exist',
+  )
 }
-assert.equal(geographyQuestion('capitals', 0, null, () => 0).correctId, 'Montgomery')
+assert.equal(
+  geographyQuestion('capitals', 0, null, () => 0).correctId,
+  'Montgomery',
+)
 assert.match(geographyQuestion('flags', 0, null, () => 0).hero, /[🇦-🇿]/u)
 
 const cards = [
@@ -34,7 +41,13 @@ const cards = [
   { key: 'd', simplified: '书', pinyin: 'shū', meaning: 'book', hskLevel: 1 },
   { key: 'e', simplified: '火', pinyin: 'huǒ', meaning: 'fire', hskLevel: 1 },
   { key: 'f', simplified: '人', pinyin: 'rén', meaning: 'person', hskLevel: 1 },
-  { key: 'g', simplified: '山', pinyin: 'shān', meaning: 'mountain', hskLevel: 1 },
+  {
+    key: 'g',
+    simplified: '山',
+    pinyin: 'shān',
+    meaning: 'mountain',
+    hskLevel: 1,
+  },
 ] as MandarinCard[]
 const q = mandarinQuestion(cards[0]!, cards, () => 0)
 assert.equal(q.module, 'mandarin')
@@ -48,7 +61,11 @@ assert.equal(start?.key, 'a')
 assert.equal(mandarinFrontier(cards, {}, 'a', 0, () => 0)?.key, 'b')
 assert.equal(mandarinFrontier(cards, {}, null, 2, () => 0)?.key, 'a')
 const due = { b: { repetitions: 1, dueAt: '2020-01-01T00:00:00Z' } }
-assert.equal(mandarinFrontier(cards, due, null, 0, () => 0)?.key, 'b', 'due reviews outrank new words')
+assert.equal(
+  mandarinFrontier(cards, due, null, 0, () => 0)?.key,
+  'b',
+  'due reviews outrank new words',
+)
 
 const store = readFileSync('stores/rulerHookedStore.ts', 'utf8')
 assert.match(
@@ -56,11 +73,30 @@ assert.match(
   /function landQuizFish\(\)[\s\S]*?advanceFishing\(\{[\s\S]*?stage: 'LANDED'/,
   'quiz successes must use the same fish reward/turn transition',
 )
-const lake = readFileSync('components/ruler-hooked/ruler-hooked-lake-screen.vue', 'utf8')
+const lake = readFileSync(
+  'components/ruler-hooked/ruler-hooked-lake-screen.vue',
+  'utf8',
+)
 assert.match(lake, /<RulerHookedQuizEncounter[\s\S]*?quiz\.mode === 'quiz'/)
-assert.match(lake, /<RulerHookedFishingEncounter[\s\S]*?v-else-if="store.activeFishing"/)
-const quiz = readFileSync('components/ruler-hooked/ruler-hooked-quiz-encounter.vue', 'utf8')
-assert.match(quiz, /<KrChoiceHand/, 'the challenge uses the shared animated-card choice system')
-assert.match(quiz, /quiz\.finishIntroduction\(\)/, 'new words are introduced before recall')
+assert.match(
+  lake,
+  /<RulerHookedFishingEncounter[\s\S]*?v-else-if="store.activeFishing"/,
+)
+const quiz = readFileSync(
+  'components/ruler-hooked/ruler-hooked-quiz-encounter.vue',
+  'utf8',
+)
+assert.match(
+  quiz,
+  /<KrChoiceHand/,
+  'the challenge uses the shared animated-card choice system',
+)
+assert.match(
+  quiz,
+  /quiz\.finishIntroduction\(\)/,
+  'new words are introduced before recall',
+)
 assert.match(quiz, /tutor\.speak/, 'Mandarin offers tutor audio')
-console.log('Quiz-to-catch: geography, Mandarin frontier, rewards, and console wiring passed.')
+console.log(
+  'Quiz-to-catch: geography, Mandarin frontier, rewards, and console wiring passed.',
+)

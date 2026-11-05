@@ -2,10 +2,10 @@ export const BRIAR_COLLISION_SCENES = {
   '2,2': {
     fragment: 'briar-office-key',
     title: 'The Briar Office Key',
-    speaker: 'Pip and Mara',
+    speaker: 'Rowan, Pip and Mara',
     kind: 'challenge',
     opening:
-      'The House That Remembers has acquired a fluorescent accounting floor. Each midnight, the corridor folds back into a wolf road. Mara can prove which night-shift workers are trapped, but the wolf patrol calls their badges stolen names. Pip can translate the old oaths, while Mara holds the private roster. Two matching time stamps on the clock and timecard reveal the shrinking emergency stair.',
+      'The House That Remembers has acquired a fluorescent accounting floor. Each midnight, the corridor folds back into a wolf road. Mara can prove which night-shift workers are trapped, but the wolf patrol calls their badges stolen names. Rowan coordinates the evacuation; Pip can translate the old oaths, while Mara holds the private roster. Two matching time stamps on the clock and timecard reveal the shrinking emergency stair.',
     artSubject:
       'Pip and night-shift guard Mara in a fluorescent office grown through a dark Briar forest, a wolf captain blocking a contracting stair, two visible matching clock stamps',
     choices: [
@@ -13,7 +13,7 @@ export const BRIAR_COLLISION_SCENES = {
         id: 'translate-shift-oath',
         label: 'Translate the shift roster into a one-night wolf-road oath',
         outcome:
-          'Mara asks each worker for consent. Pip signs on for an extra watch, and the wolf opens the guarded stair. The workers escape with their names intact, but Pip owes the captain an escort shift.',
+          'Mara asks each worker for consent. Rowan negotiates the evacuation terms while Pip signs on for an extra watch, and the wolf opens the guarded stair. The workers escape with their names intact, but Pip owes the captain an escort shift.',
         flag: 'briar-office-night-oath',
         effects: { supplies: -1, trust: 2 },
         artSubject:
@@ -23,7 +23,7 @@ export const BRIAR_COLLISION_SCENES = {
         id: 'redact-and-witness',
         label: 'Share the head count, not the workers’ private names',
         outcome:
-          'Mara publishes an anonymous count and Pip witnesses each departure. The wolf accepts the evacuation, but the slow verification leaves the corridor contracting for another watch.',
+          'Rowan authorizes a privacy-preserving evacuation: Mara publishes an anonymous count and Pip witnesses each departure. The wolf accepts the evacuation, but the slow verification leaves the corridor contracting for another watch.',
         flag: 'briar-office-redacted-witness',
         effects: { evidence: 1, danger: 1 },
         artSubject:
@@ -33,11 +33,11 @@ export const BRIAR_COLLISION_SCENES = {
         id: 'break-midnight-clock',
         label: 'Break the midnight clock and evacuate immediately',
         outcome:
-          'The looping corridor stops and the workers escape. The destroyed timecards leave a payroll dispute; Mara must rebuild the record from testimony instead of magically recovering the archive.',
+          'Rowan breaks the midnight clock. The looping corridor stops and the workers escape. The destroyed timecards leave a payroll dispute; Mara must rebuild the record from testimony instead of magically recovering the archive.',
         flag: 'briar-office-clock-broken',
         effects: { trust: 1, evidence: -1, danger: 1 },
         artSubject:
-          'Pip shatters a forest-grown office clock as workers hurry through a splintering fluorescent hallway',
+          'Rowan shatters a forest-grown office clock as workers hurry through a splintering fluorescent hallway',
       },
     ],
   },

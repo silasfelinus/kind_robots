@@ -1,5 +1,5 @@
 import type { Grade } from './rules'
-import { expandedMissionFor } from './expandedNightCases'
+import { EXPANDED_NIGHT_MORNINGS } from './expandedNightMornings'
 
 export type MorningGrade = Grade | 'refused'
 
@@ -151,7 +151,6 @@ export function nightCaseMorning(
   grade: Grade,
   wasUnanswered: boolean,
 ): string | null {
-  const original = EARLY_NIGHT_MORNINGS[id]
-  if (original) return original[wasUnanswered ? 'refused' : grade]
-  return expandedMissionFor(id)?.morning ?? null
+  const mornings = EARLY_NIGHT_MORNINGS[id] ?? EXPANDED_NIGHT_MORNINGS[id]
+  return mornings ? mornings[wasUnanswered ? 'refused' : grade] : null
 }

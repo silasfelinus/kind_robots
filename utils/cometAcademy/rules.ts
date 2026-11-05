@@ -110,7 +110,10 @@ import { returnVisitFor } from './returnVisits'
 import { realNightCase } from './nightCases'
 import { nightCaseMorning } from './earlyNightMornings'
 import {
+  DISTRICT_WITNESSES,
+  caseThread,
   caseTrustModifier,
+  districtRecordFor,
   recordCaseNight,
   validCaseHistory,
   type CaseMemory,
@@ -1687,6 +1690,35 @@ export function villainInterference(run: AcademyRun, incident: Incident) {
     : 0
 }
 
+/** A dispatch-board callback to the district's last recorded call. It names
+ * that call and states the exact district-trust change a personal
+ * investigation would receive, so the hidden modifier is never a surprise. */
+export function districtMemory(
+  run: AcademyRun,
+  incidentId: string,
+): string | null {
+  if (run.flowVersion !== 3) return null
+  const thread = caseThread(incidentId)
+  const record = districtRecordFor(run.caseHistory, run.day, incidentId)
+  if (!thread || !record) return null
+  const title =
+    COMPLETE_NIGHT_DECK.find((entry) => entry.id === record.caseId)?.title ??
+    'the last call'
+  const witnesses = DISTRICT_WITNESSES[thread][
+    record.unanswered ? 'refused' : record.grade
+  ].replace('{case}', title)
+  const trust = expandedMissionFor(incidentId)
+    ? caseTrustModifier(run.caseHistory, run.day, incidentId)
+    : 0
+  const odds =
+    trust > 0
+      ? ` Leading the investigation yourself gains +${trust} from district trust.`
+      : trust < 0
+        ? ` Leading the investigation yourself costs ${-trust} from district distrust.`
+        : ''
+  return `Night ${record.day}: ${witnesses}${odds}`
+}
+
 /** Name the mastermind from the first-week omens. One accusation per term:
  * the right name breaks the interference and steadies the city; a wrong
  * name sends investigators after the wrong person while the real plot grows. */
@@ -2315,7 +2347,7 @@ export function nextSchoolDay(run: AcademyRun): AcademyRun {
     scene: storyMorning
       ? `The next bell rings. ${storyMorning}`
       : morningMemory
-        ? `The next bell rings. ${morningMemory} Last night, the outcome was recorded as ${morningReport!.grade}.`
+        ? `The next bell rings. ${morningMemory} Last night, the outcome was recorded as ${morningReport!.names === 'No team dispatched' ? 'unanswered' : morningReport!.grade}.`
         : run.patrolHistory?.at(-1)?.day === run.day
           ? `The next bell rings. Your overnight decision has become a morning argument: ${run.reports.find((report) => report.caseId.startsWith('patrol-'))?.text ?? 'The neighborhood remembers who came.'}`
           : run.missionClues?.length &&

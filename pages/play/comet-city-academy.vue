@@ -865,6 +865,14 @@
                         : incident.briefing
                     }}
                   </p>
+                  <p
+                    v-if="districtMemory(run, incident.id)"
+                    class="cca-district-memory"
+                    data-testid="academy-district-memory"
+                  >
+                    <strong>DISTRICT MEMORY</strong>
+                    {{ districtMemory(run, incident.id) }}
+                  </p>
                   <div
                     v-if="run.patrolOpening === 1 && run.day === 3"
                     class="cca-report-mini"
@@ -1496,6 +1504,7 @@ import {
   socialContextFor,
   encounterFor,
   dispatchChance,
+  districtMemory,
   knownContacts,
   nightPatrolBeat,
   patrolOptionsFor,
@@ -3146,6 +3155,18 @@ function toggleStudent(caseId: string, id: StudentId): void {
   color: #93c9d0;
   font-weight: 800;
   font-size: 0.58rem;
+  letter-spacing: 0.1em;
+}
+.cca-incident .cca-district-memory {
+  border-left: 2px solid #93c9d0;
+  padding-left: 0.55rem;
+  color: #b5cddc;
+  font-size: 0.7rem;
+}
+.cca-district-memory strong {
+  display: block;
+  color: #f6c89e;
+  font-size: 0.6rem;
   letter-spacing: 0.1em;
 }
 .cca-incident p,

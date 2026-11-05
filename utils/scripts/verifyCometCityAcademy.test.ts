@@ -35,6 +35,7 @@ import {
 } from '../cometAcademy/districtEncounters'
 import { REAL_NIGHT_CASES, realNightCase } from '../cometAcademy/nightCases'
 import { FINAL_NIGHT_MISSIONS } from '../cometAcademy/finalNightCases'
+import { nightCaseMorning } from '../cometAcademy/earlyNightMornings'
 import {
   EXPANDED_MISSIONS,
   FIRST_WAVE_MISSIONS,
@@ -2320,7 +2321,6 @@ for (const mission of FINAL_NIGHT_MISSIONS) {
       ),
     )
   assert.ok(day, `${incident.id} must appear during the campaign`)
-  assert.ok(mission.morning && mission.morning.length > 145)
   assert.equal(new Set(Object.values(mission.consequences)).size, 4)
   const night: AcademyRun = { ...starting, day: day!, phase: 'dispatch' }
   const led = assignPlayerCase(night, incident.id)
@@ -2342,7 +2342,9 @@ for (const mission of FINAL_NIGHT_MISSIONS) {
   const report = resolved.reports.find((r) => r.caseId === incident.id)!
   assert.ok(report.text.startsWith(mission.consequences[report.grade]))
   const morning = nextSchoolDay(resolved)
-  assert.ok(morning.scene.includes(mission.morning!))
+  assert.ok(
+    morning.scene.includes(nightCaseMorning(incident.id, report.grade, false)!),
+  )
   assert.ok(morning.scene.includes(report.grade))
   assert.ok(restoreAcademy(JSON.parse(JSON.stringify(resolved))))
   assert.ok(restoreAcademy(JSON.parse(JSON.stringify(morning))))

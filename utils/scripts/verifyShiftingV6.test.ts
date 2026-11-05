@@ -215,8 +215,8 @@ assert.match(
 )
 assert.match(
   v6Choice('no-fever-past-the-rope', 'brew-a-fever-draught').failure!.text,
-  /most of your herbs/,
-  'deed-carries-medicine survives the failure, so the herbs are not all gone',
+  /the last of your herbs/,
+  'the failed draught spends deed-carries-medicine (t-049), so the herbs are gone',
 )
 for (const [cardId, choiceId, owed] of [
   [
@@ -285,13 +285,18 @@ assert.match(
 )
 assert.match(
   v6Choice('two-cots-one-draught', 'open-your-own-medicine').success.text,
-  /nearly empty/,
-  'deed-carries-medicine survives the dose, so the pouch is not empty',
+  /Your pouch is empty now/,
+  'the dose spends deed-carries-medicine (t-049), so the pouch is empty',
+)
+assert.doesNotMatch(
+  v6Choice('two-cots-one-draught', 'open-your-own-medicine').risk,
+  /Most of what/,
+  'the risk does not promise medicine left over once the pouch is spent',
 )
 assert.doesNotMatch(
   v6Choice('the-creditors-tally-sticks', 'sign-over-a-debt-owed-you').risk,
   /owed nothing/,
-  'deed-owed-favor survives the trade, so the risk does not promise otherwise',
+  'the trade spends deed-owed-favor (t-049); the risk names whose debt it becomes',
 )
 assert.doesNotMatch(
   v6Choice('a-promise-kept', 'help-search-for-its-owner').failure!.text,

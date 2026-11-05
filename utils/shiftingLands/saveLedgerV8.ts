@@ -1,3 +1,8 @@
+import {
+  adoptSpentDeeds,
+  spentDeedsFromSave,
+  withSpentDeedsFrom,
+} from './deckV6'
 import { sameReplay } from './saveLedger'
 import {
   newJourneyLedgerV7,
@@ -71,9 +76,14 @@ export function restoreJourneyLedgerV8(value: unknown): JourneyLedgerV8 | null {
     !saved.current
   )
     return null
+  const spentDeedsFrom = spentDeedsFromSave(saved.current)
+  if (spentDeedsFrom === null) return null
   try {
     if (JSON.stringify(value).length > 700_000) return null
-    let rebuilt = fresh
+    let rebuilt = {
+      ...fresh,
+      current: withSpentDeedsFrom(fresh.current, spentDeedsFrom),
+    }
     for (const action of saved.actions) {
       const next = stepJourneyLedgerV8(rebuilt, action)
       if (next === rebuilt) return null
@@ -87,7 +97,7 @@ export function restoreJourneyLedgerV8(value: unknown): JourneyLedgerV8 | null {
       JSON.stringify(rebuilt.prepared) !== JSON.stringify(saved.prepared)
     )
       return null
-    return rebuilt
+    return { ...rebuilt, current: adoptSpentDeeds(rebuilt.current) }
   } catch {
     return null
   }

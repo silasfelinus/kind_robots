@@ -277,3 +277,37 @@ because saves replay against the old draw pools.
 Balance at merge (400 seeds per policy, see t-035): V5 random play wins
 29%; V6 random 40%, cautious 45%, ruthless 46%, kind 28%. Kindness costs
 you, by design; t-034's endings are where it is meant to pay.
+
+## Spent deeds (t-049, 2026-11-05)
+
+Medicine and a favor owed are things you carry, not things you are. A route
+gated on `deed-carries-medicine` or `deed-owed-favor` now spends it, win or
+lose, and every route gated on it closes ("Already spent. Opens again only
+if you carry medicine.") until a later outcome hands you another. Comparing
+herbs at the old well is a trade and spends nothing. The other eight deed
+flags describe who you have been and never close. The board marks a
+spending route with "spends your medicine" or "spends a favor", and the
+journal line says when it is gone.
+
+- **Rules** (`deckV6.ts`): `SPENDABLE_DEEDS`, `choiceSpends` and
+  `deedHeld` derive spending from the recorded outcomes, so a run's state
+  gains one field and the deck file is untouched. The V6 deck fingerprint
+  and `schemaVersion: 1` stay as they were, and no save is turned away for
+  a deck version change.
+- **Saves**: `JourneyStateV6.spentDeedsFrom` is the outcome count from
+  which spent deeds close their routes. New runs start at 0. A V6–V9 save
+  written before t-049 has no field: it replays under the rules it was
+  played by, is checked exactly as before, then adopts the rule from its
+  next outcome on. Deeds it already used stay used. A count below 0, not
+  a whole number or past the recorded outcomes is refused, and a save that
+  claims the new rule cannot hide a double spend, because replay refuses
+  the second one. Removing the field only gives a save the old rule for
+  the history it already recorded.
+
+`verifyShiftingSpentDeeds.test.ts` pins the eleven spending routes and plays
+3,000 seeded V9 runs across five policies. Each deed is spent at most once
+per acquisition, spent routes close and reopen only on re-acquisition, and
+the same seeds under the old rule show the double spends it allowed. Exact
+replay, prose-tolerant restore and forged dice still hold. Old V6, V7, V8
+and V9 saves that spent a deed twice still load, and every ending reached
+under the old rule is still reached.

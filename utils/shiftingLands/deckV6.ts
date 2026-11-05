@@ -51,6 +51,30 @@ export const DEED_FLAGS: Readonly<Record<string, string>> = {
   'deed-left-someone': 'you walked away from someone who needed you',
 }
 
+// zuzu-shifting-lands/t-049: spent deeds. Medicine and a favor owed are
+// things you carry, not things you are. A route gated on one spends it, win or
+// lose, and closes again until a later outcome hands you another. `price` is
+// the board's chip and `gone` the journal line written when it goes. The rule
+// lives here, not in authoredDecksV6.json, so the deck fingerprint and
+// schemaVersion (and every save that replays against them) stay unchanged.
+export const SPENDABLE_DEEDS: Readonly<
+  Record<string, { price: string; gone: string }>
+> = {
+  'deed-carries-medicine': {
+    price: 'spends your medicine',
+    gone: 'Your medicine is gone.',
+  },
+  'deed-owed-favor': {
+    price: 'spends a favor',
+    gone: 'That favor is spent.',
+  },
+}
+// Gated routes that show a spendable deed without spending it: comparing
+// herbs is a trade, and a failed one leaves your pouch where it was.
+const KEEPS_DEED: ReadonlySet<string> = new Set([
+  'a-cup-offered/compare-herbs-with-her',
+])
+
 export type V6Effect = AuthoredEffect & { marks?: Partial<Marks> }
 export type V6Choice = {
   id: string
@@ -131,6 +155,17 @@ export function v6Pool(locationId: string): readonly V6Card[] {
   return pools.get(locationId) ?? []
 }
 
+// The spendable deeds this route uses up when taken, success or failure.
+export function choiceSpends(
+  cardId: string,
+  choice: Pick<V6Choice, 'id' | 'requires'>,
+): string[] {
+  if (KEEPS_DEED.has(`${cardId}/${choice.id}`)) return []
+  return (choice.requires?.anyFlags ?? []).filter((flag) =>
+    Object.hasOwn(SPENDABLE_DEEDS, flag),
+  )
+}
+
 const BASE_SKILLS: Record<Skill, number> = {
   steel: 3,
   awareness: 2,
@@ -159,6 +194,12 @@ export type JourneyStateV6 = {
   outcomes: V6Result[]
   flags: string[]
   marks: Marks
+  // t-049: the outcome count from which a spent deed closes its routes. New
+  // runs start at 0. Saves written before t-049 have no field; they replay
+  // under the rules they were played by and adopt the count they reached
+  // (adoptSpentDeeds), so their recorded history never changes. Keep it the
+  // last key: replay compares states as JSON.
+  spentDeedsFrom?: number
 }
 export type ActionV6 =
   { type: 'TRAVEL'; locationId: string } | { type: 'CHOOSE'; choiceId: string }
@@ -173,7 +214,66 @@ export function newJourneyV6(seed: number): JourneyStateV6 {
     outcomes: [],
     flags: [],
     marks: { mercy: 0, honesty: 0, courage: 0, cunning: 0, ruthlessness: 0 },
+    spentDeedsFrom: 0,
   }
+}
+
+// Whether you still carry a deed. Ordinary deeds are who you have been and
+// never go. A spendable deed is held after the latest outcome that granted it,
+// until a route spends it; every outcome counts, including those recorded
+// before spent deeds applied, so an adopted save remembers what it used. A
+// deed granted outside the encounter history counts as held from the start.
+export function deedHeld(state: JourneyStateV6, flag: string): boolean {
+  if (!state.flags.includes(flag)) return false
+  if (!Object.hasOwn(SPENDABLE_DEEDS, flag)) return true
+  let held = !state.outcomes.some((outcome) => outcome.flags.includes(flag))
+  for (const outcome of state.outcomes) {
+    const choice = cards
+      .get(outcome.encounterId)
+      ?.choices.find((item) => item.id === outcome.choiceId)
+    if (choice && choiceSpends(outcome.encounterId, choice).includes(flag))
+      held = false
+    if (outcome.flags.includes(flag)) held = true
+  }
+  return held
+}
+
+const spentDeedsApply = (state: JourneyStateV6): boolean =>
+  typeof state.spentDeedsFrom === 'number' &&
+  state.outcomes.length >= state.spentDeedsFrom
+
+// Restore support for t-049. Returns the saved count, undefined for a save
+// written before spent deeds existed, or null when the value is forged out of
+// range (a count past the recorded outcomes would postpone the rule).
+export function spentDeedsFromSave(
+  current: unknown,
+): number | undefined | null {
+  if (!current || typeof current !== 'object') return null
+  const saved = current as { spentDeedsFrom?: unknown; outcomes?: unknown }
+  if (!Object.hasOwn(saved, 'spentDeedsFrom')) return undefined
+  const from = saved.spentDeedsFrom
+  return typeof from === 'number' &&
+    Number.isSafeInteger(from) &&
+    from >= 0 &&
+    Array.isArray(saved.outcomes) &&
+    from <= saved.outcomes.length
+    ? from
+    : null
+}
+
+export function withSpentDeedsFrom(
+  state: JourneyStateV6,
+  from: number | undefined,
+): JourneyStateV6 {
+  const { spentDeedsFrom: _previous, ...rest } = state
+  return from === undefined ? rest : { ...rest, spentDeedsFrom: from }
+}
+
+// A verified pre-t-049 run adopts spent deeds from its next outcome on.
+export function adoptSpentDeeds(state: JourneyStateV6): JourneyStateV6 {
+  return state.spentDeedsFrom === undefined
+    ? { ...state, spentDeedsFrom: state.outcomes.length }
+    : state
 }
 
 export function activeV6Card(state: JourneyStateV6): V6Card | null {
@@ -205,12 +305,15 @@ export function choiceLock(
   choice: V6Choice,
 ): string | null {
   const gate = choice.requires?.anyFlags ?? []
-  if (gate.length && !gate.some((flag) => state.flags.includes(flag)))
-    return (
-      'Opens only if ' +
-      gate.map((flag) => DEED_FLAGS[flag] ?? flag).join(', or ') +
-      '.'
-    )
+  const holds = spentDeedsApply(state)
+    ? (flag: string) => deedHeld(state, flag)
+    : (flag: string) => state.flags.includes(flag)
+  if (gate.length && !gate.some(holds)) {
+    const needs = gate.map((flag) => DEED_FLAGS[flag] ?? flag).join(', or ')
+    return gate.some((flag) => state.flags.includes(flag))
+      ? `Already spent. Opens again only if ${needs}.`
+      : `Opens only if ${needs}.`
+  }
   const provisions = choice.cost?.provisions ?? 0
   if (state.journey.provisions + provisions < 0)
     return `Costs ${-provisions} provision${provisions === -1 ? '' : 's'}; you have ${state.journey.provisions}.`
@@ -288,13 +391,17 @@ function chooseV6(state: JourneyStateV6, choiceId: string): JourneyStateV6 {
   const check = roll
     ? `${roll.dice.join(' + ')} + ${roll.modifier} = ${roll.total} vs ${roll.difficulty}. `
     : ''
+  const spent = choiceSpends(card.id, choice)
+    .filter((flag) => !consequence.add_flags.includes(flag))
+    .map((flag) => ' ' + SPENDABLE_DEEDS[flag]!.gone)
+    .join('')
   const journal: JourneyLog[] = [
     ...before.journal,
     {
       turn,
       kind: 'encounter',
       landId: land.id,
-      text: `${card.title}: ${choice.label}. ${check}${consequence.text}`,
+      text: `${card.title}: ${choice.label}. ${check}${consequence.text}${spent}`,
     },
   ]
   const layouts = { ...advanced.layouts }
@@ -474,6 +581,11 @@ export function validateDeckV6(): string[] {
       for (const flag of choice.requires?.anyFlags ?? [])
         if (!Object.hasOwn(DEED_FLAGS, flag))
           errors.push(`${where}: gate on non-deed flag ${flag}`)
+      if (
+        choiceSpends(card.id, choice).length &&
+        choice.requires!.anyFlags.length !== 1
+      )
+        errors.push(`${where}: a spending route gates on one deed only`)
       if (choice.requires && !choice.requires.anyFlags.length)
         errors.push(`${where}: empty gate`)
       const cost = choice.cost ?? {}
@@ -497,6 +609,18 @@ export function validateDeckV6(): string[] {
           errors.push(`${where}: effect out of range`)
       }
     }
+  }
+  for (const key of KEEPS_DEED) {
+    const [cardId, choiceId] = key.split('/')
+    const choice = cards
+      .get(cardId!)
+      ?.choices.find((item) => item.id === choiceId)
+    if (
+      !choice?.requires?.anyFlags.some((flag) =>
+        Object.hasOwn(SPENDABLE_DEEDS, flag),
+      )
+    )
+      errors.push(`${key}: kept deed names no route gated on a spendable deed`)
   }
   return errors
 }

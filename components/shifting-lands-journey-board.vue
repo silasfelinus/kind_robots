@@ -1530,6 +1530,7 @@ function priceOf(choice: ShownChoice): string[] {
     prices.push(
       `${cost.provisions} provision${cost.provisions === -1 ? '' : 's'}`,
     )
+  if ('requires' in choice) prices.push(...game.spendsFor(choice as V6Choice))
   return prices
 }
 function toggleCheckTip(id: string): void {

@@ -285,12 +285,12 @@
                 family.phonetic
               }}</span>
               <span class="kr-text-semibold-sm">
-                also builds {{ family.members.length }}
-                {{ family.members.length === 1 ? 'other card' : 'other cards' }}
+                also appears in {{ family.members.length }} other
+                {{ family.members.length === 1 ? 'character' : 'characters' }}
                 in the catalog
               </span>
               <span v-if="family.drifted" class="kr-badge-warning-xs">
-                readings have drifted apart
+                modern readings differ
               </span>
             </div>
 
@@ -298,10 +298,10 @@
               v-if="family.drifted"
               class="kr-text-faded-xs mt-1 leading-relaxed"
             >
-              These share a sound component but no longer share a reading ({{
-                family.readings.join(', ')
-              }}). That is history showing through, not an error: the component
-              records how the character sounded when it was coined.
+              These characters use the same phonetic component, but their current
+              syllables differ ({{ family.readings.join(', ') }}). A shared
+              component can preserve an older sound relationship; modern
+              readings alone do not establish when or how pronunciation changed.
             </p>
 
             <div

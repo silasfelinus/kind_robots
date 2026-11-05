@@ -15,6 +15,19 @@
         </h2>
         <div class="md-bar-actions">
           <button
+            v-if="
+              sea.active === 'e05' &&
+              sea.position === '4,6' &&
+              sea.e05Choices['4,6']
+            "
+            type="button"
+            class="btn btn-sm btn-soft btn-accent"
+            data-testid="memory-enter-works"
+            @click="emit('works')"
+          >
+            Enter the Breathing Works
+          </button>
+          <button
             v-if="sea.e06Unlocked && sea.active === 'e06'"
             type="button"
             class="btn btn-sm btn-ghost"
@@ -262,7 +275,7 @@ import { onMounted } from 'vue'
 import { useMemorySeaStore } from '~/stores/memorySeaStore'
 import type { OverworldKind } from '~/utils/memoryDungeon/overworldEventCatalog'
 
-const emit = defineEmits<{ leave: [] }>()
+const emit = defineEmits<{ leave: []; works: [] }>()
 const sea = useMemorySeaStore()
 
 function symbolFor(kind: OverworldKind): string {

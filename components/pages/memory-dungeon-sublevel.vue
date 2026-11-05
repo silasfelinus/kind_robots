@@ -135,7 +135,7 @@
           class="md-room relative flex min-h-[6rem] flex-[1_1_42%] flex-col justify-end overflow-hidden border-b border-[#7d8b8f]/40 p-3"
         >
           <div
-            class="relative max-w-[42rem] rounded-lg bg-[#0e151b]/85 p-3 backdrop-blur-sm"
+            class="relative flex max-h-full min-h-0 max-w-[42rem] flex-col rounded-lg bg-[#0e151b]/85 p-3 backdrop-blur-sm"
           >
             <p
               class="mb-1 text-[10px] font-black uppercase tracking-[.17em] text-[#d7c99a]"
@@ -146,7 +146,7 @@
               {{ sub.room.title }}
             </h3>
             <p
-              class="kr-scroll mt-2 max-h-28 overflow-auto text-xs leading-relaxed sm:text-sm"
+              class="kr-scroll mt-2 max-h-28 min-h-0 flex-1 overflow-auto text-xs leading-relaxed sm:text-sm"
               data-testid="memory-sublevel-opening"
             >
               {{ sub.opening }}

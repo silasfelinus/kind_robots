@@ -355,6 +355,194 @@ export function migrateFoundEndings(
   return { ...archive, milestones }
 }
 
+export type EndingCommendation = {
+  title: string
+  icon: string
+  /** Read on the first completion filed under this ending. */
+  first: string
+  /** Read on every later completion; `{nth}` becomes "2nd", "3rd"... */
+  repeat: string
+}
+
+/**
+ * Every ending files its own commendation, so the ceremony after a repeat run
+ * celebrates the ending you just reached instead of replaying the oldest
+ * award in the archive.
+ */
+export const ENDING_COMMENDATIONS: Record<string, EndingCommendation> = {
+  'employee-of-the-month': {
+    title: 'Elevator Portrait',
+    icon: 'kind-icon:crown',
+    first:
+      'Your portrait goes up in every elevator. Facilities has been told to keep the nails.',
+    repeat:
+      'Your portrait is hung for the {nth} time. Facilities has stopped taking the nails out.',
+  },
+  'promoted-to-management': {
+    title: 'Self-Approved Commendation',
+    icon: 'kind-icon:briefcase',
+    first:
+      'As your own supervisor, you may now approve this commendation. You did, promptly.',
+    repeat:
+      'Your {nth} promotion into the same chair. HR has opened a folder for your folders.',
+  },
+  'escape-through-the-ducts': {
+    title: 'Unauthorized Exit, Approved',
+    icon: 'kind-icon:arrow-up',
+    first:
+      'Your escape is filed as a lateral move. Your badge still opens the storm drain.',
+    repeat:
+      'Your {nth} escape on record. Facilities has installed a coat hook in the duct, for you.',
+  },
+  'roach-union-general-strike': {
+    title: 'Local 9 Card, Laminated',
+    icon: 'kind-icon:bullhorn',
+    first:
+      'The Union laminates your card by hand. Gus signs it with the good pen.',
+    repeat:
+      'Your {nth} walkout with Local 9. Your card has a seniority stripe now, and the Board has stopped scheduling day twelve.',
+  },
+  'society-coup': {
+    title: 'Founding Member',
+    icon: 'kind-icon:mask',
+    first:
+      "The new regime's first motion: frame this. Carried unanimously, under its own name.",
+    repeat:
+      'Your {nth} coup passes in committee. The minutes now just say "as usual."',
+  },
+  whistleblower: {
+    title: 'Exhibit of the Month',
+    icon: 'kind-icon:document',
+    first:
+      'The uncut reel is filed as Exhibit A. You are filed as Exhibit B, which is still a promotion.',
+    repeat:
+      'Your {nth} leak. Legal has stopped asking how and started asking when.',
+  },
+  'early-retirement': {
+    title: 'Pension, Painted On',
+    icon: 'kind-icon:coffee',
+    first:
+      'Your pension is painted on the wall beside the island. The steward says it is very generous.',
+    repeat:
+      'Your {nth} retirement. The steward remembers your drink, and the island has been repainted a little warmer.',
+  },
+  'the-kind-rewrite': {
+    title: 'Greeted by Name',
+    icon: 'kind-icon:heart',
+    first:
+      'PAL says your name the way the blueprint asked. Kevin, from Tank Nine, says it too.',
+    repeat:
+      'PAL greets you by name for the {nth} time and does not repeat a single word back. That is the award.',
+  },
+  'position-eliminated': {
+    title: 'Redundancy, Redundantly',
+    icon: 'kind-icon:archive',
+    first:
+      'Your desk is now a collaboration hub. You are thanked in the passive voice.',
+    repeat:
+      'Eliminated for the {nth} time. HR has made your exit paperwork a template, in your honor.',
+  },
+  'posthumous-affairs': {
+    title: 'Deceased in Advance',
+    icon: 'kind-icon:ghost',
+    first:
+      'The afterlife clerk stamps your elimination RECEIVED. Being dead early has finally paid off.',
+    repeat:
+      'Your {nth} arrival at Posthumous Affairs. The clerk no longer asks for ID and has started saving your desk.',
+  },
+  'permanent-adjournment': {
+    title: 'Tabled Indefinitely',
+    icon: 'kind-icon:clock',
+    first:
+      'Your case is carried forward to the next meeting, which is also this one.',
+    repeat:
+      'Adjourned for the {nth} time. The minutes read "see previous minutes," with your name underlined.',
+  },
+}
+
+/** 1st, 2nd, 3rd, 4th ... 11th, 12th, 13th ... 21st. */
+export function ordinal(n: number): string {
+  const tens = n % 100
+  if (tens >= 11 && tens <= 13) return n + 'th'
+  const suffix = ['th', 'st', 'nd', 'rd'][n % 10] ?? 'th'
+  return n + suffix
+}
+
+export type CeremonyAward = {
+  kind: 'milestone' | 'ending-first' | 'ending-repeat' | 'previous'
+  title: string
+  /** The small caps line above the title. */
+  status: string
+  /** The commendation itself; empty for a previously filed distinction. */
+  line: string
+  icon: string
+  /** How many times this ending is on file, counting this completion. */
+  filings: number
+}
+
+/**
+ * The award a finished run's Personnel File presents. A newly earned
+ * milestone always wins. Otherwise the ending files its own commendation,
+ * counted from this completion's place in the archive so a reload keeps the
+ * same count rather than climbing.
+ */
+export function ceremonyAwardFor(
+  archive: RewardArchive,
+  endingId: string | null | undefined,
+  receiptId: string | null | undefined,
+  newlyEarned: readonly string[],
+): CeremonyAward | null {
+  const fresh = MILESTONES.filter((m) => newlyEarned.includes(m.id))
+  const filedHere = endingId
+    ? archive.runs.filter((run) => run.endingId === endingId)
+    : []
+  const at = filedHere.findIndex((run) => run.id === receiptId)
+  const filings = Math.max(1, at >= 0 ? at + 1 : filedHere.length)
+  if (fresh[0])
+    return {
+      kind: 'milestone',
+      title: fresh[0].title,
+      status:
+        fresh.length +
+        ' new distinction' +
+        (fresh.length === 1 ? '' : 's') +
+        ' earned',
+      line: fresh[0].detail,
+      icon: fresh[0].icon,
+      filings,
+    }
+  const commendation = endingId ? ENDING_COMMENDATIONS[endingId] : undefined
+  if (commendation)
+    return filings > 1
+      ? {
+          kind: 'ending-repeat',
+          title: commendation.title,
+          status: 'Refiled · ' + ordinal(filings) + ' time',
+          line: commendation.repeat.replace('{nth}', ordinal(filings)),
+          icon: commendation.icon,
+          filings,
+        }
+      : {
+          kind: 'ending-first',
+          title: commendation.title,
+          status: 'Ending commendation',
+          line: commendation.first,
+          icon: commendation.icon,
+          filings,
+        }
+  const previous = MILESTONES.find((m) => !!archive.milestones[m.id])
+  return previous
+    ? {
+        kind: 'previous',
+        title: previous.title,
+        status: 'Previously filed distinction',
+        line: '',
+        icon: previous.icon,
+        filings,
+      }
+    : null
+}
+
 /** A repeat completion or restored save must never announce an award again. */
 export function newMilestonesForRun(
   before: RewardArchive,

@@ -2232,6 +2232,35 @@ export const ACT_TWO_DAYS: readonly DayDef[] = [
         speaker: 'A young informant with a bandaged paw',
         faction: 'jackalwire',
         requires: { flags: ['pack-camp-mapped'] },
+        // t-046: what the crown answered at the Day 4 feast.
+        variants: [
+          {
+            flags: ['d04-informant-claimed'],
+            lines: [
+              'She comes up from the Watch fire, not the postern. Twelve nights she has slept beside it since the crown paid her off the wagon wheel. Same paw, same dirty bandage. Her bedroll is under her arm.',
+              'The Pack’s carts come through the main gate every market day, Majesty. They see me at the Watch fire. They wave. That’s worse than the wheel.',
+              'I’m not asking much. A bed in the Yard. A different name. I’ll scrub pots.',
+              {
+                who: 'Young Komodo',
+                npc: 'young-komodo',
+                text: 'The crown paid ten brass for that map, Your Majesty. The price has gone up.',
+              },
+            ],
+          },
+          {
+            flags: ['d04-informant-denied'],
+            lines: [
+              'She comes to the postern at dawn. The Watch nearly turns her away, then knows the bandage. Same paw, same dirty cloth. Rope burns on both wrists, nearly healed.',
+              'You said the crown never paid anyone for anything. They left me on the wheel four days to be sure. Then they cut me loose, because nobody came.',
+              'I’m not asking much. A bed in the Yard. A different name. I’ll scrub pots.',
+              {
+                who: 'Young Komodo',
+                npc: 'young-komodo',
+                text: 'The crown paid ten brass for that map, Your Majesty. The price has gone up.',
+              },
+            ],
+          },
+        ],
         lines: [
           'She comes to the postern at dawn. The Watch nearly turns her away, then knows the bandage. Same paw, same dirty cloth: the young mapmaker who sold the crown a map of the Pack’s camp on a ration card.',
           'They know, Majesty. Somebody saw the card over the Watch’s fire and knew my drawing. I can’t draw good. That’s how.',

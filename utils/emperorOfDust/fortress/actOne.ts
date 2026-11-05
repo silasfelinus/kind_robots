@@ -555,6 +555,7 @@ export const ACT_ONE_QUESTS: readonly QuestDef[] = [
         affinity: { freeholds: 5 },
         local: { lamplight: 2 },
         flags: ['survey-seal-read'],
+        schedule: ['d04-clapperless-seal'],
       },
       failure: { affinity: { freeholds: -3 } },
     },
@@ -2171,7 +2172,7 @@ export const ACT_ONE_DAYS: readonly DayDef[] = [
             label: 'Ask what was on the page that is no longer in the ledger.',
             effects: {},
             response:
-              'Pip presses their palm to the cold glass and goes still. “I can tell you what was on it. I can’t tell you who took it. I have no proof. I want to be clear about the proof.”',
+              'Pip takes off the mended spectacles and folds them shut. “I can tell you what was on it. I can’t tell you who took it. I have no proof. I want to be clear about the proof.”',
             next: 'page',
           },
           {
@@ -2347,6 +2348,7 @@ export const ACT_ONE_DAYS: readonly DayDef[] = [
                 effects: {
                   local: { lamplight: 2 },
                   flags: ['d04-pip-inquiry-funded'],
+                  schedule: ['d04-pip-scribes'],
                 },
                 response:
                   'Pip hires two scribes who never worked for Mara Reedbell. Hesper’s copy stays on the desk. The scribes begin with the binding thread and the clerk who bought it.',
@@ -2416,7 +2418,7 @@ export const ACT_ONE_DAYS: readonly DayDef[] = [
             label: 'Send envoys to sit with the elders until someone speaks.',
             effects: {},
             response:
-              'The fledgling hops, nervous. “They’re very good at sitting.”',
+              'The fledgling shifts from foot to foot. “They’re good at sitting. It’s most of what they do.”',
             postsQuests: ['q-d04-crow-elders'],
           },
           {
@@ -2594,7 +2596,7 @@ export const ACT_ONE_DAYS: readonly DayDef[] = [
             requires: { cost: 15 },
             effects: { affinity: { jackalwire: 10 }, local: { ledger: -1 } },
             response:
-              'The painter weighs the gifts. For a moment he looks surprised.',
+              'The painter weighs the gifts in his wet paws and laughs once. “They’ll think it’s poisoned. They’ll eat it anyway.”',
           },
           {
             id: 'decline',
@@ -2695,18 +2697,18 @@ export const ACT_ONE_DAYS: readonly DayDef[] = [
             id: 'informant',
             lines: [
               '“They found the ration card, Majesty. One of your Gate Watch drank too much and talked to the wrong barmaid. Then the Pack looked for a pup with a bandaged paw. There was only one.”',
-              '“He’s alive. Tied to a wagon wheel at the edge of camp. The captains want to see if the tower comes. They think it would be funny if you ate goat twenty paces from him.”',
+              '“She’s alive. Tied to a wagon wheel at the edge of camp. The captains want to see if the tower comes. They think it would be funny if you ate goat twenty paces from her.”',
               {
                 who: 'Young Komodo',
                 npc: 'young-komodo',
-                text: 'Claim him, Your Majesty, and you confess to spying in front of every captain at once. Don’t, and the Gate Watch learns what the crown’s brass is worth to the people who take it.',
+                text: 'Claim her, Your Majesty, and you confess to spying in front of every captain at once. Don’t, and the Gate Watch learns what the crown’s brass is worth to the people who take it.',
               },
             ],
             options: [
               {
                 id: 'claim-informant',
                 label:
-                  'Go to the feast, claim the boy as the crown’s, and pay what they ask.',
+                  'Go to the feast, claim the girl as the crown’s, and pay what they ask.',
                 requires: { cost: 25 },
                 effects: {
                   affinity: { jackalwire: -5 },
@@ -2714,7 +2716,7 @@ export const ACT_ONE_DAYS: readonly DayDef[] = [
                   flags: ['d04-informant-claimed'],
                 },
                 response:
-                  'You pay in front of the whole camp. The captains laugh and cut the rope themselves. The boy walks home behind your wagon, bandaged paw to his chest, and the Gate Watch make room for him by their fire.',
+                  'You pay in front of the whole camp. The captains laugh and cut the rope themselves. The girl walks home behind your wagon, bandaged paw to her chest. The Gate Watch make room for her by their fire.',
               },
               {
                 id: 'deny-informant',
@@ -2723,14 +2725,15 @@ export const ACT_ONE_DAYS: readonly DayDef[] = [
                   affinity: { jackalwire: 5 },
                   local: { 'gate-watch': -2 },
                   flags: ['d04-informant-denied'],
+                  schedule: ['d04-ration-card'],
                 },
                 response:
-                  'The painter nods like you confirmed a price. Nobody at court learns what happened to the boy at the wheel. After a week the Gate Watch take the ration card down from above their fire and burn it.',
+                  'The painter nods like you confirmed a price. Nobody at court learns what happened to the girl at the wheel.',
               },
               {
                 id: 'attend-armed',
                 label:
-                  'Attend with blades in the carts. Cut him loose when the fiddles start.',
+                  'Attend with blades in the carts. Cut her loose when the fiddles start.',
                 effects: {},
                 response:
                   'The painter looks at you a long time. “Then I was never here.” He leaves the panel on the dais step, the one where everyone is smiling.',
@@ -2848,5 +2851,30 @@ export const ACT_ONE_DUES: readonly DueDef[] = [
     line: 'The light rate held another week. Two more caravans chose the fortress gate over the Ford.',
     warning:
       'The light rate stays on the gate. Every seven days the Ledger warms.',
+  },
+  // t-046: Day 4 answers that come back at a later dawn, unannounced.
+  {
+    id: 'd04-pip-scribes',
+    title: 'The binding thread',
+    inDays: 3,
+    hidden: true,
+    when: { flags: ['d04-pip-inquiry-funded'] },
+    line: 'Pip’s two scribes came back with the binding thread. Eleven yards, bought in the dry month at a Hollow Bell chandler’s, on the mayor’s office account. The clerk who signed for it left the office that same week. The chandler cannot say where he went. Pip has started a file on him.',
+  },
+  {
+    id: 'd04-ration-card',
+    title: 'The ration card',
+    inDays: 7,
+    hidden: true,
+    when: { flags: ['d04-informant-denied'] },
+    line: 'A week after the feast the Gate Watch took the ration card down from above their fire and burned it. Nobody gave the order. The sergeant asked the Ledger clerk at the gate, loud enough for the Yard, what the crown pays for a name these days.',
+  },
+  {
+    id: 'd04-clapperless-seal',
+    title: 'A bell with no clapper',
+    inDays: 2,
+    hidden: true,
+    when: { flags: ['survey-seal-read'] },
+    line: 'The Archive went through every seal book it owns for the surveyors’ mark: a bell with no clapper. No house, town or guild on the Ford uses it. In the night the flags on the far bank were pulled up. The holes were filled in neatly.',
   },
 ]

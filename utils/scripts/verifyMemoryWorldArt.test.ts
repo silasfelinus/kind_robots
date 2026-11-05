@@ -226,6 +226,10 @@ assert.match(
   resolver,
   /return loadDungeonImagePaths\(unseenDeckPaths\(paths, previouslyUsed\), needed\)/,
 )
+assert.match(
+  resolver,
+  /imagePath: imageUrlForDeck\(linkedArt\) \|\| imageUrlForDeck\(record\)/,
+)
 assert.match(resolver, /choice\.family === 'realm'/)
 assert.match(resolver, /loadDungeonImagePaths\(candidates, needed\)/)
 assert.match(selector, /choice\.key === 'realm' && !realmDeckReady/)

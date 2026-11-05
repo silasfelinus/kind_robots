@@ -20,7 +20,10 @@ const parties: CrewId[][] = [
   ['rue', 'vela', 'mox'],
   ['omi', 'pell', 'sora'],
 ]
-const byChapter = Array.from({ length: VOYAGE_CHAPTERS + 1 }, () => new Set<string>())
+const byChapter = Array.from(
+  { length: VOYAGE_CHAPTERS + 1 },
+  () => new Set<string>(),
+)
 const routes = new Set<string>()
 const chosenCounts = new Map<string, number>()
 
@@ -37,7 +40,11 @@ for (let index = 0; index < 42; index++) {
   const crew = parties[index % parties.length]!
   const seed = 54001 + index * 37
   const start = startVoyage(captain, crew, seed)
-  assert.equal(start.missionId, 'refugees', 'chapter one remains The Last Lifeboat')
+  assert.equal(
+    start.missionId,
+    'refugees',
+    'chapter one remains The Last Lifeboat',
+  )
   const currentRoute = ['refugees']
   const trace = playVoyage(captain, crew, seed, driver, {
     inspectEvery: false,
@@ -45,31 +52,58 @@ for (let index = 0; index < 42; index++) {
       if (label !== 'next' || after.phase !== 'briefing') return
       assert.equal(before.phase, 'debrief')
       const visible = missionBoard(after).map((mission) => mission.id)
-      assert.ok(visible.includes(after.missionId!), 'autochart must be on the real board')
-      assert.equal(after.missionId, seededMission(after), 'seeded choice is replayable')
-      assert.equal(restoreVoyage(JSON.parse(JSON.stringify(after)))?.missionId, after.missionId)
+      assert.ok(
+        visible.includes(after.missionId!),
+        'autochart must be on the real board',
+      )
+      assert.equal(
+        after.missionId,
+        seededMission(after),
+        'seeded choice is replayable',
+      )
+      assert.equal(
+        restoreVoyage(JSON.parse(JSON.stringify(after)))?.missionId,
+        after.missionId,
+      )
       const manual = visible.find((id) => id !== after.missionId)
       if (manual) {
         const changed = chooseMission(after, manual)
-        assert.equal(changed.missionId, manual, 'the player can always override the default')
-        assert.equal(after.missionId, seededMission(after), 'manual choice did not mutate state')
+        assert.equal(
+          changed.missionId,
+          manual,
+          'the player can always override the default',
+        )
+        assert.equal(
+          after.missionId,
+          seededMission(after),
+          'manual choice did not mutate state',
+        )
       }
       currentRoute.push(after.missionId!)
       byChapter[after.chapter]!.add(after.missionId!)
-      chosenCounts.set(after.missionId!, (chosenCounts.get(after.missionId!) ?? 0) + 1)
+      chosenCounts.set(
+        after.missionId!,
+        (chosenCounts.get(after.missionId!) ?? 0) + 1,
+      )
     },
   })
   assert.equal(trace.run.phase, 'ending')
   assert.equal(currentRoute.length, VOYAGE_CHAPTERS)
   routes.add(currentRoute.join('/'))
 }
-assert.ok(routes.size >= 24, '42 voyages should no longer be nearly identical: ' + routes.size)
+assert.ok(
+  routes.size >= 24,
+  '42 voyages should no longer be nearly identical: ' + routes.size,
+)
 for (let chapter = 2; chapter <= VOYAGE_CHAPTERS; chapter++)
   assert.ok(
     byChapter[chapter]!.size >= 2,
     'chapter ' + chapter + ' must chart more than one default destination',
   )
-assert.ok(chosenCounts.size >= 18, 'destination selection should expose the full circuit')
+assert.ok(
+  chosenCounts.size >= 18,
+  'destination selection should expose the full circuit',
+)
 console.log(
   'Space Couch default routes: ' +
     routes.size +

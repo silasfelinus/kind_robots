@@ -145,7 +145,7 @@ for (let seed = 1; seed <= 12; seed++) {
     chart: (voyage) =>
       destinations.find((missionId) =>
         VOYAGE_BOARDS[voyage.chapter - 1]?.includes(missionId),
-      ),
+      ) ?? VOYAGE_BOARDS[voyage.chapter - 1]?.[0],
     authoredChoices: true,
     sideQuests: false,
     errand: () => null,

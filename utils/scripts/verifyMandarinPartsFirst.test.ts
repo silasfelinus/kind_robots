@@ -215,14 +215,19 @@ console.log('✅ idea parts come only from glyphs the source hint names')
   const parts = new Map(analysis.components.map((part) => [part.glyph, part]))
   assert.equal(parts.get('月')?.role, 'semantic')
   assert.equal(parts.get('又')?.role, 'phonetic')
-  assert.equal(parts.get('月')?.meaning, 'meat/flesh (肉, written in the 月-shaped form)')
+  assert.equal(
+    parts.get('月')?.meaning,
+    'meat/flesh (肉, written in the 月-shaped form)',
+  )
   assert.ok(
     analysis.history.includes('Etymology correction for 有'),
     'provenance must disclose the override, not attribute it to the pinned source',
   )
 }
 
-console.log('✅ 有 uses historical 又 as phonetic and 月-shaped flesh as semantic')
+console.log(
+  '✅ 有 uses historical 又 as phonetic and 月-shaped flesh as semantic',
+)
 
 // --- whole words that are parts are taught first --------------------------------
 

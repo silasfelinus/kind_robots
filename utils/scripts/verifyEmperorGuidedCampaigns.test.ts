@@ -2,6 +2,8 @@
 import assert from 'node:assert/strict'
 import { mkdirSync, writeFileSync } from 'node:fs'
 import { POLICIES, playCampaign } from '../emperorOfDust/fortress/balance'
+import { questDef } from '../emperorOfDust/fortress/content'
+import { questOutcomeText } from '../emperorOfDust/fortress/engine'
 import { validateRun } from '../emperorOfDust/fortress/saves'
 import type { SceneLine } from '../emperorOfDust/fortress/types'
 
@@ -131,6 +133,23 @@ const prose = (lines: readonly SceneLine[]) =>
     )
     .join(' | ')
 
+const thistledown = questDef('q-d10-freehold-raid')!
+assert.ok(thistledown)
+for (const [flag, marker] of [
+  ['d10-open-council-relief', 'Dunmark'],
+  ['d10-open-council-account', 'names'],
+  ['d10-open-council-veto', 'Vask'],
+] as const) {
+  const distinct = questOutcomeText({ flags: [flag] }, thistledown, 'success')
+  assert.match(distinct, new RegExp(marker))
+  const combined = questOutcomeText(
+    { flags: [flag, 'd09-farmers-fed'] },
+    thistledown,
+    'success',
+  )
+  assert.match(combined, /Hill farmers|hill farmers/)
+  assert.match(combined, new RegExp(marker))
+}
 const campaigns: Record<string, unknown>[] = []
 const failures: string[] = []
 for (const plan of plans) {
@@ -244,6 +263,23 @@ for (const plan of plans) {
       choices.map((option) => option.audience + '/' + option.option),
     )
     const missingTargets = plan.targets.filter((target) => !reached.has(target))
+    if (plan.id.startsWith('joint-')) {
+      const report = dispatches.find(
+        (entry) => entry.quest === 'q-d10-freehold-raid',
+      )
+      assert.ok(report, plan.id + ': Thistledown dispatch must resolve')
+      const marker =
+        plan.id === 'joint-relief'
+          ? /Dunmark/
+          : plan.id === 'joint-accountability'
+            ? /list|names/
+            : /Vask/
+      assert.match(
+        report.text,
+        marker,
+        plan.id + ': real played outcome must remember the Watch oath',
+      )
+    }
     if (dawns !== 51)
       failures.push(plan.id + '/' + seed + ': only ' + dawns + ' dawns')
     if (missingTargets.length)

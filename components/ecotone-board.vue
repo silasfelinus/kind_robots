@@ -570,6 +570,23 @@
                     {{ lensLabel(game.ending.lens) }}
                   </p>
                   <div class="flex flex-col gap-3">
+                    <section
+                      v-if="familyEnding"
+                      data-testid="chosen-family-ending"
+                      class="flex flex-col gap-2 rounded-xl border border-[#8fb8b0]/50 bg-black/25 p-3"
+                    >
+                      <p class="eco-label">Chosen-family ending</p>
+                      <h3 class="font-serif text-xl font-black leading-tight">
+                        {{ familyEnding.title }}
+                      </h3>
+                      <p
+                        v-for="(paragraph, index) in familyEnding.paragraphs"
+                        :key="`family-${index}`"
+                        class="eco-story-copy font-serif leading-relaxed"
+                      >
+                        {{ paragraph }}
+                      </p>
+                    </section>
                     <p
                       v-if="signature"
                       class="font-serif text-base italic text-[#f3e6c8]/80"
@@ -599,7 +616,7 @@
                       {{ callback }}
                     </p>
                     <p
-                      v-if="familyCoda"
+                      v-if="familyCoda && !familyEnding"
                       data-testid="chosen-family-coda"
                       class="border-l-2 border-[#8fb8b0] pl-3 font-serif text-sm italic leading-relaxed"
                     >
@@ -1968,6 +1985,7 @@ import {
 } from '~/utils/ecotone/story'
 import { earnedQuestCallbacks } from '~/utils/ecotone/finaleExpansion'
 import { ensembleFuture } from '~/utils/ecotone/ensembleFuture'
+import { chosenFamilyEnding } from '~/utils/ecotone/chosenFamily'
 import {
   companionBondCounts,
   companionBondTier,
@@ -2345,6 +2363,15 @@ const familyCoda = computed(() =>
       )
     : null,
 )
+const familyEnding = computed(() =>
+  game.run && game.ending
+    ? chosenFamilyEnding(
+        game.run,
+        game.ending.fate,
+        (id) => COMPANIONS.find((c) => c.id === id)?.name ?? id,
+      )
+    : null,
+)
 const sharedFuture = computed(() =>
   game.run && game.ending ? ensembleFuture(game.run, game.ending.fate) : null,
 )
@@ -2696,9 +2723,11 @@ const stage = computed<Stage>(() => {
           ? 'Companion encounter'
           : card.id.startsWith('CO-')
             ? 'Companion interlude'
-            : card.kind === 'spine'
-              ? `Story beat · ${card.id}`
-              : `Encounter · ${card.id}`,
+            : card.id.startsWith('CT-')
+              ? 'A free hour · optional'
+              : card.kind === 'spine'
+                ? `Story beat · ${card.id}`
+                : `Encounter · ${card.id}`,
       title: realEnding ?? card.title,
       subtitle: realEnding && meta ? meta.mystery.title : card.place,
       place: card.place.split(',')[0] ?? card.place,

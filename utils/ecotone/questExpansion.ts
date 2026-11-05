@@ -2,6 +2,7 @@ import type { CompanionId, EncounterCard, LensId } from './content'
 import { REGIONAL_QUESTS } from './regionalQuestFactory'
 import { FORMER_GUIDE_QUESTS } from './formerGuideQuests'
 import { COMPANION_HANGOUTS } from './companionHangouts'
+import { COMPANION_TIME } from './companionTime'
 import { LOCATION_ATLAS_QUESTS } from './locationAtlasQuests'
 
 export type GatedEncounter = EncounterCard & {
@@ -11,6 +12,8 @@ export type GatedEncounter = EncounterCard & {
   requiresMeetCount?: number
   /** Only an explicit companion invitation can open this scene, not the random fork deck. */
   requiresInvitation?: boolean
+  /** Offered only by the engine's free-hour slot (companionTime.ts), never by a fork. */
+  digressionOnly?: boolean
 }
 
 // The first expansion wave uses the existing 2d6, seed, save and Playbook contracts.
@@ -23,6 +26,10 @@ export const QUEST_CARDS: GatedEncounter[] = [
   ...Object.values(COMPANION_HANGOUTS).map((card) => ({
     ...card,
     requiresInvitation: true,
+  })),
+  ...Object.values(COMPANION_TIME).map((card) => ({
+    ...card,
+    digressionOnly: true,
   })),
   {
     id: 'WH-003',

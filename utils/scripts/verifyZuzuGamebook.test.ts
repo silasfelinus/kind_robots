@@ -10,7 +10,10 @@ import {
 import { SECTION_PLATES } from '../zuzuGamebook/sectionArt'
 import {
   applyPlaytestMove,
+  bestWinChance,
   combatBenchmark,
+  fightsOpenedBy,
+  hopelessFights,
   encodeWitness,
   findEndingWitness,
   replayEncodedWitness,
@@ -1242,6 +1245,249 @@ console.log(
     survivedLosses +
     ' survivable losses matched their cue',
 )
+
+// t-013, Silas 2026-11-05: "zuzu, who is male, should probably not have an
+// unwinnable fight." A fight best play cannot win may still be chosen, and lost,
+// but no reachable state may leave it as Zuzu's only way on.
+const baseAttributes = startRun(1).attributes
+assert.equal(bestWinChance('abbess', baseAttributes, 1, 0), 0)
+assert.equal(bestWinChance('abbess', baseAttributes, 2, 4), 0)
+assert.ok(bestWinChance('abbess', baseAttributes, 3, 0) > 0.2)
+for (const node of Object.values(BOOK).filter((entry) => !!entry.battle)) {
+  assert.equal(
+    bestWinChance(node.id, baseAttributes, 1, 4),
+    0,
+    node.id + ': one blow from falling, no fight can be won',
+  )
+  for (const health of [3, 6, 12]) {
+    const exact = bestWinChance(node.id, baseAttributes, health, 4)
+    const sampled = Math.max(
+      ...(
+        ['strike', 'quiet-draw', 'feint-strike', 'guard-strike'] as const
+      ).map(
+        (policy) => combatBenchmark(node.id, policy, 250, health, 4).winRate,
+      ),
+    )
+    assert.ok(
+      sampled <= exact + 0.08,
+      node.id + ' at ' + health + ' HP: best play is no worse than any policy',
+    )
+  }
+}
+
+// The audited state: wounded at the bargain, the sister still bound, too
+// clean to take the dark's road. Refusing still means the Abbess, and at 1 HP
+// she cannot be beaten, so giving ground to the stair must be on the table.
+const woundedNoSister: Run = {
+  ...startRun(19),
+  sceneId: 'a8-voice-wound',
+  health: 1,
+  resolve: 0,
+  items: ['water'],
+  flags: ['abbess-suspicion', 'taint:listened'],
+}
+assert.ok(taint(woundedNoSister) < 2)
+const voiceOpen = visibleChoices(
+  woundedNoSister,
+  scene('a8-voice-wound'),
+).filter((choice) => !lockReason(woundedNoSister, choice))
+assert.deepEqual(
+  voiceOpen.map((choice) => choice.id),
+  ['refuse', 'give-ground'],
+)
+assert.deepEqual(
+  hopelessFights(woundedNoSister, voiceOpen[0]!).map((fight) => fight.sceneId),
+  ['abbess'],
+  'standing to fight stays a choice, and an honest loss',
+)
+assert.deepEqual(hopelessFights(woundedNoSister, voiceOpen[1]!), [])
+assert.equal(fightCue(woundedNoSister, voiceOpen[1]!), null)
+const atStair = takeChoice(woundedNoSister, 'give-ground')
+assert.equal(atStair.sceneId, 'a8-give-ground')
+assert.equal(atStair.battle, null)
+assert.equal(atStair.health, 1, 'giving ground cannot heal')
+assert.equal(atStair.resolve, 0, 'giving ground cannot grant Resolve')
+assert.deepEqual(atStair.items, woundedNoSister.items)
+assert.ok(atStair.flags.includes('honor:refused-the-dark'))
+assert.equal(taint(atStair), taint(woundedNoSister))
+assert.ok(isSavedRun(JSON.parse(JSON.stringify(atStair))))
+const carriedWord = takeChoice(atStair, 'out')
+assert.equal(carriedWord.sceneId, 'ending-warning')
+assert.equal(scene('ending-warning').ending, 'bittersweet')
+assert.ok(carriedWord.flags.includes('deed:left-the-altar'))
+assert.equal(carriedWord.health, 1)
+const bindAtStair = scene('a8-give-ground').choices?.find(
+  (choice) => choice.id === 'bind',
+)
+assert.ok(bindAtStair)
+assert.ok(lockReason(atStair, bindAtStair), 'binding the wound costs a bandage')
+assert.equal(takeChoice(atStair, 'bind'), atStair)
+const bandagedAtStair: Run = { ...atStair, items: ['water', 'bandage'] }
+assert.deepEqual(hopelessFights(bandagedAtStair, bindAtStair), [])
+const boundWound = takeChoice(bandagedAtStair, 'bind')
+assert.equal(boundWound.sceneId, 'abbess')
+assert.equal(
+  boundWound.health,
+  3,
+  'a bandage buys two HP, as on the night road',
+)
+assert.deepEqual(boundWound.items, ['water'])
+assert.equal(boundWound.battle?.hp, 9)
+assert.ok(
+  bestWinChance(
+    'abbess',
+    boundWound.attributes,
+    boundWound.health,
+    boundWound.resolve,
+  ) > 0.2,
+)
+const backDown = takeChoice(atStair, 'back')
+assert.equal(backDown.sceneId, 'abbess')
+assert.equal(backDown.health, 1)
+assert.ok(
+  !visibleChoices(
+    { ...woundedNoSister, flags: ['sister-free'] },
+    scene('a8-voice-wound'),
+  ).some((choice) => choice.id === 'give-ground'),
+  'with the sister free, the retreat takes the children',
+)
+
+// Every other place a fight can close in, at its worst: 1 HP, no Resolve, an
+// empty pack. Each keeps the fight on offer and a way on that is not one.
+const worstCase = (sceneId: string, flags: string[]): Run => ({
+  ...startRun(5),
+  sceneId,
+  health: 1,
+  resolve: 0,
+  items: [],
+  flags,
+})
+for (const [sceneId, flags, way, to] of [
+  [
+    'a8-voice-wound',
+    ['sister-free'],
+    'escape-with-sister',
+    'a8-wounded-flight',
+  ],
+  ['abbess-strikes', [], 'a8-stair', 'a8-give-ground'],
+  ['abbess-strikes', ['sister-free'], 'a8-run', 'ending-hunted'],
+  ['a8-word-kept', ['sister-free'], 'run', 'ending-hunted'],
+  ['a8-standoff', [], 'leave', 'ending-warning'],
+  ['a8-standoff-break', ['sister-free'], 'run', 'ending-hunted'],
+  ['cellar', [], 'a8-leave', 'ending-warning'],
+  ['a4-well-grab', ['sister-wary'], 'scatter', 'a4-well-scatter'],
+] as const) {
+  const run = worstCase(sceneId, [...flags])
+  const open = visibleChoices(run, scene(sceneId)).filter(
+    (choice) => !lockReason(run, choice),
+  )
+  assert.ok(
+    open.some((choice) => hopelessFights(run, choice).length),
+    sceneId + ': the hopeless fight is still a choice',
+  )
+  const exit = open.find((choice) => choice.id === way)
+  assert.ok(exit, sceneId + '/' + way + ' is open at the worst')
+  assert.deepEqual(fightsOpenedBy(run, exit), [], sceneId + '/' + way)
+  const after = takeChoice(run, way)
+  assert.equal(after.sceneId, to)
+  assert.equal(after.battle, null)
+  assert.equal(after.health, 1, sceneId + '/' + way + ' cannot heal')
+  assert.equal(after.resolve, 0, sceneId + '/' + way + ' cannot grant Resolve')
+}
+const scattered = takeChoice(
+  takeChoice(worstCase('a4-well-grab', ['sister-wary']), 'scatter'),
+  'on',
+)
+assert.equal(scattered.sceneId, 'a4-wide-berth')
+assert.ok(scattered.flags.includes('a4-stripped'), 'running costs the goods')
+assert.equal(scattered.health, 1)
+const tollAtWorst = worstCase('a4-well-toll', ['sister-wary'])
+assert.ok(
+  visibleChoices(tollAtWorst, scene('a4-well-toll')).some(
+    (choice) =>
+      !lockReason(tollAtWorst, choice) &&
+      !hopelessFights(tollAtWorst, choice).length,
+  ),
+  'a failed bluff at the well no longer corners Zuzu into the band',
+)
+
+// The seeded battery: real dice, real packs and four fighting styles. At every
+// decision some open choice must not open a fight Zuzu cannot win.
+let hopeRng = 20261113
+const hopeRand = (n: number) => {
+  hopeRng = (hopeRng * 1103515245 + 12345) >>> 0
+  return (hopeRng >>> 16) % n
+}
+let decisions = 0
+let lowDecisions = 0
+let hopelessStarts = 0
+let woundedAloneStates = 0
+for (let walk = 0; walk < 12000; walk++) {
+  let run = startRun(walk * 15485863 + 3)
+  const style = walk % 4
+  for (let step = 0; step < 260 && !scene(run.sceneId).ending; step++) {
+    if (run.pendingLoot.length) {
+      run = resolveLoot(run, null)
+      continue
+    }
+    if (run.battle) {
+      const exposed = run.battle.exposed
+      const proposed: BattleAction =
+        style === 0
+          ? (['strike', 'guard', 'feint', 'quiet-draw'] as const)[hopeRand(4)]!
+          : style === 1
+            ? 'strike'
+            : exposed
+              ? 'strike'
+              : style === 2
+                ? 'feint'
+                : 'guard'
+      run = fight(
+        run,
+        proposed === 'quiet-draw' && run.resolve < 2 ? 'strike' : proposed,
+      )
+      continue
+    }
+    const open = visibleChoices(run, scene(run.sceneId)).filter(
+      (choice) => !lockReason(run, choice),
+    )
+    decisions++
+    if (run.health <= 3) lowDecisions++
+    if (
+      run.sceneId === 'a8-voice-wound' &&
+      !run.flags.includes('sister-free') &&
+      taint(run) < 2 &&
+      run.health <= 3
+    )
+      woundedAloneStates++
+    assert.ok(
+      open.some((choice) => !hopelessFights(run, choice).length),
+      run.sceneId +
+        ' at ' +
+        run.health +
+        ' HP offers only fights Zuzu cannot win: ' +
+        open.map((choice) => choice.id).join(', '),
+    )
+    run = takeChoice(run, open[hopeRand(open.length)]!.id)
+    if (
+      run.battle &&
+      !bestWinChance(run.sceneId, run.attributes, run.health, run.resolve)
+    )
+      hopelessStarts++
+  }
+}
+console.log(
+  'Gamebook no forced hopeless fight: ' +
+    decisions +
+    ' seeded decisions (' +
+    lowDecisions +
+    ' at 3 HP or less, ' +
+    woundedAloneStates +
+    ' wounded and alone at the bargain), ' +
+    hopelessStarts +
+    ' hopeless fights chosen, none forced',
+)
+assert.ok(lowDecisions > 1000 && woundedAloneStates > 10 && hopelessStarts > 50)
 
 // Golden journeys must remain replayable without the search solver, including
 // rare moral endings and failures. Changes to choices, dice or consequences

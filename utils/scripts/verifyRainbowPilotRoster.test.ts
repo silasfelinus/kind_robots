@@ -79,7 +79,10 @@ assert.match(page, /P\{\{ option\.seat \+ 1 \}\}/)
 const hero = new URL(`public${RAINBOW_HERO_ART}`, root)
 assert.ok(existsSync(hero), `${RAINBOW_HERO_ART} is committed`)
 assert.ok(statSync(hero).size < 200_000, 'hero backdrop stays light')
-assert.match(page, /:src="RAINBOW_HERO_ART"/)
+// The backdrop, portrait, cut-in and stage cards follow the chosen look (Classic or Fever Dream); each
+// resolver falls back to the classic file checked here.
+assert.match(page, /:src="rainbowHeroArt\(RAINBOW_HERO_ART, look\)"/)
+assert.match(page, /:src="rainbowPortrait\(pilot\.portrait, look\)"/)
 assert.match(
   page,
   /bg-gradient-to-r from-\[#251345\]/,
@@ -89,7 +92,10 @@ assert.match(
 // The expedition gallery shows each stage's painted Act title card where one is clean; the others keep
 // an image-shaped gradient slot. Every pilot card shows her super cut-in.
 assert.match(page, /id="princess-expedition"/)
-const cards = [...page.matchAll(/\$\{STAGE_CARD_ROOT\}\/(s0\d-card\.webp)/g)]
+assert.match(page, /:src="rainbowStageCard\(stage\.strip, look\)"/)
+const cards = [...page.matchAll(/strip: '(s0\d)' as const/g)].map(
+  ([, strip]) => ['', `${strip}-card.webp`] as const,
+)
 assert.equal(cards.length, 8, 'every stage carries a title card')
 for (const [, name] of cards) {
   const file = new URL(`public/rainbow-princess-art/stages/${name}`, root)
@@ -101,7 +107,7 @@ assert.equal(
   8,
   'all eight stages are listed',
 )
-assert.match(page, /:src="rainbowSuperCutin\(pilot\.seat\)"/)
+assert.match(page, /:src="rainbowSuperCutin\(pilot\.seat, look\)"/)
 assert.doesNotMatch(
   page,
   /restores a\s+damaged practice shield/,

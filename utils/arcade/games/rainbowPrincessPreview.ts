@@ -47,7 +47,10 @@ import {
   drawRainbowStageCard,
   drawRainbowStageStrip,
   drawRainbowSuperCutin,
+  loadRainbowLook,
+  rainbowLook,
 } from './rainbowGameArt'
+import { drawFeverSky, drawFeverTrail } from './rainbowFeverDream'
 import { RAINBOW_PILOTS, RAINBOW_KITTY_POWER } from './rainbowPilots'
 import { ACT_TERRAIN_PALETTE, actCallout, actTerrain } from './rainbowActBeats'
 import type { ActBeatAct } from './rainbowActBeats'
@@ -996,6 +999,8 @@ export type RainbowCombatSnapshot = {
 export function createRainbowPrincessPreview(
   options: ArcadeGameOptions,
 ): ArcadeGameInstance & { readonly snapshot: RainbowCombatSnapshot } {
+  // The look this browser last chose (Classic or Fever Dream), wherever the cabinet is hosted.
+  loadRainbowLook()
   const count = Math.max(1, Math.min(4, options.players ?? 1))
   let activePlayers = count
   let difficulty: ArcadeDifficulty =
@@ -5082,7 +5087,10 @@ export function createRainbowPrincessPreview(
       sky.addColorStop(1, palette[2]!)
       g.fillStyle = sky
       g.fillRect(0, 0, W, H)
-      for (let plane = 0; plane < 4; plane++) {
+      // Fever Dream: the neon school-folder sky replaces the classic bubbles (decoration only).
+      const fever = rainbowLook() === 'fever'
+      if (fever) drawFeverSky(g, currentAct(), tick, drift)
+      for (let plane = 0; plane < (fever ? 0 : 4); plane++) {
         g.fillStyle = ['#f2d6ff88', '#9ffffa44', '#fff5c444', '#ffe6f277'][
           plane
         ]!
@@ -5099,7 +5107,7 @@ export function createRainbowPrincessPreview(
           g.fill()
         }
       }
-      g.fillStyle = '#f6c4e655'
+      g.fillStyle = fever ? '#ff7ad855' : '#f6c4e655'
       for (let i = 0; i < 6; i++) {
         const x = ((((i * 108 - tick * drift * 0.28) % 640) + 640) % 640) - 60
         g.beginPath()
@@ -7175,6 +7183,7 @@ export function createRainbowPrincessPreview(
         )
           continue
         g.save()
+        if (fever) drawFeverTrail(g, ship.x, ship.y, tick + seat * 11)
         if (ship.special > 0 && pilotOf(seat) === 1) {
           // Prism Beam: a bright lane from the ship to the edge.
           g.save()

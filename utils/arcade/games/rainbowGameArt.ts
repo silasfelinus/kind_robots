@@ -1,4 +1,5 @@
 import { loadedImage } from '../ghostTrail/bake'
+import { RAINBOW_DOODLE_ART } from './rainbowDoodleArt'
 
 /**
  * Painted art for the Rainbow Space Princess cabinet (Conductor rainbow t-022). Every image is optional:
@@ -6,6 +7,106 @@ import { loadedImage } from '../ghostTrail/bake'
  * collision core never changes with the picture.
  */
 export const RAINBOW_GAME_ART_ROOT = '/rainbow-princess-art'
+
+/**
+ * The cabinet's two looks (Conductor rainbow t-036/t-037). Classic is the painted art the game shipped with.
+ * Fever Dream is the 1980s neon airbrush school-folder restyle from DOODLE-DIRECTION.md: doodle art where a
+ * render passed review, and the classic sprite given a neon sticker treatment where one did not. Any picture
+ * missing from RAINBOW_DOODLE_ART falls back to the classic file, so the look never leaves a hole.
+ */
+export const RAINBOW_LOOKS = [
+  { key: 'classic', label: 'Classic', hint: 'The painted look' },
+  { key: 'fever', label: 'Fever Dream', hint: 'Neon airbrush doodles' },
+] as const
+export type RainbowLook = (typeof RAINBOW_LOOKS)[number]['key']
+export const RAINBOW_DEFAULT_LOOK: RainbowLook = 'classic'
+export const RAINBOW_LOOK_STORAGE_KEY = 'rainbow-princess-look'
+
+const doodleArt = new Set(RAINBOW_DOODLE_ART)
+let currentLook: RainbowLook = RAINBOW_DEFAULT_LOOK
+
+export function isRainbowLook(value: unknown): value is RainbowLook {
+  return RAINBOW_LOOKS.some((look) => look.key === value)
+}
+
+/** The look every draw call uses right now. */
+export function rainbowLook(): RainbowLook {
+  return currentLook
+}
+
+/** Switch looks; the next frame draws in it. Remembered in this browser when storage is available. */
+export function setRainbowLook(look: RainbowLook, remember = true): void {
+  currentLook = look
+  if (!remember) return
+  try {
+    globalThis.localStorage?.setItem(RAINBOW_LOOK_STORAGE_KEY, look)
+  } catch {
+    // Private windows and blocked storage just forget the choice.
+  }
+}
+
+/** Restore the remembered look (or the default) and return it. */
+export function loadRainbowLook(): RainbowLook {
+  let saved: unknown
+  try {
+    saved = globalThis.localStorage?.getItem(RAINBOW_LOOK_STORAGE_KEY)
+  } catch {
+    saved = null
+  }
+  currentLook = isRainbowLook(saved) ? saved : RAINBOW_DEFAULT_LOOK
+  return currentLook
+}
+
+/**
+ * A pilot's menu portrait (they live outside the art root, under /rainbow-princess-portraits): the doodle twin
+ * in Fever Dream when it passed CAST-QA, otherwise the classic identity-lock portrait.
+ */
+export function rainbowPortrait(
+  classicSrc: string,
+  look: RainbowLook = currentLook,
+): string {
+  const stem =
+    classicSrc
+      .split('/')
+      .pop()
+      ?.replace(/\.webp$/, '') ?? ''
+  return look === 'fever' && doodleArt.has(`portraits/${stem}`)
+    ? `${RAINBOW_GAME_ART_ROOT}/doodle/portraits/${stem}.webp`
+    : classicSrc
+}
+
+/** The Pilots-tab backdrop: Fever Dream's four-cat-ship key art, or the classic Pearl Palace. */
+export function rainbowHeroArt(
+  classicSrc: string,
+  look: RainbowLook = currentLook,
+): string {
+  return look === 'fever' && doodleArt.has('key-art')
+    ? `${RAINBOW_GAME_ART_ROOT}/doodle/key-art.webp`
+    : classicSrc
+}
+
+/**
+ * A loaded picture for this URL. While a Fever Dream picture is still downloading (just after switching
+ * looks), its classic twin stands in, so the screen never drops to vector stand-ins mid-fight.
+ */
+function loadedArt(src: string): HTMLImageElement | null {
+  const img = loadedImage(src)
+  if (img || !src.includes('/doodle/')) return img
+  return loadedImage(src.replace('/doodle/', '/'))
+}
+
+/**
+ * The URL for a picture under the art root, given as a path without extension (`ships/petal-wing`). Fever
+ * Dream uses the doodle twin when one shipped; everything else is the classic file.
+ */
+export function rainbowArt(
+  path: string,
+  look: RainbowLook = currentLook,
+): string {
+  return look === 'fever' && doodleArt.has(path)
+    ? `${RAINBOW_GAME_ART_ROOT}/doodle/${path}.webp`
+    : `${RAINBOW_GAME_ART_ROOT}/${path}.webp`
+}
 
 export const RAINBOW_SHIP_SPRITES = [
   'petal-wing',
@@ -30,7 +131,7 @@ export type RainbowCommsKey =
 
 export function rainbowShipSprite(seat: number): string {
   const key = RAINBOW_SHIP_SPRITES[seat % RAINBOW_SHIP_SPRITES.length]!
-  return `${RAINBOW_GAME_ART_ROOT}/ships/${key}.webp`
+  return rainbowArt(`ships/${key}`)
 }
 
 export function rainbowCommsKey(speaker: string): RainbowCommsKey | null {
@@ -44,7 +145,7 @@ export function rainbowCommsKey(speaker: string): RainbowCommsKey | null {
 
 export function rainbowCommsPortrait(speaker: string): string | null {
   const key = rainbowCommsKey(speaker)
-  return key ? `${RAINBOW_GAME_ART_ROOT}/comms/${key}.webp` : null
+  return key ? rainbowArt(`comms/${key}`) : null
 }
 
 /**
@@ -133,7 +234,7 @@ export function rainbowEnemySprite(kind: string): string | null {
     ...RAINBOW_ACT_SEVEN_ENEMY_SPRITES,
     ...RAINBOW_ACT_EIGHT_ENEMY_SPRITES,
   ].some((name) => name === kind)
-    ? `${RAINBOW_GAME_ART_ROOT}/enemies/${kind}.webp`
+    ? rainbowArt(`enemies/${kind}`)
     : null
 }
 
@@ -171,7 +272,7 @@ export const RAINBOW_GUARDIAN_SPRITES = [
 
 export function rainbowGuardianSprite(kind: string): string | null {
   return (RAINBOW_GUARDIAN_SPRITES as readonly string[]).includes(kind)
-    ? `${RAINBOW_GAME_ART_ROOT}/enemies/guardian-${kind}.webp`
+    ? rainbowArt(`enemies/guardian-${kind}`)
     : null
 }
 
@@ -189,7 +290,7 @@ export const RAINBOW_PICKUP_SPRITES = ['power', 'shield', 'charge'] as const
 
 export function rainbowPickupSprite(kind: string): string | null {
   return (RAINBOW_PICKUP_SPRITES as readonly string[]).includes(kind)
-    ? `${RAINBOW_GAME_ART_ROOT}/pickups/${kind}.webp`
+    ? rainbowArt(`pickups/${kind}`)
     : null
 }
 
@@ -202,7 +303,7 @@ export function drawRainbowPickupSprite(
   size = 22,
 ): boolean {
   const src = rainbowPickupSprite(kind)
-  const img = src ? loadedImage(src) : null
+  const img = src ? loadedArt(src) : null
   if (!img) return false
   const scale = size / Math.max(img.naturalWidth, img.naturalHeight)
   const width = img.naturalWidth * scale
@@ -234,7 +335,7 @@ export type RainbowBossKey = (typeof RAINBOW_BOSS_SPRITES)[number]
 
 export function rainbowBossSprite(boss: RainbowBossKey, phase: number): string {
   const step = Math.min(3, Math.max(1, Math.round(phase)))
-  return `${RAINBOW_GAME_ART_ROOT}/bosses/${boss}-phase${step}.webp`
+  return rainbowArt(`bosses/${boss}-phase${step}`)
 }
 
 /**
@@ -251,7 +352,7 @@ export function drawRainbowBossSprite(
   width: number,
 ): boolean {
   const pictures = [1, 2, 3].map((step) =>
-    loadedImage(rainbowBossSprite(boss, step)),
+    loadedArt(rainbowBossSprite(boss, step)),
   )
   const step = Math.min(3, Math.max(1, Math.round(phase)))
   const img = pictures[step - 1] ?? pictures[0]
@@ -273,9 +374,12 @@ export const RAINBOW_CUTIN_PILOTS = [
   'vivi',
 ] as const
 
-export function rainbowSuperCutin(seat: number): string {
+export function rainbowSuperCutin(
+  seat: number,
+  look: RainbowLook = currentLook,
+): string {
   const key = RAINBOW_CUTIN_PILOTS[seat % RAINBOW_CUTIN_PILOTS.length]!
-  return `${RAINBOW_GAME_ART_ROOT}/cutins/${key}.webp`
+  return rainbowArt(`cutins/${key}`, look)
 }
 
 /** Draw the seat's cut-in banner at (x, y) with the given height; returns its width, or 0 while loading. */
@@ -286,7 +390,7 @@ export function drawRainbowSuperCutin(
   y: number,
   height: number,
 ): number {
-  const img = loadedImage(rainbowSuperCutin(seat))
+  const img = loadedArt(rainbowSuperCutin(seat))
   if (!img) return 0
   const width = (height * img.naturalWidth) / img.naturalHeight
   g.drawImage(img, x, y, width, height)
@@ -311,7 +415,7 @@ export const RAINBOW_STAGE_STRIPS = [
 export type RainbowStageStrip = (typeof RAINBOW_STAGE_STRIPS)[number]
 
 export function rainbowStageStrip(stage: RainbowStageStrip): string {
-  return `${RAINBOW_GAME_ART_ROOT}/stages/${stage}-fore.webp`
+  return rainbowArt(`stages/${stage}-fore`)
 }
 
 /** Tile the stage's strip across the playfield at (0, y), scrolled left by `scroll` logical pixels. */
@@ -323,7 +427,7 @@ export function drawRainbowStageStrip(
   height: number,
   width = 480,
 ): boolean {
-  const img = loadedImage(rainbowStageStrip(stage))
+  const img = loadedArt(rainbowStageStrip(stage))
   if (!img) return false
   const tile = (height * img.naturalWidth) / img.naturalHeight
   for (let x = -(((scroll % tile) + tile) % tile); x < width; x += tile) {
@@ -333,8 +437,11 @@ export function drawRainbowStageStrip(
 }
 
 /** Painted Act title cards (round-15/16 Kontext), shown as the Act intro splash. */
-export function rainbowStageCard(stage: RainbowStageStrip): string {
-  return `${RAINBOW_GAME_ART_ROOT}/stages/${stage}-card.webp`
+export function rainbowStageCard(
+  stage: RainbowStageStrip,
+  look: RainbowLook = currentLook,
+): string {
+  return rainbowArt(`stages/${stage}-card`, look)
 }
 
 /** Draw the stage's title card at (x, y) with the given width; returns its height, or 0 while loading. */
@@ -345,7 +452,7 @@ export function drawRainbowStageCard(
   y: number,
   width: number,
 ): number {
-  const img = loadedImage(rainbowStageCard(stage))
+  const img = loadedArt(rainbowStageCard(stage))
   if (!img) return 0
   const height = (width * img.naturalHeight) / img.naturalWidth
   g.drawImage(img, x, y, width, height)
@@ -359,7 +466,7 @@ function drawFitted(
   minWidth: number,
   maxWidth: number,
 ): boolean {
-  const img = loadedImage(src)
+  const img = loadedArt(src)
   if (!img) return false
   const aspect = img.naturalWidth / img.naturalHeight
   const width = Math.min(maxWidth, Math.max(minWidth, Math.sqrt(area * aspect)))
@@ -377,7 +484,7 @@ export function drawRainbowCommsPortrait(
   size: number,
 ): boolean {
   const src = rainbowCommsPortrait(speaker)
-  const img = src ? loadedImage(src) : null
+  const img = src ? loadedArt(src) : null
   if (!img) return false
   g.drawImage(img, x, y, size, size)
   return true

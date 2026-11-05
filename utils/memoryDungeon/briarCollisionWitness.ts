@@ -12,7 +12,7 @@ interface BriarWitnessScene {
 }
 
 /**
- * Pip's collision remembers the actual Briar verdict. The earlier village
+ * Rowan's collision remembers the actual Briar verdict. The earlier village
  * hearing cannot be retroactively opened, and a closed gate cannot invent
  * testimony from people who were never admitted.
  */
@@ -23,14 +23,14 @@ const BRIAR_WITNESS_CALLBACKS: Record<
   'trust-witnesses': {
     '2,2': {
       opening:
-        'Pip recognizes the wolf captain from the hearing where villagers finally listened to outsiders. The captain can witness an evacuation, but Mara will not surrender her workers’ names merely because the forest has learned to use a badge.',
+        'Rowan recognizes the wolf captain from the hearing where villagers finally listened to outsiders. The captain can witness an evacuation, but Mara will not surrender her workers’ names merely because the forest has learned to use a badge.',
       outcomes: {
         'translate-shift-oath':
           'The captain invokes the old public hearing to honor the temporary oath. Mara records that the workers consented to this one night, not to a permanent claim over their shifts.',
         'redact-and-witness':
           'Two former opponents from the Briar hearing jointly verify the anonymous head count. Their public testimony protects the workers without turning a private roster into a new village census.',
         'break-midnight-clock':
-          'The captain offers to testify that the corridor was dangerous. The open Briar hearing can support Mara’s payroll appeal, but it cannot restore the timecards Pip destroyed.',
+          'The captain offers to testify that the corridor was dangerous. The open Briar hearing can support Mara’s payroll appeal, but it cannot restore the timecards Rowan destroyed.',
       },
     },
     '7,6': {
@@ -38,9 +38,9 @@ const BRIAR_WITNESS_CALLBACKS: Record<
         'A wolf who testified beside the villagers recognizes Ren’s family, then turns their badge facedown. The earlier hearing established a right to speak, not a right to publish a refugee address.',
       outcomes: {
         'private-tide-escort':
-          'The wolf witnesses the safe arrival without copying Ren’s chart. Pip asks the former hearing members to defend the family’s privacy if the patrol later demands a location.',
+          'The wolf witnesses the safe arrival without copying Ren’s chart. Rowan asks the former hearing members to defend the family’s privacy if the patrol later demands a location.',
         'public-dam-crossing':
-          'The public witnesses can verify the rescue, but the new dam exposes the shelter. Pip must still help Ren move before the same patrol can use that visibility against them.',
+          'The public witnesses can verify the rescue, but the new dam exposes the shelter. Rowan must still help Ren move before the same patrol can use that visibility against them.',
         'community-ferry-charter':
           'The former village witnesses sign only as observers. Ren’s families keep the ferry key and the right to close the route, refusing to let an earlier victory become permanent oversight.',
       },
@@ -49,19 +49,19 @@ const BRIAR_WITNESS_CALLBACKS: Record<
   'protect-village': {
     '2,2': {
       opening:
-        'Pip remembers the village gates staying shut while the forest witnesses waited outside. The wolf captain has no shared hearing to cite, and Mara refuses to let an unverified patrol decide who counts as an employee.',
+        'Rowan remembers the village gates staying shut while the forest witnesses waited outside. The wolf captain has no shared hearing to cite, and Mara refuses to let an unverified patrol decide who counts as an employee.',
       outcomes: {
         'translate-shift-oath':
           'The temporary oath gets the workers out, but the closed village has offered no public witness. Mara keeps signed consent slips in case the captain later disputes the promise.',
         'redact-and-witness':
-          'Pip and Mara build a new anonymous evacuation record from the workers themselves. The earlier village still has closed gates; this evidence does not pretend otherwise.',
+          'Rowan and Mara build a new anonymous evacuation record from the workers themselves. The earlier village still has closed gates; this evidence does not pretend otherwise.',
         'break-midnight-clock':
           'The corridor opens, but neither a village hearing nor intact timecards can support the payroll appeal. Mara begins taking voluntary statements from the people who escaped.',
       },
     },
     '7,6': {
       opening:
-        'Ren remembers being kept outside the Briar village gates. No witness from that sealed hearing can be summoned to certify this crossing. Pip must earn the family’s trust in the flooded roots themselves.',
+        'Ren remembers being kept outside the Briar village gates. No witness from that sealed hearing can be summoned to certify this crossing. Rowan must earn the family’s trust in the flooded roots themselves.',
       outcomes: {
         'private-tide-escort':
           'Ren accepts the private escort after Oren demonstrates the route. The family keeps its address, and the village’s old refusal remains an unpaid obligation rather than a magically repaired friendship.',

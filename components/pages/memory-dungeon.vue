@@ -16,11 +16,17 @@
       v-else-if="sublevelMode"
       @leave="((sublevelMode = false), (earthMode = true))"
     />
+    <memory-dungeon-sublevel
+      v-else-if="drownedMode"
+      dungeon="drowned"
+      @leave="((drownedMode = false), (earthMode = true))"
+    />
     <memory-dungeon-earth
       v-else-if="earthMode"
       @leave="earthMode = false"
       @sea="((seaMode = true), (earthMode = false))"
       @sublevel="((sublevelMode = true), (earthMode = false))"
+      @drowned="((drownedMode = true), (earthMode = false))"
     />
     <memory-dungeon-briar-collision
       v-else-if="collisionMode"
@@ -498,6 +504,7 @@ const worldMode = ref(false)
 const earthMode = ref(false)
 const seaMode = ref(false)
 const sublevelMode = ref(false)
+const drownedMode = ref(false)
 const hoshimoriMode = ref(false)
 const hoshimoriNightMode = ref(false)
 const collisionMode = ref(false)

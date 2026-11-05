@@ -66,6 +66,7 @@ export const useMemoryEarthStore = defineStore('memoryEarth', () => {
   const e03Choices = computed(() => save.value.records.e03.choices)
   const e03Flags = computed(() => save.value.records.e03.flags)
   const e04Flags = computed(() => save.value.records.e04.flags)
+  const e04Choices = computed(() => save.value.records.e04.choices)
   /**
    * e04 revisits e03's places, so its openings also answer to what Morrow
    * did there in e03 and to how he left Sublevel B.
@@ -336,6 +337,7 @@ export const useMemoryEarthStore = defineStore('memoryEarth', () => {
     e03Choices,
     e03Flags,
     e04Flags,
+    e04Choices,
     chosen,
     tiles,
     photographs,

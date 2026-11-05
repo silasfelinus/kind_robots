@@ -6,8 +6,8 @@
   >
     <header-page-bar console-theme="memory-dungeon">
       <div class="md-bar" data-testid="memory-sublevel-header">
-        <h2 class="md-bar-title" title="Under the Research Annex">
-          Sublevel B
+        <h2 class="md-bar-title" :title="sub.ui.subtitle">
+          {{ sub.ui.title }}
         </h2>
         <span class="md-bar-chip" :title="'Torch charge'">
           🔦 {{ sub.progress.battery }}/{{ sub.batteryMax }}
@@ -39,10 +39,9 @@
       class="flex min-h-0 flex-1 flex-col items-center justify-center gap-3 p-4 text-center"
       data-testid="memory-sublevel-locked"
     >
-      <h3 class="text-xl font-black">The archive door is still shut.</h3>
+      <h3 class="text-xl font-black">{{ sub.ui.lockedTitle }}</h3>
       <p class="max-w-lg text-sm leading-relaxed text-[#cbc3b4]">
-        Find the Sublevel B door in the Research Annex and decide how Morrow
-        gets past it.
+        {{ sub.ui.lockedBody }}
       </p>
       <button type="button" class="btn btn-warning" @click="emit('leave')">
         Return to the city
@@ -55,17 +54,13 @@
     >
       <section
         class="flex min-h-0 flex-col overflow-hidden rounded-xl border border-[#7d8b8f]/40 bg-[#18232b]"
-        aria-label="Sublevel B six by six archive plan"
+        :aria-label="sub.ui.title + ' six by six plan'"
       >
         <div
           class="flex shrink-0 items-center justify-between gap-2 p-2 text-xs"
         >
           <span class="font-bold text-[#d8e2c6]">
-            {{
-              sub.entry === 'escort'
-                ? 'Signed in, Walt beside you'
-                : 'On a borrowed badge'
-            }}
+            {{ sub.ui.entryLabels[sub.entry] }}
           </span>
           <span class="tabular-nums text-[#b9c3b9]">
             {{ sub.progress.visited.length }}/36 rooms
@@ -118,10 +113,10 @@
         >
           {{
             sub.progress.completed
-              ? 'You climbed out. The archive keeps what you chose.'
-              : sub.progress.hollisPassed
-                ? 'Hollis has let you through to the night archive.'
-                : 'Hollis keeps the night archive. Bring her something true.'
+              ? sub.ui.completed
+              : sub.progress.guardianPassed
+                ? sub.ui.guardianPassed
+                : sub.ui.guardianPending
           }}
         </p>
       </section>
@@ -201,12 +196,20 @@
 <script setup lang="ts">
 import { onMounted } from 'vue'
 import { useMemorySublevelStore } from '~/stores/memorySublevelStore'
-import type { SublevelKind } from '~/utils/memoryDungeon/sublevelB'
+import { useMemoryDrownedArchiveStore } from '~/stores/memoryDrownedArchiveStore'
+import type { DungeonKind } from '~/utils/memoryDungeon/authoredDungeon/types'
 
+const props = withDefaults(
+  defineProps<{ dungeon?: 'sublevel' | 'drowned' }>(),
+  { dungeon: 'sublevel' },
+)
 const emit = defineEmits<{ leave: [] }>()
-const sub = useMemorySublevelStore()
+const sub =
+  props.dungeon === 'drowned'
+    ? useMemoryDrownedArchiveStore()
+    : useMemorySublevelStore()
 
-function symbolFor(kind: SublevelKind): string {
+function symbolFor(kind: DungeonKind): string {
   return {
     entry: '▣',
     lore: '◈',

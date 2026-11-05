@@ -23,23 +23,26 @@
         <p
           class="text-sm font-semibold uppercase tracking-[0.16em] text-warning"
         >
-          Morning Briefing · Day {{ run.day }}
+          {{
+            showChance
+              ? `A surprise on the road · Day ${run.day} · Act ${chance?.act}`
+              : `Morning Briefing · Day ${run.day}`
+          }}
         </p>
         <h2 class="font-serif text-2xl font-bold text-warning @7xl:text-3xl">
-          {{ today?.title ?? 'The morning dispatches' }}
+          {{
+            showChance
+              ? chance?.title
+              : (today?.title ?? 'The morning dispatches')
+          }}
         </h2>
       </div>
       <article
-        v-if="chance"
+        v-if="showChance && chance"
         class="rounded-lg border-2 border-warning/60 bg-base-200/95 p-4 shadow-lg"
         aria-label="Today's unexpected encounter"
+        data-testid="eod-chance-screen"
       >
-        <p class="text-xs font-bold uppercase tracking-widest text-warning">
-          A surprise on the road · Act {{ chance.act }}
-        </p>
-        <h3 class="mt-1 font-serif text-xl font-bold @7xl:text-2xl">
-          {{ chance.title }}
-        </h3>
         <p class="eod-reading mt-2">{{ chance.text }}</p>
         <KrChoiceHand
           class="eod-hand mt-2"
@@ -52,7 +55,30 @@
         <p v-if="chanceError" class="mt-2 text-sm text-error" role="alert">
           {{ chanceError }}
         </p>
+        <button
+          type="button"
+          class="mt-3 block text-xs font-semibold uppercase tracking-widest text-warning underline-offset-4 opacity-80 hover:underline"
+          data-testid="eod-chance-defer"
+          @click="chanceDeferred = chance.id"
+        >
+          Leave the visitor waiting · read the morning briefing
+        </button>
       </article>
+      <button
+        v-else-if="chance"
+        type="button"
+        class="rounded-md border border-warning/40 bg-base-200/80 px-3 py-2 text-left text-sm transition-colors hover:border-warning hover:bg-warning/10"
+        data-testid="eod-chance-return"
+        @click="chanceDeferred = ''"
+      >
+        <span
+          class="block text-xs font-bold uppercase tracking-widest text-warning"
+          >Still waiting on the road · {{ chance.title }}</span
+        >
+        <span class="block opacity-80"
+          >Answer before the day ends, or the chance passes.</span
+        >
+      </button>
       <div
         v-else-if="run.dailyEventOutcome?.day === run.day"
         class="rounded-lg border border-warning/30 bg-base-200/90 p-4"
@@ -63,7 +89,7 @@
         </p>
         <p class="eod-reading mt-1 italic">{{ run.dailyEventOutcome.text }}</p>
       </div>
-      <template v-if="today">
+      <template v-if="today && !showChance">
         <p v-if="lines.komodo" class="eod-reading italic">
           <strong class="not-italic text-warning">{{ advisorName }}:</strong>
           “{{ lines.komodo }}”
@@ -181,28 +207,30 @@
           </ul>
         </details>
       </template>
-      <p
-        v-if="mapLine"
-        class="eod-reading border-l-2 border-error/70 pl-3 font-semibold text-error"
-      >
-        {{ mapLine.source }}: {{ mapLine.text }}
-      </p>
-      <p
-        v-if="candles"
-        class="eod-reading border-l-2 border-error/70 pl-3 font-semibold text-error"
-      >
-        {{ candles.source }}: {{ candles.text }}
-      </p>
-      <p
-        v-if="courting"
-        class="eod-reading border-l-2 border-warning/70 pl-3 font-semibold text-warning"
-      >
-        {{ courting.source }}: {{ courting.text }}
-      </p>
-      <p v-if="!today" class="eod-reading opacity-85">
-        No dispatches came up the road for Day {{ run.day }}. The wasteland’s
-        daily chores still reach the quest room.
-      </p>
+      <template v-if="!showChance">
+        <p
+          v-if="mapLine"
+          class="eod-reading border-l-2 border-error/70 pl-3 font-semibold text-error"
+        >
+          {{ mapLine.source }}: {{ mapLine.text }}
+        </p>
+        <p
+          v-if="candles"
+          class="eod-reading border-l-2 border-error/70 pl-3 font-semibold text-error"
+        >
+          {{ candles.source }}: {{ candles.text }}
+        </p>
+        <p
+          v-if="courting"
+          class="eod-reading border-l-2 border-warning/70 pl-3 font-semibold text-warning"
+        >
+          {{ courting.source }}: {{ courting.text }}
+        </p>
+        <p v-if="!today" class="eod-reading opacity-85">
+          No dispatches came up the road for Day {{ run.day }}. The wasteland’s
+          daily chores still reach the quest room.
+        </p>
+      </template>
       <button
         type="button"
         class="eod-finish mt-auto self-end px-4 py-2 text-sm"
@@ -253,6 +281,15 @@ const chance = computed(() =>
 )
 const chanceError = ref('')
 const acting = ref(false)
+/**
+ * The road encounter and the morning dispatches are separate prompts: the
+ * encounter takes the whole panel first, and the reports follow once it is
+ * answered (or the player chooses to leave the rider waiting).
+ */
+const chanceDeferred = ref('')
+const showChance = computed(
+  () => !!chance.value && chanceDeferred.value !== chance.value.id,
+)
 const costLine = (choice: ChanceEventChoice): string => {
   const brass = (choice.effects.brass ?? 0) - (choice.requires?.cost ?? 0)
   const local = Object.entries(choice.effects.local ?? {}).map(

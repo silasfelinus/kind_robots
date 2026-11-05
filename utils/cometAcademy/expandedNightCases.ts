@@ -10,8 +10,6 @@ export type ExpandedMission = {
   consequences: Record<Grade, string>
   tactics: Record<MissionApproach, string>
   secret: string
-  /** Distinct next-morning local news or witness callback. */
-  morning?: string
 }
 
 // Each case has a real site, stakes, an individual failure/refusal and a

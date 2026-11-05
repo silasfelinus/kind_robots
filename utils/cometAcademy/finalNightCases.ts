@@ -30,8 +30,6 @@ export const FINAL_NIGHT_MISSIONS: readonly ExpandedMission[] = [
       failed:
         "The gym's roof tears open under the changing gravity. Rescuers pull the students from twisted beams, but the sponsor removes the core during evacuation and the dean calls the incident a prank.",
     } as Record<Grade, string>,
-    morning:
-      'The disciplinary board has quietly removed the academy gym from its inspection tour. Detention students turn up anyway, carrying photographs of the fake moon and asking who authorized their gravity trial.',
     tactics: {
       rescue: "Anchor the students before the moon's next orbit",
       investigate:
@@ -66,8 +64,6 @@ export const FINAL_NIGHT_MISSIONS: readonly ExpandedMission[] = [
       failed:
         'The false stairwell folds across the archive, injuring two rescuers. Faculty orders the records sealed while the student spends the morning answering accusations about promises made under duress.',
     } as Record<Grade, string>,
-    morning:
-      'The scholarship office opens a public complaint desk. Every student who left the impossible staircase now wants to see the terms they signed and learn who enforced them.',
     tactics: {
       rescue: 'Bring the exhausted students down without bargaining',
       investigate: 'Ask who benefits each time a promise becomes a floor',
@@ -101,8 +97,6 @@ export const FINAL_NIGHT_MISSIONS: readonly ExpandedMission[] = [
       failed:
         'An incinerator flare ignites the costume racks and injures a technician. The mascot escapes into the ventilation system, terrified and convinced the students invited it into a trap.',
     } as Record<Grade, string>,
-    morning:
-      'The costume shop finds tiny green shoots beneath the doors at dawn. Former performers demand to know whether their old mascot is alive and whether its future belongs to anyone else.',
     tactics: {
       rescue: 'Protect the performers and carry the mascot outside',
       investigate: 'Discover whose voices live inside the costume',
@@ -136,8 +130,6 @@ export const FINAL_NIGHT_MISSIONS: readonly ExpandedMission[] = [
       failed:
         'The impossible train tears into the switchyard, injuring passengers and maintenance crews. The transit authority calls the footage a hologram and conceals the failed signal.',
     } as Record<Grade, string>,
-    morning:
-      "At breakfast, a transit worker places tomorrow's ruined graduation ticket on the classroom table. The depot has reinforced the broken switch, but nobody knows who wrote the warning.",
     tactics: {
       rescue: 'Clear the platform and stabilize the coming collision',
       investigate: 'Question the future graduates about the missing timetable',
@@ -171,8 +163,6 @@ export const FINAL_NIGHT_MISSIONS: readonly ExpandedMission[] = [
       failed:
         'The amplification system overloads and a train brakes violently above the tunnel. Several passengers are injured, and the promoter destroys the implant invoices before investigators arrive.',
     } as Record<Grade, string>,
-    morning:
-      'The morning trains arrive in silence. Their musicians gather outside the station with blank pay slips and ask the heroes to testify about the enforced concert.',
     tactics: {
       rescue: 'Evacuate disoriented commuters and mute the loudspeakers',
       investigate: "Listen for the instruction hidden in the musicians' score",
@@ -206,8 +196,6 @@ export const FINAL_NIGHT_MISSIONS: readonly ExpandedMission[] = [
       failed:
         'The shadow multiplies through the ticket gates and several rescuers forget their assignments. The terminal is evacuated, and the contractor takes the machines before the city can examine them.',
     } as Record<Grade, string>,
-    morning:
-      'The ticket inspector begins returning lost passenger memories by hand. A family invites you to a recognition ceremony while the transit contractor quietly challenges the evidence.',
     tactics: {
       rescue: 'Guide the stranded passengers beyond the gates',
       investigate: 'Open the ticket machines and identify the stolen memories',
@@ -241,8 +229,6 @@ export const FINAL_NIGHT_MISSIONS: readonly ExpandedMission[] = [
       failed:
         'The projected beam leads both captains toward a submerged wall. Crews pull injured passengers from the water, and the lighthouse keeper is suspended while officials investigate the wrong signal.',
     } as Record<Grade, string>,
-    morning:
-      'The harbor lighthouse keeper holds a community meeting about the false beacon. Both crews bring charts from their rescue, and private yachts are no longer exempt from inspection.',
     tactics: {
       rescue: 'Shield the approaching boats from the squall',
       investigate: 'Trace the fake beam to its yacht-mounted projector',
@@ -276,8 +262,6 @@ export const FINAL_NIGHT_MISSIONS: readonly ExpandedMission[] = [
       failed:
         'The ring snaps around a rescue launch and the channel fills with shattered steel. Crews retrieve injured passengers, and the donor offers charity money in exchange for silence about the missing seawall.',
     } as Record<Grade, string>,
-    morning:
-      "The city finds seawall bolts on the giant ring's wreckage. Dockworkers challenge the donor's charity gala with a demand for replacement barriers and back wages.",
     tactics: {
       rescue: 'Hold the widening ring while the launch crews escape',
       investigate: "Find the seam and the sponsor's inscription",
@@ -311,8 +295,6 @@ export const FINAL_NIGHT_MISSIONS: readonly ExpandedMission[] = [
       failed:
         'A panicked guard fires sedatives into the fog, injuring a dockworker and a creature. The rest flee into shipping lanes, and the company closes the pier to independent rescuers.',
     } as Record<Grade, string>,
-    morning:
-      'At dawn, fog-born creatures gather peacefully over Pier Thirteen. Residents ask to help maintain a sanctuary, while the shipping company threatens to reclaim the living cargo.',
     tactics: {
       rescue: 'Guide the floating animals away from heavy machinery',
       investigate: 'Examine the empty container for the missing nest',
@@ -346,8 +328,6 @@ export const FINAL_NIGHT_MISSIONS: readonly ExpandedMission[] = [
       failed:
         'A panicked crowd storms the annex after the first arrests. Several people are injured and the judge uses the disorder to justify the untested predictive system.',
     } as Record<Grade, string>,
-    morning:
-      "The justice annex withdraws some warrants and refuses to explain others. The public defender asks every rescued witness to help challenge the court's predictive contract.",
     tactics: {
       rescue: 'Protect the accused and keep the courtroom exits open',
       investigate: 'Cross-examine the shadows about their missing source dates',
@@ -381,8 +361,6 @@ export const FINAL_NIGHT_MISSIONS: readonly ExpandedMission[] = [
       failed:
         'The ambulances converge on a blocked bridge and crews must transfer patients in the dark. Injuries worsen while the private clinic scrubs its digital records.',
     } as Record<Grade, string>,
-    morning:
-      "Hospital medics carry the false ambulance routes into the morning briefing. Emergency dispatchers demand a public audit of the private clinic's billing and destination records.",
     tactics: {
       rescue: 'Escort the ambulances to real emergency entrances',
       investigate: 'Trace the phantom dispatch server and its billing keys',
@@ -416,8 +394,6 @@ export const FINAL_NIGHT_MISSIONS: readonly ExpandedMission[] = [
       failed:
         'The private shield grid fractures during the meteor drill, injuring rescue crews and exposing whole streets. The auctioneer blames public operators for refusing a profitable emergency partnership.',
     } as Record<Grade, string>,
-    morning:
-      "The shield grid's overnight failures are debated in every classroom. Residents of the exposed wards ask whether the school will help them challenge the auction contract before prom.",
     tactics: {
       rescue: 'Brace the failing shield emitters above the shelters',
       investigate: 'Identify who removed public shields before bidding began',

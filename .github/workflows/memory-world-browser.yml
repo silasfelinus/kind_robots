@@ -11,6 +11,7 @@ on:
       - 'utils/memoryDungeonWorld.ts'
       - 'utils/memoryDungeonWaves.ts'
       - 'utils/scripts/verifyMemoryWorldBrowser.browser.test.mjs'
+      - 'utils/scripts/verifyMemoryWorldOnePlaytest.test.mjs'
       - '.github/workflows/memory-world-browser.yml'
   workflow_dispatch:
 
@@ -35,6 +36,10 @@ jobs:
         run: npm ci
         env:
           CYPRESS_INSTALL_BINARY: '0'
+
+      # About three minutes: 20 seeded personas, ~37k store actions, ~2.4k reloads.
+      - name: Adversarially play World One through the real store
+        run: node utils/scripts/verifyMemoryWorldOnePlaytest.test.mjs
 
       - name: Install headless Chromium
         run: npx playwright install --with-deps chromium

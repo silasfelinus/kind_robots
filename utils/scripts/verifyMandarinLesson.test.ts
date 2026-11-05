@@ -501,13 +501,21 @@ console.log(
     ['朋'],
     'only a different character, not an extra compound with 有, earns a slot',
   )
-  const browserFamily = buildMandarinSoundFamilies([noHave, famous, you, friend])
+  const browserFamily = buildMandarinSoundFamilies([
+    noHave,
+    famous,
+    you,
+    friend,
+  ])
   assert.deepEqual(browserFamily[0]?.readings, ['you', 'peng'])
   assert.equal(browserFamily[0]?.members.length, 2)
 
   // A concatenated pinyin string is unaligned; make no historical claim.
   assert.equal(
-    characterReadingInCard(card({ simplified: '没有', pinyin: 'méiyǒu' }), '有'),
+    characterReadingInCard(
+      card({ simplified: '没有', pinyin: 'méiyǒu' }),
+      '有',
+    ),
     null,
   )
 }

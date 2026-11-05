@@ -221,8 +221,60 @@ export const SLIME_CITY_ART = {
    * Silas, 2026-11-02: "we need custom tokens for all cards on the board.
    * Images with reaction faces would probably work." Until a creature's
    * portraits render, its token uses the card art with a reaction badge.
+   * 2026-11-04 PT curation: 48 of the 72 kept; 24 re-render in
+   * BOARD-TOKENS-REDO-1.yaml (painted white frames, a child-looking Sprite,
+   * moods that do not read: calm or smiling "hurt" faces, a one-face frog).
    */
-  tokens: {} as Readonly<Record<string, number>>,
+  tokens: {
+    'lynx/fierce': 261605,
+    'lynx/guard': 261606,
+    'mau/fierce': 261608,
+    'mau/guard': 261609,
+    'calico/fierce': 261611,
+    'calico/guard': 261612,
+    'calico/hurt': 261613,
+    'chimera/fierce': 261614,
+    'chimera/guard': 261615,
+    'chimera/hurt': 261616,
+    'pogo/fierce': 261620,
+    'pogo/guard': 261621,
+    'razor/fierce': 261623,
+    'razor/guard': 261624,
+    'queen/fierce': 261626,
+    'scrapper/fierce': 261629,
+    'scrapper/guard': 261630,
+    'scrapper/hurt': 261631,
+    'welder/guard': 261633,
+    'bulldozer/guard': 261636,
+    'bulldozer/hurt': 261637,
+    'juggernaut/fierce': 261638,
+    'juggernaut/guard': 261639,
+    'juggernaut/hurt': 261640,
+    'rat/fierce': 261641,
+    'rat/guard': 261642,
+    'rat/hurt': 261643,
+    'firebrand/fierce': 261644,
+    'firebrand/guard': 261645,
+    'firebrand/hurt': 261646,
+    'kaboom/guard': 261648,
+    'bomber/guard': 261651,
+    'bomber/hurt': 261652,
+    'watcher/fierce': 261653,
+    'watcher/guard': 261654,
+    'frogtrooper/guard': 261658,
+    'eel/fierce': 261660,
+    'eel/hurt': 261662,
+    'oracle/guard': 261664,
+    'repo/fierce': 261666,
+    'repo/guard': 261667,
+    'repo/hurt': 261668,
+    'collector/guard': 261670,
+    'broker/fierce': 261672,
+    'broker/guard': 261673,
+    'broker/hurt': 261674,
+    'mogul/fierce': 261675,
+    'mogul/guard': 261676,
+  } as Readonly<Record<string, number>>,
 } as const
 
 export type SlimeCityArtGroup = keyof typeof SLIME_CITY_ART
@@ -249,4 +301,4 @@ export function slimeBoardArtId(district: string, mode: string): number | null {
   )
 }
 
-export const SLIME_CITY_ART_COUNT = 185
+export const SLIME_CITY_ART_COUNT = 233

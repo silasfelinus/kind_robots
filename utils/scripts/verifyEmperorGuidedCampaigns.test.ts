@@ -147,8 +147,12 @@ for (const plan of plans) {
       flags: string[]
     }[] = []
     const scenes: string[] = []
-    const dispatches: { day: number; quest: string; tier: string; text: string }[] =
-      []
+    const dispatches: {
+      day: number
+      quest: string
+      tier: string
+      text: string
+    }[] = []
     const barracks: { day: number; talk: string; option: string }[] = []
     const actCounts = Array.from({ length: 5 }, (_, i) => ({
       act: i + 1,
@@ -168,9 +172,17 @@ for (const plan of plans) {
         assert.ok(validateRun(run), plan.id + '/' + seed + ': valid save')
         if ([1, 5, 7, 8, 10, 11, 20, 30, 40, 41, 50, 51].includes(run.day))
           snapshots.push(
-            'D' + run.day + ': ' + run.brass + ' brass, ' +
-              run.roster.length + ' recruits, ' + run.memorials.length +
-              ' dead, ' + run.flags.length + ' flags',
+            'D' +
+              run.day +
+              ': ' +
+              run.brass +
+              ' brass, ' +
+              run.roster.length +
+              ' recruits, ' +
+              run.memorials.length +
+              ' dead, ' +
+              run.flags.length +
+              ' flags',
           )
       },
       {
@@ -183,8 +195,14 @@ for (const plan of plans) {
         onAudienceScene: (day, id, beat, lines) => {
           if (plan.choices[id])
             scenes.push(
-              'D' + day + ' ' + id + '/' +
-                (beat ?? 'opening') + ': ' + prose(lines),
+              'D' +
+                day +
+                ' ' +
+                id +
+                '/' +
+                (beat ?? 'opening') +
+                ': ' +
+                prose(lines),
             )
         },
         onAudienceChoice: (day, id, option, run) => {
@@ -229,7 +247,9 @@ for (const plan of plans) {
     if (dawns !== 51)
       failures.push(plan.id + '/' + seed + ': only ' + dawns + ' dawns')
     if (missingTargets.length)
-      failures.push(plan.id + '/' + seed + ': missing ' + missingTargets.join(', '))
+      failures.push(
+        plan.id + '/' + seed + ': missing ' + missingTargets.join(', '),
+      )
     console.log(
       'EMPEROR_GUIDED_PLAYTHROUGH ' +
         JSON.stringify({
@@ -270,13 +290,17 @@ for (const plan of plans) {
 mkdirSync('artifacts/emperor', { recursive: true })
 writeFileSync(
   'artifacts/emperor/editorial-guided-campaigns.json',
-  JSON.stringify({
-    method:
-      'Real five-act engine, nine guided choice families times two seeds, ' +
-      'no invented flags, followers, budgets or quest results',
-    campaigns,
-    failures,
-  }, null, 2) + '\n',
+  JSON.stringify(
+    {
+      method:
+        'Real five-act engine, nine guided choice families times two seeds, ' +
+        'no invented flags, followers, budgets or quest results',
+      campaigns,
+      failures,
+    },
+    null,
+    2,
+  ) + '\n',
 )
 console.log(
   'EMPEROR_GUIDED_SUMMARY ' +

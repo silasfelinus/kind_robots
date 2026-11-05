@@ -90,9 +90,20 @@ assert.doesNotMatch(
 )
 assert.match(
   hand,
-  /--scale: var\(--focus-scale\)/,
+  /--scale: calc\(var\(--focus-scale\) \/ var\(--k\)\)/,
   'games can enlarge the lifted card',
 )
+assert.match(
+  hand,
+  /@supports \(zoom: 1\) \{[\s\S]*?--k: var\(--focus-scale\);[\s\S]*?\.krh-flip,\s*\.krh-sparkles \{\s*zoom: var\(--k\);/,
+  'cards are drawn at their lifted size so a lifted card has no scale and its text stays crisp (Ecotone, 2026-11-05)',
+)
+assert.doesNotMatch(
+  hand,
+  /'--rot':/,
+  'the fan tilt is not set inline, where it would outrank the upright lifted card',
+)
+assert.match(hand, /--rot: var\(--fan-rot, 0deg\);/)
 
 const adopters: Array<[game: string, file: string, pattern: RegExp]> = [
   ['Ecotone', 'components/ecotone-choice-hand.vue', /<KrChoiceHand/],

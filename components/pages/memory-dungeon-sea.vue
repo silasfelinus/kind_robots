@@ -162,7 +162,7 @@
               <p
                 class="mt-2 max-h-28 overflow-auto text-xs leading-relaxed sm:text-sm"
               >
-                {{ sea.opening }} {{ sea.current.opening }}
+                {{ sea.opening }}
               </p>
             </div>
             <span

@@ -76,6 +76,8 @@ jobs:
         run: npx tsx utils/scripts/verifyMemorySublevel.test.ts
       - name: Unbelieving City e04 authored revisit, tide gate and legacy saves
         run: npx tsx utils/scripts/verifyMemoryUnbelievingCity.test.ts
+      - name: Scylla's Shore e05 authored sea palace and departure
+        run: npx tsx utils/scripts/verifyMemoryScyllasShore.test.ts
 
       - name: Memory Dungeon Hoshimori night-procession first sixteen-site proof
         run: npx tsx utils/scripts/verifyMemoryHoshimoriNight.test.ts

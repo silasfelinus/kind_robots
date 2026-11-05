@@ -1,7 +1,9 @@
 import { computed, ref, watch } from 'vue'
 import { defineStore } from 'pinia'
 import { useMemoryWorldStore } from './memoryWorldStore'
+import { useMemoryEarthStore } from './memoryEarthStore'
 import {
+  eventOpening,
   chooseOverworldEvent,
   eventNeighbors,
   newOverworldEventProgress,
@@ -58,13 +60,24 @@ export const useMemorySeaStore = defineStore('memorySea', () => {
   const progress = computed(() => records.value[active.value])
   const position = computed(() => save.value.positions[active.value])
   const current = computed(() => worldEvent(active.value, position.value))
+  const earth = useMemoryEarthStore()
+  /** Scylla remembers how the e04 tide gate went; e05 sites echo it. */
+  const echoFlags = computed<readonly string[]>(() => [
+    ...progress.value.flags,
+    ...earth.e04Flags,
+  ])
   const opening = computed(() =>
-    seaNarrative(
-      active.value,
-      position.value,
-      world.campaign,
-      progress.value.choices,
-    ),
+    [
+      seaNarrative(
+        active.value,
+        position.value,
+        world.campaign,
+        progress.value.choices,
+      ),
+      current.value ? eventOpening(current.value, echoFlags.value) : '',
+    ]
+      .filter(Boolean)
+      .join(' '),
   )
   const charFate = computed(() => memoryCharFate(world.campaign))
   const chosen = computed(() =>
@@ -109,6 +122,7 @@ export const useMemorySeaStore = defineStore('memorySea', () => {
   }
 
   function hydrate(): void {
+    earth.hydrate()
     if (hydrated.value) return
     hydrated.value = true
     if (!import.meta.client) return
@@ -191,6 +205,9 @@ export const useMemorySeaStore = defineStore('memorySea', () => {
     save.value.positions[active.value] = key
     notice.value = ''
     persist()
+    const arrived = worldEvent(active.value, key)
+    if (arrived?.instant && !progress.value.choices[key] && arrived.choices[0])
+      choose(arrived.choices[0].id)
   }
 
   function choose(choiceId: string): void {

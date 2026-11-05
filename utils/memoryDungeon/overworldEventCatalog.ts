@@ -20,6 +20,7 @@ import earthCollision from './earthCollision.json'
 import recipes from './overworldEventRecipes.json'
 import { MORROW_SHIFT_BY_KEY, type MorrowShiftSite } from './morrowShift'
 import { UNBELIEVING_CITY_BY_KEY } from './unbelievingCity'
+import { SCYLLAS_SHORE_BY_KEY } from './scyllasShore'
 import { BRIAR_SITES } from '../memoryDungeonWorld'
 
 export type OverworldKind =
@@ -178,6 +179,7 @@ const AUTHORED_WORLDS: Readonly<
 > = {
   e03: MORROW_SHIFT_BY_KEY,
   e04: UNBELIEVING_CITY_BY_KEY,
+  e05: SCYLLAS_SHORE_BY_KEY,
 }
 
 function generated(

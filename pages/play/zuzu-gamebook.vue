@@ -620,6 +620,7 @@ import {
   scene,
   type BattleAction,
   ENDING_IDS,
+  fightCue,
   lockReason,
   visibleChoices,
 } from '~/utils/zuzuGamebook/adventure'
@@ -777,15 +778,20 @@ const handChoices = computed<KrHandChoice[]>(() =>
     const { title, note } = splitRules(choice.label)
     const check = choice.check
     const locked = lockReason(store.run, choice)
+    const risk = locked ? null : fightCue(store.run, choice)
+    const details = [
+      ...(check
+        ? [`Roll 2d6 + ${check.attribute} against ${check.target}`]
+        : []),
+      ...(risk?.details ?? []),
+    ]
     return {
       id: choice.id,
       label: title,
-      chip: note || undefined,
+      chip: [note, risk?.chip].filter(Boolean).join(' · ') || undefined,
       shortcut: index < 9 ? String(index + 1) : undefined,
-      hint: locked ?? undefined,
-      details: check
-        ? [`Roll 2d6 + ${check.attribute} against ${check.target}`]
-        : undefined,
+      hint: locked ?? risk?.hint,
+      details: details.length ? details : undefined,
       disabled: !!locked,
       image: destinationPlate(choice),
       icon: check ? ATTRIBUTE_ICON[check.attribute] : '◆',

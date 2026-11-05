@@ -29,6 +29,7 @@ export type AlienSighting = {
   seed: number
   mood: AlienMood
   scene: string
+  returning?: true
 }
 export const ALIEN_CHOICES: readonly {
   id: AlienChoice
@@ -395,13 +396,25 @@ export function nextAlienSighting(
   )
   const pool = eligible.length ? eligible : unseen
   const attempts = guide.attempted.length
+  const returning =
+    attempts % 2 === 0
+      ? unseen.filter(
+          (species) =>
+            isAlienRunaway(guide, species.id) &&
+            species.id !== guide.lastContact?.speciesId,
+        )
+      : []
   const special =
     count >= 25 && attempts % 6 === 5
       ? pool.filter((species) => species.rarity === 'legendary')
       : count >= 12 && attempts % 4 === 3
         ? pool.filter((species) => species.rarity === 'rare')
         : []
-  const candidates = special.length ? special : pool
+  const candidates = returning.length
+    ? returning
+    : special.length
+      ? special
+      : pool
   const species =
     candidates[
       hash(visitKey(run) + ':' + count + ':' + attempts) % candidates.length
@@ -410,20 +423,66 @@ export function nextAlienSighting(
   const mood = ALIEN_MOODS[hash(visitKey(run) + ':mood:' + species.id) % 3]!
   const setting = SCENE_CLUES[species.category][mood]
   const personal = ALIEN_SPECIES_STORIES[species.id]
-  const scene = personal
+  const encounter = personal
     ? `${personal.incident} ${personal.evidence[mood]}`
     : `From the red couch, the crew spots ${species.name} near ${species.habitat}: ${species.appearance}. ${setting.incident} ${setting.evidence} The old field guide adds only: "${species.fieldNote}."`
+  const isReturn = isAlienRunaway(guide, species.id)
 
   return {
     species,
     seed: run.seed,
     chapter: run.chapter,
     mood,
-    scene,
+    scene: isReturn
+      ? `${alienRunawayCallback(guide, species)} ${encounter}`
+      : encounter,
+    ...(isReturn ? { returning: true as const } : {}),
   }
 }
-export const alienHint = (species: AlienSpecies): string =>
-  `Rumored near ${species.habitat}. ${species.rarity === 'legendary' ? 'Extremely rare, never permanently missed.' : 'Try another voyage.'}`
+
+export const isAlienRunaway = (guide: AlienGuide, speciesId: string): boolean =>
+  guide.contacts?.[speciesId] === 'retreat' &&
+  !guide.discovered.includes(speciesId)
+
+const RUNAWAY_RETURNS: Record<AlienSpecies['category'], string> = {
+  zodiac: 'Its stars have tracked the couch ever since.',
+  hybrid: 'Both halves argued about coming back. One half won.',
+  cosmic: 'It has trailed the couch at one polite light-second.',
+  social: 'It brought a witness, which feels very official.',
+  ecology: 'Its neighbourhood followed, pretending to be scenery.',
+  legendary: 'Its note now reads: Try Again, Properly.',
+}
+const FLED_FROM: Record<AlienChoice, string> = {
+  approach: 'peaceful hello',
+  observe: 'quiet watching',
+  improvise: 'ridiculous stunt',
+}
+
+const lastTry = (guide: AlienGuide, speciesId: string): string | null => {
+  const report = guide.fieldReports?.findLast(
+    (entry) => entry.speciesId === speciesId && entry.outcome === 'retreat',
+  )
+  return report?.choice ? FLED_FROM[report.choice] : null
+}
+
+export const alienRunawayCallback = (
+  guide: AlienGuide,
+  species: AlienSpecies,
+): string => {
+  const tried = lastTry(guide, species.id)
+  return `Second chance: the ${species.name} that fled${tried ? ` your ${tried}` : ''} is back. ${RUNAWAY_RETURNS[species.category]}`
+}
+
+export const alienHint = (
+  species: AlienSpecies,
+  guide?: AlienGuide,
+): string => {
+  if (guide && isAlienRunaway(guide, species.id)) {
+    const tried = lastTry(guide, species.id)
+    return `Near miss: it fled${tried ? ` your ${tried}` : ''}, but it is still following the couch. It will circle back on a later stop, and this time even a getaway leaves a blurry record.`
+  }
+  return `Rumored near ${species.habitat}. ${species.rarity === 'legendary' ? 'Extremely rare, never permanently missed.' : 'Try another voyage.'}`
+}
 
 const ALIEN_REACTIONS = {
   zodiac: {
@@ -483,7 +542,8 @@ export function resolveAlienSighting(
       text: 'The field guide refuses to file the same sighting twice.',
     }
   const outcome = alienOutcome(sighting.mood, choice)
-  const recorded = outcome !== 'retreat'
+  const secondChance = isAlienRunaway(guide, sighting.species.id)
+  const recorded = outcome !== 'retreat' || secondChance
   const alreadyKnown = guide.discovered.includes(sighting.species.id)
   const discovered =
     recorded && !alreadyKnown
@@ -548,6 +608,6 @@ export function resolveAlienSighting(
   const introduction = personal
     ? ''
     : moodReactions[sighting.mood][outcome] + ' '
-  const text = `${introduction}${reaction} ${species.name}: ${outcome === 'retreat' ? 'It may be encountered again on another voyage.' : outcome === 'bond' ? 'A new friend has been recorded in the scrapbook.' : 'An extraordinarily messy field record is saved.'}`
+  const text = `${introduction}${reaction} ${species.name}: ${outcome === 'retreat' ? (secondChance ? 'It bolted again, but the crew caught one blurry photo. A near-miss record is pinned in the scrapbook.' : 'It will circle back for a second chance on a later stop.') : outcome === 'bond' ? 'A new friend has been recorded in the scrapbook.' : 'An extraordinarily messy field record is saved.'}`
   return { guide: next, recorded: recorded && !alreadyKnown, text }
 }

@@ -244,7 +244,7 @@ export const BRIAR_COLLISION_ROUTE_SITES = {
         id: 'guard-the-live-circuit',
         label: 'Keep the emergency stair powered and appoint human watchers',
         outcome:
-          "Rowan refuses to trade the refugees' escape route for a quick victory and asks Mara to organize a human watch. The caretaker agrees to stop consulting the names. The archive remains a risk to be resolved later; the refugees keep a working escape route tonight.',
+          "Rowan refuses to trade the refugees' escape route for a quick victory and asks Mara to organize a human watch. The caretaker agrees to stop consulting the names. The archive remains a risk to be resolved later; the refugees keep a working escape route tonight.",
         flag: 'server-stair-guarded',
         effects: { trust: 2, danger: 1 },
         artSubject:

@@ -161,10 +161,14 @@ for (const species of ALIEN_SPECIES) {
       authoredLines.add(text)
       const report = resolveAlienSighting(empty, { ...sighting, mood }, choice)
       const actionStory = ALIEN_CHOICE_STORIES[species.id]?.[mood]?.[choice]
-      assert.ok(actionStory, species.name + ' has no mood/action-specific story')
+      assert.ok(
+        actionStory,
+        species.name + ' has no mood/action-specific story',
+      )
       assert.ok(
         report.text.startsWith(actionStory),
-        species.name + ' must lead with the actual selected action and reaction',
+        species.name +
+          ' must lead with the actual selected action and reaction',
       )
       assert.equal(report.recorded, outcome !== 'retreat')
     }

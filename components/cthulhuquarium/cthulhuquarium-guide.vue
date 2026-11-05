@@ -284,8 +284,8 @@ function replayWelcome() {
   position: relative;
   display: grid;
   width: min(100%, 60rem);
-  max-height: 100%;
-  grid-template-rows: minmax(10rem, 42%) minmax(0, 1fr);
+  height: min(100%, 42rem);
+  grid-template-rows: minmax(8rem, 38%) minmax(0, 1fr);
   overflow: hidden;
   border: 1px solid color-mix(in oklab, var(--color-primary) 45%, transparent);
   border-radius: 1.5rem;
@@ -372,8 +372,9 @@ function replayWelcome() {
 }
 @container (min-width: 46rem) {
   .cq-guide-card {
+    height: min(100%, 30rem);
     grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr);
-    grid-template-rows: minmax(26rem, 1fr);
+    grid-template-rows: minmax(0, 1fr);
   }
   .cq-guide-art-fade {
     background: linear-gradient(

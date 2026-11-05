@@ -68,7 +68,10 @@
           class="sch-card"
           :class="{
             selected: lab.selectedCard === card.id,
-            unavailable: card.cost > lab.match.mana || !lab.ready(card.id),
+            unavailable:
+              card.cost > lab.match.mana ||
+              !lab.ready(card.id) ||
+              (card.kind === 'creature' && fieldFull),
             spent: !lab.ready(card.id),
             'is-flipping': flipping === card.id,
             lifted: drag?.id === card.id,
@@ -199,6 +202,13 @@ const backArt = slimeArtId('ui', 'card-back')
 
 /** BLACKOUT, BLOODRUSH and TURF deal a hand; the lane fixture shows a rack. */
 const arena = computed(() => lab.sight.dealt)
+/** The field cap is reached: creature cards cannot deploy (Silas, 2026-11-05). */
+const fieldFull = computed(
+  () =>
+    lab.mode !== 'turf' &&
+    lab.sight.units.filter((u) => u.side === 'player').length >=
+      lab.sight.fieldCap,
+)
 /** Tossed cards leave the fan and sit on the discard pile until the draw. */
 const cards = computed(() =>
   arena.value

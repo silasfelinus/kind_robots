@@ -7,9 +7,17 @@
 import { defineStore } from 'pinia'
 import { RULER_HOOKED_CONTENT as BUNDLE } from '~/utils/rulerHooked/content'
 import { createRun } from '~/utils/rulerHooked/newGame'
-import { advanceAfterFishingAttempt, takeTurn, eligibleEnding } from '~/utils/rulerHooked/loop'
-import { resolveChoice, applyEffect, cloneSave } from '~/utils/rulerHooked/applyEffects'
-import { resolveScene } from '~/utils/rulerHooked/compositor'
+import {
+  advanceAfterFishingAttempt,
+  takeTurn,
+  eligibleEnding,
+} from '~/utils/rulerHooked/loop'
+import {
+  resolveChoice,
+  applyEffect,
+  cloneSave,
+} from '~/utils/rulerHooked/applyEffects'
+import { cycleTime, resolveScene } from '~/utils/rulerHooked/compositor'
 import { makeRng } from '~/utils/rulerHooked/seed'
 import {
   applySimpleFishingStop,
@@ -20,18 +28,42 @@ import {
   type ReelInput,
 } from '~/utils/rulerHooked/simpleFishing'
 import {
-  loadIndex, loadSave, writeSave, renameSlot as renameSlotStore,
-  deleteSlot as deleteSlotStore, setActive, makeSaveId,
+  loadIndex,
+  loadSave,
+  writeSave,
+  renameSlot as renameSlotStore,
+  deleteSlot as deleteSlotStore,
+  setActive,
+  makeSaveId,
 } from '~/utils/rulerHooked/save'
 import {
-  putPortrait, deletePortrait, makePortraitId,
+  putPortrait,
+  deletePortrait,
+  makePortraitId,
 } from '~/utils/rulerHooked/portraitStore'
 import { HERO_RULER_PRESET_ID } from '~/utils/rulerHooked/rulerPresets'
 import { GEAR_CATALOG, KINGDOM_CATALOG } from '~/utils/rulerHooked/economy'
 import {
-  ADVISOR_CHARACTER_SLUG, currentAdvisorLine, type AdvisorLine,
+  ADVISOR_CHARACTER_SLUG,
+  currentAdvisorLine,
+  type AdvisorLine,
 } from '~/utils/rulerHooked/advisor'
-import type { Card, CatchResult, CharacterRef, RunSave, SaveSlotMeta } from '~/types/ruler-hooked'
+import {
+  dayNumber,
+  hearProclamation as hearProclamationFor,
+  pendingProclamation,
+} from '~/utils/rulerHooked/dailyEvents'
+import {
+  learn as learnLesson,
+  skipAll as skipAllLessons,
+} from '~/utils/rulerHooked/tutorial'
+import type {
+  Card,
+  CatchResult,
+  CharacterRef,
+  RunSave,
+  SaveSlotMeta,
+} from '~/types/ruler-hooked'
 
 const nowStamp = (): string => new Date().toISOString()
 
@@ -49,12 +81,19 @@ export const useRulerHookedStore = defineStore('rulerHooked', () => {
   const scene = computed(() =>
     save.value ? resolveScene(save.value, bundle.regions) : null,
   )
+  /** Today's unheard Town Crier proclamation (dailyEvents.ts), if any. */
+  const proclamation = computed(() => pendingProclamation(save.value))
+  const day = computed(() => (save.value ? dayNumber(save.value) : 1))
+  const timeOfDay = computed(() => cycleTime(save.value?.turnCount ?? 0))
+
   const canFish = computed(
-    () => !!save.value
-      && !activeCard.value
-      && !activeFishing.value
-      && !pendingEnding.value
-      && save.value.status === 'ACTIVE',
+    () =>
+      !!save.value &&
+      !proclamation.value &&
+      !activeCard.value &&
+      !activeFishing.value &&
+      !pendingEnding.value &&
+      save.value.status === 'ACTIVE',
   )
 
   /** The standing advisor's Character record (ruler-hooked/t-028) -- present
@@ -223,10 +262,17 @@ export const useRulerHookedStore = defineStore('rulerHooked', () => {
       activeCard.value = result.card
       activeArcId.value = result.arcId ?? null
     } else {
-      const result = advanceAfterFishingAttempt(bundle, save.value, narrativeRng)
+      const result = advanceAfterFishingAttempt(
+        bundle,
+        save.value,
+        narrativeRng,
+      )
       save.value = result.save
       lastCatch.value = null
-      lastEscape.value = { fishName: nextEncounter.fishName, cue: nextEncounter.cue }
+      lastEscape.value = {
+        fishName: nextEncounter.fishName,
+        cue: nextEncounter.cue,
+      }
       activeCard.value = result.card
       activeArcId.value = result.arcId ?? null
     }
@@ -306,7 +352,10 @@ export const useRulerHookedStore = defineStore('rulerHooked', () => {
     if (save.value.flags[item.flagKey]) return
     if (coins.value < item.cost) return
     const next = cloneSave(save.value)
-    applyEffect(next, { counters: { coins: -item.cost }, flags: { set: [item.flagKey] } })
+    applyEffect(next, {
+      counters: { coins: -item.cost },
+      flags: { set: [item.flagKey] },
+    })
     next.updatedAt = nowStamp()
     save.value = next
     persist()
@@ -322,18 +371,73 @@ export const useRulerHookedStore = defineStore('rulerHooked', () => {
     if (!item) return
     if (coins.value < item.cost) return
     const next = cloneSave(save.value)
-    applyEffect(next, { counters: { coins: -item.cost }, sliders: item.sliders })
+    applyEffect(next, {
+      counters: { coins: -item.cost },
+      sliders: item.sliders,
+    })
     next.updatedAt = nowStamp()
     save.value = next
     persist()
   }
 
+  /** Hear the Town Crier: one small nudge, once per in-game day. */
+  function hearProclamation() {
+    if (!save.value || !proclamation.value) return
+    const next = hearProclamationFor(save.value)
+    next.updatedAt = nowStamp()
+    save.value = next
+    persist()
+  }
+
+  function learnTutorial(id: string) {
+    if (!save.value) return
+    learnLesson(save.value, id)
+    persist()
+  }
+
+  function skipTutorial() {
+    if (!save.value) return
+    skipAllLessons(save.value)
+    persist()
+  }
+
   return {
-    bundle, save, activeCard, activeArcId, pendingEnding, activeFishing,
-    lastCatch, lastEscape, slots, scene, canFish, coins,
-    advisorCharacter, advisorLine, showOpening,
-    init, newGame, updateCosmetics, loadSlot, startFishing, fishingStop, reelFishing, choose,
-    acceptEnding, declineEnding, dismissOpening, renameSlot, deleteSlot, refreshSlots,
-    purchaseGear, purchaseKingdomItem,
+    proclamation,
+    day,
+    timeOfDay,
+    hearProclamation,
+    learnTutorial,
+    skipTutorial,
+    bundle,
+    save,
+    activeCard,
+    activeArcId,
+    pendingEnding,
+    activeFishing,
+    lastCatch,
+    lastEscape,
+    slots,
+    scene,
+    canFish,
+    coins,
+    advisorCharacter,
+    advisorLine,
+    showOpening,
+    init,
+    newGame,
+    updateCosmetics,
+    loadSlot,
+    startFishing,
+    fishingStop,
+    reelFishing,
+    choose,
+    acceptEnding,
+    declineEnding,
+    dismissOpening,
+    renameSlot,
+    deleteSlot,
+    refreshSlots,
+    purchaseGear,
+    purchaseKingdomItem,
   }
 })

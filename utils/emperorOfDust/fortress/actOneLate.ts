@@ -247,14 +247,25 @@ export const ACT_ONE_LATE_QUESTS: readonly QuestDef[] = [
       { stat: 'heart', band: 'low' },
     ],
     danger: 'mid',
+    // t-046: the Day 6 stable search brought the mounts home.
+    aid: [
+      {
+        flags: ['stable-recovered'],
+        label: 'The stable’s mounts came home: the children ride',
+        bonus: 1,
+        stat: 'might',
+      },
+    ],
     rewards: {
       success: {
         affinity: { freeholds: 10, 'hollow-bell': 5 },
         flags: ['family-of-five-safe'],
+        schedule: ['d08-bakery'],
       },
       failure: {
         affinity: { freeholds: -5 },
         flags: ['family-of-five-scattered'],
+        schedule: ['d08-fifth-child'],
       },
     },
     expired: { affinity: { freeholds: -10 } },
@@ -310,13 +321,28 @@ export const ACT_ONE_LATE_QUESTS: readonly QuestDef[] = [
       triumph:
         'Every wagon crossed by dawn. The caravan master pressed a salvaged crowbar on the escort to keep.',
       success:
-        'All five iron wagons reach the Saltroad depot. The escort takes its pay standing up. They refuse to put their names on the depot’s casualty register.',
+        'Every iron wagon reaches the Saltroad depot. The escort takes its pay standing up. They refuse to put their names on the depot’s casualty register.',
       partial:
         'Two wagons make the far bank. A third burns in the canyon mouth. The caravan master asks whether the pay is counted by wagons saved or friends buried.',
       failure:
         'At dawn a single broken axle washes out of the rail canyon. The Saltroad factor recognizes a ribbon tied to it. The expedition list stays on the wall because nobody can yet say who came home.',
       expired:
         'The convoy leaves without the crown’s seal. Two days later its bells turn up for sale at the canyon market. No one has seen the drivers.',
+    },
+    // t-046: the painted wagons the crown hired rode the canyon too.
+    outcomeVariants: {
+      success: [
+        {
+          flags: ['pack-guarded-iron'],
+          text: 'Every iron wagon reaches the Saltroad depot, painted wagons riding the canyon rim beside them. The escort takes its pay standing up. Oriel pays the Pack its share last, and counts it twice.',
+        },
+      ],
+      failure: [
+        {
+          flags: ['pack-guarded-iron'],
+          text: 'At dawn a single broken axle washes out of the rail canyon. The Saltroad factor recognizes a ribbon tied to it. The Pack’s outriders were home before the escort. They swear they were driven off. Nobody asks them to swear it twice.',
+        },
+      ],
     },
   },
   {
@@ -483,6 +509,49 @@ export const ACT_ONE_LATE_DAYS: readonly DayDef[] = [
               },
             ],
           },
+          // t-046: the Day 4 feast, as the Pack’s other captain saw it.
+          {
+            flags: ['d04-feast-unarmed'],
+            lines: [
+              'Captain Gristle Vane does not walk up the carpet. He arrives on it. A greatcoat sewn from a hundred kinds of feather, and a few things that are not feathers. An ear-chain that jangles at every step. The two raiders at the doors pick their teeth with the court’s good spoons.',
+              'Your Majesty! You came to our feast with empty hands. I sat in the dark all night and counted them. Nobody reached for anything but goat. The most disappointing evening of my year.',
+              'The toll is thirty brass a week now. Prices rise. Or hire us to guard the carts we would otherwise rob. Cheaper than it sounds.',
+              'Or hold the bridge yourself. I would bring a chair.',
+              {
+                who: 'Young Komodo',
+                npc: 'young-komodo',
+                text: 'Thirty brass is a week of the Yard’s bread, Your Majesty. He priced it to the slice.',
+              },
+            ],
+          },
+          {
+            flags: ['d04-fiddler-vouches'],
+            lines: [
+              'Captain Gristle Vane does not walk up the carpet. He arrives on it. A greatcoat sewn from a hundred kinds of feather, and a few things that are not feathers. An ear-chain that jangles at every step. The two raiders at the doors pick their teeth with the court’s good spoons.',
+              'Your Majesty! My fiddler stood behind your chair all night. She has never once stood behind mine. I kept my twenty paces. I came to see what she was guarding.',
+              'The toll is thirty brass a week now. Prices rise. Or hire us to guard the carts we would otherwise rob. Cheaper than it sounds.',
+              'Or hold the bridge yourself. I would bring a chair.',
+              {
+                who: 'Young Komodo',
+                npc: 'young-komodo',
+                text: 'Thirty brass is a week of the Yard’s bread, Your Majesty. He priced it to the slice.',
+              },
+            ],
+          },
+          {
+            flags: ['d04-saffron-at-feast'],
+            lines: [
+              'Captain Gristle Vane does not walk up the carpet. He arrives on it. A greatcoat sewn from a hundred kinds of feather, and a few things that are not feathers. An ear-chain that jangles at every step. The two raiders at the doors pick their teeth with the court’s good spoons.',
+              'Your Majesty! You sent Kett to our fire under the old rule. Nobody drew. She sat with the fiddler’s camp, not mine. I noticed. I came to see who sends her.',
+              'The toll is thirty brass a week now. Prices rise. Or hire us to guard the carts we would otherwise rob. Cheaper than it sounds.',
+              'Or hold the bridge yourself. I would bring a chair.',
+              {
+                who: 'Young Komodo',
+                npc: 'young-komodo',
+                text: 'Thirty brass is a week of the Yard’s bread, Your Majesty. He priced it to the slice.',
+              },
+            ],
+          },
         ],
         lines: [
           'Captain Gristle Vane does not walk up the carpet. He arrives on it. A greatcoat sewn from a hundred kinds of feather, and a few things that are not feathers. An ear-chain that jangles at every step. The two raiders at the doors pick their teeth with the court’s good spoons.',
@@ -534,6 +603,7 @@ export const ACT_ONE_LATE_DAYS: readonly DayDef[] = [
               affinity: { jackalwire: 10, saltroad: 5 },
               local: { ledger: -2 },
               flags: ['paid-vane-twice'],
+              schedule: ['d05-next-toll'],
             },
             response:
               'Vane bows until his feathers sweep the floor. “This week only. Of course.” In the gallery the Ledger’s factor writes a line and underlines it twice.',
@@ -544,7 +614,7 @@ export const ACT_ONE_LATE_DAYS: readonly DayDef[] = [
             requires: { affinity: { jackalwire: 'wary' } },
             effects: {},
             response:
-              'Vane looks surprised. “Paid to do nothing to the carts. How restful.”',
+              'Vane’s ear-chain goes still. “Paid to do nothing to the carts. How restful.”',
             postsQuests: ['q-d05-saltroad-escort'],
           },
           {
@@ -646,6 +716,7 @@ export const ACT_ONE_LATE_DAYS: readonly DayDef[] = [
                   affinity: { jackalwire: 10, saltroad: 5 },
                   local: { ledger: -2 },
                   flags: ['paid-vane-twice'],
+                  schedule: ['d05-next-toll'],
                 },
                 response:
                   '“This week only.” Vane counts it into his hat. “I’ll tell the pups who bought their cough syrup. They won’t believe me.” The Ledger’s factor writes it down. Underlines it twice.',
@@ -796,6 +867,7 @@ export const ACT_ONE_LATE_DAYS: readonly DayDef[] = [
                   local: { 'old-houses': -2, 'gate-watch': -1 },
                   clearFlags: ['feast-armed'],
                   flags: ['d05-apologized-to-vane'],
+                  schedule: ['d05-loaf'],
                 },
                 response:
                   'The hall goes quiet enough to hear the lamp oil. Vane breaks the loaf and hands you the half without the knife. “Forty, then. An apology is worth ten. I checked.” He counts the forty into his hat. On the gallery rail an Old House fan snaps shut.',
@@ -1138,7 +1210,8 @@ export const ACT_ONE_LATE_DAYS: readonly DayDef[] = [
               'Have the Lamplight Archive write fair rules, posted on the gate.',
             requires: { local: { lamplight: 13 } },
             effects: { local: { lamplight: 2, ledger: 1, yard: 1 } },
-            response: 'Nobody gets everything. The rules are long and fair.',
+            response:
+              'The Archive’s rules go up on the gate by dusk. Four pages. Every stall loses something, and every stall can read what.',
           },
         ],
         beats: [
@@ -1467,7 +1540,7 @@ export const ACT_ONE_LATE_DAYS: readonly DayDef[] = [
               affinity: { freeholds: 3, 'storm-crows': -5 },
             },
             response:
-              '“A third of a forecast is worse than none.” He may be right.',
+              '“A third of a forecast is worse than none.” By dusk the Freeholds are cutting by lamplight, guessing at the hour.',
           },
         ],
         beats: [
@@ -1553,13 +1626,13 @@ export const ACT_ONE_LATE_DAYS: readonly DayDef[] = [
                 label:
                   'Send the count to the Mothers, sealed, with the crown’s apology for taking it.',
                 effects: {
-                  schedule: ['d07-storm'],
+                  schedule: ['d07-storm', 'd07-bog-myrtle'],
                   affinity: { 'mire-mothers': 10, 'storm-crows': -5 },
                   local: { lamplight: -2 },
                   flags: ['d07-count-returned'],
                 },
                 response:
-                  'The Archive gives up its only copy like a funeral. Three days later a sprig of bog myrtle is tied to the fortress gate. The envoy takes the rest of his forecast home.',
+                  'The Archive gives up its only copy like a funeral. The envoy takes the rest of his forecast home.',
               },
               {
                 id: 'errand',
@@ -1740,13 +1813,15 @@ export const ACT_ONE_LATE_DAYS: readonly DayDef[] = [
               local: { 'old-houses': 1, yard: 3 },
               flags: ['open-council'],
             },
-            response: '“How democratic.” She says it like a disease.',
+            response:
+              '“How democratic.” She holds the word away from her coat.',
           },
           {
             id: 'refuse',
             label: 'The council stays as it is.',
             effects: { local: { 'old-houses': -3 } },
-            response: 'Lady Vask leaves without looking back. People notice.',
+            response:
+              'Lady Vask leaves without looking back. Along the gallery rail, six fans close one after another.',
           },
         ],
         beats: [
@@ -1802,6 +1877,7 @@ export const ACT_ONE_LATE_DAYS: readonly DayDef[] = [
                 effects: {
                   local: { yard: -2, 'old-houses': 1 },
                   flags: ['d07-rations-continued'],
+                  schedule: ['d07-broth'],
                 },
                 response:
                   'Dunmore puts the heel back beneath the cloth. By evening the Yard serves a bowl of broth and no bread. Vask takes both basket and cushion home.',
@@ -1842,6 +1918,7 @@ export const ACT_ONE_LATE_DAYS: readonly DayDef[] = [
                 effects: {
                   local: { 'old-houses': 3, yard: -1 },
                   flags: ['d07-granary-repaid'],
+                  schedule: ['d07-granary-restored'],
                 },
                 response:
                   'She takes the brass like a returned glove. “Restitution. How old-fashioned. We will still want the chair.” In the Yard the bread tastes the same. Everyone agrees it tastes worse.',
@@ -2061,6 +2138,7 @@ export const ACT_ONE_LATE_DAYS: readonly DayDef[] = [
                     'abbey-took-coldbrook-children',
                     'd08-visits-promised',
                   ],
+                  schedule: ['d08-any-hour'],
                 },
                 response:
                   '“Of course. At any hour.” She means it. That is the worst part. Wenna lets go of the smallest hand last.',
@@ -2281,6 +2359,26 @@ export const ACT_ONE_LATE_DAYS: readonly DayDef[] = [
         speaker: 'Factor Marisol Tallow of the Ledger',
         npc: 'marisol-tallow',
         faction: 'ledger',
+        // t-046: the factor underlined the Day 5 toll twice. She remembers why.
+        variants: [
+          {
+            flags: ['paid-vane-twice'],
+            lines: [
+              'Factor Tallow returns with a smaller book. Green leather, with a lock. She sets it on the arm of the throne like it lives there. A Gate Watch sergeant stands beside the book the way you stand beside a man you have been told not to search.',
+              'The Ledger would extend the crown a line of credit, Majesty. Forty brass now. A little more later.',
+              'You paid a raider thirty brass at the bridge for one week’s peace. I wrote it down. I underlined it twice. A crown that pays tolls by the week will want credit by the month.',
+              {
+                who: 'Young Komodo',
+                npc: 'young-komodo',
+                text: '“A little more later” is the most expensive phrase in the wasteland, Your Majesty. Ask how little. And how much later.',
+              },
+              {
+                who: 'A Gate Watch sergeant',
+                text: '“Ask her about the carts, Majesty.”',
+              },
+            ],
+          },
+        ],
         lines: [
           'Factor Tallow returns with a smaller book. Green leather, with a lock. She sets it on the arm of the throne like it lives there. A Gate Watch sergeant stands beside the book the way you stand beside a man you have been told not to search.',
           'The Ledger would extend the crown a line of credit, Majesty. Forty brass now. A little more later.',
@@ -2343,7 +2441,7 @@ export const ACT_ONE_LATE_DAYS: readonly DayDef[] = [
               {
                 id: 'surety',
                 label:
-                  'Take the forty. Pledge the stall fees as surety. The Watch still searches carts.',
+                  'Take thirty against the stall fees as surety. The Watch still searches carts.',
                 requires: { flags: ['market-charter'] },
                 effects: {
                   brass: 30,
@@ -2352,7 +2450,7 @@ export const ACT_ONE_LATE_DAYS: readonly DayDef[] = [
                   schedule: ['ledger-loan'],
                 },
                 response:
-                  'Tallow sees her own charter offered back as collateral and smiles for the first time today. “You read it. Nobody reads it.” By evening the stall fees belong to the Ledger.',
+                  'Tallow sees her own charter offered back as collateral and smiles for the first time today. “You read it. Nobody reads it.” She counts out thirty, not forty. The Watch’s right to search costs ten. By evening the stall fees belong to the Ledger.',
               },
               {
                 id: 'accept',
@@ -2417,6 +2515,36 @@ export const ACT_ONE_LATE_DAYS: readonly DayDef[] = [
         speaker: 'Oriel Saltmarsh, caravan master',
         npc: 'oriel-saltmarsh',
         faction: 'saltroad',
+        // t-046: the crown’s own carts crossed Vane’s bridge free on Day 5.
+        variants: [
+          {
+            flags: ['d05-toll-waived'],
+            lines: [
+              'Oriel Saltmarsh fills the doorway in her caravan coat. Axle grease and the sea. Goggles pushed up, a ledger in her pouch. She does not walk the carpet. She inspects it for load-bearing.',
+              'Nine wagons of old-world iron and a canyon full of people who want it. My drivers go tonight, escort or not. The iron is their wages.',
+              'Your carts crossed Vane’s bridge free this week. Mine paid thirty. Your advisor will have told you what the red mark on the posting means. Tonight I would like the crown to risk something of its own.',
+              {
+                who: 'Young Komodo',
+                npc: 'young-komodo',
+                text: 'Some who go may not come back, Your Majesty. Not probably. Possibly. That is the whole difference, and it is enough.',
+              },
+            ],
+          },
+          {
+            // t-046: the Pack’s Day 5 escort brought the Saltroad carts home.
+            flags: ['jackalwire-escort-pact'],
+            lines: [
+              'Oriel Saltmarsh fills the doorway in her caravan coat. Axle grease and the sea. Goggles pushed up, a ledger in her pouch. She does not walk the carpet. She inspects it for load-bearing.',
+              'Nine wagons of old-world iron and a canyon full of people who want it. My drivers go tonight, escort or not. The iron is their wages.',
+              'The Pack brought my salt carts home for you this week. Every wagon. One goat short, and a receipt for the goat in the crown’s name. Your advisor will have told you what the red mark on the posting means. If you hire them again, I will count the goats.',
+              {
+                who: 'Young Komodo',
+                npc: 'young-komodo',
+                text: 'Some who go may not come back, Your Majesty. Not probably. Possibly. That is the whole difference, and it is enough.',
+              },
+            ],
+          },
+        ],
         lines: [
           'Oriel Saltmarsh fills the doorway in her caravan coat. Axle grease and the sea. Goggles pushed up, a ledger in her pouch. She does not walk the carpet. She inspects it for load-bearing.',
           'Nine wagons of old-world iron and a canyon full of people who want it. My drivers go tonight, escort or not. The iron is their wages.',
@@ -2597,6 +2725,22 @@ export const ACT_ONE_LATE_DAYS: readonly DayDef[] = [
         speaker: 'A Gate Watch corporal',
         faction: 'ledger',
         requires: { flags: ['ledger-credit'] },
+        // t-046: the surety loan kept the Watch’s search. The Ledger found the seam.
+        variants: [
+          {
+            flags: ['d08-fees-pledged'],
+            lines: [
+              'The corporal carries a splintered wheel chock. Someone has carved the Ledger seal into it. She sets it on the throne arm beside yesterday’s loan agreement.',
+              '“The first cart came at dawn. Medicine under canvas. Three locked cases beneath the floorboards, sealed as stall fees. You pledged the stall fees to the Ledger, Majesty. The driver says that makes the cases the Ledger’s surety, and surety is not searched.”',
+              '“Your terms say the Watch still searches carts. His reading says not this cart. I can open the cases. I would rather the throne said which reading is the law.”',
+              {
+                who: 'Young Komodo',
+                npc: 'young-komodo',
+                text: 'The crown kept the Watch’s search and pledged the fees, Your Majesty. The factor has found the seam between the two. She always does.',
+              },
+            ],
+          },
+        ],
         lines: [
           'The corporal carries a splintered wheel chock. Someone has carved the Ledger seal into it. She sets it on the throne arm beside yesterday’s loan agreement.',
           '“The first cart came at dawn. Medicine under canvas. Three locked cases beneath the floorboards. Our sergeant showed the driver the search order. The driver showed him your signature.”',
@@ -2623,6 +2767,7 @@ export const ACT_ONE_LATE_DAYS: readonly DayDef[] = [
             effects: {
               local: { ledger: -2, 'gate-watch': 2 },
               flags: ['d09-ledger-cart-searched'],
+              schedule: ['d09-medicine-back'],
             },
             response:
               'The Watch opens the cases. Two hold fever medicine. The third holds blank debt warrants, already stamped with the crown’s seal. The driver takes the medicine away until the Ledger receives an apology. A mother at the gate watches the cart leave.',
@@ -2633,6 +2778,7 @@ export const ACT_ONE_LATE_DAYS: readonly DayDef[] = [
             effects: {
               local: { ledger: 2, 'gate-watch': -2 },
               flags: ['d09-ledger-cart-passed'],
+              schedule: ['d09-blank-form'],
             },
             response:
               'The driver bows and rolls through. The corporal returns her search key to the hook. Behind the cart, two families wait for the medicine it carries. The Ledger clerk asks each family to sign a blank form before unloading.',
@@ -2659,6 +2805,7 @@ export const ACT_ONE_LATE_DAYS: readonly DayDef[] = [
                 effects: {
                   local: { ledger: -1, 'gate-watch': 1, yard: 1 },
                   flags: ['d09-ledger-cart-witnessed'],
+                  schedule: ['d09-cart-tally'],
                 },
                 response:
                   'The driver accepts the escort fee with two fingers. The Watch counts every bottle and every name. The families get their medicine. The Ledger keeps its warrants. The corporal stays at the gate until dark.',
@@ -2670,6 +2817,7 @@ export const ACT_ONE_LATE_DAYS: readonly DayDef[] = [
                 effects: {
                   local: { ledger: -2, 'gate-watch': 2 },
                   flags: ['d09-ledger-cart-searched'],
+                  schedule: ['d09-medicine-back'],
                 },
                 response:
                   'The Watch opens the cases. Two hold fever medicine. The third holds blank debt warrants stamped with your seal. The driver takes the medicine away pending an apology. The sick wait at the gate.',
@@ -2681,6 +2829,7 @@ export const ACT_ONE_LATE_DAYS: readonly DayDef[] = [
                 effects: {
                   local: { ledger: 2, 'gate-watch': -2 },
                   flags: ['d09-ledger-cart-passed'],
+                  schedule: ['d09-blank-form'],
                 },
                 response:
                   'The cart passes. The medicine is unloaded beside a table of blank forms. The corporal stands on the wrong side of the gate while families sign.',
@@ -2721,6 +2870,7 @@ export const ACT_ONE_LATE_DAYS: readonly DayDef[] = [
             effects: {
               local: { 'gate-watch': 2, yard: -2 },
               flags: ['d09-postern-list-filed'],
+              schedule: ['d09-kitchen-hands'],
             },
             response:
               'The sergeant takes the paper before the boy can fold it. At supper three kitchen hands are missing from the bench. Their bowls are still set out. The stablehand eats standing up.',
@@ -2732,6 +2882,7 @@ export const ACT_ONE_LATE_DAYS: readonly DayDef[] = [
             effects: {
               local: { yard: 2, 'gate-watch': -2 },
               flags: ['d09-postern-list-burned'],
+              schedule: ['d09-blank-tally'],
             },
             response:
               'The paper catches at the corner and curls into ash. The boy watches until there is nothing to read. The sergeant does not salute. He asks who will stand watch at the postern tonight.',
@@ -2769,6 +2920,7 @@ export const ACT_ONE_LATE_DAYS: readonly DayDef[] = [
                 effects: {
                   local: { 'gate-watch': 2, yard: -2 },
                   flags: ['d09-postern-list-filed'],
+                  schedule: ['d09-kitchen-hands'],
                 },
                 response:
                   'The sergeant takes the list. Three kitchen hands are missing at supper. The stablehand puts his own bowl aside and goes looking for his sister.',
@@ -2780,9 +2932,10 @@ export const ACT_ONE_LATE_DAYS: readonly DayDef[] = [
                 effects: {
                   local: { yard: 2, 'gate-watch': -2 },
                   flags: ['d09-postern-list-burned'],
+                  schedule: ['d09-blank-tally'],
                 },
                 response:
-                  'The names blacken. The sergeant takes the night watch himself. At dawn he sends you a tally of everyone who passed. He has left the names blank.',
+                  'The names blacken. The sergeant says nothing. He takes the night watch at the postern himself.',
               },
             ],
           },
@@ -2912,6 +3065,19 @@ export const ACT_ONE_LATE_DAYS: readonly DayDef[] = [
         flags: ['d07-galleries-found'],
         text: 'Your people came back from under the Ford with clean boots, Your Majesty. Dry galleries. I was wrong, and my runner will hear about it. Today belongs to the Watch, and to Thistledown. Whatever happens at that village is on the map tomorrow.',
       },
+      // t-046: what the Day 4 and Day 7 parties brought back.
+      {
+        flags: ['d07-galleries-door-barred'],
+        text: 'Your people found a door under the Ford, Your Majesty, barred from the inside. Rubble does not bar doors. My runner will explain himself to me before he explains himself to you. Today belongs to the Watch, and to Thistledown. Whatever happens at that village is on the map tomorrow.',
+      },
+      {
+        flags: ['crow-silence-explained'],
+        text: 'Something always moves in the east, Your Majesty. Our envoys came down off the elders’ ledge with one sentence: something out there stopped singing first. I have been trying to think what sings in a rail yard. Today belongs to the Watch, and to Thistledown. Whatever happens at that village is on the map tomorrow.',
+      },
+      {
+        flags: ['crow-roost-seen'],
+        text: 'Something always moves in the east, Your Majesty. Your climbers saw every watcher on the roost facing the sunken rail yards. Crows do not all face one way for nothing. Today belongs to the Watch, and to Thistledown. Whatever happens at that village is on the map tomorrow.',
+      },
     ],
     quests: ['q-d10-freehold-raid'],
     audiences: [
@@ -2938,6 +3104,21 @@ export const ACT_ONE_LATE_DAYS: readonly DayDef[] = [
                 text: 'Two chairs make more witnesses, Your Majesty. They do not make an order easier.',
               },
               'The young sentries wait with their hands on their belts. One of them keeps looking toward the smoke.',
+            ],
+          },
+          {
+            // t-046: the crown signed the postern list on Day 9.
+            flags: ['d09-postern-crown-witness'],
+            lines: [
+              'Noon. The whole Gate Watch stands in the parade yard below the balcony. Sixty, in dented gorgets and patched tabards. The young ones too straight. The old ones leaning on their spears. East, past the walls, a thin line of smoke stands up where Thistledown should be.',
+              'Captain Ferro Dunmark climbs to the balcony alone. Broad-shouldered, a scar across his cheek and one torn ear. A folded paper sits in his belt: the postern list, the crown’s name signed above the stablehand’s. He salutes the way a door closes.',
+              'The Watch is ready to swear, Majesty. Every one of them knows whose name is at the top of that list. They want to know what you swear back.',
+              'Soldiers will die for a crown. They would rather know it won’t spend them like brass.',
+              {
+                who: 'Young Komodo',
+                npc: 'young-komodo',
+                text: 'Every guardroom will repeat what you say here for as long as you wear the crown, Your Majesty. Choose words you can afford.',
+              },
             ],
           },
         ],
@@ -3009,7 +3190,7 @@ export const ACT_ONE_LATE_DAYS: readonly DayDef[] = [
               recruitable: ['F013'],
             },
             response:
-              'The cheer is real. Whether the loyalty is, time will tell.',
+              'The cheer is real. Dunmark watches the purses go down the line and does not cheer.',
           },
         ],
         beats: [
@@ -3330,6 +3511,7 @@ export const ACT_ONE_LATE_DAYS: readonly DayDef[] = [
                   local: { 'gate-watch': 1, 'old-houses': 2 },
                   affinity: { freeholds: -5 },
                   flags: ['d10-oath-of-the-gate'],
+                  schedule: ['d10-sentry-home'],
                 },
                 response:
                   'The Watch swears to the gate, and holds it. The smoke stands up all afternoon. Nobody on the wall says the village’s name. At dusk the young sentry asks to be relieved. Dunmark lets him go, and does not ask where.',
@@ -3387,7 +3569,8 @@ export const ACT_ONE_LATE_DAYS: readonly DayDef[] = [
             id: 'ask-colors',
             label: 'Ask whose colors the wagons fly.',
             effects: {},
-            response: 'She has to think. That tells you how close she was.',
+            response:
+              'She has to think. Her hand goes to the tine at her belt.',
             next: 'colors',
           },
           {
@@ -3442,6 +3625,7 @@ export const ACT_ONE_LATE_DAYS: readonly DayDef[] = [
               affinity: { freeholds: 5 },
               local: { yard: -1 },
               flags: ['d10-restored-stall-guides'],
+              schedule: ['d10-cart-chalk'],
               questAid: [
                 {
                   questId: 'q-d10-freehold-raid',
@@ -3464,6 +3648,7 @@ export const ACT_ONE_LATE_DAYS: readonly DayDef[] = [
               affinity: { freeholds: 4 },
               local: { ledger: -1 },
               flags: ['d10-leased-stall-guides'],
+              schedule: ['d10-lease-runs-out'],
               questAid: [
                 {
                   questId: 'q-d10-freehold-raid',
@@ -3486,6 +3671,7 @@ export const ACT_ONE_LATE_DAYS: readonly DayDef[] = [
               affinity: { freeholds: 5 },
               local: { ledger: -3 },
               flags: ['d10-evicted-stall-guides'],
+              schedule: ['d10-last-cart'],
               questAid: [
                 {
                   questId: 'q-d10-freehold-raid',
@@ -3508,6 +3694,7 @@ export const ACT_ONE_LATE_DAYS: readonly DayDef[] = [
               affinity: { freeholds: 5 },
               local: { yard: -2 },
               flags: ['d10-bread-carts-sent'],
+              schedule: ['d10-empty-flour-carts'],
               questAid: [
                 {
                   questId: 'q-d10-freehold-raid',
@@ -3530,6 +3717,7 @@ export const ACT_ONE_LATE_DAYS: readonly DayDef[] = [
               affinity: { freeholds: 5 },
               local: { 'old-houses': -3, 'gate-watch': 1 },
               flags: ['d10-house-wagons-ordered'],
+              schedule: ['d10-vask-account'],
               questAid: [
                 {
                   questId: 'q-d10-freehold-raid',
@@ -3554,6 +3742,7 @@ export const ACT_ONE_LATE_DAYS: readonly DayDef[] = [
               affinity: { freeholds: 3 },
               local: { 'gate-watch': -3, yard: 1 },
               flags: ['d10-watch-rations-diverted'],
+              schedule: ['d10-broth-story'],
               questAid: [
                 {
                   questId: 'q-d10-freehold-raid',
@@ -3682,6 +3871,7 @@ export const ACT_ONE_LATE_DAYS: readonly DayDef[] = [
                   affinity: { freeholds: 6, jackalwire: 5, saltroad: -4 },
                   local: { ledger: -1 },
                   flags: ['d10-fiddler-grain-bargain'],
+                  schedule: ['d10-folded-sacks'],
                   questAid: [
                     {
                       questId: 'q-d10-freehold-raid',
@@ -3708,6 +3898,7 @@ export const ACT_ONE_LATE_DAYS: readonly DayDef[] = [
                 effects: {
                   affinity: { freeholds: 5, jackalwire: -5 },
                   flags: ['d10-tincture-called-in'],
+                  schedule: ['d10-tincture-vial'],
                   questAid: [
                     {
                       questId: 'q-d10-freehold-raid',
@@ -4035,5 +4226,182 @@ export const ACT_ONE_LATE_DUES: readonly DueDef[] = [
         flags: ['ledger-loan-written-off'],
       },
     },
+  },
+  // t-046: Days 5-10 answers that come back at a later dawn, unannounced.
+  {
+    id: 'd05-next-toll',
+    title: 'This week only',
+    inDays: 7,
+    hidden: true,
+    when: { flags: ['paid-vane-twice'] },
+    line: 'A week to the day, a pup on a painted bicycle brought the crown a toll receipt. Thirty brass, for the coming week, in a careful hand. Along the bottom: “This week only.” Under that, smaller: “Again.” Nobody sent the brass. Nobody came for it.',
+  },
+  {
+    id: 'd05-loaf',
+    title: 'The other half of the loaf',
+    inDays: 2,
+    hidden: true,
+    when: { flags: ['d05-apologized-to-vane'] },
+    line: 'The other half of the knife loaf came up the bridge road at dawn, wrapped in a clean cloth. No knife in it. Pinned to the cloth, in a pup’s capitals: ACCEPTED. The Old Houses tell the story at dinner. In their version the crown knelt.',
+  },
+  {
+    id: 'd07-bog-myrtle',
+    title: 'Bog myrtle',
+    inDays: 1,
+    hidden: true,
+    when: { flags: ['d07-count-returned'] },
+    line: 'At dawn a sprig of bog myrtle was tied to the fortress gate. Nobody on the wall saw who tied it. The Watch left it where it was.',
+  },
+  {
+    id: 'd07-broth',
+    title: 'Broth again',
+    inDays: 1,
+    hidden: true,
+    when: { flags: ['d07-rations-continued'] },
+    line: 'Broth again at the Yard’s tables, and no bread. A child asked Dunmore whether bread was for feast days now. He said yes. Then he went out and sat by the cold ovens until the lamps were lit.',
+  },
+  {
+    id: 'd07-granary-restored',
+    title: 'Restored',
+    inDays: 2,
+    hidden: true,
+    when: { flags: ['d07-granary-repaid'] },
+    line: 'Old Bellam counted the repaid sacks back into the Old Houses’ granary himself, coughing on every tenth. Lady Vask’s receipt came up before noon: RESTORED. Under it, in the same hand, the Houses’ terms for a council chair. Unchanged.',
+  },
+  {
+    id: 'd08-any-hour',
+    title: 'At any hour',
+    inDays: 3,
+    hidden: true,
+    when: { flags: ['d08-visits-promised'] },
+    line: 'The crown’s clerk took the Sister at her word and walked up the mission road at the second hour of night. The gate was open. A sister was waiting inside it with a lit lamp. She led him to three cots in a row, the Coldbrook children asleep under clean blankets. He counted three, twice, and walked home in the dark.',
+  },
+  {
+    id: 'd08-bakery',
+    title: 'Above the bakery',
+    inDays: 3,
+    hidden: true,
+    when: { flags: ['family-of-five-safe'] },
+    line: 'A letter from Hollow Bell in the baker’s hand. The family above the bakery has paid its first week in kneading. The youngest’s drawing of a horse hangs in the shop window. It is still mostly legs.',
+  },
+  {
+    id: 'd08-fifth-child',
+    title: 'The fifth child',
+    inDays: 2,
+    hidden: true,
+    when: { flags: ['family-of-five-scattered'] },
+    line: 'A sister walked down from the mission road with word for the family from the culvert. A Freehold child had been found on the Hollow Bell road, fed, and settled. She had no name to give. Wenna asked for one. The sister said she would ask. The lamp by the road has gone out.',
+  },
+  {
+    id: 'd09-medicine-back',
+    title: 'The medicine comes back',
+    inDays: 1,
+    hidden: true,
+    when: { flags: ['d09-ledger-cart-searched'] },
+    line: 'The Ledger’s fever medicine came back through the gate at dawn. Nobody had apologized. Factor Tallow’s note was one line: “The sick are not a negotiating position. The warrants are.” The warrants did not come back.',
+  },
+  {
+    id: 'd09-blank-form',
+    title: 'One form, filled in',
+    inDays: 4,
+    hidden: true,
+    when: { flags: ['d09-ledger-cart-passed'] },
+    line: 'One of the blank forms from the gate came back filled in. A family on the east wall owes the Ledger for a bottle of fever salts, at the Ledger’s rate, under the crown’s seal. The corporal copied it and pinned the copy inside the Watch room door.',
+  },
+  {
+    id: 'd09-cart-tally',
+    title: 'The corporal’s tally',
+    inDays: 2,
+    hidden: true,
+    when: { flags: ['d09-ledger-cart-witnessed'] },
+    line: 'The corporal’s tally of the Ledger cart reached the throne: forty-one bottles, nine names, every warrant still blank. She keeps the original in her boot. Tallow’s clerks have started greeting her by name.',
+  },
+  {
+    id: 'd09-kitchen-hands',
+    title: 'Three kitchen hands',
+    inDays: 1,
+    hidden: true,
+    when: { flags: ['d09-postern-list-filed'] },
+    line: 'The three kitchen hands came out of the Watch cells at dawn with a week’s bread docked. None of them will sit near the stablehand. His sister has stopped coming to the postern. He does not know where she sleeps now.',
+  },
+  {
+    id: 'd09-blank-tally',
+    title: 'The sergeant’s tally',
+    inDays: 1,
+    hidden: true,
+    when: { flags: ['d09-postern-list-burned'] },
+    line: 'At dawn the sergeant sent up his tally of the postern: eleven crossings in the night, every name left blank. Beside one line he had drawn a heel of bread.',
+  },
+  {
+    id: 'd10-sentry-home',
+    title: 'The relieved sentry',
+    inDays: 1,
+    hidden: true,
+    when: { flags: ['d10-oath-of-the-gate'] },
+    line: 'The young sentry who asked to be relieved came back through the gate before dawn, on foot, with his mother on his back. He reported for the morning watch. Dunmark marked him present for the night.',
+  },
+  {
+    id: 'd10-cart-chalk',
+    title: 'Chalk on a stall board',
+    inDays: 1,
+    hidden: true,
+    when: { flags: ['d10-restored-stall-guides'] },
+    line: 'The egg-seller stood at the market gate until the last cart came home from Thistledown, and chalked every one on her stall board. She has left the chalk up. Nobody at the Ledger stalls has rubbed it out.',
+  },
+  {
+    id: 'd10-lease-runs-out',
+    title: 'The leased week',
+    inDays: 5,
+    hidden: true,
+    when: { flags: ['d10-leased-stall-guides'] },
+    line: 'The sellers’ leased week ran out at dawn. Tallow’s clerk came for the pitches with a fresh lease. The egg-seller paid it on the spot, in brass earned carting Thistledown’s families, and asked for a receipt.',
+  },
+  {
+    id: 'd10-last-cart',
+    title: 'The last cart',
+    inDays: 1,
+    hidden: true,
+    when: { flags: ['d10-evicted-stall-guides'] },
+    line: 'The evicted egg-seller brought the last Thistledown cart in at dawn. She took her pay at the gate and did not ask for her pitch back. By noon her blanket was spread on the Ford road, a mile past the Ledger’s stalls.',
+  },
+  {
+    id: 'd10-empty-flour-carts',
+    title: 'The flour carts',
+    inDays: 1,
+    hidden: true,
+    when: { flags: ['d10-bread-carts-sent'] },
+    line: 'The Yard’s flour carts came back from the Ford empty, with Thistledown children asleep on the sacking. Supper at the fortress was broth. Nobody in the Yard complained where Dunmore could hear.',
+  },
+  {
+    id: 'd10-vask-account',
+    title: 'Lady Vask’s account',
+    inDays: 2,
+    hidden: true,
+    when: { flags: ['d10-house-wagons-ordered'] },
+    line: 'Lady Vask’s account arrived, copied out by three cousins in one hand: four wagons, thirty-one sacks, two axles, and one wheel “damaged by the crown’s urgency”. At the foot, in her own hand: Not for payment. For the record.',
+  },
+  {
+    id: 'd10-broth-story',
+    title: 'Broth on the walls',
+    inDays: 1,
+    hidden: true,
+    when: { flags: ['d10-watch-rations-diverted'] },
+    line: 'The Watch on the walls ate broth at midnight and bread at noon. By the next guard change the old guard with the grey muzzle had told it to the recruits twice. In his version the crown carried the sack down itself.',
+  },
+  {
+    id: 'd10-folded-sacks',
+    title: 'Folded sacks',
+    inDays: 1,
+    hidden: true,
+    when: { flags: ['d10-fiddler-grain-bargain'] },
+    line: 'The fiddler’s camp sent the crown’s grain sacks back from the bridge, empty and folded, the medicine pennant on top. A note in a pup’s hand counted the sacks. It did not mention Thistledown.',
+  },
+  {
+    id: 'd10-tincture-vial',
+    title: 'The tincture vial',
+    inDays: 1,
+    hidden: true,
+    when: { flags: ['d10-tincture-called-in'] },
+    line: 'At dawn the fiddler’s wagons were back at the bridge camp. On the toll post she had tied an empty tincture vial from the first day, wound in one fiddle string. The debt is paid. Both sides can read it.',
   },
 ]

@@ -1,7 +1,14 @@
 import assert from 'node:assert/strict'
 import { existsSync, readFileSync, readdirSync } from 'node:fs'
-import { ACT_ONE_DAYS, ACT_ONE_QUESTS } from '../emperorOfDust/fortress/actOne'
-import { ACT_ONE_LATE_QUESTS } from '../emperorOfDust/fortress/actOneLate'
+import {
+  ACT_ONE_DAYS,
+  ACT_ONE_DUES,
+  ACT_ONE_QUESTS,
+} from '../emperorOfDust/fortress/actOne'
+import {
+  ACT_ONE_LATE_DUES,
+  ACT_ONE_LATE_QUESTS,
+} from '../emperorOfDust/fortress/actOneLate'
 import { ACT_TWO_QUESTS } from '../emperorOfDust/fortress/actTwo'
 import {
   ACT_THREE_DUES,
@@ -8683,4 +8690,414 @@ console.log('Emperor of Dust fortress contract: ok')
       questDef('q-d28-rot-cure')!.rewards[tier].schedule?.includes(due),
       due,
     )
+}
+
+// --- t-046: Act I's later days remember what the crown did ----------------------
+{
+  const actOne = DAYS.filter((def) => def.day <= 10)
+  const daysFourToTen = actOne.filter((def) => def.day >= 4)
+  const answersOf = (def: (typeof DAYS)[number]) =>
+    def.audiences.flatMap((audience) => [
+      ...audience.options,
+      ...(audience.beats ?? []).flatMap((beat) => beat.options),
+    ])
+  const questsOf = (days: typeof DAYS, listed: readonly { id: string }[]) =>
+    new Set([
+      ...days.flatMap((def) => def.quests),
+      ...days.flatMap(answersOf).flatMap((option) => option.postsQuests ?? []),
+      ...listed.map((quest) => quest.id),
+    ])
+  const sources = readdirSync(
+    new URL('../emperorOfDust/fortress/', import.meta.url),
+  )
+    .filter((file) => file.endsWith('.ts'))
+    .map((file) =>
+      readFileSync(
+        new URL(`../emperorOfDust/fortress/${file}`, import.meta.url),
+        'utf8',
+      ),
+    )
+    .join('\n')
+  type Noted = { flags?: string[]; schedule?: string[] } | undefined
+  const resultsOf = (ids: Set<string>): Noted[] =>
+    [...ids].flatMap((id) => {
+      const quest = questDef(id)
+      return quest ? [...Object.values(quest.rewards), quest.expired] : []
+    })
+
+  // Days 4-10: a flag an answer or a quest result sets is read somewhere
+  // later, or arrives with a due.
+  const setters = new Map<string, number>()
+  const consequence = new Set<string>()
+  for (const effects of [
+    ...daysFourToTen.flatMap(answersOf).map((option) => option.effects),
+    ...resultsOf(questsOf(daysFourToTen, ACT_ONE_LATE_QUESTS)),
+  ])
+    for (const flag of effects?.flags ?? []) {
+      setters.set(flag, (setters.get(flag) ?? 0) + 1)
+      if (effects?.schedule?.length) consequence.add(flag)
+    }
+  const forgotten = [...setters].filter(
+    ([flag, count]) =>
+      !consequence.has(flag) && sources.split(`'${flag}'`).length - 1 <= count,
+  )
+  assert.deepEqual(
+    forgotten.map(([flag]) => flag),
+    [],
+    'every Days 4-10 choice flag is remembered',
+  )
+
+  // A due's own gate is not a reader: every Act I due is really scheduled,
+  // by an Act I answer, an Act I quest result, or another due.
+  const scheduled = new Set<string>()
+  for (const effects of [
+    ...actOne.flatMap(answersOf).map((option) => option.effects),
+    ...resultsOf(questsOf(actOne, [...ACT_ONE_QUESTS, ...ACT_ONE_LATE_QUESTS])),
+    ...DUES.flatMap((due) => [
+      due.effects,
+      due.unpaid?.effects,
+      due.lapsed?.effects,
+    ]),
+  ])
+    for (const id of effects?.schedule ?? []) scheduled.add(id)
+  assert.deepEqual(
+    [...ACT_ONE_DUES, ...ACT_ONE_LATE_DUES]
+      .map((due) => due.id)
+      .filter((id) => !scheduled.has(id)),
+    [],
+    'every Act I due is set by something the crown did',
+  )
+
+  const answer = (run: FortressRun, id: string, ...path: string[]) => {
+    for (const option of path) run = chooseAudienceOption(run, id, option).run
+    return run
+  }
+  const lineTexts = (run: FortressRun, id: string) => {
+    const audience = audiencesToday(run).find((a) => a.id === id)!
+    return audienceScene(run, audience).lines.map(lineText).join(' ')
+  }
+  const day = (n: number) => DAYS.find((def) => def.day === n)!
+  const optionAt = (n: number, id: string, beat: string, option: string) => {
+    const audience = day(n).audiences.find((a) => a.id === id)!
+    const options =
+      beat === 'opening'
+        ? audience.options
+        : audience.beats!.find((entry) => entry.id === beat)!.options
+    return options.find((entry) => entry.id === option)!
+  }
+
+  // The Pack's other captain saw the Day 4 feast.
+  for (const [flag, marker] of [
+    ['d04-feast-unarmed', /empty hands/],
+    ['d04-fiddler-vouches', /behind your chair/],
+    ['d04-saffron-at-feast', /sent Kett/],
+  ] as const) {
+    assert.match(
+      lineTexts(onDay(1, 5, { flags: [flag] }), 'd05-toll'),
+      marker,
+      flag,
+    )
+    assert.doesNotMatch(lineTexts(onDay(1, 5), 'd05-toll'), marker)
+  }
+  // The Ledger and the Saltroad kept count of the Day 5 bridge.
+  assert.match(
+    lineTexts(onDay(1, 8, { flags: ['paid-vane-twice'] }), 'd08-ledger-loan'),
+    /underlined it twice/,
+  )
+  assert.match(
+    lineTexts(onDay(1, 9, { flags: ['d05-toll-waived'] }), 'd09-convoy'),
+    /Mine paid thirty/,
+  )
+  // The surety loan kept the Watch's search, and the Ledger argues it.
+  assert.match(
+    lineTexts(
+      onDay(1, 9, { flags: ['ledger-credit', 'd08-fees-pledged'] }),
+      'd09-ledger-cart',
+    ),
+    /surety is not searched/,
+  )
+  const surety = optionAt(8, 'd08-ledger-loan', 'terms', 'surety')
+  assert.equal(surety.effects.brass, 30)
+  assert.match(surety.label, /thirty/)
+  assert.match(surety.response, /thirty/)
+  // Dunmark swears the Watch with the postern list in his belt.
+  assert.match(
+    lineTexts(
+      onDay(1, 10, { flags: ['d09-postern-crown-witness'] }),
+      'd10-oath',
+    ),
+    /postern list/,
+  )
+  // The mapmaker remembers what the crown answered at the feast.
+  for (const [flag, marker] of [
+    ['d04-informant-claimed', /Watch fire, not the postern/],
+    ['d04-informant-denied', /Rope burns/],
+  ] as const)
+    assert.match(
+      lineTexts(
+        onDay(1, 16, { flags: ['pack-camp-mapped', flag] }),
+        'd16-bandaged-paw',
+      ),
+      marker,
+      flag,
+    )
+  // Komodo reports what the Day 4 and Day 7 parties found.
+  for (const [flag, marker] of [
+    ['d07-galleries-door-barred', /barred from the inside/],
+    ['crow-silence-explained', /stopped singing first/],
+    ['crow-roost-seen', /facing the sunken rail yards/],
+  ] as const)
+    assert.match(dayLines({ flags: [flag] }, day(10)).komodo, marker, flag)
+  assert.equal(dayLines({ flags: [] }, day(10)).komodo, day(10).komodo)
+
+  // The Saltroad remembers who guarded its carts on Day 5.
+  assert.match(
+    lineTexts(onDay(1, 9, { flags: ['jackalwire-escort-pact'] }), 'd09-convoy'),
+    /count the goats/,
+  )
+  // The stable mounts help the Day 8 walk. (Lethal quests take no flag aid:
+  // aid switches off their lethal scaling.)
+  assert.ok(lethalScaled(questDef('q-d09-iron-convoy')!))
+  for (const [questId, flag, posted, marker] of [
+    ['q-d08-escort-to-bell', 'stable-recovered', 8, /mounts came home/],
+  ] as const) {
+    const helped = onDay(1, posted, { flags: [flag] })
+    helped.board = [{ questId, postedDay: posted, lastDay: posted + 1 }]
+    const plain = { ...helped, flags: [] }
+    assert.ok(
+      previewQuest(helped, questId, ['F001']).aid.some((aid) =>
+        marker.test(aid.label),
+      ),
+      flag,
+    )
+    assert.ok(
+      previewQuest(helped, questId, ['F001']).chance >
+        previewQuest(plain, questId, ['F001']).chance,
+      `${flag} raises the odds`,
+    )
+  }
+  const convoy = questDef('q-d09-iron-convoy')!
+  assert.match(
+    questOutcomeText(
+      onDay(1, 11, { flags: ['pack-guarded-iron'] }),
+      convoy,
+      'success',
+    ),
+    /canyon rim/,
+  )
+  // Oriel counts nine wagons; the success line no longer says five.
+  assert.doesNotMatch(convoy.outcomes.success ?? '', /five/)
+
+  // The mapmaker is a girl on Day 4 too, and the prose stops promising the
+  // future: those beats now arrive as dawns.
+  const informant = day(4)
+    .audiences.find((a) => a.id === 'd04-painted-feast')!
+    .beats!.find((beat) => beat.id === 'informant')!
+  assert.doesNotMatch(
+    [
+      ...informant.lines.map(lineText),
+      ...informant.options.map((option) => option.response),
+    ].join(' '),
+    /\b(boy|him|his|He’s)\b/,
+  )
+  for (const [n, id, beat, option, promise] of [
+    [4, 'd04-painted-feast', 'informant', 'deny-informant', /After a week/],
+    [7, 'd07-crow-warning', 'count', 'return-count', /Three days later/],
+    [9, 'd09-postern-list', 'first-name', 'burn-list', /At dawn/],
+  ] as const)
+    assert.doesNotMatch(optionAt(n, id, beat, option).response, promise)
+  // The bog myrtle due sits beside the storm forecast it did not replace.
+  assert.deepEqual(
+    optionAt(7, 'd07-crow-warning', 'count', 'return-count').effects.schedule,
+    ['d07-storm', 'd07-bog-myrtle'],
+  )
+
+  // Choices that promised a reckoning get one at a later dawn, unannounced.
+  const dueAt = (run: FortressRun, id: string): string[] => {
+    const due = run.dues?.find((entry) => entry.id === id)
+    assert.ok(due, `${id} is scheduled`)
+    assert.ok(dueDef(id)?.hidden, `${id} stays off the ledger`)
+    return finishDay({ ...run, day: due.day - 1 }).report.events
+  }
+  const cart = onDay(1, 9, { flags: ['ledger-credit'], brass: 100 })
+  const postern = onDay(1, 9, { flags: ['d06-postern-informant'] })
+  const relief = (flag: string) => onDay(1, 10, { flags: [flag], brass: 100 })
+  for (const [run, id, path, due, marker] of [
+    [
+      onDay(1, 4, { flags: ['d01-pip-on-staff'], brass: 100 }),
+      'd04-letter-from-bell',
+      ['ask-page', 'recall', 'post-page', 'fund-inquiry'],
+      'd04-pip-scribes',
+      /binding thread/,
+    ],
+    [
+      onDay(1, 4, { flags: ['pack-camp-mapped'] }),
+      'd04-painted-feast',
+      ['ask-patron', 'ask-informant', 'deny-informant'],
+      'd04-ration-card',
+      /burned it/,
+    ],
+    [
+      onDay(1, 5, { brass: 100 }),
+      'd05-toll',
+      ['pay'],
+      'd05-next-toll',
+      /Again/,
+    ],
+    [
+      onDay(1, 5, { flags: ['feast-armed'], brass: 100 }),
+      'd05-toll-grudge',
+      ['ask-feast', 'apologize'],
+      'd05-loaf',
+      /ACCEPTED/,
+    ],
+    [
+      onDay(1, 7, { flags: ['mire-quiet-count'] }),
+      'd07-crow-warning',
+      ['ask-hands', 'ask-count', 'return-count'],
+      'd07-bog-myrtle',
+      /bog myrtle/,
+    ],
+    [
+      onDay(1, 7, { flags: ['d05-bread-rationed'] }),
+      'd07-old-houses',
+      ['ask-bread', 'keep-ration'],
+      'd07-broth',
+      /feast days/,
+    ],
+    [
+      onDay(1, 7, { flags: ['d05-granary-seized'], brass: 100 }),
+      'd07-old-houses',
+      ['ask-chair', 'repay-granary'],
+      'd07-granary-restored',
+      /RESTORED/,
+    ],
+    [
+      onDay(1, 8),
+      'd08-family',
+      ['ask-beds', 'visits'],
+      'd08-any-hour',
+      /counted three/,
+    ],
+    [cart, 'd09-ledger-cart', ['search'], 'd09-medicine-back', /warrants/],
+    [cart, 'd09-ledger-cart', ['pass'], 'd09-blank-form', /filled in/],
+    [
+      cart,
+      'd09-ledger-cart',
+      ['ask-manifest', 'escort'],
+      'd09-cart-tally',
+      /forty-one bottles/,
+    ],
+    [postern, 'd09-postern-list', ['file-list'], 'd09-kitchen-hands', /docked/],
+    [
+      postern,
+      'd09-postern-list',
+      ['ask-first', 'burn-list'],
+      'd09-blank-tally',
+      /heel of bread/,
+    ],
+    [
+      onDay(1, 10),
+      'd10-oath',
+      ['ask-ranks', 'hold-gate'],
+      'd10-sentry-home',
+      /mother on his back/,
+    ],
+    [
+      relief('d08-blankets-restored'),
+      'd10-thistledown',
+      ['restored-market-guides'],
+      'd10-cart-chalk',
+      /chalked/,
+    ],
+    [
+      relief('d08-blankets-leased'),
+      'd10-thistledown',
+      ['leased-market-guides'],
+      'd10-lease-runs-out',
+      /fresh lease/,
+    ],
+    [
+      relief('d08-blankets-evicted'),
+      'd10-thistledown',
+      ['evicted-market-guides'],
+      'd10-last-cart',
+      /Ford road/,
+    ],
+    [
+      relief('d07-rations-bought'),
+      'd10-thistledown',
+      ['bread-carts'],
+      'd10-empty-flour-carts',
+      /sacking/,
+    ],
+    [
+      relief('d07-ration-writ'),
+      'd10-thistledown',
+      ['house-wagons'],
+      'd10-vask-account',
+      /For the record/,
+    ],
+    [
+      relief('d05-bread-rationed'),
+      'd10-thistledown',
+      ['watch-rations'],
+      'd10-broth-story',
+      /carried the sack/,
+    ],
+    [
+      relief('d05-fiddler-backed'),
+      'd10-thistledown',
+      ['ask-colors', 'feed-fiddler'],
+      'd10-folded-sacks',
+      /folded/,
+    ],
+    [
+      relief('pack-medicine'),
+      'd10-thistledown',
+      ['ask-colors', 'tincture'],
+      'd10-tincture-vial',
+      /fiddle string/,
+    ],
+  ] as const)
+    assert.ok(
+      dueAt(answer(run, id, ...path), due).some((line) => marker.test(line)),
+      due,
+    )
+
+  // Quest results that leave someone waiting get a dawn of their own.
+  for (const [questId, tier, due, flag, marker] of [
+    [
+      'q-d04-survey-flags',
+      'success',
+      'd04-clapperless-seal',
+      'survey-seal-read',
+      /no clapper/,
+    ],
+    [
+      'q-d08-escort-to-bell',
+      'success',
+      'd08-bakery',
+      'family-of-five-safe',
+      /mostly legs/,
+    ],
+    [
+      'q-d08-escort-to-bell',
+      'failure',
+      'd08-fifth-child',
+      'family-of-five-scattered',
+      /no name/,
+    ],
+  ] as const) {
+    assert.ok(questDef(questId)!.rewards[tier]?.schedule?.includes(due), due)
+    assert.ok(dueDef(due)?.hidden, `${due} stays off the ledger`)
+    const waiting = onDay(1, 9, {
+      flags: [flag],
+      dues: [{ id: due, day: 10, from: 9 }],
+    })
+    assert.ok(
+      finishDay(waiting).report.events.some((line) => marker.test(line)),
+      due,
+    )
+  }
 }

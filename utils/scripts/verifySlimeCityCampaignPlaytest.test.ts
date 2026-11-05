@@ -3,6 +3,7 @@ import {
   campaignBattleTerms,
   campaignEchoFor,
   campaignFavorsFor,
+  campaignLegacyFor,
   createCampaignSave,
   FACTION_CAMPAIGNS,
   resolveCampaignBattle,
@@ -169,10 +170,12 @@ for (const team of TEAMS) {
       assert.deepEqual(first.metrics, second.metrics)
     }
   }
-  // The finale currently awards a fifth favor but has no next story fight.
+  // The finale awards a fifth favor with no next story fight; it carries into
+  // district rival and contract bouts as the crew legacy (t-009).
   const finale = earnedSave(team.id, 4, 'conviction')
   assert.equal(campaignFavorsFor(finale, team.id).length, 5)
   assert.equal(campaignEchoFor(finale, team.id), null)
+  assert.equal(campaignLegacyFor(finale, team.id)?.chapterIndex, 4)
 }
 assert.equal(trials.length, 192)
 assert.equal(baselineCache.size, 96)

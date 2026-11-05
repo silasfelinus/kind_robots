@@ -211,6 +211,20 @@
           grant no account Meat, XP or pack cards.</small
         >
       </article>
+      <div
+        v-if="lab.campaignLegacy"
+        class="campaign-deck"
+        :class="'tone-' + lab.team.color"
+        data-testid="slime-campaign-legacy"
+      >
+        <SlimeCityFavors
+          heading="CREW LEGACY · CARRIED INTO DISTRICT RIVALS AND CONTRACTS"
+        />
+        <p class="campaign-legacy-terms">
+          <strong>{{ lab.campaignLegacy.echo.title }}</strong> ·
+          {{ describeTerms(lab.campaignLegacy.echo.terms) }}
+        </p>
+      </div>
       <div v-if="hasAftermath" class="campaign-deck">
         <button
           type="button"
@@ -298,46 +312,7 @@
         </div>
       </article>
       <div class="campaign-deck" :class="'tone-' + lab.team.color">
-        <div
-          v-if="lab.campaignFavors.length"
-          class="campaign-favors"
-          role="group"
-          aria-label="Choose earned story support"
-          data-testid="slime-campaign-favors"
-        >
-          <span class="campaign-overline">EARNED SUPPORT · NEXT FIGHT</span>
-          <div class="campaign-favor-row">
-            <button
-              v-for="favor in lab.campaignFavors"
-              :key="favor.chapterIndex"
-              type="button"
-              class="campaign-favor"
-              :class="{
-                active: favor.chapterIndex === lab.campaignFavorIndex,
-              }"
-              :aria-pressed="favor.chapterIndex === lab.campaignFavorIndex"
-              :title="
-                'Chapter ' +
-                (favor.chapterIndex + 1) +
-                ' · ' +
-                favor.choice +
-                ' · ' +
-                describeTerms(favor.echo.terms)
-              "
-              :data-testid="'slime-favor-' + favor.chapterIndex"
-              @click="lab.selectCampaignFavor(favor.chapterIndex)"
-            >
-              <SlimeCityArtwork
-                class="campaign-favor-art"
-                :image-id="slimeArtId('crews', favor.ally)"
-                :alt="teamName(favor.ally) + ' earned ally portrait'"
-                :fallback="teamName(favor.ally)"
-                compact
-              />
-              <strong>{{ favor.echo.title }}</strong>
-            </button>
-          </div>
-        </div>
+        <SlimeCityFavors heading="EARNED SUPPORT · NEXT FIGHT" />
         <KrChoiceHand
           :choices="approachChoices"
           question="CHOOSE YOUR APPROACH · BLACKOUT RULES"
@@ -806,50 +781,11 @@ function playApproach(choice: KrHandChoice) {
 .campaign-deck.tone-gold {
   --tone: #f7c968;
 }
-.campaign-favors {
-  display: grid;
-  gap: 0.4rem;
-  min-width: 0;
-}
-.campaign-favor-row {
-  display: flex;
-  gap: 0.45rem;
-  overflow-x: auto;
-  scrollbar-width: thin;
-}
-.campaign-favor {
-  display: flex;
-  align-items: center;
-  flex: none;
-  gap: 0.5rem;
-  max-width: 14rem;
-  min-height: 3.25rem;
-  padding: 0.3rem 0.7rem 0.3rem 0.3rem;
-  border: 2px solid #5a7077;
-  border-radius: 0.6rem;
-  background: #192633d9;
+.campaign-legacy-terms {
+  margin: 0;
   color: #f4f4ec;
-  text-align: left;
-}
-.campaign-favor.active {
-  border-color: #f3e2a2;
-  background: #354038e6;
-  box-shadow: 0 0 16px #f3e2a255;
-}
-.campaign-favor:focus-visible {
-  outline: 3px solid #f5efbf;
-  outline-offset: 2px;
-}
-.campaign-favor .campaign-favor-art {
-  flex: 0 0 2.4rem;
-  width: 2.4rem;
-  height: 2.8rem;
-  border-radius: 0.35rem;
-}
-.campaign-favor strong {
-  overflow: hidden;
-  font-size: 0.78rem;
-  line-height: 1.2;
+  font-size: 0.82rem;
+  line-height: 1.35;
 }
 .campaign-actions {
   display: flex;

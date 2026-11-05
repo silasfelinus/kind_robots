@@ -14,6 +14,8 @@ import {
   campaignChapter,
   campaignEchoFor,
   campaignFavorsFor,
+  campaignLegacyFor,
+  campaignLegacyTerms,
   campaignEnding,
   createCampaignSave,
   FACTION_CAMPAIGNS,
@@ -460,7 +462,9 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
     ),
   )
   function selectCampaignFavor(index: number): void {
-    if (!storyEditable() || !activeChapter.value) return
+    // A finished campaign still picks which favor its city bouts carry.
+    if (!storyEditable() || (!activeChapter.value && !campaignLegacy.value))
+      return
     if (!campaignFavors.value.some((favor) => favor.chapterIndex === index))
       return
     favorSelection.value = {
@@ -474,6 +478,14 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
   )
   const campaignFinale = computed(() =>
     campaignEnding(campaignSave.value, activeTeam.value),
+  )
+  /** A finished campaign's chosen favor, carried into rivals and contracts. */
+  const campaignLegacy = computed(() =>
+    campaignLegacyFor(
+      campaignSave.value,
+      activeTeam.value,
+      campaignFavorIndex.value,
+    ),
   )
   const campaignDistrict = computed(() =>
     activeChapter.value ? CAMPAIGN_DISTRICTS[activeChapter.value.foe] : null,
@@ -986,7 +998,15 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
       seed.value,
       rules.value,
     )
-    match.value = applyTerms(fresh, boutTerms(city.value, id))
+    match.value = applyTerms(
+      fresh,
+      campaignLegacyTerms(
+        campaignSave.value,
+        activeTeam.value,
+        boutTerms(city.value, id),
+        campaignFavorIndex.value,
+      ),
+    )
     selectedCard.value = null
     selectedUnit.value = null
     bout.value = id
@@ -1015,7 +1035,12 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
         seed.value,
         rules.value,
       ),
-      contractTerms(city.value, id),
+      campaignLegacyTerms(
+        campaignSave.value,
+        activeTeam.value,
+        contractTerms(city.value, id),
+        campaignFavorIndex.value,
+      ),
     )
     selectedCard.value = null
     previewOpen.value = false
@@ -1346,6 +1371,7 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
     campaignEcho,
     campaignFavors,
     campaignFavorIndex,
+    campaignLegacy,
     selectCampaignFavor,
     activeChapter,
     campaignFinale,

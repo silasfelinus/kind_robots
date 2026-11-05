@@ -849,7 +849,44 @@ export function campaignBattleTerms(
   terms: BoutTerms,
   favorIndex?: number,
 ): BoutTerms {
-  const echo = campaignEchoFor(save, team, favorIndex)
+  return withEcho(terms, campaignEchoFor(save, team, favorIndex))
+}
+
+/**
+ * Crew legacy (t-009): a finished campaign has no next story fight, so its
+ * five earned favors, the finale's fifth among them, carry into the city
+ * battles that remain (district rivals and after-hours contracts). One applies
+ * a bout: the chosen favor, else the finale's. Null until the campaign ends,
+ * so a campaign in progress keeps its favors for story fights only.
+ */
+export function campaignLegacyFor(
+  save: CampaignSave,
+  team: TeamId,
+  favorIndex?: number,
+): CampaignFavor | null {
+  if (save[team].wins < FACTION_CAMPAIGNS[team].chapters.length) return null
+  const favors = campaignFavorsFor(save, team)
+  return (
+    favors.find((favor) => favor.chapterIndex === favorIndex) ??
+    favors[favors.length - 1] ??
+    null
+  )
+}
+
+/** City rival and contract terms plus a finished campaign's legacy favor. */
+export function campaignLegacyTerms(
+  save: CampaignSave,
+  team: TeamId,
+  terms: BoutTerms,
+  favorIndex?: number,
+): BoutTerms {
+  return withEcho(
+    terms,
+    campaignLegacyFor(save, team, favorIndex)?.echo ?? null,
+  )
+}
+
+function withEcho(terms: BoutTerms, echo: CampaignEcho | null): BoutTerms {
   if (!echo) return terms
   const merged: BoutTerms = { ...terms }
   for (const key of [

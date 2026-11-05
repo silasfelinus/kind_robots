@@ -1085,7 +1085,7 @@
                     <span class="kr-badge-outline">Admin</span>
                   </summary>
                   <div class="border-t border-base-300 p-2">
-                    <curation-cthulhuquarium-curation v-if="curationOpen" />
+                    <CurationCthulhuquariumCuration v-if="curationOpen" />
                   </div>
                 </details>
               </div>
@@ -1314,6 +1314,7 @@ import {
 import { touchHitRadius } from '~/utils/aquariumTouch'
 import { formatShopRefreshCountdown } from '~/utils/aquariumShopCountdown'
 import { useUserStore } from '~/stores/userStore'
+import CurationCthulhuquariumCuration from '@/components/curation/cthulhuquarium-curation.vue'
 // cthulhuquarium/t-054: the finale's two plates, authored in conductor's
 // projects/cthulhuquarium/art/ (screen-finale.webp 76eb4140, set-last-
 // aquarium.webp ee3354e0) but with no Monster/Reward row to hang an ArtImage

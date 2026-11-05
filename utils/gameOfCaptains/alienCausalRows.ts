@@ -30,8 +30,22 @@ const choices: readonly AlienChoice[] = ['approach', 'observe', 'improvise']
 export function expandCausalAlienRows(
   rows: readonly CausalAlienRow[],
 ): Record<string, Record<AlienMood, Record<AlienChoice, string>>> {
-  const catalogue: Record<string, Record<AlienMood, Record<AlienChoice, string>>> = {}
-  for (const [id, approach, observe, improvise, wary, playful, protective, retreat, chaos, bond] of rows) {
+  const catalogue: Record<
+    string,
+    Record<AlienMood, Record<AlienChoice, string>>
+  > = {}
+  for (const [
+    id,
+    approach,
+    observe,
+    improvise,
+    wary,
+    playful,
+    protective,
+    retreat,
+    chaos,
+    bond,
+  ] of rows) {
     if (catalogue[id]) throw new Error('Duplicate alien action story: ' + id)
     const actions = { approach, observe, improvise }
     const reactions = { wary, playful, protective }
@@ -40,7 +54,11 @@ export function expandCausalAlienRows(
     for (const mood of moods) {
       const branch = {} as Record<AlienChoice, string>
       for (const choice of choices) {
-        branch[choice] = [actions[choice], reactions[mood], consequences[outcomeFor[mood][choice]]].join(' ')
+        branch[choice] = [
+          actions[choice],
+          reactions[mood],
+          consequences[outcomeFor[mood][choice]],
+        ].join(' ')
       }
       branches[mood] = branch
     }

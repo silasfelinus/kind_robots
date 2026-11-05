@@ -87,6 +87,7 @@ export const ACT_TWO_QUESTS: readonly QuestDef[] = [
     expired: {
       affinity: { 'mire-mothers': -5 },
       flags: ['d12-cellars-unlooked'],
+      schedule: ['d12-unlit-lantern'],
     },
     outcomes: {
       success:
@@ -281,6 +282,15 @@ export const ACT_TWO_QUESTS: readonly QuestDef[] = [
     ],
     danger: 'low',
     tags: ['records', 'tracking'],
+    aid: [
+      {
+        flags: ['d14-hollin-dictates'],
+        label:
+          'Hollin’s dictated roads: an Old House cart track no new map shows',
+        bonus: 1,
+        stat: 'wits',
+      },
+    ],
     rewards: {
       success: {
         brass: 30,
@@ -291,6 +301,14 @@ export const ACT_TWO_QUESTS: readonly QuestDef[] = [
       failure: { local: { yard: -2 } },
     },
     expired: { local: { yard: -2 } },
+    outcomeVariants: {
+      success: [
+        {
+          flags: ['d14-hollin-dictates'],
+          text: 'The scribe’s copy of Hollin’s roads showed a cart track behind the third farm, drawn forty years ago and never since. Two haystacks on it held grain sacks stamped with an Old House crest. The third held hay. And a Gate Watch lantern, still warm.',
+        },
+      ],
+    },
     outcomes: {
       success:
         'Two haystacks held grain sacks stamped with an Old House crest. The third held hay. And a Gate Watch lantern, still warm.',
@@ -367,6 +385,7 @@ export const ACT_TWO_QUESTS: readonly QuestDef[] = [
         affinity: { 'hollow-bell': 5, freeholds: -3 },
         local: { yard: 2 },
         flags: ['refugees-sheltered'],
+        schedule: ['d18-bell-roll'],
       },
       failure: { affinity: { 'hollow-bell': -5 } },
     },
@@ -1937,6 +1956,7 @@ export const ACT_TWO_DAYS: readonly DayDef[] = [
                   affinity: { rustline: -5 },
                   local: { ledger: 3, lamplight: -2 },
                   flags: ['d15-feathers-to-ledger'],
+                  schedule: ['d15-feathers-east'],
                 },
                 response:
                   'Factor Tallow pays triple without counting. “A buyer in the east will be so pleased,” she says, and stops. The Rustline eats that night. Jinx does not thank the crown. “Sold to the Ledger by a throne that wouldn’t buy,” she says, and spits.',
@@ -1995,6 +2015,86 @@ export const ACT_TWO_DAYS: readonly DayDef[] = [
             text: 'The Old Houses saved in good years, Majesty, while others ate. Is prudence a crime now?',
           },
           'Dunmore does not answer her. He picks a husk off the sack and puts it in his mouth.',
+        ],
+        variants: [
+          {
+            flags: ['d12-tull-found'],
+            lines: [
+              'Foreman Dunmore Ash drops an empty flour sack on the step of the dais. He is wearing old work boots, cracked at the toe and a size too big. Merrit Tull’s. Lady Ottoline Vask follows, rings clicking on her wingtips. Nobody at court mentions the boots.',
+              'The cistern runs clear, Majesty. Your people went down for it and came back up. Now the Yard has clean water and nothing to bake with. Half rations, and the Old Houses’ granaries are full. Make them share.',
+              {
+                who: 'Lady Ottoline Vask',
+                npc: 'ottoline-vask',
+                text: 'The Old Houses saved in good years, Majesty, while others ate. Is prudence a crime now?',
+              },
+              'Dunmore does not answer her. He picks a husk off the sack and puts it in his mouth.',
+            ],
+          },
+          {
+            flags: ['d12-cistern-moles'],
+            lines: [
+              'Foreman Dunmore Ash drops an empty flour sack on the step of the dais. It makes almost no sound. Lady Ottoline Vask follows, rings clicking on her wingtips. She looks at the sack like a dead bird carried indoors.',
+              'The cistern runs clear since the tunnel keeper climbed out of it, Majesty. Clear water. No flour to put in it. Half rations, and the Old Houses’ granaries are full. Make them share.',
+              {
+                who: 'Lady Ottoline Vask',
+                npc: 'ottoline-vask',
+                text: 'The crown has found friends under the floor, I hear. Perhaps they have granaries too. The Old Houses saved in good years, Majesty. Is prudence a crime now?',
+              },
+              'Dunmore does not answer her. He picks a husk off the sack and puts it in his mouth.',
+            ],
+          },
+          {
+            flags: ['d12-new-cistern'],
+            lines: [
+              'Foreman Dunmore Ash drops an empty flour sack on the step of the dais. It makes almost no sound. There is hill dust on his knees from the new cistern. Lady Ottoline Vask follows, rings clicking on her wingtips.',
+              'The new cistern is dug, Majesty. Dry stone till the rain. The Yard bakes grey bread till then, and now not even that. Half rations, and the Old Houses’ granaries are full. Make them share.',
+              {
+                who: 'Lady Ottoline Vask',
+                npc: 'ottoline-vask',
+                text: 'The crown pays thirty-five brass for a hole in a hill and asks the Old Houses for charity. The Old Houses saved in good years, Majesty. Is prudence a crime now?',
+              },
+              'Dunmore does not answer her. He picks a husk off the sack and puts it in his mouth.',
+            ],
+          },
+          {
+            flags: ['d12-cistern-sealed'],
+            lines: [
+              'Foreman Dunmore Ash drops an empty flour sack on the step of the dais. It makes almost no sound. Lady Ottoline Vask follows, rings clicking on her wingtips. She looks at the sack like a dead bird carried indoors.',
+              'Your people sealed the cistern, Majesty. The water came up clear. Now the Yard has clean water and nothing to bake with. Half rations, and the Old Houses’ granaries are full. Make them share.',
+              {
+                who: 'Lady Ottoline Vask',
+                npc: 'ottoline-vask',
+                text: 'The Old Houses saved in good years, Majesty, while others ate. Is prudence a crime now?',
+              },
+              'Dunmore does not answer her. He picks a husk off the sack and puts it in his mouth.',
+            ],
+          },
+          {
+            flags: ['d12-cistern-locked'],
+            lines: [
+              'Foreman Dunmore Ash drops an empty flour sack on the step of the dais. It makes almost no sound. Lady Ottoline Vask follows, rings clicking on her wingtips. Her steward walks behind her with the cistern key on its velvet cushion.',
+              'The Yard queues at her pump by your order, Majesty. Every bucket counted. Now it’s on half rations, and the same Houses own the granaries. Make them share.',
+              {
+                who: 'Lady Ottoline Vask',
+                npc: 'ottoline-vask',
+                text: 'The crown asked the Old Houses for water and we gave it. Now it asks for bread. The Old Houses saved in good years, Majesty. Is prudence a crime now?',
+              },
+              'Dunmore does not answer her. He picks a husk off the sack and puts it in his mouth.',
+            ],
+          },
+          {
+            flags: ['d12-cistern-fouled'],
+            lines: [
+              'Foreman Dunmore Ash drops an empty flour sack on the step of the dais. It makes almost no sound. Lady Ottoline Vask follows, rings clicking on her wingtips. She looks at the sack like a dead bird carried indoors.',
+              'The cistern’s gone grey, Majesty. The Yard pays the Old Houses for every bucket it bakes with. Now it’s on half rations, and they own the granaries too. Make them share.',
+              {
+                who: 'Lady Ottoline Vask',
+                npc: 'ottoline-vask',
+                text: 'Water at a fair price, Majesty, and grain saved in good years. Is prudence a crime now?',
+              },
+              'Dunmore does not answer her. He picks a husk off the sack and puts it in his mouth.',
+            ],
+          },
         ],
         options: [
           {
@@ -2923,6 +3023,15 @@ export const ACT_TWO_DAYS: readonly DayDef[] = [
             ],
           },
           {
+            flags: ['d18-fair-water-shared'],
+            lines: [
+              'Mara Reedbell has ridden all night. Her mayoral sash is mended in three places. Her ledger is chained to her belt, and stays shut. The hand-bell at her hip rings with every step until she puts a hoof over it.',
+              'Hollow Bell votes tomorrow, Your Majesty. Your fair’s cider-master came through this morning with half his barrels empty, complaining to anyone who’d stand still. The strangers on my road drank them at your gate. My square has heard it twice.',
+              'That buys you a hearing. It doesn’t buy the vote. Give my people a reason. A garrison, water, or a good speech. Promises they can see.',
+              '“The Abbey sisters have knocked on every door in the Bell this week. They bring soup. They are good at soup.”',
+            ],
+          },
+          {
             flags: ['d13-bell-warned'],
             lines: [
               'Mara Reedbell has ridden all night. Her mayoral sash is mended in three places. Her ledger is chained to her belt, and stays shut. The hand-bell at her hip rings with every step until she puts a hoof over it.',
@@ -3002,6 +3111,7 @@ export const ACT_TWO_DAYS: readonly DayDef[] = [
               affinity: { 'hollow-bell': 10, jackalwire: -10 },
               local: { 'gate-watch': -1 },
               flags: ['d19-miller-son-released', 'bell-voted-yes'],
+              schedule: ['d19-hessle-mill'],
             },
             response:
               'Mara signs for him like a parcel. The boy will not look at her. The Bell votes yes the next day. Down the canyon, Gristle Vane hears the bell ring and knows what it cost him.',
@@ -3069,6 +3179,7 @@ export const ACT_TWO_DAYS: readonly DayDef[] = [
                   affinity: { abbey: -10, 'hollow-bell': 5 },
                   local: { lamplight: 1 },
                   flags: ['d19-abbey-questioned'],
+                  schedule: ['d19-abbey-count'],
                 },
                 response:
                   'Mara writes one line and closes the ledger. “That won’t make you friends.” Komodo, at your shoulder, says nothing for the rest of the audience. A great deal of nothing.',
@@ -3083,6 +3194,7 @@ export const ACT_TWO_DAYS: readonly DayDef[] = [
                   affinity: { abbey: -10, freeholds: 5 },
                   local: { yard: 1 },
                   flags: ['d19-coldbrooks-asked'],
+                  schedule: ['d19-coldbrook-visit'],
                 },
                 response:
                   'It is asked at noon, loudly. A sister in grey answers at once, warmly: very soon, once the little ones are settled. The square hears the word settled. Some who were nodding stop.',
@@ -3285,6 +3397,7 @@ export const ACT_TWO_DAYS: readonly DayDef[] = [
               brass: 25,
               local: { ledger: -3, 'gate-watch': 2, yard: -1 },
               flags: ['d20-levy-ledger'],
+              schedule: ['d20-ledger-interest'],
             },
             response:
               'Factor Tallow arrives with the charter open at the clause she expects you to read. You read another. She pays and smiles. By evening interest on every Yard loan in the market has risen by exactly the levy.',
@@ -3339,6 +3452,57 @@ export const ACT_TWO_DAYS: readonly DayDef[] = [
                     who: 'Young Komodo',
                     npc: 'young-komodo',
                     text: 'I did not know them this morning, Your Majesty. I know them a little now. I do not like how much better my lady Vask does.',
+                  },
+                ],
+              },
+              {
+                flags: ['d16-granary-requisitioned'],
+                lines: [
+                  '“Far gate, dusk. Six riders, coats the colour of plums, white gloves. Didn’t draw. Asked my sergeant, civil, about a grain order. Paid in advance. Never delivered. They had the date. Day Sixteen.”',
+                  '“He said the crown fed the Yard with it. One of them thanked him for his honesty and took off a glove.” Dunmark sets a white glove on the dais step. Spotless. “He’s been sick since.”',
+                  {
+                    who: 'Lady Ottoline Vask',
+                    npc: 'ottoline-vask',
+                    text: 'I told the crown they do not accept apologies, Majesty. I wrote down the day you took it. So, it seems, did they.',
+                  },
+                  {
+                    who: 'Young Komodo',
+                    npc: 'young-komodo',
+                    text: 'My lady underlined something that afternoon. Twice. I wondered who it was for.',
+                  },
+                ],
+              },
+              {
+                flags: ['d16-surplus-bought'],
+                lines: [
+                  '“Far gate, dusk. Six riders, coats the colour of plums, white gloves. Didn’t draw. One carried a letter with the Old Houses’ seal on it, opened. He wanted to know if the crown buys everything it wants.”',
+                  '“My sergeant said he didn’t know. The rider said he would ask again. Then he gave him this.” Dunmark sets a white glove on the dais step. Spotless. “He’s been sick since.”',
+                  {
+                    who: 'Lady Ottoline Vask',
+                    npc: 'ottoline-vask',
+                    text: 'The Black Verge Court, Majesty. I returned their silver with the crown’s brass and a very polite letter. They are a civilized people. They like to know who outbid them.',
+                  },
+                  {
+                    who: 'Young Komodo',
+                    npc: 'young-komodo',
+                    text: 'Twenty-five brass bought the Yard a fortnight of bread, Your Majesty. It seems it also bought us a name in the east.',
+                  },
+                ],
+              },
+              {
+                flags: ['d16-grain-sold-east'],
+                lines: [
+                  '“Far gate, dusk. Six riders, coats the colour of plums, white gloves. Didn’t draw. Horses fat as market pigs in a drought year. Old House sacks for feed bags.”',
+                  '“They thanked my sergeant for the grain. Like the crown had sent it. One took off a glove and gave it to him.” Dunmark sets a white glove on the dais step. Spotless. “He’s been sick since.”',
+                  {
+                    who: 'Lady Ottoline Vask',
+                    npc: 'ottoline-vask',
+                    text: 'A contract honored, Majesty. The Old Houses keep their word. The crown let us. They noticed.',
+                  },
+                  {
+                    who: 'Foreman Dunmore Ash',
+                    npc: 'dunmore-ash',
+                    text: 'Fat horses. The Yard’s been on half rations for a fortnight. Fat horses.',
                   },
                 ],
               },
@@ -4095,5 +4259,86 @@ export const ACT_TWO_DUES: readonly DueDef[] = [
     hidden: true,
     line: 'Three hundred Freehold goats on the low road, eating the verge to the root. Hester Plowright sold forty head to the Ledger at half price. She did not haggle.',
     effects: { local: { ledger: 1 } },
+  },
+  {
+    id: 'd12-unlit-lantern',
+    title: 'A second green lantern',
+    inDays: 4,
+    hidden: true,
+    when: { flags: ['d12-cellars-unlooked'] },
+    line: 'Another green lantern hung on the tower gate at dawn. Unlit, like the first. The fen novice who brought it waited for the sergeant and asked him one thing: had the crown found its nerve yet. He did not know what to tell her.',
+  },
+  {
+    id: 'd15-feathers-east',
+    title: 'A wagon under canvas',
+    inDays: 3,
+    hidden: true,
+    when: { flags: ['d15-feathers-to-ledger'] },
+    line: 'A Ledger wagon went out the east gate before dawn under canvas. At the first rut it rang, thin and high. The gate sergeant swears that far off, faint enough to doubt, something answered.',
+  },
+  {
+    id: 'd18-bell-roll',
+    title: 'Mara’s roll',
+    inDays: 2,
+    hidden: true,
+    when: { flags: ['refugees-sheltered'] },
+    line: 'A Hollow Bell clerk brought the tower a copy of Mara’s roll. Forty-one strangers, by name. Under them, the names of every crown rider who walked them in. In the margin, in Mara’s hand: “So nobody can say they weren’t there.”',
+  },
+  {
+    id: 'd19-hessle-mill',
+    title: 'The Hessle mill',
+    inDays: 2,
+    hidden: true,
+    when: { flags: ['d19-miller-son-released'] },
+    line: 'The Hessle mill ran at dawn for the first time since Day Thirteen. The boy works the stones. A Bell watchman sits on the step with a cudgel across his knees. Mara did not say which of them he is guarding.',
+  },
+  {
+    id: 'd19-third-map',
+    title: 'The third map',
+    inDays: 4,
+    hidden: true,
+    when: { flags: ['d19-feather-pinned'] },
+    line: 'The third map came under the postern at dawn. Drawn better than the second. In the bottom corner, where a name would go, she drew a bridge. Small. The Watch pinned it over the fire beside the feather and argued all morning about what it meant.',
+  },
+  {
+    id: 'd19-girl-in-yard',
+    title: 'A map of the ovens',
+    inDays: 3,
+    hidden: true,
+    when: { flags: ['d19-informant-recalled'] },
+    line: 'The young mapmaker slept two days in the Yard loft. On the third she drew the Yard’s ovens on a flour sack, badly, and gave it to Foreman Ash. He hung it by the oven door, where the bread goes in.',
+  },
+  {
+    id: 'd19-pack-reply',
+    title: 'A second feather',
+    inDays: 3,
+    hidden: true,
+    when: { flags: ['d19-pack-answered'] },
+    line: 'A second painted feather on the postern latch at dawn. No knot this time. The girl’s map came under the gate the same night, on time. The Watch calls it a truce. Nobody says so where Dunmark can hear.',
+  },
+  {
+    id: 'd19-abbey-count',
+    title: 'Soup at the gate',
+    inDays: 3,
+    hidden: true,
+    when: { flags: ['d19-abbey-questioned'] },
+    line: 'A sister in grey left a covered pot at the tower gate before dawn. Soup, still warm. A number was chalked on the lid. The sergeant counted the Yard’s orphans twice before he understood the number was right.',
+  },
+  {
+    id: 'd19-coldbrook-visit',
+    title: 'One hour at the Abbey',
+    inDays: 4,
+    hidden: true,
+    when: { flags: ['d19-coldbrooks-asked'] },
+    line: 'The Abbey let Wenna Coldbrook in for one hour. She came out at the bell with a child’s drawing folded in her apron. “They are well,” she told the Freehold gate. She said it the same way to everyone who asked, all week.',
+  },
+  {
+    id: 'd20-ledger-interest',
+    title: 'The Ledger’s new rate',
+    inDays: 3,
+    hidden: true,
+    when: { flags: ['d20-levy-ledger'] },
+    line: 'Factor Tallow posted the new loan rates on the market post at dawn. Foreman Ash read them twice, then pulled the post out of the ground and carried it into the Yard. The Ledger sent a clerk for it. The clerk came back without it.',
+    effects: { local: { yard: -2 } },
   },
 ]

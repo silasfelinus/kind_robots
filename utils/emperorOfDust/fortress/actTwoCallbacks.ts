@@ -39,6 +39,7 @@ export const ACT_TWO_CALLBACK_AUDIENCES: Readonly<
           effects: {
             local: { 'gate-watch': 1 },
             flags: ['d19-feather-pinned'],
+            schedule: ['d19-third-map'],
           },
           response:
             'The Watch hangs the feather over the fire beside the ration card. Nobody sings that night. Nobody sleeps near the postern.',
@@ -51,6 +52,7 @@ export const ACT_TWO_CALLBACK_AUDIENCES: Readonly<
             affinity: { jackalwire: -10 },
             local: { yard: 1, 'gate-watch': -1 },
             flags: ['d19-informant-recalled'],
+            schedule: ['d19-girl-in-yard'],
           },
           response:
             'The rider returns after dark with a girl asleep across the saddle. The Pack finds the empty bedroll by morning. Gristle Vane sends no feather this time. Only silence, and silence costs more.',
@@ -75,6 +77,7 @@ export const ACT_TWO_CALLBACK_AUDIENCES: Readonly<
               effects: {
                 local: { 'gate-watch': 1 },
                 flags: ['d19-feather-pinned'],
+                schedule: ['d19-third-map'],
               },
               response:
                 'Dunmark nods once. He pins the feather himself. His hands are steady. He does not look at the door the rest of the day.',
@@ -87,6 +90,7 @@ export const ACT_TWO_CALLBACK_AUDIENCES: Readonly<
                 affinity: { jackalwire: -10 },
                 local: { yard: 1, 'gate-watch': -1 },
                 flags: ['d19-informant-recalled'],
+                schedule: ['d19-girl-in-yard'],
               },
               response:
                 'Dunmark rides out himself. He is back before dawn, and the girl is in front of him in the saddle. She is asleep. He won’t let anyone else lift her down.',
@@ -99,6 +103,7 @@ export const ACT_TWO_CALLBACK_AUDIENCES: Readonly<
                 affinity: { jackalwire: 5 },
                 local: { 'gate-watch': -2, yard: 1 },
                 flags: ['d19-pack-answered'],
+                schedule: ['d19-pack-reply'],
               },
               response:
                 'The message goes out on a Watch horse. The horse comes back alone. Dunmark unties the note from the saddle and reads it standing. Then he burns it.',

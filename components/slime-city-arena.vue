@@ -355,17 +355,29 @@
         </div>
       </div>
 
+      <!--
+        The held card (Silas, 2026-11-05: "I can't actually see what a card does
+        when i select it"). Selecting or dragging a card shows its full face and
+        where it can be played, in every format; taps pass through to the board.
+      -->
       <div
-        v-if="turf && heldCard && !lab.inspectedUnit"
+        v-if="heldCard && !lab.inspectedUnit"
         class="sca-inspect sca-held"
+        :class="{ 'sca-held-compact': !turf }"
         role="status"
-        :aria-label="heldCard.name + ' TURF effect'"
-        data-testid="slime-turf-held"
+        :aria-label="heldCard.name + ': ' + heldHint"
+        :data-testid="turf ? 'slime-turf-held' : 'slime-held-card'"
       >
         <div class="sca-inspect-live">
-          <span class="sca-tag">TURF · PLACE ON ANY EMPTY POINT</span>
-          <p class="sca-turf-rule">
+          <span class="sca-tag">{{ heldHint }}</span>
+          <p v-if="turf" class="sca-turf-rule">
             {{ turfText(heldCard, lab.sight.parity) }}
+          </p>
+          <p v-else class="sca-held-text">
+            <strong>{{ heldCard.name }}</strong> · {{ heldCard.text }}
+          </p>
+          <p v-if="!turf && heldBlocked" class="sca-held-blocked">
+            {{ heldBlocked }}
           </p>
         </div>
         <SlimeCityCard class="sca-inspect-card" :card="heldCard" />
@@ -634,6 +646,58 @@ const heldCard = computed(() => {
   const id = lab.dragCard ?? lab.selectedCard
   return id ? playedCard(lab.match, cardById(id)) : null
 })
+/** Cards that land on one of your own fighters (mirrors applyDeploy). */
+const FRIENDLY_EFFECTS = new Set([
+  'heal',
+  'scan',
+  'armor',
+  'sharpen',
+  'grant',
+  'boost',
+])
+/** Where the held card can be played, in the engine's own terms. */
+const heldHint = computed(() => {
+  const card = heldCard.value
+  if (!card) return ''
+  if (turf.value) return 'TURF · PLACE ON ANY EMPTY POINT'
+  if (card.kind === 'creature')
+    return fieldFull.value
+      ? 'FIELD FULL · NO ROOM TO DEPLOY'
+      : 'DEPLOY · TAP A GLOWING SQUARE IN YOUR BASE'
+  if (card.kind === 'trap')
+    return 'HIDDEN TRAP · TAP AN EMPTY SQUARE OUTSIDE THE ENEMY BASE'
+  if (card.kind === 'equipment' || FRIENDLY_EFFECTS.has(card.effect ?? ''))
+    return 'TAP ONE OF YOUR FIGHTERS'
+  return 'TAP AN ENEMY FIGHTER'
+})
+/**
+ * The field cap (Silas, 2026-11-05: "why can't I play new creatures?"): the
+ * engine refuses a creature once you have FIELD_CAP fighters out (7 in
+ * BLACKOUT), so say so and stop lighting up the base.
+ */
+const fieldFull = computed(
+  () =>
+    !turf.value &&
+    lab.sight.units.filter((u) => u.side === 'player').length >=
+      lab.sight.fieldCap,
+)
+/** Why the held card cannot be played right now, if it cannot. */
+const heldBlocked = computed(() => {
+  const card = heldCard.value
+  if (!card) return ''
+  if (!lab.ready(card.id)) return 'Already played this turn.'
+  if (card.kind === 'creature' && fieldFull.value)
+    return (
+      'Field full: ' +
+      lab.sight.fieldCap +
+      ' of ' +
+      lab.sight.fieldCap +
+      ' fighters out. A creature can deploy once one of yours falls.'
+    )
+  if (!lab.sight.parity && card.cost > lab.match.mana)
+    return 'Needs ' + card.cost + ' mana; you have ' + lab.match.mana + '.'
+  return ''
+})
 const currentMode = computed(
   () => lab.modes.find((mode) => mode.id === lab.mode) || lab.modes[0]!,
 )
@@ -717,6 +781,7 @@ function canLand(x: number, y: number): boolean {
     )
   return (
     heldCreature.value &&
+    !fieldFull.value &&
     inDeployZone(lab.match, 'player', x) &&
     !flagSquare(lab.match, x, y) &&
     !lab.sight.units.some((u) => u.x === x && u.y === y)
@@ -1333,6 +1398,30 @@ onBeforeUnmount(() => {
 }
 .sca-held {
   pointer-events: none;
+}
+/* Outside TURF the held card is a compact reference that leaves the board
+   readable; TURF keeps the wider panel for its longer Go-effect text. */
+.sca-held-compact {
+  top: 0.6rem;
+  bottom: auto;
+  width: min(14.5rem, 40%);
+  max-height: calc(100% - 1.2rem);
+  padding: 0.55rem;
+  gap: 0.45rem;
+}
+.sca-held-blocked {
+  margin: 0;
+  color: #ffb3a1;
+  font-size: 0.75rem;
+  font-weight: 800;
+}
+/* The text line repeats the card face; wide screens show the face instead. */
+.sca-held-text {
+  display: none;
+  margin: 0;
+  color: #f4f4ec;
+  font-size: 0.78rem;
+  line-height: 1.35;
 }
 
 /* Flags and tokens sit on a layer sized to the grid. */
@@ -2161,6 +2250,23 @@ onBeforeUnmount(() => {
   .sca-inspect-live {
     flex: 1;
     min-width: 10rem;
+  }
+  /* A held card on a narrow board is a slim strip over the HUD, so the
+     squares it can land on stay visible. */
+  .sca-held-compact {
+    top: 0.4rem;
+    bottom: auto;
+    max-height: 34%;
+    padding: 0.45rem 0.6rem;
+  }
+  .sca-held-compact .sca-inspect-card {
+    display: none;
+  }
+  .sca-held-compact .sca-inspect-live {
+    padding-right: 0;
+  }
+  .sca-held-compact .sca-held-text {
+    display: block;
   }
   .sca-orders {
     grid-template-columns: 1fr;

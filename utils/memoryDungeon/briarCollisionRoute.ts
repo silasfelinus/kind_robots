@@ -1,15 +1,15 @@
 /**
- * Authored connective encounters along Pip's first route through the e09
+ * Authored connective encounters along Rowan's first route through the e09
  * collision. These are playable sites, not additional memory fragments.
  * Existing two fragment sites keep their original choice and save IDs.
  */
 export const BRIAR_COLLISION_ROUTE_SITES = {
   '1,1': {
     title: 'The Reception Desk in the Briars',
-    speaker: 'Pip and Mara',
+    speaker: 'Rowan, Pip and Mara',
     kind: 'companion',
     opening:
-      'A reception bell rings from a desk rooted in the old wolf road. Mara has counted nine people trapped on the office floors, but the brass visitor book insists there are ten. Pip spots a muddy pawprint beside an empty signature line. The missing person may have escaped, or the building may be counting a wolf as staff.',
+      'A reception bell rings from a desk rooted in the old wolf road. Mara has counted nine people trapped on the office floors, but the brass visitor book insists there are ten. Rowan spots a muddy pawprint beside an empty signature line; Pip recognizes the mark as a wolf courier mark, but leaves the decision about confronting its owner to Rowan. The missing person may have escaped, or the building may be counting a wolf as staff.',
     artSubject:
       'Pip and Mara at a fluorescent reception desk grown from thorny Briar roots, a brass bell, muddy wolf pawprint and ten spaces in an open visitor ledger',
     choices: [
@@ -17,30 +17,30 @@ export const BRIAR_COLLISION_ROUTE_SITES = {
         id: 'count-with-consent',
         label: 'Ask the trapped workers to confirm the head count privately',
         outcome:
-          'Mara takes a voluntary count without copying names into the enchanted ledger. Nine workers answer. The tenth signature belongs to the wolf assigned to guard them, and the workers can plan around its patrol.',
+          'Rowan asks Mara to take a voluntary count without copying names into the enchanted ledger. Nine workers answer. The tenth signature belongs to the wolf assigned to guard them, and the workers can plan around its patrol.',
         flag: 'reception-private-count',
         effects: { evidence: 1, trust: 1 },
         artSubject:
-          'Mara quietly counts willing workers while Pip studies a wolf pawprint on the reception ledger',
+          'Rowan and Mara quietly count willing workers while Pip identifies a wolf courier pawprint on the reception ledger',
       },
       {
         id: 'ring-for-the-tenth',
         label: 'Ring the bell and confront whoever answers as number ten',
         outcome:
-          'The wolf clerk arrives wearing a stolen staff badge. Pip exposes the disguise before the others, but the alarm draws a second patrol. Mara gets a clear description at the price of a dangerous head start.',
+          'The wolf clerk arrives wearing a stolen staff badge. Rowan challenges the forged identity using Pip’s knowledge of wolf badges, but the alarm draws a second patrol. Mara gets a clear description at the price of a dangerous head start.',
         flag: 'reception-wolf-exposed',
         effects: { evidence: 2, danger: 1 },
         artSubject:
-          'Pip rings a brass reception bell as a wolf in a borrowed office badge emerges from the thorny corridor',
+          'Rowan rings a brass reception bell while Pip identifies the wolf in a borrowed office badge emerging from the thorny corridor',
       },
     ],
   },
   '2,1': {
     title: 'The Turnstile Pack',
-    speaker: 'Pip and the wolf captain',
+    speaker: 'Rowan, Pip and the wolf captain',
     kind: 'monster',
     opening:
-      'Three wolves patrol a revolving security gate that only turns for people carrying their own names. The smallest wolf is wearing six visitor badges and looks deeply embarrassed. Pip recognizes the oath pattern: the badges are temporary permissions, not proof of ownership. The pack has been enforcing the wrong rule.',
+      'Three wolves patrol a revolving security gate that only turns for people carrying their own names. The smallest wolf is wearing six visitor badges and looks deeply embarrassed. Pip translates the oath pattern for Rowan: the badges are temporary permissions, not proof of ownership. Rowan must decide whether to teach the pack or force a crossing.',
     artSubject:
       'Three uneasy Briar wolves around a steel office turnstile, the youngest wolf burdened with six mismatched visitor badges while Pip studies the mechanism',
     choices: [
@@ -48,7 +48,7 @@ export const BRIAR_COLLISION_ROUTE_SITES = {
         id: 'teach-the-oath',
         label: 'Translate the old permission oath for the youngest wolf',
         outcome:
-          'The young guard returns the borrowed badges and demonstrates a safe one-person passage. The captain agrees to a supervised crossing but demands that Pip return to explain the rule to the next shift.',
+          'The young guard returns the borrowed badges and demonstrates a safe one-person passage. Rowan negotiates a supervised crossing; the captain demands that Pip return to explain the rule to the next shift.',
         flag: 'turnstile-oath-taught',
         effects: { trust: 2, supplies: -1 },
         artSubject:
@@ -58,11 +58,11 @@ export const BRIAR_COLLISION_ROUTE_SITES = {
         id: 'jam-the-gate',
         label: 'Wedge the turnstile open before the pack can regroup',
         outcome:
-          'Everyone waiting nearby slips through the gate, but the broken mechanism traps the wolves on the office side. Pip leaves a warning for later travelers rather than calling the obstruction a permanent rescue.',
+          'Everyone waiting nearby slips through the gate, but the broken mechanism traps the wolves on the office side. Rowan leaves a warning for later travelers rather than calling the obstruction a permanent rescue.',
         flag: 'turnstile-jammed',
         effects: { danger: 1, evidence: 1 },
         artSubject:
-          'Pip bracing a bent office turnstile with a fallen branch as refugees hurry through and wolves gather beyond',
+          'Rowan bracing a bent office turnstile with a fallen branch as refugees hurry through while Pip warns of wolves gathering beyond',
       },
     ],
   },

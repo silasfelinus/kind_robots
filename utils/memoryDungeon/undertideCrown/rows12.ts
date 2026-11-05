@@ -167,7 +167,7 @@ export const UNDERTIDE_CROWN_ROWS_1_2: readonly MorrowShiftSite[] = [
     echoes: [
       {
         flag: 'e06:2,1:care',
-        text: 'Char is already beside her, still breathing hard from the swim down the stair did not expect. She has not seen the shell yet.',
+        text: 'Char is already beside her, still breathing hard from the swim down the stair. She has not seen the shell yet.',
       },
       {
         flag: 'e06:2,1:risk',
@@ -617,7 +617,7 @@ export const UNDERTIDE_CROWN_ROWS_1_2: readonly MorrowShiftSite[] = [
   {
     key: '7,2',
     place: 'Three Queens Alcove',
-    title: 'Where the Queens Can’t Tell',
+    title: 'Now the Queens Tell Everything',
     speaker: 'Char',
     kind: 'puzzle',
     opening:

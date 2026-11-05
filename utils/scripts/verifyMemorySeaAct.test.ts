@@ -87,7 +87,13 @@ for (const fate of MEMORY_PAIR_ENDINGS.e04.map((choice) => choice.id)) {
       scyllaOpeningForMemory(atSea, 'e06'),
       /Char|court|palace|timeline/,
     )
-    assert.match(seaNarrative('e06', '8,8', atSea), /Char|sisters/)
+    // The scene the player reads is the campaign line plus the authored opening.
+    assert.match(
+      seaNarrative('e06', '8,8', atSea) +
+        ' ' +
+        worldEvent('e06', '8,8')!.opening,
+      /Char|sisters/,
+    )
     for (const agency of MEMORY_CHAR_AGENCY_CHOICES) {
       const earned = chooseMemoryCharAgency(atSea, agency.id)
       assert.equal(earned.charAgency, agency.id)

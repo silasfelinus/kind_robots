@@ -466,7 +466,7 @@ export const UNDERTIDE_CROWN_ROWS_5_6: readonly MorrowShiftSite[] = [
   {
     key: '4,6',
     place: 'Intake Grate',
-    title: 'The Glass Throat',
+    title: 'The Throat Swallows Twice',
     speaker: 'Scylla',
     kind: 'dungeon',
     opening:

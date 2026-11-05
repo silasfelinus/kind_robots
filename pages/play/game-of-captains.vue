@@ -1019,8 +1019,8 @@
                     <span
                       ><strong>Recharge the force bubble</strong
                       ><small
-                        >1 supply. An empty bubble costs 10% mission
-                        odds.</small
+                        >1 supply refills all three charges. An empty bubble
+                        costs 10% mission odds.</small
                       ></span
                     >
                   </button>

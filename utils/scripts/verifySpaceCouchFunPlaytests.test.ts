@@ -1,6 +1,14 @@
 import assert from 'node:assert/strict'
 import { playVoyage, type Driver } from './spaceCouchTraceHarness'
-import type { CaptainId, CrewId, VoyageRun } from '../gameOfCaptains/rules'
+import {
+  COUCH_SHIELD_FULL,
+  MISSION_RETURN_SUPPLIES,
+  rechargeCouchShield,
+  startVoyage,
+  type CaptainId,
+  type CrewId,
+  type VoyageRun,
+} from '../gameOfCaptains/rules'
 import {
   ALIEN_CHOICES,
   emptyAlienGuide,
@@ -366,6 +374,112 @@ for (const strategy of ['greet', 'cycle', 'oracle'] as const) {
       ' collector events',
   )
 }
+
+// Supply curve: careful and kind captains finish with a thin but stocked
+// hold, reckless helpers still feel the squeeze, and an empty hold remains
+// possible. Seeded and replayable, so a drift in any drain shows up here.
+const recharged = rechargeCouchShield({
+  ...startVoyage('fluke', ['pell', 'mox', 'rue'], 41),
+  shieldCharge: 0,
+})
+assert.equal(recharged.shieldCharge, COUCH_SHIELD_FULL)
+assert.equal(recharged.supplies, 6, 'one supply refills the whole bubble')
+assert.deepEqual(MISSION_RETURN_SUPPLIES, {
+  flawless: 2,
+  success: 1,
+  costly: -1,
+  disaster: -2,
+})
+const SUPPLY_SEEDS = 24
+const supplyCurves = new Map<
+  string,
+  { ends: number[]; emptyStops: number; shortfalls: number }
+>()
+for (const player of PLAYERS) {
+  const curve = { ends: [] as number[], emptyStops: 0, shortfalls: 0 }
+  for (let i = 0; i < SUPPLY_SEEDS; i++) {
+    const trace = playVoyage(
+      CAPTAINS[i % CAPTAINS.length]!,
+      PARTIES[i % PARTIES.length]!,
+      47011 + i * 123,
+      player.driver,
+      {
+        inspectEvery: false,
+        onStep: (label, before, after) => {
+          if (
+            (label === 'next' || label.startsWith('finish:')) &&
+            before.supplies === 0
+          )
+            curve.emptyStops++
+          if (
+            before.phase === 'decision' &&
+            (after.worldFlags ?? []).some(
+              (flag) =>
+                flag.startsWith('supply-shortfall:') &&
+                !(before.worldFlags ?? []).includes(flag),
+            )
+          )
+            curve.shortfalls++
+        },
+      },
+    )
+    assert.equal(trace.run.phase, 'ending')
+    curve.ends.push(trace.run.supplies)
+  }
+  supplyCurves.set(player.name, curve)
+  const sorted = [...curve.ends].sort((a, b) => a - b)
+  const mean = curve.ends.reduce((sum, n) => sum + n, 0) / SUPPLY_SEEDS
+  console.log(
+    'SPACE COUCH SUPPLY CURVE ' +
+      player.name +
+      ': ' +
+      curve.ends.filter((n) => n > 0).length +
+      '/' +
+      SUPPLY_SEEDS +
+      ' voyages end stocked, end hold min/median/max ' +
+      sorted[0] +
+      '/' +
+      sorted[Math.floor(SUPPLY_SEEDS / 2)] +
+      '/' +
+      sorted.at(-1) +
+      ', mean ' +
+      mean.toFixed(1) +
+      ', ' +
+      (curve.emptyStops / SUPPLY_SEEDS).toFixed(1) +
+      ' empty chapter ends per voyage, ' +
+      curve.shortfalls +
+      ' underfunded orders',
+  )
+}
+const supplyCurve = (name: string) => {
+  const curve = supplyCurves.get(name)!
+  return {
+    ...curve,
+    stocked: curve.ends.filter((n) => n > 0).length / SUPPLY_SEEDS,
+    mean: curve.ends.reduce((sum, n) => sum + n, 0) / SUPPLY_SEEDS,
+    emptyStopsPerVoyage: curve.emptyStops / SUPPLY_SEEDS,
+  }
+}
+const observer = supplyCurve('cautious observer')
+assert.ok(observer.stocked >= 0.6, 'a careful captain usually keeps a hold')
+assert.ok(observer.mean <= 7, 'a careful captain’s hold stays thin')
+const completionist = supplyCurve('curious completionist')
+assert.ok(
+  completionist.stocked >= 0.35,
+  'a kind completionist often finishes with crates left',
+)
+assert.ok(completionist.mean <= 4, 'kindness still spends the hold down')
+assert.ok(
+  completionist.emptyStopsPerVoyage <= 3,
+  'a kind captain is not stranded for half the voyage',
+)
+const reckless = supplyCurve('reckless helper')
+assert.ok(reckless.stocked <= 0.5, 'reckless generosity still runs dry')
+assert.ok(reckless.shortfalls > 0, 'reckless helpers still arrive empty-handed')
+assert.ok(
+  [...supplyCurves.values()].some((curve) => curve.ends.includes(0)),
+  'an empty hold remains possible',
+)
 
 console.log(
   'Space Couch independent fun playtests: five player styles, 25 full voyages plus complete collector arcs OK',

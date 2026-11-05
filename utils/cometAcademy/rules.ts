@@ -106,6 +106,7 @@ import {
   expandedMissionFor,
   type MissionApproach,
 } from './expandedNightCases'
+import { expandedPowerCallback } from './expandedPowerCallbacks'
 import { returnVisitFor } from './returnVisits'
 import { realNightCase } from './nightCases'
 import { nightCaseMorning } from './earlyNightMornings'
@@ -133,6 +134,7 @@ import {
   migrateSignatureId,
   signatureById,
   POWER_VOWS,
+  STATS,
   type SignaturePowerId,
   type PowerVowId,
 } from './specialPowers'
@@ -1288,6 +1290,9 @@ export function studentAvailable(run: AcademyRun, id: StudentId): boolean {
   )
 }
 
+const infirmaryLogLine = (day: number, id: StudentId) =>
+  `Day ${day}: Infirmary treatment for ${id}`
+
 export function tendInfirmary(run: AcademyRun, id: StudentId): AcademyRun {
   if (run.flowVersion !== 3 || run.phase !== 'map' || run.day >= 29) return run
   if (
@@ -1301,9 +1306,109 @@ export function tendInfirmary(run: AcademyRun, id: StudentId): AcademyRun {
     phase: 'dispatch',
     injuries: { ...run.injuries, [id]: run.day },
     infirmaryDays: [...(run.infirmaryDays ?? []), run.day],
-    scene: `You spend the morning arranging treatment for ${STUDENTS.find((s) => s.id === id)!.name}. They can join tonight, but you forgo a city lead.`,
+    scene: `You spend the morning arranging treatment for ${STUDENTS.find((s) => s.id === id)!.name}. They can join tonight, but not alone: on their first night back they want a healthy partner or you beside them. You forgo a city lead.`,
     influence: run.influence + 1,
-    log: [...run.log, `Day ${run.day}: Infirmary treatment for ${id}`],
+    log: [...run.log, infirmaryLogLine(run.day, id)],
+  }
+}
+
+/** A follower rushed back through the infirmary this morning answers calls
+ * tonight but is not whole yet. The saved log line marks the treatment, so a
+ * follower who rested a full night out is not affected, and older saves read
+ * the same way. */
+export function recoveringFollower(run: AcademyRun, id: StudentId): boolean {
+  return (
+    run.flowVersion === 3 &&
+    run.injuries?.[id] === run.day &&
+    studentAvailable(run, id) &&
+    run.log.includes(infirmaryLogLine(run.day, id))
+  )
+}
+
+export type RosterConflict = {
+  id: StudentId
+  name: string
+  /** 'you' when the protagonist leads the call, a healthy teammate's name, or
+   * null when the recovering follower goes out without cover. */
+  partner: string | null
+  /** Dispatch-card wording; matches the penalty dispatchModifier applies. */
+  card: string
+  /** Night-report wording for the same conflict. */
+  report: string
+}
+
+/** Rushed-back followers refuse to work a call without a healthy partner. If
+ * the player leads the call or a healthy teammate shares it, they are covered
+ * at no cost; otherwise they go anyway and the call takes -1 for each. */
+export function rosterConflicts(
+  run: AcademyRun,
+  caseId: string,
+  students: readonly StudentId[],
+): RosterConflict[] {
+  if (run.flowVersion !== 3) return []
+  const nameOf = (id: StudentId) =>
+    STUDENTS.find((person) => person.id === id)?.name ?? id
+  const healthy = students.find((id) => !recoveringFollower(run, id))
+  const partner =
+    run.playerCaseId === caseId ? 'you' : healthy ? nameOf(healthy) : null
+  return students
+    .filter((id) => recoveringFollower(run, id))
+    .map((id) => {
+      const name = nameOf(id)
+      return {
+        id,
+        name,
+        partner,
+        card: partner
+          ? `${name} was rushed back from the infirmary this morning and won't work a call without a healthy partner. ${partner === 'you' ? 'You take' : `${partner} takes`} the heavy work, so there is no penalty.`
+          : `${name} was rushed back from the infirmary this morning and wanted a healthy partner. Sent without one, ${name} goes anyway, favoring the injury: -1 to this call. Add a healthy hero or lead it yourself to cover them.`,
+        report: partner
+          ? `RECOVERING: ${partner === 'you' ? 'You' : partner} covered ${name} on their first night out of the infirmary.`
+          : `RECOVERING: ${name} went out without a healthy partner hours after infirmary treatment and worked through the pain (-1).`,
+      }
+    })
+}
+
+export function rosterConflictPenalty(
+  run: AcademyRun,
+  caseId: string,
+  students: readonly StudentId[],
+): number {
+  return rosterConflicts(run, caseId, students).filter(
+    (conflict) => !conflict.partner,
+  ).length
+}
+
+/** The protagonist's own field, acknowledged on an expanded case they lead.
+ * The stated bonus mirrors dispatchModifier: +2 on a matching field, +1
+ * for any other personal lead. Flavor never changes the odds. */
+export function playerPowerCallback(
+  run: AcademyRun,
+  caseId: string,
+): {
+  power: PowerId
+  /** The stat name the dispatch card already uses for this field. */
+  stat: string
+  line: string
+  matched: boolean
+  odds: string
+} | null {
+  if (run.flowVersion !== 3 || run.playerCaseId !== caseId) return null
+  const mission = expandedMissionFor(caseId)
+  const line = expandedPowerCallback(caseId, run.power)
+  if (!mission || !line) return null
+  const statName = (field: PowerId) =>
+    STATS.find((stat) => stat.field === field)?.name ?? field
+  const matched = run.power === mission.incident.need
+  const stat = statName(run.power)
+  return {
+    power: run.power,
+    stat,
+    line,
+    matched,
+    odds: matched
+      ? `${stat} is what this call needs: +2 while you lead it.`
+      : `This call needs ${statName(mission.incident.need)}; leading it with ${stat} still adds +1.`,
   }
 }
 
@@ -1496,7 +1601,14 @@ export function chooseNovelNight(
   if (choice !== 'rescue' && choice !== 'investigate') return run
   if (choice === 'investigate' && !expandedMissionFor(caseId)) return run
   const cases = incidentsFor(run)
-  const available = knownContacts(run).filter((id) => studentAvailable(run, id))
+  // Recovering followers will not take a call alone, so healthy contacts fill
+  // the solo calls first; the stable sort leaves every other night unchanged.
+  const available = knownContacts(run)
+    .filter((id) => studentAvailable(run, id))
+    .sort(
+      (a, b) =>
+        Number(recoveringFollower(run, a)) - Number(recoveringFollower(run, b)),
+    )
   const assignments: Assignment[] = []
   if (run.day > 3) {
     // Contacts volunteer for the remaining emergencies rather than vanishing
@@ -1669,6 +1781,7 @@ export function dispatchModifier(
     run.missionApproach === 'investigate'
       ? caseTrustModifier(run.caseHistory, run.day, incident.id)
       : 0) -
+    rosterConflictPenalty(run, incident.id, students) -
     villainInterference(run, incident)
   )
 }
@@ -1942,8 +2055,17 @@ export function resolveDispatch(run: AcademyRun): AcademyRun {
             : ' Your investigation was overtaken by the emergency. No usable evidence survived.'
           : ' You prioritized the immediate rescue, but the underlying investigation remains open.'
         : ''
+    const powerCallback = playerPowerCallback(run, incident.id)
     const resolvedText = [
       dramaticText,
+      ...rosterConflicts(run, incident.id, assignment.students).map(
+        (conflict) =>
+          // A played tactical fight replaces the roll, so no roll penalty.
+          playedBattle ? conflict.report.replace(' (-1)', '') : conflict.report,
+      ),
+      powerCallback
+        ? `YOUR POWER · ${powerCallback.stat.toUpperCase()}: ${powerCallback.line}`
+        : '',
       ...(playedBattle
         ? [
             `TACTICAL ${playedBattle.role.toUpperCase()}: ${playedBattle.grade.toUpperCase()} after ${playedBattle.turns} turns, ${playedBattle.fallen} allies down. Your decisions in the fight determined this mission's result, not the dispatch probability roll.`,

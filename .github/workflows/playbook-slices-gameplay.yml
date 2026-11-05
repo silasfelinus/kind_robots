@@ -18,6 +18,7 @@ on:
       - 'utils/scripts/verifyCometCityAcademy.test.ts'
       - 'utils/scripts/verifyCometMorningCallbacks.test.ts'
       - 'utils/scripts/verifyCometCaseMemory.test.ts'
+      - 'utils/scripts/verifyCometNightCallbacks.test.ts'
       - 'utils/scripts/verifyCometPatrolStories.test.ts'
       - 'utils/scripts/verifyCometOctoberCast.test.ts'
       - 'utils/scripts/verifyCometConsoleScreens.test.ts'

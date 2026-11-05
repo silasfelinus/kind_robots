@@ -646,6 +646,19 @@ const KINGDOM: EpilogueSubject[] = afterTheWar([
         text: 'Dunmark kept the paper that cleared his name. He never framed it. When a young Watch captain takes blame for a lost patrol, Dunmark sets the page on the table between them. “The order was mine,” he says. Then he signs the next one himself.',
       },
       {
+        when: { flags: ['d47-relief-charter-renewed'] },
+        mood: 'happy',
+        text: 'The Gate Watch rides with a witness from every village it visits. The first book cost ten brass and carried Ash’s old flour tally on its flyleaf. Each year Dunmark takes the book to Thistledown and asks whose chair was empty when the riders left. The reeve makes him sit down before answering.',
+      },
+      {
+        when: { flags: ['d47-watch-roll-law'] },
+        text: 'The public Watch roll lies open in every road court. Dunmark keeps the names in alphabetical order, not by rank. When a captain asks to hold a traveler without witnesses, the clerk turns the book to Day Ten. The captain has to read it before he can write a new name.',
+      },
+      {
+        when: { flags: ['d47-village-captains'] },
+        text: 'No House owns the eastern gate any longer. Thistledown sends its first elected captain to Dunmark for training. Vask’s old seal is still in the Archive, unbroken, but no order bears it. The captain’s mother brings two jars of seed to the oath ceremony; neither one goes to the crown.',
+      },
+      {
         when: { flags: ['d10-oath-of-reasons'] },
         text: 'Every order had its reason. Every name was read aloud after. Dunmark keeps the list. It runs to four pages. On the tenth day of every year he reads all four at the gate, and the Watch stands until he is done.',
       },

@@ -224,6 +224,64 @@ function isRunReceipt(value: unknown): value is RunReceipt {
   )
 }
 
+/**
+ * A Daily Memo shares one seed with every replay that day, so the seed and
+ * ending alone cannot tell two different completions apart. The job and the
+ * choices played can, and they stay identical when the same run is reloaded.
+ */
+export function runFingerprint(run: RunState): string {
+  let hash = 2166136261
+  const trail = [
+    run.jobId,
+    ...run.log.map(
+      (entry) =>
+        `${entry.cardId}/${entry.choiceId}/${entry.total ?? ''}/${entry.success ? 1 : 0}`,
+    ),
+  ].join('|')
+  for (let i = 0; i < trail.length; i++) {
+    hash ^= trail.charCodeAt(i)
+    hash = Math.imul(hash, 16777619)
+  }
+  return (hash >>> 0).toString(36)
+}
+
+/** Receipts filed before fingerprints were `seed:ending`; this is that prefix. */
+function legacyReceiptId(id: string): string {
+  const parts = id.split(':')
+  return parts.length > 2 ? parts.slice(0, -1).join(':') : id
+}
+
+/** The same completion, whether filed under today's ID or the legacy one. */
+export function sameCompletion(filed: RunReceipt, run: RunReceipt): boolean {
+  if (filed.id === run.id) return true
+  return (
+    filed.id === legacyReceiptId(run.id) &&
+    filed.endingId === run.endingId &&
+    filed.jobTitle === run.jobTitle &&
+    filed.floors === run.floors &&
+    filed.files === run.files &&
+    filed.employees === run.employees &&
+    filed.forms === run.forms &&
+    filed.successors === run.successors &&
+    filed.grades.empathy === run.grades.empathy &&
+    filed.grades.obedience === run.grades.obedience &&
+    filed.grades.ingenuity === run.grades.ingenuity &&
+    filed.grades.spite === run.grades.spite &&
+    filed.flags.join('|') === run.flags.join('|')
+  )
+}
+
+/** The archived receipt for this exact run, if it has been filed. */
+export function filedReceiptFor(
+  archive: RewardArchive,
+  run: RunState | null | undefined,
+): RunReceipt | null {
+  if (!run) return null
+  const probe = receiptFor(run, new Date(0).toISOString())
+  if (!probe) return null
+  return archive.runs.find((filed) => sameCompletion(filed, probe)) ?? null
+}
+
 export function receiptFor(
   run: RunState,
   completedAt: string,
@@ -239,7 +297,7 @@ export function receiptFor(
     (entry) => entry.cardId !== 'dossier' && entry.cardId !== 'restructuring',
   ).length
   return {
-    id: run.seed + ':' + ending.id,
+    id: run.seed + ':' + ending.id + ':' + runFingerprint(run),
     endingId: ending.id,
     completedAt,
     jobTitle: jobById(run.jobId).title,
@@ -262,7 +320,8 @@ export function recordReward(
   run: RunReceipt,
   endings: string[],
 ): RewardArchive {
-  if (archive.runs.some((receipt) => receipt.id === run.id)) return archive
+  if (archive.runs.some((receipt) => sameCompletion(receipt, run)))
+    return archive
   const runs = [...archive.runs, run].slice(-REWARD_ARCHIVE_LIMIT)
   const distinctEndings = restoreEndingGallery(endings)
   const next: RewardArchive = {
@@ -302,9 +361,12 @@ export function newMilestonesForRun(
   after: RewardArchive,
   receiptId: string,
 ): string[] {
+  const filed = after.runs.find((run) => run.id === receiptId)
   if (
-    before.runs.some((run) => run.id === receiptId) ||
-    !after.runs.some((run) => run.id === receiptId)
+    !filed ||
+    before.runs.some(
+      (run) => run.id === receiptId || sameCompletion(run, filed),
+    )
   )
     return []
   return MILESTONES.filter(

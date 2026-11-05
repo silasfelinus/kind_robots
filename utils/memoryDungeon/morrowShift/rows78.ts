@@ -31,7 +31,7 @@ export const MORROW_SHIFT_ROWS_7_8: readonly MorrowShiftSite[] = [
     speaker: 'Gwen',
     kind: 'puzzle',
     opening:
-      'The intake form wants the researcher’s usual doctor. The wallet holds three appointment cards: Dr Abara, Dr Lindqvist, Dr Pereira. A card on the noticeboard wishes Dr Abara a happy retirement after thirty years; the door says the clinic is closed on Sundays, and the Lindqvist card is for a Sunday. Gwen taps her pen. “Only one of those works here, love.”',
+      'The intake form wants Rowan’s usual doctor. The wallet holds three appointment cards: Dr Abara, Dr Lindqvist, Dr Pereira. A card on the noticeboard wishes Dr Abara a happy retirement after thirty years; the door says the clinic is closed on Sundays, and the Lindqvist card is for a Sunday. Gwen taps her pen. “Only one of those works here, love.”',
     artSubject:
       'A clinic reception counter under fluorescent light, three small appointment cards fanned beside a clipboard, a corkboard with a paper bouquet pinned to it; a receptionist in reading glasses waits with a pen while Morrow, an androgynous adult in their thirties with short dark hair and a grey cardigan, frowns at the cards.',
     choices: [
@@ -57,7 +57,7 @@ export const MORROW_SHIFT_ROWS_7_8: readonly MorrowShiftSite[] = [
         id: 'dr-pereira',
         label: 'Write Dr Pereira, the plainest card',
         outcome:
-          'Gwen finds the file at once and frowns at her screen. “You were meant to come back in March. Sleep follow-up.” Morrow hadn’t known the researcher stopped sleeping.',
+          'Gwen finds the file at once and frowns at her screen. “You were meant to come back in March. Sleep follow-up.” Morrow hadn’t known Rowan stopped sleeping.',
         effects: { evidence: 2 },
         artSubject:
           'A receptionist turning her monitor slightly away for privacy, her face thoughtful, while Morrow leans in at the counter, suddenly still.',
@@ -77,7 +77,7 @@ export const MORROW_SHIFT_ROWS_7_8: readonly MorrowShiftSite[] = [
     choices: [
       {
         id: 'care',
-        label: 'Book the appointment the researcher kept avoiding',
+        label: 'Book the appointment Rowan kept avoiding',
         outcome:
           'Gwen finds a slot in three weeks, on a morning Mara will have to cover. Morrow writes it on his hand, then in his phone, then on a receipt, in case one of them lies.',
         effects: { supplies: -1, trust: 1, danger: -1 },
@@ -88,7 +88,7 @@ export const MORROW_SHIFT_ROWS_7_8: readonly MorrowShiftSite[] = [
         id: 'risk',
         label: 'Open it and read the doctor’s covering note',
         outcome:
-          'The note quotes the researcher: “working nights on a project I can’t put down.” Morrow thinks of the locked archive under the Annex and feels the waiting-room floor tilt, very slightly.',
+          'The note quotes Rowan: “working nights on a project I can’t put down.” Morrow thinks of the locked archive under the Annex and feels the waiting-room floor tilt, very slightly.',
         effects: { evidence: 2, danger: 1 },
         artSubject:
           'Morrow hunched in a plastic chair reading a folded letter by fluorescent light, a torn envelope on his knee, his reflection faint in the dark window.',
@@ -97,11 +97,11 @@ export const MORROW_SHIFT_ROWS_7_8: readonly MorrowShiftSite[] = [
     echoes: [
       {
         flag: 'e03:5,2:care',
-        text: 'At the Annex he put the skipped step under his own name. Now he wonders how many steps the researcher skipped, and how tired they were when they did.',
+        text: 'At the Annex he put the skipped step under his own name. Now he wonders how many steps Rowan skipped, and how tired he was when he did.',
       },
       {
         flag: 'e03:5,2:risk',
-        text: 'At the Annex he re-ran the numbers so the log looked tidy. Sitting here, he suspects the researcher liked tidy logs too.',
+        text: 'At the Annex he re-ran the numbers so the log looked tidy. Sitting here, he suspects Rowan liked tidy logs too.',
       },
     ],
   },
@@ -182,7 +182,7 @@ export const MORROW_SHIFT_ROWS_7_8: readonly MorrowShiftSite[] = [
       },
       {
         flag: 'e03:4,6:risk',
-        text: 'Sal waves and calls him by the researcher’s name, loud enough for the whole room, and Morrow answers to it again.',
+        text: 'Sal waves and calls him by the name Rowan, loud enough for the whole room, and Morrow answers to it again.',
       },
     ],
   },
@@ -264,7 +264,7 @@ export const MORROW_SHIFT_ROWS_7_8: readonly MorrowShiftSite[] = [
       },
       {
         flag: 'e03:2,5:risk',
-        text: 'He knows now the researcher volunteered for Rosa’s dish pit and forgot. He wonders what else this name has promised without him.',
+        text: 'He knows now Rowan volunteered for Rosa’s dish pit and forgot. He wonders what else this name has promised without him.',
       },
     ],
   },
@@ -410,7 +410,7 @@ export const MORROW_SHIFT_ROWS_7_8: readonly MorrowShiftSite[] = [
       },
       {
         flag: 'e03:3,3:risk',
-        text: 'He has read what the researcher meant to tell Jun. It hasn’t made the words his to say.',
+        text: 'He has read what Rowan meant to tell Jun. It hasn’t made the words his to say.',
       },
     ],
   },
@@ -460,7 +460,7 @@ export const MORROW_SHIFT_ROWS_7_8: readonly MorrowShiftSite[] = [
         id: 'care',
         label: 'Take the spare picker and help him finish the round',
         outcome:
-          'They do the bandstand, the bins and the stretch by the pond nobody does. Walt talks about his late wife’s allotment, not the researcher. At the end he says, “Whatever you were doing out here, it wasn’t resting,” and goes to clock off.',
+          'They do the bandstand, the bins and the stretch by the pond nobody does. Walt talks about his late wife’s allotment, not Rowan. At the end he says, “Whatever you were doing out here, it wasn’t resting,” and goes to clock off.',
         effects: { supplies: -1, trust: 2 },
         artSubject:
           'Morrow and the cleaner walking side by side along a wet path with litter pickers, bin bags half full, floodlight behind them.',

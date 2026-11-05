@@ -31,7 +31,7 @@ export const MORROW_SHIFT_ROWS_5_6: readonly MorrowShiftSite[] = [
     speaker: 'Rosa',
     kind: 'companion',
     opening:
-      'Rosa, still in the canteen tabard from her day job, taps the roster with a wooden spoon. Tonight’s dish pit, six till close, carries the researcher’s name in blue biro, and nobody on the rota remembers agreeing to it. ‘You on, or am I scrubbing forty trays myself after a ten-hour shift?’ To Morrow, a name on a board looks like an oath someone swore with his mouth.',
+      'Rosa, still in the canteen tabard from her day job, taps the roster with a wooden spoon. Tonight’s dish pit, six till close, carries the name Rowan in blue biro, and nobody on the rota remembers agreeing to it. ‘You on, or am I scrubbing forty trays myself after a ten-hour shift?’ To Morrow, a name on a board looks like an oath someone swore with his mouth.',
     artSubject:
       'A tired middle-aged cook in a canteen tabard tapping a cork roster board with a wooden spoon in a cramped community kitchen, steam from a soup pot, an androgynous adult in their thirties with short dark hair and a grey cardigan reading the board warily, evening fluorescent light.',
     choices: [
@@ -48,7 +48,7 @@ export const MORROW_SHIFT_ROWS_5_6: readonly MorrowShiftSite[] = [
         id: 'risk',
         label: 'Find out who wrote your name there',
         outcome:
-          'Morrow holds the roster against the volunteer forms in the folder until the loops match: the researcher signed up months ago, in their own hand, and forgot. Rosa reads over his shoulder. ‘So it was you,’ she says, and rolls up her own sleeves.',
+          'Morrow holds the roster against the volunteer forms in the folder until the loops match: Rowan signed up months ago, in his own hand, and forgot. Rosa reads over his shoulder. ‘So it was you,’ she says, and rolls up her own sleeves.',
         effects: { evidence: 2, trust: -1 },
         artSubject:
           'An androgynous adult in their thirties with short dark hair and a grey cardigan holding two sheets of handwriting side by side under a kitchen strip light while a cook in a tabard reads over their shoulder, arms folded.',
@@ -158,7 +158,7 @@ export const MORROW_SHIFT_ROWS_5_6: readonly MorrowShiftSite[] = [
       },
       {
         id: 'risk',
-        label: 'Swap the researcher’s scarf for the waxed coat',
+        label: 'Swap Rowan’s scarf for the waxed coat',
         outcome:
           'Bev fingers the uneven stitches and pauses. ‘That’s the one Jun made you. You sure?’ Morrow says yes, because the scarf was never his to love. The coat is magnificent. The pause stays with him longer than the warmth does.',
         effects: { supplies: 1, danger: -1, trust: -1 },
@@ -189,7 +189,7 @@ export const MORROW_SHIFT_ROWS_5_6: readonly MorrowShiftSite[] = [
       },
       {
         id: 'risk',
-        label: 'Ask what the researcher used to talk about out here',
+        label: 'Ask what Rowan used to talk about out here',
         outcome:
           'Mara tells him: the job, the damp in Flat 14, a cello bought and never learned. It’s all useful. Then Mara stands. ‘You’re asking like you’re revising for a test,’ Mara says, not unkindly, and goes back inside.',
         effects: { evidence: 2, trust: -1 },
@@ -216,7 +216,7 @@ export const MORROW_SHIFT_ROWS_5_6: readonly MorrowShiftSite[] = [
     kind: 'memory',
     instant: true,
     opening:
-      'On the shelf above the tea urn, between the volunteers’ chipped mugs, one paper cup has been kept long past its use. Someone has written the researcher’s name on it in marker and drawn a crooked sun underneath. It has been rinsed, which paper cups are not built to survive, and put back.',
+      'On the shelf above the tea urn, between the volunteers’ chipped mugs, one paper cup has been kept long past its use. Someone has written the name Rowan on it in marker and drawn a crooked sun underneath. It has been rinsed, which paper cups are not built to survive, and put back.',
     artSubject:
       'A shelf above a dented steel tea urn in a community kitchen, a row of chipped mugs and one softened paper cup with a small hand-drawn sun on it, steam and warm light, no other figures.',
     choices: [
@@ -239,7 +239,7 @@ export const MORROW_SHIFT_ROWS_5_6: readonly MorrowShiftSite[] = [
     kind: 'memory',
     instant: true,
     opening:
-      'Between a missing-cat flyer and the hygiene certificate, someone has drawn the volunteers’ routes home in coloured pen so nobody leaves alone after close. One green line runs from the kitchen to the river and ends at the researcher’s initials, with a smaller box beside it: ‘Sal’s.’ It skirts the underpass by two whole streets.',
+      'Between a missing-cat flyer and the hygiene certificate, someone has drawn the volunteers’ routes home in coloured pen so nobody leaves alone after close. One green line runs from the kitchen to the river and ends at Rowan’s initials, with a smaller box beside it: ‘Sal’s.’ It skirts the underpass by two whole streets.',
     artSubject:
       'A crowded cork noticeboard in a community-kitchen corridor, a hand-drawn street map in coloured felt-tip with looping route lines, pinned flyers around it, a raincoat hanging nearby, evening fluorescent light.',
     choices: [
@@ -333,7 +333,7 @@ export const MORROW_SHIFT_ROWS_5_6: readonly MorrowShiftSite[] = [
         id: 'care',
         label: 'Report the flood and ask the caretaker to walk you in',
         outcome:
-          'Mr Adeyemi writes it in his book, swears the pump man is coming Thursday, and lends Morrow a pair of waders ‘for when it’s safe, not before.’ The cage stays shut. Whatever the researcher wrapped so carefully waits above the water.',
+          'Mr Adeyemi writes it in his book, swears the pump man is coming Thursday, and lends Morrow a pair of waders ‘for when it’s safe, not before.’ The cage stays shut. Whatever Rowan wrapped so carefully waits above the water.',
         effects: { trust: 1, supplies: 1 },
         artSubject:
           'A weary caretaker in a fleece writing in a battered notebook at the top of the basement stairs and handing a pair of rubber waders to an androgynous adult in their thirties with short dark hair and a grey cardigan, floodwater glinting below.',
@@ -342,7 +342,7 @@ export const MORROW_SHIFT_ROWS_5_6: readonly MorrowShiftSite[] = [
         id: 'risk',
         label: 'Wade in tonight with the torch',
         outcome:
-          'The water is colder than any river in the Marches, and the thing that brushes his shin is only a floating crate. He reaches cage 14, finds the researcher’s key won’t turn in the rusted padlock, and backs out soaked to the thigh, certain only that the bundle is meant to be found.',
+          'The water is colder than any river in the Marches, and the thing that brushes his shin is only a floating crate. He reaches cage 14, finds Rowan’s key won’t turn in the rusted padlock, and backs out soaked to the thigh, certain only that the bundle is meant to be found.',
         effects: { evidence: 1, danger: 2 },
         artSubject:
           'An androgynous adult in their thirties with short dark hair and a grey cardigan waist-deep in black floodwater between storage cages, torch beam on a rusted padlock, a bin-bag bundle on the shelf above, breath fogging.',
@@ -366,7 +366,7 @@ export const MORROW_SHIFT_ROWS_5_6: readonly MorrowShiftSite[] = [
     speaker: 'Sal',
     kind: 'companion',
     opening:
-      'Sal opens her door in slippers with the spare keys already in her hand, because he always forgets on bin day. She calls him by the researcher’s name, says he looks peaky, asks if he’s eating, and mentions Tilly drew him a picture. The keys hang on a ring with a plastic strawberry. In the Marches, whoever holds your keys holds your house’s true name.',
+      'Sal opens her door in slippers with the spare keys already in her hand, because he always forgets on bin day. She calls him by the name Rowan, says he looks peaky, asks if he’s eating, and mentions Tilly drew him a picture. The keys hang on a ring with a plastic strawberry. In the Marches, whoever holds your keys holds your house’s true name.',
     artSubject:
       'An older woman in slippers and a cardigan in the doorway of a warm, cluttered flat, holding out a key ring with a plastic strawberry charm, a child’s drawing taped to the door behind her, an androgynous adult in their thirties with short dark hair and a grey cardigan on the dim landing.',
     choices: [
@@ -381,7 +381,7 @@ export const MORROW_SHIFT_ROWS_5_6: readonly MorrowShiftSite[] = [
       },
       {
         id: 'risk',
-        label: 'Keep answering to the researcher’s name',
+        label: 'Keep answering to the name Rowan',
         outcome:
           'Sal pats his cheek, presses the strawberry ring into his palm and tells him to eat something green. He promises. The keys are warm from her hand, and every one of them now opens a door he stands behind under a name that isn’t his.',
         effects: { supplies: 1, trust: -1 },
@@ -468,7 +468,7 @@ export const MORROW_SHIFT_ROWS_5_6: readonly MorrowShiftSite[] = [
       },
       {
         flag: 'e03:3,3:risk',
-        text: 'Morrow has read what the researcher meant to tell Jun. It makes the blinking light harder to look at, and harder to ignore.',
+        text: 'Morrow has read what Rowan meant to tell Jun. It makes the blinking light harder to look at, and harder to ignore.',
       },
     ],
   },
@@ -532,7 +532,7 @@ export const MORROW_SHIFT_ROWS_5_6: readonly MorrowShiftSite[] = [
       },
       {
         flag: 'e03:4,6:risk',
-        text: 'Tilly calls him by the researcher’s name, loudly, exactly the way Sal does, and Morrow answers to it.',
+        text: 'Tilly calls him by the name Rowan, loudly, exactly the way Sal does, and Morrow answers to it.',
       },
     ],
   },

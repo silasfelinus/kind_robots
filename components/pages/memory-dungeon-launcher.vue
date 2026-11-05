@@ -71,7 +71,8 @@
           <p
             class="border-l-2 border-[#d6b779] pl-3 font-serif italic text-[#ffeac0]"
           >
-            “You can have my story,” Morrow said. “And I shall try yours.”
+            “You can have my story, Rowan,” Morrow said. “And I shall try
+            yours.”
           </p>
           <p>
             You thought it was a joke. The next moment, the fluorescent lights

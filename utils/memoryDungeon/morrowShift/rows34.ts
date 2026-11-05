@@ -8,7 +8,7 @@ export const MORROW_SHIFT_ROWS_3_4: readonly MorrowShiftSite[] = [
     speaker: 'A stranger in a raincoat',
     kind: 'memory',
     opening:
-      'Under the library steps, the subway entrance breathes warm air and wet newspaper. The ticket machine offers Morrow fourteen buttons and no audience, which he takes personally. He addresses it as one sovereign to another, holding out the researcher’s card like a writ. Behind him a stranger in a raincoat waits, sighs, and lifts one finger toward a single button.',
+      'Under the library steps, the subway entrance breathes warm air and wet newspaper. The ticket machine offers Morrow fourteen buttons and no audience, which he takes personally. He addresses it as one sovereign to another, holding out Rowan’s card like a writ. Behind him a stranger in a raincoat waits, sighs, and lifts one finger toward a single button.',
     artSubject:
       'A subway entrance tucked beneath wide stone library steps at night in rain; an androgynous adult in their thirties with short dark hair and a grey cardigan stands squarely before a ticket machine, chin raised like a petty king, a card held out stiffly; beside them a stranger in a dripping raincoat patiently points at one button; warm tiled light and wet reflections on the floor.',
     choices: [],
@@ -20,7 +20,7 @@ export const MORROW_SHIFT_ROWS_3_4: readonly MorrowShiftSite[] = [
     speaker: 'Deepa',
     kind: 'puzzle',
     opening:
-      'Holds are shelved by the last four digits of a library card, not by name, which Morrow finds either very modest or very sinister. The researcher’s card is worn down to its final two: 37. Their note reads ‘reserved 2nd ed., the 1st has the misprinted table.’ Deepa at circulation sets out three bundles: 1137, first edition; 4037, second edition; 4073, second edition.',
+      'Holds are shelved by the last four digits of a library card, not by name, which Morrow finds either very modest or very sinister. Rowan’s card is worn down to its final two: 37. His note reads ‘reserved 2nd ed., the 1st has the misprinted table.’ Deepa at circulation sets out three bundles: 1137, first edition; 4037, second edition; 4073, second edition.',
     artSubject:
       'A public library holds shelf of rubber-banded books with paper slips; a circulation librarian in her forties with reading glasses on a chain lays out three identical-looking bundles on the counter; an androgynous adult in their thirties with short dark hair and a grey cardigan squints at a worn library card; lamplight, rain on the tall windows behind.',
     choices: [
@@ -37,7 +37,7 @@ export const MORROW_SHIFT_ROWS_3_4: readonly MorrowShiftSite[] = [
         id: 'risk',
         label: 'Take 1137: the card ends right, edition be damned',
         outcome:
-          'The slip is someone else’s, and so is the misprint. Before Deepa notices, Morrow copies three numbers from the bad table on page 212 into the researcher’s notebook, and will believe them for days.',
+          'The slip is someone else’s, and so is the misprint. Before Deepa notices, Morrow copies three numbers from the bad table on page 212 into Rowan’s notebook, and will believe them for days.',
         effects: { evidence: -1 },
         artSubject:
           'An androgynous adult in a grey cardigan copying figures from an open textbook into a small notebook at a library table, an unnoticed wrong slip tucked under the cover; rainy window light.',
@@ -46,7 +46,7 @@ export const MORROW_SHIFT_ROWS_3_4: readonly MorrowShiftSite[] = [
         id: 'second-edition',
         label: 'Take 4037: it ends in 37 and it’s the second edition',
         outcome:
-          'The slip matches and the table on page 212 is the corrected one. Two pages on, the step the researcher’s notes skipped is set out in plain numbered lines. Morrow reads it four times, like an apology.',
+          'The slip matches and the table on page 212 is the corrected one. Two pages on, the step Rowan’s notes skipped is set out in plain numbered lines. Morrow reads it four times, like an apology.',
         effects: { evidence: 2 },
         artSubject:
           'An androgynous adult in a grey cardigan at a library reading table, finger resting on a numbered list in an open technical book, a worn library card beside it; soft green lamp, rain outside.',
@@ -60,7 +60,7 @@ export const MORROW_SHIFT_ROWS_3_4: readonly MorrowShiftSite[] = [
     speaker: 'Deepa',
     kind: 'memory',
     opening:
-      'Deepa keeps a drawer of things found inside returned books: pressed leaves, a milk tooth, a betting slip. She hands Morrow an envelope that fell out of one of the researcher’s returns last spring. It is stamped, sealed and addressed to Jun in the researcher’s handwriting. It was never posted. Morrow’s thumb finds the edge of the flap before he has decided anything.',
+      'Deepa keeps a drawer of things found inside returned books: pressed leaves, a milk tooth, a betting slip. She hands Morrow an envelope that fell out of one of Rowan’s returns last spring. It is stamped, sealed and addressed to Jun in Rowan’s handwriting. It was never posted. Morrow’s thumb finds the edge of the flap before he has decided anything.',
     artSubject:
       'A librarian holding out a stamped, sealed envelope across an open wooden drawer full of pressed leaves and odd keepsakes; an androgynous adult in their thirties with short dark hair and a grey cardigan reaches for it, thumb already at the flap; quiet library, lamplight, rain-streaked window.',
     choices: [
@@ -68,14 +68,14 @@ export const MORROW_SHIFT_ROWS_3_4: readonly MorrowShiftSite[] = [
         id: 'care',
         label: 'Keep it sealed for the one who wrote it',
         outcome:
-          'Morrow puts the envelope in the inside pocket where the researcher kept their pens. It weighs almost nothing and he notices it all evening. Whatever it says is still theirs to say.',
+          'Morrow puts the envelope in the inside pocket where Rowan kept his pens. It weighs almost nothing and he notices it all evening. Whatever it says is still his to say.',
         effects: { trust: 1 },
         artSubject:
           'An androgynous adult in a grey cardigan sliding a sealed envelope into an inside pocket beside two pens, standing between library shelves in low lamplight.',
       },
       {
         id: 'risk',
-        label: 'Open it. You are the researcher now, aren’t you?',
+        label: 'Open it. You are Rowan now, aren’t you?',
         outcome:
           'One page. It begins ‘I know sorry is late’ and stops halfway down, mid-sentence, as if the writer got up to answer a door. Morrow now knows Jun was owed something, and that he has read a letter nobody sent him.',
         effects: { evidence: 2, trust: -1 },
@@ -91,7 +91,7 @@ export const MORROW_SHIFT_ROWS_3_4: readonly MorrowShiftSite[] = [
     speaker: 'Morrow',
     kind: 'challenge',
     opening:
-      'Public Computer 6 grants thirty minutes and counts them down in the corner. The researcher’s inbox holds an email with a bank’s crest, red capitals and a midnight deadline: verify your password or the account will be closed. Morrow knows a summons when he sees one. In the Marches you answered a summons promptly, or someone came to collect.',
+      'Public Computer 6 grants thirty minutes and counts them down in the corner. Rowan’s inbox holds an email with a bank’s crest, red capitals and a midnight deadline: verify your password or the account will be closed. Morrow knows a summons when he sees one. In the Marches you answered a summons promptly, or someone came to collect.',
     artSubject:
       'A row of public library computers at night; an androgynous adult in their thirties with short dark hair and a grey cardigan sits rigid before a screen glowing alarm-red, hand hovering over the keyboard; other patrons blur past; fluorescent light and rain on black windows.',
     choices: [
@@ -154,7 +154,7 @@ export const MORROW_SHIFT_ROWS_3_4: readonly MorrowShiftSite[] = [
     speaker: 'Dr Sen',
     kind: 'companion',
     opening:
-      'Dr Sen reads at the long periodicals table on Thursday evenings, sharpening her pencil with a penknife older than the library’s computers. She slides over a printout: the researcher’s draft from last spring, its margins full of her small grey questions. None has been answered. ‘The machines downstairs will give you answers,’ she says. ‘Nobody here is short of those.’',
+      'Dr Sen reads at the long periodicals table on Thursday evenings, sharpening her pencil with a penknife older than the library’s computers. She slides over a printout: Rowan’s draft from last spring, its margins full of her small grey questions. None has been answered. ‘The machines downstairs will give you answers,’ she says. ‘Nobody here is short of those.’',
     artSubject:
       'A long library periodicals table under green reading lamps; a patient older scientist sharpens a pencil with a small penknife and slides a pencil-annotated printout across to an androgynous adult in their thirties with short dark hair and a grey cardigan; rain on tall windows.',
     echoes: [
@@ -195,7 +195,7 @@ export const MORROW_SHIFT_ROWS_3_4: readonly MorrowShiftSite[] = [
     speaker: 'Teodor',
     kind: 'merchant',
     opening:
-      'Teodor runs the coffee cart at the foot of the library steps and knows everyone by their order. He hands Morrow a loyalty card with the researcher’s name on it and nine stamps, five in blue ink and four in green. Morrow studies it like a treaty. ‘Tenth one’s free,’ says Teodor. ‘Jun always did the green. You two still splitting it?’',
+      'Teodor runs the coffee cart at the foot of the library steps and knows everyone by their order. He hands Morrow a loyalty card with the name Rowan on it and nine stamps, five in blue ink and four in green. Morrow studies it like a treaty. ‘Tenth one’s free,’ says Teodor. ‘Jun always did the green. You two still splitting it?’',
     artSubject:
       'A small coffee cart under a striped awning at the foot of rain-wet stone library steps; a cheerful barista in a knitted hat holds out a stamped loyalty card; an androgynous adult in their thirties with short dark hair and a grey cardigan examines it with treaty-level gravity; steam and streetlight.',
     choices: [
@@ -269,7 +269,7 @@ export const MORROW_SHIFT_ROWS_3_4: readonly MorrowShiftSite[] = [
           'The caretaker’s voice crackles through the grille: twenty minutes. Bea talks about gearboxes; Morrow talks, carefully, about a forest he says he read about. They miss half of class and arrive with an in-joke.',
         effects: { trust: 1, danger: -1, supplies: -1 },
         artSubject:
-          'Two people sitting on the floor of a stalled lift in amber light, a bus mechanic gesturing mid-story and an androgynous adult in a grey cardigan laughing despite themself, alarm button glowing.',
+          'Two people sitting on the floor of a stalled lift in amber light, a bus mechanic gesturing mid-story and an androgynous adult in a grey cardigan laughing despite himself, alarm button glowing.',
       },
       {
         id: 'risk',
@@ -298,7 +298,7 @@ export const MORROW_SHIFT_ROWS_3_4: readonly MorrowShiftSite[] = [
     speaker: 'Mrs Baptiste',
     kind: 'memory',
     opening:
-      'Mrs Baptiste runs enrolment from a folding table and a biscuit tin of pens. The researcher signed up for Probability (Evenings) in September, and the mid-term form wants the same signature again. She turns the September form round: a quick, confident scrawl Morrow could copy in two tries. ‘Same as before, love,’ she says, ‘or the office sends it back.’',
+      'Mrs Baptiste runs enrolment from a folding table and a biscuit tin of pens. Rowan signed up for Probability (Evenings) in September, and the mid-term form wants the same signature again. She turns the September form round: a quick, confident scrawl Morrow could copy in two tries. ‘Same as before, love,’ she says, ‘or the office sends it back.’',
     artSubject:
       'A folding table in a school corridor with a biscuit tin full of pens; a warm older woman in a cardigan and lanyard turns a form around to show an old signature; an androgynous adult in their thirties with short dark hair and a grey cardigan holds a pen above the paper, hesitating; strip lights, rain on the corridor windows.',
     choices: [
@@ -339,7 +339,7 @@ export const MORROW_SHIFT_ROWS_3_4: readonly MorrowShiftSite[] = [
     kind: 'memory',
     instant: true,
     opening:
-      'At enrolment Mr Okafor has every student write one prediction about their own term, with a probability attached, and seals the cards in a shoebox until mid-term. Tonight he hands them back. The researcher’s card, in that quick scrawl, reads: ‘I call Jun before spring. p = 0.3.’ Mr Okafor says, to the room, ‘Honest numbers are the brave ones.’',
+      'At enrolment Mr Okafor has every student write one prediction about their own term, with a probability attached, and seals the cards in a shoebox until mid-term. Tonight he hands them back. Rowan’s card, in that quick scrawl, reads: ‘I call Jun before spring. p = 0.3.’ Mr Okafor says, to the room, ‘Honest numbers are the brave ones.’',
     artSubject:
       'A night-school classroom; a tall teacher in a tweed jacket hands index cards out of a battered shoebox down the rows; an androgynous adult in their thirties with short dark hair and a grey cardigan holds one card very still, staring at it; whiteboard of probability trees behind, rain on the dark windows.',
     echoes: [
@@ -357,7 +357,7 @@ export const MORROW_SHIFT_ROWS_3_4: readonly MorrowShiftSite[] = [
         id: 'notice',
         label: 'Pocket the prediction card',
         outcome:
-          'Morrow tucks it beside the researcher’s pens. Then, because the class is doing it, he writes his own on a fresh card and hands it to Mr Okafor sealed. He tells no one what number he chose.',
+          'Morrow tucks it beside Rowan’s pens. Then, because the class is doing it, he writes his own on a fresh card and hands it to Mr Okafor sealed. He tells no one what number he chose.',
         effects: { evidence: 1 },
         artSubject:
           'An androgynous adult in a grey cardigan handing a sealed index card to a teacher in a tweed jacket, who receives it with grave courtesy; night classroom, lamplit desks.',
@@ -411,7 +411,7 @@ export const MORROW_SHIFT_ROWS_3_4: readonly MorrowShiftSite[] = [
     speaker: 'Mara',
     kind: 'companion',
     opening:
-      'Mara runs a free one-night workshop in Room 9 called ‘Read Your Payslip’, with a flipchart and a tin of shortbread. Morrow takes a payslip for a tithe ledger and is not entirely wrong. Afterwards Mara reads the researcher’s and goes quiet: eleven overtime hours in August, worked, logged, never claimed. ‘I can file it tonight,’ she says. ‘You just sign that you did them.’',
+      'Mara runs a free one-night workshop in Room 9 called ‘Read Your Payslip’, with a flipchart and a tin of shortbread. Morrow takes a payslip for a tithe ledger and is not entirely wrong. Afterwards Mara reads Rowan’s and goes quiet: eleven overtime hours in August, worked, logged, never claimed. ‘I can file it tonight,’ she says. ‘You just sign that you did them.’',
     artSubject:
       'A small night-school classroom with a flipchart and an open tin of shortbread; a dry, exact woman in her thirties with a steward’s lanyard frowns at a payslip; an androgynous adult in their thirties with short dark hair and a grey cardigan sits across from her with a pen and a claim form; strip lights, rain on the window.',
     echoes: [
@@ -465,7 +465,7 @@ export const MORROW_SHIFT_ROWS_3_4: readonly MorrowShiftSite[] = [
     kind: 'treasure',
     instant: true,
     opening:
-      'Beside the corridor tea urn is a shelf of paper cups, each with a name in marker, reused all term in defiance of what paper cups are for. One bears the researcher’s name, soft at the rim. Morrow lifts it as he would a relic and finds something folded inside, which is not how relics usually work.',
+      'Beside the corridor tea urn is a shelf of paper cups, each with a name in marker, reused all term in defiance of what paper cups are for. One bears the name Rowan, soft at the rim. Morrow lifts it as he would a relic and finds something folded inside, which is not how relics usually work.',
     artSubject:
       'A school corridor shelf beside a steel tea urn, lined with worn paper cups marked with blank name patches; an androgynous adult in their thirties with short dark hair and a grey cardigan lifts one reverently with both hands, a folded paper peeking out; warm urn steam under strip lights.',
     choices: [
@@ -473,7 +473,7 @@ export const MORROW_SHIFT_ROWS_3_4: readonly MorrowShiftSite[] = [
         id: 'notice',
         label: 'Unfold the note in the cup',
         outcome:
-          'A crib sheet in the researcher’s hand: the rules for ‘and’, ‘or’ and ‘not’, with ‘NOT is your friend’ underlined twice. Morrow keeps it. Then, after some thought, he makes tea in the cup.',
+          'A crib sheet in Rowan’s hand: the rules for ‘and’, ‘or’ and ‘not’, with ‘NOT is your friend’ underlined twice. Morrow keeps it. Then, after some thought, he makes tea in the cup.',
         effects: { evidence: 1, supplies: 1 },
         artSubject:
           'An androgynous adult in a grey cardigan reading a small folded crib sheet while tea steams from a worn paper cup in their other hand; corridor tea urn behind.',
@@ -496,7 +496,7 @@ export const MORROW_SHIFT_ROWS_3_4: readonly MorrowShiftSite[] = [
         id: 'notice',
         label: 'Read the newest arrow',
         outcome:
-          'In the researcher’s scrawl, an arrow to the back stairs: ‘shortcut to the night bus, slippery when wet, take it anyway’. Under it, in other ink, someone has added ‘or don’t’. Morrow takes the stairs slowly and catches the bus.',
+          'In Rowan’s scrawl, an arrow to the back stairs: ‘shortcut to the night bus, slippery when wet, take it anyway’. Under it, in other ink, someone has added ‘or don’t’. Morrow takes the stairs slowly and catches the bus.',
         effects: { supplies: 1 },
         artSubject:
           'An androgynous adult in a grey cardigan descending rain-slick metal back stairs very carefully, one hand on the rail, a night bus pulling up under a streetlight below.',

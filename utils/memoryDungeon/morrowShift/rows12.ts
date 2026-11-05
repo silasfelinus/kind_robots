@@ -31,7 +31,7 @@ export const MORROW_SHIFT_ROWS_1_2: readonly MorrowShiftSite[] = [
     speaker: 'Mara',
     kind: 'companion',
     opening:
-      'Rain drips through a gap in the platform 4 canopy. A woman with a lanyard and a ring binder cuts through the crowd and says the researcher’s name like an invoice. ‘You missed handoff. I stood in the cold room till nine waiting for your numbers.’ This is Mara. Morrow has never seen her in his life; she has known this face for years.',
+      'Rain drips through a gap in the platform 4 canopy. A woman with a lanyard and a ring binder cuts through the crowd and says the name Rowan like an invoice. ‘You missed handoff. I stood in the cold room till nine waiting for your numbers.’ This is Mara. Morrow has never seen her in his life; she has known this face for years.',
     artSubject:
       'A narrow rainy railway platform under a dripping canopy, a sharp-eyed woman in her thirties with a lanyard and ring binder confronting an androgynous adult in their thirties with short dark hair and a grey cardigan, commuters glancing past, cold morning light',
     choices: [
@@ -133,7 +133,7 @@ export const MORROW_SHIFT_ROWS_1_2: readonly MorrowShiftSite[] = [
     speaker: 'Mr Osei',
     kind: 'treasure',
     opening:
-      'Behind the lost-property glass, between forty umbrellas and a single ice skate, hangs a green wool coat with the researcher’s name inked on the label. Mr Osei has kept it six weeks. ‘Bit of ID,’ he says, ‘and tell me what’s in the pockets. That’s the rule.’ Morrow has the ID. He has no idea what’s in the pockets.',
+      'Behind the lost-property glass, between forty umbrellas and a single ice skate, hangs a green wool coat with the name Rowan inked on the label. Mr Osei has kept it six weeks. ‘Bit of ID,’ he says, ‘and tell me what’s in the pockets. That’s the rule.’ Morrow has the ID. He has no idea what’s in the pockets.',
     artSubject:
       'A small lost-property counter behind glass crowded with umbrellas and one ice skate, an older clerk with reading glasses holding up a green wool coat, an androgynous adult in their thirties with short dark hair and a grey cardigan at the window with an identity card, rain-light from the concourse',
     choices: [
@@ -179,9 +179,9 @@ export const MORROW_SHIFT_ROWS_1_2: readonly MorrowShiftSite[] = [
       },
       {
         id: 'risk',
-        label: 'Give her the researcher’s name and address',
+        label: 'Give her the name Rowan and address',
         outcome:
-          'She writes it down: name, flat number, Riverside. A penalty letter will come addressed to the researcher, and Morrow will be the one who opens it. He keeps his money and spends a little more of the name.',
+          'She writes it down: name, flat number, Riverside. A penalty letter will come addressed to Rowan, and Morrow will be the one who opens it. He keeps his money and spends a little more of the name.',
         effects: { danger: 1, trust: -1 },
         artSubject:
           'A ticket inspector writing on a penalty notice pad as an androgynous adult in their thirties with short dark hair and a grey cardigan spells something out with a careful, guarded face, the exit gates and rain beyond',
@@ -201,7 +201,7 @@ export const MORROW_SHIFT_ROWS_1_2: readonly MorrowShiftSite[] = [
     speaker: 'Ana',
     kind: 'merchant',
     opening:
-      'Ana’s coffee cart steams under the departures board. She starts pouring before Morrow reaches the counter: two flat whites, one oat, one not. ‘Usual,’ she says, and holds out the card reader. It seems the researcher bought this exact pair every weekday for a year, and Morrow has no idea who drinks the second.',
+      'Ana’s coffee cart steams under the departures board. She starts pouring before Morrow reaches the counter: two flat whites, one oat, one not. ‘Usual,’ she says, and holds out the card reader. It seems Rowan bought this exact pair every weekday for a year, and Morrow has no idea who drinks the second.',
     artSubject:
       'A small steaming coffee cart under a station departures board, a cheerful barista in a knitted hat setting two paper cups side by side, an androgynous adult in their thirties with short dark hair and a grey cardigan hesitating with a card in hand, rain beyond the concourse doors',
     choices: [
@@ -265,7 +265,7 @@ export const MORROW_SHIFT_ROWS_1_2: readonly MorrowShiftSite[] = [
     kind: 'memory',
     instant: true,
     opening:
-      'The Research Annex lobby smells of carpet glue and wet umbrellas. By the lifts hangs last year’s team photograph: Dr Sen with a pencil behind her ear, Mara squinting at the camera as if auditing it, and the researcher between them, laughing at someone just outside the frame.',
+      'The Research Annex lobby smells of carpet glue and wet umbrellas. By the lifts hangs last year’s team photograph: Dr Sen with a pencil behind her ear, Mara squinting at the camera as if auditing it, and Rowan between them, laughing at someone just outside the frame.',
     artSubject:
       'A modest research building lobby with rain-streaked glass doors and a dripping umbrella stand, an androgynous adult in their thirties with short dark hair and a grey cardigan standing before a framed group photograph on the wall beside the lifts, fluorescent and grey daylight mixing',
     choices: [
@@ -287,7 +287,7 @@ export const MORROW_SHIFT_ROWS_1_2: readonly MorrowShiftSite[] = [
     speaker: 'Farah Qureshi',
     kind: 'memory',
     opening:
-      'HR wants a return-to-work form after the missed shift. Farah Qureshi slides it across beside the file copy of the researcher’s old signature, a quick looped scrawl like a startled bird. Morrow’s hand, trained on charters, writes like a seal being pressed into wax. ‘Just sign where it’s highlighted,’ Farah says. ‘It should match.’',
+      'HR wants a return-to-work form after the missed shift. Farah Qureshi slides it across beside the file copy of Rowan’s old signature, a quick looped scrawl like a startled bird. Morrow’s hand, trained on charters, writes like a seal being pressed into wax. ‘Just sign where it’s highlighted,’ Farah says. ‘It should match.’',
     artSubject:
       'A small cluttered HR office with a rain-dark window, an HR officer in a headscarf sliding two papers across the desk, an androgynous adult in their thirties with short dark hair and a grey cardigan holding a pen above the page, a potted plant and a stack of folders',
     choices: [
@@ -329,7 +329,7 @@ export const MORROW_SHIFT_ROWS_1_2: readonly MorrowShiftSite[] = [
     kind: 'memory',
     instant: true,
     opening:
-      'The researcher’s pigeonhole is jammed tight: an unopened conference letter, two flyers for a staff choir, a canteen card, and on top of it all a yellow sticky note in block capitals. Morrow, who once received petitions on vellum, has never been so thoroughly addressed.',
+      'Rowan’s pigeonhole is jammed tight: an unopened conference letter, two flyers for a staff choir, a canteen card, and on top of it all a yellow sticky note in block capitals. Morrow, who once received petitions on vellum, has never been so thoroughly addressed.',
     artSubject:
       'A narrow staff post room with rows of wooden pigeonholes, one overstuffed with envelopes and flyers, an androgynous adult in their thirties with short dark hair and a grey cardigan working them loose with care, a damp umbrella hooked on his arm',
     choices: [
@@ -391,7 +391,7 @@ export const MORROW_SHIFT_ROWS_1_2: readonly MorrowShiftSite[] = [
     speaker: 'Dr Sen',
     kind: 'companion',
     opening:
-      'Dr Sen’s pencil stops at row 340. The overnight humidity run drifts exactly where a drying step should have been, and that step is missing from the researcher’s notes, which are Morrow’s notes now. ‘Somebody skipped the desiccant,’ she says mildly, not looking up. Team meeting at ten. The log goes to the funder on Friday.',
+      'Dr Sen’s pencil stops at row 340. The overnight humidity run drifts exactly where a drying step should have been, and that step is missing from Rowan’s notes, which are Morrow’s notes now. ‘Somebody skipped the desiccant,’ she says mildly, not looking up. Team meeting at ten. The log goes to the funder on Friday.',
     artSubject:
       'A quiet data room with printouts spread across a table, Dr Sen in her fifties running a pencil down a column of numbers, an androgynous adult in their thirties with short dark hair and a grey cardigan standing behind her holding a battered lab notebook open to a gap, grey rain-light from a window',
     choices: [
@@ -428,7 +428,7 @@ export const MORROW_SHIFT_ROWS_1_2: readonly MorrowShiftSite[] = [
     speaker: 'Walt',
     kind: 'dungeon',
     opening:
-      'The back stairwell ends at a steel door: Sublevel B, after hours by escort only. A key log hangs chained beside it. The researcher’s name appears four times this spring, signed out and never signed back in. Whatever they left unfinished is down there, behind a card reader that wants archive access. Walt, mopping the landing, watches Morrow read the log and says nothing yet.',
+      'The back stairwell ends at a steel door: Sublevel B, after hours by escort only. A key log hangs chained beside it. Rowan’s name appears four times this spring, signed out and never signed back in. Whatever he left unfinished is down there, behind a card reader that wants archive access. Walt, mopping the landing, watches Morrow read the log and says nothing yet.',
     artSubject:
       'A concrete basement stairwell ending at a heavy steel door with a card reader and a clipboard on a chain, an older cleaner in a work tabard leaning on a mop, an androgynous adult in their thirties with short dark hair and a grey cardigan reading the clipboard under a single buzzing strip light',
     choices: [
@@ -436,7 +436,7 @@ export const MORROW_SHIFT_ROWS_1_2: readonly MorrowShiftSite[] = [
         id: 'care',
         label: 'Sign the key log properly and ask Walt for escort',
         outcome:
-          'Morrow signs the researcher’s name, the time, and a reason he invents on the spot: ‘retrieve own project’. Walt reads it twice and says Thursday, after the floors are done. The door stays shut tonight, but the question behind it now has a date.',
+          'Morrow signs the name Rowan, the time, and a reason he invents on the spot: ‘retrieve own project’. Walt reads it twice and says Thursday, after the floors are done. The door stays shut tonight, but the question behind it now has a date.',
         effects: { trust: 1, evidence: 1, danger: -1 },
         artSubject:
           'an androgynous adult in their thirties with short dark hair and a grey cardigan writing on the chained clipboard while the older cleaner looks over his shoulder, mop bucket at their feet, the steel door closed beside them',
@@ -458,7 +458,7 @@ export const MORROW_SHIFT_ROWS_1_2: readonly MorrowShiftSite[] = [
       },
       {
         flag: 'e03:5,2:risk',
-        text: 'Walt was mopping this floor at 3 a.m. when the chamber booking went through on the researcher’s badge. He doesn’t mention it. He doesn’t need to.',
+        text: 'Walt was mopping this floor at 3 a.m. when the chamber booking went through on Rowan’s badge. He doesn’t mention it. He doesn’t need to.',
       },
       {
         flag: 'e03:5,1:care',
@@ -519,7 +519,7 @@ export const MORROW_SHIFT_ROWS_1_2: readonly MorrowShiftSite[] = [
     speaker: 'Mara',
     kind: 'memory',
     opening:
-      'On the roster board, yesterday’s handoff has the researcher’s name crossed out and ‘MARA 6–9 (cover)’ pencilled beside it. Mara is at the board with an eraser: the steward who keeps everyone’s hours honest, about to leave her own off. ‘Three hours,’ she says. ‘Not worth a form.’',
+      'On the roster board, yesterday’s handoff has the name Rowan crossed out and ‘MARA 6–9 (cover)’ pencilled beside it. Mara is at the board with an eraser: the steward who keeps everyone’s hours honest, about to leave her own off. ‘Three hours,’ she says. ‘Not worth a form.’',
     artSubject:
       'A corridor roster board covered in pencilled names and time blocks, Mara with a lanyard holding an eraser near one entry, an androgynous adult in their thirties with short dark hair and a grey cardigan beside her watching her hand, late-afternoon rain-light down the corridor',
     choices: [

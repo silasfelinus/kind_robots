@@ -24,6 +24,7 @@ import {
   MEMORY_REALITY_EXPERIENCES,
   MEMORY_REALITY_PAIRS,
   MEMORY_COLLISION_ORDER,
+  MEMORY_RESEARCHER_NAME,
   memoryLeadFor,
   newMemoryCampaignProgress,
 } from '../memoryDungeon/reimaginerCampaign'
@@ -148,11 +149,11 @@ for (const [first, second] of MEMORY_REALITY_PAIRS) {
 }
 assert.deepEqual(
   MEMORY_REALITY_PAIRS.map(([first]) => memoryLeadFor(first)),
-  ['pip', 'morrow', 'scylla', 'vesper'],
+  ['researcher', 'morrow', 'scylla', 'vesper'],
 )
 assert.deepEqual(
   MEMORY_COLLISION_ORDER.map((id) => memoryLeadFor(id)),
-  ['pip', 'morrow', 'char', 'vesper'],
+  ['researcher', 'morrow', 'char', 'vesper'],
 )
 const charLost = {
   ...newMemoryCampaignProgress(),
@@ -165,6 +166,20 @@ const charAlive = {
 assert.equal(memoryLeadFor('e11', charLost), 'scylla')
 assert.equal(memoryLeadFor('e11', charAlive), 'char')
 assert.equal(memoryLeadFor('e10', charLost), 'morrow')
+
+// The researcher is named (Silas, 2026-11-05 PT) and he/him.
+assert.equal(MEMORY_RESEARCHER_NAME, 'Rowan')
+const e03Text = MORROW_SHIFT_SITES.flatMap((site) => [
+  site.opening,
+  ...site.choices.map((choice) => choice.outcome),
+  ...(site.echoes ?? []).map((echo) => echo.text),
+]).join(' ')
+assert.ok(
+  !/the researcher/i.test(e03Text),
+  'e03 names Rowan, not “the researcher”',
+)
+assert.ok(e03Text.split(MEMORY_RESEARCHER_NAME).length > 20)
+assert.ok(!/Rowan[^.]{0,80}\b(their|theirs|they)\b/.test(e03Text))
 
 console.log(
   'Morrow’s Shift: 64 authored sites, ' +

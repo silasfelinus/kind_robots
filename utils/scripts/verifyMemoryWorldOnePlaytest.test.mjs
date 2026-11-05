@@ -1,17 +1,19 @@
 import assert from 'node:assert/strict'
-import { mkdtempSync, writeFileSync } from 'node:fs'
-import { tmpdir } from 'node:os'
-import path from 'node:path'
-import { fileURLToPath, pathToFileURL } from 'node:url'
-import { build } from 'esbuild'
+import {
+  flushTimers as flushTab,
+  importMemoryWorld,
+  installBrowser,
+  openPage as openTab,
+  seeded,
+  settle,
+} from './memoryWorldPlaytestKit.mjs'
 
 // Adversarial World One playtest: seeded personas drive the real Pinia Memory
 // World store (Briar Marches overworld, its encounters and the 36-room House)
 // through every UI-reachable action, interrupt timers, reload the page and
 // swap manual checkpoints. Each step must leave a legal next action, finite
 // resources, and a saved game that restores to the same expedition.
-const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..')
-const entry = [
+const M = await importMemoryWorld([
   "export { createPinia, setActivePinia } from 'pinia'",
   "export { useMemoryWorldStore } from '@/stores/memoryWorldStore'",
   "export { BRIAR_SITES, BRIAR_DUNGEON, BRIAR_GATE, briarConnected, restoreBriarSave } from '@/utils/memoryDungeonWorld'",
@@ -21,114 +23,13 @@ const entry = [
   "export { COMBAT_ROOMS } from '@/utils/memoryDungeon/rooms'",
   "export { WEAPONS } from '@/utils/memoryDungeon/combat'",
   "export { MINEFIELD_SITE } from '@/utils/memoryDungeon/minefieldRun'",
-].join('\n')
-
-const bundle = await build({
-  stdin: { contents: entry, resolveDir: root, loader: 'ts' },
-  bundle: true,
-  write: false,
-  format: 'esm',
-  platform: 'node',
-  define: {
-    'import.meta.client': 'true',
-    'import.meta.server': 'false',
-    'process.env.NODE_ENV': '"production"',
-  },
-  plugins: [
-    {
-      name: 'memory-world-playtest',
-      setup(builder) {
-        builder.onResolve(
-          { filter: /^\.\/(userStore|helpers\/memoryDungeonDeckSource)$/ },
-          ({ path: name, importer }) => {
-            if (!importer.endsWith('/stores/memoryWorldStore.ts')) return
-            return { path: name, namespace: 'memory-stub' }
-          },
-        )
-        builder.onLoad(
-          { filter: /.*/, namespace: 'memory-stub' },
-          ({ path: name }) => ({
-            contents:
-              name === './userStore'
-                ? 'export function useUserStore() { return { isLoggedIn: false, isChild: false, showMature: false } }'
-                : 'export async function resolveMemoryDungeonDeck(_deck, count, usedPrior = 0, seen = []) { const out = []; for (let i = 0; out.length < count; i++) { const p = "/playtest-" + (usedPrior + i) + ".webp"; if (!seen.includes(p)) out.push(p) } return out }',
-            loader: 'ts',
-            resolveDir: root,
-          }),
-        )
-        builder.onResolve(
-          { filter: /^[@~]\// },
-          ({ path: name, kind, importer }) =>
-            builder.resolve('./' + name.slice(2), {
-              resolveDir: root,
-              kind,
-              importer,
-            }),
-        )
-      },
-    },
-  ],
-  logLevel: 'error',
-})
-const bundleDir = mkdtempSync(path.join(tmpdir(), 'memory-world-one-'))
-const bundlePath = path.join(bundleDir, 'store.mjs')
-writeFileSync(bundlePath, bundle.outputFiles[0].text)
+])
 
 // Browser globals the store owns: timers are queued so a persona can reload
 // mid-animation, and storage survives reloads like a real tab.
-let pendingTimers = []
-const storage = new Map()
-globalThis.window = {
-  setTimeout(callback, delay) {
-    pendingTimers.push({ callback, delay })
-    return pendingTimers.length
-  },
-  clearTimeout() {},
-  localStorage: {
-    getItem: (key) => (storage.has(key) ? storage.get(key) : null),
-    setItem: (key, value) => storage.set(key, String(value)),
-    removeItem: (key) => storage.delete(key),
-  },
-}
-globalThis.fetch = async () => ({ ok: false, headers: new Map() })
-
-const M = await import(pathToFileURL(bundlePath).href)
-
-function seeded(seed) {
-  let a = seed >>> 0
-  return () => {
-    a = (a + 0x6d2b79f5) >>> 0
-    let t = a
-    t = Math.imul(t ^ (t >>> 15), t | 1)
-    t ^= t + Math.imul(t ^ (t >>> 7), t | 61)
-    return ((t ^ (t >>> 14)) >>> 0) / 4294967296
-  }
-}
-
-async function settle() {
-  for (let i = 0; i < 6; i++) await Promise.resolve()
-  await new Promise((resolve) => setImmediate(resolve))
-}
-
-async function flushTimers() {
-  for (let guard = 0; pendingTimers.length && guard < 50; guard++) {
-    const queue = pendingTimers
-    pendingTimers = []
-    for (const timer of queue) timer.callback()
-    await settle()
-  }
-}
-
-async function openPage() {
-  pendingTimers = []
-  M.setActivePinia(M.createPinia())
-  const world = M.useMemoryWorldStore()
-  // Mirrors memory-dungeon-overworld.vue onMounted.
-  world.hydrate()
-  await world.syncActiveMapDeck()
-  await settle()
-  return world
-}
+const tab = installBrowser()
+const flushTimers = () => flushTab(tab)
+const openPage = () => openTab(M, tab)
 
 /** Durable progress a reload or checkpoint must not lose or invent. */
 function durable(save) {
@@ -461,7 +362,7 @@ const findings = []
 const summaries = []
 for (const persona of PERSONAS)
   for (let seed = 1; seed <= SEEDS; seed++) {
-    storage.clear()
+    tab.storage.clear()
     const random = seeded(seed * 7919 + persona.name.length)
     Math.random = random
     let world = await openPage()
@@ -490,7 +391,7 @@ for (const persona of PERSONAS)
         if (random() < 0.85) await flushTimers()
         invariants(world, `${label()} step ${steps} after ${action.name}`)
         if (random() < persona.reload) {
-          const settled = pendingTimers.length === 0
+          const settled = tab.pendingTimers.length === 0
           const before = durable(world.state)
           world = await openPage()
           reloads++

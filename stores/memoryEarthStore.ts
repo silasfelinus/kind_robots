@@ -65,6 +65,7 @@ export const useMemoryEarthStore = defineStore('memoryEarth', () => {
   /** e03 answers and flags, whichever reality is active (Sublevel B reads them). */
   const e03Choices = computed(() => save.value.records.e03.choices)
   const e03Flags = computed(() => save.value.records.e03.flags)
+  const e04Flags = computed(() => save.value.records.e04.flags)
   /**
    * e04 revisits e03's places, so its openings also answer to what Morrow
    * did there in e03 and to how he left Sublevel B.
@@ -334,6 +335,7 @@ export const useMemoryEarthStore = defineStore('memoryEarth', () => {
     recordSublevelEnding,
     e03Choices,
     e03Flags,
+    e04Flags,
     chosen,
     tiles,
     photographs,

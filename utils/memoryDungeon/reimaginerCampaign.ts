@@ -129,7 +129,7 @@ export const MEMORY_REALITY_EXPERIENCES: readonly RealityExperience[] = [
     'e01',
     'briar',
     'Briar Marches',
-    'earth-protagonist',
+    'pip',
     'storybook',
     'original',
     ['meaning', 'cast', 'visual-language'],
@@ -141,7 +141,7 @@ export const MEMORY_REALITY_EXPERIENCES: readonly RealityExperience[] = [
     'e02',
     'briar',
     'Briar Understory',
-    'earth-protagonist',
+    'pip',
     'storybook',
     'dark-reflection',
     ['meaning', 'mechanics', 'traversal', 'cast', 'visual-language'],
@@ -201,7 +201,7 @@ export const MEMORY_REALITY_EXPERIENCES: readonly RealityExperience[] = [
     'e07',
     'hearth',
     'Hearth and Hunger',
-    'earth-protagonist',
+    'vesper',
     'storybook',
     'original',
     ['meaning', 'mechanics', 'cast'],
@@ -213,7 +213,7 @@ export const MEMORY_REALITY_EXPERIENCES: readonly RealityExperience[] = [
     'e08',
     'hearth',
     'Hearth of Perfect Safety',
-    'scylla',
+    'vesper',
     'hybrid',
     'dark-reflection',
     ['meaning', 'mechanics', 'traversal', 'cast', 'visual-language'],
@@ -571,6 +571,24 @@ export function memoryCharFate(
   if (decision === 'seal-the-tide-gate' || decision === 'divert-the-current')
     return 'alive'
   return 'unresolved'
+}
+
+/**
+ * One lead per world (Silas, 2026-11-05 PT): each early pair keeps a single
+ * protagonist, and the finale revisits the same four with Char swapped in
+ * for Scylla on e11. That swap depends on the storyline: when the World Four
+ * tide gate cost Char her life, Scylla carries e11 herself rather than a
+ * silently resurrected Char.
+ */
+export function memoryLeadFor(
+  id: ExperienceId,
+  progress?: MemoryCampaignProgress,
+): RealityPerspective {
+  const planned = MEMORY_REALITY_EXPERIENCES.find((entry) => entry.id === id)
+  if (!planned) throw new Error('Unknown Memory Dungeon world ' + id)
+  if (id === 'e11' && progress && memoryCharFate(progress) === 'lost')
+    return 'scylla'
+  return planned.viewpoint
 }
 
 /**

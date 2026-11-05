@@ -67,9 +67,9 @@ const experience08 = MEMORY_REALITY_EXPERIENCES.find(
   (item) => item.id === 'e08',
 )!
 assert.equal(experience07.concept, 'hearth')
-assert.equal(experience07.viewpoint, 'earth-protagonist')
+assert.equal(experience07.viewpoint, 'vesper')
 assert.equal(experience08.concept, 'hearth')
-assert.equal(experience08.viewpoint, 'scylla')
+assert.equal(experience08.viewpoint, 'vesper')
 assert.equal(
   experience07.title,
   'Hearth and Hunger',

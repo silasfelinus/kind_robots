@@ -94,7 +94,7 @@ for (const entry of ['escort', 'badge'] as const) {
     assert.equal(chooseSublevel(atHollis, 'walt-vouches'), atHollis)
   assert.ok(!sublevelExits(atHollis).includes('SB-33'))
   atHollis = chooseSublevel(atHollis, 'truth')
-  assert.ok(atHollis.hollisPassed)
+  assert.ok(atHollis.guardianPassed)
 
   for (const ending of SUBLEVEL_ENDINGS) {
     let run = goTo(atHollis, 'SB-35')
@@ -125,7 +125,7 @@ for (const entry of ['escort', 'badge'] as const) {
   const upper = exploreUpper('badge')
   const atHollis = goTo(upper, 'SB-32')
   const passed = chooseSublevel(atHollis, 'show-evidence')
-  assert.ok(passed.hollisPassed)
+  assert.ok(passed.guardianPassed)
 }
 {
   const early = goTo(settle(newSublevelProgress('badge')), 'SB-07')
@@ -166,13 +166,13 @@ for (const room of Object.values(SUBLEVEL_ROOMS).filter(
       order: [['SB-35', 'finish'], ['SB-36', 'climb'], ['SB-99', 'x'], 'junk'],
       current: 'SB-36',
       evidence: 99,
-      hollisPassed: true,
+      guardianPassed: true,
       ending: 'finish',
       completed: true,
     },
     'badge',
   )
-  assert.equal(forged.hollisPassed, false)
+  assert.equal(forged.guardianPassed, false)
   assert.equal(forged.ending, null)
   assert.equal(forged.completed, false)
   assert.ok(!forged.visited.includes('SB-33'))

@@ -32,6 +32,19 @@
           </button>
           <button
             v-if="
+              earth.active === 'e04' &&
+              earth.position === '6,2' &&
+              earth.e04Choices['6,2']
+            "
+            type="button"
+            class="btn btn-sm btn-soft btn-accent"
+            data-testid="memory-enter-drowned"
+            @click="emit('drowned')"
+          >
+            Enter the Drowned Archive
+          </button>
+          <button
+            v-if="
               earth.active === 'e03' &&
               earth.position === '6,2' &&
               earth.e03Choices['6,2']
@@ -283,7 +296,12 @@ import { useMemoryEarthStore } from '~/stores/memoryEarthStore'
 import { useMemorySublevelStore } from '~/stores/memorySublevelStore'
 import type { OverworldKind } from '~/utils/memoryDungeon/overworldEventCatalog'
 
-const emit = defineEmits<{ leave: []; sea: []; sublevel: [] }>()
+const emit = defineEmits<{
+  leave: []
+  sea: []
+  sublevel: []
+  drowned: []
+}>()
 const earth = useMemoryEarthStore()
 const sublevel = useMemorySublevelStore()
 

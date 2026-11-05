@@ -55,7 +55,7 @@ export function isSublevelRoomId(value: unknown): value is SublevelRoomId {
 }
 
 export function sublevelRoom(id: string): SublevelRoom | null {
-  return isSublevelRoomId(id) ? SUBLEVEL_ROOMS[id] : null
+  return isSublevelRoomId(id) ? (SUBLEVEL_ROOMS[id] ?? null) : null
 }
 
 export function newSublevelProgress(entry: SublevelEntry): SublevelProgress {

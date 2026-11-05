@@ -1,6 +1,7 @@
 import { computed, ref, watch } from 'vue'
 import { defineStore } from 'pinia'
 import { useMemoryWorldStore } from './memoryWorldStore'
+import { useMemorySublevelStore } from './memorySublevelStore'
 import {
   chooseOverworldEvent,
   eventNeighbors,
@@ -64,8 +65,21 @@ export const useMemoryEarthStore = defineStore('memoryEarth', () => {
   /** e03 answers and flags, whichever reality is active (Sublevel B reads them). */
   const e03Choices = computed(() => save.value.records.e03.choices)
   const e03Flags = computed(() => save.value.records.e03.flags)
+  /**
+   * e04 revisits e03's places, so its openings also answer to what Morrow
+   * did there in e03 and to how he left Sublevel B.
+   */
+  const echoFlags = computed(() => {
+    if (active.value !== 'e04') return progress.value.flags
+    const ending = useMemorySublevelStore().progress.ending
+    return [
+      ...progress.value.flags,
+      ...save.value.records.e03.flags,
+      ...(ending ? ['SB-35:' + ending] : []),
+    ]
+  })
   const opening = computed(() =>
-    current.value ? eventOpening(current.value, progress.value.flags) : '',
+    current.value ? eventOpening(current.value, echoFlags.value) : '',
   )
   const chosen = computed(() =>
     current.value?.choices.find(
@@ -195,6 +209,7 @@ export const useMemoryEarthStore = defineStore('memoryEarth', () => {
     for (const reality of EARTH_REALITIES)
       if (world.campaign.completed.includes(reality))
         world.syncMorrowEarthAchievements(reality, save.value.journals[reality])
+    useMemorySublevelStore().hydrate()
   }
 
   watch(

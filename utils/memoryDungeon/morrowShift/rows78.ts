@@ -230,7 +230,7 @@ export const MORROW_SHIFT_ROWS_7_8: readonly MorrowShiftSite[] = [
   {
     key: '7,7',
     place: 'Corridor Drinks Machine',
-    title: 'The Captive Hearth',
+    title: 'A Hearth That Takes Coins',
     speaker: 'Morrow',
     kind: 'merchant',
     opening:

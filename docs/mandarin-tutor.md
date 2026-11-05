@@ -23,7 +23,7 @@ the teaching layer is testable by `npm run test:mandarin-lesson`. It produces:
   equally, what it does _not_ claim;
 - **the phonetic series** — other catalog cards built on the same sound component. 青
   gathers 请/清/情/晴; 兑 gathers 说 shuō and 税 shuì. A family of distinct characters whose modern syllables differ is flagged as
-  `drifted` for compatibility, but the UI says *modern readings differ*, since
+  `drifted` for compatibility, but the UI says _modern readings differ_, since
   a modern comparison cannot date or establish historical sound change. Words
   reusing the same character never count as distinct phonetic-family members;
 - **homophone groups**, split into identical-reading and same-syllable-different-tone, and

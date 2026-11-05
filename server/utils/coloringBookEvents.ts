@@ -1,6 +1,9 @@
 import { randomUUID } from 'node:crypto'
 import { createError } from 'h3'
-import type { ColoringBookStudioOperation } from '~/types/coloringBookStudio'
+import type {
+  ColoringBookBwSource,
+  ColoringBookStudioOperation,
+} from '~/types/coloringBookStudio'
 import { conductorList, conductorPut } from '@/server/utils/conductor-github'
 
 export type ColoringBookEventInput = {
@@ -11,6 +14,8 @@ export type ColoringBookEventInput = {
   targetLabel: string
   proposalId?: string
   sourcePath?: string | null
+  /** generate-bw only: color (default), version (with sourcePath), or prompt. */
+  bwSource?: ColoringBookBwSource | null
   force?: boolean
   note: string
   commitMessage: string
@@ -65,6 +70,7 @@ export async function queueColoringBookEvent(
     ...(input.sourcePath
       ? [`source_path: ${JSON.stringify(input.sourcePath)}`]
       : []),
+    ...(input.bwSource ? [`bw_source: ${input.bwSource}`] : []),
     ...(settings
       ? [
           'render_settings:',

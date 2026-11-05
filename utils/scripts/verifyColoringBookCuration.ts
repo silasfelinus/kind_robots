@@ -11,7 +11,11 @@ import {
   parseColoringBookConcepts,
   upsertColoringBookConcept,
 } from '@/server/utils/coloringBookStudio'
-import { coloringBookVersions } from '@/utils/coloringBookVersions'
+import {
+  coloringBookBwRequest,
+  coloringBookVersions,
+  shownVersionPath,
+} from '@/utils/coloringBookVersions'
 
 // --- upsertColoringBookConcept -------------------------------------------
 
@@ -234,6 +238,47 @@ assert.deepEqual(
     ['Earlier pick', 'generated/bw/mr-001-bw.webp', false],
     ['Original', 'approved/perfect-woman-bw.webp', false],
   ],
+)
+
+// --- new B&W source -----------------------------------------------------
+
+const bwFrom = (
+  choice: Parameters<typeof coloringBookBwRequest>[0],
+  picked: { color?: string; bw?: string } = {},
+) => coloringBookBwRequest(choice, 'monster-recast', page, production, picked)
+
+assert.deepEqual(
+  bwFrom('shown-color'),
+  { source: 'color', path: '' },
+  'the accepted color master keeps the original conversion path',
+)
+assert.deepEqual(
+  bwFrom('shown-color', {
+    color:
+      'projects/coloring-book/sets/monster-recast/generated/color-proposals-v1/mr-001-perfect-woman.webp',
+  }),
+  {
+    source: 'version',
+    path: 'generated/color-proposals-v1/mr-001-perfect-woman.webp',
+  },
+  'a previewed color version is sent set-relative',
+)
+assert.equal(
+  bwFrom('shown-bw'),
+  null,
+  'no current B&W and none previewed means nothing to start from',
+)
+assert.deepEqual(bwFrom('shown-bw', { bw: 'generated/bw/mr-001-bw.webp' }), {
+  source: 'version',
+  path: 'generated/bw/mr-001-bw.webp',
+})
+assert.deepEqual(bwFrom('prompt', { color: 'approved/x.webp' }), {
+  source: 'prompt',
+  path: '',
+})
+assert.equal(
+  shownVersionPath('monster-recast', page, production, 'color', null),
+  'approved/perfect-woman-color.webp',
 )
 
 console.log('coloring book curation contract: ok')

@@ -1,5 +1,6 @@
 import { createError, defineEventHandler, readBody } from 'h3'
 import type {
+  ColoringBookBwSource,
   ColoringBookRenderRequest,
   ColoringBookStudioOperation,
 } from '~/types/coloringBookStudio'
@@ -42,6 +43,35 @@ const OPERATION_LABELS: Record<ColoringBookStudioOperation, string> = {
 
 const IMAGE_PATH = /\.(?:webp|png|jpe?g)$/i
 
+const BW_SOURCES = new Set<ColoringBookBwSource>(['color', 'version', 'prompt'])
+
+const BW_SOURCE_LABELS: Record<ColoringBookBwSource, string> = {
+  color: 'from the accepted color',
+  version: 'from the selected version',
+  prompt: 'fresh from the prompt',
+}
+
+function normalizeBwSource(
+  value: unknown,
+  operation: ColoringBookStudioOperation,
+): ColoringBookBwSource | null {
+  if (value === undefined || value === null || value === '') return null
+  if (operation !== 'generate-bw') {
+    throw createError({
+      statusCode: 400,
+      message: 'A B&W source applies only to B&W generation.',
+    })
+  }
+  const source = compact(String(value)).toLowerCase()
+  if (!BW_SOURCES.has(source as ColoringBookBwSource)) {
+    throw createError({
+      statusCode: 400,
+      message: 'B&W source must be color, version, or prompt.',
+    })
+  }
+  return source as ColoringBookBwSource
+}
+
 function compact(value: string): string {
   return value.replace(/\r/g, '').replace(/\s+/g, ' ').trim()
 }
@@ -63,20 +93,21 @@ function normalizeSourcePath(
   value: unknown,
   bookSlug: string,
   operation: ColoringBookStudioOperation,
+  bwSource: ColoringBookBwSource | null,
 ): string | null {
   const raw = String(value || '')
     .trim()
     .replace(/\\/g, '/')
   if (!raw) return null
-  if (
-    operation !== 'accept-color' &&
-    operation !== 'accept-bw' &&
-    operation !== 'accept-cover'
-  ) {
+  const acceptance =
+    operation === 'accept-color' ||
+    operation === 'accept-bw' ||
+    operation === 'accept-cover'
+  if (!acceptance && !(operation === 'generate-bw' && bwSource === 'version')) {
     throw createError({
       statusCode: 400,
       message:
-        'Existing asset paths are supported only for color, B&W, or cover acceptance.',
+        'Existing asset paths are supported only for acceptance, or a B&W made from a selected version.',
     })
   }
 
@@ -138,11 +169,19 @@ export default defineEventHandler(async (event) => {
       })
     }
 
+    const bwSource = normalizeBwSource(body?.bwSource, operation)
     const sourcePath = normalizeSourcePath(
       body?.sourcePath,
       bookSlug,
       operation,
+      bwSource,
     )
+    if (bwSource === 'version' && !sourcePath) {
+      throw createError({
+        statusCode: 400,
+        message: 'Choose which color or B&W version the new B&W starts from.',
+      })
+    }
     if (
       force &&
       operation !== 'generate-color-proposals' &&
@@ -155,7 +194,7 @@ export default defineEventHandler(async (event) => {
           'Forced revisions are supported only for color, B&W, and cover generation.',
       })
     }
-    if (force && sourcePath) {
+    if (force && sourcePath && operation !== 'generate-bw') {
       throw createError({
         statusCode: 400,
         message:
@@ -177,8 +216,10 @@ export default defineEventHandler(async (event) => {
     const targetLabel = coverOperation ? `${config.title} cover` : proposalId
     const label = OPERATION_LABELS[operation]
     const sourceLabel = sourcePath ? ` from ${sourcePath}` : ''
+    const bwLabel =
+      bwSource && bwSource !== 'version' ? ` ${BW_SOURCE_LABELS[bwSource]}` : ''
     const defaultNote = force
-      ? `${targetLabel} ${label} revision requested from the production studio.`
+      ? `${targetLabel} ${label} revision${bwLabel}${sourceLabel} requested from the production studio.`
       : `${targetLabel} ${label}${sourceLabel} requested from the production studio.`
     const path = await queueColoringBookEvent({
       operation,
@@ -187,20 +228,22 @@ export default defineEventHandler(async (event) => {
       targetLabel,
       proposalId: coverOperation ? undefined : proposalId,
       sourcePath,
+      bwSource,
       force,
       note: note || defaultNote,
       renderSettings,
-      commitMessage: `coloring-book: request ${targetLabel} ${label}${force ? ' revision' : sourceLabel}`,
+      commitMessage: `coloring-book: request ${targetLabel} ${label}${force ? ' revision' : ''}${bwLabel}${sourceLabel}`,
     })
 
     return {
       success: true,
-      message: `${targetLabel} ${label}${force ? ' revision' : sourceLabel} queued in Conductor.`,
+      message: `${targetLabel} ${label}${force ? ' revision' : ''}${bwLabel}${sourceLabel} queued in Conductor.`,
       data: {
         operation,
         bookSlug,
         proposalId: coverOperation ? undefined : proposalId,
         sourcePath,
+        bwSource,
         force,
         renderSettings,
         eventPath: path,

@@ -1,4 +1,5 @@
 import type {
+  ColoringBookBwSource,
   ColoringBookProductionState,
   ColoringBookProposal,
   ColoringBookVariant,
@@ -103,4 +104,57 @@ export function coloringBookVersions(
     if (matches) add(asset.path, 'Original', asset.kind.replace(/-/g, ' '))
   }
   return versions
+}
+
+/** What a new B&W is made from, as the page card offers it. */
+export type ColoringBookBwChoice = 'shown-color' | 'shown-bw' | 'prompt'
+
+/** The file the card shows for a variant: a previewed version, else the current one. */
+export function shownVersionPath(
+  bookSlug: string,
+  proposal: ColoringBookProposal,
+  production: ColoringBookProductionState | null,
+  variant: ColoringBookVariant,
+  picked: string | null | undefined,
+): string | null {
+  if (picked) return setRelativePath(picked, bookSlug)
+  return (
+    coloringBookVersions(bookSlug, proposal, production, variant).find(
+      (version) => version.current,
+    )?.path ?? null
+  )
+}
+
+/**
+ * Turn the card's B&W choice into a generate-bw request (Silas, 2026-11-04 PT:
+ * choose between a fresh prompt and the selected color or B&W version). The
+ * accepted color master keeps the original `color` source; any other shown
+ * file goes as a `version`. Null when that variant has nothing to start from.
+ */
+export function coloringBookBwRequest(
+  choice: ColoringBookBwChoice,
+  bookSlug: string,
+  proposal: ColoringBookProposal,
+  production: ColoringBookProductionState | null,
+  picked: Partial<Record<ColoringBookVariant, string | null>>,
+): { source: ColoringBookBwSource; path: string } | null {
+  if (choice === 'prompt') return { source: 'prompt', path: '' }
+  const variant: ColoringBookVariant = choice === 'shown-bw' ? 'bw' : 'color'
+  const path = shownVersionPath(
+    bookSlug,
+    proposal,
+    production,
+    variant,
+    picked[variant],
+  )
+  if (!path) return null
+  const accepted = proposal.accepted.color
+  if (
+    variant === 'color' &&
+    accepted &&
+    setRelativePath(accepted, bookSlug) === path
+  ) {
+    return { source: 'color', path: '' }
+  }
+  return { source: 'version', path }
 }

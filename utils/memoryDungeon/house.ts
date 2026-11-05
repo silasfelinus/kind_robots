@@ -1220,7 +1220,8 @@ export function validateHouseRooms(): string[] {
     if (!room.title || room.opening.length < 75 || room.artPrompt.length < 60)
       issues.push(`Missing authored atmosphere or original art at ${key}`)
     if (
-      room.choices.length < (room.kind === 'lore' && room.autoChoiceId ? 1 : 2) ||
+      room.choices.length <
+        (room.kind === 'lore' && room.autoChoiceId ? 1 : 2) ||
       new Set(room.choices.map((c) => c.id)).size !== room.choices.length
     )
       issues.push(`Choices are missing or duplicate at ${key}`)

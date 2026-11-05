@@ -622,6 +622,75 @@ export function missionBoard(run: VoyageRun): Mission[] {
 }
 
 /**
+ * Unfinished conversations the couch can recognize without knowing their
+ * eventual ending. A sequel is suggested only if the player previously earned
+ * the relevant flag AND the next call is really available on this board.
+ * Manual charting always wins. Keep these tied to actual story consequences.
+ */
+const DESTINATION_FOLLOWUPS: Readonly<
+  Record<string, readonly { flag: string; reminder: string }[]>
+> = {
+  'windglass-exodus': [
+    {
+      flag: 'windglass-hidden',
+      reminder: 'The families you hid at Windglass are asking for one final sealed delivery.',
+    },
+    {
+      flag: 'lantern-both',
+      reminder: 'The Hollow Lantern survivors need a discreet route through Windglass.',
+    },
+  ],
+  'cushion-recall': [
+    {
+      flag: 'ashdock-protected',
+      reminder: 'The Ashdock union you protected has called the couch back to its shipyard.',
+    },
+    {
+      flag: 'ashdock-exposed',
+      reminder: 'The Ashdock workers you exposed deserve a say in the couch’s recall.',
+    },
+  ],
+  'foundry-strike': [
+    {
+      flag: 'sesh-ferried',
+      reminder: 'The Sesh backups you ferried are organizing the next shift.',
+    },
+    {
+      flag: 'archive-consented',
+      reminder: 'The people you helped leave the Archive are asking for the machines’ consent too.',
+    },
+  ],
+  'serendipity-last-call': [
+    {
+      flag: 'serendipity-neutral',
+      reminder: 'The bar you let remain neutral has asked for its final word.',
+    },
+    {
+      flag: 'tab-sealed',
+      reminder: 'Vox still has the sealed tab you promised not to publish.',
+    },
+  ],
+  'twins-summit': [
+    {
+      flag: 'courtesy-simultaneous',
+      reminder: 'The Courtesy Twins remember that you repaired their reactor together.',
+    },
+  ],
+}
+
+export function destinationFollowup(
+  run: VoyageRun,
+  missionId: string,
+): string | null {
+  const history = new Set(run.worldFlags ?? [])
+  return (
+    DESTINATION_FOLLOWUPS[missionId]?.find((item) =>
+      history.has(item.flag),
+    )?.reminder ?? null
+  )
+}
+
+/**
  * The couch provisionally selects an eligible call, not the same first card
  * in every chapter. Route commitments, crew and the seed all matter. The player
  * may still chart any other call on the visible mission board before travel.
@@ -639,6 +708,13 @@ export function seededMission(run: VoyageRun): string {
     run.seed,
     `chart:${run.chapter}:${run.captain}:${run.crew.join(',')}:${history}`,
   )
+  const threads = available.filter((mission) =>
+    destinationFollowup(run, mission.id),
+  )
+  // A remembered promise has three chances in four to become the next call.
+  // The fourth stays fully seeded so the wider circuit never disappears.
+  if (threads.length && roll % 4 !== 0)
+    return threads[Math.floor(roll / 4) % threads.length]!.id
   return available[roll % available.length]!.id
 }
 
@@ -1325,7 +1401,7 @@ export function nextDestination(run: VoyageRun): VoyageRun {
   return {
     ...nextRun,
     missionId: chosenId,
-    scene: `${nextRun.scene} The couch provisionally charts ${chosen.system} next. The rest of this chapter's calls remain open on the mission board.`,
+    scene: `${nextRun.scene} ${destinationFollowup(nextRun, chosenId) ? 'UNFINISHED BUSINESS: ' + destinationFollowup(nextRun, chosenId) + ' ' : ''}The couch provisionally charts ${chosen.system} next. The rest of this chapter's calls remain open on the mission board.`,
   }
 }
 export function finishVoyage(

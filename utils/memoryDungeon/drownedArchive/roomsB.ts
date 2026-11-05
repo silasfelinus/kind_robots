@@ -263,7 +263,7 @@ export const DROWNED_ROOMS_B: readonly DrownedRoomContent[] = [
     kind: 'shortcut',
     speaker: 'Morrow',
     opening:
-      'The loading-dock ramp has become a beach. The sea runs down it from under the roller door and back up, and the steel side door slams on its closer with every surge: a deep iron knock, twice, patient as an appointment. Outside, the covered walkway is a channel of black water with its handrail still standing, running straight to the night archive’s long corridor. The alarm cable hangs unplugged, wound neatly round its bracket.',
+      'The loading-dock ramp has become a beach. The sea runs down it from under the roller door and back up, and the steel side door slams on its closer with every surge, every forty seconds: a deep iron knock, twice, patient as an appointment. Outside, the covered walkway is a channel of black water with its handrail still standing, running straight to the night archive’s long corridor. The alarm cable hangs unplugged, wound neatly round its bracket.',
     artSubject: `A concrete loading-dock ramp inside a basement with seawater washing up and down it like a shore, a corrugated roller door leaking at the bottom, a steel side door swinging on its closer, a flooded covered walkway beyond with a handrail, ${MORROW} on the wet ramp, sodium light`,
     echoes: [
       {
@@ -355,8 +355,8 @@ export const DROWNED_ROOMS_B: readonly DrownedRoomContent[] = [
     kind: 'choice',
     speaker: 'Morrow',
     opening:
-      'Rowan’s carrel is chest-deep. The ring binder has swollen open and its pages lift and settle like gills, the scrawl on them crawling into new sentences as he watches. The borrowed sensor floats on its coiled cable, its little light blinking: it is reading a heart rate, slow and enormous, that belongs to nobody in the room. The photo of Rowan and Jun is pinned to the partition just above the waterline. Morrow can carry one thing out dry.',
-    artSubject: `A neat wooden study carrel flooded chest-deep under a single lamp, a swollen ring binder open on the water with its pages lifting, a small wrist sensor floating on a coiled cable with a blinking light, a photo of two people laughing under an inside-out umbrella pinned just above the surface, ${MORROW} in the water`,
+      'Rowan’s carrel is chest-deep. The ring binder has swollen open and its pages lift and settle like gills, the scrawl crawling into new sentences as he watches. The sensor’s cable is coiled on an empty hook, a dry note pinned over it: ‘Sensor safe in the chiller. H.’ Rowan’s desk phone floats off its hook, the line open, breathing. The photo of Rowan and Jun is pinned just above the waterline. Morrow has time for one thing before the water does.',
+    artSubject: `A neat wooden study carrel flooded chest-deep under a single lamp, a swollen ring binder open on the water with its pages lifting, a beige desk phone receiver floating on its curly cord, an empty hook with a pinned note, a photo of two people laughing under an inside-out umbrella pinned just above the surface, ${MORROW} in the water`,
     echoes: [
       {
         flag: 'SB-26:binder',
@@ -364,7 +364,7 @@ export const DROWNED_ROOMS_B: readonly DrownedRoomContent[] = [
       },
       {
         flag: 'SB-26:sensor',
-        text: 'He posted this sensor to Dr Sen in a padded envelope: ‘Sorry it’s late. R.’ It is here anyway, on its cable, blinking.',
+        text: 'He posted the sensor to Dr Sen in spring in a padded envelope: ‘Sorry it’s late. R.’ Hollis’s note says she has saved it from the water tonight, which means it came back.',
       },
       {
         flag: 'SB-26:photo',
@@ -381,13 +381,13 @@ export const DROWNED_ROOMS_B: readonly DrownedRoomContent[] = [
         artSubject: `${MORROW} lifting a streaming, swollen ring binder out of black water and clamping it shut against his chest, lamp light on the spray`,
       },
       {
-        id: 'sensor',
-        label: 'Unplug the sensor and stop it reading',
+        id: 'phone',
+        label: 'Lift the floating receiver out of the water',
         outcome:
-          'He pulls the cable and the light goes out, and for a moment the whole room feels lighter, as if something has stopped being listened to. He wraps the sensor in his sleeve for Dr Sen. Whatever it was recording, nobody will have to read it now.',
-        gain: { danger: -2 },
+          'The line is open to yesterday’s caller: Dr Sen at four, leaving the message she left, asking kindly after Rowan and whether he is sleeping. He listens to all of it and says, ‘Yes. Better,’ which is a lie she will never hear. Then he hangs up, and the room feels lighter, as if something has stopped listening.',
+        gain: { trust: 1, danger: -1 },
         artSubject:
-          'Close view of wet fingers pulling a cable from a small wrist sensor whose light has just gone out, the coiled lead trailing into dark water',
+          'Close view of a wet hand holding a dripping beige telephone receiver to an ear, its curly cord trailing down into dark water, a carrel lamp behind',
       },
       {
         id: 'photo',
@@ -609,7 +609,7 @@ export const DROWNED_ROOMS_B: readonly DrownedRoomContent[] = [
     kind: 'lore',
     speaker: 'Morrow',
     opening:
-      'The long corridor is flooded to the knee and perfectly still, so the ceiling lights lie in the water as a second corridor going down. At the far end the strip of warm light under Hollis’s door shines up through the surface. The intercom by the door is on. Her voice comes along the water, calm, reading names off a list: ‘Hollis, nights. Tomasz, nights. Femi, nights. Rowan, in.’ A pause. ‘And one more.’',
+      'The long corridor is flooded to the knee and perfectly still, so the ceiling lights lie in the water as a second corridor going down. At the far end the strip of warm light under Hollis’s door shines up through the surface. The intercom by the door is on. Her voice comes along the water, calm, reading names off a list: ‘Hollis, nights. Ines, nights. Kwame, nights. Rowan, in.’ A pause. ‘And one more.’',
     artSubject: `A long straight basement corridor flooded knee-deep with perfectly still water mirroring the ceiling lights, a pinboard of rotas on one wall, at the far end a closed office door with warm light spilling from beneath into the water and a small intercom panel beside it, ${MORROW} small in the middle distance`,
     autoChoiceId: 'walk',
     echoes: [
@@ -648,7 +648,7 @@ export const DROWNED_ROOMS_B: readonly DrownedRoomContent[] = [
     kind: 'guardian',
     speaker: 'The ledger',
     opening:
-      'Hollis’s office is chest-deep. Her chair is empty; her glasses float on their chain. On the desk, above the water as if the water had agreed to it, lies a ledger in her handwriting, its pages dripping and never drying: every name in the archive tonight, and who belongs. Rowan, in. Hollis, Tomasz, Femi, nights. A last line, blank. The intercom speaks in her voice, tired and reasonable: ‘One account, love. I only need the one. Who’s that at my door?’',
+      'Hollis’s office is chest-deep. Her chair is empty; her glasses float on their chain. On the desk, above the water as if the water had agreed to it, lies a ledger in her handwriting, its pages dripping and never drying: every name in the archive tonight, and who belongs. Rowan, in. Hollis, Ines, Kwame, nights. A last line, blank. The intercom speaks in her voice, tired and reasonable: ‘One account, love. I only need the one. Who’s that at my door?’',
     artSubject: `A small archive office flooded chest-deep, an empty desk chair, reading glasses on a chain floating on the water, a large open ledger lying perfectly dry on the desk with its pages dripping at the edges, a desk lamp and a small intercom panel on the wall, ${MORROW} in the doorway`,
     echoes: [
       {
@@ -725,7 +725,7 @@ export const DROWNED_ROOMS_B: readonly DrownedRoomContent[] = [
     kind: 'treasure',
     speaker: 'Hollis',
     opening:
-      'Behind the desk the wire cage stands open, and the real Hollis is on top of it. She and the two night staff, Tomasz and Femi, sit along the top of the shelving under the ceiling with the sea at their boots. They have been up there since a quarter to ten. Hollis has a thermos, a rota of who gets the warm end, and a voice gone hoarse from keeping them talking. ‘That wasn’t me on the intercom,’ she says. ‘You’ll have worked that out.’',
+      'Behind the desk the wire cage stands open, and the real Hollis is on top of it with the two agency night staff, Ines Duarte and Kwame Asante, in their second week. They sit along the top shelving under the ceiling, the sea at their boots. She went to shut the gate at ten and got this far. She has a thermos, a rota of who gets the warm end, and a voice gone hoarse. ‘Stay high, stay left,’ she says. ‘Good. And that wasn’t me on the intercom.’',
     artSubject:
       'A wire-mesh archive cage flooded nearly to the top, a grey-haired woman in her sixties in a navy fleece and two younger night staff in work lanyards sitting along the top of its shelving just under the ceiling, a thermos passed between them, a small battery safety light, an androgynous adult in their thirties with short dark hair and a grey cardigan in the water below looking up',
     echoes: [
@@ -761,9 +761,9 @@ export const DROWNED_ROOMS_B: readonly DrownedRoomContent[] = [
     choices: [
       {
         id: 'power-bank',
-        label: 'Take the power bank Femi has kept dry in a sandwich bag',
+        label: 'Take the power bank Ines has kept dry in a sandwich bag',
         outcome:
-          'Femi passes it down, unclaimed in lost property since 2023 and still holding charge. ‘We’ve got the safety light,’ Tomasz says. ‘You’ve got the dark.’ Hollis writes it on a slip in his name and dates it, on top of a cage, in the sea.',
+          'Ines passes it down, unclaimed in lost property since 2023 and still holding charge. ‘We’ve got the safety light,’ Kwame says. ‘You’ve got the dark.’ Hollis writes it on a slip in his name and dates it, on top of a cage, in the sea.',
         gain: { battery: 2 },
         artSubject: `A young night staffer leaning down from the top of a flooded wire cage to pass a sandwich bag with a power bank inside to ${MORROW} reaching up from the water`,
       },
@@ -771,7 +771,7 @@ export const DROWNED_ROOMS_B: readonly DrownedRoomContent[] = [
         id: 'pencil-log',
         label: 'Ask for Hollis’s pencil count of tonight',
         outcome:
-          'She tears it off and passes it down: a page in pencil, which holds, of who has been on this cage since 21:40 and when each last had tea. Three names. Not four. Not Rowan. ‘That’s the true count,’ she says. ‘Don’t let anything tell you it’s more.’',
+          'She tears it off and passes it down: a page in pencil, which holds, of who has been on this cage since ten past ten and when each last had tea. Three names. Not four. Not Rowan. ‘That’s the true count,’ she says. ‘Don’t let anything tell you it’s more.’',
         gain: { evidence: 2 },
         artSubject:
           'A grey-haired woman in a navy fleece leaning down from the top of a flooded cage to hand a torn sheet of pencilled paper to an outstretched wet hand, a thermos tucked under her arm',
@@ -780,7 +780,7 @@ export const DROWNED_ROOMS_B: readonly DrownedRoomContent[] = [
         id: 'give-light',
         label: 'Leave them your phone torch and go on by feel',
         outcome:
-          'He wraps the phone in a sandwich bag and Tomasz catches it. Up there it is a second light and an hour less dark; down here he is blind. Hollis looks at the phone, then at him. ‘That’s a confession too,’ she says, ‘a better one.’',
+          'He wraps the phone in a sandwich bag and Kwame catches it. Up there it is a second light and an hour less dark; down here he is blind. Hollis looks at the phone, then at him. ‘That’s a confession too,’ she says, ‘a better one.’',
         gain: { battery: -2, trust: 2 },
         requires: { battery: 1 },
         lockedHint: 'Needs torch charge',
@@ -897,7 +897,7 @@ export const DROWNED_ROOMS_B: readonly DrownedRoomContent[] = [
       },
       {
         flag: 'DA-33:give-light',
-        text: 'His phone is up on the cage top with Tomasz, its small beam the only thing down here pointing up.',
+        text: 'His phone is up on the cage top with Kwame, its small beam the only thing down here pointing up.',
       },
     ],
     choices: [
@@ -905,7 +905,7 @@ export const DROWNED_ROOMS_B: readonly DrownedRoomContent[] = [
         id: 'salvage',
         label: 'Carry Rowan’s box up out of the flood',
         outcome:
-          'He takes the back stair with the box on his shoulder and the sea at his heels for two flights. Rowan’s nights, the notebook, the photo, his life’s work: dry, all of it. The brigade’s pumps reach the cage four hours later. Hollis climbs down on her own, grey with cold. Femi has to be carried, and will be all right, and those four hours were Morrow’s choice.',
+          'He takes the back stair with the box on his shoulder and the sea at his heels for two flights. Rowan’s nights, the notebook, the photo, his life’s work: dry, all of it. The brigade’s pumps reach the cage four hours later. Hollis climbs down on her own, grey with cold. Ines has to be carried, and will be all right, and those four hours were Morrow’s choice.',
         gain: { evidence: 2, trust: -1, danger: 1 },
         artSubject: `${MORROW} climbing a concrete back stair with a dripping cardboard archive box on one shoulder, dark seawater lapping at the lower steps behind, a faint safety light far below`,
       },
@@ -913,7 +913,7 @@ export const DROWNED_ROOMS_B: readonly DrownedRoomContent[] = [
         id: 'rescue',
         label: 'Open the flood gate to drain the archive and free them',
         outcome:
-          'He puts his whole weight on the wheel and it turns. The sea goes out of the archive in one long roar, up the old channel toward the station, taking the desk papers, the ledger’s loose pages and Rowan’s box with it. Hollis, Tomasz and Femi climb down onto a wet floor. Somewhere above, the surge reaches the tide gate, and now the tide gate has to hold.',
+          'He puts his whole weight on the wheel and it turns. The sea goes out of the archive in one long roar, up the old channel toward the station, taking the desk papers, the ledger’s loose pages and Rowan’s box with it. Hollis, Ines and Kwame climb down onto a wet floor. Somewhere above, the surge reaches the tide gate, and now the tide gate has to hold.',
         gain: { trust: 2, evidence: -2, danger: 1 },
         artSubject: `${MORROW} hauling on a rusted iron wheel valve as seawater rushes out through an opening in the wall, papers and a cardboard box swept along in the current, three people climbing down a wire cage behind`,
       },
@@ -943,7 +943,7 @@ export const DROWNED_ROOMS_B: readonly DrownedRoomContent[] = [
       },
       {
         flag: 'DA-35:rescue',
-        text: 'Below him the archive is a drained, ruined floor, and Hollis, Tomasz and Femi are climbing behind him. Somewhere up the channel the tide gate is taking the weight he sent it.',
+        text: 'Below him the archive is a drained, ruined floor, and Hollis, Ines and Kwame are climbing behind him. Somewhere up the channel the tide gate is taking the weight he sent it.',
       },
       {
         flag: 'DA-35:testify',

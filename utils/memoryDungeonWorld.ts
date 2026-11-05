@@ -390,11 +390,18 @@ export function restoreBriarSave(input: unknown): BriarSave {
     ...(saved.gateOpened ? [BRIAR_GATE] : []),
   ]).filter((key) => revealed.includes(key))
   const sceneChoices: Record<string, string> = {}
+  // The four cross-world seals stay fogged forever, so they are never
+  // "visited"; after the fourth reveal round their scenes are answered by
+  // inspecting the sigil from afar. Keep those answers, never earlier ones.
+  const sealAnswerable = (key: string) =>
+    saved.waveIndex === 3 &&
+    saved.wavePhase === 'exploring' &&
+    BRIAR_SITES[key]?.kind === 'sealed'
   if (saved.sceneChoices && typeof saved.sceneChoices === 'object') {
     for (const [key, choice] of Object.entries(saved.sceneChoices)) {
       if (
         typeof choice === 'string' &&
-        visited.includes(key) &&
+        (visited.includes(key) || sealAnswerable(key)) &&
         BRIAR_SCENES[key]?.choices.some((option) => option.id === choice)
       ) {
         sceneChoices[key] = choice

@@ -160,8 +160,8 @@
               <p
                 class="mb-1 text-[10px] font-black uppercase tracking-[.17em] text-[#eac08c]"
               >
-                {{ earth.current.kind }} · {{ earth.current.speaker }} ·
-                {{ earth.position }}
+                {{ earth.current.place ?? earth.current.kind }} ·
+                {{ earth.current.speaker }} · {{ earth.position }}
               </p>
               <h3 class="text-lg font-black leading-snug sm:text-2xl">
                 {{ earth.current.title }}
@@ -169,7 +169,7 @@
               <p
                 class="mt-2 max-h-28 overflow-auto text-xs leading-relaxed sm:text-sm"
               >
-                {{ earth.current.opening }}
+                {{ earth.opening }}
               </p>
             </div>
             <span

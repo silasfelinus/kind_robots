@@ -4,6 +4,7 @@ import { useMemoryWorldStore } from './memoryWorldStore'
 import {
   chooseOverworldEvent,
   eventNeighbors,
+  eventOpening,
   newOverworldEventProgress,
   restoreOverworldEventProgress,
   revealOverworldEvent,
@@ -60,6 +61,9 @@ export const useMemoryEarthStore = defineStore('memoryEarth', () => {
   const progress = computed(() => save.value.records[active.value])
   const position = computed(() => save.value.positions[active.value])
   const current = computed(() => worldEvent(active.value, position.value))
+  const opening = computed(() =>
+    current.value ? eventOpening(current.value, progress.value.flags) : '',
+  )
   const chosen = computed(() =>
     current.value?.choices.find(
       (choice) => choice.id === progress.value.choices[position.value],
@@ -247,6 +251,11 @@ export const useMemoryEarthStore = defineStore('memoryEarth', () => {
     save.value.positions[active.value] = key
     notice.value = ''
     persist()
+    // Instant discoveries resolve on first arrival, once, through the same
+    // journaled choose path so replay and achievements stay consistent.
+    const arrived = worldEvent(active.value, key)
+    if (arrived?.instant && !progress.value.choices[key] && arrived.choices[0])
+      choose(arrived.choices[0].id)
   }
 
   function choose(choiceId: string): void {
@@ -298,6 +307,7 @@ export const useMemoryEarthStore = defineStore('memoryEarth', () => {
     progress,
     position,
     current,
+    opening,
     chosen,
     tiles,
     photographs,

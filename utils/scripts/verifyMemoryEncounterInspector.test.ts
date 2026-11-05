@@ -25,7 +25,7 @@ const first = worldEvent('e03', '2,1')!.choices[0]!
 inspector.choose(first.id)
 assert.equal(inspector.progress.choices['2,1'], first.id)
 assert.equal(inspector.progress.flags.length, 1)
-assert.match(inspector.notice, /The care and its cost/)
+assert.equal(inspector.notice, first.outcome)
 const supplies = inspector.progress.supplies
 inspector.choose(first.id)
 assert.equal(inspector.progress.supplies, supplies)

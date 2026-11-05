@@ -153,7 +153,7 @@ const THROW = 90
   play(run, 1, press('x'))
   assert.equal(run.thrown.length, 1, 'X throws the crate')
   play(run, 40)
-  const hit = lantern.fade > 0 || lantern.state === 'gone'
+  const hit = lantern.fade > 0 || (lantern.state as string) === 'gone'
   assert.ok(hit, 'the thrown crate knocks out the flat lantern')
   play(run, 40)
   assert.equal(lantern.state, 'gone')
@@ -298,7 +298,8 @@ assert.ok(thieves >= 6, 'the campaign has token-stealing gliders to check')
     run.update(input)
   }
   assert.equal(run.mode, 'dying', 'she falls into the pit')
-  while (run.mode !== 'play' && frame++ < 800) run.update(emptyInput())
+  while ((run.mode as string) !== 'play' && frame++ < 800)
+    run.update(emptyInput())
   for (let k = 0; k < 20; k++) {
     run.update(emptyInput())
     assert.ok(run.hero.vy >= 0, `respawn frame ${k}: no phantom hop`)
@@ -490,7 +491,11 @@ for (let index = 0; index < CAMPAIGN.length; index++) {
       run.update(input)
       fuzzFrames++
       const where = `${code} seed ${seed} frame ${frame}`
-      if (run.mode === 'clear' || run.mode === 'victory') break
+      if (
+        (run.mode as string) === 'clear' ||
+        (run.mode as string) === 'victory'
+      )
+        break
       if (run.mode === 'play' && died) {
         assert.equal(run.power, null, `${where}: a death clears the power`)
         assert.equal(run.carrying, false, `${where}: and the crate in hand`)
@@ -498,7 +503,7 @@ for (let index = 0; index < CAMPAIGN.length; index++) {
         assert.equal(run.grace, 0, `${where}: and any coyote time`)
         died = false
       }
-      if (run.mode === 'dying') died = true
+      if ((run.mode as string) === 'dying') died = true
       if (run.mode !== 'play') continue
       if (run.hearts < hearts || (power && !run.power)) {
         assert.ok(

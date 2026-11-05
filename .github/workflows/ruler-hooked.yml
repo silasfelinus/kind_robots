@@ -49,3 +49,5 @@ jobs:
         run: npx tsx utils/rulerHooked/cardArt.selftest.ts
       - name: Timing bar self-test
         run: npx tsx utils/rulerHooked/timingBar.selftest.ts
+      - name: Illustrated console (proclamations, tutorial, art library) self-test
+        run: npx tsx utils/rulerHooked/console.selftest.ts

@@ -8,6 +8,9 @@ const slots = read('components/ruler-hooked/ruler-hooked-slots.vue')
 const picker = read('components/ruler-hooked/ruler-hooked-cosmetics-picker.vue')
 const stage = read('components/ruler-hooked/ruler-hooked-stage.vue')
 const chronicle = read('components/ruler-hooked/ruler-hooked-reign-review.vue')
+const nav = read('components/ruler-hooked/ruler-hooked-nav.vue')
+const lake = read('components/ruler-hooked/ruler-hooked-lake-screen.vue')
+const artLibrary = read('utils/rulerHooked/artLibrary.ts')
 
 assert.match(
   route,
@@ -23,11 +26,12 @@ assert.doesNotMatch(
 assert.match(game, /v-if="!store\.save"/)
 assert.match(game, /<RulerHookedSlots[^>]*@picked="onPicked"/)
 assert.match(
-  game,
-  /:fill="true"/,
-  'the coronation uses an illustrated full-stage setting',
+  slots,
+  /:candidates="BACKDROPS\.title"/,
+  'the coronation ledger sits on a full-bleed painting',
 )
-assert.match(game, /aria-label="Ruler Hooked screens"/)
+assert.match(nav, /aria-label="Ruler Hooked screens"/)
+assert.match(game, /<RulerHookedNav\b/)
 
 assert.match(slots, /<RulerHookedCosmeticsPicker/)
 assert.match(slots, /v-model="rulerName"/)
@@ -63,6 +67,23 @@ assert.doesNotMatch(
   game,
   /rulerCustomPortraitId|rulerCosmetics|ruler-fishing\.webp/,
   'game screens must not display player likeness',
+)
+
+// The illustrated lake screen is first person too: its backdrop comes from
+// the art library's lake chain, which never names a ruler or key-art piece.
+assert.match(lake, /lakeBackdropCandidates\(/)
+assert.doesNotMatch(
+  lake,
+  /getPortraitUrl|customPortraitUrl|rulerCosmetics|\/images\/ruler-hooked\/ruler-|key-art/,
+  'the lake view never shows the player likeness',
+)
+const lakeChain = artLibrary.slice(
+  artLibrary.indexOf('export function lakeBackdropCandidates'),
+)
+assert.doesNotMatch(
+  lakeChain.slice(0, lakeChain.indexOf('\n}\n')),
+  /ruler-|key-art/,
+  'the lake backdrop chain stays first person',
 )
 
 assert.doesNotMatch(

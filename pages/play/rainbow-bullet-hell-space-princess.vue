@@ -11,6 +11,26 @@
           id-prefix="princess"
         >
           <button
+            type="button"
+            class="btn btn-sm shrink-0 gap-1.5 rounded-full border-2 font-black"
+            :class="
+              look === 'fever'
+                ? 'fever-pill border-white/70 text-white'
+                : 'btn-ghost border-base-300'
+            "
+            :aria-pressed="look === 'fever'"
+            :title="
+              look === 'fever'
+                ? 'Fever Dream look is on: switch back to the classic painted art'
+                : 'Switch to the Fever Dream look: neon airbrush doodles'
+            "
+            @click="toggleLook"
+          >
+            <Icon name="kind-icon:rainbow" class="kr-icon-5" />
+            <span class="hidden sm:inline">Fever Dream</span>
+            <span class="sr-only sm:hidden">Fever Dream look</span>
+          </button>
+          <button
             v-if="RAINBOW_OPENING"
             type="button"
             class="btn btn-circle btn-ghost btn-sm shrink-0"
@@ -55,7 +75,7 @@
           aria-hidden="true"
         >
           <img
-            :src="RAINBOW_HERO_ART"
+            :src="rainbowHeroArt(RAINBOW_HERO_ART, look)"
             alt=""
             width="1344"
             height="768"
@@ -75,7 +95,7 @@
           >
             <img
               :key="pilot.key"
-              :src="pilot.portrait"
+              :src="rainbowPortrait(pilot.portrait, look)"
               :alt="pilot.portraitAlt"
               width="576"
               height="842"
@@ -138,7 +158,7 @@
                 </dt>
                 <dd>
                   <img
-                    :src="rainbowSuperCutin(pilot.seat)"
+                    :src="rainbowSuperCutin(pilot.seat, look)"
                     :alt="`${pilot.name} firing ${pilot.superName}`"
                     width="360"
                     height="124"
@@ -226,7 +246,7 @@
             class="relative flex min-h-0 flex-col overflow-hidden rounded-2xl border border-base-300 bg-[#251345] text-white"
           >
             <img
-              :src="stage.card"
+              :src="rainbowStageCard(stage.strip, look)"
               :alt="`${stage.name} title card: the four pilot ships over ${stage.scene}`"
               width="640"
               height="366"
@@ -255,14 +275,22 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import {
   RAINBOW_HERO_ART,
   RAINBOW_KITTY_POWER,
   RAINBOW_PILOTS,
   RAINBOW_SQUADRON,
 } from '~/utils/arcade/games/rainbowPilots'
-import { rainbowSuperCutin } from '~/utils/arcade/games/rainbowGameArt'
+import {
+  loadRainbowLook,
+  rainbowHeroArt,
+  rainbowPortrait,
+  rainbowStageCard,
+  rainbowSuperCutin,
+  setRainbowLook,
+  type RainbowLook,
+} from '~/utils/arcade/games/rainbowGameArt'
 import { RAINBOW_OPENING } from '~/utils/arcade/games/rainbowOpening'
 
 const views = [
@@ -278,59 +306,68 @@ function replayOpening() {
   view.value = 'flight'
   opening.value?.play()
 }
+// Classic or Fever Dream: the cabinet reads the look every frame, so switching mid-flight just repaints.
+const look = ref<RainbowLook>('classic')
+onMounted(() => {
+  look.value = loadRainbowLook()
+})
+function toggleLook() {
+  look.value = look.value === 'fever' ? 'classic' : 'fever'
+  setRainbowLook(look.value)
+}
+
 const chosen = ref(0)
 const pilot = computed(() => RAINBOW_PILOTS[chosen.value]!)
 
-const STAGE_CARD_ROOT = '/rainbow-princess-art/stages'
 const stages = [
   {
     name: 'Pinkwake Estuary',
     setting: 'A pink cloud sea of glass buoys, pearly shoals and coral.',
     scene: 'a pink cloud sea',
-    card: `${STAGE_CARD_ROOT}/s01-card.webp`,
+    strip: 's01' as const,
   },
   {
     name: 'Moonjelly Fields',
     setting:
       'A translucent nebula of floating bell towers and charged tendrils.',
     scene: 'a teal jellyfish nebula',
-    card: `${STAGE_CARD_ROOT}/s02-card.webp`,
+    strip: 's02' as const,
   },
   {
     name: 'Chromatic Trench',
     setting: 'An indigo void of volcanic vents and abandoned vaults.',
     scene: 'an indigo canyon of glowing vents',
-    card: `${STAGE_CARD_ROOT}/s03-card.webp`,
+    strip: 's03' as const,
   },
   {
     name: 'Rosefin Express',
     setting: 'Streaming aurora, transit rings and migrating light-rail trains.',
     scene: 'a rose and green aurora above light-rail trains',
-    card: `${STAGE_CARD_ROOT}/s04-card.webp`,
+    strip: 's04' as const,
   },
   {
     name: 'Blossom Wreckyard',
     setting: 'A starship graveyard of petal wreck slabs and dock machinery.',
     scene: 'a starship graveyard',
-    card: `${STAGE_CARD_ROOT}/s05-card.webp`,
+    strip: 's05' as const,
   },
   {
     name: 'Crown Reef',
     setting: 'A gold nebula of coral megastructures and glowing arches.',
     scene: 'golden coral arches',
-    card: `${STAGE_CARD_ROOT}/s06-card.webp`,
+    strip: 's06' as const,
   },
   {
     name: 'Glass Current',
     setting: 'A mirrored star canyon of crystal strata and fractured beams.',
     scene: 'a mirrored crystal canyon',
-    card: `${STAGE_CARD_ROOT}/s07-card.webp`,
+    strip: 's07' as const,
   },
   {
     name: 'Eclipse Palace',
     setting: 'An eclipse corona over captive armadas and pearl heart spires.',
     scene: 'an eclipsed pearl palace',
-    card: `${STAGE_CARD_ROOT}/s08-card.webp`,
+    strip: 's08' as const,
   },
 ]
 useSeoMeta(
@@ -343,6 +380,18 @@ useHead({ title: 'Rainbow Bullet Hell Space Princess · Work in progress' })
 </script>
 
 <style scoped>
+.fever-pill {
+  background: linear-gradient(
+    100deg,
+    #ff3fa4,
+    #ff8a2a,
+    #ffe03a,
+    #7dff4a,
+    #2ee6ff,
+    #a64dff
+  );
+  text-shadow: 0 1px 2px #5a0f7a;
+}
 .princess-stage :deep(.cabinet-marquee),
 .princess-stage :deep(.cabinet-title-plate),
 .princess-stage :deep(.cabinet-hint) {

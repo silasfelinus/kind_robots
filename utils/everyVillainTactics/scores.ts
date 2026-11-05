@@ -21,6 +21,12 @@ export type BattleResult = {
   lines: ScoreLine[]
 }
 export const MAX_SCORE_HISTORY = 64
+const ROUND_WORDS: Record<number, string> = {
+  4: 'four',
+  5: 'five',
+  6: 'six',
+  7: 'seven',
+}
 
 /** Only call with a validated save. A story receives its award after its
  * closing choice, never while the final cinematic is still awaiting input. */
@@ -43,7 +49,13 @@ export function scoreFromSave(save: EvtSave): BattleResult | null {
   const allHealthy = allAlive && squad.every((u) => u.hp === u.maxHp)
   const neverDamaged = won && allHealthy && state.damageTaken === 0
   const allRescued = civilians.length > 0 && rescued === civilians.length
-  const quick = won && state.turn <= 4
+  // Timed reinforcements cannot be beaten before they arrive, so the tempo
+  // medal allows one round after the last scheduled wave.
+  const tempoRound = Math.max(
+    4,
+    ...(state.rules?.waves ?? []).map((wave) => wave.round + 1),
+  )
+  const quick = won && state.turn <= tempoRound
   const evidence = save.mode === 'story' ? save.story.evidence : 0
   const lines: ScoreLine[] = [
     {
@@ -86,7 +98,10 @@ export function scoreFromSave(save: EvtSave): BattleResult | null {
   if (quick)
     lines.push({
       id: 'tempo',
-      label: 'Fast objective: round four or earlier',
+      label:
+        'Fast objective: round ' +
+        (ROUND_WORDS[tempoRound] ?? tempoRound) +
+        ' or earlier',
       points: 75,
     })
 

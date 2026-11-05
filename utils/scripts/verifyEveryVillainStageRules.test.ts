@@ -82,11 +82,22 @@ const roundTrips = (stage: StageDraft, state: TrainingState) => {
 }
 
 // Stages without live rules keep the exact original battle shape.
-for (const id of ['first-bell', 'college-quad', 'picnic-plaza']) {
+for (const id of ['first-bell', 'college-quad']) {
   const plain = trainingState(9, clonePreset(id))
   assert.equal(plain.rules, undefined, id)
   assert.equal(plain.field, undefined, id)
 }
+// Picnic Panic's only live rules are its two timed Warren Wrecker shifts.
+const picnicRules = trainingState(9, clonePreset('picnic-plaza')).rules!
+assert.deepEqual(
+  picnicRules.waves.map((wave) => [wave.round, wave.crew]),
+  [
+    [3, 'warren-wreckers'],
+    [5, 'warren-wreckers'],
+  ],
+)
+assert.deepEqual(picnicRules.victory, { kind: 'defeat-all' })
+assert.deepEqual([picnicRules.props, picnicRules.hazards], [[], []])
 
 // ---- Destructible props ---------------------------------------------------
 const boiler = clonePreset('boiler-room')

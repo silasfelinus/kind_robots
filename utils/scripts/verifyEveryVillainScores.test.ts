@@ -11,6 +11,7 @@ import {
   saveChecksum,
 } from '../everyVillainTactics/saves'
 import { recordSquadDamage } from '../everyVillainTactics/combat'
+import { dueWaveIds } from '../everyVillainTactics/stageRules'
 import {
   MAX_SCORE_HISTORY,
   mergeBattleResults,
@@ -34,7 +35,10 @@ const save = createSave({
 assert.equal(scoreFromSave(save), null, 'no awards during active combat')
 
 state.phase = 'victory'
-state.turn = 4
+// Picnic Panic's last shift tunnels in on round 5, so round 6 still counts
+// as a fast clear. Every due molehill was sealed under a squad boot.
+state.turn = 6
+state.field!.sealed = dueWaveIds(state.rules!, 6)
 const civilians = state.civilians!
 for (const civilian of civilians) civilian.status = 'rescued'
 const victory = createSave({
@@ -56,6 +60,26 @@ assert.ok(score.medals.includes('healthy-extraction'))
 assert.ok(score.medals.includes('untouched'))
 assert.equal(score.lines.find((line) => line.id === 'flawless')?.points, 250)
 assert.ok(score.medals.includes('quick-clear'))
+assert.equal(
+  score.lines.find((line) => line.id === 'tempo')?.label,
+  'Fast objective: round six or earlier',
+)
+const late = structuredClone(state)
+late.turn = 7
+late.field!.sealed = dueWaveIds(late.rules!, 7)
+assert.ok(
+  !scoreFromSave(
+    createSave({
+      slot: 'auto',
+      perspective: 'hero',
+      leadSignature: 'accident-fire',
+      stage,
+      state: late,
+      story,
+    }),
+  )!.medals.includes('quick-clear'),
+  'tempo still has a deadline after the last wave',
+)
 assert.equal(
   score.total,
   score.lines.reduce((sum, line) => sum + line.points, 0),

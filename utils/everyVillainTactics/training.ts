@@ -171,6 +171,33 @@ export function personFor(unit: Unit) {
 }
 export const aliasFor = (unit: Unit) =>
   unit.lieutenantName ?? unit.henchmanName ?? personFor(unit).hero.alias
+/** How each one-hit henchman tier reads on its card and how to beat it.
+ * Named lieutenants are the exception to one-hit and never use these. */
+export const HENCHMAN_TELLS: Record<
+  NonNullable<Unit['henchmanType']>,
+  { crest: string; label: string; tell: string }
+> = {
+  burrow: {
+    crest: '♢',
+    label: 'BURROWER',
+    tell: 'Digs one turn and surfaces at its dust ring the next, dragging any family beside the ring underground. Stand on the ring to cave it in.',
+  },
+  phase: {
+    crest: '⧗',
+    label: 'TELEPORTER',
+    tell: 'Marks a clock-face exit on the side a hero’s cover misses, then phases through it. Stand on the exit to jam it.',
+  },
+  windup: {
+    crest: '⚙',
+    label: 'WIND-UP TOY',
+    tell: 'Swarms and blocks, but never shoots. A mascot that starts its turn beside a hero stamps a seal on their signature power, then rewinds for a turn. Topple it first or step away; basic actions still work.',
+  },
+}
+/** The one-hit tier a unit belongs to, or null for heroes and lieutenants. */
+export function henchmanTell(unit: Unit) {
+  if (!unit.henchmanType || unit.lieutenantName || unit.maxHp !== 1) return null
+  return { type: unit.henchmanType, ...HENCHMAN_TELLS[unit.henchmanType] }
+}
 export const isInside = (p: Cell) => inside(FIRST_BELL_MAP, p)
 export const manhattan = gridDistance
 export function actorAt(state: TrainingState, point: Cell): Unit | undefined {
@@ -908,7 +935,10 @@ function burrowPlan(state: TrainingState, enemy: Unit): boolean {
       .map((u) => u.burrowTarget!.x + ',' + u.burrowTarget!.y),
   )
   const heroes = state.units.filter((u) => u.team === 'squad' && u.hp > 0)
-  const targets: Cell[] = []
+  const families = waitingCivilians(state)
+  // Wreckers want the picnic: a ring that can swallow families beats one
+  // that only lands beside a hero, then the shortest tunnel wins.
+  const targets: Array<Cell & { score: number; tunnel: number }> = []
   for (let y = 0; y < state.map.height; y++)
     for (let x = 0; x < state.map.width; x++) {
       const point = { x, y }
@@ -919,15 +949,19 @@ function burrowPlan(state: TrainingState, enemy: Unit): boolean {
         tileAt(state.map, point).wall
       )
         continue
-      if (
-        heroes.some((u) => gridDistance(u, point) === 1) ||
-        waitingCivilians(state).some((c) => gridDistance(c, point) === 1)
-      )
-        targets.push(point)
+      const score =
+        families.filter((c) => gridDistance(c, point) === 1).length * 3 +
+        heroes.filter((u) => gridDistance(u, point) === 1).length
+      if (score > 0)
+        targets.push({ x, y, score, tunnel: gridDistance(enemy, point) })
     }
-  targets.sort((a, b) => a.y - b.y || a.x - b.x)
-  const target = targets[0]
-  if (!target) return false
+  targets.sort(
+    (a, b) =>
+      b.score - a.score || a.tunnel - b.tunnel || a.y - b.y || a.x - b.x,
+  )
+  const best = targets[0]
+  if (!best) return false
+  const target = { x: best.x, y: best.y }
   enemy.burrowTarget = target
   enemy.ap = 0
   note(
@@ -1550,11 +1584,16 @@ function arriveWaves(state: TrainingState) {
     if (wave.round !== state.turn) return
     wave.spawns.forEach((spawn, s) => {
       const unit = waveUnit(rules, 'wave' + (w + 1) + '-' + (s + 1))!
-      if (actorAt(state, spawn)) {
+      const blocker = actorAt(state, spawn)
+      if (blocker) {
         field.sealed.push(unit.id)
+        const hole = wave.crew === 'warren-wreckers' ? 'molehill' : 'hatch'
         note(
           state,
-          'A squadmate stands on the hatch at column ' +
+          (blocker.team === 'squad'
+            ? 'A squadmate stands on the ' + hole
+            : aliasFor(blocker) + ' is in the way of the ' + hole) +
+            ' at column ' +
             (spawn.x + 1) +
             ', row ' +
             (spawn.y + 1) +
@@ -1564,20 +1603,36 @@ function arriveWaves(state: TrainingState) {
       }
       state.units.push(unit)
       field.reinforced.push(unit.id)
-      note(state, unit.henchmanName + ' arrives through the hatch!')
+      note(
+        state,
+        unit.henchmanName +
+          (wave.crew === 'warren-wreckers'
+            ? ' pops out of the molehill at column ' +
+              (spawn.x + 1) +
+              ', row ' +
+              (spawn.y + 1) +
+              '!'
+            : ' arrives through the hatch!'),
+      )
     })
   })
 }
 function waveWarning(state: TrainingState) {
   if (!state.rules || state.phase !== 'active') return
   const hatches = incomingSpawns(state.rules, state.turn).length
-  if (hatches)
-    note(
-      state,
-      'Reinforcements arrive next round at ' +
-        hatches +
-        ' marked hatch(es). Stand on a hatch to seal it.',
-    )
+  if (!hatches) return
+  note(
+    state,
+    'Reinforcements arrive next round at ' +
+      hatches +
+      ' marked hatch(es). Stand on a hatch to seal it.',
+  )
+  // Picnic Panic whistles up the first shift and the final (overtime)
+  // shift a full round early.
+  const waves = state.rules.waves
+  const shift = waves.findIndex((wave) => wave.round === state.turn + 1)
+  if (shift === 0) picnicTrigger(state, 'picnic:shift-change')
+  else if (shift === waves.length - 1) picnicTrigger(state, 'picnic:overtime')
 }
 export function endTurn(state: TrainingState) {
   if (state.phase !== 'active') return
@@ -1633,6 +1688,10 @@ export function endTurn(state: TrainingState) {
   const signature = state.units.find(
     (unit) => unit.hp > 0 && unit.signatureBoss && unit.signatureTarget,
   )
+  // A live telegraph that resolves this round outranks next round's hatches
+  // on the status line; both stay in the event feed.
+  const urgent = !!(signature || quake || warnings)
+  if (urgent) waveWarning(state)
   note(
     state,
     signature
@@ -1657,8 +1716,8 @@ export function endTurn(state: TrainingState) {
             state.turn +
             ': the rival patrol has acted. Your squad has the initiative.',
   )
-  waveWarning(state)
-  if (state.turn === 3) {
+  if (!urgent) waveWarning(state)
+  if (state.turn === 3 && state.stageId === null) {
     state.events.unshift(
       'A fire alarm cuts through the gym. A second rescue call is coming.',
     )

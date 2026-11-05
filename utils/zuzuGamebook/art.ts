@@ -563,10 +563,19 @@ export function plate(key: string): ScenePlate {
 
 /**
  * The plate a section shows: its own render when sectionArt.ts has one (one plate per section, conductor
- * zuzu-gamebook art rounds 6+), else the shared plate its `art` key names.
+ * zuzu-gamebook art rounds 6+), else the shared plate its `art` key names, else FALLBACK_PLATE (never a throw).
  */
 export function sectionPlate(node: { id: string; art: string }): ScenePlate {
-  return SECTION_PLATES[node.id] ?? plate(node.art)
+  return SECTION_PLATES[node.id] ?? PLATES[node.art] ?? FALLBACK_PLATE
+}
+
+/**
+ * What a section shows when its plate is missing: an unknown `art` key here, or (in the reader) a plate file that
+ * fails to load. The open road, marked as a stand-in so the reader says the section's own picture is still to come.
+ */
+export const FALLBACK_PLATE: ScenePlate = {
+  ...PLATES['dust-road']!,
+  fit: 'stand-in',
 }
 
 /**

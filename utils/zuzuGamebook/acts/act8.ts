@@ -3,8 +3,9 @@ import { CH, s } from '../sections'
 
 /**
  * Act VIII · The Dark (conductor projects/zuzu-gamebook/BOOK-ONE-OUTLINE.md §5; Book One ch. 8). Entry
- * `mission-night`; exits `rescue`, `rescue-quiet`, `last-breath` (via the shipped fights), the shipped endings,
- * and `ending-bargain` / `ending-ashes`.
+ * `mission-night`, or straight from Act V through a bridge (`a8-under-the-wall`, `a8-behind-the-altar`); exits
+ * `rescue`, `rescue-quiet`, `last-breath` (via the shipped fights), the shipped endings, and `ending-bargain` /
+ * `ending-ashes`.
  *
  * The altar is under the house (Act V's locked-door stair), so the shipped "upstairs" chant leads down. Approaches
  * from `mission-night`: alone (`a8-stair`), with Wren (`wren-ally`), the coyote (`ally-coyote`), Hollis's band
@@ -24,6 +25,41 @@ import { CH, s } from '../sections'
  */
 export const ACT_VIII: Act = {
   scenes: [
+    // Early arrivals (t-007 pacing): three Act V choices reach the altar without Dustwater or the night road. Each
+    // lands on a bridge that lets the night fall before `cellar`, so the jump reads as Act VIII opening rather than
+    // a page cut from the mission's welcome straight to the ritual.
+    s(
+      'a8-under-the-wall',
+      CH.VIII,
+      'Under the Wall',
+      'bell-tower',
+      'You walk on until the bell tower drops behind the hill, then leave the road and come back through the thorn on your belly. Low on the east side, where the ground falls away, a drain is cut through the adobe for rains that never come, wide enough for a koala who does not mind the dark. You do not go in yet. You lie in the scrub while the shadow of the wall crawls out across the plain, and the tower goes black against the stars, and the windows go dark one by one. Near midnight the ground under your belly begins to hum. Someone below the house is chanting.',
+      {
+        choices: [
+          {
+            id: 'in',
+            label: 'Crawl through the drain toward the chanting.',
+            to: 'cellar',
+          },
+        ],
+      },
+    ),
+    s(
+      'a8-behind-the-altar',
+      CH.VIII,
+      'Behind the Altar',
+      'candle-wax',
+      "You fold yourself into the dark behind the altar, between the candle stubs and the wall that is not a wall, and its cold breathes on the back of your neck. The footsteps come down. Two nuns, then a third with a taper, and between them, carried the way you would carry sleeping children to bed, the two you brought here. The sister's eyes are shut. Her fist is not. They lay them on the stone and tie them with the coiled rope, gently, talking about the weather. The taper goes from wick to wick until the black candles are all alight. Two nuns go back up. The third kneels and begins to chant, and behind you the dark leans closer to listen.",
+      {
+        choices: [
+          {
+            id: 'wait',
+            label: 'Wait until the chant takes hold, then step into the light.',
+            to: 'cellar',
+          },
+        ],
+      },
+    ),
     // Approach: alone (mission-night/upstairs). The altar is under the house (Act V); the dilemma: cells or altar.
     s(
       'a8-stair',
@@ -1182,5 +1218,8 @@ export const ACT_VIII: Act = {
     'mission-night/passage#success': 'a8-crypt',
     'mission-night/passage#failure': 'a8-crypt-lamp',
     'stabbed/fight': 'a8-voice-wound',
+    'mission/investigate#success': 'a8-under-the-wall',
+    'crypt-glimpse/confront': 'a8-behind-the-altar',
+    'a5-crypt-wren/hide': 'a8-behind-the-altar',
   },
 }

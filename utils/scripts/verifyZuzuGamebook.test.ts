@@ -2,6 +2,7 @@ import assert from 'node:assert/strict'
 import { existsSync, readdirSync, readFileSync } from 'node:fs'
 import { join } from 'node:path'
 import {
+  FALLBACK_PLATE,
   PLATES,
   plateLayout,
   platePath,
@@ -25,7 +26,9 @@ import {
 } from '../zuzuGamebook/adversarial'
 import { journal } from '../zuzuGamebook/journal'
 import { emphasis } from '../zuzuGamebook/prose'
+import { CH } from '../zuzuGamebook/sections'
 import {
+  actOpening,
   BOOK,
   scene,
   startRun,
@@ -1792,10 +1795,186 @@ assert.match(
 )
 assert.match(page, /hint: locked \?\? risk\?\.hint/)
 
+// t-007 chapter pacing. Acts run in book order: a way on stays in its act or
+// opens the next one. Act V's early arrivals at the altar skip Dustwater and
+// the night road; such a jump must land on a bridge written for it (every way
+// into it is a jump), never cut straight into a set piece Act VIII leads into.
+const ACT_ORDER: string[] = Object.values(CH)
+const actIndex = (id: string) => ACT_ORDER.indexOf(BOOK[id]!.chapter)
+const waysOn = (node: (typeof BOOK)[string]) => [
+  ...(node.choices ?? []).flatMap((choice) =>
+    choice.check ? [choice.check.success, choice.check.failure] : [choice.to],
+  ),
+  ...(node.battle ? [node.battle.win, node.battle.lose] : []),
+]
+const waysIn = new Map<string, string[]>()
+for (const node of Object.values(BOOK))
+  for (const to of waysOn(node))
+    waysIn.set(to, [...(waysIn.get(to) ?? []), node.id])
+const bridges = new Set<string>()
+for (const node of Object.values(BOOK)) {
+  assert.ok(actIndex(node.id) >= 0, node.id + ': unknown act ' + node.chapter)
+  for (const to of waysOn(node)) {
+    if (BOOK[to]!.ending) continue
+    const step = actIndex(to) - actIndex(node.id)
+    assert.ok(step >= 0, node.id + ' -> ' + to + ' runs back an act')
+    if (step < 2) continue
+    bridges.add(to)
+    assert.ok(
+      waysIn.get(to)!.every((from) => actIndex(to) - actIndex(from) >= 2),
+      node.id + ' -> ' + to + ' skips an act without a bridge section',
+    )
+  }
+}
+assert.deepEqual(
+  [...bridges].sort(),
+  ['a8-behind-the-altar', 'a8-under-the-wall'],
+  'the early arrivals at the altar each cross a bridge',
+)
+for (const bridge of bridges) {
+  assert.equal(BOOK[bridge]!.chapter, CH.VIII)
+  assert.deepEqual(waysOn(BOOK[bridge]!), ['cellar'])
+}
+
+// Seeded journeys measure how an act feels to play through: the sections a run
+// spends in each act it finishes (bands from the 2026-11-05 measure,
+// with headroom), and the longest run of pages that offer a single way on.
+// The longest is the Night Road's long way round, five pages of "Run." that
+// cost the night: a deliberate slog, and the ceiling for any new chain.
+const ACT_BANDS: Record<string, [number, number]> = {
+  [CH.I]: [2, 18],
+  [CH.II]: [2, 18],
+  [CH.III]: [12, 22],
+  [CH.IV]: [14, 27],
+  [CH.V]: [2, 30],
+  [CH.VI]: [1, 19],
+  [CH.VII]: [2, 12],
+  [CH.VIII]: [2, 16],
+  [CH.IX]: [2, 17],
+}
+const MAX_SINGLE_WAY_PAGES = 5
+let paceRng = 20261105
+const paceRand = (n: number) => {
+  paceRng = (paceRng * 1103515245 + 12345) >>> 0
+  return (paceRng >>> 16) % n
+}
+const paced = new Map<string, number[]>()
+let longestSingleWay: string[] = []
+let actTurns = 0
+for (let walk = 0; walk < 2500; walk++) {
+  let run = startRun(walk * 104729 + 3)
+  let singleWay: string[] = []
+  for (let step = 0; step < 400; step++) {
+    const node = scene(run.sceneId)
+    const before = run.visited[run.visited.length - 2]
+    const turn =
+      !node.ending && (!before || BOOK[before]!.chapter !== node.chapter)
+    assert.equal(actOpening(run), turn ? node.chapter : null, node.id)
+    if (turn && before) actTurns++
+    if (node.ending) break
+    if (run.pendingLoot.length) {
+      const slot = paceRand(run.items.length + 1)
+      run = resolveLoot(run, slot === run.items.length ? null : slot)
+    } else if (run.battle) {
+      singleWay = []
+      const move = actions[paceRand(actions.length)]!
+      run = fight(
+        run,
+        move === 'quiet-draw' && run.resolve < 2 ? 'strike' : move,
+      )
+    } else {
+      const open = visibleChoices(run, node).filter((c) => !lockReason(run, c))
+      singleWay = open.length === 1 ? [...singleWay, node.id] : []
+      if (singleWay.length > longestSingleWay.length)
+        longestSingleWay = singleWay
+      run = takeChoice(run, open[paceRand(open.length)]!.id)
+    }
+  }
+  assert.ok(scene(run.sceneId).ending, 'pacing walk ' + walk + ' never ended')
+  let from = 0
+  for (let i = 1; i < run.visited.length; i++) {
+    const act = BOOK[run.visited[from]!]!.chapter
+    if (BOOK[run.visited[i]!]!.chapter === act) continue
+    // An act counts when the run finishes it: on into a later act, or, in
+    // the last act, to its ending. A run cut short mid-act is not pacing.
+    if (!BOOK[run.visited[i]!]!.ending || act === CH.IX)
+      paced.set(act, [...(paced.get(act) ?? []), i - from])
+    from = i
+  }
+}
+const pacingReport: string[] = []
+for (const [act, [low, high]] of Object.entries(ACT_BANDS)) {
+  const spent = paced.get(act) ?? []
+  assert.ok(spent.length > 20, act + ': too few journeys finish it')
+  const span = Math.min(...spent) + '-' + Math.max(...spent)
+  pacingReport.push(act.split(' ')[0] + ' ' + span)
+  assert.ok(
+    Math.min(...spent) >= low && Math.max(...spent) <= high,
+    act + ' takes ' + span + ' sections, outside ' + low + '-' + high,
+  )
+}
+assert.ok(
+  longestSingleWay.length <= MAX_SINGLE_WAY_PAGES,
+  'single-way chain too long: ' + longestSingleWay.join(' > '),
+)
+assert.ok(actTurns > 2500, 'journeys cross acts')
+console.log(
+  'Gamebook act pacing (sections per finished act): ' +
+    pacingReport.join(', ') +
+    '; longest single-way run ' +
+    longestSingleWay.length,
+)
+
+// Every act turn is announced on the page itself, on every screen.
+assert.equal(actOpening(startRun(5)), CH.I)
+const lateWall: Run = {
+  ...startRun(5),
+  sceneId: 'run-late',
+  visited: ['the-crossing', 'run-late'],
+}
+const overTheWall = takeChoice(lateWall, 'gate')
+assert.equal(overTheWall.sceneId, 'mission-night')
+assert.equal(actOpening(overTheWall), CH.VIII)
+const leftAtGate: Run = {
+  ...startRun(5),
+  sceneId: 'mission',
+  visited: ['the-crossing', 'mission'],
+  flags: ['no-tracks-out'],
+  attributes: { ...startRun(5).attributes, sense: 4 },
+}
+const underWall = takeChoice(leftAtGate, 'investigate')
+assert.equal(underWall.sceneId, 'a8-under-the-wall', 'the drain bridges V-VIII')
+assert.equal(actOpening(underWall), CH.VIII)
+const atAltar = takeChoice(underWall, 'in')
+assert.equal(atAltar.sceneId, 'cellar')
+assert.equal(actOpening(atAltar), null, 'the act has already opened')
+assert.equal(actOpening({ ...atAltar, sceneId: 'ending-warning' }), null)
+assert.match(page, /data-testid="zuzu-gamebook-act-opening"/)
+assert.match(
+  page,
+  /const opening = computed\(\(\) => actOpening\(store\.run\)\)/,
+)
+
+// A missing plate degrades: an unknown art key shows the stand-in road plate,
+// and a plate file that fails to load in the reader gives way to it once.
+assert.equal(
+  sectionPlate({ id: 'no-such-section', art: 'no-plate' }),
+  FALLBACK_PLATE,
+)
+assert.equal(FALLBACK_PLATE.fit, 'stand-in')
+assert.ok(FALLBACK_PLATE.alt.length > 40)
+assert.ok(existsSync(join(scenesDir, FALLBACK_PLATE.file + '.webp')))
+assert.equal(
+  (page.match(/@error="plateFailed\(platePath\(art\)\)"/g) ?? []).length,
+  2,
+  'both stage images fall back',
+)
+assert.match(page, /:src="shownPlate\(entry\.art\)"/)
+
 console.log(
   'Zuzu gamebook contract: ' +
     ids.length +
     ' sections, ' +
     endings.length +
-    ' endings, acyclic, stateful exploration, plates, items, dice, combat replay, saves and power costs passed',
+    ' endings, acyclic, act pacing, stateful exploration, plates, items, dice, combat replay, saves and power costs passed',
 )

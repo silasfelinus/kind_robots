@@ -59,6 +59,20 @@ export function startRun(seed: number): Run {
   }
 }
 
+/**
+ * The act this section opens, or null mid-act (t-007 pacing). An act opens on the first section of the book and
+ * wherever the section before it sat in another act; endings stand outside the acts. The reader sets it above the
+ * section title, so an act turn is a beat on every screen, not only where the toolbar has room for the chapter.
+ */
+export function actOpening(
+  run: Pick<Run, 'sceneId' | 'visited'>,
+): string | null {
+  const here = BOOK[run.sceneId]
+  if (!here || here.ending) return null
+  const before = BOOK[run.visited[run.visited.length - 2] ?? '']
+  return before?.chapter === here.chapter ? null : here.chapter
+}
+
 /** Honor: deeds recorded as `honor:*` flags (BOOK-ONE-OUTLINE.md §2). */
 export function honor(run: Run): number {
   return run.flags.filter((flag) => flag.startsWith('honor:')).length

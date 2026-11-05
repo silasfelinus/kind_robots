@@ -33,6 +33,12 @@ export const ALLEY_TRAP_CAP = 3
 export const ALLEY_DEBT_CAP = 3
 /** After this many turns each, the boss with more HP wins. */
 export const ALLEY_TURN_LIMIT = 30
+/**
+ * Mana the second seat gets once, on its first turn (Hearthstone's coin).
+ * Measured with the crew calibration below on 30 held-out seeds: no coin, the
+ * first seat won 59%; one, 55%; two, 49%.
+ */
+const COIN = 2
 
 export interface AlleyUnit {
   uid: number
@@ -243,11 +249,11 @@ function startTurn(state: AlleyState, side: Side): void {
   state.active = side
   state.turnStart[side] = state.commands.length
   if (side === 'player') state.turn++
-  // Going second, the enemy's first turn starts one crystal up (Hearthstone's
-  // coin): without it the first seat won 97 of 150 CPU games, with it 79.
-  const coin = side === 'enemy' && state.turn === 1 ? 1 : 0
-  state.maxMana[side] = Math.min(ALLEY_MANA_CAP, state.maxMana[side] + 1 + coin)
-  state.mana[side] = Math.max(0, state.maxMana[side] - state.debt[side])
+  state.maxMana[side] = Math.min(ALLEY_MANA_CAP, state.maxMana[side] + 1)
+  // Going second, the enemy's first turn gets COIN extra mana, once; it does
+  // not raise the crystal count.
+  const coin = side === 'enemy' && state.turn === 1 ? COIN : 0
+  state.mana[side] = Math.max(0, state.maxMana[side] - state.debt[side]) + coin
   state.debt[side] = 0
   for (const unit of state.units)
     if (unit.side === side) {
@@ -555,19 +561,51 @@ export function canPlay(
   return target === 'boss' || (!!theirs && target === theirs.uid)
 }
 
+/**
+ * FIVE ALLEYS crew calibration (t-027): lane fights reward big blockers, so on
+ * first measurement Ironjaw won 92% of CPU games and Bloodfairies 10%. Each
+ * crew's own creatures get a dithered HP offset in this mode only (an offset
+ * of 0.5 gives a fixed half of its creature cards +1 HP, by a hash of the card
+ * id), the lever BLOODRUSH uses; mercenaries are unchanged.
+ */
+export const ALLEY_CREW_HP: Record<TeamId, number> = {
+  // Auto-tuned on 16 seeds, checked on 30 held-out seeds (1,800 games):
+  // spread 0.238 -> 0.038, every crew 47-57%.
+  catgirls: 0.25,
+  bloodfairies: 1.25,
+  ironjaw: -1.75,
+  riot: 0.25,
+  undertow: 0,
+  exchange: -0.125,
+}
+
+/** A creature's FIVE ALLEYS health, crew calibration included. */
+export function alleyHp(card: Card): number {
+  const base = card.hp || 2
+  if (card.team === 'mercenary') return base
+  const offset = ALLEY_CREW_HP[card.team as TeamId] ?? 0
+  if (!offset) return base
+  let hash = 2166136261
+  for (let i = 0; i < card.id.length; i++)
+    hash = Math.imul(hash ^ card.id.charCodeAt(i), 16777619)
+  const shift = Math.floor(offset + (hash >>> 0) / 4294967296)
+  return Math.max(1, base + shift)
+}
+
 function newUnit(
   state: AlleyState,
   side: Side,
   card: Card,
   lane: number,
 ): AlleyUnit {
+  const hp = alleyHp(card)
   return {
     uid: state.nextUid++,
     cardId: card.id,
     side,
     lane,
-    hp: card.hp || 2,
-    maxHp: card.hp || 2,
+    hp,
+    maxHp: hp,
     attack: card.attack ?? 1,
     armor: card.armor ?? 0,
     keywords: [...(card.keywords ?? [])],

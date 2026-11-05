@@ -178,7 +178,7 @@
       <aside class="sca5-side">
         <div v-if="heldCard" class="sca5-held" data-testid="alley-held">
           <span class="sca5-hint">{{ heldHint }}</span>
-          <SlimeCityCard :card="heldCard" />
+          <SlimeCityCard :card="asPlayed(heldCard)" />
         </div>
         <div v-else-if="chosenUnitObj" class="sca5-held">
           <span class="sca5-hint">{{
@@ -186,7 +186,7 @@
               ? 'ATTACK: TAP A GLOWING TARGET'
               : 'THIS FIGHTER CANNOT ATTACK NOW'
           }}</span>
-          <SlimeCityCard :card="cardById(chosenUnitObj.cardId)" />
+          <SlimeCityCard :card="asPlayed(cardById(chosenUnitObj.cardId))" />
         </div>
         <ol
           ref="logEl"
@@ -264,7 +264,7 @@
             <strong>{{ cardById(id).name }}</strong>
             <small v-if="cardById(id).kind === 'creature'"
               >{{ cardById(id).attack ?? 1 }} ATK ·
-              {{ cardById(id).hp ?? 2 }} HP</small
+              {{ alleyHp(cardById(id)) }} HP</small
             >
             <small v-else>{{ cardById(id).kind }}</small>
           </span>
@@ -311,6 +311,7 @@ import {
   ALLEY_LANES,
   ALLEY_TURN_LIMIT,
   aimOf,
+  alleyHp,
   applyAlleyCommand,
   attack,
   attackTargets,
@@ -331,6 +332,7 @@ import {
   TEAMS,
   cardById,
   teamById,
+  type Card,
   type Side,
   type TeamId,
 } from '~/utils/slimeCity/prototypes'
@@ -380,6 +382,10 @@ const heldId = computed(() =>
     ? null
     : (game.value.hands.player[heldIndex.value] ?? null),
 )
+/** The card as FIVE ALLEYS plays it (crew-calibrated health). */
+function asPlayed(card: Card): Card {
+  return card.kind === 'creature' ? { ...card, hp: alleyHp(card) } : card
+}
 const heldCard = computed(() => (heldId.value ? cardById(heldId.value) : null))
 const chosenUnitObj = computed(() =>
   chosenUnit.value === null

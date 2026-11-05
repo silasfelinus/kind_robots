@@ -1224,7 +1224,11 @@ export function validateHouseRooms(): string[] {
       new Set(room.choices.map((c) => c.id)).size !== room.choices.length
     )
       issues.push(`Choices are missing or duplicate at ${key}`)
-    if (room.autoChoiceId && (room.kind !== 'lore' || !room.choices.some((choice) => choice.id === room.autoChoiceId)))
+    if (
+      room.autoChoiceId &&
+      (room.kind !== 'lore' ||
+        !room.choices.some((choice) => choice.id === room.autoChoiceId))
+    )
       issues.push(`Invalid automatic lore choice at ${key}`)
     for (const choice of room.choices)
       if (!choice.label.trim() || !choice.outcome.trim())

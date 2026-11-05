@@ -19,7 +19,8 @@ export const RAINBOW_LOOKS = [
   { key: 'fever', label: 'Fever Dream', hint: 'Neon airbrush doodles' },
 ] as const
 export type RainbowLook = (typeof RAINBOW_LOOKS)[number]['key']
-export const RAINBOW_DEFAULT_LOOK: RainbowLook = 'classic'
+/** Silas, 2026-11-05 PT: "Yes, fever dream should be default." A visitor's own choice still wins. */
+export const RAINBOW_DEFAULT_LOOK: RainbowLook = 'fever'
 export const RAINBOW_LOOK_STORAGE_KEY = 'rainbow-princess-look'
 
 const doodleArt = new Set(RAINBOW_DOODLE_ART)

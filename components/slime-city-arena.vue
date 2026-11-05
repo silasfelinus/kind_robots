@@ -670,13 +670,19 @@ const PORTRAIT: Record<Mood, 'fierce' | 'guard' | 'hurt'> = {
   dazed: 'hurt',
   ouch: 'hurt',
 }
-/** A painted mood portrait when one exists, else the card's own art. */
+/**
+ * A painted mood portrait when one exists, else another of the creature's
+ * painted portraits (a mood still re-rendering), else the card's own art, so
+ * a token never flips between portrait and card art mid-fight.
+ */
 function tokenArt(unit: ViewFighter): number | null {
   if (!unit.cardId) return null
-  return (
-    slimeArtId('tokens', unit.cardId + '/' + PORTRAIT[mood(unit)]) ??
-    slimeArtId('cards', unit.cardId)
-  )
+  const wanted = PORTRAIT[mood(unit)]
+  for (const pose of [wanted, 'fierce', 'guard', 'hurt'] as const) {
+    const id = slimeArtId('tokens', unit.cardId + '/' + pose)
+    if (id !== null) return id
+  }
+  return slimeArtId('cards', unit.cardId)
 }
 
 function basePct(hp: number): string {

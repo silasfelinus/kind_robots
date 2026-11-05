@@ -94,13 +94,21 @@ const artIds = [
   ...Object.values(SLIME_CITY_ART.ui),
   ...Object.values(SLIME_CITY_ART.story),
   ...Object.values(SLIME_CITY_ART.attacks),
+  ...Object.values(SLIME_CITY_ART.tokens),
 ]
 assert.equal(
   SLIME_CITY_ART_COUNT,
-  185,
-  'Round one (52), round four (15), plus the 2026-11-02 curation: 37 cards, 77 story plates, 4 attack icons',
+  233,
+  'Round one (52), round four (15), the 2026-11-02 curation (37 cards, 77 story plates, 4 attack icons) and 48 board-token portraits',
 )
-assert.equal(artIds.length, 185)
+assert.equal(artIds.length, 233)
+// Board tokens (t-022): every key is '<creature card>/<fierce|guard|hurt>'.
+for (const key of Object.keys(SLIME_CITY_ART.tokens)) {
+  const [cardId, pose] = key.split('/')
+  const card = CARDS.find((c) => c.id === cardId)
+  assert.ok(card && card.kind === 'creature', key + ' names a creature card')
+  assert.ok(['fierce', 'guard', 'hurt'].includes(pose!), key + ' is a mood')
+}
 assert.equal(
   new Set(artIds).size,
   artIds.length,

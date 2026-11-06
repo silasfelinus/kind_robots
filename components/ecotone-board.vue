@@ -452,13 +452,19 @@
                     class="aspect-[2/3] w-20 shrink-0 rounded-lg border border-[#d9b877]/60 object-cover @xl:w-24"
                   />
                   <div class="min-w-0">
-                    <p class="font-serif text-xl font-black uppercase leading-tight @4xl:text-2xl">
+                    <p
+                      class="font-serif text-xl font-black uppercase leading-tight @4xl:text-2xl"
+                    >
                       {{ stage.meet.name }}
                     </p>
-                    <p class="mt-1 text-xs font-bold uppercase tracking-widest text-[#8fb8b0]">
+                    <p
+                      class="mt-1 text-xs font-bold uppercase tracking-widest text-[#8fb8b0]"
+                    >
                       {{ stage.meet.role }}
                     </p>
-                    <p class="mt-2 font-serif text-lg font-semibold leading-snug @4xl:text-xl">
+                    <p
+                      class="mt-2 font-serif text-lg font-semibold leading-snug @4xl:text-xl"
+                    >
                       {{ stage.meet.line }}
                     </p>
                   </div>
@@ -819,7 +825,9 @@
                         alt=""
                         class="aspect-[2/3] w-14 shrink-0 rounded-md border border-[#e08a5a]/50 object-cover"
                       />
-                      <p class="font-serif text-base font-semibold leading-snug @4xl:text-lg">
+                      <p
+                        class="font-serif text-base font-semibold leading-snug @4xl:text-lg"
+                      >
                         {{ aside }}
                       </p>
                     </div>
@@ -1220,7 +1228,7 @@
               >
                 {{ saveNotice }}
               </p>
-              </section>
+            </section>
           </div>
         </div>
       </div>
@@ -1946,15 +1954,22 @@
         />
         <div class="min-w-0">
           <p class="eco-label">The full consequence</p>
-          <h3 id="ecotone-result-heading" class="mt-1 font-serif text-xl font-black">
+          <h3
+            id="ecotone-result-heading"
+            class="mt-1 font-serif text-xl font-black"
+          >
             {{ stage.title }}
           </h3>
-          <p class="mt-3 whitespace-pre-line font-serif text-base leading-relaxed">
+          <p
+            class="mt-3 whitespace-pre-line font-serif text-base leading-relaxed"
+          >
             {{ revealedResult }}
           </p>
           <div class="modal-action">
             <form method="dialog">
-              <button type="submit" class="eco-gold-button">Return to the journey</button>
+              <button type="submit" class="eco-gold-button">
+                Return to the journey
+              </button>
             </form>
           </div>
         </div>
@@ -2871,7 +2886,8 @@ const portraitSrc = computed(() =>
 )
 const meetPortrait = computed(() =>
   ecotoneArtFirst(
-    COMPANIONS.find((companion) => companion.name === stage.value.meet?.name)?.art,
+    COMPANIONS.find((companion) => companion.name === stage.value.meet?.name)
+      ?.art,
     artStyle.value,
   ),
 )

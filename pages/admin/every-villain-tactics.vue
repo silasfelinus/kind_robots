@@ -14,7 +14,7 @@
               (store.isPlaytest ? 'Studio playtest' : 'Stage 1 of 6') +
               ' — Capes & Tassels Tactical Operations · Comet City · First Bell · Internal Training'
             "
-            >{{ store.isPlaytest ? 'STUDIO TEST' : '01 / 06' }}</span
+            >{{ store.isPlaytest ? 'STUDIO TEST' : 'FIRST BELL' }}</span
           >
           <div class="evt-bar-actions">
             <button
@@ -58,7 +58,7 @@
         :data-anim="store.settings.animation"
         :style="{ '--evt-anim': String(store.animationFactor) }"
       >
-        <div class="evt-deck">
+        <div class="evt-deck" :class="{ 'is-finished': store.state.phase !== 'active' }">
           <section
             class="evt-arena"
             aria-label="First Bell tactical battlefield"
@@ -70,10 +70,10 @@
               <span class="evt-overline">{{
                 store.isPlaytest
                   ? store.draft.venue.toUpperCase()
-                  : 'COMET CITY ACADEMY / AUDITORIUM APPROACH'
+                  : 'COMET CITY ACADEMY / FIRST BELL'
               }}</span>
               <span class="evt-objective"
-                >OBJECTIVE: {{ store.scene.headline }}</span
+                >OBJECTIVE: {{ store.isPlaytest ? store.draft.objective : store.scene.headline }}</span
               >
               <span
                 v-if="store.ruleLine"
@@ -86,6 +86,8 @@
             <div class="evt-grid-wrap">
               <div
                 class="evt-map"
+                :data-stage="store.state.stageId ?? 'first-bell'"
+                :style="{ '--evt-board-art': 'url(' + battlefieldArt + ')' }"
                 role="group"
                 aria-label="Nine by six tactical grid"
               >
@@ -100,6 +102,8 @@
                     store.state.selected === actorAt(store.state, cell)?.id
                   "
                   :data-testid="'tactics-tile-' + cell.x + '-' + cell.y"
+                  :data-terrain="store.tileInfoAt(cell)"
+                  :title="cellDescription(cell)"
                   @pointerenter="store.hover(cell)"
                   @focus="store.hover(cell)"
                   @click="store.click(cell)"
@@ -136,15 +140,17 @@
                     >◉</span
                   >
                   <span
-                    v-if="store.tileInfoAt(cell) === 'cover'"
-                    class="evt-cover"
+                    v-for="edge in coverEdges(cell)"
+                    :key="edge.side"
+                    class="evt-cover-edge"
+                    :class="['is-' + edge.side, 'is-' + edge.kind]"
                     aria-hidden="true"
                   ></span>
                   <span
                     v-if="store.tileInfoAt(cell) === 'wall'"
                     class="evt-wall"
                     aria-hidden="true"
-                  ></span>
+                  ><span>WALL</span></span>
                   <span
                     v-if="store.heightAt(cell) > 0"
                     class="evt-height"
@@ -201,6 +207,13 @@
                     }"
                   >
                     <span class="evt-card-art">
+                      <img
+                        v-if="unitPortrait(displayUnitAt(store.state, cell)!)"
+                        class="evt-unit-art"
+                        :src="unitPortrait(displayUnitAt(store.state, cell)!)!"
+                        alt=""
+                        loading="lazy"
+                      />
                       <span class="evt-crest" aria-hidden="true">{{
                         displayUnitAt(store.state, cell)?.lieutenantName
                           ? '◆'
@@ -214,9 +227,11 @@
                         aria-hidden="true"
                         >1 HIT</span
                       >
-                      <span class="evt-initials">{{
-                        initials(displayUnitAt(store.state, cell)!)
-                      }}</span>
+                      <span
+                        v-if="!unitPortrait(displayUnitAt(store.state, cell)!)"
+                        class="evt-initials"
+                        >{{ initials(displayUnitAt(store.state, cell)!) }}</span
+                      >
                     </span>
                     <span class="evt-card-label">{{
                       unitName(displayUnitAt(store.state, cell)!)
@@ -245,27 +260,68 @@
                 </button>
               </div>
               <div class="evt-map-edge" aria-hidden="true">
-                GRID 09 × 06 •
-                {{
-                  store.isPlaytest
-                    ? store.draft.title.toUpperCase()
-                    : 'ROOFTOP SIMULATION'
-                }}
+                <span class="evt-terrain-legend"><b class="evt-key-wall"></b> WALL · BLOCKED</span>
+                <span class="evt-terrain-legend"><b class="evt-key-cover"></b> COVER · PASSABLE</span>
+                <span class="evt-terrain-legend"><b class="evt-key-rise"></b> ▲ RAISED</span>
               </div>
             </div>
 
-            <div class="evt-briefing" aria-live="polite">
-              <div class="evt-briefing-image" aria-hidden="true"></div>
-              <div>
-                <span class="evt-overline"
-                  >{{ perspectiveLabel }} / MISSION BRIEF</span
-                >
-                <h2>{{ store.scene.headline }}</h2>
-                <p class="pk-prose">{{ store.scene.opening }}</p>
+            <section
+              v-if="store.state.phase !== 'active' && store.missionResult"
+              class="evt-aftermath"
+              aria-labelledby="evt-aftermath-heading"
+              data-testid="tactics-post-battle"
+            >
+              <img
+                v-if="aftermathArt"
+                class="evt-aftermath-art"
+                :src="aftermathArt"
+                alt=""
+              />
+              <div class="evt-aftermath-copy">
+                <span class="evt-overline">{{ store.isPlaytest ? store.draft.title : 'FIRST BELL' }} · COMET CITY</span>
+                <h2 id="evt-aftermath-heading">
+                  {{ store.state.phase === 'victory' ? 'MISSION CLEARED' : 'MISSION LOST' }}
+                </h2>
+                <p class="evt-aftermath-stats">
+                  {{ store.missionResult.total }} PTS · {{ store.missionResult.medals.length }} MEDALS · ROUND {{ store.state.turn }}
+                </p>
+                <div class="evt-aftermath-actions">
+                  <button
+                    type="button"
+                    class="evt-next-battle"
+                    data-testid="tactics-next-battle"
+                    @click="store.openScreen('oneshot')"
+                  >
+                    CHOOSE NEXT BATTLE <span aria-hidden="true">→</span>
+                  </button>
+                  <button
+                    type="button"
+                    class="evt-retry-battle"
+                    data-testid="tactics-retry-battle"
+                    @click="store.reset()"
+                  >REPLAY <span aria-hidden="true">↻</span></button>
+                  <button
+                    type="button"
+                    class="evt-retry-battle"
+                    @click="store.openScreen('title')"
+                  >MENU</button>
+                </div>
+                <details class="evt-result-details" data-testid="tactics-mission-score">
+                  <summary>SCORE BREAKDOWN</summary>
+                  <ul>
+                    <li v-for="line in store.missionResult.lines" :key="line.id">
+                      <span>{{ line.label }}</span><b>+{{ line.points }}</b>
+                    </li>
+                  </ul>
+                </details>
+                <small v-if="!store.isPlaytest" class="evt-next-chapter-note">
+                  First Bell is the current story chapter. Other playable battles are in One-Shot.
+                </small>
               </div>
-            </div>
+            </section>
 
-            <div class="evt-statusbar" role="status">
+            <div v-if="store.state.phase === 'active'" class="evt-statusbar" role="status">
               <strong>{{
                 store.state.phase === 'active'
                   ? 'LIVE TRAINING'
@@ -275,41 +331,7 @@
             </div>
           </section>
 
-          <aside class="evt-command" aria-label="Squad command panel">
-            <details
-              v-if="store.missionResult"
-              open
-              class="mb-3 rounded-2xl border border-base-content/20 bg-base-200/90 p-3"
-              data-testid="tactics-mission-score"
-            >
-              <summary class="cursor-pointer text-lg font-black">
-                {{
-                  store.missionResult.outcome === 'victory'
-                    ? 'MISSION CLEARED'
-                    : 'MISSION LOST'
-                }}
-                · {{ store.missionResult.total }} PTS
-              </summary>
-              <p class="mt-1 text-xs opacity-80">
-                {{ store.missionResult.stage }} ·
-                {{ store.missionResult.turns }} rounds ·
-                {{ store.missionResult.medals.length }} medals earned
-              </p>
-              <ol class="mt-2 space-y-1 text-sm">
-                <li
-                  v-for="line in store.missionResult.lines"
-                  :key="line.id"
-                  class="flex justify-between gap-3"
-                >
-                  <span>{{ line.label }}</span>
-                  <strong>+{{ line.points }}</strong>
-                </li>
-              </ol>
-              <small class="mt-2 block opacity-70">
-                Full health is measured at extraction. Scores are awarded once
-                per unique saved result.
-              </small>
-            </details>
+          <aside v-if="store.state.phase === 'active'" class="evt-command" aria-label="Squad command panel">
             <div class="evt-panel-head">
               <span class="evt-overline"
                 >FIELD CONTROL / TURN {{ store.state.turn }}</span
@@ -636,33 +658,6 @@
             </div>
           </aside>
         </div>
-
-        <footer class="evt-bottom">
-          <div class="evt-perspectives" aria-label="Story viewpoint preview">
-            <span class="evt-overline">WHOSE STORY?</span>
-            <button
-              v-for="entry in perspectives"
-              :key="entry.value"
-              type="button"
-              :aria-pressed="store.perspective === entry.value"
-              :class="{ chosen: store.perspective === entry.value }"
-              @click="store.choosePerspective(entry.value)"
-            >
-              {{ entry.label }}
-            </button>
-          </div>
-          <div v-if="!store.isPlaytest" class="evt-missions">
-            <span>CAMPAIGN</span>
-            <strong
-              v-for="(mission, index) in missions"
-              :key="mission"
-              :title="mission"
-              :class="{ current: index === 0 }"
-            >
-              {{ String(index + 1).padStart(2, '0') }}
-            </strong>
-          </div>
-        </footer>
 
         <section
           v-if="store.studioOpen"
@@ -1450,10 +1445,7 @@ import {
 import { promArt } from '~/utils/cometAcademy/artManifest'
 import type { SignaturePowerId } from '~/utils/cometAcademy/specialPowers'
 import { EVERY_VILLAIN_TACTICS } from '~/utils/playbookKit/games/everyVillainTactics'
-import {
-  useEveryVillainTacticsStore,
-  PERSPECTIVES,
-} from '~/stores/everyVillainTacticsStore'
+import { useEveryVillainTacticsStore } from '~/stores/everyVillainTacticsStore'
 import {
   actorAt,
   displayUnitAt,
@@ -1660,19 +1652,45 @@ function studioCellLabel(cell: Cell): string {
     store.studioBrush.replace('-', ' ')
   )
 }
-const perspectives = Object.entries(PERSPECTIVES).map(([value, entry]) => ({
-  value: value as keyof typeof PERSPECTIVES,
-  label: entry.label,
-}))
-const missions = [
-  'First Bell',
-  'Science Wing Lockdown',
-  'Crosswalk Crisis',
-  'Rooftop Broadcast',
-  'Under-Comet Breach',
-  "Prom Night: Everybody's Villain",
-]
-const perspectiveLabel = computed(() => store.scene.label.toUpperCase())
+const battlefieldArt = computed(() =>
+  promArt(
+    store.state.stageId === 'science-lab' ||
+    store.state.stageId === 'lab-mascot-recall'
+      ? 'districts/engineering-workshop'
+      : store.state.stageId === 'picnic-plaza' ||
+          store.state.stageId === 'college-quad'
+        ? 'districts/student-commons'
+        : 'districts/training-arena',
+  ) ?? '/comet-city-academy/front/splash.webp',
+)
+const aftermathArt = computed(() =>
+  store.isPlaytest
+    ? battlefieldArt.value
+    : promArt(
+        'identities/' +
+          store.leadSignature +
+          '/outcomes/' +
+          (store.state.phase === 'defeat'
+            ? 'betrayal'
+            : store.perspective === 'villain'
+              ? 'villain'
+              : 'hero'),
+      ) ?? promArt('front/splash-v2'),
+)
+function unitPortrait(unit: Unit): string | null {
+  const role = unit.team === 'rival' ? 'villain' : 'hero'
+  return (
+    promArt('identities/' + unit.identity + '/' + role) ??
+    promArt('identities/' + unit.identity + '/student') ??
+    promArt('identities/' + unit.identity + '/outcomes/' + role)
+  )
+}
+function coverEdges(cell: Cell) {
+  const cover = store.state.map.tiles[cell.x + ',' + cell.y]?.cover
+  return Object.entries(cover ?? {})
+    .filter((entry) => !!entry[1])
+    .map(([side, kind]) => ({ side, kind }))
+}
 const meterValues = computed(() => ({
   squad: store.players.reduce((total, unit) => total + unit.hp, 0),
   rivals: store.enemies.reduce((total, unit) => total + unit.hp, 0),

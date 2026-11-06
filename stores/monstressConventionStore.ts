@@ -33,7 +33,7 @@ export const useMonstressConventionStore = defineStore(
         '',
     )
     const saveKey = computed(
-      () => 'kr-monstress-case-v1-' + (user.user?.id ?? 'guest'),
+      () => 'kr-monstress-case-v2-' + (user.user?.id ?? 'guest'),
     )
 
     async function verifyAccess(): Promise<void> {
@@ -93,9 +93,9 @@ export const useMonstressConventionStore = defineStore(
       if (!authorized.value) return
       state.value = next
       feedback.value = ''
-      if (next.flags.includes('murder')) kit.unlock('moments', 'panel-blackout')
-      if (next.flags.includes('ghost-met'))
-        kit.unlock('moments', 'mirror-witness')
+      if (next.flags.includes('double-murder-discovered')) kit.unlock('moments', 'double-murder')
+      if (next.flags.includes('odette-met') && next.flags.includes('violet-met'))
+        kit.unlock('moments', 'two-ghosts')
       if (next.ending) kit.unlock('endings', next.ending)
       persist()
     }

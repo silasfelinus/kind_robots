@@ -185,14 +185,14 @@
       </div>
 
       <div v-else-if="store.pendingEnding" class="rh-parchment rh-callout">
-        <p class="rh-eyebrow">The realm has decided</p>
-        <h2 class="rh-title">Your reign can end here</h2>
+        <p class="rh-eyebrow">A finale is available</p>
+        <h2 class="rh-title">Your choices have unlocked a possible conclusion</h2>
         <button
           type="button"
           class="rh-btn rh-btn--gold"
           @click="emit('navigate', 'court')"
         >
-          Hear the ending
+          Consider the finale
         </button>
       </div>
 

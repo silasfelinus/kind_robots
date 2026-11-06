@@ -362,11 +362,7 @@
               class="evt-statusbar"
               role="status"
             >
-              <strong>{{
-                store.state.phase === 'active'
-                  ? 'LIVE TRAINING'
-                  : store.state.phase.toUpperCase()
-              }}</strong>
+              <strong>LIVE TRAINING</strong>
               <span>{{ store.state.log }}</span>
             </div>
           </section>

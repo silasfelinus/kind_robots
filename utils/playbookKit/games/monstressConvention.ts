@@ -3,130 +3,77 @@ import type { PlaybookKitSpec } from '../types'
 export const MONSTRESS_CONVENTION: PlaybookKitSpec = {
   id: 'monstress-convention',
   conductorSlug: 'monstress-convention',
-  title: 'Monstress Convention',
+  title: 'Monstrexx',
   tagline: "Everybody's a monster. Somebody's a murderer.",
   premise:
-    'Can two broke investigators find the truth behind a monster-film convention murder without destroying the people they interview?',
+    'Iris investigates a double murder at the motel while her germophobic boss deduces clues; two ghosts reveal different leads to the Monstrexx celebrities.',
   tier: 'vignette',
   route: '/admin/monstress-convention',
   keyArt: {
     brief:
-      'Rainy two-storey worn convention hotel with hot pink neon marquee, warm lobby windows, steam rising from rear courtyard, silhouettes of eccentric grown-up monster actresses',
-    alt: 'Grand Gloaming Hotel lit by pink neon in a rainy night',
+      'A shabby rain-soaked two-storey Last Call Motor Lodge, ice machine, front office, two ghost women in Room 205 and a distant Monstrexx Convention billboard',
+    alt: 'Last Call Motor Lodge with distant Monstrexx billboard',
   },
   acts: [
     {
       id: 1,
-      title: 'Check In, Check Out',
+      title: 'Two Ghosts at Last Call',
       blurb:
-        'Get through the convention doors and investigate a locked-room death.',
+        'Investigate the double murder and unlock the separate convention center.',
     },
   ],
   meters: [{ id: 'leads', label: 'Leads', min: 0, max: 10, start: 0 }],
   factions: [],
   cast: [
-    {
-      id: 'iris',
-      name: 'Iris Quill',
-      role: 'follower',
-      tagline:
-        'Photojournalist. The sharper half of a two-person news operation.',
-      portrait: {
-        brief:
-          'Adult photojournalist with cropped curly hair, practical leather jacket, sharp expression, camera strap and heavy reporter notebook, warm noir cartoon portrait',
-      },
-    },
-    {
-      id: 'celestine',
-      name: 'Celestine Veil',
-      role: 'figure',
-      tagline:
-        'Franchise icon. A difficult witness to interview after her death.',
-      portrait: {
-        brief:
-          'Elegant adult classic horror actress in a flowing vintage silver screen robe, spectral mirror reflection and theatrical poised expression',
-      },
-    },
-    {
-      id: 'unknown-killer',
-      name: 'The Hidden Hand',
-      role: 'villain',
-      primary: true,
-      tagline:
-        'Someone inside the hotel knows more about a murdered star than they admit.',
-      portrait: {
-        brief:
-          'Gloved hand holding a hotel master key beside a half-open hotel service door, eerie warm corridor light, cropped mystery silhouette',
-      },
-    },
+    { id: 'iris', name: 'Iris Quill', role: 'follower',
+      tagline: 'Lead field investigator, capable assistant and photojournalist.',
+      portrait: { brief: 'Charming resourceful grown woman photojournalist with camera, practical coat and sharp expression, illustrated retro adventure-game portrait' } },
+    { id: 'nico', name: 'Nico Vale', role: 'figure',
+      tagline: 'Brilliant hunched germophobic boss, never willing to touch the evidence.',
+      portrait: { brief: 'Original odd-looking hunched adult journalist with wide worried eyes, shabby suit, spotless handkerchief and clever demeanor, theatrical noir cartoon portrait' } },
+    { id: 'odette', name: 'Odette Harker', role: 'figure',
+      tagline: 'Smarmy talent agent, murdered at the motel and now a demanding ghost witness.',
+      portrait: { brief: 'Spectral woman talent agent with stern glamorous appearance, elegant evening outfit, expressive theatrical noir ghost portrait' } },
+    { id: 'violet', name: 'Violet Wisp', role: 'figure',
+      tagline: 'Observant woman, a second murder victim and a distinct ghost witness.',
+      portrait: { brief: 'Adult woman ghost with lavender aura, confident observant face, elegant party clothes, whimsical theatrical portrait' } },
+    { id: 'celestine', name: 'Celestine Veil', role: 'figure',
+      tagline: 'Living Monstrexx mummy movie star and idol-group veteran.',
+      portrait: { brief: 'Elegant adult mummy woman star in layered bandage fashion and silver-screen makeup, original movie-monster celebrity portrait' } },
+    { id: 'unknown-killer', name: 'The Hidden Hand', role: 'villain', primary: true,
+      tagline: 'One ornamental blade, two deaths, too many contracts.',
+      portrait: { brief: 'Unidentifiable silhouetted hand holding an elaborate jewel-handled stage knife outside motel room, no graphic violence' } },
   ],
   reveals: [
-    {
-      id: 'service-route',
-      title: 'The service route',
-      teaser:
-        'The locked suite did not belong to the only path through the hotel.',
-      text: 'A second bell from the laundry lift proves someone moved through the service stairs during the blackout.',
-      act: 1,
-      about: ['unknown-killer', 'celestine'],
-    },
+    { id: 'ghost-accounts', title: 'Two Ghosts, Two Stories',
+      teaser: 'An agent remembers contracts; her companion remembers the sounds.',
+      text: 'Odette and Violet have different evidence and neither knows who killed them.',
+      act: 1, about: ['odette', 'violet'] },
   ],
   endings: [
-    {
-      id: 'responsible',
-      title: 'An Honest First Edition',
-      tone: 'hopeful',
-      summary:
-        'A careful bulletin clears the wrong suspect and preserves the case.',
-      hint: 'A witness, a clock and a very uncomfortable correction.',
-      about: ['iris', 'unknown-killer'],
-      art: {
-        brief:
-          'Two journalists at a battered motel desk illuminated by a typewriter lamp, a rain-streaked window behind them, carefully prepared newspaper proof',
-      },
-    },
-    {
-      id: 'reckless',
-      title: 'A Headline Too Early',
-      tone: 'dark',
-      summary:
-        'The blog gains clicks by printing a story before the evidence is ready.',
-      hint: 'Sometimes the deadline is not the real enemy.',
-      about: ['iris', 'unknown-killer'],
-      art: {
-        brief:
-          'A battered laptop flashing an irresponsible news headline in a dark hotel office, two tense journalists standing behind it, gloomy red light',
-      },
-    },
+    { id: 'lead-earned', title: 'The Convention Lead', tone: 'hopeful',
+      summary: 'Iris and Nico find a defensible lead to the separate Monstrexx Convention Center.',
+      hint: 'Document the knife, establish the time, clear the stalker and ask both ghosts.',
+      about: ['iris', 'nico', 'odette', 'violet'],
+      art: { brief: 'Iris and Nico following the Monstrexx idol-group schedule outside the separate convention venue, mystery adventure illustration' } },
+    { id: 'reckless', title: 'A Headline Too Early', tone: 'dark',
+      summary: 'An unverified headline hurts people before the true case can be solved.',
+      hint: 'Both ghost accounts are essential, but neither alone proves a culprit.',
+      about: ['iris', 'nico'],
+      art: { brief: 'A hasty tabloid blog headline on motel computer, Iris concerned, Nico recoiling in dismay, noir retro game' } },
   ],
   moments: [
-    {
-      id: 'panel-blackout',
-      title: 'Lights Out',
-      caption: 'The panel ends with a scream from the upper floor.',
-      kind: 'scene',
-      act: 1,
-      about: ['celestine', 'unknown-killer'],
-      art: {
-        brief:
-          'A crowded, shabby retro monster-movie convention ballroom suddenly plunged into darkness, one sharp silhouette against the emergency exit',
-      },
-    },
-    {
-      id: 'mirror-witness',
-      title: 'The Other Side of the Mirror',
-      caption: 'The murder victim is a very opinionated ghost.',
-      kind: 'scene',
-      act: 1,
-      about: ['celestine', 'iris'],
-      art: {
-        brief:
-          'A fogging bathroom mirror in a seedy hotel suite reflecting an elegant adult ghost actress, two reporters in the foreground with camera and notepad',
-      },
-    },
+    { id: 'double-murder', title: 'Two Women in Room 205',
+      caption: 'Iris finds two murder victims and one unusual ceremonial-looking knife.',
+      kind: 'scene', act: 1, about: ['odette', 'violet', 'unknown-killer'],
+      art: { brief: 'Respectful noir aftermath of a double murder in dim motel room, mostly obscured body silhouettes and ornate knife as evidence, no gore' } },
+    { id: 'two-ghosts', title: 'The Other Two Witnesses',
+      caption: 'Odette and Violet return as distinct ghosts who heard different things.',
+      kind: 'scene', act: 1, about: ['odette', 'violet'],
+      art: { brief: 'Two expressive spectral adult women, one agent and one observant companion, appear in a gloomy motel room mirror, playful supernatural mystery' } },
   ],
   trailer: {
-    tagline: 'One convention. One murder. Two very different interview styles.',
+    tagline: 'Two murders, two ghosts, a franchise convention across town.',
     beats: [],
   },
 }

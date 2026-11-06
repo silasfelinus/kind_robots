@@ -1,0 +1,206 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="color-scheme" content="dark" />
+    <title>Handheld Game Console | visual mockups</title>
+    <style>
+      :root {
+        font:
+          500 16px/1.45 system-ui,
+          -apple-system,
+          Segoe UI,
+          sans-serif;
+        color: #ebe8df;
+        background: #080b17;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        min-height: 100dvh;
+        background: radial-gradient(ellipse at 50% 18%, #273043, #080b17 68%);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+      }
+      header {
+        width: min(100%, 1550px);
+        padding: 18px 24px 14px;
+        display: flex;
+        gap: 20px;
+        flex-wrap: wrap;
+        align-items: center;
+        justify-content: space-between;
+      }
+      h1 {
+        font-size: clamp(18px, 2.4vw, 26px);
+        letter-spacing: -0.03em;
+        margin: 0;
+      }
+      small {
+        display: block;
+        color: #a9b2c5;
+        font-size: 12px;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+      }
+      nav {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+      }
+      button {
+        font: inherit;
+        background: #1b2435;
+        color: #d4deec;
+        border: 1px solid #67748b;
+        padding: 10px 16px;
+        border-radius: 13px;
+        cursor: pointer;
+        min-height: 44px;
+      }
+      button[aria-pressed='true'] {
+        color: #111927;
+        background: #e6cb9a;
+        border-color: #fff1bb;
+        box-shadow: 0 0 0 2px #a4894a;
+      }
+      button:focus-visible {
+        outline: 3px solid #83def4;
+        outline-offset: 3px;
+      }
+      main {
+        width: min(calc(100% - 28px), 1500px);
+        display: grid;
+        place-items: center;
+        flex: 1;
+        min-height: 0;
+      }
+      .figure {
+        width: 100%;
+        aspect-ratio: 16/9;
+        position: relative;
+        box-shadow: 0 25px 85px #0009;
+        border-radius: 6.4%;
+        overflow: hidden;
+      }
+      .figure img {
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+        display: block;
+      }
+      footer {
+        color: #b3bacc;
+        text-align: center;
+        font-size: 12px;
+        padding: 12px 20px 18px;
+        max-width: 1000px;
+      }
+      a {
+        color: #f3dba9;
+      }
+      code {
+        font-family: ui-monospace, monospace;
+      }
+      @media (max-width: 650px) {
+        header {
+          justify-content: center;
+          text-align: center;
+          padding: 12px 10px 6px;
+        }
+        nav {
+          justify-content: center;
+        }
+        button {
+          font-size: 13px;
+          padding: 8px 10px;
+        }
+        main {
+          width: 100%;
+        }
+        .figure {
+          border-radius: 0;
+        }
+        footer {
+          font-size: 11px;
+        }
+      }
+      @media (prefers-reduced-motion: no-preference) {
+        .figure img {
+          transition: opacity 0.17s ease;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <div>
+        <small>Original game-screen concepts • 2026-11-05</small>
+        <h1>Handheld worlds, not websites</h1>
+      </div>
+      <nav aria-label="Choose a mockup">
+        <button
+          type="button"
+          data-screen="cthulhuquarium-tank"
+          aria-pressed="true"
+        >
+          Cthulhuquarium · Play
+        </button>
+        <button
+          type="button"
+          data-screen="cthulhuquarium-feed"
+          aria-pressed="false"
+        >
+          Feed
+        </button>
+        <button
+          type="button"
+          data-screen="ruler-hooked-fishing"
+          aria-pressed="false"
+        >
+          Ruler · Fish
+        </button>
+        <button
+          type="button"
+          data-screen="ruler-hooked-petition"
+          aria-pressed="false"
+        >
+          Petition
+        </button>
+      </nav>
+    </header>
+    <main>
+      <div class="figure">
+        <img
+          id="mockup"
+          src="./cthulhuquarium-tank.svg"
+          alt="Cthulhuquarium underwater handheld game mockup"
+        />
+      </div>
+    </main>
+    <footer>
+      These are illustrated UI comps, not a live engine. Judge scene dominance,
+      game-native controls, visual storytelling and personality. The production
+      screens should retain their real gameplay, existing art, one global header
+      and accessible input.
+      <a href="./README.md">Implementation map</a>.
+    </footer>
+    <script>
+      const image = document.getElementById('mockup')
+      for (const button of document.querySelectorAll('[data-screen]')) {
+        button.addEventListener('click', () => {
+          for (const sibling of document.querySelectorAll('[data-screen]'))
+            sibling.setAttribute('aria-pressed', String(sibling === button))
+          const screen = button.dataset.screen
+          image.src = './' + screen + '.svg'
+          image.alt =
+            screen.replaceAll('-', ' ') + ' illustrated game console screen'
+        })
+      }
+    </script>
+  </body>
+</html>

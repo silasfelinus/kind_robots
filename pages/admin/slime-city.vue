@@ -43,29 +43,41 @@
               :class="{ active: lab.view === 'clash' }"
               data-testid="slime-clash-tab"
               @click="lab.view = 'clash'"
-            >CLASH</button>
+            >
+              CLASH
+            </button>
             <button
               type="button"
               :class="{ active: lab.view === 'city' }"
               @click="lab.showCity()"
-            >CITY</button>
+            >
+              CITY
+            </button>
             <button
               type="button"
               :class="{ active: lab.view === 'campaign' }"
               data-testid="slime-campaign-tab"
               @click="lab.showCampaign()"
-            >STORY</button>
+            >
+              STORY
+            </button>
             <button
               type="button"
-              :class="{ active: lab.view === 'cards' || lab.view === 'rewards' }"
+              :class="{
+                active: lab.view === 'cards' || lab.view === 'rewards',
+              }"
               data-testid="slime-collection-tab"
               @click="lab.showCards()"
-            >COLLECTION</button>
+            >
+              COLLECTION
+            </button>
             <select
               class="sc-legacy-select"
               aria-label="Legacy battle formats"
               data-testid="slime-legacy-toggle"
-              :value="lab.view === 'arena' || lab.view === 'alleys' ? lab.view : ''"
+              :value="
+                lab.view === 'arena' || lab.view === 'alleys' ? lab.view : ''
+              "
               @change="openLegacy"
             >
               <option value="" disabled>LEGACY ▾</option>
@@ -273,13 +285,20 @@
           aria-label="Special cards and creature collection"
         >
           <div class="sc-collection-nav" aria-label="Collection sections">
-            <button type="button" class="active" aria-current="page">YOUR CARDS</button>
+            <button type="button" class="active" aria-current="page">
+              YOUR CARDS
+            </button>
             <button
               type="button"
               data-testid="slime-rewards-tab"
               @click="lab.showRewards()"
-            >BOUNTIES &amp; REWARDS</button>
-            <span>LEVEL {{ lab.level }} · {{ lab.progress.cards.length }} / {{ lab.collectionSize }} OWNED</span>
+            >
+              BOUNTIES &amp; REWARDS
+            </button>
+            <span
+              >LEVEL {{ lab.level }} · {{ lab.progress.cards.length }} /
+              {{ lab.collectionSize }} OWNED</span
+            >
           </div>
           <div
             class="sc-deck-workbench"
@@ -434,16 +453,27 @@
           data-testid="slime-progression"
         >
           <div class="sc-collection-nav" aria-label="Collection sections">
-            <button type="button" data-testid="slime-gallery-tab" @click="lab.showCards()">YOUR CARDS</button>
-            <button type="button" class="active" aria-current="page">BOUNTIES &amp; REWARDS</button>
+            <button
+              type="button"
+              data-testid="slime-gallery-tab"
+              @click="lab.showCards()"
+            >
+              YOUR CARDS
+            </button>
+            <button type="button" class="active" aria-current="page">
+              BOUNTIES &amp; REWARDS
+            </button>
             <span>LEVEL {{ lab.level }} · {{ lab.progress.meat }} MEAT</span>
           </div>
           <div class="sc-progression-top">
             <div>
               <span class="sc-overline">YOUR COLLECTION · BOUNTIES</span>
               <h2>THE PIT PAYS</h2>
-              <p>Earn XP and Meat in account-backed legacy reward bouts; Clash
-                battles remain practice-only until its reward engine is validated.</p>
+              <p>
+                Earn XP and Meat in account-backed legacy reward bouts; Clash
+                battles remain practice-only until its reward engine is
+                validated.
+              </p>
             </div>
             <div class="sc-progress-hud">
               <strong>LVL {{ lab.level }}</strong>
@@ -889,7 +919,9 @@ onUnmounted(() => {
   height: clamp(80px, 13vh, 156px);
   border-radius: 0.45rem;
 }
-.sc-bounty-art :deep(img) { object-position: center 35%; }
+.sc-bounty-art :deep(img) {
+  object-position: center 35%;
+}
 .sc-tabs button.active {
   background: #c5ff59;
   color: #142016;

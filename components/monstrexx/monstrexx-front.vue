@@ -586,7 +586,7 @@
                 :aria-pressed="scrapTab === 'albums'"
                 @click="scrapTab = 'albums'"
               >
-                <Icon name="kind-icon:disc-3" class="size-4" /> Albums (7)
+                <Icon name="kind-icon:music" class="size-4" /> Albums (7)
               </button>
             </div>
             <div class="mx-scrap-content">

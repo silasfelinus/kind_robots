@@ -419,7 +419,24 @@ assert.match(
 )
 assert.doesNotMatch(board, /Confirm your decision|confirmDecision|stagedChoice/)
 assert.doesNotMatch(board, /Change my mind/)
-assert.match(board, /Undo last decision/)
+assert.doesNotMatch(board, /Undo last decision|Rewind last decision/)
+assert.match(board, /resultPreview/)
+assert.match(board, /resultHasMore/)
+assert.match(board, /Read the full scene with artwork/)
+assert.match(board, /data-testid="ecotone-companion-dialogue"/)
+assert.match(board, /asidePortrait\(aside\)/)
+assert.match(board, /sceneFallback: true/)
+assert.match(board, /cardArtKey\(card.id\)/)
+const ecotoneHand = readFileSync('components/ecotone-choice-hand.vue', 'utf8')
+assert.match(ecotoneHand, /--hand-tuck: 0/)
+assert.doesNotMatch(ecotoneHand, /--hand-tuck: 1/)
+assert.match(ecotoneHand, /--hand-card-max: 10\.75rem/)
+const sharedHand = readFileSync(
+  'components/narrative/kr-choice-hand.vue',
+  'utf8',
+)
+assert.match(sharedHand, /return choice \?\? null/)
+
 assert.match(board, /tab === 'settings'/)
 assert.match(board, /Text reveal speed/)
 assert.match(board, /Text size/)
@@ -460,5 +477,5 @@ assert.match(board, /Ending earned/)
 assert.match(board, /:art="endingArtKey\(game.ending.id\)"/)
 
 console.log(
-  `Ecotone first impressions: 12 avatars, personal runs, fewer opening temptations, undo and settings contract passed; ${EVENTS.length} route previews, hope by random seed ${seedsToHope.join('/')}`,
+  `Ecotone first impressions: 12 avatars, personal runs, fewer opening temptations, permanent choices and full card visibility passed; ${EVENTS.length} route previews, hope by random seed ${seedsToHope.join('/')}`,
 )

@@ -227,7 +227,7 @@ const shown = computed(() => {
   const choice =
     props.choices.find((c) => c.id === playing.value) ??
     props.choices.find((c) => c.id === focused.value)
-  return choice?.details?.length ? choice : null
+  return choice ?? null
 })
 
 watch(

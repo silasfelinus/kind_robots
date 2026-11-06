@@ -237,7 +237,7 @@ export function animalMandarinCards(
 ): MandarinCard[] {
   return catalog.filter(
     (card) =>
-      card.categories.includes('animals') &&
+      card.categories?.includes('animals') &&
       Boolean(card.meaning && card.simplified),
   )
 }

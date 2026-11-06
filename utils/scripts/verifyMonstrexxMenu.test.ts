@@ -9,7 +9,9 @@ function file(name: string): string {
 const page = file('pages/admin/monstrexx.vue')
 const front = file('components/monstrexx/monstrexx-front.vue')
 const store = file('stores/monstressConventionStore.ts')
-const scene = file('components/monstress-convention/monstress-convention-scene.vue')
+const scene = file(
+  'components/monstress-convention/monstress-convention-scene.vue',
+)
 const nav = file('content/channels/admin/monstress-convention.md')
 const kit = file('utils/playbookKit/games/monstressConvention.ts')
 
@@ -46,4 +48,6 @@ assert.match(nav, /requiredPermission: mature/)
 assert.match(nav, /route: \/admin\/monstrexx/)
 assert.doesNotMatch(nav, /route: \/play\//)
 
-console.log('Monstrexx menu: four controls, gated navigation, account-scoped saves and scrapbook/settings contracts passed')
+console.log(
+  'Monstrexx menu: four controls, gated navigation, account-scoped saves and scrapbook/settings contracts passed',
+)

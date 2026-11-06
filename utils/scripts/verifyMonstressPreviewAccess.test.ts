@@ -45,7 +45,10 @@ assert.match(page, /v-if="!mayPlay"/)
 assert.match(page, /<PlaybookKitShell[\s\S]*v-else/)
 assert.match(page, /<MonstrexxFront/)
 assert.match(page, /monstrexxKitId\(user\.user\?\.id \?\? 0\)/)
-assert.match(read('pages/admin/monstress-convention.vue'), /navigateTo\('\/admin\/monstrexx'/)
+assert.match(
+  read('pages/admin/monstress-convention.vue'),
+  /navigateTo\('\/admin\/monstrexx'/,
+)
 const tab = read('content/channels/admin/monstress-convention.md')
 assert.match(tab, /requiredRole: ADMIN/)
 assert.match(tab, /requiredPermission: mature/)

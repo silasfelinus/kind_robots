@@ -597,7 +597,9 @@ import {
 const story = useMonstressConventionStore()
 const props = defineProps<{ entry?: 'new' | 'continue' }>()
 const emit = defineEmits<{ menu: [] }>()
-const screen = ref<'title' | 'intro' | 'stage'>(props.entry === 'continue' ? 'stage' : 'intro')
+const screen = ref<'title' | 'intro' | 'stage'>(
+  props.entry === 'continue' ? 'stage' : 'intro',
+)
 const introIndex = ref(0)
 const introScenes = [
   {

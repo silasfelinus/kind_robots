@@ -69,12 +69,20 @@
           >
         </label>
       </fieldset>
-      <fieldset v-if="quiz.mode === 'quiz'" class="rh-study-settings__classroom">
+      <fieldset
+        v-if="quiz.mode === 'quiz'"
+        class="rh-study-settings__classroom"
+      >
         <legend>Build your lesson</legend>
         <p class="rh-study-settings__hint">
-          Choose how much help to see before each cast. Every answer opens a field guide.
+          Choose how much help to see before each cast. Every answer opens a
+          field guide.
         </p>
-        <div class="rh-study-settings__segmented" role="group" aria-label="Learning pace">
+        <div
+          class="rh-study-settings__segmented"
+          role="group"
+          aria-label="Learning pace"
+        >
           <button
             v-for="choice in lessonStyles"
             :key="choice.id"
@@ -88,9 +96,14 @@
           </button>
         </div>
         <p class="rh-study-settings__hint">
-          <strong>Challenge</strong> · Easy starts with two choices. Standard uses four; Expert unlocks more words sooner.
+          <strong>Challenge</strong> · Easy starts with two choices. Standard
+          uses four; Expert unlocks more words sooner.
         </p>
-        <div class="rh-study-settings__segmented rh-study-settings__segmented--tight" role="group" aria-label="Challenge level">
+        <div
+          class="rh-study-settings__segmented rh-study-settings__segmented--tight"
+          role="group"
+          aria-label="Challenge level"
+        >
           <button
             v-for="choice in difficulties"
             :key="choice.id"
@@ -98,12 +111,19 @@
             :aria-pressed="quiz.difficulty === choice.id"
             :class="{ 'is-selected': quiz.difficulty === choice.id }"
             @click="quiz.setDifficulty(choice.id)"
-          >{{ choice.label }}</button>
+          >
+            {{ choice.label }}
+          </button>
         </div>
         <p class="rh-study-settings__hint">
-          <strong>Question direction</strong> · Recognize names, reverse the clues, or mix both.
+          <strong>Question direction</strong> · Recognize names, reverse the
+          clues, or mix both.
         </p>
-        <div class="rh-study-settings__segmented rh-study-settings__segmented--tight" role="group" aria-label="Question direction">
+        <div
+          class="rh-study-settings__segmented rh-study-settings__segmented--tight"
+          role="group"
+          aria-label="Question direction"
+        >
           <button
             v-for="choice in directions"
             :key="choice.id"
@@ -111,13 +131,25 @@
             :aria-pressed="quiz.promptDirection === choice.id"
             :class="{ 'is-selected': quiz.promptDirection === choice.id }"
             @click="quiz.setPromptDirection(choice.id)"
-          >{{ choice.label }}</button>
+          >
+            {{ choice.label }}
+          </button>
         </div>
       </fieldset>
-      <fieldset v-if="quiz.mode === 'quiz' && quiz.modules.mandarin" class="rh-study-settings__mandarin">
+      <fieldset
+        v-if="quiz.mode === 'quiz' && quiz.modules.mandarin"
+        class="rh-study-settings__mandarin"
+      >
         <legend>Mandarin study topic</legend>
-        <p class="rh-study-settings__hint">Pick a subject for the Mandarin questions. All topics use Tutor vocabulary, review scheduling and pronunciation.</p>
-        <div class="rh-study-settings__topic-grid" role="group" aria-label="Mandarin topics">
+        <p class="rh-study-settings__hint">
+          Pick a subject for the Mandarin questions. All topics use Tutor
+          vocabulary, review scheduling and pronunciation.
+        </p>
+        <div
+          class="rh-study-settings__topic-grid"
+          role="group"
+          aria-label="Mandarin topics"
+        >
           <button
             v-for="topic in topics"
             :key="topic.id"
@@ -131,26 +163,38 @@
             {{ topic.label }}
           </button>
         </div>
-        <p class="rh-study-settings__hint">Correct in this topic: {{ quiz.topicCorrect[quiz.mandarinScope] ?? 0 }}</p>
-        <div class="rh-study-settings__segmented rh-study-settings__segmented--tight" role="group" aria-label="Word reference depth">
+        <p class="rh-study-settings__hint">
+          Correct in this topic:
+          {{ quiz.topicCorrect[quiz.mandarinScope] ?? 0 }}
+        </p>
+        <div
+          class="rh-study-settings__segmented rh-study-settings__segmented--tight"
+          role="group"
+          aria-label="Word reference depth"
+        >
           <button
             type="button"
             :class="{ 'is-selected': quiz.referenceDetail === 'quick' }"
             :aria-pressed="quiz.referenceDetail === 'quick'"
             @click="quiz.setReferenceDetail('quick')"
-          >Quick word card</button>
+          >
+            Quick word card
+          </button>
           <button
             type="button"
             :class="{ 'is-selected': quiz.referenceDetail === 'full' }"
             :aria-pressed="quiz.referenceDetail === 'full'"
             @click="quiz.setReferenceDetail('full')"
-          >Deep word history</button>
+          >
+            Deep word history
+          </button>
         </div>
       </fieldset>
       <p v-if="quiz.mode === 'quiz'" class="rh-study-settings__footer">
-        <strong>Classroom progress</strong> ·
-        Flags {{ quiz.correct.flags }}/{{ quiz.attempts.flags }} ·
-        Capitals {{ quiz.correct.capitals }}/{{ quiz.attempts.capitals }} ·
+        <strong>Classroom progress</strong> · Flags {{ quiz.correct.flags }}/{{
+          quiz.attempts.flags
+        }}
+        · Capitals {{ quiz.correct.capitals }}/{{ quiz.attempts.capitals }} ·
         Mandarin {{ quiz.correct.mandarin }}/{{ quiz.attempts.mandarin }}
         <small>(correct / answers attempted on this device)</small>
       </p>
@@ -179,10 +223,26 @@ import {
 
 const quiz = useRulerHookedQuizStore()
 const topics = MANDARIN_QUIZ_TOPICS
-const lessonStyles: { id: FishingLessonMode; label: string; description: string }[] = [
-  { id: 'guided', label: 'Guided', description: 'Study unfamiliar clues first.' },
-  { id: 'always', label: 'Study every time', description: 'A briefing before every cast.' },
-  { id: 'quiz-first', label: 'Test me', description: 'Answer first, then learn.' },
+const lessonStyles: {
+  id: FishingLessonMode
+  label: string
+  description: string
+}[] = [
+  {
+    id: 'guided',
+    label: 'Guided',
+    description: 'Study unfamiliar clues first.',
+  },
+  {
+    id: 'always',
+    label: 'Study every time',
+    description: 'A briefing before every cast.',
+  },
+  {
+    id: 'quiz-first',
+    label: 'Test me',
+    description: 'Answer first, then learn.',
+  },
 ]
 const difficulties: { id: FishingQuizDifficulty; label: string }[] = [
   { id: 'easy', label: 'Easy · 2' },
@@ -195,12 +255,29 @@ const directions: { id: FishingPromptDirection; label: string }[] = [
   { id: 'mixed', label: 'Shuffle' },
 ]
 const topicIcons: Record<string, string> = {
-  all: '📖', animals: '🐼', colors: '🎨', numbers: '🔢', family: '🏡',
-  people: '👥', body: '🩺', 'food-drink': '🍜', home: '🛋️', school: '📚',
-  work: '🧰', 'travel-transport': '🚆', places: '🏯', weather: '⛅',
-  'time-calendar': '⏳', directions: '🧭', clothing: '👕',
-  'shopping-money': '🛍️', 'everyday-actions': '🏃', adjectives: '✨',
-  'questions-grammar': '❔', greetings: '👋', casino: '🎲',
+  all: '📖',
+  animals: '🐼',
+  colors: '🎨',
+  numbers: '🔢',
+  family: '🏡',
+  people: '👥',
+  body: '🩺',
+  'food-drink': '🍜',
+  home: '🛋️',
+  school: '📚',
+  work: '🧰',
+  'travel-transport': '🚆',
+  places: '🏯',
+  weather: '⛅',
+  'time-calendar': '⏳',
+  directions: '🧭',
+  clothing: '👕',
+  'shopping-money': '🛍️',
+  'everyday-actions': '🏃',
+  adjectives: '✨',
+  'questions-grammar': '❔',
+  greetings: '👋',
+  casino: '🎲',
 }
 const subjects: {
   id: FishingQuizModule

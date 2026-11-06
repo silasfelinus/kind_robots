@@ -29,7 +29,12 @@
         <SlimeCityArtwork
           class="scc-art-image"
           :image-id="slimeArtId('cards', card.id)"
-          :fallback-image-id="slimeArtId('crews', card.team === 'mercenary' ? 'exchange' : card.team)"
+          :fallback-image-id="
+            slimeArtId(
+              'crews',
+              card.team === 'mercenary' ? 'exchange' : card.team,
+            )
+          "
           :alt="card.name + ' card art'"
           :fallback="card.symbol"
           compact

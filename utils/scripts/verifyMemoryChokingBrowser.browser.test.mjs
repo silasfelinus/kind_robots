@@ -20,7 +20,7 @@ const dungeonComponent = readFileSync(
 )
 assert.match(
   seaComponent,
-  /sea\.active === 'e06'[\\s\\S]*?sea\.position === '4,6'[\\s\\S]*?sea\.e06Choices\['4,6'\][\\s\\S]*?data-testid="memory-enter-choking"[\\s\\S]*?@click="emit\('choking'\)"/,
+  /sea\.active === 'e06'[\s\S]*?sea\.position === '4,6'[\s\S]*?sea\.e06Choices\['4,6'\][\s\S]*?data-testid="memory-enter-choking"[\s\S]*?@click="emit\('choking'\)"/,
   'e06 4,6 must expose a choice-gated Choking Works button',
 )
 assert.match(
@@ -30,17 +30,17 @@ assert.match(
 )
 assert.match(
   gameComponent,
-  /v-else-if="chokingMode"[\\s\\S]*?dungeon="choking"/,
+  /v-else-if="chokingMode"[\s\S]*?dungeon="choking"/,
   'the Choking Works stage must use the choking dungeon store',
 )
 assert.match(
   dungeonComponent,
-  /props\.dungeon === 'choking'[\\s\\S]*?useMemoryChokingWorksStore\(\)/,
+  /props\.dungeon === 'choking'[\s\S]*?useMemoryChokingWorksStore\(\)/,
   'the shared dungeon stage must bind the Choking Works store',
 )
 assert.match(
   dungeonComponent,
-  /data-layout="console-fixed"[\\s\\S]*?grid-rows-\[minmax\(0,0\.8fr\)_minmax\(0,1\.2fr\)\]/,
+  /data-layout="console-fixed"[\s\S]*?grid-rows-\[minmax\(0,0\.8fr\)_minmax\(0,1\.2fr\)\]/,
   'the dungeon stage must retain a bounded phone layout',
 )
 const entry = [

@@ -201,10 +201,7 @@
         </div>
       </div>
 
-      <aside
-        v-if="showHelp"
-        class="clash-sidebar"
-      >
+      <aside v-if="showHelp" class="clash-sidebar">
         <div class="clash-info">
           <span class="clash-eyebrow">{{
             selectedCard

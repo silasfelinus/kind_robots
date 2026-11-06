@@ -5,6 +5,8 @@
 // then overlays Kind Robots-owned presentation fields from Project records.
 import { createError, defineEventHandler, setHeader } from 'h3'
 import prisma from '@/server/utils/prisma'
+import { viewerShowsMature } from '@/server/utils/contentAccess'
+import { canExposeConductorProject } from '@/server/utils/conductorMatureProjects'
 import { getOptionalApiUser } from '@/server/utils/authGuard'
 import {
   buildConductorData,
@@ -48,6 +50,7 @@ export default defineEventHandler(async (event): Promise<ConductorData> => {
           where: { conductorSlug: { in: slugs } },
           select: {
             conductorSlug: true,
+            isPublic: true,
             title: true,
             imagePath: true,
             cardPath: true,
@@ -74,7 +77,22 @@ export default defineEventHandler(async (event): Promise<ConductorData> => {
     setHeader(event, 'Vary', 'Authorization, Cookie')
     const full = buildConductorData(stored.snapshot, displays, stored.syncedAt)
     const viewer = await getOptionalApiUser(event)
-    return viewer?.isAdmin ? full : redactConductorDataForPublic(full)
+    const showMature = viewerShowsMature(viewer?.user)
+    const accessible = {
+      ...full,
+      projects: full.projects.filter((project) => {
+        const row = displayRows.find(
+          (display) => display.conductorSlug === project.slug,
+        )
+        return canExposeConductorProject(
+          project.slug,
+          showMature,
+          row?.isPublic === true,
+          viewer?.isAdmin === true,
+        )
+      }),
+    }
+    return viewer?.isAdmin ? accessible : redactConductorDataForPublic(accessible)
   } catch (error) {
     throw createError({
       statusCode: 502,

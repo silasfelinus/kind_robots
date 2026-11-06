@@ -4,6 +4,7 @@ import type {
 } from '~/prisma/generated/prisma/client'
 import { createError, defineEventHandler, readBody } from 'h3'
 import prisma from '@/server/utils/prisma'
+import { isMatureConductorProject } from '@/server/utils/conductorMatureProjects'
 import { requireAdminApiUser } from '@/server/utils/authGuard'
 import {
   assertConductorProjectionSnapshot,
@@ -124,7 +125,8 @@ export default defineEventHandler(async (event) => {
             heroPath: project.heroPath,
             lastSyncedAt: syncedAt,
             designer: 'conductor-projection',
-            isPublic: true,
+            isPublic: !isMatureConductorProject(project.slug),
+            isMature: isMatureConductorProject(project.slug),
             isActive: project.status !== 'ARCHIVED',
           },
         })

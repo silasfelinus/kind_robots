@@ -554,7 +554,7 @@
             {{ item === 'motel-key' ? 'Motel key' : 'Camera' }}
           </span>
         </div>
-        <button type="button" class="mc-verb" @click="screen = 'title'">
+        <button type="button" class="mc-verb" @click="emit('menu')">
           <Icon name="kind-icon:home" class="size-4" />
           <span class="hidden @md:inline">Title</span>
         </button>
@@ -595,7 +595,9 @@ import {
 } from '~/utils/monstressConvention/prologue'
 
 const story = useMonstressConventionStore()
-const screen = ref<'title' | 'intro' | 'stage'>('title')
+const props = defineProps<{ entry?: 'new' | 'continue' }>()
+const emit = defineEmits<{ menu: [] }>()
+const screen = ref<'title' | 'intro' | 'stage'>(props.entry === 'continue' ? 'stage' : 'intro')
 const introIndex = ref(0)
 const introScenes = [
   {
@@ -622,7 +624,9 @@ const activeTopics = computed(() =>
 )
 
 onMounted(() => {
-  if (story.state.transcript.length > 1) screen.value = 'stage'
+  if (props.entry === 'continue') screen.value = 'stage'
+  else if (props.entry === 'new') screen.value = 'intro'
+  else if (story.state.transcript.length > 1) screen.value = 'stage'
 })
 
 function begin(): void {

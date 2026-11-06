@@ -54,122 +54,55 @@
         />
       </div>
 
-      <!--
-        THE LOWER ROW: the page's own line. Silas, 2026-11-01: "One single
-        header strip for all." Every page gets it, so the strip reads the same
-        everywhere: a page that docks a bar through header-page-bar.vue fills
-        #kr-header-page-bar; any other page shows its room and message here
-        (moved down from the picker shell's stretch). It ends with the one
-        tutorial button. Below xl it wraps under the icons (order-last +
-        basis-full); from xl the row dissolves into the top strip
-        (xl:contents) so its page line sits between the pickers and the account
-        hub while the tutorial button moves to the far right end of the icons.
-        Silas, 2026-11-02: "the tutorial icon link should be on the right side,
-        not the far left of icons." The slot's own @container lets a page's
-        styles follow its width.
-      -->
+      <!-- The page bar's teleport target must stay mounted even while hidden.
+           Pages with a custom action bar still dock below the header on small
+           screens and into the main row at xl. No duplicate room/tagline. -->
       <div
+        v-show="hasPageBar"
         data-kr-page-row
-        class="order-last flex min-w-0 basis-full items-center gap-2 border-t border-base-300 pt-1.5 xl:contents"
+        class="order-last flex min-w-0 basis-full items-center border-t border-base-300 pt-1.5 xl:contents"
       >
         <div
-          v-if="!hasPageBar || pageBarCompact"
-          class="pointer-events-none flex min-w-0 flex-1 items-center gap-4 px-1"
-        >
-          <div
-            class="flex min-w-0 shrink flex-col justify-center leading-tight"
-            :title="headerMessage"
-          >
-            <span
-              class="kr-text-eyebrow truncate text-[0.65rem] tracking-[0.18em] text-primary/75"
-            >
-              {{ brandLine }}
-            </span>
-            <span
-              v-if="headerMessage"
-              class="truncate text-sm text-base-content/55"
-            >
-              {{ headerMessage }}
-            </span>
-          </div>
-
-          <!--
-            THE GREETING. Silas, 2026-09-01: "it's more a part of the main
-            content dash, but we really should see a Welcome {username} in
-            large letters after the room and room info piece."
-
-            "After the room and room info piece" places it exactly: those two
-            lines are to its left, and this takes the rest of the stretch. It
-            stays in the header rather than moving into the page because that
-            is where the room and its blurb live, and because the home page is
-            now a fixed-height desktop layout -- a greeting band there would
-            come out of the dream's height rather than out of space that was
-            already empty.
-
-            THE ONE RULE THIS ROW HAS is that nothing in it grows (see the
-            note at the top of this file: the strip that preceded it needed
-            300 lines of measurement precisely because a child's width was
-            unbounded). So this is `min-w-0 truncate` inside a `shrink`
-            sibling pair, and it appears only from `xl`, where the stretch has
-            room to spare. A long username shortens; it never pushes.
-          -->
-          <p
-            v-if="greeting"
-            class="kr-text-black-lg hidden min-w-0 flex-1 truncate text-right text-base-content/80 xl:block xl:text-xl"
-            :title="greeting"
-          >
-            {{ greeting }}
-          </p>
-        </div>
-
-        <div
-          v-show="hasPageBar"
           id="kr-header-page-bar"
           class="@container flex min-w-0 flex-1 items-center"
         />
-
-        <!--
-          THE ONE TUTORIAL BUTTON, at the end of the lower row. Silas,
-          2026-11-01: "just make sure we only have the one for each page, but it
-          should be on the lower bar generally, as that feels more connected to
-          the main content." It is the WORKSPACE toggle -- the workspace sheet
-          carries the page tutorial, and leads with a page's own in-game guide
-          when the page registers one through page-help.vue -- so no page draws a
-          second help button of its own.
-        -->
-        <!--
-          NEW-PAGE HIGHLIGHT. Silas, 2026-10-10: "maybe we can have a highlight
-          option with the tutorial icon if a user hasn't viewed that page
-          before." A page whose tab authors its own tutorial lights this button
-          until the workspace sheet has been open on it once; tutorialStore
-          remembers which pages have been seen, per browser.
-        -->
-        <button
-          type="button"
-          class="btn btn-ghost btn-sm btn-square shrink-0 rounded-xl border border-base-300 xl:order-last"
-          :class="[
-            workspaceSheetOpen
-              ? 'border-primary bg-primary/15 text-primary'
-              : tutorialUnseen
-                ? 'tutorial-unseen border-secondary bg-secondary/15 text-secondary'
-                : 'bg-base-100',
-          ]"
-          :aria-label="workspaceToggleLabel"
-          :title="workspaceToggleLabel"
-          :aria-expanded="workspaceSheetOpen"
-          @click="navStore.toggleWorkspaceSheet()"
-        >
-          <span class="indicator">
-            <Icon name="kind-icon:question" class="kr-icon-5" />
-            <span
-              v-if="tutorialUnseen && !workspaceSheetOpen"
-              class="indicator-item h-2.5 w-2.5 rounded-full bg-secondary ring-2 ring-base-100"
-              aria-hidden="true"
-            />
-          </span>
-        </button>
       </div>
 
+      <p
+        v-if="greeting"
+        class="kr-text-black-lg hidden min-w-0 flex-1 truncate text-right text-base-content/80 xl:block xl:text-xl"
+        :title="greeting"
+      >
+        {{ greeting }}
+      </p>
+
+      <!-- Workspace help is a single permanent header utility, never a
+           second page-caption row. -->
+      <button
+        type="button"
+        class="btn btn-ghost btn-sm btn-square shrink-0 rounded-xl border border-base-300"
+        :class="[
+          workspaceSheetOpen
+            ? 'border-primary bg-primary/15 text-primary'
+            : tutorialUnseen
+              ? 'tutorial-unseen border-secondary bg-secondary/15 text-secondary'
+              : 'bg-base-100',
+        ]"
+        :aria-label="workspaceToggleLabel"
+        :title="workspaceToggleLabel"
+        :aria-expanded="workspaceSheetOpen"
+        @click="navStore.toggleWorkspaceSheet()"
+      >
+        <span class="indicator">
+          <Icon name="kind-icon:question" class="kr-icon-5" />
+          <span
+            v-if="tutorialUnseen && !workspaceSheetOpen"
+            class="indicator-item h-2.5 w-2.5 rounded-full bg-secondary ring-2 ring-base-100"
+            aria-hidden="true"
+          />
+        </span>
+      </button>
+      
       <account-hub class="header-account shrink-0" />
 
       <!--
@@ -348,7 +281,6 @@ const shellSummary = computed(
 const showBackButton = computed(() => navStore.canGoBack)
 
 const hasPageBar = computed(() => navStore.hasPageBar)
-const pageBarCompact = computed(() => navStore.pageBarCompact)
 
 const workspaceSheetOpen = computed(() => navStore.workspaceSheetOpen)
 
@@ -499,13 +431,6 @@ watch(
   { immediate: true },
 )
 
-const activeTitle = computed(
-  () =>
-    activeTabConfig.value.title ||
-    activeTabConfig.value.label ||
-    pageStore.title,
-)
-
 /*
  * The brand, and then whatever this particular page has to say for itself.
  *
@@ -526,42 +451,6 @@ const greeting = computed(() =>
   userStore.isLoggedIn ? `Welcome ${userStore.username}` : '',
 )
 
-/*
- * Only content pages call setPage, so on a dedicated page (/admin/worlds/zuzu)
- * pageStore still holds the last content page visited and the header read
- * "Dashboard Room" over an Admin tab. When the stored page is not the page at
- * this route -- including another tab of the same channel -- its room and
- * message are not this page's to show.
- */
-const pageStoreIsStale = computed(() =>
-  Boolean(
-    routeChannelLocation.value?.channel &&
-    pageStore.currentPage &&
-    !pageStore.describesPath(route.path),
-  ),
-)
-
-const brandLine = computed(() => {
-  if (pageStoreIsStale.value) {
-    return activeTabConfig.value.room || activeTitle.value || 'Kind Robots'
-  }
-
-  return pageStore.room || activeTitle.value || 'Kind Robots'
-})
-
-const headerMessage = computed(() => {
-  if (pageStoreIsStale.value) {
-    return activeTabConfig.value.subtitle || activeTabConfig.value.summary || ''
-  }
-
-  return (
-    pageStore.tabMessage ||
-    activeTabConfig.value.subtitle ||
-    pageStore.subtitle ||
-    activeTabConfig.value.summary ||
-    ''
-  )
-})
 
 watch(
   () => ({

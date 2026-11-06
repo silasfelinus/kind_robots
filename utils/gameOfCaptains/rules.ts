@@ -652,7 +652,8 @@ const DESTINATION_FOLLOWUPS: Readonly<
     },
     {
       flag: 'ashdock-exposed',
-      reminder: 'The Ashdock workers you exposed deserve a say in the couch’s recall.',
+      reminder:
+        'The Ashdock workers you exposed deserve a say in the couch’s recall.',
     },
   ],
   'foundry-strike': [
@@ -691,9 +692,8 @@ export function destinationFollowup(
 ): string | null {
   const history = new Set(run.worldFlags ?? [])
   return (
-    DESTINATION_FOLLOWUPS[missionId]?.find((item) =>
-      history.has(item.flag),
-    )?.reminder ?? null
+    DESTINATION_FOLLOWUPS[missionId]?.find((item) => history.has(item.flag))
+      ?.reminder ?? null
   )
 }
 

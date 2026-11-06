@@ -202,7 +202,7 @@
       </div>
 
       <aside
-        v-if="showHelp || (game.phase === 'play' && selectedCard)"
+        v-if="showHelp"
         class="clash-sidebar"
       >
         <div class="clash-info">
@@ -332,6 +332,7 @@
             game.active !== 'player' ||
             game.phase !== 'play'
           "
+          :title="clashCardText(cardById(id))"
           :data-testid="'clash-hand-' + index"
           :aria-pressed="heldIndex === index"
           @click="pick(index)"

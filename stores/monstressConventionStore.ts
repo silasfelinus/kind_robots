@@ -20,10 +20,12 @@ export const useMonstressConventionStore = defineStore('monstressConvention', ()
   const authorized = ref(false)
   const checking = ref(false)
   const opened = ref(false)
+  const accountId = ref<number | null>(null)
+  const feedback = ref('')
   const state = ref<CaseState>(newCase())
   const storageWarning = ref('')
   const currentLine = computed(
-    () => state.value.transcript[state.value.transcript.length - 1] ?? '',
+    () => feedback.value || state.value.transcript[state.value.transcript.length - 1] || '',
   )
   const saveKey = computed(() => 'kr-monstress-case-v1-' + (user.user?.id ?? 'guest'))
 
@@ -38,7 +40,10 @@ export const useMonstressConventionStore = defineStore('monstressConvention', ()
         1,
       )
       authorized.value = response.success && response.data?.canPlay === true
-      if (authorized.value && !opened.value) {
+      if (authorized.value && accountId.value !== user.user?.id) {
+        accountId.value = user.user?.id ?? null
+        state.value = newCase()
+        feedback.value = ''
         opened.value = true
         load()
         kit.open('monstress-convention')
@@ -77,6 +82,7 @@ export const useMonstressConventionStore = defineStore('monstressConvention', ()
   function commit(next: CaseState): void {
     if (!authorized.value) return
     state.value = next
+    feedback.value = ''
     if (next.flags.includes('murder')) kit.unlock('moments', 'panel-blackout')
     if (next.flags.includes('ghost-met')) kit.unlock('moments', 'mirror-witness')
     if (next.ending) kit.unlock('endings', next.ending)
@@ -93,18 +99,21 @@ export const useMonstressConventionStore = defineStore('monstressConvention', ()
     if (!authorized.value) return
     const result = performAction(state.value, action)
     if (result.changed) commit(result.state)
+    else feedback.value = result.line
   }
 
   function move(room: RoomId): void {
     if (!authorized.value) return
     const result = travel(state.value, room)
     if (result.changed) commit(result.state)
+    else feedback.value = result.line
   }
 
   function switchActor(): void {
     if (!authorized.value) return
     const result = switchInvestigator(state.value)
     if (result.changed) commit(result.state)
+    else feedback.value = result.line
   }
 
   return {

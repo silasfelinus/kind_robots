@@ -12,7 +12,7 @@
         <b>{{ game.victor ? 'FINAL BELL' : busy ? 'RIVAL THINKING' : 'YOUR CALL' }}</b>
       </div>
       <button class="clash-reset" type="button" data-testid="clash-restart" @click="newMatch">
-        <icon name="refresh-cw" size="sm" /> REMATCH
+        <span aria-hidden="true">↻</span> REMATCH
       </button>
     </header>
 
@@ -153,7 +153,7 @@
           <span>{{ game.plays.player }} / {{ CLASH_PLAYS }} plays · {{ game.mana.player }} mana · {{ game.decks.player.length }} in deck</span>
         </div>
         <button type="button" class="clash-pass" data-testid="clash-pass" :disabled="busy || game.active !== 'player' || !!game.victor" @click="pass">
-          PASS <icon name="chevron-right" size="sm" />
+          PASS <span aria-hidden="true">›</span>
         </button>
       </div>
       <div class="clash-hand" aria-label="Cards in your hand">

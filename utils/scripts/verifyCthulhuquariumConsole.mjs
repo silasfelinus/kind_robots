@@ -24,14 +24,22 @@ assert.doesNotMatch(
   /100dvh|calc\(100vh/,
   'nested console uses parent height, never viewport height',
 )
-assert.match(game, /\.cq-layout\s*\{[^}]*grid-template-areas:\s*'tank' 'deck'/s)
+assert.match(
+  game,
+  /\.cq-layout\s*\{[^}]*grid-template-areas:\s*'top' 'tank' 'deck'/s,
+  'the bezel stacks the HUD band, the tank stage and the command deck',
+)
 assert.match(
   game,
   /\.cq-side,\s*\.cq-roster,\s*\.cq-support-panel\s*\{[^}]*position:\s*absolute/s,
 )
 assert.match(game, /aria-label="Aquarium rooms"/)
 assert.match(game, /v-show="activePanel === 'shop'"/)
-assert.match(game, /v-show="activePanel === 'bestiary'"/)
+assert.match(
+  game,
+  /v-show="activePanel === 'roster' \|\| activePanel === 'bestiary'"/,
+  'the Creatures room holds the roster and the book',
+)
 assert.match(game, /v-show="activePanel === 'scenery'"/)
 assert.match(
   game,
@@ -62,8 +70,38 @@ assert.match(
 assert.match(game, /<cthulhuquarium-guide \/>/, 'the tutorial deck is mounted')
 assert.match(
   game,
-  /class="cq-controller"[\s\S]*?class="cq-action cq-action-clean"[\s\S]*?class="cq-action cq-action-feed"/,
-  'Feed and Clean are the controller deck primary actions',
+  /class="cq-controller"[\s\S]*?v-for="tab in CONSOLE_TABS"[\s\S]*?:data-tab="tab\.id"[\s\S]*?class="cq-prompts"/,
+  'the controller is the five-tab command deck with its button-prompt row',
+)
+assert.match(
+  game,
+  /class="cq-meter cq-action-clean"/,
+  'Clean stays one tap away as the cleanliness meter on the water',
+)
+assert.match(
+  game,
+  /case 'feed':[\s\S]*?label: 'Feed hungriest'[\s\S]*?run: onFeed/,
+  'the Feed tab feeds the hungriest or every hungry creature',
+)
+assert.match(
+  game,
+  /KeyQ: 'prevTab'[\s\S]*?BracketLeft: 'prevTab'[\s\S]*?KeyE: 'nextTab'[\s\S]*?BracketRight: 'nextTab'/,
+  'Q/E and [ ] cycle the deck like shoulder buttons',
+)
+assert.match(
+  game,
+  /readPad\(pad, padMemory, timestamp\)/,
+  'a gamepad drives the same console commands (LB/RB, A, B, X, Y)',
+)
+assert.match(
+  game,
+  /if \(isTextEntry\(document\.activeElement\) \|\| consoleBlocked\(\)\) return/,
+  'console keys never steal typing or fire under a modal',
+)
+assert.match(
+  game,
+  /@media \(prefers-reduced-motion: reduce\)/,
+  'the console respects reduced motion',
 )
 assert.match(
   game,
@@ -73,7 +111,8 @@ assert.match(
 assert.match(game, /\.cq-room-shade \{[\s\S]*?position: absolute/)
 assert.match(
   game,
-  /\.cq-command-deck \{[\s\S]*?grid-template-columns: repeat\(6/,
+  /\.cq-command-deck \{[\s\S]*?grid-template-columns: auto repeat\(5, minmax\(0, 1fr\)\) auto/,
+  'five tabs between the L and R shoulder hints',
 )
 
 const dialogue = readFileSync(

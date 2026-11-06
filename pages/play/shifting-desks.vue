@@ -1564,6 +1564,7 @@ useHead({ title: 'Shifting Desks' })
   --hand-accent-2: #e9d8a6;
   --hand-band: #2b2622;
   --hand-band-ink: #fdf6e3;
+  --card-h: calc(var(--card-w) * 1.68);
   --hand-card-max: 15rem;
   --hand-card-cqw: 42cqw;
   --hand-card-vh: 31vh;
@@ -1571,21 +1572,14 @@ useHead({ title: 'Shifting Desks' })
   --hand-text-scale: 1.35;
 }
 
-.desk-hand :deep(.krh) {
-  --card-h: calc(var(--card-w) * 1.68);
-}
-
 .desk-hand :deep(.krh-front) {
   aspect-ratio: 1 / 1.68;
 }
 
 .desk-hand-dense {
+  --card-h: calc(var(--card-w) * 1.5);
   --hand-card-max: 11rem;
   --hand-card-vh: 23vh;
-}
-
-.desk-hand-dense :deep(.krh) {
-  --card-h: calc(var(--card-w) * 1.5);
 }
 
 .desk-hand-dense :deep(.krh-front) {
@@ -1762,12 +1756,9 @@ useHead({ title: 'Shifting Desks' })
 
 @media (min-width: 768px) and (max-width: 1023.98px) {
   .desk-hand {
+    --card-h: calc(var(--card-w) * 1.5);
     --hand-card-max: 11rem;
     --hand-card-vh: 20vh;
-  }
-
-  .desk-hand :deep(.krh) {
-    --card-h: calc(var(--card-w) * 1.5);
   }
 
   .desk-hand :deep(.krh-front) {

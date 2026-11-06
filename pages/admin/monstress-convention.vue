@@ -14,9 +14,12 @@
         </p>
         <p class="text-2xl font-bold">Access restricted</p>
         <p class="opacity-75">
-          This preview requires an administrator account with mature content enabled.
+          This preview requires an administrator account with mature content
+          enabled.
         </p>
-        <p v-if="caseStore.checking" class="text-sm opacity-60">Checking account access…</p>
+        <p v-if="caseStore.checking" class="text-sm opacity-60">
+          Checking account access…
+        </p>
       </div>
     </div>
     <PlaybookKitShell

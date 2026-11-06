@@ -12,7 +12,8 @@ export type RoomId =
   | 'courtyard'
   | 'stairwell'
   | 'suite-205'
-export type Verb = 'walk' | 'look' | 'talk' | 'take' | 'use' | 'photograph' | 'ask'
+export type Verb =
+  'walk' | 'look' | 'talk' | 'take' | 'use' | 'photograph' | 'ask'
 export type CaseEnding = 'responsible' | 'reckless'
 
 export interface HotelHotspot {
@@ -59,22 +60,48 @@ export const HOTEL_ROOMS: Record<RoomId, HotelRoom> = {
     id: 'parking',
     label: 'Rain-Slick Parking Lot',
     floor: 0,
-    caption: 'A neon fang buzzes above the Grand Gloaming. Rain keeps the secrets wet.',
+    caption:
+      'A neon fang buzzes above the Grand Gloaming. Rain keeps the secrets wet.',
     exits: ['lobby', 'courtyard'],
     hotspots: [
-      { id: 'marquee', label: 'MONSTRESS-CON sign', x: 44, y: 23, verbs: ['look', 'photograph'] },
-      { id: 'lost-pass', label: 'Lost fan pass', x: 74, y: 80, verbs: ['look', 'take'] },
+      {
+        id: 'marquee',
+        label: 'MONSTRESS-CON sign',
+        x: 44,
+        y: 23,
+        verbs: ['look', 'photograph'],
+      },
+      {
+        id: 'lost-pass',
+        label: 'Lost fan pass',
+        x: 74,
+        y: 80,
+        verbs: ['look', 'take'],
+      },
     ],
   },
   lobby: {
     id: 'lobby',
     label: 'Grand Gloaming Lobby',
     floor: 1,
-    caption: 'The carpet is burgundy, the chandelier is broken, and the manager is still smiling.',
+    caption:
+      'The carpet is burgundy, the chandelier is broken, and the manager is still smiling.',
     exits: ['parking', 'registration', 'convention', 'courtyard', 'stairwell'],
     hotspots: [
-      { id: 'porter', label: 'Pip, night porter', x: 68, y: 54, verbs: ['look', 'talk', 'ask'] },
-      { id: 'desk', label: 'Press-room typewriter', x: 30, y: 71, verbs: ['look', 'use'] },
+      {
+        id: 'porter',
+        label: 'Pip, night porter',
+        x: 68,
+        y: 54,
+        verbs: ['look', 'talk', 'ask'],
+      },
+      {
+        id: 'desk',
+        label: 'Press-room typewriter',
+        x: 30,
+        y: 71,
+        verbs: ['look', 'use'],
+      },
     ],
   },
   registration: {
@@ -84,52 +111,116 @@ export const HOTEL_ROOMS: Record<RoomId, HotelRoom> = {
     caption: 'The guest badges cost more than the hotel rooms.',
     exits: ['lobby'],
     hotspots: [
-      { id: 'clerk', label: 'Marta Rook', x: 55, y: 53, verbs: ['look', 'talk', 'use'] },
-      { id: 'call-sheet', label: 'Panel program', x: 30, y: 63, verbs: ['look', 'photograph'] },
+      {
+        id: 'clerk',
+        label: 'Marta Rook',
+        x: 55,
+        y: 53,
+        verbs: ['look', 'talk', 'use'],
+      },
+      {
+        id: 'call-sheet',
+        label: 'Panel program',
+        x: 30,
+        y: 63,
+        verbs: ['look', 'photograph'],
+      },
     ],
   },
   convention: {
     id: 'convention',
     label: 'Ballroom of the Damned',
     floor: 1,
-    caption: 'The franchise stars sit beneath banners promoting a dozen things nobody asked for.',
+    caption:
+      'The franchise stars sit beneath banners promoting a dozen things nobody asked for.',
     exits: ['lobby'],
     hotspots: [
-      { id: 'celestine', label: 'Celestine Veil', x: 60, y: 52, verbs: ['look', 'talk', 'ask'] },
-      { id: 'poster', label: 'Licensing poster', x: 25, y: 35, verbs: ['look', 'photograph'] },
-      { id: 'stage', label: 'Anniversary panel', x: 48, y: 78, verbs: ['look', 'use'] },
+      {
+        id: 'celestine',
+        label: 'Celestine Veil',
+        x: 60,
+        y: 52,
+        verbs: ['look', 'talk', 'ask'],
+      },
+      {
+        id: 'poster',
+        label: 'Licensing poster',
+        x: 25,
+        y: 35,
+        verbs: ['look', 'photograph'],
+      },
+      {
+        id: 'stage',
+        label: 'Anniversary panel',
+        x: 48,
+        y: 78,
+        verbs: ['look', 'use'],
+      },
     ],
   },
   courtyard: {
     id: 'courtyard',
     label: 'Hot Tub Courtyard',
     floor: 1,
-    caption: 'Steam rises from a tiled tub. The chemistry is best left to the imagination.',
+    caption:
+      'Steam rises from a tiled tub. The chemistry is best left to the imagination.',
     exits: ['parking', 'lobby'],
     hotspots: [
-      { id: 'gavin', label: 'Gavin Spindle', x: 65, y: 49, verbs: ['look', 'talk', 'ask'] },
-      { id: 'camera', label: 'Fan camera', x: 33, y: 71, verbs: ['look', 'photograph'] },
+      {
+        id: 'gavin',
+        label: 'Gavin Spindle',
+        x: 65,
+        y: 49,
+        verbs: ['look', 'talk', 'ask'],
+      },
+      {
+        id: 'camera',
+        label: 'Fan camera',
+        x: 33,
+        y: 71,
+        verbs: ['look', 'photograph'],
+      },
     ],
   },
   stairwell: {
     id: 'stairwell',
     label: 'Service Stairwell',
     floor: 2,
-    caption: 'The staff bell hangs crooked. Somebody dragged a heavy trolley here.',
+    caption:
+      'The staff bell hangs crooked. Somebody dragged a heavy trolley here.',
     exits: ['lobby', 'suite-205'],
     hotspots: [
-      { id: 'bell', label: 'Scratched service bell', x: 72, y: 33, verbs: ['look', 'photograph'] },
+      {
+        id: 'bell',
+        label: 'Scratched service bell',
+        x: 72,
+        y: 33,
+        verbs: ['look', 'photograph'],
+      },
     ],
   },
   'suite-205': {
     id: 'suite-205',
     label: 'Celestine’s Suite',
     floor: 2,
-    caption: 'The door is locked from within. The bathroom mirror is fogging up by itself.',
+    caption:
+      'The door is locked from within. The bathroom mirror is fogging up by itself.',
     exits: ['stairwell'],
     hotspots: [
-      { id: 'ghost', label: 'Figure in the mirror', x: 55, y: 45, verbs: ['look', 'talk', 'ask'] },
-      { id: 'latch', label: 'Interior door latch', x: 18, y: 62, verbs: ['look', 'photograph'] },
+      {
+        id: 'ghost',
+        label: 'Figure in the mirror',
+        x: 55,
+        y: 45,
+        verbs: ['look', 'talk', 'ask'],
+      },
+      {
+        id: 'latch',
+        label: 'Interior door latch',
+        x: 18,
+        y: 62,
+        verbs: ['look', 'photograph'],
+      },
     ],
   },
 }
@@ -166,18 +257,28 @@ export function newCase(seed = 1): CaseState {
     topics: [],
     inventory: ['camera'],
     asked: [],
-    transcript: ['Nico: One exclusive story. One mortgage payment. Maybe two if we skip dinner.'],
+    transcript: [
+      'Nico: One exclusive story. One mortgage payment. Maybe two if we skip dinner.',
+    ],
     ending: null,
   }
 }
 
 function withLine(state: CaseState, line: string, changed = true): CaseResult {
   if (!changed) return { state, line, changed: false }
-  return { state: { ...state, transcript: [...state.transcript, line] }, line, changed }
+  return {
+    state: { ...state, transcript: [...state.transcript, line] },
+    line,
+    changed,
+  }
 }
 
 function has(state: CaseState, key: string): boolean {
-  return state.flags.includes(key) || state.evidence.includes(key) || state.inventory.includes(key)
+  return (
+    state.flags.includes(key) ||
+    state.evidence.includes(key) ||
+    state.inventory.includes(key)
+  )
 }
 
 function addUnique(list: string[], value: string): string[] {
@@ -193,7 +294,8 @@ function addEvidence(state: CaseState, value: string): void {
 }
 
 export function switchInvestigator(state: CaseState): CaseResult {
-  if (state.ending) return withLine(state, 'The story has gone to press.', false)
+  if (state.ending)
+    return withLine(state, 'The story has gone to press.', false)
   const actor = state.actor === 'nico' ? 'iris' : 'nico'
   const line =
     actor === 'iris'
@@ -203,15 +305,28 @@ export function switchInvestigator(state: CaseState): CaseResult {
 }
 
 export function travel(state: CaseState, destination: RoomId): CaseResult {
-  if (state.ending) return withLine(state, 'The case is closed for this run.', false)
+  if (state.ending)
+    return withLine(state, 'The case is closed for this run.', false)
   if (!HOTEL_ROOMS[state.room].exits.includes(destination))
     return withLine(state, 'There is no direct route from here.', false)
   if (destination === 'convention' && !has(state, 'press-badge'))
-    return withLine(state, 'The convention doors demand proper press credentials.', false)
+    return withLine(
+      state,
+      'The convention doors demand proper press credentials.',
+      false,
+    )
   if (destination === 'stairwell' && !has(state, 'murder'))
-    return withLine(state, 'Staff access is closed before the evening panel.', false)
+    return withLine(
+      state,
+      'Staff access is closed before the evening panel.',
+      false,
+    )
   if (destination === 'suite-205' && !has(state, 'murder'))
-    return withLine(state, 'Suite 205 is private until the investigation begins.', false)
+    return withLine(
+      state,
+      'Suite 205 is private until the investigation begins.',
+      false,
+    )
   const next = { ...state, room: destination }
   return withLine(next, HOTEL_ROOMS[destination].caption)
 }
@@ -219,13 +334,23 @@ export function travel(state: CaseState, destination: RoomId): CaseResult {
 function note(state: CaseState, target: string, verb: Verb): string {
   const who = state.actor === 'nico' ? 'Nico' : 'Iris'
   if (target === 'lost-pass')
-    return who + ': Somebody dropped a badge. The name is mostly a coffee stain.'
+    return (
+      who + ': Somebody dropped a badge. The name is mostly a coffee stain.'
+    )
   if (target === 'gavin')
-    return who + ': He has a stack of photographs taken from disturbing angles. That is not romantic.'
+    return (
+      who +
+      ': He has a stack of photographs taken from disturbing angles. That is not romantic.'
+    )
   if (target === 'celestine')
-    return who + ': The star is arguing with the licensing executive over an unsigned contract.'
+    return (
+      who +
+      ': The star is arguing with the licensing executive over an unsigned contract.'
+    )
   if (target === 'ghost')
-    return who + ': Reflections do not usually answer questions. This one might.'
+    return (
+      who + ': Reflections do not usually answer questions. This one might.'
+    )
   if (target === 'bell')
     return who + ': Fresh metal scratches. The laundry lift was used recently.'
   if (target === 'latch')
@@ -250,10 +375,24 @@ export function availableTopics(state: CaseState, target: string): string[] {
   )
 }
 
-function interview(state: CaseState, target: string, topic: string): CaseResult {
-  if (!state.topics.includes(topic) || !availableTopics(state, target).includes(topic))
-    return withLine(state, 'That question has already been answered, or the lead is not known.', false)
-  const next = { ...state, asked: [...state.asked, state.actor + ':' + target + ':' + topic] }
+function interview(
+  state: CaseState,
+  target: string,
+  topic: string,
+): CaseResult {
+  if (
+    !state.topics.includes(topic) ||
+    !availableTopics(state, target).includes(topic)
+  )
+    return withLine(
+      state,
+      'That question has already been answered, or the lead is not known.',
+      false,
+    )
+  const next = {
+    ...state,
+    asked: [...state.asked, state.actor + ':' + target + ':' + topic],
+  }
   const iris = state.actor === 'iris'
   let line = ''
   if (target === 'clerk' && topic === 'schedule') {
@@ -298,16 +437,28 @@ function interview(state: CaseState, target: string, topic: string): CaseResult 
       ? 'Iris: We should compare that statement with the evidence.'
       : 'Nico: Not exactly a front-page quote. Yet.'
   }
-  if (next.evidence.includes('fan-photo') && next.evidence.includes('porter-log'))
+  if (
+    next.evidence.includes('fan-photo') &&
+    next.evidence.includes('porter-log')
+  )
     addEvidence(next, 'fan-exonerated')
   return withLine(next, line)
 }
 
-export function performAction(state: CaseState, action: CaseAction): CaseResult {
+export function performAction(
+  state: CaseState,
+  action: CaseAction,
+): CaseResult {
   if (state.ending) return withLine(state, 'The story is already filed.', false)
-  const hotspot = HOTEL_ROOMS[state.room].hotspots.find((item) => item.id === action.target)
+  const hotspot = HOTEL_ROOMS[state.room].hotspots.find(
+    (item) => item.id === action.target,
+  )
   if (!hotspot || !hotspot.verbs.includes(action.verb))
-    return withLine(state, 'There is nothing useful to do with that here.', false)
+    return withLine(
+      state,
+      'There is nothing useful to do with that here.',
+      false,
+    )
   if (action.verb === 'look') {
     const next = { ...state }
     if (action.target === 'bell') {

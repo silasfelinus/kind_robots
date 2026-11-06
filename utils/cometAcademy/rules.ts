@@ -142,6 +142,26 @@ import {
   GUEST_LIST_EVENT,
 } from './campaign'
 import {
+  accompliceBonus,
+  alignmentTrack,
+  arcFinale,
+  arcSeparated,
+  caseLean,
+  patrolChoiceLean,
+  pendingArcBeat as pendingArcBeatIn,
+  recordAlignmentNight,
+  resolveArcBeat,
+  validAlignmentLog,
+  validClassmateArcs,
+  type AlignmentActor,
+  type AlignmentNight,
+  type AlignmentTrack,
+  type ArcBeatCard,
+  type ArcWorld,
+  type ClassmateArcs,
+  type Lean,
+} from './alignmentArcs'
+import {
   finaleFor,
   migrateSignatureId,
   signatureById,
@@ -643,6 +663,11 @@ export type AcademyRun = {
     status: 'active' | 'reconciled' | 'isolated'
   }
   plotEvidence?: string[]
+  /** t-016: who moved which way on each real night. Absent until the first
+   * night that moves anybody, so older saves are unchanged. */
+  alignmentLog?: AlignmentNight[]
+  /** t-016: the state-driven classmate betrayal and accomplice arcs. */
+  classmateArcs?: ClassmateArcs
   /** The mastermind the player named from first-week evidence (days 5-14). */
   suspect?: { id: string; day: number }
   academyStanding?: number
@@ -1301,7 +1326,8 @@ export function studentAvailable(run: AcademyRun, id: StudentId): boolean {
       run.day >= 20 &&
       run.betrayal?.person === id &&
       run.betrayal.status !== 'reconciled'
-    )
+    ) &&
+    !(run.flowVersion === 3 && arcSeparated(run.classmateArcs, id, run.day))
   )
 }
 
@@ -1796,7 +1822,15 @@ export function dispatchModifier(
     run.missionApproach === 'investigate'
       ? caseTrustModifier(run.caseHistory, run.day, incident.id)
       : 0) +
-    districtSecretModifier(run, incident.id) -
+    districtSecretModifier(run, incident.id) +
+    (run.flowVersion === 3
+      ? accompliceBonus(
+          run.classmateArcs,
+          run.day,
+          incident.allegiance,
+          students,
+        )
+      : 0) -
     rosterConflictPenalty(run, incident.id, students) -
     villainInterference(run, incident)
   )
@@ -2199,6 +2233,16 @@ export function resolveDispatch(run: AcademyRun): AcademyRun {
           `SECRET KNOWN · ${exposed.title.toUpperCase()}${playedBattle ? '' : ' (+1)'}: ${missionOfferFor(incident.id)?.exposed ?? ''}`
         : '',
       special ? `SPECIAL ROUTE: ${special.label}. ${special.result}` : '',
+      run.flowVersion === 3 &&
+      !playedBattle &&
+      accompliceBonus(
+        run.classmateArcs,
+        run.day,
+        incident.allegiance,
+        assignment.students,
+      )
+        ? `ACCOMPLICE (+1): ${STUDENTS.find((s) => s.id === run.classmateArcs!.accomplice!.person)!.name} has done this kind of job with you before and knows where the back doors are.`
+        : '',
     ]
       .filter(Boolean)
       .join(' ')
@@ -2289,6 +2333,22 @@ export function resolveDispatch(run: AcademyRun): AcademyRun {
   const patrolStanding = storyResult
     ? storyResult.outcome.standing
     : (patrolChoice?.standing ?? 0)
+  const alignmentLog =
+    run.flowVersion === 3
+      ? recordAlignmentNight(
+          run.alignmentLog,
+          run.day,
+          nightAlignmentMarks(
+            run,
+            patrolChoice
+              ? patrolChoiceLean(
+                  patrolChoice.id,
+                  story?.choices.find((c) => c.id === patrolChoice.id)?.stance,
+                )
+              : null,
+          ),
+        )
+      : undefined
   return {
     ...run,
     phase: [2, 3].includes(run.flowVersion ?? 0) ? 'debrief' : 'campus',
@@ -2303,6 +2363,7 @@ export function resolveDispatch(run: AcademyRun): AcademyRun {
           caseHistory: recordCaseNight(run.caseHistory ?? [], run.day, reports),
           tacticalBattle: null,
           tacticalResult: null,
+          ...(alignmentLog ? { alignmentLog } : {}),
         }
       : {}),
     ...(patrolMemory
@@ -2334,6 +2395,96 @@ export function resolveDispatch(run: AcademyRun): AcademyRun {
       ),
     ],
   }
+}
+
+/** Who moves on tonight's track, read from the run before the night resolves:
+ * the call the player leads (or the district they walk), and, when the player
+ * chose the teams themselves, every classmate sent on a hero, villain or rogue
+ * contract. The visual-novel mode assigns volunteers itself, so only the
+ * player moves there. */
+export function nightAlignmentMarks(
+  run: AcademyRun,
+  patrolLean: Lean | null = null,
+): Partial<Record<AlignmentActor, Lean>> {
+  const marks: Partial<Record<AlignmentActor, Lean>> = {}
+  const cases = incidentsFor(run)
+  const led = run.playerCaseId
+    ? cases.find((incident) => incident.id === run.playerCaseId)
+    : undefined
+  const yours = led
+    ? caseLean(led.allegiance, true, run.missionApproach)
+    : patrolLean
+  if (yours) marks.you = yours
+  if (run.campaignOptions?.nightPatrols !== false)
+    for (const assignment of run.assignments) {
+      const incident = cases.find((entry) => entry.id === assignment.caseId)
+      const lean = incident ? caseLean(incident.allegiance, false) : null
+      if (!lean) continue
+      for (const id of assignment.students) marks[id] = lean
+    }
+  return marks
+}
+
+function arcWorld(run: AcademyRun): ArcWorld {
+  return {
+    run,
+    order: STUDENTS.map((person) => person.id),
+    names: Object.fromEntries(
+      STUDENTS.map((person) => [person.id, person.name]),
+    ) as Record<StudentId, string>,
+    contacts: knownContacts(run),
+  }
+}
+
+/** Tonight's classmate arc beat at the debrief, if the track has earned one. */
+export function pendingArcBeat(run: AcademyRun): ArcBeatCard | null {
+  return pendingArcBeatIn(arcWorld(run))
+}
+
+/** Answer tonight's arc beat. The answer is saved and changes later nights,
+ * the roster and the prom. */
+export function answerArcBeat(run: AcademyRun, choiceId: string): AcademyRun {
+  const result = resolveArcBeat(arcWorld(run), choiceId)
+  if (!result) return run
+  const evidence = [...(run.plotEvidence ?? [])]
+  if (result.evidence && !evidence.includes(result.evidence))
+    evidence.push(result.evidence)
+  return {
+    ...run,
+    classmateArcs: result.arcs,
+    ...(result.evidence ? { plotEvidence: evidence } : {}),
+    influence: run.influence + (result.influence ?? 0),
+    danger: Math.max(0, run.danger + (result.danger ?? 0)),
+    ...(result.cityStanding
+      ? { cityStanding: (run.cityStanding ?? 0) + result.cityStanding }
+      : {}),
+    scene: `${run.scene} ${result.card.title.toUpperCase()}: ${result.option.text}`,
+    log: [
+      ...run.log,
+      `Day ${run.day}: ${result.card.title} — ${result.option.label}`,
+    ],
+  }
+}
+
+/** The visible hero <-> villain track for the player or a classmate. */
+export function alignmentTrackFor(
+  run: AcademyRun,
+  actor: AlignmentActor,
+): AlignmentTrack {
+  const name =
+    actor === 'you'
+      ? 'You'
+      : (STUDENTS.find((person) => person.id === actor)?.name ?? actor)
+  return alignmentTrack(run.alignmentLog, actor, name)
+}
+
+/** The steps taken on the night being debriefed, for the debrief strip. */
+export function tonightsAlignment(run: AcademyRun) {
+  const night = run.alignmentLog?.find((entry) => entry.day === run.day)
+  if (!night || run.phase !== 'debrief') return []
+  return (Object.entries(night.marks) as [AlignmentActor, Lean][]).map(
+    ([actor, lean]) => ({ ...alignmentTrackFor(run, actor), lean }),
+  )
 }
 
 export function chooseEncounter(run: AcademyRun, optionId: string): AcademyRun {
@@ -2514,8 +2665,12 @@ export function chooseEncounter(run: AcademyRun, optionId: string): AcademyRun {
   }
 }
 
-export function nextSchoolDay(run: AcademyRun): AcademyRun {
-  if (run.phase !== 'debrief') return run
+export function nextSchoolDay(current: AcademyRun): AcademyRun {
+  if (current.phase !== 'debrief') return current
+  // An unanswered arc beat is answered by silence, which is itself authored.
+  const pending = pendingArcBeat(current)
+  const run = pending ? answerArcBeat(current, pending.silent) : current
+  const arcMorning = arcMorningFor(run)
   if (run.flowVersion === 3 && run.day >= 29)
     return {
       ...run,
@@ -2572,17 +2727,58 @@ export function nextSchoolDay(run: AcademyRun): AcademyRun {
     missionApproach: null,
     assignments: [],
     reports: [],
-    scene: storyMorning
-      ? `The next bell rings. ${storyMorning}`
-      : morningMemory
-        ? `The next bell rings. ${morningMemory} Last night, the outcome was recorded as ${morningReport!.names === UNANSWERED_NAMES ? 'unanswered' : morningReport!.grade}.`
-        : run.patrolHistory?.at(-1)?.day === run.day
-          ? `The next bell rings. Your overnight decision has become a morning argument: ${run.reports.find((report) => report.caseId.startsWith('patrol-'))?.text ?? 'The neighborhood remembers who came.'}`
-          : run.missionClues?.length &&
-              run.reports.some((report) => report.text.includes('casebook'))
-            ? 'The next bell rings. The evidence you saved on night patrol has reached the morning bulletin board; somebody else has seen the same clue.'
-            : 'The next bell rings. Yesterday has already changed who will answer your calls.',
+    scene:
+      (storyMorning
+        ? `The next bell rings. ${storyMorning}`
+        : morningMemory
+          ? `The next bell rings. ${morningMemory} Last night, the outcome was recorded as ${morningReport!.names === UNANSWERED_NAMES ? 'unanswered' : morningReport!.grade}.`
+          : run.patrolHistory?.at(-1)?.day === run.day
+            ? `The next bell rings. Your overnight decision has become a morning argument: ${run.reports.find((report) => report.caseId.startsWith('patrol-'))?.text ?? 'The neighborhood remembers who came.'}`
+            : run.missionClues?.length &&
+                run.reports.some((report) => report.text.includes('casebook'))
+              ? 'The next bell rings. The evidence you saved on night patrol has reached the morning bulletin board; somebody else has seen the same clue.'
+              : 'The next bell rings. Yesterday has already changed who will answer your calls.') +
+      arcMorning,
   }
+}
+
+/** The morning after an arc beat closes on that beat's own line. The beat's
+ * card is rebuilt as it stood on that debrief. */
+function arcMorningFor(run: AcademyRun): string {
+  const arcs = run.classmateArcs ?? {}
+  const betrayalBeat = arcs.betrayal?.beats.find((m) => m.day === run.day)
+  const accompliceBeat = arcs.accomplice?.beats.find((m) => m.day === run.day)
+  const memory = betrayalBeat ?? accompliceBeat
+  if (!memory) return ''
+  const replayArcs: ClassmateArcs = {}
+  if (arcs.betrayal)
+    replayArcs.betrayal = betrayalBeat
+      ? {
+          ...arcs.betrayal,
+          beats: arcs.betrayal.beats.slice(0, memory.beat - 1),
+          outcome: undefined,
+          ...(memory.beat === 3 ? {} : { promise: undefined }),
+        }
+      : arcs.betrayal
+  if (arcs.accomplice)
+    replayArcs.accomplice = accompliceBeat
+      ? {
+          ...arcs.accomplice,
+          beats: arcs.accomplice.beats.slice(0, memory.beat - 1),
+          outcome: undefined,
+        }
+      : arcs.accomplice
+  if (replayArcs.betrayal && !replayArcs.betrayal.beats.length)
+    delete replayArcs.betrayal
+  if (replayArcs.accomplice && !replayArcs.accomplice.beats.length)
+    delete replayArcs.accomplice
+  const card = pendingArcBeat({
+    ...run,
+    phase: 'debrief',
+    classmateArcs: replayArcs,
+  })
+  const line = card?.options.find((entry) => entry.id === memory.choice)
+  return line ? ` ${line.morning}` : ''
 }
 
 export function finishAcademy(
@@ -2635,8 +2831,9 @@ export function finishAcademy(
       run.signature,
       run.opponentSignature,
     )
+    const arcs = arcFinale(arcWorld(run))
     const earned =
-      support + roleStanding >= 2 + identityPressure &&
+      support + arcs.support + roleStanding >= 2 + identityPressure &&
       run.danger <= 48 + evidenceCount * 2 - identityPressure
     const opponent = run.opponentSignature
       ? identityFor(run.opponentSignature)
@@ -2694,7 +2891,7 @@ export function finishAcademy(
       ...run,
       phase: 'ending',
       ending,
-      scene: `Midway through the fourth dance the twelve-sided chandelier turns over, the glass roof fractures, and a beam joins the ballroom to the city shield towers. ${villain.name} ${villain.method}. You choose to ${choice === 'protect' ? 'save guests before hardware' : choice === 'evacuate' ? 'destroy the transmitter and evacuate' : shared ? 'distribute shield keys to the neighborhoods' : 'seize the control console'}. ${keys} ${earned ? 'Your accumulated allies answer the call.' : 'Your scattered allies cannot coordinate in time.'} ${cost} ${endingTurn} ${conspiracyOutcome ?? ''} ${roleEpilogue} ${opponentEpilogue} ${lieutenantFinale} ${betrayalOutcome} ${relationshipEpilogue} ${personalEnding(run)} ${routeEpilogue(run.vow, run.vowHistory)} ${personalFinale(run.signature, run.personalHistory)} ${evidenceCount} of three accomplice operations were exposed. At dawn the survivors decide what graduation and rebuilding mean.`,
+      scene: `Midway through the fourth dance the twelve-sided chandelier turns over, the glass roof fractures, and a beam joins the ballroom to the city shield towers. ${villain.name} ${villain.method}. You choose to ${choice === 'protect' ? 'save guests before hardware' : choice === 'evacuate' ? 'destroy the transmitter and evacuate' : shared ? 'distribute shield keys to the neighborhoods' : 'seize the control console'}. ${keys} ${earned ? 'Your accumulated allies answer the call.' : 'Your scattered allies cannot coordinate in time.'} ${cost} ${endingTurn} ${conspiracyOutcome ?? ''} ${roleEpilogue} ${opponentEpilogue} ${lieutenantFinale} ${betrayalOutcome} ${arcs.lines.join(' ')} ${relationshipEpilogue} ${personalEnding(run)} ${routeEpilogue(run.vow, run.vowHistory)} ${personalFinale(run.signature, run.personalHistory)} ${evidenceCount} of three accomplice operations were exposed. At dawn the survivors decide what graduation and rebuilding mean.`,
       log: [
         ...run.log,
         `Day 30: ${choice} against ${villain.name}`,
@@ -2934,6 +3131,22 @@ export function restoreAcademy(raw: unknown): AcademyRun | null {
                 ).accomplices?.some((a) => a.id === id),
             ) ||
             new Set(data.plotEvidence).size !== data.plotEvidence.length)) ||
+        (data.alignmentLog !== undefined &&
+          !validAlignmentLog(
+            data.alignmentLog,
+            data.day!,
+            STUDENTS.map((person) => person.id),
+          )) ||
+        (data.classmateArcs !== undefined &&
+          !validClassmateArcs(
+            data.classmateArcs,
+            {
+              seed: data.seed ?? 0,
+              day: data.day!,
+              alignmentLog: data.alignmentLog,
+            },
+            STUDENTS.map((person) => person.id),
+          )) ||
         (data.betrayal !== undefined &&
           (!['active', 'reconciled', 'isolated'].includes(
             data.betrayal.status,

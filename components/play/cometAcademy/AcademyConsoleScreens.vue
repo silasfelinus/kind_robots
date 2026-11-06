@@ -58,6 +58,27 @@
             This early-slice save has no identity stats.
           </p>
         </article>
+        <article
+          v-if="hero.alignment"
+          class="acs-panel"
+          data-testid="academy-alignment-you"
+        >
+          <h3>
+            Alignment track · {{ ALIGNMENT_LABELS[hero.alignment.label] }}
+          </h3>
+          <div class="acs-align" :aria-label="hero.alignment.text">
+            <span>VILLAIN</span>
+            <span class="acs-align-rail"
+              ><i :style="{ left: hero.alignment.position + '%' }"
+            /></span>
+            <span>HERO</span>
+          </div>
+          <p class="acs-dim">{{ hero.alignment.text }}</p>
+          <p class="acs-dim">
+            Moved by night: the calls you lead, the districts you walk and the
+            contracts you hand your crew.
+          </p>
+        </article>
         <article class="acs-panel">
           <h3>Standing</h3>
           <dl class="acs-dl">
@@ -129,6 +150,19 @@
                 :key="n"
                 :class="{ on: n <= person.trust }"
               /><small>TRUST</small>
+            </div>
+            <div
+              v-if="person.alignment"
+              class="acs-align acs-align-small"
+              data-testid="academy-follower-alignment"
+              :aria-label="person.alignment.text"
+            >
+              <span>V</span>
+              <span class="acs-align-rail"
+                ><i :style="{ left: person.alignment.position + '%' }"
+              /></span>
+              <span>H</span>
+              <small>{{ ALIGNMENT_LABELS[person.alignment.label] }}</small>
             </div>
             <ul v-if="person.status.length" class="acs-tags">
               <li v-for="tag in person.status" :key="tag">{{ tag }}</li>
@@ -592,6 +626,7 @@
 import { computed, ref, watch } from 'vue'
 import { useCometAcademyStore } from '~/stores/cometAcademyStore'
 import { promArt } from '~/utils/cometAcademy/artManifest'
+import { ALIGNMENT_LABELS } from '~/utils/cometAcademy/alignmentArcs'
 import {
   CARD_BACKS,
   TEXT_SPEEDS,
@@ -954,6 +989,44 @@ function confirmReset() {
   background: #0d1024cc;
   padding: 0.1rem 0.4rem;
   border-radius: 999px;
+}
+.acs-align {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.62rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+}
+.acs-align > span:first-child {
+  color: #ff8fa3;
+}
+.acs-align > span:nth-child(3) {
+  color: #8fe3ff;
+}
+.acs-align-rail {
+  position: relative;
+  flex: 1;
+  height: 0.35rem;
+  border-radius: 1rem;
+  background: linear-gradient(90deg, #ff8fa3, #ffd27a, #8fe3ff);
+}
+.acs-align-rail i {
+  position: absolute;
+  top: 50%;
+  width: 0.7rem;
+  height: 0.7rem;
+  border-radius: 100%;
+  background: #fff;
+  border: 2px solid #1b1430;
+  transform: translate(-50%, -50%);
+}
+.acs-align-small {
+  margin: 0.3rem 0;
+}
+.acs-align-small small {
+  font-weight: 600;
+  color: #a9cad5;
 }
 .acs-trust {
   display: flex;

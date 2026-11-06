@@ -8,6 +8,7 @@ import {
   COMPLETE_NIGHT_DECK,
   POWERS,
   STUDENTS,
+  alignmentTrackFor,
   knownContacts,
   restoreAcademy,
   socialContextFor,
@@ -15,6 +16,7 @@ import {
   type StudentId,
 } from './rules'
 import { POWER_VOWS, STATS, signatureById } from './specialPowers'
+import type { AlignmentTrack } from './alignmentArcs'
 import {
   PROM_ENDINGS,
   PROM_ENDING_ROUTES,
@@ -176,6 +178,8 @@ export function heroDossier(
   return {
     name: identity?.realName ?? 'Unregistered student',
     pronouns: identity?.pronouns ?? '',
+    /** t-016: the night-by-night hero <-> villain track (30-day terms). */
+    alignment: run.flowVersion === 3 ? alignmentTrackFor(run, 'you') : null,
     alias: persona?.alias ?? 'Rookie',
     focus: persona?.focus ?? field.ability,
     form,
@@ -256,6 +260,8 @@ export type FollowerCard = {
   status: string[]
   chemistry: string | null
   injuredUntil: number | null
+  /** t-016: where this classmate's nights have pushed them. */
+  alignment: AlignmentTrack | null
 }
 
 /** Every person the term can introduce, with their current feelings. People
@@ -298,6 +304,34 @@ export function followerRoster(run: AcademyRun): FollowerCard[] {
       if (triad && arc.pair.includes(person.id))
         status.push(`${arc.title} · ${triad.status}`)
     }
+    const arcs = run.classmateArcs
+    const heel = arcs?.betrayal?.person === person.id ? arcs.betrayal : null
+    if (heel && !heel.outcome)
+      status.push(
+        heel.direction === 'to-villain'
+          ? 'Carrying a second radio'
+          : 'Keeping a notebook about you',
+      )
+    if (heel?.outcome === 'turned')
+      status.push(
+        heel.direction === 'to-villain'
+          ? `Turned to the mastermind on day ${heel.beats[2]!.day}`
+          : `Testified against you on day ${heel.beats[2]!.day}`,
+      )
+    if (heel?.outcome === 'averted')
+      status.push(`Stayed: the turn was stopped on day ${heel.beats[2]!.day}`)
+    const partner =
+      arcs?.accomplice?.person === person.id ? arcs.accomplice : null
+    if (partner && partner.outcome !== 'declined') {
+      const offer = partner.beats[2]
+      status.push(
+        partner.outcome === 'sold-out'
+          ? `Sold you out on day ${offer!.day}`
+          : offer?.choice === 'double'
+            ? `Your double agent inside the mastermind's network`
+            : `Your accomplice since day ${partner.beats[0]!.day}`,
+      )
+    }
     if (betrayed === 'active') status.push('Betrayed the team on day 20')
     if (betrayed === 'reconciled') status.push('Returned under supervision')
     if (betrayed === 'isolated') status.push('Separated from the roster')
@@ -325,6 +359,8 @@ export function followerRoster(run: AcademyRun): FollowerCard[] {
       status,
       chemistry,
       injuredUntil,
+      alignment:
+        run.flowVersion === 3 && met ? alignmentTrackFor(run, person.id) : null,
     }
   })
 }

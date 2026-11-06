@@ -28,8 +28,11 @@
               <span class="@3xl:hidden">Ledger</span>
             </button>
             <span
+              :key="'hp' + (hit?.serial ?? 0)"
               class="rounded-md bg-base-200 px-2 py-1 text-xs font-bold @lg:px-3"
+              :class="hit?.taken ? 'zuzu-hurt-hud' : ''"
               aria-label="Resources"
+              data-testid="zuzu-gamebook-resources"
             >
               <span class="text-error">♥ {{ store.run.health }}/12</span>
               <span class="opacity-40"> · </span>
@@ -48,12 +51,14 @@
               }}</span>
             </span>
             <button
+              ref="sheetToggle"
               type="button"
               class="btn btn-sm"
               :class="showSheet ? 'btn-warning' : 'btn-outline'"
               :aria-expanded="showSheet"
               aria-controls="zuzu-sheet"
-              @click="showSheet = !showSheet"
+              data-testid="zuzu-gamebook-sheet-toggle"
+              @click="showSheet ? closeSheet() : (showSheet = true)"
             >
               <icon name="kind-icon:book-open" class="size-4" /><span
                 class="@3xl:hidden"
@@ -314,10 +319,12 @@
         class="kr-panes mx-auto w-full max-w-[1500px] grid-cols-1 px-3 pb-3 sm:px-6 lg:px-8 lg:pb-5"
         :class="showSheet ? 'lg:grid-cols-[minmax(0,1fr)_20rem]' : ''"
       >
+        <!-- Below lg the sheet slides over the story instead of replacing it;
+             the story stays in view behind it but out of reach until it closes. -->
         <div
           ref="pane"
           class="kr-pane-scroll rounded-2xl"
-          :class="showSheet ? 'hidden lg:block' : ''"
+          :inert="sheetModal && showSheet"
         >
           <article
             class="flex min-h-full flex-col gap-4 md:gap-6"
@@ -528,31 +535,51 @@
                 </section>
                 <div
                   v-else-if="current.battle && store.run.battle"
-                  class="zuzu-battle rounded-xl border border-error/30 bg-base-300 p-4 sm:p-6"
+                  class="zuzu-battle relative rounded-xl border border-error/30 bg-base-300 p-4 sm:p-6"
                 >
-                  <div
-                    class="flex flex-wrap items-center justify-between gap-3"
-                  >
-                    <div>
-                      <p class="text-xs uppercase tracking-[.2em] opacity-60">
-                        CONFRONTATION · ROUND {{ store.run.battle.turn }}
-                      </p>
-                      <h3 class="font-serif text-xl font-bold">
-                        {{ current.battle.name }}
-                      </h3>
-                    </div>
-                    <span class="text-sm font-bold text-error"
-                      >Foe HP {{ store.run.battle.hp }}/{{
-                        current.battle.hp
-                      }}</span
-                    >
-                  </div>
-                  <progress
-                    class="progress progress-error mt-3 w-full"
-                    :value="store.run.battle.hp"
-                    :max="current.battle.hp"
-                    aria-label="Enemy health"
+                  <!-- Hit feedback: the round's blows land on screen for a
+                       moment (remounted per round; still under reduced motion). -->
+                  <span
+                    v-if="battleHit?.taken"
+                    :key="'hurt' + battleHit.serial"
+                    class="zuzu-hurt-flash pointer-events-none absolute inset-0 rounded-xl"
+                    aria-hidden="true"
+                    data-testid="zuzu-gamebook-hurt-flash"
                   />
+                  <div
+                    :key="'round' + (battleHit?.serial ?? 0)"
+                    :class="battleHit?.taken ? 'zuzu-shake' : ''"
+                  >
+                    <div
+                      class="flex flex-wrap items-center justify-between gap-3"
+                    >
+                      <div>
+                        <p class="text-xs uppercase tracking-[.2em] opacity-60">
+                          CONFRONTATION · ROUND {{ store.run.battle.turn }}
+                        </p>
+                        <h3 class="font-serif text-xl font-bold">
+                          {{ current.battle.name }}
+                        </h3>
+                      </div>
+                      <span
+                        class="relative inline-block text-sm font-bold text-error"
+                        :class="battleHit?.dealt ? 'zuzu-hit-foe' : ''"
+                        >Foe HP {{ store.run.battle.hp }}/{{ current.battle.hp
+                        }}<span
+                          v-if="battleHit?.dealt"
+                          class="zuzu-float absolute -top-4 right-0 text-base font-black text-warning"
+                          aria-hidden="true"
+                          >−{{ battleHit.dealt }}</span
+                        ></span
+                      >
+                    </div>
+                    <progress
+                      class="progress progress-error mt-3 w-full"
+                      :value="store.run.battle.hp"
+                      :max="current.battle.hp"
+                      aria-label="Enemy health"
+                    />
+                  </div>
                   <div
                     v-if="battleLog.length"
                     class="mt-3"
@@ -663,135 +690,167 @@
           </article>
         </div>
 
-        <aside
-          v-if="showSheet"
-          id="zuzu-sheet"
-          class="kr-pane-scroll rounded-2xl border border-warning/25 bg-base-200 p-5 shadow-xl"
-        >
-          <div class="flex items-center justify-between">
-            <h2 class="font-serif text-2xl font-bold">The Wanderer</h2>
-            <button
-              class="btn btn-ghost btn-xs"
-              type="button"
-              aria-label="Close character sheet"
-              @click="showSheet = false"
-            >
-              ✕
-            </button>
-          </div>
-          <p class="mt-2 text-sm opacity-70">
-            Zuzu · Koala ronin · Road of Dust
-          </p>
-          <div class="mt-6 grid grid-cols-2 gap-3">
-            <div class="rounded-lg bg-base-300 p-3">
-              <p class="text-xs opacity-60">Health</p>
-              <p class="text-xl font-black text-rose-400">
-                {{ store.run.health }} / 12
-              </p>
-            </div>
-            <div class="rounded-lg bg-base-300 p-3">
-              <p class="text-xs opacity-60">Resolve</p>
-              <p class="text-xl font-black text-sky-400">
-                {{ store.run.resolve }} / 4
-              </p>
-            </div>
-          </div>
-          <p class="mt-2 text-xs opacity-65">
-            Health falls in fights and hard places; at 0 a fight is lost.
-            Resolve pays for special arts.
-          </p>
-          <h3
-            class="mt-6 text-xs font-bold uppercase tracking-[.22em] opacity-60"
+        <!-- t-008: from lg up the sheet is a column beside the story, as before.
+             Below lg it is a modal drawer over a dimmed story: a bottom sheet
+             on phones, a right-hand drawer on tablets. -->
+        <Transition name="zuzu-fade">
+          <div
+            v-if="showSheet && sheetModal"
+            class="absolute inset-0 z-40 bg-black/30 lg:hidden"
+            aria-hidden="true"
+            data-testid="zuzu-gamebook-sheet-backdrop"
+            @click="closeSheet"
+          />
+        </Transition>
+        <Transition name="zuzu-sheet">
+          <aside
+            v-if="showSheet"
+            id="zuzu-sheet"
+            ref="sheet"
+            class="kr-pane-scroll rounded-2xl border border-warning/25 bg-base-200 p-5 shadow-xl max-lg:absolute max-lg:inset-x-0 max-lg:bottom-0 max-lg:z-50 max-lg:max-h-[62svh] max-lg:rounded-b-none max-lg:pb-[max(1.25rem,env(safe-area-inset-bottom))] md:max-lg:inset-y-0 md:max-lg:left-auto md:max-lg:max-h-none md:max-lg:w-[min(24rem,85vw)] md:max-lg:rounded-l-2xl md:max-lg:rounded-r-none"
+            :role="sheetModal ? 'dialog' : undefined"
+            :aria-modal="sheetModal ? 'true' : undefined"
+            aria-labelledby="zuzu-sheet-heading"
+            data-testid="zuzu-gamebook-sheet"
           >
-            Attributes
-          </h3>
-          <dl class="mt-3 space-y-2 text-sm">
             <div
-              v-for="(value, attribute) of store.run.attributes"
-              :key="attribute"
-              class="flex justify-between border-b border-base-content/10 pb-2"
-            >
-              <dt class="capitalize">{{ attribute }}</dt>
-              <dd class="font-bold">+{{ value }}</dd>
+              class="mx-auto -mt-2 mb-3 h-1.5 w-12 rounded-full bg-base-content/25 md:hidden"
+              aria-hidden="true"
+            />
+            <div class="flex items-center justify-between gap-2">
+              <h2 id="zuzu-sheet-heading" class="font-serif text-2xl font-bold">
+                The Wanderer
+              </h2>
+              <button
+                ref="sheetClose"
+                class="btn btn-outline btn-sm lg:btn-ghost lg:btn-xs"
+                type="button"
+                aria-label="Close character sheet"
+                data-testid="zuzu-gamebook-sheet-close"
+                @click="closeSheet"
+              >
+                <span aria-hidden="true">✕</span>
+                <span class="lg:hidden" aria-hidden="true"
+                  >Back to the story</span
+                >
+              </button>
             </div>
-          </dl>
-          <h3
-            class="mt-6 text-xs font-bold uppercase tracking-[.22em] opacity-60"
-          >
-            Equipment and pack · {{ store.run.items.length }}/5
-          </h3>
-          <p class="mt-2 text-xs opacity-70">Kasa · Poncho · Katana (worn)</p>
-          <ul class="mt-3 space-y-2 text-sm">
-            <li
-              v-for="(item, i) of store.run.items"
-              :key="item + i"
-              class="rounded-md border border-base-content/15 p-2"
-              data-testid="zuzu-gamebook-item"
+            <p class="mt-2 text-sm opacity-70">
+              Zuzu · Koala ronin · Road of Dust
+            </p>
+            <div class="mt-6 grid grid-cols-2 gap-3">
+              <div class="rounded-lg bg-base-300 p-3">
+                <p class="text-xs opacity-60">Health</p>
+                <p class="text-xl font-black text-rose-400">
+                  {{ store.run.health }} / 12
+                </p>
+              </div>
+              <div class="rounded-lg bg-base-300 p-3">
+                <p class="text-xs opacity-60">Resolve</p>
+                <p class="text-xl font-black text-sky-400">
+                  {{ store.run.resolve }} / 4
+                </p>
+              </div>
+            </div>
+            <p class="mt-2 text-xs opacity-65">
+              Health falls in fights and hard places; at 0 a fight is lost.
+              Resolve pays for special arts.
+            </p>
+            <h3
+              class="mt-6 text-xs font-bold uppercase tracking-[.22em] opacity-60"
             >
-              <p class="font-semibold">◆ {{ itemInfo(item).name }}</p>
-              <p class="mt-0.5 text-xs opacity-75">{{ itemInfo(item).use }}</p>
-              <p class="mt-0.5 text-xs opacity-60">
-                {{ itemInfo(item).spent }}
+              Attributes
+            </h3>
+            <dl class="mt-3 space-y-2 text-sm">
+              <div
+                v-for="(value, attribute) of store.run.attributes"
+                :key="attribute"
+                class="flex justify-between border-b border-base-content/10 pb-2"
+              >
+                <dt class="capitalize">{{ attribute }}</dt>
+                <dd class="font-bold">+{{ value }}</dd>
+              </div>
+            </dl>
+            <h3
+              class="mt-6 text-xs font-bold uppercase tracking-[.22em] opacity-60"
+            >
+              Equipment and pack · {{ store.run.items.length }}/5
+            </h3>
+            <p class="mt-2 text-xs opacity-70">Kasa · Poncho · Katana (worn)</p>
+            <ul class="mt-3 space-y-2 text-sm">
+              <li
+                v-for="(item, i) of store.run.items"
+                :key="item + i"
+                class="rounded-md border border-base-content/15 p-2"
+                data-testid="zuzu-gamebook-item"
+              >
+                <p class="font-semibold">◆ {{ itemInfo(item).name }}</p>
+                <p class="mt-0.5 text-xs opacity-75">
+                  {{ itemInfo(item).use }}
+                </p>
+                <p class="mt-0.5 text-xs opacity-60">
+                  {{ itemInfo(item).spent }}
+                </p>
+              </li>
+              <li
+                v-for="slot in Math.max(0, 5 - store.run.items.length)"
+                :key="'empty' + slot"
+                class="rounded-md border border-dashed border-base-content/15 p-2 opacity-35"
+              >
+                Empty slot
+              </li>
+            </ul>
+            <h3
+              class="mt-6 text-xs font-bold uppercase tracking-[.22em] opacity-60"
+            >
+              Special arts
+            </h3>
+            <ul class="mt-2 space-y-2 text-sm">
+              <li>
+                <strong>Quiet Draw</strong> · 2 Resolve · in a fight, a Steel
+                roll that cuts for 5 damage
+              </li>
+              <li>
+                <strong>Last Kindness</strong> · 2 Resolve · spend yourself to
+                carry someone through, where the page offers it
+              </li>
+              <li class="opacity-60">
+                <strong>Still Wind</strong> · not yet learned on this road
+              </li>
+            </ul>
+            <h3
+              class="mt-6 text-xs font-bold uppercase tracking-[.22em] opacity-60"
+            >
+              Journal
+            </h3>
+            <p v-if="!store.run.flags.length" class="mt-2 text-sm opacity-75">
+              The road has not yet left its marks.
+            </p>
+            <template v-else>
+              <p v-if="notes.deeds.length" class="mt-2 text-sm">
+                <span class="opacity-60">Deeds:</span>
+                <template v-for="(deed, i) in notes.deeds" :key="deed.text">
+                  <span v-if="i"> · </span>
+                  <span :class="deed.dark ? 'italic text-error' : ''">{{
+                    deed.text
+                  }}</span>
+                </template>
               </p>
-            </li>
-            <li
-              v-for="slot in Math.max(0, 5 - store.run.items.length)"
-              :key="'empty' + slot"
-              class="rounded-md border border-dashed border-base-content/15 p-2 opacity-35"
-            >
-              Empty slot
-            </li>
-          </ul>
-          <h3
-            class="mt-6 text-xs font-bold uppercase tracking-[.22em] opacity-60"
-          >
-            Special arts
-          </h3>
-          <ul class="mt-2 space-y-2 text-sm">
-            <li>
-              <strong>Quiet Draw</strong> · 2 Resolve · in a fight, a Steel roll
-              that cuts for 5 damage
-            </li>
-            <li>
-              <strong>Last Kindness</strong> · 2 Resolve · spend yourself to
-              carry someone through, where the page offers it
-            </li>
-            <li class="opacity-60">
-              <strong>Still Wind</strong> · not yet learned on this road
-            </li>
-          </ul>
-          <h3
-            class="mt-6 text-xs font-bold uppercase tracking-[.22em] opacity-60"
-          >
-            Journal
-          </h3>
-          <p v-if="!store.run.flags.length" class="mt-2 text-sm opacity-75">
-            The road has not yet left its marks.
-          </p>
-          <template v-else>
-            <p v-if="notes.deeds.length" class="mt-2 text-sm">
-              <span class="opacity-60">Deeds:</span>
-              <template v-for="(deed, i) in notes.deeds" :key="deed.text">
-                <span v-if="i"> · </span>
-                <span :class="deed.dark ? 'italic text-error' : ''">{{
-                  deed.text
-                }}</span>
-              </template>
+              <p v-if="notes.debts.length" class="mt-2 text-sm">
+                <span class="opacity-60">Owed by:</span>
+                {{ notes.debts.join(' · ') }}
+              </p>
+              <p v-if="notes.learned.length" class="mt-2 text-sm">
+                <span class="opacity-60">Learned:</span>
+                {{ notes.learned.join(' · ') }}
+              </p>
+            </template>
+            <p class="mt-4 text-xs opacity-60">
+              Sections travelled: {{ store.run.visited.length }} · Endings
+              discovered: {{ store.discovered.length }}
             </p>
-            <p v-if="notes.debts.length" class="mt-2 text-sm">
-              <span class="opacity-60">Owed by:</span>
-              {{ notes.debts.join(' · ') }}
-            </p>
-            <p v-if="notes.learned.length" class="mt-2 text-sm">
-              <span class="opacity-60">Learned:</span>
-              {{ notes.learned.join(' · ') }}
-            </p>
-          </template>
-          <p class="mt-4 text-xs opacity-60">
-            Sections travelled: {{ store.run.visited.length }} · Endings
-            discovered: {{ store.discovered.length }}
-          </p>
-        </aside>
+          </aside>
+        </Transition>
       </div>
     </template>
   </main>
@@ -819,13 +878,55 @@ import {
 } from '~/utils/zuzuGamebook/art'
 import { journal } from '~/utils/zuzuGamebook/journal'
 import { emphasis } from '~/utils/zuzuGamebook/prose'
-import { choiceTerms, itemInfo, moveTerms } from '~/utils/zuzuGamebook/terms'
+import {
+  choiceTerms,
+  itemInfo,
+  moveTerms,
+  noteBeyondRoll,
+} from '~/utils/zuzuGamebook/terms'
 import type { Attribute, Choice } from '~/utils/zuzuGamebook/types'
 import { useZuzuGamebookStore } from '~/stores/zuzuGamebookStore'
 import type { KrHandChoice } from '~/components/narrative/kr-choice-hand.vue'
 
 const store = useZuzuGamebookStore()
 const showSheet = ref(false)
+// Below lg the sheet is a modal drawer over the story (t-008); from lg up it is a column beside it.
+const sheetModal = ref(false)
+const sheet = ref<HTMLElement | null>(null)
+const sheetClose = ref<HTMLElement | null>(null)
+const sheetToggle = ref<HTMLElement | null>(null)
+function closeSheet() {
+  // Focus goes back to the toggle, unless it was somewhere else on a desktop page.
+  const refocus =
+    sheetModal.value || !!sheet.value?.contains(document.activeElement)
+  showSheet.value = false
+  if (refocus) void nextTick(() => sheetToggle.value?.focus())
+}
+watch(showSheet, async (open) => {
+  if (!open || !sheetModal.value) return
+  await nextTick()
+  sheetClose.value?.focus()
+})
+/** Keeps Tab and Shift+Tab inside the open drawer. */
+function trapSheetFocus(event: KeyboardEvent) {
+  const stops = [
+    ...(sheet.value?.querySelectorAll<HTMLElement>(
+      'button:not([disabled]), [href], input, select, textarea, [tabindex]:not([tabindex="-1"])',
+    ) ?? []),
+  ]
+  const first = stops[0]
+  const last = stops[stops.length - 1]
+  if (!first || !last) return
+  const inside = sheet.value?.contains(document.activeElement)
+  if (
+    event.shiftKey
+      ? !inside || document.activeElement === first
+      : !inside || document.activeElement === last
+  ) {
+    event.preventDefault()
+    ;(event.shiftKey ? last : first).focus()
+  }
+}
 const ledgerOpen = ref(false)
 const current = computed(() => scene(store.run.sceneId))
 // t-007: a plate whose file fails to load (a missing render, a partial deploy)
@@ -991,9 +1092,32 @@ const fightReport = computed(() => {
     entries: logEntries(report.rounds, report.foe, report.foeMax),
   }
 })
+// Hit feedback: each round the player fights is shown landing for a moment. Only rounds fought here
+// count, so loading a mid-fight save or a save code replays nothing.
+type Hit = { serial: number; scene: string; dealt: number; taken: number }
+const hit = ref<Hit | null>(null)
+const battleHit = computed(() =>
+  hit.value && hit.value.scene === store.run.sceneId && store.run.battle
+    ? hit.value
+    : null,
+)
+function fightRound(action: BattleAction) {
+  const before = store.run
+  store.battle(action)
+  if (store.run === before) return
+  const rounds = store.run.battle?.rounds ?? store.run.lastFight?.rounds
+  const round = rounds?.[rounds.length - 1]
+  if (round)
+    hit.value = {
+      serial: (hit.value?.serial ?? 0) + 1,
+      scene: before.sceneId,
+      dealt: round.dealt,
+      taken: round.taken,
+    }
+}
 function playMove(card: KrHandChoice) {
   const move = moves.find((entry) => entry.action === card.id)
-  if (move && moveCards.value.includes(card)) store.battle(move.action)
+  if (move && moveCards.value.includes(card)) fightRound(move.action)
 }
 
 const ATTRIBUTE_ICON: Record<Attribute, string> = {
@@ -1028,14 +1152,19 @@ const handChoices = computed<KrHandChoice[]>(() =>
     // Dice odds, Resolve, items and healing read on the card itself, not only in its caption.
     const terms = choiceTerms(store.run, choice, note)
     const details = [...terms.details, ...(risk?.details ?? [])]
+    // The note less the roll the chip already quotes with its odds; what a
+    // failure costs reads on the card's bottom line when that line is free.
+    const rest = noteBeyondRoll(note, check)
+    const shownHint = locked ?? risk?.hint
     return {
       id: choice.id,
       label: title,
       chip:
-        [note, ...terms.chip, risk?.chip].filter(Boolean).join(' · ') ||
-        undefined,
+        [...terms.chip, shownHint ? rest : null, risk?.chip]
+          .filter(Boolean)
+          .join(' · ') || undefined,
       shortcut: index < 9 ? String(index + 1) : undefined,
-      hint: locked ?? risk?.hint,
+      hint: locked ?? risk?.hint ?? rest,
       details: details.length ? details : undefined,
       disabled: !!locked,
       image: destinationPlate(choice),
@@ -1131,11 +1260,17 @@ function onKey(event: KeyboardEvent) {
     if (event.key === 'Escape') ledgerOpen.value = false
     return
   }
+  if (showSheet.value) {
+    if (event.key === 'Escape') {
+      event.preventDefault()
+      closeSheet()
+    } else if (event.key === 'Tab' && sheetModal.value) trapSheetFocus(event)
+    return
+  }
   if (
     event.ctrlKey ||
     event.metaKey ||
     event.altKey ||
-    showSheet.value ||
     store.run.pendingLoot?.length
   )
     return
@@ -1147,7 +1282,7 @@ function onKey(event: KeyboardEvent) {
     const move = moves[n - 1]
     if (!move || (move.action === 'quiet-draw' && store.run.resolve < 2)) return
     event.preventDefault()
-    store.battle(move.action)
+    fightRound(move.action)
     return
   }
   const choice = choices.value[n - 1]
@@ -1157,9 +1292,11 @@ function onKey(event: KeyboardEvent) {
 }
 let shortWideQuery: MediaQueryList | null = null
 let portraitTabletQuery: MediaQueryList | null = null
+let sheetModalQuery: MediaQueryList | null = null
 function syncShortWide(): void {
   shortWide.value = !!shortWideQuery?.matches
   portraitTablet.value = !!portraitTabletQuery?.matches
+  sheetModal.value = !!sheetModalQuery?.matches
 }
 
 onMounted(() => {
@@ -1169,9 +1306,11 @@ onMounted(() => {
   portraitTabletQuery = window.matchMedia(
     '(min-width: 768px) and (orientation: portrait)',
   )
+  sheetModalQuery = window.matchMedia('(max-width: 1023.98px)')
   syncShortWide()
   shortWideQuery.addEventListener('change', syncShortWide)
   portraitTabletQuery.addEventListener('change', syncShortWide)
+  sheetModalQuery.addEventListener('change', syncShortWide)
   store.load()
   window.addEventListener('keydown', onKey)
 })
@@ -1179,6 +1318,7 @@ onBeforeUnmount(() => {
   window.removeEventListener('keydown', onKey)
   shortWideQuery?.removeEventListener('change', syncShortWide)
   portraitTabletQuery?.removeEventListener('change', syncShortWide)
+  sheetModalQuery?.removeEventListener('change', syncShortWide)
 })
 useSeoMeta(
   gameLinkPreviewMeta('zuzu-gamebook', useRuntimeConfig().public.appBaseUrl) ??
@@ -1231,6 +1371,129 @@ useHead({ title: 'Zuzu: Koala Assassin · The Bell That Never Rang' })
   .zuzu-die,
   .zuzu-saved {
     animation: none;
+  }
+}
+
+/* Hit feedback (t-008). A wound shakes the foe's header and flashes the
+   panel edge and the toolbar's hearts; a landed blow pops the foe's HP and
+   floats the damage. Reduced motion keeps only the colour flashes. */
+.zuzu-shake {
+  animation: zuzu-shake 0.42s cubic-bezier(0.36, 0.07, 0.19, 0.97) both;
+}
+@keyframes zuzu-shake {
+  10%,
+  90% {
+    transform: translateX(-1px);
+  }
+  20%,
+  80% {
+    transform: translateX(2px);
+  }
+  30%,
+  50%,
+  70% {
+    transform: translateX(-4px);
+  }
+  40%,
+  60% {
+    transform: translateX(4px);
+  }
+}
+.zuzu-hurt-flash {
+  box-shadow:
+    inset 0 0 0 2px var(--color-error),
+    inset 0 0 32px color-mix(in oklab, var(--color-error) 45%, transparent);
+  animation: zuzu-flash 0.7s ease-out both;
+}
+@keyframes zuzu-flash {
+  0% {
+    opacity: 0;
+  }
+  15% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+.zuzu-hurt-hud {
+  animation: zuzu-hurt-hud 0.7s ease-out;
+}
+@keyframes zuzu-hurt-hud {
+  0%,
+  30% {
+    background-color: color-mix(in oklab, var(--color-error) 40%, transparent);
+  }
+}
+.zuzu-hit-foe {
+  animation: zuzu-hit-foe 0.45s ease-out both;
+}
+@keyframes zuzu-hit-foe {
+  0% {
+    transform: scale(1.3);
+    filter: brightness(1.8);
+  }
+  100% {
+    transform: none;
+    filter: none;
+  }
+}
+.zuzu-float {
+  animation: zuzu-float 0.9s ease-out both;
+}
+@keyframes zuzu-float {
+  0% {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  20% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-14px);
+  }
+}
+
+/* The character sheet below lg: it slides up from the bottom on phones and
+   in from the right on tablets. From lg up it has no transition, so the
+   desktop column appears in place exactly as before. */
+@media (max-width: 1023.98px) {
+  .zuzu-sheet-enter-active,
+  .zuzu-sheet-leave-active {
+    transition: transform 0.28s cubic-bezier(0.2, 0.9, 0.3, 1);
+  }
+  .zuzu-sheet-enter-from,
+  .zuzu-sheet-leave-to {
+    transform: translateY(100%);
+  }
+  .zuzu-fade-enter-active,
+  .zuzu-fade-leave-active {
+    transition: opacity 0.2s ease;
+  }
+  .zuzu-fade-enter-from,
+  .zuzu-fade-leave-to {
+    opacity: 0;
+  }
+}
+@media (min-width: 768px) and (max-width: 1023.98px) {
+  .zuzu-sheet-enter-from,
+  .zuzu-sheet-leave-to {
+    transform: translateX(100%);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .zuzu-shake,
+  .zuzu-hit-foe {
+    animation: none;
+  }
+  .zuzu-float {
+    display: none;
+  }
+  .zuzu-sheet-enter-active,
+  .zuzu-sheet-leave-active {
+    transition: none;
   }
 }
 

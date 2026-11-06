@@ -13,6 +13,7 @@
  * Wave ids start at 6000.
  */
 import {
+  RAINBOW_ALLEGIANCE_BRIDGES,
   RAINBOW_ALLEGIANCE_OPENINGS,
   type RainbowAllegiance,
 } from './rainbowAllegiance'
@@ -399,7 +400,9 @@ export function glassDialogue(
       },
       {
         speaker: wing === lead ? 'Lilt-7' : wing,
-        text: 'The mirror corridor is opening. The palace is right ahead.',
+        text: allegiance
+          ? RAINBOW_ALLEGIANCE_BRIDGES[7][allegiance]
+          : 'The mirror corridor is opening. The palace is right ahead.',
       },
     ],
   }

@@ -46,6 +46,16 @@ assert.match(
 assert.match(hand, /:aria-keyshortcuts="choice\.shortcut"/)
 assert.match(
   hand,
+  /<kbd v-if="choice\.shortcut && !choice\.hint" class="krh-key">[\s\S]*?<em v-if="choice\.hint" class="krh-hint"\s*><span\s*><kbd v-if="choice\.shortcut" class="krh-key krh-key-inline">/,
+  'a hinted card carries its key inside the hint, never over its last line (Zuzu, 2026-11-05)',
+)
+assert.match(
+  hand,
+  /v-for="\(part, i\) in chipParts\(choice\.chip\)"/,
+  'a chip wraps between its " · " parts on a narrow card',
+)
+assert.match(
+  hand,
   /\.krh-hint > span \{[^}]*-webkit-line-clamp: 3/,
   'the hint clamps its text, not its padded box',
 )

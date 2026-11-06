@@ -39,14 +39,22 @@ assert.match(api, /requireAdminApiUser\(event\)/)
 assert.match(api, /viewerShowsMature\(auth\.user\)/)
 assert.match(api, /Cache-Control', 'private, no-store'/)
 
-const page = read('pages/admin/monstress-convention.vue')
+const page = read('pages/admin/monstrique.vue')
 assert.match(page, /caseStore\.authorized && user\.isAdmin && user\.showMature/)
 assert.match(page, /v-if="!mayPlay"/)
 assert.match(page, /<PlaybookKitShell[\s\S]*v-else/)
+assert.match(page, /<MonstrexxFront/)
+assert.match(page, /monstrexxKitId\(user\.user\?\.id \?\? 0\)/)
+for (const legacy of [
+  'pages/admin/monstress-convention.vue',
+  'pages/admin/monstrexx.vue',
+])
+  assert.match(read(legacy), /navigateTo\('\/admin\/monstrique'/)
 const tab = read('content/channels/admin/monstress-convention.md')
 assert.match(tab, /requiredRole: ADMIN/)
 assert.match(tab, /requiredPermission: mature/)
 assert.doesNotMatch(tab, /route: \/play\//)
+assert.match(tab, /route: \/admin\/monstrique/)
 
 const project = read('server/utils/conductorMatureProjects.ts')
 assert.match(project, /monstress-convention/)

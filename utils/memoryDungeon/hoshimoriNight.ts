@@ -783,6 +783,41 @@ export const HOSHIMORI_NIGHT_SITES: readonly NightSite[] = [
       'night-orchard-choice',
     ),
   ),
+
+  s(
+    '5,7',
+    'The Borrowed Table / A Place Without a Name',
+    'At the edge of the orchard a dining table has grown roots. Three chairs face the road; a fourth keeps turning toward anyone who tries to count the people who belong here.',
+    c(
+      'night-table-ask',
+      'Ask the neighbors who is invited, without naming anyone for them',
+      'The neighbors offer a path to the next house, but refuse to turn an invitation into a census.',
+      'night-table-invitation',
+    ),
+    c(
+      'night-table-leave',
+      'Leave the fourth chair free for whoever chooses to arrive',
+      'Char pulls the chair away from the roots. No one has to promise to stay to use the road.',
+      'night-table-choice',
+    ),
+  ),
+  s(
+    '6,7',
+    'The Unclaimed Supper / The Empty Place Setting',
+    'A photograph rests beneath an untouched plate. An Earth supper table is set for three, with a fourth plate squeezed into the corner. The procession demands that Scylla identify the absent guest as proof of a family.',
+    c(
+      'night-supper-ask',
+      'Ask who came to dinner, without guessing who stayed',
+      'Scylla records the question beside the photograph. A place setting is evidence of hospitality, not proof of a permanent household.',
+      'night-supper-question',
+    ),
+    c(
+      'night-supper-hold',
+      'Keep the uncertainty and protect the unknown guest',
+      'Char turns the photograph over. The fourth plate remains visible in memory, but no stranger is assigned a name.',
+      'night-supper-privacy',
+    ),
+  ),
 ]
 
 export const HOSHIMORI_NIGHT_CLUE_SITES = ['1,1', '2,1', '3,1'] as const
@@ -812,6 +847,8 @@ export const HOSHIMORI_NIGHT_SOUTHERN_KEYS = [
   '2,7',
   '3,7',
   '4,7',
+  '5,7',
+  '6,7',
 ] as const
 export const HOSHIMORI_NIGHT_LOWBANK_KEYS = [
   '1,5',
@@ -1095,7 +1132,7 @@ export function restoreHoshimoriNight(value: unknown): NightProgress | null {
 
 export function validateHoshimoriNight(): string[] {
   const errors: string[] = []
-  if (SITES.size !== 44) errors.push('Expected forty-four unique night sites')
+  if (SITES.size !== 46) errors.push('Expected forty-six unique night sites')
   const choiceIds = HOSHIMORI_NIGHT_SITES.flatMap((site) =>
     site.choices.map((choice) => choice.id),
   )
@@ -1135,9 +1172,9 @@ export function validateHoshimoriNight(): string[] {
       }
     }
   }
-  if (reached.size !== 44)
+  if (reached.size !== 46)
     errors.push('A night site requires a blind or sealed crossing')
-  if (!SITES.has('1,4') || SITES.has('6,7'))
+  if (!SITES.has('1,4') || !SITES.has('6,7'))
     errors.push('e08 photo reservations drifted')
   return errors
 }

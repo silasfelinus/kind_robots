@@ -67,6 +67,28 @@ const ATTRIBUTE_NAMES = {
 const signed = (n: number) => (n < 0 ? '- ' + -n : '+ ' + n)
 
 /**
+ * A label's rules note less the roll it restates: the card already quotes that roll with its odds ("Sense 9+ ·
+ * 42%"), so "(Sense · 9; fail: hurt, cornered)" leaves only "Fail: hurt, cornered". A note that names some other
+ * roll than the choice's own check is left whole, and a note with nothing beyond the roll leaves nothing.
+ */
+export function noteBeyondRoll(
+  note: string | undefined,
+  check: Choice['check'],
+): string | undefined {
+  if (!note) return undefined
+  const match = /^(\w+) · (\d+)\s*(?:;\s*(.*))?$/.exec(note.trim())
+  if (!match) return note
+  if (
+    !check ||
+    match[1] !== ATTRIBUTE_NAMES[check.attribute] ||
+    Number(match[2]) !== check.target
+  )
+    return note
+  const rest = (match[3] ?? '').trim().replace(/^failure:/i, 'fail:')
+  return rest ? rest.charAt(0).toUpperCase() + rest.slice(1) : undefined
+}
+
+/**
  * The short chip parts and longer caption lines for a story choice: the roll and its odds, the Resolve it costs,
  * the item it uses or needs, the health it restores and the find it brings. A part the label's own note already
  * names (e.g. "(2 Resolve)") is not repeated in the chip.

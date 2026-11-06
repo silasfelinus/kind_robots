@@ -35,6 +35,7 @@ import {
   itemInfo,
   ITEM_INFO,
   moveTerms,
+  noteBeyondRoll,
 } from '../zuzuGamebook/terms'
 import { emphasis } from '../zuzuGamebook/prose'
 import { CH } from '../zuzuGamebook/sections'
@@ -63,6 +64,7 @@ import {
   type BattleAction,
   type CombatRound,
 } from '../zuzuGamebook/adventure'
+import type { Attribute, Choice } from '../zuzuGamebook/types'
 
 const ids = Object.keys(BOOK)
 assert.ok(ids.length >= 60, 'Book One has substantive scenes')
@@ -2344,6 +2346,127 @@ assert.match(page, /:src="shownPlate\(entry\.art\)"/)
   assert.match(page, /\{\{ itemInfo\(item\)\.use \}\}/)
   assert.match(page, /\{\{ itemInfo\(item\)\.spent \}\}/)
   assert.doesNotMatch(page, /\(planned\)/, 'the sheet promises only real arts')
+
+  // t-008 round 6: a card states its roll once. The label's "(Sense · 9)" note
+  // restated the roll the chip already quotes with its odds.
+  assert.equal(noteBeyondRoll('Sense · 9', choiceCheck('sense', 9)), undefined)
+  assert.equal(
+    noteBeyondRoll(
+      'Shadow · 9; fail: hurt, cornered',
+      choiceCheck('shadow', 9),
+    ),
+    'Fail: hurt, cornered',
+  )
+  assert.equal(
+    noteBeyondRoll('Mercy · 9; failure: cornered', choiceCheck('mercy', 9)),
+    'Fail: cornered',
+  )
+  assert.equal(
+    noteBeyondRoll('Sense · 11', choiceCheck('sense', 9)),
+    'Sense · 11',
+    'a note naming another roll stays whole',
+  )
+  assert.equal(noteBeyondRoll('2 Resolve', undefined), '2 Resolve')
+  assert.equal(noteBeyondRoll(undefined, choiceCheck('steel', 9)), undefined)
+  // Every roll note in the book names its own check, so none is left doubled.
+  let rollNotes = 0
+  for (const node of Object.values(BOOK))
+    for (const choice of node.choices ?? []) {
+      const note = /\(([^()]+)\)\s*$/.exec(choice.label)?.[1]
+      if (!note || !/^\w+ · \d+/.test(note)) continue
+      rollNotes++
+      const rest = noteBeyondRoll(note, choice.check)
+      assert.ok(
+        rest === undefined || !/^\w+ · \d+/.test(rest),
+        node.id + '/' + choice.id + ' note matches its check: ' + note,
+      )
+    }
+  assert.ok(rollNotes > 40, rollNotes + ' roll notes checked')
+  assert.match(
+    page,
+    /const rest = noteBeyondRoll\(note, check\)/,
+    'the page drops the restated roll',
+  )
+  assert.match(
+    page,
+    /\[\.\.\.terms\.chip, shownHint \? rest : null, risk\?\.chip\]/,
+  )
+  assert.match(page, /hint: locked \?\? risk\?\.hint \?\? rest/)
+
+  // Chips wrap between their parts on a narrow card (shared hand).
+  const hand = readFileSync(
+    join(process.cwd(), 'components/narrative/kr-choice-hand.vue'),
+    'utf8',
+  )
+  assert.match(hand, /v-for="\(part, i\) in chipParts\(choice\.chip\)"/)
+  assert.match(hand, /\.krh-title small \{\s*display: flex;\s*flex-wrap: wrap;/)
+
+  // Below lg the character sheet is a modal drawer over the story, not a
+  // replacement for it (t-008 round 6).
+  assert.doesNotMatch(
+    page,
+    /showSheet \? 'hidden lg:block'/,
+    'the sheet no longer hides the reading pane',
+  )
+  assert.match(page, /:inert="sheetModal && showSheet"/)
+  assert.match(page, /window\.matchMedia\('\(max-width: 1023\.98px\)'\)/)
+  const aside = /<aside[\s\S]*?>/.exec(page)?.[0] ?? ''
+  assert.match(aside, /id="zuzu-sheet"/)
+  assert.match(aside, /:role="sheetModal \? 'dialog' : undefined"/)
+  assert.match(aside, /:aria-modal="sheetModal \? 'true' : undefined"/)
+  assert.match(aside, /aria-labelledby="zuzu-sheet-heading"/)
+  assert.match(aside, /max-lg:absolute/, 'a drawer over the page below lg')
+  assert.doesNotMatch(
+    aside,
+    /(?<![\w:-])(?:fixed|absolute)/,
+    'a plain column from lg up',
+  )
+  assert.match(page, /id="zuzu-sheet-heading"/)
+  assert.match(page, /<Transition name="zuzu-sheet">\s*<aside/)
+  assert.match(
+    page,
+    /data-testid="zuzu-gamebook-sheet-backdrop"\s*@click="closeSheet"/,
+  )
+  assert.match(
+    page,
+    /data-testid="zuzu-gamebook-sheet-close"\s*@click="closeSheet"/,
+  )
+  assert.match(page, /data-testid="zuzu-gamebook-sheet-toggle"/)
+  assert.match(
+    page,
+    /if \(showSheet\.value\) \{\s*if \(event\.key === 'Escape'\) \{\s*event\.preventDefault\(\)\s*closeSheet\(\)\s*\} else if \(event\.key === 'Tab' && sheetModal\.value\) trapSheetFocus\(event\)/,
+    'Escape closes the sheet and Tab stays inside it',
+  )
+  assert.match(page, /sheetClose\.value\?\.focus\(\)/, 'focus moves into it')
+  assert.match(page, /sheetToggle\.value\?\.focus\(\)/, 'and back on close')
+  assert.match(
+    page,
+    /@media \(prefers-reduced-motion: reduce\) \{[^@]*\.zuzu-sheet-enter-active,\s*\.zuzu-sheet-leave-active \{\s*transition: none;/,
+  )
+
+  // Hit feedback: a round's blows show on screen, only for rounds fought here.
+  assert.match(
+    page,
+    /if \(move && moveCards\.value\.includes\(card\)\) fightRound\(move\.action\)/,
+  )
+  assert.match(page, /event\.preventDefault\(\)\s*fightRound\(move\.action\)/)
+  assert.doesNotMatch(page, /store\.battle\(move\.action\)/)
+  assert.match(page, /data-testid="zuzu-gamebook-hurt-flash"/)
+  assert.match(page, /:class="battleHit\?\.taken \? 'zuzu-shake' : ''"/)
+  assert.match(page, /:class="battleHit\?\.dealt \? 'zuzu-hit-foe' : ''"/)
+  assert.match(page, /:class="hit\?\.taken \? 'zuzu-hurt-hud' : ''"/)
+  assert.match(
+    page,
+    /@media \(prefers-reduced-motion: reduce\) \{\s*\.zuzu-shake,\s*\.zuzu-hit-foe \{\s*animation: none;\s*\}\s*\.zuzu-float \{\s*display: none;/,
+    'reduced motion keeps only the colour flashes',
+  )
+}
+
+function choiceCheck(
+  attribute: Attribute,
+  target: number,
+): NonNullable<Choice['check']> {
+  return { attribute, target, success: 'x', failure: 'y' }
 }
 
 console.log(

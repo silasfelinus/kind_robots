@@ -458,49 +458,47 @@ onBeforeUnmount(() => navObserver?.disconnect())
 </script>
 
 <style>
-/* ── The Ruler Is Hooked visual system ─────────────────────────────────────
-   Chronicle for the world, Broadside for its documents (t-054, decided
-   2026-11-05): the chrome is vellum, lapis and burnished gold leaf with
-   vermilion rubrics; the court's papers are hand-coloured woodcut pamphlets
-   on rag. Unscoped so every console component shares one vocabulary;
-   everything is namespaced `rh-`. The older plum/parchment names stay as
-   aliases so every screen picks the palette up. */
+/* The Ruler Is Hooked: psychedelic rainbow fantasy with subtle print texture.
+   Keep these legacy token names for sibling components; their values are now
+   chromatic ink and spectrum, not velvet, gold leaf, or parchment. */
 .rh-console {
-  --rh-vellum: #f3e8cc;
-  --rh-vellum-2: #e5d3a6;
-  --rh-ink: #2a1c10;
-  --rh-ink-soft: #5b4732;
-  --rh-gold: #d4a63b;
-  --rh-gold-hi: #f7df8f;
-  --rh-gold-lo: #8a6116;
-  --rh-lapis: #1f3f93;
-  --rh-lapis-deep: #0f1f4d;
-  --rh-vermilion: #c93a1e;
-  --rh-verdigris: #3a8f77;
-  --rh-ochre: #c99532;
-  --rh-order: #6a4fb0;
-  --rh-madder: #9e2b25;
-  --rh-rag: #efe3c6;
-  --rh-woodcut: #1d150d;
+  --rh-plum: #7727dd;
+  --rh-plum-deep: #080d35;
+  --rh-gold: #2beed3;
+  --rh-gold-soft: #ffe75d;
+  --rh-parch: #e9fff5;
+  --rh-parch-shade: #ffdaee;
+  --rh-ink: #10133d;
+  --rh-display: 'Trebuchet MS', 'Arial Rounded MT Bold', system-ui, sans-serif;
+  --rh-body: 'Trebuchet MS', system-ui, sans-serif;
+  /* Names the decay console (t-054) added, mapped onto the rainbow spectrum.
+     Older names (plum, gold, parch) stay for sibling components. */
+  --rh-vellum: var(--rh-parch);
+  --rh-vellum-2: var(--rh-parch-shade);
+  --rh-ink-soft: #3b3f80;
+  --rh-gold-hi: #ffe75d;
+  --rh-gold-lo: #1b1350;
+  --rh-lapis: #2a1f8f;
+  --rh-lapis-deep: #080d35;
+  --rh-vermilion: #ef3db4;
+  --rh-verdigris: #46db80;
+  --rh-ochre: #ffb32b;
+  --rh-order: #a949ea;
+  --rh-madder: #b41663;
+  --rh-rag: var(--rh-parch);
+  --rh-woodcut: var(--rh-ink);
   --rh-soot: 0;
   --rh-fox: 0;
   --rh-gilt: linear-gradient(
-    135deg,
-    var(--rh-gold-lo),
-    var(--rh-gold-hi) 32%,
-    var(--rh-gold) 52%,
-    var(--rh-gold-lo) 78%,
-    var(--rh-gold) 100%
+    90deg,
+    #ef3db4,
+    #ffb32b,
+    #ffe75d,
+    #46db80,
+    #2beed3,
+    #24adea,
+    #a949ea
   );
-  --rh-plum: var(--rh-lapis);
-  --rh-plum-deep: var(--rh-lapis-deep);
-  --rh-gold-soft: var(--rh-gold-hi);
-  --rh-parch: var(--rh-vellum);
-  --rh-parch-shade: var(--rh-vellum-2);
-  --rh-display:
-    'Fraunces', 'Iowan Old Style', 'Palatino Linotype', Palatino,
-    'Book Antiqua', Georgia, serif;
-  --rh-body: 'Alegreya', 'Iowan Old Style', Palatino, Georgia, serif;
 
   container: rhconsole / inline-size;
   position: relative;
@@ -834,50 +832,32 @@ onBeforeUnmount(() => navObserver?.disconnect())
   inset: 0;
 }
 .rh-panel {
-  border-radius: 0.4rem;
-  background:
-    linear-gradient(180deg, rgb(255 255 255 / 0.06), transparent 35%),
-    linear-gradient(180deg, var(--rh-lapis), var(--rh-lapis-deep));
-  border: 1.5px solid var(--rh-gold);
+  border-radius: 1rem;
+  background: linear-gradient(
+    150deg,
+    rgb(33 26 103 / 0.97),
+    rgb(8 13 53 / 0.97)
+  );
+  border: 2px solid var(--rh-gold);
   box-shadow:
-    0 0 0 3px color-mix(in oklab, var(--rh-lapis-deep) 60%, transparent),
-    0 10px 24px rgb(0 0 0 / 0.4);
-  color: #fbeed3;
+    inset 0 0 0 2px rgb(244 64 185 / 0.33),
+    0 8px 22px rgb(0 0 0 / 0.42);
+  color: #f4faff;
 }
 .rh-parchment {
   padding: clamp(0.75rem, 2cqi, 1.25rem);
   border-radius: 0.4rem;
-  background:
-    radial-gradient(
-      circle at 14% 22%,
-      rgb(122 78 28 / calc(var(--rh-fox) * 0.18)),
-      transparent 1.65rem
-    ),
-    radial-gradient(
-      circle at 82% 76%,
-      rgb(122 78 28 / calc(var(--rh-fox) * 0.14)),
-      transparent 1.2rem
-    ),
-    radial-gradient(
-      ellipse at 100% 100%,
-      rgb(28 18 8 / calc(var(--rh-soot) * 0.4)),
-      transparent 60%
-    ),
-    radial-gradient(
-      130% 90% at 50% 0%,
-      rgb(255 251 240 / 0.85),
-      transparent 65%
-    ),
-    linear-gradient(180deg, var(--rh-parch), var(--rh-parch-shade));
+  background: linear-gradient(
+    145deg,
+    rgb(233 255 245 / 0.97),
+    rgb(255 218 238 / 0.97)
+  );
   color: var(--rh-ink);
-  border: 2px solid var(--rh-gold);
+  border: 2px solid #171451;
   box-shadow:
-    inset 0 0 0 1px rgb(255 255 255 / 0.5),
-    inset 0 0 0 4px var(--rh-vellum),
-    inset 0 0 0 5px color-mix(in oklab, var(--rh-vermilion) 55%, transparent),
-    inset 0 0 40px rgb(150 100 40 / 0.18),
-    0 0 0 3px color-mix(in oklab, var(--rh-lapis-deep) 70%, transparent),
-    0 14px 30px rgb(0 0 0 / 0.42);
+    inset 0 0 0 3px rgb(255 255 255 / 0.5),
+    0 0 0 3px rgb(40 223 207 / 0.7),
+    0 12px 26px rgb(0 0 0 / 0.4);
 }
 .rh-eyebrow {
   font-size: 0.72rem;
@@ -916,10 +896,10 @@ onBeforeUnmount(() => navObserver?.disconnect())
   min-height: 2.75rem;
   padding: 0.35rem 1rem;
   border-radius: 0.8rem;
-  background: linear-gradient(180deg, #fffaf0, #ead7ad);
+  background: #e8fff7;
   color: var(--rh-ink);
-  border: 1.5px solid rgb(58 38 22 / 0.45);
-  box-shadow: 0 2px 0 rgb(58 38 22 / 0.35);
+  border: 1.5px solid #151647;
+  box-shadow: 0 2px 0 rgb(24 16 71 / 0.5);
   font-family: var(--rh-display);
   font-weight: 700;
   cursor: pointer;
@@ -944,8 +924,8 @@ onBeforeUnmount(() => navObserver?.disconnect())
   cursor: not-allowed;
 }
 .rh-btn--gold {
-  background: linear-gradient(180deg, #f6cd5c, #c48a24);
-  border-color: #6a3a12;
+  background: #ffe75d;
+  border-color: #1b1350;
   color: var(--rh-plum-deep);
 }
 .rh-btn--big {
@@ -959,7 +939,7 @@ onBeforeUnmount(() => navObserver?.disconnect())
   font-size: 0.85rem;
 }
 .rh-btn--danger {
-  color: #8a1f2e;
+  color: #b41663;
 }
 .rh-input {
   min-height: 3rem;
@@ -967,9 +947,9 @@ onBeforeUnmount(() => navObserver?.disconnect())
   min-width: 0;
   padding: 0.3rem 0.85rem;
   border-radius: 0.7rem;
-  background: #fffaf0;
-  border: 1.5px solid rgb(58 38 22 / 0.4);
-  box-shadow: inset 0 2px 4px rgb(58 38 22 / 0.15);
+  background: #f3fffd;
+  border: 1.5px solid rgb(24 16 71 / 0.6);
+  box-shadow: inset 0 2px 4px rgb(24 16 71 / 0.15);
   color: var(--rh-ink);
   font-family: var(--rh-display);
   font-size: 1.15rem;
@@ -987,7 +967,7 @@ onBeforeUnmount(() => navObserver?.disconnect())
   font-size: 0.75rem;
   font-weight: 800;
   background: rgb(255 255 255 / 0.6);
-  border: 1px solid rgb(58 38 22 / 0.2);
+  border: 1px solid rgb(24 16 71 / 0.25);
 }
 .rh-chip.is-up {
   color: #2f6a22;
@@ -1006,22 +986,22 @@ onBeforeUnmount(() => navObserver?.disconnect())
   border: 1px solid rgb(0 0 0 / 0.2);
 }
 .rh-rarity--common {
-  --rh-gem: #9c927a;
+  --rh-gem: #50699c;
 }
 .rh-rarity--uncommon {
-  --rh-gem: #4f9a6a;
+  --rh-gem: #158b76;
 }
 .rh-rarity--rare {
-  --rh-gem: #3f7fc4;
+  --rh-gem: #245ddd;
 }
 .rh-rarity--epic {
-  --rh-gem: #8a4fc4;
+  --rh-gem: #9c2bdd;
 }
 .rh-rarity--legendary {
-  --rh-gem: #d18a1e;
+  --rh-gem: #c06402;
 }
 .rh-rarity--mythic {
-  --rh-gem: linear-gradient(90deg, #e2566e, #d18a1e, #4f9a6a, #3f7fc4, #8a4fc4);
+  --rh-gem: linear-gradient(90deg, #ef3db4, #ffb32b, #46db80, #24adea, #a949ea);
 }
 .rh-console__sheet {
   left: var(--rh-sheet-left, clamp(0.5rem, 2.5cqi, 2rem));

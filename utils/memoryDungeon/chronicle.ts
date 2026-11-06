@@ -2,7 +2,7 @@
  * Earth photographs form an independent append-only evidence journal.
  *
  * Production authors 32 fixed beats (two per experience). Briar's four
- * photographs, Hoshimori's two warm scenes and the first night scene are collectible. Future entries are
+ * photographs, Hoshimori's two warm scenes and both night scenes are collectible. Future entries are
  * never exposed by a progress counter, locked card, or UI teaser.
  * The protagonist's response is an enduring interpretation, not a retcon
  * of what the camera actually recorded.
@@ -472,6 +472,7 @@ const HOSHIMORI_NIGHT_EARNED_CHOICES: Readonly<
   Record<string, readonly string[]>
 > = {
   '1,4': ['ask-the-colleague', 'honor-the-help'],
+  '6,7': ['night-supper-ask', 'night-supper-hold'],
 }
 const HOSHIMORI_NIGHT_PHOTOS = EARTH_PHOTOS.filter(
   (photo) =>
@@ -626,9 +627,8 @@ export function reconcileHoshimoriEarthChronicle(
 }
 
 /**
- * Only the first e08 photograph is reachable in the authored night district.
+ * Both e08 photographs are reachable through authored night decisions.
  * The caller must supply replay-validated night choices after the e07 gate.
- * e08's second photograph remains locked until its 6,7 scene exists.
  */
 export function reconcileHoshimoriNightEarthChronicle(
   original: EarthChronicle,

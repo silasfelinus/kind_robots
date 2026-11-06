@@ -384,6 +384,29 @@ export function validateWorldOneArtManifest(): string[] {
     if (!ids.has(`house-${room.id}`))
       issues.push(`Missing dungeon art: ${room.id}`)
   }
+  for (const tile of BRIAR_TILES) {
+    const scene = BRIAR_STORY_ATLAS[tile.key]
+    if (!scene) continue
+    const stem = tile.key.replace(',', '-')
+    for (const choice of scene.choices) {
+      if (!ids.has(`briar-${stem}-choice-${choice.id}`))
+        issues.push(`Missing overworld choice art: ${tile.key}/${choice.id}`)
+    }
+  }
+  for (const room of Object.values(HOUSE_ROOMS)) {
+    for (const choice of room.choices) {
+      if (!ids.has(`house-${room.id}-choice-${choice.id}`))
+        issues.push(`Missing dungeon choice art: ${room.id}/${choice.id}`)
+    }
+  }
+  for (const card of WORLD_ONE_GALLERY) {
+    if (!ids.has(card.id))
+      issues.push(`Missing collectible card art: ${card.id}`)
+  }
+  for (const photo of BRIAR_EARTH_PHOTOS) {
+    if (!ids.has(`earth-photo-${photo.order}`))
+      issues.push(`Missing Chronicle photograph art: ${photo.order}`)
+  }
   for (const kind of [
     'card-back',
     'portrait',

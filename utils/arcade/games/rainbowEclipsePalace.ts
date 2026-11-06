@@ -12,6 +12,7 @@
  * before B08 Prism Leviathan. A clean run takes about ten minutes. Wave ids start at 7000.
  */
 import {
+  RAINBOW_ALLEGIANCE_BRIDGES,
   RAINBOW_ALLEGIANCE_OPENINGS,
   type RainbowAllegiance,
 } from './rainbowAllegiance'
@@ -445,7 +446,9 @@ export function palaceDialogue(
       },
       {
         speaker: wing === lead ? 'Lilt-7' : wing,
-        text: "The Crown's heart is open. Whatever we choose next, we choose it together.",
+        text: allegiance
+          ? RAINBOW_ALLEGIANCE_BRIDGES[8][allegiance]
+          : "The Crown's heart is open. Whatever we choose next, we choose it together.",
       },
     ],
   }

@@ -1,20 +1,27 @@
-<!-- The console's painted HUD: title crest + kingdom health on the left,
-     coin / day / time-of-day plaques on the right, and the crown menu
-     (Chronicle, Saves). Sits over the screen's painting, never beside it. -->
+<!-- The console's painted HUD: title crest, five inline realm meters, and
+     coin/day/time plaques share ONE compact top row. The health flyout only
+     appears on narrow viewports when explicitly requested, so a court
+     presenter or illustrated choice is never hidden by the default HUD. -->
 <template>
   <div class="rh-hud">
-    <div class="rh-hud__left">
+    <div class="rh-crest">
+      <span class="rh-crest__title">
+        <span class="rh-crest__the">The</span>
+        Ruler <em>is</em> Hooked
+      </span>
+    </div>
+
+    <div class="rh-hud__health">
       <button
         type="button"
-        class="rh-crest"
+        class="rh-health__compact rh-plaque"
         :aria-expanded="healthOpen"
         aria-controls="rh-health"
+        aria-label="Show kingdom health"
         @click="healthOpen = !healthOpen"
       >
-        <span class="rh-crest__title">
-          <span class="rh-crest__the">The</span>
-          Ruler <em>is</em> Hooked
-        </span>
+        <RulerHookedGlyph name="nature" />
+        <span class="rh-health__compact-label">Realm</span>
       </button>
       <section
         id="rh-health"
@@ -22,12 +29,17 @@
         :class="{ 'is-open': healthOpen }"
         aria-label="Kingdom health"
       >
-        <h2 class="rh-health__title">Kingdom Health</h2>
+        <h2 class="sr-only">Kingdom Health</h2>
         <ul>
           <li
             v-for="axis in axes"
             :key="axis.key"
             :title="`${axis.label}: ${axis.value}%`"
+            role="progressbar"
+            :aria-label="axis.label"
+            :aria-valuenow="axis.value"
+            aria-valuemin="0"
+            aria-valuemax="100"
           >
             <RulerHookedGlyph :name="axis.key" />
             <span class="rh-health__label">{{ axis.label }}</span>
@@ -166,15 +178,20 @@ function pick(screen: 'chronicle' | 'saves' | 'settings') {
 .rh-hud > * {
   pointer-events: auto;
 }
-.rh-hud__left {
+.rh-hud__health {
   display: flex;
-  flex-direction: column;
-  gap: 0.4rem;
-  max-width: min(16rem, 46%);
+  flex: 1 1 auto;
+  min-width: 0;
+  justify-content: center;
+  position: relative;
+}
+.rh-health__compact {
+  display: none !important;
 }
 .rh-hud__right {
   display: flex;
-  flex-wrap: wrap;
+  flex: 0 0 auto;
+  flex-wrap: nowrap;
   justify-content: flex-end;
   gap: 0.35rem;
 }
@@ -190,7 +207,8 @@ function pick(screen: 'chronicle' | 'saves' | 'settings') {
     0 0 0 3px rgb(59 21 48 / 0.55),
     0 6px 14px rgb(0 0 0 / 0.35);
   color: var(--rh-gold-soft);
-  cursor: pointer;
+  flex: 0 1 auto;
+  min-width: 0;
 }
 .rh-crest__title {
   display: block;
@@ -215,47 +233,38 @@ function pick(screen: 'chronicle' | 'saves' | 'settings') {
   color: #fff1c9;
 }
 .rh-health {
-  display: none;
-  padding: 0.55rem 0.7rem 0.65rem;
-  font-size: 0.8rem;
-}
-.rh-health.is-open {
   display: block;
-}
-@container rhconsole (min-width: 900px) {
-  .rh-health {
-    display: block;
-  }
-}
-.rh-health__title {
-  font-family: var(--rh-display);
-  color: var(--rh-gold-soft);
-  text-align: center;
-  font-size: 0.95rem;
-  margin-bottom: 0.35rem;
-  border-bottom: 1px solid rgb(217 164 65 / 0.35);
-  padding-bottom: 0.2rem;
+  width: min(100%, 32rem);
+  padding: 0.45rem 0.65rem;
 }
 .rh-health ul {
   display: grid;
-  gap: 0.3rem;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 0.55rem;
+  align-items: center;
 }
 .rh-health li {
   display: grid;
-  grid-template-columns: auto 1fr auto;
-  grid-template-areas: 'g l v' 'g b b';
-  column-gap: 0.4rem;
+  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-areas: 'g v' 'l l' 'b b';
+  column-gap: 0.15rem;
+  gap: 0.1rem;
   align-items: center;
+  min-width: 0;
   color: #fbeed3;
+  font-size: 0.66rem;
 }
 .rh-health li > :first-child {
   grid-area: g;
-  width: 1.6rem;
-  height: 1.6rem;
+  width: 1rem;
+  height: 1rem;
 }
 .rh-health__label {
   grid-area: l;
-  font-weight: 600;
+  font-weight: 700;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 .rh-health__value {
   grid-area: v;
@@ -264,7 +273,7 @@ function pick(screen: 'chronicle' | 'saves' | 'settings') {
 }
 .rh-health__bar {
   grid-area: b;
-  height: 0.4rem;
+  height: 0.35rem;
   border-radius: 999px;
   background: rgb(0 0 0 / 0.45);
   box-shadow: inset 0 1px 2px rgb(0 0 0 / 0.5);
@@ -275,6 +284,48 @@ function pick(screen: 'chronicle' | 'saves' | 'settings') {
   height: 100%;
   border-radius: inherit;
   transition: width 600ms ease;
+}
+@container rhconsole (max-width: 899px) {
+  .rh-health__compact {
+    display: inline-flex !important;
+  }
+  .rh-health {
+    display: none;
+    position: absolute;
+    top: calc(100% + 0.35rem);
+    left: 0;
+    width: min(28rem, calc(100vw - 1rem));
+    z-index: 31;
+  }
+  .rh-health.is-open {
+    display: block;
+  }
+}
+@container rhconsole (max-width: 560px) {
+  .rh-hud {
+    gap: 0.3rem;
+    padding: 0.35rem;
+  }
+  .rh-crest {
+    padding-inline: 0.4rem;
+  }
+  .rh-crest__title {
+    font-size: 0.8rem;
+  }
+  .rh-plaque {
+    min-height: 2rem;
+    padding: 0.15rem 0.4rem;
+    font-size: 0.74rem;
+  }
+  .rh-health__compact {
+    padding: 0.15rem 0.35rem;
+  }
+  .rh-health__compact-label {
+    display: none;
+  }
+  .rh-hud__right {
+    gap: 0.2rem;
+  }
 }
 .rh-plaque {
   display: inline-flex;

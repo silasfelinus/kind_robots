@@ -1404,6 +1404,52 @@
               <small>{{ report.names }}</small>
               <p>{{ report.text }}</p>
             </article>
+            <div
+              v-if="nightAlignment.length"
+              class="cca-alignment-night"
+              data-testid="academy-alignment-night"
+            >
+              <strong>ALIGNMENT TRACK · NIGHT {{ run.day }}</strong>
+              <span
+                v-for="mark in nightAlignment"
+                :key="mark.actor"
+                :class="'cca-lean-' + mark.lean"
+                >{{ mark.name }} → {{ mark.lean.toUpperCase() }}
+                <small>({{ ALIGNMENT_LABELS[mark.label] }})</small></span
+              >
+            </div>
+            <article
+              v-if="arcBeat"
+              class="cca-report cca-arc-beat"
+              data-testid="academy-arc-beat"
+            >
+              <div>
+                <strong>{{ arcBeat.title }}</strong
+                ><span>{{ arcBeat.kicker }}</span>
+              </div>
+              <small>{{ arcBeat.location }}</small>
+              <p>{{ arcBeat.scene }}</p>
+              <div class="cca-arc-choices">
+                <button
+                  v-for="option in arcBeat.options"
+                  :key="option.id"
+                  type="button"
+                  class="cca-small"
+                  data-testid="academy-arc-choice"
+                  @click="store.arcChoice(option.id)"
+                >
+                  {{ option.label }}
+                </button>
+              </div>
+              <small
+                >Advance without answering and your silence counts as:
+                {{
+                  arcBeat.options.find(
+                    (option) => option.id === arcBeat!.silent,
+                  )?.label
+                }}</small
+              >
+            </article>
             <button
               class="cca-primary"
               type="button"
@@ -1552,6 +1598,7 @@ import { useCometAcademyStore } from '~/stores/cometAcademyStore'
 import { realNightCase } from '~/utils/cometAcademy/nightCases'
 import { expandedMissionFor } from '~/utils/cometAcademy/expandedNightCases'
 import { missionResult } from '~/utils/cometAcademy/missionOffers'
+import { ALIGNMENT_LABELS } from '~/utils/cometAcademy/alignmentArcs'
 import {
   PATROL_ZONES,
   type PatrolZoneId,
@@ -1606,6 +1653,8 @@ import {
   emergencyContact,
   finishAcademy,
   openingNightFriend,
+  pendingArcBeat,
+  tonightsAlignment,
   type StudentId,
 } from '~/utils/cometAcademy/rules'
 import {
@@ -1623,6 +1672,10 @@ const patrolZone = ref<PatrolZoneId>('academy')
 const mapNodes = computed(() => projectCitySites(mapView.value))
 const mapRoads = computed(() => projectedCityRoads(mapView.value))
 const run = computed(() => store.run)
+const arcBeat = computed(() => (run.value ? pendingArcBeat(run.value) : null))
+const nightAlignment = computed(() =>
+  run.value ? tonightsAlignment(run.value) : [],
+)
 const focusedIncidentId = ref<string | null>(null)
 const focusedIncident = computed(
   () =>
@@ -3555,6 +3608,45 @@ function toggleStudent(caseId: string, id: StudentId): void {
   font-size: 0.6rem;
   font-weight: 800;
   color: #ffc392;
+}
+.cca-alignment-night {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem 0.75rem;
+  margin: 0.5rem 0;
+  font-size: 0.72rem;
+}
+.cca-alignment-night strong {
+  width: 100%;
+  letter-spacing: 0.08em;
+  color: #a9cad5;
+}
+.cca-alignment-night small {
+  color: #a9cad5;
+}
+.cca-lean-hero {
+  color: #8fe3ff;
+}
+.cca-lean-villain {
+  color: #ff8fa3;
+}
+.cca-lean-rogue {
+  color: #ffd27a;
+}
+.cca-arc-beat {
+  border: 1px solid #ff8fa366;
+}
+.cca-arc-beat > div > span {
+  font-size: 0.6rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  color: #ff8fa3;
+}
+.cca-arc-choices {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin: 0.5rem 0;
 }
 .cca-final-stats {
   display: flex;

@@ -429,7 +429,7 @@
               <div class="flex flex-col justify-start gap-2 @4xl:shrink-0">
                 <span class="eco-kicker self-start">{{ stage.kicker }}</span>
                 <h2
-                  class="font-serif text-3xl font-black uppercase leading-[.98] drop-shadow-[0_3px_12px_rgba(0,0,0,.6)] @xl:text-4xl @6xl:text-5xl"
+                  class="font-serif text-2xl font-black uppercase leading-tight drop-shadow-[0_3px_12px_rgba(0,0,0,.6)] @xl:text-3xl @6xl:text-3xl"
                 >
                   {{ stage.title }}
                 </h2>
@@ -440,23 +440,34 @@
                 >
                   {{ stage.subtitle }}
                 </p>
-                <div v-if="stage.meet" class="mt-2 flex flex-col gap-2">
-                  <span class="h-0.5 w-full max-w-md bg-[#d9b877]/75" />
-                  <p
-                    class="font-serif text-3xl font-black uppercase tracking-[.08em] @4xl:text-4xl"
-                  >
-                    {{ stage.meet.name }}
-                  </p>
-                  <p
-                    class="text-xs font-bold uppercase tracking-[.22em] text-[#8fb8b0] @4xl:text-sm"
-                  >
-                    {{ stage.meet.role }}
-                  </p>
-                  <p
-                    class="max-w-xl font-serif text-lg leading-snug @4xl:text-xl"
-                  >
-                    {{ stage.meet.line }}
-                  </p>
+                <div
+                  v-if="stage.meet"
+                  class="mt-1 flex items-start gap-3 border-l-2 border-[#d9b877] pl-3"
+                  data-testid="ecotone-companion-dialogue"
+                >
+                  <img
+                    v-if="meetPortrait"
+                    :src="meetPortrait"
+                    :alt="`${stage.meet.name} portrait`"
+                    class="aspect-[2/3] w-20 shrink-0 rounded-lg border border-[#d9b877]/60 object-cover @xl:w-24"
+                  />
+                  <div class="min-w-0">
+                    <p
+                      class="font-serif text-xl font-black uppercase leading-tight @4xl:text-2xl"
+                    >
+                      {{ stage.meet.name }}
+                    </p>
+                    <p
+                      class="mt-1 text-xs font-bold uppercase tracking-widest text-[#8fb8b0]"
+                    >
+                      {{ stage.meet.role }}
+                    </p>
+                    <p
+                      class="mt-2 font-serif text-lg font-semibold leading-snug @4xl:text-xl"
+                    >
+                      {{ stage.meet.line }}
+                    </p>
+                  </div>
                 </div>
               </div>
 
@@ -539,9 +550,17 @@
                     <p
                       class="eco-story-copy whitespace-pre-line font-serif leading-relaxed"
                     >
-                      {{ revealedResult }}
+                      {{ resultPreview }}
                     </p>
                   </div>
+                  <button
+                    v-if="resultHasMore"
+                    type="button"
+                    class="self-start rounded-lg border border-[#d9b877]/50 px-3 py-1.5 text-sm font-bold text-[#d9b877] hover:bg-[#d9b877]/10"
+                    @click="openResultDetail"
+                  >
+                    Read the full scene with artwork
+                  </button>
                   <div
                     v-if="effectChips(pending.effects).length"
                     class="flex flex-wrap gap-1.5"
@@ -795,13 +814,23 @@
                     >
                       {{ stage.lensLine }}
                     </p>
-                    <p
+                    <div
                       v-for="(aside, index) in stage.asides"
                       :key="`aside-${index}`"
-                      class="border-l-2 border-[#e08a5a] pl-3 text-sm"
+                      class="flex items-start gap-2 border-l-2 border-[#e08a5a] pl-3"
                     >
-                      {{ aside }}
-                    </p>
+                      <img
+                        v-if="asidePortrait(aside)"
+                        :src="asidePortrait(aside)!"
+                        alt=""
+                        class="aspect-[2/3] w-14 shrink-0 rounded-md border border-[#e08a5a]/50 object-cover"
+                      />
+                      <p
+                        class="font-serif text-base font-semibold leading-snug @4xl:text-lg"
+                      >
+                        {{ aside }}
+                      </p>
+                    </div>
                     <div
                       v-if="game.run.phase === 'event'"
                       class="flex flex-col gap-2"
@@ -857,14 +886,6 @@
               class="eco-choices relative z-10 flex min-h-0 flex-col gap-3 rounded-xl bg-[#09141c] @4xl:col-start-1 @4xl:row-start-2 @4xl:px-7 @4xl:pb-4 @4xl:pt-2"
               :class="{ 'is-hand': showsHand }"
             >
-              <button
-                v-if="game.canUndo"
-                type="button"
-                class="rounded-lg border border-[#8fb8b0]/60 bg-[#8fb8b0]/15 px-3 py-2 text-base font-bold text-[#f3e6c8] hover:border-[#d9b877]"
-                @click="game.undo()"
-              >
-                ↶ Undo last decision
-              </button>
               <template v-if="pending">
                 <button
                   ref="continueButton"
@@ -1207,14 +1228,6 @@
               >
                 {{ saveNotice }}
               </p>
-              <button
-                v-if="game.canUndo"
-                type="button"
-                class="mt-4 rounded-lg border border-[#d9b877]/60 px-4 py-2 text-base font-bold"
-                @click="rewindDecision"
-              >
-                ↶ Rewind last decision
-              </button>
             </section>
           </div>
         </div>
@@ -1924,6 +1937,47 @@
         <button type="submit">close</button>
       </form>
     </dialog>
+
+    <dialog
+      ref="resultDialog"
+      class="modal"
+      aria-labelledby="ecotone-result-heading"
+    >
+      <div
+        class="modal-box grid max-h-[85dvh] max-w-4xl gap-4 overflow-y-auto border border-[#d9b877]/50 bg-[#0c1a24] p-4 text-[#f3e6c8] @2xl:grid-cols-[minmax(0,40%)_minmax(0,60%)]"
+      >
+        <EcotoneScene
+          :kind="stage.scene"
+          :art="stage.art"
+          :label="stage.alt"
+          class="aspect-[3/2] w-full rounded-xl"
+        />
+        <div class="min-w-0">
+          <p class="eco-label">The full consequence</p>
+          <h3
+            id="ecotone-result-heading"
+            class="mt-1 font-serif text-xl font-black"
+          >
+            {{ stage.title }}
+          </h3>
+          <p
+            class="mt-3 whitespace-pre-line font-serif text-base leading-relaxed"
+          >
+            {{ revealedResult }}
+          </p>
+          <div class="modal-action">
+            <form method="dialog">
+              <button type="submit" class="eco-gold-button">
+                Return to the journey
+              </button>
+            </form>
+          </div>
+        </div>
+      </div>
+      <form method="dialog" class="modal-backdrop">
+        <button type="submit">Close</button>
+      </form>
+    </dialog>
   </div>
 </template>
 
@@ -2074,6 +2128,7 @@ const saveImportInput = ref<HTMLInputElement | null>(null)
 const revealCount = ref(0)
 let revealTimer: ReturnType<typeof setInterval> | null = null
 const continueButton = ref<HTMLButtonElement | null>(null)
+const resultDialog = ref<HTMLDialogElement | null>(null)
 const momentOffer = computed(() =>
   game.run && game.card ? sceneMomentOffer(game.card, game.run) : null,
 )
@@ -2129,11 +2184,6 @@ const TONE_LABEL: Record<MysteryEndingTone, string> = {
   true: 'True',
   bittersweet: 'Bittersweet',
   strange: 'Strange',
-}
-
-function rewindDecision() {
-  game.undo()
-  tab.value = 'road'
 }
 
 function openCase(id: string) {
@@ -2784,6 +2834,19 @@ const revealedResult = computed(() =>
     ? (pending.value?.text ?? '')
     : (pending.value?.text ?? '').slice(0, revealCount.value),
 )
+const resultPreview = computed(() => {
+  const text = revealedResult.value
+  if (text.length <= 410) return text
+  const stop = text.lastIndexOf('. ', 390)
+  const cut = stop >= 200 ? stop + 1 : text.lastIndexOf(' ', 350)
+  return text.slice(0, cut > 0 ? cut : 350).trimEnd() + (stop >= 200 ? '' : '…')
+})
+const resultHasMore = computed(
+  () => revealedResult.value.length > resultPreview.value.length,
+)
+function openResultDetail() {
+  resultDialog.value?.showModal()
+}
 const hasHiddenText = computed(
   () =>
     textSpeed.value !== 'instant' && revealCount.value < storyText.value.length,
@@ -2821,6 +2884,19 @@ const portraitSrc = computed(() =>
     ? ecotoneArtFirst(stage.value.art, artStyle.value)
     : null,
 )
+const meetPortrait = computed(() =>
+  ecotoneArtFirst(
+    COMPANIONS.find((companion) => companion.name === stage.value.meet?.name)
+      ?.art,
+    artStyle.value,
+  ),
+)
+function asidePortrait(line: string): string | null {
+  const speaker = COMPANIONS.find((companion) =>
+    line.startsWith(`${companion.name} `),
+  )
+  return ecotoneArtFirst(speaker?.art, artStyle.value)
+}
 
 type Option = {
   id: string
@@ -2946,8 +3022,10 @@ const options = computed<Option[]>(() => {
       art: [
         outcomeArtKey(card.id, choiceId, 'success'),
         ...(portrait ? [portrait] : []),
+        cardArtKey(card.id),
+        ...(card.art ? [card.art] : []),
       ],
-      sceneFallback: false,
+      sceneFallback: true,
     })
     return contextualOpeningChoices(card, run).map((choice) => {
       const lens = choice.lens
@@ -3074,8 +3152,8 @@ function endingsFor(id: EndingLine) {
 
 <style scoped>
 .eco-story-copy {
-  font-size: calc(1.125rem * var(--eco-text-scale, 1.2));
-  line-height: 1.55;
+  font-size: calc(0.9rem * var(--eco-text-scale, 1.2));
+  line-height: 1.4;
 }
 .eco-choice-main {
   font-size: calc(1rem * var(--eco-text-scale, 1.2));
@@ -3083,7 +3161,7 @@ function endingsFor(id: EndingLine) {
 }
 @container (min-width: 64rem) {
   .eco-story-copy {
-    font-size: calc(1.25rem * var(--eco-text-scale, 1.2));
+    font-size: calc(0.98rem * var(--eco-text-scale, 1.2));
   }
 }
 .eco-pill {
@@ -3131,7 +3209,7 @@ function endingsFor(id: EndingLine) {
   border-radius: 1rem;
   border: 1px solid rgb(201 169 110 / 0.45);
   background: rgb(10 22 31 / 0.92);
-  padding: 1.1rem 1.25rem 1.1rem 1.6rem;
+  padding: 0.8rem 1rem 0.8rem 1.3rem;
   box-shadow: 0 18px 40px rgb(0 0 0 / 0.45);
   backdrop-filter: blur(6px);
 }
@@ -3147,7 +3225,7 @@ function endingsFor(id: EndingLine) {
   border-radius: 1rem;
   border: 1px solid rgb(201 169 110 / 0.45);
   background: rgb(10 22 31 / 0.92);
-  padding: 1rem;
+  padding: 0.75rem;
   box-shadow: 0 18px 40px rgb(0 0 0 / 0.45);
   backdrop-filter: blur(6px);
 }
@@ -3158,7 +3236,7 @@ function endingsFor(id: EndingLine) {
     background: linear-gradient(transparent, #09141c 2.5rem);
     box-shadow: none;
     backdrop-filter: none;
-    padding-bottom: 0;
+    padding-bottom: 0.75rem;
   }
 }
 .eco-choice {

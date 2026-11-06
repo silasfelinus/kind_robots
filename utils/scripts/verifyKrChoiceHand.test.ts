@@ -46,6 +46,16 @@ assert.match(
 assert.match(hand, /:aria-keyshortcuts="choice\.shortcut"/)
 assert.match(
   hand,
+  /<kbd v-if="choice\.shortcut && !choice\.hint" class="krh-key">[\s\S]*?<em v-if="choice\.hint" class="krh-hint"\s*><span\s*><kbd v-if="choice\.shortcut" class="krh-key krh-key-inline">/,
+  'a hinted card carries its key inside the hint, never over its last line (Zuzu, 2026-11-05)',
+)
+assert.match(
+  hand,
+  /v-for="\(part, i\) in chipParts\(choice\.chip\)"/,
+  'a chip wraps between its " · " parts on a narrow card',
+)
+assert.match(
+  hand,
   /\.krh-hint > span \{[^}]*-webkit-line-clamp: 3/,
   'the hint clamps its text, not its padded box',
 )
@@ -271,6 +281,35 @@ assert.doesNotMatch(
 assert.doesNotMatch(
   read('components/EmperorFortressDialogue.vue'),
   /eod-hand-art/,
+)
+assert.match(
+  read('components/EmperorFortressDialogue.vue'),
+  /image: choice.image/,
+  'Emperor audiences must pass painted scene art to the shared card hand',
+)
+assert.doesNotMatch(
+  read('components/EmperorFortressDialogue.vue'),
+  /ANSWER_GLYPHS|icon: blocked/,
+  'Emperor choices must not fall back to interchangeable heraldic glyphs',
+)
+assert.match(
+  read('components/EmperorFortressThrone.vue'),
+  /audienceChoiceImages\(/,
+  'the throne must provide a painted option for each audience answer',
+)
+const emperorAudienceArt = read(
+  'utils/emperorOfDust/fortress/audienceChoiceArt.ts',
+)
+for (const choice of ['blame', 'evidence', 'ask-knife', 'ask-tokens']) {
+  assert.ok(
+    emperorAudienceArt.includes(`d22-blame:${choice}`),
+    `the Ford court decision ${choice} needs its own illustrated art candidates`,
+  )
+}
+assert.match(
+  emperorAudienceArt,
+  /exported.has\(asset\)/,
+  'queued audience images may not appear as exported artwork before review',
 )
 assert.doesNotMatch(
   read('pages/play/comet-city-academy.vue'),

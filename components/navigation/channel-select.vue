@@ -14,8 +14,8 @@
           ? 'rounded-xl hover:bg-base-200'
           : 'h-10 rounded-xl border border-base-300 bg-base-100 shadow-sm hover:-translate-y-0.5 hover:shadow-md sm:h-11 sm:min-h-11 xl:h-14 xl:min-h-14'
       "
-      :title="`Navigate workspace — current tab ${activeTab?.label || activeChannel.label}`"
-      :aria-label="`Navigate workspace — current tab ${activeTab?.label || activeChannel.label}`"
+      :title="`Navigate workspace — ${currentPageTitle}`"
+      :aria-label="`Navigate workspace — ${currentPageTitle}`"
       aria-haspopup="menu"
       @click="openChannelMenu"
       @focus="scheduleChannelMenuViewportUpdate"
@@ -29,8 +29,19 @@
         />
       </span>
 
-      <span class="kr-text-black-sm min-w-0 truncate sm:text-base xl:text-lg">
-        {{ activeTab?.label || activeChannel.label }}
+      <span class="flex min-w-0 flex-1 flex-col justify-center leading-tight">
+        <span class="kr-text-black-sm truncate sm:text-base xl:text-lg">
+          <span v-if="isSlimeCityPage" class="slime-nav-title"
+            >SLIME <strong>CITY</strong></span
+          >
+          <template v-else>{{ currentPageTitle }}</template>
+        </span>
+        <span
+          v-if="currentPageSubtitle && !isSlimeCityPage"
+          class="truncate text-[0.65rem] text-base-content/60 xl:text-xs"
+        >
+          {{ currentPageSubtitle }}
+        </span>
       </span>
 
       <Icon
@@ -64,6 +75,23 @@
           scrollbarGutter: 'stable',
         }"
       >
+        <section
+          class="mb-2 rounded-xl border border-primary/25 bg-primary/10 p-2"
+          aria-label="Current page"
+        >
+          <p
+            class="kr-text-eyebrow text-[0.65rem] tracking-widest text-primary"
+          >
+            Now visiting
+          </p>
+          <p class="kr-text-black-base truncate">{{ currentPageTitle }}</p>
+          <p
+            v-if="currentPageSubtitle"
+            class="line-clamp-2 text-xs text-base-content/65"
+          >
+            {{ currentPageSubtitle }}
+          </p>
+        </section>
         <section
           v-for="channel in visibleChannels"
           :key="channel.channelKey"
@@ -214,6 +242,29 @@
           }"
           :aria-label="previewedChannel.label + ' destinations'"
         >
+          <section
+            class="mb-2 flex min-w-0 items-center gap-2 rounded-xl border border-primary/25 bg-primary/10 px-3 py-2"
+            aria-label="Current page"
+          >
+            <Icon
+              :name="activeTab?.icon || activeChannel.icon"
+              class="h-5 w-5 shrink-0 text-primary"
+            />
+            <div class="min-w-0 flex-1">
+              <p
+                class="kr-text-eyebrow text-[0.6rem] tracking-widest text-primary"
+              >
+                Now visiting
+              </p>
+              <p class="kr-text-black-sm truncate">{{ currentPageTitle }}</p>
+              <p
+                v-if="currentPageSubtitle"
+                class="truncate text-xs text-base-content/70"
+              >
+                {{ currentPageSubtitle }}
+              </p>
+            </div>
+          </section>
           <button
             type="button"
             class="group relative mb-3 flex h-28 w-full items-end overflow-hidden rounded-2xl border border-base-300 bg-gradient-to-br from-primary/40 via-secondary/30 to-accent/40 text-left shadow-md lg:h-32 xl:h-40"
@@ -425,6 +476,9 @@ const LAUNCHER_MIN_WIDTH = 480
 const LAUNCHER_MAX_WIDTH = 1760
 
 const route = useRoute()
+const isSlimeCityPage = computed(
+  () => route.path === '/play/slime-city' || route.path === '/admin/slime-city',
+)
 const router = useRouter()
 const pageStore = usePageStore()
 const channelContentStore = useChannelContentStore()
@@ -519,6 +573,27 @@ const activeTab = computed<ResolvedTab | null>(() => {
     null
   )
 })
+
+const currentPageTitle = computed(() =>
+  pageStore.describesPath(route.path)
+    ? pageStore.title ||
+      activeTab.value?.title ||
+      activeTab.value?.label ||
+      activeChannel.value.label
+    : activeTab.value?.title ||
+      activeTab.value?.label ||
+      activeChannel.value.title ||
+      activeChannel.value.label,
+)
+const currentPageSubtitle = computed(() =>
+  pageStore.describesPath(route.path)
+    ? pageStore.tabMessage ||
+      activeTab.value?.subtitle ||
+      pageStore.subtitle ||
+      activeTab.value?.summary ||
+      ''
+    : activeTab.value?.subtitle || activeTab.value?.summary || '',
+)
 
 const previewedChannel = computed<ResolvedChannel | null>(() => {
   const channels = visibleChannels.value
@@ -780,6 +855,23 @@ function closeDropdown(): void {
 </script>
 
 <style scoped>
+/* The navigator, not the battle stage, owns the one Slime City wordmark. */
+.slime-nav-title {
+  color: #f7fbfd;
+  display: inline-block;
+  font-size: clamp(0.86rem, 1.2vw, 1.24rem);
+  font-style: italic;
+  font-weight: 1000;
+  letter-spacing: -0.075em;
+  line-height: 1;
+  white-space: nowrap;
+  text-shadow: 0 0 12px #9cfd4763;
+}
+.slime-nav-title strong {
+  color: #c7ff55;
+  font: inherit;
+}
+
 .kr-launcher {
   animation: kr-launcher-in 180ms ease-out both;
   transform-origin: top left;

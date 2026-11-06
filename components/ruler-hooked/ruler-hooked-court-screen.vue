@@ -87,7 +87,7 @@
           v-else-if="store.pendingEnding"
           class="rh-parchment rh-scroll rh-ending"
         >
-          <p class="rh-scroll__ribbon">The end of a reign</p>
+          <p class="rh-scroll__ribbon">A possible finale</p>
           <RulerHookedArt
             class="rh-ending__art"
             :candidates="endingCandidates(store.pendingEnding)"
@@ -95,16 +95,21 @@
           />
           <h2 class="rh-title rh-title--big">{{ endingTitle }}</h2>
           <p class="rh-scroll__body">{{ endingBody }}</p>
+          <p class="rh-scroll__body">
+            Your choices have unlocked a possible conclusion to this reign.
+            Ending the story closes this save for fishing and new decrees. You
+            can also continue ruling; this finale will not interrupt you again.
+          </p>
           <div class="rh-actions">
             <button
               type="button"
               class="rh-btn rh-btn--gold"
               @click="store.acceptEnding()"
             >
-              Accept this ending
+              Conclude this reign
             </button>
             <button type="button" class="rh-btn" @click="keepFishing">
-              Keep fishing
+              Continue this reign
             </button>
           </div>
         </article>

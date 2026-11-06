@@ -25,6 +25,12 @@ import {
 import { campaignConversationFor } from '../utils/slimeCity/campaignDialogue'
 import { campaignAftermathFor } from '../utils/slimeCity/campaignAftermath'
 import {
+  applyBattlefield,
+  campaignBattlefield,
+  describeBattlefield,
+  OBJECTIVE_LABELS,
+} from '../utils/slimeCity/campaignBattlefields'
+import {
   unlockModeOf,
   type SlimeCityStory,
   type StoryMode,
@@ -136,8 +142,8 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
     return net.value.fetcher<T>(url, options)
   }
   const view = ref<
-    'city' | 'arena' | 'alleys' | 'cards' | 'campaign' | 'rewards'
-  >('city')
+    'city' | 'arena' | 'alleys' | 'clash' | 'cards' | 'campaign' | 'rewards'
+  >('clash')
   const activeTeam = ref<TeamId>('catgirls')
   const enemyTeam = ref<TeamId>('bloodfairies')
   const mode = ref<ModeId>('blackout')
@@ -478,6 +484,30 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
   const activeChapter = computed(() =>
     campaignChapter(campaignSave.value, activeTeam.value),
   )
+  /** The next chapter's authored battlefield and its plain-words rules. */
+  const chapterField = computed(() => {
+    if (!activeChapter.value) return null
+    const field = campaignBattlefield(
+      activeTeam.value,
+      campaignSave.value[activeTeam.value].wins,
+    )
+    return field
+      ? {
+          ...field,
+          label: OBJECTIVE_LABELS[field.objective],
+          lines: describeBattlefield(field),
+          // TURF story bouts have no bases or fighters to rebuild.
+          applies: storyBout('blackout').mode !== 'turf',
+        }
+      : null
+  })
+  /** The battlefield of the campaign bout being fought, if it was rebuilt. */
+  const boutField = computed(() => {
+    const current = campaignBout.value
+    if (!current || mode.value === 'turf') return null
+    const field = campaignBattlefield(current.team, current.index)
+    return field ? { ...field, label: OBJECTIVE_LABELS[field.objective] } : null
+  })
   const campaignFinale = computed(() =>
     campaignEnding(campaignSave.value, activeTeam.value),
   )
@@ -1072,7 +1102,7 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
     rules.value = format.rules
     enemyTeam.value = chapter.foe
     seed.value = rollSeed()
-    match.value = applyTerms(
+    const termed = applyTerms(
       createMatch(format.mode, teamId, chapter.foe, seed.value, rules.value),
       campaignBattleTerms(
         campaignSave.value,
@@ -1083,6 +1113,9 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
         campaignFavorIndex.value,
       ),
     )
+    // The chapter's own battlefield goes down last (a no-op in TURF).
+    const field = campaignBattlefield(teamId, campaignSave.value[teamId].wins)
+    match.value = field ? applyBattlefield(termed, field) : termed
     selectedCard.value = null
     selectedUnit.value = null
     previewOpen.value = false
@@ -1174,9 +1207,9 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
   }
 
   function startDistrictMatch(): void {
-    view.value = 'arena'
-    reset()
-    if (!guideSeen.has(mode.value)) openGuide()
+    // Story district practice now opens the canonical CLASH rules.
+    // The old Arena battle simulator is available explicitly under Legacy.
+    view.value = 'clash'
   }
 
   function chooseCard(id: string): void {
@@ -1377,6 +1410,8 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
     selectCampaignFavor,
     activeChapter,
     campaignFinale,
+    chapterField,
+    boutField,
     campaignDistrict,
     campaignAtDestination,
     plan,

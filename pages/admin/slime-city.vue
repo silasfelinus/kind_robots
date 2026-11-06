@@ -8,12 +8,6 @@
       <header-page-bar console-theme="slime-city">
         <div class="sc-header" data-testid="slime-city-header">
           <div
-            class="sc-brand"
-            title="Kind Robots / Combat Systems Lab 001 — working title"
-          >
-            <div class="sc-wordmark">SLIME <span>CITY</span></div>
-          </div>
-          <div
             class="sc-crew-picker"
             role="group"
             aria-label="Choose your crew"
@@ -42,28 +36,22 @@
               />
             </button>
           </div>
-          <nav class="sc-tabs" aria-label="Laboratory views">
+          <nav class="sc-tabs" aria-label="Slime City modes">
+            <button
+              type="button"
+              class="sc-main-mode"
+              :class="{ active: lab.view === 'clash' }"
+              data-testid="slime-clash-tab"
+              @click="lab.view = 'clash'"
+            >
+              CLASH
+            </button>
             <button
               type="button"
               :class="{ active: lab.view === 'city' }"
               @click="lab.showCity()"
             >
               CITY
-            </button>
-            <button
-              type="button"
-              :class="{ active: lab.view === 'arena' }"
-              @click="lab.view = 'arena'"
-            >
-              ARENA
-            </button>
-            <button
-              type="button"
-              :class="{ active: lab.view === 'alleys' }"
-              data-testid="slime-alleys-tab"
-              @click="lab.view = 'alleys'"
-            >
-              ALLEYS
             </button>
             <button
               type="button"
@@ -75,19 +63,27 @@
             </button>
             <button
               type="button"
-              :class="{ active: lab.view === 'cards' }"
+              :class="{
+                active: lab.view === 'cards' || lab.view === 'rewards',
+              }"
+              data-testid="slime-collection-tab"
               @click="lab.showCards()"
             >
-              CARDS
+              COLLECTION
             </button>
-            <button
-              type="button"
-              :class="{ active: lab.view === 'rewards' }"
-              data-testid="slime-rewards-tab"
-              @click="lab.showRewards()"
+            <select
+              class="sc-legacy-select"
+              aria-label="Legacy battle formats"
+              data-testid="slime-legacy-toggle"
+              :value="
+                lab.view === 'arena' || lab.view === 'alleys' ? lab.view : ''
+              "
+              @change="openLegacy"
             >
-              REWARDS
-            </button>
+              <option value="" disabled>LEGACY ▾</option>
+              <option value="arena">ARENA</option>
+              <option value="alleys">FIVE ALLEYS</option>
+            </select>
           </nav>
           <div
             class="sc-hud"
@@ -280,6 +276,7 @@
 
         <SlimeCityCampaign v-else-if="lab.view === 'campaign'" />
         <SlimeCityArena v-else-if="lab.view === 'arena'" />
+        <SlimeCityClash v-else-if="lab.view === 'clash'" />
         <SlimeCityAlleys v-else-if="lab.view === 'alleys'" />
 
         <section
@@ -287,6 +284,22 @@
           class="sc-stage sc-collection"
           aria-label="Special cards and creature collection"
         >
+          <div class="sc-collection-nav" aria-label="Collection sections">
+            <button type="button" class="active" aria-current="page">
+              YOUR CARDS
+            </button>
+            <button
+              type="button"
+              data-testid="slime-rewards-tab"
+              @click="lab.showRewards()"
+            >
+              BOUNTIES &amp; REWARDS
+            </button>
+            <span
+              >LEVEL {{ lab.level }} · {{ lab.progress.cards.length }} /
+              {{ lab.collectionSize }} OWNED</span
+            >
+          </div>
           <div
             class="sc-deck-workbench"
             :class="'tone-' + lab.team.color"
@@ -394,10 +407,11 @@
               <b>HOW TO BEAT THEM</b> {{ lab.team.counters }}
             </p>
             <p class="sc-art-summary" data-testid="slime-art-provenance">
-              {{ SLIME_CITY_ART_COUNT }} RENDERED IDS ·
-              {{ art.loadedCount }} VERIFIED IN BROWSER ·
-              {{ art.failedCount }} UNAVAILABLE · 24 STARTER CARDS STILL NEED
-              ART
+              {{ mappedCardArtCount }} CARD IMAGE IDS MAPPED /
+              {{ lab.collectionSize }} ·
+              {{ lab.collectionSize - mappedCardArtCount }} UNMAPPED ·
+              {{ art.loadedCount }} ACTUALLY LOADED ·
+              {{ art.failedCount }} FAILED TO LOAD
             </p>
           </details>
           <ul
@@ -438,16 +452,27 @@
           aria-label="Slime City progression and card packs"
           data-testid="slime-progression"
         >
+          <div class="sc-collection-nav" aria-label="Collection sections">
+            <button
+              type="button"
+              data-testid="slime-gallery-tab"
+              @click="lab.showCards()"
+            >
+              YOUR CARDS
+            </button>
+            <button type="button" class="active" aria-current="page">
+              BOUNTIES &amp; REWARDS
+            </button>
+            <span>LEVEL {{ lab.level }} · {{ lab.progress.meat }} MEAT</span>
+          </div>
           <div class="sc-progression-top">
             <div>
-              <span class="sc-overline"
-                >THE GUTTER EXCHANGE / VIRTUAL-ONLY ECONOMY</span
-              >
-              <h2>FIGHT. EARN. COLLECT.</h2>
+              <span class="sc-overline">YOUR COLLECTION · BOUNTIES</span>
+              <h2>THE PIT PAYS</h2>
               <p>
-                All six ten-card starter decks stay available. Your XP, Meat,
-                owned cards, and challenges are saved to your Kind Robots
-                account.
+                Earn XP and Meat in account-backed legacy reward bouts; Clash
+                battles remain practice-only until its reward engine is
+                validated.
               </p>
             </div>
             <div class="sc-progress-hud">
@@ -474,8 +499,14 @@
               :class="{ 'is-single': lab.unlockMode !== 'trickle' }"
             >
               <div class="sc-reward-panel">
-                <span class="sc-overline">THE PIT PAYS</span>
-                <strong>VS CPU BOUNTIES</strong>
+                <SlimeCityArtwork
+                  class="sc-bounty-art"
+                  :image-id="slimeArtId('crews', lab.activeTeam)"
+                  :alt="lab.team.name + ' bounty crew artwork'"
+                  :fallback="lab.team.insignia"
+                  compact
+                />
+                <strong>VS CPU BOUNTIES · LEGACY</strong>
                 <p>
                   Victory: 80 XP + 45 Meat. Draw: 35 XP + 15 Meat. Loss: 25 XP +
                   10 Meat. Base payouts for the first 10 completed bouts per
@@ -492,7 +523,7 @@
                   :disabled="lab.progressBusy || !lab.progressLoaded"
                   @click="lab.startCpuBattle()"
                 >
-                  START REWARDED CPU BATTLE →
+                  PLAY LEGACY REWARD MATCH →
                 </button>
                 <small aria-live="polite">{{
                   lab.progressError || lab.progress.lastReward
@@ -621,11 +652,16 @@ import { computed, onMounted, onUnmounted } from 'vue'
 import { cardById, type Card } from '~/utils/slimeCity/prototypes'
 import { STREETS } from '~/utils/slimeCity/city'
 import { useSlimeCityStore } from '~/stores/slimeCity'
-import { slimeArtId, SLIME_CITY_ART_COUNT } from '~/utils/slimeCity/artManifest'
+import { slimeArtId, SLIME_CITY_ART } from '~/utils/slimeCity/artManifest'
 import { useSlimeCityArtStore } from '~/stores/slimeCityArt'
 
 const lab = useSlimeCityStore()
 const art = useSlimeCityArtStore()
+const mappedCardArtCount = Object.keys(SLIME_CITY_ART.cards).length
+function openLegacy(event: Event): void {
+  const value = (event.target as HTMLSelectElement).value
+  if (value === 'arena' || value === 'alleys') lab.view = value
+}
 
 const hereName = computed(
   () => lab.districts.find((d) => d.id === lab.city.location)?.name ?? 'here',
@@ -824,6 +860,67 @@ onUnmounted(() => {
   font-weight: 900;
   letter-spacing: 0.12em;
   color: #afb8c5;
+}
+.sc-tabs .sc-main-mode {
+  background: #c5ff59;
+  color: #142016;
+  font-weight: 950;
+}
+.sc-tabs .sc-legacy-toggle {
+  opacity: 0.8;
+  border: 1px solid #60727c55;
+}
+.sc-tabs .sc-legacy-select {
+  flex: none;
+  appearance: auto;
+  min-width: 5.7rem;
+  padding: 0.37rem 0.5rem;
+  border: 1px solid #566478;
+  border-radius: 0.4rem;
+  color: #d4dfd8;
+  background: #192332;
+  font-size: 0.66rem;
+  font-weight: 850;
+  letter-spacing: 0.065em;
+  cursor: pointer;
+}
+.sc-tabs .sc-legacy-select:focus-visible {
+  outline: 2px solid #c5ff59;
+}
+.sc-collection-nav {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.45rem 0.65rem;
+  border-bottom: 1px solid #44585c;
+  background: #101f29;
+}
+.sc-collection-nav button {
+  border: 1px solid #586e68;
+  border-radius: 0.35rem;
+  padding: 0.45rem 0.75rem;
+  background: #24383b;
+  font-size: 0.74rem;
+  font-weight: 850;
+}
+.sc-collection-nav button.active {
+  background: #c5ff59;
+  border-color: #c5ff59;
+  color: #0d211b;
+}
+.sc-collection-nav span {
+  margin-left: auto;
+  font-size: 0.65rem;
+  color: #a9ddca;
+}
+.sc-bounty-art {
+  flex: none;
+  width: 100%;
+  height: clamp(80px, 13vh, 156px);
+  border-radius: 0.45rem;
+}
+.sc-bounty-art :deep(img) {
+  object-position: center 35%;
 }
 .sc-tabs button.active {
   background: #c5ff59;

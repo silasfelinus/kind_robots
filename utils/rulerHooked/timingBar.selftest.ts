@@ -117,4 +117,32 @@ const RARITIES: Rarity[] = [
   assert.ok(a.quality > 0.99, 'dead-center stop is near-perfect quality')
 }
 
+// A successful stop should not let players memorize one target location.
+// A fish darts to a different interval on subsequent beats, consistently
+// for the same replay state. Stronger rarities sweep faster and leave less
+// room to land in the luminous current.
+{
+  const state = {
+    family: 'STANDARD_TENSION' as const,
+    rarity: 'UNCOMMON' as const,
+  }
+  const positions = Array.from(
+    { length: 7 },
+    (_, beat) => timingProfileFor({ ...state, beat }).bandStart,
+  )
+  assert.ok(
+    new Set(positions).size >= 3,
+    'the target zone shifts across the fight',
+  )
+  const replay = Array.from(
+    { length: 7 },
+    (_, beat) => timingProfileFor({ ...state, beat }).bandStart,
+  )
+  assert.deepEqual(
+    positions,
+    replay,
+    'target changes must remain deterministic',
+  )
+}
+
 console.log('timingBar.selftest.ts: all assertions passed')

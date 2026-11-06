@@ -252,7 +252,7 @@
         <div
           class="shrink-0 border-t border-base-content/10 px-3 py-2 text-xs opacity-75"
         >
-          Forty night sites are playable. Twenty-four more sites and the
+          Forty-six night sites are playable. Eighteen more sites and the
           transformed Oven remain unfinished.
         </div>
       </div>

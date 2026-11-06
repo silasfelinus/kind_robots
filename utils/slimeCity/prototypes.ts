@@ -209,6 +209,8 @@ export interface Trap {
   damage: number
   roots?: boolean
   debt?: number
+  /** Campaign set piece (t-009): armed before round one, outside the cap. */
+  set?: boolean
 }
 
 /** One recorded input. Replaying these from createMatch rebuilds a match. */
@@ -314,6 +316,17 @@ export interface MatchState {
   jammed: Record<Side, number>
   /** PARITY: free (faction-bonus) plays used this turn. */
   freePlays: Record<Side, number>
+  /**
+   * Campaign HOLD OUT objective (t-009): at the round limit the player wins
+   * if their base still stands and their flag is not in rival hands, instead
+   * of the healthier base winning.
+   */
+  holdout?: boolean
+  /**
+   * Campaign HEIST objective (t-009): the rival base cannot be damaged and
+   * the bell goes to the rival, so only carrying their flag home wins.
+   */
+  heist?: boolean
 }
 
 export interface ArenaFlag {
@@ -2005,6 +2018,11 @@ export function trapCapOf(state: MatchState, side: Side): number {
   return state.mode === 'turf' ? Math.max(TURF_TRAP_CAP, cap) : cap
 }
 
+/** Traps a side armed from its hand (campaign set pieces do not count). */
+function cardTraps(state: MatchState, side: Side): number {
+  return state.traps.filter((t) => t.side === side && !t.set).length
+}
+
 /**
  * Put a side in mana debt. The turn formats take it out of the next refill
  * (at most DEBT_CAP); BLOODRUSH banks mana, so it is taken from the bank now.
@@ -2140,6 +2158,33 @@ function addFighter(
   return fighter
 }
 
+/**
+ * Campaign set pieces (t-009): put a fighter on the board before round one,
+ * outside either hand. A veteran may strike in the first round.
+ */
+export function placeFighter(
+  state: MatchState,
+  cardId: string,
+  side: Side,
+  x: number,
+  y: number,
+  options: { stance?: Stance; veteran?: boolean } = {},
+): Fighter | null {
+  if (
+    x < 0 ||
+    y < 0 ||
+    x >= state.width ||
+    y >= state.height ||
+    unitAt(state, x, y) ||
+    (state.monster && state.monster.x === x && state.monster.y === y)
+  )
+    return null
+  const fighter = addFighter(state, cardId, side, x, y)
+  if (options.stance) fighter.stance = options.stance
+  if (options.veteran) fighter.summonedRound = 0
+  return fighter
+}
+
 function shuffledCells(
   cells: { x: number; y: number }[],
   seed: number,
@@ -2210,7 +2255,7 @@ function chooseCpuDiscards(state: MatchState): void {
           : BLACKOUT_MANA_GAIN),
   )
   const creatures = state.units.filter((unit) => unit.side === side).length
-  const traps = state.traps.filter((trap) => trap.side === side).length
+  const traps = cardTraps(state, side)
   const ordered = state.hands.enemy
     .map(cardById)
     .filter(
@@ -2534,7 +2579,8 @@ function applyDeploy(
     side === 'enemy' && state.mode === 'blackout' && !!state.rules.classicFog
   let line: string
   if (card.kind === 'creature') {
-    if (target || !inDeployZone(state, side, x)) return false
+    if (target || monsterAt(state, x, y) || !inDeployZone(state, side, x))
+      return false
     if (autoBattle(state) && flagSquare(state, x, y)) return false
     if (
       state.units.filter((u) => u.side === side).length >=
@@ -2563,11 +2609,7 @@ function applyDeploy(
     // would tell you where it is.
     if (state.traps.some((t) => t.side === side && t.x === x && t.y === y))
       return false
-    if (
-      state.traps.filter((t) => t.side === side).length >=
-      trapCapOf(state, side)
-    )
-      return false
+    if (cardTraps(state, side) >= trapCapOf(state, side)) return false
     const trap: Trap = { x, y, side, damage: card.power ?? 2 }
     if (card.roots) trap.roots = true
     if (card.debt) trap.debt = card.debt
@@ -2906,7 +2948,10 @@ export function observe(state: MatchState, side: Side): MatchView {
       FIELD_CAP[state.mode] -
         (side === 'enemy' ? (state.scenarioBonus?.fewerRivals ?? 0) : 0),
     ),
-    trapCap: trapCapOf(state, side),
+    // The view lists every own trap, set pieces too: lift the cap to match.
+    trapCap:
+      trapCapOf(state, side) +
+      state.traps.filter((t) => t.side === side && t.set).length,
     mana: manaOf(state, side),
     opponentMana: manaOf(state, other(side)),
     debt: [state.debt[side], state.debt[other(side)]],
@@ -3613,6 +3658,15 @@ function clash(state: MatchState): void {
       unit.hp++
   for (const side of ['enemy', 'player'] as Side[]) {
     if (!siege[side]) continue
+    if (side === 'enemy' && state.heist) {
+      message(
+        state,
+        'The vault walls shrug off ' +
+          siege[side] +
+          ' damage. Only their flag will do.',
+      )
+      continue
+    }
     state.bases[side] = Math.max(0, state.bases[side] - siege[side])
     state.stats.baseDamage += siege[side]
     message(
@@ -3694,6 +3748,14 @@ function checkEnd(state: MatchState): void {
     }
   }
   if (state.round >= state.maxRounds) {
+    if ((state.holdout || state.heist) && autoBattle(state)) {
+      // A base that fell would have ended the bout already: at the bell a
+      // HOLD OUT has survived unless its flag is in rival hands, and a HEIST
+      // has run out of time.
+      const held = state.holdout && state.flags.player.carrier === null
+      finish(state, held ? 'player' : 'enemy', 'time')
+      return
+    }
     const lanes = state.mode === 'gridiron'
     const arena = autoBattle(state)
     // Arena: the healthier base wins on the clock, then the healthier crew.

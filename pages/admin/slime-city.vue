@@ -648,7 +648,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, onUnmounted, ref } from 'vue'
+import { computed, onMounted, onUnmounted } from 'vue'
 import { cardById, type Card } from '~/utils/slimeCity/prototypes'
 import { STREETS } from '~/utils/slimeCity/city'
 import { useSlimeCityStore } from '~/stores/slimeCity'

@@ -134,13 +134,13 @@ assert.equal(
   null,
 )
 const sequelFlags = [
-  ['cushion-recall', 'ashdock-protected'],
-  ['foundry-strike', 'sesh-ferried'],
-  ['serendipity-last-call', 'serendipity-neutral'],
-  ['twins-summit', 'courtesy-simultaneous'],
+  ['cushion-recall', 8, 'ashdock-protected'],
+  ['foundry-strike', 8, 'sesh-ferried'],
+  ['serendipity-last-call', 7, 'serendipity-neutral'],
+  ['twins-summit', 8, 'courtesy-simultaneous'],
 ] as const
-for (const [missionId, flag] of sequelFlags) {
-  assert.ok(destinationFollowup({ ...windglass, worldFlags: [flag] }, missionId))
+for (const [missionId, chapter, flag] of sequelFlags) {
+  assert.ok(destinationFollowup({ ...windglass, chapter, worldFlags: [flag] }, missionId))
   assert.equal(destinationFollowup(windglass, missionId), null)
 }
 const starChart = readFileSync(

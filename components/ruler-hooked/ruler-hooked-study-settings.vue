@@ -99,7 +99,10 @@
           <span aria-hidden="true">🐼</span>
           <span>
             <strong>Animals &amp; their names</strong>
-            <small>Guess the Mandarin name, then open its picture and word history.</small>
+            <small
+              >Guess the Mandarin name, then open its picture and word
+              history.</small
+            >
           </span>
         </label>
       </fieldset>

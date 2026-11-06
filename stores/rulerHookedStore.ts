@@ -11,6 +11,7 @@ import {
   advanceAfterFishingAttempt,
   takeTurn,
   eligibleEnding,
+  dismissedFinaleFlag,
 } from '~/utils/rulerHooked/loop'
 import {
   resolveChoice,
@@ -318,7 +319,12 @@ export const useRulerHookedStore = defineStore('rulerHooked', () => {
   }
 
   function declineEnding() {
+    if (!save.value || !pendingEnding.value) return
+    const next = cloneSave(save.value)
+    next.flags[dismissedFinaleFlag(pendingEnding.value)] = true
+    save.value = next
     pendingEnding.value = null
+    persist()
   }
 
   /** Mark this reign's opening as seen (t-028) -- skip or finish both call this. */

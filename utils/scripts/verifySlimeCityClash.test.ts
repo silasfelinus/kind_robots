@@ -51,15 +51,18 @@ function fourPasses(input: ClashState): ClashState {
   return s
 }
 
-const adminPage = readFileSync('pages/admin/slime-city.vue', 'utf8')
-assert.match(
-  adminPage,
+// The real Play route must expose Clash to guests and ordinary players.
+// /admin/slime-city.vue is a shared game component, not an admin access gate.
+const playPage = readFileSync('pages/play/slime-city.vue', 'utf8')
+const gamePage = readFileSync('pages/admin/slime-city.vue', 'utf8')
+assert.match(playPage, /<SlimeCityGame \/>/)
+assert.match(gamePage, /data-testid="slime-clash-tab"/)
+assert.match(gamePage, /<SlimeCityClash v-else-if="lab\.view === 'clash'"/)
+assert.doesNotMatch(
+  gamePage,
   /v-if="user\.isAdmin"[\s\S]*data-testid="slime-clash-tab"/,
 )
-assert.match(
-  adminPage,
-  /<SlimeCityClash v-else-if="lab\.view === 'clash' && user\.isAdmin"/,
-)
+assert.doesNotMatch(gamePage, /Clash[^\n]*user\.isAdmin/)
 
 const a = createClash('catgirls', 'ironjaw', 42)
 const b = createClash('catgirls', 'ironjaw', 42)

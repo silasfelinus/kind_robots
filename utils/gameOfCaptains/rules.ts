@@ -720,8 +720,12 @@ export function seededMission(run: VoyageRun): string {
   )
   // A remembered promise has three chances in four to become the next call.
   // The fourth stays fully seeded so the wider circuit never disappears.
-  if (threads.length && roll % 4 !== 0)
-    return threads[Math.floor(roll / 4) % threads.length]!.id
+  if (threads.length) {
+    if (roll % 4 !== 0)
+      return threads[Math.floor(roll / 4) % threads.length]!.id
+    const openRoll = hash(run.seed, `open-call:${run.chapter}:${history}`)
+    return available[openRoll % available.length]!.id
+  }
   return available[roll % available.length]!.id
 }
 

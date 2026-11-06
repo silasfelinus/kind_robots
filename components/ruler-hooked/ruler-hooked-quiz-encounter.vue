@@ -127,8 +127,9 @@
           @play="pick"
         />
         <p class="rh-quiz__note">
-          Choose correctly to land this fish. Mandarin answers reveal a word guide
-          before the catch. A mistake brings another question, not a lost catch.
+          Choose correctly to land this fish. Mandarin answers reveal a word
+          guide before the catch. A mistake brings another question, not a lost
+          catch.
         </p>
       </div>
     </template>
@@ -144,7 +145,9 @@ const props = defineProps<{ encounter: SimpleFishingEncounter }>()
 const quiz = useRulerHookedQuizStore()
 const tutor = useMandarinTutorStore()
 const mandarinLesson = computed(() =>
-  quiz.currentMandarinCard ? tutor.lessonFor(quiz.currentMandarinCard.key) : null,
+  quiz.currentMandarinCard
+    ? tutor.lessonFor(quiz.currentMandarinCard.key)
+    : null,
 )
 
 const moduleLabel = computed(() => {

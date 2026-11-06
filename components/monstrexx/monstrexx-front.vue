@@ -579,10 +579,21 @@
                   unlockedMoments
                 }}/{{ spec.moments.length }})
               </button>
+              <button
+                type="button"
+                :aria-pressed="scrapTab === 'albums'"
+                @click="scrapTab = 'albums'"
+              >
+                <Icon name="kind-icon:music" class="size-4" /> Albums (7)
+              </button>
             </div>
             <div class="mx-scrap-content">
               <PlaybookKitCast v-if="scrapTab === 'people'" :spec="spec" />
-              <PlaybookKitScrapbook v-else :spec="spec" />
+              <PlaybookKitScrapbook
+                v-else-if="scrapTab === 'moments'"
+                :spec="spec"
+              />
+              <MonstriqueAlbumArchive v-else />
             </div>
             <p class="mx-small-note">
               More celebrity profiles and illustrated keepsakes will unlock as
@@ -619,7 +630,7 @@ const story = useMonstressConventionStore()
 const kit = usePlaybookKitStore()
 const spec = MONSTRESS_CONVENTION
 const confirming = ref(false)
-const scrapTab = ref<'people' | 'moments'>('people')
+const scrapTab = ref<'people' | 'moments' | 'albums'>('people')
 const closeButton = ref<HTMLButtonElement | null>(null)
 const currentLocation = computed(() => HOTEL_ROOMS[story.state.room].label)
 const unlockedMoments = computed(

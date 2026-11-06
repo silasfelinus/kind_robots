@@ -1,0 +1,1238 @@
+/* /assets/css/cthulhuquarium-console.css
+ * The Cthulhuquarium console's shared materials (cthulhuquarium/t-098),
+ * loaded by components/cthulhuquarium/cthulhuquarium-game.vue and used by the
+ * room components rendered inside it. Every rule is scoped under .cq-game.
+ */
+/* Shared console materials (cthulhuquarium/t-098), used by the room
+   components rendered inside the game: smoked glass on the water, gilt
+   hairlines, lacquered plaques, coin prices and the rarity language
+   (Common bone, Uncommon verdigris, Rare sea-blue, Epic violet, Legendary
+   amber, Mythic oxblood and gold). */
+.cq-game {
+  --cq-bone: #e9dfc8;
+  --cq-brass: #c49a52;
+  --cq-brass-hi: #ecd08e;
+  --cq-brass-lo: #6f5428;
+  --cq-verdigris: #5fa892;
+  --cq-seaglass: #8fe6d4;
+  --cq-amber: #f0b25a;
+  --cq-oxblood: #7a2429;
+  --cq-smoke: rgb(8 30 34 / 0.72);
+  --cq-serif:
+    'Iowan Old Style', 'Palatino Linotype', Palatino, 'Book Antiqua',
+    'URW Palladio L', Georgia, serif;
+  --cq-sans:
+    'Gill Sans', 'Gill Sans MT', 'Segoe UI', 'Trebuchet MS', 'Noto Sans',
+    system-ui, sans-serif;
+}
+.cq-game :is(button, a, summary, [tabindex]):focus-visible {
+  outline: 2px solid var(--cq-seaglass);
+  outline-offset: 2px;
+}
+.cq-game [data-rarity] {
+  --cq-rarity: #d9cfb6;
+  --cq-rarity-ink: #1d1a14;
+}
+.cq-game [data-rarity='uncommon'] {
+  --cq-rarity: #5fa892;
+  --cq-rarity-ink: #0c1d18;
+}
+.cq-game [data-rarity='rare'] {
+  --cq-rarity: #5b8fc7;
+  --cq-rarity-ink: #0b1626;
+}
+.cq-game [data-rarity='epic'] {
+  --cq-rarity: #9a7ad1;
+  --cq-rarity-ink: #170f26;
+}
+.cq-game [data-rarity='legendary'] {
+  --cq-rarity: #e3a33f;
+  --cq-rarity-ink: #241505;
+}
+.cq-game [data-rarity='mythic'] {
+  --cq-rarity: #9c2f35;
+  --cq-rarity-ink: #f3d58e;
+}
+.cq-game .cq-rarity-seal {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.1rem 0.55rem;
+  border-radius: 0.3rem;
+  background: var(--cq-rarity, #d9cfb6);
+  box-shadow:
+    0 0 0 1px rgb(0 0 0 / 0.55),
+    inset 0 1px 0 rgb(255 255 255 / 0.3);
+  color: var(--cq-rarity-ink, #1d1a14);
+  font-family: var(--cq-serif);
+  font-size: 0.66rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+.cq-game [data-rarity='mythic'] .cq-rarity-seal,
+.cq-game .cq-rarity-seal[data-rarity='mythic'] {
+  box-shadow:
+    0 0 0 1px #e3a33f,
+    0 0 10px rgb(227 163 63 / 0.35);
+}
+.cq-game .cq-rarity-seal-lg {
+  padding: 0.25rem 0.75rem;
+  font-size: 0.78rem;
+}
+.cq-game .cq-shelf-empty {
+  padding: 1rem;
+  color: rgb(233 223 200 / 0.75);
+  font-family: var(--cq-serif);
+  font-style: italic;
+}
+
+/* Plaques and prices */
+.cq-game .cq-plaque-title {
+  overflow: hidden;
+  color: var(--cq-bone);
+  font-family: var(--cq-serif);
+  font-size: 1rem;
+  font-weight: 700;
+  line-height: 1.15;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.cq-game .cq-plaque-text {
+  display: -webkit-box;
+  min-height: 2.6em;
+  overflow: hidden;
+  color: rgb(233 223 200 / 0.78);
+  font-family: var(--cq-serif);
+  font-size: 0.76rem;
+  font-style: italic;
+  line-height: 1.3;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+.cq-game .cq-price {
+  display: inline-flex;
+  min-height: 2.75rem;
+  align-items: center;
+  align-self: center;
+  gap: 0.35rem;
+  padding: 0 1.05rem 0 0.35rem;
+  border: 1px solid var(--cq-brass);
+  border-radius: 999px;
+  background: linear-gradient(180deg, #2c2518 0%, #14100a 100%);
+  box-shadow:
+    inset 0 1px 0 rgb(236 208 142 / 0.25),
+    0 3px 8px rgb(0 0 0 / 0.5);
+  color: #f3d58e;
+  font-family: var(--cq-sans);
+  font-size: 0.98rem;
+  font-weight: 800;
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
+}
+.cq-game .cq-price:hover:not(:disabled) {
+  border-color: var(--cq-seaglass);
+  box-shadow:
+    0 0 0 1px var(--cq-seaglass),
+    0 0 14px rgb(143 230 212 / 0.35);
+}
+.cq-game .cq-price:disabled {
+  cursor: not-allowed;
+  filter: grayscale(0.6);
+  opacity: 0.55;
+}
+.cq-game .cq-price-done {
+  padding: 0 1rem;
+  color: var(--cq-verdigris);
+}
+.cq-game .cq-price-coin {
+  height: 1.75rem;
+  width: 1.75rem;
+}
+.cq-game .cq-plate-button {
+  display: inline-flex;
+  min-height: 2.75rem;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0 1rem;
+  border: 1px solid var(--cq-brass);
+  border-radius: 0.6rem;
+  background: linear-gradient(180deg, #2b3133 0%, #151a1c 100%);
+  box-shadow:
+    inset 0 1px 0 rgb(236 208 142 / 0.2),
+    0 3px 8px rgb(0 0 0 / 0.45);
+  color: var(--cq-bone);
+  font-family: var(--cq-serif);
+  font-weight: 600;
+}
+.cq-game .cq-plate-button:hover:not(:disabled) {
+  border-color: var(--cq-seaglass);
+  color: #e4fbf6;
+}
+.cq-game .cq-plate-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.45;
+}
+.cq-game .cq-plate-button-quiet {
+  border-color: rgb(196 154 82 / 0.45);
+  background: rgb(12 18 20 / 0.85);
+}
+.cq-game .cq-plate-price {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.2rem;
+  color: #f3d58e;
+  font-family: var(--cq-sans);
+  font-size: 0.85rem;
+  font-weight: 800;
+}
+.cq-game .cq-plate-price .cq-price-coin {
+  height: 1.2rem;
+  width: 1.2rem;
+}
+.cq-game .cq-market-switch {
+  display: inline-flex;
+  gap: 0.2rem;
+  padding: 0.2rem;
+  border: 1px solid var(--cq-brass-lo);
+  border-radius: 999px;
+  background: rgb(8 14 16 / 0.86);
+  box-shadow: 0 4px 12px rgb(0 0 0 / 0.45);
+}
+.cq-game .cq-switch-button {
+  display: inline-flex;
+  min-height: 2.5rem;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0 0.95rem;
+  border-radius: 999px;
+  color: rgb(233 223 200 / 0.78);
+  font-family: var(--cq-serif);
+  font-weight: 600;
+}
+.cq-game .cq-switch-button[aria-selected='true'] {
+  background: linear-gradient(180deg, #b6efe2 0%, #67c3af 100%);
+  box-shadow: 0 0 12px rgb(143 230 212 / 0.35);
+  color: #0b1a1a;
+}
+.cq-game .cq-switch-count {
+  font-family: var(--cq-sans);
+  font-size: 0.72rem;
+  opacity: 0.75;
+}
+.cq-game .cq-speech {
+  position: relative;
+  margin: 0;
+  padding: 0.6rem 0.95rem 0.5rem;
+  border: 1px solid var(--cq-brass);
+  border-radius: 0.9rem;
+  background: rgb(10 18 20 / 0.9);
+  box-shadow:
+    inset 0 0 0 3px rgb(10 18 20 / 0.9),
+    inset 0 0 0 4px rgb(196 154 82 / 0.28),
+    0 8px 20px rgb(0 0 0 / 0.5);
+  color: var(--cq-bone);
+}
+.cq-game .cq-speech blockquote {
+  font-family: var(--cq-serif);
+  font-size: clamp(0.82rem, 1.3cqi, 1.05rem);
+  font-style: italic;
+  line-height: 1.35;
+}
+.cq-game .cq-speech figcaption {
+  margin-top: 0.25rem;
+  color: var(--cq-brass-hi);
+  font-size: 0.64rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+/* Market */
+.cq-game .cq-market-room {
+  display: grid;
+  height: 100%;
+  min-height: 0;
+  grid-template-rows: minmax(7rem, 1fr) auto auto;
+  gap: 0.35rem;
+}
+.cq-game .cq-market-scene {
+  position: relative;
+  min-height: 0;
+}
+.cq-game .cq-keeper {
+  position: absolute;
+  bottom: 0;
+  left: 56%;
+  height: 112%;
+  max-width: 46%;
+  object-fit: contain;
+  object-position: bottom;
+  filter: drop-shadow(0 12px 18px rgb(0 0 0 / 0.65)) saturate(0.92);
+  transform: translateX(-50%);
+}
+.cq-game .cq-keeper-wilbur {
+  left: 62%;
+}
+.cq-game .cq-counter {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  height: 17%;
+  min-height: 1.6rem;
+  border-top: 3px solid var(--cq-brass);
+  border-radius: 0.4rem 0.4rem 0 0;
+  background:
+    repeating-linear-gradient(
+      90deg,
+      rgb(255 255 255 / 0.025) 0 3px,
+      transparent 3px 11px
+    ),
+    linear-gradient(180deg, #4b3322 0%, #2a1c12 35%, #150e09 100%);
+  box-shadow:
+    0 -8px 20px rgb(0 0 0 / 0.55),
+    inset 0 1px 0 var(--cq-brass-hi);
+}
+.cq-game .cq-speech-market {
+  position: absolute;
+  z-index: 3;
+  top: 20%;
+  left: 3%;
+  max-width: min(24rem, 44%);
+}
+.cq-game .cq-speech-market::after {
+  content: '';
+  position: absolute;
+  top: 38%;
+  right: -9px;
+  height: 16px;
+  width: 16px;
+  border-top: 1px solid var(--cq-brass);
+  border-right: 1px solid var(--cq-brass);
+  background: rgb(10 18 20 / 0.95);
+  transform: rotate(45deg);
+}
+.cq-game .cq-market-scene .cq-market-switch {
+  position: absolute;
+  z-index: 3;
+  top: 0;
+  left: 0;
+}
+.cq-game .cq-market-note {
+  position: absolute;
+  z-index: 3;
+  bottom: calc(17% + 0.4rem);
+  left: 0.2rem;
+  display: flex;
+  max-width: 50%;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.2rem 0.65rem;
+  border-radius: 999px;
+  background: rgb(8 14 16 / 0.82);
+  color: rgb(233 223 200 / 0.8);
+  font-family: var(--cq-serif);
+  font-size: 0.74rem;
+  font-style: italic;
+}
+.cq-game .cq-market-earned {
+  color: #f3d58e;
+  font-style: normal;
+}
+.cq-game .cq-market-warning {
+  padding: 0.35rem 0.8rem;
+  border: 1px solid var(--cq-amber);
+  border-radius: 0.7rem;
+  background: rgb(122 36 41 / 0.55);
+  color: var(--cq-bone);
+  font-size: 0.78rem;
+  font-weight: 700;
+}
+.cq-game .cq-pedestal-shelf {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 0.3rem;
+}
+.cq-game .cq-shelf-nav {
+  display: grid;
+  height: 2.75rem;
+  width: 2.4rem;
+  place-items: center;
+  border: 1px solid var(--cq-brass-lo);
+  border-radius: 0.55rem;
+  background: #11171a;
+  color: var(--cq-brass-hi);
+}
+.cq-game .cq-shelf-nav:hover {
+  border-color: var(--cq-seaglass);
+}
+.cq-game .cq-pedestal-row {
+  display: flex;
+  gap: 0.7rem;
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding: 0.3rem 0.2rem 0.5rem;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: thin;
+}
+.cq-game .cq-pedestal {
+  display: flex;
+  min-width: 0;
+  flex: 0 0 clamp(9.5rem, calc((100% - 2.8rem) / 5), 15rem);
+  flex-direction: column;
+  scroll-snap-align: start;
+}
+.cq-game .cq-pedestal-stage {
+  position: relative;
+  height: clamp(6.5rem, 13cqi, 9.5rem);
+}
+.cq-game .cq-pedestal-plinth {
+  position: absolute;
+  right: 4%;
+  bottom: -0.15rem;
+  left: 4%;
+  height: 2.6rem;
+  width: 92%;
+}
+.cq-game .cq-pedestal-creature,
+.cq-game .cq-pedestal-object {
+  position: absolute;
+  bottom: 1.3rem;
+  left: 50%;
+  height: calc(100% - 1.4rem);
+  aspect-ratio: 1;
+  transform: translateX(-50%);
+  filter: drop-shadow(0 8px 10px rgb(0 0 0 / 0.6));
+}
+.cq-game .cq-pedestal-object {
+  height: calc(100% - 2.4rem);
+  border: 2px solid var(--cq-brass);
+  border-radius: 0.6rem;
+  object-fit: cover;
+}
+.cq-game .cq-pedestal-stage .cq-rarity-seal {
+  position: absolute;
+  top: 0.15rem;
+  right: 0.1rem;
+}
+.cq-game .cq-pips {
+  position: absolute;
+  top: 0.3rem;
+  right: 0.2rem;
+  display: flex;
+  gap: 0.2rem;
+}
+.cq-game .cq-pips > span {
+  height: 0.55rem;
+  width: 0.55rem;
+  border: 1px solid var(--cq-brass);
+  border-radius: 999px;
+  background: #0b1012;
+}
+.cq-game .cq-pips > .cq-pip-on {
+  background: var(--cq-amber);
+  box-shadow: 0 0 6px rgb(240 178 90 / 0.6);
+}
+.cq-game .cq-plaque {
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  gap: 0.25rem;
+  padding: 0.5rem 0.55rem 0.55rem;
+  border: 1px solid var(--cq-brass-lo);
+  border-top: 2px solid var(--cq-rarity, var(--cq-brass));
+  border-radius: 0.5rem;
+  background: linear-gradient(180deg, #1d2426 0%, #0f1516 100%);
+  box-shadow:
+    inset 0 0 0 1px rgb(196 154 82 / 0.22),
+    0 6px 14px rgb(0 0 0 / 0.45);
+  text-align: center;
+}
+
+/* Creatures */
+.cq-game .cq-creatures-room {
+  display: grid;
+  height: 100%;
+  min-height: 0;
+  grid-template-areas:
+    'rail featured'
+    'strip strip';
+  grid-template-columns: clamp(10.5rem, 17cqi, 14.5rem) minmax(0, 1fr);
+  grid-template-rows: minmax(0, 1fr) auto;
+  gap: 0.6rem 0.8rem;
+}
+.cq-game .cq-creatures-book {
+  grid-template-areas: 'rail book';
+  grid-template-rows: minmax(0, 1fr);
+}
+.cq-game .cq-rail {
+  grid-area: rail;
+  display: flex;
+  min-height: 0;
+  flex-direction: column;
+  gap: 0.45rem;
+  overflow-y: auto;
+}
+.cq-game .cq-rail-title {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.15rem;
+  padding-bottom: 0.35rem;
+  border-bottom: 1px solid rgb(196 154 82 / 0.45);
+  color: var(--cq-bone);
+  font-family: var(--cq-serif);
+  font-size: 1.35rem;
+  font-weight: 700;
+}
+.cq-game .cq-rail-glyph {
+  height: 2.2rem;
+  width: 2.2rem;
+}
+.cq-game .cq-rail-item {
+  display: flex;
+  min-height: 2.75rem;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  padding: 0 0.9rem;
+  border: 1px solid rgb(196 154 82 / 0.45);
+  border-radius: 0.6rem;
+  background: linear-gradient(
+    180deg,
+    rgb(24 32 34 / 0.94),
+    rgb(12 18 20 / 0.94)
+  );
+  color: var(--cq-bone);
+  font-family: var(--cq-serif);
+  font-weight: 600;
+  text-align: left;
+}
+.cq-game .cq-rail-item[aria-pressed='true'] {
+  border-color: var(--cq-seaglass);
+  box-shadow:
+    0 0 0 1px var(--cq-seaglass),
+    0 0 16px rgb(143 230 212 / 0.3);
+  color: #e4fbf6;
+}
+.cq-game .cq-rail-count {
+  color: var(--cq-brass-hi);
+  font-family: var(--cq-sans);
+  font-weight: 700;
+}
+.cq-game .cq-rail-rarity {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem;
+  margin-top: 0.2rem;
+}
+.cq-game .cq-rarity-chip {
+  display: inline-flex;
+  min-height: 2.1rem;
+  align-items: center;
+  padding: 0 0.6rem;
+  border: 1px solid rgb(196 154 82 / 0.35);
+  border-radius: 999px;
+  background: rgb(10 16 18 / 0.88);
+  color: var(--cq-bone);
+  font-size: 0.72rem;
+}
+.cq-game .cq-rarity-chip[data-rarity]::before {
+  content: '';
+  height: 0.5rem;
+  width: 0.5rem;
+  margin-right: 0.35rem;
+  border-radius: 999px;
+  background: var(--cq-rarity);
+}
+.cq-game .cq-rarity-chip[aria-pressed='true'] {
+  border-color: var(--cq-seaglass);
+  color: #e4fbf6;
+}
+.cq-game .cq-featured {
+  grid-area: featured;
+  position: relative;
+  display: grid;
+  min-height: 0;
+  grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+  overflow: hidden;
+  border: 1px solid var(--cq-brass);
+  border-radius: 1rem;
+  background:
+    radial-gradient(
+      ellipse at 26% 62%,
+      rgb(34 118 108 / 0.6),
+      rgb(8 24 28 / 0.94) 68%
+    ),
+    #081417;
+  box-shadow:
+    inset 0 0 0 4px rgb(8 14 16 / 0.9),
+    inset 0 0 0 5px rgb(196 154 82 / 0.32),
+    0 12px 30px rgb(0 0 0 / 0.5);
+}
+.cq-game .cq-featured-empty {
+  display: grid;
+  place-items: center;
+  color: rgb(233 223 200 / 0.8);
+  font-family: var(--cq-serif);
+  font-style: italic;
+}
+.cq-game .cq-featured-art {
+  position: relative;
+  display: grid;
+  min-height: 0;
+  place-items: center;
+  overflow: hidden;
+}
+.cq-game .cq-featured-art::before {
+  content: '';
+  position: absolute;
+  inset: -20% 10% 20%;
+  background: conic-gradient(
+    from 200deg at 50% 0%,
+    transparent 0deg,
+    rgb(143 230 212 / 0.12) 12deg,
+    transparent 24deg,
+    rgb(143 230 212 / 0.08) 40deg,
+    transparent 52deg
+  );
+  -webkit-mask-image: radial-gradient(
+    ellipse at 50% 20%,
+    #000 20%,
+    transparent 70%
+  );
+  mask-image: radial-gradient(ellipse at 50% 20%, #000 20%, transparent 70%);
+  pointer-events: none;
+}
+.cq-game .cq-featured-sprite {
+  height: min(92%, 18rem);
+  width: min(92%, 18rem);
+  filter: drop-shadow(0 14px 18px rgb(0 0 0 / 0.55));
+}
+.cq-game .cq-featured-card {
+  display: flex;
+  min-height: 0;
+  flex-direction: column;
+  gap: 0.55rem;
+  overflow-y: auto;
+  padding: 0.95rem 1.05rem;
+  background: linear-gradient(90deg, transparent, rgb(8 14 16 / 0.6) 10%);
+}
+.cq-game .cq-featured-card > * {
+  flex-shrink: 0;
+}
+.cq-game .cq-featured-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.6rem;
+  padding-right: 2.4rem;
+}
+.cq-game .cq-featured-head > div {
+  flex: 1 1 10rem;
+}
+.cq-game .cq-featured-name {
+  color: var(--cq-bone);
+  font-family: var(--cq-serif);
+  font-size: clamp(1.2rem, 2.3cqi, 2rem);
+  font-weight: 700;
+  line-height: 1.05;
+}
+.cq-game .cq-featured-epithet {
+  margin-top: 0.2rem;
+  color: var(--cq-brass-hi);
+  font-family: var(--cq-serif);
+  font-size: 0.9rem;
+  font-style: italic;
+}
+.cq-game .cq-featured-note {
+  padding-bottom: 0.55rem;
+  border-bottom: 1px solid rgb(196 154 82 / 0.3);
+  color: rgb(233 223 200 / 0.9);
+  font-family: var(--cq-serif);
+  font-size: clamp(0.85rem, 1.25cqi, 1.05rem);
+  font-style: italic;
+  line-height: 1.35;
+}
+.cq-game .cq-featured-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(9rem, 1fr));
+  gap: 0.4rem;
+}
+.cq-game .cq-stat {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  column-gap: 0.45rem;
+  row-gap: 0.15rem;
+  padding: 0.3rem 0.65rem 0.3rem 0.3rem;
+  border: 1px solid rgb(196 154 82 / 0.45);
+  border-radius: 999px;
+  background: rgb(8 14 16 / 0.78);
+}
+.cq-game .cq-stat-icon {
+  grid-row: span 2;
+  height: 1.75rem;
+  width: 1.75rem;
+}
+.cq-game .cq-stat-label {
+  overflow: hidden;
+  color: rgb(233 223 200 / 0.85);
+  font-size: 0.8rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.cq-game .cq-stat-value {
+  color: var(--cq-bone);
+  font-family: var(--cq-sans);
+  font-size: 0.85rem;
+  font-weight: 700;
+}
+.cq-game .cq-stat-bar,
+.cq-game .cq-creature-fed {
+  display: block;
+  height: 0.3rem;
+  overflow: hidden;
+  border-radius: 999px;
+  background: rgb(0 0 0 / 0.55);
+}
+.cq-game .cq-stat-bar {
+  grid-column: 2 / span 2;
+}
+.cq-game .cq-stat-bar > span,
+.cq-game .cq-creature-fed > span {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, #3f8f7c, var(--cq-seaglass));
+}
+.cq-game .cq-stat-bar > .cq-bar-low,
+.cq-game .cq-creature-fed > .cq-bar-low {
+  background: linear-gradient(90deg, var(--cq-oxblood), var(--cq-amber));
+}
+.cq-game .cq-featured-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+  margin-top: auto;
+}
+.cq-game .cq-strip-wrap {
+  grid-area: strip;
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+.cq-game .cq-collected {
+  display: inline-flex;
+  align-self: center;
+  gap: 0.6rem;
+  padding: 0.15rem 1.3rem;
+  border: 1px solid var(--cq-brass-lo);
+  border-radius: 999px;
+  background: rgb(8 14 16 / 0.88);
+  color: var(--cq-bone);
+  font-family: var(--cq-serif);
+  font-size: 0.9rem;
+}
+.cq-game .cq-card-strip {
+  display: flex;
+  gap: 0.6rem;
+  overflow-x: auto;
+  padding: 0.3rem 0.2rem 0.45rem;
+  scroll-snap-type: x proximity;
+  scrollbar-width: thin;
+}
+.cq-game .cq-creature-card {
+  position: relative;
+  display: flex;
+  flex: 0 0 clamp(7.2rem, 11cqi, 9rem);
+  flex-direction: column;
+  gap: 0.25rem;
+  padding: 0.35rem 0.35rem 0.45rem;
+  border: 1px solid var(--cq-brass-lo);
+  border-top: 2px solid var(--cq-rarity);
+  border-radius: 0.7rem;
+  background: linear-gradient(180deg, #1a2224 0%, #0d1315 100%);
+  box-shadow: 0 6px 14px rgb(0 0 0 / 0.45);
+  color: var(--cq-bone);
+  scroll-snap-align: start;
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
+}
+.cq-game .cq-creature-card[aria-selected='true'] {
+  border-color: var(--cq-seaglass);
+  box-shadow:
+    0 0 0 1px var(--cq-seaglass),
+    0 0 18px rgb(143 230 212 / 0.38);
+}
+.cq-game .cq-creature-plate {
+  position: relative;
+  display: grid;
+  aspect-ratio: 4 / 3;
+  place-items: center;
+  overflow: hidden;
+  border-radius: 0.45rem;
+  background: #0b1214;
+}
+.cq-game .cq-creature-plate img {
+  height: 100%;
+  width: 100%;
+  object-fit: cover;
+  object-position: 50% 36%;
+  transform: scale(1.2);
+}
+.cq-game .cq-creature-count {
+  position: absolute;
+  top: 0.25rem;
+  right: 0.25rem;
+  padding: 0.05rem 0.4rem;
+  border-radius: 999px;
+  background: rgb(8 14 16 / 0.88);
+  color: var(--cq-brass-hi);
+  font-size: 0.72rem;
+  font-weight: 800;
+}
+.cq-game .cq-creature-name {
+  overflow: hidden;
+  font-family: var(--cq-serif);
+  font-size: 0.85rem;
+  font-weight: 600;
+  text-align: center;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.cq-game .cq-creature-ribbon {
+  align-self: center;
+  padding: 0.05rem 0.55rem;
+  border-radius: 0.25rem;
+  background: var(--cq-rarity);
+  color: var(--cq-rarity-ink);
+  font-size: 0.6rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+.cq-game .cq-book {
+  grid-area: book;
+  display: flex;
+  min-height: 0;
+  flex-direction: column;
+  gap: 0.6rem;
+  overflow-y: auto;
+  padding: 0.7rem 3.2rem 0.7rem 0.7rem;
+  border: 1px solid var(--cq-brass-lo);
+  border-radius: 1rem;
+  background: rgb(10 18 20 / 0.86);
+}
+
+/* Relics */
+.cq-game .cq-relics-room {
+  display: flex;
+  height: 100%;
+  min-height: 0;
+  flex-direction: column;
+  gap: 0.55rem;
+}
+.cq-game .cq-relics-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.8rem;
+  padding-right: 3.2rem;
+}
+.cq-game .cq-sockets {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+.cq-game .cq-socket {
+  height: 1.1rem;
+  width: 1.1rem;
+  border: 2px solid var(--cq-brass-lo);
+  border-radius: 999px;
+  background: #0b1012;
+  box-shadow: inset 0 1px 3px #000;
+}
+.cq-game .cq-socket-on {
+  border-color: var(--cq-brass);
+  background: radial-gradient(circle at 35% 35%, #b6efe2, #3f8f7c);
+  box-shadow: 0 0 8px rgb(143 230 212 / 0.5);
+}
+.cq-game .cq-sockets-label {
+  color: rgb(233 223 200 / 0.78);
+  font-family: var(--cq-serif);
+  font-size: 0.8rem;
+  font-style: italic;
+}
+.cq-game .cq-relic-grid {
+  display: grid;
+  min-height: 0;
+  flex: 1 1 0;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 16rem), 1fr));
+  align-content: start;
+  gap: 0.7rem;
+  overflow-y: auto;
+  padding: 0.2rem 0.2rem 0.6rem;
+}
+.cq-game .cq-relic {
+  display: grid;
+  grid-template-columns: 6rem minmax(0, 1fr);
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.6rem;
+  border: 1px solid var(--cq-brass-lo);
+  border-radius: 0.8rem;
+  background: linear-gradient(
+    180deg,
+    rgb(26 33 35 / 0.95),
+    rgb(12 18 20 / 0.95)
+  );
+  box-shadow:
+    inset 0 0 0 1px rgb(196 154 82 / 0.16),
+    0 8px 18px rgb(0 0 0 / 0.4);
+}
+.cq-game .cq-relic-on {
+  border-color: var(--cq-seaglass);
+  box-shadow:
+    0 0 0 1px var(--cq-seaglass),
+    0 0 18px rgb(143 230 212 / 0.3);
+}
+.cq-game .cq-relic-art {
+  position: relative;
+  display: grid;
+  height: 6rem;
+  width: 6rem;
+  place-items: center;
+  overflow: hidden;
+  border: 1px solid var(--cq-brass);
+  border-radius: 0.6rem;
+  background: #0b1214;
+}
+.cq-game .cq-relic-art img {
+  height: 100%;
+  width: 100%;
+  object-fit: cover;
+}
+.cq-game .cq-relic-art > .cq-ui-art {
+  height: 70%;
+  width: 70%;
+}
+.cq-game .cq-relic-glyph {
+  overflow: visible;
+  border: 0;
+  background: radial-gradient(
+    circle at 50% 40%,
+    rgb(34 118 108 / 0.5),
+    transparent 70%
+  );
+  font-size: 2.6rem;
+}
+.cq-game .cq-relic-glyph > span:first-child {
+  position: relative;
+  z-index: 1;
+  transform: translateY(-0.5rem);
+}
+.cq-game .cq-relic-art > .cq-relic-plinth {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  height: 1.8rem;
+  width: 100%;
+}
+.cq-game .cq-relic-body {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.3rem;
+}
+.cq-game .cq-relic-body .cq-plaque-title {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.4rem;
+  white-space: normal;
+}
+.cq-game .cq-relic-body .cq-price {
+  align-self: flex-start;
+}
+
+@container cq-room (max-height: 470px) {
+  .cq-game .cq-creatures-room {
+    grid-template-areas:
+      'rail featured'
+      'rail strip';
+  }
+  .cq-game .cq-creatures-book {
+    grid-template-areas: 'rail book';
+  }
+  .cq-game .cq-rail-title {
+    padding-bottom: 0.2rem;
+    font-size: 1.05rem;
+  }
+  .cq-game .cq-rail-item {
+    min-height: 2.4rem;
+  }
+  .cq-game .cq-collected {
+    display: none;
+  }
+  .cq-game .cq-creature-card {
+    flex-basis: 6.6rem;
+    padding: 0.25rem;
+  }
+  .cq-game .cq-creature-plate {
+    aspect-ratio: 16 / 9;
+  }
+  .cq-game .cq-featured-sprite {
+    height: min(96%, 12rem);
+    width: min(96%, 12rem);
+  }
+  .cq-game .cq-plaque-text {
+    display: none;
+  }
+  .cq-game .cq-pedestal-stage {
+    height: 6.6rem;
+  }
+  .cq-game .cq-speech-market {
+    top: 3rem;
+  }
+  .cq-game .cq-speech blockquote {
+    display: -webkit-box;
+    overflow: hidden;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+  }
+  .cq-game .cq-speech figcaption,
+  .cq-game .cq-market-note {
+    display: none;
+  }
+}
+/* World & story */
+.cq-game .cq-scenery-section {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 0.7rem;
+  border: 1px solid var(--cq-brass-lo);
+  border-radius: 0.8rem;
+  background: rgb(12 18 20 / 0.9);
+  color: var(--cq-bone);
+}
+.cq-game .cq-section-title {
+  font-family: var(--cq-serif);
+  font-size: 1.05rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+}
+.cq-game .cq-backdrop-strip {
+  display: flex;
+  gap: 0.6rem;
+  overflow-x: auto;
+  padding-bottom: 0.3rem;
+}
+.cq-game .cq-backdrop-card {
+  display: flex;
+  flex: 0 0 11rem;
+  flex-direction: column;
+  gap: 0.2rem;
+  padding: 0.3rem;
+  border: 1px solid var(--cq-brass-lo);
+  border-radius: 0.6rem;
+  background: #0d1315;
+  color: var(--cq-bone);
+  text-align: left;
+}
+.cq-game .cq-backdrop-card img,
+.cq-game .cq-backdrop-blank {
+  display: block;
+  aspect-ratio: 16 / 9;
+  width: 100%;
+  border-radius: 0.4rem;
+  background: #1b2224;
+  object-fit: cover;
+}
+.cq-game .cq-backdrop-locked {
+  filter: blur(2px) grayscale(1) brightness(0.5);
+}
+.cq-game .cq-backdrop-card-on {
+  border-color: var(--cq-seaglass);
+  box-shadow: 0 0 0 1px var(--cq-seaglass);
+}
+.cq-game .cq-backdrop-name {
+  font-size: 0.78rem;
+  font-weight: 700;
+}
+.cq-game .cq-backdrop-note {
+  display: -webkit-box;
+  overflow: hidden;
+  font-family: var(--cq-serif);
+  font-size: 0.68rem;
+  font-style: italic;
+  opacity: 0.75;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+.cq-game .cq-scenery-links {
+  flex-flow: row wrap;
+  align-items: center;
+  gap: 0.8rem 1.2rem;
+}
+
+@container cq-game (max-width: 640px) {
+  .cq-game .cq-market-room {
+    grid-template-rows: minmax(6rem, 1fr) auto auto;
+  }
+  .cq-game .cq-keeper {
+    left: 74%;
+    height: 104%;
+    max-width: 52%;
+  }
+  .cq-game .cq-speech-market {
+    top: 3.1rem;
+    left: 0;
+    max-width: 60%;
+  }
+  .cq-game .cq-speech blockquote {
+    display: -webkit-box;
+    overflow: hidden;
+    font-size: 0.78rem;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 3;
+  }
+  .cq-game .cq-speech-market figcaption {
+    display: none;
+  }
+  .cq-game .cq-market-note {
+    display: none;
+  }
+  .cq-game .cq-switch-button {
+    min-height: 2.4rem;
+    padding: 0 0.7rem;
+    font-size: 0.85rem;
+  }
+  .cq-game .cq-shelf-nav {
+    display: none;
+  }
+  .cq-game .cq-pedestal-shelf {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .cq-game .cq-pedestal {
+    flex-basis: 9.4rem;
+  }
+  .cq-game .cq-pedestal-stage {
+    height: 6.6rem;
+  }
+  .cq-game .cq-creatures-room,
+  .cq-game .cq-creatures-book {
+    grid-template-areas: 'rail' 'featured' 'strip';
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: auto minmax(0, 1fr) auto;
+    gap: 0.4rem;
+  }
+  .cq-game .cq-creatures-book {
+    grid-template-areas: 'rail' 'book';
+    grid-template-rows: auto minmax(0, 1fr);
+  }
+  .cq-game .cq-rail {
+    flex-direction: row;
+    margin-right: 3rem;
+    overflow-x: auto;
+    overflow-y: hidden;
+    padding-bottom: 0.15rem;
+  }
+  .cq-game .cq-rail-title {
+    display: none;
+  }
+  .cq-game .cq-rail-item {
+    min-height: 2.6rem;
+    padding: 0 0.7rem;
+    font-size: 0.82rem;
+    white-space: nowrap;
+  }
+  .cq-game .cq-rail-rarity {
+    flex-wrap: nowrap;
+    margin-top: 0;
+  }
+  .cq-game .cq-rarity-chip {
+    min-height: 2.6rem;
+    white-space: nowrap;
+  }
+  .cq-game .cq-featured {
+    grid-template-columns: 6.5rem minmax(0, 1fr);
+  }
+  .cq-game .cq-featured-card {
+    gap: 0.4rem;
+    padding: 0.55rem 0.65rem;
+  }
+  .cq-game .cq-featured-head {
+    flex-direction: column;
+    gap: 0.3rem;
+    padding-right: 0;
+  }
+  .cq-game .cq-featured-name {
+    font-size: 1.15rem;
+  }
+  .cq-game .cq-featured-epithet {
+    font-size: 0.78rem;
+  }
+  .cq-game .cq-featured-note {
+    display: -webkit-box;
+    overflow: hidden;
+    padding-bottom: 0.4rem;
+    font-size: 0.8rem;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 3;
+  }
+  .cq-game .cq-featured-stats {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.3rem;
+  }
+  .cq-game .cq-stat {
+    column-gap: 0.3rem;
+    padding: 0.2rem 0.5rem 0.2rem 0.2rem;
+  }
+  .cq-game .cq-stat-icon {
+    height: 1.3rem;
+    width: 1.3rem;
+  }
+  .cq-game .cq-stat-label {
+    position: absolute;
+    height: 1px;
+    width: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+  }
+  .cq-game .cq-stat-value {
+    font-size: 0.74rem;
+  }
+  .cq-game .cq-plate-button {
+    min-height: 2.6rem;
+  }
+  .cq-game .cq-plate-button {
+    padding: 0 0.7rem;
+    font-size: 0.85rem;
+  }
+  .cq-game .cq-book {
+    padding-right: 0.7rem;
+  }
+  .cq-game .cq-relic {
+    grid-template-columns: 4.5rem minmax(0, 1fr);
+  }
+  .cq-game .cq-relic-art {
+    height: 4.5rem;
+    width: 4.5rem;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .cq-game .cq-price,
+  .cq-game .cq-creature-card {
+    transition: none;
+  }
+}

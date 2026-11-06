@@ -461,9 +461,18 @@ function forecast(lane: number): string {
   if (!ours && !theirs) return '◇'
   const a = ours ? (ours.rooted ? 0 : clashPower(game.value, ours)) : 0
   const b = theirs ? (theirs.rooted ? 0 : clashPower(game.value, theirs)) : 0
-  if (ours && theirs)
-    return Math.max(0, a - theirs.armor) + ' ↔ ' + Math.max(0, b - ours.armor)
-  return ours ? 'BOSS −' + a : 'BOSS −' + b
+  if (ours && theirs) {
+    const aArmor = Math.max(
+      0,
+      theirs.armor - (ours.keywords.includes('pierce') ? 1 : 0),
+    )
+    const bArmor = Math.max(
+      0,
+      ours.armor - (theirs.keywords.includes('pierce') ? 1 : 0),
+    )
+    return Math.max(0, a - aArmor) + ' ↔ ' + Math.max(0, b - bArmor)
+  }
+  return ours ? 'RIVAL −' + a : 'YOU −' + b
 }
 </script>
 

@@ -77,9 +77,9 @@ export function noteBeyondRoll(
 ): string | undefined {
   if (!note) return undefined
   const match = /^(\w+) · (\d+)\s*(?:;\s*(.*))?$/.exec(note.trim())
+  if (!match) return note
   if (
     !check ||
-    !match ||
     match[1] !== ATTRIBUTE_NAMES[check.attribute] ||
     Number(match[2]) !== check.target
   )

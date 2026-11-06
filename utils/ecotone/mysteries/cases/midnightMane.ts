@@ -61,8 +61,8 @@ export const MIDNIGHT_MANE: Mystery = {
         ],
       },
       body: [
-        'The Bellwether was a vaudeville house for longshoremen and mill hands a century before it showed movies, and on wet nights it still smells of rope and sawdust. Its stage door is propped open with a fishnet-wrapped brick. Inside, twelve people in corsets and lab coats argue at once: two crab-boat deckhands, a night-shift nurse, half a Cal Poly Humboldt dorm. Brody, the cast’s current lead, is still in heels and full grievance. “It hit my mark,” he says. “It did my turn. The crowd yelled lines at it I’ve never even heard.”',
-        'A gold sequin glints on the floorboards, then another. They lead somewhere. The owner, Marguerite Tsai, a sharp woman with her hair under a silk scarf, paces the lobby on the phone with someone she keeps calling “the buyer.” “Ten Saturdays of box office, that was the deal,” she is saying, very crisply. “Count the house yourself.” Then she hangs up and goes to see about the ice machine.',
+        'The Bellwether’s midnight cast is fighting over a box of cold pizza. Brody, still in heels, points at the stage. “The lion stole my entrance. My turn. And it got a standing ovation.” Nobody looks surprised.',
+        'Gold sequins lead toward the projection booth. In the lobby, owner Marguerite Tsai hangs up on a buyer. “Ten Saturdays,” she says. “He can count the tickets himself.” The theater is for sale.',
       ],
       approaches: [
         {
@@ -70,7 +70,7 @@ export const MIDNIGHT_MANE: Mystery = {
           label: 'Work the cast for gossip over cold pizza',
           check: { skill: 'rizz', target: 9 },
           success: {
-            text: 'Three slices in, the oldest cast member, a retired postal clerk called Pops, goes quiet. “Those callbacks the crowd yelled,” he says. “Nobody’s used them since the eighties. Only two people ever did that turn right, and one of them taught it to the other.” He won’t say who. He looks, just once, at Brody, who has been doing something like that turn in rehearsal lately. Then Pops gets his coat and leaves early.',
+            text: 'Pops, the oldest cast member, stops chewing. “Those callbacks died in the eighties. Only two people knew that turn, and one taught the other.” He looks at Brody. Brody suddenly needs more pizza. Pops refuses to name either performer.',
             effects: { goodwill: 1 },
           },
           failure: {
@@ -83,7 +83,7 @@ export const MIDNIGHT_MANE: Mystery = {
           label: 'Follow the trail of gold sequins',
           check: { skill: 'wits', target: 7 },
           success: {
-            text: 'The sequins are metal, not plastic: heavy vintage lamé nobody has manufactured in decades. They lead through a crawlspace behind the screen and up a ladder to the locked projection booth. The dust on the ladder rungs has been wiped clean by someone careful and in heels, and on the top rung, snagged on a splinter, is a single black hair, long enough to braid. Brody is blond. Every old-timer swears Lady Mane went silver years ago. Whoever climbs this ladder in heels has hair to her waist and somewhere to hide it.',
+            text: 'The sequins are old metal lamé. They lead behind the screen to the locked projection booth. Someone climbed the dusty ladder in heels. A long black hair is caught on the top rung. Brody is blond. Ronnie “Lady Mane” Delacroix went silver years ago. You have a third suspect.',
             effects: { weird: 1 },
           },
           failure: {
@@ -96,11 +96,11 @@ export const MIDNIGHT_MANE: Mystery = {
           label: 'Read Brody’s grievance for the lie in it',
           check: { skill: 'psyche', target: 9 },
           success: {
-            text: 'Brody’s outrage is very good, very rehearsed, and keeps pausing for him to check his phone. You follow him out to an old Buick in the alley, where a silver-haired woman in perfect eyeliner hands him a pair of heels: Ronnie “Lady Mane” Delacroix, the Bellwether’s lead for thirty-odd years, secretly teaching him her turn. “Don’t tell the cast,” Brody begs. “And I wasn’t the lion. Probably.”',
+            text: 'Brody keeps checking his phone whenever someone mentions the lion. Outside, a woman in sharp eyeliner waits by a Buick and hands him a pair of heels. It’s Ronnie “Lady Mane” Delacroix, the former lead. She’s been teaching him her old routine in secret. “Don’t tell the cast,” Brody says. “And I wasn’t the lion. Probably.”',
             effects: { nerve: 1 },
           },
           failure: {
-            text: 'You tell Brody, kindly, that his grievance feels a little big. He takes it as a note and performs it again, smaller, then smaller still, until he is whispering it from four inches away with tears in his eyes. The cast gives him a standing ovation. You learn only that Brody can act.',
+            text: 'You suggest that Brody’s outrage sounds rehearsed. He performs it again, this time whispering through tears. The cast applauds. You’ve proved he can act, which was never in doubt.',
             effects: { nerve: -1 },
           },
         },

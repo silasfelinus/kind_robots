@@ -8,7 +8,7 @@
 import assert from 'node:assert/strict'
 import { RULER_HOOKED_CONTENT as C } from '~/utils/rulerHooked/content'
 import { createRun } from '~/utils/rulerHooked/newGame'
-import { takeTurn, eligibleEnding, findArcStep } from '~/utils/rulerHooked/loop'
+import { takeTurn, eligibleEnding, findArcStep, dismissedFinaleFlag, FINALE_MIN_TURNS, FINALE_MIN_PETITIONS } from '~/utils/rulerHooked/loop'
 import { resolveChoice } from '~/utils/rulerHooked/applyEffects'
 import { resolveScene } from '~/utils/rulerHooked/compositor'
 import { makeRng } from '~/utils/rulerHooked/seed'
@@ -107,7 +107,14 @@ const fresh = (id = 'sv_a'): RunSave =>
   assert.equal(eligibleEnding(C, s), null, 'no ending at neutral start')
   s.kingdomHealth.nature = 90
   s.kingdomHealth.joy = 70
-  assert.equal(eligibleEnding(C, s), 'druid-utopia', 'nature+joy high -> utopia ending offered')
+  assert.equal(eligibleEnding(C, s), null, 'strong opening-day health must not create a premature finale')
+  s.turnCount = FINALE_MIN_TURNS - 1
+  s.counters.cardsResolved = FINALE_MIN_PETITIONS
+  assert.equal(eligibleEnding(C, s), null, 'the finale cannot occur before a developed reign')
+  s.turnCount = FINALE_MIN_TURNS
+  assert.equal(eligibleEnding(C, s), 'druid-utopia', 'the final chapter is unlocked when maturity and outcome conditions are met')
+  s.flags[dismissedFinaleFlag('druid-utopia')] = true
+  assert.equal(eligibleEnding(C, s), null, 'deferred finales must not interrupt every later day')
 }
 
 // 6. Multi-slot save/load (exit criterion 4)

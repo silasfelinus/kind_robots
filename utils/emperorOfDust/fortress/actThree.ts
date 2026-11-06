@@ -1236,11 +1236,11 @@ export const ACT_THREE_DAYS: readonly DayDef[] = [
             speaker: 'A ferry boy from the Eastern Ford',
             lines: [
               'The ferry boy leaves black water on the court rug. Three wooden discs hang from wet string. Each bears a burned bell with its clapper missing.',
-              '“I cut the strings myself,” he says. “Couldn't undo the knots. They'd tied them tight enough to stay on in the river.”',
+              '“I cut the strings myself,” he says. “Couldn’t undo the knots. They’d tied them tight enough to stay on in the river.”',
               {
                 who: 'Lady Ottoline Vask',
                 npc: 'ottoline-vask',
-                text: 'Bread tokens. The Abbey gives them to anyone who asks. They don't tell you who held the knife.',
+                text: 'Bread tokens. The Abbey gives them to anyone who asks. They don’t tell you who held the knife.',
               },
               {
                 who: 'Young Komodo',

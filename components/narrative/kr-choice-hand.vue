@@ -123,7 +123,7 @@
                   />
                 </slot>
               </span>
-              <kbd v-if="choice.shortcut" class="krh-key">{{
+              <kbd v-if="choice.shortcut && !choice.hint" class="krh-key">{{
                 choice.shortcut
               }}</kbd>
               <span v-if="choice.badge" class="krh-badge">{{
@@ -131,10 +131,21 @@
               }}</span>
               <span class="krh-title">
                 <strong>{{ choice.label }}</strong>
-                <small v-if="choice.chip">{{ choice.chip }}</small>
+                <small v-if="choice.chip" class="krh-chip"
+                  ><span v-for="(part, i) in chipParts(choice.chip)" :key="i">{{
+                    part
+                  }}</span></small
+                >
               </span>
+              <!-- A card with a hint carries its key at the start of the hint, so
+                   the key never sits over the hint's last line. -->
               <em v-if="choice.hint" class="krh-hint"
-                ><span>{{ choice.hint }}</span></em
+                ><span
+                  ><kbd v-if="choice.shortcut" class="krh-key krh-key-inline">{{
+                    choice.shortcut
+                  }}</kbd
+                  >{{ choice.hint }}</span
+                ></em
               >
             </span>
             <span
@@ -339,6 +350,12 @@ function play(choice: KrHandChoice): void {
 onBeforeUnmount(() => {
   if (playTimer) clearTimeout(playTimer)
 })
+
+/** A chip's " · " parts. A narrow card wraps between parts, never inside a short one ("SENSE 9+ ·" / "42% ·
+ *  FIGHT", not "SENSE" / "9+ · 42%"); the separators are drawn back by CSS (Zuzu, 2026-11-05). */
+function chipParts(chip: string): string[] {
+  return chip.split(' · ').filter(Boolean)
+}
 
 function sparkleStyle(n: number): Record<string, string> {
   const angle = (n / 10) * Math.PI * 2
@@ -616,6 +633,12 @@ function sparkleStyle(n: number): Record<string, string> {
     monospace;
   text-align: center;
 }
+.krh-key.krh-key-inline {
+  position: static;
+  display: inline-block;
+  margin-right: 0.3em;
+  vertical-align: 0.05em;
+}
 .krh-badge {
   position: absolute;
   bottom: 0.3rem;
@@ -659,12 +682,18 @@ function sparkleStyle(n: number): Record<string, string> {
   hyphens: auto;
 }
 .krh-title small {
+  display: flex;
+  flex-wrap: wrap;
+  column-gap: 0.3em;
   color: var(--accent);
   font-size: calc(0.46rem * var(--hand-text-scale, 1.2));
   font-weight: 800;
   letter-spacing: 0.08em;
   line-height: 1.2;
   text-transform: uppercase;
+}
+.krh-chip > span:not(:last-child)::after {
+  content: '\00a0·';
 }
 .krh-hint {
   position: absolute;

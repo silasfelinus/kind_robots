@@ -46,7 +46,7 @@ export const useSlimeCityArtStore = defineStore('slimeCityArt', () => {
       clear()
       tokenUsed = token
     }
-    if (!token || images.value[artImageId]) return
+    if (images.value[artImageId]) return
 
     const currentGeneration = generation
     images.value = {
@@ -55,7 +55,7 @@ export const useSlimeCityArtStore = defineStore('slimeCityArt', () => {
     }
     try {
       const response = await fetch(`/api/art/images/${artImageId}/file`, {
-        headers: { Authorization: `Bearer ${token}` },
+        headers: token ? { Authorization: `Bearer ${token}` } : {},
       })
       const mediaType = response.headers.get('content-type') ?? ''
       if (!response.ok || !mediaType.startsWith('image/')) {

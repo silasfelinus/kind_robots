@@ -41,6 +41,8 @@ for (const showMature of [false, true]) {
 const sync = source('server/api/conductor/sync.post.ts')
 assert.match(sync, /isPublic: !isMatureConductorProject\(project\.slug\)/)
 assert.match(sync, /isMature: isMatureConductorProject\(project\.slug\)/)
+assert.match(sync, /project\.slug === 'monstress-convention'/)
+assert.match(sync, /\? 'Monstrexx'/)
 const projects = source('server/api/conductor/projects.get.ts')
 assert.match(projects, /viewerShowsMature\(viewer\?\.user\)/)
 assert.match(projects, /canExposeConductorProject\(/)

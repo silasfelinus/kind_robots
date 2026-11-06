@@ -817,7 +817,8 @@ export const HOSHIMORI_NIGHT_SITES: readonly NightSite[] = [
       'Char turns the photograph over. The fourth plate remains visible in memory, but no stranger is assigned a name.',
       'night-supper-privacy',
     ),
-  ),]
+  ),
+]
 
 export const HOSHIMORI_NIGHT_CLUE_SITES = ['1,1', '2,1', '3,1'] as const
 export const HOSHIMORI_NIGHT_MAX_EVENTS = 768

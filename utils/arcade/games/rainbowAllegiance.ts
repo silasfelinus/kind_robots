@@ -74,3 +74,21 @@ export const RAINBOW_ALLEGIANCE_OPENINGS: Readonly<
     loyal: 'The Motherland wants this palace taken. Fine. Collars, not ships.',
   },
 }
+
+/**
+ * The last line of Acts VII and VIII's aftermath, by the crew's choice (conductor rainbow t-012): each road
+ * escalates toward the finale. A rebel crew hears the empire go quiet; a loyal crew hears its doubts grow,
+ * and Command's order for the Crown's heart arrives before the finale asks for the choice.
+ */
+export const RAINBOW_ALLEGIANCE_BRIDGES: Readonly<
+  Record<7 | 8, Record<RainbowAllegiance, string>>
+> = {
+  7: {
+    rebel: 'Motherland channels just went silent. They know we are coming.',
+    loyal: 'Command wants the palace by dawn. I keep hearing that lullaby.',
+  },
+  8: {
+    rebel: 'The heart is open. No Motherland order decides what we do next.',
+    loyal: 'The heart is open, and Command wants it under their flag.',
+  },
+}

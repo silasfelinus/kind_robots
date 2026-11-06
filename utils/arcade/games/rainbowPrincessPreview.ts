@@ -240,6 +240,8 @@ import {
   finaleChoiceFor,
   finaleCredits,
   finaleDialogue,
+  finaleEndingSkip,
+  finaleEndingTitle,
   finaleScene,
   finaleStage,
   type FinaleChoice,
@@ -3848,6 +3850,11 @@ export function createRainbowPrincessPreview(
       } else if (endingFrame !== null) {
         // The ending, then the credits, then THE END: A closes the run, or it closes by itself.
         endingFrame++
+        // A moves the ending on a line at a time, once each line has had a moment (t-012).
+        const skipTo = [input, ...seated].some((keys) => keys?.pressed.a)
+          ? finaleEndingSkip(endingFrame)
+          : null
+        if (skipTo !== null) endingFrame = skipTo
         // A skips the rest of the credits to THE END.
         const credits = endingFrame - FINALE_ENDING_FRAMES
         if (
@@ -7421,6 +7428,7 @@ export function createRainbowPrincessPreview(
               activePlayers,
               finaleFlags(),
               finalChoice,
+              allegiance,
             )
           : act === 8
             ? palaceDialogue(
@@ -7575,6 +7583,13 @@ export function createRainbowPrincessPreview(
         for (let line = 0; line < Math.min(lines.length, 2); line++) {
           g.fillText(lines[line]!, textX, 30 + line * 12)
         }
+        if (scene?.id === 'A09.AFTER') {
+          g.textAlign = 'right'
+          g.fillStyle = '#aef6f0'
+          g.font = 'bold 8px monospace'
+          g.fillText('A ▸', HUD_RIGHT, 16)
+          g.textAlign = 'left'
+        }
       } else if (restingFrames() !== null) {
         // ACT-STRUCTURE: Act V ends on a recovery and memorial tableau, the second quiet intermission.
         g.fillStyle = '#180d38d9'
@@ -7686,6 +7701,7 @@ export function createRainbowPrincessPreview(
             finaleFlags(),
             activePlayers,
             finalChoice ?? 'evacuate',
+            allegiance,
           )
           const top =
             H + 10 - (rolled / FINALE.creditFrames) * (lines.length * 16 + H)
@@ -7704,7 +7720,7 @@ export function createRainbowPrincessPreview(
           g.fillStyle = '#ffe7f5'
           g.font = '10px monospace'
           g.fillText(
-            `FINAL SCORE ${Math.round(score * level.score)} · ${(finalChoice ?? 'evacuate').toUpperCase()}`,
+            `FINAL SCORE ${Math.round(score * level.score)} · ${finaleEndingTitle(finalChoice ?? 'evacuate', allegiance)}`,
             W / 2,
             140,
           )

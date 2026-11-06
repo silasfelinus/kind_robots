@@ -640,13 +640,15 @@ const DESTINATION_FOLLOWUPS: Readonly<
     },
     {
       flag: 'lantern-both',
-      reminder: 'The Hollow Lantern survivors need a discreet route through Windglass.',
+      reminder:
+        'The Hollow Lantern survivors need a discreet route through Windglass.',
     },
   ],
   'cushion-recall': [
     {
       flag: 'ashdock-protected',
-      reminder: 'The Ashdock union you protected has called the couch back to its shipyard.',
+      reminder:
+        'The Ashdock union you protected has called the couch back to its shipyard.',
     },
     {
       flag: 'ashdock-exposed',
@@ -677,7 +679,8 @@ const DESTINATION_FOLLOWUPS: Readonly<
   'twins-summit': [
     {
       flag: 'courtesy-simultaneous',
-      reminder: 'The Courtesy Twins remember that you repaired their reactor together.',
+      reminder:
+        'The Courtesy Twins remember that you repaired their reactor together.',
     },
   ],
 }

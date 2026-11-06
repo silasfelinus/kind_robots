@@ -92,7 +92,10 @@ const artwork = readFileSync('components/slime-city-artwork.vue', 'utf8')
 assert.match(artwork, /fallbackImageId/)
 const artStore = readFileSync('stores/slimeCityArt.ts', 'utf8')
 assert.match(artStore, /headers: token \? \{ Authorization:/)
-assert.doesNotMatch(artStore, /if \(!token \|\| images.value\[artImageId\]\) return/)
+assert.doesNotMatch(
+  artStore,
+  /if \(!token \|\| images.value\[artImageId\]\) return/,
+)
 
 assert.equal(CLASH_PLAYS, 2)
 assert.equal(CLASH_LANES, 5)

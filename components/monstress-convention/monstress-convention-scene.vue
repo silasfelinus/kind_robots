@@ -454,9 +454,9 @@
                 EVIDENCE · {{ story.state.evidence.length }}
               </h3>
               <ul class="mc-note-list">
-                <li v-for="entry in story.state.evidence" :key="entry">
+                <li v-for="clue in story.state.evidence" :key="clue">
                   <Icon name="kind-icon:camera" class="size-4 shrink-0" />
-                  {{ EVIDENCE[entry] ?? entry }}
+                  {{ EVIDENCE[clue] ?? clue }}
                 </li>
                 <li v-if="!story.state.evidence.length">
                   No evidence collected. Yet.

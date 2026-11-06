@@ -95,6 +95,13 @@
             >CHAPTER {{ lab.campaignBout.index + 1 }}/5 ·
             {{ lab.activeChapter.title }}</span
           >
+          <span
+            v-if="lab.boutField"
+            class="sca-tag sca-objective"
+            data-testid="slime-bout-objective"
+            :title="lab.boutField.briefing"
+            >{{ lab.boutField.title }} · {{ lab.boutField.label }}</span
+          >
           <span v-else-if="lab.boutPlan" class="sca-tag"
             >RIVAL · {{ lab.boutPlan.rival.name }}</span
           >
@@ -161,7 +168,9 @@
             <b>{{ lab.sight.turfScore[1] }}</b>
           </span>
           <span v-else class="sca-base-text">
-            <small>ENEMY BASE</small>
+            <small>{{
+              lab.match.heist ? 'ENEMY VAULT · UNBREAKABLE' : 'ENEMY BASE'
+            }}</small>
             <span class="sca-meter"
               ><i :style="{ width: basePct(lab.sight.bases[1]) }"
             /></span>
@@ -1189,6 +1198,9 @@ onBeforeUnmount(() => {
   letter-spacing: 0.16em;
   color: var(--lime);
   text-transform: uppercase;
+}
+.sca-objective {
+  color: #ffd166;
 }
 .sca-modes {
   display: flex;

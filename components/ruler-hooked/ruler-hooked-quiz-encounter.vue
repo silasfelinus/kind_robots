@@ -34,51 +34,26 @@
     </div>
 
     <template v-else-if="quiz.question">
-      <div
+      <RulerHookedMandarinAnswerSheet
         v-if="quiz.introduction && quiz.currentMandarinCard"
-        class="rh-quiz__lesson"
-      >
-        <MandarinCardArt
-          class="rh-quiz__art"
-          :card-key="quiz.currentMandarinCard.key"
-          :simplified="quiz.currentMandarinCard.simplified"
-          :meaning="quiz.currentMandarinCard.meaning"
-          :art="quiz.currentArt"
-        />
-        <div class="rh-quiz__lesson-copy">
-          <p class="rh-eyebrow">New word · Learn first</p>
-          <h3>{{ quiz.currentMandarinCard.simplified }}</h3>
-          <p class="rh-quiz__pinyin">{{ quiz.currentMandarinCard.pinyin }}</p>
-          <p>{{ quiz.currentMandarinCard.meaning }}</p>
-          <p v-if="quiz.currentMandarinCard.history" class="rh-quiz__detail">
-            {{ quiz.currentMandarinCard.history }}
-          </p>
-          <p
-            v-else-if="quiz.currentMandarinCard.components.length"
-            class="rh-quiz__detail"
-          >
-            Parts:
-            {{
-              quiz.currentMandarinCard.components
-                .slice(0, 3)
-                .map((part) => part.glyph + ' ' + part.label)
-                .join(' · ')
-            }}
-          </p>
-          <div class="rh-actions">
-            <button type="button" class="rh-btn" @click="speak">
-              🔊 Hear it
-            </button>
-            <button
-              type="button"
-              class="rh-btn rh-btn--gold"
-              @click="quiz.finishIntroduction()"
-            >
-              Ready to answer
-            </button>
-          </div>
-        </div>
-      </div>
+        :card="quiz.currentMandarinCard"
+        :lesson="mandarinLesson"
+        :art="quiz.currentArt"
+        :correct="false"
+        :study="true"
+        :detail="quiz.referenceDetail"
+        :animal-mode="quiz.mandarinScope === 'animals'"
+        @speak="speak"
+        @continue="quiz.finishIntroduction()"
+      />
+
+      <RulerHookedGeographyFactSheet
+        v-else-if="quiz.introduction && quiz.question.module !== 'mandarin'"
+        :question="quiz.question"
+        :study="true"
+        :correct="false"
+        @continue="quiz.finishIntroduction()"
+      />
 
       <RulerHookedMandarinAnswerSheet
         v-else-if="quiz.answerSheet && quiz.currentMandarinCard"
@@ -87,7 +62,16 @@
         :art="quiz.currentArt"
         :correct="quiz.answerWasCorrect"
         :animal-mode="quiz.mandarinScope === 'animals'"
+        :detail="quiz.referenceDetail"
         @speak="speak"
+        @continue="quiz.finishAnswerSheet()"
+      />
+
+      <RulerHookedGeographyFactSheet
+        v-else-if="quiz.answerSheet && quiz.question.module !== 'mandarin'"
+        :question="quiz.question"
+        :study="false"
+        :correct="quiz.answerWasCorrect"
         @continue="quiz.finishAnswerSheet()"
       />
 
@@ -127,9 +111,8 @@
           @play="pick"
         />
         <p class="rh-quiz__note">
-          Choose correctly to land this fish. Mandarin answers reveal a word
-          guide before the catch. A mistake brings another question, not a lost
-          catch.
+          Every answer opens the field guide. Learn the pair, then land the
+          fish; mistakes teach without losing the catch.
         </p>
       </div>
     </template>
@@ -137,6 +120,7 @@
 </template>
 
 <script setup lang="ts">
+import { MANDARIN_QUIZ_TOPICS } from '~/utils/rulerHooked/quiz'
 import { useMandarinTutorStore } from '~/stores/mandarinTutorStore'
 import { useRulerHookedQuizStore } from '~/stores/rulerHookedQuizStore'
 import type { SimpleFishingEncounter } from '~/utils/rulerHooked/simpleFishing'
@@ -157,9 +141,9 @@ const moduleLabel = computed(() => {
     : module === 'capitals'
       ? 'Capitals'
       : module === 'mandarin'
-        ? quiz.mandarinScope === 'animals'
-          ? 'Mandarin · Animals'
-          : 'Mandarin'
+        ? 'Mandarin · ' +
+          (MANDARIN_QUIZ_TOPICS.find((topic) => topic.id === quiz.mandarinScope)
+            ?.label ?? 'Vocabulary')
         : 'Quiz'
 })
 const hand = computed(() =>

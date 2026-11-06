@@ -2,9 +2,11 @@
   <section class="rh-word-sheet" aria-label="Mandarin answer reference">
     <p class="rh-word-sheet__verdict" role="status">
       {{
-        correct
-          ? '✓ Right answer · A fish is on the line'
-          : 'Not quite · Learn this word'
+        study
+          ? '✦ Word lesson · Study first, then recall'
+          : correct
+            ? '✓ Right answer · A fish is on the line'
+            : 'Not quite · Learn this word'
       }}
     </p>
     <div class="rh-word-sheet__body">
@@ -59,7 +61,7 @@
           <span v-if="syllable.sandhiNote">· {{ syllable.sandhiNote }}</span>
         </p>
       </section>
-      <section v-if="lesson" aria-label="Word origins">
+      <section v-if="lesson && detail === 'full'" aria-label="Word origins">
         <h4>Word &amp; character origins</h4>
         <p class="rh-word-sheet__fact">{{ lesson.history }}</p>
         <template
@@ -84,7 +86,10 @@
           </p>
         </template>
       </section>
-      <p v-if="lesson?.soundFamilies.length" class="rh-word-sheet__small">
+      <p
+        v-if="detail === 'full' && lesson?.soundFamilies.length"
+        class="rh-word-sheet__small"
+      >
         Sound family:
         {{
           lesson.soundFamilies[0]?.members
@@ -110,7 +115,13 @@
       class="rh-btn rh-btn--gold rh-btn--big rh-word-sheet__continue"
       @click="emit('continue')"
     >
-      {{ correct ? 'Land the fish' : 'Try another word' }}
+      {{
+        study
+          ? 'Ready to answer'
+          : correct
+            ? 'Land the fish'
+            : 'Try another word'
+      }}
     </button>
   </section>
 </template>
@@ -125,6 +136,8 @@ defineProps<{
   art: string
   correct: boolean
   animalMode: boolean
+  study?: boolean
+  detail?: 'quick' | 'full'
 }>()
 const emit = defineEmits<{ speak: []; continue: [] }>()
 </script>

@@ -2,6 +2,7 @@ import type { MandarinCard } from '../mandarin'
 
 export type FishingQuizModule = 'flags' | 'capitals' | 'mandarin'
 export type FishingMode = 'classic' | 'quiz'
+export type MandarinQuizScope = 'all' | 'animals'
 export type QuizOption = { id: string; label: string; icon?: string }
 export type FishingQuizQuestion = {
   id: string
@@ -231,16 +232,31 @@ export function mandarinQuestion(
   }
 }
 
+export function animalMandarinCards(
+  catalog: readonly MandarinCard[],
+): MandarinCard[] {
+  return catalog.filter(
+    (card) =>
+      card.categories?.includes('animals') &&
+      Boolean(card.meaning && card.simplified),
+  )
+}
+
 export function mandarinFrontier(
   catalog: readonly MandarinCard[],
   tracked: Readonly<Record<string, { repetitions: number; dueAt: string }>>,
   recentlyAsked: string | null,
   correctAnswers: number,
   random: () => number = Math.random,
+  scope: MandarinQuizScope = 'all',
 ): MandarinCard | null {
-  const beginner = catalog.filter(
-    (card) => (card.hskLevel ?? 99) <= 2 && card.meaning && card.simplified,
-  )
+  const beginner =
+    scope === 'animals'
+      ? animalMandarinCards(catalog)
+      : catalog.filter(
+          (card) =>
+            (card.hskLevel ?? 99) <= 2 && card.meaning && card.simplified,
+        )
   if (!beginner.length) return null
   const studied = beginner.filter(
     (card) => (tracked[card.key]?.repetitions ?? 0) > 0,
@@ -258,6 +274,13 @@ export function mandarinFrontier(
   const reviews = frontier.filter((card) => tracked[card.key])
   const nextPool = due.length ? due : newWords.length ? newWords : reviews
   const candidates = nextPool.filter((card) => card.key !== recentlyAsked)
-  const pool = candidates.length ? candidates : nextPool
+  const alternatives = [...due, ...newWords, ...reviews].filter(
+    (card) => card.key !== recentlyAsked,
+  )
+  const pool = candidates.length
+    ? candidates
+    : alternatives.length
+      ? alternatives
+      : nextPool
   return pool[index(pool.length, random)] ?? null
 }

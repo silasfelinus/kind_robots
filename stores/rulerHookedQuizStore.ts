@@ -3,12 +3,14 @@ import { useMandarinTutorStore } from './mandarinTutorStore'
 import { performFetch } from './utils'
 import { useRulerHookedStore } from './rulerHookedStore'
 import {
+  animalMandarinCards,
   geographyQuestion,
   mandarinFrontier,
   mandarinQuestion,
   type FishingMode,
   type FishingQuizModule,
   type FishingQuizQuestion,
+  type MandarinQuizScope,
 } from '~/utils/rulerHooked/quiz'
 
 const SETTINGS_KEY = 'kind-robots:ruler-hooked:study-mode:v1'
@@ -21,6 +23,7 @@ export const useRulerHookedQuizStore = defineStore('rulerHookedQuiz', () => {
   const fishing = useRulerHookedStore()
   const tutor = useMandarinTutorStore()
   const mode = ref<FishingMode>('classic')
+  const mandarinScope = ref<MandarinQuizScope>('all')
   const modules = ref<ModuleToggles>({
     flags: true,
     capitals: true,
@@ -30,6 +33,11 @@ export const useRulerHookedQuizStore = defineStore('rulerHookedQuiz', () => {
   const question = ref<FishingQuizQuestion | null>(null)
   const introduction = ref(false)
   const feedback = ref('')
+  const answerSheet = ref(false)
+  const pendingCatch = ref(false)
+  const answerWasCorrect = computed(
+    () => answerSheet.value && pendingCatch.value,
+  )
   const loading = ref(false)
   const error = ref('')
   const mandarinSynced = ref(false)
@@ -61,6 +69,7 @@ export const useRulerHookedQuizStore = defineStore('rulerHookedQuiz', () => {
       SETTINGS_KEY,
       JSON.stringify({
         mode: mode.value,
+        mandarinScope: mandarinScope.value,
         modules: modules.value,
         correct: correct.value,
       }),
@@ -75,11 +84,14 @@ export const useRulerHookedQuizStore = defineStore('rulerHookedQuiz', () => {
       if (!raw) return
       const parsed = JSON.parse(raw) as {
         mode?: FishingMode
+        mandarinScope?: MandarinQuizScope
         modules?: Partial<ModuleToggles>
         correct?: Partial<Progress>
       }
       if (parsed.mode === 'quiz' || parsed.mode === 'classic')
         mode.value = parsed.mode
+      if (parsed.mandarinScope === 'animals' || parsed.mandarinScope === 'all')
+        mandarinScope.value = parsed.mandarinScope
       if (parsed.modules) {
         for (const module of MODULES) {
           if (typeof parsed.modules[module] === 'boolean')
@@ -110,6 +122,12 @@ export const useRulerHookedQuizStore = defineStore('rulerHookedQuiz', () => {
     saveSettings()
   }
 
+  function setMandarinScope(next: MandarinQuizScope) {
+    mandarinScope.value = next
+    resetQuestion()
+    saveSettings()
+  }
+
   function toggleModule(module: FishingQuizModule) {
     modules.value[module] = !modules.value[module]
     if (!enabled.value.length) modules.value[module] = true
@@ -121,6 +139,8 @@ export const useRulerHookedQuizStore = defineStore('rulerHookedQuiz', () => {
     question.value = null
     introduction.value = false
     feedback.value = ''
+    answerSheet.value = false
+    pendingCatch.value = false
     error.value = ''
   }
 
@@ -134,10 +154,15 @@ export const useRulerHookedQuizStore = defineStore('rulerHookedQuiz', () => {
         'Mandarin lessons are unavailable. Retry or choose Classic.'
       return
     }
-    const keys = tutor.cards
-      .filter((card) => (card.hskLevel ?? 99) <= 2)
-      .slice(0, 300)
-      .map((card) => card.key)
+    const keys = [
+      ...new Set([
+        ...tutor.cards
+          .filter((card) => (card.hskLevel ?? 99) <= 2)
+          .slice(0, 300)
+          .map((card) => card.key),
+        ...animalMandarinCards(tutor.cards).map((card) => card.key),
+      ]),
+    ].slice(0, 500)
     try {
       const response = await performFetch<{
         cards?: Record<string, CardProgress>
@@ -175,6 +200,8 @@ export const useRulerHookedQuizStore = defineStore('rulerHookedQuiz', () => {
           tracked.value,
           lastId.value?.replace(/^mandarin:/, '') ?? null,
           correct.value.mandarin,
+          Math.random,
+          mandarinScope.value,
         )
         if (!card) {
           const backup = available.find((module) => module !== 'mandarin')
@@ -189,8 +216,14 @@ export const useRulerHookedQuizStore = defineStore('rulerHookedQuiz', () => {
             lastId.value,
           )
         } else {
-          question.value = mandarinQuestion(card, tutor.cards)
+          question.value = mandarinQuestion(
+            card,
+            mandarinScope.value === 'animals'
+              ? animalMandarinCards(tutor.cards)
+              : tutor.cards,
+          )
           introduction.value =
+            mandarinScope.value !== 'animals' &&
             !tutor.lessonIsComplete(card.key) &&
             (tracked.value[card.key]?.repetitions ?? 0) === 0
           void tutor.probeCanonicalIllustration(card.key)
@@ -243,14 +276,37 @@ export const useRulerHookedQuizStore = defineStore('rulerHookedQuiz', () => {
       correct.value[active.module] += 1
       saveSettings()
       feedback.value = active.explanation
-      fishing.landQuizFish()
+      if (active.module === 'mandarin') {
+        answerSheet.value = true
+        pendingCatch.value = true
+      } else {
+        fishing.landQuizFish()
+      }
       return true
     }
     feedback.value =
       'Not quite. ' +
       active.explanation +
       ' Another question can still land this fish.'
+    if (active.module === 'mandarin') answerSheet.value = true
     return false
+  }
+
+  function finishAnswerSheet() {
+    if (
+      !answerSheet.value ||
+      !question.value ||
+      question.value.module !== 'mandarin'
+    )
+      return
+    const card = currentMandarinCard.value
+    const caught = pendingCatch.value
+    answerSheet.value = false
+    pendingCatch.value = false
+    if (card && !tutor.lessonIsComplete(card.key))
+      void tutor.completeLesson(card.key)
+    if (caught) fishing.landQuizFish()
+    else void nextQuestion()
   }
 
   function retryLoading() {
@@ -261,12 +317,15 @@ export const useRulerHookedQuizStore = defineStore('rulerHookedQuiz', () => {
 
   return {
     mode,
+    mandarinScope,
     modules,
     correct,
     enabled,
     question,
     introduction,
     feedback,
+    answerSheet,
+    answerWasCorrect,
     loading,
     error,
     mandarinSynced,
@@ -274,10 +333,12 @@ export const useRulerHookedQuizStore = defineStore('rulerHookedQuiz', () => {
     currentArt,
     initialize,
     setMode,
+    setMandarinScope,
     toggleModule,
     nextQuestion,
     finishIntroduction,
     answer,
+    finishAnswerSheet,
     retryLoading,
     resetQuestion,
   }

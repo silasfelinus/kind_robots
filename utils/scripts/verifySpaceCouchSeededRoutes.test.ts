@@ -114,7 +114,10 @@ assert.ok(
   'destination selection should expose the full circuit',
 )
 assert.ok(threadOpportunities >= 4, 'there must be follow-up opportunities')
-assert.ok(chosenFollowups * 2 >= threadOpportunities, 'prefer earned follow-ups')
+assert.ok(
+  chosenFollowups * 2 >= threadOpportunities,
+  'prefer earned follow-ups',
+)
 console.log(
   'Space Couch default routes: ' +
     routes.size +
@@ -140,7 +143,12 @@ const sequelFlags = [
   ['twins-summit', 8, 'courtesy-simultaneous'],
 ] as const
 for (const [missionId, chapter, flag] of sequelFlags) {
-  assert.ok(destinationFollowup({ ...windglass, chapter, worldFlags: [flag] }, missionId))
+  assert.ok(
+    destinationFollowup(
+      { ...windglass, chapter, worldFlags: [flag] },
+      missionId,
+    ),
+  )
   assert.equal(destinationFollowup(windglass, missionId), null)
 }
 const starChart = readFileSync(

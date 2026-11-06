@@ -460,24 +460,40 @@ export function playClash(
       draw(s, side)
     } else if (target) {
       switch (card.effect) {
-        case 'heal': target.hp = Math.min(target.maxHp, target.hp + power); break
-        case 'armor': target.armor++; break
-        case 'sharpen': target.attack++; break
+        case 'heal':
+          target.hp = Math.min(target.maxHp, target.hp + power)
+          break
+        case 'armor':
+          target.armor++
+          break
+        case 'sharpen':
+          target.attack++
+          break
         case 'boost':
           if (card.kind === 'equipment') target.attack++
           else target.surge += 2
           break
         case 'grant':
           for (const keyword of card.grants ?? [])
-            if (!target.keywords.includes(keyword)) target.keywords.push(keyword)
+            if (!target.keywords.includes(keyword))
+              target.keywords.push(keyword)
           break
-        case 'root': target.rooted = true; break
-        case 'snare': dealDamage(target, power); target.rooted = true; break
-        case 'chaos': dealDamage(target, 1 + Math.floor(random(s) * 3)); break
+        case 'root':
+          target.rooted = true
+          break
+        case 'snare':
+          dealDamage(target, power)
+          target.rooted = true
+          break
+        case 'chaos':
+          dealDamage(target, 1 + Math.floor(random(s) * 3))
+          break
         default:
           dealDamage(target, power)
           if (card.effect === 'blast') {
-            for (const nearby of s.units.filter((u) => u.side === foe && Math.abs(u.lane - lane) === 1))
+            for (const nearby of s.units.filter(
+              (u) => u.side === foe && Math.abs(u.lane - lane) === 1,
+            ))
               dealDamage(nearby, 1)
           }
           if (card.effect === 'debt' || card.debt)
@@ -494,23 +510,35 @@ export function playClash(
   return s
 }
 export function passClash(input: ClashState, side: Side): ClashState {
-  if (input.victor || input.active !== side || input.plays[side] >= CLASH_PLAYS) return input
+  if (input.victor || input.active !== side || input.plays[side] >= CLASH_PLAYS)
+    return input
   const s = structuredClone(input)
   note(s, (side === 'player' ? 'You' : 'Rival') + ' pass.', 'play')
   s.commands.push({ t: 'pass', side })
   advance(s, side)
   return s
 }
-export function applyClashCommand(s: ClashState, command: ClashCommand): ClashState {
+export function applyClashCommand(
+  s: ClashState,
+  command: ClashCommand,
+): ClashState {
   return command.t === 'pass'
     ? passClash(s, command.side)
     : playClash(s, command.side, command.card, command.lane)
 }
-export function replayClash(player: TeamId, enemy: TeamId, seed: number, commands: ClashCommand[]): ClashState {
+export function replayClash(
+  player: TeamId,
+  enemy: TeamId,
+  seed: number,
+  commands: ClashCommand[],
+): ClashState {
   return commands.reduce(applyClashCommand, createClash(player, enemy, seed))
 }
 /** Deterministic, public-board-aware CPU. Deliberately no access to human hand. */
-export function chooseClashCpu(s: ClashState, side: Side = 'enemy'): ClashCommand {
+export function chooseClashCpu(
+  s: ClashState,
+  side: Side = 'enemy',
+): ClashCommand {
   if (s.active !== side || s.victor) return { t: 'pass', side }
   let best: { score: number; card: string; lane: number } | undefined
   for (const id of s.hands[side]) {
@@ -522,17 +550,23 @@ export function chooseClashCpu(s: ClashState, side: Side = 'enemy'): ClashComman
       let score: number
       if (card.kind === 'creature') {
         const damage = Math.max(0, (card.attack ?? 1) - (foe?.armor ?? 0))
-        score = foe ? 3 + (foe.attack > 0 ? foe.attack : 0) + damage * 0.5
+        score = foe
+          ? 3 + (foe.attack > 0 ? foe.attack : 0) + damage * 0.5
           : 3 + (card.attack ?? 1) * 1.6
         if (mine) score -= mine.hp + mine.attack * 1.5
         if (foe && (card.hp ?? 2) <= foe.attack) score -= 1.5
       } else if (card.kind === 'trap') score = foe ? 0.2 : 1.4
-      else if (card.effect === 'scan') score = s.traps.some((t) => t.side !== side && t.lane === lane) ? 3 : 0.3
+      else if (card.effect === 'scan')
+        score = s.traps.some((t) => t.side !== side && t.lane === lane)
+          ? 3
+          : 0.3
       else if (aim(card) === 'own') score = 1 + (mine?.attack ?? 0) * 0.35
       else score = 2 + (foe && (card.power ?? 2) >= foe.hp + foe.armor ? 4 : 0)
       score += Math.min(card.cost, 4) * 0.08
       if (!best || score > best.score) best = { score, card: id, lane }
     }
   }
-  return best ? { t: 'play', side, card: best.card, lane: best.lane } : { t: 'pass', side }
+  return best
+    ? { t: 'play', side, card: best.card, lane: best.lane }
+    : { t: 'pass', side }
 }

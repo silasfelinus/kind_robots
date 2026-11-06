@@ -135,7 +135,9 @@ export function clashCardText(card: Card): string {
       '-power, ' +
       b.hp +
       '-life follower. Attacks trade damage; survivors heal 1 at round end.' +
-      (card.keywords?.length ? ' Traits: ' + card.keywords.join(', ') + '.' : '') +
+      (card.keywords?.length
+        ? ' Traits: ' + card.keywords.join(', ') + '.'
+        : '') +
       suffix
     )
   if (card.kind === 'trap')
@@ -155,12 +157,17 @@ export function clashCardText(card: Card): string {
       text = 'Friendly follower gains +1 armor, up to 2.'
       break
     case 'sharpen':
-      text = 'Friendly follower gains +' + (b.plays === 2 ? 2 : 1) + ' permanent power.'
+      text =
+        'Friendly follower gains +' +
+        (b.plays === 2 ? 2 : 1) +
+        ' permanent power.'
       break
     case 'boost':
       text =
         card.kind === 'equipment'
-          ? 'Friendly follower gains +' + (b.plays === 2 ? 2 : 1) + ' permanent power.'
+          ? 'Friendly follower gains +' +
+            (b.plays === 2 ? 2 : 1) +
+            ' permanent power.'
           : 'Friendly follower gains +' + b.power + ' power for this round.'
       break
     case 'grant':
@@ -177,7 +184,10 @@ export function clashCardText(card: Card): string {
       break
     case 'snare':
     case 'debt':
-      text = 'Deal ' + b.power + ' damage and stop that follower attacking this turn.'
+      text =
+        'Deal ' +
+        b.power +
+        ' damage and stop that follower attacking this turn.'
       break
     case 'blast':
       text = 'Deal ' + b.power + ' damage, plus 1 to adjacent enemy followers.'
@@ -275,7 +285,11 @@ export function createClash(
   return s
 }
 function aim(card: Card): 'own' | 'enemy' | 'lane' {
-  if (card.kind === 'creature' || card.kind === 'trap' || card.effect === 'scan')
+  if (
+    card.kind === 'creature' ||
+    card.kind === 'trap' ||
+    card.effect === 'scan'
+  )
     return 'lane'
   if (
     card.kind === 'equipment' ||
@@ -319,7 +333,12 @@ function casualties(s: ClashState): void {
   s.units = s.units.filter((u) => u.hp > 0)
   for (const u of fallen) {
     s.discards[u.side].push(u.cardId)
-    note(s, nameOf(u) + ' falls in alley ' + (u.lane + 1) + '.', 'death', u.lane)
+    note(
+      s,
+      nameOf(u) + ' falls in alley ' + (u.lane + 1) + '.',
+      'death',
+      u.lane,
+    )
     if (has(u, 'volatile')) {
       const foe = unitAt(s, opponent(u.side), u.lane)
       const burst = clamp(cardById(u.cardId).burst ?? 1, 1, 2)
@@ -411,16 +430,25 @@ export function playClash(
           target.armor = clamp(target.armor + 1, 0, 2)
           break
         case 'sharpen':
-          target.attack = clamp(target.attack + (profile.plays === 2 ? 2 : 1), 1, 6)
+          target.attack = clamp(
+            target.attack + (profile.plays === 2 ? 2 : 1),
+            1,
+            6,
+          )
           break
         case 'boost':
           if (card.kind === 'equipment')
-            target.attack = clamp(target.attack + (profile.plays === 2 ? 2 : 1), 1, 6)
+            target.attack = clamp(
+              target.attack + (profile.plays === 2 ? 2 : 1),
+              1,
+              6,
+            )
           else target.surge += power
           break
         case 'grant':
           for (const keyword of card.grants ?? [])
-            if (!target.keywords.includes(keyword)) target.keywords.push(keyword)
+            if (!target.keywords.includes(keyword))
+              target.keywords.push(keyword)
           break
         case 'root':
           target.rooted = true
@@ -460,7 +488,11 @@ export function passClash(input: ClashState, side: Side): ClashState {
     return input
   const s = structuredClone(input)
   s.phase = 'attack'
-  note(s, (side === 'player' ? 'You' : 'Rival') + ' finish placing cards.', 'play')
+  note(
+    s,
+    (side === 'player' ? 'You' : 'Rival') + ' finish placing cards.',
+    'play',
+  )
   s.commands.push({ t: 'pass', side })
   return s
 }
@@ -496,22 +528,37 @@ export function attackClash(
   attacker.ambushUsed = true
   if (target === 'boss') {
     s.boss[foeSide] -= attackPower
-    note(s, nameOf(attacker) + ' hits the rival boss for ' + attackPower + '.', 'boss', attacker.lane)
+    note(
+      s,
+      nameOf(attacker) + ' hits the rival boss for ' + attackPower + '.',
+      'boss',
+      attacker.lane,
+    )
   } else {
     const defender = s.units.find((u) => u.uid === target)!
     const defensePower = defender.rooted ? 0 : clashPower(s, defender)
     const dealt = damage(defender, attackPower, has(attacker, 'pierce') ? 1 : 0)
-    const returned = damage(attacker, defensePower, has(defender, 'pierce') ? 1 : 0)
+    const returned = damage(
+      attacker,
+      defensePower,
+      has(defender, 'pierce') ? 1 : 0,
+    )
     defender.ambushUsed = true
     note(
       s,
       nameOf(attacker) +
-        ' deals ' + dealt + ' to ' + nameOf(defender) +
-        ' and takes ' + returned + ' back.',
+        ' deals ' +
+        dealt +
+        ' to ' +
+        nameOf(defender) +
+        ' and takes ' +
+        returned +
+        ' back.',
       'clash',
       attacker.lane,
     )
-    if (has(attacker, 'bulldoze') && defender.hp < 0) s.boss[foeSide] += defender.hp
+    if (has(attacker, 'bulldoze') && defender.hp < 0)
+      s.boss[foeSide] += defender.hp
     if (dealt > 0 && has(attacker, 'snare')) defender.rooted = true
     if (dealt > 0 && has(defender, 'snare')) attacker.rooted = true
     if (dealt > 0 && has(attacker, 'leech'))
@@ -627,16 +674,20 @@ export function chooseClashCpu(
         if (mine) score -= 2 + mine.attack * 1.3 + mine.hp * 0.3
         if (foe) score += 0.5
         if ((card.keywords ?? []).includes('swarm'))
-          score += s.units.some((u) => u.side === side && Math.abs(u.lane - lane) === 1) ? 2 : 0
+          score += s.units.some(
+            (u) => u.side === side && Math.abs(u.lane - lane) === 1,
+          )
+            ? 2
+            : 0
       } else if (card.kind === 'trap') score = 1.1
       else if (card.effect === 'scan')
-        score = s.traps.some((t) => t.side !== side && t.lane === lane) ? 5 : 0.5
-      else if (aim(card) === 'own')
-        score = 1.3 + (mine?.attack ?? 0) * 0.8
+        score = s.traps.some((t) => t.side !== side && t.lane === lane)
+          ? 5
+          : 0.5
+      else if (aim(card) === 'own') score = 1.3 + (mine?.attack ?? 0) * 0.8
       else score = 2.2 + (foe && b.power >= foe.hp + foe.armor ? 5 : b.power)
       score /= b.plays
-      if (!best || score > best.score)
-        best = { score, card: id, lane }
+      if (!best || score > best.score) best = { score, card: id, lane }
     }
   }
   return best

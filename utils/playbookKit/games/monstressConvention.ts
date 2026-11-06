@@ -102,12 +102,12 @@ export const MONSTRESS_CONVENTION: PlaybookKitSpec = {
       title: 'The Convention Lead',
       tone: 'hopeful',
       summary:
-        'Iris and Norb trace the knife to a 1964 Monstriquettes prop and follow it to the convention.',
+        'Iris and Norb trace the knife to a 1964 Beach Hex prop and follow it to the convention.',
       hint: 'Document the knife, establish the time, clear the stalker and ask both ghosts.',
       about: ['iris', 'nico', 'odette', 'violet'],
       art: {
         brief:
-          'Iris and tiny gloved Norb under a Sixty Years of Monstrique banner outside the convention hall, neon noir comedy illustration',
+          'Iris and tiny gloved Norb under a Six Decades of Screams banner outside the convention hall, neon noir comedy illustration',
       },
     },
     {

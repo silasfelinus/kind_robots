@@ -111,7 +111,7 @@ export const HOTEL_ROOMS: Record<RoomId, HotelRoom> = {
     label: 'Motel Front Office',
     floor: 1,
     caption:
-      'A counter sticky with sixty years of spilled cocktails, a key rack, a guest register and a lobby shrine to the 1964 Monstriquettes. Norb declines the complimentary pen. And the mint. And the air.',
+      'A counter sticky with sixty years of spilled cocktails, a key rack, a guest register and a lobby shrine to the 1964 Beach Hex line-up. Norb declines the complimentary pen. And the mint. And the air.',
     exits: ['motel-exterior', 'balcony'],
     hotspots: [
       {
@@ -130,7 +130,7 @@ export const HOTEL_ROOMS: Record<RoomId, HotelRoom> = {
       },
       {
         id: 'memorabilia-case',
-        label: 'Monstriquettes shrine',
+        label: 'Beach Hex shrine',
         x: 84,
         y: 34,
         verbs: ['look', 'photograph'],
@@ -353,7 +353,7 @@ export const HOTEL_ROOMS: Record<RoomId, HotelRoom> = {
     hotspots: [
       {
         id: 'idol-poster',
-        label: 'Sixty Years of Monstrique poster',
+        label: 'Six Decades of Screams tour poster',
         x: 51,
         y: 42,
         verbs: ['look', 'photograph'],
@@ -406,7 +406,7 @@ export const TOPICS: Record<string, string> = {
   'harker-files': 'The Harker Files',
   'violet-fee': 'Violet’s unpaid fee',
   'missing-fangs': 'Violet’s missing fangs',
-  shrine: 'The Monstriquettes shrine',
+  shrine: 'The Beach Hex shrine',
 }
 
 export const EVIDENCE: Record<string, string> = {
@@ -424,8 +424,8 @@ export const EVIDENCE: Record<string, string> = {
   'fan-photo': 'Gavin’s time-stamped courtyard photographs',
   'fan-exonerated': 'Gavin’s alibi for the murders',
   'knife-prop-mark': 'Stamped STARLITE PICTURES · BEACH HEX · 1964',
-  'idol-poster': 'Sixty Years of Monstrique: who is in town',
-  'harker-file': 'Harker File #1: the Monstriquettes’ contracts',
+  'idol-poster': 'Six Decades of Screams tour: who is in town',
+  'harker-file': 'Harker File #1: the Beach Hex contracts',
   'shrine-photo': 'Lobby shrine: four Hexblades, five dents in the velvet',
   'ice-ring': 'An ice bucket was taken out of 205 after the murders',
   'makeup-smear': 'Skin-tone foundation on the missing ice bucket',
@@ -622,7 +622,7 @@ function interview(
     case 'marta:shrine':
       return withLine(
         next,
-        'Marta: The Monstriquettes stayed here in ’64, before they were famous. I was a fan. Everybody was. Now sign the register or stop leaning on my counter.',
+        'Marta: The Beach Hex girls stayed here in ’64, shooting the drive-in pictures. Before they were famous. I was a fan. Everybody was. Now sign the register or stop leaning on my counter.',
       )
     case 'neighbor:unknown-visitor':
       add(next.evidence, 'neighbor-testimony')
@@ -645,7 +645,7 @@ function interview(
       return withLine(
         next,
         has(next, 'knife-photo')
-          ? 'Norb: Enlarge your photo. STARLITE PICTURES, BEACH HEX, 1964. A Monstriquettes stage prop. And a smudge of skin-tone makeup on the hilt.'
+          ? 'Norb: Enlarge your photo. STARLITE PICTURES, BEACH HEX, 1964. A Beach Hex stage prop. And a smudge of skin-tone makeup on the hilt.'
           : 'Norb: Photograph the knife where it fell. I am not going within arm’s length of a blade with history.',
       )
     case 'nico:ice-clank':
@@ -689,7 +689,7 @@ function interview(
       return withLine(
         next,
         iris
-          ? 'Odette: Sixty years of who’s older than her bio, who can’t sing and who slept with which director. File One is yours: the Monstriquettes’ contracts. Norb: This is unethical. Iris, take notes.'
+          ? 'Odette: Sixty years of who’s older than her bio, who can’t sing and who slept with which director. File One is yours: the Beach Hex contracts. Norb: This is unethical. Iris, take notes.'
           : 'Odette: My files, little man. Retainer paid. Don’t look so pale, I’m the one who’s dead.',
       )
     case 'odette-ghost:violet-fee':
@@ -726,7 +726,7 @@ function interview(
     case 'violet-ghost:violet-fee':
       return withLine(
         next,
-        'Violet: Four hundred for the night, cape included. She booked me to be a vampire for sixty years of pent-up whatever. I gave a great performance. I’d like to be paid for it.',
+        'Violet: Four hundred for the night, cape included. She booked me to be a vampire for a lifetime of pent-up whatever. I gave a great performance. I’d like to be paid for it.',
       )
     case 'gavin:fan-alibi':
       add(next.evidence, 'fan-photo')
@@ -928,7 +928,7 @@ export function performAction(
           ? 'Norb: In your photograph: a studio stamp on the guard, and makeup on the hilt. Skin tone. Not Violet’s white vampire base.'
           : 'Norb: Photograph it first. I will study the picture, not the weapon.',
       'odette-body':
-        'Iris: Eighty-one, they say. Her ghost looks thirty-five. Violet: Ghosts look how they feel. She always felt thirty-five.',
+        'Iris: Fifty-eight, they say. Her ghost looks thirty-five. Violet: Ghosts look how they feel. She always felt thirty-five.',
       'violet-body':
         'Iris: Violet, still in the cape. She deserves this solved as much as her client does.',
       'odette-purse':
@@ -938,7 +938,7 @@ export function performAction(
       'ice-machine':
         'Norb: A distinct double clank, every few minutes. A very unromantic metronome.',
       'memorabilia-case':
-        'Iris: The 1964 Monstriquettes: vampire, werewolf, lagoon girl, mummy. Four jewelled Hexblades on velvet. Marta: Don’t smudge the glass.',
+        'Iris: The 1964 Beach Hex line-up: vampire, werewolf, lagoon girl, mummy. Four jewelled Hexblades on velvet. Marta: Don’t smudge the glass.',
       gavin:
         'Iris: A creep with a telephoto lens. Creepy isn’t the same as killer.',
       'sewer-hatch':
@@ -1188,7 +1188,7 @@ export function performAction(
     add(next.topics, 'idol-schedule')
     return withLine(
       next,
-      'Iris: The knife’s a 1964 Beach Hex prop: a Monstriquettes Hexblade. Norb: Then the case starts where Monstrique started. Get the car. I’ll sit in the back. On a towel.',
+      'Iris: The knife’s a 1964 Beach Hex stage prop, a jewelled Hexblade. Norb: Then the case starts where Monstrique started. Get the car. I’ll sit in the back. On a towel.',
     )
   }
   if (target === 'idol-poster' && verb === 'photograph') {
@@ -1202,7 +1202,7 @@ export function performAction(
     next.ending = 'lead-earned'
     return withLine(
       next,
-      'Iris: Every Monstriquette had a reason, and half of them are signing autographs right here. Norb: Chapter One is filed. Tomorrow, we follow Monstrique back to 1964.',
+      'Iris: Seven albums, seven women Monstrique erased, and every one had a reason. Half of them are signing autographs right here. Norb: Chapter One is filed. Tomorrow, we follow Monstrique back to 1964.',
     )
   }
   return withLine(state, HOTEL_ROOMS[state.room].caption, false)

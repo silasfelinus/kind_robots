@@ -648,11 +648,11 @@ const introIndex = ref(0)
 const introScenes = [
   {
     title: 'Always Last Call',
-    text: 'Midnight City. Odette Harker, the agent who made MONSTRIQUE and took ten percent of everyone in it, checks into Room 205 of the Last Call Motor Lodge with a professional she booked for the night.',
+    text: 'Midnight City. Odette Harker, the agent who ran MONSTRIQUE and took ten percent of everyone in it, checks into Room 205 of the Last Call Motor Lodge with a professional she booked for the night.',
   },
   {
     title: 'Bite Me',
-    text: 'Violet Wisp wears a rented cape and forty-dollar fangs, because Odette has wanted a vampire for sixty years. Two adults, one bottle of gin, very little rehearsal. The ice arrives. The curtains close. Downstairs, the ice machine clanks twice.',
+    text: 'Violet Wisp wears a rented cape and forty-dollar fangs, because Odette has wanted a vampire her whole life. Two adults, one bottle of gin, very little rehearsal. The ice arrives. The curtains close. Downstairs, the ice machine clanks twice.',
   },
   {
     title: 'Checkout Time',

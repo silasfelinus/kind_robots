@@ -274,6 +274,9 @@ export function mandarinFrontier(
   const reviews = frontier.filter((card) => tracked[card.key])
   const nextPool = due.length ? due : newWords.length ? newWords : reviews
   const candidates = nextPool.filter((card) => card.key !== recentlyAsked)
-  const pool = candidates.length ? candidates : nextPool
+  const alternatives = [...due, ...newWords, ...reviews].filter(
+    (card) => card.key !== recentlyAsked,
+  )
+  const pool = candidates.length ? candidates : alternatives.length ? alternatives : nextPool
   return pool[index(pool.length, random)] ?? null
 }

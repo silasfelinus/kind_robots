@@ -15,7 +15,14 @@
         <span>ROUND {{ game.round }} / {{ CLASH_ROUND_LIMIT }}</span>
         <b>{{ phaseLabel }}</b>
       </div>
-      <button class="clash-reset" type="button" :aria-pressed="showHelp" @click="showHelp = !showHelp">? RULES</button>
+      <button
+        class="clash-reset"
+        type="button"
+        :aria-pressed="showHelp"
+        @click="showHelp = !showHelp"
+      >
+        ? RULES
+      </button>
       <button
         class="clash-reset"
         type="button"
@@ -51,7 +58,9 @@
             data-testid="clash-attack-boss"
             :disabled="!bossTargetable"
             @click="attackBoss"
-          >ATTACK BOSS</button>
+          >
+            ATTACK BOSS
+          </button>
           <span class="clash-bank">{{ game.plays.enemy }} / 2 PLAYS</span>
         </div>
 
@@ -82,7 +91,8 @@
               class="clash-slot"
               :class="{
                 filled: !!unit('enemy', lane),
-                target: targetable('enemy', lane) || attackTargetable('enemy', lane),
+                target:
+                  targetable('enemy', lane) || attackTargetable('enemy', lane),
                 selected: selectedUnit === unit('enemy', lane)?.uid,
               }"
               :disabled="!targetable('enemy', lane) && !unit('enemy', lane)"
@@ -133,8 +143,12 @@
               class="clash-slot"
               :class="{
                 filled: !!unit('player', lane),
-                target: targetable('player', lane) || attackTargetable('player', lane),
-                selected: selectedAttacker === unit('player', lane)?.uid || selectedUnit === unit('player', lane)?.uid,
+                target:
+                  targetable('player', lane) ||
+                  attackTargetable('player', lane),
+                selected:
+                  selectedAttacker === unit('player', lane)?.uid ||
+                  selectedUnit === unit('player', lane)?.uid,
               }"
               :disabled="!targetable('player', lane) && !unit('player', lane)"
               :aria-label="slotLabel('player', lane)"
@@ -187,7 +201,10 @@
         </div>
       </div>
 
-      <aside v-if="showHelp || selectedCard || selectedUnitCard" class="clash-sidebar">
+      <aside
+        v-if="showHelp || selectedCard || selectedUnitCard"
+        class="clash-sidebar"
+      >
         <div class="clash-info">
           <span class="clash-eyebrow">{{
             selectedCard
@@ -210,7 +227,9 @@
             <small
               >{{ clashPlayCost(selectedCard) }} PLAY{{
                 clashPlayCost(selectedCard) === 2 ? 'S' : ''
-              }} · {{ selectedCard.kind.toUpperCase() }}</small>
+              }}
+              · {{ selectedCard.kind.toUpperCase() }}</small
+            >
             >
             <span class="clash-help"
               >Tap a glowing lane to play it. Tap the card again to
@@ -235,14 +254,20 @@
           </template>
           <template v-else>
             <strong>TWO PLAYS. THEN ATTACK.</strong>
-            <p>Draw five random cards each turn. Play two normal cards or one
-              special two-play card. Unplayed cards are discarded.</p>
-            <p>Select a friendly follower, then any enemy follower to trade
-              power damage. If no enemies remain, attack the boss. Each
-              follower may attack once per turn.</p>
-            <span class="clash-help">Surviving followers recover one life
-              after both players finish. Placement still matters for traps,
-              neighbors and swarm powers.</span>
+            <p>
+              Draw five random cards each turn. Play two normal cards or one
+              special two-play card. Unplayed cards are discarded.
+            </p>
+            <p>
+              Select a friendly follower, then any enemy follower to trade power
+              damage. If no enemies remain, attack the boss. Each follower may
+              attack once per turn.
+            </p>
+            <span class="clash-help"
+              >Surviving followers recover one life after both players finish.
+              Placement still matters for traps, neighbors and swarm
+              powers.</span
+            >
           </template>
         </div>
         <div class="clash-recap" role="log" aria-label="Latest combat events">
@@ -264,10 +289,19 @@
       <div class="clash-hud">
         <div class="clash-plays">
           <strong>{{
-            game.victor ? resultText : busy ? 'RIVAL TURN' : game.phase === 'attack' ? 'CHOOSE ATTACKS' : 'YOUR HAND'
+            game.victor
+              ? resultText
+              : busy
+                ? 'RIVAL TURN'
+                : game.phase === 'attack'
+                  ? 'CHOOSE ATTACKS'
+                  : 'YOUR HAND'
           }}</strong>
-          <span>{{ game.plays.player }} / {{ CLASH_PLAYS }} card plays ·
-            {{ game.decks.player.length }} in deck · {{ game.discards.player.length }} discarded</span>
+          <span
+            >{{ game.plays.player }} / {{ CLASH_PLAYS }} card plays ·
+            {{ game.decks.player.length }} in deck ·
+            {{ game.discards.player.length }} discarded</span
+          >
         </div>
         <button
           type="button"
@@ -288,9 +322,16 @@
           class="clash-card"
           :class="{
             selected: heldIndex === index,
-            unaffordable: game.phase !== 'play' || clashPlayCost(cardById(id)) + game.plays.player > CLASH_PLAYS,
+            unaffordable:
+              game.phase !== 'play' ||
+              clashPlayCost(cardById(id)) + game.plays.player > CLASH_PLAYS,
           }"
-          :disabled="busy || !!game.victor || game.active !== 'player' || game.phase !== 'play'"
+          :disabled="
+            busy ||
+            !!game.victor ||
+            game.active !== 'player' ||
+            game.phase !== 'play'
+          "
           :data-testid="'clash-hand-' + index"
           :aria-pressed="heldIndex === index"
           @click="pick(index)"
@@ -301,7 +342,11 @@
             :fallback="cardById(id).symbol"
             compact
           />
-          <span class="clash-cost">{{ clashPlayCost(cardById(id)) }} PLAY{{ clashPlayCost(cardById(id)) === 2 ? 'S' : '' }}</span>
+          <span class="clash-cost"
+            >{{ clashPlayCost(cardById(id)) }} PLAY{{
+              clashPlayCost(cardById(id)) === 2 ? 'S' : ''
+            }}</span
+          >
           <span class="clash-card-label"
             ><b>{{ cardById(id).name }}</b
             ><small>{{ cardById(id).kind }}</small></span
@@ -396,9 +441,10 @@ const phaseLabel = computed(() =>
         ? 'PLAY UP TO TWO CARDS'
         : 'PICK YOUR ATTACKS',
 )
-const bossTargetable = computed(() =>
-  selectedAttacker.value !== null &&
-  canClashAttack(game.value, 'player', selectedAttacker.value, 'boss'),
+const bossTargetable = computed(
+  () =>
+    selectedAttacker.value !== null &&
+    canClashAttack(game.value, 'player', selectedAttacker.value, 'boss'),
 )
 const resultText = computed(() =>
   game.value.victor === 'player'
@@ -438,12 +484,19 @@ function targetable(side: Side, lane: number): boolean {
   )
 }
 function attackTargetable(side: Side, lane: number): boolean {
-  if (busy.value || game.value.phase !== 'attack' || game.value.active !== 'player') return false
+  if (
+    busy.value ||
+    game.value.phase !== 'attack' ||
+    game.value.active !== 'player'
+  )
+    return false
   const follower = unit(side, lane)
   if (!follower) return false
   if (side === 'player') return !follower.attacked && !follower.rooted
-  return selectedAttacker.value !== null &&
+  return (
+    selectedAttacker.value !== null &&
     canClashAttack(game.value, 'player', selectedAttacker.value, follower.uid)
+  )
 }
 function pick(index: number): void {
   if (game.value.phase !== 'play') return
@@ -458,21 +511,42 @@ function slotLabel(side: Side, lane: number): string {
     'alley ' +
     (lane + 1) +
     (u ? ': ' + cardById(u.cardId).name + ', ' + u.hp + ' health' : ': empty') +
-    (targetable(side, lane) || attackTargetable(side, lane) ? ', playable target' : '')
+    (targetable(side, lane) || attackTargetable(side, lane)
+      ? ', playable target'
+      : '')
   )
 }
 function clickSlot(side: Side, lane: number): void {
   if (busy.value || game.value.active !== 'player' || game.value.victor) return
   const targetUnit = unit(side, lane)
   if (game.value.phase === 'attack') {
-    if (side === 'player' && targetUnit && !targetUnit.attacked && !targetUnit.rooted) {
+    if (
+      side === 'player' &&
+      targetUnit &&
+      !targetUnit.attacked &&
+      !targetUnit.rooted
+    ) {
       selectedAttacker.value = targetUnit.uid
       selectedUnit.value = targetUnit.uid
       return
     }
-    if (side === 'enemy' && targetUnit && selectedAttacker.value !== null &&
-      canClashAttack(game.value, 'player', selectedAttacker.value, targetUnit.uid)) {
-      game.value = attackClash(game.value, 'player', selectedAttacker.value, targetUnit.uid)
+    if (
+      side === 'enemy' &&
+      targetUnit &&
+      selectedAttacker.value !== null &&
+      canClashAttack(
+        game.value,
+        'player',
+        selectedAttacker.value,
+        targetUnit.uid,
+      )
+    ) {
+      game.value = attackClash(
+        game.value,
+        'player',
+        selectedAttacker.value,
+        targetUnit.uid,
+      )
       selectedAttacker.value = null
       selectedUnit.value = null
     }
@@ -523,9 +597,10 @@ function cpuReply(): void {
 }
 function pass(): void {
   if (busy.value || game.value.active !== 'player' || game.value.victor) return
-  game.value = game.value.phase === 'play'
-    ? passClash(game.value, 'player')
-    : endClashTurn(game.value, 'player')
+  game.value =
+    game.value.phase === 'play'
+      ? passClash(game.value, 'player')
+      : endClashTurn(game.value, 'player')
   heldIndex.value = null
   selectedUnit.value = null
   selectedAttacker.value = null
@@ -535,7 +610,8 @@ function forecast(lane: number): string {
   const ours = unit('player', lane)
   const theirs = unit('enemy', lane)
   if (!ours && !theirs) return '◇'
-  const label = (u: ClashUnit): string => u.attacked ? '✓' : u.rooted ? '⌁' : String(clashPower(game.value, u))
+  const label = (u: ClashUnit): string =>
+    u.attacked ? '✓' : u.rooted ? '⌁' : String(clashPower(game.value, u))
   return (ours ? label(ours) : '·') + ' / ' + (theirs ? label(theirs) : '·')
 }
 </script>

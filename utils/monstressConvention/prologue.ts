@@ -475,86 +475,162 @@ export function performAction(
   const next: CaseState = { ...state }
   if (action.target === 'lost-pass' && action.verb === 'take') {
     next.inventory = addUnique(next.inventory, 'fan-pass')
-    return withLine(next, 'Nico: A mysterious badge. Either fate or an aggressively careless attendee.')
+    return withLine(
+      next,
+      'Nico: A mysterious badge. Either fate or an aggressively careless attendee.',
+    )
   }
   if (action.target === 'marquee' && action.verb === 'photograph') {
     addEvidence(next, 'commission-photo')
     unlockTopic(next, 'schedule')
-    return withLine(next, 'Iris: The convention site needs a photograph. This one proves we were commissioned.')
+    return withLine(
+      next,
+      'Iris: The convention site needs a photograph. This one proves we were commissioned.',
+    )
   }
   if (action.target === 'call-sheet' && action.verb === 'photograph') {
     addEvidence(next, 'panel-program')
     unlockTopic(next, 'schedule')
-    return withLine(next, 'Iris: The time was changed by hand. Save this before anyone loses it.')
+    return withLine(
+      next,
+      'Iris: The time was changed by hand. Save this before anyone loses it.',
+    )
   }
   if (action.target === 'poster' && action.verb === 'photograph') {
     addEvidence(next, 'licensing-poster')
     unlockTopic(next, 'royalties')
-    return withLine(next, 'Nico: A lifetime likeness license? That does not sound suspicious at all.')
+    return withLine(
+      next,
+      'Nico: A lifetime likeness license? That does not sound suspicious at all.',
+    )
   }
   if (action.target === 'clerk' && action.verb === 'talk') {
     unlockTopic(next, 'schedule')
-    return withLine(next, state.actor === 'iris'
-      ? 'Marta: Photographers are booked through the press desk. Show me the assignment.'
-      : 'Marta: Bloggers are not press. Even if they describe themselves as voracious.')
+    return withLine(
+      next,
+      state.actor === 'iris'
+        ? 'Marta: Photographers are booked through the press desk. Show me the assignment.'
+        : 'Marta: Bloggers are not press. Even if they describe themselves as voracious.',
+    )
   }
   if (action.target === 'clerk' && action.verb === 'use') {
     if (state.actor === 'iris' && has(next, 'commission-photo')) {
       next.flags = addUnique(next.flags, 'press-badge')
-      return withLine(next, 'Marta: Your assignment checks out, Iris. Two press passes, on one condition: behave.')
+      return withLine(
+        next,
+        'Marta: Your assignment checks out, Iris. Two press passes, on one condition: behave.',
+      )
     }
     if (state.actor === 'nico' && has(next, 'fan-pass')) {
       next.flags = addUnique(next.flags, 'press-badge')
-      return withLine(next, 'Nico: I found a lost pass. Marta: Wonderful. I can convert it to a temporary press badge.')
+      return withLine(
+        next,
+        'Nico: I found a lost pass. Marta: Wonderful. I can convert it to a temporary press badge.',
+      )
     }
-    return withLine(state, 'Marta needs convincing evidence of an invitation or a valid day pass.', false)
+    return withLine(
+      state,
+      'Marta needs convincing evidence of an invitation or a valid day pass.',
+      false,
+    )
   }
   if (action.target === 'celestine' && action.verb === 'talk') {
     unlockTopic(next, 'royalties')
-    return withLine(next, 'Celestine: Ask me what they owe. Not whether I am dating Countess Vespera.')
+    return withLine(
+      next,
+      'Celestine: Ask me what they owe. Not whether I am dating Countess Vespera.',
+    )
   }
-  if (action.target === 'stage' && action.verb === 'use' && has(next, 'press-badge')) {
+  if (
+    action.target === 'stage' &&
+    action.verb === 'use' &&
+    has(next, 'press-badge')
+  ) {
     next.flags = addUnique(next.flags, 'murder')
     unlockTopic(next, 'fan-alibi')
-    return withLine(next, 'The lights die. A shout rises from upstairs. Celestine is found behind a locked door. The panel is over.')
+    return withLine(
+      next,
+      'The lights die. A shout rises from upstairs. Celestine is found behind a locked door. The panel is over.',
+    )
   }
-  if (action.target === 'ghost' && action.verb === 'talk' && has(next, 'murder')) {
+  if (
+    action.target === 'ghost' &&
+    action.verb === 'talk' &&
+    has(next, 'murder')
+  ) {
     next.flags = addUnique(next.flags, 'ghost-met')
     unlockTopic(next, 'last-sensation')
     unlockTopic(next, 'royalties')
-    return withLine(next, 'Celestine: Do not ask who killed me. If I knew, this would be a shorter game.')
+    return withLine(
+      next,
+      'Celestine: Do not ask who killed me. If I knew, this would be a shorter game.',
+    )
   }
   if (action.target === 'gavin' && action.verb === 'talk') {
     next.flags = addUnique(next.flags, 'fan-reported')
     unlockTopic(next, 'fan-alibi')
-    return withLine(next, 'Gavin: She must have noticed my photographs. Iris: That is harassment, not a love story.')
+    return withLine(
+      next,
+      'Gavin: She must have noticed my photographs. Iris: That is harassment, not a love story.',
+    )
   }
-  if (action.target === 'camera' && action.verb === 'photograph' && has(next, 'murder')) {
+  if (
+    action.target === 'camera' &&
+    action.verb === 'photograph' &&
+    has(next, 'murder')
+  ) {
     addEvidence(next, 'fan-photo')
     if (has(next, 'porter-log')) addEvidence(next, 'fan-exonerated')
-    return withLine(next, 'The photo includes a courtyard clock. His location can be checked against the lift log.')
+    return withLine(
+      next,
+      'The photo includes a courtyard clock. His location can be checked against the lift log.',
+    )
   }
   if (action.target === 'bell' && action.verb === 'photograph') {
     addEvidence(next, 'bell-scratch')
     unlockTopic(next, 'service-bell')
-    return withLine(next, 'Iris: An old bell does not get a fresh scratch on its own.')
+    return withLine(
+      next,
+      'Iris: An old bell does not get a fresh scratch on its own.',
+    )
   }
   if (action.target === 'latch' && action.verb === 'photograph') {
     addEvidence(next, 'locked-latch')
-    return withLine(next, 'Nico: The latch was thrown from inside. A conventional alibi will not do.')
+    return withLine(
+      next,
+      'Nico: The latch was thrown from inside. A conventional alibi will not do.',
+    )
   }
   if (action.target === 'porter' && action.verb === 'talk') {
     unlockTopic(next, 'service-bell')
-    return withLine(next, 'Pip: I log every service lift call. It is the only thing the hotel keeps in order.')
+    return withLine(
+      next,
+      'Pip: I log every service lift call. It is the only thing the hotel keeps in order.',
+    )
   }
-  if (action.target === 'desk' && action.verb === 'use' && has(next, 'murder')) {
-    if (!has(next, 'ghost-memory')) return withLine(state, 'We should interview our most unusual witness before filing.', false)
+  if (
+    action.target === 'desk' &&
+    action.verb === 'use' &&
+    has(next, 'murder')
+  ) {
+    if (!has(next, 'ghost-memory'))
+      return withLine(
+        state,
+        'We should interview our most unusual witness before filing.',
+        false,
+      )
     if (has(next, 'fan-exonerated') && has(next, 'rights-dispute')) {
       next.ending = 'responsible'
-      return withLine(next, 'Iris: Publish the timeline, not the rumor. Nico: And give both our names top billing.')
+      return withLine(
+        next,
+        'Iris: Publish the timeline, not the rumor. Nico: And give both our names top billing.',
+      )
     }
     next.ending = 'reckless'
-    return withLine(next, 'Nico prints an early accusation. By dawn the blog has clicks, but the people in it have to repair the damage.')
+    return withLine(
+      next,
+      'Nico prints an early accusation. By dawn the blog has clicks, but the people in it have to repair the damage.',
+    )
   }
   return withLine(state, note(state, action.target, action.verb), false)
 }
@@ -564,11 +640,25 @@ export function restoreCase(value: unknown): CaseState | null {
   const state = value as CaseState
   if (state.version !== 1 || !HOTEL_ROOMS[state.room]) return null
   if (state.actor !== 'nico' && state.actor !== 'iris') return null
-  for (const key of ['flags', 'evidence', 'topics', 'inventory', 'asked', 'transcript'] as const) {
-    if (!Array.isArray(state[key]) || !state[key].every((part) => typeof part === 'string'))
+  for (const key of [
+    'flags',
+    'evidence',
+    'topics',
+    'inventory',
+    'asked',
+    'transcript',
+  ] as const) {
+    if (
+      !Array.isArray(state[key]) ||
+      !state[key].every((part) => typeof part === 'string')
+    )
       return null
   }
-  if (state.ending !== null && state.ending !== 'responsible' && state.ending !== 'reckless')
+  if (
+    state.ending !== null &&
+    state.ending !== 'responsible' &&
+    state.ending !== 'reckless'
+  )
     return null
   if (!Number.isInteger(state.seed)) return null
   return {

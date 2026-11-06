@@ -10,7 +10,10 @@ function read(path: string): string {
   return readFileSync(new URL('../../' + path, import.meta.url), 'utf8')
 }
 
-function context(showMature: boolean, isAdmin: boolean): NavigationAccessContext {
+function context(
+  showMature: boolean,
+  isAdmin: boolean,
+): NavigationAccessContext {
   return {
     role: isAdmin ? 'ADMIN' : 'USER',
     roles: isAdmin ? ['ADMIN'] : ['USER'],
@@ -49,4 +52,6 @@ const project = read('server/utils/conductorMatureProjects.ts')
 assert.match(project, /monstress-convention/)
 assert.match(project, /viewerShowsMature && \(isPublic \|\| isAdmin\)/)
 
-console.log('Monstress preview access: mature child/admin precedence and route guards passed')
+console.log(
+  'Monstress preview access: mature child/admin precedence and route guards passed',
+)

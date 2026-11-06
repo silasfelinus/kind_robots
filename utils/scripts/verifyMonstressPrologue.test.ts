@@ -15,12 +15,21 @@ const walk = (state: CaseState, room: keyof typeof HOTEL_ROOMS): CaseState => {
   assert.equal(result.changed, true, result.line)
   return result.state
 }
-const doIt = (state: CaseState, verb: Parameters<typeof performAction>[1]['verb'], target: string, topic?: string): CaseState => {
+const doIt = (
+  state: CaseState,
+  verb: Parameters<typeof performAction>[1]['verb'],
+  target: string,
+  topic?: string,
+): CaseState => {
   const result = performAction(state, { verb, target, topic })
   assert.equal(result.changed, true, result.line)
   return result.state
 }
-const play = (badge: 'iris' | 'nico', ghost: 'iris' | 'nico', accuse: boolean): CaseState => {
+const play = (
+  badge: 'iris' | 'nico',
+  ghost: 'iris' | 'nico',
+  accuse: boolean,
+): CaseState => {
   let s = newCase(42)
   assert.equal(travel(s, 'convention').changed, false, 'badge gates the panel')
   if (badge === 'nico') s = doIt(s, 'take', 'lost-pass')
@@ -47,7 +56,10 @@ const play = (badge: 'iris' | 'nico', ghost: 'iris' | 'nico', accuse: boolean): 
   s = doIt(s, 'ask', 'ghost', 'last-sensation')
   assert.ok(!availableTopics(s, 'ghost').includes('last-sensation'))
   s = switchInvestigator(s).state
-  assert.ok(availableTopics(s, 'ghost').includes('last-sensation'), 'questions are shared, exhaustion is per investigator')
+  assert.ok(
+    availableTopics(s, 'ghost').includes('last-sensation'),
+    'questions are shared, exhaustion is per investigator',
+  )
   s = doIt(s, 'ask', 'ghost', 'last-sensation')
   s = walk(s, 'stairwell')
   s = walk(s, 'lobby')
@@ -70,7 +82,10 @@ assert.equal(rooms.length, 7)
 for (const room of rooms) {
   assert.ok(room.hotspots.length > 0, room.id)
   for (const exit of room.exits) {
-    assert.ok(HOTEL_ROOMS[exit].exits.includes(room.id), room.id + ' -> ' + exit)
+    assert.ok(
+      HOTEL_ROOMS[exit].exits.includes(room.id),
+      room.id + ' -> ' + exit,
+    )
   }
 }
 for (const badge of ['nico', 'iris'] as const) {
@@ -91,7 +106,12 @@ for (const badge of ['nico', 'iris'] as const) {
 let state = newCase()
 state = walk(state, 'lobby')
 const original = state
-assert.equal(performAction(state, { verb: 'use', target: 'desk' }).changed, false)
+assert.equal(
+  performAction(state, { verb: 'use', target: 'desk' }).changed,
+  false,
+)
 assert.deepEqual(state, original, 'rejected action does not mutate state')
 assert.equal(travel(state, 'suite-205').changed, false)
-console.log('Monstress opening case: 8 complete evidence/character/ending paths passed')
+console.log(
+  'Monstress opening case: 8 complete evidence/character/ending paths passed',
+)

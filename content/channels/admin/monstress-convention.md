@@ -6,7 +6,7 @@ label: Monstress Convention
 title: Monstress Convention
 subtitle: Two journalists, one ghost and a disastrous reunion.
 description: Adults-only internal point-and-click detective-comedy preview.
-summary: Private mature convention murder mystery.
+summary: Private convention mystery.
 icon: kind-icon:ghost
 route: /admin/monstress-convention
 sort: 147

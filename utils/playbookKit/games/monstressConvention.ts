@@ -18,19 +18,19 @@ export const MONSTRESS_CONVENTION: PlaybookKitSpec = {
     {
       id: 1,
       title: 'Check In, Check Out',
-      blurb: 'Get through the convention doors and investigate a locked-room death.',
+      blurb:
+        'Get through the convention doors and investigate a locked-room death.',
     },
   ],
-  meters: [
-    { id: 'leads', label: 'Leads', min: 0, max: 10, start: 0 },
-  ],
+  meters: [{ id: 'leads', label: 'Leads', min: 0, max: 10, start: 0 }],
   factions: [],
   cast: [
     {
       id: 'iris',
       name: 'Iris Quill',
       role: 'follower',
-      tagline: 'Photojournalist. The sharper half of a two-person news operation.',
+      tagline:
+        'Photojournalist. The sharper half of a two-person news operation.',
       portrait: {
         brief:
           'Adult photojournalist with cropped curly hair, practical leather jacket, sharp expression, camera strap and heavy reporter notebook, warm noir cartoon portrait',
@@ -40,7 +40,8 @@ export const MONSTRESS_CONVENTION: PlaybookKitSpec = {
       id: 'celestine',
       name: 'Celestine Veil',
       role: 'figure',
-      tagline: 'Franchise icon. A difficult witness to interview after her death.',
+      tagline:
+        'Franchise icon. A difficult witness to interview after her death.',
       portrait: {
         brief:
           'Elegant adult classic horror actress in a flowing vintage silver screen robe, spectral mirror reflection and theatrical poised expression',
@@ -51,7 +52,8 @@ export const MONSTRESS_CONVENTION: PlaybookKitSpec = {
       name: 'The Hidden Hand',
       role: 'villain',
       primary: true,
-      tagline: 'Someone inside the hotel knows more about a murdered star than they admit.',
+      tagline:
+        'Someone inside the hotel knows more about a murdered star than they admit.',
       portrait: {
         brief:
           'Gloved hand holding a hotel master key beside a half-open hotel service door, eerie warm corridor light, cropped mystery silhouette',
@@ -62,9 +64,9 @@ export const MONSTRESS_CONVENTION: PlaybookKitSpec = {
     {
       id: 'service-route',
       title: 'The service route',
-      teaser: 'The locked suite did not belong to the only path through the hotel.',
-      text:
-        'A second bell from the laundry lift proves someone moved through the service stairs during the blackout.',
+      teaser:
+        'The locked suite did not belong to the only path through the hotel.',
+      text: 'A second bell from the laundry lift proves someone moved through the service stairs during the blackout.',
       act: 1,
       about: ['unknown-killer', 'celestine'],
     },
@@ -74,7 +76,8 @@ export const MONSTRESS_CONVENTION: PlaybookKitSpec = {
       id: 'responsible',
       title: 'An Honest First Edition',
       tone: 'hopeful',
-      summary: 'A careful bulletin clears the wrong suspect and preserves the case.',
+      summary:
+        'A careful bulletin clears the wrong suspect and preserves the case.',
       hint: 'A witness, a clock and a very uncomfortable correction.',
       about: ['iris', 'unknown-killer'],
       art: {
@@ -86,7 +89,8 @@ export const MONSTRESS_CONVENTION: PlaybookKitSpec = {
       id: 'reckless',
       title: 'A Headline Too Early',
       tone: 'dark',
-      summary: 'The blog gains clicks by printing a story before the evidence is ready.',
+      summary:
+        'The blog gains clicks by printing a story before the evidence is ready.',
       hint: 'Sometimes the deadline is not the real enemy.',
       about: ['iris', 'unknown-killer'],
       art: {

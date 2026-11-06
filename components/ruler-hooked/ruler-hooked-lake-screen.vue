@@ -103,7 +103,7 @@
       :class="{ 'rh-lake__dock--classic': !!store.activeClassicFishing }"
     >
       <RulerHookedQuizEncounter
-        v-if="store.activeFishing && quiz.mode === 'quiz'"
+        v-if="store.activeFishing && !store.activeClassicFishing"
         :encounter="store.activeFishing"
       />
       <RulerHookedFishingEncounter

@@ -8,7 +8,7 @@ export const MONSTRESS_CONVENTION: PlaybookKitSpec = {
   premise:
     'Iris investigates a double murder at the motel while her germophobic boss deduces clues; two ghosts reveal different leads to the Monstrexx celebrities.',
   tier: 'vignette',
-  route: '/admin/monstress-convention',
+  route: '/admin/monstrexx',
   keyArt: {
     brief:
       'A shabby rain-soaked two-storey Last Call Motor Lodge, ice machine, front office, two ghost women in Room 205 and a distant Monstrexx Convention billboard',
@@ -38,13 +38,13 @@ export const MONSTRESS_CONVENTION: PlaybookKitSpec = {
     },
     {
       id: 'nico',
-      name: 'Nico Vale',
+      name: 'Norbert “Norb” Vale',
       role: 'figure',
       tagline:
         'Brilliant hunched germophobic boss, never willing to touch the evidence.',
       portrait: {
         brief:
-          'Original odd-looking hunched adult journalist with wide worried eyes, shabby suit, spotless handkerchief and clever demeanor, theatrical noir cartoon portrait',
+          'Very SHORT genuinely ugly geeky comic figure: enormous bulbous nose, buck teeth, tiny hunched torso, scrawny limbs, thick round glasses, nervous bulging eyes, crooked cardigan, rubber gloves and handkerchief. Cartoon caricature, decidedly NOT suave, handsome, muscular or romantic. An original absurd mystery-game sidekick.',
       },
     },
     {
@@ -98,12 +98,12 @@ export const MONSTRESS_CONVENTION: PlaybookKitSpec = {
       title: 'The Convention Lead',
       tone: 'hopeful',
       summary:
-        'Iris and Nico find a defensible lead to the separate Monstrexx Convention Center.',
+        'Iris and Norb find a defensible lead to the separate Monstrexx Convention Center.',
       hint: 'Document the knife, establish the time, clear the stalker and ask both ghosts.',
       about: ['iris', 'nico', 'odette', 'violet'],
       art: {
         brief:
-          'Iris and Nico following the Monstrexx idol-group schedule outside the separate convention venue, mystery adventure illustration',
+          'Iris and Norb following the Monstrexx idol-group schedule outside the separate convention venue, mystery adventure illustration',
       },
     },
     {
@@ -116,7 +116,7 @@ export const MONSTRESS_CONVENTION: PlaybookKitSpec = {
       about: ['iris', 'nico'],
       art: {
         brief:
-          'A hasty tabloid blog headline on motel computer, Iris concerned, Nico recoiling in dismay, noir retro game',
+          'A hasty tabloid blog headline on motel computer, Iris concerned, Norb recoiling in dismay, noir retro game',
       },
     },
   ],

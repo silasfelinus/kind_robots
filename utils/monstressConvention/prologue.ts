@@ -1,7 +1,7 @@
 /**
  * MONSTREXX, a deterministic adult monster-celebrity comedy mystery.
  * The convention is a distinct city venue; the murders happen at a motel.
- * Iris is the physical field investigator. Nico can observe and question,
+ * Iris is the physical field investigator. Norb can observe and question,
  * but his germophobia prevents touching objects, using or photographing them.
  */
 export type Investigator = 'iris' | 'nico'
@@ -95,7 +95,7 @@ export const HOTEL_ROOMS: Record<RoomId, HotelRoom> = {
     label: 'Motel Front Office',
     floor: 1,
     caption:
-      'A dust-covered counter, sticky key rack and guest register. Nico declines the complimentary pen.',
+      'A dust-covered counter, sticky key rack and guest register. Norb declines the complimentary pen.',
     exits: ['motel-exterior', 'balcony'],
     hotspots: [
       {
@@ -177,10 +177,10 @@ export const HOTEL_ROOMS: Record<RoomId, HotelRoom> = {
   },
   'investigators-room': {
     id: 'investigators-room',
-    label: 'Iris and Nico’s Room',
+    label: 'Iris and Norb’s Room',
     floor: 2,
     caption:
-      'Two suitcases, one cramped bed and a portable evidence desk Nico has not touched.',
+      'Two suitcases, one cramped bed and a portable evidence desk Norb has not touched.',
     exits: ['balcony'],
     hotspots: [
       {
@@ -192,7 +192,7 @@ export const HOTEL_ROOMS: Record<RoomId, HotelRoom> = {
       },
       {
         id: 'nico',
-        label: 'Nico and his immaculate gloves',
+        label: 'Norb and his immaculate gloves',
         x: 68,
         y: 53,
         verbs: ['look', 'talk', 'ask'],
@@ -385,7 +385,7 @@ export function newCase(seed = 1): CaseState {
     inventory: ['camera'],
     asked: [],
     transcript: [
-      'Iris: Two people killed at a motel. Nico: Please handle every object in the room. Every single one.',
+      'Iris: Two people killed at a motel. Norb: Please handle every object in the room. Every single one.',
     ],
     ending: null,
   }
@@ -427,7 +427,7 @@ export function switchInvestigator(state: CaseState): CaseResult {
   const actor: Investigator = state.actor === 'iris' ? 'nico' : 'iris'
   const line =
     actor === 'nico'
-      ? 'Nico: I will investigate with my eyes, and neither of us will touch the carpet.'
+      ? 'Norb: I will investigate with my eyes, and neither of us will touch the carpet.'
       : 'Iris: I will do the touching. You can keep having brilliant thoughts at a safe distance.'
   return withLine({ ...state, actor }, line)
 }
@@ -501,7 +501,7 @@ function interview(
       next,
       iris
         ? 'Marta: I let you investigate because your press credentials and the missing guest both check out. Here is the emergency key.'
-        : 'Marta: I trust Iris to handle the key, Nico. You already asked for a disinfectant bucket.',
+        : 'Marta: I trust Iris to handle the key, Norb. You already asked for a disinfectant bucket.',
     )
   }
   if (target === 'neighbor' && topic === 'unknown-visitor') {
@@ -555,14 +555,14 @@ function interview(
     if (has(next, 'knife-photo')) add(next.evidence, 'knife-prop-mark')
     return withLine(
       next,
-      'Nico: The maker’s seal looks theatrical. Do photograph it; I decline to touch the blade.',
+      'Norb: The maker’s seal looks theatrical. Do photograph it; I decline to touch the blade.',
     )
   }
   if (target === 'nico' && topic === 'ice-clank') {
     add(next.topics, 'ghost-accounts')
     return withLine(
       next,
-      'Nico: Ice timing supplies a clock. We must ask both dead women what they heard.',
+      'Norb: Ice timing supplies a clock. We must ask both dead women what they heard.',
     )
   }
   if (target === 'odette-ghost' && topic === 'ghost-accounts')
@@ -586,7 +586,7 @@ function interview(
     next,
     iris
       ? 'Iris: I will compare that with the other witness.'
-      : 'Nico: A hypothesis is not evidence, however cleanly arranged.',
+      : 'Norb: A hypothesis is not evidence, however cleanly arranged.',
   )
 }
 
@@ -611,7 +611,7 @@ export function performAction(
   )
     return withLine(
       state,
-      'Nico: Touch that? Absolutely not. Iris, please.',
+      'Norb: Touch that? Absolutely not. Iris, please.',
       false,
     )
   if (action.verb === 'ask')
@@ -645,13 +645,13 @@ export function performAction(
     const observations: Record<string, string> = {
       knife: iris
         ? 'Iris: A jewel-handled show knife. I should photograph it exactly where it fell.'
-        : 'Nico: A counterfeit jewel is inset near the maker’s mark. I can study the photograph.',
+        : 'Norb: A counterfeit jewel is inset near the maker’s mark. I can study the photograph.',
       'odette-body':
         'Iris: The agent was killed here. I will document the scene with care.',
       'violet-body':
         'Iris: Violet was also killed. She matters to this case as much as the agent.',
       'ice-machine':
-        'Nico: The machine produces a distinct double clang. A very unromantic metronome.',
+        'Norb: The machine produces a distinct double clang. A very unromantic metronome.',
       gavin: 'Iris: He is a stalker. That does not make him our murderer.',
       'sewer-hatch':
         'Something large is singing idol songs beneath the drainage grate.',
@@ -694,7 +694,7 @@ export function performAction(
     add(next.inventory, 'motel-key')
     return withLine(
       next,
-      'Marta: Here. Iris handles the key. Nico can stand somewhere hygienic.',
+      'Marta: Here. Iris handles the key. Norb can stand somewhere hygienic.',
     )
   }
   if (target === 'neighbor' && verb === 'talk') {
@@ -731,7 +731,7 @@ export function performAction(
     add(next.topics, 'ice-clank')
     return withLine(
       next,
-      'Iris: Clank, clank. Nico: Splendid. Now please wash your hands.',
+      'Iris: Clank, clank. Norb: Splendid. Now please wash your hands.',
     )
   }
   if (target === 'sewer-hatch' && verb === 'use')
@@ -809,14 +809,14 @@ export function performAction(
     add(next.topics, 'ice-clank')
     return withLine(
       next,
-      'Iris: You look almost kissable. Nico: You are leaning on an unsterilized lamp. Please stop.',
+      'Iris: You look almost kissable. Norb: You are leaning on an unsterilized lamp. Please stop.',
     )
   }
   if (target === 'desk' && verb === 'use') {
     if (!has(next, 'double-murder'))
       return withLine(
         state,
-        'Nico: We have not seen the scene yet. Please do not fabricate the headline.',
+        'Norb: We have not seen the scene yet. Please do not fabricate the headline.',
         false,
       )
     if (!has(next, 'ghost-odette') || !has(next, 'ghost-violet'))
@@ -832,14 +832,14 @@ export function performAction(
       next.ending = 'reckless'
       return withLine(
         next,
-        'Nico: Publishing a suspect without the knife, time and alibi is reckless. Iris knows we should have waited.',
+        'Norb: Publishing a suspect without the knife, time and alibi is reckless. Iris knows we should have waited.',
       )
     }
     add(next.flags, 'city-lead')
     add(next.topics, 'idol-schedule')
     return withLine(
       next,
-      'Iris: The knife is a MONSTREXX prop. Nico: Let us examine the real convention center, not this filthy motel.',
+      'Iris: The knife is a MONSTREXX prop. Norb: Let us examine the real convention center, not this filthy motel.',
     )
   }
   if (target === 'idol-poster' && verb === 'photograph') {
@@ -853,7 +853,7 @@ export function performAction(
     next.ending = 'lead-earned'
     return withLine(
       next,
-      'Iris: Every actress and idol had a deal with Odette. Nico: Good. Our next chapter now has a real lead.',
+      'Iris: Every actress and idol had a deal with Odette. Norb: Good. Our next chapter now has a real lead.',
     )
   }
   if (target === 'mummy-actress' && verb === 'talk') {
@@ -898,3 +898,6 @@ export function restoreCase(value: unknown): CaseState | null {
   if (!Number.isInteger(state.seed)) return null
   return copyState(state)
 }
+
+export const monstrexxKitId = (accountId: string | number): string =>
+  `monstress-convention-user-${accountId}`

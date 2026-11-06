@@ -5,6 +5,7 @@ import { useUserStore } from '~/stores/userStore'
 import { performFetch } from '~/stores/utils'
 import {
   newCase,
+  monstrexxKitId,
   performAction,
   restoreCase,
   switchInvestigator,
@@ -22,6 +23,7 @@ export const useMonstressConventionStore = defineStore(
     const authorized = ref(false)
     const checking = ref(false)
     const opened = ref(false)
+    const hasSavedCase = ref(false)
     const accountId = ref<number | null>(null)
     const feedback = ref('')
     const state = ref<CaseState>(newCase())
@@ -53,14 +55,17 @@ export const useMonstressConventionStore = defineStore(
           feedback.value = ''
           opened.value = true
           load()
-          kit.open('monstress-convention')
+          kit.open(monstrexxKitId(accountId.value ?? 0))
         }
+      } catch {
+        authorized.value = false
       } finally {
         checking.value = false
       }
     }
 
     function load(): void {
+      hasSavedCase.value = false
       if (!authorized.value || !import.meta.client) return
       try {
         const raw = localStorage.getItem(saveKey.value)
@@ -72,6 +77,7 @@ export const useMonstressConventionStore = defineStore(
           return
         }
         state.value = restored
+        hasSavedCase.value = true
         storageWarning.value = ''
       } catch {
         storageWarning.value =
@@ -84,6 +90,7 @@ export const useMonstressConventionStore = defineStore(
         return
       try {
         localStorage.setItem(saveKey.value, JSON.stringify(state.value))
+        hasSavedCase.value = true
       } catch {
         storageWarning.value = 'This browser cannot save progress.'
       }
@@ -135,6 +142,7 @@ export const useMonstressConventionStore = defineStore(
       authorized,
       checking,
       opened,
+      hasSavedCase,
       state,
       currentLine,
       storageWarning,

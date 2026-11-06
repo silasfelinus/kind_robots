@@ -1220,7 +1220,9 @@ const LIST_KEYS = [
 /** Accepts version 3 saves and upgrades version 2 (pre-Monstrique) saves. */
 export function restoreCase(value: unknown): CaseState | null {
   if (!value || typeof value !== 'object') return null
-  const raw = value as Partial<CaseState> & { version?: number }
+  const raw = value as Partial<Omit<CaseState, 'version'>> & {
+    version?: number
+  }
   if (raw.version !== 2 && raw.version !== 3) return null
   if (
     typeof raw.room !== 'string' ||

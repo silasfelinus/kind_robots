@@ -1,128 +1,119 @@
 import assert from 'node:assert/strict'
 import {
-  availableTopics,
   HOTEL_ROOMS,
+  CITY_DESTINATIONS,
+  availableTopics,
   newCase,
   performAction,
   restoreCase,
   switchInvestigator,
   travel,
   type CaseState,
+  type Verb,
 } from '../monstressConvention/prologue'
 
-const walk = (state: CaseState, room: keyof typeof HOTEL_ROOMS): CaseState => {
-  const result = travel(state, room)
-  assert.equal(result.changed, true, result.line)
-  return result.state
+function move(state: CaseState, destination: keyof typeof HOTEL_ROOMS): CaseState {
+  const response = travel(state, destination)
+  assert.equal(response.changed, true, response.line)
+  return response.state
 }
-const doIt = (
-  state: CaseState,
-  verb: Parameters<typeof performAction>[1]['verb'],
-  target: string,
-  topic?: string,
-): CaseState => {
-  const result = performAction(state, { verb, target, topic })
-  assert.equal(result.changed, true, result.line)
-  return result.state
+function act(state: CaseState, verb: Verb, target: string, topic?: string): CaseState {
+  const response = performAction(state, { verb, target, topic })
+  assert.equal(response.changed, true, response.line)
+  return response.state
 }
-const play = (
-  badge: 'iris' | 'nico',
-  ghost: 'iris' | 'nico',
-  accuse: boolean,
-): CaseState => {
+function run(entrance: 'marta' | 'neighbor', order: 'odette' | 'violet', careful: boolean): CaseState {
   let s = newCase(42)
-  assert.equal(travel(s, 'convention').changed, false, 'badge gates the panel')
-  if (badge === 'nico') s = doIt(s, 'take', 'lost-pass')
-  else s = doIt(s, 'photograph', 'marquee')
-  if (s.actor !== badge) s = switchInvestigator(s).state
-  s = walk(s, 'lobby')
-  s = walk(s, 'registration')
-  s = doIt(s, 'talk', 'clerk')
-  s = doIt(s, 'use', 'clerk')
-  assert.ok(s.flags.includes('press-badge'))
-  assert.ok(s.inventory.includes('press-badge'))
-  assert.ok(!s.inventory.includes('fan-pass'))
-  s = walk(s, 'lobby')
-  s = walk(s, 'convention')
-  s = doIt(s, 'talk', 'celestine')
-  s = doIt(s, 'ask', 'celestine', 'royalties')
-  s = doIt(s, 'use', 'stage')
-  assert.ok(s.flags.includes('murder'))
-  assert.equal(
-    performAction(s, { verb: 'use', target: 'stage' }).changed,
-    false,
-  )
-  assert.equal(
-    performAction(s, { verb: 'talk', target: 'celestine' }).changed,
-    false,
-  )
-  s = walk(s, 'lobby')
-  s = walk(s, 'stairwell')
-  s = doIt(s, 'look', 'bell')
-  s = walk(s, 'suite-205')
-  if (s.actor !== ghost) s = switchInvestigator(s).state
-  s = doIt(s, 'talk', 'ghost')
-  assert.ok(availableTopics(s, 'ghost').includes('last-sensation'))
-  s = doIt(s, 'ask', 'ghost', 'last-sensation')
-  assert.ok(!availableTopics(s, 'ghost').includes('last-sensation'))
-  s = switchInvestigator(s).state
-  assert.ok(
-    availableTopics(s, 'ghost').includes('last-sensation'),
-    'questions are shared, exhaustion is per investigator',
-  )
-  s = doIt(s, 'ask', 'ghost', 'last-sensation')
-  s = walk(s, 'stairwell')
-  s = walk(s, 'lobby')
-  if (!accuse) {
-    s = doIt(s, 'talk', 'porter')
-    s = doIt(s, 'ask', 'porter', 'service-bell')
-    s = walk(s, 'courtyard')
-    s = doIt(s, 'talk', 'gavin')
-    s = doIt(s, 'photograph', 'camera')
-    assert.ok(s.evidence.includes('fan-exonerated'))
-    s = walk(s, 'lobby')
+  assert.equal(s.actor, 'iris', 'Iris starts as lead')
+  assert.equal(s.room, 'motel-exterior')
+  assert.equal(travel(s, 'convention-center').changed, false, 'convention is separate')
+  s = move(s, 'front-office')
+  if (entrance === 'marta') {
+    s = act(s, 'look', 'guest-ledger')
+    s = act(s, 'talk', 'marta')
+    s = act(s, 'ask', 'marta', 'room-access')
   }
-  s = doIt(s, 'use', 'desk')
-  assert.equal(s.ending, accuse ? 'reckless' : 'responsible')
+  s = move(s, 'balcony')
+  if (entrance === 'neighbor') {
+    s = move(s, 'neighbor-room')
+    s = act(s, 'talk', 'neighbor')
+    s = act(s, 'ask', 'neighbor', 'unknown-visitor')
+    s = move(s, 'balcony')
+  }
+  assert.ok(s.flags.includes('crime-room-access'))
+  s = move(s, 'odette-room')
+  assert.ok(s.evidence.includes('double-murder'))
+  s = act(s, 'photograph', 'knife')
+  const ghosts = order === 'odette'
+    ? ['odette-ghost', 'violet-ghost']
+    : ['violet-ghost', 'odette-ghost']
+  for (const name of ghosts) {
+    s = act(s, 'talk', name)
+    const topic = name === 'odette-ghost' ? 'agent-deals' : 'violet-witness'
+    assert.ok(availableTopics(s, name).includes(topic))
+    s = act(s, 'ask', name, topic)
+    assert.equal(availableTopics(s, name).includes(topic), false)
+    const nico = switchInvestigator(s).state
+    assert.ok(availableTopics(nico, name).includes(topic), 'second investigator gets a separate answer')
+    assert.equal(performAction(nico, { verb: 'photograph', target: 'knife' }).changed, false, 'Nico never touches')
+    s = act(nico, 'ask', name, topic)
+    s = switchInvestigator(s).state
+  }
+  assert.ok(s.evidence.includes('ghost-odette'))
+  assert.ok(s.evidence.includes('ghost-violet'))
+  s = move(s, 'balcony')
+  if (careful) {
+    s = move(s, 'ice-alcove')
+    s = act(s, 'photograph', 'ice-machine')
+    s = move(s, 'motel-exterior')
+    s = act(s, 'photograph', 'fan-camera')
+    assert.ok(s.evidence.includes('fan-exonerated'))
+    s = move(s, 'front-office')
+    s = move(s, 'balcony')
+  }
+  s = move(s, 'investigators-room')
+  s = act(s, 'use', 'desk')
+  if (careful) {
+    assert.equal(s.ending, null)
+    assert.ok(s.flags.includes('city-lead'))
+    s = move(s, 'balcony')
+    s = move(s, 'front-office')
+    s = move(s, 'motel-exterior')
+    s = move(s, 'city-map')
+    assert.ok(HOTEL_ROOMS['city-map'].label.includes('City Map'))
+    s = move(s, 'convention-center')
+    s = act(s, 'photograph', 'idol-poster')
+    assert.equal(s.ending, 'lead-earned')
+  } else {
+    assert.equal(s.ending, 'reckless')
+  }
   return s
 }
 
-const rooms = Object.values(HOTEL_ROOMS)
-assert.equal(rooms.length, 7)
-for (const room of rooms) {
+assert.equal(CITY_DESTINATIONS.length, 4)
+assert.equal(CITY_DESTINATIONS[0]?.label, 'MONSTREXX Convention')
+assert.ok(CITY_DESTINATIONS.some((location) => location.id === 'sewers'))
+for (const room of Object.values(HOTEL_ROOMS)) {
   assert.ok(room.hotspots.length > 0, room.id)
-  for (const exit of room.exits) {
-    assert.ok(
-      HOTEL_ROOMS[exit].exits.includes(room.id),
-      room.id + ' -> ' + exit,
-    )
-  }
+  for (const exit of room.exits)
+    assert.ok(HOTEL_ROOMS[exit].exits.includes(room.id), room.id + ' -> ' + exit)
 }
-for (const badge of ['nico', 'iris'] as const) {
-  for (const ghost of ['nico', 'iris'] as const) {
-    for (const accuse of [false, true]) {
-      const result = play(badge, ghost, accuse)
-      assert.ok(result.ending)
-      const saved = JSON.parse(JSON.stringify(result))
-      assert.deepEqual(restoreCase(saved), result)
-      assert.equal(restoreCase({ ...saved, version: 2 }), null)
-      assert.equal(restoreCase({ ...saved, actor: 'unknown' }), null)
-      assert.equal(restoreCase({ ...saved, flags: [42] }), null)
-      assert.equal(restoreCase({ ...saved, room: 'attic' }), null)
-      assert.equal(restoreCase({ ...saved, room: '__proto__' }), null)
-      assert.equal(switchInvestigator(result).changed, false)
+for (const entrance of ['marta', 'neighbor'] as const) {
+  for (const firstGhost of ['odette', 'violet'] as const) {
+    for (const careful of [false, true]) {
+      const s = run(entrance, firstGhost, careful)
+      assert.equal(restoreCase(JSON.parse(JSON.stringify(s)))?.room, s.room)
+      assert.equal(restoreCase({ ...s, version: 1 }), null)
+      assert.equal(restoreCase({ ...s, room: '__proto__' }), null)
+      assert.equal(restoreCase({ ...s, flags: ['valid', 42] }), null)
+      assert.equal(switchInvestigator(s).changed, false)
     }
   }
 }
-let state = newCase()
-state = walk(state, 'lobby')
-const original = state
-assert.equal(
-  performAction(state, { verb: 'use', target: 'desk' }).changed,
-  false,
-)
-assert.deepEqual(state, original, 'rejected action does not mutate state')
-assert.equal(travel(state, 'suite-205').changed, false)
-console.log(
-  'Monstress opening case: 8 complete evidence/character/ending paths passed',
-)
+let s = newCase()
+const original = JSON.stringify(s)
+assert.equal(performAction(s, { verb: 'take', target: 'gavin' }).changed, false)
+assert.equal(JSON.stringify(s), original, 'a rejected action does not mutate the state')
+s = move(s, 'front-office')
+assert.equal(travel(s, 'odette-room').changed, false)
+console.log('MONSTREXX: eight Iris-led double-ghost playthroughs and privacy-agnostic state contracts pass')

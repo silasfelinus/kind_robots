@@ -40,6 +40,7 @@ export function permissionAllows(
   context: NavigationAccessContext,
 ): boolean {
   const required = requiredPermission.trim().toLowerCase()
+  if (required === 'mature') return context.permissions.has('mature')
   if (!required || context.isAdmin) return true
 
   return context.permissions.has(required)

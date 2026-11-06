@@ -1,0 +1,25 @@
+---
+contentType: tab
+channelKey: admin
+tabKey: monstress-convention
+label: Monstrexx
+title: Monstrexx
+subtitle: Two ghosts, one knife, a monstrous franchise.
+description: Adults-only internal point-and-click detective-comedy preview.
+summary: Private Monstrexx mystery.
+icon: kind-icon:ghost
+route: /admin/monstress-convention
+sort: 147
+requiredRole: ADMIN
+requiredPermission: mature
+tutorial:
+  title: Last Call Motor Lodge
+  body: >-
+    This private early playtest requires a logged-in administrator who has
+    enabled mature content and has no CHILD role. Enter the motel, select
+    illustrated hotspots, choose an icon verb, and swap between Nico and Iris.
+    Iris handles physical clues, Nico supplies deductions, and the two
+    ghosts have distinct accounts. The convention is a separate city venue. The game is not publicly released.
+---
+
+MONSTREXX is a private gated investigation preview.

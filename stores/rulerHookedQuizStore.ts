@@ -4,7 +4,6 @@ import { performFetch } from './utils'
 import { useRulerHookedStore } from './rulerHookedStore'
 import {
   animalMandarinCards,
-  choiceCount,
   geographyQuestion,
   isMandarinQuizScope,
   mandarinTopicCards,

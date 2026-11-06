@@ -1163,6 +1163,11 @@ function forecast(lane: number): string {
 .clash-boss.is-enemy {
   background: #2e1b2aee;
 }
+.clash-boss :deep(.slime-art) {
+  flex: 0 0 1.95rem;
+  width: 1.95rem;
+  height: 1.95rem;
+}
 .clash-boss :deep(img) {
   width: 1.85rem;
   height: 1.85rem;

@@ -35,6 +35,7 @@ export const useRulerHookedQuizStore = defineStore('rulerHookedQuiz', () => {
   const feedback = ref('')
   const answerSheet = ref(false)
   const pendingCatch = ref(false)
+  const answerWasCorrect = computed(() => answerSheet.value && pendingCatch.value)
   const loading = ref(false)
   const error = ref('')
   const mandarinSynced = ref(false)
@@ -316,6 +317,7 @@ export const useRulerHookedQuizStore = defineStore('rulerHookedQuiz', () => {
     introduction,
     feedback,
     answerSheet,
+    answerWasCorrect,
     loading,
     error,
     mandarinSynced,

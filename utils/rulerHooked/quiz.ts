@@ -232,9 +232,13 @@ export function mandarinQuestion(
   }
 }
 
-export function animalMandarinCards(catalog: readonly MandarinCard[]): MandarinCard[] {
+export function animalMandarinCards(
+  catalog: readonly MandarinCard[],
+): MandarinCard[] {
   return catalog.filter(
-    (card) => card.categories.includes('animals') && Boolean(card.meaning && card.simplified),
+    (card) =>
+      card.categories.includes('animals') &&
+      Boolean(card.meaning && card.simplified),
   )
 }
 
@@ -250,7 +254,8 @@ export function mandarinFrontier(
     scope === 'animals'
       ? animalMandarinCards(catalog)
       : catalog.filter(
-          (card) => (card.hskLevel ?? 99) <= 2 && card.meaning && card.simplified,
+          (card) =>
+            (card.hskLevel ?? 99) <= 2 && card.meaning && card.simplified,
         )
   if (!beginner.length) return null
   const studied = beginner.filter(

@@ -308,6 +308,38 @@ const workspaceHeaderSource = readFileSync(
   'components/navigation/workspace-header.vue',
   'utf8',
 )
+const channelPickerSource = readFileSync(
+  'components/navigation/channel-select.vue',
+  'utf8',
+)
+// A page already has a title in its launcher. The old room + tagline block
+// repeated it beside the picker and forced a second header row on small
+// screens, clipping an otherwise full-screen game.
+assert.doesNotMatch(
+  workspaceHeaderSource,
+  /\{\{ brandLine \}\}|\{\{ headerMessage \}\}/,
+  'the workspace bar must not repeat the page title and subtitle outside navigation',
+)
+assert.match(
+  channelPickerSource,
+  /\{\{ currentPageTitle \}\}/,
+  'the shared launcher should render the authored page-specific title',
+)
+assert.match(
+  channelPickerSource,
+  /\{\{ currentPageSubtitle \}\}/,
+  'the shared launcher should render authored descriptive subtitles',
+)
+assert.match(
+  channelPickerSource,
+  /aria-label="Current page"/,
+  'the current page takes the first section inside the navigation dropdown',
+)
+assert.match(
+  workspaceHeaderSource,
+  /v-show="hasPageBar"[\s\S]*?id="kr-header-page-bar"/,
+  'page-bar Teleport target must remain mounted for other game control strips',
+)
 const appSource = readFileSync('app.vue', 'utf8')
 assert.match(
   appSource,

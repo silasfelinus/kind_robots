@@ -6,6 +6,10 @@ on:
       - 'components/cthulhuquarium/cthulhuquarium-game.vue'
       - 'utils/cthulhuquariumFood.ts'
       - 'utils/cthulhuquariumFood.selftest.ts'
+      - 'utils/cthulhuquariumConsole.ts'
+      - 'utils/cthulhuquariumRarity.ts'
+      - 'components/cthulhuquarium/cthulhuquarium-ui-art.vue'
+      - 'utils/scripts/verifyCthulhuquariumConsoleNav.test.ts'
       - '.github/workflows/cthulhuquarium-feeding.yml'
 
 concurrency:
@@ -27,3 +31,5 @@ jobs:
       - run: npm ci
       - name: Feeding animation logic
         run: npx tsx utils/cthulhuquariumFood.selftest.ts
+      - name: Console deck navigation (feed mode, tabs, painted-art fallbacks)
+        run: npx tsx utils/scripts/verifyCthulhuquariumConsoleNav.test.ts

@@ -12,7 +12,7 @@
         <p class="text-xs font-semibold uppercase tracking-[0.3em] opacity-60">
           Private studio preview
         </p>
-        <h1 class="text-2xl font-bold">Access restricted</h1>
+        <p class="text-2xl font-bold">Access restricted</p>
         <p class="opacity-75">
           This preview requires an administrator account with mature content enabled.
         </p>

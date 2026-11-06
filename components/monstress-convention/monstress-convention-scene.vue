@@ -289,7 +289,7 @@
         <button type="button" class="mc-verb" @click="toggleDrawer('map')">
           <Icon name="kind-icon:map" class="size-4" /> Exits
         </button>
-        <div class="mc-inventory kr-scroll flex min-w-0 flex-1 items-center gap-2 overflow-x-auto">
+        <div class="mc-inventory flex min-w-0 flex-1 items-center gap-2 overflow-x-auto">
           <span class="mc-eyebrow shrink-0">INVENTORY</span>
           <span v-for="item in story.state.inventory" :key="item" class="mc-item">
             <Icon :name="item === 'camera' ? 'kind-icon:camera' : 'kind-icon:ticket'" class="size-4" />

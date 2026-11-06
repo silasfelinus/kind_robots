@@ -58,7 +58,6 @@
               ARENA
             </button>
             <button
-              v-if="user.isAdmin"
               type="button"
               :class="{ active: lab.view === 'clash' }"
               data-testid="slime-clash-tab"
@@ -289,7 +288,7 @@
 
         <SlimeCityCampaign v-else-if="lab.view === 'campaign'" />
         <SlimeCityArena v-else-if="lab.view === 'arena'" />
-        <SlimeCityClash v-else-if="lab.view === 'clash' && user.isAdmin" />
+        <SlimeCityClash v-else-if="lab.view === 'clash'" />
         <SlimeCityAlleys v-else-if="lab.view === 'alleys'" />
 
         <section
@@ -631,12 +630,10 @@ import { computed, onMounted, onUnmounted } from 'vue'
 import { cardById, type Card } from '~/utils/slimeCity/prototypes'
 import { STREETS } from '~/utils/slimeCity/city'
 import { useSlimeCityStore } from '~/stores/slimeCity'
-import { useUserStore } from '~/stores/userStore'
 import { slimeArtId, SLIME_CITY_ART_COUNT } from '~/utils/slimeCity/artManifest'
 import { useSlimeCityArtStore } from '~/stores/slimeCityArt'
 
 const lab = useSlimeCityStore()
-const user = useUserStore()
 const art = useSlimeCityArtStore()
 
 const hereName = computed(

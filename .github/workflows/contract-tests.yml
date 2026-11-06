@@ -80,6 +80,8 @@ jobs:
         run: npx tsx utils/scripts/verifyMemoryBreathingWorks.test.ts
       - name: Choking Works e06 dungeon, the Breathing Works warped
         run: npx tsx utils/scripts/verifyMemoryChokingWorks.test.ts
+      - name: Furnace of Names e08 dungeon, the Red Oven at night
+        run: npx tsx utils/scripts/verifyMemoryFurnaceOfNames.test.ts
       - name: Unbelieving City e04 authored revisit, tide gate and legacy saves
         run: npx tsx utils/scripts/verifyMemoryUnbelievingCity.test.ts
       - name: Scylla's Shore e05 authored sea palace and departure

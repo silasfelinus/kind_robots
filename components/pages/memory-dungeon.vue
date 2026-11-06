@@ -48,9 +48,15 @@
       v-else-if="earthCollisionMode"
       @leave="earthCollisionMode = false"
     />
+    <memory-dungeon-sublevel
+      v-else-if="furnaceMode"
+      dungeon="furnace"
+      @leave="furnaceMode = false"
+    />
     <memory-dungeon-hoshimori-night
       v-else-if="hoshimoriNightMode"
       @leave="hoshimoriNightMode = false"
+      @furnace="furnaceMode = true"
     />
     <memory-dungeon-hoshimori
       v-else-if="hoshimoriMode"
@@ -519,6 +525,7 @@ const sublevelMode = ref(false)
 const drownedMode = ref(false)
 const worksMode = ref(false)
 const chokingMode = ref(false)
+const furnaceMode = ref(false)
 const hoshimoriMode = ref(false)
 const hoshimoriNightMode = ref(false)
 const collisionMode = ref(false)

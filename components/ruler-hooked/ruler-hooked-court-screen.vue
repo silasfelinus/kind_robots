@@ -97,8 +97,8 @@
           <p class="rh-scroll__body">{{ endingBody }}</p>
           <p class="rh-scroll__body">
             Your choices have unlocked a possible conclusion to this reign.
-            Ending the story closes this save for fishing and new decrees.
-            You can also continue ruling; this finale will not interrupt you again.
+            Ending the story closes this save for fishing and new decrees. You
+            can also continue ruling; this finale will not interrupt you again.
           </p>
           <div class="rh-actions">
             <button

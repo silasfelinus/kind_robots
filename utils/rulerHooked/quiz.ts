@@ -8,8 +8,16 @@ export type FishingLessonMode = 'guided' | 'always' | 'quiz-first'
 export type FishingPromptDirection = 'forward' | 'reverse' | 'mixed'
 
 export const MANDARIN_QUIZ_TOPICS = [
-  { id: 'all', label: 'All beginner words', description: 'A broad beginner vocabulary mix.' },
-  ...Object.entries(BUILT_IN_SET_META).map(([id, meta]) => ({ id, label: meta.label, description: meta.description })),
+  {
+    id: 'all',
+    label: 'All beginner words',
+    description: 'A broad beginner vocabulary mix.',
+  },
+  ...Object.entries(BUILT_IN_SET_META).map(([id, meta]) => ({
+    id,
+    label: meta.label,
+    description: meta.description,
+  })),
 ]
 export function isMandarinQuizScope(value: string): boolean {
   return MANDARIN_QUIZ_TOPICS.some((topic) => topic.id === value)
@@ -211,7 +219,10 @@ export function geographyQuestion(
           icon: flag(code),
         }))
       : STATE_CAPITALS.map(([name, capital]) => ({ name, answer: capital }))
-  const pool = places.slice(0, unlockedCount(correctAnswers, places.length, difficulty))
+  const pool = places.slice(
+    0,
+    unlockedCount(correctAnswers, places.length, difficulty),
+  )
   const candidates = pool.filter(
     (place) => module + ':' + place.name !== previousId,
   )
@@ -256,7 +267,10 @@ export function mandarinQuestion(
   const choices = catalog.filter(
     (other) => other.key !== card.key && other.meaning !== card.meaning,
   )
-  const distractors = shuffled(choices, random).slice(0, choiceCount(difficulty) - 1)
+  const distractors = shuffled(choices, random).slice(
+    0,
+    choiceCount(difficulty) - 1,
+  )
   return {
     id: 'mandarin:' + card.key,
     module: 'mandarin',
@@ -268,7 +282,7 @@ export function mandarinQuestion(
     options: shuffled([card, ...distractors], random).map((item) => ({
       id: item.key,
       label: reversed ? item.simplified : item.meaning,
-    })), 
+    })),
     correctId: card.key,
     explanation:
       card.simplified + ' (' + card.pinyin + ') means ' + card.meaning + '.',
@@ -292,11 +306,14 @@ export function mandarinTopicCards(
   if (scope === 'animals') return animalMandarinCards(catalog)
   if (scope === 'all')
     return catalog.filter(
-      (card) => (card.hskLevel ?? 99) <= 2 && Boolean(card.meaning && card.simplified),
+      (card) =>
+        (card.hskLevel ?? 99) <= 2 && Boolean(card.meaning && card.simplified),
     )
   if (!isMandarinQuizScope(scope)) return []
   return catalog.filter(
-    (card) => card.categories?.includes(scope) && Boolean(card.meaning && card.simplified),
+    (card) =>
+      card.categories?.includes(scope) &&
+      Boolean(card.meaning && card.simplified),
   )
 }
 
@@ -316,7 +333,10 @@ export function mandarinFrontier(
   ).length
   const frontier = beginner.slice(
     0,
-    Math.min(beginner.length, unlockedCount(correctAnswers, beginner.length, difficulty) + studied),
+    Math.min(
+      beginner.length,
+      unlockedCount(correctAnswers, beginner.length, difficulty) + studied,
+    ),
   )
   const now = Date.now()
   const due = frontier.filter(

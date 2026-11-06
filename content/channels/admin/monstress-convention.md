@@ -2,24 +2,24 @@
 contentType: tab
 channelKey: admin
 tabKey: monstress-convention
-label: Monstress Convention
-title: Monstress Convention
-subtitle: Two journalists, one ghost and a disastrous reunion.
+label: Monstrexx
+title: Monstrexx
+subtitle: Two ghosts, one knife, a monstrous franchise.
 description: Adults-only internal point-and-click detective-comedy preview.
-summary: Private convention mystery.
+summary: Private Monstrexx mystery.
 icon: kind-icon:ghost
 route: /admin/monstress-convention
 sort: 147
 requiredRole: ADMIN
 requiredPermission: mature
 tutorial:
-  title: Grand Gloaming Hotel
+  title: Last Call Motor Lodge
   body: >-
     This private early playtest requires a logged-in administrator who has
-    enabled mature content and has no CHILD role. Enter the hotel, select
+    enabled mature content and has no CHILD role. Enter the motel, select
     illustrated hotspots, choose an icon verb, and swap between Nico and Iris.
-    Some conversational topics are shared, but each investigator gets a
-    different answer. The game is not publicly released.
+    Iris handles physical clues, Nico supplies deductions, and the two
+    ghosts have distinct accounts. The convention is a separate city venue. The game is not publicly released.
 ---
 
-An internal, mature-gated work-in-progress investigation.
+MONSTREXX is a private gated investigation preview.

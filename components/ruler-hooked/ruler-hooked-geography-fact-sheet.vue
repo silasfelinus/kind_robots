@@ -38,11 +38,11 @@ const props = defineProps<{
   correct: boolean
 }>()
 const emit = defineEmits<{ continue: [] }>()
-const reversed = computed(() => {
-  if (props.question.module === 'flags')
-    return !props.question.hero.startsWith('🇦') && !/^[\u{1F1E6}-\u{1F1FF}]/u.test(props.question.hero)
-  return props.question.hero !== props.question.id.slice('capitals:'.length)
-})
+const reversed = computed(() =>
+  props.question.module === 'flags'
+    ? props.question.hero === props.question.correctId
+    : props.question.hero !== props.question.id.slice('capitals:'.length),
+)
 const flag = computed(() =>
   reversed.value
     ? props.question.options.find((option) => option.id === props.question.correctId)?.label ?? '🌍'

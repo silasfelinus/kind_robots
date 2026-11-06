@@ -635,7 +635,8 @@ const DESTINATION_FOLLOWUPS: Readonly<
   'windglass-exodus': [
     {
       flag: 'windglass-hidden',
-      reminder: 'The families you hid at Windglass are asking for one final sealed delivery.',
+      reminder:
+        'The families you hid at Windglass are asking for one final sealed delivery.',
     },
     {
       flag: 'lantern-both',
@@ -659,7 +660,8 @@ const DESTINATION_FOLLOWUPS: Readonly<
     },
     {
       flag: 'archive-consented',
-      reminder: 'The people you helped leave the Archive are asking for the machines’ consent too.',
+      reminder:
+        'The people you helped leave the Archive are asking for the machines’ consent too.',
     },
   ],
   'serendipity-last-call': [

@@ -41,7 +41,7 @@
       </button>
 
       <div
-        class="flex h-10 min-h-10 min-w-0 flex-1 items-stretch rounded-xl border border-base-300 bg-base-100 shadow-sm sm:h-11 sm:min-h-11 xl:h-14 xl:min-h-14 xl:flex-none"
+        class="flex h-10 min-h-10 min-w-0 flex-1 items-stretch rounded-xl border border-base-300 bg-base-100 shadow-sm sm:h-11 sm:min-h-11 xl:h-14 xl:min-h-14 xl:max-w-[min(27rem,35vw)] xl:flex-none"
       >
         <channel-select
           seamless
@@ -76,33 +76,6 @@
         {{ greeting }}
       </p>
 
-      <!-- Workspace help is a single permanent header utility, never a
-           second page-caption row. -->
-      <button
-        type="button"
-        class="btn btn-ghost btn-sm btn-square shrink-0 rounded-xl border border-base-300"
-        :class="[
-          workspaceSheetOpen
-            ? 'border-primary bg-primary/15 text-primary'
-            : tutorialUnseen
-              ? 'tutorial-unseen border-secondary bg-secondary/15 text-secondary'
-              : 'bg-base-100',
-        ]"
-        :aria-label="workspaceToggleLabel"
-        :title="workspaceToggleLabel"
-        :aria-expanded="workspaceSheetOpen"
-        @click="navStore.toggleWorkspaceSheet()"
-      >
-        <span class="indicator">
-          <Icon name="kind-icon:question" class="kr-icon-5" />
-          <span
-            v-if="tutorialUnseen && !workspaceSheetOpen"
-            class="indicator-item h-2.5 w-2.5 rounded-full bg-secondary ring-2 ring-base-100"
-            aria-hidden="true"
-          />
-        </span>
-      </button>
-      
       <account-hub class="header-account shrink-0" />
 
       <!--
@@ -204,6 +177,33 @@
       >
         <Icon name="kind-icon:brain" class="kr-icon-5" />
       </NuxtLink>
+
+      <!-- Workspace help is a single permanent header utility, never a
+           second page-caption row. -->
+      <button
+        type="button"
+        class="btn btn-ghost btn-sm btn-square shrink-0 rounded-xl border border-base-300"
+        :class="[
+          workspaceSheetOpen
+            ? 'border-primary bg-primary/15 text-primary'
+            : tutorialUnseen
+              ? 'tutorial-unseen border-secondary bg-secondary/15 text-secondary'
+              : 'bg-base-100',
+        ]"
+        :aria-label="workspaceToggleLabel"
+        :title="workspaceToggleLabel"
+        :aria-expanded="workspaceSheetOpen"
+        @click="navStore.toggleWorkspaceSheet()"
+      >
+        <span class="indicator">
+          <Icon name="kind-icon:question" class="kr-icon-5" />
+          <span
+            v-if="tutorialUnseen && !workspaceSheetOpen"
+            class="indicator-item h-2.5 w-2.5 rounded-full bg-secondary ring-2 ring-base-100"
+            aria-hidden="true"
+          />
+        </span>
+      </button>
     </div>
   </header>
 </template>

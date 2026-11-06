@@ -4,7 +4,7 @@ import {
   navigationPermissions,
   permissionAllows,
   type NavigationAccessContext,
-} from '../stores/helpers/navigationAccess'
+} from '../../stores/helpers/navigationAccess'
 
 function read(path: string): string {
   return readFileSync(new URL('../../' + path, import.meta.url), 'utf8')

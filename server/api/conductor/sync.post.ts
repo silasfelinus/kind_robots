@@ -109,7 +109,10 @@ export default defineEventHandler(async (event) => {
 
         await tx.project.create({
           data: {
-            title: project.name,
+            title:
+              project.slug === 'monstress-convention'
+                ? 'Monstrexx'
+                : project.name,
             slug: project.slug,
             conductorSlug: project.slug,
             description: project.notesFromSilas ?? project.goal,

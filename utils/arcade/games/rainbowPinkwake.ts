@@ -272,19 +272,21 @@ export function pinkwakeDialogue(
   const partner = pilots[pilots.length - 1]!
   const lines: Record<PinkwakeSceneId, PinkwakeDialogue[]> = {
     'A01.OPEN': [
+      // The opening (t-012): who is flying, who is talking, what they were told and what is at stake, in three
+      // short lines that read at arcade pace over the first quiet seconds of the Act.
       {
         speaker: 'Lilt-7',
-        text: 'Pinkwake Estuary. The Motherland calls it feral water. The fleet here fires on our survey beacons.',
+        text: "Aurora Mercy to C.A.T.S. Pinkwake's fleet is shooting down our survey beacons.",
       },
       {
         speaker: lead,
-        text: 'Then C.A.T.S. pacifies it. Keep the Motherland survey station behind us.',
+        text: 'The Motherland says pacify it. Fine. Nobody touches our survey station.',
       },
       {
         speaker: partner === lead ? 'Lilt-7' : partner,
         text:
           partner === lead
-            ? 'I will count safe passages. You provide the improbable part.'
+            ? 'I prepared a reassuring statistic. The reassuring part is still loading.'
             : 'Pacify. Such a soft word for this much firepower.',
       },
     ],

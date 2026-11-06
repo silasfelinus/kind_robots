@@ -11,6 +11,7 @@ on:
       - 'utils/memoryDungeonWorld.ts'
       - 'utils/memoryDungeonWaves.ts'
       - 'utils/scripts/verifyMemoryWorldBrowser.browser.test.mjs'
+      - 'utils/scripts/verifyMemoryChokingBrowser.browser.test.mjs'
       - 'utils/scripts/verifyMemoryWorldOnePlaytest.test.mjs'
       - 'utils/scripts/verifyMemoryDarkRealmPlaytest.test.mjs'
       - 'utils/scripts/memoryWorldPlaytestKit.mjs'
@@ -53,6 +54,9 @@ jobs:
 
       - name: Test real Memory World store timers and browser reloads
         run: node utils/scripts/verifyMemoryWorldBrowser.browser.test.mjs
+
+      - name: Test Choking Works save and restore in Chromium
+        run: node utils/scripts/verifyMemoryChokingBrowser.browser.test.mjs
 
       - name: Preserve browser interruption results
         if: always()

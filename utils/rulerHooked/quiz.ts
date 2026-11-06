@@ -277,6 +277,10 @@ export function mandarinFrontier(
   const alternatives = [...due, ...newWords, ...reviews].filter(
     (card) => card.key !== recentlyAsked,
   )
-  const pool = candidates.length ? candidates : alternatives.length ? alternatives : nextPool
+  const pool = candidates.length
+    ? candidates
+    : alternatives.length
+      ? alternatives
+      : nextPool
   return pool[index(pool.length, random)] ?? null
 }

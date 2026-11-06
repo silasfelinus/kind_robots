@@ -1,6 +1,7 @@
 // Fun-first Clash contract: automatic combat, simultaneous hits, placement,
 // replacement, banked mana, legal CPU decisions and deterministic replays.
 import assert from 'node:assert/strict'
+import { readFileSync } from 'node:fs'
 import { alleyDeck } from '../slimeCity/alleys'
 import { cardById } from '../slimeCity/prototypes'
 import {
@@ -50,6 +51,10 @@ function fourPasses(input: ClashState): ClashState {
   for (let i = 0; i < CLASH_PLAYS * 2; i++) s = passClash(s, s.active)
   return s
 }
+
+const adminPage = readFileSync('pages/admin/slime-city.vue', 'utf8')
+assert.match(adminPage, /v-if="user\\.isAdmin"[\\s\\S]*data-testid="slime-clash-tab"/)
+assert.match(adminPage, /<SlimeCityClash v-else-if="lab\\.view === 'clash' && user\\.isAdmin"/)
 
 const a = createClash('catgirls', 'ironjaw', 42)
 const b = createClash('catgirls', 'ironjaw', 42)

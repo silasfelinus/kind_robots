@@ -47,7 +47,7 @@ assert.equal(
   new Set(
     HOSHIMORI_NIGHT_SITES.flatMap((site) => site.choices.map((c) => c.outcome)),
   ).size,
-  92,
+  96,
 )
 assert.ok(
   HOSHIMORI_NIGHT_SITES.every((site) =>

@@ -296,7 +296,7 @@ export const FURNACE_ROOMS_B: readonly FurnaceRoomContent[] = [
       },
       {
         flag: 'FN-18:stay-below',
-        text: 'Vesper stayed below at the flue. The mill seems to have taken it as consent, and turns faster.',
+        text: 'Down at the ferry Vesper drew routes on the captain’s cards instead of addresses. One card has come up the line and jammed in a posting slot, and the mill keeps stopping to try to read it.',
       },
     ],
     choices: [
@@ -507,7 +507,7 @@ export const FURNACE_ROOMS_B: readonly FurnaceRoomContent[] = [
         id: 'search',
         label: 'Search behind the bench',
         outcome:
-          'Behind the bench is a drawer of glass offcuts, each one a face the window was never given to file: a grandmother, a boy in a too-big hat, a wolf in a coat. Each has a note pencilled on it in Kogane’s round baker’s hand: not yet. Someone in this house has been keeping faces back from the window.',
+          'Behind the bench is a drawer of glass offcuts, each one a face the window was never given to file: a grandmother, a boy in a too-big hat, a wolf in a coat. Each has a note pencilled on it in Kogane’s tidy registrar’s hand: not yet. Someone in this house has been keeping faces back from the window.',
         gain: { evidence: 1 },
         artSubject: `${VESPER} kneeling to pull out a shallow wooden drawer filled with small glass offcuts, each showing a painted face, a few with pencilled paper slips tucked beside them, ${PIP} peering over their shoulder`,
       },
@@ -568,12 +568,12 @@ export const FURNACE_ROOMS_B: readonly FurnaceRoomContent[] = [
   },
   {
     id: 'FN-30',
-    title: 'Kogane’s Banked Hearth',
+    title: 'Kogane’s Back Office',
     kind: 'treasure',
     speaker: 'Vesper',
     opening:
-      'A dead-end workroom off the bake hall, low and very warm. This is where Kogane rests between shifts, and it has been kept by someone who wants to be useful: a cot, a coal bed banked for the night, a desk of blank registry forms and a stamp worn smooth. Pinned above the desk are the three winters of birthdays Kogane forgot for the Oven, each now filled in on a form, name and date and address, in a round baker’s hand, as if to keep them safe that way.',
-    artSubject: `A low warm dead-end workroom of soot-dark brick with a narrow cot, a deep bed of banked glowing coals, a desk stacked with blank forms and a smooth wooden stamp, the wall above the desk pinned edge to edge with filled-in paper forms; ${VESPER} stands in the doorway with the clay ember pot and ${PIP} reaches toward the pinned forms`,
+      'A dead-end back office off the bake hall, low and very warm. This is where Kogane works between roll calls, and it has been kept by someone who wants to be useful: a stool, a small work hearth banked for the night, a desk of blank registry forms and a stamp worn smooth. Pinned above the desk are the three winters of birthdays Kogane forgot for the Oven, each now filled in on a form, name and date and address, in a tidy registrar’s hand, as if to keep them safe that way.',
+    artSubject: `A low warm dead-end back office of soot-dark brick with a wooden stool, a small work hearth of banked glowing coals, a desk stacked with blank forms and a smooth wooden stamp, the wall above the desk pinned edge to edge with filled-in paper forms; ${VESPER} stands in the doorway with the clay ember pot and ${PIP} reaches toward the pinned forms`,
     echoes: [
       {
         flag: 'OV-30:glass-refuse-forgetting',
@@ -581,7 +581,7 @@ export const FURNACE_ROOMS_B: readonly FurnaceRoomContent[] = [
       },
       {
         flag: 'OV-30:glass-open-shift-ledger',
-        text: 'In the warm Oven Kogane posted a voluntary rota and the exact loaves missing. The rota is pinned above the cot. Every shift on it is Kogane’s own.',
+        text: 'In the warm Oven Kogane posted a voluntary rota and the exact loaves missing. The rota is pinned above the stool. Every shift on it is Kogane’s own.',
       },
       {
         flag: 'OV-12:release-ember',
@@ -595,11 +595,11 @@ export const FURNACE_ROOMS_B: readonly FurnaceRoomContent[] = [
     choices: [
       {
         id: 'take-coals',
-        label: 'Feed the ember pot from Kogane’s banked coals',
+        label: 'Feed the ember pot from Kogane’s banked work hearth',
         outcome:
           'Old bakery coal, slow and steady. Vesper takes only what the pot can hold. On the desk a form fills itself in: coal, one pot, borrowed by. Then it stops, because it has no name to write for Vesper, and the pen lies down on the blotter as if embarrassed.',
         gain: { battery: 2 },
-        artSubject: `${VESPER} tipping glowing coals from a deep banked hearth into a small clay pot with a baker’s scoop, a pen lying fallen across a half-filled form on the desk behind them`,
+        artSubject: `${VESPER} tipping glowing coals from a small banked work hearth into a small clay pot with a baker’s scoop, a pen lying fallen across a half-filled form on the desk behind them`,
       },
       {
         id: 'read-forms',
@@ -607,15 +607,15 @@ export const FURNACE_ROOMS_B: readonly FurnaceRoomContent[] = [
         outcome:
           'Every form is correct, careful and kind: the right cake for each child, a note of who cannot eat nuts. This is not a list of targets. It is a whole village kept the only way the procession allows. The last form is blank except for its heading, KOGANE, and its address: the Oven. Kogane registered first.',
         gain: { evidence: 2, danger: 1 },
-        artSubject: `${PIP} lifting one pinned form from a wall crowded with them while ${VESPER} reads over his shoulder, a single nearly blank form pinned apart from the others by the cot`,
+        artSubject: `${PIP} lifting one pinned form from a wall crowded with them while ${VESPER} reads over his shoulder, a single nearly blank form pinned apart from the others by the hearth`,
       },
       {
         id: 'leave-card',
         label: 'Leave Kogane an unsigned birthday card with no form attached',
         outcome:
-          'Vesper writes on the back of a map scrap: for the baker, for every birthday you gave away. No name, no date. They prop it on the cot. The stamp on the desk lifts by itself, hovers over the card, and does not come down.',
+          'Vesper writes on the back of a map scrap: for the baker, for every birthday you gave away. No name, no date. They prop it on the stool. The stamp on the desk lifts by itself, hovers over the card, and does not come down.',
         gain: { trust: 1, danger: -1 },
-        artSubject: `A small folded scrap of map propped on a narrow cot like a card, a smooth wooden stamp hovering in the air above it, ${VESPER} backing quietly out of the doorway with ${PIP}`,
+        artSubject: `A small folded scrap of map propped on a wooden stool like a card, a smooth wooden stamp hovering in the air above it, ${VESPER} backing quietly out of the doorway with ${PIP}`,
       },
     ],
   },
@@ -692,7 +692,7 @@ export const FURNACE_ROOMS_B: readonly FurnaceRoomContent[] = [
       },
       {
         flag: 'OV-12:offer-ember',
-        text: 'In the warm Oven Kogane wrote a contract with a cooling bell and a right to leave. The bell sits on the counter. Kogane has not rung it, and keeps one hand near it, the way you keep a hand near a door.',
+        text: 'In the warm Oven Kogane wrote a contract with a cooling bell and a right to leave. That bell calls the roll now, and its rope comes down through the ceiling to a hook by the counter. Kogane keeps one hand near the rope, the way you keep a hand near a door.',
       },
       {
         flag: 'OV-15:rewrite-guardian',
@@ -772,7 +772,7 @@ export const FURNACE_ROOMS_B: readonly FurnaceRoomContent[] = [
       },
       {
         flag: 'OV-33:glass-protect-appeal',
-        text: 'In the warm Oven the witnesses were protected and given a private appeal. The private appeal is here, unsealed, read, and annotated in a round baker’s hand: for their safety.',
+        text: 'In the warm Oven the witnesses were protected and given a private appeal. The private appeal is here, unsealed, read, and annotated in a tidy registrar’s hand: for their safety.',
       },
       {
         flag: 'FN-32:truth',
@@ -785,6 +785,10 @@ export const FURNACE_ROOMS_B: readonly FurnaceRoomContent[] = [
       {
         flag: 'FN-32:pip-vouches',
         text: 'Pip’s signature sits on Kogane’s blotter, vouching for one person and naming no one else. Kogane has not filed it. Kogane does not know where it would go.',
+      },
+      {
+        flag: 'FN-11:hear-roll',
+        text: 'One drawer near the floor is set aside for the twenty-third child on the nursery roll, the girl Pip knew. It is empty. It has been opened so often that its runners are worn bright.',
       },
     ],
     choices: [
@@ -885,7 +889,7 @@ export const FURNACE_ROOMS_B: readonly FurnaceRoomContent[] = [
       },
       {
         flag: 'OV-35:last-bell-voluntary-bake',
-        text: 'In the warm Oven the workers allowed one witnessed bake, and Kogane kept the cooling bell. It hangs from Kogane’s belt. Kogane has not rung it, and has not taken it off.',
+        text: 'In the warm Oven the workers allowed one witnessed bake, and Kogane kept the cooling bell. Its stop-cord hangs here by the Furnace mouth, frayed from a night of roll calls. Pulled the old way, it could still stop the fire. Kogane has not touched it.',
       },
       {
         flag: 'e07:8,8:consent',
@@ -906,6 +910,18 @@ export const FURNACE_ROOMS_B: readonly FurnaceRoomContent[] = [
       {
         flag: 'FN-34:give-page',
         text: 'The mother from the cage is in the queue, her torn page folded in her shawl. She is watching Vesper’s hands, not the fire.',
+      },
+      {
+        flag: 'FN-15:pip-writes',
+        text: 'The woman from the guardian’s cold crown of bricks is in the queue. Her name is in Pip’s ledger, its corner folded down, and in this fire. Whatever Vesper does here decides whether Pip’s is the only copy.',
+      },
+      {
+        flag: 'FN-15:leave-unwritten',
+        text: 'The woman from the guardian’s cold crown of bricks is in the queue, still nameless. Upstairs her son is still asking for her. Her name is in this fire, and nowhere else.',
+      },
+      {
+        flag: 'FN-15:tell-her',
+        text: 'The woman from the guardian’s cold crown of bricks is in the queue. ‘Not yet,’ she told them. The Furnace is offering her now.',
       },
     ],
     choices: [
@@ -978,6 +994,10 @@ export const FURNACE_ROOMS_B: readonly FurnaceRoomContent[] = [
       {
         flag: 'FN-32:pip-vouches',
         text: 'Pip’s signature is somewhere behind them, vouching for one person only. He climbs as though that was the easy part.',
+      },
+      {
+        flag: 'FN-09:unpin',
+        text: 'The childhood maps Vesper unpinned from the dawn kiln ride in their satchel, folded along their old creases. The road they sold is still pinned down there, where anyone can see it. Vesper meant it to be.',
       },
     ],
     choices: [

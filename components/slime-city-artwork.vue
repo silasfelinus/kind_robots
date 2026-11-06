@@ -3,7 +3,11 @@
     <img
       v-if="displayRecord?.status === 'loaded' && displayRecord.src"
       :src="displayRecord.src"
-      :alt="showingFallback ? 'Crew artwork while card illustration is pending: ' + alt : alt"
+      :alt="
+        showingFallback
+          ? 'Crew artwork while card illustration is pending: ' + alt
+          : alt
+      "
       loading="lazy"
       draggable="false"
     />
@@ -53,14 +57,21 @@ const secondaryRecord = computed(() =>
   props.fallbackImageId ? art.images[props.fallbackImageId] : null,
 )
 const showingFallback = computed(
-  () => record.value?.status !== 'loaded' && secondaryRecord.value?.status === 'loaded',
+  () =>
+    record.value?.status !== 'loaded' &&
+    secondaryRecord.value?.status === 'loaded',
 )
 const displayRecord = computed(() =>
   record.value?.status === 'loaded' ? record.value : secondaryRecord.value,
 )
 
 watch(
-  [() => props.imageId, () => props.fallbackImageId, () => user.token, () => record.value?.status],
+  [
+    () => props.imageId,
+    () => props.fallbackImageId,
+    () => user.token,
+    () => record.value?.status,
+  ],
   () => {
     void art.ensure(props.imageId ?? null)
     if (!props.imageId || record.value?.status === 'failed')

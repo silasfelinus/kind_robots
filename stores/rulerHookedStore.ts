@@ -11,6 +11,7 @@ import {
   advanceAfterFishingAttempt,
   takeTurn,
   eligibleEnding,
+  dismissedFinaleFlag,
 } from '~/utils/rulerHooked/loop'
 import {
   resolveChoice,
@@ -19,6 +20,12 @@ import {
 } from '~/utils/rulerHooked/applyEffects'
 import { cycleTime, resolveScene } from '~/utils/rulerHooked/compositor'
 import { makeRng } from '~/utils/rulerHooked/seed'
+import {
+  startFishingEncounter,
+  applyFishingStop,
+  fishingEncounterFinished,
+  type FishingEncounter,
+} from '~/utils/rulerHooked/encounter'
 import {
   applySimpleFishingStop,
   applySimpleReel,
@@ -74,6 +81,7 @@ export const useRulerHookedStore = defineStore('rulerHooked', () => {
   const activeArcId = ref<string | null>(null)
   const pendingEnding = ref<string | null>(null)
   const activeFishing = ref<SimpleFishingEncounter | null>(null)
+  const activeClassicFishing = ref<FishingEncounter | null>(null)
   const lastCatch = ref<CatchResult | null>(null)
   const lastEscape = ref<{ fishName: string; cue: string } | null>(null)
   const slots = ref<SaveSlotMeta[]>([])
@@ -124,6 +132,7 @@ export const useRulerHookedStore = defineStore('rulerHooked', () => {
     activeArcId.value = null
     pendingEnding.value = null
     activeFishing.value = null
+    activeClassicFishing.value = null
     lastCatch.value = null
     lastEscape.value = null
   }
@@ -226,11 +235,31 @@ export const useRulerHookedStore = defineStore('rulerHooked', () => {
   }
 
   /** Select a deterministic fish and enter its beat-based encounter. */
-  function startFishing() {
+  function startFishing(mode: 'classic' | 'quiz' = 'classic') {
     if (!save.value || !canFish.value) return
     lastCatch.value = null
     lastEscape.value = null
     activeFishing.value = startSimpleFishing(save.value)
+    activeClassicFishing.value =
+      mode === 'classic' ? startFishingEncounter(save.value) : null
+  }
+
+  /** One input on every beat: the visual stop bar resolves reel/slack/wait.
+   * The canonical encounter preserves species-specific behavior, rarity,
+   * gear bonuses and deterministic recorded stop positions. */
+  function classicStop(position: number) {
+    if (!activeClassicFishing.value || !activeFishing.value) return
+    const next = applyFishingStop(activeClassicFishing.value, position)
+    activeClassicFishing.value = next
+    if (!fishingEncounterFinished(next)) return
+    activeClassicFishing.value = null
+    advanceFishing({
+      ...activeFishing.value,
+      stage: next.phase === 'LANDED' ? 'LANDED' : 'ESCAPED',
+      progress: next.progress,
+      tension: next.tension,
+      cue: next.cue,
+    })
   }
 
   /**
@@ -289,6 +318,7 @@ export const useRulerHookedStore = defineStore('rulerHooked', () => {
       activeArcId.value = result.arcId ?? null
     }
     activeFishing.value = null
+    activeClassicFishing.value = null
     persist()
   }
 
@@ -318,7 +348,12 @@ export const useRulerHookedStore = defineStore('rulerHooked', () => {
   }
 
   function declineEnding() {
+    if (!save.value || !pendingEnding.value) return
+    const next = cloneSave(save.value)
+    next.flags[dismissedFinaleFlag(pendingEnding.value)] = true
+    save.value = next
     pendingEnding.value = null
+    persist()
   }
 
   /** Mark this reign's opening as seen (t-028) -- skip or finish both call this. */
@@ -426,6 +461,7 @@ export const useRulerHookedStore = defineStore('rulerHooked', () => {
     activeArcId,
     pendingEnding,
     activeFishing,
+    activeClassicFishing,
     lastCatch,
     lastEscape,
     slots,
@@ -440,6 +476,7 @@ export const useRulerHookedStore = defineStore('rulerHooked', () => {
     updateCosmetics,
     loadSlot,
     startFishing,
+    classicStop,
     fishingStop,
     reelFishing,
     landQuizFish,

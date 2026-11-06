@@ -200,10 +200,14 @@ const lake = readFileSync(
   'components/ruler-hooked/ruler-hooked-lake-screen.vue',
   'utf8',
 )
-assert.match(lake, /<RulerHookedQuizEncounter[\s\S]*?quiz\.mode === 'quiz'/)
 assert.match(
   lake,
-  /<RulerHookedFishingEncounter[\s\S]*?v-else-if="store.activeFishing"/,
+  /<RulerHookedQuizEncounter[\s\S]*?!store\.activeClassicFishing/,
+  'quiz mode remains isolated from the classic fight even if fishing settings change mid-cast',
+)
+assert.match(
+  lake,
+  /<RulerHookedFishingEncounter[\s\S]*?v-else-if="store\.activeClassicFishing"/,
 )
 const quiz = readFileSync(
   'components/ruler-hooked/ruler-hooked-quiz-encounter.vue',

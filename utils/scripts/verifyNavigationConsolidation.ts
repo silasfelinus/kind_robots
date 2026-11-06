@@ -38,9 +38,11 @@ assert.doesNotMatch(
 )
 assert.ok(
   channelSelect.includes(':name="activeTab?.icon || activeChannel.icon"') &&
-    channelSelect.includes('{{ activeTab?.label || activeChannel.label }}') &&
-    channelSelect.includes('Navigate workspace — current tab'),
-  'both launcher triggers must display the active tab name and icon, not the channel name',
+    channelSelect.includes('{{ currentPageTitle }}') &&
+    channelSelect.includes('{{ currentPageSubtitle }}') &&
+    channelSelect.includes('Navigate workspace — ${currentPageTitle}') &&
+    channelSelect.includes('aria-label="Current page"'),
+  'both launcher triggers must display the authored page title, description and icon rather than a duplicate header caption',
 )
 assert.ok(
   channelSelect.includes('v-if="unifiedMobile"') &&
@@ -505,8 +507,10 @@ assert.ok(
   siteDirectorySource.includes('channelContentStore.navigationChannels'),
 )
 assert.ok(
-  pickerSource.includes('{{ activeTab?.label || activeChannel.label }}'),
-  'Home and every other channel should name the actual tab in the launcher',
+  pickerSource.includes('{{ currentPageTitle }}') &&
+    pickerSource.includes('activeTab.value?.title') &&
+    pickerSource.includes('activeTab.value?.label'),
+  'Home and every other channel should show the authored tab/page title in the launcher',
 )
 assert.ok(
   homePageSource.includes("route.query.view !== 'dashboard'"),

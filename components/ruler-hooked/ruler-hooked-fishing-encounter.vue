@@ -1,321 +1,416 @@
+<!-- A proper one-input fishing fight. The existing deterministic fishing engine
+     resolves every stop against fish/rarity/gear-dependent zones, including
+     patience and reversal species. No REEL/SLACK web-app action buttons. -->
 <template>
-  <section
-    class="rh-parchment rh-fight"
-    aria-labelledby="fishing-encounter-title"
-  >
-    <header class="rh-fight__head">
-      <div>
-        <p class="rh-eyebrow">The line is alive</p>
-        <h3 id="fishing-encounter-title" class="rh-title">
-          {{ encounter.fishName }}
-        </h3>
-        <p class="rh-fight__behavior">{{ encounter.catchBehavior }}</p>
+  <section class="rh-fishing" aria-labelledby="rh-fishing-title">
+    <header class="rh-fishing__header">
+      <RulerHookedArt
+        class="rh-fishing__portrait"
+        :candidates="fishCandidates(encounter.fishSlug)"
+        :initial="encounter.fishName.charAt(0)"
+        :alt="encounter.fishName"
+        fit="cover"
+      />
+      <div class="rh-fishing__intro">
+        <p class="rh-eyebrow">A bite on the line · {{ rarityLabel }}</p>
+        <h2 id="rh-fishing-title" class="rh-fishing__name">{{ encounter.fishName }}</h2>
+        <p class="rh-fishing__behavior">{{ encounter.catchBehavior }}</p>
       </div>
-      <ol class="rh-fight__steps" aria-label="Stage">
-        <li
-          v-for="s in STEPS"
-          :key="s"
-          :class="{ 'is-on': s === encounter.stage }"
-        >
-          {{ STEP_LABEL[s] }}
-        </li>
-      </ol>
+      <span class="rh-fishing__beat">{{ encounter.beat + 1 }} / {{ encounter.maxBeats }}</span>
     </header>
 
-    <div
-      v-if="encounter.stage === 'CAST' || encounter.stage === 'HOOK'"
-      class="rh-fight__body"
+    <button
+      type="button"
+      class="rh-fishing__playfield"
+      :class="{ 'is-surge': suddenShift, 'is-reversed': encounter.reversed }"
+      :aria-label="playfieldLabel"
+      @click="stop"
     >
-      <p class="rh-fight__ask">
-        {{
-          encounter.stage === 'CAST'
-            ? 'Stop the bobber to cast your line.'
-            : 'Again! Stop it to set the hook.'
-        }}
-      </p>
-      <button
-        type="button"
-        class="rh-timing"
-        :aria-label="
-          encounter.stage === 'CAST'
-            ? 'Stop moving marker to cast'
-            : 'Stop moving marker to hook fish'
-        "
-        @click="emit('stop', marker)"
-      >
-        <span class="rh-timing__band" aria-hidden="true" />
+      <span class="rh-fishing__surface" aria-hidden="true">
+        <svg class="rh-fishing__waterlines" viewBox="0 0 600 130" preserveAspectRatio="none">
+          <path d="M-40 22 Q80 0 180 24 T400 26 T660 16" />
+          <path d="M-20 64 Q70 42 190 66 T420 64 T640 59" />
+          <path d="M-10 104 Q95 80 210 105 T430 102 T650 105" />
+        </svg>
+        <span class="rh-fishing__ripple" :style="{ left: marker + '%' }" />
+        <span class="rh-fishing__bobber" :style="{ left: marker + '%' }" />
+        <span v-if="suddenShift" class="rh-fishing__surge-tag">FISH SURGES!</span>
+      </span>
+      <span class="rh-fishing__target-name">{{ aimLabel }}</span>
+      <span class="rh-fishing__track" aria-hidden="true">
         <span
-          class="rh-timing__marker"
-          :style="{ left: marker + '%' }"
-          aria-hidden="true"
+          class="rh-fishing__zone rh-fishing__zone--slack"
+          :style="{ width: profile.bandStart + '%' }"
         />
-        <span class="sr-only"
-          >The center gold band improves your reel start. A miss is still
-          playable.</span
-        >
-      </button>
-      <p class="rh-fight__help">
-        Tap the bar, Space, or Enter. The gold band is a bonus, not a must.
-      </p>
+        <span
+          class="rh-fishing__zone rh-fishing__zone--reel"
+          :style="{ left: profile.bandStart + '%', width: profile.bandWidth + '%' }"
+        />
+        <span
+          class="rh-fishing__zone rh-fishing__zone--wait"
+          :style="{ left: profile.bandStart + profile.bandWidth + '%', right: 0 }"
+        />
+        <span
+          class="rh-fishing__sweetspot"
+          :style="{ left: aimStart + '%', width: aimWidth + '%' }"
+        />
+        <span class="rh-fishing__needle" :style="{ left: marker + '%' }">
+          <span class="rh-fishing__needle-core" />
+        </span>
+      </span>
+      <span class="rh-fishing__instruction">
+        <strong>SPACE</strong> / CLICK / TAP <span aria-hidden="true">✦</span> STOP THE BOBBER
+      </span>
+    </button>
+
+    <div class="rh-fishing__gauges" aria-label="Fishing status">
+      <div class="rh-fishing__gauge">
+        <span><strong>Fish in</strong><b>{{ encounter.progress }}%</b></span>
+        <div class="rh-fishing__meter rh-fishing__meter--progress" role="progressbar" aria-label="Fish caught progress" :aria-valuenow="encounter.progress" aria-valuemin="0" aria-valuemax="100">
+          <i :style="{ width: encounter.progress + '%' }" />
+        </div>
+      </div>
+      <div class="rh-fishing__gauge">
+        <span><strong>Line tension</strong><b>{{ encounter.tension }}%</b></span>
+        <div class="rh-fishing__meter rh-fishing__meter--tension" :class="{ 'is-danger': encounter.tension >= 75 }" role="progressbar" aria-label="Line tension" :aria-valuenow="encounter.tension" aria-valuemin="0" aria-valuemax="100">
+          <i :style="{ width: encounter.tension + '%' }" />
+        </div>
+      </div>
     </div>
 
-    <div v-else-if="encounter.stage === 'REEL'" class="rh-fight__body">
-      <div class="rh-gauges">
-        <label>
-          <span
-            ><span>Landed</span><span>{{ encounter.progress }}%</span></span
-          >
-          <span class="rh-gauge rh-gauge--landed"
-            ><span :style="{ width: encounter.progress + '%' }"
-          /></span>
-        </label>
-        <label>
-          <span
-            ><span>Tension</span><span>{{ encounter.tension }}%</span></span
-          >
-          <span
-            class="rh-gauge rh-gauge--tension"
-            :class="{ 'is-hot': encounter.tension >= 75 }"
-          >
-            <span :style="{ width: encounter.tension + '%' }" />
-          </span>
-        </label>
-      </div>
-      <div class="rh-actions rh-actions--split">
-        <button
-          type="button"
-          class="rh-btn rh-btn--gold rh-btn--big"
-          @click="tap"
-        >
-          Tap to reel
-        </button>
-        <button type="button" class="rh-btn rh-btn--big" @click="release">
-          Give slack
-        </button>
-      </div>
-      <p class="rh-fight__help">
-        Tap to reel. Pause and the line eases on its own.
-      </p>
-    </div>
-
-    <p class="rh-fight__cue" role="status" aria-live="polite">
+    <p class="rh-fishing__cue" role="status" aria-live="polite">
       {{ encounter.cue }}
     </p>
   </section>
 </template>
 
 <script setup lang="ts">
-import type { SimpleFishingEncounter } from '~/utils/rulerHooked/simpleFishing'
+import type { FishingEncounter } from '~/utils/rulerHooked/encounter'
+import { timingProfileFor } from '~/utils/rulerHooked/timingBar'
+import { fishCandidates } from '~/utils/rulerHooked/artLibrary'
 
-const props = defineProps<{ encounter: SimpleFishingEncounter }>()
-const emit = defineEmits<{
-  stop: [position: number]
-  tap: []
-  release: []
-}>()
+const props = defineProps<{ encounter: FishingEncounter }>()
+const emit = defineEmits<{ stop: [position: number] }>()
 
 const marker = ref(0)
-const STEPS = ['CAST', 'HOOK', 'REEL'] as const
-const STEP_LABEL: Record<(typeof STEPS)[number], string> = {
-  CAST: 'Cast',
-  HOOK: 'Hook',
-  REEL: 'Reel',
-}
-let animationId: number | null = null
-let start = 0
-let lastTapAt = 0
-let slackTimer: ReturnType<typeof setInterval> | null = null
+const profile = computed(() => timingProfileFor(props.encounter))
+const rarityLabel = computed(() => props.encounter.rarity.toLowerCase())
+const suddenShift = computed(
+  () => props.encounter.phase === 'FIGHT' && props.encounter.beat > 0 && props.encounter.beat % 3 === 2,
+)
+const aimAction = computed<'REEL' | 'SLACK' | 'WAIT'>(() => {
+  const fight = props.encounter
+  if (fight.phase === 'APPROACH') return 'WAIT'
+  if (fight.reversed) return fight.tension >= 70 ? 'REEL' : 'SLACK'
+  return fight.tension >= 70 ? 'SLACK' : 'REEL'
+})
+const aimLabel = computed(() => {
+  if (props.encounter.phase === 'APPROACH') return 'A wary fish. Wait for the right moment.'
+  if (props.encounter.reversed) return 'The current reverses! Follow the highlighted water.'
+  if (props.encounter.tension >= 70) return 'The line is taut. Let it breathe.'
+  return suddenShift.value ? 'It darted! Follow the new bright patch.' : 'Aim for the luminous current to pull it closer.'
+})
+const aimStart = computed(() => {
+  const band = profile.value
+  if (aimAction.value === 'SLACK') return Math.max(0, band.bandStart - 14)
+  if (aimAction.value === 'WAIT') return Math.min(91, band.bandStart + band.bandWidth + 5)
+  return band.bandStart
+})
+const aimWidth = computed(() =>
+  aimAction.value === 'REEL' ? profile.value.bandWidth : 10,
+)
+const playfieldLabel = computed(
+  () => `Fishing ${props.encounter.fishName}. ${aimLabel.value} Press Space, Enter, or click to stop the sweeping bobber.`,
+)
 
-function tap() {
-  lastTapAt = performance.now()
-  emit('tap')
+let startedAt = 0
+let frame: number | null = null
+let lastStop = 0
+function tick(time: number) {
+  if (!startedAt) startedAt = time
+  const fraction = ((time - startedAt) % (profile.value.sweepMs * 2)) / profile.value.sweepMs
+  marker.value = Math.max(0, Math.min(100, (fraction <= 1 ? fraction : 2 - fraction) * 100))
+  frame = requestAnimationFrame(tick)
 }
-
-function release() {
-  lastTapAt = performance.now()
-  emit('release')
+function stop() {
+  const now = performance.now()
+  if (now - lastStop < 160) return
+  lastStop = now
+  emit('stop', Math.round(marker.value * 10) / 10)
 }
-
+function keydown(event: KeyboardEvent) {
+  if (event.repeat || (event.key !== ' ' && event.key !== 'Enter')) return
+  const target = event.target
+  if (target instanceof HTMLElement && target.closest('button, a, input, textarea, select, [role="textbox"]')) return
+  event.preventDefault()
+  stop()
+}
 watch(
-  () => props.encounter.stage,
+  () => [props.encounter.beat, props.encounter.phase],
   () => {
-    lastTapAt = performance.now()
+    startedAt = 0
+    marker.value = 0
   },
 )
-function tick(now: number) {
-  if (!start) start = now
-  const fraction = ((now - start) % 2400) / 1200
-  marker.value =
-    fraction <= 1
-      ? Math.round(fraction * 100)
-      : Math.round((2 - fraction) * 100)
-  animationId = requestAnimationFrame(tick)
-}
 onMounted(() => {
-  lastTapAt = performance.now()
-  animationId = requestAnimationFrame(tick)
-  slackTimer = setInterval(() => {
-    if (
-      props.encounter.stage === 'REEL' &&
-      performance.now() - lastTapAt >= 900
-    ) {
-      lastTapAt = performance.now()
-      emit('release')
-    }
-  }, 300)
+  window.addEventListener('keydown', keydown)
+  frame = requestAnimationFrame(tick)
 })
 onBeforeUnmount(() => {
-  if (animationId !== null) cancelAnimationFrame(animationId)
-  if (slackTimer !== null) clearInterval(slackTimer)
+  window.removeEventListener('keydown', keydown)
+  if (frame !== null) cancelAnimationFrame(frame)
 })
 </script>
 
 <style scoped>
-.rh-fight {
-  width: 100%;
-  display: grid;
-  gap: 0.6rem;
-}
-.rh-fight__head {
-  display: flex;
-  justify-content: space-between;
-  gap: 0.75rem;
-}
-.rh-fight__behavior {
-  font-size: 0.8rem;
-  font-style: italic;
-  opacity: 0.8;
-}
-.rh-fight__steps {
-  display: flex;
-  gap: 0.2rem;
-  align-self: start;
-}
-.rh-fight__steps li {
-  padding: 0.15rem 0.5rem;
-  border-radius: 999px;
-  font-size: 0.7rem;
-  font-weight: 700;
-  border: 1px solid rgb(58 38 22 / 0.3);
-  opacity: 0.55;
-}
-.rh-fight__steps li.is-on {
-  opacity: 1;
-  background: var(--rh-plum);
-  border-color: var(--rh-gold);
-  color: #fff3d6;
-}
-.rh-fight__body {
+.rh-fishing {
   display: grid;
   gap: 0.5rem;
+  width: 100%;
+  color: #fff6da;
+  border: 2px solid var(--rh-gold);
+  border-radius: 1.15rem;
+  padding: clamp(0.55rem, 1.5cqi, 0.9rem);
+  background: linear-gradient(155deg, rgb(25 53 69 / 0.95), rgb(17 30 46 / 0.94));
+  box-shadow: 0 0 0 3px var(--rh-plum), 0 14px 35px rgb(0 0 0 / 0.45);
+  backdrop-filter: blur(8px);
 }
-.rh-fight__ask {
+.rh-fishing__header {
+  display: flex;
+  gap: 0.7rem;
+  align-items: center;
+  min-width: 0;
+}
+.rh-fishing__portrait {
+  width: clamp(3.5rem, 10cqi, 6rem);
+  aspect-ratio: 4 / 3;
+  flex: none;
+  border: 1px solid var(--rh-gold);
+  border-radius: 0.6rem;
+  overflow: hidden;
+}
+.rh-fishing__intro {
+  min-width: 0;
+  flex: 1;
+}
+.rh-fishing__name {
   font-family: var(--rh-display);
-  font-weight: 700;
-  font-size: 1.05rem;
+  font-weight: 800;
+  font-size: clamp(1.05rem, 2.5cqi, 1.65rem);
+  line-height: 1.12;
 }
-.rh-fight__help {
+.rh-fishing__behavior {
   font-size: 0.75rem;
-  opacity: 0.75;
+  opacity: 0.8;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
-.rh-timing {
+.rh-fishing__beat {
+  flex: none;
+  padding: 0.25rem 0.5rem;
+  border: 1px solid rgb(255 244 214 / 0.4);
+  border-radius: 2rem;
+  font-size: 0.75rem;
+  font-variant-numeric: tabular-nums;
+}
+.rh-fishing__playfield {
+  display: grid;
+  gap: 0.45rem;
+  width: 100%;
+  padding: 0;
+  text-align: center;
+  border: 1px solid rgb(255 225 158 / 0.5);
+  border-radius: 0.85rem;
+  overflow: hidden;
+  background: rgb(3 19 32 / 0.55);
+  color: #fff8e8;
+  cursor: crosshair;
+  touch-action: manipulation;
+  user-select: none;
+}
+.rh-fishing__playfield:focus-visible {
+  outline: 3px solid #ffdb75;
+  outline-offset: 3px;
+}
+.rh-fishing__surface {
   position: relative;
   display: block;
-  height: 3.25rem;
-  width: 100%;
-  border-radius: 999px;
+  height: clamp(4.5rem, 11cqi, 9rem);
   overflow: hidden;
-  background:
-    repeating-linear-gradient(
-      90deg,
-      rgb(255 255 255 / 0.08) 0 2px,
-      transparent 2px 22px
-    ),
-    linear-gradient(180deg, #3d6f8f, #24465c);
-  border: 2px solid var(--rh-ink);
-  box-shadow:
-    inset 0 3px 8px rgb(0 0 0 / 0.45),
-    0 0 0 3px var(--rh-gold);
-  cursor: pointer;
+  background: linear-gradient(180deg, #5f8390 0%, #2e627c 34%, #16445e 75%, #0b324a 100%);
 }
-.rh-timing:focus-visible {
-  outline: 3px solid var(--rh-plum);
-  outline-offset: 4px;
-}
-.rh-timing__band {
+.rh-fishing__waterlines {
   position: absolute;
-  inset: 0 auto 0 28%;
-  width: 44%;
-  background: linear-gradient(
-    180deg,
-    rgb(255 217 119 / 0.75),
-    rgb(217 164 65 / 0.6)
-  );
-  border-inline: 2px solid #fff1c9;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  fill: none;
+  stroke: rgb(211 241 233 / 0.4);
+  stroke-width: 2.5;
+  animation: rh-water-ripple 3s ease-in-out infinite alternate;
 }
-.rh-timing__marker {
+.rh-fishing__ripple {
   position: absolute;
-  top: 50%;
-  width: 1.6rem;
-  height: 1.6rem;
-  translate: -50% -50%;
-  border-radius: 999px;
-  background: linear-gradient(180deg, #e8445a 50%, #fff6e6 50%);
-  border: 2px solid #3a1010;
-  box-shadow: 0 2px 4px rgb(0 0 0 / 0.5);
+  bottom: 18%;
+  width: 4rem;
+  height: 1.1rem;
+  border: 2px solid rgb(230 250 223 / 0.65);
+  border-radius: 50%;
+  transform: translateX(-50%);
+  transition: left 35ms linear;
+  box-shadow: 0 0 18px rgb(226 250 220 / 0.25);
 }
-.rh-gauges {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 0.75rem;
+.rh-fishing__bobber {
+  position: absolute;
+  bottom: 20%;
+  width: 1.7rem;
+  height: 1.7rem;
+  transform: translateX(-50%);
+  border: 2px solid #381a16;
+  border-radius: 50%;
+  background: linear-gradient(180deg, #f44350 0 50%, #fff9ef 50% 100%);
+  box-shadow: 0 2px 12px #071526, 0 0 0 3px rgb(255 255 255 / 0.2);
+  transition: left 35ms linear;
 }
-.rh-gauges label > span:first-child {
-  display: flex;
-  justify-content: space-between;
+.rh-fishing__surge-tag {
+  position: absolute;
+  top: 0.25rem;
+  right: 0.5rem;
+  color: #ffe798;
+  font-family: var(--rh-display);
+  font-weight: 900;
+  font-size: 0.85rem;
+  text-shadow: 0 2px 4px #000;
+  animation: rh-surge 550ms ease-in-out infinite alternate;
+}
+.rh-fishing__target-name {
+  padding: 0 0.4rem;
   font-size: 0.75rem;
   font-weight: 700;
+}
+.rh-fishing__track {
+  position: relative;
+  display: block;
+  margin: 0 1rem;
+  height: 2.5rem;
+  border: 2px solid rgb(238 219 176 / 0.65);
+  border-radius: 0.55rem;
+  background: #163950;
+  box-shadow: inset 0 3px 8px rgb(0 0 0 / 0.4);
+}
+.rh-fishing__zone {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+}
+.rh-fishing__zone--slack {
+  background: linear-gradient(180deg, #3f8490, #18546a);
+}
+.rh-fishing__zone--reel {
+  background: linear-gradient(180deg, #79aa58, #366f43);
+  border-inline: 1px solid #c2ef96;
+  transition: left 170ms ease-out, width 170ms ease-out;
+}
+.rh-fishing__zone--wait {
+  background: linear-gradient(180deg, #52728b, #283d66);
+}
+.rh-fishing__sweetspot {
+  position: absolute;
+  z-index: 1;
+  top: -0.2rem;
+  bottom: -0.2rem;
+  border: 3px solid #ffe58a;
+  border-radius: 0.3rem;
+  background: rgb(255 224 128 / 0.15);
+  box-shadow: 0 0 18px rgb(255 231 121 / 0.7), inset 0 0 16px rgb(255 230 150 / 0.3);
+  transition: left 180ms cubic-bezier(0.15, 1.5, 0.55, 1), width 180ms ease-out;
+}
+.rh-fishing__needle {
+  position: absolute;
+  z-index: 2;
+  top: -0.4rem;
+  bottom: -0.4rem;
+  width: 0.25rem;
+  background: #fffaf0;
+  border-radius: 0.3rem;
+  box-shadow: 0 0 12px #fff2af;
+  transform: translateX(-50%);
+}
+.rh-fishing__needle-core {
+  position: absolute;
+  top: -0.4rem;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 0.85rem;
+  height: 0.85rem;
+  background: #f4444b;
+  border: 2px solid #fff6d9;
+  border-radius: 50%;
+}
+.rh-fishing__instruction {
+  padding: 0.25rem 0.4rem 0.45rem;
+  font-size: 0.7rem;
+  letter-spacing: 0.04em;
+}
+.rh-fishing__instruction strong {
+  color: #ffda79;
+}
+.rh-fishing__gauges {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.65rem;
+}
+.rh-fishing__gauge > span {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.3rem;
+  font-size: 0.74rem;
   margin-bottom: 0.2rem;
 }
-.rh-gauge {
-  display: block;
-  height: 0.85rem;
-  border-radius: 999px;
-  background: rgb(58 38 22 / 0.2);
-  box-shadow: inset 0 1px 3px rgb(0 0 0 / 0.35);
+.rh-fishing__meter {
+  height: 0.65rem;
   overflow: hidden;
+  border-radius: 0.4rem;
+  background: rgb(1 12 25 / 0.75);
+  border: 1px solid rgb(255 249 223 / 0.3);
 }
-.rh-gauge > span {
+.rh-fishing__meter i {
   display: block;
   height: 100%;
-  border-radius: inherit;
-  transition: width 180ms ease;
+  transition: width 160ms ease-out;
 }
-.rh-gauge--landed > span {
-  background: linear-gradient(90deg, #3f7d2e, #8cc860);
+.rh-fishing__meter--progress i {
+  background: linear-gradient(90deg, #4f8e70, #9ad485);
 }
-.rh-gauge--tension > span {
-  background: linear-gradient(90deg, #6fae4b, #ecc25a 60%, #d2453c);
+.rh-fishing__meter--tension i {
+  background: linear-gradient(90deg, #e6b367, #e04f48);
 }
-.rh-gauge--tension.is-hot {
-  animation: rh-hot 0.5s ease-in-out infinite alternate;
+.rh-fishing__meter--tension.is-danger {
+  box-shadow: 0 0 10px #f5674b;
 }
-@keyframes rh-hot {
-  to {
-    box-shadow:
-      0 0 0 2px #d2453c,
-      inset 0 1px 3px rgb(0 0 0 / 0.35);
-  }
-}
-.rh-fight__cue {
-  padding: 0.5rem 0.7rem;
-  border-radius: 0.6rem;
-  background: rgb(58 38 22 / 0.08);
-  font-size: 0.85rem;
+.rh-fishing__cue {
+  font-size: 0.76rem;
+  line-height: 1.3;
   font-style: italic;
+  opacity: 0.9;
+}
+@keyframes rh-surge {
+  to { transform: scale(1.08); opacity: 0.7; }
+}
+@keyframes rh-water-ripple {
+  to { transform: translateX(1.5%); }
 }
 @media (prefers-reduced-motion: reduce) {
-  .rh-gauge--tension.is-hot {
-    animation: none;
-  }
+  .rh-fishing__waterlines,
+  .rh-fishing__surge-tag { animation: none; }
+  .rh-fishing__zone--reel,
+  .rh-fishing__sweetspot { transition: none; }
+}
+@container rhconsole (max-width: 560px) {
+  .rh-fishing__portrait { display: none; }
+  .rh-fishing__behavior { display: none; }
+  .rh-fishing__surface { height: 4.75rem; }
+  .rh-fishing__instruction { font-size: 0.62rem; }
 }
 </style>

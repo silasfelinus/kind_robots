@@ -98,17 +98,18 @@
       />
     </svg>
 
-    <div class="rh-lake__dock">
+    <div
+      class="rh-lake__dock"
+      :class="{ 'rh-lake__dock--classic': !!store.activeClassicFishing }"
+    >
       <RulerHookedQuizEncounter
-        v-if="store.activeFishing && quiz.mode === 'quiz'"
+        v-if="store.activeFishing && !store.activeClassicFishing"
         :encounter="store.activeFishing"
       />
       <RulerHookedFishingEncounter
-        v-else-if="store.activeFishing"
-        :encounter="store.activeFishing"
-        @stop="store.fishingStop($event)"
-        @tap="store.reelFishing('TAP')"
-        @release="store.reelFishing('RELEASE')"
+        v-else-if="store.activeClassicFishing"
+        :encounter="store.activeClassicFishing"
+        @stop="store.classicStop($event)"
       />
 
       <div
@@ -185,14 +186,16 @@
       </div>
 
       <div v-else-if="store.pendingEnding" class="rh-parchment rh-callout">
-        <p class="rh-eyebrow">The realm has decided</p>
-        <h2 class="rh-title">Your reign can end here</h2>
+        <p class="rh-eyebrow">A finale is available</p>
+        <h2 class="rh-title">
+          Your choices have unlocked a possible conclusion
+        </h2>
         <button
           type="button"
           class="rh-btn rh-btn--gold"
           @click="emit('navigate', 'court')"
         >
-          Hear the ending
+          Consider the finale
         </button>
       </div>
 
@@ -200,7 +203,7 @@
         v-else-if="store.canFish"
         type="button"
         class="rh-cast"
-        @click="store.startFishing()"
+        @click="store.startFishing(quiz.mode)"
       >
         <span class="rh-cast__label">Cast a line</span>
         <span class="rh-cast__hint">{{ castHint }}</span>
@@ -374,6 +377,14 @@ function formatSize(cm: number): string {
     top: 50%;
     transform: translateY(-40%);
     width: min(25rem, 36%);
+  }
+  .rh-lake__dock--classic {
+    left: 50%;
+    right: auto;
+    bottom: clamp(0.6rem, 2cqi, 1.25rem);
+    top: auto;
+    width: min(49rem, 75%);
+    transform: translateX(-50%);
   }
 }
 .rh-cast {

@@ -53,8 +53,14 @@ function fourPasses(input: ClashState): ClashState {
 }
 
 const adminPage = readFileSync('pages/admin/slime-city.vue', 'utf8')
-assert.match(adminPage, /v-if="user\.isAdmin"[\s\S]*data-testid="slime-clash-tab"/)
-assert.match(adminPage, /<SlimeCityClash v-else-if="lab\.view === 'clash' && user\.isAdmin"/)
+assert.match(
+  adminPage,
+  /v-if="user\.isAdmin"[\s\S]*data-testid="slime-clash-tab"/,
+)
+assert.match(
+  adminPage,
+  /<SlimeCityClash v-else-if="lab\.view === 'clash' && user\.isAdmin"/,
+)
 
 const a = createClash('catgirls', 'ironjaw', 42)
 const b = createClash('catgirls', 'ironjaw', 42)

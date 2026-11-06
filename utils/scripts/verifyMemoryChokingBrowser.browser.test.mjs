@@ -57,7 +57,8 @@ const entry = [
   'works.hydrate()',
   'window.__choking = { sea, works,',
   '  snapshot() { return { unlocked: works.unlocked, entry: works.entry, current: works.progress.current, visited: [...works.progress.visited], order: [...works.progress.order], decisions: { ...works.progress.decisions }, seaChoice: sea.e06Choices["4,6"] || null } },',
-  '  reach() { sea.select("e06"); for (const key of ["2,1", "3,1", "4,1", "4,2", "4,3", "4,4", "4,5", "4,6"]) sea.travel(key); if (!sea.e06Choices["4,6"]) sea.choose(sea.current.choices[0].id); return works.unlocked },',
+  '  approach() { sea.select("e06"); for (const key of ["2,1", "3,1", "4,1", "4,2", "4,3", "4,4", "4,5", "4,6"]) sea.travel(key); return { position: sea.position, choice: sea.e06Choices["4,6"] || null, unlocked: works.unlocked } },',
+  '  reach() { if (!sea.e06Choices["4,6"]) sea.choose(sea.current.choices[0].id); return works.unlocked },',
   '  advance() { const choice = works.hand.find((item) => !item.disabled); if (choice) works.choose(choice.id); const exit = works.exits[0]; if (exit) works.travel(exit); return works.progress.current },',
   '}',
 ].join('\n')
@@ -134,6 +135,10 @@ try {
         await page.evaluate(() => window.__choking.works.unlocked),
         false,
       )
+      const gated = await page.evaluate(() => window.__choking.approach())
+      assert.equal(gated.position, '4,6')
+      assert.equal(gated.choice, null, width + 'px: entrance needs a resolved choice')
+      assert.equal(gated.unlocked, false, width + 'px: arrival cannot unlock dungeon')
       assert.equal(await page.evaluate(() => window.__choking.reach()), true)
       const before = await page.evaluate(() => window.__choking.snapshot())
       assert.equal(before.seaChoice !== null, true)

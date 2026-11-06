@@ -43,6 +43,7 @@ import type {
 } from '~/utils/cometAcademy/relationships'
 import {
   accuseMastermind,
+  answerArcBeat,
   assignTeam,
   assignPlayerCase,
   selectMissionApproach,
@@ -451,6 +452,12 @@ export const useCometAcademyStore = defineStore('cometAcademy', () => {
     persist()
   }
 
+  function arcChoice(choiceId: string) {
+    if (!run.value) return
+    run.value = answerArcBeat(run.value, choiceId)
+    persist()
+  }
+
   function next() {
     if (!run.value) return
     run.value = nextSchoolDay(run.value)
@@ -537,6 +544,7 @@ export const useCometAcademyStore = defineStore('cometAcademy', () => {
     battleRetreat,
     battleResolve,
     choose,
+    arcChoice,
     next,
     end,
     restart,

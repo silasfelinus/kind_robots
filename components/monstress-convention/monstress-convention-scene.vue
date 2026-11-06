@@ -567,8 +567,8 @@
           <p class="mc-eyebrow">THE FIRST EDITION</p>
           <h2 class="text-3xl font-bold">
             {{
-              story.state.ending === 'responsible'
-                ? 'An Honest First Edition'
+              story.state.ending === 'lead-earned'
+                ? 'The Convention Lead'
                 : 'A Headline Too Early'
             }}
           </h2>

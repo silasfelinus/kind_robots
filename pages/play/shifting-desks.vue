@@ -737,25 +737,34 @@
                   </p>
                   <KrChoiceHand
                     class="desk-hand shrink-0"
+                    :class="{ 'desk-hand-dense': denseRoutes }"
                     :choices="routeCards"
                     :deal-key="`${run.department}:${run.position}`"
                     testid-prefix="shifting-desks-route"
                     @play="(card) => pick(face(card.id).route)"
                   >
-                    <template #art="{ choice, src }">
+                    <template #art="{ choice, src, index }">
                       <span class="desk-hand-face">
                         <shifting-desks-art
-                          v-if="src"
                           class="!absolute inset-0"
+                          :class="{ 'desk-hand-scene': !src }"
                           frame="h-full w-full"
-                          :src="src"
-                          :position="face(choice.id).position"
+                          :src="src || faceArt"
+                          :position="
+                            src
+                              ? face(choice.id).position
+                              : index % 3 === 0
+                                ? 'object-[30%_35%]'
+                                : index % 3 === 1
+                                  ? 'object-[50%_35%]'
+                                  : 'object-[70%_35%]'
+                          "
                           :fallback-icon="cardIcon"
                           icon-size="2.5rem"
                           :show-brief="false"
                         />
                         <icon
-                          v-if="choice.disabled && src"
+                          v-if="choice.disabled"
                           name="kind-icon:lock"
                           class="desk-hand-lock"
                         />
@@ -1555,7 +1564,36 @@ useHead({ title: 'Shifting Desks' })
   --hand-accent-2: #e9d8a6;
   --hand-band: #2b2622;
   --hand-band-ink: #fdf6e3;
-  --hand-text-scale: 1.25;
+  --hand-card-max: 15rem;
+  --hand-card-cqw: 42cqw;
+  --hand-card-vh: 31vh;
+  --hand-focus-scale: 1.06;
+  --hand-text-scale: 1.35;
+}
+
+.desk-hand :deep(.krh) {
+  --card-h: calc(var(--card-w) * 1.68);
+}
+
+.desk-hand :deep(.krh-front) {
+  aspect-ratio: 1 / 1.68;
+}
+
+.desk-hand-dense {
+  --hand-card-max: 11rem;
+  --hand-card-vh: 23vh;
+}
+
+.desk-hand-dense :deep(.krh) {
+  --card-h: calc(var(--card-w) * 1.5);
+}
+
+.desk-hand-dense :deep(.krh-front) {
+  aspect-ratio: 2 / 3;
+}
+
+.desk-hand :deep(.desk-hand-scene img) {
+  transform: scale(1.35);
 }
 
 .desk-hand :deep(.krh-title) {
@@ -1617,10 +1655,10 @@ useHead({ title: 'Shifting Desks' })
   width: 100%;
   overflow: hidden;
   -webkit-box-orient: vertical;
-  -webkit-line-clamp: 3;
-  color: rgb(253 246 227 / 0.88);
-  font-size: 0.66rem;
-  line-height: 1.25;
+  -webkit-line-clamp: 4;
+  color: rgb(253 246 227 / 0.94);
+  font-size: 0.78rem;
+  line-height: 1.3;
 }
 
 .desk-hand-lock {

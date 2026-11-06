@@ -497,6 +497,9 @@ jobs:
       - name: Monstress Convention mature admin preview access contract
         run: npx tsx utils/scripts/verifyMonstressPreviewAccess.test.ts
 
+      - name: Monstrexx title menu and saved-game workflow
+        run: npx tsx utils/scripts/verifyMonstrexxMenu.test.ts
+
   contract_2:
     name: Contract shard 2/4
     runs-on: ubuntu-latest

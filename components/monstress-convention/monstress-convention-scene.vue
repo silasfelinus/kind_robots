@@ -1,7 +1,7 @@
 <template>
   <section
     class="mc-console @container flex h-full min-h-0 w-full flex-col overflow-hidden text-white"
-    data-testid="monstress-point-click"
+    data-testid="monstrexx-point-click"
   >
     <div
       v-if="screen === 'title'"
@@ -21,8 +21,8 @@
           <div class="mc-entrance" />
         </div>
         <div class="mc-opening-title">
-          <p class="mc-eyebrow">A DEEPLY UNOFFICIAL INVESTIGATION</p>
-          <h1>Monstrexx</h1>
+          <p class="mc-eyebrow">A MIDNIGHT CITY MYSTERY</p>
+          <h1>Monstrique</h1>
           <p class="mc-tagline">
             Everybody's a monster. Somebody's a murderer.
           </p>
@@ -32,7 +32,7 @@
       <div
         class="mc-title-footer flex shrink-0 flex-wrap items-center justify-between gap-3 p-3"
       >
-        <span class="mc-caption">LAST CALL MOTOR LODGE · OPENING CASE</span>
+        <span class="mc-caption">CHAPTER ONE · THE LAST CALL</span>
         <button
           type="button"
           class="mc-action-primary"
@@ -57,7 +57,7 @@
         <div
           class="relative z-10 mx-auto max-w-xl space-y-5 rounded-2xl border border-rose-300/30 bg-slate-950/70 p-6"
         >
-          <p class="mc-eyebrow">LAST CALL · ROOM 205 · LATE NIGHT</p>
+          <p class="mc-eyebrow">MIDNIGHT CITY · LAST CALL · ROOM 205</p>
           <h2 class="font-serif text-3xl font-bold text-rose-200">
             {{ introScenes[introIndex]?.title }}
           </h2>
@@ -107,7 +107,7 @@
           </span>
           <span class="text-left">
             <strong>{{
-              story.state.actor === 'iris' ? 'IRIS' : 'NICO'
+              story.state.actor === 'iris' ? 'IRIS' : 'NORB'
             }}</strong>
             <small>SWAP <span aria-hidden="true">⇄</span></small>
           </span>
@@ -454,9 +454,9 @@
                 EVIDENCE · {{ story.state.evidence.length }}
               </h3>
               <ul class="mc-note-list">
-                <li v-for="entry in story.state.evidence" :key="entry">
+                <li v-for="clue in story.state.evidence" :key="clue">
                   <Icon name="kind-icon:camera" class="size-4 shrink-0" />
-                  {{ EVIDENCE[entry] ?? entry }}
+                  {{ EVIDENCE[clue] ?? clue }}
                 </li>
                 <li v-if="!story.state.evidence.length">
                   No evidence collected. Yet.
@@ -467,6 +467,33 @@
                 <li v-for="topic in story.state.topics" :key="topic">
                   <Icon name="kind-icon:book-open" class="size-4 shrink-0" />
                   {{ TOPICS[topic] ?? topic }}
+                </li>
+              </ul>
+              <h3 class="mc-eyebrow mt-4">GOOD GRACES</h3>
+              <ul class="mc-note-list" data-testid="monstrique-graces">
+                <li v-for="(grace, who) in GRACES" :key="who">
+                  <Icon name="kind-icon:heart" class="size-4 shrink-0" />
+                  <span class="flex-1">{{ grace.name }}</span>
+                  <span
+                    class="mc-hearts"
+                    :aria-label="
+                      (story.state.gratitude[who] ?? 0) + ' of ' + grace.max
+                    "
+                  >
+                    <span
+                      v-for="n in grace.max"
+                      :key="n"
+                      :class="{
+                        'is-on': n <= (story.state.gratitude[who] ?? 0),
+                      }"
+                      >♥</span
+                    >
+                  </span>
+                </li>
+                <li>
+                  <Icon name="kind-icon:hand" class="size-4 shrink-0" />
+                  <span class="flex-1">Times Norb said no</span>
+                  <strong>{{ story.state.rebuffs }}</strong>
                 </li>
               </ul>
             </template>
@@ -501,6 +528,16 @@
       <div v-if="selected && activeHotspot" class="mc-verbs shrink-0 px-3 py-2">
         <div class="flex flex-wrap items-center gap-2">
           <strong class="mc-target mr-auto">{{ activeHotspot.label }}</strong>
+          <button
+            v-if="held"
+            type="button"
+            class="mc-verb is-held"
+            data-testid="monstrique-use-held"
+            @click="useHeld"
+          >
+            <Icon name="kind-icon:gift" class="size-4" />
+            Use {{ ITEMS[held] ?? held }}
+          </button>
           <button
             v-for="verb in activeHotspot.verbs.filter((v) => v !== 'ask')"
             :key="verb"
@@ -540,10 +577,15 @@
           class="mc-inventory flex min-w-0 flex-1 items-center gap-2 overflow-x-auto"
         >
           <span class="mc-eyebrow shrink-0">INVENTORY</span>
-          <span
+          <button
             v-for="item in story.state.inventory"
             :key="item"
+            type="button"
             class="mc-item"
+            :class="{ 'is-held': held === item }"
+            :aria-pressed="held === item"
+            :title="'Hold ' + (ITEMS[item] ?? item) + ', then pick a hotspot'"
+            @click="held = held === item ? null : item"
           >
             <Icon
               :name="
@@ -551,10 +593,10 @@
               "
               class="size-4"
             />
-            {{ item === 'motel-key' ? 'Motel key' : 'Camera' }}
-          </span>
+            {{ ITEMS[item] ?? item }}
+          </button>
         </div>
-        <button type="button" class="mc-verb" @click="screen = 'title'">
+        <button type="button" class="mc-verb" @click="emit('menu')">
           <Icon name="kind-icon:home" class="size-4" />
           <span class="hidden @md:inline">Title</span>
         </button>
@@ -564,7 +606,7 @@
         class="mc-ending absolute inset-0 z-30 grid place-items-center p-5"
       >
         <div class="mc-ending-card max-w-lg space-y-4 text-center">
-          <p class="mc-eyebrow">THE FIRST EDITION</p>
+          <p class="mc-eyebrow">CHAPTER ONE · THE LAST CALL</p>
           <h2 class="text-3xl font-bold">
             {{
               story.state.ending === 'lead-earned'
@@ -588,31 +630,42 @@ import { useMonstressConventionStore } from '~/stores/monstressConventionStore'
 import {
   availableTopics,
   EVIDENCE,
+  GRACES,
   HOTEL_ROOMS,
+  ITEMS,
   TOPICS,
   type RoomId,
   type Verb,
 } from '~/utils/monstressConvention/prologue'
 
 const story = useMonstressConventionStore()
-const screen = ref<'title' | 'intro' | 'stage'>('title')
+const props = defineProps<{ entry?: 'new' | 'continue' }>()
+const emit = defineEmits<{ menu: [] }>()
+const screen = ref<'title' | 'intro' | 'stage'>(
+  props.entry === 'continue' ? 'stage' : 'intro',
+)
 const introIndex = ref(0)
 const introScenes = [
   {
-    title: 'An Expensive Evening',
-    text: 'Odette Harker, the celebrity agent behind MONSTREXX, checks into a seedy motel with Violet Wisp. Both adults are enjoying the date.',
+    title: 'Always Last Call',
+    text: 'Midnight City. Odette Harker, the agent who ran MONSTRIQUE and took ten percent of everyone in it, checks into Room 205 of the Last Call Motor Lodge with a professional she booked for the night.',
   },
   {
-    title: 'After the Kiss',
-    text: 'The two women share a welcome kiss. The curtains close. An ice machine clanks twice below their window.',
+    title: 'Bite Me',
+    text: 'Violet Wisp wears a rented cape and forty-dollar fangs, because Odette has wanted a vampire her whole life. Two adults, one bottle of gin, very little rehearsal. The ice arrives. The curtains close. Downstairs, the ice machine clanks twice.',
   },
   {
-    title: 'A Knock Without a Face',
-    text: 'An unseen visitor enters with an ornate knife. The hallway goes silent. The two women do not survive.',
+    title: 'Checkout Time',
+    text: 'Nobody knocks. The door never opens. A jewelled knife moves anyway. By morning, Room 205 has two guests who will never check out.',
+  },
+  {
+    title: 'Your New Client',
+    text: 'At 3 a.m. the phone rings in Room 207, the field office of The Unwashed Truth. Iris Quill answers for her boss, Norb Vale, Midnight City’s premiere blogger. The caller is Odette Harker. Odette Harker is dead, and she would like to hire you.',
   },
 ]
 const drawer = ref<'case' | 'map' | null>(null)
 const selected = ref<string | null>(null)
+const held = ref<string | null>(null)
 const room = computed(() => HOTEL_ROOMS[story.state.room])
 const activeHotspot = computed(() =>
   room.value.hotspots.find((hotspot) => hotspot.id === selected.value),
@@ -622,12 +675,15 @@ const activeTopics = computed(() =>
 )
 
 onMounted(() => {
-  if (story.state.transcript.length > 1) screen.value = 'stage'
+  if (props.entry === 'continue') screen.value = 'stage'
+  else if (props.entry === 'new') screen.value = 'intro'
+  else if (story.state.transcript.length > 1) screen.value = 'stage'
 })
 
 function begin(): void {
   story.begin()
   selected.value = null
+  held.value = null
   drawer.value = null
   introIndex.value = 0
   screen.value = 'intro'
@@ -636,6 +692,12 @@ function begin(): void {
 function advanceIntro(): void {
   if (introIndex.value < introScenes.length - 1) introIndex.value += 1
   else screen.value = 'stage'
+}
+
+function useHeld(): void {
+  if (!held.value || !selected.value) return
+  story.takeAction({ verb: 'use', target: selected.value, item: held.value })
+  if (!story.state.inventory.includes(held.value)) held.value = null
 }
 
 function go(destination: RoomId): void {
@@ -658,6 +720,7 @@ function verbIcon(verb: Verb): string {
     use: 'kind-icon:hand',
     photograph: 'kind-icon:camera',
     ask: 'kind-icon:book-open',
+    flirt: 'kind-icon:heart',
   }
   return icons[verb]
 }
@@ -981,6 +1044,18 @@ function verbIcon(verb: Verb): string {
 }
 .mc-item {
   background: #45364d;
+}
+.mc-item.is-held,
+.mc-verb.is-held {
+  background: #a83e71;
+  border-color: #ffd0b2;
+}
+.mc-hearts {
+  letter-spacing: 0.15em;
+  color: #6d5370;
+}
+.mc-hearts .is-on {
+  color: #ff8fba;
 }
 .mc-drawer {
   width: min(84%, 23rem);

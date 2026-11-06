@@ -50,6 +50,10 @@ export const SYSTEM_ROUTES: Record<string, string> = {
   '/build-bench': 'Art dashboard tab, reached from the Art page',
   '/projects/build/stylist': 'legacy URL, 301-redirects to /stylist',
   '/admin/crystal-street': 'legacy URL, 301-redirects to /play/crystal-street',
+  '/admin/monstress-convention':
+    'legacy Monstrique preview URL, 302-redirects to /admin/monstrique',
+  '/admin/monstrexx':
+    'legacy Monstrique (formerly MONSTREXX) URL, 302-redirects to /admin/monstrique',
   '/admin/emperor-of-dust':
     'legacy URL, 301-redirects to /play/emperor-of-dust',
   '/admin/rainbow-bullet-hell-space-princess':

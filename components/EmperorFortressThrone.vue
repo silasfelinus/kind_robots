@@ -121,6 +121,7 @@
 import { computed, ref, watch } from 'vue'
 import { useEmperorFortressStore } from '~/stores/emperorFortressStore'
 import { optionStakes } from '~/utils/emperorOfDust/fortress/board'
+import { audienceChoiceImages } from '~/utils/emperorOfDust/fortress/audienceChoiceArt'
 import {
   audienceScene,
   audiencesToday,
@@ -232,9 +233,15 @@ watch(
 const choices = computed(() =>
   (scene.value?.options ?? [])
     .filter((option) => optionVisible(props.run, option))
-    .map((option) => ({
+    .map((option, index) => ({
       id: option.id,
       label: option.label,
+      image: audienceChoiceImages(
+        selected.value?.id ?? '',
+        option.id,
+        scene.value?.npc ?? selected.value?.npc,
+        index,
+      ),
       stakes: optionStakes(props.run, option),
       blockers: optionBlockers(props.run, option),
     })),

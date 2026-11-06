@@ -70,16 +70,6 @@ export const MONSTRESS_CONVENTION: PlaybookKitSpec = {
       },
     },
     {
-      id: 'celestine',
-      name: 'Celestine Veil',
-      role: 'figure',
-      tagline: 'Living Monstrexx mummy movie star and idol-group veteran.',
-      portrait: {
-        brief:
-          'Elegant adult mummy woman star in layered bandage fashion and silver-screen makeup, original movie-monster celebrity portrait',
-      },
-    },
-    {
       id: 'unknown-killer',
       name: 'The Hidden Hand',
       role: 'villain',

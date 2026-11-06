@@ -45,18 +45,42 @@
       </div>
     </div>
 
-    <div v-else-if="screen === 'intro'" class="mc-opening flex min-h-0 flex-1 flex-col" data-testid="monstrexx-cold-open">
-      <div class="mc-night relative flex min-h-0 flex-1 items-center justify-center p-6 text-center">
+    <div
+      v-else-if="screen === 'intro'"
+      class="mc-opening flex min-h-0 flex-1 flex-col"
+      data-testid="monstrexx-cold-open"
+    >
+      <div
+        class="mc-night relative flex min-h-0 flex-1 items-center justify-center p-6 text-center"
+      >
         <div class="mc-moon" aria-hidden="true" />
-        <div class="relative z-10 mx-auto max-w-xl space-y-5 rounded-2xl border border-rose-300/30 bg-slate-950/70 p-6">
+        <div
+          class="relative z-10 mx-auto max-w-xl space-y-5 rounded-2xl border border-rose-300/30 bg-slate-950/70 p-6"
+        >
           <p class="mc-eyebrow">LAST CALL · ROOM 205 · LATE NIGHT</p>
-          <h2 class="font-serif text-3xl font-bold text-rose-200">{{ introScenes[introIndex]?.title }}</h2>
-          <p class="font-serif text-lg leading-relaxed">{{ introScenes[introIndex]?.text }}</p>
-          <p class="mc-eyebrow">SCENE {{ introIndex + 1 }} OF {{ introScenes.length }}</p>
+          <h2 class="font-serif text-3xl font-bold text-rose-200">
+            {{ introScenes[introIndex]?.title }}
+          </h2>
+          <p class="font-serif text-lg leading-relaxed">
+            {{ introScenes[introIndex]?.text }}
+          </p>
+          <p class="mc-eyebrow">
+            SCENE {{ introIndex + 1 }} OF {{ introScenes.length }}
+          </p>
           <div class="flex flex-wrap justify-center gap-3">
-            <button type="button" class="mc-verb" @click="screen = 'stage'">Skip opening</button>
-            <button type="button" class="mc-action-primary" @click="advanceIntro">
-              {{ introIndex === introScenes.length - 1 ? 'INVESTIGATE MOTEL' : 'CONTINUE' }}
+            <button type="button" class="mc-verb" @click="screen = 'stage'">
+              Skip opening
+            </button>
+            <button
+              type="button"
+              class="mc-action-primary"
+              @click="advanceIntro"
+            >
+              {{
+                introIndex === introScenes.length - 1
+                  ? 'INVESTIGATE MOTEL'
+                  : 'CONTINUE'
+              }}
             </button>
           </div>
         </div>
@@ -207,13 +231,52 @@
           <g v-else-if="story.state.room === 'ice-alcove'">
             <rect width="1000" height="580" fill="#1e3046" />
             <path d="M0 340L1000 300V580H0Z" fill="#594756" />
-            <rect x="220" y="72" width="565" height="440" rx="18" fill="#678da8" stroke="#1b3446" stroke-width="26" />
-            <rect x="295" y="128" width="420" height="230" rx="14" fill="#1b4058" stroke="#a9d8e2" stroke-width="14" />
+            <rect
+              x="220"
+              y="72"
+              width="565"
+              height="440"
+              rx="18"
+              fill="#678da8"
+              stroke="#1b3446"
+              stroke-width="26"
+            />
+            <rect
+              x="295"
+              y="128"
+              width="420"
+              height="230"
+              rx="14"
+              fill="#1b4058"
+              stroke="#a9d8e2"
+              stroke-width="14"
+            />
             <path d="M310 303L710 303" stroke="#8bc0d4" stroke-width="21" />
-            <text x="355" y="265" fill="#c8ebef" font-size="92" font-weight="900" letter-spacing="12">ICE</text>
-            <rect x="325" y="397" width="350" height="76" rx="12" fill="#152b41" />
+            <text
+              x="355"
+              y="265"
+              fill="#c8ebef"
+              font-size="92"
+              font-weight="900"
+              letter-spacing="12"
+            >
+              ICE
+            </text>
+            <rect
+              x="325"
+              y="397"
+              width="350"
+              height="76"
+              rx="12"
+              fill="#152b41"
+            />
             <circle cx="830" cy="468" r="38" fill="#91b7be" />
-            <path d="M0 525H1000" stroke="#889fa8" stroke-width="15" opacity=".4" />
+            <path
+              d="M0 525H1000"
+              stroke="#889fa8"
+              stroke-width="15"
+              opacity=".4"
+            />
           </g>
           <g v-else-if="story.state.room === 'balcony'">
             <rect width="1000" height="580" fill="#343342" />
@@ -268,10 +331,17 @@
               fill="#e7eff4"
               opacity=".4"
             />
-            <ellipse cx="650" cy="218" rx="38" ry="49" fill="#d6bee9" opacity=".65" />
+            <ellipse
+              cx="650"
+              cy="218"
+              rx="38"
+              ry="49"
+              fill="#d6bee9"
+              opacity=".65"
+            />
             <path d="M610 348Q650 230 686 348" fill="#ddc4ed" opacity=".55" />
             <path d="M400 470L550 470L520 492Z" fill="#b9aec5" />
-          
+
             <path
               d="M40 410H350V515H40Z"
               fill="#744d5a"
@@ -395,10 +465,7 @@
               <h3 class="mc-eyebrow mt-4">CONVERSATION TOPICS</h3>
               <ul class="mc-note-list">
                 <li v-for="topic in story.state.topics" :key="topic">
-                  <Icon
-                    name="kind-icon:book-open"
-                    class="size-4 shrink-0"
-                  />
+                  <Icon name="kind-icon:book-open" class="size-4 shrink-0" />
                   {{ TOPICS[topic] ?? topic }}
                 </li>
               </ul>
@@ -484,9 +551,7 @@
               "
               class="size-4"
             />
-            {{
-              item === 'motel-key' ? 'Motel key' : 'Camera'
-            }}
+            {{ item === 'motel-key' ? 'Motel key' : 'Camera' }}
           </span>
         </div>
         <button type="button" class="mc-verb" @click="screen = 'title'">

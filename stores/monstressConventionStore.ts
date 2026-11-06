@@ -93,8 +93,12 @@ export const useMonstressConventionStore = defineStore(
       if (!authorized.value) return
       state.value = next
       feedback.value = ''
-      if (next.flags.includes('double-murder-discovered')) kit.unlock('moments', 'double-murder')
-      if (next.flags.includes('odette-met') && next.flags.includes('violet-met'))
+      if (next.flags.includes('double-murder-discovered'))
+        kit.unlock('moments', 'double-murder')
+      if (
+        next.flags.includes('odette-met') &&
+        next.flags.includes('violet-met')
+      )
         kit.unlock('moments', 'two-ghosts')
       if (next.ending) kit.unlock('endings', next.ending)
       persist()

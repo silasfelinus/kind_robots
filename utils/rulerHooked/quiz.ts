@@ -1,8 +1,23 @@
-import type { MandarinCard } from '../mandarin'
+import { BUILT_IN_SET_META, type MandarinCard } from '../mandarin'
 
 export type FishingQuizModule = 'flags' | 'capitals' | 'mandarin'
 export type FishingMode = 'classic' | 'quiz'
-export type MandarinQuizScope = 'all' | 'animals'
+export type MandarinQuizScope = string
+export type FishingQuizDifficulty = 'easy' | 'standard' | 'challenge'
+export type FishingLessonMode = 'guided' | 'always' | 'quiz-first'
+export type FishingPromptDirection = 'forward' | 'reverse' | 'mixed'
+
+export const MANDARIN_QUIZ_TOPICS = [
+  { id: 'all', label: 'All beginner words', description: 'A broad beginner vocabulary mix.' },
+  ...Object.entries(BUILT_IN_SET_META).map(([id, meta]) => ({ id, label: meta.label, description: meta.description })),
+]
+export function isMandarinQuizScope(value: string): boolean {
+  return MANDARIN_QUIZ_TOPICS.some((topic) => topic.id === value)
+}
+
+export function choiceCount(difficulty: FishingQuizDifficulty): number {
+  return difficulty === 'easy' ? 2 : 4
+}
 export type QuizOption = { id: string; label: string; icon?: string }
 export type FishingQuizQuestion = {
   id: string
@@ -129,8 +144,14 @@ function flag(code: string): string {
   )
 }
 
-export function unlockedCount(correct: number, total: number): number {
-  return Math.min(total, 6 + Math.floor(Math.max(0, correct) / 3) * 3)
+export function unlockedCount(
+  correct: number,
+  total: number,
+  difficulty: FishingQuizDifficulty = 'standard',
+): number {
+  const start = difficulty === 'challenge' ? 12 : 6
+  const step = difficulty === 'easy' ? 2 : difficulty === 'challenge' ? 4 : 3
+  return Math.min(total, start + Math.floor(Math.max(0, correct) / 3) * step)
 }
 
 function index(length: number, random: () => number): number {
@@ -153,18 +174,24 @@ function options(
   correct: Place,
   all: readonly Place[],
   random: () => number,
+  module: 'flags' | 'capitals',
+  difficulty: FishingQuizDifficulty,
+  reversed: boolean,
 ): QuizOption[] {
   const choices = [
     correct,
     ...shuffled(
-      all.filter((place) => place.answer !== correct.answer),
+      all.filter((place) => place.name !== correct.name),
       random,
-    ).slice(0, 3),
+    ).slice(0, choiceCount(difficulty) - 1),
   ]
   return shuffled(choices, random).map((place) => ({
-    id: place.answer,
-    label: place.answer,
-    icon: place.icon,
+    id: reversed ? place.name : place.answer,
+    label: reversed
+      ? module === 'flags'
+        ? place.icon!
+        : place.name
+      : place.answer,
   }))
 }
 
@@ -173,6 +200,8 @@ export function geographyQuestion(
   correctAnswers: number,
   previousId: string | null = null,
   random: () => number = Math.random,
+  difficulty: FishingQuizDifficulty = 'standard',
+  reversed = false,
 ): FishingQuizQuestion {
   const places: Place[] =
     module === 'flags'
@@ -182,7 +211,7 @@ export function geographyQuestion(
           icon: flag(code),
         }))
       : STATE_CAPITALS.map(([name, capital]) => ({ name, answer: capital }))
-  const pool = places.slice(0, unlockedCount(correctAnswers, places.length))
+  const pool = places.slice(0, unlockedCount(correctAnswers, places.length, difficulty))
   const candidates = pool.filter(
     (place) => module + ':' + place.name !== previousId,
   )
@@ -195,11 +224,21 @@ export function geographyQuestion(
     module,
     prompt:
       module === 'flags'
-        ? 'Which country flies this flag?'
-        : 'What is the capital of ' + correct.name + '?',
-    hero: module === 'flags' ? correct.icon! : correct.name,
-    options: options(correct, places, random),
-    correctId: correct.answer,
+        ? reversed
+          ? 'Which flag belongs to this country?'
+          : 'Which country flies this flag?'
+        : reversed
+          ? 'Which state has this capital city?'
+          : 'What is the capital of ' + correct.name + '?',
+    hero: reversed
+      ? module === 'flags'
+        ? correct.name
+        : correct.answer
+      : module === 'flags'
+        ? correct.icon!
+        : correct.name,
+    options: options(correct, places, random, module, difficulty, reversed),
+    correctId: reversed ? correct.name : correct.answer,
     explanation:
       module === 'flags'
         ? correct.icon + ' is the flag of ' + correct.name + '.'
@@ -211,21 +250,25 @@ export function mandarinQuestion(
   card: MandarinCard,
   catalog: readonly MandarinCard[],
   random: () => number = Math.random,
+  difficulty: FishingQuizDifficulty = 'standard',
+  reversed = false,
 ): FishingQuizQuestion {
   const choices = catalog.filter(
     (other) => other.key !== card.key && other.meaning !== card.meaning,
   )
-  const distractors = shuffled(choices, random).slice(0, 3)
+  const distractors = shuffled(choices, random).slice(0, choiceCount(difficulty) - 1)
   return {
     id: 'mandarin:' + card.key,
     module: 'mandarin',
     cardKey: card.key,
-    prompt: 'What does this Mandarin word mean?',
-    hero: card.simplified,
+    prompt: reversed
+      ? 'Which Mandarin word has this meaning?'
+      : 'What does this Mandarin word mean?',
+    hero: reversed ? card.meaning : card.simplified,
     options: shuffled([card, ...distractors], random).map((item) => ({
       id: item.key,
-      label: item.meaning,
-    })),
+      label: reversed ? item.simplified : item.meaning,
+    })), 
     correctId: card.key,
     explanation:
       card.simplified + ' (' + card.pinyin + ') means ' + card.meaning + '.',
@@ -242,6 +285,21 @@ export function animalMandarinCards(
   )
 }
 
+export function mandarinTopicCards(
+  catalog: readonly MandarinCard[],
+  scope: MandarinQuizScope,
+): MandarinCard[] {
+  if (scope === 'animals') return animalMandarinCards(catalog)
+  if (scope === 'all')
+    return catalog.filter(
+      (card) => (card.hskLevel ?? 99) <= 2 && Boolean(card.meaning && card.simplified),
+    )
+  if (!isMandarinQuizScope(scope)) return []
+  return catalog.filter(
+    (card) => card.categories?.includes(scope) && Boolean(card.meaning && card.simplified),
+  )
+}
+
 export function mandarinFrontier(
   catalog: readonly MandarinCard[],
   tracked: Readonly<Record<string, { repetitions: number; dueAt: string }>>,
@@ -249,21 +307,16 @@ export function mandarinFrontier(
   correctAnswers: number,
   random: () => number = Math.random,
   scope: MandarinQuizScope = 'all',
+  difficulty: FishingQuizDifficulty = 'standard',
 ): MandarinCard | null {
-  const beginner =
-    scope === 'animals'
-      ? animalMandarinCards(catalog)
-      : catalog.filter(
-          (card) =>
-            (card.hskLevel ?? 99) <= 2 && card.meaning && card.simplified,
-        )
+  const beginner = mandarinTopicCards(catalog, scope)
   if (!beginner.length) return null
   const studied = beginner.filter(
     (card) => (tracked[card.key]?.repetitions ?? 0) > 0,
   ).length
   const frontier = beginner.slice(
     0,
-    Math.min(beginner.length, 6 + studied + Math.floor(correctAnswers / 2)),
+    Math.min(beginner.length, unlockedCount(correctAnswers, beginner.length, difficulty) + studied),
   )
   const now = Date.now()
   const due = frontier.filter(

@@ -173,91 +173,12 @@
         </div>
       </div>
 
-      <aside v-if="showHelp" class="clash-sidebar">
-        <div class="clash-info">
-          <span class="clash-eyebrow">{{
-            selectedCard
-              ? 'READY TO PLAY'
-              : selectedUnitCard
-                ? 'FIELD INSPECTOR'
-                : 'THE RULES'
-          }}</span>
-          <template v-if="selectedCard">
-            <div class="clash-detail-art">
-              <SlimeCityArtwork
-                :image-id="slimeArtId('cards', selectedCard.id) ?? slimeArtId('crews', selectedCard.team === 'mercenary' ? lab.activeTeam : selectedCard.team)"
-                :alt="selectedCard.name"
-                :fallback="selectedCard.symbol"
-                compact
-              />
-            </div>
-            <strong>{{ selectedCard.name }}</strong>
-            <p>{{ clashCardText(selectedCard) }}</p>
-            <small
-              >{{ clashPlayCost(selectedCard) }} PLAY{{
-                clashPlayCost(selectedCard) === 2 ? 'S' : ''
-              }}
-              · {{ selectedCard.kind.toUpperCase() }}</small
-            >
-            >
-            <span class="clash-help"
-              >Tap a glowing lane to play it. Tap the card again to
-              cancel.</span
-            >
-          </template>
-          <template v-else-if="selectedUnitCard">
-            <div class="clash-detail-art">
-              <SlimeCityArtwork
-                :image-id="slimeArtId('cards', selectedUnitCard.id) ?? slimeArtId('crews', selectedUnitCard.team === 'mercenary' ? lab.activeTeam : selectedUnitCard.team)"
-                :alt="selectedUnitCard.name"
-                :fallback="selectedUnitCard.symbol"
-                compact
-              />
-            </div>
-            <strong>{{ selectedUnitCard.name }}</strong>
-            <p>{{ clashCardText(selectedUnitCard) }}</p>
-            <span class="clash-help"
-              >Fighters stay in their lane. Playing a new creature there
-              replaces yours.</span
-            >
-          </template>
-          <template v-else>
-            <strong>TWO PLAYS. THEN ATTACK.</strong>
-            <p>
-              Draw five random cards each turn. Play two normal cards or one
-              special two-play card. Unplayed cards are discarded.
-            </p>
-            <p>
-              Select a friendly follower, then any enemy follower to trade power
-              damage. If no enemies remain, attack the boss. Each follower may
-              attack once per turn.
-            </p>
-            <span class="clash-help"
-              >Surviving followers recover one life after both players finish.
-              Placement still matters for traps, neighbors and swarm
-              powers.</span
-            >
-          </template>
-        </div>
-        <div class="clash-recap" role="log" aria-label="Latest combat events">
-          <span class="clash-eyebrow">LIVE PLAY-BY-PLAY</span>
-          <ol>
-            <li
-              v-for="(event, index) in game.log.slice(-9).reverse()"
-              :key="game.log.length - index"
-              :class="'log-' + event.kind"
-            >
-              {{ event.text }}
-            </li>
-          </ol>
-        </div>
-      </aside>
     </div>
 
     <footer class="clash-bottom">
       <div class="clash-hud">
         <div class="clash-plays">
-          <strong>{{ game.victor ? resultText : busy ? 'RIVAL TURN' : game.phase === 'attack' ? 'YOUR ATTACKS' : 'PLAY CARDS' }}</strong>
+          <strong>{{ phaseLabel }}</strong>
           <span
             >{{ game.plays.player }} / {{ CLASH_PLAYS }} card plays ·
             {{ game.decks.player.length }} in deck ·
@@ -374,7 +295,6 @@ const game = shallowRef<ClashState>(
 const heldIndex = ref<number | null>(null)
 const selectedUnit = ref<number | null>(null)
 const selectedAttacker = ref<number | null>(null)
-const showHelp = ref(false)
 const busy = ref(false)
 let timer: ReturnType<typeof setTimeout> | null = null
 function newMatch(): void {
@@ -384,7 +304,6 @@ function newMatch(): void {
   heldIndex.value = null
   selectedUnit.value = null
   selectedAttacker.value = null
-  showHelp.value = false
   game.value = createClash(lab.activeTeam, enemyTeam.value, ++seed)
 }
 watch(() => lab.activeTeam, newMatch)
@@ -396,13 +315,9 @@ const selectedCard = computed<Card | null>(() =>
     ? null
     : cardById(game.value.hands.player[heldIndex.value]!),
 )
-const selectedUnitCard = computed<Card | null>(() => {
-  const u = game.value.units.find((x) => x.uid === selectedUnit.value)
-  return u ? cardById(u.cardId) : null
-})
 const phaseLabel = computed(() =>
   game.value.victor
-    ? 'FINAL BELL'
+    ? resultText.value
     : busy.value || game.value.active === 'enemy'
       ? 'RIVAL THINKING'
       : game.value.phase === 'play'

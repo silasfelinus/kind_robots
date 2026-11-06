@@ -1118,48 +1118,48 @@ export const ACT_THREE_DAYS: readonly DayDef[] = [
         npc: 'ottoline-vask',
         faction: 'old-houses',
         lines: [
-          'Lady Vask arrives in mourning grey. It suits her. Behind her a steward carries a velvet cushion. On it lies a short hooked knife, a root-knife from the burrows.',
-          'Three dead at the Ford, Majesty, and the burrow tunnels run under it. This was on the bank beside them. The Old Houses ask for justice. Meaning arrests.',
-          'Justice delayed is only a longer funeral. The Moles were told the Ford would be argued in council. They argued in the river instead.',
+          'Lady Vask enters in mourning grey. Her steward follows with a velvet cushion. On it lies a hooked root-knife, polished bright.',
+          '“Three bodies at the Ford,” she says. “This knife lay beside them. The burrow road runs beneath that bank. I want the nearest cell in irons before dark.”',
+          'A clerk asks who the dead were. Vask keeps her eyes on you. “Does a name change a knife wound?”',
           {
             who: 'Young Komodo',
             npc: 'young-komodo',
-            text: 'The ferrymen say the dead wore wooden tokens, Your Majesty. Lady Vask brought a knife. Somebody chose which to carry up the hill.',
+            text: 'The ferry boy found wooden tokens on the bodies. Her steward brought us a clean knife. I’d hear from the boy before we put anyone in chains.',
           },
         ],
         options: [
           {
             id: 'blame',
-            label: 'Arrest the revolutionary cell nearest the Ford.',
+            label: 'Send the Watch to raid the nearest burrow.',
             effects: {
               affinity: { moles: -15 },
               local: { 'old-houses': 3 },
               flags: ['moles-blamed'],
             },
             response:
-              'Lady Vask inclines her head. The Moles hear before the arrests are made.',
+              'Vask hands over a list of burrow addresses. She brought it with her.',
           },
           {
             id: 'evidence',
-            label: 'Nobody is arrested until the court knows who died.',
+            label: 'Identify the dead before naming their killer.',
             effects: { local: { 'old-houses': -2, lamplight: 1 } },
             response:
-              '“How judicious,” says Lady Vask. She says it the way others say “how unfortunate.”',
+              'The Watch stays at the Ford to identify the dead. Vask folds the unsigned warrant into her sleeve.',
           },
           {
             id: 'ask-knife',
-            label: 'Ask to hold the knife.',
+            label: 'Examine the knife.',
             effects: {},
             response:
-              'The steward carries the cushion up the dais steps like a crown that isn’t his.',
+              'The steward looks to Vask. She nods. He hands you the knife grip-first.',
             next: 'knife',
           },
           {
             id: 'ask-tokens',
-            label: 'Ask about the wooden tokens on the dead.',
+            label: 'Bring in the ferry boy and his tokens.',
             effects: {},
             response:
-              'Lady Vask sighs, like you asked about the weather at a funeral. Someone sends for the ferry boy.',
+              'Vask asks whether a trinket can testify. Komodo sends for the ferry boy.',
             next: 'tokens',
           },
         ],
@@ -1167,66 +1167,66 @@ export const ACT_THREE_DAYS: readonly DayDef[] = [
           {
             id: 'knife',
             lines: [
-              'The knife is heavy. Clean. Bright hinge. No soil in it anywhere, and a burrow-digger’s root-knife lives in soil like a spoon lives in soup.',
-              'One side of the grip is filed smooth, a neat patch, right where a cutler stamps his mark.',
-              '“A burrow cutler might own a clean knife,” says Lady Vask. “Even a thief washes up. And many knives are filed, Majesty. Thieves file them.”',
+              'You turn the knife under the window. The hinge has fresh oil in it. There is no river grit.',
+              'Someone filed the maker’s stamp off the grip. The scratches catch your thumb.',
+              '“Half the knives on the frontier have missing marks,” Vask says. “Some were stolen. Some were made by men who would rather not be found.”',
               {
                 who: 'Young Komodo',
                 npc: 'young-komodo',
-                text: 'Say what you noticed, Your Majesty, and you make an enemy of the Old Houses a week before the war. Say nothing, and you make it true.',
+                text: 'Ask who handled it after the bodies were found. That mark didn’t file itself.',
               },
             ],
             options: [
               {
                 id: 'show-court',
                 label:
-                  'Hold the knife up to the gallery. Ask whose mark was filed off.',
+                  'Show the court the filed-off maker’s mark.',
                 effects: {
                   affinity: { moles: 5 },
                   local: { 'old-houses': -3, lamplight: 2 },
                   flags: ['d22-knife-shown'],
                 },
                 response:
-                  'The gallery goes silent. Lady Vask taps her rings once on the steward’s shoulder. He leaves at a walk that is nearly a run. By evening two Old House families close their accounts with the crown’s tailor. That is how Houses declare a feud.',
+                  'Vask does not dispute the file marks. Before dusk two Old House families cancel their palace accounts. The tailor sends his apprentices home.',
               },
               {
                 id: 'quiet-word',
                 label:
-                  'Return the knife to Lady Vask in private. Let the charge die.',
+                  'Return the knife privately. End the accusation.',
                 effects: {
                   local: { 'old-houses': 2, lamplight: -2 },
                   flags: ['d22-knife-returned'],
                 },
                 response:
-                  'Lady Vask takes the knife back with perfect grace. No arrests. Nobody asks who filed the grip. You have a friend in the Old Houses tonight, one who knows what you saw.',
+                  'Vask takes back the knife. No arrests follow. Her steward now knows what you chose not to say.',
               },
               {
                 id: 'blame',
                 label:
-                  'Arrest the revolutionary cell anyway. A clean knife proves nothing.',
+                  'Raid the burrow anyway. The knife proves nothing.',
                 effects: {
                   affinity: { moles: -15 },
                   local: { 'old-houses': 3 },
                   flags: ['moles-blamed'],
                 },
                 response:
-                  'The steward carries the knife out on its cushion like a relic. The Moles hear of it before the arrests. They hear about the knife, too.',
+                  'The Watch takes the cell by morning. Every prisoner has heard about the knife.',
               },
               {
                 id: 'evidence',
                 label:
-                  'Keep the knife. Nobody is arrested until the court knows who died.',
+                  'Keep the knife. Find the victims’ names first.',
                 effects: { local: { 'old-houses': -2, lamplight: 1 } },
                 response:
-                  '“How judicious,” says Lady Vask. She leaves the cushion behind. The closest she has ever come to forgetting something.',
+                  'Vask leaves without the knife. The steward waits for her to come back. She does not.',
               },
               {
                 id: 'ask-tokens',
                 label:
-                  'Set the knife down. Ask about the wooden tokens on the dead.',
+                  'Set down the knife. Call for the ferry boy.',
                 effects: {},
                 response:
-                  'Lady Vask’s rings stop tapping. Someone sends for the ferry boy.',
+                  'The steward reaches for the cushion. Vask stops him. A guard goes to fetch the ferry boy.',
                 next: 'tokens',
               },
             ],
@@ -1235,17 +1235,17 @@ export const ACT_THREE_DAYS: readonly DayDef[] = [
             id: 'tokens',
             speaker: 'A ferry boy from the Eastern Ford',
             lines: [
-              'The ferry boy is soaked to the knees and scared of the carpet. He holds out three wooden discs on wet string. Each bears one burned mark: a bell with no clapper.',
-              '“They was round their necks, Majesty. All three. Double knots. Like they wanted somebody to know where they’d been.”',
+              'The ferry boy leaves black water on the court rug. Three wooden discs hang from wet string. Each bears a burned bell with its clapper missing.',
+              '“I cut the strings myself,” he says. “Couldn't undo the knots. They'd tied them tight enough to stay on in the river.”',
               {
                 who: 'Lady Ottoline Vask',
                 npc: 'ottoline-vask',
-                text: 'Abbey trinkets. The sisters hand them to anyone who takes a loaf. They mean the dead were poor. Nothing else.',
+                text: 'Bread tokens. The Abbey gives them to anyone who asks. They don't tell you who held the knife.',
               },
               {
                 who: 'Young Komodo',
                 npc: 'young-komodo',
-                text: 'Mission tokens, Your Majesty. The Abbey gives them to parents who visit. The sisters write down everyone who comes to their gate. I would ask the Abbey before I arrested a single Mole.',
+                text: 'Mission tokens. The Abbey records each parent who visits. If these three were there, we can learn their names.',
               },
             ],
             options: [
@@ -1289,7 +1289,7 @@ export const ACT_THREE_DAYS: readonly DayDef[] = [
                   'Nobody is arrested until the court knows who these three were.',
                 effects: { local: { 'old-houses': -2, lamplight: 1 } },
                 response:
-                  '“How judicious,” says Lady Vask. The ferry boy gets a honey-cake. He carries it all the way down the hill. Does not eat it.',
+                  'Vask leaves before the boy can put his tokens away. He takes his honey-cake home uneaten.',
               },
               {
                 id: 'blame',
@@ -1339,7 +1339,7 @@ export const ACT_THREE_DAYS: readonly DayDef[] = [
                 label: 'Arrest nobody. Find out who these three came to visit.',
                 effects: { local: { 'old-houses': -2, lamplight: 1 } },
                 response:
-                  '“How judicious,” says Lady Vask. Ash is already at the map table, one claw on the road home from the Abbey, then the road to the Ford. Different roads.',
+                  'Ash opens the map on the table. The road from the Abbey and the road to the Ford part at the old tollhouse.',
               },
             ],
           },

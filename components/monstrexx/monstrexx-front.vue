@@ -2,7 +2,7 @@
   <section
     class="mx-title @container relative isolate flex h-full min-h-0 w-full flex-col overflow-hidden"
     data-testid="monstrexx-front-page"
-    aria-label="Monstrexx main menu"
+    aria-label="Monstrique main menu"
     @keydown.esc="closePanel"
   >
     <svg
@@ -392,7 +392,7 @@
         <p class="mx-eyebrow">
           An extremely unofficial celebrity investigation
         </p>
-        <h1 class="mx-wordmark">MONSTREXX</h1>
+        <h1 class="mx-wordmark">MONSTRIQUE</h1>
         <p class="mx-subtitle">Fame. Fangs. Very bad contracts.</p>
         <div class="mx-case-number">
           <span>CASE FILE 001</span>
@@ -475,7 +475,7 @@
         class="mx-footer-line flex flex-wrap items-center justify-between gap-2"
       >
         <span>IRIS QUILL · NORB VALE · LAST CALL MOTOR LODGE</span>
-        <span>PRIVATE EARLY ACCESS · MONSTREXX</span>
+        <span>PRIVATE EARLY ACCESS · MONSTRIQUE</span>
       </div>
       <p v-if="story.storageWarning" class="mx-warning" role="status">
         {{ story.storageWarning }}
@@ -491,7 +491,7 @@
         role="dialog"
         aria-modal="true"
         :aria-label="
-          panel === 'settings' ? 'Monstrexx settings' : 'Monstrexx scrapbook'
+          panel === 'settings' ? 'Monstrique settings' : 'Monstrique scrapbook'
         "
       >
         <div class="mx-sheet-header flex shrink-0 items-center gap-3">
@@ -504,7 +504,7 @@
             class="size-6"
           />
           <div class="min-w-0 flex-1">
-            <p class="mx-eyebrow">MONSTREXX · PERSONAL FILE</p>
+            <p class="mx-eyebrow">MONSTRIQUE · PERSONAL FILE</p>
             <h2>{{ panel === 'settings' ? 'Settings' : 'Scrapbook' }}</h2>
           </div>
           <button
@@ -581,10 +581,18 @@
                   unlockedMoments
                 }}/{{ spec.moments.length }})
               </button>
+              <button
+                type="button"
+                :aria-pressed="scrapTab === 'albums'"
+                @click="scrapTab = 'albums'"
+              >
+                <Icon name="kind-icon:disc-3" class="size-4" /> Albums (7)
+              </button>
             </div>
             <div class="mx-scrap-content">
               <PlaybookKitCast v-if="scrapTab === 'people'" :spec="spec" />
-              <PlaybookKitScrapbook v-else :spec="spec" />
+              <PlaybookKitScrapbook v-else-if="scrapTab === 'moments'" :spec="spec" />
+              <MonstriqueAlbumArchive v-else />
             </div>
             <p class="mx-small-note">
               More celebrity profiles and illustrated keepsakes will unlock as
@@ -621,7 +629,7 @@ const story = useMonstressConventionStore()
 const kit = usePlaybookKitStore()
 const spec = MONSTRESS_CONVENTION
 const confirming = ref(false)
-const scrapTab = ref<'people' | 'moments'>('people')
+const scrapTab = ref<'people' | 'moments' | 'albums'>('people')
 const closeButton = ref<HTMLButtonElement | null>(null)
 const currentLocation = computed(() => HOTEL_ROOMS[story.state.room].label)
 const unlockedMoments = computed(

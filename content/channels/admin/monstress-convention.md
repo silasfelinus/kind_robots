@@ -2,11 +2,11 @@
 contentType: tab
 channelKey: admin
 tabKey: monstress-convention
-label: Monstrexx
-title: Monstrexx
+label: Monstrique
+title: Monstrique
 subtitle: Two ghosts, one knife, a monstrous franchise.
 description: Adults-only internal point-and-click detective-comedy preview.
-summary: Private Monstrexx mystery.
+summary: Private Monstrique mystery.
 icon: kind-icon:ghost
 route: /admin/monstrexx
 sort: 147
@@ -22,4 +22,4 @@ tutorial:
     ghosts have distinct accounts. The convention is a separate city venue. The game is not publicly released.
 ---
 
-MONSTREXX is a private gated investigation preview.
+MONSTRIQUE is a private gated investigation preview.

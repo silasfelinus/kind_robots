@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict'
 import { readFileSync } from 'node:fs'
 import { newCase, monstrexxKitId } from '../monstressConvention/prologue'
+import { MONSTRIQUE_ALBUMS } from '../monstrique/albumHistory'
 
 function file(name: string): string {
   return readFileSync(new URL('../../' + name, import.meta.url), 'utf8')
@@ -13,6 +14,7 @@ const scene = file(
   'components/monstress-convention/monstress-convention-scene.vue',
 )
 const nav = file('content/channels/admin/monstress-convention.md')
+const albumsComponent = file('components/monstrique/monstrique-album-archive.vue')
 const kit = file('utils/playbookKit/games/monstressConvention.ts')
 
 assert.match(page, /v-if="!mayPlay"/)
@@ -31,6 +33,13 @@ assert.match(front, /Press again to replace this save/)
 assert.match(front, /kit\.setSetting\(key,/)
 assert.match(front, /<PlaybookKitCast/)
 assert.match(front, /<PlaybookKitScrapbook/)
+assert.match(front, /<MonstriqueAlbumArchive/)
+assert.match(albumsComponent, /CREATOR VIEW/)
+assert.match(albumsComponent, /story\.state\.flags\.includes/)
+assert.equal(MONSTRIQUE_ALBUMS.length, 7)
+assert.deepEqual(MONSTRIQUE_ALBUMS.map((album) => album.year), [1964, 1974, 1986, 1994, 2006, 2017, 2024])
+assert.equal(new Set(MONSTRIQUE_ALBUMS.map((album) => album.removed)).size, 7)
+assert.ok(MONSTRIQUE_ALBUMS.every((album) => album.performers.length === 4 && album.artUrl === null))
 assert.match(front, /mx-sheet-scroll[^"]*min-h-0[^"]*overflow-y-auto/)
 assert.match(front, /role="dialog"/)
 assert.match(scene, /props\.entry === 'continue'/)
@@ -41,7 +50,7 @@ assert.match(store, /kit\.open\(monstrexxKitId\(accountId\.value \?\? 0\)\)/)
 assert.equal(monstrexxKitId(1), 'monstress-convention-user-1')
 assert.notEqual(monstrexxKitId(1), monstrexxKitId(2))
 assert.equal(newCase().actor, 'iris')
-assert.equal(kit.includes("title: 'Monstrexx'"), true)
+assert.equal(kit.includes("title: 'Monstrique'"), true)
 assert.equal(kit.includes("route: '/admin/monstrexx'"), true)
 assert.match(nav, /requiredRole: ADMIN/)
 assert.match(nav, /requiredPermission: mature/)
@@ -49,5 +58,5 @@ assert.match(nav, /route: \/admin\/monstrexx/)
 assert.doesNotMatch(nav, /route: \/play\//)
 
 console.log(
-  'Monstrexx menu: four controls, gated navigation, account-scoped saves and scrapbook/settings contracts passed',
+  'Monstrique menu: four controls, gated navigation, account-scoped saves and scrapbook/settings contracts passed',
 )

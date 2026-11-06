@@ -27,7 +27,7 @@
       <header-page-bar v-if="view === 'home'" console-theme="forge">
         <div class="flex min-w-0 flex-1 items-center gap-2 text-sm font-bold">
           <Icon name="kind-icon:star" class="size-4 text-primary" />
-          <span class="truncate">MONSTREXX</span>
+          <span class="truncate">MONSTRIQUE</span>
           <span
             class="hidden truncate text-xs font-normal opacity-70 @md:inline"
           >

@@ -22,7 +22,7 @@
         </div>
         <div class="mc-opening-title">
           <p class="mc-eyebrow">A DEEPLY UNOFFICIAL INVESTIGATION</p>
-          <h1>Monstrexx</h1>
+          <h1>Monstrique</h1>
           <p class="mc-tagline">
             Everybody's a monster. Somebody's a murderer.
           </p>
@@ -604,7 +604,7 @@ const introIndex = ref(0)
 const introScenes = [
   {
     title: 'An Expensive Evening',
-    text: 'Odette Harker, the celebrity agent behind MONSTREXX, checks into a seedy motel with Violet Wisp. Both adults are enjoying the date.',
+    text: 'Odette Harker, the celebrity agent behind MONSTRIQUE, checks into a seedy motel with Violet Wisp. Both adults are enjoying the date.',
   },
   {
     title: 'After the Kiss',

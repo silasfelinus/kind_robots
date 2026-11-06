@@ -1,5 +1,5 @@
 /**
- * MONSTREXX, a deterministic adult monster-celebrity comedy mystery.
+ * MONSTRIQUE, a deterministic adult monster-celebrity comedy mystery.
  * The convention is a distinct city venue; the murders happen at a motel.
  * Iris is the physical field investigator. Norb can observe and question,
  * but his germophobia prevents touching objects, using or photographing them.
@@ -64,7 +64,7 @@ export const HOTEL_ROOMS: Record<RoomId, HotelRoom> = {
     label: 'Last Call Motor Lodge',
     floor: 0,
     caption:
-      'Rain patters against a two-storey motel. The ice machine hums beneath a crooked MONSTREXX billboard.',
+      'Rain patters against a two-storey motel. The ice machine hums beneath a crooked MONSTRIQUE billboard.',
     exits: ['front-office', 'ice-alcove', 'city-map'],
     hotspots: [
       {
@@ -204,7 +204,7 @@ export const HOTEL_ROOMS: Record<RoomId, HotelRoom> = {
     label: 'Next Door, Room 204',
     floor: 2,
     caption:
-      'A TV plays the MONSTREXX idol special. The guest next door heard the evening very clearly.',
+      'A TV plays the MONSTRIQUE idol special. The guest next door heard the evening very clearly.',
     exits: ['balcony'],
     hotspots: [
       {
@@ -270,7 +270,7 @@ export const HOTEL_ROOMS: Record<RoomId, HotelRoom> = {
   },
   'city-map': {
     id: 'city-map',
-    label: 'The Monstrexx City Map',
+    label: 'The Monstrique City Map',
     floor: 0,
     caption:
       'The city unfolds: a convention hall, a supernatural joke shop, a vampire mansion and something beneath the drains.',
@@ -301,7 +301,7 @@ export const HOTEL_ROOMS: Record<RoomId, HotelRoom> = {
   },
   'convention-center': {
     id: 'convention-center',
-    label: 'MONSTREXX Convention Center',
+    label: 'MONSTRIQUE Convention Center',
     floor: 1,
     caption:
       'An enormous idol poster presides over autographs, models, fans and contracts worth killing for.',
@@ -309,7 +309,7 @@ export const HOTEL_ROOMS: Record<RoomId, HotelRoom> = {
     hotspots: [
       {
         id: 'idol-poster',
-        label: 'Monstrexx idol group poster',
+        label: 'Monstrique idol group poster',
         x: 51,
         y: 42,
         verbs: ['look', 'photograph'],
@@ -328,7 +328,7 @@ export const HOTEL_ROOMS: Record<RoomId, HotelRoom> = {
 export const CITY_DESTINATIONS = [
   {
     id: 'convention-center',
-    label: 'MONSTREXX Convention',
+    label: 'MONSTRIQUE Convention',
     availableInOpening: true,
   },
   {
@@ -349,10 +349,10 @@ export const TOPICS: Record<string, string> = {
   'unknown-visitor': 'The mysterious visitor',
   'ice-clank': 'The double ice-machine clang',
   'knife-origin': 'Origin of the ornate knife',
-  'agent-deals': 'Odette’s many Monstrexx deals',
+  'agent-deals': 'Odette’s many Monstrique deals',
   'violet-witness': 'What Violet remembers',
   'fan-alibi': 'Where Gavin was',
-  'idol-schedule': 'Monstrexx idol rehearsal',
+  'idol-schedule': 'Monstrique idol rehearsal',
   'ghost-accounts': 'The ghosts’ conflicting accounts',
 }
 
@@ -370,7 +370,7 @@ export const EVIDENCE: Record<string, string> = {
   'fan-photo': 'Time-stamped photograph from the courtyard',
   'fan-exonerated': 'Gavin’s alibi for the double murder',
   'knife-prop-mark': 'Distinctive stage-prop manufacturer’s mark',
-  'idol-poster': 'Monstrexx idol rehearsal and promotional schedule',
+  'idol-poster': 'Monstrique idol rehearsal and promotional schedule',
 }
 
 export function newCase(seed = 1): CaseState {
@@ -528,7 +528,7 @@ function interview(
     return withLine(
       next,
       iris
-        ? 'Odette: Every Monstrexx star had a reason to loathe me. Contracts, endorsements, the idol group. Start at the convention.'
+        ? 'Odette: Every Monstrique star had a reason to loathe me. Contracts, endorsements, the idol group. Start at the convention.'
         : 'Odette: My clients were monsters, darling. Not all of them supernatural.',
     )
   }
@@ -839,7 +839,7 @@ export function performAction(
     add(next.topics, 'idol-schedule')
     return withLine(
       next,
-      'Iris: The knife is a MONSTREXX prop. Norb: Let us examine the real convention center, not this filthy motel.',
+      'Iris: The knife is a MONSTRIQUE prop. Norb: Let us examine the real convention center, not this filthy motel.',
     )
   }
   if (target === 'idol-poster' && verb === 'photograph') {

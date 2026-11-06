@@ -3,16 +3,16 @@ import type { PlaybookKitSpec } from '../types'
 export const MONSTRESS_CONVENTION: PlaybookKitSpec = {
   id: 'monstress-convention',
   conductorSlug: 'monstress-convention',
-  title: 'Monstrexx',
+  title: 'Monstrique',
   tagline: "Everybody's a monster. Somebody's a murderer.",
   premise:
-    'Iris investigates a double murder at the motel while her germophobic boss deduces clues; two ghosts reveal different leads to the Monstrexx celebrities.',
+    'Iris investigates a double murder at the motel while her germophobic boss deduces clues; two ghosts reveal different leads to the Monstrique celebrities.',
   tier: 'vignette',
   route: '/admin/monstrexx',
   keyArt: {
     brief:
-      'A shabby rain-soaked two-storey Last Call Motor Lodge, ice machine, front office, two ghost women in Room 205 and a distant Monstrexx Convention billboard',
-    alt: 'Last Call Motor Lodge with distant Monstrexx billboard',
+      'A shabby rain-soaked two-storey Last Call Motor Lodge, ice machine, front office, two ghost women in Room 205 and a distant Monstrique Convention billboard',
+    alt: 'Last Call Motor Lodge with distant Monstrique billboard',
   },
   acts: [
     {
@@ -98,12 +98,12 @@ export const MONSTRESS_CONVENTION: PlaybookKitSpec = {
       title: 'The Convention Lead',
       tone: 'hopeful',
       summary:
-        'Iris and Norb find a defensible lead to the separate Monstrexx Convention Center.',
+        'Iris and Norb find a defensible lead to the separate Monstrique Convention Center.',
       hint: 'Document the knife, establish the time, clear the stalker and ask both ghosts.',
       about: ['iris', 'nico', 'odette', 'violet'],
       art: {
         brief:
-          'Iris and Norb following the Monstrexx idol-group schedule outside the separate convention venue, mystery adventure illustration',
+          'Iris and Norb following the Monstrique idol-group schedule outside the separate convention venue, mystery adventure illustration',
       },
     },
     {

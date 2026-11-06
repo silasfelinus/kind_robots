@@ -872,11 +872,23 @@
                           <small>{{ call.system }}</small>
                           <strong>{{ call.title }}</strong>
                         </span>
+                        <small
+                          v-if="destinationFollowup(run, call.id)"
+                          class="cap-brief-thread"
+                          >RETURN CALL</small
+                        >
                         <b v-if="mission.id === call.id" class="cap-brief-pin"
                           >CHARTED</b
                         >
                       </button>
                     </div>
+                    <p
+                      v-if="destinationFollowup(run, mission.id)"
+                      class="cap-route-memory"
+                      data-testid="space-couch-destination-thread"
+                    >
+                      {{ destinationFollowup(run, mission.id) }}
+                    </p>
                     <p
                       class="cap-route-memory"
                       data-testid="space-couch-world-echo"
@@ -1817,6 +1829,7 @@ import {
   antagonistFor,
   missionFor,
   missionBoard,
+  destinationFollowup,
   worldEcho,
   crewDetourOptions,
   canRequisitionSupplies,
@@ -4714,6 +4727,18 @@ function toggleAway(id: CrewId) {
   font:
     900 clamp(0.9rem, 2.6cqi, 1.2rem) / 1.15 Georgia,
     serif;
+}
+.cap-brief-thread {
+  position: absolute;
+  top: 0.5rem;
+  left: 0.5rem;
+  padding: 0.2rem 0.45rem;
+  border-radius: 0.3rem;
+  background: #163d48e6;
+  color: #bbf1d9;
+  font-size: 0.62rem;
+  font-weight: 850;
+  letter-spacing: 0.04em;
 }
 .cap-brief-pin,
 .cap-brief-officer > b {

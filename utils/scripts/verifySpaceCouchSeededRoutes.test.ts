@@ -1,6 +1,8 @@
 import assert from 'node:assert/strict'
+import { readFileSync } from 'node:fs'
 import {
   chooseMission,
+  destinationFollowup,
   missionBoard,
   restoreVoyage,
   seededMission,
@@ -26,6 +28,8 @@ const byChapter = Array.from(
 )
 const routes = new Set<string>()
 const chosenCounts = new Map<string, number>()
+let threadOpportunities = 0
+let chosenFollowups = 0
 
 const driver: Driver = {
   name: 'default-route-diversity',
@@ -80,6 +84,11 @@ for (let index = 0; index < 42; index++) {
         )
       }
       currentRoute.push(after.missionId!)
+      const relevant = visible.filter((id) => destinationFollowup(after, id))
+      if (relevant.length) {
+        threadOpportunities++
+        if (relevant.includes(after.missionId!)) chosenFollowups++
+      }
       byChapter[after.chapter]!.add(after.missionId!)
       chosenCounts.set(
         after.missionId!,
@@ -104,6 +113,11 @@ assert.ok(
   chosenCounts.size >= 18,
   'destination selection should expose the full circuit',
 )
+assert.ok(threadOpportunities >= 4, 'there must be follow-up opportunities')
+assert.ok(
+  chosenFollowups * 2 >= threadOpportunities,
+  'prefer earned follow-ups',
+)
 console.log(
   'Space Couch default routes: ' +
     routes.size +
@@ -111,3 +125,36 @@ console.log(
     chosenCounts.size +
     ' distinct missions; every chapter diversified, manual override and save restore OK',
 )
+
+const windglass = {
+  ...startVoyage('fluke', ['tess', 'kivo', 'fen'], 123),
+  chapter: 9,
+  worldFlags: ['windglass-hidden'],
+}
+assert.ok(destinationFollowup(windglass, 'windglass-exodus'))
+assert.equal(
+  destinationFollowup({ ...windglass, worldFlags: [] }, 'windglass-exodus'),
+  null,
+)
+const sequelFlags = [
+  ['cushion-recall', 8, 'ashdock-protected'],
+  ['foundry-strike', 8, 'sesh-ferried'],
+  ['serendipity-last-call', 7, 'serendipity-neutral'],
+  ['twins-summit', 8, 'courtesy-simultaneous'],
+] as const
+for (const [missionId, chapter, flag] of sequelFlags) {
+  assert.ok(
+    destinationFollowup(
+      { ...windglass, chapter, worldFlags: [flag] },
+      missionId,
+    ),
+  )
+  assert.equal(destinationFollowup(windglass, missionId), null)
+}
+const starChart = readFileSync(
+  new URL('../../pages/play/game-of-captains.vue', import.meta.url),
+  'utf8',
+)
+assert.match(starChart, /class="cap-brief-thread"/)
+assert.match(starChart, /space-couch-destination-thread/)
+assert.match(starChart, /destinationFollowup\(run, call\.id\)/)

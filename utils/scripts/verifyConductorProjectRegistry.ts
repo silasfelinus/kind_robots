@@ -384,9 +384,9 @@ check(
 check(
   'conductor projects API redacts coordination text for non-admins',
   projectsRoute.includes('getOptionalApiUser(event)') &&
-    projectsRoute.includes(
-      'viewer?.isAdmin ? full : redactConductorDataForPublic(full)',
-    ),
+    projectsRoute.includes('viewerShowsMature(viewer?.user)') &&
+    projectsRoute.includes('canExposeConductorProject(') &&
+    projectsRoute.includes('redactConductorDataForPublic(accessible)'),
 )
 check(
   'admins deep-link to the manage screen via ?project=',

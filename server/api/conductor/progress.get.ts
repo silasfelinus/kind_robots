@@ -12,6 +12,7 @@
 // apps out of the first-tier project lists.
 import { createError, defineEventHandler, setHeader } from 'h3'
 import { buildConductorData } from '@/server/utils/conductorProjection'
+import { isMatureConductorProject } from '@/server/utils/conductorMatureProjects'
 import { readConductorProjection } from '@/server/utils/conductorProjectionDb'
 
 export interface ConductorProgressResponse {
@@ -40,6 +41,7 @@ export default defineEventHandler(
       const progress: Record<string, number> = {}
       const members: Record<string, string> = {}
       for (const project of data.projects) {
+        if (isMatureConductorProject(project.slug)) continue
         if (project.parentSlug) members[project.slug] = project.parentSlug
         const lifecycle = String(project.conductorStatus ?? 'active')
         if (!LIVE_STATUSES.has(lifecycle)) continue

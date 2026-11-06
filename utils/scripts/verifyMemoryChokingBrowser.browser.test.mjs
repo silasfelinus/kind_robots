@@ -34,27 +34,44 @@ const bundle = await build({
     'import.meta.server': 'false',
     'process.env.NODE_ENV': '"production"',
   },
-  plugins: [{
-    name: 'memory-choking-browser',
-    setup(builder) {
-      builder.onResolve({ filter: /^\.\/(userStore|helpers\/memoryDungeonDeckSource)$/ }, ({ path: name, importer }) => {
-        if (!importer.endsWith('/stores/memoryWorldStore.ts')) return
-        return { path: name, namespace: 'memory-stub' }
-      })
-      builder.onLoad({ filter: /.*/, namespace: 'memory-stub' }, ({ path: name }) => ({
-        contents: name === './userStore'
-          ? 'export function useUserStore() { return { isLoggedIn: false, isChild: false, showMature: false } }'
-          : 'export async function resolveMemoryDungeonDeck(_deck, count) { return Array.from({ length: count }, (_, i) => "/test-picture-" + i + ".webp") }',
-        loader: 'ts',
-        resolveDir: root,
-      }))
-      builder.onResolve({ filter: /^[@~]\// }, ({ path: name, kind, importer }) =>
-        builder.resolve('./' + name.slice(2), { resolveDir: root, kind, importer }))
+  plugins: [
+    {
+      name: 'memory-choking-browser',
+      setup(builder) {
+        builder.onResolve(
+          { filter: /^\.\/(userStore|helpers\/memoryDungeonDeckSource)$/ },
+          ({ path: name, importer }) => {
+            if (!importer.endsWith('/stores/memoryWorldStore.ts')) return
+            return { path: name, namespace: 'memory-stub' }
+          },
+        )
+        builder.onLoad(
+          { filter: /.*/, namespace: 'memory-stub' },
+          ({ path: name }) => ({
+            contents:
+              name === './userStore'
+                ? 'export function useUserStore() { return { isLoggedIn: false, isChild: false, showMature: false } }'
+                : 'export async function resolveMemoryDungeonDeck(_deck, count) { return Array.from({ length: count }, (_, i) => "/test-picture-" + i + ".webp") }',
+            loader: 'ts',
+            resolveDir: root,
+          }),
+        )
+        builder.onResolve(
+          { filter: /^[@~]\// },
+          ({ path: name, kind, importer }) =>
+            builder.resolve('./' + name.slice(2), {
+              resolveDir: root,
+              kind,
+              importer,
+            }),
+        )
+      },
     },
-  }],
+  ],
   logLevel: 'error',
 })
-const html = '<!doctype html><html><body><script>' +
+const html =
+  '<!doctype html><html><body><script>' +
   bundle.outputFiles[0].text.replaceAll('</script', '<\\/script') +
   '</script></body></html>'
 const browser = await chromium.launch({
@@ -64,16 +81,22 @@ const browser = await chromium.launch({
 const results = []
 try {
   for (const width of [390, 820, 1440]) {
-    const context = await browser.newContext({ viewport: { width, height: 900 } })
+    const context = await browser.newContext({
+      viewport: { width, height: 900 },
+    })
     const page = await context.newPage()
     const errors = []
     page.on('pageerror', (error) => errors.push(error.message))
     await page.route('https://memory.test/**', (route) =>
-      route.fulfill({ status: 200, contentType: 'text/html', body: html }))
+      route.fulfill({ status: 200, contentType: 'text/html', body: html }),
+    )
     try {
       await page.goto('https://memory.test/')
       await page.waitForFunction(() => Boolean(window.__choking))
-      assert.equal(await page.evaluate(() => window.__choking.works.unlocked), false)
+      assert.equal(
+        await page.evaluate(() => window.__choking.works.unlocked),
+        false,
+      )
       assert.equal(await page.evaluate(() => window.__choking.reach()), true)
       const before = await page.evaluate(() => window.__choking.snapshot())
       assert.equal(before.seaChoice !== null, true)
@@ -83,7 +106,11 @@ try {
       await page.reload()
       await page.waitForFunction(() => Boolean(window.__choking))
       const restored = await page.evaluate(() => window.__choking.snapshot())
-      assert.deepEqual(restored, saved, width + 'px: restore room, choices, flags and entry')
+      assert.deepEqual(
+        restored,
+        saved,
+        width + 'px: restore room, choices, flags and entry',
+      )
       assert.deepEqual(errors, [], width + 'px: no uncaught browser errors')
       results.push({ width, passed: true, room: restored.current })
     } finally {
@@ -94,5 +121,12 @@ try {
   await browser.close()
 }
 mkdirSync('test-results/memory-browser', { recursive: true })
-writeFileSync('test-results/memory-browser/choking-summary.json', JSON.stringify({ cases: results }, null, 2) + '\n')
-console.log('Choking Works Chromium save/restore: ' + results.length + ' viewport cases passed')
+writeFileSync(
+  'test-results/memory-browser/choking-summary.json',
+  JSON.stringify({ cases: results }, null, 2) + '\n',
+)
+console.log(
+  'Choking Works Chromium save/restore: ' +
+    results.length +
+    ' viewport cases passed',
+)

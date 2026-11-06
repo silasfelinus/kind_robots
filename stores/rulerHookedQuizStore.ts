@@ -119,25 +119,50 @@ export const useRulerHookedQuizStore = defineStore('rulerHookedQuiz', () => {
         mode.value = parsed.mode
       if (parsed.mandarinScope && isMandarinQuizScope(parsed.mandarinScope))
         mandarinScope.value = parsed.mandarinScope
-      if (parsed.lessonMode === 'guided' || parsed.lessonMode === 'always' || parsed.lessonMode === 'quiz-first')
+      if (
+        parsed.lessonMode === 'guided' ||
+        parsed.lessonMode === 'always' ||
+        parsed.lessonMode === 'quiz-first'
+      )
         lessonMode.value = parsed.lessonMode
-      if (parsed.difficulty === 'easy' || parsed.difficulty === 'standard' || parsed.difficulty === 'challenge')
+      if (
+        parsed.difficulty === 'easy' ||
+        parsed.difficulty === 'standard' ||
+        parsed.difficulty === 'challenge'
+      )
         difficulty.value = parsed.difficulty
-      if (parsed.promptDirection === 'forward' || parsed.promptDirection === 'reverse' || parsed.promptDirection === 'mixed')
+      if (
+        parsed.promptDirection === 'forward' ||
+        parsed.promptDirection === 'reverse' ||
+        parsed.promptDirection === 'mixed'
+      )
         promptDirection.value = parsed.promptDirection
-      if (parsed.referenceDetail === 'quick' || parsed.referenceDetail === 'full')
+      if (
+        parsed.referenceDetail === 'quick' ||
+        parsed.referenceDetail === 'full'
+      )
         referenceDetail.value = parsed.referenceDetail
       if (Array.isArray(parsed.introducedKeys))
-        introducedKeys.value = parsed.introducedKeys.filter((key): key is string => typeof key === 'string').slice(-1500)
+        introducedKeys.value = parsed.introducedKeys
+          .filter((key): key is string => typeof key === 'string')
+          .slice(-1500)
       if (parsed.topicCorrect && typeof parsed.topicCorrect === 'object') {
         for (const [key, value] of Object.entries(parsed.topicCorrect))
-          if (isMandarinQuizScope(key) && Number.isSafeInteger(value) && value >= 0)
+          if (
+            isMandarinQuizScope(key) &&
+            Number.isSafeInteger(value) &&
+            value >= 0
+          )
             topicCorrect.value[key] = value
       }
       if (parsed.attempts) {
         for (const module of MODULES) {
           const value = parsed.attempts[module]
-          if (typeof value === 'number' && Number.isSafeInteger(value) && value >= 0)
+          if (
+            typeof value === 'number' &&
+            Number.isSafeInteger(value) &&
+            value >= 0
+          )
             attempts.value[module] = value
         }
       }
@@ -230,7 +255,9 @@ export const useRulerHookedQuizStore = defineStore('rulerHookedQuiz', () => {
     }
     const keys = [
       ...new Set([
-        ...mandarinTopicCards(tutor.cards, mandarinScope.value).map((card) => card.key),
+        ...mandarinTopicCards(tutor.cards, mandarinScope.value).map(
+          (card) => card.key,
+        ),
         ...tutor.cards
           .filter((card) => (card.hskLevel ?? 99) <= 2)
           .slice(0, 300)
@@ -259,7 +286,10 @@ export const useRulerHookedQuizStore = defineStore('rulerHookedQuiz', () => {
   }
 
   function reversedQuestion(): boolean {
-    return promptDirection.value === 'reverse' || (promptDirection.value === 'mixed' && Math.random() < 0.5)
+    return (
+      promptDirection.value === 'reverse' ||
+      (promptDirection.value === 'mixed' && Math.random() < 0.5)
+    )
   }
 
   async function nextQuestion() {
@@ -279,7 +309,9 @@ export const useRulerHookedQuizStore = defineStore('rulerHookedQuiz', () => {
           tutor.cards,
           tracked.value,
           lastId.value?.replace(/^mandarin:/, '') ?? null,
-          mandarinScope.value === 'all' ? correct.value.mandarin : (topicCorrect.value[mandarinScope.value] ?? 0),
+          mandarinScope.value === 'all'
+            ? correct.value.mandarin
+            : (topicCorrect.value[mandarinScope.value] ?? 0),
           Math.random,
           mandarinScope.value,
           difficulty.value,
@@ -322,8 +354,10 @@ export const useRulerHookedQuizStore = defineStore('rulerHookedQuiz', () => {
         )
       }
       if (question.value)
-        introduction.value = lessonMode.value === 'always' ||
-          (lessonMode.value === 'guided' && !introducedKeys.value.includes(question.value.id))
+        introduction.value =
+          lessonMode.value === 'always' ||
+          (lessonMode.value === 'guided' &&
+            !introducedKeys.value.includes(question.value.id))
       lastId.value = question.value?.id ?? null
       lastModule.value = question.value?.module ?? null
     } finally {
@@ -339,7 +373,8 @@ export const useRulerHookedQuizStore = defineStore('rulerHookedQuiz', () => {
       introducedKeys.value = [...introducedKeys.value, active.id].slice(-1500)
     saveSettings()
     const card = currentMandarinCard.value
-    if (card && !tutor.lessonIsComplete(card.key)) await tutor.completeLesson(card.key)
+    if (card && !tutor.lessonIsComplete(card.key))
+      await tutor.completeLesson(card.key)
   }
 
   function answer(id: string): boolean {
@@ -368,7 +403,8 @@ export const useRulerHookedQuizStore = defineStore('rulerHookedQuiz', () => {
     if (succeeded) {
       correct.value[active.module] += 1
       if (active.module === 'mandarin')
-        topicCorrect.value[mandarinScope.value] = (topicCorrect.value[mandarinScope.value] ?? 0) + 1
+        topicCorrect.value[mandarinScope.value] =
+          (topicCorrect.value[mandarinScope.value] ?? 0) + 1
       saveSettings()
       feedback.value = active.explanation
       answerSheet.value = true
@@ -385,11 +421,7 @@ export const useRulerHookedQuizStore = defineStore('rulerHookedQuiz', () => {
   }
 
   function finishAnswerSheet() {
-    if (
-      !answerSheet.value ||
-      !question.value
-    )
-      return
+    if (!answerSheet.value || !question.value) return
     const card = currentMandarinCard.value
     const caught = pendingCatch.value
     answerSheet.value = false

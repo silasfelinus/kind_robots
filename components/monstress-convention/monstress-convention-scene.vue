@@ -489,7 +489,7 @@
               "
               class="size-4"
             />
-            {{ item === 'fan-pass' ? 'Fan pass' : 'Camera' }}
+            {{ item === 'fan-pass' ? 'Fan pass' : item === 'press-badge' ? 'Press badge' : 'Camera' }}
           </span>
         </div>
         <button type="button" class="mc-verb" @click="screen = 'title'">

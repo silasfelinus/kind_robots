@@ -516,6 +516,7 @@ export function performAction(
   if (action.target === 'clerk' && action.verb === 'use') {
     if (state.actor === 'iris' && has(next, 'commission-photo')) {
       next.flags = addUnique(next.flags, 'press-badge')
+      next.inventory = addUnique(next.inventory, 'press-badge')
       return withLine(
         next,
         'Marta: Your assignment checks out, Iris. Two press passes, on one condition: behave.',
@@ -523,6 +524,10 @@ export function performAction(
     }
     if (state.actor === 'nico' && has(next, 'fan-pass')) {
       next.flags = addUnique(next.flags, 'press-badge')
+      next.inventory = addUnique(
+        next.inventory.filter((item) => item !== 'fan-pass'),
+        'press-badge',
+      )
       return withLine(
         next,
         'Nico: I found a lost pass. Marta: Wonderful. I can convert it to a temporary press badge.',
@@ -534,12 +539,22 @@ export function performAction(
       false,
     )
   }
+  if (has(next, 'murder') && action.target === 'celestine') {
+    return withLine(state, 'Celestine is gone. Her unusual return is upstairs.', false)
+  }
   if (action.target === 'celestine' && action.verb === 'talk') {
     unlockTopic(next, 'royalties')
     return withLine(
       next,
       'Celestine: Ask me what they owe. Not whether I am dating Countess Vespera.',
     )
+  }
+  if (
+    action.target === 'stage' &&
+    action.verb === 'use' &&
+    has(next, 'murder')
+  ) {
+    return withLine(state, 'The anniversary panel has already ended.', false)
   }
   if (
     action.target === 'stage' &&
@@ -638,7 +653,11 @@ export function performAction(
 export function restoreCase(value: unknown): CaseState | null {
   if (!value || typeof value !== 'object') return null
   const state = value as CaseState
-  if (state.version !== 1 || !HOTEL_ROOMS[state.room]) return null
+  if (
+    state.version !== 1 ||
+    !Object.prototype.hasOwnProperty.call(HOTEL_ROOMS, state.room)
+  )
+    return null
   if (state.actor !== 'nico' && state.actor !== 'iris') return null
   for (const key of [
     'flags',

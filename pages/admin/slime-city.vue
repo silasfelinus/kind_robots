@@ -42,23 +42,10 @@
               />
             </button>
           </div>
-          <nav class="sc-tabs" aria-label="Laboratory views">
+          <nav class="sc-tabs" aria-label="Slime City modes">
             <button
               type="button"
-              :class="{ active: lab.view === 'city' }"
-              @click="lab.showCity()"
-            >
-              CITY
-            </button>
-            <button
-              type="button"
-              :class="{ active: lab.view === 'arena' }"
-              @click="lab.view = 'arena'"
-            >
-              ARENA
-            </button>
-            <button
-              type="button"
+              class="sc-main-mode"
               :class="{ active: lab.view === 'clash' }"
               data-testid="slime-clash-tab"
               @click="lab.view = 'clash'"
@@ -67,11 +54,10 @@
             </button>
             <button
               type="button"
-              :class="{ active: lab.view === 'alleys' }"
-              data-testid="slime-alleys-tab"
-              @click="lab.view = 'alleys'"
+              :class="{ active: lab.view === 'city' }"
+              @click="lab.showCity()"
             >
-              ALLEYS
+              CITY
             </button>
             <button
               type="button"
@@ -96,6 +82,34 @@
             >
               REWARDS
             </button>
+            <button
+              type="button"
+              class="sc-legacy-toggle"
+              :class="{ active: lab.view === 'arena' || lab.view === 'alleys' }"
+              :aria-expanded="legacyOpen"
+              data-testid="slime-legacy-toggle"
+              @click="legacyOpen = !legacyOpen"
+            >
+              LEGACY ▾
+            </button>
+            <template v-if="legacyOpen">
+              <button
+                type="button"
+                :class="{ active: lab.view === 'arena' }"
+                data-testid="slime-arena-legacy-tab"
+                @click="lab.view = 'arena'"
+              >
+                ARENA
+              </button>
+              <button
+                type="button"
+                :class="{ active: lab.view === 'alleys' }"
+                data-testid="slime-alleys-tab"
+                @click="lab.view = 'alleys'"
+              >
+                ALLEYS
+              </button>
+            </template>
           </nav>
           <div
             class="sc-hud"
@@ -626,7 +640,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, onUnmounted } from 'vue'
+import { computed, onMounted, onUnmounted, ref } from 'vue'
 import { cardById, type Card } from '~/utils/slimeCity/prototypes'
 import { STREETS } from '~/utils/slimeCity/city'
 import { useSlimeCityStore } from '~/stores/slimeCity'
@@ -634,6 +648,7 @@ import { slimeArtId, SLIME_CITY_ART_COUNT } from '~/utils/slimeCity/artManifest'
 import { useSlimeCityArtStore } from '~/stores/slimeCityArt'
 
 const lab = useSlimeCityStore()
+const legacyOpen = ref(false)
 const art = useSlimeCityArtStore()
 
 const hereName = computed(
@@ -833,6 +848,15 @@ onUnmounted(() => {
   font-weight: 900;
   letter-spacing: 0.12em;
   color: #afb8c5;
+}
+.sc-tabs .sc-main-mode {
+  background: #c5ff59;
+  color: #142016;
+  font-weight: 950;
+}
+.sc-tabs .sc-legacy-toggle {
+  opacity: 0.8;
+  border: 1px solid #60727c55;
 }
 .sc-tabs button.active {
   background: #c5ff59;

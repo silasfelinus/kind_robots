@@ -431,7 +431,10 @@ const ecotoneHand = readFileSync('components/ecotone-choice-hand.vue', 'utf8')
 assert.match(ecotoneHand, /--hand-tuck: 0/)
 assert.doesNotMatch(ecotoneHand, /--hand-tuck: 1/)
 assert.match(ecotoneHand, /--hand-card-max: 10\.75rem/)
-const sharedHand = readFileSync('components/narrative/kr-choice-hand.vue', 'utf8')
+const sharedHand = readFileSync(
+  'components/narrative/kr-choice-hand.vue',
+  'utf8',
+)
 assert.match(sharedHand, /return choice \?\? null/)
 
 assert.match(board, /tab === 'settings'/)

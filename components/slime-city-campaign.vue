@@ -248,6 +248,26 @@
           {{ lab.campaignStory.prologue }}
         </p>
         <p class="campaign-lede">{{ lab.activeChapter.scene }}</p>
+        <section
+          v-if="lab.chapterField"
+          class="campaign-field"
+          :class="'objective-' + lab.chapterField.objective"
+          aria-label="The battlefield"
+          data-testid="slime-campaign-field"
+        >
+          <small>THE BATTLEFIELD · {{ lab.chapterField.label }}</small>
+          <strong>{{ lab.chapterField.title }}</strong>
+          <p>{{ lab.chapterField.briefing }}</p>
+          <ul v-if="lab.chapterField.applies">
+            <li v-for="line in lab.chapterField.lines" :key="line">
+              {{ line }}
+            </li>
+          </ul>
+          <p v-else class="campaign-field-note">
+            Story bouts are set to TURF, which has no bases or fighters to
+            rebuild: this chapter plays on an open TURF board.
+          </p>
+        </section>
         <div
           v-if="lab.campaignConversation"
           class="campaign-exchange"
@@ -749,6 +769,42 @@ function playApproach(choice: KrHandChoice) {
 .campaign-recap small {
   color: #ced9d6;
   font-size: 0.8rem;
+}
+.campaign-field {
+  display: grid;
+  gap: 0.3rem;
+  margin-top: 0.8rem;
+  padding: 0.75rem 0.9rem;
+  border: 1px solid #ffffff2e;
+  border-left: 4px solid var(--campaign-accent);
+  background: #0b111bd9;
+}
+.campaign-field small {
+  color: var(--campaign-accent);
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+}
+.campaign-field strong {
+  font-size: 1.05rem;
+  letter-spacing: 0.06em;
+}
+.campaign-field p {
+  margin: 0;
+  line-height: 1.45;
+}
+.campaign-field ul {
+  display: grid;
+  gap: 0.2rem;
+  margin: 0.2rem 0 0;
+  padding-left: 1.1rem;
+  color: #dfe7e4;
+  font-size: 0.88rem;
+  line-height: 1.4;
+}
+.campaign-field-note {
+  color: #ced9d6;
+  font-size: 0.85rem;
 }
 .campaign-scene.lost .campaign-panel {
   border-left-color: #ef9ea4;

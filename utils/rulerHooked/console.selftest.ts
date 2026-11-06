@@ -30,8 +30,10 @@ import {
   cardCandidates,
   characterCandidates,
   lakeBackdropCandidates,
+  sceneVistaCandidates,
   vistaCandidates,
 } from '~/utils/rulerHooked/artLibrary'
+import { resolveScene } from '~/utils/rulerHooked/compositor'
 import type { RunSave } from '~/types/ruler-hooked'
 
 const fresh = (seed = 'console-seed'): RunSave =>
@@ -147,6 +149,38 @@ const fresh = (seed = 'console-seed'): RunSave =>
     /\/ruler-(?!hooked)|key-art/,
     'first person: the ruler is never in the lake frame',
   )
+
+  // t-054: a tyrant's lake tries the gallows shore and the poisoned water
+  // first, then the shore the reign would show without the pin.
+  const tyrant = fresh()
+  tyrant.kingdomHealth = {
+    ...tyrant.kingdomHealth,
+    nature: 10,
+    joy: 20,
+    order: 92,
+  }
+  const scene = resolveScene(tyrant, C.regions)
+  const grim = lakeBackdropCandidates(tyrant, 'day', scene)
+  assert.equal(grim[0], '/images/ruler-hooked/far_shore-gallows-day.webp')
+  assert.ok(grim.includes('/images/ruler-hooked/lake-poisoned-day.webp'))
+  const under = scene.fallbackStates?.far_shore
+  assert.ok(under && under !== 'gallows')
+  assert.ok(
+    grim.indexOf(`/images/ruler-hooked/far_shore-${under}-day.webp`) >
+      grim.indexOf('/images/ruler-hooked/lake-poisoned-day.webp'),
+  )
+  assert.equal(grim.at(-1), '/images/ruler-hooked/lake-clear-day.webp')
+  assert.deepEqual(
+    lakeBackdropCandidates(tyrant, 'day'),
+    lake,
+    'without a scene the chain is unchanged',
+  )
+  const village = sceneVistaCandidates('village_edge', scene, 'day')
+  assert.equal(
+    village[0],
+    '/images/ruler-hooked/village_edge-garrisoned-day.webp',
+  )
+  assert.ok(village.length > 1, 'the garrison falls back to the ramp state')
 
   assert.deepEqual(vistaCandidates('treeline', 'wild', 'dusk'), [
     '/images/ruler-hooked/treeline-wild-golden.webp',

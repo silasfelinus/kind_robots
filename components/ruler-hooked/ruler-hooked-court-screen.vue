@@ -1,6 +1,8 @@
 <!-- The throne room. A petition is presented by the character who brought it
-     (painted portrait, left), read from a royal scroll, and answered with
-     three illustrated choice cards whose kingdom effects are shown up front. -->
+     (painted portrait, left), printed as a broadside edict, and answered from
+     a hand of illustrated choice cards whose signed kingdom changes are shown
+     before you commit (RulerHookedCourt, t-054). Finales and the closed
+     chronicle are read from the royal scroll here. -->
 <template>
   <section class="rh-screen rh-court" aria-label="Royal Court">
     <RulerHookedArt
@@ -21,67 +23,12 @@
       />
 
       <div class="rh-court__main">
-        <template v-if="store.activeCard">
-          <article class="rh-parchment rh-scroll">
-            <p class="rh-scroll__ribbon">
-              {{
-                store.activeCard.kind === 'arc-step'
-                  ? 'A matter continues'
-                  : 'Royal Petition'
-              }}
-            </p>
-            <div class="rh-scroll__grid">
-              <div>
-                <h2 class="rh-title rh-title--big">
-                  {{ store.activeCard.title }}
-                </h2>
-                <p v-if="store.activeCard.body" class="rh-scroll__body">
-                  {{ store.activeCard.body }}
-                </p>
-                <p v-if="presenter" class="rh-scroll__by">
-                  Presented by {{ presenterLabel }}
-                </p>
-              </div>
-              <RulerHookedArt
-                class="rh-scroll__art"
-                :candidates="cardArt"
-                :alt="store.activeCard.title"
-              />
-            </div>
-          </article>
-          <div
-            class="rh-choices"
-            :class="`rh-choices--${store.activeCard.choices.length}`"
-          >
-            <button
-              v-for="(choice, i) in store.activeCard.choices"
-              :key="choice.id"
-              type="button"
-              class="rh-choice"
-              @click="decide(choice.id)"
-            >
-              <span class="rh-choice__ribbon">{{
-                ['Decree', 'Or', 'Or else'][i] ?? 'Or'
-              }}</span>
-              <span class="rh-choice__text">{{ choice.text }}</span>
-              <span v-if="chips(choice).length" class="rh-choice__chips">
-                <span
-                  v-for="chip in chips(choice)"
-                  :key="chip.key"
-                  class="rh-chip"
-                  :class="chip.up ? 'is-up' : 'is-down'"
-                >
-                  <RulerHookedGlyph :name="chip.glyph" />
-                  <span class="sr-only">{{ chip.key }}</span
-                  >{{ chip.arrows }}
-                </span>
-              </span>
-              <span v-else class="rh-choice__chips rh-choice__quiet"
-                >No visible change</span
-              >
-            </button>
-          </div>
-        </template>
+        <RulerHookedCourt
+          v-if="store.activeCard"
+          :by="presenterLabel"
+          :presenter="presenter?.slug"
+          @decree="decide"
+        />
 
         <article
           v-else-if="store.pendingEnding"
@@ -162,12 +109,10 @@
 import { useRulerHookedStore } from '~/stores/rulerHookedStore'
 import {
   BACKDROPS,
-  cardCandidates,
   characterCandidates,
   endingCandidates,
 } from '~/utils/rulerHooked/artLibrary'
 import { ADVISOR_CHARACTER_SLUG } from '~/utils/rulerHooked/advisor'
-import type { AxisKey, Choice } from '~/types/ruler-hooked'
 import type { ConsoleScreen } from '~/utils/rulerHooked/tutorial'
 
 const emit = defineEmits<{ navigate: [screen: ConsoleScreen]; chose: [] }>()
@@ -184,33 +129,6 @@ const presenterLabel = computed(() =>
         .join(' ')
     : '',
 )
-const cardArt = computed(() =>
-  store.activeCard
-    ? cardCandidates(store.activeCard, presenter.value?.slug)
-    : [],
-)
-
-type ChipGlyph = AxisKey | 'coin'
-function chips(choice: Choice) {
-  const out: { key: string; glyph: ChipGlyph; up: boolean; arrows: string }[] =
-    []
-  const arrows = (v: number) =>
-    (v > 0 ? '▲' : '▼').repeat(Math.abs(v) >= 10 ? 2 : 1)
-  for (const [key, v] of Object.entries(choice.effects?.sliders ?? {})) {
-    if (!v) continue
-    out.push({ key, glyph: key as AxisKey, up: v > 0, arrows: arrows(v) })
-  }
-  const coins = choice.effects?.counters?.coins
-  if (coins)
-    out.push({
-      key: 'coins',
-      glyph: 'coin',
-      up: coins > 0,
-      arrows: arrows(coins),
-    })
-  return out
-}
-
 const lastDecree = ref<string | null>(null)
 function decide(choiceId: string) {
   const choice = store.activeCard?.choices.find((c) => c.id === choiceId)
@@ -275,6 +193,10 @@ const endingBody = computed(
     background: radial-gradient(circle at 50% 30%, #fbeed3, #e3cfa3) !important;
   }
 }
+.rh-court__main:has(> .rh-petition-court) {
+  grid-template-rows: minmax(0, 1fr);
+  overflow: hidden;
+}
 .rh-court__main {
   display: grid;
   gap: clamp(0.5rem, 1.5cqi, 0.9rem);
@@ -305,123 +227,10 @@ const endingBody = computed(
   white-space: nowrap;
   box-shadow: 0 3px 8px rgb(0 0 0 / 0.35);
 }
-.rh-scroll__grid {
-  display: grid;
-  gap: 0.75rem;
-}
-@container rhconsole (min-width: 640px) {
-  .rh-scroll__grid {
-    grid-template-columns: 1fr minmax(10rem, 38%);
-    align-items: start;
-  }
-}
 .rh-scroll__body {
   margin-top: 0.35rem;
   font-size: clamp(0.88rem, 1.6cqi, 1.02rem);
   line-height: 1.45;
-}
-.rh-scroll__by {
-  margin-top: 0.45rem;
-  font-size: 0.8rem;
-  font-style: italic;
-  opacity: 0.75;
-}
-.rh-scroll__art {
-  aspect-ratio: 7 / 4;
-  border-radius: 0.6rem;
-  border: 2px solid rgb(58 38 22 / 0.5);
-  box-shadow: 0 4px 10px rgb(0 0 0 / 0.25);
-}
-.rh-choices {
-  display: grid;
-  gap: clamp(0.4rem, 1.2cqi, 0.75rem);
-  grid-template-columns: 1fr;
-}
-@container rhconsole (min-width: 640px) {
-  .rh-choices--2 {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-  .rh-choices--3,
-  .rh-choices--4 {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-  }
-}
-.rh-choice {
-  position: relative;
-  display: grid;
-  gap: 0.4rem;
-  align-content: start;
-  text-align: left;
-  padding: 1.1rem 0.85rem 0.75rem;
-  border-radius: 0.9rem;
-  background:
-    radial-gradient(120% 90% at 50% 0%, #fff8e6, transparent 70%),
-    linear-gradient(180deg, var(--rh-parch), var(--rh-parch-shade));
-  color: var(--rh-ink);
-  border: 2px solid var(--rh-gold);
-  box-shadow:
-    0 0 0 3px rgb(59 21 48 / 0.65),
-    0 8px 18px rgb(0 0 0 / 0.35);
-  cursor: pointer;
-  transition:
-    transform 150ms ease,
-    box-shadow 150ms ease;
-}
-.rh-choice:hover,
-.rh-choice:focus-visible {
-  transform: translateY(-3px);
-  box-shadow:
-    0 0 0 3px #ffd977,
-    0 12px 24px rgb(0 0 0 / 0.4);
-  outline: none;
-}
-.rh-choice__ribbon {
-  position: absolute;
-  top: -0.7rem;
-  left: 0.8rem;
-  padding: 0.05rem 0.6rem;
-  border-radius: 0.3rem;
-  background: var(--rh-plum);
-  color: var(--rh-gold-soft);
-  font-size: 0.7rem;
-  font-weight: 800;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  border: 1px solid var(--rh-gold);
-}
-.rh-choice__text {
-  font-family: var(--rh-display);
-  font-weight: 700;
-  font-size: clamp(0.92rem, 1.7cqi, 1.08rem);
-  line-height: 1.25;
-}
-.rh-choice__chips {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.3rem;
-  margin-top: auto;
-}
-.rh-choice__quiet {
-  font-size: 0.75rem;
-  font-style: italic;
-  opacity: 0.6;
-}
-.rh-chip {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.15rem;
-  padding: 0.05rem 0.4rem 0.05rem 0.2rem;
-  border-radius: 999px;
-  font-size: 0.72rem;
-  font-weight: 800;
-  background: rgb(255 255 255 / 0.55);
-  border: 1px solid rgb(58 38 22 / 0.2);
-}
-.rh-chip.is-up {
-  color: #2f6a22;
-}
-.rh-chip.is-down {
-  color: #a3283d;
 }
 .rh-ending__art {
   aspect-ratio: 7 / 4;

@@ -42,6 +42,7 @@
         :class="layer.classes"
       >
         <span
+          v-if="labels"
           class="absolute bottom-1 left-2 text-[10px] font-medium uppercase tracking-wide text-white/70 drop-shadow"
         >
           {{ layer.label }}
@@ -58,9 +59,13 @@
       :src="layer.src!"
       alt=""
       class="pointer-events-none absolute inset-0 h-full w-full object-cover"
-      @error="onImgError(layer.region)"
+      :style="
+        focus === undefined ? undefined : { objectPosition: `50% ${focus}%` }
+      "
+      @error="onImgError(layer.ladder)"
     />
     <div
+      v-if="labels"
       class="pointer-events-none absolute right-2 top-2 rounded-full bg-black/40 px-2 py-0.5 text-xs text-white"
     >
       {{ scene?.time ?? 'day' }}
@@ -81,17 +86,21 @@ const props = withDefaults(
     scene: SceneState | null
     regions: RegionsManifest
     showImages?: boolean
-    /** Only the coronation backdrop fills the entire play stage. */
+    /** Fill the parent's box instead of keeping the art's 7:4 aspect. */
     fill?: boolean
+    /** The placeholder bands' region/state captions and the time chip. */
+    labels?: boolean
+    /** Vertical object-position (%) when the frame crops the art. */
+    focus?: number
   }>(),
-  { showImages: true, fill: false },
+  { showImages: true, fill: false, labels: true, focus: undefined },
 )
 
 // The ruler's portrait belongs exclusively to the coronation screen. The
 // environment stage MUST NOT resolve, request, or paint ruler artwork.
 const errIndex = reactive<Record<string, number>>({})
-function onImgError(region: string) {
-  errIndex[region] = (errIndex[region] ?? 0) + 1
+function onImgError(ladder: string) {
+  errIndex[ladder] = (errIndex[ladder] ?? 0) + 1
 }
 
 // A readable placeholder palette keyed by state so recompositing is visible.
@@ -113,15 +122,24 @@ const STATE_CLASS: Record<string, string> = {
   humble: 'bg-gradient-to-b from-indigo-300 to-indigo-500',
   flourishing: 'bg-gradient-to-b from-violet-400 to-purple-600',
   gaudy: 'bg-gradient-to-b from-fuchsia-400 to-yellow-500',
-  // single-state / cosmetic
+  gallows: 'bg-gradient-to-b from-stone-700 to-stone-900',
+  garrisoned: 'bg-gradient-to-b from-zinc-600 to-zinc-800',
+  // sky, lake and near bank decay ramps (t-054)
   open: 'bg-gradient-to-b from-sky-300 to-sky-500',
+  overcast: 'bg-gradient-to-b from-slate-400 to-slate-500',
+  choked: 'bg-gradient-to-b from-stone-600 to-stone-800',
   clear: 'bg-gradient-to-b from-cyan-400 to-blue-600',
+  murky: 'bg-gradient-to-b from-teal-700 to-emerald-900',
+  poisoned: 'bg-gradient-to-b from-violet-950 to-slate-950',
   grassy: 'bg-gradient-to-b from-green-400 to-green-600',
+  trampled: 'bg-gradient-to-b from-lime-800 to-amber-900',
+  dead: 'bg-gradient-to-b from-stone-500 to-stone-700',
   fishing: 'bg-gradient-to-b from-amber-200 to-amber-400',
 }
 
 interface Layer {
   region: RegionKey
+  ladder: string
   label: string
   classes: string
   src: string | null
@@ -136,12 +154,18 @@ const layers = computed<Layer[]>(() => {
     .sort((a, b) => (regs[a]!.z ?? 0) - (regs[b]!.z ?? 0))
     .map((region) => {
       const state = scene.regionStates[region]
+      const fallback = scene.fallbackStates?.[region]
       const candidates = props.showImages
-        ? assetCandidates(region, state, scene.time)
+        ? [
+            ...assetCandidates(region, state, scene.time),
+            ...(fallback ? assetCandidates(region, fallback, scene.time) : []),
+          ]
         : []
-      const idx = errIndex[region] ?? 0
+      const ladder = candidates.join('|')
+      const idx = errIndex[ladder] ?? 0
       return {
         region,
+        ladder,
         label: state ? `${region} · ${state}` : region,
         classes: STATE_CLASS[state ?? 'open'] ?? 'bg-base-300',
         src: candidates[idx] ?? null,

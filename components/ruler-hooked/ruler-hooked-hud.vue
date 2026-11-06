@@ -1,13 +1,24 @@
-<!-- The console's painted HUD: title crest, five inline realm meters, and
-     coin/day/time plaques share ONE compact top row. The health flyout only
-     appears on narrow viewports when explicitly requested, so a court
-     presenter or illustrated choice is never hidden by the default HUD. -->
+<!-- The console's painted HUD (t-054 Chronicle restyle of the inline realm
+     HUD): the title cartouche, the four kingdom meters (Hearts, Nature,
+     Prosperity, Order) and the coin/day/time capsules share ONE compact top
+     row. Treasury rides the coin capsule. The meters only open as a flyout on
+     narrow viewports when explicitly requested, so a court presenter or an
+     illustrated choice is never hidden by the default HUD. The chrome takes
+     the reign's tier from the console (data-tier): gilt when healthy,
+     tarnished and soot-stained as it fails. -->
 <template>
   <div class="rh-hud">
-    <div class="rh-crest">
+    <div class="rh-crest" role="banner">
+      <svg
+        class="rh-crest__crown"
+        viewBox="0 0 24 16"
+        aria-hidden="true"
+        focusable="false"
+      >
+        <path d="M2 14 L3 4 L8 9 L12 2 L16 9 L21 4 L22 14 Z" />
+      </svg>
       <span class="rh-crest__title">
-        <span class="rh-crest__the">The</span>
-        Ruler <em>is</em> Hooked
+        <span class="rh-crest__rubric">T</span>he Ruler <em>is</em> Hooked
       </span>
     </div>
 
@@ -20,12 +31,13 @@
         aria-label="Show kingdom health"
         @click="healthOpen = !healthOpen"
       >
-        <RulerHookedGlyph name="nature" />
+        <RulerHookedGlyph :name="lowest.key" />
         <span class="rh-health__compact-label">Realm</span>
+        <span class="rh-health__compact-value">{{ lowest.value }}%</span>
       </button>
       <section
         id="rh-health"
-        class="rh-panel rh-health"
+        class="rh-health"
         :class="{ 'is-open': healthOpen }"
         aria-label="Kingdom health"
       >
@@ -34,6 +46,8 @@
           <li
             v-for="axis in axes"
             :key="axis.key"
+            :data-axis="axis.key"
+            :data-low="axis.value <= 30 ? 'true' : undefined"
             :title="`${axis.label}: ${axis.value}%`"
             role="progressbar"
             :aria-label="axis.label"
@@ -41,13 +55,13 @@
             aria-valuemin="0"
             aria-valuemax="100"
           >
-            <RulerHookedGlyph :name="axis.key" />
+            <span class="rh-health__roundel">
+              <RulerHookedGlyph :name="axis.key" />
+            </span>
             <span class="rh-health__label">{{ axis.label }}</span>
             <span class="rh-health__value">{{ axis.value }}%</span>
             <span class="rh-health__bar" aria-hidden="true">
-              <span
-                :style="{ width: axis.value + '%', background: axis.color }"
-              />
+              <span :style="{ width: axis.value + '%' }" />
             </span>
           </li>
         </ul>
@@ -55,9 +69,16 @@
     </div>
 
     <div class="rh-hud__right">
-      <span class="rh-plaque" title="Royal purse">
+      <span
+        class="rh-plaque rh-plaque--coins"
+        :title="`Royal purse · Treasury ${treasury}%`"
+      >
         <RulerHookedGlyph name="coin" />
         <span class="sr-only">Coins:</span>{{ coins.toLocaleString() }}
+        <span class="sr-only">, treasury {{ treasury }}%</span>
+        <span class="rh-plaque__gilt" aria-hidden="true">
+          <span :style="{ width: treasury + '%' }" />
+        </span>
       </span>
       <span class="rh-plaque" title="Day of the reign">
         <RulerHookedGlyph name="calendar" />Day {{ day }}
@@ -106,13 +127,9 @@
 </template>
 
 <script setup lang="ts">
-import {
-  AXIS_KEYS,
-  type AxisKey,
-  type KingdomHealth,
-  type TimeKey,
-} from '~/types/ruler-hooked'
+import type { KingdomHealth, TimeKey } from '~/types/ruler-hooked'
 import { TIME_LABEL } from '~/utils/rulerHooked/artLibrary'
+import { AXIS_LABEL, METER_AXES } from '~/utils/rulerHooked/console'
 
 const props = defineProps<{
   health: KingdomHealth
@@ -129,28 +146,21 @@ const emit = defineEmits<{
 const healthOpen = ref(false)
 const menuOpen = ref(false)
 
-const LABEL: Record<AxisKey, string> = {
-  nature: 'Nature',
-  prosperity: 'Prosperity',
-  treasury: 'Treasury',
-  joy: 'Joy',
-  order: 'Order',
-}
-const COLOR: Record<AxisKey, string> = {
-  nature: 'linear-gradient(90deg,#3f7d2e,#8cc860)',
-  prosperity: 'linear-gradient(90deg,#b07a1c,#ecc25a)',
-  treasury: 'linear-gradient(90deg,#a86a12,#f3d070)',
-  joy: 'linear-gradient(90deg,#b8344f,#f08aa0)',
-  order: 'linear-gradient(90deg,#4b55a3,#9eb0ec)',
-}
 const axes = computed(() =>
-  AXIS_KEYS.map((key) => ({
+  METER_AXES.map((key) => ({
     key,
-    label: LABEL[key],
-    color: COLOR[key],
+    label: AXIS_LABEL[key],
     value: Math.round(props.health[key] ?? 0),
   })),
 )
+const lowest = computed(
+  () =>
+    [...axes.value].sort((a, b) => a.value - b.value)[0] ?? {
+      key: 'nature' as const,
+      value: 0,
+    },
+)
+const treasury = computed(() => Math.round(props.health.treasury ?? 0))
 const timeLabel = computed(() => TIME_LABEL[props.time])
 
 function skipLessons() {
@@ -195,94 +205,175 @@ function pick(screen: 'chronicle' | 'saves' | 'settings') {
   justify-content: flex-end;
   gap: 0.35rem;
 }
+
+/* The title cartouche: an illuminated rubric on vellum, gilt-ruled. */
 .rh-crest {
-  text-align: left;
-  padding: 0.3rem 0.75rem 0.4rem;
-  border-radius: 0.9rem 0.9rem 0.9rem 0.3rem;
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.35rem 0.8rem 0.45rem 0.55rem;
+  border-radius: 0.3rem;
   background:
-    linear-gradient(180deg, rgb(255 255 255 / 0.08), transparent 40%),
-    var(--rh-plum);
-  border: 1.5px solid var(--rh-gold);
+    radial-gradient(
+      ellipse at 100% 100%,
+      rgb(28 18 8 / calc(var(--rh-soot) * 0.55)),
+      transparent 65%
+    ),
+    linear-gradient(172deg, var(--rh-vellum), var(--rh-vellum-2));
   box-shadow:
-    0 0 0 3px rgb(59 21 48 / 0.55),
-    0 6px 14px rgb(0 0 0 / 0.35);
-  color: var(--rh-gold-soft);
+    inset 0 0 0 1px var(--rh-gold-lo),
+    inset 0 0 0 3px var(--rh-vellum),
+    inset 0 0 0 4px var(--rh-gold),
+    inset 0 0 0 5.5px color-mix(in oklab, var(--rh-vermilion) 70%, transparent),
+    0 6px 14px rgb(0 0 0 / 0.45);
+  color: var(--rh-lapis);
   flex: 0 1 auto;
   min-width: 0;
+}
+.rh-crest__crown {
+  flex: none;
+  width: 1.35rem;
+  height: 0.95rem;
+  fill: var(--rh-gold);
+  stroke: var(--rh-gold-lo);
+  stroke-width: 1.2;
+  stroke-linejoin: round;
 }
 .rh-crest__title {
   display: block;
   font-family: var(--rh-display);
-  font-weight: 700;
-  font-size: clamp(0.95rem, 2.6cqi, 1.45rem);
+  font-weight: 800;
+  font-variant: small-caps;
+  font-size: clamp(0.95rem, 2.4cqi, 1.4rem);
   line-height: 1;
-  letter-spacing: 0.01em;
-  text-shadow: 0 2px 0 rgb(0 0 0 / 0.45);
+  letter-spacing: 0.03em;
   white-space: nowrap;
 }
-.rh-crest__the {
-  display: block;
-  font-size: 0.55em;
-  letter-spacing: 0.2em;
-  text-transform: uppercase;
-  opacity: 0.85;
+.rh-crest__rubric {
+  display: inline-block;
+  margin-right: 0.04em;
+  padding: 0 0.12em;
+  border-radius: 0.12em;
+  background: var(--rh-gilt);
+  color: var(--rh-vermilion);
+  font-size: 1.25em;
+  line-height: 1;
+  box-shadow: inset 0 0 0 1px var(--rh-gold-lo);
 }
 .rh-crest em {
   font-style: italic;
-  font-size: 0.8em;
-  color: #fff1c9;
+  font-size: 0.75em;
+  color: var(--rh-ink-soft);
 }
+
+/* The four kingdom meters: a gilt roundel, label, value and an inked bar. */
 .rh-health {
   display: block;
-  width: min(100%, 32rem);
-  padding: 0.45rem 0.65rem;
+  width: min(100%, 34rem);
+  padding: 0.4rem 0.7rem 0.45rem;
+  border-radius: 0.3rem;
+  background:
+    radial-gradient(
+      circle at 16% 24%,
+      rgb(122 78 28 / calc(var(--rh-fox) * 0.2)),
+      transparent 1.5rem
+    ),
+    radial-gradient(
+      ellipse at 100% 100%,
+      rgb(28 18 8 / calc(var(--rh-soot) * 0.5)),
+      transparent 60%
+    ),
+    linear-gradient(172deg, var(--rh-vellum), var(--rh-vellum-2));
+  box-shadow:
+    inset 0 0 0 1px var(--rh-gold-lo),
+    inset 0 0 0 3px var(--rh-vellum),
+    inset 0 0 0 4px var(--rh-gold),
+    0 6px 14px rgb(0 0 0 / 0.45);
+  color: var(--rh-ink);
 }
 .rh-health ul {
   display: grid;
-  grid-template-columns: repeat(5, minmax(0, 1fr));
-  gap: 0.55rem;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0.7rem;
   align-items: center;
 }
 .rh-health li {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
-  grid-template-areas: 'g v' 'l l' 'b b';
-  column-gap: 0.15rem;
-  gap: 0.1rem;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  grid-template-areas: 'g l v' 'g b b';
+  gap: 0.1rem 0.35rem;
   align-items: center;
   min-width: 0;
-  color: #fbeed3;
-  font-size: 0.66rem;
+  font-size: 0.72rem;
 }
-.rh-health li > :first-child {
+.rh-health li[data-axis='joy'] {
+  --meter-ink: var(--rh-vermilion);
+}
+.rh-health li[data-axis='nature'] {
+  --meter-ink: var(--rh-verdigris);
+}
+.rh-health li[data-axis='prosperity'] {
+  --meter-ink: var(--rh-ochre);
+}
+.rh-health li[data-axis='order'] {
+  --meter-ink: var(--rh-order);
+}
+.rh-health__roundel {
   grid-area: g;
-  width: 1rem;
-  height: 1rem;
+  display: grid;
+  place-items: center;
+  width: 1.75rem;
+  height: 1.75rem;
+  border-radius: 999px;
+  background: var(--rh-gilt);
+  box-shadow:
+    inset 0 0 0 1px var(--rh-gold-lo),
+    0 1px 2px rgb(0 0 0 / 0.35);
+}
+.rh-health__roundel :deep(.rh-glyph) {
+  width: 1.15rem;
+  height: 1.15rem;
 }
 .rh-health__label {
   grid-area: l;
+  font-family: var(--rh-display);
   font-weight: 700;
+  font-variant: small-caps;
+  letter-spacing: 0.02em;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 .rh-health__value {
   grid-area: v;
+  font-weight: 800;
   font-variant-numeric: tabular-nums;
-  opacity: 0.9;
+}
+.rh-health li[data-low='true'] .rh-health__value {
+  color: var(--rh-vermilion);
 }
 .rh-health__bar {
   grid-area: b;
-  height: 0.35rem;
+  position: relative;
+  height: 0.45rem;
   border-radius: 999px;
-  background: rgb(0 0 0 / 0.45);
-  box-shadow: inset 0 1px 2px rgb(0 0 0 / 0.5);
+  background: rgb(42 28 16 / 0.82);
+  box-shadow:
+    inset 0 0 0 1px var(--rh-gold-lo),
+    0 1px 0 var(--rh-vellum);
   overflow: hidden;
 }
 .rh-health__bar span {
-  display: block;
-  height: 100%;
+  position: absolute;
+  inset: 1px auto 1px 1px;
+  max-width: calc(100% - 2px);
   border-radius: inherit;
+  background: linear-gradient(
+    180deg,
+    color-mix(in oklab, var(--meter-ink) 65%, white),
+    var(--meter-ink) 60%
+  );
   transition: width 600ms ease;
 }
 @container rhconsole (max-width: 899px) {
@@ -293,9 +384,13 @@ function pick(screen: 'chronicle' | 'saves' | 'settings') {
     display: none;
     position: absolute;
     top: calc(100% + 0.35rem);
-    left: 0;
-    width: min(28rem, calc(100vw - 1rem));
+    left: 50%;
+    translate: -50% 0;
+    width: min(26rem, calc(100vw - 1rem));
     z-index: 31;
+  }
+  .rh-health ul {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
   .rh-health.is-open {
     display: block;
@@ -307,10 +402,15 @@ function pick(screen: 'chronicle' | 'saves' | 'settings') {
     padding: 0.35rem;
   }
   .rh-crest {
-    padding-inline: 0.4rem;
+    padding: 0.3rem 0.45rem;
+  }
+  .rh-crest__crown {
+    display: none;
   }
   .rh-crest__title {
     font-size: 0.8rem;
+    white-space: normal;
+    max-width: 5.5rem;
   }
   .rh-plaque {
     min-height: 2rem;
@@ -327,22 +427,25 @@ function pick(screen: 'chronicle' | 'saves' | 'settings') {
     gap: 0.2rem;
   }
 }
+
+/* HUD capsules: vellum pills with a gilt double rule. */
 .rh-plaque {
+  position: relative;
   display: inline-flex;
   align-items: center;
   gap: 0.35rem;
-  min-height: 2.5rem;
-  padding: 0.25rem 0.8rem;
+  min-height: 2.4rem;
+  padding: 0.25rem 0.85rem;
   border-radius: 999px;
-  background: linear-gradient(180deg, #4d1d40, var(--rh-plum-deep));
-  border: 1.5px solid var(--rh-gold);
+  background: linear-gradient(180deg, var(--rh-vellum), var(--rh-vellum-2));
   box-shadow:
-    0 0 0 2px rgb(37 11 31 / 0.6),
-    0 4px 10px rgb(0 0 0 / 0.35);
-  color: #fff3d6;
+    inset 0 0 0 1px var(--rh-gold-lo),
+    inset 0 0 0 2.5px var(--rh-gold),
+    0 3px 8px rgb(0 0 0 / 0.5);
+  color: var(--rh-ink);
   font-family: var(--rh-display);
   font-weight: 700;
-  font-size: clamp(0.85rem, 1.8cqi, 1.1rem);
+  font-size: clamp(0.85rem, 1.8cqi, 1.05rem);
   font-variant-numeric: tabular-nums;
   white-space: nowrap;
 }
@@ -350,9 +453,32 @@ function pick(screen: 'chronicle' | 'saves' | 'settings') {
   width: 1.4em;
   height: 1.4em;
 }
+.rh-plaque__gilt {
+  position: absolute;
+  left: 1.1rem;
+  right: 1.1rem;
+  bottom: 0.28rem;
+  height: 2px;
+  border-radius: 999px;
+  background: rgb(42 28 16 / 0.35);
+  overflow: hidden;
+}
+.rh-plaque__gilt span {
+  display: block;
+  height: 100%;
+  background: var(--rh-gold-lo);
+}
 .rh-plaque--menu {
   padding: 0.25rem 0.55rem;
   cursor: pointer;
+}
+.rh-plaque--menu:focus-visible,
+.rh-health__compact:focus-visible {
+  outline: 3px solid var(--rh-gold-hi);
+  outline-offset: 2px;
+}
+.rh-health__compact-value {
+  font-variant-numeric: tabular-nums;
 }
 @container rhconsole (max-width: 560px) {
   .rh-plaque--time {

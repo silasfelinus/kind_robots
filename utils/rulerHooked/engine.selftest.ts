@@ -4,7 +4,10 @@ import {
   applyEffect,
   resolveChoice,
   cloneSave,
+  previewChoiceDeltas,
 } from '~/utils/rulerHooked/applyEffects'
+import { RULER_HOOKED_CONTENT } from '~/utils/rulerHooked/content'
+import { reignMean, reignTier, stepTab } from '~/utils/rulerHooked/console'
 import { triggerHolds, effectiveWeight } from '~/utils/rulerHooked/triggers'
 import {
   rampState,
@@ -429,6 +432,192 @@ function baseSave(): RunSave {
     'clear',
     'non-ruler regions resolve exactly as before',
   )
+}
+
+// 8. Kingdom decay (t-054): lake/near bank follow nature, the sky follows joy,
+// tyranny pins gallows and a garrison, and new rungs draw the old art until
+// their own files land.
+{
+  const regions = RULER_HOOKED_CONTENT.regions
+  assert.deepEqual(regions.regions.lake?.driver, {
+    slider: 'nature',
+    ramp: ['poisoned', 'murky', 'clear'],
+  })
+  assert.deepEqual(regions.regions.near_bank?.driver, {
+    slider: 'nature',
+    ramp: ['dead', 'trampled', 'grassy'],
+  })
+  assert.deepEqual(regions.regions.sky?.driver, {
+    slider: 'joy',
+    ramp: ['choked', 'overcast', 'open'],
+  })
+  assert.deepEqual(regions.regions.sky?.times, ['day', 'night', 'golden'])
+  assert.deepEqual(regions.regions.lake?.times, ['day', 'night'])
+  for (const [key, def] of Object.entries(regions.regions)) {
+    for (const state of def?.driver?.ramp ?? [])
+      assert.ok(def!.states.includes(state), `${key} lists ramp state ${state}`)
+  }
+  for (const pin of regions.pins ?? [])
+    for (const [key, state] of Object.entries(pin.states))
+      assert.ok(
+        regions.regions[key as keyof typeof regions.regions]?.states.includes(
+          state!,
+        ),
+        `${key} lists pinned state ${state}`,
+      )
+
+  const ruined = baseSave()
+  ruined.kingdomHealth = {
+    nature: 10,
+    prosperity: 60,
+    treasury: 40,
+    joy: 20,
+    order: 92,
+  }
+  ruined.regionOverrides.far_shore = 'pristine'
+  const bad = resolveScene(ruined, regions)
+  assert.equal(bad.regionStates.lake, 'poisoned')
+  assert.equal(bad.regionStates.near_bank, 'dead')
+  assert.equal(bad.regionStates.sky, 'choked')
+  assert.equal(bad.regionStates.far_shore, 'gallows', 'tyranny beats a decree')
+  assert.equal(bad.regionStates.village_edge, 'garrisoned')
+  assert.deepEqual(bad.pins, ['tyranny'])
+  assert.equal(bad.fallbackStates?.lake, 'clear')
+  assert.equal(bad.fallbackStates?.near_bank, 'grassy')
+  assert.equal(bad.fallbackStates?.sky, 'open')
+  assert.equal(
+    bad.fallbackStates?.far_shore,
+    'pristine',
+    'gallows degrade to what the shore shows without tyranny',
+  )
+  assert.equal(bad.fallbackStates?.village_edge, 'township')
+
+  const relieved = cloneSave(ruined)
+  relieved.kingdomHealth.joy = 31
+  const eased = resolveScene(relieved, regions)
+  assert.equal(eased.regionStates.far_shore, 'pristine', 'the pin lifts')
+  assert.equal(eased.regionStates.village_edge, 'township')
+  assert.deepEqual(eased.pins, [])
+  const lax = cloneSave(ruined)
+  lax.kingdomHealth.order = 79
+  assert.deepEqual(resolveScene(lax, regions).pins, [])
+
+  const fresh = baseSave()
+  fresh.kingdomHealth = {
+    nature: 100,
+    prosperity: 50,
+    treasury: 50,
+    joy: 100,
+    order: 50,
+  }
+  const good = resolveScene(fresh, regions)
+  assert.equal(good.regionStates.lake, 'clear')
+  assert.equal(good.regionStates.near_bank, 'grassy')
+  assert.equal(good.regionStates.sky, 'open')
+  assert.equal(good.fallbackStates?.lake, undefined, 'clear needs no fallback')
+
+  const ladder = [
+    ...assetCandidates('lake', 'poisoned', 'night'),
+    ...assetCandidates('lake', bad.fallbackStates!.lake, 'night'),
+  ]
+  assert.deepEqual(ladder.slice(-2), [
+    '/images/ruler-hooked/lake-clear-night.webp',
+    '/images/ruler-hooked/lake-clear.webp',
+  ])
+
+  assert.equal(reignTier(fresh.kingdomHealth), 'pristine')
+  const opening = baseSave()
+  opening.kingdomHealth = {
+    nature: 50,
+    prosperity: 50,
+    treasury: 50,
+    joy: 50,
+    order: 50,
+  }
+  assert.equal(reignTier(opening.kingdomHealth), 'pristine', 'a new reign')
+  assert.equal(
+    reignTier(ruined.kingdomHealth),
+    'rotten',
+    'Nature 10 rots the chronicle even with a middling mean',
+  )
+  const mockup = {
+    nature: 41,
+    prosperity: 61,
+    treasury: 60,
+    joy: 24,
+    order: 93,
+  }
+  assert.ok(
+    reignMean(mockup) >= 50,
+    'the mockup reign averages pristine on the mean alone',
+  )
+  assert.equal(
+    reignTier(mockup),
+    'rotten',
+    'tyranny (Order 93, Hearts 24) rots the chronicle',
+  )
+  assert.equal(reignTier({ ...mockup, order: 84 }), 'pristine')
+  assert.equal(reignTier({ ...mockup, joy: 31 }), 'pristine')
+  assert.equal(reignTier({ ...mockup, joy: 20 }), 'rotten', 'Hearts 20')
+  assert.equal(
+    reignTier({ nature: 20, prosperity: 90, treasury: 90, joy: 90, order: 50 }),
+    'rotten',
+    'Nature 20',
+  )
+  assert.equal(
+    reignTier({ nature: 21, prosperity: 40, treasury: 40, joy: 40, order: 40 }),
+    'strained',
+  )
+  opening.kingdomHealth = {
+    nature: 10,
+    prosperity: 20,
+    treasury: 30,
+    joy: 15,
+    order: 70,
+  }
+  assert.equal(reignTier(opening.kingdomHealth), 'rotten')
+  assert.equal(stepTab('lake', -1), 'fishopedia')
+  assert.equal(stepTab('fishopedia', 1), 'lake')
+  assert.equal(stepTab('map', 1), 'court')
+}
+
+// 9. Court previews (t-054): signed deltas come from the real reducer.
+{
+  const save = baseSave()
+  const card: Card = {
+    id: 'c-preview',
+    kind: 'interrupt',
+    title: 'Dam the marsh',
+    choices: [
+      {
+        id: 'drain',
+        text: 'Drain it',
+        effects: {
+          sliders: { prosperity: 15, order: 8, nature: -18, joy: -8 },
+          counters: { coins: 20 },
+        },
+      },
+      {
+        id: 'spare',
+        text: 'Spare it',
+        effects: { sliders: { nature: 25 } },
+      },
+    ],
+  }
+  assert.deepEqual(previewChoiceDeltas(save, card, card.choices[0]!), [
+    { key: 'nature', delta: -18 },
+    { key: 'prosperity', delta: 15 },
+    { key: 'joy', delta: -8 },
+    { key: 'order', delta: 8 },
+    { key: 'coins', delta: 20 },
+  ])
+  assert.deepEqual(
+    previewChoiceDeltas(save, card, card.choices[1]!),
+    [{ key: 'nature', delta: 10 }],
+    'nature 90 + 25 clamps to the +10 it would really get',
+  )
+  assert.equal(save.kingdomHealth.nature, 90, 'preview never mutates the save')
+  assert.equal(save.choiceLog.length, 0)
 }
 
 console.log('ruler-hooked engine self-test: ALL PASS')

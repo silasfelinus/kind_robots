@@ -1,24 +1,28 @@
-<!-- Five fixed lanes, two decisions per crew and one automatic simultaneous clash. -->
+<!-- Canonical Clash: two card plays, then selected attacks with power-for-power retaliation. -->
 <template>
   <section
     class="clash"
     data-testid="slime-clash"
-    aria-label="Slime City Clash prototype"
+    aria-label="Slime City Clash"
   >
     <header class="clash-top">
       <div class="clash-title">
-        <span class="clash-eyebrow">THE PITWORKS · FUN-FIRST PROTOTYPE</span>
-        <strong>CLASH <i> / </i> FIVE ALLEYS</strong>
-        <small
-          >Pick your positions. Two plays each. Then everyone fights.</small
-        >
+        <span class="clash-eyebrow">THE PITWORKS · MAIN EVENT</span>
+        <strong>SLIME CITY <i> / </i> CLASH</strong>
+        <small>Draw five. Play two. Choose attacks. Survivors heal one.</small>
       </div>
       <div class="clash-round">
         <span>ROUND {{ game.round }} / {{ CLASH_ROUND_LIMIT }}</span>
-        <b>{{
-          game.victor ? 'FINAL BELL' : busy ? 'RIVAL THINKING' : 'YOUR CALL'
-        }}</b>
+        <b>{{ phaseLabel }}</b>
       </div>
+      <button
+        class="clash-reset"
+        type="button"
+        :aria-pressed="showHelp"
+        @click="showHelp = !showHelp"
+      >
+        ? RULES
+      </button>
       <button
         class="clash-reset"
         type="button"
@@ -47,7 +51,17 @@
           <b
             >{{ game.boss.enemy }} <small>/ {{ CLASH_BOSS_HP }} HP</small></b
           >
-          <span class="clash-bank">{{ game.mana.enemy }} MANA</span>
+          <button
+            v-if="game.phase === 'attack' && game.active === 'player'"
+            class="clash-face"
+            type="button"
+            data-testid="clash-attack-boss"
+            :disabled="!bossTargetable"
+            @click="attackBoss"
+          >
+            ATTACK BOSS
+          </button>
+          <span class="clash-bank">{{ game.plays.enemy }} / 2 PLAYS</span>
         </div>
 
         <div
@@ -55,6 +69,13 @@
           role="grid"
           aria-label="Five parallel combat lanes"
         >
+          <SlimeCityArtwork
+            class="clash-map-art"
+            :image-id="slimeArtId('districts', 'pitworks')"
+            alt="The Pitworks district battleground"
+            fallback="⚡"
+            compact
+          />
           <div class="clash-lane-numbers">
             <span v-for="lane in lanes" :key="lane">ALLEY {{ lane + 1 }}</span>
           </div>
@@ -70,7 +91,8 @@
               class="clash-slot"
               :class="{
                 filled: !!unit('enemy', lane),
-                target: targetable('enemy', lane),
+                target:
+                  targetable('enemy', lane) || attackTargetable('enemy', lane),
                 selected: selectedUnit === unit('enemy', lane)?.uid,
               }"
               :disabled="!targetable('enemy', lane) && !unit('enemy', lane)"
@@ -103,7 +125,7 @@
           </div>
           <div
             class="clash-impact"
-            aria-label="Current combat forecast, before remaining card plays"
+            aria-label="Current fighter power and attack status"
           >
             <span v-for="lane in lanes" :key="'forecast-' + lane">
               {{ forecast(lane) }}
@@ -121,8 +143,12 @@
               class="clash-slot"
               :class="{
                 filled: !!unit('player', lane),
-                target: targetable('player', lane),
-                selected: selectedUnit === unit('player', lane)?.uid,
+                target:
+                  targetable('player', lane) ||
+                  attackTargetable('player', lane),
+                selected:
+                  selectedAttacker === unit('player', lane)?.uid ||
+                  selectedUnit === unit('player', lane)?.uid,
               }"
               :disabled="!targetable('player', lane) && !unit('player', lane)"
               :aria-label="slotLabel('player', lane)"
@@ -171,11 +197,11 @@
           <b
             >{{ game.boss.player }} <small>/ {{ CLASH_BOSS_HP }} HP</small></b
           >
-          <span class="clash-bank">{{ game.mana.player }} MANA</span>
+          <span class="clash-bank">{{ game.plays.player }} / 2 PLAYS</span>
         </div>
       </div>
 
-      <aside class="clash-sidebar">
+      <aside v-if="showHelp" class="clash-sidebar">
         <div class="clash-info">
           <span class="clash-eyebrow">{{
             selectedCard
@@ -196,8 +222,11 @@
             <strong>{{ selectedCard.name }}</strong>
             <p>{{ clashCardText(selectedCard) }}</p>
             <small
-              >{{ selectedCard.cost }} MANA ·
-              {{ selectedCard.kind.toUpperCase() }}</small
+              >{{ clashPlayCost(selectedCard) }} PLAY{{
+                clashPlayCost(selectedCard) === 2 ? 'S' : ''
+              }}
+              · {{ selectedCard.kind.toUpperCase() }}</small
+            >
             >
             <span class="clash-help"
               >Tap a glowing lane to play it. Tap the card again to
@@ -214,21 +243,27 @@
               />
             </div>
             <strong>{{ selectedUnitCard.name }}</strong>
-            <p>{{ selectedUnitCard.text }}</p>
+            <p>{{ clashCardText(selectedUnitCard) }}</p>
             <span class="clash-help"
               >Fighters stay in their lane. Playing a new creature there
               replaces yours.</span
             >
           </template>
           <template v-else>
-            <strong>NO MOVEMENT. JUST CONSEQUENCES.</strong>
+            <strong>TWO PLAYS. THEN ATTACK.</strong>
             <p>
-              Every round each crew plays two cards, one at a time. Then
-              creatures clash simultaneously. Unblocked creatures hit the boss.
+              Draw five random cards each turn. Play two normal cards or one
+              special two-play card. Unplayed cards are discarded.
+            </p>
+            <p>
+              Select a friendly follower, then any enemy follower to trade power
+              damage. If no enemies remain, attack the boss. Each follower may
+              attack once per turn.
             </p>
             <span class="clash-help"
-              >Attack, health and current damage forecasts are always visible. A
-              rival play can change them.</span
+              >Surviving followers recover one life after both players finish.
+              Placement still matters for traps, neighbors and swarm
+              powers.</span
             >
           </template>
         </div>
@@ -251,12 +286,18 @@
       <div class="clash-hud">
         <div class="clash-plays">
           <strong>{{
-            game.victor ? resultText : busy ? 'RIVAL RESPONDING' : 'YOUR HAND'
+            game.victor
+              ? resultText
+              : busy
+                ? 'RIVAL TURN'
+                : game.phase === 'attack'
+                  ? 'CHOOSE ATTACKS'
+                  : 'YOUR HAND'
           }}</strong>
           <span
-            >{{ game.plays.player }} / {{ CLASH_PLAYS }} plays ·
-            {{ game.mana.player }} mana · {{ game.decks.player.length }} in
-            deck</span
+            >{{ game.plays.player }} / {{ CLASH_PLAYS }} card plays ·
+            {{ game.decks.player.length }} in deck ·
+            {{ game.discards.player.length }} discarded</span
           >
         </div>
         <button
@@ -266,7 +307,8 @@
           :disabled="busy || game.active !== 'player' || !!game.victor"
           @click="pass"
         >
-          PASS <span aria-hidden="true">›</span>
+          {{ game.phase === 'play' ? 'TO ATTACKS' : 'END ATTACKS' }}
+          <span aria-hidden="true">›</span>
         </button>
       </div>
       <div class="clash-hand" aria-label="Cards in your hand">
@@ -277,9 +319,17 @@
           class="clash-card"
           :class="{
             selected: heldIndex === index,
-            unaffordable: cardById(id).cost > game.mana.player,
+            unaffordable:
+              game.phase !== 'play' ||
+              clashPlayCost(cardById(id)) + game.plays.player > CLASH_PLAYS,
           }"
-          :disabled="busy || !!game.victor || game.active !== 'player'"
+          :disabled="
+            busy ||
+            !!game.victor ||
+            game.active !== 'player' ||
+            game.phase !== 'play'
+          "
+          :title="clashCardText(cardById(id))"
           :data-testid="'clash-hand-' + index"
           :aria-pressed="heldIndex === index"
           @click="pick(index)"
@@ -290,7 +340,11 @@
             :fallback="cardById(id).symbol"
             compact
           />
-          <span class="clash-cost">{{ cardById(id).cost }}</span>
+          <span class="clash-cost"
+            >{{ clashPlayCost(cardById(id)) }} PLAY{{
+              clashPlayCost(cardById(id)) === 2 ? 'S' : ''
+            }}</span
+          >
           <span class="clash-card-label"
             ><b>{{ cardById(id).name }}</b
             ><small>{{ cardById(id).kind }}</small></span
@@ -320,7 +374,11 @@ import {
   CLASH_PLAYS,
   CLASH_ROUND_LIMIT,
   canClashPlay,
+  canClashAttack,
+  attackClash,
+  endClashTurn,
   chooseClashCpu,
+  clashPlayCost,
   clashCardText,
   clashPower,
   clashUnitAt,
@@ -345,6 +403,8 @@ const game = shallowRef<ClashState>(
 )
 const heldIndex = ref<number | null>(null)
 const selectedUnit = ref<number | null>(null)
+const selectedAttacker = ref<number | null>(null)
+const showHelp = ref(false)
 const busy = ref(false)
 let timer: ReturnType<typeof setTimeout> | null = null
 function newMatch(): void {
@@ -353,6 +413,8 @@ function newMatch(): void {
   busy.value = false
   heldIndex.value = null
   selectedUnit.value = null
+  selectedAttacker.value = null
+  showHelp.value = false
   game.value = createClash(lab.activeTeam, enemyTeam.value, ++seed)
 }
 watch(() => lab.activeTeam, newMatch)
@@ -368,6 +430,20 @@ const selectedUnitCard = computed<Card | null>(() => {
   const u = game.value.units.find((x) => x.uid === selectedUnit.value)
   return u ? cardById(u.cardId) : null
 })
+const phaseLabel = computed(() =>
+  game.value.victor
+    ? 'FINAL BELL'
+    : busy.value || game.value.active === 'enemy'
+      ? 'RIVAL THINKING'
+      : game.value.phase === 'play'
+        ? 'PLAY UP TO TWO CARDS'
+        : 'PICK YOUR ATTACKS',
+)
+const bossTargetable = computed(
+  () =>
+    selectedAttacker.value !== null &&
+    canClashAttack(game.value, 'player', selectedAttacker.value, 'boss'),
+)
 const resultText = computed(() =>
   game.value.victor === 'player'
     ? 'YOU WIN!'
@@ -405,8 +481,25 @@ function targetable(side: Side, lane: number): boolean {
     canClashPlay(game.value, 'player', selectedCard.value.id, lane)
   )
 }
+function attackTargetable(side: Side, lane: number): boolean {
+  if (
+    busy.value ||
+    game.value.phase !== 'attack' ||
+    game.value.active !== 'player'
+  )
+    return false
+  const follower = unit(side, lane)
+  if (!follower) return false
+  if (side === 'player') return !follower.attacked && !follower.rooted
+  return (
+    selectedAttacker.value !== null &&
+    canClashAttack(game.value, 'player', selectedAttacker.value, follower.uid)
+  )
+}
 function pick(index: number): void {
+  if (game.value.phase !== 'play') return
   selectedUnit.value = null
+  selectedAttacker.value = null
   heldIndex.value = heldIndex.value === index ? null : index
 }
 function slotLabel(side: Side, lane: number): string {
@@ -416,63 +509,108 @@ function slotLabel(side: Side, lane: number): string {
     'alley ' +
     (lane + 1) +
     (u ? ': ' + cardById(u.cardId).name + ', ' + u.hp + ' health' : ': empty') +
-    (targetable(side, lane) ? ', playable target' : '')
+    (targetable(side, lane) || attackTargetable(side, lane)
+      ? ', playable target'
+      : '')
   )
 }
 function clickSlot(side: Side, lane: number): void {
+  if (busy.value || game.value.active !== 'player' || game.value.victor) return
+  const targetUnit = unit(side, lane)
+  if (game.value.phase === 'attack') {
+    if (
+      side === 'player' &&
+      targetUnit &&
+      !targetUnit.attacked &&
+      !targetUnit.rooted
+    ) {
+      selectedAttacker.value = targetUnit.uid
+      selectedUnit.value = targetUnit.uid
+      return
+    }
+    if (
+      side === 'enemy' &&
+      targetUnit &&
+      selectedAttacker.value !== null &&
+      canClashAttack(
+        game.value,
+        'player',
+        selectedAttacker.value,
+        targetUnit.uid,
+      )
+    ) {
+      game.value = attackClash(
+        game.value,
+        'player',
+        selectedAttacker.value,
+        targetUnit.uid,
+      )
+      selectedAttacker.value = null
+      selectedUnit.value = null
+    }
+    return
+  }
   if (targetable(side, lane) && selectedCard.value) {
     const next = playClash(game.value, 'player', selectedCard.value.id, lane)
     if (next === game.value) return
     game.value = next
     heldIndex.value = null
     selectedUnit.value = null
-    cpuReply()
     return
   }
-  if (unit(side, lane)) {
+  if (targetUnit) {
     heldIndex.value = null
-    selectedUnit.value = unit(side, lane)!.uid
+    selectedUnit.value = targetUnit.uid
   }
 }
+function attackBoss(): void {
+  if (selectedAttacker.value === null || !bossTargetable.value) return
+  game.value = attackClash(game.value, 'player', selectedAttacker.value, 'boss')
+  selectedAttacker.value = null
+  selectedUnit.value = null
+}
 function cpuReply(): void {
-  if (game.value.active !== 'enemy' || game.value.victor) return
+  if (game.value.active !== 'enemy' || game.value.victor || timer) return
   busy.value = true
   timer = setTimeout(() => {
-    const action = chooseClashCpu(game.value)
-    game.value =
-      action.t === 'play'
-        ? playClash(game.value, 'enemy', action.card, action.lane)
-        : passClash(game.value, 'enemy')
-    busy.value = false
     timer = null
-    // Covers a rival's final decision when the player has already spent both plays.
+    const action = chooseClashCpu(game.value)
+    switch (action.t) {
+      case 'play':
+        game.value = playClash(game.value, 'enemy', action.card, action.lane)
+        break
+      case 'pass':
+        game.value = passClash(game.value, 'enemy')
+        break
+      case 'attack':
+        game.value = attackClash(game.value, 'enemy', action.uid, action.target)
+        break
+      case 'end':
+        game.value = endClashTurn(game.value, 'enemy')
+        break
+    }
+    busy.value = game.value.active === 'enemy' && !game.value.victor
     cpuReply()
-  }, 550)
+  }, 350)
 }
 function pass(): void {
-  game.value = passClash(game.value, 'player')
+  if (busy.value || game.value.active !== 'player' || game.value.victor) return
+  game.value =
+    game.value.phase === 'play'
+      ? passClash(game.value, 'player')
+      : endClashTurn(game.value, 'player')
   heldIndex.value = null
   selectedUnit.value = null
+  selectedAttacker.value = null
   cpuReply()
 }
 function forecast(lane: number): string {
   const ours = unit('player', lane)
   const theirs = unit('enemy', lane)
   if (!ours && !theirs) return '◇'
-  const a = ours ? (ours.rooted ? 0 : clashPower(game.value, ours)) : 0
-  const b = theirs ? (theirs.rooted ? 0 : clashPower(game.value, theirs)) : 0
-  if (ours && theirs) {
-    const aArmor = Math.max(
-      0,
-      theirs.armor - (ours.keywords.includes('pierce') ? 1 : 0),
-    )
-    const bArmor = Math.max(
-      0,
-      ours.armor - (theirs.keywords.includes('pierce') ? 1 : 0),
-    )
-    return Math.max(0, a - aArmor) + ' ↔ ' + Math.max(0, b - bArmor)
-  }
-  return ours ? 'RIVAL −' + a : 'YOU −' + b
+  const label = (u: ClashUnit): string =>
+    u.attacked ? '✓' : u.rooted ? '⌁' : String(clashPower(game.value, u))
+  return (ours ? label(ours) : '·') + ' / ' + (theirs ? label(theirs) : '·')
 }
 </script>
 
@@ -568,7 +706,8 @@ function forecast(lane: number): string {
 }
 .clash-stage {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(160px, 24%);
+  grid-template-columns: minmax(0, 1fr);
+  position: relative;
   gap: 0.65rem;
   min-height: 0;
   flex: 1;
@@ -646,6 +785,8 @@ function forecast(lane: number): string {
   background: linear-gradient(90deg, #f3908c, #d95882);
 }
 .clash-board {
+  position: relative;
+  isolation: isolate;
   flex: 1;
   display: flex;
   flex-direction: column;
@@ -675,6 +816,8 @@ function forecast(lane: number): string {
   letter-spacing: 0.08em;
 }
 .clash-row {
+  position: relative;
+  z-index: 1;
   flex: 1;
   min-height: 0;
 }
@@ -781,7 +924,33 @@ function forecast(lane: number): string {
   font-weight: 850;
   white-space: nowrap;
 }
+.clash-map-art {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  opacity: 0.32;
+  pointer-events: none;
+}
+.clash-map-art :deep(img) {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.clash-face {
+  color: #0e1d1b !important;
+  background: #c4f862;
+  border-radius: 0.5rem;
+  padding: 0.4rem 0.65rem;
+  font-size: 0.7rem;
+  font-weight: 900;
+}
 .clash-sidebar {
+  position: absolute;
+  right: 0.5rem;
+  top: 0.5rem;
+  bottom: 0.5rem;
+  width: min(270px, 48%);
+  z-index: 5;
   min-height: 0;
   display: flex;
   flex-direction: column;
@@ -885,9 +1054,11 @@ function forecast(lane: number): string {
   display: grid;
   grid-template-columns: repeat(5, minmax(0, 1fr));
   gap: 0.4rem;
-  min-height: clamp(84px, 13vh, 130px);
+  min-height: clamp(145px, 21vh, 225px);
+  max-height: 240px;
 }
 .clash-card {
+  aspect-ratio: 2 / 3;
   overflow: hidden;
   min-width: 0;
   position: relative;
@@ -916,9 +1087,10 @@ function forecast(lane: number): string {
   top: 0.2rem;
   left: 0.2rem;
   z-index: 1;
-  width: 1.3rem;
-  height: 1.3rem;
-  border-radius: 50%;
+  min-width: 2rem;
+  height: 1.25rem;
+  padding: 0.05rem 0.25rem;
+  border-radius: 0.4rem;
   background: #b9ef56;
   color: #071115;
   font-size: 0.75rem;
@@ -961,7 +1133,7 @@ function forecast(lane: number): string {
     flex: none;
   }
   .clash-sidebar {
-    flex-direction: row;
+    flex-direction: column;
     min-height: 100px;
   }
   .clash-info,
@@ -973,7 +1145,7 @@ function forecast(lane: number): string {
     min-height: 120px;
   }
   .clash-hand {
-    min-height: 105px;
+    min-height: 150px;
   }
 }
 @media (max-width: 520px) {
@@ -1046,7 +1218,7 @@ function forecast(lane: number): string {
   }
   .clash-hand {
     gap: 0.2rem;
-    min-height: 93px;
+    min-height: 125px;
   }
   .clash-card-label {
     padding: 0.6rem 0.1rem 0.15rem;
@@ -1058,9 +1230,9 @@ function forecast(lane: number): string {
     font-size: 0.47rem;
   }
   .clash-cost {
-    width: 1rem;
+    min-width: 1.35rem;
     height: 1rem;
-    font-size: 0.61rem;
+    font-size: 0.51rem;
   }
 }
 @media (prefers-reduced-motion: reduce) {

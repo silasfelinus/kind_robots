@@ -137,7 +137,7 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
   }
   const view = ref<
     'city' | 'arena' | 'alleys' | 'clash' | 'cards' | 'campaign' | 'rewards'
-  >('city')
+  >('clash')
   const activeTeam = ref<TeamId>('catgirls')
   const enemyTeam = ref<TeamId>('bloodfairies')
   const mode = ref<ModeId>('blackout')
@@ -1174,9 +1174,9 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
   }
 
   function startDistrictMatch(): void {
-    view.value = 'arena'
-    reset()
-    if (!guideSeen.has(mode.value)) openGuide()
+    // Story district practice now opens the canonical CLASH rules.
+    // The old Arena battle simulator is available explicitly under Legacy.
+    view.value = 'clash'
   }
 
   function chooseCard(id: string): void {

@@ -17,6 +17,7 @@ import type {
   TimeKey,
 } from '~/types/ruler-hooked'
 import { HERO_RULER_PRESET_ID } from '~/utils/rulerHooked/rulerPresets'
+import { clauseHolds } from '~/utils/rulerHooked/triggers'
 
 /** Even-threshold a 0..100 slider value across an ordered ramp (compositing.md §3). */
 export function rampState(value: number, ramp: RegionState[]): RegionState {
@@ -40,8 +41,11 @@ export function cycleTime(turnCount: number): TimeKey {
 }
 
 /**
- * Resolve the committed scene: each region's state = its event override (if pinned)
- * else its ramp state from the driver slider; plus the time and any active fx.
+ * Resolve the committed scene: each region's state = a holding condition pin
+ * (manifest.pins, e.g. tyranny) else its event override (if pinned) else its ramp
+ * state from the driver slider; plus the time and any active fx. `fallbackStates`
+ * names the art to draw while a resolved state has no files yet: what the region
+ * would show without the condition pin, else the region's authored artFallback.
  */
 export function resolveScene(
   save: RunSave,
@@ -71,8 +75,34 @@ export function resolveScene(
       regionStates[key] = save.regionStates[key] ?? def.states[0]
     }
   }
+  const fallbackStates: Partial<Record<RegionKey, RegionState>> = {}
+  for (const key of Object.keys(regionStates) as RegionKey[]) {
+    const fallback = manifest.regions[key]?.artFallback
+    if (fallback && fallback !== regionStates[key])
+      fallbackStates[key] = fallback
+  }
+  const pins: string[] = []
+  for (const pin of manifest.pins ?? []) {
+    if (!clauseHolds(save, pin.when)) continue
+    pins.push(pin.id)
+    for (const [key, state] of Object.entries(pin.states) as [
+      RegionKey,
+      RegionState,
+    ][]) {
+      if (!manifest.regions[key] || state === regionStates[key]) continue
+      const underneath = regionStates[key]
+      if (underneath) fallbackStates[key] = underneath
+      regionStates[key] = state
+    }
+  }
   const fx: string[] = []
-  return { regionStates, time: cycleTime(save.turnCount), fx }
+  return {
+    regionStates,
+    time: cycleTime(save.turnCount),
+    fx,
+    fallbackStates,
+    pins,
+  }
 }
 
 /**

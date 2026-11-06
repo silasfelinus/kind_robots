@@ -48,8 +48,14 @@ const play = (
   s = doIt(s, 'ask', 'celestine', 'royalties')
   s = doIt(s, 'use', 'stage')
   assert.ok(s.flags.includes('murder'))
-  assert.equal(performAction(s, { verb: 'use', target: 'stage' }).changed, false)
-  assert.equal(performAction(s, { verb: 'talk', target: 'celestine' }).changed, false)
+  assert.equal(
+    performAction(s, { verb: 'use', target: 'stage' }).changed,
+    false,
+  )
+  assert.equal(
+    performAction(s, { verb: 'talk', target: 'celestine' }).changed,
+    false,
+  )
   s = walk(s, 'lobby')
   s = walk(s, 'stairwell')
   s = doIt(s, 'look', 'bell')

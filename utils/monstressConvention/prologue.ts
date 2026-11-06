@@ -540,7 +540,11 @@ export function performAction(
     )
   }
   if (has(next, 'murder') && action.target === 'celestine') {
-    return withLine(state, 'Celestine is gone. Her unusual return is upstairs.', false)
+    return withLine(
+      state,
+      'Celestine is gone. Her unusual return is upstairs.',
+      false,
+    )
   }
   if (action.target === 'celestine' && action.verb === 'talk') {
     unlockTopic(next, 'royalties')

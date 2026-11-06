@@ -11,7 +11,9 @@ import { roomArtUrl } from './rooms'
 export const EXPORTED_AUDIENCE_CHOICES: readonly string[] = []
 const exported = new Set(EXPORTED_AUDIENCE_CHOICES)
 
-const FORD_CHOICE_SCENES: Readonly<Record<string, readonly (string | undefined)[]>> = {
+const FORD_CHOICE_SCENES: Readonly<
+  Record<string, readonly (string | undefined)[]>
+> = {
   'd22-blame:blame': [
     illustration('npcs', 'ottoline-vask', 'angry'),
     questArtUrl('q-d22-ford-bodies', 'failure'),
@@ -30,13 +32,7 @@ const FORD_CHOICE_SCENES: Readonly<Record<string, readonly (string | undefined)[
   ],
 }
 
-const MOODS: readonly Mood[] = [
-  'angry',
-  'sad',
-  'neutral',
-  'excited',
-  'happy',
-]
+const MOODS: readonly Mood[] = ['angry', 'sad', 'neutral', 'excited', 'happy']
 
 /**
  * A dedicated image is the first choice. Older audiences fall back to a
@@ -55,7 +51,9 @@ export function audienceChoiceImages(
     ? `/emperor-of-dust/audiences/${asset}.webp`
     : undefined
   const group = speakerNpc?.startsWith('F0') ? 'followers' : 'npcs'
-  const moods = MOODS.map((_, index) => MOODS[(index + cardIndex) % MOODS.length]!)
+  const moods = MOODS.map(
+    (_, index) => MOODS[(index + cardIndex) % MOODS.length]!,
+  )
   const portraits = speakerNpc
     ? moods.map((mood) => illustration(group, speakerNpc, mood))
     : []
@@ -68,5 +66,7 @@ export function audienceChoiceImages(
     '/emperor-of-dust/intro/fortress.webp',
     '/emperor-of-dust/map/wasteland.webp',
   ]
-  return [...new Set(candidates.filter((image): image is string => Boolean(image)))]
+  return [
+    ...new Set(candidates.filter((image): image is string => Boolean(image))),
+  ]
 }

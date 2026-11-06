@@ -354,8 +354,17 @@
                 @click="store.select(unit.id)"
               >
                 <span class="evt-squad-portrait">
-                  <span aria-hidden="true">✦</span>
-                  <b>{{ initials(unit) }}</b>
+                  <img
+                    v-if="unitPortrait(unit)"
+                    class="evt-squad-art"
+                    :src="unitPortrait(unit)!"
+                    alt=""
+                    loading="lazy"
+                  />
+                  <template v-else>
+                    <span aria-hidden="true">✦</span>
+                    <b>{{ initials(unit) }}</b>
+                  </template>
                 </span>
                 <span class="evt-squad-info">
                   <b>{{ unitName(unit) }}</b>
@@ -3857,5 +3866,206 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKey))
   .evt-brushes {
     grid-template-columns: repeat(3, minmax(0, 1fr));
   }
+}
+
+.evt-deck.is-finished {
+  grid-template-columns: minmax(0, 1fr);
+}
+.evt-map {
+  background-image:
+    linear-gradient(180deg, #101d3477, #060e24b3),
+    var(--evt-board-art);
+  background-size: cover;
+  background-position: center;
+  border: 4px solid #eac48b;
+  border-radius: 7px;
+  outline: 3px solid #17293c;
+  outline-offset: 2px;
+}
+.evt-tile,
+.evt-tile:nth-child(even) {
+  background: linear-gradient(155deg, #243858b5, #122440b8);
+  border: 1px solid #d3dcdd75;
+}
+.evt-tile:nth-child(even) {
+  background: linear-gradient(155deg, #304a64b5, #152b47bb);
+}
+.evt-tile.has-wall {
+  background: #1a2034;
+  cursor: not-allowed;
+}
+.evt-wall {
+  width: 100%;
+  height: 100%;
+  clip-path: none;
+  display: grid;
+  place-items: center;
+  background:
+    repeating-linear-gradient(0deg, transparent 0 12px, #283648c9 12px 16px),
+    repeating-linear-gradient(90deg, #616779, #7f8492 20px, #525769 22px, #525769 24px);
+  border: 3px ridge #c3c4c4;
+  box-shadow: inset 0 0 0 3px #354052, inset 0 0 16px #0a1125;
+  color: #fff3d8;
+  font-size: clamp(0.45rem, 0.85cqw, 0.73rem);
+  font-weight: 950;
+  letter-spacing: 0.1em;
+  text-shadow: 0 2px 4px #050b13;
+}
+.evt-cover-edge {
+  position: absolute;
+  z-index: 1;
+  pointer-events: none;
+  background: repeating-linear-gradient(90deg, #dfb978 0 8px, #755c48 8px 12px);
+  border: 1px solid #ffdf9b;
+  box-shadow: 0 2px 5px #061022;
+}
+.evt-cover-edge.is-north { top: 0; left: 0; width: 100%; height: 13%; }
+.evt-cover-edge.is-south { bottom: 0; left: 0; width: 100%; height: 13%; }
+.evt-cover-edge.is-west { top: 0; left: 0; width: 13%; height: 100%; }
+.evt-cover-edge.is-east { top: 0; right: 0; width: 13%; height: 100%; }
+.evt-cover-edge.is-full {
+  background: repeating-linear-gradient(90deg, #8bacc0 0 8px, #344d67 8px 12px);
+  border-color: #d5f2fa;
+}
+.evt-map-edge {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 6px 18px;
+}
+.evt-terrain-legend {
+  display: inline-flex;
+  gap: 5px;
+  align-items: center;
+  white-space: nowrap;
+  font-size: clamp(0.5rem, 0.7cqw, 0.7rem);
+}
+.evt-terrain-legend b {
+  width: 13px;
+  height: 10px;
+  border: 1px solid #e7d5b7;
+  display: inline-block;
+}
+.evt-key-wall { background: #777d8c; }
+.evt-key-cover { background: repeating-linear-gradient(90deg, #efc987 0 4px, #896e50 4px 7px); }
+.evt-key-rise { color: #ffd686; border: 0 !important; }
+.evt-unit-art,
+.evt-squad-art {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center 23%;
+}
+.evt-unit-art {
+  position: absolute;
+  inset: 0;
+  border-radius: 4px 4px 0 0;
+}
+.evt-squad-portrait { overflow: hidden; }
+.evt-squad-art { border-radius: inherit; }
+.evt-initials { position: relative; }
+.evt-aftermath {
+  position: absolute;
+  inset: 0;
+  z-index: 10;
+  isolation: isolate;
+  background: #0e172b;
+  display: flex;
+  align-items: flex-end;
+}
+.evt-aftermath-art {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: 55% 35%;
+}
+.evt-aftermath::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  background: linear-gradient(0deg, #071125 5%, #071125cb 40%, #07112515 100%);
+  pointer-events: none;
+}
+.evt-aftermath-copy {
+  position: relative;
+  z-index: 1;
+  width: min(720px, 100%);
+  margin: 0 auto;
+  display: grid;
+  gap: clamp(6px, 1cqh, 14px);
+  padding: clamp(12px, 2cqw, 36px);
+  text-align: center;
+  text-shadow: 0 2px 8px #040712;
+}
+.evt-aftermath h2 {
+  margin: 0;
+  color: #fff3d3;
+  font: 900 clamp(2rem, 5cqw, 4.6rem)/0.94 Impact, sans-serif;
+  letter-spacing: 0.035em;
+}
+.evt-aftermath-stats {
+  color: #f5e1ba;
+  font-size: clamp(0.68rem, 1.2cqw, 1rem);
+  font-weight: 900;
+  letter-spacing: 0.08em;
+}
+.evt-aftermath-actions {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.evt-aftermath-actions button {
+  border-radius: 7px;
+  padding: 10px 15px;
+  font-weight: 900;
+  letter-spacing: 0.04em;
+  border: 2px solid #e4c89b;
+}
+.evt-next-battle { background: #ffe0a2; color: #19223d; }
+.evt-retry-battle { background: #0e1a34e8; color: #fff3d3; }
+.evt-aftermath-actions button:focus-visible {
+  outline: 3px solid white;
+  outline-offset: 3px;
+}
+.evt-result-details {
+  justify-self: center;
+  width: min(360px, 100%);
+  max-height: 22cqh;
+  overflow: auto;
+  background: #09132ddb;
+  border: 1px solid #b9c6da8f;
+  border-radius: 7px;
+  padding: 5px 10px;
+  text-align: left;
+  font-size: 0.7rem;
+}
+.evt-result-details summary {
+  cursor: pointer;
+  font-weight: 900;
+  text-align: center;
+}
+.evt-result-details li {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 2px 0;
+}
+.evt-next-chapter-note {
+  font-size: 0.64rem;
+  color: #f5e1ba;
+}
+@container (max-width: 760px) {
+  .evt-aftermath-copy { padding: 8px; gap: 5px; }
+  .evt-aftermath h2 { font-size: clamp(1.5rem, 6cqw, 2.3rem); }
+  .evt-aftermath-actions button { padding: 7px 8px; font-size: 0.65rem; }
+  .evt-result-details { max-height: 15cqh; }
+  .evt-terrain-legend { font-size: 0.5rem; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .evt-aftermath, .evt-aftermath-art { transition: none; animation: none; }
 }
 </style>

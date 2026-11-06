@@ -100,7 +100,10 @@ for (const card of CARDS) {
   assert.ok(b.power >= 1 && b.power <= 4)
   assert.ok(!/\bAP\b|\bmana\b|\bmovement\b/i.test(clashCardText(card)), card.id)
 }
-assert.ok(CARDS.length >= 300, 'the entire published roster gets Clash balancing')
+assert.ok(
+  CARDS.length >= 300,
+  'the entire published roster gets Clash balancing',
+)
 assert.equal(clashPlayCost(cardById('lynx')), 1)
 
 const initial = createClash('catgirls', 'ironjaw', 42)
@@ -113,7 +116,8 @@ assert.equal(initial.active, 'player')
 assert.equal(initial.boss.player, CLASH_BOSS_HP)
 
 const heavy = CARDS.find(
-  (c) => c.team === 'catgirls' && c.kind === 'creature' && clashPlayCost(c) === 2,
+  (c) =>
+    c.team === 'catgirls' && c.kind === 'creature' && clashPlayCost(c) === 2,
 )!
 assert.ok(heavy, 'catgirls have a two-play signature follower')
 const special = createClash('catgirls', 'ironjaw', 4)
@@ -134,19 +138,46 @@ assert.equal(first.active, 'player', 'both placements belong to same turn')
 const second = playClash(first, 'player', 'mau', 1)
 assert.equal(second.plays.player, 2)
 assert.equal(second.phase, 'attack')
-assert.equal(second.active, 'player', 'attacks follow placements, not rival plays')
-assert.equal(canClashAttack(second, 'player', second.units[0]!.uid, 'boss'), true)
+assert.equal(
+  second.active,
+  'player',
+  'attacks follow placements, not rival plays',
+)
+assert.equal(
+  canClashAttack(second, 'player', second.units[0]!.uid, 'boss'),
+  true,
+)
 
 const trade = createClash('catgirls', 'ironjaw', 11)
 trade.phase = 'attack'
 trade.units = [follower('player', 0, 1, 4, 3), follower('enemy', 4, 2, 3, 2)]
-assert.equal(canClashAttack(trade, 'player', 1, 'boss'), false, 'rival followers guard boss globally')
-assert.equal(canClashAttack(trade, 'player', 1, 2), true, 'follower target can be in any lane')
-assert.equal(canClashAttack(trade, 'player', 2, 1), false, 'cannot attack with opposing unit')
+assert.equal(
+  canClashAttack(trade, 'player', 1, 'boss'),
+  false,
+  'rival followers guard boss globally',
+)
+assert.equal(
+  canClashAttack(trade, 'player', 1, 2),
+  true,
+  'follower target can be in any lane',
+)
+assert.equal(
+  canClashAttack(trade, 'player', 2, 1),
+  false,
+  'cannot attack with opposing unit',
+)
 const struck = attackClash(trade, 'player', 1, 2)
 assert.equal(struck.units.length, 1, 'defender fell from three power')
-assert.equal(struck.units[0]!.hp, 2, 'attacker simultaneously took two counter damage')
-assert.equal(struck.units[0]!.attacked, true, 'one attack per follower per turn')
+assert.equal(
+  struck.units[0]!.hp,
+  2,
+  'attacker simultaneously took two counter damage',
+)
+assert.equal(
+  struck.units[0]!.attacked,
+  true,
+  'one attack per follower per turn',
+)
 assert.equal(canClashAttack(struck, 'player', 1, 'boss'), false)
 const extra = follower('player', 2, 3, 4, 2)
 struck.units.push(extra)
@@ -163,7 +194,11 @@ healing.units[0]!.hp = 2
 healing.units[1]!.hp = 3
 const recovered = finishRound(healing)
 assert.equal(recovered.round, 2)
-assert.equal(recovered.units[0]!.hp, 3, 'living friend heals exactly one after two turns')
+assert.equal(
+  recovered.units[0]!.hp,
+  3,
+  'living friend heals exactly one after two turns',
+)
 assert.equal(recovered.units[1]!.hp, 4, 'living foe heals one too')
 assert.equal(recovered.hands.player.length, 5)
 assert.equal(recovered.hands.enemy.length, 0)
@@ -171,7 +206,11 @@ assert.equal(recovered.hands.enemy.length, 0)
 const expiring = createClash('catgirls', 'ironjaw', 15)
 const originalHand = [...expiring.hands.player]
 const afterPlayer = finishTurn(expiring)
-assert.deepEqual(afterPlayer.hands.player, [], 'unplayed cards discarded, no carryover')
+assert.deepEqual(
+  afterPlayer.hands.player,
+  [],
+  'unplayed cards discarded, no carryover',
+)
 assert.equal(afterPlayer.discards.player.length, 5)
 assert.ok(originalHand.every((id) => afterPlayer.discards.player.includes(id)))
 assert.equal(afterPlayer.active, 'enemy')
@@ -204,7 +243,11 @@ rooted.units = [
 ]
 assert.equal(canClashAttack(rooted, 'player', 1, 2), false)
 const afterRoot = finishTurn(rooted)
-assert.equal(afterRoot.units[0]!.rooted, false, 'root clears after affected turn')
+assert.equal(
+  afterRoot.units[0]!.rooted,
+  false,
+  'root clears after affected turn',
+)
 assert.equal(afterRoot.active, 'enemy')
 
 // Long adversarial CPU playthroughs on every crew pairing, all rules and replay.
@@ -233,7 +276,11 @@ for (const player of TEAMS) {
   }
 }
 console.log(
-  'Clash primary contract: ' + CARDS.length + ' balanced cards, ' +
-    simulated + ' complete seeded cross-crew CPU games, ' +
-    timeoutWinners + ' round-limit results; UI, two plays, attacks, recovery and replay pass',
+  'Clash primary contract: ' +
+    CARDS.length +
+    ' balanced cards, ' +
+    simulated +
+    ' complete seeded cross-crew CPU games, ' +
+    timeoutWinners +
+    ' round-limit results; UI, two plays, attacks, recovery and replay pass',
 )

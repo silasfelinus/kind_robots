@@ -3,8 +3,8 @@
   Ecotone's choices on the shared hand (components/narrative/kr-choice-hand).
   Each card's face is the picture of where that choice leads (its outcome,
   or who it meets); a hand never repeats a picture or the stage's own scene,
-  so a card with nothing of its own gets a drawn face with its lens icon. On
-  wide boards the resting cards tuck below the story column's edge.
+  so a card with nothing of its own gets a drawn face with its lens icon.
+  The complete card face stays visible; hover and keyboard focus expose details.
 -->
 <template>
   <div class="eco-hand" data-testid="ecotone-choice-hand">
@@ -91,7 +91,7 @@ function candidates(option: EcotoneHandOption): string[] {
   const keys = (
     typeof thumb.art === 'string' ? [thumb.art] : (thumb.art ?? [])
   ).filter((key) => ecotoneArtSrc(key, props.artStyle))
-  return thumb.sceneFallback === false
+  return thumb.sceneFallback === false && keys.length
     ? keys
     : [...keys, `${SCENE}${thumb.scene}`]
 }
@@ -111,11 +111,19 @@ function play(id: string) {
   --hand-band: #071016;
   --hand-band-ink: #f3e6c8;
   --hand-text-scale: var(--eco-text-scale, 1.2);
+  --hand-tuck: 0;
+  --hand-card-vh: 22vh;
+  --hand-card-max: 10.75rem;
+  --hand-focus-scale: 1.06;
 }
-@container (min-width: 64rem) {
-  .eco-hand {
-    --hand-tuck: 1;
-  }
+.eco-hand :deep(.krh-detail) {
+  max-width: min(100%, 33rem);
+  max-height: none;
+  overflow: visible;
+  white-space: normal;
+}
+.eco-hand :deep(.krh-title strong) {
+  -webkit-line-clamp: 4;
 }
 .eco-hand :deep(.krh-title strong),
 .eco-hand :deep(.krh-detail strong) {

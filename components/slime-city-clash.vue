@@ -202,7 +202,7 @@
       </div>
 
       <aside
-        v-if="showHelp || selectedCard || selectedUnitCard"
+        v-if="showHelp || (game.phase === 'play' && selectedCard)"
         class="clash-sidebar"
       >
         <div class="clash-info">
@@ -929,7 +929,7 @@ function forecast(lane: number): string {
 .clash-map-art {
   position: absolute;
   inset: 0;
-  z-index: -1;
+  z-index: 0;
   opacity: 0.32;
   pointer-events: none;
 }

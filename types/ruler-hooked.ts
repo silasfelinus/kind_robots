@@ -54,11 +54,26 @@ export interface RegionDef {
   states: RegionState[]
   /** Times this region actually authors (for the asset fallback ladder). */
   times?: TimeKey[]
+  /** The already-rendered state this region's art degrades to while a newer
+   *  state (e.g. a decay rung added by t-054) has no files of its own yet. */
+  artFallback?: RegionState
+}
+
+/**
+ * A condition-driven pin (t-054): while `when` holds, each listed region shows
+ * the pinned state over both its ramp and any card-set override. It lifts on
+ * its own once the condition stops holding, unlike a card's regionOverride.
+ */
+export interface RegionPin {
+  id: string
+  when: TriggerClause
+  states: Partial<Record<RegionKey, RegionState>>
 }
 
 export interface RegionsManifest {
   // Partial: a theme/biome need not define every region (compositing.md §1).
   regions: Partial<Record<RegionKey, RegionDef>>
+  pins?: RegionPin[]
 }
 
 // --- kingdom health (data-model.md §4) --------------------------------------
@@ -377,4 +392,8 @@ export interface SceneState {
   regionStates: Partial<Record<RegionKey, RegionState>>
   time: TimeKey
   fx: string[]
+  /** Per region, the state whose art to draw when the resolved state has none. */
+  fallbackStates?: Partial<Record<RegionKey, RegionState>>
+  /** Ids of the condition pins (RegionsManifest.pins) holding this frame. */
+  pins?: string[]
 }

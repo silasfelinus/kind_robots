@@ -103,12 +103,15 @@ assert.match(
   'the ruler identity persists in written records',
 )
 
-// The illustrated Court presenter must never be obscured by a five-row health
-// panel beneath the title. On full-width consoles five axes share a top row
-// between the crest and the coin/day/time plaques. Narrow screens require an
-// explicit user action to show the panel.
+// The illustrated Court presenter must never be obscured by a tall health
+// panel beneath the title. On full-width consoles the four kingdom meters
+// (Hearts, Nature, Prosperity, Order; t-054 moved Treasury onto the coin
+// capsule) share a top row between the title cartouche and the coin/day/time
+// capsules. Narrow screens require an explicit user action to show the panel.
 assert.match(hud, /class="rh-hud__health"/)
-assert.match(hud, /grid-template-columns:\s*repeat\(5, minmax\(0, 1fr\)\)/)
+assert.match(hud, /grid-template-columns:\s*repeat\(4, minmax\(0, 1fr\)\)/)
+assert.match(hud, /METER_AXES/)
+assert.match(hud, /Treasury \$\{treasury\}%/)
 assert.match(hud, /@container rhconsole \(max-width: 899px\)/)
 assert.match(hud, /\.rh-health\.is-open/)
 assert.doesNotMatch(hud, /\.rh-hud__left/)

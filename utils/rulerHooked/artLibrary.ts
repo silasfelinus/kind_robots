@@ -10,7 +10,12 @@
 // image_path keys in conductor's scripts/build_ruler_hooked_art_queue.py.
 // Pure data, no Vue: the selftest pins the fallback chains.
 
-import type { RegionKey, RunSave, TimeKey } from '~/types/ruler-hooked'
+import type {
+  RegionKey,
+  RunSave,
+  SceneState,
+  TimeKey,
+} from '~/types/ruler-hooked'
 
 export const ART_ROOT = '/images/ruler-hooked'
 
@@ -49,19 +54,46 @@ export function vistaCandidates(
  * decrees (pristine / farmed / industrial), so it is the fishing view; the
  * plain lake painting is the safety net. The ruler is never in frame: the
  * game is first person (consolePOV.selftest.mjs).
+ *
+ * Given the resolved scene (t-054), the shore a condition pin holds (tyranny's
+ * gallows) and a decayed lake (murky, poisoned) are tried first; each falls
+ * back to the painting the reign would show without them until it is painted.
  */
 export function lakeBackdropCandidates(
   save: RunSave | null,
   time: TimeKey,
+  scene?: SceneState | null,
 ): string[] {
   const shore = save?.regionStates?.far_shore ?? 'pristine'
+  const held = scene?.regionStates?.far_shore
+  const water = scene?.regionStates?.lake
   return [
     ...new Set([
+      ...vistaCandidates('far_shore', held, time),
+      ...(water && water !== 'clear'
+        ? vistaCandidates('lake', water, time)
+        : []),
+      ...vistaCandidates('far_shore', scene?.fallbackStates?.far_shore, time),
       ...vistaCandidates('far_shore', shore, time),
       art(`lake-clear-${dayOrNight(time)}`),
       art('lake-clear-day'),
     ]),
   ]
+}
+
+/** A region's vista as the resolved scene paints it, then its fallback art. */
+export function sceneVistaCandidates(
+  region: RegionKey,
+  scene: SceneState | null | undefined,
+  time: TimeKey,
+  ...more: (string | undefined)[]
+): string[] {
+  const states = [
+    scene?.regionStates?.[region],
+    scene?.fallbackStates?.[region],
+    ...more,
+  ]
+  return [...new Set(states.flatMap((s) => vistaCandidates(region, s, time)))]
 }
 
 /** Screen backdrops. New paintings are queued under backdrops/; until they

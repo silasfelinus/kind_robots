@@ -223,3 +223,30 @@ export function resolveTimingStop(
   const quality = 1 - (p - bandEnd) / span
   return { action: 'WAIT', quality: Math.max(0, Math.min(1, quality)) }
 }
+
+/** What the next stop of the bobber does in a classic fight (one input). */
+export type FightAim = 'REEL' | 'SLACK' | 'WAIT'
+
+/**
+ * The action the highlighted water asks for right now: wait out a wary fish's
+ * approach, otherwise reel, or give slack once the line runs taut. A reversed
+ * fish swaps reel and slack. The console's tension prompt and the encounter's
+ * sweet spot both read this, so they never disagree.
+ */
+export function fightAim(fight: {
+  phase: string
+  reversed?: boolean
+  tension: number
+}): FightAim {
+  if (fight.phase === 'APPROACH') return 'WAIT'
+  const taut = fight.tension >= 70
+  if (fight.reversed) return taut ? 'REEL' : 'SLACK'
+  return taut ? 'SLACK' : 'REEL'
+}
+
+/** The button-prompt words for each aim (t-054 mockup: "A Tap to Reel"). */
+export const FIGHT_PROMPT: Record<FightAim, string> = {
+  REEL: 'Tap to Reel',
+  SLACK: 'Give Slack',
+  WAIT: 'Hold Steady',
+}

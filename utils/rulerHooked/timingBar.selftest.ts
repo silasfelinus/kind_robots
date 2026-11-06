@@ -11,6 +11,8 @@
 
 import assert from 'node:assert/strict'
 import {
+  FIGHT_PROMPT,
+  fightAim,
   resolveTimingStop,
   timingProfileFor,
   timingVisualFor,
@@ -143,6 +145,23 @@ const RARITIES: Rarity[] = [
     replay,
     'target changes must remain deterministic',
   )
+}
+
+// t-054: the console's tension prompt names what the single tap does now.
+{
+  assert.equal(fightAim({ phase: 'APPROACH', tension: 10 }), 'WAIT')
+  assert.equal(fightAim({ phase: 'FIGHT', tension: 40 }), 'REEL')
+  assert.equal(fightAim({ phase: 'FIGHT', tension: 70 }), 'SLACK')
+  assert.equal(
+    fightAim({ phase: 'FIGHT', tension: 40, reversed: true }),
+    'SLACK',
+  )
+  assert.equal(
+    fightAim({ phase: 'FIGHT', tension: 80, reversed: true }),
+    'REEL',
+  )
+  assert.equal(FIGHT_PROMPT.REEL, 'Tap to Reel')
+  assert.equal(FIGHT_PROMPT.SLACK, 'Give Slack')
 }
 
 console.log('timingBar.selftest.ts: all assertions passed')

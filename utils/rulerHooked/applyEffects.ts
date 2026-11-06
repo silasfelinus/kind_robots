@@ -7,7 +7,13 @@
 // mutates the input, and records the applied effect into choiceLog as the audit
 // trail (so a run reconstructs even if the card's authored effects later change).
 
-import type { AxisKey, Card, Choice, Effect, RunSave } from '~/types/ruler-hooked'
+import type {
+  AxisKey,
+  Card,
+  Choice,
+  Effect,
+  RunSave,
+} from '~/types/ruler-hooked'
 import { AXIS_KEYS } from '~/types/ruler-hooked'
 
 const clamp = (n: number, lo = 0, hi = 100): number =>
@@ -107,4 +113,34 @@ export function resolveChoice(
   }
   next.updatedAt = save.updatedAt // stamped by the caller/store, not game logic
   return next
+}
+
+/** One meter's signed change from a choice, as the reign would actually feel it. */
+export interface ChoiceDelta {
+  key: AxisKey | 'coins'
+  delta: number
+}
+
+/**
+ * The signed changes a choice would make to the current reign, computed by
+ * running the real reducer on a copy (t-054: the court shows them before you
+ * commit). Clamping is applied, so a meter already at its limit shows the
+ * change it would really get. Axes first in AXIS_KEYS order, then coins.
+ */
+export function previewChoiceDeltas(
+  save: RunSave,
+  card: Card,
+  choice: Choice,
+): ChoiceDelta[] {
+  const next = resolveChoice(save, card, choice)
+  const deltas: ChoiceDelta[] = []
+  for (const key of AXIS_KEYS) {
+    const delta =
+      Math.round(next.kingdomHealth[key] ?? 0) -
+      Math.round(save.kingdomHealth[key] ?? 0)
+    if (delta !== 0) deltas.push({ key, delta })
+  }
+  const coins = (next.counters.coins ?? 0) - (save.counters.coins ?? 0)
+  if (coins !== 0) deltas.push({ key: 'coins', delta: coins })
+  return deltas
 }

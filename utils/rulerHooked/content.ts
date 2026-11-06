@@ -31,14 +31,24 @@ export const RULER_HOOKED_CONTENT: ContentBundle = {
 
   regions: {
     regions: {
-      sky: { z: 0, states: ['open'], times: ['day', 'night', 'golden'] },
+      // t-054 decay ramps: the lake, near bank and sky were single-state, so a
+      // ruined reign looked like a healthy one where it matters most. Ramps run
+      // bad -> good like every other ramp. Until a rung's art lands, its layer
+      // draws the old single state's files (artFallback).
+      sky: {
+        z: 0,
+        driver: { slider: 'joy', ramp: ['choked', 'overcast', 'open'] },
+        states: ['open', 'overcast', 'choked'],
+        times: ['day', 'night', 'golden'],
+        artFallback: 'open',
+      },
       far_shore: {
         z: 1,
         driver: {
           slider: 'nature',
           ramp: ['industrial', 'farmed', 'pristine'],
         },
-        states: ['pristine', 'farmed', 'industrial'],
+        states: ['pristine', 'farmed', 'industrial', 'gallows'],
         times: ['day', 'night'],
       },
       treeline: {
@@ -56,7 +66,7 @@ export const RULER_HOOKED_CONTENT: ContentBundle = {
           slider: 'prosperity',
           ramp: ['hamlet', 'township', 'boomtown'],
         },
-        states: ['hamlet', 'township', 'boomtown'],
+        states: ['hamlet', 'township', 'boomtown', 'garrisoned'],
         times: ['day', 'night'],
       },
       castle_grounds: {
@@ -68,8 +78,19 @@ export const RULER_HOOKED_CONTENT: ContentBundle = {
         states: ['humble', 'flourishing', 'gaudy'],
         times: ['day', 'night'],
       },
-      lake: { z: 5, states: ['clear'], times: ['day', 'night'] },
-      near_bank: { z: 6, states: ['grassy'] },
+      lake: {
+        z: 5,
+        driver: { slider: 'nature', ramp: ['poisoned', 'murky', 'clear'] },
+        states: ['clear', 'murky', 'poisoned'],
+        times: ['day', 'night'],
+        artFallback: 'clear',
+      },
+      near_bank: {
+        z: 6,
+        driver: { slider: 'nature', ramp: ['dead', 'trampled', 'grassy'] },
+        states: ['grassy', 'trampled', 'dead'],
+        artFallback: 'grassy',
+      },
       // States = the cosmetic preset ids (t-021) plus the one already-rendered
       // layer name (RULER_LAYER_FALLBACK_STATE = 'fishing') that every preset
       // currently degrades to — resolveScene() picks the state directly from
@@ -81,6 +102,16 @@ export const RULER_HOOKED_CONTENT: ContentBundle = {
         states: [...RULER_PRESET_IDS, RULER_LAYER_FALLBACK_STATE],
       },
     },
+    // Tyranny (t-054): order kept by force while the people are miserable puts
+    // gallows on the far shore and a garrison in the village, whatever the
+    // ramps or earlier decrees say, until either meter recovers.
+    pins: [
+      {
+        id: 'tyranny',
+        when: { sliders: { order: { gte: 80 }, joy: { lte: 30 } } },
+        states: { far_shore: 'gallows', village_edge: 'garrisoned' },
+      },
+    ],
   },
 
   characters: [

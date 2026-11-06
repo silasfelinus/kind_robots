@@ -1,13 +1,22 @@
-<!-- The Ruler Is Hooked: the illustrated console (2026-11-05 overhaul).
+<!-- The Ruler Is Hooked: the illustrated console (2026-11-05 overhaul), framed
+     as the kingdom's own illuminated chronicle (t-054).
      Every screen is a painting first: a full-bleed backdrop, a painted HUD
-     over it, and a nav of vignette tabs below. No web-app cards or toolbars.
+     over it, and a deck of vignette tabs below. No web-app cards or toolbars.
      Screens: Lake (first-person fishing), Map (royal atlas), Court
      (petitions + endings), Gear (tackle + kingdom works), Fishopedia, plus
      the crown menu's Chronicle and Saves. Overlays: the once-per-reign
-     coronation, the Town Crier's daily proclamation, and Quill's lessons. -->
+     coronation, the Town Crier's daily proclamation, Quill's lessons and the
+     newest petition's banner. The frame takes the reign's tier (console.ts
+     reignTier): pristine gilt and lapis, strained and foxed, or rotten with
+     tarnished gold, soot and a torn edge. -->
 <template>
   <ClientOnly>
-    <main ref="consoleEl" class="rh-console">
+    <main
+      ref="consoleEl"
+      class="rh-console"
+      :data-tier="tier"
+      :data-screen="screen"
+    >
       <template v-if="!store.save">
         <RulerHookedSlots class="rh-console__full" @picked="onPicked" />
       </template>
@@ -22,8 +31,16 @@
 
         <template v-else>
           <div class="rh-console__view">
-            <RulerHookedLakeScreen v-if="screen === 'lake'" @navigate="go" />
-            <RulerHookedMapScreen v-else-if="screen === 'map'" @navigate="go" />
+            <RulerHookedLakeScreen
+              v-if="screen === 'lake'"
+              ref="lakeEl"
+              @navigate="go"
+            />
+            <RulerHookedMapScreen
+              v-else-if="screen === 'map'"
+              ref="mapEl"
+              @navigate="go"
+            />
             <RulerHookedCourtScreen
               v-else-if="screen === 'court'"
               @navigate="go"
@@ -52,6 +69,33 @@
               <RulerHookedSlots @picked="onPicked" />
             </section>
 
+            <div class="rh-frame" aria-hidden="true">
+              <svg class="rh-flourish" viewBox="0 0 120 60" focusable="false">
+                <path
+                  class="rh-flourish__vine"
+                  d="M2 58 C 14 40, 30 56, 40 44 S 62 30, 70 46"
+                />
+                <g v-if="tier !== 'rotten'" class="rh-flourish__fish">
+                  <path
+                    d="M30 30 C 44 14, 78 14, 92 30 C 78 46, 44 46, 30 30 Z"
+                  />
+                  <path d="M92 30 L114 16 L108 30 L114 44 Z" />
+                  <path class="rh-flourish__scale" d="M50 22 Q 56 30 50 38" />
+                  <path class="rh-flourish__scale" d="M62 21 Q 68 30 62 39" />
+                  <circle cx="40" cy="27" r="2.6" class="rh-flourish__eye" />
+                </g>
+                <g v-else class="rh-flourish__bones">
+                  <path d="M34 30 H 94" />
+                  <path
+                    d="M48 30 L44 19 M48 30 L44 41 M58 30 L54 18 M58 30 L54 42 M68 30 L64 19 M68 30 L64 41 M78 30 L75 21 M78 30 L75 39"
+                  />
+                  <path d="M94 30 L112 18 M94 30 L112 42" />
+                  <circle cx="34" cy="30" r="7" />
+                  <circle cx="32" cy="28" r="1.8" class="rh-flourish__eye" />
+                </g>
+              </svg>
+            </div>
+
             <RulerHookedHud
               v-if="screen !== 'saves'"
               :health="store.save.kingdomHealth"
@@ -62,6 +106,24 @@
               @navigate="navigateFromHud"
               @skip-tutorial="store.skipTutorial()"
             />
+
+            <button
+              v-if="showPetition"
+              type="button"
+              class="rh-petition"
+              data-testid="rh-petition"
+              @click="go('court')"
+            >
+              <span class="rh-petition__seal" aria-hidden="true">
+                <RulerHookedGlyph name="crown" />
+              </span>
+              <span class="rh-petition__copy">
+                <strong class="rh-petition__head">{{ petitionHead }}</strong>
+                <span class="rh-petition__body">{{
+                  store.activeCard?.title
+                }}</span>
+              </span>
+            </button>
 
             <RulerHookedCrier
               v-if="store.proclamation && screen !== 'saves'"
@@ -84,6 +146,7 @@
             :model-value="navScreen ?? 'lake'"
             :badges="badges"
             :pointed="lesson?.points ?? null"
+            :prompts="prompts"
             @update:model-value="go"
           />
         </template>
@@ -103,6 +166,18 @@ import { useRulerHookedStore } from '~/stores/rulerHookedStore'
 import { useRulerHookedQuizStore } from '~/stores/rulerHookedQuizStore'
 import { BACKDROPS } from '~/utils/rulerHooked/artLibrary'
 import {
+  reignTier,
+  stepTab,
+  type ConsoleTab,
+} from '~/utils/rulerHooked/console'
+import { FIGHT_PROMPT, fightAim } from '~/utils/rulerHooked/timingBar'
+import {
+  isTextEntry,
+  newPadMemory,
+  readPad,
+  type ConsoleCommand,
+} from '~/utils/consoleInput'
+import {
   currentLesson,
   lessonsRemaining,
   type ConsoleScreen,
@@ -114,11 +189,19 @@ const store = useRulerHookedStore()
 const quiz = useRulerHookedQuizStore()
 const screen = ref<Screen>('lake')
 const consoleEl = ref<HTMLElement | null>(null)
+const lakeEl = ref<{ press: () => void } | null>(null)
+const mapEl = ref<{ step: (n: number) => void; confirm: () => void } | null>(
+  null,
+)
 
 const navScreen = computed<ConsoleScreen | null>(() =>
   screen.value === 'opening' || screen.value === 'settings'
     ? null
     : (screen.value as ConsoleScreen),
+)
+
+const tier = computed(() =>
+  store.save ? reignTier(store.save.kingdomHealth) : 'pristine',
 )
 
 function go(next: ConsoleScreen) {
@@ -154,6 +237,19 @@ const badges = computed<Partial<Record<ConsoleScreen, boolean>>>(() => ({
   court: !!store.activeCard || !!store.pendingEnding,
 }))
 
+const showPetition = computed(
+  () =>
+    !!store.activeCard &&
+    !store.proclamation &&
+    !['court', 'saves', 'chronicle', 'settings'].includes(screen.value),
+)
+const petitionHead = computed(() => {
+  const kind = store.activeCard?.kind
+  if (kind === 'arc-step') return 'The Chronicle Turns'
+  if (kind === 'finale') return 'A Reign Decides'
+  return 'New Royal Petition!'
+})
+
 const lesson = computed(() =>
   store.save && navScreen.value
     ? currentLesson(store.save, {
@@ -187,6 +283,144 @@ watch(screen, (s) => {
     store.learnTutorial('gear')
 })
 
+// The button-prompt footer (t-054): what A and X do on this screen right now.
+const prompts = computed(() => {
+  const s = screen.value
+  if (s === 'chronicle' || s === 'saves' || s === 'settings')
+    return [{ key: 'B', label: 'Back' }]
+  if (s === 'lake') {
+    const fight = store.activeClassicFishing
+    if (fight) return [{ key: 'A', label: FIGHT_PROMPT[fightAim(fight)] }]
+    if (store.activeFishing) return [{ key: 'A', label: 'Answer' }]
+    const lead = store.activeCard
+      ? 'Answer the Petition'
+      : store.pendingEnding
+        ? 'Consider the Finale'
+        : store.canFish
+          ? 'Cast a Line'
+          : ''
+    return [
+      ...(lead ? [{ key: 'A', label: lead }] : []),
+      { key: 'X', label: 'Fishopedia' },
+    ]
+  }
+  if (s === 'map')
+    return [
+      { key: '◀▶', label: 'Region' },
+      { key: 'A', label: 'Select' },
+    ]
+  if (s === 'court' && store.activeCard)
+    return [
+      { key: '◀▶', label: 'Choose' },
+      { key: 'A', label: 'Decree' },
+    ]
+  return [{ key: 'A', label: 'Select' }]
+})
+
+function focusCard(step: number) {
+  const cards = [
+    ...(consoleEl.value?.querySelectorAll<HTMLElement>(
+      '.krh-card:not([disabled])',
+    ) ?? []),
+  ]
+  if (!cards.length) return
+  const at = cards.indexOf(document.activeElement as HTMLElement)
+  const next = at < 0 ? 0 : (at + step + cards.length) % cards.length
+  cards[next]?.focus()
+}
+
+function tabStep(step: number) {
+  const from = (navScreen.value ?? 'lake') as ConsoleTab
+  go(stepTab(from, step))
+}
+
+type Command = ConsoleCommand | 'fishopedia'
+
+function run(command: Command) {
+  const s = screen.value
+  if (command === 'prevTab') return tabStep(-1)
+  if (command === 'nextTab') return tabStep(1)
+  if (command === 'back') {
+    if (s === 'chronicle' || s === 'saves' || s === 'settings') go('lake')
+    return
+  }
+  if (s === 'lake') {
+    if (command === 'confirm') lakeEl.value?.press()
+    if (command === 'fishopedia' && !store.activeFishing) go('fishopedia')
+    return
+  }
+  if (s === 'map') {
+    if (command === 'left' || command === 'up') mapEl.value?.step(-1)
+    if (command === 'right' || command === 'down') mapEl.value?.step(1)
+    if (command === 'confirm') mapEl.value?.confirm()
+    return
+  }
+  if (s === 'court') {
+    if (command === 'left') focusCard(-1)
+    if (command === 'right') focusCard(1)
+    if (command === 'confirm') {
+      const el = document.activeElement as HTMLElement | null
+      if (el?.classList.contains('krh-card')) el.click()
+      else focusCard(0)
+    }
+  }
+}
+
+const KEYS: Record<string, Command> = {
+  KeyQ: 'prevTab',
+  KeyE: 'nextTab',
+  BracketLeft: 'prevTab',
+  BracketRight: 'nextTab',
+  PageUp: 'prevTab',
+  PageDown: 'nextTab',
+  Escape: 'back',
+  ArrowLeft: 'left',
+  ArrowRight: 'right',
+  ArrowUp: 'up',
+  ArrowDown: 'down',
+  Space: 'confirm',
+  Enter: 'confirm',
+  KeyX: 'fishopedia',
+}
+
+function onKey(event: KeyboardEvent) {
+  if (event.altKey || event.ctrlKey || event.metaKey || event.repeat) return
+  if (!store.save || screen.value === 'opening') return
+  const active = document.activeElement as HTMLElement | null
+  if (isTextEntry(active)) return
+  const command = KEYS[event.code]
+  if (!command) return
+  // The fishing encounters own their keys while a fish is on the line.
+  if (store.activeFishing && command !== 'prevTab' && command !== 'nextTab')
+    return
+  const onCard = !!active?.classList.contains('krh-card')
+  const onControl =
+    !!active &&
+    active !== document.body &&
+    ['BUTTON', 'A', 'SUMMARY', 'SELECT', 'INPUT'].includes(active.tagName)
+  const pointing = ['confirm', 'up', 'down', 'left', 'right'].includes(command)
+  if (onControl && !onCard && pointing && screen.value !== 'map') return
+  if (onControl && command === 'confirm') return
+  event.preventDefault()
+  run(command)
+}
+
+const pad = newPadMemory()
+let padX = false
+let padFrame = 0
+function pollPads(now: number) {
+  for (const gamepad of navigator.getGamepads?.() ?? []) {
+    if (!gamepad) continue
+    if (store.save && screen.value !== 'opening')
+      for (const command of readPad(gamepad, pad, now)) run(command)
+    const x = !!gamepad.buttons[2]?.pressed
+    if (x && !padX && store.save) run('fishopedia')
+    padX = x
+    break
+  }
+  padFrame = requestAnimationFrame(pollPads)
+}
+
 onMounted(() => {
   quiz.initialize()
   store.init()
@@ -199,6 +433,12 @@ onMounted(() => {
       'https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,600..800;1,9..144,600..800&family=Alegreya:ital,wght@0,400..700;1,400..700&display=swap'
     document.head.appendChild(link)
   }
+  window.addEventListener('keydown', onKey)
+  padFrame = requestAnimationFrame(pollPads)
+})
+onBeforeUnmount(() => {
+  window.removeEventListener('keydown', onKey)
+  cancelAnimationFrame(padFrame)
 })
 
 // Keep the nav height available to overlays (Quill's bubble sits above it).
@@ -219,17 +459,44 @@ onBeforeUnmount(() => navObserver?.disconnect())
 
 <style>
 /* ── The Ruler Is Hooked visual system ─────────────────────────────────────
-   Storybook, not shiny: gouache paintings carry the screen; the chrome is
-   plum velvet, thin gold leaf and warm parchment. Unscoped so every console
-   component shares one vocabulary; everything is namespaced `rh-`. */
+   Chronicle for the world, Broadside for its documents (t-054, decided
+   2026-11-05): the chrome is vellum, lapis and burnished gold leaf with
+   vermilion rubrics; the court's papers are hand-coloured woodcut pamphlets
+   on rag. Unscoped so every console component shares one vocabulary;
+   everything is namespaced `rh-`. The older plum/parchment names stay as
+   aliases so every screen picks the palette up. */
 .rh-console {
-  --rh-plum: #3b1530;
-  --rh-plum-deep: #250b1f;
-  --rh-gold: #d9a441;
-  --rh-gold-soft: #f3d28a;
-  --rh-parch: #f4e7c9;
-  --rh-parch-shade: #e6d2a6;
-  --rh-ink: #3a2616;
+  --rh-vellum: #f3e8cc;
+  --rh-vellum-2: #e5d3a6;
+  --rh-ink: #2a1c10;
+  --rh-ink-soft: #5b4732;
+  --rh-gold: #d4a63b;
+  --rh-gold-hi: #f7df8f;
+  --rh-gold-lo: #8a6116;
+  --rh-lapis: #1f3f93;
+  --rh-lapis-deep: #0f1f4d;
+  --rh-vermilion: #c93a1e;
+  --rh-verdigris: #3a8f77;
+  --rh-ochre: #c99532;
+  --rh-order: #6a4fb0;
+  --rh-madder: #9e2b25;
+  --rh-rag: #efe3c6;
+  --rh-woodcut: #1d150d;
+  --rh-soot: 0;
+  --rh-fox: 0;
+  --rh-gilt: linear-gradient(
+    135deg,
+    var(--rh-gold-lo),
+    var(--rh-gold-hi) 32%,
+    var(--rh-gold) 52%,
+    var(--rh-gold-lo) 78%,
+    var(--rh-gold) 100%
+  );
+  --rh-plum: var(--rh-lapis);
+  --rh-plum-deep: var(--rh-lapis-deep);
+  --rh-gold-soft: var(--rh-gold-hi);
+  --rh-parch: var(--rh-vellum);
+  --rh-parch-shade: var(--rh-vellum-2);
   --rh-display:
     'Fraunces', 'Iowan Old Style', 'Palatino Linotype', Palatino,
     'Book Antiqua', Georgia, serif;
@@ -243,9 +510,36 @@ onBeforeUnmount(() => navObserver?.disconnect())
   height: 100%;
   min-height: 0;
   overflow: hidden;
-  background: var(--rh-plum-deep);
+  background: var(--rh-lapis-deep);
   color: var(--rh-ink);
   font-family: var(--rh-body);
+}
+/* Misrule rots the book: the gold tarnishes, the vellum foxes, soot spreads. */
+.rh-console[data-tier='strained'] {
+  --rh-vellum: #ecdcb4;
+  --rh-vellum-2: #d8c18f;
+  --rh-gold: #b8913f;
+  --rh-gold-hi: #dcc57f;
+  --rh-gold-lo: #6c5220;
+  --rh-lapis: #2c4579;
+  --rh-lapis-deep: #142041;
+  --rh-vermilion: #a9442b;
+  --rh-soot: 0.4;
+  --rh-fox: 0.55;
+}
+.rh-console[data-tier='rotten'] {
+  --rh-vellum: #d8c497;
+  --rh-vellum-2: #b9a072;
+  --rh-ink: #20160c;
+  --rh-gold: #7d7449;
+  --rh-gold-hi: #b3a877;
+  --rh-gold-lo: #3f3923;
+  --rh-lapis: #2c3448;
+  --rh-lapis-deep: #12151d;
+  --rh-vermilion: #7a2a1c;
+  --rh-order: #4a3d6e;
+  --rh-soot: 0.85;
+  --rh-fox: 1;
 }
 .rh-console--loading {
   display: grid;
@@ -261,12 +555,264 @@ onBeforeUnmount(() => navObserver?.disconnect())
   min-height: 0;
   overflow: hidden;
 }
-/* Sheets keep clear of the health crest, which stays open on wide consoles. */
+.rh-console[data-tier='rotten'] .rh-console__view {
+  clip-path: polygon(
+    0 0,
+    100% 0,
+    100% 82%,
+    99.4% 84%,
+    100% 86.5%,
+    99.2% 89%,
+    99.7% 92%,
+    98.8% 95%,
+    99.3% 97.5%,
+    98.4% 100%,
+    0 100%
+  );
+}
+/* The reign's state on every painting: healthy is untouched, then faded. */
+.rh-console[data-tier='strained'] .rh-backdrop img,
+.rh-console[data-tier='strained'] .rh-tier-art img {
+  filter: saturate(0.8) sepia(0.12);
+}
+.rh-console[data-tier='rotten'] .rh-backdrop img,
+.rh-console[data-tier='rotten'] .rh-tier-art img {
+  filter: saturate(0.5) sepia(0.32) hue-rotate(-8deg) brightness(0.8)
+    contrast(1.06);
+}
+
+/* The chronicle frame: gold-leaf rules, soot in the corners, marginalia. */
+.rh-frame {
+  position: absolute;
+  inset: 0;
+  z-index: 25;
+  pointer-events: none;
+  background:
+    radial-gradient(
+      ellipse at 0% 100%,
+      rgb(14 10 6 / calc(var(--rh-soot) * 0.75)),
+      transparent 32%
+    ),
+    radial-gradient(
+      ellipse at 100% 0%,
+      rgb(14 10 6 / calc(var(--rh-soot) * 0.5)),
+      transparent 28%
+    );
+  box-shadow:
+    inset 0 0 0 2px var(--rh-gold-lo),
+    inset 0 0 0 4px var(--rh-vellum-2),
+    inset 0 0 0 5px var(--rh-gold),
+    inset 0 0 0 6px var(--rh-gold-lo),
+    inset 0 0 calc(1.5rem + var(--rh-soot) * 4rem)
+      rgb(12 8 4 / calc(0.2 + var(--rh-soot) * 0.55));
+}
+.rh-flourish {
+  position: absolute;
+  left: 0.6rem;
+  bottom: 0.5rem;
+  display: none;
+  width: clamp(5rem, 8cqi, 7.5rem);
+  overflow: visible;
+  transform: scaleX(-1);
+  filter: drop-shadow(0 2px 3px rgb(0 0 0 / 0.6));
+}
 @container rhconsole (min-width: 900px) {
-  .rh-console__view {
-    --rh-sheet-left: 17.25rem;
+  .rh-flourish {
+    display: block;
   }
 }
+.rh-flourish__vine {
+  fill: none;
+  stroke: var(--rh-verdigris);
+  stroke-width: 2.4;
+  stroke-linecap: round;
+}
+.rh-console[data-tier='rotten'] .rh-flourish__vine {
+  stroke: var(--rh-gold-lo);
+  stroke-dasharray: 6 4;
+}
+.rh-flourish__fish path:first-child,
+.rh-flourish__fish path:nth-child(2) {
+  fill: var(--rh-lapis);
+  stroke: var(--rh-gold);
+  stroke-width: 2;
+  stroke-linejoin: round;
+}
+.rh-flourish__fish path:nth-child(2) {
+  fill: var(--rh-vermilion);
+}
+.rh-flourish__scale {
+  fill: none !important;
+  stroke: var(--rh-gold-hi);
+  stroke-width: 1.4;
+}
+.rh-flourish__eye {
+  fill: var(--rh-gold-hi);
+}
+.rh-flourish__bones {
+  fill: none;
+  stroke: var(--rh-gold-hi);
+  stroke-width: 2;
+  stroke-linecap: round;
+}
+.rh-flourish__bones .rh-flourish__eye {
+  fill: var(--rh-vermilion);
+  stroke: none;
+}
+
+/* The newest petition, hung top-right as a broadside pennant with a seal. */
+.rh-petition {
+  position: absolute;
+  z-index: 29;
+  top: clamp(3.4rem, 8cqi, 4.1rem);
+  right: 0.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  width: min(19rem, calc(100% - 1rem));
+  padding: 0.5rem 0.8rem 0.95rem 0.55rem;
+  border: 0;
+  background:
+    repeating-linear-gradient(
+      90deg,
+      rgb(120 90 50 / 0.05) 0 1px,
+      transparent 1px 5px
+    ),
+    radial-gradient(
+      ellipse at 100% 100%,
+      rgb(28 18 8 / calc(var(--rh-soot) * 0.45)),
+      transparent 60%
+    ),
+    var(--rh-rag);
+  color: var(--rh-woodcut);
+  font-family: var(--rh-display);
+  text-align: left;
+  cursor: pointer;
+  clip-path: polygon(
+    0 0,
+    100% 0,
+    100% 100%,
+    55% 100%,
+    50% 86%,
+    45% 100%,
+    0 100%
+  );
+  box-shadow:
+    inset 0 0 0 2px var(--rh-woodcut),
+    inset 0 4px 0 2px var(--rh-madder);
+  filter: drop-shadow(0 6px 10px rgb(0 0 0 / 0.5));
+  transition: transform 0.15s ease;
+}
+.rh-petition:hover,
+.rh-petition:focus-visible {
+  transform: translateY(1px) rotate(-0.4deg);
+  outline: none;
+}
+.rh-petition:focus-visible {
+  box-shadow:
+    inset 0 0 0 2px var(--rh-woodcut),
+    inset 0 4px 0 2px var(--rh-madder),
+    inset 0 0 0 5px var(--rh-gold-hi);
+}
+.rh-petition__seal {
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 2.4rem;
+  height: 2.4rem;
+  border-radius: 999px;
+  background: radial-gradient(
+    circle at 38% 35%,
+    #d4554a,
+    var(--rh-madder) 55%,
+    #5e1712
+  );
+  box-shadow:
+    0 0 0 2px #7a1f19,
+    0 2px 4px rgb(0 0 0 / 0.5);
+}
+.rh-petition__seal .rh-glyph {
+  width: 1.3rem;
+  height: 1.3rem;
+}
+.rh-petition__copy {
+  min-width: 0;
+}
+.rh-petition__head {
+  display: block;
+  color: var(--rh-madder);
+  font-size: 0.95rem;
+  font-weight: 900;
+  line-height: 1.1;
+}
+.rh-petition__body {
+  display: -webkit-box;
+  overflow: hidden;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  font-family: var(--rh-body);
+  font-size: 0.88rem;
+  font-style: italic;
+  font-weight: 700;
+  line-height: 1.2;
+}
+@container rhconsole (max-width: 899px) {
+  .rh-petition {
+    top: 3rem;
+    width: min(15rem, calc(100% - 1rem));
+    padding: 0.35rem 0.6rem 0.75rem 0.4rem;
+  }
+  .rh-petition__seal {
+    width: 1.8rem;
+    height: 1.8rem;
+  }
+  .rh-petition__head {
+    font-size: 0.8rem;
+  }
+  .rh-petition__body {
+    -webkit-line-clamp: 1;
+    font-size: 0.78rem;
+  }
+}
+
+@container rhconsole (max-width: 559px) {
+  .rh-console:not([data-screen='lake']) .rh-petition {
+    display: none;
+  }
+}
+
+/* Broadside documents: rag paper, woodcut rules, madder/ochre/verdigris. */
+.rh-broadside {
+  position: relative;
+  border-radius: 0.15rem;
+  color: var(--rh-woodcut);
+  font-family: var(--rh-body);
+  background:
+    repeating-linear-gradient(
+      90deg,
+      rgb(120 90 50 / 0.04) 0 1px,
+      transparent 1px 5px
+    ),
+    radial-gradient(
+      circle at 84% 18%,
+      rgb(122 78 28 / calc(var(--rh-fox) * 0.18)),
+      transparent 1.65rem
+    ),
+    radial-gradient(ellipse at 30% 20%, #f6ecd4, transparent 70%), var(--rh-rag);
+  box-shadow:
+    inset 0 0 0 3px var(--rh-woodcut),
+    inset 0 0 0 5px var(--rh-rag),
+    inset 0 0 0 6px var(--rh-woodcut),
+    0 8px 22px rgb(0 0 0 / 0.6);
+}
+.rh-broadside-head {
+  color: var(--rh-madder);
+  font-family: var(--rh-display);
+  font-weight: 900;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
 .rh-console__dim {
   filter: brightness(0.55) saturate(0.8);
 }
@@ -288,37 +834,49 @@ onBeforeUnmount(() => navObserver?.disconnect())
   inset: 0;
 }
 .rh-panel {
-  border-radius: 1rem;
+  border-radius: 0.4rem;
   background:
     linear-gradient(180deg, rgb(255 255 255 / 0.06), transparent 35%),
-    linear-gradient(180deg, rgb(77 29 64 / 0.96), rgb(37 11 31 / 0.96));
+    linear-gradient(180deg, var(--rh-lapis), var(--rh-lapis-deep));
   border: 1.5px solid var(--rh-gold);
   box-shadow:
-    0 0 0 3px rgb(37 11 31 / 0.55),
+    0 0 0 3px color-mix(in oklab, var(--rh-lapis-deep) 60%, transparent),
     0 10px 24px rgb(0 0 0 / 0.4);
   color: #fbeed3;
 }
 .rh-parchment {
   padding: clamp(0.75rem, 2cqi, 1.25rem);
-  border-radius: 1rem;
+  border-radius: 0.4rem;
   background:
     radial-gradient(
-      130% 90% at 50% 0%,
-      rgb(255 251 240 / 0.95),
-      transparent 65%
+      circle at 14% 22%,
+      rgb(122 78 28 / calc(var(--rh-fox) * 0.18)),
+      transparent 1.65rem
     ),
     radial-gradient(
-      90% 60% at 100% 100%,
-      rgb(190 150 90 / 0.25),
-      transparent 70%
+      circle at 82% 76%,
+      rgb(122 78 28 / calc(var(--rh-fox) * 0.14)),
+      transparent 1.2rem
+    ),
+    radial-gradient(
+      ellipse at 100% 100%,
+      rgb(28 18 8 / calc(var(--rh-soot) * 0.4)),
+      transparent 60%
+    ),
+    radial-gradient(
+      130% 90% at 50% 0%,
+      rgb(255 251 240 / 0.85),
+      transparent 65%
     ),
     linear-gradient(180deg, var(--rh-parch), var(--rh-parch-shade));
   color: var(--rh-ink);
   border: 2px solid var(--rh-gold);
   box-shadow:
     inset 0 0 0 1px rgb(255 255 255 / 0.5),
+    inset 0 0 0 4px var(--rh-vellum),
+    inset 0 0 0 5px color-mix(in oklab, var(--rh-vermilion) 55%, transparent),
     inset 0 0 40px rgb(150 100 40 / 0.18),
-    0 0 0 4px rgb(59 21 48 / 0.72),
+    0 0 0 3px color-mix(in oklab, var(--rh-lapis-deep) 70%, transparent),
     0 14px 30px rgb(0 0 0 / 0.42);
 }
 .rh-eyebrow {

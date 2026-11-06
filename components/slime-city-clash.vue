@@ -172,7 +172,6 @@
           <span class="clash-bank">{{ game.plays.player }} / 2</span>
         </div>
       </div>
-
     </div>
 
     <footer class="clash-bottom">
@@ -191,7 +190,9 @@
           data-testid="clash-restart"
           title="Start a new Clash match"
           @click="newMatch"
-        >↻ REMATCH</button>
+        >
+          ↻ REMATCH
+        </button>
         <button
           type="button"
           class="clash-pass"
@@ -228,8 +229,19 @@
         >
           <SlimeCityArtwork
             :image-id="slimeArtId('cards', id)"
-            :fallback-image-id="slimeArtId('crews', cardById(id).team === 'mercenary' ? lab.activeTeam : cardById(id).team)"
-            :title="slimeArtId('cards', id) ? cardById(id).name : 'Crew art preview: bespoke Comfy card illustration pending'"
+            :fallback-image-id="
+              slimeArtId(
+                'crews',
+                cardById(id).team === 'mercenary'
+                  ? lab.activeTeam
+                  : cardById(id).team,
+              )
+            "
+            :title="
+              slimeArtId('cards', id)
+                ? cardById(id).name
+                : 'Crew art preview: bespoke Comfy card illustration pending'
+            "
             :alt="cardById(id).name"
             :fallback="cardById(id).symbol"
             compact
@@ -245,7 +257,6 @@
           >
         </button>
       </div>
-
     </footer>
   </section>
 </template>

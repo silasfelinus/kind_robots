@@ -875,7 +875,8 @@
                         <small
                           v-if="destinationFollowup(run, call.id)"
                           class="cap-brief-thread"
-                        >RETURN CALL</small>
+                          >RETURN CALL</small
+                        >
                         <b v-if="mission.id === call.id" class="cap-brief-pin"
                           >CHARTED</b
                         >

@@ -369,7 +369,11 @@ assert.deepEqual(
     found: ['earth-15', 'earth-16', 'earth-31'],
     responses: { 'earth-15': 'hold', 'earth-16': 'challenge' },
   }),
-  { version: 1, found: ['earth-15', 'earth-16'], responses: { 'earth-15': 'hold', 'earth-16': 'challenge' } },
+  {
+    version: 1,
+    found: ['earth-15', 'earth-16'],
+    responses: { 'earth-15': 'hold', 'earth-16': 'challenge' },
+  },
   'The first night photo persists while forged future entries remain locked',
 )
 const windwardAccounts = new Set<string>()
@@ -740,9 +744,7 @@ for (let seed = 0; seed < 16; seed++) {
     newEarthChronicle(),
     progress.choices,
   )
-  const recovered = restoreEarthChronicle(
-    JSON.parse(JSON.stringify(journal)),
-  )
+  const recovered = restoreEarthChronicle(JSON.parse(JSON.stringify(journal)))
   assert.deepEqual(recovered.found, ['earth-15', 'earth-16'])
   assert.strictEqual(
     reconcileHoshimoriNightEarthChronicle(recovered, progress.choices),

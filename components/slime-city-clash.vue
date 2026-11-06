@@ -257,15 +257,7 @@
     <footer class="clash-bottom">
       <div class="clash-hud">
         <div class="clash-plays">
-          <strong>{{
-            game.victor
-              ? resultText
-              : busy
-                ? 'RIVAL TURN'
-                : game.phase === 'attack'
-                  ? 'CHOOSE ATTACKS'
-                  : 'YOUR HAND'
-          }}</strong>
+          <strong>{{ game.victor ? resultText : busy ? 'RIVAL TURN' : game.phase === 'attack' ? 'YOUR ATTACKS' : 'PLAY CARDS' }}</strong>
           <span
             >{{ game.plays.player }} / {{ CLASH_PLAYS }} card plays ·
             {{ game.decks.player.length }} in deck ·
@@ -314,7 +306,8 @@
           @click="pick(index)"
         >
           <SlimeCityArtwork
-            :image-id="slimeArtId('cards', id) ?? slimeArtId('crews', cardById(id).team === 'mercenary' ? lab.activeTeam : cardById(id).team)"
+            :image-id="slimeArtId('cards', id)"
+            :fallback-image-id="slimeArtId('crews', cardById(id).team === 'mercenary' ? lab.activeTeam : cardById(id).team)"
             :title="slimeArtId('cards', id) ? cardById(id).name : 'Crew art preview: bespoke Comfy card illustration pending'"
             :alt="cardById(id).name"
             :fallback="cardById(id).symbol"

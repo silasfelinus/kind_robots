@@ -45,6 +45,24 @@
       </div>
     </div>
 
+    <div v-else-if="screen === 'intro'" class="mc-opening flex min-h-0 flex-1 flex-col" data-testid="monstrexx-cold-open">
+      <div class="mc-night relative flex min-h-0 flex-1 items-center justify-center p-6 text-center">
+        <div class="mc-moon" aria-hidden="true" />
+        <div class="relative z-10 mx-auto max-w-xl space-y-5 rounded-2xl border border-rose-300/30 bg-slate-950/70 p-6">
+          <p class="mc-eyebrow">LAST CALL · ROOM 205 · LATE NIGHT</p>
+          <h2 class="font-serif text-3xl font-bold text-rose-200">{{ introScenes[introIndex]?.title }}</h2>
+          <p class="font-serif text-lg leading-relaxed">{{ introScenes[introIndex]?.text }}</p>
+          <p class="mc-eyebrow">SCENE {{ introIndex + 1 }} OF {{ introScenes.length }}</p>
+          <div class="flex flex-wrap justify-center gap-3">
+            <button type="button" class="mc-verb" @click="screen = 'stage'">Skip opening</button>
+            <button type="button" class="mc-action-primary" @click="advanceIntro">
+              {{ introIndex === introScenes.length - 1 ? 'INVESTIGATE MOTEL' : 'CONTINUE' }}
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <template v-else>
       <div
         class="mc-action-bar flex shrink-0 flex-wrap items-center gap-2 px-3 py-2"
@@ -512,7 +530,22 @@ import {
 } from '~/utils/monstressConvention/prologue'
 
 const story = useMonstressConventionStore()
-const screen = ref<'title' | 'stage'>('title')
+const screen = ref<'title' | 'intro' | 'stage'>('title')
+const introIndex = ref(0)
+const introScenes = [
+  {
+    title: 'An Expensive Evening',
+    text: 'Odette Harker, the celebrity agent behind MONSTREXX, checks into a seedy motel with Violet Wisp. Both adults are enjoying the date.',
+  },
+  {
+    title: 'After the Kiss',
+    text: 'The two women share a welcome kiss. The curtains close. An ice machine clanks twice below their window.',
+  },
+  {
+    title: 'A Knock Without a Face',
+    text: 'An unseen visitor enters with an ornate knife. The hallway goes silent. The two women do not survive.',
+  },
+]
 const drawer = ref<'case' | 'map' | null>(null)
 const selected = ref<string | null>(null)
 const room = computed(() => HOTEL_ROOMS[story.state.room])
@@ -531,7 +564,13 @@ function begin(): void {
   story.begin()
   selected.value = null
   drawer.value = null
-  screen.value = 'stage'
+  introIndex.value = 0
+  screen.value = 'intro'
+}
+
+function advanceIntro(): void {
+  if (introIndex.value < introScenes.length - 1) introIndex.value += 1
+  else screen.value = 'stage'
 }
 
 function go(destination: RoomId): void {

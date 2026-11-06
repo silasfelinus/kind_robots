@@ -33,7 +33,10 @@
         <span class="kr-text-black-sm truncate sm:text-base xl:text-lg">
           {{ currentPageTitle }}
         </span>
-        <span v-if="currentPageSubtitle" class="truncate text-[0.65rem] text-base-content/60 xl:text-xs">
+        <span
+          v-if="currentPageSubtitle"
+          class="truncate text-[0.65rem] text-base-content/60 xl:text-xs"
+        >
           {{ currentPageSubtitle }}
         </span>
       </span>
@@ -69,10 +72,22 @@
           scrollbarGutter: 'stable',
         }"
       >
-        <section class="mb-2 rounded-xl border border-primary/25 bg-primary/10 p-2" aria-label="Current page">
-          <p class="kr-text-eyebrow text-[0.65rem] tracking-widest text-primary">Now visiting</p>
+        <section
+          class="mb-2 rounded-xl border border-primary/25 bg-primary/10 p-2"
+          aria-label="Current page"
+        >
+          <p
+            class="kr-text-eyebrow text-[0.65rem] tracking-widest text-primary"
+          >
+            Now visiting
+          </p>
           <p class="kr-text-black-base truncate">{{ currentPageTitle }}</p>
-          <p v-if="currentPageSubtitle" class="line-clamp-2 text-xs text-base-content/65">{{ currentPageSubtitle }}</p>
+          <p
+            v-if="currentPageSubtitle"
+            class="line-clamp-2 text-xs text-base-content/65"
+          >
+            {{ currentPageSubtitle }}
+          </p>
         </section>
         <section
           v-for="channel in visibleChannels"
@@ -224,12 +239,27 @@
           }"
           :aria-label="previewedChannel.label + ' destinations'"
         >
-          <section class="mb-2 flex min-w-0 items-center gap-2 rounded-xl border border-primary/25 bg-primary/10 px-3 py-2" aria-label="Current page">
-            <Icon :name="activeTab?.icon || activeChannel.icon" class="h-5 w-5 shrink-0 text-primary" />
+          <section
+            class="mb-2 flex min-w-0 items-center gap-2 rounded-xl border border-primary/25 bg-primary/10 px-3 py-2"
+            aria-label="Current page"
+          >
+            <Icon
+              :name="activeTab?.icon || activeChannel.icon"
+              class="h-5 w-5 shrink-0 text-primary"
+            />
             <div class="min-w-0 flex-1">
-              <p class="kr-text-eyebrow text-[0.6rem] tracking-widest text-primary">Now visiting</p>
+              <p
+                class="kr-text-eyebrow text-[0.6rem] tracking-widest text-primary"
+              >
+                Now visiting
+              </p>
               <p class="kr-text-black-sm truncate">{{ currentPageTitle }}</p>
-              <p v-if="currentPageSubtitle" class="truncate text-xs text-base-content/70">{{ currentPageSubtitle }}</p>
+              <p
+                v-if="currentPageSubtitle"
+                class="truncate text-xs text-base-content/70"
+              >
+                {{ currentPageSubtitle }}
+              </p>
             </div>
           </section>
           <button
@@ -540,12 +570,22 @@ const activeTab = computed<ResolvedTab | null>(() => {
 
 const currentPageTitle = computed(() =>
   pageStore.describesPath(route.path)
-    ? pageStore.title || activeTab.value?.title || activeTab.value?.label || activeChannel.value.label
-    : activeTab.value?.title || activeTab.value?.label || activeChannel.value.title || activeChannel.value.label,
+    ? pageStore.title ||
+      activeTab.value?.title ||
+      activeTab.value?.label ||
+      activeChannel.value.label
+    : activeTab.value?.title ||
+      activeTab.value?.label ||
+      activeChannel.value.title ||
+      activeChannel.value.label,
 )
 const currentPageSubtitle = computed(() =>
   pageStore.describesPath(route.path)
-    ? pageStore.tabMessage || activeTab.value?.subtitle || pageStore.subtitle || activeTab.value?.summary || ''
+    ? pageStore.tabMessage ||
+      activeTab.value?.subtitle ||
+      pageStore.subtitle ||
+      activeTab.value?.summary ||
+      ''
     : activeTab.value?.subtitle || activeTab.value?.summary || '',
 )
 

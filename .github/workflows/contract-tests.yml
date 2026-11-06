@@ -494,6 +494,9 @@ jobs:
       - name: Monstress Convention first case and two-investigator logic
         run: npx tsx utils/scripts/verifyMonstressPrologue.test.ts
 
+      - name: Monstress Convention mature admin preview access contract
+        run: npx tsx utils/scripts/verifyMonstressPreviewAccess.test.ts
+
   contract_2:
     name: Contract shard 2/4
     runs-on: ubuntu-latest

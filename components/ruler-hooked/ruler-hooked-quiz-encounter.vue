@@ -111,8 +111,8 @@
           @play="pick"
         />
         <p class="rh-quiz__note">
-          Every answer opens the field guide. Learn the pair, then land the fish;
-          mistakes teach without losing the catch.
+          Every answer opens the field guide. Learn the pair, then land the
+          fish; mistakes teach without losing the catch.
         </p>
       </div>
     </template>
@@ -141,7 +141,9 @@ const moduleLabel = computed(() => {
     : module === 'capitals'
       ? 'Capitals'
       : module === 'mandarin'
-        ? 'Mandarin · ' + (MANDARIN_QUIZ_TOPICS.find((topic) => topic.id === quiz.mandarinScope)?.label ?? 'Vocabulary')
+        ? 'Mandarin · ' +
+          (MANDARIN_QUIZ_TOPICS.find((topic) => topic.id === quiz.mandarinScope)
+            ?.label ?? 'Vocabulary')
         : 'Quiz'
 })
 const hand = computed(() =>

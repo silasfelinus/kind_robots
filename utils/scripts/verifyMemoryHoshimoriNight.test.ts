@@ -736,10 +736,18 @@ for (let seed = 0; seed < 16; seed++) {
       .found,
     ['earth-15', 'earth-16'],
   )
-  const journal = reconcileHoshimoriNightEarthChronicle(newEarthChronicle(), progress.choices)
-  const recovered = restoreEarthChronicle(JSON.parse(JSON.stringify(journal)))
+  const journal = reconcileHoshimoriNightEarthChronicle(
+    newEarthChronicle(),
+    progress.choices,
+  )
+  const recovered = restoreEarthChronicle(
+    JSON.parse(JSON.stringify(journal)),
+  )
   assert.deepEqual(recovered.found, ['earth-15', 'earth-16'])
-  assert.strictEqual(reconcileHoshimoriNightEarthChronicle(recovered, progress.choices), recovered)
+  assert.strictEqual(
+    reconcileHoshimoriNightEarthChronicle(recovered, progress.choices),
+    recovered,
+  )
   const forgedSupper = JSON.parse(JSON.stringify(progress)) as NightProgress
   forgedSupper.choices['6,7'] = 'night-supper-forged'
   assert.equal(restoreHoshimoriNight(forgedSupper), null)

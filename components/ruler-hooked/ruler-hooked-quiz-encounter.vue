@@ -1,5 +1,9 @@
 <template>
-  <section class="rh-parchment rh-quiz" aria-label="Learn to catch">
+  <section
+    class="rh-parchment rh-quiz"
+    :class="{ 'is-sheet': quiz.answerSheet }"
+    aria-label="Learn to catch"
+  >
     <header class="rh-quiz__head">
       <div>
         <p class="rh-eyebrow">Knowledge on the line</p>
@@ -76,6 +80,17 @@
         </div>
       </div>
 
+      <RulerHookedMandarinAnswerSheet
+        v-else-if="quiz.answerSheet && quiz.currentMandarinCard"
+        :card="quiz.currentMandarinCard"
+        :lesson="mandarinLesson"
+        :art="quiz.currentArt"
+        :correct="quiz.answerWasCorrect"
+        :animal-mode="quiz.mandarinScope === 'animals'"
+        @speak="speak"
+        @continue="quiz.finishAnswerSheet()"
+      />
+
       <div v-else-if="quiz.feedback" class="rh-quiz__message" role="status">
         <p>{{ quiz.feedback }}</p>
         <button
@@ -112,8 +127,8 @@
           @play="pick"
         />
         <p class="rh-quiz__note">
-          Choose correctly to land this fish. A mistake brings another question,
-          not a lost catch.
+          Choose correctly to land this fish. Mandarin answers reveal a word guide
+          before the catch. A mistake brings another question, not a lost catch.
         </p>
       </div>
     </template>
@@ -128,6 +143,9 @@ import type { SimpleFishingEncounter } from '~/utils/rulerHooked/simpleFishing'
 const props = defineProps<{ encounter: SimpleFishingEncounter }>()
 const quiz = useRulerHookedQuizStore()
 const tutor = useMandarinTutorStore()
+const mandarinLesson = computed(() =>
+  quiz.currentMandarinCard ? tutor.lessonFor(quiz.currentMandarinCard.key) : null,
+)
 
 const moduleLabel = computed(() => {
   const module = quiz.question?.module
@@ -136,7 +154,9 @@ const moduleLabel = computed(() => {
     : module === 'capitals'
       ? 'Capitals'
       : module === 'mandarin'
-        ? 'Mandarin'
+        ? quiz.mandarinScope === 'animals'
+          ? 'Mandarin · Animals'
+          : 'Mandarin'
         : 'Quiz'
 })
 const hand = computed(() =>
@@ -258,6 +278,9 @@ watch(
   }
   .rh-quiz__lesson {
     grid-template-columns: 1fr 1.5fr;
+  }
+  .rh-quiz.is-sheet {
+    max-height: 62vh;
   }
   .rh-quiz__art {
     min-height: 7rem;

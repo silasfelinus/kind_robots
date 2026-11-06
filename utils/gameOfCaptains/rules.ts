@@ -568,14 +568,16 @@ export function missionBoard(run: VoyageRun): Mission[] {
           has('mox') ||
           has('sora') ||
           has('pell') ||
-          visited('sesh-backups', 'warranty')
+          visited('sesh-backups', 'warranty') ||
+          flags.includes('archive-consented')
         )
       if (id === 'windglass-exodus')
         return (
           has('tess') ||
           has('kivo') ||
           has('fen') ||
-          visited('windglass', 'hoa')
+          visited('windglass', 'hoa') ||
+          flags.includes('lantern-both')
         )
       if (id === 'deposit-copy')
         return (

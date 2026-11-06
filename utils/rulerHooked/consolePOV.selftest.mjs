@@ -12,10 +12,11 @@ const nav = read('components/ruler-hooked/ruler-hooked-nav.vue')
 const lake = read('components/ruler-hooked/ruler-hooked-lake-screen.vue')
 const artLibrary = read('utils/rulerHooked/artLibrary.ts')
 const hud = read('components/ruler-hooked/ruler-hooked-hud.vue')
-const classic = read('components/ruler-hooked/ruler-hooked-fishing-encounter.vue')
+const classic = read(
+  'components/ruler-hooked/ruler-hooked-fishing-encounter.vue',
+)
 const fishingStore = read('stores/rulerHookedStore.ts')
 const court = read('components/ruler-hooked/ruler-hooked-court-screen.vue')
-
 
 assert.match(
   route,
@@ -125,7 +126,10 @@ assert.doesNotMatch(classic, /Tap to reel|Give slack|@release|@tap/)
 assert.match(lake, /store\.startFishing\(quiz\.mode\)/)
 assert.match(lake, /@stop="store\.classicStop\(\$event\)"/)
 assert.match(fishingStore, /startFishingEncounter\(save\.value\)/)
-assert.match(fishingStore, /applyFishingStop\(activeClassicFishing\.value, position\)/)
+assert.match(
+  fishingStore,
+  /applyFishingStop\(activeClassicFishing\.value, position\)/,
+)
 
 // Ordinary healthy kingdom sliders must not put a game-over choice at the
 // end of every day. A genuine finale explains the save closure, and deferring

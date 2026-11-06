@@ -30,6 +30,7 @@
               @chose="onChose"
             />
             <RulerHookedGearScreen v-else-if="screen === 'gear'" />
+            <RulerHookedStudySettings v-else-if="screen === 'settings'" />
             <RulerHookedFishopedia
               v-else-if="screen === 'fishopedia'"
               :save="store.save"
@@ -58,7 +59,7 @@
               :day="store.day"
               :time="store.timeOfDay"
               :lessons-left="lessonsLeft"
-              @navigate="go"
+              @navigate="navigateFromHud"
               @skip-tutorial="store.skipTutorial()"
             />
 
@@ -99,6 +100,7 @@
 
 <script setup lang="ts">
 import { useRulerHookedStore } from '~/stores/rulerHookedStore'
+import { useRulerHookedQuizStore } from '~/stores/rulerHookedQuizStore'
 import { BACKDROPS } from '~/utils/rulerHooked/artLibrary'
 import {
   currentLesson,
@@ -106,17 +108,23 @@ import {
   type ConsoleScreen,
 } from '~/utils/rulerHooked/tutorial'
 
-type Screen = ConsoleScreen | 'opening'
+type Screen = ConsoleScreen | 'opening' | 'settings'
 
 const store = useRulerHookedStore()
+const quiz = useRulerHookedQuizStore()
 const screen = ref<Screen>('lake')
 const consoleEl = ref<HTMLElement | null>(null)
 
 const navScreen = computed<ConsoleScreen | null>(() =>
-  screen.value === 'opening' ? null : (screen.value as ConsoleScreen),
+  screen.value === 'opening' || screen.value === 'settings'
+    ? null
+    : (screen.value as ConsoleScreen),
 )
 
 function go(next: ConsoleScreen) {
+  screen.value = next
+}
+function navigateFromHud(next: 'chronicle' | 'saves' | 'settings') {
   screen.value = next
 }
 function onPicked() {
@@ -180,6 +188,7 @@ watch(screen, (s) => {
 })
 
 onMounted(() => {
+  quiz.initialize()
   store.init()
   screen.value = store.showOpening ? 'opening' : 'lake'
   if (!document.getElementById('rh-display-font')) {

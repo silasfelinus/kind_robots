@@ -76,6 +76,9 @@
           <button type="button" role="menuitem" @click="pick('saves')">
             Saves &amp; new reign
           </button>
+          <button type="button" role="menuitem" @click="pick('settings')">
+            Fishing settings
+          </button>
           <button
             v-if="lessonsLeft"
             type="button"
@@ -107,7 +110,7 @@ const props = defineProps<{
   lessonsLeft: number
 }>()
 const emit = defineEmits<{
-  navigate: ['chronicle' | 'saves']
+  navigate: ['chronicle' | 'saves' | 'settings']
   skipTutorial: []
 }>()
 
@@ -142,7 +145,7 @@ function skipLessons() {
   menuOpen.value = false
   emit('skipTutorial')
 }
-function pick(screen: 'chronicle' | 'saves') {
+function pick(screen: 'chronicle' | 'saves' | 'settings') {
   menuOpen.value = false
   emit('navigate', screen)
 }

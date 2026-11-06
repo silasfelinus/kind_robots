@@ -18,6 +18,13 @@ import { cyclePosition } from './compositor'
 import { resolveFishingCatch } from './fish'
 import { selectCard, tickCooldowns } from './select'
 import { triggerHolds } from './triggers'
+import { CASTS_PER_DAY } from './dailyEvents'
+
+/** Reign finales are career milestones, not daily popups for healthy sliders. */
+export const FINALE_MIN_TURNS = CASTS_PER_DAY * 7
+export const FINALE_MIN_PETITIONS = 8
+export const dismissedFinaleFlag = (outcomeKey: string): string =>
+  `finale-deferred:${outcomeKey}`
 
 export interface TurnResult {
   save: RunSave
@@ -135,7 +142,10 @@ export function takeTurn(
  */
 export function eligibleEnding(bundle: ContentBundle, save: RunSave): string | null {
   if (save.status === 'COMPLETE') return save.endingKey
+  if (save.turnCount < FINALE_MIN_TURNS) return null
+  if ((save.counters.cardsResolved ?? 0) < FINALE_MIN_PETITIONS) return null
   for (const ending of bundle.endings) {
+    if (save.flags[dismissedFinaleFlag(ending.outcomeKey)]) continue
     if (triggerHolds(save, ending.trigger)) return ending.outcomeKey
   }
   return null

@@ -13,10 +13,14 @@
       />
       <div class="rh-fishing__intro">
         <p class="rh-eyebrow">A bite on the line · {{ rarityLabel }}</p>
-        <h2 id="rh-fishing-title" class="rh-fishing__name">{{ encounter.fishName }}</h2>
+        <h2 id="rh-fishing-title" class="rh-fishing__name">
+          {{ encounter.fishName }}
+        </h2>
         <p class="rh-fishing__behavior">{{ encounter.catchBehavior }}</p>
       </div>
-      <span class="rh-fishing__beat">{{ encounter.beat + 1 }} / {{ encounter.maxBeats }}</span>
+      <span class="rh-fishing__beat"
+        >{{ encounter.beat + 1 }} / {{ encounter.maxBeats }}</span
+      >
     </header>
 
     <button
@@ -27,14 +31,20 @@
       @click="stop"
     >
       <span class="rh-fishing__surface" aria-hidden="true">
-        <svg class="rh-fishing__waterlines" viewBox="0 0 600 130" preserveAspectRatio="none">
+        <svg
+          class="rh-fishing__waterlines"
+          viewBox="0 0 600 130"
+          preserveAspectRatio="none"
+        >
           <path d="M-40 22 Q80 0 180 24 T400 26 T660 16" />
           <path d="M-20 64 Q70 42 190 66 T420 64 T640 59" />
           <path d="M-10 104 Q95 80 210 105 T430 102 T650 105" />
         </svg>
         <span class="rh-fishing__ripple" :style="{ left: marker + '%' }" />
         <span class="rh-fishing__bobber" :style="{ left: marker + '%' }" />
-        <span v-if="suddenShift" class="rh-fishing__surge-tag">FISH SURGES!</span>
+        <span v-if="suddenShift" class="rh-fishing__surge-tag"
+          >FISH SURGES!</span
+        >
       </span>
       <span class="rh-fishing__target-name">{{ aimLabel }}</span>
       <span class="rh-fishing__track" aria-hidden="true">
@@ -44,11 +54,17 @@
         />
         <span
           class="rh-fishing__zone rh-fishing__zone--reel"
-          :style="{ left: profile.bandStart + '%', width: profile.bandWidth + '%' }"
+          :style="{
+            left: profile.bandStart + '%',
+            width: profile.bandWidth + '%',
+          }"
         />
         <span
           class="rh-fishing__zone rh-fishing__zone--wait"
-          :style="{ left: profile.bandStart + profile.bandWidth + '%', right: 0 }"
+          :style="{
+            left: profile.bandStart + profile.bandWidth + '%',
+            right: 0,
+          }"
         />
         <span
           class="rh-fishing__sweetspot"
@@ -59,23 +75,50 @@
         </span>
       </span>
       <span class="rh-fishing__instruction">
-        <strong>SPACE</strong> / CLICK / TAP <span aria-hidden="true">✦</span> STOP THE BOBBER
+        <strong>SPACE</strong> / CLICK / TAP
+        <span aria-hidden="true">✦</span> STOP THE BOBBER
       </span>
     </button>
 
     <div class="rh-fishing__gauges" aria-label="Fishing status">
       <div class="rh-fishing__gauge">
-        <span><strong>Fish in</strong><b>{{ encounter.progress }}%</b></span>
-        <div class="rh-fishing__meter rh-fishing__meter--progress" role="progressbar" aria-label="Fish caught progress" :aria-valuenow="encounter.progress" aria-valuemin="0" aria-valuemax="100">
+        <span
+          ><strong>Fish in</strong><b>{{ encounter.progress }}%</b></span
+        >
+        <div
+          class="rh-fishing__meter rh-fishing__meter--progress"
+          role="progressbar"
+          aria-label="Fish caught progress"
+          :aria-valuenow="encounter.progress"
+          aria-valuemin="0"
+          aria-valuemax="100"
+        >
           <i :style="{ width: encounter.progress + '%' }" />
         </div>
       </div>
-      <div class="rh-fishing__gauge">
-        <span><strong>Line tension</strong><b>{{ encounter.tension }}%</b></span>
-        <div class="rh-fishing__meter rh-fishing__meter--tension" :class="{ 'is-danger': encounter.tension >= 75 }" role="progressbar" aria-label="Line tension" :aria-valuenow="encounter.tension" aria-valuemin="0" aria-valuemax="100">
-          <i :style="{ width: encounter.tension + '%' }" />
+      <div class="rh-fishing__gauge rh-fishing__gauge--tension">
+        <span
+          ><strong>Tension</strong><b>{{ encounter.tension }}%</b></span
+        >
+        <div
+          class="rh-fishing__meter rh-fishing__meter--tension"
+          :class="{ 'is-danger': encounter.tension >= 75 }"
+          role="progressbar"
+          aria-label="Line tension"
+          :aria-valuenow="encounter.tension"
+          aria-valuemin="0"
+          aria-valuemax="100"
+        >
+          <i
+            class="rh-fishing__tension-needle"
+            :style="{ left: encounter.tension + '%' }"
+          />
         </div>
       </div>
+      <p class="rh-fishing__prompt" :data-aim="aimAction" aria-live="polite">
+        <kbd class="rh-fishing__key">A</kbd>
+        <span>{{ FIGHT_PROMPT[aimAction] }}</span>
+      </p>
     </div>
 
     <p class="rh-fishing__cue" role="status" aria-live="polite">
@@ -86,7 +129,11 @@
 
 <script setup lang="ts">
 import type { FishingEncounter } from '~/utils/rulerHooked/encounter'
-import { timingProfileFor } from '~/utils/rulerHooked/timingBar'
+import {
+  FIGHT_PROMPT,
+  fightAim,
+  timingProfileFor,
+} from '~/utils/rulerHooked/timingBar'
 import { fishCandidates } from '~/utils/rulerHooked/artLibrary'
 
 const props = defineProps<{ encounter: FishingEncounter }>()
@@ -96,31 +143,35 @@ const marker = ref(0)
 const profile = computed(() => timingProfileFor(props.encounter))
 const rarityLabel = computed(() => props.encounter.rarity.toLowerCase())
 const suddenShift = computed(
-  () => props.encounter.phase === 'FIGHT' && props.encounter.beat > 0 && props.encounter.beat % 3 === 2,
+  () =>
+    props.encounter.phase === 'FIGHT' &&
+    props.encounter.beat > 0 &&
+    props.encounter.beat % 3 === 2,
 )
-const aimAction = computed<'REEL' | 'SLACK' | 'WAIT'>(() => {
-  const fight = props.encounter
-  if (fight.phase === 'APPROACH') return 'WAIT'
-  if (fight.reversed) return fight.tension >= 70 ? 'REEL' : 'SLACK'
-  return fight.tension >= 70 ? 'SLACK' : 'REEL'
-})
+const aimAction = computed(() => fightAim(props.encounter))
 const aimLabel = computed(() => {
-  if (props.encounter.phase === 'APPROACH') return 'A wary fish. Wait for the right moment.'
-  if (props.encounter.reversed) return 'The current reverses! Follow the highlighted water.'
+  if (props.encounter.phase === 'APPROACH')
+    return 'A wary fish. Wait for the right moment.'
+  if (props.encounter.reversed)
+    return 'The current reverses! Follow the highlighted water.'
   if (props.encounter.tension >= 70) return 'The line is taut. Let it breathe.'
-  return suddenShift.value ? 'It darted! Follow the new bright patch.' : 'Aim for the luminous current to pull it closer.'
+  return suddenShift.value
+    ? 'It darted! Follow the new bright patch.'
+    : 'Aim for the luminous current to pull it closer.'
 })
 const aimStart = computed(() => {
   const band = profile.value
   if (aimAction.value === 'SLACK') return Math.max(0, band.bandStart - 14)
-  if (aimAction.value === 'WAIT') return Math.min(91, band.bandStart + band.bandWidth + 5)
+  if (aimAction.value === 'WAIT')
+    return Math.min(91, band.bandStart + band.bandWidth + 5)
   return band.bandStart
 })
 const aimWidth = computed(() =>
   aimAction.value === 'REEL' ? profile.value.bandWidth : 10,
 )
 const playfieldLabel = computed(
-  () => `Fishing ${props.encounter.fishName}. ${aimLabel.value} Press Space, Enter, or click to stop the sweeping bobber.`,
+  () =>
+    `Fishing ${props.encounter.fishName}. ${aimLabel.value} Press Space, Enter, or click to stop the sweeping bobber.`,
 )
 
 let startedAt = 0
@@ -128,8 +179,12 @@ let frame: number | null = null
 let lastStop = 0
 function tick(time: number) {
   if (!startedAt) startedAt = time
-  const fraction = ((time - startedAt) % (profile.value.sweepMs * 2)) / profile.value.sweepMs
-  marker.value = Math.max(0, Math.min(100, (fraction <= 1 ? fraction : 2 - fraction) * 100))
+  const fraction =
+    ((time - startedAt) % (profile.value.sweepMs * 2)) / profile.value.sweepMs
+  marker.value = Math.max(
+    0,
+    Math.min(100, (fraction <= 1 ? fraction : 2 - fraction) * 100),
+  )
   frame = requestAnimationFrame(tick)
 }
 function stop() {
@@ -138,10 +193,15 @@ function stop() {
   lastStop = now
   emit('stop', Math.round(marker.value * 10) / 10)
 }
+defineExpose({ stop })
 function keydown(event: KeyboardEvent) {
   if (event.repeat || (event.key !== ' ' && event.key !== 'Enter')) return
   const target = event.target
-  if (target instanceof HTMLElement && target.closest('button, a, input, textarea, select, [role="textbox"]')) return
+  if (
+    target instanceof HTMLElement &&
+    target.closest('button, a, input, textarea, select, [role="textbox"]')
+  )
+    return
   event.preventDefault()
   stop()
 }
@@ -171,9 +231,18 @@ onBeforeUnmount(() => {
   border: 2px solid var(--rh-gold);
   border-radius: 1.15rem;
   padding: clamp(0.55rem, 1.5cqi, 0.9rem);
-  background: linear-gradient(155deg, rgb(25 53 69 / 0.95), rgb(17 30 46 / 0.94));
-  box-shadow: 0 0 0 3px var(--rh-plum), 0 14px 35px rgb(0 0 0 / 0.45);
+  background: linear-gradient(
+    155deg,
+    rgb(25 53 69 / 0.95),
+    rgb(17 30 46 / 0.94)
+  );
+  box-shadow:
+    0 0 0 3px var(--rh-plum),
+    0 14px 35px rgb(0 0 0 / 0.45);
   backdrop-filter: blur(8px);
+}
+.rh-fishing .rh-eyebrow {
+  color: var(--rh-gold-hi, #f7df8f);
 }
 .rh-fishing__header {
   display: flex;
@@ -238,7 +307,13 @@ onBeforeUnmount(() => {
   display: block;
   height: clamp(4.5rem, 11cqi, 9rem);
   overflow: hidden;
-  background: linear-gradient(180deg, #5f8390 0%, #2e627c 34%, #16445e 75%, #0b324a 100%);
+  background: linear-gradient(
+    180deg,
+    #5f8390 0%,
+    #2e627c 34%,
+    #16445e 75%,
+    #0b324a 100%
+  );
 }
 .rh-fishing__waterlines {
   position: absolute;
@@ -270,7 +345,9 @@ onBeforeUnmount(() => {
   border: 2px solid #381a16;
   border-radius: 50%;
   background: linear-gradient(180deg, #f44350 0 50%, #fff9ef 50% 100%);
-  box-shadow: 0 2px 12px #071526, 0 0 0 3px rgb(255 255 255 / 0.2);
+  box-shadow:
+    0 2px 12px #071526,
+    0 0 0 3px rgb(255 255 255 / 0.2);
   transition: left 35ms linear;
 }
 .rh-fishing__surge-tag {
@@ -310,7 +387,9 @@ onBeforeUnmount(() => {
 .rh-fishing__zone--reel {
   background: linear-gradient(180deg, #79aa58, #366f43);
   border-inline: 1px solid #c2ef96;
-  transition: left 170ms ease-out, width 170ms ease-out;
+  transition:
+    left 170ms ease-out,
+    width 170ms ease-out;
 }
 .rh-fishing__zone--wait {
   background: linear-gradient(180deg, #52728b, #283d66);
@@ -323,8 +402,12 @@ onBeforeUnmount(() => {
   border: 3px solid #ffe58a;
   border-radius: 0.3rem;
   background: rgb(255 224 128 / 0.15);
-  box-shadow: 0 0 18px rgb(255 231 121 / 0.7), inset 0 0 16px rgb(255 230 150 / 0.3);
-  transition: left 180ms cubic-bezier(0.15, 1.5, 0.55, 1), width 180ms ease-out;
+  box-shadow:
+    0 0 18px rgb(255 231 121 / 0.7),
+    inset 0 0 16px rgb(255 230 150 / 0.3);
+  transition:
+    left 180ms cubic-bezier(0.15, 1.5, 0.55, 1),
+    width 180ms ease-out;
 }
 .rh-fishing__needle {
   position: absolute;
@@ -358,7 +441,8 @@ onBeforeUnmount(() => {
 }
 .rh-fishing__gauges {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: 1fr 1.25fr auto;
+  align-items: end;
   gap: 0.65rem;
 }
 .rh-fishing__gauge > span {
@@ -383,11 +467,71 @@ onBeforeUnmount(() => {
 .rh-fishing__meter--progress i {
   background: linear-gradient(90deg, #4f8e70, #9ad485);
 }
-.rh-fishing__meter--tension i {
-  background: linear-gradient(90deg, #e6b367, #e04f48);
+.rh-fishing__meter--tension {
+  position: relative;
+  height: 0.8rem;
+  overflow: visible;
+  background: linear-gradient(
+    90deg,
+    #3f8f4a,
+    #9cc34a 38%,
+    #e7c04a 58%,
+    #e0813a 76%,
+    #b8312a
+  );
+  border: 1.5px solid var(--rh-gold, #d4a63b);
+  box-shadow: inset 0 1px 3px rgb(0 0 0 / 0.45);
+}
+.rh-fishing__meter--tension .rh-fishing__tension-needle {
+  position: absolute;
+  top: -0.3rem;
+  bottom: -0.3rem;
+  width: 0.5rem;
+  height: auto;
+  translate: -50% 0;
+  border-radius: 0.15rem;
+  background: linear-gradient(180deg, #fff6da, #d8c08a);
+  box-shadow:
+    0 0 0 1.5px #2a1c10,
+    0 2px 4px rgb(0 0 0 / 0.5);
+  transition: left 160ms ease-out;
 }
 .rh-fishing__meter--tension.is-danger {
-  box-shadow: 0 0 10px #f5674b;
+  box-shadow:
+    inset 0 1px 3px rgb(0 0 0 / 0.45),
+    0 0 10px #f5674b;
+}
+.rh-fishing__prompt {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  min-height: 2.2rem;
+  padding: 0.2rem 0.75rem 0.2rem 0.3rem;
+  border-radius: 0.3rem;
+  background: linear-gradient(180deg, #f3e8cc, #e5d3a6);
+  color: #2a1c10;
+  font-family: var(--rh-display);
+  font-weight: 800;
+  font-size: 0.9rem;
+  white-space: nowrap;
+  box-shadow:
+    inset 0 0 0 1px #8a6116,
+    inset 0 0 0 2.5px var(--rh-gold, #d4a63b);
+}
+.rh-fishing__prompt[data-aim='SLACK'] {
+  background: linear-gradient(180deg, #f6d9c8, #e0b49a);
+}
+.rh-fishing__key {
+  display: inline-grid;
+  place-items: center;
+  width: 1.65rem;
+  height: 1.65rem;
+  border-radius: 999px;
+  background: radial-gradient(circle at 40% 35%, #1f3f93, #0f1f4d);
+  color: #f7df8f;
+  font-size: 0.8rem;
+  font-weight: 900;
+  box-shadow: 0 0 0 1.5px var(--rh-gold, #d4a63b);
 }
 .rh-fishing__cue {
   font-size: 0.76rem;
@@ -396,21 +540,45 @@ onBeforeUnmount(() => {
   opacity: 0.9;
 }
 @keyframes rh-surge {
-  to { transform: scale(1.08); opacity: 0.7; }
+  to {
+    transform: scale(1.08);
+    opacity: 0.7;
+  }
 }
 @keyframes rh-water-ripple {
-  to { transform: translateX(1.5%); }
+  to {
+    transform: translateX(1.5%);
+  }
 }
 @media (prefers-reduced-motion: reduce) {
   .rh-fishing__waterlines,
-  .rh-fishing__surge-tag { animation: none; }
+  .rh-fishing__surge-tag {
+    animation: none;
+  }
   .rh-fishing__zone--reel,
-  .rh-fishing__sweetspot { transition: none; }
+  .rh-fishing__sweetspot {
+    transition: none;
+  }
 }
 @container rhconsole (max-width: 560px) {
-  .rh-fishing__portrait { display: none; }
-  .rh-fishing__behavior { display: none; }
-  .rh-fishing__surface { height: 4.75rem; }
-  .rh-fishing__instruction { font-size: 0.62rem; }
+  .rh-fishing__portrait {
+    display: none;
+  }
+  .rh-fishing__behavior {
+    display: none;
+  }
+  .rh-fishing__surface {
+    height: 4.75rem;
+  }
+  .rh-fishing__instruction {
+    font-size: 0.62rem;
+  }
+  .rh-fishing__gauges {
+    grid-template-columns: 1fr 1fr;
+  }
+  .rh-fishing__prompt {
+    grid-column: 1 / -1;
+    justify-self: center;
+  }
 }
 </style>

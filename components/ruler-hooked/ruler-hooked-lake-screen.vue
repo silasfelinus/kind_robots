@@ -1,5 +1,7 @@
 <!-- The lake, in first person. The painted far shore reacts to your decrees
-     (pristine / farmed / industrial); your own rod reaches in from the
+     (pristine / farmed / industrial), and to the reign's decay and tyranny
+     pins (t-054: gallows, a poisoned lake) as their paintings land; a rotten
+     reign also stains the water. Your own rod reaches in from the
      bottom-right. The ruler is never drawn in the scene (consolePOV contract). -->
 <template>
   <section class="rh-screen rh-lake" aria-label="Castle Lake">
@@ -10,6 +12,7 @@
       position="center 60%"
     />
     <div class="rh-lake__tint" :class="`is-${time}`" aria-hidden="true" />
+    <div class="rh-lake__blight" aria-hidden="true" />
 
     <!-- The royal rod, first person: reaches in from the bottom-right corner,
          line and bobber drawn in the same box so they always meet. -->
@@ -108,6 +111,7 @@
       />
       <RulerHookedFishingEncounter
         v-else-if="store.activeClassicFishing"
+        ref="encounterEl"
         :encounter="store.activeClassicFishing"
         @stop="store.classicStop($event)"
       />
@@ -241,7 +245,9 @@ const store = useRulerHookedStore()
 const quiz = useRulerHookedQuizStore()
 
 const time = computed(() => store.timeOfDay)
-const backdrop = computed(() => lakeBackdropCandidates(store.save, time.value))
+const backdrop = computed(() =>
+  lakeBackdropCandidates(store.save, time.value, store.scene),
+)
 const fishing = computed(() => !!store.activeFishing)
 
 // The catch/escape reveal shows once per landing; dismissing it returns to the rod.
@@ -266,6 +272,19 @@ const CAST_HINTS = [
 const castHint = computed(
   () => CAST_HINTS[(store.save?.turnCount ?? 0) % CAST_HINTS.length],
 )
+
+// The console's A button: whatever the one visible lake action is now.
+const encounterEl = ref<{ stop: () => void } | null>(null)
+function press() {
+  if (store.activeClassicFishing) return encounterEl.value?.stop()
+  if (store.activeFishing) return
+  if ((store.lastCatch || store.lastEscape) && showReveal.value)
+    return dismiss()
+  if (store.activeCard || store.pendingEnding) return emit('navigate', 'court')
+  if (store.canFish) return store.startFishing(quiz.mode)
+  if (store.save?.status === 'COMPLETE') emit('navigate', 'saves')
+}
+defineExpose({ press })
 
 function titleCase(s: string) {
   return s.charAt(0) + s.slice(1).toLowerCase()
@@ -304,6 +323,23 @@ function formatSize(cm: number): string {
     rgb(255 200 220 / 0.22),
     rgb(160 200 255 / 0.12)
   );
+}
+.rh-lake__blight {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: calc(var(--rh-soot) * 0.9);
+  background:
+    radial-gradient(
+      60% 22% at 38% 78%,
+      rgb(60 30 90 / 0.45),
+      rgb(20 60 40 / 0.25) 45%,
+      transparent 70%
+    ),
+    linear-gradient(180deg, rgb(40 36 30 / 0.35), transparent 35%),
+    linear-gradient(0deg, rgb(10 14 8 / 0.45), transparent 40%);
+  mix-blend-mode: multiply;
+  transition: opacity 900ms ease;
 }
 .rh-rod {
   position: absolute;

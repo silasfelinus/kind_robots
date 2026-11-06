@@ -117,6 +117,11 @@ assert.match(hand, /--rot: var\(--fan-rot, 0deg\);/)
 
 const adopters: Array<[game: string, file: string, pattern: RegExp]> = [
   ['Ecotone', 'components/ecotone-choice-hand.vue', /<KrChoiceHand/],
+  [
+    'The Ruler Is Hooked',
+    'components/ruler-hooked/ruler-hooked-court.vue',
+    /<KrChoiceHand[\s\S]*?testid-prefix="rh-choice"/,
+  ],
   ['Ecotone', 'components/ecotone-board.vue', /<EcotoneChoiceHand/],
   [
     'Crystal Street',

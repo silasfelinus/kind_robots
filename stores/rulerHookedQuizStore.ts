@@ -35,7 +35,9 @@ export const useRulerHookedQuizStore = defineStore('rulerHookedQuiz', () => {
   const feedback = ref('')
   const answerSheet = ref(false)
   const pendingCatch = ref(false)
-  const answerWasCorrect = computed(() => answerSheet.value && pendingCatch.value)
+  const answerWasCorrect = computed(
+    () => answerSheet.value && pendingCatch.value,
+  )
   const loading = ref(false)
   const error = ref('')
   const mandarinSynced = ref(false)
@@ -291,12 +293,18 @@ export const useRulerHookedQuizStore = defineStore('rulerHookedQuiz', () => {
   }
 
   function finishAnswerSheet() {
-    if (!answerSheet.value || !question.value || question.value.module !== 'mandarin') return
+    if (
+      !answerSheet.value ||
+      !question.value ||
+      question.value.module !== 'mandarin'
+    )
+      return
     const card = currentMandarinCard.value
     const caught = pendingCatch.value
     answerSheet.value = false
     pendingCatch.value = false
-    if (card && !tutor.lessonIsComplete(card.key)) void tutor.completeLesson(card.key)
+    if (card && !tutor.lessonIsComplete(card.key))
+      void tutor.completeLesson(card.key)
     if (caught) fishing.landQuizFish()
     else void nextQuestion()
   }

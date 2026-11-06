@@ -38,10 +38,10 @@ import {
 import { readFileSync } from 'node:fs'
 
 assert.deepEqual(validateHoshimoriNight(), [])
-assert.equal(HOSHIMORI_NIGHT_SITES.length, 46)
+assert.equal(HOSHIMORI_NIGHT_SITES.length, 48)
 assert.equal(
   new Set(HOSHIMORI_NIGHT_SITES.map((site) => site.opening)).size,
-  46,
+  48,
 )
 assert.equal(
   new Set(

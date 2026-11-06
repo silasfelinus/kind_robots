@@ -5,10 +5,10 @@
 <template>
   <div class="rh-hud">
     <div class="rh-crest">
-        <span class="rh-crest__title">
-          <span class="rh-crest__the">The</span>
-          Ruler <em>is</em> Hooked
-        </span>
+      <span class="rh-crest__title">
+        <span class="rh-crest__the">The</span>
+        Ruler <em>is</em> Hooked
+      </span>
     </div>
 
     <div class="rh-hud__health">

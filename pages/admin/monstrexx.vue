@@ -15,8 +15,8 @@
         </p>
         <p class="text-2xl font-bold">Access restricted</p>
         <p class="opacity-75">
-          Monstrexx is available here to administrators who have enabled mature
-          content. Accounts with the child role cannot enter.
+          This internal preview requires an administrator account with mature
+          content enabled. Accounts with the child role cannot enter.
         </p>
         <p v-if="caseStore.checking" class="text-sm opacity-60" role="status">
           Checking account access…

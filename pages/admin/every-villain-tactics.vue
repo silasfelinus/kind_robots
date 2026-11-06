@@ -58,7 +58,10 @@
         :data-anim="store.settings.animation"
         :style="{ '--evt-anim': String(store.animationFactor) }"
       >
-        <div class="evt-deck" :class="{ 'is-finished': store.state.phase !== 'active' }">
+        <div
+          class="evt-deck"
+          :class="{ 'is-finished': store.state.phase !== 'active' }"
+        >
           <section
             class="evt-arena"
             aria-label="First Bell tactical battlefield"
@@ -73,7 +76,12 @@
                   : 'COMET CITY ACADEMY / FIRST BELL'
               }}</span>
               <span class="evt-objective"
-                >OBJECTIVE: {{ store.isPlaytest ? store.draft.objective : store.scene.headline }}</span
+                >OBJECTIVE:
+                {{
+                  store.isPlaytest
+                    ? store.draft.objective
+                    : store.scene.headline
+                }}</span
               >
               <span
                 v-if="store.ruleLine"
@@ -150,7 +158,8 @@
                     v-if="store.tileInfoAt(cell) === 'wall'"
                     class="evt-wall"
                     aria-hidden="true"
-                  ><span>WALL</span></span>
+                    ><span>WALL</span></span
+                  >
                   <span
                     v-if="store.heightAt(cell) > 0"
                     class="evt-height"
@@ -260,9 +269,15 @@
                 </button>
               </div>
               <div class="evt-map-edge" aria-hidden="true">
-                <span class="evt-terrain-legend"><b class="evt-key-wall"></b> WALL · BLOCKED</span>
-                <span class="evt-terrain-legend"><b class="evt-key-cover"></b> COVER · PASSABLE</span>
-                <span class="evt-terrain-legend"><b class="evt-key-rise"></b> ▲ RAISED</span>
+                <span class="evt-terrain-legend"
+                  ><b class="evt-key-wall"></b> WALL · BLOCKED</span
+                >
+                <span class="evt-terrain-legend"
+                  ><b class="evt-key-cover"></b> COVER · PASSABLE</span
+                >
+                <span class="evt-terrain-legend"
+                  ><b class="evt-key-rise"></b> ▲ RAISED</span
+                >
               </div>
             </div>
 
@@ -279,12 +294,21 @@
                 alt=""
               />
               <div class="evt-aftermath-copy">
-                <span class="evt-overline">{{ store.isPlaytest ? store.draft.title : 'FIRST BELL' }} · COMET CITY</span>
+                <span class="evt-overline"
+                  >{{ store.isPlaytest ? store.draft.title : 'FIRST BELL' }} ·
+                  COMET CITY</span
+                >
                 <h2 id="evt-aftermath-heading">
-                  {{ store.state.phase === 'victory' ? 'MISSION CLEARED' : 'MISSION LOST' }}
+                  {{
+                    store.state.phase === 'victory'
+                      ? 'MISSION CLEARED'
+                      : 'MISSION LOST'
+                  }}
                 </h2>
                 <p class="evt-aftermath-stats">
-                  {{ store.missionResult.total }} PTS · {{ store.missionResult.medals.length }} MEDALS · ROUND {{ store.state.turn }}
+                  {{ store.missionResult.total }} PTS ·
+                  {{ store.missionResult.medals.length }} MEDALS · ROUND
+                  {{ store.state.turn }}
                 </p>
                 <div class="evt-aftermath-actions">
                   <button
@@ -300,28 +324,44 @@
                     class="evt-retry-battle"
                     data-testid="tactics-retry-battle"
                     @click="store.reset()"
-                  >REPLAY <span aria-hidden="true">↻</span></button>
+                  >
+                    REPLAY <span aria-hidden="true">↻</span>
+                  </button>
                   <button
                     type="button"
                     class="evt-retry-battle"
                     @click="store.openScreen('title')"
-                  >MENU</button>
+                  >
+                    MENU
+                  </button>
                 </div>
-                <details class="evt-result-details" data-testid="tactics-mission-score">
+                <details
+                  class="evt-result-details"
+                  data-testid="tactics-mission-score"
+                >
                   <summary>SCORE BREAKDOWN</summary>
                   <ul>
-                    <li v-for="line in store.missionResult.lines" :key="line.id">
-                      <span>{{ line.label }}</span><b>+{{ line.points }}</b>
+                    <li
+                      v-for="line in store.missionResult.lines"
+                      :key="line.id"
+                    >
+                      <span>{{ line.label }}</span
+                      ><b>+{{ line.points }}</b>
                     </li>
                   </ul>
                 </details>
                 <small v-if="!store.isPlaytest" class="evt-next-chapter-note">
-                  First Bell is the current story chapter. Other playable battles are in One-Shot.
+                  First Bell is the current story chapter. Other playable
+                  battles are in One-Shot.
                 </small>
               </div>
             </section>
 
-            <div v-if="store.state.phase === 'active'" class="evt-statusbar" role="status">
+            <div
+              v-if="store.state.phase === 'active'"
+              class="evt-statusbar"
+              role="status"
+            >
               <strong>{{
                 store.state.phase === 'active'
                   ? 'LIVE TRAINING'
@@ -331,7 +371,11 @@
             </div>
           </section>
 
-          <aside v-if="store.state.phase === 'active'" class="evt-command" aria-label="Squad command panel">
+          <aside
+            v-if="store.state.phase === 'active'"
+            class="evt-command"
+            aria-label="Squad command panel"
+          >
             <div class="evt-panel-head">
               <span class="evt-overline"
                 >FIELD CONTROL / TURN {{ store.state.turn }}</span
@@ -1661,21 +1705,22 @@ function studioCellLabel(cell: Cell): string {
     store.studioBrush.replace('-', ' ')
   )
 }
-const battlefieldArt = computed(() =>
-  promArt(
-    store.state.stageId === 'science-lab' ||
-    store.state.stageId === 'lab-mascot-recall'
-      ? 'districts/engineering-workshop'
-      : store.state.stageId === 'picnic-plaza' ||
-          store.state.stageId === 'college-quad'
-        ? 'districts/student-commons'
-        : 'districts/training-arena',
-  ) ?? '/comet-city-academy/front/splash.webp',
+const battlefieldArt = computed(
+  () =>
+    promArt(
+      store.state.stageId === 'science-lab' ||
+        store.state.stageId === 'lab-mascot-recall'
+        ? 'districts/engineering-workshop'
+        : store.state.stageId === 'picnic-plaza' ||
+            store.state.stageId === 'college-quad'
+          ? 'districts/student-commons'
+          : 'districts/training-arena',
+    ) ?? '/comet-city-academy/front/splash.webp',
 )
 const aftermathArt = computed(() =>
   store.isPlaytest
     ? battlefieldArt.value
-    : promArt(
+    : (promArt(
         'identities/' +
           store.leadSignature +
           '/outcomes/' +
@@ -1684,7 +1729,7 @@ const aftermathArt = computed(() =>
             : store.perspective === 'villain'
               ? 'villain'
               : 'hero'),
-      ) ?? promArt('front/splash-v2'),
+      ) ?? promArt('front/splash-v2')),
 )
 function unitPortrait(unit: Unit): string | null {
   const role = unit.team === 'rival' ? 'villain' : 'hero'
@@ -3873,8 +3918,7 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKey))
 }
 .evt-map {
   background-image:
-    linear-gradient(180deg, #101d3477, #060e24b3),
-    var(--evt-board-art);
+    linear-gradient(180deg, #101d3477, #060e24b3), var(--evt-board-art);
   background-size: cover;
   background-position: center;
   border: 4px solid #eac48b;
@@ -3902,9 +3946,17 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKey))
   place-items: center;
   background:
     repeating-linear-gradient(0deg, transparent 0 12px, #283648c9 12px 16px),
-    repeating-linear-gradient(90deg, #616779, #7f8492 20px, #525769 22px, #525769 24px);
+    repeating-linear-gradient(
+      90deg,
+      #616779,
+      #7f8492 20px,
+      #525769 22px,
+      #525769 24px
+    );
   border: 3px ridge #c3c4c4;
-  box-shadow: inset 0 0 0 3px #354052, inset 0 0 16px #0a1125;
+  box-shadow:
+    inset 0 0 0 3px #354052,
+    inset 0 0 16px #0a1125;
   color: #fff3d8;
   font-size: clamp(0.45rem, 0.85cqw, 0.73rem);
   font-weight: 950;
@@ -3919,10 +3971,30 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKey))
   border: 1px solid #ffdf9b;
   box-shadow: 0 2px 5px #061022;
 }
-.evt-cover-edge.is-north { top: 0; left: 0; width: 100%; height: 13%; }
-.evt-cover-edge.is-south { bottom: 0; left: 0; width: 100%; height: 13%; }
-.evt-cover-edge.is-west { top: 0; left: 0; width: 13%; height: 100%; }
-.evt-cover-edge.is-east { top: 0; right: 0; width: 13%; height: 100%; }
+.evt-cover-edge.is-north {
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 13%;
+}
+.evt-cover-edge.is-south {
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 13%;
+}
+.evt-cover-edge.is-west {
+  top: 0;
+  left: 0;
+  width: 13%;
+  height: 100%;
+}
+.evt-cover-edge.is-east {
+  top: 0;
+  right: 0;
+  width: 13%;
+  height: 100%;
+}
 .evt-cover-edge.is-full {
   background: repeating-linear-gradient(90deg, #8bacc0 0 8px, #344d67 8px 12px);
   border-color: #d5f2fa;
@@ -3946,9 +4018,16 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKey))
   border: 1px solid #e7d5b7;
   display: inline-block;
 }
-.evt-key-wall { background: #777d8c; }
-.evt-key-cover { background: repeating-linear-gradient(90deg, #efc987 0 4px, #896e50 4px 7px); }
-.evt-key-rise { color: #ffd686; border: 0 !important; }
+.evt-key-wall {
+  background: #777d8c;
+}
+.evt-key-cover {
+  background: repeating-linear-gradient(90deg, #efc987 0 4px, #896e50 4px 7px);
+}
+.evt-key-rise {
+  color: #ffd686;
+  border: 0 !important;
+}
 .evt-unit-art,
 .evt-squad-art {
   width: 100%;
@@ -3961,9 +4040,15 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKey))
   inset: 0;
   border-radius: 4px 4px 0 0;
 }
-.evt-squad-portrait { overflow: hidden; }
-.evt-squad-art { border-radius: inherit; }
-.evt-initials { position: relative; }
+.evt-squad-portrait {
+  overflow: hidden;
+}
+.evt-squad-art {
+  border-radius: inherit;
+}
+.evt-initials {
+  position: relative;
+}
 .evt-aftermath {
   position: absolute;
   inset: 0;
@@ -4003,7 +4088,9 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKey))
 .evt-aftermath h2 {
   margin: 0;
   color: #fff3d3;
-  font: 900 clamp(2rem, 5cqw, 4.6rem)/0.94 Impact, sans-serif;
+  font:
+    900 clamp(2rem, 5cqw, 4.6rem)/0.94 Impact,
+    sans-serif;
   letter-spacing: 0.035em;
 }
 .evt-aftermath-stats {
@@ -4025,8 +4112,14 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKey))
   letter-spacing: 0.04em;
   border: 2px solid #e4c89b;
 }
-.evt-next-battle { background: #ffe0a2; color: #19223d; }
-.evt-retry-battle { background: #0e1a34e8; color: #fff3d3; }
+.evt-next-battle {
+  background: #ffe0a2;
+  color: #19223d;
+}
+.evt-retry-battle {
+  background: #0e1a34e8;
+  color: #fff3d3;
+}
 .evt-aftermath-actions button:focus-visible {
   outline: 3px solid white;
   outline-offset: 3px;
@@ -4059,13 +4152,29 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKey))
   color: #f5e1ba;
 }
 @container (max-width: 760px) {
-  .evt-aftermath-copy { padding: 8px; gap: 5px; }
-  .evt-aftermath h2 { font-size: clamp(1.5rem, 6cqw, 2.3rem); }
-  .evt-aftermath-actions button { padding: 7px 8px; font-size: 0.65rem; }
-  .evt-result-details { max-height: 15cqh; }
-  .evt-terrain-legend { font-size: 0.5rem; }
+  .evt-aftermath-copy {
+    padding: 8px;
+    gap: 5px;
+  }
+  .evt-aftermath h2 {
+    font-size: clamp(1.5rem, 6cqw, 2.3rem);
+  }
+  .evt-aftermath-actions button {
+    padding: 7px 8px;
+    font-size: 0.65rem;
+  }
+  .evt-result-details {
+    max-height: 15cqh;
+  }
+  .evt-terrain-legend {
+    font-size: 0.5rem;
+  }
 }
 @media (prefers-reduced-motion: reduce) {
-  .evt-aftermath, .evt-aftermath-art { transition: none; animation: none; }
+  .evt-aftermath,
+  .evt-aftermath-art {
+    transition: none;
+    animation: none;
+  }
 }
 </style>

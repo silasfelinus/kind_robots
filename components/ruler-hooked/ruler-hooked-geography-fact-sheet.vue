@@ -1,30 +1,54 @@
 <template>
   <section class="rh-geography-guide" aria-label="Geography lesson">
     <p class="rh-geography-guide__status" role="status">
-      {{ study ? '✦ Field lesson · Learn this pair' : correct ? '✓ Correct · Your fish awaits' : 'Not quite · Here is the answer' }}
+      {{
+        study
+          ? '✦ Field lesson · Learn this pair'
+          : correct
+            ? '✓ Correct · Your fish awaits'
+            : 'Not quite · Here is the answer'
+      }}
     </p>
     <div class="rh-geography-guide__plate">
-      <div class="rh-geography-guide__symbol" :class="{ 'is-flag': question.module === 'flags' }" aria-hidden="true">
+      <div
+        class="rh-geography-guide__symbol"
+        :class="{ 'is-flag': question.module === 'flags' }"
+        aria-hidden="true"
+      >
         {{ question.module === 'flags' ? flag : '🏛️' }}
       </div>
       <div class="rh-geography-guide__copy">
-        <p class="rh-eyebrow">{{ question.module === 'flags' ? 'World flag guide' : 'United States atlas' }}</p>
+        <p class="rh-eyebrow">
+          {{
+            question.module === 'flags'
+              ? 'World flag guide'
+              : 'United States atlas'
+          }}
+        </p>
         <h3>{{ title }}</h3>
         <p class="rh-geography-guide__subtitle">{{ subtitle }}</p>
       </div>
     </div>
     <p class="rh-geography-guide__fact">{{ question.explanation }}</p>
     <p class="rh-geography-guide__hint">
-      {{ question.module === 'flags'
-        ? 'Study the colors and shapes of the flag, then remember its country.'
-        : 'Practice both directions: state to capital and capital to state.' }}
+      {{
+        question.module === 'flags'
+          ? 'Study the colors and shapes of the flag, then remember its country.'
+          : 'Practice both directions: state to capital and capital to state.'
+      }}
     </p>
     <button
       class="rh-btn rh-btn--gold rh-geography-guide__continue"
       type="button"
       @click="emit('continue')"
     >
-      {{ study ? 'Ready to answer' : correct ? 'Land the fish' : 'Try another question' }}
+      {{
+        study
+          ? 'Ready to answer'
+          : correct
+            ? 'Land the fish'
+            : 'Try another question'
+      }}
     </button>
   </section>
 </template>
@@ -45,7 +69,9 @@ const reversed = computed(() =>
 )
 const flag = computed(() =>
   reversed.value
-    ? props.question.options.find((option) => option.id === props.question.correctId)?.label ?? '🌍'
+    ? (props.question.options.find(
+        (option) => option.id === props.question.correctId,
+      )?.label ?? '🌍')
     : props.question.hero,
 )
 const title = computed(() =>

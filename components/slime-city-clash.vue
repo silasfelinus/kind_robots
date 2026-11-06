@@ -5,34 +5,6 @@
     data-testid="slime-clash"
     aria-label="Slime City Clash"
   >
-    <header class="clash-top">
-      <div class="clash-title">
-        <span class="clash-eyebrow">THE PITWORKS · MAIN EVENT</span>
-        <strong>SLIME CITY <i> / </i> CLASH</strong>
-        <small>Draw five. Play two. Choose attacks. Survivors heal one.</small>
-      </div>
-      <div class="clash-round">
-        <span>ROUND {{ game.round }} / {{ CLASH_ROUND_LIMIT }}</span>
-        <b>{{ phaseLabel }}</b>
-      </div>
-      <button
-        class="clash-reset"
-        type="button"
-        :aria-pressed="showHelp"
-        @click="showHelp = !showHelp"
-      >
-        ? RULES
-      </button>
-      <button
-        class="clash-reset"
-        type="button"
-        data-testid="clash-restart"
-        @click="newMatch"
-      >
-        <span aria-hidden="true">↻</span> REMATCH
-      </button>
-    </header>
-
     <div class="clash-stage">
       <div class="clash-field">
         <div class="clash-boss is-enemy">
@@ -61,7 +33,7 @@
           >
             ATTACK BOSS
           </button>
-          <span class="clash-bank">{{ game.plays.enemy }} / 2 PLAYS</span>
+          <span class="clash-bank">{{ game.plays.enemy }} / 2</span>
         </div>
 
         <div
@@ -71,8 +43,8 @@
         >
           <SlimeCityArtwork
             class="clash-map-art"
-            :image-id="slimeArtId('districts', 'pitworks')"
-            alt="The Pitworks district battleground"
+            :image-id="slimeArtId('boards', 'pitworks-blackout')"
+            alt="Overhead painting of the Pitworks arena floor"
             fallback="⚡"
             compact
           />
@@ -197,109 +169,30 @@
           <b
             >{{ game.boss.player }} <small>/ {{ CLASH_BOSS_HP }} HP</small></b
           >
-          <span class="clash-bank">{{ game.plays.player }} / 2 PLAYS</span>
+          <span class="clash-bank">{{ game.plays.player }} / 2</span>
         </div>
       </div>
-
-      <aside v-if="showHelp" class="clash-sidebar">
-        <div class="clash-info">
-          <span class="clash-eyebrow">{{
-            selectedCard
-              ? 'READY TO PLAY'
-              : selectedUnitCard
-                ? 'FIELD INSPECTOR'
-                : 'THE RULES'
-          }}</span>
-          <template v-if="selectedCard">
-            <div class="clash-detail-art">
-              <SlimeCityArtwork
-                :image-id="slimeArtId('cards', selectedCard.id)"
-                :alt="selectedCard.name"
-                :fallback="selectedCard.symbol"
-                compact
-              />
-            </div>
-            <strong>{{ selectedCard.name }}</strong>
-            <p>{{ clashCardText(selectedCard) }}</p>
-            <small
-              >{{ clashPlayCost(selectedCard) }} PLAY{{
-                clashPlayCost(selectedCard) === 2 ? 'S' : ''
-              }}
-              · {{ selectedCard.kind.toUpperCase() }}</small
-            >
-            >
-            <span class="clash-help"
-              >Tap a glowing lane to play it. Tap the card again to
-              cancel.</span
-            >
-          </template>
-          <template v-else-if="selectedUnitCard">
-            <div class="clash-detail-art">
-              <SlimeCityArtwork
-                :image-id="slimeArtId('cards', selectedUnitCard.id)"
-                :alt="selectedUnitCard.name"
-                :fallback="selectedUnitCard.symbol"
-                compact
-              />
-            </div>
-            <strong>{{ selectedUnitCard.name }}</strong>
-            <p>{{ clashCardText(selectedUnitCard) }}</p>
-            <span class="clash-help"
-              >Fighters stay in their lane. Playing a new creature there
-              replaces yours.</span
-            >
-          </template>
-          <template v-else>
-            <strong>TWO PLAYS. THEN ATTACK.</strong>
-            <p>
-              Draw five random cards each turn. Play two normal cards or one
-              special two-play card. Unplayed cards are discarded.
-            </p>
-            <p>
-              Select a friendly follower, then any enemy follower to trade power
-              damage. If no enemies remain, attack the boss. Each follower may
-              attack once per turn.
-            </p>
-            <span class="clash-help"
-              >Surviving followers recover one life after both players finish.
-              Placement still matters for traps, neighbors and swarm
-              powers.</span
-            >
-          </template>
-        </div>
-        <div class="clash-recap" role="log" aria-label="Latest combat events">
-          <span class="clash-eyebrow">LIVE PLAY-BY-PLAY</span>
-          <ol>
-            <li
-              v-for="(event, index) in game.log.slice(-9).reverse()"
-              :key="game.log.length - index"
-              :class="'log-' + event.kind"
-            >
-              {{ event.text }}
-            </li>
-          </ol>
-        </div>
-      </aside>
     </div>
 
     <footer class="clash-bottom">
       <div class="clash-hud">
         <div class="clash-plays">
-          <strong>{{
-            game.victor
-              ? resultText
-              : busy
-                ? 'RIVAL TURN'
-                : game.phase === 'attack'
-                  ? 'CHOOSE ATTACKS'
-                  : 'YOUR HAND'
-          }}</strong>
+          <strong>{{ phaseLabel }}</strong>
           <span
             >{{ game.plays.player }} / {{ CLASH_PLAYS }} card plays ·
             {{ game.decks.player.length }} in deck ·
             {{ game.discards.player.length }} discarded</span
           >
         </div>
+        <button
+          type="button"
+          class="clash-reset"
+          data-testid="clash-restart"
+          title="Start a new Clash match"
+          @click="newMatch"
+        >
+          ↻ REMATCH
+        </button>
         <button
           type="button"
           class="clash-pass"
@@ -336,6 +229,19 @@
         >
           <SlimeCityArtwork
             :image-id="slimeArtId('cards', id)"
+            :fallback-image-id="
+              slimeArtId(
+                'crews',
+                cardById(id).team === 'mercenary'
+                  ? lab.activeTeam
+                  : cardById(id).team,
+              )
+            "
+            :title="
+              slimeArtId('cards', id)
+                ? cardById(id).name
+                : 'Crew art preview: bespoke Comfy card illustration pending'
+            "
             :alt="cardById(id).name"
             :fallback="cardById(id).symbol"
             compact
@@ -351,10 +257,6 @@
           >
         </button>
       </div>
-      <span class="clash-footnote"
-        >Local practice only. This match awards no Meat, cards or account
-        progress.</span
-      >
     </footer>
   </section>
 </template>
@@ -372,7 +274,6 @@ import {
   CLASH_BOSS_HP,
   CLASH_LANES,
   CLASH_PLAYS,
-  CLASH_ROUND_LIMIT,
   canClashPlay,
   canClashAttack,
   attackClash,
@@ -404,7 +305,6 @@ const game = shallowRef<ClashState>(
 const heldIndex = ref<number | null>(null)
 const selectedUnit = ref<number | null>(null)
 const selectedAttacker = ref<number | null>(null)
-const showHelp = ref(false)
 const busy = ref(false)
 let timer: ReturnType<typeof setTimeout> | null = null
 function newMatch(): void {
@@ -414,7 +314,6 @@ function newMatch(): void {
   heldIndex.value = null
   selectedUnit.value = null
   selectedAttacker.value = null
-  showHelp.value = false
   game.value = createClash(lab.activeTeam, enemyTeam.value, ++seed)
 }
 watch(() => lab.activeTeam, newMatch)
@@ -426,13 +325,9 @@ const selectedCard = computed<Card | null>(() =>
     ? null
     : cardById(game.value.hands.player[heldIndex.value]!),
 )
-const selectedUnitCard = computed<Card | null>(() => {
-  const u = game.value.units.find((x) => x.uid === selectedUnit.value)
-  return u ? cardById(u.cardId) : null
-})
 const phaseLabel = computed(() =>
   game.value.victor
-    ? 'FINAL BELL'
+    ? resultText.value
     : busy.value || game.value.active === 'enemy'
       ? 'RIVAL THINKING'
       : game.value.phase === 'play'
@@ -1240,6 +1135,156 @@ function forecast(lane: number): string {
   .clash-card,
   .clash-health i {
     transition: none;
+  }
+}
+
+/* The playmat, not the hand or duplicated page furniture, owns this screen. */
+.clash {
+  gap: 0.22rem;
+  padding: 0.28rem;
+}
+.clash-stage {
+  flex: 1 1 auto;
+  min-height: 0;
+  gap: 0;
+}
+.clash-field {
+  flex: 1 1 auto;
+  min-height: 0;
+  gap: 0.18rem;
+}
+.clash-boss {
+  min-height: 2.15rem;
+  max-height: 2.5rem;
+  padding: 0.15rem 0.45rem;
+  background: #0d2831ee;
+}
+.clash-boss.is-enemy {
+  background: #2e1b2aee;
+}
+.clash-boss :deep(.slime-art) {
+  flex: 0 0 1.95rem;
+  width: 1.95rem;
+  height: 1.95rem;
+}
+.clash-boss :deep(img) {
+  width: 1.85rem;
+  height: 1.85rem;
+}
+.clash-boss-name {
+  flex-direction: row;
+  align-items: center;
+  gap: 0.5rem;
+}
+.clash-boss-name strong {
+  font-size: 0.82rem;
+}
+.clash-boss-name small {
+  display: none;
+}
+.clash-boss-name .clash-health {
+  max-width: 10rem;
+}
+.clash-boss > b {
+  font-size: 0.86rem;
+}
+.clash-boss .clash-bank {
+  font-size: 0.62rem;
+}
+.clash-board {
+  flex: 1 1 auto;
+  min-height: 0;
+  padding: 0.3rem;
+  gap: 0.2rem;
+  background: #101e23;
+}
+.clash-map-art {
+  opacity: 0.86;
+}
+.clash-slot {
+  background: #06171f31;
+  backdrop-filter: brightness(0.94);
+  border-color: #d6e8d266;
+}
+.clash-row.is-enemy .clash-slot {
+  background: #301a2a46;
+}
+.clash-lane-numbers span {
+  color: #fff0c7;
+  text-shadow: 0 1px 4px #06121d;
+}
+.clash-impact {
+  z-index: 2;
+  border-radius: 0.3rem;
+  background: #061a1db5;
+}
+.clash-bottom {
+  flex: none;
+  gap: 0.25rem;
+}
+.clash-hud {
+  min-height: 1.65rem;
+  padding: 0.05rem 0.3rem;
+}
+.clash-plays span {
+  font-size: 0.64rem;
+}
+.clash-plays strong {
+  font-size: 0.74rem;
+}
+.clash-reset,
+.clash-pass {
+  padding: 0.35rem 0.55rem;
+  font-size: 0.66rem;
+}
+.clash-hand {
+  display: flex;
+  justify-content: center;
+  gap: clamp(0.2rem, 0.65vw, 0.5rem);
+  min-height: 0;
+  max-height: clamp(100px, 17vh, 160px);
+}
+.clash-card {
+  flex: 0 1 clamp(70px, 9vw, 103px);
+  width: clamp(70px, 9vw, 103px);
+  max-height: clamp(100px, 17vh, 160px);
+  aspect-ratio: 2 / 3;
+}
+.clash-card-label b {
+  font-size: clamp(0.52rem, 0.74vw, 0.69rem);
+}
+@media (max-width: 850px) {
+  .clash {
+    overflow: hidden;
+  }
+  .clash-stage {
+    grid-template-columns: minmax(0, 1fr);
+    flex: 1 1 auto;
+  }
+  .clash-hand {
+    min-height: 0;
+    max-height: 130px;
+  }
+  .clash-card {
+    flex-basis: clamp(56px, 17vw, 88px);
+    width: clamp(56px, 17vw, 88px);
+    max-height: 130px;
+  }
+}
+@media (max-width: 520px) {
+  .clash-hand {
+    max-height: 110px;
+  }
+  .clash-card {
+    flex-basis: min(18vw, 70px);
+    width: min(18vw, 70px);
+    max-height: 110px;
+  }
+  .clash-boss {
+    gap: 0.25rem;
+  }
+  .clash-boss-name .clash-health {
+    max-width: 3rem;
   }
 }
 </style>

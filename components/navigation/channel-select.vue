@@ -31,10 +31,13 @@
 
       <span class="flex min-w-0 flex-1 flex-col justify-center leading-tight">
         <span class="kr-text-black-sm truncate sm:text-base xl:text-lg">
-          {{ currentPageTitle }}
+          <span v-if="isSlimeCityPage" class="slime-nav-title"
+            >SLIME <strong>CITY</strong></span
+          >
+          <template v-else>{{ currentPageTitle }}</template>
         </span>
         <span
-          v-if="currentPageSubtitle"
+          v-if="currentPageSubtitle && !isSlimeCityPage"
           class="truncate text-[0.65rem] text-base-content/60 xl:text-xs"
         >
           {{ currentPageSubtitle }}
@@ -473,6 +476,9 @@ const LAUNCHER_MIN_WIDTH = 480
 const LAUNCHER_MAX_WIDTH = 1760
 
 const route = useRoute()
+const isSlimeCityPage = computed(
+  () => route.path === '/play/slime-city' || route.path === '/admin/slime-city',
+)
 const router = useRouter()
 const pageStore = usePageStore()
 const channelContentStore = useChannelContentStore()
@@ -849,6 +855,23 @@ function closeDropdown(): void {
 </script>
 
 <style scoped>
+/* The navigator, not the battle stage, owns the one Slime City wordmark. */
+.slime-nav-title {
+  color: #f7fbfd;
+  display: inline-block;
+  font-size: clamp(0.86rem, 1.2vw, 1.24rem);
+  font-style: italic;
+  font-weight: 1000;
+  letter-spacing: -0.075em;
+  line-height: 1;
+  white-space: nowrap;
+  text-shadow: 0 0 12px #9cfd4763;
+}
+.slime-nav-title strong {
+  color: #c7ff55;
+  font: inherit;
+}
+
 .kr-launcher {
   animation: kr-launcher-in 180ms ease-out both;
   transform-origin: top left;

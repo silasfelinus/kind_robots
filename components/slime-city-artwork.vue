@@ -1,9 +1,13 @@
 <template>
   <figure class="slime-art" :class="{ 'slime-art-compact': compact }">
     <img
-      v-if="record?.status === 'loaded' && record.src"
-      :src="record.src"
-      :alt="alt"
+      v-if="displayRecord?.status === 'loaded' && displayRecord.src"
+      :src="displayRecord.src"
+      :alt="
+        showingFallback
+          ? 'Crew artwork while card illustration is pending: ' + alt
+          : alt
+      "
       loading="lazy"
       draggable="false"
     />
@@ -36,11 +40,12 @@ import { useUserStore } from '~/stores/userStore'
 const props = withDefaults(
   defineProps<{
     imageId?: number | null
+    fallbackImageId?: number | null
     alt: string
     fallback?: string
     compact?: boolean
   }>(),
-  { imageId: null, fallback: '', compact: false },
+  { imageId: null, fallbackImageId: null, fallback: '', compact: false },
 )
 
 const art = useSlimeCityArtStore()
@@ -48,11 +53,29 @@ const user = useUserStore()
 const record = computed(() =>
   props.imageId ? art.images[props.imageId] : null,
 )
+const secondaryRecord = computed(() =>
+  props.fallbackImageId ? art.images[props.fallbackImageId] : null,
+)
+const showingFallback = computed(
+  () =>
+    record.value?.status !== 'loaded' &&
+    secondaryRecord.value?.status === 'loaded',
+)
+const displayRecord = computed(() =>
+  record.value?.status === 'loaded' ? record.value : secondaryRecord.value,
+)
 
 watch(
-  [() => props.imageId, () => user.token],
+  [
+    () => props.imageId,
+    () => props.fallbackImageId,
+    () => user.token,
+    () => record.value?.status,
+  ],
   () => {
     void art.ensure(props.imageId ?? null)
+    if (!props.imageId || record.value?.status === 'failed')
+      void art.ensure(props.fallbackImageId ?? null)
   },
   { immediate: true },
 )

@@ -388,10 +388,11 @@
               <b>HOW TO BEAT THEM</b> {{ lab.team.counters }}
             </p>
             <p class="sc-art-summary" data-testid="slime-art-provenance">
-              {{ SLIME_CITY_ART_COUNT }} RENDERED IDS ·
-              {{ art.loadedCount }} VERIFIED IN BROWSER ·
-              {{ art.failedCount }} UNAVAILABLE · 24 STARTER CARDS STILL NEED
-              ART
+              {{ mappedCardArtCount }} CARD IMAGE IDS MAPPED /
+              {{ lab.collectionSize }} ·
+              {{ lab.collectionSize - mappedCardArtCount }} UNMAPPED ·
+              {{ art.loadedCount }} ACTUALLY LOADED ·
+              {{ art.failedCount }} FAILED TO LOAD
             </p>
           </details>
           <ul
@@ -621,11 +622,12 @@ import { computed, onMounted, onUnmounted, ref } from 'vue'
 import { cardById, type Card } from '~/utils/slimeCity/prototypes'
 import { STREETS } from '~/utils/slimeCity/city'
 import { useSlimeCityStore } from '~/stores/slimeCity'
-import { slimeArtId, SLIME_CITY_ART_COUNT } from '~/utils/slimeCity/artManifest'
+import { slimeArtId, SLIME_CITY_ART } from '~/utils/slimeCity/artManifest'
 import { useSlimeCityArtStore } from '~/stores/slimeCityArt'
 
 const lab = useSlimeCityStore()
 const art = useSlimeCityArtStore()
+const mappedCardArtCount = Object.keys(SLIME_CITY_ART.cards).length
 function openLegacy(event: Event): void {
   const value = (event.target as HTMLSelectElement).value
   if (value === 'arena' || value === 'alleys') lab.view = value

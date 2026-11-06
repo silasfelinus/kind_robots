@@ -218,22 +218,19 @@ onBeforeUnmount(() => navObserver?.disconnect())
 </script>
 
 <style>
-/* ── The Ruler Is Hooked visual system ─────────────────────────────────────
-   Storybook, not shiny: gouache paintings carry the screen; the chrome is
-   plum velvet, thin gold leaf and warm parchment. Unscoped so every console
-   component shares one vocabulary; everything is namespaced `rh-`. */
+/* The Ruler Is Hooked: psychedelic rainbow fantasy with subtle print texture.
+   Keep these legacy token names for sibling components; their values are now
+   chromatic ink and spectrum, not velvet, gold leaf, or parchment. */
 .rh-console {
-  --rh-plum: #3b1530;
-  --rh-plum-deep: #250b1f;
-  --rh-gold: #d9a441;
-  --rh-gold-soft: #f3d28a;
-  --rh-parch: #f4e7c9;
-  --rh-parch-shade: #e6d2a6;
-  --rh-ink: #3a2616;
-  --rh-display:
-    'Fraunces', 'Iowan Old Style', 'Palatino Linotype', Palatino,
-    'Book Antiqua', Georgia, serif;
-  --rh-body: 'Alegreya', 'Iowan Old Style', Palatino, Georgia, serif;
+  --rh-plum: #7727dd;
+  --rh-plum-deep: #080d35;
+  --rh-gold: #2beed3;
+  --rh-gold-soft: #ffe75d;
+  --rh-parch: #e9fff5;
+  --rh-parch-shade: #ffdaee;
+  --rh-ink: #10133d;
+  --rh-display: 'Trebuchet MS', 'Arial Rounded MT Bold', system-ui, sans-serif;
+  --rh-body: 'Trebuchet MS', system-ui, sans-serif;
 
   container: rhconsole / inline-size;
   position: relative;
@@ -289,37 +286,24 @@ onBeforeUnmount(() => navObserver?.disconnect())
 }
 .rh-panel {
   border-radius: 1rem;
-  background:
-    linear-gradient(180deg, rgb(255 255 255 / 0.06), transparent 35%),
-    linear-gradient(180deg, rgb(77 29 64 / 0.96), rgb(37 11 31 / 0.96));
-  border: 1.5px solid var(--rh-gold);
+  background: linear-gradient(150deg, rgb(33 26 103 / 0.97), rgb(8 13 53 / 0.97));
+  border: 2px solid var(--rh-gold);
   box-shadow:
-    0 0 0 3px rgb(37 11 31 / 0.55),
-    0 10px 24px rgb(0 0 0 / 0.4);
-  color: #fbeed3;
+    inset 0 0 0 2px rgb(244 64 185 / 0.33),
+    0 8px 22px rgb(0 0 0 / 0.42);
+  color: #f4faff;
 }
 .rh-parchment {
   padding: clamp(0.75rem, 2cqi, 1.25rem);
   border-radius: 1rem;
   background:
-    radial-gradient(
-      130% 90% at 50% 0%,
-      rgb(255 251 240 / 0.95),
-      transparent 65%
-    ),
-    radial-gradient(
-      90% 60% at 100% 100%,
-      rgb(190 150 90 / 0.25),
-      transparent 70%
-    ),
-    linear-gradient(180deg, var(--rh-parch), var(--rh-parch-shade));
+    linear-gradient(145deg, rgb(233 255 245 / 0.97), rgb(255 218 238 / 0.97));
   color: var(--rh-ink);
-  border: 2px solid var(--rh-gold);
+  border: 2px solid #171451;
   box-shadow:
-    inset 0 0 0 1px rgb(255 255 255 / 0.5),
-    inset 0 0 40px rgb(150 100 40 / 0.18),
-    0 0 0 4px rgb(59 21 48 / 0.72),
-    0 14px 30px rgb(0 0 0 / 0.42);
+    inset 0 0 0 3px rgb(255 255 255 / 0.5),
+    0 0 0 3px rgb(40 223 207 / 0.7),
+    0 12px 26px rgb(0 0 0 / 0.4);
 }
 .rh-eyebrow {
   font-size: 0.72rem;
@@ -358,10 +342,10 @@ onBeforeUnmount(() => navObserver?.disconnect())
   min-height: 2.75rem;
   padding: 0.35rem 1rem;
   border-radius: 0.8rem;
-  background: linear-gradient(180deg, #fffaf0, #ead7ad);
+  background: #e8fff7;
   color: var(--rh-ink);
-  border: 1.5px solid rgb(58 38 22 / 0.45);
-  box-shadow: 0 2px 0 rgb(58 38 22 / 0.35);
+  border: 1.5px solid #151647;
+  box-shadow: 0 2px 0 rgb(24 16 71 / 0.5);
   font-family: var(--rh-display);
   font-weight: 700;
   cursor: pointer;
@@ -386,8 +370,8 @@ onBeforeUnmount(() => navObserver?.disconnect())
   cursor: not-allowed;
 }
 .rh-btn--gold {
-  background: linear-gradient(180deg, #f6cd5c, #c48a24);
-  border-color: #6a3a12;
+  background: #ffe75d;
+  border-color: #1b1350;
   color: var(--rh-plum-deep);
 }
 .rh-btn--big {
@@ -401,7 +385,7 @@ onBeforeUnmount(() => navObserver?.disconnect())
   font-size: 0.85rem;
 }
 .rh-btn--danger {
-  color: #8a1f2e;
+  color: #b41663;
 }
 .rh-input {
   min-height: 3rem;
@@ -409,9 +393,9 @@ onBeforeUnmount(() => navObserver?.disconnect())
   min-width: 0;
   padding: 0.3rem 0.85rem;
   border-radius: 0.7rem;
-  background: #fffaf0;
-  border: 1.5px solid rgb(58 38 22 / 0.4);
-  box-shadow: inset 0 2px 4px rgb(58 38 22 / 0.15);
+  background: #f3fffd;
+  border: 1.5px solid rgb(24 16 71 / 0.6);
+  box-shadow: inset 0 2px 4px rgb(24 16 71 / 0.15);
   color: var(--rh-ink);
   font-family: var(--rh-display);
   font-size: 1.15rem;
@@ -429,7 +413,7 @@ onBeforeUnmount(() => navObserver?.disconnect())
   font-size: 0.75rem;
   font-weight: 800;
   background: rgb(255 255 255 / 0.6);
-  border: 1px solid rgb(58 38 22 / 0.2);
+  border: 1px solid rgb(24 16 71 / 0.25);
 }
 .rh-chip.is-up {
   color: #2f6a22;
@@ -448,22 +432,22 @@ onBeforeUnmount(() => navObserver?.disconnect())
   border: 1px solid rgb(0 0 0 / 0.2);
 }
 .rh-rarity--common {
-  --rh-gem: #9c927a;
+  --rh-gem: #50699c;
 }
 .rh-rarity--uncommon {
-  --rh-gem: #4f9a6a;
+  --rh-gem: #158b76;
 }
 .rh-rarity--rare {
-  --rh-gem: #3f7fc4;
+  --rh-gem: #245ddd;
 }
 .rh-rarity--epic {
-  --rh-gem: #8a4fc4;
+  --rh-gem: #9c2bdd;
 }
 .rh-rarity--legendary {
-  --rh-gem: #d18a1e;
+  --rh-gem: #c06402;
 }
 .rh-rarity--mythic {
-  --rh-gem: linear-gradient(90deg, #e2566e, #d18a1e, #4f9a6a, #3f7fc4, #8a4fc4);
+  --rh-gem: linear-gradient(90deg, #ef3db4, #ffb32b, #46db80, #24adea, #a949ea);
 }
 .rh-console__sheet {
   left: var(--rh-sheet-left, clamp(0.5rem, 2.5cqi, 2rem));

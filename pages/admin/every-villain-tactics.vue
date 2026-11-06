@@ -14,7 +14,7 @@
               (store.isPlaytest ? 'Studio playtest' : 'Stage 1 of 6') +
               ' — Capes & Tassels Tactical Operations · Comet City · First Bell · Internal Training'
             "
-            >{{ store.isPlaytest ? 'STUDIO TEST' : '01 / 06' }}</span
+            >{{ store.isPlaytest ? 'STUDIO TEST' : 'FIRST BELL' }}</span
           >
           <div class="evt-bar-actions">
             <button
@@ -58,7 +58,10 @@
         :data-anim="store.settings.animation"
         :style="{ '--evt-anim': String(store.animationFactor) }"
       >
-        <div class="evt-deck">
+        <div
+          class="evt-deck"
+          :class="{ 'is-finished': store.state.phase !== 'active' }"
+        >
           <section
             class="evt-arena"
             aria-label="First Bell tactical battlefield"
@@ -70,10 +73,15 @@
               <span class="evt-overline">{{
                 store.isPlaytest
                   ? store.draft.venue.toUpperCase()
-                  : 'COMET CITY ACADEMY / AUDITORIUM APPROACH'
+                  : 'COMET CITY ACADEMY / FIRST BELL'
               }}</span>
               <span class="evt-objective"
-                >OBJECTIVE: {{ store.scene.headline }}</span
+                >OBJECTIVE:
+                {{
+                  store.isPlaytest
+                    ? store.draft.objective
+                    : store.scene.headline
+                }}</span
               >
               <span
                 v-if="store.ruleLine"
@@ -86,6 +94,8 @@
             <div class="evt-grid-wrap">
               <div
                 class="evt-map"
+                :data-stage="store.state.stageId ?? 'first-bell'"
+                :style="{ '--evt-board-art': 'url(' + battlefieldArt + ')' }"
                 role="group"
                 aria-label="Nine by six tactical grid"
               >
@@ -100,6 +110,8 @@
                     store.state.selected === actorAt(store.state, cell)?.id
                   "
                   :data-testid="'tactics-tile-' + cell.x + '-' + cell.y"
+                  :data-terrain="store.tileInfoAt(cell)"
+                  :title="cellDescription(cell)"
                   @pointerenter="store.hover(cell)"
                   @focus="store.hover(cell)"
                   @click="store.click(cell)"
@@ -136,15 +148,18 @@
                     >◉</span
                   >
                   <span
-                    v-if="store.tileInfoAt(cell) === 'cover'"
-                    class="evt-cover"
+                    v-for="edge in coverEdges(cell)"
+                    :key="edge.side"
+                    class="evt-cover-edge"
+                    :class="['is-' + edge.side, 'is-' + edge.kind]"
                     aria-hidden="true"
                   ></span>
                   <span
                     v-if="store.tileInfoAt(cell) === 'wall'"
                     class="evt-wall"
                     aria-hidden="true"
-                  ></span>
+                    ><span>WALL</span></span
+                  >
                   <span
                     v-if="store.heightAt(cell) > 0"
                     class="evt-height"
@@ -201,6 +216,13 @@
                     }"
                   >
                     <span class="evt-card-art">
+                      <img
+                        v-if="unitPortrait(displayUnitAt(store.state, cell)!)"
+                        class="evt-unit-art"
+                        :src="unitPortrait(displayUnitAt(store.state, cell)!)!"
+                        alt=""
+                        loading="lazy"
+                      />
                       <span class="evt-crest" aria-hidden="true">{{
                         displayUnitAt(store.state, cell)?.lieutenantName
                           ? '◆'
@@ -214,9 +236,11 @@
                         aria-hidden="true"
                         >1 HIT</span
                       >
-                      <span class="evt-initials">{{
-                        initials(displayUnitAt(store.state, cell)!)
-                      }}</span>
+                      <span
+                        v-if="!unitPortrait(displayUnitAt(store.state, cell)!)"
+                        class="evt-initials"
+                        >{{ initials(displayUnitAt(store.state, cell)!) }}</span
+                      >
                     </span>
                     <span class="evt-card-label">{{
                       unitName(displayUnitAt(store.state, cell)!)
@@ -245,71 +269,109 @@
                 </button>
               </div>
               <div class="evt-map-edge" aria-hidden="true">
-                GRID 09 × 06 •
-                {{
-                  store.isPlaytest
-                    ? store.draft.title.toUpperCase()
-                    : 'ROOFTOP SIMULATION'
-                }}
-              </div>
-            </div>
-
-            <div class="evt-briefing" aria-live="polite">
-              <div class="evt-briefing-image" aria-hidden="true"></div>
-              <div>
-                <span class="evt-overline"
-                  >{{ perspectiveLabel }} / MISSION BRIEF</span
+                <span class="evt-terrain-legend"
+                  ><b class="evt-key-wall"></b> WALL · BLOCKED</span
                 >
-                <h2>{{ store.scene.headline }}</h2>
-                <p class="pk-prose">{{ store.scene.opening }}</p>
+                <span class="evt-terrain-legend"
+                  ><b class="evt-key-cover"></b> COVER · PASSABLE</span
+                >
+                <span class="evt-terrain-legend"
+                  ><b class="evt-key-rise"></b> ▲ RAISED</span
+                >
               </div>
             </div>
 
-            <div class="evt-statusbar" role="status">
-              <strong>{{
-                store.state.phase === 'active'
-                  ? 'LIVE TRAINING'
-                  : store.state.phase.toUpperCase()
-              }}</strong>
+            <section
+              v-if="store.state.phase !== 'active' && store.missionResult"
+              class="evt-aftermath"
+              aria-labelledby="evt-aftermath-heading"
+              data-testid="tactics-post-battle"
+            >
+              <img
+                v-if="aftermathArt"
+                class="evt-aftermath-art"
+                :src="aftermathArt"
+                alt=""
+              />
+              <div class="evt-aftermath-copy">
+                <span class="evt-overline"
+                  >{{ store.isPlaytest ? store.draft.title : 'FIRST BELL' }} ·
+                  COMET CITY</span
+                >
+                <h2 id="evt-aftermath-heading">
+                  {{
+                    store.state.phase === 'victory'
+                      ? 'MISSION CLEARED'
+                      : 'MISSION LOST'
+                  }}
+                </h2>
+                <p class="evt-aftermath-stats">
+                  {{ store.missionResult.total }} PTS ·
+                  {{ store.missionResult.medals.length }} MEDALS · ROUND
+                  {{ store.state.turn }}
+                </p>
+                <div class="evt-aftermath-actions">
+                  <button
+                    type="button"
+                    class="evt-next-battle"
+                    data-testid="tactics-next-battle"
+                    @click="store.openScreen('oneshot')"
+                  >
+                    CHOOSE NEXT BATTLE <span aria-hidden="true">→</span>
+                  </button>
+                  <button
+                    type="button"
+                    class="evt-retry-battle"
+                    data-testid="tactics-retry-battle"
+                    @click="store.reset()"
+                  >
+                    REPLAY <span aria-hidden="true">↻</span>
+                  </button>
+                  <button
+                    type="button"
+                    class="evt-retry-battle"
+                    @click="store.openScreen('title')"
+                  >
+                    MENU
+                  </button>
+                </div>
+                <details
+                  class="evt-result-details"
+                  data-testid="tactics-mission-score"
+                >
+                  <summary>SCORE BREAKDOWN</summary>
+                  <ul>
+                    <li
+                      v-for="line in store.missionResult.lines"
+                      :key="line.id"
+                    >
+                      <span>{{ line.label }}</span
+                      ><b>+{{ line.points }}</b>
+                    </li>
+                  </ul>
+                </details>
+                <small v-if="!store.isPlaytest" class="evt-next-chapter-note">
+                  First Bell is the current story chapter. Other playable
+                  battles are in One-Shot.
+                </small>
+              </div>
+            </section>
+
+            <div
+              v-if="store.state.phase === 'active'"
+              class="evt-statusbar"
+              role="status"
+            >
+              <strong>LIVE TRAINING</strong>
               <span>{{ store.state.log }}</span>
             </div>
           </section>
 
-          <aside class="evt-command" aria-label="Squad command panel">
-            <details
-              v-if="store.missionResult"
-              open
-              class="mb-3 rounded-2xl border border-base-content/20 bg-base-200/90 p-3"
-              data-testid="tactics-mission-score"
-            >
-              <summary class="cursor-pointer text-lg font-black">
-                {{
-                  store.missionResult.outcome === 'victory'
-                    ? 'MISSION CLEARED'
-                    : 'MISSION LOST'
-                }}
-                · {{ store.missionResult.total }} PTS
-              </summary>
-              <p class="mt-1 text-xs opacity-80">
-                {{ store.missionResult.stage }} ·
-                {{ store.missionResult.turns }} rounds ·
-                {{ store.missionResult.medals.length }} medals earned
-              </p>
-              <ol class="mt-2 space-y-1 text-sm">
-                <li
-                  v-for="line in store.missionResult.lines"
-                  :key="line.id"
-                  class="flex justify-between gap-3"
-                >
-                  <span>{{ line.label }}</span>
-                  <strong>+{{ line.points }}</strong>
-                </li>
-              </ol>
-              <small class="mt-2 block opacity-70">
-                Full health is measured at extraction. Scores are awarded once
-                per unique saved result.
-              </small>
-            </details>
+          <aside
+            v-if="store.state.phase === 'active'"
+            class="evt-command"
+            aria-label="Squad command panel"
+          >
             <div class="evt-panel-head">
               <span class="evt-overline"
                 >FIELD CONTROL / TURN {{ store.state.turn }}</span
@@ -332,8 +394,17 @@
                 @click="store.select(unit.id)"
               >
                 <span class="evt-squad-portrait">
-                  <span aria-hidden="true">✦</span>
-                  <b>{{ initials(unit) }}</b>
+                  <img
+                    v-if="unitPortrait(unit)"
+                    class="evt-squad-art"
+                    :src="unitPortrait(unit)!"
+                    alt=""
+                    loading="lazy"
+                  />
+                  <template v-else>
+                    <span aria-hidden="true">✦</span>
+                    <b>{{ initials(unit) }}</b>
+                  </template>
                 </span>
                 <span class="evt-squad-info">
                   <b>{{ unitName(unit) }}</b>
@@ -636,33 +707,6 @@
             </div>
           </aside>
         </div>
-
-        <footer class="evt-bottom">
-          <div class="evt-perspectives" aria-label="Story viewpoint preview">
-            <span class="evt-overline">WHOSE STORY?</span>
-            <button
-              v-for="entry in perspectives"
-              :key="entry.value"
-              type="button"
-              :aria-pressed="store.perspective === entry.value"
-              :class="{ chosen: store.perspective === entry.value }"
-              @click="store.choosePerspective(entry.value)"
-            >
-              {{ entry.label }}
-            </button>
-          </div>
-          <div v-if="!store.isPlaytest" class="evt-missions">
-            <span>CAMPAIGN</span>
-            <strong
-              v-for="(mission, index) in missions"
-              :key="mission"
-              :title="mission"
-              :class="{ current: index === 0 }"
-            >
-              {{ String(index + 1).padStart(2, '0') }}
-            </strong>
-          </div>
-        </footer>
 
         <section
           v-if="store.studioOpen"
@@ -1450,10 +1494,7 @@ import {
 import { promArt } from '~/utils/cometAcademy/artManifest'
 import type { SignaturePowerId } from '~/utils/cometAcademy/specialPowers'
 import { EVERY_VILLAIN_TACTICS } from '~/utils/playbookKit/games/everyVillainTactics'
-import {
-  useEveryVillainTacticsStore,
-  PERSPECTIVES,
-} from '~/stores/everyVillainTacticsStore'
+import { useEveryVillainTacticsStore } from '~/stores/everyVillainTacticsStore'
 import {
   actorAt,
   displayUnitAt,
@@ -1660,19 +1701,46 @@ function studioCellLabel(cell: Cell): string {
     store.studioBrush.replace('-', ' ')
   )
 }
-const perspectives = Object.entries(PERSPECTIVES).map(([value, entry]) => ({
-  value: value as keyof typeof PERSPECTIVES,
-  label: entry.label,
-}))
-const missions = [
-  'First Bell',
-  'Science Wing Lockdown',
-  'Crosswalk Crisis',
-  'Rooftop Broadcast',
-  'Under-Comet Breach',
-  "Prom Night: Everybody's Villain",
-]
-const perspectiveLabel = computed(() => store.scene.label.toUpperCase())
+const battlefieldArt = computed(
+  () =>
+    promArt(
+      store.state.stageId === 'science-lab' ||
+        store.state.stageId === 'lab-mascot-recall'
+        ? 'districts/engineering-workshop'
+        : store.state.stageId === 'picnic-plaza' ||
+            store.state.stageId === 'college-quad'
+          ? 'districts/student-commons'
+          : 'districts/training-arena',
+    ) ?? '/comet-city-academy/front/splash.webp',
+)
+const aftermathArt = computed(() =>
+  store.isPlaytest
+    ? battlefieldArt.value
+    : (promArt(
+        'identities/' +
+          store.leadSignature +
+          '/outcomes/' +
+          (store.state.phase === 'defeat'
+            ? 'betrayal'
+            : store.perspective === 'villain'
+              ? 'villain'
+              : 'hero'),
+      ) ?? promArt('front/splash-v2')),
+)
+function unitPortrait(unit: Unit): string | null {
+  const role = unit.team === 'rival' ? 'villain' : 'hero'
+  return (
+    promArt('identities/' + unit.identity + '/' + role) ??
+    promArt('identities/' + unit.identity + '/student') ??
+    promArt('identities/' + unit.identity + '/outcomes/' + role)
+  )
+}
+function coverEdges(cell: Cell) {
+  const cover = store.state.map.tiles[cell.x + ',' + cell.y]?.cover
+  return Object.entries(cover ?? {})
+    .filter((entry) => !!entry[1])
+    .map(([side, kind]) => ({ side, kind }))
+}
 const meterValues = computed(() => ({
   squad: store.players.reduce((total, unit) => total + unit.hp, 0),
   rivals: store.enemies.reduce((total, unit) => total + unit.hp, 0),
@@ -3838,6 +3906,271 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKey))
   }
   .evt-brushes {
     grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+.evt-deck.is-finished {
+  grid-template-columns: minmax(0, 1fr);
+}
+.evt-map {
+  background-image:
+    linear-gradient(180deg, #101d3477, #060e24b3), var(--evt-board-art);
+  background-size: cover;
+  background-position: center;
+  border: 4px solid #eac48b;
+  border-radius: 7px;
+  outline: 3px solid #17293c;
+  outline-offset: 2px;
+}
+.evt-tile,
+.evt-tile:nth-child(even) {
+  background: linear-gradient(155deg, #243858b5, #122440b8);
+  border: 1px solid #d3dcdd75;
+}
+.evt-tile:nth-child(even) {
+  background: linear-gradient(155deg, #304a64b5, #152b47bb);
+}
+.evt-tile.has-wall {
+  background: #1a2034;
+  cursor: not-allowed;
+}
+.evt-wall {
+  width: 100%;
+  height: 100%;
+  clip-path: none;
+  display: grid;
+  place-items: center;
+  background:
+    repeating-linear-gradient(0deg, transparent 0 12px, #283648c9 12px 16px),
+    repeating-linear-gradient(
+      90deg,
+      #616779,
+      #7f8492 20px,
+      #525769 22px,
+      #525769 24px
+    );
+  border: 3px ridge #c3c4c4;
+  box-shadow:
+    inset 0 0 0 3px #354052,
+    inset 0 0 16px #0a1125;
+  color: #fff3d8;
+  font-size: clamp(0.45rem, 0.85cqw, 0.73rem);
+  font-weight: 950;
+  letter-spacing: 0.1em;
+  text-shadow: 0 2px 4px #050b13;
+}
+.evt-cover-edge {
+  position: absolute;
+  z-index: 1;
+  pointer-events: none;
+  background: repeating-linear-gradient(90deg, #dfb978 0 8px, #755c48 8px 12px);
+  border: 1px solid #ffdf9b;
+  box-shadow: 0 2px 5px #061022;
+}
+.evt-cover-edge.is-north {
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 13%;
+}
+.evt-cover-edge.is-south {
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 13%;
+}
+.evt-cover-edge.is-west {
+  top: 0;
+  left: 0;
+  width: 13%;
+  height: 100%;
+}
+.evt-cover-edge.is-east {
+  top: 0;
+  right: 0;
+  width: 13%;
+  height: 100%;
+}
+.evt-cover-edge.is-full {
+  background: repeating-linear-gradient(90deg, #8bacc0 0 8px, #344d67 8px 12px);
+  border-color: #d5f2fa;
+}
+.evt-map-edge {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 6px 18px;
+}
+.evt-terrain-legend {
+  display: inline-flex;
+  gap: 5px;
+  align-items: center;
+  white-space: nowrap;
+  font-size: clamp(0.5rem, 0.7cqw, 0.7rem);
+}
+.evt-terrain-legend b {
+  width: 13px;
+  height: 10px;
+  border: 1px solid #e7d5b7;
+  display: inline-block;
+}
+.evt-key-wall {
+  background: #777d8c;
+}
+.evt-key-cover {
+  background: repeating-linear-gradient(90deg, #efc987 0 4px, #896e50 4px 7px);
+}
+.evt-key-rise {
+  color: #ffd686;
+  border: 0 !important;
+}
+.evt-unit-art,
+.evt-squad-art {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center 23%;
+}
+.evt-unit-art {
+  position: absolute;
+  inset: 0;
+  border-radius: 4px 4px 0 0;
+}
+.evt-squad-portrait {
+  overflow: hidden;
+}
+.evt-squad-art {
+  border-radius: inherit;
+}
+.evt-initials {
+  position: relative;
+}
+.evt-aftermath {
+  position: absolute;
+  inset: 0;
+  z-index: 10;
+  isolation: isolate;
+  background: #0e172b;
+  display: flex;
+  align-items: flex-end;
+}
+.evt-aftermath-art {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: 55% 35%;
+}
+.evt-aftermath::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  background: linear-gradient(0deg, #071125 5%, #071125cb 40%, #07112515 100%);
+  pointer-events: none;
+}
+.evt-aftermath-copy {
+  position: relative;
+  z-index: 1;
+  width: min(720px, 100%);
+  margin: 0 auto;
+  display: grid;
+  gap: clamp(6px, 1cqh, 14px);
+  padding: clamp(12px, 2cqw, 36px);
+  text-align: center;
+  text-shadow: 0 2px 8px #040712;
+}
+.evt-aftermath h2 {
+  margin: 0;
+  color: #fff3d3;
+  font:
+    900 clamp(2rem, 5cqw, 4.6rem)/0.94 Impact,
+    sans-serif;
+  letter-spacing: 0.035em;
+}
+.evt-aftermath-stats {
+  color: #f5e1ba;
+  font-size: clamp(0.68rem, 1.2cqw, 1rem);
+  font-weight: 900;
+  letter-spacing: 0.08em;
+}
+.evt-aftermath-actions {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.evt-aftermath-actions button {
+  border-radius: 7px;
+  padding: 10px 15px;
+  font-weight: 900;
+  letter-spacing: 0.04em;
+  border: 2px solid #e4c89b;
+}
+.evt-next-battle {
+  background: #ffe0a2;
+  color: #19223d;
+}
+.evt-retry-battle {
+  background: #0e1a34e8;
+  color: #fff3d3;
+}
+.evt-aftermath-actions button:focus-visible {
+  outline: 3px solid white;
+  outline-offset: 3px;
+}
+.evt-result-details {
+  justify-self: center;
+  width: min(360px, 100%);
+  max-height: 22cqh;
+  overflow: auto;
+  background: #09132ddb;
+  border: 1px solid #b9c6da8f;
+  border-radius: 7px;
+  padding: 5px 10px;
+  text-align: left;
+  font-size: 0.7rem;
+}
+.evt-result-details summary {
+  cursor: pointer;
+  font-weight: 900;
+  text-align: center;
+}
+.evt-result-details li {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 2px 0;
+}
+.evt-next-chapter-note {
+  font-size: 0.64rem;
+  color: #f5e1ba;
+}
+@container (max-width: 760px) {
+  .evt-aftermath-copy {
+    padding: 8px;
+    gap: 5px;
+  }
+  .evt-aftermath h2 {
+    font-size: clamp(1.5rem, 6cqw, 2.3rem);
+  }
+  .evt-aftermath-actions button {
+    padding: 7px 8px;
+    font-size: 0.65rem;
+  }
+  .evt-result-details {
+    max-height: 15cqh;
+  }
+  .evt-terrain-legend {
+    font-size: 0.5rem;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .evt-aftermath,
+  .evt-aftermath-art {
+    transition: none;
+    animation: none;
   }
 }
 </style>

@@ -41,14 +41,39 @@ assert.match(geographyQuestion('flags', 0, null, () => 0).hero, /[🇦-🇿]/u)
 assert.equal(choiceCount('easy'), 2)
 assert.equal(choiceCount('standard'), 4)
 assert.equal(unlockedCount(0, 50, 'challenge'), 12)
-assert.equal(geographyQuestion('flags', 0, null, () => 0, 'easy').options.length, 2)
-assert.ok(geographyQuestion('flags', 0, null, () => 0).options.every((option) => !option.icon),
-  'flag answers must not display the matching flag next to country labels')
-const reversedFlag = geographyQuestion('flags', 0, null, () => 0, 'standard', true)
+assert.equal(
+  geographyQuestion('flags', 0, null, () => 0, 'easy').options.length,
+  2,
+)
+assert.ok(
+  geographyQuestion('flags', 0, null, () => 0).options.every(
+    (option) => !option.icon,
+  ),
+  'flag answers must not display the matching flag next to country labels',
+)
+const reversedFlag = geographyQuestion(
+  'flags',
+  0,
+  null,
+  () => 0,
+  'standard',
+  true,
+)
 assert.equal(reversedFlag.hero, 'United States')
 assert.equal(reversedFlag.correctId, 'United States')
-assert.match(reversedFlag.options.find((option) => option.id === reversedFlag.correctId)!.label, /[🇦-🇿]/u)
-const reversedCapital = geographyQuestion('capitals', 0, null, () => 0, 'standard', true)
+assert.match(
+  reversedFlag.options.find((option) => option.id === reversedFlag.correctId)!
+    .label,
+  /[🇦-🇿]/u,
+)
+const reversedCapital = geographyQuestion(
+  'capitals',
+  0,
+  null,
+  () => 0,
+  'standard',
+  true,
+)
 assert.equal(reversedCapital.hero, 'Montgomery')
 assert.equal(reversedCapital.correctId, 'Alabama')
 
@@ -74,10 +99,19 @@ assert.equal(q.correctId, 'a')
 assert.equal(q.options.length, 4)
 assert.equal(new Set(q.options.map((x) => x.label)).size, 4)
 
-const reversedMandarin = mandarinQuestion(cards[0]!, cards, () => 0, 'easy', true)
+const reversedMandarin = mandarinQuestion(
+  cards[0]!,
+  cards,
+  () => 0,
+  'easy',
+  true,
+)
 assert.equal(reversedMandarin.hero, 'fish')
 assert.equal(reversedMandarin.options.length, 2)
-assert.equal(reversedMandarin.options.find((option) => option.id === 'a')?.label, '鱼')
+assert.equal(
+  reversedMandarin.options.find((option) => option.id === 'a')?.label,
+  '鱼',
+)
 const start = mandarinFrontier(cards, {}, null, 0, () => 0)
 assert.equal(start?.key, 'a')
 assert.equal(mandarinFrontier(cards, {}, 'a', 0, () => 0)?.key, 'b')
@@ -89,8 +123,20 @@ assert.equal(
   'due reviews outrank new words',
 )
 
-assert.ok(MANDARIN_QUIZ_TOPICS.length >= 20, 'the topic selector exposes the tutor taxonomy')
-for (const scope of ['all', 'animals', 'colors', 'family', 'food-drink', 'travel-transport', 'numbers', 'casino'])
+assert.ok(
+  MANDARIN_QUIZ_TOPICS.length >= 20,
+  'the topic selector exposes the tutor taxonomy',
+)
+for (const scope of [
+  'all',
+  'animals',
+  'colors',
+  'family',
+  'food-drink',
+  'travel-transport',
+  'numbers',
+  'casino',
+])
   assert.ok(isMandarinQuizScope(scope), `registered topic: ${scope}`)
 assert.equal(isMandarinQuizScope('invented'), false)
 assert.ok(mandarinTopicCards(CURATED_MANDARIN_CARDS, 'colors').length >= 8)
@@ -177,13 +223,40 @@ assert.match(settings, /quiz\.setLessonMode\(choice\.id\)/)
 assert.match(settings, /quiz\.setDifficulty\(choice\.id\)/)
 assert.match(settings, /quiz\.setPromptDirection\(choice\.id\)/)
 assert.match(settings, /quiz\.setReferenceDetail\('full'\)/)
-assert.match(quizStore, /isMandarinQuizScope\(parsed\.mandarinScope\)/, 'unknown saved topics cannot poison the selector')
-assert.match(quizStore, /topicCorrect\.value\[mandarinScope\.value\]/, 'new topics get their own unlock progression')
-assert.match(quizStore, /lessonMode\.value === 'guided'/, 'guided mode introduces unfamiliar items')
-assert.match(quizStore, /answerSheet\.value = true/, 'every answer opens the field guide')
-const geographyGuide = readFileSync('components/ruler-hooked/ruler-hooked-geography-fact-sheet.vue', 'utf8')
-assert.match(quiz, /<RulerHookedGeographyFactSheet/, 'geography has a study and review screen')
-assert.match(geographyGuide, /question\.explanation/, 'geography sheets explain their fact pair')
+assert.match(
+  quizStore,
+  /isMandarinQuizScope\(parsed\.mandarinScope\)/,
+  'unknown saved topics cannot poison the selector',
+)
+assert.match(
+  quizStore,
+  /topicCorrect\.value\[mandarinScope\.value\]/,
+  'new topics get their own unlock progression',
+)
+assert.match(
+  quizStore,
+  /lessonMode\.value === 'guided'/,
+  'guided mode introduces unfamiliar items',
+)
+assert.match(
+  quizStore,
+  /answerSheet\.value = true/,
+  'every answer opens the field guide',
+)
+const geographyGuide = readFileSync(
+  'components/ruler-hooked/ruler-hooked-geography-fact-sheet.vue',
+  'utf8',
+)
+assert.match(
+  quiz,
+  /<RulerHookedGeographyFactSheet/,
+  'geography has a study and review screen',
+)
+assert.match(
+  geographyGuide,
+  /question\.explanation/,
+  'geography sheets explain their fact pair',
+)
 assert.match(sheet, /detail === 'full'/, 'word history detail is configurable')
 assert.match(
   quizStore,

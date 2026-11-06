@@ -69,43 +69,91 @@
           >
         </label>
       </fieldset>
-      <fieldset
-        v-if="quiz.modules.mandarin"
-        class="rh-study-settings__mandarin"
-      >
-        <legend>Mandarin vocabulary</legend>
-        <label class="rh-study-settings__subject">
-          <input
-            type="radio"
-            name="ruler-mandarin-scope"
-            value="all"
-            :checked="quiz.mandarinScope === 'all'"
-            @change="quiz.setMandarinScope('all')"
-          />
-          <span aria-hidden="true">📖</span>
-          <span>
-            <strong>All beginner words</strong>
-            <small>Mixed subjects from Mandarin Tutor.</small>
-          </span>
-        </label>
-        <label class="rh-study-settings__subject">
-          <input
-            type="radio"
-            name="ruler-mandarin-scope"
-            value="animals"
-            :checked="quiz.mandarinScope === 'animals'"
-            @change="quiz.setMandarinScope('animals')"
-          />
-          <span aria-hidden="true">🐼</span>
-          <span>
-            <strong>Animals &amp; their names</strong>
-            <small
-              >Guess the Mandarin name, then open its picture and word
-              history.</small
-            >
-          </span>
-        </label>
+      <fieldset v-if="quiz.mode === 'quiz'" class="rh-study-settings__classroom">
+        <legend>Build your lesson</legend>
+        <p class="rh-study-settings__hint">
+          Choose how much help to see before each cast. Every answer opens a field guide.
+        </p>
+        <div class="rh-study-settings__segmented" role="group" aria-label="Learning pace">
+          <button
+            v-for="choice in lessonStyles"
+            :key="choice.id"
+            type="button"
+            :aria-pressed="quiz.lessonMode === choice.id"
+            :class="{ 'is-selected': quiz.lessonMode === choice.id }"
+            @click="quiz.setLessonMode(choice.id)"
+          >
+            <strong>{{ choice.label }}</strong>
+            <small>{{ choice.description }}</small>
+          </button>
+        </div>
+        <p class="rh-study-settings__hint">
+          <strong>Challenge</strong> · Easy starts with two choices. Standard uses four; Expert unlocks more words sooner.
+        </p>
+        <div class="rh-study-settings__segmented rh-study-settings__segmented--tight" role="group" aria-label="Challenge level">
+          <button
+            v-for="choice in difficulties"
+            :key="choice.id"
+            type="button"
+            :aria-pressed="quiz.difficulty === choice.id"
+            :class="{ 'is-selected': quiz.difficulty === choice.id }"
+            @click="quiz.setDifficulty(choice.id)"
+          >{{ choice.label }}</button>
+        </div>
+        <p class="rh-study-settings__hint">
+          <strong>Question direction</strong> · Recognize names, reverse the clues, or mix both.
+        </p>
+        <div class="rh-study-settings__segmented rh-study-settings__segmented--tight" role="group" aria-label="Question direction">
+          <button
+            v-for="choice in directions"
+            :key="choice.id"
+            type="button"
+            :aria-pressed="quiz.promptDirection === choice.id"
+            :class="{ 'is-selected': quiz.promptDirection === choice.id }"
+            @click="quiz.setPromptDirection(choice.id)"
+          >{{ choice.label }}</button>
+        </div>
       </fieldset>
+      <fieldset v-if="quiz.mode === 'quiz' && quiz.modules.mandarin" class="rh-study-settings__mandarin">
+        <legend>Mandarin study topic</legend>
+        <p class="rh-study-settings__hint">Pick a subject for the Mandarin questions. All topics use Tutor vocabulary, review scheduling and pronunciation.</p>
+        <div class="rh-study-settings__topic-grid" role="group" aria-label="Mandarin topics">
+          <button
+            v-for="topic in topics"
+            :key="topic.id"
+            type="button"
+            :aria-pressed="quiz.mandarinScope === topic.id"
+            :class="{ 'is-selected': quiz.mandarinScope === topic.id }"
+            :title="topic.description"
+            @click="quiz.setMandarinScope(topic.id)"
+          >
+            <span aria-hidden="true">{{ topicIcons[topic.id] ?? '🀄' }}</span>
+            {{ topic.label }}
+          </button>
+        </div>
+        <p class="rh-study-settings__hint">Correct in this topic: {{ quiz.topicCorrect[quiz.mandarinScope] ?? 0 }}</p>
+        <div class="rh-study-settings__segmented rh-study-settings__segmented--tight" role="group" aria-label="Word reference depth">
+          <button
+            type="button"
+            :class="{ 'is-selected': quiz.referenceDetail === 'quick' }"
+            :aria-pressed="quiz.referenceDetail === 'quick'"
+            @click="quiz.setReferenceDetail('quick')"
+          >Quick word card</button>
+          <button
+            type="button"
+            :class="{ 'is-selected': quiz.referenceDetail === 'full' }"
+            :aria-pressed="quiz.referenceDetail === 'full'"
+            @click="quiz.setReferenceDetail('full')"
+          >Deep word history</button>
+        </div>
+      </fieldset>
+      <p v-if="quiz.mode === 'quiz'" class="rh-study-settings__footer">
+        <strong>Classroom progress</strong> ·
+        Flags {{ quiz.correct.flags }}/{{ quiz.attempts.flags }} ·
+        Capitals {{ quiz.correct.capitals }}/{{ quiz.attempts.capitals }} ·
+        Mandarin {{ quiz.correct.mandarin }}/{{ quiz.attempts.mandarin }}
+        <small>(correct / answers attempted on this device)</small>
+      </p>
       <p class="rh-study-settings__footer">
         Subjects expand as you answer. Mandarin uses your existing tutor lessons
         and spaced review when signed in.
@@ -121,9 +169,39 @@
 <script setup lang="ts">
 import { useRulerHookedQuizStore } from '~/stores/rulerHookedQuizStore'
 import { BACKDROPS } from '~/utils/rulerHooked/artLibrary'
-import type { FishingQuizModule } from '~/utils/rulerHooked/quiz'
+import {
+  MANDARIN_QUIZ_TOPICS,
+  type FishingQuizModule,
+  type FishingQuizDifficulty,
+  type FishingLessonMode,
+  type FishingPromptDirection,
+} from '~/utils/rulerHooked/quiz'
 
 const quiz = useRulerHookedQuizStore()
+const topics = MANDARIN_QUIZ_TOPICS
+const lessonStyles: { id: FishingLessonMode; label: string; description: string }[] = [
+  { id: 'guided', label: 'Guided', description: 'Study unfamiliar clues first.' },
+  { id: 'always', label: 'Study every time', description: 'A briefing before every cast.' },
+  { id: 'quiz-first', label: 'Test me', description: 'Answer first, then learn.' },
+]
+const difficulties: { id: FishingQuizDifficulty; label: string }[] = [
+  { id: 'easy', label: 'Easy · 2' },
+  { id: 'standard', label: 'Standard · 4' },
+  { id: 'challenge', label: 'Expert · 4' },
+]
+const directions: { id: FishingPromptDirection; label: string }[] = [
+  { id: 'forward', label: 'Recognize' },
+  { id: 'reverse', label: 'Reverse' },
+  { id: 'mixed', label: 'Shuffle' },
+]
+const topicIcons: Record<string, string> = {
+  all: '📖', animals: '🐼', colors: '🎨', numbers: '🔢', family: '🏡',
+  people: '👥', body: '🩺', 'food-drink': '🍜', home: '🛋️', school: '📚',
+  work: '🧰', 'travel-transport': '🚆', places: '🏯', weather: '⛅',
+  'time-calendar': '⏳', directions: '🧭', clothing: '👕',
+  'shopping-money': '🛍️', 'everyday-actions': '🏃', adjectives: '✨',
+  'questions-grammar': '❔', greetings: '👋', casino: '🎲',
+}
 const subjects: {
   id: FishingQuizModule
   label: string
@@ -201,17 +279,60 @@ onMounted(() => quiz.initialize())
   gap: 0.4rem;
 }
 .rh-study-settings__modules legend,
-.rh-study-settings__mandarin legend {
+.rh-study-settings__mandarin legend,
+.rh-study-settings__classroom legend {
   font-weight: 800;
   margin-bottom: 0.35rem;
 }
-.rh-study-settings__mandarin {
+.rh-study-settings__mandarin,
+.rh-study-settings__classroom {
   display: grid;
   gap: 0.4rem;
   padding: 0.6rem;
   border: 1px solid rgb(58 38 22 / 0.3);
   border-radius: 0.8rem;
   background: rgb(255 250 240 / 0.4);
+}
+.rh-study-settings__hint {
+  font-size: 0.76rem;
+  line-height: 1.35;
+}
+.rh-study-settings__segmented {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.35rem;
+}
+.rh-study-settings__segmented button,
+.rh-study-settings__topic-grid button {
+  border: 1px solid rgb(58 38 22 / 0.25);
+  border-radius: 0.65rem;
+  background: rgb(255 255 255 / 0.56);
+  padding: 0.4rem;
+  text-align: center;
+  cursor: pointer;
+  font-size: 0.78rem;
+}
+.rh-study-settings__segmented button.is-selected,
+.rh-study-settings__topic-grid button.is-selected {
+  color: var(--rh-plum);
+  background: rgb(254 222 149 / 0.8);
+  border-color: var(--rh-plum);
+  box-shadow: inset 0 0 0 1px var(--rh-plum);
+}
+.rh-study-settings__segmented small {
+  font-size: 0.7rem;
+  line-height: 1.25;
+}
+.rh-study-settings__segmented--tight button {
+  font-weight: 800;
+}
+.rh-study-settings__topic-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 9rem), 1fr));
+  gap: 0.35rem;
+}
+.rh-study-settings__topic-grid button span {
+  margin-right: 0.15rem;
 }
 .rh-study-settings__subject {
   display: flex;
@@ -246,6 +367,12 @@ onMounted(() => quiz.initialize())
   }
   .rh-study-settings__illustration {
     font-size: 1.4rem;
+  }
+  .rh-study-settings__segmented {
+    grid-template-columns: 1fr;
+  }
+  .rh-study-settings__segmented--tight {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 }
 </style>

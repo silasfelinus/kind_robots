@@ -1,7 +1,7 @@
 <template>
   <section
     class="mc-console @container flex h-full min-h-0 w-full flex-col overflow-hidden text-white"
-    data-testid="monstress-point-click"
+    data-testid="monstrexx-point-click"
   >
     <div
       v-if="screen === 'title'"
@@ -107,7 +107,7 @@
           </span>
           <span class="text-left">
             <strong>{{
-              story.state.actor === 'iris' ? 'IRIS' : 'NICO'
+              story.state.actor === 'iris' ? 'IRIS' : 'NORB'
             }}</strong>
             <small>SWAP <span aria-hidden="true">⇄</span></small>
           </span>

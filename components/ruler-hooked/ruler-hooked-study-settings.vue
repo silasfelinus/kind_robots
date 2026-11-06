@@ -69,6 +69,40 @@
           >
         </label>
       </fieldset>
+      <fieldset
+        v-if="quiz.modules.mandarin"
+        class="rh-study-settings__mandarin"
+      >
+        <legend>Mandarin vocabulary</legend>
+        <label class="rh-study-settings__subject">
+          <input
+            type="radio"
+            name="ruler-mandarin-scope"
+            value="all"
+            :checked="quiz.mandarinScope === 'all'"
+            @change="quiz.setMandarinScope('all')"
+          />
+          <span aria-hidden="true">📖</span>
+          <span>
+            <strong>All beginner words</strong>
+            <small>Mixed subjects from Mandarin Tutor.</small>
+          </span>
+        </label>
+        <label class="rh-study-settings__subject">
+          <input
+            type="radio"
+            name="ruler-mandarin-scope"
+            value="animals"
+            :checked="quiz.mandarinScope === 'animals'"
+            @change="quiz.setMandarinScope('animals')"
+          />
+          <span aria-hidden="true">🐼</span>
+          <span>
+            <strong>Animals &amp; their names</strong>
+            <small>Guess the Mandarin name, then open its picture and word history.</small>
+          </span>
+        </label>
+      </fieldset>
       <p class="rh-study-settings__footer">
         Subjects expand as you answer. Mandarin uses your existing tutor lessons
         and spaced review when signed in.
@@ -163,9 +197,18 @@ onMounted(() => quiz.initialize())
   display: grid;
   gap: 0.4rem;
 }
-.rh-study-settings__modules legend {
+.rh-study-settings__modules legend,
+.rh-study-settings__mandarin legend {
   font-weight: 800;
   margin-bottom: 0.35rem;
+}
+.rh-study-settings__mandarin {
+  display: grid;
+  gap: 0.4rem;
+  padding: 0.6rem;
+  border: 1px solid rgb(58 38 22 / 0.3);
+  border-radius: 0.8rem;
+  background: rgb(255 250 240 / 0.4);
 }
 .rh-study-settings__subject {
   display: flex;

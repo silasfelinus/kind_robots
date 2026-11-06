@@ -104,8 +104,14 @@ assert.equal(
   'animal review keeps the same spaced-repetition priority',
 )
 assert.notEqual(
-  mandarinFrontier(animals, animalReviews, animals[1]!.key, 0, () => 0, 'animals')
-    ?.key,
+  mandarinFrontier(
+    animals,
+    animalReviews,
+    animals[1]!.key,
+    0,
+    () => 0,
+    'animals',
+  )?.key,
   animals[1]!.key,
   'a freshly missed animal does not trap the player in the same question',
 )

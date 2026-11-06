@@ -118,7 +118,7 @@
 
     <section
       v-if="decrees.length"
-      class="rh-aside rh-panel rh-decrees kr-scroll"
+      class="rh-aside rh-panel rh-decrees"
       aria-label="Recent decrees"
     >
       <h3 class="rh-decrees-head">Recent decrees</h3>
@@ -286,7 +286,7 @@ function keepFishing() {
 }
 
 const decrees = computed(() =>
-  [...(store.save?.choiceLog ?? [])].reverse().slice(0, 6),
+  [...(store.save?.choiceLog ?? [])].reverse().slice(0, 4),
 )
 
 function onDigit(event: KeyboardEvent) {
@@ -517,8 +517,9 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onDigit))
   font-weight: 600;
 }
 .rh-decrees {
+  align-self: start;
   padding: 0.75rem 0.85rem;
-  overflow-y: auto;
+  overflow: hidden;
 }
 .rh-decrees-head {
   margin-bottom: 0.35rem;

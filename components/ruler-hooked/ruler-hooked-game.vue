@@ -503,14 +503,6 @@ function pollPads(now: number) {
   frame = requestAnimationFrame(pollPads)
 }
 
-watch(
-  () => store.activeCard,
-  (card) => {
-    if (card && store.activeFishing === null && tab.value === 'map')
-      tab.value = 'lake'
-  },
-)
-
 onMounted(() => {
   store.init()
   overlay.value = store.showOpening ? 'opening' : null

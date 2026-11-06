@@ -1179,8 +1179,7 @@ export const ACT_THREE_DAYS: readonly DayDef[] = [
             options: [
               {
                 id: 'show-court',
-                label:
-                  'Show the court the filed-off maker’s mark.',
+                label: 'Show the court the filed-off maker’s mark.',
                 effects: {
                   affinity: { moles: 5 },
                   local: { 'old-houses': -3, lamplight: 2 },
@@ -1191,8 +1190,7 @@ export const ACT_THREE_DAYS: readonly DayDef[] = [
               },
               {
                 id: 'quiet-word',
-                label:
-                  'Return the knife privately. End the accusation.',
+                label: 'Return the knife privately. End the accusation.',
                 effects: {
                   local: { 'old-houses': 2, lamplight: -2 },
                   flags: ['d22-knife-returned'],
@@ -1202,8 +1200,7 @@ export const ACT_THREE_DAYS: readonly DayDef[] = [
               },
               {
                 id: 'blame',
-                label:
-                  'Raid the burrow anyway. The knife proves nothing.',
+                label: 'Raid the burrow anyway. The knife proves nothing.',
                 effects: {
                   affinity: { moles: -15 },
                   local: { 'old-houses': 3 },
@@ -1214,16 +1211,14 @@ export const ACT_THREE_DAYS: readonly DayDef[] = [
               },
               {
                 id: 'evidence',
-                label:
-                  'Keep the knife. Find the victims’ names first.',
+                label: 'Keep the knife. Find the victims’ names first.',
                 effects: { local: { 'old-houses': -2, lamplight: 1 } },
                 response:
                   'Vask leaves without the knife. The steward waits for her to come back. She does not.',
               },
               {
                 id: 'ask-tokens',
-                label:
-                  'Set down the knife. Call for the ferry boy.',
+                label: 'Set down the knife. Call for the ferry boy.',
                 effects: {},
                 response:
                   'The steward reaches for the cushion. Vask stops him. A guard goes to fetch the ferry boy.',

@@ -451,7 +451,6 @@ const greeting = computed(() =>
   userStore.isLoggedIn ? `Welcome ${userStore.username}` : '',
 )
 
-
 watch(
   () => ({
     channelKey: resolvedChannel.value?.channelKey || '',

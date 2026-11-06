@@ -1760,6 +1760,21 @@ useHead({ title: 'Shifting Desks' })
   }
 }
 
+@media (min-width: 768px) and (max-width: 1023.98px) {
+  .desk-hand {
+    --hand-card-max: 11rem;
+    --hand-card-vh: 20vh;
+  }
+
+  .desk-hand :deep(.krh) {
+    --card-h: calc(var(--card-w) * 1.5);
+  }
+
+  .desk-hand :deep(.krh-front) {
+    aspect-ratio: 2 / 3;
+  }
+}
+
 .hire-layout {
   grid-template-rows: auto minmax(0, 1fr);
 }

@@ -14,15 +14,15 @@
             <span v-for="n in 8" :key="n" class="mc-window" />
           </div>
           <div class="mc-marquee">
-            <span class="mc-marquee-top">THE GRAND GLOAMING</span>
-            <strong>MONSTRESS <span>CON</span></strong>
+            <span class="mc-marquee-top">LAST CALL MOTOR LODGE</span>
+            <strong>LAST <span>CALL</span></strong>
             <small>ONE NIGHT ONLY · ROOMS STILL AVAILABLE</small>
           </div>
           <div class="mc-entrance" />
         </div>
         <div class="mc-opening-title">
           <p class="mc-eyebrow">A DEEPLY UNOFFICIAL INVESTIGATION</p>
-          <h1>Monstress<br /><em>Convention</em></h1>
+          <h1>Monstrexx</h1>
           <p class="mc-tagline">
             Everybody's a monster. Somebody's a murderer.
           </p>
@@ -32,14 +32,14 @@
       <div
         class="mc-title-footer flex shrink-0 flex-wrap items-center justify-between gap-3 p-3"
       >
-        <span class="mc-caption">GRAND GLOAMING HOTEL · OPENING CASE</span>
+        <span class="mc-caption">LAST CALL MOTOR LODGE · OPENING CASE</span>
         <button
           type="button"
           class="mc-action-primary"
           data-testid="monstress-start"
           @click="begin"
         >
-          <Icon name="kind-icon:door-open" class="size-5" />
+          <Icon name="kind-icon:home" class="size-5" />
           CHECK IN
         </button>
       </div>
@@ -118,7 +118,7 @@
               <stop offset="1" stop-color="#5f2e47" />
             </linearGradient>
           </defs>
-          <g v-if="story.state.room === 'parking'">
+          <g v-if="story.state.room === 'motel-exterior'">
             <rect width="1000" height="580" fill="#141c38" />
             <circle cx="780" cy="100" r="58" fill="#e6cbb7" opacity=".82" />
             <path
@@ -176,7 +176,7 @@
               font-weight="900"
               letter-spacing="4"
             >
-              MONSTRESS CON
+              LAST CALL MOTEL
             </text>
             <path d="M0 500H1000V580H0Z" fill="#2d2c49" />
             <path
@@ -186,45 +186,18 @@
               stroke-width="5"
             />
           </g>
-          <g v-else-if="story.state.room === 'courtyard'">
-            <rect width="1000" height="580" fill="#182c38" />
-            <path d="M0 0H1000V330H0Z" fill="#344758" />
-            <path d="M0 330L1000 305V580H0Z" fill="#5f475a" />
-            <rect
-              x="160"
-              y="360"
-              width="700"
-              height="155"
-              rx="76"
-              fill="#d7a5a1"
-            />
-            <rect
-              x="185"
-              y="374"
-              width="650"
-              height="118"
-              rx="58"
-              fill="#238d98"
-            />
-            <g fill="#bbdef1" opacity=".38">
-              <ellipse cx="360" cy="300" rx="65" ry="35" />
-              <ellipse cx="500" cy="290" rx="90" ry="42" />
-              <ellipse cx="660" cy="320" rx="72" ry="30" />
-            </g>
-            <path
-              d="M60 400V130M915 390V100"
-              stroke="#1b3134"
-              stroke-width="40"
-            />
-            <path
-              d="M20 240Q70 90 130 225M865 200Q925 90 995 240"
-              stroke="#3c5e54"
-              stroke-width="32"
-              fill="none"
-            />
-            <circle cx="815" cy="115" r="47" fill="#f7b5bc" opacity=".5" />
+          <g v-else-if="story.state.room === 'ice-alcove'">
+            <rect width="1000" height="580" fill="#1e3046" />
+            <path d="M0 340L1000 300V580H0Z" fill="#594756" />
+            <rect x="220" y="72" width="565" height="440" rx="18" fill="#678da8" stroke="#1b3446" stroke-width="26" />
+            <rect x="295" y="128" width="420" height="230" rx="14" fill="#1b4058" stroke="#a9d8e2" stroke-width="14" />
+            <path d="M310 303L710 303" stroke="#8bc0d4" stroke-width="21" />
+            <text x="355" y="265" fill="#c8ebef" font-size="92" font-weight="900" letter-spacing="12">ICE</text>
+            <rect x="325" y="397" width="350" height="76" rx="12" fill="#152b41" />
+            <circle cx="830" cy="468" r="38" fill="#91b7be" />
+            <path d="M0 525H1000" stroke="#889fa8" stroke-width="15" opacity=".4" />
           </g>
-          <g v-else-if="story.state.room === 'stairwell'">
+          <g v-else-if="story.state.room === 'balcony'">
             <rect width="1000" height="580" fill="#343342" />
             <path d="M0 580L850 130H1000V580Z" fill="#514652" />
             <path d="M70 550L850 120" stroke="#ad7f7d" stroke-width="27" />
@@ -241,7 +214,7 @@
             />
             <rect x="650" y="210" width="220" height="215" fill="#242431" />
           </g>
-          <g v-else-if="story.state.room === 'suite-205'">
+          <g v-else-if="story.state.room === 'odette-room'">
             <rect width="1000" height="580" fill="#392b47" />
             <path d="M0 440L1000 360V580H0Z" fill="#231f33" />
             <rect
@@ -277,6 +250,10 @@
               fill="#e7eff4"
               opacity=".4"
             />
+            <ellipse cx="650" cy="218" rx="38" ry="49" fill="#d6bee9" opacity=".65" />
+            <path d="M610 348Q650 230 686 348" fill="#ddc4ed" opacity=".55" />
+            <path d="M400 470L550 470L520 492Z" fill="#b9aec5" />
+          
             <path
               d="M40 410H350V515H40Z"
               fill="#744d5a"
@@ -331,13 +308,13 @@
             <path d="M500 0V75" stroke="#c6ada3" stroke-width="9" />
             <path d="M410 70H585L615 120H380Z" fill="#d7bcb4" />
             <circle cx="500" cy="115" r="35" fill="#ffe4bb" opacity=".8" />
-            <g v-if="story.state.room === 'convention'">
+            <g v-if="story.state.room === 'convention-center'">
               <path d="M0 0H130L170 360H20Z" fill="#842a58" />
               <path d="M880 0H1000V370H840Z" fill="#842a58" />
               <rect x="330" y="375" width="420" height="145" fill="#5f314d" />
               <path d="M320 380H755" stroke="#eabf8d" stroke-width="13" />
             </g>
-            <g v-if="story.state.room === 'registration'">
+            <g v-if="story.state.room === 'front-office'">
               <rect x="160" y="330" width="680" height="155" fill="#80566b" />
               <path d="M135 335H860" stroke="#deb6a9" stroke-width="19" />
               <rect x="370" y="348" width="260" height="65" fill="#efd0b0" />
@@ -346,7 +323,7 @@
         </svg>
         <div class="mc-shadow absolute inset-0" aria-hidden="true" />
         <p class="mc-scene-stamp">
-          {{ room.floor === 2 ? 'UPSTAIRS' : 'GRAND GLOAMING' }}
+          {{ room.floor === 2 ? 'UPSTAIRS' : 'LAST CALL' }}
         </p>
 
         <button
@@ -401,7 +378,7 @@
               <ul class="mc-note-list">
                 <li v-for="topic in story.state.topics" :key="topic">
                   <Icon
-                    name="kind-icon:message-circle"
+                    name="kind-icon:book-open"
                     class="size-4 shrink-0"
                   />
                   {{ TOPICS[topic] ?? topic }}
@@ -418,7 +395,7 @@
                   class="mc-exit"
                   @click="go(exit)"
                 >
-                  <Icon name="kind-icon:footprints" class="size-4" />
+                  <Icon name="kind-icon:map" class="size-4" />
                   {{ HOTEL_ROOMS[exit].label }}
                 </button>
               </div>
@@ -462,7 +439,7 @@
             class="mc-topic"
             @click="story.takeAction({ verb: 'ask', target: selected!, topic })"
           >
-            <Icon name="kind-icon:message-circle" class="size-3" />
+            <Icon name="kind-icon:book-open" class="size-3" />
             {{ TOPICS[topic] ?? topic }}
           </button>
         </div>
@@ -485,16 +462,12 @@
           >
             <Icon
               :name="
-                item === 'camera' ? 'kind-icon:camera' : 'kind-icon:ticket'
+                item === 'camera' ? 'kind-icon:camera' : 'kind-icon:book-open'
               "
               class="size-4"
             />
             {{
-              item === 'fan-pass'
-                ? 'Fan pass'
-                : item === 'press-badge'
-                  ? 'Press badge'
-                  : 'Camera'
+              item === 'motel-key' ? 'Motel key' : 'Camera'
             }}
           </span>
         </div>
@@ -574,13 +547,13 @@ function toggleDrawer(value: 'case' | 'map'): void {
 
 function verbIcon(verb: Verb): string {
   const icons: Record<Verb, string> = {
-    walk: 'kind-icon:footprints',
+    walk: 'kind-icon:map',
     look: 'kind-icon:eye',
-    talk: 'kind-icon:message-circle',
+    talk: 'kind-icon:book-open',
     take: 'kind-icon:hand',
-    use: 'kind-icon:hand-metal',
+    use: 'kind-icon:hand',
     photograph: 'kind-icon:camera',
-    ask: 'kind-icon:message-circle',
+    ask: 'kind-icon:book-open',
   }
   return icons[verb]
 }

@@ -152,14 +152,14 @@ const props = defineProps<{
     note?: string
     blockers: string[]
     stakes?: Stake[]
+    image?: readonly string[]
   }[]
 }>()
 
 const emit = defineEmits<{ choose: [id: string] }>()
 
-const ANSWER_GLYPHS = ['⚜', '⚖', '✠', '☉']
 const answers = computed<KrHandChoice[]>(() =>
-  props.choices.map((choice, index) => {
+  props.choices.map((choice) => {
     const stakes = (choice.stakes ?? []).map((stake) => stake.text)
     const blocked = choice.blockers.length > 0
     return {
@@ -171,7 +171,7 @@ const answers = computed<KrHandChoice[]>(() =>
         : stakes.slice(0, 2).join(' · ') || undefined,
       details: blocked ? stakes : stakes.slice(2),
       disabled: blocked,
-      icon: blocked ? '🔒' : ANSWER_GLYPHS[index % ANSWER_GLYPHS.length],
+      image: choice.image,
     }
   }),
 )

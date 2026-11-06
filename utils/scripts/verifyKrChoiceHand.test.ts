@@ -272,6 +272,35 @@ assert.doesNotMatch(
   read('components/EmperorFortressDialogue.vue'),
   /eod-hand-art/,
 )
+assert.match(
+  read('components/EmperorFortressDialogue.vue'),
+  /image: choice.image/,
+  'Emperor audiences must pass painted scene art to the shared card hand',
+)
+assert.doesNotMatch(
+  read('components/EmperorFortressDialogue.vue'),
+  /ANSWER_GLYPHS|icon: blocked/,
+  'Emperor choices must not fall back to interchangeable heraldic glyphs',
+)
+assert.match(
+  read('components/EmperorFortressThrone.vue'),
+  /audienceChoiceImages\(/,
+  'the throne must provide a painted option for each audience answer',
+)
+const emperorAudienceArt = read(
+  'utils/emperorOfDust/fortress/audienceChoiceArt.ts',
+)
+for (const choice of ['blame', 'evidence', 'ask-knife', 'ask-tokens']) {
+  assert.ok(
+    emperorAudienceArt.includes(`d22-blame:${choice}`),
+    `the Ford court decision ${choice} needs its own illustrated art candidates`,
+  )
+}
+assert.match(
+  emperorAudienceArt,
+  /exported.has\(asset\)/,
+  'queued audience images may not appear as exported artwork before review',
+)
 assert.doesNotMatch(
   read('pages/play/comet-city-academy.vue'),
   /image: stageScenery\.value/,

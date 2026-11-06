@@ -69,9 +69,15 @@ assert.equal(
 )
 
 const animals = animalMandarinCards(CURATED_MANDARIN_CARDS)
-assert.ok(animals.length >= 15, 'the curated Mandarin catalog contains animal names')
+assert.ok(
+  animals.length >= 15,
+  'the curated Mandarin catalog contains animal names',
+)
 assert.ok(animals.every((card) => card.categories.includes('animals')))
-assert.ok(animals.some((card) => card.hskLevel === undefined), 'curated animals without HSK levels remain eligible')
+assert.ok(
+  animals.some((card) => card.hskLevel === undefined),
+  'curated animals without HSK levels remain eligible',
+)
 const animalQuestion = mandarinFrontier(
   [...cards, ...animals],
   {},
@@ -84,7 +90,9 @@ assert.ok(animalQuestion && animalQuestion.categories.includes('animals'))
 const animalOptions = mandarinQuestion(animalQuestion!, animals, () => 0)
 assert.equal(animalOptions.options.length, 4)
 assert.ok(
-  animalOptions.options.every((option) => animals.some((card) => card.key === option.id)),
+  animalOptions.options.every((option) =>
+    animals.some((card) => card.key === option.id),
+  ),
   'animal-only distractors must also be animal names',
 )
 const animalReviews = {
@@ -116,17 +124,50 @@ const quiz = readFileSync(
   'utf8',
 )
 const quizStore = readFileSync('stores/rulerHookedQuizStore.ts', 'utf8')
-const settings = readFileSync('components/ruler-hooked/ruler-hooked-study-settings.vue', 'utf8')
-const sheet = readFileSync('components/ruler-hooked/ruler-hooked-mandarin-answer-sheet.vue', 'utf8')
+const settings = readFileSync(
+  'components/ruler-hooked/ruler-hooked-study-settings.vue',
+  'utf8',
+)
+const sheet = readFileSync(
+  'components/ruler-hooked/ruler-hooked-mandarin-answer-sheet.vue',
+  'utf8',
+)
 assert.match(settings, /quiz\.setMandarinScope\('animals'\)/)
-assert.match(quizStore, /animalMandarinCards\(tutor\.cards\)/, 'animal mode draws from the shared tutor catalog')
-assert.match(quizStore, /answerSheet\.value = true/, 'answer selection opens an answer reference')
-assert.match(quizStore, /function finishAnswerSheet\(\)[\s\S]*?if \(caught\) fishing\.landQuizFish\(\)/,
-  'a correct Mandarin answer waits for the sheet before landing the fish')
-assert.match(quiz, /<RulerHookedMandarinAnswerSheet/, 'answer sheet is in the fishing flow')
-assert.match(sheet, /lesson\.history/, 'word history comes from the Mandarin Tutor lesson')
-assert.match(sheet, /card\.source\.label/, 'answer sheets credit source material')
-assert.match(sheet, /emit\('speak'\)/, 'answer sheet has playable pronunciation')
+assert.match(
+  quizStore,
+  /animalMandarinCards\(tutor\.cards\)/,
+  'animal mode draws from the shared tutor catalog',
+)
+assert.match(
+  quizStore,
+  /answerSheet\.value = true/,
+  'answer selection opens an answer reference',
+)
+assert.match(
+  quizStore,
+  /function finishAnswerSheet\(\)[\s\S]*?if \(caught\) fishing\.landQuizFish\(\)/,
+  'a correct Mandarin answer waits for the sheet before landing the fish',
+)
+assert.match(
+  quiz,
+  /<RulerHookedMandarinAnswerSheet/,
+  'answer sheet is in the fishing flow',
+)
+assert.match(
+  sheet,
+  /lesson\.history/,
+  'word history comes from the Mandarin Tutor lesson',
+)
+assert.match(
+  sheet,
+  /card\.source\.label/,
+  'answer sheets credit source material',
+)
+assert.match(
+  sheet,
+  /emit\('speak'\)/,
+  'answer sheet has playable pronunciation',
+)
 assert.match(
   quiz,
   /<KrChoiceHand/,

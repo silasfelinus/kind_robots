@@ -11,6 +11,11 @@ const chronicle = read('components/ruler-hooked/ruler-hooked-reign-review.vue')
 const nav = read('components/ruler-hooked/ruler-hooked-nav.vue')
 const lake = read('components/ruler-hooked/ruler-hooked-lake-screen.vue')
 const artLibrary = read('utils/rulerHooked/artLibrary.ts')
+const hud = read('components/ruler-hooked/ruler-hooked-hud.vue')
+const classic = read('components/ruler-hooked/ruler-hooked-fishing-encounter.vue')
+const fishingStore = read('stores/rulerHookedStore.ts')
+const court = read('components/ruler-hooked/ruler-hooked-court-screen.vue')
+
 
 assert.match(
   route,
@@ -96,5 +101,37 @@ assert.match(
   /\{\{ rulerLabel \}\}/,
   'the ruler identity persists in written records',
 )
+
+// The illustrated Court presenter must never be obscured by a five-row health
+// panel beneath the title. On full-width consoles five axes share a top row
+// between the crest and the coin/day/time plaques. Narrow screens require an
+// explicit user action to show the panel.
+assert.match(hud, /class="rh-hud__health"/)
+assert.match(hud, /grid-template-columns:\s*repeat\(5, minmax\(0, 1fr\)\)/)
+assert.match(hud, /@container rhconsole \(max-width: 899px\)/)
+assert.match(hud, /\.rh-health\.is-open/)
+assert.doesNotMatch(hud, /\.rh-hud__left/)
+
+// Classic mode must be a one-control visual game, not two web-app reel/slack
+// buttons. The stop moves through the existing deterministic timing engine,
+// which already varies with fish family, rarity, gear and beat.
+assert.equal((classic.match(/<button\b/g) || []).length, 1)
+assert.match(classic, /rh-fishing__playfield/)
+assert.match(classic, /event\.key !== ' '/)
+assert.match(classic, /event\.key !== 'Enter'/)
+assert.match(classic, /timingProfileFor\(props\.encounter\)/)
+assert.match(classic, /suddenShift/)
+assert.doesNotMatch(classic, /Tap to reel|Give slack|@release|@tap/)
+assert.match(lake, /store\.startFishing\(quiz\.mode\)/)
+assert.match(lake, /@stop="store\.classicStop\(\$event\)"/)
+assert.match(fishingStore, /startFishingEncounter\(save\.value\)/)
+assert.match(fishingStore, /applyFishingStop\(activeClassicFishing\.value, position\)/)
+
+// Ordinary healthy kingdom sliders must not put a game-over choice at the
+// end of every day. A genuine finale explains the save closure, and deferring
+// it is an explicit one-time decision.
+assert.match(court, /Conclude this reign/)
+assert.match(court, /Continue this reign/)
+assert.match(court, /closes this save for fishing and new decrees/)
 
 console.log('Ruler console creation and unseen-player POV contract passed.')

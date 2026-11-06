@@ -86,7 +86,10 @@
           </p>
         </template>
       </section>
-      <p v-if="detail === 'full' && lesson?.soundFamilies.length" class="rh-word-sheet__small">
+      <p
+        v-if="detail === 'full' && lesson?.soundFamilies.length"
+        class="rh-word-sheet__small"
+      >
         Sound family:
         {{
           lesson.soundFamilies[0]?.members
@@ -112,7 +115,13 @@
       class="rh-btn rh-btn--gold rh-btn--big rh-word-sheet__continue"
       @click="emit('continue')"
     >
-      {{ study ? 'Ready to answer' : correct ? 'Land the fish' : 'Try another word' }}
+      {{
+        study
+          ? 'Ready to answer'
+          : correct
+            ? 'Land the fish'
+            : 'Try another word'
+      }}
     </button>
   </section>
 </template>

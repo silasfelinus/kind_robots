@@ -668,7 +668,7 @@ for (let seed = 0; seed < 64; seed++) {
   assert.equal(restoreHoshimoriNight(skipped), null)
 }
 const southernKeys = [...HOSHIMORI_NIGHT_SOUTHERN_KEYS]
-assert.deepEqual(southernKeys, ['1,7', '2,7', '3,7', '4,7'])
+assert.deepEqual(southernKeys, ['1,7', '2,7', '3,7', '4,7', '5,7', '6,7'])
 for (let seed = 0; seed < 16; seed++) {
   let progress = newHoshimoriNightProgress(seed)
   progress = choose(progress, HOSHIMORI_NIGHT_SITES[0]!.choices[0].id)
@@ -722,8 +722,8 @@ for (let seed = 0; seed < 16; seed++) {
       progress,
     )
   }
-  assert.equal(progress.visited.length, 44)
-  assert.equal(Object.keys(progress.choices).length, 44)
+  assert.equal(progress.visited.length, 46)
+  assert.equal(Object.keys(progress.choices).length, 46)
   assert.deepEqual(
     restoreHoshimoriNight(JSON.parse(JSON.stringify(progress))),
     progress,
@@ -734,8 +734,15 @@ for (let seed = 0; seed < 16; seed++) {
   assert.deepEqual(
     reconcileHoshimoriNightEarthChronicle(newEarthChronicle(), progress.choices)
       .found,
-    ['earth-15'],
+    ['earth-15', 'earth-16'],
   )
+  const journal = reconcileHoshimoriNightEarthChronicle(newEarthChronicle(), progress.choices)
+  const recovered = restoreEarthChronicle(JSON.parse(JSON.stringify(journal)))
+  assert.deepEqual(recovered.found, ['earth-15', 'earth-16'])
+  assert.strictEqual(reconcileHoshimoriNightEarthChronicle(recovered, progress.choices), recovered)
+  const forgedSupper = JSON.parse(JSON.stringify(progress)) as NightProgress
+  forgedSupper.choices['6,7'] = 'night-supper-forged'
+  assert.equal(restoreHoshimoriNight(forgedSupper), null)
 }
 assert.equal(
   lowbankAccounts.size,
@@ -743,5 +750,5 @@ assert.equal(
   'Three earned Lowbank decisions must produce eight distinct flood accounts',
 )
 console.log(
-  'Hoshimori e08: 44 mirrored sites, 96 original + 64 Windward + 64 Bellroad + 64 Lowbank seeded routes, eight council/ridge/Bellroad/Lowbank accounts, save forgery protection OK',
+  'Hoshimori e08: 46 mirrored sites, 96 original + 64 Windward + 64 Bellroad + 64 Lowbank seeded routes, eight council/ridge/Bellroad/Lowbank accounts, save forgery protection OK',
 )

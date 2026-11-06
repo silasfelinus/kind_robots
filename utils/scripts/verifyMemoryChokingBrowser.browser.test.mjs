@@ -137,8 +137,16 @@ try {
       )
       const gated = await page.evaluate(() => window.__choking.approach())
       assert.equal(gated.position, '4,6')
-      assert.equal(gated.choice, null, width + 'px: entrance needs a resolved choice')
-      assert.equal(gated.unlocked, false, width + 'px: arrival cannot unlock dungeon')
+      assert.equal(
+        gated.choice,
+        null,
+        width + 'px: entrance needs a resolved choice',
+      )
+      assert.equal(
+        gated.unlocked,
+        false,
+        width + 'px: arrival cannot unlock dungeon',
+      )
       assert.equal(await page.evaluate(() => window.__choking.reach()), true)
       const before = await page.evaluate(() => window.__choking.snapshot())
       assert.equal(before.seaChoice !== null, true)

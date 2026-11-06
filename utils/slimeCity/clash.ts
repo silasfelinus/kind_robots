@@ -68,13 +68,23 @@ export interface ClashState {
   commands: ClashCommand[]
 }
 const opponent = (s: Side): Side => (s === 'player' ? 'enemy' : 'player')
-const inside = (lane: number): boolean => Number.isInteger(lane) && lane >= 0 && lane < CLASH_LANES
-const unitAt = (state: ClashState, side: Side, lane: number): ClashUnit | undefined =>
+const inside = (lane: number): boolean =>
+  Number.isInteger(lane) && lane >= 0 && lane < CLASH_LANES
+const unitAt = (
+  state: ClashState,
+  side: Side,
+  lane: number,
+): ClashUnit | undefined =>
   state.units.find((u) => u.side === side && u.lane === lane)
 export const clashUnitAt = unitAt
 const has = (u: ClashUnit, k: Keyword): boolean => u.keywords.includes(k)
 const nameOf = (u: ClashUnit): string => cardById(u.cardId).name
-const note = (s: ClashState, text: string, kind: ClashLog['kind'], lane?: number): void => {
+const note = (
+  s: ClashState,
+  text: string,
+  kind: ClashLog['kind'],
+  lane?: number,
+): void => {
   s.log.push({ round: s.round, text, kind, lane })
   if (s.log.length > 75) s.log.shift()
 }
@@ -106,68 +116,154 @@ function draw(s: ClashState, side: Side): void {
   }
 }
 /** A 20-card catalog-backed prototype deck, not the account's constructed deck. */
-export function createClash(player: TeamId = 'catgirls', enemy: TeamId = 'ironjaw', seed = 1): ClashState {
+export function createClash(
+  player: TeamId = 'catgirls',
+  enemy: TeamId = 'ironjaw',
+  seed = 1,
+): ClashState {
   const s: ClashState = {
-    seed, rng: seed >>> 0, teams: { player, enemy }, round: 1, active: 'player',
-    plays: { player: 0, enemy: 0 }, boss: { player: CLASH_BOSS_HP, enemy: CLASH_BOSS_HP },
+    seed,
+    rng: seed >>> 0,
+    teams: { player, enemy },
+    round: 1,
+    active: 'player',
+    plays: { player: 0, enemy: 0 },
+    boss: { player: CLASH_BOSS_HP, enemy: CLASH_BOSS_HP },
     mana: { player: CLASH_MANA_GRANT, enemy: CLASH_MANA_GRANT },
-    debt: { player: 0, enemy: 0 }, decks: { player: [], enemy: [] },
-    hands: { player: [], enemy: [] }, discards: { player: [], enemy: [] },
-    units: [], traps: [], log: [], victor: null, nextUid: 1, commands: [],
+    debt: { player: 0, enemy: 0 },
+    decks: { player: [], enemy: [] },
+    hands: { player: [], enemy: [] },
+    discards: { player: [], enemy: [] },
+    units: [],
+    traps: [],
+    log: [],
+    victor: null,
+    nextUid: 1,
+    commands: [],
   }
   s.decks.player = shuffle(s, alleyDeck(player))
   s.decks.enemy = shuffle(s, alleyDeck(enemy))
   draw(s, 'player')
   draw(s, 'enemy')
-  note(s, 'ROUND 1 · Both crews receive 3 mana. Two plays each, then everyone fights.', 'turn')
+  note(
+    s,
+    'ROUND 1 · Both crews receive 3 mana. Two plays each, then everyone fights.',
+    'turn',
+  )
   return s
 }
 /** CLASH-only wording: no AP, movement, or unexplained substitutions. */
 export function clashCardText(card: Card): string {
   if (card.kind === 'creature') return card.text
   if (card.kind === 'trap')
-    return 'Arm this lane. The next enemy creature deployed here takes ' + (card.power ?? 2) + ' damage' + (card.roots ? ' and misses a clash.' : '.')
+    return (
+      'Arm this lane. The next enemy creature deployed here takes ' +
+      (card.power ?? 2) +
+      ' damage' +
+      (card.roots ? ' and misses a clash.' : '.')
+    )
   switch (card.effect) {
-    case 'heal': return 'Restore ' + (card.power ?? 2) + ' health to a friendly fighter.'
-    case 'armor': return 'Friendly fighter permanently gains +1 armor.'
-    case 'sharpen': return 'Friendly fighter permanently gains +1 attack.'
-    case 'boost': return card.kind === 'equipment'
-      ? 'Friendly fighter permanently gains +1 attack.'
-      : 'Friendly fighter gains +2 attack for this clash.'
-    case 'grant': return 'Friendly fighter gains ' + (card.grants ?? []).join(', ').toUpperCase() + '.'
-    case 'scan': return 'Remove an enemy trap from this lane and draw a card.'
-    case 'chaos': return 'Deal 1–3 damage to the opposing fighter in this lane.'
-    case 'root': return 'Opposing fighter misses its next clash.'
-    case 'snare': return 'Deal ' + (card.power ?? 2) + ' damage; opposing fighter misses its next clash.'
-    case 'debt': return 'Deal ' + (card.power ?? 2) + ' damage and reduce next round\'s enemy mana.'
-    case 'blast': return 'Deal ' + (card.power ?? 2) + ' damage to this foe and 1 to adjacent foes.'
-    case 'zap': return 'Deal ' + (card.power ?? 2) + ' damage to an opposing fighter.'
-    default: return 'Target a fighter in this lane.'
+    case 'heal':
+      return 'Restore ' + (card.power ?? 2) + ' health to a friendly fighter.'
+    case 'armor':
+      return 'Friendly fighter permanently gains +1 armor.'
+    case 'sharpen':
+      return 'Friendly fighter permanently gains +1 attack.'
+    case 'boost':
+      return card.kind === 'equipment'
+        ? 'Friendly fighter permanently gains +1 attack.'
+        : 'Friendly fighter gains +2 attack for this clash.'
+    case 'grant':
+      return (
+        'Friendly fighter gains ' +
+        (card.grants ?? []).join(', ').toUpperCase() +
+        '.'
+      )
+    case 'scan':
+      return 'Remove an enemy trap from this lane and draw a card.'
+    case 'chaos':
+      return 'Deal 1–3 damage to the opposing fighter in this lane.'
+    case 'root':
+      return 'Opposing fighter misses its next clash.'
+    case 'snare':
+      return (
+        'Deal ' +
+        (card.power ?? 2) +
+        ' damage; opposing fighter misses its next clash.'
+      )
+    case 'debt':
+      return (
+        'Deal ' +
+        (card.power ?? 2) +
+        " damage and reduce next round's enemy mana."
+      )
+    case 'blast':
+      return (
+        'Deal ' +
+        (card.power ?? 2) +
+        ' damage to this foe and 1 to adjacent foes.'
+      )
+    case 'zap':
+      return 'Deal ' + (card.power ?? 2) + ' damage to an opposing fighter.'
+    default:
+      return 'Target a fighter in this lane.'
   }
 }
 export function clashPower(s: ClashState, u: ClashUnit): number {
   let power = u.attack + u.surge
   if (has(u, 'ambush') && !u.ambushUsed) power += 2
-  if (has(u, 'swarm') && s.units.some((v) => v.uid !== u.uid && v.side === u.side && Math.abs(v.lane - u.lane) === 1)) power++
+  if (
+    has(u, 'swarm') &&
+    s.units.some(
+      (v) =>
+        v.uid !== u.uid && v.side === u.side && Math.abs(v.lane - u.lane) === 1,
+    )
+  )
+    power++
   return power
 }
 function aim(card: Card): 'own' | 'enemy' | 'lane' {
-  if (card.kind === 'creature' || card.kind === 'trap' || card.effect === 'scan') return 'lane'
-  if (card.kind === 'equipment' || ['heal', 'boost', 'armor', 'sharpen', 'grant'].includes(card.effect ?? '')) return 'own'
+  if (
+    card.kind === 'creature' ||
+    card.kind === 'trap' ||
+    card.effect === 'scan'
+  )
+    return 'lane'
+  if (
+    card.kind === 'equipment' ||
+    ['heal', 'boost', 'armor', 'sharpen', 'grant'].includes(card.effect ?? '')
+  )
+    return 'own'
   return 'enemy'
 }
-export function canClashPlay(s: ClashState, side: Side, id: string, lane: number): boolean {
-  if (s.victor || s.active !== side || s.plays[side] >= CLASH_PLAYS || !inside(lane)) return false
+export function canClashPlay(
+  s: ClashState,
+  side: Side,
+  id: string,
+  lane: number,
+): boolean {
+  if (
+    s.victor ||
+    s.active !== side ||
+    s.plays[side] >= CLASH_PLAYS ||
+    !inside(lane)
+  )
+    return false
   if (!s.hands[side].includes(id)) return false
   const card = cardById(id)
   if (card.team !== sideTeam(s, side) && card.team !== 'mercenary') return false
   if (card.cost > s.mana[side]) return false
   if (card.kind === 'creature') return true // Friendly creature may be replaced.
-  if (card.kind === 'trap') return !s.traps.some((t) => t.side === side && t.lane === lane)
+  if (card.kind === 'trap')
+    return !s.traps.some((t) => t.side === side && t.lane === lane)
   if (card.effect === 'scan') return true
-  return aim(card) === 'own' ? !!unitAt(s, side, lane) : !!unitAt(s, opponent(side), lane)
+  return aim(card) === 'own'
+    ? !!unitAt(s, side, lane)
+    : !!unitAt(s, opponent(side), lane)
 }
-function sideTeam(s: ClashState, side: Side): TeamId { return s.teams[side] }
+function sideTeam(s: ClashState, side: Side): TeamId {
+  return s.teams[side]
+}
 function dealDamage(u: ClashUnit, amount: number, pierce = 0): number {
   const dealt = Math.max(0, amount - Math.max(0, u.armor - pierce))
   u.hp -= dealt
@@ -194,7 +290,11 @@ function checkWinner(s: ClashState): void {
 }
 function resolveClash(s: ClashState): void {
   // Snapshot attacks first: lethal damage never cancels the defender's own blow.
-  const shots: { source: ClashUnit; target: ClashUnit | undefined; damage: number }[] = []
+  const shots: {
+    source: ClashUnit
+    target: ClashUnit | undefined
+    damage: number
+  }[] = []
   for (const unit of s.units) {
     if (unit.rooted) {
       note(s, nameOf(unit) + ' misses this clash.', 'clash', unit.lane)
@@ -202,7 +302,8 @@ function resolveClash(s: ClashState): void {
       continue
     }
     shots.push({
-      source: unit, target: unitAt(s, opponent(unit.side), unit.lane),
+      source: unit,
+      target: unitAt(s, opponent(unit.side), unit.lane),
       damage: clashPower(s, unit),
     })
   }
@@ -210,19 +311,48 @@ function resolveClash(s: ClashState): void {
     shot.source.ambushUsed = true
     if (!shot.target) {
       s.boss[opponent(shot.source.side)] -= shot.damage
-      note(s, nameOf(shot.source) + ' hits the enemy boss for ' + shot.damage + '.', 'boss', shot.source.lane)
-      if (has(shot.source, 'leech')) s.boss[shot.source.side] = Math.min(CLASH_BOSS_HP, s.boss[shot.source.side] + 1)
+      note(
+        s,
+        nameOf(shot.source) + ' hits the enemy boss for ' + shot.damage + '.',
+        'boss',
+        shot.source.lane,
+      )
+      if (has(shot.source, 'leech'))
+        s.boss[shot.source.side] = Math.min(
+          CLASH_BOSS_HP,
+          s.boss[shot.source.side] + 1,
+        )
     } else {
-      const dealt = dealDamage(shot.target, shot.damage, has(shot.source, 'pierce') ? 1 : 0)
-      note(s, nameOf(shot.source) + ' hits ' + nameOf(shot.target) + ' for ' + dealt + '.', 'clash', shot.source.lane)
+      const dealt = dealDamage(
+        shot.target,
+        shot.damage,
+        has(shot.source, 'pierce') ? 1 : 0,
+      )
+      note(
+        s,
+        nameOf(shot.source) +
+          ' hits ' +
+          nameOf(shot.target) +
+          ' for ' +
+          dealt +
+          '.',
+        'clash',
+        shot.source.lane,
+      )
       if (has(shot.source, 'bulldoze') && shot.target.hp < 0)
         s.boss[opponent(shot.source.side)] += shot.target.hp
       if (dealt > 0 && has(shot.source, 'leech'))
-        s.boss[shot.source.side] = Math.min(CLASH_BOSS_HP, s.boss[shot.source.side] + 1)
+        s.boss[shot.source.side] = Math.min(
+          CLASH_BOSS_HP,
+          s.boss[shot.source.side] + 1,
+        )
       if (dealt > 0 && has(shot.source, 'snare')) shot.target.rooted = true
     }
     if (has(shot.source, 'collect'))
-      s.debt[opponent(shot.source.side)] = Math.min(3, s.debt[opponent(shot.source.side)] + 1)
+      s.debt[opponent(shot.source.side)] = Math.min(
+        3,
+        s.debt[opponent(shot.source.side)] + 1,
+      )
   }
   casualties(s)
   for (const u of s.units) {
@@ -231,11 +361,24 @@ function resolveClash(s: ClashState): void {
   }
   checkWinner(s)
   if (s.victor) {
-    note(s, s.victor === 'draw' ? 'Double knockout!' : (s.victor === 'player' ? 'YOU WIN!' : 'RIVAL WINS!'), 'turn')
+    note(
+      s,
+      s.victor === 'draw'
+        ? 'Double knockout!'
+        : s.victor === 'player'
+          ? 'YOU WIN!'
+          : 'RIVAL WINS!',
+      'turn',
+    )
     return
   }
   if (s.round >= CLASH_ROUND_LIMIT) {
-    s.victor = s.boss.player === s.boss.enemy ? 'draw' : s.boss.player > s.boss.enemy ? 'player' : 'enemy'
+    s.victor =
+      s.boss.player === s.boss.enemy
+        ? 'draw'
+        : s.boss.player > s.boss.enemy
+          ? 'player'
+          : 'enemy'
     note(s, 'Final bell! Highest boss health wins.', 'turn')
     return
   }
@@ -257,7 +400,12 @@ function advance(s: ClashState, side: Side): void {
   else if (s.plays[opponent(side)] < CLASH_PLAYS) s.active = opponent(side)
   else s.active = side
 }
-export function playClash(input: ClashState, side: Side, id: string, lane: number): ClashState {
+export function playClash(
+  input: ClashState,
+  side: Side,
+  id: string,
+  lane: number,
+): ClashState {
   if (!canClashPlay(input, side, id, lane)) return input
   const s = structuredClone(input)
   const card = cardById(id)
@@ -272,9 +420,19 @@ export function playClash(input: ClashState, side: Side, id: string, lane: numbe
       note(s, nameOf(old) + ' makes room for ' + card.name + '.', 'play', lane)
     }
     const u: ClashUnit = {
-      uid: s.nextUid++, side, lane, cardId: id, hp: card.hp ?? 2, maxHp: card.hp ?? 2,
-      attack: card.attack ?? 1, armor: card.armor ?? 0, keywords: [...(card.keywords ?? [])],
-      surge: 0, rooted: false, ambushUsed: false, gear: [],
+      uid: s.nextUid++,
+      side,
+      lane,
+      cardId: id,
+      hp: card.hp ?? 2,
+      maxHp: card.hp ?? 2,
+      attack: card.attack ?? 1,
+      armor: card.armor ?? 0,
+      keywords: [...(card.keywords ?? [])],
+      surge: 0,
+      rooted: false,
+      ambushUsed: false,
+      gear: [],
     }
     s.units.push(u)
     note(s, card.name + ' enters lane ' + (lane + 1) + '.', 'play', lane)

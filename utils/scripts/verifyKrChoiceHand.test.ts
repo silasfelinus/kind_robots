@@ -287,7 +287,9 @@ assert.match(
   /audienceChoiceImages\(/,
   'the throne must provide a painted option for each audience answer',
 )
-const emperorAudienceArt = read('utils/emperorOfDust/fortress/audienceChoiceArt.ts')
+const emperorAudienceArt = read(
+  'utils/emperorOfDust/fortress/audienceChoiceArt.ts',
+)
 for (const choice of ['blame', 'evidence', 'ask-knife', 'ask-tokens']) {
   assert.ok(
     emperorAudienceArt.includes(`d22-blame:${choice}`),

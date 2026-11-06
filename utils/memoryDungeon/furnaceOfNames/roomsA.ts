@@ -14,8 +14,6 @@ const VESPER =
   'a dusty-grey moth-folk cartographer with feathery antennae, veined folded wings and a satchel of folded maps'
 const PIP =
   'a small goblin ledger apprentice with a pencil behind one ear and an oversized coat'
-const KOGANE =
-  'an old ember spirit shaped like a stooped baker of glowing coals, wearing a registrar’s paper collar'
 
 export const FURNACE_ROOMS_A: readonly FurnaceRoomContent[] = [
   {

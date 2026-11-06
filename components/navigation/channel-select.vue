@@ -14,8 +14,8 @@
           ? 'rounded-xl hover:bg-base-200'
           : 'h-10 rounded-xl border border-base-300 bg-base-100 shadow-sm hover:-translate-y-0.5 hover:shadow-md sm:h-11 sm:min-h-11 xl:h-14 xl:min-h-14'
       "
-      `:title="`Navigate workspace — ${currentPageTitle}`"`
-      `:aria-label="`Navigate workspace — ${currentPageTitle}`"`
+      :title="`Navigate workspace — ${currentPageTitle}`"
+      :aria-label="`Navigate workspace — ${currentPageTitle}`"
       aria-haspopup="menu"
       @click="openChannelMenu"
       @focus="scheduleChannelMenuViewportUpdate"

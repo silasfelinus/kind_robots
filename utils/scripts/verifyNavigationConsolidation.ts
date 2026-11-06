@@ -507,8 +507,10 @@ assert.ok(
   siteDirectorySource.includes('channelContentStore.navigationChannels'),
 )
 assert.ok(
-  pickerSource.includes('{{ activeTab?.label || activeChannel.label }}'),
-  'Home and every other channel should name the actual tab in the launcher',
+  pickerSource.includes('{{ currentPageTitle }}') &&
+    pickerSource.includes('activeTab.value?.title') &&
+    pickerSource.includes('activeTab.value?.label'),
+  'Home and every other channel should show the authored tab/page title in the launcher',
 )
 assert.ok(
   homePageSource.includes("route.query.view !== 'dashboard'"),

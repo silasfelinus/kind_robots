@@ -491,6 +491,9 @@ jobs:
       - name: Slime City square-grid prototype mechanics and replay contract
         run: npm run test:slime-city-lab
 
+      - name: Monstress Convention first case and two-investigator logic
+        run: npx tsx utils/scripts/verifyMonstressPrologue.test.ts
+
   contract_2:
     name: Contract shard 2/4
     runs-on: ubuntu-latest

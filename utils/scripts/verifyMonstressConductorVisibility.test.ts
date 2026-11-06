@@ -26,7 +26,12 @@ for (const showMature of [false, true]) {
       )
       assert.equal(accessible, showMature && (isPublic || isAdmin))
       assert.equal(
-        canExposeConductorProject('crystal-street', showMature, isPublic, isAdmin),
+        canExposeConductorProject(
+          'crystal-street',
+          showMature,
+          isPublic,
+          isAdmin,
+        ),
         true,
       )
     }
@@ -40,6 +45,11 @@ const projects = source('server/api/conductor/projects.get.ts')
 assert.match(projects, /viewerShowsMature\(viewer\?\.user\)/)
 assert.match(projects, /canExposeConductorProject\(/)
 const progress = source('server/api/conductor/progress.get.ts')
-assert.match(progress, /if \(isMatureConductorProject\(project\.slug\)\) continue/)
+assert.match(
+  progress,
+  /if \(isMatureConductorProject\(project\.slug\)\) continue/,
+)
 
-console.log('Monstress Conductor listing privacy: all opt-in/public/admin cases passed')
+console.log(
+  'Monstress Conductor listing privacy: all opt-in/public/admin cases passed',
+)

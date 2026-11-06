@@ -92,7 +92,9 @@ export default defineEventHandler(async (event): Promise<ConductorData> => {
         )
       }),
     }
-    return viewer?.isAdmin ? accessible : redactConductorDataForPublic(accessible)
+    return viewer?.isAdmin
+      ? accessible
+      : redactConductorDataForPublic(accessible)
   } catch (error) {
     throw createError({
       statusCode: 502,

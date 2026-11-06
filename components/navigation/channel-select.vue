@@ -31,7 +31,9 @@
 
       <span class="flex min-w-0 flex-1 flex-col justify-center leading-tight">
         <span class="kr-text-black-sm truncate sm:text-base xl:text-lg">
-          <span v-if="isSlimeCityPage" class="slime-nav-title">SLIME <strong>CITY</strong></span>
+          <span v-if="isSlimeCityPage" class="slime-nav-title"
+            >SLIME <strong>CITY</strong></span
+          >
           <template v-else>{{ currentPageTitle }}</template>
         </span>
         <span
@@ -474,8 +476,8 @@ const LAUNCHER_MIN_WIDTH = 480
 const LAUNCHER_MAX_WIDTH = 1760
 
 const route = useRoute()
-const isSlimeCityPage = computed(() =>
-  route.path === '/play/slime-city' || route.path === '/admin/slime-city',
+const isSlimeCityPage = computed(
+  () => route.path === '/play/slime-city' || route.path === '/admin/slime-city',
 )
 const router = useRouter()
 const pageStore = usePageStore()

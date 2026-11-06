@@ -6,7 +6,7 @@ function file(name: string): string {
   return readFileSync(new URL('../../' + name, import.meta.url), 'utf8')
 }
 
-const page = file('pages/admin/monstrexx.vue')
+const page = file('pages/admin/monstrique.vue')
 const front = file('components/monstrexx/monstrexx-front.vue')
 const store = file('stores/monstressConventionStore.ts')
 const scene = file(
@@ -41,13 +41,17 @@ assert.match(store, /kit\.open\(monstrexxKitId\(accountId\.value \?\? 0\)\)/)
 assert.equal(monstrexxKitId(1), 'monstress-convention-user-1')
 assert.notEqual(monstrexxKitId(1), monstrexxKitId(2))
 assert.equal(newCase().actor, 'iris')
-assert.equal(kit.includes("title: 'Monstrexx'"), true)
-assert.equal(kit.includes("route: '/admin/monstrexx'"), true)
+assert.equal(kit.includes("title: 'Monstrique'"), true)
+assert.equal(kit.includes("route: '/admin/monstrique'"), true)
+assert.match(front, /<h1 class="mx-wordmark">MONSTRIQUE<\/h1>/)
+assert.doesNotMatch(front + scene + nav + kit, /MONSTREXX|Monstrexx/)
+assert.match(scene, /data-testid="monstrique-use-held"/)
+assert.match(scene, /data-testid="monstrique-graces"/)
 assert.match(nav, /requiredRole: ADMIN/)
 assert.match(nav, /requiredPermission: mature/)
-assert.match(nav, /route: \/admin\/monstrexx/)
+assert.match(nav, /route: \/admin\/monstrique/)
 assert.doesNotMatch(nav, /route: \/play\//)
 
 console.log(
-  'Monstrexx menu: four controls, gated navigation, account-scoped saves and scrapbook/settings contracts passed',
+  'Monstrique menu: four controls, gated navigation, account-scoped saves and scrapbook/settings contracts passed',
 )

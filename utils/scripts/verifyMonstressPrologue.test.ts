@@ -114,8 +114,8 @@ function run(
   return s
 }
 
-assert.equal(CITY_DESTINATIONS.length, 4)
-assert.equal(CITY_DESTINATIONS[0]?.label, 'MONSTREXX Convention')
+assert.equal(CITY_DESTINATIONS.length, 5)
+assert.equal(CITY_DESTINATIONS[0]?.label, 'MONSTRIQUE Convention')
 assert.ok(CITY_DESTINATIONS.some((location) => location.id === 'sewers'))
 for (const room of Object.values(HOTEL_ROOMS)) {
   assert.ok(room.hotspots.length > 0, room.id)
@@ -147,6 +147,121 @@ assert.equal(
 )
 s = move(s, 'front-office')
 assert.equal(travel(s, 'odette-room').changed, false)
+
+// --- Monstrique: Odette hires the investigators, Violet's favours, flirting.
+function reachCrimeRoom(): CaseState {
+  let c = newCase(7)
+  c = move(c, 'front-office')
+  c = act(c, 'look', 'guest-ledger')
+  c = act(c, 'use', 'marta')
+  c = move(c, 'balcony')
+  return move(c, 'odette-room')
+}
+let m = reachCrimeRoom()
+m = act(m, 'talk', 'odette-ghost')
+assert.ok(m.flags.includes('odette-hired-us'), 'the dead agent is the client')
+assert.ok(availableTopics(m, 'odette-ghost').includes('harker-files'))
+m = act(m, 'ask', 'odette-ghost', 'harker-files')
+assert.ok(m.evidence.includes('harker-file'))
+m = act(m, 'ask', 'odette-ghost', 'ghost-accounts')
+assert.ok(m.evidence.includes('odette-floating'))
+m = act(m, 'talk', 'violet-ghost')
+// Flirting before any favour is a joke, never progress or a lock.
+m = act(m, 'flirt', 'violet-ghost')
+assert.equal(m.gratitude.violet ?? 0, 0)
+assert.equal(m.flags.includes('ghost-kiss'), false)
+// Favour 1: the fangs went into the ice bucket, which left the room.
+m = act(m, 'look', 'ice-ring')
+assert.ok(m.evidence.includes('ice-ring'))
+m = act(m, 'ask', 'violet-ghost', 'missing-fangs')
+m = move(m, 'balcony')
+m = move(m, 'ice-alcove')
+m = act(m, 'use', 'ice-machine')
+assert.ok(m.inventory.includes('plastic-fangs'))
+assert.ok(m.evidence.includes('makeup-smear'))
+assert.equal(
+  performAction(m, {
+    verb: 'use',
+    target: 'ice-machine',
+  }).state.inventory.filter((item) => item === 'plastic-fangs').length,
+  1,
+  'the fangs are found once',
+)
+m = move(m, 'balcony')
+m = move(m, 'odette-room')
+const norbHolding = switchInvestigator(m).state
+assert.equal(
+  performAction(norbHolding, {
+    verb: 'use',
+    target: 'violet-ghost',
+    item: 'plastic-fangs',
+  }).changed,
+  false,
+  'Norb never hands anything over',
+)
+assert.equal(
+  performAction(norbHolding, { verb: 'flirt', target: 'violet-ghost' }).changed,
+  false,
+  'Norb does not flirt',
+)
+m = performAction(m, {
+  verb: 'use',
+  target: 'violet-ghost',
+  item: 'plastic-fangs',
+}).state
+assert.equal(m.gratitude.violet, 1)
+assert.ok(m.evidence.includes('violet-scent'))
+assert.equal(m.inventory.includes('plastic-fangs'), false)
+// Favour 2, low morals: pay Violet out of the dead client's purse.
+m = act(m, 'ask', 'odette-ghost', 'violet-fee')
+m = act(m, 'take', 'odette-purse')
+assert.equal(
+  performAction(m, { verb: 'take', target: 'odette-purse' }).changed,
+  false,
+)
+m = performAction(m, {
+  verb: 'use',
+  target: 'violet-ghost',
+  item: 'odette-purse',
+}).state
+assert.equal(m.gratitude.violet, 2)
+assert.ok(m.transcript.at(-1)?.includes('cab fare'))
+assert.equal(
+  performAction(m, { verb: 'use', target: 'violet-ghost', item: 'camera' })
+    .changed,
+  false,
+  'nonsense combinations get a joke and change nothing',
+)
+m = act(m, 'flirt', 'violet-ghost')
+assert.ok(m.flags.includes('ghost-kiss'))
+m = act(m, 'flirt', 'odette-ghost')
+assert.ok(m.transcript.at(-1)?.includes('she gets a kiss'))
+// Norb rebuffs every time, and the rebuffs escalate.
+m = move(m, 'balcony')
+m = move(m, 'investigators-room')
+const rebuffs = new Set<string>()
+for (let i = 0; i < 7; i += 1) {
+  m = act(m, 'flirt', 'nico')
+  rebuffs.add(m.transcript.at(-1) ?? '')
+}
+assert.equal(m.rebuffs, 7)
+assert.equal(rebuffs.size, 7, 'seven distinct rebuffs before repeating')
+assert.equal(performAction(m, { verb: 'flirt', target: 'nico' }).changed, true)
+// Saves round-trip, upgrade from MONSTREXX v2 and reject forged graces.
+assert.deepEqual(restoreCase(JSON.parse(JSON.stringify(m))), m)
+const legacy = { ...m, version: 2 } as Record<string, unknown>
+delete legacy.gratitude
+delete legacy.rebuffs
+const upgraded = restoreCase(legacy)
+assert.equal(upgraded?.version, 3)
+assert.deepEqual(upgraded?.gratitude, {})
+assert.equal(upgraded?.rebuffs, 0)
+assert.equal(restoreCase({ ...m, gratitude: { draculina: 9 } }), null)
+assert.equal(
+  restoreCase({ ...m, gratitude: { violet: 99 } })?.gratitude.violet,
+  2,
+)
+assert.equal(restoreCase({ ...m, rebuffs: -1 }), null)
 console.log(
-  'MONSTREXX: eight Iris-led double-ghost playthroughs and privacy-agnostic state contracts pass',
+  'MONSTRIQUE: eight Iris-led double-ghost playthroughs, client hire, Violet favours, flirting and save upgrades pass',
 )

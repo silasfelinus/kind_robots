@@ -107,6 +107,11 @@ export const useMonstressConventionStore = defineStore(
         next.flags.includes('violet-met')
       )
         kit.unlock('moments', 'two-ghosts')
+      if (next.flags.includes('odette-hired-us'))
+        kit.unlock('moments', 'dead-client')
+      if (next.flags.includes('fangs-returned'))
+        kit.unlock('moments', 'rental-fangs')
+      if (next.flags.includes('ghost-kiss')) kit.unlock('moments', 'cold-kiss')
       if (next.ending) kit.unlock('endings', next.ending)
       persist()
     }

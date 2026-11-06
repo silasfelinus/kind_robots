@@ -3,23 +3,23 @@ import type { PlaybookKitSpec } from '../types'
 export const MONSTRESS_CONVENTION: PlaybookKitSpec = {
   id: 'monstress-convention',
   conductorSlug: 'monstress-convention',
-  title: 'Monstrexx',
+  title: 'Monstrique',
   tagline: "Everybody's a monster. Somebody's a murderer.",
   premise:
-    'Iris investigates a double murder at the motel while her germophobic boss deduces clues; two ghosts reveal different leads to the Monstrexx celebrities.',
+    'In Midnight City, the agent behind MONSTRIQUE has been murdered at a seedy motel, and her ghost hires the city’s most squeamish blogger to find out who did it. You are his assistant. You touch everything.',
   tier: 'vignette',
-  route: '/admin/monstrexx',
+  route: '/admin/monstrique',
   keyArt: {
     brief:
-      'A shabby rain-soaked two-storey Last Call Motor Lodge, ice machine, front office, two ghost women in Room 205 and a distant Monstrexx Convention billboard',
-    alt: 'Last Call Motor Lodge with distant Monstrexx billboard',
+      'A neon, rain-soaked two-storey Last Call Motor Lodge in Midnight City, ice machine glowing, two ghost women in the Room 205 window and a MONSTRIQUE: REAWAKENED billboard',
+    alt: 'Last Call Motor Lodge under a Monstrique billboard',
   },
   acts: [
     {
       id: 1,
-      title: 'Two Ghosts at Last Call',
+      title: 'The Last Call',
       blurb:
-        'Investigate the double murder and unlock the separate convention center.',
+        'Your client is dead. Work the motel, satisfy two ghosts and earn a lead into sixty years of Monstrique.',
     },
   ],
   meters: [{ id: 'leads', label: 'Leads', min: 0, max: 10, start: 0 }],
@@ -30,7 +30,7 @@ export const MONSTRESS_CONVENTION: PlaybookKitSpec = {
       name: 'Iris Quill',
       role: 'follower',
       tagline:
-        'Lead field investigator, capable assistant and photojournalist.',
+        'Assistant, photographer and the only pair of hands at The Unwashed Truth. Flirts with anyone who stands still.',
       portrait: {
         brief:
           'Charming resourceful grown woman photojournalist with camera, practical coat and sharp expression, illustrated retro adventure-game portrait',
@@ -41,7 +41,7 @@ export const MONSTRESS_CONVENTION: PlaybookKitSpec = {
       name: 'Norbert “Norb” Vale',
       role: 'figure',
       tagline:
-        'Brilliant hunched germophobic boss, never willing to touch the evidence.',
+        'Midnight City’s premiere blogger: four foot eleven, double-gloved, all about the case. Always says no.',
       portrait: {
         brief:
           'Very SHORT genuinely ugly geeky comic figure: enormous bulbous nose, buck teeth, tiny hunched torso, scrawny limbs, thick round glasses, nervous bulging eyes, crooked cardigan, rubber gloves and handkerchief. Cartoon caricature, decidedly NOT suave, handsome, muscular or romantic. An original absurd mystery-game sidekick.',
@@ -52,7 +52,7 @@ export const MONSTRESS_CONVENTION: PlaybookKitSpec = {
       name: 'Odette Harker',
       role: 'figure',
       tagline:
-        'Smarmy talent agent, murdered at the motel and now a demanding ghost witness.',
+        'The agent who built Monstrique. Murdered, furious and now your client.',
       portrait: {
         brief:
           'Spectral woman talent agent with stern glamorous appearance, elegant evening outfit, expressive theatrical noir ghost portrait',
@@ -63,10 +63,14 @@ export const MONSTRESS_CONVENTION: PlaybookKitSpec = {
       name: 'Violet Wisp',
       role: 'figure',
       tagline:
-        'Observant woman, a second murder victim and a distinct ghost witness.',
+        'Hired for one night as a vampire, now haunting Room 205 with her client forever. The sharpest witness in the room.',
+      romance: {
+        arc: 'A working woman stuck in the afterlife with an unpaid bill. Square her night and she may square yours.',
+        moments: ['cold-kiss'],
+      },
       portrait: {
         brief:
-          'Adult woman ghost with lavender aura, confident observant face, elegant party clothes, whimsical theatrical portrait',
+          'Adult woman ghost with lavender aura in a rented satin vampire cape and plastic fangs, wry observant face, glamorous pin-up noir portrait',
       },
     },
     {
@@ -98,12 +102,12 @@ export const MONSTRESS_CONVENTION: PlaybookKitSpec = {
       title: 'The Convention Lead',
       tone: 'hopeful',
       summary:
-        'Iris and Norb find a defensible lead to the separate Monstrexx Convention Center.',
+        'Iris and Norb trace the knife to a 1964 Monstriquettes prop and follow it to the convention.',
       hint: 'Document the knife, establish the time, clear the stalker and ask both ghosts.',
       about: ['iris', 'nico', 'odette', 'violet'],
       art: {
         brief:
-          'Iris and Norb following the Monstrexx idol-group schedule outside the separate convention venue, mystery adventure illustration',
+          'Iris and tiny gloved Norb under a Sixty Years of Monstrique banner outside the convention hall, neon noir comedy illustration',
       },
     },
     {
@@ -132,6 +136,43 @@ export const MONSTRESS_CONVENTION: PlaybookKitSpec = {
       art: {
         brief:
           'Respectful noir aftermath of a double murder in dim motel room, mostly obscured body silhouettes and ornate knife as evidence, no gore',
+      },
+    },
+    {
+      id: 'dead-client',
+      title: 'Your New Client',
+      caption: 'Odette hires Norb from beyond the grave and pays in blackmail.',
+      kind: 'scene',
+      act: 1,
+      about: ['odette', 'nico'],
+      art: {
+        brief:
+          'Glamorous silver-blue ghost agent waving a contract at a tiny gloved germophobe blogger recoiling behind his tall assistant, seedy motel room, comic noir',
+      },
+    },
+    {
+      id: 'rental-fangs',
+      title: 'Forty-Dollar Fangs',
+      caption: 'Iris digs Violet’s rental fangs out of the ice machine.',
+      kind: 'scene',
+      act: 1,
+      about: ['iris', 'violet'],
+      art: {
+        brief:
+          'Iris elbow-deep in a glowing motel ice machine holding up plastic vampire fangs, a horrified tiny man in gloves behind her, neon comedy',
+      },
+    },
+    {
+      id: 'cold-kiss',
+      title: 'A Cold Kiss',
+      caption:
+        'Fangs back, fee paid. Violet says thank you the way only a ghost can.',
+      kind: 'romance',
+      act: 1,
+      about: ['iris', 'violet'],
+      art: {
+        brief:
+          'Tasteful pin-up: a lavender ghost woman in a vampire cape kissing Iris, frost blooming on the mirror, Norb visible in the hallway facing the wall, non-explicit',
       },
     },
     {

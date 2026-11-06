@@ -1,8 +1,15 @@
 /**
- * MONSTREXX, a deterministic adult monster-celebrity comedy mystery.
- * The convention is a distinct city venue; the murders happen at a motel.
- * Iris is the physical field investigator. Norb can observe and question,
- * but his germophobia prevents touching objects, using or photographing them.
+ * MONSTRIQUE, Chapter 1: The Last Call. A deterministic, adults-only
+ * monster-celebrity comedy mystery set in Midnight City.
+ *
+ * Iris is the player: the assistant who touches everything. Norb (internal
+ * key `nico`, kept for save compatibility) is Midnight City's premiere
+ * blogger, a germophobe who observes, deduces and asks, but never takes, uses
+ * or photographs. The murdered agent Odette and Violet, the companion she
+ * hired to play a vampire, are ghosts bound to Room 205; Odette is the
+ * client. Flirting is a verb, favours earn gratitude, and gratitude never
+ * gates a required clue. Story canon: conductor
+ * projects/monstress-convention/STORY-BIBLE.md.
  */
 export type Investigator = 'iris' | 'nico'
 export type RoomId =
@@ -16,7 +23,7 @@ export type RoomId =
   | 'city-map'
   | 'convention-center'
 export type Verb =
-  'walk' | 'look' | 'talk' | 'take' | 'use' | 'photograph' | 'ask'
+  'walk' | 'look' | 'talk' | 'take' | 'use' | 'photograph' | 'ask' | 'flirt'
 export type CaseEnding = 'lead-earned' | 'reckless'
 
 export interface HotelHotspot {
@@ -35,7 +42,7 @@ export interface HotelRoom {
   hotspots: HotelHotspot[]
 }
 export interface CaseState {
-  version: 2
+  version: 3
   seed: number
   room: RoomId
   actor: Investigator
@@ -45,12 +52,18 @@ export interface CaseState {
   inventory: string[]
   asked: string[]
   transcript: string[]
+  /** Favours done per character. Unlocks flirt payoffs, never clues. */
+  gratitude: Record<string, number>
+  /** How many times Norb has turned Iris down. Escalates the gag. */
+  rebuffs: number
   ending: CaseEnding | null
 }
 export interface CaseAction {
   verb: Verb
   target: string
   topic?: string
+  /** An inventory item used on the target (giving counts as using). */
+  item?: string
 }
 export interface CaseResult {
   state: CaseState
@@ -58,13 +71,16 @@ export interface CaseResult {
   changed: boolean
 }
 
+export const GAME_TITLE = 'MONSTRIQUE'
+export const CITY_NAME = 'Midnight City'
+
 export const HOTEL_ROOMS: Record<RoomId, HotelRoom> = {
   'motel-exterior': {
     id: 'motel-exterior',
     label: 'Last Call Motor Lodge',
     floor: 0,
     caption:
-      'Rain patters against a two-storey motel. The ice machine hums beneath a crooked MONSTREXX billboard.',
+      'Midnight City, where it is always last call. Rain sizzles on the neon, and a MONSTRIQUE: REAWAKENED billboard leers over a motel that rents by the night, the hour or the confession.',
     exits: ['front-office', 'ice-alcove', 'city-map'],
     hotspots: [
       {
@@ -76,14 +92,14 @@ export const HOTEL_ROOMS: Record<RoomId, HotelRoom> = {
       },
       {
         id: 'gavin',
-        label: 'Intrusive fanboy',
+        label: 'Gavin, the fan with the long lens',
         x: 75,
         y: 66,
-        verbs: ['look', 'talk', 'ask'],
+        verbs: ['look', 'talk', 'ask', 'flirt'],
       },
       {
         id: 'fan-camera',
-        label: 'Fan camera',
+        label: 'Gavin’s camera',
         x: 82,
         y: 81,
         verbs: ['look', 'photograph'],
@@ -95,21 +111,28 @@ export const HOTEL_ROOMS: Record<RoomId, HotelRoom> = {
     label: 'Motel Front Office',
     floor: 1,
     caption:
-      'A dust-covered counter, sticky key rack and guest register. Norb declines the complimentary pen.',
+      'A counter sticky with sixty years of spilled cocktails, a key rack, a guest register and a lobby shrine to the 1964 Monstriquettes. Norb declines the complimentary pen. And the mint. And the air.',
     exits: ['motel-exterior', 'balcony'],
     hotspots: [
       {
         id: 'marta',
-        label: 'Marta, motel manager',
+        label: 'Marta, night manager',
         x: 60,
         y: 50,
-        verbs: ['look', 'talk', 'ask', 'use'],
+        verbs: ['look', 'talk', 'ask', 'use', 'flirt'],
       },
       {
         id: 'guest-ledger',
         label: 'Guest register',
         x: 25,
         y: 67,
+        verbs: ['look', 'photograph'],
+      },
+      {
+        id: 'memorabilia-case',
+        label: 'Monstriquettes shrine',
+        x: 84,
+        y: 34,
         verbs: ['look', 'photograph'],
       },
     ],
@@ -119,7 +142,7 @@ export const HOTEL_ROOMS: Record<RoomId, HotelRoom> = {
     label: 'Ice Machine Alcove',
     floor: 1,
     caption:
-      'A machine clanks twice every so often. An ancient sign says FREE ICE. Most promises here are lies.',
+      'The ice machine clanks twice every so often, like it is trying to tell you something. A sign promises FREE ICE. Nothing at the Last Call is free.',
     exits: ['motel-exterior', 'balcony'],
     hotspots: [
       {
@@ -131,7 +154,7 @@ export const HOTEL_ROOMS: Record<RoomId, HotelRoom> = {
       },
       {
         id: 'maintenance-log',
-        label: 'Maintenance log',
+        label: 'Pip’s maintenance log',
         x: 19,
         y: 40,
         verbs: ['look', 'photograph'],
@@ -150,7 +173,7 @@ export const HOTEL_ROOMS: Record<RoomId, HotelRoom> = {
     label: 'Second-Floor Balcony',
     floor: 2,
     caption:
-      'Thin walls, peeling wallpaper and one neighbor who heard entirely too much.',
+      'Wet concrete, thin walls and a row of doors with stories. Somewhere a TV plays the 1964 Beach Hex movie, badly dubbed.',
     exits: [
       'front-office',
       'ice-alcove',
@@ -161,7 +184,7 @@ export const HOTEL_ROOMS: Record<RoomId, HotelRoom> = {
     hotspots: [
       {
         id: 'room-door',
-        label: 'Odette’s room door',
+        label: 'Door to Room 205',
         x: 62,
         y: 48,
         verbs: ['look', 'use'],
@@ -177,25 +200,25 @@ export const HOTEL_ROOMS: Record<RoomId, HotelRoom> = {
   },
   'investigators-room': {
     id: 'investigators-room',
-    label: 'Iris and Norb’s Room',
+    label: 'Room 207: The Unwashed Truth',
     floor: 2,
     caption:
-      'Two suitcases, one cramped bed and a portable evidence desk Norb has not touched.',
+      'The field office of Norb’s blog, The Unwashed Truth: two suitcases, one cramped bed, an evidence desk and an empty can of disinfectant Norb used on the bedspread.',
     exits: ['balcony'],
     hotspots: [
       {
         id: 'desk',
-        label: 'Portable case desk',
+        label: 'Evidence desk',
         x: 33,
         y: 72,
         verbs: ['look', 'use'],
       },
       {
         id: 'nico',
-        label: 'Norb and his immaculate gloves',
+        label: 'Norb, gloved and unimpressed',
         x: 68,
         y: 53,
-        verbs: ['look', 'talk', 'ask'],
+        verbs: ['look', 'talk', 'ask', 'flirt'],
       },
     ],
   },
@@ -204,15 +227,15 @@ export const HOTEL_ROOMS: Record<RoomId, HotelRoom> = {
     label: 'Next Door, Room 204',
     floor: 2,
     caption:
-      'A TV plays the MONSTREXX idol special. The guest next door heard the evening very clearly.',
+      'Dolores, a retired Monstrique superfan, watches the Beach Hex reissue at full volume. She heard everything through the wall and has opinions about all of it.',
     exits: ['balcony'],
     hotspots: [
       {
         id: 'neighbor',
-        label: 'Sleepless neighbor',
+        label: 'Dolores, superfan next door',
         x: 59,
         y: 54,
-        verbs: ['look', 'talk', 'ask'],
+        verbs: ['look', 'talk', 'ask', 'flirt'],
       },
       {
         id: 'wall-clock',
@@ -225,15 +248,15 @@ export const HOTEL_ROOMS: Record<RoomId, HotelRoom> = {
   },
   'odette-room': {
     id: 'odette-room',
-    label: 'Odette’s Room, 205',
+    label: 'Room 205',
     floor: 2,
     caption:
-      'Two women lie motionless. One ornate knife, no clear assailant. A second set of voices rises from the mirror.',
+      'A rented cape, a bottle of good gin, two bodies on the bedspread and one jewelled knife. In the mirror, two women argue about whose fault this is. They are also the bodies.',
     exits: ['balcony'],
     hotspots: [
       {
         id: 'knife',
-        label: 'Ornate stage knife',
+        label: 'Jewelled prop knife',
         x: 47,
         y: 74,
         verbs: ['look', 'photograph'],
@@ -253,32 +276,53 @@ export const HOTEL_ROOMS: Record<RoomId, HotelRoom> = {
         verbs: ['look', 'photograph'],
       },
       {
+        id: 'odette-purse',
+        label: 'Odette’s purse',
+        x: 12,
+        y: 60,
+        verbs: ['look', 'take'],
+      },
+      {
+        id: 'ice-ring',
+        label: 'Wet ring on the nightstand',
+        x: 86,
+        y: 62,
+        verbs: ['look', 'photograph'],
+      },
+      {
         id: 'odette-ghost',
-        label: 'Odette’s impatient ghost',
+        label: 'Odette, ghost and client',
         x: 38,
         y: 35,
-        verbs: ['look', 'talk', 'ask'],
+        verbs: ['look', 'talk', 'ask', 'flirt'],
       },
       {
         id: 'violet-ghost',
-        label: 'Violet’s observant ghost',
+        label: 'Violet, ghost in a rented cape',
         x: 68,
         y: 41,
-        verbs: ['look', 'talk', 'ask'],
+        verbs: ['look', 'talk', 'ask', 'flirt'],
       },
     ],
   },
   'city-map': {
     id: 'city-map',
-    label: 'The Monstrexx City Map',
+    label: 'Midnight City Map',
     floor: 0,
     caption:
-      'The city unfolds: a convention hall, a supernatural joke shop, a vampire mansion and something beneath the drains.',
+      'Midnight City by night, which is the only way it comes: a convention hall, a joke shop, a vampire’s mansion, a drive-in by the beach and something under the drains.',
     exits: ['motel-exterior', 'convention-center'],
     hotspots: [
       {
+        id: 'drive-in',
+        label: 'Starlite Drive-In, Hexwater Beach',
+        x: 18,
+        y: 70,
+        verbs: ['look'],
+      },
+      {
         id: 'joke-shop',
-        label: 'Spooky supernatural joke shop',
+        label: 'Hex & Giggles joke shop',
         x: 35,
         y: 49,
         verbs: ['look'],
@@ -301,25 +345,25 @@ export const HOTEL_ROOMS: Record<RoomId, HotelRoom> = {
   },
   'convention-center': {
     id: 'convention-center',
-    label: 'MONSTREXX Convention Center',
+    label: 'MONSTRIQUE Convention Center',
     floor: 1,
     caption:
-      'An enormous idol poster presides over autographs, models, fans and contracts worth killing for.',
+      'Sixty years of Monstrique under one roof: idols, dolls, contracts and fans who should have showered. Celestine Veil signs headshots at a table draped in her own spare bandages.',
     exits: ['city-map'],
     hotspots: [
       {
         id: 'idol-poster',
-        label: 'Monstrexx idol group poster',
+        label: 'Sixty Years of Monstrique poster',
         x: 51,
         y: 42,
         verbs: ['look', 'photograph'],
       },
       {
         id: 'mummy-actress',
-        label: 'Celestine, the mummy star',
+        label: 'Celestine Veil, the mummy star',
         x: 75,
         y: 58,
-        verbs: ['look', 'talk'],
+        verbs: ['look', 'talk', 'flirt'],
       },
     ],
   },
@@ -328,12 +372,17 @@ export const HOTEL_ROOMS: Record<RoomId, HotelRoom> = {
 export const CITY_DESTINATIONS = [
   {
     id: 'convention-center',
-    label: 'MONSTREXX Convention',
+    label: 'MONSTRIQUE Convention',
     availableInOpening: true,
   },
   {
+    id: 'drive-in',
+    label: 'Starlite Drive-In, Hexwater Beach',
+    availableInOpening: false,
+  },
+  {
     id: 'joke-shop',
-    label: 'Supernatural Joke Shop',
+    label: 'Hex & Giggles Joke Shop',
     availableInOpening: false,
   },
   { id: 'mansion', label: 'Draculina’s Mansion', availableInOpening: false },
@@ -346,36 +395,68 @@ export const CITY_DESTINATIONS = [
 
 export const TOPICS: Record<string, string> = {
   'room-access': 'Access to Room 205',
-  'unknown-visitor': 'The mysterious visitor',
-  'ice-clank': 'The double ice-machine clang',
-  'knife-origin': 'Origin of the ornate knife',
-  'agent-deals': 'Odette’s many Monstrexx deals',
-  'violet-witness': 'What Violet remembers',
+  'unknown-visitor': 'Who else came to 205',
+  'ice-clank': 'The double ice-machine clank',
+  'knife-origin': 'Where the jewelled knife came from',
+  'agent-deals': 'Everyone Odette ever cheated',
+  'violet-witness': 'What Violet saw',
   'fan-alibi': 'Where Gavin was',
-  'idol-schedule': 'Monstrexx idol rehearsal',
-  'ghost-accounts': 'The ghosts’ conflicting accounts',
+  'idol-schedule': 'Who is at the convention',
+  'ghost-accounts': 'Why the ghosts disagree',
+  'harker-files': 'The Harker Files',
+  'violet-fee': 'Violet’s unpaid fee',
+  'missing-fangs': 'Violet’s missing fangs',
+  shrine: 'The Monstriquettes shrine',
 }
 
 export const EVIDENCE: Record<string, string> = {
   'motel-photo': 'Photograph of the Last Call Motor Lodge',
-  'guest-ledger': 'Motel ledger showing Room 205',
-  'double-murder': 'Two deceased women in Room 205',
-  'knife-photo': 'Ornate knife photographed in place',
+  'guest-ledger': 'Register: Room 205, checked in by Marta personally',
+  'double-murder': 'Two women dead in Room 205',
+  'knife-photo': 'Jewelled knife photographed where it fell',
   'odette-photo': 'Odette’s position documented',
   'violet-photo': 'Violet’s position documented',
-  'ice-timing': 'Documented ice-machine double clang',
-  'neighbor-testimony': 'Neighbor heard an unknown visitor',
-  'ghost-odette': 'Odette’s testimony about celebrity contracts',
-  'ghost-violet': 'Violet’s separate sensory recollection',
-  'fan-photo': 'Time-stamped photograph from the courtyard',
-  'fan-exonerated': 'Gavin’s alibi for the double murder',
-  'knife-prop-mark': 'Distinctive stage-prop manufacturer’s mark',
-  'idol-poster': 'Monstrexx idol rehearsal and promotional schedule',
+  'ice-timing': 'The double clank, timed',
+  'neighbor-testimony': 'Dolores heard the ice arrive, then nothing',
+  'ghost-odette': 'Odette: every Monstrique star had a motive',
+  'ghost-violet': 'Violet: after the ice came, the door never opened',
+  'odette-floating': 'Odette: “the knife floated, darling”',
+  'fan-photo': 'Gavin’s time-stamped courtyard photographs',
+  'fan-exonerated': 'Gavin’s alibi for the murders',
+  'knife-prop-mark': 'Stamped STARLITE PICTURES · BEACH HEX · 1964',
+  'idol-poster': 'Sixty Years of Monstrique: who is in town',
+  'harker-file': 'Harker File #1: the Monstriquettes’ contracts',
+  'shrine-photo': 'Lobby shrine: four Hexblades, five dents in the velvet',
+  'ice-ring': 'An ice bucket was taken out of 205 after the murders',
+  'makeup-smear': 'Skin-tone foundation on the missing ice bucket',
+  'violet-scent': 'Violet smelled cold cream when the ice came',
 }
+
+export const ITEMS: Record<string, string> = {
+  camera: 'Camera',
+  'motel-key': 'Emergency key',
+  'odette-purse': 'Odette’s purse',
+  'plastic-fangs': 'Violet’s rental fangs',
+}
+
+/** Characters whose good graces can be earned in this chapter. */
+export const GRACES: Record<string, { name: string; max: number }> = {
+  violet: { name: 'Violet Wisp', max: 2 },
+}
+
+const NORB_REBUFFS = [
+  'Iris: Buy you a drink, boss? Norb: A bar glass is the most contaminated object in any building. Focus.',
+  'Iris: You’re cute when you deduce. Norb: I am cute when I am two metres from other people.',
+  'Iris: Share the bed tonight? Strictly for warmth. Norb: I have seen that bedspread under a blacklight. Nobody is sharing it with anybody.',
+  'Iris: One kiss, for luck? Norb: The human mouth hosts seven hundred species of bacteria. Pick a lucky coin.',
+  'Iris: I could rub your shoulders. Norb: You could wash your hands. Twice. Then time the ice machine.',
+  'Iris: You’re all about the case. What if I were the case? Norb: Then you would be closed.',
+  'Iris: I’m wearing nothing under this trench coat. Norb: Then you are a biohazard. Leave the door open.',
+]
 
 export function newCase(seed = 1): CaseState {
   return {
-    version: 2,
+    version: 3,
     seed,
     room: 'motel-exterior',
     actor: 'iris',
@@ -385,8 +466,10 @@ export function newCase(seed = 1): CaseState {
     inventory: ['camera'],
     asked: [],
     transcript: [
-      'Iris: Two people killed at a motel. Norb: Please handle every object in the room. Every single one.',
+      'Norb: Our client is in Room 205, Iris. She is also dead. You will handle every object. I will handle the thinking.',
     ],
+    gratitude: {},
+    rebuffs: 0,
     ending: null,
   }
 }
@@ -400,10 +483,15 @@ function copyState(state: CaseState): CaseState {
     inventory: [...state.inventory],
     asked: [...state.asked],
     transcript: [...state.transcript],
+    gratitude: { ...state.gratitude },
   }
 }
 function add(list: string[], value: string): void {
   if (!list.includes(value)) list.push(value)
+}
+function drop(list: string[], value: string): void {
+  const index = list.indexOf(value)
+  if (index >= 0) list.splice(index, 1)
 }
 function has(state: CaseState, value: string): boolean {
   return (
@@ -411,6 +499,13 @@ function has(state: CaseState, value: string): boolean {
     state.flags.includes(value) ||
     state.inventory.includes(value)
   )
+}
+function grace(state: CaseState, who: string): number {
+  return state.gratitude[who] ?? 0
+}
+function thank(state: CaseState, who: string): void {
+  const max = GRACES[who]?.max ?? 0
+  state.gratitude[who] = Math.min(max, grace(state, who) + 1)
 }
 function withLine(state: CaseState, line: string, changed = true): CaseResult {
   if (!changed) return { state, line, changed: false }
@@ -427,14 +522,14 @@ export function switchInvestigator(state: CaseState): CaseResult {
   const actor: Investigator = state.actor === 'iris' ? 'nico' : 'iris'
   const line =
     actor === 'nico'
-      ? 'Norb: I will investigate with my eyes, and neither of us will touch the carpet.'
-      : 'Iris: I will do the touching. You can keep having brilliant thoughts at a safe distance.'
+      ? 'Norb: I will investigate with my eyes. Nobody touch the carpet.'
+      : 'Iris: I’ll do the touching. You keep having brilliant thoughts at a safe distance.'
   return withLine({ ...state, actor }, line)
 }
 
 export function travel(state: CaseState, destination: RoomId): CaseResult {
   if (state.ending)
-    return withLine(state, 'The opening chapter has ended.', false)
+    return withLine(state, 'Chapter One has gone to press.', false)
   if (!HOTEL_ROOMS[state.room].exits.includes(destination))
     return withLine(
       state,
@@ -444,13 +539,13 @@ export function travel(state: CaseState, destination: RoomId): CaseResult {
   if (destination === 'odette-room' && !has(state, 'crime-room-access'))
     return withLine(
       state,
-      'Room 205 is sealed. Find a legitimate way to enter.',
+      'Room 205 is sealed. Find a legitimate way in, or at least a plausible one.',
       false,
     )
   if (destination === 'city-map' && !has(state, 'city-lead'))
     return withLine(
       state,
-      'The convention can wait until the motel evidence points somewhere.',
+      'Norb: The city can wait until the motel evidence points somewhere.',
       false,
     )
   const next = copyState(state)
@@ -466,12 +561,24 @@ export function travel(state: CaseState, destination: RoomId): CaseResult {
 
 export function availableTopics(state: CaseState, target: string): string[] {
   const supported: Record<string, string[]> = {
-    marta: ['room-access', 'unknown-visitor'],
+    marta: ['room-access', 'unknown-visitor', 'shrine'],
     neighbor: ['unknown-visitor', 'ice-clank'],
-    nico: ['knife-origin', 'ghost-accounts', 'ice-clank'],
+    nico: ['knife-origin', 'ghost-accounts', 'ice-clank', 'harker-files'],
     gavin: ['fan-alibi'],
-    'odette-ghost': ['agent-deals', 'ghost-accounts', 'knife-origin'],
-    'violet-ghost': ['violet-witness', 'ice-clank', 'ghost-accounts'],
+    'odette-ghost': [
+      'agent-deals',
+      'ghost-accounts',
+      'knife-origin',
+      'harker-files',
+      'violet-fee',
+    ],
+    'violet-ghost': [
+      'violet-witness',
+      'ice-clank',
+      'ghost-accounts',
+      'missing-fangs',
+      'violet-fee',
+    ],
   }
   return (supported[target] ?? []).filter(
     (topic) =>
@@ -494,99 +601,262 @@ function interview(
   const next = copyState(state)
   add(next.asked, state.actor + ':' + target + ':' + topic)
   const iris = state.actor === 'iris'
-  if (target === 'marta' && topic === 'room-access') {
-    add(next.flags, 'crime-room-access')
-    add(next.inventory, 'motel-key')
-    return withLine(
-      next,
-      iris
-        ? 'Marta: I let you investigate because your press credentials and the missing guest both check out. Here is the emergency key.'
-        : 'Marta: I trust Iris to handle the key, Norb. You already asked for a disinfectant bucket.',
-    )
-  }
-  if (target === 'neighbor' && topic === 'unknown-visitor') {
-    add(next.evidence, 'neighbor-testimony')
-    add(next.flags, 'crime-room-access')
-    add(next.topics, 'ice-clank')
-    return withLine(
-      next,
-      iris
-        ? 'Neighbor: Two women, then a third voice at the door. I heard an awful noise. The fire escape gives emergency access.'
-        : 'Neighbor: It was three sets of footsteps, sir. You can count them without coming any closer.',
-    )
-  }
-  if (target === 'neighbor' && topic === 'ice-clank') {
-    add(next.evidence, 'ice-timing')
-    return withLine(
-      next,
-      'Neighbor: The ice machine clanged twice just before the shouting. My clock was five minutes fast.',
-    )
-  }
-  if (target === 'odette-ghost' && topic === 'agent-deals') {
-    add(next.evidence, 'ghost-odette')
-    add(next.topics, 'idol-schedule')
-    return withLine(
-      next,
-      iris
-        ? 'Odette: Every Monstrexx star had a reason to loathe me. Contracts, endorsements, the idol group. Start at the convention.'
-        : 'Odette: My clients were monsters, darling. Not all of them supernatural.',
-    )
-  }
-  if (target === 'violet-ghost' && topic === 'violet-witness') {
-    add(next.evidence, 'ghost-violet')
-    add(next.topics, 'ice-clank')
-    return withLine(
-      next,
-      iris
-        ? 'Violet: I heard the ice machine twice. The person at the door knew Odette. I cannot remember their face.'
-        : 'Violet: Nobody warned us. I remember two clanks and someone greeting Odette by name.',
-    )
-  }
-  if (target === 'gavin' && topic === 'fan-alibi') {
-    add(next.evidence, 'fan-photo')
-    if (has(next, 'ice-timing') || has(next, 'neighbor-testimony'))
-      add(next.evidence, 'fan-exonerated')
-    return withLine(
-      next,
-      'Gavin: I was photographing a convention billboard. Iris: That is still not permission to photograph women through windows.',
-    )
-  }
-  if (target === 'nico' && topic === 'knife-origin') {
-    if (has(next, 'knife-photo')) add(next.evidence, 'knife-prop-mark')
-    return withLine(
-      next,
-      'Norb: The maker’s seal looks theatrical. Do photograph it; I decline to touch the blade.',
-    )
-  }
-  if (target === 'nico' && topic === 'ice-clank') {
-    add(next.topics, 'ghost-accounts')
-    return withLine(
-      next,
-      'Norb: Ice timing supplies a clock. We must ask both dead women what they heard.',
-    )
-  }
-  if (target === 'odette-ghost' && topic === 'ghost-accounts')
-    return withLine(
-      next,
-      'Odette: All I remember is a sharp interruption to a very expensive evening. Do not ask me for a face.',
-    )
-  if (target === 'violet-ghost' && topic === 'ghost-accounts')
-    return withLine(
-      next,
-      'Violet: The voice was familiar to Odette. We heard different things because she was looking at me.',
-    )
-  if (target === 'marta' && topic === 'unknown-visitor') {
-    add(next.evidence, 'guest-ledger')
-    return withLine(
-      next,
-      'Marta: Three different people were seen near Room 205. None checked in at that time.',
-    )
+  const key = target + ':' + topic
+
+  switch (key) {
+    case 'marta:room-access':
+      add(next.flags, 'crime-room-access')
+      add(next.inventory, 'motel-key')
+      return withLine(
+        next,
+        iris
+          ? 'Marta: Press badge, dead guest, man in gloves. Fine. Emergency key. Bring it back without fingerprints, or with yours.'
+          : 'Marta: I’ll give the key to Iris, Norb. You asked if I’d boiled it.',
+      )
+    case 'marta:unknown-visitor':
+      add(next.evidence, 'guest-ledger')
+      return withLine(
+        next,
+        'Marta: Nobody signed in after them. I brought their ice up myself at ten and went straight back down. Ask the machine, it keeps better time than I do.',
+      )
+    case 'marta:shrine':
+      return withLine(
+        next,
+        'Marta: The Monstriquettes stayed here in ’64, before they were famous. I was a fan. Everybody was. Now sign the register or stop leaning on my counter.',
+      )
+    case 'neighbor:unknown-visitor':
+      add(next.evidence, 'neighbor-testimony')
+      add(next.flags, 'crime-room-access')
+      add(next.topics, 'ice-clank')
+      return withLine(
+        next,
+        iris
+          ? 'Dolores: Two women, giggling. Room service with the ice. Then giggling of a more professional kind. Then a thump. Nobody knocked and nobody left. The fire escape goes past their window, if you’re nosy.'
+          : 'Dolores: Two voices, then none, young man. You can stand right there. I don’t bite. Unlike her costume.',
+      )
+    case 'neighbor:ice-clank':
+      add(next.evidence, 'ice-timing')
+      return withLine(
+        next,
+        'Dolores: The ice machine clanked twice right before the thump. My clock runs five minutes fast, same as my mouth.',
+      )
+    case 'nico:knife-origin':
+      if (has(next, 'knife-photo')) add(next.evidence, 'knife-prop-mark')
+      return withLine(
+        next,
+        has(next, 'knife-photo')
+          ? 'Norb: Enlarge your photo. STARLITE PICTURES, BEACH HEX, 1964. A Monstriquettes stage prop. And a smudge of skin-tone makeup on the hilt.'
+          : 'Norb: Photograph the knife where it fell. I am not going within arm’s length of a blade with history.',
+      )
+    case 'nico:ice-clank':
+      add(next.topics, 'ghost-accounts')
+      return withLine(
+        next,
+        'Norb: The ice machine gives us a clock. Now we ask both dead women what happened on it.',
+      )
+    case 'nico:ghost-accounts':
+      return withLine(
+        next,
+        'Norb: Two witnesses, two halves. Odette watched Violet; Violet watched the door. Neither saw a killer come in. So either nobody did, or somebody did and nobody saw.',
+      )
+    case 'nico:harker-files':
+      return withLine(
+        next,
+        'Norb: Blackmail is a deplorable currency. File it alphabetically.',
+      )
+    case 'odette-ghost:agent-deals':
+      add(next.evidence, 'ghost-odette')
+      add(next.topics, 'idol-schedule')
+      return withLine(
+        next,
+        iris
+          ? 'Odette: Every star in Monstrique wanted me dead, darling. That’s how you know I was good at my job. Start with the girls at the convention.'
+          : 'Odette: My clients were monsters, little man. Not all of them supernatural.',
+      )
+    case 'odette-ghost:ghost-accounts':
+      add(next.evidence, 'odette-floating')
+      return withLine(
+        next,
+        'Odette: I was looking at her. Who wouldn’t? Then the knife floated, darling. I assumed it was the gin.',
+      )
+    case 'odette-ghost:knife-origin':
+      return withLine(
+        next,
+        'Odette: Darling, I’ve been stabbed in the back by every girl in that band. This is the first time anyone used cutlery.',
+      )
+    case 'odette-ghost:harker-files':
+      add(next.evidence, 'harker-file')
+      return withLine(
+        next,
+        iris
+          ? 'Odette: Sixty years of who’s older than her bio, who can’t sing and who slept with which director. File One is yours: the Monstriquettes’ contracts. Norb: This is unethical. Iris, take notes.'
+          : 'Odette: My files, little man. Retainer paid. Don’t look so pale, I’m the one who’s dead.',
+      )
+    case 'odette-ghost:violet-fee':
+      add(next.flags, 'odette-refused-fee')
+      return withLine(
+        next,
+        'Odette: Pay her? She didn’t finish the job. Violet: You DIED. Odette: Details. My purse stays where it is.',
+      )
+    case 'violet-ghost:violet-witness':
+      add(next.evidence, 'ghost-violet')
+      add(next.topics, 'ice-clank')
+      return withLine(
+        next,
+        iris
+          ? 'Violet: The ice came. Then nobody came in. I was watching the door in the mirror the whole time, professional habit. The door never opened. The knife came anyway.'
+          : 'Violet: I count exits, honey. One door, one window, zero people. And still.',
+      )
+    case 'violet-ghost:ice-clank':
+      return withLine(
+        next,
+        'Violet: Two clanks downstairs, right before. I remember thinking it sounded like applause.',
+      )
+    case 'violet-ghost:ghost-accounts':
+      return withLine(
+        next,
+        'Violet: She was looking at me. I was looking at the door. That’s the part that scares me, and I’m a ghost.',
+      )
+    case 'violet-ghost:missing-fangs':
+      add(next.flags, 'fangs-lost')
+      return withLine(
+        next,
+        'Violet: My fangs fell in the ice bucket when I laughed. Rental, forty-dollar deposit. Now the bucket’s gone, and I’d love to know who tidies up at a murder.',
+      )
+    case 'violet-ghost:violet-fee':
+      return withLine(
+        next,
+        'Violet: Four hundred for the night, cape included. She booked me to be a vampire for sixty years of pent-up whatever. I gave a great performance. I’d like to be paid for it.',
+      )
+    case 'gavin:fan-alibi':
+      add(next.evidence, 'fan-photo')
+      if (has(next, 'ice-timing') || has(next, 'neighbor-testimony'))
+        add(next.evidence, 'fan-exonerated')
+      return withLine(
+        next,
+        'Gavin: I was out front shooting the billboard. The timestamps prove it! Iris: They also prove you shoot through windows. I’m reporting you either way.',
+      )
   }
   return withLine(
     next,
     iris
-      ? 'Iris: I will compare that with the other witness.'
-      : 'Norb: A hypothesis is not evidence, however cleanly arranged.',
+      ? 'Iris: Noted. I’ll check it against the other witness.'
+      : 'Norb: A hypothesis is not evidence, however tidily arranged.',
+  )
+}
+
+function flirt(state: CaseState, target: string): CaseResult {
+  if (state.actor === 'nico')
+    return withLine(
+      state,
+      'Norb: I do not flirt. I make eye contact in short, sanitary bursts.',
+      false,
+    )
+  if (target === 'gavin')
+    return withLine(state, 'Iris: No. Not even for the plot.', false)
+  const next = copyState(state)
+  add(next.flags, 'flirted-' + target)
+  if (target === 'nico') {
+    const line = NORB_REBUFFS[next.rebuffs % NORB_REBUFFS.length]!
+    next.rebuffs += 1
+    return withLine(next, line)
+  }
+  if (target === 'violet-ghost') {
+    const level = grace(next, 'violet')
+    if (level >= 2 && !has(next, 'ghost-kiss')) {
+      add(next.flags, 'ghost-kiss')
+      return withLine(
+        next,
+        'Violet: Fangs back, fee paid. Come here, you. The kiss is cold as the ice machine and twice as loud. When Iris opens her eyes her lips are numb, Odette is clapping sarcastically, and Norb is in the hallway, facing the wall.',
+      )
+    }
+    if (level >= 2)
+      return withLine(
+        next,
+        'Violet: Same time tomorrow? I’m not going anywhere. Literally.',
+      )
+    if (level === 1)
+      return withLine(
+        next,
+        'Violet: You’re sweet. Square the rest of my night, and maybe I’ll show you why I charge what I charge.',
+      )
+    return withLine(
+      next,
+      'Violet: Honey, I’m off the clock AND dead. That’s two reasons.',
+    )
+  }
+  const lines: Record<string, string> = {
+    'odette-ghost': has(next, 'ghost-kiss')
+      ? 'Odette: Oh, she gets a kiss and I get a murder. Typical.'
+      : 'Odette: Darling, I represent girls like you. I don’t date them.',
+    marta:
+      'Marta: Honey, nobody’s looked at me in sixty years. I’d like to keep it that way.',
+    neighbor:
+      'Dolores: I’m seventy-four, sweetie, and I heard what went on in 205. You couldn’t keep up.',
+    'mummy-actress':
+      'Celestine: Three thousand years, sweetheart, and you’re the first to try a bandage joke this hour. Take a number behind the pharaohs.',
+  }
+  return withLine(
+    next,
+    lines[target] ?? 'Iris winks. Nobody notices. Story of her week.',
+  )
+}
+
+function useItem(state: CaseState, item: string, target: string): CaseResult {
+  if (!state.inventory.includes(item))
+    return withLine(state, 'You are not carrying that.', false)
+  if (state.actor === 'nico')
+    return withLine(
+      state,
+      'Norb: Hand it to Iris. I do not hold things. I hold opinions.',
+      false,
+    )
+  const next = copyState(state)
+  if (item === 'plastic-fangs' && target === 'violet-ghost') {
+    drop(next.inventory, item)
+    add(next.flags, 'fangs-returned')
+    add(next.evidence, 'violet-scent')
+    thank(next, 'violet')
+    return withLine(
+      next,
+      'Violet: My fangs! You’re a doll. Funny, holding them I remember: when the ice came in, I smelled cold cream. Like a dressing room.',
+    )
+  }
+  if (item === 'odette-purse' && target === 'violet-ghost') {
+    drop(next.inventory, item)
+    add(next.flags, 'violet-paid')
+    thank(next, 'violet')
+    return withLine(
+      next,
+      has(next, 'odette-refused-fee')
+        ? 'Iris counts four hundred in fifties onto the bed. Violet: Paid in full. Odette: That was my cab fare to the afterlife! Iris: You’re not going anywhere.'
+        : 'Violet: Paid in full, and the client didn’t even argue. Odette: I would have, if anybody had asked me.',
+    )
+  }
+  if (item === 'odette-purse' && target === 'odette-ghost')
+    return withLine(
+      state,
+      'Odette: Darling, I can’t hold it. That’s rather the problem with being dead.',
+      false,
+    )
+  if (item === 'plastic-fangs' && target === 'nico')
+    return withLine(
+      state,
+      'Norb: Those have been in a stranger’s mouth AND an ice machine. Take three steps back.',
+      false,
+    )
+  if (item === 'motel-key' && target === 'room-door')
+    return withLine(
+      state,
+      has(state, 'crime-room-access')
+        ? 'Iris: It’s unlocked now. Just walk in from the balcony.'
+        : 'The key turns. Somebody will want to know who gave it to you.',
+      false,
+    )
+  return withLine(
+    state,
+    'Iris tries it. Nothing happens, except Norb sighing.',
+    false,
   )
 }
 
@@ -595,10 +865,11 @@ export function performAction(
   action: CaseAction,
 ): CaseResult {
   if (state.ending)
-    return withLine(state, 'The opening report has been filed.', false)
+    return withLine(state, 'Chapter One has gone to press.', false)
   const hotspot = HOTEL_ROOMS[state.room].hotspots.find(
     (item) => item.id === action.target,
   )
+  if (hotspot && action.item) return useItem(state, action.item, action.target)
   if (!hotspot || !hotspot.verbs.includes(action.verb))
     return withLine(
       state,
@@ -616,6 +887,7 @@ export function performAction(
     )
   if (action.verb === 'ask')
     return interview(state, action.target, action.topic ?? '')
+  if (action.verb === 'flirt') return flirt(state, action.target)
   const next = copyState(state)
   const target = action.target
   const verb = action.verb
@@ -627,6 +899,12 @@ export function performAction(
       add(next.topics, 'room-access')
     } else if (target === 'ice-machine' || target === 'maintenance-log') {
       add(next.topics, 'ice-clank')
+    } else if (target === 'memorabilia-case') {
+      add(next.topics, 'shrine')
+    } else if (target === 'odette-purse') {
+      add(next.topics, 'violet-fee')
+    } else if (target === 'ice-ring') {
+      add(next.evidence, 'ice-ring')
     } else if (target === 'knife') {
       add(next.topics, 'knife-origin')
       if (!iris && has(next, 'knife-photo'))
@@ -634,27 +912,46 @@ export function performAction(
     } else if (
       target === 'mansion' ||
       target === 'joke-shop' ||
-      target === 'sewers'
+      target === 'sewers' ||
+      target === 'drive-in'
     ) {
       return withLine(
         state,
-        'A lead points here, but the rest of the city is not part of this opening chapter.',
+        'Norb: A later chapter. Tonight we follow the only lead we have earned.',
         false,
       )
     }
     const observations: Record<string, string> = {
       knife: iris
-        ? 'Iris: A jewel-handled show knife. I should photograph it exactly where it fell.'
-        : 'Norb: A counterfeit jewel is inset near the maker’s mark. I can study the photograph.',
+        ? 'Iris: A jewelled show knife, gaudy as a showgirl. I should photograph it right where it fell.'
+        : has(state, 'knife-photo')
+          ? 'Norb: In your photograph: a studio stamp on the guard, and makeup on the hilt. Skin tone. Not Violet’s white vampire base.'
+          : 'Norb: Photograph it first. I will study the picture, not the weapon.',
       'odette-body':
-        'Iris: The agent was killed here. I will document the scene with care.',
+        'Iris: Eighty-one, they say. Her ghost looks thirty-five. Violet: Ghosts look how they feel. She always felt thirty-five.',
       'violet-body':
-        'Iris: Violet was also killed. She matters to this case as much as the agent.',
+        'Iris: Violet, still in the cape. She deserves this solved as much as her client does.',
+      'odette-purse':
+        'Iris: Lipstick, a flask and four hundred dollars in fifties. Odette: Don’t you dare.',
+      'ice-ring':
+        'Iris: A wet ring where an ice bucket stood. The bucket’s gone. Somebody came back for it. Or never left.',
       'ice-machine':
-        'Norb: The machine produces a distinct double clang. A very unromantic metronome.',
-      gavin: 'Iris: He is a stalker. That does not make him our murderer.',
+        'Norb: A distinct double clank, every few minutes. A very unromantic metronome.',
+      'memorabilia-case':
+        'Iris: The 1964 Monstriquettes: vampire, werewolf, lagoon girl, mummy. Four jewelled Hexblades on velvet. Marta: Don’t smudge the glass.',
+      gavin:
+        'Iris: A creep with a telephoto lens. Creepy isn’t the same as killer.',
       'sewer-hatch':
-        'Something large is singing idol songs beneath the drainage grate.',
+        'Something large is singing Monstrique songs under the grate, slightly flat.',
+      nico: 'Iris: Four foot eleven of pure deduction, double-gloved. He’s even cuter when he’s horrified.',
+      'odette-ghost':
+        'Iris: Silver-blue, impatient and fabulous. She keeps trying to fix her hair in a mirror she no longer appears in.',
+      'violet-ghost':
+        'Iris: Rented cape, bare gums, sharp eyes. She keeps glancing at the door, like she’s still on the job.',
+      marta:
+        'Iris: Gloves, scarf and thick foundation in July. Very old Hollywood.',
+      'mummy-actress':
+        'Iris: Celestine Veil. Three thousand years old and still the best cheekbones at the convention.',
     }
     return withLine(
       next,
@@ -665,7 +962,7 @@ export function performAction(
     add(next.evidence, 'motel-photo')
     return withLine(
       next,
-      'Iris: This is the crime scene, not the convention. Different addresses, different problems.',
+      'Iris: LAST CALL MOTOR LODGE, with the L burnt out. AST CALL. Norb: Do not put that in the headline.',
     )
   }
   if (target === 'guest-ledger' && verb === 'photograph') {
@@ -673,28 +970,44 @@ export function performAction(
     add(next.topics, 'room-access')
     return withLine(
       next,
-      'Iris: Odette and Violet were in 205. Our room is just down the balcony.',
+      'Iris: ODETTE HARKER + GUEST, Room 205. Checked in by Marta herself, and our room’s just down the balcony.',
+    )
+  }
+  if (target === 'memorabilia-case' && verb === 'photograph') {
+    add(next.evidence, 'shrine-photo')
+    add(next.topics, 'shrine')
+    return withLine(
+      next,
+      'Iris: Four Hexblades on the velvet. Under the flash, five dents in it. Marta: Dust.',
+    )
+  }
+  if (target === 'ice-ring' && verb === 'photograph') {
+    add(next.evidence, 'ice-ring')
+    return withLine(
+      next,
+      'Iris: Wet ring, no bucket. Somebody tidied a murder scene, and only the ice.',
     )
   }
   if (target === 'marta' && verb === 'talk') {
     add(next.topics, 'room-access')
+    add(next.topics, 'unknown-visitor')
     return withLine(
       next,
-      'Marta: There are two missing women in 205. If you have a legitimate reason, ask about emergency access.',
+      'Marta: Two guests in 205 aren’t answering, and the cops won’t come out before dawn. Nobody does at the Last Call. Ask nicely and maybe I’ll find a key.',
     )
   }
   if (target === 'marta' && verb === 'use') {
     if (!has(next, 'guest-ledger'))
       return withLine(
         state,
-        'Marta: Check the room register before I give out any keys.',
+        'Marta: Read the register before you go grabbing for keys, honey.',
         false,
       )
     add(next.flags, 'crime-room-access')
     add(next.inventory, 'motel-key')
     return withLine(
       next,
-      'Marta: Here. Iris handles the key. Norb can stand somewhere hygienic.',
+      'Marta: Here. Iris holds the key. Norb can stand somewhere hygienic, if he finds one.',
     )
   }
   if (target === 'neighbor' && verb === 'talk') {
@@ -702,14 +1015,14 @@ export function performAction(
     add(next.topics, 'ice-clank')
     return withLine(
       next,
-      'Neighbor: Someone knocked at 205, then I heard the machine and a terrible crash. Ask me about the visitor.',
+      'Dolores: You’re the blog people! I read The Unwashed Truth on the toilet. Ask me about last night. I’ve been rehearsing.',
     )
   }
   if (target === 'wall-clock' && verb === 'photograph') {
     add(next.evidence, 'ice-timing')
     return withLine(
       next,
-      'Iris: The clock and neighbor’s account independently time the double clang.',
+      'Iris: Clock plus Dolores’s account times the double clank to the minute.',
     )
   }
   if (target === 'ice-machine' && verb === 'photograph') {
@@ -717,42 +1030,65 @@ export function performAction(
     add(next.topics, 'ice-clank')
     return withLine(
       next,
-      'Iris: I timed both clanks. A murder mystery now has a clock.',
+      'Iris: I timed both clanks. Our murder mystery now has a clock.',
     )
   }
   if (target === 'maintenance-log' && verb === 'photograph') {
     add(next.evidence, 'ice-timing')
     return withLine(
       next,
-      'Iris: Maintenance logged the exact moment the ice dispenser restarted.',
+      'Iris: Pip logs every clank like a lovesick poet. There’s last night, to the minute.',
     )
   }
   if (target === 'ice-machine' && verb === 'use') {
     add(next.topics, 'ice-clank')
+    if (has(next, 'fangs-lost') && !has(next, 'fangs-found')) {
+      add(next.flags, 'fangs-found')
+      add(next.inventory, 'plastic-fangs')
+      add(next.evidence, 'makeup-smear')
+      return withLine(
+        next,
+        'Iris digs elbow-deep: one ice bucket from 205, two plastic fangs and a smear of skin-tone foundation on the handle. Norb: Do NOT bring that arm anywhere near me.',
+      )
+    }
     return withLine(
       next,
-      'Iris: Clank, clank. Norb: Splendid. Now please wash your hands.',
+      'Iris: Clank, clank. Norb: Splendid. Now wash your hands. Then wash them again.',
     )
   }
   if (target === 'sewer-hatch' && verb === 'use')
     return withLine(
       state,
-      'The hatch is locked. Somebody below is rehearsing a very ambitious chorus.',
+      'Locked. Below, a husky voice belts a Monstrique chorus, then shouts “Five, six, seven, eight!” to nobody.',
       false,
     )
   if (target === 'room-door' && verb === 'use')
     return withLine(
       next,
       has(next, 'crime-room-access')
-        ? 'Iris: The emergency route to 205 is ready. I will open it from the balcony map.'
-        : 'Iris: Room 205 is sealed. We need Marta or a neighbor to authorize access.',
+        ? 'Iris: 205 is open. Our client is waiting, and so is her date.'
+        : 'Iris: Locked. Marta has keys, and the neighbor has a view of the fire escape.',
     )
+  if (target === 'odette-purse' && verb === 'take') {
+    if (has(next, 'odette-purse') || has(next, 'violet-paid'))
+      return withLine(
+        state,
+        'Iris: Already took it. Low morals, high efficiency.',
+        false,
+      )
+    add(next.inventory, 'odette-purse')
+    add(next.topics, 'violet-fee')
+    return withLine(
+      next,
+      'Iris pockets the purse. Odette: Put that DOWN. Iris: You can’t hold it anyway, and someone here is owed four hundred dollars.',
+    )
+  }
   if (target === 'gavin' && verb === 'talk') {
     add(next.flags, 'stalker-reported')
     add(next.topics, 'fan-alibi')
     return withLine(
       next,
-      'Iris: Following someone with a camera is not courtship. Gavin: But my pictures prove where I was.',
+      'Iris: Following women around with a lens isn’t fandom, Gavin. Gavin: But my pictures prove where I was!',
     )
   }
   if (target === 'fan-camera' && verb === 'photograph') {
@@ -762,7 +1098,7 @@ export function performAction(
       add(next.evidence, 'fan-exonerated')
     return withLine(
       next,
-      'Iris: The billboard and a visible time display place Gavin away from Room 205.',
+      'Iris: The billboard and his time display put Gavin out front, nowhere near 205. Still a creep. Just not our killer.',
     )
   }
   if (target === 'knife' && verb === 'photograph') {
@@ -770,7 +1106,7 @@ export function performAction(
     add(next.topics, 'knife-origin')
     return withLine(
       next,
-      'Iris: One ornate stage knife. Both victims. The blade has a manufacturer’s emblem.',
+      'Iris: One jewelled knife, two victims. There’s a studio stamp on the guard. Norb should see this. From over there.',
     )
   }
   if (
@@ -783,25 +1119,31 @@ export function performAction(
     )
     return withLine(
       next,
-      'Iris: Both women deserve a careful investigation, not a lurid headline.',
+      'Iris: Documented, with care. They get a real investigation, not a lurid headline.',
     )
   }
   if (target === 'odette-ghost' && verb === 'talk') {
     add(next.flags, 'odette-met')
+    add(next.flags, 'odette-hired-us')
     add(next.topics, 'agent-deals')
     add(next.topics, 'ghost-accounts')
+    add(next.topics, 'harker-files')
     return withLine(
       next,
-      'Odette: I am dead, yes. I do not know who did it. I could name twenty people who wished me harm.',
+      iris
+        ? 'Odette: Yes, I’m dead. Yes, I look fabulous. I’m retaining your boss. Norb: We don’t take money from the deceased. Odette: My estate pays in blackmail. Norb: ...Iris, get a pen.'
+        : 'Odette: The little germ-phobe! I called you, I’m hiring you. Norb: From two metres away, madam, I accept.',
     )
   }
   if (target === 'violet-ghost' && verb === 'talk') {
     add(next.flags, 'violet-met')
     add(next.topics, 'violet-witness')
     add(next.topics, 'ghost-accounts')
+    add(next.topics, 'missing-fangs')
+    add(next.topics, 'violet-fee')
     return withLine(
       next,
-      'Violet: I remember the sound, not the face. And I would like to be more than a footnote to Odette.',
+      'Violet: Booked for one night, cape and fangs, and now I’m haunting the Last Call with my client forever. Worst. Overnight. Ever. And she still owes me.',
     )
   }
   if (target === 'nico' && verb === 'talk') {
@@ -809,20 +1151,27 @@ export function performAction(
     add(next.topics, 'ice-clank')
     return withLine(
       next,
-      'Iris: You look almost kissable. Norb: You are leaning on an unsterilized lamp. Please stop.',
+      'Iris: Where do we start, boss? Norb: With the clock, the knife and the two women who were there. And you are leaning on an unsterilized lamp.',
+    )
+  }
+  if (target === 'mummy-actress' && verb === 'talk') {
+    add(next.topics, 'idol-schedule')
+    return withLine(
+      next,
+      'Celestine: Odette took fifteen percent of my afterlife, darling. I’m not sorry she’s dead. I’m sorry I didn’t get to watch. Bring me evidence, not gossip.',
     )
   }
   if (target === 'desk' && verb === 'use') {
     if (!has(next, 'double-murder'))
       return withLine(
         state,
-        'Norb: We have not seen the scene yet. Please do not fabricate the headline.',
+        'Norb: We haven’t seen the scene. I won’t publish a headline about a room I haven’t refused to enter.',
         false,
       )
     if (!has(next, 'ghost-odette') || !has(next, 'ghost-violet'))
       return withLine(
         state,
-        'Iris: Both women were there. We must hear both accounts before filing.',
+        'Iris: Two women were in that room. We hear both of them before we file.',
         false,
       )
     const ready = ['knife-photo', 'ice-timing', 'fan-exonerated'].every((key) =>
@@ -832,72 +1181,84 @@ export function performAction(
       next.ending = 'reckless'
       return withLine(
         next,
-        'Norb: Publishing a suspect without the knife, time and alibi is reckless. Iris knows we should have waited.',
+        'Norb: We named a suspect without the knife, the time or the alibi. The comments section is already on fire. So is my reputation.',
       )
     }
     add(next.flags, 'city-lead')
     add(next.topics, 'idol-schedule')
     return withLine(
       next,
-      'Iris: The knife is a MONSTREXX prop. Norb: Let us examine the real convention center, not this filthy motel.',
+      'Iris: The knife’s a 1964 Beach Hex prop: a Monstriquettes Hexblade. Norb: Then the case starts where Monstrique started. Get the car. I’ll sit in the back. On a towel.',
     )
   }
   if (target === 'idol-poster' && verb === 'photograph') {
     if (!has(next, 'city-lead'))
       return withLine(
         state,
-        'The convention is not yet open to this investigation.',
+        'The convention is not part of this investigation yet.',
         false,
       )
     add(next.evidence, 'idol-poster')
     next.ending = 'lead-earned'
     return withLine(
       next,
-      'Iris: Every actress and idol had a deal with Odette. Norb: Good. Our next chapter now has a real lead.',
-    )
-  }
-  if (target === 'mummy-actress' && verb === 'talk') {
-    add(next.topics, 'idol-schedule')
-    return withLine(
-      next,
-      'Celestine: Mummy is my role, darling. Odette represented my whole career. Bring me evidence, not gossip.',
+      'Iris: Every Monstriquette had a reason, and half of them are signing autographs right here. Norb: Chapter One is filed. Tomorrow, we follow Monstrique back to 1964.',
     )
   }
   return withLine(state, HOTEL_ROOMS[state.room].caption, false)
 }
 
+const LIST_KEYS = [
+  'flags',
+  'evidence',
+  'topics',
+  'inventory',
+  'asked',
+  'transcript',
+] as const
+
+/** Accepts version 3 saves and upgrades version 2 (pre-Monstrique) saves. */
 export function restoreCase(value: unknown): CaseState | null {
   if (!value || typeof value !== 'object') return null
-  const state = value as CaseState
+  const raw = value as Partial<CaseState> & { version?: number }
+  if (raw.version !== 2 && raw.version !== 3) return null
   if (
-    state.version !== 2 ||
-    !Object.prototype.hasOwnProperty.call(HOTEL_ROOMS, state.room)
+    typeof raw.room !== 'string' ||
+    !Object.prototype.hasOwnProperty.call(HOTEL_ROOMS, raw.room)
   )
     return null
-  if (state.actor !== 'iris' && state.actor !== 'nico') return null
-  for (const key of [
-    'flags',
-    'evidence',
-    'topics',
-    'inventory',
-    'asked',
-    'transcript',
-  ] as const) {
-    if (
-      !Array.isArray(state[key]) ||
-      !state[key].every((part) => typeof part === 'string')
-    )
+  if (raw.actor !== 'iris' && raw.actor !== 'nico') return null
+  for (const key of LIST_KEYS) {
+    const list = raw[key]
+    if (!Array.isArray(list) || !list.every((part) => typeof part === 'string'))
       return null
   }
   if (
-    state.ending !== null &&
-    state.ending !== 'lead-earned' &&
-    state.ending !== 'reckless'
+    raw.ending !== null &&
+    raw.ending !== 'lead-earned' &&
+    raw.ending !== 'reckless'
   )
     return null
-  if (!Number.isInteger(state.seed)) return null
-  return copyState(state)
+  if (!Number.isInteger(raw.seed)) return null
+  const gratitude: Record<string, number> = {}
+  if (raw.version === 3) {
+    if (!raw.gratitude || typeof raw.gratitude !== 'object') return null
+    for (const [who, level] of Object.entries(raw.gratitude)) {
+      const cap = GRACES[who]?.max
+      if (cap === undefined || !Number.isInteger(level)) return null
+      gratitude[who] = Math.max(0, Math.min(cap, level))
+    }
+    if (!Number.isInteger(raw.rebuffs) || (raw.rebuffs ?? -1) < 0) return null
+  }
+  return copyState({
+    ...(raw as CaseState),
+    version: 3,
+    gratitude,
+    rebuffs: raw.version === 3 ? (raw.rebuffs as number) : 0,
+  })
 }
 
 export const monstrexxKitId = (accountId: string | number): string =>
   `monstress-convention-user-${accountId}`
+/** Monstrique name for the same stable, account-scoped kit id. */
+export const monstriqueKitId = monstrexxKitId

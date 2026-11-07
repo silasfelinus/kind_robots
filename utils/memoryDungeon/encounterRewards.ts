@@ -16,8 +16,22 @@ export function grantMemoryRewardOnce(
   reward: MemoryEncounterReward,
 ): boolean {
   if (ledger.includes(encounter)) return false
+  const lanterns = reward.lanterns ?? 0
+  const wildflowers = reward.wildflowers ?? 0
+  if (
+    !encounter.trim() ||
+    !Number.isSafeInteger(lanterns) ||
+    !Number.isSafeInteger(wildflowers) ||
+    lanterns < 0 ||
+    wildflowers < 0 ||
+    !Number.isSafeInteger(purse.lanterns) ||
+    !Number.isSafeInteger(purse.wildflowers) ||
+    !Number.isSafeInteger(purse.lanterns + lanterns) ||
+    !Number.isSafeInteger(purse.wildflowers + wildflowers)
+  )
+    return false
   ledger.push(encounter)
-  purse.lanterns += reward.lanterns ?? 0
-  purse.wildflowers += reward.wildflowers ?? 0
+  purse.lanterns += lanterns
+  purse.wildflowers += wildflowers
   return true
 }

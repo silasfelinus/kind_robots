@@ -818,6 +818,40 @@ export const HOSHIMORI_NIGHT_SITES: readonly NightSite[] = [
       'night-supper-privacy',
     ),
   ),
+  s(
+    '5,5',
+    'Inkfall Causeway / The Map That Charges Admission',
+    'A bridge of folded paper hangs above the canal. Each traveler must surrender a memory to cross. Vesper recognizes their own childhood ink beneath the tollkeeper’s stamp.',
+    c(
+      'night-causeway-refuse',
+      'Help the travelers mark a free crossing',
+      'Vesper draws a route that the tollkeeper cannot own. Scylla holds the bridge while the first family crosses without surrendering a name.',
+      'night-causeway-free',
+    ),
+    c(
+      'night-causeway-receipt',
+      'Demand the return of every stolen memory',
+      'The tollkeeper opens a drawer of paper voices. Char returns the receipts to their owners; Vesper refuses to keep a copy of the route.',
+      'night-causeway-returned',
+    ),
+  ),
+  s(
+    '6,5',
+    'The Unwritten Platform / Last Train to Nowhere',
+    'The night train stops at a platform missing from every official map. Its doors open only for passengers willing to be listed as never having arrived.',
+    c(
+      'night-platform-witness',
+      'Record the arrivals without publishing their destinations',
+      'Scylla makes a private witness roll. The conductor cannot erase the passengers, but no hunter receives an address.',
+      'night-platform-witnessed',
+    ),
+    c(
+      'night-platform-shelter',
+      'Turn the empty waiting room into a shelter',
+      'Vesper marks the room as occupied, not owned. Oren blocks the platform clock until the last passenger chooses where to go.',
+      'night-platform-sheltered',
+    ),
+  ),
 ]
 
 export const HOSHIMORI_NIGHT_CLUE_SITES = ['1,1', '2,1', '3,1'] as const
@@ -1132,7 +1166,7 @@ export function restoreHoshimoriNight(value: unknown): NightProgress | null {
 
 export function validateHoshimoriNight(): string[] {
   const errors: string[] = []
-  if (SITES.size !== 46) errors.push('Expected forty-six unique night sites')
+  if (SITES.size !== 48) errors.push('Expected forty-eight unique night sites')
   const choiceIds = HOSHIMORI_NIGHT_SITES.flatMap((site) =>
     site.choices.map((choice) => choice.id),
   )
@@ -1172,7 +1206,7 @@ export function validateHoshimoriNight(): string[] {
       }
     }
   }
-  if (reached.size !== 46)
+  if (reached.size !== 48)
     errors.push('A night site requires a blind or sealed crossing')
   if (!SITES.has('1,4') || !SITES.has('6,7'))
     errors.push('e08 photo reservations drifted')

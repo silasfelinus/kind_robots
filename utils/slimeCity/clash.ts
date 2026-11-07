@@ -488,6 +488,19 @@ function startTurn(s: ClashState, side: Side): void {
     'turn',
   )
 }
+/** A curated neutral guest per crew keeps mercenary synergies in standard Clash. */
+export const CLASH_GUESTS: Record<TeamId, string> = {
+  catgirls: 'merc-roof-dentist',
+  bloodfairies: 'merc-smog-moth',
+  ironjaw: 'merc-union-owl',
+  riot: 'merc-bribe-rat',
+  undertow: 'merc-fungal-bouncer',
+  exchange: 'merc-debt-slug',
+}
+export function clashDeck(team: TeamId): string[] {
+  const roster = alleyDeck(team)
+  return [...roster.slice(0, 19), CLASH_GUESTS[team]]
+}
 /** Twenty unique catalog cards, seeded draws and no retained hand between turns. */
 export function createClash(
   player: TeamId = 'catgirls',
@@ -517,8 +530,8 @@ export function createClash(
     levels: { player: {}, enemy: {} },
     deathMarks: { player: {}, enemy: {} },
   }
-  s.decks.player = shuffle(s, alleyDeck(player))
-  s.decks.enemy = shuffle(s, alleyDeck(enemy))
+  s.decks.player = shuffle(s, clashDeck(player))
+  s.decks.enemy = shuffle(s, clashDeck(enemy))
   startTurn(s, 'player')
   return s
 }

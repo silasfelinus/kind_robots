@@ -2,15 +2,15 @@
 // Clash, plus the armory's alliance builder and story-save validation.
 import assert from 'node:assert/strict'
 import { readFileSync } from 'node:fs'
-import { TEAMS, cardById, teamById, type TeamId } from '../slimeCity/prototypes'
+import { TEAMS, cardById, type TeamId } from '../slimeCity/prototypes'
 import {
   ALLIANCE_DECK_SIZE,
-  ALLIANCE_MAX_MERCENARIES,
   FACTION_POWERS,
   allianceCardPool,
   allianceProblems,
   allianceStarter,
   cpuAlliance,
+  swapGeneral,
   validAllianceDeck,
   type AllianceDeck,
 } from '../slimeCity/alliance'
@@ -32,79 +32,81 @@ import { sweepAlliance } from './slimeCityAllianceBalanceReport'
 
 const ids = TEAMS.map((t) => t.id)
 
-// Every general x ally (and solo) starter is a legal 30-card deck.
+// Every general x second-faction starter is a legal 30-card deck.
 for (const general of ids) {
-  for (const ally of [null, ...ids.filter((id) => id !== general)]) {
+  for (const ally of ids.filter((id) => id !== general)) {
     const deck = allianceStarter(general, ally)
     assert.deepEqual(allianceProblems(deck), [], general + '+' + ally)
     assert.equal(deck.cards.length, ALLIANCE_DECK_SIZE)
-    assert.ok(deck.cards.includes(teamById(general).signature))
-    if (ally) assert.ok(deck.cards.some((id) => cardById(id).team === ally))
+    assert.ok(deck.cards.some((id) => cardById(id).team === ally))
     assert.ok(validAllianceDeck(deck))
+    // Swapping the general keeps the same two factions and cards legal.
+    const swapped = swapGeneral(deck)
+    assert.equal(swapped.general, ally)
+    assert.equal(swapped.ally, general)
+    assert.deepEqual(allianceProblems(swapped), [])
   }
   assert.equal(FACTION_POWERS[general].team, general)
   assert.ok(FACTION_POWERS[general].text.length > 10)
 }
 
-// Legality rules.
+// Silas, 2026-11-07 PT: two factions, any 30 cards from either or the mercs.
 const base = allianceStarter('catgirls', 'undertow')
 const problem = (deck: AllianceDeck, text: string) =>
   assert.ok(
     allianceProblems(deck).some((p) => p.includes(text)),
     'expected "' + text + '" in ' + allianceProblems(deck).join(' | '),
   )
+const pool = (team: string) =>
+  allianceCardPool('catgirls', 'undertow').filter((c) => c.team === team)
+const creaturesFirst = (team: string) =>
+  [...pool(team)].sort(
+    (a, b) => Number(b.kind === 'creature') - Number(a.kind === 'creature'),
+  )
 problem({ ...base, cards: base.cards.slice(1) }, 'exactly 30')
-problem({ ...base, ally: 'catgirls' }, 'different crew')
-const outsider = allianceCardPool('riot', null).find(
+problem({ ...base, ally: 'catgirls' }, 'two different factions')
+problem({ ...base, ally: undefined as unknown as TeamId }, 'second faction')
+const outsider = allianceCardPool('riot', 'ironjaw').find(
   (c) => c.team === 'riot',
 )!.id
-problem({ ...base, cards: [...base.cards.slice(0, 29), outsider] }, 'belong')
+problem({ ...base, cards: [...base.cards.slice(0, 29), outsider] }, 'come from')
 problem(
-  {
-    ...base,
-    cards: base.cards.map((id) =>
-      id === teamById('catgirls').signature ? base.cards[29]! : id,
-    ),
-  },
-  'Cannot repeat',
+  { ...base, cards: [...base.cards.slice(0, 29), base.cards[0]!] },
+  'repeat',
 )
-const mercs = allianceCardPool('catgirls', null)
-  .filter((c) => c.team === 'mercenary')
-  .slice(0, ALLIANCE_MAX_MERCENARIES + 1)
-  .map((c) => c.id)
-const nonSignature = base.cards.filter(
-  (id) => id !== teamById('catgirls').signature,
-)
-problem(
-  {
-    ...base,
-    cards: [
-      ...base.cards.filter(
-        (id) => !nonSignature.slice(0, mercs.length).includes(id),
-      ),
-      ...mercs,
-    ],
-  },
-  'mercenaries',
-)
-// The ally may not out-number the general.
+// Mostly the second faction: legal, the general still owns the power.
 const allyHeavy: AllianceDeck = {
   general: 'catgirls',
   ally: 'undertow',
   cards: [
-    teamById('catgirls').signature,
-    ...allianceCardPool('catgirls', 'undertow')
-      .filter((c) => c.team === 'undertow')
-      .slice(0, 20)
-      .map((c) => c.id),
-    ...allianceCardPool('catgirls', null)
-      .filter((c) => c.team === 'catgirls' && !c.signature)
-      .slice(0, 9)
-      .map((c) => c.id),
-  ],
+    ...creaturesFirst('undertow').slice(0, 28),
+    ...creaturesFirst('catgirls').slice(0, 2),
+  ].map((c) => c.id),
 }
-problem(allyHeavy, 'at least as many cards as the ally')
-assert.ok(!validAllianceDeck(allyHeavy))
+assert.deepEqual(allianceProblems(allyHeavy), [], 'ally-heavy is legal')
+// No signature needed and mercenaries are uncapped.
+const mercHeavy: AllianceDeck = {
+  general: 'catgirls',
+  ally: 'undertow',
+  cards: [
+    ...creaturesFirst('mercenary').slice(0, 20),
+    ...creaturesFirst('undertow').slice(0, 10),
+  ].map((c) => c.id),
+}
+assert.deepEqual(allianceProblems(mercHeavy), [], 'merc-heavy is legal')
+// A deck with almost no fighters cannot hold the alleys.
+const allSpells: AllianceDeck = {
+  ...base,
+  cards: [
+    ...pool('catgirls').filter((c) => c.kind !== 'creature'),
+    ...pool('undertow').filter((c) => c.kind !== 'creature'),
+    ...pool('mercenary').filter((c) => c.kind !== 'creature'),
+  ]
+    .slice(0, 30)
+    .map((c) => c.id),
+}
+problem(allSpells, 'creatures')
+assert.ok(!validAllianceDeck(allSpells))
 
 // Clash: alliance decks, ally cards playable, standard Clash untouched.
 const alliance = {
@@ -159,8 +161,11 @@ function unit(
 function board(general: TeamId): ClashState {
   const out = createClash(general, 'riot', 9, {
     alliance: {
-      player: allianceStarter(general, null),
-      enemy: allianceStarter('riot', null),
+      player: allianceStarter(
+        general,
+        general === 'ironjaw' ? 'exchange' : 'ironjaw',
+      ),
+      enemy: allianceStarter('riot', 'undertow'),
     },
   })
   out.units = [
@@ -272,7 +277,7 @@ const at = (st: ClashState, uid: number) => st.units.find((u) => u.uid === uid)
   const story = { ...newSlimeCityStory(), alliances: { catgirls: base } }
   assert.ok(validSlimeCityStory(JSON.parse(JSON.stringify(story))))
   assert.ok(
-    !validSlimeCityStory({ ...story, alliances: { catgirls: allyHeavy } }),
+    !validSlimeCityStory({ ...story, alliances: { catgirls: allSpells } }),
   )
   assert.ok(
     !validSlimeCityStory({ ...story, alliances: { riot: base } }),
@@ -288,6 +293,7 @@ for (const id of [
   'slime-format-alliance',
   'slime-alliance-workbench',
   'slime-ally-picker',
+  'slime-alliance-swap',
   'slime-alliance-power',
   'slime-alliance-play',
   'slime-alliance-grid',

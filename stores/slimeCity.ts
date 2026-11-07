@@ -41,6 +41,7 @@ import {
   allianceCardPool,
   allianceProblems,
   allianceStarter,
+  swapGeneral,
   type AllianceDeck,
 } from '../utils/slimeCity/alliance'
 import type { ClashFormat } from '../utils/slimeCity/clash'
@@ -693,25 +694,39 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
       done + (storyLoaded.value ? ' Saving…' : ' Sign in to keep it.')
     persistStory()
   }
-  function setAlly(ally: TeamId | null): void {
-    if (ally === activeTeam.value) return
-    if (ally === currentAlliance.value.ally) return
-    commitAlliance(
-      allianceStarter(activeTeam.value, ally),
-      ally
-        ? teamById(ally).name + ' join as your ally: starter alliance dealt.'
-        : 'Solo alliance: thirty cards from your own crew.',
+  /**
+   * Change the second faction. General and mercenary picks stay; the old
+   * second faction's cards make way for the new one's starter cards.
+   */
+  function setAlly(ally: TeamId): void {
+    const deck = currentAlliance.value
+    if (ally === deck.general || ally === deck.ally) return
+    const kept = deck.cards.filter((id) => cardById(id).team !== deck.ally)
+    const fill = allianceStarter(deck.general, ally).cards.filter(
+      (id) => cardById(id).team === ally,
     )
+    const cards = [...kept]
+    for (const id of fill)
+      if (cards.length < ALLIANCE_DECK_SIZE && isCardUnlocked(id))
+        cards.push(id)
+    commitAlliance(
+      { general: deck.general, ally, cards },
+      teamById(ally).name + ' are your second faction.',
+    )
+  }
+  /** Make the second faction the general: same two factions, same cards. */
+  function swapAllianceGeneral(): void {
+    const next = swapGeneral(currentAlliance.value)
+    commitAlliance(next, teamById(next.general).name + ' now lead as general.')
+    const message = deckMessage.value
+    chooseTeam(next.general)
+    deckMessage.value = message
   }
   function toggleAllianceCard(id: string): void {
     const deck = currentAlliance.value
     const card = CARDS.find((entry) => entry.id === id)
     if (!card) return
     if (deck.cards.includes(id)) {
-      if (id === teamById(deck.general).signature) {
-        deckMessage.value = 'Your general’s signature stays in the alliance.'
-        return
-      }
       commitAlliance(
         { ...deck, cards: deck.cards.filter((cardId) => cardId !== id) },
         card.name + ' leaves the alliance.',
@@ -719,8 +734,7 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
       return
     }
     if (!allianceCards.value.some((entry) => entry.id === id)) {
-      deckMessage.value =
-        'Only your general’s, your ally’s and mercenary cards fit.'
+      deckMessage.value = 'Only your two factions’ cards and mercenaries fit.'
       return
     }
     if (!isCardUnlocked(id)) {
@@ -1513,6 +1527,7 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
     playAlliance,
     allianceCards,
     setAlly,
+    swapAllianceGeneral,
     toggleAllianceCard,
     restoreAllianceStarter,
     playAllianceClash,

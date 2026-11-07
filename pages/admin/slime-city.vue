@@ -351,10 +351,8 @@
             </div>
             <div class="sc-deck-status">
               <span class="sc-overline"
-                >GENERAL · {{ lab.team.name }}
-                <template v-if="lab.currentAlliance.ally"
-                  >+ ALLY · {{ teamName(lab.currentAlliance.ally) }}</template
-                ><template v-else>· SOLO</template></span
+                >GENERAL · {{ lab.team.name }} +
+                {{ teamName(lab.currentAlliance.ally) }}</span
               >
               <p class="sc-power-line" data-testid="slime-alliance-power">
                 <b
@@ -366,7 +364,7 @@
               <p aria-live="polite">
                 {{
                   lab.deckMessage ||
-                  'Tap a card to add it or take it out. Your general must lead: its signature, and at least as many cards as the ally.'
+                  'Pick two factions. Any 30 cards from either faction or the mercenaries; the general’s power comes with the deck.'
                 }}
               </p>
               <small
@@ -380,7 +378,7 @@
               <div
                 class="sc-unlocks sc-ally-picker"
                 role="group"
-                aria-label="Choose an ally crew"
+                aria-label="Choose your second faction"
                 data-testid="slime-ally-picker"
               >
                 <button
@@ -388,23 +386,26 @@
                   :key="ally.id"
                   type="button"
                   :aria-pressed="lab.currentAlliance.ally === ally.id"
-                  :title="ally.name + ' as your ally'"
-                  :aria-label="ally.name + ' as your ally'"
+                  :title="ally.name + ' as your second faction'"
+                  :aria-label="ally.name + ' as your second faction'"
                   :data-testid="'slime-ally-' + ally.id"
                   @click="lab.setAlly(ally.id)"
                 >
                   {{ ally.insignia }}
                 </button>
-                <button
-                  type="button"
-                  :aria-pressed="lab.currentAlliance.ally === null"
-                  title="No ally: thirty cards from your own crew"
-                  data-testid="slime-ally-solo"
-                  @click="lab.setAlly(null)"
-                >
-                  SOLO
-                </button>
               </div>
+              <button
+                type="button"
+                data-testid="slime-alliance-swap"
+                :title="
+                  'Make ' +
+                  teamName(lab.currentAlliance.ally) +
+                  ' the general and use their power'
+                "
+                @click="lab.swapAllianceGeneral()"
+              >
+                ⇄ {{ teamName(lab.currentAlliance.ally) }} AS GENERAL
+              </button>
               <button
                 type="button"
                 data-testid="slime-alliance-restore"
@@ -869,7 +870,7 @@ function allianceLabel(card: Card): string {
       ? 'IN DECK · GENERAL'
       : card.team === 'mercenary'
         ? 'IN DECK · MERC'
-        : 'IN DECK · ALLY'
+        : 'IN DECK'
   return state === 'open' ? '+ ADD' : 'LOCKED'
 }
 const swapSource = computed(() =>

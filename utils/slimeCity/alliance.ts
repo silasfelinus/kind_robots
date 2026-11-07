@@ -5,32 +5,25 @@
 // the general and the deck uses their power. Power should be one time use
 // during a match."
 //
-// A deck has a GENERAL crew (whose power it carries) and an optional ALLY crew.
-// Cards come from the general, the ally and the mercenary pool. The general
-// leads: its signature is required and it brings at least as many cards as
-// the ally. Pure data and legality only; the power effects run in clash.ts.
+// Silas, 2026-11-07 PT, clarifying: "Factions combined means you pick two
+// factions, one of them is general, and you can make a 30 card deck using
+// either faction or mercs."
+//
+// A deck names TWO crews: the GENERAL (whose power it carries) and the ALLY.
+// Any mix of either crew's cards and mercenaries is legal. Pure data and
+// legality only; the power effects run in clash.ts.
 import { alleyDeck } from './alleys'
-import {
-  CARDS,
-  TEAMS,
-  cardById,
-  teamById,
-  type Card,
-  type TeamId,
-} from './prototypes'
+import { CARDS, TEAMS, cardById, type Card, type TeamId } from './prototypes'
 
 export const ALLIANCE_DECK_SIZE = 30
 /** Clash needs bodies in the alleys: at least two fighters in five. */
 export const ALLIANCE_MIN_CREATURES = 12
-export const ALLIANCE_MIN_SPECIALS = 6
-/** Three of ten in the classic deck, scaled to thirty. */
-export const ALLIANCE_MAX_MERCENARIES = 9
 
 export interface AllianceDeck {
   /** The leading crew. Its faction power is the deck's power. */
   general: TeamId
-  /** The second crew, or null for a single-crew alliance deck. */
-  ally: TeamId | null
+  /** The second crew; always a different crew from the general. */
+  ally: TeamId
   cards: string[]
 }
 
@@ -99,12 +92,10 @@ export function factionPower(team: TeamId): FactionPower {
 }
 
 /** Cards an alliance deck may hold: general, ally and mercenaries. */
-export function allianceCardPool(general: TeamId, ally: TeamId | null): Card[] {
+export function allianceCardPool(general: TeamId, ally: TeamId): Card[] {
   return CARDS.filter(
     (card) =>
-      card.team === general ||
-      (ally !== null && card.team === ally) ||
-      card.team === 'mercenary',
+      card.team === general || card.team === ally || card.team === 'mercenary',
   )
 }
 
@@ -114,9 +105,9 @@ const isTeam = (v: unknown): v is TeamId =>
 /** Why an alliance deck is not legal, or an empty list. */
 export function allianceProblems(deck: AllianceDeck): string[] {
   const out: string[] = []
-  if (!isTeam(deck.general)) return ['Choose a general crew']
-  if (deck.ally !== null && !isTeam(deck.ally)) return ['Unknown ally crew']
-  if (deck.ally === deck.general) out.push('Your ally must be a different crew')
+  if (!isTeam(deck.general)) return ['Choose a general faction']
+  if (!isTeam(deck.ally)) return ['Choose a second faction']
+  if (deck.ally === deck.general) out.push('Pick two different factions')
   const ids = deck.cards
   if (ids.length !== ALLIANCE_DECK_SIZE)
     out.push('Requires exactly ' + ALLIANCE_DECK_SIZE + ' cards')
@@ -132,25 +123,12 @@ export function allianceProblems(deck: AllianceDeck): string[] {
         card.team !== 'mercenary',
     )
   )
-    out.push('Cards must belong to your general, your ally or the mercenaries')
+    out.push('Cards must come from your two factions or the mercenaries')
   if (
-    known.filter((card) => card.team === 'mercenary').length >
-    ALLIANCE_MAX_MERCENARIES
+    known.filter((card) => card.kind === 'creature').length <
+    ALLIANCE_MIN_CREATURES
   )
-    out.push('At most ' + ALLIANCE_MAX_MERCENARIES + ' mercenaries')
-  const creatures = known.filter((card) => card.kind === 'creature').length
-  if (creatures < ALLIANCE_MIN_CREATURES)
     out.push('Requires at least ' + ALLIANCE_MIN_CREATURES + ' creatures')
-  if (known.length - creatures < ALLIANCE_MIN_SPECIALS)
-    out.push('Requires at least ' + ALLIANCE_MIN_SPECIALS + ' specials')
-  if (!ids.includes(teamById(deck.general).signature))
-    out.push('Requires your general’s signature')
-  if (deck.ally !== null) {
-    const lead = known.filter((card) => card.team === deck.general).length
-    const second = known.filter((card) => card.team === deck.ally).length
-    if (second > lead)
-      out.push('Your general must bring at least as many cards as the ally')
-  }
   return out
 }
 
@@ -164,24 +142,14 @@ function spread<T>(items: T[], count: number): T[] {
 
 /**
  * A ready-to-play 30-card alliance deck: the general's 20-card Clash deck plus
- * ten more cards, five creatures and five specials, from the ally (or from
- * the general's own reserves for a single-crew deck), spread across the cost
- * curve. Always legal.
+ * five creatures and five specials from the second faction's Clash deck,
+ * spread across the cost curve. Always legal.
  */
-export function allianceStarter(
-  general: TeamId,
-  ally: TeamId | null = null,
-): AllianceDeck {
+export function allianceStarter(general: TeamId, ally: TeamId): AllianceDeck {
   const base = alleyDeck(general)
   const byCost = (a: Card, b: Card) =>
     a.cost - b.cost || a.id.localeCompare(b.id)
-  const source =
-    ally === null || ally === general
-      ? CARDS.filter((c) => c.team === general && !base.includes(c.id))
-      : alleyDeck(ally)
-          .map(cardById)
-          .filter((c) => !c.signature)
-  const sorted = [...source].sort(byCost)
+  const sorted = alleyDeck(ally).map(cardById).sort(byCost)
   const creatures = spread(
     sorted.filter((c) => c.kind === 'creature'),
     5,
@@ -192,15 +160,20 @@ export function allianceStarter(
   )
   return {
     general,
-    ally: ally === general ? null : ally,
+    ally,
     cards: [...base, ...[...creatures, ...specials].map((c) => c.id)],
   }
+}
+
+/** The same two factions with the other one as general: same cards. */
+export function swapGeneral(deck: AllianceDeck): AllianceDeck {
+  return { general: deck.ally, ally: deck.general, cards: [...deck.cards] }
 }
 
 /** A seeded CPU alliance: the rival general plus an ally it picks by seed. */
 export function cpuAlliance(general: TeamId, seed: number): AllianceDeck {
   const others = TEAMS.map((t) => t.id).filter((id) => id !== general)
-  const ally = others[Math.abs(Math.floor(seed)) % others.length] ?? null
+  const ally = others[Math.abs(Math.floor(seed)) % others.length]!
   return allianceStarter(general, ally)
 }
 
@@ -210,7 +183,7 @@ export function validAllianceDeck(raw: unknown): raw is AllianceDeck {
   const v = raw as Record<string, unknown>
   return (
     isTeam(v.general) &&
-    (v.ally === null || isTeam(v.ally)) &&
+    isTeam(v.ally) &&
     Array.isArray(v.cards) &&
     v.cards.length <= 60 &&
     v.cards.every((id) => typeof id === 'string') &&

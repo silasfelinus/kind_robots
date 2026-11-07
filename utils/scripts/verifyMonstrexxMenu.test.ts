@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict'
 import { readFileSync } from 'node:fs'
 import { newCase, monstrexxKitId } from '../monstressConvention/prologue'
+import { MONSTRIQUE_ALBUMS } from '../monstrique/albumHistory'
 
 function file(name: string): string {
   return readFileSync(new URL('../../' + name, import.meta.url), 'utf8')
@@ -55,3 +56,18 @@ assert.doesNotMatch(nav, /route: \/play\//)
 console.log(
   'Monstrique menu: four controls, gated navigation, account-scoped saves and scrapbook/settings contracts passed',
 )
+
+const archive = file('components/monstrique/monstrique-album-archive.vue')
+assert.equal(MONSTRIQUE_ALBUMS.length, 7)
+assert.deepEqual(
+  MONSTRIQUE_ALBUMS.map((album) => album.year),
+  [1964, 1974, 1986, 1994, 2006, 2017, 2024],
+)
+assert.ok(
+  MONSTRIQUE_ALBUMS.every(
+    (album) => album.removed && album.replacement && album.clueFlag,
+  ),
+)
+assert.match(front, /scrapTab === 'albums'/)
+assert.match(front, /<MonstriqueAlbumArchive v-else \/>/)
+assert.match(archive, /data-testid="monstrique-album-archive"/)

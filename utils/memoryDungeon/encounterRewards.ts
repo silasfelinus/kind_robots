@@ -26,6 +26,8 @@ export function grantMemoryRewardOnce(
     wildflowers < 0 ||
     !Number.isSafeInteger(purse.lanterns) ||
     !Number.isSafeInteger(purse.wildflowers) ||
+    purse.lanterns < 0 ||
+    purse.wildflowers < 0 ||
     !Number.isSafeInteger(purse.lanterns + lanterns) ||
     !Number.isSafeInteger(purse.wildflowers + wildflowers)
   )

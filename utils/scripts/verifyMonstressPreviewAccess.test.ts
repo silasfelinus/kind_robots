@@ -73,7 +73,10 @@ function frontmatter(markdown: string): ChannelContentItem {
 const adminChannel = frontmatter(read('content/channels/admin/index.md'))
 const monstriqueTab = frontmatter(tab)
 assert.equal(monstriqueTab.navigation, true)
-assert.ok(Number(monstriqueTab.sort) < 30, 'Monstrique belongs near the top of the Admin launcher')
+assert.ok(
+  Number(monstriqueTab.sort) < 30,
+  'Monstrique belongs near the top of the Admin launcher',
+)
 const actualChannels = resolveChannels([adminChannel, monstriqueTab])
 
 function visibleFor(viewer: NavigationAccessContext) {
@@ -100,7 +103,8 @@ const childAdminVisible = visibleFor(childAdminContext)
 
 assert.equal(
   navigationDestinations(adultAdmin[0]!).some(
-    (entry) => entry.label === 'Monstrique' && entry.route === '/admin/monstrique',
+    (entry) =>
+      entry.label === 'Monstrique' && entry.route === '/admin/monstrique',
   ),
   true,
   'the Admin launcher must expose a clickable Monstrique destination',

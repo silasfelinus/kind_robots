@@ -217,15 +217,15 @@ export const CLASH_CREW_BUDGET: Partial<Record<TeamId, number>> = {
   undertow: 0.5,
 }
 export const CLASH_TRAIT_TEXT: Record<Keyword, string> = {
-  ambush: 'Ambush: strikes the turn it lands, +1 power on its first hit.',
-  regen: 'Regen: recovers 1 life at each round end.',
-  swarm: 'Swarm: +1 power beside a friend.',
-  leech: 'Leech: heals 1 when it deals damage.',
-  bulldoze: 'Bulldoze: extra damage spills onto the boss.',
-  volatile: 'Volatile: blasts across its alley when it falls.',
+  ambush: 'Ambush: attacks immediately; +1 first strike.',
+  regen: 'Regen: heals 1 after each round.',
+  swarm: 'Swarm: +1 power next to an ally.',
+  leech: 'Leech: heals 1 when it hits.',
+  bulldoze: 'Bulldoze: overkill hits the boss.',
+  volatile: 'Volatile: explodes on defeat.',
   pierce: 'Pierce: ignores 1 armor.',
-  snare: 'Snare: whatever it hits misses its next strike.',
-  collect: 'Collect: +1 power for each fighter it defeats.',
+  snare: 'Snare: struck rivals skip a strike.',
+  collect: 'Collect: gains +1 power on a kill.',
 }
 /** No changes to CARDS or the legacy battle engines. */
 export function clashBalance(card: Card, level = 1): ClashCardBalance {
@@ -346,7 +346,7 @@ export function clashCardText(card: Card, level = 1): string {
   const b = clashBalance(card, level)
   if (card.kind === 'creature')
     return [
-      ...(b.armor ? ['Armor: takes 1 less damage from each hit.'] : []),
+      ...(b.armor ? ['Armor: blocks 1 damage per hit.'] : []),
       ...(card.keywords ?? []).map((k) => CLASH_TRAIT_TEXT[k]),
       clashTwistText(card.id, level),
     ]

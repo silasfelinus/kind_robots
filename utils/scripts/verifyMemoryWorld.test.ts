@@ -103,6 +103,38 @@ import {
   canChooseBriarScene,
 } from '../memoryDungeon/scenes'
 
+// Corrupted rewards must never mint currency or consume a once-only claim key.
+for (const [key, reward] of [
+  ['', { lanterns: 1 }],
+  ['negative', { lanterns: -1 }],
+  ['fraction', { wildflowers: 0.5 }],
+  ['infinite', { lanterns: Infinity }],
+  ['overflow', { lanterns: Number.MAX_SAFE_INTEGER }],
+] as const) {
+  const ledger: string[] = []
+  const purse = { lanterns: 1, wildflowers: 2 }
+  assert.equal(grantMemoryRewardOnce(ledger, key, purse, reward), false)
+  assert.deepEqual(ledger, [])
+  assert.deepEqual(purse, { lanterns: 1, wildflowers: 2 })
+}
+const validRewardLedger: string[] = []
+const validRewardPurse = { lanterns: 1, wildflowers: 2 }
+assert.equal(
+  grantMemoryRewardOnce(validRewardLedger, 'vault:once', validRewardPurse, {
+    lanterns: 2,
+    wildflowers: 3,
+  }),
+  true,
+)
+assert.equal(
+  grantMemoryRewardOnce(validRewardLedger, 'vault:once', validRewardPurse, {
+    lanterns: 2,
+  }),
+  false,
+)
+assert.deepEqual(validRewardPurse, { lanterns: 3, wildflowers: 5 })
+assert.deepEqual(validRewardLedger, ['vault:once'])
+
 assert.deepEqual(
   validateBriarLinks(),
   [],

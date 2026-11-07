@@ -1,6 +1,7 @@
 <!-- The console's bottom deck: five painted vignette tabs (Lake, Map, Court,
      Gear, Fishopedia) between L and R bumpers, and on wide consoles the
-     button-prompt footer (t-054). The deck takes the reign's tier. -->
+     button-prompt footer (t-054). Flat indigo under a spectrum rule, bold
+     outlines and dark label bands; the deck takes the reign's tier. -->
 <template>
   <nav class="rh-nav" aria-label="Ruler Hooked screens">
     <button
@@ -99,19 +100,11 @@ const current = computed<ConsoleTab>(() =>
   grid-template-columns: auto repeat(5, minmax(0, 1fr)) auto;
   align-items: stretch;
   gap: clamp(0.25rem, 1cqi, 0.6rem);
-  padding: 0.45rem clamp(0.35rem, 1.5cqi, 1rem) 0.55rem;
+  padding: 0.55rem clamp(0.35rem, 1.5cqi, 1rem) 0.55rem;
   background:
-    radial-gradient(
-      ellipse at 0% 100%,
-      rgb(14 10 6 / calc(var(--rh-soot) * 0.8)),
-      transparent 40%
-    ),
-    linear-gradient(180deg, rgb(255 255 255 / 0.06), transparent 30%),
-    linear-gradient(180deg, var(--rh-lapis), var(--rh-lapis-deep));
-  border-top: 2px solid var(--rh-gold);
-  box-shadow:
-    inset 0 2px 0 var(--rh-gold-lo),
-    0 -6px 18px rgb(0 0 0 / 0.35);
+    var(--rh-spectrum) top / 100% 4px no-repeat,
+    var(--rh-plum-deep);
+  box-shadow: 0 -6px 18px rgb(0 0 0 / 0.35);
 }
 @container rhconsole (min-width: 900px) {
   .rh-nav {
@@ -128,14 +121,11 @@ const current = computed<ConsoleTab>(() =>
   grid-template-rows: 1fr auto;
   min-height: 3.75rem;
   height: clamp(3.75rem, 10cqi, 6rem);
-  border-radius: 0.35rem 0.35rem 0.2rem 0.2rem;
+  border-radius: 0.6rem;
   overflow: hidden;
-  border: 0;
-  background: var(--rh-lapis-deep);
-  box-shadow:
-    inset 0 0 0 1px var(--rh-gold-lo),
-    inset 0 0 0 3px var(--rh-gold),
-    0 4px 10px rgb(0 0 0 / 0.55);
+  border: 2px solid var(--rh-gold);
+  background: var(--rh-plum-deep);
+  box-shadow: 2px 2px 0 var(--rh-plum);
   transition:
     transform 160ms ease,
     box-shadow 160ms ease;
@@ -146,54 +136,49 @@ const current = computed<ConsoleTab>(() =>
 }
 .rh-tab:focus-visible,
 .rh-bumper:focus-visible {
-  outline: 3px solid var(--rh-gold-hi);
+  outline: 3px solid var(--rh-gold-soft);
   outline-offset: 2px;
 }
 .rh-tab__art {
   position: absolute !important;
-  inset: 3px;
-  opacity: 0.7;
-  filter: saturate(0.8) sepia(0.15);
-  transition:
-    opacity 160ms ease,
-    filter 160ms ease;
+  inset: 0;
+  opacity: 0.78;
+  transition: opacity 160ms ease;
+}
+.rh-console[data-tier='strained'] .rh-tab__art {
+  filter: saturate(1.3) hue-rotate(22deg);
 }
 .rh-console[data-tier='rotten'] .rh-tab__art {
-  filter: saturate(0.45) sepia(0.4) brightness(0.8);
+  filter: saturate(1.5) hue-rotate(-30deg) contrast(1.12);
 }
 .rh-tab.is-active .rh-tab__art,
 .rh-tab:hover .rh-tab__art {
   opacity: 1;
-  filter: none;
 }
 .rh-tab__label {
   position: relative;
   grid-row: 2;
-  margin: 0 3px 3px;
   padding: 0.2rem 0.2rem 0.25rem;
-  background: linear-gradient(180deg, var(--rh-vellum), var(--rh-vellum-2));
-  border-top: 1.5px solid var(--rh-gold);
-  color: var(--rh-ink);
+  background: color-mix(in oklab, var(--rh-plum-deep) 88%, transparent);
+  color: #fff;
   font-family: var(--rh-display);
   font-weight: 800;
-  font-variant: small-caps;
-  font-size: clamp(0.7rem, 2cqi, 1.15rem);
-  letter-spacing: 0.02em;
+  font-size: clamp(0.7rem, 2cqi, 1.1rem);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  transform: skewX(calc(var(--rh-warp) * 5));
 }
 .rh-tab.is-active {
   transform: translateY(-3px);
+  border-color: var(--rh-gold-soft);
   box-shadow:
-    inset 0 0 0 1px var(--rh-gold-lo),
-    inset 0 0 0 3px var(--rh-gold-hi),
-    0 0 0 2px var(--rh-gold-hi),
-    0 0 18px color-mix(in oklab, var(--rh-gold-hi) 60%, transparent);
+    3px 3px 0 var(--rh-hot),
+    0 0 0 2px var(--rh-plum-deep);
 }
 .rh-tab.is-active .rh-tab__label {
-  background: linear-gradient(180deg, var(--rh-vermilion), var(--rh-madder));
-  color: var(--rh-gold-hi);
+  background: var(--rh-gold-soft);
+  color: var(--rh-ink);
 }
 .rh-tab.is-pointed {
   animation: rh-tab-pulse 1.6s ease-in-out infinite;
@@ -201,8 +186,8 @@ const current = computed<ConsoleTab>(() =>
 @keyframes rh-tab-pulse {
   50% {
     box-shadow:
-      inset 0 0 0 3px var(--rh-gold-hi),
-      0 0 22px color-mix(in oklab, var(--rh-gold-hi) 80%, transparent);
+      0 0 0 3px var(--rh-gold-soft),
+      0 0 22px color-mix(in oklab, var(--rh-gold-soft) 80%, transparent);
   }
 }
 .rh-tab__badge {
@@ -214,17 +199,11 @@ const current = computed<ConsoleTab>(() =>
   width: 1.35rem;
   height: 1.35rem;
   border-radius: 999px;
-  background: radial-gradient(
-    circle at 38% 35%,
-    #d4554a,
-    var(--rh-madder) 55%,
-    #5e1712
-  );
-  border: 1.5px solid var(--rh-gold-hi);
-  color: #fff;
-  font-weight: 800;
+  background: var(--rh-hot);
+  border: 2px solid var(--rh-ink);
+  color: var(--rh-ink);
+  font-weight: 900;
   font-size: 0.8rem;
-  box-shadow: 0 2px 6px rgb(0 0 0 / 0.4);
 }
 .rh-bumper {
   align-self: center;
@@ -232,18 +211,15 @@ const current = computed<ConsoleTab>(() =>
   place-items: center;
   width: 2.2rem;
   height: 2.2rem;
-  border: 0;
+  border: 2px solid var(--rh-ink);
   border-radius: 0.5rem 0.5rem 0.9rem 0.9rem;
-  background: linear-gradient(180deg, var(--rh-vellum), var(--rh-vellum-2));
-  color: var(--rh-lapis-deep);
+  background: var(--rh-parch);
+  color: var(--rh-ink);
   font-family: var(--rh-display);
   font-weight: 900;
   font-size: 0.85rem;
   cursor: pointer;
-  box-shadow:
-    inset 0 0 0 1px var(--rh-gold-lo),
-    inset 0 0 0 2.5px var(--rh-gold),
-    0 3px 8px rgb(0 0 0 / 0.5);
+  box-shadow: 0 3px 0 var(--rh-gold);
 }
 .rh-bumper:hover {
   transform: translateY(-1px);
@@ -259,11 +235,10 @@ const current = computed<ConsoleTab>(() =>
     flex-wrap: wrap;
     gap: 0.5rem 1rem;
     padding: 0 0.4rem;
-    color: var(--rh-vellum);
+    color: #fff;
     font-family: var(--rh-display);
     font-size: 0.95rem;
-    font-weight: 700;
-    text-shadow: 0 1px 3px #000;
+    font-weight: 800;
   }
 }
 .rh-prompt {
@@ -279,19 +254,13 @@ const current = computed<ConsoleTab>(() =>
   height: 1.75rem;
   padding: 0 0.3rem;
   border-radius: 999px;
-  background: radial-gradient(
-    circle at 40% 35%,
-    var(--rh-vellum),
-    var(--rh-vellum-2)
-  );
-  color: var(--rh-lapis-deep);
+  background: var(--rh-gold-soft);
+  border: 2px solid var(--rh-ink);
+  color: var(--rh-ink);
   font-family: var(--rh-display);
   font-size: 0.8rem;
   font-weight: 900;
-  text-shadow: none;
-  box-shadow:
-    0 0 0 1.5px var(--rh-gold),
-    0 2px 4px rgb(0 0 0 / 0.6);
+  box-shadow: 2px 2px 0 var(--rh-hot);
 }
 @container rhconsole (max-width: 460px) {
   .rh-nav {

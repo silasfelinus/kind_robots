@@ -2,7 +2,7 @@
 //
 // Presentation data for the kingdom-decay console (ruler-hooked/t-054): the
 // meter labels, the five-tab deck, the region names the map uses, and the
-// reign-health tier the illuminated chrome takes. Pure and framework-free.
+// reign-health tier the rainbow chrome takes. Pure and framework-free.
 
 import { AXIS_KEYS } from '~/types/ruler-hooked'
 import type { AxisKey, KingdomHealth, RegionKey } from '~/types/ruler-hooked'

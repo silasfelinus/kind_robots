@@ -325,12 +325,17 @@ healing.units[0]!.hp = 2
 healing.units[1]!.hp = 3
 const recovered = finishRound(healing)
 assert.equal(recovered.round, 2)
-assert.equal(
-  recovered.units[0]!.hp,
-  3,
-  'living friend heals exactly one after two turns',
-)
-assert.equal(recovered.units[1]!.hp, 4, 'living foe heals one too')
+assert.equal(recovered.units[0]!.hp, 2, 'damage sticks between rounds')
+assert.equal(recovered.units[1]!.hp, 3, 'rival damage sticks too')
+const regen = createClash('catgirls', 'ironjaw', 14)
+regen.phase = 'attack'
+regen.units = [
+  { ...follower('player', 2, 1, 5, 3), hp: 2, keywords: ['regen'] },
+  { ...follower('enemy', 4, 2, 5, 2), hp: 3, keywords: ['regen'] },
+]
+const patched = finishRound(regen)
+assert.equal(patched.units[0]!.hp, 3, 'Regen recovers exactly one')
+assert.equal(patched.units[1]!.hp, 4, 'rival Regen recovers one')
 assert.equal(recovered.boss.enemy, clashBossMax('enemy') - 3)
 assert.equal(recovered.boss.player, CLASH_BOSS_HP - 2)
 assert.equal(recovered.hands.player.length, 5)

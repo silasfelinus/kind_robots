@@ -19,9 +19,10 @@ export const CLASH_BOSS_HP = 40
  * The crew that moves second starts its boss with extra life (Hearthstone's
  * coin). CPU sweeps, 2026-11-07: at boss 20, +0 let the first seat win
  * ~63% and +5 ~51.5%. Boss 40 (Silas: "Hit points should be higher I'm
- * thinking 40") with card leveling and +8 holds it near 53.5%.
+ * thinking 40") with card leveling and +8 held it near 53.5%; with no
+ * between-round healing (Silas, 2026-11-07 PT) +12 holds it near 54%.
  */
-export const CLASH_SECOND_SEAT_BONUS = 8
+export const CLASH_SECOND_SEAT_BONUS = 12
 export function clashBossMax(side: Side): number {
   return CLASH_BOSS_HP + (side === 'enemy' ? CLASH_SECOND_SEAT_BONUS : 0)
 }
@@ -179,18 +180,18 @@ export const CLASH_TRAIT_COST: Record<Keyword, number> = {
   ambush: 1,
   regen: 1,
   swarm: 2,
-  leech: 2,
+  leech: 1.5,
   // Bulldoze only matters on overkill; priced as flavor.
   bulldoze: 0,
-  // Volatile's blast is priced into its short life; free in the budget.
-  volatile: 0,
+  volatile: 0.5,
   pierce: 1,
-  snare: 2,
-  collect: 1,
+  snare: 1,
+  collect: 0.5,
 }
 export const CLASH_TRAIT_TEXT: Record<Keyword, string> = {
   ambush: 'Ambush: +1 power on its first strike or block.',
-  regen: 'Regen: recovers 2 life at round end instead of 1.',
+  regen:
+    'Regen: recovers 1 life at the end of each round; other fighters never heal on their own.',
   swarm: 'Swarm: +1 power while a friend holds a neighboring alley.',
   leech: 'Leech: heals 1 whenever it deals damage.',
   bulldoze: 'Bulldoze: damage beyond a blocker’s life hits the boss.',
@@ -799,12 +800,13 @@ export function endClashTurn(input: ClashState, side: Side): ClashState {
     startTurn(s, 'enemy')
     return s
   }
-  // Both crews finished: one life of natural recovery, then the next round.
+  // Both crews finished. Silas, 2026-11-07 PT: "fighters shouldn't heal
+  // between rounds" — damage sticks; only Regen fighters patch themselves up.
   for (const unit of s.units) {
-    unit.hp = Math.min(unit.maxHp, unit.hp + 1 + (has(unit, 'regen') ? 1 : 0))
+    if (has(unit, 'regen')) unit.hp = Math.min(unit.maxHp, unit.hp + 1)
     unit.surge = 0
   }
-  note(s, 'ROUND END: surviving fighters recover 1 life.', 'turn')
+  note(s, 'ROUND END: damage sticks; Regen fighters recover 1 life.', 'turn')
   if (s.round >= CLASH_ROUND_LIMIT) {
     s.victor =
       s.boss.player === s.boss.enemy

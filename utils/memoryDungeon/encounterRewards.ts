@@ -28,7 +28,8 @@ export function grantMemoryRewardOnce(
     !Number.isSafeInteger(purse.wildflowers) ||
     !Number.isSafeInteger(purse.lanterns + lanterns) ||
     !Number.isSafeInteger(purse.wildflowers + wildflowers)
-  ) return false
+  )
+    return false
   ledger.push(encounter)
   purse.lanterns += lanterns
   purse.wildflowers += wildflowers

@@ -41,7 +41,7 @@ export function resolveExpeditionRoom(expedition, roomId, outcome) {
   if (expedition?.version !== EXPEDITION_VERSION || !Array.isArray(expedition.floors)) {
     throw new TypeError('Unsupported expedition save')
   }
-  if (typeof outcome !== 'string' || !/^[a-z][a-z0-9-]{0,39}$/.test(outcome)) {
+  if (typeof outcome !== 'string' || !/^[a-z][a-z0-9-]{0,39}$/.test(outcome) || outcome === '__proto__') {
     throw new TypeError('Invalid room outcome')
   }
   const matches = expedition.floors.flatMap((floor) => floor.rooms).filter((room) => room.id === roomId)

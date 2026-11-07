@@ -168,8 +168,8 @@
         <div class="clash-plays">
           <strong>{{ phaseLabel }}</strong>
           <span
-            >{{ game.plays.player }} / {{ CLASH_PLAYS }} card plays ·
-            {{ game.decks.player.length }} in deck ·
+            >{{ game.plays.player }} / {{ clashPlayLimit(game, 'player') }} card
+            plays · {{ game.decks.player.length }} in deck ·
             {{ game.discards.player.length }} discarded</span
           >
         </div>
@@ -230,7 +230,7 @@ import {
 } from '~/utils/slimeCity/prototypes'
 import {
   CLASH_LANES,
-  CLASH_PLAYS,
+  clashPlayLimit,
   canClashPlay,
   chooseClashCpu,
   clashBossMax,
@@ -365,7 +365,9 @@ const phaseLabel = computed(() => {
     return s.active === 'player' ? 'YOUR CREW STRIKES' : 'RIVAL STRIKES'
   if (s.active === 'enemy') return 'RIVAL PLAYING'
   return s.plays.player === 0
-    ? 'PLAY UP TO TWO CARDS'
+    ? clashPlayLimit(s, 'player') === 1
+      ? 'OPENING TURN: PLAY ONE CARD'
+      : 'PLAY UP TO TWO CARDS'
     : 'ONE MORE PLAY, THEN FIGHT'
 })
 const bossHit = computed<Side | null>(() =>
@@ -436,7 +438,7 @@ function playableNow(id: string): boolean {
     !s.victor &&
     s.active === 'player' &&
     s.phase === 'play' &&
-    clashPlayCost(cardById(id)) + s.plays.player <= CLASH_PLAYS
+    clashPlayCost(cardById(id)) + s.plays.player <= clashPlayLimit(s, 'player')
   )
 }
 function allowedSide(card: Card, side: Side): boolean {

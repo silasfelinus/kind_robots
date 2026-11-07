@@ -152,7 +152,7 @@ import { computed, onBeforeUnmount, ref, watch } from 'vue'
 import { cardById, type Side } from '~/utils/slimeCity/prototypes'
 import {
   CLASH_MAX_LEVEL,
-  CLASH_PLAYS,
+  clashPlayLimit,
   clashCardText,
   clashLevel,
   clashPlayCost,
@@ -211,7 +211,8 @@ watch(
 function playable(id: string): boolean {
   return (
     ready.value &&
-    clashPlayCost(cardById(id)) + props.game.plays.player <= CLASH_PLAYS
+    clashPlayCost(cardById(id)) + props.game.plays.player <=
+      clashPlayLimit(props.game, 'player')
   )
 }
 function fanStyle(index: number): Record<string, string> {

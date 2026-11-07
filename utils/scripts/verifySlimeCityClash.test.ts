@@ -23,6 +23,7 @@ import {
   clashCardText,
   clashLevel,
   clashPlayCost,
+  clashPlayLimit,
   createClash,
   endClashTurn,
   nextClashStrike,
@@ -165,15 +166,15 @@ for (const card of CARDS) {
     assert.equal(b.level, level)
     assert.ok(b.plays === 1 || b.plays === 2)
     if (card.kind === 'creature') {
-      assert.ok(b.attack >= 2 && b.attack <= (b.plays === 2 ? 7 : 5), card.id)
-      assert.ok(b.hp >= 2 && b.hp <= (b.plays === 2 ? 17 : 13), card.id)
+      assert.ok(b.attack >= 2 && b.attack <= (b.plays === 2 ? 8 : 6), card.id)
+      assert.ok(b.hp >= 2 && b.hp <= (b.plays === 2 ? 22 : 16), card.id)
       assert.ok(b.armor >= 0 && b.armor <= 1)
       for (const k of card.keywords ?? [])
         assert.ok(
           clashCardText(card, level).includes(CLASH_TRAIT_TEXT[k]),
           card.id + k,
         )
-    } else assert.ok(b.power >= 1 && b.power <= 7, card.id)
+    } else assert.ok(b.power >= 1 && b.power <= 10, card.id)
     const badge = clashCardBadge(card, level)
     assert.ok(badge.length > 0 && badge.length < 16, card.id)
     assert.ok(
@@ -183,11 +184,22 @@ for (const card of CARDS) {
   }
   const low = clashBalance(card, 1)
   const high = clashBalance(card, CLASH_MAX_LEVEL)
+  // Silas, 2026-11-07 PT: "there needs to be real ramping of power between
+  // levels 1-3. we want it to be appealing to upgrade in most cases."
+  if (card.kind === 'creature') {
+    const value = (lv: number): number => {
+      const b = clashBalance(card, lv)
+      return b.attack * 2 + b.hp
+    }
+    assert.ok(value(1) < value(2) && value(2) < value(3), card.id + ' ramps')
+    assert.ok(value(3) >= value(1) * 1.6, card.id + ' level 3 is a big upgrade')
+  } else assert.ok(high.power > low.power || high.bonus > low.bonus, card.id)
+  const faces = [1, 2, 3].map(
+    (lv) => clashCardText(card, lv) + '|' + clashCardBadge(card, lv),
+  )
   assert.ok(
-    card.kind === 'creature'
-      ? high.attack * 2 + high.hp > low.attack * 2 + low.hp
-      : high.power > low.power || high.bonus > low.bonus,
-    card.id + ' is clearly stronger at max level',
+    faces[0] !== faces[1] && faces[1] !== faces[2],
+    card.id + ' visibly improves at every level',
   )
   // Silas, 2026-11-07 PT: no power/toughness or next-level stats in the text.
   for (let level = 1; level <= CLASH_MAX_LEVEL; level++) {
@@ -225,7 +237,35 @@ const heavy = CARDS.find(
     c.team === 'catgirls' && c.kind === 'creature' && clashPlayCost(c) === 2,
 )!
 assert.ok(heavy, 'catgirls have a two-play signature follower')
+// Silas, 2026-11-07 PT: "first player should only get one card play, not two."
+const opener = createClash('catgirls', 'ironjaw', 3)
+assert.equal(
+  clashPlayLimit(opener, 'player'),
+  1,
+  'first player opens with one play',
+)
+const heavyCard = CARDS.find(
+  (c) =>
+    c.team === 'catgirls' && c.kind === 'creature' && clashPlayCost(c) === 2,
+)!
+opener.hands.player = [heavyCard.id, 'calico', 'splice-runner']
+assert.equal(
+  canClashPlay(opener, 'player', heavyCard.id, 0),
+  false,
+  'no two-play card on the opening turn',
+)
+const opened = playClash(opener, 'player', 'calico', 0)
+assert.equal(opened.phase, 'attack', 'one play ends the opening placement')
+assert.equal(canClashPlay(opened, 'player', 'splice-runner', 1), false)
+const rivalOpening = finishTurn(opened)
+assert.equal(rivalOpening.active, 'enemy')
+assert.equal(clashPlayLimit(rivalOpening, 'enemy'), 2, 'the rival plays two')
+const secondRound = finishTurn(rivalOpening)
+assert.equal(secondRound.round, 2)
+assert.equal(clashPlayLimit(secondRound, 'player'), 2, 'two plays from round 2')
+
 const special = createClash('catgirls', 'ironjaw', 4)
+special.round = 2
 special.hands.player = [heavy.id, 'lynx']
 const paid = playClash(special, 'player', heavy.id, 0)
 assert.equal(paid.plays.player, 2)
@@ -235,6 +275,7 @@ assert.equal(canClashPlay(paid, 'player', 'lynx', 1), false)
 assert.equal(playClash(paid, 'player', 'lynx', 1), paid)
 
 const normal = createClash('catgirls', 'ironjaw', 6)
+normal.round = 2
 normal.hands.player = ['calico', 'splice-runner']
 const first = playClash(normal, 'player', 'calico', 0)
 assert.equal(first.plays.player, 1)
@@ -336,6 +377,7 @@ assert.equal(
   'Ambush lets a fighter strike the turn it lands',
 )
 const ambushDebut = createClash('catgirls', 'ironjaw', 16)
+ambushDebut.round = 2
 ambushDebut.hands.player = ['lynx', 'calico']
 const ambushed = playClash(
   playClash(ambushDebut, 'player', 'lynx', 0),
@@ -437,7 +479,8 @@ assert.equal(afterRoot.active, 'enemy')
 // Balance acceptance (2026-11-07 Clash rebalance): CPU sweeps across every crew
 // pairing keep each crew and the first seat near even. Report:
 // npx tsx utils/scripts/slimeCityClashBalanceReport.ts 150 9000
-const sweep = sweepClash(10, 700)
+// 40 seeds (1200 games): a 10-seed sample swung the first seat by 13 points.
+const sweep = sweepClash(40, 700)
 assert.ok(
   sweep.firstSeatWins / sweep.games > 0.4 &&
     sweep.firstSeatWins / sweep.games < 0.62,

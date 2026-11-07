@@ -1,5 +1,5 @@
 <!-- The throne room. A petition is presented by the character who brought it
-     (painted portrait, left), printed as a broadside edict, and answered from
+     (painted portrait, left), set out on a flat edict card, and answered from
      a hand of illustrated choice cards whose signed kingdom changes are shown
      before you commit (RulerHookedCourt, t-054). Finales and the closed
      chronicle are read from the royal scroll here. -->
@@ -185,12 +185,12 @@ const endingBody = computed(
     align-self: stretch;
     margin-top: 6rem;
     border-radius: 1.2rem 1.2rem 0 0;
-    border: 2px solid var(--rh-gold);
+    border: 3px solid var(--rh-ink);
     border-bottom: 0;
-    box-shadow:
-      0 0 0 4px rgb(59 21 48 / 0.6),
-      0 12px 30px rgb(0 0 0 / 0.5);
-    background: radial-gradient(circle at 50% 30%, #fbeed3, #e3cfa3) !important;
+    box-shadow: 5px 0 0 var(--rh-gold);
+    background:
+      radial-gradient(circle at 50% 30%, var(--rh-parch), transparent 70%),
+      linear-gradient(160deg, var(--rh-parch-shade), #c9f7ff) !important;
   }
 }
 .rh-court__main:has(> .rh-petition-court) {

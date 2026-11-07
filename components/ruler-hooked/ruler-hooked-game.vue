@@ -1,5 +1,5 @@
-<!-- The Ruler Is Hooked: the illustrated console (2026-11-05 overhaul), framed
-     as the kingdom's own illuminated chronicle (t-054).
+<!-- The Ruler Is Hooked: the illustrated console (2026-11-05 overhaul) in the
+     psychedelic rainbow lock (art-direction section 10, t-054).
      Every screen is a painting first: a full-bleed backdrop, a painted HUD
      over it, and a deck of vignette tabs below. No web-app cards or toolbars.
      Screens: Lake (first-person fishing), Map (royal atlas), Court
@@ -7,8 +7,9 @@
      the crown menu's Chronicle and Saves. Overlays: the once-per-reign
      coronation, the Town Crier's daily proclamation, Quill's lessons and the
      newest petition's banner. The frame takes the reign's tier (console.ts
-     reignTier): pristine gilt and lapis, strained and foxed, or rotten with
-     tarnished gold, soot and a torn edge. -->
+     reignTier): an exuberant spectrum when pristine, clashing and warped when
+     strained, and when rotten poisonous chartreuse, oil-slick rainbows, violet
+     fumes and hot-pink fractures over deep indigo. -->
 <template>
   <ClientOnly>
     <main
@@ -70,29 +71,20 @@
             </section>
 
             <div class="rh-frame" aria-hidden="true">
-              <svg class="rh-flourish" viewBox="0 0 120 60" focusable="false">
+              <svg
+                v-if="tier === 'rotten'"
+                class="rh-fracture"
+                viewBox="0 0 100 100"
+                preserveAspectRatio="none"
+                focusable="false"
+              >
                 <path
-                  class="rh-flourish__vine"
-                  d="M2 58 C 14 40, 30 56, 40 44 S 62 30, 70 46"
+                  d="M0 22 L2 25 L1 29 L2.6 32 L1.4 36 L2.4 40 M2.6 32 L0 34"
                 />
-                <g v-if="tier !== 'rotten'" class="rh-flourish__fish">
-                  <path
-                    d="M30 30 C 44 14, 78 14, 92 30 C 78 46, 44 46, 30 30 Z"
-                  />
-                  <path d="M92 30 L114 16 L108 30 L114 44 Z" />
-                  <path class="rh-flourish__scale" d="M50 22 Q 56 30 50 38" />
-                  <path class="rh-flourish__scale" d="M62 21 Q 68 30 62 39" />
-                  <circle cx="40" cy="27" r="2.6" class="rh-flourish__eye" />
-                </g>
-                <g v-else class="rh-flourish__bones">
-                  <path d="M34 30 H 94" />
-                  <path
-                    d="M48 30 L44 19 M48 30 L44 41 M58 30 L54 18 M58 30 L54 42 M68 30 L64 19 M68 30 L64 41 M78 30 L75 21 M78 30 L75 39"
-                  />
-                  <path d="M94 30 L112 18 M94 30 L112 42" />
-                  <circle cx="34" cy="30" r="7" />
-                  <circle cx="32" cy="28" r="1.8" class="rh-flourish__eye" />
-                </g>
+                <path
+                  d="M100 58 L98.2 61 L99.2 65 L97.8 69 L99.3 73 L97.9 78 L99.1 83 L98 88 L99.3 93 L98.2 100 M97.8 69 L100 71.5"
+                />
+                <path d="M0 84 L1.8 87 L1.1 91 L2.5 95 L1.6 100" />
               </svg>
             </div>
 
@@ -114,7 +106,7 @@
               data-testid="rh-petition"
               @click="go('court')"
             >
-              <span class="rh-petition__seal" aria-hidden="true">
+              <span class="rh-petition__badge" aria-hidden="true">
                 <RulerHookedGlyph name="crown" />
               </span>
               <span class="rh-petition__copy">
@@ -450,45 +442,44 @@ onBeforeUnmount(() => navObserver?.disconnect())
 </script>
 
 <style>
-/* ── The Ruler Is Hooked visual system ─────────────────────────────────────
-   Psychedelic rainbow ink with a faint vintage print texture (2026-11-06).
-   The kingdom's health still stains and drains its vivid colors as it fails. Unscoped so every console component shares one vocabulary;
-   everything is namespaced `rh-`. The older plum/parchment names stay as
-   aliases so every screen picks the palette up. */
+/* The Ruler Is Hooked: psychedelic rainbow fantasy with a faint screenprint
+   texture (art-direction section 10). Unscoped so every console component
+   shares one vocabulary; everything is namespaced `rh-`. The legacy names
+   stay for sibling components, but their values are chromatic ink and
+   spectrum: --rh-gold is cyan, --rh-gold-soft acid yellow, --rh-plum violet,
+   --rh-plum-deep the deep indigo ground, --rh-parch/--rh-parch-shade the pale
+   mint and pink card grounds. */
 .rh-console {
-  --rh-vellum: #e9fff5;
-  --rh-vellum-2: #ffdaee;
-  --rh-ink: #10133d;
-  --rh-ink-soft: #453379;
+  --rh-plum: #7727dd;
+  --rh-plum-deep: #080d35;
   --rh-gold: #2beed3;
-  --rh-gold-hi: #ffe75d;
-  --rh-gold-lo: #177ba9;
-  --rh-lapis: #7727dd;
-  --rh-lapis-deep: #080d35;
-  --rh-vermilion: #ef3db4;
-  --rh-verdigris: #46db80;
-  --rh-ochre: #ffb32b;
-  --rh-order: #9857ea;
-  --rh-madder: #f43cb3;
-  --rh-rag: #e9fff5;
-  --rh-woodcut: #10133d;
-  --rh-soot: 0;
-  --rh-fox: 0;
-  --rh-gilt: linear-gradient(
-    135deg,
-    var(--rh-gold-lo),
-    var(--rh-gold-hi) 32%,
-    var(--rh-gold) 52%,
-    var(--rh-vermilion) 78%,
-    var(--rh-gold) 100%
-  );
-  --rh-plum: var(--rh-lapis);
-  --rh-plum-deep: var(--rh-lapis-deep);
-  --rh-gold-soft: var(--rh-gold-hi);
-  --rh-parch: var(--rh-vellum);
-  --rh-parch-shade: var(--rh-vellum-2);
+  --rh-gold-soft: #ffe75d;
+  --rh-parch: #e9fff5;
+  --rh-parch-shade: #ffdaee;
+  --rh-ink: #10133d;
   --rh-display: 'Trebuchet MS', 'Arial Rounded MT Bold', system-ui, sans-serif;
   --rh-body: 'Trebuchet MS', system-ui, sans-serif;
+  /* Accents and the reign's tier knobs (t-054). */
+  --rh-hot: #ef3db4;
+  --rh-magenta: #ef3db4;
+  --rh-green: #46db80;
+  --rh-orange: #ffb32b;
+  --rh-violet: #b061ff;
+  --rh-pink-ink: #a3127a;
+  --rh-green-ink: #0b7a48;
+  --rh-spectrum: linear-gradient(
+    90deg,
+    #ef3db4 0 14.3%,
+    #ffb32b 0 28.6%,
+    #ffe75d 0 42.9%,
+    #46db80 0 57.2%,
+    #2beed3 0 71.5%,
+    #24adea 0 85.8%,
+    #a949ea 0
+  );
+  --rh-warp: 0deg;
+  --rh-echo: none;
+  --rh-blight: 0;
 
   container: rhconsole / inline-size;
   position: relative;
@@ -498,36 +489,55 @@ onBeforeUnmount(() => navObserver?.disconnect())
   height: 100%;
   min-height: 0;
   overflow: hidden;
-  background: var(--rh-lapis-deep);
+  background: var(--rh-plum-deep);
   color: var(--rh-ink);
   font-family: var(--rh-body);
 }
-/* Misrule drains the saturated spectrum and stains the stage. */
+/* A troubled reign: the same rainbow, but the colors clash and shapes warp. */
 .rh-console[data-tier='strained'] {
-  --rh-vellum: #ddf1ea;
-  --rh-vellum-2: #e9bfd8;
-  --rh-gold: #1cb8b8;
-  --rh-gold-hi: #f5d64e;
-  --rh-gold-lo: #176a94;
-  --rh-lapis: #6231b4;
-  --rh-lapis-deep: #17133d;
-  --rh-vermilion: #c42f8d;
-  --rh-soot: 0.4;
-  --rh-fox: 0.55;
+  --rh-gold: #ff5a36;
+  --rh-gold-soft: #b8ff2e;
+  --rh-plum: #d4199b;
+  --rh-hot: #18e0a8;
+  --rh-parch: #f6ffd8;
+  --rh-parch-shade: #ffd9c7;
+  --rh-spectrum: repeating-linear-gradient(
+    115deg,
+    #ff5a36 0 14px,
+    #18e0a8 14px 26px,
+    #b8ff2e 26px 40px,
+    #d4199b 40px 52px
+  );
+  --rh-warp: -1.2deg;
+  --rh-echo: 2px 0 0 rgb(255 90 54 / 0.7), -2px 0 0 rgb(24 224 168 / 0.6);
+  --rh-blight: 0.3;
 }
+/* A ruined reign is frighteningly vivid, never sepia: poisonous chartreuse,
+   oil-slick spectra, violet fumes and hot-pink fractures over deep indigo. */
 .rh-console[data-tier='rotten'] {
-  --rh-vellum: #aeaebd;
-  --rh-vellum-2: #756b93;
-  --rh-ink: #120d27;
-  --rh-gold: #438b91;
-  --rh-gold-hi: #b2ae62;
-  --rh-gold-lo: #31536a;
-  --rh-lapis: #36315d;
-  --rh-lapis-deep: #100e22;
-  --rh-vermilion: #914172;
-  --rh-order: #5e3e78;
-  --rh-soot: 0.85;
-  --rh-fox: 1;
+  --rh-plum: #8f2bff;
+  --rh-plum-deep: #0d0636;
+  --rh-gold: #c6f432;
+  --rh-gold-soft: #e4ff3d;
+  --rh-parch: #f3ffd6;
+  --rh-parch-shade: #f1dcff;
+  --rh-ink: #170a45;
+  --rh-hot: #ff2bd6;
+  --rh-magenta: #ff2bd6;
+  --rh-green: #b5f22e;
+  --rh-violet: #a24bff;
+  --rh-spectrum: linear-gradient(
+    100deg,
+    #c6f432,
+    #2beed3 22%,
+    #8f2bff 45%,
+    #ff2bd6 68%,
+    #e4ff3d 88%,
+    #c6f432
+  );
+  --rh-warp: 0.8deg;
+  --rh-echo: 1.5px 0 0 rgb(255 43 214 / 0.8), -1.5px 0 0 rgb(198 244 50 / 0.7);
+  --rh-blight: 1;
 }
 .rh-console--loading {
   display: grid;
@@ -543,112 +553,95 @@ onBeforeUnmount(() => navObserver?.disconnect())
   min-height: 0;
   overflow: hidden;
 }
-.rh-console[data-tier='rotten'] .rh-console__view {
-  clip-path: polygon(
-    0 0,
-    100% 0,
-    100% 82%,
-    99.4% 84%,
-    100% 86.5%,
-    99.2% 89%,
-    99.7% 92%,
-    98.8% 95%,
-    99.3% 97.5%,
-    98.4% 100%,
-    0 100%
-  );
-}
-/* The reign's state on every painting: healthy is untouched, then faded. */
+/* The reign's state on every painting: untouched when healthy, hue-clashed
+   and slightly warped when strained, poison-shifted (greens to chartreuse,
+   reds to hot pink) and over-saturated when rotten. Never darker or sepia. */
 .rh-console[data-tier='strained'] .rh-backdrop img,
 .rh-console[data-tier='strained'] .rh-tier-art img {
-  filter: saturate(0.82) contrast(0.95);
+  filter: saturate(1.3) hue-rotate(22deg) contrast(1.05);
+}
+.rh-console[data-tier='strained'] .rh-backdrop img {
+  transform: skewX(-1.2deg) scale(1.04);
 }
 .rh-console[data-tier='rotten'] .rh-backdrop img,
 .rh-console[data-tier='rotten'] .rh-tier-art img {
-  filter: saturate(0.42) hue-rotate(-8deg) brightness(0.8)
-    contrast(1.06);
+  filter: saturate(1.5) hue-rotate(-30deg) contrast(1.12);
 }
 
-/* The chronicle frame: gold-leaf rules, soot in the corners, marginalia. */
+/* The console frame: a flat spectrum outline with an ink keyline, a faint
+   screenprint halftone, and a rotten reign's hot-pink fractures. */
 .rh-frame {
   position: absolute;
   inset: 0;
   z-index: 25;
   pointer-events: none;
+  border: 4px solid transparent;
+  border-image: var(--rh-spectrum) 1;
+  box-shadow: inset 0 0 0 2px var(--rh-ink);
+}
+.rh-frame::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+      circle,
+      rgb(16 19 61 / 0.07) 0.7px,
+      transparent 1.1px
+    )
+    0 0 / 5px 5px;
+}
+/* Violet fumes and poison light rise from the painting itself, beneath the
+   UI, as the reign fails. */
+.rh-console .rh-backdrop::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: var(--rh-blight);
+  mix-blend-mode: screen;
   background:
     radial-gradient(
       ellipse at 0% 100%,
-      rgb(14 10 6 / calc(var(--rh-soot) * 0.75)),
-      transparent 32%
+      rgb(150 40 255 / 0.65),
+      transparent 45%
     ),
     radial-gradient(
       ellipse at 100% 0%,
-      rgb(14 10 6 / calc(var(--rh-soot) * 0.5)),
-      transparent 28%
+      rgb(198 244 50 / 0.45),
+      transparent 35%
+    ),
+    radial-gradient(
+      ellipse at 100% 100%,
+      rgb(255 43 214 / 0.35),
+      transparent 35%
     );
+}
+.rh-console[data-tier='strained'] .rh-frame {
   box-shadow:
-    inset 0 0 0 2px var(--rh-gold-lo),
-    inset 0 0 0 4px var(--rh-vellum-2),
-    inset 0 0 0 5px var(--rh-gold),
-    inset 0 0 0 6px var(--rh-gold-lo),
-    inset 0 0 calc(1.5rem + var(--rh-soot) * 4rem)
-      rgb(12 8 4 / calc(0.2 + var(--rh-soot) * 0.55));
+    inset 0 0 0 2px var(--rh-ink),
+    inset 4px -3px 0 2px rgb(255 90 54 / 0.55);
 }
-.rh-flourish {
+.rh-fracture {
   position: absolute;
-  left: 0.6rem;
-  bottom: 0.5rem;
-  display: none;
-  width: clamp(5rem, 8cqi, 7.5rem);
+  inset: 0;
+  z-index: 1;
+  width: 100%;
+  height: 100%;
   overflow: visible;
-  transform: scaleX(-1);
-  filter: drop-shadow(0 2px 3px rgb(0 0 0 / 0.6));
-}
-@container rhconsole (min-width: 900px) {
-  .rh-flourish {
-    display: block;
-  }
-}
-.rh-flourish__vine {
   fill: none;
-  stroke: var(--rh-verdigris);
-  stroke-width: 2.4;
-  stroke-linecap: round;
+  stroke: var(--rh-hot);
+  stroke-width: 3;
+  stroke-linejoin: miter;
+  vector-effect: non-scaling-stroke;
+  filter: drop-shadow(1.5px 1px 0 var(--rh-gold))
+    drop-shadow(0 0 6px rgb(255 43 214 / 0.8));
 }
-.rh-console[data-tier='rotten'] .rh-flourish__vine {
-  stroke: var(--rh-gold-lo);
-  stroke-dasharray: 6 4;
-}
-.rh-flourish__fish path:first-child,
-.rh-flourish__fish path:nth-child(2) {
-  fill: var(--rh-lapis);
-  stroke: var(--rh-gold);
-  stroke-width: 2;
-  stroke-linejoin: round;
-}
-.rh-flourish__fish path:nth-child(2) {
-  fill: var(--rh-vermilion);
-}
-.rh-flourish__scale {
-  fill: none !important;
-  stroke: var(--rh-gold-hi);
-  stroke-width: 1.4;
-}
-.rh-flourish__eye {
-  fill: var(--rh-gold-hi);
-}
-.rh-flourish__bones {
-  fill: none;
-  stroke: var(--rh-gold-hi);
-  stroke-width: 2;
-  stroke-linecap: round;
-}
-.rh-flourish__bones .rh-flourish__eye {
-  fill: var(--rh-vermilion);
-  stroke: none;
+.rh-fracture path {
+  vector-effect: non-scaling-stroke;
 }
 
-/* The newest petition, hung top-right as a broadside pennant with a seal. */
+/* The newest petition, hung top-right as a pennant: a flat ink card with a
+   spectrum band, a bold outline and a hot badge. */
 .rh-petition {
   position: absolute;
   z-index: 29;
@@ -658,21 +651,12 @@ onBeforeUnmount(() => navObserver?.disconnect())
   align-items: center;
   gap: 0.55rem;
   width: min(19rem, calc(100% - 1rem));
-  padding: 0.5rem 0.8rem 0.95rem 0.55rem;
+  padding: 0.7rem 0.8rem 1rem 0.55rem;
   border: 0;
   background:
-    repeating-linear-gradient(
-      90deg,
-      rgb(120 90 50 / 0.05) 0 1px,
-      transparent 1px 5px
-    ),
-    radial-gradient(
-      ellipse at 100% 100%,
-      rgb(28 18 8 / calc(var(--rh-soot) * 0.45)),
-      transparent 60%
-    ),
-    var(--rh-rag);
-  color: var(--rh-woodcut);
+    var(--rh-spectrum) top / 100% 5px no-repeat,
+    var(--rh-plum-deep);
+  color: #fff;
   font-family: var(--rh-display);
   text-align: left;
   cursor: pointer;
@@ -685,41 +669,34 @@ onBeforeUnmount(() => navObserver?.disconnect())
     45% 100%,
     0 100%
   );
-  box-shadow:
-    inset 0 0 0 2px var(--rh-woodcut),
-    inset 0 4px 0 2px var(--rh-madder);
-  filter: drop-shadow(0 6px 10px rgb(0 0 0 / 0.5));
+  box-shadow: inset 0 0 0 2.5px var(--rh-gold);
+  filter: drop-shadow(4px 4px 0 var(--rh-hot));
+  rotate: var(--rh-warp);
   transition: transform 0.15s ease;
 }
 .rh-petition:hover,
 .rh-petition:focus-visible {
-  transform: translateY(1px) rotate(-0.4deg);
+  transform: translateY(1px);
   outline: none;
 }
 .rh-petition:focus-visible {
   box-shadow:
-    inset 0 0 0 2px var(--rh-woodcut),
-    inset 0 4px 0 2px var(--rh-madder),
-    inset 0 0 0 5px var(--rh-gold-hi);
+    inset 0 0 0 2.5px var(--rh-gold),
+    inset 0 0 0 5px var(--rh-gold-soft);
 }
-.rh-petition__seal {
+.rh-petition__badge {
   display: grid;
   flex: none;
   place-items: center;
   width: 2.4rem;
   height: 2.4rem;
   border-radius: 999px;
-  background: radial-gradient(
-    circle at 38% 35%,
-    #d4554a,
-    var(--rh-madder) 55%,
-    #5e1712
-  );
+  background: var(--rh-hot);
   box-shadow:
-    0 0 0 2px #7a1f19,
-    0 2px 4px rgb(0 0 0 / 0.5);
+    0 0 0 2.5px var(--rh-plum-deep),
+    0 0 0 4.5px var(--rh-gold-soft);
 }
-.rh-petition__seal .rh-glyph {
+.rh-petition__badge .rh-glyph {
   width: 1.3rem;
   height: 1.3rem;
 }
@@ -728,10 +705,12 @@ onBeforeUnmount(() => navObserver?.disconnect())
 }
 .rh-petition__head {
   display: block;
-  color: var(--rh-madder);
+  color: var(--rh-gold-soft);
   font-size: 0.95rem;
   font-weight: 900;
   line-height: 1.1;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
 }
 .rh-petition__body {
   display: -webkit-box;
@@ -740,7 +719,6 @@ onBeforeUnmount(() => navObserver?.disconnect())
   -webkit-line-clamp: 2;
   font-family: var(--rh-body);
   font-size: 0.88rem;
-  font-style: italic;
   font-weight: 700;
   line-height: 1.2;
 }
@@ -748,14 +726,14 @@ onBeforeUnmount(() => navObserver?.disconnect())
   .rh-petition {
     top: 3rem;
     width: min(15rem, calc(100% - 1rem));
-    padding: 0.35rem 0.6rem 0.75rem 0.4rem;
+    padding: 0.5rem 0.6rem 0.8rem 0.45rem;
   }
-  .rh-petition__seal {
+  .rh-petition__badge {
     width: 1.8rem;
     height: 1.8rem;
   }
   .rh-petition__head {
-    font-size: 0.8rem;
+    font-size: 0.78rem;
   }
   .rh-petition__body {
     -webkit-line-clamp: 1;
@@ -767,38 +745,6 @@ onBeforeUnmount(() => navObserver?.disconnect())
   .rh-console:not([data-screen='lake']) .rh-petition {
     display: none;
   }
-}
-
-/* Broadside documents: rag paper, woodcut rules, madder/ochre/verdigris. */
-.rh-broadside {
-  position: relative;
-  border-radius: 0.15rem;
-  color: var(--rh-woodcut);
-  font-family: var(--rh-body);
-  background:
-    repeating-linear-gradient(
-      90deg,
-      rgb(120 90 50 / 0.04) 0 1px,
-      transparent 1px 5px
-    ),
-    radial-gradient(
-      circle at 84% 18%,
-      rgb(122 78 28 / calc(var(--rh-fox) * 0.18)),
-      transparent 1.65rem
-    ),
-    radial-gradient(ellipse at 30% 20%, #f6ecd4, transparent 70%), var(--rh-rag);
-  box-shadow:
-    inset 0 0 0 3px var(--rh-woodcut),
-    inset 0 0 0 5px var(--rh-rag),
-    inset 0 0 0 6px var(--rh-woodcut),
-    0 8px 22px rgb(0 0 0 / 0.6);
-}
-.rh-broadside-head {
-  color: var(--rh-madder);
-  font-family: var(--rh-display);
-  font-weight: 900;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
 }
 
 .rh-console__dim {
@@ -822,50 +768,28 @@ onBeforeUnmount(() => navObserver?.disconnect())
   inset: 0;
 }
 .rh-panel {
-  border-radius: 0.4rem;
-  background:
-    linear-gradient(180deg, rgb(255 255 255 / 0.06), transparent 35%),
-    linear-gradient(180deg, var(--rh-lapis), var(--rh-lapis-deep));
-  border: 1.5px solid var(--rh-gold);
+  border-radius: 1rem;
+  background: linear-gradient(
+    150deg,
+    rgb(33 26 103 / 0.97),
+    rgb(8 13 53 / 0.97)
+  );
+  border: 2px solid var(--rh-gold);
   box-shadow:
-    0 0 0 3px color-mix(in oklab, var(--rh-lapis-deep) 60%, transparent),
-    0 10px 24px rgb(0 0 0 / 0.4);
-  color: #fbeed3;
+    inset 0 0 0 2px rgb(244 64 185 / 0.33),
+    0 8px 22px rgb(0 0 0 / 0.42);
+  color: #f4faff;
 }
 .rh-parchment {
   padding: clamp(0.75rem, 2cqi, 1.25rem);
   border-radius: 0.4rem;
-  background:
-    radial-gradient(
-      circle at 14% 22%,
-      rgb(122 78 28 / calc(var(--rh-fox) * 0.18)),
-      transparent 1.65rem
-    ),
-    radial-gradient(
-      circle at 82% 76%,
-      rgb(122 78 28 / calc(var(--rh-fox) * 0.14)),
-      transparent 1.2rem
-    ),
-    radial-gradient(
-      ellipse at 100% 100%,
-      rgb(28 18 8 / calc(var(--rh-soot) * 0.4)),
-      transparent 60%
-    ),
-    radial-gradient(
-      130% 90% at 50% 0%,
-      rgb(255 251 240 / 0.85),
-      transparent 65%
-    ),
-    linear-gradient(180deg, var(--rh-parch), var(--rh-parch-shade));
+  background: linear-gradient(145deg, var(--rh-parch), var(--rh-parch-shade));
   color: var(--rh-ink);
-  border: 2px solid var(--rh-gold);
+  border: 2px solid var(--rh-ink);
   box-shadow:
-    inset 0 0 0 1px rgb(255 255 255 / 0.5),
-    inset 0 0 0 4px var(--rh-vellum),
-    inset 0 0 0 5px color-mix(in oklab, var(--rh-vermilion) 55%, transparent),
-    inset 0 0 40px rgb(150 100 40 / 0.18),
-    0 0 0 3px color-mix(in oklab, var(--rh-lapis-deep) 70%, transparent),
-    0 14px 30px rgb(0 0 0 / 0.42);
+    inset 0 0 0 3px rgb(255 255 255 / 0.5),
+    0 0 0 3px color-mix(in oklab, var(--rh-gold) 70%, transparent),
+    0 12px 26px rgb(0 0 0 / 0.4);
 }
 .rh-eyebrow {
   font-size: 0.72rem;
@@ -904,10 +828,10 @@ onBeforeUnmount(() => navObserver?.disconnect())
   min-height: 2.75rem;
   padding: 0.35rem 1rem;
   border-radius: 0.8rem;
-  background: linear-gradient(180deg, #fffaf0, #ead7ad);
+  background: #e8fff7;
   color: var(--rh-ink);
-  border: 1.5px solid rgb(58 38 22 / 0.45);
-  box-shadow: 0 2px 0 rgb(58 38 22 / 0.35);
+  border: 1.5px solid #151647;
+  box-shadow: 0 2px 0 rgb(24 16 71 / 0.5);
   font-family: var(--rh-display);
   font-weight: 700;
   cursor: pointer;
@@ -932,8 +856,8 @@ onBeforeUnmount(() => navObserver?.disconnect())
   cursor: not-allowed;
 }
 .rh-btn--gold {
-  background: linear-gradient(180deg, #f6cd5c, #c48a24);
-  border-color: #6a3a12;
+  background: #ffe75d;
+  border-color: #1b1350;
   color: var(--rh-plum-deep);
 }
 .rh-btn--big {
@@ -947,7 +871,7 @@ onBeforeUnmount(() => navObserver?.disconnect())
   font-size: 0.85rem;
 }
 .rh-btn--danger {
-  color: #8a1f2e;
+  color: #b41663;
 }
 .rh-input {
   min-height: 3rem;
@@ -955,9 +879,9 @@ onBeforeUnmount(() => navObserver?.disconnect())
   min-width: 0;
   padding: 0.3rem 0.85rem;
   border-radius: 0.7rem;
-  background: #fffaf0;
-  border: 1.5px solid rgb(58 38 22 / 0.4);
-  box-shadow: inset 0 2px 4px rgb(58 38 22 / 0.15);
+  background: #f3fffd;
+  border: 1.5px solid rgb(24 16 71 / 0.6);
+  box-shadow: inset 0 2px 4px rgb(24 16 71 / 0.15);
   color: var(--rh-ink);
   font-family: var(--rh-display);
   font-size: 1.15rem;
@@ -975,7 +899,7 @@ onBeforeUnmount(() => navObserver?.disconnect())
   font-size: 0.75rem;
   font-weight: 800;
   background: rgb(255 255 255 / 0.6);
-  border: 1px solid rgb(58 38 22 / 0.2);
+  border: 1px solid rgb(24 16 71 / 0.25);
 }
 .rh-chip.is-up {
   color: #2f6a22;
@@ -994,22 +918,22 @@ onBeforeUnmount(() => navObserver?.disconnect())
   border: 1px solid rgb(0 0 0 / 0.2);
 }
 .rh-rarity--common {
-  --rh-gem: #9c927a;
+  --rh-gem: #50699c;
 }
 .rh-rarity--uncommon {
-  --rh-gem: #4f9a6a;
+  --rh-gem: #158b76;
 }
 .rh-rarity--rare {
-  --rh-gem: #3f7fc4;
+  --rh-gem: #245ddd;
 }
 .rh-rarity--epic {
-  --rh-gem: #8a4fc4;
+  --rh-gem: #9c2bdd;
 }
 .rh-rarity--legendary {
-  --rh-gem: #d18a1e;
+  --rh-gem: #c06402;
 }
 .rh-rarity--mythic {
-  --rh-gem: linear-gradient(90deg, #e2566e, #d18a1e, #4f9a6a, #3f7fc4, #8a4fc4);
+  --rh-gem: linear-gradient(90deg, #ef3db4, #ffb32b, #46db80, #24adea, #a949ea);
 }
 .rh-console__sheet {
   left: var(--rh-sheet-left, clamp(0.5rem, 2.5cqi, 2rem));

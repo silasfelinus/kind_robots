@@ -1,11 +1,12 @@
-<!-- The console's painted HUD (t-054 Chronicle restyle of the inline realm
-     HUD): the title cartouche, the four kingdom meters (Hearts, Nature,
-     Prosperity, Order) and the coin/day/time capsules share ONE compact top
-     row. Treasury rides the coin capsule. The meters only open as a flyout on
-     narrow viewports when explicitly requested, so a court presenter or an
-     illustrated choice is never hidden by the default HUD. The chrome takes
-     the reign's tier from the console (data-tier): gilt when healthy,
-     tarnished and soot-stained as it fails. -->
+<!-- The console's painted HUD (t-054 restyle of the inline realm HUD, in the
+     section 10 rainbow lock): the title badge, the four kingdom meters
+     (Hearts, Nature, Prosperity, Order) and the coin/day/time capsules share
+     ONE compact top row. Treasury rides the coin capsule. The meters only
+     open as a flyout on narrow viewports when explicitly requested, so a
+     court presenter or an illustrated choice is never hidden by the default
+     HUD. The chrome is flat dark ink with bold spectrum outlines and takes
+     the reign's tier from the console (data-tier): the accents clash and warp
+     when strained and turn chartreuse and hot pink when rotten. -->
 <template>
   <div class="rh-hud">
     <div class="rh-crest" role="banner">
@@ -17,9 +18,7 @@
       >
         <path d="M2 14 L3 4 L8 9 L12 2 L16 9 L21 4 L22 14 Z" />
       </svg>
-      <span class="rh-crest__title">
-        <span class="rh-crest__rubric">T</span>he Ruler <em>is</em> Hooked
-      </span>
+      <span class="rh-crest__title"> The Ruler <em>is</em> Hooked </span>
     </div>
 
     <div class="rh-hud__health">
@@ -76,7 +75,7 @@
         <RulerHookedGlyph name="coin" />
         <span class="sr-only">Coins:</span>{{ coins.toLocaleString() }}
         <span class="sr-only">, treasury {{ treasury }}%</span>
-        <span class="rh-plaque__gilt" aria-hidden="true">
+        <span class="rh-plaque__meter" aria-hidden="true">
           <span :style="{ width: treasury + '%' }" />
         </span>
       </span>
@@ -206,91 +205,57 @@ function pick(screen: 'chronicle' | 'saves' | 'settings') {
   gap: 0.35rem;
 }
 
-/* The title cartouche: an illuminated rubric on vellum, gilt-ruled. */
+/* The title badge: flat ink, a bold cyan outline and a screenprint offset. */
 .rh-crest {
   position: relative;
   display: flex;
   align-items: center;
-  gap: 0.35rem;
-  padding: 0.35rem 0.8rem 0.45rem 0.55rem;
-  border-radius: 0.3rem;
-  background:
-    radial-gradient(
-      ellipse at 100% 100%,
-      rgb(28 18 8 / calc(var(--rh-soot) * 0.55)),
-      transparent 65%
-    ),
-    linear-gradient(172deg, var(--rh-vellum), var(--rh-vellum-2));
-  box-shadow:
-    inset 0 0 0 1px var(--rh-gold-lo),
-    inset 0 0 0 3px var(--rh-vellum),
-    inset 0 0 0 4px var(--rh-gold),
-    inset 0 0 0 5.5px color-mix(in oklab, var(--rh-vermilion) 70%, transparent),
-    0 6px 14px rgb(0 0 0 / 0.45);
-  color: var(--rh-lapis);
+  gap: 0.4rem;
+  padding: 0.35rem 0.8rem 0.4rem 0.55rem;
+  border-radius: 0.7rem;
+  background: var(--rh-plum-deep);
+  border: 2px solid var(--rh-gold);
+  box-shadow: 3px 3px 0 var(--rh-hot);
+  color: #fff;
   flex: 0 1 auto;
   min-width: 0;
+  rotate: var(--rh-warp);
 }
 .rh-crest__crown {
   flex: none;
   width: 1.35rem;
   height: 0.95rem;
-  fill: var(--rh-gold);
-  stroke: var(--rh-gold-lo);
-  stroke-width: 1.2;
+  fill: var(--rh-gold-soft);
+  stroke: var(--rh-hot);
+  stroke-width: 1.4;
   stroke-linejoin: round;
 }
 .rh-crest__title {
   display: block;
   font-family: var(--rh-display);
-  font-weight: 800;
-  font-variant: small-caps;
+  font-weight: 900;
   font-size: clamp(0.95rem, 2.4cqi, 1.4rem);
   line-height: 1;
-  letter-spacing: 0.03em;
+  letter-spacing: 0.01em;
   white-space: nowrap;
-}
-.rh-crest__rubric {
-  display: inline-block;
-  margin-right: 0.04em;
-  padding: 0 0.12em;
-  border-radius: 0.12em;
-  background: var(--rh-gilt);
-  color: var(--rh-vermilion);
-  font-size: 1.25em;
-  line-height: 1;
-  box-shadow: inset 0 0 0 1px var(--rh-gold-lo);
+  text-shadow: var(--rh-echo);
 }
 .rh-crest em {
   font-style: italic;
-  font-size: 0.75em;
-  color: var(--rh-ink-soft);
+  font-size: 0.8em;
+  color: var(--rh-gold-soft);
 }
 
-/* The four kingdom meters: a gilt roundel, label, value and an inked bar. */
+/* The four kingdom meters: a ringed roundel, label, value and a flat bar. */
 .rh-health {
   display: block;
-  width: min(100%, 34rem);
+  width: min(100%, 37rem);
   padding: 0.4rem 0.7rem 0.45rem;
-  border-radius: 0.3rem;
-  background:
-    radial-gradient(
-      circle at 16% 24%,
-      rgb(122 78 28 / calc(var(--rh-fox) * 0.2)),
-      transparent 1.5rem
-    ),
-    radial-gradient(
-      ellipse at 100% 100%,
-      rgb(28 18 8 / calc(var(--rh-soot) * 0.5)),
-      transparent 60%
-    ),
-    linear-gradient(172deg, var(--rh-vellum), var(--rh-vellum-2));
-  box-shadow:
-    inset 0 0 0 1px var(--rh-gold-lo),
-    inset 0 0 0 3px var(--rh-vellum),
-    inset 0 0 0 4px var(--rh-gold),
-    0 6px 14px rgb(0 0 0 / 0.45);
-  color: var(--rh-ink);
+  border-radius: 0.7rem;
+  background: color-mix(in oklab, var(--rh-plum-deep) 92%, transparent);
+  border: 2px solid var(--rh-gold);
+  box-shadow: 3px 3px 0 var(--rh-plum);
+  color: #fff;
 }
 .rh-health ul {
   display: grid;
@@ -308,16 +273,16 @@ function pick(screen: 'chronicle' | 'saves' | 'settings') {
   font-size: 0.72rem;
 }
 .rh-health li[data-axis='joy'] {
-  --meter-ink: var(--rh-vermilion);
+  --meter-ink: var(--rh-magenta);
 }
 .rh-health li[data-axis='nature'] {
-  --meter-ink: var(--rh-verdigris);
+  --meter-ink: var(--rh-green);
 }
 .rh-health li[data-axis='prosperity'] {
-  --meter-ink: var(--rh-ochre);
+  --meter-ink: var(--rh-orange);
 }
 .rh-health li[data-axis='order'] {
-  --meter-ink: var(--rh-order);
+  --meter-ink: var(--rh-violet);
 }
 .rh-health__roundel {
   grid-area: g;
@@ -326,10 +291,8 @@ function pick(screen: 'chronicle' | 'saves' | 'settings') {
   width: 1.75rem;
   height: 1.75rem;
   border-radius: 999px;
-  background: var(--rh-gilt);
-  box-shadow:
-    inset 0 0 0 1px var(--rh-gold-lo),
-    0 1px 2px rgb(0 0 0 / 0.35);
+  background: var(--rh-parch);
+  box-shadow: 0 0 0 2.5px var(--meter-ink);
 }
 .rh-health__roundel :deep(.rh-glyph) {
   width: 1.15rem;
@@ -338,9 +301,7 @@ function pick(screen: 'chronicle' | 'saves' | 'settings') {
 .rh-health__label {
   grid-area: l;
   font-family: var(--rh-display);
-  font-weight: 700;
-  font-variant: small-caps;
-  letter-spacing: 0.02em;
+  font-weight: 800;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -351,29 +312,24 @@ function pick(screen: 'chronicle' | 'saves' | 'settings') {
   font-variant-numeric: tabular-nums;
 }
 .rh-health li[data-low='true'] .rh-health__value {
-  color: var(--rh-vermilion);
+  padding: 0 0.3rem;
+  border-radius: 999px;
+  background: var(--rh-hot);
+  color: var(--rh-ink);
 }
 .rh-health__bar {
   grid-area: b;
   position: relative;
   height: 0.45rem;
   border-radius: 999px;
-  background: rgb(42 28 16 / 0.82);
-  box-shadow:
-    inset 0 0 0 1px var(--rh-gold-lo),
-    0 1px 0 var(--rh-vellum);
+  background: rgb(255 255 255 / 0.16);
   overflow: hidden;
 }
 .rh-health__bar span {
   position: absolute;
-  inset: 1px auto 1px 1px;
-  max-width: calc(100% - 2px);
+  inset: 0 auto 0 0;
   border-radius: inherit;
-  background: linear-gradient(
-    180deg,
-    color-mix(in oklab, var(--meter-ink) 65%, white),
-    var(--meter-ink) 60%
-  );
+  background: var(--meter-ink);
   transition: width 600ms ease;
 }
 @container rhconsole (max-width: 899px) {
@@ -398,26 +354,34 @@ function pick(screen: 'chronicle' | 'saves' | 'settings') {
 }
 @container rhconsole (max-width: 560px) {
   .rh-hud {
-    gap: 0.3rem;
+    gap: 0.25rem;
     padding: 0.35rem;
   }
   .rh-crest {
-    padding: 0.3rem 0.45rem;
+    flex: none;
+    padding: 0.25rem 0.4rem;
+    border-radius: 0.5rem;
+    box-shadow: 2px 2px 0 var(--rh-hot);
   }
   .rh-crest__crown {
     display: none;
   }
   .rh-crest__title {
-    font-size: 0.8rem;
+    font-size: 0.74rem;
     white-space: normal;
-    max-width: 5.5rem;
+    max-width: 4.8rem;
   }
-  .rh-plaque {
+  .rh-hud .rh-plaque {
+    gap: 0.2rem;
     min-height: 2rem;
-    padding: 0.15rem 0.4rem;
+    padding: 0.15rem 0.45rem;
     font-size: 0.74rem;
   }
-  .rh-health__compact {
+  .rh-hud .rh-plaque :deep(.rh-glyph) {
+    width: 1.15em;
+    height: 1.15em;
+  }
+  .rh-hud .rh-health__compact {
     padding: 0.15rem 0.35rem;
   }
   .rh-health__compact-label {
@@ -428,7 +392,7 @@ function pick(screen: 'chronicle' | 'saves' | 'settings') {
   }
 }
 
-/* HUD capsules: vellum pills with a gilt double rule. */
+/* HUD capsules: flat ink pills with a cyan outline. */
 .rh-plaque {
   position: relative;
   display: inline-flex;
@@ -437,14 +401,12 @@ function pick(screen: 'chronicle' | 'saves' | 'settings') {
   min-height: 2.4rem;
   padding: 0.25rem 0.85rem;
   border-radius: 999px;
-  background: linear-gradient(180deg, var(--rh-vellum), var(--rh-vellum-2));
-  box-shadow:
-    inset 0 0 0 1px var(--rh-gold-lo),
-    inset 0 0 0 2.5px var(--rh-gold),
-    0 3px 8px rgb(0 0 0 / 0.5);
-  color: var(--rh-ink);
+  background: var(--rh-plum-deep);
+  border: 2px solid var(--rh-gold);
+  box-shadow: 2px 2px 0 var(--rh-plum);
+  color: #fff;
   font-family: var(--rh-display);
-  font-weight: 700;
+  font-weight: 800;
   font-size: clamp(0.85rem, 1.8cqi, 1.05rem);
   font-variant-numeric: tabular-nums;
   white-space: nowrap;
@@ -453,20 +415,20 @@ function pick(screen: 'chronicle' | 'saves' | 'settings') {
   width: 1.4em;
   height: 1.4em;
 }
-.rh-plaque__gilt {
+.rh-plaque__meter {
   position: absolute;
   left: 1.1rem;
   right: 1.1rem;
-  bottom: 0.28rem;
-  height: 2px;
+  bottom: 0.2rem;
+  height: 3px;
   border-radius: 999px;
-  background: rgb(42 28 16 / 0.35);
+  background: rgb(255 255 255 / 0.2);
   overflow: hidden;
 }
-.rh-plaque__gilt span {
+.rh-plaque__meter span {
   display: block;
   height: 100%;
-  background: var(--rh-gold-lo);
+  background: var(--rh-gold-soft);
 }
 .rh-plaque--menu {
   padding: 0.25rem 0.55rem;
@@ -474,11 +436,16 @@ function pick(screen: 'chronicle' | 'saves' | 'settings') {
 }
 .rh-plaque--menu:focus-visible,
 .rh-health__compact:focus-visible {
-  outline: 3px solid var(--rh-gold-hi);
+  outline: 3px solid var(--rh-gold-soft);
   outline-offset: 2px;
 }
 .rh-health__compact-value {
   font-variant-numeric: tabular-nums;
+}
+.rh-health__compact :deep(.rh-glyph) {
+  padding: 0.1em;
+  border-radius: 999px;
+  background: var(--rh-parch);
 }
 @container rhconsole (max-width: 560px) {
   .rh-plaque--time {
@@ -500,11 +467,11 @@ function pick(screen: 'chronicle' | 'saves' | 'settings') {
   text-align: left;
   padding: 0.6rem 0.75rem;
   border-radius: 0.5rem;
-  color: #fbeed3;
-  font-weight: 600;
+  color: #f4faff;
+  font-weight: 700;
 }
 .rh-menu__list button:hover,
 .rh-menu__list button:focus-visible {
-  background: rgb(217 164 65 / 0.2);
+  background: rgb(43 238 211 / 0.2);
 }
 </style>

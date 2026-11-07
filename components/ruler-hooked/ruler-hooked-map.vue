@@ -1,6 +1,6 @@
 <!-- components/ruler-hooked/ruler-hooked-map.vue
-     The kingdom map (t-054): the kingdom painted as a chronicle sheet with its
-     regions named where they lie, a card for the selected region (its painting
+     The kingdom map (t-054): the kingdom painting in a bold ink frame with its
+     regions named where they lie on flat label pills, a card for the selected region (its painting
      as the reign now leaves it, what drives it, the species living there) and
      the current objective from any arc under way. Decay and tyranny pins show
      here first: each card paints the resolved scene, falling back to the art
@@ -9,7 +9,7 @@
   <div class="rh-chart">
     <div class="rh-chart__sheet">
       <RulerHookedArt
-        class="rh-chart__art"
+        class="rh-chart__art rh-tier-art"
         :candidates="sheetArt"
         alt=""
         eager
@@ -226,38 +226,25 @@ defineExpose({ step, confirm })
   position: relative;
   min-height: 9rem;
   overflow: hidden;
-  border-radius: 0.25rem;
-  background: var(--rh-vellum-2);
-  box-shadow:
-    0 0 0 3px var(--rh-vellum-2),
-    0 0 0 5px var(--rh-gold),
-    0 0 0 6px var(--rh-gold-lo),
-    0 10px 28px rgb(0 0 0 / 0.55);
+  border: 3px solid var(--rh-ink);
+  border-radius: 0.8rem;
+  background: var(--rh-plum-deep);
+  box-shadow: 5px 5px 0 var(--rh-gold);
 }
 .rh-chart__art {
   position: absolute !important;
   inset: 0;
-  filter: sepia(0.3) saturate(0.85) contrast(1.05);
-}
-.rh-console[data-tier='rotten'] .rh-chart__art {
-  filter: sepia(0.5) saturate(0.55) brightness(0.8) contrast(1.1);
 }
 .rh-chart__wash {
   position: absolute;
   inset: 0;
   pointer-events: none;
-  background:
-    radial-gradient(
-      ellipse at 50% 50%,
-      transparent 55%,
-      rgb(90 60 20 / 0.45) 100%
-    ),
-    radial-gradient(
-      ellipse at 0% 100%,
-      rgb(14 10 6 / calc(var(--rh-soot) * 0.7)),
-      transparent 50%
-    );
-  box-shadow: inset 0 0 0 1px var(--rh-gold-lo);
+  background: radial-gradient(
+      circle,
+      rgb(16 19 61 / 0.12) 0.7px,
+      transparent 1.1px
+    )
+    0 0 / 5px 5px;
 }
 .rh-chart__pin {
   position: absolute;
@@ -265,39 +252,35 @@ defineExpose({ step, confirm })
   transform: translate(-50%, -50%);
   max-width: 44%;
   min-height: 1.9rem;
-  padding: 0.15rem 0.55rem;
-  border: 0;
-  border-radius: 0.2rem;
-  background: var(--rh-rag);
-  color: var(--rh-woodcut);
+  padding: 0.15rem 0.6rem;
+  border: 2px solid var(--rh-ink);
+  border-radius: 999px;
+  background: var(--rh-parch);
+  color: var(--rh-ink);
   font-family: var(--rh-display);
   font-size: clamp(0.66rem, 1.6cqi, 0.95rem);
-  font-style: italic;
   font-weight: 800;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
   cursor: pointer;
-  box-shadow:
-    inset 0 0 0 1.5px var(--rh-woodcut),
-    0 3px 6px rgb(0 0 0 / 0.6);
+  box-shadow: 2px 2px 0 var(--rh-plum);
 }
 .rh-chart__pin.is-fog {
-  background: rgb(239 227 198 / 0.7);
-  font-style: normal;
+  background: color-mix(in oklab, var(--rh-parch) 72%, transparent);
+  border-style: dashed;
   letter-spacing: 0.06em;
   text-transform: uppercase;
 }
 .rh-chart__pin[aria-pressed='true'] {
-  background: var(--rh-madder);
-  color: #fbeedd;
+  background: var(--rh-gold-soft);
+  color: var(--rh-ink);
   box-shadow:
-    inset 0 0 0 1.5px #2b0b08,
-    0 0 0 2px var(--rh-gold-hi),
-    0 3px 8px rgb(0 0 0 / 0.7);
+    3px 3px 0 var(--rh-hot),
+    0 0 0 3px var(--rh-hot);
 }
 .rh-chart__pin:focus-visible {
-  outline: 3px solid var(--rh-gold-hi);
+  outline: 3px solid var(--rh-gold-soft);
   outline-offset: 2px;
 }
 .rh-chart__side {
@@ -322,13 +305,14 @@ defineExpose({ step, confirm })
 .rh-region__art {
   display: block;
   aspect-ratio: 7 / 4;
-  border-radius: 0.3rem;
-  border: 2px solid var(--rh-gold);
+  border-radius: 0.5rem;
+  border: 2px solid var(--rh-ink);
 }
 .rh-region__fog {
   background:
-    radial-gradient(circle at 30% 40%, rgb(255 255 255 / 0.5), transparent 50%),
-    linear-gradient(160deg, #b9b2a0, #6f7a84);
+    radial-gradient(circle at 30% 40%, rgb(255 255 255 / 0.6), transparent 50%),
+    radial-gradient(circle at 75% 70%, rgb(255 231 93 / 0.5), transparent 45%),
+    linear-gradient(160deg, #9ff3ff, #c9a7ff 55%, #ffb3e6);
 }
 .rh-region__copy {
   display: grid;
@@ -338,7 +322,7 @@ defineExpose({ step, confirm })
   min-width: 0;
 }
 .rh-region__state {
-  color: var(--rh-madder);
+  color: var(--rh-pink-ink);
   font-size: 0.78rem;
   font-weight: 800;
   letter-spacing: 0.08em;
@@ -347,14 +331,14 @@ defineExpose({ step, confirm })
 .rh-region__pinned {
   margin-left: 0.3rem;
   padding: 0 0.35rem;
-  border-radius: 0.2rem;
-  background: var(--rh-woodcut);
-  color: var(--rh-rag);
+  border-radius: 999px;
+  background: var(--rh-ink);
+  color: var(--rh-gold);
   letter-spacing: 0.04em;
 }
 .rh-region__line {
   font-size: 0.88rem;
-  font-style: italic;
+  font-weight: 600;
   line-height: 1.35;
 }
 .rh-region__axis,

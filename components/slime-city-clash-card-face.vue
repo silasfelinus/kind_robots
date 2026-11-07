@@ -1,6 +1,6 @@
 <!-- One Clash card face, authored at full size: art, plays, badge, name, rules. -->
 <template>
-  <span class="ccf">
+  <span class="ccf" :class="'lv-' + level">
     <SlimeCityArtwork
       class="ccf-art"
       :image-id="slimeArtId('cards', card.id)"
@@ -16,12 +16,17 @@
     />
     <span class="ccf-top">
       <b class="ccf-cost">{{ plays }} PLAY{{ plays === 2 ? 'S' : '' }}</b>
-      <em class="ccf-badge">{{ clashCardBadge(card) }}</em>
+      <em class="ccf-badge">{{ clashCardBadge(card, level) }}</em>
     </span>
     <strong class="ccf-name">{{ card.name }}</strong>
+    <span class="ccf-level" :aria-label="'Level ' + level + ' of ' + maxLevel"
+      ><i v-for="n in maxLevel" :key="n" :class="{ on: n <= level }" /><b
+        >LV {{ level }}</b
+      ></span
+    >
     <span class="ccf-rules">
       <small>{{ kind }}</small>
-      <span class="ccf-text">{{ clashCardText(card) }}</span>
+      <span class="ccf-text">{{ clashCardText(card, level) }}</span>
       <span v-if="note" class="ccf-text ccf-note">{{ note }}</span>
     </span>
   </span>
@@ -32,15 +37,18 @@ import { computed } from 'vue'
 import { slimeArtId } from '~/utils/slimeCity/artManifest'
 import { cardById } from '~/utils/slimeCity/prototypes'
 import {
+  CLASH_MAX_LEVEL,
   clashCardBadge,
   clashCardText,
   clashPlayCost,
 } from '~/utils/slimeCity/clash'
 import { useSlimeCityStore } from '~/stores/slimeCity'
 
-const props = withDefaults(defineProps<{ cardId: string; note?: string }>(), {
-  note: '',
-})
+const props = withDefaults(
+  defineProps<{ cardId: string; note?: string; level?: number }>(),
+  { note: '', level: 1 },
+)
+const maxLevel = CLASH_MAX_LEVEL
 const lab = useSlimeCityStore()
 const card = computed(() => cardById(props.cardId))
 const plays = computed(() => clashPlayCost(card.value))
@@ -69,9 +77,45 @@ const kind = computed(() =>
     border-color 0.3s,
     box-shadow 0.3s;
 }
+.ccf.lv-3 {
+  border-color: #ffd34d;
+  box-shadow:
+    0 0 0 2px #ffd34d55,
+    0 0 26px #ffb80066,
+    0 10px 22px #000a;
+}
 .ccf-art {
   position: absolute;
   inset: 0;
+}
+.ccf-level {
+  position: absolute;
+  left: 3.5cqw;
+  top: 36cqw;
+  display: flex;
+  align-items: center;
+  gap: 1.4cqw;
+  padding: 1cqw 2.4cqw;
+  border-radius: 99px;
+  background: #071a20d9;
+}
+.ccf-level i {
+  width: 3.4cqw;
+  height: 3.4cqw;
+  transform: rotate(45deg);
+  border: 0.6cqw solid #ffe6a6aa;
+  background: transparent;
+}
+.ccf-level i.on {
+  background: #ffd34d;
+  border-color: #ffd34d;
+  box-shadow: 0 0 2cqw #ffb800;
+}
+.ccf-level b {
+  font-size: 4.2cqw;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  color: #ffe6a6;
 }
 .ccf-art :deep(img) {
   width: 100%;

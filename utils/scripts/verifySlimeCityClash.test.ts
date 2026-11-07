@@ -8,6 +8,7 @@ import {
   CLASH_BOSS_HP,
   CLASH_DECK_SIZE,
   CLASH_HAND_SIZE,
+  CLASH_MAX_LEVEL,
   CLASH_LANES,
   CLASH_PLAYS,
   CLASH_ROUND_LIMIT,
@@ -20,6 +21,7 @@ import {
   clashBossMax,
   clashCardBadge,
   clashCardText,
+  clashLevel,
   clashPlayCost,
   createClash,
   endClashTurn,
@@ -56,6 +58,7 @@ function follower(
     attacked: false,
     fresh: false,
     gear: [],
+    level: 1,
   }
 }
 function finishTurn(input: ClashState): ClashState {
@@ -111,6 +114,13 @@ assert.match(hand, /cxh-deal-enter-active/, 'cards deal out of the icon')
 assert.match(hand, /prefers-reduced-motion/)
 assert.match(cardFace, /clashCardBadge/, 'hand cards show their effect')
 assert.match(cardFace, /:fallback-image-id="[\s\S]*?slimeArtId\(\s*'crews'/)
+assert.match(cardFace, /class="ccf-level"/, 'cards show their level')
+assert.match(
+  hand,
+  /data-testid="clash-level-up"/,
+  'playing a card shows level up',
+)
+assert.match(view, /class="clash-stars"/, 'fighters show their level')
 assert.match(cardFace, /clashCardText/, 'selected cards show their rules')
 assert.match(view, /@keyframes clash-lunge-up/)
 assert.match(view, /prefers-reduced-motion/)
@@ -145,17 +155,37 @@ for (const team of TEAMS) {
   }
 }
 for (const card of CARDS) {
-  const b = clashBalance(card)
-  assert.ok(b.plays === 1 || b.plays === 2)
-  if (card.kind === 'creature') {
-    assert.ok(b.attack >= 2 && b.attack <= (b.plays === 2 ? 6 : 4), card.id)
-    assert.ok(b.hp >= 2 && b.hp <= (b.plays === 2 ? 14 : 10), card.id)
-    assert.ok(b.armor >= 0 && b.armor <= 1)
-    for (const k of card.keywords ?? [])
-      assert.ok(clashCardText(card).includes(CLASH_TRAIT_TEXT[k]), card.id + k)
-  } else assert.ok(b.power >= 2 && b.power <= 6, card.id)
-  assert.ok(clashCardBadge(card).length > 0 && clashCardBadge(card).length < 16)
-  assert.ok(!/\bAP\b|\bmana\b|\bmovement\b/i.test(clashCardText(card)), card.id)
+  for (let level = 1; level <= CLASH_MAX_LEVEL; level++) {
+    const b = clashBalance(card, level)
+    assert.equal(b.level, level)
+    assert.ok(b.plays === 1 || b.plays === 2)
+    if (card.kind === 'creature') {
+      assert.ok(b.attack >= 2 && b.attack <= (b.plays === 2 ? 7 : 5), card.id)
+      assert.ok(b.hp >= 2 && b.hp <= (b.plays === 2 ? 17 : 13), card.id)
+      assert.ok(b.armor >= 0 && b.armor <= 1)
+      for (const k of card.keywords ?? [])
+        assert.ok(
+          clashCardText(card, level).includes(CLASH_TRAIT_TEXT[k]),
+          card.id + k,
+        )
+    } else assert.ok(b.power >= 1 && b.power <= 7, card.id)
+    const badge = clashCardBadge(card, level)
+    assert.ok(badge.length > 0 && badge.length < 16, card.id)
+    assert.ok(
+      !/\bAP\b|\bmana\b|\bmovement\b/i.test(clashCardText(card, level)),
+      card.id,
+    )
+  }
+  const low = clashBalance(card, 1)
+  const high = clashBalance(card, CLASH_MAX_LEVEL)
+  assert.ok(
+    card.kind === 'creature'
+      ? high.attack * 2 + high.hp > low.attack * 2 + low.hp
+      : high.power > low.power || high.bonus > low.bonus,
+    card.id + ' is clearly stronger at max level',
+  )
+  assert.match(clashCardText(card, 1), /Levels up when played/)
+  assert.match(clashCardText(card, CLASH_MAX_LEVEL), /Max level\./)
 }
 assert.ok(
   CARDS.length >= 300,
@@ -211,6 +241,29 @@ assert.equal(
   endClashTurn(second, 'player').active,
   'enemy',
   'with no ready strikes the turn can end',
+)
+
+// Solforge-style leveling: playing a card brings it back one level stronger.
+const leveling = createClash('catgirls', 'ironjaw', 8)
+leveling.hands.player = ['lynx', 'mau']
+assert.equal(clashLevel(leveling, 'player', 'lynx'), 1)
+const leveled = playClash(leveling, 'player', 'lynx', 0)
+assert.equal(clashLevel(leveled, 'player', 'lynx'), 2, 'played cards level up')
+assert.equal(leveled.units[0]!.level, 1, 'the fighter on the board is level 1')
+assert.equal(clashLevel(leveled, 'enemy', 'lynx'), 1, 'levels are per crew')
+assert.ok(leveled.log.some((x) => /levels up to 2/.test(x.text)))
+const veteran = createClash('catgirls', 'ironjaw', 9)
+veteran.levels.player.lynx = CLASH_MAX_LEVEL
+veteran.hands.player = ['lynx']
+const maxed = playClash(veteran, 'player', 'lynx', 1)
+assert.equal(clashLevel(maxed, 'player', 'lynx'), CLASH_MAX_LEVEL, 'caps at 3')
+assert.equal(
+  maxed.units[0]!.maxHp,
+  clashBalance(cardById('lynx'), CLASH_MAX_LEVEL).hp,
+)
+assert.ok(
+  maxed.units[0]!.attack > clashBalance(cardById('lynx'), 1).attack,
+  'a level-3 fighter hits harder than its level-1 debut',
 )
 
 const lanes = createClash('catgirls', 'ironjaw', 11)
@@ -309,7 +362,7 @@ assert.notEqual(swapped.units[0]!.uid, 99)
 assert.ok(swapped.discards.player.includes('lynx'))
 
 const trap = createClash('catgirls', 'ironjaw', 18)
-trap.traps = [{ side: 'enemy', lane: 0, cardId: 'shocktrap' }]
+trap.traps = [{ side: 'enemy', lane: 0, cardId: 'shocktrap', level: 1 }]
 trap.hands.player = ['lynx']
 const sprung = playClash(trap, 'player', 'lynx', 0)
 assert.equal(sprung.traps.length, 0)
@@ -321,7 +374,7 @@ assert.ok(
 const tripwire = createClash('catgirls', 'ironjaw', 21)
 tripwire.phase = 'attack'
 tripwire.units = [follower('player', 3, 1, 9, 3)]
-tripwire.traps = [{ side: 'enemy', lane: 3, cardId: 'shocktrap' }]
+tripwire.traps = [{ side: 'enemy', lane: 3, cardId: 'shocktrap', level: 1 }]
 const tripped = strikeClash(tripwire, 'player')
 assert.equal(tripped.traps.length, 0, 'unblocked strike springs the trap')
 assert.equal(tripped.boss.enemy, clashBossMax('enemy'), 'the trap eats the hit')

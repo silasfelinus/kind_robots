@@ -55,7 +55,10 @@
           @pointerdown="grab($event, index)"
           @click="tap(index)"
         >
-          <SlimeCityClashCardFace :card-id="cardId" />
+          <SlimeCityClashCardFace
+            :card-id="cardId"
+            :level="clashLevel(game, 'player', cardId)"
+          />
         </button>
       </div>
     </TransitionGroup>
@@ -71,8 +74,23 @@
         <SlimeCityClashCardFace
           :card-id="inspectCard.id"
           :note="inspectCard.note"
+          :level="inspectCard.level"
         />
       </div>
+    </Transition>
+
+    <Transition name="cxh-toast">
+      <p
+        v-if="toast"
+        :key="toast.key"
+        class="cxh-levelup"
+        :class="{ max: toast.max }"
+        data-testid="clash-level-up"
+        aria-live="polite"
+      >
+        <b>{{ toast.max ? 'MAX LEVEL' : 'LEVEL UP' }}</b>
+        <span>{{ toast.text }}</span>
+      </p>
     </Transition>
 
     <button
@@ -100,8 +118,10 @@
 import { computed, onBeforeUnmount, ref, watch } from 'vue'
 import { cardById, type Side } from '~/utils/slimeCity/prototypes'
 import {
+  CLASH_MAX_LEVEL,
   CLASH_PLAYS,
   clashCardText,
+  clashLevel,
   clashPlayCost,
   type ClashState,
 } from '~/utils/slimeCity/clash'
@@ -109,7 +129,7 @@ import {
 const props = defineProps<{
   game: ClashState
   held: number | null
-  inspect: { id: string; note: string } | null
+  inspect: { id: string; note: string; level: number } | null
 }>()
 const emit = defineEmits<{
   pick: [index: number | null]
@@ -167,6 +187,26 @@ const lastPlayed = computed(() => {
     if (c.t === 'end') return null
   }
   return null
+})
+const toast = ref<{ key: number; text: string; max: boolean } | null>(null)
+let toastTimer: ReturnType<typeof setTimeout> | null = null
+watch(
+  () => props.game.commands.length,
+  (now, before) => {
+    const c = props.game.commands[now - 1]
+    if (now <= before || c?.t !== 'play' || c.side !== 'player') return
+    const level = clashLevel(props.game, 'player', c.card)
+    toast.value = {
+      key: now,
+      text: cardById(c.card).name + ' · LV ' + level,
+      max: level >= CLASH_MAX_LEVEL,
+    }
+    if (toastTimer) clearTimeout(toastTimer)
+    toastTimer = setTimeout(() => (toast.value = null), 1700)
+  },
+)
+onBeforeUnmount(() => {
+  if (toastTimer) clearTimeout(toastTimer)
 })
 function markLeaving(el: Element): void {
   ;(el as HTMLElement).classList.toggle(
@@ -341,6 +381,61 @@ function tap(index: number): void {
     transform 0.08s linear,
     opacity 0.2s;
   pointer-events: none;
+}
+.cxh-levelup {
+  position: absolute;
+  left: 50%;
+  bottom: calc(var(--W) * 1.5 * var(--rest) * var(--peek) + 1.2rem);
+  transform: translateX(-50%);
+  margin: 0;
+  padding: 0.45rem 0.9rem;
+  border-radius: 999px;
+  border: 2px solid #ffd34d;
+  background: #1b1405ee;
+  color: #ffe6a6;
+  display: flex;
+  gap: 0.5rem;
+  align-items: baseline;
+  white-space: nowrap;
+  box-shadow: 0 0 22px #ffb80077;
+  pointer-events: none;
+  z-index: 9;
+}
+.cxh-levelup b {
+  font-size: 0.8rem;
+  font-weight: 950;
+  letter-spacing: 0.12em;
+  color: #ffd34d;
+}
+.cxh-levelup span {
+  font-size: 0.78rem;
+  font-weight: 800;
+}
+.cxh-levelup.max {
+  border-color: #ff8fd2;
+  box-shadow: 0 0 22px #ff5fa288;
+}
+.cxh-toast-enter-active {
+  animation: cxh-toast 0.55s var(--ease) both;
+}
+.cxh-toast-leave-active {
+  transition:
+    opacity 0.35s ease,
+    transform 0.35s ease;
+}
+.cxh-toast-leave-to {
+  opacity: 0;
+  transform: translate(-50%, -1.2rem);
+}
+@keyframes cxh-toast {
+  from {
+    opacity: 0;
+    transform: translate(-50%, 1rem) scale(0.6);
+  }
+  60% {
+    opacity: 1;
+    transform: translate(-50%, -0.3rem) scale(1.12);
+  }
 }
 .cxh-inspect {
   left: 50%;

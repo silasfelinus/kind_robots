@@ -83,9 +83,14 @@
                     :fallback="cardById(unit(side, lane)!.cardId).symbol"
                     compact
                   />
-                  <span class="clash-fighter-label">{{
-                    cardById(unit(side, lane)!.cardId).name
-                  }}</span>
+                  <span class="clash-fighter-label"
+                    ><i
+                      class="clash-stars"
+                      :class="{ max: unit(side, lane)!.level >= 3 }"
+                      :aria-label="'Level ' + unit(side, lane)!.level"
+                      >{{ '★'.repeat(unit(side, lane)!.level) }}</i
+                    >{{ cardById(unit(side, lane)!.cardId).name }}</span
+                  >
                   <span class="clash-numbers"
                     ><b>{{ clashPower(game, unit(side, lane)!) }} ⚔</b
                     ><b>{{ unit(side, lane)!.hp }} ♥</b></span
@@ -370,11 +375,16 @@ const bossHit = computed<Side | null>(() =>
       : 'player'
     : null,
 )
-const inspect = computed<{ id: string; note: string } | null>(() => {
+const inspect = computed<{
+  id: string
+  note: string
+  level: number
+} | null>(() => {
   const u = game.value.units.find((v) => v.uid === selectedUnit.value)
   if (!u) return null
   return {
     id: u.cardId,
+    level: u.level,
     note:
       (u.side === 'player' ? 'Your fighter' : 'Rival fighter') +
       ' in alley ' +
@@ -1206,5 +1216,16 @@ function forecast(lane: number): string {
     height: 5rem;
     padding: 0 3.6rem;
   }
+}
+.clash-stars {
+  display: block;
+  font-style: normal;
+  font-size: 0.85em;
+  letter-spacing: 0.1em;
+  color: #ffe6a6;
+}
+.clash-stars.max {
+  color: #ffd34d;
+  text-shadow: 0 0 6px #ffb800;
 }
 </style>

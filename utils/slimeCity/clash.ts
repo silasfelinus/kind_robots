@@ -14,12 +14,12 @@ import {
 } from './prototypes'
 
 export const CLASH_LANES = 5
-export const CLASH_BOSS_HP = 28
+export const CLASH_BOSS_HP = 40
 /**
  * The crew that moves second starts its boss with extra life (Hearthstone's
  * coin). CPU sweeps, 2026-11-07: at boss 20, +0 let the first seat win
- * ~63% and +5 ~51.5%; at the beefier boss 28 (Silas: "we want creatures to
- * feel fun and beefy"), +8 holds it near 55%.
+ * ~63% and +5 ~51.5%. Boss 40 (Silas: "Hit points should be higher I'm
+ * thinking 40") with card leveling and +8 holds it near 53.5%.
  */
 export const CLASH_SECOND_SEAT_BONUS = 8
 export function clashBossMax(side: Side): number {
@@ -28,7 +28,14 @@ export function clashBossMax(side: Side): number {
 export const CLASH_PLAYS = 2
 export const CLASH_DECK_SIZE = 20
 export const CLASH_HAND_SIZE = 5
-export const CLASH_ROUND_LIMIT = 18
+export const CLASH_ROUND_LIMIT = 24
+/**
+ * Solforge-style leveling (Silas, 2026-11-07 PT): "cards that evolve as you
+ * play them. So something might be weak first round, but have a great round
+ * three." Every card starts a match at level 1; each time a crew plays it,
+ * that crew's copy comes back one level stronger, up to level 3.
+ */
+export const CLASH_MAX_LEVEL = 3
 
 export type ClashPhase = 'play' | 'attack'
 export interface ClashUnit {
@@ -48,11 +55,13 @@ export interface ClashUnit {
   /** Landed this turn. */
   fresh: boolean
   gear: string[]
+  level: number
 }
 export interface ClashTrap {
   side: Side
   lane: number
   cardId: string
+  level: number
 }
 export interface ClashStrike {
   side: Side
@@ -102,14 +111,19 @@ export interface ClashState {
   victor: Side | 'draw' | null
   nextUid: number
   commands: ClashCommand[]
+  /** Each crew's card levels this match; a missing id is level 1. */
+  levels: Record<Side, Record<string, number>>
 }
 export interface ClashCardBalance {
   /** All 300 catalog cards get a separate, Clash-only balance profile. */
   plays: 1 | 2
+  level: number
   attack: number
   hp: number
   armor: number
   power: number
+  /** Permanent power from sharpen and power gear. */
+  bonus: number
 }
 
 const opponent = (s: Side): Side => (s === 'player' ? 'enemy' : 'player')
@@ -147,20 +161,29 @@ export function clashPlayCost(card: Card): 1 | 2 {
  * Clash budgets (2026-11-07 rebalance). The grid-era stats were tuned around
  * movement, range and action points; in five fixed alleys a fighter is only
  * its strike, its toughness and its traits. Every fighter spends one stat
- * budget per play tier: power costs 2, armor 3, each trait its listed price,
+ * budget per play tier and level: power costs 2, armor 2.5, each trait its listed price,
  * and the remainder becomes life. The grid card's attack still sets the
  * character's shape, so bruisers, glass cannons and walls stay distinct.
  * Tuned with `npm run balance:slime-city-clash` CPU sweeps.
  */
-export const CLASH_FOLLOWER_BUDGET: Record<1 | 2, number> = { 1: 14, 2: 25 }
+/** Stat budget by play tier, then by level 1-3. */
+export const CLASH_FOLLOWER_BUDGET: Record<1 | 2, [number, number, number]> = {
+  1: [11, 14, 18],
+  2: [21, 25, 30],
+}
+const LIFE_CAP: Record<1 | 2, [number, number, number]> = {
+  1: [8, 10, 13],
+  2: [12, 14, 17],
+}
 export const CLASH_TRAIT_COST: Record<Keyword, number> = {
   ambush: 1,
   regen: 1,
   swarm: 2,
-  leech: 3,
+  leech: 2,
   // Bulldoze only matters on overkill; priced as flavor.
   bulldoze: 0,
-  volatile: 1,
+  // Volatile's blast is priced into its short life; free in the budget.
+  volatile: 0,
   pierce: 1,
   snare: 2,
   collect: 1,
@@ -178,37 +201,52 @@ export const CLASH_TRAIT_TEXT: Record<Keyword, string> = {
   collect: 'Collect: gains +1 power each time it defeats a fighter.',
 }
 /** No changes to CARDS or the legacy battle engines. */
-export function clashBalance(card: Card): ClashCardBalance {
+export function clashBalance(card: Card, level = 1): ClashCardBalance {
   const plays = clashPlayCost(card)
   const heavy = plays === 2
+  const lv = clamp(Math.round(level), 1, CLASH_MAX_LEVEL)
+  const step = lv - 2
+  const bonus = (heavy ? 2 : 1) + (lv === CLASH_MAX_LEVEL ? 1 : 0)
   if (card.kind !== 'creature')
     return {
       plays,
+      level: lv,
       attack: 0,
       hp: 0,
       armor: 0,
+      bonus,
       // Traps spend a play on nothing visible, so they hit harder than zaps.
       power:
         card.kind === 'trap'
-          ? clamp((card.power ?? 2) + 2, 2, heavy ? 6 : 5)
-          : clamp((card.power ?? 2) + 1, 2, heavy ? 5 : 3),
+          ? clamp((card.power ?? 2) + 2 + step, 2, heavy ? 7 : 6)
+          : clamp((card.power ?? 2) + 1 + step, 1, heavy ? 6 : 4),
     }
   const armor = clamp(card.armor ?? 0, 0, 1)
-  const attack = clamp((card.attack ?? 2) + (heavy ? 2 : 1), 2, heavy ? 6 : 4)
+  const attack = clamp(
+    (card.attack ?? 2) + (heavy ? 2 : 1) + (lv === CLASH_MAX_LEVEL ? 1 : 0),
+    2,
+    (heavy ? 6 : 4) + (lv === CLASH_MAX_LEVEL ? 1 : 0),
+  )
   const traits = (card.keywords ?? []).reduce(
     (sum, k) => sum + CLASH_TRAIT_COST[k],
     0,
   )
+  const tier = (lv - 1) as 0 | 1 | 2
   const hp = clamp(
-    CLASH_FOLLOWER_BUDGET[plays] - attack * 2 - armor * 3 - traits,
+    Math.round(
+      CLASH_FOLLOWER_BUDGET[plays][tier] - attack * 2 - armor * 2.5 - traits,
+    ),
     heavy ? 5 : 2,
-    heavy ? 14 : 10,
+    LIFE_CAP[plays][tier],
   )
-  return { plays, attack, hp, armor, power: 0 }
+  return { plays, level: lv, attack, hp, armor, power: 0, bonus }
+}
+export function clashLevel(s: ClashState, side: Side, id: string): number {
+  return s.levels?.[side]?.[id] ?? 1
 }
 /** Hand-card badge: the effect in a few characters. */
-export function clashCardBadge(card: Card): string {
-  const b = clashBalance(card)
+export function clashCardBadge(card: Card, level = 1): string {
+  const b = clashBalance(card, level)
   if (card.kind === 'creature') return b.attack + ' ⚔ · ' + b.hp + ' ♥'
   if (card.kind === 'trap') return 'TRAP ' + b.power
   switch (card.effect) {
@@ -217,10 +255,10 @@ export function clashCardBadge(card: Card): string {
     case 'armor':
       return '+1 ARMOR'
     case 'sharpen':
-      return '+' + (b.plays === 2 ? 2 : 1) + ' ⚔'
+      return '+' + b.bonus + ' ⚔'
     case 'boost':
       return card.kind === 'equipment'
-        ? '+' + (b.plays === 2 ? 2 : 1) + ' ⚔'
+        ? '+' + b.bonus + ' ⚔'
         : '+' + b.power + ' ⚔ NOW'
     case 'grant':
       return (card.grants ?? []).join(' ').toUpperCase() || 'GEAR'
@@ -240,8 +278,8 @@ export function clashCardBadge(card: Card): string {
   }
 }
 /** Clash text explains the effect actually executed, not legacy mana/AP rules. */
-export function clashCardText(card: Card): string {
-  const b = clashBalance(card)
+export function clashCardText(card: Card, level = 1): string {
+  const b = clashBalance(card, level)
   const suffix = b.plays === 2 ? ' Costs both card plays.' : ''
   if (card.kind === 'creature')
     return (
@@ -253,7 +291,8 @@ export function clashCardText(card: Card): string {
       (b.armor ? ', 1 armor' : '') +
       '. Strikes straight across its alley every turn; an empty alley means a hit on the rival boss.' +
       (card.keywords ?? []).map((k) => ' ' + CLASH_TRAIT_TEXT[k]).join('') +
-      suffix
+      suffix +
+      levelNote(card, b.level)
     )
   if (card.kind === 'trap')
     return (
@@ -261,7 +300,8 @@ export function clashCardText(card: Card): string {
       b.power +
       ' damage' +
       (card.roots ? ' and misses its next strike.' : '.') +
-      suffix
+      suffix +
+      levelNote(card, b.level)
     )
   let text: string
   switch (card.effect) {
@@ -272,15 +312,12 @@ export function clashCardText(card: Card): string {
       text = 'Your fighter gains +1 armor, up to 2.'
       break
     case 'sharpen':
-      text =
-        'Your fighter gains +' + (b.plays === 2 ? 2 : 1) + ' power for good.'
+      text = 'Your fighter gains +' + b.bonus + ' power for good.'
       break
     case 'boost':
       text =
         card.kind === 'equipment'
-          ? 'Your fighter gains +' +
-            (b.plays === 2 ? 2 : 1) +
-            ' power for good.'
+          ? 'Your fighter gains +' + b.bonus + ' power for good.'
           : 'Your fighter gains +' + b.power + ' power this round.'
       break
     case 'grant':
@@ -314,7 +351,22 @@ export function clashCardText(card: Card): string {
     default:
       text = 'Deal ' + b.power + ' damage to a rival fighter.'
   }
-  return (card.kind === 'equipment' ? 'Gear. ' : '') + text + suffix
+  return (
+    (card.kind === 'equipment' ? 'Gear. ' : '') +
+    text +
+    suffix +
+    levelNote(card, b.level)
+  )
+}
+function levelNote(card: Card, level: number): string {
+  if (level >= CLASH_MAX_LEVEL) return ' Max level.'
+  const next = clashBalance(card, level + 1)
+  return (
+    ' Levels up when played; next level: ' +
+    (card.kind === 'creature'
+      ? next.attack + ' power, ' + next.hp + ' life.'
+      : clashCardBadge(card, level + 1) + '.')
+  )
 }
 export function clashPower(s: ClashState, u: ClashUnit): number {
   let power = u.attack + u.surge
@@ -400,6 +452,7 @@ export function createClash(
     victor: null,
     nextUid: 1,
     commands: [],
+    levels: { player: {}, enemy: {} },
   }
   s.decks.player = shuffle(s, alleyDeck(player))
   s.decks.enemy = shuffle(s, alleyDeck(enemy))
@@ -494,7 +547,8 @@ export function playClash(
   if (!canClashPlay(input, side, id, lane)) return input
   const s = structuredClone(input)
   const card = cardById(id)
-  const profile = clashBalance(card)
+  const level = clashLevel(s, side, id)
+  const profile = clashBalance(card, level)
   s.hands[side].splice(s.hands[side].indexOf(id), 1)
   const foe = opponent(side)
   if (card.kind === 'creature') {
@@ -520,13 +574,14 @@ export function playClash(
       attacked: false,
       fresh: true,
       gear: [],
+      level,
     }
     s.units.push(unit)
     note(s, card.name + ' enters alley ' + (lane + 1) + '.', 'play', lane)
     const trap = s.traps.find((t) => t.side === foe && t.lane === lane)
     if (trap) {
       const effect = cardById(trap.cardId)
-      damage(unit, clashBalance(effect).power)
+      damage(unit, clashBalance(effect, trap.level).power)
       if (effect.roots) unit.rooted = true
       s.traps = s.traps.filter((t) => t !== trap)
       s.discards[foe].push(trap.cardId)
@@ -534,7 +589,7 @@ export function playClash(
       casualties(s)
     }
   } else if (card.kind === 'trap') {
-    s.traps.push({ side, lane, cardId: id })
+    s.traps.push({ side, lane, cardId: id, level })
     note(s, 'Trap armed in alley ' + (lane + 1) + '.', 'trap', lane)
   } else {
     const target = unitAt(s, aim(card) === 'own' ? side : foe, lane)
@@ -553,19 +608,11 @@ export function playClash(
           target.armor = clamp(target.armor + 1, 0, 2)
           break
         case 'sharpen':
-          target.attack = clamp(
-            target.attack + (profile.plays === 2 ? 2 : 1),
-            1,
-            6,
-          )
+          target.attack = clamp(target.attack + profile.bonus, 1, 8)
           break
         case 'boost':
           if (card.kind === 'equipment')
-            target.attack = clamp(
-              target.attack + (profile.plays === 2 ? 2 : 1),
-              1,
-              6,
-            )
+            target.attack = clamp(target.attack + profile.bonus, 1, 8)
           else target.surge += power
           break
         case 'grant':
@@ -598,6 +645,10 @@ export function playClash(
     note(s, card.name + ' played in alley ' + (lane + 1) + '.', 'play', lane)
     casualties(s)
     s.discards[side].push(id)
+  }
+  if (level < CLASH_MAX_LEVEL) {
+    s.levels[side][id] = level + 1
+    note(s, card.name + ' levels up to ' + (level + 1) + '!', 'play', lane)
   }
   s.plays[side] += profile.plays
   if (s.plays[side] >= CLASH_PLAYS) {
@@ -669,7 +720,7 @@ export function strikeClash(input: ClashState, side: Side): ClashState {
   if (trap) {
     const effect = cardById(trap.cardId)
     strike.dealt = 0
-    strike.returned = damage(attacker, clashBalance(effect).power)
+    strike.returned = damage(attacker, clashBalance(effect, trap.level).power)
     if (effect.roots) attacker.rooted = true
     s.traps = s.traps.filter((t) => t !== trap)
     s.discards[foeSide].push(trap.cardId)
@@ -717,9 +768,9 @@ export function strikeClash(input: ClashState, side: Side): ClashState {
     if (returned > 0 && has(defender, 'leech'))
       defender.hp = Math.min(defender.maxHp, defender.hp + 1)
     if (defender.hp <= 0 && has(attacker, 'collect'))
-      attacker.attack = clamp(attacker.attack + 1, 1, 7)
+      attacker.attack = clamp(attacker.attack + 1, 1, 8)
     if (attacker.hp <= 0 && has(defender, 'collect'))
-      defender.attack = clamp(defender.attack + 1, 1, 7)
+      defender.attack = clamp(defender.attack + 1, 1, 8)
     strike.attackerFell = attacker.hp <= 0
     strike.defenderFell = defender.hp <= 0
   }
@@ -805,7 +856,7 @@ export function chooseClashCpu(
   let best: { score: number; card: string; lane: number } | undefined
   for (const id of s.hands[side]) {
     const card = cardById(id)
-    const b = clashBalance(card)
+    const b = clashBalance(card, clashLevel(s, side, id))
     for (let lane = 0; lane < CLASH_LANES; lane++) {
       if (!canClashPlay(s, side, id, lane)) continue
       const mine = unitAt(s, side, lane)

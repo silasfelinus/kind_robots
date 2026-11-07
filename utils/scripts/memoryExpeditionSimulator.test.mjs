@@ -1,13 +1,18 @@
 import assert from 'node:assert/strict'
 import test from 'node:test'
-import { createExpedition, resolveExpeditionRoom } from './memoryExpeditionSimulator.mjs'
+import {
+  createExpedition,
+  resolveExpeditionRoom,
+} from './memoryExpeditionSimulator.mjs'
 
 test('three floors have stable unique room identities and varied encounter budgets', () => {
   for (const seed of [0, 1, 42, 65535, 0xffffffff]) {
     const run = createExpedition(seed)
     assert.deepEqual(createExpedition(seed), run)
     assert.equal(run.floors.length, 3)
-    const ids = run.floors.flatMap((floor) => floor.rooms.map((room) => room.id))
+    const ids = run.floors.flatMap((floor) =>
+      floor.rooms.map((room) => room.id),
+    )
     assert.equal(new Set(ids).size, 18)
     for (const floor of run.floors) {
       assert.equal(floor.rooms.length, 6)
@@ -43,5 +48,11 @@ test('reject invalid seeds and incompatible save versions', () => {
   for (const seed of [-1, 1.5, Infinity, 0x100000000]) {
     assert.throws(() => createExpedition(seed))
   }
-  assert.throws(() => resolveExpeditionRoom({ ...createExpedition(1), version: 2 }, 'f1-r1', 'spared'))
+  assert.throws(() =>
+    resolveExpeditionRoom(
+      { ...createExpedition(1), version: 2 },
+      'f1-r1',
+      'spared',
+    ),
+  )
 })

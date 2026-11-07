@@ -11,22 +11,27 @@ import {
   CLASH_LANES,
   CLASH_PLAYS,
   CLASH_ROUND_LIMIT,
+  CLASH_SECOND_SEAT_BONUS,
+  CLASH_TRAIT_TEXT,
   applyClashCommand,
-  attackClash,
-  canClashAttack,
   canClashPlay,
   chooseClashCpu,
   clashBalance,
+  clashBossMax,
+  clashCardBadge,
   clashCardText,
   clashPlayCost,
   createClash,
   endClashTurn,
+  nextClashStrike,
   passClash,
   playClash,
   replayClash,
+  strikeClash,
   type ClashState,
   type ClashUnit,
 } from '../slimeCity/clash'
+import { sweepClash } from './slimeCityClashBalanceReport'
 
 function follower(
   side: Side,
@@ -49,6 +54,7 @@ function follower(
     rooted: false,
     ambushUsed: false,
     attacked: false,
+    fresh: false,
     gear: [],
   }
 }
@@ -56,6 +62,7 @@ function finishTurn(input: ClashState): ClashState {
   let s = input
   const side = s.active
   if (s.phase === 'play') s = passClash(s, side)
+  while (nextClashStrike(s, side) >= 0) s = strikeClash(s, side)
   return endClashTurn(s, side)
 }
 function finishRound(input: ClashState): ClashState {
@@ -78,7 +85,12 @@ assert.match(gamePage, /data-testid="slime-gallery-tab"/)
 assert.match(gamePage, /data-testid="slime-rewards-tab"/)
 assert.match(gamePage, /<SlimeCityClash v-else-if="lab\.view === 'clash'"/)
 assert.doesNotMatch(gamePage, /Clash[^\n]*user\.isAdmin/)
-assert.match(view, /data-testid="clash-attack-boss"/)
+assert.doesNotMatch(view, /clash-attack-boss/, 'no manual attack picking')
+assert.match(view, /strikeClash/, 'board drives the automatic alley sweep')
+assert.match(view, /data-testid="clash-detail"/, 'card rules are readable')
+assert.match(view, /clashCardBadge/, 'hand cards show their effect')
+assert.match(view, /@keyframes clash-lunge-up/)
+assert.match(view, /prefers-reduced-motion/)
 assert.match(view, /chooseClashCpu/)
 assert.match(view, /clashPlayCost/)
 assert.doesNotMatch(view, /class="clash-top"/)
@@ -113,10 +125,14 @@ for (const team of TEAMS) {
 for (const card of CARDS) {
   const b = clashBalance(card)
   assert.ok(b.plays === 1 || b.plays === 2)
-  assert.ok(b.attack >= 2 && b.attack <= 5)
-  assert.ok(b.hp >= 2 && b.hp <= 9)
-  assert.ok(b.armor >= 0 && b.armor <= 1)
-  assert.ok(b.power >= 1 && b.power <= 4)
+  if (card.kind === 'creature') {
+    assert.ok(b.attack >= 2 && b.attack <= (b.plays === 2 ? 6 : 4), card.id)
+    assert.ok(b.hp >= 2 && b.hp <= (b.plays === 2 ? 11 : 7), card.id)
+    assert.ok(b.armor >= 0 && b.armor <= 1)
+    for (const k of card.keywords ?? [])
+      assert.ok(clashCardText(card).includes(CLASH_TRAIT_TEXT[k]), card.id + k)
+  } else assert.ok(b.power >= 2 && b.power <= 6, card.id)
+  assert.ok(clashCardBadge(card).length > 0 && clashCardBadge(card).length < 16)
   assert.ok(!/\bAP\b|\bmana\b|\bmovement\b/i.test(clashCardText(card)), card.id)
 }
 assert.ok(
@@ -133,6 +149,12 @@ assert.equal(initial.decks.player.length, CLASH_DECK_SIZE - CLASH_HAND_SIZE)
 assert.equal(initial.phase, 'play')
 assert.equal(initial.active, 'player')
 assert.equal(initial.boss.player, CLASH_BOSS_HP)
+assert.equal(
+  initial.boss.enemy,
+  CLASH_BOSS_HP + CLASH_SECOND_SEAT_BONUS,
+  'the second seat starts with a boss-life coin',
+)
+assert.equal(clashBossMax('enemy'), CLASH_BOSS_HP + CLASH_SECOND_SEAT_BONUS)
 
 const heavy = CARDS.find(
   (c) =>
@@ -156,55 +178,70 @@ assert.equal(first.phase, 'play')
 assert.equal(first.active, 'player', 'both placements belong to same turn')
 const second = playClash(first, 'player', 'mau', 1)
 assert.equal(second.plays.player, 2)
-assert.equal(second.phase, 'attack')
+assert.equal(second.phase, 'attack', 'the second play starts the alley sweep')
+assert.equal(second.cursor, 0)
 assert.equal(
-  second.active,
-  'player',
-  'attacks follow placements, not rival plays',
+  nextClashStrike(second, 'player'),
+  -1,
+  'fresh fighters in empty alleys cannot reach the boss yet',
 )
 assert.equal(
-  canClashAttack(second, 'player', second.units[0]!.uid, 'boss'),
-  true,
+  endClashTurn(second, 'player').active,
+  'enemy',
+  'with no ready strikes the turn can end',
 )
 
-const trade = createClash('catgirls', 'ironjaw', 11)
-trade.phase = 'attack'
-trade.units = [follower('player', 0, 1, 4, 3), follower('enemy', 4, 2, 3, 2)]
+const lanes = createClash('catgirls', 'ironjaw', 11)
+lanes.phase = 'attack'
+lanes.units = [
+  follower('player', 0, 1, 4, 3),
+  follower('enemy', 0, 2, 3, 2),
+  follower('player', 2, 3, 4, 2),
+  follower('enemy', 4, 4, 5, 2),
+]
+assert.equal(nextClashStrike(lanes, 'player'), 0, 'sweep starts at alley 1')
 assert.equal(
-  canClashAttack(trade, 'player', 1, 'boss'),
-  false,
-  'rival followers guard boss globally',
+  endClashTurn(lanes, 'player'),
+  lanes,
+  'cannot skip pending alley strikes',
 )
+const struck = strikeClash(lanes, 'player')
+assert.equal(struck.strike?.lane, 0)
+assert.equal(struck.strike?.target, 'unit')
+assert.equal(struck.strike?.dealt, 3)
+assert.equal(struck.strike?.returned, 2, 'blocker strikes back at once')
+assert.equal(struck.strike?.defenderFell, true)
+assert.equal(struck.units.length, 3, 'defender fell from three power')
 assert.equal(
-  canClashAttack(trade, 'player', 1, 2),
-  true,
-  'follower target can be in any lane',
-)
-assert.equal(
-  canClashAttack(trade, 'player', 2, 1),
-  false,
-  'cannot attack with opposing unit',
-)
-const struck = attackClash(trade, 'player', 1, 2)
-assert.equal(struck.units.length, 1, 'defender fell from three power')
-assert.equal(
-  struck.units[0]!.hp,
+  struck.units.find((u) => u.uid === 1)!.hp,
   2,
   'attacker simultaneously took two counter damage',
 )
 assert.equal(
-  struck.units[0]!.attacked,
-  true,
-  'one attack per follower per turn',
+  struck.units.find((u) => u.uid === 4)!.hp,
+  5,
+  'fighters in other alleys are never targeted',
 )
-assert.equal(canClashAttack(struck, 'player', 1, 'boss'), false)
-const extra = follower('player', 2, 3, 4, 2)
-struck.units.push(extra)
-assert.equal(canClashAttack(struck, 'player', 3, 'boss'), true)
-const face = attackClash(struck, 'player', 3, 'boss')
-assert.equal(face.boss.enemy, CLASH_BOSS_HP - 2)
+assert.equal(nextClashStrike(struck, 'player'), 2, 'sweep moves left to right')
+const face = strikeClash(struck, 'player')
+assert.equal(face.strike?.target, 'boss')
+assert.equal(face.boss.enemy, clashBossMax('enemy') - 2)
 assert.ok(face.log.some((x) => x.kind === 'boss'))
-assert.equal(attackClash(face, 'player', 3, 'boss'), face)
+assert.equal(nextClashStrike(face, 'player'), -1)
+assert.equal(strikeClash(face, 'player'), face)
+assert.equal(endClashTurn(face, 'player').active, 'enemy')
+
+const brawl = createClash('catgirls', 'ironjaw', 12)
+brawl.phase = 'attack'
+brawl.units = [
+  { ...follower('player', 1, 1, 4, 2), fresh: true },
+  follower('enemy', 1, 2, 4, 2),
+]
+assert.equal(
+  nextClashStrike(brawl, 'player'),
+  1,
+  'a fresh fighter still brawls with a blocker',
+)
 
 const healing = createClash('catgirls', 'ironjaw', 13)
 healing.phase = 'attack'
@@ -219,6 +256,8 @@ assert.equal(
   'living friend heals exactly one after two turns',
 )
 assert.equal(recovered.units[1]!.hp, 4, 'living foe heals one too')
+assert.equal(recovered.boss.enemy, clashBossMax('enemy') - 3)
+assert.equal(recovered.boss.player, CLASH_BOSS_HP - 2)
 assert.equal(recovered.hands.player.length, 5)
 assert.equal(recovered.hands.enemy.length, 0)
 
@@ -252,15 +291,27 @@ trap.traps = [{ side: 'enemy', lane: 0, cardId: 'shocktrap' }]
 trap.hands.player = ['lynx']
 const sprung = playClash(trap, 'player', 'lynx', 0)
 assert.equal(sprung.traps.length, 0)
-assert.equal(sprung.units.length, 0, 'trap knocks out low-life entrant')
+assert.ok(
+  sprung.units.length === 0 || sprung.units[0]!.hp < sprung.units[0]!.maxHp,
+  'trap springs on a fighter landing across it',
+)
+
+const tripwire = createClash('catgirls', 'ironjaw', 21)
+tripwire.phase = 'attack'
+tripwire.units = [follower('player', 3, 1, 9, 3)]
+tripwire.traps = [{ side: 'enemy', lane: 3, cardId: 'shocktrap' }]
+const tripped = strikeClash(tripwire, 'player')
+assert.equal(tripped.traps.length, 0, 'unblocked strike springs the trap')
+assert.equal(tripped.boss.enemy, clashBossMax('enemy'), 'the trap eats the hit')
+assert.ok(tripped.units[0]!.hp < 9)
 
 const rooted = createClash('catgirls', 'ironjaw', 19)
 rooted.phase = 'attack'
 rooted.units = [
-  { ...follower('player', 0, 1), rooted: true },
+  { ...follower('player', 1, 1), rooted: true },
   follower('enemy', 1, 2),
 ]
-assert.equal(canClashAttack(rooted, 'player', 1, 2), false)
+assert.equal(nextClashStrike(rooted, 'player'), -1, 'stunned fighter skips')
 const afterRoot = finishTurn(rooted)
 assert.equal(
   afterRoot.units[0]!.rooted,
@@ -268,6 +319,22 @@ assert.equal(
   'root clears after affected turn',
 )
 assert.equal(afterRoot.active, 'enemy')
+
+// Balance acceptance (2026-11-07 Clash rebalance): CPU sweeps across every crew
+// pairing keep each crew and the first seat near even. Report:
+// npx tsx utils/scripts/slimeCityClashBalanceReport.ts 150 9000
+const sweep = sweepClash(10, 700)
+assert.ok(
+  sweep.firstSeatWins / sweep.games > 0.4 &&
+    sweep.firstSeatWins / sweep.games < 0.62,
+  'first seat advantage stays small',
+)
+assert.ok(sweep.roundLimit / sweep.games < 0.1, 'matches end by knockout')
+for (const [crew, r] of Object.entries(sweep.crews))
+  assert.ok(
+    r.wins / r.games > 0.35 && r.wins / r.games < 0.65,
+    crew + ' win rate ' + ((100 * r.wins) / r.games).toFixed(1) + '%',
+  )
 
 // Long adversarial CPU playthroughs on every crew pairing, all rules and replay.
 let simulated = 0
@@ -301,5 +368,5 @@ console.log(
     simulated +
     ' complete seeded cross-crew CPU games, ' +
     timeoutWinners +
-    ' round-limit results; UI, two plays, attacks, recovery and replay pass',
+    ' round-limit results; UI, two plays, alley strikes, traps, recovery, balance and replay pass',
 )

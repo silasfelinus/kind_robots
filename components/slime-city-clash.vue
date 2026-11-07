@@ -1,4 +1,4 @@
-<!-- Canonical Clash: two card plays, then selected attacks with power-for-power retaliation. -->
+<!-- Canonical Clash: two card plays, then an animated automatic alley-by-alley strike sweep. -->
 <template>
   <section
     class="clash"
@@ -7,7 +7,7 @@
   >
     <div class="clash-stage">
       <div class="clash-field">
-        <div class="clash-boss is-enemy">
+        <div class="clash-boss is-enemy" :class="{ hit: bossHit === 'enemy' }">
           <SlimeCityArtwork
             :image-id="slimeArtId('crews', rival.id)"
             :alt="rival.name"
@@ -21,18 +21,15 @@
             /></span>
           </div>
           <b
-            >{{ game.boss.enemy }} <small>/ {{ CLASH_BOSS_HP }} HP</small></b
+            >{{ game.boss.enemy }}
+            <small>/ {{ clashBossMax('enemy') }} HP</small></b
           >
-          <button
-            v-if="game.phase === 'attack' && game.active === 'player'"
-            class="clash-face"
-            type="button"
-            data-testid="clash-attack-boss"
-            :disabled="!bossTargetable"
-            @click="attackBoss"
+          <span
+            v-if="bossHit === 'enemy'"
+            :key="'boss-enemy-' + impactKey"
+            class="clash-float is-boss"
+            >-{{ impact!.dealt }}</span
           >
-            ATTACK BOSS
-          </button>
           <span class="clash-bank">{{ game.plays.enemy }} / 2</span>
         </div>
 
@@ -51,109 +48,87 @@
           <div class="clash-lane-numbers">
             <span v-for="lane in lanes" :key="lane">ALLEY {{ lane + 1 }}</span>
           </div>
-          <div
-            class="clash-row is-enemy"
-            role="row"
-            aria-label="Enemy creatures"
-          >
-            <button
-              v-for="lane in lanes"
-              :key="'enemy-' + lane"
-              type="button"
-              class="clash-slot"
-              :class="{
-                filled: !!unit('enemy', lane),
-                target:
-                  targetable('enemy', lane) || attackTargetable('enemy', lane),
-                selected: selectedUnit === unit('enemy', lane)?.uid,
-              }"
-              :disabled="!targetable('enemy', lane) && !unit('enemy', lane)"
-              :aria-label="slotLabel('enemy', lane)"
-              :data-testid="'clash-enemy-' + lane"
-              @click="clickSlot('enemy', lane)"
+          <template v-for="side in sides" :key="side">
+            <div
+              class="clash-row"
+              :class="'is-' + side"
+              role="row"
+              :aria-label="
+                side === 'enemy' ? 'Enemy fighters' : 'Your fighters'
+              "
             >
-              <template v-if="unit('enemy', lane)">
-                <SlimeCityArtwork
-                  :image-id="artFor(unit('enemy', lane)!)"
-                  :alt="cardById(unit('enemy', lane)!.cardId).name"
-                  :fallback="cardById(unit('enemy', lane)!.cardId).symbol"
-                  compact
-                />
-                <span class="clash-fighter-label">{{
-                  cardById(unit('enemy', lane)!.cardId).name
+              <button
+                v-for="lane in lanes"
+                :key="side + '-' + lane"
+                type="button"
+                class="clash-slot"
+                :class="{
+                  filled: !!unit(side, lane),
+                  target: targetable(side, lane),
+                  selected: selectedUnit === unit(side, lane)?.uid,
+                  lunge: lunge?.side === side && lunge.lane === lane,
+                  hit: floater(side, lane) !== null,
+                }"
+                :disabled="!targetable(side, lane) && !unit(side, lane)"
+                :aria-label="slotLabel(side, lane)"
+                :data-testid="'clash-' + side + '-' + lane"
+                @click="clickSlot(side, lane)"
+              >
+                <template v-if="unit(side, lane)">
+                  <SlimeCityArtwork
+                    :image-id="artFor(unit(side, lane)!)"
+                    :alt="cardById(unit(side, lane)!.cardId).name"
+                    :fallback="cardById(unit(side, lane)!.cardId).symbol"
+                    compact
+                  />
+                  <span class="clash-fighter-label">{{
+                    cardById(unit(side, lane)!.cardId).name
+                  }}</span>
+                  <span class="clash-numbers"
+                    ><b>{{ clashPower(game, unit(side, lane)!) }} ⚔</b
+                    ><b>{{ unit(side, lane)!.hp }} ♥</b></span
+                  >
+                  <span v-if="status(unit(side, lane)!)" class="clash-status">{{
+                    status(unit(side, lane)!)
+                  }}</span>
+                  <span v-if="unit(side, lane)!.gear.length" class="clash-gear"
+                    >✦ {{ unit(side, lane)!.gear.length }}</span
+                  >
+                </template>
+                <span v-else class="clash-empty">{{
+                  targetable(side, lane)
+                    ? side === 'player'
+                      ? 'PLAY HERE'
+                      : 'TARGET'
+                    : 'OPEN'
                 }}</span>
-                <span class="clash-numbers"
-                  ><b>{{ clashPower(game, unit('enemy', lane)!) }} ⚔</b
-                  ><b>{{ unit('enemy', lane)!.hp }} ♥</b></span
-                >
-                <span v-if="unit('enemy', lane)!.gear.length" class="clash-gear"
-                  >✦ {{ unit('enemy', lane)!.gear.length }}</span
-                >
-              </template>
-              <span v-else class="clash-empty">{{
-                targetable('enemy', lane) ? 'TARGET' : 'OPEN'
-              }}</span>
-            </button>
-          </div>
-          <div
-            class="clash-impact"
-            aria-label="Current fighter power and attack status"
-          >
-            <span v-for="lane in lanes" :key="'forecast-' + lane">
-              {{ forecast(lane) }}
-            </span>
-          </div>
-          <div
-            class="clash-row is-player"
-            role="row"
-            aria-label="Your creatures"
-          >
-            <button
-              v-for="lane in lanes"
-              :key="'player-' + lane"
-              type="button"
-              class="clash-slot"
-              :class="{
-                filled: !!unit('player', lane),
-                target:
-                  targetable('player', lane) ||
-                  attackTargetable('player', lane),
-                selected:
-                  selectedAttacker === unit('player', lane)?.uid ||
-                  selectedUnit === unit('player', lane)?.uid,
-              }"
-              :disabled="!targetable('player', lane) && !unit('player', lane)"
-              :aria-label="slotLabel('player', lane)"
-              :data-testid="'clash-player-' + lane"
-              @click="clickSlot('player', lane)"
-            >
-              <template v-if="unit('player', lane)">
-                <SlimeCityArtwork
-                  :image-id="artFor(unit('player', lane)!)"
-                  :alt="cardById(unit('player', lane)!.cardId).name"
-                  :fallback="cardById(unit('player', lane)!.cardId).symbol"
-                  compact
-                />
-                <span class="clash-fighter-label">{{
-                  cardById(unit('player', lane)!.cardId).name
-                }}</span>
-                <span class="clash-numbers"
-                  ><b>{{ clashPower(game, unit('player', lane)!) }} ⚔</b
-                  ><b>{{ unit('player', lane)!.hp }} ♥</b></span
-                >
                 <span
-                  v-if="unit('player', lane)!.gear.length"
-                  class="clash-gear"
-                  >✦ {{ unit('player', lane)!.gear.length }}</span
+                  v-if="floater(side, lane) !== null"
+                  :key="'float-' + impactKey + side + lane"
+                  class="clash-float"
+                  >{{ floater(side, lane) }}</span
                 >
-              </template>
-              <span v-else class="clash-empty">{{
-                targetable('player', lane) ? 'PLAY HERE' : 'OPEN'
-              }}</span>
-            </button>
-          </div>
+              </button>
+            </div>
+            <div
+              v-if="side === 'enemy'"
+              class="clash-impact"
+              aria-label="What each alley will do this turn"
+            >
+              <span
+                v-for="lane in lanes"
+                :key="'forecast-' + lane"
+                :class="{ striking: lunge?.lane === lane }"
+              >
+                {{ forecast(lane) }}
+              </span>
+            </div>
+          </template>
         </div>
-        <div class="clash-boss is-player">
+        <div
+          class="clash-boss is-player"
+          :class="{ hit: bossHit === 'player' }"
+        >
           <SlimeCityArtwork
             :image-id="slimeArtId('crews', mine.id)"
             :alt="mine.name"
@@ -167,7 +142,14 @@
             /></span>
           </div>
           <b
-            >{{ game.boss.player }} <small>/ {{ CLASH_BOSS_HP }} HP</small></b
+            >{{ game.boss.player }}
+            <small>/ {{ clashBossMax('player') }} HP</small></b
+          >
+          <span
+            v-if="bossHit === 'player'"
+            :key="'boss-player-' + impactKey"
+            class="clash-float is-boss"
+            >-{{ impact!.dealt }}</span
           >
           <span class="clash-bank">{{ game.plays.player }} / 2</span>
         </div>
@@ -197,72 +179,92 @@
           type="button"
           class="clash-pass"
           data-testid="clash-pass"
-          :disabled="busy || game.active !== 'player' || !!game.victor"
-          @click="pass"
-        >
-          {{ game.phase === 'play' ? 'TO ATTACKS' : 'END ATTACKS' }}
-          <span aria-hidden="true">›</span>
-        </button>
-      </div>
-      <div class="clash-hand" aria-label="Cards in your hand">
-        <button
-          v-for="(id, index) in game.hands.player"
-          :key="id + ':' + index"
-          type="button"
-          class="clash-card"
-          :class="{
-            selected: heldIndex === index,
-            unaffordable:
-              game.phase !== 'play' ||
-              clashPlayCost(cardById(id)) + game.plays.player > CLASH_PLAYS,
-          }"
+          title="Skip remaining card plays and send your crew in"
           :disabled="
             busy ||
-            !!game.victor ||
             game.active !== 'player' ||
-            game.phase !== 'play'
+            game.phase !== 'play' ||
+            !!game.victor
           "
-          :title="clashCardText(cardById(id))"
-          :data-testid="'clash-hand-' + index"
-          :aria-pressed="heldIndex === index"
-          @click="pick(index)"
+          @click="pass"
         >
-          <SlimeCityArtwork
-            :image-id="slimeArtId('cards', id)"
-            :fallback-image-id="
-              slimeArtId(
-                'crews',
-                cardById(id).team === 'mercenary'
-                  ? lab.activeTeam
-                  : cardById(id).team,
-              )
-            "
-            :title="
-              slimeArtId('cards', id)
-                ? cardById(id).name
-                : 'Crew art preview: bespoke Comfy card illustration pending'
-            "
-            :alt="cardById(id).name"
-            :fallback="cardById(id).symbol"
-            compact
-          />
-          <span class="clash-cost"
-            >{{ clashPlayCost(cardById(id)) }} PLAY{{
-              clashPlayCost(cardById(id)) === 2 ? 'S' : ''
-            }}</span
-          >
-          <span class="clash-card-label"
-            ><b>{{ cardById(id).name }}</b
-            ><small>{{ cardById(id).kind }}</small></span
-          >
+          FIGHT <span aria-hidden="true">›</span>
         </button>
+      </div>
+      <div class="clash-tray">
+        <div class="clash-hand" aria-label="Cards in your hand">
+          <button
+            v-for="(id, index) in game.hands.player"
+            :key="id + ':' + index"
+            type="button"
+            class="clash-card"
+            :class="{
+              selected: heldIndex === index,
+              unaffordable: !playableNow(id),
+            }"
+            :aria-disabled="!playableNow(id)"
+            :title="clashCardText(cardById(id))"
+            :data-testid="'clash-hand-' + index"
+            :aria-pressed="heldIndex === index"
+            @click="pick(index)"
+          >
+            <SlimeCityArtwork
+              :image-id="slimeArtId('cards', id)"
+              :fallback-image-id="
+                slimeArtId(
+                  'crews',
+                  cardById(id).team === 'mercenary'
+                    ? lab.activeTeam
+                    : cardById(id).team,
+                )
+              "
+              :title="
+                slimeArtId('cards', id)
+                  ? cardById(id).name
+                  : 'Crew art preview: bespoke Comfy card illustration pending'
+              "
+              :alt="cardById(id).name"
+              :fallback="cardById(id).symbol"
+              compact
+            />
+            <span class="clash-cost"
+              >{{ clashPlayCost(cardById(id)) }} PLAY{{
+                clashPlayCost(cardById(id)) === 2 ? 'S' : ''
+              }}</span
+            >
+            <span class="clash-card-label"
+              ><em>{{ clashCardBadge(cardById(id)) }}</em
+              ><b>{{ cardById(id).name }}</b
+              ><small>{{ kindLabel(cardById(id)) }}</small></span
+            >
+          </button>
+        </div>
+        <aside
+          class="clash-detail"
+          data-testid="clash-detail"
+          aria-live="polite"
+        >
+          <template v-if="detail">
+            <strong>{{ detail.name }}</strong>
+            <small>{{ detail.meta }}</small>
+            <p>{{ detail.text }}</p>
+          </template>
+          <p v-else class="clash-detail-hint">{{ hint }}</p>
+        </aside>
       </div>
     </footer>
   </section>
 </template>
 
 <script setup lang="ts">
-import { computed, onBeforeUnmount, ref, shallowRef, watch } from 'vue'
+import {
+  computed,
+  onBeforeUnmount,
+  onMounted,
+  ref,
+  shallowRef,
+  watch,
+} from 'vue'
 import { slimeArtId } from '~/utils/slimeCity/artManifest'
 import {
   cardById,
@@ -271,28 +273,35 @@ import {
   type Side,
 } from '~/utils/slimeCity/prototypes'
 import {
-  CLASH_BOSS_HP,
   CLASH_LANES,
   CLASH_PLAYS,
   canClashPlay,
-  canClashAttack,
-  attackClash,
-  endClashTurn,
   chooseClashCpu,
-  clashPlayCost,
+  clashBossMax,
+  clashCardBadge,
   clashCardText,
+  clashPlayCost,
   clashPower,
   clashUnitAt,
   createClash,
+  endClashTurn,
+  nextClashStrike,
   passClash,
   playClash,
+  strikeClash,
   type ClashState,
+  type ClashStrike,
   type ClashUnit,
 } from '~/utils/slimeCity/clash'
 import { useSlimeCityStore } from '~/stores/slimeCity'
 
+const STRIKE_WINDUP_MS = 320
+const STRIKE_SETTLE_MS = 560
+const CPU_PLAY_MS = 520
+
 const lab = useSlimeCityStore()
 const lanes = Array.from({ length: CLASH_LANES }, (_, lane) => lane)
+const sides: Side[] = ['enemy', 'player']
 const enemyTeam = computed(() =>
   lab.activeTeam === 'ironjaw' ? 'catgirls' : 'ironjaw',
 )
@@ -304,41 +313,90 @@ const game = shallowRef<ClashState>(
 )
 const heldIndex = ref<number | null>(null)
 const selectedUnit = ref<number | null>(null)
-const selectedAttacker = ref<number | null>(null)
-const busy = ref(false)
+const lunge = ref<{ side: Side; lane: number } | null>(null)
+const impact = ref<ClashStrike | null>(null)
+const impactKey = ref(0)
+const pace = ref(1)
 let timer: ReturnType<typeof setTimeout> | null = null
-function newMatch(): void {
+
+const busy = computed(
+  () =>
+    !game.value.victor &&
+    (game.value.active === 'enemy' || game.value.phase === 'attack'),
+)
+function stopTimer(): void {
   if (timer) clearTimeout(timer)
   timer = null
-  busy.value = false
+}
+function schedule(ms: number): void {
+  stopTimer()
+  timer = setTimeout(
+    () => {
+      timer = null
+      advance()
+    },
+    Math.round(ms * pace.value),
+  )
+}
+/** One beat of the automatic flow: rival card plays, then each alley strike. */
+function advance(): void {
+  const s = game.value
+  if (s.victor) {
+    lunge.value = null
+    return
+  }
+  if (s.phase === 'attack') {
+    const lane = nextClashStrike(s, s.active)
+    if (lane < 0) {
+      lunge.value = null
+      impact.value = null
+      game.value = endClashTurn(s, s.active)
+      if (busy.value) schedule(CPU_PLAY_MS)
+      return
+    }
+    if (lunge.value?.side !== s.active || lunge.value.lane !== lane) {
+      impact.value = null
+      lunge.value = { side: s.active, lane }
+      schedule(STRIKE_WINDUP_MS)
+      return
+    }
+    game.value = strikeClash(s, s.active)
+    impact.value = game.value.strike
+    impactKey.value++
+    schedule(STRIKE_SETTLE_MS)
+    return
+  }
+  if (s.active !== 'enemy') return
+  const action = chooseClashCpu(s)
+  game.value =
+    action.t === 'play'
+      ? playClash(s, 'enemy', action.card, action.lane)
+      : passClash(s, 'enemy')
+  schedule(CPU_PLAY_MS)
+}
+function kick(): void {
+  if (busy.value && !timer) schedule(CPU_PLAY_MS)
+}
+function newMatch(): void {
+  stopTimer()
   heldIndex.value = null
   selectedUnit.value = null
-  selectedAttacker.value = null
+  lunge.value = null
+  impact.value = null
   game.value = createClash(lab.activeTeam, enemyTeam.value, ++seed)
 }
 watch(() => lab.activeTeam, newMatch)
-onBeforeUnmount(() => {
-  if (timer) clearTimeout(timer)
+onMounted(() => {
+  if (window.matchMedia?.('(prefers-reduced-motion: reduce)').matches)
+    pace.value = 0.4
 })
-const selectedCard = computed<Card | null>(() =>
-  heldIndex.value === null
-    ? null
-    : cardById(game.value.hands.player[heldIndex.value]!),
-)
-const phaseLabel = computed(() =>
-  game.value.victor
-    ? resultText.value
-    : busy.value || game.value.active === 'enemy'
-      ? 'RIVAL THINKING'
-      : game.value.phase === 'play'
-        ? 'PLAY UP TO TWO CARDS'
-        : 'PICK YOUR ATTACKS',
-)
-const bossTargetable = computed(
-  () =>
-    selectedAttacker.value !== null &&
-    canClashAttack(game.value, 'player', selectedAttacker.value, 'boss'),
-)
+onBeforeUnmount(stopTimer)
+
+const selectedCard = computed<Card | null>(() => {
+  const id =
+    heldIndex.value === null ? null : game.value.hands.player[heldIndex.value]
+  return id ? cardById(id) : null
+})
 const resultText = computed(() =>
   game.value.victor === 'player'
     ? 'YOU WIN!'
@@ -346,6 +404,70 @@ const resultText = computed(() =>
       ? 'RIVAL WINS'
       : 'DRAW',
 )
+const phaseLabel = computed(() => {
+  const s = game.value
+  if (s.victor) return resultText.value
+  if (s.phase === 'attack')
+    return s.active === 'player' ? 'YOUR CREW STRIKES' : 'RIVAL STRIKES'
+  if (s.active === 'enemy') return 'RIVAL PLAYING'
+  return s.plays.player === 0
+    ? 'PLAY UP TO TWO CARDS'
+    : 'ONE MORE PLAY, THEN FIGHT'
+})
+const bossHit = computed<Side | null>(() =>
+  impact.value?.target === 'boss' && impact.value.dealt > 0
+    ? impact.value.side === 'player'
+      ? 'enemy'
+      : 'player'
+    : null,
+)
+const detail = computed<{ name: string; meta: string; text: string } | null>(
+  () => {
+    if (selectedCard.value) {
+      const card = selectedCard.value
+      const plays = clashPlayCost(card)
+      return {
+        name: card.name,
+        meta:
+          kindLabel(card) +
+          ' · ' +
+          plays +
+          ' PLAY' +
+          (plays === 2 ? 'S' : '') +
+          (playableNow(card.id) ? ' · tap a glowing alley' : ''),
+        text: clashCardText(card),
+      }
+    }
+    const u = game.value.units.find((v) => v.uid === selectedUnit.value)
+    if (!u) return null
+    const card = cardById(u.cardId)
+    return {
+      name: card.name,
+      meta:
+        (u.side === 'player' ? 'YOUR FIGHTER' : 'RIVAL FIGHTER') +
+        ' · ALLEY ' +
+        (u.lane + 1) +
+        ' · ' +
+        clashPower(game.value, u) +
+        ' ⚔ ' +
+        u.hp +
+        '/' +
+        u.maxHp +
+        ' ♥' +
+        (u.armor ? ' · ' + u.armor + ' ARMOR' : ''),
+      text:
+        clashCardText(card) +
+        (u.rooted ? ' Stunned: skips its next strike.' : '') +
+        (u.fresh ? ' Just landed: reaches the boss next turn.' : ''),
+    }
+  },
+)
+const hint = computed(() => {
+  if (busy.value || game.value.victor)
+    return game.value.log[game.value.log.length - 1]?.text ?? 'Clash!'
+  return 'Tap a card or fighter to read what it does. Fighters strike straight across their own alley; an open alley hits the boss.'
+})
+
 function unit(side: Side, lane: number): ClashUnit | undefined {
   return clashUnitAt(game.value, side, lane)
 }
@@ -357,7 +479,29 @@ function artFor(u: ClashUnit): number | null {
   )
 }
 function healthWidth(side: Side): string {
-  return Math.max(0, (game.value.boss[side] / CLASH_BOSS_HP) * 100) + '%'
+  return Math.max(0, (game.value.boss[side] / clashBossMax(side)) * 100) + '%'
+}
+function kindLabel(card: Card): string {
+  return card.kind === 'creature'
+    ? 'FIGHTER'
+    : card.kind === 'equipment'
+      ? 'GEAR'
+      : card.kind.toUpperCase()
+}
+function status(u: ClashUnit): string {
+  if (u.rooted) return 'STUN'
+  if (u.fresh && !game.value.victor) return 'NEW'
+  return ''
+}
+function playableNow(id: string): boolean {
+  const s = game.value
+  return (
+    !busy.value &&
+    !s.victor &&
+    s.active === 'player' &&
+    s.phase === 'play' &&
+    clashPlayCost(cardById(id)) + s.plays.player <= CLASH_PLAYS
+  )
 }
 function allowedSide(card: Card, side: Side): boolean {
   if (card.kind === 'creature' || card.kind === 'trap') return side === 'player'
@@ -369,32 +513,24 @@ function allowedSide(card: Card, side: Side): boolean {
   return side === 'enemy'
 }
 function targetable(side: Side, lane: number): boolean {
-  if (busy.value || game.value.active !== 'player' || !selectedCard.value)
-    return false
+  const card = selectedCard.value
+  if (!card || !playableNow(card.id)) return false
   return (
-    allowedSide(selectedCard.value, side) &&
-    canClashPlay(game.value, 'player', selectedCard.value.id, lane)
+    allowedSide(card, side) && canClashPlay(game.value, 'player', card.id, lane)
   )
 }
-function attackTargetable(side: Side, lane: number): boolean {
-  if (
-    busy.value ||
-    game.value.phase !== 'attack' ||
-    game.value.active !== 'player'
-  )
-    return false
-  const follower = unit(side, lane)
-  if (!follower) return false
-  if (side === 'player') return !follower.attacked && !follower.rooted
-  return (
-    selectedAttacker.value !== null &&
-    canClashAttack(game.value, 'player', selectedAttacker.value, follower.uid)
-  )
+function floater(side: Side, lane: number): string | null {
+  const hit = impact.value
+  if (!hit || hit.lane !== lane) return null
+  if (side === hit.side)
+    return hit.returned > 0 || hit.attackerFell
+      ? (hit.trap ? 'TRAP -' : '-') + hit.returned
+      : null
+  if (hit.target !== 'unit') return null
+  return hit.dealt > 0 ? '-' + hit.dealt : 'BLOCK'
 }
 function pick(index: number): void {
-  if (game.value.phase !== 'play') return
   selectedUnit.value = null
-  selectedAttacker.value = null
   heldIndex.value = heldIndex.value === index ? null : index
 }
 function slotLabel(side: Side, lane: number): string {
@@ -404,108 +540,42 @@ function slotLabel(side: Side, lane: number): string {
     'alley ' +
     (lane + 1) +
     (u ? ': ' + cardById(u.cardId).name + ', ' + u.hp + ' health' : ': empty') +
-    (targetable(side, lane) || attackTargetable(side, lane)
-      ? ', playable target'
-      : '')
+    (targetable(side, lane) ? ', playable target' : '')
   )
 }
 function clickSlot(side: Side, lane: number): void {
-  if (busy.value || game.value.active !== 'player' || game.value.victor) return
-  const targetUnit = unit(side, lane)
-  if (game.value.phase === 'attack') {
-    if (
-      side === 'player' &&
-      targetUnit &&
-      !targetUnit.attacked &&
-      !targetUnit.rooted
-    ) {
-      selectedAttacker.value = targetUnit.uid
-      selectedUnit.value = targetUnit.uid
-      return
-    }
-    if (
-      side === 'enemy' &&
-      targetUnit &&
-      selectedAttacker.value !== null &&
-      canClashAttack(
-        game.value,
-        'player',
-        selectedAttacker.value,
-        targetUnit.uid,
-      )
-    ) {
-      game.value = attackClash(
-        game.value,
-        'player',
-        selectedAttacker.value,
-        targetUnit.uid,
-      )
-      selectedAttacker.value = null
-      selectedUnit.value = null
-    }
-    return
-  }
-  if (targetable(side, lane) && selectedCard.value) {
-    const next = playClash(game.value, 'player', selectedCard.value.id, lane)
+  const card = selectedCard.value
+  if (card && targetable(side, lane)) {
+    const next = playClash(game.value, 'player', card.id, lane)
     if (next === game.value) return
     game.value = next
     heldIndex.value = null
     selectedUnit.value = null
+    kick()
     return
   }
+  const targetUnit = unit(side, lane)
   if (targetUnit) {
     heldIndex.value = null
-    selectedUnit.value = targetUnit.uid
+    selectedUnit.value =
+      selectedUnit.value === targetUnit.uid ? null : targetUnit.uid
   }
-}
-function attackBoss(): void {
-  if (selectedAttacker.value === null || !bossTargetable.value) return
-  game.value = attackClash(game.value, 'player', selectedAttacker.value, 'boss')
-  selectedAttacker.value = null
-  selectedUnit.value = null
-}
-function cpuReply(): void {
-  if (game.value.active !== 'enemy' || game.value.victor || timer) return
-  busy.value = true
-  timer = setTimeout(() => {
-    timer = null
-    const action = chooseClashCpu(game.value)
-    switch (action.t) {
-      case 'play':
-        game.value = playClash(game.value, 'enemy', action.card, action.lane)
-        break
-      case 'pass':
-        game.value = passClash(game.value, 'enemy')
-        break
-      case 'attack':
-        game.value = attackClash(game.value, 'enemy', action.uid, action.target)
-        break
-      case 'end':
-        game.value = endClashTurn(game.value, 'enemy')
-        break
-    }
-    busy.value = game.value.active === 'enemy' && !game.value.victor
-    cpuReply()
-  }, 350)
 }
 function pass(): void {
   if (busy.value || game.value.active !== 'player' || game.value.victor) return
-  game.value =
-    game.value.phase === 'play'
-      ? passClash(game.value, 'player')
-      : endClashTurn(game.value, 'player')
+  game.value = passClash(game.value, 'player')
   heldIndex.value = null
-  selectedUnit.value = null
-  selectedAttacker.value = null
-  cpuReply()
+  kick()
 }
 function forecast(lane: number): string {
   const ours = unit('player', lane)
   const theirs = unit('enemy', lane)
   if (!ours && !theirs) return '◇'
-  const label = (u: ClashUnit): string =>
-    u.attacked ? '✓' : u.rooted ? '⌁' : String(clashPower(game.value, u))
-  return (ours ? label(ours) : '·') + ' / ' + (theirs ? label(theirs) : '·')
+  const power = (u: ClashUnit): string =>
+    u.rooted ? '⌁' : String(clashPower(game.value, u))
+  if (ours && theirs) return power(theirs) + ' ⇅ ' + power(ours)
+  if (ours) return '▲ ' + power(ours)
+  return '▼ ' + power(theirs!)
 }
 </script>
 
@@ -1285,6 +1355,204 @@ function forecast(lane: number): string {
   }
   .clash-boss-name .clash-health {
     max-width: 3rem;
+  }
+}
+/* Automatic alley sweep: the striker lunges across, the struck side shakes. */
+.clash-row:has(.lunge) {
+  z-index: 3;
+}
+.clash-slot.lunge {
+  z-index: 3;
+  border-color: #fff3b0;
+  box-shadow: 0 0 18px #ffe07a99;
+}
+.clash-row.is-player .clash-slot.lunge {
+  animation: clash-lunge-up 0.6s ease-in-out;
+}
+.clash-row.is-enemy .clash-slot.lunge {
+  animation: clash-lunge-down 0.6s ease-in-out;
+}
+.clash-slot.hit:not(.lunge),
+.clash-boss.hit {
+  animation: clash-shake 0.36s ease-in-out;
+}
+.clash-boss {
+  position: relative;
+}
+.clash-boss.hit {
+  border-color: #ff9ea4;
+  box-shadow: 0 0 16px #ff6f7a88;
+}
+@keyframes clash-lunge-up {
+  0%,
+  100% {
+    transform: translateY(0) scale(1);
+  }
+  55% {
+    transform: translateY(-34%) scale(1.06);
+  }
+}
+@keyframes clash-lunge-down {
+  0%,
+  100% {
+    transform: translateY(0) scale(1);
+  }
+  55% {
+    transform: translateY(34%) scale(1.06);
+  }
+}
+@keyframes clash-shake {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  20% {
+    transform: translateX(-6%);
+  }
+  45% {
+    transform: translateX(5%);
+  }
+  70% {
+    transform: translateX(-3%);
+  }
+}
+.clash-float {
+  position: absolute;
+  z-index: 4;
+  left: 50%;
+  top: 38%;
+  transform: translate(-50%, 0);
+  pointer-events: none;
+  font-size: clamp(1rem, 2.4vw, 1.9rem);
+  font-weight: 950;
+  color: #ffe2e4;
+  text-shadow:
+    0 0 6px #ff3b5c,
+    0 2px 3px #000;
+  white-space: nowrap;
+  animation: clash-float 0.9s ease-out forwards;
+}
+.clash-float.is-boss {
+  top: -0.2rem;
+  left: auto;
+  right: 4.5rem;
+  font-size: 1.15rem;
+}
+@keyframes clash-float {
+  0% {
+    opacity: 0;
+    transform: translate(-50%, 20%) scale(0.7);
+  }
+  20% {
+    opacity: 1;
+    transform: translate(-50%, 0) scale(1.15);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(-50%, -70%) scale(1);
+  }
+}
+.clash-impact span.striking {
+  color: #fff3b0;
+  text-shadow: 0 0 8px #ffd34d;
+}
+.clash-status {
+  position: absolute;
+  top: 0.2rem;
+  left: 0.2rem;
+  z-index: 1;
+  font-size: 0.55rem;
+  font-weight: 900;
+  letter-spacing: 0.06em;
+  padding: 0.1rem 0.25rem;
+  border-radius: 0.2rem;
+  background: #03141af0;
+  color: #d7ff89;
+}
+/* Readable cards: a badge on every hand card and a rules panel beside the hand. */
+.clash-card-label em {
+  font-style: normal;
+  font-size: clamp(0.5rem, 0.72vw, 0.68rem);
+  font-weight: 900;
+  color: #ffe6a6;
+  line-height: 1.1;
+}
+.clash-tray {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  align-items: stretch;
+  gap: 0.5rem;
+  min-height: 0;
+}
+.clash-tray .clash-hand {
+  grid-column: 2;
+}
+.clash-detail {
+  grid-column: 3;
+  min-width: 0;
+  max-width: 24rem;
+  max-height: clamp(100px, 17vh, 160px);
+  overflow-y: auto;
+  border: 1px solid #4a8e7f55;
+  border-radius: 0.6rem;
+  padding: 0.4rem 0.55rem;
+  background: #081c24d9;
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+.clash-detail strong {
+  font-size: 0.82rem;
+  line-height: 1.1;
+}
+.clash-detail small {
+  font-size: 0.6rem;
+  letter-spacing: 0.05em;
+  color: var(--neon);
+}
+.clash-detail p {
+  margin: 0;
+  font-size: 0.72rem;
+  line-height: 1.3;
+  color: #d3e6e2;
+}
+.clash-detail p.clash-detail-hint {
+  color: #9ab5ae;
+}
+@media (max-width: 1100px) {
+  .clash-tray {
+    grid-template-columns: auto minmax(0, 1fr);
+  }
+  .clash-tray .clash-hand {
+    grid-column: 1;
+  }
+  .clash-detail {
+    grid-column: 2;
+    max-width: none;
+  }
+}
+@media (max-width: 700px) {
+  .clash-tray {
+    display: flex;
+    flex-direction: column-reverse;
+    gap: 0.25rem;
+  }
+  .clash-detail {
+    max-height: 3.4rem;
+    padding: 0.25rem 0.45rem;
+  }
+  .clash-detail p {
+    font-size: 0.64rem;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .clash-slot.lunge,
+  .clash-slot.hit,
+  .clash-boss.hit {
+    animation: none;
+  }
+  .clash-float {
+    animation-duration: 0.5s;
   }
 }
 </style>

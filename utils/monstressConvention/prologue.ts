@@ -348,7 +348,7 @@ export const HOTEL_ROOMS: Record<RoomId, HotelRoom> = {
     label: 'MONSTRIQUE Convention Center',
     floor: 1,
     caption:
-      'Sixty years of Monstrique under one roof: idols, dolls, contracts and fans who should have showered. Celestine Veil signs headshots at a table draped in her own spare bandages.',
+      'Sixty years of Monstrique under one roof: idols, dolls, contracts and fans who should have showered. Cleo Pappatra signs headshots at a table draped in her own spare bandages.',
     exits: ['city-map'],
     hotspots: [
       {
@@ -360,7 +360,7 @@ export const HOTEL_ROOMS: Record<RoomId, HotelRoom> = {
       },
       {
         id: 'mummy-actress',
-        label: 'Celestine Veil, the mummy star',
+        label: 'Cleo Pappatra, the mummy star',
         x: 75,
         y: 58,
         verbs: ['look', 'talk', 'flirt'],
@@ -726,7 +726,7 @@ function interview(
     case 'violet-ghost:violet-fee':
       return withLine(
         next,
-        'Violet: Four hundred for the night, cape included. She booked me to be a vampire for a lifetime of pent-up whatever. I gave a great performance. I’d like to be paid for it.',
+        'Violet: Four hundred for the night, cape included. She didn’t book a vampire, she booked Draculina: the wig, the accent, the whole Countess. A lifetime of pent-up whatever. I gave a great performance. I’d like to be paid for it.',
       )
     case 'gavin:fan-alibi':
       add(next.evidence, 'fan-photo')
@@ -794,7 +794,7 @@ function flirt(state: CaseState, target: string): CaseResult {
     neighbor:
       'Dolores: I’m seventy-four, sweetie, and I heard what went on in 205. You couldn’t keep up.',
     'mummy-actress':
-      'Celestine: Three thousand years, sweetheart, and you’re the first to try a bandage joke this hour. Take a number behind the pharaohs.',
+      'Cleo: Three thousand years, sweetheart, and you’re the first to try a bandage joke this hour. Take a number behind the pharaohs.',
   }
   return withLine(
     next,
@@ -951,7 +951,7 @@ export function performAction(
       marta:
         'Iris: Gloves, scarf and thick foundation in July. Very old Hollywood.',
       'mummy-actress':
-        'Iris: Celestine Veil. Three thousand years old and still the best cheekbones at the convention.',
+        'Iris: Cleo Pappatra. Three thousand years old, and the paparazzi still can’t find her bad side.',
     }
     return withLine(
       next,
@@ -1098,7 +1098,7 @@ export function performAction(
       add(next.evidence, 'fan-exonerated')
     return withLine(
       next,
-      'Iris: The billboard and his time display put Gavin out front, nowhere near 205. Still a creep. Just not our killer.',
+      'Iris: The billboard and his time display put Gavin out front, nowhere near 205. Still a creep. Just not our killer. Two frames show fog curling up the stairs. Cheap lens.',
     )
   }
   if (target === 'knife' && verb === 'photograph') {
@@ -1158,7 +1158,7 @@ export function performAction(
     add(next.topics, 'idol-schedule')
     return withLine(
       next,
-      'Celestine: Odette took fifteen percent of my afterlife, darling. I’m not sorry she’s dead. I’m sorry I didn’t get to watch. Bring me evidence, not gossip.',
+      'Cleo: Odette took fifteen percent of my afterlife, darling. I’m not sorry she’s dead. I’m sorry I didn’t get to watch. Bring me evidence, not gossip.',
     )
   }
   if (target === 'desk' && verb === 'use') {

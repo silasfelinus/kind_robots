@@ -262,6 +262,25 @@ assert.equal(
   2,
 )
 assert.equal(restoreCase({ ...m, rebuffs: -1 }), null)
+// Silas, 2026-11-07 PT: the mummy star is Cleo Pappatra, and Draculina's
+// last-act reveal is planted fairly in Chapter 1 (the costume, the fog).
+const castText = JSON.stringify(HOTEL_ROOMS)
+assert.match(castText, /Cleo Pappatra, the mummy star/)
+assert.doesNotMatch(castText, /Celestine|Nefertari/)
+let plant = newCase(11)
+plant = move(plant, 'front-office')
+plant = act(plant, 'look', 'guest-ledger')
+plant = act(plant, 'use', 'marta')
+plant = move(plant, 'balcony')
+plant = move(plant, 'odette-room')
+plant = act(plant, 'talk', 'violet-ghost')
+plant = act(plant, 'ask', 'violet-ghost', 'violet-fee')
+assert.match(plant.transcript.at(-1) ?? '', /Draculina/)
+plant = move(plant, 'balcony')
+plant = move(plant, 'front-office')
+plant = move(plant, 'motel-exterior')
+plant = act(plant, 'photograph', 'fan-camera')
+assert.match(plant.transcript.at(-1) ?? '', /fog curling up the stairs/)
 console.log(
   'MONSTRIQUE: eight Iris-led double-ghost playthroughs, client hire, Violet favours, flirting and save upgrades pass',
 )

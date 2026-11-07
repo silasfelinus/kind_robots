@@ -23,9 +23,9 @@ export const MONSTRIQUE_ALBUMS: readonly MonstriqueAlbum[] = [
     movement: 'The Drive-In Years',
     sound:
       'Surf harmonies, beach-party horror and four outrageous leading ladies.',
-    performers: ['Draculina', 'Roxie Lupin', 'Laguna Brine', 'Nefertari'],
+    performers: ['Draculina', 'Roxie Lupin', 'Laguna Brine', 'Cleo Pappatra'],
     removed: 'Francesca Stein',
-    replacement: 'Nefertari',
+    replacement: 'Cleo Pappatra',
     officialStory:
       'Francesca wanted to concentrate on science fiction pictures.',
     actualHistory:
@@ -44,7 +44,12 @@ export const MONSTRIQUE_ALBUMS: readonly MonstriqueAlbum[] = [
     movement: 'The Velvet Revolt',
     sound:
       'Psychedelic glam, smoky European stages and a dangerous guitar sound.',
-    performers: ['Draculina', 'Roxie Lupin', 'Francesca Stein', 'Nefertari'],
+    performers: [
+      'Draculina',
+      'Roxie Lupin',
+      'Francesca Stein',
+      'Cleo Pappatra',
+    ],
     removed: 'Laguna Brine',
     replacement: 'Francesca Stein',
     officialStory: 'Laguna left to star in prestige international films.',
@@ -70,13 +75,14 @@ export const MONSTRIQUE_ALBUMS: readonly MonstriqueAlbum[] = [
       'Francesca Stein',
       'Dr. Vespa Vane',
     ],
-    removed: 'Nefertari',
+    removed: 'Cleo Pappatra',
     replacement: 'Dr. Vespa Vane',
-    officialStory: 'Nefertari took a well-earned fashion sabbatical.',
+    officialStory: 'Cleo Pappatra took a well-earned fashion sabbatical.',
     actualHistory:
       'Her executives believed a mummy could not move records on MTV.',
     reinvention: 'She built a highly successful couture and perfume empire.',
-    collectible: 'An early press kit retains Nefertari on the royalty roster.',
+    collectible:
+      'An early press kit retains Cleo Pappatra on the royalty roster.',
     clueFlag: 'album-proof-night-creatures',
     artUrl: null,
   },
@@ -106,9 +112,9 @@ export const MONSTRIQUE_ALBUMS: readonly MonstriqueAlbum[] = [
     movement: 'The Gothic Comeback',
     sound:
       'Operatic goth-pop, eyeliner, velvet curtains and elaborate stage sets.',
-    performers: ['Draculina', 'Roxie Lupin', 'Blobzo', 'Nefertari'],
+    performers: ['Draculina', 'Roxie Lupin', 'Blobzo', 'Cleo Pappatra'],
     removed: 'Dr. Vespa Vane',
-    replacement: 'Nefertari',
+    replacement: 'Cleo Pappatra',
     officialStory: 'Vespa moved into television by mutual agreement.',
     actualHistory:
       'A leaked interview was recut into a scandal to remove the insect star.',
@@ -151,7 +157,12 @@ export const MONSTRIQUE_ALBUMS: readonly MonstriqueAlbum[] = [
     movement: 'The Legacy Tour',
     sound:
       'Prestige reunion pop, expensive collector vinyl and carefully managed history.',
-    performers: ['Draculina', 'Laguna Brine', 'Nefertari', 'New Pack recruit'],
+    performers: [
+      'Draculina',
+      'Laguna Brine',
+      'Cleo Pappatra',
+      'New Pack recruit',
+    ],
     removed: 'Siobhan of the Pack',
     replacement: 'New Pack recruit',
     officialStory: 'Siobhan was eager to pursue independent tours.',

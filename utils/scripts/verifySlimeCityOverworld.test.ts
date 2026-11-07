@@ -101,10 +101,14 @@ const artIds = [
 ]
 assert.equal(
   SLIME_CITY_ART_COUNT,
-  233,
-  'Round one (52), round four (15), the 2026-11-02 curation (37 cards, 77 story plates, 4 attack icons) and 48 board-token portraits',
+  775,
+  '233 curated ids plus the 2026-11-07 art pass: 542 verified renders (217 cards, 263 board tokens, 60 story plates, 2 attacks)',
 )
-assert.equal(artIds.length, 233)
+assert.equal(artIds.length, 775)
+assert.ok(
+  CARDS.filter((c) => slimeArtId('cards', c.id)).length >= 290,
+  'nearly the whole catalog is illustrated',
+)
 // Board tokens (t-022): every key is '<creature card>/<fierce|guard|hurt>'.
 for (const key of Object.keys(SLIME_CITY_ART.tokens)) {
   const [cardId, pose] = key.split('/')
@@ -150,7 +154,7 @@ assert.equal(
   slimeBoardArtId('nowhere', 'blackout'),
   slimeArtId('boards', 'blackout'),
 )
-assert.equal(Object.keys(SLIME_CITY_ART.cards).length, 73)
+assert.equal(Object.keys(SLIME_CITY_ART.cards).length, 290)
 assert.equal(
   TEAMS.flatMap((team) => [...team.creatures, ...team.special]).length,
   60,
@@ -163,22 +167,22 @@ assert.equal(
 )
 assert.equal(
   CARDS.filter((card) => slimeArtId('cards', card.id)).length,
-  73,
-  '73 illustrations correspond to actual playable card IDs',
+  290,
+  '290 illustrations correspond to actual playable card IDs',
 )
 assert.equal(
   TEAMS.flatMap((team) => [...team.creatures, ...team.special]).filter(
     (id) => !slimeArtId('cards', id),
   ).length,
-  18,
-  '18 founder cards without art retain fallbacks',
+  0,
+  'every founder card is illustrated',
 )
 assert.equal(
   CARDS.filter((card) => !slimeArtId('cards', card.id)).length,
-  CARDS.length - 73,
+  CARDS.length - 290,
   'Unrendered faction and neutral cards retain image-shaped fallbacks',
 )
-assert.equal(slimeArtId('cards', 'calico'), null)
+assert.ok(slimeArtId('cards', 'calico'), 'curation redo replaced Calico')
 assert.equal(slimeArtId('cards', 'plating'), 258390)
 
 const classicBlackout = (

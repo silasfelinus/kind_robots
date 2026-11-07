@@ -17,6 +17,8 @@ export interface ClashSweep {
   roundLimit: number
   averageRounds: number
   crews: Record<string, { games: number; wins: number }>
+  /** Average cards per crew per game that reached level 2 and level 3. */
+  leveled: { two: number; three: number }
   cards: Record<string, { played: number; wins: number }>
 }
 
@@ -40,6 +42,7 @@ export function sweepClash(seeds: number, offset = 1): ClashSweep {
     averageRounds: 0,
     crews: {},
     cards: {},
+    leveled: { two: 0, three: 0 },
   }
   let rounds = 0
   for (const a of TEAMS)
@@ -53,6 +56,10 @@ export function sweepClash(seeds: number, offset = 1): ClashSweep {
         if (s.victor === 'draw') out.draws++
         if (s.round >= CLASH_ROUND_LIMIT) out.roundLimit++
         for (const side of ['player', 'enemy'] as Side[]) {
+          for (const lv of Object.values(s.levels[side])) {
+            if (lv >= 2) out.leveled.two++
+            if (lv >= 3) out.leveled.three++
+          }
           const crew = (out.crews[s.teams[side]] ??= { games: 0, wins: 0 })
           crew.games++
           if (s.victor === side) crew.wins++
@@ -70,6 +77,8 @@ export function sweepClash(seeds: number, offset = 1): ClashSweep {
       }
     }
   out.averageRounds = rounds / out.games
+  out.leveled.two /= out.games * 2
+  out.leveled.three /= out.games * 2
   return out
 }
 
@@ -89,7 +98,12 @@ if (process.argv[1]?.includes('slimeCityClashBalanceReport')) {
       ' · round-limit ' +
       pct(r.roundLimit, r.games) +
       ' · avg rounds ' +
-      r.averageRounds.toFixed(1),
+      r.averageRounds.toFixed(1) +
+      ' · cards leveled per crew: ' +
+      r.leveled.two.toFixed(1) +
+      ' to L2, ' +
+      r.leveled.three.toFixed(1) +
+      ' to L3',
   )
   for (const [id, c] of Object.entries(r.crews))
     console.log('  ' + id.padEnd(14) + pct(c.wins, c.games))

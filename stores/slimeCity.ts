@@ -36,6 +36,14 @@ import {
   type StoryMode,
   type UnlockMode,
 } from '../utils/slimeCity/storySave'
+import {
+  ALLIANCE_DECK_SIZE,
+  allianceCardPool,
+  allianceProblems,
+  allianceStarter,
+  type AllianceDeck,
+} from '../utils/slimeCity/alliance'
+import type { ClashFormat } from '../utils/slimeCity/clash'
 import { computed, ref, shallowRef, watch } from 'vue'
 import {
   advance,
@@ -288,6 +296,14 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
   const lastContract = ref<DistrictId | null>(null)
   const campaignSave = ref(createCampaignSave())
   const savedDecks = ref<Partial<Record<TeamId, string[]>>>({})
+  /** ALLIANCE: the last legal 30-card deck saved for each general. */
+  const savedAlliances = ref<Partial<Record<TeamId, AllianceDeck>>>({})
+  /** ALLIANCE: work in progress, kept even while it is not yet legal. */
+  const allianceDrafts = ref<Partial<Record<TeamId, AllianceDeck>>>({})
+  /** Which deck the COLLECTION armory is editing. */
+  const deckFormat = ref<'classic' | 'alliance'>('classic')
+  /** Which deck CLASH deals: the crew's 20 or the general's 30-card alliance. */
+  const clashFormat = ref<ClashFormat>('standard')
   const unlockMode = ref<UnlockMode>('all')
   /** Story bouts: as written or all TURF, with or without PARITY. */
   const storyMode = ref<StoryMode>('written')
@@ -321,6 +337,8 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
     city.value = createCity()
     campaignSave.value = createCampaignSave()
     savedDecks.value = {}
+    savedAlliances.value = {}
+    allianceDrafts.value = {}
     unlockMode.value = 'all'
     storyMode.value = 'written'
     storyParity.value = false
@@ -339,6 +357,8 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
       districtId.value = response.data.city.location
       campaignSave.value = response.data.campaigns
       savedDecks.value = response.data.decks ?? {}
+      savedAlliances.value = response.data.alliances ?? {}
+      allianceDrafts.value = {}
       unlockMode.value = unlockModeOf(response.data)
       storyMode.value = response.data.storyMode ?? 'written'
       storyParity.value = response.data.storyParity ?? false
@@ -364,6 +384,7 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
           city: city.value,
           campaigns: campaignSave.value,
           decks: savedDecks.value,
+          alliances: savedAlliances.value,
           unlocks: unlockMode.value,
           storyMode: storyMode.value,
           storyParity: storyParity.value,
@@ -577,6 +598,13 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
         if (deck?.every((id) => isCardUnlocked(id))) kept[team as TeamId] = deck
         else reset++
       savedDecks.value = kept
+      const allied: Partial<Record<TeamId, AllianceDeck>> = {}
+      for (const [team, deck] of Object.entries(savedAlliances.value))
+        if (deck?.cards.every((id) => isCardUnlocked(id)))
+          allied[team as TeamId] = deck
+        else reset++
+      savedAlliances.value = allied
+      allianceDrafts.value = {}
       deckMessage.value =
         'TRICKLE: starters now, more cards from Meat packs.' +
         (reset
@@ -626,6 +654,101 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
     deckMessage.value =
       candidate.name + ' replaces ' + source.name + '. Saving…'
     persistStory()
+  }
+  /** Default ally for a new alliance: the next crew around the city. */
+  function defaultAlly(general: TeamId): TeamId {
+    const at = TEAMS.findIndex((t) => t.id === general)
+    return TEAMS[(at + 1) % TEAMS.length]!.id
+  }
+  /** The alliance the armory shows: draft, else saved, else a starter. */
+  const currentAlliance = computed<AllianceDeck>(
+    () =>
+      allianceDrafts.value[activeTeam.value] ??
+      savedAlliances.value[activeTeam.value] ??
+      allianceStarter(activeTeam.value, defaultAlly(activeTeam.value)),
+  )
+  const currentAllianceProblems = computed(() =>
+    allianceProblems(currentAlliance.value),
+  )
+  /** The alliance CLASH deals: the saved legal deck, else the starter. */
+  const playAlliance = computed<AllianceDeck>(
+    () =>
+      savedAlliances.value[activeTeam.value] ??
+      allianceStarter(activeTeam.value, defaultAlly(activeTeam.value)),
+  )
+  const allianceCards = computed(() =>
+    allianceCardPool(currentAlliance.value.general, currentAlliance.value.ally),
+  )
+  /** Store an edit: saved (and synced) when legal, otherwise kept as a draft. */
+  function commitAlliance(deck: AllianceDeck, done: string): void {
+    const problems = allianceProblems(deck)
+    allianceDrafts.value = { ...allianceDrafts.value, [deck.general]: deck }
+    if (problems.length) {
+      deckMessage.value =
+        done + ' Draft not in play until legal: ' + problems.join(' · ')
+      return
+    }
+    savedAlliances.value = { ...savedAlliances.value, [deck.general]: deck }
+    deckMessage.value =
+      done + (storyLoaded.value ? ' Saving…' : ' Sign in to keep it.')
+    persistStory()
+  }
+  function setAlly(ally: TeamId | null): void {
+    if (ally === activeTeam.value) return
+    if (ally === currentAlliance.value.ally) return
+    commitAlliance(
+      allianceStarter(activeTeam.value, ally),
+      ally
+        ? teamById(ally).name + ' join as your ally: starter alliance dealt.'
+        : 'Solo alliance: thirty cards from your own crew.',
+    )
+  }
+  function toggleAllianceCard(id: string): void {
+    const deck = currentAlliance.value
+    const card = CARDS.find((entry) => entry.id === id)
+    if (!card) return
+    if (deck.cards.includes(id)) {
+      if (id === teamById(deck.general).signature) {
+        deckMessage.value = 'Your general’s signature stays in the alliance.'
+        return
+      }
+      commitAlliance(
+        { ...deck, cards: deck.cards.filter((cardId) => cardId !== id) },
+        card.name + ' leaves the alliance.',
+      )
+      return
+    }
+    if (!allianceCards.value.some((entry) => entry.id === id)) {
+      deckMessage.value =
+        'Only your general’s, your ally’s and mercenary cards fit.'
+      return
+    }
+    if (!isCardUnlocked(id)) {
+      deckMessage.value = 'Unlock this card in a Meat pack before using it.'
+      return
+    }
+    if (deck.cards.length >= ALLIANCE_DECK_SIZE) {
+      deckMessage.value =
+        'The alliance is full at ' +
+        ALLIANCE_DECK_SIZE +
+        '. Tap a deck card to take it out first.'
+      return
+    }
+    commitAlliance(
+      { ...deck, cards: [...deck.cards, id] },
+      card.name + ' joins the alliance.',
+    )
+  }
+  function restoreAllianceStarter(): void {
+    commitAlliance(
+      allianceStarter(activeTeam.value, currentAlliance.value.ally),
+      'Starter alliance restored.',
+    )
+  }
+  function playAllianceClash(): void {
+    stop()
+    clashFormat.value = 'alliance'
+    view.value = 'clash'
   }
   function restoreFounderDeck(): void {
     if (!storyLoaded.value) return
@@ -1383,6 +1506,16 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
     selectDeckCard,
     restoreFounderDeck,
     testCustomDeck,
+    deckFormat,
+    clashFormat,
+    currentAlliance,
+    currentAllianceProblems,
+    playAlliance,
+    allianceCards,
+    setAlly,
+    toggleAllianceCard,
+    restoreAllianceStarter,
+    playAllianceClash,
     unlockMode,
     setUnlockMode,
     storyMode,

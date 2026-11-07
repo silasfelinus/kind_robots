@@ -53,7 +53,7 @@ export const FACTION_POWERS: Record<TeamId, FactionPower> = {
   catgirls: {
     team: 'catgirls',
     name: 'NINE LIVES',
-    text: 'Every fighter you have returns to full life and shakes off its stun.',
+    text: 'Every fighter you have returns to full life, shakes off its stun, gains +2 power this round and may strike this turn, even if it just landed.',
     target: 'none',
     symbol: '🐾',
   },
@@ -67,7 +67,7 @@ export const FACTION_POWERS: Record<TeamId, FactionPower> = {
   ironjaw: {
     team: 'ironjaw',
     name: 'UNION WALL',
-    text: 'Every fighter you have gains +2 armor until your next turn.',
+    text: 'Every fighter you have gains +3 armor until your next turn.',
     target: 'none',
     symbol: '🛡',
   },

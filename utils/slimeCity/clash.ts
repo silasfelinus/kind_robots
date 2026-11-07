@@ -1153,13 +1153,15 @@ export function useClashPower(
       for (const u of mine) {
         u.hp = u.maxHp
         u.rooted = false
+        u.fresh = false
+        u.surge += 2
       }
       break
     case 'bloodfairies':
       for (const u of mine) u.surge += 3
       break
     case 'ironjaw':
-      for (const u of mine) u.guard = 2
+      for (const u of mine) u.guard = 3
       break
     case 'riot':
       for (const u of s.units.filter((v) => v.side === foe)) damage(u, 2)
@@ -1208,7 +1210,12 @@ export function clashPowerValue(
   switch (s.teams[side]) {
     case 'catgirls':
       best.value = mine.reduce(
-        (sum, u) => sum + u.maxHp - u.hp + (u.rooted ? 2 : 0),
+        (sum, u) =>
+          sum +
+          u.maxHp -
+          u.hp +
+          1.5 +
+          (u.rooted || (u.fresh && !has(u, 'ambush')) ? 2 : 0),
         0,
       )
       break

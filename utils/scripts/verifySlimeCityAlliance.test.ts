@@ -197,6 +197,8 @@ const at = (st: ClashState, uid: number) => st.units.find((u) => u.uid === uid)
   assert.equal(at(st, 101)!.hp, 8)
   assert.equal(at(st, 101)!.rooted, false)
   assert.equal(at(st, 102)!.hp, 8)
+  assert.equal(at(st, 101)!.surge, 2)
+  assert.equal(at(st, 101)!.fresh, false)
 }
 {
   const st = useClashPower(board('bloodfairies'), 'player')
@@ -206,7 +208,7 @@ const at = (st: ClashState, uid: number) => st.units.find((u) => u.uid === uid)
 }
 {
   const st = useClashPower(board('ironjaw'), 'player')
-  assert.equal(at(st, 102)!.guard, 2)
+  assert.equal(at(st, 102)!.guard, 3)
   assert.equal(at(st, 102)!.armor, 0, 'guard is temporary, armor unchanged')
 }
 {

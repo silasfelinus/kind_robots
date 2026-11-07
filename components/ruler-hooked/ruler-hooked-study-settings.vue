@@ -75,8 +75,8 @@
       >
         <legend>Build your lesson</legend>
         <p class="rh-study-settings__hint">
-          Choose how much help to see before each cast. Every answer opens a
-          field guide.
+          Choose how much help to see before each cast. A right answer lands the
+          fish; a miss opens the field guide.
         </p>
         <div
           class="rh-study-settings__segmented"

@@ -196,7 +196,7 @@ const tier = computed(() =>
   store.save ? reignTier(store.save.kingdomHealth) : 'pristine',
 )
 
-function go(next: ConsoleScreen) {
+function go(next: ConsoleScreen | 'settings') {
   screen.value = next
 }
 function navigateFromHud(next: 'chronicle' | 'saves' | 'settings') {

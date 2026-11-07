@@ -1,7 +1,8 @@
-<!-- The throne room. A petition is presented by the character who brought it
-     (painted portrait, left), set out on a flat edict card, and answered from
-     a hand of illustrated choice cards whose signed kingdom changes are shown
-     before you commit (RulerHookedCourt, t-054). Finales and the closed
+<!-- The throne room. A petition is set out on a rainbow edict panel (its
+     painting, full text and petitioner) and answered from a hand of
+     illustrated choice cards whose signed kingdom changes are shown before
+     you commit (RulerHookedCourt, t-054). Between petitions the advisor stands
+     at the left. Finales and the closed
      chronicle are read from the royal scroll here. -->
 <template>
   <section class="rh-screen rh-court" aria-label="Royal Court">
@@ -11,9 +12,12 @@
       eager
     />
 
-    <div class="rh-court__stage">
+    <div
+      class="rh-court__stage"
+      :class="{ 'has-presenter': presenter && !store.activeCard }"
+    >
       <RulerHookedArt
-        v-if="presenter"
+        v-if="presenter && !store.activeCard"
         class="rh-court__presenter"
         :candidates="characterCandidates(presenter.slug)"
         :alt="presenterLabel"
@@ -30,10 +34,7 @@
           @decree="decide"
         />
 
-        <article
-          v-else-if="store.pendingEnding"
-          class="rh-parchment rh-scroll rh-ending"
-        >
+        <article v-else-if="store.pendingEnding" class="rh-scroll rh-ending">
           <p class="rh-scroll__ribbon">A possible finale</p>
           <RulerHookedArt
             class="rh-ending__art"
@@ -63,7 +64,7 @@
 
         <article
           v-else-if="store.save?.status === 'COMPLETE'"
-          class="rh-parchment rh-scroll rh-ending"
+          class="rh-scroll rh-ending"
         >
           <p class="rh-scroll__ribbon">The chronicle closes</p>
           <RulerHookedArt
@@ -83,7 +84,7 @@
           </button>
         </article>
 
-        <article v-else class="rh-parchment rh-scroll rh-quiet">
+        <article v-else class="rh-scroll rh-quiet">
           <p class="rh-scroll__ribbon">The Royal Court</p>
           <h2 class="rh-title rh-title--big">An unusually quiet court</h2>
           <p class="rh-scroll__body">
@@ -158,58 +159,74 @@ const endingBody = computed(
 
 <style scoped>
 .rh-court__backdrop {
-  filter: saturate(0.75) brightness(0.6) blur(1.5px);
+  filter: saturate(1.25) brightness(0.62) blur(1px);
 }
 .rh-court__stage {
+  container: rhcourt / size;
   position: relative;
   z-index: 2;
   height: 100%;
   display: grid;
   grid-template-columns: 1fr;
   align-items: end;
-  padding: clamp(4.5rem, 12cqi, 6rem) clamp(0.6rem, 2cqi, 1.5rem)
+  padding: clamp(4rem, 8cqi, 4.6rem) clamp(0.6rem, 2cqi, 1.5rem)
     clamp(0.6rem, 2cqi, 1.25rem);
 }
 .rh-court__presenter {
   display: none;
-  background: transparent !important;
 }
 @container rhconsole (min-width: 900px) {
-  .rh-court__stage {
+  .rh-court__stage.has-presenter {
     grid-template-columns: minmax(12rem, 26%) 1fr;
     gap: 1rem;
-    padding-left: 0;
   }
   .rh-court__presenter {
     display: block;
     align-self: stretch;
-    margin-top: 6rem;
-    border-radius: 1.2rem 1.2rem 0 0;
-    border: 3px solid var(--rh-ink);
-    border-bottom: 0;
-    box-shadow: 5px 0 0 var(--rh-gold);
+    border: 3px solid transparent;
+    border-radius: 1.2rem;
     background:
-      radial-gradient(circle at 50% 30%, var(--rh-parch), transparent 70%),
-      linear-gradient(160deg, var(--rh-parch-shade), #c9f7ff) !important;
+      linear-gradient(160deg, rgb(33 26 103), var(--rh-plum-deep)) padding-box,
+      var(--rh-spectrum) border-box;
+    box-shadow:
+      0 0 0 2px var(--rh-ink),
+      6px 6px 0 2px var(--rh-hot);
   }
-}
-.rh-court__main:has(> .rh-petition-court) {
-  grid-template-rows: minmax(0, 1fr);
-  overflow: hidden;
 }
 .rh-court__main {
   display: grid;
   gap: clamp(0.5rem, 1.5cqi, 0.9rem);
-  align-content: end;
+  align-content: safe end;
   max-height: 100%;
   min-height: 0;
   overflow-y: auto;
   padding: 1rem 0.35rem 0.35rem;
   scrollbar-width: thin;
 }
+.rh-court__main:has(> .rh-petition-court) {
+  align-self: stretch;
+  height: 100%;
+  overflow-x: hidden;
+  padding-right: 0.6rem;
+}
 .rh-scroll {
   position: relative;
-  padding-top: 1.4rem;
+  padding: 1.6rem clamp(0.9rem, 2cqi, 1.3rem) 1.1rem;
+  border: 2px solid var(--rh-gold);
+  border-radius: 1.15rem;
+  background:
+    var(--rh-spectrum) top / 100% 6px no-repeat,
+    linear-gradient(155deg, rgb(33 26 103 / 0.95), rgb(8 13 53 / 0.95));
+  color: #f4faff;
+  box-shadow:
+    0 0 0 3px var(--rh-plum),
+    6px 6px 0 3px var(--rh-hot),
+    0 14px 35px rgb(0 0 0 / 0.45);
+  backdrop-filter: blur(8px);
+}
+.rh-scroll .rh-title {
+  color: var(--rh-gold-soft);
+  text-shadow: 2px 2px 0 var(--rh-hot);
 }
 .rh-scroll__ribbon {
   position: absolute;
@@ -217,15 +234,16 @@ const endingBody = computed(
   left: 50%;
   translate: -50% 0;
   padding: 0.2rem 1.4rem;
-  background: linear-gradient(180deg, #7b2350, var(--rh-plum));
-  border: 1.5px solid var(--rh-gold);
-  border-radius: 0.4rem;
-  color: var(--rh-gold-soft);
+  background: var(--rh-spectrum);
+  border: 2px solid var(--rh-ink);
+  border-radius: 999px;
+  color: var(--rh-ink);
   font-family: var(--rh-display);
-  font-style: italic;
-  font-weight: 700;
+  font-weight: 900;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
   white-space: nowrap;
-  box-shadow: 0 3px 8px rgb(0 0 0 / 0.35);
+  box-shadow: 3px 3px 0 var(--rh-hot);
 }
 .rh-scroll__body {
   margin-top: 0.35rem;
@@ -238,7 +256,8 @@ const endingBody = computed(
   width: 100%;
   border-radius: 0.6rem;
   margin-bottom: 0.6rem;
-  border: 2px solid rgb(58 38 22 / 0.5);
+  border: 3px solid var(--rh-ink);
+  box-shadow: 0 0 0 2px var(--rh-gold);
 }
 .rh-quiet,
 .rh-ending {

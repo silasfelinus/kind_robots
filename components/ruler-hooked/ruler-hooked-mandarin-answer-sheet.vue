@@ -9,105 +9,111 @@
             : 'Not quite · Learn this word'
       }}
     </p>
-    <div class="rh-word-sheet__body">
-      <MandarinCardArt
-        class="rh-word-sheet__art"
-        :card-key="card.key"
-        :simplified="card.simplified"
-        :meaning="card.meaning"
-        :art="art"
-      />
-      <div class="rh-word-sheet__identity">
-        <p class="rh-eyebrow">
-          {{ animalMode ? 'Animal field guide' : 'Mandarin field guide' }}
-        </p>
-        <h3>{{ card.meaning }}</h3>
-        <p class="rh-word-sheet__hanzi">{{ card.simplified }}</p>
-        <p
-          v-if="card.traditional && card.traditional !== card.simplified"
-          class="rh-word-sheet__small"
-        >
-          Traditional: {{ card.traditional }}
-        </p>
-        <p class="rh-word-sheet__pinyin">{{ card.pinyin }}</p>
-        <button
-          type="button"
-          class="rh-btn rh-word-sheet__audio"
-          @click="emit('speak')"
-        >
-          🔊 Hear pronunciation
-        </button>
-      </div>
-    </div>
-
-    <div class="rh-word-sheet__facts">
-      <p v-if="card.meanings.length > 1" class="rh-word-sheet__small">
-        Also:
-        {{
-          card.meanings
-            .filter((meaning) => meaning !== card.meaning)
-            .join(' · ')
-        }}
-      </p>
-      <section v-if="lesson?.syllables.length" aria-label="Pronunciation notes">
-        <h4>Pronunciation &amp; tones</h4>
-        <p
-          v-for="(syllable, index) in lesson.syllables"
-          :key="index"
-          class="rh-word-sheet__fact"
-        >
-          <strong>{{ syllable.syllable }} {{ syllable.toneArrow }}</strong>
-          {{ syllable.toneShape }}
-          <span v-if="syllable.sandhiNote">· {{ syllable.sandhiNote }}</span>
-        </p>
-      </section>
-      <section v-if="lesson && detail === 'full'" aria-label="Word origins">
-        <h4>Word &amp; character origins</h4>
-        <p class="rh-word-sheet__fact">{{ lesson.history }}</p>
-        <template
-          v-for="character in lesson.characters"
-          :key="character.character"
-        >
-          <p v-if="character.formation?.hint" class="rh-word-sheet__fact">
-            <strong>{{ character.character }}</strong
-            >: {{ character.formation.hint }}
+    <div class="rh-word-sheet__inner">
+      <div class="rh-word-sheet__body">
+        <MandarinCardArt
+          class="rh-word-sheet__art"
+          :card-key="card.key"
+          :simplified="card.simplified"
+          :meaning="card.meaning"
+          :art="art"
+        />
+        <div class="rh-word-sheet__identity">
+          <p class="rh-eyebrow">
+            {{ animalMode ? 'Animal field guide' : 'Mandarin field guide' }}
           </p>
+          <h3>{{ card.meaning }}</h3>
+          <p class="rh-word-sheet__hanzi">{{ card.simplified }}</p>
           <p
-            v-for="component in character.components.filter(
-              (part) =>
-                part.role === 'semantic' ||
-                part.role === 'phonetic' ||
-                part.role === 'idea',
-            )"
-            :key="character.character + component.glyph"
+            v-if="card.traditional && card.traditional !== card.simplified"
+            class="rh-word-sheet__small"
+          >
+            Traditional: {{ card.traditional }}
+          </p>
+          <p class="rh-word-sheet__pinyin">{{ card.pinyin }}</p>
+          <button
+            type="button"
+            class="rh-btn rh-word-sheet__audio"
+            @click="emit('speak')"
+          >
+            🔊 Hear pronunciation
+          </button>
+        </div>
+      </div>
+
+      <div class="rh-word-sheet__facts">
+        <p v-if="card.meanings.length > 1" class="rh-word-sheet__small">
+          Also:
+          {{
+            card.meanings
+              .filter((meaning) => meaning !== card.meaning)
+              .join(' · ')
+          }}
+        </p>
+        <section
+          v-if="lesson?.syllables.length"
+          aria-label="Pronunciation notes"
+        >
+          <h4>Pronunciation &amp; tones</h4>
+          <p
+            v-for="(syllable, index) in lesson.syllables"
+            :key="index"
             class="rh-word-sheet__fact"
           >
-            <strong>{{ component.glyph }}</strong> {{ component.contribution }}
+            <strong>{{ syllable.syllable }} {{ syllable.toneArrow }}</strong>
+            {{ syllable.toneShape }}
+            <span v-if="syllable.sandhiNote">· {{ syllable.sandhiNote }}</span>
           </p>
-        </template>
-      </section>
-      <p
-        v-if="detail === 'full' && lesson?.soundFamilies.length"
-        class="rh-word-sheet__small"
-      >
-        Sound family:
-        {{
-          lesson.soundFamilies[0]?.members
-            .slice(0, 3)
-            .map((member) => member.simplified + ' (' + member.pinyin + ')')
-            .join(' · ')
-        }}
-      </p>
-      <p class="rh-word-sheet__source">
-        Source: {{ card.source.label }}
-        <a
-          v-if="card.source.url"
-          :href="card.source.url"
-          target="_blank"
-          rel="noopener noreferrer"
-          >View vocabulary source</a
+        </section>
+        <section v-if="lesson && detail === 'full'" aria-label="Word origins">
+          <h4>Word &amp; character origins</h4>
+          <p class="rh-word-sheet__fact">{{ lesson.history }}</p>
+          <template
+            v-for="character in lesson.characters"
+            :key="character.character"
+          >
+            <p v-if="character.formation?.hint" class="rh-word-sheet__fact">
+              <strong>{{ character.character }}</strong
+              >: {{ character.formation.hint }}
+            </p>
+            <p
+              v-for="component in character.components.filter(
+                (part) =>
+                  part.role === 'semantic' ||
+                  part.role === 'phonetic' ||
+                  part.role === 'idea',
+              )"
+              :key="character.character + component.glyph"
+              class="rh-word-sheet__fact"
+            >
+              <strong>{{ component.glyph }}</strong>
+              {{ component.contribution }}
+            </p>
+          </template>
+        </section>
+        <p
+          v-if="detail === 'full' && lesson?.soundFamilies.length"
+          class="rh-word-sheet__small"
         >
-      </p>
+          Sound family:
+          {{
+            lesson.soundFamilies[0]?.members
+              .slice(0, 3)
+              .map((member) => member.simplified + ' (' + member.pinyin + ')')
+              .join(' · ')
+          }}
+        </p>
+        <p class="rh-word-sheet__source">
+          Source: {{ card.source.label }}
+          <a
+            v-if="card.source.url"
+            :href="card.source.url"
+            target="_blank"
+            rel="noopener noreferrer"
+            >View vocabulary source</a
+          >
+        </p>
+      </div>
     </div>
 
     <button
@@ -144,6 +150,7 @@ const emit = defineEmits<{ speak: []; continue: [] }>()
 
 <style scoped>
 .rh-word-sheet {
+  container: rhword / inline-size;
   display: grid;
   gap: 0.55rem;
   min-width: 0;
@@ -219,11 +226,37 @@ const emit = defineEmits<{ speak: []; continue: [] }>()
   text-decoration: underline;
   margin-left: 0.3rem;
 }
+.rh-word-sheet__inner {
+  display: grid;
+  gap: 0.55rem;
+  min-width: 0;
+}
 .rh-word-sheet__continue {
   position: sticky;
   bottom: 0;
   z-index: 2;
-  box-shadow: 0 -5px 15px rgb(244 231 201 / 0.95);
+  box-shadow:
+    0 2px 0 var(--rh-ink),
+    0 -0.9rem 1rem -0.2rem rgb(255 240 248 / 0.96);
+}
+@container rhword (min-width: 34rem) {
+  .rh-word-sheet__inner {
+    display: grid;
+    grid-template-columns: minmax(0, 25rem) minmax(0, 1fr);
+    align-items: start;
+    gap: 1rem;
+  }
+  .rh-word-sheet__body {
+    grid-template-columns: minmax(5.5rem, 8.5rem) minmax(0, 1fr);
+    align-items: start;
+  }
+  .rh-word-sheet__facts {
+    gap: 0.45rem;
+  }
+  .rh-word-sheet__fact {
+    font-size: 0.88rem;
+    line-height: 1.38;
+  }
 }
 @container rhconsole (max-width: 480px) {
   .rh-word-sheet__body {

@@ -2,6 +2,7 @@
 contentType: tab
 channelKey: admin
 tabKey: monstress-convention
+navigation: true
 label: Monstrique
 title: Monstrique
 subtitle: A dead agent, a rented vampire and one very clean blogger.
@@ -9,7 +10,7 @@ description: Adults-only internal point-and-click detective-comedy preview.
 summary: Private Monstrique mystery.
 icon: kind-icon:ghost
 route: /admin/monstrique
-sort: 147
+sort: 11
 requiredRole: ADMIN
 requiredPermission: mature
 tutorial:

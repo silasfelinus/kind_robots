@@ -5,6 +5,7 @@
 // fighters strike straight across their own alley, left to right, one strike
 // command per alley so the board can animate each blow.
 import { alleyDeck } from './alleys'
+import { clashTwistText } from './clashTwists'
 import {
   cardById,
   type Card,
@@ -65,6 +66,8 @@ export interface ClashUnit {
   fresh: boolean
   gear: string[]
   level: number
+  /** A battlefield-only summon, not another card in the deck. */
+  token?: boolean
 }
 export interface ClashTrap {
   side: Side
@@ -122,6 +125,8 @@ export interface ClashState {
   commands: ClashCommand[]
   /** Each crew's card levels this match; a missing id is level 1. */
   levels: Record<Side, Record<string, number>>
+  /** Knockout bonuses persist independently of the three play levels. */
+  deathMarks: Record<Side, Record<string, number>>
 }
 export interface ClashCardBalance {
   /** All 300 catalog cards get a separate, Clash-only balance profile. */
@@ -265,7 +270,27 @@ export function clashBalance(card: Card, level = 1): ClashCardBalance {
     heavy ? 5 : 2,
     LIFE_CAP[plays][tier],
   )
-  return { plays, level: lv, attack, hp, armor, power: 0, bonus }
+  let evolvedAttack = attack
+  let evolvedHp = hp
+  if (card.id === 'chimera') {
+    if (lv === 1) evolvedAttack = 1
+    if (lv === 3) {
+      evolvedAttack = Math.min(8, attack + 2)
+      evolvedHp = Math.min(22, hp + 3)
+    }
+  }
+  if (card.id === 'juggernaut') {
+    if (lv === 1) evolvedAttack = 1
+    if (lv === 3) evolvedAttack = Math.min(8, attack + 2)
+  }
+  if (
+    lv === 3 &&
+    (card.id === 'calico' ||
+      card.id === 'watcher' ||
+      card.id === 'merc-roof-dentist')
+  )
+    evolvedAttack = 0
+  return { plays, level: lv, attack: evolvedAttack, hp: evolvedHp, armor, power: 0, bonus }
 }
 export function clashLevel(s: ClashState, side: Side, id: string): number {
   return s.levels?.[side]?.[id] ?? 1
@@ -323,7 +348,10 @@ export function clashCardText(card: Card, level = 1): string {
     return [
       ...(b.armor ? ['Armor: takes 1 less damage from each hit.'] : []),
       ...(card.keywords ?? []).map((k) => CLASH_TRAIT_TEXT[k]),
-    ].join(' ')
+      clashTwistText(card.id, level),
+    ]
+      .filter(Boolean)
+      .join(' ')
   if (card.kind === 'trap')
     return (
       'Hits the next rival fighter in this alley for ' +
@@ -378,6 +406,13 @@ export function clashCardText(card: Card, level = 1): string {
   }
 }
 export function clashPower(s: ClashState, u: ClashUnit): number {
+  if (
+    u.level === 3 &&
+    (u.cardId === 'calico' ||
+      u.cardId === 'watcher' ||
+      u.cardId === 'merc-roof-dentist')
+  )
+    return 0
   let power = u.attack + u.surge
   if (has(u, 'ambush') && !u.ambushUsed) power++
   if (
@@ -388,7 +423,25 @@ export function clashPower(s: ClashState, u: ClashUnit): number {
     )
   )
     power++
-  return power
+  if (
+    u.cardId === 'frogtrooper' &&
+    u.level >= 2 &&
+    unitAt(s, opponent(u.side), u.lane)?.rooted
+  )
+    power++
+  for (const ally of s.units.filter((v) => v.side === u.side && v.uid !== u.uid)) {
+    if (
+      ally.level >= 2 &&
+      (ally.cardId === 'queen' || ally.cardId === 'merc-union-owl') &&
+      (ally.level === 3 || Math.abs(ally.lane - u.lane) === 1)
+    )
+      power++
+  }
+  for (const spy of s.units.filter((v) => v.side !== u.side && v.level >= 2 && v.cardId === 'watcher')) {
+    if (spy.level === 3 ? Math.abs(spy.lane - u.lane) <= 1 : spy.lane === u.lane)
+      power--
+  }
+  return Math.max(0, power)
 }
 function random(state: ClashState): number {
   state.rng = (state.rng + 0x6d2b79f5) >>> 0
@@ -462,6 +515,7 @@ export function createClash(
     nextUid: 1,
     commands: [],
     levels: { player: {}, enemy: {} },
+    deathMarks: { player: {}, enemy: {} },
   }
   s.decks.player = shuffle(s, alleyDeck(player))
   s.decks.enemy = shuffle(s, alleyDeck(enemy))
@@ -690,7 +744,13 @@ export function nextClashStrike(s: ClashState, side: Side): number {
     const u = unitAt(s, side, lane)
     // Summoning sickness (Silas, 2026-11-07 PT): a fighter that just landed
     // can block but not strike, unless a special ability (Ambush) says so.
-    if (u && !u.rooted && !u.attacked && !(u.fresh && !has(u, 'ambush')))
+    if (
+      u &&
+      !u.rooted &&
+      !u.attacked &&
+      clashPower(s, u) > 0 &&
+      !(u.fresh && !has(u, 'ambush'))
+    )
       return lane
   }
   return -1

@@ -1,6 +1,16 @@
 import assert from 'node:assert/strict'
 import { readFileSync } from 'node:fs'
+import { parse as parseYaml } from 'yaml'
 import {
+  filterChannelsByRole,
+  resolveChannels,
+  type ChannelContentItem,
+} from '../../stores/helpers/channelContent'
+import { navigationDestinations } from '../../utils/channelTabGroups'
+import { evaluateNavigationRouteAccess } from '../../stores/helpers/navigationRouteAccess'
+import { effectiveShowMature } from '../../utils/userRoles'
+import {
+  filterChannelsByPermission,
   navigationPermissions,
   permissionAllows,
   type NavigationAccessContext,
@@ -55,6 +65,72 @@ assert.match(tab, /requiredRole: ADMIN/)
 assert.match(tab, /requiredPermission: mature/)
 assert.doesNotMatch(tab, /route: \/play\//)
 assert.match(tab, /route: \/admin\/monstrique/)
+
+function frontmatter(markdown: string): ChannelContentItem {
+  return parseYaml(markdown.split('---')[1] ?? '') as ChannelContentItem
+}
+
+const adminChannel = frontmatter(read('content/channels/admin/index.md'))
+const monstriqueTab = frontmatter(tab)
+assert.equal(monstriqueTab.navigation, true)
+assert.ok(
+  Number(monstriqueTab.sort) < 30,
+  'Monstrique belongs near the top of the Admin launcher',
+)
+const actualChannels = resolveChannels([adminChannel, monstriqueTab])
+
+function visibleFor(viewer: NavigationAccessContext) {
+  return filterChannelsByPermission(
+    filterChannelsByRole(actualChannels, viewer.roles ?? [viewer.role]),
+    viewer,
+  )
+}
+
+const adultAdmin = visibleFor(context(true, true))
+const matureOffAdmin = visibleFor(context(false, true))
+const adultNonAdmin = visibleFor(context(true, false))
+const childAdmin = {
+  Role: 'ADMIN',
+  roles: ['ADMIN', 'CHILD'],
+  showMature: true,
+}
+assert.equal(effectiveShowMature(childAdmin), false)
+const childAdminContext: NavigationAccessContext = {
+  ...context(effectiveShowMature(childAdmin), true),
+  roles: childAdmin.roles,
+}
+const childAdminVisible = visibleFor(childAdminContext)
+
+assert.equal(
+  navigationDestinations(adultAdmin[0]!).some(
+    (entry) =>
+      entry.label === 'Monstrique' && entry.route === '/admin/monstrique',
+  ),
+  true,
+  'the Admin launcher must expose a clickable Monstrique destination',
+)
+for (const filtered of [matureOffAdmin, adultNonAdmin, childAdminVisible]) {
+  assert.equal(
+    filtered.some((channel) =>
+      channel.tabs.some((entry) => entry.route === '/admin/monstrique'),
+    ),
+    false,
+    'Monstrique must not appear to mature-off, non-admin or CHILD viewers',
+  )
+}
+assert.equal(
+  evaluateNavigationRouteAccess(actualChannels, adultAdmin, {
+    path: '/admin/monstrique',
+  }).allowed,
+  true,
+)
+for (const filtered of [matureOffAdmin, adultNonAdmin, childAdminVisible]) {
+  const result = evaluateNavigationRouteAccess(actualChannels, filtered, {
+    path: '/admin/monstrique',
+  })
+  assert.equal(result.matched, true)
+  assert.equal(result.allowed, false)
+}
 
 const project = read('server/utils/conductorMatureProjects.ts')
 assert.match(project, /monstress-convention/)

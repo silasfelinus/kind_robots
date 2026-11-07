@@ -78,5 +78,7 @@ export const CLASH_TWISTS: Record<string, [string, string, string]> = {
 }
 
 export function clashTwistText(id: string, level: number): string {
-  return CLASH_TWISTS[id]?.[Math.min(2, Math.max(0, Math.round(level) - 1))] ?? ''
+  return (
+    CLASH_TWISTS[id]?.[Math.min(2, Math.max(0, Math.round(level) - 1))] ?? ''
+  )
 }

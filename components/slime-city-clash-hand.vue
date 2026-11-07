@@ -57,7 +57,16 @@
         >
           <SlimeCityClashCardFace
             :card-id="cardId"
-            :level="clashLevel(game, 'player', cardId)"
+            :level="
+              big === index && previewLevel
+                ? previewLevel
+                : clashLevel(game, 'player', cardId)
+            "
+            :preview="
+              big === index &&
+              !!previewLevel &&
+              previewLevel !== clashLevel(game, 'player', cardId)
+            "
           />
         </button>
       </div>
@@ -73,11 +82,35 @@
       >
         <SlimeCityClashCardFace
           :card-id="inspectCard.id"
-          :note="inspectCard.note"
-          :level="inspectCard.level"
+          :note="previewLevel ? '' : inspectCard.note"
+          :level="previewLevel ?? inspectCard.level"
+          :preview="!!previewLevel && previewLevel !== inspectCard.level"
         />
       </div>
     </Transition>
+
+    <div
+      v-if="shown"
+      class="cxh-levels"
+      role="tablist"
+      aria-label="Preview this card at each level"
+      data-testid="clash-level-tabs"
+    >
+      <button
+        v-for="n in CLASH_MAX_LEVEL"
+        :key="n"
+        type="button"
+        role="tab"
+        :aria-selected="(previewLevel ?? shown.level) === n"
+        :class="{
+          on: (previewLevel ?? shown.level) === n,
+          now: shown.level === n,
+        }"
+        @click="previewLevel = n === shown.level ? null : n"
+      >
+        LV {{ n }}<small>{{ shown.level === n ? 'NOW' : 'PREVIEW' }}</small>
+      </button>
+    </div>
 
     <Transition name="cxh-toast">
       <p
@@ -158,8 +191,21 @@ function toggle(): void {
   if (!isOpen.value) emit('pick', null)
 }
 const big = computed(() => (isOpen.value ? props.held : null))
+/** Silas, 2026-11-07 PT: "The user should be able to select to see the upgraded versions." */
+const previewLevel = ref<number | null>(null)
 const inspectCard = computed(() =>
   props.held === null || !isOpen.value ? props.inspect : null,
+)
+const shown = computed<{ id: string; level: number } | null>(() => {
+  const id = big.value === null ? null : cards.value[big.value]
+  if (id) return { id, level: clashLevel(props.game, 'player', id) }
+  return inspectCard.value
+    ? { id: inspectCard.value.id, level: inspectCard.value.level }
+    : null
+})
+watch(
+  () => shown.value?.id,
+  () => (previewLevel.value = null),
 )
 
 function playable(id: string): boolean {
@@ -435,6 +481,58 @@ function tap(index: number): void {
   60% {
     opacity: 1;
     transform: translate(-50%, -0.3rem) scale(1.12);
+  }
+}
+.cxh-levels {
+  position: absolute;
+  left: 50%;
+  bottom: calc(var(--W) * 1.5 + 0.9rem);
+  transform: translateX(-50%);
+  display: flex;
+  gap: 0.3rem;
+  padding: 0.25rem;
+  border-radius: 999px;
+  background: #061418ee;
+  border: 1px solid #b9f15155;
+  box-shadow: 0 6px 18px #000a;
+  pointer-events: auto;
+  z-index: 9;
+  animation: cxh-tabs 0.35s var(--ease) both;
+}
+.cxh-levels button {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-width: 3.4rem;
+  padding: 0.25rem 0.55rem;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  color: #cfe3dc;
+  font-size: 0.78rem;
+  font-weight: 900;
+  letter-spacing: 0.06em;
+  cursor: pointer;
+  transition:
+    background 0.2s,
+    color 0.2s;
+}
+.cxh-levels button small {
+  font-size: 0.52rem;
+  letter-spacing: 0.1em;
+  opacity: 0.75;
+}
+.cxh-levels button.on {
+  background: #ffd34d;
+  color: #1b1405;
+}
+.cxh-levels button.now:not(.on) {
+  color: #b9f151;
+}
+@keyframes cxh-tabs {
+  from {
+    opacity: 0;
+    transform: translate(-50%, 0.6rem);
   }
 }
 .cxh-inspect {

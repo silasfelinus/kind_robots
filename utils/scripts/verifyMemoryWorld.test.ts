@@ -117,6 +117,25 @@ for (const [key, reward] of [
   assert.deepEqual(ledger, [])
   assert.deepEqual(purse, { lanterns: 1, wildflowers: 2 })
 }
+// A damaged save with negative existing balances must not be laundered into
+// a plausible purse by collecting a positive one-time reward.
+for (const purse of [
+  { lanterns: -1, wildflowers: 2 },
+  { lanterns: 1, wildflowers: -2 },
+]) {
+  const ledger: string[] = []
+  const before = { ...purse }
+  assert.equal(
+    grantMemoryRewardOnce(ledger, 'vault:damaged-save', purse, {
+      lanterns: 3,
+      wildflowers: 3,
+    }),
+    false,
+  )
+  assert.deepEqual(purse, before)
+  assert.deepEqual(ledger, [])
+}
+
 const validRewardLedger: string[] = []
 const validRewardPurse = { lanterns: 1, wildflowers: 2 }
 assert.equal(

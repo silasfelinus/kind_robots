@@ -177,8 +177,11 @@ for (const card of CARDS) {
     assert.equal(b.level, level)
     assert.ok(b.plays === 1 || b.plays === 2)
     if (card.kind === 'creature') {
-      const nonattacker = level === 3 && ['calico', 'watcher', 'merc-roof-dentist'].includes(card.id)
-      const hatchling = level === 1 && ['chimera', 'juggernaut'].includes(card.id)
+      const nonattacker =
+        level === 3 &&
+        ['calico', 'watcher', 'merc-roof-dentist'].includes(card.id)
+      const hatchling =
+        level === 1 && ['chimera', 'juggernaut'].includes(card.id)
       assert.ok(
         nonattacker
           ? b.attack === 0
@@ -217,7 +220,10 @@ for (const card of CARDS) {
       assert.match(clashCardText(card, 3), /Never attacks/)
     } else {
       assert.ok(value(1) < value(2) && value(2) < value(3), card.id + ' ramps')
-      assert.ok(value(3) >= value(1) * 1.6, card.id + ' level 3 is a big upgrade')
+      assert.ok(
+        value(3) >= value(1) * 1.6,
+        card.id + ' level 3 is a big upgrade',
+      )
     }
   } else assert.ok(high.power > low.power || high.bonus > low.bonus, card.id)
   const faces = [1, 2, 3].map(
@@ -242,11 +248,28 @@ assert.ok(
   'the entire published roster gets Clash balancing',
 )
 assert.equal(clashPlayCost(cardById('lynx')), 1)
-assert.equal(Object.keys(CLASH_TWISTS).length, 15, 'initial Clash-only ability slice')
+assert.equal(
+  Object.keys(CLASH_TWISTS).length,
+  15,
+  'initial Clash-only ability slice',
+)
 for (const id of Object.keys(CLASH_TWISTS)) {
   const card = cardById(id)
-  assert.ok(['catgirls', 'bloodfairies', 'ironjaw', 'riot', 'undertow', 'exchange', 'mercenary'].includes(card.team))
-  assert.ok(new Set([1, 2, 3].map((lv) => clashCardText(card, lv))).size === 3, id + ' meaningful evolution text')
+  assert.ok(
+    [
+      'catgirls',
+      'bloodfairies',
+      'ironjaw',
+      'riot',
+      'undertow',
+      'exchange',
+      'mercenary',
+    ].includes(card.team),
+  )
+  assert.ok(
+    new Set([1, 2, 3].map((lv) => clashCardText(card, lv))).size === 3,
+    id + ' meaningful evolution text',
+  )
 }
 
 const initial = createClash('catgirls', 'ironjaw', 42)
@@ -515,14 +538,21 @@ hatched.levels.player.chimera = 3
 hatched.hands.player = ['chimera']
 const apex = playClash(hatched, 'player', 'chimera', 2)
 assert.ok(apex.units[0]!.attack >= 7, 'Madame Chimera becomes an apex threat')
-assert.ok(clashBalance(cardById('chimera'), 1).attack < 2, 'apex starts fragile')
+assert.ok(
+  clashBalance(cardById('chimera'), 1).attack < 2,
+  'apex starts fragile',
+)
 
 const chorus = createClash('bloodfairies', 'ironjaw', 222)
 chorus.round = 2
 chorus.levels.player.sprite = 3
 chorus.hands.player = ['sprite']
 const joined = playClash(chorus, 'player', 'sprite', 2)
-assert.equal(joined.units.length, 3, 'L3 Bloodsprite fills both adjacent empty alleys')
+assert.equal(
+  joined.units.length,
+  3,
+  'L3 Bloodsprite fills both adjacent empty alleys',
+)
 assert.equal(joined.units.filter((u) => u.token).length, 2)
 assert.deepEqual(joined.units.map((u) => u.lane).sort(), [1, 2, 3])
 assert.equal(joined.hands.player.length, 0, 'tokens cost no extra cards')
@@ -531,7 +561,11 @@ occupied.round = 2
 occupied.levels.player.sprite = 3
 occupied.hands.player = ['sprite']
 occupied.units = [follower('player', 1, 80)]
-assert.equal(playClash(occupied, 'player', 'sprite', 2).units.length, 3, 'no overwrite of occupied allied alley')
+assert.equal(
+  playClash(occupied, 'player', 'sprite', 2).units.length,
+  3,
+  'no overwrite of occupied allied alley',
+)
 
 const medics = createClash('catgirls', 'ironjaw', 224)
 medics.phase = 'attack'
@@ -540,22 +574,38 @@ medics.units = [
   { ...follower('player', 2, 2, 9, 3), hp: 2 },
 ]
 assert.equal(clashPower(medics, medics.units[0]!), 0)
-assert.equal(nextClashStrike(medics, 'player'), 2, 'the medic blocks but never attacks')
+assert.equal(
+  nextClashStrike(medics, 'player'),
+  2,
+  'the medic blocks but never attacks',
+)
 const treated = finishRound(medics)
-assert.equal(treated.units.find((u) => u.uid === 2)?.hp, 4, 'L3 clinic heals neighbor for two')
+assert.equal(
+  treated.units.find((u) => u.uid === 2)?.hp,
+  4,
+  'L3 clinic heals neighbor for two',
+)
 
 const band = createClash('bloodfairies', 'ironjaw', 225)
 band.units = [
   { ...follower('player', 1, 1), cardId: 'queen', level: 3 },
   { ...follower('player', 4, 2), cardId: 'sprite', keywords: ['swarm'] },
 ]
-assert.equal(clashPower(band, band.units[1]!), 3, 'L3 queen gives a global ally anthem')
+assert.equal(
+  clashPower(band, band.units[1]!),
+  3,
+  'L3 queen gives a global ally anthem',
+)
 const spy = createClash('undertow', 'ironjaw', 226)
 spy.units = [
   { ...follower('player', 1, 1), cardId: 'watcher', level: 3, attack: 0 },
   follower('enemy', 2, 2),
 ]
-assert.equal(clashPower(spy, spy.units[1]!), 1, 'L3 watcher weakens adjacent rivals')
+assert.equal(
+  clashPower(spy, spy.units[1]!),
+  1,
+  'L3 watcher weakens adjacent rivals',
+)
 
 const transferred = createClash('exchange', 'ironjaw', 227)
 transferred.round = 2
@@ -598,7 +648,11 @@ assert.ok(
   'RNG resolution is legible',
 )
 const sameRoll = strikeClash(structuredClone(unpredictable), 'player')
-assert.deepEqual(sameRoll, rolled, 'the same seeded Firebrand situation always rolls identically')
+assert.deepEqual(
+  sameRoll,
+  rolled,
+  'the same seeded Firebrand situation always rolls identically',
+)
 
 // Balance acceptance (2026-11-07 Clash rebalance): CPU sweeps across every crew
 // pairing keep each crew and the first seat near even. Report:

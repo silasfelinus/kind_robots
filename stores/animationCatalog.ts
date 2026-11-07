@@ -1060,6 +1060,18 @@ export const ANIMATION_EFFECTS = [
     generationSafe: true,
     preferredSurface: 'fullscreen',
   },
+  {
+    id: 'tuning-fork-ripples',
+    label: 'Tuning Fork Ripples',
+    reveal: 'Struck tuning forks hum and send ripples across a dark pond',
+    icon: 'kind-icon:sparkle',
+    tooltip:
+      'Tuning forks shiver and ring across a still pond 🎶 hover to warm the nearest fork, click to strike them all',
+    color: '#7fd6d0',
+    releasedAt: '2026-11-07T14:00:00Z',
+    generationSafe: true,
+    preferredSurface: 'fullscreen',
+  },
 ] as const satisfies readonly AnimationEffectDefinition[]
 
 export type AnimationEffectId = (typeof ANIMATION_EFFECTS)[number]['id']

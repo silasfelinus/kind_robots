@@ -1,13 +1,13 @@
 <!-- components/ruler-hooked/ruler-hooked-court.vue
-     The petition before the throne (t-054): the matter set out as a printed
-     broadside edict, and the choices as a hand of cards. Each card paints the
+     The petition before the throne (t-054): the matter set out as a flat,
+     legible edict card, and the choices as a hand of cards. Each card paints the
      corner of the kingdom that choice would change most, as it would leave it,
      with its signed meter changes, computed by the real effects reducer before
      you commit. The court screen supplies the presenter and the backdrop. -->
 <template>
   <div v-if="store.activeCard" class="rh-petition-court">
-    <article class="rh-edict rh-broadside kr-scroll">
-      <p class="rh-broadside-head rh-edict__kind">{{ edictKind }}</p>
+    <article class="rh-edict kr-scroll">
+      <p class="rh-edict__kind">{{ edictKind }}</p>
       <h2 class="rh-edict__title">{{ store.activeCard.title }}</h2>
       <RulerHookedArt
         class="rh-edict__cut"
@@ -18,7 +18,6 @@
         {{ store.activeCard.body }}
       </p>
       <p v-if="by" class="rh-edict__sign">— Presented by {{ by }}</p>
-      <span class="rh-edict__seal" aria-hidden="true" />
     </article>
 
     <div class="rh-court-hand">
@@ -193,10 +192,10 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onDigit))
   gap: 0.6rem;
   height: 100%;
   min-height: 0;
-  --hand-accent: var(--rh-madder);
-  --hand-accent-2: var(--rh-ochre);
-  --hand-band: #efe3c6;
-  --hand-band-ink: #1d150d;
+  --hand-accent: var(--rh-hot);
+  --hand-accent-2: var(--rh-gold);
+  --hand-band: var(--rh-plum-deep);
+  --hand-band-ink: #fff;
   --hand-card-max: 13.5rem;
   --hand-card-vh: 26vh;
   --hand-card-cqw: 30cqw;
@@ -209,81 +208,74 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onDigit))
   min-height: 5rem;
   overflow-y: auto;
   overscroll-behavior: contain;
-  padding: 0.9rem 1.1rem 1rem;
+  padding: 1.05rem 1.1rem 1rem;
+  border: 3px solid var(--rh-ink);
+  border-radius: 0.8rem;
+  background:
+    var(--rh-spectrum) top / 100% 6px no-repeat,
+    var(--rh-parch);
+  color: var(--rh-ink);
+  font-family: var(--rh-body);
+  box-shadow: 5px 5px 0 var(--rh-hot);
 }
 .rh-edict__kind {
+  display: inline-block;
+  padding: 0.12rem 0.55rem;
+  border-radius: 999px;
+  background: var(--rh-ink);
+  color: var(--rh-gold-soft);
+  font-family: var(--rh-display);
   font-size: 0.72rem;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
 }
 .rh-edict__title {
-  margin-top: 0.1rem;
+  margin-top: 0.3rem;
   font-family: var(--rh-display);
   font-size: clamp(1.05rem, 2.6cqi, 1.7rem);
   font-weight: 900;
   line-height: 1.1;
+  text-shadow: var(--rh-echo);
 }
 .rh-edict__cut {
   float: right;
   width: clamp(5rem, 30%, 12rem);
   aspect-ratio: 7 / 4;
   margin: 0.3rem 0 0.4rem 0.8rem;
-  filter: sepia(0.35) contrast(1.15) saturate(0.85);
-  box-shadow:
-    0 0 0 2px var(--rh-woodcut),
-    0 0 0 4px var(--rh-rag),
-    0 0 0 5px var(--rh-woodcut);
+  border: 3px solid var(--rh-ink);
+  border-radius: 0.5rem;
+  box-shadow: 4px 4px 0 var(--rh-gold);
 }
 .rh-edict__body {
   margin-top: 0.45rem;
   font-size: 0.95rem;
+  font-weight: 600;
   line-height: 1.4;
-}
-.rh-edict__body::first-letter {
-  float: left;
-  margin: 0.1rem 0.3rem 0 0;
-  padding: 0 0.2rem;
-  background: var(--rh-madder);
-  color: var(--rh-rag);
-  font-size: 2.4em;
-  font-weight: 900;
-  line-height: 0.9;
 }
 .rh-edict__sign {
   clear: both;
   margin-top: 0.5rem;
   font-size: 0.85rem;
-  font-style: italic;
+  font-weight: 700;
+  color: var(--rh-plum);
   text-align: right;
-  padding-right: 2.6rem;
-}
-.rh-edict__seal {
-  position: absolute;
-  right: 0.8rem;
-  bottom: 0.5rem;
-  width: 2.1rem;
-  height: 2.1rem;
-  border-radius: 999px;
-  background: radial-gradient(
-    circle at 38% 35%,
-    #d4554a,
-    var(--rh-madder) 55%,
-    #5e1712
-  );
-  box-shadow: 0 0 0 2px #7a1f19;
-  opacity: 0.9;
 }
 .rh-court-hand {
   flex: 0 0 auto;
 }
 .rh-court-hand :deep(.krh-question) {
-  color: var(--rh-gold-hi);
-  text-shadow: 0 1px 3px #000;
+  color: var(--rh-gold-soft);
+  text-shadow:
+    0 0 4px var(--rh-plum-deep),
+    0 1px 2px var(--rh-plum-deep);
 }
 .rh-choice-art {
   position: absolute;
   inset: 0;
   display: flex;
   flex-direction: column;
-  background: var(--rh-rag);
+  background: var(--rh-parch);
 }
 .rh-choice-art__scene {
   flex: 1 1 auto;
@@ -295,15 +287,9 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onDigit))
   flex-direction: column;
   gap: 0.05rem;
   padding: 0.3rem 0.4rem 1.45rem;
-  border-top: 2px solid var(--rh-woodcut);
-  background:
-    repeating-linear-gradient(
-      90deg,
-      rgb(120 90 50 / 0.05) 0 1px,
-      transparent 1px 5px
-    ),
-    var(--rh-rag);
-  color: var(--rh-woodcut);
+  border-top: 3px solid var(--rh-ink);
+  background: var(--rh-parch);
+  color: var(--rh-ink);
 }
 .rh-ledger__row {
   display: grid;
@@ -311,7 +297,7 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onDigit))
   align-items: center;
   gap: 0.25rem;
   font-size: 0.7rem;
-  font-weight: 700;
+  font-weight: 800;
   line-height: 1.25;
 }
 .rh-ledger__row :deep(.rh-glyph) {
@@ -328,22 +314,22 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onDigit))
   font-weight: 900;
 }
 .rh-ledger__row[data-sign='up'] .rh-ledger__value {
-  color: #2d7a63;
+  color: var(--rh-green-ink);
 }
 .rh-ledger__row[data-sign='down'] .rh-ledger__value {
-  color: var(--rh-madder);
+  color: var(--rh-pink-ink);
 }
 .rh-ledger__none {
   display: block;
   font-style: italic;
-  font-weight: 600;
+  font-weight: 700;
 }
 @container rhconsole (max-width: 899px) {
   .rh-edict__cut {
     display: none;
   }
   .rh-edict {
-    padding: 0.7rem 0.8rem 0.8rem;
+    padding: 0.85rem 0.8rem 0.8rem;
   }
   .rh-edict__body {
     font-size: 0.85rem;

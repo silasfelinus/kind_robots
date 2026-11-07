@@ -1,4 +1,4 @@
-<!-- The Royal Atlas: the kingdom map (t-054) on a parchment sheet. Its regions
+<!-- The Royal Atlas: the kingdom map (t-054) on a pale rainbow card. Its regions
      are named where they lie and each one's card is painted in that region's
      CURRENT state, so your decrees, the reign's decay and any tyranny pins
      repaint the atlas. The lake is where you fish. A painted kingdom map is

@@ -242,7 +242,7 @@ onBeforeUnmount(() => {
   backdrop-filter: blur(8px);
 }
 .rh-fishing .rh-eyebrow {
-  color: var(--rh-gold-hi, #f7df8f);
+  color: var(--rh-gold-soft, #ffe75d);
 }
 .rh-fishing__header {
   display: flex;
@@ -473,13 +473,13 @@ onBeforeUnmount(() => {
   overflow: visible;
   background: linear-gradient(
     90deg,
-    #3f8f4a,
-    #9cc34a 38%,
-    #e7c04a 58%,
-    #e0813a 76%,
-    #b8312a
+    #46db80,
+    #c6f432 38%,
+    #ffe75d 58%,
+    #ffb32b 76%,
+    #ef3db4
   );
-  border: 1.5px solid var(--rh-gold, #d4a63b);
+  border: 2px solid var(--rh-ink, #10133d);
   box-shadow: inset 0 1px 3px rgb(0 0 0 / 0.45);
 }
 .rh-fishing__meter--tension .rh-fishing__tension-needle {
@@ -490,16 +490,16 @@ onBeforeUnmount(() => {
   height: auto;
   translate: -50% 0;
   border-radius: 0.15rem;
-  background: linear-gradient(180deg, #fff6da, #d8c08a);
+  background: #fff;
   box-shadow:
-    0 0 0 1.5px #2a1c10,
-    0 2px 4px rgb(0 0 0 / 0.5);
+    0 0 0 2px var(--rh-ink, #10133d),
+    2px 2px 0 2px var(--rh-hot, #ef3db4);
   transition: left 160ms ease-out;
 }
 .rh-fishing__meter--tension.is-danger {
   box-shadow:
     inset 0 1px 3px rgb(0 0 0 / 0.45),
-    0 0 10px #f5674b;
+    0 0 12px var(--rh-hot, #ef3db4);
 }
 .rh-fishing__prompt {
   display: inline-flex;
@@ -507,19 +507,19 @@ onBeforeUnmount(() => {
   gap: 0.4rem;
   min-height: 2.2rem;
   padding: 0.2rem 0.75rem 0.2rem 0.3rem;
-  border-radius: 0.3rem;
-  background: linear-gradient(180deg, #f3e8cc, #e5d3a6);
-  color: #2a1c10;
+  border-radius: 999px;
+  background: var(--rh-parch, #e9fff5);
+  color: var(--rh-ink, #10133d);
   font-family: var(--rh-display);
   font-weight: 800;
   font-size: 0.9rem;
   white-space: nowrap;
-  box-shadow:
-    inset 0 0 0 1px #8a6116,
-    inset 0 0 0 2.5px var(--rh-gold, #d4a63b);
+  border: 2px solid var(--rh-ink, #10133d);
+  box-shadow: 3px 3px 0 var(--rh-gold, #2beed3);
 }
 .rh-fishing__prompt[data-aim='SLACK'] {
-  background: linear-gradient(180deg, #f6d9c8, #e0b49a);
+  background: var(--rh-parch-shade, #ffdaee);
+  box-shadow: 3px 3px 0 var(--rh-hot, #ef3db4);
 }
 .rh-fishing__key {
   display: inline-grid;
@@ -527,11 +527,11 @@ onBeforeUnmount(() => {
   width: 1.65rem;
   height: 1.65rem;
   border-radius: 999px;
-  background: radial-gradient(circle at 40% 35%, #1f3f93, #0f1f4d);
-  color: #f7df8f;
+  background: var(--rh-plum-deep, #080d35);
+  color: var(--rh-gold-soft, #ffe75d);
   font-size: 0.8rem;
   font-weight: 900;
-  box-shadow: 0 0 0 1.5px var(--rh-gold, #d4a63b);
+  box-shadow: 0 0 0 2px var(--rh-gold, #2beed3);
 }
 .rh-fishing__cue {
   font-size: 0.76rem;

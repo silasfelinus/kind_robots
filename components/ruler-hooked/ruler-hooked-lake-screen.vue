@@ -1,7 +1,8 @@
 <!-- The lake, in first person. The painted far shore reacts to your decrees
      (pristine / farmed / industrial), and to the reign's decay and tyranny
-     pins (t-054: gallows, a poisoned lake) as their paintings land; a rotten
-     reign also stains the water. Your own rod reaches in from the
+     pins (t-054: gallows, a poisoned lake) as their paintings land; a failing
+     reign fumes violet over the water and a rotten one slicks it with a
+     chartreuse oil-spectrum. Your own rod reaches in from the
      bottom-right. The ruler is never drawn in the scene (consolePOV contract). -->
 <template>
   <section class="rh-screen rh-lake" aria-label="Castle Lake">
@@ -328,18 +329,37 @@ function formatSize(cm: number): string {
   position: absolute;
   inset: 0;
   pointer-events: none;
-  opacity: calc(var(--rh-soot) * 0.9);
+  opacity: var(--rh-blight);
   background:
     radial-gradient(
-      60% 22% at 38% 78%,
-      rgb(60 30 90 / 0.45),
-      rgb(20 60 40 / 0.25) 45%,
+      55% 20% at 40% 80%,
+      rgb(198 244 50 / 0.55),
+      rgb(43 238 211 / 0.2) 50%,
+      transparent 72%
+    ),
+    radial-gradient(
+      70% 45% at 15% 100%,
+      rgb(150 40 255 / 0.55),
       transparent 70%
     ),
-    linear-gradient(180deg, rgb(40 36 30 / 0.35), transparent 35%),
-    linear-gradient(0deg, rgb(10 14 8 / 0.45), transparent 40%);
-  mix-blend-mode: multiply;
+    radial-gradient(60% 40% at 90% 0%, rgb(143 43 255 / 0.4), transparent 70%);
+  mix-blend-mode: screen;
   transition: opacity 900ms ease;
+}
+.rh-lake__blight::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  opacity: 0.7;
+  background: repeating-linear-gradient(
+    168deg,
+    rgb(255 43 214 / 0.55) 0 14px,
+    rgb(228 255 61 / 0.5) 14px 26px,
+    rgb(43 238 211 / 0.5) 26px 40px,
+    rgb(143 43 255 / 0.55) 40px 54px
+  );
+  mix-blend-mode: overlay;
+  mask-image: radial-gradient(48% 16% at 42% 80%, #000 30%, transparent 75%);
 }
 .rh-rod {
   position: absolute;
@@ -430,18 +450,10 @@ function formatSize(cm: number): string {
   min-width: min(22rem, 100%);
   padding: 0.9rem 1.6rem 1rem;
   border-radius: 1.2rem;
-  background:
-    radial-gradient(
-      120% 140% at 50% 0%,
-      rgb(255 255 255 / 0.25),
-      transparent 50%
-    ),
-    linear-gradient(180deg, #f0c04a, #b87a1c);
-  border: 2px solid #fff1c9;
-  box-shadow:
-    0 0 0 3px var(--rh-plum),
-    0 10px 24px rgb(0 0 0 / 0.4);
-  color: var(--rh-plum-deep);
+  background: var(--rh-gold-soft);
+  border: 3px solid var(--rh-ink);
+  box-shadow: 5px 5px 0 var(--rh-hot);
+  color: var(--rh-ink);
   cursor: pointer;
   transition: transform 140ms ease;
 }

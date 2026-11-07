@@ -72,6 +72,8 @@
                 :disabled="!targetable(side, lane) && !unit(side, lane)"
                 :aria-label="slotLabel(side, lane)"
                 :data-testid="'clash-' + side + '-' + lane"
+                :data-clash-side="side"
+                :data-clash-lane="lane"
                 @click="clickSlot(side, lane)"
               >
                 <template v-if="unit(side, lane)">
@@ -191,68 +193,17 @@
           FIGHT <span aria-hidden="true">›</span>
         </button>
       </div>
-      <div class="clash-tray">
-        <div class="clash-hand" aria-label="Cards in your hand">
-          <button
-            v-for="(id, index) in game.hands.player"
-            :key="id + ':' + index"
-            type="button"
-            class="clash-card"
-            :class="{
-              selected: heldIndex === index,
-              unaffordable: !playableNow(id),
-            }"
-            :aria-disabled="!playableNow(id)"
-            :title="clashCardText(cardById(id))"
-            :data-testid="'clash-hand-' + index"
-            :aria-pressed="heldIndex === index"
-            @click="pick(index)"
-          >
-            <SlimeCityArtwork
-              :image-id="slimeArtId('cards', id)"
-              :fallback-image-id="
-                slimeArtId(
-                  'crews',
-                  cardById(id).team === 'mercenary'
-                    ? lab.activeTeam
-                    : cardById(id).team,
-                )
-              "
-              :title="
-                slimeArtId('cards', id)
-                  ? cardById(id).name
-                  : 'Crew art preview: bespoke Comfy card illustration pending'
-              "
-              :alt="cardById(id).name"
-              :fallback="cardById(id).symbol"
-              compact
-            />
-            <span class="clash-cost"
-              >{{ clashPlayCost(cardById(id)) }} PLAY{{
-                clashPlayCost(cardById(id)) === 2 ? 'S' : ''
-              }}</span
-            >
-            <span class="clash-card-label"
-              ><em>{{ clashCardBadge(cardById(id)) }}</em
-              ><b>{{ cardById(id).name }}</b
-              ><small>{{ kindLabel(cardById(id)) }}</small></span
-            >
-          </button>
-        </div>
-        <aside
-          class="clash-detail"
-          data-testid="clash-detail"
-          aria-live="polite"
-        >
-          <template v-if="detail">
-            <strong>{{ detail.name }}</strong>
-            <small>{{ detail.meta }}</small>
-            <p>{{ detail.text }}</p>
-          </template>
-          <p v-else class="clash-detail-hint">{{ hint }}</p>
-        </aside>
+      <div class="clash-hand-zone">
+        <p class="clash-ticker" aria-live="polite">{{ ticker }}</p>
       </div>
     </footer>
+    <SlimeCityClashHand
+      :game="game"
+      :held="heldIndex"
+      :inspect="inspect"
+      @pick="onPick"
+      @drop="onDrop"
+    />
   </section>
 </template>
 
@@ -278,8 +229,6 @@ import {
   canClashPlay,
   chooseClashCpu,
   clashBossMax,
-  clashCardBadge,
-  clashCardText,
   clashPlayCost,
   clashPower,
   clashUnitAt,
@@ -421,52 +370,33 @@ const bossHit = computed<Side | null>(() =>
       : 'player'
     : null,
 )
-const detail = computed<{ name: string; meta: string; text: string } | null>(
-  () => {
-    if (selectedCard.value) {
-      const card = selectedCard.value
-      const plays = clashPlayCost(card)
-      return {
-        name: card.name,
-        meta:
-          kindLabel(card) +
-          ' · ' +
-          plays +
-          ' PLAY' +
-          (plays === 2 ? 'S' : '') +
-          (playableNow(card.id) ? ' · tap a glowing alley' : ''),
-        text: clashCardText(card),
-      }
-    }
-    const u = game.value.units.find((v) => v.uid === selectedUnit.value)
-    if (!u) return null
-    const card = cardById(u.cardId)
-    return {
-      name: card.name,
-      meta:
-        (u.side === 'player' ? 'YOUR FIGHTER' : 'RIVAL FIGHTER') +
-        ' · ALLEY ' +
-        (u.lane + 1) +
-        ' · ' +
-        clashPower(game.value, u) +
-        ' ⚔ ' +
-        u.hp +
-        '/' +
-        u.maxHp +
-        ' ♥' +
-        (u.armor ? ' · ' + u.armor + ' ARMOR' : ''),
-      text:
-        clashCardText(card) +
-        (u.rooted ? ' Stunned: skips its next strike.' : '') +
-        (u.fresh ? ' Just landed: reaches the boss next turn.' : ''),
-    }
-  },
-)
-const hint = computed(() => {
-  if (busy.value || game.value.victor)
-    return game.value.log[game.value.log.length - 1]?.text ?? 'Clash!'
-  return 'Tap a card or fighter to read what it does. Fighters strike straight across their own alley; an open alley hits the boss.'
+const inspect = computed<{ id: string; note: string } | null>(() => {
+  const u = game.value.units.find((v) => v.uid === selectedUnit.value)
+  if (!u) return null
+  return {
+    id: u.cardId,
+    note:
+      (u.side === 'player' ? 'Your fighter' : 'Rival fighter') +
+      ' in alley ' +
+      (u.lane + 1) +
+      ': ' +
+      clashPower(game.value, u) +
+      ' power, ' +
+      u.hp +
+      '/' +
+      u.maxHp +
+      ' life' +
+      (u.armor ? ', ' + u.armor + ' armor' : '') +
+      '.' +
+      (u.rooted ? ' Stunned: skips its next strike.' : '') +
+      (u.fresh ? ' Just landed: reaches the boss next turn.' : ''),
+  }
 })
+const ticker = computed(() =>
+  busy.value || game.value.victor
+    ? (game.value.log[game.value.log.length - 1]?.text ?? '')
+    : '',
+)
 
 function unit(side: Side, lane: number): ClashUnit | undefined {
   return clashUnitAt(game.value, side, lane)
@@ -480,13 +410,6 @@ function artFor(u: ClashUnit): number | null {
 }
 function healthWidth(side: Side): string {
   return Math.max(0, (game.value.boss[side] / clashBossMax(side)) * 100) + '%'
-}
-function kindLabel(card: Card): string {
-  return card.kind === 'creature'
-    ? 'FIGHTER'
-    : card.kind === 'equipment'
-      ? 'GEAR'
-      : card.kind.toUpperCase()
 }
 function status(u: ClashUnit): string {
   if (u.rooted) return 'STUN'
@@ -529,9 +452,13 @@ function floater(side: Side, lane: number): string | null {
   if (hit.target !== 'unit') return null
   return hit.dealt > 0 ? '-' + hit.dealt : 'BLOCK'
 }
-function pick(index: number): void {
+function onPick(index: number | null): void {
   selectedUnit.value = null
-  heldIndex.value = heldIndex.value === index ? null : index
+  heldIndex.value = index
+}
+function onDrop(index: number, side: Side, lane: number): void {
+  heldIndex.value = index
+  if (targetable(side, lane)) clickSlot(side, lane)
 }
 function slotLabel(side: Side, lane: number): string {
   const u = unit(side, lane)
@@ -901,96 +828,7 @@ function forecast(lane: number): string {
   height: 100%;
   object-fit: cover;
 }
-.clash-face {
-  color: #0e1d1b !important;
-  background: #c4f862;
-  border-radius: 0.5rem;
-  padding: 0.4rem 0.65rem;
-  font-size: 0.7rem;
-  font-weight: 900;
-}
-.clash-sidebar {
-  position: absolute;
-  right: 0.5rem;
-  top: 0.5rem;
-  bottom: 0.5rem;
-  width: min(270px, 48%);
-  z-index: 5;
-  min-height: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-}
-.clash-info,
-.clash-recap {
-  min-height: 0;
-  border: 1px solid #4a8e7f55;
-  border-radius: 0.7rem;
-  padding: 0.65rem;
-  background: #081c24d9;
-  display: flex;
-  flex-direction: column;
-  gap: 0.45rem;
-}
-.clash-info {
-  flex: 0 0 auto;
-  max-height: 65%;
-  overflow-y: auto;
-}
-.clash-info strong {
-  font-size: 0.9rem;
-  line-height: 1.12;
-}
-.clash-info p {
-  font-size: 0.78rem;
-  line-height: 1.35;
-  color: #c6dbd8;
-  margin: 0;
-}
-.clash-info small {
-  font-size: 0.67rem;
-  color: var(--neon);
-}
-.clash-help {
-  font-size: 0.67rem;
-  color: #9ab5ae;
-  line-height: 1.35;
-}
-.clash-detail-art {
-  height: clamp(75px, 16vh, 170px);
-  overflow: hidden;
-  border-radius: 0.45rem;
-}
-.clash-detail-art :deep(img) {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-.clash-recap {
-  flex: 1;
-  overflow: auto;
-}
-.clash-recap ol {
-  margin: 0;
-  padding: 0;
-  list-style: none;
-  display: flex;
-  flex-direction: column;
-  gap: 0.4rem;
-}
-.clash-recap li {
-  font-size: 0.71rem;
-  line-height: 1.3;
-  color: #a9ceca;
-  border-bottom: 1px solid #ffffff0d;
-  padding-bottom: 0.25rem;
-}
-.clash-recap li.log-boss {
-  color: #ffe0a7;
-}
-.clash-recap li.log-death {
-  color: #ffb6ac;
-}
+
 .clash-bottom {
   flex: none;
   display: flex;
@@ -1015,80 +853,7 @@ function forecast(lane: number): string {
   font-size: 0.72rem;
   color: #b3cfc7;
 }
-.clash-hand {
-  display: grid;
-  grid-template-columns: repeat(5, minmax(0, 1fr));
-  gap: 0.4rem;
-  min-height: clamp(145px, 21vh, 225px);
-  max-height: 240px;
-}
-.clash-card {
-  aspect-ratio: 2 / 3;
-  overflow: hidden;
-  min-width: 0;
-  position: relative;
-  border-radius: 0.5rem;
-  border: 1px solid #7ca8a063;
-  background: #16323a;
-}
-.clash-card.selected {
-  border: 2px solid var(--neon);
-  transform: translateY(-3px);
-  box-shadow: 0 0 12px #b9f15166;
-}
-.clash-card.unaffordable {
-  filter: saturate(0.45);
-}
-.clash-card :deep(img) {
-  position: absolute;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  top: 0;
-  left: 0;
-}
-.clash-cost {
-  position: absolute;
-  top: 0.2rem;
-  left: 0.2rem;
-  z-index: 1;
-  min-width: 2rem;
-  height: 1.25rem;
-  padding: 0.05rem 0.25rem;
-  border-radius: 0.4rem;
-  background: #b9ef56;
-  color: #071115;
-  font-size: 0.75rem;
-  font-weight: 900;
-  display: grid;
-  place-items: center;
-}
-.clash-card-label {
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  background: linear-gradient(transparent, #031219fc 40%);
-  padding: 0.7rem 0.25rem 0.2rem;
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-}
-.clash-card-label b {
-  font-size: clamp(0.55rem, 0.8vw, 0.78rem);
-  line-height: 1.1;
-  text-align: left;
-}
-.clash-card-label small {
-  font-size: 0.58rem;
-  text-transform: uppercase;
-  color: #bbd5c9;
-}
-.clash-footnote {
-  font-size: 0.56rem;
-  color: #88a89e;
-  text-align: right;
-}
+
 @media (max-width: 850px) {
   .clash {
     overflow: auto;
@@ -1097,20 +862,9 @@ function forecast(lane: number): string {
     grid-template-columns: minmax(0, 1fr);
     flex: none;
   }
-  .clash-sidebar {
-    flex-direction: column;
-    min-height: 100px;
-  }
-  .clash-info,
-  .clash-recap {
-    flex: 1;
-    max-height: 190px;
-  }
+
   .clash-row {
     min-height: 120px;
-  }
-  .clash-hand {
-    min-height: 150px;
   }
 }
 @media (max-width: 520px) {
@@ -1172,37 +926,9 @@ function forecast(lane: number): string {
   .clash-impact span {
     font-size: 0.51rem;
   }
-  .clash-sidebar {
-    flex-direction: column;
-  }
-  .clash-info {
-    max-height: 200px;
-  }
-  .clash-recap {
-    max-height: 100px;
-  }
-  .clash-hand {
-    gap: 0.2rem;
-    min-height: 125px;
-  }
-  .clash-card-label {
-    padding: 0.6rem 0.1rem 0.15rem;
-  }
-  .clash-card-label b {
-    font-size: 0.51rem;
-  }
-  .clash-card-label small {
-    font-size: 0.47rem;
-  }
-  .clash-cost {
-    min-width: 1.35rem;
-    height: 1rem;
-    font-size: 0.51rem;
-  }
 }
 @media (prefers-reduced-motion: reduce) {
   .clash-slot,
-  .clash-card,
   .clash-health i {
     transition: none;
   }
@@ -1307,22 +1033,7 @@ function forecast(lane: number): string {
   padding: 0.35rem 0.55rem;
   font-size: 0.66rem;
 }
-.clash-hand {
-  display: flex;
-  justify-content: center;
-  gap: clamp(0.2rem, 0.65vw, 0.5rem);
-  min-height: 0;
-  max-height: clamp(100px, 17vh, 160px);
-}
-.clash-card {
-  flex: 0 1 clamp(70px, 9vw, 103px);
-  width: clamp(70px, 9vw, 103px);
-  max-height: clamp(100px, 17vh, 160px);
-  aspect-ratio: 2 / 3;
-}
-.clash-card-label b {
-  font-size: clamp(0.52rem, 0.74vw, 0.69rem);
-}
+
 @media (max-width: 850px) {
   .clash {
     overflow: hidden;
@@ -1331,25 +1042,8 @@ function forecast(lane: number): string {
     grid-template-columns: minmax(0, 1fr);
     flex: 1 1 auto;
   }
-  .clash-hand {
-    min-height: 0;
-    max-height: 130px;
-  }
-  .clash-card {
-    flex-basis: clamp(56px, 17vw, 88px);
-    width: clamp(56px, 17vw, 88px);
-    max-height: 130px;
-  }
 }
 @media (max-width: 520px) {
-  .clash-hand {
-    max-height: 110px;
-  }
-  .clash-card {
-    flex-basis: min(18vw, 70px);
-    width: min(18vw, 70px);
-    max-height: 110px;
-  }
   .clash-boss {
     gap: 0.25rem;
   }
@@ -1470,81 +1164,7 @@ function forecast(lane: number): string {
   color: #d7ff89;
 }
 /* Readable cards: a badge on every hand card and a rules panel beside the hand. */
-.clash-card-label em {
-  font-style: normal;
-  font-size: clamp(0.5rem, 0.72vw, 0.68rem);
-  font-weight: 900;
-  color: #ffe6a6;
-  line-height: 1.1;
-}
-.clash-tray {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
-  align-items: stretch;
-  gap: 0.5rem;
-  min-height: 0;
-}
-.clash-tray .clash-hand {
-  grid-column: 2;
-}
-.clash-detail {
-  grid-column: 3;
-  min-width: 0;
-  max-width: 24rem;
-  max-height: clamp(100px, 17vh, 160px);
-  overflow-y: auto;
-  border: 1px solid #4a8e7f55;
-  border-radius: 0.6rem;
-  padding: 0.4rem 0.55rem;
-  background: #081c24d9;
-  display: flex;
-  flex-direction: column;
-  gap: 0.2rem;
-}
-.clash-detail strong {
-  font-size: 0.82rem;
-  line-height: 1.1;
-}
-.clash-detail small {
-  font-size: 0.6rem;
-  letter-spacing: 0.05em;
-  color: var(--neon);
-}
-.clash-detail p {
-  margin: 0;
-  font-size: 0.72rem;
-  line-height: 1.3;
-  color: #d3e6e2;
-}
-.clash-detail p.clash-detail-hint {
-  color: #9ab5ae;
-}
-@media (max-width: 1100px) {
-  .clash-tray {
-    grid-template-columns: auto minmax(0, 1fr);
-  }
-  .clash-tray .clash-hand {
-    grid-column: 1;
-  }
-  .clash-detail {
-    grid-column: 2;
-    max-width: none;
-  }
-}
-@media (max-width: 700px) {
-  .clash-tray {
-    display: flex;
-    flex-direction: column-reverse;
-    gap: 0.25rem;
-  }
-  .clash-detail {
-    max-height: 3.4rem;
-    padding: 0.25rem 0.45rem;
-  }
-  .clash-detail p {
-    font-size: 0.64rem;
-  }
-}
+
 @media (prefers-reduced-motion: reduce) {
   .clash-slot.lunge,
   .clash-slot.hit,
@@ -1553,6 +1173,38 @@ function forecast(lane: number): string {
   }
   .clash-float {
     animation-duration: 0.5s;
+  }
+}
+/* Fixed hand zone: the floating hand overlays it, so turns never resize the board. */
+.clash {
+  position: relative;
+  overflow: clip;
+}
+.clash-hand-zone {
+  position: relative;
+  height: calc(clamp(9.5rem, 30vw, 15rem) * 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 4.5rem;
+}
+.clash-ticker {
+  margin: 0;
+  max-width: 34rem;
+  text-align: center;
+  font-size: clamp(0.7rem, 1.6vw, 0.95rem);
+  font-weight: 750;
+  line-height: 1.3;
+  color: #c9e3dc;
+}
+.clash-row.is-player .clash-empty {
+  position: absolute;
+  top: 14%;
+}
+@media (max-width: 700px) {
+  .clash-hand-zone {
+    height: 5rem;
+    padding: 0 3.6rem;
   }
 }
 </style>

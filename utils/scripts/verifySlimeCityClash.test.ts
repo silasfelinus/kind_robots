@@ -87,8 +87,31 @@ assert.match(gamePage, /<SlimeCityClash v-else-if="lab\.view === 'clash'"/)
 assert.doesNotMatch(gamePage, /Clash[^\n]*user\.isAdmin/)
 assert.doesNotMatch(view, /clash-attack-boss/, 'no manual attack picking')
 assert.match(view, /strikeClash/, 'board drives the automatic alley sweep')
-assert.match(view, /data-testid="clash-detail"/, 'card rules are readable')
-assert.match(view, /clashCardBadge/, 'hand cards show their effect')
+const hand = readFileSync('components/slime-city-clash-hand.vue', 'utf8')
+const cardFace = readFileSync(
+  'components/slime-city-clash-card-face.vue',
+  'utf8',
+)
+assert.match(view, /<SlimeCityClashHand/, 'Clash uses the floating fanned hand')
+assert.doesNotMatch(
+  view,
+  /class="clash-tray"/,
+  'the hand takes no layout space',
+)
+assert.match(
+  view,
+  /class="clash-hand-zone"/,
+  'a fixed zone keeps the board still',
+)
+assert.match(view, /:data-clash-lane="lane"/, 'alleys accept dragged cards')
+assert.match(hand, /data-testid="clash-hand-toggle"/, 'closed hand is an icon')
+assert.match(hand, /:aria-expanded="isOpen"/)
+assert.match(hand, /data-testid="clash-detail"/, 'tapped fighters show rules')
+assert.match(hand, /cxh-deal-enter-active/, 'cards deal out of the icon')
+assert.match(hand, /prefers-reduced-motion/)
+assert.match(cardFace, /clashCardBadge/, 'hand cards show their effect')
+assert.match(cardFace, /:fallback-image-id="[\s\S]*?slimeArtId\(\s*'crews'/)
+assert.match(cardFace, /clashCardText/, 'selected cards show their rules')
 assert.match(view, /@keyframes clash-lunge-up/)
 assert.match(view, /prefers-reduced-motion/)
 assert.match(view, /chooseClashCpu/)
@@ -97,7 +120,6 @@ assert.doesNotMatch(view, /class="clash-top"/)
 assert.doesNotMatch(view, /\? RULES/)
 assert.doesNotMatch(view, /THE PITWORKS · MAIN EVENT/)
 assert.match(view, /slimeArtId\('boards', 'pitworks-blackout'\)/)
-assert.match(view, /:fallback-image-id="[\s\S]*?slimeArtId\(\s*'crews'/)
 const nav = readFileSync('components/navigation/channel-select.vue', 'utf8')
 assert.match(nav, /class="slime-nav-title"/)
 const artwork = readFileSync('components/slime-city-artwork.vue', 'utf8')
@@ -127,7 +149,7 @@ for (const card of CARDS) {
   assert.ok(b.plays === 1 || b.plays === 2)
   if (card.kind === 'creature') {
     assert.ok(b.attack >= 2 && b.attack <= (b.plays === 2 ? 6 : 4), card.id)
-    assert.ok(b.hp >= 2 && b.hp <= (b.plays === 2 ? 11 : 7), card.id)
+    assert.ok(b.hp >= 2 && b.hp <= (b.plays === 2 ? 14 : 10), card.id)
     assert.ok(b.armor >= 0 && b.armor <= 1)
     for (const k of card.keywords ?? [])
       assert.ok(clashCardText(card).includes(CLASH_TRAIT_TEXT[k]), card.id + k)

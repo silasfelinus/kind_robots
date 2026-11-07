@@ -14,20 +14,21 @@ import {
 } from './prototypes'
 
 export const CLASH_LANES = 5
-export const CLASH_BOSS_HP = 20
+export const CLASH_BOSS_HP = 28
 /**
  * The crew that moves second starts its boss with extra life (Hearthstone's
- * coin). CPU mirror sweeps, 2026-11-07: +0 let the first seat win ~63%, +4
- * ~54%, +5 ~51.5%.
+ * coin). CPU sweeps, 2026-11-07: at boss 20, +0 let the first seat win
+ * ~63% and +5 ~51.5%; at the beefier boss 28 (Silas: "we want creatures to
+ * feel fun and beefy"), +8 holds it near 55%.
  */
-export const CLASH_SECOND_SEAT_BONUS = 5
+export const CLASH_SECOND_SEAT_BONUS = 8
 export function clashBossMax(side: Side): number {
   return CLASH_BOSS_HP + (side === 'enemy' ? CLASH_SECOND_SEAT_BONUS : 0)
 }
 export const CLASH_PLAYS = 2
 export const CLASH_DECK_SIZE = 20
 export const CLASH_HAND_SIZE = 5
-export const CLASH_ROUND_LIMIT = 14
+export const CLASH_ROUND_LIMIT = 18
 
 export type ClashPhase = 'play' | 'attack'
 export interface ClashUnit {
@@ -146,17 +147,17 @@ export function clashPlayCost(card: Card): 1 | 2 {
  * Clash budgets (2026-11-07 rebalance). The grid-era stats were tuned around
  * movement, range and action points; in five fixed alleys a fighter is only
  * its strike, its toughness and its traits. Every fighter spends one stat
- * budget per play tier: power costs 2, armor 2, each trait its listed price,
+ * budget per play tier: power costs 2, armor 3, each trait its listed price,
  * and the remainder becomes life. The grid card's attack still sets the
  * character's shape, so bruisers, glass cannons and walls stay distinct.
  * Tuned with `npm run balance:slime-city-clash` CPU sweeps.
  */
-export const CLASH_FOLLOWER_BUDGET: Record<1 | 2, number> = { 1: 11, 2: 20 }
+export const CLASH_FOLLOWER_BUDGET: Record<1 | 2, number> = { 1: 14, 2: 25 }
 export const CLASH_TRAIT_COST: Record<Keyword, number> = {
   ambush: 1,
   regen: 1,
   swarm: 2,
-  leech: 2,
+  leech: 3,
   // Bulldoze only matters on overkill; priced as flavor.
   bulldoze: 0,
   volatile: 1,
@@ -199,9 +200,9 @@ export function clashBalance(card: Card): ClashCardBalance {
     0,
   )
   const hp = clamp(
-    CLASH_FOLLOWER_BUDGET[plays] - attack * 2 - armor * 2 - traits,
+    CLASH_FOLLOWER_BUDGET[plays] - attack * 2 - armor * 3 - traits,
     heavy ? 5 : 2,
-    heavy ? 11 : 7,
+    heavy ? 14 : 10,
   )
   return { plays, attack, hp, armor, power: 0 }
 }

@@ -571,7 +571,19 @@ function casualties(s: ClashState): void {
   const fallen = s.units.filter((u) => u.hp <= 0)
   s.units = s.units.filter((u) => u.hp > 0)
   for (const u of fallen) {
-    s.discards[u.side].push(u.cardId)
+    if (!u.token) s.discards[u.side].push(u.cardId)
+    if (u.cardId === 'rat' && !u.token) {
+      s.deathMarks[u.side].rat = Math.min(3, (s.deathMarks[u.side].rat ?? 0) + 1)
+      if (u.level === 3) {
+        for (const nearby of s.units.filter((v) => v.side !== u.side && Math.abs(v.lane - u.lane) === 1))
+          damage(nearby, 2)
+      }
+    }
+    for (const collector of s.units.filter((v) => v.side !== u.side && v.cardId === 'collector' && v.level >= 2)) {
+      collector.attack = clamp(collector.attack + 1, 0, 10)
+      if (collector.level === 3)
+        collector.hp = Math.min(collector.maxHp, collector.hp + 1)
+    }
     note(
       s,
       nameOf(u) + ' falls in alley ' + (u.lane + 1) + '.',
@@ -619,7 +631,7 @@ export function playClash(
     const old = unitAt(s, side, lane)
     if (old) {
       s.units = s.units.filter((u) => u.uid !== old.uid)
-      s.discards[side].push(old.cardId)
+      if (!old.token) s.discards[side].push(old.cardId)
       note(s, nameOf(old) + ' makes way for ' + card.name + '.', 'play', lane)
     }
     const unit: ClashUnit = {
@@ -640,8 +652,22 @@ export function playClash(
       gear: [],
       level,
     }
+    if (id === 'rat')
+      unit.attack = Math.min(10, unit.attack + (s.deathMarks[side].rat ?? 0))
+    if (id === 'broker' && level >= 2 && old) {
+      const attackGain = level === 3 ? 3 : 2
+      const lifeGain = level === 3 ? 4 : 2
+      unit.attack = Math.min(10, unit.attack + attackGain)
+      unit.hp += lifeGain
+      unit.maxHp += lifeGain
+      note(s, 'Flesh Broker buys out an ally for a stronger body.', 'play', lane)
+    }
     s.units.push(unit)
     note(s, card.name + ' enters alley ' + (lane + 1) + '.', 'play', lane)
+    if (id === 'juggernaut' && level === 3) {
+      for (const ally of s.units.filter((u) => u.side === side && u.uid !== unit.uid && Math.abs(u.lane - lane) === 1))
+        ally.armor = Math.min(3, ally.armor + 1)
+    }
     const trap = s.traps.find((t) => t.side === foe && t.lane === lane)
     if (trap) {
       const effect = cardById(trap.cardId)
@@ -651,6 +677,42 @@ export function playClash(
       s.discards[foe].push(trap.cardId)
       note(s, effect.name + ' springs on ' + card.name + '!', 'trap', lane)
       casualties(s)
+    }
+    if ((id === 'sprite' || id === 'merc-smog-moth') && level >= 2 && unit.hp > 0) {
+      const free = [lane - 1, lane + 1].filter((n) => inside(n) && !unitAt(s, side, n))
+      for (const neighbor of (level === 3 ? free : free.slice(0, 1))) {
+        const token: ClashUnit = {
+          uid: s.nextUid++,
+          cardId: id,
+          side,
+          lane: neighbor,
+          hp: 2,
+          maxHp: 2,
+          attack: 1,
+          armor: 0,
+          keywords: id === 'sprite' ? ['swarm'] : [],
+          surge: 0,
+          rooted: false,
+          ambushUsed: false,
+          attacked: false,
+          fresh: true,
+          gear: [],
+          level: 1,
+          token: true,
+        }
+        s.units.push(token)
+        note(s, card.name + ' calls a small ally into alley ' + (neighbor + 1) + '.', 'play', neighbor)
+        const waiting = s.traps.find((t) => t.side === foe && t.lane === neighbor)
+        if (waiting) {
+          const effect = cardById(waiting.cardId)
+          damage(token, clashBalance(effect, waiting.level).power)
+          if (effect.roots) token.rooted = true
+          s.traps = s.traps.filter((t) => t !== waiting)
+          s.discards[foe].push(waiting.cardId)
+          note(s, effect.name + ' catches the new ally!', 'trap', neighbor)
+          casualties(s)
+        }
+      }
     }
   } else if (card.kind === 'trap') {
     s.traps.push({ side, lane, cardId: id, level })
@@ -767,7 +829,12 @@ export function strikeClash(input: ClashState, side: Side): ClashState {
   const attacker = unitAt(s, side, lane)!
   const foeSide = opponent(side)
   const defender = unitAt(s, foeSide, lane)
-  const attackPower = clashPower(s, attacker)
+  let attackPower = clashPower(s, attacker)
+  if (attacker.cardId === 'firebrand' && attacker.level >= 2) {
+    const failed = random(s) < (attacker.level === 2 ? 0.5 : 0.25)
+    attackPower = failed ? 0 : attackPower * 2
+    note(s, failed ? 'Firebrand misfires!' : 'Firebrand doubles its fire!', 'clash', lane)
+  }
   attacker.attacked = true
   attacker.ambushUsed = true
   s.cursor = lane + 1
@@ -832,6 +899,10 @@ export function strikeClash(input: ClashState, side: Side): ClashState {
     if (has(attacker, 'bulldoze') && defender.hp < 0)
       s.boss[foeSide] += defender.hp
     if (dealt > 0 && has(attacker, 'snare')) defender.rooted = true
+    if (dealt > 0 && attacker.cardId === 'frogtrooper' && attacker.level === 3) {
+      for (const nearby of s.units.filter((v) => v.side === foeSide && Math.abs(v.lane - lane) === 1))
+        nearby.rooted = true
+    }
     if (dealt > 0 && has(attacker, 'leech'))
       attacker.hp = Math.min(attacker.maxHp, attacker.hp + 1)
     if (returned > 0 && has(defender, 'leech'))
@@ -870,11 +941,15 @@ export function endClashTurn(input: ClashState, side: Side): ClashState {
   }
   // Both crews finished. Silas, 2026-11-07 PT: "fighters shouldn't heal
   // between rounds" — damage sticks; only Regen fighters patch themselves up.
+  for (const healer of s.units.filter((u) => u.level >= 2 && ['calico', 'welder', 'merc-roof-dentist'].includes(u.cardId))) {
+    for (const neighbor of s.units.filter((u) => u.side === healer.side && u.uid !== healer.uid && Math.abs(u.lane - healer.lane) === 1))
+      neighbor.hp = Math.min(neighbor.maxHp, neighbor.hp + (healer.level === 3 ? 2 : 1))
+  }
   for (const unit of s.units) {
     if (has(unit, 'regen')) unit.hp = Math.min(unit.maxHp, unit.hp + 1)
     unit.surge = 0
   }
-  note(s, 'ROUND END: damage sticks; Regen fighters recover 1 life.', 'turn')
+  note(s, 'ROUND END: Regen and clinic crews mend fighters; other wounds remain.', 'turn')
   if (s.round >= CLASH_ROUND_LIMIT) {
     s.victor =
       s.boss.player === s.boss.enemy

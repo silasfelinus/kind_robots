@@ -21,12 +21,14 @@
     <strong class="ccf-name">{{ card.name }}</strong>
     <span class="ccf-level" :aria-label="'Level ' + level + ' of ' + maxLevel"
       ><i v-for="n in maxLevel" :key="n" :class="{ on: n <= level }" /><b
-        >LV {{ level }}</b
+        >LV {{ level }}{{ preview ? ' · PREVIEW' : '' }}</b
       ></span
     >
     <span class="ccf-rules">
       <small>{{ kind }}</small>
-      <span class="ccf-text">{{ clashCardText(card, level) }}</span>
+      <span v-if="clashCardText(card, level)" class="ccf-text">{{
+        clashCardText(card, level)
+      }}</span>
       <span v-if="note" class="ccf-text ccf-note">{{ note }}</span>
     </span>
   </span>
@@ -45,8 +47,13 @@ import {
 import { useSlimeCityStore } from '~/stores/slimeCity'
 
 const props = withDefaults(
-  defineProps<{ cardId: string; note?: string; level?: number }>(),
-  { note: '', level: 1 },
+  defineProps<{
+    cardId: string
+    note?: string
+    level?: number
+    preview?: boolean
+  }>(),
+  { note: '', level: 1, preview: false },
 )
 const maxLevel = CLASH_MAX_LEVEL
 const lab = useSlimeCityStore()

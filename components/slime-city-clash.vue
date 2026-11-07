@@ -399,7 +399,9 @@ const inspect = computed<{
       (u.armor ? ', ' + u.armor + ' armor' : '') +
       '.' +
       (u.rooted ? ' Stunned: skips its next strike.' : '') +
-      (u.fresh ? ' Just landed: reaches the boss next turn.' : ''),
+      (u.fresh && !u.keywords.includes('ambush')
+        ? ' Just landed: blocks now, strikes next turn.'
+        : ''),
   }
 })
 const ticker = computed(() =>
@@ -423,7 +425,8 @@ function healthWidth(side: Side): string {
 }
 function status(u: ClashUnit): string {
   if (u.rooted) return 'STUN'
-  if (u.fresh && !game.value.victor) return 'NEW'
+  if (u.fresh && !game.value.victor && !u.keywords.includes('ambush'))
+    return 'NEW'
   return ''
 }
 function playableNow(id: string): boolean {
@@ -509,7 +512,11 @@ function forecast(lane: number): string {
   const theirs = unit('enemy', lane)
   if (!ours && !theirs) return '◇'
   const power = (u: ClashUnit): string =>
-    u.rooted ? '⌁' : String(clashPower(game.value, u))
+    u.rooted
+      ? '⌁'
+      : u.fresh && !u.keywords.includes('ambush')
+        ? '⏳'
+        : String(clashPower(game.value, u))
   if (ours && theirs) return power(theirs) + ' ⇅ ' + power(ours)
   if (ours) return '▲ ' + power(ours)
   return '▼ ' + power(theirs!)

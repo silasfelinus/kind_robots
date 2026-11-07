@@ -19,10 +19,11 @@ export const CLASH_BOSS_HP = 40
  * The crew that moves second starts its boss with extra life (Hearthstone's
  * coin). CPU sweeps, 2026-11-07: at boss 20, +0 let the first seat win
  * ~63% and +5 ~51.5%. Boss 40 (Silas: "Hit points should be higher I'm
- * thinking 40") with card leveling and +8 held it near 53.5%; with no
- * between-round healing (Silas, 2026-11-07 PT) +12 holds it near 54%.
+ * thinking 40") with card leveling and +8 held it near 53.5%. With no
+ * between-round healing and summoning sickness (Silas, 2026-11-07 PT), +10
+ * holds it near 52%.
  */
-export const CLASH_SECOND_SEAT_BONUS = 12
+export const CLASH_SECOND_SEAT_BONUS = 10
 export function clashBossMax(side: Side): number {
   return CLASH_BOSS_HP + (side === 'enemy' ? CLASH_SECOND_SEAT_BONUS : 0)
 }
@@ -181,25 +182,32 @@ export const CLASH_TRAIT_COST: Record<Keyword, number> = {
   regen: 1,
   swarm: 2,
   leech: 1.5,
-  // Bulldoze only matters on overkill; priced as flavor.
-  bulldoze: 0,
-  volatile: 0.5,
-  pierce: 1,
-  snare: 1,
+  // Bulldoze only matters on overkill, and its slow walls wait out summoning
+  // sickness, so it pays back a point of budget.
+  bulldoze: -1,
+  volatile: 0,
+  pierce: 1.5,
+  snare: 2,
   collect: 0.5,
 }
+/**
+ * Crew calibration (2026-11-07 CPU sweeps): Undertow's snare-and-wait crew sat
+ * ~5 points under even once fighters lost round-end healing and gained
+ * summoning sickness; half a point of fighter budget closes it.
+ */
+export const CLASH_CREW_BUDGET: Partial<Record<TeamId, number>> = {
+  undertow: 0.5,
+}
 export const CLASH_TRAIT_TEXT: Record<Keyword, string> = {
-  ambush: 'Ambush: +1 power on its first strike or block.',
-  regen:
-    'Regen: recovers 1 life at the end of each round; other fighters never heal on their own.',
-  swarm: 'Swarm: +1 power while a friend holds a neighboring alley.',
-  leech: 'Leech: heals 1 whenever it deals damage.',
-  bulldoze: 'Bulldoze: damage beyond a blocker’s life hits the boss.',
-  volatile: 'Volatile: when it falls, it blasts whatever is across its alley.',
+  ambush: 'Ambush: strikes the turn it lands, +1 power on its first hit.',
+  regen: 'Regen: recovers 1 life at each round end.',
+  swarm: 'Swarm: +1 power beside a friend.',
+  leech: 'Leech: heals 1 when it deals damage.',
+  bulldoze: 'Bulldoze: extra damage spills onto the boss.',
+  volatile: 'Volatile: blasts across its alley when it falls.',
   pierce: 'Pierce: ignores 1 armor.',
-  snare:
-    'Snare: a fighter it damages on its own strike misses its next strike.',
-  collect: 'Collect: gains +1 power each time it defeats a fighter.',
+  snare: 'Snare: whatever it hits misses its next strike.',
+  collect: 'Collect: +1 power for each fighter it defeats.',
 }
 /** No changes to CARDS or the legacy battle engines. */
 export function clashBalance(card: Card, level = 1): ClashCardBalance {
@@ -235,7 +243,11 @@ export function clashBalance(card: Card, level = 1): ClashCardBalance {
   const tier = (lv - 1) as 0 | 1 | 2
   const hp = clamp(
     Math.round(
-      CLASH_FOLLOWER_BUDGET[plays][tier] - attack * 2 - armor * 2.5 - traits,
+      CLASH_FOLLOWER_BUDGET[plays][tier] +
+        (card.team === 'mercenary' ? 0 : (CLASH_CREW_BUDGET[card.team] ?? 0)) -
+        attack * 2 -
+        armor * 2.5 -
+        traits,
     ),
     heavy ? 5 : 2,
     LIFE_CAP[plays][tier],
@@ -278,96 +290,53 @@ export function clashCardBadge(card: Card, level = 1): string {
       return b.power + ' DMG'
   }
 }
-/** Clash text explains the effect actually executed, not legacy mana/AP rules. */
+/**
+ * Clash rules text: only what makes the card special (Silas, 2026-11-07 PT:
+ * "You don't need to say the power and toughness on the card description, nor
+ * the stats for rounds two and three"). Stats live on the card's chip; other
+ * levels are previewed on demand.
+ */
 export function clashCardText(card: Card, level = 1): string {
   const b = clashBalance(card, level)
-  const suffix = b.plays === 2 ? ' Costs both card plays.' : ''
   if (card.kind === 'creature')
-    return (
-      'Fighter: ' +
-      b.attack +
-      ' power, ' +
-      b.hp +
-      ' life' +
-      (b.armor ? ', 1 armor' : '') +
-      '. Strikes straight across its alley every turn; an empty alley means a hit on the rival boss.' +
-      (card.keywords ?? []).map((k) => ' ' + CLASH_TRAIT_TEXT[k]).join('') +
-      suffix +
-      levelNote(card, b.level)
-    )
+    return [
+      ...(b.armor ? ['Armor: takes 1 less damage from each hit.'] : []),
+      ...(card.keywords ?? []).map((k) => CLASH_TRAIT_TEXT[k]),
+    ].join(' ')
   if (card.kind === 'trap')
     return (
-      'Hidden in your alley. The next rival fighter to land across from it or strike through it takes ' +
+      'Hits the next rival fighter in this alley for ' +
       b.power +
-      ' damage' +
-      (card.roots ? ' and misses its next strike.' : '.') +
-      suffix +
-      levelNote(card, b.level)
+      '.' +
+      (card.roots ? ' It misses its next strike.' : '')
     )
-  let text: string
   switch (card.effect) {
     case 'heal':
-      text = 'Restore ' + b.power + ' life to your fighter.'
-      break
+      return 'Heal your fighter ' + b.power + '.'
     case 'armor':
-      text = 'Your fighter gains +1 armor, up to 2.'
-      break
+      return 'Your fighter gains +1 armor.'
     case 'sharpen':
-      text = 'Your fighter gains +' + b.bonus + ' power for good.'
-      break
+      return 'Your fighter gains +' + b.bonus + ' power for good.'
     case 'boost':
-      text =
-        card.kind === 'equipment'
-          ? 'Your fighter gains +' + b.bonus + ' power for good.'
-          : 'Your fighter gains +' + b.power + ' power this round.'
-      break
+      return card.kind === 'equipment'
+        ? 'Your fighter gains +' + b.bonus + ' power for good.'
+        : 'Your fighter gains +' + b.power + ' power this round.'
     case 'grant':
-      text =
-        'Your fighter gains ' +
-        (card.grants ?? []).map((k) => CLASH_TRAIT_TEXT[k] ?? k).join(' ')
-      break
+      return (card.grants ?? []).map((k) => CLASH_TRAIT_TEXT[k] ?? k).join(' ')
     case 'scan':
-      text = 'Disarm a rival trap in this alley and draw a replacement card.'
-      break
+      return 'Disarm a rival trap here and draw a card.'
     case 'chaos':
-      text = 'Deal 1–' + b.power + ' damage to a rival fighter.'
-      break
+      return 'Deal 1–' + b.power + ' to a rival fighter.'
     case 'root':
-      text =
-        'Stun a rival fighter: it can’t block this turn or strike on its next.'
-      break
+      return 'Stun a rival fighter: no block now, no strike next turn.'
     case 'snare':
     case 'debt':
-      text =
-        'Deal ' +
-        b.power +
-        ' damage and stun: that fighter can’t block this turn or strike on its next.'
-      break
+      return 'Deal ' + b.power + ' and stun the fighter.'
     case 'blast':
-      text =
-        'Deal ' +
-        b.power +
-        ' damage, plus 1 to rival fighters in neighboring alleys.'
-      break
+      return 'Deal ' + b.power + ', plus 1 to its neighbors.'
     default:
-      text = 'Deal ' + b.power + ' damage to a rival fighter.'
+      return 'Deal ' + b.power + ' to a rival fighter.'
   }
-  return (
-    (card.kind === 'equipment' ? 'Gear. ' : '') +
-    text +
-    suffix +
-    levelNote(card, b.level)
-  )
-}
-function levelNote(card: Card, level: number): string {
-  if (level >= CLASH_MAX_LEVEL) return ' Max level.'
-  const next = clashBalance(card, level + 1)
-  return (
-    ' Levels up when played; next level: ' +
-    (card.kind === 'creature'
-      ? next.attack + ' power, ' + next.hp + ' life.'
-      : clashCardBadge(card, level + 1) + '.')
-  )
 }
 export function clashPower(s: ClashState, u: ClashUnit): number {
   let power = u.attack + u.surge
@@ -676,13 +645,9 @@ export function nextClashStrike(s: ClashState, side: Side): number {
   if (s.victor || s.active !== side || s.phase !== 'attack') return -1
   for (let lane = s.cursor; lane < CLASH_LANES; lane++) {
     const u = unitAt(s, side, lane)
-    // A fighter that just landed brawls with a blocker but can't reach the boss yet.
-    if (
-      u &&
-      !u.rooted &&
-      !u.attacked &&
-      !(u.fresh && !unitAt(s, opponent(side), lane))
-    )
+    // Summoning sickness (Silas, 2026-11-07 PT): a fighter that just landed
+    // can block but not strike, unless a special ability (Ambush) says so.
+    if (u && !u.rooted && !u.attacked && !(u.fresh && !has(u, 'ambush')))
       return lane
   }
   return -1

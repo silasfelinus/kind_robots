@@ -117,6 +117,11 @@ assert.match(cardFace, /:fallback-image-id="[\s\S]*?slimeArtId\(\s*'crews'/)
 assert.match(cardFace, /class="ccf-level"/, 'cards show their level')
 assert.match(
   hand,
+  /data-testid="clash-level-tabs"/,
+  'players can preview upgraded versions',
+)
+assert.match(
+  hand,
   /data-testid="clash-level-up"/,
   'playing a card shows level up',
 )
@@ -184,8 +189,15 @@ for (const card of CARDS) {
       : high.power > low.power || high.bonus > low.bonus,
     card.id + ' is clearly stronger at max level',
   )
-  assert.match(clashCardText(card, 1), /Levels up when played/)
-  assert.match(clashCardText(card, CLASH_MAX_LEVEL), /Max level\./)
+  // Silas, 2026-11-07 PT: no power/toughness or next-level stats in the text.
+  for (let level = 1; level <= CLASH_MAX_LEVEL; level++) {
+    const text = clashCardText(card, level)
+    assert.doesNotMatch(text, /Levels up|Max level|next level/i, card.id)
+    assert.doesNotMatch(text, /Costs both card plays|Strikes straight/, card.id)
+    if (card.kind === 'creature')
+      assert.doesNotMatch(text, /\d+ power, \d+ life/, card.id)
+    assert.ok(text.length <= 160, card.id + ' text stays short')
+  }
 }
 assert.ok(
   CARDS.length >= 300,
@@ -223,19 +235,19 @@ assert.equal(canClashPlay(paid, 'player', 'lynx', 1), false)
 assert.equal(playClash(paid, 'player', 'lynx', 1), paid)
 
 const normal = createClash('catgirls', 'ironjaw', 6)
-normal.hands.player = ['lynx', 'mau']
-const first = playClash(normal, 'player', 'lynx', 0)
+normal.hands.player = ['calico', 'splice-runner']
+const first = playClash(normal, 'player', 'calico', 0)
 assert.equal(first.plays.player, 1)
 assert.equal(first.phase, 'play')
 assert.equal(first.active, 'player', 'both placements belong to same turn')
-const second = playClash(first, 'player', 'mau', 1)
+const second = playClash(first, 'player', 'splice-runner', 1)
 assert.equal(second.plays.player, 2)
 assert.equal(second.phase, 'attack', 'the second play starts the alley sweep')
 assert.equal(second.cursor, 0)
 assert.equal(
   nextClashStrike(second, 'player'),
   -1,
-  'fresh fighters in empty alleys cannot reach the boss yet',
+  'summoning sickness: fighters wait a turn before striking',
 )
 assert.equal(
   endClashTurn(second, 'player').active,
@@ -314,8 +326,30 @@ brawl.units = [
 ]
 assert.equal(
   nextClashStrike(brawl, 'player'),
+  -1,
+  'a fresh fighter blocks but does not strike, even with a blocker across',
+)
+brawl.units[0]!.keywords = ['ambush']
+assert.equal(
+  nextClashStrike(brawl, 'player'),
   1,
-  'a fresh fighter still brawls with a blocker',
+  'Ambush lets a fighter strike the turn it lands',
+)
+const ambushDebut = createClash('catgirls', 'ironjaw', 16)
+ambushDebut.hands.player = ['lynx', 'calico']
+const ambushed = playClash(
+  playClash(ambushDebut, 'player', 'lynx', 0),
+  'player',
+  'calico',
+  1,
+)
+assert.equal(nextClashStrike(ambushed, 'player'), 0, 'fresh Ambush strikes')
+const afterAmbush = strikeClash(ambushed, 'player')
+assert.equal(afterAmbush.strike?.target, 'boss')
+assert.equal(
+  nextClashStrike(afterAmbush, 'player'),
+  -1,
+  'the fresh non-Ambush fighter waits',
 )
 
 const healing = createClash('catgirls', 'ironjaw', 13)

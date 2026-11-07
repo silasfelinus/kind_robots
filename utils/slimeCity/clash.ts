@@ -5,6 +5,7 @@
 // fighters strike straight across their own alley, left to right, one strike
 // command per alley so the board can animate each blow.
 import { alleyDeck } from './alleys'
+import { clashTwistText } from './clashTwists'
 import {
   cardById,
   type Card,
@@ -65,6 +66,8 @@ export interface ClashUnit {
   fresh: boolean
   gear: string[]
   level: number
+  /** A battlefield-only summon, not another card in the deck. */
+  token?: boolean
 }
 export interface ClashTrap {
   side: Side
@@ -122,6 +125,8 @@ export interface ClashState {
   commands: ClashCommand[]
   /** Each crew's card levels this match; a missing id is level 1. */
   levels: Record<Side, Record<string, number>>
+  /** Knockout bonuses persist independently of the three play levels. */
+  deathMarks: Record<Side, Record<string, number>>
 }
 export interface ClashCardBalance {
   /** All 300 catalog cards get a separate, Clash-only balance profile. */
@@ -212,15 +217,15 @@ export const CLASH_CREW_BUDGET: Partial<Record<TeamId, number>> = {
   undertow: 0.5,
 }
 export const CLASH_TRAIT_TEXT: Record<Keyword, string> = {
-  ambush: 'Ambush: strikes the turn it lands, +1 power on its first hit.',
-  regen: 'Regen: recovers 1 life at each round end.',
-  swarm: 'Swarm: +1 power beside a friend.',
-  leech: 'Leech: heals 1 when it deals damage.',
-  bulldoze: 'Bulldoze: extra damage spills onto the boss.',
-  volatile: 'Volatile: blasts across its alley when it falls.',
+  ambush: 'Ambush: attacks immediately; +1 first strike.',
+  regen: 'Regen: heals 1 after each round.',
+  swarm: 'Swarm: +1 power next to an ally.',
+  leech: 'Leech: heals 1 when it hits.',
+  bulldoze: 'Bulldoze: overkill hits the boss.',
+  volatile: 'Volatile: explodes on defeat.',
   pierce: 'Pierce: ignores 1 armor.',
-  snare: 'Snare: whatever it hits misses its next strike.',
-  collect: 'Collect: +1 power for each fighter it defeats.',
+  snare: 'Snare: struck rivals skip a strike.',
+  collect: 'Collect: gains +1 power on a kill.',
 }
 /** No changes to CARDS or the legacy battle engines. */
 export function clashBalance(card: Card, level = 1): ClashCardBalance {
@@ -265,7 +270,35 @@ export function clashBalance(card: Card, level = 1): ClashCardBalance {
     heavy ? 5 : 2,
     LIFE_CAP[plays][tier],
   )
-  return { plays, level: lv, attack, hp, armor, power: 0, bonus }
+  let evolvedAttack = attack
+  let evolvedHp = hp
+  if (card.id === 'chimera') {
+    if (lv === 1) evolvedAttack = 1
+    if (lv === 3) {
+      evolvedAttack = Math.min(8, attack + 2)
+      evolvedHp = Math.min(22, hp + 3)
+    }
+  }
+  if (card.id === 'juggernaut') {
+    if (lv === 1) evolvedAttack = 1
+    if (lv === 3) evolvedAttack = Math.min(8, attack + 2)
+  }
+  if (
+    lv === 3 &&
+    (card.id === 'calico' ||
+      card.id === 'watcher' ||
+      card.id === 'merc-roof-dentist')
+  )
+    evolvedAttack = 0
+  return {
+    plays,
+    level: lv,
+    attack: evolvedAttack,
+    hp: evolvedHp,
+    armor,
+    power: 0,
+    bonus,
+  }
 }
 export function clashLevel(s: ClashState, side: Side, id: string): number {
   return s.levels?.[side]?.[id] ?? 1
@@ -321,9 +354,12 @@ export function clashCardText(card: Card, level = 1): string {
   const b = clashBalance(card, level)
   if (card.kind === 'creature')
     return [
-      ...(b.armor ? ['Armor: takes 1 less damage from each hit.'] : []),
+      ...(b.armor ? ['Armor: blocks 1 damage per hit.'] : []),
       ...(card.keywords ?? []).map((k) => CLASH_TRAIT_TEXT[k]),
-    ].join(' ')
+      clashTwistText(card.id, level),
+    ]
+      .filter(Boolean)
+      .join(' ')
   if (card.kind === 'trap')
     return (
       'Hits the next rival fighter in this alley for ' +
@@ -378,6 +414,13 @@ export function clashCardText(card: Card, level = 1): string {
   }
 }
 export function clashPower(s: ClashState, u: ClashUnit): number {
+  if (
+    u.level === 3 &&
+    (u.cardId === 'calico' ||
+      u.cardId === 'watcher' ||
+      u.cardId === 'merc-roof-dentist')
+  )
+    return 0
   let power = u.attack + u.surge
   if (has(u, 'ambush') && !u.ambushUsed) power++
   if (
@@ -388,7 +431,31 @@ export function clashPower(s: ClashState, u: ClashUnit): number {
     )
   )
     power++
-  return power
+  if (
+    u.cardId === 'frogtrooper' &&
+    u.level >= 2 &&
+    unitAt(s, opponent(u.side), u.lane)?.rooted
+  )
+    power++
+  for (const ally of s.units.filter(
+    (v) => v.side === u.side && v.uid !== u.uid,
+  )) {
+    if (
+      ally.level >= 2 &&
+      (ally.cardId === 'queen' || ally.cardId === 'merc-union-owl') &&
+      (ally.level === 3 || Math.abs(ally.lane - u.lane) === 1)
+    )
+      power++
+  }
+  for (const spy of s.units.filter(
+    (v) => v.side !== u.side && v.level >= 2 && v.cardId === 'watcher',
+  )) {
+    if (
+      spy.level === 3 ? Math.abs(spy.lane - u.lane) <= 1 : spy.lane === u.lane
+    )
+      power--
+  }
+  return Math.max(0, power)
 }
 function random(state: ClashState): number {
   state.rng = (state.rng + 0x6d2b79f5) >>> 0
@@ -435,6 +502,19 @@ function startTurn(s: ClashState, side: Side): void {
     'turn',
   )
 }
+/** A curated neutral guest per crew keeps mercenary synergies in standard Clash. */
+export const CLASH_GUESTS: Record<TeamId, string> = {
+  catgirls: 'merc-roof-dentist',
+  bloodfairies: 'merc-smog-moth',
+  ironjaw: 'merc-union-owl',
+  riot: 'merc-bribe-rat',
+  undertow: 'merc-fungal-bouncer',
+  exchange: 'merc-debt-slug',
+}
+export function clashDeck(team: TeamId): string[] {
+  const roster = alleyDeck(team)
+  return [...roster.slice(0, 19), CLASH_GUESTS[team]]
+}
 /** Twenty unique catalog cards, seeded draws and no retained hand between turns. */
 export function createClash(
   player: TeamId = 'catgirls',
@@ -462,9 +542,10 @@ export function createClash(
     nextUid: 1,
     commands: [],
     levels: { player: {}, enemy: {} },
+    deathMarks: { player: {}, enemy: {} },
   }
-  s.decks.player = shuffle(s, alleyDeck(player))
-  s.decks.enemy = shuffle(s, alleyDeck(enemy))
+  s.decks.player = shuffle(s, clashDeck(player))
+  s.decks.enemy = shuffle(s, clashDeck(enemy))
   startTurn(s, 'player')
   return s
 }
@@ -517,7 +598,26 @@ function casualties(s: ClashState): void {
   const fallen = s.units.filter((u) => u.hp <= 0)
   s.units = s.units.filter((u) => u.hp > 0)
   for (const u of fallen) {
-    s.discards[u.side].push(u.cardId)
+    if (!u.token) s.discards[u.side].push(u.cardId)
+    if (u.cardId === 'rat' && !u.token) {
+      s.deathMarks[u.side].rat = Math.min(
+        3,
+        (s.deathMarks[u.side].rat ?? 0) + 1,
+      )
+      if (u.level === 3) {
+        for (const nearby of s.units.filter(
+          (v) => v.side !== u.side && Math.abs(v.lane - u.lane) === 1,
+        ))
+          damage(nearby, 2)
+      }
+    }
+    for (const collector of s.units.filter(
+      (v) => v.side !== u.side && v.cardId === 'collector' && v.level >= 2,
+    )) {
+      collector.attack = clamp(collector.attack + 1, 0, 10)
+      if (collector.level === 3)
+        collector.hp = Math.min(collector.maxHp, collector.hp + 1)
+    }
     note(
       s,
       nameOf(u) + ' falls in alley ' + (u.lane + 1) + '.',
@@ -565,7 +665,7 @@ export function playClash(
     const old = unitAt(s, side, lane)
     if (old) {
       s.units = s.units.filter((u) => u.uid !== old.uid)
-      s.discards[side].push(old.cardId)
+      if (!old.token) s.discards[side].push(old.cardId)
       note(s, nameOf(old) + ' makes way for ' + card.name + '.', 'play', lane)
     }
     const unit: ClashUnit = {
@@ -586,8 +686,32 @@ export function playClash(
       gear: [],
       level,
     }
+    if (id === 'rat')
+      unit.attack = Math.min(10, unit.attack + (s.deathMarks[side].rat ?? 0))
+    if (id === 'broker' && level >= 2 && old) {
+      const attackGain = level === 3 ? 3 : 2
+      const lifeGain = level === 3 ? 4 : 2
+      unit.attack = Math.min(10, unit.attack + attackGain)
+      unit.hp += lifeGain
+      unit.maxHp += lifeGain
+      note(
+        s,
+        'Flesh Broker buys out an ally for a stronger body.',
+        'play',
+        lane,
+      )
+    }
     s.units.push(unit)
     note(s, card.name + ' enters alley ' + (lane + 1) + '.', 'play', lane)
+    if (id === 'juggernaut' && level === 3) {
+      for (const ally of s.units.filter(
+        (u) =>
+          u.side === side &&
+          u.uid !== unit.uid &&
+          Math.abs(u.lane - lane) === 1,
+      ))
+        ally.armor = Math.min(3, ally.armor + 1)
+    }
     const trap = s.traps.find((t) => t.side === foe && t.lane === lane)
     if (trap) {
       const effect = cardById(trap.cardId)
@@ -597,6 +721,55 @@ export function playClash(
       s.discards[foe].push(trap.cardId)
       note(s, effect.name + ' springs on ' + card.name + '!', 'trap', lane)
       casualties(s)
+    }
+    if (
+      (id === 'sprite' || id === 'merc-smog-moth') &&
+      level >= 2 &&
+      unit.hp > 0
+    ) {
+      const free = [lane - 1, lane + 1].filter(
+        (n) => inside(n) && !unitAt(s, side, n),
+      )
+      for (const neighbor of level === 3 ? free : free.slice(0, 1)) {
+        const token: ClashUnit = {
+          uid: s.nextUid++,
+          cardId: id,
+          side,
+          lane: neighbor,
+          hp: 2,
+          maxHp: 2,
+          attack: 1,
+          armor: 0,
+          keywords: id === 'sprite' ? ['swarm'] : [],
+          surge: 0,
+          rooted: false,
+          ambushUsed: false,
+          attacked: false,
+          fresh: true,
+          gear: [],
+          level: 1,
+          token: true,
+        }
+        s.units.push(token)
+        note(
+          s,
+          card.name + ' calls a small ally into alley ' + (neighbor + 1) + '.',
+          'play',
+          neighbor,
+        )
+        const waiting = s.traps.find(
+          (t) => t.side === foe && t.lane === neighbor,
+        )
+        if (waiting) {
+          const effect = cardById(waiting.cardId)
+          damage(token, clashBalance(effect, waiting.level).power)
+          if (effect.roots) token.rooted = true
+          s.traps = s.traps.filter((t) => t !== waiting)
+          s.discards[foe].push(waiting.cardId)
+          note(s, effect.name + ' catches the new ally!', 'trap', neighbor)
+          casualties(s)
+        }
+      }
     }
   } else if (card.kind === 'trap') {
     s.traps.push({ side, lane, cardId: id, level })
@@ -690,7 +863,13 @@ export function nextClashStrike(s: ClashState, side: Side): number {
     const u = unitAt(s, side, lane)
     // Summoning sickness (Silas, 2026-11-07 PT): a fighter that just landed
     // can block but not strike, unless a special ability (Ambush) says so.
-    if (u && !u.rooted && !u.attacked && !(u.fresh && !has(u, 'ambush')))
+    if (
+      u &&
+      !u.rooted &&
+      !u.attacked &&
+      clashPower(s, u) > 0 &&
+      !(u.fresh && !has(u, 'ambush'))
+    )
       return lane
   }
   return -1
@@ -707,7 +886,17 @@ export function strikeClash(input: ClashState, side: Side): ClashState {
   const attacker = unitAt(s, side, lane)!
   const foeSide = opponent(side)
   const defender = unitAt(s, foeSide, lane)
-  const attackPower = clashPower(s, attacker)
+  let attackPower = clashPower(s, attacker)
+  if (attacker.cardId === 'firebrand' && attacker.level >= 2) {
+    const failed = random(s) < (attacker.level === 2 ? 0.5 : 0.25)
+    attackPower = failed ? 0 : attackPower * 2
+    note(
+      s,
+      failed ? 'Firebrand misfires!' : 'Firebrand doubles its fire!',
+      'clash',
+      lane,
+    )
+  }
   attacker.attacked = true
   attacker.ambushUsed = true
   s.cursor = lane + 1
@@ -772,6 +961,16 @@ export function strikeClash(input: ClashState, side: Side): ClashState {
     if (has(attacker, 'bulldoze') && defender.hp < 0)
       s.boss[foeSide] += defender.hp
     if (dealt > 0 && has(attacker, 'snare')) defender.rooted = true
+    if (
+      dealt > 0 &&
+      attacker.cardId === 'frogtrooper' &&
+      attacker.level === 3
+    ) {
+      for (const nearby of s.units.filter(
+        (v) => v.side === foeSide && Math.abs(v.lane - lane) === 1,
+      ))
+        nearby.rooted = true
+    }
     if (dealt > 0 && has(attacker, 'leech'))
       attacker.hp = Math.min(attacker.maxHp, attacker.hp + 1)
     if (returned > 0 && has(defender, 'leech'))
@@ -810,11 +1009,31 @@ export function endClashTurn(input: ClashState, side: Side): ClashState {
   }
   // Both crews finished. Silas, 2026-11-07 PT: "fighters shouldn't heal
   // between rounds" — damage sticks; only Regen fighters patch themselves up.
+  for (const healer of s.units.filter(
+    (u) =>
+      u.level >= 2 &&
+      ['calico', 'welder', 'merc-roof-dentist'].includes(u.cardId),
+  )) {
+    for (const neighbor of s.units.filter(
+      (u) =>
+        u.side === healer.side &&
+        u.uid !== healer.uid &&
+        Math.abs(u.lane - healer.lane) === 1,
+    ))
+      neighbor.hp = Math.min(
+        neighbor.maxHp,
+        neighbor.hp + (healer.level === 3 ? 2 : 1),
+      )
+  }
   for (const unit of s.units) {
     if (has(unit, 'regen')) unit.hp = Math.min(unit.maxHp, unit.hp + 1)
     unit.surge = 0
   }
-  note(s, 'ROUND END: damage sticks; Regen fighters recover 1 life.', 'turn')
+  note(
+    s,
+    'ROUND END: Regen and clinic crews mend fighters; other wounds remain.',
+    'turn',
+  )
   if (s.round >= CLASH_ROUND_LIMIT) {
     s.victor =
       s.boss.player === s.boss.enemy

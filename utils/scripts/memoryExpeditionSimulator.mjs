@@ -1,8 +1,14 @@
 // Pure, versioned expedition simulation. No browser, Pinia, or Classic Match state.
 export const EXPEDITION_VERSION = 1
 const FLOOR_COUNT = 3
-const ROOMS_PER_FLOOR = 6
-const ROOM_KINDS = ['story', 'treasure', 'puzzle', 'monster', 'stranger', 'rest']
+const ROOM_KINDS = [
+  'story',
+  'treasure',
+  'puzzle',
+  'monster',
+  'stranger',
+  'rest',
+]
 
 function seedValue(seed) {
   if (!Number.isSafeInteger(seed) || seed < 0 || seed > 0xffffffff) {
@@ -38,13 +44,22 @@ export function createExpedition(seed) {
 }
 
 export function resolveExpeditionRoom(expedition, roomId, outcome) {
-  if (expedition?.version !== EXPEDITION_VERSION || !Array.isArray(expedition.floors)) {
+  if (
+    expedition?.version !== EXPEDITION_VERSION ||
+    !Array.isArray(expedition.floors)
+  ) {
     throw new TypeError('Unsupported expedition save')
   }
-  if (typeof outcome !== 'string' || !/^[a-z][a-z0-9-]{0,39}$/.test(outcome) || outcome === '__proto__') {
+  if (
+    typeof outcome !== 'string' ||
+    !/^[a-z][a-z0-9-]{0,39}$/.test(outcome) ||
+    outcome === '__proto__'
+  ) {
     throw new TypeError('Invalid room outcome')
   }
-  const matches = expedition.floors.flatMap((floor) => floor.rooms).filter((room) => room.id === roomId)
+  const matches = expedition.floors
+    .flatMap((floor) => floor.rooms)
+    .filter((room) => room.id === roomId)
   if (matches.length !== 1) throw new RangeError('Unknown or ambiguous room')
   const room = matches[0]
   if (room.status === 'resolved') return expedition
@@ -52,7 +67,9 @@ export function resolveExpeditionRoom(expedition, roomId, outcome) {
   const floors = expedition.floors.map((floor) => ({
     ...floor,
     rooms: floor.rooms.map((candidate) =>
-      candidate.id === roomId ? { ...candidate, status: 'resolved', outcome } : candidate,
+      candidate.id === roomId
+        ? { ...candidate, status: 'resolved', outcome }
+        : candidate,
     ),
   }))
   return {

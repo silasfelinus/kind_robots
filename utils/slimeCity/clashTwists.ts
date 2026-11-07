@@ -8,17 +8,17 @@ export const CLASH_TWISTS: Record<string, [string, string, string]> = {
   chimera: [
     'Unstable prototype: weak now, terrifying later.',
     'Rebuilt for the next hunt.',
-    'Apex form: gains 2 extra attack and 3 extra life.',
+    'Apex: +2 attack and +3 life.',
   ],
   sprite: [
     'The first dancer in a potential crowd.',
     'On entry, adds a weak dancer to one empty neighboring alley.',
-    'On entry, adds weak dancers to both empty neighboring alleys.',
+    'Adds dancers to both empty neighboring alleys.',
   ],
   queen: [
     'The crowd makes the queen stronger.',
     'While present, adjacent friends gain +1 strike power.',
-    'While present, every friendly fighter gains +1 strike power.',
+    'All friendly fighters gain +1 power.',
   ],
   welder: [
     'A workhorse who can hold the line.',
@@ -33,7 +33,7 @@ export const CLASH_TWISTS: Record<string, [string, string, string]> = {
   rat: [
     'Every knockout adds +1 attack to later copies, up to +3.',
     'Returns harder after each knockout; detonates when it falls.',
-    'After falling, also blasts rivals in neighboring alleys.',
+    'On defeat, blasts neighboring enemies for 2.',
   ],
   firebrand: [
     'Its fuse burns predictably. For now.',

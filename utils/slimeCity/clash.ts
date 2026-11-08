@@ -6,7 +6,8 @@
 // command per alley so the board can animate each blow.
 import { alleyDeck } from './alleys'
 import { clashTwistText } from './clashTwists'
-import { factionPower, type AllianceDeck } from './alliance'
+import type { AllianceDeck } from './alliance'
+import { factionPower } from './factionPowers'
 import {
   cardById,
   type Card,
@@ -26,9 +27,15 @@ export const CLASH_BOSS_HP = 40
  * alone evens the seats (first seat ~48%), so both bosses start equal.
  */
 export const CLASH_SECOND_SEAT_BONUS = 0
+/** A side's boss life cap this match (bout terms can move it). */
+export function clashBossCap(s: ClashState, side: Side): number {
+  return s.bossMax?.[side] ?? clashBossMax(side)
+}
 export function clashBossMax(side: Side): number {
   return CLASH_BOSS_HP + (side === 'enemy' ? CLASH_SECOND_SEAT_BONUS : 0)
 }
+/** Bout terms may move a boss's life only within this band. */
+export const CLASH_BOSS_RANGE: [number, number] = [20, 60]
 export const CLASH_PLAYS = 2
 /**
  * Silas, 2026-11-07 PT: "first player should only get one card play, not two."
@@ -118,6 +125,10 @@ export type ClashFormat = 'standard' | 'alliance'
 export interface ClashOptions {
   /** ALLIANCE: each side's 30-card two-crew deck; `teams` become the generals. */
   alliance?: Record<Side, AllianceDeck>
+  /** SOLO CLASH: a side's own 20-card deck instead of its canonical deck. */
+  decks?: Partial<Record<Side, string[]>>
+  /** City and Story terms: each side's starting (and maximum) boss life. */
+  bosses?: Partial<Record<Side, number>>
 }
 
 export interface ClashState {
@@ -155,6 +166,8 @@ export interface ClashState {
   allies?: Record<Side, TeamId | null>
   /** ALLIANCE: whether each general has spent its one faction power. */
   powerUsed?: Record<Side, boolean>
+  /** Bout terms: boss life caps; omitted means clashBossMax. */
+  bossMax?: Record<Side, number>
 }
 export interface ClashCardBalance {
   /** All 300 catalog cards get a separate, Clash-only balance profile. */
@@ -639,8 +652,24 @@ export function createClash(
     s.allies = { player: alliance.player.ally, enemy: alliance.enemy.ally }
     s.powerUsed = { player: false, enemy: false }
   }
-  s.decks.player = shuffle(s, alliance?.player.cards ?? clashDeck(player))
-  s.decks.enemy = shuffle(s, alliance?.enemy.cards ?? clashDeck(enemy))
+  if (options.bosses) {
+    const cap = (side: Side) =>
+      clamp(
+        Math.round(options.bosses?.[side] ?? clashBossMax(side)),
+        CLASH_BOSS_RANGE[0],
+        CLASH_BOSS_RANGE[1],
+      )
+    s.bossMax = { player: cap('player'), enemy: cap('enemy') }
+    s.boss = { ...s.bossMax }
+  }
+  s.decks.player = shuffle(
+    s,
+    alliance?.player.cards ?? options.decks?.player ?? clashDeck(player),
+  )
+  s.decks.enemy = shuffle(
+    s,
+    alliance?.enemy.cards ?? options.decks?.enemy ?? clashDeck(enemy),
+  )
   startTurn(s, 'player')
   return s
 }
@@ -796,7 +825,7 @@ function casualties(s: ClashState): void {
           10,
         )
         if (survivor.level === 3) {
-          s.boss[u.side] = Math.min(clashBossMax(u.side), s.boss[u.side] + 1)
+          s.boss[u.side] = Math.min(clashBossCap(s, u.side), s.boss[u.side] + 1)
           evolutionMoment(
             s, 'repo', u.side, survivor.lane,
             'Repo Goblin turns a fallen friend into two power and a refund!', 'strike',
@@ -1104,7 +1133,7 @@ export function playClash(
           damage(target, power)
           target.rooted = true
           if (id === 'foreclosure' && level >= 2 && target.hp <= 0) {
-            s.boss[side] = Math.min(clashBossMax(side), s.boss[side] + 2)
+            s.boss[side] = Math.min(clashBossCap(s, side), s.boss[side] + 2)
             if (level === 3) {
               const free = nearestFreeAlley(s, side, lane)
               if (free >= 0) summonEcho(s, side, 'repo', free, 2, 1)
@@ -1364,7 +1393,7 @@ export function strikeClash(input: ClashState, side: Side): ClashState {
       if (s.units.some(
         (u) => u.side === side && u.cardId === 'mogul' && u.level === 3,
       ))
-        s.boss[side] = Math.min(clashBossMax(side), s.boss[side] + 1)
+        s.boss[side] = Math.min(clashBossCap(s, side), s.boss[side] + 1)
         evolutionMoment(
           s, 'mogul', side, lane,
           'The Meat Mogul cashes a collector knockout for boss life!', 'heal',
@@ -1376,7 +1405,7 @@ export function strikeClash(input: ClashState, side: Side): ClashState {
       if (s.units.some(
         (u) => u.side === foeSide && u.cardId === 'mogul' && u.level === 3,
       ))
-        s.boss[foeSide] = Math.min(clashBossMax(foeSide), s.boss[foeSide] + 1)
+        s.boss[foeSide] = Math.min(clashBossCap(s, foeSide), s.boss[foeSide] + 1)
         evolutionMoment(
           s, 'mogul', foeSide, lane,
           'The Meat Mogul cashes a defender knockout for boss life!', 'heal',
@@ -1537,7 +1566,7 @@ export function useClashPower(
     }
     case 'exchange':
       s.boss[foe] -= 5
-      s.boss[side] = Math.min(clashBossMax(side), s.boss[side] + 5)
+      s.boss[side] = Math.min(clashBossCap(s, side), s.boss[side] + 5)
       break
   }
   s.powerUsed![side] = true
@@ -1611,7 +1640,7 @@ export function clashPowerValue(
       best.value =
         s.boss[foe] <= 5
           ? 99
-          : Math.min(5, clashBossMax(side) - s.boss[side]) +
+          : Math.min(5, clashBossCap(s, side) - s.boss[side]) +
             (s.round >= 5 ? 3 : 0)
       break
   }

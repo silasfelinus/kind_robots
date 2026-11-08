@@ -14,6 +14,7 @@ import {
   type CampaignSave,
 } from './campaign'
 import { TEAMS, loadoutProblems, type TeamId } from './prototypes'
+import { validAllianceDeck, type AllianceDeck } from './alliance'
 
 export interface SlimeCityStory {
   version: 1
@@ -22,6 +23,11 @@ export interface SlimeCityStory {
   campaigns: CampaignSave
   /** Saved practice decks; omitted for older saves. */
   decks?: Partial<Record<TeamId, string[]>>
+  /**
+   * ALLIANCE 30-card two-crew decks, one per general (Silas, 2026-11-07 PT).
+   * Omitted for older saves.
+   */
+  alliances?: Partial<Record<TeamId, AllianceDeck>>
   /**
    * Card unlocks (Silas, 2026-11-04: "we start with all card unlocked as a
    * default mode, but then they can try a mode where it gets trickled out").
@@ -149,6 +155,16 @@ export function validSlimeCityStory(raw: unknown): raw is SlimeCityStory {
       )
         return false
     }
+  }
+  if (raw.alliances !== undefined) {
+    if (!record(raw.alliances)) return false
+    for (const [team, deck] of Object.entries(raw.alliances))
+      if (
+        !teams.includes(team as TeamId) ||
+        !validAllianceDeck(deck) ||
+        deck.general !== team
+      )
+        return false
   }
   const city = raw.city
   const standing = city.standing

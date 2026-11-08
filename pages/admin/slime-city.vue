@@ -301,6 +301,129 @@
             >
           </div>
           <div
+            class="sc-deck-format"
+            role="group"
+            aria-label="Deck format"
+            data-testid="slime-deck-format"
+          >
+            <button
+              type="button"
+              :aria-pressed="lab.deckFormat === 'classic'"
+              data-testid="slime-format-classic"
+              title="Ten cards from one crew"
+              @click="lab.deckFormat = 'classic'"
+            >
+              CLASSIC <small>10</small>
+            </button>
+            <button
+              type="button"
+              :aria-pressed="lab.deckFormat === 'alliance'"
+              data-testid="slime-format-alliance"
+              title="Thirty cards from a general crew and an ally crew"
+              @click="lab.deckFormat = 'alliance'"
+            >
+              ALLIANCE <small>30</small>
+            </button>
+          </div>
+          <div
+            v-if="lab.deckFormat === 'alliance'"
+            class="sc-deck-workbench sc-alliance-workbench"
+            :class="'tone-' + lab.team.color"
+            data-testid="slime-alliance-workbench"
+          >
+            <div
+              class="sc-deck-meter"
+              :title="
+                lab.currentAlliance.cards.length +
+                ' of 30 alliance slots filled'
+              "
+            >
+              <strong
+                >{{ lab.currentAlliance.cards.length
+                }}<small>/30</small></strong
+              >
+              <span class="sc-deck-pips is-thirty" aria-hidden="true"
+                ><i
+                  v-for="slot in 30"
+                  :key="slot"
+                  :class="{ on: slot <= lab.currentAlliance.cards.length }"
+              /></span>
+            </div>
+            <div class="sc-deck-status">
+              <span class="sc-overline"
+                >GENERAL · {{ lab.team.name }} +
+                {{ teamName(lab.currentAlliance.ally) }}</span
+              >
+              <p class="sc-power-line" data-testid="slime-alliance-power">
+                <b
+                  >{{ generalPower.symbol }} {{ generalPower.name }} · ONE USE
+                  PER MATCH</b
+                >
+                {{ generalPower.text }}
+              </p>
+              <p aria-live="polite">
+                {{
+                  lab.deckMessage ||
+                  'Pick two factions. Any 30 cards from either faction or the mercenaries; the general’s power comes with the deck.'
+                }}
+              </p>
+              <small
+                v-if="lab.currentAllianceProblems.length"
+                role="alert"
+                data-testid="slime-alliance-problems"
+                >{{ lab.currentAllianceProblems.join(' · ') }}</small
+              >
+            </div>
+            <div class="sc-deck-actions">
+              <div
+                class="sc-unlocks sc-ally-picker"
+                role="group"
+                aria-label="Choose your second faction"
+                data-testid="slime-ally-picker"
+              >
+                <button
+                  v-for="ally in allyChoices"
+                  :key="ally.id"
+                  type="button"
+                  :aria-pressed="lab.currentAlliance.ally === ally.id"
+                  :title="ally.name + ' as your second faction'"
+                  :aria-label="ally.name + ' as your second faction'"
+                  :data-testid="'slime-ally-' + ally.id"
+                  @click="lab.setAlly(ally.id)"
+                >
+                  {{ ally.insignia }}
+                </button>
+              </div>
+              <button
+                type="button"
+                data-testid="slime-alliance-swap"
+                :title="
+                  'Make ' +
+                  teamName(lab.currentAlliance.ally) +
+                  ' the general and use their power'
+                "
+                @click="lab.swapAllianceGeneral()"
+              >
+                ⇄ {{ teamName(lab.currentAlliance.ally) }} AS GENERAL
+              </button>
+              <button
+                type="button"
+                data-testid="slime-alliance-restore"
+                @click="lab.restoreAllianceStarter()"
+              >
+                RESTORE STARTER
+              </button>
+              <button
+                type="button"
+                data-testid="slime-alliance-play"
+                @click="lab.playAllianceClash()"
+              >
+                PLAY ALLIANCE CLASH
+              </button>
+            </div>
+          </div>
+          <div
+            v-else
             class="sc-deck-workbench"
             :class="'tone-' + lab.team.color"
             data-testid="slime-deck-workbench"
@@ -415,6 +538,34 @@
             </p>
           </details>
           <ul
+            v-if="lab.deckFormat === 'alliance'"
+            class="sc-collection-grid kr-scroll"
+            aria-label="General, ally and mercenary cards"
+            data-testid="slime-alliance-grid"
+          >
+            <li
+              v-for="card in lab.allianceCards"
+              :key="card.id"
+              class="sc-collect"
+              :class="'is-' + allianceState(card)"
+            >
+              <SlimeCityCard :card="card">
+                <span class="sc-collect-ribbon">{{ allianceLabel(card) }}</span>
+              </SlimeCityCard>
+              <button
+                type="button"
+                class="sc-collect-pick"
+                :data-testid="'slime-alliance-card-' + card.id"
+                :aria-pressed="lab.currentAlliance.cards.includes(card.id)"
+                :aria-label="
+                  card.name + ', ' + allianceLabel(card).toLowerCase()
+                "
+                @click="lab.toggleAllianceCard(card.id)"
+              />
+            </li>
+          </ul>
+          <ul
+            v-else
             class="sc-collection-grid kr-scroll"
             :class="{ swapping: !!swapSource }"
             aria-label="Crew and mercenary cards"
@@ -650,6 +801,7 @@
 <script setup lang="ts">
 import { computed, onMounted, onUnmounted } from 'vue'
 import { cardById, type Card } from '~/utils/slimeCity/prototypes'
+import { factionPower } from '~/utils/slimeCity/alliance'
 import { STREETS } from '~/utils/slimeCity/city'
 import { useSlimeCityStore } from '~/stores/slimeCity'
 import { slimeArtId, SLIME_CITY_ART } from '~/utils/slimeCity/artManifest'
@@ -702,6 +854,24 @@ function pinSymbol(status: string): string {
 }
 function teamName(id: string): string {
   return lab.teams.find((t) => t.id === id)?.name ?? id
+}
+const generalPower = computed(() => factionPower(lab.activeTeam))
+const allyChoices = computed(() =>
+  lab.teams.filter((team) => team.id !== lab.activeTeam),
+)
+function allianceState(card: Card): 'deck' | 'open' | 'locked' {
+  if (lab.currentAlliance.cards.includes(card.id)) return 'deck'
+  return lab.isCardUnlocked(card.id) ? 'open' : 'locked'
+}
+function allianceLabel(card: Card): string {
+  const state = allianceState(card)
+  if (state === 'deck')
+    return card.team === lab.currentAlliance.general
+      ? 'IN DECK · GENERAL'
+      : card.team === 'mercenary'
+        ? 'IN DECK · MERC'
+        : 'IN DECK'
+  return state === 'open' ? '+ ADD' : 'LOCKED'
 }
 const swapSource = computed(() =>
   lab.cards.find((card) => card.id === lab.replacingCard),
@@ -1810,6 +1980,40 @@ onUnmounted(() => {
 .sc-progress-error {
   background: #4b233a;
   border-color: #ff8db3;
+}
+.sc-deck-format {
+  display: flex;
+  gap: 0.4rem;
+}
+.sc-deck-format button {
+  flex: 0 0 auto;
+  padding: 0.35rem 0.8rem;
+  border: 1px solid #ffffff33;
+  border-radius: 999px;
+  background: #0b1a1fcc;
+  color: inherit;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  cursor: pointer;
+}
+.sc-deck-format button small {
+  opacity: 0.7;
+}
+.sc-deck-format button[aria-pressed='true'] {
+  border-color: #b9f151;
+  background: #b9f15126;
+  color: #e9ffd0;
+}
+.sc-deck-pips.is-thirty {
+  grid-template-columns: repeat(10, 0.42rem);
+}
+.sc-power-line b {
+  display: block;
+  color: #ffd76a;
+  letter-spacing: 0.04em;
+}
+.sc-ally-picker button {
+  min-width: 2.2rem;
 }
 .sc-deck-workbench {
   flex: none;

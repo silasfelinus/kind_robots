@@ -15,7 +15,11 @@
             compact
           />
           <div class="clash-boss-name">
-            <small>RIVAL BOSS</small><strong>{{ rival.name }}</strong>
+            <small
+              >RIVAL BOSS<template v-if="rivalAlly">
+                · ALLY {{ rivalAlly.name }}</template
+              ></small
+            ><strong>{{ rival.name }}</strong>
             <span class="clash-health"
               ><i :style="{ width: healthWidth('enemy') }"
             /></span>
@@ -29,6 +33,15 @@
             :key="'boss-enemy-' + impactKey"
             class="clash-float is-boss"
             >-{{ impact!.dealt }}</span
+          >
+          <span
+            v-if="alliance"
+            class="clash-power-chip"
+            :class="{ spent: game.powerUsed?.enemy }"
+            :title="rivalPower.name + ': ' + rivalPower.text"
+            data-testid="clash-rival-power"
+            >{{ rivalPower.symbol }} {{ rivalPower.name
+            }}{{ game.powerUsed?.enemy ? ' · USED' : '' }}</span
           >
           <span class="clash-bank">{{ game.plays.enemy }} / 2</span>
         </div>
@@ -143,7 +156,11 @@
             compact
           />
           <div class="clash-boss-name">
-            <small>YOUR BOSS</small><strong>{{ mine.name }}</strong>
+            <small
+              >YOUR BOSS<template v-if="myAlly">
+                · ALLY {{ myAlly.name }}</template
+              ></small
+            ><strong>{{ mine.name }}</strong>
             <span class="clash-health"
               ><i :style="{ width: healthWidth('player') }"
             /></span>
@@ -173,6 +190,51 @@
             {{ game.discards.player.length }} discarded</span
           >
         </div>
+        <div
+          class="clash-format"
+          role="group"
+          aria-label="Clash format"
+          data-testid="clash-format"
+        >
+          <button
+            type="button"
+            :aria-pressed="!alliance"
+            title="Your crew's 20-card Clash deck"
+            data-testid="clash-format-standard"
+            @click="lab.clashFormat = 'standard'"
+          >
+            STANDARD
+          </button>
+          <button
+            type="button"
+            :aria-pressed="alliance"
+            title="Your 30-card alliance: a general crew, an ally crew and one faction power"
+            data-testid="clash-format-alliance"
+            @click="lab.clashFormat = 'alliance'"
+          >
+            ALLIANCE
+          </button>
+        </div>
+        <button
+          v-if="alliance"
+          type="button"
+          class="clash-power"
+          :class="{ armed: powerArmed, spent: game.powerUsed?.player }"
+          data-testid="clash-power"
+          :aria-pressed="powerArmed"
+          :title="myPower.name + ': ' + myPower.text + ' One use per match.'"
+          :disabled="!powerReady"
+          @click="firePower"
+        >
+          {{ myPower.symbol }}
+          {{
+            game.powerUsed?.player
+              ? myPower.name + ' · USED'
+              : powerArmed
+                ? 'PICK A RIVAL FIGHTER'
+                : myPower.name
+          }}
+        </button>
         <button
           type="button"
           class="clash-reset"
@@ -230,6 +292,9 @@ import {
 } from '~/utils/slimeCity/prototypes'
 import {
   CLASH_LANES,
+  applyClashCommand,
+  canClashPower,
+  useClashPower,
   clashPlayLimit,
   canClashPlay,
   chooseClashCpu,
@@ -248,6 +313,7 @@ import {
   type ClashUnit,
 } from '~/utils/slimeCity/clash'
 import { useSlimeCityStore } from '~/stores/slimeCity'
+import { cpuAlliance, factionPower } from '~/utils/slimeCity/alliance'
 
 const STRIKE_WINDUP_MS = 320
 const STRIKE_SETTLE_MS = 560
@@ -262,9 +328,30 @@ const enemyTeam = computed(() =>
 const mine = computed(() => teamById(lab.activeTeam))
 const rival = computed(() => teamById(enemyTeam.value))
 let seed = 30611
+/** ALLIANCE: your saved 30-card alliance against a seeded CPU alliance. */
+function matchOptions(n: number) {
+  return lab.clashFormat === 'alliance'
+    ? {
+        alliance: {
+          player: lab.playAlliance,
+          enemy: cpuAlliance(enemyTeam.value, n),
+        },
+      }
+    : {}
+}
 const game = shallowRef<ClashState>(
-  createClash(lab.activeTeam, enemyTeam.value, seed),
+  createClash(lab.activeTeam, enemyTeam.value, seed, matchOptions(seed)),
 )
+const alliance = computed(() => game.value.format === 'alliance')
+const myPower = computed(() => factionPower(game.value.teams.player))
+const rivalPower = computed(() => factionPower(game.value.teams.enemy))
+const myAlly = computed(() =>
+  game.value.allies?.player ? teamById(game.value.allies.player) : null,
+)
+const rivalAlly = computed(() =>
+  game.value.allies?.enemy ? teamById(game.value.allies.enemy) : null,
+)
+const powerArmed = ref(false)
 const heldIndex = ref<number | null>(null)
 const selectedUnit = ref<number | null>(null)
 const lunge = ref<{ side: Side; lane: number } | null>(null)
@@ -321,11 +408,7 @@ function advance(): void {
     return
   }
   if (s.active !== 'enemy') return
-  const action = chooseClashCpu(s)
-  game.value =
-    action.t === 'play'
-      ? playClash(s, 'enemy', action.card, action.lane)
-      : passClash(s, 'enemy')
+  game.value = applyClashCommand(s, chooseClashCpu(s))
   schedule(CPU_PLAY_MS)
 }
 function kick(): void {
@@ -337,9 +420,17 @@ function newMatch(): void {
   selectedUnit.value = null
   lunge.value = null
   impact.value = null
-  game.value = createClash(lab.activeTeam, enemyTeam.value, ++seed)
+  powerArmed.value = false
+  seed++
+  game.value = createClash(
+    lab.activeTeam,
+    enemyTeam.value,
+    seed,
+    matchOptions(seed),
+  )
 }
 watch(() => lab.activeTeam, newMatch)
+watch(() => lab.clashFormat, newMatch)
 onMounted(() => {
   if (window.matchMedia?.('(prefers-reduced-motion: reduce)').matches)
     pace.value = 0.4
@@ -399,6 +490,7 @@ const inspect = computed<{
       u.maxHp +
       ' life' +
       (u.armor ? ', ' + u.armor + ' armor' : '') +
+      (u.guard ? ', +' + u.guard + ' Union Wall armor' : '') +
       '.' +
       (u.rooted ? ' Stunned: skips its next strike.' : '') +
       (u.fresh && !u.keywords.includes('ambush')
@@ -427,6 +519,7 @@ function healthWidth(side: Side): string {
 }
 function status(u: ClashUnit): string {
   if (u.rooted) return 'STUN'
+  if (u.guard) return 'WALL +' + u.guard
   if (u.fresh && !game.value.victor && !u.keywords.includes('ambush'))
     return 'NEW'
   return ''
@@ -450,7 +543,30 @@ function allowedSide(card: Card, side: Side): boolean {
     return side === 'player'
   return side === 'enemy'
 }
+/** Your power can fire now (for a targeted power: at some fighter). */
+const powerReady = computed(
+  () =>
+    alliance.value &&
+    !busy.value &&
+    lanes.some((lane) => canClashPower(game.value, 'player', lane)),
+)
+function firePower(): void {
+  if (!powerReady.value) return
+  if (myPower.value.target === 'none') {
+    game.value = useClashPower(game.value, 'player')
+    heldIndex.value = null
+    return
+  }
+  powerArmed.value = !powerArmed.value
+  heldIndex.value = null
+  selectedUnit.value = null
+}
 function targetable(side: Side, lane: number): boolean {
+  if (powerArmed.value)
+    return (
+      side === (myPower.value.target === 'own' ? 'player' : 'enemy') &&
+      canClashPower(game.value, 'player', lane)
+    )
   const card = selectedCard.value
   if (!card || !playableNow(card.id)) return false
   return (
@@ -468,6 +584,7 @@ function floater(side: Side, lane: number): string | null {
   return hit.dealt > 0 ? '-' + hit.dealt : 'BLOCK'
 }
 function onPick(index: number | null): void {
+  powerArmed.value = false
   selectedUnit.value = null
   heldIndex.value = index
 }
@@ -486,6 +603,14 @@ function slotLabel(side: Side, lane: number): string {
   )
 }
 function clickSlot(side: Side, lane: number): void {
+  if (powerArmed.value) {
+    if (targetable(side, lane)) {
+      game.value = useClashPower(game.value, 'player', lane)
+      powerArmed.value = false
+      selectedUnit.value = null
+    }
+    return
+  }
   const card = selectedCard.value
   if (card && targetable(side, lane)) {
     const next = playClash(game.value, 'player', card.id, lane)
@@ -614,6 +739,55 @@ function forecast(lane: number): string {
 .clash-reset:hover,
 .clash-pass:hover:not(:disabled) {
   border-color: var(--neon);
+}
+.clash-format {
+  display: flex;
+  border: 1px solid #5c99917a;
+  border-radius: 0.55rem;
+  overflow: hidden;
+  flex: 0 0 auto;
+}
+.clash-format button {
+  background: #10231f;
+  border: 0;
+  padding: 0.4rem 0.55rem;
+  font-size: 0.62rem;
+  font-weight: 850;
+  letter-spacing: 0.06em;
+}
+.clash-format button[aria-pressed='true'] {
+  background: #b9f15126;
+  color: #e9ffd0;
+}
+.clash-power {
+  background: linear-gradient(110deg, #4a3510, #2a1b08);
+  border: 1px solid #ffd76a99;
+  border-radius: 0.55rem;
+  padding: 0.5rem 0.7rem;
+  font-size: 0.7rem;
+  font-weight: 900;
+  letter-spacing: 0.05em;
+  color: #ffe9a8;
+  white-space: nowrap;
+}
+.clash-power:hover:not(:disabled),
+.clash-power.armed {
+  border-color: #ffd76a;
+  box-shadow: 0 0 12px #ffd76a66;
+}
+.clash-power.spent {
+  text-decoration: line-through;
+  filter: grayscale(0.7);
+}
+.clash-power-chip {
+  font-size: 0.6rem;
+  font-weight: 850;
+  color: #ffd76a;
+  white-space: nowrap;
+}
+.clash-power-chip.spent {
+  opacity: 0.5;
+  text-decoration: line-through;
 }
 .clash-stage {
   display: grid;

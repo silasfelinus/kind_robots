@@ -6,6 +6,7 @@
 // command per alley so the board can animate each blow.
 import { alleyDeck } from './alleys'
 import { clashTwistText } from './clashTwists'
+import { factionPower, type AllianceDeck } from './alliance'
 import {
   cardById,
   type Card,
@@ -68,6 +69,8 @@ export interface ClashUnit {
   level: number
   /** A battlefield-only summon, not another card in the deck. */
   token?: boolean
+  /** ALLIANCE Union Wall: extra armor until this side's next turn. */
+  guard?: number
 }
 export interface ClashTrap {
   side: Side
@@ -99,6 +102,14 @@ export type ClashCommand =
   | { t: 'pass'; side: Side }
   | { t: 'strike'; side: Side }
   | { t: 'end'; side: Side }
+  /** ALLIANCE: the general's one-time faction power (lane ignored if untargeted). */
+  | { t: 'power'; side: Side; lane: number }
+
+export type ClashFormat = 'standard' | 'alliance'
+export interface ClashOptions {
+  /** ALLIANCE: each side's 30-card two-crew deck; `teams` become the generals. */
+  alliance?: Record<Side, AllianceDeck>
+}
 
 export interface ClashState {
   seed: number
@@ -127,6 +138,12 @@ export interface ClashState {
   levels: Record<Side, Record<string, number>>
   /** Knockout bonuses persist independently of the three play levels. */
   deathMarks: Record<Side, Record<string, number>>
+  /** Omitted on older saves and replays: standard Clash. */
+  format?: ClashFormat
+  /** ALLIANCE: each side's second crew, or null. */
+  allies?: Record<Side, TeamId | null>
+  /** ALLIANCE: whether each general has spent its one faction power. */
+  powerUsed?: Record<Side, boolean>
 }
 export interface ClashCardBalance {
   /** All 300 catalog cards get a separate, Clash-only balance profile. */
@@ -493,7 +510,10 @@ function startTurn(s: ClashState, side: Side): void {
   s.phase = 'play'
   s.plays[side] = 0
   s.cursor = 0
-  for (const u of s.units.filter((v) => v.side === side)) u.attacked = false
+  for (const u of s.units.filter((v) => v.side === side)) {
+    u.attacked = false
+    if (u.guard) u.guard = 0
+  }
   draw(s, side)
   note(
     s,
@@ -515,12 +535,22 @@ export function clashDeck(team: TeamId): string[] {
   const roster = alleyDeck(team)
   return [...roster.slice(0, 19), CLASH_GUESTS[team]]
 }
-/** Twenty unique catalog cards, seeded draws and no retained hand between turns. */
+/**
+ * Twenty unique catalog cards (thirty in ALLIANCE), seeded draws and no
+ * retained hand between turns. With `options.alliance` the generals replace
+ * `player`/`enemy` as the crews.
+ */
 export function createClash(
   player: TeamId = 'catgirls',
   enemy: TeamId = 'ironjaw',
   seed = 1,
+  options: ClashOptions = {},
 ): ClashState {
+  const alliance = options.alliance
+  if (alliance) {
+    player = alliance.player.general
+    enemy = alliance.enemy.general
+  }
   const s: ClashState = {
     seed,
     rng: seed >>> 0,
@@ -544,8 +574,13 @@ export function createClash(
     levels: { player: {}, enemy: {} },
     deathMarks: { player: {}, enemy: {} },
   }
-  s.decks.player = shuffle(s, clashDeck(player))
-  s.decks.enemy = shuffle(s, clashDeck(enemy))
+  if (alliance) {
+    s.format = 'alliance'
+    s.allies = { player: alliance.player.ally, enemy: alliance.enemy.ally }
+    s.powerUsed = { player: false, enemy: false }
+  }
+  s.decks.player = shuffle(s, alliance?.player.cards ?? clashDeck(player))
+  s.decks.enemy = shuffle(s, alliance?.enemy.cards ?? clashDeck(enemy))
   startTurn(s, 'player')
   return s
 }
@@ -578,7 +613,12 @@ export function canClashPlay(
   )
     return false
   const card = cardById(id)
-  if (card.team !== s.teams[side] && card.team !== 'mercenary') return false
+  if (
+    card.team !== s.teams[side] &&
+    card.team !== 'mercenary' &&
+    card.team !== s.allies?.[side]
+  )
+    return false
   if (s.plays[side] + clashPlayCost(card) > clashPlayLimit(s, side))
     return false
   if (card.kind === 'creature') return true // Friendly replacement allowed.
@@ -590,7 +630,8 @@ export function canClashPlay(
     : !!unitAt(s, opponent(side), lane)
 }
 function damage(u: ClashUnit, amount: number, pierce = 0): number {
-  const dealt = Math.max(0, amount - Math.max(0, u.armor - pierce))
+  const armor = u.armor + (u.guard ?? 0)
+  const dealt = Math.max(0, amount - Math.max(0, armor - pierce))
   u.hp -= dealt
   return dealt
 }
@@ -1061,6 +1102,8 @@ export function applyClashCommand(
       return strikeClash(s, command.side)
     case 'end':
       return endClashTurn(s, command.side)
+    case 'power':
+      return useClashPower(s, command.side, command.lane)
   }
 }
 export function replayClash(
@@ -1068,9 +1111,151 @@ export function replayClash(
   enemy: TeamId,
   seed: number,
   commands: ClashCommand[],
+  options: ClashOptions = {},
 ): ClashState {
-  return commands.reduce(applyClashCommand, createClash(player, enemy, seed))
+  return commands.reduce(
+    applyClashCommand,
+    createClash(player, enemy, seed, options),
+  )
 }
+
+/** ALLIANCE: whether `side` may fire its general's power at `lane` now. */
+export function canClashPower(s: ClashState, side: Side, lane = 0): boolean {
+  if (
+    s.format !== 'alliance' ||
+    s.powerUsed?.[side] !== false ||
+    s.victor ||
+    s.active !== side ||
+    s.phase !== 'play'
+  )
+    return false
+  const power = factionPower(s.teams[side])
+  if (power.target === 'none') return true
+  if (!inside(lane)) return false
+  return !!unitAt(s, power.target === 'own' ? side : opponent(side), lane)
+}
+/**
+ * Fire the general's faction power: once per match, during your own card-play
+ * phase, without spending a card play.
+ */
+export function useClashPower(
+  input: ClashState,
+  side: Side,
+  lane = 0,
+): ClashState {
+  if (!canClashPower(input, side, lane)) return input
+  const s = structuredClone(input)
+  const foe = opponent(side)
+  const power = factionPower(s.teams[side])
+  const mine = s.units.filter((u) => u.side === side)
+  switch (power.team) {
+    case 'catgirls':
+      for (const u of mine) {
+        u.hp = u.maxHp
+        u.rooted = false
+        u.fresh = false
+        u.surge += 2
+      }
+      break
+    case 'bloodfairies':
+      for (const u of mine) u.surge += 3
+      break
+    case 'ironjaw':
+      for (const u of mine) u.guard = 3
+      break
+    case 'riot':
+      for (const u of s.units.filter((v) => v.side === foe)) damage(u, 2)
+      break
+    case 'undertow': {
+      const u = unitAt(s, foe, lane)!
+      u.hp -= 5
+      u.rooted = true
+      break
+    }
+    case 'exchange':
+      s.boss[foe] -= 5
+      s.boss[side] = Math.min(clashBossMax(side), s.boss[side] + 5)
+      break
+  }
+  s.powerUsed![side] = true
+  note(
+    s,
+    (side === 'player' ? 'Your general' : 'Rival general') +
+      ' unleashes ' +
+      power.name +
+      '!',
+    'play',
+    power.target === 'none' ? undefined : lane,
+  )
+  casualties(s)
+  s.commands.push({ t: 'power', side, lane })
+  checkWinner(s)
+  return s
+}
+
+/**
+ * How much the CPU wants its faction power right now, and where to aim it.
+ * Public board facts only. Scores near 6+ are worth the one-time use.
+ */
+export function clashPowerValue(
+  s: ClashState,
+  side: Side,
+): { value: number; lane: number } {
+  const foe = opponent(side)
+  const mine = s.units.filter((u) => u.side === side)
+  const theirs = s.units.filter((u) => u.side === foe)
+  const ready = (u: ClashUnit) =>
+    !u.rooted && !u.attacked && (!u.fresh || has(u, 'ambush'))
+  let best = { value: 0, lane: 0 }
+  switch (s.teams[side]) {
+    case 'catgirls':
+      best.value = mine.reduce(
+        (sum, u) =>
+          sum +
+          u.maxHp -
+          u.hp +
+          1.5 +
+          (u.rooted || (u.fresh && !has(u, 'ambush')) ? 2 : 0),
+        0,
+      )
+      break
+    case 'bloodfairies':
+      best.value = mine.filter(ready).length * 2.4
+      break
+    case 'ironjaw':
+      best.value =
+        mine.length * 1.2 +
+        theirs.filter((u) => !u.rooted && unitAt(s, side, u.lane)).length * 1.2
+      break
+    case 'riot':
+      best.value = theirs.reduce(
+        (sum, u) =>
+          sum +
+          Math.min(Math.max(0, 2 - u.armor), u.hp) +
+          (u.hp <= 2 - u.armor ? 2 + u.attack : 0),
+        0,
+      )
+      break
+    case 'undertow':
+      for (const u of theirs) {
+        // Save the snipe for a kill on a heavy hitter.
+        const value =
+          u.hp <= 5 ? 1 + clashPower(s, u) * 1.2 + (u.maxHp >= 8 ? 2 : 0) : 0
+        if (value > best.value) best = { value, lane: u.lane }
+      }
+      break
+    case 'exchange':
+      best.value =
+        s.boss[foe] <= 5
+          ? 99
+          : Math.min(5, clashBossMax(side) - s.boss[side]) +
+            (s.round >= 5 ? 3 : 0)
+      break
+  }
+  return best
+}
+/** The CPU fires its faction power once its value reaches this. */
+export const CLASH_CPU_POWER_THRESHOLD = 7
 /** Deterministic CPU using public fighters + only its own hand. */
 export function chooseClashCpu(
   s: ClashState,
@@ -1081,6 +1266,12 @@ export function chooseClashCpu(
     return nextClashStrike(s, side) >= 0
       ? { t: 'strike', side }
       : { t: 'end', side }
+  if (s.format === 'alliance' && s.powerUsed?.[side] === false) {
+    const { value, lane } = clashPowerValue(s, side)
+    const threshold = s.round >= 10 ? 1 : CLASH_CPU_POWER_THRESHOLD
+    if (value >= threshold && canClashPower(s, side, lane))
+      return { t: 'power', side, lane }
+  }
   const foeSide = opponent(side)
   let best: { score: number; card: string; lane: number } | undefined
   for (const id of s.hands[side]) {

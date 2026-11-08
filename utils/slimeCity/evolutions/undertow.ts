@@ -147,12 +147,14 @@ export const UNDERTOW_EVOLUTIONS: Record<string, CardEvolution> = {
     3: stage('Whistleblower', [on('enter', when('allyFell', boss(4)))]),
   },
   // Arc: a receipt kept underwater -> the paper trail feeds the files ->
-  // the co-signers next door are on the hook too.
-  // Trajectory: LATE BLOOMER (a heavy 2-play stun that grows reach).
-  // Counterplay: spread out; the co-signers' bill needs neighbors.
+  // the hush order freezes every witness in the neighboring alleys.
+  // Trajectory: ROLE SHIFT (a heavy stun evolves into a three-lane lockdown).
+  // Counterplay: spread threats apart and force this two-play spell early.
   's2-undertow-backwater-iou': {
     2: stage('Paper Trail', [on('enter', draw(1))]),
-    3: stage('Co-Signers', [on('enter', damage(2, 'adjacentFoes'))]),
+    3: stage('Witness Protection Racket', [
+      on('enter', stun('adjacentFoes')),
+    ]),
   },
   // Arc: a checkpoint wire with literal fine print -> every toll feeds the
   // boss -> the toll plaza resets for the next car.

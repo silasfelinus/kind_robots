@@ -73,6 +73,14 @@ export interface ClashUnit {
   /** Landed this turn. */
   fresh: boolean
   gear: string[]
+  /** Authored equipment levels are recorded on the wearer, not the catalog. */
+  gearLevels?: Record<string, number>
+  /** One triggered near-death reversal from Ninth Life Collar. */
+  ninthLife?: 2 | 3
+  /** The next stun/root is ignored, then this ward is consumed. */
+  snareWard?: boolean
+  /** Clockwork Grandmother saves one adjacent fighter per copy, per match. */
+  grandmaSaveUsed?: boolean
   level: number
   /** A battlefield-only summon, not another card in the deck. */
   token?: boolean
@@ -84,6 +92,8 @@ export interface ClashTrap {
   lane: number
   cardId: string
   level: number
+  /** Extra network segment, not a second collectible card. */
+  token?: boolean
 }
 export interface ClashStrike {
   side: Side
@@ -731,6 +741,47 @@ function damage(u: ClashUnit, amount: number, pierce = 0): number {
   u.hp -= dealt
   return dealt
 }
+function stun(u: ClashUnit): void {
+  if (u.snareWard) u.snareWard = false
+  else u.rooted = true
+}
+/** Central trap detonation, including network copies which never enter a draw pile. */
+function springTrap(s: ClashState, trap: ClashTrap, victim: ClashUnit): number {
+  const card = cardById(trap.cardId)
+  const dealt = damage(victim, clashBalance(card, trap.level).power)
+  if (card.roots || (trap.cardId === 'grate' && trap.level >= 2))
+    stun(victim)
+  s.traps = s.traps.filter((t) => t !== trap)
+  if (!trap.token) s.discards[trap.side].push(trap.cardId)
+  if (trap.level >= 2) {
+    const neighbors = s.units.filter(
+      (u) => u.side !== trap.side && Math.abs(u.lane - trap.lane) === 1,
+    )
+    if (['scentmine', 'shocktrap', 'bloodwire', 'grate'].includes(trap.cardId)) {
+      for (const neighbor of trap.level === 3 ? neighbors : neighbors.slice(0, 1)) {
+        if (trap.cardId === 'scentmine') {
+          stun(neighbor)
+          if (trap.level === 3) damage(neighbor, 1)
+        } else if (trap.cardId === 'grate') {
+          if (trap.level === 3) damage(neighbor, 2)
+        } else {
+          damage(
+            neighbor,
+            trap.level === 3 ? 2 : 1,
+          )
+          if (trap.cardId === 'shocktrap' && trap.level === 3)
+            stun(neighbor)
+        }
+      }
+      evolutionMoment(
+        s, trap.cardId, trap.side, trap.lane,
+        card.name + ' chains into a neighboring alley!', 'control',
+      )
+    }
+  }
+  note(s, card.name + ' springs on ' + nameOf(victim) + '!', 'trap', trap.lane)
+  return dealt
+}
 /** Battlefield-only echoes are NOT deck cards. Each arrival uses the same trap
  * resolution as a real creature, and every lane remains single-occupancy. */
 function summonEcho(
@@ -790,6 +841,39 @@ function nearestFreeAlley(s: ClashState, side: Side, center: number): number {
 }
 
 function casualties(s: ClashState): void {
+  // A rescue must happen before the death ledger, explosion, and discard.
+  // No fighter can be rescued twice by the same collar or grandmother.
+  for (const endangered of s.units.filter((u) => u.hp <= 0)) {
+    if (endangered.ninthLife) {
+      const level = endangered.ninthLife
+      endangered.ninthLife = undefined
+      endangered.hp = level === 3 ? Math.max(1, Math.ceil(endangered.maxHp / 2)) : 1
+      if (level === 3) endangered.attack = clamp(endangered.attack + 2, 0, 10)
+      evolutionMoment(
+        s, 'ninthlife', endangered.side, endangered.lane,
+        'The Ninth Life Collar pulls its wearer back from a fatal hit!', 'heal',
+      )
+      continue
+    }
+    const grandma = s.units.find(
+      (u) =>
+        u.side === endangered.side &&
+        u.uid !== endangered.uid &&
+        u.hp > 0 &&
+        u.level === 3 &&
+        u.cardId === 'merc-clock-grandma' &&
+        !u.grandmaSaveUsed &&
+        Math.abs(u.lane - endangered.lane) === 1,
+    )
+    if (grandma) {
+      grandma.grandmaSaveUsed = true
+      endangered.hp = 1
+      evolutionMoment(
+        s, 'merc-clock-grandma', grandma.side, grandma.lane,
+        'Clockwork Grandmother rewinds one fatal blow!', 'heal',
+      )
+    }
+  }
   const fallen = s.units.filter((u) => u.hp <= 0)
   s.units = s.units.filter((u) => u.hp > 0)
   for (const u of fallen) {
@@ -936,6 +1020,24 @@ function casualties(s: ClashState): void {
       const burst = clamp(cardById(u.cardId).burst ?? 1, 1, 2)
       if (foe) damage(foe, burst)
       else s.boss[opponent(u.side)] -= burst
+    }
+    const vest = u.gearLevels?.fusevest ?? 0
+    if (vest >= 2) {
+      for (const enemy of s.units.filter(
+        (v) =>
+          v.side !== u.side &&
+          (vest === 3 || Math.abs(v.lane - u.lane) === 1),
+      ))
+        damage(enemy, 1)
+      if (vest === 3)
+        for (const friend of s.units.filter(
+          (v) => v.side === u.side && Math.abs(v.lane - u.lane) === 1,
+        ))
+          damage(friend, 1)
+      evolutionMoment(
+        s, 'fusevest', u.side, u.lane,
+        'The Lit-Fuse Vest bursts beyond its own lane!', 'blast',
+      )
     }
   }
   if (s.units.some((u) => u.hp <= 0)) casualties(s)

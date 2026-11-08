@@ -84,7 +84,6 @@ export const UNDERTOW_EVOLUTIONS: Record<string, CardEvolution> = {
     2: stage('Deep Watch', [on('turnStart', guard(1, 'self'))]),
     3: stage('Warden of the Deep', [
       on('enter', stun('laneFoes'), life(2, 'self')),
-      on('turnStart', guard(1, 'adjacentAllies')),
     ]),
   },
   's2-undertow-floodlight-leak': {
@@ -130,7 +129,6 @@ export const UNDERTOW_EVOLUTIONS: Record<string, CardEvolution> = {
     2: stage('Drizzle', [on('turnStart', damage(1, 'randomFoe'))]),
     3: stage('Needle Monsoon', [
       on('enter', damage(1, 'allFoes', true), stun('strongestFoe')),
-      on('turnStart', damage(1, 'randomFoe')),
     ]),
   },
   's3-undertow-basement-watchdog': {
@@ -145,7 +143,6 @@ export const UNDERTOW_EVOLUTIONS: Record<string, CardEvolution> = {
     2: stage('Rising Tide', [on('roundEnd', damage(1, 'across'))]),
     3: stage('Leviathan Surfaces', [
       on('enter', damage(2, 'laneFoes', true), stun('across')),
-      on('roundEnd', heal(2, 'self')),
     ]),
   },
   's3-undertow-weep-holes': {

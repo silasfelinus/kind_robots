@@ -26,7 +26,6 @@ export const IRONJAW_EVOLUTIONS: Record<string, CardEvolution> = {
     2: stage('Shop Steward', [on('roundEnd', heal(1, 'adjacentAllies'))]),
     3: stage('Master Millwright', [
       on('enter', armor(1, 'adjacentAllies'), heal(2, 'adjacentAllies')),
-      on('roundEnd', heal(1, 'adjacentAllies')),
     ]),
   },
   'spare-pistons': {
@@ -146,11 +145,9 @@ export const IRONJAW_EVOLUTIONS: Record<string, CardEvolution> = {
   },
   's3-ironjaw-matriarch': {
     2: stage('Union Mother', [], { aura: { n: 1, to: 'adjacentAllies' } }),
-    3: stage(
-      'Iron Matriarch of the Foundry',
-      [on('enter', armor(1, 'allies'), heal(2, 'allies'))],
-      { aura: { n: 1, to: 'otherAllies' } },
-    ),
+    3: stage('Iron Matriarch of the Foundry', [
+      on('enter', armor(1, 'allies'), heal(2, 'allies')),
+    ]),
   },
   's3-ironjaw-bonus-plate': {
     2: stage('Overtime Plating', [on('enter', life(2, 'target'))]),
@@ -205,7 +202,6 @@ export const IRONJAW_EVOLUTIONS: Record<string, CardEvolution> = {
     2: stage("Foreman's Leverage", [on('kill', boss(2))]),
     3: stage('Crowbar Through the Front Office', [
       on('enter', sharpen(2, 'self'), damage(2, 'across', true)),
-      on('kill', boss(2)),
     ]),
   },
 }

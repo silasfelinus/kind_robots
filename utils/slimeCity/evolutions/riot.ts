@@ -72,8 +72,8 @@ export const RIOT_EVOLUTIONS: Record<string, CardEvolution> = {
   's1-volunteer-vest': {
     2: stage('Reflective Martyrdom', [on('death', heal(2, 'adjacentAllies'))]),
     3: stage('Volunteer of the Year', [
-      on('enter', guard(2, 'self'), power(2, 'self')),
-      on('death', damage(2, 'laneFoes'), heal(2, 'adjacentAllies')),
+      on('enter', guard(2, 'self')),
+      on('death', damage(2, 'laneFoes')),
     ]),
   },
   's2-riot-fuse-lit-bicycle-courier': {

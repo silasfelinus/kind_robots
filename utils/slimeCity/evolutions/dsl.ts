@@ -187,22 +187,22 @@ const PLURAL: EvoScope[] = ['adjacentAllies', 'adjacentFoes', 'laneFoes']
 const WHO: Record<EvoScope, string> = {
   self: 'itself',
   target: 'the target',
-  across: 'the rival across',
-  adjacentAllies: 'neighboring friends',
-  allies: 'every friendly fighter',
-  otherAllies: 'every other friendly fighter',
-  adjacentFoes: 'neighboring rivals',
-  laneFoes: 'the rival across and its neighbors',
-  allFoes: 'every rival fighter',
-  randomFoe: 'a random rival fighter',
-  weakestFoe: 'the weakest rival fighter',
-  strongestFoe: 'the strongest rival fighter',
-  woundedAlly: 'your most wounded fighter',
+  across: 'the foe across',
+  adjacentAllies: 'adjacent allies',
+  allies: 'all allies',
+  otherAllies: 'other allies',
+  adjacentFoes: 'adjacent foes',
+  laneFoes: 'the 3 facing foes',
+  allFoes: 'all foes',
+  randomFoe: 'a random foe',
+  weakestFoe: 'the weakest foe',
+  strongestFoe: 'the strongest foe',
+  woundedAlly: 'your most hurt ally',
 }
 const WHERE: Record<EvoSummonWhere, string> = {
-  neighbors: 'in each empty neighboring alley',
-  nearest: 'in the nearest empty alley',
-  everyEmpty: 'in every empty alley on your side',
+  neighbors: 'beside it',
+  nearest: 'nearby',
+  everyEmpty: 'in every empty alley',
 }
 const KEYWORD: Record<Keyword, string> = {
   ambush: 'AMBUSH',
@@ -217,119 +217,101 @@ const KEYWORD: Record<Keyword, string> = {
 }
 export function evoActionText(a: EvoAction, subject: 'it' | 'self'): string {
   const who = (to: EvoScope) =>
-    to === 'self' ? (subject === 'it' ? 'it' : 'this fighter') : WHO[to]
-  const gain = (to: EvoScope) => (PLURAL.includes(to) ? ' gain' : ' gains')
+    to === 'self' ? (subject === 'it' ? 'it' : 'the wearer') : WHO[to]
+  const get = (to: EvoScope) =>
+    who(to) +
+    (PLURAL.includes(to) || to === 'allies' || to === 'otherAllies'
+      ? ' get '
+      : ' gets ')
   switch (a.do) {
     case 'damage':
-      return (
-        'deal ' +
-        a.n +
-        ' to ' +
-        who(a.to) +
-        (a.pierce ? ', ignoring armor' : '')
-      )
+      return a.n + (a.pierce ? ' piercing' : '') + ' to ' + who(a.to)
     case 'heal':
-      return 'heal ' + who(a.to) + ' for ' + a.n
+      return 'heal ' + who(a.to) + ' ' + a.n
     case 'power':
       return (
-        who(a.to) +
-        gain(a.to) +
-        ' +' +
-        a.n +
-        ' power' +
-        (a.lasting ? ' for good' : ' this round')
+        get(a.to) + '+' + a.n + ' power' + (a.lasting ? ' for good' : ' now')
       )
     case 'life':
-      return who(a.to) + gain(a.to) + ' +' + a.n + ' life'
+      return get(a.to) + '+' + a.n + ' life'
     case 'armor':
-      return who(a.to) + gain(a.to) + ' +' + a.n + ' armor'
+      return get(a.to) + '+' + a.n + ' armor'
     case 'guard':
-      return who(a.to) + gain(a.to) + ' +' + a.n + ' armor until your next turn'
+      return get(a.to) + '+' + a.n + ' shield'
     case 'stun':
       return 'stun ' + who(a.to)
     case 'cleanse':
-      return 'free ' + who(a.to) + ' from stuns'
+      return 'unstun ' + who(a.to)
     case 'grant':
-      return who(a.to) + gain(a.to) + ' ' + KEYWORD[a.keyword]
+      return get(a.to) + KEYWORD[a.keyword]
     case 'summon':
       return (
-        'summon a ' +
+        'summon ' +
+        (a.where === 'nearest' ? 'a ' : '') +
         a.attack +
         '/' +
         a.hp +
         (a.keywords?.length
           ? ' ' + a.keywords.map((k) => KEYWORD[k]).join(' ')
           : '') +
-        ' echo ' +
+        (a.where === 'nearest' ? ' echo ' : ' echoes ') +
         WHERE[a.where]
       )
     case 'boss':
-      return 'the rival boss loses ' + a.n
+      return a.n + ' to the rival boss'
     case 'mend':
-      return 'your boss heals ' + a.n
+      return 'your boss +' + a.n
     case 'draw':
-      return 'draw ' + (a.n === 1 ? 'a card' : a.n + ' cards')
+      return 'draw ' + a.n
     case 'chance':
       return (
-        a.p +
-        '% chance to ' +
-        a.then.map((x) => evoActionText(x, subject)).join(' and ')
+        a.p + '%: ' + a.then.map((x) => evoActionText(x, subject)).join(', ')
       )
   }
 }
+
 const WHEN: Record<EvoTrigger, string> = {
-  enter: 'On entry',
-  hit: 'When it damages a fighter',
-  kill: 'When it knocks out a fighter',
-  boss: 'When it hits the rival boss',
-  strike: 'After it strikes',
-  death: 'When it falls',
-  roundEnd: 'At round end',
-  turnStart: 'At the start of your turn',
-  spring: 'When sprung',
+  enter: 'Arrive',
+  hit: 'Hit',
+  kill: 'Knockout',
+  boss: 'Boss hit',
+  strike: 'After striking',
+  death: 'Last breath',
+  roundEnd: 'Round end',
+  turnStart: 'Turn start',
+  spring: 'Sprung',
 }
 type Kind = 'creature' | 'spell' | 'trap' | 'equipment'
 function abilityText(ab: EvoAbility, kind: Kind): string {
   const subject = kind === 'creature' ? 'it' : 'self'
-  const body = ab.do.map((a) => evoActionText(a, subject)).join(', then ')
+  const body = ab.do.map((a) => evoActionText(a, subject)).join(', ')
   let lead: string
   if (kind === 'spell' && ab.when === 'enter') lead = 'Also'
-  else if (kind === 'trap' && ab.when === 'spring') lead = 'When sprung'
-  else if (kind === 'equipment')
-    lead =
-      ab.when === 'enter'
-        ? 'On install'
-        : WHEN[ab.when].replace(' it ', ' the wearer ')
+  else if (kind === 'equipment' && ab.when === 'enter') lead = 'Install'
   else lead = WHEN[ab.when]
   return lead + (ab.once ? ' (once)' : '') + ': ' + body + '.'
 }
 function staticText(r: EvoStatic, kind: Kind): string[] {
-  const who = kind === 'equipment' ? 'The wearer' : 'It'
   const out: string[] = []
-  if (r.pacifist) out.push(who + ' never strikes.')
+  const it = kind === 'equipment' ? 'Wearer' : 'It'
+  if (r.pacifist) out.push(it + ' never strikes.')
   if (r.aura)
     out.push(
-      (r.aura.to === 'adjacentAllies'
-        ? 'Neighboring friends'
-        : 'Every other friendly fighter') +
-        ' strike for +' +
+      (r.aura.to === 'adjacentAllies' ? 'Adjacent' : 'Other') +
+        ' allies +' +
         r.aura.n +
-        '.',
+        ' power.',
     )
   if (r.hex)
     out.push(
-      (r.hex.to === 'across'
-        ? 'The rival across'
-        : 'The rival across and its neighbors') +
-        ' strike for -' +
+      (r.hex.to === 'across' ? 'Foe across' : '3 facing foes') +
+        ' -' +
         r.hex.n +
-        '.',
+        ' power.',
     )
-  const hits = kind === 'equipment' ? 'The wearer strikes' : 'It strikes'
-  if (r.pack) out.push(hits + ' for +' + r.pack + ' beside a friend.')
-  if (r.lone) out.push(hits + ' for +' + r.lone + ' with no friend beside it.')
-  if (r.bully)
-    out.push(hits + ' for +' + r.bully + ' against a stunned blocker.')
+  if (r.pack) out.push(it + ' +' + r.pack + ' power beside an ally.')
+  if (r.lone) out.push(it + ' +' + r.lone + ' power alone.')
+  if (r.bully) out.push(it + ' +' + r.bully + ' power vs stunned foes.')
   return out
 }
 /** Rules text for a stage, generated from the same data the engine runs. */

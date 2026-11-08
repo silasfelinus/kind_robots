@@ -82,8 +82,7 @@ export const EXCHANGE_EVOLUTIONS: Record<string, CardEvolution> = {
   's2-exchange-golden-bailiff': {
     2: stage('Brass Summons', [on('kill', boss(2))]),
     3: stage('Court-Ordered Eviction', [
-      on('enter', stun('laneFoes'), boss(2), mend(2)),
-      on('kill', boss(2)),
+      on('enter', stun('laneFoes'), boss(2)),
     ]),
   },
   's2-exchange-compound-interest-notice': {
@@ -119,8 +118,8 @@ export const EXCHANGE_EVOLUTIONS: Record<string, CardEvolution> = {
   's3-exchange-mortgage-minotaur': {
     2: stage('Balloon Payment', [on('kill', boss(2))]),
     3: stage('Labyrinth of Debt', [
-      on('enter', damage(2, 'laneFoes'), armor(1, 'self')),
-      on('kill', boss(2), mend(2)),
+      on('enter', damage(2, 'laneFoes')),
+      on('kill', mend(2)),
     ]),
   },
   's3-exchange-retainer-clerk': {
@@ -145,10 +144,7 @@ export const EXCHANGE_EVOLUTIONS: Record<string, CardEvolution> = {
   },
   's3-exchange-golden-foreclosure': {
     2: stage('Vault Door', [on('roundEnd', boss(1))]),
-    3: stage('Foreclosure Engine Online', [
-      on('enter', boss(3), mend(3)),
-      on('roundEnd', boss(1), mend(1)),
-    ]),
+    3: stage('Foreclosure Engine Online', [on('enter', boss(3), mend(3))]),
   },
   's3-exchange-payment-reminder': {
     2: stage('Firmly Worded Reminder', [on('enter', stun('target'))]),

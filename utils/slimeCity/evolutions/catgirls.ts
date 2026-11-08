@@ -210,9 +210,6 @@ export const CATGIRL_EVOLUTIONS: Record<string, CardEvolution> = {
   },
   's3-catgirls-pounce-rig': {
     2: stage('Spring-Loaded', [], { pack: 1 }),
-    3: stage('Second Pounce', [
-      on('enter', power(3, 'self'), cleanse('self')),
-      on('kill', power(2, 'self')),
-    ]),
+    3: stage('Second Pounce', [on('enter', power(3, 'self'), cleanse('self'))]),
   },
 }

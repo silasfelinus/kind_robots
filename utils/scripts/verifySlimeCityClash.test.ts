@@ -1638,10 +1638,20 @@ contractStage.units = [
 ]
 contractStage.units[0]!.hp = 7
 const contracted = playClash(contractStage, 'player', 'contract', 2)
-const contractRound = finishRound(contracted)
+const afterContractTurn = finishTurn(contracted)
+assert.equal(
+  afterContractTurn.units.find((u) => u.uid === 3181)?.guard,
+  1,
+  'the contract shield blocks the upcoming enemy attack',
+)
+const contractRound = finishTurn(afterContractTurn)
 assert.equal(contractRound.boss.player, 31)
 assert.equal(contractRound.units.find((u) => u.uid === 3181)?.hp, 8)
-assert.equal(contractRound.units.find((u) => u.uid === 3181)?.guard, 1)
+assert.equal(
+  contractRound.units.find((u) => u.uid === 3181)?.guard,
+  0,
+  'temporary shield expires at the start of the protected crew\'s next turn',
+)
 
 // The L3 bribe is conditional, never a guaranteed free opponent steal.
 let recruited = false

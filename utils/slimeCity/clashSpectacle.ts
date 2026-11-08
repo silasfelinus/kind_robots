@@ -5,9 +5,19 @@ import { cardById, type Side, type TeamId } from './prototypes'
 
 export type ClashSpectacleGrade = 'flash' | 'feature' | 'legend'
 export type ClashSpectacleKind = 'play' | 'strike' | 'power' | 'victory'
+export type ClashSpectacleEffect =
+  | 'summon'
+  | 'heal'
+  | 'gear'
+  | 'trap'
+  | 'blast'
+  | 'control'
+  | 'strike'
+  | 'power'
 
 export interface ClashSpectacle {
   kind: ClashSpectacleKind
+  effect: ClashSpectacleEffect
   grade: ClashSpectacleGrade
   side: Side
   lane: number
@@ -59,8 +69,23 @@ export function clashSpectacle(
           : clashTwistText(card.id, level) ||
             clashCardText(card, level) ||
             'A new challenger enters the arena'
+    const effect: ClashSpectacleEffect =
+      card.kind === 'creature'
+        ? 'summon'
+        : card.kind === 'trap'
+          ? 'trap'
+          : card.kind === 'equipment'
+            ? 'gear'
+            : card.effect === 'heal'
+              ? 'heal'
+              : card.effect === 'chaos' || card.effect === 'blast'
+                ? 'blast'
+                : card.effect === 'root' || card.effect === 'snare'
+                  ? 'control'
+                  : 'strike'
     return {
       kind: 'play',
+      effect,
       grade,
       side: command.side,
       lane: command.lane,
@@ -74,7 +99,15 @@ export function clashSpectacle(
             ? 'NEW CHALLENGER'
             : card.kind === 'trap'
               ? 'SECRET WEAPON'
-              : 'POWER PLAY',
+              : effect === 'heal'
+                ? 'EMERGENCY PATCH'
+                : effect === 'gear'
+                  ? 'GEAR FITTED'
+                  : effect === 'blast'
+                    ? 'CHAOS INCOMING'
+                    : effect === 'control'
+                      ? 'LOCKDOWN'
+                      : 'POWER PLAY',
       title: card.name,
       detail,
     }
@@ -83,6 +116,7 @@ export function clashSpectacle(
     const power = factionPower(before.teams[command.side])
     return {
       kind: 'power',
+      effect: 'power',
       grade: 'legend',
       side: command.side,
       lane: command.lane,
@@ -108,6 +142,11 @@ export function clashSpectacle(
   const enemy = rivalOf(hit.side)
   return {
     kind: lethal ? 'victory' : 'strike',
+    effect: hit.trap
+      ? 'trap'
+      : card.keywords?.includes('volatile') || card.id === 'firebrand'
+        ? 'blast'
+        : 'strike',
     grade,
     side: hit.side,
     lane: hit.lane,

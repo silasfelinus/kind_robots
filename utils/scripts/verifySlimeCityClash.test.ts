@@ -853,7 +853,11 @@ assert.ok(
   rewoven.units.some((u) => u.token && u.cardId === 'mau'),
   'L3 reknit resurrects an existing fallen card as a transient echo',
 )
-assert.equal(rewoven.fallen?.player.length, 0, 'a fallen fighter is revived once')
+assert.equal(
+  rewoven.fallen?.player.length,
+  0,
+  'a fallen fighter is revived once',
+)
 const falseGrave = evolved('catgirls', 'reknit')
 falseGrave.discards.player.push('mau')
 falseGrave.units = [{ ...follower('player', 2, 905, 8), hp: 2 }]

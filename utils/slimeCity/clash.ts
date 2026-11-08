@@ -569,9 +569,13 @@ function startTurn(s: ClashState, side: Side): void {
   }
   // Defensive engines only charge once per own turn. Remove last turn's
   // shields before adding fresh ones; stack is capped to avoid a stalemate.
-  for (const guardian of s.units.filter((u) => u.side === side && u.level >= 2)) {
+  for (const guardian of s.units.filter(
+    (u) => u.side === side && u.level >= 2,
+  )) {
     const friends = s.units.filter((u) => u.side === side)
-    const adjacent = friends.filter((u) => Math.abs(u.lane - guardian.lane) === 1)
+    const adjacent = friends.filter(
+      (u) => Math.abs(u.lane - guardian.lane) === 1,
+    )
     let guarded: ClashUnit[] = []
     let shield = 1
     if (guardian.cardId === 'scrapper')
@@ -756,7 +760,12 @@ function summonEcho(
     token: true,
   }
   s.units.push(unit)
-  note(s, cardById(cardId).name + ' echo joins alley ' + (lane + 1) + '.', 'play', lane)
+  note(
+    s,
+    cardById(cardId).name + ' echo joins alley ' + (lane + 1) + '.',
+    'play',
+    lane,
+  )
   const trap = s.traps.find((t) => t.side === opponent(side) && t.lane === lane)
   if (trap) {
     const effect = cardById(trap.cardId)
@@ -770,9 +779,11 @@ function summonEcho(
 }
 
 function nearestFreeAlley(s: ClashState, side: Side, center: number): number {
-  return Array.from({ length: CLASH_LANES }, (_, lane) => lane)
-    .sort((a, b) => Math.abs(a - center) - Math.abs(b - center) || a - b)
-    .find((lane) => !unitAt(s, side, lane)) ?? -1
+  return (
+    Array.from({ length: CLASH_LANES }, (_, lane) => lane)
+      .sort((a, b) => Math.abs(a - center) - Math.abs(b - center) || a - b)
+      .find((lane) => !unitAt(s, side, lane)) ?? -1
+  )
 }
 
 function casualties(s: ClashState): void {
@@ -813,8 +824,12 @@ function casualties(s: ClashState): void {
         ))
           damage(friend, 1)
       evolutionMoment(
-        s, 'bomber', u.side, u.lane,
-        'Grand Detonator detonates across the streets!', 'blast',
+        s,
+        'bomber',
+        u.side,
+        u.lane,
+        'Grand Detonator detonates across the streets!',
+        'blast',
       )
     }
     for (const survivor of s.units.filter((v) => v.side === u.side)) {
@@ -827,8 +842,12 @@ function casualties(s: ClashState): void {
         if (survivor.level === 3) {
           s.boss[u.side] = Math.min(clashBossCap(s, u.side), s.boss[u.side] + 1)
           evolutionMoment(
-            s, 'repo', u.side, survivor.lane,
-            'Repo Goblin turns a fallen friend into two power and a refund!', 'strike',
+            s,
+            'repo',
+            u.side,
+            survivor.lane,
+            'Repo Goblin turns a fallen friend into two power and a refund!',
+            'strike',
           )
         }
       }
@@ -844,13 +863,20 @@ function casualties(s: ClashState): void {
         )
         if (survivor.level === 3) s.boss[opponent(u.side)] -= 1
         evolutionMoment(
-          s, 'kaboom', u.side, survivor.lane,
-          'Sister Kaboom feeds the blast into her drill and the rival boss!', 'blast',
+          s,
+          'kaboom',
+          u.side,
+          survivor.lane,
+          'Sister Kaboom feeds the blast into her drill and the rival boss!',
+          'blast',
         )
       }
       if (survivor.cardId === 'merc-discount-angel' && survivor.level >= 2) {
         for (const friend of s.units.filter(
-          (v) => v.side === u.side && Math.abs(v.lane - survivor.lane) === 1 && v.hp > 0,
+          (v) =>
+            v.side === u.side &&
+            Math.abs(v.lane - survivor.lane) === 1 &&
+            v.hp > 0,
         ))
           friend.hp = Math.min(friend.maxHp, friend.hp + 2)
         if (
@@ -862,8 +888,12 @@ function casualties(s: ClashState): void {
           if (free >= 0) {
             summonEcho(s, u.side, u.cardId, free, 2, 1)
             evolutionMoment(
-              s, 'merc-discount-angel', u.side, survivor.lane,
-              'Discount Archangel rescues a fallen fighter!', 'summon',
+              s,
+              'merc-discount-angel',
+              u.side,
+              survivor.lane,
+              'Discount Archangel rescues a fallen fighter!',
+              'summon',
             )
           }
         }
@@ -880,8 +910,12 @@ function casualties(s: ClashState): void {
         slug.maxHp = clamp(slug.maxHp + 1, 1, 22)
         slug.hp = Math.min(slug.maxHp, slug.hp + 1)
         evolutionMoment(
-          s, 'merc-debt-slug', slug.side, slug.lane,
-          'Debt-Eating Slug devours a casualty and grows!', 'heal',
+          s,
+          'merc-debt-slug',
+          slug.side,
+          slug.lane,
+          'Debt-Eating Slug devours a casualty and grows!',
+          'heal',
         )
       }
     }
@@ -1008,8 +1042,7 @@ export function playClash(
       const free = [lane - 1, lane + 1].find(
         (neighbor) => inside(neighbor) && !unitAt(s, side, neighbor),
       )
-      if (free !== undefined)
-        summonEcho(s, side, id, free, 2, 1, ['ambush'])
+      if (free !== undefined) summonEcho(s, side, id, free, 2, 1, ['ambush'])
     }
     if (
       (id === 'sprite' || id === 'merc-smog-moth') &&
@@ -1020,7 +1053,15 @@ export function playClash(
         (neighbor) => inside(neighbor) && !unitAt(s, side, neighbor),
       )
       for (const neighbor of level === 3 ? free : free.slice(0, 1))
-        summonEcho(s, side, id, neighbor, 2, 1, id === 'sprite' ? ['swarm'] : [])
+        summonEcho(
+          s,
+          side,
+          id,
+          neighbor,
+          2,
+          1,
+          id === 'sprite' ? ['swarm'] : [],
+        )
     }
   } else if (card.kind === 'trap') {
     s.traps.push({ side, lane, cardId: id, level })
@@ -1033,7 +1074,12 @@ export function playClash(
       )
       for (const neighbor of level === 3 ? free : free.slice(0, 1)) {
         s.traps.push({ side, lane: neighbor, cardId: id, level })
-        note(s, 'A second tripwire arms alley ' + (neighbor + 1) + '.', 'trap', neighbor)
+        note(
+          s,
+          'A second tripwire arms alley ' + (neighbor + 1) + '.',
+          'trap',
+          neighbor,
+        )
       }
     }
   } else {
@@ -1062,12 +1108,11 @@ export function playClash(
             ))
               friend.hp = Math.min(friend.maxHp, friend.hp + 2)
             if (level === 3) {
-              const fallen = [...s.discards[side]].reverse().find(
-                (cardId) => cardById(cardId).kind === 'creature',
-              )
+              const fallen = [...s.discards[side]]
+                .reverse()
+                .find((cardId) => cardById(cardId).kind === 'creature')
               const free = nearestFreeAlley(s, side, lane)
-              if (fallen && free >= 0)
-                summonEcho(s, side, fallen, free, 2, 1)
+              if (fallen && free >= 0) summonEcho(s, side, fallen, free, 2, 1)
             }
           }
           break
@@ -1096,7 +1141,9 @@ export function playClash(
               const adjacent = s.units.filter(
                 (u) => u.side === side && Math.abs(u.lane - lane) === 1,
               )
-              for (const friend of level === 3 ? adjacent : adjacent.slice(0, 1)) {
+              for (const friend of level === 3
+                ? adjacent
+                : adjacent.slice(0, 1)) {
                 friend.ambushUsed = false
                 friend.surge += level === 3 ? 2 : 1
               }
@@ -1256,7 +1303,10 @@ export function strikeClash(input: ClashState, side: Side): ClashState {
     const whiff = !(attacker.level === 3 && friend) && random(s) < 0.5
     attackPower = whiff ? 0 : attackPower * 2
     evolutionMoment(
-      s, 'pogo', side, lane,
+      s,
+      'pogo',
+      side,
+      lane,
       whiff ? 'Pogo Brat misses the landing!' : 'Pogo Brat doubles its strike!',
       'strike',
     )
@@ -1332,8 +1382,12 @@ export function strikeClash(input: ClashState, side: Side): ClashState {
     if (attacker.cardId === 'bulldozer' && attacker.level === 3 && dealt > 0) {
       s.boss[foeSide] -= 2
       evolutionMoment(
-        s, 'bulldozer', side, lane,
-        'Bulld-Ogre drives through the blocker for 2 boss damage!', 'blast',
+        s,
+        'bulldozer',
+        side,
+        lane,
+        'Bulld-Ogre drives through the blocker for 2 boss damage!',
+        'blast',
       )
     }
     if (dealt > 0 && has(attacker, 'snare')) defender.rooted = true
@@ -1361,29 +1415,41 @@ export function strikeClash(input: ClashState, side: Side): ClashState {
       }
       if (healed)
         evolutionMoment(
-          s, 'razor', side, lane,
-          'Razorwing shares a blood chorus with ' + healed + ' friends!', 'heal',
+          s,
+          'razor',
+          side,
+          lane,
+          'Razorwing shares a blood chorus with ' + healed + ' friends!',
+          'heal',
         )
     }
     if (dealt > 0 && attacker.cardId === 'eel' && attacker.level >= 2) {
-      const shocked = attacker.level === 3
-        ? s.units.filter(
-            (u) =>
-              u.side === foeSide &&
-              u.uid !== defender.uid &&
-              s.traps.some((t) => t.side === foeSide && t.lane === u.lane),
-          )
-        : defender.rooted
+      const shocked =
+        attacker.level === 3
           ? s.units.filter(
-              (u) => u.side === foeSide && Math.abs(u.lane - lane) === 1,
-            ).slice(0, 1)
-          : []
-      for (const rival of shocked)
-        damage(rival, attacker.level === 3 ? 2 : 1)
+              (u) =>
+                u.side === foeSide &&
+                u.uid !== defender.uid &&
+                s.traps.some((t) => t.side === foeSide && t.lane === u.lane),
+            )
+          : defender.rooted
+            ? s.units
+                .filter(
+                  (u) => u.side === foeSide && Math.abs(u.lane - lane) === 1,
+                )
+                .slice(0, 1)
+            : []
+      for (const rival of shocked) damage(rival, attacker.level === 3 ? 2 : 1)
       if (shocked.length)
         evolutionMoment(
-          s, 'eel', side, lane,
-          'Eel Courier arcs electricity into ' + shocked.length + ' distant rival lanes!', 'blast',
+          s,
+          'eel',
+          side,
+          lane,
+          'Eel Courier arcs electricity into ' +
+            shocked.length +
+            ' distant rival lanes!',
+          'blast',
         )
     }
     if (returned > 0 && has(defender, 'leech'))
@@ -1397,8 +1463,12 @@ export function strikeClash(input: ClashState, side: Side): ClashState {
       ) {
         s.boss[side] = Math.min(clashBossCap(s, side), s.boss[side] + 1)
         evolutionMoment(
-          s, 'mogul', side, lane,
-          'The Meat Mogul cashes a collector knockout for boss life!', 'heal',
+          s,
+          'mogul',
+          side,
+          lane,
+          'The Meat Mogul cashes a collector knockout for boss life!',
+          'heal',
         )
       }
     }
@@ -1409,10 +1479,17 @@ export function strikeClash(input: ClashState, side: Side): ClashState {
           (u) => u.side === foeSide && u.cardId === 'mogul' && u.level === 3,
         )
       ) {
-        s.boss[foeSide] = Math.min(clashBossCap(s, foeSide), s.boss[foeSide] + 1)
+        s.boss[foeSide] = Math.min(
+          clashBossCap(s, foeSide),
+          s.boss[foeSide] + 1,
+        )
         evolutionMoment(
-          s, 'mogul', foeSide, lane,
-          'The Meat Mogul cashes a defender knockout for boss life!', 'heal',
+          s,
+          'mogul',
+          foeSide,
+          lane,
+          'The Meat Mogul cashes a defender knockout for boss life!',
+          'heal',
         )
       }
     }

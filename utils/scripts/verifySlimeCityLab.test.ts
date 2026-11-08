@@ -796,12 +796,14 @@ const page = readFileSync(
   'utf8',
 )
 // Silas 2026-11-02: the arena is its own console screen (HUD, board, tokens,
-// hand), mounted by the page; no sidebar of controls beside the board.
+// hand). Silas 2026-11-08 PT retired it from the game ("we don't need the
+// legacy modes, period"): the page no longer mounts it; its component stays
+// covered here until the legacy engine is deleted.
 const arenaUi = readFileSync(
   new URL('../../components/slime-city-arena.vue', import.meta.url),
   'utf8',
 )
-assert.match(page, /<SlimeCityArena v-else-if="lab\.view === 'arena'" \/>/)
+assert.doesNotMatch(page, /<SlimeCityArena/)
 assert.doesNotMatch(page, /class="sc-controls"/, 'No arena sidebar')
 assert.match(arenaUi, /data-testid="slime-guide"/)
 assert.match(arenaUi, /lab\.guide\.steps/)

@@ -57,41 +57,14 @@
       </ol>
       <div
         class="campaign-format"
-        role="group"
+        role="note"
         aria-label="Story bout format"
         data-testid="slime-story-format"
       >
-        <button
-          type="button"
-          :aria-pressed="lab.storyMode === 'written'"
-          :disabled="lab.storySaving"
-          title="Each bout in the format its story was written for."
-          data-testid="slime-story-written"
-          @click="lab.setStoryFormat({ mode: 'written' })"
+        <span
+          title="Every Story bout is SOLO CLASH with your faction's Solo deck; your approach moves each boss's starting life."
+          >SOLO CLASH</span
         >
-          AS WRITTEN
-        </button>
-        <button
-          type="button"
-          :aria-pressed="lab.storyMode === 'turf'"
-          :disabled="lab.storySaving"
-          title="Every story bout as TURF; district terms become points at the count."
-          data-testid="slime-story-turf"
-          @click="lab.setStoryFormat({ mode: 'turf' })"
-        >
-          TURF
-        </button>
-        <button
-          type="button"
-          class="campaign-parity"
-          :aria-pressed="lab.storyParity"
-          :disabled="lab.storySaving"
-          title="PARITY: one card a turn, every card as good as every other."
-          data-testid="slime-story-parity"
-          @click="lab.setStoryFormat({ parity: !lab.storyParity })"
-        >
-          PARITY
-        </button>
       </div>
       <div
         class="campaign-stamp"
@@ -616,6 +589,7 @@ function playApproach(choice: KrHandChoice) {
   flex: none;
   gap: 0.25rem;
 }
+.campaign-format span,
 .campaign-format button {
   padding: 0.35rem 0.5rem;
   border: 1px solid #ffffff55;

@@ -371,12 +371,15 @@ for (const team of crews) {
   assert.ok(validSlimeCityStory(restored), team + ' save stays valid')
 }
 
-// --- Wiring: story bouts build the field; the UI shows it -------------------
+// --- Wiring --------------------------------------------------------------
+// Story bouts are SOLO CLASH now (Silas, 2026-11-08 PT): the grid battlefield
+// no longer applies; approach terms move the bosses' life instead.
 const store = readFileSync(
   new URL('../../stores/slimeCity.ts', import.meta.url),
   'utf8',
 )
-assert.match(store, /applyBattlefield\(termed, field\)/)
+assert.doesNotMatch(store, /applyBattlefield\(termed, field\)/)
+assert.match(store, /launchStoryClash\(\s*'campaign'/)
 const panel = readFileSync(
   new URL('../../components/slime-city-campaign.vue', import.meta.url),
   'utf8',

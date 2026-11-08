@@ -19,16 +19,21 @@ assert.equal(lab.match.seed, 424242)
 lab.reset(true)
 assert.equal(lab.match.seed, 424242, 'SAME SEED keeps the seed')
 
-// The how-to-play panel opens the first time each format is chosen
+// Legacy formats are retired from the game (Silas, 2026-11-08 PT: "we don't
+// need the legacy modes, period"): choosing a format now deals Solo Clash.
+// The legacy clock below stays covered until its engine is deleted.
 lab.chooseMode('bloodrush')
-assert.equal(lab.guideOpen, true)
-assert.ok(lab.guide.steps.length >= 4)
-lab.closeGuide()
-lab.chooseMode('gridiron')
-assert.equal(lab.guideOpen, true)
-lab.closeGuide()
-lab.chooseMode('bloodrush')
-assert.equal(lab.guideOpen, false, 'Shown once per format')
+assert.equal(lab.view, 'clash')
+assert.equal(lab.clashLaunch.format, 'solo')
+assert.equal(lab.clashLaunch.kind, 'practice')
+// An abandoned City bout never inherits a practice result.
+lab.bout = 'chimera'
+lab.playClashFormat('alliance')
+assert.equal(lab.bout, null)
+assert.equal(lab.clashLaunch.format, 'alliance')
+assert.equal(lab.clashSetup().options.alliance?.player.general, lab.activeTeam)
+lab.mode = 'bloodrush'
+lab.reset()
 lab.useSeed(9001)
 
 // Fixed ticks while running
@@ -105,8 +110,8 @@ mock.timers.tick(RUSH_TICK_MS * 5)
 assert.equal(lab.match.round, ended)
 
 // Turn formats ignore the clock and advance only on END ROUND
-lab.chooseMode('blackout')
-lab.closeGuide()
+lab.mode = 'blackout'
+lab.reset()
 lab.useSeed(4817)
 lab.toggleRush()
 assert.equal(lab.running, false)

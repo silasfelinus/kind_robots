@@ -327,7 +327,9 @@
           </button>
 
           <MaturityToggle
-            v-if="previewedChannel.channelKey === 'admin' && showMatureAdminOptIn"
+            v-if="
+              previewedChannel.channelKey === 'admin' && showMatureAdminOptIn
+            "
             variant="resource"
             class="mb-3"
             label="Mature studios are hidden"

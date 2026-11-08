@@ -74,9 +74,12 @@ assert.equal(
 )
 assert.match(
   launcher,
-  /previewedChannel\.channelKey === 'admin' && showMatureAdminOptIn/,
+  /previewedChannel\.channelKey === 'admin'\s*&&\s*showMatureAdminOptIn/,
 )
-assert.match(launcher, /channel\.channelKey === 'admin' && showMatureAdminOptIn/)
+assert.match(
+  launcher,
+  /channel\.channelKey === 'admin' && showMatureAdminOptIn/,
+)
 assert.match(launcher, /!userStore\.isMaturityRestricted/)
 assert.match(launcher, /!userStore\.showMature/)
 assert.match(launcher, /Mature studios are hidden/)
@@ -85,7 +88,10 @@ assert.doesNotMatch(
   /Monstrique|monstress-convention/,
   'a mature-off Admin should see a generic opt-in, not the name of a restricted game',
 )
-assert.match(matureToggle, /accountStore\.updateConsent\(\{ showMature: value \}\)/)
+assert.match(
+  matureToggle,
+  /accountStore\.updateConsent\(\{ showMature: value \}\)/,
+)
 
 function frontmatter(markdown: string): ChannelContentItem {
   return parseYaml(markdown.split('---')[1] ?? '') as ChannelContentItem

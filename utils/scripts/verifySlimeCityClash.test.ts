@@ -1531,7 +1531,10 @@ const equippedShredders = playClash(shredderStage, 'player', 'shredders', 2)
 const shredder = equippedShredders.units.find((u) => u.uid === 3100)!
 assert.ok(shredder.keywords.includes('pierce'))
 assert.equal(shredder.gearLevels?.shredders, 3)
-const shredderHit = strikeClash(passClash(equippedShredders, 'player'), 'player')
+const shredderHit = strikeClash(
+  passClash(equippedShredders, 'player'),
+  'player',
+)
 assert.ok(shredderHit.units.find((u) => u.uid === 3102)!.hp < 12)
 
 const spursStage = third('bloodfairies', 'spurs')
@@ -1554,7 +1557,10 @@ chokerStage.units[0]!.keywords.push('swarm')
 const chokers = playClash(chokerStage, 'player', 'choker', 2)
 assert.ok(chokers.units.find((u) => u.uid === 3123)?.keywords.includes('swarm'))
 assert.equal(
-  clashPower(chokers, chokers.units.find((u) => u.uid === 3120)!),
+  clashPower(
+    chokers,
+    chokers.units.find((u) => u.uid === 3120)!,
+  ),
   3,
   'the distant swarm ally receives its global concert anthem',
 )
@@ -1567,7 +1573,9 @@ fistStage.units = [
 ]
 fistStage.boss.enemy = 30
 const fistEquip = playClash(fistStage, 'player', 'wreckingfist', 2)
-assert.ok(fistEquip.units.find((u) => u.uid === 3130)?.keywords.includes('bulldoze'))
+assert.ok(
+  fistEquip.units.find((u) => u.uid === 3130)?.keywords.includes('bulldoze'),
+)
 const fistHit = strikeClash(passClash(fistEquip, 'player'), 'player')
 assert.equal(fistHit.boss.enemy, 28)
 assert.equal(fistHit.units.find((u) => u.uid === 3132)?.hp, 11)
@@ -1591,12 +1599,12 @@ armed.active = 'enemy'
 armed.phase = 'play'
 armed.plays.enemy = 0
 armed.hands.enemy = ['scrapper']
-armed.units = [
-  follower('enemy', 1, 3151, 10),
-  follower('enemy', 3, 3153, 10),
-]
+armed.units = [follower('enemy', 1, 3151, 10), follower('enemy', 3, 3153, 10)]
 const spring = playClash(armed, 'enemy', 'scrapper', 2)
-assert.deepEqual(spring, playClash(structuredClone(armed), 'enemy', 'scrapper', 2))
+assert.deepEqual(
+  spring,
+  playClash(structuredClone(armed), 'enemy', 'scrapper', 2),
+)
 assert.ok(spring.traps.every((t) => t.cardId !== 'badluck'))
 assert.ok(spring.units.find((u) => u.uid === 3151)!.hp <= 10)
 
@@ -1608,13 +1616,13 @@ fuseStage.units = [
 const fused = playClash(fuseStage, 'player', 'fuse', 2)
 assert.ok(!fused.units.some((u) => u.uid === 3161))
 assert.ok(fused.units.find((u) => u.uid === 3162)!.attack >= 8)
-assert.ok((fused.fallen?.player ?? []).length > 0, 'sacrifices count as real deaths')
+assert.ok(
+  (fused.fallen?.player ?? []).length > 0,
+  'sacrifices count as real deaths',
+)
 
 const visorStage = third('undertow', 'visor')
-visorStage.units = [
-  follower('player', 1, 3171),
-  follower('player', 2, 3172),
-]
+visorStage.units = [follower('player', 1, 3171), follower('player', 2, 3172)]
 visorStage.traps = [
   { side: 'enemy', lane: 1, cardId: 'grate', level: 1 },
   { side: 'enemy', lane: 3, cardId: 'grate', level: 1 },
@@ -1643,18 +1651,31 @@ for (let seed = 1; seed <= 64; seed++) {
   const bribe = createClash('riot', 'ironjaw', seed)
   bribe.phase = 'attack'
   bribe.units = [
-    { ...follower('player', 2, 3200, 10, 5), cardId: 'merc-bribe-rat', level: 3 },
+    {
+      ...follower('player', 2, 3200, 10, 5),
+      cardId: 'merc-bribe-rat',
+      level: 3,
+    },
     { ...follower('enemy', 2, 3201, 1, 2), cardId: 'scrapper' },
   ]
   const paid = strikeClash(bribe, 'player')
   assert.deepEqual(paid, strikeClash(structuredClone(bribe), 'player'))
-  if (paid.units.some((u) => u.side === 'player' && u.token && u.cardId === 'scrapper'))
+  if (
+    paid.units.some(
+      (u) => u.side === 'player' && u.token && u.cardId === 'scrapper',
+    )
+  )
     recruited = true
 
   const oracle = createClash('catgirls', 'ironjaw', seed)
   oracle.phase = 'attack'
   oracle.units = [
-    { ...follower('player', 1, 3301, 12, 2), cardId: 'merc-grease-oracle', level: 3, attacked: true },
+    {
+      ...follower('player', 1, 3301, 12, 2),
+      cardId: 'merc-grease-oracle',
+      level: 3,
+      attacked: true,
+    },
     follower('player', 2, 3302, 12, 2),
     follower('enemy', 2, 3303, 20, 1),
   ]
@@ -1665,7 +1686,10 @@ for (let seed = 1; seed <= 64; seed++) {
   assert.deepEqual(foretold, strikeClash(structuredClone(oracle), 'player'))
 }
 assert.ok(recruited, 'weak enemy can be recruited by an evolved bribe rat')
-assert.ok(prophecyRaised && prophecyMissed, 'oracle has two seeded, observable outcomes')
+assert.ok(
+  prophecyRaised && prophecyMissed,
+  'oracle has two seeded, observable outcomes',
+)
 
 // Balance acceptance (2026-11-07 Clash rebalance): CPU sweeps across every crew
 // pairing keep each crew and the first seat near even. Report:

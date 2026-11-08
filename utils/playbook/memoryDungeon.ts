@@ -407,9 +407,20 @@ export function buildMemoryDungeonPlaybook(): Playbook {
       ending: 'Ending',
     },
     editable: false,
-    artPromptsComplete: Object.values(nodes).every(
-      (node) => !node.needsArt || Boolean(node.artPrompt?.trim()),
-    ),
+    artPromptsComplete: Object.values(nodes).every((node) => {
+      if (!node.needsArt) return true
+      const prompt = node.artPrompt?.trim() ?? ''
+      return (
+        prompt.length >= 120 &&
+        prompt.length <= 900 &&
+        /(?:Hand-painted gouache and ink illustration|Candid 35mm colour photograph)/.test(
+          prompt,
+        ) &&
+        !/\b(?:no|not|without|never|nothing|none|metaphor|symbol|evocative|iconic|thumbnail)\b/i.test(
+          prompt,
+        )
+      )
+    }),
     artProject: 'memory-dungeon',
     artLanes: ['krea2'],
     artPipeline:

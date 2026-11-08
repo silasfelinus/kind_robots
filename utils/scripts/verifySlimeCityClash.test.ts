@@ -683,10 +683,10 @@ const marquee = createClash('catgirls', 'ironjaw', 812)
 marquee.round = 2
 marquee.levels.player.chimera = 3
 marquee.hands.player = ['chimera']
-const apex = playClash(marquee, 'player', 'chimera', 2)
-assert.equal(clashSpectacle(marquee, apex)?.grade, 'legend')
-assert.match(clashSpectacle(marquee, apex)?.eyebrow ?? '', /FINAL FORM/)
-assert.equal(clashSpectacle(marquee, apex)?.cardId, 'chimera')
+const showcaseApex = playClash(marquee, 'player', 'chimera', 2)
+assert.equal(clashSpectacle(marquee, showcaseApex)?.grade, 'legend')
+assert.match(clashSpectacle(marquee, showcaseApex)?.eyebrow ?? '', /FINAL FORM/)
+assert.equal(clashSpectacle(marquee, showcaseApex)?.cardId, 'chimera')
 const nursery = createClash('bloodfairies', 'ironjaw', 813)
 nursery.round = 2
 nursery.levels.player.sprite = 2

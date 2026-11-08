@@ -89,15 +89,18 @@ function construct(
     case 'creatures-only':
     case 'specials-only': {
       const eligible = [...primary, ...secondary, ...mercs].filter(
-        (card) =>
-          (card.kind === 'creature') === (plan === 'creatures-only'),
+        (card) => (card.kind === 'creature') === (plan === 'creatures-only'),
       )
       cards = pick(eligible, 30, offset)
       break
     }
   }
   const deck = { general, ally, cards }
-  assert.deepEqual(allianceProblems(deck), [], plan + ': ' + general + '/' + ally)
+  assert.deepEqual(
+    allianceProblems(deck),
+    [],
+    plan + ': ' + general + '/' + ally,
+  )
   assert.ok(validAllianceDeck(deck), 'valid saved Alliance deck')
   assert.deepEqual(
     allianceProblems(swapGeneral(deck)),
@@ -110,32 +113,30 @@ function construct(
 // Every catalog ID must be constructible, even when a CPU avoids playing it.
 // Separates legality/offer coverage from actual play and third-stage reach.
 for (const card of CARDS) {
-  const general =
-    card.team === 'mercenary' ? crews[0]! : (card.team as TeamId)
+  const general = card.team === 'mercenary' ? crews[0]! : (card.team as TeamId)
   const ally = crews.find((team) => team !== general)!
-  const filler = [
-    ...pool(general),
-    ...pool(ally),
-    ...mercs,
-  ].filter((candidate) => candidate.id !== card.id)
+  const filler = [...pool(general), ...pool(ally), ...mercs].filter(
+    (candidate) => candidate.id !== card.id,
+  )
   const deck: AllianceDeck = {
     general,
     ally,
     cards: [card.id, ...pick(filler, 29, 0)],
   }
-  assert.ok(validAllianceDeck(deck), card.id + ' must fit a legal Alliance deck')
+  assert.ok(
+    validAllianceDeck(deck),
+    card.id + ' must fit a legal Alliance deck',
+  )
 }
 
 type Score = { games: number; wins: number; draws: number; rounds: number }
 const empty = (): Score => ({ games: 0, wins: 0, draws: 0, rounds: 0 })
-const byPlan = Object.fromEntries(plans.map((plan) => [plan, empty()])) as Record<
-  Plan,
-  Score
->
-const byGeneral = Object.fromEntries(crews.map((id) => [id, empty()])) as Record<
-  TeamId,
-  Score
->
+const byPlan = Object.fromEntries(
+  plans.map((plan) => [plan, empty()]),
+) as Record<Plan, Score>
+const byGeneral = Object.fromEntries(
+  crews.map((id) => [id, empty()]),
+) as Record<TeamId, Score>
 const powerUse = Object.fromEntries(crews.map((id) => [id, 0])) as Record<
   TeamId,
   number

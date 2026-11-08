@@ -158,6 +158,8 @@ export interface ClashState {
   levels: Record<Side, Record<string, number>>
   /** Knockout bonuses persist independently of the three play levels. */
   deathMarks: Record<Side, Record<string, number>>
+  /** A real knockout ledger: unplayed discarded cards do not count as dead. */
+  fallen?: Record<Side, string[]>
   /** Last named ability activation, not a second random effects engine. */
   lastEvolution?: ClashEvolutionMoment
   /** Omitted on older saves and replays: standard Clash. */
@@ -650,6 +652,7 @@ export function createClash(
     commands: [],
     levels: { player: {}, enemy: {} },
     deathMarks: { player: {}, enemy: {} },
+    fallen: { player: [], enemy: [] },
   }
   if (alliance) {
     s.format = 'alliance'
@@ -790,7 +793,10 @@ function casualties(s: ClashState): void {
   const fallen = s.units.filter((u) => u.hp <= 0)
   s.units = s.units.filter((u) => u.hp > 0)
   for (const u of fallen) {
-    if (!u.token) s.discards[u.side].push(u.cardId)
+    if (!u.token) {
+      s.discards[u.side].push(u.cardId)
+      ;(s.fallen ??= { player: [], enemy: [] })[u.side].push(u.cardId)
+    }
     if (u.cardId === 'rat' && !u.token) {
       s.deathMarks[u.side].rat = Math.min(
         3,
@@ -1108,11 +1114,14 @@ export function playClash(
             ))
               friend.hp = Math.min(friend.maxHp, friend.hp + 2)
             if (level === 3) {
-              const fallen = [...s.discards[side]]
-                .reverse()
-                .find((cardId) => cardById(cardId).kind === 'creature')
+              const ledger = s.fallen?.[side] ?? []
+              const index = ledger.length - 1
               const free = nearestFreeAlley(s, side, lane)
-              if (fallen && free >= 0) summonEcho(s, side, fallen, free, 2, 1)
+              if (index >= 0 && free >= 0) {
+                const fallen = ledger[index]!
+                summonEcho(s, side, fallen, free, 2, 1)
+                ledger.splice(index, 1)
+              }
             }
           }
           break

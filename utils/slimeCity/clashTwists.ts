@@ -75,6 +75,127 @@ export const CLASH_TWISTS: Record<string, [string, string, string]> = {
     'Adjacent friendly fighters gain +1 strike power.',
     'Every friendly fighter gains +1 strike power.',
   ],
+  // Second wave: earned level-three transformations, not merely stat budgets.
+  lynx: [
+    'An Ambush scout strikes first.',
+    'When deployed opposite an empty alley, gains +1 attack permanently.',
+    'Calls a weak decoy into a free neighboring alley on arrival.',
+  ],
+  pounce: [
+    "Refresh the target fighter's Ambush strike.",
+    'Also refresh and give +1 power this round to one adjacent friend.',
+    'Both adjacent friends gain +2 power this round and refresh Ambush.',
+  ],
+  reknit: [
+    'Heal a fighter.',
+    'Heal the target and wounded neighboring friends for 2 extra life.',
+    'Also revive a fallen friendly fighter as a frail echo in a free alley.',
+  ],
+  laser: [
+    'Stun one rival fighter.',
+    'Also stuns one adjacent rival.',
+    'Stuns both adjacent rivals as the laser dances across three alleys.',
+  ],
+  pogo: [
+    'An unpredictable crowd-surfer.',
+    'On a strike, a seeded 50/50 roll makes it whiff or hit for double.',
+    'Hits double without whiffing while an ally stands next door.',
+  ],
+  razor: [
+    'A duelist who heals from a hit.',
+    'Damaging a rival also heals neighboring friends for 1.',
+    'Every friendly fighter heals 1 whenever Razorwing lands a hit.',
+  ],
+  mosh: [
+    'Blast a rival and its neighbors.',
+    'The mosh reaches two alleys away for 1 more damage.',
+    'An entire enemy row takes 1 more; friendly fighters take 1 too.',
+  ],
+  scrapper: [
+    'Reliable armored brawler.',
+    'Adjacent friends gain 1 shield at the start of each friendly turn.',
+    'Every friendly fighter starts its turn with 1 fresh shield.',
+  ],
+  bulldozer: [
+    'Overkill smashes through to the rival boss.',
+    'Ignores one extra armor on a blocked strike.',
+    'A hit against a blocker also shakes 2 life from the rival boss.',
+  ],
+  plating: [
+    'One fighter gains permanent armor.',
+    'Adjacent fighters gain +1 armor too.',
+    'Every friendly fighter gains +1 armor on installation.',
+  ],
+  bomber: [
+    'Explodes when defeated.',
+    'Also blasts neighboring rivals for 2 on defeat.',
+    'On defeat, hits every rival fighter for 2 and nearby friends for 1.',
+  ],
+  kaboom: [
+    'A heavy piercing fighter.',
+    'Gains +1 attack when a friendly Volatile fighter dies.',
+    'Gains +2 attack on allied Volatile death and strikes the rival boss for 1.',
+  ],
+  confetti: [
+    'Blast a rival and its neighboring enemies.',
+    'Also hits neighboring friends for 1, and rivals beside the target for 2.',
+    'Fireworks across every alley: 2 to all other enemies, 1 to friends.',
+  ],
+  eel: [
+    'Pierces the rival armor.',
+    'Hitting a stunned rival shocks one adjacent enemy for 1.',
+    'A hit also shocks rivals standing in armed trap alleys for 2.',
+  ],
+  oracle: [
+    'A dangerous prophet with a piercing snare.',
+    'Starts each friendly turn with 2 prophetic shield.',
+    'Shields itself and both neighboring allies for 2 each turn.',
+  ],
+  tripwire: [
+    'Lays a hidden stun trap.',
+    'Also arms an empty neighboring alley.',
+    'Arms both free neighboring alleys with separate traps.',
+  ],
+  sonar: [
+    'Disarm a rival trap in one alley.',
+    'Also scan neighboring alleys and draw one bonus card.',
+    'Sweep all five trap alleys and draw two bonus cards.',
+  ],
+  repo: [
+    'Cheap fighter looking for collateral.',
+    'Gains +1 permanent attack whenever a friendly fighter falls.',
+    'Gains +2 permanent attack and refunds 1 boss life on an allied death.',
+  ],
+  mogul: [
+    'Collects a bounty when it defeats a rival.',
+    'Nearby collectors get +1 attack while the Mogul stands.',
+    'All collectors gain +1 attack; a collector knockout heals your boss 1.',
+  ],
+  handshake: [
+    'Give one friend Collect.',
+    'Adjacent friends also gain Collect.',
+    'Every friendly fighter gains Collect while the ink is wet.',
+  ],
+  foreclosure: [
+    'Hurt and stun a rival.',
+    'A knockout reimburses 2 of your boss life.',
+    'On knockout also hires a weak debtor in a vacant friendly alley.',
+  ],
+  'merc-debt-slug': [
+    'A slow collector waiting for disaster.',
+    'Gains +1 attack when an allied fighter falls.',
+    'Gains attack and life whenever any fighter falls, either side.',
+  ],
+  'merc-fungal-bouncer': [
+    'Guards its own door.',
+    'Gives one neighboring ally 2 shield at the start of its turn.',
+    'Gives both neighboring friends 2 shield each friendly turn.',
+  ],
+  'merc-discount-angel': [
+    'An unstable helper with a clearance-bin halo.',
+    'When an allied fighter dies, heals nearby friends for 2.',
+    'Once per round, an allied loss summons a weak rescued echo.',
+  ],
 }
 
 export function clashTwistText(id: string, level: number): string {

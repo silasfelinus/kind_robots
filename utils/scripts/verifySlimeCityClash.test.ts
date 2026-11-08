@@ -292,8 +292,8 @@ assert.ok(
 assert.equal(clashPlayCost(cardById('lynx')), 1)
 assert.equal(
   Object.keys(CLASH_TWISTS).length,
-  15,
-  'initial Clash-only ability slice',
+  39,
+  'first and second Clash-only evolution waves retain their complete roster',
 )
 for (const id of Object.keys(CLASH_TWISTS)) {
   const card = cardById(id)
@@ -774,6 +774,422 @@ fireworksShow.hands.player = ['firestorm']
 fireworksShow.units = [follower('enemy', 1, 112, 9, 2)]
 const explodedShow = playClash(fireworksShow, 'player', 'firestorm', 1)
 assert.equal(clashSpectacle(fireworksShow, explodedShow)?.effect, 'blast')
+
+// Second-wave experiential evolution: 24 additional existing cards, all real
+// deterministic rules. A named L3 must change the board, not just the badge.
+const evoIds = [
+  'lynx',
+  'pounce',
+  'reknit',
+  'laser',
+  'pogo',
+  'razor',
+  'mosh',
+  'scrapper',
+  'bulldozer',
+  'plating',
+  'bomber',
+  'kaboom',
+  'confetti',
+  'eel',
+  'oracle',
+  'tripwire',
+  'sonar',
+  'repo',
+  'mogul',
+  'handshake',
+  'foreclosure',
+  'merc-debt-slug',
+  'merc-fungal-bouncer',
+  'merc-discount-angel',
+]
+for (const id of evoIds) {
+  const card = cardById(id)
+  assert.ok(CLASH_TWISTS[id], id + ' has authored stage text')
+  const stages = [1, 2, 3].map((level) => clashCardText(card, level))
+  assert.ok(
+    stages.every((line) => line.length > 12),
+    id + ' has useful instructions',
+  )
+  assert.equal(new Set(stages).size, 3, id + ' tells three different stories')
+}
+function evolved(
+  team: Parameters<typeof createClash>[0],
+  id: string,
+  level = 3,
+) {
+  const s = createClash(team, 'ironjaw', 840 + evoIds.indexOf(id))
+  s.round = 2
+  s.levels.player[id] = level
+  s.hands.player = [id]
+  s.boss.player = 30
+  return s
+}
+const lynxNext = playClash(evolved('catgirls', 'lynx'), 'player', 'lynx', 2)
+assert.equal(
+  lynxNext.units.filter((u) => u.token).length,
+  1,
+  'L3 lynx calls a decoy',
+)
+assert.equal(lynxNext.units.filter((u) => u.token)[0]?.lane, 1)
+assert.equal(lynxNext.hands.player.length, 0, 'decoy is not a new card')
+const buffStage = evolved('catgirls', 'pounce')
+buffStage.units = [
+  { ...follower('player', 2, 901), keywords: ['ambush'], ambushUsed: true },
+  { ...follower('player', 1, 902), keywords: ['ambush'], ambushUsed: true },
+  { ...follower('player', 3, 903), keywords: ['ambush'], ambushUsed: true },
+]
+const pounced = playClash(buffStage, 'player', 'pounce', 2)
+assert.ok(
+  pounced.units.every((u) => !u.ambushUsed),
+  'the entire ambush chorus rearms',
+)
+assert.ok(pounced.units.filter((u) => u.lane !== 2).every((u) => u.surge === 2))
+const reknitStage = evolved('catgirls', 'reknit')
+reknitStage.units = [{ ...follower('player', 2, 904, 8), hp: 2 }]
+reknitStage.fallen!.player.push('mau')
+const rewoven = playClash(reknitStage, 'player', 'reknit', 2)
+assert.ok(
+  rewoven.units.some((u) => u.token && u.cardId === 'mau'),
+  'L3 reknit resurrects an existing fallen card as a transient echo',
+)
+assert.equal(
+  rewoven.fallen?.player.length,
+  0,
+  'a fallen fighter is revived once',
+)
+const falseGrave = evolved('catgirls', 'reknit')
+falseGrave.discards.player.push('mau')
+falseGrave.units = [{ ...follower('player', 2, 905, 8), hp: 2 }]
+const noGhost = playClash(falseGrave, 'player', 'reknit', 2)
+assert.equal(
+  noGhost.units.filter((u) => u.token).length,
+  0,
+  'discarded unplayed cards are not counterfeit fallen allies',
+)
+
+const laserStage = evolved('catgirls', 'laser')
+laserStage.units = [1, 2, 3].map((lane) =>
+  follower('enemy', lane, 920 + lane, 10),
+)
+const locked = playClash(laserStage, 'player', 'laser', 2)
+assert.equal(
+  locked.units.filter((u) => u.rooted).length,
+  3,
+  'L3 laser locks three lanes',
+)
+const pogoStage = evolved('bloodfairies', 'pogo')
+pogoStage.phase = 'attack'
+pogoStage.units = [
+  {
+    ...follower('player', 2, 930, 8, 3),
+    cardId: 'pogo',
+    keywords: ['swarm'],
+    level: 3,
+  },
+  { ...follower('player', 1, 931), attacked: true },
+]
+const pogoPower = clashPower(pogoStage, pogoStage.units[0]!)
+const concertSlam = strikeClash(pogoStage, 'player')
+assert.equal(
+  concertSlam.strike?.dealt,
+  pogoPower * 2,
+  'L3 Pogo always doubles with a friend',
+)
+assert.equal(
+  clashSpectacle(pogoStage, concertSlam)?.cardId,
+  'pogo',
+  'special strike has its own portrait',
+)
+const pogoCoin = structuredClone(pogoStage)
+pogoCoin.units = [{ ...pogoCoin.units[0]!, level: 2 }]
+assert.deepEqual(
+  strikeClash(pogoCoin, 'player'),
+  strikeClash(structuredClone(pogoCoin), 'player'),
+  'Pogo coin flip is seed-replayable',
+)
+const razorStage = evolved('bloodfairies', 'razor')
+razorStage.phase = 'attack'
+razorStage.units = [
+  {
+    ...follower('player', 2, 940, 10, 4),
+    cardId: 'razor',
+    level: 3,
+    keywords: ['leech'],
+  },
+  { ...follower('player', 4, 941, 8, 2), hp: 3 },
+  follower('enemy', 2, 942, 15, 1),
+]
+const vampiric = strikeClash(razorStage, 'player')
+assert.equal(
+  vampiric.units.find((u) => u.uid === 941)?.hp,
+  4,
+  'L3 Razor heals distant bandmate',
+)
+assert.equal(clashSpectacle(razorStage, vampiric)?.effect, 'heal')
+const moshStage = evolved('bloodfairies', 'mosh')
+moshStage.units = [
+  follower('enemy', 2, 950, 10),
+  follower('enemy', 0, 951, 10),
+  follower('player', 4, 952, 10),
+]
+const wholePit = playClash(moshStage, 'player', 'mosh', 2)
+assert.ok(
+  wholePit.units.find((u) => u.uid === 951)!.hp < 10,
+  'L3 mosh reaches far lanes',
+)
+assert.equal(
+  wholePit.units.find((u) => u.uid === 952)?.hp,
+  9,
+  'mosh can hurt friends',
+)
+const shieldStage = evolved('ironjaw', 'scrapper')
+shieldStage.active = 'enemy'
+shieldStage.phase = 'attack'
+shieldStage.units = [
+  { ...follower('player', 2, 960), cardId: 'scrapper', level: 3 },
+  follower('player', 4, 961),
+]
+const shielded = endClashTurn(shieldStage, 'enemy')
+assert.equal(
+  shielded.units.find((u) => u.uid === 961)?.guard,
+  1,
+  'L3 Scrapper protects distant friends each turn',
+)
+const dozeStage = evolved('ironjaw', 'bulldozer')
+dozeStage.phase = 'attack'
+dozeStage.units = [
+  {
+    ...follower('player', 2, 970, 10, 4),
+    cardId: 'bulldozer',
+    level: 3,
+    keywords: ['bulldoze'],
+  },
+  { ...follower('enemy', 2, 971, 10, 1), armor: 2 },
+]
+const dozed = strikeClash(dozeStage, 'player')
+assert.equal(
+  dozed.boss.enemy,
+  clashBossMax('enemy') - 2,
+  'L3 bulldozer hits behind blocker',
+)
+const platedStage = evolved('ironjaw', 'plating')
+platedStage.units = [
+  follower('player', 2, 980),
+  follower('player', 0, 981),
+  follower('player', 4, 982),
+]
+const plated = playClash(platedStage, 'player', 'plating', 2)
+assert.ok(
+  plated.units.every((u) => u.armor > 0),
+  'L3 plating blankets all five alleys',
+)
+const detonatorStage = evolved('riot', 'bomber')
+detonatorStage.phase = 'attack'
+detonatorStage.units = [
+  {
+    ...follower('player', 2, 990, 2, 3),
+    cardId: 'bomber',
+    level: 3,
+    hp: 1,
+    keywords: ['volatile'],
+  },
+  { ...follower('player', 1, 991, 8), attacked: true },
+  follower('enemy', 2, 992, 10, 3),
+  follower('enemy', 4, 993, 10),
+]
+const detonation = strikeClash(detonatorStage, 'player')
+assert.ok(
+  detonation.units.find((u) => u.uid === 993)!.hp <= 8,
+  'L3 bomber blows up distant rivals after death',
+)
+assert.equal(
+  clashSpectacle(detonatorStage, detonation)?.cardId,
+  'bomber',
+  'death rattle leads the cinematic beat',
+)
+assert.equal(
+  detonation.units.find((u) => u.uid === 991)!.hp,
+  7,
+  'blast costs nearby ally life',
+)
+const kaboomStage = evolved('riot', 'kaboom')
+kaboomStage.active = 'enemy'
+kaboomStage.phase = 'attack'
+kaboomStage.units = [
+  { ...follower('player', 1, 994, 8, 3), cardId: 'kaboom', level: 3 },
+  {
+    ...follower('player', 2, 995, 2),
+    cardId: 'bomber',
+    hp: 1,
+    keywords: ['volatile'],
+  },
+  follower('enemy', 2, 996, 10, 3),
+]
+const kaboomed = strikeClash(kaboomStage, 'enemy')
+assert.ok(
+  kaboomed.units.find((u) => u.uid === 994)!.attack >= 5,
+  'L3 Sister Kaboom profits from allied explosions',
+)
+assert.equal(kaboomed.boss.enemy, clashBossMax('enemy') - 1)
+const confettiStage = evolved('riot', 'confetti')
+confettiStage.units = [
+  follower('enemy', 2, 997, 12),
+  follower('enemy', 0, 998, 10),
+  follower('player', 4, 999, 8),
+]
+const rainbowDamage = playClash(confettiStage, 'player', 'confetti', 2)
+assert.equal(rainbowDamage.units.find((u) => u.uid === 998)?.hp, 8)
+assert.equal(rainbowDamage.units.find((u) => u.uid === 999)?.hp, 7)
+const eelStage = evolved('undertow', 'eel')
+eelStage.phase = 'attack'
+eelStage.units = [
+  { ...follower('player', 2, 1000, 10, 4), cardId: 'eel', level: 3 },
+  follower('enemy', 2, 1001, 12, 2),
+  follower('enemy', 4, 1002, 10, 2),
+]
+eelStage.traps = [{ side: 'enemy', lane: 4, cardId: 'shocktrap', level: 1 }]
+const electrocuted = strikeClash(eelStage, 'player')
+assert.equal(
+  electrocuted.units.find((u) => u.uid === 1002)?.hp,
+  8,
+  'L3 Eel shocks trapped rivals on hit',
+)
+assert.equal(clashSpectacle(eelStage, electrocuted)?.eyebrow, 'CHAIN REACTION')
+const oracleStage = evolved('undertow', 'oracle')
+oracleStage.active = 'enemy'
+oracleStage.phase = 'attack'
+oracleStage.units = [
+  { ...follower('player', 2, 1003), cardId: 'oracle', level: 3 },
+  follower('player', 1, 1004),
+  follower('player', 3, 1005),
+]
+const predicted = endClashTurn(oracleStage, 'enemy')
+assert.equal(predicted.units.find((u) => u.uid === 1004)?.guard, 2)
+assert.equal(predicted.units.find((u) => u.uid === 1005)?.guard, 2)
+const wiresStage = evolved('undertow', 'tripwire')
+const threeWires = playClash(wiresStage, 'player', 'tripwire', 2)
+assert.deepEqual(threeWires.traps.map((t) => t.lane).sort(), [1, 2, 3])
+const crampedWires = evolved('undertow', 'tripwire')
+crampedWires.traps = [{ side: 'player', lane: 1, cardId: 'tripwire', level: 1 }]
+assert.equal(
+  playClash(crampedWires, 'player', 'tripwire', 2).traps.length,
+  3,
+  'never stacks two traps on one lane',
+)
+const sonarStage = evolved('undertow', 'sonar')
+sonarStage.traps = [0, 2, 4].map((lane) => ({
+  side: 'enemy',
+  lane,
+  cardId: 'tripwire',
+  level: 1,
+}))
+const fullSweep = playClash(sonarStage, 'player', 'sonar', 2)
+assert.equal(fullSweep.traps.length, 0, 'L3 sonar clears every alley')
+assert.ok(fullSweep.hands.player.length >= 6, 'L3 sonar has extra draw')
+const repoStage = evolved('exchange', 'repo')
+repoStage.active = 'enemy'
+repoStage.phase = 'attack'
+repoStage.units = [
+  { ...follower('player', 4, 1010, 8, 2), cardId: 'repo', level: 3 },
+  { ...follower('player', 2, 1011, 2), hp: 1 },
+  follower('enemy', 2, 1012, 10, 3),
+]
+const profit = strikeClash(repoStage, 'enemy')
+assert.equal(profit.units.find((u) => u.uid === 1010)?.attack, 4)
+assert.equal(profit.boss.player, 31)
+const mogulStage = evolved('exchange', 'mogul')
+mogulStage.phase = 'attack'
+mogulStage.units = [
+  {
+    ...follower('player', 4, 1020),
+    cardId: 'mogul',
+    level: 3,
+    keywords: ['collect'],
+  },
+  { ...follower('player', 2, 1021, 10, 4), keywords: ['collect'] },
+  follower('enemy', 2, 1022, 1, 1),
+]
+assert.equal(
+  clashPower(mogulStage, mogulStage.units[1]!),
+  5,
+  'Mogul is a global collector anthem',
+)
+const dividends = strikeClash(mogulStage, 'player')
+assert.equal(dividends.boss.player, 31, 'collector knockout pays boss dividend')
+const handshakeStage = evolved('exchange', 'handshake')
+handshakeStage.units = [0, 2, 4].map((lane) =>
+  follower('player', lane, 1030 + lane),
+)
+const everyoneCollects = playClash(handshakeStage, 'player', 'handshake', 2)
+assert.ok(
+  everyoneCollects.units.every((u) => u.keywords.includes('collect')),
+  'L3 handshake shares Collect with everyone',
+)
+const seizureStage = evolved('exchange', 'foreclosure')
+seizureStage.units = [follower('enemy', 2, 1040, 1)]
+const repossessed = playClash(seizureStage, 'player', 'foreclosure', 2)
+assert.equal(
+  repossessed.boss.player,
+  32,
+  'L3 foreclosure heals boss on a knockout',
+)
+assert.ok(
+  repossessed.units.some((u) => u.token && u.cardId === 'repo'),
+  'L3 foreclosure hires a weak debtor',
+)
+const slugStage = evolved('exchange', 'merc-debt-slug')
+slugStage.phase = 'attack'
+slugStage.units = [
+  { ...follower('player', 4, 1050, 8, 2), cardId: 'merc-debt-slug', level: 3 },
+  follower('player', 2, 1051, 10, 4),
+  follower('enemy', 2, 1052, 1, 1),
+]
+const feast = strikeClash(slugStage, 'player')
+assert.equal(
+  feast.units.find((u) => u.uid === 1050)?.attack,
+  3,
+  'L3 slug eats rival losses',
+)
+assert.equal(feast.units.find((u) => u.uid === 1050)?.maxHp, 9)
+const bouncerStage = evolved('bloodfairies', 'merc-fungal-bouncer')
+bouncerStage.active = 'enemy'
+bouncerStage.phase = 'attack'
+bouncerStage.units = [
+  { ...follower('player', 2, 1060), cardId: 'merc-fungal-bouncer', level: 3 },
+  follower('player', 1, 1061),
+  follower('player', 3, 1062),
+]
+const clubDoor = endClashTurn(bouncerStage, 'enemy')
+assert.equal(clubDoor.units.find((u) => u.uid === 1061)?.guard, 2)
+assert.equal(clubDoor.units.find((u) => u.uid === 1062)?.guard, 2)
+const angelStage = evolved('catgirls', 'merc-discount-angel')
+angelStage.active = 'enemy'
+angelStage.phase = 'attack'
+angelStage.units = [
+  {
+    ...follower('player', 3, 1070, 10),
+    cardId: 'merc-discount-angel',
+    level: 3,
+  },
+  { ...follower('player', 2, 1071, 2), hp: 1 },
+  follower('enemy', 2, 1072, 10, 3),
+]
+const resurrected = strikeClash(angelStage, 'enemy')
+assert.equal(
+  resurrected.units.filter((u) => u.token).length,
+  1,
+  'L3 angel saves one fighter',
+)
+assert.equal(
+  clashSpectacle(angelStage, resurrected)?.title,
+  cardById('merc-discount-angel').name,
+  'rescue earns its own cut-in',
+)
+assert.equal(
+  resurrected.deathMarks.player['angel-rescue-round'],
+  angelStage.round,
+)
 
 // Balance acceptance (2026-11-07 Clash rebalance): CPU sweeps across every crew
 // pairing keep each crew and the first seat near even. Report:

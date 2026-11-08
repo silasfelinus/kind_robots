@@ -7,7 +7,7 @@ title: Monstrique · The Last Call
 subtitle: Two ghost witnesses. One suspicious motel.
 description: An illustrated supernatural mystery starring a resourceful assistant, her germophobic boss and a missing history of monster celebrities. Public-safe mystery by default; optional mature edition for signed-in adults who opt in.
 summary: Solve the Last Call mystery.
-icon: kind-icon:ghost
+icon: kind-icon:movie
 route: /play/monstrique
 sort: 115
 tutorial:

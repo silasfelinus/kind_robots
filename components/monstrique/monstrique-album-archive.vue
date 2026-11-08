@@ -51,8 +51,8 @@
           <h3>{{ selected.title }}</h3>
         </div>
         <button
-          type="button"
           v-if="props.creatorMode"
+          type="button"
           class="ma-author-toggle"
           :aria-pressed="showAuthorNotes"
           @click="showAuthorNotes = !showAuthorNotes"

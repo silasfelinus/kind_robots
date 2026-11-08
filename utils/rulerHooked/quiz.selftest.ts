@@ -266,6 +266,11 @@ assert.match(
 )
 assert.match(
   quizStore,
+  /introduction\.value =\s+question\.value\.module === 'mandarin' &&/,
+  'geography quizzes never preview the answer before asking',
+)
+assert.match(
+  quizStore,
   /'Not quite\. ' \+[\s\S]*?answerSheet\.value = true/,
   'a wrong answer opens the field guide',
 )

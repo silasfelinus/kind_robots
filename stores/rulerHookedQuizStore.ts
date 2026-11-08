@@ -355,7 +355,7 @@ export const useRulerHookedQuizStore = defineStore('rulerHookedQuiz', () => {
       }
       if (question.value)
         introduction.value =
-          question.value.module !== 'flags' &&
+          question.value.module === 'mandarin' &&
           (lessonMode.value === 'always' ||
             (lessonMode.value === 'guided' &&
               !introducedKeys.value.includes(question.value.id)))

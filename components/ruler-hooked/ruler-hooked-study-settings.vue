@@ -75,8 +75,9 @@
       >
         <legend>Build your lesson</legend>
         <p class="rh-study-settings__hint">
-          Choose how much help to see before each cast. A right answer lands the
-          fish; a miss opens the field guide.
+          Choose how much Mandarin help to see before each cast; flags and
+          capitals always ask first. A right answer lands the fish; a miss opens
+          the field guide.
         </p>
         <div
           class="rh-study-settings__segmented"

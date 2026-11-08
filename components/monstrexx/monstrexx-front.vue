@@ -596,7 +596,11 @@
                 v-else-if="scrapTab === 'moments'"
                 :spec="spec"
               />
-              <MonstriqueAlbumArchive v-else :creator-mode="!props.publicEdition" />
+              <MonstriqueAlbumArchive
+                v-else
+                :creator-mode="!props.publicEdition"
+                :public-edition="!!props.publicEdition"
+              />
             </div>
             <p class="mx-small-note">
               More celebrity profiles and illustrated keepsakes will unlock as

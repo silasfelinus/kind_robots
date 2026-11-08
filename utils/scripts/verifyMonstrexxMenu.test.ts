@@ -69,5 +69,5 @@ assert.ok(
   ),
 )
 assert.match(front, /scrapTab === 'albums'/)
-assert.match(front, /<MonstriqueAlbumArchive v-else \/>/)
+assert.match(front, /<MonstriqueAlbumArchive[\s\S]*v-else/)
 assert.match(archive, /data-testid="monstrique-album-archive"/)

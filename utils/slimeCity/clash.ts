@@ -783,7 +783,10 @@ function casualties(s: ClashState): void {
           (v) => v.side === u.side && Math.abs(v.lane - u.lane) === 1,
         ))
           damage(friend, 1)
-      note(s, 'Grand Detonator sets off a chain blast!', 'death', u.lane)
+      evolutionMoment(
+        s, 'bomber', u.side, u.lane,
+        'Grand Detonator detonates across the streets!', 'blast',
+      )
     }
     for (const survivor of s.units.filter((v) => v.side === u.side)) {
       if (survivor.cardId === 'repo' && survivor.level >= 2) {
@@ -792,8 +795,13 @@ function casualties(s: ClashState): void {
           0,
           10,
         )
-        if (survivor.level === 3)
+        if (survivor.level === 3) {
           s.boss[u.side] = Math.min(clashBossMax(u.side), s.boss[u.side] + 1)
+          evolutionMoment(
+            s, 'repo', u.side, survivor.lane,
+            'Repo Goblin turns a fallen friend into two power and a refund!', 'strike',
+          )
+        }
       }
       if (
         survivor.cardId === 'kaboom' &&
@@ -806,7 +814,10 @@ function casualties(s: ClashState): void {
           10,
         )
         if (survivor.level === 3) s.boss[opponent(u.side)] -= 1
-        note(s, 'Sister Kaboom feeds off the blast!', 'death', survivor.lane)
+        evolutionMoment(
+          s, 'kaboom', u.side, survivor.lane,
+          'Sister Kaboom feeds the blast into her drill and the rival boss!', 'blast',
+        )
       }
       if (survivor.cardId === 'merc-discount-angel' && survivor.level >= 2) {
         for (const friend of s.units.filter(
@@ -819,8 +830,13 @@ function casualties(s: ClashState): void {
         ) {
           s.deathMarks[u.side]['angel-rescue-round'] = s.round
           const free = nearestFreeAlley(s, u.side, survivor.lane)
-          if (free >= 0)
+          if (free >= 0) {
             summonEcho(s, u.side, u.cardId, free, 2, 1)
+            evolutionMoment(
+              s, 'merc-discount-angel', u.side, survivor.lane,
+              'Discount Archangel rescues a fallen fighter!', 'summon',
+            )
+          }
         }
       }
     }
@@ -834,6 +850,10 @@ function casualties(s: ClashState): void {
       if (slug.level === 3) {
         slug.maxHp = clamp(slug.maxHp + 1, 1, 22)
         slug.hp = Math.min(slug.maxHp, slug.hp + 1)
+        evolutionMoment(
+          s, 'merc-debt-slug', slug.side, slug.lane,
+          'Debt-Eating Slug devours a casualty and grows!', 'heal',
+        )
       }
     }
     note(

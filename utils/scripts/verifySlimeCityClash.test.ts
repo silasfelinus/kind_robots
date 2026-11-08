@@ -1243,8 +1243,9 @@ collarOn.phase = 'attack'
 collarOn.units.push(follower('enemy', 2, 2021, 20, 15))
 const collarRescue = strikeClash(collarOn, 'enemy')
 assert.equal(collarRescue.units.find((u) => u.uid === 2020)?.hp, 5)
-assert.equal(collarRescue.units.find((u) => u.uid === 2020)?.attack, 4)
+assert.equal(collarRescue.units.find((u) => u.uid === 2020)?.attack, 6)
 assert.equal(collarRescue.units.find((u) => u.uid === 2020)?.ninthLife, undefined)
+assert.equal(collarRescue.strike?.defenderFell, false, 'saved fighter must not display a false knockout')
 assert.ok(clashSpectacle(collarOn, collarRescue)?.cardId === 'ninthlife', 'L3 rescue gets an art-led cut-in')
 const wireTrap = createClash('catgirls', 'ironjaw', 962)
 wireTrap.round = 2

@@ -73,6 +73,14 @@ export interface ClashUnit {
   /** Landed this turn. */
   fresh: boolean
   gear: string[]
+  /** Authored equipment levels are recorded on the wearer, not the catalog. */
+  gearLevels?: Record<string, number>
+  /** One triggered near-death reversal from Ninth Life Collar. */
+  ninthLife?: 2 | 3
+  /** The next stun/root is ignored, then this ward is consumed. */
+  snareWard?: boolean
+  /** Clockwork Grandmother saves one adjacent fighter per copy, per match. */
+  grandmaSaveUsed?: boolean
   level: number
   /** A battlefield-only summon, not another card in the deck. */
   token?: boolean
@@ -84,6 +92,8 @@ export interface ClashTrap {
   lane: number
   cardId: string
   level: number
+  /** Extra network segment, not a second collectible card. */
+  token?: boolean
 }
 export interface ClashStrike {
   side: Side
@@ -590,6 +600,7 @@ function startTurn(s: ClashState, side: Side): void {
       guarded = guardian.level === 3 ? adjacent : adjacent.slice(0, 1)
       shield = 2
     }
+    if (guardian.cardId === 'merc-clock-grandma') guarded = adjacent
     for (const ally of guarded)
       ally.guard = clamp((ally.guard ?? 0) + shield, 0, 3)
   }
@@ -731,6 +742,50 @@ function damage(u: ClashUnit, amount: number, pierce = 0): number {
   u.hp -= dealt
   return dealt
 }
+function stun(u: ClashUnit): void {
+  if (u.snareWard) u.snareWard = false
+  else u.rooted = true
+}
+/** Central trap detonation, including network copies which never enter a draw pile. */
+function springTrap(s: ClashState, trap: ClashTrap, victim: ClashUnit): number {
+  const card = cardById(trap.cardId)
+  const dealt = damage(victim, clashBalance(card, trap.level).power)
+  if (card.roots || (trap.cardId === 'grate' && trap.level >= 2)) stun(victim)
+  s.traps = s.traps.filter((t) => t !== trap)
+  if (!trap.token) s.discards[trap.side].push(trap.cardId)
+  if (trap.level >= 2) {
+    const neighbors = s.units.filter(
+      (u) => u.side !== trap.side && Math.abs(u.lane - trap.lane) === 1,
+    )
+    if (
+      ['scentmine', 'shocktrap', 'bloodwire', 'grate'].includes(trap.cardId)
+    ) {
+      for (const neighbor of trap.level === 3
+        ? neighbors
+        : neighbors.slice(0, 1)) {
+        if (trap.cardId === 'scentmine') {
+          stun(neighbor)
+          if (trap.level === 3) damage(neighbor, 1)
+        } else if (trap.cardId === 'grate') {
+          if (trap.level === 3) damage(neighbor, 2)
+        } else {
+          damage(neighbor, trap.level === 3 ? 2 : 1)
+          if (trap.cardId === 'shocktrap' && trap.level === 3) stun(neighbor)
+        }
+      }
+      evolutionMoment(
+        s,
+        trap.cardId,
+        trap.side,
+        trap.lane,
+        card.name + ' chains into a neighboring alley!',
+        'control',
+      )
+    }
+  }
+  note(s, card.name + ' springs on ' + nameOf(victim) + '!', 'trap', trap.lane)
+  return dealt
+}
 /** Battlefield-only echoes are NOT deck cards. Each arrival uses the same trap
  * resolution as a real creature, and every lane remains single-occupancy. */
 function summonEcho(
@@ -771,12 +826,7 @@ function summonEcho(
   )
   const trap = s.traps.find((t) => t.side === opponent(side) && t.lane === lane)
   if (trap) {
-    const effect = cardById(trap.cardId)
-    damage(unit, clashBalance(effect, trap.level).power)
-    if (effect.roots) unit.rooted = true
-    s.traps = s.traps.filter((t) => t !== trap)
-    s.discards[opponent(side)].push(trap.cardId)
-    note(s, effect.name + ' catches the new ally!', 'trap', lane)
+    springTrap(s, trap, unit)
     casualties(s)
   }
 }
@@ -790,6 +840,48 @@ function nearestFreeAlley(s: ClashState, side: Side, center: number): number {
 }
 
 function casualties(s: ClashState): void {
+  // A rescue must happen before the death ledger, explosion, and discard.
+  // No fighter can be rescued twice by the same collar or grandmother.
+  for (const endangered of s.units.filter((u) => u.hp <= 0)) {
+    if (endangered.ninthLife) {
+      const level = endangered.ninthLife
+      endangered.ninthLife = undefined
+      endangered.hp =
+        level === 3 ? Math.max(1, Math.ceil(endangered.maxHp / 2)) : 1
+      if (level === 3) endangered.attack = clamp(endangered.attack + 2, 0, 10)
+      evolutionMoment(
+        s,
+        'ninthlife',
+        endangered.side,
+        endangered.lane,
+        'The Ninth Life Collar pulls its wearer back from a fatal hit!',
+        'heal',
+      )
+      continue
+    }
+    const grandma = s.units.find(
+      (u) =>
+        u.side === endangered.side &&
+        u.uid !== endangered.uid &&
+        u.hp > 0 &&
+        u.level === 3 &&
+        u.cardId === 'merc-clock-grandma' &&
+        !u.grandmaSaveUsed &&
+        Math.abs(u.lane - endangered.lane) === 1,
+    )
+    if (grandma) {
+      grandma.grandmaSaveUsed = true
+      endangered.hp = 1
+      evolutionMoment(
+        s,
+        'merc-clock-grandma',
+        grandma.side,
+        grandma.lane,
+        'Clockwork Grandmother rewinds one fatal blow!',
+        'heal',
+      )
+    }
+  }
   const fallen = s.units.filter((u) => u.hp <= 0)
   s.units = s.units.filter((u) => u.hp > 0)
   for (const u of fallen) {
@@ -937,6 +1029,27 @@ function casualties(s: ClashState): void {
       if (foe) damage(foe, burst)
       else s.boss[opponent(u.side)] -= burst
     }
+    const vest = u.gearLevels?.fusevest ?? 0
+    if (vest >= 2) {
+      for (const enemy of s.units.filter(
+        (v) =>
+          v.side !== u.side && (vest === 3 || Math.abs(v.lane - u.lane) === 1),
+      ))
+        damage(enemy, 1)
+      if (vest === 3)
+        for (const friend of s.units.filter(
+          (v) => v.side === u.side && Math.abs(v.lane - u.lane) === 1,
+        ))
+          damage(friend, 1)
+      evolutionMoment(
+        s,
+        'fusevest',
+        u.side,
+        u.lane,
+        'The Lit-Fuse Vest bursts beyond its own lane!',
+        'blast',
+      )
+    }
   }
   if (s.units.some((u) => u.hp <= 0)) casualties(s)
 }
@@ -1036,12 +1149,7 @@ export function playClash(
     }
     const trap = s.traps.find((t) => t.side === foe && t.lane === lane)
     if (trap) {
-      const effect = cardById(trap.cardId)
-      damage(unit, clashBalance(effect, trap.level).power)
-      if (effect.roots) unit.rooted = true
-      s.traps = s.traps.filter((t) => t !== trap)
-      s.discards[foe].push(trap.cardId)
-      note(s, effect.name + ' springs on ' + card.name + '!', 'trap', lane)
+      springTrap(s, trap, unit)
       casualties(s)
     }
     if (unit.hp > 0 && id === 'lynx' && level === 3) {
@@ -1049,6 +1157,40 @@ export function playClash(
         (neighbor) => inside(neighbor) && !unitAt(s, side, neighbor),
       )
       if (free !== undefined) summonEcho(s, side, id, free, 2, 1, ['ambush'])
+    }
+    if (id === 'merc-bus-driver' && level >= 2 && unit.hp > 0) {
+      const passengers = s.units
+        .filter(
+          (friend) =>
+            friend.side === side &&
+            friend.uid !== unit.uid &&
+            Math.abs(friend.lane - lane) === 1,
+        )
+        .sort((a, b) => a.lane - b.lane)
+      for (const passenger of level === 3
+        ? passengers
+        : passengers.slice(0, 1)) {
+        const destination = nearestFreeAlley(s, side, lane)
+        if (destination < 0) break
+        passenger.lane = destination
+        note(
+          s,
+          'Gutterbus reroutes ' +
+            nameOf(passenger) +
+            ' to alley ' +
+            (destination + 1) +
+            '.',
+          'play',
+          destination,
+        )
+        const hazard = s.traps.find(
+          (t) => t.side === foe && t.lane === destination,
+        )
+        if (hazard) {
+          springTrap(s, hazard, passenger)
+          casualties(s)
+        }
+      }
     }
     if (
       (id === 'sprite' || id === 'merc-smog-moth') &&
@@ -1072,17 +1214,17 @@ export function playClash(
   } else if (card.kind === 'trap') {
     s.traps.push({ side, lane, cardId: id, level })
     note(s, 'Trap armed in alley ' + (lane + 1) + '.', 'trap', lane)
-    if (id === 'tripwire' && level >= 2) {
+    if ((id === 'tripwire' || id === 'debttrap') && level >= 2) {
       const free = [lane - 1, lane + 1].filter(
         (neighbor) =>
           inside(neighbor) &&
           !s.traps.some((trap) => trap.side === side && trap.lane === neighbor),
       )
       for (const neighbor of level === 3 ? free : free.slice(0, 1)) {
-        s.traps.push({ side, lane: neighbor, cardId: id, level })
+        s.traps.push({ side, lane: neighbor, cardId: id, level, token: true })
         note(
           s,
-          'A second tripwire arms alley ' + (neighbor + 1) + '.',
+          card.name + ' extends to alley ' + (neighbor + 1) + '.',
           'trap',
           neighbor,
         )
@@ -1102,12 +1244,33 @@ export function playClash(
               : t.lane === lane),
       )
       s.traps = s.traps.filter((t) => !removed.includes(t))
-      for (const trap of removed) s.discards[foe].push(trap.cardId)
+      for (const trap of removed)
+        if (!trap.token) s.discards[foe].push(trap.cardId)
       if (level > 1) draw(s, side, id === 'sonar' ? level - 1 : level - 2)
     } else if (target) {
       switch (card.effect) {
         case 'heal':
           target.hp = Math.min(target.maxHp, target.hp + power)
+          if (id === 'hushmoney' && level >= 2) {
+            s.boss[side] = Math.min(
+              clashBossCap(s, side),
+              s.boss[side] + (level === 3 ? 2 : 1),
+            )
+            if (level === 3) target.guard = clamp((target.guard ?? 0) + 2, 0, 3)
+          }
+          if (id === 'ducttape' && level >= 2) {
+            target.armor = clamp(target.armor + 1, 0, 3)
+            if (level === 3) {
+              const ledger = s.fallen?.[side] ?? []
+              const free = nearestFreeAlley(s, side, lane)
+              if (free >= 0 && ledger.length) {
+                const recoveredId = ledger.pop()!
+                summonEcho(s, side, recoveredId, free, 3, 1)
+                const rebuilt = unitAt(s, side, free)
+                if (rebuilt?.token) rebuilt.armor = 1
+              }
+            }
+          }
           if (id === 'reknit' && level >= 2) {
             for (const friend of s.units.filter(
               (u) => u.side === side && Math.abs(u.lane - lane) === 1,
@@ -1128,6 +1291,17 @@ export function playClash(
         case 'armor':
           target.armor = clamp(target.armor + (level >= 3 ? 2 : 1), 0, 3)
           target.hp = Math.min(target.maxHp, target.hp + (level - 1) * 2)
+          if (id === 'drysuit' && level >= 2) {
+            target.snareWard = true
+            target.rooted = false
+            if (level === 3)
+              for (const friend of s.units.filter(
+                (u) => u.side === side && Math.abs(u.lane - lane) === 1,
+              )) {
+                friend.snareWard = true
+                friend.rooted = false
+              }
+          }
           if (id === 'plating' && level >= 2)
             for (const friend of s.units.filter(
               (u) =>
@@ -1144,6 +1318,26 @@ export function playClash(
           if (card.kind === 'equipment')
             target.attack = clamp(target.attack + profile.bonus, 1, 10)
           else target.surge += power
+          if (id === 'overclock' && level >= 2) {
+            target.surge += level === 3 ? 4 : 2
+            damage(target, level === 3 ? 3 : 1)
+            if (level === 3)
+              for (const rival of s.units.filter(
+                (u) => u.side === foe && Math.abs(u.lane - lane) === 1,
+              ))
+                damage(rival, 2)
+          }
+          if (id === 'drink' && level >= 2) {
+            const success = random(s) < (level === 3 ? 0.75 : 0.5)
+            if (success) target.surge += level === 3 ? 6 : 2
+            else damage(target, level === 3 ? 2 : 1)
+            note(
+              s,
+              success ? 'Hold My Drink pays off!' : 'Hold My Drink spills!',
+              'clash',
+              lane,
+            )
+          }
           if (id === 'pounce') {
             target.ambushUsed = false
             if (level >= 2) {
@@ -1164,6 +1358,10 @@ export function playClash(
             if (!target.keywords.includes(keyword))
               target.keywords.push(keyword)
           target.attack = clamp(target.attack + (level - 1), 1, 10)
+          if (id === 'ninthlife' && level >= 2)
+            target.ninthLife = level === 3 ? 3 : 2
+          if (id === 'fusevest' && level >= 2)
+            (target.gearLevels ??= {})[id] = level
           if (id === 'handshake' && level >= 2) {
             for (const friend of s.units.filter(
               (u) =>
@@ -1174,20 +1372,22 @@ export function playClash(
           }
           break
         case 'root':
-          target.rooted = true
+          stun(target)
           if (level > 1) damage(target, level - 1)
-          if (id === 'laser' && level >= 2) {
+          if ((id === 'laser' || id === 'blackout') && level >= 2) {
             const nearby = s.units.filter(
               (u) => u.side === foe && Math.abs(u.lane - lane) === 1,
             )
-            for (const rival of level === 3 ? nearby : nearby.slice(0, 1))
-              rival.rooted = true
+            for (const rival of level === 3 ? nearby : nearby.slice(0, 1)) {
+              stun(rival)
+              if (id === 'blackout' && level === 3) damage(rival, 1)
+            }
           }
           break
         case 'snare':
         case 'debt':
           damage(target, power)
-          target.rooted = true
+          stun(target)
           if (id === 'foreclosure' && level >= 2 && target.hp <= 0) {
             s.boss[side] = Math.min(clashBossCap(s, side), s.boss[side] + 2)
             if (level === 3) {
@@ -1196,11 +1396,77 @@ export function playClash(
             }
           }
           break
-        case 'chaos':
-          damage(target, 1 + Math.floor(random(s) * power))
+        case 'chaos': {
+          let blast = 1 + Math.floor(random(s) * power)
+          if (id === 'firestorm' && level >= 2 && blast <= 2)
+            blast = Math.max(blast, 1 + Math.floor(random(s) * power))
+          damage(target, blast)
+          if (id === 'firestorm' && level === 3) {
+            for (const rival of s.units.filter(
+              (u) => u.side === foe && Math.abs(u.lane - lane) === 1,
+            ))
+              damage(rival, 2)
+            for (const friend of s.units.filter(
+              (u) => u.side === side && Math.abs(u.lane - lane) === 1,
+            ))
+              damage(friend, 1)
+          }
           break
-        default:
-          damage(target, power)
+        }
+        default: {
+          let hit = power
+          let critical = false
+          if (id === 'pinprick' && level >= 2) {
+            critical = random(s) < (level === 3 ? 0.75 : 0.5)
+            if (critical) hit *= 2
+            note(
+              s,
+              critical
+                ? 'Safety-Pin critical connects!'
+                : 'Safety-Pin ordinary hit.',
+              'clash',
+              lane,
+            )
+          }
+          const dealt = damage(target, hit)
+          if (id === 'pinprick' && level === 3 && critical)
+            for (const rival of s.units.filter(
+              (u) => u.side === foe && Math.abs(u.lane - lane) === 1,
+            ))
+              damage(rival, 2)
+          if (id === 'feedback' && level >= 2) {
+            const choir = s.units.filter((u) => u.side === side).length
+            if (level === 3 && choir >= 4) {
+              for (const rival of s.units.filter(
+                (u) => u.side === foe && u.uid !== target.uid,
+              ))
+                damage(rival, 2)
+            } else if (
+              s.units.some(
+                (u) => u.side === side && Math.abs(u.lane - lane) === 1,
+              )
+            ) {
+              for (const rival of s.units.filter(
+                (u) => u.side === foe && Math.abs(u.lane - lane) === 1,
+              ))
+                damage(rival, 1)
+            }
+          }
+          if (id === 'collection' && level >= 2 && dealt > 0) {
+            s.boss[side] = Math.min(
+              clashBossCap(s, side),
+              s.boss[side] + (level === 3 ? 2 : 1),
+            )
+            if (level === 3) {
+              for (const friend of s.units.filter(
+                (u) =>
+                  u.side === side &&
+                  has(u, 'collect') &&
+                  Math.abs(u.lane - lane) === 1,
+              ))
+                friend.attack = clamp(friend.attack + 1, 0, 10)
+            }
+          }
           if (card.effect === 'blast') {
             for (const nearby of s.units.filter(
               (u) => u.side === foe && Math.abs(u.lane - lane) === 1,
@@ -1233,6 +1499,8 @@ export function playClash(
                 damage(friend, 1)
             }
           }
+          break
+        }
       }
       if (card.kind === 'equipment') target.gear.push(id)
     }
@@ -1295,6 +1563,13 @@ export function strikeClash(input: ClashState, side: Side): ClashState {
   const foeSide = opponent(side)
   const defender = unitAt(s, foeSide, lane)
   let attackPower = clashPower(s, attacker)
+  if (
+    attacker.cardId === 'mau' &&
+    attacker.level >= 2 &&
+    defender &&
+    defender.hp < defender.maxHp
+  )
+    attackPower += attacker.level === 3 ? 2 : 1
   if (attacker.cardId === 'firebrand' && attacker.level >= 2) {
     const failed = random(s) < (attacker.level === 2 ? 0.5 : 0.25)
     attackPower = failed ? 0 : attackPower * 2
@@ -1339,13 +1614,8 @@ export function strikeClash(input: ClashState, side: Side): ClashState {
     ? undefined
     : s.traps.find((t) => t.side === foeSide && t.lane === lane)
   if (trap) {
-    const effect = cardById(trap.cardId)
     strike.dealt = 0
-    strike.returned = damage(attacker, clashBalance(effect, trap.level).power)
-    if (effect.roots) attacker.rooted = true
-    s.traps = s.traps.filter((t) => t !== trap)
-    s.discards[foeSide].push(trap.cardId)
-    note(s, effect.name + ' springs on ' + nameOf(attacker) + '!', 'trap', lane)
+    strike.returned = springTrap(s, trap, attacker)
     strike.attackerFell = attacker.hp <= 0
     strike.trap = trap.cardId
   } else if (!defender) {
@@ -1399,7 +1669,31 @@ export function strikeClash(input: ClashState, side: Side): ClashState {
         'blast',
       )
     }
-    if (dealt > 0 && has(attacker, 'snare')) defender.rooted = true
+    if (
+      dealt > 0 &&
+      attacker.cardId === 'mau' &&
+      attacker.level === 3 &&
+      defender.hp < defender.maxHp
+    ) {
+      const victim = s.units.find(
+        (u) =>
+          u.side === foeSide &&
+          u.uid !== defender.uid &&
+          Math.abs(u.lane - lane) === 1,
+      )
+      if (victim) {
+        damage(victim, 2)
+        evolutionMoment(
+          s,
+          'mau',
+          side,
+          lane,
+          'Mau-77 follows through into the neighboring alley!',
+          'strike',
+        )
+      }
+    }
+    if (dealt > 0 && has(attacker, 'snare')) stun(defender)
     if (
       dealt > 0 &&
       attacker.cardId === 'frogtrooper' &&
@@ -1408,7 +1702,7 @@ export function strikeClash(input: ClashState, side: Side): ClashState {
       for (const nearby of s.units.filter(
         (v) => v.side === foeSide && Math.abs(v.lane - lane) === 1,
       ))
-        nearby.rooted = true
+        stun(nearby)
     }
     if (dealt > 0 && has(attacker, 'leech'))
       attacker.hp = Math.min(attacker.maxHp, attacker.hp + 1)
@@ -1507,6 +1801,11 @@ export function strikeClash(input: ClashState, side: Side): ClashState {
   }
   s.strike = strike
   casualties(s)
+  // Fatal-hit rescues happen during casualties: present the surviving unit
+  // correctly rather than flashing a false knockout in the combat UI.
+  strike.attackerFell = !s.units.some((u) => u.uid === attacker.uid)
+  if (defender)
+    strike.defenderFell = !s.units.some((u) => u.uid === defender.uid)
   checkWinner(s)
   s.commands.push({ t: 'strike', side })
   return s
@@ -1651,7 +1950,7 @@ export function useClashPower(
     case 'undertow': {
       const u = unitAt(s, foe, lane)!
       u.hp -= 5
-      u.rooted = true
+      stun(u)
       break
     }
     case 'exchange':

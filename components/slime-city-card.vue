@@ -6,7 +6,7 @@
   the game … the card gallery isn't showing the entire card content. they
   should look like the card design anyway, it's a good design."
 
-  This grows the in-match hand card (components/slime-city-hand.vue: portrait
+  This grows the in-match hand card (the retired legacy slime-city-hand.vue: portrait
   2:3, full-bleed art, cost gem, crew-toned rim) into a complete trading card:
   name banner, type line, every word of rules text, keyword reminders and the
   creature stat bar. Type scales with the card's own width (cqw), and the face

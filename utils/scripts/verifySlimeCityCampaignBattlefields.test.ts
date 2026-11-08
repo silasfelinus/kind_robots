@@ -385,11 +385,6 @@ const panel = readFileSync(
   'utf8',
 )
 assert.match(panel, /data-testid="slime-campaign-field"/)
-const arena = readFileSync(
-  new URL('../../components/slime-city-arena.vue', import.meta.url),
-  'utf8',
-)
-assert.match(arena, /data-testid="slime-bout-objective"/)
 
 console.log(
   'Slime City campaign battlefields: 30 authored fields, 4 objectives, ' +

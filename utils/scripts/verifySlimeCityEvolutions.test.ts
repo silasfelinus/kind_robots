@@ -13,6 +13,7 @@ import {
 } from '../slimeCity/clashEvolutions'
 import {
   applyClashCommand,
+  canClashPlay,
   chooseClashCpu,
   clashBalance,
   clashDeck,
@@ -43,10 +44,11 @@ const PILOT = [
   's3-catgirls-pounce-rig',
   's2-catgirls-backstreet-organ-donor',
 ]
-assert.deepEqual(Object.keys(CLASH_EVOLUTIONS).sort(), [...PILOT].sort())
-for (const id of PILOT) {
+for (const id of PILOT) assert.ok(CLASH_EVOLUTIONS[id], id + ' is crafted')
+for (const id of PILOT) assert.equal(cardById(id).team, 'catgirls', id)
+// Every crafted card, every faction: real stages that fit the card face.
+for (const id of Object.keys(CLASH_EVOLUTIONS)) {
   const card = cardById(id)
-  assert.equal(card.team, 'catgirls', id)
   assert.ok(!CLASH_TWISTS[id], id + ' is not a hand-built twist too')
   const two = clashEvolutionStage(id, 2)!
   const three = clashEvolutionStage(id, 3)!
@@ -408,6 +410,48 @@ const mine = (s: ClashState, id: string) =>
   assert.equal(at(k, 1)!.maxHp, 12, 'the most hurt ally gets +4 life')
   assert.equal(at(k, 1)!.attack, 4, 'and +1 power for good')
   assert.equal(at(k, 2)!.maxHp, 8, 'not the healthier one')
+}
+
+// --- Every crafted card runs through the real engine at every level and
+// option, on crowded and empty boards, through a full exchange of strikes.
+for (const id of Object.keys(CLASH_EVOLUTIONS)) {
+  const card = cardById(id)
+  const picks: (0 | 1)[] = clashEvolutionChoice(id, 3) ? [0, 1] : [0]
+  for (const level of [1, 2, 3])
+    for (const pick of picks)
+      for (const crowded of [true, false]) {
+        const s0 = board(
+          crowded
+            ? [
+                fighter('player', 0, 1, { hp: 3 }),
+                fighter('player', 1, 2),
+                fighter('player', 3, 3, { hp: 2 }),
+                fighter('enemy', 0, 7, { hp: 2 }),
+                fighter('enemy', 1, 8, { attack: 6 }),
+                fighter('enemy', 2, 9),
+                fighter('enemy', 4, 10, { hp: 1 }),
+              ]
+            : [],
+        )
+        s0.teams.player = card.team === 'mercenary' ? 'catgirls' : card.team
+        s0.fallen = { player: ['lynx'], enemy: ['scrapper'] }
+        s0.hands.player = [id]
+        s0.levels.player[id] = level
+        let lane = -1
+        for (const l of [2, 1, 3, 0, 4])
+          if (lane < 0 && canClashPlay(s0, 'player', id, l)) lane = l
+        if (lane < 0) continue
+        let g = playClash(s0, 'player', id, lane, pick)
+        assert.notEqual(g, s0, id + ' L' + level + ' plays')
+        g = passClash(g, 'player')
+        for (let i = 0; !g.victor && i < 400 && g.round < 6; i++)
+          g = applyClashCommand(g, chooseClashCpu(g, g.active))
+        for (const u of g.units)
+          assert.ok(
+            Number.isFinite(u.hp) && Number.isFinite(u.attack),
+            id + ' keeps numbers finite',
+          )
+      }
 }
 
 // --- Evolution art: a level shows its painting once wired, else falls back.

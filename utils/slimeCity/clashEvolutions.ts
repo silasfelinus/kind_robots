@@ -10,9 +10,23 @@ import {
   type EvoStage,
 } from './evolutions/dsl'
 import { CATGIRL_EVOLUTIONS } from './evolutions/catgirls'
+import { BLOODFAIRY_EVOLUTIONS } from './evolutions/bloodfairies'
+import { IRONJAW_EVOLUTIONS } from './evolutions/ironjaw'
+import { RIOT_EVOLUTIONS } from './evolutions/riot'
+import { UNDERTOW_EVOLUTIONS } from './evolutions/undertow'
+import { EXCHANGE_EVOLUTIONS } from './evolutions/exchange'
+import { MERCENARY_A_EVOLUTIONS } from './evolutions/mercenaryA'
+import { MERCENARY_B_EVOLUTIONS } from './evolutions/mercenaryB'
 
 export const CLASH_EVOLUTIONS: Record<string, CardEvolution> = {
   ...CATGIRL_EVOLUTIONS,
+  ...BLOODFAIRY_EVOLUTIONS,
+  ...IRONJAW_EVOLUTIONS,
+  ...RIOT_EVOLUTIONS,
+  ...UNDERTOW_EVOLUTIONS,
+  ...EXCHANGE_EVOLUTIONS,
+  ...MERCENARY_A_EVOLUTIONS,
+  ...MERCENARY_B_EVOLUTIONS,
 }
 
 /** Which level-three option a play picks: 0 is the card's main level

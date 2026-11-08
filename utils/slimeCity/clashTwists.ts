@@ -339,7 +339,7 @@ export const CLASH_TWISTS: Record<string, [string, string, string]> = {
     'Disarm both neighbors and share Pierce with adjacent allies.',
   ],
   contract: [
-    'Increase one fighter\'s armor.',
+    "Increase one fighter's armor.",
     'If the wearer survives the round, heal your boss for 1.',
     'Survival also heals adjacent allies 1 and adds 1 temporary shield.',
   ],

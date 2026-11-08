@@ -132,7 +132,11 @@ assert.match(
 )
 assert.match(view, /class="clash-stars"/, 'fighters show their level')
 assert.match(view, /<SlimeCityClashMoment :moment="spectacle"/)
-assert.match(view, /commit\(strikeClash\(/, 'strike VFX follows a committed command')
+assert.match(
+  view,
+  /commit\(strikeClash\(/,
+  'strike VFX follows a committed command',
+)
 assert.match(view, /commit\(useClashPower\(/, 'general powers receive VFX')
 const spectacleFace = readFileSync(
   'components/slime-city-clash-moment.vue',
@@ -140,12 +144,32 @@ const spectacleFace = readFileSync(
 )
 assert.match(spectacleFace, /<SlimeCityArtwork/, 'spectacle uses real card art')
 assert.match(spectacleFace, /data-testid="clash-spectacle"/)
-assert.match(spectacleFace, /prefers-reduced-motion/, 'spectacle respects reduced motion')
-assert.match(spectacleFace, /pointer-events: none/, 'VFX do not steal lane taps')
-assert.match(spectacleFace, /scx-legend/, 'level-three moments are visually distinct')
+assert.match(
+  spectacleFace,
+  /prefers-reduced-motion/,
+  'spectacle respects reduced motion',
+)
+assert.match(
+  spectacleFace,
+  /pointer-events: none/,
+  'VFX do not steal lane taps',
+)
+assert.match(
+  spectacleFace,
+  /scx-legend/,
+  'level-three moments are visually distinct',
+)
 assert.match(spectacleFace, /scx-effect-heal/, 'healing has a dedicated look')
-assert.match(spectacleFace, /scx-effect-blast/, 'explosions have a dedicated look')
-assert.match(spectacleFace, /scx-effect-summon/, 'summons have a dedicated look')
+assert.match(
+  spectacleFace,
+  /scx-effect-blast/,
+  'explosions have a dedicated look',
+)
+assert.match(
+  spectacleFace,
+  /scx-effect-summon/,
+  'summons have a dedicated look',
+)
 
 assert.match(cardFace, /clashCardText/, 'selected cards show their rules')
 assert.match(view, /@keyframes clash-lunge-up/)
@@ -677,7 +701,11 @@ theater.hands.player = ['lynx']
 const firstEntry = playClash(theater, 'player', 'lynx', 1)
 assert.equal(clashSpectacle(theater, firstEntry)?.kind, 'play')
 assert.equal(clashSpectacle(theater, firstEntry)?.grade, 'flash')
-assert.equal(clashSpectacle(firstEntry, firstEntry), null, 'no duplicate cue on rerender')
+assert.equal(
+  clashSpectacle(firstEntry, firstEntry),
+  null,
+  'no duplicate cue on rerender',
+)
 assert.deepEqual(
   clashSpectacle(theater, firstEntry),
   clashSpectacle(structuredClone(theater), structuredClone(firstEntry)),
@@ -697,7 +725,10 @@ nursery.levels.player.sprite = 2
 nursery.hands.player = ['sprite']
 const dancers = playClash(nursery, 'player', 'sprite', 2)
 assert.equal(clashSpectacle(nursery, dancers)?.grade, 'feature')
-assert.match(clashSpectacle(nursery, dancers)?.detail ?? '', /fighters take the field/)
+assert.match(
+  clashSpectacle(nursery, dancers)?.detail ?? '',
+  /fighters take the field/,
+)
 const firefight = createClash('catgirls', 'ironjaw', 814)
 firefight.phase = 'attack'
 firefight.units = [
@@ -742,7 +773,6 @@ fireworksShow.hands.player = ['firestorm']
 fireworksShow.units = [follower('enemy', 1, 112, 9, 2)]
 const explodedShow = playClash(fireworksShow, 'player', 'firestorm', 1)
 assert.equal(clashSpectacle(fireworksShow, explodedShow)?.effect, 'blast')
-
 
 // Balance acceptance (2026-11-07 Clash rebalance): CPU sweeps across every crew
 // pairing keep each crew and the first seat near even. Report:

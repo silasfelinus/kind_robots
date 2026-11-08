@@ -2942,8 +2942,9 @@ function cpuEvolutionPayoff(
   // Alliance's wider card pool and one-time general power already create many
   // swing turns. Discount speculative evolution payoffs in that format;
   // the board-read still chooses between actual useful stage effects.
-  return clamp(abilities + passive, -6, 14) *
-    (s.format === 'alliance' ? 0.35 : 0.65)
+  return (
+    clamp(abilities + passive, -6, 14) * (s.format === 'alliance' ? 0.35 : 0.65)
+  )
 }
 
 /** The CPU fires its faction power once its value reaches this. */

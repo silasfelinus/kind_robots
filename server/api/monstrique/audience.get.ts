@@ -7,11 +7,11 @@ export default defineEventHandler(async (event) => {
   setHeader(event, 'Vary', 'Authorization')
   const auth = await getOptionalApiUser(event)
   const humanSession =
-    auth?.kind === 'jwt' || auth?.kind === 'user-api-key'
+    auth?.kind === 'jwt'
   return {
     success: true,
     data: {
-      audience: humanSession && viewerShowsMature(auth.user) ? 'mature' : 'general',
+      audience: humanSession && viewerShowsMature(auth?.user) ? 'mature' : 'general',
     },
   }
 })

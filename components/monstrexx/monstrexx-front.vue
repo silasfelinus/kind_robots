@@ -389,7 +389,9 @@
       class="mx-content relative z-10 flex min-h-0 flex-1 flex-col justify-between"
     >
       <div class="mx-brand">
-        <p class="mx-eyebrow">A Midnight City mystery · adults only</p>
+        <p class="mx-eyebrow">
+          A Midnight City mystery · {{ audience === 'mature' ? 'mature edition' : 'general edition' }}
+        </p>
         <h1 class="mx-wordmark">MONSTRIQUE</h1>
         <p class="mx-subtitle">Fame. Fangs. Very bad contracts.</p>
         <div class="mx-case-number">
@@ -447,7 +449,7 @@
           /></span>
           <span class="min-w-0 flex-1 text-left">
             <strong>SETTINGS</strong>
-            <small>Reading, sound, motion and romance</small>
+            <small>Reading, sound, motion{{ audience === 'mature' ? ' and romance' : '' }}</small>
           </span>
         </button>
         <button
@@ -473,7 +475,7 @@
         class="mx-footer-line flex flex-wrap items-center justify-between gap-2"
       >
         <span>IRIS QUILL · NORB VALE · LAST CALL MOTOR LODGE</span>
-        <span>PRIVATE EARLY ACCESS · MONSTRIQUE</span>
+        <span>{{ props.publicEdition ? 'TWO EDITIONS · ONE MYSTERY' : 'PRIVATE EARLY ACCESS · MONSTRIQUE' }}</span>
       </div>
       <p v-if="story.storageWarning" class="mx-warning" role="status">
         {{ story.storageWarning }}
@@ -546,8 +548,9 @@
               </div>
             </div>
             <p class="mx-small-note">
-              Hiding romance changes optional content, not clues. Mature access
-              itself is controlled by your account settings.
+              {{ audience === 'mature'
+                ? 'Hiding romance changes optional content, not clues. Mature access is controlled by your account settings.'
+                : 'General edition: the full investigation without adult romance or mature keepsakes. Sign in and enable mature content for the separate optional edition.' }}
             </p>
             <button type="button" class="mx-reset" @click="kit.resetSettings()">
               Restore default settings
@@ -593,7 +596,7 @@
                 v-else-if="scrapTab === 'moments'"
                 :spec="spec"
               />
-              <MonstriqueAlbumArchive v-else />
+              <MonstriqueAlbumArchive v-else :creator-mode="!props.publicEdition" />
             </div>
             <p class="mx-small-note">
               More celebrity profiles and illustrated keepsakes will unlock as
@@ -609,6 +612,8 @@
 <script setup lang="ts">
 import { computed, nextTick, ref, watch } from 'vue'
 import { useMonstressConventionStore } from '~/stores/monstressConventionStore'
+import { useMonstriquePublicStore } from '~/stores/monstriquePublicStore'
+import { MONSTRIQUE_GENERAL_SPEC } from '~/utils/monstressConvention/edition'
 import { usePlaybookKitStore } from '~/stores/playbookKitStore'
 import { HOTEL_ROOMS } from '~/utils/monstressConvention/prologue'
 import { MONSTRESS_CONVENTION } from '~/utils/playbookKit/games/monstressConvention'
@@ -620,25 +625,36 @@ import {
 } from '~/utils/playbookKit/settings'
 
 type FrontPanel = 'settings' | 'scrapbook' | null
-const props = defineProps<{ panel: FrontPanel }>()
+const props = defineProps<{ panel: FrontPanel; publicEdition?: boolean }>()
 const emit = defineEmits<{
   new: []
   continue: []
   panel: [value: FrontPanel]
 }>()
-const story = useMonstressConventionStore()
+const adminStory = useMonstressConventionStore()
+const publicStory = useMonstriquePublicStore()
+const story = computed(() => props.publicEdition ? publicStory : adminStory)
 const kit = usePlaybookKitStore()
-const spec = MONSTRESS_CONVENTION
+const audience = computed(() => props.publicEdition ? publicStory.audience : 'mature')
+const spec = computed(() =>
+  props.publicEdition && audience.value === 'general'
+    ? MONSTRIQUE_GENERAL_SPEC
+    : MONSTRESS_CONVENTION,
+)
 const confirming = ref(false)
 const scrapTab = ref<'people' | 'moments' | 'albums'>('people')
 const closeButton = ref<HTMLButtonElement | null>(null)
-const currentLocation = computed(() => HOTEL_ROOMS[story.state.room].label)
+const currentLocation = computed(() => HOTEL_ROOMS[story.value.state.room].label)
 const unlockedMoments = computed(
   () =>
-    spec.moments.filter((moment) => kit.isUnlocked('moments', moment.id))
+    spec.value.moments.filter((moment) => kit.isUnlocked('moments', moment.id))
       .length,
 )
-const settingKeys = Object.keys(KIT_SETTING_OPTIONS) as KitSettingKey[]
+const settingKeys = computed(() =>
+  (Object.keys(KIT_SETTING_OPTIONS) as KitSettingKey[]).filter(
+    (key) => key !== 'romance' || audience.value === 'mature',
+  ),
+)
 
 watch(
   () => props.panel,
@@ -648,7 +664,7 @@ watch(
 )
 
 function startNew(): void {
-  if (story.hasSavedCase && !confirming.value) {
+  if (story.value.hasSavedCase && !confirming.value) {
     confirming.value = true
     return
   }
@@ -658,7 +674,7 @@ function startNew(): void {
 
 function chooseContinue(): void {
   confirming.value = false
-  if (story.hasSavedCase) emit('continue')
+  if (story.value.hasSavedCase) emit('continue')
 }
 
 function openPanel(value: Exclude<FrontPanel, null>): void {

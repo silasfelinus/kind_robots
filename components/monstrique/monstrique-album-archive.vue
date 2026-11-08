@@ -52,6 +52,7 @@
         </div>
         <button
           type="button"
+          v-if="props.creatorMode"
           class="ma-author-toggle"
           :aria-pressed="showAuthorNotes"
           @click="showAuthorNotes = !showAuthorNotes"
@@ -69,7 +70,7 @@
         <span class="ma-kicker">OFFICIAL PRESS RELEASE</span>
         <p>{{ selected.officialStory }}</p>
       </div>
-      <div v-if="hasProof || showAuthorNotes" class="ma-hidden-history">
+      <div v-if="hasProof || (props.creatorMode && showAuthorNotes)" class="ma-hidden-history">
         <span class="ma-kicker">{{
           hasProof
             ? 'FOUND IN ODETTE’S ARCHIVE'
@@ -96,6 +97,9 @@ import { useMonstressConventionStore } from '~/stores/monstressConventionStore'
 import { MONSTRIQUE_ALBUMS } from '~/utils/monstrique/albumHistory'
 
 const story = useMonstressConventionStore()
+const props = withDefaults(defineProps<{ creatorMode?: boolean }>(), {
+  creatorMode: false,
+})
 const selectedId = ref(MONSTRIQUE_ALBUMS[0]!.id)
 const showAuthorNotes = ref(false)
 const selected = computed(

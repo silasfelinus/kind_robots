@@ -1226,11 +1226,10 @@ export function strikeClash(input: ClashState, side: Side): ClashState {
     )
     const whiff = !(attacker.level === 3 && friend) && random(s) < 0.5
     attackPower = whiff ? 0 : attackPower * 2
-    note(
-      s,
-      whiff ? 'Pogo Brat bounces right past!' : 'Pogo Brat lands a double slam!',
-      'clash',
-      lane,
+    evolutionMoment(
+      s, 'pogo', side, lane,
+      whiff ? 'Pogo Brat misses the landing!' : 'Pogo Brat doubles its strike!',
+      'strike',
     )
   }
   attacker.attacked = true
@@ -1301,8 +1300,13 @@ export function strikeClash(input: ClashState, side: Side): ClashState {
     )
     if (has(attacker, 'bulldoze') && defender.hp < 0)
       s.boss[foeSide] += defender.hp
-    if (attacker.cardId === 'bulldozer' && attacker.level === 3 && dealt > 0)
+    if (attacker.cardId === 'bulldozer' && attacker.level === 3 && dealt > 0) {
       s.boss[foeSide] -= 2
+      evolutionMoment(
+        s, 'bulldozer', side, lane,
+        'Bulld-Ogre drives through the blocker for 2 boss damage!', 'blast',
+      )
+    }
     if (dealt > 0 && has(attacker, 'snare')) defender.rooted = true
     if (
       dealt > 0 &&
@@ -1317,12 +1321,20 @@ export function strikeClash(input: ClashState, side: Side): ClashState {
     if (dealt > 0 && has(attacker, 'leech'))
       attacker.hp = Math.min(attacker.maxHp, attacker.hp + 1)
     if (dealt > 0 && attacker.cardId === 'razor' && attacker.level >= 2) {
+      let healed = 0
       for (const friend of s.units.filter(
         (u) =>
           u.side === side &&
           (attacker.level === 3 || Math.abs(u.lane - lane) === 1),
-      ))
+      )) {
+        if (friend.hp < friend.maxHp) healed++
         friend.hp = Math.min(friend.maxHp, friend.hp + 1)
+      }
+      if (healed)
+        evolutionMoment(
+          s, 'razor', side, lane,
+          'Razorwing shares a blood chorus with ' + healed + ' friends!', 'heal',
+        )
     }
     if (dealt > 0 && attacker.cardId === 'eel' && attacker.level >= 2) {
       const shocked = attacker.level === 3
@@ -1339,6 +1351,11 @@ export function strikeClash(input: ClashState, side: Side): ClashState {
           : []
       for (const rival of shocked)
         damage(rival, attacker.level === 3 ? 2 : 1)
+      if (shocked.length)
+        evolutionMoment(
+          s, 'eel', side, lane,
+          'Eel Courier arcs electricity into ' + shocked.length + ' distant rival lanes!', 'blast',
+        )
     }
     if (returned > 0 && has(defender, 'leech'))
       defender.hp = Math.min(defender.maxHp, defender.hp + 1)
@@ -1348,6 +1365,11 @@ export function strikeClash(input: ClashState, side: Side): ClashState {
         (u) => u.side === side && u.cardId === 'mogul' && u.level === 3,
       ))
         s.boss[side] = Math.min(clashBossMax(side), s.boss[side] + 1)
+        evolutionMoment(
+          s, 'mogul', side, lane,
+          'The Meat Mogul cashes a collector knockout for boss life!', 'heal',
+        )
+      }
     }
     if (attacker.hp <= 0 && has(defender, 'collect')) {
       defender.attack = clamp(defender.attack + 1, 1, 10)
@@ -1355,6 +1377,11 @@ export function strikeClash(input: ClashState, side: Side): ClashState {
         (u) => u.side === foeSide && u.cardId === 'mogul' && u.level === 3,
       ))
         s.boss[foeSide] = Math.min(clashBossMax(foeSide), s.boss[foeSide] + 1)
+        evolutionMoment(
+          s, 'mogul', foeSide, lane,
+          'The Meat Mogul cashes a defender knockout for boss life!', 'heal',
+        )
+      }
     }
     strike.attackerFell = attacker.hp <= 0
     strike.defenderFell = defender.hp <= 0

@@ -407,7 +407,9 @@ export function buildMemoryDungeonPlaybook(): Playbook {
       ending: 'Ending',
     },
     editable: false,
-    artPromptsComplete: true,
+    artPromptsComplete: Object.values(nodes).every(
+      (node) => !node.needsArt || Boolean(node.artPrompt?.trim()),
+    ),
     artProject: 'memory-dungeon',
     artLanes: ['krea2'],
     artPipeline:

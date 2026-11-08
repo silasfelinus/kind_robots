@@ -124,6 +124,33 @@ export function clashSpectacle(
   const card = cardById(hit.trap ?? hit.attacker)
   const knockout = hit.attackerFell || hit.defenderFell
   const lethal = after.victor !== null && before.victor === null
+  const triggered = after.lastEvolution
+  if (!lethal && triggered?.commandIndex === after.commands.length) {
+    const origin = cardById(triggered.cardId)
+    return {
+      kind: 'strike',
+      effect: triggered.effect,
+      grade:
+        triggered.effect === 'summon' ||
+        (triggered.effect === 'blast' && origin.id === 'bomber')
+          ? 'legend'
+          : 'feature',
+      side: triggered.side,
+      lane: triggered.lane,
+      crew: origin.team,
+      cardId: origin.id,
+      eyebrow:
+        triggered.effect === 'summon'
+          ? 'SECOND CHANCE'
+          : triggered.effect === 'blast'
+            ? 'CHAIN REACTION'
+            : triggered.effect === 'heal'
+              ? 'LIFELINE'
+              : 'EVOLVED ABILITY',
+      title: origin.name,
+      detail: triggered.detail,
+    }
+  }
   const grade: ClashSpectacleGrade =
     lethal || hit.dealt >= 9
       ? 'legend'

@@ -7,6 +7,7 @@ import { cardById, type Side } from '../slimeCity/prototypes'
 import { CLASH_TWISTS } from '../slimeCity/clashTwists'
 import {
   CLASH_EVOLUTIONS,
+  clashEvolutionChoice,
   clashEvolutionStage,
   clashStageTitle,
 } from '../slimeCity/clashEvolutions'
@@ -14,6 +15,7 @@ import {
   applyClashCommand,
   chooseClashCpu,
   clashBalance,
+  clashDeck,
   clashCardText,
   clashPower,
   createClash,
@@ -39,6 +41,7 @@ const PILOT = [
   's1-nine-lives',
   's3-catgirls-garrote',
   's3-catgirls-pounce-rig',
+  's2-catgirls-backstreet-organ-donor',
 ]
 assert.deepEqual(Object.keys(CLASH_EVOLUTIONS).sort(), [...PILOT].sort())
 for (const id of PILOT) {
@@ -53,7 +56,41 @@ for (const id of PILOT) {
     const text = clashCardText(card, level)
     assert.ok(text.length <= 160, id + ' L' + level + ' fits the card face')
   }
+  for (const pick of [0, 1] as const)
+    assert.ok(clashCardText(card, 3, pick).length <= 160, id + ' option fits')
   assert.equal(clashStageTitle(id, 1), card.name)
+}
+
+// --- The pilot is a full Solo Clash side: twenty Catgirls, every one with
+// its own level-two and level-three story (ten twists + ten crafted, with
+// the crafted Second Pounce Rig left to the deck builder for an 11th fighter).
+{
+  const deck = clashDeck('catgirls')
+  assert.equal(deck.length, 20)
+  assert.equal(new Set(deck).size, 20)
+  for (const id of deck) {
+    assert.equal(cardById(id).team, 'catgirls', id)
+    assert.ok(CLASH_TWISTS[id] || CLASH_EVOLUTIONS[id], id + ' evolves')
+  }
+  assert.equal(deck.filter((id) => CLASH_TWISTS[id]).length, 10)
+  assert.equal(deck.filter((id) => CLASH_EVOLUTIONS[id]).length, 10)
+  assert.ok(!deck.includes('s3-catgirls-pounce-rig'))
+  const fighters = deck.filter((id) => cardById(id).kind === 'creature')
+  assert.equal(fighters.length, 11, 'enough fighters to hold five alleys')
+}
+
+// --- Choose one at level three (approved 2026-11-08 PT).
+const CHOICE = ['splice-runner', 's3-catgirls-escaped-tiger', 'mutual-aid']
+assert.deepEqual(
+  PILOT.filter((id) => clashEvolutionChoice(id, 3)),
+  CHOICE,
+  'three pilot cards offer a choice',
+)
+for (const id of CHOICE) {
+  const [a, b] = clashEvolutionChoice(id, 3)!
+  assert.notEqual(a.title, b.title)
+  assert.equal(clashEvolutionChoice(id, 2), undefined, 'only at level three')
+  assert.match(clashCardText(cardById(id), 3), /Choose one/)
 }
 
 // --- helpers
@@ -283,6 +320,96 @@ const mine = (s: ClashState, id: string) =>
   assert.ok(s.boss.enemy < before, 'the second pounce lands on the boss')
 }
 
+// Black Market Run (Splice Runner's other level three): draws two, and the
+// pick is recorded in the transcript and on the fighter.
+{
+  const s0 = board([])
+  s0.hands.player = []
+  s0.decks.player = ['lynx', 'mau', 'calico']
+  s0.hands.player = ['splice-runner']
+  s0.levels.player['splice-runner'] = 3
+  const s = playClash(s0, 'player', 'splice-runner', 2, 1)
+  assert.equal(s.hands.player.length, 2, 'Black Market Run draws 2')
+  assert.equal(mine(s, 'splice-runner')!.evoChoice, 1)
+  assert.ok(clashPower(s, mine(s, 'splice-runner')!) > 0, 'it still fights')
+  assert.deepEqual(s.commands.at(-1), {
+    t: 'play',
+    side: 'player',
+    card: 'splice-runner',
+    lane: 2,
+    choice: 1,
+  })
+  const plain = cast(board([]), 'splice-runner', 2)
+  assert.equal(mine(plain, 'splice-runner')!.evoChoice, undefined)
+  assert.ok(!('choice' in plain.commands.at(-1)!), 'option 0 is the default')
+  // A choice below level three is not a choice: nothing is recorded.
+  const low = board([])
+  low.hands.player = ['splice-runner']
+  low.levels.player['splice-runner'] = 2
+  const l2 = playClash(low, 'player', 'splice-runner', 2, 1)
+  assert.ok(!('choice' in l2.commands.at(-1)!))
+}
+// Back to the Wild: +3 life, and +2 power with no ally beside it.
+{
+  const id = 's3-catgirls-escaped-tiger'
+  const s0 = board([])
+  s0.hands.player = [id]
+  s0.levels.player[id] = 3
+  const s = playClash(s0, 'player', id, 2, 1)
+  const tiger = mine(s, id)!
+  assert.equal(tiger.maxHp, clashBalance(cardById(id), 3).hp + 3)
+  const alone = clashPower(s, tiger)
+  s.units.push(fighter('player', 1, 50))
+  assert.equal(clashPower(s, tiger), alone - 2, 'company ends the lone bonus')
+}
+// Emergency Ward: heal every ally 2 instead of the pharmacy's sharpening.
+{
+  const s0 = board([
+    fighter('player', 1, 1, { hp: 2 }),
+    fighter('player', 3, 2, { hp: 3 }),
+  ])
+  s0.hands.player = ['mutual-aid']
+  s0.levels.player['mutual-aid'] = 3
+  const s = playClash(s0, 'player', 'mutual-aid', 1, 1)
+  assert.equal(at(s, 2)!.hp, 5, 'the ward reaches the whole crew')
+  assert.equal(at(s, 2)!.attack, 3, 'no sharpening on this path')
+}
+// The CPU picks by the board: the ambulance only when someone has fallen.
+{
+  const cpuPick = (fallen: string[]) => {
+    const s = board([])
+    s.teams.enemy = 'catgirls'
+    s.active = 'enemy'
+    s.phase = 'play'
+    s.plays.enemy = 0
+    s.hands.enemy = ['splice-runner']
+    s.levels.enemy['splice-runner'] = 3
+    s.fallen = { player: [], enemy: fallen }
+    const cmd = chooseClashCpu(s, 'enemy')
+    assert.equal(cmd.t, 'play')
+    return cmd.t === 'play' ? cmd.choice : undefined
+  }
+  assert.equal(cpuPick([]), 1, 'nobody to rescue: Black Market Run')
+  assert.equal(cpuPick(['mau']), undefined, 'someone fell: Midnight Ambulance')
+}
+
+// Backstreet Organ Donor L3: her last donation goes to the most hurt ally.
+{
+  const id = 's2-catgirls-backstreet-organ-donor'
+  let k = board([
+    fighter('player', 1, 1, { hp: 2 }),
+    fighter('player', 3, 2, { hp: 7 }),
+    fighter('player', 2, 3, { cardId: id, level: 3, hp: 1 }),
+    fighter('enemy', 2, 9, { attack: 20, hp: 30, maxHp: 30 }),
+  ])
+  k = passClash(k, 'player')
+  while (nextClashStrike(k, 'player') >= 0) k = strikeClash(k, 'player')
+  assert.equal(at(k, 3), undefined, 'she falls striking the brute')
+  assert.equal(at(k, 1)!.maxHp, 12, 'the most hurt ally gets +4 life')
+  assert.equal(at(k, 1)!.attack, 4, 'and +1 power for good')
+  assert.equal(at(k, 2)!.maxHp, 8, 'not the healthier one')
+}
+
 // --- Evolution art: a level shows its painting once wired, else falls back.
 assert.equal(
   slimeCardArtId('splice-runner', 1),
@@ -294,16 +421,47 @@ assert.equal(
     slimeArtId('cards', 'splice-runner'),
 )
 
-// --- Determinism with the pilot cards in Catgirls decks.
-for (const seed of [5, 9, 13]) {
-  let g = createClash('catgirls', 'ironjaw', seed)
-  for (let i = 0; !g.victor && i < 2000; i++)
-    g = applyClashCommand(g, chooseClashCpu(g, g.active))
-  assert.ok(g.victor)
-  const again = replayClash('catgirls', 'ironjaw', seed, g.commands)
-  assert.deepEqual(again.boss, g.boss)
+assert.equal(
+  slimeCardArtId('splice-runner', 3, 1),
+  slimeArtId('evolutions', 'splice-runner@3b') ??
+    slimeArtId('cards', 'splice-runner'),
+  'each choose-one option has its own painting',
+)
+
+// --- Determinism with the pilot deck, choices included, from either seat.
+for (const seed of [5, 9, 13, 21, 34, 55]) {
+  for (const [a, b] of [
+    ['catgirls', 'ironjaw'],
+    ['riot', 'catgirls'],
+  ] as const) {
+    let g = createClash(a, b, seed)
+    for (let i = 0; !g.victor && i < 2000; i++)
+      g = applyClashCommand(g, chooseClashCpu(g, g.active))
+    assert.ok(g.victor)
+    const again = replayClash(a, b, seed, g.commands)
+    assert.deepEqual(again.boss, g.boss)
+    assert.deepEqual(again.units, g.units)
+  }
+}
+// A recorded choice replays to the same state.
+{
+  const s0 = board([])
+  s0.hands.player = ['mutual-aid']
+  s0.levels.player['mutual-aid'] = 3
+  s0.units.push(fighter('player', 1, 1, { hp: 2 }))
+  const cmd = {
+    t: 'play',
+    side: 'player',
+    card: 'mutual-aid',
+    lane: 1,
+    choice: 1,
+  } as const
+  assert.deepEqual(
+    applyClashCommand(s0, cmd),
+    playClash(s0, 'player', 'mutual-aid', 1, 1),
+  )
 }
 
 console.log(
-  'Slime City crafted evolutions: 10-card Catgirls pilot, every stage through the real engine, art fallback and replay OK',
+  'Slime City crafted evolutions: 20-card Catgirls pilot deck, 11 crafted cards and 3 choose-one level threes through the real engine, art fallback and replay OK',
 )

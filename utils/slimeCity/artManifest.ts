@@ -846,9 +846,10 @@ export function slimeArtId(
 }
 
 /** Card art for a level: its evolution painting once rendered, else the card's own. */
-export function slimeCardArtId(id: string, level = 1): number | null {
+export function slimeCardArtId(id: string, level = 1, pick = 0): number | null {
   if (level >= 2) {
-    const evolved = slimeArtId('evolutions', id + '@' + Math.min(3, level))
+    const key = id + '@' + Math.min(3, level) + (level >= 3 && pick ? 'b' : '')
+    const evolved = slimeArtId('evolutions', key)
     if (evolved) return evolved
   }
   return slimeArtId('cards', id)

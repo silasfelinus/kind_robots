@@ -1,5 +1,5 @@
 // GENE RIOT CATGIRLS: evolution pilot (CLASH-EVOLUTION-PLAN.md, approved by
-// Silas 2026-11-08 PT). Ten cards designed one at a time, story first:
+// Silas 2026-11-08 PT). Cards designed one at a time, story first:
 // each entry carries its three-beat arc, its trajectory, and level stages
 // that change what the card DOES, not just how big it is. Approved rules:
 // weaker level threes are rare; situational payoffs are welcome; an earned
@@ -8,10 +8,12 @@ import {
   boss,
   cleanse,
   damage,
+  draw,
   duel,
   grant,
   guard,
   heal,
+  life,
   on,
   pounce,
   power,
@@ -38,6 +40,12 @@ export const CATGIRL_EVOLUTIONS: Record<string, CardEvolution> = {
     3: stage('Midnight Ambulance', [on('enter', revive(2, 3))], {
       pacifist: true,
     }),
+    // Choose one: or stay the dealer and run the black market for cards.
+    // The CPU drives the ambulance only when someone has fallen.
+    choice: {
+      stage: stage('Black Market Run', [on('enter', draw(2))]),
+      cpu: 'allyFell',
+    },
   },
   // Arc: a phantom on the lab roofs -> leaps chimney to chimney -> a
   // skyline specter that strikes and is gone again.
@@ -73,13 +81,22 @@ export const CATGIRL_EVOLUTIONS: Record<string, CardEvolution> = {
   },
   // Arc: an expensive lab tiger escapes -> loose in the lab, bolder with
   // every kill -> the apex predator that hunts the biggest threat.
-  // Trajectory: LATE BLOOMER: weaker at L1, a hunter at L3. Counterplay:
+  // Trajectory: LATE BLOOMER: a plain heavy until L3 makes it a hunter (a
+  // weaker L1 cost Catgirls ~6 points in CPU sweeps, so it was cut). Counterplay:
   // a stronger foe wins the hunt; stun its prey to make the duel free, or
   // leave nothing big on the board.
   's3-catgirls-escaped-tiger': {
-    stats: { 1: { attack: -1 }, 3: { hp: 3 } },
+    stats: { 3: { hp: 3 } },
     2: stage('Loose in the Lab', [on('kill', sharpen(1, 'self'))]),
     3: stage('Apex Escapee', [on('enter', duel('strongestFoe'))]),
+    // Choose one: or it slips the city entirely and grows fierce alone.
+    // The CPU hunts while there is prey on the field.
+    choice: {
+      stage: stage('Back to the Wild', [on('enter', life(3, 'self'))], {
+        lone: 2,
+      }),
+      cpu: 'foesPresent',
+    },
   },
   // Arc: a glasswalker busking on broken bottles -> the crowd gathers as
   // shards fly -> the Glasswalk finale, where nothing can cut her.
@@ -100,6 +117,12 @@ export const CATGIRL_EVOLUTIONS: Record<string, CardEvolution> = {
       on('enter', cleanse('target'), guard(1, 'target')),
     ]),
     3: stage("People's Pharmacy", [on('enter', sharpen(1, 'healthyAllies'))]),
+    // Choose one: or open the Emergency Ward and patch up the whole crew.
+    // The CPU opens the ward once two or more allies are hurt.
+    choice: {
+      stage: stage('Emergency Ward', [on('enter', heal(2, 'allies'))]),
+      cpu: 'crewWhole',
+    },
   },
   // Arc: nine lives, no refunds -> the eighth life gets spent -> the whole
   // crew borrows against the last one.
@@ -119,6 +142,17 @@ export const CATGIRL_EVOLUTIONS: Record<string, CardEvolution> = {
       on('spring', when('targetHeavy', damage(2, 'target'))),
     ]),
     3: stage("Hangman's Line", [on('spring', rearm())]),
+  },
+  // Arc: a medic whose donor list has one name (her own) -> every hit she
+  // lands buys a stitch for someone else -> the last donation: when she
+  // falls, the most hurt ally walks away with her strength.
+  // Trajectory: PRICE (her payoff needs her to fall). Counterplay: stun her
+  // instead of killing her, or finish the hurt ally first.
+  's2-catgirls-backstreet-organ-donor': {
+    2: stage('Blood Drive', [on('hit', heal(1, 'woundedAlly'))]),
+    3: stage('Last Donation', [
+      on('death', life(4, 'woundedAlly'), sharpen(1, 'woundedAlly')),
+    ]),
   },
   // Arc: a stolen spring-loaded rig -> tuned for pack hunting -> the
   // second pounce that carries straight through to the boss.

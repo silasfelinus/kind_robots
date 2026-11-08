@@ -89,7 +89,13 @@ export type EvoAction =
   | { do: 'pounce' }
 
 /** Board facts a situational payoff can check. */
-export type EvoCondition = 'acrossEmpty' | 'allyFell' | 'targetHeavy' | 'crowd'
+export type EvoCondition =
+  | 'acrossEmpty'
+  | 'allyFell'
+  | 'targetHeavy'
+  | 'crowd'
+  | 'foesPresent'
+  | 'crewWhole'
 
 export interface EvoAbility {
   when: EvoTrigger
@@ -129,6 +135,10 @@ export interface CardEvolution {
   stats?: Partial<Record<1 | 2 | 3, { attack?: number; hp?: number }>>
   2: EvoStage
   3: EvoStage
+  /** A choose-one level three (approved by Silas 2026-11-08 PT): whoever
+   * plays the card at level three picks `3` or `choice.stage`. Both share the
+   * level-three stats. The CPU takes `3` while `cpu` holds, else the other. */
+  choice?: { stage: EvoStage; cpu: EvoCondition }
 }
 
 // ---------------------------------------------------------------- builders
@@ -354,6 +364,8 @@ const COND: Record<EvoCondition, string> = {
   allyFell: 'if an ally has fallen',
   targetHeavy: 'if the target is a 2-play fighter',
   crowd: 'with 2+ allies on the field',
+  foesPresent: 'if a foe is on the field',
+  crewWhole: 'with under 2 hurt allies',
 }
 const WHEN: Record<EvoTrigger, string> = {
   enter: 'Arrive',
@@ -394,9 +406,10 @@ function staticText(r: EvoStatic, kind: Kind): string[] {
         r.hex.n +
         ' power.',
     )
-  if (r.pack) out.push(it + ' +' + r.pack + ' power beside an ally.')
-  if (r.lone) out.push(it + ' +' + r.lone + ' power alone.')
-  if (r.bully) out.push(it + ' +' + r.bully + ' power vs stunned foes.')
+  if (r.pack) out.push(it + ' has +' + r.pack + ' power beside an ally.')
+  if (r.lone)
+    out.push(it + ' has +' + r.lone + ' power with no ally beside it.')
+  if (r.bully) out.push(it + ' has +' + r.bully + ' power vs stunned foes.')
   return out
 }
 /** Rules text for a stage, generated from the same data the engine runs. */

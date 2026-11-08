@@ -2,6 +2,10 @@
 // not used for balance acceptance; all 300 cards have Clash-only profiles.
 import assert from 'node:assert/strict'
 import { readFileSync } from 'node:fs'
+import {
+  CLASH_EVOLUTIONS,
+  clashEvolutionStage,
+} from '../slimeCity/clashEvolutions'
 import { alleyDeck } from '../slimeCity/alleys'
 import { CLASH_TWISTS } from '../slimeCity/clashTwists'
 import { CARDS, TEAMS, cardById, type Side } from '../slimeCity/prototypes'
@@ -20,6 +24,7 @@ import {
   chooseClashCpu,
   clashBalance,
   clashDeck,
+  CLASH_CRAFTED_DECKS,
   clashPower,
   clashBossMax,
   clashCardBadge,
@@ -201,10 +206,11 @@ for (const team of TEAMS) {
   const clashOnly = clashDeck(team.id)
   assert.equal(clashOnly.length, 20, 'Clash retains 20 cards')
   assert.equal(new Set(clashOnly).size, 20, 'Clash has distinct IDs')
+  // The crafted-evolution pilot deck is twenty of one faction by design.
   assert.equal(
     clashOnly.filter((id) => cardById(id).team === 'mercenary').length,
-    1,
-    'each crew has one accessible mercenary guest',
+    CLASH_CRAFTED_DECKS[team.id] ? 0 : 1,
+    'each standard crew has one accessible mercenary guest',
   )
   assert.equal(deck.length, 20, team.name + ' 20-card deck')
   assert.equal(new Set(deck).size, 20, team.name + ' distinct cards')
@@ -260,6 +266,15 @@ for (const card of CARDS) {
       assert.equal(high.attack, 0, card.id + ' becomes a genuine nonattacker')
       assert.ok(high.hp > low.hp, card.id + ' gains real durability')
       assert.match(clashCardText(card, 3), /Never attacks/)
+    } else if (
+      Object.values(CLASH_EVOLUTIONS[card.id]?.stats?.[3] ?? {}).some(
+        (n) => n < 0,
+      )
+    ) {
+      // Approved rare exception (Silas, 2026-11-08 PT): a crafted early
+      // bloomer trades body for a big level-three arrival.
+      assert.ok(value(2) > value(1), card.id + ' still ramps to level 2')
+      assert.ok(clashEvolutionStage(card.id, 3), card.id + ' L3 does more')
     } else {
       assert.ok(value(1) < value(2) && value(2) < value(3), card.id + ' ramps')
       assert.ok(

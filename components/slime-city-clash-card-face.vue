@@ -3,7 +3,7 @@
   <span class="ccf" :class="'lv-' + level">
     <SlimeCityArtwork
       class="ccf-art"
-      :image-id="slimeCardArtId(card.id, level)"
+      :image-id="slimeCardArtId(card.id, level, pick ?? 0)"
       :fallback-image-id="
         slimeArtId(
           'crews',
@@ -28,9 +28,7 @@
     >
     <span class="ccf-rules">
       <small>{{ kind }}</small>
-      <span v-if="clashCardText(card, level)" class="ccf-text">{{
-        clashCardText(card, level)
-      }}</span>
+      <span v-if="rules" class="ccf-text">{{ rules }}</span>
       <span v-if="note" class="ccf-text ccf-note">{{ note }}</span>
     </span>
   </span>
@@ -47,7 +45,10 @@ import {
   clashPlayCost,
 } from '~/utils/slimeCity/clash'
 import { useSlimeCityStore } from '~/stores/slimeCity'
-import { clashStageTitle } from '~/utils/slimeCity/clashEvolutions'
+import {
+  clashStageTitle,
+  type EvoPick,
+} from '~/utils/slimeCity/clashEvolutions'
 
 const props = withDefaults(
   defineProps<{
@@ -55,14 +56,19 @@ const props = withDefaults(
     note?: string
     level?: number
     preview?: boolean
+    /** A choose-one level three already played as option 0 or 1. */
+    pick?: EvoPick
   }>(),
-  { note: '', level: 1, preview: false },
+  { note: '', level: 1, preview: false, pick: undefined },
 )
 const maxLevel = CLASH_MAX_LEVEL
 const lab = useSlimeCityStore()
 const card = computed(() => cardById(props.cardId))
 /** Evolved stage name (Solforge-style): what this card becomes at its level. */
-const stageTitle = computed(() => clashStageTitle(props.cardId, props.level))
+const stageTitle = computed(() =>
+  clashStageTitle(props.cardId, props.level, props.pick),
+)
+const rules = computed(() => clashCardText(card.value, props.level, props.pick))
 const plays = computed(() => clashPlayCost(card.value))
 const kind = computed(() =>
   card.value.kind === 'creature'

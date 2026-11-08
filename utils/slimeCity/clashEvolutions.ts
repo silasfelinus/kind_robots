@@ -6,6 +6,7 @@ import { CLASH_TWISTS } from './clashTwists'
 import {
   evoStageText,
   type CardEvolution,
+  type EvoCondition,
   type EvoStage,
 } from './evolutions/dsl'
 import { CATGIRL_EVOLUTIONS } from './evolutions/catgirls'
@@ -14,15 +15,37 @@ export const CLASH_EVOLUTIONS: Record<string, CardEvolution> = {
   ...CATGIRL_EVOLUTIONS,
 }
 
+/** Which level-three option a play picks: 0 is the card's main level
+ * three, 1 its alternative (only on cards with a choose-one level three). */
+export type EvoPick = 0 | 1
+
+/** The two level-three options of a choose-one card, else undefined. */
+export function clashEvolutionChoice(
+  id: string,
+  level: number,
+): [EvoStage, EvoStage] | undefined {
+  if (level < 3 || CLASH_TWISTS[id]) return undefined
+  const evo = CLASH_EVOLUTIONS[id]
+  return evo?.choice ? [evo[3], evo.choice.stage] : undefined
+}
+
+/** The condition under which the CPU takes the main level three. */
+export function clashEvolutionCpuPick(id: string): EvoCondition | undefined {
+  return CLASH_TWISTS[id] ? undefined : CLASH_EVOLUTIONS[id]?.choice?.cpu
+}
+
 /** The stage a card runs at `level` (2 or 3), or undefined. Hand-built twist
- * cards never also run a data stage. */
+ * cards never also run a data stage. `pick` selects a choose-one option. */
 export function clashEvolutionStage(
   id: string,
   level: number,
+  pick: EvoPick = 0,
 ): EvoStage | undefined {
   if (level < 2 || CLASH_TWISTS[id]) return undefined
   const evo = CLASH_EVOLUTIONS[id]
-  return evo ? evo[level >= 3 ? 3 : 2] : undefined
+  if (!evo) return undefined
+  if (level < 3) return evo[2]
+  return pick === 1 && evo.choice ? evo.choice.stage : evo[3]
 }
 
 /** A card's trajectory stat changes at a level (crafted cards only). */
@@ -35,16 +58,39 @@ export function clashEvolutionStats(
   return CLASH_EVOLUTIONS[id]?.stats?.[lv]
 }
 
-/** Generated rules text for a card's evolved stage ('' at level 1). */
-export function clashEvolutionText(card: Card, level: number): string {
-  const st = clashEvolutionStage(card.id, level)
+/** Generated rules text for a card's evolved stage ('' at level 1). A
+ * choose-one level three with no pick yet shows both options. */
+export function clashEvolutionText(
+  card: Card,
+  level: number,
+  pick?: EvoPick,
+): string {
+  const both =
+    pick === undefined ? clashEvolutionChoice(card.id, level) : undefined
+  // The card face names both; the play picker shows each option's rules.
+  if (both)
+    return (
+      'Choose one as you play it: ' +
+      both[0].title +
+      ' or ' +
+      both[1].title +
+      '.'
+    )
+  const st = clashEvolutionStage(card.id, level, pick ?? 0)
   return st ? evoStageText(st, card.kind) : ''
 }
 
 /** The stage name a card wears at a level: its own name at level 1. */
-export function clashStageTitle(id: string, level: number): string {
+export function clashStageTitle(
+  id: string,
+  level: number,
+  pick?: EvoPick,
+): string {
   const evo = CLASH_TWISTS[id] ? undefined : CLASH_EVOLUTIONS[id]
   if (!evo) return ''
   if (level < 2) return evo.base ?? CARDS.find((c) => c.id === id)?.name ?? ''
-  return evo[level >= 3 ? 3 : 2].title
+  if (level < 3) return evo[2].title
+  if (evo.choice && pick === undefined)
+    return evo[3].title + ' / ' + evo.choice.stage.title
+  return clashEvolutionStage(id, 3, pick ?? 0)!.title
 }

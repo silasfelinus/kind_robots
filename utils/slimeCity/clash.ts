@@ -10,6 +10,9 @@ import {
   clashEvolutionStage,
   clashEvolutionStats,
   clashEvolutionText,
+  clashEvolutionChoice,
+  clashEvolutionCpuPick,
+  type EvoPick,
 } from './clashEvolutions'
 import type {
   EvoAction,
@@ -103,6 +106,8 @@ export interface ClashUnit {
   evoUsed?: string[]
   /** Survives the next lethal hit at 1 life (Nine Lives, No Refunds). */
   lastChance?: boolean
+  /** A choose-one level three played as its alternative stage. */
+  evoChoice?: 1
 }
 export interface ClashTrap {
   side: Side
@@ -141,7 +146,8 @@ export interface ClashEvolutionMoment {
   commandIndex: number
 }
 export type ClashCommand =
-  | { t: 'play'; side: Side; card: string; lane: number }
+  /** `choice: 1` picks a choose-one level three's alternative stage. */
+  | { t: 'play'; side: Side; card: string; lane: number; choice?: 1 }
   | { t: 'pass'; side: Side }
   | { t: 'strike'; side: Side }
   | { t: 'end'; side: Side }
@@ -444,7 +450,7 @@ export function clashCardBadge(card: Card, level = 1): string {
  * the stats for rounds two and three"). Stats live on the card's chip; other
  * levels are previewed on demand.
  */
-export function clashCardText(card: Card, level = 1): string {
+export function clashCardText(card: Card, level = 1, pick?: EvoPick): string {
   const b = clashBalance(card, level)
   // Named spells, traps and gear now evolve their RULES as well as their stats.
   // The active level's promise must match its actual Clash handler.
@@ -455,11 +461,11 @@ export function clashCardText(card: Card, level = 1): string {
       ...(b.armor ? ['Armor: blocks 1 damage per hit.'] : []),
       ...(card.keywords ?? []).map((k) => CLASH_TRAIT_TEXT[k]),
       clashTwistText(card.id, level),
-      clashEvolutionText(card, level),
+      clashEvolutionText(card, level, pick),
     ]
       .filter(Boolean)
       .join(' ')
-  const evolution = clashEvolutionText(card, level)
+  const evolution = clashEvolutionText(card, level, pick)
   if (evolution) return clashBaseText(card, level) + ' ' + evolution
   return clashBaseText(card, level)
 }
@@ -684,7 +690,42 @@ export const CLASH_GUESTS: Record<TeamId, string> = {
   undertow: 'merc-fungal-bouncer',
   exchange: 'merc-debt-slug',
 }
+/**
+ * The crafted-evolution pilot plays as a full Solo Clash side (Silas,
+ * 2026-11-08 PT: "You need a sample of at least 20 from one faction ... to
+ * make one side of a match"): the ten Catgirls with hand-built twists plus
+ * ten crafted in evolutions/catgirls.ts, so every card in the deck has its
+ * own level-two and level-three story. Eleven fighters hold the five alleys
+ * (each fighter traded for a special cost ~4 points in CPU sweeps), so the
+ * crafted Second Pounce Rig is a deck-builder pick rather than a starter.
+ */
+export const CLASH_CRAFTED_DECKS: Partial<Record<TeamId, string[]>> = {
+  catgirls: [
+    'lynx',
+    'mau',
+    'calico',
+    'chimera',
+    's3-catgirls-glasswalker',
+    's1-roof-phantom',
+    'splice-runner',
+    's2-catgirls-parapet-ghost-kitten',
+    's3-catgirls-escaped-tiger',
+    's1-alley-vet',
+    'pounce',
+    'scentmine',
+    'reknit',
+    'shredders',
+    'ninthlife',
+    'laser',
+    'mutual-aid',
+    's1-nine-lives',
+    's3-catgirls-garrote',
+    's2-catgirls-backstreet-organ-donor',
+  ],
+}
 export function clashDeck(team: TeamId): string[] {
+  const crafted = CLASH_CRAFTED_DECKS[team]
+  if (crafted) return [...crafted]
   const roster = alleyDeck(team)
   return [...roster.slice(0, 19), CLASH_GUESTS[team]]
 }
@@ -958,7 +999,7 @@ function evoStages(
 ): { id: string; level: number; st: EvoStage }[] {
   const out: { id: string; level: number; st: EvoStage }[] = []
   if (!u.token && u.level >= 2) {
-    const st = clashEvolutionStage(u.cardId, u.level)
+    const st = clashEvolutionStage(u.cardId, u.level, u.evoChoice ?? 0)
     if (st) out.push({ id: u.cardId, level: u.level, st })
   }
   for (const [id, level] of Object.entries(u.gearLevels ?? {})) {
@@ -1089,11 +1130,8 @@ function evoAct(s: ClashState, ctx: EvoContext, a: EvoAction): void {
       )
       return
     case 'draw':
-      draw(
-        s,
-        ctx.side,
-        Math.max(0, s.hands[ctx.side].length + a.n - CLASH_HAND_SIZE),
-      )
+      // Exactly n more cards, whatever the hand size (never a refill).
+      draw(s, ctx.side, s.hands[ctx.side].length + a.n - CLASH_HAND_SIZE)
       return
     case 'chance':
       if (random(s) * 100 < a.p) for (const x of a.then) evoAct(s, ctx, x)
@@ -1160,6 +1198,13 @@ function evoCondition(
       return (
         s.units.filter((u) => u.side === ctx.side && u !== ctx.self && u.hp > 0)
           .length >= 2
+      )
+    case 'foesPresent':
+      return s.units.some((u) => u.side !== ctx.side && u.hp > 0)
+    case 'crewWhole':
+      return (
+        s.units.filter((u) => u.side === ctx.side && u.hp > 0 && u.hp < u.maxHp)
+          .length < 2
       )
   }
 }
@@ -1491,12 +1536,15 @@ export function playClash(
   side: Side,
   id: string,
   lane: number,
+  choice?: EvoPick,
 ): ClashState {
   if (!canClashPlay(input, side, id, lane)) return input
   const s = structuredClone(input)
   const card = cardById(id)
   const level = clashLevel(s, side, id)
   const profile = clashBalance(card, level)
+  // A choose-one level three: only a real alternative is recorded.
+  const pick: EvoPick = choice === 1 && clashEvolutionChoice(id, level) ? 1 : 0
   s.hands[side].splice(s.hands[side].indexOf(id), 1)
   const foe = opponent(side)
   if (card.kind === 'creature') {
@@ -1536,6 +1584,7 @@ export function playClash(
       fresh: true,
       gear: [],
       level,
+      ...(pick ? { evoChoice: 1 as const } : {}),
     }
     if (id === 'rat')
       unit.attack = Math.min(10, unit.attack + (s.deathMarks[side].rat ?? 0))
@@ -2032,7 +2081,7 @@ export function playClash(
       }
       if (card.kind === 'equipment') target.gear.push(id)
     }
-    const evolved = clashEvolutionStage(id, level)
+    const evolved = clashEvolutionStage(id, level, pick)
     if (evolved && card.kind === 'equipment' && target) {
       ;(target.gearLevels ??= {})[id] = level
       runEvoStage(s, evolved, 'enter', {
@@ -2064,7 +2113,11 @@ export function playClash(
     s.phase = 'attack'
     s.cursor = 0
   }
-  s.commands.push({ t: 'play', side, card: id, lane })
+  s.commands.push(
+    pick
+      ? { t: 'play', side, card: id, lane, choice: 1 }
+      : { t: 'play', side, card: id, lane },
+  )
   checkWinner(s)
   return s
 }
@@ -2533,7 +2586,13 @@ export function applyClashCommand(
 ): ClashState {
   switch (command.t) {
     case 'play':
-      return playClash(s, command.side, command.card, command.lane)
+      return playClash(
+        s,
+        command.side,
+        command.card,
+        command.lane,
+        command.choice,
+      )
     case 'pass':
       return passClash(s, command.side)
     case 'strike':
@@ -2711,7 +2770,8 @@ export function chooseClashCpu(
       return { t: 'power', side, lane }
   }
   const foeSide = opponent(side)
-  let best: { score: number; card: string; lane: number } | undefined
+  let best:
+    { score: number; card: string; lane: number; choice?: 1 } | undefined
   for (const id of s.hands[side]) {
     const card = cardById(id)
     const b = clashBalance(card, clashLevel(s, side, id))
@@ -2771,10 +2831,22 @@ export function chooseClashCpu(
       if (evolved?.abilities.some((ab) => ab.when === 'enter'))
         score += b.level >= 3 ? 2.5 : 1.2
       score /= b.plays
-      if (!best || score > best.score) best = { score, card: id, lane }
+      // A choose-one level three: the main stage while its condition holds.
+      const prefer = clashEvolutionChoice(id, b.level)
+        ? clashEvolutionCpuPick(id)
+        : undefined
+      const choice =
+        prefer &&
+        !evoCondition(s, { side, lane, cardId: id, level: b.level }, prefer)
+          ? (1 as const)
+          : undefined
+      if (!best || score > best.score)
+        best = { score, card: id, lane, ...(choice ? { choice } : {}) }
     }
   }
   return best
-    ? { t: 'play', side, card: best.card, lane: best.lane }
+    ? best.choice
+      ? { t: 'play', side, card: best.card, lane: best.lane, choice: 1 }
+      : { t: 'play', side, card: best.card, lane: best.lane }
     : { t: 'pass', side }
 }

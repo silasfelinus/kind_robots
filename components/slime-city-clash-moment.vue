@@ -7,6 +7,7 @@
       'scx-' + moment.crew,
       'scx-' + moment.grade,
       'scx-' + moment.kind,
+      'scx-effect-' + moment.effect,
       'scx-' + moment.side,
     ]"
     :style="{ '--lane-x': ((moment.lane + 0.5) / 5) * 100 + '%' }"
@@ -260,6 +261,66 @@ defineProps<{ moment: (ClashSpectacle & { key: number }) | null }>()
 }
 .scx-enemy .scx-announcement {
   border-left: 4px solid #ff7894;
+}
+.scx-effect-heal .scx-ring {
+  border-color: #bcffab;
+  border-radius: 35%;
+  box-shadow: 0 0 30px #83ffbf, inset 0 0 35px #baffad;
+}
+.scx-effect-heal .scx-particles i {
+  height: clamp(5px, 1vw, 12px);
+  width: clamp(5px, 1vw, 12px);
+  border-radius: 50%;
+  background: #a9ffb3;
+}
+.scx-effect-blast .scx-ring {
+  border-style: dashed;
+  border-width: clamp(5px, 0.9vw, 12px);
+  border-radius: 20%;
+  filter: drop-shadow(0 0 16px #ff774a);
+}
+.scx-effect-blast .scx-particles i {
+  width: clamp(8px, 1.6vw, 20px);
+  border-radius: 15%;
+  background: linear-gradient(#fff6a4, #ff533b);
+}
+.scx-effect-trap .scx-lane {
+  border-style: dashed;
+  border-color: #ff6cc9;
+  background: repeating-linear-gradient(
+    135deg,
+    #f55b8d6e 0 8px,
+    #070d1955 8px 18px
+  );
+}
+.scx-effect-control .scx-ring {
+  border-style: double;
+  border-width: clamp(7px, 1vw, 14px);
+  border-color: #7cbcff;
+}
+.scx-effect-gear .scx-ring {
+  border-radius: 24%;
+  transform: translate(-50%, -50%) rotate(45deg) scale(0.15);
+}
+.scx-effect-summon .scx-lane {
+  background: linear-gradient(0deg, var(--fx-soft), transparent 65%);
+  animation: scx-rise 0.9s ease-out both;
+}
+.scx-effect-power .scx-wash {
+  opacity: 0.55;
+  background: conic-gradient(
+    from 0deg at 50% 50%,
+    transparent,
+    var(--fx-soft),
+    transparent,
+    var(--fx),
+    transparent
+  );
+}
+@keyframes scx-rise {
+  0% { opacity: 0; transform: translate(-50%, 20%) scaleX(0.25); }
+  24% { opacity: 0.65; transform: translate(-50%, 0) scaleX(1); }
+  100% { opacity: 0; transform: translate(-50%, -15%) scaleX(1.25); }
 }
 @keyframes scx-wash {
   0% { opacity: 0; transform: scale(0.75); }

@@ -847,12 +847,23 @@ assert.ok(
 assert.ok(pounced.units.filter((u) => u.lane !== 2).every((u) => u.surge === 2))
 const reknitStage = evolved('catgirls', 'reknit')
 reknitStage.units = [{ ...follower('player', 2, 904, 8), hp: 2 }]
-reknitStage.discards.player.push('mau')
+reknitStage.fallen!.player.push('mau')
 const rewoven = playClash(reknitStage, 'player', 'reknit', 2)
 assert.ok(
   rewoven.units.some((u) => u.token && u.cardId === 'mau'),
   'L3 reknit resurrects an existing fallen card as a transient echo',
 )
+assert.equal(rewoven.fallen?.player.length, 0, 'a fallen fighter is revived once')
+const falseGrave = evolved('catgirls', 'reknit')
+falseGrave.discards.player.push('mau')
+falseGrave.units = [{ ...follower('player', 2, 905, 8), hp: 2 }]
+const noGhost = playClash(falseGrave, 'player', 'reknit', 2)
+assert.equal(
+  noGhost.units.filter((u) => u.token).length,
+  0,
+  'discarded unplayed cards are not counterfeit fallen allies',
+)
+
 const laserStage = evolved('catgirls', 'laser')
 laserStage.units = [1, 2, 3].map((lane) =>
   follower('enemy', lane, 920 + lane, 10),

@@ -143,6 +143,10 @@ assert.match(spectacleFace, /data-testid="clash-spectacle"/)
 assert.match(spectacleFace, /prefers-reduced-motion/, 'spectacle respects reduced motion')
 assert.match(spectacleFace, /pointer-events: none/, 'VFX do not steal lane taps')
 assert.match(spectacleFace, /scx-legend/, 'level-three moments are visually distinct')
+assert.match(spectacleFace, /scx-effect-heal/, 'healing has a dedicated look')
+assert.match(spectacleFace, /scx-effect-blast/, 'explosions have a dedicated look')
+assert.match(spectacleFace, /scx-effect-summon/, 'summons have a dedicated look')
+
 assert.match(cardFace, /clashCardText/, 'selected cards show their rules')
 assert.match(view, /@keyframes clash-lunge-up/)
 assert.match(view, /prefers-reduced-motion/)
@@ -723,6 +727,22 @@ const generalAfter = structuredClone(general)
 generalAfter.commands.push({ t: 'power', side: 'player', lane: 2 })
 assert.equal(clashSpectacle(general, generalAfter)?.kind, 'power')
 assert.equal(clashSpectacle(general, generalAfter)?.grade, 'legend')
+assert.equal(clashSpectacle(nursery, dancers)?.effect, 'summon')
+assert.equal(clashSpectacle(hazard, sprungHazard)?.effect, 'trap')
+assert.equal(clashSpectacle(general, generalAfter)?.effect, 'power')
+const healingShow = createClash('catgirls', 'ironjaw', 818)
+healingShow.round = 2
+healingShow.hands.player = ['reknit']
+healingShow.units = [{ ...follower('player', 1, 111, 9, 2), hp: 3 }]
+const healedShow = playClash(healingShow, 'player', 'reknit', 1)
+assert.equal(clashSpectacle(healingShow, healedShow)?.effect, 'heal')
+const fireworksShow = createClash('riot', 'ironjaw', 819)
+fireworksShow.round = 2
+fireworksShow.hands.player = ['firestorm']
+fireworksShow.units = [follower('enemy', 1, 112, 9, 2)]
+const explodedShow = playClash(fireworksShow, 'player', 'firestorm', 1)
+assert.equal(clashSpectacle(fireworksShow, explodedShow)?.effect, 'blast')
+
 
 // Balance acceptance (2026-11-07 Clash rebalance): CPU sweeps across every crew
 // pairing keep each crew and the first seat near even. Report:

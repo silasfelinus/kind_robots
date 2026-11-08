@@ -365,12 +365,14 @@ export const BLOODFAIRY_EVOLUTIONS: Record<string, CardEvolution> = {
     2: stage('Arc Flash', [on('spring', damage(2, 'randomFoe'))]),
     3: stage('Still Live', [on('spring', damage(2, 'randomFoe'), rearm())]),
   },
-  // Arc: the bouncer slips -> it owes the cover charge -> the crowd points
-  // and laughs, and the pit is fired up.
-  // Trajectory: STEADY (boss chip, then a morale lift). Counterplay: scan
-  // it; the lift lasts one round.
+  // Arc: the bouncer slips -> it owes the cover charge -> the whole pit
+  // erupts, and a new dancer climbs onstage in the emptied alley.
+  // Trajectory: ROLE SHIFT (boss chip, then a fresh crowd fighter).
+  // Counterplay: scan it; fill their remaining alleys to deny the encore.
   's3-bloodfairies-banana-bouncer': {
     2: stage('Cover Charge', [on('spring', boss(2))]),
-    3: stage('Laughing Stock', [on('spring', boss(2), mend(2))]),
+    3: stage('The Pit Wants an Encore', [
+      on('spring', boss(2), summon('nearest', 2, 3, ['swarm'])),
+    ]),
   },
 }

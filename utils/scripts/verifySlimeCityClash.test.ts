@@ -1721,6 +1721,15 @@ assert.ok(
 // npx tsx utils/scripts/slimeCityClashBalanceReport.ts 150 9000
 // 40 seeds (1200 games): a 10-seed sample swung the first seat by 13 points.
 const sweep = sweepClash(40, 700)
+console.log(
+  'CLASH crew win rates (40 acceptance seeds):',
+  Object.fromEntries(
+    Object.entries(sweep.crews).map(([crew, record]) => [
+      crew,
+      ((100 * record.wins) / record.games).toFixed(1) + '%',
+    ]),
+  ),
+)
 assert.ok(
   sweep.firstSeatWins / sweep.games > 0.4 &&
     sweep.firstSeatWins / sweep.games < 0.62,

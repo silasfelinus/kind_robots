@@ -56,7 +56,9 @@ const fighter = (
   })
   const played = applyClashCommand(s, cmd)
   assert.ok(
-    played.units.some((u) => u.side === 'player' && u.keywords.includes('swarm')),
+    played.units.some(
+      (u) => u.side === 'player' && u.keywords.includes('swarm'),
+    ),
     'investment adds SWARM without sacrificing a fighter',
   )
   assert.deepEqual(chooseClashCpu(s), cmd, 'identical board, identical choice')
@@ -135,7 +137,9 @@ for (const [left, right] of [
   assert.notEqual(battle, s)
   for (const lane of [1, 2, 3]) {
     assert.ok(
-      battle.units.some((u) => u.side === 'enemy' && u.lane === lane && u.rooted),
+      battle.units.some(
+        (u) => u.side === 'enemy' && u.lane === lane && u.rooted,
+      ),
       'witness in alley ' + lane + ' is stunned',
     )
   }

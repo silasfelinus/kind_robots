@@ -2790,10 +2790,16 @@ function cpuEvolutionPayoff(
     ...(card.kind === 'equipment' && own ? { self: own } : {}),
     ...(target ? { target } : {}),
   }
+  // The real engine's randomFoe selector advances the match RNG. CPU
+  // evaluation is read-only: estimating a random target must never roll it.
+  const cpuTargets = (to: EvoScope): ClashUnit[] =>
+    to === 'randomFoe'
+      ? s.units.filter((u) => u.side === foe && u.hp > 0).slice(0, 1)
+      : evoScope(s, ctx, to)
   const scopeCount = (to: EvoScope): number => {
     if (to === 'self' && card.kind === 'creature') return 1
     if (to === 'target' && card.kind === 'trap') return 1
-    return evoScope(s, ctx, to).length
+    return cpuTargets(to).length
   }
   const friendly = (to: EvoScope): boolean =>
     [
@@ -2857,7 +2863,7 @@ function cpuEvolutionPayoff(
       case 'damage':
         return scopeCount(a.to) * a.n * (friendly(a.to) ? -0.75 : 0.85)
       case 'heal': {
-        const hurt = evoScope(s, ctx, a.to).reduce(
+        const hurt = cpuTargets(a.to).reduce(
           (sum, u) => sum + Math.min(a.n, u.maxHp - u.hp),
           0,
         )
@@ -2872,23 +2878,23 @@ function cpuEvolutionPayoff(
       case 'life':
         return scopeCount(a.to) * a.n * 0.8
       case 'armor':
-        return evoScope(s, ctx, a.to).reduce(
+        return cpuTargets(a.to).reduce(
           (sum, u) => sum + Math.min(a.n, 3 - u.armor) * 2,
           0,
         )
       case 'guard':
         return scopeCount(a.to) * a.n * 0.7
       case 'stun':
-        return evoScope(s, ctx, a.to).filter((u) => !u.rooted).length * 3
+        return cpuTargets(a.to).filter((u) => !u.rooted).length * 3
       case 'cleanse':
-        return evoScope(s, ctx, a.to).filter((u) => u.rooted).length * 2
+        return cpuTargets(a.to).filter((u) => u.rooted).length * 2
       case 'grant':
         return (
-          evoScope(s, ctx, a.to).filter((u) => !u.keywords.includes(a.keyword))
+          cpuTargets(a.to).filter((u) => !u.keywords.includes(a.keyword))
             .length * 2.4
         )
       case 'rescue':
-        return evoScope(s, ctx, a.to).filter((u) => !u.lastChance).length * 1.4
+        return cpuTargets(a.to).filter((u) => !u.lastChance).length * 1.4
     }
   }
   const frequency: Record<EvoTrigger, number> = {

@@ -3013,7 +3013,8 @@ export function chooseClashCpu(
         if (mine && card.kind === 'equipment') {
           // Gear survives turns; its price cannot be assessed as one small
           // immediate spell. Reward protecting a healthy, productive fighter.
-          score += 1.8 + Math.min(mine.attack, 6) * 0.55 + (mine.hp >= 6 ? 1 : 0)
+          score +=
+            1.8 + Math.min(mine.attack, 6) * 0.55 + (mine.hp >= 6 ? 1 : 0)
         }
         if (mine && (card.effect === 'sharpen' || card.effect === 'boost'))
           score +=

@@ -3027,7 +3027,11 @@ export function chooseClashCpu(
           score +=
             1.8 + Math.min(mine.attack, 6) * 0.55 + (mine.hp >= 6 ? 1 : 0)
         }
-        if (s.format !== 'alliance' && mine && (card.effect === 'sharpen' || card.effect === 'boost'))
+        if (
+          s.format !== 'alliance' &&
+          mine &&
+          (card.effect === 'sharpen' || card.effect === 'boost')
+        )
           score +=
             card.kind === 'equipment'
               ? Math.min(b.bonus, Math.max(0, 10 - mine.attack)) * 1.8

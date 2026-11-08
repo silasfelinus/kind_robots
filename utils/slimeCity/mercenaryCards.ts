@@ -655,6 +655,7 @@ export const MERCENARY_CARDS: Card[] = [
     kind: 'equipment',
     team: 'mercenary',
     cost: 2,
+    effect: 'sharpen',
     text: 'Gets the oil. Give one fighter +1 permanent maximum AP.',
     symbol: '⚙',
   },

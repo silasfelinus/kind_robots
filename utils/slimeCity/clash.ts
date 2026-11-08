@@ -105,7 +105,8 @@ export interface ClashUnit {
   /** Data evolutions: once-per-fighter abilities already spent. */
   evoUsed?: string[]
   /** Survives the next lethal hit at 1 life (Nine Lives, No Refunds). */
-  lastChance?: boolean
+  /** Survives the next lethal hit at 1 life; the card that granted it. */
+  lastChance?: string
   /** A choose-one level three played as its alternative stage. */
   evoChoice?: 1
 }
@@ -193,6 +194,9 @@ export interface ClashState {
   deathMarks: Record<Side, Record<string, number>>
   /** A real knockout ledger: unplayed discarded cards do not count as dead. */
   fallen?: Record<Side, string[]>
+  /** Evolution draws earned off-turn (a trap, a strike, a last breath),
+   * added to that side's next turn draw so the hand discard never eats them. */
+  pendingDraw?: Record<Side, number>
   /** Last named ability activation, not a second random effects engine. */
   lastEvolution?: ClashEvolutionMoment
   /** Omitted on older saves and replays: standard Clash. */
@@ -669,7 +673,9 @@ function startTurn(s: ClashState, side: Side): void {
     for (const ally of guarded)
       ally.guard = clamp((ally.guard ?? 0) + shield, 0, 3)
   }
-  draw(s, side)
+  const owed = s.pendingDraw?.[side] ?? 0
+  if (owed) s.pendingDraw![side] = 0
+  draw(s, side, owed)
   for (const u of s.units.filter((v) => v.side === side && v.hp > 0))
     unitEvo(s, u, 'turnStart')
   casualties(s)
@@ -1130,8 +1136,11 @@ function evoAct(s: ClashState, ctx: EvoContext, a: EvoAction): void {
       )
       return
     case 'draw':
-      // Exactly n more cards, whatever the hand size (never a refill).
-      draw(s, ctx.side, s.hands[ctx.side].length + a.n - CLASH_HAND_SIZE)
+      // Exactly n more cards, whatever the hand size (never a refill). Off
+      // the side's own play phase, the cards wait for its next turn.
+      if (s.active === ctx.side && s.phase === 'play')
+        draw(s, ctx.side, s.hands[ctx.side].length + a.n - CLASH_HAND_SIZE)
+      else (s.pendingDraw ??= { player: 0, enemy: 0 })[ctx.side] += a.n
       return
     case 'chance':
       if (random(s) * 100 < a.p) for (const x of a.then) evoAct(s, ctx, x)
@@ -1169,7 +1178,7 @@ function evoAct(s: ClashState, ctx: EvoContext, a: EvoAction): void {
       return
     }
     case 'rescue':
-      for (const u of evoScope(s, ctx, a.to)) u.lastChance = true
+      for (const u of evoScope(s, ctx, a.to)) u.lastChance = ctx.cardId
       return
     case 'rearm':
       if (ctx.trap && !ctx.trap.token)
@@ -1293,14 +1302,18 @@ function casualties(s: ClashState): void {
   // No fighter can be rescued twice by the same collar or grandmother.
   for (const endangered of s.units.filter((u) => u.hp <= 0)) {
     if (endangered.lastChance) {
-      endangered.lastChance = false
+      const source = endangered.lastChance
+      endangered.lastChance = undefined
       endangered.hp = 1
       evolutionMoment(
         s,
-        's1-nine-lives',
+        source,
         endangered.side,
         endangered.lane,
-        nameOf(endangered) + ' spends a spare life. No refunds!',
+        nameOf(endangered) +
+          (source === 's1-nine-lives'
+            ? ' spends a spare life. No refunds!'
+            : ' survives at 1 life: ' + cardById(source).name + '!'),
         'heal',
       )
       continue

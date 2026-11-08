@@ -50,6 +50,28 @@ for (const id of PILOT) assert.equal(cardById(id).team, 'catgirls', id)
 for (const id of Object.keys(CLASH_EVOLUTIONS)) {
   const card = cardById(id)
   assert.ok(!CLASH_TWISTS[id], id + ' is not a hand-built twist too')
+  // A trap springs on the rival's turn, and "power now" ends with the round,
+  // so a sprung trap may only grant lasting power.
+  for (const st of [
+    CLASH_EVOLUTIONS[id]![2],
+    CLASH_EVOLUTIONS[id]![3],
+    ...(CLASH_EVOLUTIONS[id]!.choice
+      ? [CLASH_EVOLUTIONS[id]!.choice!.stage]
+      : []),
+  ])
+    for (const ab of st.abilities)
+      if (ab.when === 'spring')
+        assert.ok(
+          !JSON.stringify(ab.do).match(/"do":"power"(?![^}]*"lasting":true)/),
+          id + ' ' + st.title + ': no fleeting power on a sprung trap',
+        )
+  // The pick is kept on fighters and resolved at once for spells; a placed
+  // trap or installed gear would forget it, so choices stay off them.
+  if (CLASH_EVOLUTIONS[id]!.choice)
+    assert.ok(
+      card.kind === 'creature' || card.kind === 'spell',
+      id + ' choose-one only on fighters and spells',
+    )
   const two = clashEvolutionStage(id, 2)!
   const three = clashEvolutionStage(id, 3)!
   assert.ok(two.title && three.title && two.title !== three.title, id)
@@ -281,7 +303,7 @@ const mine = (s: ClashState, id: string) =>
     's1-nine-lives',
     1,
   )
-  assert.ok(at(s, 2)!.lastChance)
+  assert.equal(at(s, 2)!.lastChance, 's1-nine-lives')
   // Its own strike into a 20-power blocker would be lethal; the spare life
   // holds at 1 and is spent.
   let e = passClash(s, 'player')
@@ -410,6 +432,25 @@ const mine = (s: ClashState, id: string) =>
   assert.equal(at(k, 1)!.maxHp, 12, 'the most hurt ally gets +4 life')
   assert.equal(at(k, 1)!.attack, 4, 'and +1 power for good')
   assert.equal(at(k, 2)!.maxHp, 8, 'not the healthier one')
+}
+
+// Draws earned off-turn wait for the next turn instead of being discarded.
+{
+  let s = board([fighter('player', 2, 1, { hp: 1 })])
+  s.units.push(fighter('enemy', 2, 9, { attack: 20, hp: 30, maxHp: 30 }))
+  s.hands.player = ['s2-catgirls-lab-escape-atlas']
+  s.levels.player['s2-catgirls-lab-escape-atlas'] = 3
+  s = playClash(s, 'player', 's2-catgirls-lab-escape-atlas', 2)
+  s = passClash(s, 'player')
+  while (nextClashStrike(s, 'player') >= 0) s = strikeClash(s, 'player')
+  assert.equal(at(s, 1), undefined, 'the atlas wearer falls')
+  assert.equal(s.pendingDraw?.player, 2, 'Every Exit Marked owes 2 cards')
+  s = endClashTurn(s, 'player')
+  for (let i = 0; s.active === 'enemy' && i < 50; i++)
+    s = applyClashCommand(s, chooseClashCpu(s, 'enemy'))
+  assert.equal(s.active, 'player')
+  assert.equal(s.hands.player.length, 7, 'drawn on the next turn: 5 + 2')
+  assert.equal(s.pendingDraw?.player, 0)
 }
 
 // --- Every crafted card runs through the real engine at every level and

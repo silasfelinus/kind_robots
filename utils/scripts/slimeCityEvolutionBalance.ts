@@ -43,7 +43,7 @@ const withEvo = sweep()
 const saved: Record<string, CardEvolution> = {}
 for (const id of mine) {
   saved[id] = CLASH_EVOLUTIONS[id]!
-  delete CLASH_EVOLUTIONS[id]
+  Reflect.deleteProperty(CLASH_EVOLUTIONS, id)
 }
 const without = sweep()
 Object.assign(CLASH_EVOLUTIONS, saved)

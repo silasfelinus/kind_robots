@@ -3,7 +3,7 @@
 // Every pilot card is checked through the real engine: its level stages do
 // what the card says, and each level three changes what the card DOES.
 import assert from 'node:assert/strict'
-import { cardById, type Side } from '../slimeCity/prototypes'
+import { CARDS, cardById, type Side } from '../slimeCity/prototypes'
 import { CLASH_TWISTS } from '../slimeCity/clashTwists'
 import {
   CLASH_EVOLUTIONS,
@@ -46,6 +46,14 @@ const PILOT = [
 ]
 for (const id of PILOT) assert.ok(CLASH_EVOLUTIONS[id], id + ' is crafted')
 for (const id of PILOT) assert.equal(cardById(id).team, 'catgirls', id)
+// Silas, 2026-11-08 PT: "300 cards, all need custom better evolutions."
+// Every card in the catalog evolves: a hand-built twist or a crafted stage.
+for (const card of CARDS)
+  assert.ok(
+    CLASH_TWISTS[card.id] || CLASH_EVOLUTIONS[card.id],
+    card.id + ' has a crafted evolution',
+  )
+assert.equal(CARDS.length, 300)
 // Every crafted card, every faction: real stages that fit the card face.
 for (const id of Object.keys(CLASH_EVOLUTIONS)) {
   const card = cardById(id)

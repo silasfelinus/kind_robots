@@ -98,7 +98,7 @@ for (const wounded of [1, 3]) {
 for (const [left, right] of [
   ['s3-bloodfairies-banana-bouncer', 's3-ironjaw-overtime-toll'],
   ['s2-undertow-backwater-iou', 's3-exchange-compound-notice'],
-]) {
+] as const) {
   const a = CLASH_EVOLUTIONS[left]!
   const b = CLASH_EVOLUTIONS[right]!
   assert.notDeepEqual(a[3].abilities, b[3].abilities, left + ' / ' + right)

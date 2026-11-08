@@ -3,7 +3,7 @@
   <span class="ccf" :class="'lv-' + level">
     <SlimeCityArtwork
       class="ccf-art"
-      :image-id="slimeArtId('cards', card.id)"
+      :image-id="slimeCardArtId(card.id, level)"
       :fallback-image-id="
         slimeArtId(
           'crews',
@@ -38,7 +38,7 @@
 
 <script setup lang="ts">
 import { computed } from 'vue'
-import { slimeArtId } from '~/utils/slimeCity/artManifest'
+import { slimeArtId, slimeCardArtId } from '~/utils/slimeCity/artManifest'
 import { cardById } from '~/utils/slimeCity/prototypes'
 import {
   CLASH_MAX_LEVEL,

@@ -1,22 +1,24 @@
-// Slime City Clash evolutions (Silas, 2026-11-08 PT): every card evolves at
-// level 2 and 3 with real gameplay, not only stats, and every level three
-// does something immediate and announces itself.
+// Slime City crafted evolutions: the Catgirls pilot (conductor
+// projects/slime-city/CLASH-EVOLUTION-PLAN.md, approved 2026-11-08 PT).
+// Every pilot card is checked through the real engine: its level stages do
+// what the card says, and each level three changes what the card DOES.
 import assert from 'node:assert/strict'
-import { CARDS, cardById, type Side } from '../slimeCity/prototypes'
+import { cardById, type Side } from '../slimeCity/prototypes'
 import { CLASH_TWISTS } from '../slimeCity/clashTwists'
 import {
   CLASH_EVOLUTIONS,
   clashEvolutionStage,
-  clashEvolutionText,
   clashStageTitle,
 } from '../slimeCity/clashEvolutions'
 import {
   applyClashCommand,
   chooseClashCpu,
+  clashBalance,
   clashCardText,
   clashPower,
   createClash,
   endClashTurn,
+  nextClashStrike,
   passClash,
   playClash,
   replayClash,
@@ -24,62 +26,37 @@ import {
   type ClashState,
   type ClashUnit,
 } from '../slimeCity/clash'
-import { sweepClash } from './slimeCityClashBalanceReport'
+import { slimeCardArtId, slimeArtId } from '../slimeCity/artManifest'
 
-// --- Coverage: all 300 cards evolve, by hand-built twist or data stage.
-assert.equal(CARDS.length, 300)
-const missing = CARDS.filter(
-  (c) => !CLASH_TWISTS[c.id] && !CLASH_EVOLUTIONS[c.id],
-)
-assert.deepEqual(
-  missing.map((c) => c.id),
-  [],
-  'every card evolves',
-)
-for (const id of Object.keys(CLASH_EVOLUTIONS)) {
-  assert.ok(cardById(id), id + ' is a real card')
-  assert.ok(!CLASH_TWISTS[id], id + ' is not also a hand-built twist')
-}
-assert.equal(
-  Object.keys(CLASH_EVOLUTIONS).length + Object.keys(CLASH_TWISTS).length,
-  300,
-)
-
-// --- Authoring contract for each data evolution.
-const titles = new Set<string>()
-for (const [id, evo] of Object.entries(CLASH_EVOLUTIONS)) {
+const PILOT = [
+  'splice-runner',
+  's1-roof-phantom',
+  's1-alley-vet',
+  's2-catgirls-parapet-ghost-kitten',
+  's3-catgirls-escaped-tiger',
+  's3-catgirls-glasswalker',
+  'mutual-aid',
+  's1-nine-lives',
+  's3-catgirls-garrote',
+  's3-catgirls-pounce-rig',
+]
+assert.deepEqual(Object.keys(CLASH_EVOLUTIONS).sort(), [...PILOT].sort())
+for (const id of PILOT) {
   const card = cardById(id)
-  for (const level of [2, 3] as const) {
-    const st = evo[level]
-    assert.ok(st.title.length >= 4, id + ' L' + level + ' has a stage name')
-    assert.ok(!titles.has(st.title), 'stage names are unique: ' + st.title)
-    titles.add(st.title)
-    assert.ok(
-      st.abilities.length || st.static,
-      id + ' L' + level + ' changes gameplay',
-    )
-    const text = clashEvolutionText(card, level)
-    assert.ok(text.length > 10, id + ' L' + level + ' has generated text')
-    assert.ok(clashCardText(card, level).includes(text), id + ' card text')
-    assert.equal(clashStageTitle(id, level), st.title)
+  assert.equal(card.team, 'catgirls', id)
+  assert.ok(!CLASH_TWISTS[id], id + ' is not a hand-built twist too')
+  const two = clashEvolutionStage(id, 2)!
+  const three = clashEvolutionStage(id, 3)!
+  assert.ok(two.title && three.title && two.title !== three.title, id)
+  assert.notDeepEqual(two, three, id + ' L3 is not the L2 again')
+  for (const level of [1, 2, 3]) {
+    const text = clashCardText(card, level)
+    assert.ok(text.length <= 160, id + ' L' + level + ' fits the card face')
   }
-  // Level three always does something right away: on entry / cast / install,
-  // or on spring for a trap.
-  const now = card.kind === 'trap' ? 'spring' : 'enter'
-  assert.ok(
-    evo[3].abilities.some((ab) => ab.when === now),
-    id + ' L3 has an immediate ' + now + ' payoff',
-  )
-  assert.equal(
-    clashEvolutionStage(id, 1),
-    undefined,
-    id + ' L1 is the base card',
-  )
-  assert.equal(clashEvolutionText(card, 1), '')
   assert.equal(clashStageTitle(id, 1), card.name)
 }
 
-// --- Behavior: real effects through the engine's own hooks.
+// --- helpers
 function fighter(
   side: Side,
   lane: number,
@@ -106,11 +83,8 @@ function fighter(
     ...extra,
   }
 }
-function board(
-  units: ClashUnit[],
-  team: 'catgirls' | 'bloodfairies' | 'undertow' = 'catgirls',
-): ClashState {
-  const s = createClash(team, 'riot', 11)
+function board(units: ClashUnit[]): ClashState {
+  const s = createClash('catgirls', 'riot', 11)
   s.units = units
   s.nextUid = 100
   s.round = 3
@@ -121,152 +95,215 @@ function cast(s: ClashState, id: string, lane: number, level = 3): ClashState {
   s.hands.player = [id, ...s.hands.player]
   s.levels.player[id] = level
   const next = playClash(s, 'player', id, lane)
-  assert.notEqual(next, s, id + ' is playable in alley ' + (lane + 1))
+  assert.notEqual(
+    next,
+    s,
+    id + ' L' + level + ' is playable in alley ' + (lane + 1),
+  )
   return next
 }
 const at = (s: ClashState, uid: number) => s.units.find((u) => u.uid === uid)
+const mine = (s: ClashState, id: string) =>
+  s.units.find((u) => u.side === 'player' && u.cardId === id && !u.token)
 
-// Entry heal: Splice Runner L3 heals every friendly fighter 3, and announces it.
+// Splice Runner L3, Midnight Ambulance: role shift into a non-fighting
+// rescuer that brings back the last fallen fighter.
+{
+  const s0 = board([])
+  s0.fallen = { player: ['s1-alley-vet'], enemy: [] }
+  const s = cast(s0, 'splice-runner', 2)
+  const echo = s.units.find((u) => u.token && u.cardId === 's1-alley-vet')
+  assert.ok(echo, 'the fallen vet returns')
+  assert.equal(echo!.attack, 2)
+  assert.equal(echo!.hp, 3)
+  assert.equal(clashPower(s, mine(s, 'splice-runner')!), 0, 'never strikes')
+  assert.deepEqual(s.fallen!.player, [], 'each fallen fighter returns once')
+  assert.match(s.lastEvolution!.detail, /Midnight Ambulance/)
+  const empty = cast(board([]), 'splice-runner', 2)
+  assert.equal(
+    empty.units.filter((u) => u.token).length,
+    0,
+    'no fallen, no echo',
+  )
+  const two = cast(
+    board([fighter('player', 0, 1, { hp: 2 })]),
+    'splice-runner',
+    2,
+    2,
+  )
+  assert.equal(at(two, 1)!.hp, 5, 'Contraband Courier heals the most hurt 3')
+}
+// Rooftop Phantom: an empty alley pays the boss; an L3 knockout vanishes.
+{
+  const s0 = board([])
+  const before = s0.boss.enemy
+  const s = cast(s0, 's1-roof-phantom', 1, 2)
+  assert.equal(s.boss.enemy, before - 2, 'Chimney Leap')
+  const blocked = cast(board([fighter('enemy', 1, 9)]), 's1-roof-phantom', 1, 2)
+  assert.equal(blocked.boss.enemy, before, 'no leap into a filled alley')
+  // L3 knockout returns it to the top of the deck.
+  let k = cast(
+    board([fighter('enemy', 1, 9, { hp: 1, attack: 1 })]),
+    's1-roof-phantom',
+    1,
+  )
+  k = passClash(k, 'player')
+  while (nextClashStrike(k, 'player') >= 0) k = strikeClash(k, 'player')
+  assert.equal(mine(k, 's1-roof-phantom'), undefined, 'gone from the board')
+  assert.equal(k.decks.player[0], 's1-roof-phantom', 'back on top of the deck')
+}
+// Alley Veterinarian L3: hurt allies gain REGEN; healthy ones do not.
 {
   const s = cast(
     board([
-      fighter('player', 0, 1, { hp: 2 }),
-      fighter('player', 4, 2, { hp: 4 }),
+      fighter('player', 0, 1, { hp: 3 }),
+      fighter('player', 4, 2, { hp: 8 }),
     ]),
-    'splice-runner',
+    's1-alley-vet',
     2,
   )
-  assert.equal(at(s, 1)!.hp, 5)
-  assert.equal(at(s, 2)!.hp, 7)
-  assert.equal(s.lastEvolution?.cardId, 'splice-runner')
-  assert.match(s.lastEvolution!.detail, /Midnight Ambulance/)
-  assert.equal(s.lastEvolution!.effect, 'heal')
+  assert.ok(at(s, 1)!.keywords.includes('regen'))
+  assert.ok(!at(s, 2)!.keywords.includes('regen'))
 }
-// Summons: Pocket-Sized Problem L3 fills every empty alley with swarm echoes.
+// Parapet Ghost-Kitten L3: the rare weaker level three, with a big arrival.
 {
+  const id = 's2-catgirls-parapet-ghost-kitten'
+  const l2 = clashBalance(cardById(id), 2)
+  const l3 = clashBalance(cardById(id), 3)
+  assert.ok(l3.hp < l2.hp && l3.attack < l2.attack, 'smaller body at L3')
   const s = cast(
-    board([fighter('player', 0, 1)], 'bloodfairies'),
-    's1-pocket-punk',
+    board([
+      fighter('enemy', 1, 7),
+      fighter('enemy', 2, 8),
+      fighter('enemy', 4, 9),
+    ]),
+    id,
     2,
   )
-  assert.equal(s.units.filter((u) => u.side === 'player').length, 5)
+  assert.ok(at(s, 7)!.rooted && at(s, 8)!.rooted, 'the 3 facing foes freeze')
+  assert.ok(!at(s, 9)!.rooted, 'alley 5 is out of reach')
+}
+// Gene-Spliced Tiger: weaker L1, and at L3 it hunts the strongest foe.
+{
+  const id = 's3-catgirls-escaped-tiger'
   assert.ok(
-    s.units.filter((u) => u.token).every((u) => u.keywords.includes('swarm')),
+    clashBalance(cardById(id), 1).attack < clashBalance(cardById(id), 3).attack,
   )
+  const s = cast(
+    board([
+      fighter('enemy', 0, 7, { attack: 2, hp: 9, maxHp: 9 }),
+      fighter('enemy', 4, 8, { attack: 5, hp: 9, maxHp: 9 }),
+    ]),
+    id,
+    2,
+  )
+  const tiger = mine(s, id)!
+  assert.ok(at(s, 8)!.hp < 9, 'it hunts the strongest')
+  assert.equal(at(s, 7)!.hp, 9, 'not the weaker one')
+  assert.ok(tiger.hp < tiger.maxHp, 'and takes a hit back')
 }
-// Precision: Drainpipe Sniper L3 hits the strongest rival for 4 through armor.
+// Gutterglass Scout L3: the shield always; the roar only with a crowd.
+{
+  const lonely = cast(board([]), 's3-catgirls-glasswalker', 2)
+  assert.equal(mine(lonely, 's3-catgirls-glasswalker')!.guard, 3)
+  const crowd = cast(
+    board([fighter('player', 0, 1), fighter('player', 4, 2)]),
+    's3-catgirls-glasswalker',
+    2,
+  )
+  assert.equal(at(crowd, 1)!.surge, 1, 'the crowd roars')
+  assert.equal(at(lonely, 1), undefined)
+}
+// Mutual Aid L3: the healthy get stronger for good, the hurt are healed.
 {
   const s = cast(
-    board(
-      [
-        fighter('enemy', 1, 7, { attack: 2, armor: 2, hp: 9, maxHp: 9 }),
-        fighter('enemy', 3, 8, { attack: 6, armor: 2, hp: 9, maxHp: 9 }),
-      ],
-      'undertow',
-    ),
-    's3-undertow-drain-sniper',
-    0,
+    board([
+      fighter('player', 1, 1, { hp: 8 }),
+      fighter('player', 3, 2, { hp: 1, maxHp: 12 }),
+    ]),
+    'mutual-aid',
+    3,
   )
-  assert.equal(at(s, 8)!.hp, 5, 'strongest rival, armor ignored')
-  assert.equal(at(s, 7)!.hp, 9)
+  assert.equal(at(s, 1)!.attack, 4, 'unhurt ally +1 power for good')
+  assert.equal(
+    at(s, 2)!.attack,
+    3,
+    'a target still hurt after the heal does not grow',
+  )
 }
-// Spell rider: Garrote L3 (trap) springs for boss damage on an arriving rival.
+// Nine Lives L3: the whole crew survives one lethal hit at 1 life.
 {
-  let s = cast(board([], 'catgirls'), 's3-catgirls-garrote', 2)
-  const before = s.boss.enemy
+  const s = cast(
+    board([
+      fighter('player', 1, 1),
+      fighter('player', 4, 2),
+      fighter('enemy', 4, 9, { attack: 20 }),
+    ]),
+    's1-nine-lives',
+    1,
+  )
+  assert.ok(at(s, 2)!.lastChance)
+  // Its own strike into a 20-power blocker would be lethal; the spare life
+  // holds at 1 and is spent.
+  let e = passClash(s, 'player')
+  while (nextClashStrike(e, 'player') >= 0) e = strikeClash(e, 'player')
+  assert.equal(at(e, 2)?.hp, 1, 'the spare life holds')
+  assert.ok(!at(e, 2)!.lastChance, 'and is spent')
+  assert.match(e.lastEvolution!.detail, /No refunds/)
+}
+// Catwalk Garrote: +2 against a 2-play victim; at L3 it springs twice.
+{
+  let s = cast(board([]), 's3-catgirls-garrote', 2)
+  assert.equal(s.traps.filter((t) => t.lane === 2).length, 1)
   s = passClash(s, 'player')
   s = endClashTurn(s, 'player')
   s.hands.enemy = ['spark-diver']
   s.levels.enemy['spark-diver'] = 1
   s = playClash(s, 'enemy', 'spark-diver', 2)
   assert.equal(
-    s.boss.enemy,
-    before - 2,
-    'Hangman’s Catwalk takes 2 from the rival boss',
+    s.traps.filter((t) => t.lane === 2 && t.side === 'player').length,
+    1,
+    "Hangman's Line arms again",
   )
+  assert.ok(s.traps.find((t) => t.lane === 2)!.token, 'only once')
 }
-// Death trigger: Backstreet Organ Donor L2 heals neighbors 3 when it falls.
+// Second Pounce Rig L3: a knockout sends the wearer's power into the boss.
 {
-  const s0 = board([
-    fighter('player', 1, 1, { hp: 2 }),
-    fighter('player', 2, 2, {
-      cardId: 's2-catgirls-backstreet-organ-donor',
-      level: 2,
-      hp: 1,
-    }),
-    fighter('enemy', 2, 9, { attack: 5 }),
-  ])
-  s0.active = 'enemy'
-  s0.phase = 'attack'
-  s0.cursor = 2
-  const s = strikeClash(s0, 'enemy')
-  assert.equal(at(s, 2), undefined, 'the donor falls')
-  assert.equal(at(s, 1)!.hp, 5, 'Spare Parts heals the neighbor 3')
-}
-// Static aura and hex reach clashPower.
-{
-  const s = board([
-    fighter('player', 1, 1),
-    fighter('player', 2, 2, {
-      cardId: 's3-catgirls-scalpel-captain',
-      level: 2,
-    }),
-    fighter('enemy', 2, 9, { attack: 4 }),
-  ])
-  assert.equal(clashPower(s, at(s, 1)!), 4, 'Velvet Command: neighbor +1')
-  const t = board(
-    [
-      fighter('player', 2, 2, { cardId: 's1-static-listener', level: 2 }),
-      fighter('enemy', 2, 9, { attack: 4 }),
-    ],
-    'undertow',
-  )
-  assert.equal(
-    clashPower(t, at(t, 9)!),
-    3,
-    'Tapped Streetlight: rival across -1',
-  )
-}
-// Gear: an installed evolution rides on the wearer.
-{
-  const s = cast(
-    board([fighter('player', 1, 1, { attack: 3 })]),
-    's1-surgical-piercers',
+  let s = cast(
+    board([
+      fighter('player', 1, 1, { attack: 4 }),
+      fighter('enemy', 1, 9, { hp: 1, attack: 1 }),
+    ]),
+    's3-catgirls-pounce-rig',
     1,
   )
-  assert.equal(at(s, 1)!.gearLevels?.['s1-surgical-piercers'], 3)
-  assert.ok(at(s, 1)!.attack >= 3 + 2, 'Patent Breaker sharpens the wearer')
+  const before = s.boss.enemy
+  s = passClash(s, 'player')
+  while (nextClashStrike(s, 'player') >= 0) s = strikeClash(s, 'player')
+  assert.ok(s.boss.enemy < before, 'the second pounce lands on the boss')
 }
 
-// --- Determinism: whole games with evolutions replay exactly.
-for (const [a, b, seed] of [
-  ['catgirls', 'riot', 5],
-  ['undertow', 'exchange', 9],
-  ['bloodfairies', 'ironjaw', 13],
-] as const) {
-  let g = createClash(a, b, seed)
+// --- Evolution art: a level shows its painting once wired, else falls back.
+assert.equal(
+  slimeCardArtId('splice-runner', 1),
+  slimeArtId('cards', 'splice-runner'),
+)
+assert.equal(
+  slimeCardArtId('splice-runner', 3),
+  slimeArtId('evolutions', 'splice-runner@3') ??
+    slimeArtId('cards', 'splice-runner'),
+)
+
+// --- Determinism with the pilot cards in Catgirls decks.
+for (const seed of [5, 9, 13]) {
+  let g = createClash('catgirls', 'ironjaw', seed)
   for (let i = 0; !g.victor && i < 2000; i++)
     g = applyClashCommand(g, chooseClashCpu(g, g.active))
-  assert.ok(g.victor, a + ' v ' + b + ' finishes')
-  const again = replayClash(a, b, seed, g.commands)
+  assert.ok(g.victor)
+  const again = replayClash('catgirls', 'ironjaw', seed, g.commands)
   assert.deepEqual(again.boss, g.boss)
-  assert.equal(again.victor, g.victor)
-}
-
-// --- Balance: no crew runs away with evolutions on.
-{
-  const r = sweepClash(6, 501)
-  assert.equal(r.roundLimit, 0)
-  for (const [team, c] of Object.entries(r.crews)) {
-    const rate = c.wins / c.games
-    assert.ok(rate > 0.3 && rate < 0.7, team + ' wins ' + rate)
-  }
 }
 
 console.log(
-  'Slime City evolutions: ' +
-    Object.keys(CLASH_EVOLUTIONS).length +
-    ' data evolutions + ' +
-    Object.keys(CLASH_TWISTS).length +
-    ' twists cover all 300 cards; L3 payoffs, hooks, replay and balance OK',
+  'Slime City crafted evolutions: 10-card Catgirls pilot, every stage through the real engine, art fallback and replay OK',
 )

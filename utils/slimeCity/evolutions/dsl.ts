@@ -40,6 +40,8 @@ export type EvoScope =
   | 'weakestFoe'
   | 'strongestFoe'
   | 'woundedAlly'
+  | 'woundedAllies'
+  | 'healthyAllies'
 
 export type EvoSummonWhere = 'neighbors' | 'nearest' | 'everyEmpty'
 
@@ -71,6 +73,23 @@ export type EvoAction =
   | { do: 'draw'; n: number }
   /** A seeded gamble: `p` percent chance to run `then`. */
   | { do: 'chance'; p: number; then: EvoAction[] }
+  /** Run `then` only when the board matches `cond` (situational payoffs). */
+  | { do: 'if'; cond: EvoCondition; then: EvoAction[] }
+  /** Your most recently fallen fighter returns as an echo nearby. */
+  | { do: 'revive'; attack: number; hp: number }
+  /** The fighter leaves the board for the top of your deck. */
+  | { do: 'retreat' }
+  /** The fighter trades blows with the chosen foe right now. */
+  | { do: 'duel'; to: EvoScope }
+  /** The next lethal hit leaves them at 1 life instead (once each). */
+  | { do: 'rescue'; to: EvoScope }
+  /** A sprung trap arms again in the same alley (once). */
+  | { do: 'rearm' }
+  /** The fighter's current power hits the rival boss. */
+  | { do: 'pounce' }
+
+/** Board facts a situational payoff can check. */
+export type EvoCondition = 'acrossEmpty' | 'allyFell' | 'targetHeavy' | 'crowd'
 
 export interface EvoAbility {
   when: EvoTrigger
@@ -105,6 +124,9 @@ export interface EvoStage {
 export interface CardEvolution {
   /** The name the card wears at level 1 (usually its own name). */
   base?: string
+  /** Trajectory stat changes from the shared curve (creatures only). Most
+   * cards grow; an early bloomer can shrink at level 3 (rare by design). */
+  stats?: Partial<Record<1 | 2 | 3, { attack?: number; hp?: number }>>
   2: EvoStage
   3: EvoStage
 }
@@ -182,6 +204,22 @@ export const chance = (p: number, ...then: EvoAction[]): EvoAction => ({
   then,
 })
 
+export const when = (cond: EvoCondition, ...then: EvoAction[]): EvoAction => ({
+  do: 'if',
+  cond,
+  then,
+})
+export const revive = (attack: number, hp: number): EvoAction => ({
+  do: 'revive',
+  attack,
+  hp,
+})
+export const retreat = (): EvoAction => ({ do: 'retreat' })
+export const duel = (to: EvoScope): EvoAction => ({ do: 'duel', to })
+export const rescue = (to: EvoScope): EvoAction => ({ do: 'rescue', to })
+export const rearm = (): EvoAction => ({ do: 'rearm' })
+export const pounce = (): EvoAction => ({ do: 'pounce' })
+
 // ------------------------------------------------------------------- text
 const PLURAL: EvoScope[] = ['adjacentAllies', 'adjacentFoes', 'laneFoes']
 const WHO: Record<EvoScope, string> = {
@@ -198,6 +236,8 @@ const WHO: Record<EvoScope, string> = {
   weakestFoe: 'the weakest foe',
   strongestFoe: 'the strongest foe',
   woundedAlly: 'your most hurt ally',
+  woundedAllies: 'every hurt ally',
+  healthyAllies: 'every unhurt ally',
 }
 const WHERE: Record<EvoSummonWhere, string> = {
   neighbors: 'beside it',
@@ -267,9 +307,54 @@ export function evoActionText(a: EvoAction, subject: 'it' | 'self'): string {
       return (
         a.p + '%: ' + a.then.map((x) => evoActionText(x, subject)).join(', ')
       )
+    case 'if':
+      return (
+        COND[a.cond] +
+        ', ' +
+        a.then.map((x) => evoActionText(x, subject)).join(', ')
+      )
+    case 'revive':
+      return (
+        'your last fallen fighter returns as a ' +
+        a.attack +
+        '/' +
+        a.hp +
+        ' echo nearby'
+      )
+    case 'retreat':
+      return (
+        (subject === 'it' ? 'it' : 'the wearer') +
+        ' returns to the top of your deck'
+      )
+    case 'duel':
+      return (
+        (subject === 'it' ? 'it' : 'the wearer') +
+        ' trades blows with ' +
+        WHO[a.to]
+      )
+    case 'rescue':
+      return (
+        who(a.to) +
+        ' survive' +
+        (PLURAL.includes(a.to) || a.to === 'allies' ? '' : 's') +
+        ' the next lethal hit at 1 life'
+      )
+    case 'rearm':
+      return 'it arms again here (once)'
+    case 'pounce':
+      return (
+        (subject === 'it' ? 'its' : "the wearer's") +
+        ' power hits the rival boss'
+      )
   }
 }
 
+const COND: Record<EvoCondition, string> = {
+  acrossEmpty: 'if no foe is across',
+  allyFell: 'if an ally has fallen',
+  targetHeavy: 'if the target is a 2-play fighter',
+  crowd: 'with 2+ allies on the field',
+}
 const WHEN: Record<EvoTrigger, string> = {
   enter: 'Arrive',
   hit: 'Hit',

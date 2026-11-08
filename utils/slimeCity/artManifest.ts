@@ -500,6 +500,15 @@ export const SLIME_CITY_ART = {
     'card-back': 260371,
   },
   /**
+   * Evolution paintings (Silas, 2026-11-08 PT: "We should have fresh art on
+   * the evolutions, not just frame effects"). Keys are '<cardId>@2' and
+   * '<cardId>@3': the same character transformed by its story arc, rendered
+   * with Flux Kontext from the card's level-1 painting
+   * (conductor projects/slime-city/art/EVOLUTIONS-*.yaml). Wired only after
+   * curation; until then a level falls back to the card's own art.
+   */
+  evolutions: {} as Record<string, number>,
+  /**
    * Board tokens: one painted reaction-face portrait per creature and mood,
    * keyed '<cardId>/<mood>' (fierce, guard, hurt), from Conductor
    * projects/slime-city/art/BOARD-TOKENS-ROUND-6.yaml.
@@ -834,6 +843,15 @@ export function slimeArtId(
 ): number | null {
   const ids: Readonly<Record<string, number>> = SLIME_CITY_ART[group]
   return ids[slug] ?? null
+}
+
+/** Card art for a level: its evolution painting once rendered, else the card's own. */
+export function slimeCardArtId(id: string, level = 1): number | null {
+  if (level >= 2) {
+    const evolved = slimeArtId('evolutions', id + '@' + Math.min(3, level))
+    if (evolved) return evolved
+  }
+  return slimeArtId('cards', id)
 }
 
 /**

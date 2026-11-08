@@ -6,9 +6,14 @@
 // command per alley so the board can animate each blow.
 import { alleyDeck } from './alleys'
 import { clashTwistText } from './clashTwists'
-import { clashEvolutionStage, clashEvolutionText } from './clashEvolutions'
+import {
+  clashEvolutionStage,
+  clashEvolutionStats,
+  clashEvolutionText,
+} from './clashEvolutions'
 import type {
   EvoAction,
+  EvoCondition,
   EvoScope,
   EvoStage,
   EvoStatic,
@@ -96,6 +101,8 @@ export interface ClashUnit {
   guard?: number
   /** Data evolutions: once-per-fighter abilities already spent. */
   evoUsed?: string[]
+  /** Survives the next lethal hit at 1 life (Nine Lives, No Refunds). */
+  lastChance?: boolean
 }
 export interface ClashTrap {
   side: Side
@@ -293,16 +300,8 @@ export const CLASH_TRAIT_COST: Record<Keyword, number> = {
  * Crew calibration (2026-11-07 CPU sweeps): Undertow's snare-and-wait crew sat
  * ~5 points under even once fighters lost round-end healing and gained
  * summoning sickness; half a point of fighter budget closes it.
- * 2026-11-08 (all-card evolutions, 1200-game sweeps): main sat at 40.5-59%
- * (Catgirls/Ironjaw low, Riot/Exchange high). These offsets bring it to
- * 42-58.5%. Life rounds to whole points, so the knob moves in steps: 0.4
- * shifts only half-point cards, 0.5 shifts many more.
  */
 export const CLASH_CREW_BUDGET: Partial<Record<TeamId, number>> = {
-  catgirls: 0.4,
-  ironjaw: 0.4,
-  riot: -0.5,
-  exchange: -0.5,
   undertow: 0.5,
 }
 export const CLASH_TRAIT_TEXT: Record<Keyword, string> = {
@@ -379,6 +378,12 @@ export function clashBalance(card: Card, level = 1): ClashCardBalance {
       card.id === 'merc-roof-dentist')
   )
     evolvedAttack = 0
+  // Crafted trajectories (CLASH-EVOLUTION-PLAN.md): a card's curve can bend
+  // away from the shared ramp. Late bloomers start low; rare early bloomers
+  // shrink at level 3 for a big moment.
+  const curve = clashEvolutionStats(card.id, lv)
+  if (curve?.attack) evolvedAttack = clamp(evolvedAttack + curve.attack, 0, 12)
+  if (curve?.hp) evolvedHp = clamp(evolvedHp + curve.hp, 1, 30)
   return {
     plays,
     level: lv,
@@ -877,6 +882,7 @@ function springTrap(s: ClashState, trap: ClashTrap, victim: ClashUnit): number {
       cardId: trap.cardId,
       level: trap.level,
       target: victim,
+      trap,
     })
   return dealt
 }
@@ -943,6 +949,8 @@ interface EvoContext {
   self?: ClashUnit
   /** Spell target, strike defender or trap victim. */
   target?: ClashUnit
+  /** The sprung trap, for re-arming. */
+  trap?: ClashTrap
 }
 /** Every evolution stage a fighter carries: its own and its gear's. */
 function evoStages(
@@ -1009,6 +1017,10 @@ function evoScope(s: ClashState, ctx: EvoContext, to: EvoScope): ClashUnit[] {
             )[0]!,
           ]
         : []
+    case 'woundedAllies':
+      return mine.filter((u) => u.hp < u.maxHp)
+    case 'healthyAllies':
+      return mine.filter((u) => u.hp >= u.maxHp)
     case 'woundedAlly': {
       const hurt = mine
         .filter((u) => u.hp < u.maxHp)
@@ -1086,6 +1098,69 @@ function evoAct(s: ClashState, ctx: EvoContext, a: EvoAction): void {
     case 'chance':
       if (random(s) * 100 < a.p) for (const x of a.then) evoAct(s, ctx, x)
       return
+    case 'if':
+      if (evoCondition(s, ctx, a.cond))
+        for (const x of a.then) evoAct(s, ctx, x)
+      return
+    case 'revive': {
+      const ledger = s.fallen?.[ctx.side] ?? []
+      const free = nearestFreeAlley(s, ctx.side, ctx.lane)
+      if (ledger.length && free >= 0) {
+        const fallen = ledger.pop()!
+        summonEcho(s, ctx.side, fallen, free, a.hp, a.attack)
+      }
+      return
+    }
+    case 'retreat': {
+      const u = ctx.self
+      if (!u || u.token || !s.units.includes(u)) return
+      s.units = s.units.filter((v) => v !== u)
+      s.decks[u.side].unshift(u.cardId)
+      note(s, nameOf(u) + ' vanishes over the rooftops.', 'play', u.lane)
+      return
+    }
+    case 'duel': {
+      const u = ctx.self
+      if (!u || u.hp <= 0) return
+      for (const foe of evoScope(s, ctx, a.to)) {
+        const back = foe.rooted ? 0 : clashPower(s, foe)
+        damage(foe, clashPower(s, u), has(u, 'pierce') ? 1 : 0)
+        damage(u, back, has(foe, 'pierce') ? 1 : 0)
+        note(s, nameOf(u) + ' hunts ' + nameOf(foe) + '!', 'clash', foe.lane)
+      }
+      return
+    }
+    case 'rescue':
+      for (const u of evoScope(s, ctx, a.to)) u.lastChance = true
+      return
+    case 'rearm':
+      if (ctx.trap && !ctx.trap.token)
+        s.traps.push({ ...ctx.trap, token: true })
+      return
+    case 'pounce': {
+      const u = ctx.self
+      if (u && u.hp > 0) s.boss[foe] -= clashPower(s, u)
+      return
+    }
+  }
+}
+function evoCondition(
+  s: ClashState,
+  ctx: EvoContext,
+  cond: EvoCondition,
+): boolean {
+  switch (cond) {
+    case 'acrossEmpty':
+      return !unitAt(s, opponent(ctx.side), ctx.lane)
+    case 'allyFell':
+      return (s.fallen?.[ctx.side]?.length ?? 0) > 0
+    case 'targetHeavy':
+      return !!ctx.target && clashPlayCost(cardById(ctx.target.cardId)) === 2
+    case 'crowd':
+      return (
+        s.units.filter((u) => u.side === ctx.side && u !== ctx.self && u.hp > 0)
+          .length >= 2
+      )
   }
 }
 function evoMomentEffect(
@@ -1105,7 +1180,15 @@ function evoMomentEffect(
     case 'power':
       return 'strike'
     case 'chance':
+    case 'if':
       return evoMomentEffect(a.then[0])
+    case 'revive':
+      return 'summon'
+    case 'rescue':
+      return 'heal'
+    case 'duel':
+    case 'pounce':
+      return 'strike'
     default:
       return 'control'
   }
@@ -1164,6 +1247,19 @@ function casualties(s: ClashState): void {
   // A rescue must happen before the death ledger, explosion, and discard.
   // No fighter can be rescued twice by the same collar or grandmother.
   for (const endangered of s.units.filter((u) => u.hp <= 0)) {
+    if (endangered.lastChance) {
+      endangered.lastChance = false
+      endangered.hp = 1
+      evolutionMoment(
+        s,
+        's1-nine-lives',
+        endangered.side,
+        endangered.lane,
+        nameOf(endangered) + ' spends a spare life. No refunds!',
+        'heal',
+      )
+      continue
+    }
     if (endangered.ninthLife) {
       const level = endangered.ninthLife
       endangered.ninthLife = undefined
@@ -2669,6 +2765,11 @@ export function chooseClashCpu(
             ? 5 + foe.attack
             : b.power * 0.8) +
           (foe && !mine ? 1 : 0)
+      // Crafted evolutions: an arriving payoff (a revive, a hunt, a freeze)
+      // is worth playing for, and a level-three moment more so.
+      const evolved = clashEvolutionStage(id, b.level)
+      if (evolved?.abilities.some((ab) => ab.when === 'enter'))
+        score += b.level >= 3 ? 2.5 : 1.2
       score /= b.plays
       if (!best || score > best.score) best = { score, card: id, lane }
     }

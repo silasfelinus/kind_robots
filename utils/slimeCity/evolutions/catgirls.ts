@@ -1,215 +1,131 @@
-// GENE RIOT CATGIRLS: a street clinic of escaped lab cats. Their evolutions
-// lean into rescue medicine, rooftop ambushes and pirated surgical patents:
-// level two adds a new interaction, level three makes the alley feel it.
+// GENE RIOT CATGIRLS: evolution pilot (CLASH-EVOLUTION-PLAN.md, approved by
+// Silas 2026-11-08 PT). Ten cards designed one at a time, story first:
+// each entry carries its three-beat arc, its trajectory, and level stages
+// that change what the card DOES, not just how big it is. Approved rules:
+// weaker level threes are rare; situational payoffs are welcome; an earned
+// level three appears only as an occasional one-shot gimmick.
 import {
   boss,
   cleanse,
   damage,
-  draw,
+  duel,
   grant,
   guard,
   heal,
-  life,
-  mend,
   on,
+  pounce,
   power,
+  rearm,
+  rescue,
+  retreat,
+  revive,
   sharpen,
   stage,
   stun,
-  summon,
+  when,
   type CardEvolution,
 } from './dsl'
 
 export const CATGIRL_EVOLUTIONS: Record<string, CardEvolution> = {
+  // Arc: a rooftop courier smuggling bandages -> the crew's contraband
+  // dealer -> the Midnight Ambulance that goes back for the fallen.
+  // Trajectory: ROLE SHIFT. Brawler, then supplier, then a non-fighting
+  // rescuer. Counterplay: the ambulance never strikes and its echo is
+  // fragile; with no fallen ally its arrival brings no one back.
   'splice-runner': {
-    2: stage('Contraband Courier', [on('enter', heal(2, 'woundedAlly'))]),
-    3: stage('Midnight Ambulance', [
-      on('enter', heal(3, 'allies')),
-      on('roundEnd', heal(1, 'adjacentAllies')),
-    ]),
+    stats: { 3: { hp: 4 } },
+    2: stage('Contraband Courier', [on('enter', heal(3, 'woundedAlly'))]),
+    3: stage('Midnight Ambulance', [on('enter', revive(2, 3))], {
+      pacifist: true,
+    }),
   },
-  'mutual-aid': {
-    2: stage('Free Clinic Night', [on('enter', heal(1, 'adjacentAllies'))]),
-    3: stage("People's Pharmacy", [on('enter', heal(2, 'allies'), mend(3))]),
-  },
+  // Arc: a phantom on the lab roofs -> leaps chimney to chimney -> a
+  // skyline specter that strikes and is gone again.
+  // Trajectory: LATE BLOOMER (tempo). Counterplay: a blocker it cannot
+  // knock out keeps it on the board; an open alley at L3 gives no knockout.
   's1-roof-phantom': {
-    2: stage('Chimney Ghost', [on('hit', stun('target'))]),
+    2: stage('Chimney Leap', [on('enter', when('acrossEmpty', boss(2)))]),
     3: stage('Skyline Specter', [
-      on('enter', damage(2, 'strongestFoe')),
-      on('hit', stun('target')),
+      on('enter', when('acrossEmpty', boss(2))),
+      on('kill', retreat()),
     ]),
   },
+  // Arc: a back-alley vet who stitched her own tail -> night shifts for
+  // strays -> the saint who passes her needle on.
+  // Trajectory: SITUATIONAL (pays off on a hurt crew). Counterplay: kill
+  // the hurt allies first; regen is slow against focused damage.
   's1-alley-vet': {
-    2: stage('Night Shift Vet', [on('roundEnd', heal(1, 'adjacentAllies'))]),
-    3: stage('Saint of Stray Cats', [
-      on('enter', summon('neighbors', 1, 3, ['regen'])),
-      on('roundEnd', heal(2, 'adjacentAllies')),
+    2: stage('Stray Stitches', [on('roundEnd', heal(1, 'adjacentAllies'))]),
+    3: stage('Passes the Needle', [
+      on('enter', grant('regen', 'woundedAllies')),
+      on('death', heal(3, 'adjacentAllies')),
     ]),
   },
-  's1-clone-salvage': {
-    2: stage('Dumpster Miracle', [on('enter', life(2, 'target'))]),
-    3: stage('Back From the Bin', [
-      on('enter', grant('regen', 'target'), life(3, 'target')),
+  // Arc: the parapet's cutest nightmare -> holds still as a gargoyle ->
+  // a nightmare that freezes the whole alley, but is only a kitten.
+  // Trajectory: EARLY BLOOMER, the pilot's one weaker level three: a much
+  // smaller body for a big arrival. Counterplay: the stun lasts one strike
+  // and the kitten dies to almost anything.
+  's2-catgirls-parapet-ghost-kitten': {
+    stats: { 3: { attack: -2, hp: -12 } },
+    2: stage('Gargoyle Stillness', [on('turnStart', guard(2, 'self'))]),
+    3: stage('Nightmare of the Parapets', [on('enter', stun('laneFoes'))]),
+  },
+  // Arc: an expensive lab tiger escapes -> loose in the lab, bolder with
+  // every kill -> the apex predator that hunts the biggest threat.
+  // Trajectory: LATE BLOOMER: weaker at L1, a hunter at L3. Counterplay:
+  // a stronger foe wins the hunt; stun its prey to make the duel free, or
+  // leave nothing big on the board.
+  's3-catgirls-escaped-tiger': {
+    stats: { 1: { attack: -1 }, 3: { hp: 3 } },
+    2: stage('Loose in the Lab', [on('kill', sharpen(1, 'self'))]),
+    3: stage('Apex Escapee', [on('enter', duel('strongestFoe'))]),
+  },
+  // Arc: a glasswalker busking on broken bottles -> the crowd gathers as
+  // shards fly -> the Glasswalk finale, where nothing can cut her.
+  // Trajectory: ROLE SHIFT (scout to showstopper defender). Counterplay:
+  // the shield ends on her next turn; with no crowd, there is no roar.
+  's3-catgirls-glasswalker': {
+    2: stage('Barefoot on Shards', [on('hit', damage(1, 'adjacentFoes'))]),
+    3: stage('The Glasswalk', [
+      on('enter', guard(3, 'self'), when('crowd', power(1, 'allies'))),
     ]),
   },
-  's1-nine-lives': {
-    2: stage('Eighth Life', [
+  // Arc: three points of treatment, no invoice -> free clinic night ->
+  // the People's Pharmacy, where the healthy get stronger.
+  // Trajectory: SITUATIONAL. Counterplay: keep the crew hurt; chip damage
+  // turns the pharmacy back into a plain heal.
+  'mutual-aid': {
+    2: stage('Free Clinic Night', [
       on('enter', cleanse('target'), guard(1, 'target')),
     ]),
-    3: stage('All Nine at Once', [
-      on('enter', power(1, 'allies'), cleanse('allies')),
-    ]),
+    3: stage("People's Pharmacy", [on('enter', sharpen(1, 'healthyAllies'))]),
   },
-  's1-catnip-tripwire': {
-    2: stage('Catnip Cloud', [on('spring', damage(1, 'adjacentFoes'))]),
-    3: stage('Nip Storm', [
-      on('spring', stun('laneFoes'), damage(1, 'laneFoes')),
-    ]),
+  // Arc: nine lives, no refunds -> the eighth life gets spent -> the whole
+  // crew borrows against the last one.
+  // Trajectory: EARNED ONE-SHOT. A spare life only matters if the rival
+  // commits a lethal hit; L3 lends one to the whole crew. Counterplay: chip
+  // twice instead of one big hit, or stun and wait.
+  's1-nine-lives': {
+    2: stage('Eighth Life', [on('enter', rescue('target'))]),
+    3: stage('No Refunds', [on('enter', rescue('allies'))]),
   },
-  's1-surgical-piercers': {
-    2: stage('Scalpel Fingers', [on('hit', damage(1, 'target', true))]),
-    3: stage('Patent Breaker', [on('enter', sharpen(2, 'self'))], { bully: 2 }),
-  },
-  's2-catgirls-backstreet-organ-donor': {
-    2: stage('Spare Parts', [on('death', heal(3, 'adjacentAllies'))]),
-    3: stage('Open-Heart Donor', [
-      on('enter', life(2, 'adjacentAllies')),
-      on('death', heal(4, 'allies')),
-    ]),
-  },
-  's2-catgirls-parapet-ghost-kitten': {
-    2: stage('Gargoyle Kitten', [on('kill', guard(2, 'self'))]),
-    3: stage('Nightmare of the Parapets', [
-      on('enter', damage(2, 'laneFoes')),
-      on('kill', guard(2, 'self')),
-    ]),
-  },
-  's2-catgirls-emergency-molt': {
-    2: stage('Shed Skin', [on('enter', cleanse('target'), guard(2, 'target'))]),
-    3: stage('Brand-New Hide', [
-      on('enter', grant('regen', 'target'), life(2, 'target')),
-    ]),
-  },
-  's2-catgirls-needle-thread-ambush': {
-    2: stage('Stitched Strike Team', [
-      on('enter', grant('ambush', 'adjacentAllies')),
-    ]),
-    3: stage('Silent Surgery', [
-      on('enter', grant('ambush', 'allies'), power(1, 'allies')),
-    ]),
-  },
-  's2-catgirls-sterile-alley-wire': {
-    2: stage('Hospital-Grade Snare', [on('spring', mend(2))]),
-    3: stage('Quarantine Line', [
-      on('spring', stun('laneFoes'), heal(1, 'allies')),
-    ]),
-  },
-  's2-catgirls-lab-escape-atlas': {
-    2: stage('Marked Weakness', [], { bully: 2 }),
-    3: stage(
-      'Every Exit Mapped',
-      [on('enter', draw(1), grant('ambush', 'self'))],
-      { bully: 2 },
-    ),
-  },
-  's3-catgirls-glasswalker': {
-    2: stage('Shard Dancer', [on('hit', damage(1, 'adjacentFoes'))]),
-    3: stage('Gutterglass Prism', [
-      on('enter', summon('neighbors', 1, 2, ['ambush'])),
-      on('hit', damage(1, 'adjacentFoes')),
-    ]),
-  },
-  's3-catgirls-patent-saboteur': {
-    2: stage('Corporate Spy', [on('enter', stun('across'))]),
-    3: stage('Patent Wrecker', [
-      on('enter', damage(3, 'strongestFoe', true), boss(2)),
-    ]),
-  },
-  's3-catgirls-alley-vet': {
-    2: stage('Noodle Broth Clinic', [
-      on('roundEnd', heal(1, 'woundedAlly'), mend(1)),
-    ]),
-    3: stage('All-Night Noodle Clinic', [
-      on('enter', heal(2, 'allies'), mend(3)),
-      on('roundEnd', heal(1, 'adjacentAllies')),
-    ]),
-  },
-  's3-catgirls-scalpel-captain': {
-    2: stage('Velvet Command', [], { aura: { n: 1, to: 'adjacentAllies' } }),
-    3: stage(
-      'Captain of Knives',
-      [on('enter', power(2, 'allies'), grant('ambush', 'adjacentAllies'))],
-      { aura: { n: 1, to: 'adjacentAllies' } },
-    ),
-  },
-  's3-catgirls-bicycle-clinic': {
-    2: stage('Blood Bag Bell', [on('hit', heal(1, 'adjacentAllies'))]),
-    3: stage('Ambulance Parade', [
-      on('enter', summon('neighbors', 1, 3, ['regen'])),
-      on('hit', heal(1, 'allies')),
-    ]),
-  },
-  's3-catgirls-escaped-tiger': {
-    2: stage('Loose in the Lab', [
-      on('kill', heal(3, 'self'), sharpen(1, 'self')),
-    ]),
-    3: stage('Apex Escapee', [on('enter', damage(3, 'across'))], { lone: 2 }),
-  },
-  's3-catgirls-sidewalk-stitches': {
-    2: stage('Curbside Triage', [on('enter', heal(1, 'adjacentAllies'))]),
-    3: stage("Street Surgeon's Marathon", [
-      on('enter', heal(2, 'allies'), cleanse('allies')),
-    ]),
-  },
-  's3-catgirls-stolen-saw': {
-    2: stage('Hot Saw', [on('enter', sharpen(1, 'target'))]),
-    3: stage('Bone Saw Concerto', [
-      on('enter', sharpen(2, 'target'), damage(2, 'across')),
-    ]),
-  },
-  's3-catgirls-fire-escape': {
-    2: stage('Rooftop Shortcut', [on('enter', grant('ambush', 'target'))]),
-    3: stage('Fire Escape Rush', [
-      on('enter', power(2, 'adjacentAllies'), draw(1)),
-    ]),
-  },
-  's3-catgirls-counterfeit-heart': {
-    2: stage('Black-Market Pulse', [on('enter', life(2, 'target'))]),
-    3: stage('Two Hearts Beating', [
-      on('enter', grant('regen', 'target'), grant('leech', 'target'), mend(2)),
-    ]),
-  },
-  's3-catgirls-spare-lives': {
-    2: stage('Backup Lives', [on('enter', life(2, 'target'))]),
-    3: stage('Spare Lives Stockpile', [on('enter', grant('regen', 'allies'))]),
-  },
-  's3-catgirls-suture-line': {
-    2: stage('Leftover Thread', [on('spring', heal(2, 'woundedAlly'))]),
-    3: stage('Sewn Into the Crew', [
-      on('spring', summon('nearest', 2, 2, ['regen'])),
-    ]),
-  },
+  // Arc: a wire across the catwalk -> it catches the heavy ones hardest ->
+  // the hangman's line, which waits for a second victim.
+  // Trajectory: SITUATIONAL (anti-heavy), then a second spring.
+  // Counterplay: scan it; send a cheap runner first to spend each spring.
   's3-catgirls-garrote': {
-    2: stage('Catwalk Drop', [on('spring', boss(2))]),
-    3: stage("Hangman's Catwalk", [
-      on('spring', damage(3, 'target', true), boss(2)),
+    2: stage('Heavy Drop', [
+      on('spring', when('targetHeavy', damage(2, 'target'))),
     ]),
+    3: stage("Hangman's Line", [on('spring', rearm())]),
   },
-  's3-catgirls-false-clinic': {
-    2: stage('Fake Waiting Room', [on('spring', mend(3))]),
-    3: stage('Clinic of Lies', [
-      on('spring', stun('target'), damage(2, 'adjacentFoes'), mend(3)),
-    ]),
-  },
-  's3-catgirls-hollow-scalpel': {
-    2: stage('Hidden Blade', [on('kill', sharpen(1, 'self'))]),
-    3: stage('Hollow-Point Surgery', [
-      on('enter', damage(2, 'across', true)),
-      on('kill', heal(3, 'self'), sharpen(1, 'self')),
-    ]),
-  },
+  // Arc: a stolen spring-loaded rig -> tuned for pack hunting -> the
+  // second pounce that carries straight through to the boss.
+  // Trajectory: EARNED ONE-SHOT payoff on a knockout. Counterplay: armored
+  // blockers deny the knockout; stun the wearer before it lands one.
   's3-catgirls-pounce-rig': {
     2: stage('Spring-Loaded', [], { pack: 1 }),
-    3: stage('Second Pounce', [on('enter', power(3, 'self'), cleanse('self'))]),
+    3: stage('Second Pounce', [on('kill', pounce())]),
   },
 }

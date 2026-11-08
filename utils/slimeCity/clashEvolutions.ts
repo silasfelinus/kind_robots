@@ -9,21 +9,9 @@ import {
   type EvoStage,
 } from './evolutions/dsl'
 import { CATGIRL_EVOLUTIONS } from './evolutions/catgirls'
-import { BLOODFAIRY_EVOLUTIONS } from './evolutions/bloodfairies'
-import { IRONJAW_EVOLUTIONS } from './evolutions/ironjaw'
-import { RIOT_EVOLUTIONS } from './evolutions/riot'
-import { UNDERTOW_EVOLUTIONS } from './evolutions/undertow'
-import { EXCHANGE_EVOLUTIONS } from './evolutions/exchange'
-import { MERCENARY_EVOLUTIONS } from './evolutions/mercenary'
 
 export const CLASH_EVOLUTIONS: Record<string, CardEvolution> = {
   ...CATGIRL_EVOLUTIONS,
-  ...BLOODFAIRY_EVOLUTIONS,
-  ...IRONJAW_EVOLUTIONS,
-  ...RIOT_EVOLUTIONS,
-  ...UNDERTOW_EVOLUTIONS,
-  ...EXCHANGE_EVOLUTIONS,
-  ...MERCENARY_EVOLUTIONS,
 }
 
 /** The stage a card runs at `level` (2 or 3), or undefined. Hand-built twist
@@ -35,6 +23,16 @@ export function clashEvolutionStage(
   if (level < 2 || CLASH_TWISTS[id]) return undefined
   const evo = CLASH_EVOLUTIONS[id]
   return evo ? evo[level >= 3 ? 3 : 2] : undefined
+}
+
+/** A card's trajectory stat changes at a level (crafted cards only). */
+export function clashEvolutionStats(
+  id: string,
+  level: number,
+): { attack?: number; hp?: number } | undefined {
+  if (CLASH_TWISTS[id]) return undefined
+  const lv = (level >= 3 ? 3 : level <= 1 ? 1 : 2) as 1 | 2 | 3
+  return CLASH_EVOLUTIONS[id]?.stats?.[lv]
 }
 
 /** Generated rules text for a card's evolved stage ('' at level 1). */

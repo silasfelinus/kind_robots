@@ -315,7 +315,7 @@ import {
   shallowRef,
   watch,
 } from 'vue'
-import { slimeArtId } from '~/utils/slimeCity/artManifest'
+import { slimeArtId, slimeCardArtId } from '~/utils/slimeCity/artManifest'
 import {
   cardById,
   teamById,
@@ -594,7 +594,11 @@ function artFor(u: ClashUnit): number | null {
   const face =
     u.hp < u.maxHp ? 'hurt' : u.side === 'player' ? 'fierce' : 'guard'
   return (
-    slimeArtId('tokens', u.cardId + '/' + face) ?? slimeArtId('cards', u.cardId)
+    (u.level >= 2
+      ? slimeArtId('evolutions', u.cardId + '@' + Math.min(3, u.level))
+      : null) ??
+    slimeArtId('tokens', u.cardId + '/' + face) ??
+    slimeCardArtId(u.cardId, u.level)
   )
 }
 function healthWidth(side: Side): string {

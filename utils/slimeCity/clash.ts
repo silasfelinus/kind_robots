@@ -853,8 +853,21 @@ export function playClash(
   if (card.kind === 'creature') {
     const old = unitAt(s, side, lane)
     if (old) {
-      s.units = s.units.filter((u) => u.uid !== old.uid)
-      if (!old.token) s.discards[side].push(old.cardId)
+      if (id === 'broker' && level >= 2) {
+        // A real sacrifice: triggers Volatile, Repo, Angel, Slug and Kaboom.
+        old.hp = 0
+        casualties(s)
+      } else {
+        s.units = s.units.filter((u) => u.uid !== old.uid)
+        if (!old.token) s.discards[side].push(old.cardId)
+      }
+      // A death-triggered rescue could have occupied the lane. The broker
+      // still buys that slot, but an echo never enters the regular discard.
+      const echo = unitAt(s, side, lane)
+      if (echo) {
+        s.units = s.units.filter((u) => u.uid !== echo.uid)
+        if (!echo.token) s.discards[side].push(echo.cardId)
+      }
       note(s, nameOf(old) + ' makes way for ' + card.name + '.', 'play', lane)
     }
     const unit: ClashUnit = {
@@ -877,6 +890,8 @@ export function playClash(
     }
     if (id === 'rat')
       unit.attack = Math.min(10, unit.attack + (s.deathMarks[side].rat ?? 0))
+    if (id === 'lynx' && level >= 2 && !unitAt(s, foe, lane))
+      unit.attack = Math.min(10, unit.attack + 1)
     if (id === 'broker' && level >= 2 && old) {
       const attackGain = level === 3 ? 3 : 2
       const lifeGain = level === 3 ? 4 : 2
@@ -911,58 +926,38 @@ export function playClash(
       note(s, effect.name + ' springs on ' + card.name + '!', 'trap', lane)
       casualties(s)
     }
+    if (unit.hp > 0 && id === 'lynx' && level === 3) {
+      const free = [lane - 1, lane + 1].find(
+        (neighbor) => inside(neighbor) && !unitAt(s, side, neighbor),
+      )
+      if (free !== undefined)
+        summonEcho(s, side, id, free, 2, 1, ['ambush'])
+    }
     if (
       (id === 'sprite' || id === 'merc-smog-moth') &&
       level >= 2 &&
       unit.hp > 0
     ) {
       const free = [lane - 1, lane + 1].filter(
-        (n) => inside(n) && !unitAt(s, side, n),
+        (neighbor) => inside(neighbor) && !unitAt(s, side, neighbor),
       )
-      for (const neighbor of level === 3 ? free : free.slice(0, 1)) {
-        const token: ClashUnit = {
-          uid: s.nextUid++,
-          cardId: id,
-          side,
-          lane: neighbor,
-          hp: 2,
-          maxHp: 2,
-          attack: 1,
-          armor: 0,
-          keywords: id === 'sprite' ? ['swarm'] : [],
-          surge: 0,
-          rooted: false,
-          ambushUsed: false,
-          attacked: false,
-          fresh: true,
-          gear: [],
-          level: 1,
-          token: true,
-        }
-        s.units.push(token)
-        note(
-          s,
-          card.name + ' calls a small ally into alley ' + (neighbor + 1) + '.',
-          'play',
-          neighbor,
-        )
-        const waiting = s.traps.find(
-          (t) => t.side === foe && t.lane === neighbor,
-        )
-        if (waiting) {
-          const effect = cardById(waiting.cardId)
-          damage(token, clashBalance(effect, waiting.level).power)
-          if (effect.roots) token.rooted = true
-          s.traps = s.traps.filter((t) => t !== waiting)
-          s.discards[foe].push(waiting.cardId)
-          note(s, effect.name + ' catches the new ally!', 'trap', neighbor)
-          casualties(s)
-        }
-      }
+      for (const neighbor of level === 3 ? free : free.slice(0, 1))
+        summonEcho(s, side, id, neighbor, 2, 1, id === 'sprite' ? ['swarm'] : [])
     }
   } else if (card.kind === 'trap') {
     s.traps.push({ side, lane, cardId: id, level })
     note(s, 'Trap armed in alley ' + (lane + 1) + '.', 'trap', lane)
+    if (id === 'tripwire' && level >= 2) {
+      const free = [lane - 1, lane + 1].filter(
+        (neighbor) =>
+          inside(neighbor) &&
+          !s.traps.some((trap) => trap.side === side && trap.lane === neighbor),
+      )
+      for (const neighbor of level === 3 ? free : free.slice(0, 1)) {
+        s.traps.push({ side, lane: neighbor, cardId: id, level })
+        note(s, 'A second tripwire arms alley ' + (neighbor + 1) + '.', 'trap', neighbor)
+      }
+    }
   } else {
     const target = unitAt(s, aim(card) === 'own' ? side : foe, lane)
     const power = profile.power

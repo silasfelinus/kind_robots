@@ -61,7 +61,7 @@ const fighter = (
     ),
     'investment adds SWARM without sacrificing a fighter',
   )
-  assert.deepEqual(chooseClashCpu(s), cmd, 'identical board, identical choice')
+  assert.deepEqual(chooseClashCpu(s, 'player'), cmd, 'identical board, identical choice')
 }
 
 // A situational L3 still chooses by the *actual* board: one wounded

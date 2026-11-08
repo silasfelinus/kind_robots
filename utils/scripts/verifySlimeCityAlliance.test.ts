@@ -486,8 +486,14 @@ for (const id of [
   'slime-solo-grid',
   'slime-solo-play',
   'PLAY CLASH FOR REWARDS',
+  // Silas, 2026-11-08 PT: "deck display still doesn't have support for
+  // evolutions." Collection and pack cards are Clash faces at LV 1-3.
+  'slime-evolution-levels',
+  ':level="evolutionLevel"',
+  '<SlimeCityClashCardFace :card-id="id" />',
 ])
   assert.ok(page.includes(id), id)
+assert.ok(!page.includes('<SlimeCityCard'), 'no legacy card faces left')
 for (const id of [
   'clash-format-solo',
   'clash-format-alliance',

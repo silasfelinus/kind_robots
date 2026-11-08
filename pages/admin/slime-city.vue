@@ -515,6 +515,31 @@
               {{ art.failedCount }} FAILED TO LOAD
             </p>
           </details>
+          <div
+            class="sc-evolution"
+            role="group"
+            aria-label="Show every card at a Clash level"
+            data-testid="slime-evolution-levels"
+          >
+            <span>EVOLUTION</span>
+            <button
+              v-for="n in CLASH_MAX_LEVEL"
+              :key="n"
+              type="button"
+              :aria-pressed="evolutionLevel === n"
+              :data-testid="'slime-evolution-' + n"
+              :title="
+                n === 1
+                  ? 'How each card enters a match'
+                  : 'Each card after it has been played ' +
+                    (n - 1) +
+                    (n === 2 ? ' time' : ' times')
+              "
+              @click="evolutionLevel = n"
+            >
+              LV {{ n }}
+            </button>
+          </div>
           <ul
             v-if="lab.deckFormat === 'alliance'"
             class="sc-collection-grid kr-scroll"
@@ -527,9 +552,13 @@
               class="sc-collect"
               :class="'is-' + allianceState(card)"
             >
-              <SlimeCityCard :card="card">
+              <span class="sc-clash-tile">
+                <SlimeCityClashCardFace
+                  :card-id="card.id"
+                  :level="evolutionLevel"
+                />
                 <span class="sc-collect-ribbon">{{ allianceLabel(card) }}</span>
-              </SlimeCityCard>
+              </span>
               <button
                 type="button"
                 class="sc-collect-pick"
@@ -554,9 +583,13 @@
               class="sc-collect"
               :class="'is-' + soloState(card)"
             >
-              <SlimeCityCard :card="card">
+              <span class="sc-clash-tile">
+                <SlimeCityClashCardFace
+                  :card-id="card.id"
+                  :level="evolutionLevel"
+                />
                 <span class="sc-collect-ribbon">{{ soloLabel(card) }}</span>
-              </SlimeCityCard>
+              </span>
               <button
                 type="button"
                 class="sc-collect-pick"
@@ -704,19 +737,22 @@
             >
               <strong>YOUR LATEST PACK</strong>
               <div class="sc-pack-cards">
-                <SlimeCityCard
+                <figure
                   v-for="id in lab.progress.lastPack"
                   :key="id"
-                  :card="cardById(id)"
+                  class="sc-pack-card"
                 >
-                  <template #footer>
-                    <small>{{
+                  <span class="sc-clash-tile">
+                    <SlimeCityClashCardFace :card-id="id" />
+                  </span>
+                  <figcaption>
+                    {{
                       cardById(id).team === 'mercenary'
                         ? 'HIRES WITH ANY CREW'
                         : teamName(cardById(id).team)
-                    }}</small>
-                  </template>
-                </SlimeCityCard>
+                    }}
+                  </figcaption>
+                </figure>
               </div>
             </div>
             <div class="sc-reward-panel">
@@ -773,7 +809,8 @@
 <script setup lang="ts">
 import { computed, onMounted, onUnmounted } from 'vue'
 import { cardById, type Card } from '~/utils/slimeCity/prototypes'
-import { factionPower } from '~/utils/slimeCity/alliance'
+import { factionPower } from '~/utils/slimeCity/factionPowers'
+import { CLASH_MAX_LEVEL } from '~/utils/slimeCity/clash'
 import { STREETS } from '~/utils/slimeCity/city'
 import { useSlimeCityStore } from '~/stores/slimeCity'
 import { slimeArtId, SLIME_CITY_ART } from '~/utils/slimeCity/artManifest'
@@ -824,6 +861,8 @@ function teamName(id: string): string {
   return lab.teams.find((t) => t.id === id)?.name ?? id
 }
 const generalPower = computed(() => factionPower(lab.activeTeam))
+/** Collection cards show their Clash face at the chosen evolution level. */
+const evolutionLevel = ref(1)
 const allyChoices = computed(() =>
   lab.teams.filter((team) => team.id !== lab.activeTeam),
 )
@@ -1580,6 +1619,60 @@ onUnmounted(() => {
   background: #6fe7ff;
   border-color: #dff9ff;
   color: #06222b;
+}
+.sc-pack-card {
+  margin: 0;
+  min-width: 0;
+}
+.sc-pack-card figcaption {
+  margin-top: 0.3rem;
+  font-size: 0.6rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-align: center;
+  color: #c9e3dc;
+}
+.sc-clash-tile {
+  position: relative;
+  display: block;
+  width: 100%;
+  aspect-ratio: 2 / 3;
+  border-radius: 0.9rem;
+  container-type: inline-size;
+}
+.sc-clash-tile .sc-collect-ribbon {
+  position: absolute;
+  top: 0.4rem;
+  right: 0.4rem;
+  z-index: 2;
+}
+.sc-evolution {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  flex-wrap: wrap;
+}
+.sc-evolution span {
+  font-size: 0.62rem;
+  font-weight: 900;
+  letter-spacing: 0.12em;
+  color: #c9e3dc;
+}
+.sc-evolution button {
+  padding: 0.25rem 0.6rem;
+  border: 1px solid #ffffff33;
+  border-radius: 999px;
+  background: #0b1a1fcc;
+  color: inherit;
+  font-size: 0.66rem;
+  font-weight: 900;
+  letter-spacing: 0.06em;
+  cursor: pointer;
+}
+.sc-evolution button[aria-pressed='true'] {
+  border-color: #ffd76a;
+  background: #ffd76a26;
+  color: #ffe9a8;
 }
 .sc-collect-pick {
   position: absolute;

@@ -1171,6 +1171,19 @@ export function strikeClash(input: ClashState, side: Side): ClashState {
       lane,
     )
   }
+  if (attacker.cardId === 'pogo' && attacker.level >= 2) {
+    const friend = s.units.some(
+      (u) => u.side === side && Math.abs(u.lane - lane) === 1,
+    )
+    const whiff = !(attacker.level === 3 && friend) && random(s) < 0.5
+    attackPower = whiff ? 0 : attackPower * 2
+    note(
+      s,
+      whiff ? 'Pogo Brat bounces right past!' : 'Pogo Brat lands a double slam!',
+      'clash',
+      lane,
+    )
+  }
   attacker.attacked = true
   attacker.ambushUsed = true
   s.cursor = lane + 1
@@ -1210,7 +1223,12 @@ export function strikeClash(input: ClashState, side: Side): ClashState {
     )
   } else {
     const defensePower = defender.rooted ? 0 : clashPower(s, defender)
-    const dealt = damage(defender, attackPower, has(attacker, 'pierce') ? 1 : 0)
+    const dealt = damage(
+      defender,
+      attackPower,
+      (has(attacker, 'pierce') ? 1 : 0) +
+        (attacker.cardId === 'bulldozer' && attacker.level >= 2 ? 1 : 0),
+    )
     const returned = damage(
       attacker,
       defensePower,
@@ -1234,6 +1252,8 @@ export function strikeClash(input: ClashState, side: Side): ClashState {
     )
     if (has(attacker, 'bulldoze') && defender.hp < 0)
       s.boss[foeSide] += defender.hp
+    if (attacker.cardId === 'bulldozer' && attacker.level === 3 && dealt > 0)
+      s.boss[foeSide] -= 2
     if (dealt > 0 && has(attacker, 'snare')) defender.rooted = true
     if (
       dealt > 0 &&
@@ -1247,12 +1267,46 @@ export function strikeClash(input: ClashState, side: Side): ClashState {
     }
     if (dealt > 0 && has(attacker, 'leech'))
       attacker.hp = Math.min(attacker.maxHp, attacker.hp + 1)
+    if (dealt > 0 && attacker.cardId === 'razor' && attacker.level >= 2) {
+      for (const friend of s.units.filter(
+        (u) =>
+          u.side === side &&
+          (attacker.level === 3 || Math.abs(u.lane - lane) === 1),
+      ))
+        friend.hp = Math.min(friend.maxHp, friend.hp + 1)
+    }
+    if (dealt > 0 && attacker.cardId === 'eel' && attacker.level >= 2) {
+      const shocked = attacker.level === 3
+        ? s.units.filter(
+            (u) =>
+              u.side === foeSide &&
+              u.uid !== defender.uid &&
+              s.traps.some((t) => t.side === foeSide && t.lane === u.lane),
+          )
+        : defender.rooted
+          ? s.units.filter(
+              (u) => u.side === foeSide && Math.abs(u.lane - lane) === 1,
+            ).slice(0, 1)
+          : []
+      for (const rival of shocked)
+        damage(rival, attacker.level === 3 ? 2 : 1)
+    }
     if (returned > 0 && has(defender, 'leech'))
       defender.hp = Math.min(defender.maxHp, defender.hp + 1)
-    if (defender.hp <= 0 && has(attacker, 'collect'))
+    if (defender.hp <= 0 && has(attacker, 'collect')) {
       attacker.attack = clamp(attacker.attack + 1, 1, 10)
-    if (attacker.hp <= 0 && has(defender, 'collect'))
+      if (s.units.some(
+        (u) => u.side === side && u.cardId === 'mogul' && u.level === 3,
+      ))
+        s.boss[side] = Math.min(clashBossMax(side), s.boss[side] + 1)
+    }
+    if (attacker.hp <= 0 && has(defender, 'collect')) {
       defender.attack = clamp(defender.attack + 1, 1, 10)
+      if (s.units.some(
+        (u) => u.side === foeSide && u.cardId === 'mogul' && u.level === 3,
+      ))
+        s.boss[foeSide] = Math.min(clashBossMax(foeSide), s.boss[foeSide] + 1)
+    }
     strike.attackerFell = attacker.hp <= 0
     strike.defenderFell = defender.hp <= 0
   }

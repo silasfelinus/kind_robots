@@ -741,6 +741,72 @@ function casualties(s: ClashState): void {
       if (collector.level === 3)
         collector.hp = Math.min(collector.maxHp, collector.hp + 1)
     }
+    // Death is an event with consequences, never a bonus level-up.
+    if (u.cardId === 'bomber' && u.level >= 2) {
+      for (const rival of s.units.filter(
+        (v) =>
+          v.side !== u.side &&
+          (u.level === 3 || Math.abs(v.lane - u.lane) === 1),
+      ))
+        damage(rival, 2)
+      if (u.level === 3)
+        for (const friend of s.units.filter(
+          (v) => v.side === u.side && Math.abs(v.lane - u.lane) === 1,
+        ))
+          damage(friend, 1)
+      note(s, 'Grand Detonator sets off a chain blast!', 'death', u.lane)
+    }
+    for (const survivor of s.units.filter((v) => v.side === u.side)) {
+      if (survivor.cardId === 'repo' && survivor.level >= 2) {
+        survivor.attack = clamp(
+          survivor.attack + (survivor.level === 3 ? 2 : 1),
+          0,
+          10,
+        )
+        if (survivor.level === 3)
+          s.boss[u.side] = Math.min(clashBossMax(u.side), s.boss[u.side] + 1)
+      }
+      if (
+        survivor.cardId === 'kaboom' &&
+        survivor.level >= 2 &&
+        has(u, 'volatile')
+      ) {
+        survivor.attack = clamp(
+          survivor.attack + (survivor.level === 3 ? 2 : 1),
+          0,
+          10,
+        )
+        if (survivor.level === 3) s.boss[opponent(u.side)] -= 1
+        note(s, 'Sister Kaboom feeds off the blast!', 'death', survivor.lane)
+      }
+      if (survivor.cardId === 'merc-discount-angel' && survivor.level >= 2) {
+        for (const friend of s.units.filter(
+          (v) => v.side === u.side && Math.abs(v.lane - survivor.lane) === 1 && v.hp > 0,
+        ))
+          friend.hp = Math.min(friend.maxHp, friend.hp + 2)
+        if (
+          survivor.level === 3 &&
+          s.deathMarks[u.side]['angel-rescue-round'] !== s.round
+        ) {
+          s.deathMarks[u.side]['angel-rescue-round'] = s.round
+          const free = nearestFreeAlley(s, u.side, survivor.lane)
+          if (free >= 0)
+            summonEcho(s, u.side, u.cardId, free, 2, 1)
+        }
+      }
+    }
+    for (const slug of s.units.filter(
+      (v) =>
+        v.cardId === 'merc-debt-slug' &&
+        v.level >= 2 &&
+        (v.side === u.side || v.level === 3),
+    )) {
+      slug.attack = clamp(slug.attack + 1, 0, 10)
+      if (slug.level === 3) {
+        slug.maxHp = clamp(slug.maxHp + 1, 1, 22)
+        slug.hp = Math.min(slug.maxHp, slug.hp + 1)
+      }
+    }
     note(
       s,
       nameOf(u) + ' falls in alley ' + (u.lane + 1) + '.',

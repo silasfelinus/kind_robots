@@ -308,6 +308,15 @@ const at = (st: ClashState, uid: number) => st.units.find((u) => u.uid === uid)
 // Balance: no general dominates, the powers actually get used.
 {
   const r = sweepAlliance(6)
+  console.log(
+    'CLASH Alliance general win rates (6 acceptance seeds):',
+    Object.fromEntries(
+      Object.entries(r.generals).map(([crew, record]) => [
+        crew,
+        ((100 * record.wins) / record.games).toFixed(1) + '%',
+      ]),
+    ),
+  )
   assert.equal(r.roundLimit, 0)
   const first = r.firstSeatWins / r.games
   assert.ok(first > 0.38 && first < 0.62, 'first seat ' + first)

@@ -703,7 +703,11 @@ function advanceIntro(): void {
 
 function useHeld(): void {
   if (!held.value || !selected.value) return
-  story.value.takeAction({ verb: 'use', target: selected.value, item: held.value })
+  story.value.takeAction({
+    verb: 'use',
+    target: selected.value,
+    item: held.value,
+  })
   if (!story.value.state.inventory.includes(held.value)) held.value = null
 }
 

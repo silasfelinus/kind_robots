@@ -3,7 +3,7 @@
 // Every pilot card is checked through the real engine: its level stages do
 // what the card says, and each level three changes what the card DOES.
 import assert from 'node:assert/strict'
-import { cardById, type Side } from '../slimeCity/prototypes'
+import { CARDS, cardById, type Side } from '../slimeCity/prototypes'
 import { CLASH_TWISTS } from '../slimeCity/clashTwists'
 import {
   CLASH_EVOLUTIONS,
@@ -13,6 +13,7 @@ import {
 } from '../slimeCity/clashEvolutions'
 import {
   applyClashCommand,
+  canClashPlay,
   chooseClashCpu,
   clashBalance,
   clashDeck,
@@ -43,11 +44,42 @@ const PILOT = [
   's3-catgirls-pounce-rig',
   's2-catgirls-backstreet-organ-donor',
 ]
-assert.deepEqual(Object.keys(CLASH_EVOLUTIONS).sort(), [...PILOT].sort())
-for (const id of PILOT) {
+for (const id of PILOT) assert.ok(CLASH_EVOLUTIONS[id], id + ' is crafted')
+for (const id of PILOT) assert.equal(cardById(id).team, 'catgirls', id)
+// Silas, 2026-11-08 PT: "300 cards, all need custom better evolutions."
+// Every card in the catalog evolves: a hand-built twist or a crafted stage.
+for (const card of CARDS)
+  assert.ok(
+    CLASH_TWISTS[card.id] || CLASH_EVOLUTIONS[card.id],
+    card.id + ' has a crafted evolution',
+  )
+assert.equal(CARDS.length, 300)
+// Every crafted card, every faction: real stages that fit the card face.
+for (const id of Object.keys(CLASH_EVOLUTIONS)) {
   const card = cardById(id)
-  assert.equal(card.team, 'catgirls', id)
   assert.ok(!CLASH_TWISTS[id], id + ' is not a hand-built twist too')
+  // A trap springs on the rival's turn, and "power now" ends with the round,
+  // so a sprung trap may only grant lasting power.
+  for (const st of [
+    CLASH_EVOLUTIONS[id]![2],
+    CLASH_EVOLUTIONS[id]![3],
+    ...(CLASH_EVOLUTIONS[id]!.choice
+      ? [CLASH_EVOLUTIONS[id]!.choice!.stage]
+      : []),
+  ])
+    for (const ab of st.abilities)
+      if (ab.when === 'spring')
+        assert.ok(
+          !JSON.stringify(ab.do).match(/"do":"power"(?![^}]*"lasting":true)/),
+          id + ' ' + st.title + ': no fleeting power on a sprung trap',
+        )
+  // The pick is kept on fighters and resolved at once for spells; a placed
+  // trap or installed gear would forget it, so choices stay off them.
+  if (CLASH_EVOLUTIONS[id]!.choice)
+    assert.ok(
+      card.kind === 'creature' || card.kind === 'spell',
+      id + ' choose-one only on fighters and spells',
+    )
   const two = clashEvolutionStage(id, 2)!
   const three = clashEvolutionStage(id, 3)!
   assert.ok(two.title && three.title && two.title !== three.title, id)
@@ -279,7 +311,7 @@ const mine = (s: ClashState, id: string) =>
     's1-nine-lives',
     1,
   )
-  assert.ok(at(s, 2)!.lastChance)
+  assert.equal(at(s, 2)!.lastChance, 's1-nine-lives')
   // Its own strike into a 20-power blocker would be lethal; the spare life
   // holds at 1 and is spent.
   let e = passClash(s, 'player')
@@ -410,6 +442,67 @@ const mine = (s: ClashState, id: string) =>
   assert.equal(at(k, 2)!.maxHp, 8, 'not the healthier one')
 }
 
+// Draws earned off-turn wait for the next turn instead of being discarded.
+{
+  let s = board([fighter('player', 2, 1, { hp: 1 })])
+  s.units.push(fighter('enemy', 2, 9, { attack: 20, hp: 30, maxHp: 30 }))
+  s.hands.player = ['s2-catgirls-lab-escape-atlas']
+  s.levels.player['s2-catgirls-lab-escape-atlas'] = 3
+  s = playClash(s, 'player', 's2-catgirls-lab-escape-atlas', 2)
+  s = passClash(s, 'player')
+  while (nextClashStrike(s, 'player') >= 0) s = strikeClash(s, 'player')
+  assert.equal(at(s, 1), undefined, 'the atlas wearer falls')
+  assert.equal(s.pendingDraw?.player, 2, 'Every Exit Marked owes 2 cards')
+  s = endClashTurn(s, 'player')
+  for (let i = 0; s.active === 'enemy' && i < 50; i++)
+    s = applyClashCommand(s, chooseClashCpu(s, 'enemy'))
+  assert.equal(s.active, 'player')
+  assert.equal(s.hands.player.length, 7, 'drawn on the next turn: 5 + 2')
+  assert.equal(s.pendingDraw?.player, 0)
+}
+
+// --- Every crafted card runs through the real engine at every level and
+// option, on crowded and empty boards, through a full exchange of strikes.
+for (const id of Object.keys(CLASH_EVOLUTIONS)) {
+  const card = cardById(id)
+  const picks: (0 | 1)[] = clashEvolutionChoice(id, 3) ? [0, 1] : [0]
+  for (const level of [1, 2, 3])
+    for (const pick of picks)
+      for (const crowded of [true, false]) {
+        const s0 = board(
+          crowded
+            ? [
+                fighter('player', 0, 1, { hp: 3 }),
+                fighter('player', 1, 2),
+                fighter('player', 3, 3, { hp: 2 }),
+                fighter('enemy', 0, 7, { hp: 2 }),
+                fighter('enemy', 1, 8, { attack: 6 }),
+                fighter('enemy', 2, 9),
+                fighter('enemy', 4, 10, { hp: 1 }),
+              ]
+            : [],
+        )
+        s0.teams.player = card.team === 'mercenary' ? 'catgirls' : card.team
+        s0.fallen = { player: ['lynx'], enemy: ['scrapper'] }
+        s0.hands.player = [id]
+        s0.levels.player[id] = level
+        let lane = -1
+        for (const l of [2, 1, 3, 0, 4])
+          if (lane < 0 && canClashPlay(s0, 'player', id, l)) lane = l
+        if (lane < 0) continue
+        let g = playClash(s0, 'player', id, lane, pick)
+        assert.notEqual(g, s0, id + ' L' + level + ' plays')
+        g = passClash(g, 'player')
+        for (let i = 0; !g.victor && i < 400 && g.round < 6; i++)
+          g = applyClashCommand(g, chooseClashCpu(g, g.active))
+        for (const u of g.units)
+          assert.ok(
+            Number.isFinite(u.hp) && Number.isFinite(u.attack),
+            id + ' keeps numbers finite',
+          )
+      }
+}
+
 // --- Evolution art: a level shows its painting once wired, else falls back.
 assert.equal(
   slimeCardArtId('splice-runner', 1),
@@ -463,5 +556,7 @@ for (const seed of [5, 9, 13, 21, 34, 55]) {
 }
 
 console.log(
-  'Slime City crafted evolutions: 20-card Catgirls pilot deck, 11 crafted cards and 3 choose-one level threes through the real engine, art fallback and replay OK',
+  'Slime City crafted evolutions: ' +
+    Object.keys(CLASH_EVOLUTIONS).length +
+    ' crafted cards through the real engine; 20-card Catgirls pilot deck, choose-one level threes, art fallback and replay OK',
 )

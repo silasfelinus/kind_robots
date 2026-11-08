@@ -600,8 +600,7 @@ function startTurn(s: ClashState, side: Side): void {
       guarded = guardian.level === 3 ? adjacent : adjacent.slice(0, 1)
       shield = 2
     }
-    if (guardian.cardId === 'merc-clock-grandma')
-      guarded = adjacent
+    if (guardian.cardId === 'merc-clock-grandma') guarded = adjacent
     for (const ally of guarded)
       ally.guard = clamp((ally.guard ?? 0) + shield, 0, 3)
   }
@@ -751,33 +750,36 @@ function stun(u: ClashUnit): void {
 function springTrap(s: ClashState, trap: ClashTrap, victim: ClashUnit): number {
   const card = cardById(trap.cardId)
   const dealt = damage(victim, clashBalance(card, trap.level).power)
-  if (card.roots || (trap.cardId === 'grate' && trap.level >= 2))
-    stun(victim)
+  if (card.roots || (trap.cardId === 'grate' && trap.level >= 2)) stun(victim)
   s.traps = s.traps.filter((t) => t !== trap)
   if (!trap.token) s.discards[trap.side].push(trap.cardId)
   if (trap.level >= 2) {
     const neighbors = s.units.filter(
       (u) => u.side !== trap.side && Math.abs(u.lane - trap.lane) === 1,
     )
-    if (['scentmine', 'shocktrap', 'bloodwire', 'grate'].includes(trap.cardId)) {
-      for (const neighbor of trap.level === 3 ? neighbors : neighbors.slice(0, 1)) {
+    if (
+      ['scentmine', 'shocktrap', 'bloodwire', 'grate'].includes(trap.cardId)
+    ) {
+      for (const neighbor of trap.level === 3
+        ? neighbors
+        : neighbors.slice(0, 1)) {
         if (trap.cardId === 'scentmine') {
           stun(neighbor)
           if (trap.level === 3) damage(neighbor, 1)
         } else if (trap.cardId === 'grate') {
           if (trap.level === 3) damage(neighbor, 2)
         } else {
-          damage(
-            neighbor,
-            trap.level === 3 ? 2 : 1,
-          )
-          if (trap.cardId === 'shocktrap' && trap.level === 3)
-            stun(neighbor)
+          damage(neighbor, trap.level === 3 ? 2 : 1)
+          if (trap.cardId === 'shocktrap' && trap.level === 3) stun(neighbor)
         }
       }
       evolutionMoment(
-        s, trap.cardId, trap.side, trap.lane,
-        card.name + ' chains into a neighboring alley!', 'control',
+        s,
+        trap.cardId,
+        trap.side,
+        trap.lane,
+        card.name + ' chains into a neighboring alley!',
+        'control',
       )
     }
   }
@@ -844,11 +846,16 @@ function casualties(s: ClashState): void {
     if (endangered.ninthLife) {
       const level = endangered.ninthLife
       endangered.ninthLife = undefined
-      endangered.hp = level === 3 ? Math.max(1, Math.ceil(endangered.maxHp / 2)) : 1
+      endangered.hp =
+        level === 3 ? Math.max(1, Math.ceil(endangered.maxHp / 2)) : 1
       if (level === 3) endangered.attack = clamp(endangered.attack + 2, 0, 10)
       evolutionMoment(
-        s, 'ninthlife', endangered.side, endangered.lane,
-        'The Ninth Life Collar pulls its wearer back from a fatal hit!', 'heal',
+        s,
+        'ninthlife',
+        endangered.side,
+        endangered.lane,
+        'The Ninth Life Collar pulls its wearer back from a fatal hit!',
+        'heal',
       )
       continue
     }
@@ -866,8 +873,12 @@ function casualties(s: ClashState): void {
       grandma.grandmaSaveUsed = true
       endangered.hp = 1
       evolutionMoment(
-        s, 'merc-clock-grandma', grandma.side, grandma.lane,
-        'Clockwork Grandmother rewinds one fatal blow!', 'heal',
+        s,
+        'merc-clock-grandma',
+        grandma.side,
+        grandma.lane,
+        'Clockwork Grandmother rewinds one fatal blow!',
+        'heal',
       )
     }
   }
@@ -1022,8 +1033,7 @@ function casualties(s: ClashState): void {
     if (vest >= 2) {
       for (const enemy of s.units.filter(
         (v) =>
-          v.side !== u.side &&
-          (vest === 3 || Math.abs(v.lane - u.lane) === 1),
+          v.side !== u.side && (vest === 3 || Math.abs(v.lane - u.lane) === 1),
       ))
         damage(enemy, 1)
       if (vest === 3)
@@ -1032,8 +1042,12 @@ function casualties(s: ClashState): void {
         ))
           damage(friend, 1)
       evolutionMoment(
-        s, 'fusevest', u.side, u.lane,
-        'The Lit-Fuse Vest bursts beyond its own lane!', 'blast',
+        s,
+        'fusevest',
+        u.side,
+        u.lane,
+        'The Lit-Fuse Vest bursts beyond its own lane!',
+        'blast',
       )
     }
   }
@@ -1146,18 +1160,32 @@ export function playClash(
     }
     if (id === 'merc-bus-driver' && level >= 2 && unit.hp > 0) {
       const passengers = s.units
-        .filter((friend) =>
-          friend.side === side &&
-          friend.uid !== unit.uid &&
-          Math.abs(friend.lane - lane) === 1,
+        .filter(
+          (friend) =>
+            friend.side === side &&
+            friend.uid !== unit.uid &&
+            Math.abs(friend.lane - lane) === 1,
         )
         .sort((a, b) => a.lane - b.lane)
-      for (const passenger of (level === 3 ? passengers : passengers.slice(0, 1))) {
+      for (const passenger of level === 3
+        ? passengers
+        : passengers.slice(0, 1)) {
         const destination = nearestFreeAlley(s, side, lane)
         if (destination < 0) break
         passenger.lane = destination
-        note(s, 'Gutterbus reroutes ' + nameOf(passenger) + ' to alley ' + (destination + 1) + '.', 'play', destination)
-        const hazard = s.traps.find((t) => t.side === foe && t.lane === destination)
+        note(
+          s,
+          'Gutterbus reroutes ' +
+            nameOf(passenger) +
+            ' to alley ' +
+            (destination + 1) +
+            '.',
+          'play',
+          destination,
+        )
+        const hazard = s.traps.find(
+          (t) => t.side === foe && t.lane === destination,
+        )
         if (hazard) {
           springTrap(s, hazard, passenger)
           casualties(s)
@@ -1303,7 +1331,12 @@ export function playClash(
             const success = random(s) < (level === 3 ? 0.75 : 0.5)
             if (success) target.surge += level === 3 ? 6 : 2
             else damage(target, level === 3 ? 2 : 1)
-            note(s, success ? 'Hold My Drink pays off!' : 'Hold My Drink spills!', 'clash', lane)
+            note(
+              s,
+              success ? 'Hold My Drink pays off!' : 'Hold My Drink spills!',
+              'clash',
+              lane,
+            )
           }
           if (id === 'pounce') {
             target.ambushUsed = false
@@ -1325,8 +1358,7 @@ export function playClash(
             if (!target.keywords.includes(keyword))
               target.keywords.push(keyword)
           target.attack = clamp(target.attack + (level - 1), 1, 10)
-          if (id === 'ninthlife' && level >= 2)
-            target.ninthLife = level
+          if (id === 'ninthlife' && level >= 2) target.ninthLife = level
           if (id === 'fusevest' && level >= 2)
             (target.gearLevels ??= {})[id] = level
           if (id === 'handshake' && level >= 2) {
@@ -1388,7 +1420,9 @@ export function playClash(
             if (critical) hit *= 2
             note(
               s,
-              critical ? 'Safety-Pin critical connects!' : 'Safety-Pin ordinary hit.',
+              critical
+                ? 'Safety-Pin critical connects!'
+                : 'Safety-Pin ordinary hit.',
               'clash',
               lane,
             )
@@ -1649,8 +1683,12 @@ export function strikeClash(input: ClashState, side: Side): ClashState {
       if (victim) {
         damage(victim, 2)
         evolutionMoment(
-          s, 'mau', side, lane,
-          'Mau-77 follows through into the neighboring alley!', 'strike',
+          s,
+          'mau',
+          side,
+          lane,
+          'Mau-77 follows through into the neighboring alley!',
+          'strike',
         )
       }
     }

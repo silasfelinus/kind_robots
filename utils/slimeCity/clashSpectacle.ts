@@ -6,14 +6,7 @@ import { cardById, type Side, type TeamId } from './prototypes'
 export type ClashSpectacleGrade = 'flash' | 'feature' | 'legend'
 export type ClashSpectacleKind = 'play' | 'strike' | 'power' | 'victory'
 export type ClashSpectacleEffect =
-  | 'summon'
-  | 'heal'
-  | 'gear'
-  | 'trap'
-  | 'blast'
-  | 'control'
-  | 'strike'
-  | 'power'
+  'summon' | 'heal' | 'gear' | 'trap' | 'blast' | 'control' | 'strike' | 'power'
 
 export interface ClashSpectacle {
   kind: ClashSpectacleKind
@@ -28,8 +21,7 @@ export interface ClashSpectacle {
   detail: string
 }
 
-const rivalOf = (side: Side): Side =>
-  side === 'player' ? 'enemy' : 'player'
+const rivalOf = (side: Side): Side => (side === 'player' ? 'enemy' : 'player')
 
 /**
  * Translate committed, replayable commands into cosmetic VFX cues.
@@ -131,13 +123,13 @@ export function clashSpectacle(
   const hit = after.strike
   const card = cardById(hit.trap ?? hit.attacker)
   const knockout = hit.attackerFell || hit.defenderFell
-  const lethal =
-    after.victor !== null && before.victor === null
-  const grade: ClashSpectacleGrade = lethal || hit.dealt >= 9
-    ? 'legend'
-    : knockout || !!hit.trap || hit.dealt >= 6
-      ? 'feature'
-      : 'flash'
+  const lethal = after.victor !== null && before.victor === null
+  const grade: ClashSpectacleGrade =
+    lethal || hit.dealt >= 9
+      ? 'legend'
+      : knockout || !!hit.trap || hit.dealt >= 6
+        ? 'feature'
+        : 'flash'
   const miss = hit.dealt === 0 && hit.returned === 0 && !hit.trap
   const enemy = rivalOf(hit.side)
   return {

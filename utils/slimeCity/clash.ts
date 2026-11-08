@@ -3014,27 +3014,27 @@ export function chooseClashCpu(
           (card.effect === 'heal' && mine
             ? Math.min(b.power, mine.maxHp - mine.hp) * 1.2 - 1.5
             : 0)
-        if (mine && card.effect === 'grant') {
+        if (s.format !== 'alliance' && mine && card.effect === 'grant') {
           const missing = (card.grants ?? []).filter(
             (keyword) => !mine.keywords.includes(keyword),
           )
           score += missing.length * 2.8 + (b.level - 1) * 1.25
           if (!missing.length && b.level === 1) score -= 3
         }
-        if (mine && card.kind === 'equipment') {
+        if (s.format !== 'alliance' && mine && card.kind === 'equipment') {
           // Gear survives turns; its price cannot be assessed as one small
           // immediate spell. Reward protecting a healthy, productive fighter.
           score +=
             1.8 + Math.min(mine.attack, 6) * 0.55 + (mine.hp >= 6 ? 1 : 0)
         }
-        if (mine && (card.effect === 'sharpen' || card.effect === 'boost'))
+        if (s.format !== 'alliance' && mine && (card.effect === 'sharpen' || card.effect === 'boost'))
           score +=
             card.kind === 'equipment'
               ? Math.min(b.bonus, Math.max(0, 10 - mine.attack)) * 1.8
               : across
                 ? b.power * 0.7
                 : 0
-        if (mine && card.effect === 'armor')
+        if (s.format !== 'alliance' && mine && card.effect === 'armor')
           score += Math.max(0, 3 - mine.armor) * 2
       } else
         score =
@@ -3052,12 +3052,19 @@ export function chooseClashCpu(
         !evoCondition(s, { side, lane, cardId: id, level: b.level }, prefer)
           ? (1 as const)
           : undefined
-      score += cpuEvolutionPayoff(s, side, card, lane, b.level, choice ?? 0)
-      // Level-one cards have a real investment cost. Account for the
-      // reachable next stage, without valuing a future payoff as immediate.
-      if (b.level === 1)
-        score +=
-          Math.max(0, cpuEvolutionPayoff(s, side, card, lane, 2, 0)) * 0.2
+      if (s.format === 'alliance') {
+        // Keep the independently balanced two-crew format on its tested
+        // baseline heuristic until it has its own synergy-specific pass.
+        const evolved = clashEvolutionStage(id, b.level)
+        if (evolved?.abilities.some((ability) => ability.when === 'enter'))
+          score += b.level >= 3 ? 2.5 : 1.2
+      } else {
+        score += cpuEvolutionPayoff(s, side, card, lane, b.level, choice ?? 0)
+        // Reward deliberate future leveling without counting it as immediate.
+        if (b.level === 1)
+          score +=
+            Math.max(0, cpuEvolutionPayoff(s, side, card, lane, 2, 0)) * 0.2
+      }
       score /= b.plays
       if (!best || score > best.score)
         best = { score, card: id, lane, ...(choice ? { choice } : {}) }

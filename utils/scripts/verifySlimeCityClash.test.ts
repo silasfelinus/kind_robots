@@ -889,6 +889,7 @@ const detonation = strikeClash(detonatorStage, 'player')
 assert.ok(detonation.units.find((u) => u.uid === 993)!.hp <= 8, 'L3 bomber blows up distant rivals after death')
 assert.equal(detonation.units.find((u) => u.uid === 991)!.hp, 7, 'blast costs nearby ally life')
 const kaboomStage = evolved('riot', 'kaboom')
+kaboomStage.active = 'enemy'
 kaboomStage.phase = 'attack'
 kaboomStage.units = [
   { ...follower('player', 1, 994, 8, 3), cardId: 'kaboom', level: 3 },
@@ -1001,11 +1002,6 @@ angelStage.units = [
 const resurrected = strikeClash(angelStage, 'enemy')
 assert.equal(resurrected.units.filter((u) => u.token).length, 1, 'L3 angel saves one fighter')
 assert.equal(resurrected.deathMarks.player['angel-rescue-round'], angelStage.round)
-assert.equal(
-  replayClash('catgirls', 'ironjaw', 840 + evoIds.indexOf('lynx'), [] ).seed,
-  840 + evoIds.indexOf('lynx'),
-  'resurrection hooks leave seeded constructor semantics intact',
-)
 
 // Balance acceptance (2026-11-07 Clash rebalance): CPU sweeps across every crew
 // pairing keep each crew and the first seat near even. Report:

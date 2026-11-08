@@ -1,23 +1,40 @@
 <!-- components/ruler-hooked/ruler-hooked-court.vue
-     The petition before the throne (t-054): the matter set out as a flat,
-     legible edict card, and the choices as a hand of cards. Each card paints the
+     The petition before the throne (t-054): the matter, its painting and the
+     petitioner on one rainbow edict panel whose text is always shown in full
+     (never in an inner scroll box), and the choices as a hand of cards beside
+     it. Each card paints the
      corner of the kingdom that choice would change most, as it would leave it,
      with its signed meter changes, computed by the real effects reducer before
      you commit. The court screen supplies the presenter and the backdrop. -->
 <template>
   <div v-if="store.activeCard" class="rh-petition-court">
-    <article class="rh-edict kr-scroll">
-      <p class="rh-edict__kind">{{ edictKind }}</p>
-      <h2 class="rh-edict__title">{{ store.activeCard.title }}</h2>
+    <article class="rh-edict" data-testid="rh-edict">
       <RulerHookedArt
-        class="rh-edict__cut"
+        class="rh-edict__art"
         :candidates="cardArt"
         :alt="store.activeCard.title"
+        :initial="store.activeCard.title.charAt(0)"
+        position="center 30%"
       />
-      <p v-if="store.activeCard.body" class="rh-edict__body">
-        {{ store.activeCard.body }}
-      </p>
-      <p v-if="by" class="rh-edict__sign">— Presented by {{ by }}</p>
+      <div class="rh-edict__copy">
+        <p class="rh-edict__kind">{{ edictKind }}</p>
+        <h2 class="rh-edict__title">{{ store.activeCard.title }}</h2>
+        <p v-if="store.activeCard.body" class="rh-edict__body">
+          {{ store.activeCard.body }}
+        </p>
+        <p v-if="by" class="rh-edict__sign">
+          <RulerHookedArt
+            v-if="presenter"
+            class="rh-edict__avatar"
+            :candidates="characterCandidates(presenter)"
+            :initial="by.charAt(0)"
+            position="center 20%"
+          />
+          <span
+            >Presented by <strong>{{ by }}</strong></span
+          >
+        </p>
+      </div>
     </article>
 
     <div class="rh-court-hand">
@@ -68,6 +85,7 @@ import {
 import { resolveScene } from '~/utils/rulerHooked/compositor'
 import {
   cardCandidates,
+  characterCandidates,
   sceneVistaCandidates,
 } from '~/utils/rulerHooked/artLibrary'
 import { AXIS_LABEL, REGION_PIN } from '~/utils/rulerHooked/console'
@@ -190,92 +208,118 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onDigit))
   flex-direction: column;
   justify-content: flex-end;
   gap: 0.6rem;
-  height: 100%;
-  min-height: 0;
-  --hand-accent: var(--rh-hot);
+  min-height: 100%;
+  --hand-accent: var(--rh-gold-soft);
   --hand-accent-2: var(--rh-gold);
   --hand-band: var(--rh-plum-deep);
   --hand-band-ink: #fff;
   --hand-card-max: 13.5rem;
-  --hand-card-vh: 26vh;
+  --hand-card-vh: 22cqh;
   --hand-card-cqw: 30cqw;
   --hand-focus-scale: 1.08;
 }
 .rh-edict {
   position: relative;
-  flex: 0 1 auto;
+  display: flex;
+  flex: none;
+  flex-direction: column;
   min-width: 0;
-  min-height: 5rem;
-  overflow-y: auto;
-  overscroll-behavior: contain;
-  padding: 1.05rem 1.1rem 1rem;
-  border: 3px solid var(--rh-ink);
-  border-radius: 0.8rem;
+  overflow: clip;
+  border: 2px solid var(--rh-gold);
+  border-radius: 1.15rem;
   background:
     var(--rh-spectrum) top / 100% 6px no-repeat,
-    var(--rh-parch);
-  color: var(--rh-ink);
+    linear-gradient(155deg, rgb(33 26 103 / 0.95), rgb(8 13 53 / 0.95));
+  color: #f4faff;
   font-family: var(--rh-body);
-  box-shadow: 5px 5px 0 var(--rh-hot);
+  box-shadow:
+    0 0 0 3px var(--rh-plum),
+    6px 6px 0 3px var(--rh-hot),
+    0 14px 35px rgb(0 0 0 / 0.45);
+  backdrop-filter: blur(8px);
+  rotate: var(--rh-warp);
+}
+.rh-edict__art {
+  display: none;
+}
+.rh-edict__copy {
+  display: grid;
+  gap: 0.35rem;
+  justify-items: start;
+  padding: 1rem 1rem 0.85rem;
 }
 .rh-edict__kind {
-  display: inline-block;
-  padding: 0.12rem 0.55rem;
+  padding: 0.15rem 0.6rem;
   border-radius: 999px;
-  background: var(--rh-ink);
-  color: var(--rh-gold-soft);
+  background: var(--rh-spectrum);
+  color: var(--rh-ink);
   font-family: var(--rh-display);
   font-size: 0.72rem;
   font-weight: 900;
   letter-spacing: 0.08em;
   text-transform: uppercase;
+  box-shadow: 0 0 0 2px var(--rh-ink);
 }
 .rh-edict__title {
-  margin-top: 0.3rem;
+  color: var(--rh-gold-soft);
   font-family: var(--rh-display);
-  font-size: clamp(1.05rem, 2.6cqi, 1.7rem);
+  font-size: clamp(1.15rem, 2.6cqi, 1.75rem);
   font-weight: 900;
   line-height: 1.1;
-  text-shadow: var(--rh-echo);
-}
-.rh-edict__cut {
-  float: right;
-  width: clamp(5rem, 30%, 12rem);
-  aspect-ratio: 7 / 4;
-  margin: 0.3rem 0 0.4rem 0.8rem;
-  border: 3px solid var(--rh-ink);
-  border-radius: 0.5rem;
-  box-shadow: 4px 4px 0 var(--rh-gold);
+  text-shadow:
+    2px 2px 0 var(--rh-hot),
+    var(--rh-echo);
 }
 .rh-edict__body {
-  margin-top: 0.45rem;
-  font-size: 0.95rem;
+  font-size: clamp(0.9rem, 1.5cqi, 1.05rem);
   font-weight: 600;
-  line-height: 1.4;
+  line-height: 1.45;
 }
 .rh-edict__sign {
-  clear: both;
-  margin-top: 0.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  justify-self: end;
+  color: var(--rh-gold);
   font-size: 0.85rem;
   font-weight: 700;
-  color: var(--rh-plum);
-  text-align: right;
+}
+.rh-edict__sign strong {
+  color: #fff;
+}
+.rh-edict__avatar {
+  flex: none;
+  width: 2.4rem;
+  height: 2.4rem;
+  border-radius: 999px;
+  box-shadow:
+    0 0 0 2px var(--rh-ink),
+    0 0 0 4px var(--rh-gold-soft);
 }
 .rh-court-hand {
-  flex: 0 0 auto;
+  flex: none;
+  min-width: 0;
 }
 .rh-court-hand :deep(.krh-question) {
+  justify-self: start;
+  width: fit-content;
+  padding: 0.15rem 0.7rem;
+  border-radius: 999px;
+  background: var(--rh-plum-deep);
   color: var(--rh-gold-soft);
-  text-shadow:
-    0 0 4px var(--rh-plum-deep),
-    0 1px 2px var(--rh-plum-deep);
+  font-family: var(--rh-display);
+  font-size: 0.8rem;
+  font-weight: 900;
+  box-shadow:
+    0 0 0 2px var(--rh-gold),
+    3px 3px 0 2px var(--rh-hot);
 }
 .rh-choice-art {
   position: absolute;
   inset: 0;
   display: flex;
   flex-direction: column;
-  background: var(--rh-parch);
+  background: var(--rh-plum-deep);
 }
 .rh-choice-art__scene {
   flex: 1 1 auto;
@@ -286,17 +330,18 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onDigit))
   flex: none;
   flex-direction: column;
   gap: 0.05rem;
-  padding: 0.3rem 0.4rem 1.45rem;
-  border-top: 3px solid var(--rh-ink);
-  background: var(--rh-parch);
-  color: var(--rh-ink);
+  padding: 0.4rem 0.6rem 1.45rem 0.45rem;
+  background:
+    var(--rh-spectrum) top / 100% 4px no-repeat,
+    linear-gradient(160deg, rgb(33 26 103), var(--rh-plum-deep));
+  color: #f4faff;
 }
 .rh-ledger__row {
   display: grid;
   grid-template-columns: auto minmax(0, 1fr) auto;
   align-items: center;
   gap: 0.25rem;
-  font-size: 0.7rem;
+  font-size: 0.72rem;
   font-weight: 800;
   line-height: 1.25;
 }
@@ -310,29 +355,72 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onDigit))
   white-space: nowrap;
 }
 .rh-ledger__value {
+  padding-right: 0.1rem;
   font-variant-numeric: tabular-nums;
   font-weight: 900;
 }
 .rh-ledger__row[data-sign='up'] .rh-ledger__value {
-  color: var(--rh-green-ink);
+  color: var(--rh-green);
 }
 .rh-ledger__row[data-sign='down'] .rh-ledger__value {
-  color: var(--rh-pink-ink);
+  color: #ff7ad1;
 }
 .rh-ledger__none {
   display: block;
   font-style: italic;
   font-weight: 700;
 }
-@container rhconsole (max-width: 899px) {
-  .rh-edict__cut {
-    display: none;
+@container rhconsole (min-width: 900px) {
+  .rh-petition-court {
+    display: grid;
+    grid-template-columns: minmax(15rem, 32%) minmax(0, 1fr);
+    grid-template-rows: 1fr;
+    align-items: end;
+    gap: clamp(0.9rem, 2cqi, 1.6rem);
+    --hand-card-vh: calc((100cqh - 5rem) / 1.65);
   }
   .rh-edict {
-    padding: 0.85rem 0.8rem 0.8rem;
+    align-self: stretch;
+  }
+  .rh-edict__art {
+    display: block;
+    flex: 1 1 auto;
+    min-height: 0;
+    border-bottom: 3px solid var(--rh-ink);
+    box-shadow: 0 3px 0 var(--rh-gold);
+  }
+  .rh-edict__copy {
+    flex: none;
+  }
+  .rh-court-hand {
+    align-self: center;
+  }
+}
+@container rhcourt (max-width: 899px) and (min-height: 600px) {
+  .rh-edict__art {
+    display: block;
+    height: clamp(6rem, 22cqh, 15rem);
+    border-bottom: 3px solid var(--rh-ink);
+    box-shadow: 0 3px 0 var(--rh-gold);
+  }
+}
+@container rhconsole (max-width: 559px) {
+  .rh-ledger__row {
+    grid-template-columns: auto minmax(0, 1fr);
+  }
+  .rh-ledger__label {
+    display: none;
+  }
+  .rh-ledger__value {
+    justify-self: end;
+  }
+}
+@container rhconsole (max-width: 899px) {
+  .rh-edict__copy {
+    padding: 0.85rem 0.8rem 0.7rem;
   }
   .rh-edict__body {
-    font-size: 0.85rem;
+    font-size: 0.88rem;
   }
   .rh-petition-court {
     --hand-card-cqw: 33cqw;

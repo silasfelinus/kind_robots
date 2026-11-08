@@ -26,19 +26,26 @@ export function isMandarinQuizScope(value: string): boolean {
 export function choiceCount(difficulty: FishingQuizDifficulty): number {
   return difficulty === 'easy' ? 2 : 4
 }
-export type QuizOption = { id: string; label: string; icon?: string }
+export type QuizOption = {
+  id: string
+  label: string
+  icon?: string
+  image?: string
+}
 export type FishingQuizQuestion = {
   id: string
   module: FishingQuizModule
   prompt: string
   hero: string
+  heroImage?: string
+  answerImage?: string
   options: QuizOption[]
   correctId: string
   explanation: string
   cardKey?: string
 }
 
-type Place = { name: string; answer: string; icon?: string }
+type Place = { name: string; answer: string; image?: string }
 
 const COUNTRIES: readonly [string, string][] = [
   ['US', 'United States'],
@@ -146,10 +153,10 @@ export const STATE_CAPITALS: readonly [string, string][] = [
   ['Wyoming', 'Cheyenne'],
 ]
 
-function flag(code: string): string {
-  return String.fromCodePoint(
-    ...[...code].map((letter) => 127397 + letter.charCodeAt(0)),
-  )
+/** Bundled SVG flags (public/flags, from flag-icons, MIT): flag emoji
+ *  render as bare letters on Windows, so the quiz never relies on them. */
+export function flagImage(code: string): string {
+  return '/flags/' + code.toLowerCase() + '.svg'
 }
 
 export function unlockedCount(
@@ -193,14 +200,18 @@ function options(
       random,
     ).slice(0, choiceCount(difficulty) - 1),
   ]
-  return shuffled(choices, random).map((place) => ({
-    id: reversed ? place.name : place.answer,
-    label: reversed
-      ? module === 'flags'
-        ? place.icon!
-        : place.name
-      : place.answer,
-  }))
+  return shuffled(choices, random).map((place, n) =>
+    reversed && module === 'flags'
+      ? {
+          id: place.name,
+          label: 'Flag ' + String.fromCharCode(65 + n),
+          image: place.image,
+        }
+      : {
+          id: reversed ? place.name : place.answer,
+          label: reversed ? place.name : place.answer,
+        },
+  )
 }
 
 export function geographyQuestion(
@@ -216,7 +227,7 @@ export function geographyQuestion(
       ? COUNTRIES.map(([code, name]) => ({
           name,
           answer: name,
-          icon: flag(code),
+          image: flagImage(code),
         }))
       : STATE_CAPITALS.map(([name, capital]) => ({ name, answer: capital }))
   const pool = places.slice(
@@ -246,13 +257,15 @@ export function geographyQuestion(
         ? correct.name
         : correct.answer
       : module === 'flags'
-        ? correct.icon!
+        ? 'Flag of a mystery country'
         : correct.name,
+    heroImage: module === 'flags' && !reversed ? correct.image : undefined,
+    answerImage: module === 'flags' ? correct.image : undefined,
     options: options(correct, places, random, module, difficulty, reversed),
     correctId: reversed ? correct.name : correct.answer,
     explanation:
       module === 'flags'
-        ? correct.icon + ' is the flag of ' + correct.name + '.'
+        ? 'This is the flag of ' + correct.name + '.'
         : correct.name + ' has its capital in ' + correct.answer + '.',
   }
 }

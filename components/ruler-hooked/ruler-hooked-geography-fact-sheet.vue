@@ -15,7 +15,13 @@
         :class="{ 'is-flag': question.module === 'flags' }"
         aria-hidden="true"
       >
-        {{ question.module === 'flags' ? flag : '🏛️' }}
+        <img
+          v-if="question.answerImage"
+          class="rh-geography-guide__flag"
+          :src="question.answerImage"
+          alt=""
+        />
+        <template v-else>🏛️</template>
       </div>
       <div class="rh-geography-guide__copy">
         <p class="rh-eyebrow">
@@ -67,13 +73,6 @@ const reversed = computed(() =>
     ? props.question.hero === props.question.correctId
     : props.question.hero !== props.question.id.slice('capitals:'.length),
 )
-const flag = computed(() =>
-  reversed.value
-    ? (props.question.options.find(
-        (option) => option.id === props.question.correctId,
-      )?.label ?? '🌍')
-    : props.question.hero,
-)
 const title = computed(() =>
   props.question.module === 'flags'
     ? props.question.correctId
@@ -116,6 +115,14 @@ const subtitle = computed(() =>
   border-radius: 0.5rem;
   background: rgb(250 232 190 / 0.6);
   font-size: clamp(3rem, 10cqi, 5rem);
+}
+.rh-geography-guide__flag {
+  width: auto;
+  max-width: 100%;
+  height: auto;
+  max-height: clamp(4.5rem, 14cqi, 7rem);
+  border-radius: 0.3rem;
+  box-shadow: 0 0 0 2px var(--rh-ink);
 }
 .rh-geography-guide__copy h3 {
   font-size: clamp(1.4rem, 4cqi, 2rem);

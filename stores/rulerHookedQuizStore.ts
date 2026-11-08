@@ -355,9 +355,10 @@ export const useRulerHookedQuizStore = defineStore('rulerHookedQuiz', () => {
       }
       if (question.value)
         introduction.value =
-          lessonMode.value === 'always' ||
-          (lessonMode.value === 'guided' &&
-            !introducedKeys.value.includes(question.value.id))
+          question.value.module === 'mandarin' &&
+          (lessonMode.value === 'always' ||
+            (lessonMode.value === 'guided' &&
+              !introducedKeys.value.includes(question.value.id)))
       lastId.value = question.value?.id ?? null
       lastModule.value = question.value?.module ?? null
     } finally {
@@ -407,8 +408,7 @@ export const useRulerHookedQuizStore = defineStore('rulerHookedQuiz', () => {
           (topicCorrect.value[mandarinScope.value] ?? 0) + 1
       saveSettings()
       feedback.value = active.explanation
-      answerSheet.value = true
-      pendingCatch.value = true
+      settleAnswer(true)
       return true
     }
     feedback.value =
@@ -420,16 +420,19 @@ export const useRulerHookedQuizStore = defineStore('rulerHookedQuiz', () => {
     return false
   }
 
-  function finishAnswerSheet() {
-    if (!answerSheet.value || !question.value) return
+  function settleAnswer(caught: boolean) {
     const card = currentMandarinCard.value
-    const caught = pendingCatch.value
     answerSheet.value = false
     pendingCatch.value = false
     if (card && !tutor.lessonIsComplete(card.key))
       void tutor.completeLesson(card.key)
     if (caught) fishing.landQuizFish()
     else void nextQuestion()
+  }
+
+  function finishAnswerSheet() {
+    if (!answerSheet.value || !question.value) return
+    settleAnswer(pendingCatch.value)
   }
 
   function retryLoading() {

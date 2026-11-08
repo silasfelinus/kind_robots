@@ -104,7 +104,11 @@
 
     <div
       class="rh-lake__dock"
-      :class="{ 'rh-lake__dock--classic': !!store.activeClassicFishing }"
+      :class="{
+        'rh-lake__dock--classic': !!store.activeClassicFishing,
+        'rh-lake__dock--quiz':
+          !!store.activeFishing && !store.activeClassicFishing,
+      }"
     >
       <RulerHookedQuizEncounter
         v-if="store.activeFishing && !store.activeClassicFishing"
@@ -204,15 +208,43 @@
         </button>
       </div>
 
-      <button
-        v-else-if="store.canFish"
-        type="button"
-        class="rh-cast"
-        @click="store.startFishing(quiz.mode)"
-      >
-        <span class="rh-cast__label">Cast a line</span>
-        <span class="rh-cast__hint">{{ castHint }}</span>
-      </button>
+      <div v-else-if="store.canFish" class="rh-cast-wrap">
+        <button
+          type="button"
+          class="rh-cast"
+          @click="store.startFishing(quiz.mode)"
+        >
+          <span class="rh-cast__label">Cast a line</span>
+          <span class="rh-cast__hint">{{ castHint }}</span>
+        </button>
+        <div
+          class="rh-style"
+          role="group"
+          aria-label="Fishing style"
+          data-testid="rh-fishing-style"
+        >
+          <button
+            v-for="option in fishingStyles"
+            :key="option.mode"
+            type="button"
+            class="rh-style__opt"
+            :class="{ 'is-on': quiz.mode === option.mode }"
+            :aria-pressed="quiz.mode === option.mode"
+            @click="quiz.setMode(option.mode)"
+          >
+            <span aria-hidden="true">{{ option.icon }}</span>
+            {{ option.label }}
+          </button>
+          <button
+            type="button"
+            class="rh-style__more"
+            data-testid="rh-fishing-style-subjects"
+            @click="emit('navigate', 'settings')"
+          >
+            {{ subjectSummary }} ›
+          </button>
+        </div>
+      </div>
 
       <div
         v-else-if="store.save?.status === 'COMPLETE'"
@@ -240,10 +272,26 @@ import {
   lakeBackdropCandidates,
 } from '~/utils/rulerHooked/artLibrary'
 import type { ConsoleScreen } from '~/utils/rulerHooked/tutorial'
+import type { FishingQuizModule } from '~/utils/rulerHooked/quiz'
 
-const emit = defineEmits<{ navigate: [screen: ConsoleScreen] }>()
+const emit = defineEmits<{ navigate: [screen: ConsoleScreen | 'settings'] }>()
 const store = useRulerHookedStore()
 const quiz = useRulerHookedQuizStore()
+
+const fishingStyles = [
+  { mode: 'classic', icon: '🎣', label: 'Classic' },
+  { mode: 'quiz', icon: '🀄', label: 'Learning' },
+] as const
+const SUBJECT_LABEL: Record<FishingQuizModule, string> = {
+  mandarin: 'Mandarin',
+  flags: 'Flags',
+  capitals: 'Capitals',
+}
+const subjectSummary = computed(() =>
+  quiz.mode === 'quiz'
+    ? quiz.enabled.map((module) => SUBJECT_LABEL[module]).join(' · ')
+    : 'Mandarin, flags & capitals',
+)
 
 const time = computed(() => store.timeOfDay)
 const backdrop = computed(() =>
@@ -417,31 +465,97 @@ function formatSize(cm: number): string {
 .rh-lake__dock {
   position: absolute;
   z-index: 10;
-  left: 50%;
+  top: clamp(3.75rem, 9cqi, 4.6rem);
   bottom: clamp(0.6rem, 3cqi, 1.5rem);
+  left: 50%;
   translate: -50% 0;
   width: min(36rem, calc(100% - 1.25rem));
-  display: grid;
-  justify-items: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  pointer-events: none;
+}
+.rh-lake__dock > * {
+  flex: none;
+  max-height: 100%;
+  pointer-events: auto;
 }
 @container rhconsole (min-width: 900px) {
   .rh-lake__dock {
     left: auto;
     right: clamp(1rem, 4cqi, 3rem);
     translate: none;
-    bottom: auto;
-    top: 50%;
-    transform: translateY(-40%);
+    justify-content: center;
     width: min(25rem, 36%);
+  }
+  .rh-lake__dock--quiz {
+    left: 50%;
+    right: auto;
+    translate: -50% 0;
+    width: min(60rem, calc(100% - 2.5rem));
   }
   .rh-lake__dock--classic {
     left: 50%;
     right: auto;
     bottom: clamp(0.6rem, 2cqi, 1.25rem);
-    top: auto;
+    justify-content: flex-end;
     width: min(49rem, 75%);
-    transform: translateX(-50%);
+    translate: -50% 0;
   }
+}
+.rh-cast-wrap {
+  display: grid;
+  justify-items: center;
+  gap: 0.6rem;
+}
+.rh-style {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.3rem;
+  border-radius: 999px;
+  background:
+    var(--rh-spectrum) top / 100% 3px no-repeat,
+    var(--rh-plum-deep);
+  box-shadow:
+    0 0 0 2px var(--rh-gold),
+    3px 3px 0 2px var(--rh-hot);
+}
+.rh-style__opt,
+.rh-style__more {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  min-height: 2.25rem;
+  padding: 0.2rem 0.75rem;
+  border-radius: 999px;
+  color: #fff;
+  font-family: var(--rh-display);
+  font-size: 0.85rem;
+  font-weight: 800;
+  cursor: pointer;
+}
+.rh-style__opt.is-on {
+  background: var(--rh-gold-soft);
+  color: var(--rh-ink);
+  box-shadow: 0 0 0 2px var(--rh-ink);
+}
+.rh-style__opt:not(.is-on):hover,
+.rh-style__more:hover {
+  background: rgb(255 255 255 / 0.12);
+}
+.rh-style__more {
+  color: var(--rh-gold);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.rh-style__opt:focus-visible,
+.rh-style__more:focus-visible {
+  outline: 3px solid var(--rh-gold-soft);
+  outline-offset: 2px;
 }
 .rh-cast {
   display: grid;

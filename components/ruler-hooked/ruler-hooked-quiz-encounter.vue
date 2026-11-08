@@ -1,7 +1,7 @@
 <template>
   <section
     class="rh-parchment rh-quiz"
-    :class="{ 'is-sheet': quiz.answerSheet }"
+    :class="{ 'is-sheet': quiz.answerSheet || quiz.introduction }"
     aria-label="Learn to catch"
   >
     <header class="rh-quiz__head">
@@ -92,7 +92,13 @@
           class="rh-quiz__symbol"
           :class="{ 'is-flag': quiz.question.module === 'flags' }"
         >
-          {{ quiz.question.hero }}
+          <img
+            v-if="quiz.question.heroImage"
+            class="rh-quiz__flag"
+            :src="quiz.question.heroImage"
+            alt="A national flag"
+          />
+          <template v-else>{{ quiz.question.hero }}</template>
           <button
             v-if="quiz.question.module === 'mandarin'"
             type="button"
@@ -109,10 +115,20 @@
           :animate="false"
           testid-prefix="ruler-quiz-choice"
           @play="pick"
-        />
+        >
+          <template #art="{ choice }">
+            <span
+              v-if="flagOf(choice.id)"
+              class="rh-quiz__flag-card"
+              aria-hidden="true"
+            >
+              <img :src="flagOf(choice.id)!" alt="" />
+            </span>
+          </template>
+        </KrChoiceHand>
         <p class="rh-quiz__note">
-          Every answer opens the field guide. Learn the pair, then land the
-          fish; mistakes teach without losing the catch.
+          A right answer lands the fish. A miss opens the field guide, then
+          offers another question without losing the catch.
         </p>
       </div>
     </template>
@@ -153,6 +169,11 @@ const hand = computed(() =>
     icon: option.icon ?? (quiz.question?.module === 'capitals' ? '🏛️' : '✒️'),
   })),
 )
+function flagOf(id: string): string | null {
+  return (
+    quiz.question?.options.find((option) => option.id === id)?.image ?? null
+  )
+}
 function pick(choice: { id: string }) {
   quiz.answer(choice.id)
 }
@@ -170,7 +191,7 @@ watch(
 .rh-quiz {
   width: 100%;
   min-width: 0;
-  max-height: min(72vh, 38rem);
+  max-height: 100%;
   overflow-y: auto;
   scrollbar-width: thin;
   display: grid;
@@ -181,6 +202,9 @@ watch(
   justify-content: space-between;
   gap: 0.5rem;
   align-items: center;
+}
+.rh-quiz.is-sheet .rh-quiz__head .rh-eyebrow {
+  display: none;
 }
 .rh-quiz__seal {
   flex-shrink: 0;
@@ -214,6 +238,33 @@ watch(
 }
 .rh-quiz__symbol.is-flag {
   font-size: clamp(2.5rem, 10cqi, 4.5rem);
+}
+.rh-quiz__flag {
+  display: block;
+  width: auto;
+  height: clamp(3.5rem, 11cqi, 6.5rem);
+  max-width: 100%;
+  margin: 0.2rem auto;
+  border-radius: 0.35rem;
+  box-shadow:
+    0 0 0 2px var(--rh-ink),
+    4px 4px 0 2px var(--rh-hot);
+}
+.rh-quiz__flag-card {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding: 0.5rem;
+  background:
+    var(--rh-spectrum) bottom / 100% 4px no-repeat,
+    var(--rh-parch);
+}
+.rh-quiz__flag-card img {
+  width: 100%;
+  height: auto;
+  border-radius: 0.25rem;
+  box-shadow: 0 0 0 1.5px var(--rh-ink);
 }
 .rh-quiz__sound {
   margin-left: 0.4rem;
@@ -260,14 +311,8 @@ watch(
   gap: 0.7rem;
 }
 @container rhconsole (max-width: 599px) {
-  .rh-quiz {
-    max-height: 48vh;
-  }
   .rh-quiz__lesson {
     grid-template-columns: 1fr 1.5fr;
-  }
-  .rh-quiz.is-sheet {
-    max-height: 62vh;
   }
   .rh-quiz__art {
     min-height: 7rem;

@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict'
-import { readFileSync } from 'node:fs'
+import { existsSync, readFileSync } from 'node:fs'
 import { CURATED_MANDARIN_CARDS, type MandarinCard } from '../mandarin'
 import {
   animalMandarinCards,
@@ -37,7 +37,25 @@ assert.equal(
   geographyQuestion('capitals', 0, null, () => 0).correctId,
   'Montgomery',
 )
-assert.match(geographyQuestion('flags', 0, null, () => 0).hero, /[🇦-🇿]/u)
+assert.equal(
+  geographyQuestion('flags', 0, null, () => 0).heroImage,
+  '/flags/us.svg',
+  'flags are bundled pictures, never emoji that Windows shows as letters',
+)
+{
+  const shown = geographyQuestion('flags', 0, null, () => 0)
+  assert.doesNotMatch(
+    [shown.prompt, shown.hero, shown.heroImage].join(' '),
+    /[🇦-🇿]|United States/u,
+    'the flag prompt never names its own answer',
+  )
+}
+for (const match of readFileSync('utils/rulerHooked/quiz.ts', 'utf8').matchAll(
+  /^ {2}\['([A-Z]{2})',/gm,
+)) {
+  const file = 'public/flags/' + match[1]!.toLowerCase() + '.svg'
+  assert.ok(existsSync(file), file + ' is bundled')
+}
 assert.equal(choiceCount('easy'), 2)
 assert.equal(choiceCount('standard'), 4)
 assert.equal(unlockedCount(0, 50, 'challenge'), 12)
@@ -61,10 +79,14 @@ const reversedFlag = geographyQuestion(
 )
 assert.equal(reversedFlag.hero, 'United States')
 assert.equal(reversedFlag.correctId, 'United States')
-assert.match(
+assert.equal(
   reversedFlag.options.find((option) => option.id === reversedFlag.correctId)!
-    .label,
-  /[🇦-🇿]/u,
+    .image,
+  '/flags/us.svg',
+)
+assert.ok(
+  reversedFlag.options.every((option) => !option.label.includes('United')),
+  'reversed flag cards do not name their country',
 )
 const reversedCapital = geographyQuestion(
   'capitals',
@@ -244,8 +266,26 @@ assert.match(
 )
 assert.match(
   quizStore,
+  /introduction\.value =\s+question\.value\.module === 'mandarin' &&/,
+  'geography quizzes never preview the answer before asking',
+)
+assert.match(
+  quizStore,
+  /'Not quite\. ' \+[\s\S]*?answerSheet\.value = true/,
+  'a wrong answer opens the field guide',
+)
+assert.match(
+  quizStore,
+  /if \(succeeded\) \{[\s\S]*?settleAnswer\(true\)[\s\S]*?return true/,
+  'a correct answer lands the fish without repeating the field guide',
+)
+assert.doesNotMatch(
+  quizStore.slice(
+    quizStore.indexOf('if (succeeded) {'),
+    quizStore.indexOf("'Not quite. '"),
+  ),
   /answerSheet\.value = true/,
-  'every answer opens the field guide',
+  'a correct answer never reopens the field guide',
 )
 const geographyGuide = readFileSync(
   'components/ruler-hooked/ruler-hooked-geography-fact-sheet.vue',
@@ -269,13 +309,13 @@ assert.match(
 )
 assert.match(
   quizStore,
-  /answerSheet\.value = true/,
-  'answer selection opens an answer reference',
+  /function settleAnswer\(caught: boolean\)[\s\S]*?if \(caught\) fishing\.landQuizFish\(\)/,
+  'a settled correct answer lands the fish',
 )
 assert.match(
   quizStore,
-  /function finishAnswerSheet\(\)[\s\S]*?if \(caught\) fishing\.landQuizFish\(\)/,
-  'a correct Mandarin answer waits for the sheet before landing the fish',
+  /function finishAnswerSheet\(\)[\s\S]*?settleAnswer\(pendingCatch\.value\)/,
+  'closing a wrong-answer field guide offers another question',
 )
 assert.match(
   quiz,

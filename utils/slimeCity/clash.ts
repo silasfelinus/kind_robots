@@ -2933,7 +2933,7 @@ function cpuEvolutionPayoff(
         ? rivals.filter((u) => u.rooted).length * rules.bully * 0.6
         : 0)
     : 0
-  return clamp(abilities + passive, -6, 14)
+  return clamp(abilities + passive, -6, 14) * 0.65
 }
 
 /** The CPU fires its faction power once its value reaches this. */
@@ -3007,13 +3007,13 @@ export function chooseClashCpu(
           const missing = (card.grants ?? []).filter(
             (keyword) => !mine.keywords.includes(keyword),
           )
-          score += missing.length * 3.5 + (b.level - 1) * 1.5
+          score += missing.length * 2.8 + (b.level - 1) * 1.25
           if (!missing.length && b.level === 1) score -= 3
         }
         if (mine && card.kind === 'equipment') {
           // Gear survives turns; its price cannot be assessed as one small
           // immediate spell. Reward protecting a healthy, productive fighter.
-          score += 3 + Math.min(mine.attack, 6) * 0.8 + (mine.hp >= 6 ? 1.5 : 0)
+          score += 1.8 + Math.min(mine.attack, 6) * 0.55 + (mine.hp >= 6 ? 1 : 0)
         }
         if (mine && (card.effect === 'sharpen' || card.effect === 'boost'))
           score +=
@@ -3045,7 +3045,7 @@ export function chooseClashCpu(
       // reachable next stage, without valuing a future payoff as immediate.
       if (b.level === 1)
         score +=
-          Math.max(0, cpuEvolutionPayoff(s, side, card, lane, 2, 0)) * 0.3
+          Math.max(0, cpuEvolutionPayoff(s, side, card, lane, 2, 0)) * 0.2
       score /= b.plays
       if (!best || score > best.score)
         best = { score, card: id, lane, ...(choice ? { choice } : {}) }

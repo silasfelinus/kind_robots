@@ -164,11 +164,12 @@ export function roomForAudience(
   const approved = GENERAL_HOTSPOTS[id] ?? []
   return {
     ...room,
-    caption: id === 'odette-room'
-      ? GENERAL_ROOM_205
-      : approved.length
-        ? room.caption
-        : 'This location is reserved for a later general-edition chapter.',
+    caption:
+      id === 'odette-room'
+        ? GENERAL_ROOM_205
+        : approved.length
+          ? room.caption
+          : 'This location is reserved for a later general-edition chapter.',
     exits: room.exits.filter(isGeneralRoom),
     hotspots: room.hotspots
       .filter((hotspot) => approved.includes(hotspot.id))
@@ -189,7 +190,11 @@ export function actionForAudience(
     !GENERAL_HOTSPOTS[state.room]?.includes(action.target) ||
     (action.verb === 'ask' && !GENERAL_TOPICS.has(action.topic ?? ''))
   )
-    return { state, changed: false, line: 'This interaction is not available in the general edition.' }
+    return {
+      state,
+      changed: false,
+      line: 'This interaction is not available in the general edition.',
+    }
   if (action.verb === 'flirt')
     return {
       state,
@@ -229,27 +234,27 @@ export const MONSTRIQUE_GENERAL_SPEC = {
   route: '/play/monstrique',
   premise:
     'Investigate two mysterious deaths at a neon motel with Iris, her germophobic boss and two unusually talkative ghost witnesses.',
-  cast: MONSTRESS_CONVENTION.cast.filter((person) =>
-    GENERAL_APPROVED_CAST.has(person.id),
-  ).map((person) => ({
-    ...person,
-    romance: undefined,
-    tagline:
-      person.id === 'iris'
-        ? 'Resourceful assistant and photographer. The only one willing to touch the evidence.'
-        : person.id === 'violet'
-          ? 'A Draculina impersonator with an unpaid booking and a supernatural clue.'
-          : person.tagline,
-    portrait:
-      person.id === 'violet'
-        ? {
-            brief:
-              'A witty adult ghost dressed in a rented theatrical vampire cape, illustrated noir adventure portrait',
-          }
-        : person.portrait,
-  })),
-  moments: MONSTRESS_CONVENTION.moments.filter(
-    (moment) => GENERAL_APPROVED_MOMENTS.has(moment.id),
+  cast: MONSTRESS_CONVENTION.cast
+    .filter((person) => GENERAL_APPROVED_CAST.has(person.id))
+    .map((person) => ({
+      ...person,
+      romance: undefined,
+      tagline:
+        person.id === 'iris'
+          ? 'Resourceful assistant and photographer. The only one willing to touch the evidence.'
+          : person.id === 'violet'
+            ? 'A Draculina impersonator with an unpaid booking and a supernatural clue.'
+            : person.tagline,
+      portrait:
+        person.id === 'violet'
+          ? {
+              brief:
+                'A witty adult ghost dressed in a rented theatrical vampire cape, illustrated noir adventure portrait',
+            }
+          : person.portrait,
+    })),
+  moments: MONSTRESS_CONVENTION.moments.filter((moment) =>
+    GENERAL_APPROVED_MOMENTS.has(moment.id),
   ),
   reveals: MONSTRESS_CONVENTION.reveals.filter((reveal) =>
     GENERAL_APPROVED_REVEALS.has(reveal.id),

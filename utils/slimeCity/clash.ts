@@ -97,6 +97,15 @@ export interface ClashLog {
   lane?: number
   kind: 'play' | 'clash' | 'death' | 'boss' | 'turn' | 'trap'
 }
+/** One replayable signature moment from a card, anchored to its command. */
+export interface ClashEvolutionMoment {
+  cardId: string
+  side: Side
+  lane: number
+  detail: string
+  effect: 'summon' | 'heal' | 'blast' | 'control' | 'strike'
+  commandIndex: number
+}
 export type ClashCommand =
   | { t: 'play'; side: Side; card: string; lane: number }
   | { t: 'pass'; side: Side }
@@ -138,6 +147,8 @@ export interface ClashState {
   levels: Record<Side, Record<string, number>>
   /** Knockout bonuses persist independently of the three play levels. */
   deathMarks: Record<Side, Record<string, number>>
+  /** Last named ability activation, not a second random effects engine. */
+  lastEvolution?: ClashEvolutionMoment
   /** Omitted on older saves and replays: standard Clash. */
   format?: ClashFormat
   /** ALLIANCE: each side's second crew, or null. */
@@ -179,6 +190,24 @@ const note = (
 ): void => {
   s.log.push({ round: s.round, text, kind, lane })
   if (s.log.length > 75) s.log.shift()
+}
+const evolutionMoment = (
+  s: ClashState,
+  cardId: string,
+  side: Side,
+  lane: number,
+  detail: string,
+  effect: ClashEvolutionMoment['effect'],
+): void => {
+  s.lastEvolution = {
+    cardId,
+    side,
+    lane,
+    detail,
+    effect,
+    commandIndex: s.commands.length + 1,
+  }
+  note(s, detail, 'clash', lane)
 }
 
 /**

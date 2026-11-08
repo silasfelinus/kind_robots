@@ -822,12 +822,7 @@ function summonEcho(
   )
   const trap = s.traps.find((t) => t.side === opponent(side) && t.lane === lane)
   if (trap) {
-    const effect = cardById(trap.cardId)
-    damage(unit, clashBalance(effect, trap.level).power)
-    if (effect.roots) unit.rooted = true
-    s.traps = s.traps.filter((t) => t !== trap)
-    s.discards[opponent(side)].push(trap.cardId)
-    note(s, effect.name + ' catches the new ally!', 'trap', lane)
+    springTrap(s, trap, unit)
     casualties(s)
   }
 }
@@ -1138,12 +1133,7 @@ export function playClash(
     }
     const trap = s.traps.find((t) => t.side === foe && t.lane === lane)
     if (trap) {
-      const effect = cardById(trap.cardId)
-      damage(unit, clashBalance(effect, trap.level).power)
-      if (effect.roots) unit.rooted = true
-      s.traps = s.traps.filter((t) => t !== trap)
-      s.discards[foe].push(trap.cardId)
-      note(s, effect.name + ' springs on ' + card.name + '!', 'trap', lane)
+      springTrap(s, trap, unit)
       casualties(s)
     }
     if (unit.hp > 0 && id === 'lynx' && level === 3) {
@@ -1174,17 +1164,17 @@ export function playClash(
   } else if (card.kind === 'trap') {
     s.traps.push({ side, lane, cardId: id, level })
     note(s, 'Trap armed in alley ' + (lane + 1) + '.', 'trap', lane)
-    if (id === 'tripwire' && level >= 2) {
+    if ((id === 'tripwire' || id === 'debttrap') && level >= 2) {
       const free = [lane - 1, lane + 1].filter(
         (neighbor) =>
           inside(neighbor) &&
           !s.traps.some((trap) => trap.side === side && trap.lane === neighbor),
       )
       for (const neighbor of level === 3 ? free : free.slice(0, 1)) {
-        s.traps.push({ side, lane: neighbor, cardId: id, level })
+        s.traps.push({ side, lane: neighbor, cardId: id, level, token: true })
         note(
           s,
-          'A second tripwire arms alley ' + (neighbor + 1) + '.',
+          card.name + ' extends to alley ' + (neighbor + 1) + '.',
           'trap',
           neighbor,
         )
@@ -1204,7 +1194,8 @@ export function playClash(
               : t.lane === lane),
       )
       s.traps = s.traps.filter((t) => !removed.includes(t))
-      for (const trap of removed) s.discards[foe].push(trap.cardId)
+      for (const trap of removed)
+        if (!trap.token) s.discards[foe].push(trap.cardId)
       if (level > 1) draw(s, side, id === 'sonar' ? level - 1 : level - 2)
     } else if (target) {
       switch (card.effect) {
@@ -1276,20 +1267,20 @@ export function playClash(
           }
           break
         case 'root':
-          target.rooted = true
+          stun(target)
           if (level > 1) damage(target, level - 1)
           if (id === 'laser' && level >= 2) {
             const nearby = s.units.filter(
               (u) => u.side === foe && Math.abs(u.lane - lane) === 1,
             )
             for (const rival of level === 3 ? nearby : nearby.slice(0, 1))
-              rival.rooted = true
+              stun(rival)
           }
           break
         case 'snare':
         case 'debt':
           damage(target, power)
-          target.rooted = true
+          stun(target)
           if (id === 'foreclosure' && level >= 2 && target.hp <= 0) {
             s.boss[side] = Math.min(clashBossCap(s, side), s.boss[side] + 2)
             if (level === 3) {
@@ -1441,13 +1432,8 @@ export function strikeClash(input: ClashState, side: Side): ClashState {
     ? undefined
     : s.traps.find((t) => t.side === foeSide && t.lane === lane)
   if (trap) {
-    const effect = cardById(trap.cardId)
     strike.dealt = 0
-    strike.returned = damage(attacker, clashBalance(effect, trap.level).power)
-    if (effect.roots) attacker.rooted = true
-    s.traps = s.traps.filter((t) => t !== trap)
-    s.discards[foeSide].push(trap.cardId)
-    note(s, effect.name + ' springs on ' + nameOf(attacker) + '!', 'trap', lane)
+    strike.returned = springTrap(s, trap, attacker)
     strike.attackerFell = attacker.hp <= 0
     strike.trap = trap.cardId
   } else if (!defender) {
@@ -1501,7 +1487,7 @@ export function strikeClash(input: ClashState, side: Side): ClashState {
         'blast',
       )
     }
-    if (dealt > 0 && has(attacker, 'snare')) defender.rooted = true
+    if (dealt > 0 && has(attacker, 'snare')) stun(defender)
     if (
       dealt > 0 &&
       attacker.cardId === 'frogtrooper' &&
@@ -1510,7 +1496,7 @@ export function strikeClash(input: ClashState, side: Side): ClashState {
       for (const nearby of s.units.filter(
         (v) => v.side === foeSide && Math.abs(v.lane - lane) === 1,
       ))
-        nearby.rooted = true
+        stun(nearby)
     }
     if (dealt > 0 && has(attacker, 'leech'))
       attacker.hp = Math.min(attacker.maxHp, attacker.hp + 1)
@@ -1753,7 +1739,7 @@ export function useClashPower(
     case 'undertow': {
       const u = unitAt(s, foe, lane)!
       u.hp -= 5
-      u.rooted = true
+      stun(u)
       break
     }
     case 'exchange':

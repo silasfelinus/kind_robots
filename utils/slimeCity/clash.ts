@@ -369,6 +369,10 @@ export function clashCardBadge(card: Card, level = 1): string {
  */
 export function clashCardText(card: Card, level = 1): string {
   const b = clashBalance(card, level)
+  // Named spells, traps and gear now evolve their RULES as well as their stats.
+  // The active level's promise must match its actual Clash handler.
+  const evolvedText = clashTwistText(card.id, level)
+  if (card.kind !== 'creature' && evolvedText) return evolvedText
   if (card.kind === 'creature')
     return [
       ...(b.armor ? ['Armor: blocks 1 damage per hit.'] : []),
@@ -463,6 +467,13 @@ export function clashPower(s: ClashState, u: ClashUnit): number {
       (ally.level === 3 || Math.abs(ally.lane - u.lane) === 1)
     )
       power++
+    if (
+      ally.cardId === 'mogul' &&
+      ally.level >= 2 &&
+      has(u, 'collect') &&
+      (ally.level === 3 || Math.abs(ally.lane - u.lane) === 1)
+    )
+      power++
   }
   for (const spy of s.units.filter(
     (v) => v.side !== u.side && v.level >= 2 && v.cardId === 'watcher',
@@ -513,6 +524,26 @@ function startTurn(s: ClashState, side: Side): void {
   for (const u of s.units.filter((v) => v.side === side)) {
     u.attacked = false
     if (u.guard) u.guard = 0
+  }
+  // Defensive engines only charge once per own turn. Remove last turn's
+  // shields before adding fresh ones; stack is capped to avoid a stalemate.
+  for (const guardian of s.units.filter((u) => u.side === side && u.level >= 2)) {
+    const friends = s.units.filter((u) => u.side === side)
+    const adjacent = friends.filter((u) => Math.abs(u.lane - guardian.lane) === 1)
+    let guarded: ClashUnit[] = []
+    let shield = 1
+    if (guardian.cardId === 'scrapper')
+      guarded = guardian.level === 3 ? friends : adjacent
+    if (guardian.cardId === 'oracle') {
+      guarded = guardian.level === 3 ? [guardian, ...adjacent] : [guardian]
+      shield = 2
+    }
+    if (guardian.cardId === 'merc-fungal-bouncer') {
+      guarded = guardian.level === 3 ? adjacent : adjacent.slice(0, 1)
+      shield = 2
+    }
+    for (const ally of guarded)
+      ally.guard = clamp((ally.guard ?? 0) + shield, 0, 3)
   }
   draw(s, side)
   note(
@@ -635,6 +666,57 @@ function damage(u: ClashUnit, amount: number, pierce = 0): number {
   u.hp -= dealt
   return dealt
 }
+/** Battlefield-only echoes are NOT deck cards. Each arrival uses the same trap
+ * resolution as a real creature, and every lane remains single-occupancy. */
+function summonEcho(
+  s: ClashState,
+  side: Side,
+  cardId: string,
+  lane: number,
+  hp = 2,
+  attack = 1,
+  keywords: Keyword[] = [],
+): void {
+  if (!inside(lane) || unitAt(s, side, lane)) return
+  const unit: ClashUnit = {
+    uid: s.nextUid++,
+    cardId,
+    side,
+    lane,
+    hp,
+    maxHp: hp,
+    attack,
+    armor: 0,
+    keywords: [...keywords],
+    surge: 0,
+    rooted: false,
+    ambushUsed: false,
+    attacked: false,
+    fresh: true,
+    gear: [],
+    level: 1,
+    token: true,
+  }
+  s.units.push(unit)
+  note(s, cardById(cardId).name + ' echo joins alley ' + (lane + 1) + '.', 'play', lane)
+  const trap = s.traps.find((t) => t.side === opponent(side) && t.lane === lane)
+  if (trap) {
+    const effect = cardById(trap.cardId)
+    damage(unit, clashBalance(effect, trap.level).power)
+    if (effect.roots) unit.rooted = true
+    s.traps = s.traps.filter((t) => t !== trap)
+    s.discards[opponent(side)].push(trap.cardId)
+    note(s, effect.name + ' catches the new ally!', 'trap', lane)
+    casualties(s)
+  }
+}
+
+function nearestFreeAlley(s: ClashState, side: Side, center: number): number {
+  return Array.from({ length: CLASH_LANES }, (_, lane) => lane)
+    .sort((a, b) => Math.abs(a - center) - Math.abs(b - center) || a - b)
+    .find((lane) => !unitAt(s, side, lane)) ?? -1
+}
+
 function casualties(s: ClashState): void {
   const fallen = s.units.filter((u) => u.hp <= 0)
   s.units = s.units.filter((u) => u.hp > 0)

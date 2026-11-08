@@ -9,7 +9,9 @@
         <Icon name="kind-icon:star" class="size-4 text-primary" />
         <span class="truncate">MONSTRIQUE</span>
         <span class="rounded-md bg-primary/15 px-2 py-1 text-xs font-semibold">
-          {{ game.audience === 'mature' ? 'Mature edition' : 'General edition' }}
+          {{
+            game.audience === 'mature' ? 'Mature edition' : 'General edition'
+          }}
         </span>
       </div>
     </header-page-bar>
@@ -51,14 +53,21 @@ const view = ref<'home' | 'game'>('home')
 const panel = ref<MenuPanel>(null)
 const entry = ref<'new' | 'continue'>('new')
 const ownedSpec = computed(() => ({
-  ...(game.audience === 'mature' ? MONSTRESS_CONVENTION : MONSTRIQUE_GENERAL_SPEC),
+  ...(game.audience === 'mature'
+    ? MONSTRESS_CONVENTION
+    : MONSTRIQUE_GENERAL_SPEC),
   id: 'monstrique-' + game.audience + '-' + (user.user?.id ?? 'guest'),
 }))
 
 onMounted(() => {
   game.initialize()
   watch(
-    () => [user.token, user.showMature, user.isMaturityRestricted, user.user?.id],
+    () => [
+      user.token,
+      user.showMature,
+      user.isMaturityRestricted,
+      user.user?.id,
+    ],
     () => {
       view.value = 'home'
       panel.value = null

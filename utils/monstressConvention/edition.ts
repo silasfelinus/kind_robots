@@ -82,7 +82,10 @@ const GENERAL_LINES: Record<string, string> = {
     'Iris: Room 205 is part of the investigation. We should document what happened there.',
 }
 
-function withGeneralLine(result: CaseResult, replacement: string | undefined): CaseResult {
+function withGeneralLine(
+  result: CaseResult,
+  replacement: string | undefined,
+): CaseResult {
   if (!replacement) return result
   return result.changed
     ? {
@@ -96,7 +99,10 @@ function withGeneralLine(result: CaseResult, replacement: string | undefined): C
     : { ...result, line: replacement }
 }
 
-export function roomForAudience(id: RoomId, audience: MonstriqueAudience): HotelRoom {
+export function roomForAudience(
+  id: RoomId,
+  audience: MonstriqueAudience,
+): HotelRoom {
   const room = HOTEL_ROOMS[id]
   if (audience === 'mature') return room
   return {
@@ -122,11 +128,12 @@ export function actionForAudience(
       line: 'Optional romance is not part of this edition.',
     }
   const result = performAction(state, action)
-  const key = action.verb === 'ask'
-    ? `ask:${action.target}:${action.topic ?? ''}`
-    : action.item
-      ? `use:${action.target}:${action.item}`
-      : `${action.verb}:${action.target}`
+  const key =
+    action.verb === 'ask'
+      ? `ask:${action.target}:${action.topic ?? ''}`
+      : action.item
+        ? `use:${action.target}:${action.item}`
+        : `${action.verb}:${action.target}`
   return withGeneralLine(result, GENERAL_LINES[key])
 }
 
@@ -150,23 +157,34 @@ export const MONSTRIQUE_GENERAL_SPEC = {
   cast: MONSTRESS_CONVENTION.cast.map((person) => ({
     ...person,
     romance: undefined,
-    tagline: person.id === 'iris'
-      ? 'Resourceful assistant and photographer. The only one willing to touch the evidence.'
-      : person.id === 'violet'
-        ? 'A Draculina impersonator with an unpaid booking and a supernatural clue.'
-        : person.tagline,
-    portrait: person.id === 'violet'
-      ? { brief: 'A witty adult ghost dressed in a rented theatrical vampire cape, illustrated noir adventure portrait' }
-      : person.portrait,
+    tagline:
+      person.id === 'iris'
+        ? 'Resourceful assistant and photographer. The only one willing to touch the evidence.'
+        : person.id === 'violet'
+          ? 'A Draculina impersonator with an unpaid booking and a supernatural clue.'
+          : person.tagline,
+    portrait:
+      person.id === 'violet'
+        ? {
+            brief:
+              'A witty adult ghost dressed in a rented theatrical vampire cape, illustrated noir adventure portrait',
+          }
+        : person.portrait,
   })),
-  moments: MONSTRESS_CONVENTION.moments.filter((moment) => moment.kind !== 'romance'),
+  moments: MONSTRESS_CONVENTION.moments.filter(
+    (moment) => moment.kind !== 'romance',
+  ),
   keyArt: {
-    brief: 'A rain-soaked neon motel with two spectral witnesses behind a curtained upper window, Saturday morning mystery-adventure illustration, no gore or sexual material',
+    brief:
+      'A rain-soaked neon motel with two spectral witnesses behind a curtained upper window, Saturday morning mystery-adventure illustration, no gore or sexual material',
     alt: 'The Last Call motel under the Monstrique billboard at night',
   },
 }
 
 export function assertGeneralEditionHasNoRomance(): boolean {
-  return MONSTRIQUE_GENERAL_SPEC.moments.every((moment) => moment.kind !== 'romance') &&
-    MONSTRIQUE_GENERAL_SPEC.cast.every((person) => !person.romance)
+  return (
+    MONSTRIQUE_GENERAL_SPEC.moments.every(
+      (moment) => moment.kind !== 'romance',
+    ) && MONSTRIQUE_GENERAL_SPEC.cast.every((person) => !person.romance)
+  )
 }

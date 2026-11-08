@@ -34,7 +34,9 @@ export const useMonstriquePublicStore = defineStore('monstriquePublic', () => {
   const storageWarning = ref('')
   let accessRequest = 0
 
-  const accountId = computed(() => user.isLoggedIn ? (user.user?.id ?? 'guest') : 'guest')
+  const accountId = computed(() =>
+    user.isLoggedIn ? (user.user?.id ?? 'guest') : 'guest',
+  )
   const audience = computed<MonstriqueAudience>(() =>
     user.isLoggedIn &&
     user.showMature &&
@@ -63,7 +65,10 @@ export const useMonstriquePublicStore = defineStore('monstriquePublic', () => {
   }
 
   function loadMode(mode: MonstriqueAudience): void {
-    if (!import.meta.client || (mode === 'mature' && audience.value !== 'mature'))
+    if (
+      !import.meta.client ||
+      (mode === 'mature' && audience.value !== 'mature')
+    )
       return
     const destination = mode === 'mature' ? matureState : generalState
     const saved = mode === 'mature' ? matureSaved : generalSaved
@@ -110,7 +115,12 @@ export const useMonstriquePublicStore = defineStore('monstriquePublic', () => {
     verifiedToken.value = undefined
     feedback.value = ''
     kit.open('monstrique-general-' + accountId.value)
-    if (!token || !user.isLoggedIn || !user.showMature || user.isMaturityRestricted)
+    if (
+      !token ||
+      !user.isLoggedIn ||
+      !user.showMature ||
+      user.isMaturityRestricted
+    )
       return
     checking.value = true
     try {
@@ -171,7 +181,10 @@ export const useMonstriquePublicStore = defineStore('monstriquePublic', () => {
       result.state.flags.includes('violet-met')
     )
       kit.unlock('moments', 'two-ghosts')
-    if (audience.value === 'mature' && result.state.flags.includes('ghost-kiss'))
+    if (
+      audience.value === 'mature' &&
+      result.state.flags.includes('ghost-kiss')
+    )
       kit.unlock('moments', 'cold-kiss')
     if (result.state.ending) kit.unlock('endings', result.state.ending)
     persist()

@@ -469,8 +469,14 @@
                   {{ TOPICS[topic] ?? topic }}
                 </li>
               </ul>
-              <h3 v-if="audience === 'mature'" class="mc-eyebrow mt-4">GOOD GRACES</h3>
-              <ul v-if="audience === 'mature'" class="mc-note-list" data-testid="monstrique-graces">
+              <h3 v-if="audience === 'mature'" class="mc-eyebrow mt-4">
+                GOOD GRACES
+              </h3>
+              <ul
+                v-if="audience === 'mature'"
+                class="mc-note-list"
+                data-testid="monstrique-graces"
+              >
                 <li v-for="(grace, who) in GRACES" :key="who">
                   <Icon name="kind-icon:heart" class="size-4 shrink-0" />
                   <span class="flex-1">{{ grace.name }}</span>
@@ -644,11 +650,16 @@ import {
   type Verb,
 } from '~/utils/monstressConvention/prologue'
 
-const props = defineProps<{ entry?: 'new' | 'continue'; publicEdition?: boolean }>()
+const props = defineProps<{
+  entry?: 'new' | 'continue'
+  publicEdition?: boolean
+}>()
 const adminStory = useMonstressConventionStore()
 const publicStory = useMonstriquePublicStore()
-const story = computed(() => props.publicEdition ? publicStory : adminStory)
-const audience = computed(() => props.publicEdition ? publicStory.audience : 'mature')
+const story = computed(() => (props.publicEdition ? publicStory : adminStory))
+const audience = computed(() =>
+  props.publicEdition ? publicStory.audience : 'mature',
+)
 const emit = defineEmits<{ menu: [] }>()
 const screen = ref<'title' | 'intro' | 'stage'>(
   props.entry === 'continue' ? 'stage' : 'intro',

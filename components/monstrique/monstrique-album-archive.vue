@@ -70,7 +70,10 @@
         <span class="ma-kicker">OFFICIAL PRESS RELEASE</span>
         <p>{{ selected.officialStory }}</p>
       </div>
-      <div v-if="hasProof || (props.creatorMode && showAuthorNotes)" class="ma-hidden-history">
+      <div
+        v-if="hasProof || (props.creatorMode && showAuthorNotes)"
+        class="ma-hidden-history"
+      >
         <span class="ma-kicker">{{
           hasProof
             ? 'FOUND IN ODETTE’S ARCHIVE'
@@ -103,7 +106,7 @@ const props = withDefaults(
 )
 const adminStory = useMonstressConventionStore()
 const publicStory = useMonstriquePublicStore()
-const story = computed(() => props.publicEdition ? publicStory : adminStory)
+const story = computed(() => (props.publicEdition ? publicStory : adminStory))
 const selectedId = ref(MONSTRIQUE_ALBUMS[0]!.id)
 const showAuthorNotes = ref(false)
 const selected = computed(

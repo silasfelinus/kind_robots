@@ -25,7 +25,9 @@ const page = source('pages/play/monstrique.vue')
 const adminPage = source('pages/admin/monstrique.vue')
 const launcher = source('content/channels/arcade/monstrique.md')
 const publicStore = source('stores/monstriquePublicStore.ts')
-const scene = source('components/monstress-convention/monstress-convention-scene.vue')
+const scene = source(
+  'components/monstress-convention/monstress-convention-scene.vue',
+)
 const front = source('components/monstrexx/monstrexx-front.vue')
 const archive = source('components/monstrique/monstrique-album-archive.vue')
 
@@ -39,26 +41,46 @@ assert.match(launcher, /route: \/play\/monstrique/)
 assert.doesNotMatch(launcher, /requiredPermission: mature|requiredRole: ADMIN/)
 assert.match(page, /<MonstrexxFront[\s\S]*public-edition/)
 assert.match(page, /<MonstressConventionScene[\s\S]*public-edition/)
-assert.match(adminPage, /caseStore\.authorized && user\.isAdmin && user\.showMature/)
+assert.match(
+  adminPage,
+  /caseStore\.authorized && user\.isAdmin && user\.showMature/,
+)
 assert.match(publicStore, /user\.isMaturityRestricted/)
 assert.match(publicStore, /verifiedToken\.value === user\.token/)
 assert.match(publicStore, /result\.data\?\.audience === 'mature'/)
-assert.match(publicStore, /audience\.value === 'mature' && result\.state\.flags\.includes\('ghost-kiss'\)/)
+assert.match(
+  publicStore,
+  /audience\.value === 'mature' && result\.state\.flags\.includes\('ghost-kiss'\)/,
+)
 assert.match(publicStore, /'kr-monstrique-' \+ mode \+ '-v1-'/)
 assert.match(publicStore, /loadMode\('general'\)/)
 assert.match(publicStore, /loadMode\('mature'\)/)
 assert.match(front, /:public-edition="!!props\.publicEdition"/)
 assert.match(front, /audience\.value === 'general'/)
-assert.match(scene, /roomForAudience\(story\.value\.state\.room, audience\.value\)/)
+assert.match(
+  scene,
+  /roomForAudience\(story\.value\.state\.room, audience\.value\)/,
+)
 assert.match(scene, /audience === 'mature'/)
 assert.match(archive, /props\.creatorMode && showAuthorNotes/)
 assert.match(archive, /props\.publicEdition \? publicStory : adminStory/)
 assert.equal(effectiveShowMature(null), false)
-assert.equal(effectiveShowMature({ Role: 'ADMIN', roles: ['ADMIN', 'CHILD'], showMature: true }), false)
+assert.equal(
+  effectiveShowMature({
+    Role: 'ADMIN',
+    roles: ['ADMIN', 'CHILD'],
+    showMature: true,
+  }),
+  false,
+)
 assert.equal(effectiveShowMature({ Role: 'USER', showMature: false }), false)
 assert.equal(effectiveShowMature({ Role: 'USER', showMature: true }), true)
 assert.equal(GENERAL_INTRO.length, MATURE_INTRO.length)
-assert.ok(GENERAL_INTRO.every((scene) => !/sex|prostitute|gin|frisky|kissing/i.test(scene.text)))
+assert.ok(
+  GENERAL_INTRO.every(
+    (scene) => !/sex|prostitute|gin|frisky|kissing/i.test(scene.text),
+  ),
+)
 assert.ok(assertGeneralEditionHasNoRomance())
 assert.equal(MONSTRIQUE_GENERAL_SPEC.route, '/play/monstrique')
 
@@ -108,7 +130,14 @@ for (const entry of ['marta', 'neighbor'] as const) {
   }
   go('odette-room')
   assert.match(state.transcript.at(-1)!, /beneath a sheet/)
-  assert.equal(actionForAudience(state, { verb: 'flirt', target: 'violet-ghost' }, 'general').changed, false)
+  assert.equal(
+    actionForAudience(
+      state,
+      { verb: 'flirt', target: 'violet-ghost' },
+      'general',
+    ).changed,
+    false,
+  )
   assert.ok(!state.flags.some((flag) => flag.startsWith('flirted-')))
   act('photograph', 'knife')
   act('talk', 'odette-ghost')
@@ -119,7 +148,8 @@ for (const entry of ['marta', 'neighbor'] as const) {
   assert.equal(second.changed, true)
   state = second.state
   assert.equal(
-    actionForAudience(state, { verb: 'photograph', target: 'knife' }, 'general').changed,
+    actionForAudience(state, { verb: 'photograph', target: 'knife' }, 'general')
+      .changed,
     false,
   )
   state = switchInvestigator(state).state
@@ -145,4 +175,6 @@ for (const entry of ['marta', 'neighbor'] as const) {
   assert.equal(state.flags.includes('flirted-violet-ghost'), false)
 }
 
-console.log('Monstrique audience editions: public-safe mystery endings, mature opt-in, isolated saves and scrapbook gating passed')
+console.log(
+  'Monstrique audience editions: public-safe mystery endings, mature opt-in, isolated saves and scrapbook gating passed',
+)

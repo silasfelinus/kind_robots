@@ -390,7 +390,8 @@
     >
       <div class="mx-brand">
         <p class="mx-eyebrow">
-          A Midnight City mystery · {{ audience === 'mature' ? 'mature edition' : 'general edition' }}
+          A Midnight City mystery ·
+          {{ audience === 'mature' ? 'mature edition' : 'general edition' }}
         </p>
         <h1 class="mx-wordmark">MONSTRIQUE</h1>
         <p class="mx-subtitle">Fame. Fangs. Very bad contracts.</p>
@@ -449,7 +450,11 @@
           /></span>
           <span class="min-w-0 flex-1 text-left">
             <strong>SETTINGS</strong>
-            <small>Reading, sound, motion{{ audience === 'mature' ? ' and romance' : '' }}</small>
+            <small
+              >Reading, sound, motion{{
+                audience === 'mature' ? ' and romance' : ''
+              }}</small
+            >
           </span>
         </button>
         <button
@@ -475,7 +480,11 @@
         class="mx-footer-line flex flex-wrap items-center justify-between gap-2"
       >
         <span>IRIS QUILL · NORB VALE · LAST CALL MOTOR LODGE</span>
-        <span>{{ props.publicEdition ? 'TWO EDITIONS · ONE MYSTERY' : 'PRIVATE EARLY ACCESS · MONSTRIQUE' }}</span>
+        <span>{{
+          props.publicEdition
+            ? 'TWO EDITIONS · ONE MYSTERY'
+            : 'PRIVATE EARLY ACCESS · MONSTRIQUE'
+        }}</span>
       </div>
       <p v-if="story.storageWarning" class="mx-warning" role="status">
         {{ story.storageWarning }}
@@ -548,9 +557,11 @@
               </div>
             </div>
             <p class="mx-small-note">
-              {{ audience === 'mature'
-                ? 'Hiding romance changes optional content, not clues. Mature access is controlled by your account settings.'
-                : 'General edition: the full investigation without adult romance or mature keepsakes. Sign in and enable mature content for the separate optional edition.' }}
+              {{
+                audience === 'mature'
+                  ? 'Hiding romance changes optional content, not clues. Mature access is controlled by your account settings.'
+                  : 'General edition: the full investigation without adult romance or mature keepsakes. Sign in and enable mature content for the separate optional edition.'
+              }}
             </p>
             <button type="button" class="mx-reset" @click="kit.resetSettings()">
               Restore default settings
@@ -637,9 +648,11 @@ const emit = defineEmits<{
 }>()
 const adminStory = useMonstressConventionStore()
 const publicStory = useMonstriquePublicStore()
-const story = computed(() => props.publicEdition ? publicStory : adminStory)
+const story = computed(() => (props.publicEdition ? publicStory : adminStory))
 const kit = usePlaybookKitStore()
-const audience = computed(() => props.publicEdition ? publicStory.audience : 'mature')
+const audience = computed(() =>
+  props.publicEdition ? publicStory.audience : 'mature',
+)
 const spec = computed(() =>
   props.publicEdition && audience.value === 'general'
     ? MONSTRIQUE_GENERAL_SPEC
@@ -648,7 +661,9 @@ const spec = computed(() =>
 const confirming = ref(false)
 const scrapTab = ref<'people' | 'moments' | 'albums'>('people')
 const closeButton = ref<HTMLButtonElement | null>(null)
-const currentLocation = computed(() => HOTEL_ROOMS[story.value.state.room].label)
+const currentLocation = computed(
+  () => HOTEL_ROOMS[story.value.state.room].label,
+)
 const unlockedMoments = computed(
   () =>
     spec.value.moments.filter((moment) => kit.isUnlocked('moments', moment.id))

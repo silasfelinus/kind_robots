@@ -82,7 +82,7 @@ export const CLASH_TWISTS: Record<string, [string, string, string]> = {
     'Calls a weak decoy into a free neighboring alley on arrival.',
   ],
   pounce: [
-    'Refresh the target fighter\'s Ambush strike.',
+    "Refresh the target fighter's Ambush strike.",
     'Also refresh and give +1 power this round to one adjacent friend.',
     'Both adjacent friends gain +2 power this round and refresh Ambush.',
   ],

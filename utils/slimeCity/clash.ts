@@ -1358,7 +1358,8 @@ export function playClash(
             if (!target.keywords.includes(keyword))
               target.keywords.push(keyword)
           target.attack = clamp(target.attack + (level - 1), 1, 10)
-          if (id === 'ninthlife' && level >= 2) target.ninthLife = level
+          if (id === 'ninthlife' && level >= 2)
+            target.ninthLife = level === 3 ? 3 : 2
           if (id === 'fusevest' && level >= 2)
             (target.gearLevels ??= {})[id] = level
           if (id === 'handshake' && level >= 2) {

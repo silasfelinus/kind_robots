@@ -827,7 +827,7 @@ const pogoStage = evolved('bloodfairies', 'pogo')
 pogoStage.phase = 'attack'
 pogoStage.units = [
   { ...follower('player', 2, 930, 8, 3), cardId: 'pogo', keywords: ['swarm'], level: 3 },
-  follower('player', 1, 931),
+  { ...follower('player', 1, 931), attacked: true },
 ]
 const pogoPower = clashPower(pogoStage, pogoStage.units[0]!)
 const concertSlam = strikeClash(pogoStage, 'player')
@@ -884,7 +884,7 @@ const detonatorStage = evolved('riot', 'bomber')
 detonatorStage.phase = 'attack'
 detonatorStage.units = [
   { ...follower('player', 2, 990, 2, 3), cardId: 'bomber', level: 3, hp: 1, keywords: ['volatile'] },
-  follower('player', 1, 991, 8),
+  { ...follower('player', 1, 991, 8), attacked: true },
   follower('enemy', 2, 992, 10, 3),
   follower('enemy', 4, 993, 10),
 ]

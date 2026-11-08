@@ -27,7 +27,7 @@ export const useMonstriquePublicStore = defineStore('monstriquePublic', () => {
   const matureSaved = ref(false)
   const adultVerified = ref(false)
   const verifiedUserId = ref<number | null>(null)
-  const verifiedToken = ref<string | undefined>()
+  let verifiedToken: string | undefined
   const loadedAccount = ref<string | number | null>(null)
   const checking = ref(false)
   const feedback = ref('')
@@ -43,7 +43,7 @@ export const useMonstriquePublicStore = defineStore('monstriquePublic', () => {
     !user.isMaturityRestricted &&
     adultVerified.value &&
     verifiedUserId.value === user.user?.id &&
-    verifiedToken.value === user.token
+    verifiedToken === user.token
       ? 'mature'
       : 'general',
   )
@@ -95,7 +95,7 @@ export const useMonstriquePublicStore = defineStore('monstriquePublic', () => {
     loadedAccount.value = accountId.value
     adultVerified.value = false
     verifiedUserId.value = null
-    verifiedToken.value = undefined
+    verifiedToken = undefined
     matureState.value = newCase()
     matureSaved.value = false
     generalState.value = newCase()
@@ -112,7 +112,7 @@ export const useMonstriquePublicStore = defineStore('monstriquePublic', () => {
     const token = user.token
     adultVerified.value = false
     verifiedUserId.value = null
-    verifiedToken.value = undefined
+    verifiedToken = undefined
     feedback.value = ''
     kit.open('monstrique-general-' + accountId.value)
     if (
@@ -140,7 +140,7 @@ export const useMonstriquePublicStore = defineStore('monstriquePublic', () => {
       ) {
         adultVerified.value = true
         verifiedUserId.value = user.user?.id ?? null
-        verifiedToken.value = token
+        verifiedToken = token
         loadMode('mature')
         kit.open('monstrique-mature-' + accountId.value)
       }

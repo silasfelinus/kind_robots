@@ -2796,36 +2796,56 @@ function cpuEvolutionPayoff(
     return evoScope(s, ctx, to).length
   }
   const friendly = (to: EvoScope): boolean =>
-    ['self', 'allies', 'otherAllies', 'adjacentAllies', 'woundedAlly',
-      'woundedAllies', 'healthyAllies'].includes(to) ||
+    [
+      'self',
+      'allies',
+      'otherAllies',
+      'adjacentAllies',
+      'woundedAlly',
+      'woundedAllies',
+      'healthyAllies',
+    ].includes(to) ||
     (to === 'target' && aim(card) === 'own')
   const evaluate = (a: EvoAction): number => {
     switch (a.do) {
       case 'chance':
-        return (a.p / 100) * a.then.reduce((sum, next) => sum + evaluate(next), 0)
+        return (
+          (a.p / 100) * a.then.reduce((sum, next) => sum + evaluate(next), 0)
+        )
       case 'if':
         return evoCondition(s, ctx, a.cond)
           ? a.then.reduce((sum, next) => sum + evaluate(next), 0)
           : 0
       case 'summon': {
-        const free = Array.from({ length: CLASH_LANES }, (_, i) => i)
-          .filter((i) => !unitAt(s, side, i) && (i !== lane || card.kind !== 'creature'))
-        const sites = a.where === 'everyEmpty'
-          ? free.length
-          : a.where === 'neighbors'
-            ? free.filter((i) => Math.abs(i - lane) === 1).length
-            : Math.min(1, free.length)
+        const free = Array.from({ length: CLASH_LANES }, (_, i) => i).filter(
+          (i) =>
+            !unitAt(s, side, i) && (i !== lane || card.kind !== 'creature'),
+        )
+        const sites =
+          a.where === 'everyEmpty'
+            ? free.length
+            : a.where === 'neighbors'
+              ? free.filter((i) => Math.abs(i - lane) === 1).length
+              : Math.min(1, free.length)
         return sites * (1.4 + a.attack * 0.75 + a.hp * 0.2)
       }
       case 'boss':
       case 'mend':
-        return a.n * (a.do === 'boss' ? 0.9 : s.boss[side] < clashBossCap(s, side) ? 0.6 : 0)
+        return (
+          a.n *
+          (a.do === 'boss'
+            ? 0.9
+            : s.boss[side] < clashBossCap(s, side)
+              ? 0.6
+              : 0)
+        )
       case 'draw':
         return a.n * 1.6
       case 'revive':
         return (s.fallen?.[side].length ?? 0) > 0 &&
           s.units.filter((u) => u.side === side).length < CLASH_LANES
-          ? 3.8 : 0
+          ? 3.8
+          : 0
       case 'rearm':
         return 2.6
       case 'retreat':
@@ -2838,41 +2858,55 @@ function cpuEvolutionPayoff(
         return scopeCount(a.to) * a.n * (friendly(a.to) ? -0.75 : 0.85)
       case 'heal': {
         const hurt = evoScope(s, ctx, a.to).reduce(
-          (sum, u) => sum + Math.min(a.n, u.maxHp - u.hp), 0,
+          (sum, u) => sum + Math.min(a.n, u.maxHp - u.hp),
+          0,
         )
         return hurt * 0.85
       }
       case 'power':
-        return scopeCount(a.to) * a.n *
-          (friendly(a.to) ? a.lasting ? 1.8 : 1.1 : -1.1)
+        return (
+          scopeCount(a.to) *
+          a.n *
+          (friendly(a.to) ? (a.lasting ? 1.8 : 1.1) : -1.1)
+        )
       case 'life':
         return scopeCount(a.to) * a.n * 0.8
       case 'armor':
-        return evoScope(s, ctx, a.to)
-          .reduce((sum, u) => sum + Math.min(a.n, 3 - u.armor) * 2, 0)
+        return evoScope(s, ctx, a.to).reduce(
+          (sum, u) => sum + Math.min(a.n, 3 - u.armor) * 2,
+          0,
+        )
       case 'guard':
         return scopeCount(a.to) * a.n * 0.7
       case 'stun':
-        return evoScope(s, ctx, a.to)
-          .filter((u) => !u.rooted).length * 3
+        return evoScope(s, ctx, a.to).filter((u) => !u.rooted).length * 3
       case 'cleanse':
-        return evoScope(s, ctx, a.to)
-          .filter((u) => u.rooted).length * 2
+        return evoScope(s, ctx, a.to).filter((u) => u.rooted).length * 2
       case 'grant':
-        return evoScope(s, ctx, a.to)
-          .filter((u) => !u.keywords.includes(a.keyword)).length * 2.4
+        return (
+          evoScope(s, ctx, a.to).filter((u) => !u.keywords.includes(a.keyword))
+            .length * 2.4
+        )
       case 'rescue':
-        return evoScope(s, ctx, a.to)
-          .filter((u) => !u.lastChance).length * 1.4
+        return evoScope(s, ctx, a.to).filter((u) => !u.lastChance).length * 1.4
     }
   }
   const frequency: Record<EvoTrigger, number> = {
-    enter: 1, spring: 0.65, hit: 0.45, kill: 0.3, boss: 0.4,
-    strike: 0.45, death: 0.3, turnStart: 0.45, roundEnd: 0.4,
+    enter: 1,
+    spring: 0.65,
+    hit: 0.45,
+    kill: 0.3,
+    boss: 0.4,
+    strike: 0.45,
+    death: 0.3,
+    turnStart: 0.45,
+    roundEnd: 0.4,
   }
   const abilities = evolved.abilities.reduce(
-    (sum, ability) => sum + frequency[ability.when] *
-      ability.do.reduce((total, action) => total + evaluate(action), 0),
+    (sum, ability) =>
+      sum +
+      frequency[ability.when] *
+        ability.do.reduce((total, action) => total + evaluate(action), 0),
     0,
   )
   const friends = s.units.filter((u) => u.side === side && u.hp > 0)
@@ -2881,11 +2915,23 @@ function cpuEvolutionPayoff(
   const rules = evolved.static
   const passive = rules
     ? (rules.pacifist ? -2.5 : 0) +
-      (rules.aura ? (rules.aura.to === 'adjacentAllies' ? nearby : friends.length) * rules.aura.n * 1.1 : 0) +
-      (rules.hex ? rivals.filter((u) => rules.hex?.to === 'across' ? u.lane === lane : Math.abs(u.lane - lane) <= 1).length * rules.hex.n : 0) +
+      (rules.aura
+        ? (rules.aura.to === 'adjacentAllies' ? nearby : friends.length) *
+          rules.aura.n *
+          1.1
+        : 0) +
+      (rules.hex
+        ? rivals.filter((u) =>
+            rules.hex?.to === 'across'
+              ? u.lane === lane
+              : Math.abs(u.lane - lane) <= 1,
+          ).length * rules.hex.n
+        : 0) +
       (rules.pack && nearby ? rules.pack * 1.3 : 0) +
       (rules.lone && !nearby ? rules.lone * 1.2 : 0) +
-      (rules.bully ? rivals.filter((u) => u.rooted).length * rules.bully * 0.6 : 0)
+      (rules.bully
+        ? rivals.filter((u) => u.rooted).length * rules.bully * 0.6
+        : 0)
     : 0
   return clamp(abilities + passive, -6, 14)
 }
@@ -2967,13 +3013,15 @@ export function chooseClashCpu(
         if (mine && card.kind === 'equipment') {
           // Gear survives turns; its price cannot be assessed as one small
           // immediate spell. Reward protecting a healthy, productive fighter.
-          score += 3 + Math.min(mine.attack, 6) * 0.8 +
-            (mine.hp >= 6 ? 1.5 : 0)
+          score += 3 + Math.min(mine.attack, 6) * 0.8 + (mine.hp >= 6 ? 1.5 : 0)
         }
         if (mine && (card.effect === 'sharpen' || card.effect === 'boost'))
-          score += card.kind === 'equipment'
-            ? Math.min(b.bonus, Math.max(0, 10 - mine.attack)) * 1.8
-            : across ? b.power * 0.7 : 0
+          score +=
+            card.kind === 'equipment'
+              ? Math.min(b.bonus, Math.max(0, 10 - mine.attack)) * 1.8
+              : across
+                ? b.power * 0.7
+                : 0
         if (mine && card.effect === 'armor')
           score += Math.max(0, 3 - mine.armor) * 2
       } else
@@ -2996,7 +3044,8 @@ export function chooseClashCpu(
       // Level-one cards have a real investment cost. Account for the
       // reachable next stage, without valuing a future payoff as immediate.
       if (b.level === 1)
-        score += Math.max(0, cpuEvolutionPayoff(s, side, card, lane, 2, 0)) * 0.3
+        score +=
+          Math.max(0, cpuEvolutionPayoff(s, side, card, lane, 2, 0)) * 0.3
       score /= b.plays
       if (!best || score > best.score)
         best = { score, card: id, lane, ...(choice ? { choice } : {}) }

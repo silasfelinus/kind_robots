@@ -50,6 +50,62 @@ export const MATURE_INTRO = [
   },
 ] as const
 
+const GENERAL_HOTSPOTS: Record<RoomId, readonly string[]> = {
+  'motel-exterior': ['motel-sign', 'gavin', 'fan-camera'],
+  'front-office': ['marta', 'guest-ledger', 'memorabilia-case'],
+  'ice-alcove': ['ice-machine', 'maintenance-log', 'sewer-hatch'],
+  balcony: ['room-door', 'footprints'],
+  'investigators-room': ['desk', 'nico'],
+  'neighbor-room': ['neighbor', 'wall-clock'],
+  'odette-room': [
+    'knife',
+    'odette-body',
+    'violet-body',
+    'odette-purse',
+    'ice-ring',
+    'odette-ghost',
+    'violet-ghost',
+  ],
+  'city-map': ['drive-in', 'joke-shop', 'mansion', 'sewers'],
+  'convention-center': ['idol-poster', 'mummy-actress'],
+}
+
+const GENERAL_TOPICS = new Set([
+  'room-access',
+  'unknown-visitor',
+  'shrine',
+  'knife-origin',
+  'ghost-accounts',
+  'ice-clank',
+  'harker-files',
+  'agent-deals',
+  'violet-fee',
+  'violet-witness',
+  'missing-fangs',
+  'fan-alibi',
+  'idol-schedule',
+])
+
+const GENERAL_APPROVED_MOMENTS = new Set([
+  'double-murder',
+  'dead-client',
+  'rental-fangs',
+  'two-ghosts',
+])
+const GENERAL_APPROVED_CAST = new Set([
+  'iris',
+  'nico',
+  'odette',
+  'violet',
+  'unknown-killer',
+])
+const GENERAL_APPROVED_REVEALS = new Set(['ghost-accounts'])
+const GENERAL_APPROVED_ENDINGS = new Set(['lead-earned', 'reckless'])
+
+function isGeneralRoom(id: string): id is RoomId {
+  return Object.prototype.hasOwnProperty.call(GENERAL_HOTSPOTS, id)
+}
+
 const GENERAL_ROOM_205 =
   'Room 205 is quiet. Two figures lie respectfully covered beneath a sheet. A jewelled prop knife rests at the scene. In the mirror, two spectral women argue about whose fault this is.'
 
@@ -105,13 +161,21 @@ export function roomForAudience(
 ): HotelRoom {
   const room = HOTEL_ROOMS[id]
   if (audience === 'mature') return room
+  const approved = GENERAL_HOTSPOTS[id] ?? []
   return {
     ...room,
-    caption: id === 'odette-room' ? GENERAL_ROOM_205 : room.caption,
-    hotspots: room.hotspots.map((hotspot) => ({
-      ...hotspot,
-      verbs: hotspot.verbs.filter((verb) => verb !== 'flirt'),
-    })),
+    caption: id === 'odette-room'
+      ? GENERAL_ROOM_205
+      : approved.length
+        ? room.caption
+        : 'This location is reserved for a later general-edition chapter.',
+    exits: room.exits.filter(isGeneralRoom),
+    hotspots: room.hotspots
+      .filter((hotspot) => approved.includes(hotspot.id))
+      .map((hotspot) => ({
+        ...hotspot,
+        verbs: hotspot.verbs.filter((verb) => verb !== 'flirt'),
+      })),
   }
 }
 
@@ -121,6 +185,11 @@ export function actionForAudience(
   audience: MonstriqueAudience,
 ): CaseResult {
   if (audience === 'mature') return performAction(state, action)
+  if (
+    !GENERAL_HOTSPOTS[state.room]?.includes(action.target) ||
+    (action.verb === 'ask' && !GENERAL_TOPICS.has(action.topic ?? ''))
+  )
+    return { state, changed: false, line: 'This interaction is not available in the general edition.' }
   if (action.verb === 'flirt')
     return {
       state,
@@ -142,6 +211,12 @@ export function travelForAudience(
   destination: RoomId,
   audience: MonstriqueAudience,
 ): CaseResult {
+  if (audience === 'general' && !isGeneralRoom(destination))
+    return {
+      state,
+      changed: false,
+      line: 'This location is not yet available in the general edition.',
+    }
   const result = travel(state, destination)
   return audience === 'general' && result.changed
     ? withGeneralLine(result, roomForAudience(destination, audience).caption)
@@ -154,7 +229,9 @@ export const MONSTRIQUE_GENERAL_SPEC = {
   route: '/play/monstrique',
   premise:
     'Investigate two mysterious deaths at a neon motel with Iris, her germophobic boss and two unusually talkative ghost witnesses.',
-  cast: MONSTRESS_CONVENTION.cast.map((person) => ({
+  cast: MONSTRESS_CONVENTION.cast.filter((person) =>
+    GENERAL_APPROVED_CAST.has(person.id),
+  ).map((person) => ({
     ...person,
     romance: undefined,
     tagline:
@@ -172,7 +249,13 @@ export const MONSTRIQUE_GENERAL_SPEC = {
         : person.portrait,
   })),
   moments: MONSTRESS_CONVENTION.moments.filter(
-    (moment) => moment.kind !== 'romance',
+    (moment) => GENERAL_APPROVED_MOMENTS.has(moment.id),
+  ),
+  reveals: MONSTRESS_CONVENTION.reveals.filter((reveal) =>
+    GENERAL_APPROVED_REVEALS.has(reveal.id),
+  ),
+  endings: MONSTRESS_CONVENTION.endings.filter((ending) =>
+    GENERAL_APPROVED_ENDINGS.has(ending.id),
   ),
   keyArt: {
     brief:

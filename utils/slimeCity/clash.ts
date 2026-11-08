@@ -1363,11 +1363,75 @@ export function playClash(
             }
           }
           break
-        case 'chaos':
-          damage(target, 1 + Math.floor(random(s) * power))
+        case 'chaos': {
+          let blast = 1 + Math.floor(random(s) * power)
+          if (id === 'firestorm' && level >= 2 && blast <= 2)
+            blast = Math.max(blast, 1 + Math.floor(random(s) * power))
+          damage(target, blast)
+          if (id === 'firestorm' && level === 3) {
+            for (const rival of s.units.filter(
+              (u) => u.side === foe && Math.abs(u.lane - lane) === 1,
+            ))
+              damage(rival, 2)
+            for (const friend of s.units.filter(
+              (u) => u.side === side && Math.abs(u.lane - lane) === 1,
+            ))
+              damage(friend, 1)
+          }
           break
-        default:
-          damage(target, power)
+        }
+        default: {
+          let hit = power
+          let critical = false
+          if (id === 'pinprick' && level >= 2) {
+            critical = random(s) < (level === 3 ? 0.75 : 0.5)
+            if (critical) hit *= 2
+            note(
+              s,
+              critical ? 'Safety-Pin critical connects!' : 'Safety-Pin ordinary hit.',
+              'clash',
+              lane,
+            )
+          }
+          const dealt = damage(target, hit)
+          if (id === 'pinprick' && level === 3 && critical)
+            for (const rival of s.units.filter(
+              (u) => u.side === foe && Math.abs(u.lane - lane) === 1,
+            ))
+              damage(rival, 2)
+          if (id === 'feedback' && level >= 2) {
+            const choir = s.units.filter((u) => u.side === side).length
+            if (level === 3 && choir >= 4) {
+              for (const rival of s.units.filter(
+                (u) => u.side === foe && u.uid !== target.uid,
+              ))
+                damage(rival, 2)
+            } else if (
+              s.units.some(
+                (u) => u.side === side && Math.abs(u.lane - lane) === 1,
+              )
+            ) {
+              for (const rival of s.units.filter(
+                (u) => u.side === foe && Math.abs(u.lane - lane) === 1,
+              ))
+                damage(rival, 1)
+            }
+          }
+          if (id === 'collection' && level >= 2 && dealt > 0) {
+            s.boss[side] = Math.min(
+              clashBossCap(s, side),
+              s.boss[side] + (level === 3 ? 2 : 1),
+            )
+            if (level === 3) {
+              for (const friend of s.units.filter(
+                (u) =>
+                  u.side === side &&
+                  has(u, 'collect') &&
+                  Math.abs(u.lane - lane) === 1,
+              ))
+                friend.attack = clamp(friend.attack + 1, 0, 10)
+            }
+          }
           if (card.effect === 'blast') {
             for (const nearby of s.units.filter(
               (u) => u.side === foe && Math.abs(u.lane - lane) === 1,
@@ -1400,6 +1464,8 @@ export function playClash(
                 damage(friend, 1)
             }
           }
+          break
+        }
       }
       if (card.kind === 'equipment') target.gear.push(id)
     }
@@ -1462,6 +1528,13 @@ export function strikeClash(input: ClashState, side: Side): ClashState {
   const foeSide = opponent(side)
   const defender = unitAt(s, foeSide, lane)
   let attackPower = clashPower(s, attacker)
+  if (
+    attacker.cardId === 'mau' &&
+    attacker.level >= 2 &&
+    defender &&
+    defender.hp < defender.maxHp
+  )
+    attackPower += attacker.level === 3 ? 2 : 1
   if (attacker.cardId === 'firebrand' && attacker.level >= 2) {
     const failed = random(s) < (attacker.level === 2 ? 0.5 : 0.25)
     attackPower = failed ? 0 : attackPower * 2
@@ -1560,6 +1633,26 @@ export function strikeClash(input: ClashState, side: Side): ClashState {
         'Bulld-Ogre drives through the blocker for 2 boss damage!',
         'blast',
       )
+    }
+    if (
+      dealt > 0 &&
+      attacker.cardId === 'mau' &&
+      attacker.level === 3 &&
+      defender.hp < defender.maxHp
+    ) {
+      const victim = s.units.find(
+        (u) =>
+          u.side === foeSide &&
+          u.uid !== defender.uid &&
+          Math.abs(u.lane - lane) === 1,
+      )
+      if (victim) {
+        damage(victim, 2)
+        evolutionMoment(
+          s, 'mau', side, lane,
+          'Mau-77 follows through into the neighboring alley!', 'strike',
+        )
+      }
     }
     if (dealt > 0 && has(attacker, 'snare')) stun(defender)
     if (

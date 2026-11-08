@@ -285,29 +285,7 @@
         </button>
       </div>
       <div class="clash-hand-zone">
-        <div
-          v-if="choiceStages && selectedCard"
-          class="clash-choice"
-          role="radiogroup"
-          aria-label="Choose this card's level three"
-          data-testid="clash-choice"
-        >
-          <span class="clash-choice-label">CHOOSE ONE · LV 3</span>
-          <button
-            v-for="(st, i) in choiceStages"
-            :key="st.title"
-            type="button"
-            role="radio"
-            :aria-checked="evoPick === i"
-            :class="{ on: evoPick === i }"
-            :data-testid="'clash-choice-' + i"
-            @click="evoPick = i === 1 ? 1 : 0"
-          >
-            <b>{{ st.title }}</b>
-            <small>{{ evoStageText(st, selectedCard.kind) }}</small>
-          </button>
-        </div>
-        <p v-else class="clash-ticker" aria-live="polite">{{ ticker }}</p>
+        <p class="clash-ticker" aria-live="polite">{{ ticker }}</p>
         <p
           v-if="rewardNote"
           class="clash-reward-note"
@@ -318,6 +296,28 @@
         </p>
       </div>
     </footer>
+    <div
+      v-if="choiceStages && selectedCard"
+      class="clash-choice"
+      role="radiogroup"
+      aria-label="Choose this card's level three"
+      data-testid="clash-choice"
+    >
+      <span class="clash-choice-label">CHOOSE ONE · LV 3</span>
+      <button
+        v-for="(st, i) in choiceStages"
+        :key="st.title"
+        type="button"
+        role="radio"
+        :aria-checked="evoPick === i"
+        :class="{ on: evoPick === i }"
+        :data-testid="'clash-choice-' + i"
+        @click="evoPick = i === 1 ? 1 : 0"
+      >
+        <b>{{ st.title }}</b>
+        <small>{{ evoStageText(st, selectedCard.kind) }}</small>
+      </button>
+    </div>
     <SlimeCityClashHand
       :game="game"
       :held="heldIndex"
@@ -1505,24 +1505,29 @@ function forecast(lane: number): string {
 }
 /* A held choose-one level three: two option buttons above the hand. */
 .clash-choice {
-  position: relative;
-  z-index: 7;
-  display: flex;
-  align-items: stretch;
-  gap: 0.4rem;
-  max-width: 34rem;
-  width: 100%;
-}
-.clash-choice-label {
   position: absolute;
-  top: -1.1rem;
+  top: 0.75rem;
   left: 50%;
   transform: translateX(-50%);
+  z-index: 7;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: stretch;
+  gap: 0.4rem;
+  width: min(34rem, calc(100% - 2rem));
+  padding: 0.45rem;
+  border: 2px solid var(--neon);
+  border-radius: 0.8rem;
+  background: #071115;
+  box-shadow: 0 0.4rem 1.4rem #000a;
+}
+.clash-choice-label {
+  flex: 1 0 100%;
+  text-align: center;
   font-size: 0.6rem;
   font-weight: 900;
   letter-spacing: 0.1em;
   color: var(--neon);
-  white-space: nowrap;
 }
 .clash-choice button {
   flex: 1 1 0;
@@ -1532,7 +1537,7 @@ function forecast(lane: number): string {
   padding: 0.35rem 0.55rem;
   border: 2px solid #ffffff33;
   border-radius: 0.6rem;
-  background: #0b2026e6;
+  background: #0b2026;
   color: var(--ink);
   text-align: left;
   font: inherit;

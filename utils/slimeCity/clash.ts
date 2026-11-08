@@ -6,6 +6,14 @@
 // command per alley so the board can animate each blow.
 import { alleyDeck } from './alleys'
 import { clashTwistText } from './clashTwists'
+import { clashEvolutionStage, clashEvolutionText } from './clashEvolutions'
+import type {
+  EvoAction,
+  EvoScope,
+  EvoStage,
+  EvoStatic,
+  EvoTrigger,
+} from './evolutions/dsl'
 import type { AllianceDeck } from './alliance'
 import { factionPower } from './factionPowers'
 import {
@@ -86,6 +94,8 @@ export interface ClashUnit {
   token?: boolean
   /** ALLIANCE Union Wall: extra armor until this side's next turn. */
   guard?: number
+  /** Data evolutions: once-per-fighter abilities already spent. */
+  evoUsed?: string[]
 }
 export interface ClashTrap {
   side: Side
@@ -283,8 +293,16 @@ export const CLASH_TRAIT_COST: Record<Keyword, number> = {
  * Crew calibration (2026-11-07 CPU sweeps): Undertow's snare-and-wait crew sat
  * ~5 points under even once fighters lost round-end healing and gained
  * summoning sickness; half a point of fighter budget closes it.
+ * 2026-11-08 (all-card evolutions, 1200-game sweeps): main sat at 40.5-59%
+ * (Catgirls/Ironjaw low, Riot/Exchange high). These offsets bring it to
+ * 42-58.5%. Life rounds to whole points, so the knob moves in steps: 0.4
+ * shifts only half-point cards, 0.5 shifts many more.
  */
 export const CLASH_CREW_BUDGET: Partial<Record<TeamId, number>> = {
+  catgirls: 0.4,
+  ironjaw: 0.4,
+  riot: -0.5,
+  exchange: -0.5,
   undertow: 0.5,
 }
 export const CLASH_TRAIT_TEXT: Record<Keyword, string> = {
@@ -432,9 +450,17 @@ export function clashCardText(card: Card, level = 1): string {
       ...(b.armor ? ['Armor: blocks 1 damage per hit.'] : []),
       ...(card.keywords ?? []).map((k) => CLASH_TRAIT_TEXT[k]),
       clashTwistText(card.id, level),
+      clashEvolutionText(card, level),
     ]
       .filter(Boolean)
       .join(' ')
+  const evolution = clashEvolutionText(card, level)
+  if (evolution) return clashBaseText(card, level) + ' ' + evolution
+  return clashBaseText(card, level)
+}
+/** A spell, trap or gear card's base Clash rules at `level`. */
+function clashBaseText(card: Card, level: number): string {
+  const b = clashBalance(card, level)
   if (card.kind === 'trap')
     return (
       'Hits the next rival fighter in this alley for ' +
@@ -489,6 +515,8 @@ export function clashCardText(card: Card, level = 1): string {
   }
 }
 export function clashPower(s: ClashState, u: ClashUnit): number {
+  const statics = evoStatics(u)
+  if (statics.some((r) => r.pacifist)) return 0
   if (
     u.level === 3 &&
     (u.cardId === 'calico' ||
@@ -530,6 +558,30 @@ export function clashPower(s: ClashState, u: ClashUnit): number {
       (ally.level === 3 || Math.abs(ally.lane - u.lane) === 1)
     )
       power++
+  }
+  const beside = s.units.some(
+    (v) =>
+      v.uid !== u.uid && v.side === u.side && Math.abs(v.lane - u.lane) === 1,
+  )
+  for (const r of statics) {
+    if (r.pack && beside) power += r.pack
+    if (r.lone && !beside) power += r.lone
+    if (r.bully && unitAt(s, opponent(u.side), u.lane)?.rooted) power += r.bully
+  }
+  for (const v of s.units) {
+    if (v.uid === u.uid) continue
+    for (const r of evoStatics(v)) {
+      if (v.side === u.side && r.aura)
+        if (r.aura.to === 'otherAllies' || Math.abs(v.lane - u.lane) === 1)
+          power += r.aura.n
+      if (v.side !== u.side && r.hex)
+        if (
+          r.hex.to === 'laneFoes'
+            ? Math.abs(v.lane - u.lane) <= 1
+            : v.lane === u.lane
+        )
+          power -= r.hex.n
+    }
   }
   for (const spy of s.units.filter(
     (v) => v.side !== u.side && v.level >= 2 && v.cardId === 'watcher',
@@ -607,6 +659,10 @@ function startTurn(s: ClashState, side: Side): void {
       ally.guard = clamp((ally.guard ?? 0) + shield, 0, 3)
   }
   draw(s, side)
+  for (const u of s.units.filter((v) => v.side === side && v.hp > 0))
+    unitEvo(s, u, 'turnStart')
+  casualties(s)
+  checkWinner(s)
   note(
     s,
     (side === 'player' ? 'YOUR TURN' : 'RIVAL TURN') +
@@ -813,6 +869,15 @@ function springTrap(s: ClashState, trap: ClashTrap, victim: ClashUnit): number {
     }
   }
   note(s, card.name + ' springs on ' + nameOf(victim) + '!', 'trap', trap.lane)
+  const evolved = clashEvolutionStage(trap.cardId, trap.level)
+  if (evolved)
+    runEvoStage(s, evolved, 'spring', {
+      side: trap.side,
+      lane: trap.lane,
+      cardId: trap.cardId,
+      level: trap.level,
+      target: victim,
+    })
   return dealt
 }
 /** Battlefield-only echoes are NOT deck cards. Each arrival uses the same trap
@@ -868,6 +933,233 @@ function nearestFreeAlley(s: ClashState, side: Side, center: number): number {
   )
 }
 
+// ------------------------------------------------ data evolutions (dsl.ts)
+interface EvoContext {
+  side: Side
+  lane: number
+  cardId: string
+  level: number
+  /** The fighter that owns (or wears) the evolution. */
+  self?: ClashUnit
+  /** Spell target, strike defender or trap victim. */
+  target?: ClashUnit
+}
+/** Every evolution stage a fighter carries: its own and its gear's. */
+function evoStages(
+  u: ClashUnit,
+): { id: string; level: number; st: EvoStage }[] {
+  const out: { id: string; level: number; st: EvoStage }[] = []
+  if (!u.token && u.level >= 2) {
+    const st = clashEvolutionStage(u.cardId, u.level)
+    if (st) out.push({ id: u.cardId, level: u.level, st })
+  }
+  for (const [id, level] of Object.entries(u.gearLevels ?? {})) {
+    const st = clashEvolutionStage(id, level)
+    if (st) out.push({ id, level, st })
+  }
+  return out
+}
+function evoStatics(u: ClashUnit): EvoStatic[] {
+  return evoStages(u).flatMap(({ st }) => (st.static ? [st.static] : []))
+}
+function evoScope(s: ClashState, ctx: EvoContext, to: EvoScope): ClashUnit[] {
+  const foe = opponent(ctx.side)
+  const alive = (u: ClashUnit) => u.hp > 0
+  const mine = s.units.filter((u) => u.side === ctx.side && alive(u))
+  const theirs = s.units.filter((u) => u.side === foe && alive(u))
+  const near = (u: ClashUnit) => Math.abs(u.lane - ctx.lane) === 1
+  switch (to) {
+    case 'self':
+      return ctx.self && alive(ctx.self) && s.units.includes(ctx.self)
+        ? [ctx.self]
+        : []
+    case 'target':
+      return ctx.target && alive(ctx.target) && s.units.includes(ctx.target)
+        ? [ctx.target]
+        : []
+    case 'across': {
+      const u = unitAt(s, foe, ctx.lane)
+      return u && alive(u) ? [u] : []
+    }
+    case 'adjacentAllies':
+      return mine.filter(near)
+    case 'allies':
+      return mine
+    case 'otherAllies':
+      return mine.filter((u) => u !== ctx.self)
+    case 'adjacentFoes':
+      return theirs.filter(near)
+    case 'laneFoes':
+      return theirs.filter((u) => Math.abs(u.lane - ctx.lane) <= 1)
+    case 'allFoes':
+      return theirs
+    case 'randomFoe':
+      return theirs.length
+        ? [theirs[Math.floor(random(s) * theirs.length)]!]
+        : []
+    case 'weakestFoe':
+      return theirs.length
+        ? [[...theirs].sort((a, b) => a.hp - b.hp || a.lane - b.lane)[0]!]
+        : []
+    case 'strongestFoe':
+      return theirs.length
+        ? [
+            [...theirs].sort(
+              (a, b) => clashPower(s, b) - clashPower(s, a) || a.lane - b.lane,
+            )[0]!,
+          ]
+        : []
+    case 'woundedAlly': {
+      const hurt = mine
+        .filter((u) => u.hp < u.maxHp)
+        .sort((a, b) => b.maxHp - b.hp - (a.maxHp - a.hp) || a.lane - b.lane)
+      return hurt.slice(0, 1)
+    }
+  }
+}
+function evoAct(s: ClashState, ctx: EvoContext, a: EvoAction): void {
+  const foe = opponent(ctx.side)
+  switch (a.do) {
+    case 'damage':
+      for (const u of evoScope(s, ctx, a.to)) damage(u, a.n, a.pierce ? 9 : 0)
+      return
+    case 'heal':
+      for (const u of evoScope(s, ctx, a.to))
+        u.hp = Math.min(u.maxHp, u.hp + a.n)
+      return
+    case 'power':
+      for (const u of evoScope(s, ctx, a.to))
+        if (a.lasting) u.attack = clamp(u.attack + a.n, 0, 12)
+        else u.surge += a.n
+      return
+    case 'life':
+      for (const u of evoScope(s, ctx, a.to)) {
+        u.maxHp += a.n
+        u.hp += a.n
+      }
+      return
+    case 'armor':
+      for (const u of evoScope(s, ctx, a.to))
+        u.armor = clamp(u.armor + a.n, 0, 3)
+      return
+    case 'guard':
+      for (const u of evoScope(s, ctx, a.to)) u.guard = (u.guard ?? 0) + a.n
+      return
+    case 'stun':
+      for (const u of evoScope(s, ctx, a.to)) stun(u)
+      return
+    case 'cleanse':
+      for (const u of evoScope(s, ctx, a.to)) u.rooted = false
+      return
+    case 'grant':
+      for (const u of evoScope(s, ctx, a.to))
+        if (!u.keywords.includes(a.keyword)) u.keywords.push(a.keyword)
+      return
+    case 'summon': {
+      const lanes =
+        a.where === 'neighbors'
+          ? [ctx.lane - 1, ctx.lane + 1]
+          : a.where === 'everyEmpty'
+            ? Array.from({ length: CLASH_LANES }, (_, lane) => lane)
+            : [nearestFreeAlley(s, ctx.side, ctx.lane)]
+      for (const lane of lanes)
+        if (inside(lane) && !unitAt(s, ctx.side, lane))
+          summonEcho(s, ctx.side, ctx.cardId, lane, a.hp, a.attack, a.keywords)
+      return
+    }
+    case 'boss':
+      s.boss[foe] -= a.n
+      return
+    case 'mend':
+      s.boss[ctx.side] = Math.min(
+        clashBossCap(s, ctx.side),
+        s.boss[ctx.side] + a.n,
+      )
+      return
+    case 'draw':
+      draw(
+        s,
+        ctx.side,
+        Math.max(0, s.hands[ctx.side].length + a.n - CLASH_HAND_SIZE),
+      )
+      return
+    case 'chance':
+      if (random(s) * 100 < a.p) for (const x of a.then) evoAct(s, ctx, x)
+      return
+  }
+}
+function evoMomentEffect(
+  a: EvoAction | undefined,
+): ClashEvolutionMoment['effect'] {
+  switch (a?.do) {
+    case 'summon':
+      return 'summon'
+    case 'heal':
+    case 'mend':
+    case 'life':
+    case 'cleanse':
+      return 'heal'
+    case 'damage':
+    case 'boss':
+      return 'blast'
+    case 'power':
+      return 'strike'
+    case 'chance':
+      return evoMomentEffect(a.then[0])
+    default:
+      return 'control'
+  }
+}
+/** Run one stage's abilities for a trigger. Level threes always announce
+ * themselves with an evolution moment (the cinematic layer reads it). */
+function runEvoStage(
+  s: ClashState,
+  st: EvoStage,
+  when: EvoTrigger,
+  ctx: EvoContext,
+): void {
+  let first: EvoAction | undefined
+  st.abilities.forEach((ab, i) => {
+    if (ab.when !== when) return
+    if (ab.once && ctx.self) {
+      const key = ctx.cardId + ':' + ctx.level + ':' + i
+      if (ctx.self.evoUsed?.includes(key)) return
+      ;(ctx.self.evoUsed ??= []).push(key)
+    }
+    first ??= ab.do[0]
+    for (const a of ab.do) evoAct(s, ctx, a)
+  })
+  if (!first) return
+  const name = cardById(ctx.cardId).name
+  if (ctx.level >= 3)
+    evolutionMoment(
+      s,
+      ctx.cardId,
+      ctx.side,
+      ctx.lane,
+      name + ': ' + st.title + '!',
+      evoMomentEffect(first),
+    )
+  else note(s, name + ' · ' + st.title, 'play', ctx.lane)
+}
+/** Fire every stage a fighter carries for `when`. */
+function unitEvo(
+  s: ClashState,
+  u: ClashUnit,
+  when: EvoTrigger,
+  target?: ClashUnit,
+): void {
+  for (const { id, level, st } of evoStages(u))
+    runEvoStage(s, st, when, {
+      side: u.side,
+      lane: u.lane,
+      cardId: id,
+      level,
+      self: u,
+      target,
+    })
+}
+
 function casualties(s: ClashState): void {
   // A rescue must happen before the death ledger, explosion, and discard.
   // No fighter can be rescued twice by the same collar or grandmother.
@@ -914,6 +1206,7 @@ function casualties(s: ClashState): void {
   const fallen = s.units.filter((u) => u.hp <= 0)
   s.units = s.units.filter((u) => u.hp > 0)
   for (const u of fallen) {
+    unitEvo(s, u, 'death')
     if (!u.token) {
       s.discards[u.side].push(u.cardId)
       ;(s.fallen ??= { player: [], enemy: [] })[u.side].push(u.cardId)
@@ -1179,6 +1472,10 @@ export function playClash(
     const trap = s.traps.find((t) => t.side === foe && t.lane === lane)
     if (trap) {
       springTrap(s, trap, unit)
+      casualties(s)
+    }
+    if (unit.hp > 0) {
+      unitEvo(s, unit, 'enter')
       casualties(s)
     }
     if (unit.hp > 0 && id === 'lynx' && level === 3) {
@@ -1639,6 +1936,25 @@ export function playClash(
       }
       if (card.kind === 'equipment') target.gear.push(id)
     }
+    const evolved = clashEvolutionStage(id, level)
+    if (evolved && card.kind === 'equipment' && target) {
+      ;(target.gearLevels ??= {})[id] = level
+      runEvoStage(s, evolved, 'enter', {
+        side,
+        lane: target.lane,
+        cardId: id,
+        level,
+        self: target,
+        target,
+      })
+    } else if (evolved)
+      runEvoStage(s, evolved, 'enter', {
+        side,
+        lane,
+        cardId: id,
+        level,
+        target,
+      })
     note(s, card.name + ' played in alley ' + (lane + 1) + '.', 'play', lane)
     casualties(s)
     s.discards[side].push(id)
@@ -1783,6 +2099,7 @@ export function strikeClash(input: ClashState, side: Side): ClashState {
       'boss',
       lane,
     )
+    if (attacker.hp > 0) unitEvo(s, attacker, 'boss')
   } else {
     const bribed =
       attacker.cardId === 'merc-bribe-rat' &&
@@ -2007,6 +2324,11 @@ export function strikeClash(input: ClashState, side: Side): ClashState {
     strike.attackerFell = attacker.hp <= 0
     strike.defenderFell = defender.hp <= 0
   }
+  if (defender && attacker.hp > 0) {
+    if (strike.dealt > 0) unitEvo(s, attacker, 'hit', defender)
+    if (defender.hp <= 0) unitEvo(s, attacker, 'kill', defender)
+  }
+  if (attacker.hp > 0) unitEvo(s, attacker, 'strike', defender)
   s.strike = strike
   casualties(s)
   // Fatal-hit rescues happen during casualties: present the surviving unit
@@ -2067,6 +2389,10 @@ export function endClashTurn(input: ClashState, side: Side): ClashState {
         neighbor.hp + (healer.level === 3 ? 2 : 1),
       )
   }
+  for (const unit of [...s.units]) if (unit.hp > 0) unitEvo(s, unit, 'roundEnd')
+  casualties(s)
+  checkWinner(s)
+  if (s.victor) return s
   for (const unit of s.units) {
     if (has(unit, 'regen')) unit.hp = Math.min(unit.maxHp, unit.hp + 1)
     if ((unit.gearLevels?.contract ?? 0) >= 2) {

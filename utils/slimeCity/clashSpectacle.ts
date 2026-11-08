@@ -1,6 +1,7 @@
 import { factionPower } from './factionPowers'
 import { clashCardText, clashLevel, type ClashState } from './clash'
 import { clashTwistText } from './clashTwists'
+import { clashEvolutionStage } from './clashEvolutions'
 import { cardById, type Side, type TeamId } from './prototypes'
 
 export type ClashSpectacleGrade = 'flash' | 'feature' | 'legend'
@@ -42,7 +43,10 @@ export function clashSpectacle(
         !before.units.some((previous) => previous.uid === u.uid),
     ).length
     const levelThree = level === 3
-    const evolvedTwist = level > 1 && !!clashTwistText(card.id, level)
+    const evolvedTwist =
+      level > 1 &&
+      (!!clashTwistText(card.id, level) ||
+        !!clashEvolutionStage(card.id, level))
     const grade: ClashSpectacleGrade = levelThree
       ? 'legend'
       : evolvedTwist || card.signature || newlySummoned > 1
@@ -59,6 +63,7 @@ export function clashSpectacle(
         : isReplacement && card.id === 'broker' && level > 1
           ? 'A sacrifice pays for a stronger body'
           : clashTwistText(card.id, level) ||
+            clashEvolutionStage(card.id, level)?.title ||
             clashCardText(card, level) ||
             'A new challenger enters the arena'
     const effect: ClashSpectacleEffect =

@@ -962,18 +962,48 @@ export function playClash(
     const target = unitAt(s, aim(card) === 'own' ? side : foe, lane)
     const power = profile.power
     if (card.effect === 'scan') {
-      const removed = s.traps.filter((t) => t.side === foe && t.lane === lane)
+      const removed = s.traps.filter(
+        (t) =>
+          t.side === foe &&
+          (id === 'sonar' && level >= 3
+            ? true
+            : id === 'sonar' && level === 2
+              ? Math.abs(t.lane - lane) <= 1
+              : t.lane === lane),
+      )
       s.traps = s.traps.filter((t) => !removed.includes(t))
       for (const trap of removed) s.discards[foe].push(trap.cardId)
-      if (level > 1) draw(s, side, level - 2)
+      if (level > 1) draw(s, side, id === 'sonar' ? level - 1 : level - 2)
     } else if (target) {
       switch (card.effect) {
         case 'heal':
           target.hp = Math.min(target.maxHp, target.hp + power)
+          if (id === 'reknit' && level >= 2) {
+            for (const friend of s.units.filter(
+              (u) => u.side === side && Math.abs(u.lane - lane) === 1,
+            ))
+              friend.hp = Math.min(friend.maxHp, friend.hp + 2)
+            if (level === 3) {
+              const fallen = [...s.discards[side]].reverse().find(
+                (cardId) => cardById(cardId).kind === 'creature',
+              )
+              const free = nearestFreeAlley(s, side, lane)
+              if (fallen && free >= 0)
+                summonEcho(s, side, fallen, free, 2, 1)
+            }
+          }
           break
         case 'armor':
           target.armor = clamp(target.armor + (level >= 3 ? 2 : 1), 0, 3)
           target.hp = Math.min(target.maxHp, target.hp + (level - 1) * 2)
+          if (id === 'plating' && level >= 2)
+            for (const friend of s.units.filter(
+              (u) =>
+                u.side === side &&
+                u.uid !== target.uid &&
+                (level === 3 || Math.abs(u.lane - lane) === 1),
+            ))
+              friend.armor = clamp(friend.armor + 1, 0, 3)
           break
         case 'sharpen':
           target.attack = clamp(target.attack + profile.bonus, 1, 10)
@@ -982,21 +1012,55 @@ export function playClash(
           if (card.kind === 'equipment')
             target.attack = clamp(target.attack + profile.bonus, 1, 10)
           else target.surge += power
+          if (id === 'pounce') {
+            target.ambushUsed = false
+            if (level >= 2) {
+              const adjacent = s.units.filter(
+                (u) => u.side === side && Math.abs(u.lane - lane) === 1,
+              )
+              for (const friend of level === 3 ? adjacent : adjacent.slice(0, 1)) {
+                friend.ambushUsed = false
+                friend.surge += level === 3 ? 2 : 1
+              }
+            }
+          }
           break
         case 'grant':
           for (const keyword of card.grants ?? [])
             if (!target.keywords.includes(keyword))
               target.keywords.push(keyword)
           target.attack = clamp(target.attack + (level - 1), 1, 10)
+          if (id === 'handshake' && level >= 2) {
+            for (const friend of s.units.filter(
+              (u) =>
+                u.side === side &&
+                (level === 3 || Math.abs(u.lane - lane) === 1),
+            ))
+              if (!has(friend, 'collect')) friend.keywords.push('collect')
+          }
           break
         case 'root':
           target.rooted = true
           if (level > 1) damage(target, level - 1)
+          if (id === 'laser' && level >= 2) {
+            const nearby = s.units.filter(
+              (u) => u.side === foe && Math.abs(u.lane - lane) === 1,
+            )
+            for (const rival of level === 3 ? nearby : nearby.slice(0, 1))
+              rival.rooted = true
+          }
           break
         case 'snare':
         case 'debt':
           damage(target, power)
           target.rooted = true
+          if (id === 'foreclosure' && level >= 2 && target.hp <= 0) {
+            s.boss[side] = Math.min(clashBossMax(side), s.boss[side] + 2)
+            if (level === 3) {
+              const free = nearestFreeAlley(s, side, lane)
+              if (free >= 0) summonEcho(s, side, 'repo', free, 2, 1)
+            }
+          }
           break
         case 'chaos':
           damage(target, 1 + Math.floor(random(s) * power))
@@ -1007,7 +1071,33 @@ export function playClash(
             for (const nearby of s.units.filter(
               (u) => u.side === foe && Math.abs(u.lane - lane) === 1,
             ))
-              damage(nearby, 1)
+              damage(nearby, id === 'confetti' && level >= 2 ? 2 : 1)
+            if (id === 'mosh' && level >= 2) {
+              for (const rival of s.units.filter(
+                (u) =>
+                  u.side === foe &&
+                  (level === 3
+                    ? Math.abs(u.lane - lane) >= 2
+                    : Math.abs(u.lane - lane) === 2),
+              ))
+                damage(rival, 1)
+              if (level === 3)
+                for (const friend of s.units.filter((u) => u.side === side))
+                  damage(friend, 1)
+            }
+            if (id === 'confetti') {
+              if (level === 3)
+                for (const rival of s.units.filter(
+                  (u) => u.side === foe && Math.abs(u.lane - lane) >= 2,
+                ))
+                  damage(rival, 2)
+              for (const friend of s.units.filter(
+                (u) =>
+                  u.side === side &&
+                  (level === 3 || Math.abs(u.lane - lane) === 1),
+              ))
+                damage(friend, 1)
+            }
           }
       }
       if (card.kind === 'equipment') target.gear.push(id)

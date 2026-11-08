@@ -273,6 +273,7 @@ export function evoActionText(a: EvoAction, subject: 'it' | 'self'): string {
     (PLURAL.includes(to) || to === 'allies' || to === 'otherAllies'
       ? ' get '
       : ' gets ')
+  const signed = (n: number) => (n < 0 ? String(n) : '+' + n)
   switch (a.do) {
     case 'damage':
       return a.n + (a.pierce ? ' piercing' : '') + ' to ' + who(a.to)
@@ -280,12 +281,12 @@ export function evoActionText(a: EvoAction, subject: 'it' | 'self'): string {
       return 'heal ' + who(a.to) + ' ' + a.n
     case 'power':
       return (
-        get(a.to) + '+' + a.n + ' power' + (a.lasting ? ' for good' : ' now')
+        get(a.to) + signed(a.n) + ' power' + (a.lasting ? ' for good' : ' now')
       )
     case 'life':
-      return get(a.to) + '+' + a.n + ' life'
+      return get(a.to) + signed(a.n) + ' life'
     case 'armor':
-      return get(a.to) + '+' + a.n + ' armor'
+      return get(a.to) + signed(a.n) + ' armor'
     case 'guard':
       return get(a.to) + '+' + a.n + ' shield'
     case 'stun':

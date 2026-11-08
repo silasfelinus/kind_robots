@@ -507,5 +507,7 @@ for (const seed of [5, 9, 13, 21, 34, 55]) {
 }
 
 console.log(
-  'Slime City crafted evolutions: 20-card Catgirls pilot deck, 11 crafted cards and 3 choose-one level threes through the real engine, art fallback and replay OK',
+  'Slime City crafted evolutions: ' +
+    Object.keys(CLASH_EVOLUTIONS).length +
+    ' crafted cards through the real engine; 20-card Catgirls pilot deck, choose-one level threes, art fallback and replay OK',
 )

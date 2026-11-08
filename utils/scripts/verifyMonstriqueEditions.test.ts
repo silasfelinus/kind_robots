@@ -43,7 +43,7 @@ assert.match(adminPage, /caseStore\.authorized && user\.isAdmin && user\.showMat
 assert.match(publicStore, /user\.isMaturityRestricted/)
 assert.match(publicStore, /verifiedToken\.value === user\.token/)
 assert.match(publicStore, /result\.data\?\.audience === 'mature'/)
-assert.match(publicStore, /if \(audience\.value === 'mature'\) kit\.unlock\('moments', 'cold-kiss'\)/)
+assert.match(publicStore, /audience\.value === 'mature' && result\.state\.flags\.includes\('ghost-kiss'\)/)
 assert.match(publicStore, /'kr-monstrique-' \+ mode \+ '-v1-'/)
 assert.match(publicStore, /loadMode\('general'\)/)
 assert.match(publicStore, /loadMode\('mature'\)/)

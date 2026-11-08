@@ -3758,8 +3758,9 @@ const playableExperiences = campaignCanon.MEMORY_REALITY_EXPERIENCES
 assert.equal(playableExperiences.length, 12)
 assert.deepEqual(
   playableExperiences.map((world) => world.id),
-  Array.from({ length: 12 }, (_, index) =>
-    `e${String(index + 1).padStart(2, '0')}`,
+  Array.from(
+    { length: 12 },
+    (_, index) => `e${String(index + 1).padStart(2, '0')}`,
   ),
 )
 for (const world of playableExperiences) {
@@ -3773,6 +3774,9 @@ for (const [original, reflection] of expectedPairs) {
   assert.equal(first.viewpoint, second.viewpoint)
   assert.notEqual(first.state, second.state)
 }
-assert.equal(playableExperiences.some((world) =>
-  ['e13', 'e14', 'e15', 'e16'].includes(world.id),
-), false)
+assert.equal(
+  playableExperiences.some((world) =>
+    ['e13', 'e14', 'e15', 'e16'].includes(world.id),
+  ),
+  false,
+)

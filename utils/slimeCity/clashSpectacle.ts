@@ -1,4 +1,4 @@
-import { factionPower } from './alliance'
+import { factionPower } from './factionPowers'
 import { clashCardText, clashLevel, type ClashState } from './clash'
 import { clashTwistText } from './clashTwists'
 import { cardById, type Side, type TeamId } from './prototypes'

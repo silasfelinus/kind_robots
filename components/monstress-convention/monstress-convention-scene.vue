@@ -688,7 +688,7 @@ onMounted(() => {
 })
 
 function begin(): void {
-  story.begin()
+  story.value.begin()
   selected.value = null
   held.value = null
   drawer.value = null
@@ -703,12 +703,12 @@ function advanceIntro(): void {
 
 function useHeld(): void {
   if (!held.value || !selected.value) return
-  story.takeAction({ verb: 'use', target: selected.value, item: held.value })
+  story.value.takeAction({ verb: 'use', target: selected.value, item: held.value })
   if (!story.value.state.inventory.includes(held.value)) held.value = null
 }
 
 function go(destination: RoomId): void {
-  story.move(destination)
+  story.value.move(destination)
   selected.value = null
   drawer.value = null
 }

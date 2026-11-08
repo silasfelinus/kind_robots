@@ -1762,6 +1762,11 @@ export function strikeClash(input: ClashState, side: Side): ClashState {
   }
   s.strike = strike
   casualties(s)
+  // Fatal-hit rescues happen during casualties: present the surviving unit
+  // correctly rather than flashing a false knockout in the combat UI.
+  strike.attackerFell = !s.units.some((u) => u.uid === attacker.uid)
+  if (defender)
+    strike.defenderFell = !s.units.some((u) => u.uid === defender.uid)
   checkWinner(s)
   s.commands.push({ t: 'strike', side })
   return s

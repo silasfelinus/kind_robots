@@ -101,14 +101,15 @@ for (const wounded of [1, 3]) {
   s.round = 5
   s.hands.player = [id]
   s.levels.player[id] = 2
-  s.units = [
-    fighter('enemy', 1, 10),
-    fighter('enemy', 3, 11),
-  ]
+  s.units = [fighter('enemy', 1, 10), fighter('enemy', 3, 11)]
   const before = structuredClone(s)
   const cmd = chooseClashCpu(s, 'player')
   assert.equal(cmd.t, 'play')
-  assert.deepEqual(s, before, 'CPU analysis cannot modify the match RNG or board')
+  assert.deepEqual(
+    s,
+    before,
+    'CPU analysis cannot modify the match RNG or board',
+  )
 }
 
 // Both prior duplicate evolution pairs now diverge in *mechanics*, not

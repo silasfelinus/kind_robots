@@ -2,13 +2,12 @@
 // not just each crew's curated starter. Seed-paired seat swaps expose first-seat
 // advantage; rotating legal 20-card decks expose weak cards and neutral synergies.
 import assert from 'node:assert/strict'
-import { CARDS, TEAMS, type Side, type TeamId } from '../slimeCity/prototypes'
+import { CARDS, TEAMS, type TeamId } from '../slimeCity/prototypes'
 import {
   applyClashCommand,
   chooseClashCpu,
   clashDeck,
   createClash,
-  type ClashState,
 } from '../slimeCity/clash'
 import { CLASH_EVOLUTIONS } from '../slimeCity/clashEvolutions'
 

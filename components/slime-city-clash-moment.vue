@@ -21,7 +21,10 @@
       <i v-for="n in 10" :key="n" :style="{ '--spark': n }" />
     </span>
     <div class="scx-announcement">
-      <div v-if="moment.cardId || moment.grade !== 'flash'" class="scx-portrait">
+      <div
+        v-if="moment.cardId || moment.grade !== 'flash'"
+        class="scx-portrait"
+      >
         <SlimeCityArtwork
           :image-id="
             moment.cardId
@@ -95,7 +98,11 @@ defineProps<{ moment: (ClashSpectacle & { key: number }) | null }>()
   position: absolute;
   inset: -30%;
   background:
-    radial-gradient(ellipse at var(--lane-x) 55%, var(--fx-soft), transparent 37%),
+    radial-gradient(
+      ellipse at var(--lane-x) 55%,
+      var(--fx-soft),
+      transparent 37%
+    ),
     radial-gradient(ellipse at 50% 50%, var(--fx), transparent 64%);
   mix-blend-mode: screen;
   opacity: 0;
@@ -166,8 +173,7 @@ defineProps<{ moment: (ClashSpectacle & { key: number }) | null }>()
   border-radius: 0.8rem;
   padding: 0.3rem 1rem 0.3rem 0.3rem;
   background:
-    linear-gradient(115deg, #071823f5, #102833f1 65%, #07131def),
-    #091b25;
+    linear-gradient(115deg, #071823f5, #102833f1 65%, #07131def), #091b25;
   box-shadow:
     0 10px 30px #000b,
     0 0 0 2px #05131be0,
@@ -196,7 +202,12 @@ defineProps<{ moment: (ClashSpectacle & { key: number }) | null }>()
   position: absolute;
   inset: -30%;
   transform: translateX(-120%) rotate(28deg);
-  background: linear-gradient(90deg, transparent 35%, #ffffff9e 50%, transparent 65%);
+  background: linear-gradient(
+    90deg,
+    transparent 35%,
+    #ffffff9e 50%,
+    transparent 65%
+  );
   animation: scx-shine 1s 0.13s ease-out both;
 }
 .scx-copy {
@@ -265,7 +276,9 @@ defineProps<{ moment: (ClashSpectacle & { key: number }) | null }>()
 .scx-effect-heal .scx-ring {
   border-color: #bcffab;
   border-radius: 35%;
-  box-shadow: 0 0 30px #83ffbf, inset 0 0 35px #baffad;
+  box-shadow:
+    0 0 30px #83ffbf,
+    inset 0 0 35px #baffad;
 }
 .scx-effect-heal .scx-particles i {
   height: clamp(5px, 1vw, 12px);
@@ -318,57 +331,138 @@ defineProps<{ moment: (ClashSpectacle & { key: number }) | null }>()
   );
 }
 @keyframes scx-rise {
-  0% { opacity: 0; transform: translate(-50%, 20%) scaleX(0.25); }
-  24% { opacity: 0.65; transform: translate(-50%, 0) scaleX(1); }
-  100% { opacity: 0; transform: translate(-50%, -15%) scaleX(1.25); }
+  0% {
+    opacity: 0;
+    transform: translate(-50%, 20%) scaleX(0.25);
+  }
+  24% {
+    opacity: 0.65;
+    transform: translate(-50%, 0) scaleX(1);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(-50%, -15%) scaleX(1.25);
+  }
 }
 @keyframes scx-wash {
-  0% { opacity: 0; transform: scale(0.75); }
-  15% { opacity: 0.4; }
-  100% { opacity: 0; transform: scale(1.2); }
+  0% {
+    opacity: 0;
+    transform: scale(0.75);
+  }
+  15% {
+    opacity: 0.4;
+  }
+  100% {
+    opacity: 0;
+    transform: scale(1.2);
+  }
 }
 @keyframes scx-lane {
-  0% { opacity: 0; transform: translateX(-50%) skewX(-6deg) scaleX(0.3); }
-  24% { opacity: 0.55; transform: translateX(-50%) skewX(6deg) scaleX(1); }
-  100% { opacity: 0; transform: translateX(-50%) skewX(0) scaleX(1.2); }
+  0% {
+    opacity: 0;
+    transform: translateX(-50%) skewX(-6deg) scaleX(0.3);
+  }
+  24% {
+    opacity: 0.55;
+    transform: translateX(-50%) skewX(6deg) scaleX(1);
+  }
+  100% {
+    opacity: 0;
+    transform: translateX(-50%) skewX(0) scaleX(1.2);
+  }
 }
 @keyframes scx-ring {
-  0% { opacity: 0.9; transform: translate(-50%, -50%) scale(0.1); }
-  100% { opacity: 0; transform: translate(-50%, -50%) scale(3); }
+  0% {
+    opacity: 0.9;
+    transform: translate(-50%, -50%) scale(0.1);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(3);
+  }
 }
 @keyframes scx-particle {
-  0% { opacity: 1; transform: rotate(calc(var(--spark) * 36deg)) translateY(0) scale(1); }
-  100% { opacity: 0; transform: rotate(calc(var(--spark) * 36deg)) translateY(-14vmin) scale(0.3); }
+  0% {
+    opacity: 1;
+    transform: rotate(calc(var(--spark) * 36deg)) translateY(0) scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: rotate(calc(var(--spark) * 36deg)) translateY(-14vmin) scale(0.3);
+  }
 }
 @keyframes scx-card {
-  0% { opacity: 0; transform: translate(-50%, -20%) scale(0.55) rotate(-8deg); }
-  20% { opacity: 1; transform: translate(-50%, -50%) scale(1.06) rotate(1deg); }
-  65% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
-  100% { opacity: 0; transform: translate(-50%, -60%) scale(1.03); }
+  0% {
+    opacity: 0;
+    transform: translate(-50%, -20%) scale(0.55) rotate(-8deg);
+  }
+  20% {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1.06) rotate(1deg);
+  }
+  65% {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(-50%, -60%) scale(1.03);
+  }
 }
 @keyframes scx-card-legend {
-  0% { opacity: 0; transform: translate(-50%, -22%) scale(0.4) rotate(-12deg); }
-  20% { opacity: 1; transform: translate(-50%, -50%) scale(1.12) rotate(2deg); }
-  34% { transform: translate(-50%, -50%) scale(1) rotate(0); }
-  76% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
-  100% { opacity: 0; transform: translate(-50%, -54%) scale(1.08); }
+  0% {
+    opacity: 0;
+    transform: translate(-50%, -22%) scale(0.4) rotate(-12deg);
+  }
+  20% {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1.12) rotate(2deg);
+  }
+  34% {
+    transform: translate(-50%, -50%) scale(1) rotate(0);
+  }
+  76% {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(-50%, -54%) scale(1.08);
+  }
 }
 @keyframes scx-shine {
-  0% { transform: translateX(-120%) rotate(28deg); }
-  100% { transform: translateX(140%) rotate(28deg); }
+  0% {
+    transform: translateX(-120%) rotate(28deg);
+  }
+  100% {
+    transform: translateX(140%) rotate(28deg);
+  }
 }
 @media (max-width: 520px) {
-  .scx-announcement { max-width: 91%; padding-right: 0.45rem; gap: 0.45rem; }
-  .scx-legend .scx-portrait { width: 4.6rem; }
-  .scx-legend .scx-copy strong { font-size: 1.25rem; }
-  .scx-copy p { font-size: 0.63rem; }
+  .scx-announcement {
+    max-width: 91%;
+    padding-right: 0.45rem;
+    gap: 0.45rem;
+  }
+  .scx-legend .scx-portrait {
+    width: 4.6rem;
+  }
+  .scx-legend .scx-copy strong {
+    font-size: 1.25rem;
+  }
+  .scx-copy p {
+    font-size: 0.63rem;
+  }
 }
 @media (prefers-reduced-motion: reduce) {
   .scx-wash,
   .scx-lane,
   .scx-ring,
   .scx-particles i,
-  .scx-portrait-glare { display: none; animation: none; }
+  .scx-portrait-glare {
+    display: none;
+    animation: none;
+  }
   .scx-announcement,
   .scx-feature .scx-announcement,
   .scx-legend .scx-announcement {
@@ -376,7 +470,13 @@ defineProps<{ moment: (ClashSpectacle & { key: number }) | null }>()
   }
 }
 @keyframes scx-static {
-  0% { opacity: 1; transform: translate(-50%, -50%); }
-  100% { opacity: 0; transform: translate(-50%, -50%); }
+  0% {
+    opacity: 1;
+    transform: translate(-50%, -50%);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(-50%, -50%);
+  }
 }
 </style>

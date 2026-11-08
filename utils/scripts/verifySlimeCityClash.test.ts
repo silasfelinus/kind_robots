@@ -1654,7 +1654,7 @@ for (let seed = 1; seed <= 64; seed++) {
   const oracle = createClash('catgirls', 'ironjaw', seed)
   oracle.phase = 'attack'
   oracle.units = [
-    { ...follower('player', 1, 3301, 12, 2), cardId: 'merc-grease-oracle', level: 3 },
+    { ...follower('player', 1, 3301, 12, 2), cardId: 'merc-grease-oracle', level: 3, attacked: true },
     follower('player', 2, 3302, 12, 2),
     follower('enemy', 2, 3303, 20, 1),
   ]

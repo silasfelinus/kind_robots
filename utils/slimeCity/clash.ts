@@ -2957,6 +2957,25 @@ export function chooseClashCpu(
           (card.effect === 'heal' && mine
             ? Math.min(b.power, mine.maxHp - mine.hp) * 1.2 - 1.5
             : 0)
+        if (mine && card.effect === 'grant') {
+          const missing = (card.grants ?? []).filter(
+            (keyword) => !mine.keywords.includes(keyword),
+          )
+          score += missing.length * 3.5 + (b.level - 1) * 1.5
+          if (!missing.length && b.level === 1) score -= 3
+        }
+        if (mine && card.kind === 'equipment') {
+          // Gear survives turns; its price cannot be assessed as one small
+          // immediate spell. Reward protecting a healthy, productive fighter.
+          score += 3 + Math.min(mine.attack, 6) * 0.8 +
+            (mine.hp >= 6 ? 1.5 : 0)
+        }
+        if (mine && (card.effect === 'sharpen' || card.effect === 'boost'))
+          score += card.kind === 'equipment'
+            ? Math.min(b.bonus, Math.max(0, 10 - mine.attack)) * 1.8
+            : across ? b.power * 0.7 : 0
+        if (mine && card.effect === 'armor')
+          score += Math.max(0, 3 - mine.armor) * 2
       } else
         score =
           2.2 +
@@ -2974,6 +2993,10 @@ export function chooseClashCpu(
           ? (1 as const)
           : undefined
       score += cpuEvolutionPayoff(s, side, card, lane, b.level, choice ?? 0)
+      // Level-one cards have a real investment cost. Account for the
+      // reachable next stage, without valuing a future payoff as immediate.
+      if (b.level === 1)
+        score += Math.max(0, cpuEvolutionPayoff(s, side, card, lane, 2, 0)) * 0.3
       score /= b.plays
       if (!best || score > best.score)
         best = { score, card: id, lane, ...(choice ? { choice } : {}) }

@@ -12,6 +12,8 @@ import {
   type Card,
   type Command,
   type MatchState,
+  type Side,
+  type TeamId,
 } from './prototypes'
 
 export const PACK_COST = 100
@@ -72,7 +74,7 @@ export const CHALLENGES: Challenge[] = [
     id: 'daily-victor',
     period: 'daily',
     title: 'Own the Pit',
-    description: 'Win a Blackout battle.',
+    description: 'Win a Clash battle.',
     metric: 'blackoutWins',
     target: 1,
     meat: 35,
@@ -262,6 +264,16 @@ export function battleReceipt(match: MatchState): string {
     match.commands,
   ])
 }
+export interface BattleOutcome {
+  victor: Side | 'draw'
+  /** Unique per battle: the same transcript is never paid twice. */
+  receipt: string
+  /** 'blackout' (legacy) or 'clash'. Clash wins count as the pit's wins. */
+  mode: string
+  teamId: TeamId
+  /** The player's card plays and how many of them were creatures. */
+  plays: string[]
+}
 export function awardBattle(
   original: Progression,
   match: MatchState,
@@ -269,32 +281,54 @@ export function awardBattle(
 ): Progression {
   if (!match.victor || !match.commands.some((c) => c.t === 'end'))
     return original
-  const receipt = battleReceipt(match)
+  return awardOutcome(
+    original,
+    {
+      victor: match.victor,
+      receipt: battleReceipt(match),
+      mode: match.mode,
+      teamId: match.teamId,
+      plays: match.commands
+        .filter(
+          (c): c is Extract<Command, { t: 'deploy' }> =>
+            c.t === 'deploy' && c.side === 'player',
+        )
+        .map((c) => c.card),
+    },
+    now,
+  )
+}
+/** Pay one verified battle: base XP and Meat, bounty counters, receipts. */
+export function awardOutcome(
+  original: Progression,
+  outcome: BattleOutcome,
+  now = new Date(),
+): Progression {
+  const receipt = outcome.receipt
   if (original.receipts.includes(receipt)) return original
   const state = refreshPeriods(original, now)
-  const victory = match.victor === 'player'
-  const draw = match.victor === 'draw'
+  const victory = outcome.victor === 'player'
+  const draw = outcome.victor === 'draw'
   const paid = state.daily.paidBattles < DAILY_PAID_BATTLES
   const earnedXp = !paid ? 0 : victory ? 80 : draw ? 35 : 25
   const earnedMeat = !paid ? 0 : victory ? 45 : draw ? 15 : 10
-  const events = match.commands.filter(
-    (c): c is Extract<Command, { t: 'deploy' }> =>
-      c.t === 'deploy' && c.side === 'player',
-  )
-  const creatures = events.filter((c) =>
-    CARDS.some((card) => card.id === c.card && card.kind === 'creature'),
+  const creatures = outcome.plays.filter((id) =>
+    CARDS.some((card) => card.id === id && card.kind === 'creature'),
   ).length
   const updateWindow = (win: ChallengeWindow): ChallengeWindow => ({
     ...win,
     battles: win.battles + 1,
     wins: win.wins + Number(victory),
     blackoutWins:
-      win.blackoutWins + Number(victory && match.mode === 'blackout'),
+      win.blackoutWins +
+      Number(
+        victory && (outcome.mode === 'blackout' || outcome.mode === 'clash'),
+      ),
     creatures: win.creatures + creatures,
-    plays: win.plays + events.length,
-    crews: win.crews.includes(match.teamId)
+    plays: win.plays + outcome.plays.length,
+    crews: win.crews.includes(outcome.teamId)
       ? win.crews
-      : [...win.crews, match.teamId],
+      : [...win.crews, outcome.teamId],
     paidBattles: win.paidBattles + Number(paid),
   })
   return {
@@ -302,7 +336,7 @@ export function awardBattle(
     xp: state.xp + earnedXp,
     meat: state.meat + earnedMeat,
     wins: state.wins + Number(victory),
-    losses: state.losses + Number(match.victor === 'enemy'),
+    losses: state.losses + Number(outcome.victor === 'enemy'),
     draws: state.draws + Number(draw),
     receipts: [...state.receipts.slice(-255), receipt],
     daily: updateWindow(state.daily),

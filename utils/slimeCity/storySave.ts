@@ -14,7 +14,7 @@ import {
   type CampaignSave,
 } from './campaign'
 import { TEAMS, loadoutProblems, type TeamId } from './prototypes'
-import { validAllianceDeck, type AllianceDeck } from './alliance'
+import { validAllianceDeck, validSoloDeck, type AllianceDeck } from './alliance'
 
 export interface SlimeCityStory {
   version: 1
@@ -28,6 +28,8 @@ export interface SlimeCityStory {
    * Omitted for older saves.
    */
   alliances?: Partial<Record<TeamId, AllianceDeck>>
+  /** SOLO CLASH 20-card decks, one per faction. Omitted for older saves. */
+  soloDecks?: Partial<Record<TeamId, string[]>>
   /**
    * Card unlocks (Silas, 2026-11-04: "we start with all card unlocked as a
    * default mode, but then they can try a mode where it gets trickled out").
@@ -155,6 +157,11 @@ export function validSlimeCityStory(raw: unknown): raw is SlimeCityStory {
       )
         return false
     }
+  }
+  if (raw.soloDecks !== undefined) {
+    if (!record(raw.soloDecks)) return false
+    for (const [team, deck] of Object.entries(raw.soloDecks))
+      if (!validSoloDeck(team, deck)) return false
   }
   if (raw.alliances !== undefined) {
     if (!record(raw.alliances)) return false

@@ -10,14 +10,25 @@
 // either faction or mercs."
 //
 // A deck names TWO crews: the GENERAL (whose power it carries) and the ALLY.
-// Any mix of either crew's cards and mercenaries is legal. Pure data and
-// legality only; the power effects run in clash.ts.
+// Any mix of either crew's cards and mercenaries is legal (Silas, 2026-11-08
+// PT: "drop the 12 creature minimum").
+//
+// SOLO CLASH is its own format: one faction's 20-card deck, built from that
+// faction and the mercenaries. It is what City and Story bouts deal. Pure data
+// and legality only; the power effects run in clash.ts.
 import { alleyDeck } from './alleys'
+import { CLASH_DECK_SIZE, clashDeck } from './clash'
 import { CARDS, TEAMS, cardById, type Card, type TeamId } from './prototypes'
+export {
+  FACTION_POWERS,
+  factionPower,
+  type FactionPower,
+  type PowerTarget,
+} from './factionPowers'
 
 export const ALLIANCE_DECK_SIZE = 30
-/** Clash needs bodies in the alleys: at least two fighters in five. */
-export const ALLIANCE_MIN_CREATURES = 12
+/** SOLO CLASH: one faction, the canonical 20-card Clash deck. */
+export const SOLO_DECK_SIZE = CLASH_DECK_SIZE
 
 export interface AllianceDeck {
   /** The leading crew. Its faction power is the deck's power. */
@@ -25,70 +36,6 @@ export interface AllianceDeck {
   /** The second crew; always a different crew from the general. */
   ally: TeamId
   cards: string[]
-}
-
-/** What a faction power needs pointed at it. */
-export type PowerTarget = 'own' | 'enemy' | 'none'
-export interface FactionPower {
-  team: TeamId
-  name: string
-  /** Rules text: exactly what the code in clash.ts does. */
-  text: string
-  target: PowerTarget
-  symbol: string
-}
-
-/**
- * One faction power per crew, usable once per Alliance match during your own
- * card-play phase. It does not spend a card play.
- */
-export const FACTION_POWERS: Record<TeamId, FactionPower> = {
-  catgirls: {
-    team: 'catgirls',
-    name: 'NINE LIVES',
-    text: 'Every fighter you have returns to full life, shakes off its stun, gains +2 power this round and may strike this turn, even if it just landed.',
-    target: 'none',
-    symbol: '🐾',
-  },
-  bloodfairies: {
-    team: 'bloodfairies',
-    name: 'MOSH PIT',
-    text: 'Every fighter you have gains +3 power until the round ends.',
-    target: 'none',
-    symbol: '🦇',
-  },
-  ironjaw: {
-    team: 'ironjaw',
-    name: 'UNION WALL',
-    text: 'Every fighter you have gains +3 armor until your next turn.',
-    target: 'none',
-    symbol: '🛡',
-  },
-  riot: {
-    team: 'riot',
-    name: 'FUSE BOX',
-    text: 'Deal 2 damage to every rival fighter.',
-    target: 'none',
-    symbol: '💥',
-  },
-  undertow: {
-    team: 'undertow',
-    name: 'SEWER SNIPE',
-    text: 'Deal 5 damage to a rival fighter, ignoring armor, and stun it.',
-    target: 'enemy',
-    symbol: '🎯',
-  },
-  exchange: {
-    team: 'exchange',
-    name: 'CALL IN THE DEBT',
-    text: 'The rival boss loses 5 life and your boss gains 5 (up to its maximum).',
-    target: 'none',
-    symbol: '💰',
-  },
-}
-
-export function factionPower(team: TeamId): FactionPower {
-  return FACTION_POWERS[team]
 }
 
 /** Cards an alliance deck may hold: general, ally and mercenaries. */
@@ -124,11 +71,6 @@ export function allianceProblems(deck: AllianceDeck): string[] {
     )
   )
     out.push('Cards must come from your two factions or the mercenaries')
-  if (
-    known.filter((card) => card.kind === 'creature').length <
-    ALLIANCE_MIN_CREATURES
-  )
-    out.push('Requires at least ' + ALLIANCE_MIN_CREATURES + ' creatures')
   return out
 }
 
@@ -188,5 +130,37 @@ export function validAllianceDeck(raw: unknown): raw is AllianceDeck {
     v.cards.length <= 60 &&
     v.cards.every((id) => typeof id === 'string') &&
     allianceProblems(v as unknown as AllianceDeck).length === 0
+  )
+}
+
+/** Why a SOLO CLASH deck for `team` is not legal, or an empty list. */
+export function soloProblems(team: TeamId, ids: readonly string[]): string[] {
+  if (!isTeam(team)) return ['Choose a faction']
+  const out: string[] = []
+  if (ids.length !== SOLO_DECK_SIZE)
+    out.push('Requires exactly ' + SOLO_DECK_SIZE + ' cards')
+  if (new Set(ids).size !== ids.length) out.push('Cannot repeat cards')
+  const cards = ids.map((id) => CARDS.find((card) => card.id === id))
+  if (cards.some((card) => !card)) return [...out, 'Unknown card']
+  if ((cards as Card[]).some((c) => c.team !== team && c.team !== 'mercenary'))
+    out.push('Cards must come from your faction or the mercenaries')
+  return out
+}
+/** The faction's ready-to-play Solo deck: its canonical Clash deck. */
+export function soloStarter(team: TeamId): string[] {
+  return clashDeck(team)
+}
+/** Cards a Solo deck may hold: the faction's and the mercenaries'. */
+export function soloCardPool(team: TeamId): Card[] {
+  return CARDS.filter((c) => c.team === team || c.team === 'mercenary')
+}
+/** Validate an untrusted saved Solo deck (story saves). */
+export function validSoloDeck(team: unknown, raw: unknown): boolean {
+  return (
+    isTeam(team) &&
+    Array.isArray(raw) &&
+    raw.length <= 60 &&
+    raw.every((id) => typeof id === 'string') &&
+    soloProblems(team, raw as string[]).length === 0
   )
 }

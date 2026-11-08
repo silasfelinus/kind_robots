@@ -26,7 +26,7 @@
           </div>
           <b
             >{{ game.boss.enemy }}
-            <small>/ {{ clashBossMax('enemy') }} HP</small></b
+            <small>/ {{ clashBossCap(game, 'enemy') }} HP</small></b
           >
           <span
             v-if="bossHit === 'enemy'"
@@ -168,7 +168,7 @@
           </div>
           <b
             >{{ game.boss.player }}
-            <small>/ {{ clashBossMax('player') }} HP</small></b
+            <small>/ {{ clashBossCap(game, 'player') }} HP</small></b
           >
           <span
             v-if="bossHit === 'player'"
@@ -200,18 +200,20 @@
           <button
             type="button"
             :aria-pressed="!alliance"
-            title="Your crew's 20-card Clash deck"
-            data-testid="clash-format-standard"
-            @click="lab.clashFormat = 'standard'"
+            :disabled="inBout"
+            title="SOLO CLASH: your faction's 20-card deck"
+            data-testid="clash-format-solo"
+            @click="lab.playClashFormat('solo')"
           >
-            STANDARD
+            SOLO
           </button>
           <button
             type="button"
             :aria-pressed="alliance"
-            title="Your 30-card alliance: a general crew, an ally crew and one faction power"
+            :disabled="inBout"
+            title="ALLIANCE: two factions, 30 cards and your general's one-time power"
             data-testid="clash-format-alliance"
-            @click="lab.clashFormat = 'alliance'"
+            @click="lab.playClashFormat('alliance')"
           >
             ALLIANCE
           </button>
@@ -236,14 +238,35 @@
                 : myPower.name
           }}
         </button>
+        <span
+          class="clash-kind"
+          :class="'is-' + lab.clashLaunch.kind"
+          data-testid="clash-kind"
+          >{{ kindLabel }}</span
+        >
         <button
+          v-if="backTarget"
+          type="button"
+          class="clash-reset clash-back"
+          data-testid="clash-back"
+          @click="goBack"
+        >
+          {{ backTarget }}
+        </button>
+        <button
+          v-if="!inBout || game.victor"
           type="button"
           class="clash-reset"
           data-testid="clash-restart"
-          title="Start a new Clash match"
-          @click="newMatch"
+          :title="
+            rewarded
+              ? 'A new CPU match for XP and Meat'
+              : 'Start a new practice match'
+          "
+          :disabled="lab.progressBusy"
+          @click="lab.playClashFormat()"
         >
-          ↻ REMATCH
+          ↻ {{ rewarded ? 'PLAY FOR REWARDS' : 'REMATCH' }}
         </button>
         <button
           type="button"
@@ -263,6 +286,14 @@
       </div>
       <div class="clash-hand-zone">
         <p class="clash-ticker" aria-live="polite">{{ ticker }}</p>
+        <p
+          v-if="rewardNote"
+          class="clash-reward-note"
+          aria-live="polite"
+          data-testid="clash-reward-note"
+        >
+          {{ rewardNote }}
+        </p>
       </div>
     </footer>
     <SlimeCityClashHand
@@ -299,7 +330,7 @@ import {
   clashPlayLimit,
   canClashPlay,
   chooseClashCpu,
-  clashBossMax,
+  clashBossCap,
   clashPlayCost,
   clashPower,
   clashUnitAt,
@@ -314,7 +345,7 @@ import {
   type ClashUnit,
 } from '~/utils/slimeCity/clash'
 import { useSlimeCityStore } from '~/stores/slimeCity'
-import { cpuAlliance, factionPower } from '~/utils/slimeCity/alliance'
+import { factionPower } from '~/utils/slimeCity/factionPowers'
 import {
   clashSpectacle,
   type ClashSpectacle,
@@ -327,25 +358,53 @@ const CPU_PLAY_MS = 520
 const lab = useSlimeCityStore()
 const lanes = Array.from({ length: CLASH_LANES }, (_, lane) => lane)
 const sides: Side[] = ['enemy', 'player']
-const enemyTeam = computed(() =>
-  lab.activeTeam === 'ironjaw' ? 'catgirls' : 'ironjaw',
-)
-const mine = computed(() => teamById(lab.activeTeam))
-const rival = computed(() => teamById(enemyTeam.value))
-let seed = 30611
-/** ALLIANCE: your saved 30-card alliance against a seeded CPU alliance. */
-function matchOptions(n: number) {
-  return lab.clashFormat === 'alliance'
-    ? {
-        alliance: {
-          player: lab.playAlliance,
-          enemy: cpuAlliance(enemyTeam.value, n),
-        },
-      }
-    : {}
+/** Deal whatever match the store launched (practice, reward or bout). */
+function dealt(): ClashState {
+  const setup = lab.clashSetup()
+  return createClash(setup.player, setup.enemy, setup.seed, setup.options)
 }
-const game = shallowRef<ClashState>(
-  createClash(lab.activeTeam, enemyTeam.value, seed, matchOptions(seed)),
+const game = shallowRef<ClashState>(dealt())
+let dealtLaunch = lab.clashLaunch.id
+const mine = computed(() => teamById(game.value.teams.player))
+const rival = computed(() => teamById(game.value.teams.enemy))
+const inBout = computed(() =>
+  ['rival', 'contract', 'campaign'].includes(lab.clashLaunch.kind),
+)
+const rewarded = computed(
+  () => lab.progressLoaded && lab.clashLaunch.kind !== 'campaign',
+)
+const kindLabel = computed(
+  () =>
+    ({
+      practice: 'PRACTICE',
+      reward: 'REWARD MATCH',
+      rival: 'CITY BOUT',
+      contract: 'CITY CONTRACT',
+      campaign: 'STORY BOUT',
+    })[lab.clashLaunch.kind] +
+    ' · ' +
+    (alliance.value ? 'ALLIANCE' : 'SOLO'),
+)
+/** After a City or Story bout ends, head back to where it started. */
+const backTarget = computed(() => {
+  if (!game.value.victor || !lab.clashResult) return ''
+  const kind = lab.clashResult.kind
+  if (kind === 'campaign') return 'BACK TO STORY ›'
+  if (kind === 'rival' || kind === 'contract') return 'BACK TO THE CITY ›'
+  return ''
+})
+function goBack(): void {
+  if (lab.clashResult?.kind === 'campaign') lab.showCampaign()
+  else lab.showCity()
+}
+const rewardNote = computed(() =>
+  lab.clashLaunch.kind === 'reward' && game.value.victor
+    ? lab.progressBusy
+      ? 'Verifying your match…'
+      : lab.progressError || lab.progress.lastReward || ''
+    : lab.clashLaunch.kind === 'reward' && !game.value.victor
+      ? 'Reward match: the server replays your moves before paying out.'
+      : '',
 )
 const alliance = computed(() => game.value.format === 'alliance')
 const myPower = computed(() => factionPower(game.value.teams.player))
@@ -437,16 +496,24 @@ function newMatch(): void {
   impact.value = null
   spectacle.value = null
   powerArmed.value = false
-  seed++
-  game.value = createClash(
-    lab.activeTeam,
-    enemyTeam.value,
-    seed,
-    matchOptions(seed),
-  )
+  dealtLaunch = lab.clashLaunch.id
+  game.value = dealt()
 }
-watch(() => lab.activeTeam, newMatch)
-watch(() => lab.clashFormat, newMatch)
+watch(() => lab.clashLaunch.id, newMatch)
+// Changing crews mid-practice deals a new match for the new crew.
+watch(
+  () => lab.activeTeam,
+  () => {
+    if (!inBout.value) lab.playClashFormat()
+  },
+)
+// Every finished match reports to the store once: City, Story or rewards.
+watch(
+  () => game.value.victor,
+  (victor) => {
+    if (victor) lab.settleClash(dealtLaunch, game.value)
+  },
+)
 onMounted(() => {
   if (window.matchMedia?.('(prefers-reduced-motion: reduce)').matches)
     pace.value = 0.4
@@ -531,7 +598,12 @@ function artFor(u: ClashUnit): number | null {
   )
 }
 function healthWidth(side: Side): string {
-  return Math.max(0, (game.value.boss[side] / clashBossMax(side)) * 100) + '%'
+  return (
+    Math.max(
+      0,
+      (game.value.boss[side] / clashBossCap(game.value, side)) * 100,
+    ) + '%'
+  )
 }
 function status(u: ClashUnit): string {
   if (u.rooted) return 'STUN'
@@ -1396,6 +1468,37 @@ function forecast(lane: number): string {
   align-items: center;
   justify-content: center;
   padding: 0 4.5rem;
+}
+.clash-kind {
+  font-size: 0.6rem;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  padding: 0.25rem 0.5rem;
+  border-radius: 999px;
+  border: 1px solid #5c99917a;
+  color: #b8e3d8;
+  white-space: nowrap;
+}
+.clash-kind.is-reward {
+  border-color: #ffd76a99;
+  color: #ffe9a8;
+}
+.clash-kind.is-rival,
+.clash-kind.is-contract,
+.clash-kind.is-campaign {
+  border-color: #f08ad699;
+  color: #ffc4ef;
+}
+.clash-back {
+  border-color: var(--neon);
+  color: #e9ffd0;
+}
+.clash-reward-note {
+  margin: 0.2rem 0 0;
+  text-align: center;
+  font-size: 0.7rem;
+  font-weight: 800;
+  color: #ffe9a8;
 }
 .clash-ticker {
   margin: 0;

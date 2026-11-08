@@ -4,7 +4,7 @@
 // CPU that plays every card type from its redacted view, and no hidden-info
 // leaks. Store timer behaviour lives in verifySlimeCityStore.test.ts.
 import assert from 'node:assert/strict'
-import { readFileSync } from 'node:fs'
+import { existsSync, readFileSync } from 'node:fs'
 import {
   advance,
   ALTERNATING_INITIATIVE,
@@ -795,35 +795,17 @@ const page = readFileSync(
   new URL('../../pages/admin/slime-city.vue', import.meta.url),
   'utf8',
 )
-// Silas 2026-11-02: the arena is its own console screen (HUD, board, tokens,
-// hand), mounted by the page; no sidebar of controls beside the board.
-const arenaUi = readFileSync(
-  new URL('../../components/slime-city-arena.vue', import.meta.url),
-  'utf8',
-)
-assert.match(page, /<SlimeCityArena v-else-if="lab\.view === 'arena'" \/>/)
+// Silas 2026-11-08 PT: "we don't need the legacy modes, period." The arena,
+// its hand and FIVE ALLEYS screens are deleted; every battle is Clash.
+assert.doesNotMatch(page, /<SlimeCityArena|<SlimeCityAlleys/)
 assert.doesNotMatch(page, /class="sc-controls"/, 'No arena sidebar')
-assert.match(arenaUi, /data-testid="slime-guide"/)
-assert.match(arenaUi, /lab\.guide\.steps/)
-assert.match(arenaUi, /lab\.guide\.limits/)
-assert.match(arenaUi, /lab\.sight/, 'Board renders the redacted view')
-// Silas 2026-11-01: the hand is a real card hand along the bottom of the
-// arena (workspace-hand style), and the painted board shows through the grid.
-assert.match(arenaUi, /<SlimeCityHand \/>\s*<div class="sc-battle-bottom">/)
-assert.doesNotMatch(page, /class="sc-hand-card"/, 'No sidebar card list')
-assert.match(arenaUi, /class="sc-board-floor"/)
-// Tokens open their card and carry the battle orders; flags and bases show.
-assert.match(arenaUi, /data-testid="slime-unit-card"/)
-assert.match(arenaUi, /data-testid="slime-stance-defend"/)
-assert.match(arenaUi, /slime-flag-enemy/)
-assert.match(arenaUi, /data-testid="slime-base-enemy"/)
-const handUi = readFileSync(
-  new URL('../../components/slime-city-hand.vue', import.meta.url),
-  'utf8',
-)
-assert.match(handUi, /name="sch-deal"/, 'Cards deal in and fly out')
-assert.match(handUi, /is-flipping/, 'Selection flips with sparkles')
-assert.match(handUi, /prefers-reduced-motion/)
+for (const gone of ['arena', 'alleys', 'hand'])
+  assert.ok(
+    !existsSync(
+      new URL('../../components/slime-city-' + gone + '.vue', import.meta.url),
+    ),
+    'legacy slime-city-' + gone + '.vue is deleted',
+  )
 assert.match(
   page,
   /<header-page-bar[^>]*>[\s\S]*class="sc-tabs"[\s\S]*<\/header-page-bar>/,

@@ -10,8 +10,13 @@ import {
   allianceProblems,
   allianceStarter,
   cpuAlliance,
+  SOLO_DECK_SIZE,
+  soloCardPool,
+  soloProblems,
+  soloStarter,
   swapGeneral,
   validAllianceDeck,
+  validSoloDeck,
   type AllianceDeck,
 } from '../slimeCity/alliance'
 import {
@@ -19,6 +24,8 @@ import {
   canClashPlay,
   canClashPower,
   chooseClashCpu,
+  CLASH_BOSS_RANGE,
+  clashBossCap,
   clashBossMax,
   createClash,
   passClash,
@@ -29,6 +36,15 @@ import {
 } from '../slimeCity/clash'
 import { validSlimeCityStory, newSlimeCityStory } from '../slimeCity/storySave'
 import { sweepAlliance } from './slimeCityAllianceBalanceReport'
+import { clashBossesFromTerms } from '../slimeCity/clashBouts'
+import {
+  clashOutcome,
+  clashRewardSetupProblem,
+  clashRewardStart,
+  replayClashTranscript,
+  type ClashRewardSetup,
+} from '../slimeCity/clashRewards'
+import { awardOutcome, newProgression } from '../slimeCity/progression'
 
 const ids = TEAMS.map((t) => t.id)
 
@@ -94,7 +110,7 @@ const mercHeavy: AllianceDeck = {
   ].map((c) => c.id),
 }
 assert.deepEqual(allianceProblems(mercHeavy), [], 'merc-heavy is legal')
-// A deck with almost no fighters cannot hold the alleys.
+// Silas, 2026-11-08 PT: "drop the 12 creature minimum." All-specials is legal.
 const allSpells: AllianceDeck = {
   ...base,
   cards: [
@@ -105,8 +121,38 @@ const allSpells: AllianceDeck = {
     .slice(0, 30)
     .map((c) => c.id),
 }
-problem(allSpells, 'creatures')
-assert.ok(!validAllianceDeck(allSpells))
+assert.deepEqual(allianceProblems(allSpells), [], 'no creature minimum')
+assert.ok(validAllianceDeck(allSpells))
+const outsiderDeck: AllianceDeck = {
+  ...base,
+  cards: [...base.cards.slice(0, 29), outsider],
+}
+assert.ok(!validAllianceDeck(outsiderDeck))
+
+// SOLO CLASH: its own format, one faction's 20 cards plus mercenaries.
+for (const team of ids) {
+  const deck = soloStarter(team)
+  assert.equal(deck.length, SOLO_DECK_SIZE)
+  assert.deepEqual(soloProblems(team, deck), [], team)
+  assert.ok(validSoloDeck(team, deck))
+  assert.ok(
+    soloCardPool(team).every((c) => c.team === team || c.team === 'mercenary'),
+  )
+}
+const soloMercs = soloCardPool('riot')
+  .filter((c) => c.team === 'mercenary')
+  .slice(0, 20)
+  .map((c) => c.id)
+assert.deepEqual(soloProblems('riot', soloMercs), [], 'any mix is legal')
+const notRiot = soloCardPool('undertow').find((c) => c.team === 'undertow')!.id
+assert.ok(
+  soloProblems('riot', [...soloStarter('riot').slice(0, 19), notRiot])
+    .join()
+    .includes('faction'),
+)
+assert.ok(
+  soloProblems('riot', soloStarter('riot').slice(1)).join().includes('20'),
+)
 
 // Clash: alliance decks, ally cards playable, standard Clash untouched.
 const alliance = {
@@ -277,11 +323,149 @@ const at = (st: ClashState, uid: number) => st.units.find((u) => u.uid === uid)
   const story = { ...newSlimeCityStory(), alliances: { catgirls: base } }
   assert.ok(validSlimeCityStory(JSON.parse(JSON.stringify(story))))
   assert.ok(
-    !validSlimeCityStory({ ...story, alliances: { catgirls: allSpells } }),
+    !validSlimeCityStory({ ...story, alliances: { catgirls: outsiderDeck } }),
+  )
+  const solo = { ...newSlimeCityStory(), soloDecks: { riot: soloMercs } }
+  assert.ok(validSlimeCityStory(JSON.parse(JSON.stringify(solo))))
+  assert.ok(
+    !validSlimeCityStory({
+      ...solo,
+      soloDecks: { undertow: soloStarter('riot') },
+    }),
+    'solo deck must match its faction',
   )
   assert.ok(
     !validSlimeCityStory({ ...story, alliances: { riot: base } }),
     'keyed by its general',
+  )
+}
+
+// City and Story terms move the bosses' starting life, clamped to the band.
+{
+  assert.deepEqual(clashBossesFromTerms({}), { player: 40, enemy: 40 })
+  assert.deepEqual(clashBossesFromTerms({ playerHp: 2, enemyArmor: 1 }), {
+    player: 46,
+    enemy: 43,
+  })
+  assert.equal(
+    clashBossesFromTerms({ fewerRivals: 9 }).enemy,
+    CLASH_BOSS_RANGE[0],
+  )
+  const st = createClash('exchange', 'riot', 4, {
+    bosses: { player: 52, enemy: 30 },
+  })
+  assert.deepEqual(st.boss, { player: 52, enemy: 30 })
+  assert.equal(clashBossCap(st, 'player'), 52)
+  assert.equal(clashBossCap(createClash('riot', 'exchange', 4), 'player'), 40)
+  const solo = createClash('riot', 'exchange', 4, {
+    decks: { player: soloMercs },
+  })
+  assert.ok(
+    [...solo.decks.player, ...solo.hands.player].every((id) =>
+      soloMercs.includes(id),
+    ),
+  )
+}
+
+// Reward matches: the server replays the transcript from the issued setup.
+{
+  const setups: ClashRewardSetup[] = [
+    { format: 'solo', cards: soloStarter('riot') },
+    { format: 'alliance', deck: allianceStarter('riot', 'exchange') },
+  ]
+  for (const setup of setups) {
+    assert.equal(clashRewardSetupProblem('riot', setup), '')
+    let g = clashRewardStart('riot', 'undertow', 4242, setup)
+    for (let i = 0; !g.victor && i < 1500; i++)
+      g = applyClashCommand(g, chooseClashCpu(g, g.active))
+    const transcript = JSON.parse(JSON.stringify(g.commands))
+    const ok = replayClashTranscript(
+      clashRewardStart('riot', 'undertow', 4242, setup),
+      transcript,
+    )
+    assert.ok('state' in ok, setup.format + ' transcript replays')
+    if ('state' in ok) {
+      assert.equal(ok.state.victor, g.victor)
+      const outcome = clashOutcome('m-1', ok.state)
+      assert.equal(outcome.mode, 'clash')
+      assert.equal(outcome.teamId, 'riot')
+      assert.ok(outcome.plays.length > 0)
+    }
+    // A forged CPU move is rejected.
+    const forged = JSON.parse(JSON.stringify(transcript))
+    const cpuAt = forged.findIndex(
+      (c: { side: string; t: string }) => c.side === 'enemy' && c.t === 'play',
+    )
+    forged[cpuAt] = { t: 'pass', side: 'enemy' }
+    assert.ok(
+      'error' in
+        replayClashTranscript(
+          clashRewardStart('riot', 'undertow', 4242, setup),
+          forged,
+        ),
+    )
+    // A different seed (or deck) does not replay.
+    assert.ok(
+      'error' in
+        replayClashTranscript(
+          clashRewardStart('riot', 'undertow', 4243, setup),
+          transcript,
+        ),
+    )
+    // Unfinished or padded transcripts are rejected.
+    assert.ok(
+      'error' in
+        replayClashTranscript(
+          clashRewardStart('riot', 'undertow', 4242, setup),
+          transcript.slice(0, -3),
+        ),
+    )
+    assert.ok(
+      'error' in
+        replayClashTranscript(
+          clashRewardStart('riot', 'undertow', 4242, setup),
+          [...transcript, { t: 'end', side: 'player' }],
+        ),
+    )
+  }
+  assert.ok(clashRewardSetupProblem('riot', { format: 'solo', cards: [] }))
+  assert.ok(
+    clashRewardSetupProblem('riot', {
+      format: 'alliance',
+      deck: allianceStarter('exchange', 'riot'),
+    }),
+    'general must be the issuing crew',
+  )
+  assert.ok(clashRewardSetupProblem('riot', { format: 'blackout' }))
+  // A verified Clash win pays like before and counts toward "Win a Clash battle".
+  const now = new Date('2026-11-08T12:00:00Z')
+  const paid = awardOutcome(
+    newProgression(now),
+    {
+      victor: 'player',
+      receipt: '["clash","m-2"]',
+      mode: 'clash',
+      teamId: 'riot',
+      plays: ['bomber'],
+    },
+    now,
+  )
+  assert.equal(paid.meat - newProgression(now).meat, 45)
+  assert.equal(paid.daily.blackoutWins, 1)
+  assert.equal(
+    awardOutcome(
+      paid,
+      {
+        victor: 'player',
+        receipt: '["clash","m-2"]',
+        mode: 'clash',
+        teamId: 'riot',
+        plays: [],
+      },
+      now,
+    ),
+    paid,
+    'same receipt never pays twice',
   )
 }
 
@@ -297,10 +481,39 @@ for (const id of [
   'slime-alliance-power',
   'slime-alliance-play',
   'slime-alliance-grid',
+  'slime-format-solo',
+  'slime-solo-workbench',
+  'slime-solo-grid',
+  'slime-solo-play',
+  'PLAY CLASH FOR REWARDS',
+  // Silas, 2026-11-08 PT: "deck display still doesn't have support for
+  // evolutions." Collection and pack cards are Clash faces at LV 1-3.
+  'slime-evolution-levels',
+  ':level="evolutionLevel"',
+  '<SlimeCityClashCardFace :card-id="id" />',
 ])
   assert.ok(page.includes(id), id)
-for (const id of ['clash-format-alliance', 'clash-power', 'clash-rival-power'])
+assert.ok(!page.includes('<SlimeCityCard'), 'no legacy card faces left')
+for (const id of [
+  'clash-format-solo',
+  'clash-format-alliance',
+  'clash-power',
+  'clash-rival-power',
+  'clash-kind',
+  'clash-back',
+  'clash-reward-note',
+])
   assert.ok(view.includes(id), id)
+// Legacy formats are gone from the game: no LEGACY menu, arena or alleys view.
+for (const gone of [
+  'slime-legacy-toggle',
+  '<SlimeCityArena',
+  '<SlimeCityAlleys',
+  'slime-format-classic',
+])
+  assert.ok(!page.includes(gone), gone)
+assert.ok(!view.includes('clash-format-standard'))
+assert.ok(store.includes('soloDecks: savedSolo.value'))
 assert.ok(store.includes('alliances: savedAlliances.value'))
 
 console.log('Slime City ALLIANCE: decks, powers, replay, balance and saves OK')

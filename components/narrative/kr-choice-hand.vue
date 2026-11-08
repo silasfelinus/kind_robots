@@ -5,7 +5,7 @@
   Silas, 2026-11-02, after Ecotone's choices became a hand: "i love this fix
   and i want it as a general interface upgrade for all our relevant games".
 
-  Card-hand language shared with workspace-hand.vue and slime-city-hand.vue:
+  Card-hand language shared with workspace-hand.vue and the Slime City Clash hand:
   portrait 2:3 art cards fanned in an arc; a new hand deals in face down and
   flips over; hover or focus lifts and enlarges a card; a played card flips
   with a sparkle burst and flies up. One tap plays (no confirm step).

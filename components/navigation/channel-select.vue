@@ -108,6 +108,13 @@
               {{ channel.label }}
             </p>
           </div>
+          <MaturityToggle
+            v-if="channel.channelKey === 'admin' && showMatureAdminOptIn"
+            variant="resource"
+            label="Mature studios are hidden"
+            hidden-text="Enable mature content to see private adult previews in Admin."
+            visible-text="Mature previews are visible."
+          />
 
           <ChannelTabList
             :channel="channel"
@@ -319,6 +326,15 @@
             </span>
           </button>
 
+          <MaturityToggle
+            v-if="previewedChannel.channelKey === 'admin' && showMatureAdminOptIn"
+            variant="resource"
+            class="mb-3"
+            label="Mature studios are hidden"
+            hidden-text="Enable mature content to see private adult previews in Admin."
+            visible-text="Mature previews are visible."
+          />
+
           <section
             v-for="section in launcherSections"
             :key="section.key"
@@ -435,6 +451,7 @@ import type {
   ResolvedTab,
 } from '@/stores/helpers/channelContent'
 import { useChannelContentStore } from '@/stores/channelContentStore'
+import { useUserStore } from '@/stores/userStore'
 import { usePageStore } from '@/stores/pageStore'
 import {
   channelTabGroups,
@@ -482,6 +499,14 @@ const isSlimeCityPage = computed(
 const router = useRouter()
 const pageStore = usePageStore()
 const channelContentStore = useChannelContentStore()
+const userStore = useUserStore()
+const showMatureAdminOptIn = computed(
+  () =>
+    userStore.isLoggedIn &&
+    userStore.isAdmin &&
+    !userStore.isMaturityRestricted &&
+    !userStore.showMature,
+)
 const mobileSubtabsResetToken = ref(0)
 const dropdownRoot = ref<HTMLElement | null>(null)
 const channelMenu = ref<HTMLElement | null>(null)

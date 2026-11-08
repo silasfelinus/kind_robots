@@ -292,8 +292,8 @@ assert.ok(
 assert.equal(clashPlayCost(cardById('lynx')), 1)
 assert.equal(
   Object.keys(CLASH_TWISTS).length,
-  59,
-  'three authored evolution waves; each remaining card stays explicitly uncrafted',
+  70,
+  'the first 70 curated evolution arcs are playable',
 )
 for (const id of Object.keys(CLASH_TWISTS)) {
   const card = cardById(id)
@@ -1496,6 +1496,209 @@ assert.equal(
   outOfTime.units.some((u) => u.uid === 2191),
   false,
   'grandma cannot loop rescues forever',
+)
+
+// Final 11: each existing card earns an actual L2/L3 ability, not just text.
+const finalEleven = [
+  'shredders',
+  'spurs',
+  'choker',
+  'wreckingfist',
+  'slap',
+  'badluck',
+  'fuse',
+  'visor',
+  'contract',
+  'merc-bribe-rat',
+  'merc-grease-oracle',
+]
+for (const id of finalEleven) {
+  assert.ok(CLASH_TWISTS[id], id + ' authored evolution exists')
+  const card = cardById(id)
+  const texts = [1, 2, 3].map((level) => clashCardText(card, level))
+  assert.equal(new Set(texts).size, 3, id + ' must evolve in three steps')
+}
+assert.equal(Object.keys(CLASH_TWISTS).length, 70)
+
+// Equipment earns permanent effects on real fighters and adjacent allies.
+const shredderStage = third('catgirls', 'shredders')
+shredderStage.units = [
+  follower('player', 2, 3100, 14, 3),
+  follower('enemy', 2, 3101, 12, 3),
+  follower('enemy', 3, 3102, 12, 3),
+]
+const equippedShredders = playClash(shredderStage, 'player', 'shredders', 2)
+const shredder = equippedShredders.units.find((u) => u.uid === 3100)!
+assert.ok(shredder.keywords.includes('pierce'))
+assert.equal(shredder.gearLevels?.shredders, 3)
+const shredderHit = strikeClash(
+  passClash(equippedShredders, 'player'),
+  'player',
+)
+assert.ok(shredderHit.units.find((u) => u.uid === 3102)!.hp < 12)
+
+const spursStage = third('bloodfairies', 'spurs')
+spursStage.units = [
+  follower('player', 1, 3111, 10, 2),
+  follower('player', 2, 3112, 10, 2),
+  follower('player', 3, 3113, 10, 2),
+]
+const spurred = playClash(spursStage, 'player', 'spurs', 2)
+assert.equal(spurred.units.find((u) => u.uid === 3111)?.attack, 4)
+assert.equal(spurred.units.find((u) => u.uid === 3113)?.attack, 4)
+
+const chokerStage = third('bloodfairies', 'choker')
+chokerStage.units = [
+  follower('player', 0, 3120, 8, 2),
+  follower('player', 2, 3122, 8, 2),
+  follower('player', 3, 3123, 8, 2),
+]
+chokerStage.units[0]!.keywords.push('swarm')
+const chokers = playClash(chokerStage, 'player', 'choker', 2)
+assert.ok(chokers.units.find((u) => u.uid === 3123)?.keywords.includes('swarm'))
+assert.equal(
+  clashPower(
+    chokers,
+    chokers.units.find((u) => u.uid === 3120)!,
+  ),
+  3,
+  'the distant swarm ally receives its global concert anthem',
+)
+
+const fistStage = third('ironjaw', 'wreckingfist')
+fistStage.units = [
+  follower('player', 2, 3130, 14, 3),
+  follower('enemy', 2, 3131, 15, 2),
+  follower('enemy', 3, 3132, 12, 2),
+]
+fistStage.boss.enemy = 30
+const fistEquip = playClash(fistStage, 'player', 'wreckingfist', 2)
+assert.ok(
+  fistEquip.units.find((u) => u.uid === 3130)?.keywords.includes('bulldoze'),
+)
+const fistHit = strikeClash(passClash(fistEquip, 'player'), 'player')
+assert.equal(fistHit.boss.enemy, 28)
+assert.equal(fistHit.units.find((u) => u.uid === 3132)?.hp, 11)
+
+const slapStage = third('ironjaw', 'slap')
+slapStage.units = [
+  follower('enemy', 1, 3141, 12),
+  follower('enemy', 2, 3142, 12),
+  follower('enemy', 3, 3143, 12),
+]
+const slapped = playClash(slapStage, 'player', 'slap', 2)
+for (const uid of [3141, 3142, 3143]) {
+  assert.equal(slapped.units.find((u) => u.uid === uid)?.rooted, true)
+  assert.ok(slapped.units.find((u) => u.uid === uid)!.hp < 12)
+}
+
+// Seeded trap chaos, sacrifices, and trap removal remain pure and replayable.
+const unlucky = third('riot', 'badluck')
+const armed = playClash(unlucky, 'player', 'badluck', 2)
+armed.active = 'enemy'
+armed.phase = 'play'
+armed.plays.enemy = 0
+armed.hands.enemy = ['scrapper']
+armed.units = [follower('enemy', 1, 3151, 10), follower('enemy', 3, 3153, 10)]
+const spring = playClash(armed, 'enemy', 'scrapper', 2)
+assert.deepEqual(
+  spring,
+  playClash(structuredClone(armed), 'enemy', 'scrapper', 2),
+)
+assert.ok(spring.traps.every((t) => t.cardId !== 'badluck'))
+assert.ok(spring.units.find((u) => u.uid === 3151)!.hp <= 10)
+
+const fuseStage = third('riot', 'fuse')
+fuseStage.units = [
+  follower('player', 1, 3161, 8, 2),
+  follower('player', 2, 3162, 12, 3),
+]
+const fused = playClash(fuseStage, 'player', 'fuse', 2)
+assert.ok(!fused.units.some((u) => u.uid === 3161))
+assert.ok(fused.units.find((u) => u.uid === 3162)!.attack >= 8)
+assert.ok(
+  (fused.fallen?.player ?? []).length > 0,
+  'sacrifices count as real deaths',
+)
+
+const visorStage = third('undertow', 'visor')
+visorStage.units = [follower('player', 1, 3171), follower('player', 2, 3172)]
+visorStage.traps = [
+  { side: 'enemy', lane: 1, cardId: 'grate', level: 1 },
+  { side: 'enemy', lane: 3, cardId: 'grate', level: 1 },
+]
+const sight = playClash(visorStage, 'player', 'visor', 2)
+assert.equal(sight.traps.length, 0)
+assert.ok(sight.units.find((u) => u.uid === 3171)?.keywords.includes('pierce'))
+
+const contractStage = third('exchange', 'contract')
+contractStage.units = [
+  follower('player', 1, 3181, 10),
+  follower('player', 2, 3182, 10),
+]
+contractStage.units[0]!.hp = 7
+const contracted = playClash(contractStage, 'player', 'contract', 2)
+const afterContractTurn = finishTurn(contracted)
+assert.equal(
+  afterContractTurn.units.find((u) => u.uid === 3181)?.guard,
+  1,
+  'the contract shield blocks the upcoming enemy attack',
+)
+const contractRound = finishTurn(afterContractTurn)
+assert.equal(contractRound.boss.player, 31)
+assert.equal(contractRound.units.find((u) => u.uid === 3181)?.hp, 8)
+assert.equal(
+  contractRound.units.find((u) => u.uid === 3181)?.guard,
+  0,
+  "temporary shield expires at the start of the protected crew's next turn",
+)
+
+// The L3 bribe is conditional, never a guaranteed free opponent steal.
+let recruited = false
+let prophecyRaised = false
+let prophecyMissed = false
+for (let seed = 1; seed <= 64; seed++) {
+  const bribe = createClash('riot', 'ironjaw', seed)
+  bribe.phase = 'attack'
+  bribe.units = [
+    {
+      ...follower('player', 2, 3200, 10, 5),
+      cardId: 'merc-bribe-rat',
+      level: 3,
+    },
+    { ...follower('enemy', 2, 3201, 1, 2), cardId: 'scrapper' },
+  ]
+  const paid = strikeClash(bribe, 'player')
+  assert.deepEqual(paid, strikeClash(structuredClone(bribe), 'player'))
+  if (
+    paid.units.some(
+      (u) => u.side === 'player' && u.token && u.cardId === 'scrapper',
+    )
+  )
+    recruited = true
+
+  const oracle = createClash('catgirls', 'ironjaw', seed)
+  oracle.phase = 'attack'
+  oracle.units = [
+    {
+      ...follower('player', 1, 3301, 12, 2),
+      cardId: 'merc-grease-oracle',
+      level: 3,
+      attacked: true,
+    },
+    follower('player', 2, 3302, 12, 2),
+    follower('enemy', 2, 3303, 20, 1),
+  ]
+  const foretold = strikeClash(oracle, 'player')
+  const damage = 20 - foretold.units.find((u) => u.uid === 3303)!.hp
+  if (damage > 2) prophecyRaised = true
+  else prophecyMissed = true
+  assert.deepEqual(foretold, strikeClash(structuredClone(oracle), 'player'))
+}
+assert.ok(recruited, 'weak enemy can be recruited by an evolved bribe rat')
+assert.ok(
+  prophecyRaised && prophecyMissed,
+  'oracle has two seeded, observable outcomes',
 )
 
 // Balance acceptance (2026-11-07 Clash rebalance): CPU sweeps across every crew

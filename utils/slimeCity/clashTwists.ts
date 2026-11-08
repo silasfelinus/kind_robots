@@ -297,6 +297,62 @@ export const CLASH_TWISTS: Record<string, [string, string, string]> = {
     'When an allied fighter dies, heals nearby friends for 2.',
     'Once per round, an allied loss summons a weak rescued echo.',
   ],
+  // Final eleven from the first seventy-card evolution manifesto.
+  shredders: [
+    'Sharpen a fighter permanently.',
+    'Also grants armor-piercing strikes.',
+    'Piercing strikes splash half their damage into one neighboring rival.',
+  ],
+  spurs: [
+    'Strengthen one dancer permanently.',
+    'A neighboring friend also gains +1 attack.',
+    'Both neighboring friends gain +2 permanent attack.',
+  ],
+  choker: [
+    'Give one fighter Swarm.',
+    'Share Swarm with its immediate neighbors.',
+    'Wearer leads the show: all other Swarm allies gain +1 strike power.',
+  ],
+  wreckingfist: [
+    'Upgrade one fighter with a wrecking punch.',
+    'Also grants Bulldoze, spilling overkill onto the rival boss.',
+    'A damaging hit also deals 2 boss damage and 1 to a neighboring rival.',
+  ],
+  slap: [
+    'Deal damage to one opposing fighter.',
+    'A damaging slap also stuns its target.',
+    'Hit and stun its target and each adjacent rival for 2 damage.',
+  ],
+  badluck: [
+    'Arm an unpredictable grenade in one alley.',
+    'When sprung, a seeded 50% chance blasts a neighboring rival for 2.',
+    'Each neighboring rival independently has a 50% chance to take 3.',
+  ],
+  fuse: [
+    'Give a fighter a lasting illegal power boost.',
+    'The stronger boost causes 1 recoil damage to its wearer.',
+    'Sacrifice the weakest adjacent ally for +4 attack, or take 2 recoil.',
+  ],
+  visor: [
+    'Grant piercing sight to one fighter.',
+    'Also disarm one neighboring rival trap and give +1 attack.',
+    'Disarm both neighbors and share Pierce with adjacent allies.',
+  ],
+  contract: [
+    "Increase one fighter's armor.",
+    'If the wearer survives the round, heal your boss for 1.',
+    'Survival also heals adjacent allies 1 and adds 1 temporary shield.',
+  ],
+  'merc-bribe-rat': [
+    'A quick Ambush rat takes the first strike.',
+    'Each blocked attack has a seeded 50% chance to stop retaliation.',
+    'A 75% bribe can recruit a defeated weak rival as a fragile echo.',
+  ],
+  'merc-grease-oracle': [
+    'Snare rivals with a mysteriously accurate prophecy.',
+    'Nearby allies have 50% chance of gaining +2 strike power.',
+    'Nearby allies roll twice, taking the favorable +2 strike outcome.',
+  ],
 }
 
 export function clashTwistText(id: string, level: number): string {

@@ -521,6 +521,8 @@ export function clashPower(s: ClashState, u: ClashUnit): number {
       (ally.level === 3 || Math.abs(ally.lane - u.lane) === 1)
     )
       power++
+    if (has(u, 'swarm') && ally.gearLevels?.choker === 3 && ally.uid !== u.uid)
+      power++
     if (
       ally.cardId === 'mogul' &&
       ally.level >= 2 &&
@@ -757,6 +759,33 @@ function springTrap(s: ClashState, trap: ClashTrap, victim: ClashUnit): number {
     const neighbors = s.units.filter(
       (u) => u.side !== trap.side && Math.abs(u.lane - trap.lane) === 1,
     )
+    if (trap.cardId === 'badluck') {
+      let hit = 0
+      for (const neighbor of trap.level === 3
+        ? neighbors
+        : neighbors.slice(0, 1)) {
+        if (random(s) < 0.5) {
+          damage(neighbor, trap.level === 3 ? 3 : 2)
+          hit++
+        }
+      }
+      note(
+        s,
+        hit
+          ? 'Whoops Grenade ricochets into ' + hit + ' alley!'
+          : 'Whoops Grenade fizzles after its first blast.',
+        'trap',
+        trap.lane,
+      )
+      evolutionMoment(
+        s,
+        'badluck',
+        trap.side,
+        trap.lane,
+        hit ? 'Grenade ricochet!' : 'The gamble fizzles.',
+        'blast',
+      )
+    }
     if (
       ['scentmine', 'shocktrap', 'bloodwire', 'grate'].includes(trap.cardId)
     ) {
@@ -1158,6 +1187,18 @@ export function playClash(
       )
       if (free !== undefined) summonEcho(s, side, id, free, 2, 1, ['ambush'])
     }
+    if (id === 'merc-grease-oracle' && level === 3 && unit.hp > 0) {
+      // The oracle's prophecy is an ongoing seeded strike aura, not an RNG
+      // reroll in the UI. All rolls happen inside strike commands.
+      evolutionMoment(
+        s,
+        id,
+        side,
+        lane,
+        'The Oracle reads two possible futures.',
+        'control',
+      )
+    }
     if (id === 'merc-bus-driver' && level >= 2 && unit.hp > 0) {
       const passengers = s.units
         .filter(
@@ -1290,6 +1331,8 @@ export function playClash(
           break
         case 'armor':
           target.armor = clamp(target.armor + (level >= 3 ? 2 : 1), 0, 3)
+          if (id === 'contract' && level >= 2)
+            (target.gearLevels ??= {}).contract = level
           target.hp = Math.min(target.maxHp, target.hp + (level - 1) * 2)
           if (id === 'drysuit' && level >= 2) {
             target.snareWard = true
@@ -1313,11 +1356,63 @@ export function playClash(
           break
         case 'sharpen':
           target.attack = clamp(target.attack + profile.bonus, 1, 10)
+          if (id === 'shredders' && level >= 2) {
+            if (!has(target, 'pierce')) target.keywords.push('pierce')
+            if (level === 3) (target.gearLevels ??= {}).shredders = level
+          }
+          if (id === 'wreckingfist' && level >= 2) {
+            if (!has(target, 'bulldoze')) target.keywords.push('bulldoze')
+            if (level === 3) (target.gearLevels ??= {}).wreckingfist = level
+          }
           break
         case 'boost':
           if (card.kind === 'equipment')
             target.attack = clamp(target.attack + profile.bonus, 1, 10)
           else target.surge += power
+          if (id === 'spurs' && level >= 2) {
+            const neighbors = s.units
+              .filter(
+                (u) =>
+                  u.side === side &&
+                  u.uid !== target.uid &&
+                  Math.abs(u.lane - lane) === 1,
+              )
+              .sort((a, b) => a.lane - b.lane)
+            for (const friend of level === 3
+              ? neighbors
+              : neighbors.slice(0, 1))
+              friend.attack = clamp(
+                friend.attack + (level === 3 ? 2 : 1),
+                0,
+                10,
+              )
+          }
+          if (id === 'fuse' && level >= 2) {
+            const neighbors = s.units
+              .filter(
+                (u) =>
+                  u.side === side &&
+                  u.uid !== target.uid &&
+                  Math.abs(u.lane - lane) === 1,
+              )
+              .sort((a, b) => a.hp - b.hp || a.lane - b.lane)
+            if (level === 3 && neighbors.length) {
+              const offered = neighbors[0]!
+              offered.hp = 0
+              target.attack = clamp(target.attack + 4, 0, 10)
+              evolutionMoment(
+                s,
+                id,
+                side,
+                lane,
+                'Illegal Booster burns an ally for permanent power!',
+                'blast',
+              )
+              casualties(s)
+            } else {
+              damage(target, level === 3 ? 2 : 1)
+            }
+          }
           if (id === 'overclock' && level >= 2) {
             target.surge += level === 3 ? 4 : 2
             damage(target, level === 3 ? 3 : 1)
@@ -1362,6 +1457,36 @@ export function playClash(
             target.ninthLife = level === 3 ? 3 : 2
           if (id === 'fusevest' && level >= 2)
             (target.gearLevels ??= {})[id] = level
+          if (id === 'choker' && level >= 2) {
+            ;(target.gearLevels ??= {}).choker = level
+            for (const friend of s.units.filter(
+              (u) =>
+                u.side === side &&
+                u.uid !== target.uid &&
+                Math.abs(u.lane - lane) === 1,
+            ))
+              if (!has(friend, 'swarm')) friend.keywords.push('swarm')
+          }
+          if (id === 'visor' && level >= 2) {
+            target.attack = clamp(target.attack + 1, 0, 10)
+            const neighbors = s.traps
+              .filter(
+                (trap) => trap.side === foe && Math.abs(trap.lane - lane) === 1,
+              )
+              .sort((a, b) => a.lane - b.lane)
+            for (const trap of level === 3
+              ? neighbors
+              : neighbors.slice(0, 1)) {
+              s.traps = s.traps.filter((t) => t !== trap)
+              if (!trap.token) s.discards[foe].push(trap.cardId)
+            }
+            if (level === 3) {
+              for (const friend of s.units.filter(
+                (u) => u.side === side && Math.abs(u.lane - lane) === 1,
+              ))
+                if (!has(friend, 'pierce')) friend.keywords.push('pierce')
+            }
+          }
           if (id === 'handshake' && level >= 2) {
             for (const friend of s.units.filter(
               (u) =>
@@ -1429,6 +1554,16 @@ export function playClash(
             )
           }
           const dealt = damage(target, hit)
+          if (id === 'slap' && level >= 2 && dealt >= 2) {
+            stun(target)
+            if (level === 3)
+              for (const rival of s.units.filter(
+                (u) => u.side === foe && Math.abs(u.lane - lane) === 1,
+              )) {
+                damage(rival, 2)
+                stun(rival)
+              }
+          }
           if (id === 'pinprick' && level === 3 && critical)
             for (const rival of s.units.filter(
               (u) => u.side === foe && Math.abs(u.lane - lane) === 1,
@@ -1580,6 +1715,27 @@ export function strikeClash(input: ClashState, side: Side): ClashState {
       lane,
     )
   }
+  for (const oracle of s.units.filter(
+    (u) =>
+      u.side === side &&
+      u.cardId === 'merc-grease-oracle' &&
+      u.level >= 2 &&
+      u.uid !== attacker.uid &&
+      Math.abs(u.lane - lane) === 1,
+  )) {
+    const success = random(s) < 0.5 || (oracle.level === 3 && random(s) < 0.5)
+    if (success) attackPower += 2
+    evolutionMoment(
+      s,
+      'merc-grease-oracle',
+      side,
+      oracle.lane,
+      success
+        ? 'The Oracle foresaw a stronger strike!'
+        : 'The prophecy misses this turn.',
+      'strike',
+    )
+  }
   if (attacker.cardId === 'pogo' && attacker.level >= 2) {
     const friend = s.units.some(
       (u) => u.side === side && Math.abs(u.lane - lane) === 1,
@@ -1628,7 +1784,20 @@ export function strikeClash(input: ClashState, side: Side): ClashState {
       lane,
     )
   } else {
-    const defensePower = defender.rooted ? 0 : clashPower(s, defender)
+    const bribed =
+      attacker.cardId === 'merc-bribe-rat' &&
+      attacker.level >= 2 &&
+      random(s) < (attacker.level === 3 ? 0.75 : 0.5)
+    if (bribed)
+      evolutionMoment(
+        s,
+        'merc-bribe-rat',
+        side,
+        lane,
+        'The rival accepts an outrageous bribe!',
+        'control',
+      )
+    const defensePower = defender.rooted || bribed ? 0 : clashPower(s, defender)
     const dealt = damage(
       defender,
       attackPower,
@@ -1658,6 +1827,45 @@ export function strikeClash(input: ClashState, side: Side): ClashState {
     )
     if (has(attacker, 'bulldoze') && defender.hp < 0)
       s.boss[foeSide] += defender.hp
+    if (dealt > 0 && attacker.gearLevels?.shredders === 3) {
+      const victim = s.units.find(
+        (u) =>
+          u.side === foeSide &&
+          u.uid !== defender.uid &&
+          Math.abs(u.lane - lane) === 1,
+      )
+      if (victim) damage(victim, Math.max(1, Math.ceil(dealt / 2)))
+    }
+    if (dealt > 0 && attacker.gearLevels?.wreckingfist === 3) {
+      s.boss[foeSide] -= 2
+      const victim = s.units.find(
+        (u) =>
+          u.side === foeSide &&
+          u.uid !== defender.uid &&
+          Math.abs(u.lane - lane) === 1,
+      )
+      if (victim) damage(victim, 1)
+    }
+    if (
+      bribed &&
+      attacker.level === 3 &&
+      defender.hp <= 0 &&
+      defender.attack <= 3 &&
+      !defender.token
+    ) {
+      const free = nearestFreeAlley(s, side, lane)
+      if (free >= 0) {
+        summonEcho(s, side, defender.cardId, free, 2, 1)
+        evolutionMoment(
+          s,
+          'merc-bribe-rat',
+          side,
+          lane,
+          'Bribe-Licked Rat recruits a defeated rival!',
+          'summon',
+        )
+      }
+    }
     if (attacker.cardId === 'bulldozer' && attacker.level === 3 && dealt > 0) {
       s.boss[foeSide] -= 2
       evolutionMoment(
@@ -1820,6 +2028,18 @@ export function endClashTurn(input: ClashState, side: Side): ClashState {
   if (nextClashStrike(input, side) >= 0) return input
   const s = structuredClone(input)
   discardHand(s, side)
+  // Contract shields its neighbors for the opponent's NEXT attack turn. Doing
+  // this at round end would clear the first player's shields immediately.
+  for (const holder of s.units.filter(
+    (u) => u.side === side && u.gearLevels?.contract === 3,
+  ))
+    for (const neighbor of s.units.filter(
+      (u) =>
+        u.side === side &&
+        u.uid !== holder.uid &&
+        Math.abs(u.lane - holder.lane) === 1,
+    ))
+      neighbor.guard = clamp((neighbor.guard ?? 0) + 1, 0, 3)
   for (const u of s.units.filter((v) => v.side === side)) {
     u.rooted = false
     u.fresh = false
@@ -1849,6 +2069,21 @@ export function endClashTurn(input: ClashState, side: Side): ClashState {
   }
   for (const unit of s.units) {
     if (has(unit, 'regen')) unit.hp = Math.min(unit.maxHp, unit.hp + 1)
+    if ((unit.gearLevels?.contract ?? 0) >= 2) {
+      s.boss[unit.side] = Math.min(
+        clashBossCap(s, unit.side),
+        s.boss[unit.side] + 1,
+      )
+      if (unit.gearLevels?.contract === 3)
+        for (const friend of s.units.filter(
+          (u) =>
+            u.side === unit.side &&
+            u.uid !== unit.uid &&
+            Math.abs(u.lane - unit.lane) === 1,
+        )) {
+          friend.hp = Math.min(friend.maxHp, friend.hp + 1)
+        }
+    }
     unit.surge = 0
   }
   note(

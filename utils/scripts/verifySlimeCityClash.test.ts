@@ -38,6 +38,7 @@ import {
   type ClashUnit,
 } from '../slimeCity/clash'
 import { sweepClash } from './slimeCityClashBalanceReport'
+import { clashSpectacle } from '../slimeCity/clashSpectacle'
 
 function follower(
   side: Side,
@@ -130,6 +131,46 @@ assert.match(
   'playing a card shows level up',
 )
 assert.match(view, /class="clash-stars"/, 'fighters show their level')
+assert.match(view, /<SlimeCityClashMoment :moment="spectacle"/)
+assert.match(
+  view,
+  /commit\(strikeClash\(/,
+  'strike VFX follows a committed command',
+)
+assert.match(view, /commit\(useClashPower\(/, 'general powers receive VFX')
+const spectacleFace = readFileSync(
+  'components/slime-city-clash-moment.vue',
+  'utf8',
+)
+assert.match(spectacleFace, /<SlimeCityArtwork/, 'spectacle uses real card art')
+assert.match(spectacleFace, /data-testid="clash-spectacle"/)
+assert.match(
+  spectacleFace,
+  /prefers-reduced-motion/,
+  'spectacle respects reduced motion',
+)
+assert.match(
+  spectacleFace,
+  /pointer-events: none/,
+  'VFX do not steal lane taps',
+)
+assert.match(
+  spectacleFace,
+  /scx-legend/,
+  'level-three moments are visually distinct',
+)
+assert.match(spectacleFace, /scx-effect-heal/, 'healing has a dedicated look')
+assert.match(
+  spectacleFace,
+  /scx-effect-blast/,
+  'explosions have a dedicated look',
+)
+assert.match(
+  spectacleFace,
+  /scx-effect-summon/,
+  'summons have a dedicated look',
+)
+
 assert.match(cardFace, /clashCardText/, 'selected cards show their rules')
 assert.match(view, /@keyframes clash-lunge-up/)
 assert.match(view, /prefers-reduced-motion/)
@@ -653,6 +694,85 @@ assert.deepEqual(
   rolled,
   'the same seeded Firebrand situation always rolls identically',
 )
+
+// Combat choreography is a pure projection of committed gameplay commands.
+const theater = createClash('catgirls', 'ironjaw', 811)
+theater.hands.player = ['lynx']
+const firstEntry = playClash(theater, 'player', 'lynx', 1)
+assert.equal(clashSpectacle(theater, firstEntry)?.kind, 'play')
+assert.equal(clashSpectacle(theater, firstEntry)?.grade, 'flash')
+assert.equal(
+  clashSpectacle(firstEntry, firstEntry),
+  null,
+  'no duplicate cue on rerender',
+)
+assert.deepEqual(
+  clashSpectacle(theater, firstEntry),
+  clashSpectacle(structuredClone(theater), structuredClone(firstEntry)),
+  'same commands produce identical spectacle cues',
+)
+const marquee = createClash('catgirls', 'ironjaw', 812)
+marquee.round = 2
+marquee.levels.player.chimera = 3
+marquee.hands.player = ['chimera']
+const showcaseApex = playClash(marquee, 'player', 'chimera', 2)
+assert.equal(clashSpectacle(marquee, showcaseApex)?.grade, 'legend')
+assert.match(clashSpectacle(marquee, showcaseApex)?.eyebrow ?? '', /FINAL FORM/)
+assert.equal(clashSpectacle(marquee, showcaseApex)?.cardId, 'chimera')
+const nursery = createClash('bloodfairies', 'ironjaw', 813)
+nursery.round = 2
+nursery.levels.player.sprite = 2
+nursery.hands.player = ['sprite']
+const dancers = playClash(nursery, 'player', 'sprite', 2)
+assert.equal(clashSpectacle(nursery, dancers)?.grade, 'feature')
+assert.match(
+  clashSpectacle(nursery, dancers)?.detail ?? '',
+  /fighters take the field/,
+)
+const firefight = createClash('catgirls', 'ironjaw', 814)
+firefight.phase = 'attack'
+firefight.units = [
+  follower('player', 0, 101, 7, 6),
+  follower('enemy', 0, 102, 2, 2),
+]
+const critical = strikeClash(firefight, 'player')
+assert.equal(clashSpectacle(firefight, critical)?.kind, 'strike')
+assert.equal(clashSpectacle(firefight, critical)?.grade, 'feature')
+assert.equal(clashSpectacle(firefight, critical)?.eyebrow, 'KNOCKOUT')
+const bossBattle = createClash('catgirls', 'ironjaw', 815)
+bossBattle.phase = 'attack'
+bossBattle.boss.enemy = 4
+bossBattle.units = [follower('player', 0, 103, 8, 5)]
+const finisher = strikeClash(bossBattle, 'player')
+assert.equal(clashSpectacle(bossBattle, finisher)?.kind, 'victory')
+assert.equal(clashSpectacle(bossBattle, finisher)?.grade, 'legend')
+const hazard = createClash('catgirls', 'ironjaw', 816)
+hazard.phase = 'attack'
+hazard.units = [follower('player', 3, 104, 9, 3)]
+hazard.traps = [{ side: 'enemy', lane: 3, cardId: 'shocktrap', level: 1 }]
+const sprungHazard = strikeClash(hazard, 'player')
+assert.equal(clashSpectacle(hazard, sprungHazard)?.eyebrow, 'TRAP SPRUNG')
+assert.equal(clashSpectacle(hazard, sprungHazard)?.cardId, 'shocktrap')
+const general = createClash('catgirls', 'ironjaw', 817)
+const generalAfter = structuredClone(general)
+generalAfter.commands.push({ t: 'power', side: 'player', lane: 2 })
+assert.equal(clashSpectacle(general, generalAfter)?.kind, 'power')
+assert.equal(clashSpectacle(general, generalAfter)?.grade, 'legend')
+assert.equal(clashSpectacle(nursery, dancers)?.effect, 'summon')
+assert.equal(clashSpectacle(hazard, sprungHazard)?.effect, 'trap')
+assert.equal(clashSpectacle(general, generalAfter)?.effect, 'power')
+const healingShow = createClash('catgirls', 'ironjaw', 818)
+healingShow.round = 2
+healingShow.hands.player = ['reknit']
+healingShow.units = [{ ...follower('player', 1, 111, 9, 2), hp: 3 }]
+const healedShow = playClash(healingShow, 'player', 'reknit', 1)
+assert.equal(clashSpectacle(healingShow, healedShow)?.effect, 'heal')
+const fireworksShow = createClash('riot', 'ironjaw', 819)
+fireworksShow.round = 2
+fireworksShow.hands.player = ['firestorm']
+fireworksShow.units = [follower('enemy', 1, 112, 9, 2)]
+const explodedShow = playClash(fireworksShow, 'player', 'firestorm', 1)
+assert.equal(clashSpectacle(fireworksShow, explodedShow)?.effect, 'blast')
 
 // Balance acceptance (2026-11-07 Clash rebalance): CPU sweeps across every crew
 // pairing keep each crew and the first seat near even. Report:

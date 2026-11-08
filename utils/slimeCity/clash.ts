@@ -1390,9 +1390,11 @@ export function strikeClash(input: ClashState, side: Side): ClashState {
       defender.hp = Math.min(defender.maxHp, defender.hp + 1)
     if (defender.hp <= 0 && has(attacker, 'collect')) {
       attacker.attack = clamp(attacker.attack + 1, 1, 10)
-      if (s.units.some(
-        (u) => u.side === side && u.cardId === 'mogul' && u.level === 3,
-      ))
+      if (
+        s.units.some(
+          (u) => u.side === side && u.cardId === 'mogul' && u.level === 3,
+        )
+      ) {
         s.boss[side] = Math.min(clashBossCap(s, side), s.boss[side] + 1)
         evolutionMoment(
           s, 'mogul', side, lane,
@@ -1402,9 +1404,11 @@ export function strikeClash(input: ClashState, side: Side): ClashState {
     }
     if (attacker.hp <= 0 && has(defender, 'collect')) {
       defender.attack = clamp(defender.attack + 1, 1, 10)
-      if (s.units.some(
-        (u) => u.side === foeSide && u.cardId === 'mogul' && u.level === 3,
-      ))
+      if (
+        s.units.some(
+          (u) => u.side === foeSide && u.cardId === 'mogul' && u.level === 3,
+        )
+      ) {
         s.boss[foeSide] = Math.min(clashBossCap(s, foeSide), s.boss[foeSide] + 1)
         evolutionMoment(
           s, 'mogul', foeSide, lane,

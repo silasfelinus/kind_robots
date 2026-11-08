@@ -292,8 +292,8 @@ assert.ok(
 assert.equal(clashPlayCost(cardById('lynx')), 1)
 assert.equal(
   Object.keys(CLASH_TWISTS).length,
-  15,
-  'initial Clash-only ability slice',
+  39,
+  'first and second Clash-only evolution waves retain their complete roster',
 )
 for (const id of Object.keys(CLASH_TWISTS)) {
   const card = cardById(id)

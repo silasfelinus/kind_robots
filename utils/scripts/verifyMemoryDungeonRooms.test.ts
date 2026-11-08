@@ -852,29 +852,43 @@ assert.match(store, /const darkDuel = darkBriarDuelForRoom\(room\)/)
 assert.match(store, /finishDarkDuel\(darkDuel\)/)
 assert.match(store, /closeDarkDuel\(/)
 
-
 // Adversarial oracle baseline: a player who remembers every exposed pair must
 // be able to finish every authored duel, even across a save/reload each turn.
 // This is an upper-bound solvability check, not a claim about blind-play balance.
-for (const roomId of Object.keys(COMBAT_ROOMS) as (keyof typeof COMBAT_ROOMS)[]) {
+for (const roomId of Object.keys(
+  COMBAT_ROOMS,
+) as (keyof typeof COMBAT_ROOMS)[]) {
   for (let seed = 0; seed < 64; seed++) {
     let fight = startCombatRoom(roomId, seed, images)
     let actions = 0
     while (fight.state.outcome === 'fighting' && actions < 32) {
-      const pair = fight.state.cards.find((card) => !card.matched && card.pair !== null)?.pair
+      const pair = fight.state.cards.find(
+        (card) => !card.matched && card.pair !== null,
+      )?.pair
       assert.notEqual(pair, undefined, `${roomId}/${seed}: no live pair`)
       const positions = fight.state.cards.flatMap((card, i) =>
         card.pair === pair && !card.matched
-          ? [{ row: Math.floor(i / fight.state.cols), col: i % fight.state.cols }]
+          ? [
+              {
+                row: Math.floor(i / fight.state.cols),
+                col: i % fight.state.cols,
+              },
+            ]
           : [],
       )
       assert.equal(positions.length, 2, `${roomId}/${seed}: pair integrity`)
-      fight = { ...fight, state: scout(fight.state, positions[0]!, positions[1]!) }
+      fight = {
+        ...fight,
+        state: scout(fight.state, positions[0]!, positions[1]!),
+      }
       const restored = restoreBriarCombat(
         JSON.parse(JSON.stringify(fight)),
         roomId,
       )
-      assert.ok(restored, `${roomId}/${seed}: checkpoint after action ${actions + 1}`)
+      assert.ok(
+        restored,
+        `${roomId}/${seed}: checkpoint after action ${actions + 1}`,
+      )
       fight = restored!
       actions++
     }

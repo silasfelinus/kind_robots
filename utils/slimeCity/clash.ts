@@ -2028,6 +2028,18 @@ export function endClashTurn(input: ClashState, side: Side): ClashState {
   if (nextClashStrike(input, side) >= 0) return input
   const s = structuredClone(input)
   discardHand(s, side)
+  // Contract shields its neighbors for the opponent's NEXT attack turn. Doing
+  // this at round end would clear the first player's shields immediately.
+  for (const holder of s.units.filter(
+    (u) => u.side === side && u.gearLevels?.contract === 3,
+  ))
+    for (const neighbor of s.units.filter(
+      (u) =>
+        u.side === side &&
+        u.uid !== holder.uid &&
+        Math.abs(u.lane - holder.lane) === 1,
+    ))
+      neighbor.guard = clamp((neighbor.guard ?? 0) + 1, 0, 3)
   for (const u of s.units.filter((v) => v.side === side)) {
     u.rooted = false
     u.fresh = false
@@ -2070,7 +2082,6 @@ export function endClashTurn(input: ClashState, side: Side): ClashState {
             Math.abs(u.lane - unit.lane) === 1,
         )) {
           friend.hp = Math.min(friend.maxHp, friend.hp + 1)
-          friend.guard = clamp((friend.guard ?? 0) + 1, 0, 3)
         }
     }
     unit.surge = 0

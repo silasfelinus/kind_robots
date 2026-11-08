@@ -1650,7 +1650,7 @@ assert.equal(contractRound.units.find((u) => u.uid === 3181)?.hp, 8)
 assert.equal(
   contractRound.units.find((u) => u.uid === 3181)?.guard,
   0,
-  'temporary shield expires at the start of the protected crew\'s next turn',
+  "temporary shield expires at the start of the protected crew's next turn",
 )
 
 // The L3 bribe is conditional, never a guaranteed free opponent steal.

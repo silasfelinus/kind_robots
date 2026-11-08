@@ -152,9 +152,7 @@ export const UNDERTOW_EVOLUTIONS: Record<string, CardEvolution> = {
   // Counterplay: spread threats apart and force this two-play spell early.
   's2-undertow-backwater-iou': {
     2: stage('Paper Trail', [on('enter', draw(1))]),
-    3: stage('Witness Protection Racket', [
-      on('enter', stun('adjacentFoes')),
-    ]),
+    3: stage('Witness Protection Racket', [on('enter', stun('adjacentFoes'))]),
   },
   // Arc: a checkpoint wire with literal fine print -> every toll feeds the
   // boss -> the toll plaza resets for the next car.

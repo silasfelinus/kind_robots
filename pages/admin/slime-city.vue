@@ -71,19 +71,6 @@
             >
               COLLECTION
             </button>
-            <select
-              class="sc-legacy-select"
-              aria-label="Legacy battle formats"
-              data-testid="slime-legacy-toggle"
-              :value="
-                lab.view === 'arena' || lab.view === 'alleys' ? lab.view : ''
-              "
-              @change="openLegacy"
-            >
-              <option value="" disabled>LEGACY ▾</option>
-              <option value="arena">ARENA</option>
-              <option value="alleys">FIVE ALLEYS</option>
-            </select>
           </nav>
           <div
             class="sc-hud"
@@ -275,9 +262,7 @@
         </section>
 
         <SlimeCityCampaign v-else-if="lab.view === 'campaign'" />
-        <SlimeCityArena v-else-if="lab.view === 'arena'" />
         <SlimeCityClash v-else-if="lab.view === 'clash'" />
-        <SlimeCityAlleys v-else-if="lab.view === 'alleys'" />
 
         <section
           v-else-if="lab.view === 'cards'"
@@ -308,12 +293,12 @@
           >
             <button
               type="button"
-              :aria-pressed="lab.deckFormat === 'classic'"
-              data-testid="slime-format-classic"
-              title="Ten cards from one crew"
-              @click="lab.deckFormat = 'classic'"
+              :aria-pressed="lab.deckFormat === 'solo'"
+              data-testid="slime-format-solo"
+              title="SOLO CLASH: twenty cards from one faction and the mercenaries"
+              @click="lab.deckFormat = 'solo'"
             >
-              CLASSIC <small>10</small>
+              SOLO <small>20</small>
             </button>
             <button
               type="button"
@@ -426,26 +411,23 @@
             v-else
             class="sc-deck-workbench"
             :class="'tone-' + lab.team.color"
-            data-testid="slime-deck-workbench"
+            data-testid="slime-solo-workbench"
           >
             <div
               class="sc-deck-meter"
-              :title="
-                lab.currentDeck.length +
-                ' of 10 deck slots filled · four creatures, one signature, up to three mercenaries'
-              "
+              :title="lab.currentSolo.length + ' of 20 Solo deck slots filled'"
             >
-              <strong>{{ lab.currentDeck.length }}<small>/10</small></strong>
-              <span class="sc-deck-pips" aria-hidden="true"
+              <strong>{{ lab.currentSolo.length }}<small>/20</small></strong>
+              <span class="sc-deck-pips is-twenty" aria-hidden="true"
                 ><i
-                  v-for="slot in 10"
+                  v-for="slot in 20"
                   :key="slot"
-                  :class="{ on: slot <= lab.currentDeck.length }"
+                  :class="{ on: slot <= lab.currentSolo.length }"
               /></span>
             </div>
             <div class="sc-deck-status">
               <span class="sc-overline"
-                >ARMORY · {{ lab.team.name }} ·
+                >SOLO CLASH · {{ lab.team.name }} ·
                 <template v-if="lab.unlockMode === 'all'"
                   >ALL {{ lab.collectionSize }} CARDS OPEN</template
                 ><template v-else
@@ -458,18 +440,15 @@
               <p aria-live="polite">
                 {{
                   lab.deckMessage ||
-                  (swapSource
-                    ? 'Now tap an owned ' +
-                      swapSource.kind +
-                      ' to replace ' +
-                      swapSource.name +
-                      '.'
-                    : 'Tap a deck card, then an owned reserve of the same type.')
+                  'Tap a card to add it or take it out: any 20 from your faction or the mercenaries. City and Story bouts deal this deck.'
                 }}
               </p>
-              <small v-if="lab.currentDeckProblems.length" role="alert">{{
-                lab.currentDeckProblems.join(' · ')
-              }}</small>
+              <small
+                v-if="lab.currentSoloProblems.length"
+                role="alert"
+                data-testid="slime-solo-problems"
+                >{{ lab.currentSoloProblems.join(' · ') }}</small
+              >
             </div>
             <div class="sc-deck-actions">
               <div
@@ -501,18 +480,17 @@
               </div>
               <button
                 type="button"
-                data-testid="slime-deck-restore"
-                @click="lab.restoreFounderDeck()"
+                data-testid="slime-solo-restore"
+                @click="lab.restoreSoloStarter()"
               >
-                RESTORE FOUNDER
+                RESTORE STARTER
               </button>
               <button
                 type="button"
-                data-testid="slime-deck-practice"
-                :disabled="lab.currentDeckProblems.length > 0"
-                @click="lab.testCustomDeck()"
+                data-testid="slime-solo-play"
+                @click="lab.playClashFormat('solo')"
               >
-                PRACTICE DECK
+                PLAY SOLO CLASH
               </button>
             </div>
           </div>
@@ -537,6 +515,31 @@
               {{ art.failedCount }} FAILED TO LOAD
             </p>
           </details>
+          <div
+            class="sc-evolution"
+            role="group"
+            aria-label="Show every card at a Clash level"
+            data-testid="slime-evolution-levels"
+          >
+            <span>EVOLUTION</span>
+            <button
+              v-for="n in CLASH_MAX_LEVEL"
+              :key="n"
+              type="button"
+              :aria-pressed="evolutionLevel === n"
+              :data-testid="'slime-evolution-' + n"
+              :title="
+                n === 1
+                  ? 'How each card enters a match'
+                  : 'Each card after it has been played ' +
+                    (n - 1) +
+                    (n === 2 ? ' time' : ' times')
+              "
+              @click="evolutionLevel = n"
+            >
+              LV {{ n }}
+            </button>
+          </div>
           <ul
             v-if="lab.deckFormat === 'alliance'"
             class="sc-collection-grid kr-scroll"
@@ -549,9 +552,13 @@
               class="sc-collect"
               :class="'is-' + allianceState(card)"
             >
-              <SlimeCityCard :card="card">
+              <span class="sc-clash-tile">
+                <SlimeCityClashCardFace
+                  :card-id="card.id"
+                  :level="evolutionLevel"
+                />
                 <span class="sc-collect-ribbon">{{ allianceLabel(card) }}</span>
-              </SlimeCityCard>
+              </span>
               <button
                 type="button"
                 class="sc-collect-pick"
@@ -567,31 +574,29 @@
           <ul
             v-else
             class="sc-collection-grid kr-scroll"
-            :class="{ swapping: !!swapSource }"
-            aria-label="Crew and mercenary cards"
+            aria-label="Faction and mercenary cards"
+            data-testid="slime-solo-grid"
           >
             <li
-              v-for="card in lab.cards"
+              v-for="card in lab.soloCards"
               :key="card.id"
               class="sc-collect"
-              :class="[
-                'is-' + deckState(card),
-                {
-                  'is-selected': lab.replacingCard === card.id,
-                  'is-eligible': canSwapIn(card),
-                },
-              ]"
+              :class="'is-' + soloState(card)"
             >
-              <SlimeCityCard :card="card">
-                <span class="sc-collect-ribbon">{{ deckLabel(card) }}</span>
-              </SlimeCityCard>
+              <span class="sc-clash-tile">
+                <SlimeCityClashCardFace
+                  :card-id="card.id"
+                  :level="evolutionLevel"
+                />
+                <span class="sc-collect-ribbon">{{ soloLabel(card) }}</span>
+              </span>
               <button
                 type="button"
                 class="sc-collect-pick"
-                :data-testid="'slime-deck-card-' + card.id"
-                :aria-pressed="lab.currentDeck.includes(card.id)"
-                :aria-label="card.name + ', ' + deckLabel(card).toLowerCase()"
-                @click="lab.selectDeckCard(card.id)"
+                :data-testid="'slime-solo-card-' + card.id"
+                :aria-pressed="lab.currentSolo.includes(card.id)"
+                :aria-label="card.name + ', ' + soloLabel(card).toLowerCase()"
+                @click="lab.toggleSoloCard(card.id)"
               />
             </li>
           </ul>
@@ -657,7 +662,7 @@
                   :fallback="lab.team.insignia"
                   compact
                 />
-                <strong>VS CPU BOUNTIES · LEGACY</strong>
+                <strong>CLASH VS CPU · REWARDS</strong>
                 <p>
                   Victory: 80 XP + 45 Meat. Draw: 35 XP + 15 Meat. Loss: 25 XP +
                   10 Meat. Base payouts for the first 10 completed bouts per
@@ -672,9 +677,9 @@
                   type="button"
                   data-testid="slime-fight-for-meat"
                   :disabled="lab.progressBusy || !lab.progressLoaded"
-                  @click="lab.startCpuBattle()"
+                  @click="lab.playClashFormat()"
                 >
-                  PLAY LEGACY REWARD MATCH →
+                  PLAY CLASH FOR REWARDS →
                 </button>
                 <small aria-live="polite">{{
                   lab.progressError || lab.progress.lastReward
@@ -732,19 +737,22 @@
             >
               <strong>YOUR LATEST PACK</strong>
               <div class="sc-pack-cards">
-                <SlimeCityCard
+                <figure
                   v-for="id in lab.progress.lastPack"
                   :key="id"
-                  :card="cardById(id)"
+                  class="sc-pack-card"
                 >
-                  <template #footer>
-                    <small>{{
+                  <span class="sc-clash-tile">
+                    <SlimeCityClashCardFace :card-id="id" />
+                  </span>
+                  <figcaption>
+                    {{
                       cardById(id).team === 'mercenary'
                         ? 'HIRES WITH ANY CREW'
                         : teamName(cardById(id).team)
-                    }}</small>
-                  </template>
-                </SlimeCityCard>
+                    }}
+                  </figcaption>
+                </figure>
               </div>
             </div>
             <div class="sc-reward-panel">
@@ -801,7 +809,8 @@
 <script setup lang="ts">
 import { computed, onMounted, onUnmounted } from 'vue'
 import { cardById, type Card } from '~/utils/slimeCity/prototypes'
-import { factionPower } from '~/utils/slimeCity/alliance'
+import { factionPower } from '~/utils/slimeCity/factionPowers'
+import { CLASH_MAX_LEVEL } from '~/utils/slimeCity/clash'
 import { STREETS } from '~/utils/slimeCity/city'
 import { useSlimeCityStore } from '~/stores/slimeCity'
 import { slimeArtId, SLIME_CITY_ART } from '~/utils/slimeCity/artManifest'
@@ -810,10 +819,6 @@ import { useSlimeCityArtStore } from '~/stores/slimeCityArt'
 const lab = useSlimeCityStore()
 const art = useSlimeCityArtStore()
 const mappedCardArtCount = Object.keys(SLIME_CITY_ART.cards).length
-function openLegacy(event: Event): void {
-  const value = (event.target as HTMLSelectElement).value
-  if (value === 'arena' || value === 'alleys') lab.view = value
-}
 
 const hereName = computed(
   () => lab.districts.find((d) => d.id === lab.city.location)?.name ?? 'here',
@@ -856,6 +861,8 @@ function teamName(id: string): string {
   return lab.teams.find((t) => t.id === id)?.name ?? id
 }
 const generalPower = computed(() => factionPower(lab.activeTeam))
+/** Collection cards show their Clash face at the chosen evolution level. */
+const evolutionLevel = ref(1)
 const allyChoices = computed(() =>
   lab.teams.filter((team) => team.id !== lab.activeTeam),
 )
@@ -873,37 +880,15 @@ function allianceLabel(card: Card): string {
         : 'IN DECK'
   return state === 'open' ? '+ ADD' : 'LOCKED'
 }
-const swapSource = computed(() =>
-  lab.cards.find((card) => card.id === lab.replacingCard),
-)
-function deckState(
-  card: Card,
-): 'deck' | 'owned' | 'starter' | 'open' | 'locked' {
-  if (lab.currentDeck.includes(card.id)) return 'deck'
-  if (lab.progress.cards.includes(card.id)) return 'owned'
-  if (lab.isFounderCard(card.id)) return 'starter'
-  return lab.unlockMode === 'all' ? 'open' : 'locked'
+function soloState(card: Card): 'deck' | 'open' | 'locked' {
+  if (lab.currentSolo.includes(card.id)) return 'deck'
+  return lab.isCardUnlocked(card.id) ? 'open' : 'locked'
 }
-function deckLabel(card: Card): string {
-  if (lab.replacingCard === card.id) return 'SWAPPING OUT'
-  if (canSwapIn(card)) return 'SWAP IN'
-  return {
-    deck: 'IN DECK',
-    owned: 'OWNED',
-    starter: 'STARTER',
-    open: 'OPEN',
-    locked: 'LOCKED',
-  }[deckState(card)]
-}
-function canSwapIn(card: Card): boolean {
-  const source = swapSource.value
-  return (
-    !!source &&
-    !source.signature &&
-    source.kind === card.kind &&
-    !lab.currentDeck.includes(card.id) &&
-    lab.isCardUnlocked(card.id)
-  )
+function soloLabel(card: Card): string {
+  const state = soloState(card)
+  if (state === 'deck')
+    return card.team === 'mercenary' ? 'IN DECK · MERC' : 'IN DECK'
+  return state === 'open' ? '+ ADD' : 'LOCKED'
 }
 const MAP_EVENT_CAPTIONS = {
   aftermath: ['CHAMPIONSHIP AFTERMATH', 'SETTLE THE AFTERMATH'],
@@ -1635,6 +1620,60 @@ onUnmounted(() => {
   border-color: #dff9ff;
   color: #06222b;
 }
+.sc-pack-card {
+  margin: 0;
+  min-width: 0;
+}
+.sc-pack-card figcaption {
+  margin-top: 0.3rem;
+  font-size: 0.6rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-align: center;
+  color: #c9e3dc;
+}
+.sc-clash-tile {
+  position: relative;
+  display: block;
+  width: 100%;
+  aspect-ratio: 2 / 3;
+  border-radius: 0.9rem;
+  container-type: inline-size;
+}
+.sc-clash-tile .sc-collect-ribbon {
+  position: absolute;
+  top: 0.4rem;
+  right: 0.4rem;
+  z-index: 2;
+}
+.sc-evolution {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  flex-wrap: wrap;
+}
+.sc-evolution span {
+  font-size: 0.62rem;
+  font-weight: 900;
+  letter-spacing: 0.12em;
+  color: #c9e3dc;
+}
+.sc-evolution button {
+  padding: 0.25rem 0.6rem;
+  border: 1px solid #ffffff33;
+  border-radius: 999px;
+  background: #0b1a1fcc;
+  color: inherit;
+  font-size: 0.66rem;
+  font-weight: 900;
+  letter-spacing: 0.06em;
+  cursor: pointer;
+}
+.sc-evolution button[aria-pressed='true'] {
+  border-color: #ffd76a;
+  background: #ffd76a26;
+  color: #ffe9a8;
+}
 .sc-collect-pick {
   position: absolute;
   inset: 0;
@@ -2003,6 +2042,9 @@ onUnmounted(() => {
   border-color: #b9f151;
   background: #b9f15126;
   color: #e9ffd0;
+}
+.sc-deck-pips.is-twenty {
+  grid-template-columns: repeat(10, 0.42rem);
 }
 .sc-deck-pips.is-thirty {
   grid-template-columns: repeat(10, 0.42rem);

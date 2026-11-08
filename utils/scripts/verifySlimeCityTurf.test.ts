@@ -2,7 +2,6 @@
 // each turn you play a single token, but go rules apply." Captures, suicide,
 // ko, one token a turn, every card's TURF effect, area scoring and replay.
 import assert from 'node:assert/strict'
-import { readFileSync } from 'node:fs'
 import {
   advance,
   cardById,
@@ -656,24 +655,6 @@ const seqs = busy.turfFx!.map((f) => f.seq)
 assert.ok(seqs.every((q, i) => i === 0 || q > seqs[i - 1]!))
 assert.deepEqual(observe(busy, 'enemy').turfFx, busy.turfFx)
 assert.deepEqual(createMatch('turf', 'riot', 'undertow', 3).turfFx, [])
-// The arena plays each event kind with its own animation and label, and
-// falls back to a plain fade for reduced motion.
-const arena = readFileSync('components/slime-city-arena.vue', 'utf8')
-assert.match(arena, /v-for="fx in fxs"/)
-assert.match(arena, /'slime-fx-' \+ fx\.kind/)
-for (const kind of [
-  'boom',
-  'crush',
-  'pounce',
-  'trip',
-  'slime',
-  'ward',
-  'wash',
-  'cling',
-  'shove',
-])
-  assert.match(arena, new RegExp('\\.sca-fx\\.' + kind + ' i'), kind)
-assert.match(arena, /animation-name: sca-fx-fade/)
 
 // --- Story terms in TURF (Silas, 2026-11-04: story mode through Turf): hit
 // points, armor, fewer rivals and a rival trap become points at the count;

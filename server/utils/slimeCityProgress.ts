@@ -19,7 +19,17 @@ import {
   type TeamId,
 } from '~/utils/slimeCity/prototypes'
 import {
+  CLASH_REWARD_MODES,
+  clashOutcome,
+  clashRewardCards,
+  clashRewardSetupProblem,
+  clashRewardStart,
+  replayClashTranscript,
+  type ClashRewardSetup,
+} from '~/utils/slimeCity/clashRewards'
+import {
   awardBattle,
+  awardOutcome,
   buyPack,
   canBuyPack,
   claimChallenge,
@@ -117,18 +127,107 @@ export async function claimSlimeCityChallenge(
   })
 }
 
-/** Issued server-side: clients cannot choose rewarding seeds or opponents. */
-export async function startSlimeCityCpuMatch(userId: number, teamId: string) {
+/**
+ * Issued server-side: clients cannot choose rewarding seeds or opponents.
+ * With a Clash `setup` (Solo or Alliance deck) the match is CLASH: the deck is
+ * checked for legality (and TRICKLE ownership) and kept with the match, so the
+ * reward replay uses exactly the deck that was issued. Without one, legacy
+ * BLACKOUT is issued for older clients.
+ */
+export async function startSlimeCityCpuMatch(
+  userId: number,
+  teamId: string,
+  setup?: unknown,
+) {
   if (!TEAMS.some((team) => team.id === teamId))
     throw createError({ statusCode: 400, message: 'Unknown Slime City crew.' })
   const seed = randomInt(100000, 1000000)
   const team = teamId as TeamId
   const foes = TEAMS.filter((t) => t.id !== team)
   const foeId = foes[randomInt(foes.length)]!.id
-  const row = await prisma.slimeCityMatch.create({
-    data: { userId, mode: 'blackout', teamId: team, foeId, seed },
+  if (setup === undefined) {
+    const row = await prisma.slimeCityMatch.create({
+      data: { userId, mode: 'blackout', teamId: team, foeId, seed },
+    })
+    return { id: row.id, mode: 'blackout' as const, teamId: team, foeId, seed }
+  }
+  const problem = clashRewardSetupProblem(team, setup)
+  if (problem) throw createError({ statusCode: 400, message: problem })
+  const clash = setup as ClashRewardSetup
+  const account = await prisma.slimeCityAccount.findUnique({
+    where: { userId },
   })
-  return { id: row.id, mode: 'blackout' as const, teamId: team, foeId, seed }
+  const story = storyFromAccount(account?.data)
+  if (unlockModeOf(story) === 'trickle') {
+    const founders = new Set(
+      TEAMS.flatMap((t) => [...t.creatures, ...t.special]),
+    )
+    const owned = new Set(restoreProgression(account?.data).cards)
+    if (
+      clashRewardCards(clash).some((id) => !founders.has(id) && !owned.has(id))
+    )
+      throw createError({
+        statusCode: 403,
+        message: 'Unlock every card in this deck before a reward match.',
+      })
+  }
+  const mode = CLASH_REWARD_MODES[clash.format]
+  // The issued deck rides in `commands` until settlement replaces it with
+  // the verified transcript (no schema change needed).
+  const row = await prisma.slimeCityMatch.create({
+    data: {
+      userId,
+      mode,
+      teamId: team,
+      foeId,
+      seed,
+      commands: toJson({ setup: clash }),
+    },
+  })
+  return { id: row.id, mode, teamId: team, foeId, seed }
+}
+
+/** Verify a Clash reward transcript against the issued setup. */
+export function validateSlimeCityClash(
+  setup: {
+    mode: string
+    teamId: string
+    foeId: string
+    seed: number
+    startedAt: Date
+    commands: unknown
+  },
+  commands: unknown,
+  now = new Date(),
+) {
+  const ageMs = now.getTime() - setup.startedAt.getTime()
+  if (ageMs < 5000 || ageMs > 86400000)
+    throw createError({
+      statusCode: 409,
+      message: 'CPU battle is too short or expired.',
+    })
+  const stored = (setup.commands as { setup?: ClashRewardSetup } | null)?.setup
+  if (
+    !stored ||
+    !TEAMS.some((x) => x.id === setup.foeId) ||
+    clashRewardSetupProblem(setup.teamId, stored)
+  )
+    throw createError({
+      statusCode: 400,
+      message: 'Invalid server match setup.',
+    })
+  const result = replayClashTranscript(
+    clashRewardStart(
+      setup.teamId as TeamId,
+      setup.foeId as TeamId,
+      setup.seed,
+      stored,
+    ),
+    commands,
+  )
+  if ('error' in result)
+    throw createError({ statusCode: 409, message: result.error })
+  return result.state
 }
 
 /** A server replay is required; a client-submitted winner/XP/Meat is ignored. */
@@ -246,14 +345,19 @@ export async function finishSlimeCityCpuMatch(
         message: 'CPU match not found or already rewarded.',
       })
     const now = new Date()
-    const verified = validateSlimeCityBattle(match, commands, now)
+    const clash = match.mode.startsWith('clash')
+    const verified = clash
+      ? validateSlimeCityClash(match, commands, now)
+      : validateSlimeCityBattle(match, commands, now)
     const row = await tx.slimeCityAccount.upsert({
       where: { userId },
       update: {},
       create: { userId, data: toJson(newProgression(now)) },
     })
     const before = refreshPeriods(restoreProgression(row.data, now), now)
-    const after = awardBattle(before, verified, now)
+    const after = clash
+      ? awardOutcome(before, clashOutcome(id, verified as never), now)
+      : awardBattle(before, verified as never, now)
     const updated = await tx.slimeCityAccount.updateMany({
       where: { userId, version: row.version },
       data: {
@@ -313,7 +417,12 @@ export async function saveSlimeCityStory(
     const unlocks = proposed.unlocks ?? current.unlocks
     // Every card is open by default; only TRICKLE gates decks on ownership.
     const gated = unlockModeOf({ unlocks }) === 'trickle'
-    for (const deck of gated ? Object.values(proposed.decks ?? {}) : []) {
+    const allDecks = [
+      ...Object.values(proposed.decks ?? {}),
+      ...Object.values(proposed.soloDecks ?? {}),
+      ...Object.values(proposed.alliances ?? {}).map((deck) => deck?.cards),
+    ]
+    for (const deck of gated ? allDecks : []) {
       if (deck?.some((id) => !founderCards.has(id) && !ownedCards.has(id)))
         throw createError({
           statusCode: 403,
@@ -333,6 +442,12 @@ export async function saveSlimeCityStory(
       campaigns: proposed.campaigns,
       ...((proposed.decks ?? current.decks)
         ? { decks: proposed.decks ?? current.decks }
+        : {}),
+      ...((proposed.soloDecks ?? current.soloDecks)
+        ? { soloDecks: proposed.soloDecks ?? current.soloDecks }
+        : {}),
+      ...((proposed.alliances ?? current.alliances)
+        ? { alliances: proposed.alliances ?? current.alliances }
         : {}),
       ...(unlocks ? { unlocks } : {}),
       ...((proposed.storyMode ?? current.storyMode)

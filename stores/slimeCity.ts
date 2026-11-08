@@ -25,7 +25,6 @@ import {
 import { campaignConversationFor } from '../utils/slimeCity/campaignDialogue'
 import { campaignAftermathFor } from '../utils/slimeCity/campaignAftermath'
 import {
-  applyBattlefield,
   campaignBattlefield,
   describeBattlefield,
   OBJECTIVE_LABELS,
@@ -38,13 +37,19 @@ import {
 } from '../utils/slimeCity/storySave'
 import {
   ALLIANCE_DECK_SIZE,
+  SOLO_DECK_SIZE,
   allianceCardPool,
   allianceProblems,
   allianceStarter,
+  cpuAlliance,
+  soloCardPool,
+  soloProblems,
+  soloStarter,
   swapGeneral,
   type AllianceDeck,
 } from '../utils/slimeCity/alliance'
-import type { ClashFormat } from '../utils/slimeCity/clash'
+import type { ClashOptions, ClashState } from '../utils/slimeCity/clash'
+import { clashBossesFromTerms } from '../utils/slimeCity/clashBouts'
 import { computed, ref, shallowRef, watch } from 'vue'
 import {
   advance,
@@ -72,10 +77,11 @@ import {
   type ModeId,
   type RuleVariants,
   type Stance,
+  type Side,
   type TeamId,
 } from '../utils/slimeCity/prototypes'
 import {
-  applyTerms,
+  type BoutTerms,
   boutBlocked,
   boutTerms,
   CITY_PLAN,
@@ -130,6 +136,23 @@ function rollSeed(): number {
   }
 }
 
+export type DeckFormat = 'solo' | 'alliance'
+export type ClashKind =
+  'practice' | 'reward' | 'rival' | 'contract' | 'campaign'
+export interface ClashLaunch {
+  id: number
+  kind: ClashKind
+  format: DeckFormat
+  enemy: TeamId
+  seed: number
+  /** Server-issued reward match id (kind 'reward'). */
+  rewardId?: string
+  /** The deck issued to the server, so the replay matches what was dealt. */
+  cards?: string[]
+  alliance?: AllianceDeck
+  /** City and Story terms moved onto the bosses. */
+  bosses?: Record<Side, number>
+}
 export const useSlimeCityStore = defineStore('slimeCityLab', () => {
   // Account + network services load lazily so the pure game store stays
   // importable (and testable) outside the Nuxt runtime.
@@ -253,7 +276,9 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
       progressBusy.value = false
     }
   }
-  async function startCpuBattle(): Promise<void> {
+  async function startCpuBattle(
+    format: DeckFormat = clashFormat.value,
+  ): Promise<void> {
     if (!correctAccount() || !progressLoaded.value) {
       await hydrateProgression()
       if (!correctAccount() || !progressLoaded.value) return
@@ -269,19 +294,26 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
         seed: number
       }>('/api/slime-city/match', {
         method: 'POST',
-        body: JSON.stringify({ teamId: activeTeam.value }),
+        body: JSON.stringify({
+          teamId: activeTeam.value,
+          clash:
+            format === 'alliance'
+              ? { format, deck: playAlliance.value }
+              : { format, cards: playSolo.value },
+        }),
       })
       if (!result.success || !result.data)
         throw new Error(result.message || 'Could not issue CPU battle.')
-      stop()
-      mode.value = 'blackout'
-      rules.value = { ...DEFAULT_RULES }
       enemyTeam.value = result.data.foeId
-      seed.value = result.data.seed
-      reset(true)
-      rewardMatchId.value = result.data.id
-      view.value = 'arena'
-      if (!guideSeen.has('blackout')) openGuide()
+      launchClash({
+        kind: 'reward',
+        format,
+        enemy: result.data.foeId,
+        seed: result.data.seed,
+        rewardId: result.data.id,
+        cards: format === 'solo' ? [...playSolo.value] : undefined,
+        alliance: format === 'alliance' ? playAlliance.value : undefined,
+      })
     } catch (error) {
       progressError.value =
         error instanceof Error ? error.message : 'Could not begin CPU battle.'
@@ -301,10 +333,30 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
   const savedAlliances = ref<Partial<Record<TeamId, AllianceDeck>>>({})
   /** ALLIANCE: work in progress, kept even while it is not yet legal. */
   const allianceDrafts = ref<Partial<Record<TeamId, AllianceDeck>>>({})
+  /** SOLO CLASH 20-card decks, one per faction (saved when legal). */
+  const savedSolo = ref<Partial<Record<TeamId, string[]>>>({})
+  const soloDrafts = ref<Partial<Record<TeamId, string[]>>>({})
   /** Which deck the COLLECTION armory is editing. */
-  const deckFormat = ref<'classic' | 'alliance'>('classic')
-  /** Which deck CLASH deals: the crew's 20 or the general's 30-card alliance. */
-  const clashFormat = ref<ClashFormat>('standard')
+  const deckFormat = ref<DeckFormat>('solo')
+  /** Which deck the CLASH tab deals: Solo (one faction) or Alliance (two). */
+  const clashFormat = ref<DeckFormat>('solo')
+  /**
+   * The Clash match to deal next. Every battle is CLASH (Silas, 2026-11-08
+   * PT): the CLASH tab's practice and reward matches, and the City's rival,
+   * contract and Story bouts, which are always SOLO CLASH.
+   */
+  const clashLaunch = ref<ClashLaunch>({
+    id: 0,
+    kind: 'practice',
+    format: 'solo',
+    enemy: 'ironjaw',
+    seed: 30611,
+  })
+  /** How the last bout ended, for the result banner and BACK buttons. */
+  const clashResult = ref<{
+    kind: ClashKind
+    victor: Side | 'draw'
+  } | null>(null)
   const unlockMode = ref<UnlockMode>('all')
   /** Story bouts: as written or all TURF, with or without PARITY. */
   const storyMode = ref<StoryMode>('written')
@@ -340,6 +392,8 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
     savedDecks.value = {}
     savedAlliances.value = {}
     allianceDrafts.value = {}
+    savedSolo.value = {}
+    soloDrafts.value = {}
     unlockMode.value = 'all'
     storyMode.value = 'written'
     storyParity.value = false
@@ -360,6 +414,8 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
       savedDecks.value = response.data.decks ?? {}
       savedAlliances.value = response.data.alliances ?? {}
       allianceDrafts.value = {}
+      savedSolo.value = response.data.soloDecks ?? {}
+      soloDrafts.value = {}
       unlockMode.value = unlockModeOf(response.data)
       storyMode.value = response.data.storyMode ?? 'written'
       storyParity.value = response.data.storyParity ?? false
@@ -386,6 +442,7 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
           campaigns: campaignSave.value,
           decks: savedDecks.value,
           alliances: savedAlliances.value,
+          soloDecks: savedSolo.value,
           unlocks: unlockMode.value,
           storyMode: storyMode.value,
           storyParity: storyParity.value,
@@ -518,8 +575,8 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
           ...field,
           label: OBJECTIVE_LABELS[field.objective],
           lines: describeBattlefield(field),
-          // TURF story bouts have no bases or fighters to rebuild.
-          applies: storyBout('blackout').mode !== 'turf',
+          // Story bouts are SOLO CLASH: no grid battlefield to rebuild.
+          applies: false,
         }
       : null
   })
@@ -606,6 +663,13 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
         else reset++
       savedAlliances.value = allied
       allianceDrafts.value = {}
+      const solos: Partial<Record<TeamId, string[]>> = {}
+      for (const [team, deck] of Object.entries(savedSolo.value))
+        if (deck?.every((id) => isCardUnlocked(id)))
+          solos[team as TeamId] = deck
+        else reset++
+      savedSolo.value = solos
+      soloDrafts.value = {}
       deckMessage.value =
         'TRICKLE: starters now, more cards from Meat packs.' +
         (reset
@@ -760,9 +824,134 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
     )
   }
   function playAllianceClash(): void {
-    stop()
     clashFormat.value = 'alliance'
+    playClashFormat('alliance')
+  }
+  /** The Solo deck the armory shows: draft, else saved, else the starter. */
+  const currentSolo = computed<string[]>(
+    () =>
+      soloDrafts.value[activeTeam.value] ??
+      savedSolo.value[activeTeam.value] ??
+      soloStarter(activeTeam.value),
+  )
+  const currentSoloProblems = computed(() =>
+    soloProblems(activeTeam.value, currentSolo.value),
+  )
+  /** The Solo deck City, Story and the CLASH tab deal: saved, else starter. */
+  const playSolo = computed<string[]>(
+    () => savedSolo.value[activeTeam.value] ?? soloStarter(activeTeam.value),
+  )
+  const soloCards = computed(() => soloCardPool(activeTeam.value))
+  function commitSolo(cards: string[], done: string): void {
+    const team = activeTeam.value
+    const problems = soloProblems(team, cards)
+    soloDrafts.value = { ...soloDrafts.value, [team]: cards }
+    if (problems.length) {
+      deckMessage.value =
+        done + ' Draft not in play until legal: ' + problems.join(' · ')
+      return
+    }
+    savedSolo.value = { ...savedSolo.value, [team]: cards }
+    deckMessage.value =
+      done + (storyLoaded.value ? ' Saving…' : ' Sign in to keep it.')
+    persistStory()
+  }
+  function toggleSoloCard(id: string): void {
+    const cards = currentSolo.value
+    const card = CARDS.find((entry) => entry.id === id)
+    if (!card) return
+    if (cards.includes(id)) {
+      commitSolo(
+        cards.filter((cardId) => cardId !== id),
+        card.name + ' leaves the deck.',
+      )
+      return
+    }
+    if (!soloCards.value.some((entry) => entry.id === id)) {
+      deckMessage.value = 'Only your faction’s cards and mercenaries fit.'
+      return
+    }
+    if (!isCardUnlocked(id)) {
+      deckMessage.value = 'Unlock this card in a Meat pack before using it.'
+      return
+    }
+    if (cards.length >= SOLO_DECK_SIZE) {
+      deckMessage.value =
+        'The deck is full at ' +
+        SOLO_DECK_SIZE +
+        '. Tap a deck card to take it out first.'
+      return
+    }
+    commitSolo([...cards, id], card.name + ' joins the deck.')
+  }
+  function restoreSoloStarter(): void {
+    commitSolo(soloStarter(activeTeam.value), 'Starter Solo deck restored.')
+  }
+
+  /** Deal a new Clash match. Bouts set their own kind, rival and terms. */
+  function launchClash(next: Omit<ClashLaunch, 'id'>): void {
+    stop()
+    // An abandoned City or Story bout never inherits a practice or reward
+    // result.
+    if (next.kind === 'practice' || next.kind === 'reward') clearBouts()
+    clashResult.value = null
+    clashLaunch.value = { ...next, id: clashLaunch.value.id + 1 }
     view.value = 'clash'
+  }
+  /** createClash arguments for the current launch. */
+  function clashSetup(launch: ClashLaunch = clashLaunch.value): {
+    player: TeamId
+    enemy: TeamId
+    seed: number
+    options: ClashOptions
+  } {
+    const options: ClashOptions =
+      launch.format === 'alliance'
+        ? {
+            alliance: {
+              player: launch.alliance ?? playAlliance.value,
+              enemy: cpuAlliance(launch.enemy, launch.seed),
+            },
+          }
+        : { decks: { player: launch.cards ?? playSolo.value } }
+    if (launch.bosses) options.bosses = launch.bosses
+    return {
+      player: activeTeam.value,
+      enemy: launch.enemy,
+      seed: launch.seed,
+      options,
+    }
+  }
+  function rivalFor(team: TeamId): TeamId {
+    return team === 'ironjaw' ? 'catgirls' : 'ironjaw'
+  }
+  /**
+   * The CLASH tab: a reward match against the CPU when your account is
+   * loaded (server-issued seed and rival, verified replay), else practice.
+   */
+  function playClashFormat(format: DeckFormat = clashFormat.value): void {
+    clashFormat.value = format
+    if (progressLoaded.value && correctAccount()) {
+      void startCpuBattle(format)
+      return
+    }
+    launchClash({
+      kind: 'practice',
+      format,
+      enemy: rivalFor(activeTeam.value),
+      seed: rollSeed(),
+    })
+  }
+  /** A finished Clash match reports here exactly once. */
+  function settleClash(launchId: number, state: ClashState): void {
+    const launch = clashLaunch.value
+    if (launchId !== launch.id || !state.victor || clashResult.value) return
+    clashResult.value = { kind: launch.kind, victor: state.victor }
+    if (launch.kind === 'reward' && launch.rewardId) {
+      void finishCpuBattle(launch.rewardId, [...state.commands])
+      return
+    }
+    settleBout(state.victor)
   }
   function restoreFounderDeck(): void {
     if (!storyLoaded.value) return
@@ -1027,11 +1216,9 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
     view.value = 'city'
   }
 
-  function chooseMode(id: ModeId): void {
-    mode.value = id
-    view.value = 'arena'
-    reset()
-    if (!guideSeen.has(id)) openGuide()
+  /** Legacy arena formats are retired: every battle is Clash. */
+  function chooseMode(_id?: ModeId): void {
+    playClashFormat('solo')
   }
 
   function openGuide(): void {
@@ -1134,12 +1321,12 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
       rules: { ...DEFAULT_RULES, parity: storyParity.value },
     }
   }
-  /** "TURF · PARITY": the format a story bout written for `written` plays. */
-  function storyBoutLabel(written: ModeId): string {
-    const format = storyBout(written)
-    const title =
-      PLAYER_MODES.find((m) => m.id === format.mode)?.title ?? format.mode
-    return format.rules.parity ? title + ' · PARITY' : title
+  /**
+   * Every City and Story bout is SOLO CLASH now (Silas, 2026-11-08 PT); the
+   * written format is kept only in the story data.
+   */
+  function storyBoutLabel(_written?: ModeId): string {
+    return 'SOLO CLASH'
   }
   /** Play story bouts as written or as TURF, and with or without PARITY. */
   function setStoryFormat(next: { mode?: StoryMode; parity?: boolean }): void {
@@ -1155,20 +1342,11 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
     const id = districtId.value
     if (!here.value || boutBlocked(city.value, id)) return
     const rival = CITY_PLAN[id].rival
-    stop()
-    const format = storyBout(rival.mode)
-    mode.value = format.mode
-    rules.value = format.rules
-    seed.value = rollSeed()
-    const fresh = createMatch(
-      format.mode,
-      activeTeam.value,
+    clearBouts()
+    bout.value = id
+    launchStoryClash(
+      'rival',
       rival.team,
-      seed.value,
-      rules.value,
-    )
-    match.value = applyTerms(
-      fresh,
       campaignLegacyTerms(
         campaignSave.value,
         activeTeam.value,
@@ -1176,34 +1354,41 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
         campaignFavorIndex.value,
       ),
     )
-    selectedCard.value = null
-    selectedUnit.value = null
-    bout.value = id
+  }
+  function clearBouts(): void {
+    bout.value = null
     lastBout.value = null
     contractBout.value = null
     lastContract.value = null
-    view.value = 'arena'
-    if (!guideSeen.has(format.mode)) openGuide()
+    campaignBout.value = null
+    lastCampaign.value = null
+  }
+  /** City and Story bouts: SOLO CLASH, terms moving the bosses' life. */
+  function launchStoryClash(
+    kind: ClashKind,
+    enemy: TeamId,
+    terms: BoutTerms,
+  ): void {
+    enemyTeam.value = enemy
+    launchClash({
+      kind,
+      format: 'solo',
+      enemy,
+      seed: rollSeed(),
+      bosses: clashBossesFromTerms(terms),
+    })
   }
 
   function fightContract(): void {
     if (!storyEditable()) return
     const id = districtId.value
     if (contractBlocked(city.value, id)) return
-    stop()
-    const format = storyBout('blackout')
-    mode.value = format.mode
-    rules.value = format.rules
-    seed.value = rollSeed()
     const contract = CITY_CONTRACTS[id]
-    match.value = applyTerms(
-      createMatch(
-        format.mode,
-        activeTeam.value,
-        contract.team,
-        seed.value,
-        rules.value,
-      ),
+    clearBouts()
+    contractBout.value = id
+    launchStoryClash(
+      'contract',
+      contract.team,
       campaignLegacyTerms(
         campaignSave.value,
         activeTeam.value,
@@ -1211,15 +1396,6 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
         campaignFavorIndex.value,
       ),
     )
-    selectedCard.value = null
-    previewOpen.value = false
-    selectedUnit.value = null
-    bout.value = null
-    lastBout.value = null
-    contractBout.value = id
-    lastContract.value = null
-    view.value = 'arena'
-    if (!guideSeen.has(format.mode)) openGuide()
   }
   function startCampaignBattle(choiceId: CampaignApproach): void {
     if (!storyEditable()) return
@@ -1233,14 +1409,16 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
     const chapter = campaignChapter(campaignSave.value, teamId)
     const choice = chapter?.choices.find((option) => option.id === choiceId)
     if (!chapter || !choice) return
-    stop()
-    const format = storyBout('blackout')
-    mode.value = format.mode
-    rules.value = format.rules
-    enemyTeam.value = chapter.foe
-    seed.value = rollSeed()
-    const termed = applyTerms(
-      createMatch(format.mode, teamId, chapter.foe, seed.value, rules.value),
+    clearBouts()
+    campaignBout.value = {
+      team: teamId,
+      foe: chapter.foe,
+      index: campaignSave.value[teamId].wins,
+      choice: choice.id,
+    }
+    launchStoryClash(
+      'campaign',
+      chapter.foe,
       campaignBattleTerms(
         campaignSave.value,
         teamId,
@@ -1250,25 +1428,6 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
         campaignFavorIndex.value,
       ),
     )
-    // The chapter's own battlefield goes down last (a no-op in TURF).
-    const field = campaignBattlefield(teamId, campaignSave.value[teamId].wins)
-    match.value = field ? applyBattlefield(termed, field) : termed
-    selectedCard.value = null
-    selectedUnit.value = null
-    previewOpen.value = false
-    bout.value = null
-    lastBout.value = null
-    contractBout.value = null
-    lastContract.value = null
-    campaignBout.value = {
-      team: teamId,
-      foe: chapter.foe,
-      index: campaignSave.value[teamId].wins,
-      choice: choice.id,
-    }
-    lastCampaign.value = null
-    view.value = 'arena'
-    if (!guideSeen.has(format.mode)) openGuide()
   }
 
   async function finishCpuBattle(id: string, commands: unknown): Promise<void> {
@@ -1294,8 +1453,8 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
   }
 
   /** Once a rival, contract or campaign bout ends, update only its ledger. */
-  function settleBout(): void {
-    if (!match.value.victor) return
+  function settleBout(victor: Side | 'draw' | null = match.value.victor): void {
+    if (!victor) return
     if (rewardMatchId.value) {
       const id = rewardMatchId.value
       const commands = [...match.value.commands]
@@ -1311,7 +1470,7 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
         index,
         foe,
         choice,
-        match.value.victor,
+        victor,
       )
       lastCampaign.value = team
       persistStory()
@@ -1321,14 +1480,14 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
     }
     if (contractBout.value) {
       const id = contractBout.value
-      city.value = recordContract(city.value, id, match.value.victor)
+      city.value = recordContract(city.value, id, victor)
       persistStory()
       lastContract.value = id
       contractBout.value = null
       return
     }
     if (!bout.value) return
-    city.value = recordBout(city.value, bout.value, match.value.victor)
+    city.value = recordBout(city.value, bout.value, victor)
     persistStory()
     lastBout.value = bout.value
     bout.value = null
@@ -1531,6 +1690,17 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
     toggleAllianceCard,
     restoreAllianceStarter,
     playAllianceClash,
+    currentSolo,
+    currentSoloProblems,
+    playSolo,
+    soloCards,
+    toggleSoloCard,
+    restoreSoloStarter,
+    clashLaunch,
+    clashResult,
+    clashSetup,
+    playClashFormat,
+    settleClash,
     unlockMode,
     setUnlockMode,
     storyMode,

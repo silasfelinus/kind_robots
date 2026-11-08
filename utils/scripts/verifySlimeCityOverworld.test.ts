@@ -4,6 +4,17 @@
 // rival bout and the city's gates, and bout results open the Grand Pit.
 import assert from 'node:assert/strict'
 import {
+  CLASH_BOSS_HP,
+  applyClashCommand,
+  chooseClashCpu,
+  createClash,
+  type ClashState,
+} from '../slimeCity/clash'
+import {
+  CLASH_TERM_WEIGHTS,
+  clashBossesFromTerms,
+} from '../slimeCity/clashBouts'
+import {
   CAMPAIGN_APPROACH_REFLECTIONS,
   CAMPAIGN_RIVAL_REACTIONS,
   campaignAftermathFor,
@@ -1183,6 +1194,16 @@ const { createPinia, setActivePinia } = await import('pinia')
 const { useSlimeCityStore } = await import('../../stores/slimeCity')
 setActivePinia(createPinia())
 const lab = useSlimeCityStore()
+/** Play the store's launched Clash bout CPU vs CPU and report the result. */
+function playStoreClash(): ClashState {
+  const setup = lab.clashSetup()
+  let g = createClash(setup.player, setup.enemy, setup.seed, setup.options)
+  for (let i = 0; !g.victor && i < 2000; i++)
+    g = applyClashCommand(g, chooseClashCpu(g, g.active))
+  assert.ok(g.victor, 'the Clash bout finishes')
+  lab.settleClash(lab.clashLaunch.id, g)
+  return g
+}
 lab.chooseTeam('catgirls')
 assert.equal(lab.city.location, 'pitworks')
 lab.visit('crown')
@@ -1246,51 +1267,34 @@ lab.chooseStreet('splice-smuggle')
 assert.equal(lab.streetProgress, 1)
 assert.equal(lab.streetEvent, null)
 lab.choose('chimera-serum')
+// Every bout is SOLO CLASH now (Silas, 2026-11-08 PT); the street and serum
+// terms move the bosses' starting life.
 lab.fightRival()
-assert.equal(lab.view, 'arena')
-assert.equal(lab.mode, 'blackout')
-assert.equal(lab.match.foeId, 'catgirls', 'Mirror rival bout')
-assert.equal(
-  lab.match.units.length,
-  0,
-  'New Blackout starts with open deployment',
+assert.equal(lab.view, 'clash')
+assert.equal(lab.clashLaunch.kind, 'rival')
+assert.equal(lab.clashLaunch.format, 'solo', 'City bouts are Solo Clash')
+assert.equal(lab.clashLaunch.enemy, 'catgirls', 'Mirror rival bout')
+assert.equal(lab.bout, 'chimera')
+assert.equal(lab.storyBoutLabel('blackout'), 'SOLO CLASH')
+assert.deepEqual(
+  lab.clashLaunch.bosses,
+  clashBossesFromTerms(boutTerms(lab.city, 'chimera')),
 )
 assert.equal(
-  lab.hand.length,
-  BLACKOUT_HAND_SIZE,
-  'New Blackout deals five cards',
+  lab.clashLaunch.bosses!.player,
+  CLASH_BOSS_HP + 2 * CLASH_TERM_WEIGHTS.playerHp,
+  'Street and serum terms stack (+2 HP) onto your boss',
 )
-// Story bouts through TURF and PARITY (Silas, 2026-11-04): the same rival,
-// played as TURF with PARITY rules; district terms become points at the count.
-lab.setStoryFormat({ mode: 'turf', parity: true })
-assert.equal(lab.storyMode, 'turf')
-assert.equal(lab.storyParity, true)
-assert.match(lab.storyBoutLabel('blackout'), /PARITY$/)
-lab.fightRival()
-assert.equal(lab.view, 'arena')
-assert.equal(lab.mode, 'turf', 'The rival bout plays as TURF')
-assert.equal(lab.match.mode, 'turf')
-assert.equal(lab.match.rules.parity, true, 'with PARITY rules')
-assert.equal(lab.match.foeId, 'catgirls', 'against the same rival')
-assert.equal(typeof lab.match.scenarioBonus?.turfPoints, 'number')
-lab.setStoryFormat({ mode: 'written', parity: false })
-lab.fightRival()
-assert.equal(lab.mode, 'blackout', 'As written again')
-assert.equal(lab.match.rules.parity, false)
-assert.ok(
-  lab.match.units
-    .filter((u) => u.side === 'player')
-    .every((u) => u.maxHp === u.hp && u.maxHp >= 3),
-  'Street and serum terms stack (+2 HP)',
-)
-lab.closeGuide()
-for (let i = 0; i < 40 && !lab.match.victor; i++) lab.nextRound()
-assert.ok(lab.match.victor)
+const rivalGame = playStoreClash()
+assert.equal(rivalGame.boss.player <= lab.clashLaunch.bosses!.player, true)
 assert.equal(lab.bout, null, 'Bout settled')
 assert.equal(lab.lastBout, 'chimera')
-if (lab.match.victor === 'player')
+assert.equal(lab.clashResult?.kind, 'rival')
+if (rivalGame.victor === 'player')
   assert.ok(lab.city.cleared.includes('chimera'))
-if (lab.match.victor === 'enemy') assert.equal(lab.city.heat, 3)
+if (rivalGame.victor === 'enemy') assert.equal(lab.city.heat, 3)
+lab.settleClash(lab.clashLaunch.id, rivalGame)
+assert.equal(lab.lastBout, 'chimera', 'A bout settles exactly once')
 lab.showCity()
 lab.resetCity()
 assert.equal(lab.city.nights, 0)
@@ -1305,18 +1309,17 @@ assert.equal(lab.city.pendingAftermath, null)
 assert.equal(lab.city.aftermathChoices.chimera, 'chimera-free')
 lab.visit('chimera')
 lab.fightContract()
-assert.equal(lab.view, 'arena')
-assert.equal(lab.mode, 'blackout', 'Contracts use the main Blackout ruleset')
+assert.equal(lab.view, 'clash')
+assert.equal(lab.clashLaunch.kind, 'contract', 'Contracts are Solo Clash')
+assert.equal(lab.clashLaunch.format, 'solo')
 assert.equal(lab.contractBout, 'chimera')
-assert.equal(lab.match.foeId, 'catgirls')
-lab.closeGuide()
-for (let i = 0; i < 40 && !lab.match.victor; i++) lab.nextRound()
-assert.ok(lab.match.victor)
+assert.equal(lab.clashLaunch.enemy, 'catgirls')
+const contractGame = playStoreClash()
 assert.equal(lab.contractBout, null)
 assert.equal(lab.lastContract, 'chimera')
-if (lab.match.victor === 'player')
+if (contractGame.victor === 'player')
   assert.deepEqual(lab.city.contracts, ['chimera'])
-if (lab.match.victor === 'enemy') assert.equal(lab.city.contracts.length, 0)
+if (contractGame.victor === 'enemy') assert.equal(lab.city.contracts.length, 0)
 lab.showCity()
 lab.resetCity()
 assert.equal(lab.city.contracts.length, 0)
@@ -1350,47 +1353,21 @@ assert.equal(lab.city.contracts.length, 0)
   lab.chooseStreet('splice-smuggle')
   lab.choose('chimera-serum')
   lab.fightRival()
-  assert.equal(lab.view, 'arena')
-  const expected = applyTerms(
-    createMatch(
-      lab.match.mode,
-      team,
-      lab.match.foeId,
-      lab.match.seed,
-      lab.match.rules,
-    ),
+  assert.equal(lab.view, 'clash')
+  const expected = clashBossesFromTerms(
     campaignLegacyTerms(won, team, boutTerms(lab.city, 'chimera'), 1),
   )
-  const baseline = applyTerms(
-    createMatch(
-      lab.match.mode,
-      team,
-      lab.match.foeId,
-      lab.match.seed,
-      lab.match.rules,
-    ),
-    boutTerms(lab.city, 'chimera'),
+  const baseline = clashBossesFromTerms(boutTerms(lab.city, 'chimera'))
+  assert.deepEqual(
+    lab.clashLaunch.bosses,
+    expected,
+    'Rival bout carries the legacy',
   )
-  assert.equal(lab.match.mana, expected.mana, 'Rival bout carries the legacy')
-  assert.equal(lab.match.enemyMana, expected.enemyMana)
-  assert.equal(lab.match.maxRounds, expected.maxRounds)
-  assert.deepEqual(lab.match.scenarioBonus, expected.scenarioBonus)
   assert.notDeepEqual(
-    [
-      expected.mana,
-      expected.enemyMana,
-      expected.maxRounds,
-      expected.scenarioBonus,
-    ],
-    [
-      baseline.mana,
-      baseline.enemyMana,
-      baseline.maxRounds,
-      baseline.scenarioBonus,
-    ],
+    expected,
+    baseline,
     'and the favor really changes the bout',
   )
-  lab.closeGuide()
   lab.showCity()
   lab.resetCity()
   lab.campaignSave = before
@@ -1495,23 +1472,22 @@ lab.chooseTeam('ironjaw')
 assert.equal(lab.view, 'campaign')
 assert.equal(lab.activeChapter?.foe, 'exchange')
 lab.startCampaignBattle('conviction')
-assert.equal(lab.view, 'arena')
-assert.equal(lab.mode, 'blackout')
-assert.equal(lab.match.foeId, 'exchange')
+assert.equal(lab.view, 'clash')
+assert.equal(lab.clashLaunch.kind, 'campaign', 'Story bouts are Solo Clash')
+assert.equal(lab.clashLaunch.format, 'solo')
+assert.equal(lab.clashLaunch.enemy, 'exchange')
 assert.equal(lab.campaignBout?.team, 'ironjaw')
 assert.equal(
-  lab.match.enemyMana,
-  BLACKOUT_MANA_GAIN + 1,
-  'Story approach affects match resources',
+  lab.clashLaunch.bosses!.enemy,
+  CLASH_BOSS_HP + CLASH_TERM_WEIGHTS.enemyMana,
+  'Story approach moves the rival boss',
 )
-lab.closeGuide()
-for (let i = 0; i < 40 && !lab.match.victor; i++) lab.nextRound()
-assert.ok(lab.match.victor)
+const storyGame = playStoreClash()
 assert.equal(lab.campaignBout, null)
 assert.equal(lab.lastCampaign, 'ironjaw')
 assert.equal(
   lab.campaignSave.ironjaw.wins,
-  lab.match.victor === 'player' ? 1 : 0,
+  storyGame.victor === 'player' ? 1 : 0,
 )
 lab.showCampaign()
 assert.equal(lab.view, 'campaign')
@@ -1560,13 +1536,13 @@ assert.equal(
   'Arriving opens the story mission as its own full-stage scene',
 )
 lab.startCampaignBattle('cunning')
-assert.equal(lab.view, 'arena')
-assert.equal(lab.match.foeId, 'undertow')
+assert.equal(lab.view, 'clash')
+assert.equal(lab.clashLaunch.enemy, 'undertow')
 assert.ok(lab.campaignBout, 'City mission uses campaign settlement')
-assert.equal(lab.match.teamId, 'catgirls')
+assert.equal(lab.clashSetup().player, 'catgirls')
 assert.equal(
-  lab.match.mana,
-  BLACKOUT_MANA_GAIN + 3,
+  lab.clashLaunch.bosses!.player,
+  CLASH_BOSS_HP + 3 * CLASH_TERM_WEIGHTS.playerMana,
   'City-based chapter includes +2 cunning mana AND +1 street decision mana',
 )
 assert.equal(
@@ -1593,12 +1569,12 @@ lab.chooseCrisis('broadcast-truth')
 assert.equal(lab.crisisEvent, null)
 assert.equal(lab.campaignAtDestination, true)
 lab.startCampaignBattle('conviction')
-assert.equal(lab.view, 'arena', 'Crisis resolution unlocks city story fights')
-assert.equal(lab.match.teamId, 'catgirls')
-assert.equal(
-  lab.match.mana,
-  BLACKOUT_MANA_GAIN + 1,
-  'City campaign inherits one bonus opening mana from the crisis',
+assert.equal(lab.view, 'clash', 'Crisis resolution unlocks city story fights')
+assert.equal(lab.clashSetup().player, 'catgirls')
+assert.ok(
+  lab.clashLaunch.bosses!.player >=
+    CLASH_BOSS_HP + CLASH_TERM_WEIGHTS.playerMana,
+  'City campaign inherits the crisis bonus on your boss',
 )
 console.log('Slime City civic crisis / campaign store integration PASS')
 

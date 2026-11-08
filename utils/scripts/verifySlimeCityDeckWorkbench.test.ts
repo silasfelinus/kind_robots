@@ -118,9 +118,15 @@ const ui = readFileSync('pages/admin/slime-city.vue', 'utf8')
 assert.match(service, /founderCards/)
 assert.match(service, /ownedCards/)
 assert.match(store, /persistStory\(\)/)
-assert.match(store, /testCustomDeck\(\)/)
-assert.match(ui, /data-testid="slime-deck-workbench"/)
-assert.match(ui, /data-testid="slime-deck-practice"/)
+// Silas, 2026-11-08 PT: the armory builds SOLO (20) and ALLIANCE (30) Clash
+// decks; the 10-card classic workbench is retired.
+assert.match(store, /function toggleSoloCard/)
+assert.match(ui, /data-testid="slime-solo-workbench"/)
+assert.match(ui, /data-testid="slime-solo-play"/)
+assert.match(ui, /data-testid="slime-alliance-workbench"/)
+assert.doesNotMatch(ui, /data-testid="slime-deck-workbench"/)
+assert.match(service, /proposed\.soloDecks/)
+assert.match(service, /proposed\.alliances/)
 assert.doesNotMatch(store, /localStorage|sessionStorage/)
 // Card unlocks (Silas, 2026-11-04): every card is open by default; TRICKLE
 // brings back founders-then-packs, and only TRICKLE is enforced server-side.

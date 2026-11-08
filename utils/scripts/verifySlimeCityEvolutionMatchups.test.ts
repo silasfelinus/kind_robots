@@ -12,17 +12,12 @@ import {
 import { CLASH_EVOLUTIONS } from '../slimeCity/clashEvolutions'
 
 const crews = TEAMS.map((t) => t.id)
-const mercenaries = CARDS.filter((c) => c.team === 'mercenary').map(
-  (c) => c.id,
-)
+const mercenaries = CARDS.filter((c) => c.team === 'mercenary').map((c) => c.id)
 assert.equal(CARDS.length, 300)
 assert.equal(mercenaries.length, 60)
 
 const roster = Object.fromEntries(
-  crews.map((team) => [
-    team,
-    CARDS.filter((card) => card.team === team),
-  ]),
+  crews.map((team) => [team, CARDS.filter((card) => card.team === team)]),
 ) as Record<TeamId, typeof CARDS>
 for (const team of crews) assert.equal(roster[team].length, 40, team)
 
@@ -151,7 +146,7 @@ for (const [variant, plan] of plans.entries()) {
 const signatureGroups = new Map<string, string[]>()
 let repeatedStage = 0
 for (const [id, evolution] of Object.entries(CLASH_EVOLUTIONS)) {
-  const sig = (stage: typeof evolution[2]) =>
+  const sig = (stage: (typeof evolution)[2]) =>
     JSON.stringify({ abilities: stage.abilities, static: stage.static })
   if (sig(evolution[2]) === sig(evolution[3])) repeatedStage++
   const key = JSON.stringify([

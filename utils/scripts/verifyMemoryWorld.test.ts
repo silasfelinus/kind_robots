@@ -3738,3 +3738,41 @@ assert.doesNotMatch(
   firstRealmRewardSource ?? '',
   /state\.value\.wildflowers \+= 1/,
 )
+
+// Campaign progression contract: legacy e13-e16 saves must never become playable stages.
+const campaignCanon = await import('../memoryDungeon/reimaginerCampaign')
+const expectedPairs = [
+  ['e01', 'e02'],
+  ['e03', 'e04'],
+  ['e05', 'e06'],
+  ['e07', 'e08'],
+]
+assert.deepEqual(campaignCanon.MEMORY_REALITY_PAIRS, expectedPairs)
+assert.deepEqual(campaignCanon.MEMORY_COLLISION_ORDER, [
+  'e09',
+  'e10',
+  'e11',
+  'e12',
+])
+const playableExperiences = campaignCanon.MEMORY_REALITY_EXPERIENCES
+assert.equal(playableExperiences.length, 12)
+assert.deepEqual(
+  playableExperiences.map((world) => world.id),
+  Array.from({ length: 12 }, (_, index) =>
+    `e${String(index + 1).padStart(2, '0')}`,
+  ),
+)
+for (const world of playableExperiences) {
+  assert.deepEqual(world.gallery, { local: 30, collaborations: 2 })
+  assert.equal(world.planned, true)
+}
+for (const [original, reflection] of expectedPairs) {
+  const first = playableExperiences.find((world) => world.id === original)!
+  const second = playableExperiences.find((world) => world.id === reflection)!
+  assert.equal(first.concept, second.concept)
+  assert.equal(first.viewpoint, second.viewpoint)
+  assert.notEqual(first.state, second.state)
+}
+assert.equal(playableExperiences.some((world) =>
+  ['e13', 'e14', 'e15', 'e16'].includes(world.id),
+), false)

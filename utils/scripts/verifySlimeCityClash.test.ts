@@ -831,6 +831,7 @@ pogoStage.units = [
 const pogoPower = clashPower(pogoStage, pogoStage.units[0]!)
 const concertSlam = strikeClash(pogoStage, 'player')
 assert.equal(concertSlam.strike?.dealt, pogoPower * 2, 'L3 Pogo always doubles with a friend')
+assert.equal(clashSpectacle(pogoStage, concertSlam)?.cardId, 'pogo', 'special strike has its own portrait')
 const pogoCoin = structuredClone(pogoStage)
 pogoCoin.units = [{ ...pogoCoin.units[0]!, level: 2 }]
 assert.deepEqual(strikeClash(pogoCoin, 'player'), strikeClash(structuredClone(pogoCoin), 'player'), 'Pogo coin flip is seed-replayable')
@@ -843,6 +844,7 @@ razorStage.units = [
 ]
 const vampiric = strikeClash(razorStage, 'player')
 assert.equal(vampiric.units.find((u) => u.uid === 941)?.hp, 4, 'L3 Razor heals distant bandmate')
+assert.equal(clashSpectacle(razorStage, vampiric)?.effect, 'heal')
 const moshStage = evolved('bloodfairies', 'mosh')
 moshStage.units = [
   follower('enemy', 2, 950, 10),
@@ -887,6 +889,7 @@ detonatorStage.units = [
 ]
 const detonation = strikeClash(detonatorStage, 'player')
 assert.ok(detonation.units.find((u) => u.uid === 993)!.hp <= 8, 'L3 bomber blows up distant rivals after death')
+assert.equal(clashSpectacle(detonatorStage, detonation)?.cardId, 'bomber', 'death rattle leads the cinematic beat')
 assert.equal(detonation.units.find((u) => u.uid === 991)!.hp, 7, 'blast costs nearby ally life')
 const kaboomStage = evolved('riot', 'kaboom')
 kaboomStage.active = 'enemy'
@@ -918,6 +921,7 @@ eelStage.units = [
 eelStage.traps = [{ side: 'enemy', lane: 4, cardId: 'shocktrap', level: 1 }]
 const electrocuted = strikeClash(eelStage, 'player')
 assert.equal(electrocuted.units.find((u) => u.uid === 1002)?.hp, 8, 'L3 Eel shocks trapped rivals on hit')
+assert.equal(clashSpectacle(eelStage, electrocuted)?.eyebrow, 'CHAIN REACTION')
 const oracleStage = evolved('undertow', 'oracle')
 oracleStage.active = 'enemy'
 oracleStage.phase = 'attack'
@@ -1001,6 +1005,7 @@ angelStage.units = [
 ]
 const resurrected = strikeClash(angelStage, 'enemy')
 assert.equal(resurrected.units.filter((u) => u.token).length, 1, 'L3 angel saves one fighter')
+assert.equal(clashSpectacle(angelStage, resurrected)?.title, cardById('merc-discount-angel').name, 'rescue earns its own cut-in')
 assert.equal(resurrected.deathMarks.player['angel-rescue-round'], angelStage.round)
 
 // Balance acceptance (2026-11-07 Clash rebalance): CPU sweeps across every crew

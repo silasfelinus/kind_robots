@@ -292,8 +292,8 @@ assert.ok(
 assert.equal(clashPlayCost(cardById('lynx')), 1)
 assert.equal(
   Object.keys(CLASH_TWISTS).length,
-  39,
-  'first and second Clash-only evolution waves retain their complete roster',
+  59,
+  'three authored evolution waves; each remaining card stays explicitly uncrafted',
 )
 for (const id of Object.keys(CLASH_TWISTS)) {
   const card = cardById(id)
@@ -1190,6 +1190,213 @@ assert.equal(
   resurrected.deathMarks.player['angel-rescue-round'],
   angelStage.round,
 )
+
+// Wave three: twenty more bespoke, mechanically tested L3 arcs. Nothing here
+// invents a catalog card or gives an untargeted faction-hate effect.
+const waveThreeIds = [
+  'mau', 'scentmine', 'ninthlife', 'bloodwire', 'pinprick',
+  'feedback', 'overclock', 'shocktrap', 'ducttape', 'firestorm',
+  'fusevest', 'drink', 'blackout', 'grate', 'drysuit',
+  'collection', 'debttrap', 'hushmoney', 'merc-bus-driver',
+  'merc-clock-grandma',
+]
+assert.equal(waveThreeIds.length, 20)
+for (const id of waveThreeIds) {
+  const card = cardById(id)
+  assert.ok(CLASH_TWISTS[id], id + ' has explicit authored evolution rules')
+  const texts = [1, 2, 3].map((lv) => clashCardText(card, lv))
+  assert.ok(texts.every((line) => line.length >= 16 && line.length <= 160))
+  assert.equal(new Set(texts).size, 3, id + ' improves through three story beats')
+}
+function third(team: Parameters<typeof createClash>[0], id: string) {
+  const s = createClash(team, 'ironjaw', 960 + waveThreeIds.indexOf(id))
+  s.round = 2
+  s.levels.player[id] = 3
+  s.hands.player = [id]
+  s.boss.player = 30
+  return s
+}
+const mauFight = third('catgirls', 'mau')
+mauFight.phase = 'attack'
+mauFight.units = [
+  { ...follower('player', 2, 2000, 12, 3), cardId: 'mau', level: 3, keywords: ['ambush'], ambushUsed: true },
+  { ...follower('enemy', 2, 2001, 15, 0), hp: 12 },
+  follower('enemy', 3, 2002, 12, 0),
+]
+const mauHit = strikeClash(mauFight, 'player')
+assert.equal(mauHit.strike?.dealt, 5, 'Mau L3 strikes harder against an already wounded defender')
+assert.equal(mauHit.units.find((u) => u.uid === 2002)?.hp, 10, 'Mau L3 follows into a neighboring alley')
+const scentMine = createClash('catgirls', 'ironjaw', 961)
+scentMine.round = 2
+scentMine.hands.player = ['lynx']
+scentMine.units = [follower('player', 1, 2011, 12), follower('player', 3, 2013, 12)]
+scentMine.traps = [{ side: 'enemy', lane: 2, cardId: 'scentmine', level: 3 }]
+const scentFired = playClash(scentMine, 'player', 'lynx', 2)
+assert.ok(scentFired.units.find((u) => u.uid === 2011)?.rooted)
+assert.equal(scentFired.units.find((u) => u.uid === 2013)?.hp, 11)
+const collar = third('catgirls', 'ninthlife')
+collar.units = [follower('player', 2, 2020, 10, 2)]
+const collarOn = playClash(collar, 'player', 'ninthlife', 2)
+assert.equal(collarOn.units[0]?.ninthLife, 3)
+collarOn.active = 'enemy'
+collarOn.phase = 'attack'
+collarOn.units.push(follower('enemy', 2, 2021, 20, 15))
+const collarRescue = strikeClash(collarOn, 'enemy')
+assert.equal(collarRescue.units.find((u) => u.uid === 2020)?.hp, 5)
+assert.equal(collarRescue.units.find((u) => u.uid === 2020)?.attack, 4)
+assert.equal(collarRescue.units.find((u) => u.uid === 2020)?.ninthLife, undefined)
+assert.ok(clashSpectacle(collarOn, collarRescue)?.cardId === 'ninthlife', 'L3 rescue gets an art-led cut-in')
+const wireTrap = createClash('catgirls', 'ironjaw', 962)
+wireTrap.round = 2
+wireTrap.hands.player = ['lynx']
+wireTrap.units = [follower('player', 1, 2031, 12), follower('player', 3, 2033, 12)]
+wireTrap.traps = [{ side: 'enemy', lane: 2, cardId: 'bloodwire', level: 3 }]
+const wireFired = playClash(wireTrap, 'player', 'lynx', 2)
+assert.equal(wireFired.units.find((u) => u.uid === 2031)?.hp, 10)
+assert.equal(wireFired.units.find((u) => u.uid === 2033)?.hp, 10)
+let criticalFound = false
+for (let seed = 1; seed <= 20; seed++) {
+  const pin = third('bloodfairies', 'pinprick')
+  pin.rng = seed
+  pin.units = [follower('enemy', 2, 2042, 25), follower('enemy', 3, 2043, 12)]
+  const hit = playClash(pin, 'player', 'pinprick', 2)
+  assert.deepEqual(hit, playClash(structuredClone(pin), 'player', 'pinprick', 2))
+  if (hit.units.find((u) => u.uid === 2043)?.hp === 10) criticalFound = true
+}
+assert.ok(criticalFound, 'L3 Pinprick has reachable seeded critical splash')
+const feedback = third('bloodfairies', 'feedback')
+feedback.units = [
+  ...[0, 1, 3, 4].map((lane) => follower('player', lane, 2050 + lane, 10)),
+  follower('enemy', 2, 2057, 20),
+  follower('enemy', 0, 2058, 10),
+  follower('enemy', 4, 2059, 10),
+]
+const feedbackHit = playClash(feedback, 'player', 'feedback', 2)
+assert.equal(feedbackHit.units.find((u) => u.uid === 2058)?.hp, 8)
+assert.equal(feedbackHit.units.find((u) => u.uid === 2059)?.hp, 8)
+const clock = third('ironjaw', 'overclock')
+clock.units = [
+  follower('player', 2, 2060, 12),
+  follower('enemy', 1, 2061, 12),
+  follower('enemy', 3, 2063, 12),
+]
+const overclocked = playClash(clock, 'player', 'overclock', 2)
+assert.equal(overclocked.units.find((u) => u.uid === 2060)?.hp, 9, 'L3 overclock has a real recoil cost')
+assert.ok(overclocked.units.find((u) => u.uid === 2060)!.surge >= 4)
+assert.equal(overclocked.units.find((u) => u.uid === 2061)?.hp, 10)
+const shockStage = createClash('catgirls', 'ironjaw', 963)
+shockStage.round = 2
+shockStage.hands.player = ['lynx']
+shockStage.units = [follower('player', 1, 2071, 12), follower('player', 3, 2073, 12)]
+shockStage.traps = [{ side: 'enemy', lane: 2, cardId: 'shocktrap', level: 3 }]
+const shockFired = playClash(shockStage, 'player', 'lynx', 2)
+assert.equal(shockFired.units.find((u) => u.uid === 2071)?.hp, 10)
+assert.ok(shockFired.units.find((u) => u.uid === 2073)?.rooted)
+const weld = third('ironjaw', 'ducttape')
+weld.fallen!.player.push('welder')
+weld.units = [{ ...follower('player', 2, 2082, 10), hp: 2 }]
+const repaired = playClash(weld, 'player', 'ducttape', 2)
+assert.ok(repaired.units.some((u) => u.token && u.cardId === 'welder' && u.armor === 1))
+assert.equal(repaired.fallen?.player.length, 0, 'fallen unit not copied endlessly')
+const storm = third('riot', 'firestorm')
+storm.units = [
+  follower('enemy', 2, 2092, 30), follower('enemy', 1, 2091, 12),
+  follower('enemy', 3, 2093, 12), follower('player', 1, 2094, 12),
+]
+const stormHit = playClash(storm, 'player', 'firestorm', 2)
+assert.equal(stormHit.units.find((u) => u.uid === 2091)?.hp, 10)
+assert.equal(stormHit.units.find((u) => u.uid === 2094)?.hp, 11)
+assert.deepEqual(stormHit, playClash(structuredClone(storm), 'player', 'firestorm', 2), 'firestorm rerolls are replay-safe')
+const vest = third('riot', 'fusevest')
+vest.units = [{ ...follower('player', 2, 2102, 10), hp: 1 }, follower('player', 1, 2101, 10)]
+const fitted = playClash(vest, 'player', 'fusevest', 2)
+assert.equal(fitted.units.find((u) => u.uid === 2102)?.gearLevels?.fusevest, 3)
+fitted.active = 'enemy'
+fitted.phase = 'attack'
+fitted.units.push(follower('enemy', 2, 2112, 10, 12), follower('enemy', 4, 2114, 10))
+const vestBlast = strikeClash(fitted, 'enemy')
+assert.equal(vestBlast.units.find((u) => u.uid === 2114)?.hp, 9)
+assert.equal(vestBlast.units.find((u) => u.uid === 2101)?.hp, 9)
+const bottle = third('riot', 'drink')
+bottle.units = [follower('player', 2, 2122, 12)]
+const drank = playClash(bottle, 'player', 'drink', 2)
+assert.ok(drank.units[0]!.surge >= 6 || drank.units[0]!.hp === 10, 'L3 drink is a risky swing')
+assert.deepEqual(drank, playClash(structuredClone(bottle), 'player', 'drink', 2))
+const signal = third('undertow', 'blackout')
+signal.units = [1, 2, 3].map((lane) => follower('enemy', lane, 2130 + lane, 12))
+const blackedOut = playClash(signal, 'player', 'blackout', 2)
+assert.equal(blackedOut.units.filter((u) => u.rooted).length, 3)
+assert.equal(blackedOut.units.find((u) => u.lane === 1)?.hp, 11)
+const drain = createClash('catgirls', 'ironjaw', 964)
+drain.round = 2
+drain.hands.player = ['lynx']
+drain.units = [follower('player', 1, 2141, 12), follower('player', 3, 2143, 12)]
+drain.traps = [{ side: 'enemy', lane: 2, cardId: 'grate', level: 3 }]
+const grateFired = playClash(drain, 'player', 'lynx', 2)
+assert.equal(grateFired.units.find((u) => u.uid === 2141)?.hp, 10)
+assert.equal(grateFired.units.find((u) => u.uid === 2143)?.hp, 10)
+const suit = third('undertow', 'drysuit')
+suit.units = [1, 2, 3].map((lane) => follower('player', lane, 2150 + lane, 12))
+const armored = playClash(suit, 'player', 'drysuit', 2)
+assert.ok(armored.units.every((u) => u.snareWard))
+armored.active = 'enemy'
+armored.phase = 'play'
+armored.plays.enemy = 0
+armored.teams.enemy = 'undertow'
+armored.hands.enemy = ['blackout']
+const blockedRoot = playClash(armored, 'enemy', 'blackout', 1)
+assert.equal(blockedRoot.units.find((u) => u.uid === 2151)?.rooted, false)
+assert.equal(blockedRoot.units.find((u) => u.uid === 2151)?.snareWard, false)
+const debt = third('exchange', 'collection')
+debt.units = [
+  { ...follower('player', 1, 2161, 12, 2), keywords: ['collect'] },
+  follower('enemy', 2, 2162, 20),
+]
+const collected = playClash(debt, 'player', 'collection', 2)
+assert.equal(collected.boss.player, 32)
+assert.equal(collected.units.find((u) => u.uid === 2161)?.attack, 3)
+const fees = third('exchange', 'debttrap')
+const linkedFees = playClash(fees, 'player', 'debttrap', 2)
+assert.deepEqual(linkedFees.traps.map((u) => u.lane).sort(), [1, 2, 3])
+assert.equal(linkedFees.traps.filter((u) => u.token).length, 2)
+linkedFees.active = 'enemy'
+linkedFees.phase = 'play'
+linkedFees.plays.enemy = 0
+linkedFees.teams.enemy = 'undertow'
+linkedFees.hands.enemy = ['sonar']
+linkedFees.levels.enemy.sonar = 3
+const sweptFees = playClash(linkedFees, 'enemy', 'sonar', 2)
+assert.equal(sweptFees.traps.length, 0)
+assert.equal(sweptFees.discards.player.filter((id) => id === 'debttrap').length, 1, 'trap copies cannot mint new cards')
+const hush = third('exchange', 'hushmoney')
+hush.units = [{ ...follower('player', 2, 2172, 12), hp: 4 }]
+const funded = playClash(hush, 'player', 'hushmoney', 2)
+assert.equal(funded.boss.player, 32)
+assert.equal(funded.units[0]?.guard, 2)
+const driver = third('catgirls', 'merc-bus-driver')
+driver.units = [follower('player', 1, 2181), follower('player', 3, 2183)]
+const busTrip = playClash(driver, 'player', 'merc-bus-driver', 2)
+assert.equal(busTrip.units.length, 3)
+assert.notEqual(busTrip.units.find((u) => u.uid === 2181)?.lane, 1)
+assert.notEqual(busTrip.units.find((u) => u.uid === 2183)?.lane, 3)
+assert.equal(new Set(busTrip.units.filter((u) => u.side === 'player').map((u) => u.lane)).size, 3)
+const grandma = third('catgirls', 'merc-clock-grandma')
+grandma.active = 'enemy'
+grandma.phase = 'attack'
+grandma.units = [
+  { ...follower('player', 2, 2192, 10), cardId: 'merc-clock-grandma', level: 3 },
+  { ...follower('player', 1, 2191, 10), hp: 1 },
+  follower('enemy', 1, 2193, 12, 5),
+]
+const firstSave = strikeClash(grandma, 'enemy')
+assert.equal(firstSave.units.find((u) => u.uid === 2191)?.hp, 1)
+assert.equal(firstSave.units.find((u) => u.uid === 2192)?.grandmaSaveUsed, true)
+assert.equal(clashSpectacle(grandma, firstSave)?.cardId, 'merc-clock-grandma')
+const secondBlow = structuredClone(firstSave)
+secondBlow.cursor = 0
+secondBlow.units.find((u) => u.uid === 2193)!.attacked = false
+const outOfTime = strikeClash(secondBlow, 'enemy')
+assert.equal(outOfTime.units.some((u) => u.uid === 2191), false, 'grandma cannot loop rescues forever')
 
 // Balance acceptance (2026-11-07 Clash rebalance): CPU sweeps across every crew
 // pairing keep each crew and the first seat near even. Report:

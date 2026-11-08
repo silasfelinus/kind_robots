@@ -84,6 +84,7 @@
           :card-id="inspectCard.id"
           :note="previewLevel ? '' : inspectCard.note"
           :level="previewLevel ?? inspectCard.level"
+          :pick="previewLevel ? undefined : inspectCard.pick"
           :preview="!!previewLevel && previewLevel !== inspectCard.level"
         />
       </div>
@@ -162,7 +163,7 @@ import {
 const props = defineProps<{
   game: ClashState
   held: number | null
-  inspect: { id: string; note: string; level: number } | null
+  inspect: { id: string; note: string; level: number; pick?: 0 | 1 } | null
 }>()
 const emit = defineEmits<{
   pick: [index: number | null]

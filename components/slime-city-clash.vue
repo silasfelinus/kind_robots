@@ -296,6 +296,28 @@
         </p>
       </div>
     </footer>
+    <div
+      v-if="choiceStages && selectedCard"
+      class="clash-choice"
+      role="radiogroup"
+      aria-label="Choose this card's level three"
+      data-testid="clash-choice"
+    >
+      <span class="clash-choice-label">CHOOSE ONE · LV 3</span>
+      <button
+        v-for="(st, i) in choiceStages"
+        :key="st.title"
+        type="button"
+        role="radio"
+        :aria-checked="evoPick === i"
+        :class="{ on: evoPick === i }"
+        :data-testid="'clash-choice-' + i"
+        @click="evoPick = i === 1 ? 1 : 0"
+      >
+        <b>{{ st.title }}</b>
+        <small>{{ evoStageText(st, selectedCard.kind) }}</small>
+      </button>
+    </div>
     <SlimeCityClashHand
       :game="game"
       :held="heldIndex"
@@ -315,7 +337,7 @@ import {
   shallowRef,
   watch,
 } from 'vue'
-import { slimeArtId } from '~/utils/slimeCity/artManifest'
+import { slimeArtId, slimeCardArtId } from '~/utils/slimeCity/artManifest'
 import {
   cardById,
   teamById,
@@ -333,6 +355,7 @@ import {
   clashBossCap,
   clashPlayCost,
   clashPower,
+  clashLevel,
   clashUnitAt,
   createClash,
   endClashTurn,
@@ -346,6 +369,11 @@ import {
 } from '~/utils/slimeCity/clash'
 import { useSlimeCityStore } from '~/stores/slimeCity'
 import { factionPower } from '~/utils/slimeCity/factionPowers'
+import {
+  clashEvolutionChoice,
+  type EvoPick,
+} from '~/utils/slimeCity/clashEvolutions'
+import { evoStageText } from '~/utils/slimeCity/evolutions/dsl'
 import {
   clashSpectacle,
   type ClashSpectacle,
@@ -525,6 +553,19 @@ const selectedCard = computed<Card | null>(() => {
     heldIndex.value === null ? null : game.value.hands.player[heldIndex.value]
   return id ? cardById(id) : null
 })
+/** A held choose-one level three: its two options, and the one picked. */
+const evoPick = ref<EvoPick>(0)
+const choiceStages = computed(() =>
+  selectedCard.value
+    ? clashEvolutionChoice(
+        selectedCard.value.id,
+        clashLevel(game.value, 'player', selectedCard.value.id),
+      )
+    : undefined,
+)
+watch(heldIndex, () => {
+  evoPick.value = 0
+})
 const resultText = computed(() =>
   game.value.victor === 'player'
     ? 'YOU WIN!'
@@ -555,12 +596,14 @@ const inspect = computed<{
   id: string
   note: string
   level: number
+  pick?: EvoPick
 } | null>(() => {
   const u = game.value.units.find((v) => v.uid === selectedUnit.value)
   if (!u) return null
   return {
     id: u.cardId,
     level: u.level,
+    pick: u.evoChoice ?? 0,
     note:
       (u.side === 'player' ? 'Your fighter' : 'Rival fighter') +
       ' in alley ' +
@@ -594,7 +637,11 @@ function artFor(u: ClashUnit): number | null {
   const face =
     u.hp < u.maxHp ? 'hurt' : u.side === 'player' ? 'fierce' : 'guard'
   return (
-    slimeArtId('tokens', u.cardId + '/' + face) ?? slimeArtId('cards', u.cardId)
+    (u.level >= 2
+      ? slimeCardArtId(u.cardId, u.level, u.evoChoice ?? 0)
+      : null) ??
+    slimeArtId('tokens', u.cardId + '/' + face) ??
+    slimeCardArtId(u.cardId, u.level)
   )
 }
 function healthWidth(side: Side): string {
@@ -701,7 +748,7 @@ function clickSlot(side: Side, lane: number): void {
   }
   const card = selectedCard.value
   if (card && targetable(side, lane)) {
-    const next = playClash(game.value, 'player', card.id, lane)
+    const next = playClash(game.value, 'player', card.id, lane, evoPick.value)
     if (next === game.value) return
     const flourish = commit(next)
     heldIndex.value = null
@@ -1455,6 +1502,58 @@ function forecast(lane: number): string {
   .clash-float {
     animation-duration: 0.5s;
   }
+}
+/* A held choose-one level three: two option buttons above the hand. */
+.clash-choice {
+  position: absolute;
+  top: 0.75rem;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 7;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: stretch;
+  gap: 0.4rem;
+  width: min(34rem, calc(100% - 2rem));
+  padding: 0.45rem;
+  border: 2px solid var(--neon);
+  border-radius: 0.8rem;
+  background: #071115;
+  box-shadow: 0 0.4rem 1.4rem #000a;
+}
+.clash-choice-label {
+  flex: 1 0 100%;
+  text-align: center;
+  font-size: 0.6rem;
+  font-weight: 900;
+  letter-spacing: 0.1em;
+  color: var(--neon);
+}
+.clash-choice button {
+  flex: 1 1 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  padding: 0.35rem 0.55rem;
+  border: 2px solid #ffffff33;
+  border-radius: 0.6rem;
+  background: #0b2026;
+  color: var(--ink);
+  text-align: left;
+  font: inherit;
+  cursor: pointer;
+}
+.clash-choice button.on {
+  border-color: var(--neon);
+  box-shadow: 0 0 0.8rem #b9f15166;
+}
+.clash-choice b {
+  font-size: 0.75rem;
+}
+.clash-choice small {
+  font-size: 0.65rem;
+  line-height: 1.25;
+  opacity: 0.85;
 }
 /* Fixed hand zone: the floating hand overlays it, so turns never resize the board. */
 .clash {

@@ -10,6 +10,7 @@ import {
   createClash,
 } from '../slimeCity/clash'
 import { CLASH_EVOLUTIONS } from '../slimeCity/clashEvolutions'
+import { sweepAlliance } from './slimeCityAllianceBalanceReport'
 
 const crews = TEAMS.map((t) => t.id)
 const mercenaries = CARDS.filter((c) => c.team === 'mercenary').map((c) => c.id)
@@ -207,3 +208,28 @@ console.log(
 )
 for (const group of duplicateJourneys.slice(0, 12))
   console.log('  duplicate mechanical journey: ' + group.join(' / '))
+
+// Alliance powers and cross-faction pairings are also part of modern CLASH.
+// Existing alliance decks are checked from both seats with fresh seeds.
+const alliance = sweepAlliance(5, 24001)
+assert.equal(alliance.games, 150)
+console.log(
+  'Alliance CLASH: ' +
+    alliance.games +
+    ' seeded games; ' +
+    pct(alliance.firstSeatWins, alliance.games - alliance.draws) +
+    ' first-seat wins; ' +
+    pct(alliance.draws, alliance.games) +
+    ' draws',
+)
+for (const team of crews) {
+  const result = alliance.generals[team]!
+  const power = alliance.powers[team]!
+  console.log(
+    '  ' +
+      team.padEnd(14) +
+      pct(result.wins, result.games) +
+      ' general wins, power used ' +
+      pct(power.used, result.games),
+  )
+}

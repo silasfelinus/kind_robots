@@ -600,6 +600,8 @@ function startTurn(s: ClashState, side: Side): void {
       guarded = guardian.level === 3 ? adjacent : adjacent.slice(0, 1)
       shield = 2
     }
+    if (guardian.cardId === 'merc-clock-grandma')
+      guarded = adjacent
     for (const ally of guarded)
       ally.guard = clamp((ally.guard ?? 0) + shield, 0, 3)
   }
@@ -1142,6 +1144,26 @@ export function playClash(
       )
       if (free !== undefined) summonEcho(s, side, id, free, 2, 1, ['ambush'])
     }
+    if (id === 'merc-bus-driver' && level >= 2 && unit.hp > 0) {
+      const passengers = s.units
+        .filter((friend) =>
+          friend.side === side &&
+          friend.uid !== unit.uid &&
+          Math.abs(friend.lane - lane) === 1,
+        )
+        .sort((a, b) => a.lane - b.lane)
+      for (const passenger of (level === 3 ? passengers : passengers.slice(0, 1))) {
+        const destination = nearestFreeAlley(s, side, lane)
+        if (destination < 0) break
+        passenger.lane = destination
+        note(s, 'Gutterbus reroutes ' + nameOf(passenger) + ' to alley ' + (destination + 1) + '.', 'play', destination)
+        const hazard = s.traps.find((t) => t.side === foe && t.lane === destination)
+        if (hazard) {
+          springTrap(s, hazard, passenger)
+          casualties(s)
+        }
+      }
+    }
     if (
       (id === 'sprite' || id === 'merc-smog-moth') &&
       level >= 2 &&
@@ -1201,6 +1223,26 @@ export function playClash(
       switch (card.effect) {
         case 'heal':
           target.hp = Math.min(target.maxHp, target.hp + power)
+          if (id === 'hushmoney' && level >= 2) {
+            s.boss[side] = Math.min(
+              clashBossCap(s, side),
+              s.boss[side] + (level === 3 ? 2 : 1),
+            )
+            if (level === 3) target.guard = clamp((target.guard ?? 0) + 2, 0, 3)
+          }
+          if (id === 'ducttape' && level >= 2) {
+            target.armor = clamp(target.armor + 1, 0, 3)
+            if (level === 3) {
+              const ledger = s.fallen?.[side] ?? []
+              const free = nearestFreeAlley(s, side, lane)
+              if (free >= 0 && ledger.length) {
+                const recoveredId = ledger.pop()!
+                summonEcho(s, side, recoveredId, free, 3, 1)
+                const rebuilt = unitAt(s, side, free)
+                if (rebuilt?.token) rebuilt.armor = 1
+              }
+            }
+          }
           if (id === 'reknit' && level >= 2) {
             for (const friend of s.units.filter(
               (u) => u.side === side && Math.abs(u.lane - lane) === 1,
@@ -1221,6 +1263,17 @@ export function playClash(
         case 'armor':
           target.armor = clamp(target.armor + (level >= 3 ? 2 : 1), 0, 3)
           target.hp = Math.min(target.maxHp, target.hp + (level - 1) * 2)
+          if (id === 'drysuit' && level >= 2) {
+            target.snareWard = true
+            target.rooted = false
+            if (level === 3)
+              for (const friend of s.units.filter(
+                (u) => u.side === side && Math.abs(u.lane - lane) === 1,
+              )) {
+                friend.snareWard = true
+                friend.rooted = false
+              }
+          }
           if (id === 'plating' && level >= 2)
             for (const friend of s.units.filter(
               (u) =>
@@ -1237,6 +1290,21 @@ export function playClash(
           if (card.kind === 'equipment')
             target.attack = clamp(target.attack + profile.bonus, 1, 10)
           else target.surge += power
+          if (id === 'overclock' && level >= 2) {
+            target.surge += level === 3 ? 4 : 2
+            damage(target, level === 3 ? 3 : 1)
+            if (level === 3)
+              for (const rival of s.units.filter(
+                (u) => u.side === foe && Math.abs(u.lane - lane) === 1,
+              ))
+                damage(rival, 2)
+          }
+          if (id === 'drink' && level >= 2) {
+            const success = random(s) < (level === 3 ? 0.75 : 0.5)
+            if (success) target.surge += level === 3 ? 6 : 2
+            else damage(target, level === 3 ? 2 : 1)
+            note(s, success ? 'Hold My Drink pays off!' : 'Hold My Drink spills!', 'clash', lane)
+          }
           if (id === 'pounce') {
             target.ambushUsed = false
             if (level >= 2) {
@@ -1257,6 +1325,10 @@ export function playClash(
             if (!target.keywords.includes(keyword))
               target.keywords.push(keyword)
           target.attack = clamp(target.attack + (level - 1), 1, 10)
+          if (id === 'ninthlife' && level >= 2)
+            target.ninthLife = level
+          if (id === 'fusevest' && level >= 2)
+            (target.gearLevels ??= {})[id] = level
           if (id === 'handshake' && level >= 2) {
             for (const friend of s.units.filter(
               (u) =>
@@ -1269,12 +1341,14 @@ export function playClash(
         case 'root':
           stun(target)
           if (level > 1) damage(target, level - 1)
-          if (id === 'laser' && level >= 2) {
+          if ((id === 'laser' || id === 'blackout') && level >= 2) {
             const nearby = s.units.filter(
               (u) => u.side === foe && Math.abs(u.lane - lane) === 1,
             )
-            for (const rival of level === 3 ? nearby : nearby.slice(0, 1))
+            for (const rival of level === 3 ? nearby : nearby.slice(0, 1)) {
               stun(rival)
+              if (id === 'blackout' && level === 3) damage(rival, 1)
+            }
           }
           break
         case 'snare':

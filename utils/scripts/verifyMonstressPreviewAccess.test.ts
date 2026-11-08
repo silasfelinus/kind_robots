@@ -61,10 +61,37 @@ for (const legacy of [
 ])
   assert.match(read(legacy), /navigateTo\('\/admin\/monstrique'/)
 const tab = read('content/channels/admin/monstress-convention.md')
+const launcher = read('components/navigation/channel-select.vue')
+const matureToggle = read('components/navigation/maturity-toggle.vue')
 assert.match(tab, /requiredRole: ADMIN/)
 assert.match(tab, /requiredPermission: mature/)
 assert.doesNotMatch(tab, /route: \/play\//)
 assert.match(tab, /route: \/admin\/monstrique/)
+assert.equal(
+  (launcher.match(/<MaturityToggle\b/g) ?? []).length,
+  2,
+  'adult consent is reachable in both desktop and phone Admin launcher',
+)
+assert.match(
+  launcher,
+  /previewedChannel\.channelKey === 'admin'\s*&&\s*showMatureAdminOptIn/,
+)
+assert.match(
+  launcher,
+  /channel\.channelKey === 'admin' && showMatureAdminOptIn/,
+)
+assert.match(launcher, /!userStore\.isMaturityRestricted/)
+assert.match(launcher, /!userStore\.showMature/)
+assert.match(launcher, /Mature studios are hidden/)
+assert.doesNotMatch(
+  launcher,
+  /Monstrique|monstress-convention/,
+  'a mature-off Admin should see a generic opt-in, not the name of a restricted game',
+)
+assert.match(
+  matureToggle,
+  /accountStore\.updateConsent\(\{ showMature: value \}\)/,
+)
 
 function frontmatter(markdown: string): ChannelContentItem {
   return parseYaml(markdown.split('---')[1] ?? '') as ChannelContentItem

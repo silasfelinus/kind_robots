@@ -58,6 +58,7 @@
             fallback="⚡"
             compact
           />
+          <SlimeCityClashMoment :moment="spectacle" />
           <div class="clash-lane-numbers">
             <span v-for="lane in lanes" :key="lane">ALLEY {{ lane + 1 }}</span>
           </div>
@@ -314,6 +315,10 @@ import {
 } from '~/utils/slimeCity/clash'
 import { useSlimeCityStore } from '~/stores/slimeCity'
 import { cpuAlliance, factionPower } from '~/utils/slimeCity/alliance'
+import {
+  clashSpectacle,
+  type ClashSpectacle,
+} from '~/utils/slimeCity/clashSpectacle'
 
 const STRIKE_WINDUP_MS = 320
 const STRIKE_SETTLE_MS = 560
@@ -357,6 +362,8 @@ const selectedUnit = ref<number | null>(null)
 const lunge = ref<{ side: Side; lane: number } | null>(null)
 const impact = ref<ClashStrike | null>(null)
 const impactKey = ref(0)
+const spectacle = shallowRef<(ClashSpectacle & { key: number }) | null>(null)
+let spectacleKey = 0
 const pace = ref(1)
 let timer: ReturnType<typeof setTimeout> | null = null
 
@@ -368,6 +375,14 @@ const busy = computed(
 function stopTimer(): void {
   if (timer) clearTimeout(timer)
   timer = null
+}
+/** Every flourish is derived from the same committed command as the game. */
+function commit(next: ClashState): number {
+  const cue = clashSpectacle(game.value, next)
+  game.value = next
+  if (!cue) return 0
+  spectacle.value = { ...cue, key: ++spectacleKey }
+  return cue.grade === 'legend' ? 1550 : cue.grade === 'feature' ? 1100 : 0
 }
 function schedule(ms: number): void {
   stopTimer()
@@ -391,7 +406,7 @@ function advance(): void {
     if (lane < 0) {
       lunge.value = null
       impact.value = null
-      game.value = endClashTurn(s, s.active)
+      commit(endClashTurn(s, s.active))
       if (busy.value) schedule(CPU_PLAY_MS)
       return
     }
@@ -401,18 +416,18 @@ function advance(): void {
       schedule(STRIKE_WINDUP_MS)
       return
     }
-    game.value = strikeClash(s, s.active)
+    const flourish = commit(strikeClash(s, s.active))
     impact.value = game.value.strike
     impactKey.value++
-    schedule(STRIKE_SETTLE_MS)
+    schedule(Math.max(STRIKE_SETTLE_MS, flourish))
     return
   }
   if (s.active !== 'enemy') return
-  game.value = applyClashCommand(s, chooseClashCpu(s))
-  schedule(CPU_PLAY_MS)
+  const flourish = commit(applyClashCommand(s, chooseClashCpu(s)))
+  schedule(Math.max(CPU_PLAY_MS, flourish))
 }
-function kick(): void {
-  if (busy.value && !timer) schedule(CPU_PLAY_MS)
+function kick(delay = 0): void {
+  if (busy.value && !timer) schedule(Math.max(CPU_PLAY_MS, delay))
 }
 function newMatch(): void {
   stopTimer()
@@ -420,6 +435,7 @@ function newMatch(): void {
   selectedUnit.value = null
   lunge.value = null
   impact.value = null
+  spectacle.value = null
   powerArmed.value = false
   seed++
   game.value = createClash(
@@ -553,7 +569,7 @@ const powerReady = computed(
 function firePower(): void {
   if (!powerReady.value) return
   if (myPower.value.target === 'none') {
-    game.value = useClashPower(game.value, 'player')
+    commit(useClashPower(game.value, 'player'))
     heldIndex.value = null
     return
   }
@@ -605,7 +621,7 @@ function slotLabel(side: Side, lane: number): string {
 function clickSlot(side: Side, lane: number): void {
   if (powerArmed.value) {
     if (targetable(side, lane)) {
-      game.value = useClashPower(game.value, 'player', lane)
+      commit(useClashPower(game.value, 'player', lane))
       powerArmed.value = false
       selectedUnit.value = null
     }
@@ -615,10 +631,10 @@ function clickSlot(side: Side, lane: number): void {
   if (card && targetable(side, lane)) {
     const next = playClash(game.value, 'player', card.id, lane)
     if (next === game.value) return
-    game.value = next
+    const flourish = commit(next)
     heldIndex.value = null
     selectedUnit.value = null
-    kick()
+    kick(flourish)
     return
   }
   const targetUnit = unit(side, lane)
@@ -630,7 +646,7 @@ function clickSlot(side: Side, lane: number): void {
 }
 function pass(): void {
   if (busy.value || game.value.active !== 'player' || game.value.victor) return
-  game.value = passClash(game.value, 'player')
+  commit(passClash(game.value, 'player'))
   heldIndex.value = null
   kick()
 }

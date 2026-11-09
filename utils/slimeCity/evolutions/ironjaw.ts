@@ -131,9 +131,9 @@ export const IRONJAW_EVOLUTIONS: Record<string, CardEvolution> = {
   },
   // Signature: take the hit and share protection with the assembly.
   // L1 is an armored BULLDOZE body that shields one neighbor on arrival.
-  // L2 reinforces that promise after a hit; L3 begins with a dangerous
-  // plate-shedding shockwave and grows each full round it survives while
-  // holding the line. The -4 L3 opening life is intentional counterplay.
+  // L2 reinforces that promise after a hit. L3 cashes in the saved time:
+  // its thunderhead abandons direct support for a plate-shedding shockwave
+  // and growing threat on every full round it survives. The -4 L3 opening life is intentional counterplay.
   // Combo: Union Bridgebearer's fresh 1/2 workers gain shield, then
   // its L2/L3 aura turns the surviving picket into real pressure.
   // Counterplay: pierce/burst before round end, clear the adjacent
@@ -145,13 +145,8 @@ export const IRONJAW_EVOLUTIONS: Record<string, CardEvolution> = {
       on('hit', guard(1, 'adjacentAllies'), life(1, 'self')),
     ]),
     3: stage('Thunderhead of Scrap', [
-      on('enter', guard(2, 'adjacentAllies'), damage(2, 'laneFoes')),
-      on(
-        'roundEnd',
-        guard(1, 'adjacentAllies'),
-        life(1, 'self'),
-        sharpen(1, 'self'),
-      ),
+      on('enter', damage(2, 'laneFoes')),
+      on('roundEnd', life(1, 'self'), sharpen(1, 'self')),
     ]),
   },
   // Arc: the union lunch lady -> a soup line for the fighters beside her ->

@@ -15,6 +15,7 @@ import {
 } from './campaign'
 import { TEAMS, loadoutProblems, type TeamId } from './prototypes'
 import { campaignCardChoices } from './campaignCardRewards'
+import { freshTower, validTowerSave, type TowerSave } from './allianceTower'
 import type { CampaignSave } from './campaign'
 import { validAllianceDeck, validSoloDeck, type AllianceDeck } from './alliance'
 
@@ -23,6 +24,8 @@ export interface SlimeCityStory {
   revision: number
   city: CityState
   campaigns: CampaignSave
+  /** Solo narrative and Alliance roguelike have independent saves. */
+  tower?: TowerSave
   /** Saved practice decks; omitted for older saves. */
   decks?: Partial<Record<TeamId, string[]>>
   /**
@@ -67,6 +70,7 @@ export function newSlimeCityStory(): SlimeCityStory {
     revision: 0,
     city: createCity(),
     campaigns: createCampaignSave(),
+    tower: freshTower(),
   }
 }
 
@@ -148,6 +152,7 @@ export function validSlimeCityStory(raw: unknown): raw is SlimeCityStory {
     return false
   if (raw.storyParity !== undefined && typeof raw.storyParity !== 'boolean')
     return false
+  if (raw.tower !== undefined && !validTowerSave(raw.tower)) return false
   if (raw.decks !== undefined) {
     if (!record(raw.decks)) return false
     for (const [team, deck] of Object.entries(raw.decks)) {

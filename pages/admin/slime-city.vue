@@ -39,6 +39,12 @@
           <nav class="sc-tabs" aria-label="Slime City modes">
             <button
               type="button"
+              :class="{ active: lab.view === 'home' }"
+              data-testid="slime-home-tab"
+              @click="lab.view = 'home'"
+            >HOME</button>
+            <button
+              type="button"
               class="sc-main-mode"
               :class="{ active: lab.view === 'clash' }"
               data-testid="slime-clash-tab"
@@ -79,6 +85,12 @@
             >
               COLLECTION
             </button>
+            <button
+              type="button"
+              :class="{ active: lab.view === 'settings' }"
+              data-testid="slime-settings-tab"
+              @click="lab.view = 'settings'"
+            >SETTINGS</button>
           </nav>
           <div
             class="sc-hud"
@@ -112,7 +124,84 @@
 
       <div class="sc-main">
         <section
-          v-if="lab.view === 'city'"
+          v-if="lab.view === 'home'"
+          class="sc-stage sc-home"
+          aria-label="Slime City title screen"
+          data-testid="slime-home"
+        >
+          <SlimeCityArtwork
+            class="sc-home-art"
+            :image-id="slimeArtId('districts', lab.districtId)"
+            :alt="lab.district.name + ' skyline'"
+            fallback="▧"
+          />
+          <div class="sc-home-scrim"></div>
+          <div class="sc-home-copy">
+            <small>WELCOME TO THE PIT</small>
+            <h1>SLIME <span>CITY</span></h1>
+            <p>Six crews. Three lives for every card. One city to take back.</p>
+            <nav class="sc-home-actions" aria-label="Start Slime City">
+              <button
+                type="button"
+                class="sc-home-primary"
+                data-testid="slime-home-play"
+                @click="lab.playClashFormat()"
+              >ENTER CLASH</button>
+              <button type="button" @click="lab.showCampaign()">CREW STORY</button>
+              <button type="button" @click="lab.showCity()">EXPLORE THE CITY</button>
+              <button type="button" @click="lab.showCards()">BUILD A DECK</button>
+              <button type="button" @click="lab.view = 'settings'">SETTINGS</button>
+            </nav>
+          </div>
+          <SlimeCityArtwork
+            class="sc-home-crew"
+            :image-id="slimeArtId('crews', lab.activeTeam)"
+            :alt="lab.team.name"
+            :fallback="lab.team.insignia"
+          />
+        </section>
+        <section
+          v-else-if="lab.view === 'settings'"
+          class="sc-stage sc-settings kr-scroll"
+          aria-label="Slime City settings"
+          data-testid="slime-settings"
+        >
+          <h1>GAME SETTINGS</h1>
+          <p>Choose how the next Clash starts. Your current fight is not affected.</p>
+          <fieldset>
+            <legend>DEFAULT CLASH DECK</legend>
+            <button
+              type="button"
+              :aria-pressed="lab.clashFormat === 'solo'"
+              @click="lab.clashFormat = 'solo'; lab.deckFormat = 'solo'"
+            >SOLO · 20 CARDS</button>
+            <button
+              type="button"
+              :aria-pressed="lab.clashFormat === 'alliance'"
+              @click="lab.clashFormat = 'alliance'; lab.deckFormat = 'alliance'"
+            >ALLIANCE · 20 CARDS</button>
+          </fieldset>
+          <fieldset>
+            <legend>COLLECTION ACCESS</legend>
+            <button
+              type="button"
+              :aria-pressed="lab.unlockMode === 'all'"
+              :disabled="!lab.storyLoaded || lab.storySaving"
+              @click="lab.setUnlockMode('all')"
+            >ALL 300 CARDS</button>
+            <button
+              type="button"
+              :aria-pressed="lab.unlockMode === 'trickle'"
+              :disabled="!lab.storyLoaded || lab.storySaving"
+              @click="lab.setUnlockMode('trickle')"
+            >UNLOCK THROUGH PLAY</button>
+            <small v-if="!lab.storyLoaded">Sign in to change saved collection access.</small>
+          </fieldset>
+          <p>Tap a collection card to inspect its rules and evolutions. Every Clash deck contains exactly 20 unique cards.</p>
+          <button type="button" class="sc-settings-back" @click="lab.view = 'home'">BACK TO TITLE</button>
+        </section>
+        <section
+          v-else-if="lab.view === 'city'"
           class="sc-stage"
           :aria-label="
             lab.cityScene === 'map'

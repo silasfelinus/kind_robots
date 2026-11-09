@@ -96,7 +96,8 @@ function drawScene(seconds: number): void {
   for (let i = 0; i < BOATS; i += 1) {
     const lane = height * (0.34 + (i % 4) * 0.12)
     const speed = 0.02 + i * 0.006
-    const progress = ((seconds * speed + drift * (1 + i * 0.1) + i * 0.19) % 1.2) - 0.1
+    const progress =
+      ((seconds * speed + drift * (1 + i * 0.1) + i * 0.19) % 1.2) - 0.1
     const x = progress * width
     const bob = Math.sin(seconds * 1.4 + i * 1.3)
     const y = lane + bob * unit * 0.05

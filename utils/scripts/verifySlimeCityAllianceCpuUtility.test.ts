@@ -22,7 +22,7 @@ const fighter = (lane: number): ClashUnit => ({
 })
 
 // Earlier the Alliance CPU skipped all gear synergy and generic investment
-// payoffs, leaving useful two-play cards unplayed in 30-card drafts.
+// payoffs, leaving useful two-play cards unplayed in 20-card drafts.
 {
   const s = createClash('catgirls', 'riot', 507, {
     alliance: {

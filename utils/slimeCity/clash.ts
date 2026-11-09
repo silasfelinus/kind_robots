@@ -3079,7 +3079,8 @@ function cpuEvolutionPayoff(
   // swing turns. Discount speculative evolution payoffs in that format;
   // the board-read still chooses between actual useful stage effects.
   return (
-    clamp(abilities + passive, -6, 14) * (s.format === 'alliance' ? 0.35 : 0.65)
+    clamp(abilities + passive + (clashEffectivePlayCost(s, side, card) === 0 ? 3 : 0), -6, 14) *
+    (s.format === 'alliance' ? 0.35 : 0.65)
   )
 }
 

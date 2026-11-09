@@ -229,6 +229,84 @@
       </div>
     </div>
 
+    <div
+      v-else-if="lab.geneRiotCurrent && lab.activeChapter"
+      class="campaign-scene campaign-journey"
+      data-testid="slime-gene-riot-scene"
+    >
+      <article class="campaign-panel kr-scroll" aria-live="polite">
+        <span class="campaign-overline">
+          {{ lab.campaignStory.title }} · ACT {{ lab.campaignState.wins + 1 }} /
+          5 · SCENE
+          {{
+            (lab.campaignState.journey?.[lab.campaignState.wins]?.length ?? 0) +
+            1
+          }}
+          / 3
+        </span>
+        <h3>{{ lab.geneRiotCurrent.title }}</h3>
+        <div class="campaign-voice player">
+          <SlimeCityArtwork
+            class="campaign-voice-portrait"
+            :image-id="slimeArtId('crews', 'catgirls')"
+            :alt="lab.geneRiotCurrent.speaker"
+            :fallback="lab.team.insignia"
+            compact
+          />
+          <div>
+            <small>{{ lab.geneRiotCurrent.speaker }}</small>
+            <p class="campaign-lede">{{ lab.geneRiotText }}</p>
+          </div>
+        </div>
+        <div
+          v-if="lab.geneRiotOutcome"
+          class="campaign-recap"
+          data-testid="slime-gene-riot-consequence"
+        >
+          <strong>WHAT YOUR LAST CHOICE CHANGED</strong>
+          <p>{{ lab.geneRiotOutcome }}</p>
+        </div>
+      </article>
+      <div class="campaign-deck" :class="'tone-' + lab.team.color">
+        <span class="campaign-overline"
+          >THE NINTH LIFE PROTOCOL · YOUR DECISION</span
+        >
+        <KrChoiceHand
+          :choices="geneRiotChoices"
+          :deal-key="
+            lab.activeTeam +
+            ':journey:' +
+            lab.campaignState.wins +
+            ':' +
+            (lab.campaignState.journey?.[lab.campaignState.wins]?.length ?? 0)
+          "
+          question="CHOOSE HOW THE CREW ACTS"
+          testid-prefix="slime-gene-riot-choice"
+          @play="playGeneRiot"
+        >
+          <template #art="{ choice }">
+            <SlimeCityArtwork
+              :image-id="
+                slimeArtId(
+                  'crews',
+                  choice.id === 'left'
+                    ? 'catgirls'
+                    : (lab.activeChapter?.foe ?? 'undertow'),
+                )
+              "
+              :alt="choice.label"
+              :fallback="
+                crewInsignia(
+                  choice.id === 'left' ? 'catgirls' : lab.activeChapter.foe,
+                )
+              "
+              compact
+            />
+          </template>
+        </KrChoiceHand>
+      </div>
+    </div>
+
     <div v-else-if="lab.activeChapter" class="campaign-scene">
       <article class="campaign-panel kr-scroll">
         <span class="campaign-overline">
@@ -240,6 +318,14 @@
           {{ lab.campaignStory.prologue }}
         </p>
         <p class="campaign-lede">{{ lab.activeChapter.scene }}</p>
+        <div
+          v-if="lab.geneRiotOutcome && lab.activeTeam === 'catgirls'"
+          class="campaign-recap"
+          data-testid="slime-gene-riot-last-decision"
+        >
+          <strong>THE PRICE OF YOUR DECISION</strong>
+          <p>{{ lab.geneRiotOutcome }}</p>
+        </div>
         <section
           v-if="lab.chapterField"
           class="campaign-field"
@@ -256,8 +342,9 @@
             </li>
           </ul>
           <p v-else class="campaign-field-note">
-            Story bouts are set to TURF, which has no bases or fighters to
-            rebuild: this chapter plays on an open TURF board.
+            This historical battlefield briefing is from Legacy mode. Your
+            actual showdown is Solo Clash; your choices change starting boss
+            life.
           </p>
         </section>
         <div
@@ -327,7 +414,7 @@
         <SlimeCityFavors heading="EARNED SUPPORT · NEXT FIGHT" />
         <KrChoiceHand
           :choices="approachChoices"
-          question="CHOOSE YOUR APPROACH · BLACKOUT RULES"
+          question="CHOOSE YOUR APPROACH · SOLO CLASH"
           :deal-key="lab.activeTeam + ':' + lab.campaignState.wins"
           testid-prefix="slime-campaign-choice"
           @play="playApproach"
@@ -369,6 +456,8 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { campaignBattleTerms, describeTerms } from '~/utils/slimeCity/campaign'
+import { clashTermsLabel } from '~/utils/slimeCity/clashBouts'
+import { geneRiotBattleTerms } from '~/utils/slimeCity/campaignGeneRiot'
 import { rarityOf } from '~/utils/slimeCity/progression'
 import { slimeArtId } from '~/utils/slimeCity/artManifest'
 import { useSlimeCityStore } from '~/stores/slimeCity'
@@ -460,17 +549,39 @@ function approachCrew(id: string): TeamId {
     ? lab.activeChapter.foe
     : lab.activeTeam
 }
+const geneRiotChoices = computed<KrHandChoice[]>(() =>
+  (lab.geneRiotCurrent?.choices ?? []).map((option) => ({
+    id: option.id,
+    label: option.label,
+    chip: option.id === 'left' ? 'HELP THE CREW' : 'TAKE THE RISK',
+    details: ['Changes the upcoming fight and the crew’s story.'],
+  })),
+)
+function playGeneRiot(choice: KrHandChoice) {
+  if (choice.id === 'left' || choice.id === 'right')
+    lab.chooseGeneRiotBeat(choice.id)
+}
 const approachChoices = computed<KrHandChoice[]>(() =>
   (lab.activeChapter?.choices ?? []).map((choice) => ({
     id: choice.id,
     label: choice.label,
-    chip: describeTerms(
-      campaignBattleTerms(
-        lab.campaignSave,
-        lab.activeTeam,
-        choice.terms,
-        lab.campaignFavorIndex,
-      ),
+    chip: clashTermsLabel(
+      lab.activeTeam === 'catgirls'
+        ? geneRiotBattleTerms(
+            lab.campaignState,
+            campaignBattleTerms(
+              lab.campaignSave,
+              lab.activeTeam,
+              choice.terms,
+              lab.campaignFavorIndex,
+            ),
+          )
+        : campaignBattleTerms(
+            lab.campaignSave,
+            lab.activeTeam,
+            choice.terms,
+            lab.campaignFavorIndex,
+          ),
     ),
     badge: choice.id === 'conviction' ? 'Conviction' : 'Cunning',
   })),

@@ -150,8 +150,21 @@
         </template>
       </article>
       <div class="scs-deck">
+        <button
+          v-if="lab.geneRiotCurrent"
+          type="button"
+          class="scs-cta"
+          data-testid="slime-city-gene-riot-continue"
+          @click="lab.showCampaign()"
+        >
+          CONTINUE THE NINTH LIFE PROTOCOL · SCENE
+          {{
+            (lab.campaignState.journey?.[lab.campaignState.wins]?.length ?? 0) +
+            1
+          }}/3
+        </button>
         <KrChoiceHand
-          v-if="lab.campaignAtDestination"
+          v-else-if="lab.campaignAtDestination"
           :choices="missionHand"
           question="CHOOSE YOUR APPROACH · WITH STREET CHOICES"
           :deal-key="lab.activeTeam + ':' + lab.campaignState.wins"

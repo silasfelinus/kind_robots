@@ -24,6 +24,15 @@ import {
 } from '../utils/slimeCity/campaign'
 import { campaignConversationFor } from '../utils/slimeCity/campaignDialogue'
 import {
+  geneRiotScene,
+  geneRiotSceneText,
+  geneRiotLastOutcome,
+  geneRiotBattleTerms,
+  geneRiotEpilogue,
+  chooseGeneRiotScene,
+  type GeneRiotPick,
+} from '../utils/slimeCity/campaignGeneRiot'
+import {
   campaignCardChoices,
   campaignSoloDeck,
   chooseCampaignCard,
@@ -557,6 +566,31 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
 
   const campaignStory = computed(() => FACTION_CAMPAIGNS[activeTeam.value])
   const campaignState = computed(() => campaignSave.value[activeTeam.value])
+  const geneRiotCurrent = computed(() =>
+    activeTeam.value === 'catgirls' ? geneRiotScene(campaignState.value) : null,
+  )
+  const geneRiotText = computed(() =>
+    geneRiotCurrent.value
+      ? geneRiotSceneText(campaignState.value, geneRiotCurrent.value)
+      : '',
+  )
+  const geneRiotOutcome = computed(() =>
+    activeTeam.value === 'catgirls'
+      ? geneRiotLastOutcome(campaignState.value)
+      : null,
+  )
+  function chooseGeneRiotBeat(id: GeneRiotPick): void {
+    if (
+      !storyEditable() ||
+      activeTeam.value !== 'catgirls' ||
+      campaignRewardChoices.value
+    )
+      return
+    const next = chooseGeneRiotScene(campaignSave.value, id)
+    if (next === campaignSave.value) return
+    campaignSave.value = next
+    persistStory()
+  }
   const campaignRewardChoices = computed(() =>
     campaignCardChoices(campaignSave.value, activeTeam.value),
   )
@@ -636,9 +670,14 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
     const field = campaignBattlefield(current.team, current.index)
     return field ? { ...field, label: OBJECTIVE_LABELS[field.objective] } : null
   })
-  const campaignFinale = computed(() =>
-    campaignEnding(campaignSave.value, activeTeam.value),
-  )
+  const campaignFinale = computed(() => {
+    const ending = campaignEnding(campaignSave.value, activeTeam.value)
+    return ending && activeTeam.value === 'catgirls'
+      ? [ending, geneRiotEpilogue(campaignState.value)]
+          .filter(Boolean)
+          .join(' ')
+      : ending
+  })
   /** A finished campaign's chosen favor, carried into rivals and contracts. */
   const campaignLegacy = computed(() =>
     campaignLegacyFor(
@@ -1525,7 +1564,12 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
   }
   function startCampaignBattle(choiceId: CampaignApproach): void {
     if (!storyEditable()) return
-    if (campaignBout.value || campaignRewardChoices.value) return
+    if (
+      campaignBout.value ||
+      campaignRewardChoices.value ||
+      geneRiotCurrent.value
+    )
+      return
     const fromCity =
       view.value === 'city' &&
       campaignAtDestination.value &&
@@ -1545,14 +1589,26 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
     launchStoryClash(
       'campaign',
       chapter.foe,
-      campaignBattleTerms(
-        campaignSave.value,
-        teamId,
-        fromCity
-          ? storyMissionTerms(city.value, districtId.value, choice.terms)
-          : choice.terms,
-        campaignFavorIndex.value,
-      ),
+      teamId === 'catgirls'
+        ? geneRiotBattleTerms(
+            campaignSave.value.catgirls,
+            campaignBattleTerms(
+              campaignSave.value,
+              teamId,
+              fromCity
+                ? storyMissionTerms(city.value, districtId.value, choice.terms)
+                : choice.terms,
+              campaignFavorIndex.value,
+            ),
+          )
+        : campaignBattleTerms(
+            campaignSave.value,
+            teamId,
+            fromCity
+              ? storyMissionTerms(city.value, districtId.value, choice.terms)
+              : choice.terms,
+            campaignFavorIndex.value,
+          ),
     )
   }
 
@@ -1867,6 +1923,10 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
     campaignState,
     campaignRewardChoices,
     chooseCampaignCardReward,
+    geneRiotCurrent,
+    geneRiotText,
+    geneRiotOutcome,
+    chooseGeneRiotBeat,
     campaignConversation,
     campaignAftermath,
     campaignEcho,

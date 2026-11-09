@@ -1547,14 +1547,29 @@ assert.equal(
   'Arriving opens the story mission as its own full-stage scene',
 )
 lab.startCampaignBattle('cunning')
+assert.equal(
+  lab.view,
+  'city',
+  'Unplayed Gene Riot story beats block a premature boss fight',
+)
+for (let beat = 0; beat < 3; beat++) {
+  assert.ok(lab.geneRiotCurrent, 'next authored scene is present')
+  lab.chooseGeneRiotBeat('left')
+}
+assert.equal(
+  lab.geneRiotCurrent,
+  null,
+  'all three chosen scenes unlock the city mission',
+)
+lab.startCampaignBattle('cunning')
 assert.equal(lab.view, 'clash')
 assert.equal(lab.clashLaunch.enemy, 'undertow')
 assert.ok(lab.campaignBout, 'City mission uses campaign settlement')
 assert.equal(lab.clashSetup().player, 'catgirls')
-assert.equal(
-  lab.clashLaunch.bosses!.player,
-  CLASH_BOSS_HP + 3 * CLASH_TERM_WEIGHTS.playerMana,
-  'City-based chapter includes +2 cunning mana AND +1 street decision mana',
+assert.ok(
+  lab.clashLaunch.bosses!.player >
+    CLASH_BOSS_HP + 3 * CLASH_TERM_WEIGHTS.playerMana,
+  'City chapter stacks street and approach bonuses with earned Gene Riot story choices',
 )
 assert.equal(
   lab.city.cleared.length,

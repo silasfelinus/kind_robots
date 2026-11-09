@@ -15,6 +15,7 @@ import {
 } from './campaign'
 import { TEAMS, loadoutProblems, type TeamId } from './prototypes'
 import { campaignCardChoices } from './campaignCardRewards'
+import { validGeneRiotJourney } from './campaignGeneRiot'
 import { freshTower, validTowerSave, type TowerSave } from './allianceTower'
 import { validAllianceDeck, validSoloDeck, type AllianceDeck } from './alliance'
 
@@ -241,6 +242,12 @@ export function validSlimeCityStory(raw: unknown): raw is SlimeCityStory {
     )
       return false
     if (p.wins > FACTION_CAMPAIGNS[team as TeamId].chapters.length) return false
+    if (
+      team === 'catgirls' &&
+      !validGeneRiotJourney(p as unknown as CampaignSave['catgirls'])
+    )
+      return false
+    if (team !== 'catgirls' && p.journey !== undefined) return false
     if (p.rewards !== undefined) {
       if (
         !Array.isArray(p.rewards) ||

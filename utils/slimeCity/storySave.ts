@@ -16,6 +16,7 @@ import {
 import { TEAMS, loadoutProblems, type TeamId } from './prototypes'
 import { campaignCardChoices } from './campaignCardRewards'
 import { validGeneRiotJourney } from './campaignGeneRiot'
+import { validBloodfairyJourney } from './campaignBloodfairies'
 import { freshTower, validTowerSave, type TowerSave } from './allianceTower'
 import { validAllianceDeck, validSoloDeck, type AllianceDeck } from './alliance'
 
@@ -247,7 +248,12 @@ export function validSlimeCityStory(raw: unknown): raw is SlimeCityStory {
       !validGeneRiotJourney(p as unknown as CampaignSave['catgirls'])
     )
       return false
-    if (team !== 'catgirls' && p.journey !== undefined) return false
+    if (
+      team === 'bloodfairies' &&
+      !validBloodfairyJourney(p as unknown as CampaignSave['bloodfairies'])
+    ) return false
+    if (team !== 'catgirls' && team !== 'bloodfairies' && p.journey !== undefined)
+      return false
     if (p.rewards !== undefined) {
       if (
         !Array.isArray(p.rewards) ||

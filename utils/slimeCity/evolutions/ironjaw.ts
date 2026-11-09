@@ -83,11 +83,9 @@ export const IRONJAW_EVOLUTIONS: Record<string, CardEvolution> = {
   's2-ironjaw-union-bridgebearer': {
     stats: { 3: { hp: 4 } },
     1: stage('Night Shift Crossing', [on('enter', summon('nearest', 1, 2))]),
-    2: stage(
-      'Load-Bearing Shift',
-      [on('enter', summon('nearest', 1, 3))],
-      { aura: { n: 1, to: 'adjacentAllies' } },
-    ),
+    2: stage('Load-Bearing Shift', [on('enter', summon('nearest', 1, 3))], {
+      aura: { n: 1, to: 'adjacentAllies' },
+    }),
     3: stage(
       'The Bridge Holds',
       [

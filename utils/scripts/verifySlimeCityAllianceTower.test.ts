@@ -156,7 +156,10 @@ for (let seed = 0; seed < 40; seed++) {
       },
       meta: freshTower().meta,
     }
-    assert.ok(validTowerSave(saved), 'existing in-progress Tower saves survive prose revisions')
+    assert.ok(
+      validTowerSave(saved),
+      'existing in-progress Tower saves survive prose revisions',
+    )
     const tampered = structuredClone(saved)
     tampered.run.chosen.scene += ' injected'
     assert.ok(!validTowerSave(tampered), 'unknown saved scene is rejected')

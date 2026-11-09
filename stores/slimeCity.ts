@@ -580,7 +580,12 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
       : null,
   )
   function chooseGeneRiotBeat(id: GeneRiotPick): void {
-    if (!storyEditable() || activeTeam.value !== 'catgirls' || campaignRewardChoices.value) return
+    if (
+      !storyEditable() ||
+      activeTeam.value !== 'catgirls' ||
+      campaignRewardChoices.value
+    )
+      return
     const next = chooseGeneRiotScene(campaignSave.value, id)
     if (next === campaignSave.value) return
     campaignSave.value = next
@@ -668,7 +673,9 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
   const campaignFinale = computed(() => {
     const ending = campaignEnding(campaignSave.value, activeTeam.value)
     return ending && activeTeam.value === 'catgirls'
-      ? [ending, geneRiotEpilogue(campaignState.value)].filter(Boolean).join(' ')
+      ? [ending, geneRiotEpilogue(campaignState.value)]
+          .filter(Boolean)
+          .join(' ')
       : ending
   })
   /** A finished campaign's chosen favor, carried into rivals and contracts. */
@@ -1557,7 +1564,12 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
   }
   function startCampaignBattle(choiceId: CampaignApproach): void {
     if (!storyEditable()) return
-    if (campaignBout.value || campaignRewardChoices.value || geneRiotCurrent.value) return
+    if (
+      campaignBout.value ||
+      campaignRewardChoices.value ||
+      geneRiotCurrent.value
+    )
+      return
     const fromCity =
       view.value === 'city' &&
       campaignAtDestination.value &&

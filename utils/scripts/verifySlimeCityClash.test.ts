@@ -1761,6 +1761,19 @@ assert.doesNotMatch(
   'reaction-face tokens must not override the fighter card painting',
 )
 
+// The battlefield is an art-first card stage, not a square token crop.
+// A CSS regression here can undo the evolution-aware resolver above even
+// when the correct ArtImage ID is supplied.
+const fighterImageStyle = clashView.match(
+  /\\.clash-slot :deep\\(img\\) \\{([\\s\\S]*?)\\n\\}/,
+)?.[1]
+assert.ok(fighterImageStyle, 'fighter image styling must exist')
+assert.match(
+  fighterImageStyle,
+  /object-fit:\\s*contain\\s*;/,
+  'deployed cards must show the complete illustration, not crop it',
+)
+
 // Long adversarial CPU playthroughs on every crew pairing, all rules and replay.
 let simulated = 0
 let timeoutWinners = 0

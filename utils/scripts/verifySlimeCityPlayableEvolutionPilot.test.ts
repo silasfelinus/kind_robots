@@ -136,6 +136,9 @@ const find = (s: ReturnType<typeof createClash>, side: Side, lane: number) =>
 // engine only if the board holds through actual round-end triggers.
 {
   const s = createClash('ironjaw', 'bloodfairies', 22940)
+  // The opening player has a one-slot first turn; Dreadnought is a
+  // two-slot fighter, so the first legal investment is from round two.
+  s.round = 3
   s.hands.player = [dread]
   s.units = [unit('player', 1, 55)]
   const l1 = playClash(s, 'player', dread, 0)

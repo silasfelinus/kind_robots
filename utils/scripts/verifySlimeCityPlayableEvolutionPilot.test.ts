@@ -15,8 +15,18 @@ import {
   strikeClash,
   type ClashUnit,
 } from '../slimeCity/clash'
-import { clashEvolutionStage, clashEvolutionChoice, clashEvolutionStats, clashStageTitle } from '../slimeCity/clashEvolutions'
-import { allianceProblems, allianceStarter, soloProblems, soloStarter } from '../slimeCity/alliance'
+import {
+  clashEvolutionStage,
+  clashEvolutionChoice,
+  clashEvolutionStats,
+  clashStageTitle,
+} from '../slimeCity/clashEvolutions'
+import {
+  allianceProblems,
+  allianceStarter,
+  soloProblems,
+  soloStarter,
+} from '../slimeCity/alliance'
 import { cardById, CARDS, type Side } from '../slimeCity/prototypes'
 
 const bridge = 's2-ironjaw-union-bridgebearer'
@@ -65,8 +75,11 @@ const find = (s: ReturnType<typeof createClash>, side: Side, lane: number) =>
   const card = cardById(bridge)
   assert.ok(clashEvolutionStage(bridge, 1)?.abilities.length)
   assert.ok(clashCardText(card, 1).includes('summon 1/2'))
-  assert.equal(clashEvolutionStage('s1-roof-phantom', 1), undefined,
-    'unchanged cards do not acquire a phantom L1 rule')
+  assert.equal(
+    clashEvolutionStage('s1-roof-phantom', 1),
+    undefined,
+    'unchanged cards do not acquire a phantom L1 rule',
+  )
   const s = first(bridge, 1)
   assert.equal(s.levels.player[bridge], 2)
   assert.equal(find(s, 'player', 2)?.token, undefined)
@@ -92,8 +105,10 @@ const find = (s: ReturnType<typeof createClash>, side: Side, lane: number) =>
   const apprentice = find(s, 'player', 1)!
   assert.ok(apprentice.token)
   assert.equal(apprentice.hp, 3, 'L2 apprentices now hold a better line')
-  assert.ok(clashPower(s, apprentice) > apprentice.attack,
-    'adjacent L2 bridge provides real combo power to its worker')
+  assert.ok(
+    clashPower(s, apprentice) > apprentice.attack,
+    'adjacent L2 bridge provides real combo power to its worker',
+  )
 }
 {
   const s = first(bridge, 3)
@@ -131,7 +146,9 @@ const find = (s: ReturnType<typeof createClash>, side: Side, lane: number) =>
   const l2 = playClash(levelTwo, 'player', dread, 0)
   const holder = find(l2, 'player', 0)!
   assert.ok(holder)
-  assert.ok(clashEvolutionStage(dread, 2)?.abilities.some((a) => a.when === 'hit'))
+  assert.ok(
+    clashEvolutionStage(dread, 2)?.abilities.some((a) => a.when === 'hit'),
+  )
   // With a real strike, the convoy keeps its neighbor alive instead of
   // gaining only an invisible +1 stat on the card sheet.
   const duringStrike = structuredClone(l2)
@@ -140,16 +157,22 @@ const find = (s: ReturnType<typeof createClash>, side: Side, lane: number) =>
   find(duringStrike, 'player', 0)!.fresh = false
   duringStrike.units.push(unit('enemy', 0, 59, { hp: 20, maxHp: 20 }))
   const resolved = strikeClash(duringStrike, 'player')
-  assert.equal(find(resolved, 'player', 1)?.guard, 1,
-    'L2 gives the real neighboring fighter protection after a hit')
+  assert.equal(
+    find(resolved, 'player', 1)?.guard,
+    1,
+    'L2 gives the real neighboring fighter protection after a hit',
+  )
   const levelThree = structuredClone(s)
   levelThree.levels.player[dread] = 3
   levelThree.units.push(unit('enemy', 0, 56, { hp: 12, maxHp: 12 }))
   const l3 = playClash(levelThree, 'player', dread, 0)
   assert.ok(find(l3, 'enemy', 0)!.hp < 12, 'Thunderhead hits on arrival')
   assert.equal(find(l3, 'player', 1)?.guard, 2)
-  assert.equal(clashEvolutionStats(dread, 3)?.hp, -4,
-    'L3 deliberately exposes four life of its normal budget')
+  assert.equal(
+    clashEvolutionStats(dread, 3)?.hp,
+    -4,
+    'L3 deliberately exposes four life of its normal budget',
+  )
   assert.equal(clashStageTitle(dread, 3), 'Thunderhead of Scrap')
   assert.ok(clashCardText(cardById(dread), 3).includes('life'))
   // The late payoff is EARNED by surviving a real complete round;
@@ -162,7 +185,9 @@ const find = (s: ReturnType<typeof createClash>, side: Side, lane: number) =>
     rival.attacked = true
   const afterRound = endClashTurn(closing, 'enemy')
   assert.notEqual(afterRound, closing)
-  assert.ok(find(afterRound, 'player', 0)!.attack > find(l3, 'player', 0)!.attack)
+  assert.ok(
+    find(afterRound, 'player', 0)!.attack > find(l3, 'player', 0)!.attack,
+  )
   assert.ok(find(afterRound, 'player', 0)!.maxHp > find(l3, 'player', 0)!.maxHp)
 }
 
@@ -174,7 +199,11 @@ const find = (s: ReturnType<typeof createClash>, side: Side, lane: number) =>
   assert.equal(clashPlayCost(cardById(encore)), 1, 'one-slot CLASH support')
   const old = createClash('bloodfairies', 'ironjaw', 22960)
   old.hands.player = [encore]
-  old.units = [unit('player', 2, 60), unit('player', 1, 61), unit('player', 3, 62)]
+  old.units = [
+    unit('player', 2, 60),
+    unit('player', 1, 61),
+    unit('player', 3, 62),
+  ]
   assert.ok(canClashPlay(old, 'player', encore, 2))
   const l1 = playClash(old, 'player', encore, 2)
   assert.equal(l1.plays.player, 1)
@@ -193,9 +222,11 @@ const find = (s: ReturnType<typeof createClash>, side: Side, lane: number) =>
   levelThree.fallen = { player: ['pogo'], enemy: [] }
   const encoreAct = playClash(levelThree, 'player', encore, 2)
   assert.equal(encoreAct.units.filter((u) => u.side === 'player').length, 4)
-  assert.ok(encoreAct.units.filter((u) => u.side === 'player').every(
-    (u) => u.keywords.includes('leech'),
-  ))
+  assert.ok(
+    encoreAct.units
+      .filter((u) => u.side === 'player')
+      .every((u) => u.keywords.includes('leech')),
+  )
   const dangerous = playClash(levelThree, 'player', encore, 2, 1)
   assert.ok(find(dangerous, 'player', 2)?.keywords.includes('volatile'))
   assert.ok(find(dangerous, 'player', 1)?.keywords.includes('leech'))
@@ -225,9 +256,15 @@ assert.deepEqual(allianceProblems(alliance), [])
 assert.equal(CARDS.length, 300, 'no additional collectible identities')
 for (const format of ['standard', 'alliance'] as const) {
   for (const seed of [22980, 22981]) {
-    const options = format === 'alliance'
-      ? { alliance: { player: alliance, enemy: allianceStarter('bloodfairies', 'ironjaw') } }
-      : { decks: { player: solo } }
+    const options =
+      format === 'alliance'
+        ? {
+            alliance: {
+              player: alliance,
+              enemy: allianceStarter('bloodfairies', 'ironjaw'),
+            },
+          }
+        : { decks: { player: solo } }
     let state = createClash('ironjaw', 'bloodfairies', seed, options)
     let moves = 0
     while (!state.victor && moves++ < 900) {
@@ -244,4 +281,6 @@ for (const format of ['standard', 'alliance'] as const) {
     )
   }
 }
-console.log('Slime City playable evolution pilot: Bridgebearer apprentices, Dreadnought investment, Bloodfairy encore and two-format command replays PASS')
+console.log(
+  'Slime City playable evolution pilot: Bridgebearer apprentices, Dreadnought investment, Bloodfairy encore and two-format command replays PASS',
+)

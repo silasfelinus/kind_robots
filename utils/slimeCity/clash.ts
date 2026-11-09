@@ -174,6 +174,8 @@ export interface ClashState {
   phase: ClashPhase
   /** Number of card-play slots used during this side's current turn. */
   plays: Record<Side, number>
+  /** Optional for replay compatibility; at most one conditional free play per turn. */
+  freePlays?: Record<Side, number>
   boss: Record<Side, number>
   decks: Record<Side, string[]>
   hands: Record<Side, string[]>
@@ -643,6 +645,7 @@ function startTurn(s: ClashState, side: Side): void {
   s.active = side
   s.phase = 'play'
   s.plays[side] = 0
+  ;(s.freePlays ??= { player: 0, enemy: 0 })[side] = 0
   s.cursor = 0
   for (const u of s.units.filter((v) => v.side === side)) {
     u.attacked = false
@@ -759,6 +762,7 @@ export function createClash(
     active: 'player',
     phase: 'play',
     plays: { player: 0, enemy: 0 },
+    freePlays: { player: 0, enemy: 0 },
     boss: { player: clashBossMax('player'), enemy: clashBossMax('enemy') },
     decks: { player: [], enemy: [] },
     hands: { player: [], enemy: [] },
@@ -815,6 +819,29 @@ function aim(card: Card): 'own' | 'enemy' | 'lane' {
     return 'own'
   return 'enemy'
 }
+/** Reprices only the *play slot*, not a card's stats or card balance tier.
+ * No free action after the attack phase has begun, and never more than
+ * one free card per side per turn. Old matches without freePlays still load.
+ */
+export function clashEffectivePlayCost(
+  s: ClashState,
+  side: Side,
+  card: Card,
+): 0 | 1 | 2 {
+  const level = clashLevel(s, side, card.id)
+  const freeIf = clashEvolutionStage(card.id, level)?.freeIf
+  if (
+    freeIf &&
+    (s.freePlays?.[side] ?? 0) < 1 &&
+    evoCondition(
+      s,
+      { side, lane: 0, cardId: card.id, level },
+      freeIf,
+    )
+  )
+    return 0
+  return clashPlayCost(card)
+}
 export function canClashPlay(
   s: ClashState,
   side: Side,
@@ -836,7 +863,10 @@ export function canClashPlay(
     card.team !== s.allies?.[side]
   )
     return false
-  if (s.plays[side] + clashPlayCost(card) > clashPlayLimit(s, side))
+  if (
+    s.plays[side] + clashEffectivePlayCost(s, side, card) >
+    clashPlayLimit(s, side)
+  )
     return false
   if (card.kind === 'creature') return true // Friendly replacement allowed.
   if (card.kind === 'trap')
@@ -1082,6 +1112,41 @@ function evoAct(s: ClashState, ctx: EvoContext, a: EvoAction): void {
     case 'damage':
       for (const u of evoScope(s, ctx, a.to)) damage(u, a.n, a.pierce ? 9 : 0)
       return
+    case 'execute':
+      for (const u of evoScope(s, ctx, a.to))
+        if (
+          u.side === foe &&
+          u.hp < u.maxHp &&
+          u.hp <= a.threshold &&
+          !u.token
+        )
+          u.hp = 0
+      return
+    case 'promote': {
+      const cards = s[a.zone === 'hand' ? 'hands' : 'decks'][ctx.side]
+      const target = [...cards]
+        .filter(
+          (id) =>
+            id !== ctx.cardId &&
+            clashLevel(s, ctx.side, id) < CLASH_MAX_LEVEL,
+        )
+        .sort(
+          (left, right) =>
+            clashLevel(s, ctx.side, left) -
+              clashLevel(s, ctx.side, right) ||
+            left.localeCompare(right),
+        )[0]
+      if (!target) return
+      const next = clashLevel(s, ctx.side, target) + 1
+      s.levels[ctx.side][target] = next
+      note(
+        s,
+        cardById(target).name + ' is promoted to level ' + next + '!',
+        'play',
+        ctx.lane,
+      )
+      return
+    }
     case 'heal':
       for (const u of evoScope(s, ctx, a.to))
         u.hp = Math.min(u.maxHp, u.hp + a.n)
@@ -1590,6 +1655,7 @@ export function playClash(
   const card = cardById(id)
   const level = clashLevel(s, side, id)
   const profile = clashBalance(card, level)
+  const playSlots = clashEffectivePlayCost(input, side, card)
   // A choose-one level three: only a real alternative is recorded.
   const pick: EvoPick = choice === 1 && clashEvolutionChoice(id, level) ? 1 : 0
   s.hands[side].splice(s.hands[side].indexOf(id), 1)
@@ -2155,7 +2221,10 @@ export function playClash(
     s.levels[side][id] = level + 1
     note(s, card.name + ' levels up to ' + (level + 1) + '!', 'play', lane)
   }
-  s.plays[side] += profile.plays
+  if (playSlots === 0) {
+    ;(s.freePlays ??= { player: 0, enemy: 0 })[side] += 1
+    note(s, card.name + ' plays for free!', 'play', lane)
+  } else s.plays[side] += playSlots
   if (s.plays[side] >= clashPlayLimit(s, side)) {
     s.phase = 'attack'
     s.cursor = 0

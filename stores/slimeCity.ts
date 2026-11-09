@@ -446,6 +446,9 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
       storyRevision.value = response.data.revision
       storyAccount.value = userId
       storyLoaded.value = true
+      // A partially played Clash cannot be replayed for free after refresh.
+      // Until command-by-command save/resume exists, reload forfeits this floor.
+      if (towerRun.value?.phase === 'battle') forfeitTower()
     } catch (error) {
       if (userId !== authId()) return
       storyError.value =
@@ -1268,6 +1271,15 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
     persistStory()
   }
 
+  function forfeitTower(): void {
+    if (!storyEditable() || towerRun.value?.phase !== 'battle') return
+    towerSave.value = {
+      ...towerSave.value,
+      run: resolveTowerBattle(towerRun.value, 'enemy'),
+    }
+    persistStory()
+  }
+
   function leaveTowerWithoutSpoils(): void {
     if (!storyEditable()) return
     const next = leaveEmptyTower(towerSave.value)
@@ -1718,6 +1730,11 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
     return cardById(id).name
   }
 
+  watch(view, (next, before) => {
+    if (before === 'clash' && next !== 'clash' && clashLaunch.value.kind === 'tower')
+      forfeitTower()
+  })
+
   watch(
     () => authId(),
     () => {
@@ -1776,6 +1793,7 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
     chooseTowerFloor,
     takeTowerSpoil,
     leaveTowerWithoutSpoils,
+    forfeitTower,
     showTower,
     currentDeck,
     currentDeckProblems,

@@ -1,6 +1,6 @@
 // CLASH ALLIANCE TOWER: a repeatable twelve-floor run, distinct from the
 // five-chapter, one-faction Story campaigns. Pure state, deterministic choices.
-import { allianceProblems, type AllianceDeck } from './alliance'
+import { allianceProblems, validAllianceDeck, type AllianceDeck } from './alliance'
 import { CARDS, TEAMS, seededHash, type TeamId } from './prototypes'
 import { rarityOf } from './progression'
 
@@ -72,7 +72,7 @@ export function towerRoutes(run: TowerRun): [TowerRoute, TowerRoute] | null {
   return [pick(0), pick(1)]
 }
 
-export function startTower(deck: AllianceDeck, seed: number): TowerRun {
+export function startTower(deck: AllianceDeck, seed: number, meta: TowerMeta = freshTower().meta): TowerRun {
   if (allianceProblems(deck).length) throw new Error('Build a legal 30-card Alliance.')
   return {
     seed: seed >>> 0,
@@ -81,7 +81,7 @@ export function startTower(deck: AllianceDeck, seed: number): TowerRun {
     phase: 'route',
     chosen: null,
     scars: 0,
-    guard: 0,
+    guard: Math.min(6, Math.floor(meta.cinders / 12)),
     relics: [],
     sparks: 0,
   }
@@ -163,4 +163,48 @@ export function claimTowerSpoil(
       cards: [...save.meta.cards, cardId],
     },
   }
+}
+
+/** Strictly validate story-save snapshots. Tower state must not enter the
+ * authenticated wallet, packs, PvP or rewarded CPU transcript ledger.
+ */
+export function validTowerSave(raw: unknown): raw is TowerSave {
+  const record = (v: unknown): v is Record<string, unknown> =>
+    !!v && typeof v === 'object' && !Array.isArray(v)
+  const integer = (n: unknown, max: number): n is number =>
+    Number.isSafeInteger(n) && typeof n === 'number' && n >= 0 && n <= max
+  if (!record(raw) || !record(raw.meta)) return false
+  const meta = raw.meta
+  if (
+    !integer(meta.runs, 1000000) ||
+    !integer(meta.bestFloor, TOWER_FLOORS) ||
+    !integer(meta.cinders, 1000000) ||
+    !Array.isArray(meta.cards) ||
+    meta.cards.length > CARDS.length ||
+    new Set(meta.cards).size !== meta.cards.length ||
+    !meta.cards.every((id: unknown) => typeof id === 'string' && CARDS.some((card) => card.id === id))
+  ) return false
+  if (raw.run === null) return true
+  if (!record(raw.run)) return false
+  const run = raw.run
+  if (
+    !integer(run.seed, 4294967295) ||
+    !integer(run.floor, TOWER_FLOORS) ||
+    !validAllianceDeck(run.deck) ||
+    !['route', 'battle', 'failed', 'complete'].includes(run.phase as string) ||
+    !integer(run.scars, 1000) ||
+    !integer(run.guard, 8) ||
+    !integer(run.sparks, 1000) ||
+    !Array.isArray(run.relics) ||
+    run.relics.length > 1 ||
+    !run.relics.every((id: unknown) => id === 'BRASS WARD') ||
+    (run.phase === 'complete' && run.floor !== TOWER_FLOORS) ||
+    (run.phase === 'route' && run.floor >= TOWER_FLOORS)
+  ) return false
+  if (run.phase === 'battle') {
+    if (!record(run.chosen)) return false
+    const routes = towerRoutes({ ...(run as unknown as TowerRun), chosen: null, phase: 'route' })
+    return !!routes?.some((route) => JSON.stringify(route) === JSON.stringify(run.chosen))
+  }
+  return run.chosen === null
 }

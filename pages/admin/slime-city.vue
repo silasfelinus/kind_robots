@@ -138,7 +138,7 @@
           <div class="sc-home-scrim"></div>
           <div class="sc-home-copy">
             <small>WELCOME TO THE PIT</small>
-            <h1>SLIME <span>CITY</span></h1>
+            <strong class="sc-home-wordmark">SLIME <span>CITY</span></strong>
             <p>Six crews. Three lives for every card. One city to take back.</p>
             <nav class="sc-home-actions" aria-label="Start Slime City">
               <button
@@ -166,7 +166,7 @@
           aria-label="Slime City settings"
           data-testid="slime-settings"
         >
-          <h1>GAME SETTINGS</h1>
+          <h2 class="sc-settings-heading">GAME SETTINGS</h2>
           <p>Choose how the next Clash starts. Your current fight is not affected.</p>
           <fieldset>
             <legend>DEFAULT CLASH DECK</legend>
@@ -2524,7 +2524,8 @@ onUnmounted(() => {
   font-weight: 950;
   letter-spacing: 0.25em;
 }
-.sc-home-copy h1 {
+.sc-home-wordmark {
+  display: block;
   font-size: clamp(2.8rem, 8vw, 6.5rem);
   font-weight: 1000;
   font-style: italic;
@@ -2532,7 +2533,7 @@ onUnmounted(() => {
   line-height: 1;
   text-shadow: 0 0 2rem #000;
 }
-.sc-home-copy h1 span {
+.sc-home-wordmark span {
   color: #c5ff59;
 }
 .sc-home-copy p {
@@ -2578,7 +2579,7 @@ onUnmounted(() => {
   background: radial-gradient(ellipse at 50% 0%, #273f41, #0a101b 70%);
   overflow: auto;
 }
-.sc-settings h1 {
+.sc-settings-heading {
   font-size: clamp(1.5rem, 4vw, 3rem);
   font-weight: 950;
   color: #c5ff59;

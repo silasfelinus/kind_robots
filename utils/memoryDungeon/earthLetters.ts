@@ -38,16 +38,25 @@ export function restoreLetterProgress(input: unknown): LetterProgress | null {
   if (input == null) return newLetterProgress()
   if (!input || typeof input !== 'object' || Array.isArray(input)) return null
   const raw = input as Record<string, unknown>
-  if (raw.version !== 1 || !raw.decisions || typeof raw.decisions !== 'object' ||
-      Array.isArray(raw.decisions)) return null
+  if (
+    raw.version !== 1 ||
+    !raw.decisions ||
+    typeof raw.decisions !== 'object' ||
+    Array.isArray(raw.decisions)
+  )
+    return null
   const decisions = raw.decisions as Record<string, unknown>
-  if (Object.keys(decisions).some((key) => !scenes.includes(key as LetterScene)))
+  if (
+    Object.keys(decisions).some((key) => !scenes.includes(key as LetterScene))
+  )
     return null
   for (const scene of scenes) {
     const choice = decisions[scene]
-    if (choice !== undefined &&
-        (typeof choice !== 'string' ||
-          !(LETTER_CHOICES[scene] as readonly string[]).includes(choice)))
+    if (
+      choice !== undefined &&
+      (typeof choice !== 'string' ||
+        !(LETTER_CHOICES[scene] as readonly string[]).includes(choice))
+    )
       return null
   }
   return {

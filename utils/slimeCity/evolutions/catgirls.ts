@@ -59,10 +59,7 @@ export const CATGIRL_EVOLUTIONS: Record<string, CardEvolution> = {
   // escape route.
   's1-roof-phantom': {
     2: stage('Chimney Leap', [on('enter', when('acrossEmpty', boss(2)))]),
-    3: stage('Skyline Specter', [
-      on('enter', when('acrossEmpty', boss(2))),
-      on('turnStart', shift('self', 'safe')),
-    ]),
+    3: stage('Skyline Specter', [on('turnStart', shift('self', 'safe'))]),
   },
   // Arc: a back-alley vet who stitched her own tail -> night shifts for
   // strays -> the saint who passes her needle on.

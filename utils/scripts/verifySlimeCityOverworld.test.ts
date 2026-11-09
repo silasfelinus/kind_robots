@@ -1707,10 +1707,17 @@ console.log('Slime City finale store / new run navigation PASS')
 
 lab.showCampaign()
 lab.chooseTeam('bloodfairies')
-assert.ok(lab.bloodfairyCurrent, 'Bloodfairy story opens its own authored scene')
+assert.ok(
+  lab.bloodfairyCurrent,
+  'Bloodfairy story opens its own authored scene',
+)
 assert.equal(lab.bloodfairyChorus.voices, 0)
 lab.startCampaignBattle('conviction')
-assert.equal(lab.view, 'campaign', 'Bloodfairy cannot skip the chorus into a battle')
+assert.equal(
+  lab.view,
+  'campaign',
+  'Bloodfairy cannot skip the chorus into a battle',
+)
 for (let scene = 0; scene < 3; scene++) {
   assert.ok(lab.campaignJourneyCurrent)
   lab.chooseCampaignJourneyBeat('left')
@@ -1718,11 +1725,17 @@ for (let scene = 0; scene < 3; scene++) {
 assert.equal(lab.bloodfairyChorus.voices, 3)
 assert.equal(lab.campaignJourneyCurrent, null)
 lab.startCampaignBattle('conviction')
-assert.equal(lab.view, 'clash', 'three choices unlock the first Bloodfairy showdown')
+assert.equal(
+  lab.view,
+  'clash',
+  'three choices unlock the first Bloodfairy showdown',
+)
 assert.equal(lab.clashLaunch.kind, 'campaign')
 assert.ok(lab.clashLaunch.cards?.includes('s1-riot-choir'))
 assert.ok(
   lab.clashLaunch.bosses!.player > CLASH_BOSS_HP,
   'The first coalition fight benefits from gathered members',
 )
-console.log('Slime City Bloodfairy story store: gated scenes, chorus tactics and real Clash deck PASS')
+console.log(
+  'Slime City Bloodfairy story store: gated scenes, chorus tactics and real Clash deck PASS',
+)

@@ -17,6 +17,7 @@ import { TEAMS, loadoutProblems, type TeamId } from './prototypes'
 import { campaignCardChoices } from './campaignCardRewards'
 import { validGeneRiotJourney } from './campaignGeneRiot'
 import { validBloodfairyJourney } from './campaignBloodfairies'
+import { validIronjawJourney } from './campaignIronjaw'
 import { freshTower, validTowerSave, type TowerSave } from './allianceTower'
 import { validAllianceDeck, validSoloDeck, type AllianceDeck } from './alliance'
 
@@ -254,8 +255,14 @@ export function validSlimeCityStory(raw: unknown): raw is SlimeCityStory {
     )
       return false
     if (
+      team === 'ironjaw' &&
+      !validIronjawJourney(p as unknown as CampaignSave['ironjaw'])
+    )
+      return false
+    if (
       team !== 'catgirls' &&
       team !== 'bloodfairies' &&
+      team !== 'ironjaw' &&
       p.journey !== undefined
     )
       return false

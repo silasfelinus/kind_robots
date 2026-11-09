@@ -1075,12 +1075,22 @@ function forecast(lane: number): string {
 }
 .clash-slot :deep(img) {
   position: absolute;
-  top: 0;
-  left: 0;
+  inset: 0;
   height: 100%;
   width: 100%;
-  object-fit: cover;
-  opacity: 0.92;
+  /* Portrait cards were being cropped into square reaction tokens.
+     Preserve the entire illustration at every evolution tier. */
+  object-fit: contain;
+  object-position: center;
+  opacity: 1;
+}
+.clash-slot.filled {
+  background: radial-gradient(ellipse at 50% 40%, #31545b, #081a25 80%);
+  border-style: solid;
+  border-color: #9ac3b15e;
+}
+.clash-slot.filled.selected {
+  border-color: #e8fba5;
 }
 .clash-fighter-label {
   position: absolute;

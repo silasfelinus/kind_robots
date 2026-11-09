@@ -91,8 +91,14 @@ export function allianceStarter(general: TeamId, ally: TeamId): AllianceDeck {
     const byCost = (a: Card, b: Card) =>
       a.cost - b.cost || a.id.localeCompare(b.id)
     const sorted = alleyDeck(team).map(cardById).sort(byCost)
-    const creatures = spread(sorted.filter((c) => c.kind === 'creature'), 5)
-    const specials = spread(sorted.filter((c) => c.kind !== 'creature'), 5)
+    const creatures = spread(
+      sorted.filter((c) => c.kind === 'creature'),
+      5,
+    )
+    const specials = spread(
+      sorted.filter((c) => c.kind !== 'creature'),
+      5,
+    )
     return [...creatures, ...specials].map((c) => c.id)
   }
   return { general, ally, cards: [...ten(general), ...ten(ally)] }
@@ -108,7 +114,9 @@ export function normalizedAllianceDeck(deck: AllianceDeck): AllianceDeck {
     !Array.isArray(deck.cards)
   )
     return allianceStarter('catgirls', 'bloodfairies')
-  const allowed = new Set(allianceCardPool(deck.general, deck.ally).map((c) => c.id))
+  const allowed = new Set(
+    allianceCardPool(deck.general, deck.ally).map((c) => c.id),
+  )
   const unique = [...new Set(deck.cards.filter((id) => allowed.has(id)))]
   const preserved = spread(unique, ALLIANCE_DECK_SIZE)
   const fill = allianceStarter(deck.general, deck.ally).cards.filter(

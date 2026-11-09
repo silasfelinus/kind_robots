@@ -88,7 +88,11 @@ const gamePage = readFileSync('pages/admin/slime-city.vue', 'utf8')
 const store = readFileSync('stores/slimeCity.ts', 'utf8')
 const view = readFileSync('components/slime-city-clash.vue', 'utf8')
 assert.match(playPage, /<SlimeCityGame \/>/)
-assert.match(store, />\('home'\)/, 'The art-led title screen is the starting game view')
+assert.match(
+  store,
+  />\('home'\)/,
+  'The art-led title screen is the starting game view',
+)
 assert.match(gamePage, /data-testid="slime-home"/)
 assert.match(gamePage, /data-testid="slime-home-play"/)
 assert.match(gamePage, /data-testid="slime-clash-tab"/)

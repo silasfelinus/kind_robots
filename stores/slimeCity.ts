@@ -23,7 +23,11 @@ import {
   type CampaignApproach,
 } from '../utils/slimeCity/campaign'
 import { campaignConversationFor } from '../utils/slimeCity/campaignDialogue'
-import { campaignCardChoices, campaignSoloDeck, chooseCampaignCard } from '../utils/slimeCity/campaignCardRewards'
+import {
+  campaignCardChoices,
+  campaignSoloDeck,
+  chooseCampaignCard,
+} from '../utils/slimeCity/campaignCardRewards'
 import {
   freshTower,
   startTower,
@@ -187,7 +191,14 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
     return net.value.fetcher<T>(url, options)
   }
   const view = ref<
-    'city' | 'arena' | 'alleys' | 'clash' | 'cards' | 'campaign' | 'rewards' | 'tower'
+    | 'city'
+    | 'arena'
+    | 'alleys'
+    | 'clash'
+    | 'cards'
+    | 'campaign'
+    | 'rewards'
+    | 'tower'
   >('clash')
   const activeTeam = ref<TeamId>('catgirls')
   const enemyTeam = ref<TeamId>('bloodfairies')
@@ -1483,7 +1494,13 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
       seed: rollSeed(),
       bosses: clashBossesFromTerms(terms),
       ...(kind === 'campaign'
-        ? { cards: campaignSoloDeck(campaignSave.value, activeTeam.value, playSolo.value) }
+        ? {
+            cards: campaignSoloDeck(
+              campaignSave.value,
+              activeTeam.value,
+              playSolo.value,
+            ),
+          }
         : {}),
     })
   }
@@ -1731,7 +1748,11 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
   }
 
   watch(view, (next, before) => {
-    if (before === 'clash' && next !== 'clash' && clashLaunch.value.kind === 'tower')
+    if (
+      before === 'clash' &&
+      next !== 'clash' &&
+      clashLaunch.value.kind === 'tower'
+    )
       forfeitTower()
   })
 

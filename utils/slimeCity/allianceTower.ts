@@ -7,6 +7,7 @@ import {
 } from './alliance'
 import { CARDS, TEAMS, seededHash, type TeamId } from './prototypes'
 import { rarityOf } from './progression'
+import { TOWER_BEATS } from './towerBeats'
 
 export const TOWER_FLOORS = 12
 export type TowerPhase = 'route' | 'battle' | 'failed' | 'complete'
@@ -79,15 +80,17 @@ export function towerRoutes(run: TowerRun): [TowerRoute, TowerRoute] | null {
       run.floor === TOWER_FLOORS - 1
         ? 'riot'
         : hazards[(firstHazard + index * (1 + (roll % 2))) % hazards.length]!
-    const [title, scene, reward] = SCENES[hazard]
+    const reward = SCENES[hazard][2]
+    const beat = TOWER_BEATS[run.floor]!
+    const route = beat.routes[index]!
     const foe = ids[(run.floor + (roll % ids.length) + index) % ids.length]!
     return {
       id: String(run.floor) + ':' + index,
       title:
         run.floor === TOWER_FLOORS - 1
           ? 'THE GRAND PIT · ' + foe.toUpperCase()
-          : title,
-      scene,
+          : route.title,
+      scene: `${beat.setting} ${route.scene}`,
       hazard,
       foe,
       reward,

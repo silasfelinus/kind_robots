@@ -151,13 +151,13 @@
       </article>
       <div class="scs-deck">
         <button
-          v-if="lab.geneRiotCurrent"
+          v-if="lab.campaignJourneyCurrent"
           type="button"
           class="scs-cta"
-          data-testid="slime-city-gene-riot-continue"
+          data-testid="slime-city-faction-journey-continue"
           @click="lab.showCampaign()"
         >
-          CONTINUE THE NINTH LIFE PROTOCOL · SCENE
+          CONTINUE {{ lab.campaignStory.title.toUpperCase() }} · SCENE
           {{
             (lab.campaignState.journey?.[lab.campaignState.wins]?.length ?? 0) +
             1

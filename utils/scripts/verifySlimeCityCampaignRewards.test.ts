@@ -57,4 +57,6 @@ for (const { id: team } of TEAMS) {
     assert.ok(!validSlimeCityStory(tampered), 'reject forged reward choice')
   }
 }
-console.log('Slime City story rewards: six distinct deterministic five-chapter drafts, rare options, saved eligibility and legal Solo decks PASS')
+console.log(
+  'Slime City story rewards: six distinct deterministic five-chapter drafts, rare options, saved eligibility and legal Solo decks PASS',
+)

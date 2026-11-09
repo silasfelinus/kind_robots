@@ -152,6 +152,18 @@ const find = (s: ReturnType<typeof createClash>, side: Side, lane: number) =>
     'L3 deliberately exposes four life of its normal budget')
   assert.equal(clashStageTitle(dread, 3), 'Thunderhead of Scrap')
   assert.ok(clashCardText(cardById(dread), 3).includes('life'))
+  // The late payoff is EARNED by surviving a real complete round;
+  // it does not appear automatically as an inflated opening body.
+  const closing = structuredClone(l3)
+  closing.active = 'enemy'
+  closing.phase = 'attack'
+  closing.cursor = 5
+  for (const rival of closing.units.filter((u) => u.side === 'enemy'))
+    rival.attacked = true
+  const afterRound = endClashTurn(closing, 'enemy')
+  assert.notEqual(afterRound, closing)
+  assert.ok(find(afterRound, 'player', 0)!.attack > find(l3, 'player', 0)!.attack)
+  assert.ok(find(afterRound, 'player', 0)!.maxHp > find(l3, 'player', 0)!.maxHp)
 }
 
 // A playable first-verse buff costs one slot in CLASH only. The chorus

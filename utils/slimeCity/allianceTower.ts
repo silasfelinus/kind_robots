@@ -46,27 +46,11 @@ export function freshTower(): TowerSave {
   return { run: null, meta: { runs: 0, bestFloor: 0, cinders: 0, cards: [] } }
 }
 
-const SCENES: Record<TowerHazard, [string, string, string]> = {
-  snare: [
-    'THE NEEDLE GATE',
-    'A wire net skims the ceiling. The pit announcer asks who packed the bolt cutters.',
-    'Rival starts with reinforced boss life',
-  ],
-  riot: [
-    'THE SHATTERED STANDS',
-    'Spectators throw fireworks onto a board nobody remembers building.',
-    'A louder rival awaits',
-  ],
-  rest: [
-    'THE PATCHWORK CLINIC',
-    'The nurse can stabilize the crew, but the debt collectors are coming up the stairs.',
-    'Restore some starting boss life',
-  ],
-  vault: [
-    'THE BRASS VAULT',
-    'A tempting lockbox sits in the only safe-looking corridor. It is definitely not empty.',
-    'Claim a reusable ward after victory',
-  ],
+const HAZARD_REWARDS: Record<TowerHazard, string> = {
+  snare: 'Rival starts with reinforced boss life',
+  riot: 'A louder rival awaits',
+  rest: 'Restore some starting boss life',
+  vault: 'Claim a reusable ward after victory',
 }
 
 export function towerRoutes(run: TowerRun): [TowerRoute, TowerRoute] | null {
@@ -80,7 +64,7 @@ export function towerRoutes(run: TowerRun): [TowerRoute, TowerRoute] | null {
       run.floor === TOWER_FLOORS - 1
         ? 'riot'
         : hazards[(firstHazard + index * (1 + (roll % 2))) % hazards.length]!
-    const reward = SCENES[hazard][2]
+    const reward = HAZARD_REWARDS[hazard]
     const beat = TOWER_BEATS[run.floor]!
     const route = beat.routes[index]!
     const foe = ids[(run.floor + (roll % ids.length) + index) % ids.length]!

@@ -15,7 +15,7 @@ export interface GeneRiotScene {
   title: string
   speaker: string
   text: string
-  choices: [GeneRiotOption, GeneRiotOption]
+  choices: readonly [GeneRiotOption, GeneRiotOption]
   callback?: {
     chapter: number
     beat: number

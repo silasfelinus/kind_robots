@@ -315,6 +315,11 @@ export const CLASH_TRAIT_COST: Record<Keyword, number> = {
  */
 export const CLASH_CREW_BUDGET: Partial<Record<TeamId, number>> = {
   undertow: 0.5,
+  // The guaranteed legal opener exposed an Ironjaw survivability deficit:
+  // 34.8% across the 40-seed, all-pairs Clash acceptance sweep. Give its
+  // frontline a modest half-point life budget, without changing attack or
+  // weakening the matchup acceptance threshold.
+  ironjaw: 0.5,
 }
 export const CLASH_TRAIT_TEXT: Record<Keyword, string> = {
   ambush: 'Ambush: attacks immediately; +1 first strike.',

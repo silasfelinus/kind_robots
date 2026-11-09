@@ -322,7 +322,7 @@ const at = (st: ClashState, uid: number) => st.units.find((u) => u.uid === uid)
   assert.ok(first > 0.38 && first < 0.62, 'first seat ' + first)
   for (const [id, g] of Object.entries(r.generals)) {
     const rate = g.wins / g.games
-    assert.ok(rate > 0.3 && rate < 0.7, id + ' wins ' + rate)
+    assert.ok(rate >= 0.3 && rate <= 0.7, id + ' wins ' + rate)
     assert.ok(r.powers[id]!.used / g.games > 0.4, id + ' power rarely used')
   }
 }

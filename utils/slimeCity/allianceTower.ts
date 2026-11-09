@@ -5,7 +5,7 @@ import { CARDS, TEAMS, seededHash, type TeamId } from './prototypes'
 import { rarityOf } from './progression'
 
 export const TOWER_FLOORS = 12
-export type TowerPhase = 'route' | 'battle' | 'spoils' | 'failed' | 'complete'
+export type TowerPhase = 'route' | 'battle' | 'failed' | 'complete'
 export type TowerHazard = 'snare' | 'riot' | 'rest' | 'vault'
 export interface TowerRoute {
   id: string
@@ -132,7 +132,7 @@ export function towerSpoils(
   run: TowerRun,
   meta: TowerMeta,
 ): [typeof CARDS[number], typeof CARDS[number]] | null {
-  if (run.phase !== 'failed' && run.phase !== 'complete') return null
+  if ((run.phase !== 'failed' && run.phase !== 'complete') || run.floor < 1) return null
   const available = CARDS.filter(
     (card) =>
       (card.team === run.deck.general || card.team === run.deck.ally || card.team === 'mercenary') &&
@@ -207,4 +207,14 @@ export function validTowerSave(raw: unknown): raw is TowerSave {
     return !!routes?.some((route) => JSON.stringify(route) === JSON.stringify(run.chosen))
   }
   return run.chosen === null
+}
+
+/** A floor-zero defeat earns no collectible card. No zero-cost reward farming. */
+export function leaveEmptyTower(save: TowerSave): TowerSave {
+  if (!save.run || save.run.phase !== 'failed' || save.run.floor !== 0)
+    return save
+  return {
+    run: null,
+    meta: { ...save.meta, runs: save.meta.runs + 1 },
+  }
 }

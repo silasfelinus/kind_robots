@@ -3014,21 +3014,20 @@ export function chooseClashCpu(
           (card.effect === 'heal' && mine
             ? Math.min(b.power, mine.maxHp - mine.hp) * 1.2 - 1.5
             : 0)
-        if (s.format !== 'alliance' && mine && card.effect === 'grant') {
+        if (mine && card.effect === 'grant') {
           const missing = (card.grants ?? []).filter(
             (keyword) => !mine.keywords.includes(keyword),
           )
           score += missing.length * 2.8 + (b.level - 1) * 1.25
           if (!missing.length && b.level === 1) score -= 3
         }
-        if (s.format !== 'alliance' && mine && card.kind === 'equipment') {
+        if (mine && card.kind === 'equipment') {
           // Gear survives turns; its price cannot be assessed as one small
           // immediate spell. Reward protecting a healthy, productive fighter.
           score +=
             1.8 + Math.min(mine.attack, 6) * 0.55 + (mine.hp >= 6 ? 1 : 0)
         }
         if (
-          s.format !== 'alliance' &&
           mine &&
           (card.effect === 'sharpen' || card.effect === 'boost')
         )
@@ -3038,7 +3037,7 @@ export function chooseClashCpu(
               : across
                 ? b.power * 0.7
                 : 0
-        if (s.format !== 'alliance' && mine && card.effect === 'armor')
+        if (mine && card.effect === 'armor')
           score += Math.max(0, 3 - mine.armor) * 2
       } else
         score =
@@ -3056,19 +3055,12 @@ export function chooseClashCpu(
         !evoCondition(s, { side, lane, cardId: id, level: b.level }, prefer)
           ? (1 as const)
           : undefined
-      if (s.format === 'alliance') {
-        // Keep the independently balanced two-crew format on its tested
-        // baseline heuristic until it has its own synergy-specific pass.
-        const evolved = clashEvolutionStage(id, b.level)
-        if (evolved?.abilities.some((ability) => ability.when === 'enter'))
-          score += b.level >= 3 ? 2.5 : 1.2
-      } else {
-        score += cpuEvolutionPayoff(s, side, card, lane, b.level, choice ?? 0)
-        // Reward deliberate future leveling without counting it as immediate.
-        if (b.level === 1)
-          score +=
-            Math.max(0, cpuEvolutionPayoff(s, side, card, lane, 2, 0)) * 0.2
-      }
+      // Alliance cards have the same actual board effects as Solo cards.
+      // The payoff scorer already discounts uncertainty in Alliance.
+      score += cpuEvolutionPayoff(s, side, card, lane, b.level, choice ?? 0)
+      if (b.level === 1)
+        score +=
+          Math.max(0, cpuEvolutionPayoff(s, side, card, lane, 2, 0)) * 0.2
       score /= b.plays
       if (!best || score > best.score)
         best = { score, card: id, lane, ...(choice ? { choice } : {}) }

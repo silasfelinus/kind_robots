@@ -28,6 +28,15 @@
             </span>
             <button
               type="button"
+              class="arcade-share btn btn-ghost btn-sm shrink-0"
+              data-testid="arcade-share"
+              :title="`Share ${meta.title} with a friend`"
+              @click="shareGame"
+            >
+              {{ shareNote || 'Share' }}
+            </button>
+            <button
+              type="button"
               class="arcade-details-toggle btn btn-outline btn-sm shrink-0"
               :aria-expanded="showDetails"
               aria-controls="arcade-cabinet-details"
@@ -235,6 +244,24 @@ const ranges = [
   { key: 'today' as const, label: "Today's best · worldwide" },
   { key: 'all' as const, label: 'All-time high scores · worldwide' },
 ]
+
+const shareNote = ref('')
+async function shareGame() {
+  const url = `${window.location.origin}/play/arcade?game=${encodeURIComponent(meta.value?.slug ?? '')}`
+  const title = `${meta.value?.title ?? 'Arcade'} · Kind Robots Arcade`
+  try {
+    if (navigator.share) {
+      await navigator.share({ title, url })
+      return
+    }
+    await navigator.clipboard.writeText(url)
+    shareNote.value = 'Link copied!'
+  } catch (err) {
+    if ((err as Error)?.name === 'AbortError') return
+    shareNote.value = 'Copy the address bar'
+  }
+  setTimeout(() => (shareNote.value = ''), 2500)
+}
 
 useHead({
   title: computed(() =>

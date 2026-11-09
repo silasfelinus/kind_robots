@@ -197,7 +197,11 @@ for (const [left, right] of [
   assert.equal(grown.hp, 10, 'growth does not erase earlier damage')
   assert.equal(grown.attack, 6, 'surviving grows its permanent punch')
   assert.equal(model.units[0]!.maxHp, 13, 'the previous state is immutable')
-  assert.deepEqual(first, endClashTurn(model, 'enemy'), 'growth replays exactly')
+  assert.deepEqual(
+    first,
+    endClashTurn(model, 'enemy'),
+    'growth replays exactly',
+  )
 
   const earlier = structuredClone(model)
   earlier.units[0]!.level = 2

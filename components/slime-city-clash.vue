@@ -254,7 +254,7 @@
           {{ backTarget }}
         </button>
         <button
-          v-if="!inBout || game.victor"
+          v-if="(!inBout || game.victor) && lab.clashLaunch.kind !== 'tower'"
           type="button"
           class="clash-reset"
           data-testid="clash-restart"
@@ -396,10 +396,10 @@ let dealtLaunch = lab.clashLaunch.id
 const mine = computed(() => teamById(game.value.teams.player))
 const rival = computed(() => teamById(game.value.teams.enemy))
 const inBout = computed(() =>
-  ['rival', 'contract', 'campaign'].includes(lab.clashLaunch.kind),
+  ['rival', 'contract', 'campaign', 'tower'].includes(lab.clashLaunch.kind),
 )
 const rewarded = computed(
-  () => lab.progressLoaded && lab.clashLaunch.kind !== 'campaign',
+  () => lab.progressLoaded && lab.clashLaunch.kind === 'reward',
 )
 const kindLabel = computed(
   () =>
@@ -409,6 +409,7 @@ const kindLabel = computed(
       rival: 'CITY BOUT',
       contract: 'CITY CONTRACT',
       campaign: 'STORY BOUT',
+      tower: 'TOWER FIGHT',
     })[lab.clashLaunch.kind] +
     ' · ' +
     (alliance.value ? 'ALLIANCE' : 'SOLO'),
@@ -418,11 +419,13 @@ const backTarget = computed(() => {
   if (!game.value.victor || !lab.clashResult) return ''
   const kind = lab.clashResult.kind
   if (kind === 'campaign') return 'BACK TO STORY ›'
+  if (kind === 'tower') return 'BACK TO TOWER ›'
   if (kind === 'rival' || kind === 'contract') return 'BACK TO THE CITY ›'
   return ''
 })
 function goBack(): void {
   if (lab.clashResult?.kind === 'campaign') lab.showCampaign()
+  else if (lab.clashResult?.kind === 'tower') lab.showTower()
   else lab.showCity()
 }
 const rewardNote = computed(() =>

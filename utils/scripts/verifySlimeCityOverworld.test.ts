@@ -112,10 +112,10 @@ const artIds = [
 ]
 assert.equal(
   SLIME_CITY_ART_COUNT,
-  775,
-  '233 curated ids plus the 2026-11-07 art pass: 542 verified renders (217 cards, 263 board tokens, 60 story plates, 2 attacks)',
+  786,
+  '233 curated ids plus the 2026-11-07 art pass: 542 verified renders (217 cards, 263 board tokens, 60 story plates, 2 attacks), plus 11 new Ironjaw board-token moods from the 2026-11-09 ogre redo',
 )
-assert.equal(artIds.length, 775)
+assert.equal(artIds.length, 786)
 assert.ok(
   CARDS.filter((c) => slimeArtId('cards', c.id)).length >= 290,
   'nearly the whole catalog is illustrated',

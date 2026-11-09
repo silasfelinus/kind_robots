@@ -277,20 +277,32 @@ export const BLOODFAIRY_EVOLUTIONS: Record<string, CardEvolution> = {
       freeIf: 'crowd',
     },
   },
-  // Arc: one lucky fighter gets the mic -> it sings for its supper and the
-  // boss eats -> encore or die: bring back a fallen friend (Encore!), or
-  // burn bright and explode on the way out (Die Trying).
-  // Trajectory: ROLE SHIFT with a choose-one level three. Counterplay: with
-  // nobody fallen the encore is empty; kill the volatile one away from
-  // your fighters.
+  // Signature: a singer shares a little borrowed life with the band.
+  // L1 gives the chosen singer LEECH in one Clash play slot. Its fragility
+  // is obvious: silence or kill that singer before the next damaging hit.
+  // L2 keeps the lead singer and teaches both neighbors to drink too.
+  // L3's real choice: the crowd revives a fallen singer and EVERYBODY
+  // gets LEECH (Encore!), or the lead burns out while adjacent allies
+  // steal life in a louder, riskier chorus (Die Trying).
+  // Combo: Riot Choir's Backup Singers turn spare lanes into sources
+  // of LEECH; a fragile SWARM pack needs to strike to cash it in.
+  // Counterplay: focused removal, armor, stun, or kill the VOLATILE
+  // lead away from neighboring allies.
   's3-bloodfairies-encore': {
-    2: stage('Sing for Supper', [on('enter', mend(2))]),
-    3: stage('Encore!', [on('enter', revive(3, 3))]),
-    // Choose one: or die trying. The CPU calls the encore only when someone
-    // has fallen.
+    2: stage('Second Verse', [
+      on('enter', grant('leech', 'adjacentAllies')),
+    ]),
+    3: stage('Everybody Sings', [
+      on('enter', revive(2, 3), grant('leech', 'allies')),
+    ]),
     choice: {
       stage: stage('Die Trying', [
-        on('enter', sharpen(2, 'target'), grant('volatile', 'target')),
+        on(
+          'enter',
+          grant('leech', 'adjacentAllies'),
+          sharpen(2, 'target'),
+          grant('volatile', 'target'),
+        ),
       ]),
       cpu: 'allyFell',
     },

@@ -313,10 +313,10 @@
               type="button"
               :aria-pressed="lab.deckFormat === 'alliance'"
               data-testid="slime-format-alliance"
-              title="Thirty cards from a general crew and an ally crew"
+              title="Twenty cards from a general crew and an ally crew"
               @click="lab.deckFormat = 'alliance'"
             >
-              ALLIANCE <small>30</small>
+              ALLIANCE <small>20</small>
             </button>
           </div>
           <div
@@ -329,16 +329,16 @@
               class="sc-deck-meter"
               :title="
                 lab.currentAlliance.cards.length +
-                ' of 30 alliance slots filled'
+                ' of 20 alliance slots filled'
               "
             >
               <strong
                 >{{ lab.currentAlliance.cards.length
-                }}<small>/30</small></strong
+                }}<small>/20</small></strong
               >
-              <span class="sc-deck-pips is-thirty" aria-hidden="true"
+              <span class="sc-deck-pips is-twenty" aria-hidden="true"
                 ><i
-                  v-for="slot in 30"
+                  v-for="slot in 20"
                   :key="slot"
                   :class="{ on: slot <= lab.currentAlliance.cards.length }"
               /></span>
@@ -358,7 +358,7 @@
               <p aria-live="polite">
                 {{
                   lab.deckMessage ||
-                  'Pick two factions. Any 30 cards from either faction or the mercenaries; the general’s power comes with the deck.'
+                  'Pick two factions. Any 20 cards from either faction or the mercenaries; the general’s power comes with the deck.'
                 }}
               </p>
               <small
@@ -557,6 +557,15 @@
               LV {{ n }}
             </button>
           </div>
+          <div class="sc-card-filters" role="group" aria-label="Filter collection cards" data-testid="slime-card-filters">
+            <button
+              v-for="filter in collectionFilters"
+              :key="filter.id"
+              type="button"
+              :aria-pressed="collectionFilter === filter.id"
+              @click="collectionFilter = filter.id"
+            >{{ filter.label }}</button>
+          </div>
           <ul
             v-if="lab.deckFormat === 'alliance'"
             class="sc-collection-grid kr-scroll"
@@ -564,7 +573,7 @@
             data-testid="slime-alliance-grid"
           >
             <li
-              v-for="card in lab.allianceCards"
+              v-for="card in filteredAllianceCards"
               :key="card.id"
               class="sc-collect"
               :class="'is-' + allianceState(card)"
@@ -582,9 +591,9 @@
                 :data-testid="'slime-alliance-card-' + card.id"
                 :aria-pressed="lab.currentAlliance.cards.includes(card.id)"
                 :aria-label="
-                  card.name + ', ' + allianceLabel(card).toLowerCase()
+                  'Inspect ' + card.name + ', ' + allianceLabel(card).toLowerCase()
                 "
-                @click="lab.toggleAllianceCard(card.id)"
+                @click="inspectId = card.id"
               />
             </li>
           </ul>
@@ -595,7 +604,7 @@
             data-testid="slime-solo-grid"
           >
             <li
-              v-for="card in lab.soloCards"
+              v-for="card in filteredSoloCards"
               :key="card.id"
               class="sc-collect"
               :class="'is-' + soloState(card)"
@@ -612,8 +621,8 @@
                 class="sc-collect-pick"
                 :data-testid="'slime-solo-card-' + card.id"
                 :aria-pressed="lab.currentSolo.includes(card.id)"
-                :aria-label="card.name + ', ' + soloLabel(card).toLowerCase()"
-                @click="lab.toggleSoloCard(card.id)"
+                :aria-label="'Inspect ' + card.name + ', ' + soloLabel(card).toLowerCase()"
+                @click="inspectId = card.id"
               />
             </li>
           </ul>
@@ -824,10 +833,10 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, onUnmounted } from 'vue'
+import { computed, onMounted, onUnmounted, ref } from 'vue'
 import { cardById, type Card } from '~/utils/slimeCity/prototypes'
 import { factionPower } from '~/utils/slimeCity/factionPowers'
-import { CLASH_MAX_LEVEL } from '~/utils/slimeCity/clash'
+import { CLASH_MAX_LEVEL, clashCardText } from '~/utils/slimeCity/clash'
 import { STREETS } from '~/utils/slimeCity/city'
 import { useSlimeCityStore } from '~/stores/slimeCity'
 import { slimeArtId, SLIME_CITY_ART } from '~/utils/slimeCity/artManifest'
@@ -880,6 +889,36 @@ function teamName(id: string): string {
 const generalPower = computed(() => factionPower(lab.activeTeam))
 /** Collection cards show their Clash face at the chosen evolution level. */
 const evolutionLevel = ref(1)
+const collectionFilters = [
+  { id: 'all', label: 'ALL ELIGIBLE' },
+  { id: 'faction', label: 'FACTIONS' },
+  { id: 'mercenary', label: 'MERCENARIES · 60' },
+] as const
+const collectionFilter = ref<(typeof collectionFilters)[number]['id']>('all')
+const inspectId = ref<string | null>(null)
+const inspectCard = computed(() =>
+  inspectId.value
+    ? lab.allianceCards.find((card) => card.id === inspectId.value) ??
+      lab.soloCards.find((card) => card.id === inspectId.value) ?? null
+    : null,
+)
+const inspectInDeck = computed(() =>
+  inspectCard.value
+    ? lab.deckFormat === 'alliance'
+      ? lab.currentAlliance.cards.includes(inspectCard.value.id)
+      : lab.currentSolo.includes(inspectCard.value.id)
+    : false,
+)
+const filterCards = (cards: Card[]): Card[] =>
+  cards.filter((card) =>
+    collectionFilter.value === 'all'
+      ? true
+      : collectionFilter.value === 'mercenary'
+        ? card.team === 'mercenary'
+        : card.team !== 'mercenary',
+  )
+const filteredAllianceCards = computed(() => filterCards(lab.allianceCards))
+const filteredSoloCards = computed(() => filterCards(lab.soloCards))
 const allyChoices = computed(() =>
   lab.teams.filter((team) => team.id !== lab.activeTeam),
 )

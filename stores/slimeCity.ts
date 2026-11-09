@@ -24,6 +24,17 @@ import {
 } from '../utils/slimeCity/campaign'
 import { campaignConversationFor } from '../utils/slimeCity/campaignDialogue'
 import { campaignCardChoices, campaignSoloDeck, chooseCampaignCard } from '../utils/slimeCity/campaignCardRewards'
+import {
+  freshTower,
+  startTower,
+  towerRoutes,
+  towerBosses,
+  chooseTowerRoute,
+  resolveTowerBattle,
+  towerSpoils,
+  claimTowerSpoil,
+  type TowerSave,
+} from '../utils/slimeCity/allianceTower'
 import { campaignAftermathFor } from '../utils/slimeCity/campaignAftermath'
 import {
   campaignBattlefield,
@@ -139,7 +150,7 @@ function rollSeed(): number {
 
 export type DeckFormat = 'solo' | 'alliance'
 export type ClashKind =
-  'practice' | 'reward' | 'rival' | 'contract' | 'campaign'
+  'practice' | 'reward' | 'rival' | 'contract' | 'campaign' | 'tower'
 export interface ClashLaunch {
   id: number
   kind: ClashKind
@@ -175,7 +186,7 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
     return net.value.fetcher<T>(url, options)
   }
   const view = ref<
-    'city' | 'arena' | 'alleys' | 'clash' | 'cards' | 'campaign' | 'rewards'
+    'city' | 'arena' | 'alleys' | 'clash' | 'cards' | 'campaign' | 'rewards' | 'tower'
   >('clash')
   const activeTeam = ref<TeamId>('catgirls')
   const enemyTeam = ref<TeamId>('bloodfairies')
@@ -329,6 +340,15 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
   const contractBout = ref<DistrictId | null>(null)
   const lastContract = ref<DistrictId | null>(null)
   const campaignSave = ref(createCampaignSave())
+  const towerSave = ref<TowerSave>(freshTower())
+  const towerRun = computed(() => towerSave.value.run)
+  const towerMeta = computed(() => towerSave.value.meta)
+  const towerOptions = computed(() =>
+    towerRun.value ? towerRoutes(towerRun.value) : null,
+  )
+  const towerRewards = computed(() =>
+    towerRun.value ? towerSpoils(towerRun.value, towerSave.value.meta) : null,
+  )
   const savedDecks = ref<Partial<Record<TeamId, string[]>>>({})
   /** ALLIANCE: the last legal 30-card deck saved for each general. */
   const savedAlliances = ref<Partial<Record<TeamId, AllianceDeck>>>({})
@@ -390,6 +410,7 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
     storyError.value = ''
     city.value = createCity()
     campaignSave.value = createCampaignSave()
+    towerSave.value = freshTower()
     savedDecks.value = {}
     savedAlliances.value = {}
     allianceDrafts.value = {}
@@ -412,6 +433,7 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
       city.value = response.data.city
       districtId.value = response.data.city.location
       campaignSave.value = response.data.campaigns
+      towerSave.value = response.data.tower ?? freshTower()
       savedDecks.value = response.data.decks ?? {}
       savedAlliances.value = response.data.alliances ?? {}
       allianceDrafts.value = {}
@@ -441,6 +463,7 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
           revision: storyRevision.value,
           city: city.value,
           campaigns: campaignSave.value,
+          tower: towerSave.value,
           decks: savedDecks.value,
           alliances: savedAlliances.value,
           soloDecks: savedSolo.value,
@@ -958,6 +981,14 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
     const launch = clashLaunch.value
     if (launchId !== launch.id || !state.victor || clashResult.value) return
     clashResult.value = { kind: launch.kind, victor: state.victor }
+    if (launch.kind === 'tower' && towerRun.value?.phase === 'battle') {
+      towerSave.value = {
+        ...towerSave.value,
+        run: resolveTowerBattle(towerRun.value, state.victor),
+      }
+      persistStory()
+      return
+    }
     if (launch.kind === 'reward' && launch.rewardId) {
       void finishCpuBattle(launch.rewardId, [...state.commands])
       return
@@ -1192,6 +1223,46 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
     stop()
     cityScreen.value = screen
     view.value = 'city'
+  }
+
+  function showTower(): void {
+    stop()
+    view.value = 'tower'
+  }
+
+  function beginTower(): void {
+    if (!storyEditable() || towerRun.value || allianceProblems(playAlliance.value).length) return
+    towerSave.value = {
+      ...towerSave.value,
+      run: startTower(playAlliance.value, rollSeed(), towerMeta.value),
+    }
+    persistStory()
+    showTower()
+  }
+
+  function chooseTowerFloor(id: string): void {
+    const run = towerRun.value
+    if (!storyEditable() || !run) return
+    const next = chooseTowerRoute(run, id)
+    if (next === run || !next.chosen) return
+    towerSave.value = { ...towerSave.value, run: next }
+    persistStory()
+    launchClash({
+      kind: 'tower',
+      format: 'alliance',
+      alliance: next.deck,
+      enemy: next.chosen.foe,
+      seed: (next.seed + next.floor * 997 + 13) >>> 0,
+      bosses: towerBosses(next),
+    })
+  }
+
+  function takeTowerSpoil(cardId: string): void {
+    if (!storyEditable()) return
+    const next = claimTowerSpoil(towerSave.value, cardId)
+    if (next === towerSave.value) return
+    towerSave.value = next
+    persistStory()
   }
 
   function showCampaign(): void {
@@ -1685,6 +1756,15 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
     activeContract,
     contractGate,
     campaignSave,
+    towerSave,
+    towerRun,
+    towerMeta,
+    towerOptions,
+    towerRewards,
+    beginTower,
+    chooseTowerFloor,
+    takeTowerSpoil,
+    showTower,
     currentDeck,
     currentDeckProblems,
     replacingCard,

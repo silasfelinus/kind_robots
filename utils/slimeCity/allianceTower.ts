@@ -1,6 +1,10 @@
 // CLASH ALLIANCE TOWER: a repeatable twelve-floor run, distinct from the
 // five-chapter, one-faction Story campaigns. Pure state, deterministic choices.
-import { allianceProblems, validAllianceDeck, type AllianceDeck } from './alliance'
+import {
+  allianceProblems,
+  validAllianceDeck,
+  type AllianceDeck,
+} from './alliance'
 import { CARDS, TEAMS, seededHash, type TeamId } from './prototypes'
 import { rarityOf } from './progression'
 
@@ -42,10 +46,26 @@ export function freshTower(): TowerSave {
 }
 
 const SCENES: Record<TowerHazard, [string, string, string]> = {
-  snare: ['THE NEEDLE GATE', 'A wire net skims the ceiling. The pit announcer asks who packed the bolt cutters.', 'Rival starts with reinforced boss life'],
-  riot: ['THE SHATTERED STANDS', 'Spectators throw fireworks onto a board nobody remembers building.', 'A louder rival awaits'],
-  rest: ['THE PATCHWORK CLINIC', 'The nurse can stabilize the crew, but the debt collectors are coming up the stairs.', 'Restore some starting boss life'],
-  vault: ['THE BRASS VAULT', 'A tempting lockbox sits in the only safe-looking corridor. It is definitely not empty.', 'Claim a reusable ward after victory'],
+  snare: [
+    'THE NEEDLE GATE',
+    'A wire net skims the ceiling. The pit announcer asks who packed the bolt cutters.',
+    'Rival starts with reinforced boss life',
+  ],
+  riot: [
+    'THE SHATTERED STANDS',
+    'Spectators throw fireworks onto a board nobody remembers building.',
+    'A louder rival awaits',
+  ],
+  rest: [
+    'THE PATCHWORK CLINIC',
+    'The nurse can stabilize the crew, but the debt collectors are coming up the stairs.',
+    'Restore some starting boss life',
+  ],
+  vault: [
+    'THE BRASS VAULT',
+    'A tempting lockbox sits in the only safe-looking corridor. It is definitely not empty.',
+    'Claim a reusable ward after victory',
+  ],
 }
 
 export function towerRoutes(run: TowerRun): [TowerRoute, TowerRoute] | null {
@@ -63,7 +83,10 @@ export function towerRoutes(run: TowerRun): [TowerRoute, TowerRoute] | null {
     const foe = ids[(run.floor + (roll % ids.length) + index) % ids.length]!
     return {
       id: String(run.floor) + ':' + index,
-      title: run.floor === TOWER_FLOORS - 1 ? 'THE GRAND PIT · ' + foe.toUpperCase() : title,
+      title:
+        run.floor === TOWER_FLOORS - 1
+          ? 'THE GRAND PIT · ' + foe.toUpperCase()
+          : title,
       scene,
       hazard,
       foe,
@@ -73,8 +96,13 @@ export function towerRoutes(run: TowerRun): [TowerRoute, TowerRoute] | null {
   return [pick(0), pick(1)]
 }
 
-export function startTower(deck: AllianceDeck, seed: number, meta: TowerMeta = freshTower().meta): TowerRun {
-  if (allianceProblems(deck).length) throw new Error('Build a legal 30-card Alliance.')
+export function startTower(
+  deck: AllianceDeck,
+  seed: number,
+  meta: TowerMeta = freshTower().meta,
+): TowerRun {
+  if (allianceProblems(deck).length)
+    throw new Error('Build a legal 30-card Alliance.')
   return {
     seed: seed >>> 0,
     floor: 0,
@@ -100,8 +128,14 @@ export function towerBosses(run: TowerRun): {
 } {
   const hazard = run.chosen?.hazard
   return {
-    player: Math.max(20, Math.min(60, 40 - run.scars + run.guard + (hazard === 'rest' ? 6 : 0))),
-    enemy: Math.max(20, Math.min(60, 32 + run.floor * 2 + (hazard === 'snare' ? 6 : 0))),
+    player: Math.max(
+      20,
+      Math.min(60, 40 - run.scars + run.guard + (hazard === 'rest' ? 6 : 0)),
+    ),
+    enemy: Math.max(
+      20,
+      Math.min(60, 32 + run.floor * 2 + (hazard === 'snare' ? 6 : 0)),
+    ),
   }
 }
 
@@ -120,7 +154,10 @@ export function resolveTowerBattle(
     ...run,
     floor: cleared,
     sparks: run.sparks + 1 + (run.chosen.hazard === 'riot' ? 1 : 0),
-    scars: run.chosen.hazard === 'snare' ? run.scars + 2 : Math.max(0, run.scars - (run.chosen.hazard === 'rest' ? 2 : 0)),
+    scars:
+      run.chosen.hazard === 'snare'
+        ? run.scars + 2
+        : Math.max(0, run.scars - (run.chosen.hazard === 'rest' ? 2 : 0)),
     guard: Math.min(8, run.guard + (relic.length ? 2 : 0)),
     relics: [...run.relics, ...relic],
     chosen: null,
@@ -132,11 +169,14 @@ export function resolveTowerBattle(
 export function towerSpoils(
   run: TowerRun,
   meta: TowerMeta,
-): [typeof CARDS[number], typeof CARDS[number]] | null {
-  if ((run.phase !== 'failed' && run.phase !== 'complete') || run.floor < 1) return null
+): [(typeof CARDS)[number], (typeof CARDS)[number]] | null {
+  if ((run.phase !== 'failed' && run.phase !== 'complete') || run.floor < 1)
+    return null
   const available = CARDS.filter(
     (card) =>
-      (card.team === run.deck.general || card.team === run.deck.ally || card.team === 'mercenary') &&
+      (card.team === run.deck.general ||
+        card.team === run.deck.ally ||
+        card.team === 'mercenary') &&
       !meta.cards.includes(card.id),
   )
   if (available.length < 2) return null
@@ -144,14 +184,14 @@ export function towerSpoils(
     items[seededHash(run.seed, run.floor, meta.runs, salt) % items.length]!
   const rare = available.filter((card) => rarityOf(card) === 'rare')
   const first = pick(run.floor >= 4 && rare.length ? rare : available, 41)
-  const second = pick(available.filter((card) => card.id !== first.id), 47)
+  const second = pick(
+    available.filter((card) => card.id !== first.id),
+    47,
+  )
   return [first, second]
 }
 
-export function claimTowerSpoil(
-  save: TowerSave,
-  cardId: string,
-): TowerSave {
+export function claimTowerSpoil(save: TowerSave, cardId: string): TowerSave {
   const run = save.run
   if (!run || !towerSpoils(run, save.meta)?.some((card) => card.id === cardId))
     return save
@@ -183,8 +223,12 @@ export function validTowerSave(raw: unknown): raw is TowerSave {
     !Array.isArray(meta.cards) ||
     meta.cards.length > CARDS.length ||
     new Set(meta.cards).size !== meta.cards.length ||
-    !meta.cards.every((id: unknown) => typeof id === 'string' && CARDS.some((card) => card.id === id))
-  ) return false
+    !meta.cards.every(
+      (id: unknown) =>
+        typeof id === 'string' && CARDS.some((card) => card.id === id),
+    )
+  )
+    return false
   if (raw.run === null) return true
   if (!record(raw.run)) return false
   const run = raw.run
@@ -201,11 +245,18 @@ export function validTowerSave(raw: unknown): raw is TowerSave {
     !run.relics.every((id: unknown) => id === 'BRASS WARD') ||
     (run.phase === 'complete' && run.floor !== TOWER_FLOORS) ||
     (run.phase === 'route' && run.floor >= TOWER_FLOORS)
-  ) return false
+  )
+    return false
   if (run.phase === 'battle') {
     if (!record(run.chosen)) return false
-    const routes = towerRoutes({ ...(run as unknown as TowerRun), chosen: null, phase: 'route' })
-    return !!routes?.some((route) => JSON.stringify(route) === JSON.stringify(run.chosen))
+    const routes = towerRoutes({
+      ...(run as unknown as TowerRun),
+      chosen: null,
+      phase: 'route',
+    })
+    return !!routes?.some(
+      (route) => JSON.stringify(route) === JSON.stringify(run.chosen),
+    )
   }
   return run.chosen === null
 }

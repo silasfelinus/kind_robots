@@ -429,8 +429,11 @@ export function bloodfairyStoryDeck(
   for (const id of additions) {
     if (next.includes(id) || !CARDS.some((card) => card.id === id && card.team === 'bloodfairies'))
       continue
-    // Story earned rewards enter at the front; replace only from the tail.
-    next = [...next.slice(0, 19), id]
+    // Story earned rewards enter at the front; replace only non-earned
+    // cards from the tail, preserving earlier additions.
+    const protectedIds = new Set([...additions, ...(progress.rewards ?? [])])
+    const slot = next.findLastIndex((cardId) => !protectedIds.has(cardId))
+    if (slot >= 0) next[slot] = id
   }
   return soloProblems('bloodfairies', next).length ? deck : next
 }

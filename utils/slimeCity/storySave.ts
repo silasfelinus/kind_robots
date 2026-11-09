@@ -312,11 +312,16 @@ export function storyFromAccount(raw: unknown): SlimeCityStory {
         },
       }
     : saved.tower
-  const story = { ...saved, ...(alliances ? { alliances } : {}), ...(tower ? { tower } : {}) }
+  const story = {
+    ...saved,
+    ...(alliances ? { alliances } : {}),
+    ...(tower ? { tower } : {}),
+  }
   return validSlimeCityStory(story) ? story : newSlimeCityStory()
 }
 
 export function accountWithStory(raw: unknown, progression: object): object {
-  const story = record(raw) && record(raw.story) ? storyFromAccount(raw) : undefined
+  const story =
+    record(raw) && record(raw.story) ? storyFromAccount(raw) : undefined
   return story ? { ...progression, story } : progression
 }

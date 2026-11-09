@@ -1232,7 +1232,9 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
   }
 
   function beginTower(): void {
-    if (!storyEditable() || towerRun.value || allianceProblems(playAlliance.value).length) return
+    if (!storyEditable()) return
+    if (towerRun.value) return showTower()
+    if (allianceProblems(playAlliance.value).length) return
     towerSave.value = {
       ...towerSave.value,
       run: startTower(playAlliance.value, rollSeed(), towerMeta.value),

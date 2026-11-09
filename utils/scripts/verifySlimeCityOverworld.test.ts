@@ -1723,6 +1723,6 @@ assert.equal(lab.clashLaunch.kind, 'campaign')
 assert.ok(lab.clashLaunch.cards?.includes('s1-riot-choir'))
 assert.ok(
   lab.clashLaunch.bosses!.player > CLASH_BOSS_HP,
-  'coalition's actual first fight benefits from members gathered',
+  'The first coalition fight benefits from gathered members',
 )
 console.log('Slime City Bloodfairy story store: gated scenes, chorus tactics and real Clash deck PASS')

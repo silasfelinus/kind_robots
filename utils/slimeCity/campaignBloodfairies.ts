@@ -3,6 +3,8 @@
 // conditions; the 3rd-stage card spotlight never grants free evolutions.
 import type { CampaignProgress, CampaignSave } from './campaign'
 import type { BoutTerms } from './city'
+import { CARDS } from './prototypes'
+import { soloProblems } from './alliance'
 
 export type BloodfairyPick = 'left' | 'right'
 export interface BloodfairyChoice {
@@ -408,4 +410,27 @@ export function validBloodfairyJourney(progress: CampaignProgress): boolean {
     ) return false
   }
   return true
+}
+
+/** Chosen coalition tactics field real cards in the next STORY combat.
+ * No permanent pack card is awarded here; Story rewards retain priority.
+ * The choir may reach its actual level 3 through normal Clash card plays.
+ */
+export function bloodfairyStoryDeck(
+  progress: CampaignProgress,
+  deck: string[],
+): string[] {
+  const { voices, volume } = bloodfairyLedger(progress)
+  const additions = [
+    ...(voices >= 3 ? ['s1-riot-choir'] : []),
+    ...(volume >= 3 ? ['s2-bloodfairies-bassquake-colossus'] : []),
+  ]
+  let next = [...deck]
+  for (const id of additions) {
+    if (next.includes(id) || !CARDS.some((card) => card.id === id && card.team === 'bloodfairies'))
+      continue
+    // Story earned rewards enter at the front; replace only from the tail.
+    next = [...next.slice(0, 19), id]
+  }
+  return soloProblems('bloodfairies', next).length ? deck : next
 }

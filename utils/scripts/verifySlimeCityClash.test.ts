@@ -1742,6 +1742,25 @@ for (const [crew, r] of Object.entries(sweep.crews))
     crew + ' win rate ' + ((100 * r.wins) / r.games).toFixed(1) + '%',
   )
 
+// The art-first board must display the card's authored evolution painting, not
+// the old cropped mood tokens. Keep this contract beside the combat tests so
+// the presentation cannot silently regress during future board refactors.
+const clashView = readFileSync('components/slime-city-clash.vue', 'utf8')
+const fighterArt = clashView.match(
+  /function artFor\(u: ClashUnit\): number \| null \{([\s\S]*?)\n\}/,
+)?.[1]
+assert.ok(fighterArt, 'Clash fighter art resolver must exist')
+assert.match(
+  fighterArt,
+  /slimeCardArtId\(u\.cardId, u\.level, u\.evoChoice \?\? 0\)/,
+  'board fighters must use card art and their actual evolution choice',
+)
+assert.doesNotMatch(
+  fighterArt,
+  /slimeArtId\(['"]tokens['"]/,
+  'reaction-face tokens must not override the fighter card painting',
+)
+
 // Long adversarial CPU playthroughs on every crew pairing, all rules and replay.
 let simulated = 0
 let timeoutWinners = 0

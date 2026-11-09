@@ -1158,6 +1158,42 @@ function evoAct(s: ClashState, ctx: EvoContext, a: EvoAction): void {
       }
       return
     }
+    case 'shift': {
+      const mover = a.to === 'self' ? ctx.self : ctx.target
+      if (
+        !mover ||
+        mover.side !== ctx.side ||
+        mover.rooted ||
+        mover.hp <= 0 ||
+        !s.units.includes(mover)
+      )
+        return
+      const candidates = [mover.lane - 1, mover.lane + 1].filter(
+        (lane) =>
+          inside(lane) &&
+          !unitAt(s, mover.side, lane) &&
+          (a.where === 'safe'
+            ? !unitAt(s, foe, lane)
+            : !!unitAt(s, foe, lane)),
+      )
+      const destination = candidates[0]
+      if (destination === undefined) return
+      mover.lane = destination
+      note(
+        s,
+        nameOf(mover) + ' slips into alley ' + (destination + 1) + '.',
+        'play',
+        destination,
+      )
+      const hazard = s.traps.find(
+        (trap) => trap.side === foe && trap.lane === destination,
+      )
+      if (hazard) {
+        springTrap(s, hazard, mover)
+        casualties(s)
+      }
+      return
+    }
     case 'retreat': {
       const u = ctx.self
       if (!u || u.token || !s.units.includes(u)) return
@@ -2895,6 +2931,21 @@ function cpuEvolutionPayoff(
         )
       case 'rescue':
         return cpuTargets(a.to).filter((u) => !u.lastChance).length * 1.4
+      case 'shift': {
+        const mover = a.to === 'self' ? ctx.self : ctx.target
+        if (mover?.rooted) return 0
+        const source = mover?.lane ?? lane
+        return [source - 1, source + 1].some(
+          (destination) =>
+            inside(destination) &&
+            !unitAt(s, side, destination) &&
+            (a.where === 'safe'
+              ? !unitAt(s, foe, destination)
+              : !!unitAt(s, foe, destination)),
+        )
+          ? 1.5
+          : 0
+      }
     }
   }
   const frequency: Record<EvoTrigger, number> = {

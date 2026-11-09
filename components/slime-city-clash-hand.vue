@@ -50,9 +50,9 @@
           :aria-pressed="held === index"
           :aria-label="
             cardById(cardId).name +
-              '. ' +
-              (isFree(cardId) ? 'Free play. ' : '') +
-              clashCardText(cardById(cardId), clashLevel(game, 'player', cardId))
+            '. ' +
+            (isFree(cardId) ? 'Free play. ' : '') +
+            clashCardText(cardById(cardId), clashLevel(game, 'player', cardId))
           "
           :data-testid="'clash-hand-' + index"
           @pointerdown="grab($event, index)"
@@ -75,7 +75,8 @@
             v-if="isFree(cardId)"
             class="cxh-free"
             data-testid="clash-free-play"
-          >FREE</span>
+            >FREE</span
+          >
         </button>
       </div>
     </TransitionGroup>

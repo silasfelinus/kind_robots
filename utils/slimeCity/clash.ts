@@ -2950,6 +2950,24 @@ function cpuEvolutionPayoff(
         )
       case 'draw':
         return a.n * 1.6
+      case 'promote': {
+        const cards = s[a.zone === 'hand' ? 'hands' : 'decks'][side]
+        return cards.some(
+          (id) => id !== card.id && clashLevel(s, side, id) < CLASH_MAX_LEVEL,
+        )
+          ? 2.2
+          : 0
+      }
+      case 'execute':
+        return cpuTargets(a.to).some(
+          (u) =>
+            u.side === foe &&
+            u.hp < u.maxHp &&
+            u.hp <= a.threshold &&
+            !u.token,
+        )
+          ? 6
+          : 0
       case 'revive':
         return (s.fallen?.[side].length ?? 0) > 0 &&
           s.units.filter((u) => u.side === side).length < CLASH_LANES

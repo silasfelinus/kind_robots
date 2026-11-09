@@ -575,7 +575,7 @@ export const FACTION_CAMPAIGNS: Record<TeamId, FactionCampaign> = {
 export interface CampaignProgress {
   /** Story-only cards drafted after earned chapter victories. */
   rewards?: string[]
-  /** Gene Riot chapter beats; omitted in legacy saves. */
+  /** Crew-specific Story scene decisions (Gene Riot, Bloodfairies); absent in legacy saves. */
   journey?: ('left' | 'right')[][]
   wins: number
   losses: number

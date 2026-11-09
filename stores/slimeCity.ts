@@ -33,6 +33,17 @@ import {
   type GeneRiotPick,
 } from '../utils/slimeCity/campaignGeneRiot'
 import {
+  bloodfairyBeat,
+  bloodfairySceneText,
+  bloodfairyLastOutcome,
+  bloodfairyBattleTerms,
+  bloodfairyEpilogue,
+  bloodfairyLedger,
+  bloodfairyStageThreeReveal,
+  chooseBloodfairyBeat,
+  bloodfairyStoryDeck,
+} from '../utils/slimeCity/campaignBloodfairies'
+import {
   campaignCardChoices,
   campaignSoloDeck,
   chooseCampaignCard,
@@ -591,6 +602,54 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
     campaignSave.value = next
     persistStory()
   }
+  const bloodfairyCurrent = computed(() =>
+    activeTeam.value === 'bloodfairies'
+      ? bloodfairyBeat(campaignState.value)
+      : null,
+  )
+  const campaignJourneyCurrent = computed(
+    () => geneRiotCurrent.value ?? bloodfairyCurrent.value,
+  )
+  const campaignJourneyText = computed(() =>
+    geneRiotCurrent.value
+      ? geneRiotText.value
+      : bloodfairyCurrent.value
+        ? bloodfairySceneText(campaignState.value, bloodfairyCurrent.value)
+        : '',
+  )
+  const campaignJourneyOutcome = computed(() =>
+    activeTeam.value === 'catgirls'
+      ? geneRiotOutcome.value
+      : activeTeam.value === 'bloodfairies'
+        ? bloodfairyLastOutcome(campaignState.value)
+        : null,
+  )
+  const bloodfairyChorus = computed(() =>
+    bloodfairyLedger(campaignSave.value.bloodfairies),
+  )
+  const bloodfairyStageThree = computed(
+    () =>
+      activeTeam.value === 'bloodfairies' &&
+      bloodfairyStageThreeReveal(campaignState.value),
+  )
+  function chooseCampaignJourneyBeat(id: GeneRiotPick): void {
+    if (
+      !storyEditable() ||
+      campaignBout.value ||
+      campaignRewardChoices.value ||
+      view.value !== 'campaign'
+    )
+      return
+    const next =
+      activeTeam.value === 'catgirls'
+        ? chooseGeneRiotScene(campaignSave.value, id)
+        : activeTeam.value === 'bloodfairies'
+          ? chooseBloodfairyBeat(campaignSave.value, id)
+          : campaignSave.value
+    if (next === campaignSave.value) return
+    campaignSave.value = next
+    persistStory()
+  }
   const campaignRewardChoices = computed(() =>
     campaignCardChoices(campaignSave.value, activeTeam.value),
   )
@@ -672,11 +731,14 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
   })
   const campaignFinale = computed(() => {
     const ending = campaignEnding(campaignSave.value, activeTeam.value)
-    return ending && activeTeam.value === 'catgirls'
-      ? [ending, geneRiotEpilogue(campaignState.value)]
-          .filter(Boolean)
-          .join(' ')
-      : ending
+    if (!ending) return null
+    const epilogue =
+      activeTeam.value === 'catgirls'
+        ? geneRiotEpilogue(campaignState.value)
+        : activeTeam.value === 'bloodfairies'
+          ? bloodfairyEpilogue(campaignState.value)
+          : ''
+    return [ending, epilogue].filter(Boolean).join(' ')
   })
   /** A finished campaign's chosen favor, carried into rivals and contracts. */
   const campaignLegacy = computed(() =>
@@ -1534,11 +1596,21 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
       bosses: clashBossesFromTerms(terms),
       ...(kind === 'campaign'
         ? {
-            cards: campaignSoloDeck(
-              campaignSave.value,
-              activeTeam.value,
-              playSolo.value,
-            ),
+            cards:
+              activeTeam.value === 'bloodfairies'
+                ? bloodfairyStoryDeck(
+                    campaignSave.value.bloodfairies,
+                    campaignSoloDeck(
+                      campaignSave.value,
+                      activeTeam.value,
+                      playSolo.value,
+                    ),
+                  )
+                : campaignSoloDeck(
+                    campaignSave.value,
+                    activeTeam.value,
+                    playSolo.value,
+                  ),
           }
         : {}),
     })
@@ -1567,7 +1639,7 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
     if (
       campaignBout.value ||
       campaignRewardChoices.value ||
-      geneRiotCurrent.value
+      campaignJourneyCurrent.value
     )
       return
     const fromCity =
@@ -1586,30 +1658,21 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
       index: campaignSave.value[teamId].wins,
       choice: choice.id,
     }
-    launchStoryClash(
-      'campaign',
-      chapter.foe,
-      teamId === 'catgirls'
-        ? geneRiotBattleTerms(
-            campaignSave.value.catgirls,
-            campaignBattleTerms(
-              campaignSave.value,
-              teamId,
-              fromCity
-                ? storyMissionTerms(city.value, districtId.value, choice.terms)
-                : choice.terms,
-              campaignFavorIndex.value,
-            ),
-          )
-        : campaignBattleTerms(
-            campaignSave.value,
-            teamId,
-            fromCity
-              ? storyMissionTerms(city.value, districtId.value, choice.terms)
-              : choice.terms,
-            campaignFavorIndex.value,
-          ),
+    const base = campaignBattleTerms(
+      campaignSave.value,
+      teamId,
+      fromCity
+        ? storyMissionTerms(city.value, districtId.value, choice.terms)
+        : choice.terms,
+      campaignFavorIndex.value,
     )
+    const prepared =
+      teamId === 'catgirls'
+        ? geneRiotBattleTerms(campaignSave.value.catgirls, base)
+        : teamId === 'bloodfairies'
+          ? bloodfairyBattleTerms(campaignSave.value.bloodfairies, base)
+          : base
+    launchStoryClash('campaign', chapter.foe, prepared)
   }
 
   async function finishCpuBattle(id: string, commands: unknown): Promise<void> {
@@ -1927,6 +1990,13 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
     geneRiotText,
     geneRiotOutcome,
     chooseGeneRiotBeat,
+    bloodfairyCurrent,
+    bloodfairyChorus,
+    bloodfairyStageThree,
+    campaignJourneyCurrent,
+    campaignJourneyText,
+    campaignJourneyOutcome,
+    chooseCampaignJourneyBeat,
     campaignConversation,
     campaignAftermath,
     campaignEcho,

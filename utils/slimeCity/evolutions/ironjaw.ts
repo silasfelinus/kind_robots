@@ -117,17 +117,20 @@ export const IRONJAW_EVOLUTIONS: Record<string, CardEvolution> = {
       ),
     ]),
   },
-  // Arc: six tons of scrap -> every hit drags more scrap onto its hull ->
-  // it sheds the pile as an avalanche on arrival.
-  // Trajectory: EARLY BLOOMER (the L3 hull is lighter, -4 life, because the
-  // scrap goes into the avalanche). Counterplay: spread out so the
-  // avalanche finds one target; hit it before the magnet grows it.
+  // Arc: six tons of scrap -> every hit bolts on another plate ->
+  // the L3 stormbreaker sheds its plating in an arrival shockwave, then
+  // becomes a larger threat for every full round it survives.
+  // THUNDERSAUR-STYLE investment: a fragile opening at L3 (-4 life)
+  // forces a real protect-or-replace choice; its permanent power growth
+  // caps at 12 and must be earned by surviving full rounds.
+  // Counterplay: pierce and burst before round end; spread out to
+  // minimize the opening avalanche.
   's3-ironjaw-dreadnought': {
     stats: { 3: { hp: -4 } },
     2: stage('Scrap Magnet', [on('hit', life(1, 'self'))]),
-    3: stage('Scrapyard Avalanche', [
+    3: stage('Thunderhead of Scrap', [
       on('enter', damage(2, 'laneFoes')),
-      on('hit', life(1, 'self')),
+      on('roundEnd', life(1, 'self'), sharpen(1, 'self')),
     ]),
   },
   // Arc: the union lunch lady -> a soup line for the fighters beside her ->

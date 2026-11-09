@@ -70,7 +70,10 @@ for (const general of crews) {
     assert.ok(nextRun.guard >= 1, 'earned cinders protect future runs')
     const earnedId = options[0]!.id
     if (!deck.cards.includes(earnedId)) {
-      assert.ok(nextRun.deck.cards.includes(earnedId), 'legacy card joins next run')
+      assert.ok(
+        nextRun.deck.cards.includes(earnedId),
+        'legacy card joins next run',
+      )
       assert.equal(nextRun.deck.cards.length, 30)
     }
 

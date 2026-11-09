@@ -353,7 +353,7 @@ import {
   canClashPlay,
   chooseClashCpu,
   clashBossCap,
-  clashPlayCost,
+  clashEffectivePlayCost,
   clashPower,
   clashLevel,
   clashUnitAt,
@@ -669,7 +669,7 @@ function playableNow(id: string): boolean {
     !s.victor &&
     s.active === 'player' &&
     s.phase === 'play' &&
-    clashPlayCost(cardById(id)) + s.plays.player <= clashPlayLimit(s, 'player')
+    clashEffectivePlayCost(s, 'player', cardById(id)) + s.plays.player <= clashPlayLimit(s, 'player')
   )
 }
 function allowedSide(card: Card, side: Side): boolean {

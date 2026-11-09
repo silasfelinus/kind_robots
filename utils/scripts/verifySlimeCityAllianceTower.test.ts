@@ -52,13 +52,20 @@ for (const general of crews) {
     assert.equal(options.length, 2)
     assert.notEqual(options[0]!.id, options[1]!.id)
     assert.deepEqual(towerSpoils(run, freshTower().meta), options)
-    const finished = claimTowerSpoil({ run, meta: freshTower().meta }, options[0]!.id)
+    const finished = claimTowerSpoil(
+      { run, meta: freshTower().meta },
+      options[0]!.id,
+    )
     assert.equal(finished.run, null)
     assert.equal(finished.meta.runs, 1)
     assert.equal(finished.meta.bestFloor, 12)
     assert.ok(finished.meta.cinders >= 12)
     assert.ok(finished.meta.cards.includes(options[0]!.id))
-    assert.equal(claimTowerSpoil(finished, options[0]!.id), finished, 'no double awards')
+    assert.equal(
+      claimTowerSpoil(finished, options[0]!.id),
+      finished,
+      'no double awards',
+    )
     assert.ok(startTower(deck, seed + 1, finished.meta).guard >= 1)
 
     const story = newSlimeCityStory()
@@ -117,7 +124,13 @@ for (const general of crews.slice(0, 3)) {
   for (let turn = 0; !match.victor && turn < 1800; turn++)
     match = applyClashCommand(match, chooseClashCpu(match, match.active))
   assert.ok(match.victor, 'tower clash resolved')
-  const replay = replayClash(general, route.chosen!.foe, route.seed + 13, match.commands, opts)
+  const replay = replayClash(
+    general,
+    route.chosen!.foe,
+    route.seed + 13,
+    match.commands,
+    opts,
+  )
   assert.deepEqual(replay.boss, match.boss)
   assert.deepEqual(replay.levels, match.levels)
   assert.deepEqual(replay.powerUsed, match.powerUsed)
@@ -136,10 +149,13 @@ for (const token of [
   'slime-tower-spoils',
   'slime-tower-begin',
   'KrChoiceHand',
-]) assert.ok(stage.includes(token), token)
+])
+  assert.ok(stage.includes(token), token)
 assert.ok(page.includes('slime-tower-tab'))
 assert.ok(page.includes('<SlimeCityTower'))
 assert.ok(clash.includes('BACK TO TOWER'))
 assert.ok(store.includes("launch.kind === 'tower'"))
 assert.ok(store.includes('tower: towerSave.value'))
-console.log('Slime City Alliance Tower: 30 faction pairs, 360 ascending branches, spoils/zero-win protection, Clash replay, saved legacy and UI contracts PASS')
+console.log(
+  'Slime City Alliance Tower: 30 faction pairs, 360 ascending branches, spoils/zero-win protection, Clash replay, saved legacy and UI contracts PASS',
+)

@@ -99,12 +99,19 @@ export function towerRoutes(run: TowerRun): [TowerRoute, TowerRoute] | null {
 /** Tower-only legacy cards never enter the server-owned reward inventory.
  * A new eligible card replaces the last Alliance slot for this run.
  */
-export function towerDeckWithLegacy(deck: AllianceDeck, meta: TowerMeta): AllianceDeck {
+export function towerDeckWithLegacy(
+  deck: AllianceDeck,
+  meta: TowerMeta,
+): AllianceDeck {
   const unlocked = [...meta.cards].reverse().find((id) => {
     const card = CARDS.find((entry) => entry.id === id)
-    return card &&
+    return (
+      card &&
       !deck.cards.includes(id) &&
-      (card.team === deck.general || card.team === deck.ally || card.team === 'mercenary')
+      (card.team === deck.general ||
+        card.team === deck.ally ||
+        card.team === 'mercenary')
+    )
   })
   return unlocked
     ? { ...deck, cards: [...deck.cards.slice(0, -1), unlocked] }

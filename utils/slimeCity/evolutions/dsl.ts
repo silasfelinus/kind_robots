@@ -338,9 +338,13 @@ export function evoActionText(a: EvoAction, subject: 'it' | 'self'): string {
     case 'draw':
       return 'draw ' + a.n
     case 'promote':
-      return 'level up the lowest-level other card in your ' + a.zone + ' (max L3)'
+      return (
+        'level up the lowest-level other card in your ' + a.zone + ' (max L3)'
+      )
     case 'execute':
-      return 'knock out a wounded rival target at ' + a.threshold + ' or less life'
+      return (
+        'knock out a wounded rival target at ' + a.threshold + ' or less life'
+      )
     case 'chance':
       return (
         a.p + '%: ' + a.then.map((x) => evoActionText(x, subject)).join(', ')

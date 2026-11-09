@@ -287,7 +287,11 @@ for (const [left, right] of [
   capped.levels.player['s1-wiretap-order'] = 3
   capped.levels.player['pipe-seer'] = 3
   const result = playClash(capped, 'player', id, 2)
-  assert.equal(result.levels.player['pipe-seer'], 3, 'promotion is level-capped')
+  assert.equal(
+    result.levels.player['pipe-seer'],
+    3,
+    'promotion is level-capped',
+  )
 }
 
 // A Bloodfairy encore is free only after gathering a crowd, and cannot
@@ -342,7 +346,10 @@ for (const [left, right] of [
     hp: 3,
     maxHp: 12,
   })
-  assert.equal(run(heavy).units.some((u) => u.uid === 60), false)
+  assert.equal(
+    run(heavy).units.some((u) => u.uid === 60),
+    false,
+  )
   assert.ok(
     run({ ...heavy, hp: 12 }).units.some((u) => u.uid === 60),
     'undamaged heavyweight survives',

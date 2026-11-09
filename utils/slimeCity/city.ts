@@ -117,7 +117,7 @@ export const STREET_STORIES: Record<string, StreetStory> = {
   'Slag Causeway': {
     title: 'THE PICKET LINE',
     scene:
-      'Chrome ogre workers link arms across the furnace bridge. Their bosses send a payroll drone with an offer of easy credits and no witnesses.',
+      'Chrome lizard workers link tails across the furnace bridge. Their bosses send a payroll drone with an offer of easy credits and no witnesses.',
     choices: [
       {
         id: 'slag-union',
@@ -267,7 +267,7 @@ export const STREET_STORIES: Record<string, StreetStory> = {
   'Coolant Culvert': {
     title: 'THE FLOODGATE MUTINY',
     scene:
-      'Toxic coolant rises around a stranded ogre mechanic. The emergency valve can save her, or wash the rival patrol off its feet.',
+      'Toxic coolant rises around a stranded lizard mechanic. The emergency valve can save her, or wash the rival patrol off its feet.',
     choices: [
       {
         id: 'coolant-save',
@@ -540,7 +540,7 @@ export const CIVIC_CRISES: [CivicCrisis, CivicCrisis, CivicCrisis] = [
     afterChampions: 4,
     title: 'THE CITYWIDE WALKOUT',
     scene:
-      'Four fallen champions are enough. Chrome ogres shut the furnaces, catgirl medics walk off the lab floors, and bloodfairy couriers refuse the corporate routes. Who gets your support?',
+      'Four fallen champions are enough. Chrome lizards shut the furnaces, catgirl medics walk off the lab floors, and bloodfairy couriers refuse the corporate routes. Who gets your support?',
     choices: [
       {
         id: 'strike-solidarity',
@@ -726,7 +726,7 @@ export const CITY_PLAN: Record<DistrictId, DistrictPlan> = {
     id: 'foundry',
     street: 'Slag Causeway',
     scene:
-      'The Foundry whistle blows a strike. Ironjaw ogres block the gates while the owners hire scabs.',
+      'The Foundry whistle blows a strike. Ironjaw lizards block the gates while the owners hire scabs.',
     rival: {
       name: 'Forewoman Rivet',
       title: 'Strike boss of the Ironjaw line',
@@ -1434,7 +1434,7 @@ export function cityEpilogue(city: CityState): CityEpilogue | null {
     ? {
         title: 'THE CITY THAT REFUSED A CROWN',
         scene:
-          'You tear up the arena title deeds. Chimera clinics, bloodfairy couriers, ogre welders, spies and rioters all send delegates to a city council. The Meat Exchange can no longer sell streets by the kilogram.',
+          'You tear up the arena title deeds. Chimera clinics, bloodfairy couriers, lizard welders, spies and rioters all send delegates to a city council. The Meat Exchange can no longer sell streets by the kilogram.',
         legacy: neighborhoods,
       }
     : {

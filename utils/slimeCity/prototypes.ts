@@ -575,16 +575,16 @@ export const TEAMS: Team[] = [
   },
   {
     id: 'ironjaw',
-    name: 'IRONJAW CHROME OGRES',
+    name: 'IRONJAW CHROME LIZARDS',
     color: 'green',
     district: 'THE FOUNDRY',
     motto: 'More chrome. More teeth.',
-    hook: 'Industrial-size cybernetic ogres fighting for freedom from the factories that built their bodies. Armor, hardware and bulldozing.',
+    hook: 'Cold-blooded cybernetic lizard people who bask on the foundry furnaces between shifts and fight for freedom from the factories that built their bodies. Armor, hardware and bulldozing.',
     insignia: '⬡',
     pattern:
-      'A slow wall that wins every trade. Armored ogres bulldoze blockers out of the lane, and plating turns a good fighter into a fortress.',
+      'A slow wall that wins every trade. Armored lizards bulldoze blockers out of the lane, and plating turns a good fighter into a fortress.',
     counters:
-      'Pierce goes through plating (Undertow, Riot Saints), debt starves the expensive upgrades (Meat Exchange), and a snared ogre is a very large paperweight.',
+      'Pierce goes through plating (Undertow, Riot Saints), debt starves the expensive upgrades (Meat Exchange), and a snared lizard is a very large, very sulky paperweight.',
     signature: 'juggernaut',
     trapCap: 1,
     creatures: ['scrapper', 'welder', 'bulldozer', 'juggernaut'],
@@ -910,7 +910,7 @@ export const CARDS: Card[] = [
     text: 'Turn every amp in Needle Alley to eleven: 3 damage to an enemy.',
     symbol: '♫',
   },
-  // --- IRONJAW CHROME OGRES: armor and bulldozing
+  // --- IRONJAW CHROME LIZARDS: armor and bulldozing
   {
     id: 'scrapper',
     name: 'Chrome Scrapper',
@@ -939,7 +939,7 @@ export const CARDS: Card[] = [
   },
   {
     id: 'bulldozer',
-    name: 'Bulld-Ogre',
+    name: 'Bulldozard',
     kind: 'creature',
     team: 'ironjaw',
     cost: 3,
@@ -1438,7 +1438,7 @@ export const DISTRICTS = [
     name: 'THE FOUNDRY',
     x: 18,
     y: 70,
-    summary: 'Cyber-ogre resistance',
+    summary: 'Cyber-lizard resistance',
     team: 'ironjaw' as TeamId,
   },
   {

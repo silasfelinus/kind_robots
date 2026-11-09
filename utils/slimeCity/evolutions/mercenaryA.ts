@@ -90,7 +90,7 @@ export const MERCENARY_A_EVOLUTIONS: Record<string, CardEvolution> = {
     2: stage('Green Wave', [on('hit', power(1, 'adjacentAllies'))]),
     3: stage('Gridlock', [once('hit', stun('adjacentFoes'))]),
   },
-  // Arc: a troll walking the strike line in permanent overtime -> the line
+  // Arc: a komodo walking the strike line in permanent overtime -> the line
   // only gets thicker -> the general strike: it downs tools, and the three
   // rivals facing it lose the will to swing too.
   // Trajectory: EARLY BLOOMER (it gives up its own strikes for a wall that

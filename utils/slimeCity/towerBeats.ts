@@ -165,7 +165,7 @@ export const TOWER_BEATS = [
       {
         title: 'THE SERVICE TRUSS',
         scene:
-          'Find a maintenance crossing under the bridge. Its builder left handholds sized for ogres and fairies alike.',
+          'Find a maintenance crossing under the bridge. Its builder left handholds sized for lizards and fairies alike.',
       },
     ],
   },

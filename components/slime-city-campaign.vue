@@ -236,8 +236,13 @@
     >
       <article class="campaign-panel kr-scroll" aria-live="polite">
         <span class="campaign-overline">
-          {{ lab.campaignStory.title }} · ACT {{ lab.campaignState.wins + 1 }} / 5
-          · SCENE {{ (lab.campaignState.journey?.[lab.campaignState.wins]?.length ?? 0) + 1 }} / 3
+          {{ lab.campaignStory.title }} · ACT {{ lab.campaignState.wins + 1 }} /
+          5 · SCENE
+          {{
+            (lab.campaignState.journey?.[lab.campaignState.wins]?.length ?? 0) +
+            1
+          }}
+          / 3
         </span>
         <h3>{{ lab.geneRiotCurrent.title }}</h3>
         <div class="campaign-voice player">
@@ -263,7 +268,9 @@
         </div>
       </article>
       <div class="campaign-deck" :class="'tone-' + lab.team.color">
-        <span class="campaign-overline">THE NINTH LIFE PROTOCOL · YOUR DECISION</span>
+        <span class="campaign-overline"
+          >THE NINTH LIFE PROTOCOL · YOUR DECISION</span
+        >
         <KrChoiceHand
           :choices="geneRiotChoices"
           :deal-key="
@@ -282,7 +289,9 @@
               :image-id="
                 slimeArtId(
                   'crews',
-                  choice.id === 'left' ? 'catgirls' : (lab.activeChapter?.foe ?? 'undertow'),
+                  choice.id === 'left'
+                    ? 'catgirls'
+                    : (lab.activeChapter?.foe ?? 'undertow'),
                 )
               "
               :alt="choice.label"
@@ -333,8 +342,9 @@
             </li>
           </ul>
           <p v-else class="campaign-field-note">
-            This historical battlefield briefing is from Legacy mode. Your actual
-            showdown is Solo Clash; your choices change starting boss life.
+            This historical battlefield briefing is from Legacy mode. Your
+            actual showdown is Solo Clash; your choices change starting boss
+            life.
           </p>
         </section>
         <div

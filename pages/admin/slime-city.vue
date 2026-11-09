@@ -414,6 +414,14 @@
               >
                 PLAY ALLIANCE CLASH
               </button>
+              <button
+                type="button"
+                data-testid="slime-alliance-tower-start"
+                :disabled="lab.currentAllianceProblems.length > 0"
+                @click="lab.beginTower()"
+              >
+                CLIMB THE TOWER
+              </button>
             </div>
           </div>
           <div

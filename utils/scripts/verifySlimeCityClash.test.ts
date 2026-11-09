@@ -87,7 +87,23 @@ const playPage = readFileSync('pages/play/slime-city.vue', 'utf8')
 const gamePage = readFileSync('pages/admin/slime-city.vue', 'utf8')
 const store = readFileSync('stores/slimeCity.ts', 'utf8')
 const view = readFileSync('components/slime-city-clash.vue', 'utf8')
-assert.match(playPage, /<SlimeCityGame \/>/)
+assert.match(playPage, /<SlimeCityGame v-else \/>/)
+// Silas, 2026-11-09 PT: the public route opens on a title screen, not mid-game.
+assert.match(
+  playPage,
+  /<SlimeCitySplash v-if="!entered" @enter="entered = true" \/>/,
+)
+const splash = readFileSync('components/slime-city-splash.vue', 'utf8')
+for (const testid of [
+  'slime-splash-crews',
+  'slime-splash-battle',
+  'slime-splash-city',
+  'slime-splash-story',
+]) {
+  assert.match(splash, new RegExp('data-testid="' + testid + '"'))
+}
+assert.match(splash, /console-theme="slime-city"/)
+assert.match(splash, /prefers-reduced-motion: reduce/)
 assert.match(store, />\('clash'\)/, 'Clash is the starting game view')
 assert.match(gamePage, /data-testid="slime-clash-tab"/)
 // Silas, 2026-11-08 PT: "we don't need the legacy modes, period."

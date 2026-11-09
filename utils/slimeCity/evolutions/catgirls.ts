@@ -62,7 +62,6 @@ export const CATGIRL_EVOLUTIONS: Record<string, CardEvolution> = {
     3: stage('Skyline Specter', [
       on('enter', when('acrossEmpty', boss(2))),
       on('turnStart', shift('self', 'safe')),
-      on('kill', retreat()),
     ]),
   },
   // Arc: a back-alley vet who stitched her own tail -> night shifts for

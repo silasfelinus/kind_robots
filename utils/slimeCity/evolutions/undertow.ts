@@ -157,7 +157,7 @@ export const UNDERTOW_EVOLUTIONS: Record<string, CardEvolution> = {
   's2-undertow-backwater-iou': {
     // A paper trail promotes one still-unseen card, so the upgrade arrives
     // naturally on the next shuffle instead of generating an extra card.
-    2: stage('Paper Trail', [on('enter', draw(1), promote('deck'))]),
+    2: stage('Paper Trail', [on('enter', promote('deck'), draw(1))]),
     3: stage('Witness Protection Racket', [
       on('enter', stun('adjacentFoes'), promote('hand')),
     ]),

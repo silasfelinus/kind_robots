@@ -18,7 +18,10 @@ for (const scene of scenes) {
     assert.equal(chooseLetter(chosen, scene, choice), chosen, 'replay is inert')
     for (const conflicting of LETTER_CHOICES[scene])
       assert.equal(chooseLetter(chosen, scene, conflicting), chosen)
-    assert.deepEqual(restoreLetterProgress(JSON.parse(JSON.stringify(chosen))), chosen)
+    assert.deepEqual(
+      restoreLetterProgress(JSON.parse(JSON.stringify(chosen))),
+      chosen,
+    )
     assert.equal(chooseLetter(original, scene, 'forged'), original)
   }
 }
@@ -29,7 +32,8 @@ for (const invalid of [
   { version: 1, decisions: { unknown: 'earth-letter-copy' } },
   { version: 1, decisions: { e04Return: null } },
   { version: 1, decisions: ['earth-return-offer'] },
-]) assert.equal(restoreLetterProgress(invalid), null)
+])
+  assert.equal(restoreLetterProgress(invalid), null)
 
 const echoes = [
   'A drawer opens for a person who might come back.',
@@ -38,8 +42,14 @@ const echoes = [
   'The cabinet offers no explanation of what you missed.',
 ]
 for (let i = 0; i < 4; i++) {
-  const state = i === 3 ? newLetterProgress() :
-    chooseLetter(newLetterProgress(), 'e03Letter', LETTER_CHOICES.e03Letter[i]!)
+  const state =
+    i === 3
+      ? newLetterProgress()
+      : chooseLetter(
+          newLetterProgress(),
+          'e03Letter',
+          LETTER_CHOICES.e03Letter[i]!,
+        )
   assert.equal(letterArchiveEcho(state), echoes[i])
 }
 let combinations = 0

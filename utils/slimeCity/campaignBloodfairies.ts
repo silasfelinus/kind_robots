@@ -477,7 +477,7 @@ export function bloodfairyStoryDeck(
     ...(voices >= 3 ? ['s1-riot-choir'] : []),
     ...(volume >= 3 ? ['s2-bloodfairies-bassquake-colossus'] : []),
   ]
-  let next = [...deck]
+  const next = [...deck]
   for (const id of additions) {
     if (
       next.includes(id) ||

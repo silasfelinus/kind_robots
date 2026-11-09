@@ -337,7 +337,7 @@ import {
   shallowRef,
   watch,
 } from 'vue'
-import { slimeArtId, slimeCardArtId } from '~/utils/slimeCity/artManifest'
+import { slimeCardArtId } from '~/utils/slimeCity/artManifest'
 import {
   cardById,
   teamById,
@@ -637,15 +637,10 @@ function unit(side: Side, lane: number): ClashUnit | undefined {
   return clashUnitAt(game.value, side, lane)
 }
 function artFor(u: ClashUnit): number | null {
-  const face =
-    u.hp < u.maxHp ? 'hurt' : u.side === 'player' ? 'fierce' : 'guard'
-  return (
-    (u.level >= 2
-      ? slimeCardArtId(u.cardId, u.level, u.evoChoice ?? 0)
-      : null) ??
-    slimeArtId('tokens', u.cardId + '/' + face) ??
-    slimeCardArtId(u.cardId, u.level)
-  )
+  // A deployed fighter IS its card. Show the full card painting (or its
+  // curated evolution painting), not the old cropped reaction-face token.
+  // This also avoids a level-two fighter silently showing level-one token art.
+  return slimeCardArtId(u.cardId, u.level, u.evoChoice ?? 0)
 }
 function healthWidth(side: Side): string {
   return (

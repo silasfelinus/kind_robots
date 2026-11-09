@@ -25,7 +25,7 @@
         <span class="tower-eyebrow">THE NEXT RUN</span>
         <h3>{{ lab.team.name }}</h3>
         <p>Take your saved 30-card Alliance into the vertical city. Each fork changes the fight. Spoils and surviving relics become advantages for another attempt.</p>
-        <p class="tower-hint">Each win climbs one floor. A loss ends the run. Card spoils and Cinders are a separate Tower legacy, not Meat or account pack cards.</p>
+        <p class="tower-hint">Each win climbs one floor. Leaving or refreshing a fight forfeits it. Card spoils and Cinders are separate Tower legacy, not Meat or account pack cards.</p>
         <div class="tower-actions">
           <button type="button" class="tower-action secondary" @click="openArmory">EDIT ALLIANCE DECK</button>
           <button type="button" class="tower-action" data-testid="slime-tower-begin" @click="lab.beginTower()">ENTER THE PIT · 30 CARDS</button>
@@ -71,7 +71,7 @@
       <div class="tower-copy">
         <span class="tower-eyebrow">{{ lab.towerRun.phase === 'complete' ? 'THE GRAND PIT IS YOURS' : 'THE PIT CLAIMS THIS RUN' }}</span>
         <h3>{{ lab.towerRun.floor }} FLOORS CLEARED</h3>
-        <p>The tower keeps your story in its walls. Take one card for your future Alliance runs.</p>
+        <p>{{ lab.towerRewards ? 'The tower keeps your story in its walls. Take one card for a future ascent.' : 'No victories, no spoils. The pit gives nothing away.' }}</p>
         <small>{{ lab.towerRun.sparks }} CINDERS EARNED · {{ lab.towerRun.relics.join(', ') || 'NO RELICS' }}</small>
       </div>
       <button

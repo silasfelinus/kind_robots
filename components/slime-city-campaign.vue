@@ -282,7 +282,7 @@
               :image-id="
                 slimeArtId(
                   'crews',
-                  choice.id === 'left' ? 'catgirls' : lab.activeChapter.foe,
+                  choice.id === 'left' ? 'catgirls' : (lab.activeChapter?.foe ?? 'undertow'),
                 )
               "
               :alt="choice.label"
@@ -309,6 +309,14 @@
           {{ lab.campaignStory.prologue }}
         </p>
         <p class="campaign-lede">{{ lab.activeChapter.scene }}</p>
+        <div
+          v-if="lab.geneRiotOutcome && lab.activeTeam === 'catgirls'"
+          class="campaign-recap"
+          data-testid="slime-gene-riot-last-decision"
+        >
+          <strong>THE PRICE OF YOUR DECISION</strong>
+          <p>{{ lab.geneRiotOutcome }}</p>
+        </div>
         <section
           v-if="lab.chapterField"
           class="campaign-field"
@@ -536,7 +544,7 @@ const geneRiotChoices = computed<KrHandChoice[]>(() =>
     id: option.id,
     label: option.label,
     chip: option.id === 'left' ? 'HELP THE CREW' : 'TAKE THE RISK',
-    details: [option.outcome],
+    details: ['Changes the upcoming fight and the crew’s story.'],
   })),
 )
 function playGeneRiot(choice: KrHandChoice) {

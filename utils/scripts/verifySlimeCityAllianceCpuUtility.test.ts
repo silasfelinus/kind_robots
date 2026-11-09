@@ -34,6 +34,8 @@ const fighter = (lane: number): ClashUnit => ({
   s.units = Array.from({ length: 5 }, (_, lane) => fighter(lane))
   s.hands.player = ['merc-emergency-wings', 'mau']
   s.plays.player = 0
+  // Isolate the play heuristic from the one-time faction power.
+  s.powerUsed = { player: true, enemy: true }
   const before = structuredClone(s)
   const command = chooseClashCpu(s, 'player')
   assert.equal(command.t, 'play')

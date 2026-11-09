@@ -63,6 +63,23 @@ for (const general of ids) {
     assert.equal(swapped.ally, general)
     assert.deepEqual(allianceProblems(swapped), [])
   }
+  for (let seed = 1; seed <= 24; seed++) {
+    const foe = ids.find((team) => team !== general)!
+    const opening = createClash(general, foe, seed, {
+      alliance: {
+        player: allianceStarter(general, foe),
+        enemy: cpuAlliance(foe, seed),
+      },
+    })
+    assert.ok(
+      opening.hands.player.some((id) =>
+        Array.from({ length: 5 }, (_, lane) => lane).some((lane) =>
+          canClashPlay(opening, 'player', id, lane),
+        ),
+      ),
+      general + ' opens without a legal play at seed ' + seed,
+    )
+  }
   assert.equal(FACTION_POWERS[general].team, general)
   assert.ok(FACTION_POWERS[general].text.length > 10)
 }

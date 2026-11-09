@@ -118,7 +118,7 @@ const ui = readFileSync('pages/admin/slime-city.vue', 'utf8')
 assert.match(service, /founderCards/)
 assert.match(service, /ownedCards/)
 assert.match(store, /persistStory\(\)/)
-// Silas, 2026-11-08 PT: the armory builds SOLO (20) and ALLIANCE (30) Clash
+// Silas, 2026-11-08 PT: the armory builds SOLO (20) and ALLIANCE (20) Clash
 // decks; the 10-card classic workbench is retired.
 assert.match(store, /function toggleSoloCard/)
 assert.match(ui, /data-testid="slime-solo-workbench"/)

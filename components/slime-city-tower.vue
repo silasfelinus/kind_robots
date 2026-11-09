@@ -74,7 +74,17 @@
         <p>The tower keeps your story in its walls. Take one card for your future Alliance runs.</p>
         <small>{{ lab.towerRun.sparks }} CINDERS EARNED · {{ lab.towerRun.relics.join(', ') || 'NO RELICS' }}</small>
       </div>
+      <button
+        v-if="!lab.towerRewards"
+        type="button"
+        class="tower-action"
+        data-testid="slime-tower-retry"
+        @click="lab.leaveTowerWithoutSpoils()"
+      >
+        TRY ANOTHER ASCENT
+      </button>
       <KrChoiceHand
+        v-else
         :choices="spoilChoices"
         :deal-key="'spoils:' + lab.towerRun.seed + ':' + lab.towerRun.floor"
         question="CHOOSE ONE PERMANENT TOWER CARD"

@@ -603,7 +603,9 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
     persistStory()
   }
   const bloodfairyCurrent = computed(() =>
-    activeTeam.value === 'bloodfairies' ? bloodfairyBeat(campaignState.value) : null,
+    activeTeam.value === 'bloodfairies'
+      ? bloodfairyBeat(campaignState.value)
+      : null,
   )
   const campaignJourneyCurrent = computed(
     () => geneRiotCurrent.value ?? bloodfairyCurrent.value,
@@ -622,9 +624,13 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
         ? bloodfairyLastOutcome(campaignState.value)
         : null,
   )
-  const bloodfairyChorus = computed(() => bloodfairyLedger(campaignSave.value.bloodfairies))
-  const bloodfairyStageThree = computed(() =>
-    activeTeam.value === 'bloodfairies' && bloodfairyStageThreeReveal(campaignState.value),
+  const bloodfairyChorus = computed(() =>
+    bloodfairyLedger(campaignSave.value.bloodfairies),
+  )
+  const bloodfairyStageThree = computed(
+    () =>
+      activeTeam.value === 'bloodfairies' &&
+      bloodfairyStageThreeReveal(campaignState.value),
   )
   function chooseCampaignJourneyBeat(id: GeneRiotPick): void {
     if (
@@ -632,7 +638,8 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
       campaignBout.value ||
       campaignRewardChoices.value ||
       view.value !== 'campaign'
-    ) return
+    )
+      return
     const next =
       activeTeam.value === 'catgirls'
         ? chooseGeneRiotScene(campaignSave.value, id)
@@ -1589,20 +1596,21 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
       bosses: clashBossesFromTerms(terms),
       ...(kind === 'campaign'
         ? {
-            cards: activeTeam.value === 'bloodfairies'
-              ? bloodfairyStoryDeck(
-                  campaignSave.value.bloodfairies,
-                  campaignSoloDeck(
+            cards:
+              activeTeam.value === 'bloodfairies'
+                ? bloodfairyStoryDeck(
+                    campaignSave.value.bloodfairies,
+                    campaignSoloDeck(
+                      campaignSave.value,
+                      activeTeam.value,
+                      playSolo.value,
+                    ),
+                  )
+                : campaignSoloDeck(
                     campaignSave.value,
                     activeTeam.value,
                     playSolo.value,
                   ),
-                )
-              : campaignSoloDeck(
-                  campaignSave.value,
-                  activeTeam.value,
-                  playSolo.value,
-                ),
           }
         : {}),
     })
@@ -1664,7 +1672,8 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
         : teamId === 'bloodfairies'
           ? bloodfairyBattleTerms(campaignSave.value.bloodfairies, base)
           : base
-    launchStoryClash('campaign', chapter.foe, prepared)  }
+    launchStoryClash('campaign', chapter.foe, prepared)
+  }
 
   async function finishCpuBattle(id: string, commands: unknown): Promise<void> {
     progressBusy.value = true

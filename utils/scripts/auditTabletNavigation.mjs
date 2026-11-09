@@ -1,3 +1,4 @@
+import { mkdir } from 'node:fs/promises'
 import { fileURLToPath } from 'node:url'
 
 /**
@@ -12,6 +13,7 @@ import { fileURLToPath } from 'node:url'
  * failure of the PR's new code.
  *
  * Usage: node utils/scripts/auditTabletNavigation.mjs [--base URL] [--routes /a,/b]
+ *        [--screenshots DIR]  failure screenshots (default tablet-nav-screenshots)
  */
 
 const args = process.argv.slice(2)
@@ -20,6 +22,10 @@ const flag = (name, fallback) => {
   return i === -1 || !args[i + 1] ? fallback : args[i + 1]
 }
 
+const SHOT_DIR = flag(
+  'screenshots',
+  process.env.AUDIT_SCREENSHOT_DIR || 'tablet-nav-screenshots',
+)
 const BASE = flag('base', process.env.AUDIT_BASE || 'http://127.0.0.1:3000')
 const ROUTES = flag('routes', '/art,/dreams')
   .split(',')
@@ -143,6 +149,19 @@ function measureLegacy() {
   }
 }
 
+async function saveFailureShot(page, vp, route) {
+  try {
+    await mkdir(SHOT_DIR, { recursive: true })
+    const slug =
+      route.replace(/[^a-z0-9]+/gi, '-').replace(/^-|-$/g, '') || 'home'
+    const file = `${SHOT_DIR}/${vp.name}-${slug}.png`
+    await page.screenshot({ path: file, fullPage: false })
+    console.log(`         screenshot: ${file}`)
+  } catch {
+    // Evidence only; never mask the real failure.
+  }
+}
+
 async function main() {
   let chromium
   try {
@@ -209,6 +228,7 @@ async function main() {
         console.log(
           `${label} ❌ ${loaded ? 'launcher not found' : 'navigation failed'} -- nothing measured`,
         )
+        await saveFailureShot(page, vp, route)
       } else {
         const problems =
           m.variant === 'legacy' ? judgeLegacy(m, vp.width) : judge(m, vp.width)
@@ -216,6 +236,7 @@ async function main() {
           failures += 1
           console.log(`${label} ❌`)
           for (const p of problems) console.log(`         ${p}`)
+          await saveFailureShot(page, vp, route)
         } else {
           console.log(`${label} ✅ ${m.variant} ${m.menu.width}px`)
         }

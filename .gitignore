@@ -57,3 +57,4 @@ __pycache__/
 # They carry absolute scratchpad paths and are not repo content; committing one
 # by `git add -A` is what this guards against (d805c30).
 *.tmp.ts
+tablet-nav-screenshots/

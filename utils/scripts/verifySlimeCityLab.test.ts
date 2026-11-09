@@ -99,6 +99,17 @@ assert.ok(
     (team) => team.id === 'bloodfairies' && team.name.includes('BLOODFAIRIES'),
   ),
 )
+// Silas, 2026-11-09 PT: "There needs to be a band centered group" -- the
+// Bloodfairies are it: a named band whose founders each play a part.
+{
+  const band = TEAMS.find((team) => team.id === 'bloodfairies')!
+  assert.match(band.name, /QUEEN PIN & THE BLOODFAIRIES/)
+  assert.match(band.hook, /band/)
+  const roles = ['Backup screamer', 'Stage diver', 'Lead guitar', 'Frontwoman']
+  band.creatures.forEach((id, i) =>
+    assert.ok(cardById(id).text.startsWith(roles[i]!), id + ' plays a part'),
+  )
+}
 assert.ok(
   TEAMS.some((team) => team.id === 'ironjaw' && team.name.includes('LIZARDS')),
 )

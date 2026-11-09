@@ -116,7 +116,7 @@ export const FACTION_CAMPAIGNS: Record<TeamId, FactionCampaign> = {
       chapter(
         'bloodfairies',
         'A THOUSAND TINY WITNESSES',
-        'Punk Bloodfairies offer to testify against the lab, provided their own blood-contracts disappear from the evidence.',
+        'Queen Pin’s band offers to testify against the lab, provided their own blood-contracts disappear from the evidence.',
         'The tiny witnesses join the rescue without losing their own histories.',
         'The fairies scatter. The trial has no witnesses.',
         [
@@ -149,7 +149,7 @@ export const FACTION_CAMPAIGNS: Record<TeamId, FactionCampaign> = {
     team: 'bloodfairies',
     title: 'MOSHPIT REPUBLIC',
     prologue:
-      'The rooftops belong to whoever can fly. The city disagrees. Mx. Thimble Vex has five nights to unite the punk bloodfairies before landlords turn every roof into a gated luxury terrace.',
+      'The rooftops belong to whoever can fly. The city disagrees. Mx. Thimble Vex has five nights to unite the bloodfairy band and its fans before landlords turn every roof into a gated luxury terrace.',
     principle: 'Build an uprising loud enough to hear its quietest voice.',
     triumph:
       'Needle Alley declares itself a republic of open rooftops. There is no president, only an aggressively democratic drum circle.',
@@ -356,7 +356,7 @@ export const FACTION_CAMPAIGNS: Record<TeamId, FactionCampaign> = {
       chapter(
         'bloodfairies',
         'MOSHPIT DIPLOMACY',
-        'Punk Bloodfairies demand their own stage and threaten to tear down the sound system.',
+        'Queen Pin and the Bloodfairies demand their own stage and threaten to tear down the sound system.',
         'Two musical scenes share one impossible headliner.',
         'The show becomes a faction brawl.',
         [

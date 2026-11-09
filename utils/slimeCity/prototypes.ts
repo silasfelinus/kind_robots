@@ -557,16 +557,16 @@ export const TEAMS: Team[] = [
   },
   {
     id: 'bloodfairies',
-    name: 'PUNK BLOODFAIRIES',
+    name: 'QUEEN PIN & THE BLOODFAIRIES',
     color: 'purple',
     district: 'NEEDLE ALLEY',
-    motto: 'Small wings. Big knives.',
-    hook: 'A riotous crew of tiny blood-magic punks who treat the megacity as one very loud mosh pit. Cheap swarms and surprise strikes.',
+    motto: 'Small wings. Big amps.',
+    hook: 'Needle Alley’s loudest punk band, plus the swarm of tiny blood-magic fans, roadies and backup singers who follow it from rooftop to rooftop. Every fight is a gig. Cheap swarms, surprise strikes and encores.',
     insignia: '❋',
     pattern:
-      'Flood the street. Cheap fighters hit harder in a pack, leech back their health and the moshpit punishes anyone who bunches up.',
+      'Pack the pit. Cheap fighters hit harder beside their bandmates, leech back their health off every blow, and the mosh pit punishes anyone who bunches up.',
     counters:
-      'Armor shrugs off small blows (Ironjaw plating), one explosion can pop a whole pack (Riot Saints), and any lone fairy loses its swarm bonus.',
+      'Armor shrugs off small blows (Ironjaw plating), one explosion can pop a whole pack (Riot Saints), and a solo act loses its swarm bonus.',
     signature: 'queen',
     trapCap: 1,
     creatures: ['sprite', 'pogo', 'razor', 'queen'],
@@ -786,7 +786,7 @@ export const CARDS: Card[] = [
     text: 'The red dot. An enemy fighter stares at it and loses its next move.',
     symbol: '•',
   },
-  // --- PUNK BLOODFAIRIES: swarm and leech
+  // --- QUEEN PIN & THE BLOODFAIRIES (the band): swarm and leech
   {
     id: 'sprite',
     name: 'Bloodsprite',
@@ -798,7 +798,7 @@ export const CARDS: Card[] = [
     armor: 0,
     ap: 2,
     keywords: ['swarm'],
-    text: 'Small, mean and loud. Louder with friends.',
+    text: 'Backup screamer. Small, mean and loud. Louder with the band.',
     symbol: '❋',
   },
   {
@@ -812,7 +812,7 @@ export const CARDS: Card[] = [
     armor: 0,
     ap: 2,
     keywords: ['swarm'],
-    text: 'Bounces off heads. Yours, then everyone else’s.',
+    text: 'Stage diver. Bounces off heads. Yours, then everyone else’s.',
     symbol: '✱',
   },
   {
@@ -826,7 +826,7 @@ export const CARDS: Card[] = [
     armor: 0,
     ap: 3,
     keywords: ['leech'],
-    text: 'Moves in a blur and drinks the applause.',
+    text: 'Lead guitar. Shreds in a blur and drinks the applause.',
     symbol: '✣',
   },
   {
@@ -841,7 +841,7 @@ export const CARDS: Card[] = [
     ap: 2,
     keywords: ['swarm', 'leech'],
     signature: true,
-    text: 'Union leader of the damned. Never crowd-surfs alone.',
+    text: 'Frontwoman and union leader of the damned. Never crowd-surfs alone.',
     symbol: '✷',
   },
   {

@@ -31,7 +31,8 @@ assert.equal(
   new Set(TOWER_BEATS.map((beat) => beat.setting)).size,
   TOWER_FLOORS,
 )
-const authored = TOWER_BEATS.flatMap((beat) => beat.routes)
+const authored: { title: string; scene: string }[] = []
+for (const beat of TOWER_BEATS) authored.push(...beat.routes)
 assert.equal(authored.length, TOWER_FLOORS * 2)
 assert.equal(
   new Set(authored.map((route) => route.title)).size,

@@ -2494,4 +2494,131 @@ onUnmounted(() => {
     max-height: 54vh;
   }
 }
+
+.sc-home {
+  position: relative;
+  isolation: isolate;
+  background: #070e14;
+  overflow: hidden;
+}
+.sc-home-art {
+  position: absolute;
+  inset: 0;
+}
+.sc-home-scrim {
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(90deg, #070d15f2, #070d15aa 55%, transparent),
+    linear-gradient(0deg, #070d15d9, transparent 65%);
+}
+.sc-home-copy {
+  position: absolute;
+  z-index: 2;
+  left: clamp(1rem, 5vw, 4rem);
+  bottom: clamp(1.5rem, 8vh, 5rem);
+  width: min(70%, 35rem);
+}
+.sc-home-copy small {
+  color: #bcff61;
+  font-weight: 950;
+  letter-spacing: 0.25em;
+}
+.sc-home-copy h1 {
+  font-size: clamp(2.8rem, 8vw, 6.5rem);
+  font-weight: 1000;
+  font-style: italic;
+  letter-spacing: -0.09em;
+  line-height: 1;
+  text-shadow: 0 0 2rem #000;
+}
+.sc-home-copy h1 span {
+  color: #c5ff59;
+}
+.sc-home-copy p {
+  max-width: 26rem;
+  margin: 1rem 0;
+  color: #e2ede4;
+  font-weight: 700;
+}
+.sc-home-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.55rem;
+}
+.sc-home-actions button,
+.sc-settings button {
+  padding: 0.7rem 0.9rem;
+  border-radius: 0.6rem;
+  border: 1px solid #a2d4be88;
+  background: #142932ed;
+  color: #f1f8f1;
+  font-size: 0.75rem;
+  font-weight: 900;
+}
+.sc-home-actions .sc-home-primary,
+.sc-settings-back {
+  background: #c5ff59 !important;
+  color: #122416 !important;
+  border-color: #c5ff59 !important;
+}
+.sc-home-crew {
+  position: absolute;
+  right: 2%;
+  top: 7%;
+  width: 26%;
+  height: 76%;
+  border-radius: 1.2rem;
+  overflow: hidden;
+  opacity: 0.9;
+  box-shadow: 0 0 4rem #c5ff5920;
+}
+.sc-settings {
+  padding: clamp(1rem, 4vw, 3rem);
+  background: radial-gradient(ellipse at 50% 0%, #273f41, #0a101b 70%);
+  overflow: auto;
+}
+.sc-settings h1 {
+  font-size: clamp(1.5rem, 4vw, 3rem);
+  font-weight: 950;
+  color: #c5ff59;
+}
+.sc-settings p {
+  color: #d6e6dd;
+  max-width: 42rem;
+  margin: 0.8rem 0 1.3rem;
+}
+.sc-settings fieldset {
+  border: 1px solid #638478;
+  border-radius: 1rem;
+  padding: 1rem;
+  margin-bottom: 1rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.7rem;
+}
+.sc-settings legend {
+  padding: 0 0.5rem;
+  font-weight: 900;
+}
+.sc-settings button[aria-pressed='true'] {
+  background: #c5ff59;
+  color: #0d211b;
+}
+.sc-settings button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+@container (max-width: 580px) {
+  .sc-home-copy {
+    left: 1rem;
+    width: calc(100% - 2rem);
+    bottom: 1rem;
+  }
+  .sc-home-crew {
+    width: 45%;
+    height: 40%;
+    opacity: 0.5;
+  }
+}
 </style>

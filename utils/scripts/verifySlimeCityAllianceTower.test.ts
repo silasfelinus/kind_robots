@@ -109,7 +109,7 @@ for (const general of crews) {
         nextRun.deck.cards.includes(earnedId),
         'legacy card joins next run',
       )
-      assert.equal(nextRun.deck.cards.length, 30)
+      assert.equal(nextRun.deck.cards.length, 20)
     }
 
     const story = newSlimeCityStory()

@@ -149,8 +149,13 @@
           <p>{{ lab.campaignState.lastScene }}</p>
         </div>
       </article>
-      <div v-if="lab.campaignRewardChoices" class="campaign-deck campaign-card-draft">
-        <span class="campaign-overline">A SPOIL FROM THE FIGHT · CHOOSE ONE</span>
+      <div
+        v-if="lab.campaignRewardChoices"
+        class="campaign-deck campaign-card-draft"
+      >
+        <span class="campaign-overline"
+          >A SPOIL FROM THE FIGHT · CHOOSE ONE</span
+        >
         <KrChoiceHand
           :choices="cardRewardChoices"
           question="KEEP ONE CARD FOR YOUR STORY DECK"

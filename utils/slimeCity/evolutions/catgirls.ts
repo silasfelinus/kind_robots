@@ -24,6 +24,7 @@ import {
   retreat,
   revive,
   sharpen,
+  shift,
   stage,
   stun,
   summon,
@@ -51,13 +52,16 @@ export const CATGIRL_EVOLUTIONS: Record<string, CardEvolution> = {
     },
   },
   // Arc: a phantom on the lab roofs -> leaps chimney to chimney -> a
-  // skyline specter that strikes and is gone again.
-  // Trajectory: LATE BLOOMER (tempo). Counterplay: a blocker it cannot
-  // knock out keeps it on the board; an open alley at L3 gives no knockout.
+  // skyline specter that escapes a crowded street for an open rooftop.
+  // Trajectory: LATE BLOOMER (position). At L3 it chooses a vacant
+  // adjacent lane opposite no enemy at the start of its own turn, then
+  // vanishes after a knockout. Counterplay: fill neighboring alleys,
+  // root it, or leave a hostile trap along the escape route.
   's1-roof-phantom': {
     2: stage('Chimney Leap', [on('enter', when('acrossEmpty', boss(2)))]),
     3: stage('Skyline Specter', [
       on('enter', when('acrossEmpty', boss(2))),
+      on('turnStart', shift('self', 'safe')),
       on('kill', retreat()),
     ]),
   },

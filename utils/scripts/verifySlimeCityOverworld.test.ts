@@ -1471,6 +1471,16 @@ lab.showCampaign()
 lab.chooseTeam('ironjaw')
 assert.equal(lab.view, 'campaign')
 assert.equal(lab.activeChapter?.foe, 'exchange')
+// THE LAST SHIFT: three authored strike scenes come before the first bout.
+lab.startCampaignBattle('conviction')
+assert.equal(lab.view, 'campaign', 'Unplayed Ironjaw scenes block the bout')
+for (let beat = 0; beat < 3; beat++) {
+  assert.ok(lab.ironjawCurrent, 'next Ironjaw strike scene is present')
+  lab.chooseCampaignJourneyBeat('left')
+}
+assert.equal(lab.ironjawCurrent, null)
+assert.equal(lab.ironjawShift.solidarity, 3)
+assert.equal(lab.ironjawShift.stage, 'basking')
 lab.startCampaignBattle('conviction')
 assert.equal(lab.view, 'clash')
 assert.equal(lab.clashLaunch.kind, 'campaign', 'Story bouts are Solo Clash')

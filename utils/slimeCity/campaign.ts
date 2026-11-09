@@ -573,6 +573,8 @@ export const FACTION_CAMPAIGNS: Record<TeamId, FactionCampaign> = {
 }
 
 export interface CampaignProgress {
+  /** Story-only cards drafted after earned chapter victories. */
+  rewards?: string[]
   wins: number
   losses: number
   decisions: CampaignApproach[]

@@ -149,7 +149,26 @@
           <p>{{ lab.campaignState.lastScene }}</p>
         </div>
       </article>
-      <div class="campaign-deck">
+      <div
+        v-if="lab.campaignRewardChoices"
+        class="campaign-deck campaign-card-draft"
+      >
+        <span class="campaign-overline"
+          >A SPOIL FROM THE FIGHT · CHOOSE ONE</span
+        >
+        <KrChoiceHand
+          :choices="cardRewardChoices"
+          question="KEEP ONE CARD FOR YOUR STORY DECK"
+          :deal-key="lab.activeTeam + ':reward:' + lab.campaignState.wins"
+          testid-prefix="slime-campaign-card-reward"
+          @play="pickStoryReward"
+        >
+          <template #art="{ choice }">
+            <SlimeCityClashCardFace :card-id="choice.id" />
+          </template>
+        </KrChoiceHand>
+      </div>
+      <div v-else class="campaign-deck">
         <button
           type="button"
           class="campaign-cta"
@@ -350,6 +369,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { campaignBattleTerms, describeTerms } from '~/utils/slimeCity/campaign'
+import { rarityOf } from '~/utils/slimeCity/progression'
 import { slimeArtId } from '~/utils/slimeCity/artManifest'
 import { useSlimeCityStore } from '~/stores/slimeCity'
 import type { TeamId } from '~/utils/slimeCity/prototypes'
@@ -455,6 +475,18 @@ const approachChoices = computed<KrHandChoice[]>(() =>
     badge: choice.id === 'conviction' ? 'Conviction' : 'Cunning',
   })),
 )
+const cardRewardChoices = computed<KrHandChoice[]>(() =>
+  (lab.campaignRewardChoices ?? []).map((card) => ({
+    id: card.id,
+    label: card.name,
+    chip: rarityOf(card).toUpperCase(),
+    badge: card.team === lab.activeTeam ? 'CREW REWARD' : 'MERCENARY',
+    details: [card.text],
+  })),
+)
+function pickStoryReward(choice: KrHandChoice) {
+  lab.chooseCampaignCardReward(choice.id)
+}
 function playApproach(choice: KrHandChoice) {
   const approach = lab.activeChapter?.choices.find(
     (option) => option.id === choice.id,

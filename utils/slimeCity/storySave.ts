@@ -242,7 +242,11 @@ export function validSlimeCityStory(raw: unknown): raw is SlimeCityStory {
     )
       return false
     if (p.wins > FACTION_CAMPAIGNS[team as TeamId].chapters.length) return false
-    if (team === 'catgirls' && !validGeneRiotJourney(p as unknown as CampaignSave['catgirls'])) return false
+    if (
+      team === 'catgirls' &&
+      !validGeneRiotJourney(p as unknown as CampaignSave['catgirls'])
+    )
+      return false
     if (team !== 'catgirls' && p.journey !== undefined) return false
     if (p.rewards !== undefined) {
       if (

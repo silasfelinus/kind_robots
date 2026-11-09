@@ -1764,13 +1764,14 @@ assert.doesNotMatch(
 // The battlefield is an art-first card stage, not a square token crop.
 // A CSS regression here can undo the evolution-aware resolver above even
 // when the correct ArtImage ID is supplied.
-const fighterImageStyle = clashView.match(
-  /\\.clash-slot :deep\\(img\\) \\{([\\s\\S]*?)\\n\\}/,
-)?.[1]
+const fighterImageStart = clashView.indexOf('.clash-slot :deep(img) {')
+const fighterImageStyle = fighterImageStart < 0
+  ? ''
+  : clashView.slice(fighterImageStart, clashView.indexOf('}', fighterImageStart) + 1)
 assert.ok(fighterImageStyle, 'fighter image styling must exist')
 assert.match(
   fighterImageStyle,
-  /object-fit:\\s*contain\\s*;/,
+  /object-fit:\s*contain\s*;/,
   'deployed cards must show the complete illustration, not crop it',
 )
 

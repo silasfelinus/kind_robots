@@ -1496,6 +1496,17 @@ assert.equal(
   'aftermath',
   'A settled chapter returns to its aftermath scene first',
 )
+// A won chapter first asks for its card reward; the loss path has none.
+const rewardChoices = lab.campaignRewardChoices
+if (rewardChoices) {
+  lab.continueCampaign()
+  assert.equal(
+    lab.campaignScreen,
+    'aftermath',
+    'An unclaimed card reward holds the aftermath scene',
+  )
+  lab.chooseCampaignCardReward(rewardChoices[0].id)
+}
 lab.continueCampaign()
 assert.equal(lab.campaignScreen, 'chapter')
 lab.showCampaignAftermath()

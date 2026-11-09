@@ -38,8 +38,18 @@ const fighter = (lane: number): ClashUnit => ({
   const command = chooseClashCpu(s, 'player')
   assert.equal(command.t, 'play')
   if (command.t === 'play')
-    assert.equal(command.card, 'merc-emergency-wings', 'invest in an existing fighter')
+    assert.equal(
+      command.card,
+      'merc-emergency-wings',
+      'invest in an existing fighter',
+    )
   assert.deepEqual(s, before, 'evaluation cannot mutate actual battle state')
-  assert.deepEqual(chooseClashCpu(s, 'player'), command, 'decision is deterministic')
+  assert.deepEqual(
+    chooseClashCpu(s, 'player'),
+    command,
+    'decision is deterministic',
+  )
 }
-console.log('Alliance CPU selects previously neglected long-lived gear instead of replacing healthy fighters PASS')
+console.log(
+  'Alliance CPU selects previously neglected long-lived gear instead of replacing healthy fighters PASS',
+)

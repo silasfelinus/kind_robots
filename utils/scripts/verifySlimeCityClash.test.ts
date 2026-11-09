@@ -1765,9 +1765,13 @@ assert.doesNotMatch(
 // A CSS regression here can undo the evolution-aware resolver above even
 // when the correct ArtImage ID is supplied.
 const fighterImageStart = clashView.indexOf('.clash-slot :deep(img) {')
-const fighterImageStyle = fighterImageStart < 0
-  ? ''
-  : clashView.slice(fighterImageStart, clashView.indexOf('}', fighterImageStart) + 1)
+const fighterImageStyle =
+  fighterImageStart < 0
+    ? ''
+    : clashView.slice(
+        fighterImageStart,
+        clashView.indexOf('}', fighterImageStart) + 1,
+      )
 assert.ok(fighterImageStyle, 'fighter image styling must exist')
 assert.match(
   fighterImageStyle,

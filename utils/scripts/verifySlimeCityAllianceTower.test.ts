@@ -66,7 +66,13 @@ for (const general of crews) {
       finished,
       'no double awards',
     )
-    assert.ok(startTower(deck, seed + 1, finished.meta).guard >= 1)
+    const nextRun = startTower(deck, seed + 1, finished.meta)
+    assert.ok(nextRun.guard >= 1, 'earned cinders protect future runs')
+    const earnedId = options[0]!.id
+    if (!deck.cards.includes(earnedId)) {
+      assert.ok(nextRun.deck.cards.includes(earnedId), 'legacy card joins next run')
+      assert.equal(nextRun.deck.cards.length, 30)
+    }
 
     const story = newSlimeCityStory()
     story.tower = finished

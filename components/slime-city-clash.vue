@@ -351,7 +351,6 @@ import {
   useClashPower,
   clashPlayLimit,
   canClashPlay,
-  canClashPlay,
   chooseClashCpu,
   clashBossCap,
   clashEffectivePlayCost,

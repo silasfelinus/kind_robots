@@ -13,6 +13,10 @@
 // Any mix of either crew's cards and mercenaries is legal (Silas, 2026-11-08
 // PT: "drop the 12 creature minimum").
 //
+// Silas, 2026-11-09 PT: "lets change alliance to also use 20 cards." Saves
+// holding a retired 30-card deck drop just that deck (storySave.ts) instead of
+// failing the whole story.
+//
 // SOLO CLASH is its own format: one faction's 20-card deck, built from that
 // faction and the mercenaries. It is what City and Story bouts deal. Pure data
 // and legality only; the power effects run in clash.ts.
@@ -26,9 +30,23 @@ export {
   type PowerTarget,
 } from './factionPowers'
 
-export const ALLIANCE_DECK_SIZE = 30
+export const ALLIANCE_DECK_SIZE = CLASH_DECK_SIZE
 /** SOLO CLASH: one faction, the canonical 20-card Clash deck. */
 export const SOLO_DECK_SIZE = CLASH_DECK_SIZE
+
+/**
+ * TRICKLE's opening collection: every crew's founders plus the cards its Solo
+ * and Alliance starters deal, so a new account can play a reward match before
+ * it opens a pack (trickle became the default, Silas, 2026-11-09 PT).
+ */
+export const STARTER_CARD_IDS: ReadonlySet<string> = new Set(
+  TEAMS.flatMap((team) => [
+    ...team.creatures,
+    ...team.special,
+    ...clashDeck(team.id),
+    ...alleyDeck(team.id),
+  ]),
+)
 
 export interface AllianceDeck {
   /** The leading crew. Its faction power is the deck's power. */
@@ -82,28 +100,37 @@ function spread<T>(items: T[], count: number): T[] {
   )
 }
 
+/** Creatures and specials from a crew's Clash deck, spread across the curve. */
+function crewSlice(team: TeamId, creatures: number, specials: number) {
+  const sorted = alleyDeck(team)
+    .map(cardById)
+    .sort((a, b) => a.cost - b.cost || a.id.localeCompare(b.id))
+  return [
+    ...spread(
+      sorted.filter((c) => c.kind === 'creature'),
+      creatures,
+    ),
+    ...spread(
+      sorted.filter((c) => c.kind !== 'creature'),
+      specials,
+    ),
+  ].map((c) => c.id)
+}
+
 /**
- * A ready-to-play 30-card alliance deck: the general's 20-card Clash deck plus
- * five creatures and five specials from the second faction's Clash deck,
- * spread across the cost curve. Always legal.
+ * A ready-to-play 20-card alliance deck, led by the general like the 30-card
+ * starter it replaced: fifteen cards from the general's Clash deck (eight
+ * creatures, seven specials) and a five-card splash from the second faction's
+ * (two creatures, three specials), each spread across the cost curve. Even
+ * splits let CALL IN THE DEBT dominate (Exchange won 64-82% of CPU games);
+ * this one kept every general within 41-59% over 20 seeds a pairing. Always
+ * legal.
  */
 export function allianceStarter(general: TeamId, ally: TeamId): AllianceDeck {
-  const base = alleyDeck(general)
-  const byCost = (a: Card, b: Card) =>
-    a.cost - b.cost || a.id.localeCompare(b.id)
-  const sorted = alleyDeck(ally).map(cardById).sort(byCost)
-  const creatures = spread(
-    sorted.filter((c) => c.kind === 'creature'),
-    5,
-  )
-  const specials = spread(
-    sorted.filter((c) => c.kind !== 'creature'),
-    5,
-  )
   return {
     general,
     ally,
-    cards: [...base, ...[...creatures, ...specials].map((c) => c.id)],
+    cards: [...crewSlice(general, 8, 7), ...crewSlice(ally, 2, 3)],
   }
 }
 

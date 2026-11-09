@@ -53,6 +53,28 @@ const HAZARD_REWARDS: Record<TowerHazard, string> = {
   vault: 'Claim a reusable ward after victory',
 }
 
+// A chosen Tower fight is persisted verbatim. Accept the exact old four-scene
+// route vocabulary in existing in-progress saves; do not accept arbitrary
+// user-controlled display copy as a valid signed-off route.
+const LEGACY_ROUTE_COPY: Record<TowerHazard, readonly [string, string]> = {
+  snare: [
+    'THE NEEDLE GATE',
+    'A wire net skims the ceiling. The pit announcer asks who packed the bolt cutters.',
+  ],
+  riot: [
+    'THE SHATTERED STANDS',
+    'Spectators throw fireworks onto a board nobody remembers building.',
+  ],
+  rest: [
+    'THE PATCHWORK CLINIC',
+    'The nurse can stabilize the crew, but the debt collectors are coming up the stairs.',
+  ],
+  vault: [
+    'THE BRASS VAULT',
+    'A tempting lockbox sits in the only safe-looking corridor. It is definitely not empty.',
+  ],
+}
+
 export function towerRoutes(run: TowerRun): [TowerRoute, TowerRoute] | null {
   if (run.phase !== 'route' || run.floor >= TOWER_FLOORS) return null
   const ids = TEAMS.map((team) => team.id)
@@ -263,9 +285,16 @@ export function validTowerSave(raw: unknown): raw is TowerSave {
       chosen: null,
       phase: 'route',
     })
-    return !!routes?.some(
-      (route) => JSON.stringify(route) === JSON.stringify(run.chosen),
-    )
+    return !!routes?.some((route) => {
+      if (JSON.stringify(route) === JSON.stringify(run.chosen)) return true
+      const [title, scene] = LEGACY_ROUTE_COPY[route.hazard]
+      const previous = {
+        ...route,
+        title: run.floor === TOWER_FLOORS - 1 ? route.title : title,
+        scene,
+      }
+      return JSON.stringify(previous) === JSON.stringify(run.chosen)
+    })
   }
   return run.chosen === null
 }

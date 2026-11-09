@@ -29,7 +29,9 @@ function candidates(team: TeamId, claimed: string[]) {
       (card.team === team || card.team === 'mercenary') &&
       !claimed.includes(card.id) &&
       // The ten permanent founders need no story unlock.
-      !TEAMS.find((crew) => crew.id === card.team)?.creatures.includes(card.id) &&
+      !TEAMS.find((crew) => crew.id === card.team)?.creatures.includes(
+        card.id,
+      ) &&
       !TEAMS.find((crew) => crew.id === card.team)?.special.includes(card.id),
   )
 }
@@ -37,7 +39,7 @@ function candidates(team: TeamId, claimed: string[]) {
 export function campaignCardChoices(
   save: CampaignSave,
   team: TeamId,
-): [typeof CARDS[number], typeof CARDS[number]] | null {
+): [(typeof CARDS)[number], (typeof CARDS)[number]] | null {
   const p = save[team]
   const claimed = p.rewards ?? []
   if (p.wins < 1 || claimed.length >= p.wins) return null
@@ -45,12 +47,15 @@ export function campaignCardChoices(
   const teamIndex = TEAMS.findIndex((crew) => crew.id === team)
   const available = candidates(team, claimed)
   if (available.length < 2) return null
-  const firstPool = available.filter((card) => card.team === team && FEATURED.includes(card.name))
-  const featured = firstPool[
-    seededHash(teamIndex, chapter, 71) % firstPool.length
-  ]
+  const firstPool = available.filter(
+    (card) => card.team === team && FEATURED.includes(card.name),
+  )
+  const featured =
+    firstPool[seededHash(teamIndex, chapter, 71) % firstPool.length]
   const crewCards = available.filter((card) => card.team === team)
-  const first = featured ?? crewCards[seededHash(teamIndex, chapter, 73) % crewCards.length]!
+  const first =
+    featured ??
+    crewCards[seededHash(teamIndex, chapter, 73) % crewCards.length]!
   const rest = available.filter((card) => card.id !== first.id)
   // Later chapters guarantee a rare alternative, not just a lucky cosmetic label.
   const rareChapter = chapter >= 3
@@ -58,7 +63,8 @@ export function campaignCardChoices(
     ? rest.filter((card) => rarityOf(card) === 'rare')
     : rest.filter((card) => rarityOf(card) !== 'common')
   const secondPool = preferred.length ? preferred : rest
-  const second = secondPool[seededHash(teamIndex, chapter, 79) % secondPool.length]!
+  const second =
+    secondPool[seededHash(teamIndex, chapter, 79) % secondPool.length]!
   return [first, second]
 }
 
@@ -84,9 +90,15 @@ export function campaignSoloDeck(
   team: TeamId,
   base: string[],
 ): string[] {
-  const earned = (save[team].rewards ?? []).filter(
-    (id) => CARDS.some((card) => card.id === id && (card.team === team || card.team === 'mercenary')),
+  const earned = (save[team].rewards ?? []).filter((id) =>
+    CARDS.some(
+      (card) =>
+        card.id === id && (card.team === team || card.team === 'mercenary'),
+    ),
   )
-  const deck = [...earned, ...base.filter((id) => !earned.includes(id))].slice(0, 20)
+  const deck = [...earned, ...base.filter((id) => !earned.includes(id))].slice(
+    0,
+    20,
+  )
   return soloProblems(team, deck).length ? base : deck
 }

@@ -21,7 +21,6 @@ import {
   power,
   rearm,
   rescue,
-  retreat,
   revive,
   sharpen,
   shift,

@@ -210,16 +210,17 @@ const mine = (s: ClashState, id: string) =>
   assert.equal(s.boss.enemy, before - 2, 'Chimney Leap')
   const blocked = cast(board([fighter('enemy', 1, 9)]), 's1-roof-phantom', 1, 2)
   assert.equal(blocked.boss.enemy, before, 'no leap into a filled alley')
-  // L3 knockout returns it to the top of the deck.
-  let k = cast(
-    board([fighter('enemy', 1, 9, { hp: 1, attack: 1 })]),
-    's1-roof-phantom',
-    1,
-  )
-  k = passClash(k, 'player')
-  while (nextClashStrike(k, 'player') >= 0) k = strikeClash(k, 'player')
-  assert.equal(mine(k, 's1-roof-phantom'), undefined, 'gone from the board')
-  assert.equal(k.decks.player[0], 's1-roof-phantom', 'back on top of the deck')
+  // L3 Skyline Specter slips to a free, unopposed neighbouring alley at turn start.
+  let k = cast(board([fighter('enemy', 1, 9)]), 's1-roof-phantom', 1)
+  const uid = mine(k, 's1-roof-phantom')!.uid
+  for (const side of ['player', 'enemy'] as const) {
+    k = passClash(k, side)
+    while (nextClashStrike(k, side) >= 0) k = strikeClash(k, side)
+    k = endClashTurn(k, side)
+  }
+  const moved = at(k, uid)!
+  assert.notEqual(moved.lane, 1, 'shifted out of the engaged alley')
+  assert.equal(Math.abs(moved.lane - 1), 1, 'exactly one alley away')
 }
 // Alley Veterinarian L3: hurt allies gain REGEN; healthy ones do not.
 {

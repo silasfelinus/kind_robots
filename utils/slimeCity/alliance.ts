@@ -1,12 +1,12 @@
 // ALLIANCE: Slime City's two-faction Clash format.
 // Silas, 2026-11-07 PT: "I want a new mode where the factions can be combined.
-// 30 card decks. Needs to be supported in clash and in deck builder modes.
+// Alliance decks used to hold 30 cards; all modes now use 20.
 // Also want the idea of a faction power. So if you have two factions, one is
 // the general and the deck uses their power. Power should be one time use
 // during a match."
 //
 // Silas, 2026-11-07 PT, clarifying: "Factions combined means you pick two
-// factions, one of them is general, and you can make a 30 card deck using
+// factions, one of them is general, and you can make a deck using
 // either faction or mercs."
 //
 // A deck names TWO crews: the GENERAL (whose power it carries) and the ALLY.
@@ -26,7 +26,7 @@ export {
   type PowerTarget,
 } from './factionPowers'
 
-export const ALLIANCE_DECK_SIZE = 30
+export const ALLIANCE_DECK_SIZE = CLASH_DECK_SIZE
 /** SOLO CLASH: one faction, the canonical 20-card Clash deck. */
 export const SOLO_DECK_SIZE = CLASH_DECK_SIZE
 
@@ -83,28 +83,44 @@ function spread<T>(items: T[], count: number): T[] {
 }
 
 /**
- * A ready-to-play 30-card alliance deck: the general's 20-card Clash deck plus
- * five creatures and five specials from the second faction's Clash deck,
- * spread across the cost curve. Always legal.
+ * A ready-to-play 20-card alliance: ten cards from each faction, spread
+ * evenly across creatures and specials. Both crews matter from turn one.
  */
 export function allianceStarter(general: TeamId, ally: TeamId): AllianceDeck {
-  const base = alleyDeck(general)
-  const byCost = (a: Card, b: Card) =>
-    a.cost - b.cost || a.id.localeCompare(b.id)
-  const sorted = alleyDeck(ally).map(cardById).sort(byCost)
-  const creatures = spread(
-    sorted.filter((c) => c.kind === 'creature'),
-    5,
-  )
-  const specials = spread(
-    sorted.filter((c) => c.kind !== 'creature'),
-    5,
-  )
-  return {
-    general,
-    ally,
-    cards: [...base, ...[...creatures, ...specials].map((c) => c.id)],
+  const ten = (team: TeamId): string[] => {
+    const byCost = (a: Card, b: Card) =>
+      a.cost - b.cost || a.id.localeCompare(b.id)
+    const sorted = alleyDeck(team).map(cardById).sort(byCost)
+    const creatures = spread(sorted.filter((c) => c.kind === 'creature'), 5)
+    const specials = spread(sorted.filter((c) => c.kind !== 'creature'), 5)
+    return [...creatures, ...specials].map((c) => c.id)
   }
+  return { general, ally, cards: [...ten(general), ...ten(ally)] }
+}
+
+/** Normalize an older 30-card alliance while preserving its selected cards. */
+export function normalizedAllianceDeck(deck: AllianceDeck): AllianceDeck {
+  if (allianceProblems(deck).length === 0) return deck
+  if (
+    !isTeam(deck.general) ||
+    !isTeam(deck.ally) ||
+    deck.general === deck.ally ||
+    !Array.isArray(deck.cards)
+  )
+    return allianceStarter('catgirls', 'bloodfairies')
+  const allowed = new Set(allianceCardPool(deck.general, deck.ally).map((c) => c.id))
+  const unique = [...new Set(deck.cards.filter((id) => allowed.has(id)))]
+  const preserved = spread(unique, ALLIANCE_DECK_SIZE)
+  const fill = allianceStarter(deck.general, deck.ally).cards.filter(
+    (id) => !preserved.includes(id),
+  )
+  const candidate = {
+    ...deck,
+    cards: [...preserved, ...fill].slice(0, ALLIANCE_DECK_SIZE),
+  }
+  return allianceProblems(candidate).length
+    ? allianceStarter(deck.general, deck.ally)
+    : candidate
 }
 
 /** The same two factions with the other one as general: same cards. */

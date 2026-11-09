@@ -53,16 +53,17 @@ export function towerRoutes(run: TowerRun): [TowerRoute, TowerRoute] | null {
   const ids = TEAMS.map((team) => team.id)
   const hazards: TowerHazard[] = ['snare', 'riot', 'rest', 'vault']
   const pick = (index: number): TowerRoute => {
-    const roll = seededHash(run.seed, run.floor, index, 881)
+    const roll = seededHash(run.seed, run.floor, 881)
+    const firstHazard = (run.floor + (roll % hazards.length)) % hazards.length
     const hazard =
       run.floor === TOWER_FLOORS - 1
         ? 'riot'
-        : hazards[(run.floor * 3 + index + (roll % 3)) % hazards.length]!
+        : hazards[(firstHazard + index * (1 + (roll % 2))) % hazards.length]!
     const [title, scene, reward] = SCENES[hazard]
-    const foe = ids[(run.floor + index + (roll % ids.length)) % ids.length]!
+    const foe = ids[(run.floor + (roll % ids.length) + index) % ids.length]!
     return {
       id: String(run.floor) + ':' + index,
-      title: run.floor === TOWER_FLOORS - 1 ? 'THE GRAND PIT' : title,
+      title: run.floor === TOWER_FLOORS - 1 ? 'THE GRAND PIT · ' + foe.toUpperCase() : title,
       scene,
       hazard,
       foe,

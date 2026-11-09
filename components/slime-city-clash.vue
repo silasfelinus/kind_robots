@@ -1633,4 +1633,61 @@ function forecast(lane: number): string {
   color: #ffd34d;
   text-shadow: 0 0 6px #ffb800;
 }
+/* Board-first Clash: the hand is an overlay, never a reserved footer row. */
+.clash-hand-zone {
+  height: 0;
+  min-height: 0;
+  padding: 0;
+  pointer-events: none;
+}
+.clash-hand-zone .clash-ticker,
+.clash-hand-zone .clash-reward-note {
+  position: absolute;
+  bottom: 3.75rem;
+  left: 50%;
+  z-index: 5;
+  width: max-content;
+  max-width: min(70%, 30rem);
+  padding: 0.3rem 0.65rem;
+  border-radius: 0.5rem;
+  background: #06151de8;
+  transform: translateX(-50%);
+}
+.clash-stage {
+  gap: 0.2rem;
+}
+.clash-field {
+  gap: 0.2rem;
+}
+.clash-board {
+  padding: clamp(0.2rem, 0.6vw, 0.45rem);
+  gap: 0.18rem;
+}
+.clash-lane-numbers,
+.clash-row,
+.clash-impact {
+  gap: clamp(0.12rem, 0.5vw, 0.3rem);
+}
+.clash-boss {
+  min-height: 2.25rem;
+  padding: 0.15rem 0.4rem;
+}
+.clash-boss :deep(img) {
+  width: 2rem;
+  height: 2rem;
+}
+.clash-slot {
+  border-radius: 0.3rem;
+}
+@media (max-width: 850px) {
+  .clash-row {
+    min-height: 0;
+  }
+}
+@media (max-width: 520px) {
+  .clash-hand-zone {
+    height: 0;
+    padding: 0;
+  }
+}
 </style>

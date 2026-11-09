@@ -810,12 +810,20 @@ export function createClash(
       const card = cardById(id)
       return (
         clashPlayCost(card) === 1 &&
-        (card.kind === 'creature' || card.kind === 'trap' || card.effect === 'scan')
+        (card.kind === 'creature' ||
+          card.kind === 'trap' ||
+          card.effect === 'scan')
       )
     }
     if (!deck.slice(0, CLASH_HAND_SIZE).some(canOpen)) {
-      const next = deck.findIndex((id, index) => index >= CLASH_HAND_SIZE && canOpen(id))
-      if (next >= 0) [deck[CLASH_HAND_SIZE - 1], deck[next]] = [deck[next]!, deck[CLASH_HAND_SIZE - 1]!]
+      const next = deck.findIndex(
+        (id, index) => index >= CLASH_HAND_SIZE && canOpen(id),
+      )
+      if (next >= 0)
+        [deck[CLASH_HAND_SIZE - 1], deck[next]] = [
+          deck[next]!,
+          deck[CLASH_HAND_SIZE - 1]!,
+        ]
     }
   }
   startTurn(s, 'player')

@@ -2444,7 +2444,7 @@ export function strikeClash(input: ClashState, side: Side): ClashState {
         'bulldozer',
         side,
         lane,
-        'Bulld-Ogre drives through the blocker for 2 boss damage!',
+        'Bulldozard drives through the blocker for 2 boss damage!',
         'blast',
       )
     }

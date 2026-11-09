@@ -100,9 +100,35 @@ assert.ok(
   ),
 )
 assert.ok(
-  TEAMS.some((team) => team.id === 'ironjaw' && team.name.includes('OGRES')),
+  TEAMS.some((team) => team.id === 'ironjaw' && team.name.includes('LIZARDS')),
 )
 assert.equal(CARDS.length, 300)
+// Silas, 2026-11-09 PT: "we should have lizard people instead of orcs."
+// Card and crew ids stay for saves; no player-visible ogre, orc or troll.
+{
+  const ogreish = /\b(ogres?|orcs?|trolls?)\b|-ogre/i
+  for (const card of CARDS)
+    assert.doesNotMatch(card.name + ' ' + card.text, ogreish, card.id)
+  for (const team of TEAMS)
+    assert.doesNotMatch(
+      [team.name, team.hook, team.pattern, team.counters].join(' '),
+      ogreish,
+      team.id,
+    )
+  for (const file of [
+    'campaign.ts',
+    'campaignBattlefields.ts',
+    'campaignConsequences.ts',
+    'city.ts',
+    'towerBeats.ts',
+  ]) {
+    const src = readFileSync(
+      new URL('../slimeCity/' + file, import.meta.url),
+      'utf8',
+    )
+    assert.doesNotMatch(src, ogreish, file + ' still says ogre')
+  }
+}
 assert.equal(DISTRICTS.length, 7)
 assert.equal(MODES.length, 4)
 assert.deepEqual(
@@ -761,7 +787,7 @@ const eOpen = [0, 1, 2, 3, 4, 5, 6, 7].find(
 )!
 const hiddenDrop = deployAs(enemySecret, 'enemy', 'bulldozer', 7, eOpen)
 assert.notEqual(hiddenDrop, enemySecret)
-assert.doesNotMatch(hiddenDrop.log[0]!, /Bulld-Ogre/)
+assert.doesNotMatch(hiddenDrop.log[0]!, /Bulldozard/)
 const hiddenTrap = deployAs(enemySecret, 'enemy', 'shocktrap', 3, 3)
 assert.notEqual(hiddenTrap, enemySecret)
 assert.doesNotMatch(hiddenTrap.log[0]!, /3|4|Shock Plate/)

@@ -207,7 +207,7 @@ export const FACTION_CAMPAIGNS: Record<TeamId, FactionCampaign> = {
         'Ironjaw engineers have built a bridge across the alley roofs. Their bosses plan to charge a toll for crossing the sky.',
         'The bridge becomes a shared public walkway.',
         'The bridge opens under private security.',
-        ['Walk the picket with the ogre workers', 'Cut the toll gates loose'],
+        ['Walk the picket with the lizard workers', 'Cut the toll gates loose'],
         [
           { playerHp: 1, enemyArmor: 1 },
           { playerMana: 2, enemyMana: 1 },
@@ -231,8 +231,8 @@ export const FACTION_CAMPAIGNS: Record<TeamId, FactionCampaign> = {
     team: 'ironjaw',
     title: 'THE LAST SHIFT',
     prologue:
-      'Ironjaw Chrome Ogres were built to work until they break. Forewoman Rivet finds a hidden power switch labeled PROPERTY OF THE EXCHANGE. Her crew votes to strike.',
-    principle: 'No machine, no person, and no ogre gets discarded.',
+      'Ironjaw Chrome Lizards were built to work until they break. Forewoman Rivet finds a hidden power switch labeled PROPERTY OF THE EXCHANGE. Her crew votes to strike.',
+    principle: 'No machine, no person, and no lizard gets discarded.',
     triumph:
       'The Foundry becomes a worker-run forge. Its first product is a clock that announces when everybody gets to go home.',
     compromise:
@@ -253,7 +253,7 @@ export const FACTION_CAMPAIGNS: Record<TeamId, FactionCampaign> = {
       chapter(
         'undertow',
         'GHOST IN THE SHIFT CLOCK',
-        'Undertow spies rewrote the clock so the ogres have worked six extra years without pay.',
+        'Undertow spies rewrote the clock so the lizards have worked six extra years without pay.',
         'The missing years become evidence in every worker’s hands.',
         'The evidence disappears into a drainage archive.',
         [
@@ -284,7 +284,7 @@ export const FACTION_CAMPAIGNS: Record<TeamId, FactionCampaign> = {
         'catgirls',
         'LIVING BLUEPRINT',
         'Gene Riot technicians discover Ironjaw cybernetics are built from stolen clone tissue.',
-        'Catgirls and ogres recover the blueprints as common property.',
+        'Catgirls and lizards recover the blueprints as common property.',
         'The lab leaves with living spare parts.',
         [
           'Give the clone engineers a vote',
@@ -515,7 +515,7 @@ export const FACTION_CAMPAIGNS: Record<TeamId, FactionCampaign> = {
         'ironjaw',
         'THE LABOR LIABILITY',
         'The Ironjaw strike will bankrupt a factory the Exchange claims to own.',
-        'The ogres become shareholders in their own workplace.',
+        'The lizards become shareholders in their own workplace.',
         'Gilt acquires a factory full of unwilling workers.',
         [
           'Offer the workers controlling shares',

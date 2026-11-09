@@ -3063,21 +3063,25 @@ export function chooseClashCpu(
           (card.effect === 'heal' && mine
             ? Math.min(b.power, mine.maxHp - mine.hp) * 1.2 - 1.5
             : 0)
-        if (s.format !== 'alliance' && mine && card.effect === 'grant') {
+        if (
+          (s.format !== 'alliance' || card.kind === 'equipment') &&
+          mine &&
+          card.effect === 'grant'
+        ) {
           const missing = (card.grants ?? []).filter(
             (keyword) => !mine.keywords.includes(keyword),
           )
           score += missing.length * 2.8 + (b.level - 1) * 1.25
           if (!missing.length && b.level === 1) score -= 3
         }
-        if (s.format !== 'alliance' && mine && card.kind === 'equipment') {
+        if (mine && card.kind === 'equipment') {
           // Gear survives turns; its price cannot be assessed as one small
           // immediate spell. Reward protecting a healthy, productive fighter.
           score +=
             1.8 + Math.min(mine.attack, 6) * 0.55 + (mine.hp >= 6 ? 1 : 0)
         }
         if (
-          s.format !== 'alliance' &&
+          (s.format !== 'alliance' || card.kind === 'equipment') &&
           mine &&
           (card.effect === 'sharpen' || card.effect === 'boost')
         )
@@ -3087,7 +3091,11 @@ export function chooseClashCpu(
               : across
                 ? b.power * 0.7
                 : 0
-        if (s.format !== 'alliance' && mine && card.effect === 'armor')
+        if (
+          (s.format !== 'alliance' || card.kind === 'equipment') &&
+          mine &&
+          card.effect === 'armor'
+        )
           score += Math.max(0, 3 - mine.armor) * 2
       } else
         score =
@@ -3106,8 +3114,9 @@ export function chooseClashCpu(
           ? (1 as const)
           : undefined
       if (s.format === 'alliance') {
-        // Keep the independently balanced two-crew format on its tested
-        // baseline heuristic until it has its own synergy-specific pass.
+        // Preserve Alliance's tested general-power baseline. Only lasting
+        // equipment gains situational investment value without amplifying
+        // every staged damage trigger in the full two-faction pool.
         const evolved = clashEvolutionStage(id, b.level)
         if (evolved?.abilities.some((ability) => ability.when === 'enter'))
           score += b.level >= 3 ? 2.5 : 1.2

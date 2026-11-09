@@ -63,6 +63,14 @@
             </button>
             <button
               type="button"
+              :class="{ active: lab.view === 'tower' }"
+              data-testid="slime-tower-tab"
+              @click="lab.showTower()"
+            >
+              TOWER
+            </button>
+            <button
+              type="button"
               :class="{
                 active: lab.view === 'cards' || lab.view === 'rewards',
               }"
@@ -262,6 +270,7 @@
         </section>
 
         <SlimeCityCampaign v-else-if="lab.view === 'campaign'" />
+        <SlimeCityTower v-else-if="lab.view === 'tower'" />
         <SlimeCityClash v-else-if="lab.view === 'clash'" />
 
         <section
@@ -404,6 +413,14 @@
                 @click="lab.playAllianceClash()"
               >
                 PLAY ALLIANCE CLASH
+              </button>
+              <button
+                type="button"
+                data-testid="slime-alliance-tower-start"
+                :disabled="lab.currentAllianceProblems.length > 0"
+                @click="lab.beginTower()"
+              >
+                CLIMB THE TOWER
               </button>
             </div>
           </div>

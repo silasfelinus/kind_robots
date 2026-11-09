@@ -1736,11 +1736,20 @@ assert.ok(
   'first seat advantage stays small',
 )
 assert.ok(sweep.roundLimit / sweep.games < 0.1, 'matches end by knockout')
+// slime-city/t-047 (2026-11-09 PT): armor re-priced to one life per point and
+// a 2-damage volatile burst now costs a point of budget. Before, these seeds
+// read Ironjaw 35% / Riot 64% (a ~30-point spread); after, every crew sits at
+// 48-53%. Guard every crew to 42-58% and the crew spread to 12 points.
+const crewRates = Object.values(sweep.crews).map((r) => r.wins / r.games)
 for (const [crew, r] of Object.entries(sweep.crews))
   assert.ok(
-    r.wins / r.games > 0.35 && r.wins / r.games < 0.65,
+    r.wins / r.games > 0.42 && r.wins / r.games < 0.58,
     crew + ' win rate ' + ((100 * r.wins) / r.games).toFixed(1) + '%',
   )
+assert.ok(
+  Math.max(...crewRates) - Math.min(...crewRates) <= 0.12,
+  'CLASH crew spread stays within 12 points',
+)
 
 // The art-first board must display the card's authored evolution painting, not
 // the old cropped mood tokens. Keep this contract beside the combat tests so

@@ -158,7 +158,10 @@
           @click="lab.showCampaign()"
         >
           CONTINUE THE NINTH LIFE PROTOCOL · SCENE
-          {{ (lab.campaignState.journey?.[lab.campaignState.wins]?.length ?? 0) + 1 }}/3
+          {{
+            (lab.campaignState.journey?.[lab.campaignState.wins]?.length ?? 0) +
+            1
+          }}/3
         </button>
         <KrChoiceHand
           v-else-if="lab.campaignAtDestination"

@@ -133,7 +133,7 @@ export function startTower(
   meta: TowerMeta = freshTower().meta,
 ): TowerRun {
   if (allianceProblems(deck).length)
-    throw new Error('Build a legal 30-card Alliance.')
+    throw new Error('Build a legal 20-card Alliance.')
   return {
     seed: seed >>> 0,
     floor: 0,

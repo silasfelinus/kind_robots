@@ -45,11 +45,12 @@ export function campaignCardChoices(
   const teamIndex = TEAMS.findIndex((crew) => crew.id === team)
   const available = candidates(team, claimed)
   if (available.length < 2) return null
-  const firstPool = available.filter((card) => FEATURED.includes(card.name))
+  const firstPool = available.filter((card) => card.team === team && FEATURED.includes(card.name))
   const featured = firstPool[
     seededHash(teamIndex, chapter, 71) % firstPool.length
   ]
-  const first = featured ?? available[seededHash(teamIndex, chapter, 73) % available.length]!
+  const crewCards = available.filter((card) => card.team === team)
+  const first = featured ?? crewCards[seededHash(teamIndex, chapter, 73) % crewCards.length]!
   const rest = available.filter((card) => card.id !== first.id)
   // Later chapters guarantee a rare alternative, not just a lucky cosmetic label.
   const rareChapter = chapter >= 3

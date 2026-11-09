@@ -640,10 +640,10 @@ export const TEAMS: Team[] = [
     color: 'gold',
     district: 'CROWN MARKET',
     motto: 'Terms and conditions apply.',
-    hook: 'Gold-toothed arena monopolists who buy muscle, sell favors and collect battlefield debts.',
+    hook: 'Gold-toothed butchers-turned-bankers who mint the city’s Meat, set the price of a pound of anything and collect battlefield debts in prime cuts.',
     insignia: '◆',
     pattern:
-      'Tax them dry, then buy the arena. Collectors put every blow on your tab so you start rounds short of mana, until the Meat Mogul arrives.',
+      'Tenderize them, then buy the arena. Collectors put every blow on your tab so you start rounds short of mana, until the Meat Mogul arrives.',
     counters:
       'Rush them early: collectors are slow, the Mogul costs 6 and the champions have thin armor. Cheap swarms and pierce get there before the interest does.',
     signature: 'mogul',
@@ -1287,7 +1287,7 @@ export const CARDS: Card[] = [
     attack: 2,
     armor: 0,
     ap: 1,
-    text: 'Repossesses anything not bolted down, then the bolts.',
+    text: 'Repossesses anything not bolted down, then the bolts, then weighs them for the Meat scale.',
     symbol: '¤',
   },
   {
@@ -1301,7 +1301,7 @@ export const CARDS: Card[] = [
     armor: 0,
     ap: 1,
     keywords: ['collect'],
-    text: 'Interest compounds daily. Every punch goes on your tab.',
+    text: 'Interest compounds daily, payable in Meat. Every punch goes on your tab.',
     symbol: '◆',
   },
   {
@@ -1330,7 +1330,7 @@ export const CARDS: Card[] = [
     ap: 1,
     keywords: ['collect'],
     signature: true,
-    text: 'Owns the arena, the hot dogs and, contractually, you.',
+    text: 'Owns the arena, the Meat mint, the hot dogs and, contractually, you.',
     symbol: '♛',
   },
   {
@@ -1341,7 +1341,7 @@ export const CARDS: Card[] = [
     cost: 2,
     effect: 'zap',
     power: 2,
-    text: 'Send the boys round: 2 damage to an enemy.',
+    text: 'Send the butchers round: 2 damage to an enemy.',
     symbol: '⚡',
   },
   {
@@ -1375,7 +1375,7 @@ export const CARDS: Card[] = [
     effect: 'debt',
     power: 1,
     debt: 2,
-    text: 'Seize the furniture: 1 damage to an enemy, and its crew owes 2 mana.',
+    text: 'Seize the furniture and the freezer: 1 damage to an enemy, and its crew owes 2 mana.',
     symbol: '⚖',
   },
   {
@@ -1397,7 +1397,7 @@ export const CARDS: Card[] = [
     cost: 1,
     effect: 'heal',
     power: 3,
-    text: 'Pay off the medic: restore 3 HP to a friendly fighter.',
+    text: 'Pay off the medic in steaks: restore 3 HP to a friendly fighter.',
     symbol: '✚',
   },
   ...RESERVE_CARDS,
@@ -1454,7 +1454,7 @@ export const DISTRICTS = [
     name: 'CROWN MARKET',
     x: 80,
     y: 73,
-    summary: 'Meat shop and contracts',
+    summary: 'The Meat mint, the shop and every contract',
     team: 'exchange' as TeamId,
   },
   {

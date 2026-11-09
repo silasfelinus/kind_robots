@@ -41,6 +41,7 @@ import {
   bloodfairyLedger,
   bloodfairyStageThreeReveal,
   chooseBloodfairyBeat,
+  bloodfairyStoryDeck,
 } from '../utils/slimeCity/campaignBloodfairies'
 import {
   campaignCardChoices,
@@ -1588,11 +1589,20 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
       bosses: clashBossesFromTerms(terms),
       ...(kind === 'campaign'
         ? {
-            cards: campaignSoloDeck(
-              campaignSave.value,
-              activeTeam.value,
-              playSolo.value,
-            ),
+            cards: activeTeam.value === 'bloodfairies'
+              ? bloodfairyStoryDeck(
+                  campaignSave.value.bloodfairies,
+                  campaignSoloDeck(
+                    campaignSave.value,
+                    activeTeam.value,
+                    playSolo.value,
+                  ),
+                )
+              : campaignSoloDeck(
+                  campaignSave.value,
+                  activeTeam.value,
+                  playSolo.value,
+                ),
           }
         : {}),
     })

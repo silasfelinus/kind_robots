@@ -268,10 +268,23 @@
         </div>
       </article>
       <div class="campaign-deck" :class="'tone-' + lab.team.color">
-        <div v-if="lab.activeTeam === 'bloodfairies'" class="campaign-recap" data-testid="slime-bloodfairy-chorus">
-          <strong>CALL & RESPONSE · {{ lab.bloodfairyChorus.stage.toUpperCase() }}</strong>
-          <p>{{ lab.bloodfairyChorus.voices }} VOICES · {{ lab.bloodfairyChorus.volume }} VOLUME · THE CHOIR REMEMBERS</p>
-          <small v-if="lab.bloodfairyStageThree">LEVEL 3 REVEAL · PREVIEW ONLY. Earn these evolutions by playing Riot Choir in CLASH.</small>
+        <div
+          v-if="lab.activeTeam === 'bloodfairies'"
+          class="campaign-recap"
+          data-testid="slime-bloodfairy-chorus"
+        >
+          <strong
+            >CALL & RESPONSE ·
+            {{ lab.bloodfairyChorus.stage.toUpperCase() }}</strong
+          >
+          <p>
+            {{ lab.bloodfairyChorus.voices }} VOICES ·
+            {{ lab.bloodfairyChorus.volume }} VOLUME · THE CHOIR REMEMBERS
+          </p>
+          <small v-if="lab.bloodfairyStageThree"
+            >LEVEL 3 REVEAL · PREVIEW ONLY. Earn these evolutions by playing
+            Riot Choir in CLASH.</small
+          >
         </div>
         <span class="campaign-overline"
           >{{ lab.campaignStory.title.toUpperCase() }} · YOUR DECISION</span
@@ -299,9 +312,22 @@
             />
             <SlimeCityArtwork
               v-else
-              :image-id="slimeArtId('crews', choice.id === 'left' ? lab.activeTeam : (lab.activeChapter?.foe ?? lab.activeTeam))"
+              :image-id="
+                slimeArtId(
+                  'crews',
+                  choice.id === 'left'
+                    ? lab.activeTeam
+                    : (lab.activeChapter?.foe ?? lab.activeTeam),
+                )
+              "
               :alt="choice.label"
-              :fallback="crewInsignia(choice.id === 'left' ? lab.activeTeam : (lab.activeChapter?.foe ?? lab.activeTeam))"
+              :fallback="
+                crewInsignia(
+                  choice.id === 'left'
+                    ? lab.activeTeam
+                    : (lab.activeChapter?.foe ?? lab.activeTeam),
+                )
+              "
               compact
             />
           </template>
@@ -558,10 +584,16 @@ const campaignJourneyChoices = computed<KrHandChoice[]>(() =>
     label: option.label,
     chip:
       lab.activeTeam === 'bloodfairies'
-        ? option.id === 'left' ? 'ADD A VOICE' : 'TURN UP THE VOLUME'
-        : option.id === 'left' ? 'HELP THE CREW' : 'TAKE THE RISK',
+        ? option.id === 'left'
+          ? 'ADD A VOICE'
+          : 'TURN UP THE VOLUME'
+        : option.id === 'left'
+          ? 'HELP THE CREW'
+          : 'TAKE THE RISK',
     badge: lab.bloodfairyStageThree
-      ? option.id === 'left' ? 'LV 3 · WALL OF SOUND' : 'LV 3 · BACKUP SINGERS'
+      ? option.id === 'left'
+        ? 'LV 3 · WALL OF SOUND'
+        : 'LV 3 · BACKUP SINGERS'
       : undefined,
     details: ['A choice that carries into later scenes and battles.'],
   })),

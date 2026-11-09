@@ -829,6 +829,53 @@
         </section>
       </div>
     </div>
+    <div
+      v-if="inspectCard"
+      class="sc-inspect-backdrop"
+      @click.self="inspectId = null"
+    >
+      <section
+        class="sc-inspect-panel"
+        role="dialog"
+        aria-modal="true"
+        :aria-label="inspectCard.name + ' card details'"
+        data-testid="slime-card-inspector"
+      >
+        <div class="sc-inspect-portrait">
+          <SlimeCityClashCardFace
+            :card-id="inspectCard.id"
+            :level="evolutionLevel"
+          />
+        </div>
+        <div class="sc-inspect-details">
+          <button
+            type="button"
+            class="sc-inspect-close"
+            data-testid="slime-inspect-close"
+            @click="inspectId = null"
+          >CLOSE ×</button>
+          <small>{{ inspectCard.team === 'mercenary' ? 'MERCENARY · ANY CREW' : teamName(inspectCard.team) }}</small>
+          <h2>{{ inspectCard.name }}</h2>
+          <p class="sc-inspect-rules">{{ clashCardText(inspectCard, evolutionLevel) }}</p>
+          <div class="sc-inspect-levels" role="group" aria-label="Preview card evolution">
+            <button
+              v-for="n in CLASH_MAX_LEVEL"
+              :key="n"
+              type="button"
+              :aria-pressed="evolutionLevel === n"
+              @click="evolutionLevel = n"
+            >LV {{ n }}</button>
+          </div>
+          <button
+            type="button"
+            class="sc-inspect-action"
+            data-testid="slime-inspect-deck-action"
+            @click="lab.deckFormat === 'alliance' ? lab.toggleAllianceCard(inspectCard.id) : lab.toggleSoloCard(inspectCard.id)"
+          >{{ inspectInDeck ? 'REMOVE FROM DECK' : 'ADD TO DECK' }}</button>
+          <p aria-live="polite">{{ lab.deckMessage }}</p>
+        </div>
+      </section>
+    </div>
   </main>
 </template>
 
@@ -992,6 +1039,7 @@ onUnmounted(() => {
 
 <style scoped>
 .slime-lab {
+  position: relative;
   height: 100%;
   min-height: 0;
   overflow: hidden;
@@ -2247,6 +2295,114 @@ onUnmounted(() => {
   }
   .sc-deck-status .sc-overline {
     white-space: normal;
+  }
+}
+
+.sc-card-filters {
+  display: flex;
+  flex: 0 0 auto;
+  gap: 0.5rem;
+  padding: 0.35rem 0.65rem;
+  overflow-x: auto;
+}
+.sc-card-filters button {
+  flex: 0 0 auto;
+  padding: 0.4rem 0.8rem;
+  border: 1px solid #a2d4be88;
+  border-radius: 0.6rem;
+  background: #142932;
+  color: #f1f8f1;
+  font-size: 0.75rem;
+  font-weight: 900;
+}
+.sc-card-filters button[aria-pressed='true'] {
+  background: #c5ff59;
+  color: #122416;
+}
+.sc-inspect-backdrop {
+  position: absolute;
+  inset: 0;
+  z-index: 50;
+  display: grid;
+  place-items: center;
+  background: #020910e8;
+  padding: 1rem;
+}
+.sc-inspect-panel {
+  width: min(100%, 52rem);
+  max-height: 100%;
+  min-height: 0;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr);
+  gap: 1rem;
+  padding: 1rem;
+  border: 1px solid #98c9ac;
+  border-radius: 1.2rem;
+  background: #10202b;
+  overflow: auto;
+  box-shadow: 0 0 3rem #000b;
+}
+.sc-inspect-portrait {
+  position: relative;
+  aspect-ratio: 2 / 3;
+  min-height: 0;
+  max-height: 72vh;
+  --rules-open: 1;
+}
+.sc-inspect-details {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: 0.8rem;
+  justify-content: center;
+}
+.sc-inspect-details h2 {
+  font-size: clamp(1.4rem, 3vw, 2.4rem);
+  line-height: 1.1;
+  font-weight: 950;
+}
+.sc-inspect-details small {
+  font-weight: 900;
+  color: #bcff61;
+  letter-spacing: 0.08em;
+}
+.sc-inspect-rules {
+  font-size: clamp(0.9rem, 1.6vw, 1.2rem);
+  line-height: 1.45;
+}
+.sc-inspect-levels {
+  display: flex;
+  gap: 0.45rem;
+}
+.sc-inspect-details button {
+  padding: 0.7rem 0.9rem;
+  border: 1px solid #a2d4be88;
+  border-radius: 0.6rem;
+  background: #142932;
+  color: #f1f8f1;
+  font-size: 0.75rem;
+  font-weight: 900;
+}
+.sc-inspect-levels button[aria-pressed='true'] {
+  background: #c5ff59;
+  color: #122416;
+}
+.sc-inspect-close {
+  align-self: flex-end;
+}
+.sc-inspect-action {
+  background: #c5ff59 !important;
+  color: #122416 !important;
+  border-color: #c5ff59 !important;
+}
+@container (max-width: 580px) {
+  .sc-inspect-panel {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    padding: 0.6rem;
+    gap: 0.6rem;
+  }
+  .sc-inspect-portrait {
+    max-height: 54vh;
   }
 }
 </style>

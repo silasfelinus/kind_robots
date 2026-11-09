@@ -13,6 +13,7 @@ import {
   towerBosses,
   towerRoutes,
   towerSpoils,
+  validTowerSave,
 } from '../slimeCity/allianceTower'
 import { newSlimeCityStory, validSlimeCityStory } from '../slimeCity/storySave'
 import { TOWER_BEATS } from '../slimeCity/towerBeats'
@@ -120,6 +121,49 @@ for (const general of crews) {
     assert.ok(!validSlimeCityStory(story), 'unrecognized cards rejected')
   }
 }
+// Before the 24 authored beats, Tower battle saves embedded one of four
+// generic descriptions. All four exact legacy variants must remain loadable,
+// while a forged title or scene must still be rejected.
+const previousCopy = {
+  snare: [
+    'THE NEEDLE GATE',
+    'A wire net skims the ceiling. The pit announcer asks who packed the bolt cutters.',
+  ],
+  riot: [
+    'THE SHATTERED STANDS',
+    'Spectators throw fireworks onto a board nobody remembers building.',
+  ],
+  rest: [
+    'THE PATCHWORK CLINIC',
+    'The nurse can stabilize the crew, but the debt collectors are coming up the stairs.',
+  ],
+  vault: [
+    'THE BRASS VAULT',
+    'A tempting lockbox sits in the only safe-looking corridor. It is definitely not empty.',
+  ],
+} as const
+const legacyHazards = new Set<string>()
+for (let seed = 0; seed < 40; seed++) {
+  const ready = startTower(allianceStarter('catgirls', 'undertow'), seed)
+  for (const route of towerRoutes(ready)!) {
+    const chosen = chooseTowerRoute(ready, route.id)
+    const [title, scene] = previousCopy[route.hazard]
+    legacyHazards.add(route.hazard)
+    const saved = {
+      run: {
+        ...chosen,
+        chosen: { ...route, title, scene },
+      },
+      meta: freshTower().meta,
+    }
+    assert.ok(validTowerSave(saved), 'existing in-progress Tower saves survive prose revisions')
+    const tampered = structuredClone(saved)
+    tampered.run.chosen.scene += ' injected'
+    assert.ok(!validTowerSave(tampered), 'unknown saved scene is rejected')
+  }
+}
+assert.equal(legacyHazards.size, 4, 'all four original hazard scenes exercised')
+
 // Losing before clearing one floor is never a free card faucet.
 {
   const deck = allianceStarter('catgirls', 'undertow')

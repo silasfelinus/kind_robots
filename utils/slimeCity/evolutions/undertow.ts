@@ -8,6 +8,7 @@ import {
   boss,
   cleanse,
   damage,
+  execute,
   draw,
   duel,
   grant,
@@ -15,6 +16,7 @@ import {
   mend,
   on,
   power,
+  promote,
   rearm,
   sharpen,
   stage,
@@ -91,8 +93,10 @@ export const UNDERTOW_EVOLUTIONS: Record<string, CardEvolution> = {
   // fighters; the warrant only bites a 2-play target.
   's1-wiretap-order': {
     2: stage('Transcript', [on('enter', draw(1))]),
+    // A proper warrant cannot seize a healthy subject or a cheap decoy.
+    // The chosen expensive rival must already be hurt and at 4 life or less.
     3: stage('Big-Fish Warrant', [
-      on('enter', when('targetHeavy', damage(3, 'target', true))),
+      on('enter', when('targetHeavy', execute(4))),
     ]),
   },
   // Arc: a deadfall loaded with blue ink -> the ink cloud hides the crew next
@@ -151,8 +155,12 @@ export const UNDERTOW_EVOLUTIONS: Record<string, CardEvolution> = {
   // Trajectory: ROLE SHIFT (a heavy stun evolves into a three-lane lockdown).
   // Counterplay: spread threats apart and force this two-play spell early.
   's2-undertow-backwater-iou': {
-    2: stage('Paper Trail', [on('enter', draw(1))]),
-    3: stage('Witness Protection Racket', [on('enter', stun('adjacentFoes'))]),
+    // A paper trail promotes one still-unseen card, so the upgrade arrives
+    // naturally on the next shuffle instead of generating an extra card.
+    2: stage('Paper Trail', [on('enter', draw(1), promote('deck'))]),
+    3: stage('Witness Protection Racket', [
+      on('enter', stun('adjacentFoes'), promote('hand')),
+    ]),
   },
   // Arc: a checkpoint wire with literal fine print -> every toll feeds the
   // boss -> the toll plaza resets for the next car.

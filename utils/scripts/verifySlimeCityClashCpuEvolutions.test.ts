@@ -2,6 +2,8 @@ import assert from 'node:assert/strict'
 import {
   applyClashCommand,
   canClashPlay,
+  clashEffectivePlayCost,
+  clashCardText,
   chooseClashCpu,
   createClash,
   endClashTurn,
@@ -9,7 +11,7 @@ import {
   type ClashUnit,
 } from '../slimeCity/clash'
 import { CLASH_EVOLUTIONS } from '../slimeCity/clashEvolutions'
-import type { Side } from '../slimeCity/prototypes'
+import { cardById, type Side } from '../slimeCity/prototypes'
 
 const fighter = (
   side: Side,
@@ -258,6 +260,109 @@ for (const [left, right] of [
     3,
     'a lane with an opposing blocker is not a safe escape',
   )
+}
+
+// An Undertow file promotes an existing card in the deck before its bonus
+// draw. Upgrades are never generated cards, never touch rival inventory,
+// never upgrade themselves, and stop at level three.
+{
+  const id = 's2-undertow-backwater-iou'
+  const s = createClash('undertow', 'ironjaw', 202611)
+  s.round = 5
+  s.hands.player = [id]
+  s.levels.player[id] = 2
+  s.decks.player = ['s1-wiretap-order', 'pipe-seer']
+  s.levels.player['pipe-seer'] = 2
+  s.units = [fighter('enemy', 2, 40)]
+  const snapshot = structuredClone(s)
+  assert.ok(canClashPlay(s, 'player', id, 2))
+  const played = playClash(s, 'player', id, 2)
+  assert.equal(played.levels.player['s1-wiretap-order'], 2)
+  assert.equal(played.levels.player[id], 3, 'the played card levels normally')
+  assert.equal(played.levels.player['pipe-seer'], 2)
+  assert.deepEqual(s, snapshot, 'the original deck and levels are immutable')
+  assert.deepEqual(playClash(s, 'player', id, 2), played, 'promotion replays')
+  assert.ok(clashCardText(cardById(id), 2).includes('level up'))
+  const capped = structuredClone(s)
+  capped.levels.player['s1-wiretap-order'] = 3
+  capped.levels.player['pipe-seer'] = 3
+  const result = playClash(capped, 'player', id, 2)
+  assert.equal(
+    result.levels.player['pipe-seer'],
+    3,
+    'promotion is level-capped',
+  )
+}
+
+// A Bloodfairy encore is free only after gathering a crowd, and cannot
+// be used as an unbounded combo engine. No free play after attack begins.
+{
+  const id = 's3-bloodfairies-feedback-burst'
+  const s = createClash('bloodfairies', 'ironjaw', 202612)
+  s.round = 5
+  s.hands.player = [id]
+  s.levels.player[id] = 3
+  s.units = [
+    fighter('player', 0, 50),
+    fighter('player', 4, 51),
+    fighter('enemy', 2, 52),
+  ]
+  const before = structuredClone(s)
+  assert.equal(clashEffectivePlayCost(s, 'player', cardById(id)), 0)
+  const played = playClash(s, 'player', id, 2)
+  assert.equal(played.plays.player, 0)
+  assert.equal(played.freePlays?.player, 1)
+  assert.ok(played.units.find((u) => u.uid === 52)!.hp < 12)
+  assert.deepEqual(s, before)
+  assert.deepEqual(playClash(s, 'player', id, 2), played)
+  assert.ok(clashCardText(cardById(id), 3).includes('Free once per turn'))
+  assert.ok(
+    clashEffectivePlayCost(played, 'player', cardById(id)) > 0,
+    'second free play in same turn is forbidden',
+  )
+  const noCrowd = structuredClone(s)
+  noCrowd.units = [fighter('enemy', 2, 52)]
+  assert.ok(clashEffectivePlayCost(noCrowd, 'player', cardById(id)) > 0)
+  const spent = structuredClone(s)
+  spent.phase = 'attack'
+  assert.equal(canClashPlay(spent, 'player', id, 2), false)
+}
+
+// Big-Fish Warrant executes only a damaged heavy fighter under its
+// threshold. Full-health, cheap, and token opponents are protected.
+{
+  const id = 's1-wiretap-order'
+  const run = (unit: ClashUnit): ReturnType<typeof createClash> => {
+    const s = createClash('undertow', 'ironjaw', 202613)
+    s.round = 5
+    s.hands.player = [id]
+    s.levels.player[id] = 3
+    s.units = [unit]
+    assert.ok(canClashPlay(s, 'player', id, 2))
+    return playClash(s, 'player', id, 2)
+  }
+  const heavy = fighter('enemy', 2, 60, {
+    cardId: 'juggernaut',
+    hp: 3,
+    maxHp: 12,
+  })
+  assert.equal(
+    run(heavy).units.some((u) => u.uid === 60),
+    false,
+  )
+  assert.ok(
+    run({ ...heavy, hp: 12 }).units.some((u) => u.uid === 60),
+    'undamaged heavyweight survives',
+  )
+  assert.ok(
+    run({ ...heavy, cardId: 'scrapper' }).units.some((u) => u.uid === 60),
+    'cheap fighter is not named in the warrant',
+  )
+  assert.ok(
+    run({ ...heavy, token: true }).units.some((u) => u.uid === 60),
+    'summoned echoes cannot be seized',
+  )
+  assert.ok(clashCardText(cardById(id), 3).includes('wounded'))
 }
 
 console.log(

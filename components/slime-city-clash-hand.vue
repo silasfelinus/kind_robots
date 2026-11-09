@@ -49,7 +49,10 @@
           :tabindex="isOpen ? 0 : -1"
           :aria-pressed="held === index"
           :aria-label="
-            cardById(cardId).name + '. ' + clashCardText(cardById(cardId))
+            cardById(cardId).name +
+            '. ' +
+            (isFree(cardId) ? 'Free play. ' : '') +
+            clashCardText(cardById(cardId), clashLevel(game, 'player', cardId))
           "
           :data-testid="'clash-hand-' + index"
           @pointerdown="grab($event, index)"
@@ -68,6 +71,12 @@
               previewLevel !== clashLevel(game, 'player', cardId)
             "
           />
+          <span
+            v-if="isFree(cardId)"
+            class="cxh-free"
+            data-testid="clash-free-play"
+            >FREE</span
+          >
         </button>
       </div>
     </TransitionGroup>
@@ -156,7 +165,7 @@ import {
   clashPlayLimit,
   clashCardText,
   clashLevel,
-  clashPlayCost,
+  clashEffectivePlayCost,
   type ClashState,
 } from '~/utils/slimeCity/clash'
 
@@ -209,10 +218,17 @@ watch(
   () => (previewLevel.value = null),
 )
 
+function isFree(id: string): boolean {
+  return (
+    ready.value &&
+    clashEffectivePlayCost(props.game, 'player', cardById(id)) === 0
+  )
+}
 function playable(id: string): boolean {
   return (
     ready.value &&
-    clashPlayCost(cardById(id)) + props.game.plays.player <=
+    clashEffectivePlayCost(props.game, 'player', cardById(id)) +
+      props.game.plays.player <=
       clashPlayLimit(props.game, 'player')
   )
 }
@@ -412,6 +428,21 @@ function tap(index: number): void {
 }
 .cxh-card.dim {
   filter: saturate(0.35) brightness(0.7);
+}
+.cxh-free {
+  position: absolute;
+  top: 0.65rem;
+  right: 0.65rem;
+  z-index: 2;
+  padding: 0.18rem 0.45rem;
+  border-radius: 0.4rem;
+  border: 1px solid #fff4ad;
+  background: #113d30ed;
+  color: #f5ffbf;
+  font-weight: 950;
+  font-size: 0.85rem;
+  letter-spacing: 0.08em;
+  pointer-events: none;
 }
 .cxh-card.big {
   --x: 0px;

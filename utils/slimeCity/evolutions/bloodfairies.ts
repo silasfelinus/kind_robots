@@ -270,7 +270,12 @@ export const BLOODFAIRY_EVOLUTIONS: Record<string, CardEvolution> = {
   // under three; the howl needs the crowd.
   's3-bloodfairies-feedback-burst': {
     2: stage('Mic Squeal', [on('enter', power(1, 'adjacentAllies'))]),
-    3: stage('Howlround', [on('enter', when('crowd', damage(2, 'allFoes')))]),
+    // The band's encore costs no play slot with two other performers
+    // already on the field. It never chains more than once per turn.
+    3: {
+      ...stage('Howlround', [on('enter', when('crowd', damage(2, 'allFoes')))]),
+      freeIf: 'crowd',
+    },
   },
   // Arc: one lucky fighter gets the mic -> it sings for its supper and the
   // boss eats -> encore or die: bring back a fallen friend (Encore!), or

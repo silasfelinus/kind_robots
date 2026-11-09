@@ -73,6 +73,10 @@ export type EvoAction =
   /** Your boss heals n (up to its cap). */
   | { do: 'mend'; n: number }
   | { do: 'draw'; n: number }
+  /** Upgrade another card already owned in hand/deck, never beyond level 3. */
+  | { do: 'promote'; zone: 'hand' | 'deck' }
+  /** Knock out an already-wounded rival at or below this remaining life. */
+  | { do: 'execute'; threshold: number; to: 'target' }
   /** A seeded gamble: `p` percent chance to run `then`. */
   | { do: 'chance'; p: number; then: EvoAction[] }
   /** Run `then` only when the board matches `cond` (situational payoffs). */
@@ -129,6 +133,8 @@ export interface EvoStage {
   title: string
   abilities: EvoAbility[]
   static?: EvoStatic
+  /** One conditional free play per turn while the play phase remains open. */
+  freeIf?: EvoCondition
 }
 
 export interface CardEvolution {
@@ -212,6 +218,15 @@ export const summon = (
 export const boss = (n: number): EvoAction => ({ do: 'boss', n })
 export const mend = (n: number): EvoAction => ({ do: 'mend', n })
 export const draw = (n: number): EvoAction => ({ do: 'draw', n })
+export const promote = (zone: 'hand' | 'deck'): EvoAction => ({
+  do: 'promote',
+  zone,
+})
+export const execute = (threshold: number): EvoAction => ({
+  do: 'execute',
+  threshold,
+  to: 'target',
+})
 export const chance = (p: number, ...then: EvoAction[]): EvoAction => ({
   do: 'chance',
   p,
@@ -322,6 +337,14 @@ export function evoActionText(a: EvoAction, subject: 'it' | 'self'): string {
       return 'your boss +' + a.n
     case 'draw':
       return 'draw ' + a.n
+    case 'promote':
+      return (
+        'level up the lowest-level other card in your ' + a.zone + ' (max L3)'
+      )
+    case 'execute':
+      return (
+        'knock out a wounded rival target at ' + a.threshold + ' or less life'
+      )
     case 'chance':
       return (
         a.p + '%: ' + a.then.map((x) => evoActionText(x, subject)).join(', ')
@@ -433,5 +456,8 @@ export function evoStageText(st: EvoStage, kind: Kind): string {
   return [
     ...st.abilities.map((ab) => abilityText(ab, kind)),
     ...(st.static ? staticText(st.static, kind) : []),
+    ...(st.freeIf
+      ? ['Free once per turn ' + COND[st.freeIf] + ' (during your play phase).']
+      : []),
   ].join(' ')
 }

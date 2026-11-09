@@ -337,7 +337,7 @@ import {
   shallowRef,
   watch,
 } from 'vue'
-import { slimeCardArtId } from '~/utils/slimeCity/artManifest'
+import { slimeArtId, slimeCardArtId } from '~/utils/slimeCity/artManifest'
 import {
   cardById,
   teamById,

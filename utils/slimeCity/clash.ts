@@ -833,11 +833,7 @@ export function clashEffectivePlayCost(
   if (
     freeIf &&
     (s.freePlays?.[side] ?? 0) < 1 &&
-    evoCondition(
-      s,
-      { side, lane: 0, cardId: card.id, level },
-      freeIf,
-    )
+    evoCondition(s, { side, lane: 0, cardId: card.id, level }, freeIf)
   )
     return 0
   return clashPlayCost(card)
@@ -1114,12 +1110,7 @@ function evoAct(s: ClashState, ctx: EvoContext, a: EvoAction): void {
       return
     case 'execute':
       for (const u of evoScope(s, ctx, a.to))
-        if (
-          u.side === foe &&
-          u.hp < u.maxHp &&
-          u.hp <= a.threshold &&
-          !u.token
-        )
+        if (u.side === foe && u.hp < u.maxHp && u.hp <= a.threshold && !u.token)
           u.hp = 0
       return
     case 'promote': {
@@ -1127,13 +1118,11 @@ function evoAct(s: ClashState, ctx: EvoContext, a: EvoAction): void {
       const target = [...cards]
         .filter(
           (id) =>
-            id !== ctx.cardId &&
-            clashLevel(s, ctx.side, id) < CLASH_MAX_LEVEL,
+            id !== ctx.cardId && clashLevel(s, ctx.side, id) < CLASH_MAX_LEVEL,
         )
         .sort(
           (left, right) =>
-            clashLevel(s, ctx.side, left) -
-              clashLevel(s, ctx.side, right) ||
+            clashLevel(s, ctx.side, left) - clashLevel(s, ctx.side, right) ||
             left.localeCompare(right),
         )[0]
       if (!target) return
@@ -2961,10 +2950,7 @@ function cpuEvolutionPayoff(
       case 'execute':
         return cpuTargets(a.to).some(
           (u) =>
-            u.side === foe &&
-            u.hp < u.maxHp &&
-            u.hp <= a.threshold &&
-            !u.token,
+            u.side === foe && u.hp < u.maxHp && u.hp <= a.threshold && !u.token,
         )
           ? 6
           : 0
@@ -3079,8 +3065,13 @@ function cpuEvolutionPayoff(
   // swing turns. Discount speculative evolution payoffs in that format;
   // the board-read still chooses between actual useful stage effects.
   return (
-    clamp(abilities + passive + (clashEffectivePlayCost(s, side, card) === 0 ? 3 : 0), -6, 14) *
-    (s.format === 'alliance' ? 0.35 : 0.65)
+    clamp(
+      abilities +
+        passive +
+        (clashEffectivePlayCost(s, side, card) === 0 ? 3 : 0),
+      -6,
+      14,
+    ) * (s.format === 'alliance' ? 0.35 : 0.65)
   )
 }
 

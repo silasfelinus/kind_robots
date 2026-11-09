@@ -4,6 +4,7 @@ import {
   canClashPlay,
   chooseClashCpu,
   createClash,
+  endClashTurn,
   playClash,
   type ClashUnit,
 } from '../slimeCity/clash'
@@ -170,6 +171,43 @@ for (const [left, right] of [
     battle.units.some((u) => u.side === 'enemy' && u.lane === 4 && !u.rooted),
     'the distant witness remains untouched',
   )
+}
+
+// Thundersaur-style investment: the Dreadnought must survive a *complete*
+// round to become a growing storm. No level-2 growth, and no RNG or enemy
+// hand peeking. Its smaller L3 starting hull is deliberate counterplay.
+{
+  const id = 's3-ironjaw-dreadnought'
+  const model = createClash('ironjaw', 'riot', 945)
+  model.active = 'enemy'
+  model.phase = 'attack'
+  model.round = 5
+  model.units = [
+    fighter('player', 2, 50, {
+      cardId: id,
+      level: 3,
+      hp: 9,
+      maxHp: 13,
+      attack: 5,
+    }),
+  ]
+  const first = endClashTurn(model, 'enemy')
+  const grown = first.units.find((u) => u.uid === 50)!
+  assert.equal(grown.maxHp, 14, 'surviving the full round grows its hull')
+  assert.equal(grown.hp, 10, 'growth does not erase earlier damage')
+  assert.equal(grown.attack, 6, 'surviving grows its permanent punch')
+  assert.equal(model.units[0]!.maxHp, 13, 'the previous state is immutable')
+  assert.deepEqual(first, endClashTurn(model, 'enemy'), 'growth replays exactly')
+
+  const earlier = structuredClone(model)
+  earlier.units[0]!.level = 2
+  const levelTwo = endClashTurn(earlier, 'enemy')
+  assert.equal(levelTwo.units[0]!.maxHp, 13, 'L2 still grows only on a hit')
+  assert.equal(levelTwo.units[0]!.attack, 5)
+
+  const gone = structuredClone(model)
+  gone.units = []
+  assert.equal(endClashTurn(gone, 'enemy').units.length, 0)
 }
 
 console.log(

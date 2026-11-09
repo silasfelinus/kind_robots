@@ -7,6 +7,7 @@ import {
 } from './alliance'
 import { CARDS, TEAMS, seededHash, type TeamId } from './prototypes'
 import { rarityOf } from './progression'
+import { TOWER_BEATS } from './towerBeats'
 
 export const TOWER_FLOORS = 12
 export type TowerPhase = 'route' | 'battle' | 'failed' | 'complete'
@@ -45,26 +46,32 @@ export function freshTower(): TowerSave {
   return { run: null, meta: { runs: 0, bestFloor: 0, cinders: 0, cards: [] } }
 }
 
-const SCENES: Record<TowerHazard, [string, string, string]> = {
+const HAZARD_REWARDS: Record<TowerHazard, string> = {
+  snare: 'Rival starts with reinforced boss life',
+  riot: 'A louder rival awaits',
+  rest: 'Restore some starting boss life',
+  vault: 'Claim a reusable ward after victory',
+}
+
+// A chosen Tower fight is persisted verbatim. Accept the exact old four-scene
+// route vocabulary in existing in-progress saves; do not accept arbitrary
+// user-controlled display copy as a valid signed-off route.
+const LEGACY_ROUTE_COPY: Record<TowerHazard, readonly [string, string]> = {
   snare: [
     'THE NEEDLE GATE',
     'A wire net skims the ceiling. The pit announcer asks who packed the bolt cutters.',
-    'Rival starts with reinforced boss life',
   ],
   riot: [
     'THE SHATTERED STANDS',
     'Spectators throw fireworks onto a board nobody remembers building.',
-    'A louder rival awaits',
   ],
   rest: [
     'THE PATCHWORK CLINIC',
     'The nurse can stabilize the crew, but the debt collectors are coming up the stairs.',
-    'Restore some starting boss life',
   ],
   vault: [
     'THE BRASS VAULT',
     'A tempting lockbox sits in the only safe-looking corridor. It is definitely not empty.',
-    'Claim a reusable ward after victory',
   ],
 }
 
@@ -79,15 +86,17 @@ export function towerRoutes(run: TowerRun): [TowerRoute, TowerRoute] | null {
       run.floor === TOWER_FLOORS - 1
         ? 'riot'
         : hazards[(firstHazard + index * (1 + (roll % 2))) % hazards.length]!
-    const [title, scene, reward] = SCENES[hazard]
+    const reward = HAZARD_REWARDS[hazard]
+    const beat = TOWER_BEATS[run.floor]!
+    const route = beat.routes[index]!
     const foe = ids[(run.floor + (roll % ids.length) + index) % ids.length]!
     return {
       id: String(run.floor) + ':' + index,
       title:
         run.floor === TOWER_FLOORS - 1
           ? 'THE GRAND PIT · ' + foe.toUpperCase()
-          : title,
-      scene,
+          : route.title,
+      scene: `${beat.setting} ${route.scene}`,
       hazard,
       foe,
       reward,
@@ -276,9 +285,16 @@ export function validTowerSave(raw: unknown): raw is TowerSave {
       chosen: null,
       phase: 'route',
     })
-    return !!routes?.some(
-      (route) => JSON.stringify(route) === JSON.stringify(run.chosen),
-    )
+    return !!routes?.some((route) => {
+      if (JSON.stringify(route) === JSON.stringify(run.chosen)) return true
+      const [title, scene] = LEGACY_ROUTE_COPY[route.hazard]
+      const previous = {
+        ...route,
+        title: run.floor === TOWER_FLOORS - 1 ? route.title : title,
+        scene,
+      }
+      return JSON.stringify(previous) === JSON.stringify(run.chosen)
+    })
   }
   return run.chosen === null
 }

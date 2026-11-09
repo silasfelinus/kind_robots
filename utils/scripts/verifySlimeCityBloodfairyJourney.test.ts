@@ -56,8 +56,9 @@ for (const path of ['left', 'right'] as const) {
       assert.equal(reveal, chapter === 2 && sceneIndex === 2)
       const original = JSON.stringify(save)
       assert.equal(chooseBloodfairyBeat(save, 'forged' as 'left'), save)
-      save = chooseBloodfairyBeat(save, path)
-      assert.equal(JSON.stringify(createCampaignSave()), JSON.stringify(createCampaignSave()))
+      const next = chooseBloodfairyBeat(save, path)
+      assert.equal(JSON.stringify(save), original, 'choice does not mutate save input')
+      save = next
       assert.ok(JSON.stringify(save) !== original)
       assert.equal(save.bloodfairies.journey?.[chapter]?.length, sceneIndex + 1)
       assert.ok(bloodfairyLastOutcome(save.bloodfairies))

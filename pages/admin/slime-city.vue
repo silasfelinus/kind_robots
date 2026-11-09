@@ -42,7 +42,9 @@
               :class="{ active: lab.view === 'home' }"
               data-testid="slime-home-tab"
               @click="lab.view = 'home'"
-            >HOME</button>
+            >
+              HOME
+            </button>
             <button
               type="button"
               class="sc-main-mode"
@@ -90,7 +92,9 @@
               :class="{ active: lab.view === 'settings' }"
               data-testid="slime-settings-tab"
               @click="lab.view = 'settings'"
-            >SETTINGS</button>
+            >
+              SETTINGS
+            </button>
           </nav>
           <div
             class="sc-hud"
@@ -146,11 +150,21 @@
                 class="sc-home-primary"
                 data-testid="slime-home-play"
                 @click="lab.playClashFormat()"
-              >ENTER CLASH</button>
-              <button type="button" @click="lab.showCampaign()">CREW STORY</button>
-              <button type="button" @click="lab.showCity()">EXPLORE THE CITY</button>
-              <button type="button" @click="lab.showCards()">BUILD A DECK</button>
-              <button type="button" @click="lab.view = 'settings'">SETTINGS</button>
+              >
+                ENTER CLASH
+              </button>
+              <button type="button" @click="lab.showCampaign()">
+                CREW STORY
+              </button>
+              <button type="button" @click="lab.showCity()">
+                EXPLORE THE CITY
+              </button>
+              <button type="button" @click="lab.showCards()">
+                BUILD A DECK
+              </button>
+              <button type="button" @click="lab.view = 'settings'">
+                SETTINGS
+              </button>
             </nav>
           </div>
           <SlimeCityArtwork
@@ -188,17 +202,32 @@
               :aria-pressed="lab.unlockMode === 'all'"
               :disabled="!lab.storyLoaded || lab.storySaving"
               @click="lab.setUnlockMode('all')"
-            >ALL 300 CARDS</button>
+            >
+              ALL 300 CARDS
+            </button>
             <button
               type="button"
               :aria-pressed="lab.unlockMode === 'trickle'"
               :disabled="!lab.storyLoaded || lab.storySaving"
               @click="lab.setUnlockMode('trickle')"
-            >UNLOCK THROUGH PLAY</button>
-            <small v-if="!lab.storyLoaded">Sign in to change saved collection access.</small>
+            >
+              UNLOCK THROUGH PLAY
+            </button>
+            <small v-if="!lab.storyLoaded"
+              >Sign in to change saved collection access.</small
+            >
           </fieldset>
-          <p>Tap a collection card to inspect its rules and evolutions. Every Clash deck contains exactly 20 unique cards.</p>
-          <button type="button" class="sc-settings-back" @click="lab.view = 'home'">BACK TO TITLE</button>
+          <p>
+            Tap a collection card to inspect its rules and evolutions. Every
+            Clash deck contains exactly 20 unique cards.
+          </p>
+          <button
+            type="button"
+            class="sc-settings-back"
+            @click="lab.view = 'home'"
+          >
+            BACK TO TITLE
+          </button>
         </section>
         <section
           v-else-if="lab.view === 'city'"
@@ -646,14 +675,21 @@
               LV {{ n }}
             </button>
           </div>
-          <div class="sc-card-filters" role="group" aria-label="Filter collection cards" data-testid="slime-card-filters">
+          <div
+            class="sc-card-filters"
+            role="group"
+            aria-label="Filter collection cards"
+            data-testid="slime-card-filters"
+          >
             <button
               v-for="filter in collectionFilters"
               :key="filter.id"
               type="button"
               :aria-pressed="collectionFilter === filter.id"
               @click="collectionFilter = filter.id"
-            >{{ filter.label }}</button>
+            >
+              {{ filter.label }}
+            </button>
           </div>
           <ul
             v-if="lab.deckFormat === 'alliance'"
@@ -680,7 +716,10 @@
                 :data-testid="'slime-alliance-card-' + card.id"
                 :aria-pressed="lab.currentAlliance.cards.includes(card.id)"
                 :aria-label="
-                  'Inspect ' + card.name + ', ' + allianceLabel(card).toLowerCase()
+                  'Inspect ' +
+                  card.name +
+                  ', ' +
+                  allianceLabel(card).toLowerCase()
                 "
                 @click="inspectId = card.id"
               />
@@ -710,7 +749,9 @@
                 class="sc-collect-pick"
                 :data-testid="'slime-solo-card-' + card.id"
                 :aria-pressed="lab.currentSolo.includes(card.id)"
-                :aria-label="'Inspect ' + card.name + ', ' + soloLabel(card).toLowerCase()"
+                :aria-label="
+                  'Inspect ' + card.name + ', ' + soloLabel(card).toLowerCase()
+                "
                 @click="inspectId = card.id"
               />
             </li>
@@ -942,25 +983,45 @@
             class="sc-inspect-close"
             data-testid="slime-inspect-close"
             @click="inspectId = null"
-          >CLOSE ×</button>
-          <small>{{ inspectCard.team === 'mercenary' ? 'MERCENARY · ANY CREW' : teamName(inspectCard.team) }}</small>
+          >
+            CLOSE ×
+          </button>
+          <small>{{
+            inspectCard.team === 'mercenary'
+              ? 'MERCENARY · ANY CREW'
+              : teamName(inspectCard.team)
+          }}</small>
           <h2>{{ inspectCard.name }}</h2>
-          <p class="sc-inspect-rules">{{ clashCardText(inspectCard, evolutionLevel) }}</p>
-          <div class="sc-inspect-levels" role="group" aria-label="Preview card evolution">
+          <p class="sc-inspect-rules">
+            {{ clashCardText(inspectCard, evolutionLevel) }}
+          </p>
+          <div
+            class="sc-inspect-levels"
+            role="group"
+            aria-label="Preview card evolution"
+          >
             <button
               v-for="n in CLASH_MAX_LEVEL"
               :key="n"
               type="button"
               :aria-pressed="evolutionLevel === n"
               @click="evolutionLevel = n"
-            >LV {{ n }}</button>
+            >
+              LV {{ n }}
+            </button>
           </div>
           <button
             type="button"
             class="sc-inspect-action"
             data-testid="slime-inspect-deck-action"
-            @click="lab.deckFormat === 'alliance' ? lab.toggleAllianceCard(inspectCard.id) : lab.toggleSoloCard(inspectCard.id)"
-          >{{ inspectInDeck ? 'REMOVE FROM DECK' : 'ADD TO DECK' }}</button>
+            @click="
+              lab.deckFormat === 'alliance'
+                ? lab.toggleAllianceCard(inspectCard.id)
+                : lab.toggleSoloCard(inspectCard.id)
+            "
+          >
+            {{ inspectInDeck ? 'REMOVE FROM DECK' : 'ADD TO DECK' }}
+          </button>
           <p aria-live="polite">{{ lab.deckMessage }}</p>
         </div>
       </section>
@@ -1034,8 +1095,9 @@ const collectionFilter = ref<(typeof collectionFilters)[number]['id']>('all')
 const inspectId = ref<string | null>(null)
 const inspectCard = computed(() =>
   inspectId.value
-    ? lab.allianceCards.find((card) => card.id === inspectId.value) ??
-      lab.soloCards.find((card) => card.id === inspectId.value) ?? null
+    ? (lab.allianceCards.find((card) => card.id === inspectId.value) ??
+      lab.soloCards.find((card) => card.id === inspectId.value) ??
+      null)
     : null,
 )
 const inspectInDeck = computed(() =>

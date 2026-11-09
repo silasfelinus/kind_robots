@@ -289,9 +289,7 @@ export const BLOODFAIRY_EVOLUTIONS: Record<string, CardEvolution> = {
   // Counterplay: focused removal, armor, stun, or kill the VOLATILE
   // lead away from neighboring allies.
   's3-bloodfairies-encore': {
-    2: stage('Second Verse', [
-      on('enter', grant('leech', 'adjacentAllies')),
-    ]),
+    2: stage('Second Verse', [on('enter', grant('leech', 'adjacentAllies'))]),
     3: stage('Everybody Sings', [
       on('enter', revive(2, 3), grant('leech', 'allies')),
     ]),

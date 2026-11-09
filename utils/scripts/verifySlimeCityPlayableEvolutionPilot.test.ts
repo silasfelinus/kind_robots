@@ -12,9 +12,10 @@ import {
   endClashTurn,
   playClash,
   replayClash,
+  strikeClash,
   type ClashUnit,
 } from '../slimeCity/clash'
-import { clashEvolutionStage, clashEvolutionChoice } from '../slimeCity/clashEvolutions'
+import { clashEvolutionStage, clashEvolutionChoice, clashEvolutionStats, clashStageTitle } from '../slimeCity/clashEvolutions'
 import { allianceProblems, allianceStarter, soloProblems, soloStarter } from '../slimeCity/alliance'
 import { cardById, CARDS, type Side } from '../slimeCity/prototypes'
 
@@ -131,15 +132,26 @@ const find = (s: ReturnType<typeof createClash>, side: Side, lane: number) =>
   const holder = find(l2, 'player', 0)!
   assert.ok(holder)
   assert.ok(clashEvolutionStage(dread, 2)?.abilities.some((a) => a.when === 'hit'))
+  // With a real strike, the convoy keeps its neighbor alive instead of
+  // gaining only an invisible +1 stat on the card sheet.
+  const duringStrike = structuredClone(l2)
+  duringStrike.phase = 'attack'
+  duringStrike.cursor = 0
+  find(duringStrike, 'player', 0)!.fresh = false
+  duringStrike.units.push(unit('enemy', 0, 59, { hp: 20, maxHp: 20 }))
+  const resolved = strikeClash(duringStrike, 'player')
+  assert.equal(find(resolved, 'player', 1)?.guard, 1,
+    'L2 gives the real neighboring fighter protection after a hit')
   const levelThree = structuredClone(s)
   levelThree.levels.player[dread] = 3
   levelThree.units.push(unit('enemy', 0, 56, { hp: 12, maxHp: 12 }))
   const l3 = playClash(levelThree, 'player', dread, 0)
   assert.ok(find(l3, 'enemy', 0)!.hp < 12, 'Thunderhead hits on arrival')
   assert.equal(find(l3, 'player', 1)?.guard, 2)
-  assert.equal(find(l3, 'player', 0)?.hp! < holder.hp, true,
-    'L3 sacrifices immediate durability to earn round-end power')
-  assert.ok(clashCardText(cardById(dread), 3).includes('Thunderhead'))
+  assert.equal(clashEvolutionStats(dread, 3)?.hp, -4,
+    'L3 deliberately exposes four life of its normal budget')
+  assert.equal(clashStageTitle(dread, 3), 'Thunderhead of Scrap')
+  assert.ok(clashCardText(cardById(dread), 3).includes('life'))
 }
 
 // A playable first-verse buff costs one slot in CLASH only. The chorus

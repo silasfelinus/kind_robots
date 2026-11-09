@@ -347,10 +347,10 @@ export function evoActionText(a: EvoAction, subject: 'it' | 'self'): string {
       )
     case 'shift':
       return (
-        'move ' +
-        who(a.to) +
-        ' to a free adjacent alley, preferring ' +
-        (a.where === 'safe' ? 'no opposing fighter' : 'an opposing fighter')
+        (a.to === 'self' ? 'sidestep' : 'shift the target') +
+        (a.where === 'safe'
+          ? ' to an empty neighboring alley with no foe across'
+          : ' to an empty neighboring alley across from a foe')
       )
     case 'duel':
       return (

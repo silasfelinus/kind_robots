@@ -382,7 +382,7 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
     towerRun.value ? towerSpoils(towerRun.value, towerSave.value.meta) : null,
   )
   const savedDecks = ref<Partial<Record<TeamId, string[]>>>({})
-  /** ALLIANCE: the last legal 30-card deck saved for each general. */
+  /** ALLIANCE: the last legal 20-card deck saved for each general. */
   const savedAlliances = ref<Partial<Record<TeamId, AllianceDeck>>>({})
   /** ALLIANCE: work in progress, kept even while it is not yet legal. */
   const allianceDrafts = ref<Partial<Record<TeamId, AllianceDeck>>>({})

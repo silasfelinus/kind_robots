@@ -23,6 +23,7 @@ import {
   type CampaignApproach,
 } from '../utils/slimeCity/campaign'
 import { campaignConversationFor } from '../utils/slimeCity/campaignDialogue'
+import { campaignCardChoices, campaignSoloDeck, chooseCampaignCard } from '../utils/slimeCity/campaignCardRewards'
 import { campaignAftermathFor } from '../utils/slimeCity/campaignAftermath'
 import {
   campaignBattlefield,
@@ -518,6 +519,16 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
 
   const campaignStory = computed(() => FACTION_CAMPAIGNS[activeTeam.value])
   const campaignState = computed(() => campaignSave.value[activeTeam.value])
+  const campaignRewardChoices = computed(() =>
+    campaignCardChoices(campaignSave.value, activeTeam.value),
+  )
+  function chooseCampaignCardReward(id: string): void {
+    if (!storyEditable()) return
+    const next = chooseCampaignCard(campaignSave.value, activeTeam.value, id)
+    if (next === campaignSave.value) return
+    campaignSave.value = next
+    persistStory()
+  }
   const campaignAftermath = computed(() =>
     campaignAftermathFor(campaignSave.value, activeTeam.value),
   )
@@ -1190,6 +1201,7 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
   }
 
   function continueCampaign(): void {
+    if (campaignRewardChoices.value) return
     campaignScreen.value = 'chapter'
   }
 
@@ -1376,6 +1388,9 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
       enemy,
       seed: rollSeed(),
       bosses: clashBossesFromTerms(terms),
+      ...(kind === 'campaign'
+        ? { cards: campaignSoloDeck(campaignSave.value, activeTeam.value, playSolo.value) }
+        : {}),
     })
   }
 
@@ -1399,7 +1414,7 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
   }
   function startCampaignBattle(choiceId: CampaignApproach): void {
     if (!storyEditable()) return
-    if (campaignBout.value) return
+    if (campaignBout.value || campaignRewardChoices.value) return
     const fromCity =
       view.value === 'city' &&
       campaignAtDestination.value &&
@@ -1719,6 +1734,8 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
     showCampaignAftermath,
     campaignStory,
     campaignState,
+    campaignRewardChoices,
+    chooseCampaignCardReward,
     campaignConversation,
     campaignAftermath,
     campaignEcho,

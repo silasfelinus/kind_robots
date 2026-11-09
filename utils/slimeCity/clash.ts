@@ -3014,8 +3014,11 @@ export function chooseClashCpu(
           (card.effect === 'heal' && mine
             ? Math.min(b.power, mine.maxHp - mine.hp) * 1.2 - 1.5
             : 0)
-        if ((s.format !== 'alliance' || card.kind === 'equipment') &&
-          mine && card.effect === 'grant') {
+        if (
+          (s.format !== 'alliance' || card.kind === 'equipment') &&
+          mine &&
+          card.effect === 'grant'
+        ) {
           const missing = (card.grants ?? []).filter(
             (keyword) => !mine.keywords.includes(keyword),
           )
@@ -3039,7 +3042,11 @@ export function chooseClashCpu(
               : across
                 ? b.power * 0.7
                 : 0
-        if ((s.format !== 'alliance' || card.kind === 'equipment') && mine && card.effect === 'armor')
+        if (
+          (s.format !== 'alliance' || card.kind === 'equipment') &&
+          mine &&
+          card.effect === 'armor'
+        )
           score += Math.max(0, 3 - mine.armor) * 2
       } else
         score =

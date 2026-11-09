@@ -1172,9 +1172,7 @@ function evoAct(s: ClashState, ctx: EvoContext, a: EvoAction): void {
         (lane) =>
           inside(lane) &&
           !unitAt(s, mover.side, lane) &&
-          (a.where === 'safe'
-            ? !unitAt(s, foe, lane)
-            : !!unitAt(s, foe, lane)),
+          (a.where === 'safe' ? !unitAt(s, foe, lane) : !!unitAt(s, foe, lane)),
       )
       const destination = candidates[0]
       if (destination === undefined) return

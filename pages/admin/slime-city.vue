@@ -181,19 +181,32 @@
           data-testid="slime-settings"
         >
           <h2 class="sc-settings-heading">GAME SETTINGS</h2>
-          <p>Choose how the next Clash starts. Your current fight is not affected.</p>
+          <p>
+            Choose how the next Clash starts. Your current fight is not
+            affected.
+          </p>
           <fieldset>
             <legend>DEFAULT CLASH DECK</legend>
             <button
               type="button"
               :aria-pressed="lab.clashFormat === 'solo'"
-              @click="lab.clashFormat = 'solo'; lab.deckFormat = 'solo'"
-            >SOLO · 20 CARDS</button>
+              @click="
+                lab.clashFormat = 'solo'
+                lab.deckFormat = 'solo'
+              "
+            >
+              SOLO · 20 CARDS
+            </button>
             <button
               type="button"
               :aria-pressed="lab.clashFormat === 'alliance'"
-              @click="lab.clashFormat = 'alliance'; lab.deckFormat = 'alliance'"
-            >ALLIANCE · 20 CARDS</button>
+              @click="
+                lab.clashFormat = 'alliance'
+                lab.deckFormat = 'alliance'
+              "
+            >
+              ALLIANCE · 20 CARDS
+            </button>
           </fieldset>
           <fieldset>
             <legend>COLLECTION ACCESS</legend>

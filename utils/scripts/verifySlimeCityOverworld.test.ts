@@ -1547,7 +1547,7 @@ assert.equal(
   'Arriving opens the story mission as its own full-stage scene',
 )
 lab.startCampaignBattle('cunning')
-assert.equal(lab.view, 'city', 'The Gene Riot's unplayed story beats block a premature boss fight')
+assert.equal(lab.view, 'city', 'Unplayed Gene Riot story beats block a premature boss fight')
 for (let beat = 0; beat < 3; beat++) {
   assert.ok(lab.geneRiotCurrent, 'next authored scene is present')
   lab.chooseGeneRiotBeat('left')

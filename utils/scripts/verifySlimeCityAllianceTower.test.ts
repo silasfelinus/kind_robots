@@ -26,11 +26,20 @@ import {
 // Narrative coverage is independent of the random faction opponent and the
 // four reusable mechanical hazards: each of the 12 floors has two original beats.
 assert.equal(TOWER_BEATS.length, TOWER_FLOORS)
-assert.equal(new Set(TOWER_BEATS.map((beat) => beat.setting)).size, TOWER_FLOORS)
+assert.equal(
+  new Set(TOWER_BEATS.map((beat) => beat.setting)).size,
+  TOWER_FLOORS,
+)
 const authored = TOWER_BEATS.flatMap((beat) => beat.routes)
 assert.equal(authored.length, TOWER_FLOORS * 2)
-assert.equal(new Set(authored.map((route) => route.title)).size, authored.length)
-assert.equal(new Set(authored.map((route) => route.scene)).size, authored.length)
+assert.equal(
+  new Set(authored.map((route) => route.title)).size,
+  authored.length,
+)
+assert.equal(
+  new Set(authored.map((route) => route.scene)).size,
+  authored.length,
+)
 
 const crews = TEAMS.map((crew) => crew.id)
 for (const general of crews) {
@@ -48,10 +57,15 @@ for (const general of crews) {
       for (const [index, option] of choices.entries()) {
         assert.equal(
           option.scene,
-          TOWER_BEATS[floor]!.setting + ' ' + TOWER_BEATS[floor]!.routes[index]!.scene,
+          TOWER_BEATS[floor]!.setting +
+            ' ' +
+            TOWER_BEATS[floor]!.routes[index]!.scene,
           'each tower branch uses its own authored scene',
         )
-        assert.ok(option.reward.length > 8, 'mechanical consequence remains visible')
+        assert.ok(
+          option.reward.length > 8,
+          'mechanical consequence remains visible',
+        )
       }
       assert.equal(chooseTowerRoute(run, 'forged-branch'), run)
       const selected = chooseTowerRoute(run, choices[floor % 2]!.id)

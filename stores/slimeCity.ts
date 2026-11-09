@@ -33,6 +33,7 @@ import {
   resolveTowerBattle,
   towerSpoils,
   claimTowerSpoil,
+  leaveEmptyTower,
   type TowerSave,
 } from '../utils/slimeCity/allianceTower'
 import { campaignAftermathFor } from '../utils/slimeCity/campaignAftermath'
@@ -1265,6 +1266,14 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
     persistStory()
   }
 
+  function leaveTowerWithoutSpoils(): void {
+    if (!storyEditable()) return
+    const next = leaveEmptyTower(towerSave.value)
+    if (next === towerSave.value) return
+    towerSave.value = next
+    persistStory()
+  }
+
   function showCampaign(): void {
     stop()
     campaignBout.value = null
@@ -1764,6 +1773,7 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
     beginTower,
     chooseTowerFloor,
     takeTowerSpoil,
+    leaveTowerWithoutSpoils,
     showTower,
     currentDeck,
     currentDeckProblems,

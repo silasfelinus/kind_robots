@@ -167,7 +167,8 @@ const find = (s: ReturnType<typeof createClash>, side: Side, lane: number) =>
   levelThree.units.push(unit('enemy', 0, 56, { hp: 12, maxHp: 12 }))
   const l3 = playClash(levelThree, 'player', dread, 0)
   assert.ok(find(l3, 'enemy', 0)!.hp < 12, 'Thunderhead hits on arrival')
-  assert.equal(find(l3, 'player', 1)?.guard, 2)
+  assert.equal(find(l3, 'player', 1)?.guard, undefined,
+    'L3 trades the earlier protective role for a dramatic growing threat')
   assert.equal(
     clashEvolutionStats(dread, 3)?.hp,
     -4,

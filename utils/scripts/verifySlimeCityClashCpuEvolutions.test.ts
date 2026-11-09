@@ -214,6 +214,52 @@ for (const [left, right] of [
   assert.equal(endClashTurn(gone, 'enemy').units.length, 0)
 }
 
+// Existing Gutterbus routes passengers on arrival. Evolved Roof Phantom
+// now earns a different kind of lane choice: a legal one-step dodge into
+// an unopposed alley at turn start, with roots/occupancy as counterplay.
+{
+  const source = createClash('catgirls', 'riot', 946)
+  source.round = 5
+  source.active = 'enemy'
+  source.phase = 'attack'
+  source.units = [
+    fighter('player', 2, 61, {
+      cardId: 's1-roof-phantom',
+      level: 3,
+    }),
+  ]
+  const moved = endClashTurn(source, 'enemy')
+  assert.equal(moved.units.find((u) => u.uid === 61)?.lane, 1)
+  assert.equal(source.units[0]!.lane, 2, 'lane changes are immutable')
+  assert.deepEqual(
+    moved,
+    endClashTurn(source, 'enemy'),
+    'the relocation is deterministic',
+  )
+  const blocked = structuredClone(source)
+  blocked.units.push(fighter('player', 1, 62))
+  blocked.units.push(fighter('player', 3, 63))
+  assert.equal(
+    endClashTurn(blocked, 'enemy').units.find((u) => u.uid === 61)?.lane,
+    2,
+    'occupied adjacent alleys prevent relocation',
+  )
+  const rooted = structuredClone(source)
+  rooted.units[0]!.rooted = true
+  assert.equal(
+    endClashTurn(rooted, 'enemy').units.find((u) => u.uid === 61)?.lane,
+    2,
+    'roots prevent relocation',
+  )
+  const exposed = structuredClone(source)
+  exposed.units.push(fighter('enemy', 1, 64, { attacked: true }))
+  assert.equal(
+    endClashTurn(exposed, 'enemy').units.find((u) => u.uid === 61)?.lane,
+    3,
+    'a lane with an opposing blocker is not a safe escape',
+  )
+}
+
 console.log(
   'Slime City CLASH CPU evolved decision-making, heavy gear, distinct faction payoff fixtures PASS',
 )

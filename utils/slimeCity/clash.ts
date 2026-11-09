@@ -739,7 +739,7 @@ export function clashDeck(team: TeamId): string[] {
   return [...roster.slice(0, 19), CLASH_GUESTS[team]]
 }
 /**
- * Twenty unique catalog cards (thirty in ALLIANCE), seeded draws and no
+ * Twenty unique catalog cards in Solo or Alliance, seeded draws and no
  * retained hand between turns. With `options.alliance` the generals replace
  * `player`/`enemy` as the crews.
  */
@@ -802,6 +802,22 @@ export function createClash(
     s,
     alliance?.enemy.cards ?? options.decks?.enemy ?? clashDeck(enemy),
   )
+  // Round one grants a single play. When a deck contains a legal one-play
+  // opener, deal at least one instead of opening on a hand of dead gear.
+  for (const side of ['player', 'enemy'] as const) {
+    const deck = s.decks[side]
+    const canOpen = (id: string) => {
+      const card = cardById(id)
+      return (
+        clashPlayCost(card) === 1 &&
+        (card.kind === 'creature' || card.kind === 'trap' || card.effect === 'scan')
+      )
+    }
+    if (!deck.slice(0, CLASH_HAND_SIZE).some(canOpen)) {
+      const next = deck.findIndex((id, index) => index >= CLASH_HAND_SIZE && canOpen(id))
+      if (next >= 0) [deck[CLASH_HAND_SIZE - 1], deck[next]] = [deck[next]!, deck[CLASH_HAND_SIZE - 1]!]
+    }
+  }
   startTurn(s, 'player')
   return s
 }

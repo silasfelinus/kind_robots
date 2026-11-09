@@ -251,8 +251,13 @@ export function validSlimeCityStory(raw: unknown): raw is SlimeCityStory {
     if (
       team === 'bloodfairies' &&
       !validBloodfairyJourney(p as unknown as CampaignSave['bloodfairies'])
-    ) return false
-    if (team !== 'catgirls' && team !== 'bloodfairies' && p.journey !== undefined)
+    )
+      return false
+    if (
+      team !== 'catgirls' &&
+      team !== 'bloodfairies' &&
+      p.journey !== undefined
+    )
       return false
     if (p.rewards !== undefined) {
       if (

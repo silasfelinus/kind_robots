@@ -18,7 +18,12 @@ import { campaignCardChoices } from './campaignCardRewards'
 import { validGeneRiotJourney } from './campaignGeneRiot'
 import { validBloodfairyJourney } from './campaignBloodfairies'
 import { freshTower, validTowerSave, type TowerSave } from './allianceTower'
-import { validAllianceDeck, validSoloDeck, type AllianceDeck } from './alliance'
+import {
+  normalizedAllianceDeck,
+  validAllianceDeck,
+  validSoloDeck,
+  type AllianceDeck,
+} from './alliance'
 
 export interface SlimeCityStory {
   version: 1
@@ -30,7 +35,7 @@ export interface SlimeCityStory {
   /** Saved practice decks; omitted for older saves. */
   decks?: Partial<Record<TeamId, string[]>>
   /**
-   * ALLIANCE 30-card two-crew decks, one per general (Silas, 2026-11-07 PT).
+   * ALLIANCE 20-card two-crew decks, one per general.
    * Omitted for older saves.
    */
   alliances?: Partial<Record<TeamId, AllianceDeck>>
@@ -286,13 +291,32 @@ export function validSlimeCityStory(raw: unknown): raw is SlimeCityStory {
 
 /** Never allow a saved story snapshot to affect the account wallet or card ledger. */
 export function storyFromAccount(raw: unknown): SlimeCityStory {
-  if (!record(raw) || !validSlimeCityStory(raw.story))
-    return newSlimeCityStory()
-  return raw.story
+  if (!record(raw) || !record(raw.story)) return newSlimeCityStory()
+  const saved = raw.story as unknown as SlimeCityStory
+  // Old account snapshots can contain legal 30-card alliances, including
+  // an in-progress tower run. Normalize in memory, not by deleting the save.
+  const alliances = saved.alliances
+    ? Object.fromEntries(
+        Object.entries(saved.alliances).map(([team, deck]) => [
+          team,
+          deck ? normalizedAllianceDeck(deck) : deck,
+        ]),
+      )
+    : undefined
+  const tower = saved.tower?.run
+    ? {
+        ...saved.tower,
+        run: {
+          ...saved.tower.run,
+          deck: normalizedAllianceDeck(saved.tower.run.deck),
+        },
+      }
+    : saved.tower
+  const story = { ...saved, ...(alliances ? { alliances } : {}), ...(tower ? { tower } : {}) }
+  return validSlimeCityStory(story) ? story : newSlimeCityStory()
 }
 
 export function accountWithStory(raw: unknown, progression: object): object {
-  const story =
-    record(raw) && validSlimeCityStory(raw.story) ? raw.story : undefined
+  const story = record(raw) && record(raw.story) ? storyFromAccount(raw) : undefined
   return story ? { ...progression, story } : progression
 }

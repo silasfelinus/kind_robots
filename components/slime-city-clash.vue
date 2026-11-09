@@ -669,7 +669,8 @@ function playableNow(id: string): boolean {
     !s.victor &&
     s.active === 'player' &&
     s.phase === 'play' &&
-    clashEffectivePlayCost(s, 'player', cardById(id)) + s.plays.player <= clashPlayLimit(s, 'player')
+    clashEffectivePlayCost(s, 'player', cardById(id)) + s.plays.player <=
+      clashPlayLimit(s, 'player')
   )
 }
 function allowedSide(card: Card, side: Side): boolean {

@@ -74,7 +74,7 @@ const find = (s: ReturnType<typeof createClash>, side: Side, lane: number) =>
 {
   const card = cardById(bridge)
   assert.ok(clashEvolutionStage(bridge, 1)?.abilities.length)
-  assert.ok(clashCardText(card, 1).includes('summon 1/2'))
+  assert.ok(clashCardText(card, 1).includes('summon a 1/2 echo'))
   assert.equal(
     clashEvolutionStage('s1-roof-phantom', 1),
     undefined,

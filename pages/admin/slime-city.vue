@@ -138,6 +138,7 @@
             :image-id="slimeArtId('districts', lab.districtId)"
             :alt="lab.district.name + ' skyline'"
             fallback="▧"
+            compact
           />
           <div class="sc-home-scrim"></div>
           <div class="sc-home-copy">
@@ -172,6 +173,7 @@
             :image-id="slimeArtId('crews', lab.activeTeam)"
             :alt="lab.team.name"
             :fallback="lab.team.insignia"
+            compact
           />
         </section>
         <section

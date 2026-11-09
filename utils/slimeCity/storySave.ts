@@ -16,7 +16,6 @@ import {
 import { TEAMS, loadoutProblems, type TeamId } from './prototypes'
 import { campaignCardChoices } from './campaignCardRewards'
 import { freshTower, validTowerSave, type TowerSave } from './allianceTower'
-import type { CampaignSave } from './campaign'
 import { validAllianceDeck, validSoloDeck, type AllianceDeck } from './alliance'
 
 export interface SlimeCityStory {
@@ -249,14 +248,15 @@ export function validSlimeCityStory(raw: unknown): raw is SlimeCityStory {
         p.rewards.some((id: unknown) => typeof id !== 'string')
       )
         return false
-      for (let index = 0; index < p.rewards.length; index++) {
+      const rewardIds = p.rewards as string[]
+      for (let index = 0; index < rewardIds.length; index++) {
         const earned = {
           ...raw.campaigns,
-          [team]: { ...p, wins: index + 1, rewards: p.rewards.slice(0, index) },
+          [team]: { ...p, wins: index + 1, rewards: rewardIds.slice(0, index) },
         } as CampaignSave
         if (
           !campaignCardChoices(earned, team as TeamId)?.some(
-            (card) => card.id === p.rewards[index],
+            (card) => card.id === rewardIds[index],
           )
         )
           return false

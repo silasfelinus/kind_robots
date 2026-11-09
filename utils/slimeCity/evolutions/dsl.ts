@@ -44,6 +44,8 @@ export type EvoScope =
   | 'healthyAllies'
 
 export type EvoSummonWhere = 'neighbors' | 'nearest' | 'everyEmpty'
+/** Relocation is adjacent and needs an unoccupied friendly alley. */
+export type EvoShiftWhere = 'safe' | 'engage'
 
 export type EvoAction =
   | { do: 'damage'; n: number; to: EvoScope; pierce?: boolean }
@@ -83,6 +85,8 @@ export type EvoAction =
   | { do: 'duel'; to: EvoScope }
   /** The next lethal hit leaves them at 1 life instead (once each). */
   | { do: 'rescue'; to: EvoScope }
+  /** Move an existing fighter one alley. It keeps its life, gear and turn state. */
+  | { do: 'shift'; to: 'self' | 'target'; where: EvoShiftWhere }
   /** A sprung trap arms again in the same alley (once). */
   | { do: 'rearm' }
   /** The fighter's current power hits the rival boss. */
@@ -225,6 +229,10 @@ export const revive = (attack: number, hp: number): EvoAction => ({
   hp,
 })
 export const retreat = (): EvoAction => ({ do: 'retreat' })
+export const shift = (
+  to: 'self' | 'target',
+  where: EvoShiftWhere,
+): EvoAction => ({ do: 'shift', to, where })
 export const duel = (to: EvoScope): EvoAction => ({ do: 'duel', to })
 export const rescue = (to: EvoScope): EvoAction => ({ do: 'rescue', to })
 export const rearm = (): EvoAction => ({ do: 'rearm' })
@@ -336,6 +344,13 @@ export function evoActionText(a: EvoAction, subject: 'it' | 'self'): string {
       return (
         (subject === 'it' ? 'it' : 'the wearer') +
         ' returns to the top of your deck'
+      )
+    case 'shift':
+      return (
+        'move ' +
+        who(a.to) +
+        ' to a free adjacent alley, preferring ' +
+        (a.where === 'safe' ? 'no opposing fighter' : 'an opposing fighter')
       )
     case 'duel':
       return (

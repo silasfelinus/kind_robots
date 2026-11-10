@@ -32,6 +32,10 @@ for (const invalid of [
   { version: 1, decisions: { unknown: 'earth-letter-copy' } },
   { version: 1, decisions: { e04Return: null } },
   { version: 1, decisions: ['earth-return-offer'] },
+  { version: 1, decisions: {}, unrelated: 'silent save payload' },
+  { version: 1, decisions: { e03Letter: undefined } },
+  { version: 1, decisions: new Date() },
+  Object.assign(new Date(), { version: 1, decisions: {} }),
 ])
   assert.equal(restoreLetterProgress(invalid), null)
 
@@ -66,3 +70,23 @@ for (const letter of LETTER_CHOICES.e03Letter)
         combinations++
       }
 assert.equal(combinations, 108)
+
+// Partial saves must remain valid; replay order must not overwrite prior decisions.
+for (const scene of scenes) {
+  for (const choice of LETTER_CHOICES[scene]) {
+    const partial = chooseLetter(newLetterProgress(), scene, choice)
+    assert.deepEqual(restoreLetterProgress(partial), partial)
+    for (const otherScene of scenes.filter(
+      (candidate) => candidate !== scene,
+    )) {
+      const next = chooseLetter(
+        partial,
+        otherScene,
+        LETTER_CHOICES[otherScene][0]!,
+      )
+      assert.equal(next.decisions[scene], choice)
+      assert.equal(next.decisions[otherScene], LETTER_CHOICES[otherScene][0])
+      assert.deepEqual(restoreLetterProgress(next), next)
+    }
+  }
+}

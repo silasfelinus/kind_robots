@@ -54,6 +54,10 @@ export function restoreLetterProgress(input: unknown): LetterProgress | null {
   if (input == null) return newLetterProgress()
   if (!input || typeof input !== 'object' || Array.isArray(input)) return null
   const raw = input as Record<string, unknown>
+  // A save is a JSON record, never a class instance or an extensible payload.
+  if (Object.getPrototypeOf(raw) !== Object.prototype) return null
+  if (Object.keys(raw).some((key) => key !== 'version' && key !== 'decisions'))
+    return null
   if (
     raw.version !== 1 ||
     !raw.decisions ||
@@ -62,6 +66,7 @@ export function restoreLetterProgress(input: unknown): LetterProgress | null {
   )
     return null
   const decisions = raw.decisions as Record<string, unknown>
+  if (Object.getPrototypeOf(decisions) !== Object.prototype) return null
   if (
     Object.keys(decisions).some((key) => !scenes.includes(key as LetterScene))
   )
@@ -69,7 +74,7 @@ export function restoreLetterProgress(input: unknown): LetterProgress | null {
   for (const scene of scenes) {
     const choice = decisions[scene]
     if (
-      choice !== undefined &&
+      Object.hasOwn(decisions, scene) &&
       (typeof choice !== 'string' ||
         !(LETTER_CHOICES[scene] as readonly string[]).includes(choice))
     )

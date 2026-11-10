@@ -207,10 +207,15 @@
               </template>
               <span v-else class="scpvp-empty">{{ lane }}</span>
               <span
-                v-if="board.traps.some((trap) => trap.side === side && trap.lane === lane - 1)"
+                v-if="
+                  board.traps.some(
+                    (trap) => trap.side === side && trap.lane === lane - 1,
+                  )
+                "
                 class="scpvp-own-trap"
                 aria-label="Your hidden trap in this alley"
-              >✦ ARMED</span>
+                >✦ ARMED</span
+              >
             </button>
           </div>
           <span class="scpvp-midline">FIVE ALLEYS · NO MAN'S LAND</span>

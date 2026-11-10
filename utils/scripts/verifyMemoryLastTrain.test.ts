@@ -17,7 +17,8 @@ for (const door of [...TRAIN_CHOICES.e03Door, undefined])
       for (const carriage of [...TRAIN_CHOICES.e04Carriage, undefined]) {
         let progress = newTrainProgress()
         if (door) progress = chooseTrain(progress, 'e03Door', door)
-        if (timetable) progress = chooseTrain(progress, 'e03Timetable', timetable)
+        if (timetable)
+          progress = chooseTrain(progress, 'e03Timetable', timetable)
         if (platform) progress = chooseTrain(progress, 'e04Platform', platform)
         if (carriage) progress = chooseTrain(progress, 'e04Carriage', carriage)
         assert.deepEqual(restoreTrainProgress(progress), progress)
@@ -26,7 +27,8 @@ for (const door of [...TRAIN_CHOICES.e03Door, undefined])
         assert.equal(effects.trainRouteSlip, door === 'md.train.e03.wait')
         assert.equal(
           effects.trainEchoFragment,
-          platform === 'md.train.e04.open' || platform === 'md.train.e04.listen',
+          platform === 'md.train.e04.open' ||
+            platform === 'md.train.e04.listen',
         )
         assert.equal(
           effects.trainWitness,
@@ -42,7 +44,10 @@ for (const door of [...TRAIN_CHOICES.e03Door, undefined])
           for (const replacement of TRAIN_CHOICES[scene]) {
             const replay = chooseTrain(progress, scene, replacement)
             if (progress.decisions[scene]) assert.deepEqual(replay, progress)
-            assert.deepEqual(trainConsequences(replay), trainConsequences(restoreTrainProgress(replay)!))
+            assert.deepEqual(
+              trainConsequences(replay),
+              trainConsequences(restoreTrainProgress(replay)!),
+            )
           }
       }
 
@@ -56,8 +61,14 @@ for (const forged of [
   Object.assign(Object.create(null), { version: 1, decisions: {} }),
 ]) {
   assert.equal(restoreTrainProgress(forged), null)
-  assert.deepEqual(trainConsequences(forged as never), trainConsequences(newTrainProgress()))
-  assert.equal(chooseTrain(forged as never, 'e03Door', 'md.train.e03.release'), forged)
+  assert.deepEqual(
+    trainConsequences(forged as never),
+    trainConsequences(newTrainProgress()),
+  )
+  assert.equal(
+    chooseTrain(forged as never, 'e03Door', 'md.train.e03.release'),
+    forged,
+  )
 }
 
 assert.deepEqual(restoreTrainProgress(null), newTrainProgress())

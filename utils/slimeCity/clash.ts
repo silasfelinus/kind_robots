@@ -764,11 +764,48 @@ export const CLASH_CRAFTED_DECKS: Partial<Record<TeamId, string[]>> = {
     's2-catgirls-backstreet-organ-donor',
   ],
 }
+/**
+ * Fighters first (Silas, 2026-11-10 PT, from the Catgirls playtest: "the game
+ * should be built around fighters that do cool stuff"). Each starter trades
+ * two of its extra spells, traps or gear for two more of its own fighters, so
+ * every crew fields 13 fighters of 20 like the Catgirls crafted deck. The
+ * pairs were picked by CPU sweep to keep each crew near an even win rate.
+ */
+export const CLASH_FIGHTERS_FIRST: Partial<
+  Record<TeamId, { out: [string, string]; in: [string, string] }>
+> = {
+  bloodfairies: {
+    out: ['s3-bloodfairies-tripcord', 's3-bloodfairies-van-radio'],
+    in: ['s3-bloodfairies-mosh-firefly', 's3-bloodfairies-karaoke-oracle'],
+  },
+  ironjaw: {
+    out: ['s1-forge-spark', 's3-ironjaw-bonus-plate'],
+    in: ['s2-ironjaw-foundry-lion', 's3-ironjaw-bridgebreaker'],
+  },
+  riot: {
+    out: ['s2-riot-homemade-bottle-rocket', 'firebreak-parade'],
+    in: ['s3-riot-alley-prophet', 's3-riot-firework-bishop'],
+  },
+  undertow: {
+    out: ['s3-undertow-floodgate-clamp', 's2-undertow-culvert-tollwire'],
+    in: ['s1-static-listener', 's3-undertow-quiet-listener'],
+  },
+  exchange: {
+    out: ['debt-holiday', 's3-exchange-escrow-snare'],
+    in: ['audit-fiend', 's3-exchange-mortgage-minotaur'],
+  },
+}
 export function clashDeck(team: TeamId): string[] {
   const crafted = CLASH_CRAFTED_DECKS[team]
   if (crafted) return [...crafted]
+  const swap = CLASH_FIGHTERS_FIRST[team]
   const roster = alleyDeck(team)
-  return [...roster.slice(0, 19), CLASH_GUESTS[team]]
+    .slice(0, 19)
+    .map((id) => {
+      const at = swap?.out.indexOf(id) ?? -1
+      return at < 0 ? id : swap!.in[at]!
+    })
+  return [...roster, CLASH_GUESTS[team]]
 }
 /**
  * Twenty unique catalog cards (thirty in ALLIANCE), seeded draws and no
@@ -1795,7 +1832,7 @@ export function playClash(
         id,
         side,
         lane,
-        'The Oracle reads two possible futures.',
+        'The Oracle is certain now.',
         'control',
       )
     }
@@ -2140,9 +2177,9 @@ export function playClash(
         }
         default: {
           let hit = power
-          let critical = false
+          const hurt = target.hp < target.maxHp
           if (id === 'pinprick' && level >= 2) {
-            critical = random(s) < (level === 3 ? 0.75 : 0.5)
+            const critical = level === 3 || hurt
             if (critical) hit *= 2
             note(
               s,
@@ -2164,7 +2201,7 @@ export function playClash(
                 stun(rival)
               }
           }
-          if (id === 'pinprick' && level === 3 && critical)
+          if (id === 'pinprick' && level === 3 && hurt)
             for (const rival of s.units.filter(
               (u) => u.side === foe && Math.abs(u.lane - lane) === 1,
             ))
@@ -2349,16 +2386,13 @@ export function strikeClash(input: ClashState, side: Side): ClashState {
       u.uid !== attacker.uid &&
       Math.abs(u.lane - lane) === 1,
   )) {
-    const success = random(s) < 0.5 || (oracle.level === 3 && random(s) < 0.5)
-    if (success) attackPower += 2
+    attackPower += oracle.level === 3 ? 2 : 1
     evolutionMoment(
       s,
       'merc-grease-oracle',
       side,
       oracle.lane,
-      success
-        ? 'The Oracle foresaw a stronger strike!'
-        : 'The prophecy misses this turn.',
+      'The Oracle foresaw a stronger strike!',
       'strike',
     )
   }
@@ -2366,16 +2400,17 @@ export function strikeClash(input: ClashState, side: Side): ClashState {
     const friend = s.units.some(
       (u) => u.side === side && Math.abs(u.lane - lane) === 1,
     )
-    const whiff = !(attacker.level === 3 && friend) && random(s) < 0.5
-    attackPower = whiff ? 0 : attackPower * 2
-    evolutionMoment(
-      s,
-      'pogo',
-      side,
-      lane,
-      whiff ? 'Pogo Brat misses the landing!' : 'Pogo Brat doubles its strike!',
-      'strike',
-    )
+    if (attacker.level === 3 || friend) {
+      attackPower *= 2
+      evolutionMoment(
+        s,
+        'pogo',
+        side,
+        lane,
+        'Pogo Brat doubles its strike!',
+        'strike',
+      )
+    }
   }
   attacker.attacked = true
   attacker.ambushUsed = true

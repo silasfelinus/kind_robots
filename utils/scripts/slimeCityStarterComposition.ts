@@ -36,18 +36,13 @@ const rows = TEAMS.map((team) => {
       .join(', '),
   }
 })
-// Fighters-first pilot: preserve the full 20-card catalog deck while putting
-// two more independently playable bodies into the Catgirls starter.
-const catgirls = rows.find((row) => row.crew === 'catgirls')
-assert.equal(
-  catgirls?.fighters,
-  13,
-  'Catgirls starter should field 13 fighters',
-)
-assert.equal(catgirls?.toReach13Fighters, 0)
+// Fighters first (Silas, 2026-11-10 PT): every crew's starter fields 13
+// fighters of 20, the Catgirls pilot's line extended to all six crews.
+for (const row of rows) {
+  assert.equal(row.fighters, 13, row.crew + ' starter should field 13 fighters')
+  assert.equal(row.toReach13Fighters, 0)
+}
 assert.equal(TEAMS.length, 6, 'six playable crews')
 assert.equal(CARDS.length, 300, 'preserve the 300-card catalog')
 console.table(rows)
-console.log(
-  'Starter audit is informational; no cards or saved deck IDs were changed.',
-)
+console.log('Starter audit: every crew fields 13 fighters of 20.')

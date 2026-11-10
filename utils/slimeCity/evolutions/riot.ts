@@ -105,7 +105,7 @@ export const RIOT_EVOLUTIONS: Record<string, CardEvolution> = {
   // Counterplay: stun her and ignore her; her ascension needs her to fall.
   's3-riot-bottle-rocket': {
     2: stage('Blessed Kindling', [
-      on('enter', chance(50, damage(2, 'randomFoe'))),
+      on('enter', chance(50, damage(2, 'weakestFoe'))),
     ]),
     3: stage('Ascension', [on('death', boss(3), damage(1, 'adjacentAllies'))]),
   },
@@ -222,7 +222,7 @@ export const RIOT_EVOLUTIONS: Record<string, CardEvolution> = {
   // Counterplay: keep your boss healthy; its launch singes your neighbors.
   's2-riot-homemade-bottle-rocket': {
     2: stage('Friend of a Friend', [
-      on('enter', chance(50, damage(1, 'randomFoe'))),
+      on('enter', chance(50, damage(1, 'weakestFoe'))),
     ]),
     3: stage('Probably Safe', [
       on('enter', boss(2), damage(1, 'adjacentAllies')),
@@ -338,9 +338,9 @@ export const RIOT_EVOLUTIONS: Record<string, CardEvolution> = {
     3: stage('Market Barrage', [
       on(
         'spring',
-        damage(2, 'randomFoe'),
-        damage(2, 'randomFoe'),
-        damage(2, 'randomFoe'),
+        damage(2, 'weakestFoe'),
+        damage(2, 'weakestFoe'),
+        damage(2, 'weakestFoe'),
       ),
     ]),
   },

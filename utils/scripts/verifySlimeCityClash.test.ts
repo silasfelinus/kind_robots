@@ -87,12 +87,11 @@ const playPage = readFileSync('pages/play/slime-city.vue', 'utf8')
 const gamePage = readFileSync('pages/admin/slime-city.vue', 'utf8')
 const store = readFileSync('stores/slimeCity.ts', 'utf8')
 const view = readFileSync('components/slime-city-clash.vue', 'utf8')
-assert.match(playPage, /<SlimeCityGame v-else \/>/)
 // Silas, 2026-11-09 PT: the public route opens on a title screen, not mid-game.
-assert.match(
-  playPage,
-  /<SlimeCitySplash v-if="!entered" @enter="entered = true" \/>/,
-)
+// Silas, 2026-11-10 PT: "still can't get back to the front end after clicking
+// away from it" -- one title screen, the game's HOME view, always reachable.
+assert.match(playPage, /<SlimeCityGame \/>/)
+assert.doesNotMatch(playPage, /entered/)
 const splash = readFileSync('components/slime-city-splash.vue', 'utf8')
 for (const testid of [
   'slime-splash-crews',
@@ -102,15 +101,23 @@ for (const testid of [
 ]) {
   assert.match(splash, new RegExp('data-testid="' + testid + '"'))
 }
-assert.match(splash, /console-theme="slime-city"/)
+assert.match(gamePage, /console-theme="slime-city"/)
+assert.match(splash, /data-testid="slime-splash-decks"/)
 assert.match(splash, /prefers-reduced-motion: reduce/)
 assert.match(
   store,
   />\('home'\)/,
   'The illustrated front door is the starting game view',
 )
-assert.match(gamePage, /data-testid="slime-home"/)
-assert.match(gamePage, /data-testid="slime-home-play"/)
+assert.match(
+  gamePage,
+  /<SlimeCitySplash\s+v-if="lab\.view === 'home'"\s+data-testid="slime-home"/,
+)
+assert.equal(
+  (gamePage.match(/<SlimeCitySplash/g) ?? []).length,
+  1,
+  'exactly one title screen',
+)
 assert.match(gamePage, /data-testid="slime-settings"/)
 assert.match(gamePage, /data-testid="slime-card-inspector"/)
 assert.match(gamePage, /data-testid="slime-clash-tab"/)

@@ -1267,15 +1267,20 @@ lab.chooseStreet('splice-smuggle')
 assert.equal(lab.streetProgress, 1)
 assert.equal(lab.streetEvent, null)
 lab.choose('chimera-serum')
-// Every bout is SOLO CLASH now (Silas, 2026-11-08 PT); the street and serum
-// terms move the bosses' starting life.
+// Every bout is CLASH (Silas, 2026-11-08 PT). Silas, 2026-11-10 PT: the city
+// is "the open ended pick a deck and have an experience game" -- its bouts deal
+// the format you picked; the street and serum terms move the bosses' life.
 lab.fightRival()
 assert.equal(lab.view, 'clash')
 assert.equal(lab.clashLaunch.kind, 'rival')
-assert.equal(lab.clashLaunch.format, 'solo', 'City bouts are Solo Clash')
+assert.equal(lab.clashLaunch.format, lab.clashFormat, 'City: your deck')
+assert.equal(lab.clashLaunch.format, 'solo', 'default pick is Solo')
 assert.equal(lab.clashLaunch.enemy, 'catgirls', 'Mirror rival bout')
 assert.equal(lab.bout, 'chimera')
 assert.equal(lab.storyBoutLabel('blackout'), 'SOLO CLASH')
+lab.clashFormat = 'alliance'
+assert.equal(lab.storyBoutLabel('blackout'), 'ALLIANCE CLASH')
+lab.clashFormat = 'solo'
 assert.deepEqual(
   lab.clashLaunch.bosses,
   clashBossesFromTerms(boutTerms(lab.city, 'chimera')),

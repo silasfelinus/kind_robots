@@ -1564,8 +1564,9 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
    * Every City and Story bout is SOLO CLASH now (Silas, 2026-11-08 PT); the
    * written format is kept only in the story data.
    */
+  /** City campaign bouts deal the deck format you picked. */
   function storyBoutLabel(_written?: ModeId): string {
-    return 'SOLO CLASH'
+    return clashFormat.value === 'alliance' ? 'ALLIANCE CLASH' : 'SOLO CLASH'
   }
   /** Play story bouts as written or as TURF, and with or without PARITY. */
   function setStoryFormat(next: { mode?: StoryMode; parity?: boolean }): void {
@@ -1602,7 +1603,11 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
     campaignBout.value = null
     lastCampaign.value = null
   }
-  /** City and Story bouts: SOLO CLASH, terms moving the bosses' life. */
+  /**
+   * Story bouts, terms moving the bosses' life. Silas, 2026-11-10 PT: the crew
+   * story is SOLO; the city campaign is "the open ended pick a deck and have
+   * an experience game", so its bouts deal the format you picked.
+   */
   function launchStoryClash(
     kind: ClashKind,
     enemy: TeamId,
@@ -1611,7 +1616,7 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
     enemyTeam.value = enemy
     launchClash({
       kind,
-      format: 'solo',
+      format: kind === 'campaign' ? 'solo' : clashFormat.value,
       enemy,
       seed: rollSeed(),
       bosses: clashBossesFromTerms(terms),

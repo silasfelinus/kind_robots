@@ -76,8 +76,14 @@ for (const scene of scenes) {
   for (const choice of LETTER_CHOICES[scene]) {
     const partial = chooseLetter(newLetterProgress(), scene, choice)
     assert.deepEqual(restoreLetterProgress(partial), partial)
-    for (const otherScene of scenes.filter((candidate) => candidate !== scene)) {
-      const next = chooseLetter(partial, otherScene, LETTER_CHOICES[otherScene][0]!)
+    for (const otherScene of scenes.filter(
+      (candidate) => candidate !== scene,
+    )) {
+      const next = chooseLetter(
+        partial,
+        otherScene,
+        LETTER_CHOICES[otherScene][0]!,
+      )
       assert.equal(next.decisions[scene], choice)
       assert.equal(next.decisions[otherScene], LETTER_CHOICES[otherScene][0])
       assert.deepEqual(restoreLetterProgress(next), next)

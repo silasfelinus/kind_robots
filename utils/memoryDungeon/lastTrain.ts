@@ -67,13 +67,50 @@ export function trainConsequences(progress: TrainProgress) {
   const choices = restoreTrainProgress(progress)?.decisions ?? {}
   const door = choices.e03Door
   return {
-    trainDoor: door === 'md.train.e03.release' ? 'opened' : door === 'md.train.e03.wait' ? 'held' : door === 'md.train.e03.leave' ? 'delegated' : null,
-    trainWitness: door === 'md.train.e03.release' ? 'public' : door === 'md.train.e03.wait' ? 'private' : door === 'md.train.e03.leave' ? 'none' : null,
-    trainLedger: choices.e03Timetable === 'md.train.e03.share' ? 'shared' : choices.e03Timetable === 'md.train.e03.return' ? 'returned' : choices.e03Timetable === 'md.train.e03.redact' ? 'redacted' : null,
-    trainNightDoor: choices.e04Platform === 'md.train.e04.open' ? 'opened' : choices.e04Platform === 'md.train.e04.listen' ? 'listened' : choices.e04Platform === 'md.train.e04.retreat' ? 'retreated' : null,
-    trainNightLedger: choices.e04Carriage === 'md.train.e04.name' ? 'consented' : choices.e04Carriage === 'md.train.e04.map' ? 'routes' : choices.e04Carriage === 'md.train.e04.silence' ? 'refused' : null,
+    trainDoor:
+      door === 'md.train.e03.release'
+      ? 'opened'
+      : door === 'md.train.e03.wait'
+      ? 'held'
+      : door === 'md.train.e03.leave'
+      ? 'delegated'
+      : null,
+    trainWitness:
+      door === 'md.train.e03.release'
+      ? 'public'
+      : door === 'md.train.e03.wait'
+      ? 'private'
+      : door === 'md.train.e03.leave'
+      ? 'none'
+      : null,
+    trainLedger:
+      choices.e03Timetable === 'md.train.e03.share'
+      ? 'shared'
+      : choices.e03Timetable === 'md.train.e03.return'
+      ? 'returned'
+      : choices.e03Timetable === 'md.train.e03.redact'
+      ? 'redacted'
+      : null,
+    trainNightDoor:
+      choices.e04Platform === 'md.train.e04.open'
+      ? 'opened'
+      : choices.e04Platform === 'md.train.e04.listen'
+      ? 'listened'
+      : choices.e04Platform === 'md.train.e04.retreat'
+      ? 'retreated'
+      : null,
+    trainNightLedger:
+      choices.e04Carriage === 'md.train.e04.name'
+      ? 'consented'
+      : choices.e04Carriage === 'md.train.e04.map'
+      ? 'routes'
+      : choices.e04Carriage === 'md.train.e04.silence'
+      ? 'refused'
+      : null,
     trainToken: door === 'md.train.e03.release',
     trainRouteSlip: door === 'md.train.e03.wait',
-    trainEchoFragment: choices.e04Platform === 'md.train.e04.open' || choices.e04Platform === 'md.train.e04.listen',
+    trainEchoFragment:
+      choices.e04Platform === 'md.train.e04.open' ||
+      choices.e04Platform === 'md.train.e04.listen',
   }
 }

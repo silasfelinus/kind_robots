@@ -83,7 +83,6 @@ export function sweepClash(seeds: number, offset = 1): ClashSweep {
   return out
 }
 
-
 // Counterfactual fighters-first pilot: compare the shipped Catgirls starter
 // against its previous nonfighter slot under identical seeds and seats.
 // This is a diagnostic, not a balance gate: report both win and card-use rates.
@@ -94,7 +93,10 @@ export function compareCatgirlsStarter(seeds = 20, offset = 9000) {
   )
   if (new Set(original).size !== 20 || original.join() === current.join())
     throw new Error('Catgirls counterfactual deck no longer matches the pilot')
-  const results = { current: { wins: 0, games: 0, two: 0, three: 0, played: 0 }, original: { wins: 0, games: 0, two: 0, three: 0, played: 0 } }
+  const results = {
+    current: { wins: 0, games: 0, two: 0, three: 0, played: 0 },
+    original: { wins: 0, games: 0, two: 0, three: 0, played: 0 },
+  }
   for (const opponent of TEAMS) {
     if (opponent.id === 'catgirls') continue
     for (let seed = offset; seed < offset + seeds; seed++)
@@ -108,15 +110,21 @@ export function compareCatgirlsStarter(seeds = 20, offset = 9000) {
             { decks: { [seat]: version === 'current' ? current : original } },
           )
           for (let step = 0; !state.victor && step < 600; step++)
-            state = applyClashCommand(state, chooseClashCpu(state, state.active))
-          if (!state.victor) throw new Error('Catgirls matchup did not terminate')
+            state = applyClashCommand(
+              state,
+              chooseClashCpu(state, state.active),
+            )
+          if (!state.victor)
+            throw new Error('Catgirls matchup did not terminate')
           const result = results[version]
           result.games++
           if (state.victor === seat) result.wins++
           const levels = Object.values(state.levels[seat])
           result.two += levels.filter((level) => level >= 2).length
           result.three += levels.filter((level) => level >= 3).length
-          result.played += state.commands.filter((command) => command.t === 'play' && command.side === seat).length
+          result.played += state.commands.filter(
+            (command) => command.t === 'play' && command.side === seat,
+          ).length
         }
   }
   return results
@@ -128,7 +136,16 @@ const pct = (n: number, d: number): string =>
 if (process.argv[1]?.includes('slimeCityClashBalanceReport')) {
   if (process.argv[2] === '--catgirls-pilot') {
     const results = compareCatgirlsStarter(Number(process.argv[3] ?? 20))
-    console.table(Object.entries(results).map(([version, r]) => ({ version, games: r.games, winRate: pct(r.wins, r.games), level2PerGame: (r.two / r.games).toFixed(2), level3PerGame: (r.three / r.games).toFixed(2), playsPerGame: (r.played / r.games).toFixed(2) })))
+    console.table(
+      Object.entries(results).map(([version, r]) => ({
+        version,
+        games: r.games,
+        winRate: pct(r.wins, r.games),
+        level2PerGame: (r.two / r.games).toFixed(2),
+        level3PerGame: (r.three / r.games).toFixed(2),
+        playsPerGame: (r.played / r.games).toFixed(2),
+      })),
+    )
     process.exit(0)
   }
   const seeds = Number(process.argv[2] ?? 20)

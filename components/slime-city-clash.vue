@@ -575,14 +575,17 @@ function goBack(): void {
   else if (lab.clashResult?.kind === 'tower') lab.showTower()
   else lab.showCity()
 }
+/** Every server-issued match pays: PRACTICE and, signed in, every bout. */
 const rewardNote = computed(() =>
-  lab.clashLaunch.kind === 'reward' && game.value.victor
+  lab.clashLaunch.rewardId && game.value.victor
     ? lab.progressBusy
       ? 'Verifying your match…'
       : lab.progressError || lab.progress.lastReward || ''
-    : lab.clashLaunch.kind === 'reward' && !game.value.victor
+    : lab.clashLaunch.rewardId && !game.value.victor
       ? 'Reward match: the server replays your moves before paying out.'
-      : '',
+      : inBout.value && !game.value.victor
+        ? lab.boutUnrewarded
+        : '',
 )
 const alliance = computed(() => game.value.format === 'alliance')
 /** Silas, 2026-11-10 PT: one power in SOLO, both crews' powers in ALLIANCE. */

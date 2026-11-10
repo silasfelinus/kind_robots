@@ -46,7 +46,9 @@ import {
 import { sweepAlliance } from './slimeCityAllianceBalanceReport'
 import { clashBossesFromTerms } from '../slimeCity/clashBouts'
 import {
+  clashBoutProblem,
   clashOutcome,
+  clashRewardMode,
   clashRewardSetupProblem,
   clashRewardStart,
   replayClashTranscript,
@@ -561,6 +563,72 @@ const at = (st: ClashState, uid: number) => st.units.find((u) => u.uid === uid)
     ),
     paid,
     'same receipt never pays twice',
+  )
+}
+
+// Silas, 2026-11-10 PT ("Do it"): SOLO story, CAMPAIGN and TOWER bouts are
+// server-issued too. Their terms ride with the deck and replay exactly.
+{
+  const story: ClashRewardSetup = {
+    format: 'solo',
+    cards: soloStarter('riot'),
+    bout: { kind: 'campaign', bosses: { player: 46, enemy: 34 } },
+  }
+  const tower: ClashRewardSetup = {
+    format: 'alliance',
+    deck: allianceStarter('riot', 'exchange'),
+    bout: { kind: 'tower', bosses: { player: 40, enemy: 38 } },
+  }
+  assert.equal(clashRewardMode(story), 'clash-campaign')
+  assert.equal(clashRewardMode(tower), 'clash-tower')
+  assert.equal(clashRewardMode({ format: 'solo', cards: [] }), 'clash')
+  for (const setup of [story, tower]) {
+    assert.equal(clashRewardSetupProblem('riot', setup), '')
+    const start = clashRewardStart('riot', 'undertow', 777, setup)
+    assert.deepEqual(start.boss, setup.bout!.bosses, 'terms move the bosses')
+    let g = start
+    for (let i = 0; !g.victor && i < 1500; i++)
+      g = applyClashCommand(g, chooseClashCpu(g, g.active))
+    const transcript = JSON.parse(JSON.stringify(g.commands))
+    const ok = replayClashTranscript(
+      clashRewardStart('riot', 'undertow', 777, setup),
+      transcript,
+    )
+    assert.ok('state' in ok, setup.bout!.kind + ' bout replays')
+    // The same moves under different terms are not the same fight.
+    const { bout: _bout, ...plain } = setup
+    const plainStart = clashRewardStart(
+      'riot',
+      'undertow',
+      777,
+      plain as ClashRewardSetup,
+    )
+    assert.notDeepEqual(plainStart.boss, start.boss)
+  }
+  const bad = (bout: unknown, format = 'solo') => clashBoutProblem(format, bout)
+  assert.ok(bad(null))
+  assert.ok(bad({ kind: 'practice', bosses: { player: 40, enemy: 40 } }))
+  assert.ok(bad({ kind: 'rival', bosses: { player: 61, enemy: 40 } }))
+  assert.ok(bad({ kind: 'rival', bosses: { player: 40, enemy: 19 } }))
+  assert.ok(bad({ kind: 'rival', bosses: { player: 40.5, enemy: 40 } }))
+  assert.ok(bad({ kind: 'rival' }))
+  assert.ok(
+    bad({ kind: 'tower', bosses: { player: 40, enemy: 40 } }),
+    'tower fights are Alliance',
+  )
+  assert.ok(
+    bad({ kind: 'campaign', bosses: { player: 40, enemy: 40 } }, 'alliance'),
+    'SOLO story bouts are Solo',
+  )
+  assert.equal(
+    bad({ kind: 'contract', bosses: { player: 20, enemy: 60 } }, 'alliance'),
+    '',
+  )
+  assert.ok(
+    clashRewardSetupProblem('riot', {
+      ...story,
+      bout: { kind: 'campaign', bosses: { player: 99, enemy: 20 } },
+    }),
   )
 }
 

@@ -18,9 +18,9 @@ import {
   type TeamId,
 } from '~/utils/slimeCity/prototypes'
 import {
-  CLASH_REWARD_MODES,
   clashOutcome,
   clashRewardCards,
+  clashRewardMode,
   clashRewardSetupProblem,
   clashRewardStart,
   replayClashTranscript,
@@ -138,13 +138,21 @@ export async function startSlimeCityCpuMatch(
   userId: number,
   teamId: string,
   setup?: unknown,
+  boutFoe?: unknown,
 ) {
   if (!TEAMS.some((team) => team.id === teamId))
     throw createError({ statusCode: 400, message: 'Unknown Slime City crew.' })
   const seed = randomInt(100000, 1000000)
   const team = teamId as TeamId
   const foes = TEAMS.filter((t) => t.id !== team)
-  const foeId = foes[randomInt(foes.length)]!.id
+  // A bout (SOLO story, CAMPAIGN, TOWER) names its rival; PRACTICE never does.
+  const bout =
+    !!setup &&
+    typeof setup === 'object' &&
+    (setup as { bout?: unknown }).bout !== undefined
+  if (bout && !TEAMS.some((t) => t.id === boutFoe))
+    throw createError({ statusCode: 400, message: 'Unknown bout rival.' })
+  const foeId = bout ? (boutFoe as TeamId) : foes[randomInt(foes.length)]!.id
   if (setup === undefined) {
     const row = await prisma.slimeCityMatch.create({
       data: { userId, mode: 'blackout', teamId: team, foeId, seed },
@@ -169,7 +177,7 @@ export async function startSlimeCityCpuMatch(
         message: 'Unlock every card in this deck before a reward match.',
       })
   }
-  const mode = CLASH_REWARD_MODES[clash.format]
+  const mode = clashRewardMode(clash)
   // The issued deck rides in `commands` until settlement replaces it with
   // the verified transcript (no schema change needed).
   const row = await prisma.slimeCityMatch.create({

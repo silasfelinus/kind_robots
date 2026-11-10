@@ -102,6 +102,10 @@ import {
 } from '../utils/slimeCity/alliance'
 import type { ClashOptions, ClashState } from '../utils/slimeCity/clash'
 import { clashBossesFromTerms } from '../utils/slimeCity/clashBouts'
+import {
+  CLASH_BOUT_KINDS,
+  type ClashBoutKind,
+} from '../utils/slimeCity/clashRewards'
 import { computed, ref, shallowRef, watch } from 'vue'
 import {
   advance,
@@ -1183,6 +1187,78 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
     clashLaunch.value = { ...next, id: clashLaunch.value.id + 1 }
     view.value = 'clash'
   }
+  /** Why the bout being dealt pays nothing, for the battle console. */
+  const boutUnrewarded = ref('')
+  /**
+   * Silas, 2026-11-10 PT ("Do it"): SOLO story, CAMPAIGN and TOWER fights pay
+   * XP and Meat and count toward bounties, like PRACTICE. Signed in, the
+   * server issues the seed and keeps the deck and terms, then replays the
+   * fight before paying. A deck that borrows cards you have not unlocked, or
+   * a server that cannot be reached, still deals the bout, unrewarded.
+   */
+  async function launchBout(next: Omit<ClashLaunch, 'id'>): Promise<void> {
+    boutUnrewarded.value = ''
+    const signedIn = progressLoaded.value && correctAccount()
+    const alliance =
+      next.format === 'alliance' ? (next.alliance ?? playAlliance.value) : null
+    const cards = alliance ? alliance.cards : (next.cards ?? playSolo.value)
+    if (
+      !signedIn ||
+      !next.bosses ||
+      !(CLASH_BOUT_KINDS as readonly string[]).includes(next.kind)
+    ) {
+      launchClash(next)
+      return
+    }
+    if (!cards.every((id) => isCardUnlocked(id))) {
+      boutUnrewarded.value =
+        'Unrewarded: this deck borrows cards you have not unlocked.'
+      launchClash(next)
+      return
+    }
+    if (progressBusy.value) {
+      boutUnrewarded.value = 'Unrewarded: the last reward is still settling.'
+      launchClash(next)
+      return
+    }
+    progressBusy.value = true
+    progressError.value = ''
+    try {
+      const result = await performFetch<{
+        id: string
+        teamId: TeamId
+        foeId: TeamId
+        seed: number
+      }>('/api/slime-city/match', {
+        method: 'POST',
+        body: JSON.stringify({
+          teamId: alliance ? alliance.general : activeTeam.value,
+          foeId: next.enemy,
+          clash: {
+            ...(alliance
+              ? { format: 'alliance', deck: alliance }
+              : { format: 'solo', cards }),
+            bout: { kind: next.kind as ClashBoutKind, bosses: next.bosses },
+          },
+        }),
+      })
+      if (!result.success || !result.data)
+        throw new Error(result.message || 'Could not issue the bout.')
+      launchClash({
+        ...next,
+        seed: result.data.seed,
+        rewardId: result.data.id,
+        ...(alliance ? { alliance } : { cards: [...cards] }),
+      })
+    } catch (error) {
+      boutUnrewarded.value =
+        'Unrewarded: ' +
+        (error instanceof Error ? error.message : 'the server is unreachable.')
+      launchClash(next)
+    } finally {
+      progressBusy.value = false
+    }
+  }
   /** createClash arguments for the current launch. */
   function clashSetup(launch: ClashLaunch = clashLaunch.value): {
     player: TeamId
@@ -1232,6 +1308,8 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
     const launch = clashLaunch.value
     if (launchId !== launch.id || !state.victor || clashResult.value) return
     clashResult.value = { kind: launch.kind, victor: state.victor }
+    if (launch.kind !== 'reward' && launch.rewardId)
+      void finishCpuBattle(launch.rewardId, [...state.commands])
     if (launch.kind === 'tower' && towerRun.value?.phase === 'battle') {
       towerSave.value = {
         ...towerSave.value,
@@ -1502,7 +1580,7 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
     if (next === run || !next.chosen) return
     towerSave.value = { ...towerSave.value, run: next }
     persistStory()
-    launchClash({
+    void launchBout({
       kind: 'tower',
       format: 'alliance',
       alliance: next.deck,
@@ -1733,7 +1811,7 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
     terms: BoutTerms,
   ): void {
     enemyTeam.value = enemy
-    launchClash({
+    void launchBout({
       kind,
       format: kind === 'campaign' ? 'solo' : clashFormat.value,
       enemy,
@@ -2128,6 +2206,7 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
     toggleSoloCard,
     restoreSoloStarter,
     clashLaunch,
+    boutUnrewarded,
     clashResult,
     clashSetup,
     playClashFormat,

@@ -157,7 +157,7 @@ export const CAMPAIGN_BATTLEFIELDS: Record<
       title: 'THE MUSIC HALL',
       objective: 'holdout',
       briefing:
-        'The Riot Saints parked a wrecking ball outside a sold-out show and the audience refuses to leave mid-set. One pogo brat is already moshing at the stage door, and a whole Riot demolition crew is rolling up the street. Keep the hall standing until the encore and the wrecking ball becomes a stage prop.',
+        'The Anarkissed parked a wrecking ball outside a sold-out show and the audience refuses to leave mid-set. One pogo brat is already moshing at the stage door, and a whole Riot demolition crew is rolling up the street. Keep the hall standing until the encore and the wrecking ball becomes a stage prop.',
       rounds: 14,
       fighters: [
         ally('pogo', 1, 2, 'defend'),
@@ -375,7 +375,7 @@ export const CAMPAIGN_BATTLEFIELDS: Record<
       title: 'THE RUINED BANK',
       objective: 'smash',
       briefing:
-        'Half the bank is already rubble, and the Riot Saints are back for the other half: a Riot Rat is sprinting at the vault with its tail lit. The vault still stands. So does Gilt.',
+        'Half the bank is already rubble, and the Anarkissed are back for the other half: a Riot Rat is sprinting at the vault with its tail lit. The vault still stands. So does Gilt.',
       fighters: [rival('rat', 6, 3)],
     },
     {

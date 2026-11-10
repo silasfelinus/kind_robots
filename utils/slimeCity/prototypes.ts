@@ -541,7 +541,7 @@ export const TEAMS: Team[] = [
     pattern:
       'Hit first, hit hard, then lick your wounds. Ambushers land one huge opening blow and regenerating veterans outlast the trade.',
     counters:
-      'Spread the damage out: Riot Saints explosions and Bloodfairy moshpits hit many cats at once, and a regenerating cat that is snared or taxed still has to finish the fight.',
+      'Spread the damage out: Anarkiss explosions and Bloodfairy moshpits hit many cats at once, and a regenerating cat that is snared or taxed still has to finish the fight.',
     signature: 'chimera',
     trapCap: 1,
     creatures: ['lynx', 'mau', 'calico', 'chimera'],
@@ -566,7 +566,7 @@ export const TEAMS: Team[] = [
     pattern:
       'Pack the pit. Cheap fighters hit harder beside their bandmates, leech back their health off every blow, and the mosh pit punishes anyone who bunches up.',
     counters:
-      'Armor shrugs off small blows (Ironjaw plating), one explosion can pop a whole pack (Riot Saints), and a solo act loses its swarm bonus.',
+      'Armor shrugs off small blows (Ironjaw plating), one explosion can pop a whole pack (Anarkiss), and a solo act loses its swarm bonus.',
     signature: 'queen',
     trapCap: 1,
     creatures: ['sprite', 'pogo', 'razor', 'queen'],
@@ -578,13 +578,13 @@ export const TEAMS: Team[] = [
     name: 'IRONJAW CHROME LIZARDS',
     color: 'green',
     district: 'THE FOUNDRY',
-    motto: 'More chrome. More teeth.',
-    hook: 'Cold-blooded cybernetic lizard people who bask on the foundry furnaces between shifts and fight for freedom from the factories that built their bodies. Armor, hardware and bulldozing.',
+    motto: 'Escaped. Mutated. Unionized.',
+    hook: 'Cold-blooded mutant lizards who broke out of a sealed bio-lab’s reptile wing, grew up in the sewers and took over the foundry their makers built. Chrome jaws, union cards and grudges. Armor, hardware and bulldozing.',
     insignia: '⬡',
     pattern:
       'A slow wall that wins every trade. Armored lizards bulldoze blockers out of the lane, and plating turns a good fighter into a fortress.',
     counters:
-      'Pierce goes through plating (Undertow, Riot Saints), debt starves the expensive upgrades (Meat Exchange), and a snared lizard is a very large, very sulky paperweight.',
+      'Pierce goes through plating (Undertow, Anarkiss), debt starves the expensive upgrades (Meat Exchange), and a snared lizard is a very large, very sulky paperweight.',
     signature: 'juggernaut',
     trapCap: 1,
     creatures: ['scrapper', 'welder', 'bulldozer', 'juggernaut'],
@@ -600,11 +600,11 @@ export const TEAMS: Team[] = [
   },
   {
     id: 'riot',
-    name: 'RIOT SAINTS',
+    name: 'ANARKISS',
     color: 'red',
     district: 'REDLINE RIOT',
-    motto: 'Make it explode twice.',
-    hook: 'Joyfully irresponsible demolition gladiators in a city where nobody has read the fire code. High-risk chaos cards.',
+    motto: 'Get Anarkissed.',
+    hook: 'An anarchy circus that stages a glam midnight musical in the ruins every night: fishnets, corsets, glitter lipstick, human cannonballs and pyrotechnics nobody insured. The audience is part of the show, and so is the explosion. High-risk chaos cards.',
     insignia: '✸',
     pattern:
       'Everything explodes, including you. Volatile fighters go off when they fall, chaos cards roll the dice and confetti cannons hit everyone nearby.',
@@ -639,8 +639,8 @@ export const TEAMS: Team[] = [
     name: 'MEAT EXCHANGE',
     color: 'gold',
     district: 'CROWN MARKET',
-    motto: 'Terms and conditions apply.',
-    hook: 'Gold-toothed butchers-turned-bankers who mint the city’s Meat, set the price of a pound of anything and collect battlefield debts in prime cuts.',
+    motto: 'The contract is older than the city.',
+    hook: 'A drowned butcher-priesthood that kneels to the Thing That Hungers beneath Crown Market. They mint the city’s Meat in its name, sign every debt in blood, and collect in flesh by candlelight. Nobody reads the fine print twice.',
     insignia: '◆',
     pattern:
       'Tenderize them, then buy the arena. Collectors put every blow on your tab so you start rounds short of mana, until the Meat Mogul arrives.',
@@ -1030,7 +1030,7 @@ export const CARDS: Card[] = [
     text: 'An open-palm piston strike: 2 damage to an enemy.',
     symbol: '✋',
   },
-  // --- RIOT SAINTS: explosions and dice
+  // --- ANARKISS: explosions and dice
   {
     id: 'rat',
     name: 'Riot Rat',

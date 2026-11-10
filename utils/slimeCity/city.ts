@@ -167,7 +167,7 @@ export const STREET_STORIES: Record<string, StreetStory> = {
   'Fuse Street': {
     title: 'THE LAST FIVE SECONDS',
     scene:
-      'A countdown has been painted on the street. The Riot Saints call it performance art. The tram full of passengers approaching calls it something else.',
+      'A countdown has been painted on the street. The Anarkissed call it performance art. The tram full of passengers approaching calls it something else.',
     choices: [
       {
         id: 'fuse-evacuate',
@@ -192,7 +192,7 @@ export const STREET_STORIES: Record<string, StreetStory> = {
   'Hiss Row': {
     title: 'THE CLONE IN THE WINDOW',
     scene:
-      'A glass-front shop displays an identical copy of a missing catgirl. A Riot Saint offers to break the locks while the alarm is sleeping.',
+      'A glass-front shop displays an identical copy of a missing catgirl. An Anarkissed showgirl offers to break the locks while the alarm is sleeping.',
     choices: [
       {
         id: 'hiss-rescue',
@@ -471,7 +471,7 @@ export const CHAMPION_AFTERMATH: Record<DistrictId, StreetStory> = {
   redline: {
     title: 'THE RIOT HAS NO EXIT',
     scene:
-      'The Riot Saints leave you their detonator and a tram full of terrified witnesses. The cameras have already begun to roll.',
+      'The Anarkissed leave you their detonator and a tram full of terrified witnesses. The cameras have already begun to roll.',
     choices: [
       {
         id: 'redline-disarm',
@@ -826,7 +826,7 @@ export const CITY_PLAN: Record<DistrictId, DistrictPlan> = {
     id: 'redline',
     street: 'Fuse Street',
     scene:
-      'Redline Riot is rigging a block party with illegal fireworks. The Riot Saints want a partner for the grand finale.',
+      'Redline Riot is rigging a block party with illegal fireworks. The Anarkissed want a partner for the grand finale.',
     rival: {
       name: 'Saint Kaboom',
       title: 'Patron saint of bad ideas',
@@ -955,7 +955,7 @@ export const CITY_CONTRACTS: Record<DistrictId, CityContract> = {
   redline: {
     title: 'FIVE SECOND FUSE',
     briefing:
-      'A Riot Saints splinter group has wired an entire block into a dare. The clock starts when you deploy.',
+      'An Anarkiss splinter troupe has wired an entire block into a dare. The clock starts when you deploy.',
     opponent: 'The Unlicensed Finale',
     team: 'riot',
     terms: { rounds: -4, enemyMana: 1 },

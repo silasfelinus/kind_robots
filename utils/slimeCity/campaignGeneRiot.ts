@@ -227,7 +227,7 @@ export const GENE_RIOT_CHAPTERS: readonly (readonly GeneRiotScene[])[] = [
       id: 'the-parade-map',
       title: 'A PARADE ROUTE IN RED INK',
       speaker: 'Qube',
-      text: "The Riot Saints have painted a thirty-foot catgirl puppet for a march on the gene bank. Qube shows Nine the route on a pizza box. A red mark at the end is not confetti: it's an explosive charge under the steps where the youngest supporters plan to stand.",
+      text: "The Anarkissed have painted a thirty-foot catgirl puppet for a march on the gene bank. Qube shows Nine the route on a pizza box. A red mark at the end is not confetti: it's an explosive charge under the steps where the youngest supporters plan to stand.",
       callback: {
         chapter: 1,
         beat: 2,

@@ -1,6 +1,6 @@
 // Crafted evolutions: riot (CLASH-EVOLUTION-PLAN.md in conductor). Each card is
 // designed one at a time, story first, following evolutions/catgirls.ts.
-// Riot Saints own seeded gambles, martyrdom (last-breath blasts) and friendly
+// Anarkiss owns seeded gambles, martyrdom (last-breath blasts) and friendly
 // fire; they never heal or armor up. Riot already leads CPU sweeps, so their
 // level threes win with decisions and moments, and most carry a price paid by
 // their own side.

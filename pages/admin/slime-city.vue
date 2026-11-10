@@ -344,335 +344,349 @@
             >
               BOUNTIES &amp; REWARDS
             </button>
+            <div
+              class="sc-deck-format"
+              role="group"
+              aria-label="Deck format"
+              data-testid="slime-deck-format"
+            >
+              <button
+                type="button"
+                :aria-pressed="lab.deckFormat === 'solo'"
+                data-testid="slime-format-solo"
+                title="SOLO CLASH: twenty cards from one faction and the mercenaries"
+                @click="lab.deckFormat = 'solo'"
+              >
+                SOLO <small>20</small>
+              </button>
+              <button
+                type="button"
+                :aria-pressed="lab.deckFormat === 'alliance'"
+                data-testid="slime-format-alliance"
+                title="Twenty cards from a general crew and an ally crew"
+                @click="lab.deckFormat = 'alliance'"
+              >
+                ALLIANCE <small>{{ ALLIANCE_DECK_SIZE }}</small>
+              </button>
+            </div>
             <span
               >LEVEL {{ lab.level }} · {{ lab.progress.cards.length }} /
               {{ lab.collectionSize }} OWNED</span
             >
           </div>
-          <div
-            class="sc-deck-format"
-            role="group"
-            aria-label="Deck format"
-            data-testid="slime-deck-format"
-          >
-            <button
-              type="button"
-              :aria-pressed="lab.deckFormat === 'solo'"
-              data-testid="slime-format-solo"
-              title="SOLO CLASH: twenty cards from one faction and the mercenaries"
-              @click="lab.deckFormat = 'solo'"
-            >
-              SOLO <small>20</small>
-            </button>
-            <button
-              type="button"
-              :aria-pressed="lab.deckFormat === 'alliance'"
-              data-testid="slime-format-alliance"
-              title="Twenty cards from a general crew and an ally crew"
-              @click="lab.deckFormat = 'alliance'"
-            >
-              ALLIANCE <small>{{ ALLIANCE_DECK_SIZE }}</small>
-            </button>
-          </div>
-          <div
-            v-if="lab.deckFormat === 'alliance'"
-            class="sc-deck-workbench sc-alliance-workbench"
-            :class="'tone-' + lab.team.color"
-            data-testid="slime-alliance-workbench"
-          >
+          <div class="sc-collection-body kr-scroll">
             <div
-              class="sc-deck-meter"
-              :title="
-                lab.currentAlliance.cards.length +
-                ' of ' +
-                ALLIANCE_DECK_SIZE +
-                ' alliance slots filled'
-              "
+              v-if="lab.deckFormat === 'alliance'"
+              class="sc-deck-workbench sc-alliance-workbench"
+              :class="'tone-' + lab.team.color"
+              data-testid="slime-alliance-workbench"
             >
-              <strong
-                >{{ lab.currentAlliance.cards.length
-                }}<small>/{{ ALLIANCE_DECK_SIZE }}</small></strong
-              >
-              <span class="sc-deck-pips is-twenty" aria-hidden="true"
-                ><i
-                  v-for="slot in ALLIANCE_DECK_SIZE"
-                  :key="slot"
-                  :class="{ on: slot <= lab.currentAlliance.cards.length }"
-              /></span>
-            </div>
-            <div class="sc-deck-status">
-              <span class="sc-overline"
-                >GENERAL · {{ lab.team.name }} +
-                {{ teamName(lab.currentAlliance.ally) }}</span
-              >
-              <p class="sc-power-line" data-testid="slime-alliance-power">
-                <b
-                  >{{ generalPower.symbol }} {{ generalPower.name }} · ONE USE
-                  PER MATCH</b
-                >
-                {{ generalPower.text }}
-              </p>
-              <p class="sc-power-line" data-testid="slime-alliance-ally-power">
-                <b
-                  >{{ allyPower.symbol }} {{ allyPower.name }} · ONE USE PER
-                  MATCH</b
-                >
-                {{ allyPower.text }}
-              </p>
-              <p aria-live="polite">
-                {{
-                  lab.deckMessage ||
-                  'Pick two factions. Any ' +
-                    ALLIANCE_DECK_SIZE +
-                    ' cards from either faction or the mercenaries; both factions’ one-shot powers come with the deck.'
-                }}
-              </p>
-              <small
-                v-if="lab.currentAllianceProblems.length"
-                role="alert"
-                data-testid="slime-alliance-problems"
-                >{{ lab.currentAllianceProblems.join(' · ') }}</small
-              >
-            </div>
-            <div class="sc-deck-actions">
               <div
-                class="sc-unlocks sc-ally-picker"
-                role="group"
-                aria-label="Choose your second faction"
-                data-testid="slime-ally-picker"
+                class="sc-deck-meter"
+                :title="
+                  lab.currentAlliance.cards.length +
+                  ' of ' +
+                  ALLIANCE_DECK_SIZE +
+                  ' alliance slots filled'
+                "
               >
-                <button
-                  v-for="ally in allyChoices"
-                  :key="ally.id"
-                  type="button"
-                  :aria-pressed="lab.currentAlliance.ally === ally.id"
-                  :title="ally.name + ' as your second faction'"
-                  :aria-label="ally.name + ' as your second faction'"
-                  :data-testid="'slime-ally-' + ally.id"
-                  @click="lab.setAlly(ally.id)"
+                <strong
+                  >{{ lab.currentAlliance.cards.length
+                  }}<small>/{{ ALLIANCE_DECK_SIZE }}</small></strong
                 >
-                  {{ ally.insignia }}
+                <span class="sc-deck-pips is-twenty" aria-hidden="true"
+                  ><i
+                    v-for="slot in ALLIANCE_DECK_SIZE"
+                    :key="slot"
+                    :class="{ on: slot <= lab.currentAlliance.cards.length }"
+                /></span>
+              </div>
+              <div class="sc-deck-status">
+                <span class="sc-overline"
+                  >GENERAL · {{ lab.team.name }} +
+                  {{ teamName(lab.currentAlliance.ally) }}</span
+                >
+                <p class="sc-power-line" data-testid="slime-alliance-power">
+                  <b
+                    >{{ generalPower.symbol }} {{ generalPower.name }} · ONE USE
+                    PER MATCH</b
+                  >
+                  {{ generalPower.text }}
+                </p>
+                <p
+                  class="sc-power-line"
+                  data-testid="slime-alliance-ally-power"
+                >
+                  <b
+                    >{{ allyPower.symbol }} {{ allyPower.name }} · ONE USE PER
+                    MATCH</b
+                  >
+                  {{ allyPower.text }}
+                </p>
+                <p aria-live="polite">
+                  {{
+                    lab.deckMessage ||
+                    'Pick two factions. Any ' +
+                      ALLIANCE_DECK_SIZE +
+                      ' cards from either faction or the mercenaries; both factions’ one-shot powers come with the deck.'
+                  }}
+                </p>
+                <small
+                  v-if="lab.currentAllianceProblems.length"
+                  role="alert"
+                  data-testid="slime-alliance-problems"
+                  >{{ lab.currentAllianceProblems.join(' · ') }}</small
+                >
+              </div>
+              <div class="sc-deck-actions">
+                <div
+                  class="sc-unlocks sc-ally-picker"
+                  role="group"
+                  aria-label="Choose your second faction"
+                  data-testid="slime-ally-picker"
+                >
+                  <button
+                    v-for="ally in allyChoices"
+                    :key="ally.id"
+                    type="button"
+                    :aria-pressed="lab.currentAlliance.ally === ally.id"
+                    :title="ally.name + ' as your second faction'"
+                    :aria-label="ally.name + ' as your second faction'"
+                    :data-testid="'slime-ally-' + ally.id"
+                    @click="lab.setAlly(ally.id)"
+                  >
+                    {{ ally.insignia }}
+                  </button>
+                </div>
+                <button
+                  type="button"
+                  data-testid="slime-alliance-swap"
+                  :title="
+                    'Make ' +
+                    teamName(lab.currentAlliance.ally) +
+                    ' the general and use their power'
+                  "
+                  @click="lab.swapAllianceGeneral()"
+                >
+                  ⇄ {{ teamName(lab.currentAlliance.ally) }} AS GENERAL
+                </button>
+                <button
+                  type="button"
+                  data-testid="slime-alliance-restore"
+                  @click="lab.restoreAllianceStarter()"
+                >
+                  RESTORE STARTER
+                </button>
+                <button
+                  type="button"
+                  data-testid="slime-alliance-play"
+                  @click="lab.playAllianceClash()"
+                >
+                  PLAY ALLIANCE CLASH
+                </button>
+                <button
+                  type="button"
+                  data-testid="slime-alliance-tower-start"
+                  :disabled="lab.currentAllianceProblems.length > 0"
+                  @click="lab.beginTower()"
+                >
+                  CLIMB THE TOWER
                 </button>
               </div>
-              <button
-                type="button"
-                data-testid="slime-alliance-swap"
-                :title="
-                  'Make ' +
-                  teamName(lab.currentAlliance.ally) +
-                  ' the general and use their power'
-                "
-                @click="lab.swapAllianceGeneral()"
-              >
-                ⇄ {{ teamName(lab.currentAlliance.ally) }} AS GENERAL
-              </button>
-              <button
-                type="button"
-                data-testid="slime-alliance-restore"
-                @click="lab.restoreAllianceStarter()"
-              >
-                RESTORE STARTER
-              </button>
-              <button
-                type="button"
-                data-testid="slime-alliance-play"
-                @click="lab.playAllianceClash()"
-              >
-                PLAY ALLIANCE CLASH
-              </button>
-              <button
-                type="button"
-                data-testid="slime-alliance-tower-start"
-                :disabled="lab.currentAllianceProblems.length > 0"
-                @click="lab.beginTower()"
-              >
-                CLIMB THE TOWER
-              </button>
             </div>
-          </div>
-          <div
-            v-else
-            class="sc-deck-workbench"
-            :class="'tone-' + lab.team.color"
-            data-testid="slime-solo-workbench"
-          >
             <div
-              class="sc-deck-meter"
-              :title="lab.currentSolo.length + ' of 20 Solo deck slots filled'"
+              v-else
+              class="sc-deck-workbench"
+              :class="'tone-' + lab.team.color"
+              data-testid="slime-solo-workbench"
             >
-              <strong>{{ lab.currentSolo.length }}<small>/20</small></strong>
-              <span class="sc-deck-pips is-twenty" aria-hidden="true"
-                ><i
-                  v-for="slot in 20"
-                  :key="slot"
-                  :class="{ on: slot <= lab.currentSolo.length }"
-              /></span>
-            </div>
-            <div class="sc-deck-status">
-              <span class="sc-overline"
-                >SOLO CLASH · {{ lab.team.name }} ·
-                {{ lab.progress.cards.length }}/{{
-                  lab.collectionSize
-                }}
-                COLLECTED</span
+              <div
+                class="sc-deck-meter"
+                :title="
+                  lab.currentSolo.length + ' of 20 Solo deck slots filled'
+                "
               >
-              <p aria-live="polite">
-                {{
-                  lab.deckMessage ||
-                  'Tap a card to add it or take it out: any 20 from your faction or the mercenaries. City and Story bouts deal this deck.'
-                }}
+                <strong>{{ lab.currentSolo.length }}<small>/20</small></strong>
+                <span class="sc-deck-pips is-twenty" aria-hidden="true"
+                  ><i
+                    v-for="slot in 20"
+                    :key="slot"
+                    :class="{ on: slot <= lab.currentSolo.length }"
+                /></span>
+              </div>
+              <div class="sc-deck-status">
+                <span class="sc-overline"
+                  >SOLO CLASH · {{ lab.team.name }} ·
+                  {{ lab.progress.cards.length }}/{{
+                    lab.collectionSize
+                  }}
+                  COLLECTED</span
+                >
+                <p aria-live="polite">
+                  {{
+                    lab.deckMessage ||
+                    'Tap a card to add it or take it out: any 20 from your faction or the mercenaries. City and Story bouts deal this deck.'
+                  }}
+                </p>
+                <small
+                  v-if="lab.currentSoloProblems.length"
+                  role="alert"
+                  data-testid="slime-solo-problems"
+                  >{{ lab.currentSoloProblems.join(' · ') }}</small
+                >
+              </div>
+              <div class="sc-deck-actions">
+                <button
+                  type="button"
+                  data-testid="slime-solo-restore"
+                  @click="lab.restoreSoloStarter()"
+                >
+                  RESTORE STARTER
+                </button>
+                <button
+                  type="button"
+                  data-testid="slime-solo-play"
+                  @click="lab.playClashFormat('solo')"
+                >
+                  PLAY SOLO CLASH
+                </button>
+              </div>
+            </div>
+            <details class="sc-collection-title">
+              <summary>
+                <span class="sc-overline"
+                  >CREW DOSSIER · {{ lab.team.motto }}</span
+                >
+              </summary>
+              <p>{{ lab.team.hook }}</p>
+              <p data-testid="slime-crew-pattern">
+                <b>PLAY PATTERN</b> {{ lab.team.pattern }}
               </p>
-              <small
-                v-if="lab.currentSoloProblems.length"
-                role="alert"
-                data-testid="slime-solo-problems"
-                >{{ lab.currentSoloProblems.join(' · ') }}</small
+              <p data-testid="slime-crew-counters">
+                <b>HOW TO BEAT THEM</b> {{ lab.team.counters }}
+              </p>
+              <p class="sc-art-summary" data-testid="slime-art-provenance">
+                {{ mappedCardArtCount }} CARD IMAGE IDS MAPPED /
+                {{ lab.collectionSize }} ·
+                {{ lab.collectionSize - mappedCardArtCount }} UNMAPPED ·
+                {{ art.loadedCount }} ACTUALLY LOADED ·
+                {{ art.failedCount }} FAILED TO LOAD
+              </p>
+            </details>
+            <div class="sc-collection-tools">
+              <div
+                class="sc-evolution"
+                role="group"
+                aria-label="Show every card at a Clash level"
+                data-testid="slime-evolution-levels"
               >
+                <span>EVOLUTION</span>
+                <button
+                  v-for="n in CLASH_MAX_LEVEL"
+                  :key="n"
+                  type="button"
+                  :aria-pressed="evolutionLevel === n"
+                  :data-testid="'slime-evolution-' + n"
+                  :title="
+                    n === 1
+                      ? 'How each card enters a match'
+                      : 'Each card after it has been played ' +
+                        (n - 1) +
+                        (n === 2 ? ' time' : ' times')
+                  "
+                  @click="evolutionLevel = n"
+                >
+                  LV {{ n }}
+                </button>
+              </div>
+              <div
+                class="sc-card-filters"
+                role="group"
+                aria-label="Filter collection cards"
+                data-testid="slime-card-filters"
+              >
+                <button
+                  v-for="filter in collectionFilters"
+                  :key="filter.id"
+                  type="button"
+                  :aria-pressed="collectionFilter === filter.id"
+                  @click="collectionFilter = filter.id"
+                >
+                  {{ filter.label }}
+                </button>
+              </div>
             </div>
-            <div class="sc-deck-actions">
-              <button
-                type="button"
-                data-testid="slime-solo-restore"
-                @click="lab.restoreSoloStarter()"
-              >
-                RESTORE STARTER
-              </button>
-              <button
-                type="button"
-                data-testid="slime-solo-play"
-                @click="lab.playClashFormat('solo')"
-              >
-                PLAY SOLO CLASH
-              </button>
-            </div>
-          </div>
-          <details class="sc-collection-title">
-            <summary>
-              <span class="sc-overline"
-                >CREW DOSSIER · {{ lab.team.motto }}</span
-              >
-            </summary>
-            <p>{{ lab.team.hook }}</p>
-            <p data-testid="slime-crew-pattern">
-              <b>PLAY PATTERN</b> {{ lab.team.pattern }}
-            </p>
-            <p data-testid="slime-crew-counters">
-              <b>HOW TO BEAT THEM</b> {{ lab.team.counters }}
-            </p>
-            <p class="sc-art-summary" data-testid="slime-art-provenance">
-              {{ mappedCardArtCount }} CARD IMAGE IDS MAPPED /
-              {{ lab.collectionSize }} ·
-              {{ lab.collectionSize - mappedCardArtCount }} UNMAPPED ·
-              {{ art.loadedCount }} ACTUALLY LOADED ·
-              {{ art.failedCount }} FAILED TO LOAD
-            </p>
-          </details>
-          <div
-            class="sc-evolution"
-            role="group"
-            aria-label="Show every card at a Clash level"
-            data-testid="slime-evolution-levels"
-          >
-            <span>EVOLUTION</span>
-            <button
-              v-for="n in CLASH_MAX_LEVEL"
-              :key="n"
-              type="button"
-              :aria-pressed="evolutionLevel === n"
-              :data-testid="'slime-evolution-' + n"
-              :title="
-                n === 1
-                  ? 'How each card enters a match'
-                  : 'Each card after it has been played ' +
-                    (n - 1) +
-                    (n === 2 ? ' time' : ' times')
-              "
-              @click="evolutionLevel = n"
+            <ul
+              v-if="lab.deckFormat === 'alliance'"
+              class="sc-collection-grid"
+              aria-label="General, ally and mercenary cards"
+              data-testid="slime-alliance-grid"
             >
-              LV {{ n }}
-            </button>
-          </div>
-          <div
-            class="sc-card-filters"
-            role="group"
-            aria-label="Filter collection cards"
-            data-testid="slime-card-filters"
-          >
-            <button
-              v-for="filter in collectionFilters"
-              :key="filter.id"
-              type="button"
-              :aria-pressed="collectionFilter === filter.id"
-              @click="collectionFilter = filter.id"
-            >
-              {{ filter.label }}
-            </button>
-          </div>
-          <ul
-            v-if="lab.deckFormat === 'alliance'"
-            class="sc-collection-grid kr-scroll"
-            aria-label="General, ally and mercenary cards"
-            data-testid="slime-alliance-grid"
-          >
-            <li
-              v-for="card in filteredAllianceCards"
-              :key="card.id"
-              class="sc-collect"
-              :class="'is-' + allianceState(card)"
-            >
-              <span class="sc-clash-tile">
-                <SlimeCityClashCardFace
-                  :card-id="card.id"
-                  :level="evolutionLevel"
+              <li
+                v-for="card in filteredAllianceCards"
+                :key="card.id"
+                class="sc-collect"
+                :class="'is-' + allianceState(card)"
+              >
+                <span class="sc-clash-tile">
+                  <SlimeCityClashCardFace
+                    :card-id="card.id"
+                    :level="evolutionLevel"
+                  />
+                  <span class="sc-collect-ribbon">{{
+                    allianceLabel(card)
+                  }}</span>
+                </span>
+                <button
+                  type="button"
+                  class="sc-collect-pick"
+                  :data-testid="'slime-alliance-card-' + card.id"
+                  :aria-pressed="lab.currentAlliance.cards.includes(card.id)"
+                  :aria-label="
+                    'Inspect ' +
+                    card.name +
+                    ', ' +
+                    allianceLabel(card).toLowerCase()
+                  "
+                  @click="inspectId = card.id"
                 />
-                <span class="sc-collect-ribbon">{{ allianceLabel(card) }}</span>
-              </span>
-              <button
-                type="button"
-                class="sc-collect-pick"
-                :data-testid="'slime-alliance-card-' + card.id"
-                :aria-pressed="lab.currentAlliance.cards.includes(card.id)"
-                :aria-label="
-                  'Inspect ' +
-                  card.name +
-                  ', ' +
-                  allianceLabel(card).toLowerCase()
-                "
-                @click="inspectId = card.id"
-              />
-            </li>
-          </ul>
-          <ul
-            v-else
-            class="sc-collection-grid kr-scroll"
-            aria-label="Faction and mercenary cards"
-            data-testid="slime-solo-grid"
-          >
-            <li
-              v-for="card in filteredSoloCards"
-              :key="card.id"
-              class="sc-collect"
-              :class="'is-' + soloState(card)"
+              </li>
+            </ul>
+            <ul
+              v-else
+              class="sc-collection-grid"
+              aria-label="Faction and mercenary cards"
+              data-testid="slime-solo-grid"
             >
-              <span class="sc-clash-tile">
-                <SlimeCityClashCardFace
-                  :card-id="card.id"
-                  :level="evolutionLevel"
+              <li
+                v-for="card in filteredSoloCards"
+                :key="card.id"
+                class="sc-collect"
+                :class="'is-' + soloState(card)"
+              >
+                <span class="sc-clash-tile">
+                  <SlimeCityClashCardFace
+                    :card-id="card.id"
+                    :level="evolutionLevel"
+                  />
+                  <span class="sc-collect-ribbon">{{ soloLabel(card) }}</span>
+                </span>
+                <button
+                  type="button"
+                  class="sc-collect-pick"
+                  :data-testid="'slime-solo-card-' + card.id"
+                  :aria-pressed="lab.currentSolo.includes(card.id)"
+                  :aria-label="
+                    'Inspect ' +
+                    card.name +
+                    ', ' +
+                    soloLabel(card).toLowerCase()
+                  "
+                  @click="inspectId = card.id"
                 />
-                <span class="sc-collect-ribbon">{{ soloLabel(card) }}</span>
-              </span>
-              <button
-                type="button"
-                class="sc-collect-pick"
-                :data-testid="'slime-solo-card-' + card.id"
-                :aria-pressed="lab.currentSolo.includes(card.id)"
-                :aria-label="
-                  'Inspect ' + card.name + ', ' + soloLabel(card).toLowerCase()
-                "
-                @click="inspectId = card.id"
-              />
-            </li>
-          </ul>
+              </li>
+            </ul>
+          </div>
         </section>
 
         <section
@@ -1198,11 +1212,10 @@ onUnmounted(() => {
   gap: 0.3rem;
   margin-inline: auto;
   padding: 0.2rem;
-  overflow-x: auto;
-  /* Never a hidden scrollbar: it once clipped REWARDS off the end of the
-     strip with nothing to say a fifth tab existed (Silas, 2026-11-02). */
-  scrollbar-width: thin;
-  scrollbar-color: #4d5567 transparent;
+  /* Never scroll, never clip (Silas, 2026-11-02 and 2026-11-10: "we should
+     never scroll except in collection card etc"): the tabs wrap instead. */
+  flex-wrap: wrap;
+  justify-content: center;
   border: 1px solid #4d5567;
   border-radius: 0.6rem;
   background: #0e1420;
@@ -1733,11 +1746,39 @@ onUnmounted(() => {
   color: #cbd1df;
   max-width: 56rem;
 }
-.sc-collection-grid {
-  flex: 1;
+/*
+  Silas, 2026-11-10 PT (tablet): "The header is massive and doesn't scroll."
+  Everything under the YOUR CARDS row scrolls as one region: the deck panel
+  and dossier scroll away, the evolution/filter toolbar sticks to the top.
+*/
+.sc-collection-body {
+  flex: 1 1 auto;
   min-height: 0;
-  overflow: auto;
+  overflow-y: auto;
   overscroll-behavior: contain;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+.sc-collection-tools {
+  position: sticky;
+  top: 0;
+  z-index: 3;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.35rem 0.75rem;
+  padding: 0.35rem 0.35rem;
+  border-radius: 0.6rem;
+  background: #0f1622f2;
+  backdrop-filter: blur(6px);
+}
+.sc-collection-tools .sc-card-filters {
+  margin: 0;
+}
+.sc-collection-grid {
+  flex: none;
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(min(100%, 10.5rem), 1fr));
   gap: 0.9rem 0.75rem;
@@ -1934,10 +1975,16 @@ onUnmounted(() => {
   .sc-hud {
     display: none;
   }
+  .sc-tabs {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    width: 100%;
+  }
   .sc-tabs button {
-    padding: 0.35rem 0.5rem;
-    min-width: 3rem;
+    padding: 0.35rem 0.4rem;
+    min-width: 0;
     font-size: 0.57rem;
+    letter-spacing: 0.06em;
   }
   .sc-header {
     flex-wrap: wrap;
@@ -2399,9 +2446,9 @@ onUnmounted(() => {
 .sc-card-filters {
   display: flex;
   flex: 0 0 auto;
+  flex-wrap: wrap;
   gap: 0.5rem;
   padding: 0.35rem 0.65rem;
-  overflow-x: auto;
 }
 .sc-card-filters button {
   flex: 0 0 auto;

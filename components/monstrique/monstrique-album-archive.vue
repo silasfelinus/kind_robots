@@ -51,6 +51,7 @@
           <h3>{{ selected.title }}</h3>
         </div>
         <button
+          v-if="props.creatorMode"
           type="button"
           class="ma-author-toggle"
           :aria-pressed="showAuthorNotes"
@@ -69,7 +70,10 @@
         <span class="ma-kicker">OFFICIAL PRESS RELEASE</span>
         <p>{{ selected.officialStory }}</p>
       </div>
-      <div v-if="hasProof || showAuthorNotes" class="ma-hidden-history">
+      <div
+        v-if="hasProof || (props.creatorMode && showAuthorNotes)"
+        class="ma-hidden-history"
+      >
         <span class="ma-kicker">{{
           hasProof
             ? 'FOUND IN ODETTE’S ARCHIVE'
@@ -93,9 +97,16 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
 import { useMonstressConventionStore } from '~/stores/monstressConventionStore'
+import { useMonstriquePublicStore } from '~/stores/monstriquePublicStore'
 import { MONSTRIQUE_ALBUMS } from '~/utils/monstrique/albumHistory'
 
-const story = useMonstressConventionStore()
+const props = withDefaults(
+  defineProps<{ creatorMode?: boolean; publicEdition?: boolean }>(),
+  { creatorMode: false, publicEdition: false },
+)
+const adminStory = useMonstressConventionStore()
+const publicStory = useMonstriquePublicStore()
+const story = computed(() => (props.publicEdition ? publicStory : adminStory))
 const selectedId = ref(MONSTRIQUE_ALBUMS[0]!.id)
 const showAuthorNotes = ref(false)
 const selected = computed(
@@ -104,7 +115,7 @@ const selected = computed(
     MONSTRIQUE_ALBUMS[0]!,
 )
 const hasProof = computed(() =>
-  story.state.flags.includes(selected.value.clueFlag),
+  story.value.state.flags.includes(selected.value.clueFlag),
 )
 </script>
 

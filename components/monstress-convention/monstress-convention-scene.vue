@@ -469,8 +469,14 @@
                   {{ TOPICS[topic] ?? topic }}
                 </li>
               </ul>
-              <h3 class="mc-eyebrow mt-4">GOOD GRACES</h3>
-              <ul class="mc-note-list" data-testid="monstrique-graces">
+              <h3 v-if="audience === 'mature'" class="mc-eyebrow mt-4">
+                GOOD GRACES
+              </h3>
+              <ul
+                v-if="audience === 'mature'"
+                class="mc-note-list"
+                data-testid="monstrique-graces"
+              >
                 <li v-for="(grace, who) in GRACES" :key="who">
                   <Icon name="kind-icon:heart" class="size-4 shrink-0" />
                   <span class="flex-1">{{ grace.name }}</span>
@@ -627,6 +633,12 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
 import { useMonstressConventionStore } from '~/stores/monstressConventionStore'
+import { useMonstriquePublicStore } from '~/stores/monstriquePublicStore'
+import {
+  GENERAL_INTRO,
+  MATURE_INTRO,
+  roomForAudience,
+} from '~/utils/monstressConvention/edition'
 import {
   availableTopics,
   EVIDENCE,
@@ -638,50 +650,45 @@ import {
   type Verb,
 } from '~/utils/monstressConvention/prologue'
 
-const story = useMonstressConventionStore()
-const props = defineProps<{ entry?: 'new' | 'continue' }>()
+const props = defineProps<{
+  entry?: 'new' | 'continue'
+  publicEdition?: boolean
+}>()
+const adminStory = useMonstressConventionStore()
+const publicStory = useMonstriquePublicStore()
+const story = computed(() => (props.publicEdition ? publicStory : adminStory))
+const audience = computed(() =>
+  props.publicEdition ? publicStory.audience : 'mature',
+)
 const emit = defineEmits<{ menu: [] }>()
 const screen = ref<'title' | 'intro' | 'stage'>(
   props.entry === 'continue' ? 'stage' : 'intro',
 )
 const introIndex = ref(0)
-const introScenes = [
-  {
-    title: 'Always Last Call',
-    text: 'Midnight City. Odette Harker, the agent who ran MONSTRIQUE and took ten percent of everyone in it, checks into Room 205 of the Last Call Motor Lodge with a professional she booked for the night.',
-  },
-  {
-    title: 'Bite Me',
-    text: 'Violet Wisp wears a rented cape and forty-dollar fangs, because Odette has wanted a vampire her whole life. Two adults, one bottle of gin, very little rehearsal. The ice arrives. The curtains close. Downstairs, the ice machine clanks twice.',
-  },
-  {
-    title: 'Checkout Time',
-    text: 'Nobody knocks. The door never opens. A jewelled knife moves anyway. By morning, Room 205 has two guests who will never check out.',
-  },
-  {
-    title: 'Your New Client',
-    text: 'At 3 a.m. the phone rings in Room 207, the field office of The Unwashed Truth. Iris Quill answers for her boss, Norb Vale, Midnight City’s premiere blogger. The caller is Odette Harker. Odette Harker is dead, and she would like to hire you.',
-  },
-]
+const introScenes = computed(() =>
+  audience.value === 'mature' ? MATURE_INTRO : GENERAL_INTRO,
+)
 const drawer = ref<'case' | 'map' | null>(null)
 const selected = ref<string | null>(null)
 const held = ref<string | null>(null)
-const room = computed(() => HOTEL_ROOMS[story.state.room])
+const room = computed(() =>
+  roomForAudience(story.value.state.room, audience.value),
+)
 const activeHotspot = computed(() =>
   room.value.hotspots.find((hotspot) => hotspot.id === selected.value),
 )
 const activeTopics = computed(() =>
-  selected.value ? availableTopics(story.state, selected.value) : [],
+  selected.value ? availableTopics(story.value.state, selected.value) : [],
 )
 
 onMounted(() => {
   if (props.entry === 'continue') screen.value = 'stage'
   else if (props.entry === 'new') screen.value = 'intro'
-  else if (story.state.transcript.length > 1) screen.value = 'stage'
+  else if (story.value.state.transcript.length > 1) screen.value = 'stage'
 })
 
 function begin(): void {
-  story.begin()
+  story.value.begin()
   selected.value = null
   held.value = null
   drawer.value = null
@@ -690,18 +697,22 @@ function begin(): void {
 }
 
 function advanceIntro(): void {
-  if (introIndex.value < introScenes.length - 1) introIndex.value += 1
+  if (introIndex.value < introScenes.value.length - 1) introIndex.value += 1
   else screen.value = 'stage'
 }
 
 function useHeld(): void {
   if (!held.value || !selected.value) return
-  story.takeAction({ verb: 'use', target: selected.value, item: held.value })
-  if (!story.state.inventory.includes(held.value)) held.value = null
+  story.value.takeAction({
+    verb: 'use',
+    target: selected.value,
+    item: held.value,
+  })
+  if (!story.value.state.inventory.includes(held.value)) held.value = null
 }
 
 function go(destination: RoomId): void {
-  story.move(destination)
+  story.value.move(destination)
   selected.value = null
   drawer.value = null
 }

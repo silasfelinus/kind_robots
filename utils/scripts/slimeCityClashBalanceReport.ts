@@ -109,7 +109,9 @@ export function compareCatgirlsStarter(seeds = 20, offset = 9000) {
     !original.includes('laser') ||
     original.includes('s2-catgirls-backstreet-organ-donor')
   )
-    throw new Error('Catgirls counterfactual no longer matches the pre-pilot deck')
+    throw new Error(
+      'Catgirls counterfactual no longer matches the pre-pilot deck',
+    )
   const results = {
     current: { wins: 0, games: 0, two: 0, three: 0, played: 0 },
     original: { wins: 0, games: 0, two: 0, three: 0, played: 0 },

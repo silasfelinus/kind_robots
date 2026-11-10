@@ -364,7 +364,11 @@
                 type="button"
                 class="clash-pass"
                 data-testid="clash-pass"
-                title="Skip remaining card plays and send your crew in"
+                :title="
+                  noLegalPlay
+                    ? 'No playable card in this hand. Pass to continue the round.'
+                    : 'Skip remaining card plays and send your crew in'
+                "
                 :disabled="
                   busy ||
                   game.active !== 'player' ||
@@ -373,7 +377,8 @@
                 "
                 @click="pass"
               >
-                FIGHT <span aria-hidden="true">›</span>
+                {{ noLegalPlay ? 'PASS' : 'FIGHT' }}
+                <span aria-hidden="true">›</span>
               </button>
             </div>
           </div>
@@ -741,12 +746,22 @@ const resultText = computed(() =>
       ? 'RIVAL WINS'
       : 'DRAW',
 )
+const noLegalPlay = computed(
+  () =>
+    game.value.active === 'player' &&
+    game.value.phase === 'play' &&
+    !game.value.hands.player.some((id) =>
+      lanes.some((lane) => canClashPlay(game.value, 'player', id, lane)),
+    ),
+)
 const phaseLabel = computed(() => {
   const s = game.value
   if (s.victor) return resultText.value
   if (s.phase === 'attack')
     return s.active === 'player' ? 'YOUR CREW STRIKES' : 'RIVAL STRIKES'
   if (s.active === 'enemy') return 'RIVAL PLAYING'
+  if (noLegalPlay.value) return 'NO LEGAL PLAY · PASS TO CONTINUE'
+  if (noLegalPlay.value) return 'NO LEGAL PLAY · PASS TO CONTINUE'
   return s.plays.player === 0
     ? clashPlayLimit(s, 'player') === 1
       ? 'OPENING TURN: PLAY ONE CARD'

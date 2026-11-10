@@ -222,6 +222,8 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
     return net.value.fetcher<T>(url, options)
   }
   const view = ref<
+    | 'home'
+    | 'settings'
     | 'city'
     | 'arena'
     | 'alleys'
@@ -230,7 +232,7 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
     | 'campaign'
     | 'rewards'
     | 'tower'
-  >('clash')
+  >('home')
   const activeTeam = ref<TeamId>('catgirls')
   const enemyTeam = ref<TeamId>('bloodfairies')
   const mode = ref<ModeId>('blackout')

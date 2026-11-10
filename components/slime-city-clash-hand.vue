@@ -187,6 +187,8 @@ import { cardById, type Side } from '~/utils/slimeCity/prototypes'
 import {
   CLASH_MAX_LEVEL,
   clashPlayLimit,
+  canClashPlay,
+  CLASH_LANES,
   clashCardText,
   clashLevel,
   clashEffectivePlayCost,
@@ -300,7 +302,10 @@ function playable(id: string): boolean {
     ready.value &&
     clashEffectivePlayCost(props.game, 'player', cardById(id)) +
       props.game.plays.player <=
-      clashPlayLimit(props.game, 'player')
+      clashPlayLimit(props.game, 'player') &&
+    Array.from({ length: CLASH_LANES }, (_, lane) => lane).some((lane) =>
+      canClashPlay(props.game, 'player', id, lane),
+    )
   )
 }
 function fanStyle(index: number): Record<string, string> {

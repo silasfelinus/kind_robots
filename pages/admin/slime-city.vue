@@ -39,6 +39,14 @@
           <nav class="sc-tabs" aria-label="Slime City modes">
             <button
               type="button"
+              :class="{ active: lab.view === 'home' }"
+              data-testid="slime-home-tab"
+              @click="lab.view = 'home'"
+            >
+              HOME
+            </button>
+            <button
+              type="button"
               class="sc-main-mode"
               :class="{ active: lab.view === 'clash' }"
               data-testid="slime-clash-tab"
@@ -79,6 +87,14 @@
             >
               COLLECTION
             </button>
+            <button
+              type="button"
+              :class="{ active: lab.view === 'settings' }"
+              data-testid="slime-settings-tab"
+              @click="lab.view = 'settings'"
+            >
+              SETTINGS
+            </button>
           </nav>
           <div
             class="sc-hud"
@@ -112,7 +128,124 @@
 
       <div class="sc-main">
         <section
-          v-if="lab.view === 'city'"
+          v-if="lab.view === 'home'"
+          class="sc-stage sc-home"
+          aria-label="Slime City title screen"
+          data-testid="slime-home"
+        >
+          <SlimeCityArtwork
+            class="sc-home-art"
+            :image-id="slimeArtId('districts', lab.districtId)"
+            :alt="lab.district.name + ' skyline'"
+            fallback="▧"
+            compact
+          />
+          <div class="sc-home-scrim"></div>
+          <div class="sc-home-copy">
+            <small>WELCOME TO THE PIT</small>
+            <strong class="sc-home-wordmark">SLIME <span>CITY</span></strong>
+            <p>Six crews. Three lives for every card. One city to take back.</p>
+            <nav class="sc-home-actions" aria-label="Start Slime City">
+              <button
+                type="button"
+                class="sc-home-primary"
+                data-testid="slime-home-play"
+                @click="lab.playClashFormat()"
+              >
+                ENTER CLASH
+              </button>
+              <button type="button" @click="lab.showCampaign()">
+                CREW STORY
+              </button>
+              <button type="button" @click="lab.showCity()">
+                EXPLORE THE CITY
+              </button>
+              <button type="button" @click="lab.showCards()">
+                BUILD A DECK
+              </button>
+              <button type="button" @click="lab.view = 'settings'">
+                SETTINGS
+              </button>
+            </nav>
+          </div>
+          <SlimeCityArtwork
+            class="sc-home-crew"
+            :image-id="slimeArtId('crews', lab.activeTeam)"
+            :alt="lab.team.name"
+            :fallback="lab.team.insignia"
+            compact
+          />
+        </section>
+        <section
+          v-else-if="lab.view === 'settings'"
+          class="sc-stage sc-settings kr-scroll"
+          aria-label="Slime City settings"
+          data-testid="slime-settings"
+        >
+          <h2 class="sc-settings-heading">GAME SETTINGS</h2>
+          <p>
+            Choose how the next Clash starts. Your current fight is not
+            affected.
+          </p>
+          <fieldset>
+            <legend>DEFAULT CLASH DECK</legend>
+            <button
+              type="button"
+              :aria-pressed="lab.clashFormat === 'solo'"
+              @click="
+                lab.clashFormat = 'solo'
+                lab.deckFormat = 'solo'
+              "
+            >
+              SOLO · 20 CARDS
+            </button>
+            <button
+              type="button"
+              :aria-pressed="lab.clashFormat === 'alliance'"
+              @click="
+                lab.clashFormat = 'alliance'
+                lab.deckFormat = 'alliance'
+              "
+            >
+              ALLIANCE · 20 CARDS
+            </button>
+          </fieldset>
+          <fieldset>
+            <legend>COLLECTION ACCESS</legend>
+            <button
+              type="button"
+              :aria-pressed="lab.unlockMode === 'all'"
+              :disabled="!lab.storyLoaded || lab.storySaving"
+              @click="lab.setUnlockMode('all')"
+            >
+              ALL 300 CARDS
+            </button>
+            <button
+              type="button"
+              :aria-pressed="lab.unlockMode === 'trickle'"
+              :disabled="!lab.storyLoaded || lab.storySaving"
+              @click="lab.setUnlockMode('trickle')"
+            >
+              UNLOCK THROUGH PLAY
+            </button>
+            <small v-if="!lab.storyLoaded"
+              >Sign in to change saved collection access.</small
+            >
+          </fieldset>
+          <p>
+            Tap a collection card to inspect its rules and evolutions. Every
+            Clash deck contains exactly 20 unique cards.
+          </p>
+          <button
+            type="button"
+            class="sc-settings-back"
+            @click="lab.view = 'home'"
+          >
+            BACK TO TITLE
+          </button>
+        </section>
+        <section
+          v-else-if="lab.view === 'city'"
           class="sc-stage"
           :aria-label="
             lab.cityScene === 'map'
@@ -561,6 +694,22 @@
               LV {{ n }}
             </button>
           </div>
+          <div
+            class="sc-card-filters"
+            role="group"
+            aria-label="Filter collection cards"
+            data-testid="slime-card-filters"
+          >
+            <button
+              v-for="filter in collectionFilters"
+              :key="filter.id"
+              type="button"
+              :aria-pressed="collectionFilter === filter.id"
+              @click="collectionFilter = filter.id"
+            >
+              {{ filter.label }}
+            </button>
+          </div>
           <ul
             v-if="lab.deckFormat === 'alliance'"
             class="sc-collection-grid kr-scroll"
@@ -568,7 +717,7 @@
             data-testid="slime-alliance-grid"
           >
             <li
-              v-for="card in lab.allianceCards"
+              v-for="card in filteredAllianceCards"
               :key="card.id"
               class="sc-collect"
               :class="'is-' + allianceState(card)"
@@ -586,9 +735,12 @@
                 :data-testid="'slime-alliance-card-' + card.id"
                 :aria-pressed="lab.currentAlliance.cards.includes(card.id)"
                 :aria-label="
-                  card.name + ', ' + allianceLabel(card).toLowerCase()
+                  'Inspect ' +
+                  card.name +
+                  ', ' +
+                  allianceLabel(card).toLowerCase()
                 "
-                @click="lab.toggleAllianceCard(card.id)"
+                @click="inspectId = card.id"
               />
             </li>
           </ul>
@@ -599,7 +751,7 @@
             data-testid="slime-solo-grid"
           >
             <li
-              v-for="card in lab.soloCards"
+              v-for="card in filteredSoloCards"
               :key="card.id"
               class="sc-collect"
               :class="'is-' + soloState(card)"
@@ -616,8 +768,10 @@
                 class="sc-collect-pick"
                 :data-testid="'slime-solo-card-' + card.id"
                 :aria-pressed="lab.currentSolo.includes(card.id)"
-                :aria-label="card.name + ', ' + soloLabel(card).toLowerCase()"
-                @click="lab.toggleSoloCard(card.id)"
+                :aria-label="
+                  'Inspect ' + card.name + ', ' + soloLabel(card).toLowerCase()
+                "
+                @click="inspectId = card.id"
               />
             </li>
           </ul>
@@ -824,14 +978,81 @@
         </section>
       </div>
     </div>
+    <div
+      v-if="inspectCard"
+      class="sc-inspect-backdrop"
+      @click.self="inspectId = null"
+    >
+      <section
+        class="sc-inspect-panel"
+        role="dialog"
+        aria-modal="true"
+        :aria-label="inspectCard.name + ' card details'"
+        data-testid="slime-card-inspector"
+      >
+        <div class="sc-inspect-portrait">
+          <SlimeCityClashCardFace
+            :card-id="inspectCard.id"
+            :level="evolutionLevel"
+          />
+        </div>
+        <div class="sc-inspect-details">
+          <button
+            type="button"
+            class="sc-inspect-close"
+            data-testid="slime-inspect-close"
+            @click="inspectId = null"
+          >
+            CLOSE ×
+          </button>
+          <small>{{
+            inspectCard.team === 'mercenary'
+              ? 'MERCENARY · ANY CREW'
+              : teamName(inspectCard.team)
+          }}</small>
+          <h2>{{ inspectCard.name }}</h2>
+          <p class="sc-inspect-rules">
+            {{ clashCardText(inspectCard, evolutionLevel) }}
+          </p>
+          <div
+            class="sc-inspect-levels"
+            role="group"
+            aria-label="Preview card evolution"
+          >
+            <button
+              v-for="n in CLASH_MAX_LEVEL"
+              :key="n"
+              type="button"
+              :aria-pressed="evolutionLevel === n"
+              @click="evolutionLevel = n"
+            >
+              LV {{ n }}
+            </button>
+          </div>
+          <button
+            type="button"
+            class="sc-inspect-action"
+            data-testid="slime-inspect-deck-action"
+            @click="
+              lab.deckFormat === 'alliance'
+                ? lab.toggleAllianceCard(inspectCard.id)
+                : lab.toggleSoloCard(inspectCard.id)
+            "
+          >
+            {{ inspectInDeck ? 'REMOVE FROM DECK' : 'ADD TO DECK' }}
+          </button>
+          <p aria-live="polite">{{ lab.deckMessage }}</p>
+        </div>
+      </section>
+    </div>
   </main>
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, onUnmounted } from 'vue'
+import { computed, onMounted, onUnmounted, ref } from 'vue'
 import { cardById, type Card } from '~/utils/slimeCity/prototypes'
 import { factionPower } from '~/utils/slimeCity/factionPowers'
-import { CLASH_MAX_LEVEL } from '~/utils/slimeCity/clash'
+import { CLASH_MAX_LEVEL, clashCardText } from '~/utils/slimeCity/clash'
 import { ALLIANCE_DECK_SIZE } from '~/utils/slimeCity/alliance'
 import { STREETS } from '~/utils/slimeCity/city'
 import { useSlimeCityStore } from '~/stores/slimeCity'
@@ -885,6 +1106,37 @@ function teamName(id: string): string {
 const generalPower = computed(() => factionPower(lab.activeTeam))
 /** Collection cards show their Clash face at the chosen evolution level. */
 const evolutionLevel = ref(1)
+const collectionFilters = [
+  { id: 'all', label: 'ALL ELIGIBLE' },
+  { id: 'faction', label: 'FACTIONS' },
+  { id: 'mercenary', label: 'MERCENARIES · 60' },
+] as const
+const collectionFilter = ref<(typeof collectionFilters)[number]['id']>('all')
+const inspectId = ref<string | null>(null)
+const inspectCard = computed(() =>
+  inspectId.value
+    ? (lab.allianceCards.find((card) => card.id === inspectId.value) ??
+      lab.soloCards.find((card) => card.id === inspectId.value) ??
+      null)
+    : null,
+)
+const inspectInDeck = computed(() =>
+  inspectCard.value
+    ? lab.deckFormat === 'alliance'
+      ? lab.currentAlliance.cards.includes(inspectCard.value.id)
+      : lab.currentSolo.includes(inspectCard.value.id)
+    : false,
+)
+const filterCards = (cards: Card[]): Card[] =>
+  cards.filter((card) =>
+    collectionFilter.value === 'all'
+      ? true
+      : collectionFilter.value === 'mercenary'
+        ? card.team === 'mercenary'
+        : card.team !== 'mercenary',
+  )
+const filteredAllianceCards = computed(() => filterCards(lab.allianceCards))
+const filteredSoloCards = computed(() => filterCards(lab.soloCards))
 const allyChoices = computed(() =>
   lab.teams.filter((team) => team.id !== lab.activeTeam),
 )
@@ -958,6 +1210,7 @@ onUnmounted(() => {
 
 <style scoped>
 .slime-lab {
+  position: relative;
   height: 100%;
   min-height: 0;
   overflow: hidden;
@@ -2219,6 +2472,242 @@ onUnmounted(() => {
   }
   .sc-deck-status .sc-overline {
     white-space: normal;
+  }
+}
+
+.sc-card-filters {
+  display: flex;
+  flex: 0 0 auto;
+  gap: 0.5rem;
+  padding: 0.35rem 0.65rem;
+  overflow-x: auto;
+}
+.sc-card-filters button {
+  flex: 0 0 auto;
+  padding: 0.4rem 0.8rem;
+  border: 1px solid #a2d4be88;
+  border-radius: 0.6rem;
+  background: #142932;
+  color: #f1f8f1;
+  font-size: 0.75rem;
+  font-weight: 900;
+}
+.sc-card-filters button[aria-pressed='true'] {
+  background: #c5ff59;
+  color: #122416;
+}
+.sc-inspect-backdrop {
+  position: absolute;
+  inset: 0;
+  z-index: 50;
+  display: grid;
+  place-items: center;
+  background: #020910e8;
+  padding: 1rem;
+}
+.sc-inspect-panel {
+  width: min(100%, 52rem);
+  max-height: 100%;
+  min-height: 0;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr);
+  gap: 1rem;
+  padding: 1rem;
+  border: 1px solid #98c9ac;
+  border-radius: 1.2rem;
+  background: #10202b;
+  overflow: auto;
+  box-shadow: 0 0 3rem #000b;
+}
+.sc-inspect-portrait {
+  position: relative;
+  aspect-ratio: 2 / 3;
+  min-height: 0;
+  max-height: 72vh;
+  --rules-open: 1;
+}
+.sc-inspect-details {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: 0.8rem;
+  justify-content: center;
+}
+.sc-inspect-details h2 {
+  font-size: clamp(1.4rem, 3vw, 2.4rem);
+  line-height: 1.1;
+  font-weight: 950;
+}
+.sc-inspect-details small {
+  font-weight: 900;
+  color: #bcff61;
+  letter-spacing: 0.08em;
+}
+.sc-inspect-rules {
+  font-size: clamp(0.9rem, 1.6vw, 1.2rem);
+  line-height: 1.45;
+}
+.sc-inspect-levels {
+  display: flex;
+  gap: 0.45rem;
+}
+.sc-inspect-details button {
+  padding: 0.7rem 0.9rem;
+  border: 1px solid #a2d4be88;
+  border-radius: 0.6rem;
+  background: #142932;
+  color: #f1f8f1;
+  font-size: 0.75rem;
+  font-weight: 900;
+}
+.sc-inspect-levels button[aria-pressed='true'] {
+  background: #c5ff59;
+  color: #122416;
+}
+.sc-inspect-close {
+  align-self: flex-end;
+}
+.sc-inspect-action {
+  background: #c5ff59 !important;
+  color: #122416 !important;
+  border-color: #c5ff59 !important;
+}
+@container (max-width: 580px) {
+  .sc-inspect-panel {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    padding: 0.6rem;
+    gap: 0.6rem;
+  }
+  .sc-inspect-portrait {
+    max-height: 54vh;
+  }
+}
+
+.sc-home {
+  position: relative;
+  isolation: isolate;
+  background: #070e14;
+  overflow: hidden;
+}
+.sc-home-art {
+  position: absolute;
+  inset: 0;
+}
+.sc-home-scrim {
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(90deg, #070d15f2, #070d15aa 55%, transparent),
+    linear-gradient(0deg, #070d15d9, transparent 65%);
+}
+.sc-home-copy {
+  position: absolute;
+  z-index: 2;
+  left: clamp(1rem, 5vw, 4rem);
+  bottom: clamp(1.5rem, 8vh, 5rem);
+  width: min(70%, 35rem);
+}
+.sc-home-copy small {
+  color: #bcff61;
+  font-weight: 950;
+  letter-spacing: 0.25em;
+}
+.sc-home-wordmark {
+  display: block;
+  font-size: clamp(2.8rem, 8vw, 6.5rem);
+  font-weight: 1000;
+  font-style: italic;
+  letter-spacing: -0.09em;
+  line-height: 1;
+  text-shadow: 0 0 2rem #000;
+}
+.sc-home-wordmark span {
+  color: #c5ff59;
+}
+.sc-home-copy p {
+  max-width: 26rem;
+  margin: 1rem 0;
+  color: #e2ede4;
+  font-weight: 700;
+}
+.sc-home-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.55rem;
+}
+.sc-home-actions button,
+.sc-settings button {
+  padding: 0.7rem 0.9rem;
+  border-radius: 0.6rem;
+  border: 1px solid #a2d4be88;
+  background: #142932ed;
+  color: #f1f8f1;
+  font-size: 0.75rem;
+  font-weight: 900;
+}
+.sc-home-actions .sc-home-primary,
+.sc-settings-back {
+  background: #c5ff59 !important;
+  color: #122416 !important;
+  border-color: #c5ff59 !important;
+}
+.sc-home-crew {
+  position: absolute;
+  right: 2%;
+  top: 7%;
+  width: 26%;
+  height: 76%;
+  border-radius: 1.2rem;
+  overflow: hidden;
+  opacity: 0.9;
+  box-shadow: 0 0 4rem #c5ff5920;
+}
+.sc-settings {
+  padding: clamp(1rem, 4vw, 3rem);
+  background: radial-gradient(ellipse at 50% 0%, #273f41, #0a101b 70%);
+  overflow: auto;
+}
+.sc-settings-heading {
+  font-size: clamp(1.5rem, 4vw, 3rem);
+  font-weight: 950;
+  color: #c5ff59;
+}
+.sc-settings p {
+  color: #d6e6dd;
+  max-width: 42rem;
+  margin: 0.8rem 0 1.3rem;
+}
+.sc-settings fieldset {
+  border: 1px solid #638478;
+  border-radius: 1rem;
+  padding: 1rem;
+  margin-bottom: 1rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.7rem;
+}
+.sc-settings legend {
+  padding: 0 0.5rem;
+  font-weight: 900;
+}
+.sc-settings button[aria-pressed='true'] {
+  background: #c5ff59;
+  color: #0d211b;
+}
+.sc-settings button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+@container (max-width: 580px) {
+  .sc-home-copy {
+    left: 1rem;
+    width: calc(100% - 2rem);
+    bottom: 1rem;
+  }
+  .sc-home-crew {
+    width: 45%;
+    height: 40%;
+    opacity: 0.5;
   }
 }
 </style>

@@ -22,8 +22,10 @@ import { freshTower, validTowerSave, type TowerSave } from './allianceTower'
 import {
   normalizeLegacyAllianceDeck,
   validAllianceDeck,
+  validLibrary,
   validSoloDeck,
   type AllianceDeck,
+  type LibraryDeck,
 } from './alliance'
 
 export interface SlimeCityStory {
@@ -43,6 +45,8 @@ export interface SlimeCityStory {
   alliances?: Partial<Record<TeamId, AllianceDeck>>
   /** SOLO CLASH 20-card decks, one per faction. Omitted for older saves. */
   soloDecks?: Partial<Record<TeamId, string[]>>
+  /** COLLECTION's named Alliance deck library. Omitted for older saves. */
+  library?: LibraryDeck[]
   /**
    * Card unlocks (Silas, 2026-11-04: "we start with all card unlocked as a
    * default mode, but then they can try a mode where it gets trickled out").
@@ -186,6 +190,7 @@ export function validSlimeCityStory(raw: unknown): raw is SlimeCityStory {
     for (const [team, deck] of Object.entries(raw.soloDecks))
       if (!validSoloDeck(team, deck)) return false
   }
+  if (raw.library !== undefined && !validLibrary(raw.library)) return false
   if (raw.alliances !== undefined) {
     if (!record(raw.alliances)) return false
     for (const [team, deck] of Object.entries(raw.alliances))

@@ -1275,13 +1275,14 @@ lab.fightRival()
 assert.equal(lab.view, 'clash')
 assert.equal(lab.clashLaunch.kind, 'rival')
 assert.equal(lab.clashLaunch.format, lab.clashFormat, 'City: your deck')
-assert.equal(lab.clashLaunch.format, 'solo', 'default pick is Solo')
+// Silas, 2026-11-10 PT: Alliance is the default deck outside the SOLO story.
+assert.equal(lab.clashLaunch.format, 'alliance', 'default pick is Alliance')
 assert.equal(lab.clashLaunch.enemy, 'catgirls', 'Mirror rival bout')
 assert.equal(lab.bout, 'chimera')
-assert.equal(lab.storyBoutLabel('blackout'), 'SOLO CLASH')
-lab.clashFormat = 'alliance'
 assert.equal(lab.storyBoutLabel('blackout'), 'ALLIANCE CLASH')
 lab.clashFormat = 'solo'
+assert.equal(lab.storyBoutLabel('blackout'), 'SOLO CLASH')
+lab.clashFormat = 'alliance'
 assert.deepEqual(
   lab.clashLaunch.bosses,
   clashBossesFromTerms(boutTerms(lab.city, 'chimera')),
@@ -1316,8 +1317,12 @@ assert.equal(lab.city.aftermathChoices.chimera, 'chimera-free')
 lab.visit('chimera')
 lab.fightContract()
 assert.equal(lab.view, 'clash')
-assert.equal(lab.clashLaunch.kind, 'contract', 'Contracts are Solo Clash')
-assert.equal(lab.clashLaunch.format, 'solo')
+assert.equal(lab.clashLaunch.kind, 'contract', 'Contracts are city bouts')
+assert.equal(
+  lab.clashLaunch.format,
+  lab.clashFormat,
+  'Contracts deal your deck',
+)
 assert.equal(lab.contractBout, 'chimera')
 assert.equal(lab.clashLaunch.enemy, 'catgirls')
 const contractGame = playStoreClash()

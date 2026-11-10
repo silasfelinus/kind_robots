@@ -37,6 +37,12 @@ import {
   type ClashUnit,
 } from '../slimeCity/clash'
 import { validSlimeCityStory, newSlimeCityStory } from '../slimeCity/storySave'
+import {
+  LIBRARY_MAX_DECKS,
+  libraryDeck,
+  libraryDeckProblem,
+  validLibrary,
+} from '../slimeCity/alliance'
 import { sweepAlliance } from './slimeCityAllianceBalanceReport'
 import { clashBossesFromTerms } from '../slimeCity/clashBouts'
 import {
@@ -558,19 +564,72 @@ const at = (st: ClashState, uid: number) => st.units.find((u) => u.uid === uid)
   )
 }
 
+// COLLECTION's deck library (Silas, 2026-11-10 PT): named Alliance decks
+// that may be unfinished while being built, but never break the format.
+{
+  const starter = allianceStarter('catgirls', 'riot')
+  const deck = libraryDeck(starter, 'd1', '  Cat Riot  ')
+  assert.equal(deck.name, 'Cat Riot')
+  assert.equal(libraryDeckProblem(deck), '')
+  assert.equal(
+    libraryDeckProblem({ ...deck, cards: deck.cards.slice(0, 7) }),
+    '',
+    'an unfinished deck is a valid library entry',
+  )
+  assert.notEqual(libraryDeckProblem({ ...deck, ally: 'catgirls' }), '')
+  assert.notEqual(
+    libraryDeckProblem({ ...deck, cards: [...deck.cards, deck.cards[0]!] }),
+    '',
+  )
+  const outsider = TEAMS.map((t) => t.id).find(
+    (id) => id !== 'catgirls' && id !== 'riot',
+  )!
+  const foreign = allianceStarter(outsider, 'catgirls').cards.find(
+    (id) => cardById(id).team === outsider,
+  )!
+  assert.notEqual(
+    libraryDeckProblem({ ...deck, cards: [...deck.cards.slice(1), foreign] }),
+    '',
+    'cards outside the two crews and mercenaries are refused',
+  )
+  assert.equal(validLibrary([deck, { ...deck, id: 'd2' }]), true)
+  assert.equal(validLibrary([deck, deck]), false, 'ids are unique')
+  assert.equal(
+    validLibrary(
+      Array.from({ length: LIBRARY_MAX_DECKS + 1 }, (_, i) => ({
+        ...deck,
+        id: 'd' + i,
+      })),
+    ),
+    false,
+  )
+  const story = { ...newSlimeCityStory(), library: [deck] }
+  assert.equal(validSlimeCityStory(JSON.parse(JSON.stringify(story))), true)
+  assert.equal(
+    validSlimeCityStory({ ...story, library: [{ ...deck, name: '' }] }),
+    false,
+  )
+}
+
 // The armory and Clash expose the format.
 const page = readFileSync('pages/admin/slime-city.vue', 'utf8')
 const view = readFileSync('components/slime-city-clash.vue', 'utf8')
 const store = readFileSync('stores/slimeCity.ts', 'utf8')
 for (const id of [
-  'slime-format-alliance',
+  // Silas, 2026-11-10 PT: the collection is an Alliance deck library; SOLO
+  // story decks open from the SOLO story, not a format switch.
+  'slime-deck-library',
+  'slime-library-new',
+  'slime-library-copy',
+  'slime-library-delete',
+  'slime-library-name',
+  'slime-solo-deck-back',
   'slime-alliance-workbench',
   'slime-ally-picker',
   'slime-alliance-swap',
   'slime-alliance-power',
   'slime-alliance-play',
   'slime-alliance-grid',
-  'slime-format-solo',
   'slime-solo-workbench',
   'slime-solo-grid',
   'slime-solo-play',

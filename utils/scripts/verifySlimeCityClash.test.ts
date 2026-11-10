@@ -1446,10 +1446,7 @@ for (const name of [
     safeUnit.armor - 1,
     `${name} must shear plating`,
   )
-  assert.ok(
-    caughtUnit.hp < safeUnit.hp,
-    `${name} must damage a plated target`,
-  )
+  assert.ok(caughtUnit.hp < safeUnit.hp, `${name} must damage a plated target`)
   assert.equal(caught.traps.length, 0, `${name} must be consumed`)
   assert.deepEqual(
     caught,

@@ -134,6 +134,40 @@ export function allianceStarter(general: TeamId, ally: TeamId): AllianceDeck {
   }
 }
 
+/** Preserve a valid older 30-card Alliance as a deterministic 20-card deck.
+ * Reject malformed, cross-faction or repeated-card records rather than
+ * silently substituting a different player's collection. */
+export function normalizeLegacyAllianceDeck(raw: unknown): AllianceDeck | undefined {
+  if (validAllianceDeck(raw)) return raw
+  if (!raw || typeof raw !== 'object' || Array.isArray(raw)) return undefined
+  const value = raw as Record<string, unknown>
+  if (
+    !isTeam(value.general) ||
+    !isTeam(value.ally) ||
+    value.general === value.ally ||
+    !Array.isArray(value.cards) ||
+    value.cards.length !== 30 ||
+    !value.cards.every((id) => typeof id === 'string')
+  )
+    return undefined
+  const original: AllianceDeck = {
+    general: value.general,
+    ally: value.ally,
+    cards: value.cards as string[],
+  }
+  if (
+    allianceProblems(original).some(
+      (problem) => problem !== 'Requires exactly ' + ALLIANCE_DECK_SIZE + ' cards',
+    )
+  )
+    return undefined
+  const candidate: AllianceDeck = {
+    ...original,
+    cards: spread(original.cards, ALLIANCE_DECK_SIZE),
+  }
+  return validAllianceDeck(candidate) ? candidate : undefined
+}
+
 /** The same two factions with the other one as general: same cards. */
 export function swapGeneral(deck: AllianceDeck): AllianceDeck {
   return { general: deck.ally, ally: deck.general, cards: [...deck.cards] }

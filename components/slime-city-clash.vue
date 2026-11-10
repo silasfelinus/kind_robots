@@ -1123,6 +1123,7 @@ function forecast(lane: number): string {
   background: #301a2a46;
 }
 .clash-slot.filled {
+  background-image: radial-gradient(ellipse at 50% 40%, #31545b, #081a25 80%);
   border-style: solid;
   border-color: #83c4ae88;
 }
@@ -1152,8 +1153,9 @@ function forecast(lane: number): string {
   inset: 0;
   width: 100%;
   height: 100%;
-  object-fit: cover;
-  opacity: 0.94;
+  object-fit: contain;
+  object-position: center;
+  opacity: 1;
 }
 .clash-numbers {
   --stat: clamp(1.6rem, 30cqmin, 4.2rem);

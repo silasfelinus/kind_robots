@@ -69,17 +69,29 @@ export const IRONJAW_EVOLUTIONS: Record<string, CardEvolution> = {
     2: stage('Mid-Charge Barricade', [on('turnStart', guard(2, 'self'))]),
     3: stage('Narrow Corridor', [on('enter', armor(2, 'self'))], { lone: 2 }),
   },
-  // Arc: an industrial bridge with a union card -> faster fighters cross on
-  // its back and hit harder -> the bridge holds and never swings again.
-  // Trajectory: EARLY BLOOMER (L3 stops striking to carry the crew).
-  // Counterplay: it never strikes, so it is free to hit; break the bridge
-  // and both neighbors lose their shields and their push.
+  // Signature: bring another worker across the bridge.
+  // L1 makes a fragile 1/2 picket, a useful extra blocker now, not a
+  // worthless 1/8-style investment for two future replays. The bridge
+  // itself holds the lane, but the *plan* is vulnerable to token sweeps
+  // and denial of empty slots.
+  // L2 grows a sturdier picket AND increases adjacent allies' power;
+  // L3 becomes a pacifist assembly line, raising two 1/4 workers and
+  // shielding its neighbors every shift. Combo: Walking Foundry and
+  // Scrapyard Dreadnought both reward its protected adjacent workforce.
+  // Counterplay: clear the workers, occupy the surrounding lanes, or
+  // strike the pacifist bridge before its next guard window.
   's2-ironjaw-union-bridgebearer': {
     stats: { 3: { hp: 4 } },
-    2: stage('Load-Bearing', [], { aura: { n: 1, to: 'adjacentAllies' } }),
+    1: stage('Night Shift Crossing', [on('enter', summon('nearest', 1, 2))]),
+    2: stage('Load-Bearing Shift', [on('enter', summon('nearest', 1, 3))], {
+      aura: { n: 1, to: 'adjacentAllies' },
+    }),
     3: stage(
       'The Bridge Holds',
-      [on('turnStart', guard(2, 'adjacentAllies'))],
+      [
+        on('enter', summon('neighbors', 1, 4)),
+        on('turnStart', guard(1, 'adjacentAllies')),
+      ],
       { pacifist: true, aura: { n: 1, to: 'adjacentAllies' } },
     ),
   },
@@ -117,17 +129,21 @@ export const IRONJAW_EVOLUTIONS: Record<string, CardEvolution> = {
       ),
     ]),
   },
-  // Arc: six tons of scrap -> every hit bolts on another plate ->
-  // the L3 stormbreaker sheds its plating in an arrival shockwave, then
-  // becomes a larger threat for every full round it survives.
-  // THUNDERSAUR-STYLE investment: a fragile opening at L3 (-4 life)
-  // forces a real protect-or-replace choice; its permanent power growth
-  // caps at 12 and must be earned by surviving full rounds.
-  // Counterplay: pierce and burst before round end; spread out to
-  // minimize the opening avalanche.
+  // Signature: take the hit and share protection with the assembly.
+  // L1 is an armored BULLDOZE body that shields one neighbor on arrival.
+  // L2 reinforces that promise after a hit. L3 cashes in the saved time:
+  // its thunderhead abandons direct support for a plate-shedding shockwave
+  // and growing threat on every full round it survives. The -4 L3 opening life is intentional counterplay.
+  // Combo: Union Bridgebearer's fresh 1/2 workers gain shield, then
+  // its L2/L3 aura turns the surviving picket into real pressure.
+  // Counterplay: pierce/burst before round end, clear the adjacent
+  // workforce, or spread out of the three-alley shockwave.
   's3-ironjaw-dreadnought': {
     stats: { 3: { hp: -4 } },
-    2: stage('Scrap Magnet', [on('hit', life(1, 'self'))]),
+    1: stage('Welded Convoy', [on('enter', guard(1, 'adjacentAllies'))]),
+    2: stage('Scrap Magnet', [
+      on('hit', guard(1, 'adjacentAllies'), life(1, 'self')),
+    ]),
     3: stage('Thunderhead of Scrap', [
       on('enter', damage(2, 'laneFoes')),
       on('roundEnd', life(1, 'self'), sharpen(1, 'self')),

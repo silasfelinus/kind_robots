@@ -48,16 +48,18 @@ export function clashEvolutionCpuPick(id: string): EvoCondition | undefined {
   return CLASH_TWISTS[id] ? undefined : CLASH_EVOLUTIONS[id]?.choice?.cpu
 }
 
-/** The stage a card runs at `level` (2 or 3), or undefined. Hand-built twist
- * cards never also run a data stage. `pick` selects a choose-one option. */
+/** The authored stage at level 1, 2 or 3 (if present). A level-one
+ * signature is optional: existing cards still use their base keywords.
+ * Hand-built twists never also run a data stage. */
 export function clashEvolutionStage(
   id: string,
   level: number,
   pick: EvoPick = 0,
 ): EvoStage | undefined {
-  if (level < 2 || CLASH_TWISTS[id]) return undefined
+  if (CLASH_TWISTS[id]) return undefined
   const evo = CLASH_EVOLUTIONS[id]
   if (!evo) return undefined
+  if (level < 2) return evo[1]
   if (level < 3) return evo[2]
   return pick === 1 && evo.choice ? evo.choice.stage : evo[3]
 }

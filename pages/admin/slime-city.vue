@@ -59,7 +59,7 @@
               data-testid="slime-campaign-tab"
               @click="lab.showCampaign()"
             >
-              STORY
+              CAMPAIGN
             </button>
             <button
               type="button"
@@ -195,7 +195,7 @@
                 data-testid="slime-city-story-shortcut"
                 @click="lab.showCampaign()"
               >
-                CREW STORY · {{ lab.campaignState.wins }}/5
+                CAMPAIGN · {{ lab.campaignState.wins }}/5
               </button>
               <button
                 type="button"
@@ -227,7 +227,7 @@
                   >{{ routeLabel }}</small
                 >
                 <small v-else-if="!lab.cityEvent && lab.storyHere"
-                  >CREW STORY · CHAPTER {{ lab.campaignState.wins + 1 }}/5 WAITS
+                  >CAMPAIGN · CHAPTER {{ lab.campaignState.wins + 1 }}/5 WAITS
                   HERE</small
                 >
               </div>

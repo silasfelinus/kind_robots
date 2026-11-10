@@ -157,7 +157,7 @@ export type ClashCommand =
 
 export type ClashFormat = 'standard' | 'alliance'
 export interface ClashOptions {
-  /** ALLIANCE: each side's 30-card two-crew deck; `teams` become the generals. */
+  /** ALLIANCE: each side's 20-card two-crew deck; `teams` become the generals. */
   alliance?: Record<Side, AllianceDeck>
   /** SOLO CLASH: a side's own 20-card deck instead of its canonical deck. */
   decks?: Partial<Record<Side, string[]>>

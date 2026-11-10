@@ -31,7 +31,7 @@
         <span class="tower-eyebrow">THE NEXT RUN</span>
         <h3>{{ lab.team.name }}</h3>
         <p>
-          Take your saved 30-card Alliance into the vertical city. Each fork
+          Take your saved 20-card Alliance into the vertical city. Each fork
           changes the fight. Spoils and surviving relics become advantages for
           another attempt.
         </p>
@@ -54,7 +54,7 @@
             data-testid="slime-tower-begin"
             @click="lab.beginTower()"
           >
-            ENTER THE PIT · 30 CARDS
+            ENTER THE PIT · 20 CARDS
           </button>
         </div>
       </article>

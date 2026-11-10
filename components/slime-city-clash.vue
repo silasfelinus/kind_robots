@@ -211,7 +211,7 @@
             type="button"
             :aria-pressed="alliance"
             :disabled="inBout"
-            title="ALLIANCE: two factions, 30 cards and your general's one-time power"
+            title="ALLIANCE: two factions, 20 cards and your general's one-time power"
             data-testid="clash-format-alliance"
             @click="lab.playClashFormat('alliance')"
           >

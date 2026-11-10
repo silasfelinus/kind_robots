@@ -27,6 +27,7 @@ import {
   replayClashTranscript,
   type ClashRewardSetup,
 } from '~/utils/slimeCity/clashRewards'
+import { STARTER_CARD_IDS } from '~/utils/slimeCity/alliance'
 import {
   awardBattle,
   awardOutcome,
@@ -159,12 +160,11 @@ export async function startSlimeCityCpuMatch(
   })
   const story = storyFromAccount(account?.data)
   if (unlockModeOf(story) === 'trickle') {
-    const founders = new Set(
-      TEAMS.flatMap((t) => [...t.creatures, ...t.special]),
-    )
     const owned = new Set(restoreProgression(account?.data).cards)
     if (
-      clashRewardCards(clash).some((id) => !founders.has(id) && !owned.has(id))
+      clashRewardCards(clash).some(
+        (id) => !STARTER_CARD_IDS.has(id) && !owned.has(id),
+      )
     )
       throw createError({
         statusCode: 403,
@@ -410,9 +410,6 @@ export async function saveSlimeCityStory(
       create: { userId, data: toJson(newProgression()) },
     })
     const current = storyFromAccount(row.data)
-    const founderCards = new Set(
-      TEAMS.flatMap((team) => [...team.creatures, ...team.special]),
-    )
     const ownedCards = new Set(restoreProgression(row.data).cards)
     const unlocks = proposed.unlocks ?? current.unlocks
     // Every card is open by default; only TRICKLE gates decks on ownership.
@@ -423,7 +420,7 @@ export async function saveSlimeCityStory(
       ...Object.values(proposed.alliances ?? {}).map((deck) => deck?.cards),
     ]
     for (const deck of gated ? allDecks : []) {
-      if (deck?.some((id) => !founderCards.has(id) && !ownedCards.has(id)))
+      if (deck?.some((id) => !STARTER_CARD_IDS.has(id) && !ownedCards.has(id)))
         throw createError({
           statusCode: 403,
           message:

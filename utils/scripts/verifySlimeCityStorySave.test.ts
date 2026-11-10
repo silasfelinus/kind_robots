@@ -12,11 +12,65 @@ import {
   createCampaignSave,
   resolveCampaignBattle,
 } from '../slimeCity/campaign'
+import {
+  STARTER_CARD_IDS,
+  allianceCardPool,
+  allianceStarter,
+  soloStarter,
+} from '../slimeCity/alliance'
+import { startTower } from '../slimeCity/allianceTower'
+import { TEAMS } from '../slimeCity/prototypes'
 
 const base = newSlimeCityStory()
 assert.equal(validSlimeCityStory(base), true)
-// Card unlocks: omitted means every card is open; TRICKLE is opt-in.
-assert.equal(unlockModeOf(base), 'all')
+// Card unlocks (Silas, 2026-11-09 PT): new stories start in TRICKLE; an
+// omitted mode (saves from before) still means every card is open.
+assert.equal(unlockModeOf(base), 'trickle')
+assert.equal(unlockModeOf({ unlocks: undefined }), 'all')
+// Every starter a new account is dealt is playable in TRICKLE before packs.
+for (const team of TEAMS) {
+  for (const id of [
+    ...soloStarter(team.id),
+    ...allianceStarter(team.id, team.id === 'riot' ? 'exchange' : 'riot').cards,
+  ])
+    assert.equal(STARTER_CARD_IDS.has(id), true, team.id + ' starter ' + id)
+}
+// ALLIANCE shrank from 30 to 20 cards (Silas, 2026-11-09 PT): a save holding a
+// retired deck or tower run keeps its story and loses only those.
+const legal = allianceStarter('catgirls', 'riot')
+const retired = {
+  ...legal,
+  cards: [
+    ...legal.cards,
+    ...allianceCardPool('catgirls', 'riot')
+      .map((card) => card.id)
+      .filter((id) => !legal.cards.includes(id))
+      .slice(0, 10),
+  ],
+}
+assert.equal(retired.cards.length, 30)
+const travelled = { ...base, city: travel(createCity(), 'chimera') }
+const runningTower = {
+  ...base.tower!,
+  run: { ...startTower(legal, 7), deck: retired },
+}
+const legacyAccount = {
+  story: {
+    ...travelled,
+    alliances: { catgirls: retired, riot: allianceStarter('riot', 'undertow') },
+    tower: runningTower,
+  },
+}
+assert.equal(validSlimeCityStory(legacyAccount.story), false)
+const migrated = storyFromAccount(legacyAccount)
+assert.equal(migrated.city.location, 'chimera')
+assert.deepEqual(Object.keys(migrated.alliances ?? {}), ['riot'])
+assert.equal(migrated.tower?.run, null)
+assert.deepEqual(migrated.tower?.meta, runningTower.meta)
+assert.deepEqual(
+  (accountWithStory(legacyAccount, { meat: 3 }) as { story: unknown }).story,
+  migrated,
+)
 assert.equal(validSlimeCityStory({ ...base, unlocks: 'trickle' }), true)
 assert.equal(validSlimeCityStory({ ...base, unlocks: 'all' }), true)
 assert.equal(validSlimeCityStory({ ...base, unlocks: 'everything' }), false)

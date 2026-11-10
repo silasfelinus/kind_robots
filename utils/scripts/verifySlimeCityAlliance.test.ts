@@ -1,4 +1,4 @@
-// Slime City ALLIANCE: two-crew 30-card decks and one-time faction powers in
+// Slime City ALLIANCE: two-crew 20-card decks and one-time faction powers in
 // Clash, plus the armory's alliance builder and story-save validation.
 import assert from 'node:assert/strict'
 import { readFileSync } from 'node:fs'
@@ -48,7 +48,7 @@ import { awardOutcome, newProgression } from '../slimeCity/progression'
 
 const ids = TEAMS.map((t) => t.id)
 
-// Every general x second-faction starter is a legal 30-card deck.
+// Every general x second-faction starter is a legal 20-card deck.
 for (const general of ids) {
   for (const ally of ids.filter((id) => id !== general)) {
     const deck = allianceStarter(general, ally)
@@ -66,7 +66,8 @@ for (const general of ids) {
   assert.ok(FACTION_POWERS[general].text.length > 10)
 }
 
-// Silas, 2026-11-07 PT: two factions, any 30 cards from either or the mercs.
+// Silas, 2026-11-07 PT: two factions, any cards from either or the mercs
+// (30 at first; 20 since Silas, 2026-11-09 PT).
 const base = allianceStarter('catgirls', 'undertow')
 const problem = (deck: AllianceDeck, text: string) =>
   assert.ok(
@@ -79,15 +80,24 @@ const creaturesFirst = (team: string) =>
   [...pool(team)].sort(
     (a, b) => Number(b.kind === 'creature') - Number(a.kind === 'creature'),
   )
-problem({ ...base, cards: base.cards.slice(1) }, 'exactly 30')
+problem({ ...base, cards: base.cards.slice(1) }, 'exactly 20')
 problem({ ...base, ally: 'catgirls' }, 'two different factions')
 problem({ ...base, ally: undefined as unknown as TeamId }, 'second faction')
 const outsider = allianceCardPool('riot', 'ironjaw').find(
   (c) => c.team === 'riot',
 )!.id
-problem({ ...base, cards: [...base.cards.slice(0, 29), outsider] }, 'come from')
 problem(
-  { ...base, cards: [...base.cards.slice(0, 29), base.cards[0]!] },
+  {
+    ...base,
+    cards: [...base.cards.slice(0, ALLIANCE_DECK_SIZE - 1), outsider],
+  },
+  'come from',
+)
+problem(
+  {
+    ...base,
+    cards: [...base.cards.slice(0, ALLIANCE_DECK_SIZE - 1), base.cards[0]!],
+  },
   'repeat',
 )
 // Mostly the second faction: legal, the general still owns the power.
@@ -95,7 +105,7 @@ const allyHeavy: AllianceDeck = {
   general: 'catgirls',
   ally: 'undertow',
   cards: [
-    ...creaturesFirst('undertow').slice(0, 28),
+    ...creaturesFirst('undertow').slice(0, 18),
     ...creaturesFirst('catgirls').slice(0, 2),
   ].map((c) => c.id),
 }
@@ -105,8 +115,8 @@ const mercHeavy: AllianceDeck = {
   general: 'catgirls',
   ally: 'undertow',
   cards: [
-    ...creaturesFirst('mercenary').slice(0, 20),
-    ...creaturesFirst('undertow').slice(0, 10),
+    ...creaturesFirst('mercenary').slice(0, 14),
+    ...creaturesFirst('undertow').slice(0, 6),
   ].map((c) => c.id),
 }
 assert.deepEqual(allianceProblems(mercHeavy), [], 'merc-heavy is legal')
@@ -118,14 +128,14 @@ const allSpells: AllianceDeck = {
     ...pool('undertow').filter((c) => c.kind !== 'creature'),
     ...pool('mercenary').filter((c) => c.kind !== 'creature'),
   ]
-    .slice(0, 30)
+    .slice(0, ALLIANCE_DECK_SIZE)
     .map((c) => c.id),
 }
 assert.deepEqual(allianceProblems(allSpells), [], 'no creature minimum')
 assert.ok(validAllianceDeck(allSpells))
 const outsiderDeck: AllianceDeck = {
   ...base,
-  cards: [...base.cards.slice(0, 29), outsider],
+  cards: [...base.cards.slice(0, ALLIANCE_DECK_SIZE - 1), outsider],
 }
 assert.ok(!validAllianceDeck(outsiderDeck))
 

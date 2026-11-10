@@ -8,8 +8,8 @@ import {
 const choices = ['care', 'risk', 'forged', undefined] as const
 for (const first of choices)
   for (const second of choices) {
-    const e03 = first ? { '3,3': first } : {}
-    const e04 = second ? { '3,3': second } : {}
+    const e03: Record<string, string> = first ? { '3,3': first } : {}
+    const e04: Record<string, string> = second ? { '3,3': second } : {}
     const ledger = letterProgressFromEarthChoices(e03, e04)
     assert.deepEqual(restoreLetterProgress(ledger), ledger)
     assert.equal(

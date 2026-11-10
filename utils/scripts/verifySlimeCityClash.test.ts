@@ -104,7 +104,11 @@ for (const testid of [
 }
 assert.match(splash, /console-theme="slime-city"/)
 assert.match(splash, /prefers-reduced-motion: reduce/)
-assert.match(store, />\('home'\)/, 'The illustrated front door is the starting game view')
+assert.match(
+  store,
+  />\('home'\)/,
+  'The illustrated front door is the starting game view',
+)
 assert.match(gamePage, /data-testid="slime-home"/)
 assert.match(gamePage, /data-testid="slime-home-play"/)
 assert.match(gamePage, /data-testid="slime-settings"/)

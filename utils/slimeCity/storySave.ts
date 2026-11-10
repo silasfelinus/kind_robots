@@ -19,7 +19,12 @@ import { validGeneRiotJourney } from './campaignGeneRiot'
 import { validBloodfairyJourney } from './campaignBloodfairies'
 import { validIronjawJourney } from './campaignIronjaw'
 import { freshTower, validTowerSave, type TowerSave } from './allianceTower'
-import { validAllianceDeck, validSoloDeck, type AllianceDeck } from './alliance'
+import {
+  normalizeLegacyAllianceDeck,
+  validAllianceDeck,
+  validSoloDeck,
+  type AllianceDeck,
+} from './alliance'
 
 export interface SlimeCityStory {
   version: 1
@@ -305,17 +310,24 @@ function withoutRetiredAlliances(raw: unknown): unknown {
   if (!record(raw)) return raw
   let story = raw
   if (record(raw.alliances)) {
-    const kept = Object.fromEntries(
-      Object.entries(raw.alliances).filter(([, deck]) =>
-        validAllianceDeck(deck),
-      ),
-    )
-    if (Object.keys(kept).length !== Object.keys(raw.alliances).length)
-      story = { ...story, alliances: kept }
+    const kept: Record<string, AllianceDeck> = {}
+    for (const [team, deck] of Object.entries(raw.alliances)) {
+      const normalized = normalizeLegacyAllianceDeck(deck)
+      if (normalized?.general === team) kept[team] = normalized
+    }
+    story = { ...story, alliances: kept }
   }
   const tower = raw.tower
-  if (record(tower) && record(tower.run) && !validAllianceDeck(tower.run.deck))
-    story = { ...story, tower: { ...tower, run: null } }
+  if (record(tower) && record(tower.run)) {
+    const normalized = normalizeLegacyAllianceDeck(tower.run.deck)
+    story = {
+      ...story,
+      tower: {
+        ...tower,
+        run: normalized ? { ...tower.run, deck: normalized } : null,
+      },
+    }
+  }
   return story
 }
 

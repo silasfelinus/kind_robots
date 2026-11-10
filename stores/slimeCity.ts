@@ -44,6 +44,16 @@ import {
   bloodfairyStoryDeck,
 } from '../utils/slimeCity/campaignBloodfairies'
 import {
+  ironjawBeat,
+  ironjawSceneText,
+  ironjawLastOutcome,
+  ironjawBattleTerms,
+  ironjawEpilogue,
+  ironjawLedger,
+  chooseIronjawBeat,
+  ironjawStoryDeck,
+} from '../utils/slimeCity/campaignIronjaw'
+import {
   campaignCardChoices,
   campaignSoloDeck,
   chooseCampaignCard,
@@ -75,6 +85,7 @@ import {
 import {
   ALLIANCE_DECK_SIZE,
   SOLO_DECK_SIZE,
+  STARTER_CARD_IDS,
   allianceCardPool,
   allianceProblems,
   allianceStarter,
@@ -412,7 +423,7 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
     kind: ClashKind
     victor: Side | 'draw'
   } | null>(null)
-  const unlockMode = ref<UnlockMode>('all')
+  const unlockMode = ref<UnlockMode>('trickle')
   /** Story bouts: as written or all TURF, with or without PARITY. */
   const storyMode = ref<StoryMode>('written')
   const storyParity = ref(false)
@@ -609,22 +620,30 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
       ? bloodfairyBeat(campaignState.value)
       : null,
   )
+  const ironjawCurrent = computed(() =>
+    activeTeam.value === 'ironjaw' ? ironjawBeat(campaignState.value) : null,
+  )
   const campaignJourneyCurrent = computed(
-    () => geneRiotCurrent.value ?? bloodfairyCurrent.value,
+    () =>
+      geneRiotCurrent.value ?? bloodfairyCurrent.value ?? ironjawCurrent.value,
   )
   const campaignJourneyText = computed(() =>
     geneRiotCurrent.value
       ? geneRiotText.value
       : bloodfairyCurrent.value
         ? bloodfairySceneText(campaignState.value, bloodfairyCurrent.value)
-        : '',
+        : ironjawCurrent.value
+          ? ironjawSceneText(campaignState.value, ironjawCurrent.value)
+          : '',
   )
   const campaignJourneyOutcome = computed(() =>
     activeTeam.value === 'catgirls'
       ? geneRiotOutcome.value
       : activeTeam.value === 'bloodfairies'
         ? bloodfairyLastOutcome(campaignState.value)
-        : null,
+        : activeTeam.value === 'ironjaw'
+          ? ironjawLastOutcome(campaignState.value)
+          : null,
   )
   const bloodfairyChorus = computed(() =>
     bloodfairyLedger(campaignSave.value.bloodfairies),
@@ -634,6 +653,7 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
       activeTeam.value === 'bloodfairies' &&
       bloodfairyStageThreeReveal(campaignState.value),
   )
+  const ironjawShift = computed(() => ironjawLedger(campaignSave.value.ironjaw))
   function chooseCampaignJourneyBeat(id: GeneRiotPick): void {
     if (
       !storyEditable() ||
@@ -647,7 +667,9 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
         ? chooseGeneRiotScene(campaignSave.value, id)
         : activeTeam.value === 'bloodfairies'
           ? chooseBloodfairyBeat(campaignSave.value, id)
-          : campaignSave.value
+          : activeTeam.value === 'ironjaw'
+            ? chooseIronjawBeat(campaignSave.value, id)
+            : campaignSave.value
     if (next === campaignSave.value) return
     campaignSave.value = next
     persistStory()
@@ -739,7 +761,9 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
         ? geneRiotEpilogue(campaignState.value)
         : activeTeam.value === 'bloodfairies'
           ? bloodfairyEpilogue(campaignState.value)
-          : ''
+          : activeTeam.value === 'ironjaw'
+            ? ironjawEpilogue(campaignState.value)
+            : ''
     return [ending, epilogue].filter(Boolean).join(' ')
   })
   /** A finished campaign's chosen favor, carried into rivals and contracts. */
@@ -779,18 +803,13 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
   const currentDeckProblems = computed(() =>
     loadoutProblems(activeTeam.value, currentDeck.value),
   )
-  function isFounderCard(id: string): boolean {
-    const card = CARDS.find((entry) => entry.id === id)
-    return (
-      !!card &&
-      card.team !== 'mercenary' &&
-      starterCards(card.team).includes(id)
-    )
+  function isStarterCard(id: string): boolean {
+    return STARTER_CARD_IDS.has(id)
   }
   function isCardUnlocked(id: string): boolean {
     return (
       unlockMode.value === 'all' ||
-      isFounderCard(id) ||
+      isStarterCard(id) ||
       progress.value.cards.includes(id)
     )
   }
@@ -1608,11 +1627,20 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
                       playSolo.value,
                     ),
                   )
-                : campaignSoloDeck(
-                    campaignSave.value,
-                    activeTeam.value,
-                    playSolo.value,
-                  ),
+                : activeTeam.value === 'ironjaw'
+                  ? ironjawStoryDeck(
+                      campaignSave.value.ironjaw,
+                      campaignSoloDeck(
+                        campaignSave.value,
+                        activeTeam.value,
+                        playSolo.value,
+                      ),
+                    )
+                  : campaignSoloDeck(
+                      campaignSave.value,
+                      activeTeam.value,
+                      playSolo.value,
+                    ),
           }
         : {}),
     })
@@ -1673,7 +1701,9 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
         ? geneRiotBattleTerms(campaignSave.value.catgirls, base)
         : teamId === 'bloodfairies'
           ? bloodfairyBattleTerms(campaignSave.value.bloodfairies, base)
-          : base
+          : teamId === 'ironjaw'
+            ? ironjawBattleTerms(campaignSave.value.ironjaw, base)
+            : base
     launchStoryClash('campaign', chapter.foe, prepared)
   }
 
@@ -1941,7 +1971,7 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
     currentDeckProblems,
     replacingCard,
     deckMessage,
-    isFounderCard,
+    isStarterCard,
     isCardUnlocked,
     selectDeckCard,
     restoreFounderDeck,
@@ -1995,6 +2025,8 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
     bloodfairyCurrent,
     bloodfairyChorus,
     bloodfairyStageThree,
+    ironjawCurrent,
+    ironjawShift,
     campaignJourneyCurrent,
     campaignJourneyText,
     campaignJourneyOutcome,

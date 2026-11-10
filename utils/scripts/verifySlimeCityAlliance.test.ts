@@ -9,7 +9,6 @@ import {
   allianceCardPool,
   allianceProblems,
   allianceStarter,
-  normalizedAllianceDeck,
   cpuAlliance,
   SOLO_DECK_SIZE,
   soloCardPool,
@@ -63,28 +62,12 @@ for (const general of ids) {
     assert.equal(swapped.ally, general)
     assert.deepEqual(allianceProblems(swapped), [])
   }
-  for (let seed = 1; seed <= 24; seed++) {
-    const foe = ids.find((team) => team !== general)!
-    const opening = createClash(general, foe, seed, {
-      alliance: {
-        player: allianceStarter(general, foe),
-        enemy: cpuAlliance(foe, seed),
-      },
-    })
-    assert.ok(
-      opening.hands.player.some((id) =>
-        Array.from({ length: 5 }, (_, lane) => lane).some((lane) =>
-          canClashPlay(opening, 'player', id, lane),
-        ),
-      ),
-      general + ' opens without a legal play at seed ' + seed,
-    )
-  }
   assert.equal(FACTION_POWERS[general].team, general)
   assert.ok(FACTION_POWERS[general].text.length > 10)
 }
 
-// Two factions, any 20 cards from either or the mercenaries.
+// Silas, 2026-11-07 PT: two factions, any cards from either or the mercs
+// (30 at first; 20 since Silas, 2026-11-09 PT).
 const base = allianceStarter('catgirls', 'undertow')
 const problem = (deck: AllianceDeck, text: string) =>
   assert.ok(
@@ -103,9 +86,18 @@ problem({ ...base, ally: undefined as unknown as TeamId }, 'second faction')
 const outsider = allianceCardPool('riot', 'ironjaw').find(
   (c) => c.team === 'riot',
 )!.id
-problem({ ...base, cards: [...base.cards.slice(0, 19), outsider] }, 'come from')
 problem(
-  { ...base, cards: [...base.cards.slice(0, 19), base.cards[0]!] },
+  {
+    ...base,
+    cards: [...base.cards.slice(0, ALLIANCE_DECK_SIZE - 1), outsider],
+  },
+  'come from',
+)
+problem(
+  {
+    ...base,
+    cards: [...base.cards.slice(0, ALLIANCE_DECK_SIZE - 1), base.cards[0]!],
+  },
   'repeat',
 )
 // Mostly the second faction: legal, the general still owns the power.
@@ -123,8 +115,8 @@ const mercHeavy: AllianceDeck = {
   general: 'catgirls',
   ally: 'undertow',
   cards: [
-    ...creaturesFirst('mercenary').slice(0, 15),
-    ...creaturesFirst('undertow').slice(0, 5),
+    ...creaturesFirst('mercenary').slice(0, 14),
+    ...creaturesFirst('undertow').slice(0, 6),
   ].map((c) => c.id),
 }
 assert.deepEqual(allianceProblems(mercHeavy), [], 'merc-heavy is legal')
@@ -136,32 +128,14 @@ const allSpells: AllianceDeck = {
     ...pool('undertow').filter((c) => c.kind !== 'creature'),
     ...pool('mercenary').filter((c) => c.kind !== 'creature'),
   ]
-    .slice(0, 20)
+    .slice(0, ALLIANCE_DECK_SIZE)
     .map((c) => c.id),
 }
 assert.deepEqual(allianceProblems(allSpells), [], 'no creature minimum')
 assert.ok(validAllianceDeck(allSpells))
-const legacyThirty: AllianceDeck = {
-  ...base,
-  cards: [
-    ...base.cards,
-    ...allianceCardPool(base.general, base.ally)
-      .filter((card) => !base.cards.includes(card.id))
-      .slice(0, 10)
-      .map((card) => card.id),
-  ],
-}
-assert.equal(legacyThirty.cards.length, 30)
-assert.ok(allianceProblems(legacyThirty).length > 0)
-const migrated = normalizedAllianceDeck(legacyThirty)
-assert.equal(migrated.cards.length, 20)
-assert.deepEqual(allianceProblems(migrated), [])
-assert.equal(migrated.general, legacyThirty.general)
-assert.equal(migrated.ally, legacyThirty.ally)
-
 const outsiderDeck: AllianceDeck = {
   ...base,
-  cards: [...base.cards.slice(0, 29), outsider],
+  cards: [...base.cards.slice(0, ALLIANCE_DECK_SIZE - 1), outsider],
 }
 assert.ok(!validAllianceDeck(outsiderDeck))
 

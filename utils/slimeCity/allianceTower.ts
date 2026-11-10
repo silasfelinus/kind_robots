@@ -1,6 +1,7 @@
 // CLASH ALLIANCE TOWER: a repeatable twelve-floor run, distinct from the
 // five-chapter, one-faction Story campaigns. Pure state, deterministic choices.
 import {
+  ALLIANCE_DECK_SIZE,
   allianceProblems,
   validAllianceDeck,
   type AllianceDeck,
@@ -133,7 +134,7 @@ export function startTower(
   meta: TowerMeta = freshTower().meta,
 ): TowerRun {
   if (allianceProblems(deck).length)
-    throw new Error('Build a legal 20-card Alliance.')
+    throw new Error('Build a legal ' + ALLIANCE_DECK_SIZE + '-card Alliance.')
   return {
     seed: seed >>> 0,
     floor: 0,

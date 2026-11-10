@@ -1,17 +1,21 @@
 // ALLIANCE: Slime City's two-faction Clash format.
 // Silas, 2026-11-07 PT: "I want a new mode where the factions can be combined.
-// Alliance decks used to hold 30 cards; all modes now use 20.
+// 30 card decks. Needs to be supported in clash and in deck builder modes.
 // Also want the idea of a faction power. So if you have two factions, one is
 // the general and the deck uses their power. Power should be one time use
 // during a match."
 //
 // Silas, 2026-11-07 PT, clarifying: "Factions combined means you pick two
-// factions, one of them is general, and you can make a deck using
+// factions, one of them is general, and you can make a 30 card deck using
 // either faction or mercs."
 //
 // A deck names TWO crews: the GENERAL (whose power it carries) and the ALLY.
 // Any mix of either crew's cards and mercenaries is legal (Silas, 2026-11-08
 // PT: "drop the 12 creature minimum").
+//
+// Silas, 2026-11-09 PT: "lets change alliance to also use 20 cards." Saves
+// holding a retired 30-card deck drop just that deck (storySave.ts) instead of
+// failing the whole story.
 //
 // SOLO CLASH is its own format: one faction's 20-card deck, built from that
 // faction and the mercenaries. It is what City and Story bouts deal. Pure data
@@ -29,6 +33,20 @@ export {
 export const ALLIANCE_DECK_SIZE = CLASH_DECK_SIZE
 /** SOLO CLASH: one faction, the canonical 20-card Clash deck. */
 export const SOLO_DECK_SIZE = CLASH_DECK_SIZE
+
+/**
+ * TRICKLE's opening collection: every crew's founders plus the cards its Solo
+ * and Alliance starters deal, so a new account can play a reward match before
+ * it opens a pack (trickle became the default, Silas, 2026-11-09 PT).
+ */
+export const STARTER_CARD_IDS: ReadonlySet<string> = new Set(
+  TEAMS.flatMap((team) => [
+    ...team.creatures,
+    ...team.special,
+    ...clashDeck(team.id),
+    ...alleyDeck(team.id),
+  ]),
+)
 
 export interface AllianceDeck {
   /** The leading crew. Its faction power is the deck's power. */
@@ -82,53 +100,38 @@ function spread<T>(items: T[], count: number): T[] {
   )
 }
 
-/**
- * A ready-to-play 20-card alliance: ten cards from each faction, spread
- * evenly across creatures and specials. Both crews matter from turn one.
- */
-export function allianceStarter(general: TeamId, ally: TeamId): AllianceDeck {
-  const ten = (team: TeamId): string[] => {
-    const byCost = (a: Card, b: Card) =>
-      a.cost - b.cost || a.id.localeCompare(b.id)
-    const sorted = alleyDeck(team).map(cardById).sort(byCost)
-    const creatures = spread(
+/** Creatures and specials from a crew's Clash deck, spread across the curve. */
+function crewSlice(team: TeamId, creatures: number, specials: number) {
+  const sorted = alleyDeck(team)
+    .map(cardById)
+    .sort((a, b) => a.cost - b.cost || a.id.localeCompare(b.id))
+  return [
+    ...spread(
       sorted.filter((c) => c.kind === 'creature'),
-      5,
-    )
-    const specials = spread(
+      creatures,
+    ),
+    ...spread(
       sorted.filter((c) => c.kind !== 'creature'),
-      5,
-    )
-    return [...creatures, ...specials].map((c) => c.id)
-  }
-  return { general, ally, cards: [...ten(general), ...ten(ally)] }
+      specials,
+    ),
+  ].map((c) => c.id)
 }
 
-/** Normalize an older 30-card alliance while preserving its selected cards. */
-export function normalizedAllianceDeck(deck: AllianceDeck): AllianceDeck {
-  if (allianceProblems(deck).length === 0) return deck
-  if (
-    !isTeam(deck.general) ||
-    !isTeam(deck.ally) ||
-    deck.general === deck.ally ||
-    !Array.isArray(deck.cards)
-  )
-    return allianceStarter('catgirls', 'bloodfairies')
-  const allowed = new Set(
-    allianceCardPool(deck.general, deck.ally).map((c) => c.id),
-  )
-  const unique = [...new Set(deck.cards.filter((id) => allowed.has(id)))]
-  const preserved = spread(unique, ALLIANCE_DECK_SIZE)
-  const fill = allianceStarter(deck.general, deck.ally).cards.filter(
-    (id) => !preserved.includes(id),
-  )
-  const candidate = {
-    ...deck,
-    cards: [...preserved, ...fill].slice(0, ALLIANCE_DECK_SIZE),
+/**
+ * A ready-to-play 20-card alliance deck, led by the general like the 30-card
+ * starter it replaced: fifteen cards from the general's Clash deck (eight
+ * creatures, seven specials) and a five-card splash from the second faction's
+ * (two creatures, three specials), each spread across the cost curve. Even
+ * splits let CALL IN THE DEBT dominate (Exchange won 64-82% of CPU games);
+ * this one kept every general within 41-59% over 20 seeds a pairing. Always
+ * legal.
+ */
+export function allianceStarter(general: TeamId, ally: TeamId): AllianceDeck {
+  return {
+    general,
+    ally,
+    cards: [...crewSlice(general, 8, 7), ...crewSlice(ally, 2, 3)],
   }
-  return allianceProblems(candidate).length
-    ? allianceStarter(deck.general, deck.ally)
-    : candidate
 }
 
 /** The same two factions with the other one as general: same cards. */

@@ -286,6 +286,19 @@
             Riot Choir in CLASH.</small
           >
         </div>
+        <div
+          v-if="lab.activeTeam === 'ironjaw'"
+          class="campaign-recap"
+          data-testid="slime-ironjaw-shift"
+        >
+          <strong
+            >THE SHIFT · {{ lab.ironjawShift.stage.toUpperCase() }}</strong
+          >
+          <p>
+            {{ lab.ironjawShift.solidarity }} SOLIDARITY ·
+            {{ lab.ironjawShift.heat }} HEAT · COLD BLOOD, WARM FLOOR
+          </p>
+        </div>
         <span class="campaign-overline"
           >{{ lab.campaignStory.title.toUpperCase() }} · YOUR DECISION</span
         >
@@ -487,6 +500,7 @@ import { campaignBattleTerms, describeTerms } from '~/utils/slimeCity/campaign'
 import { clashTermsLabel } from '~/utils/slimeCity/clashBouts'
 import { geneRiotBattleTerms } from '~/utils/slimeCity/campaignGeneRiot'
 import { bloodfairyBattleTerms } from '~/utils/slimeCity/campaignBloodfairies'
+import { ironjawBattleTerms } from '~/utils/slimeCity/campaignIronjaw'
 import { rarityOf } from '~/utils/slimeCity/progression'
 import { slimeArtId } from '~/utils/slimeCity/artManifest'
 import { useSlimeCityStore } from '~/stores/slimeCity'
@@ -587,9 +601,13 @@ const campaignJourneyChoices = computed<KrHandChoice[]>(() =>
         ? option.id === 'left'
           ? 'ADD A VOICE'
           : 'TURN UP THE VOLUME'
-        : option.id === 'left'
-          ? 'HELP THE CREW'
-          : 'TAKE THE RISK',
+        : lab.activeTeam === 'ironjaw'
+          ? option.id === 'left'
+            ? 'SHARE THE WARM FLOOR'
+            : 'TURN UP THE HEAT'
+          : option.id === 'left'
+            ? 'HELP THE CREW'
+            : 'TAKE THE RISK',
     badge: lab.bloodfairyStageThree
       ? option.id === 'left'
         ? 'LV 3 · WALL OF SOUND'
@@ -627,12 +645,22 @@ const approachChoices = computed<KrHandChoice[]>(() =>
                 lab.campaignFavorIndex,
               ),
             )
-          : campaignBattleTerms(
-              lab.campaignSave,
-              lab.activeTeam,
-              choice.terms,
-              lab.campaignFavorIndex,
-            ),
+          : lab.activeTeam === 'ironjaw'
+            ? ironjawBattleTerms(
+                lab.campaignState,
+                campaignBattleTerms(
+                  lab.campaignSave,
+                  lab.activeTeam,
+                  choice.terms,
+                  lab.campaignFavorIndex,
+                ),
+              )
+            : campaignBattleTerms(
+                lab.campaignSave,
+                lab.activeTeam,
+                choice.terms,
+                lab.campaignFavorIndex,
+              ),
     ),
     badge: choice.id === 'conviction' ? 'Conviction' : 'Cunning',
   })),

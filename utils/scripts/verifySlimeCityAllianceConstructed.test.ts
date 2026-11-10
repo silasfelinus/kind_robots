@@ -4,6 +4,7 @@
 import assert from 'node:assert/strict'
 import { CARDS, TEAMS, type Card, type TeamId } from '../slimeCity/prototypes'
 import {
+  ALLIANCE_DECK_SIZE,
   allianceProblems,
   allianceStarter,
   swapGeneral,
@@ -84,14 +85,14 @@ function construct(
       ]
       break
     case 'mercenary-only':
-      cards = pick(mercs, 20, offset)
+      cards = pick(mercs, ALLIANCE_DECK_SIZE, offset)
       break
     case 'creatures-only':
     case 'specials-only': {
       const eligible = [...primary, ...secondary, ...mercs].filter(
         (card) => (card.kind === 'creature') === (plan === 'creatures-only'),
       )
-      cards = pick(eligible, 20, offset)
+      cards = pick(eligible, ALLIANCE_DECK_SIZE, offset)
       break
     }
   }
@@ -121,7 +122,7 @@ for (const card of CARDS) {
   const deck: AllianceDeck = {
     general,
     ally,
-    cards: [card.id, ...pick(filler, 19, 0)],
+    cards: [card.id, ...pick(filler, ALLIANCE_DECK_SIZE - 1, 0)],
   }
   assert.ok(
     validAllianceDeck(deck),

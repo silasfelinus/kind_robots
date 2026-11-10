@@ -235,7 +235,7 @@ export const MERCENARY_CARDS: Card[] = [
   },
   {
     id: 'merc-picket-troll',
-    name: 'Picket Line Troll',
+    name: 'Picket Line Komodo',
     kind: 'creature',
     team: 'mercenary',
     cost: 4,

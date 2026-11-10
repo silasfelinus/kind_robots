@@ -87,14 +87,28 @@ const playPage = readFileSync('pages/play/slime-city.vue', 'utf8')
 const gamePage = readFileSync('pages/admin/slime-city.vue', 'utf8')
 const store = readFileSync('stores/slimeCity.ts', 'utf8')
 const view = readFileSync('components/slime-city-clash.vue', 'utf8')
-assert.match(playPage, /<SlimeCityGame \/>/)
+assert.match(playPage, /<SlimeCityGame v-else \/>/)
+// Silas, 2026-11-09 PT: the public route opens on a title screen, not mid-game.
 assert.match(
-  store,
-  />\('home'\)/,
-  'The art-led title screen is the starting game view',
+  playPage,
+  /<SlimeCitySplash v-if="!entered" @enter="entered = true" \/>/,
 )
+const splash = readFileSync('components/slime-city-splash.vue', 'utf8')
+for (const testid of [
+  'slime-splash-crews',
+  'slime-splash-battle',
+  'slime-splash-city',
+  'slime-splash-story',
+]) {
+  assert.match(splash, new RegExp('data-testid="' + testid + '"'))
+}
+assert.match(splash, /console-theme="slime-city"/)
+assert.match(splash, /prefers-reduced-motion: reduce/)
+assert.match(store, />\('home'\)/, 'The illustrated front door is the starting game view')
 assert.match(gamePage, /data-testid="slime-home"/)
 assert.match(gamePage, /data-testid="slime-home-play"/)
+assert.match(gamePage, /data-testid="slime-settings"/)
+assert.match(gamePage, /data-testid="slime-card-inspector"/)
 assert.match(gamePage, /data-testid="slime-clash-tab"/)
 // Silas, 2026-11-08 PT: "we don't need the legacy modes, period."
 assert.doesNotMatch(gamePage, /slime-legacy-toggle/)
@@ -1742,11 +1756,39 @@ assert.ok(
   'first seat advantage stays small',
 )
 assert.ok(sweep.roundLimit / sweep.games < 0.1, 'matches end by knockout')
+// slime-city/t-047 (2026-11-09 PT): armor re-priced to one life per point and
+// a 2-damage volatile burst now costs a point of budget. Before, these seeds
+// read Ironjaw 35% / Riot 64% (a ~30-point spread); after, every crew sits at
+// 48-53%. Guard every crew to 42-58% and the crew spread to 12 points.
+const crewRates = Object.values(sweep.crews).map((r) => r.wins / r.games)
 for (const [crew, r] of Object.entries(sweep.crews))
   assert.ok(
-    r.wins / r.games > 0.35 && r.wins / r.games < 0.65,
+    r.wins / r.games > 0.42 && r.wins / r.games < 0.58,
     crew + ' win rate ' + ((100 * r.wins) / r.games).toFixed(1) + '%',
   )
+assert.ok(
+  Math.max(...crewRates) - Math.min(...crewRates) <= 0.12,
+  'CLASH crew spread stays within 12 points',
+)
+
+// The art-first board must display the card's authored evolution painting, not
+// the old cropped mood tokens. Keep this contract beside the combat tests so
+// the presentation cannot silently regress during future board refactors.
+const clashView = readFileSync('components/slime-city-clash.vue', 'utf8')
+const fighterArt = clashView.match(
+  /function artFor\(u: ClashUnit\): number \| null \{([\s\S]*?)\n\}/,
+)?.[1]
+assert.ok(fighterArt, 'Clash fighter art resolver must exist')
+assert.match(
+  fighterArt,
+  /slimeCardArtId\(u\.cardId, u\.level, u\.evoChoice \?\? 0\)/,
+  'board fighters must use card art and their actual evolution choice',
+)
+assert.doesNotMatch(
+  fighterArt,
+  /slimeArtId\(['"]tokens['"]/,
+  'reaction-face tokens must not override the fighter card painting',
+)
 
 // Long adversarial CPU playthroughs on every crew pairing, all rules and replay.
 let simulated = 0

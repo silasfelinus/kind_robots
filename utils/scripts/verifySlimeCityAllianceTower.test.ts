@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict'
 import { readFileSync } from 'node:fs'
 import { TEAMS } from '../slimeCity/prototypes'
-import { allianceStarter } from '../slimeCity/alliance'
+import { ALLIANCE_DECK_SIZE, allianceStarter } from '../slimeCity/alliance'
 import {
   TOWER_FLOORS,
   chooseTowerRoute,
@@ -109,7 +109,7 @@ for (const general of crews) {
         nextRun.deck.cards.includes(earnedId),
         'legacy card joins next run',
       )
-      assert.equal(nextRun.deck.cards.length, 20)
+      assert.equal(nextRun.deck.cards.length, ALLIANCE_DECK_SIZE)
     }
 
     const story = newSlimeCityStory()

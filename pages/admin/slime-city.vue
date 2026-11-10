@@ -67,7 +67,7 @@
               data-testid="slime-campaign-tab"
               @click="lab.showCampaign()"
             >
-              STORY
+              CAMPAIGN
             </button>
             <button
               type="button"
@@ -328,7 +328,7 @@
                 data-testid="slime-city-story-shortcut"
                 @click="lab.showCampaign()"
               >
-                CREW STORY · {{ lab.campaignState.wins }}/5
+                CAMPAIGN · {{ lab.campaignState.wins }}/5
               </button>
               <button
                 type="button"
@@ -360,7 +360,7 @@
                   >{{ routeLabel }}</small
                 >
                 <small v-else-if="!lab.cityEvent && lab.storyHere"
-                  >CREW STORY · CHAPTER {{ lab.campaignState.wins + 1 }}/5 WAITS
+                  >CAMPAIGN · CHAPTER {{ lab.campaignState.wins + 1 }}/5 WAITS
                   HERE</small
                 >
               </div>
@@ -449,7 +449,7 @@
               title="Twenty cards from a general crew and an ally crew"
               @click="lab.deckFormat = 'alliance'"
             >
-              ALLIANCE <small>20</small>
+              ALLIANCE <small>{{ ALLIANCE_DECK_SIZE }}</small>
             </button>
           </div>
           <div
@@ -462,16 +462,18 @@
               class="sc-deck-meter"
               :title="
                 lab.currentAlliance.cards.length +
-                ' of 20 alliance slots filled'
+                ' of ' +
+                ALLIANCE_DECK_SIZE +
+                ' alliance slots filled'
               "
             >
               <strong
                 >{{ lab.currentAlliance.cards.length
-                }}<small>/20</small></strong
+                }}<small>/{{ ALLIANCE_DECK_SIZE }}</small></strong
               >
               <span class="sc-deck-pips is-twenty" aria-hidden="true"
                 ><i
-                  v-for="slot in 20"
+                  v-for="slot in ALLIANCE_DECK_SIZE"
                   :key="slot"
                   :class="{ on: slot <= lab.currentAlliance.cards.length }"
               /></span>
@@ -491,7 +493,9 @@
               <p aria-live="polite">
                 {{
                   lab.deckMessage ||
-                  'Pick two factions. Any 20 cards from either faction or the mercenaries; the general’s power comes with the deck.'
+                  'Pick two factions. Any ' +
+                    ALLIANCE_DECK_SIZE +
+                    ' cards from either faction or the mercenaries; the general’s power comes with the deck.'
                 }}
               </p>
               <small
@@ -1049,6 +1053,7 @@ import { computed, onMounted, onUnmounted, ref } from 'vue'
 import { cardById, type Card } from '~/utils/slimeCity/prototypes'
 import { factionPower } from '~/utils/slimeCity/factionPowers'
 import { CLASH_MAX_LEVEL, clashCardText } from '~/utils/slimeCity/clash'
+import { ALLIANCE_DECK_SIZE } from '~/utils/slimeCity/alliance'
 import { STREETS } from '~/utils/slimeCity/city'
 import { useSlimeCityStore } from '~/stores/slimeCity'
 import { slimeArtId, SLIME_CITY_ART } from '~/utils/slimeCity/artManifest'
@@ -2316,9 +2321,6 @@ onUnmounted(() => {
 .sc-deck-pips.is-twenty {
   grid-template-columns: repeat(10, 0.42rem);
 }
-.sc-deck-pips.is-thirty {
-  grid-template-columns: repeat(10, 0.42rem);
-}
 .sc-power-line b {
   display: block;
   color: #ffd76a;
@@ -2330,8 +2332,9 @@ onUnmounted(() => {
 .sc-deck-workbench {
   flex: none;
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
-  gap: 0.7rem;
+  gap: 0.45rem 0.7rem;
   padding: 0.35rem 0.4rem 0.35rem 0.55rem;
   border: 1px solid color-mix(in srgb, var(--tone) 40%, #4d5567);
   border-radius: 0.6rem;
@@ -2377,7 +2380,7 @@ onUnmounted(() => {
   box-shadow: 0 0 4px var(--tone);
 }
 .sc-deck-status {
-  flex: 1;
+  flex: 1 1 16rem;
   min-width: 0;
 }
 .sc-deck-status .sc-overline {
@@ -2398,9 +2401,14 @@ onUnmounted(() => {
   color: #ffb9b9;
   font-size: 0.64rem;
 }
+/* The actions wrap under the status instead of squeezing it into a sliver
+   (Silas, 2026-11-09 PT, on the Alliance armory at tablet width). */
 .sc-deck-actions {
-  flex: none;
+  flex: 1 1 auto;
+  min-width: 0;
   display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
   gap: 0.35rem;
 }
 .sc-deck-actions button {
@@ -2413,6 +2421,9 @@ onUnmounted(() => {
   font-weight: 900;
   letter-spacing: 0.08em;
   white-space: nowrap;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 .sc-deck-actions button[data-testid='slime-deck-practice'] {
   border-color: #c5ff59;

@@ -134,13 +134,13 @@ export const CAMPAIGN_CHOICE_CONSEQUENCES: Record<
     {
       conviction: {
         victory:
-          'The ogre workers and fairies march together across the bridge, refusing to collect a toll from anybody who needs to cross.',
+          'The lizard workers and fairies march together across the bridge, refusing to collect a toll from anybody who needs to cross.',
         defeat:
           'The picket holds until security brings in a second crew. Thimble organizes food and shelter for the stranded walkers.',
       },
       cunning: {
         victory:
-          'Thimble cuts the toll gates loose and turns them into public ramps, giving tiny flyers and heavy ogres equal access.',
+          'Thimble cuts the toll gates loose and turns them into public ramps, giving tiny flyers and heavy lizards equal access.',
         defeat:
           'The gates fall onto the empty service road and block the supply line. Thimble gets the workers out before the company can blame them.',
       },
@@ -178,7 +178,7 @@ export const CAMPAIGN_CHOICE_CONSEQUENCES: Record<
     {
       conviction: {
         victory:
-          'Rivet gives each ogre an individual copy of their stolen work records. The resulting queue of witnesses is longer than the foundry itself.',
+          'Rivet gives each lizard an individual copy of their stolen work records. The resulting queue of witnesses is longer than the foundry itself.',
         defeat:
           'The records reveal the fraud, but the foreman cuts power to the printers. Rivet preserves the first few signed pages.',
       },
@@ -220,7 +220,7 @@ export const CAMPAIGN_CHOICE_CONSEQUENCES: Record<
     {
       conviction: {
         victory:
-          'Rivet includes the smallest workers in the union vote. The factory restarts to the beat of fairy wings and ogre hammers working together.',
+          'Rivet includes the smallest workers in the union vote. The factory restarts to the beat of fairy wings and lizard hammers working together.',
         defeat:
           'The union holds a fair vote, but management cuts the furnace fuel. Rivet opens the solidarity kitchen while negotiations continue.',
       },

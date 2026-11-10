@@ -157,7 +157,7 @@ export type ClashCommand =
 
 export type ClashFormat = 'standard' | 'alliance'
 export interface ClashOptions {
-  /** ALLIANCE: each side's 30-card two-crew deck; `teams` become the generals. */
+  /** ALLIANCE: each side's 20-card two-crew deck; `teams` become the generals. */
   alliance?: Record<Side, AllianceDeck>
   /** SOLO CLASH: a side's own 20-card deck instead of its canonical deck. */
   decks?: Partial<Record<Side, string[]>>
@@ -275,7 +275,7 @@ export function clashPlayCost(card: Card): 1 | 2 {
  * Clash budgets (2026-11-07 rebalance). The grid-era stats were tuned around
  * movement, range and action points; in five fixed alleys a fighter is only
  * its strike, its toughness and its traits. Every fighter spends one stat
- * budget per play tier and level: power costs 2, armor 2.5, each trait its listed price,
+ * budget per play tier and level: power costs 2, armor CLASH_ARMOR_COST, each trait its listed price,
  * and the remainder becomes life. The grid card's attack still sets the
  * character's shape, so bruisers, glass cannons and walls stay distinct.
  * Tuned with `npm run balance:slime-city-clash` CPU sweeps.
@@ -313,13 +313,27 @@ export const CLASH_TRAIT_COST: Record<Keyword, number> = {
  * ~5 points under even once fighters lost round-end healing and gained
  * summoning sickness; half a point of fighter budget closes it.
  */
+/**
+ * Armor price per point (slime-city/t-047, 2026-11-09 PT). It was 2.5, which
+ * the life rounding turned into 2 life per point, yet one point of block is
+ * worth about one life in five fixed alleys: most followers take one or two
+ * hits before they fall, and pierce, zaps through gaps and volatile bursts
+ * already bite through it. The overprice is why the plated Ironjaw lizards sat
+ * at 35% in CLASH while Riot (64%) and the Bloodfairies (60%) fed on them.
+ * 1.5 rounds to one life per point. Held-out 3,000-game CPU sweeps: crew
+ * spread 30 points -> 6-7, every crew 45-54%.
+ */
+export const CLASH_ARMOR_COST = 1.5
+/**
+ * Volatile's base 1-damage death burst is free (it trades into armor and
+ * empty-lane boss chip, and Riot's crew identity rests on it). A bigger
+ * printed burst is not: each point of burst above 1 costs this much budget.
+ * Grand Detonator (80% when played) and Spark Diver pay one life for their
+ * 2-damage blasts (slime-city/t-047).
+ */
+export const CLASH_BURST_COST = 1
 export const CLASH_CREW_BUDGET: Partial<Record<TeamId, number>> = {
   undertow: 0.5,
-  // The guaranteed legal opener exposed an Ironjaw survivability deficit:
-  // 34.8% across the 40-seed, all-pairs Clash acceptance sweep. Give its
-  // frontline a modest half-point life budget, without changing attack or
-  // weakening the matchup acceptance threshold.
-  ironjaw: 0.5,
 }
 export const CLASH_TRAIT_TEXT: Record<Keyword, string> = {
   ambush: 'Ambush: attacks immediately; +1 first strike.',
@@ -360,16 +374,18 @@ export function clashBalance(card: Card, level = 1): ClashCardBalance {
     2,
     (heavy ? 6 : 4) + (lv - 1),
   )
-  const traits = (card.keywords ?? []).reduce(
-    (sum, k) => sum + CLASH_TRAIT_COST[k],
-    0,
-  )
+  const keywords = card.keywords ?? []
+  const traits =
+    keywords.reduce((sum, k) => sum + CLASH_TRAIT_COST[k], 0) +
+    (keywords.includes('volatile')
+      ? (clamp(card.burst ?? 1, 1, 2) - 1) * CLASH_BURST_COST
+      : 0)
   const hp = clamp(
     Math.round(
       CLASH_FOLLOWER_BUDGET[plays][tier] +
         (card.team === 'mercenary' ? 0 : (CLASH_CREW_BUDGET[card.team] ?? 0)) -
         attack * 2 -
-        armor * 2.5 -
+        armor * CLASH_ARMOR_COST -
         traits,
     ),
     heavy ? 5 : 2,
@@ -400,7 +416,10 @@ export function clashBalance(card: Card, level = 1): ClashCardBalance {
   // shrink at level 3 for a big moment.
   const curve = clashEvolutionStats(card.id, lv)
   if (curve?.attack) evolvedAttack = clamp(evolvedAttack + curve.attack, 0, 12)
-  if (curve?.hp) evolvedHp = clamp(evolvedHp + curve.hp, 1, 30)
+  // Crafted life bonuses still respect the tier's life cap (t-047: cheaper
+  // armor lifted plated bases, and the bonus must not stack past the cap).
+  if (curve?.hp)
+    evolvedHp = clamp(evolvedHp + curve.hp, 1, LIFE_CAP[plays][tier])
   return {
     plays,
     level: lv,
@@ -744,7 +763,7 @@ export function clashDeck(team: TeamId): string[] {
   return [...roster.slice(0, 19), CLASH_GUESTS[team]]
 }
 /**
- * Twenty unique catalog cards in Solo or Alliance, seeded draws and no
+ * Twenty unique catalog cards (thirty in ALLIANCE), seeded draws and no
  * retained hand between turns. With `options.alliance` the generals replace
  * `player`/`enemy` as the crews.
  */
@@ -807,30 +826,6 @@ export function createClash(
     s,
     alliance?.enemy.cards ?? options.decks?.enemy ?? clashDeck(enemy),
   )
-  // Round one grants a single play. When a deck contains a legal one-play
-  // opener, deal at least one instead of opening on a hand of dead gear.
-  for (const side of ['player', 'enemy'] as const) {
-    const deck = s.decks[side]
-    const canOpen = (id: string) => {
-      const card = cardById(id)
-      return (
-        clashPlayCost(card) === 1 &&
-        (card.kind === 'creature' ||
-          card.kind === 'trap' ||
-          card.effect === 'scan')
-      )
-    }
-    if (!deck.slice(0, CLASH_HAND_SIZE).some(canOpen)) {
-      const next = deck.findIndex(
-        (id, index) => index >= CLASH_HAND_SIZE && canOpen(id),
-      )
-      if (next >= 0)
-        [deck[CLASH_HAND_SIZE - 1], deck[next]] = [
-          deck[next]!,
-          deck[CLASH_HAND_SIZE - 1]!,
-        ]
-    }
-  }
   startTurn(s, 'player')
   return s
 }
@@ -2473,7 +2468,7 @@ export function strikeClash(input: ClashState, side: Side): ClashState {
         'bulldozer',
         side,
         lane,
-        'Bulld-Ogre drives through the blocker for 2 boss damage!',
+        'Bulldozard drives through the blocker for 2 boss damage!',
         'blast',
       )
     }

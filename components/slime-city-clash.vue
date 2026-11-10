@@ -324,90 +324,7 @@
           data-testid="clash-log"
         >
           <h3>BATTLE LOG</h3>
-          <ol ref="logList" class="kr-scroll">
-            <li
-              v-for="(entry, i) in logEntries"
-              :key="i"
-              :class="['is-' + entry.kind, { round: entry.newRound }]"
-            >
-              <small v-if="entry.newRound">ROUND {{ entry.round }}</small>
-              <span>{{ entry.text }}</span>
-            </li>
-            <li v-if="!logEntries.length" class="is-empty">
-              <span>Play a card to start the fight.</span>
-            </li>
-          </ol>
-        </section>
-
-        <div class="clash-console">
-          <div id="clash-hand-dock" class="clash-hand-dock"></div>
-          <div class="clash-console-main">
-            <span class="clash-plays"
-              >{{ game.decks.player.length }} in deck ·
-              {{ game.discards.player.length }} discarded</span
-            >
-            <div class="clash-console-row">
-              <button
-                v-if="backTarget"
-                type="button"
-                class="clash-reset clash-back"
-                data-testid="clash-back"
-                @click="goBack"
-              >
-                {{ backTarget }}
-              </button>
-              <button
-                v-if="
-                  (!inBout || game.victor) && lab.clashLaunch.kind !== 'tower'
-                "
-                type="button"
-                class="clash-reset"
-                data-testid="clash-restart"
-                :title="
-                  rewarded
-                    ? 'A new CPU match for XP and Meat'
-                    : 'Start a new practice match'
-                "
-                :disabled="lab.progressBusy"
-                @click="lab.playClashFormat()"
-              >
-                ↻ {{ rewarded ? 'PLAY FOR REWARDS' : 'REMATCH' }}
-              </button>
-              <button
-                type="button"
-                class="clash-reset clash-undo"
-                data-testid="clash-undo"
-                title="Take back your last card or power this turn"
-                :disabled="undoAt < 0"
-                @click="undo"
-              >
-                ↶ UNDO
-              </button>
-              <button
-                type="button"
-                class="clash-pass"
-                data-testid="clash-pass"
-                :title="
-                  noLegalPlay
-                    ? 'No playable card in this hand. Pass to continue the round.'
-                    : 'Skip remaining card plays and send your crew in'
-                "
-                :class="{ ready: readyToFight }"
-                :disabled="
-                  !readyToFight &&
-                  (busy ||
-                    game.active !== 'player' ||
-                    game.phase !== 'play' ||
-                    !!game.victor)
-                "
-                @click="pass"
-              >
-                {{ noLegalPlay ? 'PASS' : 'FIGHT' }}
-                <span aria-hidden="true">›</span>
-              </button>
-            </div>
-          </div>
-          <div class="clash-console-meta">
+          <div class="clash-log-meta">
             <div
               class="clash-format"
               role="group"
@@ -435,12 +352,102 @@
                 ALLIANCE
               </button>
             </div>
+            <button
+              v-if="!inBout && !game.victor"
+              type="button"
+              class="clash-new-match"
+              data-testid="clash-new-match"
+              :disabled="lab.progressBusy"
+              @click="lab.playClashFormat()"
+            >
+              ↻ NEW
+            </button>
             <span
               class="clash-kind"
               :class="'is-' + lab.clashLaunch.kind"
               data-testid="clash-kind"
               >{{ kindLabel }}</span
             >
+          </div>
+
+          <ol ref="logList" class="kr-scroll">
+            <li
+              v-for="(entry, i) in logEntries"
+              :key="i"
+              :class="['is-' + entry.kind, { round: entry.newRound }]"
+            >
+              <small v-if="entry.newRound">ROUND {{ entry.round }}</small>
+              <span>{{ entry.text }}</span>
+            </li>
+            <li v-if="!logEntries.length" class="is-empty">
+              <span>Play a card to start the fight.</span>
+            </li>
+          </ol>
+        </section>
+
+        <div class="clash-console">
+          <div id="clash-hand-dock" class="clash-hand-dock"></div>
+          <div class="clash-console-main">
+            <div class="clash-console-row">
+              <button
+                v-if="backTarget"
+                type="button"
+                class="clash-reset clash-back"
+                data-testid="clash-back"
+                @click="goBack"
+              >
+                {{ backTarget }}
+              </button>
+              <button
+                v-if="game.victor && lab.clashLaunch.kind !== 'tower'"
+                type="button"
+                class="clash-reset"
+                data-testid="clash-restart"
+                :title="
+                  rewarded
+                    ? 'A new CPU match for XP and Meat'
+                    : 'Start a new practice match'
+                "
+                :disabled="lab.progressBusy"
+                @click="lab.playClashFormat()"
+              >
+                ↻ {{ rewarded ? 'PLAY FOR REWARDS' : 'REMATCH' }}
+              </button>
+              <button
+                v-if="!game.victor"
+                type="button"
+                class="clash-reset clash-undo"
+                data-testid="clash-undo"
+                title="Take back your last card or power this turn"
+                :disabled="undoAt < 0"
+                @click="undo"
+              >
+                ↶ UNDO
+              </button>
+              <button
+                v-if="!game.victor"
+                type="button"
+                class="clash-pass"
+                data-testid="clash-pass"
+                :title="
+                  noLegalPlay
+                    ? 'No playable card in this hand. Pass to continue the round.'
+                    : 'Skip remaining card plays and send your crew in'
+                "
+                :class="{ ready: readyToFight }"
+                :disabled="
+                  !readyToFight &&
+                  (busy ||
+                    game.active !== 'player' ||
+                    game.phase !== 'play' ||
+                    !!game.victor)
+                "
+                @click="pass"
+              >
+                {{ noLegalPlay ? 'PASS' : 'FIGHT' }}
+                <span aria-hidden="true">›</span>
+              </button>
+            </div>
           </div>
         </div>
       </aside>
@@ -1663,12 +1670,12 @@ function forecast(lane: number): string {
 }
 .clash-power {
   margin-top: 0.15rem;
-  padding: 0.45rem 0.6rem;
+  padding: 0.3rem 0.55rem;
   border: 1px solid #ffd76a99;
   border-radius: 0.55rem;
   background: linear-gradient(110deg, #4a3510, #2a1b08);
   color: #ffe9a8 !important;
-  font-size: 0.7rem !important;
+  font-size: 0.62rem !important;
   font-weight: 900;
   letter-spacing: 0.05em;
   white-space: nowrap;
@@ -1699,7 +1706,7 @@ function forecast(lane: number): string {
   min-width: 0;
 }
 .clash-powers .clash-power {
-  flex: 1 1 0;
+  flex: 0 1 auto;
   min-width: 0;
 }
 .clash-power.charged {
@@ -1842,9 +1849,7 @@ function forecast(lane: number): string {
   flex: none;
   display: grid;
   grid-template-columns: auto minmax(0, 1fr);
-  grid-template-areas:
-    'hand main'
-    'meta meta';
+  grid-template-areas: 'hand main';
   align-items: center;
   gap: 0.35rem 0.5rem;
   padding: 0.45rem 0.5rem 0.4rem;
@@ -1864,20 +1869,26 @@ function forecast(lane: number): string {
   flex-direction: column;
   gap: 0.3rem;
 }
-.clash-plays {
-  font-size: 0.6rem;
-  color: #b3cfc7;
-}
 .clash-console-row {
   display: flex;
   gap: 0.35rem;
 }
-.clash-console-meta {
-  grid-area: meta;
+.clash-log-meta {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
-  justify-content: space-between;
-  gap: 0.4rem;
+  gap: 0.3rem 0.4rem;
+  padding: 0.3rem 0.5rem;
+  border-bottom: 1px solid #38877a44;
+}
+.clash-log-meta .clash-new-match {
+  padding: 0.2rem 0.5rem;
+  border: 1px solid #5c99917a;
+  border-radius: 999px;
+  background: #10231f;
+  font-size: 0.55rem;
+  font-weight: 900;
+  letter-spacing: 0.08em;
 }
 .clash-reset,
 .clash-pass {
@@ -1966,8 +1977,14 @@ function forecast(lane: number): string {
 /* ---------- Narrow or tall: rival strip on top, your console below ---------- */
 @container clash (max-width: 46rem) or (max-aspect-ratio: 1 / 1) {
   .clash-layout {
-    display: flex;
-    flex-direction: column;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-rows: auto auto minmax(0, 1fr) auto;
+    grid-template-areas:
+      'rival rival'
+      'mid mid'
+      'stage stage'
+      'me console';
     gap: 0.25rem;
     padding: 0.25rem;
   }
@@ -1975,20 +1992,20 @@ function forecast(lane: number): string {
     display: contents;
   }
   .clash-boss.is-enemy {
-    order: -2;
+    grid-area: rival;
   }
   .clash-vs-mid {
-    order: -1;
+    grid-area: mid;
   }
   .clash-stage {
-    order: 0;
-    flex: 1 1 auto;
+    grid-area: stage;
+    min-height: 0;
   }
   .clash-boss.is-player {
-    order: 1;
+    grid-area: me;
   }
   .clash-console {
-    order: 2;
+    grid-area: console;
   }
   .clash-boss {
     flex: none;
@@ -2068,27 +2085,36 @@ function forecast(lane: number): string {
     display: flex;
   }
   .clash-console {
-    grid-template-columns: auto minmax(0, 1fr) auto;
-    grid-template-areas: 'hand main meta';
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
     padding: 0.3rem 0.45rem;
   }
-  .clash-console-meta {
-    flex-direction: column;
-    align-items: flex-end;
+  .clash-console-row .clash-reset,
+  .clash-console-row .clash-pass {
+    flex: none;
+    padding: 0.5rem 0.75rem;
+  }
+  .clash-console-row .clash-pass {
+    min-width: 5.5rem;
   }
 }
 @container clash (max-width: 30rem) {
-  .clash-console {
-    grid-template-columns: auto minmax(0, 1fr);
+  .clash-layout {
+    grid-template-columns: minmax(0, 1fr);
     grid-template-areas:
-      'hand main'
-      'meta meta';
+      'rival'
+      'mid'
+      'stage'
+      'me'
+      'console';
+    grid-template-rows: auto auto minmax(0, 1fr) auto auto;
   }
-  .clash-console-meta {
-    flex-direction: row;
+  .clash-console-main {
+    flex: 1;
   }
-  .clash-plays {
-    display: none;
+  .clash-console-row .clash-pass {
+    flex: 1;
   }
   .clash-lane-numbers span {
     font-size: 0.48rem;

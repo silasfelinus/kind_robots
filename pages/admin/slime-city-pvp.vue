@@ -27,7 +27,7 @@
           />
           <div class="scpvp-poster-copy">
             <small>TWENTY CARDS · FIVE ALLEYS · THREE EVOLUTIONS</small>
-            <h1>{{ invitedId ? 'ANSWER THE CHALLENGE' : 'FIGHT A REAL RIVAL' }}</h1>
+            <strong class="scpvp-poster-title">{{ invitedId ? 'ANSWER THE CHALLENGE' : 'FIGHT A REAL RIVAL' }}</strong>
             <p>{{ invitedId ? 'Pick your crew, then enter the pit.' : 'Choose a crew, create a private duel, and send your opponent the invitation.' }}</p>
           </div>
         </div>
@@ -76,7 +76,7 @@
           />
           <div class="scpvp-poster-copy">
             <small>YOUR CREW IS IN THE PIT</small>
-            <h1>ONE FIGHTER SHORT</h1>
+            <strong class="scpvp-poster-title">ONE FIGHTER SHORT</strong>
             <p>Share this private invite with another admin-preview account. Your duel resumes from this link, even after a refresh.</p>
           </div>
         </div>
@@ -332,7 +332,7 @@ onBeforeUnmount(() => pvp.stopWatching())
 .scpvp-poster { position: relative; overflow: hidden; border-radius: 1.25rem; background: #18242c; min-height: 0; }
 .scpvp-poster > :first-child { position: absolute; inset: 0; width: 100%; height: 100%; }
 .scpvp-poster-copy { position: absolute; inset: auto 0 0; padding: clamp(1rem, 3vw, 2rem); background: linear-gradient(transparent, #09131bea 40%); }
-.scpvp-poster-copy h1 { font-size: clamp(1.35rem, 3vw, 3rem); font-weight: 950; line-height: 1; margin: .35rem 0; }
+.scpvp-poster-title { display: block; font-size: clamp(1.35rem, 3vw, 3rem); font-weight: 950; line-height: 1; margin: .35rem 0; }
 .scpvp-poster-copy small { color: #c9f56c; font-weight: 800; letter-spacing: .1em; }
 .scpvp-poster-copy p { max-width: 36rem; font-size: .95rem; }
 .scpvp-lobby-tools, .scpvp-invite { min-width: 0; min-height: 0; display: flex; flex-direction: column; justify-content: center; gap: 1rem; }

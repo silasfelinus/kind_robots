@@ -578,8 +578,8 @@ export const TEAMS: Team[] = [
     name: 'IRONJAW CHROME LIZARDS',
     color: 'green',
     district: 'THE FOUNDRY',
-    motto: 'More chrome. More teeth.',
-    hook: 'Cold-blooded cybernetic lizard people who bask on the foundry furnaces between shifts and fight for freedom from the factories that built their bodies. Armor, hardware and bulldozing.',
+    motto: 'Escaped. Mutated. Unionized.',
+    hook: 'Cold-blooded mutant lizards who broke out of a sealed bio-lab’s reptile wing, grew up in the sewers and took over the foundry their makers built. Chrome jaws, union cards and grudges. Armor, hardware and bulldozing.',
     insignia: '⬡',
     pattern:
       'A slow wall that wins every trade. Armored lizards bulldoze blockers out of the lane, and plating turns a good fighter into a fortress.',
@@ -603,8 +603,8 @@ export const TEAMS: Team[] = [
     name: 'RIOT SAINTS',
     color: 'red',
     district: 'REDLINE RIOT',
-    motto: 'Make it explode twice.',
-    hook: 'Joyfully irresponsible demolition gladiators in a city where nobody has read the fire code. High-risk chaos cards.',
+    motto: 'Ladies, gentlemen and insurance adjusters!',
+    hook: 'A travelling demolition circus: human cannonballs, wall-of-death stunt riders, fire-eaters and a ringmaster with a detonator, in a city where nobody has read the fire code. Every fight is a death-defying act. High-risk chaos cards.',
     insignia: '✸',
     pattern:
       'Everything explodes, including you. Volatile fighters go off when they fall, chaos cards roll the dice and confetti cannons hit everyone nearby.',
@@ -639,8 +639,8 @@ export const TEAMS: Team[] = [
     name: 'MEAT EXCHANGE',
     color: 'gold',
     district: 'CROWN MARKET',
-    motto: 'Terms and conditions apply.',
-    hook: 'Gold-toothed butchers-turned-bankers who mint the city’s Meat, set the price of a pound of anything and collect battlefield debts in prime cuts.',
+    motto: 'The contract is older than the city.',
+    hook: 'A drowned butcher-priesthood that kneels to the Thing That Hungers beneath Crown Market. They mint the city’s Meat in its name, sign every debt in blood, and collect in flesh by candlelight. Nobody reads the fine print twice.',
     insignia: '◆',
     pattern:
       'Tenderize them, then buy the arena. Collectors put every blow on your tab so you start rounds short of mana, until the Meat Mogul arrives.',

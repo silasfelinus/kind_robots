@@ -1198,11 +1198,10 @@ onUnmounted(() => {
   gap: 0.3rem;
   margin-inline: auto;
   padding: 0.2rem;
-  overflow-x: auto;
-  /* Never a hidden scrollbar: it once clipped REWARDS off the end of the
-     strip with nothing to say a fifth tab existed (Silas, 2026-11-02). */
-  scrollbar-width: thin;
-  scrollbar-color: #4d5567 transparent;
+  /* Never scroll, never clip (Silas, 2026-11-02 and 2026-11-10: "we should
+     never scroll except in collection card etc"): the tabs wrap instead. */
+  flex-wrap: wrap;
+  justify-content: center;
   border: 1px solid #4d5567;
   border-radius: 0.6rem;
   background: #0e1420;
@@ -1934,10 +1933,16 @@ onUnmounted(() => {
   .sc-hud {
     display: none;
   }
+  .sc-tabs {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    width: 100%;
+  }
   .sc-tabs button {
-    padding: 0.35rem 0.5rem;
-    min-width: 3rem;
+    padding: 0.35rem 0.4rem;
+    min-width: 0;
     font-size: 0.57rem;
+    letter-spacing: 0.06em;
   }
   .sc-header {
     flex-wrap: wrap;

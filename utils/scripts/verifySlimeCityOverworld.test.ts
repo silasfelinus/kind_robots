@@ -112,10 +112,10 @@ const artIds = [
 ]
 assert.equal(
   SLIME_CITY_ART_COUNT,
-  786,
-  '233 curated ids plus the 2026-11-07 art pass: 542 verified renders (217 cards, 263 board tokens, 60 story plates, 2 attacks), plus 11 new Ironjaw board-token moods from the 2026-11-09 ogre redo',
+  787,
+  '233 curated ids plus the 2026-11-07 art pass: 542 verified renders (217 cards, 263 board tokens, 60 story plates, 2 attacks), plus 11 new Ironjaw board-token moods from the 2026-11-09 ogre redo, plus the lizard Union Cook (2026-11-10)',
 )
-assert.equal(artIds.length, 786)
+assert.equal(artIds.length, 787)
 assert.ok(
   CARDS.filter((c) => slimeArtId('cards', c.id)).length >= 290,
   'nearly the whole catalog is illustrated',
@@ -165,7 +165,8 @@ assert.equal(
   slimeBoardArtId('nowhere', 'blackout'),
   slimeArtId('boards', 'blackout'),
 )
-assert.equal(Object.keys(SLIME_CITY_ART.cards).length, 290)
+// 291 since the lizard round painted Union Cook (2026-11-10 PT).
+assert.equal(Object.keys(SLIME_CITY_ART.cards).length, 291)
 assert.equal(
   TEAMS.flatMap((team) => [...team.creatures, ...team.special]).length,
   60,
@@ -178,8 +179,8 @@ assert.equal(
 )
 assert.equal(
   CARDS.filter((card) => slimeArtId('cards', card.id)).length,
-  290,
-  '290 illustrations correspond to actual playable card IDs',
+  291,
+  '291 illustrations correspond to actual playable card IDs',
 )
 assert.equal(
   TEAMS.flatMap((team) => [...team.creatures, ...team.special]).filter(
@@ -190,7 +191,7 @@ assert.equal(
 )
 assert.equal(
   CARDS.filter((card) => !slimeArtId('cards', card.id)).length,
-  CARDS.length - 290,
+  CARDS.length - 291,
   'Unrendered faction and neutral cards retain image-shaped fallbacks',
 )
 assert.ok(slimeArtId('cards', 'calico'), 'curation redo replaced Calico')

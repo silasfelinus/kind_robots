@@ -8,7 +8,11 @@ import { CARDS, TEAMS, cardById } from '../slimeCity/prototypes'
 const rows = TEAMS.map((team) => {
   const ids = clashDeck(team.id)
   assert.equal(ids.length, CLASH_DECK_SIZE, team.id + ': starter size')
-  assert.equal(new Set(ids).size, ids.length, team.id + ': duplicate starter cards')
+  assert.equal(
+    new Set(ids).size,
+    ids.length,
+    team.id + ': duplicate starter cards',
+  )
   const cards = ids.map(cardById)
   for (const card of cards)
     assert.ok(
@@ -35,4 +39,6 @@ const rows = TEAMS.map((team) => {
 assert.equal(TEAMS.length, 6, 'six playable crews')
 assert.equal(CARDS.length, 300, 'preserve the 300-card catalog')
 console.table(rows)
-console.log('Starter audit is informational; no cards or saved deck IDs were changed.')
+console.log(
+  'Starter audit is informational; no cards or saved deck IDs were changed.',
+)

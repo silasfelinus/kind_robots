@@ -108,7 +108,11 @@ for (const id of Object.keys(CLASH_EVOLUTIONS)) {
   assert.equal(deck.filter((id) => CLASH_EVOLUTIONS[id]).length, 11)
   assert.ok(!deck.includes('s3-catgirls-pounce-rig'))
   const fighters = deck.filter((id) => cardById(id).kind === 'creature')
-  assert.equal(fighters.length, 13, 'fighters-first pilot fields thirteen bodies')
+  assert.equal(
+    fighters.length,
+    13,
+    'fighters-first pilot fields thirteen bodies',
+  )
 }
 
 // --- Choose one at level three (approved 2026-11-08 PT).

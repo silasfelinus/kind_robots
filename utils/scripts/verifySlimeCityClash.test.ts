@@ -175,6 +175,39 @@ assert.match(
   'strike VFX follows a committed command',
 )
 assert.match(view, /commit\(useClashPower\(/, 'general powers receive VFX')
+// Silas, 2026-11-10 PT: "there should be an undo button if you are still on
+// the same round". Undo replays the deal without your last play this turn.
+assert.match(view, /data-testid="clash-undo"/)
+assert.match(view, /replayClash\(/)
+{
+  const opening = createClash('catgirls', 'riot', 4242)
+  const card = opening.hands.player.find((id) =>
+    [0, 1, 2, 3, 4].some((lane) => canClashPlay(opening, 'player', id, lane)),
+  )!
+  const lane = [0, 1, 2, 3, 4].find((l) =>
+    canClashPlay(opening, 'player', card, l),
+  )!
+  const played = playClash(opening, 'player', card, lane)
+  assert.notEqual(played, opening)
+  const undone = replayClash(
+    'catgirls',
+    'riot',
+    4242,
+    played.commands.slice(0, -1),
+  )
+  assert.deepEqual(undone, opening, 'undo restores the exact earlier state')
+  assert.deepEqual(
+    playClash(undone, 'player', card, lane),
+    played,
+    'replaying the same play gives the same result',
+  )
+}
+// A clicked card or fighter stays pinned with its level tabs: hover previews
+// never replace it (Silas, 2026-11-10 PT).
+assert.match(
+  hand,
+  /if \(props\.held !== null \|\| \(props\.inspect && !props\.inspect\.hover\)\)/,
+)
 const spectacleFace = readFileSync(
   'components/slime-city-clash-moment.vue',
   'utf8',

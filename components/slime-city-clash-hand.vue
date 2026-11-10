@@ -266,8 +266,12 @@ const peekCard = computed<{
   pick?: 0 | 1
   dock: 'left' | 'right'
 } | null>(() => {
+  // Something clicked (a held card or a pinned fighter) keeps its level tabs;
+  // hover previews only while nothing is pinned.
+  if (props.held !== null || (props.inspect && !props.inspect.hover))
+    return null
   const index = hoverIndex.value
-  const id = index === null || index === big.value ? null : cards.value[index]
+  const id = index === null ? null : cards.value[index]
   if (id && !drag.value)
     return {
       id,

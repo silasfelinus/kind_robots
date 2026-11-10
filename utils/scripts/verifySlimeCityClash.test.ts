@@ -1410,6 +1410,39 @@ assert.deepEqual(
   'armor-cutting snare must replay deterministically',
 )
 
+// The six lowest-performing cheap snares must all remain useful against plating.
+// Resolve catalog IDs by name to cover every faction's actual printed card.
+for (const name of [
+  'Moshpit Tripcord',
+  'Bloodwire',
+  'Leech Grate',
+  'Escrow Snare',
+  'Culvert Tollwire',
+  'Floodgate Clamp',
+]) {
+  const trap = CARDS.find((card) => card.name === name)
+  assert.ok(trap, `missing weak-snare fixture: ${name}`)
+  assert.equal(trap.kind, 'trap', `${name} must remain a trap`)
+  assert.equal(trap.effect, 'snare', `${name} must remain a snare`)
+  assert.equal(clashPlayCost(trap), 1, `${name} must cost one Clash play`)
+  const state = createClash('ironjaw', trap.team, 1962)
+  state.round = 2
+  state.hands.player = ['scrapper']
+  state.traps = [{ side: 'enemy', lane: 2, cardId: trap.id, level: 1 }]
+  const clear = structuredClone(state)
+  clear.traps = []
+  const safe = playClash(clear, 'player', 'scrapper', 2)
+  const caught = playClash(state, 'player', 'scrapper', 2)
+  const safeUnit = safe.units.find((unit) => unit.side === 'player' && unit.lane === 2)
+  const caughtUnit = caught.units.find((unit) => unit.side === 'player' && unit.lane === 2)
+  assert.ok(safeUnit && caughtUnit, `${name} must allow fighter entry`)
+  assert.ok(safeUnit.armor > 0, 'Scrapper must retain its armor fixture')
+  assert.equal(caughtUnit.armor, safeUnit.armor - 1, `${name} must shear plating`)
+  assert.ok(caughtUnit.hp < safeUnit.hp, `${name} must damage a plated target`)
+  assert.equal(caught.traps.length, 0, `${name} must be consumed`)
+  assert.deepEqual(caught, playClash(structuredClone(state), 'player', 'scrapper', 2), `${name} must replay identically`)
+}
+
 const wireTrap = createClash('catgirls', 'ironjaw', 962)
 wireTrap.round = 2
 wireTrap.hands.player = ['lynx']

@@ -140,7 +140,7 @@
                   compact
                 />
                 <span class="scpvp-stats">
-                  <b>⚔ {{ unit(side, lane - 1)!.attack }}</b>
+                  <b>⚔ {{ unit(side, lane - 1)!.power }}</b>
                   <b>♥ {{ unit(side, lane - 1)!.hp }}</b>
                 </span>
                 <span class="scpvp-unit-title">{{ cardById(unit(side, lane - 1)!.cardId).name }}</span>

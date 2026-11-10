@@ -67,7 +67,10 @@ assert.equal(migrated.city.location, 'chimera')
 assert.deepEqual(Object.keys(migrated.alliances ?? {}), ['catgirls', 'riot'])
 assert.equal(migrated.alliances?.catgirls?.cards.length, 20)
 assert.equal(migrated.tower?.run?.deck.cards.length, 20)
-assert.deepEqual(migrated.tower?.run?.deck.cards, migrated.alliances?.catgirls?.cards)
+assert.deepEqual(
+  migrated.tower?.run?.deck.cards,
+  migrated.alliances?.catgirls?.cards,
+)
 assert.equal(migrated.tower?.run?.floor, runningTower.run.floor)
 assert.equal(legacyAccount.story.alliances.catgirls.cards.length, 30)
 assert.deepEqual(migrated.tower?.meta, runningTower.meta)

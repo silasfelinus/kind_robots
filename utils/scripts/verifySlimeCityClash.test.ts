@@ -1339,6 +1339,44 @@ assert.ok(
   clashSpectacle(collarOn, collarRescue)?.cardId === 'ninthlife',
   'L3 rescue gets an art-led cut-in',
 )
+// One-play snares are an answer to armor, not a dead draw into Ironjaw.
+// Check real fighter entry, armor stripping, deterministic replay and trap cleanup.
+const armoredWire = createClash('ironjaw', 'bloodfairies', 1962)
+armoredWire.round = 2
+armoredWire.hands.player = ['scrapper']
+armoredWire.traps = [{ side: 'enemy', lane: 2, cardId: 'bloodwire', level: 1 }]
+const baselineWire = structuredClone(armoredWire)
+baselineWire.traps = []
+const plainScrapper = playClash(baselineWire, 'player', 'scrapper', 2)
+const trappedScrapper = playClash(armoredWire, 'player', 'scrapper', 2)
+const plainFighter = plainScrapper.units.find(
+  (u) => u.side === 'player' && u.lane === 2,
+)
+const caughtFighter = trappedScrapper.units.find(
+  (u) => u.side === 'player' && u.lane === 2,
+)
+assert.ok(
+  plainFighter && caughtFighter,
+  'Scrapper must enter the trapped alley',
+)
+assert.ok(plainFighter.armor > 0, 'fixture must deploy a plated fighter')
+assert.equal(
+  caughtFighter.armor,
+  plainFighter.armor - 1,
+  'cheap snare should permanently shear one point of armor',
+)
+assert.ok(caughtFighter.hp < plainFighter.hp, 'snare must also deal damage')
+assert.equal(
+  trappedScrapper.traps.length,
+  0,
+  'triggered snare must be consumed',
+)
+assert.deepEqual(
+  trappedScrapper,
+  playClash(structuredClone(armoredWire), 'player', 'scrapper', 2),
+  'armor-cutting snare must replay deterministically',
+)
+
 const wireTrap = createClash('catgirls', 'ironjaw', 962)
 wireTrap.round = 2
 wireTrap.hands.player = ['lynx']

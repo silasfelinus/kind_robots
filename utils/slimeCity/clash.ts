@@ -760,8 +760,8 @@ export const CLASH_CRAFTED_DECKS: Partial<Record<TeamId, string[]>> = {
     'laser',
     'mutual-aid',
     's1-nine-lives',
-    's3-catgirls-garrote',
-    's2-catgirls-backstreet-organ-donor',
+    's3-catgirls-patent-saboteur',
+    's3-catgirls-bicycle-clinic',
   ],
 }
 export function clashDeck(team: TeamId): string[] {

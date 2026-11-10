@@ -178,7 +178,7 @@ export const MERCENARY_B_EVOLUTIONS: Record<string, CardEvolution> = {
   // Counterplay: keep no single star; the curse lands on your toughest
   // fighter, so give it life to spare.
   'merc-cursed-sign': {
-    2: stage('Wandering Curse', [on('spring', damage(2, 'randomFoe'))]),
+    2: stage('Wandering Curse', [on('spring', damage(2, 'weakestFoe'))]),
     3: stage('The Committee Convenes', [
       on('spring', damage(3, 'strongestFoe'), boss(1)),
     ]),
@@ -199,7 +199,7 @@ export const MERCENARY_B_EVOLUTIONS: Record<string, CardEvolution> = {
   // stun lasts one strike, so hold your best striker back a turn.
   'merc-angry-bees': {
     2: stage('Bees Everywhere', [
-      on('spring', damage(1, 'randomFoe'), damage(1, 'randomFoe')),
+      on('spring', damage(1, 'weakestFoe'), damage(1, 'strongestFoe')),
     ]),
     3: stage("The Queen's Grudge", [
       on('spring', damage(1, 'allFoes'), stun('laneFoes')),

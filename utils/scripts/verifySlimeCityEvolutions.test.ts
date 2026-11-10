@@ -565,3 +565,13 @@ console.log(
     Object.keys(CLASH_EVOLUTIONS).length +
     ' crafted cards through the real engine; 20-card Catgirls pilot deck, choose-one level threes, art fallback and replay OK',
 )
+
+// Silas, 2026-11-10 PT: "we need less random things, and less different
+// random things." No evolution picks a random target, and seeded gambles
+// are ANARKISS's daredevil signature alone.
+for (const [id, evolution] of Object.entries(CLASH_EVOLUTIONS)) {
+  const tree = JSON.stringify(evolution)
+  assert.ok(!tree.includes('"randomFoe"'), id + ' picks a random target')
+  if (tree.includes('"do":"chance"'))
+    assert.equal(cardById(id).team, 'riot', id + ' gambles outside ANARKISS')
+}

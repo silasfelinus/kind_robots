@@ -1832,7 +1832,7 @@ export function playClash(
         id,
         side,
         lane,
-        'The Oracle reads two possible futures.',
+        'The Oracle is certain now.',
         'control',
       )
     }
@@ -2177,9 +2177,9 @@ export function playClash(
         }
         default: {
           let hit = power
-          let critical = false
+          const hurt = target.hp < target.maxHp
           if (id === 'pinprick' && level >= 2) {
-            critical = random(s) < (level === 3 ? 0.75 : 0.5)
+            const critical = level === 3 || hurt
             if (critical) hit *= 2
             note(
               s,
@@ -2201,7 +2201,7 @@ export function playClash(
                 stun(rival)
               }
           }
-          if (id === 'pinprick' && level === 3 && critical)
+          if (id === 'pinprick' && level === 3 && hurt)
             for (const rival of s.units.filter(
               (u) => u.side === foe && Math.abs(u.lane - lane) === 1,
             ))
@@ -2386,16 +2386,13 @@ export function strikeClash(input: ClashState, side: Side): ClashState {
       u.uid !== attacker.uid &&
       Math.abs(u.lane - lane) === 1,
   )) {
-    const success = random(s) < 0.5 || (oracle.level === 3 && random(s) < 0.5)
-    if (success) attackPower += 2
+    attackPower += oracle.level === 3 ? 2 : 1
     evolutionMoment(
       s,
       'merc-grease-oracle',
       side,
       oracle.lane,
-      success
-        ? 'The Oracle foresaw a stronger strike!'
-        : 'The prophecy misses this turn.',
+      'The Oracle foresaw a stronger strike!',
       'strike',
     )
   }
@@ -2403,16 +2400,17 @@ export function strikeClash(input: ClashState, side: Side): ClashState {
     const friend = s.units.some(
       (u) => u.side === side && Math.abs(u.lane - lane) === 1,
     )
-    const whiff = !(attacker.level === 3 && friend) && random(s) < 0.5
-    attackPower = whiff ? 0 : attackPower * 2
-    evolutionMoment(
-      s,
-      'pogo',
-      side,
-      lane,
-      whiff ? 'Pogo Brat misses the landing!' : 'Pogo Brat doubles its strike!',
-      'strike',
-    )
+    if (attacker.level === 3 || friend) {
+      attackPower *= 2
+      evolutionMoment(
+        s,
+        'pogo',
+        side,
+        lane,
+        'Pogo Brat doubles its strike!',
+        'strike',
+      )
+    }
   }
   attacker.attacked = true
   attacker.ambushUsed = true

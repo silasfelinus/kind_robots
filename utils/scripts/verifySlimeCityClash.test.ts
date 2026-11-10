@@ -1468,19 +1468,24 @@ wireTrap.traps = [{ side: 'enemy', lane: 2, cardId: 'bloodwire', level: 3 }]
 const wireFired = playClash(wireTrap, 'player', 'lynx', 2)
 assert.equal(wireFired.units.find((u) => u.uid === 2031)?.hp, 10)
 assert.equal(wireFired.units.find((u) => u.uid === 2033)?.hp, 10)
-let criticalFound = false
-for (let seed = 1; seed <= 20; seed++) {
+// Silas, 2026-11-10 PT ("less random things"): L3 Pinprick always doubles,
+// and splashes nearby rivals for 2 only when its target was already hurt.
+for (const hurt of [false, true]) {
   const pin = third('bloodfairies', 'pinprick')
-  pin.rng = seed
-  pin.units = [follower('enemy', 2, 2042, 25), follower('enemy', 3, 2043, 12)]
+  const target = follower('enemy', 2, 2042, 25)
+  if (hurt) target.hp = 20
+  pin.units = [target, follower('enemy', 3, 2043, 12)]
   const hit = playClash(pin, 'player', 'pinprick', 2)
   assert.deepEqual(
     hit,
     playClash(structuredClone(pin), 'player', 'pinprick', 2),
   )
-  if (hit.units.find((u) => u.uid === 2043)?.hp === 10) criticalFound = true
+  assert.equal(
+    hit.units.find((u) => u.uid === 2043)?.hp,
+    hurt ? 10 : 12,
+    'L3 Pinprick splashes only a hurt target',
+  )
 }
-assert.ok(criticalFound, 'L3 Pinprick has reachable seeded critical splash')
 const feedback = third('bloodfairies', 'feedback')
 feedback.units = [
   ...[0, 1, 3, 4].map((lane) => follower('player', lane, 2050 + lane, 10)),
@@ -1860,9 +1865,10 @@ for (let seed = 1; seed <= 64; seed++) {
   assert.deepEqual(foretold, strikeClash(structuredClone(oracle), 'player'))
 }
 assert.ok(recruited, 'weak enemy can be recruited by an evolved bribe rat')
+// Silas, 2026-11-10 PT ("less random things"): the Oracle's +2 is certain.
 assert.ok(
-  prophecyRaised && prophecyMissed,
-  'oracle has two seeded, observable outcomes',
+  prophecyRaised && !prophecyMissed,
+  'an L3 oracle always raises a neighbor strike',
 )
 
 // Balance acceptance (2026-11-07 Clash rebalance): CPU sweeps across every crew

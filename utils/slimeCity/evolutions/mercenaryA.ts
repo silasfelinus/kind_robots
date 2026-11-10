@@ -4,7 +4,6 @@
 // gentler numbers, and stages that stay crew-neutral (any crew can hire them).
 import {
   boss,
-  chance,
   cleanse,
   damage,
   draw,
@@ -226,7 +225,7 @@ export const MERCENARY_A_EVOLUTIONS: Record<string, CardEvolution> = {
   'merc-allergy-season': {
     2: stage('Pollen Drift', [on('enter', damage(1, 'adjacentFoes'))]),
     3: stage('Peak Pollen Count', [
-      on('enter', damage(1, 'adjacentFoes'), chance(30, stun('allFoes'))),
+      on('enter', damage(1, 'adjacentFoes'), stun('across')),
     ]),
   },
   // Arc: permits acquired -> hard hats on for the whole crew -> a
@@ -300,9 +299,7 @@ export const MERCENARY_A_EVOLUTIONS: Record<string, CardEvolution> = {
   // Counterplay: the good batch's regen is slow, so burst the target; the
   // bad batch needs a foe across, so leave that alley empty.
   'merc-homebrew-antidote': {
-    2: stage('Side Effects May Include', [
-      on('enter', chance(50, power(2, 'target'))),
-    ]),
+    2: stage('Side Effects May Include', [on('enter', power(1, 'target'))]),
     3: stage('Good Batch', [
       on('enter', grant('regen', 'target'), life(2, 'target')),
     ]),

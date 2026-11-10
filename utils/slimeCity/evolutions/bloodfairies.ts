@@ -226,7 +226,7 @@ export const BLOODFAIRY_EVOLUTIONS: Record<string, CardEvolution> = {
   // Trajectory: ROLE SHIFT (damage to celebration). Counterplay: the parade
   // power lasts one round; strike back after it fades.
   's1-confetti-cannon': {
-    2: stage('Second Barrel', [on('enter', damage(1, 'randomFoe'))]),
+    2: stage('Second Barrel', [on('enter', damage(1, 'weakestFoe'))]),
     3: stage('Ticker-Tape Parade', [
       on('enter', power(1, 'allies'), heal(1, 'allies')),
     ]),
@@ -335,7 +335,7 @@ export const BLOODFAIRY_EVOLUTIONS: Record<string, CardEvolution> = {
       on('enter', when('targetHeavy', damage(3, 'target'))),
     ]),
     3: stage('Glorious Encore', [
-      on('enter', damage(4, 'randomFoe'), damage(1, 'allies')),
+      on('enter', damage(4, 'strongestFoe'), damage(1, 'allies')),
     ]),
   },
 
@@ -377,8 +377,8 @@ export const BLOODFAIRY_EVOLUTIONS: Record<string, CardEvolution> = {
   // Trajectory: EARNED ONE-SHOT (a second spring). Counterplay: scan it, or
   // spend both springs with cheap runners.
   's3-bloodfairies-amp-socket': {
-    2: stage('Arc Flash', [on('spring', damage(2, 'randomFoe'))]),
-    3: stage('Still Live', [on('spring', damage(2, 'randomFoe'), rearm())]),
+    2: stage('Arc Flash', [on('spring', damage(2, 'weakestFoe'))]),
+    3: stage('Still Live', [on('spring', damage(2, 'weakestFoe'), rearm())]),
   },
   // Arc: the bouncer slips -> it owes the cover charge -> the whole pit
   // erupts, and a new dancer climbs onstage in the emptied alley.

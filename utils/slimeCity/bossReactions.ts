@@ -30,7 +30,7 @@ export const BOSS_QUIPS: Record<
   },
   riot: {
     hit: 'Tough crowd!',
-    gloat: 'TA-DAAA!',
+    gloat: 'Get Anarkissed!',
     beaten: 'The show… must… go on…',
   },
   undertow: {

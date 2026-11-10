@@ -101,7 +101,7 @@ export const FACTION_CAMPAIGNS: Record<TeamId, FactionCampaign> = {
       chapter(
         'riot',
         'CLONE PARADE',
-        'The Riot Saints march with a giant paper catgirl. Their harmless protest is secretly wired to explode outside the gene bank.',
+        'The Anarkissed march with a giant paper catgirl. Their harmless protest is secretly wired to explode outside the gene bank.',
         'The parade becomes a jailbreak instead of a funeral.',
         'The blast gives the gene bank an excuse to tighten its security.',
         [
@@ -159,7 +159,7 @@ export const FACTION_CAMPAIGNS: Record<TeamId, FactionCampaign> = {
       chapter(
         'riot',
         'THE WRONG KIND OF LOUD',
-        'The Riot Saints challenge a bloodfairy band to a demolition contest, threatening to flatten an inhabited music hall.',
+        'The Anarkissed challenge a bloodfairy band to a demolition contest, threatening to flatten an inhabited music hall.',
         'The crowd makes a stage out of the wrecking ball and keeps the hall standing.',
         'The hall disappears beneath an accidental encore.',
         [
@@ -268,7 +268,7 @@ export const FACTION_CAMPAIGNS: Record<TeamId, FactionCampaign> = {
       chapter(
         'riot',
         'SAFETY THIRD',
-        'The Riot Saints offer to blow up the foreman’s office. Unfortunately the office also holds the emergency furnace controls.',
+        'The Anarkissed offer to blow up the foreman’s office. Unfortunately the office also holds the emergency furnace controls.',
         'The forge survives the blast and the bosses lose their locks.',
         'The furnace roars without anyone able to stop it.',
         [
@@ -499,7 +499,7 @@ export const FACTION_CAMPAIGNS: Record<TeamId, FactionCampaign> = {
       chapter(
         'riot',
         'THE COST OF A BOOM',
-        'Riot Saints have demolished a bank that held all the city’s unpaid medical bills.',
+        'The Anarkissed have demolished a bank that held all the city’s unpaid medical bills.',
         'Gilt forgives the debts and buys a seat at the parade.',
         'The bank is rebuilt with even higher interest.',
         [

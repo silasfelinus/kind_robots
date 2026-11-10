@@ -25,7 +25,7 @@ export const BLOODFAIRY_CHAPTERS: readonly (readonly BloodfairyBeat[])[] = [
       id: 'last-night-at-needle',
       title: 'LAST NIGHT AT THE NEEDLE',
       speaker: 'Mx. Thimble Vex',
-      text: "The landlord's notice is stapled through the music hall's only fire map. It says the Riot Saints may demolish the building after the next show. Brine the janitor is packing up the floorboards: they were made from her grandmother's stage. Thimble knows the audience would riot if they found out.",
+      text: "The landlord's notice is stapled through the music hall's only fire map. It says the Anarkissed may demolish the building after the next show. Brine the janitor is packing up the floorboards: they were made from her grandmother's stage. Thimble knows the audience would riot if they found out.",
       choices: [
         {
           id: 'left',
@@ -45,7 +45,7 @@ export const BLOODFAIRY_CHAPTERS: readonly (readonly BloodfairyBeat[])[] = [
       id: 'the-roof-has-a-vote',
       title: 'EVERY ROOF HAS A VOTE',
       speaker: 'Purl',
-      text: "Riot Saints promoter Purl offers a replacement venue: a gleaming arena on top of the demolished hall. She wants naming rights and exclusive access to its sound system. Outside, the hall's wheelchair ramp is being dismantled by men in Saints jackets.",
+      text: "Anarkiss promoter Purl offers a replacement venue: a gleaming arena on top of the demolished hall. She wants naming rights and exclusive access to its sound system. Outside, the hall's wheelchair ramp is being dismantled by men in Saints jackets.",
       choices: [
         {
           id: 'left',

@@ -151,13 +151,13 @@ export const IRONJAW_CHAPTERS: readonly (readonly IronjawBeat[])[] = [
       ],
     },
   ],
-  // vs the Riot Saints: SAFETY THIRD
+  // vs Anarkiss: SAFETY THIRD
   [
     {
       id: 'fire-drill',
       title: 'FIRE DRILL',
       speaker: 'Firebrand Dolly',
-      text: "Riot Saints demolition expert Firebrand Dolly offers to blow up the foreman's office for free. 'Safety third,' she says. The night shift is still asleep in the break room next door.",
+      text: "Anarkiss pyro-showgirl Firebrand Dolly offers to blow up the foreman's office for free. 'Safety third,' she says. The night shift is still asleep in the break room next door.",
       choices: [
         {
           id: 'left',

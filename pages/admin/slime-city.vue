@@ -192,20 +192,14 @@
             <button
               type="button"
               :aria-pressed="lab.clashFormat === 'solo'"
-              @click="
-                lab.clashFormat = 'solo'
-                lab.deckFormat = 'solo'
-              "
+              @click="setDefaultFormat('solo')"
             >
               SOLO · 20 CARDS
             </button>
             <button
               type="button"
               :aria-pressed="lab.clashFormat === 'alliance'"
-              @click="
-                lab.clashFormat = 'alliance'
-                lab.deckFormat = 'alliance'
-              "
+              @click="setDefaultFormat('alliance')"
             >
               ALLIANCE · 20 CARDS
             </button>
@@ -490,12 +484,19 @@
                 >
                 {{ generalPower.text }}
               </p>
+              <p class="sc-power-line" data-testid="slime-alliance-ally-power">
+                <b
+                  >{{ allyPower.symbol }} {{ allyPower.name }} · ONE USE PER
+                  MATCH</b
+                >
+                {{ allyPower.text }}
+              </p>
               <p aria-live="polite">
                 {{
                   lab.deckMessage ||
                   'Pick two factions. Any ' +
                     ALLIANCE_DECK_SIZE +
-                    ' cards from either faction or the mercenaries; the general’s power comes with the deck.'
+                    ' cards from either faction or the mercenaries; both factions’ one-shot powers come with the deck.'
                 }}
               </p>
               <small
@@ -1103,7 +1104,13 @@ function pinSymbol(status: string): string {
 function teamName(id: string): string {
   return lab.teams.find((t) => t.id === id)?.name ?? id
 }
+/** Settings: the format the next Clash and the deck builder start in. */
+function setDefaultFormat(format: 'solo' | 'alliance'): void {
+  lab.clashFormat = format
+  lab.deckFormat = format
+}
 const generalPower = computed(() => factionPower(lab.activeTeam))
+const allyPower = computed(() => factionPower(lab.currentAlliance.ally))
 /** Collection cards show their Clash face at the chosen evolution level. */
 const evolutionLevel = ref(1)
 const collectionFilters = [

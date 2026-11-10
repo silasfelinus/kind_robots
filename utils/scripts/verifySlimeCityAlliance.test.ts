@@ -24,6 +24,8 @@ import {
   canClashPlay,
   canClashPower,
   chooseClashCpu,
+  clashOvercharged,
+  clashPowers,
   CLASH_BOSS_RANGE,
   clashBossCap,
   clashBossMax,
@@ -173,11 +175,25 @@ const s = createClash('riot', 'riot', 3, { alliance })
 assert.equal(s.format, 'alliance')
 assert.deepEqual(s.teams, { player: 'catgirls', enemy: 'ironjaw' })
 assert.equal(s.decks.player.length + s.hands.player.length, ALLIANCE_DECK_SIZE)
-assert.deepEqual(s.powerUsed, { player: false, enemy: false })
+assert.deepEqual(s.powersUsed, { player: [], enemy: [] })
+// Silas, 2026-11-10 PT: "two powers in alliance, and a single one shot in solo".
+assert.deepEqual(clashPowers(s, 'player'), ['catgirls', 'undertow'])
+assert.deepEqual(clashPowers(s, 'enemy'), ['ironjaw', alliance.enemy.ally])
 const standard = createClash('catgirls', 'ironjaw', 3)
 assert.equal(standard.format, undefined)
-assert.equal(canClashPower(standard, 'player', 0), false)
-assert.equal(useClashPower(standard, 'player', 0), standard)
+assert.deepEqual(clashPowers(standard, 'player'), ['catgirls'])
+assert.equal(canClashPower(standard, 'player', 0), true, 'solo has its power')
+assert.equal(
+  canClashPower(standard, 'player', 0, 'undertow'),
+  false,
+  'solo has no second power',
+)
+assert.equal(useClashPower(standard, 'player', 0, 'undertow'), standard)
+{
+  const fired = useClashPower(standard, 'player', 0)
+  assert.deepEqual(fired.powersUsed!.player, ['catgirls'])
+  assert.equal(useClashPower(fired, 'player', 0), fired, 'solo: once')
+}
 // An ally card in hand can be played.
 const allyCard = alliance.player.cards.find(
   (id) => cardById(id).team === 'undertow' && cardById(id).kind === 'creature',
@@ -239,7 +255,7 @@ const at = (st: ClashState, uid: number) => st.units.find((u) => u.uid === uid)
   const st = board('riot')
   const used = useClashPower(st, 'player')
   assert.notEqual(used, st)
-  assert.equal(used.powerUsed!.player, true)
+  assert.deepEqual(used.powersUsed!.player, ['riot'])
   assert.equal(used.plays.player, st.plays.player)
   assert.equal(useClashPower(used, 'player'), used, 'second use refused')
   assert.equal(canClashPower(used, 'player'), false)
@@ -269,13 +285,13 @@ const at = (st: ClashState, uid: number) => st.units.find((u) => u.uid === uid)
 }
 {
   const st = useClashPower(board('ironjaw'), 'player')
-  assert.equal(at(st, 102)!.guard, 3)
+  assert.equal(at(st, 102)!.guard, 2)
   assert.equal(at(st, 102)!.armor, 0, 'guard is temporary, armor unchanged')
 }
 {
   const st = useClashPower(board('riot'), 'player')
-  assert.equal(at(st, 201)!.hp, 2)
-  assert.equal(at(st, 202)!.hp, 8, 'armor softens the fuse box')
+  assert.equal(at(st, 201)!.hp, 1)
+  assert.equal(at(st, 202)!.hp, 7, 'armor softens the fuse box')
   assert.equal(at(st, 101)!.hp, 3, 'friendly fighters untouched')
 }
 {
@@ -294,6 +310,58 @@ const at = (st: ClashState, uid: number) => st.units.find((u) => u.uid === uid)
   assert.equal(st.boss.player, clashBossMax('player'), 'capped at max')
 }
 
+// ALLIANCE: the ally's power is a second, separate one-shot.
+{
+  const st = board('riot')
+  assert.deepEqual(clashPowers(st, 'player'), ['riot', 'ironjaw'])
+  const general = useClashPower(st, 'player')
+  const both = useClashPower(general, 'player', 0, 'ironjaw')
+  assert.notEqual(both, general, 'ally power still available')
+  assert.equal(at(both, 102)!.guard, 2)
+  assert.deepEqual(both.powersUsed!.player, ['riot', 'ironjaw'])
+  assert.deepEqual(both.commands.at(-1), {
+    t: 'power',
+    side: 'player',
+    lane: 0,
+    team: 'ironjaw',
+  })
+  assert.equal(useClashPower(both, 'player', 0, 'ironjaw'), both, 'once each')
+  assert.equal(canClashPower(st, 'player', 0, 'exchange'), false, 'not mine')
+  const again = replayClash('riot', 'riot', 9, both.commands, {
+    alliance: {
+      player: allianceStarter('riot', 'ironjaw'),
+      enemy: allianceStarter('riot', 'undertow'),
+    },
+  })
+  assert.deepEqual(again.powersUsed, both.powersUsed, 'ally power replays')
+}
+// OVERCHARGED: boss at half life or less, or all five alleys filled.
+{
+  const calm = board('riot')
+  assert.equal(clashOvercharged(calm, 'player'), false)
+  const low = board('riot')
+  low.boss.player = Math.floor(clashBossCap(low, 'player') / 2)
+  assert.equal(clashOvercharged(low, 'player'), true, 'half life')
+  assert.equal(
+    at(useClashPower(low, 'player'), 201),
+    undefined,
+    'fuse box 4 kills',
+  )
+  assert.equal(at(useClashPower(low, 'player'), 202)!.hp, 6, 'armor still 1')
+  const full = board('bloodfairies')
+  full.units = [
+    ...full.units.filter((u) => u.side === 'enemy'),
+    ...[0, 1, 2, 3, 4].map((lane) => unit('player', lane, 300 + lane)),
+  ]
+  assert.equal(clashOvercharged(full, 'player'), true, 'five alleys')
+  assert.equal(at(useClashPower(full, 'player'), 302)!.surge, 5, 'mosh 5')
+  const debt = board('exchange')
+  debt.boss.player = 10
+  const drained = useClashPower(debt, 'player')
+  assert.equal(drained.boss.enemy, debt.boss.enemy - 8, 'debt drains 8')
+  assert.match(drained.log.at(-1)!.text, /OVERCHARGE/)
+}
+
 // Seeded replay reproduces an alliance match, powers included, and the CPU
 // fires each power at most once.
 {
@@ -302,11 +370,11 @@ const at = (st: ClashState, uid: number) => st.units.find((u) => u.uid === uid)
     g = applyClashCommand(g, chooseClashCpu(g, g.active))
   assert.ok(g.victor, 'CPU alliance match finishes')
   const powers = g.commands.filter((c) => c.t === 'power')
-  assert.ok(powers.length <= 2)
+  assert.ok(powers.length <= 4)
   assert.equal(
-    new Set(powers.map((c) => c.side)).size,
+    new Set(powers.map((c) => c.side + ':' + (c.team ?? g.teams[c.side]))).size,
     powers.length,
-    'one power per side',
+    'each power fires at most once',
   )
   const again = replayClash('catgirls', 'ironjaw', 77, g.commands, {
     alliance,
@@ -315,11 +383,13 @@ const at = (st: ClashState, uid: number) => st.units.find((u) => u.uid === uid)
   assert.equal(again.victor, g.victor)
 }
 
-// Balance: no general dominates, the powers actually get used.
+// Balance: no general dominates, the powers actually get used. 30 seeds
+// (900 games): the first 6 alone leaned 57% first-seat even before ALLIANCE
+// gained its second power, so a 6-seed sample could not hold the 38-62% band.
 {
-  const r = sweepAlliance(6)
+  const r = sweepAlliance(30)
   console.log(
-    'CLASH Alliance general win rates (6 acceptance seeds):',
+    'CLASH Alliance general win rates (30 acceptance seeds):',
     Object.fromEntries(
       Object.entries(r.generals).map(([crew, record]) => [
         crew,

@@ -67,11 +67,11 @@ export function sweepAlliance(seeds: number, offset = 1): AllianceSweep {
           general.games++
           if (s.victor === side) general.wins++
           const power = (out.powers[s.teams[side]] ??= { used: 0, round: 0 })
-          if (s.powerUsed?.[side]) {
+          if (s.powersUsed?.[side]?.includes(s.teams[side])) {
             power.used++
             // Round of use: rounds completed (rival end commands) before it.
             const at = s.commands.findIndex(
-              (c) => c.t === 'power' && c.side === side,
+              (c) => c.t === 'power' && c.side === side && !c.team,
             )
             power.round +=
               1 +

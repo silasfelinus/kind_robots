@@ -240,6 +240,8 @@ const find = (s: ReturnType<typeof createClash>, side: Side, lane: number) =>
   assert.equal(dangerous.units.filter((u) => u.side === 'player').length, 3)
   const cpu = structuredClone(levelThree)
   cpu.hands.player = [encore]
+  // Card choice only: the one-time faction power is a separate CPU decision.
+  cpu.powersUsed = { player: [cpu.teams.player], enemy: [cpu.teams.enemy] }
   assert.equal(chooseClashCpu(cpu, 'player').t, 'play')
   const cpuNoCasualty = structuredClone(cpu)
   cpuNoCasualty.fallen = { player: [], enemy: [] }

@@ -190,9 +190,14 @@ function play(
   })
   const powers = state.commands.filter((command) => command.t === 'power')
   assert.equal(
-    new Set(powers.map((command) => command.side)).size,
+    new Set(
+      powers.map(
+        (command) =>
+          command.side + ':' + (command.team ?? state.teams[command.side]),
+      ),
+    ).size,
     powers.length,
-    'each side gets at most one general power',
+    'each faction power fires at most once per side',
   )
   for (const side of ['player', 'enemy'] as const) {
     const general = state.teams[side]
@@ -201,7 +206,7 @@ function play(
     result.rounds += state.round
     if (state.victor === side) result.wins++
     if (state.victor === 'draw') result.draws++
-    if (state.powerUsed?.[side]) powerUse[general]++
+    if (state.powersUsed?.[side]?.includes(general)) powerUse[general]++
   }
   const result = byPlan[plan]
   result.games++
@@ -228,7 +233,11 @@ function play(
     assert.deepEqual(again.units, state.units, 'Alliance replay board')
     assert.deepEqual(again.traps, state.traps, 'Alliance replay traps')
     assert.deepEqual(again.levels, state.levels, 'Alliance replay evolutions')
-    assert.deepEqual(again.powerUsed, state.powerUsed, 'Alliance replay powers')
+    assert.deepEqual(
+      again.powersUsed,
+      state.powersUsed,
+      'Alliance replay powers',
+    )
     assert.equal(again.victor, state.victor, 'Alliance replay result')
     replays++
   }

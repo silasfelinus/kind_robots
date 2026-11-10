@@ -49,6 +49,9 @@ const fighter = (
   )
   s.hands.player = ['merc-emergency-wings', 'mau']
   s.plays.player = 0
+  // Isolate the play heuristic from the one-time faction power (every Clash
+  // side has one since 2026-11-10; five full alleys overcharge it).
+  s.powersUsed = { player: ['catgirls'], enemy: ['riot'] }
   assert.ok(canClashPlay(s, 'player', 'merc-emergency-wings', 2))
   const cmd = chooseClashCpu(s, 'player')
   assert.deepEqual(cmd, {
@@ -78,6 +81,7 @@ for (const wounded of [1, 3]) {
   s.round = 5
   s.hands.player = ['mutual-aid']
   s.levels.player['mutual-aid'] = 3
+  s.powersUsed = { player: ['catgirls'], enemy: ['riot'] }
   s.units = Array.from({ length: 4 }, (_, lane) =>
     fighter('player', lane, lane + 1, {
       hp: lane < wounded ? 4 : 12,
@@ -109,6 +113,7 @@ for (const wounded of [1, 3]) {
   s.hands.player = [id]
   s.levels.player[id] = 2
   s.units = [fighter('enemy', 1, 10), fighter('enemy', 3, 11)]
+  s.powersUsed = { player: ['riot'], enemy: ['catgirls'] }
   const before = structuredClone(s)
   const cmd = chooseClashCpu(s, 'player')
   assert.equal(cmd.t, 'play')

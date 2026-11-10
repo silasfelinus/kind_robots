@@ -1,6 +1,11 @@
 import assert from 'node:assert/strict'
 import { allianceStarter } from '../slimeCity/alliance'
-import { chooseClashCpu, createClash, type ClashUnit } from '../slimeCity/clash'
+import {
+  chooseClashCpu,
+  clashPowers,
+  createClash,
+  type ClashUnit,
+} from '../slimeCity/clash'
 
 const fighter = (lane: number): ClashUnit => ({
   uid: 101 + lane,
@@ -35,7 +40,10 @@ const fighter = (lane: number): ClashUnit => ({
   s.hands.player = ['merc-emergency-wings', 'mau']
   s.plays.player = 0
   // Isolate the play heuristic from the one-time faction power.
-  s.powerUsed = { player: true, enemy: true }
+  s.powersUsed = {
+    player: clashPowers(s, 'player'),
+    enemy: clashPowers(s, 'enemy'),
+  }
   const before = structuredClone(s)
   const command = chooseClashCpu(s, 'player')
   assert.equal(command.t, 'play')

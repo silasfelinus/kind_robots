@@ -1,5 +1,10 @@
 import { factionPower } from './factionPowers'
-import { clashCardText, clashLevel, type ClashState } from './clash'
+import {
+  clashCardText,
+  clashLevel,
+  clashOvercharged,
+  type ClashState,
+} from './clash'
 import { clashTwistText } from './clashTwists'
 import { clashEvolutionStage } from './clashEvolutions'
 import { cardById, type Side, type TeamId } from './prototypes'
@@ -110,18 +115,20 @@ export function clashSpectacle(
     }
   }
   if (command.t === 'power') {
-    const power = factionPower(before.teams[command.side])
+    const crew = command.team ?? before.teams[command.side]
+    const power = factionPower(crew)
+    const overcharged = clashOvercharged(before, command.side)
     return {
       kind: 'power',
       effect: 'power',
       grade: 'legend',
       side: command.side,
       lane: command.lane,
-      crew: before.teams[command.side],
+      crew,
       cardId: null,
-      eyebrow: 'ALLIANCE · ONE-TIME POWER',
+      eyebrow: overcharged ? 'OVERCHARGED · ONE-TIME POWER' : 'ONE-TIME POWER',
       title: power.name,
-      detail: power.text,
+      detail: overcharged ? power.overcharge + ' ' + power.text : power.text,
     }
   }
   if (command.t !== 'strike' || !after.strike) return null

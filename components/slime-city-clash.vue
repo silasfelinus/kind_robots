@@ -254,37 +254,50 @@
                 />PLAYS</span
               >
             </span>
-            <span
-              v-if="alliance && side === 'enemy'"
-              class="clash-power-chip"
-              :class="{ spent: game.powerUsed?.enemy }"
-              :title="rivalPower.name + ': ' + rivalPower.text"
-              data-testid="clash-rival-power"
-              >{{ rivalPower.symbol }} {{ rivalPower.name
-              }}{{ game.powerUsed?.enemy ? ' · USED' : '' }}</span
-            >
-            <button
-              v-if="alliance && side === 'player'"
-              type="button"
-              class="clash-power"
-              :class="{ armed: powerArmed, spent: game.powerUsed?.player }"
-              data-testid="clash-power"
-              :aria-pressed="powerArmed"
-              :title="
-                myPower.name + ': ' + myPower.text + ' One use per match.'
-              "
-              :disabled="!powerReady"
-              @click="firePower"
-            >
-              {{ myPower.symbol }}
-              {{
-                game.powerUsed?.player
-                  ? myPower.name + ' · USED'
-                  : powerArmed
-                    ? 'PICK A RIVAL FIGHTER'
-                    : myPower.name
-              }}
-            </button>
+            <span v-if="side === 'enemy'" class="clash-powers">
+              <span
+                v-for="team in clashPowers(game, 'enemy')"
+                :key="'rival-power-' + team"
+                class="clash-power-chip"
+                :class="{
+                  spent: clashPowerSpent(game, 'enemy', team),
+                  charged: rivalCharged,
+                }"
+                :title="powerTitle(team)"
+                data-testid="clash-rival-power"
+                >{{ factionPower(team).symbol }} {{ factionPower(team).name
+                }}{{
+                  clashPowerSpent(game, 'enemy', team) ? ' · USED' : ''
+                }}</span
+              >
+            </span>
+            <span v-else class="clash-powers">
+              <button
+                v-for="(team, i) in clashPowers(game, 'player')"
+                :key="'power-' + team"
+                type="button"
+                class="clash-power"
+                :class="{
+                  armed: powerArmed === team,
+                  spent: clashPowerSpent(game, 'player', team),
+                  charged: myCharged && !clashPowerSpent(game, 'player', team),
+                }"
+                :data-testid="i === 0 ? 'clash-power' : 'clash-power-ally'"
+                :aria-pressed="powerArmed === team"
+                :title="powerTitle(team)"
+                :disabled="!powerReady(team)"
+                @click="firePower(team)"
+              >
+                {{ factionPower(team).symbol }}
+                {{
+                  clashPowerSpent(game, 'player', team)
+                    ? factionPower(team).name + ' · USED'
+                    : powerArmed === team
+                      ? 'PICK A TARGET'
+                      : (myCharged ? '⚡ ' : '') + factionPower(team).name
+                }}
+              </button>
+            </span>
           </div>
         </div>
 
@@ -440,11 +453,15 @@ import {
   teamById,
   type Card,
   type Side,
+  type TeamId,
 } from '~/utils/slimeCity/prototypes'
 import {
   CLASH_LANES,
   applyClashCommand,
   canClashPower,
+  clashOvercharged,
+  clashPowers,
+  clashPowerSpent,
   useClashPower,
   clashPlayLimit,
   canClashPlay,
@@ -466,7 +483,7 @@ import {
 } from '~/utils/slimeCity/clash'
 import { useSlimeCityStore } from '~/stores/slimeCity'
 import { bossQuip, type BossMood } from '~/utils/slimeCity/bossReactions'
-import { factionPower } from '~/utils/slimeCity/factionPowers'
+import { OVERCHARGE_RULE, factionPower } from '~/utils/slimeCity/factionPowers'
 import {
   clashEvolutionChoice,
   type EvoPick,
@@ -541,9 +558,22 @@ const rewardNote = computed(() =>
       : '',
 )
 const alliance = computed(() => game.value.format === 'alliance')
-const myPower = computed(() => factionPower(game.value.teams.player))
-const rivalPower = computed(() => factionPower(game.value.teams.enemy))
-const powerArmed = ref(false)
+/** Silas, 2026-11-10 PT: one power in SOLO, both crews' powers in ALLIANCE. */
+const powerArmed = ref<TeamId | null>(null)
+const myCharged = computed(() => clashOvercharged(game.value, 'player'))
+const rivalCharged = computed(() => clashOvercharged(game.value, 'enemy'))
+function powerTitle(team: TeamId): string {
+  const power = factionPower(team)
+  return (
+    power.name +
+    ': ' +
+    power.text +
+    ' One use per match. ' +
+    OVERCHARGE_RULE +
+    ' Overcharged: ' +
+    power.overcharge
+  )
+}
 const heldIndex = ref<number | null>(null)
 const selectedUnit = ref<number | null>(null)
 const lunge = ref<{ side: Side; lane: number } | null>(null)
@@ -673,7 +703,7 @@ function newMatch(): void {
   lunge.value = null
   impact.value = null
   spectacle.value = null
-  powerArmed.value = false
+  powerArmed.value = null
   hoverUnit.value = null
   resetReactions()
   dealtLaunch = lab.clashLaunch.id
@@ -869,29 +899,30 @@ function allowedSide(card: Card, side: Side): boolean {
     return side === 'player'
   return side === 'enemy'
 }
-/** Your power can fire now (for a targeted power: at some fighter). */
-const powerReady = computed(
-  () =>
-    alliance.value &&
+/** A power can fire now (for a targeted power: at some fighter). */
+function powerReady(team: TeamId): boolean {
+  return (
     !busy.value &&
-    lanes.some((lane) => canClashPower(game.value, 'player', lane)),
-)
-function firePower(): void {
-  if (!powerReady.value) return
-  if (myPower.value.target === 'none') {
-    commit(useClashPower(game.value, 'player'))
-    heldIndex.value = null
-    return
-  }
-  powerArmed.value = !powerArmed.value
+    lanes.some((lane) => canClashPower(game.value, 'player', lane, team))
+  )
+}
+function firePower(team: TeamId): void {
+  if (!powerReady(team)) return
   heldIndex.value = null
   selectedUnit.value = null
+  if (factionPower(team).target === 'none') {
+    commit(useClashPower(game.value, 'player', 0, team))
+    powerArmed.value = null
+    return
+  }
+  powerArmed.value = powerArmed.value === team ? null : team
 }
 function targetable(side: Side, lane: number): boolean {
-  if (powerArmed.value)
+  const armed = powerArmed.value
+  if (armed)
     return (
-      side === (myPower.value.target === 'own' ? 'player' : 'enemy') &&
-      canClashPower(game.value, 'player', lane)
+      side === (factionPower(armed).target === 'own' ? 'player' : 'enemy') &&
+      canClashPower(game.value, 'player', lane, armed)
     )
   const card = selectedCard.value
   if (!card || !playableNow(card.id)) return false
@@ -910,7 +941,7 @@ function floater(side: Side, lane: number): string | null {
   return hit.dealt > 0 ? '-' + hit.dealt : 'BLOCK'
 }
 function onPick(index: number | null): void {
-  powerArmed.value = false
+  powerArmed.value = null
   selectedUnit.value = null
   heldIndex.value = index
 }
@@ -931,8 +962,8 @@ function slotLabel(side: Side, lane: number): string {
 function clickSlot(side: Side, lane: number): void {
   if (powerArmed.value) {
     if (targetable(side, lane)) {
-      commit(useClashPower(game.value, 'player', lane))
-      powerArmed.value = false
+      commit(useClashPower(game.value, 'player', lane, powerArmed.value))
+      powerArmed.value = null
       selectedUnit.value = null
     }
     return
@@ -1579,6 +1610,42 @@ function forecast(lane: number): string {
   overflow: hidden;
   text-overflow: ellipsis;
 }
+.clash-powers {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem 0.5rem;
+  min-width: 0;
+}
+.clash-powers .clash-power {
+  flex: 1 1 0;
+  min-width: 0;
+}
+.clash-power.charged {
+  border-color: #fff27a;
+  color: #fffbe0 !important;
+  background: linear-gradient(110deg, #8a5a08, #3d2604);
+  box-shadow:
+    0 0 14px #ffd76acc,
+    inset 0 0 10px #ffe9a866;
+  animation: clash-charge 1.4s ease-in-out infinite;
+}
+.clash-power-chip.charged:not(.spent) {
+  color: #fff27a;
+  text-shadow: 0 0 6px #ffd76a;
+}
+@keyframes clash-charge {
+  0%,
+  100% {
+    box-shadow:
+      0 0 10px #ffd76a99,
+      inset 0 0 8px #ffe9a844;
+  }
+  50% {
+    box-shadow:
+      0 0 20px #ffd76a,
+      inset 0 0 12px #ffe9a888;
+  }
+}
 .clash-power-chip.spent {
   opacity: 0.5;
   text-decoration: line-through;
@@ -1839,13 +1906,17 @@ function forecast(lane: number): string {
     flex: none;
     flex-direction: row;
     align-items: stretch;
-    height: clamp(3.4rem, 9cqh, 5rem);
+    min-height: clamp(3.4rem, 9cqh, 5rem);
   }
   .clash-portrait {
-    flex: 0 0 auto;
-    aspect-ratio: 1;
+    flex: 0 0 clamp(3.4rem, 9cqh, 5rem);
     min-height: 0;
     border-radius: 0.8rem 0 0 0.8rem;
+  }
+  .clash-power {
+    margin-top: 0;
+    padding: 0.3rem 0.45rem;
+    font-size: 0.62rem !important;
   }
   .clash-boss-info {
     flex: 1;
@@ -2110,6 +2181,7 @@ function forecast(lane: number): string {
   .clash-boss.hit,
   .clash-boss .clash-portrait,
   .clash-stat,
+  .clash-power.charged,
   .clash-stat.is-life.low path,
   .clash-quip-enter-active {
     animation: none;

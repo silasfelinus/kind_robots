@@ -223,7 +223,7 @@ for (const general of crews.slice(0, 3)) {
   )
   assert.deepEqual(replay.boss, match.boss)
   assert.deepEqual(replay.levels, match.levels)
-  assert.deepEqual(replay.powerUsed, match.powerUsed)
+  assert.deepEqual(replay.powersUsed, match.powersUsed)
   assert.equal(replay.victor, match.victor)
 }
 

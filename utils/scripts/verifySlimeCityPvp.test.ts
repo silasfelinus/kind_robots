@@ -60,7 +60,9 @@ trapped.log.push({
   text: 'SECRET bloodwire evolves',
 })
 assert.equal(
-  pvpBoard(trapped, 'player').log.some((entry) => entry.text.includes('SECRET')),
+  pvpBoard(trapped, 'player').log.some((entry) =>
+    entry.text.includes('SECRET'),
+  ),
   false,
   'untriggered traps and their evolution cannot leak through logs',
 )

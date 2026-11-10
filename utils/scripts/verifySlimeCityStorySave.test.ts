@@ -36,7 +36,7 @@ for (const team of TEAMS) {
     assert.equal(STARTER_CARD_IDS.has(id), true, team.id + ' starter ' + id)
 }
 // ALLIANCE shrank from 30 to 20 cards (Silas, 2026-11-09 PT): a save holding a
-// retired deck or tower run keeps its story and loses only those.
+// legacy decks and live tower runs are downsized without losing progress.
 const legal = allianceStarter('catgirls', 'riot')
 const retired = {
   ...legal,
@@ -64,8 +64,12 @@ const legacyAccount = {
 assert.equal(validSlimeCityStory(legacyAccount.story), false)
 const migrated = storyFromAccount(legacyAccount)
 assert.equal(migrated.city.location, 'chimera')
-assert.deepEqual(Object.keys(migrated.alliances ?? {}), ['riot'])
-assert.equal(migrated.tower?.run, null)
+assert.deepEqual(Object.keys(migrated.alliances ?? {}), ['catgirls', 'riot'])
+assert.equal(migrated.alliances?.catgirls?.cards.length, 20)
+assert.equal(migrated.tower?.run?.deck.cards.length, 20)
+assert.deepEqual(migrated.tower?.run?.deck.cards, migrated.alliances?.catgirls?.cards)
+assert.equal(migrated.tower?.run?.floor, runningTower.run.floor)
+assert.equal(legacyAccount.story.alliances.catgirls.cards.length, 30)
 assert.deepEqual(migrated.tower?.meta, runningTower.meta)
 assert.deepEqual(
   (accountWithStory(legacyAccount, { meat: 3 }) as { story: unknown }).story,

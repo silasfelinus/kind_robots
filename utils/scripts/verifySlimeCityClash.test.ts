@@ -1882,7 +1882,10 @@ for (const [version, result] of Object.entries(catgirlsPilot)) {
   assert.ok(result.wins >= 0 && result.wins <= result.games, version)
   assert.ok(result.played > 0, version + ': cards must actually be played')
 }
-console.log('Catgirls fighters-first paired counterfactual (40 games/deck):', catgirlsPilot)
+console.log(
+  'Catgirls fighters-first paired counterfactual (40 games/deck):',
+  catgirlsPilot,
+)
 
 const sweep = sweepClash(40, 700)
 console.log(

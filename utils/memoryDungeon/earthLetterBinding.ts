@@ -1,4 +1,8 @@
-import { chooseLetter, newLetterProgress, type LetterProgress } from './earthLetters'
+import {
+  chooseLetter,
+  newLetterProgress,
+  type LetterProgress,
+} from './earthLetters'
 
 /**
  * Project the two already-playable library decisions into the optional letter

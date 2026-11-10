@@ -1786,6 +1786,21 @@ assert.doesNotMatch(
   'reaction-face tokens must not override the fighter card painting',
 )
 
+const fighterImageStart = clashView.indexOf('.clash-slot :deep(img) {')
+const fighterImageStyle =
+  fighterImageStart < 0
+    ? ''
+    : clashView.slice(
+        fighterImageStart,
+        clashView.indexOf('}', fighterImageStart) + 1,
+      )
+assert.ok(fighterImageStyle, 'fighter image styling must exist')
+assert.match(
+  fighterImageStyle,
+  /object-fit:\s*contain\s*;/,
+  'deployed fighters must show the complete card painting',
+)
+
 // Long adversarial CPU playthroughs on every crew pairing, all rules and replay.
 let simulated = 0
 let timeoutWinners = 0

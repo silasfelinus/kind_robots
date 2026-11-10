@@ -1138,8 +1138,18 @@ function forecast(lane: number): string {
   inset: 0;
   width: 100%;
   height: 100%;
-  object-fit: cover;
-  opacity: 0.94;
+  /* Preserve the complete evolution painting rather than cropping it into a token. */
+  object-fit: contain;
+  object-position: center;
+  opacity: 1;
+}
+.clash-slot.filled {
+  background: radial-gradient(ellipse at 50% 40%, #31545b, #081a25 80%);
+  border-style: solid;
+  border-color: #9ac3b15e;
+}
+.clash-slot.filled.selected {
+  border-color: #e8fba5;
 }
 .clash-numbers {
   --stat: clamp(1.6rem, 30cqmin, 4.2rem);

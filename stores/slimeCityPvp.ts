@@ -37,13 +37,16 @@ export const useSlimeCityPvpStore = defineStore('slimeCityPvp', () => {
     if (sending.value) return
     if (!quiet) loading.value = true
     try {
-      const next = await request('/api/slime-city/pvp/' + encodeURIComponent(id))
+      const next = await request(
+        '/api/slime-city/pvp/' + encodeURIComponent(id),
+      )
       duel.value = next
       error.value = ''
     } catch (cause) {
       if (!quiet) {
         duel.value = null
-        error.value = cause instanceof Error ? cause.message : 'Cannot find duel.'
+        error.value =
+          cause instanceof Error ? cause.message : 'Cannot find duel.'
       }
     } finally {
       loading.value = false
@@ -61,7 +64,8 @@ export const useSlimeCityPvpStore = defineStore('slimeCityPvp', () => {
       duel.value = data
       return data
     } catch (cause) {
-      error.value = cause instanceof Error ? cause.message : 'Cannot start duel.'
+      error.value =
+        cause instanceof Error ? cause.message : 'Cannot start duel.'
       return null
     } finally {
       sending.value = false

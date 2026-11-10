@@ -2,6 +2,7 @@ import {
   applyClashCommand,
   createClash,
   nextClashStrike,
+  clashPower,
   replayClash,
   type ClashCommand,
   type ClashState,
@@ -24,7 +25,7 @@ export interface PvpBoard {
   plays: ClashState['plays']
   freePlays: ClashState['freePlays']
   boss: ClashState['boss']
-  units: ClashState['units']
+  units: Array<ClashState['units'][number] & { power: number }>
   traps: ClashState['traps']
   log: ClashState['log']
   cursor: number
@@ -159,9 +160,11 @@ export function pvpBoard(state: ClashState, seat: Side): PvpBoard {
     plays: { ...state.plays },
     freePlays: { ...state.freePlays },
     boss: { ...state.boss },
-    units: state.units.map((unit) => ({ ...unit })),
+    units: state.units.map((unit) => ({ ...unit, power: clashPower(state, unit) })),
     traps: state.traps.filter((trap) => trap.side === seat).map((trap) => ({ ...trap })),
-    log: state.log.map((entry) => ({ ...entry })),
+    log: state.log
+      .filter((entry) => !!state.victor || ['death', 'boss', 'turn'].includes(entry.kind))
+      .map((entry) => ({ ...entry })),
     cursor: state.cursor,
     strike: state.strike ? { ...state.strike } : null,
     victor: state.victor,

@@ -26,12 +26,19 @@ const asJson = (value: unknown): Prisma.InputJsonValue =>
   JSON.parse(JSON.stringify(value))
 
 function validId(id: string): boolean {
-  return /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id)
+  return /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(
+    id,
+  )
 }
 
-type Row = NonNullable<Awaited<ReturnType<typeof prisma.slimeCityMatch.findUnique>>>
+type Row = NonNullable<
+  Awaited<ReturnType<typeof prisma.slimeCityMatch.findUnique>>
+>
 
-function activeRow(row: Row | null, id: string): {
+function activeRow(
+  row: Row | null,
+  id: string,
+): {
   row: Row
   record: PvpRecord
 } {
@@ -54,7 +61,12 @@ function snapshot(row: Row, record: PvpRecord, userId: number): PvpSnapshot {
   const seat = seatFor(row, record, userId)
   const joined = record.guestId !== null
   const state = joined
-    ? replayPvp(row.teamId as TeamId, row.foeId as TeamId, row.seed, record.commands)
+    ? replayPvp(
+        row.teamId as TeamId,
+        row.foeId as TeamId,
+        row.seed,
+        record.commands,
+      )
     : null
   return {
     id: row.id,
@@ -89,7 +101,8 @@ export async function createSlimeCityDuel(userId: number, team: unknown) {
       settledAt: null,
     },
   })
-  if (recent >= 12) return fail(429, 'Finish a waiting duel before starting more.')
+  if (recent >= 12)
+    return fail(429, 'Finish a waiting duel before starting more.')
   const row = await prisma.slimeCityMatch.create({
     data: {
       userId,

@@ -2,6 +2,7 @@
 // the authenticated server, which exclusively owns wallet and inventory writes.
 // The real-money/cash-out path is deliberately absent.
 import { MERCENARY_RARE_IDS } from './mercenaryCards'
+import { BASE_CARD_IDS } from './baseCollection'
 import { GUTTER_CROWN_WAVE_THREE_RARE_IDS } from './gutterCrownWaveThree'
 import { GUTTER_CROWN_FINALE_A_RARE_IDS } from './gutterCrownFinaleA'
 import { GUTTER_CROWN_FINALE_B_RARE_IDS } from './gutterCrownFinaleB'
@@ -203,7 +204,7 @@ export function newProgression(now = new Date()): Progression {
     wins: 0,
     losses: 0,
     draws: 0,
-    cards: [],
+    cards: [...BASE_CARD_IDS],
     receipts: [],
     opened: 0,
     lastPack: [],
@@ -374,30 +375,32 @@ function chooseOne(pool: Card[], seed: number, index: number): Card {
   )[0]!
 }
 export function canBuyPack(progress: Progression): boolean {
-  const unowned = CARDS.filter((card) => !progress.cards.includes(card.id))
   return (
     progress.meat >= PACK_COST &&
-    unowned.filter((c) => rarityOf(c) === 'rare').length >= 1 &&
-    unowned.filter((c) => rarityOf(c) !== 'rare').length >= PACK_SIZE - 1
+    CARDS.some((card) => !progress.cards.includes(card.id))
   )
 }
-/** Pack has EXACTLY one rare, two non-rares and zero duplicates, until sold out. */
+/**
+ * One rare and two non-rares, never a duplicate. When one rarity runs out the
+ * pack fills from the other, so the last unowned cards are never stranded.
+ */
 export function buyPack(original: Progression, entropy: number): Progression {
   if (!canBuyPack(original)) return original
-  const unowned = CARDS.filter((card) => !original.cards.includes(card.id))
-  const rare = chooseOne(
-    unowned.filter((c) => rarityOf(c) === 'rare'),
-    entropy,
-    original.opened * 3,
-  )
-  const normals = unowned.filter((c) => rarityOf(c) !== 'rare')
-  const second = chooseOne(normals, entropy, original.opened * 3 + 1)
-  const third = chooseOne(
-    normals.filter((c) => c.id !== second.id),
-    entropy,
-    original.opened * 3 + 2,
-  )
-  const gained = [rare.id, second.id, third.id]
+  let unowned = CARDS.filter((card) => !original.cards.includes(card.id))
+  const gained: string[] = []
+  for (let slot = 0; slot < PACK_SIZE && unowned.length; slot++) {
+    const wantRare = slot === 0
+    const preferred = unowned.filter(
+      (c) => (rarityOf(c) === 'rare') === wantRare,
+    )
+    const card = chooseOne(
+      preferred.length ? preferred : unowned,
+      entropy,
+      original.opened * 3 + slot,
+    )
+    gained.push(card.id)
+    unowned = unowned.filter((c) => c.id !== card.id)
+  }
   return {
     ...original,
     meat: original.meat - PACK_COST,
@@ -431,12 +434,15 @@ export function restoreProgression(
   )
     return blank
   const ids = new Set(CARDS.map((c) => c.id))
+  // Every account owns the base collection (Silas, 2026-11-10 PT), whatever
+  // an older save recorded.
   const cards = [
-    ...new Set(
-      p.cards.filter(
+    ...new Set([
+      ...BASE_CARD_IDS,
+      ...p.cards.filter(
         (id): id is string => typeof id === 'string' && ids.has(id),
       ),
-    ),
+    ]),
   ]
   const cleanWin = (
     w: ChallengeWindow,

@@ -192,20 +192,23 @@ const enemyTrap = arena([ironjaw(3, 2), rival(4, 2)])
 enemyTrap.traps = [{ x: 4, y: 2, side: 'enemy', damage: 1, roots: true }]
 assert.ok(advance(enemyTrap).stats.trapsSprung >= 1)
 
-let wallet = { ...newProgression(), meat: RARE_COUNT * 100 }
-for (let pack = 0; pack < RARE_COUNT; pack++) {
-  assert.equal(canBuyPack(wallet), true)
-  wallet = buyPack(wallet, 5700 + pack)
-  assert.equal(wallet.lastPack.length, 3)
-  assert.equal(
-    wallet.lastPack.filter((id) => rarityOf(cardById(id)) === 'rare').length,
-    1,
-    'Every purchased pack contains one and only one rare',
-  )
+// Every account owns the base collection (Silas, 2026-11-10 PT); packs add
+// the rest, a rare in every pack while rares remain, never a duplicate.
+let wallet = { ...newProgression(), meat: CARDS.length * 100 }
+let rareLeft = CARDS.filter(
+  (c) => !wallet.cards.includes(c.id) && rarityOf(c) === 'rare',
+).length
+while (canBuyPack(wallet)) {
+  wallet = buyPack(wallet, 5700 + wallet.opened)
+  const rares = wallet.lastPack.filter(
+    (id) => rarityOf(cardById(id)) === 'rare',
+  ).length
+  if (rareLeft > 0)
+    assert.ok(rares >= 1, 'Every pack carries a rare while rares remain')
+  rareLeft -= rares
   assert.equal(new Set(wallet.cards).size, wallet.cards.length)
 }
 assert.equal(wallet.cards.length, CARDS.length)
-assert.equal(wallet.meat, 0)
 assert.equal(canBuyPack(wallet), false)
 console.log(
   'Slime City Gutter Crown wave two: 36 cards, six faction styles, legal decks, casts, shoves and all guaranteed-rare packs PASS',

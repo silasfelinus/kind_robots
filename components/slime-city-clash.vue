@@ -375,6 +375,16 @@
               </button>
               <button
                 type="button"
+                class="clash-reset clash-undo"
+                data-testid="clash-undo"
+                title="Take back your last card or power this turn"
+                :disabled="undoAt < 0"
+                @click="undo"
+              >
+                ↶ UNDO
+              </button>
+              <button
+                type="button"
                 class="clash-pass"
                 data-testid="clash-pass"
                 :title="
@@ -382,11 +392,13 @@
                     ? 'No playable card in this hand. Pass to continue the round.'
                     : 'Skip remaining card plays and send your crew in'
                 "
+                :class="{ ready: readyToFight }"
                 :disabled="
-                  busy ||
-                  game.active !== 'player' ||
-                  game.phase !== 'play' ||
-                  !!game.victor
+                  !readyToFight &&
+                  (busy ||
+                    game.active !== 'player' ||
+                    game.phase !== 'play' ||
+                    !!game.victor)
                 "
                 @click="pass"
               >
@@ -472,6 +484,7 @@ import {
   clashLevel,
   clashUnitAt,
   createClash,
+  replayClash,
   endClashTurn,
   nextClashStrike,
   passClash,
@@ -502,9 +515,16 @@ const lab = useSlimeCityStore()
 const lanes = Array.from({ length: CLASH_LANES }, (_, lane) => lane)
 const sides: Side[] = ['enemy', 'player']
 /** Deal whatever match the store launched (practice, reward or bout). */
+/** The exact setup this match was dealt from, so an undo can replay it. */
+let dealtSetup = lab.clashSetup()
 function dealt(): ClashState {
-  const setup = lab.clashSetup()
-  return createClash(setup.player, setup.enemy, setup.seed, setup.options)
+  dealtSetup = lab.clashSetup()
+  return createClash(
+    dealtSetup.player,
+    dealtSetup.enemy,
+    dealtSetup.seed,
+    dealtSetup.options,
+  )
 }
 const game = shallowRef<ClashState>(dealt())
 let dealtLaunch = lab.clashLaunch.id
@@ -819,15 +839,21 @@ const inspect = computed<{
   hover?: boolean
   dock?: 'left' | 'right'
 } | null>(() => {
-  const hovered = game.value.units.find((v) => v.uid === hoverUnit.value)
-  const u =
-    hovered ?? game.value.units.find((v) => v.uid === selectedUnit.value)
+  // A clicked fighter stays pinned with its level tabs; hover previews
+  // only while nothing is pinned (Silas, 2026-11-10 PT: "if a user clicks on
+  // the card rather than hovers, we should get the evolution").
+  const pinned = game.value.units.find((v) => v.uid === selectedUnit.value)
+  const hovered =
+    pinned || heldIndex.value !== null
+      ? undefined
+      : game.value.units.find((v) => v.uid === hoverUnit.value)
+  const u = pinned ?? hovered
   if (!u) return null
   return {
     id: u.cardId,
     level: u.level,
     pick: u.evoChoice ?? 0,
-    hover: !!hovered && hovered.uid !== selectedUnit.value,
+    hover: !pinned && !!hovered,
     dock: u.lane >= 2 ? 'left' : 'right',
     note:
       (u.side === 'player' ? 'Your fighter' : 'Rival fighter') +
@@ -975,7 +1001,8 @@ function clickSlot(side: Side, lane: number): void {
     const flourish = commit(next)
     heldIndex.value = null
     selectedUnit.value = null
-    kick(flourish)
+    // Your last play holds here until FIGHT, so it can still be undone.
+    if (!readyToFight.value) kick(flourish)
     return
   }
   const targetUnit = unit(side, lane)
@@ -985,7 +1012,62 @@ function clickSlot(side: Side, lane: number): void {
       selectedUnit.value === targetUnit.uid ? null : targetUnit.uid
   }
 }
+/**
+ * Silas, 2026-11-10 PT: "there should be an undo button if you are still on
+ * the same round". Your last card or power this turn, while you are still
+ * choosing plays: the match replays from its deal without it, so the same
+ * seed gives the same draws, and a reward transcript never sees it.
+ */
+/**
+ * Your last allowed play ends the play phase in the engine; the sweep waits
+ * for FIGHT instead of starting at once, so that play can still be undone.
+ */
+const readyToFight = computed(() => {
+  const s = game.value
+  if (s.victor || s.active !== 'player' || s.phase !== 'attack') return false
+  const last = s.commands.at(-1)
+  return last?.t === 'play' && last.side === 'player'
+})
+const undoAt = computed(() => {
+  const s = game.value
+  if (
+    s.victor ||
+    s.active !== 'player' ||
+    !(readyToFight.value || (s.phase === 'play' && !busy.value))
+  )
+    return -1
+  for (let i = s.commands.length - 1; i >= 0; i--) {
+    const c = s.commands[i]!
+    if (c.t === 'end' || c.t === 'pass' || c.t === 'strike') return -1
+    if (c.side === 'player' && (c.t === 'play' || c.t === 'power')) return i
+  }
+  return -1
+})
+function undo(): void {
+  const at = undoAt.value
+  if (at < 0) return
+  stopTimer()
+  game.value = replayClash(
+    dealtSetup.player,
+    dealtSetup.enemy,
+    dealtSetup.seed,
+    game.value.commands.slice(0, at),
+    dealtSetup.options,
+  )
+  heldIndex.value = null
+  selectedUnit.value = null
+  hoverUnit.value = null
+  powerArmed.value = null
+  lunge.value = null
+  impact.value = null
+  spectacle.value = null
+}
 function pass(): void {
+  if (readyToFight.value) {
+    heldIndex.value = null
+    kick()
+    return
+  }
   if (busy.value || game.value.active !== 'player' || game.value.victor) return
   commit(passClash(game.value, 'player'))
   heldIndex.value = null
@@ -1819,6 +1901,9 @@ function forecast(lane: number): string {
   color: #142016 !important;
   letter-spacing: 0.06em;
 }
+.clash-pass.ready {
+  animation: clash-charge 1.4s ease-in-out infinite;
+}
 .clash-pass:disabled {
   background: #19332f;
   color: var(--ink) !important;
@@ -1831,6 +1916,9 @@ function forecast(lane: number): string {
 .clash-back {
   border-color: var(--neon);
   color: #e9ffd0;
+}
+.clash-undo {
+  flex: 0.8;
 }
 .clash-format {
   display: flex;

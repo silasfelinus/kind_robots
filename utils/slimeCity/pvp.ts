@@ -1,6 +1,7 @@
 import {
   applyClashCommand,
   createClash,
+  nextClashStrike,
   replayClash,
   type ClashCommand,
   type ClashState,
@@ -39,6 +40,7 @@ export interface PvpBoard {
   discardCount: number
   opponentDiscardCount: number
   commandCount: number
+  nextStrike: number
 }
 
 export interface PvpSnapshot {
@@ -175,5 +177,6 @@ export function pvpBoard(state: ClashState, seat: Side): PvpBoard {
     discardCount: state.discards[seat].length,
     opponentDiscardCount: state.discards[other].length,
     commandCount: state.commands.length,
+    nextStrike: nextClashStrike(state, state.active),
   }
 }

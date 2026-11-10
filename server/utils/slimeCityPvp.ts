@@ -79,13 +79,6 @@ function snapshot(row: Row, record: PvpRecord, userId: number): PvpSnapshot {
   }
 }
 
-async function lockedRow(tx: Prisma.TransactionClient, id: string) {
-  if (!validId(id)) return fail(404, 'Duel not found.')
-  await tx.$queryRaw`SELECT id FROM SlimeCityMatch WHERE id = ${id} FOR UPDATE`
-  const row = await tx.slimeCityMatch.findUnique({ where: { id } })
-  return activeRow(row, id)
-}
-
 /**
  * Admin-only invite preview. No matchmaking, wallet, payout or production
  * economy changes. Only the inviter and the first authenticated invitee
@@ -136,7 +129,12 @@ export async function joinSlimeCityDuel(
 ) {
   if (!isPvpTeam(team)) return fail(400, 'Choose a Slime City crew.')
   return prisma.$transaction(async (tx) => {
-    const { row, record } = await lockedRow(tx, id)
+    if (!validId(id)) return fail(404, 'Duel not found.')
+    await tx.$queryRaw`SELECT id FROM SlimeCityMatch WHERE id = ${id} FOR UPDATE`
+    const { row, record } = activeRow(
+      await tx.slimeCityMatch.findUnique({ where: { id } }),
+      id,
+    )
     if (row.userId === userId)
       return fail(403, 'You cannot fight yourself. Invite another account.')
     if (record.guestId !== null && record.guestId !== userId)
@@ -160,7 +158,12 @@ export async function commandSlimeCityDuel(
   if (!Number.isSafeInteger(revision) || Number(revision) < 0)
     return fail(400, 'Invalid match revision.')
   return prisma.$transaction(async (tx) => {
-    const { row, record } = await lockedRow(tx, id)
+    if (!validId(id)) return fail(404, 'Duel not found.')
+    await tx.$queryRaw`SELECT id FROM SlimeCityMatch WHERE id = ${id} FOR UPDATE`
+    const { row, record } = activeRow(
+      await tx.slimeCityMatch.findUnique({ where: { id } }),
+      id,
+    )
     const seat = seatFor(row, record, userId)
     if (record.guestId === null) return fail(409, 'Waiting for a rival.')
     if (record.commands.length !== revision)

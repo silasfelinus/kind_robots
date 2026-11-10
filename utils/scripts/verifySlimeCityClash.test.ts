@@ -1797,7 +1797,7 @@ const fighterImageStyle =
 assert.ok(fighterImageStyle, 'fighter image styling must exist')
 assert.match(
   fighterImageStyle,
-  /object-fit:\\s*contain\\s*;/,
+  /object-fit:\s*contain\s*;/,
   'deployed fighters must show the complete card painting',
 )
 

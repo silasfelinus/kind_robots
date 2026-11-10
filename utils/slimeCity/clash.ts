@@ -511,7 +511,8 @@ function clashBaseText(card: Card, level: number): string {
       'Hits the next rival fighter in this alley for ' +
       b.power +
       '.' +
-      (card.roots ? ' It misses its next strike.' : '')
+      (card.roots ? ' It misses its next strike.' : '') +
+      (isArmorCutterSnare(card) ? ' Cuts armor.' : '')
     )
   switch (card.effect) {
     case 'heal':
@@ -910,10 +911,34 @@ function stun(u: ClashUnit): void {
   if (u.snareWard) u.snareWard = false
   else u.rooted = true
 }
+/** One-play snares are armor-cutters (see springTrap). */
+function isArmorCutterSnare(card: Card): boolean {
+  return (
+    card.kind === 'trap' && card.effect === 'snare' && clashPlayCost(card) === 1
+  )
+}
 /** Central trap detonation, including network copies which never enter a draw pile. */
 function springTrap(s: ClashState, trap: ClashTrap, victim: ClashUnit): number {
   const card = cardById(trap.cardId)
-  const dealt = damage(victim, clashBalance(card, trap.level).power)
+  // Cheap snares are armor-cutters: a one-play trap pierces one point of armor,
+  // hits an armored catch for one extra, and shears one permanent point off the plated fighter it catches, so it is
+  // the answer to armored bruisers rather than a flat tax on them.
+  const cutter = isArmorCutterSnare(card)
+  const armored = victim.armor + (victim.guard ?? 0) > 0
+  const dealt = damage(
+    victim,
+    clashBalance(card, trap.level).power + (cutter && armored ? 1 : 0),
+    cutter ? 1 : 0,
+  )
+  if (cutter && victim.armor > 0) {
+    victim.armor -= 1
+    note(
+      s,
+      'The snare shears plating off ' + nameOf(victim) + '!',
+      'trap',
+      trap.lane,
+    )
+  }
   if (card.roots || (trap.cardId === 'grate' && trap.level >= 2)) stun(victim)
   s.traps = s.traps.filter((t) => t !== trap)
   if (!trap.token) s.discards[trap.side].push(trap.cardId)

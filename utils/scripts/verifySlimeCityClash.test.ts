@@ -1786,6 +1786,22 @@ assert.doesNotMatch(
   'reaction-face tokens must not override the fighter card painting',
 )
 
+// A correct ArtImage resolver is not enough if the battlefield crops its painting.
+const fighterImageStart = clashView.indexOf('.clash-slot :deep(img) {')
+const fighterImageStyle =
+  fighterImageStart < 0
+    ? ''
+    : clashView.slice(
+        fighterImageStart,
+        clashView.indexOf('}', fighterImageStart) + 1,
+      )
+assert.ok(fighterImageStyle, 'fighter image styling must exist')
+assert.match(
+  fighterImageStyle,
+  /object-fit:\\s*contain\\s*;/,
+  'deployed cards must show the complete illustration, not crop it',
+)
+
 // Long adversarial CPU playthroughs on every crew pairing, all rules and replay.
 let simulated = 0
 let timeoutWinners = 0

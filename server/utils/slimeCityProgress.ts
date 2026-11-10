@@ -6,7 +6,6 @@ import type { Prisma } from '~/prisma/generated/prisma/client'
 import {
   accountWithStory,
   storyFromAccount,
-  unlockModeOf,
   validSlimeCityStory,
   type SlimeCityStory,
 } from '~/utils/slimeCity/storySave'
@@ -158,8 +157,7 @@ export async function startSlimeCityCpuMatch(
   const account = await prisma.slimeCityAccount.findUnique({
     where: { userId },
   })
-  const story = storyFromAccount(account?.data)
-  if (unlockModeOf(story) === 'trickle') {
+  {
     const owned = new Set(restoreProgression(account?.data).cards)
     if (
       clashRewardCards(clash).some(
@@ -411,15 +409,14 @@ export async function saveSlimeCityStory(
     })
     const current = storyFromAccount(row.data)
     const ownedCards = new Set(restoreProgression(row.data).cards)
-    const unlocks = proposed.unlocks ?? current.unlocks
-    // Every card is open by default; only TRICKLE gates decks on ownership.
-    const gated = unlockModeOf({ unlocks }) === 'trickle'
+    // Silas, 2026-11-10 PT: everyone, admin included, builds from the base
+    // collection plus the cards they unlock. Decks are always ownership-gated.
     const allDecks = [
       ...Object.values(proposed.decks ?? {}),
       ...Object.values(proposed.soloDecks ?? {}),
       ...Object.values(proposed.alliances ?? {}).map((deck) => deck?.cards),
     ]
-    for (const deck of gated ? allDecks : []) {
+    for (const deck of allDecks) {
       if (deck?.some((id) => !STARTER_CARD_IDS.has(id) && !ownedCards.has(id)))
         throw createError({
           statusCode: 403,
@@ -446,7 +443,7 @@ export async function saveSlimeCityStory(
       ...((proposed.alliances ?? current.alliances)
         ? { alliances: proposed.alliances ?? current.alliances }
         : {}),
-      ...(unlocks ? { unlocks } : {}),
+      unlocks: 'trickle',
       ...((proposed.storyMode ?? current.storyMode)
         ? { storyMode: proposed.storyMode ?? current.storyMode }
         : {}),

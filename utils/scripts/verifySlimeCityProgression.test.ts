@@ -1,4 +1,5 @@
 // Slime City local progression and pack prototype contract.
+import { BASE_CARD_IDS } from '../slimeCity/baseCollection'
 import assert from 'node:assert/strict'
 import {
   createMatch,
@@ -60,7 +61,8 @@ const fresh = newProgression(now)
 assert.equal(fresh.meat, 0)
 assert.equal(fresh.xp, 0)
 assert.equal(canBuyPack(fresh), false)
-assert.equal(fresh.cards.length, 0)
+// Every account starts owning the base collection (Silas, 2026-11-10 PT).
+assert.equal(fresh.cards.length, BASE_CARD_IDS.length)
 assert.equal(RARE_COUNT * 3, CARDS.length)
 assert.equal(CARDS.filter((c) => rarityOf(c) !== 'rare').length, RARE_COUNT * 2)
 assert.equal(new Set(CARDS.map((c) => c.id)).size, CARDS.length)
@@ -158,19 +160,25 @@ assert.equal(
 )
 assert.equal(capped.daily.paidBattles, DAILY_PAID_BATTLES)
 
-let wallet = { ...fresh, meat: RARE_COUNT * PACK_COST }
-const pulled = new Set<string>()
-for (let i = 0; i < RARE_COUNT; i++) {
+// Packs add only cards beyond the base collection (Silas, 2026-11-10 PT): one
+// rare per pack while rares remain, never a duplicate, until sold out.
+const extras = CARDS.length - fresh.cards.length
+const packs = Math.ceil(extras / 3)
+let wallet = { ...fresh, meat: packs * PACK_COST }
+const pulled = new Set<string>(fresh.cards)
+let rareLeft = CARDS.filter(
+  (c) => !pulled.has(c.id) && rarityOf(c) === 'rare',
+).length
+for (let i = 0; i < packs; i++) {
   assert.equal(canBuyPack(wallet), true)
   const next = buyPack(wallet, 91823 + i)
   assert.equal(next.meat, wallet.meat - PACK_COST)
-  assert.equal(next.lastPack.length, 3)
-  assert.equal(
-    next.lastPack.filter(
-      (id) => rarityOf(CARDS.find((c) => c.id === id)!) === 'rare',
-    ).length,
-    1,
-  )
+  assert.equal(next.lastPack.length, Math.min(3, CARDS.length - pulled.size))
+  const rares = next.lastPack.filter(
+    (id) => rarityOf(CARDS.find((c) => c.id === id)!) === 'rare',
+  ).length
+  if (rareLeft > 0) assert.ok(rares >= 1, 'a rare while rares remain')
+  rareLeft -= rares
   for (const id of next.lastPack) {
     assert.equal(
       pulled.has(id),
@@ -179,7 +187,7 @@ for (let i = 0; i < RARE_COUNT; i++) {
     )
     pulled.add(id)
   }
-  assert.equal(next.cards.length, (i + 1) * 3)
+  assert.equal(next.cards.length, pulled.size)
   wallet = next
 }
 assert.equal(
@@ -187,13 +195,9 @@ assert.equal(
   CARDS.length,
   'All founder and reserve cards available as collectibles',
 )
-assert.equal(
-  canBuyPack(wallet),
-  false,
-  'Sold out instead of breaking rare guarantee',
-)
+assert.equal(canBuyPack(wallet), false, 'Sold out')
 assert.equal(buyPack(wallet, 5), wallet)
-assert.equal(wallet.opened, RARE_COUNT)
+assert.equal(wallet.opened, packs)
 assert.equal(wallet.meat, 0)
 assert.deepEqual(
   buyPack({ ...fresh, meat: 100 }, 1234).lastPack,

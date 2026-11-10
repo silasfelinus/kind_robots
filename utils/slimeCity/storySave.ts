@@ -68,10 +68,15 @@ export const STORY_MODES: readonly StoryMode[] = ['written', 'turf']
 export type UnlockMode = 'all' | 'trickle'
 export const UNLOCK_MODES: readonly UnlockMode[] = ['all', 'trickle']
 
+/**
+ * Silas, 2026-11-10 PT: "from now on, everyone, including me as admin, should
+ * be restricted to those base cards and then cards that they particularly
+ * unlock". ALL CARDS is retired; older saves that stored it read as TRICKLE.
+ */
 export function unlockModeOf(
-  story: Pick<SlimeCityStory, 'unlocks'>,
+  _story: Pick<SlimeCityStory, 'unlocks'>,
 ): UnlockMode {
-  return story.unlocks ?? 'all'
+  return 'trickle'
 }
 
 export function newSlimeCityStory(): SlimeCityStory {

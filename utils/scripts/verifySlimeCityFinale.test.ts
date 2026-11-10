@@ -203,18 +203,23 @@ for (const crew of TEAMS) {
   }
 }
 
-// Guaranteed rare packs must exhaust every owned card, not strand high rarity.
-let wallet = { ...newProgression(), meat: RARE_COUNT * PACK_COST }
-const pulled = new Set<string>()
-for (let i = 0; i < 100; i++) {
+// Packs exhaust every card beyond the base collection (Silas, 2026-11-10 PT),
+// one rare per pack while rares remain, never stranding a rarity.
+let wallet = { ...newProgression(), meat: RARE_COUNT * 10 * PACK_COST }
+const pulled = new Set<string>(wallet.cards)
+const extras = 300 - wallet.cards.length
+let rareLeft = CARDS.filter(
+  (card) => !pulled.has(card.id) && rarityOf(card) === 'rare',
+).length
+for (let i = 0; i < Math.ceil(extras / 3); i++) {
   assert.equal(canBuyPack(wallet), true, 'Pack ' + (i + 1) + ' is available')
   const next = buyPack(wallet, 20261102 + i * 187)
   assert.notEqual(next, wallet)
-  assert.equal(next.lastPack.length, 3)
-  assert.equal(
-    next.lastPack.filter((id) => rarityOf(cardById(id)) === 'rare').length,
-    1,
-  )
+  const rares = next.lastPack.filter(
+    (id) => rarityOf(cardById(id)) === 'rare',
+  ).length
+  if (rareLeft > 0) assert.ok(rares >= 1, 'a rare while rares remain')
+  rareLeft -= rares
   for (const id of next.lastPack) {
     assert.equal(pulled.has(id), false, 'Packs never duplicate owned cards')
     pulled.add(id)
@@ -223,7 +228,6 @@ for (let i = 0; i < 100; i++) {
 }
 assert.equal(pulled.size, 300)
 assert.equal(wallet.cards.length, 300)
-assert.equal(wallet.opened, 100)
 assert.equal(canBuyPack(wallet), false)
 assert.equal(buyPack(wallet, 999), wallet)
 

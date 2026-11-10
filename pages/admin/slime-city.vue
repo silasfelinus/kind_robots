@@ -149,28 +149,11 @@
               ALLIANCE · 20 CARDS
             </button>
           </fieldset>
-          <fieldset>
-            <legend>COLLECTION ACCESS</legend>
-            <button
-              type="button"
-              :aria-pressed="lab.unlockMode === 'all'"
-              :disabled="!lab.storyLoaded || lab.storySaving"
-              @click="lab.setUnlockMode('all')"
-            >
-              ALL 300 CARDS
-            </button>
-            <button
-              type="button"
-              :aria-pressed="lab.unlockMode === 'trickle'"
-              :disabled="!lab.storyLoaded || lab.storySaving"
-              @click="lab.setUnlockMode('trickle')"
-            >
-              UNLOCK THROUGH PLAY
-            </button>
-            <small v-if="!lab.storyLoaded"
-              >Sign in to change saved collection access.</small
-            >
-          </fieldset>
+          <p class="sc-settings-collection">
+            Everyone starts with {{ lab.baseCollectionSize }} base cards: each
+            crew's twenty-card starter deck and twenty mercenaries. Every other
+            card is earned in play or from Meat packs.
+          </p>
           <p>
             Tap a collection card to inspect its rules and evolutions. Every
             Clash deck contains exactly 20 unique cards.
@@ -528,14 +511,10 @@
             <div class="sc-deck-status">
               <span class="sc-overline"
                 >SOLO CLASH · {{ lab.team.name }} ·
-                <template v-if="lab.unlockMode === 'all'"
-                  >ALL {{ lab.collectionSize }} CARDS OPEN</template
-                ><template v-else
-                  >{{ lab.progress.cards.length }}/{{
-                    lab.collectionSize
-                  }}
-                  COLLECTED</template
-                ></span
+                {{ lab.progress.cards.length }}/{{
+                  lab.collectionSize
+                }}
+                COLLECTED</span
               >
               <p aria-live="polite">
                 {{
@@ -551,33 +530,6 @@
               >
             </div>
             <div class="sc-deck-actions">
-              <div
-                class="sc-unlocks"
-                role="group"
-                aria-label="Card unlocks"
-                data-testid="slime-unlock-mode"
-              >
-                <button
-                  type="button"
-                  :aria-pressed="lab.unlockMode === 'all'"
-                  :disabled="!lab.storyLoaded || lab.storySaving"
-                  title="Every card is open for your decks."
-                  data-testid="slime-unlock-all"
-                  @click="lab.setUnlockMode('all')"
-                >
-                  ALL CARDS
-                </button>
-                <button
-                  type="button"
-                  :aria-pressed="lab.unlockMode === 'trickle'"
-                  :disabled="!lab.storyLoaded || lab.storySaving"
-                  title="Start with your crew's founders and unlock the rest from Meat packs."
-                  data-testid="slime-unlock-trickle"
-                  @click="lab.setUnlockMode('trickle')"
-                >
-                  TRICKLE
-                </button>
-              </div>
               <button
                 type="button"
                 data-testid="slime-solo-restore"
@@ -747,9 +699,10 @@
               <span class="sc-overline">YOUR COLLECTION · BOUNTIES</span>
               <h2>THE PIT PAYS</h2>
               <p>
-                Earn XP and Meat in account-backed legacy reward bouts; Clash
-                battles remain practice-only until its reward engine is
-                validated.
+                Signed-in PRACTICE matches pay XP and Meat: the server replays
+                every move before it pays, and those matches fill your daily and
+                weekly bounties. Spend Meat on packs for cards beyond your base
+                collection.
               </p>
             </div>
             <div class="sc-progress-hud">

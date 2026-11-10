@@ -1,3 +1,4 @@
+import { BASE_CARD_IDS, BASE_CARD_SET } from '../slimeCity/baseCollection'
 import assert from 'node:assert/strict'
 import { readFileSync } from 'node:fs'
 import {
@@ -99,13 +100,17 @@ for (const team of TEAMS) {
   )
 }
 
-let wallet = { ...newProgression(), meat: RARE_COUNT * 100 }
-for (let i = 0; i < RARE_COUNT; i++) {
-  assert.equal(canBuyPack(wallet), true)
-  wallet = buyPack(wallet, 1234 + i)
-  assert.equal(wallet.lastPack.length, 3)
+// Silas, 2026-11-10 PT: every account owns the base collection from the
+// start (each crew's 20-card starter plus 20 mercenaries); packs only ever
+// add cards beyond it.
+assert.equal(newProgression().cards.length, BASE_CARD_IDS.length)
+assert.ok(BASE_CARD_IDS.length >= 120 && BASE_CARD_IDS.length < CARDS.length)
+let wallet = { ...newProgression(), meat: CARDS.length * 100 }
+while (canBuyPack(wallet)) {
+  const next = buyPack(wallet, 1234 + wallet.opened)
+  assert.ok(next.lastPack.every((id) => !BASE_CARD_SET.has(id)))
+  wallet = next
 }
-assert.equal(canBuyPack(wallet), false)
 assert.equal(
   wallet.cards.length,
   CARDS.length,
@@ -132,13 +137,13 @@ assert.doesNotMatch(ui, /data-testid="slime-deck-workbench"/)
 assert.match(service, /proposed\.soloDecks/)
 assert.match(service, /proposed\.alliances/)
 assert.doesNotMatch(store, /localStorage|sessionStorage/)
-// Card unlocks (Silas, 2026-11-04): every card is open by default; TRICKLE
-// brings back founders-then-packs, and only TRICKLE is enforced server-side.
-assert.match(service, /unlockModeOf\(\{ unlocks \}\) === 'trickle'/)
-assert.match(store, /unlockMode\.value === 'all' \|\|/)
-assert.match(store, /function setUnlockMode/)
-assert.match(ui, /data-testid="slime-unlock-all"/)
-assert.match(ui, /data-testid="slime-unlock-trickle"/)
+// Silas, 2026-11-10 PT: ALL CARDS is retired for everyone, admin included.
+// Decks are always ownership-gated server-side; the client resets any saved
+// deck holding a locked card.
+assert.match(service, /for \(const deck of allDecks\)/)
+assert.doesNotMatch(store, /function setUnlockMode/)
+assert.match(store, /function enforceCollection/)
+assert.doesNotMatch(ui, /slime-unlock-all|slime-unlock-trickle/)
 assert.match(ui, /data-testid="slime-pack-open"/)
 // ALL CARDS hides the pack shop and the last-pack reveal; TRICKLE shows them.
 assert.match(
@@ -149,7 +154,6 @@ assert.match(
   ui,
   /v-if="\s*lab\.unlockMode === 'trickle' && lab\.progress\.lastPack\.length\s*"/,
 )
-assert.match(store, /unlockMode\.value !== 'trickle' \|\|\s+!packAffordable/)
 console.log(
-  'Slime City deck workbench: six legal edited decks, seeded practice, account ownership, ALL CARDS or TRICKLE unlocks, all guaranteed packs PASS',
+  'Slime City deck workbench: six legal edited decks, seeded practice, account ownership, base collection, earned unlocks, all packs PASS',
 )

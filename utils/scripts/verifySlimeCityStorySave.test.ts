@@ -23,10 +23,12 @@ import { TEAMS } from '../slimeCity/prototypes'
 
 const base = newSlimeCityStory()
 assert.equal(validSlimeCityStory(base), true)
-// Card unlocks (Silas, 2026-11-09 PT): new stories start in TRICKLE; an
-// omitted mode (saves from before) still means every card is open.
+// Silas, 2026-11-10 PT: "everyone, including me as admin, should be restricted
+// to those base cards and then cards that they particularly unlock". Every save
+// reads as TRICKLE, whatever it stored.
 assert.equal(unlockModeOf(base), 'trickle')
-assert.equal(unlockModeOf({ unlocks: undefined }), 'all')
+assert.equal(unlockModeOf({ unlocks: undefined }), 'trickle')
+assert.equal(unlockModeOf({ unlocks: 'all' }), 'trickle')
 // Every starter a new account is dealt is playable in TRICKLE before packs.
 for (const team of TEAMS) {
   for (const id of [

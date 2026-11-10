@@ -1,3 +1,4 @@
+import { BASE_CARD_IDS } from '~/utils/slimeCity/baseCollection'
 import { defineStore } from 'pinia'
 import {
   canBuyPack,
@@ -76,11 +77,10 @@ import {
   describeBattlefield,
   OBJECTIVE_LABELS,
 } from '../utils/slimeCity/campaignBattlefields'
-import {
-  unlockModeOf,
-  type SlimeCityStory,
-  type StoryMode,
-  type UnlockMode,
+import type {
+  SlimeCityStory,
+  StoryMode,
+  UnlockMode,
 } from '../utils/slimeCity/storySave'
 import {
   ALLIANCE_DECK_SIZE,
@@ -282,6 +282,7 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
       progress.value = result.data
       progressAccount.value = requestUserId
       progressLoaded.value = true
+      enforceCollection()
     } catch (error) {
       progressError.value =
         error instanceof Error ? error.message : 'Could not load account.'
@@ -309,14 +310,7 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
     }
   }
   async function purchasePack(): Promise<void> {
-    // The pack shop only opens in TRICKLE; ALL CARDS has nothing to unlock.
-    if (
-      !correctAccount() ||
-      unlockMode.value !== 'trickle' ||
-      !packAffordable.value ||
-      progressBusy.value
-    )
-      return
+    if (!correctAccount() || !packAffordable.value || progressBusy.value) return
     progressBusy.value = true
     progressError.value = ''
     try {
@@ -423,7 +417,8 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
     kind: ClashKind
     victor: Side | 'draw'
   } | null>(null)
-  const unlockMode = ref<UnlockMode>('trickle')
+  /** One collection rule for everyone since 2026-11-10 PT: earn beyond the base. */
+  const unlockMode = computed<UnlockMode>(() => 'trickle')
   /** Story bouts: as written or all TURF, with or without PARITY. */
   const storyMode = ref<StoryMode>('written')
   const storyParity = ref(false)
@@ -461,7 +456,6 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
     allianceDrafts.value = {}
     savedSolo.value = {}
     soloDrafts.value = {}
-    unlockMode.value = 'all'
     storyMode.value = 'written'
     storyParity.value = false
     replacingCard.value = null
@@ -484,7 +478,6 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
       allianceDrafts.value = {}
       savedSolo.value = response.data.soloDecks ?? {}
       soloDrafts.value = {}
-      unlockMode.value = unlockModeOf(response.data)
       storyMode.value = response.data.storyMode ?? 'written'
       storyParity.value = response.data.storyParity ?? false
       storyRevision.value = response.data.revision
@@ -493,6 +486,7 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
       // A partially played Clash cannot be replayed for free after refresh.
       // Until command-by-command save/resume exists, reload forfeits this floor.
       if (towerRun.value?.phase === 'battle') forfeitTower()
+      enforceCollection()
     } catch (error) {
       if (userId !== authId()) return
       storyError.value =
@@ -807,49 +801,39 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
     return STARTER_CARD_IDS.has(id)
   }
   function isCardUnlocked(id: string): boolean {
-    return (
-      unlockMode.value === 'all' ||
-      isStarterCard(id) ||
-      progress.value.cards.includes(id)
-    )
+    return isStarterCard(id) || progress.value.cards.includes(id)
   }
-  /** Open every card, or trickle them out through packs (the old way). */
-  function setUnlockMode(next: UnlockMode): void {
-    if (!storyLoaded.value || storySaving.value || next === unlockMode.value)
-      return
-    unlockMode.value = next
-    replacingCard.value = null
-    if (next === 'trickle') {
-      // Decks built from cards you have not unlocked go back to the founders.
-      const kept: Partial<Record<TeamId, string[]>> = {}
-      let reset = 0
-      for (const [team, deck] of Object.entries(savedDecks.value))
-        if (deck?.every((id) => isCardUnlocked(id))) kept[team as TeamId] = deck
+  /**
+   * Silas, 2026-11-10 PT: "everyone, including me as admin, should be
+   * restricted to those base cards and then cards that they particularly
+   * unlock". Once both the story and the owned cards are loaded, any saved
+   * deck holding a card this account has not unlocked goes back to its
+   * crew's starter, so the next save passes the server's ownership check.
+   */
+  function enforceCollection(): void {
+    if (!storyLoaded.value || !progressLoaded.value) return
+    let reset = 0
+    const keep = <T>(
+      saved: Partial<Record<TeamId, T>>,
+      cardsOf: (deck: T) => string[],
+    ): Partial<Record<TeamId, T>> => {
+      const kept: Partial<Record<TeamId, T>> = {}
+      for (const [team, deck] of Object.entries(saved) as [TeamId, T][])
+        if (deck && cardsOf(deck).every((id) => isCardUnlocked(id)))
+          kept[team] = deck
         else reset++
-      savedDecks.value = kept
-      const allied: Partial<Record<TeamId, AllianceDeck>> = {}
-      for (const [team, deck] of Object.entries(savedAlliances.value))
-        if (deck?.cards.every((id) => isCardUnlocked(id)))
-          allied[team as TeamId] = deck
-        else reset++
-      savedAlliances.value = allied
-      allianceDrafts.value = {}
-      const solos: Partial<Record<TeamId, string[]>> = {}
-      for (const [team, deck] of Object.entries(savedSolo.value))
-        if (deck?.every((id) => isCardUnlocked(id)))
-          solos[team as TeamId] = deck
-        else reset++
-      savedSolo.value = solos
-      soloDrafts.value = {}
-      deckMessage.value =
-        'TRICKLE: starters now, more cards from Meat packs.' +
-        (reset
-          ? ' ' +
-            reset +
-            (reset === 1 ? ' deck' : ' decks') +
-            ' with locked cards went back to the founders.'
-          : '')
-    } else deckMessage.value = 'ALL CARDS: every card is open for your decks.'
+      return kept
+    }
+    savedDecks.value = keep(savedDecks.value, (deck) => deck)
+    savedAlliances.value = keep(savedAlliances.value, (deck) => deck.cards)
+    savedSolo.value = keep(savedSolo.value, (deck) => deck)
+    if (!reset) return
+    allianceDrafts.value = {}
+    soloDrafts.value = {}
+    deckMessage.value =
+      reset +
+      (reset === 1 ? ' deck held' : ' decks held') +
+      ' cards you have not unlocked yet and went back to the starter.'
     persistStory()
   }
   function selectDeckCard(id: string): void {
@@ -2004,7 +1988,6 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
     playClashFormat,
     settleClash,
     unlockMode,
-    setUnlockMode,
     storyMode,
     storyParity,
     storyBout,
@@ -2092,6 +2075,7 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
     enemy,
     cards,
     collectionSize: CARDS.length,
+    baseCollectionSize: BASE_CARD_IDS.length,
     hand,
     inspectedCard,
     selected,

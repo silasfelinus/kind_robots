@@ -20,7 +20,7 @@
 // SOLO CLASH is its own format: one faction's 20-card deck, built from that
 // faction and the mercenaries. It is what City and Story bouts deal. Pure data
 // and legality only; the power effects run in clash.ts.
-import { alleyDeck } from './alleys'
+import { BASE_CARD_SET } from './baseCollection'
 import { CLASH_DECK_SIZE, clashDeck } from './clash'
 import { CARDS, TEAMS, cardById, type Card, type TeamId } from './prototypes'
 export {
@@ -35,18 +35,10 @@ export const ALLIANCE_DECK_SIZE = CLASH_DECK_SIZE
 export const SOLO_DECK_SIZE = CLASH_DECK_SIZE
 
 /**
- * TRICKLE's opening collection: every crew's founders plus the cards its Solo
- * and Alliance starters deal, so a new account can play a reward match before
- * it opens a pack (trickle became the default, Silas, 2026-11-09 PT).
+ * The base collection every account owns (baseCollection.ts): each crew's
+ * 20-card Solo deck plus twenty mercenaries. Every starter deck fits inside it.
  */
-export const STARTER_CARD_IDS: ReadonlySet<string> = new Set(
-  TEAMS.flatMap((team) => [
-    ...team.creatures,
-    ...team.special,
-    ...clashDeck(team.id),
-    ...alleyDeck(team.id),
-  ]),
-)
+export const STARTER_CARD_IDS: ReadonlySet<string> = BASE_CARD_SET
 
 export interface AllianceDeck {
   /** The leading crew. Its faction power is the deck's power. */
@@ -102,7 +94,7 @@ function spread<T>(items: T[], count: number): T[] {
 
 /** Creatures and specials from a crew's Clash deck, spread across the curve. */
 function crewSlice(team: TeamId, creatures: number, specials: number) {
-  const sorted = alleyDeck(team)
+  const sorted = clashDeck(team)
     .map(cardById)
     .sort((a, b) => a.cost - b.cost || a.id.localeCompare(b.id))
   return [

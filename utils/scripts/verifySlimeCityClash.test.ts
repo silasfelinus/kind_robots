@@ -1433,14 +1433,29 @@ for (const name of [
   clear.traps = []
   const safe = playClash(clear, 'player', 'scrapper', 2)
   const caught = playClash(state, 'player', 'scrapper', 2)
-  const safeUnit = safe.units.find((unit) => unit.side === 'player' && unit.lane === 2)
-  const caughtUnit = caught.units.find((unit) => unit.side === 'player' && unit.lane === 2)
+  const safeUnit = safe.units.find(
+    (unit) => unit.side === 'player' && unit.lane === 2,
+  )
+  const caughtUnit = caught.units.find(
+    (unit) => unit.side === 'player' && unit.lane === 2,
+  )
   assert.ok(safeUnit && caughtUnit, `${name} must allow fighter entry`)
   assert.ok(safeUnit.armor > 0, 'Scrapper must retain its armor fixture')
-  assert.equal(caughtUnit.armor, safeUnit.armor - 1, `${name} must shear plating`)
-  assert.ok(caughtUnit.hp < safeUnit.hp, `${name} must damage a plated target`)
+  assert.equal(
+    caughtUnit.armor,
+    safeUnit.armor - 1,
+    `${name} must shear plating`,
+  )
+  assert.ok(
+    caughtUnit.hp < safeUnit.hp,
+    `${name} must damage a plated target`,
+  )
   assert.equal(caught.traps.length, 0, `${name} must be consumed`)
-  assert.deepEqual(caught, playClash(structuredClone(state), 'player', 'scrapper', 2), `${name} must replay identically`)
+  assert.deepEqual(
+    caught,
+    playClash(structuredClone(state), 'player', 'scrapper', 2),
+    `${name} must replay identically`,
+  )
 }
 
 const wireTrap = createClash('catgirls', 'ironjaw', 962)

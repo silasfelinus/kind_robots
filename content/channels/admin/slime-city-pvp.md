@@ -7,7 +7,7 @@ title: Slime City · Two-Player Pit
 subtitle: Invite-only CLASH multiplayer preview
 summary: Private head-to-head CLASH battles.
 description: 'Private Slime City multiplayer development preview for administrators. Two accounts use 20-card crew decks in a server-validated five-alley CLASH. No matchmaking, Meat rewards or card grants.'
-icon: kind-icon:cat
+icon: kind-icon:swords
 route: /admin/slime-city-pvp
 sort: 148
 requiredRole: ADMIN

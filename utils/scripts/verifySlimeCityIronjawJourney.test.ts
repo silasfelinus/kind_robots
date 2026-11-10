@@ -149,7 +149,7 @@ for (const path of ['left', 'right'] as const) {
   future.campaigns.ironjaw.journey!.push(['left'])
   assert.equal(validSlimeCityStory(future), false, 'no sixth chapter')
   const crossCrew = structuredClone(story)
-  crossCrew.campaigns.riot.journey = [['left']]
+  crossCrew.campaigns.undertow.journey = [['left']]
   assert.equal(validSlimeCityStory(crossCrew), false, 'journals crew-scoped')
 }
 // A mixed strike fields both story cards and stays a legal Solo deck.

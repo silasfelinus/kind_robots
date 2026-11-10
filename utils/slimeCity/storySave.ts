@@ -18,6 +18,7 @@ import { campaignCardChoices } from './campaignCardRewards'
 import { validGeneRiotJourney } from './campaignGeneRiot'
 import { validBloodfairyJourney } from './campaignBloodfairies'
 import { validIronjawJourney } from './campaignIronjaw'
+import { validRiotJourney } from './campaignRiot'
 import { freshTower, validTowerSave, type TowerSave } from './allianceTower'
 import {
   normalizeLegacyAllianceDeck,
@@ -279,9 +280,15 @@ export function validSlimeCityStory(raw: unknown): raw is SlimeCityStory {
     )
       return false
     if (
+      team === 'riot' &&
+      !validRiotJourney(p as unknown as CampaignSave['riot'])
+    )
+      return false
+    if (
       team !== 'catgirls' &&
       team !== 'bloodfairies' &&
       team !== 'ironjaw' &&
+      team !== 'riot' &&
       p.journey !== undefined
     )
       return false

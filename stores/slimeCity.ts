@@ -55,6 +55,16 @@ import {
   ironjawStoryDeck,
 } from '../utils/slimeCity/campaignIronjaw'
 import {
+  riotBeat,
+  riotSceneText,
+  riotLastOutcome,
+  riotBattleTerms,
+  riotEpilogue,
+  riotLedger,
+  chooseRiotBeat,
+  riotStoryDeck,
+} from '../utils/slimeCity/campaignRiot'
+import {
   campaignCardChoices,
   campaignSoloDeck,
   chooseCampaignCard,
@@ -640,9 +650,15 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
   const ironjawCurrent = computed(() =>
     activeTeam.value === 'ironjaw' ? ironjawBeat(campaignState.value) : null,
   )
+  const riotCurrent = computed(() =>
+    activeTeam.value === 'riot' ? riotBeat(campaignState.value) : null,
+  )
   const campaignJourneyCurrent = computed(
     () =>
-      geneRiotCurrent.value ?? bloodfairyCurrent.value ?? ironjawCurrent.value,
+      geneRiotCurrent.value ??
+      bloodfairyCurrent.value ??
+      ironjawCurrent.value ??
+      riotCurrent.value,
   )
   const campaignJourneyText = computed(() =>
     geneRiotCurrent.value
@@ -651,7 +667,9 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
         ? bloodfairySceneText(campaignState.value, bloodfairyCurrent.value)
         : ironjawCurrent.value
           ? ironjawSceneText(campaignState.value, ironjawCurrent.value)
-          : '',
+          : riotCurrent.value
+            ? riotSceneText(campaignState.value, riotCurrent.value)
+            : '',
   )
   const campaignJourneyOutcome = computed(() =>
     activeTeam.value === 'catgirls'
@@ -660,7 +678,9 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
         ? bloodfairyLastOutcome(campaignState.value)
         : activeTeam.value === 'ironjaw'
           ? ironjawLastOutcome(campaignState.value)
-          : null,
+          : activeTeam.value === 'riot'
+            ? riotLastOutcome(campaignState.value)
+            : null,
   )
   const bloodfairyChorus = computed(() =>
     bloodfairyLedger(campaignSave.value.bloodfairies),
@@ -671,6 +691,7 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
       bloodfairyStageThreeReveal(campaignState.value),
   )
   const ironjawShift = computed(() => ironjawLedger(campaignSave.value.ironjaw))
+  const riotShow = computed(() => riotLedger(campaignSave.value.riot))
   function chooseCampaignJourneyBeat(id: GeneRiotPick): void {
     if (
       !storyEditable() ||
@@ -686,7 +707,9 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
           ? chooseBloodfairyBeat(campaignSave.value, id)
           : activeTeam.value === 'ironjaw'
             ? chooseIronjawBeat(campaignSave.value, id)
-            : campaignSave.value
+            : activeTeam.value === 'riot'
+              ? chooseRiotBeat(campaignSave.value, id)
+              : campaignSave.value
     if (next === campaignSave.value) return
     campaignSave.value = next
     persistStory()
@@ -780,7 +803,9 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
           ? bloodfairyEpilogue(campaignState.value)
           : activeTeam.value === 'ironjaw'
             ? ironjawEpilogue(campaignState.value)
-            : ''
+            : activeTeam.value === 'riot'
+              ? riotEpilogue(campaignState.value)
+              : ''
     return [ending, epilogue].filter(Boolean).join(' ')
   })
   /** A finished campaign's chosen favor, carried into rivals and contracts. */
@@ -1838,11 +1863,20 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
                         playSolo.value,
                       ),
                     )
-                  : campaignSoloDeck(
-                      campaignSave.value,
-                      activeTeam.value,
-                      playSolo.value,
-                    ),
+                  : activeTeam.value === 'riot'
+                    ? riotStoryDeck(
+                        campaignSave.value.riot,
+                        campaignSoloDeck(
+                          campaignSave.value,
+                          activeTeam.value,
+                          playSolo.value,
+                        ),
+                      )
+                    : campaignSoloDeck(
+                        campaignSave.value,
+                        activeTeam.value,
+                        playSolo.value,
+                      ),
           }
         : {}),
     })
@@ -1905,7 +1939,9 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
           ? bloodfairyBattleTerms(campaignSave.value.bloodfairies, base)
           : teamId === 'ironjaw'
             ? ironjawBattleTerms(campaignSave.value.ironjaw, base)
-            : base
+            : teamId === 'riot'
+              ? riotBattleTerms(campaignSave.value.riot, base)
+              : base
     launchStoryClash('campaign', chapter.foe, prepared)
   }
 
@@ -2239,6 +2275,8 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
     bloodfairyStageThree,
     ironjawCurrent,
     ironjawShift,
+    riotCurrent,
+    riotShow,
     campaignJourneyCurrent,
     campaignJourneyText,
     campaignJourneyOutcome,

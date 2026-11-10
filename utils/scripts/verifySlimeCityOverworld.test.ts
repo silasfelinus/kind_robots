@@ -112,10 +112,10 @@ const artIds = [
 ]
 assert.equal(
   SLIME_CITY_ART_COUNT,
-  775,
-  '233 curated ids plus the 2026-11-07 art pass: 542 verified renders (217 cards, 263 board tokens, 60 story plates, 2 attacks)',
+  786,
+  '233 curated ids plus the 2026-11-07 art pass: 542 verified renders (217 cards, 263 board tokens, 60 story plates, 2 attacks), plus 11 new Ironjaw board-token moods from the 2026-11-09 ogre redo',
 )
-assert.equal(artIds.length, 775)
+assert.equal(artIds.length, 786)
 assert.ok(
   CARDS.filter((c) => slimeArtId('cards', c.id)).length >= 290,
   'nearly the whole catalog is illustrated',
@@ -1471,6 +1471,16 @@ lab.showCampaign()
 lab.chooseTeam('ironjaw')
 assert.equal(lab.view, 'campaign')
 assert.equal(lab.activeChapter?.foe, 'exchange')
+// THE LAST SHIFT: three authored strike scenes come before the first bout.
+lab.startCampaignBattle('conviction')
+assert.equal(lab.view, 'campaign', 'Unplayed Ironjaw scenes block the bout')
+for (let beat = 0; beat < 3; beat++) {
+  assert.ok(lab.ironjawCurrent, 'next Ironjaw strike scene is present')
+  lab.chooseCampaignJourneyBeat('left')
+}
+assert.equal(lab.ironjawCurrent, null)
+assert.equal(lab.ironjawShift.solidarity, 3)
+assert.equal(lab.ironjawShift.stage, 'basking')
 lab.startCampaignBattle('conviction')
 assert.equal(lab.view, 'clash')
 assert.equal(lab.clashLaunch.kind, 'campaign', 'Story bouts are Solo Clash')

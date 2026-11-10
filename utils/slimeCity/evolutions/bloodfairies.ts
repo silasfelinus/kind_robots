@@ -1,4 +1,4 @@
-// PUNK BLOODFAIRIES: crafted evolutions (CLASH-EVOLUTION-PLAN.md in
+// QUEEN PIN & THE BLOODFAIRIES: crafted evolutions (CLASH-EVOLUTION-PLAN.md in
 // conductor). Cards designed one at a time, story first, following
 // evolutions/catgirls.ts. The faction owns the crowd (echo tokens, SWARM),
 // life-steal (LEECH, boss drains) and encores (replays, second springs);

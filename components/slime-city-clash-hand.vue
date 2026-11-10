@@ -56,6 +56,8 @@
           "
           :data-testid="'clash-hand-' + index"
           @pointerdown="grab($event, index)"
+          @pointerenter="hoverOn($event, index)"
+          @pointerleave="hoverOff(index)"
           @click="tap(index)"
         >
           <SlimeCityClashCardFace
@@ -83,9 +85,25 @@
 
     <Transition name="cxh-pop">
       <div
-        v-if="inspectCard"
+        v-if="peekCard"
+        :key="'peek-' + peekCard.id"
+        class="cxh-card big cxh-inspect cxh-peek"
+        :class="'dock-' + peekCard.dock"
+        data-testid="clash-peek"
+        aria-hidden="true"
+      >
+        <SlimeCityClashCardFace
+          :card-id="peekCard.id"
+          :note="peekCard.note"
+          :level="peekCard.level"
+          :pick="peekCard.pick"
+        />
+      </div>
+      <div
+        v-else-if="inspectCard"
         :key="inspectCard.id + inspectCard.note"
         class="cxh-card big cxh-inspect"
+        :class="'dock-' + (inspectCard.dock ?? 'right')"
         data-testid="clash-detail"
         aria-live="polite"
       >
@@ -100,8 +118,12 @@
     </Transition>
 
     <div
-      v-if="shown"
+      v-if="shown && !peekCard"
       class="cxh-levels"
+      :class="{
+        docked: big === null,
+        'dock-left': inspectCard?.dock === 'left',
+      }"
       role="tablist"
       aria-label="Preview this card at each level"
       data-testid="clash-level-tabs"
@@ -136,24 +158,26 @@
       </p>
     </Transition>
 
-    <button
-      type="button"
-      class="cxh-toggle"
-      :aria-expanded="isOpen"
-      :aria-label="
-        isOpen
-          ? 'Close your hand'
-          : 'Open your hand: ' + cards.length + ' cards'
-      "
-      data-testid="clash-hand-toggle"
-      @click="toggle"
-    >
-      <span class="cxh-stack" aria-hidden="true"
-        ><i v-for="n in 3" :key="n" :style="{ '--n': n }"
-      /></span>
-      <b>{{ cards.length }}</b>
-      <small>{{ game.decks.player.length }} DECK</small>
-    </button>
+    <Teleport to="#clash-hand-dock" defer>
+      <button
+        type="button"
+        class="cxh-toggle"
+        :aria-expanded="isOpen"
+        :aria-label="
+          isOpen
+            ? 'Close your hand'
+            : 'Open your hand: ' + cards.length + ' cards'
+        "
+        data-testid="clash-hand-toggle"
+        @click="toggle"
+      >
+        <span class="cxh-stack" aria-hidden="true"
+          ><i v-for="n in 3" :key="n" :style="{ '--n': n }"
+        /></span>
+        <b>{{ cards.length }}</b>
+        <small>{{ game.decks.player.length }} DECK</small>
+      </button>
+    </Teleport>
   </div>
 </template>
 
@@ -172,7 +196,14 @@ import {
 const props = defineProps<{
   game: ClashState
   held: number | null
-  inspect: { id: string; note: string; level: number; pick?: 0 | 1 } | null
+  inspect: {
+    id: string
+    note: string
+    level: number
+    pick?: 0 | 1
+    hover?: boolean
+    dock?: 'left' | 'right'
+  } | null
 }>()
 const emit = defineEmits<{
   pick: [index: number | null]
@@ -204,8 +235,48 @@ const big = computed(() => (isOpen.value ? props.held : null))
 /** Silas, 2026-11-07 PT: "The user should be able to select to see the upgraded versions." */
 const previewLevel = ref<number | null>(null)
 const inspectCard = computed(() =>
-  props.held === null || !isOpen.value ? props.inspect : null,
+  props.inspect &&
+  !props.inspect.hover &&
+  (props.held === null || !isOpen.value)
+    ? props.inspect
+    : null,
 )
+/**
+ * Silas, 2026-11-10 PT: "When we hover over cards, we should see them bigger
+ * and have the full info of the card." A mouse hover docks the full card to
+ * one side of the board, where it never sits under the pointer.
+ */
+const hoverIndex = ref<number | null>(null)
+function hoverOn(event: PointerEvent, index: number): void {
+  if (event.pointerType === 'mouse' && isOpen.value && !drag.value)
+    hoverIndex.value = index
+}
+function hoverOff(index: number): void {
+  if (hoverIndex.value === index) hoverIndex.value = null
+}
+watch(isOpen, (open) => {
+  if (!open) hoverIndex.value = null
+})
+const peekCard = computed<{
+  id: string
+  note: string
+  level: number
+  pick?: 0 | 1
+  dock: 'left' | 'right'
+} | null>(() => {
+  const index = hoverIndex.value
+  const id = index === null || index === big.value ? null : cards.value[index]
+  if (id && !drag.value)
+    return {
+      id,
+      note: '',
+      level: clashLevel(props.game, 'player', id),
+      dock: index! < cards.value.length / 2 ? 'right' : 'left',
+    }
+  return props.inspect?.hover
+    ? { ...props.inspect, dock: props.inspect.dock ?? 'right' }
+    : null
+})
 const shown = computed<{ id: string; level: number } | null>(() => {
   const id = big.value === null ? null : cards.value[big.value]
   if (id) return { id, level: clashLevel(props.game, 'player', id) }
@@ -311,6 +382,7 @@ function follow(event: PointerEvent): void {
   const dy = event.clientY - d.y
   if (!d.moved && Math.hypot(dx, dy) < 10) return
   if (!d.moved && props.held !== d.index) emit('pick', d.index)
+  hoverIndex.value = null
   drag.value = { ...d, dx, dy, moved: true }
 }
 function release(event: PointerEvent): void {
@@ -349,11 +421,11 @@ function tap(index: number): void {
 
 <style scoped>
 .cxh {
-  --W: clamp(9.5rem, 30vw, 15rem);
+  --W: clamp(8rem, min(30cqw, 40cqh), 15rem);
   --rest: 0.5;
   --peek: 0.6;
   --ease: cubic-bezier(0.2, 0.9, 0.25, 1.12);
-  container-type: inline-size;
+  container-type: size;
   position: absolute;
   inset: 0;
   overflow: clip;
@@ -365,7 +437,7 @@ function tap(index: number): void {
   inset: 0;
 }
 .cxh-slot {
-  --icon-x: calc(50cqw + var(--shift, 0rem) - 2.4rem);
+  --icon-x: calc(50cqw + var(--shift, 0rem));
   position: absolute;
   left: calc(50% - var(--shift, 0rem));
   bottom: 0;
@@ -569,10 +641,38 @@ function tap(index: number): void {
   }
 }
 .cxh-inspect {
-  left: 50%;
-  bottom: 0;
-  transform: translate(-50%, -0.5rem);
+  --pop-x: 0rem;
+  top: 50%;
+  bottom: auto;
+  transform: translateY(-50%);
   pointer-events: none;
+  z-index: 10;
+}
+.cxh-inspect.dock-right {
+  left: auto;
+  right: 0.6rem;
+  --pop-x: 2rem;
+}
+.cxh-inspect.dock-left {
+  left: 0.6rem;
+  --pop-x: -2rem;
+}
+.cxh .cxh-card.cxh-inspect {
+  opacity: 1;
+  filter: none;
+}
+.cxh-levels.docked {
+  left: auto;
+  right: calc(0.6rem + var(--W) / 2);
+  bottom: auto;
+  top: calc(50% - var(--W) * 0.75 - 2.9rem);
+  transform: translateX(50%);
+  animation: none;
+}
+.cxh-levels.docked.dock-left {
+  right: auto;
+  left: calc(0.6rem + var(--W) / 2);
+  transform: translateX(-50%);
 }
 .cxh-card.big {
   --rules-open: 1;
@@ -585,11 +685,11 @@ function tap(index: number): void {
     0 18px 40px #000c;
 }
 .cxh-toggle {
-  position: absolute;
-  right: 0.6rem;
-  bottom: 1.2rem;
-  width: 3.6rem;
-  height: 3.6rem;
+  position: relative;
+  flex: none;
+  width: 3.4rem;
+  height: 3.4rem;
+  cursor: pointer;
   border-radius: 999px;
   border: 2px solid #b9f15199;
   background: radial-gradient(circle at 35% 30%, #2c5a4f, #0b1f24);
@@ -606,8 +706,8 @@ function tap(index: number): void {
     border-color 0.3s;
   z-index: 7;
 }
-.cxh.open .cxh-toggle {
-  transform: scale(0.86);
+.cxh-toggle[aria-expanded='true'] {
+  transform: scale(0.9);
   border-color: #ffffff55;
   animation: none;
 }
@@ -629,7 +729,7 @@ function tap(index: number): void {
     translateX(calc((var(--n) - 2) * 0.28rem));
   transition: transform 0.35s var(--ease);
 }
-.cxh.open .cxh-stack i {
+.cxh-toggle[aria-expanded='true'] .cxh-stack i {
   transform: rotate(calc((var(--n) - 2) * 24deg))
     translateX(calc((var(--n) - 2) * 0.45rem));
 }
@@ -649,7 +749,7 @@ function tap(index: number): void {
 }
 .cxh-toggle small {
   position: absolute;
-  bottom: -1.05rem;
+  bottom: -0.95rem;
   font-size: 0.52rem;
   font-weight: 850;
   letter-spacing: 0.06em;
@@ -714,16 +814,16 @@ function tap(index: number): void {
 }
 .cxh-pop-enter-from,
 .cxh-pop-leave-to {
-  transform: translate(-50%, 2rem) scale(0.6);
+  transform: translate(var(--pop-x), -50%) scale(0.7);
   opacity: 0;
 }
-@media (max-width: 700px) {
-  .cxh {
-    --W: 13rem;
-    --rest: 0.36;
+@container (max-width: 40rem) {
+  .cxh-card {
+    --rest: 0.4;
     --peek: 0.72;
-    --shift: 1.5rem;
   }
+}
+@media (max-width: 700px) {
   .cxh-toggle {
     width: 3rem;
     height: 3rem;

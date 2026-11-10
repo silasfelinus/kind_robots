@@ -63,8 +63,8 @@ export const CHALLENGES: Challenge[] = [
   {
     id: 'daily-entry',
     period: 'daily',
-    title: 'Clock In',
-    description: 'Finish one CPU bout.',
+    title: 'Punch the Meat Clock',
+    description: 'Finish one CPU bout. Every shift pays in Meat.',
     metric: 'battles',
     target: 1,
     meat: 20,
@@ -73,8 +73,8 @@ export const CHALLENGES: Challenge[] = [
   {
     id: 'daily-victor',
     period: 'daily',
-    title: 'Own the Pit',
-    description: 'Win a Clash battle.',
+    title: 'Fresh Cut',
+    description: 'Win a Clash battle while the Meat is still warm.',
     metric: 'blackoutWins',
     target: 1,
     meat: 35,
@@ -83,7 +83,7 @@ export const CHALLENGES: Challenge[] = [
   {
     id: 'daily-summons',
     period: 'daily',
-    title: 'Union of Monsters',
+    title: 'Stock the Freezer',
     description: 'Play three creature cards in CPU bouts.',
     metric: 'creatures',
     target: 3,
@@ -93,8 +93,8 @@ export const CHALLENGES: Challenge[] = [
   {
     id: 'weekly-victories',
     period: 'weekly',
-    title: 'Street Champion',
-    description: 'Win five CPU bouts.',
+    title: 'Prime Cut Champion',
+    description: 'Win five CPU bouts. The Exchange weighs every victory.',
     metric: 'wins',
     target: 5,
     meat: 125,
@@ -103,7 +103,7 @@ export const CHALLENGES: Challenge[] = [
   {
     id: 'weekly-crews',
     period: 'weekly',
-    title: 'Six-Crew Sampler',
+    title: 'Mixed Grill',
     description: 'Fight using three different crews.',
     metric: 'crews',
     target: 3,
@@ -113,7 +113,7 @@ export const CHALLENGES: Challenge[] = [
   {
     id: 'weekly-cards',
     period: 'weekly',
-    title: 'Cardboard Riot',
+    title: 'Butcher-Paper Riot',
     description: 'Play 24 cards in CPU bouts.',
     metric: 'plays',
     target: 24,
@@ -209,7 +209,8 @@ export function newProgression(now = new Date()): Progression {
     lastPack: [],
     daily: window(now, 'daily'),
     weekly: window(now, 'weekly'),
-    lastReward: 'Win CPU battles to earn virtual Meat and XP.',
+    lastReward:
+      'Win CPU battles to earn virtual Meat and XP. In Slime City, Meat is money.',
   }
 }
 export function refreshPeriods(
@@ -342,7 +343,7 @@ export function awardOutcome(
     daily: updateWindow(state.daily),
     weekly: updateWindow(state.weekly),
     lastReward: paid
-      ? `CPU ${victory ? 'win' : draw ? 'draw' : 'loss'} · +${earnedXp} XP · +${earnedMeat} Meat`
+      ? `CPU ${victory ? 'win' : draw ? 'draw' : 'loss'} · +${earnedXp} XP · your cut: +${earnedMeat} Meat`
       : 'Battle recorded · daily base-reward cap reached (10 bouts).',
   }
 }
@@ -404,7 +405,7 @@ export function buyPack(original: Progression, entropy: number): Progression {
     opened: original.opened + 1,
     lastPack: gained,
     lastReward:
-      'Street Pack opened · one guaranteed rare + two other NEW cards.',
+      'Butcher-paper pack unwrapped · one guaranteed rare + two other NEW cards.',
   }
 }
 /** Validate database JSON snapshots; the API owns all writes. */

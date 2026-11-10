@@ -1,6 +1,6 @@
-// IRONJAW CHROME OGRES: crafted evolutions (CLASH-EVOLUTION-PLAN.md in
+// IRONJAW CHROME LIZARDS: crafted evolutions (CLASH-EVOLUTION-PLAN.md in
 // conductor). Each card is designed one at a time, story first, following
-// evolutions/catgirls.ts. The ogres own solidarity (shields, armor), heavy
+// evolutions/catgirls.ts. The lizards own solidarity (shields, armor), heavy
 // bodies and boss breakthrough; they never gamble and never drain.
 // Approved rules: weaker level threes are rare (one here, the
 // Bridgebreaker); situational payoffs are welcome; an earned level three is
@@ -34,7 +34,7 @@ import {
 
 export const IRONJAW_EVOLUTIONS: Record<string, CardEvolution> = {
   // ------------------------------------------------------------ fighters
-  // Arc: a whole repair crew in one ogre -> keeps the line running while
+  // Arc: a whole repair crew in one lizard -> keeps the line running while
   // the crew fights -> throws the factory gates open for everyone.
   // Trajectory: EARLY BLOOMER. Its own punch flattens at L3 (-1 power) as
   // it turns into the crew's mechanic and gate-opener. Counterplay: block
@@ -178,7 +178,7 @@ export const IRONJAW_EVOLUTIONS: Record<string, CardEvolution> = {
       on('enter', armor(1, 'otherAllies'), sharpen(1, 'otherAllies')),
     ]),
   },
-  // Arc: an ogre on stolen rail wheels -> full steam from the yard ->
+  // Arc: a monitor lizard on stolen rail wheels -> full steam from the yard ->
   // the runaway freight that hits the boss and loops back for another run.
   // Trajectory: PRICE (tempo): at L3 it leaves its alley after every boss
   // hit and must be replayed. Counterplay: block its alley or leave a trap

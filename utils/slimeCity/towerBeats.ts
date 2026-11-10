@@ -75,7 +75,7 @@ export const TOWER_BEATS = [
   },
   {
     setting:
-      'Punk Bloodfairies rehearse on the roof. Half the chorus has been hired to drown out the other half.',
+      'Queen Pin and the Bloodfairies rehearse on the roof. Half the chorus has been hired to drown out the other half.',
     routes: [
       {
         title: 'THE SECOND VERSE',
@@ -165,7 +165,7 @@ export const TOWER_BEATS = [
       {
         title: 'THE SERVICE TRUSS',
         scene:
-          'Find a maintenance crossing under the bridge. Its builder left handholds sized for ogres and fairies alike.',
+          'Find a maintenance crossing under the bridge. Its builder left handholds sized for lizards and fairies alike.',
       },
     ],
   },

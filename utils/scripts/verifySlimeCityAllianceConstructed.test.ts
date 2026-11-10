@@ -4,6 +4,7 @@
 import assert from 'node:assert/strict'
 import { CARDS, TEAMS, type Card, type TeamId } from '../slimeCity/prototypes'
 import {
+  ALLIANCE_DECK_SIZE,
   allianceProblems,
   allianceStarter,
   swapGeneral,
@@ -62,36 +63,36 @@ function construct(
   let cards: string[]
   switch (plan) {
     case 'balanced-a':
-      cards = [...pick(primary, 15, offset), ...pick(secondary, 15, offset)]
+      cards = [...pick(primary, 10, offset), ...pick(secondary, 10, offset)]
       break
     case 'balanced-b':
       cards = [
-        ...pick(primary, 15, offset + 20),
-        ...pick(secondary, 15, offset + 20),
+        ...pick(primary, 10, offset + 20),
+        ...pick(secondary, 10, offset + 20),
       ]
       break
     case 'general-heavy':
-      cards = [...pick(primary, 26, offset), ...pick(secondary, 4, offset)]
+      cards = [...pick(primary, 17, offset), ...pick(secondary, 3, offset)]
       break
     case 'ally-heavy':
-      cards = [...pick(primary, 4, offset), ...pick(secondary, 26, offset)]
+      cards = [...pick(primary, 3, offset), ...pick(secondary, 17, offset)]
       break
     case 'mercenary-heavy':
       cards = [
-        ...pick(primary, 5, offset),
-        ...pick(secondary, 5, offset),
-        ...pick(mercs, 20, offset),
+        ...pick(primary, 3, offset),
+        ...pick(secondary, 3, offset),
+        ...pick(mercs, 14, offset),
       ]
       break
     case 'mercenary-only':
-      cards = pick(mercs, 30, offset)
+      cards = pick(mercs, ALLIANCE_DECK_SIZE, offset)
       break
     case 'creatures-only':
     case 'specials-only': {
       const eligible = [...primary, ...secondary, ...mercs].filter(
         (card) => (card.kind === 'creature') === (plan === 'creatures-only'),
       )
-      cards = pick(eligible, 30, offset)
+      cards = pick(eligible, ALLIANCE_DECK_SIZE, offset)
       break
     }
   }
@@ -121,7 +122,7 @@ for (const card of CARDS) {
   const deck: AllianceDeck = {
     general,
     ally,
-    cards: [card.id, ...pick(filler, 29, 0)],
+    cards: [card.id, ...pick(filler, ALLIANCE_DECK_SIZE - 1, 0)],
   }
   assert.ok(
     validAllianceDeck(deck),

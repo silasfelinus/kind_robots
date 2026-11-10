@@ -1,9 +1,25 @@
 /** Optional e03/e04 Unsent Letters decisions, isolated from Classic and gallery saves. */
 export const LETTER_CHOICES = {
-  e03Letter: ['earth-letter-deliver', 'earth-letter-shelve', 'earth-letter-copy'],
-  e03Witness: ['earth-witness-ask', 'earth-witness-refuse', 'earth-witness-protect'],
-  e04Archive: ['earth-archive-release', 'earth-archive-seal', 'earth-archive-annotate'],
-  e04Return: ['earth-return-offer', 'earth-return-decline', 'earth-return-witness'],
+  e03Letter: [
+    'earth-letter-deliver',
+    'earth-letter-shelve',
+    'earth-letter-copy',
+  ],
+  e03Witness: [
+    'earth-witness-ask',
+    'earth-witness-refuse',
+    'earth-witness-protect',
+  ],
+  e04Archive: [
+    'earth-archive-release',
+    'earth-archive-seal',
+    'earth-archive-annotate',
+  ],
+  e04Return: [
+    'earth-return-offer',
+    'earth-return-decline',
+    'earth-return-witness',
+  ],
 } as const
 
 export type LetterScene = keyof typeof LETTER_CHOICES

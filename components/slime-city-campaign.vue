@@ -19,7 +19,7 @@
     <div class="campaign-strip">
       <div class="campaign-title" :title="lab.campaignStory.principle">
         <span class="campaign-overline"
-          >FACTION STORY · CAMPAIGN
+          >SOLO STORY · CHAPTER
           {{ String(lab.campaignState.wins + 1).padStart(2, '0') }} / 06</span
         >
         <h2>{{ lab.campaignStory.title }}</h2>
@@ -61,10 +61,14 @@
         aria-label="Story bout format"
         data-testid="slime-story-format"
       >
-        <span
-          title="Every Story bout is SOLO CLASH with your faction's Solo deck; your approach moves each boss's starting life."
-          >SOLO CLASH</span
+        <button
+          type="button"
+          title="Edit the Solo deck your crew brings to its story bouts"
+          data-testid="slime-story-deck"
+          @click="lab.showSoloDeck()"
         >
+          CREW DECK
+        </button>
       </div>
       <div
         class="campaign-stamp"

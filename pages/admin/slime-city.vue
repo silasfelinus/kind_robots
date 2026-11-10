@@ -344,37 +344,107 @@
             >
               BOUNTIES &amp; REWARDS
             </button>
-            <div
-              class="sc-deck-format"
-              role="group"
-              aria-label="Deck format"
-              data-testid="slime-deck-format"
+            <button
+              v-if="lab.deckFormat === 'solo'"
+              type="button"
+              class="sc-solo-back"
+              data-testid="slime-solo-deck-back"
+              @click="lab.showCampaign()"
             >
-              <button
-                type="button"
-                :aria-pressed="lab.deckFormat === 'solo'"
-                data-testid="slime-format-solo"
-                title="SOLO CLASH: twenty cards from one faction and the mercenaries"
-                @click="lab.deckFormat = 'solo'"
-              >
-                SOLO <small>20</small>
-              </button>
-              <button
-                type="button"
-                :aria-pressed="lab.deckFormat === 'alliance'"
-                data-testid="slime-format-alliance"
-                title="Twenty cards from a general crew and an ally crew"
-                @click="lab.deckFormat = 'alliance'"
-              >
-                ALLIANCE <small>{{ ALLIANCE_DECK_SIZE }}</small>
-              </button>
-            </div>
+              ← SOLO STORY · {{ lab.team.name }} DECK
+            </button>
             <span
               >LEVEL {{ lab.level }} · {{ lab.progress.cards.length }} /
               {{ lab.collectionSize }} OWNED</span
             >
           </div>
           <div class="sc-collection-body kr-scroll">
+            <section
+              v-if="lab.deckFormat === 'alliance'"
+              class="sc-library"
+              aria-label="Your decks"
+              data-testid="slime-deck-library"
+            >
+              <article
+                v-for="deck in lab.library"
+                :key="deck.id"
+                class="sc-library-deck"
+                :class="{ chosen: lab.libraryId === deck.id }"
+                :data-testid="'slime-library-' + deck.id"
+              >
+                <button
+                  type="button"
+                  class="sc-library-pick"
+                  :aria-pressed="lab.libraryId === deck.id"
+                  :aria-label="'Use ' + deck.name"
+                  @click="lab.selectLibraryDeck(deck.id)"
+                >
+                  <span class="sc-library-crews" aria-hidden="true">
+                    <SlimeCityArtwork
+                      :image-id="slimeArtId('crews', deck.general)"
+                      :alt="teamName(deck.general)"
+                      compact
+                    />
+                    <SlimeCityArtwork
+                      :image-id="slimeArtId('crews', deck.ally)"
+                      :alt="teamName(deck.ally)"
+                      compact
+                    />
+                  </span>
+                  <strong v-if="lab.libraryId !== deck.id">{{
+                    deck.name
+                  }}</strong>
+                  <small>{{
+                    lab.libraryDeckReady(deck.id)
+                      ? 'READY · 20'
+                      : deck.cards.length + ' / ' + ALLIANCE_DECK_SIZE
+                  }}</small>
+                </button>
+                <input
+                  v-if="lab.libraryId === deck.id"
+                  class="sc-library-name"
+                  :value="deck.name"
+                  maxlength="32"
+                  aria-label="Deck name"
+                  data-testid="slime-library-name"
+                  @change="
+                    lab.renameLibraryDeck(
+                      deck.id,
+                      ($event.target as HTMLInputElement).value,
+                    )
+                  "
+                />
+                <span v-if="lab.libraryId === deck.id" class="sc-library-tools">
+                  <button
+                    type="button"
+                    title="Copy this deck"
+                    data-testid="slime-library-copy"
+                    :disabled="lab.library.length >= lab.libraryMax"
+                    @click="lab.copyLibraryDeck(deck.id)"
+                  >
+                    COPY
+                  </button>
+                  <button
+                    type="button"
+                    :class="{ armed: deleteArmed === deck.id }"
+                    title="Delete this deck"
+                    data-testid="slime-library-delete"
+                    @click="confirmDelete(deck.id)"
+                  >
+                    {{ deleteArmed === deck.id ? 'SURE?' : 'DELETE' }}
+                  </button>
+                </span>
+              </article>
+              <button
+                v-if="lab.library.length < lab.libraryMax"
+                type="button"
+                class="sc-library-new"
+                data-testid="slime-library-new"
+                @click="lab.newLibraryDeck()"
+              >
+                <span aria-hidden="true">＋</span> NEW DECK
+              </button>
+            </section>
             <div
               v-if="lab.deckFormat === 'alliance'"
               class="sc-deck-workbench sc-alliance-workbench"
@@ -1041,6 +1111,14 @@ const activeMode = computed(() => {
 function setDefaultFormat(format: 'solo' | 'alliance'): void {
   lab.clashFormat = format
   lab.deckFormat = format
+}
+/** Deleting a library deck takes two taps. */
+const deleteArmed = ref<string | null>(null)
+function confirmDelete(id: string): void {
+  if (deleteArmed.value === id) {
+    lab.deleteLibraryDeck(id)
+    deleteArmed.value = null
+  } else deleteArmed.value = id
 }
 const generalPower = computed(() => factionPower(lab.activeTeam))
 const allyPower = computed(() => factionPower(lab.currentAlliance.ally))
@@ -1760,6 +1838,128 @@ onUnmounted(() => {
   flex-direction: column;
   gap: 0.4rem;
 }
+.sc-solo-back {
+  border-color: #c5ff59 !important;
+  color: #e9ffd0;
+}
+.sc-library {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(11rem, 1fr));
+  gap: 0.5rem;
+}
+.sc-library-deck,
+.sc-library-new {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  padding: 0.5rem;
+  border: 1px solid #4d5567;
+  border-radius: 0.8rem;
+  background: #0e1420d9;
+}
+.sc-library-deck.chosen {
+  border-color: #c5ff59;
+  box-shadow: 0 0 16px #c5ff5944;
+}
+.sc-library-pick {
+  display: grid;
+  grid-template-columns: 3.2rem minmax(0, 1fr);
+  grid-template-rows: auto auto;
+  align-items: center;
+  column-gap: 0.5rem;
+  row-gap: 0.1rem;
+  min-width: 0;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+.sc-library-crews {
+  grid-row: span 2;
+  position: relative;
+  overflow: hidden;
+  width: 3.2rem;
+  height: 2.6rem;
+}
+.sc-library-crews :deep(.slime-art) {
+  position: absolute;
+  margin: 0;
+  overflow: hidden;
+  border-radius: 0.45rem;
+  border: 2px solid #0e1420;
+}
+.sc-library-crews :deep(.slime-art:first-child) {
+  inset: 0 0.8rem 0.4rem 0;
+}
+.sc-library-crews :deep(.slime-art:last-child) {
+  inset: 0.9rem 0 0 1.5rem;
+}
+.sc-library-crews :deep(img) {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.sc-library-pick strong {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 0.78rem;
+  font-weight: 900;
+}
+.sc-library-pick small {
+  font-size: 0.6rem;
+  font-weight: 900;
+  letter-spacing: 0.06em;
+  color: #c5ff59;
+  white-space: nowrap;
+}
+.sc-library-name {
+  width: 100%;
+  min-width: 0;
+  padding: 0.3rem 0.45rem;
+  border: 1px solid #586e68;
+  border-radius: 0.4rem;
+  background: #070b12;
+  color: #f7f2e8;
+  font-size: 0.8rem;
+  font-weight: 800;
+}
+.sc-library-tools {
+  display: flex;
+  gap: 0.35rem;
+}
+.sc-library-tools button {
+  flex: 1;
+  padding: 0.25rem 0.4rem;
+  border: 1px solid #586e68;
+  border-radius: 0.4rem;
+  background: #24383b;
+  font-size: 0.62rem;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+}
+.sc-library-tools button.armed {
+  border-color: #ff6f7a;
+  background: #4b1f26;
+  color: #ffd6dc;
+}
+.sc-library-new {
+  align-items: center;
+  justify-content: center;
+  border-style: dashed;
+  color: #c5ff59;
+  font-size: 0.8rem;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  cursor: pointer;
+}
+.sc-library-new:hover {
+  border-color: #c5ff59;
+}
 .sc-collection-tools {
   position: sticky;
   top: 0;
@@ -2262,29 +2462,6 @@ onUnmounted(() => {
 .sc-progress-error {
   background: #4b233a;
   border-color: #ff8db3;
-}
-.sc-deck-format {
-  display: flex;
-  gap: 0.4rem;
-}
-.sc-deck-format button {
-  flex: 0 0 auto;
-  padding: 0.35rem 0.8rem;
-  border: 1px solid #ffffff33;
-  border-radius: 999px;
-  background: #0b1a1fcc;
-  color: inherit;
-  font-weight: 800;
-  letter-spacing: 0.06em;
-  cursor: pointer;
-}
-.sc-deck-format button small {
-  opacity: 0.7;
-}
-.sc-deck-format button[aria-pressed='true'] {
-  border-color: #b9f151;
-  background: #b9f15126;
-  color: #e9ffd0;
 }
 .sc-deck-pips.is-twenty {
   grid-template-columns: repeat(10, 0.42rem);

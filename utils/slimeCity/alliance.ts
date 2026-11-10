@@ -220,3 +220,66 @@ export function validSoloDeck(team: unknown, raw: unknown): boolean {
     soloProblems(team, raw as string[]).length === 0
   )
 }
+
+/**
+ * The COLLECTION deck library (Silas, 2026-11-10 PT): "the user adds, copies,
+ * deletes, edits decks ... no other building rules, can be loading into the
+ * various game modes as appropriate" and the collection deckbuilder "should be
+ * treated as alliance default". A named Alliance deck; it may be unfinished
+ * (fewer than 20 cards) while it is being built, and only plays once legal.
+ */
+export interface LibraryDeck extends AllianceDeck {
+  id: string
+  name: string
+}
+export const LIBRARY_MAX_DECKS = 12
+export const LIBRARY_NAME_MAX = 32
+
+/** Why a library deck is malformed (an unfinished deck is fine), or ''. */
+export function libraryDeckProblem(raw: unknown): string {
+  if (!raw || typeof raw !== 'object' || Array.isArray(raw)) return 'Not a deck'
+  const v = raw as Record<string, unknown>
+  if (typeof v.id !== 'string' || !v.id || v.id.length > 40) return 'Bad id'
+  if (
+    typeof v.name !== 'string' ||
+    !v.name.trim() ||
+    v.name.length > LIBRARY_NAME_MAX
+  )
+    return 'Bad name'
+  if (!isTeam(v.general) || !isTeam(v.ally) || v.general === v.ally)
+    return 'Pick two different factions'
+  if (
+    !Array.isArray(v.cards) ||
+    v.cards.length > ALLIANCE_DECK_SIZE ||
+    !v.cards.every((id) => typeof id === 'string')
+  )
+    return 'Bad cards'
+  const ids = v.cards as string[]
+  if (new Set(ids).size !== ids.length) return 'Cannot repeat cards'
+  const pool = new Set(allianceCardPool(v.general, v.ally).map((c) => c.id))
+  if (ids.some((id) => !pool.has(id)))
+    return 'Cards must come from your two factions or the mercenaries'
+  return ''
+}
+export function validLibrary(raw: unknown): raw is LibraryDeck[] {
+  return (
+    Array.isArray(raw) &&
+    raw.length <= LIBRARY_MAX_DECKS &&
+    new Set(raw.map((deck) => (deck as LibraryDeck)?.id)).size === raw.length &&
+    raw.every((deck) => libraryDeckProblem(deck) === '')
+  )
+}
+/** A library entry built from an Alliance deck. */
+export function libraryDeck(
+  deck: AllianceDeck,
+  id: string,
+  name: string,
+): LibraryDeck {
+  return {
+    id,
+    name: name.trim().slice(0, LIBRARY_NAME_MAX) || 'Deck',
+    general: deck.general,
+    ally: deck.ally,
+    cards: [...deck.cards],
+  }
+}

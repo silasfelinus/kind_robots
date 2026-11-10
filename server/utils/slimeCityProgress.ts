@@ -415,6 +415,7 @@ export async function saveSlimeCityStory(
       ...Object.values(proposed.decks ?? {}),
       ...Object.values(proposed.soloDecks ?? {}),
       ...Object.values(proposed.alliances ?? {}).map((deck) => deck?.cards),
+      ...(proposed.library ?? []).map((deck) => deck?.cards),
     ]
     for (const deck of allDecks) {
       if (deck?.some((id) => !STARTER_CARD_IDS.has(id) && !ownedCards.has(id)))
@@ -442,6 +443,9 @@ export async function saveSlimeCityStory(
         : {}),
       ...((proposed.alliances ?? current.alliances)
         ? { alliances: proposed.alliances ?? current.alliances }
+        : {}),
+      ...((proposed.library ?? current.library)
+        ? { library: proposed.library ?? current.library }
         : {}),
       unlocks: 'trickle',
       ...((proposed.storyMode ?? current.storyMode)

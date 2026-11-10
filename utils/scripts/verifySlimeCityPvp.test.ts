@@ -49,6 +49,21 @@ const redacted = pvpBoard(trapped, 'player')
 assert.equal(redacted.traps.length, 1, 'enemy traps may not leak')
 assert.equal(redacted.traps[0]?.cardId, 'scentmine')
 assert.equal(pvpBoard(trapped, 'enemy').traps[0]?.cardId, 'bloodwire')
+trapped.log.push({
+  round: 1,
+  kind: 'trap',
+  text: 'SECRET bloodwire in alley 2',
+})
+trapped.log.push({
+  round: 1,
+  kind: 'play',
+  text: 'SECRET bloodwire evolves',
+})
+assert.equal(
+  pvpBoard(trapped, 'player').log.some((entry) => entry.text.includes('SECRET')),
+  false,
+  'untriggered traps and their evolution cannot leak through logs',
+)
 
 assert.equal(pvpCommand({ t: 'pass', side: 'enemy' }, 'player'), null)
 assert.equal(pvpCommand({ t: 'end', extra: 1 }, 'player'), null)

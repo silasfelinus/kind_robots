@@ -206,6 +206,11 @@
                 }}</span>
               </template>
               <span v-else class="scpvp-empty">{{ lane }}</span>
+              <span
+                v-if="board.traps.some((trap) => trap.side === side && trap.lane === lane - 1)"
+                class="scpvp-own-trap"
+                aria-label="Your hidden trap in this alley"
+              >✦ ARMED</span>
             </button>
           </div>
           <span class="scpvp-midline">FIVE ALLEYS · NO MAN'S LAND</span>
@@ -722,6 +727,17 @@ onBeforeUnmount(() => pvp.stopWatching())
   bottom: 1.5rem;
   color: #ffdb76;
   font-size: 0.6rem;
+}
+.scpvp-own-trap {
+  position: absolute;
+  left: 0.2rem;
+  bottom: 1.45rem;
+  padding: 0.1rem 0.24rem;
+  border-radius: 0.25rem;
+  background: #152632ea;
+  color: #e8f787;
+  font-size: 0.59rem;
+  font-weight: 900;
 }
 .scpvp-empty {
   color: #6c8882;

@@ -1425,6 +1425,8 @@ for (const name of [
   assert.equal(trap.kind, 'trap', `${name} must remain a trap`)
   assert.equal(trap.effect, 'snare', `${name} must remain a snare`)
   assert.equal(clashPlayCost(trap), 1, `${name} must cost one Clash play`)
+  if (trap.team === 'mercenary')
+    throw new Error(`${name} must belong to a playable faction`)
   const state = createClash('ironjaw', trap.team, 1962)
   state.round = 2
   state.hands.player = ['scrapper']

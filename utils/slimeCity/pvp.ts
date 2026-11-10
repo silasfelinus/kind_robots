@@ -157,7 +157,10 @@ export function pvpBoard(state: ClashState, seat: Side): PvpBoard {
     active: state.active,
     phase: state.phase,
     plays: { ...state.plays },
-    freePlays: { ...state.freePlays },
+    freePlays: {
+      player: state.freePlays?.player ?? 0,
+      enemy: state.freePlays?.enemy ?? 0,
+    },
     boss: { ...state.boss },
     units: state.units.map((unit) => ({
       ...unit,

@@ -39,6 +39,9 @@ export function chooseLetter(
   scene: LetterScene,
   choice: string,
 ): LetterProgress {
+  // Reducers may receive state from a caller that bypassed save hydration.
+  // Never build a legitimate new choice on top of forged or malformed history.
+  if (!restoreLetterProgress(progress)) return progress
   if (!scenes.includes(scene)) return progress
   if (!(LETTER_CHOICES[scene] as readonly string[]).includes(choice))
     return progress

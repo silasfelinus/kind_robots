@@ -26,8 +26,7 @@ assert.equal(validSlimeCityStory(base), true)
 // Card unlocks (Silas, 2026-11-09 PT): new stories start in TRICKLE; an
 // omitted mode (saves from before) still means every card is open.
 assert.equal(unlockModeOf(base), 'trickle')
-const { unlocks: _unlocks, ...legacyBase } = base
-assert.equal(unlockModeOf(legacyBase), 'all')
+assert.equal(unlockModeOf({ unlocks: undefined }), 'all')
 // Every starter a new account is dealt is playable in TRICKLE before packs.
 for (const team of TEAMS) {
   for (const id of [

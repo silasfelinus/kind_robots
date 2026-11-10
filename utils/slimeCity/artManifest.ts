@@ -495,10 +495,21 @@ export const SLIME_CITY_ART = {
     arrow: 262291,
     blast: 262292,
   },
-  /** UI art, round 4 (ArtJob 53119). */
+  /**
+   * UI art, round 4 (ArtJob 53119). 'title-splash' is the title screen's key
+   * art (conductor projects/slime-city/art/TITLE-AND-BOSS-REACTIONS-ROUND-1.yaml);
+   * until it is wired the title screen paints the chosen crew's home district.
+   */
   ui: {
     'card-back': 260371,
-  },
+  } as Readonly<Record<string, number>>,
+  /**
+   * Boss reaction portraits for the Clash versus console, keyed
+   * '<crew>/<mood>' (ready, hit, gloat, beaten), from the same ledger.
+   * Silas, 2026-11-10 PT: "we should assign some more space for the matchup
+   * pictures, so there are reactions". A missing mood shows the crew poster.
+   */
+  bosses: {} as Readonly<Record<string, number>>,
   /**
    * Evolution paintings (Silas, 2026-11-08 PT: "We should have fresh art on
    * the evolutions, not just frame effects"). Keys are '<cardId>@2' and

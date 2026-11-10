@@ -85,6 +85,7 @@ import {
 import {
   ALLIANCE_DECK_SIZE,
   SOLO_DECK_SIZE,
+  STARTER_CARD_IDS,
   allianceCardPool,
   allianceProblems,
   allianceStarter,
@@ -392,7 +393,7 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
     towerRun.value ? towerSpoils(towerRun.value, towerSave.value.meta) : null,
   )
   const savedDecks = ref<Partial<Record<TeamId, string[]>>>({})
-  /** ALLIANCE: the last legal 30-card deck saved for each general. */
+  /** ALLIANCE: the last legal 20-card deck saved for each general. */
   const savedAlliances = ref<Partial<Record<TeamId, AllianceDeck>>>({})
   /** ALLIANCE: work in progress, kept even while it is not yet legal. */
   const allianceDrafts = ref<Partial<Record<TeamId, AllianceDeck>>>({})
@@ -420,7 +421,7 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
     kind: ClashKind
     victor: Side | 'draw'
   } | null>(null)
-  const unlockMode = ref<UnlockMode>('all')
+  const unlockMode = ref<UnlockMode>('trickle')
   /** Story bouts: as written or all TURF, with or without PARITY. */
   const storyMode = ref<StoryMode>('written')
   const storyParity = ref(false)
@@ -800,18 +801,13 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
   const currentDeckProblems = computed(() =>
     loadoutProblems(activeTeam.value, currentDeck.value),
   )
-  function isFounderCard(id: string): boolean {
-    const card = CARDS.find((entry) => entry.id === id)
-    return (
-      !!card &&
-      card.team !== 'mercenary' &&
-      starterCards(card.team).includes(id)
-    )
+  function isStarterCard(id: string): boolean {
+    return STARTER_CARD_IDS.has(id)
   }
   function isCardUnlocked(id: string): boolean {
     return (
       unlockMode.value === 'all' ||
-      isFounderCard(id) ||
+      isStarterCard(id) ||
       progress.value.cards.includes(id)
     )
   }
@@ -1973,7 +1969,7 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
     currentDeckProblems,
     replacingCard,
     deckMessage,
-    isFounderCard,
+    isStarterCard,
     isCardUnlocked,
     selectDeckCard,
     restoreFounderDeck,

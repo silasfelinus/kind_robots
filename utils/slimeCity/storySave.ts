@@ -31,7 +31,8 @@ export interface SlimeCityStory {
   /** Saved practice decks; omitted for older saves. */
   decks?: Partial<Record<TeamId, string[]>>
   /**
-   * ALLIANCE 30-card two-crew decks, one per general (Silas, 2026-11-07 PT).
+   * ALLIANCE 20-card two-crew decks, one per general (Silas, 2026-11-07 PT;
+   * 20 cards since 2026-11-09).
    * Omitted for older saves.
    */
   alliances?: Partial<Record<TeamId, AllianceDeck>>
@@ -40,7 +41,9 @@ export interface SlimeCityStory {
   /**
    * Card unlocks (Silas, 2026-11-04: "we start with all card unlocked as a
    * default mode, but then they can try a mode where it gets trickled out").
-   * Omitted means 'all'.
+   * Silas, 2026-11-09 PT: "We should default to trickle display." New stories
+   * start in 'trickle'; omitted still means 'all', so saves made before then
+   * keep the open collection their decks were built from.
    */
   unlocks?: UnlockMode
   /**
@@ -73,6 +76,7 @@ export function newSlimeCityStory(): SlimeCityStory {
     city: createCity(),
     campaigns: createCampaignSave(),
     tower: freshTower(),
+    unlocks: 'trickle',
   }
 }
 
@@ -291,15 +295,42 @@ export function validSlimeCityStory(raw: unknown): raw is SlimeCityStory {
   return true
 }
 
+/**
+ * Alliance decks shrank from 30 to 20 cards (Silas, 2026-11-09 PT). A story
+ * saved before then keeps everything but what is no longer legal: retired
+ * Alliance decks drop (the starter returns) and a tower run carrying one ends,
+ * keeping the tower's runs, best floor, cinders and unlocked cards.
+ */
+function withoutRetiredAlliances(raw: unknown): unknown {
+  if (!record(raw)) return raw
+  let story = raw
+  if (record(raw.alliances)) {
+    const kept = Object.fromEntries(
+      Object.entries(raw.alliances).filter(([, deck]) =>
+        validAllianceDeck(deck),
+      ),
+    )
+    if (Object.keys(kept).length !== Object.keys(raw.alliances).length)
+      story = { ...story, alliances: kept }
+  }
+  const tower = raw.tower
+  if (record(tower) && record(tower.run) && !validAllianceDeck(tower.run.deck))
+    story = { ...story, tower: { ...tower, run: null } }
+  return story
+}
+
+function savedStory(raw: unknown): SlimeCityStory | undefined {
+  if (!record(raw)) return undefined
+  const story = withoutRetiredAlliances(raw.story)
+  return validSlimeCityStory(story) ? story : undefined
+}
+
 /** Never allow a saved story snapshot to affect the account wallet or card ledger. */
 export function storyFromAccount(raw: unknown): SlimeCityStory {
-  if (!record(raw) || !validSlimeCityStory(raw.story))
-    return newSlimeCityStory()
-  return raw.story
+  return savedStory(raw) ?? newSlimeCityStory()
 }
 
 export function accountWithStory(raw: unknown, progression: object): object {
-  const story =
-    record(raw) && validSlimeCityStory(raw.story) ? raw.story : undefined
+  const story = savedStory(raw)
   return story ? { ...progression, story } : progression
 }

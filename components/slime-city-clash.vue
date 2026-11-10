@@ -2,50 +2,12 @@
 <template>
   <section
     class="clash"
+    :class="{ 'log-open': logOpen }"
     data-testid="slime-clash"
     aria-label="Slime City Clash"
   >
-    <div class="clash-stage">
-      <div class="clash-field">
-        <div class="clash-boss is-enemy" :class="{ hit: bossHit === 'enemy' }">
-          <SlimeCityArtwork
-            :image-id="slimeArtId('crews', rival.id)"
-            :alt="rival.name"
-            :fallback="rival.insignia"
-            compact
-          />
-          <div class="clash-boss-name">
-            <small
-              >RIVAL BOSS<template v-if="rivalAlly">
-                · ALLY {{ rivalAlly.name }}</template
-              ></small
-            ><strong>{{ rival.name }}</strong>
-            <span class="clash-health"
-              ><i :style="{ width: healthWidth('enemy') }"
-            /></span>
-          </div>
-          <b
-            >{{ game.boss.enemy }}
-            <small>/ {{ clashBossCap(game, 'enemy') }} HP</small></b
-          >
-          <span
-            v-if="bossHit === 'enemy'"
-            :key="'boss-enemy-' + impactKey"
-            class="clash-float is-boss"
-            >-{{ impact!.dealt }}</span
-          >
-          <span
-            v-if="alliance"
-            class="clash-power-chip"
-            :class="{ spent: game.powerUsed?.enemy }"
-            :title="rivalPower.name + ': ' + rivalPower.text"
-            data-testid="clash-rival-power"
-            >{{ rivalPower.symbol }} {{ rivalPower.name
-            }}{{ game.powerUsed?.enemy ? ' · USED' : '' }}</span
-          >
-          <span class="clash-bank">{{ game.plays.enemy }} / 2</span>
-        </div>
-
+    <div class="clash-layout">
+      <div class="clash-stage">
         <div
           class="clash-board"
           role="grid"
@@ -89,6 +51,8 @@
                 :data-clash-side="side"
                 :data-clash-lane="lane"
                 @click="clickSlot(side, lane)"
+                @pointerenter="hoverSlot($event, side, lane)"
+                @pointerleave="hoverUnit = null"
               >
                 <template v-if="unit(side, lane)">
                   <SlimeCityArtwork
@@ -97,6 +61,31 @@
                     :fallback="cardById(unit(side, lane)!.cardId).symbol"
                     compact
                   />
+                  <span class="clash-numbers">
+                    <b
+                      :key="'atk-' + clashPower(game, unit(side, lane)!)"
+                      class="clash-stat is-attack"
+                      :aria-label="
+                        clashPower(game, unit(side, lane)!) + ' attack'
+                      "
+                      ><i aria-hidden="true">⚔</i
+                      >{{ clashPower(game, unit(side, lane)!) }}</b
+                    >
+                    <b
+                      :key="'hp-' + unit(side, lane)!.hp"
+                      class="clash-stat is-life"
+                      :class="{
+                        low:
+                          unit(side, lane)!.hp * 3 <= unit(side, lane)!.maxHp,
+                      }"
+                      :aria-label="unit(side, lane)!.hp + ' life'"
+                      ><svg viewBox="0 0 24 22" aria-hidden="true">
+                        <path
+                          d="M12 21.2S1.6 14.9.4 8.4C-.5 3.8 2.6.5 6.3.5c2.4 0 4.3 1.3 5.7 3.3C13.4 1.8 15.3.5 17.7.5c3.7 0 6.8 3.3 5.9 7.9C22.4 14.9 12 21.2 12 21.2z"
+                        /></svg
+                      ><span>{{ unit(side, lane)!.hp }}</span></b
+                    >
+                  </span>
                   <span class="clash-fighter-label"
                     ><i
                       class="clash-stars"
@@ -105,16 +94,23 @@
                       >{{ '★'.repeat(unit(side, lane)!.level) }}</i
                     >{{ cardById(unit(side, lane)!.cardId).name }}</span
                   >
-                  <span class="clash-numbers"
-                    ><b>{{ clashPower(game, unit(side, lane)!) }} ⚔</b
-                    ><b>{{ unit(side, lane)!.hp }} ♥</b></span
-                  >
-                  <span v-if="status(unit(side, lane)!)" class="clash-status">{{
-                    status(unit(side, lane)!)
-                  }}</span>
-                  <span v-if="unit(side, lane)!.gear.length" class="clash-gear"
-                    >✦ {{ unit(side, lane)!.gear.length }}</span
-                  >
+                  <span class="clash-tags">
+                    <span
+                      v-if="unit(side, lane)!.armor"
+                      class="clash-tag is-armor"
+                      >🛡 {{ unit(side, lane)!.armor }}</span
+                    >
+                    <span
+                      v-if="status(unit(side, lane)!)"
+                      class="clash-status"
+                      >{{ status(unit(side, lane)!) }}</span
+                    >
+                    <span
+                      v-if="unit(side, lane)!.gear.length"
+                      class="clash-gear"
+                      >✦ {{ unit(side, lane)!.gear.length }}</span
+                    >
+                  </span>
                 </template>
                 <span v-else class="clash-empty">{{
                   targetable(side, lane)
@@ -146,193 +142,289 @@
             </div>
           </template>
         </div>
-        <div
-          class="clash-boss is-player"
-          :class="{ hit: bossHit === 'player' }"
-        >
-          <SlimeCityArtwork
-            :image-id="slimeArtId('crews', mine.id)"
-            :alt="mine.name"
-            :fallback="mine.insignia"
-            compact
-          />
-          <div class="clash-boss-name">
-            <small
-              >YOUR BOSS<template v-if="myAlly">
-                · ALLY {{ myAlly.name }}</template
-              ></small
-            ><strong>{{ mine.name }}</strong>
-            <span class="clash-health"
-              ><i :style="{ width: healthWidth('player') }"
-            /></span>
-          </div>
-          <b
-            >{{ game.boss.player }}
-            <small>/ {{ clashBossCap(game, 'player') }} HP</small></b
+        <div class="clash-hand-zone">
+          <p class="clash-ticker" aria-live="polite">{{ ticker }}</p>
+          <p
+            v-if="rewardNote"
+            class="clash-reward-note"
+            aria-live="polite"
+            data-testid="clash-reward-note"
           >
-          <span
-            v-if="bossHit === 'player'"
-            :key="'boss-player-' + impactKey"
-            class="clash-float is-boss"
-            >-{{ impact!.dealt }}</span
-          >
-          <span class="clash-bank">{{ game.plays.player }} / 2</span>
+            {{ rewardNote }}
+          </p>
         </div>
+        <div
+          v-if="choiceStages && selectedCard"
+          class="clash-choice"
+          role="radiogroup"
+          aria-label="Choose this card's level three"
+          data-testid="clash-choice"
+        >
+          <span class="clash-choice-label">CHOOSE ONE · LV 3</span>
+          <button
+            v-for="(st, i) in choiceStages"
+            :key="st.title"
+            type="button"
+            role="radio"
+            :aria-checked="evoPick === i"
+            :class="{ on: evoPick === i }"
+            :data-testid="'clash-choice-' + i"
+            @click="evoPick = i === 1 ? 1 : 0"
+          >
+            <b>{{ st.title }}</b>
+            <small>{{ evoStageText(st, selectedCard.kind) }}</small>
+          </button>
+        </div>
+        <SlimeCityClashHand
+          :game="game"
+          :held="heldIndex"
+          :inspect="inspect"
+          @pick="onPick"
+          @drop="onDrop"
+        />
       </div>
-    </div>
 
-    <footer class="clash-bottom">
-      <div class="clash-hud">
-        <div class="clash-plays">
-          <strong>{{ phaseLabel }}</strong>
-          <span
-            >{{ game.plays.player }} / {{ clashPlayLimit(game, 'player') }} card
-            plays · {{ game.decks.player.length }} in deck ·
-            {{ game.discards.player.length }} discarded</span
-          >
-        </div>
+      <aside class="clash-vs" aria-label="Versus">
         <div
-          class="clash-format"
-          role="group"
-          aria-label="Clash format"
-          data-testid="clash-format"
+          v-for="side in sides"
+          :key="'boss-' + side"
+          class="clash-boss"
+          :class="[
+            'is-' + side,
+            'mood-' + mood(side),
+            { hit: bossHit === side },
+          ]"
+          :data-testid="'clash-boss-' + side"
         >
+          <div class="clash-portrait">
+            <SlimeCityArtwork
+              :key="side + mood(side)"
+              :image-id="
+                slimeArtId('bosses', teamOf(side).id + '/' + mood(side))
+              "
+              :fallback-image-id="slimeArtId('crews', teamOf(side).id)"
+              :alt="teamOf(side).name + ' boss, ' + mood(side)"
+              :fallback="teamOf(side).insignia"
+              compact
+            />
+            <Transition name="clash-quip">
+              <span
+                v-if="quip(side)"
+                :key="reactions[side].key"
+                class="clash-quip"
+                aria-live="polite"
+                >{{ quip(side) }}</span
+              >
+            </Transition>
+            <span
+              v-if="bossHit === side"
+              :key="'boss-' + side + '-' + impactKey"
+              class="clash-float is-boss"
+              >-{{ impact!.dealt }}</span
+            >
+          </div>
+          <div class="clash-boss-info">
+            <small
+              >{{ side === 'enemy' ? 'RIVAL BOSS' : 'YOUR BOSS'
+              }}<template v-if="allyOf(side)">
+                · ALLY {{ allyOf(side)!.name }}</template
+              ></small
+            >
+            <strong>{{ teamOf(side).name }}</strong>
+            <span class="clash-health"
+              ><i :style="{ width: healthWidth(side) }"
+            /></span>
+            <span class="clash-boss-line">
+              <b class="clash-hp"
+                >{{ game.boss[side]
+                }}<small>/ {{ clashBossCap(game, side) }}</small></b
+              >
+              <span
+                class="clash-bank"
+                :aria-label="
+                  game.plays[side] +
+                  ' of ' +
+                  clashPlayLimit(game, side) +
+                  ' card plays used'
+                "
+                ><i
+                  v-for="n in clashPlayLimit(game, side)"
+                  :key="n"
+                  :class="{ used: n <= game.plays[side] }"
+                />PLAYS</span
+              >
+            </span>
+            <span
+              v-if="alliance && side === 'enemy'"
+              class="clash-power-chip"
+              :class="{ spent: game.powerUsed?.enemy }"
+              :title="rivalPower.name + ': ' + rivalPower.text"
+              data-testid="clash-rival-power"
+              >{{ rivalPower.symbol }} {{ rivalPower.name
+              }}{{ game.powerUsed?.enemy ? ' · USED' : '' }}</span
+            >
+            <button
+              v-if="alliance && side === 'player'"
+              type="button"
+              class="clash-power"
+              :class="{ armed: powerArmed, spent: game.powerUsed?.player }"
+              data-testid="clash-power"
+              :aria-pressed="powerArmed"
+              :title="
+                myPower.name + ': ' + myPower.text + ' One use per match.'
+              "
+              :disabled="!powerReady"
+              @click="firePower"
+            >
+              {{ myPower.symbol }}
+              {{
+                game.powerUsed?.player
+                  ? myPower.name + ' · USED'
+                  : powerArmed
+                    ? 'PICK A RIVAL FIGHTER'
+                    : myPower.name
+              }}
+            </button>
+          </div>
+        </div>
+
+        <div class="clash-vs-mid">
+          <span class="clash-vs-badge" aria-hidden="true">VS</span>
+          <span class="clash-phase">
+            <small>ROUND {{ game.round }}</small>
+            <strong>{{ phaseLabel }}</strong>
+          </span>
           <button
             type="button"
-            :aria-pressed="!alliance"
-            :disabled="inBout"
-            title="SOLO CLASH: your faction's 20-card deck"
-            data-testid="clash-format-solo"
-            @click="lab.playClashFormat('solo')"
+            class="clash-log-toggle"
+            :aria-expanded="logOpen"
+            data-testid="clash-log-toggle"
+            @click="logOpen = !logOpen"
           >
-            SOLO
-          </button>
-          <button
-            type="button"
-            :aria-pressed="alliance"
-            :disabled="inBout"
-            title="ALLIANCE: two factions, 30 cards and your general's one-time power"
-            data-testid="clash-format-alliance"
-            @click="lab.playClashFormat('alliance')"
-          >
-            ALLIANCE
+            LOG
           </button>
         </div>
-        <button
-          v-if="alliance"
-          type="button"
-          class="clash-power"
-          :class="{ armed: powerArmed, spent: game.powerUsed?.player }"
-          data-testid="clash-power"
-          :aria-pressed="powerArmed"
-          :title="myPower.name + ': ' + myPower.text + ' One use per match.'"
-          :disabled="!powerReady"
-          @click="firePower"
+
+        <section
+          class="clash-log"
+          aria-label="Battle log"
+          data-testid="clash-log"
         >
-          {{ myPower.symbol }}
-          {{
-            game.powerUsed?.player
-              ? myPower.name + ' · USED'
-              : powerArmed
-                ? 'PICK A RIVAL FIGHTER'
-                : myPower.name
-          }}
-        </button>
-        <span
-          class="clash-kind"
-          :class="'is-' + lab.clashLaunch.kind"
-          data-testid="clash-kind"
-          >{{ kindLabel }}</span
-        >
-        <button
-          v-if="backTarget"
-          type="button"
-          class="clash-reset clash-back"
-          data-testid="clash-back"
-          @click="goBack"
-        >
-          {{ backTarget }}
-        </button>
-        <button
-          v-if="(!inBout || game.victor) && lab.clashLaunch.kind !== 'tower'"
-          type="button"
-          class="clash-reset"
-          data-testid="clash-restart"
-          :title="
-            rewarded
-              ? 'A new CPU match for XP and Meat'
-              : 'Start a new practice match'
-          "
-          :disabled="lab.progressBusy"
-          @click="lab.playClashFormat()"
-        >
-          ↻ {{ rewarded ? 'PLAY FOR REWARDS' : 'REMATCH' }}
-        </button>
-        <button
-          type="button"
-          class="clash-pass"
-          data-testid="clash-pass"
-          title="Skip remaining card plays and send your crew in"
-          :disabled="
-            busy ||
-            game.active !== 'player' ||
-            game.phase !== 'play' ||
-            !!game.victor
-          "
-          @click="pass"
-        >
-          FIGHT <span aria-hidden="true">›</span>
-        </button>
-      </div>
-      <div class="clash-hand-zone">
-        <p class="clash-ticker" aria-live="polite">{{ ticker }}</p>
-        <p
-          v-if="rewardNote"
-          class="clash-reward-note"
-          aria-live="polite"
-          data-testid="clash-reward-note"
-        >
-          {{ rewardNote }}
-        </p>
-      </div>
-    </footer>
-    <div
-      v-if="choiceStages && selectedCard"
-      class="clash-choice"
-      role="radiogroup"
-      aria-label="Choose this card's level three"
-      data-testid="clash-choice"
-    >
-      <span class="clash-choice-label">CHOOSE ONE · LV 3</span>
-      <button
-        v-for="(st, i) in choiceStages"
-        :key="st.title"
-        type="button"
-        role="radio"
-        :aria-checked="evoPick === i"
-        :class="{ on: evoPick === i }"
-        :data-testid="'clash-choice-' + i"
-        @click="evoPick = i === 1 ? 1 : 0"
-      >
-        <b>{{ st.title }}</b>
-        <small>{{ evoStageText(st, selectedCard.kind) }}</small>
-      </button>
+          <h3>BATTLE LOG</h3>
+          <ol ref="logList" class="kr-scroll">
+            <li
+              v-for="(entry, i) in logEntries"
+              :key="i"
+              :class="['is-' + entry.kind, { round: entry.newRound }]"
+            >
+              <small v-if="entry.newRound">ROUND {{ entry.round }}</small>
+              <span>{{ entry.text }}</span>
+            </li>
+            <li v-if="!logEntries.length" class="is-empty">
+              <span>Play a card to start the fight.</span>
+            </li>
+          </ol>
+        </section>
+
+        <div class="clash-console">
+          <div id="clash-hand-dock" class="clash-hand-dock"></div>
+          <div class="clash-console-main">
+            <span class="clash-plays"
+              >{{ game.decks.player.length }} in deck ·
+              {{ game.discards.player.length }} discarded</span
+            >
+            <div class="clash-console-row">
+              <button
+                v-if="backTarget"
+                type="button"
+                class="clash-reset clash-back"
+                data-testid="clash-back"
+                @click="goBack"
+              >
+                {{ backTarget }}
+              </button>
+              <button
+                v-if="
+                  (!inBout || game.victor) && lab.clashLaunch.kind !== 'tower'
+                "
+                type="button"
+                class="clash-reset"
+                data-testid="clash-restart"
+                :title="
+                  rewarded
+                    ? 'A new CPU match for XP and Meat'
+                    : 'Start a new practice match'
+                "
+                :disabled="lab.progressBusy"
+                @click="lab.playClashFormat()"
+              >
+                ↻ {{ rewarded ? 'PLAY FOR REWARDS' : 'REMATCH' }}
+              </button>
+              <button
+                type="button"
+                class="clash-pass"
+                data-testid="clash-pass"
+                title="Skip remaining card plays and send your crew in"
+                :disabled="
+                  busy ||
+                  game.active !== 'player' ||
+                  game.phase !== 'play' ||
+                  !!game.victor
+                "
+                @click="pass"
+              >
+                FIGHT <span aria-hidden="true">›</span>
+              </button>
+            </div>
+          </div>
+          <div class="clash-console-meta">
+            <div
+              class="clash-format"
+              role="group"
+              aria-label="Clash format"
+              data-testid="clash-format"
+            >
+              <button
+                type="button"
+                :aria-pressed="!alliance"
+                :disabled="inBout"
+                title="SOLO CLASH: your faction's 20-card deck"
+                data-testid="clash-format-solo"
+                @click="lab.playClashFormat('solo')"
+              >
+                SOLO
+              </button>
+              <button
+                type="button"
+                :aria-pressed="alliance"
+                :disabled="inBout"
+                title="ALLIANCE: two factions, 20 cards and your general's one-time power"
+                data-testid="clash-format-alliance"
+                @click="lab.playClashFormat('alliance')"
+              >
+                ALLIANCE
+              </button>
+            </div>
+            <span
+              class="clash-kind"
+              :class="'is-' + lab.clashLaunch.kind"
+              data-testid="clash-kind"
+              >{{ kindLabel }}</span
+            >
+          </div>
+        </div>
+      </aside>
     </div>
-    <SlimeCityClashHand
-      :game="game"
-      :held="heldIndex"
-      :inspect="inspect"
-      @pick="onPick"
-      @drop="onDrop"
-    />
   </section>
 </template>
 
 <script setup lang="ts">
 import {
   computed,
+  nextTick,
   onBeforeUnmount,
   onMounted,
+  reactive,
   ref,
   shallowRef,
   watch,
@@ -368,6 +460,7 @@ import {
   type ClashUnit,
 } from '~/utils/slimeCity/clash'
 import { useSlimeCityStore } from '~/stores/slimeCity'
+import { bossQuip, type BossMood } from '~/utils/slimeCity/bossReactions'
 import { factionPower } from '~/utils/slimeCity/factionPowers'
 import {
   clashEvolutionChoice,
@@ -393,8 +486,13 @@ function dealt(): ClashState {
 }
 const game = shallowRef<ClashState>(dealt())
 let dealtLaunch = lab.clashLaunch.id
-const mine = computed(() => teamById(game.value.teams.player))
-const rival = computed(() => teamById(game.value.teams.enemy))
+function teamOf(side: Side) {
+  return teamById(game.value.teams[side])
+}
+function allyOf(side: Side) {
+  const ally = game.value.allies?.[side]
+  return ally ? teamById(ally) : null
+}
 const inBout = computed(() =>
   ['rival', 'contract', 'campaign', 'tower'].includes(lab.clashLaunch.kind),
 )
@@ -408,7 +506,7 @@ const kindLabel = computed(
       reward: 'REWARD MATCH',
       rival: 'CITY BOUT',
       contract: 'CITY CONTRACT',
-      campaign: 'STORY BOUT',
+      campaign: 'CAMPAIGN BOUT',
       tower: 'TOWER FIGHT',
     })[lab.clashLaunch.kind] +
     ' · ' +
@@ -418,7 +516,7 @@ const kindLabel = computed(
 const backTarget = computed(() => {
   if (!game.value.victor || !lab.clashResult) return ''
   const kind = lab.clashResult.kind
-  if (kind === 'campaign') return 'BACK TO STORY ›'
+  if (kind === 'campaign') return 'BACK TO CAMPAIGN ›'
   if (kind === 'tower') return 'BACK TO TOWER ›'
   if (kind === 'rival' || kind === 'contract') return 'BACK TO THE CITY ›'
   return ''
@@ -440,12 +538,6 @@ const rewardNote = computed(() =>
 const alliance = computed(() => game.value.format === 'alliance')
 const myPower = computed(() => factionPower(game.value.teams.player))
 const rivalPower = computed(() => factionPower(game.value.teams.enemy))
-const myAlly = computed(() =>
-  game.value.allies?.player ? teamById(game.value.allies.player) : null,
-)
-const rivalAlly = computed(() =>
-  game.value.allies?.enemy ? teamById(game.value.allies.enemy) : null,
-)
 const powerArmed = ref(false)
 const heldIndex = ref<number | null>(null)
 const selectedUnit = ref<number | null>(null)
@@ -466,9 +558,59 @@ function stopTimer(): void {
   if (timer) clearTimeout(timer)
   timer = null
 }
+/**
+ * Boss reactions: a boss winces when its life or a fighter falls and the
+ * other boss gloats; the match result holds each face until a rematch.
+ */
+const reactions = reactive<Record<Side, { mood: BossMood; key: number }>>({
+  player: { mood: 'ready', key: 0 },
+  enemy: { mood: 'ready', key: 0 },
+})
+const reactionTimers: Partial<Record<Side, ReturnType<typeof setTimeout>>> = {}
+function react(side: Side, mood: BossMood): void {
+  clearTimeout(reactionTimers[side])
+  reactions[side] = { mood, key: reactions[side].key + 1 }
+  reactionTimers[side] = setTimeout(() => {
+    if (!game.value.victor)
+      reactions[side] = { mood: 'ready', key: reactions[side].key }
+  }, 1700)
+}
+function resetReactions(): void {
+  for (const side of sides) {
+    clearTimeout(reactionTimers[side])
+    reactions[side] = { mood: 'ready', key: 0 }
+  }
+}
+function mood(side: Side): BossMood {
+  const victor = game.value.victor
+  if (victor && victor !== 'draw') return victor === side ? 'gloat' : 'beaten'
+  return reactions[side].mood
+}
+function quip(side: Side): string {
+  return reactions[side].key ? bossQuip(teamOf(side).id, mood(side)) : ''
+}
+function reactTo(prev: ClashState, next: ClashState): void {
+  if (next.victor && !prev.victor) {
+    if (next.victor !== 'draw') {
+      react(next.victor, 'gloat')
+      react(next.victor === 'player' ? 'enemy' : 'player', 'beaten')
+    }
+    return
+  }
+  const hurt = sides.filter(
+    (side) =>
+      next.boss[side] < prev.boss[side] ||
+      (next.fallen?.[side]?.length ?? 0) > (prev.fallen?.[side]?.length ?? 0),
+  )
+  for (const side of sides) {
+    if (hurt.includes(side)) react(side, 'hit')
+    else if (hurt.length) react(side, 'gloat')
+  }
+}
 /** Every flourish is derived from the same committed command as the game. */
 function commit(next: ClashState): number {
   const cue = clashSpectacle(game.value, next)
+  reactTo(game.value, next)
   game.value = next
   if (!cue) return 0
   spectacle.value = { ...cue, key: ++spectacleKey }
@@ -527,6 +669,8 @@ function newMatch(): void {
   impact.value = null
   spectacle.value = null
   powerArmed.value = false
+  hoverUnit.value = null
+  resetReactions()
   dealtLaunch = lab.clashLaunch.id
   game.value = dealt()
 }
@@ -549,7 +693,28 @@ onMounted(() => {
   if (window.matchMedia?.('(prefers-reduced-motion: reduce)').matches)
     pace.value = 0.4
 })
-onBeforeUnmount(stopTimer)
+onBeforeUnmount(() => {
+  stopTimer()
+  resetReactions()
+})
+
+/** Silas, 2026-11-10 PT: "we should be able to see a log of an active game". */
+const logOpen = ref(false)
+const logList = ref<HTMLOListElement | null>(null)
+const logEntries = computed(() =>
+  game.value.log.slice(-80).map((entry, i, all) => ({
+    ...entry,
+    newRound: i === 0 || all[i - 1]!.round !== entry.round,
+  })),
+)
+watch(
+  () => game.value.log.length,
+  async () => {
+    await nextTick()
+    const list = logList.value
+    if (list) list.scrollTop = list.scrollHeight
+  },
+)
 
 const selectedCard = computed<Card | null>(() => {
   const id =
@@ -595,18 +760,30 @@ const bossHit = computed<Side | null>(() =>
       : 'player'
     : null,
 )
+/** A mouse over a fighter previews its full card, docked away from it. */
+const hoverUnit = ref<number | null>(null)
+function hoverSlot(event: PointerEvent, side: Side, lane: number): void {
+  if (event.pointerType !== 'mouse') return
+  hoverUnit.value = unit(side, lane)?.uid ?? null
+}
 const inspect = computed<{
   id: string
   note: string
   level: number
   pick?: EvoPick
+  hover?: boolean
+  dock?: 'left' | 'right'
 } | null>(() => {
-  const u = game.value.units.find((v) => v.uid === selectedUnit.value)
+  const hovered = game.value.units.find((v) => v.uid === hoverUnit.value)
+  const u =
+    hovered ?? game.value.units.find((v) => v.uid === selectedUnit.value)
   if (!u) return null
   return {
     id: u.cardId,
     level: u.level,
     pick: u.evoChoice ?? 0,
+    hover: !!hovered && hovered.uid !== selectedUnit.value,
+    dock: u.lane >= 2 ? 'left' : 'right',
     note:
       (u.side === 'player' ? 'Your fighter' : 'Rival fighter') +
       ' in alley ' +
@@ -785,213 +962,516 @@ function forecast(lane: number): string {
 </script>
 
 <style scoped>
+/*
+  Silas, 2026-11-10 PT: the board owns the screen; the boss portraits, life,
+  card plays, hand button, controls and battle log form ONE versus console
+  beside it (a rail on wide screens, top and bottom strips on narrow ones).
+*/
 .clash {
   --ink: #ecf9fc;
   --neon: #b9f151;
-  display: flex;
-  flex-direction: column;
-  gap: 0.7rem;
+  position: relative;
   width: 100%;
   height: 100%;
   min-height: 0;
-  overflow: hidden;
-  padding: 0.65rem;
+  overflow: clip;
+  box-sizing: border-box;
   color: var(--ink);
   background:
     radial-gradient(ellipse at 50% 5%, #265049bb, transparent 60%), #071115;
   font-family: inherit;
+  container: clash / size;
+}
+.clash-layout {
+  --rail: clamp(15rem, 24cqw, 21rem);
+  position: relative;
+  height: 100%;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) var(--rail);
+  gap: 0.35rem;
+  padding: 0.3rem;
+  box-sizing: border-box;
 }
 .clash button {
   cursor: pointer;
   color: inherit;
+  font: inherit;
 }
 .clash button:disabled {
   cursor: default;
   opacity: 0.58;
 }
-.clash-top,
-.clash-hud,
-.clash-boss {
-  display: flex;
-  align-items: center;
-  gap: 0.7rem;
-}
-.clash-top {
-  justify-content: space-between;
-  flex: none;
-  padding: 0.1rem 0.45rem;
-}
-.clash-title {
+
+/* ---------- Board ---------- */
+.clash-stage {
+  position: relative;
+  min-width: 0;
+  min-height: 0;
   display: flex;
   flex-direction: column;
-  gap: 0.2rem;
 }
-.clash-eyebrow,
-.clash-round span {
-  color: #9ad9cb;
-  font-size: 0.62rem;
-  font-weight: 850;
-  letter-spacing: 0.13em;
-}
-.clash-title strong {
-  font-size: clamp(1.05rem, 2vw, 1.8rem);
-  letter-spacing: 0.055em;
-  line-height: 1.05;
-}
-.clash-title strong i {
-  color: var(--neon);
-  font-style: normal;
-}
-.clash-title small {
-  font-size: 0.74rem;
-  color: #c4d9d8;
-}
-.clash-round {
+.clash-board {
+  position: relative;
+  isolation: isolate;
+  flex: 1 1 auto;
+  min-height: 0;
   display: flex;
   flex-direction: column;
-  text-align: center;
   gap: 0.18rem;
+  padding: clamp(0.2rem, 0.6vw, 0.45rem);
+  border-radius: 0.8rem;
+  border: 1px solid #38877a77;
+  background: #101e23;
 }
-.clash-round b {
-  color: var(--neon);
-  letter-spacing: 0.06em;
-  font-size: 0.88rem;
+.clash-map-art {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  margin: 0;
+  opacity: 0.86;
+  pointer-events: none;
 }
-.clash-reset,
-.clash-pass {
-  background: #19332f;
-  border: 1px solid #5c99917a;
-  border-radius: 0.55rem;
-  padding: 0.55rem 0.75rem;
+.clash-map-art :deep(img) {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 0.8rem;
+}
+.clash-lane-numbers,
+.clash-row,
+.clash-impact {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: clamp(0.12rem, 0.5vw, 0.3rem);
+}
+.clash-lane-numbers {
+  flex: none;
+  position: relative;
+  z-index: 1;
+}
+.clash-lane-numbers span {
+  text-align: center;
+  font-size: 0.59rem;
+  letter-spacing: 0.08em;
+  color: #fff0c7;
+  text-shadow: 0 1px 4px #06121d;
+}
+.clash-row {
+  position: relative;
+  z-index: 1;
+  flex: 1;
+  min-height: 0;
+}
+.clash-row:has(.lunge) {
+  z-index: 3;
+}
+.clash-impact {
+  position: relative;
+  z-index: 2;
+  flex: none;
+  align-items: center;
+  min-height: 1.35rem;
+  border-radius: 0.3rem;
+  background: #061a1db5;
+}
+.clash-impact span {
+  text-align: center;
+  color: #d9f9ab;
+  font-size: clamp(0.55rem, 0.95vw, 0.78rem);
+  font-weight: 850;
+  white-space: nowrap;
+}
+.clash-impact span.striking {
+  color: #fff3b0;
+  text-shadow: 0 0 8px #ffd34d;
+}
+
+/* ---------- Fighter tokens ---------- */
+.clash-slot {
+  position: relative;
+  min-width: 0;
+  min-height: 0;
+  overflow: hidden;
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 0.3rem;
-  font-size: 0.72rem;
-  font-weight: 850;
+  border: 1px dashed #d6e8d266;
+  border-radius: 0.45rem;
+  background: #06171f31;
+  backdrop-filter: brightness(0.94);
+  container-type: size;
+  transition:
+    border-color 0.15s,
+    box-shadow 0.15s;
 }
-.clash-reset:hover,
-.clash-pass:hover:not(:disabled) {
-  border-color: var(--neon);
+.clash-row.is-enemy .clash-slot {
+  background: #301a2a46;
 }
-.clash-format {
+.clash-slot.filled {
+  background-image: radial-gradient(ellipse at 50% 40%, #31545b, #081a25 80%);
+  border-style: solid;
+  border-color: #83c4ae88;
+}
+.clash-row.is-enemy .clash-slot.filled {
+  border-color: #dc9cb088;
+}
+.clash-slot.filled:hover {
+  border-color: #fff;
+}
+.clash-slot.target {
+  border: 2px solid var(--neon);
+  box-shadow:
+    inset 0 0 18px #b9f13c40,
+    0 0 11px #b9f13c40;
+}
+.clash-slot.selected {
+  border-color: #fff;
+  box-shadow: 0 0 0 2px #ffffff88;
+}
+.clash-slot > :deep(.slime-art) {
+  position: absolute;
+  inset: 0;
+  margin: 0;
+}
+.clash-slot :deep(img) {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  object-position: center;
+  opacity: 1;
+}
+.clash-numbers {
+  --stat: clamp(1.6rem, 30cqmin, 4.2rem);
+  position: absolute;
+  top: 0.2rem;
+  left: 0.2rem;
+  right: 0.2rem;
+  z-index: 2;
   display: flex;
-  border: 1px solid #5c99917a;
-  border-radius: 0.55rem;
-  overflow: hidden;
-  flex: 0 0 auto;
+  justify-content: space-between;
+  align-items: flex-start;
+  pointer-events: none;
 }
-.clash-format button {
-  background: #10231f;
+.clash-stat {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: var(--stat);
+  height: var(--stat);
+  font-size: calc(var(--stat) * 0.52);
+  font-weight: 1000;
+  font-style: italic;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+  color: #fff;
+  -webkit-text-stroke: calc(var(--stat) * 0.03) #1b0b04;
+  paint-order: stroke fill;
+  text-shadow:
+    0 2px 0 #0009,
+    0 0 6px #000a;
+  animation: clash-stat-pop 0.42s cubic-bezier(0.2, 1.6, 0.4, 1);
+}
+.clash-stat.is-attack {
+  clip-path: polygon(50% 0, 100% 18%, 100% 66%, 50% 100%, 0 66%, 0 18%);
+  background:
+    radial-gradient(circle at 35% 25%, #fff7c9 0 12%, transparent 40%),
+    linear-gradient(160deg, #ffe07a, #f59a1b 55%, #9c4a06);
+}
+.clash-stat.is-attack::before {
+  content: '';
+  position: absolute;
+  inset: 8%;
+  clip-path: inherit;
   border: 0;
-  padding: 0.4rem 0.55rem;
-  font-size: 0.62rem;
+  background: linear-gradient(160deg, #ffcf4d00, #6b2f0055);
+}
+.clash-stat.is-attack i {
+  position: absolute;
+  right: 6%;
+  bottom: 14%;
+  font-size: 0.34em;
+  font-style: normal;
+  -webkit-text-stroke: 0;
+  opacity: 0.8;
+}
+.clash-stat.is-life svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  filter: drop-shadow(0 2px 2px #000a);
+}
+.clash-stat.is-life path {
+  fill: #ff4f6d;
+  stroke: #3a0612;
+  stroke-width: 1.1;
+}
+.clash-stat.is-life span {
+  position: relative;
+  margin-top: -8%;
+}
+.clash-stat.is-life.low path {
+  fill: #a8203c;
+  animation: clash-heartbeat 0.9s ease-in-out infinite;
+  transform-origin: 50% 55%;
+}
+.clash-fighter-label {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 1;
+  padding: 0.6rem 0.25rem 0.25rem;
+  font-size: clamp(0.5rem, 11cqmin, 0.85rem);
+  line-height: 1.05;
   font-weight: 850;
-  letter-spacing: 0.06em;
+  text-align: center;
+  color: #fff;
+  background: linear-gradient(transparent, #030e14ec 55%);
+  text-shadow: 0 1px 2px #000;
+  pointer-events: none;
 }
-.clash-format button[aria-pressed='true'] {
-  background: #b9f15126;
-  color: #e9ffd0;
+.clash-stars {
+  display: block;
+  font-style: normal;
+  font-size: 0.85em;
+  letter-spacing: 0.1em;
+  color: #ffe6a6;
 }
-.clash-power {
-  background: linear-gradient(110deg, #4a3510, #2a1b08);
-  border: 1px solid #ffd76a99;
-  border-radius: 0.55rem;
-  padding: 0.5rem 0.7rem;
-  font-size: 0.7rem;
+.clash-stars.max {
+  color: #ffd34d;
+  text-shadow: 0 0 6px #ffb800;
+}
+.clash-tags {
+  position: absolute;
+  left: 0.2rem;
+  right: 0.2rem;
+  bottom: calc(clamp(0.5rem, 11cqmin, 0.85rem) * 2.4 + 0.6rem);
+  z-index: 1;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.15rem;
+  pointer-events: none;
+}
+.clash-status,
+.clash-gear,
+.clash-tag {
+  font-size: clamp(0.5rem, 8cqmin, 0.68rem);
   font-weight: 900;
   letter-spacing: 0.05em;
-  color: #ffe9a8;
-  white-space: nowrap;
+  padding: 0.1rem 0.3rem;
+  border-radius: 0.25rem;
+  background: #03141af0;
+  color: #d7ff89;
 }
-.clash-power:hover:not(:disabled),
-.clash-power.armed {
-  border-color: #ffd76a;
-  box-shadow: 0 0 12px #ffd76a66;
+.clash-tag.is-armor {
+  color: #bfe3ff;
 }
-.clash-power.spent {
-  text-decoration: line-through;
-  filter: grayscale(0.7);
+.clash-empty {
+  color: #c6dcd4;
+  font-size: clamp(0.5rem, 0.85vw, 0.72rem);
+  letter-spacing: 0.06em;
+  font-weight: 750;
+  text-shadow: 0 1px 3px #000;
 }
-.clash-power-chip {
-  font-size: 0.6rem;
-  font-weight: 850;
-  color: #ffd76a;
-  white-space: nowrap;
+.clash-row.is-player .clash-empty {
+  position: absolute;
+  top: 14%;
 }
-.clash-power-chip.spent {
-  opacity: 0.5;
-  text-decoration: line-through;
-}
-.clash-stage {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr);
+
+/* ---------- Hand zone: the ticker floats over the board ---------- */
+.clash-hand-zone {
   position: relative;
-  gap: 0.65rem;
-  min-height: 0;
-  flex: 1;
+  height: 0;
+  pointer-events: none;
 }
-.clash-field {
+.clash-ticker,
+.clash-reward-note {
+  position: absolute;
+  bottom: 0.6rem;
+  left: 50%;
+  z-index: 5;
+  width: max-content;
+  max-width: min(80%, 30rem);
+  margin: 0;
+  padding: 0.3rem 0.65rem;
+  border-radius: 0.5rem;
+  background: #06151de8;
+  transform: translateX(-50%);
+  text-align: center;
+  font-size: clamp(0.7rem, 1.6vw, 0.9rem);
+  font-weight: 750;
+  line-height: 1.3;
+  color: #c9e3dc;
+}
+.clash-ticker:empty {
+  display: none;
+}
+.clash-reward-note {
+  bottom: 2.6rem;
+  font-size: 0.7rem;
+  font-weight: 800;
+  color: #ffe9a8;
+}
+
+/* ---------- Versus console ---------- */
+.clash-vs {
+  min-width: 0;
   min-height: 0;
   display: flex;
   flex-direction: column;
   gap: 0.35rem;
 }
 .clash-boss {
-  background: linear-gradient(110deg, #15342f, #0b2029);
-  border: 1px solid #76b5a448;
-  border-radius: 0.7rem;
-  padding: 0.3rem 0.55rem;
-  min-height: 3rem;
-}
-.clash-boss.is-enemy {
-  background: linear-gradient(110deg, #4b1f31, #17212d);
-  border-color: #ee819655;
-}
-.clash-boss :deep(img) {
-  width: 2.5rem;
-  height: 2.5rem;
-  object-fit: cover;
-  border-radius: 0.4rem;
-}
-.clash-boss-name {
-  flex: 1;
-  min-width: 0;
+  position: relative;
+  flex: 1 1 0;
+  min-height: 0;
   display: flex;
   flex-direction: column;
-  gap: 0.08rem;
+  overflow: visible;
+  border-radius: 0.8rem;
+  border: 1px solid #76b5a448;
+  background: #0d2831ee;
+  transition:
+    border-color 0.2s,
+    box-shadow 0.2s;
 }
-.clash-boss-name small {
-  font-size: 0.57rem;
+.clash-boss.is-enemy {
+  order: 0;
+  border-color: #ee819655;
+  background: #2e1b2aee;
+}
+.clash-boss.is-player {
+  order: 4;
+}
+.clash-vs-mid {
+  order: 1;
+}
+.clash-log {
+  order: 2;
+}
+.clash-console {
+  order: 5;
+}
+.clash-portrait {
+  position: relative;
+  flex: 1 1 auto;
+  min-height: 3rem;
+  border-radius: 0.8rem 0.8rem 0 0;
+  overflow: hidden;
+  background: #071115;
+}
+.clash-portrait :deep(.slime-art) {
+  position: absolute;
+  inset: 0;
+  margin: 0;
+}
+.clash-portrait :deep(img) {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: 50% 25%;
+  transition:
+    filter 0.3s,
+    transform 0.3s;
+}
+.clash-portrait :deep(.slime-art-fallback) {
+  height: 100%;
+  display: grid;
+  place-items: center;
+  font-size: 2rem;
+}
+.clash-boss.mood-hit .clash-portrait :deep(img) {
+  filter: sepia(0.5) saturate(2.4) hue-rotate(-30deg) brightness(1.1);
+  transform: scale(1.06);
+}
+.clash-boss.mood-gloat .clash-portrait :deep(img) {
+  transform: scale(1.08);
+  filter: saturate(1.3) brightness(1.08);
+}
+.clash-boss.mood-beaten .clash-portrait :deep(img) {
+  filter: grayscale(0.85) brightness(0.6);
+  transform: scale(0.98) rotate(-2deg);
+}
+.clash-boss.mood-gloat .clash-portrait {
+  animation: clash-gloat 0.7s ease-in-out 2;
+}
+.clash-quip {
+  position: absolute;
+  top: 0.5rem;
+  left: 50%;
+  z-index: 3;
+  max-width: 90%;
+  padding: 0.3rem 0.7rem;
+  border-radius: 1rem;
+  border: 2px solid #111;
+  background: #fffbe8;
+  color: #111;
+  font-size: clamp(0.75rem, 1.4cqw, 1rem);
+  font-weight: 1000;
+  font-style: italic;
+  white-space: nowrap;
+  transform: translateX(-50%) rotate(-3deg);
+  box-shadow: 0 4px 0 #0007;
+}
+.clash-quip::after {
+  content: '';
+  position: absolute;
+  left: 30%;
+  bottom: -0.55rem;
+  border: 0.3rem solid transparent;
+  border-top: 0.45rem solid #111;
+}
+.mood-hit .clash-quip {
+  background: #ff5f7a;
+  color: #fff;
+}
+.mood-beaten .clash-quip {
+  background: #c6c9d2;
+}
+.clash-quip-enter-active {
+  animation: clash-quip-in 0.35s cubic-bezier(0.2, 1.6, 0.4, 1);
+}
+.clash-quip-leave-active {
+  transition: opacity 0.25s;
+}
+.clash-quip-leave-to {
+  opacity: 0;
+}
+.clash-boss-info {
+  flex: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  padding: 0.35rem 0.55rem 0.45rem;
+  min-width: 0;
+}
+.clash-boss-info small {
+  font-size: 0.55rem;
   color: #a3c2b9;
   letter-spacing: 0.09em;
-}
-.clash-boss-name strong {
-  font-size: 0.75rem;
-  text-overflow: ellipsis;
+  white-space: nowrap;
   overflow: hidden;
+  text-overflow: ellipsis;
+}
+.clash-boss-info strong {
+  font-size: 0.82rem;
+  letter-spacing: 0.03em;
   white-space: nowrap;
-}
-.clash-boss > b {
-  flex: none;
-  font-size: 1.1rem;
-  color: #d7ffe7;
-  font-variant-numeric: tabular-nums;
-}
-.clash-boss > b small {
-  font-size: 0.54rem;
-  font-weight: 600;
-}
-.clash-bank {
-  font-size: 0.63rem;
-  color: #d7ff89;
-  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 .clash-health {
-  background: #102026;
-  border-radius: 0.2rem;
-  height: 0.25rem;
+  display: block;
+  height: 0.4rem;
   width: 100%;
+  border-radius: 999px;
+  background: #102026;
   overflow: hidden;
 }
 .clash-health i {
@@ -1003,395 +1483,445 @@ function forecast(lane: number): string {
 .is-enemy .clash-health i {
   background: linear-gradient(90deg, #f3908c, #d95882);
 }
-.clash-board {
-  position: relative;
-  isolation: isolate;
+.clash-boss-line {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+.clash-hp {
+  font-size: clamp(1.2rem, 2.4cqw, 1.8rem);
+  font-weight: 1000;
+  font-style: italic;
+  line-height: 1;
+  color: #d7ffe7;
+  font-variant-numeric: tabular-nums;
+}
+.is-enemy .clash-hp {
+  color: #ffd6dc;
+}
+.clash-hp small {
+  margin-left: 0.2rem;
+  font-size: 0.42em;
+  font-style: normal;
+  font-weight: 700;
+  color: #a3c2b9;
+}
+.clash-bank {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-size: 0.55rem;
+  font-weight: 850;
+  letter-spacing: 0.08em;
+  color: #a3c2b9;
+}
+.clash-bank i {
+  width: 0.7rem;
+  height: 0.7rem;
+  border-radius: 0.2rem;
+  border: 1px solid #d7ff89;
+  background: #d7ff89;
+  transform: rotate(45deg);
+}
+.clash-bank i.used {
+  background: transparent;
+  opacity: 0.45;
+}
+.clash-boss.hit {
+  border-color: #ff9ea4;
+  box-shadow: 0 0 16px #ff6f7a88;
+  animation: clash-shake 0.36s ease-in-out;
+}
+.clash-power {
+  margin-top: 0.15rem;
+  padding: 0.45rem 0.6rem;
+  border: 1px solid #ffd76a99;
+  border-radius: 0.55rem;
+  background: linear-gradient(110deg, #4a3510, #2a1b08);
+  color: #ffe9a8 !important;
+  font-size: 0.7rem !important;
+  font-weight: 900;
+  letter-spacing: 0.05em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.clash-power:hover:not(:disabled),
+.clash-power.armed {
+  border-color: #ffd76a;
+  box-shadow: 0 0 12px #ffd76a66;
+}
+.clash-power.spent {
+  text-decoration: line-through;
+  filter: grayscale(0.7);
+}
+.clash-power-chip {
+  font-size: 0.62rem;
+  font-weight: 850;
+  color: #ffd76a;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.clash-power-chip.spent {
+  opacity: 0.5;
+  text-decoration: line-through;
+}
+.clash-vs-mid {
+  flex: none;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0 0.2rem;
+}
+.clash-vs-badge {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 2.2rem;
+  height: 2.2rem;
+  border-radius: 50%;
+  background: radial-gradient(
+    circle at 35% 30%,
+    #f6ffcf,
+    var(--neon) 55%,
+    #5d8f1b
+  );
+  color: #142016;
+  font-weight: 1000;
+  font-style: italic;
+  font-size: 0.9rem;
+  box-shadow: 0 0 14px #b9f15177;
+}
+.clash-phase {
   flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+.clash-phase small {
+  font-size: 0.55rem;
+  letter-spacing: 0.14em;
+  color: #9ad9cb;
+}
+.clash-phase strong {
+  font-size: 0.72rem;
+  color: var(--neon);
+  line-height: 1.15;
+}
+.clash-log-toggle {
+  display: none;
+}
+.clash-log {
+  flex: 1 1 0;
+  min-height: 5rem;
+  display: flex;
+  flex-direction: column;
+  border-radius: 0.7rem;
+  border: 1px solid #38877a77;
+  background: #061418e6;
+  overflow: hidden;
+}
+.clash-log h3 {
+  margin: 0;
+  padding: 0.3rem 0.55rem;
+  font-size: 0.55rem;
+  letter-spacing: 0.16em;
+  color: #9ad9cb;
+  border-bottom: 1px solid #38877a44;
+}
+.clash-log ol {
+  flex: 1;
+  min-height: 0;
+  margin: 0;
+  padding: 0.3rem 0.5rem 0.5rem;
+  list-style: none;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+.clash-log li {
+  font-size: 0.68rem;
+  line-height: 1.3;
+  color: #c9e3dc;
+  padding-left: 0.4rem;
+  border-left: 2px solid #38877a77;
+}
+.clash-log li small {
+  display: block;
+  margin: 0.25rem 0 0.1rem -0.4rem;
+  font-size: 0.52rem;
+  letter-spacing: 0.14em;
+  color: var(--neon);
+}
+.clash-log li.is-death {
+  border-color: #ff6f7a;
+  color: #ffc9cf;
+}
+.clash-log li.is-boss {
+  border-color: #ffd34d;
+  color: #ffe9a8;
+}
+.clash-log li.is-trap {
+  border-color: #6fc8ff;
+}
+.clash-log li.is-play {
+  border-color: #b9f151aa;
+}
+.clash-log li.is-empty {
+  border: 0;
+  color: #7f9c95;
+}
+.clash-console {
+  flex: none;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  grid-template-areas:
+    'hand main'
+    'meta meta';
+  align-items: center;
+  gap: 0.35rem 0.5rem;
+  padding: 0.45rem 0.5rem 0.4rem;
+  border-radius: 0.8rem;
+  border: 1px solid #76b5a448;
+  background: #0b1f24f0;
+}
+.clash-hand-dock {
+  grid-area: hand;
+  display: flex;
+  padding-bottom: 0.7rem;
+}
+.clash-console-main {
+  grid-area: main;
+  min-width: 0;
   display: flex;
   flex-direction: column;
   gap: 0.3rem;
-  min-height: 0;
-  padding: 0.5rem;
-  border-radius: 0.8rem;
-  border: 1px solid #38877a77;
-  background:
-    linear-gradient(#0c2029bb, #12302899),
-    repeating-linear-gradient(45deg, transparent 0 18px, #ffffff05 19px 20px);
-}
-.clash-lane-numbers,
-.clash-row,
-.clash-impact {
-  display: grid;
-  grid-template-columns: repeat(5, minmax(0, 1fr));
-  gap: 0.35rem;
-}
-.clash-lane-numbers {
-  flex: none;
-}
-.clash-lane-numbers span {
-  text-align: center;
-  font-size: 0.59rem;
-  color: #b5dfd1;
-  letter-spacing: 0.08em;
-}
-.clash-row {
-  position: relative;
-  z-index: 1;
-  flex: 1;
-  min-height: 0;
-}
-.clash-slot {
-  min-height: 0;
-  min-width: 0;
-  border: 1px dashed #719d955e;
-  border-radius: 0.65rem;
-  overflow: hidden;
-  position: relative;
-  background: linear-gradient(145deg, #1e45444d, #0d222c99);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-direction: column;
-}
-.clash-row.is-enemy .clash-slot {
-  background: linear-gradient(145deg, #70364e73, #1b243099);
-}
-.clash-slot.filled {
-  border-style: solid;
-  border-color: #83c4ae88;
-}
-.clash-row.is-enemy .clash-slot.filled {
-  border-color: #dc9cb088;
-}
-.clash-slot.target {
-  border: 2px solid var(--neon);
-  box-shadow:
-    inset 0 0 18px #b9f13c40,
-    0 0 11px #b9f13c40;
-  opacity: 1;
-}
-.clash-slot.selected {
-  border-color: #ffffff;
-}
-.clash-slot :deep(img) {
-  position: absolute;
-  inset: 0;
-  height: 100%;
-  width: 100%;
-  /* Portrait cards were being cropped into square reaction tokens.
-     Preserve the entire illustration at every evolution tier. */
-  object-fit: contain;
-  object-position: center;
-  opacity: 1;
-}
-.clash-slot.filled {
-  background: radial-gradient(ellipse at 50% 40%, #31545b, #081a25 80%);
-  border-style: solid;
-  border-color: #9ac3b15e;
-}
-.clash-slot.filled.selected {
-  border-color: #e8fba5;
-}
-.clash-fighter-label {
-  position: absolute;
-  bottom: 1.75rem;
-  left: 0;
-  right: 0;
-  z-index: 1;
-  padding: 0.45rem 0.2rem 0.25rem;
-  font-size: clamp(0.5rem, 0.85vw, 0.8rem);
-  line-height: 1.05;
-  font-weight: 850;
-  color: white;
-  background: linear-gradient(transparent, #030e14ec);
-  text-shadow: 0 1px 2px black;
-}
-.clash-numbers {
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  z-index: 1;
-  display: flex;
-  justify-content: space-around;
-  gap: 0.1rem;
-  padding: 0.3rem 0.1rem;
-  background: #06151de9;
-  font-size: 0.7rem;
-}
-.clash-numbers b:first-child {
-  color: #ffdd9a;
-}
-.clash-numbers b:last-child {
-  color: #ff9ea4;
-}
-.clash-gear {
-  position: absolute;
-  top: 0.2rem;
-  right: 0.2rem;
-  z-index: 1;
-  font-size: 0.58rem;
-  padding: 0.12rem 0.22rem;
-  border-radius: 0.2rem;
-  background: #03141af0;
-}
-.clash-empty {
-  color: #95baad;
-  font-size: clamp(0.5rem, 0.85vw, 0.7rem);
-  letter-spacing: 0.06em;
-  font-weight: 750;
-}
-.clash-impact {
-  align-items: center;
-  flex: none;
-  min-height: 1.35rem;
-}
-.clash-impact span {
-  text-align: center;
-  color: #d9f9ab;
-  font-size: clamp(0.55rem, 0.95vw, 0.73rem);
-  font-weight: 850;
-  white-space: nowrap;
-}
-.clash-map-art {
-  position: absolute;
-  inset: 0;
-  z-index: 0;
-  opacity: 0.32;
-  pointer-events: none;
-}
-.clash-map-art :deep(img) {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-
-.clash-bottom {
-  flex: none;
-  display: flex;
-  flex-direction: column;
-  gap: 0.35rem;
-}
-.clash-hud {
-  justify-content: space-between;
-  padding: 0.05rem 0.3rem;
 }
 .clash-plays {
-  display: flex;
-  gap: 0.4rem;
-  align-items: baseline;
-  flex-wrap: wrap;
-}
-.clash-plays strong {
-  font-size: 0.88rem;
-  color: var(--neon);
-}
-.clash-plays span {
-  font-size: 0.72rem;
+  font-size: 0.6rem;
   color: #b3cfc7;
 }
-
-@media (max-width: 850px) {
-  .clash {
-    overflow: auto;
-  }
-  .clash-stage {
-    grid-template-columns: minmax(0, 1fr);
-    flex: none;
-  }
-
-  .clash-row {
-    min-height: 120px;
-  }
+.clash-console-row {
+  display: flex;
+  gap: 0.35rem;
 }
-@media (max-width: 520px) {
-  .clash {
-    padding: 0.35rem;
-    gap: 0.45rem;
-  }
-  .clash-top {
-    flex-wrap: wrap;
-    gap: 0.35rem;
-  }
-  .clash-title strong {
-    font-size: 1.25rem;
-  }
-  .clash-title small {
-    font-size: 0.62rem;
-  }
-  .clash-round {
-    order: 3;
-    flex-direction: row;
-    justify-content: space-between;
-    width: 100%;
-  }
-  .clash-boss {
-    gap: 0.35rem;
-    padding: 0.3rem;
-  }
-  .clash-bank {
-    display: none;
-  }
-  .clash-boss > b {
-    font-size: 0.85rem;
-  }
-  .clash-boss > b small {
-    font-size: 0.5rem;
-  }
-  .clash-row {
-    min-height: 95px;
-    gap: 0.2rem;
-  }
-  .clash-board {
-    padding: 0.3rem;
-    gap: 0.2rem;
-  }
-  .clash-lane-numbers,
-  .clash-impact {
-    gap: 0.2rem;
-  }
-  .clash-lane-numbers span {
-    font-size: 0.5rem;
-  }
-  .clash-fighter-label {
-    font-size: 0.5rem;
-    bottom: 1.5rem;
-  }
-  .clash-numbers {
-    font-size: 0.55rem;
-  }
-  .clash-impact span {
-    font-size: 0.51rem;
-  }
-}
-@media (prefers-reduced-motion: reduce) {
-  .clash-slot,
-  .clash-health i {
-    transition: none;
-  }
-}
-
-/* The playmat, not the hand or duplicated page furniture, owns this screen. */
-.clash {
-  gap: 0.22rem;
-  padding: 0.28rem;
-}
-.clash-stage {
-  flex: 1 1 auto;
-  min-height: 0;
-  gap: 0;
-}
-.clash-field {
-  flex: 1 1 auto;
-  min-height: 0;
-  gap: 0.18rem;
-}
-.clash-boss {
-  min-height: 2.15rem;
-  max-height: 2.5rem;
-  padding: 0.15rem 0.45rem;
-  background: #0d2831ee;
-}
-.clash-boss.is-enemy {
-  background: #2e1b2aee;
-}
-.clash-boss :deep(.slime-art) {
-  flex: 0 0 1.95rem;
-  width: 1.95rem;
-  height: 1.95rem;
-}
-.clash-boss :deep(img) {
-  width: 1.85rem;
-  height: 1.85rem;
-}
-.clash-boss-name {
-  flex-direction: row;
+.clash-console-meta {
+  grid-area: meta;
+  display: flex;
   align-items: center;
-  gap: 0.5rem;
-}
-.clash-boss-name strong {
-  font-size: 0.82rem;
-}
-.clash-boss-name small {
-  display: none;
-}
-.clash-boss-name .clash-health {
-  max-width: 10rem;
-}
-.clash-boss > b {
-  font-size: 0.86rem;
-}
-.clash-boss .clash-bank {
-  font-size: 0.62rem;
-}
-.clash-board {
-  flex: 1 1 auto;
-  min-height: 0;
-  padding: 0.3rem;
-  gap: 0.2rem;
-  background: #101e23;
-}
-.clash-map-art {
-  opacity: 0.86;
-}
-.clash-slot {
-  background: #06171f31;
-  backdrop-filter: brightness(0.94);
-  border-color: #d6e8d266;
-}
-.clash-row.is-enemy .clash-slot {
-  background: #301a2a46;
-}
-.clash-lane-numbers span {
-  color: #fff0c7;
-  text-shadow: 0 1px 4px #06121d;
-}
-.clash-impact {
-  z-index: 2;
-  border-radius: 0.3rem;
-  background: #061a1db5;
-}
-.clash-bottom {
-  flex: none;
-  gap: 0.25rem;
-}
-.clash-hud {
-  min-height: 1.65rem;
-  padding: 0.05rem 0.3rem;
-}
-.clash-plays span {
-  font-size: 0.64rem;
-}
-.clash-plays strong {
-  font-size: 0.74rem;
+  justify-content: space-between;
+  gap: 0.4rem;
 }
 .clash-reset,
 .clash-pass {
-  padding: 0.35rem 0.55rem;
-  font-size: 0.66rem;
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.3rem;
+  padding: 0.5rem 0.55rem;
+  border: 1px solid #5c99917a;
+  border-radius: 0.55rem;
+  background: #19332f;
+  font-size: 0.7rem;
+  font-weight: 900;
+  white-space: nowrap;
+}
+.clash-pass {
+  flex: 1.3;
+  border-color: var(--neon);
+  background: var(--neon);
+  color: #142016 !important;
+  letter-spacing: 0.06em;
+}
+.clash-pass:disabled {
+  background: #19332f;
+  color: var(--ink) !important;
+  border-color: #5c99917a;
+}
+.clash-reset:hover,
+.clash-pass:hover:not(:disabled) {
+  border-color: #fff;
+}
+.clash-back {
+  border-color: var(--neon);
+  color: #e9ffd0;
+}
+.clash-format {
+  display: flex;
+  flex: none;
+  overflow: hidden;
+  border: 1px solid #5c99917a;
+  border-radius: 0.55rem;
+}
+.clash-format button {
+  padding: 0.3rem 0.5rem;
+  border: 0;
+  background: #10231f;
+  font-size: 0.58rem;
+  font-weight: 850;
+  letter-spacing: 0.06em;
+}
+.clash-format button[aria-pressed='true'] {
+  background: #b9f15126;
+  color: #e9ffd0;
+}
+.clash-kind {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  padding: 0.2rem 0.45rem;
+  border-radius: 999px;
+  border: 1px solid #5c99917a;
+  color: #b8e3d8;
+  font-size: 0.55rem;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  white-space: nowrap;
+}
+.clash-kind.is-reward {
+  border-color: #ffd76a99;
+  color: #ffe9a8;
+}
+.clash-kind.is-rival,
+.clash-kind.is-contract,
+.clash-kind.is-campaign {
+  border-color: #f08ad699;
+  color: #ffc4ef;
 }
 
-@media (max-width: 850px) {
-  .clash {
-    overflow: hidden;
+/* ---------- Narrow or tall: rival strip on top, your console below ---------- */
+@container clash (max-width: 46rem) or (max-aspect-ratio: 1 / 1) {
+  .clash-layout {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    padding: 0.25rem;
+  }
+  .clash-vs {
+    display: contents;
+  }
+  .clash-boss.is-enemy {
+    order: -2;
+  }
+  .clash-vs-mid {
+    order: -1;
   }
   .clash-stage {
-    grid-template-columns: minmax(0, 1fr);
+    order: 0;
     flex: 1 1 auto;
   }
-}
-@media (max-width: 520px) {
+  .clash-boss.is-player {
+    order: 1;
+  }
+  .clash-console {
+    order: 2;
+  }
   .clash-boss {
-    gap: 0.25rem;
+    flex: none;
+    flex-direction: row;
+    align-items: stretch;
+    height: clamp(3.4rem, 9cqh, 5rem);
   }
-  .clash-boss-name .clash-health {
-    max-width: 3rem;
+  .clash-portrait {
+    flex: 0 0 auto;
+    aspect-ratio: 1;
+    min-height: 0;
+    border-radius: 0.8rem 0 0 0.8rem;
+  }
+  .clash-boss-info {
+    flex: 1;
+    justify-content: center;
+    padding: 0.2rem 0.5rem;
+  }
+  .clash-boss-info > small {
+    display: none;
+  }
+  .clash-hp {
+    font-size: 1.15rem;
+  }
+  .clash-quip {
+    top: auto;
+    bottom: -0.2rem;
+    left: 100%;
+    transform: translateX(0.4rem) rotate(-3deg);
+    font-size: 0.72rem;
+  }
+  .clash-quip::after {
+    display: none;
+  }
+  .clash-vs-mid {
+    padding: 0 0.15rem;
+  }
+  .clash-vs-badge {
+    width: 1.6rem;
+    height: 1.6rem;
+    font-size: 0.65rem;
+  }
+  .clash-phase {
+    flex-direction: row;
+    align-items: baseline;
+    gap: 0.45rem;
+  }
+  .clash-log-toggle {
+    display: block;
+    padding: 0.25rem 0.55rem;
+    border: 1px solid #5c99917a;
+    border-radius: 0.45rem;
+    background: #10231f;
+    font-size: 0.6rem;
+    font-weight: 900;
+    letter-spacing: 0.1em;
+  }
+  .clash-log-toggle[aria-expanded='true'] {
+    border-color: var(--neon);
+    color: var(--neon);
+  }
+  .clash-log {
+    display: none;
+    position: absolute;
+    top: calc(clamp(3.4rem, 9cqh, 5rem) + 2.4rem);
+    right: 0.4rem;
+    z-index: 12;
+    width: min(22rem, calc(100% - 0.8rem));
+    height: 45cqh;
+    box-shadow: 0 12px 30px #000c;
+  }
+  .log-open .clash-log {
+    display: flex;
+  }
+  .clash-console {
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    grid-template-areas: 'hand main meta';
+    padding: 0.3rem 0.45rem;
+  }
+  .clash-console-meta {
+    flex-direction: column;
+    align-items: flex-end;
   }
 }
-/* Automatic alley sweep: the striker lunges across, the struck side shakes. */
-.clash-row:has(.lunge) {
-  z-index: 3;
+@container clash (max-width: 30rem) {
+  .clash-console {
+    grid-template-columns: auto minmax(0, 1fr);
+    grid-template-areas:
+      'hand main'
+      'meta meta';
+  }
+  .clash-console-meta {
+    flex-direction: row;
+  }
+  .clash-plays {
+    display: none;
+  }
+  .clash-lane-numbers span {
+    font-size: 0.48rem;
+  }
 }
+
+/* ---------- Strike sweep ---------- */
 .clash-slot.lunge {
   z-index: 3;
   border-color: #fff3b0;
@@ -1403,16 +1933,28 @@ function forecast(lane: number): string {
 .clash-row.is-enemy .clash-slot.lunge {
   animation: clash-lunge-down 0.6s ease-in-out;
 }
-.clash-slot.hit:not(.lunge),
-.clash-boss.hit {
+.clash-slot.hit:not(.lunge) {
   animation: clash-shake 0.36s ease-in-out;
 }
-.clash-boss {
-  position: relative;
+.clash-float {
+  position: absolute;
+  z-index: 4;
+  left: 50%;
+  top: 38%;
+  transform: translate(-50%, 0);
+  pointer-events: none;
+  font-size: clamp(1rem, 2.4vw, 1.9rem);
+  font-weight: 950;
+  color: #ffe2e4;
+  text-shadow:
+    0 0 6px #ff3b5c,
+    0 2px 3px #000;
+  white-space: nowrap;
+  animation: clash-float 0.9s ease-out forwards;
 }
-.clash-boss.hit {
-  border-color: #ff9ea4;
-  box-shadow: 0 0 16px #ff6f7a88;
+.clash-float.is-boss {
+  top: 40%;
+  font-size: clamp(1.6rem, 3cqw, 2.6rem);
 }
 @keyframes clash-lunge-up {
   0%,
@@ -1447,28 +1989,6 @@ function forecast(lane: number): string {
     transform: translateX(-3%);
   }
 }
-.clash-float {
-  position: absolute;
-  z-index: 4;
-  left: 50%;
-  top: 38%;
-  transform: translate(-50%, 0);
-  pointer-events: none;
-  font-size: clamp(1rem, 2.4vw, 1.9rem);
-  font-weight: 950;
-  color: #ffe2e4;
-  text-shadow:
-    0 0 6px #ff3b5c,
-    0 2px 3px #000;
-  white-space: nowrap;
-  animation: clash-float 0.9s ease-out forwards;
-}
-.clash-float.is-boss {
-  top: -0.2rem;
-  left: auto;
-  right: 4.5rem;
-  font-size: 1.15rem;
-}
 @keyframes clash-float {
   0% {
     opacity: 0;
@@ -1483,36 +2003,37 @@ function forecast(lane: number): string {
     transform: translate(-50%, -70%) scale(1);
   }
 }
-.clash-impact span.striking {
-  color: #fff3b0;
-  text-shadow: 0 0 8px #ffd34d;
+@keyframes clash-stat-pop {
+  from {
+    transform: scale(1.5);
+  }
 }
-.clash-status {
-  position: absolute;
-  top: 0.2rem;
-  left: 0.2rem;
-  z-index: 1;
-  font-size: 0.55rem;
-  font-weight: 900;
-  letter-spacing: 0.06em;
-  padding: 0.1rem 0.25rem;
-  border-radius: 0.2rem;
-  background: #03141af0;
-  color: #d7ff89;
+@keyframes clash-heartbeat {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  40% {
+    transform: scale(1.12);
+  }
 }
-/* Readable cards: a badge on every hand card and a rules panel beside the hand. */
+@keyframes clash-gloat {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  40% {
+    transform: translateY(-4%);
+  }
+}
+@keyframes clash-quip-in {
+  from {
+    opacity: 0;
+    transform: translateX(-50%) scale(0.4) rotate(-12deg);
+  }
+}
 
-@media (prefers-reduced-motion: reduce) {
-  .clash-slot.lunge,
-  .clash-slot.hit,
-  .clash-boss.hit {
-    animation: none;
-  }
-  .clash-float {
-    animation-duration: 0.5s;
-  }
-}
-/* A held choose-one level three: two option buttons above the hand. */
+/* ---------- Choose-one level three ---------- */
 .clash-choice {
   position: absolute;
   top: 0.75rem;
@@ -1549,8 +2070,6 @@ function forecast(lane: number): string {
   background: #0b2026;
   color: var(--ink);
   text-align: left;
-  font: inherit;
-  cursor: pointer;
 }
 .clash-choice button.on {
   border-color: var(--neon);
@@ -1564,135 +2083,24 @@ function forecast(lane: number): string {
   line-height: 1.25;
   opacity: 0.85;
 }
-/* Fixed hand zone: the floating hand overlays it, so turns never resize the board. */
-.clash {
-  position: relative;
-  overflow: clip;
-}
-.clash-hand-zone {
-  position: relative;
-  height: calc(clamp(9.5rem, 30vw, 15rem) * 0.45);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 0 4.5rem;
-}
-.clash-kind {
-  font-size: 0.6rem;
-  font-weight: 900;
-  letter-spacing: 0.08em;
-  padding: 0.25rem 0.5rem;
-  border-radius: 999px;
-  border: 1px solid #5c99917a;
-  color: #b8e3d8;
-  white-space: nowrap;
-}
-.clash-kind.is-reward {
-  border-color: #ffd76a99;
-  color: #ffe9a8;
-}
-.clash-kind.is-rival,
-.clash-kind.is-contract,
-.clash-kind.is-campaign {
-  border-color: #f08ad699;
-  color: #ffc4ef;
-}
-.clash-back {
-  border-color: var(--neon);
-  color: #e9ffd0;
-}
-.clash-reward-note {
-  margin: 0.2rem 0 0;
-  text-align: center;
-  font-size: 0.7rem;
-  font-weight: 800;
-  color: #ffe9a8;
-}
-.clash-ticker {
-  margin: 0;
-  max-width: 34rem;
-  text-align: center;
-  font-size: clamp(0.7rem, 1.6vw, 0.95rem);
-  font-weight: 750;
-  line-height: 1.3;
-  color: #c9e3dc;
-}
-.clash-row.is-player .clash-empty {
-  position: absolute;
-  top: 14%;
-}
-@media (max-width: 700px) {
-  .clash-hand-zone {
-    height: 5rem;
-    padding: 0 3.6rem;
+
+@media (prefers-reduced-motion: reduce) {
+  .clash-slot,
+  .clash-health i,
+  .clash-portrait :deep(img) {
+    transition: none;
   }
-}
-.clash-stars {
-  display: block;
-  font-style: normal;
-  font-size: 0.85em;
-  letter-spacing: 0.1em;
-  color: #ffe6a6;
-}
-.clash-stars.max {
-  color: #ffd34d;
-  text-shadow: 0 0 6px #ffb800;
-}
-/* Board-first Clash: the hand is an overlay, never a reserved footer row. */
-.clash-hand-zone {
-  height: 0;
-  min-height: 0;
-  padding: 0;
-  pointer-events: none;
-}
-.clash-hand-zone .clash-ticker,
-.clash-hand-zone .clash-reward-note {
-  position: absolute;
-  bottom: 3.75rem;
-  left: 50%;
-  z-index: 5;
-  width: max-content;
-  max-width: min(70%, 30rem);
-  padding: 0.3rem 0.65rem;
-  border-radius: 0.5rem;
-  background: #06151de8;
-  transform: translateX(-50%);
-}
-.clash-stage {
-  gap: 0.2rem;
-}
-.clash-field {
-  gap: 0.2rem;
-}
-.clash-board {
-  padding: clamp(0.2rem, 0.6vw, 0.45rem);
-  gap: 0.18rem;
-}
-.clash-lane-numbers,
-.clash-row,
-.clash-impact {
-  gap: clamp(0.12rem, 0.5vw, 0.3rem);
-}
-.clash-boss {
-  min-height: 2.25rem;
-  padding: 0.15rem 0.4rem;
-}
-.clash-boss :deep(img) {
-  width: 2rem;
-  height: 2rem;
-}
-.clash-slot {
-  border-radius: 0.3rem;
-}
-@media (max-width: 850px) {
-  .clash-row {
-    min-height: 0;
+  .clash-slot.lunge,
+  .clash-slot.hit,
+  .clash-boss.hit,
+  .clash-boss .clash-portrait,
+  .clash-stat,
+  .clash-stat.is-life.low path,
+  .clash-quip-enter-active {
+    animation: none;
   }
-}
-@media (max-width: 520px) {
-  .clash-hand-zone {
-    height: 0;
-    padding: 0;
+  .clash-float {
+    animation-duration: 0.5s;
   }
 }
 </style>

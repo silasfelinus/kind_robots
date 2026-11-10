@@ -137,7 +137,9 @@ export function allianceStarter(general: TeamId, ally: TeamId): AllianceDeck {
 /** Preserve a valid older 30-card Alliance as a deterministic 20-card deck.
  * Reject malformed, cross-faction or repeated-card records rather than
  * silently substituting a different player's collection. */
-export function normalizeLegacyAllianceDeck(raw: unknown): AllianceDeck | undefined {
+export function normalizeLegacyAllianceDeck(
+  raw: unknown,
+): AllianceDeck | undefined {
   if (validAllianceDeck(raw)) return raw
   if (!raw || typeof raw !== 'object' || Array.isArray(raw)) return undefined
   const value = raw as Record<string, unknown>
@@ -157,7 +159,8 @@ export function normalizeLegacyAllianceDeck(raw: unknown): AllianceDeck | undefi
   }
   if (
     allianceProblems(original).some(
-      (problem) => problem !== 'Requires exactly ' + ALLIANCE_DECK_SIZE + ' cards',
+      (problem) =>
+        problem !== 'Requires exactly ' + ALLIANCE_DECK_SIZE + ' cards',
     )
   )
     return undefined

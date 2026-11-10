@@ -47,31 +47,34 @@
             </button>
             <button
               type="button"
-              class="sc-main-mode"
-              :class="{ active: lab.view === 'clash' }"
+              :class="{ active: activeMode === 'practice' }"
               data-testid="slime-clash-tab"
-              @click="lab.view = 'clash'"
+              title="Quick CLASH matches against the CPU, Solo or Alliance"
+              @click="lab.playClashFormat()"
             >
-              CLASH
+              PRACTICE
             </button>
             <button
               type="button"
-              :class="{ active: lab.view === 'city' }"
-              @click="lab.showCity()"
-            >
-              CITY
-            </button>
-            <button
-              type="button"
-              :class="{ active: lab.view === 'campaign' }"
+              :class="{ active: activeMode === 'solo' }"
               data-testid="slime-campaign-tab"
+              title="Your crew's own story, five chapters, with a Solo deck"
               @click="lab.showCampaign()"
+            >
+              SOLO
+            </button>
+            <button
+              type="button"
+              :class="{ active: activeMode === 'campaign' }"
+              data-testid="slime-city-tab"
+              title="The open city: pick a deck, walk seven districts, beat their champions"
+              @click="lab.showCity()"
             >
               CAMPAIGN
             </button>
             <button
               type="button"
-              :class="{ active: lab.view === 'tower' }"
+              :class="{ active: activeMode === 'tower' }"
               data-testid="slime-tower-tab"
               @click="lab.showTower()"
             >
@@ -79,21 +82,11 @@
             </button>
             <button
               type="button"
-              :class="{
-                active: lab.view === 'cards' || lab.view === 'rewards',
-              }"
+              :class="{ active: activeMode === 'collection' }"
               data-testid="slime-collection-tab"
               @click="lab.showCards()"
             >
               COLLECTION
-            </button>
-            <button
-              type="button"
-              :class="{ active: lab.view === 'settings' }"
-              data-testid="slime-settings-tab"
-              @click="lab.view = 'settings'"
-            >
-              SETTINGS
             </button>
           </nav>
           <div
@@ -127,55 +120,7 @@
       </header-page-bar>
 
       <div class="sc-main">
-        <section
-          v-if="lab.view === 'home'"
-          class="sc-stage sc-home"
-          aria-label="Slime City title screen"
-          data-testid="slime-home"
-        >
-          <SlimeCityArtwork
-            class="sc-home-art"
-            :image-id="slimeArtId('districts', lab.districtId)"
-            :alt="lab.district.name + ' skyline'"
-            fallback="▧"
-            compact
-          />
-          <div class="sc-home-scrim"></div>
-          <div class="sc-home-copy">
-            <small>WELCOME TO THE PIT</small>
-            <strong class="sc-home-wordmark">SLIME <span>CITY</span></strong>
-            <p>Six crews. Three lives for every card. One city to take back.</p>
-            <nav class="sc-home-actions" aria-label="Start Slime City">
-              <button
-                type="button"
-                class="sc-home-primary"
-                data-testid="slime-home-play"
-                @click="lab.playClashFormat()"
-              >
-                ENTER CLASH
-              </button>
-              <button type="button" @click="lab.showCampaign()">
-                CREW STORY
-              </button>
-              <button type="button" @click="lab.showCity()">
-                EXPLORE THE CITY
-              </button>
-              <button type="button" @click="lab.showCards()">
-                BUILD A DECK
-              </button>
-              <button type="button" @click="lab.view = 'settings'">
-                SETTINGS
-              </button>
-            </nav>
-          </div>
-          <SlimeCityArtwork
-            class="sc-home-crew"
-            :image-id="slimeArtId('crews', lab.activeTeam)"
-            :alt="lab.team.name"
-            :fallback="lab.team.insignia"
-            compact
-          />
-        </section>
+        <SlimeCitySplash v-if="lab.view === 'home'" data-testid="slime-home" />
         <section
           v-else-if="lab.view === 'settings'"
           class="sc-stage sc-settings kr-scroll"
@@ -322,7 +267,7 @@
                 data-testid="slime-city-story-shortcut"
                 @click="lab.showCampaign()"
               >
-                CAMPAIGN · {{ lab.campaignState.wins }}/5
+                SOLO STORY · {{ lab.campaignState.wins }}/5
               </button>
               <button
                 type="button"
@@ -354,7 +299,7 @@
                   >{{ routeLabel }}</small
                 >
                 <small v-else-if="!lab.cityEvent && lab.storyHere"
-                  >CAMPAIGN · CHAPTER {{ lab.campaignState.wins + 1 }}/5 WAITS
+                  >SOLO STORY · CHAPTER {{ lab.campaignState.wins + 1 }}/5 WAITS
                   HERE</small
                 >
               </div>
@@ -1104,6 +1049,27 @@ function pinSymbol(status: string): string {
 function teamName(id: string): string {
   return lab.teams.find((t) => t.id === id)?.name ?? id
 }
+/**
+ * Silas, 2026-11-10 PT: "clash, city, and campaign ... can be condensed to
+ * Solo (story) and Campaign (Alliance). then tower as a separate mode, and
+ * then collection" and "Practice can also go in the tab and be what is
+ * currently clash". A Clash fight lights the tab of the mode that launched it.
+ */
+const activeMode = computed(() => {
+  const view = lab.view
+  if (view === 'clash') {
+    const kind = lab.clashLaunch.kind
+    if (kind === 'campaign') return 'solo'
+    if (kind === 'rival' || kind === 'contract') return 'campaign'
+    if (kind === 'tower') return 'tower'
+    return 'practice'
+  }
+  if (view === 'campaign') return 'solo'
+  if (view === 'city') return 'campaign'
+  if (view === 'tower') return 'tower'
+  if (view === 'cards' || view === 'rewards') return 'collection'
+  return view
+})
 /** Settings: the format the next Clash and the deck builder start in. */
 function setDefaultFormat(format: 'solo' | 'alliance'): void {
   lab.clashFormat = format
@@ -1297,11 +1263,6 @@ onUnmounted(() => {
   font-weight: 900;
   letter-spacing: 0.12em;
   color: #afb8c5;
-}
-.sc-tabs .sc-main-mode {
-  background: #c5ff59;
-  color: #142016;
-  font-weight: 950;
 }
 .sc-tabs .sc-legacy-toggle {
   opacity: 0.8;
@@ -2590,85 +2551,6 @@ onUnmounted(() => {
   }
 }
 
-.sc-home {
-  position: relative;
-  isolation: isolate;
-  background: #070e14;
-  overflow: hidden;
-}
-.sc-home-art {
-  position: absolute;
-  inset: 0;
-}
-.sc-home-scrim {
-  position: absolute;
-  inset: 0;
-  background:
-    linear-gradient(90deg, #070d15f2, #070d15aa 55%, transparent),
-    linear-gradient(0deg, #070d15d9, transparent 65%);
-}
-.sc-home-copy {
-  position: absolute;
-  z-index: 2;
-  left: clamp(1rem, 5vw, 4rem);
-  bottom: clamp(1.5rem, 8vh, 5rem);
-  width: min(70%, 35rem);
-}
-.sc-home-copy small {
-  color: #bcff61;
-  font-weight: 950;
-  letter-spacing: 0.25em;
-}
-.sc-home-wordmark {
-  display: block;
-  font-size: clamp(2.8rem, 8vw, 6.5rem);
-  font-weight: 1000;
-  font-style: italic;
-  letter-spacing: -0.09em;
-  line-height: 1;
-  text-shadow: 0 0 2rem #000;
-}
-.sc-home-wordmark span {
-  color: #c5ff59;
-}
-.sc-home-copy p {
-  max-width: 26rem;
-  margin: 1rem 0;
-  color: #e2ede4;
-  font-weight: 700;
-}
-.sc-home-actions {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.55rem;
-}
-.sc-home-actions button,
-.sc-settings button {
-  padding: 0.7rem 0.9rem;
-  border-radius: 0.6rem;
-  border: 1px solid #a2d4be88;
-  background: #142932ed;
-  color: #f1f8f1;
-  font-size: 0.75rem;
-  font-weight: 900;
-}
-.sc-home-actions .sc-home-primary,
-.sc-settings-back {
-  background: #c5ff59 !important;
-  color: #122416 !important;
-  border-color: #c5ff59 !important;
-}
-.sc-home-crew {
-  position: absolute;
-  right: 2%;
-  top: 7%;
-  width: 26%;
-  height: 76%;
-  border-radius: 1.2rem;
-  overflow: hidden;
-  opacity: 0.9;
-  box-shadow: 0 0 4rem #c5ff5920;
-}
 .sc-settings {
   padding: clamp(1rem, 4vw, 3rem);
   background: radial-gradient(ellipse at 50% 0%, #273f41, #0a101b 70%);
@@ -2704,17 +2586,5 @@ onUnmounted(() => {
 .sc-settings button:disabled {
   opacity: 0.5;
   cursor: not-allowed;
-}
-@container (max-width: 580px) {
-  .sc-home-copy {
-    left: 1rem;
-    width: calc(100% - 2rem);
-    bottom: 1rem;
-  }
-  .sc-home-crew {
-    width: 45%;
-    height: 40%;
-    opacity: 0.5;
-  }
 }
 </style>

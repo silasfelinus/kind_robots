@@ -6,13 +6,6 @@
     aria-labelledby="slime-splash-title"
     data-testid="slime-city-splash"
   >
-    <header-page-bar console-theme="slime-city">
-      <div class="scs-bar">
-        <span class="scs-bar-mark">SLIME<span>CITY</span></span>
-        <span class="scs-bar-note">TITLE SCREEN</span>
-      </div>
-    </header-page-bar>
-
     <div class="scs-sky" aria-hidden="true">
       <SlimeCityArtwork
         :key="'sky-' + picked.id"
@@ -174,9 +167,30 @@
         </button>
       </nav>
 
-      <p class="scs-footnote">
-        Free in your browser · a playable work in progress
-      </p>
+      <nav class="scs-more" aria-label="More Slime City">
+        <button
+          type="button"
+          data-testid="slime-splash-decks"
+          @click="go(() => lab.showCards())"
+        >
+          Decks &amp; collection
+        </button>
+        <button
+          type="button"
+          data-testid="slime-splash-tower"
+          @click="go(() => lab.showTower())"
+        >
+          Alliance tower
+        </button>
+        <button
+          type="button"
+          data-testid="slime-splash-settings"
+          @click="go(() => (lab.view = 'settings'))"
+        >
+          Settings
+        </button>
+        <span>Free in your browser · a playable work in progress</span>
+      </nav>
     </div>
   </section>
 </template>
@@ -189,8 +203,6 @@ import { CAMPAIGN_DISTRICTS } from '~/utils/slimeCity/city'
 import type { Team } from '~/utils/slimeCity/prototypes'
 
 type Destination = 'clash' | 'city' | 'campaign'
-
-const emit = defineEmits<{ enter: [] }>()
 
 const lab = useSlimeCityStore()
 
@@ -233,16 +245,16 @@ const modes = computed<
 >(() => [
   {
     id: 'clash',
-    tag: 'ONE MATCH · 5 MIN',
+    tag: 'PRACTICE · ONE MATCH',
     title: 'Quick battle',
-    text: 'One card fight against a random rival crew. Nothing to unlock.',
+    text: 'One card fight against a random rival crew, Solo or Alliance.',
     symbol: '⚔',
     art: slimeArtId('boards', 'pitworks-blackout'),
   },
   {
     id: 'campaign',
-    tag: 'YOUR CREW · 5 CHAPTERS',
-    title: 'Campaign',
+    tag: 'SOLO · YOUR CREW · 5 CHAPTERS',
+    title: 'Solo story',
     text: 'Your crew’s own story: beat the other five crews, one chapter at a time.',
     symbol: '✦',
     art:
@@ -251,9 +263,9 @@ const modes = computed<
   },
   {
     id: 'city',
-    tag: 'FREE ROAM · 7 DISTRICTS',
-    title: 'City map',
-    text: 'Wander the districts for street bouts, contracts and Meat.',
+    tag: 'ANY DECK · 7 DISTRICTS',
+    title: 'Campaign',
+    text: 'Pick a deck and take the open city, district by district, champion by champion.',
     symbol: '▧',
     art: slimeArtId('districts', homeDistrict.value),
   },
@@ -266,14 +278,19 @@ function crewTone(color: Team['color']): string {
   return TONES[color] ?? '#c5ff59'
 }
 
-function enter(destination: Destination): void {
+/** Leave the title screen: keep the chosen crew, play the exit, then go. */
+function go(open: () => void): void {
   if (leaving.value) return
   if (pickedId.value !== lab.activeTeam) lab.chooseTeam(pickedId.value)
-  if (destination === 'city') lab.showCityMap()
-  else if (destination === 'campaign') lab.showCampaign()
-  else lab.view = 'clash'
   leaving.value = true
-  timer = setTimeout(() => emit('enter'), 260)
+  timer = setTimeout(open, 260)
+}
+function enter(destination: Destination): void {
+  go(() => {
+    if (destination === 'city') lab.showCityMap()
+    else if (destination === 'campaign') lab.showCampaign()
+    else lab.playClashFormat()
+  })
 }
 
 onBeforeUnmount(() => clearTimeout(timer))
@@ -705,11 +722,34 @@ onBeforeUnmount(() => clearTimeout(timer))
 .scs-go:disabled {
   cursor: default;
 }
-.scs-footnote {
+.scs-more {
   grid-area: foot;
-  margin: 0;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.35rem 0.5rem;
+}
+.scs-more button {
+  padding: 0.3rem 0.7rem;
+  border: 1px solid #c5ff5955;
+  border-radius: 999px;
+  background: #0e1420d9;
+  color: #e7ecf3;
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  cursor: pointer;
+}
+.scs-more button:hover {
+  border-color: #c5ff59;
+}
+.scs-more button:focus-visible {
+  outline: 2px solid #c5ff59;
+  outline-offset: 2px;
+}
+.scs-more span {
   color: #a6aec0;
-  font-size: 0.7rem;
+  font-size: 0.68rem;
 }
 
 /* Tall or narrow screens: the poster sits between the title and the modes. */
@@ -761,7 +801,7 @@ onBeforeUnmount(() => clearTimeout(timer))
 }
 @container slime-splash (max-height: 34rem) {
   .scs-overline,
-  .scs-footnote,
+  .scs-more span,
   .scs-roster-head span,
   .scs-poster-copy p {
     display: none;

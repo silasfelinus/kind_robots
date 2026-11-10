@@ -59,8 +59,7 @@ export function isPvpTeam(value: unknown): value is TeamId {
 }
 
 export function parsePvpRecord(value: unknown): PvpRecord | null {
-  if (!value || typeof value !== 'object' || Array.isArray(value))
-    return null
+  if (!value || typeof value !== 'object' || Array.isArray(value)) return null
   const data = value as Record<string, unknown>
   if (
     data.version !== 1 ||
@@ -160,17 +159,28 @@ export function pvpBoard(state: ClashState, seat: Side): PvpBoard {
     plays: { ...state.plays },
     freePlays: { ...state.freePlays },
     boss: { ...state.boss },
-    units: state.units.map((unit) => ({ ...unit, power: clashPower(state, unit) })),
-    traps: state.traps.filter((trap) => trap.side === seat).map((trap) => ({ ...trap })),
+    units: state.units.map((unit) => ({
+      ...unit,
+      power: clashPower(state, unit),
+    })),
+    traps: state.traps
+      .filter((trap) => trap.side === seat)
+      .map((trap) => ({ ...trap })),
     log: state.log
-      .filter((entry) => !!state.victor || ['death', 'boss', 'turn'].includes(entry.kind))
+      .filter(
+        (entry) =>
+          !!state.victor || ['death', 'boss', 'turn'].includes(entry.kind),
+      )
       .map((entry) => ({ ...entry })),
     cursor: state.cursor,
     strike: state.strike ? { ...state.strike } : null,
     victor: state.victor,
     format: state.format,
     powersUsed: state.powersUsed
-      ? { player: [...state.powersUsed.player], enemy: [...state.powersUsed.enemy] }
+      ? {
+          player: [...state.powersUsed.player],
+          enemy: [...state.powersUsed.enemy],
+        }
       : undefined,
     hand: [...state.hands[seat]],
     levels: { ...state.levels[seat] },

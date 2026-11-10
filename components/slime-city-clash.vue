@@ -377,7 +377,8 @@
                 "
                 @click="pass"
               >
-                {{ noLegalPlay ? 'PASS' : 'FIGHT' }} <span aria-hidden="true">›</span>
+                {{ noLegalPlay ? 'PASS' : 'FIGHT' }}
+                <span aria-hidden="true">›</span>
               </button>
             </div>
           </div>

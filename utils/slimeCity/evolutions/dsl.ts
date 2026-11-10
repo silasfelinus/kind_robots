@@ -140,6 +140,12 @@ export interface EvoStage {
 export interface CardEvolution {
   /** The name the card wears at level 1 (usually its own name). */
   base?: string
+  /** Optional level-one signature ability. Like L2/L3 it fires through the
+   * real battle interpreter: a first play can make a fragile worker, protect
+   * one ally, or set up a specific future combo instead of paying a blank
+   * upgrade tax. Omitted for existing cards whose native keywords already
+   * give Level 1 its useful action. */
+  1?: EvoStage
   /** Trajectory stat changes from the shared curve (creatures only). Most
    * cards grow; an early bloomer can shrink at level 3 (rare by design). */
   stats?: Partial<Record<1 | 2 | 3, { attack?: number; hp?: number }>>

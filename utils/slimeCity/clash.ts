@@ -269,6 +269,10 @@ const evolutionMoment = (
  * Signature cards and 4+-tier cards are power plays, consuming both slots.
  */
 export function clashPlayCost(card: Card): 1 | 2 {
+  // Encore or Die grants one vulnerable singer LEECH on its first play.
+  // It must be a usable 1-slot support choice, not a two-slot blank upgrade
+  // tax. This override is CLASH-only; legacy mana cost stays unchanged.
+  if (card.id === 's3-bloodfairies-encore') return 1
   return card.signature || card.cost >= 4 ? 2 : 1
 }
 /**
@@ -1054,7 +1058,7 @@ function evoStages(
   u: ClashUnit,
 ): { id: string; level: number; st: EvoStage }[] {
   const out: { id: string; level: number; st: EvoStage }[] = []
-  if (!u.token && u.level >= 2) {
+  if (!u.token) {
     const st = clashEvolutionStage(u.cardId, u.level, u.evoChoice ?? 0)
     if (st) out.push({ id: u.cardId, level: u.level, st })
   }

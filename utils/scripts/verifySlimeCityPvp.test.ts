@@ -18,8 +18,14 @@ const host = 'catgirls' as const
 const guest = 'ironjaw' as const
 const seed = 91827
 const initial = newPvpGame(host, guest, seed)
-assert.equal(initial.decks.player.length + initial.hands.player.length, CLASH_DECK_SIZE)
-assert.equal(initial.decks.enemy.length + initial.hands.enemy.length, CLASH_DECK_SIZE)
+assert.equal(
+  initial.decks.player.length + initial.hands.player.length,
+  CLASH_DECK_SIZE,
+)
+assert.equal(
+  initial.decks.enemy.length + initial.hands.enemy.length,
+  CLASH_DECK_SIZE,
+)
 assert.equal(initial.active, 'player')
 assert.equal(initial.phase, 'play')
 
@@ -31,7 +37,11 @@ assert.equal('rng' in view, false, 'server RNG must never leave server')
 assert.equal('seed' in view, false, 'seed must never leave server')
 assert.equal('decks' in view, false, 'deck order must never leave server')
 assert.equal('hands' in view, false, 'opponent hand must never leave server')
-assert.equal('enemy' in view.levels, false, 'rival card progression stays secret')
+assert.equal(
+  'enemy' in view.levels,
+  false,
+  'rival card progression stays secret',
+)
 const trapped = structuredClone(initial)
 trapped.traps.push({ side: 'enemy', lane: 1, cardId: 'bloodwire', level: 2 })
 trapped.traps.push({ side: 'player', lane: 2, cardId: 'scentmine', level: 1 })
@@ -42,12 +52,27 @@ assert.equal(pvpBoard(trapped, 'enemy').traps[0]?.cardId, 'bloodwire')
 
 assert.equal(pvpCommand({ t: 'pass', side: 'enemy' }, 'player'), null)
 assert.equal(pvpCommand({ t: 'end', extra: 1 }, 'player'), null)
-assert.equal(pvpCommand({ t: 'play', card: 'not-a-card', lane: 1 }, 'player'), null)
-assert.equal(pvpCommand({ t: 'play', card: initial.hands.player[0], lane: -1 }, 'player'), null)
-assert.equal(pvpCommand({ t: 'play', card: initial.hands.player[0], lane: 5 }, 'player'), null)
-assert.equal(pvpCommand({ t: 'power', lane: 0, team: 'unknown' }, 'player'), null)
+assert.equal(
+  pvpCommand({ t: 'play', card: 'not-a-card', lane: 1 }, 'player'),
+  null,
+)
+assert.equal(
+  pvpCommand({ t: 'play', card: initial.hands.player[0], lane: -1 }, 'player'),
+  null,
+)
+assert.equal(
+  pvpCommand({ t: 'play', card: initial.hands.player[0], lane: 5 }, 'player'),
+  null,
+)
+assert.equal(
+  pvpCommand({ t: 'power', lane: 0, team: 'unknown' }, 'player'),
+  null,
+)
 assert.equal(pvpCommand({ t: 'strike', lane: 0 }, 'player'), null)
-assert.deepEqual(pvpCommand({ t: 'pass' }, 'player'), { t: 'pass', side: 'player' })
+assert.deepEqual(pvpCommand({ t: 'pass' }, 'player'), {
+  t: 'pass',
+  side: 'player',
+})
 assert.equal(
   stepPvp(initial, { t: 'pass', side: 'enemy' }),
   null,
@@ -72,17 +97,27 @@ assert.equal(
   'player cannot act again before rival finishes',
 )
 const replay = replayPvp(host, guest, seed, [pass, finish])
-assert.deepEqual(after, replay, 'a reconnect must recover the exact seeded state')
+assert.deepEqual(
+  after,
+  replay,
+  'a reconnect must recover the exact seeded state',
+)
 assert.deepEqual(
   replayPvp(host, guest, seed, replay.commands as ClashCommand[]),
   replay,
 )
 
 assert.equal(parsePvpRecord(null), null)
-assert.equal(parsePvpRecord({ version: 1, guestId: null, commands: [] })?.guestId, null)
+assert.equal(
+  parsePvpRecord({ version: 1, guestId: null, commands: [] })?.guestId,
+  null,
+)
 assert.equal(parsePvpRecord({ version: 1, guestId: 0, commands: [] }), null)
 assert.equal(parsePvpRecord({ version: 2, guestId: 15, commands: [] }), null)
-assert.equal(parsePvpRecord({ version: 1, guestId: 15, commands: 'pass' }), null)
+assert.equal(
+  parsePvpRecord({ version: 1, guestId: 15, commands: 'pass' }),
+  null,
+)
 
 const service = readFileSync('server/utils/slimeCityPvp.ts', 'utf8')
 const handlerDir = 'server/api/slime-city/pvp/'
@@ -96,8 +131,18 @@ for (const path of [
   assert.match(source, /requireSlimeCityPreviewUser/)
 }
 assert.match(service, /FOR UPDATE/, 'concurrent turns must serialize')
-assert.match(service, /record\.commands\.length !== revision/, 'stale tabs must be rejected')
+assert.match(
+  service,
+  /record\.commands\.length !== revision/,
+  'stale tabs must be rejected',
+)
 assert.match(service, /settledAt/, 'terminal duels must stop taking moves')
-assert.doesNotMatch(service, /awardBattle|buyPack|claimChallenge/, 'PvP must not grant Meat')
+assert.doesNotMatch(
+  service,
+  /awardBattle|buyPack|claimChallenge/,
+  'PvP must not grant Meat',
+)
 
-console.log('Slime City private PvP: invite, secrecy, turn, replay and route contracts OK')
+console.log(
+  'Slime City private PvP: invite, secrecy, turn, replay and route contracts OK',
+)

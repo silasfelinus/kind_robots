@@ -85,16 +85,12 @@ export function sweepClash(seeds: number, offset = 1): ClashSweep {
 
 
 // Counterfactual fighters-first pilot: compare the shipped Catgirls starter
-// against its previous two nonfighter slots under identical seeds and seats.
+// against its previous nonfighter slot under identical seeds and seats.
 // This is a diagnostic, not a balance gate: report both win and card-use rates.
 export function compareCatgirlsStarter(seeds = 20, offset = 9000) {
   const current = clashDeck('catgirls')
   const original = current.map((id) =>
-    id === 's3-catgirls-patent-saboteur'
-      ? 's3-catgirls-laser-pointer'
-      : id === 's3-catgirls-bicycle-clinic'
-        ? 's3-catgirls-catwalk-garrote'
-        : id,
+    id === 's2-catgirls-backstreet-organ-donor' ? 'laser' : id,
   )
   if (new Set(original).size !== 20 || original.join() === current.join())
     throw new Error('Catgirls counterfactual deck no longer matches the pilot')

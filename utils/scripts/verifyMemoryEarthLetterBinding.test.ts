@@ -1,6 +1,9 @@
 import assert from 'node:assert/strict'
 import { letterProgressFromEarthChoices } from '../memoryDungeon/earthLetterBinding'
-import { letterArchiveEcho, restoreLetterProgress } from '../memoryDungeon/earthLetters'
+import {
+  letterArchiveEcho,
+  restoreLetterProgress,
+} from '../memoryDungeon/earthLetters'
 
 const choices = ['care', 'risk', 'forged', undefined] as const
 for (const first of choices)

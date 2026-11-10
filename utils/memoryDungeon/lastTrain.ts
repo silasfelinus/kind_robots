@@ -1,9 +1,21 @@
 /** Versioned, replay-safe decisions for the optional e03/e04 Last Train packet. */
 export const TRAIN_CHOICES = {
   e03Door: ['md.train.e03.release', 'md.train.e03.wait', 'md.train.e03.leave'],
-  e03Timetable: ['md.train.e03.share', 'md.train.e03.return', 'md.train.e03.redact'],
-  e04Platform: ['md.train.e04.open', 'md.train.e04.listen', 'md.train.e04.retreat'],
-  e04Carriage: ['md.train.e04.name', 'md.train.e04.map', 'md.train.e04.silence'],
+  e03Timetable: [
+    'md.train.e03.share',
+    'md.train.e03.return',
+    'md.train.e03.redact',
+  ],
+  e04Platform: [
+    'md.train.e04.open',
+    'md.train.e04.listen',
+    'md.train.e04.retreat',
+  ],
+  e04Carriage: [
+    'md.train.e04.name',
+    'md.train.e04.map',
+    'md.train.e04.silence',
+  ],
 } as const
 
 export type TrainScene = keyof typeof TRAIN_CHOICES
@@ -40,11 +52,16 @@ export function restoreTrainProgress(input: unknown): TrainProgress | null {
     if (
       Object.hasOwn(decisions, scene) &&
       (typeof decisions[scene] !== 'string' ||
-        !(TRAIN_CHOICES[scene] as readonly string[]).includes(decisions[scene] as string))
+        !(TRAIN_CHOICES[scene] as readonly string[]).includes(
+          decisions[scene] as string,
+        ))
     )
       return null
   }
-  return { version: 1, decisions: { ...decisions } as TrainProgress['decisions'] }
+  return {
+    version: 1,
+    decisions: { ...decisions } as TrainProgress['decisions'],
+  }
 }
 
 export function chooseTrain(
@@ -54,7 +71,8 @@ export function chooseTrain(
 ): TrainProgress {
   if (!restoreTrainProgress(progress)) return progress
   if (!scenes.includes(scene)) return progress
-  if (!(TRAIN_CHOICES[scene] as readonly string[]).includes(choice)) return progress
+  if (!(TRAIN_CHOICES[scene] as readonly string[]).includes(choice))
+    return progress
   if (progress.decisions[scene]) return progress
   return {
     version: 1,
@@ -69,44 +87,44 @@ export function trainConsequences(progress: TrainProgress) {
   return {
     trainDoor:
       door === 'md.train.e03.release'
-      ? 'opened'
-      : door === 'md.train.e03.wait'
-      ? 'held'
-      : door === 'md.train.e03.leave'
-      ? 'delegated'
-      : null,
+        ? 'opened'
+        : door === 'md.train.e03.wait'
+          ? 'held'
+          : door === 'md.train.e03.leave'
+            ? 'delegated'
+            : null,
     trainWitness:
       door === 'md.train.e03.release'
-      ? 'public'
-      : door === 'md.train.e03.wait'
-      ? 'private'
-      : door === 'md.train.e03.leave'
-      ? 'none'
-      : null,
+        ? 'public'
+        : door === 'md.train.e03.wait'
+          ? 'private'
+          : door === 'md.train.e03.leave'
+            ? 'none'
+            : null,
     trainLedger:
       choices.e03Timetable === 'md.train.e03.share'
-      ? 'shared'
-      : choices.e03Timetable === 'md.train.e03.return'
-      ? 'returned'
-      : choices.e03Timetable === 'md.train.e03.redact'
-      ? 'redacted'
-      : null,
+        ? 'shared'
+        : choices.e03Timetable === 'md.train.e03.return'
+          ? 'returned'
+          : choices.e03Timetable === 'md.train.e03.redact'
+            ? 'redacted'
+            : null,
     trainNightDoor:
       choices.e04Platform === 'md.train.e04.open'
-      ? 'opened'
-      : choices.e04Platform === 'md.train.e04.listen'
-      ? 'listened'
-      : choices.e04Platform === 'md.train.e04.retreat'
-      ? 'retreated'
-      : null,
+        ? 'opened'
+        : choices.e04Platform === 'md.train.e04.listen'
+          ? 'listened'
+          : choices.e04Platform === 'md.train.e04.retreat'
+            ? 'retreated'
+            : null,
     trainNightLedger:
       choices.e04Carriage === 'md.train.e04.name'
-      ? 'consented'
-      : choices.e04Carriage === 'md.train.e04.map'
-      ? 'routes'
-      : choices.e04Carriage === 'md.train.e04.silence'
-      ? 'refused'
-      : null,
+        ? 'consented'
+        : choices.e04Carriage === 'md.train.e04.map'
+          ? 'routes'
+          : choices.e04Carriage === 'md.train.e04.silence'
+            ? 'refused'
+            : null,
     trainToken: door === 'md.train.e03.release',
     trainRouteSlip: door === 'md.train.e03.wait',
     trainEchoFragment:

@@ -23,6 +23,53 @@ import {
   type CampaignApproach,
 } from '../utils/slimeCity/campaign'
 import { campaignConversationFor } from '../utils/slimeCity/campaignDialogue'
+import {
+  geneRiotScene,
+  geneRiotSceneText,
+  geneRiotLastOutcome,
+  geneRiotBattleTerms,
+  geneRiotEpilogue,
+  chooseGeneRiotScene,
+  type GeneRiotPick,
+} from '../utils/slimeCity/campaignGeneRiot'
+import {
+  bloodfairyBeat,
+  bloodfairySceneText,
+  bloodfairyLastOutcome,
+  bloodfairyBattleTerms,
+  bloodfairyEpilogue,
+  bloodfairyLedger,
+  bloodfairyStageThreeReveal,
+  chooseBloodfairyBeat,
+  bloodfairyStoryDeck,
+} from '../utils/slimeCity/campaignBloodfairies'
+import {
+  ironjawBeat,
+  ironjawSceneText,
+  ironjawLastOutcome,
+  ironjawBattleTerms,
+  ironjawEpilogue,
+  ironjawLedger,
+  chooseIronjawBeat,
+  ironjawStoryDeck,
+} from '../utils/slimeCity/campaignIronjaw'
+import {
+  campaignCardChoices,
+  campaignSoloDeck,
+  chooseCampaignCard,
+} from '../utils/slimeCity/campaignCardRewards'
+import {
+  freshTower,
+  startTower,
+  towerRoutes,
+  towerBosses,
+  chooseTowerRoute,
+  resolveTowerBattle,
+  towerSpoils,
+  claimTowerSpoil,
+  leaveEmptyTower,
+  type TowerSave,
+} from '../utils/slimeCity/allianceTower'
 import { campaignAftermathFor } from '../utils/slimeCity/campaignAftermath'
 import {
   campaignBattlefield,
@@ -38,6 +85,7 @@ import {
 import {
   ALLIANCE_DECK_SIZE,
   SOLO_DECK_SIZE,
+  STARTER_CARD_IDS,
   allianceCardPool,
   allianceProblems,
   allianceStarter,
@@ -138,7 +186,7 @@ function rollSeed(): number {
 
 export type DeckFormat = 'solo' | 'alliance'
 export type ClashKind =
-  'practice' | 'reward' | 'rival' | 'contract' | 'campaign'
+  'practice' | 'reward' | 'rival' | 'contract' | 'campaign' | 'tower'
 export interface ClashLaunch {
   id: number
   kind: ClashKind
@@ -174,8 +222,17 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
     return net.value.fetcher<T>(url, options)
   }
   const view = ref<
-    'city' | 'arena' | 'alleys' | 'clash' | 'cards' | 'campaign' | 'rewards'
-  >('clash')
+    | 'home'
+    | 'settings'
+    | 'city'
+    | 'arena'
+    | 'alleys'
+    | 'clash'
+    | 'cards'
+    | 'campaign'
+    | 'rewards'
+    | 'tower'
+  >('home')
   const activeTeam = ref<TeamId>('catgirls')
   const enemyTeam = ref<TeamId>('bloodfairies')
   const mode = ref<ModeId>('blackout')
@@ -328,8 +385,17 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
   const contractBout = ref<DistrictId | null>(null)
   const lastContract = ref<DistrictId | null>(null)
   const campaignSave = ref(createCampaignSave())
+  const towerSave = ref<TowerSave>(freshTower())
+  const towerRun = computed(() => towerSave.value.run)
+  const towerMeta = computed(() => towerSave.value.meta)
+  const towerOptions = computed(() =>
+    towerRun.value ? towerRoutes(towerRun.value) : null,
+  )
+  const towerRewards = computed(() =>
+    towerRun.value ? towerSpoils(towerRun.value, towerSave.value.meta) : null,
+  )
   const savedDecks = ref<Partial<Record<TeamId, string[]>>>({})
-  /** ALLIANCE: the last legal 30-card deck saved for each general. */
+  /** ALLIANCE: the last legal 20-card deck saved for each general. */
   const savedAlliances = ref<Partial<Record<TeamId, AllianceDeck>>>({})
   /** ALLIANCE: work in progress, kept even while it is not yet legal. */
   const allianceDrafts = ref<Partial<Record<TeamId, AllianceDeck>>>({})
@@ -357,7 +423,7 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
     kind: ClashKind
     victor: Side | 'draw'
   } | null>(null)
-  const unlockMode = ref<UnlockMode>('all')
+  const unlockMode = ref<UnlockMode>('trickle')
   /** Story bouts: as written or all TURF, with or without PARITY. */
   const storyMode = ref<StoryMode>('written')
   const storyParity = ref(false)
@@ -389,6 +455,7 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
     storyError.value = ''
     city.value = createCity()
     campaignSave.value = createCampaignSave()
+    towerSave.value = freshTower()
     savedDecks.value = {}
     savedAlliances.value = {}
     allianceDrafts.value = {}
@@ -411,6 +478,7 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
       city.value = response.data.city
       districtId.value = response.data.city.location
       campaignSave.value = response.data.campaigns
+      towerSave.value = response.data.tower ?? freshTower()
       savedDecks.value = response.data.decks ?? {}
       savedAlliances.value = response.data.alliances ?? {}
       allianceDrafts.value = {}
@@ -422,6 +490,9 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
       storyRevision.value = response.data.revision
       storyAccount.value = userId
       storyLoaded.value = true
+      // A partially played Clash cannot be replayed for free after refresh.
+      // Until command-by-command save/resume exists, reload forfeits this floor.
+      if (towerRun.value?.phase === 'battle') forfeitTower()
     } catch (error) {
       if (userId !== authId()) return
       storyError.value =
@@ -440,6 +511,7 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
           revision: storyRevision.value,
           city: city.value,
           campaigns: campaignSave.value,
+          tower: towerSave.value,
           decks: savedDecks.value,
           alliances: savedAlliances.value,
           soloDecks: savedSolo.value,
@@ -518,6 +590,100 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
 
   const campaignStory = computed(() => FACTION_CAMPAIGNS[activeTeam.value])
   const campaignState = computed(() => campaignSave.value[activeTeam.value])
+  const geneRiotCurrent = computed(() =>
+    activeTeam.value === 'catgirls' ? geneRiotScene(campaignState.value) : null,
+  )
+  const geneRiotText = computed(() =>
+    geneRiotCurrent.value
+      ? geneRiotSceneText(campaignState.value, geneRiotCurrent.value)
+      : '',
+  )
+  const geneRiotOutcome = computed(() =>
+    activeTeam.value === 'catgirls'
+      ? geneRiotLastOutcome(campaignState.value)
+      : null,
+  )
+  function chooseGeneRiotBeat(id: GeneRiotPick): void {
+    if (
+      !storyEditable() ||
+      activeTeam.value !== 'catgirls' ||
+      campaignRewardChoices.value
+    )
+      return
+    const next = chooseGeneRiotScene(campaignSave.value, id)
+    if (next === campaignSave.value) return
+    campaignSave.value = next
+    persistStory()
+  }
+  const bloodfairyCurrent = computed(() =>
+    activeTeam.value === 'bloodfairies'
+      ? bloodfairyBeat(campaignState.value)
+      : null,
+  )
+  const ironjawCurrent = computed(() =>
+    activeTeam.value === 'ironjaw' ? ironjawBeat(campaignState.value) : null,
+  )
+  const campaignJourneyCurrent = computed(
+    () =>
+      geneRiotCurrent.value ?? bloodfairyCurrent.value ?? ironjawCurrent.value,
+  )
+  const campaignJourneyText = computed(() =>
+    geneRiotCurrent.value
+      ? geneRiotText.value
+      : bloodfairyCurrent.value
+        ? bloodfairySceneText(campaignState.value, bloodfairyCurrent.value)
+        : ironjawCurrent.value
+          ? ironjawSceneText(campaignState.value, ironjawCurrent.value)
+          : '',
+  )
+  const campaignJourneyOutcome = computed(() =>
+    activeTeam.value === 'catgirls'
+      ? geneRiotOutcome.value
+      : activeTeam.value === 'bloodfairies'
+        ? bloodfairyLastOutcome(campaignState.value)
+        : activeTeam.value === 'ironjaw'
+          ? ironjawLastOutcome(campaignState.value)
+          : null,
+  )
+  const bloodfairyChorus = computed(() =>
+    bloodfairyLedger(campaignSave.value.bloodfairies),
+  )
+  const bloodfairyStageThree = computed(
+    () =>
+      activeTeam.value === 'bloodfairies' &&
+      bloodfairyStageThreeReveal(campaignState.value),
+  )
+  const ironjawShift = computed(() => ironjawLedger(campaignSave.value.ironjaw))
+  function chooseCampaignJourneyBeat(id: GeneRiotPick): void {
+    if (
+      !storyEditable() ||
+      campaignBout.value ||
+      campaignRewardChoices.value ||
+      view.value !== 'campaign'
+    )
+      return
+    const next =
+      activeTeam.value === 'catgirls'
+        ? chooseGeneRiotScene(campaignSave.value, id)
+        : activeTeam.value === 'bloodfairies'
+          ? chooseBloodfairyBeat(campaignSave.value, id)
+          : activeTeam.value === 'ironjaw'
+            ? chooseIronjawBeat(campaignSave.value, id)
+            : campaignSave.value
+    if (next === campaignSave.value) return
+    campaignSave.value = next
+    persistStory()
+  }
+  const campaignRewardChoices = computed(() =>
+    campaignCardChoices(campaignSave.value, activeTeam.value),
+  )
+  function chooseCampaignCardReward(id: string): void {
+    if (!storyEditable()) return
+    const next = chooseCampaignCard(campaignSave.value, activeTeam.value, id)
+    if (next === campaignSave.value) return
+    campaignSave.value = next
+    persistStory()
+  }
   const campaignAftermath = computed(() =>
     campaignAftermathFor(campaignSave.value, activeTeam.value),
   )
@@ -587,9 +753,19 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
     const field = campaignBattlefield(current.team, current.index)
     return field ? { ...field, label: OBJECTIVE_LABELS[field.objective] } : null
   })
-  const campaignFinale = computed(() =>
-    campaignEnding(campaignSave.value, activeTeam.value),
-  )
+  const campaignFinale = computed(() => {
+    const ending = campaignEnding(campaignSave.value, activeTeam.value)
+    if (!ending) return null
+    const epilogue =
+      activeTeam.value === 'catgirls'
+        ? geneRiotEpilogue(campaignState.value)
+        : activeTeam.value === 'bloodfairies'
+          ? bloodfairyEpilogue(campaignState.value)
+          : activeTeam.value === 'ironjaw'
+            ? ironjawEpilogue(campaignState.value)
+            : ''
+    return [ending, epilogue].filter(Boolean).join(' ')
+  })
   /** A finished campaign's chosen favor, carried into rivals and contracts. */
   const campaignLegacy = computed(() =>
     campaignLegacyFor(
@@ -627,18 +803,13 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
   const currentDeckProblems = computed(() =>
     loadoutProblems(activeTeam.value, currentDeck.value),
   )
-  function isFounderCard(id: string): boolean {
-    const card = CARDS.find((entry) => entry.id === id)
-    return (
-      !!card &&
-      card.team !== 'mercenary' &&
-      starterCards(card.team).includes(id)
-    )
+  function isStarterCard(id: string): boolean {
+    return STARTER_CARD_IDS.has(id)
   }
   function isCardUnlocked(id: string): boolean {
     return (
       unlockMode.value === 'all' ||
-      isFounderCard(id) ||
+      isStarterCard(id) ||
       progress.value.cards.includes(id)
     )
   }
@@ -947,6 +1118,14 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
     const launch = clashLaunch.value
     if (launchId !== launch.id || !state.victor || clashResult.value) return
     clashResult.value = { kind: launch.kind, victor: state.victor }
+    if (launch.kind === 'tower' && towerRun.value?.phase === 'battle') {
+      towerSave.value = {
+        ...towerSave.value,
+        run: resolveTowerBattle(towerRun.value, state.victor),
+      }
+      persistStory()
+      return
+    }
     if (launch.kind === 'reward' && launch.rewardId) {
       void finishCpuBattle(launch.rewardId, [...state.commands])
       return
@@ -1183,6 +1362,65 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
     view.value = 'city'
   }
 
+  function showTower(): void {
+    stop()
+    view.value = 'tower'
+  }
+
+  function beginTower(): void {
+    if (!storyEditable()) return
+    if (towerRun.value) return showTower()
+    if (allianceProblems(playAlliance.value).length) return
+    towerSave.value = {
+      ...towerSave.value,
+      run: startTower(playAlliance.value, rollSeed(), towerMeta.value),
+    }
+    persistStory()
+    showTower()
+  }
+
+  function chooseTowerFloor(id: string): void {
+    const run = towerRun.value
+    if (!storyEditable() || !run) return
+    const next = chooseTowerRoute(run, id)
+    if (next === run || !next.chosen) return
+    towerSave.value = { ...towerSave.value, run: next }
+    persistStory()
+    launchClash({
+      kind: 'tower',
+      format: 'alliance',
+      alliance: next.deck,
+      enemy: next.chosen.foe,
+      seed: (next.seed + next.floor * 997 + 13) >>> 0,
+      bosses: towerBosses(next),
+    })
+  }
+
+  function takeTowerSpoil(cardId: string): void {
+    if (!storyEditable()) return
+    const next = claimTowerSpoil(towerSave.value, cardId)
+    if (next === towerSave.value) return
+    towerSave.value = next
+    persistStory()
+  }
+
+  function forfeitTower(): void {
+    if (!storyEditable() || towerRun.value?.phase !== 'battle') return
+    towerSave.value = {
+      ...towerSave.value,
+      run: resolveTowerBattle(towerRun.value, 'enemy'),
+    }
+    persistStory()
+  }
+
+  function leaveTowerWithoutSpoils(): void {
+    if (!storyEditable()) return
+    const next = leaveEmptyTower(towerSave.value)
+    if (next === towerSave.value) return
+    towerSave.value = next
+    persistStory()
+  }
+
   function showCampaign(): void {
     stop()
     campaignBout.value = null
@@ -1190,6 +1428,7 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
   }
 
   function continueCampaign(): void {
+    if (campaignRewardChoices.value) return
     campaignScreen.value = 'chapter'
   }
 
@@ -1376,6 +1615,34 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
       enemy,
       seed: rollSeed(),
       bosses: clashBossesFromTerms(terms),
+      ...(kind === 'campaign'
+        ? {
+            cards:
+              activeTeam.value === 'bloodfairies'
+                ? bloodfairyStoryDeck(
+                    campaignSave.value.bloodfairies,
+                    campaignSoloDeck(
+                      campaignSave.value,
+                      activeTeam.value,
+                      playSolo.value,
+                    ),
+                  )
+                : activeTeam.value === 'ironjaw'
+                  ? ironjawStoryDeck(
+                      campaignSave.value.ironjaw,
+                      campaignSoloDeck(
+                        campaignSave.value,
+                        activeTeam.value,
+                        playSolo.value,
+                      ),
+                    )
+                  : campaignSoloDeck(
+                      campaignSave.value,
+                      activeTeam.value,
+                      playSolo.value,
+                    ),
+          }
+        : {}),
     })
   }
 
@@ -1399,7 +1666,12 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
   }
   function startCampaignBattle(choiceId: CampaignApproach): void {
     if (!storyEditable()) return
-    if (campaignBout.value) return
+    if (
+      campaignBout.value ||
+      campaignRewardChoices.value ||
+      campaignJourneyCurrent.value
+    )
+      return
     const fromCity =
       view.value === 'city' &&
       campaignAtDestination.value &&
@@ -1416,18 +1688,23 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
       index: campaignSave.value[teamId].wins,
       choice: choice.id,
     }
-    launchStoryClash(
-      'campaign',
-      chapter.foe,
-      campaignBattleTerms(
-        campaignSave.value,
-        teamId,
-        fromCity
-          ? storyMissionTerms(city.value, districtId.value, choice.terms)
-          : choice.terms,
-        campaignFavorIndex.value,
-      ),
+    const base = campaignBattleTerms(
+      campaignSave.value,
+      teamId,
+      fromCity
+        ? storyMissionTerms(city.value, districtId.value, choice.terms)
+        : choice.terms,
+      campaignFavorIndex.value,
     )
+    const prepared =
+      teamId === 'catgirls'
+        ? geneRiotBattleTerms(campaignSave.value.catgirls, base)
+        : teamId === 'bloodfairies'
+          ? bloodfairyBattleTerms(campaignSave.value.bloodfairies, base)
+          : teamId === 'ironjaw'
+            ? ironjawBattleTerms(campaignSave.value.ironjaw, base)
+            : base
+    launchStoryClash('campaign', chapter.foe, prepared)
   }
 
   async function finishCpuBattle(id: string, commands: unknown): Promise<void> {
@@ -1621,6 +1898,15 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
     return cardById(id).name
   }
 
+  watch(view, (next, before) => {
+    if (
+      before === 'clash' &&
+      next !== 'clash' &&
+      clashLaunch.value.kind === 'tower'
+    )
+      forfeitTower()
+  })
+
   watch(
     () => authId(),
     () => {
@@ -1670,11 +1956,22 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
     activeContract,
     contractGate,
     campaignSave,
+    towerSave,
+    towerRun,
+    towerMeta,
+    towerOptions,
+    towerRewards,
+    beginTower,
+    chooseTowerFloor,
+    takeTowerSpoil,
+    leaveTowerWithoutSpoils,
+    forfeitTower,
+    showTower,
     currentDeck,
     currentDeckProblems,
     replacingCard,
     deckMessage,
-    isFounderCard,
+    isStarterCard,
     isCardUnlocked,
     selectDeckCard,
     restoreFounderDeck,
@@ -1719,6 +2016,21 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
     showCampaignAftermath,
     campaignStory,
     campaignState,
+    campaignRewardChoices,
+    chooseCampaignCardReward,
+    geneRiotCurrent,
+    geneRiotText,
+    geneRiotOutcome,
+    chooseGeneRiotBeat,
+    bloodfairyCurrent,
+    bloodfairyChorus,
+    bloodfairyStageThree,
+    ironjawCurrent,
+    ironjawShift,
+    campaignJourneyCurrent,
+    campaignJourneyText,
+    campaignJourneyOutcome,
+    chooseCampaignJourneyBeat,
     campaignConversation,
     campaignAftermath,
     campaignEcho,

@@ -2,6 +2,10 @@
 // not used for balance acceptance; all 300 cards have Clash-only profiles.
 import assert from 'node:assert/strict'
 import { readFileSync } from 'node:fs'
+import {
+  CLASH_EVOLUTIONS,
+  clashEvolutionStage,
+} from '../slimeCity/clashEvolutions'
 import { alleyDeck } from '../slimeCity/alleys'
 import { CLASH_TWISTS } from '../slimeCity/clashTwists'
 import { CARDS, TEAMS, cardById, type Side } from '../slimeCity/prototypes'
@@ -20,6 +24,7 @@ import {
   chooseClashCpu,
   clashBalance,
   clashDeck,
+  CLASH_CRAFTED_DECKS,
   clashPower,
   clashBossMax,
   clashCardBadge,
@@ -82,8 +87,32 @@ const playPage = readFileSync('pages/play/slime-city.vue', 'utf8')
 const gamePage = readFileSync('pages/admin/slime-city.vue', 'utf8')
 const store = readFileSync('stores/slimeCity.ts', 'utf8')
 const view = readFileSync('components/slime-city-clash.vue', 'utf8')
-assert.match(playPage, /<SlimeCityGame \/>/)
-assert.match(store, />\('clash'\)/, 'Clash is the starting game view')
+assert.match(playPage, /<SlimeCityGame v-else \/>/)
+// Silas, 2026-11-09 PT: the public route opens on a title screen, not mid-game.
+assert.match(
+  playPage,
+  /<SlimeCitySplash v-if="!entered" @enter="entered = true" \/>/,
+)
+const splash = readFileSync('components/slime-city-splash.vue', 'utf8')
+for (const testid of [
+  'slime-splash-crews',
+  'slime-splash-battle',
+  'slime-splash-city',
+  'slime-splash-story',
+]) {
+  assert.match(splash, new RegExp('data-testid="' + testid + '"'))
+}
+assert.match(splash, /console-theme="slime-city"/)
+assert.match(splash, /prefers-reduced-motion: reduce/)
+assert.match(
+  store,
+  />\('home'\)/,
+  'The illustrated front door is the starting game view',
+)
+assert.match(gamePage, /data-testid="slime-home"/)
+assert.match(gamePage, /data-testid="slime-home-play"/)
+assert.match(gamePage, /data-testid="slime-settings"/)
+assert.match(gamePage, /data-testid="slime-card-inspector"/)
 assert.match(gamePage, /data-testid="slime-clash-tab"/)
 // Silas, 2026-11-08 PT: "we don't need the legacy modes, period."
 assert.doesNotMatch(gamePage, /slime-legacy-toggle/)
@@ -176,7 +205,7 @@ assert.match(cardFace, /clashCardText/, 'selected cards show their rules')
 assert.match(view, /@keyframes clash-lunge-up/)
 assert.match(view, /prefers-reduced-motion/)
 assert.match(view, /chooseClashCpu/)
-assert.match(view, /clashPlayCost/)
+assert.match(view, /clashEffectivePlayCost/)
 assert.doesNotMatch(view, /class="clash-top"/)
 assert.doesNotMatch(view, /\? RULES/)
 assert.doesNotMatch(view, /THE PITWORKS · MAIN EVENT/)
@@ -201,10 +230,11 @@ for (const team of TEAMS) {
   const clashOnly = clashDeck(team.id)
   assert.equal(clashOnly.length, 20, 'Clash retains 20 cards')
   assert.equal(new Set(clashOnly).size, 20, 'Clash has distinct IDs')
+  // The crafted-evolution pilot deck is twenty of one faction by design.
   assert.equal(
     clashOnly.filter((id) => cardById(id).team === 'mercenary').length,
-    1,
-    'each crew has one accessible mercenary guest',
+    CLASH_CRAFTED_DECKS[team.id] ? 0 : 1,
+    'each standard crew has one accessible mercenary guest',
   )
   assert.equal(deck.length, 20, team.name + ' 20-card deck')
   assert.equal(new Set(deck).size, 20, team.name + ' distinct cards')
@@ -260,6 +290,15 @@ for (const card of CARDS) {
       assert.equal(high.attack, 0, card.id + ' becomes a genuine nonattacker')
       assert.ok(high.hp > low.hp, card.id + ' gains real durability')
       assert.match(clashCardText(card, 3), /Never attacks/)
+    } else if (
+      Object.values(CLASH_EVOLUTIONS[card.id]?.stats?.[3] ?? {}).some(
+        (n) => n < 0,
+      )
+    ) {
+      // Approved rare exception (Silas, 2026-11-08 PT): a crafted early
+      // bloomer trades body for a big level-three arrival.
+      assert.ok(value(2) > value(1), card.id + ' still ramps to level 2')
+      assert.ok(clashEvolutionStage(card.id, 3), card.id + ' L3 does more')
     } else {
       assert.ok(value(1) < value(2) && value(2) < value(3), card.id + ' ramps')
       assert.ok(
@@ -292,8 +331,8 @@ assert.ok(
 assert.equal(clashPlayCost(cardById('lynx')), 1)
 assert.equal(
   Object.keys(CLASH_TWISTS).length,
-  39,
-  'first and second Clash-only evolution waves retain their complete roster',
+  70,
+  'the first 70 curated evolution arcs are playable',
 )
 for (const id of Object.keys(CLASH_TWISTS)) {
   const card = cardById(id)
@@ -1191,22 +1230,584 @@ assert.equal(
   angelStage.round,
 )
 
+// Wave three: twenty more bespoke, mechanically tested L3 arcs. Nothing here
+// invents a catalog card or gives an untargeted faction-hate effect.
+const waveThreeIds = [
+  'mau',
+  'scentmine',
+  'ninthlife',
+  'bloodwire',
+  'pinprick',
+  'feedback',
+  'overclock',
+  'shocktrap',
+  'ducttape',
+  'firestorm',
+  'fusevest',
+  'drink',
+  'blackout',
+  'grate',
+  'drysuit',
+  'collection',
+  'debttrap',
+  'hushmoney',
+  'merc-bus-driver',
+  'merc-clock-grandma',
+]
+assert.equal(waveThreeIds.length, 20)
+for (const id of waveThreeIds) {
+  const card = cardById(id)
+  assert.ok(CLASH_TWISTS[id], id + ' has explicit authored evolution rules')
+  const texts = [1, 2, 3].map((lv) => clashCardText(card, lv))
+  assert.ok(texts.every((line) => line.length >= 16 && line.length <= 160))
+  assert.equal(
+    new Set(texts).size,
+    3,
+    id + ' improves through three story beats',
+  )
+}
+function third(team: Parameters<typeof createClash>[0], id: string) {
+  const s = createClash(team, 'ironjaw', 960 + waveThreeIds.indexOf(id))
+  s.round = 2
+  s.levels.player[id] = 3
+  s.hands.player = [id]
+  s.boss.player = 30
+  return s
+}
+const mauFight = third('catgirls', 'mau')
+mauFight.phase = 'attack'
+mauFight.units = [
+  {
+    ...follower('player', 2, 2000, 12, 3),
+    cardId: 'mau',
+    level: 3,
+    keywords: ['ambush'],
+    ambushUsed: true,
+  },
+  { ...follower('enemy', 2, 2001, 15, 0), hp: 12 },
+  follower('enemy', 3, 2002, 12, 0),
+]
+const mauHit = strikeClash(mauFight, 'player')
+assert.equal(
+  mauHit.strike?.dealt,
+  5,
+  'Mau L3 strikes harder against an already wounded defender',
+)
+assert.equal(
+  mauHit.units.find((u) => u.uid === 2002)?.hp,
+  10,
+  'Mau L3 follows into a neighboring alley',
+)
+const scentMine = createClash('catgirls', 'ironjaw', 961)
+scentMine.round = 2
+scentMine.hands.player = ['lynx']
+scentMine.units = [
+  follower('player', 1, 2011, 12),
+  follower('player', 3, 2013, 12),
+]
+scentMine.traps = [{ side: 'enemy', lane: 2, cardId: 'scentmine', level: 3 }]
+const scentFired = playClash(scentMine, 'player', 'lynx', 2)
+assert.ok(scentFired.units.find((u) => u.uid === 2011)?.rooted)
+assert.equal(scentFired.units.find((u) => u.uid === 2013)?.hp, 11)
+const collar = third('catgirls', 'ninthlife')
+collar.units = [follower('player', 2, 2020, 10, 2)]
+const collarOn = playClash(collar, 'player', 'ninthlife', 2)
+assert.equal(collarOn.units[0]?.ninthLife, 3)
+collarOn.active = 'enemy'
+collarOn.phase = 'attack'
+collarOn.units.push(follower('enemy', 2, 2021, 20, 15))
+const collarRescue = strikeClash(collarOn, 'enemy')
+assert.equal(collarRescue.units.find((u) => u.uid === 2020)?.hp, 5)
+assert.equal(collarRescue.units.find((u) => u.uid === 2020)?.attack, 6)
+assert.equal(
+  collarRescue.units.find((u) => u.uid === 2020)?.ninthLife,
+  undefined,
+)
+assert.equal(
+  collarRescue.strike?.defenderFell,
+  false,
+  'saved fighter must not display a false knockout',
+)
+assert.ok(
+  clashSpectacle(collarOn, collarRescue)?.cardId === 'ninthlife',
+  'L3 rescue gets an art-led cut-in',
+)
+const wireTrap = createClash('catgirls', 'ironjaw', 962)
+wireTrap.round = 2
+wireTrap.hands.player = ['lynx']
+wireTrap.units = [
+  follower('player', 1, 2031, 12),
+  follower('player', 3, 2033, 12),
+]
+wireTrap.traps = [{ side: 'enemy', lane: 2, cardId: 'bloodwire', level: 3 }]
+const wireFired = playClash(wireTrap, 'player', 'lynx', 2)
+assert.equal(wireFired.units.find((u) => u.uid === 2031)?.hp, 10)
+assert.equal(wireFired.units.find((u) => u.uid === 2033)?.hp, 10)
+let criticalFound = false
+for (let seed = 1; seed <= 20; seed++) {
+  const pin = third('bloodfairies', 'pinprick')
+  pin.rng = seed
+  pin.units = [follower('enemy', 2, 2042, 25), follower('enemy', 3, 2043, 12)]
+  const hit = playClash(pin, 'player', 'pinprick', 2)
+  assert.deepEqual(
+    hit,
+    playClash(structuredClone(pin), 'player', 'pinprick', 2),
+  )
+  if (hit.units.find((u) => u.uid === 2043)?.hp === 10) criticalFound = true
+}
+assert.ok(criticalFound, 'L3 Pinprick has reachable seeded critical splash')
+const feedback = third('bloodfairies', 'feedback')
+feedback.units = [
+  ...[0, 1, 3, 4].map((lane) => follower('player', lane, 2050 + lane, 10)),
+  follower('enemy', 2, 2057, 20),
+  follower('enemy', 0, 2058, 10),
+  follower('enemy', 4, 2059, 10),
+]
+const feedbackHit = playClash(feedback, 'player', 'feedback', 2)
+assert.equal(feedbackHit.units.find((u) => u.uid === 2058)?.hp, 8)
+assert.equal(feedbackHit.units.find((u) => u.uid === 2059)?.hp, 8)
+const clock = third('ironjaw', 'overclock')
+clock.units = [
+  follower('player', 2, 2060, 12),
+  follower('enemy', 1, 2061, 12),
+  follower('enemy', 3, 2063, 12),
+]
+const overclocked = playClash(clock, 'player', 'overclock', 2)
+assert.equal(
+  overclocked.units.find((u) => u.uid === 2060)?.hp,
+  9,
+  'L3 overclock has a real recoil cost',
+)
+assert.ok(overclocked.units.find((u) => u.uid === 2060)!.surge >= 4)
+assert.equal(overclocked.units.find((u) => u.uid === 2061)?.hp, 10)
+const shockStage = createClash('catgirls', 'ironjaw', 963)
+shockStage.round = 2
+shockStage.hands.player = ['lynx']
+shockStage.units = [
+  follower('player', 1, 2071, 12),
+  follower('player', 3, 2073, 12),
+]
+shockStage.traps = [{ side: 'enemy', lane: 2, cardId: 'shocktrap', level: 3 }]
+const shockFired = playClash(shockStage, 'player', 'lynx', 2)
+assert.equal(shockFired.units.find((u) => u.uid === 2071)?.hp, 10)
+assert.ok(shockFired.units.find((u) => u.uid === 2073)?.rooted)
+const weld = third('ironjaw', 'ducttape')
+weld.fallen!.player.push('welder')
+weld.units = [{ ...follower('player', 2, 2082, 10), hp: 2 }]
+const repaired = playClash(weld, 'player', 'ducttape', 2)
+assert.ok(
+  repaired.units.some((u) => u.token && u.cardId === 'welder' && u.armor === 1),
+)
+assert.equal(
+  repaired.fallen?.player.length,
+  0,
+  'fallen unit not copied endlessly',
+)
+const storm = third('riot', 'firestorm')
+storm.units = [
+  follower('enemy', 2, 2092, 30),
+  follower('enemy', 1, 2091, 12),
+  follower('enemy', 3, 2093, 12),
+  follower('player', 1, 2094, 12),
+]
+const stormHit = playClash(storm, 'player', 'firestorm', 2)
+assert.equal(stormHit.units.find((u) => u.uid === 2091)?.hp, 10)
+assert.equal(stormHit.units.find((u) => u.uid === 2094)?.hp, 11)
+assert.deepEqual(
+  stormHit,
+  playClash(structuredClone(storm), 'player', 'firestorm', 2),
+  'firestorm rerolls are replay-safe',
+)
+const vest = third('riot', 'fusevest')
+vest.units = [
+  { ...follower('player', 2, 2102, 10), hp: 1 },
+  follower('player', 1, 2101, 10),
+]
+const fitted = playClash(vest, 'player', 'fusevest', 2)
+assert.equal(fitted.units.find((u) => u.uid === 2102)?.gearLevels?.fusevest, 3)
+fitted.active = 'enemy'
+fitted.phase = 'attack'
+fitted.units.push(
+  follower('enemy', 2, 2112, 10, 12),
+  follower('enemy', 4, 2114, 10),
+)
+const vestBlast = strikeClash(fitted, 'enemy')
+assert.equal(vestBlast.units.find((u) => u.uid === 2114)?.hp, 9)
+assert.equal(vestBlast.units.find((u) => u.uid === 2101)?.hp, 9)
+const bottle = third('riot', 'drink')
+bottle.units = [follower('player', 2, 2122, 12)]
+const drank = playClash(bottle, 'player', 'drink', 2)
+assert.ok(
+  drank.units[0]!.surge >= 6 || drank.units[0]!.hp === 10,
+  'L3 drink is a risky swing',
+)
+assert.deepEqual(
+  drank,
+  playClash(structuredClone(bottle), 'player', 'drink', 2),
+)
+const signal = third('undertow', 'blackout')
+signal.units = [1, 2, 3].map((lane) => follower('enemy', lane, 2130 + lane, 12))
+const blackedOut = playClash(signal, 'player', 'blackout', 2)
+assert.equal(blackedOut.units.filter((u) => u.rooted).length, 3)
+assert.equal(blackedOut.units.find((u) => u.lane === 1)?.hp, 11)
+const drain = createClash('catgirls', 'ironjaw', 964)
+drain.round = 2
+drain.hands.player = ['lynx']
+drain.units = [follower('player', 1, 2141, 12), follower('player', 3, 2143, 12)]
+drain.traps = [{ side: 'enemy', lane: 2, cardId: 'grate', level: 3 }]
+const grateFired = playClash(drain, 'player', 'lynx', 2)
+assert.equal(grateFired.units.find((u) => u.uid === 2141)?.hp, 10)
+assert.equal(grateFired.units.find((u) => u.uid === 2143)?.hp, 10)
+const suit = third('undertow', 'drysuit')
+suit.units = [1, 2, 3].map((lane) => follower('player', lane, 2150 + lane, 12))
+const armored = playClash(suit, 'player', 'drysuit', 2)
+assert.ok(armored.units.every((u) => u.snareWard))
+armored.active = 'enemy'
+armored.phase = 'play'
+armored.plays.enemy = 0
+armored.teams.enemy = 'undertow'
+armored.hands.enemy = ['blackout']
+const blockedRoot = playClash(armored, 'enemy', 'blackout', 1)
+assert.equal(blockedRoot.units.find((u) => u.uid === 2151)?.rooted, false)
+assert.equal(blockedRoot.units.find((u) => u.uid === 2151)?.snareWard, false)
+const debt = third('exchange', 'collection')
+debt.units = [
+  { ...follower('player', 1, 2161, 12, 2), keywords: ['collect'] },
+  follower('enemy', 2, 2162, 20),
+]
+const collected = playClash(debt, 'player', 'collection', 2)
+assert.equal(collected.boss.player, 32)
+assert.equal(collected.units.find((u) => u.uid === 2161)?.attack, 3)
+const fees = third('exchange', 'debttrap')
+const linkedFees = playClash(fees, 'player', 'debttrap', 2)
+assert.deepEqual(linkedFees.traps.map((u) => u.lane).sort(), [1, 2, 3])
+assert.equal(linkedFees.traps.filter((u) => u.token).length, 2)
+linkedFees.active = 'enemy'
+linkedFees.phase = 'play'
+linkedFees.plays.enemy = 0
+linkedFees.teams.enemy = 'undertow'
+linkedFees.hands.enemy = ['sonar']
+linkedFees.levels.enemy.sonar = 3
+const sweptFees = playClash(linkedFees, 'enemy', 'sonar', 2)
+assert.equal(sweptFees.traps.length, 0)
+assert.equal(
+  sweptFees.discards.player.filter((id) => id === 'debttrap').length,
+  1,
+  'trap copies cannot mint new cards',
+)
+const hush = third('exchange', 'hushmoney')
+hush.units = [{ ...follower('player', 2, 2172, 12), hp: 4 }]
+const funded = playClash(hush, 'player', 'hushmoney', 2)
+assert.equal(funded.boss.player, 32)
+assert.equal(funded.units[0]?.guard, 2)
+const driver = third('catgirls', 'merc-bus-driver')
+driver.units = [follower('player', 1, 2181), follower('player', 3, 2183)]
+const busTrip = playClash(driver, 'player', 'merc-bus-driver', 2)
+assert.equal(busTrip.units.length, 3)
+assert.notEqual(busTrip.units.find((u) => u.uid === 2181)?.lane, 1)
+assert.notEqual(busTrip.units.find((u) => u.uid === 2183)?.lane, 3)
+assert.equal(
+  new Set(busTrip.units.filter((u) => u.side === 'player').map((u) => u.lane))
+    .size,
+  3,
+)
+const grandma = third('catgirls', 'merc-clock-grandma')
+grandma.active = 'enemy'
+grandma.phase = 'attack'
+grandma.units = [
+  {
+    ...follower('player', 2, 2192, 10),
+    cardId: 'merc-clock-grandma',
+    level: 3,
+  },
+  { ...follower('player', 1, 2191, 10), hp: 1 },
+  follower('enemy', 1, 2193, 12, 5),
+]
+const firstSave = strikeClash(grandma, 'enemy')
+assert.equal(firstSave.units.find((u) => u.uid === 2191)?.hp, 1)
+assert.equal(firstSave.units.find((u) => u.uid === 2192)?.grandmaSaveUsed, true)
+assert.equal(clashSpectacle(grandma, firstSave)?.cardId, 'merc-clock-grandma')
+const secondBlow = structuredClone(firstSave)
+secondBlow.cursor = 0
+secondBlow.units.find((u) => u.uid === 2193)!.attacked = false
+const outOfTime = strikeClash(secondBlow, 'enemy')
+assert.equal(
+  outOfTime.units.some((u) => u.uid === 2191),
+  false,
+  'grandma cannot loop rescues forever',
+)
+
+// Final 11: each existing card earns an actual L2/L3 ability, not just text.
+const finalEleven = [
+  'shredders',
+  'spurs',
+  'choker',
+  'wreckingfist',
+  'slap',
+  'badluck',
+  'fuse',
+  'visor',
+  'contract',
+  'merc-bribe-rat',
+  'merc-grease-oracle',
+]
+for (const id of finalEleven) {
+  assert.ok(CLASH_TWISTS[id], id + ' authored evolution exists')
+  const card = cardById(id)
+  const texts = [1, 2, 3].map((level) => clashCardText(card, level))
+  assert.equal(new Set(texts).size, 3, id + ' must evolve in three steps')
+}
+assert.equal(Object.keys(CLASH_TWISTS).length, 70)
+
+// Equipment earns permanent effects on real fighters and adjacent allies.
+const shredderStage = third('catgirls', 'shredders')
+shredderStage.units = [
+  follower('player', 2, 3100, 14, 3),
+  follower('enemy', 2, 3101, 12, 3),
+  follower('enemy', 3, 3102, 12, 3),
+]
+const equippedShredders = playClash(shredderStage, 'player', 'shredders', 2)
+const shredder = equippedShredders.units.find((u) => u.uid === 3100)!
+assert.ok(shredder.keywords.includes('pierce'))
+assert.equal(shredder.gearLevels?.shredders, 3)
+const shredderHit = strikeClash(
+  passClash(equippedShredders, 'player'),
+  'player',
+)
+assert.ok(shredderHit.units.find((u) => u.uid === 3102)!.hp < 12)
+
+const spursStage = third('bloodfairies', 'spurs')
+spursStage.units = [
+  follower('player', 1, 3111, 10, 2),
+  follower('player', 2, 3112, 10, 2),
+  follower('player', 3, 3113, 10, 2),
+]
+const spurred = playClash(spursStage, 'player', 'spurs', 2)
+assert.equal(spurred.units.find((u) => u.uid === 3111)?.attack, 4)
+assert.equal(spurred.units.find((u) => u.uid === 3113)?.attack, 4)
+
+const chokerStage = third('bloodfairies', 'choker')
+chokerStage.units = [
+  follower('player', 0, 3120, 8, 2),
+  follower('player', 2, 3122, 8, 2),
+  follower('player', 3, 3123, 8, 2),
+]
+chokerStage.units[0]!.keywords.push('swarm')
+const chokers = playClash(chokerStage, 'player', 'choker', 2)
+assert.ok(chokers.units.find((u) => u.uid === 3123)?.keywords.includes('swarm'))
+assert.equal(
+  clashPower(
+    chokers,
+    chokers.units.find((u) => u.uid === 3120)!,
+  ),
+  3,
+  'the distant swarm ally receives its global concert anthem',
+)
+
+const fistStage = third('ironjaw', 'wreckingfist')
+fistStage.units = [
+  follower('player', 2, 3130, 14, 3),
+  follower('enemy', 2, 3131, 15, 2),
+  follower('enemy', 3, 3132, 12, 2),
+]
+fistStage.boss.enemy = 30
+const fistEquip = playClash(fistStage, 'player', 'wreckingfist', 2)
+assert.ok(
+  fistEquip.units.find((u) => u.uid === 3130)?.keywords.includes('bulldoze'),
+)
+const fistHit = strikeClash(passClash(fistEquip, 'player'), 'player')
+assert.equal(fistHit.boss.enemy, 28)
+assert.equal(fistHit.units.find((u) => u.uid === 3132)?.hp, 11)
+
+const slapStage = third('ironjaw', 'slap')
+slapStage.units = [
+  follower('enemy', 1, 3141, 12),
+  follower('enemy', 2, 3142, 12),
+  follower('enemy', 3, 3143, 12),
+]
+const slapped = playClash(slapStage, 'player', 'slap', 2)
+for (const uid of [3141, 3142, 3143]) {
+  assert.equal(slapped.units.find((u) => u.uid === uid)?.rooted, true)
+  assert.ok(slapped.units.find((u) => u.uid === uid)!.hp < 12)
+}
+
+// Seeded trap chaos, sacrifices, and trap removal remain pure and replayable.
+const unlucky = third('riot', 'badluck')
+const armed = playClash(unlucky, 'player', 'badluck', 2)
+armed.active = 'enemy'
+armed.phase = 'play'
+armed.plays.enemy = 0
+armed.hands.enemy = ['scrapper']
+armed.units = [follower('enemy', 1, 3151, 10), follower('enemy', 3, 3153, 10)]
+const spring = playClash(armed, 'enemy', 'scrapper', 2)
+assert.deepEqual(
+  spring,
+  playClash(structuredClone(armed), 'enemy', 'scrapper', 2),
+)
+assert.ok(spring.traps.every((t) => t.cardId !== 'badluck'))
+assert.ok(spring.units.find((u) => u.uid === 3151)!.hp <= 10)
+
+const fuseStage = third('riot', 'fuse')
+fuseStage.units = [
+  follower('player', 1, 3161, 8, 2),
+  follower('player', 2, 3162, 12, 3),
+]
+const fused = playClash(fuseStage, 'player', 'fuse', 2)
+assert.ok(!fused.units.some((u) => u.uid === 3161))
+assert.ok(fused.units.find((u) => u.uid === 3162)!.attack >= 8)
+assert.ok(
+  (fused.fallen?.player ?? []).length > 0,
+  'sacrifices count as real deaths',
+)
+
+const visorStage = third('undertow', 'visor')
+visorStage.units = [follower('player', 1, 3171), follower('player', 2, 3172)]
+visorStage.traps = [
+  { side: 'enemy', lane: 1, cardId: 'grate', level: 1 },
+  { side: 'enemy', lane: 3, cardId: 'grate', level: 1 },
+]
+const sight = playClash(visorStage, 'player', 'visor', 2)
+assert.equal(sight.traps.length, 0)
+assert.ok(sight.units.find((u) => u.uid === 3171)?.keywords.includes('pierce'))
+
+const contractStage = third('exchange', 'contract')
+contractStage.units = [
+  follower('player', 1, 3181, 10),
+  follower('player', 2, 3182, 10),
+]
+contractStage.units[0]!.hp = 7
+const contracted = playClash(contractStage, 'player', 'contract', 2)
+const afterContractTurn = finishTurn(contracted)
+assert.equal(
+  afterContractTurn.units.find((u) => u.uid === 3181)?.guard,
+  1,
+  'the contract shield blocks the upcoming enemy attack',
+)
+const contractRound = finishTurn(afterContractTurn)
+assert.equal(contractRound.boss.player, 31)
+assert.equal(contractRound.units.find((u) => u.uid === 3181)?.hp, 8)
+assert.equal(
+  contractRound.units.find((u) => u.uid === 3181)?.guard,
+  0,
+  "temporary shield expires at the start of the protected crew's next turn",
+)
+
+// The L3 bribe is conditional, never a guaranteed free opponent steal.
+let recruited = false
+let prophecyRaised = false
+let prophecyMissed = false
+for (let seed = 1; seed <= 64; seed++) {
+  const bribe = createClash('riot', 'ironjaw', seed)
+  bribe.phase = 'attack'
+  bribe.units = [
+    {
+      ...follower('player', 2, 3200, 10, 5),
+      cardId: 'merc-bribe-rat',
+      level: 3,
+    },
+    { ...follower('enemy', 2, 3201, 1, 2), cardId: 'scrapper' },
+  ]
+  const paid = strikeClash(bribe, 'player')
+  assert.deepEqual(paid, strikeClash(structuredClone(bribe), 'player'))
+  if (
+    paid.units.some(
+      (u) => u.side === 'player' && u.token && u.cardId === 'scrapper',
+    )
+  )
+    recruited = true
+
+  const oracle = createClash('catgirls', 'ironjaw', seed)
+  oracle.phase = 'attack'
+  oracle.units = [
+    {
+      ...follower('player', 1, 3301, 12, 2),
+      cardId: 'merc-grease-oracle',
+      level: 3,
+      attacked: true,
+    },
+    follower('player', 2, 3302, 12, 2),
+    follower('enemy', 2, 3303, 20, 1),
+  ]
+  const foretold = strikeClash(oracle, 'player')
+  const damage = 20 - foretold.units.find((u) => u.uid === 3303)!.hp
+  if (damage > 2) prophecyRaised = true
+  else prophecyMissed = true
+  assert.deepEqual(foretold, strikeClash(structuredClone(oracle), 'player'))
+}
+assert.ok(recruited, 'weak enemy can be recruited by an evolved bribe rat')
+assert.ok(
+  prophecyRaised && prophecyMissed,
+  'oracle has two seeded, observable outcomes',
+)
+
 // Balance acceptance (2026-11-07 Clash rebalance): CPU sweeps across every crew
 // pairing keep each crew and the first seat near even. Report:
 // npx tsx utils/scripts/slimeCityClashBalanceReport.ts 150 9000
 // 40 seeds (1200 games): a 10-seed sample swung the first seat by 13 points.
 const sweep = sweepClash(40, 700)
+console.log(
+  'CLASH crew win rates (40 acceptance seeds):',
+  Object.fromEntries(
+    Object.entries(sweep.crews).map(([crew, record]) => [
+      crew,
+      ((100 * record.wins) / record.games).toFixed(1) + '%',
+    ]),
+  ),
+)
 assert.ok(
   sweep.firstSeatWins / sweep.games > 0.4 &&
     sweep.firstSeatWins / sweep.games < 0.62,
   'first seat advantage stays small',
 )
 assert.ok(sweep.roundLimit / sweep.games < 0.1, 'matches end by knockout')
+// slime-city/t-047 (2026-11-09 PT): armor re-priced to one life per point and
+// a 2-damage volatile burst now costs a point of budget. Before, these seeds
+// read Ironjaw 35% / Riot 64% (a ~30-point spread); after, every crew sits at
+// 48-53%. Guard every crew to 42-58% and the crew spread to 12 points.
+const crewRates = Object.values(sweep.crews).map((r) => r.wins / r.games)
 for (const [crew, r] of Object.entries(sweep.crews))
   assert.ok(
-    r.wins / r.games > 0.35 && r.wins / r.games < 0.65,
+    r.wins / r.games > 0.42 && r.wins / r.games < 0.58,
     crew + ' win rate ' + ((100 * r.wins) / r.games).toFixed(1) + '%',
   )
+assert.ok(
+  Math.max(...crewRates) - Math.min(...crewRates) <= 0.12,
+  'CLASH crew spread stays within 12 points',
+)
+
+// The art-first board must display the card's authored evolution painting, not
+// the old cropped mood tokens. Keep this contract beside the combat tests so
+// the presentation cannot silently regress during future board refactors.
+const clashView = readFileSync('components/slime-city-clash.vue', 'utf8')
+const fighterArt = clashView.match(
+  /function artFor\(u: ClashUnit\): number \| null \{([\s\S]*?)\n\}/,
+)?.[1]
+assert.ok(fighterArt, 'Clash fighter art resolver must exist')
+assert.match(
+  fighterArt,
+  /slimeCardArtId\(u\.cardId, u\.level, u\.evoChoice \?\? 0\)/,
+  'board fighters must use card art and their actual evolution choice',
+)
+assert.doesNotMatch(
+  fighterArt,
+  /slimeArtId\(['"]tokens['"]/,
+  'reaction-face tokens must not override the fighter card painting',
+)
+
+const fighterImageStart = clashView.indexOf('.clash-slot :deep(img) {')
+const fighterImageStyle =
+  fighterImageStart < 0
+    ? ''
+    : clashView.slice(
+        fighterImageStart,
+        clashView.indexOf('}', fighterImageStart) + 1,
+      )
+assert.ok(fighterImageStyle, 'fighter image styling must exist')
+assert.match(
+  fighterImageStyle,
+  /object-fit:\s*contain\s*;/,
+  'deployed fighters must show the complete card painting',
+)
 
 // Long adversarial CPU playthroughs on every crew pairing, all rules and replay.
 let simulated = 0

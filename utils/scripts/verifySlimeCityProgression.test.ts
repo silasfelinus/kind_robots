@@ -40,6 +40,22 @@ assert.equal(levelFor(99), 1)
 assert.equal(levelFor(100), 2)
 assert.equal(nextLevelXp(100), 400)
 assert.equal(CHALLENGES.length, 6)
+// Silas, 2026-11-09 PT: "We exchange meat, for chrissakes." Meat is the
+// city's money: the quest board and the Meat Exchange say so out loud.
+assert.ok(
+  CHALLENGES.filter((c) => /meat|cut|freezer|grill|butcher/i.test(c.title))
+    .length >= 5,
+  'the quest board speaks meat',
+)
+{
+  const exchange = TEAMS.find((t) => t.id === 'exchange')!
+  assert.match(exchange.hook, /mint the city’s Meat/)
+  assert.match(
+    CARDS.find((c) => c.id === 'mogul')!.text,
+    /Meat mint/,
+    'the Mogul owns the mint',
+  )
+}
 const fresh = newProgression(now)
 assert.equal(fresh.meat, 0)
 assert.equal(fresh.xp, 0)

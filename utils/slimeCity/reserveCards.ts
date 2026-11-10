@@ -65,7 +65,7 @@ export const RESERVE_CARDS: Card[] = [
     armor: 2,
     ap: 1,
     keywords: ['bulldoze'],
-    text: 'A repair crew in one ogre. Tough enough to keep advancing when the factory tries to shut the gates.',
+    text: 'A repair crew in one lizard. Tough enough to keep advancing when the factory tries to shut the gates.',
     symbol: '⚒',
   },
   {

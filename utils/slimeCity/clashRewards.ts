@@ -82,7 +82,8 @@ const SHAPES: Record<string, (c: Record<string, unknown>) => boolean> = {
   play: (c) =>
     typeof c.card === 'string' &&
     CARDS.some((card) => card.id === c.card) &&
-    Number.isSafeInteger(c.lane),
+    Number.isSafeInteger(c.lane) &&
+    (c.choice === undefined || c.choice === 1),
   power: (c) => Number.isSafeInteger(c.lane),
   pass: () => true,
   strike: () => true,

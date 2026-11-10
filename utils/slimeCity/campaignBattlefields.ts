@@ -353,7 +353,7 @@ export const CAMPAIGN_BATTLEFIELDS: Record<
       title: 'THE COMMAND MAST',
       objective: 'beast',
       briefing:
-        'A broadcast mast on tank treads rolls into the yard, shouting orders into every ogre helmet. Topple it and the static stops. Whoever topples it gets to say the first free word.',
+        'A broadcast mast on tank treads rolls into the yard, shouting orders into every lizard helmet. Topple it and the static stops. Whoever topples it gets to say the first free word.',
       beast: { name: 'The Command Mast', hp: 18, attack: 2, armor: 2 },
     },
     {

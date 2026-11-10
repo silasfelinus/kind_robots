@@ -495,10 +495,30 @@ export const SLIME_CITY_ART = {
     arrow: 262291,
     blast: 262292,
   },
-  /** UI art, round 4 (ArtJob 53119). */
+  /**
+   * UI art, round 4 (ArtJob 53119). 'title-splash' is the title screen's key
+   * art (conductor projects/slime-city/art/TITLE-AND-BOSS-REACTIONS-ROUND-1.yaml);
+   * until it is wired the title screen paints the chosen crew's home district.
+   */
   ui: {
     'card-back': 260371,
-  },
+  } as Readonly<Record<string, number>>,
+  /**
+   * Boss reaction portraits for the Clash versus console, keyed
+   * '<crew>/<mood>' (ready, hit, gloat, beaten), from the same ledger.
+   * Silas, 2026-11-10 PT: "we should assign some more space for the matchup
+   * pictures, so there are reactions". A missing mood shows the crew poster.
+   */
+  bosses: {} as Readonly<Record<string, number>>,
+  /**
+   * Evolution paintings (Silas, 2026-11-08 PT: "We should have fresh art on
+   * the evolutions, not just frame effects"). Keys are '<cardId>@2' and
+   * '<cardId>@3': the same character transformed by its story arc, rendered
+   * with Flux Kontext from the card's level-1 painting
+   * (conductor projects/slime-city/art/EVOLUTIONS-*.yaml). Wired only after
+   * curation; until then a level falls back to the card's own art.
+   */
+  evolutions: {} as Record<string, number>,
   /**
    * Board tokens: one painted reaction-face portrait per creature and mood,
    * keyed '<cardId>/<mood>' (fierce, guard, hurt), from Conductor
@@ -509,6 +529,10 @@ export const SLIME_CITY_ART = {
    * 2026-11-04 PT curation: 48 of the 72 kept; 24 re-render in
    * BOARD-TOKENS-REDO-1.yaml (painted white frames, a child-looking Sprite,
    * moods that do not read: calm or smiling "hurt" faces, a one-face frog).
+   * 2026-11-09 PT ogre redo 2 (Silas, 2026-11-08: "a lot of orcs that look
+   * like shrek"): 36 of 45 kept, non-green angular chrome-jawed Ironjaw faces;
+   * Coal Cart Racer, Union Lunch Lady and Picket Line Troll re-render in
+   * BOARD-TOKENS-OGRE-REDO-3.yaml.
    */
   tokens: {
     'lynx/fierce': 261605,
@@ -526,15 +550,15 @@ export const SLIME_CITY_ART = {
     'razor/fierce': 261623,
     'razor/guard': 261624,
     'queen/fierce': 261626,
-    'scrapper/fierce': 261629,
-    'scrapper/guard': 261630,
-    'scrapper/hurt': 261631,
-    'welder/guard': 261633,
-    'bulldozer/guard': 261636,
-    'bulldozer/hurt': 261637,
-    'juggernaut/fierce': 261638,
-    'juggernaut/guard': 261639,
-    'juggernaut/hurt': 261640,
+    'scrapper/fierce': 265992,
+    'scrapper/guard': 265993,
+    'scrapper/hurt': 265994,
+    'welder/guard': 265996,
+    'bulldozer/guard': 265999,
+    'bulldozer/hurt': 266000,
+    'juggernaut/fierce': 266001,
+    'juggernaut/guard': 266002,
+    'juggernaut/hurt': 266003,
     'rat/fierce': 261641,
     'rat/guard': 261642,
     'rat/hurt': 261643,
@@ -563,7 +587,7 @@ export const SLIME_CITY_ART = {
     'audit-fiend/guard': 263650,
     'audit-fiend/hurt': 263651,
     'bomber/fierce': 263465,
-    'bulldozer/fierce': 263463,
+    'bulldozer/fierce': 265998,
     'collector/fierce': 263467,
     'collector/hurt': 263483,
     'eel/guard': 263466,
@@ -675,9 +699,9 @@ export const SLIME_CITY_ART = {
     's1-static-listener/fierce': 263622,
     's1-static-listener/guard': 263623,
     's1-static-listener/hurt': 263624,
-    's1-walking-foundry/fierce': 263553,
-    's1-walking-foundry/guard': 263554,
-    's1-walking-foundry/hurt': 263555,
+    's1-walking-foundry/fierce': 266007,
+    's1-walking-foundry/guard': 266008,
+    's1-walking-foundry/hurt': 266009,
     's2-bloodfairies-bassquake-colossus/fierce': 263529,
     's2-bloodfairies-bassquake-colossus/guard': 263530,
     's2-bloodfairies-bassquake-colossus/hurt': 263531,
@@ -762,18 +786,18 @@ export const SLIME_CITY_ART = {
     's3-exchange-wage-garnisher/fierce': 263664,
     's3-exchange-wage-garnisher/guard': 263665,
     's3-exchange-wage-garnisher/hurt': 263666,
-    's3-ironjaw-bridgebreaker/fierce': 263574,
-    's3-ironjaw-bridgebreaker/guard': 263575,
-    's3-ironjaw-bridgebreaker/hurt': 263576,
+    's3-ironjaw-bridgebreaker/fierce': 266025,
+    's3-ironjaw-bridgebreaker/guard': 266026,
+    's3-ironjaw-bridgebreaker/hurt': 266027,
     's3-ironjaw-coal-racer/fierce': 263577,
     's3-ironjaw-coal-racer/guard': 263578,
     's3-ironjaw-coal-racer/hurt': 263579,
-    's3-ironjaw-dreadnought/fierce': 263568,
-    's3-ironjaw-dreadnought/guard': 263569,
-    's3-ironjaw-dreadnought/hurt': 263570,
-    's3-ironjaw-matriarch/fierce': 263580,
-    's3-ironjaw-matriarch/guard': 263581,
-    's3-ironjaw-matriarch/hurt': 263582,
+    's3-ironjaw-dreadnought/fierce': 266019,
+    's3-ironjaw-dreadnought/guard': 266020,
+    's3-ironjaw-dreadnought/hurt': 266021,
+    's3-ironjaw-matriarch/fierce': 266031,
+    's3-ironjaw-matriarch/guard': 266032,
+    's3-ironjaw-matriarch/hurt': 266033,
     's3-riot-alley-prophet/fierce': 263604,
     's3-riot-alley-prophet/guard': 263605,
     's3-riot-alley-prophet/hurt': 263606,
@@ -818,10 +842,23 @@ export const SLIME_CITY_ART = {
     'sprite/fierce': 263468,
     'sprite/guard': 263469,
     'sprite/hurt': 263470,
-    'union-millwright/fierce': 263550,
-    'union-millwright/guard': 263551,
-    'union-millwright/hurt': 263552,
+    'union-millwright/fierce': 266004,
+    'union-millwright/guard': 266005,
+    'union-millwright/hurt': 266006,
     'watcher/hurt': 263479,
+    // 2026-11-09 PT ogre redo 2 (BOARD-TOKENS-OGRE-REDO-2.yaml): moods for
+    // Ironjaw creatures that had no token yet.
+    'welder/fierce': 265995,
+    'welder/hurt': 265997,
+    's1-scrap-welder/fierce': 266010,
+    's1-scrap-welder/guard': 266011,
+    's1-scrap-welder/hurt': 266012,
+    's2-ironjaw-union-bridgebearer/fierce': 266013,
+    's2-ironjaw-union-bridgebearer/guard': 266014,
+    's2-ironjaw-union-bridgebearer/hurt': 266015,
+    's3-ironjaw-night-welder/fierce': 266016,
+    's3-ironjaw-night-welder/guard': 266017,
+    's3-ironjaw-night-welder/hurt': 266018,
   } as Readonly<Record<string, number>>,
 } as const
 
@@ -834,6 +871,16 @@ export function slimeArtId(
 ): number | null {
   const ids: Readonly<Record<string, number>> = SLIME_CITY_ART[group]
   return ids[slug] ?? null
+}
+
+/** Card art for a level: its evolution painting once rendered, else the card's own. */
+export function slimeCardArtId(id: string, level = 1, pick = 0): number | null {
+  if (level >= 2) {
+    const key = id + '@' + Math.min(3, level) + (level >= 3 && pick ? 'b' : '')
+    const evolved = slimeArtId('evolutions', key)
+    if (evolved) return evolved
+  }
+  return slimeArtId('cards', id)
 }
 
 /**
@@ -849,4 +896,4 @@ export function slimeBoardArtId(district: string, mode: string): number | null {
   )
 }
 
-export const SLIME_CITY_ART_COUNT = 775
+export const SLIME_CITY_ART_COUNT = 786

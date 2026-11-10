@@ -149,7 +149,26 @@
           <p>{{ lab.campaignState.lastScene }}</p>
         </div>
       </article>
-      <div class="campaign-deck">
+      <div
+        v-if="lab.campaignRewardChoices"
+        class="campaign-deck campaign-card-draft"
+      >
+        <span class="campaign-overline"
+          >A SPOIL FROM THE FIGHT · CHOOSE ONE</span
+        >
+        <KrChoiceHand
+          :choices="cardRewardChoices"
+          question="KEEP ONE CARD FOR YOUR STORY DECK"
+          :deal-key="lab.activeTeam + ':reward:' + lab.campaignState.wins"
+          testid-prefix="slime-campaign-card-reward"
+          @play="pickStoryReward"
+        >
+          <template #art="{ choice }">
+            <SlimeCityClashCardFace :card-id="choice.id" />
+          </template>
+        </KrChoiceHand>
+      </div>
+      <div v-else class="campaign-deck">
         <button
           type="button"
           class="campaign-cta"
@@ -210,6 +229,125 @@
       </div>
     </div>
 
+    <div
+      v-else-if="lab.campaignJourneyCurrent && lab.activeChapter"
+      class="campaign-scene campaign-journey"
+      data-testid="slime-faction-journey-scene"
+    >
+      <article class="campaign-panel kr-scroll" aria-live="polite">
+        <span class="campaign-overline">
+          {{ lab.campaignStory.title }} · ACT {{ lab.campaignState.wins + 1 }} /
+          5 · SCENE
+          {{
+            (lab.campaignState.journey?.[lab.campaignState.wins]?.length ?? 0) +
+            1
+          }}
+          / 3
+        </span>
+        <h3>{{ lab.campaignJourneyCurrent.title }}</h3>
+        <div class="campaign-voice player">
+          <SlimeCityArtwork
+            class="campaign-voice-portrait"
+            :image-id="slimeArtId('crews', lab.activeTeam)"
+            :alt="lab.campaignJourneyCurrent.speaker"
+            :fallback="lab.team.insignia"
+            compact
+          />
+          <div>
+            <small>{{ lab.campaignJourneyCurrent.speaker }}</small>
+            <p class="campaign-lede">{{ lab.campaignJourneyText }}</p>
+          </div>
+        </div>
+        <div
+          v-if="lab.campaignJourneyOutcome"
+          class="campaign-recap"
+          data-testid="slime-faction-journey-consequence"
+        >
+          <strong>WHAT YOUR LAST CHOICE CHANGED</strong>
+          <p>{{ lab.campaignJourneyOutcome }}</p>
+        </div>
+      </article>
+      <div class="campaign-deck" :class="'tone-' + lab.team.color">
+        <div
+          v-if="lab.activeTeam === 'bloodfairies'"
+          class="campaign-recap"
+          data-testid="slime-bloodfairy-chorus"
+        >
+          <strong
+            >CALL & RESPONSE ·
+            {{ lab.bloodfairyChorus.stage.toUpperCase() }}</strong
+          >
+          <p>
+            {{ lab.bloodfairyChorus.voices }} VOICES ·
+            {{ lab.bloodfairyChorus.volume }} VOLUME · THE CHOIR REMEMBERS
+          </p>
+          <small v-if="lab.bloodfairyStageThree"
+            >LEVEL 3 REVEAL · PREVIEW ONLY. Earn these evolutions by playing
+            Riot Choir in CLASH.</small
+          >
+        </div>
+        <div
+          v-if="lab.activeTeam === 'ironjaw'"
+          class="campaign-recap"
+          data-testid="slime-ironjaw-shift"
+        >
+          <strong
+            >THE SHIFT · {{ lab.ironjawShift.stage.toUpperCase() }}</strong
+          >
+          <p>
+            {{ lab.ironjawShift.solidarity }} SOLIDARITY ·
+            {{ lab.ironjawShift.heat }} HEAT · COLD BLOOD, WARM FLOOR
+          </p>
+        </div>
+        <span class="campaign-overline"
+          >{{ lab.campaignStory.title.toUpperCase() }} · YOUR DECISION</span
+        >
+        <KrChoiceHand
+          :choices="campaignJourneyChoices"
+          :deal-key="
+            lab.activeTeam +
+            ':journey:' +
+            lab.campaignState.wins +
+            ':' +
+            (lab.campaignState.journey?.[lab.campaignState.wins]?.length ?? 0)
+          "
+          question="CHOOSE HOW THE CREW ACTS"
+          testid-prefix="slime-faction-journey-choice"
+          @play="playCampaignJourney"
+        >
+          <template #art="{ choice }">
+            <SlimeCityClashCardFace
+              v-if="lab.bloodfairyStageThree"
+              card-id="s1-riot-choir"
+              :level="3"
+              :pick="choice.id === 'left' ? 0 : 1"
+              :preview="true"
+            />
+            <SlimeCityArtwork
+              v-else
+              :image-id="
+                slimeArtId(
+                  'crews',
+                  choice.id === 'left'
+                    ? lab.activeTeam
+                    : (lab.activeChapter?.foe ?? lab.activeTeam),
+                )
+              "
+              :alt="choice.label"
+              :fallback="
+                crewInsignia(
+                  choice.id === 'left'
+                    ? lab.activeTeam
+                    : (lab.activeChapter?.foe ?? lab.activeTeam),
+                )
+              "
+              compact
+            />
+          </template>
+        </KrChoiceHand>
+      </div>
+    </div>
+
     <div v-else-if="lab.activeChapter" class="campaign-scene">
       <article class="campaign-panel kr-scroll">
         <span class="campaign-overline">
@@ -221,6 +359,14 @@
           {{ lab.campaignStory.prologue }}
         </p>
         <p class="campaign-lede">{{ lab.activeChapter.scene }}</p>
+        <div
+          v-if="lab.geneRiotOutcome && lab.activeTeam === 'catgirls'"
+          class="campaign-recap"
+          data-testid="slime-faction-journey-last-decision"
+        >
+          <strong>THE PRICE OF YOUR DECISION</strong>
+          <p>{{ lab.geneRiotOutcome }}</p>
+        </div>
         <section
           v-if="lab.chapterField"
           class="campaign-field"
@@ -237,8 +383,9 @@
             </li>
           </ul>
           <p v-else class="campaign-field-note">
-            Story bouts are set to TURF, which has no bases or fighters to
-            rebuild: this chapter plays on an open TURF board.
+            This historical battlefield briefing is from Legacy mode. Your
+            actual showdown is Solo Clash; your choices change starting boss
+            life.
           </p>
         </section>
         <div
@@ -308,7 +455,7 @@
         <SlimeCityFavors heading="EARNED SUPPORT · NEXT FIGHT" />
         <KrChoiceHand
           :choices="approachChoices"
-          question="CHOOSE YOUR APPROACH · BLACKOUT RULES"
+          question="CHOOSE YOUR APPROACH · SOLO CLASH"
           :deal-key="lab.activeTeam + ':' + lab.campaignState.wins"
           testid-prefix="slime-campaign-choice"
           @play="playApproach"
@@ -350,6 +497,11 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { campaignBattleTerms, describeTerms } from '~/utils/slimeCity/campaign'
+import { clashTermsLabel } from '~/utils/slimeCity/clashBouts'
+import { geneRiotBattleTerms } from '~/utils/slimeCity/campaignGeneRiot'
+import { bloodfairyBattleTerms } from '~/utils/slimeCity/campaignBloodfairies'
+import { ironjawBattleTerms } from '~/utils/slimeCity/campaignIronjaw'
+import { rarityOf } from '~/utils/slimeCity/progression'
 import { slimeArtId } from '~/utils/slimeCity/artManifest'
 import { useSlimeCityStore } from '~/stores/slimeCity'
 import type { TeamId } from '~/utils/slimeCity/prototypes'
@@ -440,21 +592,91 @@ function approachCrew(id: string): TeamId {
     ? lab.activeChapter.foe
     : lab.activeTeam
 }
+const campaignJourneyChoices = computed<KrHandChoice[]>(() =>
+  (lab.campaignJourneyCurrent?.choices ?? []).map((option) => ({
+    id: option.id,
+    label: option.label,
+    chip:
+      lab.activeTeam === 'bloodfairies'
+        ? option.id === 'left'
+          ? 'ADD A VOICE'
+          : 'TURN UP THE VOLUME'
+        : lab.activeTeam === 'ironjaw'
+          ? option.id === 'left'
+            ? 'SHARE THE WARM FLOOR'
+            : 'TURN UP THE HEAT'
+          : option.id === 'left'
+            ? 'HELP THE CREW'
+            : 'TAKE THE RISK',
+    badge: lab.bloodfairyStageThree
+      ? option.id === 'left'
+        ? 'LV 3 · WALL OF SOUND'
+        : 'LV 3 · BACKUP SINGERS'
+      : undefined,
+    details: ['A choice that carries into later scenes and battles.'],
+  })),
+)
+function playCampaignJourney(choice: KrHandChoice) {
+  if (choice.id === 'left' || choice.id === 'right')
+    lab.chooseCampaignJourneyBeat(choice.id)
+}
 const approachChoices = computed<KrHandChoice[]>(() =>
   (lab.activeChapter?.choices ?? []).map((choice) => ({
     id: choice.id,
     label: choice.label,
-    chip: describeTerms(
-      campaignBattleTerms(
-        lab.campaignSave,
-        lab.activeTeam,
-        choice.terms,
-        lab.campaignFavorIndex,
-      ),
+    chip: clashTermsLabel(
+      lab.activeTeam === 'catgirls'
+        ? geneRiotBattleTerms(
+            lab.campaignState,
+            campaignBattleTerms(
+              lab.campaignSave,
+              lab.activeTeam,
+              choice.terms,
+              lab.campaignFavorIndex,
+            ),
+          )
+        : lab.activeTeam === 'bloodfairies'
+          ? bloodfairyBattleTerms(
+              lab.campaignState,
+              campaignBattleTerms(
+                lab.campaignSave,
+                lab.activeTeam,
+                choice.terms,
+                lab.campaignFavorIndex,
+              ),
+            )
+          : lab.activeTeam === 'ironjaw'
+            ? ironjawBattleTerms(
+                lab.campaignState,
+                campaignBattleTerms(
+                  lab.campaignSave,
+                  lab.activeTeam,
+                  choice.terms,
+                  lab.campaignFavorIndex,
+                ),
+              )
+            : campaignBattleTerms(
+                lab.campaignSave,
+                lab.activeTeam,
+                choice.terms,
+                lab.campaignFavorIndex,
+              ),
     ),
     badge: choice.id === 'conviction' ? 'Conviction' : 'Cunning',
   })),
 )
+const cardRewardChoices = computed<KrHandChoice[]>(() =>
+  (lab.campaignRewardChoices ?? []).map((card) => ({
+    id: card.id,
+    label: card.name,
+    chip: rarityOf(card).toUpperCase(),
+    badge: card.team === lab.activeTeam ? 'CREW REWARD' : 'MERCENARY',
+    details: [card.text],
+  })),
+)
+function pickStoryReward(choice: KrHandChoice) {
+  lab.chooseCampaignCardReward(choice.id)
+}
 function playApproach(choice: KrHandChoice) {
   const approach = lab.activeChapter?.choices.find(
     (option) => option.id === choice.id,

@@ -557,16 +557,16 @@ export const TEAMS: Team[] = [
   },
   {
     id: 'bloodfairies',
-    name: 'PUNK BLOODFAIRIES',
+    name: 'QUEEN PIN & THE BLOODFAIRIES',
     color: 'purple',
     district: 'NEEDLE ALLEY',
-    motto: 'Small wings. Big knives.',
-    hook: 'A riotous crew of tiny blood-magic punks who treat the megacity as one very loud mosh pit. Cheap swarms and surprise strikes.',
+    motto: 'Small wings. Big amps.',
+    hook: 'Needle Alley’s loudest punk band, plus the swarm of tiny blood-magic fans, roadies and backup singers who follow it from rooftop to rooftop. Every fight is a gig. Cheap swarms, surprise strikes and encores.',
     insignia: '❋',
     pattern:
-      'Flood the street. Cheap fighters hit harder in a pack, leech back their health and the moshpit punishes anyone who bunches up.',
+      'Pack the pit. Cheap fighters hit harder beside their bandmates, leech back their health off every blow, and the mosh pit punishes anyone who bunches up.',
     counters:
-      'Armor shrugs off small blows (Ironjaw plating), one explosion can pop a whole pack (Riot Saints), and any lone fairy loses its swarm bonus.',
+      'Armor shrugs off small blows (Ironjaw plating), one explosion can pop a whole pack (Riot Saints), and a solo act loses its swarm bonus.',
     signature: 'queen',
     trapCap: 1,
     creatures: ['sprite', 'pogo', 'razor', 'queen'],
@@ -575,16 +575,16 @@ export const TEAMS: Team[] = [
   },
   {
     id: 'ironjaw',
-    name: 'IRONJAW CHROME OGRES',
+    name: 'IRONJAW CHROME LIZARDS',
     color: 'green',
     district: 'THE FOUNDRY',
     motto: 'More chrome. More teeth.',
-    hook: 'Industrial-size cybernetic ogres fighting for freedom from the factories that built their bodies. Armor, hardware and bulldozing.',
+    hook: 'Cold-blooded cybernetic lizard people who bask on the foundry furnaces between shifts and fight for freedom from the factories that built their bodies. Armor, hardware and bulldozing.',
     insignia: '⬡',
     pattern:
-      'A slow wall that wins every trade. Armored ogres bulldoze blockers out of the lane, and plating turns a good fighter into a fortress.',
+      'A slow wall that wins every trade. Armored lizards bulldoze blockers out of the lane, and plating turns a good fighter into a fortress.',
     counters:
-      'Pierce goes through plating (Undertow, Riot Saints), debt starves the expensive upgrades (Meat Exchange), and a snared ogre is a very large paperweight.',
+      'Pierce goes through plating (Undertow, Riot Saints), debt starves the expensive upgrades (Meat Exchange), and a snared lizard is a very large, very sulky paperweight.',
     signature: 'juggernaut',
     trapCap: 1,
     creatures: ['scrapper', 'welder', 'bulldozer', 'juggernaut'],
@@ -640,10 +640,10 @@ export const TEAMS: Team[] = [
     color: 'gold',
     district: 'CROWN MARKET',
     motto: 'Terms and conditions apply.',
-    hook: 'Gold-toothed arena monopolists who buy muscle, sell favors and collect battlefield debts.',
+    hook: 'Gold-toothed butchers-turned-bankers who mint the city’s Meat, set the price of a pound of anything and collect battlefield debts in prime cuts.',
     insignia: '◆',
     pattern:
-      'Tax them dry, then buy the arena. Collectors put every blow on your tab so you start rounds short of mana, until the Meat Mogul arrives.',
+      'Tenderize them, then buy the arena. Collectors put every blow on your tab so you start rounds short of mana, until the Meat Mogul arrives.',
     counters:
       'Rush them early: collectors are slow, the Mogul costs 6 and the champions have thin armor. Cheap swarms and pierce get there before the interest does.',
     signature: 'mogul',
@@ -786,7 +786,7 @@ export const CARDS: Card[] = [
     text: 'The red dot. An enemy fighter stares at it and loses its next move.',
     symbol: '•',
   },
-  // --- PUNK BLOODFAIRIES: swarm and leech
+  // --- QUEEN PIN & THE BLOODFAIRIES (the band): swarm and leech
   {
     id: 'sprite',
     name: 'Bloodsprite',
@@ -798,7 +798,7 @@ export const CARDS: Card[] = [
     armor: 0,
     ap: 2,
     keywords: ['swarm'],
-    text: 'Small, mean and loud. Louder with friends.',
+    text: 'Backup screamer. Small, mean and loud. Louder with the band.',
     symbol: '❋',
   },
   {
@@ -812,7 +812,7 @@ export const CARDS: Card[] = [
     armor: 0,
     ap: 2,
     keywords: ['swarm'],
-    text: 'Bounces off heads. Yours, then everyone else’s.',
+    text: 'Stage diver. Bounces off heads. Yours, then everyone else’s.',
     symbol: '✱',
   },
   {
@@ -826,7 +826,7 @@ export const CARDS: Card[] = [
     armor: 0,
     ap: 3,
     keywords: ['leech'],
-    text: 'Moves in a blur and drinks the applause.',
+    text: 'Lead guitar. Shreds in a blur and drinks the applause.',
     symbol: '✣',
   },
   {
@@ -841,7 +841,7 @@ export const CARDS: Card[] = [
     ap: 2,
     keywords: ['swarm', 'leech'],
     signature: true,
-    text: 'Union leader of the damned. Never crowd-surfs alone.',
+    text: 'Frontwoman and union leader of the damned. Never crowd-surfs alone.',
     symbol: '✷',
   },
   {
@@ -910,7 +910,7 @@ export const CARDS: Card[] = [
     text: 'Turn every amp in Needle Alley to eleven: 3 damage to an enemy.',
     symbol: '♫',
   },
-  // --- IRONJAW CHROME OGRES: armor and bulldozing
+  // --- IRONJAW CHROME LIZARDS: armor and bulldozing
   {
     id: 'scrapper',
     name: 'Chrome Scrapper',
@@ -939,7 +939,7 @@ export const CARDS: Card[] = [
   },
   {
     id: 'bulldozer',
-    name: 'Bulld-Ogre',
+    name: 'Bulldozard',
     kind: 'creature',
     team: 'ironjaw',
     cost: 3,
@@ -1287,7 +1287,7 @@ export const CARDS: Card[] = [
     attack: 2,
     armor: 0,
     ap: 1,
-    text: 'Repossesses anything not bolted down, then the bolts.',
+    text: 'Repossesses anything not bolted down, then the bolts, then weighs them for the Meat scale.',
     symbol: '¤',
   },
   {
@@ -1301,7 +1301,7 @@ export const CARDS: Card[] = [
     armor: 0,
     ap: 1,
     keywords: ['collect'],
-    text: 'Interest compounds daily. Every punch goes on your tab.',
+    text: 'Interest compounds daily, payable in Meat. Every punch goes on your tab.',
     symbol: '◆',
   },
   {
@@ -1330,7 +1330,7 @@ export const CARDS: Card[] = [
     ap: 1,
     keywords: ['collect'],
     signature: true,
-    text: 'Owns the arena, the hot dogs and, contractually, you.',
+    text: 'Owns the arena, the Meat mint, the hot dogs and, contractually, you.',
     symbol: '♛',
   },
   {
@@ -1341,7 +1341,7 @@ export const CARDS: Card[] = [
     cost: 2,
     effect: 'zap',
     power: 2,
-    text: 'Send the boys round: 2 damage to an enemy.',
+    text: 'Send the butchers round: 2 damage to an enemy.',
     symbol: '⚡',
   },
   {
@@ -1375,7 +1375,7 @@ export const CARDS: Card[] = [
     effect: 'debt',
     power: 1,
     debt: 2,
-    text: 'Seize the furniture: 1 damage to an enemy, and its crew owes 2 mana.',
+    text: 'Seize the furniture and the freezer: 1 damage to an enemy, and its crew owes 2 mana.',
     symbol: '⚖',
   },
   {
@@ -1397,7 +1397,7 @@ export const CARDS: Card[] = [
     cost: 1,
     effect: 'heal',
     power: 3,
-    text: 'Pay off the medic: restore 3 HP to a friendly fighter.',
+    text: 'Pay off the medic in steaks: restore 3 HP to a friendly fighter.',
     symbol: '✚',
   },
   ...RESERVE_CARDS,
@@ -1438,7 +1438,7 @@ export const DISTRICTS = [
     name: 'THE FOUNDRY',
     x: 18,
     y: 70,
-    summary: 'Cyber-ogre resistance',
+    summary: 'Cyber-lizard resistance',
     team: 'ironjaw' as TeamId,
   },
   {
@@ -1454,7 +1454,7 @@ export const DISTRICTS = [
     name: 'CROWN MARKET',
     x: 80,
     y: 73,
-    summary: 'Meat shop and contracts',
+    summary: 'The Meat mint, the shop and every contract',
     team: 'exchange' as TeamId,
   },
   {

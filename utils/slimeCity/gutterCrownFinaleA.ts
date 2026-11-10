@@ -391,6 +391,7 @@ export const GUTTER_CROWN_FINALE_A: Card[] = [
     kind: 'equipment',
     team: 'bloodfairies',
     cost: 3,
+    effect: 'sharpen',
     text: 'Enchanted boots grant one permanent maximum AP, turning a slow vocalist into an awkward, fast dancer.',
     symbol: '🥾',
   },
@@ -437,7 +438,7 @@ export const GUTTER_CROWN_FINALE_A: Card[] = [
   },
   {
     id: 's3-ironjaw-bridgebreaker',
-    name: 'Bridgebreaker Ogre',
+    name: 'Bridgebreaker Monitor',
     kind: 'creature',
     team: 'ironjaw',
     cost: 5,
@@ -459,7 +460,7 @@ export const GUTTER_CROWN_FINALE_A: Card[] = [
     attack: 2,
     armor: 1,
     ap: 3,
-    text: 'A fast ogre on stolen rail wheels. A long flank is tempting, but a root trap stops freight trains too.',
+    text: 'A fast monitor lizard on stolen rail wheels. A long flank is tempting, but a root trap stops freight trains too.',
     symbol: '🛒',
   },
   {
@@ -570,6 +571,7 @@ export const GUTTER_CROWN_FINALE_A: Card[] = [
     kind: 'equipment',
     team: 'ironjaw',
     cost: 2,
+    effect: 'sharpen',
     text: 'Fitted pistons grant one permanent maximum AP, so a slow foundry guard can patrol more than one tile.',
     symbol: '🦾',
   },

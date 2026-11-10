@@ -112,10 +112,10 @@ const artIds = [
 ]
 assert.equal(
   SLIME_CITY_ART_COUNT,
-  775,
-  '233 curated ids plus the 2026-11-07 art pass: 542 verified renders (217 cards, 263 board tokens, 60 story plates, 2 attacks)',
+  786,
+  '233 curated ids plus the 2026-11-07 art pass: 542 verified renders (217 cards, 263 board tokens, 60 story plates, 2 attacks), plus 11 new Ironjaw board-token moods from the 2026-11-09 ogre redo',
 )
-assert.equal(artIds.length, 775)
+assert.equal(artIds.length, 786)
 assert.ok(
   CARDS.filter((c) => slimeArtId('cards', c.id)).length >= 290,
   'nearly the whole catalog is illustrated',
@@ -1471,6 +1471,16 @@ lab.showCampaign()
 lab.chooseTeam('ironjaw')
 assert.equal(lab.view, 'campaign')
 assert.equal(lab.activeChapter?.foe, 'exchange')
+// THE LAST SHIFT: three authored strike scenes come before the first bout.
+lab.startCampaignBattle('conviction')
+assert.equal(lab.view, 'campaign', 'Unplayed Ironjaw scenes block the bout')
+for (let beat = 0; beat < 3; beat++) {
+  assert.ok(lab.ironjawCurrent, 'next Ironjaw strike scene is present')
+  lab.chooseCampaignJourneyBeat('left')
+}
+assert.equal(lab.ironjawCurrent, null)
+assert.equal(lab.ironjawShift.solidarity, 3)
+assert.equal(lab.ironjawShift.stage, 'basking')
 lab.startCampaignBattle('conviction')
 assert.equal(lab.view, 'clash')
 assert.equal(lab.clashLaunch.kind, 'campaign', 'Story bouts are Solo Clash')
@@ -1496,6 +1506,17 @@ assert.equal(
   'aftermath',
   'A settled chapter returns to its aftermath scene first',
 )
+// A won chapter first asks for its card reward; the loss path has none.
+const rewardChoices = lab.campaignRewardChoices
+if (rewardChoices) {
+  lab.continueCampaign()
+  assert.equal(
+    lab.campaignScreen,
+    'aftermath',
+    'An unclaimed card reward holds the aftermath scene',
+  )
+  lab.chooseCampaignCardReward(rewardChoices[0].id)
+}
 lab.continueCampaign()
 assert.equal(lab.campaignScreen, 'chapter')
 lab.showCampaignAftermath()
@@ -1536,14 +1557,29 @@ assert.equal(
   'Arriving opens the story mission as its own full-stage scene',
 )
 lab.startCampaignBattle('cunning')
+assert.equal(
+  lab.view,
+  'city',
+  'Unplayed Gene Riot story beats block a premature boss fight',
+)
+for (let beat = 0; beat < 3; beat++) {
+  assert.ok(lab.geneRiotCurrent, 'next authored scene is present')
+  lab.chooseGeneRiotBeat('left')
+}
+assert.equal(
+  lab.geneRiotCurrent,
+  null,
+  'all three chosen scenes unlock the city mission',
+)
+lab.startCampaignBattle('cunning')
 assert.equal(lab.view, 'clash')
 assert.equal(lab.clashLaunch.enemy, 'undertow')
 assert.ok(lab.campaignBout, 'City mission uses campaign settlement')
 assert.equal(lab.clashSetup().player, 'catgirls')
-assert.equal(
-  lab.clashLaunch.bosses!.player,
-  CLASH_BOSS_HP + 3 * CLASH_TERM_WEIGHTS.playerMana,
-  'City-based chapter includes +2 cunning mana AND +1 street decision mana',
+assert.ok(
+  lab.clashLaunch.bosses!.player >
+    CLASH_BOSS_HP + 3 * CLASH_TERM_WEIGHTS.playerMana,
+  'City chapter stacks street and approach bonuses with earned Gene Riot story choices',
 )
 assert.equal(
   lab.city.cleared.length,
@@ -1678,3 +1714,38 @@ assert.equal(lab.city.finaleChoice, null)
 assert.equal(lab.finaleResult, null)
 assert.equal(lab.finaleDismissed, false)
 console.log('Slime City finale store / new run navigation PASS')
+
+lab.showCampaign()
+lab.chooseTeam('bloodfairies')
+assert.ok(
+  lab.bloodfairyCurrent,
+  'Bloodfairy story opens its own authored scene',
+)
+assert.equal(lab.bloodfairyChorus.voices, 0)
+lab.startCampaignBattle('conviction')
+assert.equal(
+  lab.view,
+  'campaign',
+  'Bloodfairy cannot skip the chorus into a battle',
+)
+for (let scene = 0; scene < 3; scene++) {
+  assert.ok(lab.campaignJourneyCurrent)
+  lab.chooseCampaignJourneyBeat('left')
+}
+assert.equal(lab.bloodfairyChorus.voices, 3)
+assert.equal(lab.campaignJourneyCurrent, null)
+lab.startCampaignBattle('conviction')
+assert.equal(
+  lab.view,
+  'clash',
+  'three choices unlock the first Bloodfairy showdown',
+)
+assert.equal(lab.clashLaunch.kind, 'campaign')
+assert.ok(lab.clashLaunch.cards?.includes('s1-riot-choir'))
+assert.ok(
+  lab.clashLaunch.bosses!.player > CLASH_BOSS_HP,
+  'The first coalition fight benefits from gathered members',
+)
+console.log(
+  'Slime City Bloodfairy story store: gated scenes, chorus tactics and real Clash deck PASS',
+)

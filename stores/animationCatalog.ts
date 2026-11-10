@@ -1072,6 +1072,19 @@ export const ANIMATION_EFFECTS = [
     generationSafe: true,
     preferredSurface: 'fullscreen',
   },
+  {
+    id: 'paper-boat-regatta',
+    label: 'Paper Boat Regatta',
+    reveal:
+      'Folded paper boats bob along a dark stream under gentle current lines',
+    icon: 'kind-icon:sparkle',
+    tooltip:
+      'Paper boats drift down a moonlit stream ⛵ hover to brighten the nearest sail, click to send a breeze',
+    color: '#8fc4e8',
+    releasedAt: '2026-11-09T14:00:00Z',
+    generationSafe: true,
+    preferredSurface: 'fullscreen',
+  },
 ] as const satisfies readonly AnimationEffectDefinition[]
 
 export type AnimationEffectId = (typeof ANIMATION_EFFECTS)[number]['id']

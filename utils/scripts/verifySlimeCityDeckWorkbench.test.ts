@@ -115,15 +115,19 @@ assert.equal(
 const service = readFileSync('server/utils/slimeCityProgress.ts', 'utf8')
 const store = readFileSync('stores/slimeCity.ts', 'utf8')
 const ui = readFileSync('pages/admin/slime-city.vue', 'utf8')
-assert.match(service, /founderCards/)
+assert.match(service, /STARTER_CARD_IDS\.has\(id\)/)
 assert.match(service, /ownedCards/)
 assert.match(store, /persistStory\(\)/)
-// Silas, 2026-11-08 PT: the armory builds SOLO (20) and ALLIANCE (30) Clash
-// decks; the 10-card classic workbench is retired.
+// Silas, 2026-11-08 PT: the armory builds SOLO and ALLIANCE Clash decks (both
+// 20 cards since 2026-11-09); the 10-card classic workbench is retired.
 assert.match(store, /function toggleSoloCard/)
 assert.match(ui, /data-testid="slime-solo-workbench"/)
 assert.match(ui, /data-testid="slime-solo-play"/)
 assert.match(ui, /data-testid="slime-alliance-workbench"/)
+assert.match(ui, /data-testid="slime-card-filters"/)
+assert.match(ui, /data-testid="slime-card-inspector"/)
+assert.match(ui, /MERCENARIES · 60/)
+assert.match(ui, /clashCardText\(inspectCard, evolutionLevel\)/)
 assert.doesNotMatch(ui, /data-testid="slime-deck-workbench"/)
 assert.match(service, /proposed\.soloDecks/)
 assert.match(service, /proposed\.alliances/)

@@ -87,6 +87,15 @@ type MandarinCatalogResponse = {
   data: MandarinCatalogPayload | null
 }
 
+useHead({ title: 'Mandarin Sound Families · Kind Robots' })
+useSeoMeta({
+  ...(gameLinkPreviewMeta('mandarin', useRuntimeConfig().public.appBaseUrl) ?? {}),
+  title: 'Mandarin Sound Families · Kind Robots',
+  ogTitle: 'Mandarin Sound Families · Kind Robots',
+  description: 'See how one sound clue links many Chinese characters, with pinyin and meanings side by side.',
+  ogDescription: 'See how one sound clue links many Chinese characters, with pinyin and meanings side by side.',
+})
+
 const query = ref('')
 const mandarinCatalogUrl: string = '/api/mandarin'
 const { data, pending, error } = await useAsyncData(

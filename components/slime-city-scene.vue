@@ -112,7 +112,7 @@
     >
       <article class="scs-panel kr-scroll">
         <span class="scs-overline"
-          >CREW STORY · CHAPTER {{ lab.campaignState.wins + 1 }}/5 ·
+          >CAMPAIGN · CHAPTER {{ lab.campaignState.wins + 1 }}/5 ·
           {{ lab.district.name }}</span
         >
         <h2>{{ lab.activeChapter.title }}</h2>
@@ -150,8 +150,21 @@
         </template>
       </article>
       <div class="scs-deck">
+        <button
+          v-if="lab.campaignJourneyCurrent"
+          type="button"
+          class="scs-cta"
+          data-testid="slime-city-faction-journey-continue"
+          @click="lab.showCampaign()"
+        >
+          CONTINUE {{ lab.campaignStory.title.toUpperCase() }} · SCENE
+          {{
+            (lab.campaignState.journey?.[lab.campaignState.wins]?.length ?? 0) +
+            1
+          }}/3
+        </button>
         <KrChoiceHand
-          v-if="lab.campaignAtDestination"
+          v-else-if="lab.campaignAtDestination"
           :choices="missionHand"
           question="CHOOSE YOUR APPROACH · WITH STREET CHOICES"
           :deal-key="lab.activeTeam + ':' + lab.campaignState.wins"
@@ -404,7 +417,7 @@ const choiceEvent = computed<{
 const tabs = computed<{ id: CityScreen; label: string }[]>(() => {
   if (lab.cityEvent) return []
   return [
-    ...(lab.storyHere ? [{ id: 'story' as const, label: 'CREW STORY' }] : []),
+    ...(lab.storyHere ? [{ id: 'story' as const, label: 'CAMPAIGN' }] : []),
     { id: 'district' as const, label: 'RIVAL' },
     ...(lab.contractHere ? [{ id: 'contract' as const, label: 'ENCORE' }] : []),
   ]

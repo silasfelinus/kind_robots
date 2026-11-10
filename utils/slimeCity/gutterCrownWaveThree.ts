@@ -234,6 +234,7 @@ export const GUTTER_CROWN_WAVE_THREE: Card[] = [
     kind: 'equipment',
     team: 'ironjaw',
     cost: 3,
+    effect: 'sharpen',
     text: "Management calls it 'efficiency.' Give a fighter one permanent maximum AP, making a slow iron wall finally march.",
     symbol: '🦿',
   },

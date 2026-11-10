@@ -191,10 +191,167 @@ export const CLASH_TWISTS: Record<string, [string, string, string]> = {
     'Gives one neighboring ally 2 shield at the start of its turn.',
     'Gives both neighboring friends 2 shield each friendly turn.',
   ],
+  // Wave three: every journey branches into a mechanic, not a larger number.
+  mau: [
+    'Ambush fighter: the first claw cuts deeper.',
+    'Deals +1 against a wounded defender.',
+    'Deals +2 to wounded defenders; on a hit, scratches one adjacent rival for 2.',
+  ],
+  scentmine: [
+    'Hidden mine damages and roots the intruder.',
+    'When triggered, roots one neighboring rival.',
+    'When triggered, roots both neighboring rivals and damages each for 1.',
+  ],
+  ninthlife: [
+    'A collar grants Regen to its wearer.',
+    'The wearer survives one fatal hit with 1 life.',
+    'The wearer survives one fatal hit at half life, returning with +2 attack.',
+  ],
+  bloodwire: [
+    'Hidden razor floss punishes one intruder.',
+    'On trigger, cuts one adjacent rival for 1.',
+    'On trigger, slices both neighboring rivals for 2.',
+  ],
+  pinprick: [
+    'Reliable single-target damage.',
+    'Seeded 50% critical doubles the pin stab.',
+    'Seeded 75% critical doubles damage and hits nearby rivals for 2.',
+  ],
+  feedback: [
+    'Focused sonic blast in one alley.',
+    'A friendly neighbor makes the amp blast hit adjacent enemies for 1.',
+    'With four allies on board, sonic feedback also hits every other rival for 2.',
+  ],
+  overclock: [
+    'One fighter gets a temporary power boost.',
+    'Gets +2 extra power but suffers 1 recoil.',
+    'Gets +4 extra power, suffers 3 recoil and shocks nearby rivals for 2.',
+  ],
+  shocktrap: [
+    'Hidden plate damages and roots its visitor.',
+    'On trigger, arcs 1 damage to one adjacent rival.',
+    'On trigger, roots and shocks both adjacent rivals for 2.',
+  ],
+  ducttape: [
+    'Repair one friendly fighter.',
+    'Repair and permanently add 1 armor.',
+    'Repair, add armor and rebuild a fallen ally as a weak armored scrap echo.',
+  ],
+  firestorm: [
+    'Seeded burst of 1 to max damage.',
+    'Reroll a weak result once and keep the stronger blast.',
+    'Reroll a weak result; splash 2 to neighboring rivals and 1 to neighbors on your side.',
+  ],
+  fusevest: [
+    'Wearer gains Volatile.',
+    'On death, also damages neighboring rivals for 1.',
+    'On death, hits every rival for 1 and nearby friends for 1.',
+  ],
+  drink: [
+    'A reckless temporary power-up.',
+    'Seeded 50% chance to gain +2 extra surge; otherwise 1 recoil.',
+    'Seeded 75% chance to gain +6 extra surge; otherwise 2 recoil.',
+  ],
+  blackout: [
+    'Stun a rival fighter.',
+    'Also stuns one neighboring rival.',
+    'Stuns both neighboring rivals, dealing 1 damage to each.',
+  ],
+  grate: [
+    'Hidden grate wounds one intruder.',
+    'Grate also roots its victim.',
+    'Grate roots its victim and lashes both neighboring rivals for 2.',
+  ],
+  drysuit: [
+    'Add armor to a friendly fighter.',
+    'Wearer blocks the next root or snare and sheds current stun.',
+    'Wearer and adjacent friends each block their next root or snare.',
+  ],
+  collection: [
+    'Collect damages a rival fighter.',
+    'Dealing damage pays 1 boss life back.',
+    'Dealing damage pays 2 boss life; nearby Collect allies gain +1 attack.',
+  ],
+  debttrap: [
+    'Set a hidden debt trap in one alley.',
+    'Also plants a weak lien in one empty neighboring alley.',
+    'Plants weak liens in both empty neighboring alleys.',
+  ],
+  hushmoney: [
+    'Heal a friendly asset.',
+    'Also refund 1 boss life.',
+    'Refund 2 boss life and give the fighter 2 temporary shield.',
+  ],
+  'merc-bus-driver': [
+    'A dependable driver holds one lane.',
+    'On arrival, moves one neighboring friend into the nearest empty lane.',
+    'On arrival, reroutes up to two neighboring friends into empty lanes.',
+  ],
+  'merc-clock-grandma': [
+    'Old-school armored protector.',
+    'At turn start, adjacent friends receive 1 temporary shield.',
+    'Once per match, prevents one adjacent ally from dying; it survives at 1 life.',
+  ],
   'merc-discount-angel': [
     'An unstable helper with a clearance-bin halo.',
     'When an allied fighter dies, heals nearby friends for 2.',
     'Once per round, an allied loss summons a weak rescued echo.',
+  ],
+  // Final eleven from the first seventy-card evolution manifesto.
+  shredders: [
+    'Sharpen a fighter permanently.',
+    'Also grants armor-piercing strikes.',
+    'Piercing strikes splash half their damage into one neighboring rival.',
+  ],
+  spurs: [
+    'Strengthen one dancer permanently.',
+    'A neighboring friend also gains +1 attack.',
+    'Both neighboring friends gain +2 permanent attack.',
+  ],
+  choker: [
+    'Give one fighter Swarm.',
+    'Share Swarm with its immediate neighbors.',
+    'Wearer leads the show: all other Swarm allies gain +1 strike power.',
+  ],
+  wreckingfist: [
+    'Upgrade one fighter with a wrecking punch.',
+    'Also grants Bulldoze, spilling overkill onto the rival boss.',
+    'A damaging hit also deals 2 boss damage and 1 to a neighboring rival.',
+  ],
+  slap: [
+    'Deal damage to one opposing fighter.',
+    'A damaging slap also stuns its target.',
+    'Hit and stun its target and each adjacent rival for 2 damage.',
+  ],
+  badluck: [
+    'Arm an unpredictable grenade in one alley.',
+    'When sprung, a seeded 50% chance blasts a neighboring rival for 2.',
+    'Each neighboring rival independently has a 50% chance to take 3.',
+  ],
+  fuse: [
+    'Give a fighter a lasting illegal power boost.',
+    'The stronger boost causes 1 recoil damage to its wearer.',
+    'Sacrifice the weakest adjacent ally for +4 attack, or take 2 recoil.',
+  ],
+  visor: [
+    'Grant piercing sight to one fighter.',
+    'Also disarm one neighboring rival trap and give +1 attack.',
+    'Disarm both neighbors and share Pierce with adjacent allies.',
+  ],
+  contract: [
+    "Increase one fighter's armor.",
+    'If the wearer survives the round, heal your boss for 1.',
+    'Survival also heals adjacent allies 1 and adds 1 temporary shield.',
+  ],
+  'merc-bribe-rat': [
+    'A quick Ambush rat takes the first strike.',
+    'Each blocked attack has a seeded 50% chance to stop retaliation.',
+    'A 75% bribe can recruit a defeated weak rival as a fragile echo.',
+  ],
+  'merc-grease-oracle': [
+    'Snare rivals with a mysteriously accurate prophecy.',
+    'Nearby allies have 50% chance of gaining +2 strike power.',
+    'Nearby allies roll twice, taking the favorable +2 strike outcome.',
   ],
 }
 

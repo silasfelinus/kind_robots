@@ -192,7 +192,11 @@ assert.deepEqual(
   combined.state,
   'a combined clue survives save and reload',
 )
-assert.equal(JSON.stringify(m), beforeCombination, 'combining cannot mutate the source save')
+assert.equal(
+  JSON.stringify(m),
+  beforeCombination,
+  'combining cannot mutate the source save',
+)
 assert.equal(
   performAction(combined.state, {
     verb: 'combine',

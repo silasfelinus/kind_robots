@@ -1877,7 +1877,7 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
    */
   /** City campaign bouts deal the deck format you picked. */
   function storyBoutLabel(_written?: ModeId): string {
-    return clashFormat.value === 'alliance' ? 'ALLIANCE CLASH' : 'SOLO CLASH'
+    return journeyFormat.value === 'alliance' ? 'ALLIANCE CLASH' : 'SOLO CLASH'
   }
   /** Play story bouts as written or as TURF, and with or without PARITY. */
   function setStoryFormat(next: { mode?: StoryMode; parity?: boolean }): void {
@@ -1915,9 +1915,8 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
     lastCampaign.value = null
   }
   /**
-   * Story bouts, terms moving the bosses' life. Silas, 2026-11-10 PT: the crew
-   * story is SOLO; the city campaign is "the open ended pick a deck and have
-   * an experience game", so its bouts deal the format you picked.
+   * One Journey deck format drives chapter and city fights. Written outcomes,
+   * local city decisions, and faction callbacks still alter the boss terms.
    */
   function launchStoryClash(
     kind: ClashKind,

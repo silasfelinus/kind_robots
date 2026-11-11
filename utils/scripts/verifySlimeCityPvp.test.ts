@@ -305,3 +305,12 @@ const headerSource = readFileSync(
 assert.match(headerSource, /header-slime-city-turns/)
 assert.match(headerSource, /slimeCityPendingTurns/)
 assert.match(headerSource, /slime-city-inbox/)
+
+const gamePage = readFileSync('pages/admin/slime-city.vue', 'utf8')
+assert.match(gamePage, /data-testid="slime-vs-tab"/)
+assert.match(gamePage, /data-testid="slime-vs-cpu"/)
+assert.match(gamePage, /data-testid="slime-vs-human"/)
+assert.doesNotMatch(gamePage, /data-testid="slime-clash-tab"/)
+assert.doesNotMatch(gamePage, />\s*PRACTICE\s*</)
+const gameStore = readFileSync('stores/slimeCity.ts', 'utf8')
+assert.match(gameStore, /\| 'vs'/)

@@ -161,7 +161,7 @@
         <span class="indicator">
           <Icon name="kind-icon:cat" class="kr-icon-5" />
           <span
-            v-if="userStore.isAdmin && slimeCityPendingTurns"
+            v-if="slimeCityPendingTurns"
             class="kr-badge-secondary-xs indicator-item whitespace-nowrap tabular-nums"
             aria-hidden="true"
             data-testid="header-slime-city-turns"
@@ -341,11 +341,11 @@ const slimeCityLabel = computed(() =>
 )
 let slimeCityBadgeTimer: ReturnType<typeof setInterval> | null = null
 watch(
-  () => userStore.isAdmin,
-  (admin) => {
+  () => userStore.isLoggedIn,
+  (signedIn) => {
     if (slimeCityBadgeTimer) clearInterval(slimeCityBadgeTimer)
     slimeCityBadgeTimer = null
-    if (import.meta.client && admin) {
+    if (import.meta.client && signedIn) {
       void slimePvpStore.loadGames()
       slimeCityBadgeTimer = setInterval(
         () => void slimePvpStore.loadGames(),

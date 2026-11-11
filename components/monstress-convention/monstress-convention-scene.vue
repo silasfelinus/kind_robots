@@ -50,41 +50,12 @@
       class="mc-opening flex min-h-0 flex-1 flex-col"
       data-testid="monstrexx-cold-open"
     >
-      <div
-        class="mc-night relative flex min-h-0 flex-1 items-center justify-center p-6 text-center"
-      >
-        <div class="mc-moon" aria-hidden="true" />
-        <div
-          class="relative z-10 mx-auto max-w-xl space-y-5 rounded-2xl border border-rose-300/30 bg-slate-950/70 p-6"
-        >
-          <p class="mc-eyebrow">MIDNIGHT CITY · LAST CALL · ROOM 205</p>
-          <h2 class="font-serif text-3xl font-bold text-rose-200">
-            {{ introScenes[introIndex]?.title }}
-          </h2>
-          <p class="font-serif text-lg leading-relaxed">
-            {{ introScenes[introIndex]?.text }}
-          </p>
-          <p class="mc-eyebrow">
-            SCENE {{ introIndex + 1 }} OF {{ introScenes.length }}
-          </p>
-          <div class="flex flex-wrap justify-center gap-3">
-            <button type="button" class="mc-verb" @click="screen = 'stage'">
-              Skip opening
-            </button>
-            <button
-              type="button"
-              class="mc-action-primary"
-              @click="advanceIntro"
-            >
-              {{
-                introIndex === introScenes.length - 1
-                  ? 'INVESTIGATE MOTEL'
-                  : 'CONTINUE'
-              }}
-            </button>
-          </div>
-        </div>
-      </div>
+      <MonstriqueCutscenePlayer
+        :cutscene="openingScene"
+        :director="!publicEdition"
+        end-label="Investigate motel"
+        @done="screen = 'stage'"
+      />
     </div>
 
     <template v-else>
@@ -97,6 +68,18 @@
           </p>
           <h2 class="mc-location truncate">{{ room.label }}</h2>
         </div>
+        <span
+          class="mc-score"
+          data-testid="monstrique-score"
+          :title="'Score: ' + score + ' of ' + scoreMax"
+        >
+          <small>SCORE</small>
+          <strong>{{ score }}</strong
+          ><span>/{{ scoreMax }}</span>
+          <em v-if="scoreGain" :key="scoreBump" class="mc-score-gain"
+            >+{{ scoreGain }}</em
+          >
+        </span>
         <button
           type="button"
           class="mc-actor-chip"
@@ -410,6 +393,48 @@
           </g>
         </svg>
         <div class="mc-shadow absolute inset-0" aria-hidden="true" />
+        <div
+          class="mc-cast pointer-events-none absolute inset-0"
+          data-testid="monstrique-stage-cast"
+          aria-hidden="true"
+        >
+          <MonstriqueCharacterSprite
+            v-for="actor in stageNpcs"
+            :key="actor.hotspot"
+            class="mc-npc absolute"
+            :style="{
+              left: actor.x + '%',
+              top: actor.y + '%',
+              height: 46 * actor.scale + '%',
+            }"
+            :character="actor.character"
+            :mood="speaker === actor.character ? speakerMood : undefined"
+            :talking="speaker === actor.character"
+            :facing="actor.x > irisX ? 'left' : 'right'"
+          />
+          <div
+            v-if="showNorbFollower"
+            class="mc-germ-zone absolute"
+            :style="{ left: norbX + '%' }"
+          />
+          <MonstriqueCharacterSprite
+            v-if="showNorbFollower"
+            class="mc-walker absolute"
+            :style="{ left: norbX + '%', height: 52 * 0.68 + '%' }"
+            character="norb"
+            :mood="speaker === 'norb' ? speakerMood : 'annoyed'"
+            :talking="speaker === 'norb'"
+            :facing="norbX > irisX ? 'left' : 'right'"
+          />
+          <MonstriqueCharacterSprite
+            class="mc-walker absolute"
+            :style="{ left: irisX + '%', height: '52%' }"
+            character="iris"
+            :mood="speaker === 'iris' ? speakerMood : 'smirk'"
+            :talking="speaker === 'iris'"
+            :facing="irisFacing"
+          />
+        </div>
         <p class="mc-scene-stamp">
           {{ room.floor === 2 ? 'UPSTAIRS' : 'LAST CALL' }}
         </p>
@@ -526,10 +551,25 @@
         class="mc-dialogue flex min-h-0 shrink-0 items-start gap-3 px-3 py-3"
         aria-live="polite"
       >
-        <div class="mc-dialogue-portrait" :class="'is-' + story.state.actor">
-          <span>{{ story.state.actor === 'iris' ? 'I' : 'N' }}</span>
+        <div
+          class="mc-dialogue-portrait"
+          :class="'is-' + (speaker ?? 'narrator')"
+          data-testid="monstrique-speaker-portrait"
+        >
+          <MonstriqueCharacterSprite
+            v-if="speaker"
+            class="mc-bust"
+            :character="speaker"
+            :mood="speakerMood"
+          />
+          <Icon v-else name="kind-icon:book-open" class="size-6" />
         </div>
-        <p class="mc-line min-w-0 flex-1">{{ story.currentLine }}</p>
+        <div class="min-w-0 flex-1">
+          <p class="mc-eyebrow">
+            {{ speaker ? CHARACTER_MODELS[speaker].name : 'Narrator' }}
+          </p>
+          <p class="mc-line">{{ story.currentLine }}</p>
+        </div>
       </div>
       <div v-if="selected && activeHotspot" class="mc-verbs shrink-0 px-3 py-2">
         <div class="flex flex-wrap items-center gap-2">
@@ -608,6 +648,17 @@
         </button>
       </footer>
       <div
+        v-if="story.activeCutscene"
+        class="mc-cutscene-layer absolute inset-0 z-40"
+      >
+        <MonstriqueCutscenePlayer
+          :cutscene="story.activeCutscene"
+          :director="!publicEdition"
+          end-label="Back to the case"
+          @done="story.finishCutscene()"
+        />
+      </div>
+      <div
         v-if="story.state.ending"
         class="mc-ending absolute inset-0 z-30 grid place-items-center p-5"
       >
@@ -631,24 +682,29 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, ref } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
 import { useMonstressConventionStore } from '~/stores/monstressConventionStore'
 import { useMonstriquePublicStore } from '~/stores/monstriquePublicStore'
-import {
-  GENERAL_INTRO,
-  MATURE_INTRO,
-  roomForAudience,
-} from '~/utils/monstressConvention/edition'
+import { roomForAudience } from '~/utils/monstressConvention/edition'
 import {
   availableTopics,
+  caseScore,
   EVIDENCE,
   GRACES,
   HOTEL_ROOMS,
   ITEMS,
+  maxScore,
   TOPICS,
   type RoomId,
   type Verb,
 } from '~/utils/monstressConvention/prologue'
+import {
+  CHARACTER_MODELS,
+  modelForHotspot,
+  speakerOf,
+  type MonstriqueCharacterId,
+} from '~/utils/monstrique/characterModels'
+import { coldOpen } from '~/utils/monstrique/cutscenes'
 
 const props = defineProps<{
   entry?: 'new' | 'continue'
@@ -664,10 +720,7 @@ const emit = defineEmits<{ menu: [] }>()
 const screen = ref<'title' | 'intro' | 'stage'>(
   props.entry === 'continue' ? 'stage' : 'intro',
 )
-const introIndex = ref(0)
-const introScenes = computed(() =>
-  audience.value === 'mature' ? MATURE_INTRO : GENERAL_INTRO,
-)
+const openingScene = computed(() => coldOpen(audience.value))
 const drawer = ref<'case' | 'map' | null>(null)
 const selected = ref<string | null>(null)
 const held = ref<string | null>(null)
@@ -679,6 +732,63 @@ const activeHotspot = computed(() =>
 )
 const activeTopics = computed(() =>
   selected.value ? availableTopics(story.value.state, selected.value) : [],
+)
+const score = computed(() => caseScore(story.value.state))
+const scoreMax = computed(() => maxScore(audience.value))
+const scoreGain = ref(0)
+const scoreBump = ref(0)
+watch(score, (now, before) => {
+  scoreGain.value = now > before ? now - before : 0
+  scoreBump.value += 1
+})
+
+const speaker = computed<MonstriqueCharacterId | null>(
+  () => speakerOf(story.value.currentLine)?.id ?? null,
+)
+const speakerMood = computed(() => {
+  const line = story.value.currentLine
+  if (speaker.value === 'norb')
+    return /not|never|biohazard|contaminat|germ|wash/i.test(line)
+      ? 'recoil'
+      : 'deduce'
+  if (/!/.test(line)) return 'shock'
+  if (/darling|honey|sweet|cute|kiss/i.test(line)) return 'smirk'
+  return 'neutral'
+})
+
+const stageNpcs = computed(() =>
+  room.value.hotspots.flatMap((hotspot) => {
+    const model = modelForHotspot(hotspot.id)
+    return model
+      ? [
+          {
+            hotspot: hotspot.id,
+            character: model.id,
+            x: hotspot.x,
+            y: Math.max(hotspot.y, 40 * model.sprite.height + 2),
+            scale: model.sprite.height,
+          },
+        ]
+      : []
+  }),
+)
+const irisX = computed(() => {
+  const target = activeHotspot.value
+  if (!target) return 20
+  const side = target.x > 50 ? -11 : 11
+  return Math.min(92, Math.max(8, target.x + side))
+})
+const irisFacing = computed(() =>
+  activeHotspot.value && activeHotspot.value.x < irisX.value ? 'left' : 'right',
+)
+const showNorbFollower = computed(
+  () => !stageNpcs.value.some((actor) => actor.character === 'norb'),
+)
+const norbX = computed(() =>
+  Math.min(
+    94,
+    Math.max(6, irisX.value >= 50 ? irisX.value - 34 : irisX.value + 34),
+  ),
 )
 
 onMounted(() => {
@@ -692,13 +802,7 @@ function begin(): void {
   selected.value = null
   held.value = null
   drawer.value = null
-  introIndex.value = 0
   screen.value = 'intro'
-}
-
-function advanceIntro(): void {
-  if (introIndex.value < introScenes.value.length - 1) introIndex.value += 1
-  else screen.value = 'stage'
 }
 
 function useHeld(): void {
@@ -739,8 +843,83 @@ function verbIcon(verb: Verb): string {
 
 <style scoped>
 .mc-console {
+  position: relative;
   font-family: ui-sans-serif, system-ui, sans-serif;
   background: #121a2b;
+}
+.mc-cast {
+  z-index: 3;
+}
+.mc-npc {
+  translate: -50% -86%;
+}
+.mc-walker {
+  bottom: 3%;
+  translate: -50% 0;
+  transition: left 0.65s cubic-bezier(0.45, 0, 0.3, 1);
+}
+.mc-germ-zone {
+  bottom: 1%;
+  width: 16%;
+  aspect-ratio: 4 / 1;
+  translate: -50% 0;
+  border: 2px dashed rgb(242 214 75 / 0.55);
+  border-radius: 50%;
+  transition: left 0.65s cubic-bezier(0.45, 0, 0.3, 1);
+}
+.mc-score {
+  position: relative;
+  display: flex;
+  align-items: baseline;
+  gap: 0.25rem;
+  padding: 0.3rem 0.6rem;
+  border-radius: 0.65rem;
+  background: #1b1526;
+  border: 1px solid #7d5366;
+  font-variant-numeric: tabular-nums;
+}
+.mc-score small {
+  font-size: 0.55rem;
+  font-weight: 850;
+  letter-spacing: 0.18em;
+  opacity: 0.7;
+}
+.mc-score strong {
+  font-size: 1rem;
+  color: #ffd84d;
+}
+.mc-score span {
+  font-size: 0.7rem;
+  opacity: 0.7;
+}
+.mc-score-gain {
+  position: absolute;
+  right: 0.2rem;
+  top: -0.9rem;
+  font-style: normal;
+  font-weight: 900;
+  color: #ffd84d;
+  animation: mc-gain 1.4s ease-out forwards;
+}
+.mc-bust {
+  height: 260%;
+  align-self: start;
+  margin-top: 6%;
+}
+@keyframes mc-gain {
+  to {
+    translate: 0 -0.9rem;
+    opacity: 0;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .mc-walker,
+  .mc-germ-zone {
+    transition: none;
+  }
+  .mc-score-gain {
+    animation: none;
+  }
 }
 .mc-eyebrow,
 .mc-caption,
@@ -1013,8 +1192,9 @@ function verbIcon(verb: Verb): string {
   overflow: hidden;
 }
 .mc-dialogue-portrait {
-  width: 2.75rem;
-  height: 2.75rem;
+  width: 3.5rem;
+  height: 3.5rem;
+  overflow: hidden;
   flex-shrink: 0;
   border: 2px solid #e0b7ad;
 }

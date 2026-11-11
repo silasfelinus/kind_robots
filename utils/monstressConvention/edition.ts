@@ -51,7 +51,7 @@ export const MATURE_INTRO = [
 ] as const
 
 const GENERAL_HOTSPOTS: Record<RoomId, readonly string[]> = {
-  'motel-exterior': ['motel-sign', 'gavin', 'fan-camera'],
+  'motel-exterior': ['motel-sign', 'gavin', 'fan-camera', 'billboard'],
   'front-office': ['marta', 'guest-ledger', 'memorabilia-case'],
   'ice-alcove': ['ice-machine', 'maintenance-log', 'sewer-hatch'],
   balcony: ['room-door', 'footprints'],

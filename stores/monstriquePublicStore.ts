@@ -17,6 +17,10 @@ import {
   type CaseState,
   type RoomId,
 } from '~/utils/monstressConvention/prologue'
+import {
+  cutsceneTriggeredBy,
+  type Cutscene,
+} from '~/utils/monstrique/cutscenes'
 
 export const useMonstriquePublicStore = defineStore('monstriquePublic', () => {
   const user = useUserStore()
@@ -32,6 +36,7 @@ export const useMonstriquePublicStore = defineStore('monstriquePublic', () => {
   const checking = ref(false)
   const feedback = ref('')
   const storageWarning = ref('')
+  const activeCutscene = ref<Cutscene | null>(null)
   let accessRequest = 0
 
   const accountId = computed(() =>
@@ -167,6 +172,9 @@ export const useMonstriquePublicStore = defineStore('monstriquePublic', () => {
       feedback.value = result.line
       return
     }
+    activeCutscene.value =
+      cutsceneTriggeredBy(state.value, result.state, audience.value) ??
+      activeCutscene.value
     if (audience.value === 'mature') matureState.value = result.state
     else generalState.value = result.state
     feedback.value = ''
@@ -194,7 +202,12 @@ export const useMonstriquePublicStore = defineStore('monstriquePublic', () => {
     if (audience.value === 'mature') matureState.value = newCase()
     else generalState.value = newCase()
     feedback.value = ''
+    activeCutscene.value = null
     persist()
+  }
+
+  function finishCutscene(): void {
+    activeCutscene.value = null
   }
 
   function takeAction(action: CaseAction): void {
@@ -216,6 +229,8 @@ export const useMonstriquePublicStore = defineStore('monstriquePublic', () => {
     hasSavedCase,
     currentLine,
     storageWarning,
+    activeCutscene,
+    finishCutscene,
     initialize,
     verifyAudience,
     begin,

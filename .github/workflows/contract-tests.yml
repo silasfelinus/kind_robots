@@ -506,6 +506,9 @@ jobs:
       - name: Monstrique general and mature audience editions
         run: npx tsx utils/scripts/verifyMonstriqueEditions.test.ts
 
+      - name: Monstrique character models, art styles, cutscenes and score
+        run: npx tsx utils/scripts/verifyMonstriqueArtPipeline.test.ts
+
   contract_2:
     name: Contract shard 2/4
     runs-on: ubuntu-latest

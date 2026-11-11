@@ -14,6 +14,10 @@ import {
   type CaseState,
   type RoomId,
 } from '~/utils/monstressConvention/prologue'
+import {
+  cutsceneTriggeredBy,
+  type Cutscene,
+} from '~/utils/monstrique/cutscenes'
 
 export const useMonstressConventionStore = defineStore(
   'monstressConvention',
@@ -28,6 +32,7 @@ export const useMonstressConventionStore = defineStore(
     const feedback = ref('')
     const state = ref<CaseState>(newCase())
     const storageWarning = ref('')
+    const activeCutscene = ref<Cutscene | null>(null)
     const currentLine = computed(
       () =>
         feedback.value ||
@@ -98,6 +103,8 @@ export const useMonstressConventionStore = defineStore(
 
     function commit(next: CaseState): void {
       if (!authorized.value) return
+      activeCutscene.value =
+        cutsceneTriggeredBy(state.value, next, 'mature') ?? activeCutscene.value
       state.value = next
       feedback.value = ''
       if (next.flags.includes('double-murder-discovered'))
@@ -119,7 +126,12 @@ export const useMonstressConventionStore = defineStore(
     function begin(): void {
       if (!authorized.value) return
       commit(newCase())
+      activeCutscene.value = null
       opened.value = true
+    }
+
+    function finishCutscene(): void {
+      activeCutscene.value = null
     }
 
     function takeAction(action: CaseAction): void {
@@ -151,6 +163,8 @@ export const useMonstressConventionStore = defineStore(
       state,
       currentLine,
       storageWarning,
+      activeCutscene,
+      finishCutscene,
       verifyAccess,
       load,
       begin,

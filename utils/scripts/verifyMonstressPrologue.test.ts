@@ -179,6 +179,56 @@ m = move(m, 'ice-alcove')
 m = act(m, 'use', 'ice-machine')
 assert.ok(m.inventory.includes('plastic-fangs'))
 assert.ok(m.evidence.includes('makeup-smear'))
+const beforeCombination = JSON.stringify(m)
+const combined = performAction(m, {
+  verb: 'combine',
+  item: 'camera',
+  target: 'plastic-fangs',
+})
+assert.equal(combined.changed, true)
+assert.ok(combined.state.evidence.includes('fangs-detail'))
+assert.deepEqual(
+  restoreCase(JSON.parse(JSON.stringify(combined.state))),
+  combined.state,
+  'a combined clue survives save and reload',
+)
+assert.equal(JSON.stringify(m), beforeCombination, 'combining cannot mutate the source save')
+assert.equal(
+  performAction(combined.state, {
+    verb: 'combine',
+    item: 'plastic-fangs',
+    target: 'camera',
+  }).changed,
+  false,
+  'combining twice does not duplicate the clue',
+)
+assert.equal(
+  performAction(m, {
+    verb: 'combine',
+    item: 'plastic-fangs',
+    target: 'camera',
+  }).changed,
+  true,
+  'combinations work regardless of selected item order',
+)
+assert.equal(
+  performAction(m, {
+    verb: 'combine',
+    item: 'camera',
+    target: 'motel-key',
+  }).changed,
+  false,
+  'uncrafted combinations do not fabricate inventory or clues',
+)
+assert.equal(
+  performAction(m, {
+    verb: 'combine',
+    item: 'camera',
+    target: 'unowned-item',
+  }).changed,
+  false,
+  'a forged inventory item cannot be combined',
+)
 assert.equal(
   performAction(m, {
     verb: 'use',
@@ -190,6 +240,15 @@ assert.equal(
 m = move(m, 'balcony')
 m = move(m, 'odette-room')
 const norbHolding = switchInvestigator(m).state
+assert.equal(
+  performAction(norbHolding, {
+    verb: 'combine',
+    item: 'camera',
+    target: 'plastic-fangs',
+  }).changed,
+  false,
+  'Norb must never manipulate or combine inventory',
+)
 assert.equal(
   performAction(norbHolding, {
     verb: 'use',

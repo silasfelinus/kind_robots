@@ -529,8 +529,15 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
       if (towerRun.value?.phase === 'battle') forfeitTower()
       enforceCollection()
       seedLibrary()
-      if (journeyDeckId.value && libraryDeckReady(journeyDeckId.value))
-        selectLibraryDeck(journeyDeckId.value)
+      const selectedJourney = library.value.find(
+        (item) => item.id === journeyDeckId.value,
+      )
+      if (
+        selectedJourney &&
+        selectedJourney.general === activeTeam.value &&
+        libraryDeckReady(selectedJourney.id)
+      )
+        selectLibraryDeck(selectedJourney.id)
       else journeyDeckId.value = null
       if (campaignRewardChoices.value) campaignScreen.value = 'aftermath'
     } catch (error) {
@@ -1178,7 +1185,13 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
       persistStory()
       return
     }
-    if (!libraryDeckReady(id)) return
+    const selected = library.value.find((item) => item.id === id)
+    if (
+      !selected ||
+      selected.general !== activeTeam.value ||
+      !libraryDeckReady(id)
+    )
+      return
     selectLibraryDeck(id)
     journeyDeckId.value = id
     journeyFormat.value = 'alliance'
@@ -1611,6 +1624,11 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
 
   function chooseTeam(id: TeamId): void {
     activeTeam.value = id
+    const journeyPicked = library.value.find(
+      (item) => item.id === journeyDeckId.value,
+    )
+    if (journeyPicked && journeyPicked.general !== id)
+      journeyDeckId.value = null
     persistStory()
     const picked = library.value.find((item) => item.id === libraryId.value)
     if (picked && picked.general !== id) libraryId.value = null

@@ -3353,10 +3353,7 @@ export function chooseClashCpu(
           )
           if (b.level === 1)
             score += clamp(
-              Math.max(
-                0,
-                cpuEvolutionPayoff(s, side, card, lane, 2, 0),
-              ) * 0.12,
+              Math.max(0, cpuEvolutionPayoff(s, side, card, lane, 2, 0)) * 0.12,
               0,
               0.7,
             )

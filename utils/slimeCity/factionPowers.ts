@@ -76,11 +76,14 @@ export const FACTION_POWERS: Record<TeamId, FactionPower> = {
   exchange: {
     team: 'exchange',
     name: 'CALL IN THE DEBT',
-    text: 'The rival boss loses 5 life and your boss gains 5 (up to its maximum).',
+    // 5/8 until slime-city/t-057 (2026-11-11 PT): Exchange scored 0.59-0.61
+    // across the constructed field in five seed families. 4/7 holds it at
+    // 0.55-0.57 on four held-out families, starters 47.5% -> 45.8%.
+    text: 'The rival boss loses 4 life and your boss gains 4 (up to its maximum).',
     target: 'none',
     symbol: '💰',
-    amount: [5, 8],
-    overcharge: 'Drains 8 instead of 5.',
+    amount: [4, 7],
+    overcharge: 'Drains 7 instead of 4.',
   },
 }
 

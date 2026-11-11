@@ -314,7 +314,7 @@ const at = (st: ClashState, uid: number) => st.units.find((u) => u.uid === uid)
   const before = board('exchange')
   before.boss.player = clashBossMax('player') - 2
   const st = useClashPower(before, 'player')
-  assert.equal(st.boss.enemy, before.boss.enemy - 5)
+  assert.equal(st.boss.enemy, before.boss.enemy - 4)
   assert.equal(st.boss.player, clashBossMax('player'), 'capped at max')
 }
 
@@ -366,7 +366,7 @@ const at = (st: ClashState, uid: number) => st.units.find((u) => u.uid === uid)
   const debt = board('exchange')
   debt.boss.player = 10
   const drained = useClashPower(debt, 'player')
-  assert.equal(drained.boss.enemy, debt.boss.enemy - 8, 'debt drains 8')
+  assert.equal(drained.boss.enemy, debt.boss.enemy - 7, 'debt drains 7')
   assert.match(drained.log.at(-1)!.text, /OVERCHARGE/)
 }
 

@@ -232,6 +232,15 @@ function rollSeed(): number {
 }
 
 export type DeckFormat = 'solo' | 'alliance'
+/** Prebuilt Alliance pairings: each crew leads once. */
+export const STARTER_MATCHUPS: [TeamId, TeamId][] = [
+  ['catgirls', 'bloodfairies'],
+  ['bloodfairies', 'riot'],
+  ['ironjaw', 'catgirls'],
+  ['riot', 'ironjaw'],
+  ['undertow', 'exchange'],
+  ['exchange', 'bloodfairies'],
+]
 export type ClashKind =
   'practice' | 'reward' | 'rival' | 'contract' | 'campaign' | 'tower'
 export interface ClashLaunch {
@@ -1336,6 +1345,84 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
     stop()
     deckFormat.value = 'solo'
     view.value = 'cards'
+  }
+  /**
+   * Silas, 2026-11-11 PT: "We should have prenbuilt decks, one for each
+   * faction solo and a smattering of matchups." Every crew's Solo starter,
+   * plus six Alliance pairings, each general leading once.
+   */
+  const starterDecks = computed(() => [
+    ...TEAMS.map((team) => ({
+      id: 'solo-' + team.id,
+      general: team.id,
+      ally: null as TeamId | null,
+      name: team.name.split(' ')[0]!,
+    })),
+    ...STARTER_MATCHUPS.map(([general, ally]) => ({
+      id: 'mix-' + general + '-' + ally,
+      general,
+      ally: ally as TeamId | null,
+      name: libraryName({ general, ally, cards: [] }),
+    })),
+  ])
+  /** The starter deck the builder is showing, when no library deck is. */
+  const activeStarterId = computed(() =>
+    libraryId.value
+      ? null
+      : deckFormat.value === 'solo'
+        ? 'solo-' + activeTeam.value
+        : 'mix-' + activeTeam.value + '-' + currentAlliance.value.ally,
+  )
+  /** Deal a prebuilt deck into the builder (and into play). */
+  function dealStarterDeck(general: TeamId, ally: TeamId | null): void {
+    if (general !== activeTeam.value) chooseTeam(general)
+    libraryId.value = null
+    if (!ally) {
+      deckFormat.value = 'solo'
+      clashFormat.value = 'solo'
+      commitSolo(
+        soloStarter(general),
+        teamById(general).name + ' Solo starter is your deck.',
+      )
+      return
+    }
+    deckFormat.value = 'alliance'
+    clashFormat.value = 'alliance'
+    commitAlliance(
+      allianceStarter(general, ally),
+      libraryName({ general, ally, cards: [] }) + ' starter is your deck.',
+    )
+  }
+  /** SOLO, or a second faction for an Alliance deck. */
+  function setDeckAlly(ally: TeamId | null): void {
+    if (!ally) {
+      deckFormat.value = 'solo'
+      clashFormat.value = 'solo'
+      return
+    }
+    deckFormat.value = 'alliance'
+    clashFormat.value = 'alliance'
+    setAlly(ally)
+  }
+  /** Keep the deck on screen as a named library deck you can edit. */
+  function copyCurrentDeck(): void {
+    if (libraryId.value) {
+      copyLibraryDeck(libraryId.value)
+      return
+    }
+    if (library.value.length >= LIBRARY_MAX_DECKS) {
+      deckMessage.value = 'The library holds ' + LIBRARY_MAX_DECKS + ' decks.'
+      return
+    }
+    const deck = currentAlliance.value
+    const entry = libraryDeck(
+      { ...deck, cards: deck.cards.filter((id) => isCardUnlocked(id)) },
+      newLibraryId(),
+      libraryName(deck),
+    )
+    library.value = [...library.value, entry]
+    selectLibraryDeck(entry.id)
+    persistStory()
   }
   function restoreAllianceStarter(): void {
     commitAlliance(
@@ -2505,6 +2592,11 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
     swapAllianceGeneral,
     toggleAllianceCard,
     restoreAllianceStarter,
+    starterDecks,
+    activeStarterId,
+    dealStarterDeck,
+    setDeckAlly,
+    copyCurrentDeck,
     playAllianceClash,
     currentSolo,
     currentSoloProblems,

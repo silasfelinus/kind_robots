@@ -700,7 +700,10 @@ for (const id of [
   'slime-solo-deck-back',
   'slime-alliance-workbench',
   'slime-ally-picker',
-  'slime-alliance-swap',
+  // Silas, 2026-11-11 PT: faction pictures for general and second faction,
+  // and prebuilt starter decks on the shelf.
+  'slime-general-picker',
+  'slime-starter-',
   'slime-alliance-power',
   'slime-alliance-play',
   'slime-alliance-grid',

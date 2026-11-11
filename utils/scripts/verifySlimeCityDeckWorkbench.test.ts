@@ -144,7 +144,11 @@ assert.match(ui, /data-testid="slime-card-inspector"/)
 // Silas, 2026-11-11 PT: owned cards only by default, a clear SOLO / SECOND
 // FACTION choice, and locked cards behind a toggle.
 assert.match(ui, /data-testid="slime-deck-type-solo"/)
-assert.match(ui, /data-testid="slime-deck-type-alliance"/)
+assert.match(ui, /data-testid="slime-general-picker"/)
+assert.match(ui, /data-testid="slime-ally-picker"/)
+assert.match(ui, /'slime-starter-' \+ deck\.id/)
+assert.match(store, /STARTER_MATCHUPS/)
+assert.match(store, /function dealStarterDeck/)
 assert.match(ui, /data-testid="slime-show-locked"/)
 assert.match(ui, /showLocked\.value \|\|\s+lab\.isCardUnlocked\(card\.id\)/)
 assert.match(ui, /clashCardText\(inspectCard, evolutionLevel\)/)

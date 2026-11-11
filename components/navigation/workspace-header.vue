@@ -342,11 +342,9 @@ async function refreshSlimeCityInbox() {
     return
   }
   try {
-    const inboxUrl: string = '/api/slime-city/pvp/inbox'
-    const response = await $fetch<{
-      success: boolean
-      data: { pendingTurns: number }
-    }>(inboxUrl)
+    const response = (await (
+      await fetch('/api/slime-city/pvp/inbox', { credentials: 'same-origin' })
+    ).json()) as { success: boolean; data: { pendingTurns: number } }
     slimeCityPendingTurns.value = response.success
       ? Math.max(0, response.data.pendingTurns)
       : 0

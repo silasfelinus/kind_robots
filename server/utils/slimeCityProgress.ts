@@ -377,7 +377,11 @@ export async function finishSlimeCityCpuMatch(
     })
     const before = refreshPeriods(restoreProgression(row.data, now), now)
     const after = clash
-      ? awardOutcome(before, clashOutcome(id, verified as never), now)
+      ? awardOutcome(
+          before,
+          clashOutcome(id, verified as never, match.mode),
+          now,
+        )
       : awardBattle(before, verified as never, now)
     const updated = await tx.slimeCityAccount.updateMany({
       where: { userId, version: row.version },

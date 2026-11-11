@@ -193,7 +193,12 @@ export function replayClashTranscript(
 }
 
 /** Reward ledger entry for a verified Clash match. */
-export function clashOutcome(matchId: string, s: ClashState): BattleOutcome {
+export function clashOutcome(
+  matchId: string,
+  s: ClashState,
+  storedMode = '',
+): BattleOutcome {
+  const bout = CLASH_BOUT_KINDS.find((kind) => storedMode === 'clash-' + kind)
   return {
     victor: s.victor!,
     receipt: JSON.stringify(['clash', matchId]),
@@ -206,5 +211,7 @@ export function clashOutcome(matchId: string, s: ClashState): BattleOutcome {
       )
       .map((c) => c.card),
     meat: reportMeat(clashMatchReport(s)),
+    ...(bout ? { bout } : {}),
+    topLevel: Math.max(1, ...Object.values(s.levels?.player ?? {})),
   }
 }

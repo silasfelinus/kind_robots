@@ -58,8 +58,118 @@ export interface Progression {
   lastPack: string[]
   daily: ChallengeWindow
   weekly: ChallengeWindow
+  evergreen: EvergreenLedger
   lastReward: string
 }
+/**
+ * Permanent missions (Conductor slime-city/t-010): claimed once ever, paid
+ * through the same server-verified claim as the bounties. Only facts the
+ * server itself recorded from replayed fights or the wallet count toward them.
+ */
+export interface EvergreenLedger {
+  crewWins: TeamId[]
+  boutWins: EvergreenBout[]
+  topLevel: number
+  claimed: string[]
+}
+export const EVERGREEN_BOUTS = [
+  'rival',
+  'contract',
+  'campaign',
+  'tower',
+] as const
+export type EvergreenBout = (typeof EVERGREEN_BOUTS)[number]
+export type EvergreenMetric =
+  | 'wins'
+  | 'fights'
+  | 'crewWins'
+  | 'rivalWins'
+  | 'towerWins'
+  | 'topLevel'
+  | 'unlocked'
+export interface EvergreenMission {
+  id: string
+  title: string
+  description: string
+  metric: EvergreenMetric
+  target: number
+  meat: number
+  xp: number
+}
+export const EVERGREEN_MISSIONS: EvergreenMission[] = [
+  {
+    id: 'ever-first-win',
+    title: 'First Blood Sausage',
+    description: 'Win your first CPU fight.',
+    metric: 'wins',
+    target: 1,
+    meat: 25,
+    xp: 25,
+  },
+  {
+    id: 'ever-three-crews',
+    title: 'Turf Tourist',
+    description: 'Win a fight with three different crews.',
+    metric: 'crewWins',
+    target: 3,
+    meat: 50,
+    xp: 60,
+  },
+  {
+    id: 'ever-six-crews',
+    title: 'Every Gang in Town',
+    description: 'Win a fight with each of the six crews.',
+    metric: 'crewWins',
+    target: TEAMS.length,
+    meat: 120,
+    xp: 150,
+  },
+  {
+    id: 'ever-rival',
+    title: 'Called Out',
+    description: 'Win a SOLO story rival bout in the city.',
+    metric: 'rivalWins',
+    target: 1,
+    meat: 40,
+    xp: 50,
+  },
+  {
+    id: 'ever-tower',
+    title: 'Up the Meat Tower',
+    description: 'Win a Tower fight.',
+    metric: 'towerWins',
+    target: 1,
+    meat: 60,
+    xp: 75,
+  },
+  {
+    id: 'ever-third-star',
+    title: 'Third Star',
+    description: 'Evolve a fighter to level 3 in a CPU fight.',
+    metric: 'topLevel',
+    target: 3,
+    meat: 40,
+    xp: 50,
+  },
+  {
+    id: 'ever-collector',
+    title: "Butcher's Binder",
+    description: 'Unlock 12 cards beyond your base collection.',
+    metric: 'unlocked',
+    target: 12,
+    meat: 75,
+    xp: 75,
+  },
+  {
+    id: 'ever-regular',
+    title: 'Pit Regular',
+    description: 'Finish 25 CPU fights, win or lose.',
+    metric: 'fights',
+    target: 25,
+    meat: 60,
+    xp: 80,
+  },
+]
 export const CHALLENGES: Challenge[] = [
   {
     id: 'daily-entry',
@@ -196,6 +306,9 @@ function window(date: Date, period: ChallengePeriod): ChallengeWindow {
     claimed: [],
   }
 }
+function newEvergreen(): EvergreenLedger {
+  return { crewWins: [], boutWins: [], topLevel: 0, claimed: [] }
+}
 export function newProgression(now = new Date()): Progression {
   return {
     version: 1,
@@ -210,6 +323,7 @@ export function newProgression(now = new Date()): Progression {
     lastPack: [],
     daily: window(now, 'daily'),
     weekly: window(now, 'weekly'),
+    evergreen: newEvergreen(),
     lastReward:
       'Win CPU battles to earn virtual Meat and XP. In Slime City, Meat is money.',
   }
@@ -255,6 +369,40 @@ export function currentChallenges(progress: Progression, now = new Date()) {
     }
   })
 }
+export function evergreenValue(
+  progress: Progression,
+  metric: EvergreenMetric,
+): number {
+  const ever = progress.evergreen
+  switch (metric) {
+    case 'wins':
+      return progress.wins
+    case 'fights':
+      return progress.wins + progress.losses + progress.draws
+    case 'crewWins':
+      return ever.crewWins.length
+    case 'rivalWins':
+      return Number(ever.boutWins.includes('rival'))
+    case 'towerWins':
+      return Number(ever.boutWins.includes('tower'))
+    case 'topLevel':
+      return ever.topLevel
+    case 'unlocked':
+      return progress.cards.filter((id) => !BASE_CARD_SET.has(id)).length
+  }
+}
+export function currentEvergreen(progress: Progression) {
+  return EVERGREEN_MISSIONS.map((m) => {
+    const value = evergreenValue(progress, m.metric)
+    const claimed = progress.evergreen.claimed.includes(m.id)
+    return {
+      ...m,
+      value: Math.min(value, m.target),
+      ready: value >= m.target && !claimed,
+      claimed,
+    }
+  })
+}
 /** A battle receipt is based on the actual recorded engine command history. */
 export function battleReceipt(match: MatchState): string {
   return JSON.stringify([
@@ -280,6 +428,10 @@ export interface BattleOutcome {
    * kept, flawless, damage dealt and knockouts. Absent: the flat base.
    */
   meat?: number
+  /** The story bout this fight was issued as, when it was one. */
+  bout?: string
+  /** The highest level any of the player's cards reached in the fight. */
+  topLevel?: number
 }
 export function awardBattle(
   original: Progression,
@@ -340,6 +492,25 @@ export function awardOutcome(
       : [...win.crews, outcome.teamId],
     paidBattles: win.paidBattles + Number(paid),
   })
+  const ever = state.evergreen
+  const bout = EVERGREEN_BOUTS.find((kind) => kind === outcome.bout)
+  const evergreen: EvergreenLedger = {
+    ...ever,
+    crewWins:
+      victory && !ever.crewWins.includes(outcome.teamId)
+        ? [...ever.crewWins, outcome.teamId]
+        : ever.crewWins,
+    boutWins:
+      victory && bout && !ever.boutWins.includes(bout)
+        ? [...ever.boutWins, bout]
+        : ever.boutWins,
+    topLevel: Math.max(
+      ever.topLevel,
+      Number.isSafeInteger(outcome.topLevel)
+        ? Math.min(3, outcome.topLevel!)
+        : 0,
+    ),
+  }
   return {
     ...state,
     xp: state.xp + earnedXp,
@@ -350,6 +521,7 @@ export function awardOutcome(
     receipts: [...state.receipts.slice(-255), receipt],
     daily: updateWindow(state.daily),
     weekly: updateWindow(state.weekly),
+    evergreen,
     lastReward: paid
       ? `CPU ${victory ? 'win' : draw ? 'draw' : 'loss'} · +${earnedXp} XP · your cut: +${earnedMeat} Meat`
       : 'Battle recorded · daily base-reward cap reached (10 bouts).',
@@ -361,7 +533,7 @@ export function claimChallenge(
   now = new Date(),
 ): Progression {
   const c = CHALLENGES.find((item) => item.id === id)
-  if (!c) return original
+  if (!c) return claimEvergreen(original, id, now)
   const state = refreshPeriods(original, now)
   const win = state[c.period]
   if (win.claimed.includes(id) || challengeValue(win, c.metric) < c.target)
@@ -372,6 +544,56 @@ export function claimChallenge(
     xp: state.xp + c.xp,
     [c.period]: { ...win, claimed: [...win.claimed, id] },
     lastReward: `${c.title} claimed · +${c.xp} XP · +${c.meat} Meat`,
+  }
+}
+/** Claimed once ever: a repeat or an unmet mission changes nothing. */
+export function claimEvergreen(
+  original: Progression,
+  id: string,
+  now = new Date(),
+): Progression {
+  const m = EVERGREEN_MISSIONS.find((item) => item.id === id)
+  if (!m) return original
+  const state = refreshPeriods(original, now)
+  if (
+    state.evergreen.claimed.includes(id) ||
+    evergreenValue(state, m.metric) < m.target
+  )
+    return state
+  return {
+    ...state,
+    meat: state.meat + m.meat,
+    xp: state.xp + m.xp,
+    evergreen: {
+      ...state.evergreen,
+      claimed: [...state.evergreen.claimed, id],
+    },
+    lastReward: `${m.title} claimed for good · +${m.xp} XP · +${m.meat} Meat`,
+  }
+}
+/** A missing or malformed ledger (older saves) starts empty. */
+function restoreEvergreen(raw: unknown): EvergreenLedger {
+  if (!raw || typeof raw !== 'object' || Array.isArray(raw))
+    return newEvergreen()
+  const e = raw as Partial<Record<keyof EvergreenLedger, unknown>>
+  const list = (value: unknown) =>
+    Array.isArray(value)
+      ? [...new Set(value.filter((v): v is string => typeof v === 'string'))]
+      : []
+  return {
+    crewWins: list(e.crewWins).filter((id): id is TeamId =>
+      TEAMS.some((t) => t.id === id),
+    ),
+    boutWins: list(e.boutWins).filter((id): id is EvergreenBout =>
+      EVERGREEN_BOUTS.some((kind) => kind === id),
+    ),
+    topLevel:
+      Number.isSafeInteger(e.topLevel) && (e.topLevel as number) > 0
+        ? Math.min(3, e.topLevel as number)
+        : 0,
+    claimed: list(e.claimed).filter((id) =>
+      EVERGREEN_MISSIONS.some((m) => m.id === id),
+    ),
   }
 }
 function chooseOne(pool: Card[], seed: number, index: number): Card {
@@ -530,6 +752,7 @@ export function restoreProgression(
           : '',
       daily: cleanWin(p.daily, 'daily'),
       weekly: cleanWin(p.weekly, 'weekly'),
+      evergreen: restoreEvergreen(p.evergreen),
     },
     now,
   )

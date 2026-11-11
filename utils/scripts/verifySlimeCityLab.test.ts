@@ -882,7 +882,8 @@ console.log(
 // deckbuilder, have their space to select." No crew picker in the header;
 // Journey, Practice and Collection each carry their own.
 assert.doesNotMatch(page, /sc-crew-picker/, 'no crew picker in the header')
-assert.match(page, /<SlimeCityCrewSelect[^>]*label="Lead crew"/)
+// The deckbuilder picks its crews with faction pictures (2026-11-11).
+assert.match(page, /data-testid="slime-general-picker"/)
 for (const file of ['slime-city-campaign.vue', 'slime-city-clash.vue'])
   assert.match(
     readFileSync(new URL('../../components/' + file, import.meta.url), 'utf8'),

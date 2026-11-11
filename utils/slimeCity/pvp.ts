@@ -23,7 +23,9 @@ export function isPvpExpired(
   now = Date.now(),
 ): boolean {
   if (settled) return false
-  const timestamp = lastActionAt ? Date.parse(lastActionAt) : startedAt.getTime()
+  const timestamp = lastActionAt
+    ? Date.parse(lastActionAt)
+    : startedAt.getTime()
   if (!Number.isFinite(timestamp)) return true
   return now - timestamp > (joined ? PVP_IDLE_EXPIRY_MS : PVP_INVITE_EXPIRY_MS)
 }

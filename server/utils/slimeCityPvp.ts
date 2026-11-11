@@ -80,10 +80,16 @@ function snapshot(row: Row, record: PvpRecord, userId: number): PvpSnapshot {
     seat,
     hostTeam: row.teamId as TeamId,
     guestTeam: joined ? (row.foeId as TeamId) : null,
-    stage: !joined ? 'waiting' : row.settledAt || state?.victor ? 'finished' : 'battle',
+    stage: !joined
+      ? 'waiting'
+      : row.settledAt || state?.victor
+        ? 'finished'
+        : 'battle',
     board: state ? pvpBoard(state, seat) : null,
     revision: record.commands.length,
-    outcome: row.settledAt ? (row.result as Side | null) : (state?.victor ?? null),
+    outcome: row.settledAt
+      ? (row.result as Side | null)
+      : (state?.victor ?? null),
     forfeitedBy: record.forfeitedBy ?? null,
   }
 }

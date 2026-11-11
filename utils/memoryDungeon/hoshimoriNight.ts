@@ -855,7 +855,7 @@ export const HOSHIMORI_NIGHT_SITES: readonly NightSite[] = [
   s(
     '7,5',
     'The Salt Registry',
-    'A clerk weighs refugees' footprints against sacks of salt. The scale declares anyone who fled too lightly to deserve shelter.',
+    'A clerk weighs refugee footprints against sacks of salt. The scale declares anyone who fled too lightly to deserve shelter.',
     c(
       'night-salt-appeal',
       'Let families challenge the weighing',
@@ -906,7 +906,7 @@ export const HOSHIMORI_NIGHT_SITES: readonly NightSite[] = [
   s(
     '6,6',
     'The Ashwell Clinic',
-    'A physician offers to erase a child's frightening memories before asking what the child wants to keep.',
+    'A physician offers to erase a child’s frightening memories before asking what the child wants to keep.',
     c(
       'night-clinic-consent',
       'Ask the child which memories matter',
@@ -1029,13 +1029,13 @@ export const HOSHIMORI_NIGHT_SITES: readonly NightSite[] = [
     c(
       'night-heron-trade',
       'Trade a false map for safe passage',
-      'Vesper draws a road that exists only on paper; the heron releases the travelers' memories.',
+      'Vesper draws a road that exists only on paper; the heron releases the travelers’ memories.',
       'night-heron-fooled',
     ),
     c(
       'night-heron-feed',
       'Offer fish instead of memories',
-      'Char feeds the heron. It learns to recognize hunger without taking a person's past.',
+      'Char feeds the heron. It learns to recognize hunger without taking a person’s past.',
       'night-heron-fed',
     ),
   ),
@@ -1069,18 +1069,18 @@ export const HOSHIMORI_NIGHT_SITES: readonly NightSite[] = [
     c(
       'night-needle-repair',
       'Ask travelers to rebuild the crossing',
-      'Vesper organizes a voluntary repair rota; no one's clothing becomes a toll.',
+      'Vesper organizes a voluntary repair rota; no one’s clothing becomes a toll.',
       'night-needle-repaired',
     ),
   ),
   s(
     '6,8',
     'The Moth Signal',
-    'A tower flashes Vesper's childhood route marks. The signals now guide hunters toward the very shelters they once protected.',
+    'A tower flashes Vesper’s childhood route marks. The signals now guide hunters toward the very shelters they once protected.',
     c(
       'night-signal-change',
       'Change the code with the shelter keepers',
-      'Vesper gives control of the signals to the community and destroys the hunters' key.',
+      'Vesper gives control of the signals to the community and destroys the hunters’ key.',
       'night-signal-changed',
     ),
     c(
@@ -1102,7 +1102,7 @@ export const HOSHIMORI_NIGHT_SITES: readonly NightSite[] = [
     ),
     c(
       'night-weir-witness',
-      'Record the weir's builders before dismantling it',
+      'Record the weir’s builders before dismantling it',
       'Vesper gathers accountable testimony while Oren diverts the flood.',
       'night-weir-witnessed',
     ),

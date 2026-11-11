@@ -728,3 +728,84 @@ for (const [id, motif] of [
   assert.equal(card?.team, 'exchange')
   assert.match(card?.text ?? '', motif, `Exchange occult identity: ${id}`)
 }
+
+// t-053 (Silas, 2026-11-10 PT): the whole Meat Exchange roster is a drowned
+// priesthood kneeling to the Thing That Hungers, not a crew of finance bros.
+// All 40 cards keep their ids; only display names and flavor changed. The ten
+// founders' flavor was recast in #5000; the Mogul keeps his name.
+const EXCHANGE_FOUNDERS = new Set([
+  'repo',
+  'collector',
+  'broker',
+  'mogul',
+  'collection',
+  'debttrap',
+  'contract',
+  'foreclosure',
+  'handshake',
+  'hushmoney',
+])
+const EXCHANGE_ROSTER: Record<string, string> = {
+  repo: 'Ossuary Goblin',
+  collector: 'Tithe-Bell Ringer',
+  broker: 'Butcher-Priest',
+  mogul: 'The Meat Mogul',
+  collection: 'Summons of the Butchers',
+  debttrap: 'Hungry Sigil',
+  contract: "Drowned Saint's Hide",
+  foreclosure: "The Chapel's Tithe",
+  handshake: 'Blackened Palm Oath',
+  hushmoney: 'Merciful Altar',
+  'audit-fiend': 'Flesh-Ledger Fiend',
+  'debt-holiday': 'Drowned Reprieve',
+  's1-executive-repo': 'Relic Reaper',
+  's1-guild-clerk': 'Novice Grave-Scrivener',
+  's1-margin-call': 'Call of the Tithe',
+  's1-buy-silence': 'Vow of Silence',
+  's1-debt-garnish': 'Tithe Flagstone',
+  's1-golden-handshake': 'Gilded Hand of the Deep',
+  's2-exchange-bargain-rate-collector': 'Hook-Hand Almsman',
+  's2-exchange-golden-bailiff': 'Brass Summoner of the Deep',
+  's2-exchange-compound-interest-notice': 'Breeding Hunger',
+  's2-exchange-contract-amendment': 'The Thirty-Seventh Page',
+  's2-exchange-invisible-lien': 'Unseen Hook',
+  's2-exchange-executive-health-coverage': "Embalmer's Blessing",
+  's3-exchange-wage-garnisher': 'Vein-Tithe Novice',
+  's3-exchange-mortgage-minotaur': 'Ossuary Minotaur',
+  's3-exchange-retainer-clerk': 'Nameless Vigil-Keeper',
+  's3-exchange-seizure-executive': 'Crypt Warden',
+  's3-exchange-hostile-takeover-goon': 'Altar-Guard Butcher',
+  's3-exchange-golden-foreclosure': 'Breathing Ossuary Vault',
+  's3-exchange-payment-reminder': 'The First Knell',
+  's3-exchange-compound-notice': 'Twin Omens',
+  's3-exchange-executive-incentive': 'Whetstone Blessing',
+  's3-exchange-golden-parachute': 'Gilded Shroud',
+  's3-exchange-acquisition-clause': 'Mark of the Procession',
+  's3-exchange-late-fee-sticker': 'Bleeding Glyph',
+  's3-exchange-escrow-snare': 'Reliquary Snare',
+  's3-exchange-repossession-notice': 'Bone-Cart Summons',
+  's3-exchange-ledger-greaves': 'Pallbearer Greaves',
+  's3-exchange-collection-badge': 'Bone Tithe Sigil',
+}
+const exchangeCards = CARDS.filter((card) => card.team === 'exchange')
+assert.equal(exchangeCards.length, 40, 'the Exchange fields 40 cards')
+assert.deepEqual(
+  exchangeCards.map((card) => card.id).sort(),
+  Object.keys(EXCHANGE_ROSTER).sort(),
+  'Exchange card ids are unchanged by the occult reskin',
+)
+const exchangeNames = exchangeCards.map((card) => card.name)
+assert.equal(new Set(exchangeNames).size, 40, 'Exchange names are unique')
+for (const card of exchangeCards) {
+  assert.equal(card.name, EXCHANGE_ROSTER[card.id], card.id + ' occult name')
+  assert.equal(
+    CARDS.filter((other) => other.name === card.name).length,
+    1,
+    card.name + ' is unique across the whole roster',
+  )
+  assert.doesNotMatch(
+    (card.id === 'mogul' ? '' : card.name + ' ') + card.text,
+    /executive|golden|mortgage|escrow|parachute|takeover|margin call|garnish|bailiff|repossess|insurance|bank vault|loophole|severance|legal/i,
+    card.id + ' reads as occult, not finance',
+  )
+}

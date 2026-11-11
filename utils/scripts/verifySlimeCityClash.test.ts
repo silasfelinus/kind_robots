@@ -1467,7 +1467,7 @@ for (const name of [
   'Moshpit Tripcord',
   'Bloodwire',
   'Leech Grate',
-  'Escrow Snare',
+  'Reliquary Snare',
   'Culvert Tollwire',
   'Floodgate Clamp',
 ]) {

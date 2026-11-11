@@ -464,8 +464,8 @@ export function validExchangeJourney(progress: CampaignProgress): boolean {
   return true
 }
 /** The rite's choices field real Exchange cards in the next STORY Clash:
- * mercy brings the Contract Amendment, appetite brings the Emergency Margin
- * Call. Nothing is added to the player's collection. */
+ * mercy brings The Thirty-Seventh Page, appetite brings the Call of the
+ * Tithe. Nothing is added to the player's collection. */
 export function exchangeStoryDeck(
   progress: CampaignProgress,
   deck: string[],

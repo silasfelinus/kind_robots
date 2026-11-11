@@ -1279,7 +1279,7 @@ export const CARDS: Card[] = [
   // --- MEAT EXCHANGE: debt, contracts and one expensive champion
   {
     id: 'repo',
-    name: 'Repo Goblin',
+    name: 'Ossuary Goblin',
     kind: 'creature',
     team: 'exchange',
     cost: 1,
@@ -1292,7 +1292,7 @@ export const CARDS: Card[] = [
   },
   {
     id: 'collector',
-    name: 'Debt Collector',
+    name: 'Tithe-Bell Ringer',
     kind: 'creature',
     team: 'exchange',
     cost: 2,
@@ -1306,7 +1306,7 @@ export const CARDS: Card[] = [
   },
   {
     id: 'broker',
-    name: 'Flesh Broker',
+    name: 'Butcher-Priest',
     kind: 'creature',
     team: 'exchange',
     cost: 3,
@@ -1335,7 +1335,7 @@ export const CARDS: Card[] = [
   },
   {
     id: 'collection',
-    name: 'Hostile Collection',
+    name: 'Summons of the Butchers',
     kind: 'spell',
     team: 'exchange',
     cost: 2,
@@ -1346,7 +1346,7 @@ export const CARDS: Card[] = [
   },
   {
     id: 'debttrap',
-    name: 'Hidden Fees',
+    name: 'Hungry Sigil',
     kind: 'trap',
     team: 'exchange',
     cost: 2,
@@ -1358,7 +1358,7 @@ export const CARDS: Card[] = [
   },
   {
     id: 'contract',
-    name: 'Iron Contract',
+    name: "Drowned Saint's Hide",
     kind: 'equipment',
     team: 'exchange',
     cost: 2,
@@ -1368,7 +1368,7 @@ export const CARDS: Card[] = [
   },
   {
     id: 'foreclosure',
-    name: 'Foreclosure',
+    name: "The Chapel's Tithe",
     kind: 'spell',
     team: 'exchange',
     cost: 2,
@@ -1380,7 +1380,7 @@ export const CARDS: Card[] = [
   },
   {
     id: 'handshake',
-    name: 'Golden Handshake',
+    name: 'Blackened Palm Oath',
     kind: 'equipment',
     team: 'exchange',
     cost: 2,
@@ -1391,7 +1391,7 @@ export const CARDS: Card[] = [
   },
   {
     id: 'hushmoney',
-    name: 'Hush Money',
+    name: 'Merciful Altar',
     kind: 'spell',
     team: 'exchange',
     cost: 1,

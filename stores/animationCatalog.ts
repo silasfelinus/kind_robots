@@ -1098,6 +1098,19 @@ export const ANIMATION_EFFECTS = [
     generationSafe: true,
     preferredSurface: 'fullscreen',
   },
+  {
+    id: 'hot-air-balloon-dawn',
+    label: 'Hot Air Balloon Dawn',
+    reveal:
+      'Striped hot-air balloons drift over rolling hills as the sun comes up',
+    icon: 'kind-icon:sparkle',
+    tooltip:
+      'Balloons float across a dawn sky 🎈 hover to flare a burner, click to send a thermal that lifts them all',
+    color: '#f6c28b',
+    releasedAt: '2026-11-11T14:00:00Z',
+    generationSafe: true,
+    preferredSurface: 'fullscreen',
+  },
 ] as const satisfies readonly AnimationEffectDefinition[]
 
 export type AnimationEffectId = (typeof ANIMATION_EFFECTS)[number]['id']

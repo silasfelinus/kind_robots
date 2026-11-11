@@ -133,8 +133,21 @@ assert.ok(BIBLE_LANES.some((lane) => /arthemy/i.test(lane.checkpoint ?? '')))
 assert.ok(BIBLE_LANES.some((lane) => lane.engine === 'krea2'))
 assert.ok(LORA_STATUSES.includes('dataset-requested'))
 
-// The first batch: 10 stars x 2 shots x 8 lanes.
-assert.equal(MONSTRIQUE_BIBLE_SEED.length, 160)
+// The first batch: 10 stars x 2 shots x 6 safe lanes.
+assert.equal(MONSTRIQUE_BIBLE_SEED.length, 120)
+for (const banned of ['realism-by', 'miaomiao3d']) {
+  assert.ok(
+    !BIBLE_LANES.some((lane) => lane.key === banned),
+    banned + ' rendered explicit pin-ups and stays out of the bible',
+  )
+  assert.ok(!MONSTRIQUE_BIBLE_SEED.some((row) => row.lane === banned))
+}
+assert.match(
+  String(
+    bibleEnqueueBodies('nyx', 'shower', ['arthemy'])[0]!.body.negativePrompt,
+  ),
+  /\(nipples:1\.6\)/,
+)
 assert.ok(
   MONSTRIQUE_BIBLE_SEED.every(
     (row) =>

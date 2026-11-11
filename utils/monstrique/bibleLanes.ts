@@ -1,6 +1,9 @@
 /**
  * Render lanes the Monstrique series bible can request art on: the house
- * Illustrious checkpoints (Arthemy first) and Krea 2. Prompt recipes for
+ * Illustrious checkpoints (Arthemy first) and Krea 2. Realism Illustrious By
+ * and Miaomiao 3D are excluded: in the first pin-up batch (2026-11-11) they
+ * ignored the no-nudity negatives and rendered explicit or near-explicit
+ * images, which Monstrique never allows. Prompt recipes for
  * these lanes live server-side in server/utils/monstriqueBible.ts.
  */
 export interface BibleLane {
@@ -45,20 +48,6 @@ export const BIBLE_LANES: BibleLane[] = [
     label: 'Illustrious Realism',
     engine: 'comfy',
     checkpoint: 'Illustrious/illustriousRealism_ilXL10V40.safetensors',
-    prompt: 'tags',
-  },
-  {
-    key: 'realism-by',
-    label: 'Realism Illustrious By',
-    engine: 'comfy',
-    checkpoint: 'Illustrious/realismIllustriousBy_v55FP16.safetensors',
-    prompt: 'tags',
-  },
-  {
-    key: 'miaomiao3d',
-    label: 'Miaomiao 3D',
-    engine: 'comfy',
-    checkpoint: 'Illustrious/miaomiao3DHarem_lh3dEPS20.safetensors',
     prompt: 'tags',
   },
   { key: 'krea2', label: 'Krea 2', engine: 'krea2', prompt: 'prose' },

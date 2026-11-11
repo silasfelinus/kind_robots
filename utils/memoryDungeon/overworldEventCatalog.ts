@@ -498,6 +498,16 @@ function generated(
 }
 
 function legacyKind(world: string, key: string): OverworldKind {
+  if (world === 'e08') {
+    const nightKinds: Partial<Record<string, OverworldKind>> = {
+      '2,5': 'treasure',
+      '3,6': 'puzzle',
+      '6,6': 'monster',
+      '7,6': 'merchant',
+      '8,6': 'companion',
+    }
+    if (nightKinds[key]) return nightKinds[key]
+  }
   if ((world === 'e07' || world === 'e08') && key === '4,3') return 'dungeon'
   if (photos.get(world)?.some((photo) => photo.site === key)) return 'memory'
   if (world === 'e02' && Object.hasOwn(DARK_BRIAR_SEALS, key)) return 'puzzle'

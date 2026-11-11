@@ -38,16 +38,16 @@ import {
 import { readFileSync } from 'node:fs'
 
 assert.deepEqual(validateHoshimoriNight(), [])
-assert.equal(HOSHIMORI_NIGHT_SITES.length, 48)
+assert.equal(HOSHIMORI_NIGHT_SITES.length, 64)
 assert.equal(
   new Set(HOSHIMORI_NIGHT_SITES.map((site) => site.opening)).size,
-  48,
+  64,
 )
 assert.equal(
   new Set(
     HOSHIMORI_NIGHT_SITES.flatMap((site) => site.choices.map((c) => c.outcome)),
   ).size,
-  96,
+  128,
 )
 assert.ok(
   HOSHIMORI_NIGHT_SITES.every((site) =>
@@ -750,6 +750,48 @@ for (let seed = 0; seed < 16; seed++) {
     reconcileHoshimoriNightEarthChronicle(recovered, progress.choices),
     recovered,
   )
+  const southernExtension = [
+    '7,7',
+    '8,7',
+    '8,8',
+    '7,8',
+    '6,8',
+    '5,8',
+    '4,8',
+    '3,8',
+    '2,8',
+    '1,8',
+    '2,8',
+    '3,8',
+    '4,8',
+    '5,8',
+    '6,8',
+    '6,7',
+    '6,6',
+    '5,6',
+    '6,6',
+    '7,6',
+    '8,6',
+    '8,5',
+    '7,5',
+  ]
+  for (const key of southernExtension) {
+    progress = visit(progress, key)
+    const site = HOSHIMORI_NIGHT_SITES.find((item) => item.key === key)!
+    if (!progress.choices[key]) {
+      const choice = site.choices[seed % 2]!
+      progress = choose(progress, choice.id)
+    }
+  }
+  assert.equal(progress.visited.length, 62)
+  assert.equal(Object.keys(progress.choices).length, 62)
+  assert.deepEqual(
+    restoreHoshimoriNight(JSON.parse(JSON.stringify(progress))),
+    progress,
+  )
+  const forgedExtension = JSON.parse(JSON.stringify(progress)) as NightProgress
+  forgedExtension.choices['8,8'] = 'night-gate-forged'
+  assert.equal(restoreHoshimoriNight(forgedExtension), null)
   const forgedSupper = JSON.parse(JSON.stringify(progress)) as NightProgress
   forgedSupper.choices['6,7'] = 'night-supper-forged'
   assert.equal(restoreHoshimoriNight(forgedSupper), null)
@@ -760,5 +802,5 @@ assert.equal(
   'Three earned Lowbank decisions must produce eight distinct flood accounts',
 )
 console.log(
-  'Hoshimori e08: 46 mirrored sites, 96 original + 64 Windward + 64 Bellroad + 64 Lowbank seeded routes, eight council/ridge/Bellroad/Lowbank accounts, save forgery protection OK',
+  'Hoshimori e08: 64 authored sites, 96 original + 64 Windward + 64 Bellroad + 64 Lowbank seeded routes, eight council/ridge/Bellroad/Lowbank accounts, save forgery protection OK',
 )

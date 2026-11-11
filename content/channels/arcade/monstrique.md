@@ -10,8 +10,10 @@ summary: Solve the Last Call mystery.
 icon: kind-icon:movie
 route: /play/monstrique
 sort: 115
+image: /monstrique/front/hero.webp
 tutorial:
   title: Monstrique · The Last Call
+  image: /monstrique/front/hero.webp
   body: >-
     Explore the motel through illustrated hotspots. Inspect items, interview
     two ghost witnesses and follow the missing Monstrique contracts. The general

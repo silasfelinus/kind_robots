@@ -144,7 +144,7 @@ for (const ally of TEAMS) {
 }
 assert.equal(bouts, 36)
 console.log(
-  'Targeted 36-game smoke is not a faction balance sample: mostly Riot versus Ironjaw.'
+  'Targeted 36-game smoke is not a faction balance sample: mostly Riot versus Ironjaw.',
 )
 console.log(
   'Alliance tactics: 300 partner/chapter/choice terms and 36 real Alliance ' +

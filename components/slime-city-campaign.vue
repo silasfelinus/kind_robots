@@ -86,7 +86,9 @@
         >
           <option value="">Current alliance</option>
           <option
-            v-for="deck in lab.library.filter((item) => lab.libraryDeckReady(item.id))"
+            v-for="deck in lab.library.filter((item) =>
+              lab.libraryDeckReady(item.id),
+            )"
             :key="deck.id"
             :value="deck.id"
           >
@@ -243,8 +245,8 @@
         <h3>{{ lab.campaignStory.title }}: THE END</h3>
         <p class="campaign-lede">{{ lab.campaignFinale }}</p>
         <small class="campaign-note"
-          >Each crew has its own saved journey. Story wins
-          grant no account Meat, XP or pack cards.</small
+          >Each crew has its own saved journey. Verified Clash battles can
+          earn account rewards; story-only card choices stay in this run.</small
         >
       </article>
       <div
@@ -424,7 +426,9 @@
           v-if="allyChapterLine"
           class="campaign-variant"
           data-testid="slime-journey-alliance-branch"
-        >{{ allyChapterLine }}</p>
+        >
+          {{ allyChapterLine }}
+        </p>
         <div
           v-if="lab.geneRiotOutcome && lab.activeTeam === 'catgirls'"
           class="campaign-recap"
@@ -450,8 +454,8 @@
           </ul>
           <p v-else class="campaign-field-note">
             This historical battlefield briefing is from Legacy mode. Your
-            actual showdown uses your chosen Journey deck; your decisions
-            change starting boss life.
+            actual showdown uses your chosen Journey deck; your decisions change
+            starting boss life.
           </p>
         </section>
         <div
@@ -587,8 +591,10 @@ const allyChapterLine = computed(() => {
   if (lab.journeyFormat !== 'alliance' || !lab.activeChapter) return null
   const ally = teamName(lab.selectedJourneyAlliance.ally)
   return lab.selectedJourneyAlliance.ally === lab.activeChapter.foe
-    ? ally + ' defectors join your crew, facing their former comrades in this chapter.'
-    : ally + ' joins your crew for this chapter. Their fighters change the battle, not the story you have already written.'
+    ? ally +
+        ' defectors join your crew, facing their former comrades in this chapter.'
+    : ally +
+        ' joins your crew for this chapter. Their fighters change the battle, not the story you have already written.'
 })
 const hasAftermath = computed(
   () => !!lab.campaignAftermath || !!lab.campaignState.lastScene,

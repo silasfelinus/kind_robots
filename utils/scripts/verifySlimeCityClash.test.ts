@@ -121,7 +121,10 @@ assert.match(gamePage, /data-testid="slime-settings"/)
 assert.match(gamePage, /data-testid="slime-card-inspector"/)
 assert.match(gamePage, /data-testid="slime-clash-tab"/)
 assert.match(gamePage, /data-testid="slime-journey-tab"/)
-assert.doesNotMatch(gamePage, /data-testid="slime-campaign-tab"|data-testid="slime-city-tab"/)
+assert.doesNotMatch(
+  gamePage,
+  /data-testid="slime-campaign-tab"|data-testid="slime-city-tab"/,
+)
 // Silas, 2026-11-08 PT: "we don't need the legacy modes, period."
 assert.doesNotMatch(gamePage, /slime-legacy-toggle/)
 assert.doesNotMatch(gamePage, /<SlimeCityArena|<SlimeCityAlleys/)

@@ -188,14 +188,12 @@ export const EXCHANGE_EVOLUTIONS: Record<string, CardEvolution> = {
   // Trajectory: ROLE SHIFT (choose one: burst or clock). Counterplay: the
   // balloon is all at once, so race it; the long term dies with the bull.
   's3-exchange-mortgage-minotaur': {
-    2: stage('The First Offering', [on('enter', mend(2))]),
-    3: stage('The Great Devouring', [on('enter', boss(4))]),
+    2: stage('First Tithe', [on('enter', mend(2))]),
+    3: stage('Great Maw', [on('enter', boss(4))]),
     // Choose one: or the long term, thirty years of a slow drain every turn.
     // The CPU takes the balloon while foes stand to threaten the bull.
     choice: {
-      stage: stage('Endless Tithe', [
-        on('turnStart', boss(1), mend(1)),
-      ]),
+      stage: stage('Endless Tithe', [on('turnStart', boss(1), mend(1))]),
       cpu: 'foesPresent',
     },
   },

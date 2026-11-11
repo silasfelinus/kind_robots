@@ -317,6 +317,12 @@
           >
             ‹
           </button>
+          <SlimeCityCrewSelect
+            v-if="!inBout"
+            compact
+            label="Your crew"
+            @picked="lab.playClashFormat()"
+          />
           <span class="clash-vs-badge" aria-hidden="true">VS</span>
           <span class="clash-phase">
             <small>ROUND {{ game.round }}</small>
@@ -2137,6 +2143,9 @@ function forecast(lane: number): string {
 @container clash (max-width: 30rem) {
   .clash-lane-numbers span {
     font-size: 0.48rem;
+  }
+  .clash-phase small {
+    display: none;
   }
 }
 

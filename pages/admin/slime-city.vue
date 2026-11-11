@@ -10,35 +10,6 @@
         console-theme="slime-city"
       >
         <div class="sc-header" data-testid="slime-city-header">
-          <div
-            class="sc-crew-picker"
-            role="group"
-            aria-label="Choose your crew"
-            data-testid="slime-crew-picker"
-          >
-            <button
-              v-for="team in lab.teams"
-              :key="team.id"
-              type="button"
-              class="sc-crew"
-              :class="[
-                'tone-' + team.color,
-                { chosen: lab.activeTeam === team.id },
-              ]"
-              :title="team.name"
-              :aria-label="team.name"
-              :aria-pressed="lab.activeTeam === team.id"
-              :data-testid="'slime-crew-' + team.id"
-              @click="lab.chooseTeam(team.id)"
-            >
-              <SlimeCityArtwork
-                :image-id="slimeArtId('crews', team.id)"
-                :alt="team.name + ' crew emblem'"
-                :fallback="team.insignia"
-                compact
-              />
-            </button>
-          </div>
           <nav class="sc-tabs" aria-label="Slime City modes">
             <button
               type="button"
@@ -338,6 +309,10 @@
             >
               BOUNTIES &amp; REWARDS
             </button>
+            <SlimeCityCrewSelect
+              v-if="lab.deckFormat === 'alliance'"
+              label="Lead crew"
+            />
             <button
               v-if="lab.deckFormat === 'solo'"
               type="button"
@@ -1428,45 +1403,6 @@ onUnmounted(() => {
   flex: 1;
   min-height: 0;
 }
-.sc-crew-picker {
-  flex: none;
-  display: flex;
-  gap: 0.25rem;
-  padding: 0.2rem;
-  border: 1px solid #4d5567;
-  border-radius: 0.6rem;
-  background: #0e1420;
-}
-.sc-crew {
-  overflow: hidden;
-  flex: none;
-  display: grid;
-  place-items: center;
-  width: 2.25rem;
-  height: 2.25rem;
-  padding: 0;
-  font-size: 1.3rem;
-  border-radius: 0.42rem;
-  border: 2px solid transparent;
-  background: radial-gradient(#ffffff44, transparent 70%), var(--tone);
-  color: #0b1222;
-  opacity: 0.62;
-  filter: saturate(0.7);
-  transition:
-    opacity 0.12s,
-    transform 0.12s,
-    border-color 0.12s;
-}
-.sc-crew:hover {
-  opacity: 0.9;
-  transform: translateY(-1px);
-}
-.sc-crew.chosen {
-  opacity: 1;
-  filter: none;
-  border-color: var(--tone);
-  box-shadow: 0 0 14px color-mix(in srgb, var(--tone) 70%, transparent);
-}
 .tone-red {
   --tone: #fe6657;
 }
@@ -2147,37 +2083,15 @@ onUnmounted(() => {
   font-size: 0.65rem !important;
   letter-spacing: 0.04em;
 }
-@container (max-width: 900px) {
-  .sc-crew {
-    width: 1.9rem;
-    height: 1.9rem;
-  }
-}
 /*
   ALL FIVE VIEW TABS, ALWAYS. Silas, 2026-11-02: "worried that the city arena
   story cards section is not showing everything." It wasn't -- the docked bar
-  (often ~600px wide beside the site icons) gave the tabs what the six full-size
-  crew badges left over, and REWARDS scrolled out of sight. In that middle band
-  the crews fold into a 3x2 grid of small badges instead, which frees ~170px.
-  Below 600px the header already wraps the crews onto their own row.
+  (often ~600px wide beside the site icons) squeezed the tabs, so in that
+  middle band they tighten instead. The header no longer carries a crew picker
+  (Silas, 2026-11-11 PT: "that top selector is often redundant and sometimes
+  confusing"); Journey, Practice and Collection each pick their own crew.
 */
 @container (min-width: 601px) and (max-width: 960px) {
-  .sc-crew-picker {
-    display: grid;
-    grid-template-columns: repeat(3, auto);
-    gap: 2px;
-    padding: 2px;
-    border-radius: 0.4rem;
-  }
-  .sc-crew {
-    width: 1.15rem;
-    height: 1.15rem;
-    border-width: 1px;
-    border-radius: 0.25rem;
-  }
-  .sc-crew:hover {
-    transform: none;
-  }
   .sc-tabs button {
     min-width: 0;
     padding: 0.4rem 0.6rem;
@@ -2206,15 +2120,6 @@ onUnmounted(() => {
   .sc-header {
     flex-wrap: wrap;
     row-gap: 0.3rem;
-  }
-  .sc-crew-picker {
-    order: 2;
-    width: 100%;
-    justify-content: center;
-  }
-  .sc-crew {
-    width: 2rem;
-    height: 2rem;
   }
   .sc-map-field {
     inset: 3.4rem 1.4rem 9.6rem;
@@ -2275,9 +2180,6 @@ onUnmounted(() => {
   }
 }
 @media (prefers-reduced-motion: reduce) {
-  .sc-crew {
-    transition: none;
-  }
   .sc-district-pin {
     box-shadow: none;
   }

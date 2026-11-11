@@ -1107,6 +1107,13 @@ export type DirectMessage = Prisma.DirectMessageModel
  */
 export type Notification = Prisma.NotificationModel
 /**
+ * Model MonstriqueBibleEntry
+ * Monstrique series bible (admin + mature only): per-character edits layered
+ * over the canonical model sheets in utils/monstrique/characterModels.ts,
+ * plus the art and LoRA-dataset jobs requested from the bible.
+ */
+export type MonstriqueBibleEntry = Prisma.MonstriqueBibleEntryModel
+/**
  * Model GithubInstallation
  * AppMaker GitHub App integration (appmaker/t-008, GITHUB-APP-DESIGN.md §4).
  * One row per user who has installed the kind-robots-appmaker GitHub App on

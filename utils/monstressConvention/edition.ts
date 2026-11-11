@@ -84,6 +84,7 @@ const GENERAL_TOPICS = new Set([
   'missing-fangs',
   'fan-alibi',
   'idol-schedule',
+  'norb-shirt',
 ])
 
 const GENERAL_APPROVED_MOMENTS = new Set([

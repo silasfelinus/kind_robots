@@ -428,6 +428,11 @@ export const TOPICS: Record<string, string> = {
   'violet-fee': 'Violet’s unpaid fee',
   'missing-fangs': 'Violet’s missing fangs',
   shrine: 'The Beach Hex shrine',
+  'iris-neck': 'The plaster on Iris’s neck',
+  'iris-tattoo': 'Iris’s lower-back tattoo',
+  'norb-shirt': 'Norb’s MONSTRIQUE T-shirt',
+  'workplace-conduct': 'Workplace conduct',
+  'power-structures': 'Who has power over whom',
 }
 
 export const EVIDENCE: Record<string, string> = {
@@ -467,13 +472,13 @@ export const GRACES: Record<string, { name: string; max: number }> = {
 }
 
 const NORB_REBUFFS = [
-  'Iris: Buy you a drink, boss? Norb: A bar glass is the most contaminated object in any building. Focus.',
-  'Iris: You’re cute when you deduce. Norb: I am cute when I am two metres from other people.',
-  'Iris: Share the bed tonight? Strictly for warmth. Norb: I have seen that bedspread under a blacklight. Nobody is sharing it with anybody.',
-  'Iris: One kiss, for luck? Norb: The human mouth hosts seven hundred species of bacteria. Pick a lucky coin.',
-  'Iris: I could rub your shoulders. Norb: You could wash your hands. Twice. Then time the ice machine.',
-  'Iris: You’re all about the case. What if I were the case? Norb: Then you would be closed.',
-  'Iris: I’m wearing nothing under this trench coat. Norb: Then you are a biohazard. Leave the door open.',
+  'Iris: Buy you a drink, boss? Norb: Fraternisation between staff is covered on page four of the handbook. I wrote the handbook. Focus.',
+  'Iris: You’re cute when you deduce. Norb: Thank you for your feedback. It has been logged and will not be actioned.',
+  'Iris: Share the bed tonight? Strictly for warmth. Norb: I have seen that bedspread under a blacklight. Also, I am your employer. Also, no.',
+  'Iris: I could rub your shoulders. Norb: That is my hump, Iris. It is not a shoulder, and it is not available for rubbing.',
+  'Iris: One kiss, for luck? Norb: Luck is not a recognised business expense. Neither is your mouth.',
+  'Iris: You’re all about the case. What if I were the case? Norb: Then I would recuse myself.',
+  'Iris: I’m wearing nothing under this trench coat. Norb: Then please button it. That is a workplace instruction, not a remark.',
 ]
 
 /**
@@ -718,9 +723,24 @@ export function travel(state: CaseState, destination: RoomId): CaseResult {
 
 export function availableTopics(state: CaseState, target: string): string[] {
   const supported: Record<string, string[]> = {
-    marta: ['room-access', 'unknown-visitor', 'shrine'],
-    neighbor: ['unknown-visitor', 'ice-clank'],
-    nico: ['knife-origin', 'ghost-accounts', 'ice-clank', 'harker-files'],
+    marta: [
+      'room-access',
+      'unknown-visitor',
+      'shrine',
+      'iris-neck',
+      'norb-shirt',
+    ],
+    neighbor: ['unknown-visitor', 'ice-clank', 'iris-neck', 'iris-tattoo'],
+    nico: [
+      'knife-origin',
+      'ghost-accounts',
+      'ice-clank',
+      'harker-files',
+      'norb-shirt',
+      'iris-neck',
+      'workplace-conduct',
+      'power-structures',
+    ],
     gavin: ['fan-alibi'],
     'odette-ghost': [
       'agent-deals',
@@ -728,6 +748,8 @@ export function availableTopics(state: CaseState, target: string): string[] {
       'knife-origin',
       'harker-files',
       'violet-fee',
+      'iris-neck',
+      'iris-tattoo',
     ],
     'violet-ghost': [
       'violet-witness',
@@ -735,6 +757,7 @@ export function availableTopics(state: CaseState, target: string): string[] {
       'ghost-accounts',
       'missing-fangs',
       'violet-fee',
+      'iris-neck',
     ],
   }
   return (supported[target] ?? []).filter(
@@ -885,6 +908,62 @@ function interview(
         next,
         'Violet: Four hundred for the night, cape included. She didn’t book a vampire, she booked Draculina: the wig, the accent, the whole Countess. A lifetime of pent-up whatever. I gave a great performance. I’d like to be paid for it.',
       )
+    case 'nico:norb-shirt':
+      return withLine(
+        next,
+        'Iris: Nice shirt, boss. Big Monstrique fan? Norb: A woman in a fly costume handed it to me at the convention. My hands were full. Wearing it was the most efficient way to carry it. Iris: That was three days ago. Norb: It is still being carried.',
+      )
+    case 'marta:norb-shirt':
+      return withLine(
+        next,
+        'Marta: Your boss wears a hot-pink souvenir shirt under a bow tie. Norb: It is not a fashion statement, madam. It is a logistics solution. Marta: Honey, it is both, and both are bad.',
+      )
+    case 'nico:iris-neck':
+      return withLine(
+        next,
+        'Norb: Iris, that plaster is not sterile and neither, I suspect, is the situation beneath it. Iris: New boyfriend. He’s a real necker. Can’t get enough. Norb: I did not ask about the boyfriend. I asked about the plaster. Change it.',
+      )
+    case 'marta:iris-neck':
+      return withLine(
+        next,
+        'Marta: That a shaving cut, hon? Iris: Boyfriend. Real necker. Marta: In my day we called that a turtleneck and kept quiet about it.',
+      )
+    case 'neighbor:iris-neck':
+      return withLine(
+        next,
+        'Dolores: Is that a love bite under there? In 1974 we called the police. In 1975 we called him back.',
+      )
+    case 'odette-ghost:iris-neck':
+      return withLine(
+        next,
+        'Odette: Darling, who has been chewing on my investigator? Iris: New boyfriend. Real necker. Odette: Get him to sign something before he draws blood. Everybody signs something.',
+      )
+    case 'violet-ghost:iris-neck':
+      return withLine(
+        next,
+        'Violet: I wore fangs for a living, honey. That’s not a hickey, that’s a lease. Does he ever come out in daylight? Iris: He works nights. Violet: Mm-hm.',
+      )
+    case 'neighbor:iris-tattoo':
+      return withLine(
+        next,
+        'Dolores: Is that the Silver Bite logo on your lower back? Iris: Midnight High. Everybody got one. I rocked it. Dolores: Sweetie, you still do.',
+      )
+    case 'odette-ghost:iris-tattoo':
+      return withLine(
+        next,
+        'Odette: That logo is a registered trademark, darling. You owe the estate ten percent of your lower back. Iris: Sue me. Odette: I would, but I’m dead and you’re the only one who can pick up a pen.',
+      )
+    case 'nico:workplace-conduct':
+      add(next.topics, 'power-structures')
+      return withLine(
+        next,
+        'Norb: Iris, that is the third advance this shift. I am obliged to inform you that this constitutes sexual harassment. Probably. I will not be filing. Iris: Harassment? Boss, you sign my paycheques. Power runs downhill, and I live at the bottom of the hill.',
+      )
+    case 'nico:power-structures':
+      return withLine(
+        next,
+        'Norb: You assume power is purely positional. You hold the camera, the car keys and the only working pair of hands at The Unwashed Truth. Withdraw your labour and I am a man in gloves shouting at a crime scene. Iris: So the worker controls the means of production. Norb: The means of photography. Capital still owns us both, Iris, but leverage is not ownership. Which is why I ask you, as your employer, to stop, and, as a materialist, to unionise. Iris: Is that a no on dinner? Norb: It is a no on dinner. Clock in.',
+      )
     case 'gavin:fan-alibi':
       add(next.evidence, 'fan-photo')
       if (has(next, 'ice-timing') || has(next, 'neighbor-testimony'))
@@ -916,6 +995,7 @@ function flirt(state: CaseState, target: string): CaseResult {
   if (target === 'nico') {
     const line = NORB_REBUFFS[next.rebuffs % NORB_REBUFFS.length]!
     next.rebuffs += 1
+    if (next.rebuffs >= 3) add(next.topics, 'workplace-conduct')
     return withLine(next, line)
   }
   if (target === 'violet-ghost') {
@@ -1072,6 +1152,8 @@ export function performAction(
       add(next.topics, 'shrine')
     } else if (target === 'odette-purse') {
       add(next.topics, 'violet-fee')
+    } else if (target === 'nico') {
+      add(next.topics, 'norb-shirt')
     } else if (target === 'ice-ring') {
       add(next.evidence, 'ice-ring')
     } else if (target === 'knife') {
@@ -1112,7 +1194,7 @@ export function performAction(
         'Iris: A creep with a telephoto lens. Creepy isn’t the same as killer.',
       'sewer-hatch':
         'Something large is singing Monstrique songs under the grate, slightly flat.',
-      nico: 'Iris: Four foot eleven of pure deduction, double-gloved. He’s even cuter when he’s horrified.',
+      nico: 'Iris: Four foot eleven of hump, shuffle and pure deduction, double-gloved, in a hot-pink MONSTRIQUE T-shirt under a bow tie. Somehow he’s even cuter when he’s horrified.',
       'odette-ghost':
         'Iris: Silver-blue, impatient and fabulous. She keeps trying to fix her hair in a mirror she no longer appears in.',
       'violet-ghost':
@@ -1254,6 +1336,7 @@ export function performAction(
       add(next.flags, 'fangs-found')
       add(next.inventory, 'plastic-fangs')
       add(next.evidence, 'makeup-smear')
+      add(next.topics, 'iris-tattoo')
       return withLine(
         next,
         'Iris digs elbow-deep: one ice bucket from 205, two plastic fangs and a smear of skin-tone foundation on the handle. Norb: Do NOT bring that arm anywhere near me.',
@@ -1331,6 +1414,7 @@ export function performAction(
     )
   }
   if (target === 'odette-ghost' && verb === 'talk') {
+    add(next.topics, 'iris-neck')
     add(next.flags, 'odette-met')
     add(next.flags, 'odette-hired-us')
     add(next.topics, 'agent-deals')
@@ -1357,6 +1441,7 @@ export function performAction(
   if (target === 'nico' && verb === 'talk') {
     add(next.topics, 'knife-origin')
     add(next.topics, 'ice-clank')
+    add(next.topics, 'iris-neck')
     return withLine(
       next,
       'Iris: Where do we start, boss? Norb: With the clock, the knife and the two women who were there. And you are leaning on an unsterilized lamp.',

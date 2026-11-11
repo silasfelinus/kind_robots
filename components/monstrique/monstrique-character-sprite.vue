@@ -85,6 +85,17 @@
         :fill="rig.outfit"
         opacity=".85"
       />
+      <ellipse
+        v-if="rig.hunch"
+        :cx="50 - torsoWidth * 0.62"
+        :cy="neckY + (hipY - neckY) * 0.3"
+        :rx="torsoWidth * 0.75"
+        :ry="torsoWidth * 0.85"
+        fill="#8d8790"
+        stroke="#000"
+        stroke-opacity=".55"
+        stroke-width="1.2"
+      />
       <path
         :d="torsoPath"
         :fill="rig.outfit"
@@ -92,6 +103,20 @@
         stroke-opacity=".55"
         stroke-width="1.5"
       />
+      <text
+        v-if="rig.shirt"
+        :transform="facing === 'left' ? 'matrix(-1 0 0 1 100 0)' : undefined"
+        x="50"
+        :y="neckY + (hipY - neckY) * 0.45"
+        text-anchor="middle"
+        font-size="4.2"
+        font-weight="900"
+        fill="#fff"
+        :textLength="torsoWidth * 0.95"
+        lengthAdjust="spacingAndGlyphs"
+      >
+        {{ rig.shirt }}
+      </text>
       <path
         :d="armPath"
         :stroke="rig.outfit"
@@ -225,8 +250,22 @@
       </g>
 
       <rect :x="47" :y="neckY - 4" width="6" height="8" :fill="rig.skin" />
+      <rect
+        v-if="rig.neckBandage"
+        x="51"
+        :y="neckY - 3"
+        width="4.5"
+        height="3.2"
+        rx="0.8"
+        fill="#e7c3a0"
+        stroke="#b08868"
+        stroke-width=".5"
+        :transform="`rotate(-18 53 ${neckY - 1.5})`"
+      />
 
-      <g :transform="`translate(50 ${headCy})`">
+      <g
+        :transform="`translate(${rig.hunch ? 54 : 50} ${headCy + (rig.hunch ? headR * 0.35 : 0)})`"
+      >
         <path
           v-if="rig.hairStyle === 'snout'"
           :d="`M${-headR * 0.4} ${-headR * 0.1} L${headR * 2.3} ${headR * 0.05} Q${headR * 2.5} ${headR * 0.4} ${headR * 2.2} ${headR * 0.55} L${-headR * 0.2} ${headR * 0.7} Z`"
@@ -363,6 +402,70 @@
             fill="#111"
           />
         </g>
+        <g v-else-if="rig.hairStyle === 'beehive'">
+          <ellipse
+            cx="0"
+            :cy="-headR * 1.35"
+            :rx="headR * 0.85"
+            :ry="headR * 1.05"
+            :fill="rig.hair"
+          />
+          <path
+            :d="`M${-headR * 0.2} ${-headR * 2.3} q${headR * 0.3} ${headR * 0.6} ${-headR * 0.05} ${headR * 1.4}`"
+            :stroke="rig.streak ?? '#fff'"
+            stroke-width="2.2"
+            fill="none"
+          />
+        </g>
+        <g v-else-if="rig.hairStyle === 'antennae'">
+          <ellipse
+            :cx="-headR * 0.42"
+            :cy="-headR * 0.1"
+            :rx="headR * 0.42"
+            :ry="headR * 0.5"
+            :fill="rig.accent"
+          />
+          <ellipse
+            :cx="headR * 0.42"
+            :cy="-headR * 0.1"
+            :rx="headR * 0.42"
+            :ry="headR * 0.5"
+            :fill="rig.accent"
+          />
+          <path
+            :d="`M${-headR * 0.2} ${-headR * 0.85} q${-headR * 0.3} ${-headR * 0.8} ${-headR * 0.7} ${-headR * 0.9} M${headR * 0.2} ${-headR * 0.85} q${headR * 0.3} ${-headR * 0.8} ${headR * 0.7} ${-headR * 0.9}`"
+            stroke="#111"
+            stroke-width="1.6"
+            fill="none"
+          />
+        </g>
+        <g v-else-if="rig.hairStyle === 'frill'">
+          <path
+            v-for="side in [-1, 1]"
+            :key="side"
+            :d="`M${side * headR * 0.8} ${-headR * 0.2} l${side * headR * 0.7} ${-headR * 0.5} l${-side * headR * 0.15} ${headR * 0.45} l${side * headR * 0.45} ${headR * 0.05} l${-side * headR * 0.4} ${headR * 0.35} Z`"
+            :fill="rig.hair"
+          />
+        </g>
+        <g v-else-if="rig.hairStyle === 'goo'">
+          <circle
+            v-for="n in 3"
+            :key="n"
+            :cx="(n - 2) * headR * 0.45"
+            :cy="-headR * (0.2 + n * 0.15)"
+            :r="headR * 0.12"
+            fill="#fff"
+            fill-opacity=".45"
+          />
+        </g>
+        <path
+          v-if="rig.streak && rig.hairStyle === 'bob'"
+          :d="`M${-headR * 0.15} ${-headR * 1.12} Q${-headR * 0.45} ${-headR * 0.6} ${-headR * 0.75} ${headR * 0.3}`"
+          :stroke="rig.streak"
+          :stroke-width="headR * 0.18"
+          stroke-linecap="round"
+          fill="none"
+        />
         <path
           v-if="rig.hairStyle === 'bob' && model.id === 'iris'"
           :d="`M${headR * 0.15} ${-headR * 0.6} q${headR * 0.35} ${headR * 0.25} ${headR * 0.05} ${headR * 0.6}`"
@@ -396,7 +499,12 @@
             stroke-width="1.6"
           />
         </g>
-        <circle :cx="-headR * 0.36" :cy="-headR * 0.05" :r="eyeR" fill="#111" />
+        <circle
+          :cx="-headR * 0.36"
+          :cy="-headR * 0.05"
+          :r="eyeR * (rig.hunch ? 1.6 : 1)"
+          fill="#111"
+        />
         <circle :cx="headR * 0.36" :cy="-headR * 0.05" :r="eyeR" fill="#111" />
         <path
           v-if="mood === 'flirt' || mood === 'smirk'"
@@ -489,11 +597,13 @@ const legWidth = computed(() =>
 )
 const legGap = computed(() => (rig.value.build === 'curvy' ? 1.5 : 2.5))
 const legColor = computed(() =>
-  model.value.id === 'gavin' || model.value.id === 'iris'
-    ? rig.value.skin
-    : rig.value.build === 'towering'
+  rig.value.hunch
+    ? '#6f6a73'
+    : model.value.id === 'gavin' || model.value.id === 'iris'
       ? rig.value.skin
-      : rig.value.accent,
+      : rig.value.build === 'towering'
+        ? rig.value.skin
+        : rig.value.accent,
 )
 const handColor = computed(() =>
   rig.value.prop === 'gloves' || model.value.id === 'marta'

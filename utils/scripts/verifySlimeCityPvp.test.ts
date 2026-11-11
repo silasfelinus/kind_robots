@@ -287,3 +287,21 @@ assert.doesNotMatch(
 console.log(
   'Slime City private PvP: invite, secrecy, turn, replay and route contracts OK',
 )
+
+const inboxSource = readFileSync(
+  'server/api/slime-city/pvp/inbox.get.ts',
+  'utf8',
+)
+assert.match(inboxSource, /requireSlimeCityPreviewUser\(event\)/)
+assert.match(inboxSource, /record\.guestId === userId/)
+assert.match(inboxSource, /row\.userId === userId/)
+assert.match(inboxSource, /state\?\.active === seat/)
+assert.match(inboxSource, /isPvpExpired\(/)
+assert.doesNotMatch(inboxSource, /commands:\s*record\.commands/)
+const headerSource = readFileSync(
+  'components/navigation/workspace-header.vue',
+  'utf8',
+)
+assert.match(headerSource, /header-slime-city-turns/)
+assert.match(headerSource, /slimeCityPendingTurns/)
+assert.match(headerSource, /slime-city-inbox/)

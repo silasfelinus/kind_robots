@@ -420,6 +420,11 @@
           {{ lab.campaignStory.prologue }}
         </p>
         <p class="campaign-lede">{{ lab.activeChapter.scene }}</p>
+        <p
+          v-if="allyChapterLine"
+          class="campaign-variant"
+          data-testid="slime-journey-alliance-branch"
+        >{{ allyChapterLine }}</p>
         <div
           v-if="lab.geneRiotOutcome && lab.activeTeam === 'catgirls'"
           class="campaign-recap"
@@ -445,8 +450,8 @@
           </ul>
           <p v-else class="campaign-field-note">
             This historical battlefield briefing is from Legacy mode. Your
-            actual showdown is Solo Clash; your choices change starting boss
-            life.
+            actual showdown uses your chosen Journey deck; your decisions
+            change starting boss life.
           </p>
         </section>
         <div
@@ -578,6 +583,13 @@ const nextDistrictName = computed(
     lab.districts.find((district) => district.id === lab.campaignDistrict)
       ?.name ?? 'Unknown district',
 )
+const allyChapterLine = computed(() => {
+  if (lab.journeyFormat !== 'alliance' || !lab.activeChapter) return null
+  const ally = teamName(lab.selectedJourneyAlliance.ally)
+  return lab.selectedJourneyAlliance.ally === lab.activeChapter.foe
+    ? ally + ' defectors join your crew, facing their former comrades in this chapter.'
+    : ally + ' joins your crew for this chapter. Their fighters change the battle, not the story you have already written.'
+})
 const hasAftermath = computed(
   () => !!lab.campaignAftermath || !!lab.campaignState.lastScene,
 )
@@ -884,6 +896,12 @@ function playApproach(choice: KrHandChoice) {
   font-size: 0.55rem;
   font-weight: 900;
   text-align: center;
+}
+.campaign-variant {
+  margin: 0.4rem 0;
+  color: #c5ff59;
+  font-size: 0.76rem;
+  font-weight: 700;
 }
 .campaign-format {
   display: flex;

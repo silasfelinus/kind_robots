@@ -40,6 +40,12 @@ export const GAME_LINK_PREVIEWS: Record<string, GameLinkPreview> = {
       'Super-school drama, patrols and a very dangerous prom. Free to play in your browser.',
     image: '/comet-city-academy/front/splash.webp',
   },
+  monstrique: {
+    title: 'Monstrique | Kind Robots',
+    description:
+      'Fame. Fangs. Very bad contracts. A Midnight City mystery game, free in your browser, no account needed.',
+    image: '/monstrique/link-preview.webp',
+  },
   'rainbow-bullet-hell-space-princess': {
     title: 'Rainbow Bullet Hell Space Princess | Kind Robots',
     description:
@@ -56,13 +62,13 @@ export const GAME_LINK_PREVIEWS: Record<string, GameLinkPreview> = {
     title: 'Shifting Desks | Kind Robots',
     description:
       'A classroom puzzle where the furniture will not sit still. Free to play in your browser.',
-    image: FALLBACK_PREVIEW_IMAGE,
+    image: '/shifting-desks/link-preview.webp',
   },
   'slime-city': {
     title: 'Slime City | Kind Robots',
     description:
       'Brawl, scheme and campaign through a city of slimes. Quick CPU matches and story campaigns, free in your browser, no account needed.',
-    image: FALLBACK_PREVIEW_IMAGE,
+    image: '/slime-city/link-preview.webp',
   },
   'zuzu-gamebook': {
     title: 'Zuzu: Koala Assassin | The Bell That Never Rang',
@@ -105,6 +111,13 @@ export const GAME_LINK_PREVIEWS: Record<string, GameLinkPreview> = {
       'Browse tanks of strange, friendly deep-sea creatures built by players. Free to look around, no account needed.',
     image: '/cthulhuquarium-front/hero.webp',
     path: '/play/aquarium/browse',
+  },
+  'aquarium-leaderboard': {
+    title: 'Cthulhuquarium Leaderboard | Kind Robots',
+    description:
+      'See which keepers have collected the most deep-sea species. Free to browse, then start a tank of your own in your browser.',
+    image: '/cthulhuquarium-front/hero.webp',
+    path: '/play/aquarium/leaderboard',
   },
   'butterfly-gallery': {
     title: 'Butterfly Gallery | Kind Robots',
@@ -210,6 +223,38 @@ export function gameLinkPreviewMeta(slug: string, origin: string) {
     twitterCard: 'summary_large_image' as const,
     twitterTitle: p.title,
     twitterDescription: p.description,
+    twitterImage: image,
+  }
+}
+
+/**
+ * Share preview for one public Cthulhuquarium tank. The tank itself loads
+ * client-side, so crawlers only ever see the route: build the card from the
+ * owner's username (cleaned and capped) and reuse the Cthulhuquarium art.
+ * No `title` key, so the page's own live tank title still wins in the tab.
+ */
+export function publicTankLinkPreviewMeta(
+  username: string,
+  slug: string,
+  origin: string,
+) {
+  const owner = username.replace(/[^\w.-]/g, '').slice(0, 32)
+  const base = origin.replace(/\/+$/, '')
+  const image = `${base}/cthulhuquarium-front/hero.webp`
+  const title = owner
+    ? `@${owner}'s tank | Cthulhuquarium`
+    : 'A public tank | Cthulhuquarium'
+  const description = `Peek into ${owner ? `@${owner}'s` : 'a'} tank of strange, friendly deep-sea creatures. Free to look around, then start a tank of your own.`
+  return {
+    description,
+    ogTitle: title,
+    ogDescription: description,
+    ogType: 'website' as const,
+    ogUrl: `${base}/play/aquarium/browse/${encodeURIComponent(username)}/${encodeURIComponent(slug)}`,
+    ogImage: image,
+    twitterCard: 'summary_large_image' as const,
+    twitterTitle: title,
+    twitterDescription: description,
     twitterImage: image,
   }
 }

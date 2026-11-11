@@ -40,13 +40,20 @@ export function clashBossesFromTerms(terms: BoutTerms): Record<Side, number> {
 }
 
 /** One line for the bout card: how the terms moved the bosses. */
-export function clashTermsLabel(terms: BoutTerms, format: 'solo' | 'alliance' = 'solo'): string {
+export function clashTermsLabel(
+  terms: BoutTerms,
+  format: 'solo' | 'alliance' = 'solo',
+): string {
   const b = clashBossesFromTerms(terms)
   const delta = (n: number) =>
     n === CLASH_BOSS_HP
       ? String(n)
       : n + ' (' + (n > CLASH_BOSS_HP ? '+' : '') + (n - CLASH_BOSS_HP) + ')'
   return (
-    format.toUpperCase() + ' CLASH · YOUR BOSS ' + delta(b.player) + ' · RIVAL ' + delta(b.enemy)
+    format.toUpperCase() +
+    ' CLASH · YOUR BOSS ' +
+    delta(b.player) +
+    ' · RIVAL ' +
+    delta(b.enemy)
   )
 }

@@ -84,6 +84,16 @@ import {
   undertowStoryDeck,
 } from '../utils/slimeCity/campaignUndertow'
 import {
+  exchangeBeat,
+  exchangeSceneText,
+  exchangeLastOutcome,
+  exchangeBattleTerms,
+  exchangeEpilogue,
+  exchangeLedger,
+  chooseExchangeBeat,
+  exchangeStoryDeck,
+} from '../utils/slimeCity/campaignExchange'
+import {
   campaignCardChoices,
   campaignSoloDeck,
   chooseCampaignCard,
@@ -701,13 +711,17 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
   const undertowCurrent = computed(() =>
     activeTeam.value === 'undertow' ? undertowBeat(campaignState.value) : null,
   )
+  const exchangeCurrent = computed(() =>
+    activeTeam.value === 'exchange' ? exchangeBeat(campaignState.value) : null,
+  )
   const campaignJourneyCurrent = computed(
     () =>
       geneRiotCurrent.value ??
       bloodfairyCurrent.value ??
       ironjawCurrent.value ??
       riotCurrent.value ??
-      undertowCurrent.value,
+      undertowCurrent.value ??
+      exchangeCurrent.value,
   )
   /** After the crew's existing scenes, an Alliance gets its own authored
    * decision before the chapter battle. Solo skips this beat. */
@@ -770,7 +784,9 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
             ? riotSceneText(campaignState.value, riotCurrent.value)
             : undertowCurrent.value
               ? undertowSceneText(campaignState.value, undertowCurrent.value)
-              : '',
+              : exchangeCurrent.value
+                ? exchangeSceneText(campaignState.value, exchangeCurrent.value)
+                : '',
   )
   const campaignJourneyOutcome = computed(() =>
     activeTeam.value === 'catgirls'
@@ -783,7 +799,9 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
             ? riotLastOutcome(campaignState.value)
             : activeTeam.value === 'undertow'
               ? undertowLastOutcome(campaignState.value)
-              : null,
+              : activeTeam.value === 'exchange'
+                ? exchangeLastOutcome(campaignState.value)
+                : null,
   )
   const bloodfairyChorus = computed(() =>
     bloodfairyLedger(campaignSave.value.bloodfairies),
@@ -797,6 +815,9 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
   const riotShow = computed(() => riotLedger(campaignSave.value.riot))
   const undertowSignal = computed(() =>
     undertowLedger(campaignSave.value.undertow),
+  )
+  const exchangeAppetite = computed(() =>
+    exchangeLedger(campaignSave.value.exchange),
   )
   function chooseCampaignJourneyBeat(id: GeneRiotPick): void {
     if (
@@ -817,7 +838,9 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
               ? chooseRiotBeat(campaignSave.value, id)
               : activeTeam.value === 'undertow'
                 ? chooseUndertowBeat(campaignSave.value, id)
-                : campaignSave.value
+                : activeTeam.value === 'exchange'
+                  ? chooseExchangeBeat(campaignSave.value, id)
+                  : campaignSave.value
     if (next === campaignSave.value) return
     campaignSave.value = next
     persistStory()
@@ -918,7 +941,9 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
               ? riotEpilogue(campaignState.value)
               : activeTeam.value === 'undertow'
                 ? undertowEpilogue(campaignState.value)
-                : ''
+                : activeTeam.value === 'exchange'
+                  ? exchangeEpilogue(campaignState.value)
+                  : ''
     return [ending, epilogue].filter(Boolean).join(' ')
   })
   /** A finished campaign's chosen favor, carried into rivals and contracts. */
@@ -2078,11 +2103,20 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
                             playSolo.value,
                           ),
                         )
-                      : campaignSoloDeck(
-                          campaignSave.value,
-                          activeTeam.value,
-                          playSolo.value,
-                        ),
+                      : activeTeam.value === 'exchange'
+                        ? exchangeStoryDeck(
+                            campaignSave.value.exchange,
+                            campaignSoloDeck(
+                              campaignSave.value,
+                              activeTeam.value,
+                              playSolo.value,
+                            ),
+                          )
+                        : campaignSoloDeck(
+                            campaignSave.value,
+                            activeTeam.value,
+                            playSolo.value,
+                          ),
           }
         : {}),
     })
@@ -2125,7 +2159,9 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
               ? riotBattleTerms(campaignSave.value.riot, base)
               : activeTeam.value === 'undertow'
                 ? undertowBattleTerms(campaignSave.value.undertow, base)
-                : base
+                : activeTeam.value === 'exchange'
+                  ? exchangeBattleTerms(campaignSave.value.exchange, base)
+                  : base
     return journeyFormat.value === 'alliance'
       ? allianceStoryBattleTerms(
           campaignSave.value,
@@ -2514,6 +2550,8 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
     riotShow,
     undertowCurrent,
     undertowSignal,
+    exchangeCurrent,
+    exchangeAppetite,
     campaignJourneyCurrent,
     campaignAllianceCurrent,
     campaignAllianceConsequence,

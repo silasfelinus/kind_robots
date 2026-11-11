@@ -193,7 +193,7 @@ export const EXCHANGE_EVOLUTIONS: Record<string, CardEvolution> = {
     // Choose one: or the long term, thirty years of a slow drain every turn.
     // The CPU takes the balloon while foes stand to threaten the bull.
     choice: {
-      stage: stage('Endless Tithe', [on('turnStart', boss(1), mend(1))]),
+      stage: stage('The Great Devouring', [on('turnStart', boss(1), mend(1))]),
       cpu: 'foesPresent',
     },
   },

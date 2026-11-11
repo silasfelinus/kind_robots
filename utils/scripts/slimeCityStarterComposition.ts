@@ -36,13 +36,33 @@ const rows = TEAMS.map((team) => {
       .join(', '),
   }
 })
-// Fighters first (Silas, 2026-11-10 PT): every crew's starter fields 13
-// fighters of 20, the Catgirls pilot's line extended to all six crews.
+// Fighters first (Silas, 2026-11-10 PT): every crew's starter fields at least
+// 13 fighters of 20. Then (2026-11-11, "yes on gear to fighters") four crews
+// fold a gear card into a fighter that already carries its ability (14
+// fighters); Exchange drops its gear for 13; Ironjaw keeps Spare Pistons
+// because every Ironjaw fighter is already armored and folding it pushed the
+// crew past 58% in CPU sweeps.
+const FIGHTERS: Record<string, number> = {
+  catgirls: 14,
+  bloodfairies: 14,
+  ironjaw: 13,
+  riot: 14,
+  undertow: 14,
+  exchange: 13,
+}
 for (const row of rows) {
-  assert.equal(row.fighters, 13, row.crew + ' starter should field 13 fighters')
+  assert.equal(row.fighters, FIGHTERS[row.crew], row.crew + ' fighter count')
   assert.equal(row.toReach13Fighters, 0)
 }
+for (const [crew, gear] of [
+  ['catgirls', 'ninthlife'],
+  ['bloodfairies', 's2-bloodfairies-roadie-megaphone'],
+  ['riot', 'fusevest'],
+  ['undertow', 'drysuit'],
+  ['exchange', 's2-exchange-executive-health-coverage'],
+] as const)
+  assert.ok(!clashDeck(crew).includes(gear), crew + ' folded ' + gear)
 assert.equal(TEAMS.length, 6, 'six playable crews')
 assert.equal(CARDS.length, 300, 'preserve the 300-card catalog')
 console.table(rows)
-console.log('Starter audit: every crew fields 13 fighters of 20.')
+console.log('Starter audit: fighters first, gear folded into fighters.')

@@ -94,8 +94,10 @@ for (const id of Object.keys(CLASH_EVOLUTIONS)) {
 }
 
 // --- The pilot is a full Solo Clash side: twenty Catgirls, every one with
-// its own level-two and level-three story (nine twists + eleven crafted, with
-// the crafted Second Pounce Rig left to the deck builder).
+// its own level-two and level-three story (eight twists + twelve crafted, with
+// the crafted Second Pounce Rig left to the deck builder). Silas, 2026-11-11
+// PT, "yes on gear to fighters": the Ninth Life Collar folds into the Alley
+// Veterinarian, a fighter born with its Regen.
 {
   const deck = clashDeck('catgirls')
   assert.equal(deck.length, 20)
@@ -104,14 +106,15 @@ for (const id of Object.keys(CLASH_EVOLUTIONS)) {
     assert.equal(cardById(id).team, 'catgirls', id)
     assert.ok(CLASH_TWISTS[id] || CLASH_EVOLUTIONS[id], id + ' evolves')
   }
-  assert.equal(deck.filter((id) => CLASH_TWISTS[id]).length, 9)
-  assert.equal(deck.filter((id) => CLASH_EVOLUTIONS[id]).length, 11)
+  assert.equal(deck.filter((id) => CLASH_TWISTS[id]).length, 8)
+  assert.equal(deck.filter((id) => CLASH_EVOLUTIONS[id]).length, 12)
   assert.ok(!deck.includes('s3-catgirls-pounce-rig'))
+  assert.ok(!deck.includes('ninthlife'))
   const fighters = deck.filter((id) => cardById(id).kind === 'creature')
   assert.equal(
     fighters.length,
-    13,
-    'fighters-first pilot fields thirteen bodies',
+    14,
+    'fighters-first pilot fields fourteen bodies',
   )
 }
 

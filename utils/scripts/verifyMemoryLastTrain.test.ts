@@ -77,8 +77,16 @@ assert.deepEqual(restoreTrainProgress(null), newTrainProgress())
 assert.deepEqual(restoreTrainProgress(undefined), newTrainProgress())
 
 const visited = [
-  { world: 'e03' as const, scene: 'e03Door' as const, choice: 'md.train.e03.wait' },
-  { world: 'e04' as const, scene: 'e04Platform' as const, choice: 'md.train.e04.listen' },
+  {
+    world: 'e03' as const,
+    scene: 'e03Door' as const,
+    choice: 'md.train.e03.wait',
+  },
+  {
+    world: 'e04' as const,
+    scene: 'e04Platform' as const,
+    choice: 'md.train.e04.listen',
+  },
 ]
 const verified = replayTrainEncounters(visited)
 assert.deepEqual(verified.decisions, {
@@ -88,7 +96,10 @@ assert.deepEqual(verified.decisions, {
 assert.deepEqual(restoreVerifiedTrainProgress(verified, visited), verified)
 assert.equal(
   restoreVerifiedTrainProgress(
-    { version: 1, decisions: { ...verified.decisions, e04Carriage: 'md.train.e04.name' } },
+    {
+      version: 1,
+      decisions: { ...verified.decisions, e04Carriage: 'md.train.e04.name' },
+    },
     visited,
   ),
   null,

@@ -1508,6 +1508,61 @@ for (const name of [
   )
 }
 
+// One-play snares also defuse (slime-city/t-048): a VOLATILE fighter caught by
+// one loses its death burst, while a two-play snare leaves the fuse lit.
+const fuseWire = createClash('riot', 'bloodfairies', 1963)
+fuseWire.round = 2
+fuseWire.hands.player = ['firebrand']
+fuseWire.traps = [{ side: 'enemy', lane: 1, cardId: 'bloodwire', level: 1 }]
+const defused = playClash(fuseWire, 'player', 'firebrand', 1)
+const snipped = defused.units.find((u) => u.side === 'player' && u.lane === 1)
+assert.ok(snipped, 'Firebrand must survive a two-damage snare')
+assert.ok(
+  !snipped.keywords.includes('volatile'),
+  'one-play snare must defuse a VOLATILE fighter',
+)
+assert.ok(
+  cardById('firebrand').keywords?.includes('volatile'),
+  'defusing must not edit the catalog card',
+)
+assert.ok(
+  defused.log.some((entry) => entry.text.includes('snips the fuse')),
+  'defuse must be told in the play-by-play',
+)
+assert.deepEqual(
+  defused,
+  playClash(structuredClone(fuseWire), 'player', 'firebrand', 1),
+  'defusing snare must replay deterministically',
+)
+const litPlate = structuredClone(fuseWire)
+litPlate.traps = [
+  { side: 'enemy', lane: 1, cardId: 'merc-boomerang-buffet', level: 1 },
+]
+const stillLit = playClash(litPlate, 'player', 'firebrand', 1).units.find(
+  (u) => u.side === 'player' && u.lane === 1,
+)
+assert.ok(
+  !stillLit || stillLit.keywords.includes('volatile'),
+  'only one-play snares defuse',
+)
+assert.match(clashCardText(cardById('bloodwire')), /defuses VOLATILE/)
+// The CPU knows the payoff: with a cheap snare in hand it springs it on the
+// VOLATILE fighter rather than an identical-threat empty alley.
+const cpuWire = createClash('bloodfairies', 'riot', 1964)
+cpuWire.round = 2
+cpuWire.hands.player = ['bloodwire']
+cpuWire.units = [
+  { ...follower('enemy', 0, 2401, 3), keywords: [] },
+  { ...follower('enemy', 4, 2402, 3), keywords: ['volatile'] },
+]
+const wirePick = chooseClashCpu(cpuWire, 'player')
+assert.equal(wirePick.t, 'play', 'CPU should lay the snare')
+assert.equal(
+  wirePick.t === 'play' ? wirePick.lane : -1,
+  4,
+  'CPU should snare the VOLATILE fighter to defuse it',
+)
+
 const wireTrap = createClash('catgirls', 'ironjaw', 962)
 wireTrap.round = 2
 wireTrap.hands.player = ['lynx']

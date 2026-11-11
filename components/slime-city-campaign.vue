@@ -571,9 +571,7 @@ import type { KrHandChoice } from '~/components/narrative/kr-choice-hand.vue'
 
 const lab = useSlimeCityStore()
 function onJourneyDeckChange(event: Event): void {
-  const id = (event.target as HTMLSelectElement).value
-  if (id) lab.selectJourneyDeck(id)
-  else lab.setJourneyFormat('alliance')
+  lab.selectJourneyDeck((event.target as HTMLSelectElement).value)
 }
 const nextDistrictName = computed(
   () =>
@@ -890,6 +888,7 @@ function playApproach(choice: KrHandChoice) {
 .campaign-format {
   display: flex;
   flex: none;
+  flex-wrap: wrap;
   gap: 0.25rem;
 }
 .campaign-format span,
@@ -906,6 +905,7 @@ function playApproach(choice: KrHandChoice) {
   white-space: nowrap;
 }
 .campaign-format select {
+  flex: 1 1 7rem;
   max-width: 10rem;
   min-width: 0;
   cursor: pointer;

@@ -148,7 +148,11 @@
       <NuxtLink
         to="/play/slime-city"
         class="btn btn-ghost btn-sm btn-square shrink-0 rounded-xl border border-base-300"
-        :class="slimeCityActive ? 'border-primary bg-primary/15 text-primary' : 'bg-base-100'"
+        :class="
+          slimeCityActive
+            ? 'border-primary bg-primary/15 text-primary'
+            : 'bg-base-100'
+        "
         :aria-current="slimeCityActive ? 'page' : undefined"
         :aria-label="slimeCityLabel"
         :title="slimeCityLabel"
@@ -161,7 +165,9 @@
             class="kr-badge-secondary-xs indicator-item whitespace-nowrap tabular-nums"
             aria-hidden="true"
             data-testid="header-slime-city-turns"
-          >{{ slimeCityPendingTurns > 99 ? '99+' : slimeCityPendingTurns }}</span>
+          >
+            {{ slimeCityPendingTurns > 99 ? '99+' : slimeCityPendingTurns }}
+          </span>
         </span>
       </NuxtLink>
 
@@ -318,9 +324,14 @@ const workspaceToggleLabel = computed(() => {
 // Lit when you are already in the dungeon, matching how the workspace toggle
 // shows its own open state. startsWith rather than an equality check because
 // the game's deeper routes (a level, a run) should keep the button lit too.
-const slimeCityActive = computed(() => route.path.startsWith('/play/slime-city') || route.path.startsWith('/admin/slime-city'))
+const slimeCityActive = computed(
+  () =>
+    route.path.startsWith('/play/slime-city') ||
+    route.path.startsWith('/admin/slime-city'),
+)
 const slimeCityPendingTurns = computed(() =>
-  slimePvpStore.games.filter((game) => game.myTurn && game.stage === 'battle').length,
+  slimePvpStore.games.filter((game) => game.myTurn && game.stage === 'battle')
+    .length,
 )
 const slimeCityLabel = computed(() =>
   slimeCityPendingTurns.value
@@ -335,7 +346,10 @@ watch(
     slimeCityBadgeTimer = null
     if (import.meta.client && admin) {
       void slimePvpStore.loadGames()
-      slimeCityBadgeTimer = setInterval(() => void slimePvpStore.loadGames(), 30000)
+      slimeCityBadgeTimer = setInterval(
+        () => void slimePvpStore.loadGames(),
+        30000,
+      )
     }
   },
   { immediate: true },

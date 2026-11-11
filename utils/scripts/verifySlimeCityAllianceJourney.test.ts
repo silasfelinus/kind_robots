@@ -18,7 +18,10 @@ import {
   resolveCampaignBattle,
 } from '../slimeCity/campaign'
 import { clashBossesFromTerms, clashTermsLabel } from '../slimeCity/clashBouts'
-import { allianceTacticEdge, allianceTacticLabel } from '../slimeCity/campaignAllianceTactics'
+import {
+  allianceTacticEdge,
+  allianceTacticLabel,
+} from '../slimeCity/campaignAllianceTactics'
 import { newSlimeCityStory, validSlimeCityStory } from '../slimeCity/storySave'
 import { TEAMS } from '../slimeCity/prototypes'
 
@@ -95,7 +98,11 @@ for (const general of TEAMS) {
     const safe = allianceStoryBattleTerms(decided, general.id, ally.id, base)
     const safeEdge = allianceTacticEdge(ally.id, 0, 'protect')
     assert.ok(safeEdge)
-    assert.equal(safe.playerHp, base.playerHp, 'the legacy fighter buff stays intact')
+    assert.equal(
+      safe.playerHp,
+      base.playerHp,
+      'the legacy fighter buff stays intact',
+    )
     assert.equal(safe.playerBossLife, safeEdge.player)
     assert.equal(safe.enemyBossLife, safeEdge.enemy)
     assert.equal(first.choices[0].terms, allianceTacticLabel(safeEdge))
@@ -115,7 +122,11 @@ for (const general of TEAMS) {
     const riskEdge = allianceTacticEdge(ally.id, 0, 'gamble')
     assert.ok(riskEdge)
     assert.equal(riskTerms.playerMana, base.playerMana, 'no fake mana effect')
-    assert.equal(riskTerms.fewerRivals, base.fewerRivals, 'no fake field cap effect')
+    assert.equal(
+      riskTerms.fewerRivals,
+      base.fewerRivals,
+      'no fake field cap effect',
+    )
     assert.equal(riskTerms.playerBossLife, riskEdge.player)
     assert.equal(riskTerms.enemyBossLife, riskEdge.enemy)
     assert.equal(first.choices[1].terms, allianceTacticLabel(riskEdge))

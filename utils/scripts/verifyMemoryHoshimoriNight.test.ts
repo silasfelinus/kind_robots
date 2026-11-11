@@ -765,7 +765,10 @@ for (let seed = 0; seed < 16; seed++) {
   }
   assert.equal(progress.visited.length, 62)
   assert.equal(Object.keys(progress.choices).length, 62)
-  assert.deepEqual(restoreHoshimoriNight(JSON.parse(JSON.stringify(progress))), progress)
+  assert.deepEqual(
+    restoreHoshimoriNight(JSON.parse(JSON.stringify(progress))),
+    progress,
+  )
   const forgedExtension = JSON.parse(JSON.stringify(progress)) as NightProgress
   forgedExtension.choices['8,8'] = 'night-gate-forged'
   assert.equal(restoreHoshimoriNight(forgedExtension), null)

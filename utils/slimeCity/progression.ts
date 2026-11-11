@@ -2,7 +2,7 @@
 // the authenticated server, which exclusively owns wallet and inventory writes.
 // The real-money/cash-out path is deliberately absent.
 import { MERCENARY_RARE_IDS } from './mercenaryCards'
-import { BASE_CARD_IDS } from './baseCollection'
+import { BASE_CARD_IDS, BASE_CARD_SET } from './baseCollection'
 import { GUTTER_CROWN_WAVE_THREE_RARE_IDS } from './gutterCrownWaveThree'
 import { GUTTER_CROWN_FINALE_A_RARE_IDS } from './gutterCrownFinaleA'
 import { GUTTER_CROWN_FINALE_B_RARE_IDS } from './gutterCrownFinaleB'
@@ -374,41 +374,61 @@ function chooseOne(pool: Card[], seed: number, index: number): Card {
       seededHash(seed, index, b.id.length, CARDS.indexOf(b)),
   )[0]!
 }
+/**
+ * Silas, 2026-11-11 PT: "we should have the possibility of duplicates, but the
+ * pool is all the non-starter cards, so you won't get something that you
+ * already had from minute one. But duplicates should have a meat recovery
+ * bonus. No more than 50% returned if all three are duplicates."
+ */
+export const PACK_POOL: readonly Card[] = CARDS.filter(
+  (card) => !BASE_CARD_SET.has(card.id),
+)
+/** Meat back per duplicate: three duplicates return just under half a pack. */
+export const PACK_DUPLICATE_REFUND = Math.floor(PACK_COST / (2 * PACK_SIZE))
 export function canBuyPack(progress: Progression): boolean {
-  return (
-    progress.meat >= PACK_COST &&
-    CARDS.some((card) => !progress.cards.includes(card.id))
-  )
+  return progress.meat >= PACK_COST && PACK_POOL.length > 0
 }
 /**
- * One rare and two non-rares, never a duplicate. When one rarity runs out the
- * pack fills from the other, so the last unowned cards are never stranded.
+ * One rare and two non-rares from the non-starter pool, three different cards
+ * per pack. A card you already own can come again; each duplicate refunds
+ * PACK_DUPLICATE_REFUND Meat.
  */
 export function buyPack(original: Progression, entropy: number): Progression {
   if (!canBuyPack(original)) return original
-  let unowned = CARDS.filter((card) => !original.cards.includes(card.id))
+  let pool = [...PACK_POOL]
   const gained: string[] = []
-  for (let slot = 0; slot < PACK_SIZE && unowned.length; slot++) {
+  for (let slot = 0; slot < PACK_SIZE && pool.length; slot++) {
     const wantRare = slot === 0
-    const preferred = unowned.filter(
-      (c) => (rarityOf(c) === 'rare') === wantRare,
-    )
+    const preferred = pool.filter((c) => (rarityOf(c) === 'rare') === wantRare)
     const card = chooseOne(
-      preferred.length ? preferred : unowned,
+      preferred.length ? preferred : pool,
       entropy,
       original.opened * 3 + slot,
     )
     gained.push(card.id)
-    unowned = unowned.filter((c) => c.id !== card.id)
+    pool = pool.filter((c) => c.id !== card.id)
   }
+  const fresh = gained.filter((id) => !original.cards.includes(id))
+  const duplicates = gained.length - fresh.length
+  const refund = duplicates * PACK_DUPLICATE_REFUND
   return {
     ...original,
-    meat: original.meat - PACK_COST,
-    cards: [...original.cards, ...gained],
+    meat: original.meat - PACK_COST + refund,
+    cards: [...original.cards, ...fresh],
     opened: original.opened + 1,
     lastPack: gained,
     lastReward:
-      'Butcher-paper pack unwrapped · one guaranteed rare + two other NEW cards.',
+      'Butcher-paper pack unwrapped · ' +
+      fresh.length +
+      ' NEW' +
+      (duplicates
+        ? ' · ' +
+          duplicates +
+          (duplicates === 1 ? ' duplicate' : ' duplicates') +
+          ' refunded ' +
+          refund +
+          ' Meat.'
+        : '.'),
   }
 }
 /** Validate database JSON snapshots; the API owns all writes. */

@@ -203,34 +203,19 @@ for (const crew of TEAMS) {
   }
 }
 
-// Packs exhaust every card beyond the base collection (Silas, 2026-11-10 PT),
-// one rare per pack while rares remain, never stranding a rarity.
-let wallet = { ...newProgression(), meat: RARE_COUNT * 10 * PACK_COST }
-const pulled = new Set<string>(wallet.cards)
-const extras = 300 - wallet.cards.length
-let rareLeft = CARDS.filter(
-  (card) => !pulled.has(card.id) && rarityOf(card) === 'rare',
-).length
-for (let i = 0; i < Math.ceil(extras / 3); i++) {
+// Packs reach every card beyond the base collection (Silas, 2026-11-11 PT:
+// the pool is all non-starter cards; duplicates refund Meat).
+let wallet = { ...newProgression(), meat: 1000 * PACK_COST }
+for (let i = 0; i < 400 && wallet.cards.length < 300; i++) {
   assert.equal(canBuyPack(wallet), true, 'Pack ' + (i + 1) + ' is available')
   const next = buyPack(wallet, 20261102 + i * 187)
   assert.notEqual(next, wallet)
-  const rares = next.lastPack.filter(
-    (id) => rarityOf(cardById(id)) === 'rare',
-  ).length
-  if (rareLeft > 0) assert.ok(rares >= 1, 'a rare while rares remain')
-  rareLeft -= rares
-  for (const id of next.lastPack) {
-    assert.equal(pulled.has(id), false, 'Packs never duplicate owned cards')
-    pulled.add(id)
-  }
+  assert.equal(rarityOf(cardById(next.lastPack[0]!)), 'rare')
   wallet = next
 }
-assert.equal(pulled.size, 300)
 assert.equal(wallet.cards.length, 300)
-assert.equal(canBuyPack(wallet), false)
-assert.equal(buyPack(wallet, 999), wallet)
+assert.equal(new Set(wallet.cards).size, 300)
 
 console.log(
-  'Slime City complete core: 300 distinct cards, six 40-card crews, 32 new rares, 96 real casts, 18 legal archetypes, 100 exhausted packs PASS',
+  'Slime City complete core: 300 distinct cards, six 40-card crews, 32 new rares, 96 real casts, 18 legal archetypes, packs reach all 300 PASS',
 )

@@ -21,6 +21,9 @@ import {
   newProgression,
   nextLevelXp,
   PACK_COST,
+  PACK_SIZE,
+  PACK_DUPLICATE_REFUND,
+  PACK_POOL,
   pacificPeriod,
   RARE_COUNT,
   rarityOf,
@@ -160,45 +163,44 @@ assert.equal(
 )
 assert.equal(capped.daily.paidBattles, DAILY_PAID_BATTLES)
 
-// Packs add only cards beyond the base collection (Silas, 2026-11-10 PT): one
-// rare per pack while rares remain, never a duplicate, until sold out.
-const extras = CARDS.length - fresh.cards.length
-const packs = Math.ceil(extras / 3)
-let wallet = { ...fresh, meat: packs * PACK_COST }
-const pulled = new Set<string>(fresh.cards)
-let rareLeft = CARDS.filter(
-  (c) => !pulled.has(c.id) && rarityOf(c) === 'rare',
-).length
-for (let i = 0; i < packs; i++) {
-  assert.equal(canBuyPack(wallet), true)
+// Silas, 2026-11-11 PT: packs draw from every non-starter card, duplicates
+// can come again, and each duplicate refunds Meat (at most half a pack when
+// all three are duplicates).
+assert.ok(PACK_POOL.every((card) => !fresh.cards.includes(card.id)))
+assert.equal(PACK_POOL.length, CARDS.length - fresh.cards.length)
+assert.ok(PACK_DUPLICATE_REFUND * PACK_SIZE <= PACK_COST / 2)
+let wallet = { ...fresh, meat: 400 * PACK_COST }
+let refunded = 0
+let sawDuplicate = false
+for (let i = 0; i < 400; i++) {
+  assert.equal(canBuyPack(wallet), true, 'packs never sell out')
   const next = buyPack(wallet, 91823 + i)
-  assert.equal(next.meat, wallet.meat - PACK_COST)
-  assert.equal(next.lastPack.length, Math.min(3, CARDS.length - pulled.size))
-  const rares = next.lastPack.filter(
-    (id) => rarityOf(CARDS.find((c) => c.id === id)!) === 'rare',
+  assert.equal(next.lastPack.length, PACK_SIZE)
+  assert.equal(new Set(next.lastPack).size, PACK_SIZE, 'three different cards')
+  assert.ok(next.lastPack.every((id) => !fresh.cards.includes(id)))
+  assert.equal(
+    rarityOf(CARDS.find((c) => c.id === next.lastPack[0])!),
+    'rare',
+    'every pack leads with a rare',
+  )
+  const duplicates = next.lastPack.filter((id) =>
+    wallet.cards.includes(id),
   ).length
-  if (rareLeft > 0) assert.ok(rares >= 1, 'a rare while rares remain')
-  rareLeft -= rares
-  for (const id of next.lastPack) {
-    assert.equal(
-      pulled.has(id),
-      false,
-      'Every card globally unique, no duplicate packs',
-    )
-    pulled.add(id)
-  }
-  assert.equal(next.cards.length, pulled.size)
+  if (duplicates) sawDuplicate = true
+  const refund = duplicates * PACK_DUPLICATE_REFUND
+  refunded += refund
+  assert.equal(next.meat, wallet.meat - PACK_COST + refund)
+  assert.ok(refund <= PACK_COST / 2)
+  assert.equal(new Set(next.cards).size, next.cards.length, 'owned once')
   wallet = next
 }
+assert.ok(sawDuplicate && refunded > 0, 'duplicates come back as Meat')
 assert.equal(
-  pulled.size,
+  wallet.cards.length,
   CARDS.length,
-  'All founder and reserve cards available as collectibles',
+  'every non-starter card is reachable through packs',
 )
-assert.equal(canBuyPack(wallet), false, 'Sold out')
-assert.equal(buyPack(wallet, 5), wallet)
-assert.equal(wallet.opened, packs)
-assert.equal(wallet.meat, 0)
+assert.equal(canBuyPack({ ...wallet, meat: PACK_COST - 1 }), false)
 assert.deepEqual(
   buyPack({ ...fresh, meat: 100 }, 1234).lastPack,
   buyPack({ ...fresh, meat: 100 }, 1234).lastPack,
@@ -216,5 +218,5 @@ assert.deepEqual(
 )
 
 console.log(
-  'Slime City rewards: Pacific day/week resets, capped CPU XP and Meat, claims, all rare-guaranteed packs, no duplicates PASS',
+  'Slime City rewards: Pacific day/week resets, capped CPU XP and Meat, claims, rare-led packs from the non-starter pool, duplicate Meat refunds PASS',
 )

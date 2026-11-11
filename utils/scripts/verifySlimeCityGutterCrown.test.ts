@@ -14,7 +14,6 @@ import { GUTTER_CROWN_WAVE_TWO } from '../slimeCity/gutterCrownWaveTwo'
 import {
   RARE_COUNT,
   buyPack,
-  canBuyPack,
   newProgression,
   rarityOf,
 } from '../slimeCity/progression'
@@ -193,23 +192,18 @@ enemyTrap.traps = [{ x: 4, y: 2, side: 'enemy', damage: 1, roots: true }]
 assert.ok(advance(enemyTrap).stats.trapsSprung >= 1)
 
 // Every account owns the base collection (Silas, 2026-11-10 PT); packs add
-// the rest, a rare in every pack while rares remain, never a duplicate.
-let wallet = { ...newProgression(), meat: CARDS.length * 100 }
-let rareLeft = CARDS.filter(
-  (c) => !wallet.cards.includes(c.id) && rarityOf(c) === 'rare',
-).length
-while (canBuyPack(wallet)) {
+// the rest, a rare leading every pack (2026-11-11: duplicates refund Meat).
+let wallet = { ...newProgression(), meat: CARDS.length * 1000 }
+for (let i = 0; i < 400 && wallet.cards.length < CARDS.length; i++) {
   wallet = buyPack(wallet, 5700 + wallet.opened)
-  const rares = wallet.lastPack.filter(
-    (id) => rarityOf(cardById(id)) === 'rare',
-  ).length
-  if (rareLeft > 0)
-    assert.ok(rares >= 1, 'Every pack carries a rare while rares remain')
-  rareLeft -= rares
+  assert.equal(
+    rarityOf(cardById(wallet.lastPack[0]!)),
+    'rare',
+    'Every pack leads with a rare',
+  )
   assert.equal(new Set(wallet.cards).size, wallet.cards.length)
 }
 assert.equal(wallet.cards.length, CARDS.length)
-assert.equal(canBuyPack(wallet), false)
 console.log(
   'Slime City Gutter Crown wave two: 36 cards, six faction styles, legal decks, casts, shoves and all guaranteed-rare packs PASS',
 )

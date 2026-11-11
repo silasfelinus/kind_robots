@@ -420,6 +420,16 @@
                 {{ backTarget }}
               </button>
               <button
+                v-if="game.victor && !reportOpen"
+                type="button"
+                class="clash-reset"
+                data-testid="clash-show-report"
+                title="Meat earned and notes on this match"
+                @click="reportOpen = true"
+              >
+                ★ REWARDS
+              </button>
+              <button
                 v-if="game.victor && lab.clashLaunch.kind !== 'tower'"
                 type="button"
                 class="clash-reset"
@@ -473,6 +483,16 @@
         </div>
       </aside>
     </div>
+    <SlimeCityMatchReport
+      v-if="game.victor && reportOpen"
+      :state="game"
+      :kind-label="kindLabel"
+      :back-label="backTarget || 'BACK TO VS ›'"
+      :can-rematch="lab.clashLaunch.kind !== 'tower'"
+      @close="reportOpen = false"
+      @rematch="rematchFromReport"
+      @back="backFromReport"
+    />
   </section>
 </template>
 
@@ -795,6 +815,37 @@ watch(
     if (victor) lab.settleClash(dealtLaunch, game.value)
   },
 )
+/**
+ * The reward screen rises a beat after the final blow, so the knockout and
+ * the bosses' reactions land first. SEE BOARD hides it; ★ REWARDS reopens.
+ */
+const reportOpen = ref(false)
+let reportTimer: ReturnType<typeof setTimeout> | null = null
+watch(
+  () => game.value.victor,
+  (victor) => {
+    if (reportTimer) clearTimeout(reportTimer)
+    reportTimer = null
+    if (!victor) {
+      reportOpen.value = false
+      return
+    }
+    reportTimer = setTimeout(() => {
+      if (game.value.victor) reportOpen.value = true
+    }, 1400)
+  },
+)
+onBeforeUnmount(() => {
+  if (reportTimer) clearTimeout(reportTimer)
+})
+function rematchFromReport(): void {
+  reportOpen.value = false
+  lab.playClashFormat()
+}
+function backFromReport(): void {
+  reportOpen.value = false
+  goBack()
+}
 onMounted(() => {
   if (window.matchMedia?.('(prefers-reduced-motion: reduce)').matches)
     pace.value = 0.4

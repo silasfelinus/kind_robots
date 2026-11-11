@@ -1535,11 +1535,20 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
     // result.
     if (next.kind === 'practice' || next.kind === 'reward') clearBouts()
     clashResult.value = null
+    lastPayout.value = null
     clashLaunch.value = { ...next, id: clashLaunch.value.id + 1 }
     view.value = 'clash'
   }
   /** Why the bout being dealt pays nothing, for the battle console. */
   const boutUnrewarded = ref('')
+  /**
+   * What the server actually paid for the last reward match, for the reward
+   * screen: the wallet before and after settlement. capped means the daily
+   * paid-bout limit recorded it without paying.
+   */
+  const lastPayout = ref<{ meat: number; xp: number; capped: boolean } | null>(
+    null,
+  )
   /**
    * Silas, 2026-11-10 PT ("Do it"): SOLO story, CAMPAIGN and TOWER fights pay
    * XP and Meat and count toward bounties, like PRACTICE. Signed in, the
@@ -2341,7 +2350,16 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
       )
       if (!response.success || !response.data)
         throw new Error(response.message || 'Battle verification failed.')
-      if (correctAccount()) progress.value = response.data
+      if (correctAccount()) {
+        const before = progress.value
+        const after = response.data
+        lastPayout.value = {
+          meat: after.meat - before.meat,
+          xp: after.xp - before.xp,
+          capped: after.lastReward.includes('cap reached'),
+        }
+        progress.value = after
+      }
     } catch (error) {
       progressError.value =
         error instanceof Error ? error.message : 'Reward verification failed.'
@@ -2642,6 +2660,7 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
     restoreSoloStarter,
     clashLaunch,
     boutUnrewarded,
+    lastPayout,
     clashResult,
     clashSetup,
     playClashFormat,

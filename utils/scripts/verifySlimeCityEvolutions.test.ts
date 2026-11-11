@@ -62,7 +62,11 @@ const exchangeStages = Object.values(EXCHANGE_EVOLUTIONS).flatMap((e) => [
   e[3].title,
   ...(e.choice ? [e.choice.stage.title] : []),
 ])
-assert.equal(exchangeStages.length, 63, 'all Exchange stages have authored titles')
+assert.equal(
+  exchangeStages.length,
+  63,
+  'all Exchange stages have authored titles',
+)
 assert.equal(new Set(exchangeStages).size, exchangeStages.length)
 for (const title of [
   'The Choir of Unpaid Bones',

@@ -19,6 +19,7 @@ import { validGeneRiotJourney } from './campaignGeneRiot'
 import { validBloodfairyJourney } from './campaignBloodfairies'
 import { validIronjawJourney } from './campaignIronjaw'
 import { validRiotJourney } from './campaignRiot'
+import { validUndertowJourney } from './campaignUndertow'
 import { validAllianceStoryDecisions } from './campaignAllianceJourney'
 import { freshTower, validTowerSave, type TowerSave } from './allianceTower'
 import {
@@ -322,10 +323,16 @@ export function validSlimeCityStory(raw: unknown): raw is SlimeCityStory {
     )
       return false
     if (
+      team === 'undertow' &&
+      !validUndertowJourney(p as unknown as CampaignSave['undertow'])
+    )
+      return false
+    if (
       team !== 'catgirls' &&
       team !== 'bloodfairies' &&
       team !== 'ironjaw' &&
       team !== 'riot' &&
+      team !== 'undertow' &&
       p.journey !== undefined
     )
       return false

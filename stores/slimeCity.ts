@@ -74,6 +74,16 @@ import {
   riotStoryDeck,
 } from '../utils/slimeCity/campaignRiot'
 import {
+  undertowBeat,
+  undertowSceneText,
+  undertowLastOutcome,
+  undertowBattleTerms,
+  undertowEpilogue,
+  undertowLedger,
+  chooseUndertowBeat,
+  undertowStoryDeck,
+} from '../utils/slimeCity/campaignUndertow'
+import {
   campaignCardChoices,
   campaignSoloDeck,
   chooseCampaignCard,
@@ -688,12 +698,16 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
   const riotCurrent = computed(() =>
     activeTeam.value === 'riot' ? riotBeat(campaignState.value) : null,
   )
+  const undertowCurrent = computed(() =>
+    activeTeam.value === 'undertow' ? undertowBeat(campaignState.value) : null,
+  )
   const campaignJourneyCurrent = computed(
     () =>
       geneRiotCurrent.value ??
       bloodfairyCurrent.value ??
       ironjawCurrent.value ??
-      riotCurrent.value,
+      riotCurrent.value ??
+      undertowCurrent.value,
   )
   /** After the crew's existing scenes, an Alliance gets its own authored
    * decision before the chapter battle. Solo skips this beat. */
@@ -754,7 +768,9 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
           ? ironjawSceneText(campaignState.value, ironjawCurrent.value)
           : riotCurrent.value
             ? riotSceneText(campaignState.value, riotCurrent.value)
-            : '',
+            : undertowCurrent.value
+              ? undertowSceneText(campaignState.value, undertowCurrent.value)
+              : '',
   )
   const campaignJourneyOutcome = computed(() =>
     activeTeam.value === 'catgirls'
@@ -765,7 +781,9 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
           ? ironjawLastOutcome(campaignState.value)
           : activeTeam.value === 'riot'
             ? riotLastOutcome(campaignState.value)
-            : null,
+            : activeTeam.value === 'undertow'
+              ? undertowLastOutcome(campaignState.value)
+              : null,
   )
   const bloodfairyChorus = computed(() =>
     bloodfairyLedger(campaignSave.value.bloodfairies),
@@ -777,6 +795,9 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
   )
   const ironjawShift = computed(() => ironjawLedger(campaignSave.value.ironjaw))
   const riotShow = computed(() => riotLedger(campaignSave.value.riot))
+  const undertowSignal = computed(() =>
+    undertowLedger(campaignSave.value.undertow),
+  )
   function chooseCampaignJourneyBeat(id: GeneRiotPick): void {
     if (
       !storyEditable() ||
@@ -794,7 +815,9 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
             ? chooseIronjawBeat(campaignSave.value, id)
             : activeTeam.value === 'riot'
               ? chooseRiotBeat(campaignSave.value, id)
-              : campaignSave.value
+              : activeTeam.value === 'undertow'
+                ? chooseUndertowBeat(campaignSave.value, id)
+                : campaignSave.value
     if (next === campaignSave.value) return
     campaignSave.value = next
     persistStory()
@@ -893,7 +916,9 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
             ? ironjawEpilogue(campaignState.value)
             : activeTeam.value === 'riot'
               ? riotEpilogue(campaignState.value)
-              : ''
+              : activeTeam.value === 'undertow'
+                ? undertowEpilogue(campaignState.value)
+                : ''
     return [ending, epilogue].filter(Boolean).join(' ')
   })
   /** A finished campaign's chosen favor, carried into rivals and contracts. */
@@ -2031,11 +2056,20 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
                           playSolo.value,
                         ),
                       )
-                    : campaignSoloDeck(
-                        campaignSave.value,
-                        activeTeam.value,
-                        playSolo.value,
-                      ),
+                    : activeTeam.value === 'undertow'
+                      ? undertowStoryDeck(
+                          campaignSave.value.undertow,
+                          campaignSoloDeck(
+                            campaignSave.value,
+                            activeTeam.value,
+                            playSolo.value,
+                          ),
+                        )
+                      : campaignSoloDeck(
+                          campaignSave.value,
+                          activeTeam.value,
+                          playSolo.value,
+                        ),
           }
         : {}),
     })
@@ -2076,7 +2110,9 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
             ? ironjawBattleTerms(campaignSave.value.ironjaw, base)
             : activeTeam.value === 'riot'
               ? riotBattleTerms(campaignSave.value.riot, base)
-              : base
+              : activeTeam.value === 'undertow'
+                ? undertowBattleTerms(campaignSave.value.undertow, base)
+                : base
     return journeyFormat.value === 'alliance'
       ? allianceStoryBattleTerms(
           campaignSave.value,
@@ -2463,6 +2499,8 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
     ironjawShift,
     riotCurrent,
     riotShow,
+    undertowCurrent,
+    undertowSignal,
     campaignJourneyCurrent,
     campaignAllianceCurrent,
     campaignAllianceConsequence,

@@ -178,7 +178,7 @@ for (const path of ['left', 'right'] as const) {
     'reject an invented sixth chapter',
   )
   const crossCrew = structuredClone(story)
-  crossCrew.campaigns.undertow.journey = [['left']]
+  crossCrew.campaigns.exchange.journey = [['left']]
   assert.equal(
     validSlimeCityStory(crossCrew),
     false,

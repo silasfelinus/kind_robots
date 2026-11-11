@@ -6,6 +6,8 @@ import {
   PVP_MAX_COMMANDS,
   PVP_MODE,
   isPvpTeam,
+  isPvpExpired,
+  PVP_INVITE_EXPIRY_MS,
   parsePvpRecord,
   pvpBoard,
   pvpCommand,
@@ -15,8 +17,6 @@ import {
   type PvpSnapshot,
 } from '~/utils/slimeCity/pvp'
 import type { Side, TeamId } from '~/utils/slimeCity/prototypes'
-
-const EXPIRY_MS = 7 * 24 * 60 * 60 * 1000
 
 function fail(statusCode: number, message: string): never {
   throw createError({ statusCode, message })
@@ -44,10 +44,17 @@ function activeRow(
 } {
   if (!row || row.id !== id || row.mode !== PVP_MODE)
     return fail(404, 'Duel not found.')
-  if (Date.now() - row.startedAt.getTime() > EXPIRY_MS)
-    return fail(410, 'This duel has expired.')
   const record = parsePvpRecord(row.commands)
   if (!record) return fail(409, 'Duel record is invalid.')
+  if (
+    isPvpExpired(
+      row.startedAt,
+      record.lastActionAt,
+      record.guestId !== null,
+      row.settledAt !== null,
+    )
+  )
+    return fail(410, 'This duel has expired after inactivity.')
   return { row, record }
 }
 
@@ -90,7 +97,7 @@ export async function createSlimeCityDuel(userId: number, team: unknown) {
     where: {
       userId,
       mode: PVP_MODE,
-      startedAt: { gte: new Date(Date.now() - EXPIRY_MS) },
+      startedAt: { gte: new Date(Date.now() - PVP_INVITE_EXPIRY_MS) },
       settledAt: null,
     },
   })
@@ -106,11 +113,12 @@ export async function createSlimeCityDuel(userId: number, team: unknown) {
       commands: asJson({
         version: 1,
         guestId: null,
+        lastActionAt: new Date().toISOString(),
         commands: [],
       } satisfies PvpRecord),
     },
   })
-  return snapshot(row, { version: 1, guestId: null, commands: [] }, userId)
+  return snapshot(row, parsePvpRecord(row.commands)!, userId)
 }
 
 export async function getSlimeCityDuel(id: string, userId: number) {
@@ -140,7 +148,11 @@ export async function joinSlimeCityDuel(
     if (record.guestId !== null && record.guestId !== userId)
       return fail(409, 'This duel already has two fighters.')
     if (record.guestId === userId) return snapshot(row, record, userId)
-    const next: PvpRecord = { ...record, guestId: userId }
+    const next: PvpRecord = {
+      ...record,
+      guestId: userId,
+      lastActionAt: new Date().toISOString(),
+    }
     const updated = await tx.slimeCityMatch.update({
       where: { id },
       data: { foeId: team, commands: asJson(next) },
@@ -183,6 +195,7 @@ export async function commandSlimeCityDuel(
     const next: PvpRecord = {
       ...record,
       commands: [...record.commands, command],
+      lastActionAt: new Date().toISOString(),
     }
     const updated = await tx.slimeCityMatch.update({
       where: { id },

@@ -244,20 +244,23 @@ assert.ok(roundLimit / games < 0.05, 'constructed bouts end by knockout')
 // At four bouts, five disjoint seed families on 2026-11-11 PT (slime-city/t-056)
 // read Riot 0.430-0.473, Catgirls 0.435-0.457, Exchange 0.593-0.612 and
 // spread 0.138-0.177: Exchange running hot is the stable signal, Riot is only
-// a little low. The band is tighter than t-021's 35-65% / 24 points and still
-// looser than the 40-seed starter guard (42-58%, 12 points).
+// a little low. slime-city/t-057 then cut Exchange's CALL IN THE DEBT from
+// 5/8 to 4/7: four disjoint families read Exchange 0.552-0.569, Catgirls (now
+// the low crew) 0.424-0.458 and spread 0.113-0.141, so the band tightens from
+// 40-64% / 20 points to 41-59% / 16 points, one point either side of the
+// 40-seed starter guard (42-58%) because each constructed seed family is noisier.
 const crews = [...crewScore.entries()].map(
   ([team, r]) => [team, rate(r)] as const,
 )
 for (const [team, r] of crews)
   assert.ok(
-    r > 0.4 && r < 0.64,
+    r > 0.41 && r < 0.59,
     team + ' constructed-field score ' + (100 * r).toFixed(1) + '%',
   )
 assert.ok(
   Math.max(...crews.map(([, r]) => r)) - Math.min(...crews.map(([, r]) => r)) <=
-    0.2,
-  'constructed crew spread stays within 20 points',
+    0.16,
+  'constructed crew spread stays within 16 points',
 )
 // No single constructed build runs away with the field.
 const deckRows = decks.map((d) => ({

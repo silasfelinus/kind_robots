@@ -1172,6 +1172,14 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
     journeyFormat.value = 'alliance'
     persistStory()
   }
+  function showJourneyDeck(): void {
+    if (journeyFormat.value === 'solo') return showSoloDeck()
+    stop()
+    deckFormat.value = 'alliance'
+    if (journeyDeckId.value && libraryDeckReady(journeyDeckId.value))
+      selectLibraryDeck(journeyDeckId.value)
+    view.value = 'cards'
+  }
   /** COLLECTION opens on the Alliance library; SOLO opens its crew deck. */
   function showSoloDeck(): void {
     stop()
@@ -2278,6 +2286,7 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
     renameLibraryDeck,
     libraryDeckReady,
     showSoloDeck,
+    showJourneyDeck,
     libraryMax: LIBRARY_MAX_DECKS,
     clashFormat,
     journeyFormat,

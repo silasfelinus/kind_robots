@@ -8,6 +8,15 @@
       <nav class="scpvp-top" aria-label="Slime City multiplayer">
         <NuxtLink to="/play/slime-city">← SLIME CITY</NuxtLink>
         <strong>THE TWO-PLAYER PIT</strong>
+        <button
+          v-if="pvp.duel?.stage === 'battle'"
+          type="button"
+          class="scpvp-concede"
+          :disabled="pvp.sending"
+          @click="confirmForfeit"
+        >
+          {{ forfeitArmed ? 'CONFIRM FORFEIT' : 'FORFEIT' }}
+        </button>
         <span>PRIVATE INVITE · PREVIEW</span>
       </nav>
     </header-page-bar>
@@ -334,6 +343,15 @@ import { slimeArtId, slimeCardArtId } from '~/utils/slimeCity/artManifest'
 const route = useRoute()
 const router = useRouter()
 const pvp = useSlimeCityPvpStore()
+const forfeitArmed = ref(false)
+async function confirmForfeit() {
+  if (!forfeitArmed.value) {
+    forfeitArmed.value = true
+    return
+  }
+  forfeitArmed.value = false
+  await pvp.forfeit()
+}
 const invitedId = computed(() =>
   typeof route.query.duel === 'string' ? route.query.duel : '',
 )
@@ -456,6 +474,18 @@ onBeforeUnmount(() => pvp.stopWatching())
 </script>
 
 <style scoped>
+.scpvp-concede {
+  border: 1px solid currentColor;
+  border-radius: 0.5rem;
+  padding: 0.3rem 0.6rem;
+  font-size: 0.7rem;
+  font-weight: 700;
+}
+.scpvp-concede:hover,
+.scpvp-concede:focus-visible {
+  color: #fca5a5;
+}
+
 .scpvp {
   display: flex;
   flex-direction: column;

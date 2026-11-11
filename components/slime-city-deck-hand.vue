@@ -1,17 +1,20 @@
 <!--
   DECK HAND. Silas, 2026-11-11 PT (iPad Collection): "Should have the 20 deck
   cards as an actual hand at the bottom of the screen, with the ability to
-  remove, add, etc." The deck being built sits along the bottom edge of the
-  Collection as a fanned hand: tap a card to lift it, then take it out or
-  inspect it. Gallery cards add with their + ADD ribbon; empty slots show how
-  many cards are still missing.
+  remove, add, etc." and then "seeing them as a hand of cards at the bottom of
+  the screen. The same effect we have in battle games."
+  The deck being built fans up from the bottom edge of the Collection the way
+  the Clash hand does: twenty slots on an arc, empty ones as ghost cards.
+  Hover lifts a card; tap brings it up full size with ✕ OUT, INFO and ‹ ›
+  to step through the hand. Gallery cards join with their + ADD ribbon.
 -->
 <template>
   <section
     class="sdh"
-    :class="{ full: cards.length >= size }"
+    :class="{ full: cards.length >= size, holding: !!lifted }"
     aria-label="Your deck"
     data-testid="slime-deck-hand"
+    @keydown.esc="lifted = null"
   >
     <header class="sdh-head">
       <b class="sdh-count"
@@ -19,12 +22,17 @@
       >
       <span class="sdh-title">{{ title }}</span>
     </header>
-    <ol class="sdh-cards" aria-label="Cards in this deck">
+    <ol
+      class="sdh-fan"
+      aria-label="Cards in this deck"
+      @click.self="lifted = null"
+    >
       <li
         v-for="(id, index) in cards"
         :key="id"
-        :class="{ lifted: lifted === id }"
-        :style="{ zIndex: lifted === id ? 60 : index + 1 }"
+        class="sdh-slot"
+        :class="{ big: lifted === id }"
+        :style="fanStyle(index)"
         :data-testid="'slime-hand-card-' + id"
       >
         <button
@@ -39,6 +47,14 @@
         <span v-if="lifted === id" class="sdh-actions">
           <button
             type="button"
+            aria-label="Previous card"
+            :disabled="index === 0"
+            @click="step(-1)"
+          >
+            ‹
+          </button>
+          <button
+            type="button"
             class="sdh-out"
             :data-testid="'slime-hand-remove-' + id"
             @click="remove(id)"
@@ -46,12 +62,21 @@
             ✕ OUT
           </button>
           <button type="button" @click="emit('inspect', id)">INFO</button>
+          <button
+            type="button"
+            aria-label="Next card"
+            :disabled="index === cards.length - 1"
+            @click="step(1)"
+          >
+            ›
+          </button>
         </span>
       </li>
       <li
         v-for="n in Math.max(0, size - cards.length)"
         :key="'empty-' + n"
-        class="sdh-empty"
+        class="sdh-slot sdh-ghost"
+        :style="fanStyle(cards.length + n - 1)"
         aria-hidden="true"
       >
         <span>＋</span>
@@ -61,7 +86,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed, ref, watch } from 'vue'
 import { useSlimeCityStore } from '~/stores/slimeCity'
 import { ALLIANCE_DECK_SIZE } from '~/utils/slimeCity/alliance'
 import { cardById } from '~/utils/slimeCity/prototypes'
@@ -84,36 +109,67 @@ const title = computed(() => {
     lab.team.name.split(' ')[0] + ' + ' + (ally?.name.split(' ')[0] ?? 'ALLY')
   )
 })
+watch(
+  () => [lab.deckFormat, lab.activeTeam, lab.libraryId],
+  () => {
+    lifted.value = null
+  },
+)
+/** Twenty slots on an arc, like the Clash hand: offset, tilt and dip. */
+function fanStyle(index: number): Record<string, string> {
+  const middle = (size - 1) / 2
+  const offset = index - middle
+  return {
+    '--o': offset.toFixed(2),
+    '--rot': (offset * 2.4).toFixed(2) + 'deg',
+    '--drop': ((offset / middle) ** 2 * 0.9).toFixed(3) + 'rem',
+    '--z': String(index + 1),
+  }
+}
 function cardName(id: string): string {
   return cardById(id)?.name ?? id
 }
+function step(by: number): void {
+  const at = cards.value.indexOf(lifted.value ?? '')
+  const next = cards.value[at + by]
+  if (next) lifted.value = next
+}
+/** Take a card out; the next one comes up so the hand stays in hand. */
 function remove(id: string): void {
-  lifted.value = null
+  const at = cards.value.indexOf(id)
   if (alliance.value) lab.toggleAllianceCard(id)
   else lab.toggleSoloCard(id)
+  lifted.value = cards.value[Math.min(at, cards.value.length - 1)] ?? null
 }
 </script>
 
 <style scoped>
 .sdh {
+  --W: clamp(7rem, 17vmin, 13rem);
+  --rest: 0.62;
+  --peek: 0.7;
+  --ease: cubic-bezier(0.2, 0.9, 0.25, 1.12);
   flex: none;
+  position: relative;
   display: flex;
   align-items: flex-end;
-  gap: 0.5rem;
+  height: calc(var(--W) * 1.5 * var(--rest) * var(--peek) + 0.5rem);
   margin: 0 -0.6rem;
-  padding: 0.35rem 0.6rem 0.4rem;
   border-top: 1px solid #c5ff5955;
   background: linear-gradient(180deg, #0b1219ee, #05090ef8);
   box-shadow: 0 -10px 24px #0009;
+  clip-path: inset(-60rem 0 0 0);
 }
 .sdh-head {
+  position: relative;
+  z-index: 30;
   flex: none;
   display: flex;
   flex-direction: column;
   align-items: flex-start;
   gap: 0.15rem;
-  width: 4.6rem;
-  padding-bottom: 0.3rem;
+  width: 4.4rem;
+  padding: 0 0 0.5rem 0.6rem;
 }
 .sdh-count {
   font-size: 1.5rem;
@@ -139,100 +195,129 @@ function remove(id: string): void {
   letter-spacing: 0.08em;
   color: #dfe7f2;
 }
-.sdh-cards {
-  --card: 5.6rem;
-  --overlap: -1.55rem;
+.sdh-fan {
+  position: relative;
   flex: 1 1 auto;
   min-width: 0;
-  display: flex;
-  align-items: flex-end;
+  align-self: stretch;
   margin: 0;
-  padding: 2.4rem 0.4rem 0;
+  padding: 0;
   list-style: none;
-  overflow-x: auto;
-  overflow-y: hidden;
-  scrollbar-width: thin;
+  container-type: inline-size;
 }
-.sdh-cards li {
-  position: relative;
-  flex: none;
-  width: var(--card);
-  transition: transform 0.16s cubic-bezier(0.2, 0.9, 0.25, 1.2);
+.sdh-slot {
+  --step: min(
+    var(--W) * var(--rest) * 0.74,
+    (100cqw - var(--W) * var(--rest) * 1.35 - 1rem) / 19
+  );
+  --x: calc(var(--o) * var(--step));
+  --y: calc(var(--W) * 1.5 * var(--rest) * (1 - var(--peek)) + var(--drop));
+  --s: var(--rest);
+  --r: var(--rot);
+  position: absolute;
+  left: 50%;
+  bottom: 0;
+  z-index: var(--z);
+  width: var(--W);
+  aspect-ratio: 2 / 3;
+  transform-origin: 50% 100%;
+  transform: translate(calc(-50% + var(--x)), var(--y)) rotate(var(--r))
+    scale(var(--s));
+  transition: transform 0.4s var(--ease);
 }
-.sdh-cards li + li {
-  margin-left: var(--overlap);
+@media (hover: hover) {
+  .sdh:not(.holding) .sdh-slot:not(.sdh-ghost):hover {
+    --y: calc(var(--W) * 1.5 * var(--rest) * (1 - var(--peek)) * 0.15);
+    --s: calc(var(--rest) * 1.1);
+    --r: 0deg;
+    z-index: 40;
+  }
 }
-.sdh-cards li:hover,
-.sdh-cards li:focus-within {
-  transform: translateY(-0.6rem);
+.sdh.holding .sdh-slot:not(.big) {
+  --y: calc(var(--W) * 1.5 * var(--rest) * 0.82);
 }
-.sdh-cards li.lifted {
-  transform: translateY(-1.3rem) scale(1.08);
+.sdh-slot.big {
+  --x: 0px;
+  --y: -0.6rem;
+  --s: 1;
+  --r: 0deg;
+  z-index: 50;
 }
 .sdh-card {
   position: relative;
   display: block;
   width: 100%;
-  aspect-ratio: 2 / 3;
-  container-type: inline-size;
-  overflow: hidden;
+  height: 100%;
   padding: 0;
+  overflow: hidden;
   border: 0;
-  border-radius: 0.55rem;
+  border-radius: 0.9rem;
   background: none;
   cursor: pointer;
-  filter: drop-shadow(-3px 0 6px #000c);
+  container-type: inline-size;
+  box-shadow:
+    -4px 0 10px #000b,
+    0 6px 18px #000a;
 }
-.sdh-card :deep(.scc) {
-  border-radius: 0.55rem;
+.big .sdh-card {
+  outline: 3px solid #c5ff59;
+  outline-offset: 2px;
+  box-shadow:
+    0 0 30px #c5ff5955,
+    0 18px 40px #000d;
 }
-.lifted .sdh-card {
-  outline: 2px solid #c5ff59;
-  outline-offset: 1px;
+.sdh-ghost {
+  display: grid;
+  place-items: center;
+  border: 3px dashed #4d6a5f;
+  border-radius: 0.9rem;
+  background: #0f1a1fe6;
+  color: #6f8f84;
+  font-size: 2.4rem;
+  font-weight: 900;
+}
+.sdh-ghost span {
+  margin-bottom: 40%;
 }
 .sdh-actions {
   position: absolute;
-  inset: auto 0.25rem 0.35rem;
+  inset: auto 0.4rem 0.5rem;
   z-index: 2;
   display: flex;
-  flex-direction: column;
-  gap: 0.2rem;
+  gap: 0.3rem;
 }
 .sdh-actions button {
-  padding: 0.3rem 0.45rem;
+  flex: 1 1 auto;
+  padding: 0.5rem 0.3rem;
   border: 1px solid #586e68;
-  border-radius: 0.45rem;
-  background: #16262b;
+  border-radius: 0.55rem;
+  background: #16262bf2;
   color: #eef4ee;
   font: inherit;
-  font-size: 0.58rem;
+  font-size: 0.72rem;
   font-weight: 950;
   letter-spacing: 0.06em;
   white-space: nowrap;
   cursor: pointer;
 }
+.sdh-actions button:disabled {
+  opacity: 0.35;
+  cursor: default;
+}
+.sdh-actions button:first-child,
+.sdh-actions button:last-child {
+  flex: none;
+  min-width: 1.9rem;
+}
 .sdh-actions .sdh-out {
   border-color: #ff6f7a;
-  background: #4b1f26;
+  background: #4b1f26f2;
   color: #ffd6dc;
 }
-.sdh-empty {
-  display: grid;
-  place-items: center;
-  aspect-ratio: 2 / 3;
-  border: 2px dashed #3d5550;
-  border-radius: 0.55rem;
-  background: #0f1a1f;
-  color: #4d6a5f;
-  font-size: 1.2rem;
-  font-weight: 900;
-}
 @container (max-width: 600px) {
-  .sdh {
-    gap: 0.35rem;
-  }
   .sdh-head {
-    width: 2.8rem;
+    width: 2.9rem;
+    padding-left: 0.5rem;
   }
   .sdh-count {
     font-size: 1.15rem;
@@ -240,25 +325,10 @@ function remove(id: string): void {
   .sdh-title {
     display: none;
   }
-  .sdh {
-    padding-top: 0.2rem;
-  }
-  .sdh-cards {
-    --card: 3.7rem;
-    --overlap: -1.35rem;
-    padding-top: 1.35rem;
-  }
-  .sdh-cards li.lifted {
-    transform: translateY(-1rem) scale(1.04);
-  }
-  .sdh-cards li:hover {
-    transform: none;
-  }
 }
-@container (min-width: 1100px) {
-  .sdh-cards {
-    --card: 6.4rem;
-    --overlap: -1.9rem;
+@media (prefers-reduced-motion: reduce) {
+  .sdh-slot {
+    transition: none;
   }
 }
 </style>
